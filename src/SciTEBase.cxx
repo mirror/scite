@@ -1458,7 +1458,8 @@ bool SciTEBase::StartCallTip() {
 	functionDefinition = "";
 	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", linebuf + startword, rootlen, pos, pos - rootlen);
 	if (apis) {
-		const char *word = apis.GetNearestWord (linebuf + startword, rootlen, callTipIgnoreCase);
+		const char *word = apis.GetNearestWord(linebuf + startword, rootlen, 
+			callTipIgnoreCase, wordCharacters);
 		if (word) {
 			functionDefinition = word;
 			SendEditorString(SCI_CALLTIPSHOW, pos - rootlen, word);
