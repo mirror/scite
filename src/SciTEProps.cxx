@@ -1085,6 +1085,28 @@ void SciTEBase::ReadPropertiesInitial() {
 	}
 }
 
+bool SciTEBase::GetDefaultPropertiesFileName(char *pathDefaultProps,
+        char *pathDefaultDir, unsigned int lenPath) {
+	if (!GetSciteDefaultHome(pathDefaultDir, lenPath)) {
+		return false;
+	}
+	return BuildPath(pathDefaultProps, pathDefaultDir, propGlobalFileName, lenPath);
+}
+
+bool SciTEBase::GetAbbrevPropertiesFileName(char *pathAbbrevProps,
+        char *pathDefaultDir, unsigned int lenPath) {
+	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
+		return false;
+	return BuildPath(pathAbbrevProps, pathDefaultDir, propAbbrevFileName, lenPath);
+}
+
+bool SciTEBase::GetUserPropertiesFileName(char *pathUserProps,
+        char *pathUserDir, unsigned int lenPath) {
+	if (!GetSciteUserHome(pathUserDir, lenPath))
+		return false;
+	return BuildPath(pathUserProps, pathUserDir, propUserFileName, lenPath);
+}
+
 void SciTEBase::OpenProperties(int propsFile) {
 	char propfile[MAX_PATH + 20];
 	char propdir[MAX_PATH + 20];

@@ -503,12 +503,12 @@ protected:
 	virtual void GetDefaultDirectory(char *directory, size_t size) = 0;
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath) = 0;
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath) = 0;
-	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps,
-	        char *pathDefaultDir, unsigned int lenPath) = 0;
-	virtual bool GetUserPropertiesFileName(char *pathUserProps,
-	                                       char *pathUserDir, unsigned int lenPath) = 0;
-	virtual bool GetAbbrevPropertiesFileName(char *pathAbbrevProps,
-	        char *pathDefaultDir, unsigned int lenPath) = 0;
+	bool GetDefaultPropertiesFileName(char *pathDefaultProps,
+	        char *pathDefaultDir, unsigned int lenPath);
+	bool GetUserPropertiesFileName(char *pathUserProps,
+		char *pathUserDir, unsigned int lenPath);
+	bool GetAbbrevPropertiesFileName(char *pathAbbrevProps,
+	        char *pathDefaultDir, unsigned int lenPath);
 	void OpenProperties(int propsFile);
 	virtual void Print(bool) {};
 	virtual void PrintSetup() {};
@@ -709,6 +709,8 @@ const int blockSize = 131072;
 #endif
 
 int ControlIDOfCommand(unsigned long);
+bool BuildPath(char *path, const char *dir, const char *fileName, 
+	unsigned int lenPath);
 time_t GetModTime(const char *fullPath);
 bool IsUntitledFileName(const char *name);
 void LowerCaseString(char *s);

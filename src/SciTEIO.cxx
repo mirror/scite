@@ -269,6 +269,18 @@ bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 	return true;
 }
 
+bool BuildPath(char *path, const char *dir, const char *fileName, 
+	unsigned int lenPath) {
+	*path = '\0';
+	if ((strlen(dir) + strlen(pathSepString) + strlen(fileName)) < lenPath) {
+		strcpy(path, dir);
+		strcat(path, pathSepString);
+		strcat(path, fileName);
+		return true;
+	}
+	return false;
+}
+
 time_t GetModTime(const char *fullPath) {
 	if (IsUntitledFileName(fullPath))
 		return 0;

@@ -128,12 +128,6 @@ protected:
 	virtual void GetDefaultDirectory(char *directory, size_t size);
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath);
-	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps,
-	        char *pathDefaultDir, unsigned int lenPath);
-	virtual bool GetUserPropertiesFileName(char *pathUserProps,
-	                                       char *pathUserDir, unsigned int lenPath);
-	virtual bool GetAbbrevPropertiesFileName(char *pathAbbrevProps,
-	        char *pathDefaultDir, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
 

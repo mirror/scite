@@ -19,7 +19,7 @@ const char appName[] = "Sc1";
 const char appName[] = "SciTE";
 #endif
 
-static UINT identityMessage;	///< Registred message to identify SciTE instances
+static UINT identityMessage;	///< Registered message to identify SciTE instances
 
 HINSTANCE SciTEWin::hInstance = 0;
 char *SciTEWin::className = NULL;
@@ -159,36 +159,6 @@ bool SciTEWin::GetSciteUserHome(char *path, unsigned int lenPath) {
 	if (!home)
 		home = getenv("USERPROFILE");
 	GetSciTEPath(path, lenPath, home);
-	return true;
-}
-
-bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps,
-        char *pathDefaultDir, unsigned int lenPath) {
-	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
-		return false;
-	strncpy(pathDefaultProps, pathDefaultDir, lenPath);
-	strncat(pathDefaultProps, pathSepString, lenPath);
-	strncat(pathDefaultProps, propGlobalFileName, lenPath);
-	return true;
-}
-
-bool SciTEWin::GetAbbrevPropertiesFileName(char *pathAbbrevProps,
-        char *pathDefaultDir, unsigned int lenPath) {
-	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
-		return false;
-	strncpy(pathAbbrevProps, pathDefaultDir, lenPath);
-	strncat(pathAbbrevProps, pathSepString, lenPath);
-	strncat(pathAbbrevProps, propAbbrevFileName, lenPath);
-	return true;
-}
-
-bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps,
-        char *pathUserDir, unsigned int lenPath) {
-	if (!GetSciteUserHome(pathUserDir, lenPath))
-		return false;
-	strncpy(pathUserProps, pathUserDir, lenPath);
-	strncat(pathUserProps, pathSepString, lenPath);
-	strncat(pathUserProps, propUserFileName, lenPath);
 	return true;
 }
 
