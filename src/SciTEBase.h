@@ -279,6 +279,7 @@ protected:
 
 	bool autoCompleteIgnoreCase;
 	bool callTipIgnoreCase;
+	bool autoCCausedByOnlyOne;
 	SString calltipWordCharacters;
 	SString autoCompleteStartCharacters;
 	SString wordCharacters;

@@ -228,6 +228,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 
 	autoCompleteIgnoreCase = false;
 	callTipIgnoreCase = false;
+	autoCCausedByOnlyOne = false;
 
 	margin = false;
 	marginWidth = marginWidthDefault;
@@ -580,8 +581,8 @@ static bool isfilenamecharforsel(char ch) {
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel,       ///< Buffer receiving the result.
-    int len,       ///< Size of the buffer.
+    char *sel,        ///< Buffer receiving the result.
+    int len,        ///< Size of the buffer.
     bool (*ischarforsel)(char ch)) { ///< Function returning @c true if the given char. is part of the selection.
 
 	int lengthDoc, selStart, selEnd;
@@ -1200,6 +1201,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	//DWORD dwStart = timeGetTime();
 	int length = 0;	// variables for reallocatable array creation
 	int newlength;
+	int minWordLength = 0;
 	int nwords = 0;
 #undef WORDCHUNK
 #define WORDCHUNK 100
@@ -1246,7 +1248,10 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 			}
 			if (length)
 				words[length++] = ' ';
-			memcpy (words + length, wordstart, wordlen);
+			memcpy(words + length, wordstart, wordlen);
+			if (minWordLength < wordlen)
+				minWordLength = wordlen;
+
 			length = newlength;
 			words[length] = '\0';
 			nwords ++;
@@ -1259,8 +1264,10 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	}
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found %d characters took %d\n", root, length, dwEnd - dwStart);
-	if (length) {
+	if (length && (!onlyOneWord || (minWordLength > rootlen))) {
 		SendEditorString(SCI_AUTOCSHOW, rootlen, words);
+	} else {
+		SendEditor(SCI_AUTOCCANCEL);
 	}
 	free(words);
 	return true;
@@ -1764,20 +1771,25 @@ void SciTEBase::CharAdded(char ch) {
 					StartCallTip();
 				} else if (ch == ')') {
 					braceCount--;
-				} else if (!isalpha(ch) && (ch != '_')) {
+				} else if (!wordCharacters.contains(ch)) {
 					SendEditor(SCI_AUTOCCANCEL);
+				} else if (autoCCausedByOnlyOne) {
+					StartAutoCompleteWord(true);
 				}
 			} else {
 				if (ch == '(') {
 					braceCount = 1;
 					StartCallTip();
 				} else {
+					autoCCausedByOnlyOne = false;
 					if (props.GetInt("indent.automatic"))
 						AutomaticIndentation(ch);
-					if (autoCompleteStartCharacters.contains(ch))
+					if (autoCompleteStartCharacters.contains(ch)) {
 						StartAutoComplete();
-					else if (props.GetInt("autocompleteword.automatic") && wordCharacters.contains(ch))
+					} else if (props.GetInt("autocompleteword.automatic") && wordCharacters.contains(ch)) {
 						StartAutoCompleteWord(true);
+						autoCCausedByOnlyOne = SendEditor(SCI_AUTOCACTIVE);
+					}
 				}
 			}
 		}
