@@ -3723,6 +3723,11 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		WindowSetFocus(wEditor);
 		break;
 
+	case IDM_OPENLUAEXTERNALFILE:
+		OpenProperties(IDM_OPENLUAEXTERNALFILE);
+		WindowSetFocus(wEditor);
+		break;
+
 	case IDM_SRCWIN:
 		break;
 

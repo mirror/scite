@@ -776,5 +776,12 @@ void SciTEWin::Creation() {
 	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()),
 	              SB_SETPARTS, 1,
 	              reinterpret_cast<LPARAM>(widths));
+
+#ifndef NO_LUA
+		if (props.GetExpanded("ext.lua.startup.script").length() == 0)
+			DestroyMenuItem(menuOptions,IDM_OPENLUAEXTERNALFILE);
+#else
+		DestroyMenuItem(menuOptions,IDM_OPENLUAEXTERNALFILE);
+#endif
 }
 

@@ -1383,9 +1383,14 @@ void SciTEBase::OpenProperties(int propsFile) {
 		if (GetAbbrevPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 			Open(propfile, ofQuiet);
 		}
-	} else {	// IDM_OPENGLOBALPROPERTIES
+	} else if (propsFile == IDM_OPENGLOBALPROPERTIES) {
 		if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 			Open(propfile, ofQuiet);
+		}
+	} else if (propsFile == IDM_OPENLUAEXTERNALFILE) {
+		SString extlua = props.GetExpanded("ext.lua.startup.script");
+		if (extlua.length()) {
+			Open(extlua.c_str(), ofQuiet);
 		}
 	}
 }
