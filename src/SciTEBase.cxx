@@ -1100,7 +1100,9 @@ void SciTEBase::ReadProperties() {
 
 	// Create a margin column for the folding symbols
 	SendEditor(SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
-	SendEditor(SCI_SETMARGINWIDTHN, 2, foldMarginWidth);
+
+	SendEditor(SCI_SETMARGINWIDTHN, 2, foldMargin ? foldMarginWidth : 0);
+
 	SendEditor(SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
 	SendEditor(SCI_SETMARGINSENSITIVEN, 2, 1);
 	

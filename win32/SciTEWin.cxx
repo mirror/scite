@@ -461,6 +461,102 @@ void SciTEWin::CheckMenus() {
 	                   SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
 }
 
+/***************************************************************************
+ * Function: MakeLongPath
+ *
+ * Purpose:
+ *
+ * Makes a long path from a given, possibly short path/file
+ *
+ * The short path/file must exist, and if it is a file it must be fully specified
+ * elsewhere the function fails
+ *
+ * sizeof longPath buffer must be a least _MAX_PATH
+ * returns true on success, and the long path in longPath buffer
+ * returns false on failure, and copies the shortPath arg to the longPath buffer
+ */
+bool MakeLongPath(const char* shortPath, char* longPath) {
+	// when we have pfnGetLong, we assume it never changes as kernel32 is always loaded
+	static DWORD (STDAPICALLTYPE* pfnGetLong)(const char* lpszShortPath, char* lpszLongPath, DWORD cchBuffer) = NULL;
+	static bool kernelTried= FALSE;
+	bool ok= FALSE;
+
+	if (!kernelTried) {
+		HMODULE hModule;
+		kernelTried= true;
+		hModule = GetModuleHandleA("KERNEL32");
+		//assert(hModule != NULL); // must not call FreeLibrary on such handle
+
+		// attempt to get GetLongPathName (implemented in Win98/2000 only!)
+		(FARPROC&)pfnGetLong = GetProcAddress(hModule, "GetLongPathNameA");
+	}
+
+	// the kernel GetLongPathName proc is faster and (hopefully) more reliable
+	if (pfnGetLong != NULL) {
+		// call kernel proc
+		ok= (*pfnGetLong)(shortPath, longPath, _MAX_PATH) != 0;
+	} else {
+		char short_path[_MAX_PATH];  // copy, so we can modify it
+		char* tok;
+
+		*longPath= '\0';
+
+		lstrcpyn(short_path, shortPath, _MAX_PATH);
+
+		for(;;) {
+			tok= strtok(short_path, "\\");
+			if (tok == NULL)
+				break;
+
+			if ((strlen(shortPath) > 3) && 
+					(shortPath[0] == '\\') && (shortPath[1]=='\\')) {
+				// UNC, skip first seps
+				strcat(longPath, "\\\\");
+				strcat(longPath, tok);
+ 				strcat(longPath, "\\");
+
+				tok= strtok(NULL, "\\");
+				if (tok == NULL)
+					break;
+			}
+			strcat(longPath, tok);
+
+			for(;;) {
+				WIN32_FIND_DATA fd;
+				HANDLE hfind;
+				char* tokend;
+
+				tok= strtok(NULL, "\\");
+				if (tok == NULL)
+					break;
+
+				strcat(longPath, "\\");
+				tokend= longPath + strlen(longPath);
+
+				// temporaray add short componenet
+				strcpy(tokend, tok);
+
+				hfind= FindFirstFile(longPath, &fd);
+				if (hfind == INVALID_HANDLE_VALUE)
+					break;
+
+				// finally add long component we got
+				strcpy(tokend, fd.cFileName);
+
+				FindClose(hfind);
+			}
+
+			ok= tok == NULL;
+			break;
+		}
+	}
+
+	if (!ok) {
+		lstrcpyn(longPath, shortPath, _MAX_PATH);
+	}
+	return ok;
+}
+
 void SciTEWin::FixFilePath() {
 	// On windows file comparison is done case insensitively so the user can
 	// enter scite.cxx and still open this file, SciTE.cxx. To ensure that the file
