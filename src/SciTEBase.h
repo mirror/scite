@@ -178,11 +178,11 @@ private:
 
 public:
 	FoldState() {
+		lines = 0;
+		folded = 0;
 		size = 0;
 		fill = 0;
 		readout = -1;
-		lines = static_cast<int*>(0);
-		folded = static_cast<bool*>(0);
 	}
 
 	FoldState &operator=(const FoldState &b) {
@@ -193,6 +193,8 @@ public:
 	}
 
 	FoldState(const FoldState &b) {
+		lines = 0;
+		folded = 0;
 		readout = -1;
 		size = 0;
 		fill = 0;
@@ -204,7 +206,9 @@ public:
 		//assert(s>0);
 		//assert(size==0);
 
+		delete []lines;
 		lines = new int[s];
+		delete []folded;
 		folded = new bool[s];
 		size = s;
 		fill = 0;
@@ -214,9 +218,9 @@ public:
 
 	void Clear() {
 
-		delete[] lines;
+		delete []lines;
 		lines = 0;
-		delete[] folded;
+		delete []folded;
 		folded = 0;
 
 		size = 0;
@@ -225,7 +229,6 @@ public:
 	}
 
 	virtual ~FoldState() {
-
 		Clear();
 	}
 
@@ -295,6 +298,11 @@ public:
 	LinkedList *prev;
 
 	LinkedList();
+	~LinkedList() {
+		data = -1;
+		next = 0;
+		prev = 0;
+	}
 };
 
 class BufferList {
