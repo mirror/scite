@@ -148,9 +148,24 @@ NameError: mistake
        Command line arguments
     </h3>
     <p>
-       SciTE will open the filename given as a command line argument. If double quotes 
-       surround the file name, they are stripped before opening. On Windows, the "/p" 
-       argument opens a file, prints it and then immediately exits.
+       Command line arguments to SciTE include file names and properties. Properties 
+       are preceded by "-" use the syntax used in property set files and override any 
+       properties set in property files. If there is no value given for a property, it is set to 1.
+       Double quotes
+       may be placed around arguments that contain spaces. On Linux, the standard shell
+       quoting is available. The "-p" argument causes SciTE to print the file and then exit.
+       For example, <br />
+       <code>
+       SciTE "-font.base=font:MS Gothic,size:11" -save.recent ScintillaGTK.cxx
+       </code><br />
+       starts SciTE, opens ScintillaGTK.cxx, loads the recent file list, and uses 
+       11 point MS Gothic as the base font.<br />
+       A group of properties can be saved as a property set file (with the extension 
+       ".properties") and the import command used on the command line:<br />
+       <code>
+       SciTE "-import c:\os\web_work" SciTEDoc.html
+       </code><br />
+
     </p>
     <h3>
        Buffers
