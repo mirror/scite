@@ -1755,6 +1755,14 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
       </tr>
       <tr>
+      	<td>
+      	lexerpath.<i>filepattern</i>
+      	</td>
+      	<td>
+      	Specifies the path to an external lexer module that will be loaded into Scintilla.
+      	</td>
+      </tr>
+      <tr>
         <td>
           keywords.<i>filepattern</i><br />
           keywords2.<i>filepattern</i><br />
@@ -2597,10 +2605,13 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
     </p>
     <p>
        For languages that can not be lexed with the existing lexers, a new lexer can be coded in
-      C++.
-    </p>
+      C++.&nbsp; These can either be built into Scintilla, or put into an
+		external module and loaded when SciTE runs (See lexerpath).</p>
     <p>
        <a href="SciTELexer.html">Installing a lexer into SciTE</a>
+    <br>
+		<a href="SciTEExternalLexer.html">Creating and installing an external
+		lexer</a></p>
     </p>
     <p>
        The open.filter should be modified to include the file extensions used for the new language
