@@ -1555,28 +1555,27 @@ void SciTEGTK::Run(const char *cmdLine) {
 	gtk_toolbar_set_button_relief(GTK_TOOLBAR(wToolBar.GetID()), GTK_RELIEF_NONE);
 
 	AddToolButton("New", 	IDM_NEW,  filenew_xpm);
-
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
 	AddToolButton("Open", 	IDM_OPEN, fileopen_xpm);
 	AddToolButton("Save", 	IDM_SAVE, filesave_xpm);
 	AddToolButton("Close", 	IDM_CLOSE,close_xpm);
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Undo", 	IDM_UNDO, undo_xpm);
+	AddToolButton("Redo", 	IDM_REDO, redo_xpm);
 	AddToolButton("Cut", 	IDM_CUT,  editcut_xpm);
 	AddToolButton("Copy", 	IDM_COPY, editcopy_xpm);
 	AddToolButton("Paste", 	IDM_PASTE,editpaste_xpm);
 	
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
-	AddToolButton("Undo", 	IDM_UNDO, undo_xpm);
-	AddToolButton("Redo", 	IDM_REDO, redo_xpm);
-
 	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
 	AddToolButton("Find in Files", IDM_FINDINFILES, findinfiles_xpm);
 	AddToolButton("Find", 	IDM_FIND, search_xpm);
 	AddToolButton("Find Next", IDM_FINDNEXT, findnext_xpm);
 	AddToolButton("Replace", IDM_REPLACE, replace_xpm);
 
-	// Commented out until buffers are working
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Compile",  IDM_COMPILE, compile_xpm);
+	AddToolButton("Build",  IDM_BUILD, build_xpm);
+	
 	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
 	AddToolButton("Previous Buffer", IDM_PREV, prev_xpm);
 	AddToolButton("Next Buffer", IDM_NEXT, next_xpm);
