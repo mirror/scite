@@ -1980,6 +1980,38 @@ void SciTEGTK::Run(const char *cmdLine) {
 
 	char *gthis = reinterpret_cast<char *>(this);
 	
+#ifdef SINGLE_INSTANCE
+
+	//***** This should really be done after Open so we can read the props files, but if
+	//there is already a scite open and we are just going to tell that one to open the file, why
+	//should we waste time (and resources) and just to load properly and then exit?
+	//Create a pipe and see if it finds another one already there
+
+	//if we are not given a command line filename, assume that we just want to load ourselves.
+	if( strlen(cmdLine) > 0 && CreatePipe() == true )
+	{
+		char pipeCommand[CHAR_MAX];
+		bool piperet = false;
+
+		//create the command to send thru the pipe
+		sprintf(pipeCommand,"open=%s",cmdLine);
+		printf("Sending %s through pipe\n", pipeCommand);
+		//send it
+		piperet = SendPipeCommand(pipeCommand);
+		printf("Sent.\n");
+
+		//if it was OK then quit (we should really get an anwser back just in case
+		if( piperet == true )
+		{
+			printf("Sent OK -> Quitting\n");
+			gtk_exit(0);
+		}
+	}
+	//create our own pipe.
+	else
+		CreatePipe(true);
+#endif
+
 	gtk_widget_set_events(wSciTE.GetID(),
 	                      GDK_EXPOSURE_MASK
 	                      | GDK_LEAVE_NOTIFY_MASK
