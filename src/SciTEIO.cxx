@@ -48,7 +48,7 @@ static bool IsPropertiesFile(char *filename) {
 	int propLen = strlen(PROPERTIES_EXTENSION);
 	if (nameLen <= propLen)
 		return false;
-	if (stricmp(filename + nameLen - propLen, PROPERTIES_EXTENSION) == 0)
+	if (strcasecmp(filename + nameLen - propLen, PROPERTIES_EXTENSION) == 0)
 		return true;
 	return false;
 }
@@ -365,7 +365,7 @@ void SciTEBase::OpenSelected() {
 		WarnUser(warnWrongFile);
 		return;	// No selection
 	}
-	if (stricmp(selectedFilename, fileName) == 0) {
+	if (strcasecmp(selectedFilename, fileName) == 0) {
 		WarnUser(warnWrongFile);
 		return;	// Do not open if it is the current file!
 	}
