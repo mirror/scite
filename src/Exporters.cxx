@@ -439,7 +439,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 	int lengthDoc = LengthDocument();
 	WindowAccessor acc(wEditor.GetID(), props);
 
-	bool * styleIsUsed = new bool[STYLE_DEFAULT+1];
+	bool styleIsUsed[STYLE_DEFAULT+1];
 	if (onlyStylesUsed != 0) {
 		int i;
 		for (i = 0; i < STYLE_DEFAULT; i++) {
@@ -716,9 +716,6 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
 		dialogsOnScreen--;
 	}
-
-	if (styleIsUsed != NULL)
-		delete [] styleIsUsed;
 }
 
 /*
