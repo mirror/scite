@@ -430,6 +430,8 @@ int ControlIDOfCommand(unsigned long);
 void SetAboutMessage(WindowID wsci, const char *appTitle);
 time_t GetModTime(const char *fullPath);
 const int blockSize = 131072;
+bool IsUntitledFileName(const char *name);
+void lowerCaseString(char *s);
 
 #if PLAT_GTK
 // MessageBox

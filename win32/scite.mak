@@ -78,15 +78,25 @@ clean:
 
 OBJS=\
 	SciTEBase.obj \
+	SciTEBuffers.obj \
+	SciTEIO.obj \
+	SciTEProps.obj \
 	SciTEWin.obj \
+	SciTEWinBar.obj \
+	SciTEWinDlg.obj \
 	..\..\scintilla\win32\WindowAccessor.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\PlatWin.obj \
 	..\..\scintilla\win32\UniConversion.obj
 
 OBJSSTATIC=\
-	Sc1.obj \
 	SciTEBase.obj \
+	SciTEBuffers.obj \
+	SciTEIO.obj \
+	SciTEProps.obj \
+	Sc1.obj \
+	SciTEWinBar.obj \
+	SciTEWinDlg.obj \
 	..\..\scintilla\win32\KeyWords.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexHTML.obj \
@@ -165,16 +175,62 @@ Sc1Res.res: SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
 
 SciTEBase.obj: ..\src\SciTEBase.cxx
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ ..\src\SciTEBase.cxx
+SciTEBuffers.obj: ..\src\SciTEBuffers.cxx
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ ..\src\SciTEBuffers.cxx
+SciTEIO.obj: ..\src\SciTEIO.cxx
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ ..\src\SciTEIO.cxx
+SciTEProps.obj: ..\src\SciTEProps.cxx
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ ..\src\SciTEProps.cxx
 
-SciTEWin.obj: SciTEWin.cxx
+SciTEWin.obj: SciTEWin.cxx SciTEWin.h
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ SciTEWin.cxx
+SciTEWinBar.obj: SciTEWinBar.cxx SciTEWin.h
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ SciTEWinBar.cxx
+SciTEWinDlg.obj: SciTEWinDlg.cxx SciTEWin.h
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ SciTEWinDlg.cxx
 
 Sc1.obj: SciTEWin.cxx
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAMEFLAG)$@ SciTEWin.cxx
 
 # Dependencies
-SSciTEBase.obj:\
+SciTEBase.obj: \
 	..\src\SciTEBase.cxx \
+	..\src\SciTEBase.h \
+	..\src\SciTE.h \
+	..\src\Extender.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+
+SciTEBuffers.obj: \
+	..\src\SciTEBuffers.cxx \
+	..\src\SciTEBase.h \
+	..\src\SciTE.h \
+	..\src\Extender.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+
+SciTEIO.obj: \
+	..\src\SciTEIO.cxx \
+	..\src\SciTEBase.h \
+	..\src\SciTE.h \
+	..\src\Extender.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+
+SciTEProps.obj:\
+	..\src\SciTEProps.cxx \
 	..\src\SciTEBase.h \
 	..\src\SciTE.h \
 	..\src\Extender.h \
@@ -187,6 +243,33 @@ SSciTEBase.obj:\
 
 SciTEWin.obj:\
 	SciTEWin.cxx \
+	SciTEWin.h \
+	..\src\SciTEBase.h \
+	..\src\SciTE.h \
+	..\src\Extender.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+
+SciTEWinBar.obj:\
+	SciTEWin.cxx \
+	SciTEWin.h \
+	..\src\SciTEBase.h \
+	..\src\SciTE.h \
+	..\src\Extender.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+
+SciTEWinDlg.obj:\
+	SciTEWin.cxx \
+	SciTEWin.h \
 	..\src\SciTEBase.h \
 	..\src\SciTE.h \
 	..\src\Extender.h \
@@ -199,6 +282,7 @@ SciTEWin.obj:\
 
 Sc1.obj:\
 	SciTEWin.cxx \
+	SciTEWin.h \
 	..\src\SciTEBase.h \
 	..\src\SciTE.h \
 	..\src\Extender.h \
