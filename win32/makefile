@@ -32,18 +32,20 @@ endif
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-LEXOBJS	=  LexCPP.o LexHTML.o LexLua.o LexOthers.o LexPerl.o LexPython.o LexSQL.o LexVB.o
+LEXOBJS	=  LexCPP.o LexHTML.o LexLua.o LexOthers.o LexPerl.o LexPython.o LexSQL.o LexVB.o LexConf.o
 OBJS	= SciTEBase.o SciTEWin.o WindowAccessor.o PropSet.o PlatWin.o UniConversion.o SciTERes.o
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
 PROPS=..\bin\SciTEGlobal.properties ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
-..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties
+..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties \
+..\bin\conf.properties
 
 LEXPROPS=..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
-..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties
+..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties \
+..\bin\conf.properties
 
 ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 
@@ -75,6 +77,8 @@ clean:
 ..\bin\sql.properties:	..\src\sql.properties
 	copy $^ $@
 ..\bin\vb.properties:	..\src\vb.properties
+	copy $^ $@
+..\bin\conf.properties:	..\src\conf.properties
 	copy $^ $@
 
 # Normally distributed rather than built as may not have grep on all machines
