@@ -139,6 +139,13 @@ bool DirectorExtension::OnOpen(const char *path) {
 	return true;
 }
 
+bool DirectorExtension::OnSwitchFile(const char *path) { 
+	CheckEnvironment(host);
+	if (*path)
+		::SendDirector(SCD_OPENED, path);	// ShowPath 
+	return true; 
+};
+
 bool DirectorExtension::OnSave(const char *path) {
 	CheckEnvironment(host);
 	if (*path)

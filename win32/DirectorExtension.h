@@ -15,6 +15,7 @@ public:
 	virtual bool Load(const char *filename);
 	
 	virtual bool OnOpen(const char *path);
+	virtual bool OnSwitchFile(const char *path);
 	virtual bool OnSave(const char *path);
 	virtual bool OnChar(char ch);
 	virtual bool OnExecute(const char *s);

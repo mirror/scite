@@ -26,15 +26,18 @@ public:
 	virtual bool Clear()=0;
 	virtual bool Load(const char *filename)=0;
 	
-	virtual bool OnOpen(const char *path)=0;
-	virtual bool OnSave(const char *) { return true; };
-	virtual bool OnChar(char ch)=0;
-	virtual bool OnExecute(const char *s)=0;
-	virtual bool OnSavePointReached()=0;
-	virtual bool OnSavePointLeft()=0;
-	virtual bool OnStyle(unsigned int startPos, int lengthDoc, int initStyle, Accessor *styler)=0;
-	virtual bool OnDoubleClick()=0;
-	virtual bool OnUpdateUI()=0;
-	virtual bool OnMarginClick()=0;
+	virtual bool OnOpen(const char *) { return false; };
+	virtual bool OnSwitchFile(const char *) { return false; };
+	virtual bool OnSave(const char *) { return false; };
+	virtual bool OnChar(char) { return false; };
+	virtual bool OnExecute(const char *) { return false; };
+	virtual bool OnSavePointReached() { return false; };
+	virtual bool OnSavePointLeft() { return false; };
+	virtual bool OnStyle(unsigned int, int, int, Accessor *) { 
+		return false; 
+	}
+	virtual bool OnDoubleClick() { return false; };
+	virtual bool OnUpdateUI() { return false; };
+	virtual bool OnMarginClick() { return false; };
 };
 

@@ -136,6 +136,9 @@ void SciTEBase::SetDocumentAt(int index) {
 	DisplayAround(bufferNext);
 
 	CheckMenus();
+
+	if (extender)
+		extender->OnSwitchFile(fullPath);
 }
 
 void SciTEBase::UpdateBuffersCurrent() {
