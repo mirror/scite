@@ -1117,11 +1117,15 @@ void SciTEBase::ReadLocalisation() {
 	char propfile[MAX_PATH + 20];
 	char propdir[MAX_PATH + 20];
 	propsUI.Clear();
-	if (GetAbbrevPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-		SString spf(propfile);
-		spf.substitute(propAbbrevFileName, "locale.properties");
+	const char *title = "locale.properties";
+	SString localeProps = props.GetExpanded(title);
+	if (localeProps.length()) {
+		title = localeProps.c_str();
+	}
+	if (GetSciteDefaultHome(propdir, sizeof propdir)
+	    && BuildPath(propfile, propdir, title, sizeof propfile)) {
 		strcat(propdir, pathSepString);
-		propsUI.Read(spf.c_str(), propdir, importFiles, importMax);
+		propsUI.Read(propfile, propdir, importFiles, importMax);
 	}
 	localisationRead = true;
 }
