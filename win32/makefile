@@ -59,6 +59,9 @@ ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 clean:
 	del /q *.exe *.o *.obj *.dll *.res *.map
 
+depend: *.cxx ../src/*.cxx 
+	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx >depend
+
 ..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
 	copy ..\..\scintilla\bin\Scintilla.dll $@
 
@@ -114,26 +117,8 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o SciTEBase.o SciTEBuffers.o \
 $(PROGSTATIC): $(OBJSSTATIC)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
 
-SciTEBase.o: SciTEBase.cxx Platform.h SciTE.h PropSet.h SString.h Accessor.h WindowAccessor.h \
- KeyWords.h Scintilla.h SciLexer.h SciTEBase.h Extender.h
-SciTEBuffers.o:	SciTEBuffers.cxx Platform.h SciTE.h PropSet.h SString.h Accessor.h WindowAccessor.h \
- KeyWords.h Scintilla.h SciLexer.h SciTEBase.h Extender.h
-SciTEIO.o:	SciTEIO.cxx Platform.h SciTE.h PropSet.h SString.h Accessor.h WindowAccessor.h \
- KeyWords.h Scintilla.h SciLexer.h SciTEBase.h Extender.h
-Exporters.o: Exporters.cxx Platform.h SciTE.h PropSet.h SString.h Accessor.h WindowAccessor.h \
- KeyWords.h Scintilla.h SciLexer.h SciTEBase.h Extender.h
-SciTEProps.o:	SciTEProps.cxx Platform.h SciTE.h PropSet.h SString.h Accessor.h WindowAccessor.h \
- KeyWords.h Scintilla.h SciLexer.h SciTEBase.h Extender.h
-SciTEWin.o: SciTEWin.cxx SciTEWin.h Platform.h SciTE.h PropSet.h SString.h Accessor.h \
- WindowAccessor.h KeyWords.h Scintilla.h SciTEBase.h Extender.h
-SciTEWinBar.o: SciTEWinBar.cxx SciTEWin.h Platform.h SciTE.h PropSet.h SString.h Accessor.h \
- WindowAccessor.h KeyWords.h Scintilla.h SciTEBase.h Extender.h
-SciTEWinDlg.o: SciTEWinDlg.cxx SciTEWin.h Platform.h SciTE.h PropSet.h SString.h Accessor.h \
- WindowAccessor.h KeyWords.h Scintilla.h SciTEBase.h Extender.h
-DirectorExtension.o: Platform.h PropSet.h SString.h Accessor.h Scintilla.h Extender.h \
- DirectorExtension.h
-
-#	$(CC) -Xlinker --subsystem -Xlinker windows -o $(PROGSTATIC) $(OBJSSTATIC) $(LDFLAGS)
+# Automatically generate dependencies for most files with "make depend"
+include depend
 
 Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h \
  SString.h Scintilla.h Extender.h SciTEBase.h
