@@ -3342,6 +3342,11 @@ void SciTEBase::PerformOne(char *action) {
 			SaveToPDF(arg);
 		} else if (isprefix(action, "menucommand:")) {
 			MenuCommand(atoi(arg));
+		} else if (isprefix(action, "cwd:")) {
+			if (chdir(arg) != 0) {
+				MessageBox(wSciTE.GetID(), arg,
+					"Invalid directory", MB_OK | MB_ICONWARNING);
+			}
 		}
 	}
 }
@@ -3598,7 +3603,6 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
  */
 bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 	bool performPrint = false;
-	bool performedOpen = false;
 	bool evaluate = phase == 0;
 	WordList wlArgs(true);
 	wlArgs.Set(args.c_str());
@@ -3615,7 +3619,6 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 							return performPrint;
 						else
 							evaluate = true;
-						performedOpen = true;
 					}
 					if (evaluate)
 						PerformOne(arg);
@@ -3630,10 +3633,11 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 			else
 				evaluate = true;
 			Open(arg, true);
-			performedOpen = true;
 		}
 	}
-	if ((phase == 1) && !performedOpen) {
+	// If we have finished with all args and no buffer
+	// is open, create one.
+	if ((phase == 1) && (buffers.size==0)) {
 		Open("", true);
 	}
 	return performPrint;
