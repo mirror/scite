@@ -62,10 +62,11 @@ protected:
 	virtual void Print();
 	virtual void PrintSetup();
 
+	BOOL HandleReplaceCommand(int cmd);
+	
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
-	void HandleFindReplace();
 	virtual void Find();
 	virtual void FindInFiles();
 	virtual void Replace();
@@ -85,6 +86,8 @@ public:
 	SciTEWin();
 	~SciTEWin();
 
+	bool ModelessHandler(MSG *pmsg);
+	
 	void Run(const char *cmdLine);
 	void ProcessExecute();
 	virtual void Execute();
@@ -93,6 +96,8 @@ public:
 
 	void Paint(Surface *surfaceWindow, PRectangle rcPaint);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static void Register(HINSTANCE hInstance_);
@@ -155,7 +160,13 @@ SciTEWin::SciTEWin() {
 SciTEWin::~SciTEWin() {
 }
 
-HWND currentDlg = 0;
+bool SciTEWin::ModelessHandler(MSG *pmsg) {
+	if (wFindReplace.GetID()) {
+		if (::IsDialogMessage(wFindReplace.GetID(), pmsg))
+			return true;
+	}
+	return false;
+}
 
 // DefaultDlg, DoDialog is a bit like something in PC Magazine May 28, 1991, page 357
 // DefaultDlg is only used for about box
@@ -536,47 +547,128 @@ void SciTEWin::PrintSetup() {
 #endif
 }
 
-void SciTEWin::HandleFindReplace() {
-	matchCase = fr.Flags & FR_MATCHCASE;
-	wholeWord = fr.Flags & FR_WHOLEWORD;
-	reverseFind = !(fr.Flags & FR_DOWN);
-	if (fr.Flags & FR_DIALOGTERM) {
-		wFindReplace = 0;
-		currentDlg = 0;
-		//Platform::DebugPrintf("Cancel FindReplace\n");
-	} else if (fr.Flags & FR_FINDNEXT) {
-		//Platform::DebugPrintf("FindNext <%s> %x\n", fr.lpstrFindWhat, fr.Flags);
+static void FillComboFromMemory(HWND combo, const ComboMemory &mem) {
+	for (int i = 0; i < mem.Length(); i++) {
+		//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
+		SendMessage(combo, CB_ADDSTRING, 0,
+		            reinterpret_cast<LPARAM>(mem.At(i).c_str()));
+	}
+}
+
+BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	static SciTEWin *sci;
+	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
+	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
+	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
+	HWND wUp = ::GetDlgItem(hDlg, IDDIRECTIONUP);
+	HWND wDown = ::GetDlgItem(hDlg, IDDIRECTIONDOWN);
+
+	switch (message) {
+
+	case WM_INITDIALOG:
+		sci = reinterpret_cast<SciTEWin *>(lParam);
+		::SetDlgItemText(hDlg, IDFINDWHAT, sci->findWhat);
+		FillComboFromMemory(wFindWhat, sci->memFinds);
+		if (sci->wholeWord)
+			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->matchCase)
+			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->reverseFind) {
+			::SendMessage(wUp, BM_SETCHECK, BST_CHECKED, 0);
+		} else {
+			::SendMessage(wDown, BM_SETCHECK, BST_CHECKED, 0);
+		}
+		return TRUE;
+
+	case WM_CLOSE:
+		SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
+		break;
+
+	case WM_COMMAND:
+		if (ControlIDOfCommand(wParam) == IDCANCEL) {
+			sci->wFindReplace = 0;
+			EndDialog(hDlg, IDCANCEL);
+			return FALSE;
+		} else if (ControlIDOfCommand(wParam) == IDOK) {
+			//Platform::DebugPrintf("Finding\n");
+			char s[200];
+			GetDlgItemText(hDlg, IDFINDWHAT, s, sizeof(s));
+			sci->props.Set("find.what", s);
+			strcpy(sci->findWhat, s);
+			sci->memFinds.Insert(s);
+			sci->wholeWord = BST_CHECKED == 
+				::SendMessage(wWholeWord, BM_GETCHECK, 0, 0);
+			sci->matchCase = BST_CHECKED == 
+				::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
+			sci->reverseFind = BST_CHECKED == 
+				::SendMessage(wUp, BM_GETCHECK, 0, 0);
+			sci->wFindReplace = 0;
+			EndDialog(hDlg, IDOK);
+			sci->FindNext();
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+BOOL SciTEWin::HandleReplaceCommand(int cmd) {
+	HWND wFindWhat = ::GetDlgItem(wFindReplace.GetID(), IDFINDWHAT);
+	HWND wReplaceWith = ::GetDlgItem(wFindReplace.GetID(), IDREPLACEWITH);
+	HWND wWholeWord = ::GetDlgItem(wFindReplace.GetID(), IDWHOLEWORD);
+	HWND wMatchCase = ::GetDlgItem(wFindReplace.GetID(), IDMATCHCASE);
+
+	char s[200];
+	::GetDlgItemText(wFindReplace.GetID(), IDFINDWHAT, s, sizeof(s));
+	props.Set("find.what", s);
+	strcpy(findWhat, s);
+	memFinds.Insert(s);
+	::GetDlgItemText(wFindReplace.GetID(), IDREPLACEWITH, s, sizeof(s));
+	//sci->props.Set("find.what", s);
+	strcpy(replaceWhat, s);
+	memReplaces.Insert(s);
+	wholeWord = BST_CHECKED == 
+		::SendMessage(wWholeWord, BM_GETCHECK, 0, 0);
+	matchCase = BST_CHECKED == 
+		::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
+	reverseFind = false;
+		
+	if (cmd == IDOK) {
 		FindNext();
-	} else if (fr.Flags & FR_REPLACE) {
+	} else if (cmd == IDREPLACE) {
 		if (havefound) {
-			SendEditorString(EM_REPLACESEL, 0, fr.lpstrReplaceWith);
+			SendEditorString(EM_REPLACESEL, 0, replaceWhat);
 			havefound = false;
-			//Platform::DebugPrintf("Replace <%s> -> <%s>\n", fr.lpstrFindWhat, fr.lpstrReplaceWith);
 		}
 		FindNext();
-	} else if (fr.Flags & FR_REPLACEALL) {
+	} else if (cmd == IDREPLACEALL) {
 		//DWORD dwStart = timeGetTime();
 		FINDTEXTEX ft = {{0,0},0,{0,0}};
 		ft.chrg.cpMin = 0;
 		ft.chrg.cpMax = LengthDocument();
-		ft.lpstrText = fr.lpstrFindWhat;
+		ft.lpstrText = findWhat;
 		ft.chrgText.cpMin = 0;
 		ft.chrgText.cpMax = 0;
-		int posFind = SendEditor(EM_FINDTEXTEX, fr.Flags & (FR_WHOLEWORD | FR_MATCHCASE),
+		int flags = 0;
+		if (wholeWord)
+			flags |= FR_WHOLEWORD;
+		if (matchCase)
+			flags |= FR_MATCHCASE;
+		int posFind = SendEditor(EM_FINDTEXTEX, flags,
 		                         reinterpret_cast<LPARAM>(&ft));
 		if (posFind != -1) {
 			SendEditor(SCI_BEGINUNDOACTION);
 			while (posFind != -1) {
 				SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
-				SendEditorString(EM_REPLACESEL, 0, fr.lpstrReplaceWith);
-				if (fr.Flags & FR_DOWN) {
-					ft.chrg.cpMin = posFind + strlen(fr.lpstrReplaceWith) + 1;
+				SendEditorString(EM_REPLACESEL, 0, replaceWhat);
+				if (!reverseFind) {
+					ft.chrg.cpMin = posFind + strlen(replaceWhat) + 1;
 					ft.chrg.cpMax = LengthDocument();
 				} else {
 					ft.chrg.cpMin = 0;
 					ft.chrg.cpMax = posFind;
 				}
-				posFind = SendEditor(EM_FINDTEXTEX, fr.Flags & (FR_WHOLEWORD | FR_MATCHCASE),
+				posFind = SendEditor(EM_FINDTEXTEX, flags,
 				                     reinterpret_cast<LPARAM>(&ft));
 			}
 			SendEditor(SCI_ENDUNDOACTION);
@@ -585,14 +677,55 @@ void SciTEWin::HandleFindReplace() {
 		} else {
 			char msg[200];
 			strcpy(msg, "No replacements because string \"");
-			strncat(msg, fr.lpstrFindWhat, sizeof(msg) / 2);
+			strncat(msg, findWhat, sizeof(msg) / 2);
 			strcat(msg, "\" was not present.");
 			MessageBox(wFindReplace.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
 		}
-		//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", fr.lpstrFindWhat, fr.lpstrReplaceWith);
-	} else {
-		//Platform::DebugPrintf("Find/replacemessage %x\n", fr.Flags);
 	}
+	
+	if (cmd == IDREPLACEALL) {
+		wFindReplace = 0;
+		::EndDialog(wFindReplace.GetID(), IDOK);
+	}
+	return TRUE;
+}
+
+BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	static SciTEWin *sci;
+	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
+	HWND wReplaceWith = ::GetDlgItem(hDlg, IDREPLACEWITH);
+	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
+	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
+
+	switch (message) {
+
+	case WM_INITDIALOG:
+		sci = reinterpret_cast<SciTEWin *>(lParam);
+		::SetDlgItemText(hDlg, IDFINDWHAT, sci->findWhat);
+		FillComboFromMemory(wFindWhat, sci->memFinds);
+		::SetDlgItemText(hDlg, IDREPLACEWITH, sci->replaceWhat);
+		FillComboFromMemory(wReplaceWith, sci->memReplaces);
+		if (sci->wholeWord)
+			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->matchCase)
+			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
+		return TRUE;
+
+	case WM_CLOSE:
+		::SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
+		break;
+
+	case WM_COMMAND:
+		if (ControlIDOfCommand(wParam) == IDCANCEL) {
+			sci->wFindReplace = 0;
+			::EndDialog(hDlg, IDCANCEL);
+			return FALSE;
+		} else {
+			return sci->HandleReplaceCommand(ControlIDOfCommand(wParam));
+		}
+	}
+
+	return FALSE;
 }
 
 void SciTEWin::Find() {
@@ -609,17 +742,14 @@ void SciTEWin::Find() {
 		fr.Flags |= FR_DOWN;
 	fr.lpstrFindWhat = findWhat;
 	fr.wFindWhatLen = sizeof(findWhat);
-	wFindReplace = ::FindText(&fr);
+	
+	wFindReplace = ::CreateDialogParam(hInstance,
+		MAKEINTRESOURCE(IDD_FIND),
+		wSciTE.GetID(),FindDlg,reinterpret_cast<long>(this));
+	wFindReplace.Show();
+			
+	//wFindReplace = ::FindText(&fr);
 	replacing = false;
-	currentDlg = wFindReplace.GetID();
-}
-
-static void FillComboFromMemory(HWND combo, const ComboMemory &mem) {
-	for (int i = 0; i < mem.Length(); i++) {
-		//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
-		SendMessage(combo, CB_ADDSTRING, 0,
-		            reinterpret_cast<LPARAM>(mem.At(i).c_str()));
-	}
 }
 
 BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -697,10 +827,15 @@ void SciTEWin::Replace() {
 	fr.lpstrReplaceWith = replaceWhat;
 	fr.wFindWhatLen = sizeof(findWhat);
 	fr.wReplaceWithLen = sizeof(replaceWhat);
-	wFindReplace = ReplaceText(&fr);
+	//wFindReplace = ReplaceText(&fr);
+	
+	wFindReplace = ::CreateDialogParam(hInstance,
+		MAKEINTRESOURCE(IDD_REPLACE),
+		wSciTE.GetID(),ReplaceDlg,reinterpret_cast<long>(this));
+	wFindReplace.Show();
+	
 	replacing = true;
 	havefound = false;
-	currentDlg = wFindReplace.GetID();
 }
 
 // ProcessExecute runs a command with redirected input and output streams
@@ -1087,7 +1222,6 @@ void SciTEWin::DestroyFindReplace() {
 	if (wFindReplace.Created()) {
 		::EndDialog(wFindReplace.GetID(), IDCANCEL);
 		wFindReplace = 0;
-		currentDlg = 0;
 	}
 }
 
@@ -1328,13 +1462,8 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	default:
-		if (iMessage == RegisterWindowMessage(FINDMSGSTRING)) {
-			HandleFindReplace();
-			//Platform::DebugPrintf("Find/replacemessage %x %x\n", wParam, lParam);
-		} else {
-			//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
-			return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
-		}
+		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
+		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
 	}
 	//Platform::DebugPrintf("end wnd proc\n");
 	return 0l;
@@ -1364,18 +1493,12 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 
 	//Platform::DebugPrintf("Command line is \n%s\n<<", lpszCmdLine);
 
-	//	HRESULT hr = OleInitialize(NULL);
-	//	if (FAILED(hr)) {
-	//		return 0;
-	//	}
-
 	HACCEL hAccTable = LoadAccelerators(hInstance, "ACCELS");
 
 	SciTEWin::Register(hInstance);
 #ifdef STATIC_BUILD
 	Scintilla_RegisterClasses(hInstance);
 #else
-	//HMODULE hmod = ::LoadLibrary("Scintilla.DLL");
 	HMODULE hmod = ::LoadLibrary("SciLexer.DLL");
 	if (hmod==NULL)
 		MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
@@ -1389,24 +1512,16 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	MSG msg;
 	msg.wParam = 0;
 	while (going) {
-		going = GetMessage(&msg, NULL, 0, 0);
-		if (currentDlg && going) {
-			//Platform::DebugPrintf("DLG %x %x\n", currentDlg, msg.message);
-			if (!IsDialogMessage(currentDlg, &msg)) {
-				if (TranslateAccelerator(msg.hwnd, hAccTable, &msg) == 0) {
-					TranslateMessage(&msg);
-					DispatchMessage(&msg);
+		going = ::GetMessage(&msg, NULL, 0, 0);
+		if (going) {
+			if (!MainWind.ModelessHandler(&msg)) {
+				if (::TranslateAccelerator(MainWind.GetID(), hAccTable, &msg) == 0) {
+					::TranslateMessage(&msg);
+					::DispatchMessage(&msg);
 				}
-			}
-		} else if (going) {
-			//if (TranslateAccelerator(msg.hwnd,hAccTable,&msg) == 0) {
-			if (TranslateAccelerator(MainWind.GetID(), hAccTable, &msg) == 0) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
 			}
 		}
 	}
 
-	//	OleUninitialize();
 	return msg.wParam;
 }

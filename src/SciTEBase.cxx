@@ -1384,11 +1384,13 @@ void SciTEBase::FindNext() {
 		return;
 	}
 	FINDTEXTEX ft = {{0,0},0,{0,0}};
+	CHARRANGE crange;
+	SendEditor(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
 	if (reverseFind) {
-		ft.chrg.cpMin = SendEditor(SCI_GETANCHOR) - 1;
+		ft.chrg.cpMin = crange.cpMin - 1;
 		ft.chrg.cpMax = 0;
 	} else {
-		ft.chrg.cpMin = SendEditor(SCI_GETCURRENTPOS) + 1;
+		ft.chrg.cpMin = crange.cpMax + 1;
 		ft.chrg.cpMax = LengthDocument();
 	}
 	ft.lpstrText = findWhat;
