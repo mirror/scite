@@ -1053,7 +1053,7 @@ BOOL CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 
 void SciTEWin::GoLineDialog() {
 	int lineNo[2] = { 0, 0 };
-	lineNo[0] = GetCurrentLineNumber();
+	lineNo[0] = GetCurrentLineNumber() + 1;
 	lineNo[1] = SendEditor(SCI_GETLINECOUNT, 0, 0L);
 	if (DoDialog(hInstance, "GoLine", wSciTE.GetID(),
 	             reinterpret_cast<DLGPROC>(GoLineDlg),
