@@ -261,7 +261,6 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[currentbuf].unicodeMode = unicodeMode;
 
 		// retrieve fold state and store in buffer state info
-		//SendEditor(SCI_COLOURISE, 0, -1);
 		int maxLine = SendEditor(SCI_GETLINECOUNT);
 		int foldPoints = 0;
 
