@@ -95,6 +95,7 @@ const char *contributors[] = {
     "Valery Kondakoff",
     "Smári McCarthy",
     "Clemens Wyss",
+    "Simon Steele",
 };
 
 const char *extList[] = {
@@ -149,12 +150,12 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, Colour(0, 0, 0));
-		AddStyledText(wsci, "Version 1.37\n", 1);
+		AddStyledText(wsci, "Version 1.38\n", 1);
 		SetAboutStyle(wsci, 2, Colour(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, Colour(0, 0, 0));
-		AddStyledText(wsci, "December 1998-April 2001.\n", 3);
+		AddStyledText(wsci, "December 1998-May 2001.\n", 3);
 		SetAboutStyle(wsci, 4, Colour(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
