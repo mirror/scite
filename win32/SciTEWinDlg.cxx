@@ -258,6 +258,7 @@ bool SciTEWin::SaveAsDialog() {
 			// In case extension was changed
 			SendEditor(SCI_COLOURISE, 0, -1);
 			wEditor.InvalidateAll();
+			SendFiler(2, ofn.lpstrFile);	//Refresh
 		}
 		dialogsOnScreen--;
 	}
@@ -353,19 +354,6 @@ void SciTEWin::SaveAsPDF() {
 		dialogsOnScreen--;
 	}
 }
-
-#ifndef NO_FILER
-void SciTEWin::ShowFilerDlg() {
-	char pth[MAX_PATH];
-	int lpth=MAX_PATH-1;
-	
-	if (filerdlg == NULL){
-		GetDefaultDirectory(pth, lpth);
-		filerdlg = new CFiler("Scite Filer",wSciTE.GetID(),pth);}
-	else
-		SetActiveWindow(filerdlg->GetID());
-}
-#endif
 
 /**  Set up properties for FileTime, FileDate, CurrentTime, CurrentDate
  */

@@ -239,10 +239,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	wholeWord = false;
 	reverseFind = false;
 
-#ifndef NO_FILER
-	filerdlg=NULL;
-#endif
-
 	windowName[0] = '\0';
 	fullPath[0] = '\0';
 	fileName[0] = '\0';
@@ -489,8 +485,8 @@ void SciTEBase::SetWindowName() {
 	wSciTE.SetTitle(windowName);
 	//Platform::DebugPrintf("SetWindowname %s\n", windowName);
 #ifndef NO_FILER
-	if (filerdlg!=NULL && fileName[0] != '\0')
-		filerdlg->ShowPath(fullPath);
+	if (fileName[0] != '\0') 
+		SendFiler(0,fullPath);	//ShowPath 
 #endif
 }
 
@@ -1380,11 +1376,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 			SetFocus(wEditor.GetID());
 		}
 		break;
-#ifndef NO_FILER
-	case IDM_FILER:
-		ShowFilerDlg();
-		break;
-#endif
 	case IDM_PRINT:
 		Print(true);
 		break;

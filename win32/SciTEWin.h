@@ -88,7 +88,8 @@ protected:
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
 #ifndef NO_FILER
-	virtual void ShowFilerDlg();
+	virtual void SendFiler(int typ,char * path=0);
+	void HandleFiler(COPYDATASTRUCT *pcds);
 #endif
 
 	virtual void Print(bool showDialog);

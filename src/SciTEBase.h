@@ -12,8 +12,6 @@ extern const char propGlobalFileName[];
 extern const char fileRead[];
 extern const char fileWrite[];
 
-#define NO_FILER
-
 #ifdef unix
 #define MAX_PATH 260
 #endif
@@ -121,23 +119,6 @@ public:
 	void RemoveCurrent();
 };
 
-#ifndef NO_FILER
-class CFiler {
-	// Construction
-	public:
-		CFiler(char * title, 	// title of dialog
-			HWND h, 		//Handle of caller window
-			char * path); 	//path to show on opening
-	
-		const char* GetSelectedPath();	// to retrieve path selected in dialog
-		void ShowPath(char * pth);		// to tell the dialog to display a path
-		HWND GetID();					// to send messages 
-		void AddToCombo(char * pth);	// may be used to add any path to Combo Box
-	private:
-		void * dlg;							 // internally used by the dialog
-};
-#endif
-
 enum JobSubsystem { 
 	jobCLI=0, jobGUI=1, jobShell=2, jobExtension=3, jobHelp=4, jobOtherHelp=5};
 class Job {
@@ -214,10 +195,6 @@ protected:
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 	ComboMemory memFiles;
-
-#ifndef NO_FILER
-	CFiler * filerdlg;
-#endif
 
 	int codePage;
 	int characterSet;
@@ -377,8 +354,8 @@ protected:
 	void SaveToPDF(const char *saveName);
 	virtual void SaveAsPDF()=0;
 #ifndef NO_FILER
-	virtual void ShowFilerDlg() {};
-#endif
+	virtual void SendFiler(int,char * =0) {};
+#endif		
 	virtual void GetDefaultDirectory(char *directory, size_t size)=0;
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath)=0;
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath)=0;

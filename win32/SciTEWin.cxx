@@ -877,6 +877,38 @@ void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
 	}
 }
 
+#ifndef NO_FILER
+void SciTEWin::SendFiler(int typ, char *path) {
+	//typ values :
+	//-1: Bring Filerx to foreground (no message is sent , calls SetForegroundWindow)
+	//0 : ShowPath
+	//1 : SendToCombo
+	//2 : Refresh
+	HWND dest=(HWND)::FindWindowEx(NULL,NULL,(const char *)32770L,"Filer");
+	if (dest!=0){
+		if (typ==-1)
+			SetForegroundWindow(dest);
+		else {
+			COPYDATASTRUCT cds;
+			cds.dwData=typ;
+			cds.cbData=strlen(path) + 1;
+			cds.lpData=(void *)path;
+			::SendMessage(dest ,WM_COPYDATA,(UINT)wSciTE.GetID(),(long)&cds);
+		}
+	}
+}
+
+void SciTEWin::HandleFiler(COPYDATASTRUCT *pcds) {
+	if (pcds->dwData == 1) {
+		char path[MAX_PATH];
+		unsigned int nCopy = Platform::Minimum(MAX_PATH-1, pcds->cbData);
+		strncpy(path, reinterpret_cast<char *>(pcds->lpData), nCopy);
+		path[nCopy] = '\0';
+		Open(path);
+	}
+}
+#endif
+
 void SciTEWin::AboutDialog() {
 #ifdef STATIC_BUILD
 	AboutDialogWithBuild(1);
@@ -891,13 +923,9 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
 	switch (iMessage) {
 #ifndef NO_FILER
-		case 0x400: //WM_USER: sent by filerdlg when user doubleclicks a file in the list
-			Open(filerdlg->GetSelectedPath());
-			break;
-		case 0x401: //WM_USER+1: sent by filerdlg when it closes
-			delete filerdlg;
-			filerdlg=NULL;
-			break;
+	case WM_COPYDATA:
+		HandleFiler(reinterpret_cast<COPYDATASTRUCT *>(lParam));
+		break;
 #endif
 
 	case WM_CREATE:
