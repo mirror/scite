@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEIO.cxx
  ** Manage input and output with the system.
- **/
+ **/ 
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -57,25 +57,25 @@ const char pathSepString[] = "/";
 const char pathSepChar = '/';
 const char configFileVisibilityString[] = ".";
 const char propUserFileName[] = ".SciTEUser.properties";
-const char fileRead[]="rb";
-const char fileWrite[]="wb";
+const char fileRead[] = "rb";
+const char fileWrite[] = "wb";
 #endif
 #ifdef __vms
 const char pathSepString[] = "/";
 const char pathSepChar = '/';
 const char configFileVisibilityString[] = "";
 const char propUserFileName[] = "SciTEUser.properties";
-const char fileRead[]="r";
-const char fileWrite[]="w";
+const char fileRead[] = "r";
+const char fileWrite[] = "w";
 #endif
-#ifdef WIN32
+#ifdef WIN32 
 // Windows
 const char pathSepString[] = "\\";
 const char pathSepChar = '\\';
 const char configFileVisibilityString[] = "";
 const char propUserFileName[] = "SciTEUser.properties";
-const char fileRead[]="rb";
-const char fileWrite[]="wb";
+const char fileRead[] = "rb";
+const char fileWrite[] = "wb";
 #endif
 const char propGlobalFileName[] = "SciTEGlobal.properties";
 const char propAbbrevFileName[] = "abbrev.properties";
@@ -96,17 +96,21 @@ bool SciTEBase::IsAbsolutePath(const char *path) {
 	if (!path || *path == '\0')
 		return false;
 #ifdef unix
+
 	if (path[0] == '/')
 		return true;
 #endif
 #ifdef __vms
+
 	if (path[0] == '/')
 		return true;
 #endif
 #ifdef WIN32
+
 	if (path[0] == '\\' || path[1] == ':')	// UNC path or drive separator
 		return true;
 #endif
+
 	return false;
 }
 
@@ -197,7 +201,8 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 		strcpy(dirName, fullPath);
 		dirName[cpDirEnd - fullPath] = '\0';
 		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
-	} else {
+	}
+	else {
 		// Relative path. Since we ran AbsolutePath, we probably are here because fullPath is empty.
 		GetDocumentDirectory(dirName, sizeof(dirName));
 		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
@@ -269,8 +274,8 @@ bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 	return true;
 }
 
-bool BuildPath(char *path, const char *dir, const char *fileName, 
-	unsigned int lenPath) {
+bool BuildPath(char *path, const char *dir, const char *fileName,
+               unsigned int lenPath) {
 	*path = '\0';
 	if ((strlen(dir) + strlen(pathSepString) + strlen(fileName)) < lenPath) {
 		strcpy(path, dir);
@@ -361,8 +366,8 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 	Redraw();
 }
 
-bool SciTEBase::Open(const char *file, bool initialCmdLine, 
-	bool forceLoad, bool maySaveIfDirty) {
+bool SciTEBase::Open(const char *file, bool initialCmdLine,
+                     bool forceLoad, bool maySaveIfDirty) {
 	InitialiseBuffers();
 
 	if (!file) {
@@ -377,7 +382,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 
 	char absPath[MAX_PATH];
 	AbsolutePath(absPath, file, MAX_PATH);
- 	int index = buffers.GetDocumentByName(absPath);
+	int index = buffers.GetDocumentByName(absPath);
 	if (index >= 0) {
 		SetDocumentAt(index);
 		DeleteFileStackMenu();
@@ -458,7 +463,7 @@ void SciTEBase::OpenSelected() {
 
 	SString selName = SelectionFilename();
 	strncpy(selectedFilename, selName.c_str(), MAX_PATH);
-	selectedFilename[MAX_PATH-1] = '\0';
+	selectedFilename[MAX_PATH - 1] = '\0';
 	if (selectedFilename[0] == '\0') {
 		WarnUser(warnWrongFile);
 		return;	// No selection
@@ -507,6 +512,7 @@ void SciTEBase::OpenSelected() {
 #endif
 
 		// Support the ctags format
+
 		if (lineNumber == 0) {
 			GetCTag(cTag, 200);
 		}
@@ -524,8 +530,12 @@ void SciTEBase::OpenSelected() {
 			if (lineNumber > 0) {
 				SendEditor(SCI_GOTOLINE, lineNumber - 1);
 			} else if (cTag[0] != '\0') {
-				findWhat = cTag;
-				FindNext(false);
+				if (atol(cTag) > 0) {
+					SendEditor(SCI_GOTOLINE, atol(cTag) - 1);
+				} else {
+					findWhat = cTag;
+					FindNext(false);
+				}
 			}
 		}
 	} else {
@@ -553,8 +563,8 @@ void SciTEBase::CheckReload() {
 				if (!entered && (0 == dialogsOnScreen) && (newModTime != fileModLastAsk)) {
 					entered = true;
 					SString msg = LocaliseMessage(
-						"The file '^0' has been modified. Should it be reloaded?", 
-						fullPathToCheck);
+					                  "The file '^0' has been modified. Should it be reloaded?",
+					                  fullPathToCheck);
 					dialogsOnScreen++;
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					dialogsOnScreen--;
@@ -626,7 +636,7 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 		for (int i = 0; i < buffers.length; ++i) {
 			Buffer buff = buffers.buffers[i];
 			AddFileToStack(buff.FullPath(),
-				buff.selection, buff.scrollPosition);
+			               buff.selection, buff.scrollPosition);
 		}
 		SaveRecentStack();
 	}

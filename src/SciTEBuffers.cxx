@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEBuffers.cxx
  ** Buffers and jobs management.
- **/
+ **/ 
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -62,6 +62,7 @@ bool FilePath::SameNameAs(const char *other) const {
 #ifdef WIN32
 	return EqualCaseInsensitive(fileName.c_str(), other);
 #else
+
 	return fileName == other;
 #endif
 }
@@ -249,6 +250,7 @@ void SciTEBase::InitialiseBuffers() {
 			// Destroy command "View Tab Bar" in the menu "View"
 			DestroyMenuItem(menuView, IDM_VIEWTABBAR);
 #endif
+
 		}
 	}
 }
@@ -269,10 +271,12 @@ static void RecentFilePath(char *path, const char *name) {
 		::GetModuleFileName(0, path, MAX_PATH);
 		char *lastSlash = strrchr(path, pathSepChar);
 		if (lastSlash)
-			*(lastSlash+1) = '\0';
+			*(lastSlash + 1) = '\0';
 #else
-		*path='\0';
+
+		*path = '\0';
 #endif
+
 	} else {
 		strcpy(path, where);
 		EnsureEndsWithPathSeparator(path);
@@ -370,21 +374,21 @@ void SciTEBase::SetIndentSettings() {
 	// Either set the settings related to the extension or the default ones
 	SString fileNameForExtension = ExtensionFileName();
 	SString useTabsChars = props.GetNewExpand("use.tabs.",
-	                                          fileNameForExtension.c_str());
+	                       fileNameForExtension.c_str());
 	if (useTabsChars.length() != 0) {
 		SendEditor(SCI_SETUSETABS, useTabsChars.value());
 	} else {
 		SendEditor(SCI_SETUSETABS, useTabs);
 	}
 	SString tabSizeForExt = props.GetNewExpand("tab.size.",
-	                                           fileNameForExtension.c_str());
+	                        fileNameForExtension.c_str());
 	if (tabSizeForExt.length() != 0) {
 		SendEditor(SCI_SETTABWIDTH, tabSizeForExt.value());
 	} else if (tabSize != 0) {
 		SendEditor(SCI_SETTABWIDTH, tabSize);
 	}
 	SString indentSizeForExt = props.GetNewExpand("indent.size.",
-	                                              fileNameForExtension.c_str());
+	                           fileNameForExtension.c_str());
 	if (indentSizeForExt.length() != 0) {
 		SendEditor(SCI_SETINDENT, indentSizeForExt.value());
 	} else {
@@ -397,9 +401,9 @@ void SciTEBase::New() {
 	UpdateBuffersCurrent();
 
 	if ((buffers.size == 1) && (!buffers.buffers[0].IsUntitled())) {
-		AddFileToStack(buffers.buffers[0].FullPath(), 
-			buffers.buffers[0].selection, 
-			buffers.buffers[0].scrollPosition);
+		AddFileToStack(buffers.buffers[0].FullPath(),
+		               buffers.buffers[0].selection,
+		               buffers.buffers[0].scrollPosition);
 	}
 
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
@@ -509,6 +513,7 @@ void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
 	DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
 #if PLAT_WIN
+
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
 #endif
 
@@ -526,11 +531,13 @@ void SciTEBase::BuffersMenu() {
 			char titleTab[MAX_PATH + 20];
 			titleTab[0] = '\0';
 #if PLAT_WIN
+
 			if (pos < 10) {
 				sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
 				sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
 			}
 #endif
+
 			if (buffers.buffers[pos].IsUntitled()) {
 				SString untitled = LocaliseString("Untitled");
 				strcat(entry, untitled.c_str());
@@ -565,6 +572,7 @@ void SciTEBase::BuffersMenu() {
 			::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
 			//::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
 #endif
+
 		}
 	}
 	CheckMenus();
@@ -589,8 +597,10 @@ void SciTEBase::SetFileStackMenu() {
 				char entry[MAX_PATH + 20];
 				entry[0] = '\0';
 #if PLAT_WIN
+
 				sprintf(entry, "&%d ", (stackPos + 1) % 10);
 #endif
+
 				strcat(entry, recentFileStack[stackPos].FullPath());
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, entry);
 			}
@@ -607,7 +617,7 @@ void SciTEBase::DropFileStackTop() {
 }
 
 void SciTEBase::AddFileToBuffer(const char *file /*TODO:, CharacterRange selection, int scrollPos */) {
-	FILE *fp = fopen(file, fileRead);  // file existence test 
+	FILE *fp = fopen(file, fileRead);  // file existence test
 	if (fp)                       // for missing files Open() gives an empty buffer - do not want this
 		Open(file, false, file);
 }
@@ -755,7 +765,7 @@ void SciTEBase::RemoveToolsMenu() {
 }
 
 void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
-                           const char *text, const char *mnemonic) {
+                                     const char *text, const char *mnemonic) {
 	SString localised = LocaliseString(text);
 	SetMenuItem(menuNumber, position, itemID, localised.c_str(), mnemonic);
 }
@@ -789,13 +799,13 @@ void SciTEBase::SetToolsMenu() {
 	if (macrosEnabled) {
 		SetMenuItem(menuTools, menuPos++, IDM_MACRO_SEP, "");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROLIST,
-		            "&List Macros...", "Shift+F9");
+		                     "&List Macros...", "Shift+F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROPLAY,
-		            "Run Current &Macro", "F9");
+		                     "Run Current &Macro", "F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACRORECORD,
-		            "&Record Macro", "Ctrl+F9");
+		                     "&Record Macro", "Ctrl+F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROSTOPRECORD,
-		            "S&top Recording Macro", "Ctrl+Shift+F9");
+		                     "S&top Recording Macro", "Ctrl+Shift+F9");
 	}
 }
 
@@ -852,116 +862,141 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 	sourcePath[0] = '\0';
 	switch (format) {
 	case SCE_ERR_PYTHON: {
-		// Python
-		char *startPath = strchr(cdoc, '\"') + 1;
-		char *endPath = strchr(startPath, '\"');
-		int length = endPath - startPath;
-		if (length > 0) {
-			strncpy(sourcePath, startPath, length);
-			sourcePath[length] = 0;
-		}
-		endPath++;
-		while (*endPath && !isdigit(*endPath)) {
+			// Python
+			char *startPath = strchr(cdoc, '\"') + 1;
+			char *endPath = strchr(startPath, '\"');
+			int length = endPath - startPath;
+			if (length > 0) {
+				strncpy(sourcePath, startPath, length);
+				sourcePath[length] = 0;
+			}
 			endPath++;
+			while (*endPath && !isdigit(*endPath)) {
+				endPath++;
+			}
+			int sourceNumber = atoi(endPath) - 1;
+			return sourceNumber;
 		}
-		int sourceNumber = atoi(endPath) - 1;
-		return sourceNumber;
-	}
 	case SCE_ERR_GCC: {
-		// GCC - look for number followed by colon to be line number
-		// This will be preceded by file name
-		for (int i = 0; cdoc[i]; i++) {
-			if (isdigit(cdoc[i]) && cdoc[i + 1] == ':') {
-				int j = i;
-				while (j > 0 && isdigit(cdoc[j - 1])) {
-					j--;
+			// GCC - look for number followed by colon to be line number
+			// This will be preceded by file name
+			for (int i = 0; cdoc[i]; i++) {
+				if (isdigit(cdoc[i]) && cdoc[i + 1] == ':') {
+					int j = i;
+					while (j > 0 && isdigit(cdoc[j - 1])) {
+						j--;
+					}
+					int sourceNumber = atoi(cdoc + j) - 1;
+					strncpy(sourcePath, cdoc, j - 1);
+					sourcePath[j - 1] = 0;
+					return sourceNumber;
 				}
-				int sourceNumber = atoi(cdoc + j) - 1;
-				strncpy(sourcePath, cdoc, j - 1);
-				sourcePath[j - 1] = 0;
-				return sourceNumber;
 			}
+			break;
 		}
-		break;
-	}
 	case SCE_ERR_MS: {
-		// Visual *
-		char *endPath = strchr(cdoc, '(');
-		int length = endPath - cdoc;
-		if ((length > 0) && (length < MAX_PATH)) {
-			strncpy(sourcePath, cdoc, length);
-			sourcePath[length] = 0;
+			// Visual *
+			char *endPath = strchr(cdoc, '(');
+			int length = endPath - cdoc;
+			if ((length > 0) && (length < MAX_PATH)) {
+				strncpy(sourcePath, cdoc, length);
+				sourcePath[length] = 0;
+			}
+			endPath++;
+			return atoi(endPath) - 1;
 		}
-		endPath++;
-		return atoi(endPath) - 1;
-	}
 	case SCE_ERR_BORLAND: {
-		// Borland
-		char *space = strchr(cdoc, ' ');
-		if (space) {
-			while (isspace(*space)) {
-				space++;
+			// Borland
+			char *space = strchr(cdoc, ' ');
+			if (space) {
+				while (isspace(*space)) {
+					space++;
+				}
+				while (*space && !isspace(*space)) {
+					space++;
+				}
+				while (isspace(*space)) {
+					space++;
+				}
+				char *space2 = strchr(space, ' ');
+				if (space2) {
+					unsigned int length = space2 - space;
+					strncpy(sourcePath, space, length);
+					sourcePath[length] = '\0';
+					return atoi(space2) - 1;
+				}
 			}
-			while (*space && !isspace(*space)) {
-				space++;
-			}
-			while (isspace(*space)) {
-				space++;
-			}
-			char *space2 = strchr(space, ' ');
-			if (space2) {
-				unsigned int length = space2 - space;
-				strncpy(sourcePath, space, length);
-				sourcePath[length] = '\0';
-				return atoi(space2) - 1;
-			}
+			break;
 		}
-		break;
-	}
 	case SCE_ERR_PERL: {
-		// perl
-		char *at = strstr(cdoc, " at ");
-		char *line = strstr(cdoc, " line ");
-		int length = line - (at + 4);
-		if (at && line && length > 0) {
-			strncpy(sourcePath, at + 4, length);
-			sourcePath[length] = 0;
-			line += 6;
-			return atoi(line) - 1;
-		}
-		break;
-	}
-	case SCE_ERR_NET: {
-		// .NET traceback
-		char *in = strstr(cdoc, " in ");
-		char *line = strstr(cdoc, ":line ");
-		if (in && line && (line > in)) {
-			in += 4;
-			strncpy(sourcePath, in, line - in);
-			sourcePath[line - in] = 0;
-			line += 6;
-			return atoi(line) - 1;
-		}
-	}
-	case SCE_ERR_LUA: {
-		// Lua error look like: last token read: `result' at line 40 in file `Test.lua'
-		char *idLine = "at line ";
-		char *idFile = "file ";
-		int lenLine = strlen(idLine), lenFile = strlen(idFile);
-		char *line = strstr(cdoc, idLine);
-		char *file = strstr(cdoc, idFile);
-		if (line && file) {
-			char *quote = strstr(file, "'");
-			int length = quote - (file + lenFile + 1);
-			if (quote && length > 0) {
-				strncpy(sourcePath, file + lenFile + 1, length);
-				sourcePath[length] = '\0';
+			// perl
+			char *at = strstr(cdoc, " at ");
+			char *line = strstr(cdoc, " line ");
+			int length = line - (at + 4);
+			if (at && line && length > 0) {
+				strncpy(sourcePath, at + 4, length);
+				sourcePath[length] = 0;
+				line += 6;
+				return atoi(line) - 1;
 			}
-			line += lenLine;
-			return atoi(line) - 1;
+			break;
 		}
-		break;
-	}
+	case SCE_ERR_NET: {
+			// .NET traceback
+			char *in = strstr(cdoc, " in ");
+			char *line = strstr(cdoc, ":line ");
+			if (in && line && (line > in)) {
+				in += 4;
+				strncpy(sourcePath, in, line - in);
+				sourcePath[line - in] = 0;
+				line += 6;
+				return atoi(line) - 1;
+			}
+		}
+	case SCE_ERR_LUA: {
+			// Lua error look like: last token read: `result' at line 40 in file `Test.lua'
+			char *idLine = "at line ";
+			char *idFile = "file ";
+			int lenLine = strlen(idLine), lenFile = strlen(idFile);
+			char *line = strstr(cdoc, idLine);
+			char *file = strstr(cdoc, idFile);
+			if (line && file) {
+				char *quote = strstr(file, "'");
+				int length = quote - (file + lenFile + 1);
+				if (quote && length > 0) {
+					strncpy(sourcePath, file + lenFile + 1, length);
+					sourcePath[length] = '\0';
+				}
+				line += lenLine;
+				return atoi(line) - 1;
+			}
+			break;
+		}
+
+	case SCE_ERR_CTAG: {
+			//~ char *endPath = strchr(cdoc, '\t');
+			//~ int length = endPath - cdoc;
+			//~ if ((length > 0) && (length < MAX_PATH)) {
+			//~ strncpy(sourcePath, cdoc, length);
+			//~ sourcePath[length] = 0;
+			//~ }
+			for (int i = 0; cdoc[i]; i++) {
+				if ((isdigit(cdoc[i + 1]) || (cdoc[i + 1] == '/' && cdoc[i + 2] == '^')) && cdoc[i] == '\t') {
+					int j = i - 1;
+					while (j > 0 && ! strchr("\t\n\r \"$%'*,;<>?[]^`{|}", cdoc[j])) {
+						j--;
+					}
+					if (strchr("\t\n\r \"$%'*,;<>?[]^`{|}", cdoc[j])) {
+						j++;
+					}
+					strncpy(sourcePath, &cdoc[j], i - j);
+					sourcePath[i - j] = 0;
+					//becouse usually the address is a searchPattern, lineNumber has to be evaluated later
+					return 0;
+				}
+			}
+		}
+
 	}	// switch
 	return - 1;
 }
@@ -984,9 +1019,9 @@ void SciTEBase::GoMessage(int dir) {
 		int lineLength = SendOutput(SCI_LINELENGTH, lookLine, 0);
 		//Platform::DebugPrintf("GOMessage %d %d %d of %d linestart = %d\n", selStart, curLine, lookLine, maxLine, startPosLine);
 		char style = acc.StyleAt(startPosLine);
-		if (style != SCE_ERR_DEFAULT && 
-			style != SCE_ERR_CMD && 
-			style < SCE_ERR_DIFF_CHANGED) {
+		if (style != SCE_ERR_DEFAULT &&
+		        style != SCE_ERR_CMD &&
+		        style < SCE_ERR_DIFF_CHANGED) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
@@ -1024,6 +1059,26 @@ void SciTEBase::GoMessage(int dir) {
 						}
 					}
 				}
+
+				//if ctag then get line number after search tag or use ctag line number
+				if (style == SCE_ERR_CTAG) {
+					char cTag[200];
+					//without following focus GetCTag wouldn't work correct
+					WindowSetFocus(wOutput);
+					GetCTag(cTag, 200);
+					if (cTag[0] != '\0') {
+						if (atol(cTag) > 0) {
+							//if tag is linenumber, get line
+							sourceLine = atol(cTag) - 1;
+						} else {
+							findWhat = cTag;
+							FindNext(false);
+							//get linenumber for marker from found position
+							sourceLine = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
+						}
+					}
+				}
+
 				SendEditor(SCI_MARKERDELETEALL, 0);
 				SendEditor(SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
 				SendEditor(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
