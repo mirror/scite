@@ -52,7 +52,8 @@ PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
 ..\bin\matlab.properties ..\bin\nncrontab.properties ..\bin\others.properties \
 ..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
-..\bin\sql.properties ..\bin\tcl.properties ..\bin\vb.properties
+..\bin\scriptol.properties ..\bin\sql.properties \
+..\bin\tcl.properties ..\bin\vb.properties
 
 LEXPROPS=\
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\ave.properties \
@@ -61,8 +62,8 @@ LEXPROPS=\
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
 ..\bin\matlab.properties ..\bin\nncrontab.properties ..\bin\others.properties \
 ..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties \
-..\bin\python.properties ..\bin\sql.properties ..\bin\tcl.properties \
-..\bin\vb.properties
+..\bin\python.properties ..\bin\scriptol.properties ..\bin\sql.properties \
+..\bin\tcl.properties ..\bin\vb.properties
 
 ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 
@@ -117,6 +118,8 @@ deps:
 ..\bin\perl.properties:	..\src\perl.properties
 	copy $^ $@
 ..\bin\python.properties:	..\src\python.properties
+	copy $^ $@
+..\bin\scriptol.properties:	..\src\scriptol.properties
 	copy $^ $@
 ..\bin\sql.properties:	..\src\sql.properties
 	copy $^ $@
