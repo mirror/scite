@@ -235,6 +235,8 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	        static_cast<int>(getpid()));
 	inputHandle = 0;
 
+	propsEmbed.Set("PLAT_GTK", "1");
+	
 	ReadGlobalPropFile();
 
 	ptOld = Point(0, 0);
@@ -256,7 +258,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	fileSelectorHeight = 480;
 
 	instance = this;
-	propsEmbed.Set("PLAT_GTK", "1");
 }
 
 SciTEGTK::~SciTEGTK() {}
