@@ -448,9 +448,27 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 	FILE *fp = fopen(saveName, "wt");
 	if (fp) {
 		int styleCurrent = 0;
-		fputs("<!DOCTYPE html  PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">", fp);
+		fputs("<!DOCTYPE html  PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n", fp);
 		fputs("<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
 		fputs("<HEAD>\n", fp);
+
+		fputs("<script language=\"Javascript\">\n"
+			"<!--\n"
+			"function toggleBlock(thisid)\n"
+			"{\n"
+			"var thislayer=document.getElementById(thisid);\n"
+			"if (thislayer.style.display == 'none')\n"
+			" {\n"
+			" thislayer.style.display='block';\n"
+			" }\n"
+			" else\n"
+			" {\n"
+			" thislayer.style.display='none';\n"
+			" }\n"
+			"}\n"
+			"//-->\n"
+			"</script>\n", fp);
+
 		fputs("<STYLE>\n", fp);
 		SString colour;
 		for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
@@ -554,21 +572,31 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		fputs("</STYLE>\n", fp);
 		fputs("</HEAD>\n", fp);
 		fputs("<BODY>\n", fp);
-		if (wysiwyg)
-			fputs("<SPAN class=S0>", fp);
-		else
-			fputs("<PRE class=S0>", fp);
+		WindowAccessor acc(wEditor.GetID(), props);
+		int line = acc.GetLine(0);
+		int level = (acc.LevelAt(line) & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
+		int newLevel = level;
+		if (wysiwyg) {
+			line = acc.GetLine(0); // no \n count
+			int lvl = acc.LevelAt(line);
+			fputs("&nbsp;&nbsp;", fp);
+			if (lvl & SC_FOLDLEVELHEADERFLAG)
+				fprintf(fp, "<SPAN onClick=\"toggleBlock('ln%d')\">-</SPAN>&nbsp;", line+1);
+			fputs("<SPAN class=\"S0\">", fp);
+		} else {
+			fputs("<PRE class=\"S0\">", fp);
+		}
 		int lengthDoc = LengthDocument();
 		bool prevCR = false;
-		WindowAccessor acc(wEditor.GetID(), props);
 		for (int i = 0; i < lengthDoc; i++) {
 			char ch = acc[i];
 			int style = acc.StyleAt(i);
+			
 			if (style != styleCurrent) {
 				if (wysiwyg || styleCurrent != 0)
 					fputs("</SPAN>", fp);
 				if (wysiwyg || style != 0)
-					fprintf(fp, "<SPAN class=S%0d>", style);
+					fprintf(fp, "<SPAN class=\"S%0d\">", style);
 				styleCurrent = style;
 			}
 			if (ch == ' ') {
@@ -589,13 +617,49 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 					}
 				}
 			} else if (ch == '\r') {
-				if (wysiwyg)
-					fputs("<BR/>\n", fp);
-				else
+				if (wysiwyg) {
+					line = acc.GetLine(i+2); // no \n count
+					int lvl = acc.LevelAt(line);
+					fputs("</SPAN>", fp);
+					fputs("<BR/>", fp);
+					fputs("\n", fp);
+					newLevel = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
+					if (newLevel > level)
+						fprintf(fp, "<SPAN id=\"ln%d\">", line);
+					if (newLevel < level)
+						fprintf(fp, "</SPAN>&nbsp;&nbsp;");
+					else
+						fputs("&nbsp;&nbsp;", fp);
+					level = newLevel;
+					if (lvl & SC_FOLDLEVELHEADERFLAG)
+						fprintf(fp, "<SPAN onClick=\"toggleBlock('ln%d')\">-</SPAN>&nbsp;", line+1);
+					fprintf(fp, "<SPAN class=\"S%0d\">", style);
+				} else {
 					fputc('\n', fp);
+				}
 			} else if (ch == '\n') {
-				if (!prevCR)
-					fputs("<BR/>\n", fp);
+				if (!prevCR) {
+					if (wysiwyg) {
+						line = acc.GetLine(i+1);
+						int lvl = acc.LevelAt(line);
+						fputs("</SPAN>", fp);
+						fputs("<BR/>", fp);
+						fputs("\n", fp);
+						newLevel = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
+						if (newLevel > level)
+							fprintf(fp, "<SPAN id=\"ln%d\">", line);
+						if (newLevel < level)
+							fprintf(fp, "</SPAN>&nbsp;&nbsp;");
+						else
+							fputs("&nbsp;&nbsp;", fp);
+						level = newLevel;
+						if (lvl & SC_FOLDLEVELHEADERFLAG)
+							fprintf(fp, "<SPAN onClick=\"toggleBlock('ln%d')\">-</SPAN>&nbsp;", line+1);
+						fprintf(fp, "<SPAN class=\"S%0d\">", style);
+					} else {
+						fputc('\n', fp);
+					}
+				}
 			} else if (ch == '<') {
 				fputs("&lt;", fp);
 			} else if (ch == '>') {
@@ -603,7 +667,6 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			} else if (ch == '&') {
 				fputs("&amp;", fp);
 #ifdef FOLDING_HTML
-
 			} else if (ch == '{' && folding) {
 				fprintf(fp, "<A id=\"fold%0dp\" href=\"javascript:void(0);\"", foldno);
 				fprintf(fp, "onClick=\"if( fold%0d.style.display ) { fold%0d.style.display = ''; fold%0dp.text = '-'; }", foldno, foldno, foldno);
