@@ -389,6 +389,8 @@ protected:
 	int visHeightStatus;
 	int visHeightEditor;
 	int heightBar;
+	// Prevent automatic load dialog appearing at the same time as
+	// other dialogs as this can leads to reentry errors.
 	int dialogsOnScreen;
 	bool topMost;
 	bool wrap;

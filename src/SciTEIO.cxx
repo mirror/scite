@@ -641,9 +641,7 @@ void SciTEBase::CheckReload() {
 			RecentFile rf = GetFilePosition();
 			OpenFlags of = props.GetInt("reload.preserves.undo") ? ofPreserveUndo : ofNone;
 			if (isDirty || props.GetInt("are.you.sure.on.reload") != 0) {
-				static bool entered = false; // Stop reentrancy
-				if (!entered && (0 == dialogsOnScreen) && (newModTime != fileModLastAsk)) {
-					entered = true;
+				if ((0 == dialogsOnScreen) && (newModTime != fileModLastAsk)) {
 					SString msg;
 					if (isDirty) {
 						msg = LocaliseMessage(
@@ -654,15 +652,12 @@ void SciTEBase::CheckReload() {
 							  "The file '^0' has been modified outside SciTE. Should it be reloaded?",
 							  fileName);
 					}
-					dialogsOnScreen++;
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
-					dialogsOnScreen--;
 					if (decision == IDYES) {
 						Open(fullPathToCheck, static_cast<OpenFlags>(of | ofForceLoad));
 						DisplayAround(rf);
 					}
 					fileModLastAsk = newModTime;
-					entered = false;
 				}
 			} else {
 				Open(fullPathToCheck, static_cast<OpenFlags>(of | ofForceLoad));
@@ -693,9 +688,7 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 			} else {
 				msg = LocaliseMessage("Save changes to (Untitled)?");
 			}
-			dialogsOnScreen++;
 			int decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL | MB_ICONQUESTION);
-			dialogsOnScreen--;
 			if (decision == IDYES) {
 				if (!Save())
 					decision = IDCANCEL;
@@ -832,25 +825,22 @@ bool SciTEBase::Save() {
 			fileModTime = GetModTime(fullPath);
 			SendEditor(SCI_SETSAVEPOINT);
 			if (IsPropertiesFile(fileName)) {
-				//bool currentUseMonoFont = useMonoFont;
 				ReadGlobalPropFile();
 				SetImportMenu();
 				ReadLocalPropFile();
 				ReadAbbrevPropFile();
 				ReadProperties();
-				//useMonoFont = currentUseMonoFont;
-				//if (useMonoFont) {
-				//	SetMonoFont();
-				//}
 				SetWindowName();
 				BuffersMenu();
 				Redraw();
 			}
 		} else {
-			SString msg = LocaliseMessage("Could not save file '^0'.", fullPath);
-			dialogsOnScreen++;
-			WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-			dialogsOnScreen--;
+			SString msg = LocaliseMessage(
+				"Could not save file '^0'. Save under a different name?", fullPath);
+			int decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+			if (decision == IDYES) {
+				return SaveAs();
+			}
 			return false;
 		}
 		return true;

@@ -433,9 +433,7 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 		fclose(fp);
 	} else {
 		SString msg = LocaliseMessage("Could not save file '^0'.", fullPath);
-		dialogsOnScreen++;
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-		dialogsOnScreen--;
 	}
 }
 
@@ -735,9 +733,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 	} else {
 		SString msg = LocaliseMessage(
 		                  "Could not save file \"^0\".", fullPath);
-		dialogsOnScreen++;
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-		dialogsOnScreen--;
 	}
 }
 
@@ -769,9 +765,7 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		// no content to export, issue an error message
 		char msg[200];
 		strcpy(msg, "Nothing to export as PDF");
-		dialogsOnScreen++;
 		WindowMessageBox(wSciTE, msg, MB_OK);
-		dialogsOnScreen--;
 	}
 
 	FILE *fp = fopen(saveName, "wt");
@@ -781,9 +775,7 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		strcpy(msg, "Could not save file \"");
 		strcat(msg, fullPath);
 		strcat(msg, "\".");
-		dialogsOnScreen++;
 		WindowMessageBox(wSciTE, msg, MB_OK);
-		dialogsOnScreen--;
 	}
 
 	char *PDFColours[STYLE_DEFAULT];
@@ -1370,8 +1362,6 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 	} else {
 		SString msg = LocaliseMessage(
 		                  "Could not save file \"^0\".", fullPath);
-		dialogsOnScreen++;
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-		dialogsOnScreen--;
 	}
 }

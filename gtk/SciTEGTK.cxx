@@ -794,7 +794,7 @@ void SciTEGTK::OpenUriList(const char *list) {
 					unquote(uri);
 					Open(uri);
 				} else {
-					SString msg = LocaliseMessage("URI '^0' not understood.");
+					SString msg = LocaliseMessage("URI '^0' not understood.", uri);
 					WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 				}
 
@@ -1683,6 +1683,7 @@ void SciTEGTK::DestroyFindReplace() {
 
 int SciTEGTK::WindowMessageBox(Window &w, const SString &msg, int style) {
 	if (!messageBoxDialog) {
+		dialogsOnScreen++;
 		GtkAccelGroup *accel_group = gtk_accel_group_new();
 
 		messageBoxResult = -1;
@@ -1735,6 +1736,7 @@ int SciTEGTK::WindowMessageBox(Window &w, const SString &msg, int style) {
 		while (messageBoxResult < 0) {
 			gtk_main_iteration();
 		}
+		dialogsOnScreen--;
 	}
 	return messageBoxResult;
 }

@@ -357,24 +357,21 @@ void SciTEWin::LoadSessionDialog() {
 }
 
 void SciTEWin::SaveSessionDialog() {
-	if (0 == dialogsOnScreen) {
-		char saveName[MAX_PATH] = "\0";
-		strcpy(saveName, "SciTE.ses");
-		OPENFILENAME ofn = {
-		                       sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		                   };
-		ofn.hwndOwner = MainHWND();
-		ofn.hInstance = hInstance;
-		ofn.lpstrFile = saveName;
-		ofn.nMaxFile = sizeof(saveName);
-		SString translatedTitle = LocaliseString("Save Current Session");
-		ofn.lpstrTitle = translatedTitle.c_str();
-		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-		ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
-		dialogsOnScreen++;
-		if (::GetSaveFileName(&ofn))
-			SaveSession(saveName);
-		dialogsOnScreen--;
+	char saveName[MAX_PATH] = "\0";
+	strcpy(saveName, "SciTE.ses");
+	OPENFILENAME ofn = {
+			       sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			   };
+	ofn.hwndOwner = MainHWND();
+	ofn.hInstance = hInstance;
+	ofn.lpstrFile = saveName;
+	ofn.nMaxFile = sizeof(saveName);
+	SString translatedTitle = LocaliseString("Save Current Session");
+	ofn.lpstrTitle = translatedTitle.c_str();
+	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+	ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
+	if (::GetSaveFileName(&ofn)) {
+		SaveSession(saveName);
 	}
 }
 
@@ -1470,7 +1467,10 @@ bool SciTEWin::ParametersDialog(bool modal) {
 }
 
 int SciTEWin::WindowMessageBox(Window &w, const SString &msg, int style) {
-	return ::MessageBox(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
+	dialogsOnScreen++;
+	int ret = ::MessageBox(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
+	dialogsOnScreen--;
+	return  ret;
 }
 
 BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {

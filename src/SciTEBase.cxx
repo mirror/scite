@@ -1051,17 +1051,12 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 }
 
 void SciTEBase::FindMessageBox(const SString &msg) {
-	dialogsOnScreen++;
 #if PLAT_GTK || PLAT_FOX
-
 	WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 #endif
 #if PLAT_WIN
-
 	WindowMessageBox(wFindReplace, msg, MB_OK | MB_ICONWARNING);
 #endif
-
-	dialogsOnScreen--;
 }
 
 /**
@@ -1319,9 +1314,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 			if (wFindReplace.Created()) {
 				FindMessageBox(msg);
 			} else {
-				dialogsOnScreen++;
 				WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-				dialogsOnScreen--;
 			}
 		}
 	} else {
