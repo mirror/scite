@@ -473,6 +473,7 @@ void SciTEWin::FixFilePath() {
 void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 	// The runtime libraries for GCC and Visual C++ give different results for _fullpath
 	// so use the OS.
+	*absPath = '\0';
 	LPTSTR fileBit = 0;
 	::GetFullPathName(relativePath, size, absPath, &fileBit);
 	//Platform::DebugPrintf("AbsolutePath: <%s> -> <%s>\n", relativePath, absPath);
