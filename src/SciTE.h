@@ -36,7 +36,7 @@
 #define IDM_QUIT			140
 
 #define MRU_START	8
-#define IMPORT_START 16
+#define IMPORT_START 17
 #define TOOLS_START 3
 
 // Edit
@@ -117,6 +117,7 @@
 #define IDM_TOGGLEPARAMETERS	412
 #define IDM_CHECKIFOPEN		413
 #define IDM_WRAP			414
+#define IDM_WRAPOUTPUT		415
 
 #define IDM_CLEAROUTPUT		420
 #define IDM_SWITCHPANE			421

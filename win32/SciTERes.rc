@@ -118,6 +118,7 @@ BEGIN
 	MENUITEM "C&heck if already open",	IDM_CHECKIFOPEN
 	MENUITEM "Vertical &Split",			IDM_SPLITVERTICAL
 	MENUITEM "&Wrap",			IDM_WRAP
+	MENUITEM "Wrap Out&put",			IDM_WRAPOUTPUT
 	MENUITEM SEPARATOR
 	POPUP "&Line End Characters"
 	BEGIN

@@ -171,6 +171,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	dialogsOnScreen = 0;
 	topMost = false;
 	wrap = false;
+	wrapOutput = false;
 	checkIfOpen = false;
 	fullScreen = false;
 
@@ -2665,6 +2666,12 @@ void SciTEBase::MenuCommand(int cmdID) {
 		CheckMenus();
 		break;
 
+	case IDM_WRAPOUTPUT:
+		wrapOutput = !wrapOutput;
+		SendOutput(SCI_SETWRAPMODE, wrapOutput ? SC_WRAP_WORD : SC_WRAP_NONE);
+		CheckMenus();
+		break;
+		
 	case IDM_VIEWTABBAR:
 		tabVisible = !tabVisible;
 		ShowTabBar();
@@ -3240,6 +3247,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);
 	CheckAMenuItem(IDM_CHECKIFOPEN, checkIfOpen);
 	CheckAMenuItem(IDM_WRAP, wrap);
+	CheckAMenuItem(IDM_WRAPOUTPUT, wrapOutput);
 	CheckAMenuItem(IDM_FULLSCREEN, fullScreen);
 	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);

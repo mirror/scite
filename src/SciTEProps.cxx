@@ -952,6 +952,7 @@ void SciTEBase::SetPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
 	checkIfOpen = props.GetInt("check.if.already.open");
 	wrap = props.GetInt("wrap");
+	wrapOutput = props.GetInt("output.wrap");
 	indentationWSVisible = props.GetInt("view.indentation.whitespace", 1);
 	sbVisible = props.GetInt("statusbar.visible");
 	tbVisible = props.GetInt("toolbar.visible");
@@ -1034,6 +1035,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
 	SendEditor(SCI_SETWRAPMODE, wrap ? SC_WRAP_WORD : SC_WRAP_NONE);
+	SendOutput(SCI_SETWRAPMODE, wrapOutput ? SC_WRAP_WORD : SC_WRAP_NONE);
 
 	useMonoFont = props.GetInt("use.monospaced");
 

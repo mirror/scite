@@ -1141,6 +1141,18 @@ NameError: mistake
 	To stop the output pane from automatically scrolling, set output.scroll to 0.
         </td>
       </tr>
+      <tr>
+        <td>
+          wrap<br />
+	output.wrap
+        </td>
+        <td>
+          If wrap set to 1 then the edit pane is dynamically line wrapped. 
+          If output.wrap set to 1 then the output pane is dynamically line wrapped. 
+	These options have a high performance cost which is proportional to the amount of text 
+	so should be turned off for large documents on slow machines.
+        </td>
+      </tr>
       <tr class="windowsonly">
         <td>
           open.filter

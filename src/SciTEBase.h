@@ -351,6 +351,7 @@ protected:
 	int dialogsOnScreen;
 	bool topMost;
 	bool wrap;
+	bool wrapOutput;
 	bool checkIfOpen;
 	bool fullScreen;
 	enum { toolMax = 10 };
