@@ -871,7 +871,7 @@ bool SciTEGTK::SaveAsDialog() {
 	savingRTF = false;
 	savingPDF = false;
 	if (!fileSelector.Created()) {
-		fileSelector = gtk_file_selection_new("Save File As");
+		fileSelector = gtk_file_selection_new(Translated("Save File As").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
@@ -898,7 +898,7 @@ bool SciTEGTK::SaveAsDialog() {
 void SciTEGTK::SaveAsHTML() {
 	if (!fileSelector.Created()) {
 		savingHTML = true;
-		fileSelector = gtk_file_selection_new("Save File As HTML");
+		fileSelector = gtk_file_selection_new(Translated("Export File As HTML").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
@@ -921,7 +921,7 @@ void SciTEGTK::SaveAsHTML() {
 void SciTEGTK::SaveAsRTF() {
 	if (!fileSelector.Created()) {
 		savingRTF = true;
-		fileSelector = gtk_file_selection_new("Save File As RTF");
+		fileSelector = gtk_file_selection_new(Translated("Export File As RTF").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
@@ -944,7 +944,7 @@ void SciTEGTK::SaveAsRTF() {
 void SciTEGTK::SaveAsPDF() {
 	if (!fileSelector.Created()) {
 		savingPDF = true;
-		fileSelector = gtk_file_selection_new("Save File As PDF");
+		fileSelector = gtk_file_selection_new("Export File As PDF");
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),

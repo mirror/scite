@@ -177,7 +177,9 @@ bool SciTEWin::OpenDialog() {
 	ofn.lpstrCustomFilter = openWhat;
 	ofn.nMaxCustFilter = sizeof(openWhat);
 	ofn.nFilterIndex = filterDefault;
-	ofn.lpstrTitle = "Open File";
+	SString translatedTitle = "Open File";
+	LocaliseString(translatedTitle, true);
+	ofn.lpstrTitle = translatedTitle.c_str();
 	if (props.GetInt("open.dialog.in.file.directory")) {
 		ofn.lpstrInitialDir = dirName;
 	}
@@ -258,7 +260,9 @@ SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const ch
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
 		ofn.nMaxFile = sizeof(saveName);
-		ofn.lpstrTitle = title;
+		SString translatedTitle = title;
+		LocaliseString(translatedTitle, true);
+		ofn.lpstrTitle = translatedTitle.c_str();
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 		ofn.lpstrFilter = filter;
 		ofn.lpstrInitialDir = dirName;
@@ -291,7 +295,7 @@ bool SciTEWin::SaveAsDialog() {
 }
 
 void SciTEWin::SaveAsHTML() {
-	SString path = ChooseSaveName("Save File As HTML", 
+	SString path = ChooseSaveName("Export File As HTML", 
 		"Web (.html;.htm)\0*.html;*.htm\0", ".html");
 	if (path.length()) {
 		SaveToHTML(path.c_str());
@@ -299,7 +303,7 @@ void SciTEWin::SaveAsHTML() {
 }
 
 void SciTEWin::SaveAsRTF() {
-	SString path = ChooseSaveName("Save File As RTF", 
+	SString path = ChooseSaveName("Export File As RTF", 
 		"RTF (.rtf)\0*.rtf\0", ".rtf");
 	if (path.length()) {
 		SaveToRTF(path.c_str());
@@ -307,7 +311,7 @@ void SciTEWin::SaveAsRTF() {
 }
 
 void SciTEWin::SaveAsPDF() {
-	SString path = ChooseSaveName("Save File As PDF", 
+	SString path = ChooseSaveName("Export File As PDF", 
 		"PDF (.pdf)\0*.pdf\0", ".pdf");
 	if (path.length()) {
 		SaveToPDF(path.c_str());
@@ -324,7 +328,9 @@ void SciTEWin::LoadSessionDialog() {
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
 	ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
-	ofn.lpstrTitle = "Load Session";
+	SString translatedTitle = "Load Session";
+	LocaliseString(translatedTitle, true);
+	ofn.lpstrTitle = translatedTitle.c_str();
 	ofn.Flags = OFN_HIDEREADONLY;
 	if (::GetOpenFileName(&ofn))
 		LoadSession(openName);
@@ -341,7 +347,9 @@ void SciTEWin::SaveSessionDialog() {
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
 		ofn.nMaxFile = sizeof(saveName);
-		ofn.lpstrTitle = "Save Current Session";
+		SString translatedTitle = "Save Current Session";
+		LocaliseString(translatedTitle, true);
+		ofn.lpstrTitle = translatedTitle.c_str();
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 		ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
 		dialogsOnScreen++;

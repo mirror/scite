@@ -156,7 +156,7 @@ void SciTEBase::SetImportMenu() {
 			int itemID = importCmdID + stackPos;
 			if (importFiles[stackPos][0]) {
 				SString entry("Open");
-				LocaliseString(entry);
+				LocaliseString(entry, true);
 				entry.append(" ");
 				const char *cpDirEnd = strrchr(importFiles[stackPos].c_str(), pathSepChar);
 				if (cpDirEnd) {
@@ -957,18 +957,22 @@ void SciTEBase::SetPropertiesInitial() {
 		foldMarginWidth = foldMarginWidthDefault;
 }
 
-void SciTEBase::LocaliseString(SString &s) {
-	int ellipseIndicator = s.remove("...");
-	int accessKeyPresent = s.remove(menuAccessIndicator);
-	s = propsUI.Get(s.c_str());
-	if (s.length()) {
+void SciTEBase::LocaliseString(SString &s, bool retainIfNotFound) {
+	SString translation = s;
+	int ellipseIndicator = translation.remove("...");
+	int accessKeyPresent = translation.remove(menuAccessIndicator);
+	translation = propsUI.Get(translation.c_str());
+	if (translation.length()) {
 		if (ellipseIndicator)
-			s += "...";
+			translation += "...";
 		if (0 == accessKeyPresent)
-			s.remove("&");
-		s.substitute("&", menuAccessIndicator);
+			translation.remove("&");
+		translation.substitute("&", menuAccessIndicator);
 	} else {
-		s = props.Get("translation.missing");
+		translation = props.Get("translation.missing");
+	}
+	if ((translation.length() > 0) || !retainIfNotFound) {
+		s = translation;
 	}
 }
 
