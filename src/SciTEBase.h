@@ -513,7 +513,7 @@ protected:
 	void Expand(int &line, bool doExpand, bool force = false,
 	            int visLevels = 0, int level = -1);
 	void FoldAll();
-	void EnsureRangeVisible(int posStart, int posEnd);
+	void EnsureRangeVisible(int posStart, int posEnd, bool enforcePolicy=true);
 	void GotoLineEnsureVisible(int line);
 	bool MarginClick(int position, int modifiers);
 	virtual void SetStatusBarText(const char *s) = 0;

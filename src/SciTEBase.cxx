@@ -369,7 +369,7 @@ void SciTEBase::SetMonoFont() {
  */
 void SciTEBase::SetOverrideLanguage(int cmdID) {
 	RecentFile rf = GetFilePosition();
-	EnsureRangeVisible(0, SendEditor(SCI_GETLENGTH));
+	EnsureRangeVisible(0, SendEditor(SCI_GETLENGTH), false);
 	// Zero all the style bytes
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
 	useMonoFont = false;
@@ -2956,15 +2956,15 @@ void SciTEBase::FoldAll() {
 }
 
 void SciTEBase::GotoLineEnsureVisible(int line) {
-	SendEditor(SCI_ENSUREVISIBLE, line);
+	SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, line);
 	SendEditor(SCI_GOTOLINE, line);
 }
 
-void SciTEBase::EnsureRangeVisible(int posStart, int posEnd) {
+void SciTEBase::EnsureRangeVisible(int posStart, int posEnd, bool enforcePolicy) {
 	int lineStart = SendEditor(SCI_LINEFROMPOSITION, Platform::Minimum(posStart, posEnd));
 	int lineEnd = SendEditor(SCI_LINEFROMPOSITION, Platform::Maximum(posStart, posEnd));
 	for (int line = lineStart; line <= lineEnd; line++) {
-		SendEditor(SCI_ENSUREVISIBLE, line);
+		SendEditor(enforcePolicy ? SCI_ENSUREVISIBLEENFORCEPOLICY : SCI_ENSUREVISIBLE, line);
 	}
 }
 
@@ -3116,7 +3116,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_NEEDSHOWN: {
-			EnsureRangeVisible(notification->position, notification->position + notification->length);
+			EnsureRangeVisible(notification->position, notification->position + notification->length, false);
 		}
 		break;
 

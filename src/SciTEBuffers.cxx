@@ -612,9 +612,9 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 			FoldAll();
 
 		int lineStart = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMin);
-		SendEditor(SCI_ENSUREVISIBLE, lineStart);
+		SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, lineStart);
 		int lineEnd = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMax);
-		SendEditor(SCI_ENSUREVISIBLE, lineEnd);
+		SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, lineEnd);
 		SetSelection(rf.selection.cpMax, rf.selection.cpMin);
 
 		// Folding can mess up next scrolling, so will be better without scrolling
