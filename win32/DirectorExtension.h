@@ -26,6 +26,6 @@ public:
 	virtual bool OnMarginClick();
 
 	// Allow messages through to extension
-	void HandleMessage(WPARAM wParam, LPARAM lParam);
+	LRESULT HandleMessage(WPARAM wParam, LPARAM lParam);
 };
 

@@ -108,6 +108,10 @@ SciTEWin::~SciTEWin() {
 		::DeleteObject(fontTabs);
 }
 
+uptr_t SciTEWin::GetInstance() {
+	return reinterpret_cast<uptr_t>(hInstance);
+}
+
 void SciTEWin::Register(HINSTANCE hInstance_) {
 	const char resourceName[] = "SciTE";
 
@@ -893,14 +897,6 @@ int testPaints = 1;
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
 	switch (iMessage) {
-#ifndef NO_FILER
-	case WM_COPYDATA:
-		if (extender) {
-			DirectorExtension *de = static_cast<DirectorExtension *>(extender);
-			de->HandleMessage(wParam, lParam);
-		}
-		break;
-#endif
 
 	case WM_CREATE:
 		Creation();

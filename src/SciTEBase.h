@@ -480,6 +480,7 @@ protected:
 	char *Property(const char *key);
 	bool OpenFromExtension(const char *path);
 	void SetProperty(const char *key, const char *val);
+	uptr_t GetInstance();
 
 public:
 

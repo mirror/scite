@@ -148,6 +148,7 @@ public:
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	uptr_t GetInstance();
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
 	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);

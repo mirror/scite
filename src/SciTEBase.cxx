@@ -2125,3 +2125,7 @@ bool SciTEBase::OpenFromExtension(const char *path) {
 void SciTEBase::SetProperty(const char *key, const char *val) {
 	props.Set(key, val);
 }
+
+uptr_t SciTEBase::GetInstance() {
+	return 0;
+}

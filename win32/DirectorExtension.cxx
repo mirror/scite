@@ -4,6 +4,7 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "Platform.h"
 
@@ -14,10 +15,11 @@
 #include "SciTEDirector.h"
 
 static ExtensionAPI *host = 0;
+static DirectorExtension *pde = 0;
 static HWND wDirector = 0;
 static HWND wReceiver = 0;
 
-static void SendFiler(int typ, const char *path) {
+static void SendDirector(int typ, const char *path) {
 	//typ values :
 	//-1: Bring Filerx to foreground (no message is sent , calls SetForegroundWindow)
 	//SCPROJ_OPENED=2000 : ShowPath
@@ -48,28 +50,77 @@ static void CheckEnvironment(ExtensionAPI *host) {
 		return;
 	if (!wDirector) {
 		char *director = host->Property("director.hwnd");
-		if (director)
+        if (director) {
 			wDirector = reinterpret_cast<HWND>(atoi(director));
+            // Director is just seen so identify this to it
+            SendDirector(SCD_IDENTIFY, "SciTE");
+        }
+        delete []director;
 	}
-	if (!wReceiver) {
-		char *receiver = host->Property("WindowID");
-		if (receiver)
-			wReceiver = reinterpret_cast<HWND>(atoi(receiver));
+	char number[32];
+	sprintf(number, "%0d", reinterpret_cast<int>(wReceiver));
+	host->SetProperty("WindowID", number);
+}
+
+static char DirectorExtension_ClassName[] = "DirectorExtension";
+
+LRESULT PASCAL DirectorExtension_WndProc(
+    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	if (pde && (iMessage == WM_COPYDATA)) {
+		return pde->HandleMessage(wParam, lParam);
 	}
+	return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
+}
+
+static void DirectorExtension_Register(HINSTANCE hInstance) {
+	WNDCLASS wndclass;
+	wndclass.style = 0;
+	wndclass.lpfnWndProc = DirectorExtension_WndProc;
+	wndclass.cbClsExtra = 0;
+	wndclass.cbWndExtra = 0;
+	wndclass.hInstance = hInstance;
+	wndclass.hIcon = 0;
+	wndclass.hCursor = NULL;
+	wndclass.hbrBackground = NULL;
+	wndclass.lpszMenuName = 0;
+	wndclass.lpszClassName = DirectorExtension_ClassName;
+	if (!::RegisterClass(&wndclass))
+		::exit(FALSE);
 }
 
 DirectorExtension::DirectorExtension() {
+    pde = this;
 }
 
-DirectorExtension::~DirectorExtension() {}
+DirectorExtension::~DirectorExtension() {
+    pde = 0;
+}
 
 bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	host = host_;
+	HINSTANCE hInstance = reinterpret_cast<HINSTANCE>(
+		host->GetInstance());
+	DirectorExtension_Register(hInstance);
+	wReceiver = ::CreateWindow(
+		DirectorExtension_ClassName, 
+		DirectorExtension_ClassName,
+		0,
+		0,0,0,0,
+		0,
+		0,
+		hInstance,
+		0);
+	if (!wReceiver)
+		::exit(FALSE);
 	CheckEnvironment(host);
 	return true;
 }
 
 bool DirectorExtension::Finalise() {
+    SendDirector(SCD_CLOSING, "");
+	if (wReceiver)
+		::DestroyWindow(wReceiver);
+	wReceiver = 0;
 	return true;
 }
 
@@ -84,14 +135,14 @@ bool DirectorExtension::Load(const char *) {
 bool DirectorExtension::OnOpen(const char *path) {
 	CheckEnvironment(host);
 	if (*path)
-		::SendFiler(SCD_OPENED, path);	// ShowPath 
+		::SendDirector(SCD_OPENED, path);	// ShowPath 
 	return true;
 }
 
 bool DirectorExtension::OnSave(const char *path) {
 	CheckEnvironment(host);
 	if (*path)
-		::SendFiler(SCD_SAVED, path);	// Refresh 
+		::SendDirector(SCD_SAVED, path);	// Refresh 
 	return true;
 }
 
@@ -129,14 +180,14 @@ bool DirectorExtension::OnMarginClick() {
 	return false;
 }
 
-void DirectorExtension::HandleMessage(WPARAM wParam, LPARAM lParam) {
+LRESULT DirectorExtension::HandleMessage(WPARAM wParam, LPARAM lParam) {
 	COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
 	char path[MAX_PATH];
 	unsigned int nCopy = ((MAX_PATH-1) < pcds->cbData) ? (MAX_PATH-1) : pcds->cbData;
 	if (pcds->lpData)
 		strncpy(path, reinterpret_cast<char *>(pcds->lpData), nCopy);
 	path[nCopy] = '\0';
-	switch(pcds->dwData) {
+	switch (pcds->dwData) {
 		case SCD_IDENTIFY:
 			wDirector = reinterpret_cast<HWND>(wParam);
 			//caller's Window Name is in path ...
@@ -148,6 +199,7 @@ void DirectorExtension::HandleMessage(WPARAM wParam, LPARAM lParam) {
 			wDirector = 0;
 			break;
 	}
+	return 0;
 }
 
 #ifdef _MSC_VER
