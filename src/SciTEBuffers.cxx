@@ -886,7 +886,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 		// Visual *
 		char *endPath = strchr(cdoc, '(');
 		int length = endPath - cdoc;
-		if (length > 0) {
+		if ((length > 0) && (length < MAX_PATH)) {
 			strncpy(sourcePath, cdoc, length);
 			sourcePath[length] = 0;
 		}
