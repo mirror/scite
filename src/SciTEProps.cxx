@@ -1211,6 +1211,7 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 	int ellipseIndicator = translation.remove("...");
 	int accessKeyPresent = translation.remove(menuAccessIndicator);
 	translation.lowercase();
+	translation.substitute("\n", "\\n");
 	translation = propsUI.Get(translation.c_str());
 	if (translation.length()) {
 		if (ellipseIndicator)
@@ -1218,6 +1219,7 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 		if (0 == accessKeyPresent)
 			translation.remove("&");
 		translation.substitute("&", menuAccessIndicator);
+		translation.substitute("\\n", "\n");
 	} else {
 		translation = props.Get("translation.missing");
 	}

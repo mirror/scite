@@ -60,22 +60,22 @@ class EntryMemory {
 	SString entries[sz];
 public:
 	void Insert(const SString &s) {
-		for (int i = 0;i < sz;i++) {
+		for (int i = 0; i < sz; i++) {
 			if (entries[i] == s) {
-				for (int j = i;j > 0;j--) {
+				for (int j = i; j > 0; j--) {
 					entries[j] = entries[j - 1];
 				}
 				entries[0] = s;
 				return;
 			}
 		}
-		for (int k = sz - 1;k > 0;k--) {
+		for (int k = sz - 1; k > 0; k--) {
 			entries[k] = entries[k - 1];
 		}
 		entries[0] = s;
 	}
 	void AppendIfNotPresent(const SString &s) {
-		for (int i = 0;i < sz;i++) {
+		for (int i = 0; i < sz; i++) {
 			if (entries[i] == s) {
 				return;
 			}
@@ -98,7 +98,7 @@ public:
 	}
 	int Length() const {
 		int len = 0;
-		for (int i = 0;i < sz;i++)
+		for (int i = 0; i < sz; i++)
 			if (entries[i].length())
 				len++;
 		return len;
@@ -655,7 +655,7 @@ protected:
 	void Close(bool updateUI = true, bool loadingSession = false);
 	bool IsAbsolutePath(const char *path);
 	bool Exists(const char *dir, const char *path, char *testPath);
-	void OpenFile(bool suppressMessage);
+	void OpenFile(int fileSize, bool suppressMessage);
 	virtual void OpenUriList(const char *) {};
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size) = 0;
 	virtual void FixFilePath();

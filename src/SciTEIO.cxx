@@ -384,15 +384,11 @@ static UniMode CookieValue(const SString &s) {
 	return uni8Bit;
 }
 
-void SciTEBase::OpenFile(bool suppressMessage) {
+void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 	Utf8_16_Read convert;
 
 	FILE *fp = fopen(fullPath, fileRead);
 	if (fp) {
-		fseek(fp, 0, SEEK_END);
-		int allocation = ftell(fp);
-		SendEditor(SCI_ALLOCATE, allocation + 1000);
-		fseek(fp, 0, SEEK_SET);
 		fileModTime = GetModTime(fullPath);
 		fileModLastAsk = fileModTime;
 		SendEditor(SCI_CLEARALL);
@@ -400,6 +396,7 @@ void SciTEBase::OpenFile(bool suppressMessage) {
 		size_t lenFile = fread(data, 1, sizeof(data), fp);
 		SString l1 = ExtractLine(data, lenFile);
 		SString l2 = ExtractLine(data+l1.length(), lenFile-l1.length());
+		SendEditor(SCI_ALLOCATE, fileSize + 1000);
 		while (lenFile > 0) {
 			lenFile = convert.convert(data, lenFile);
 			SendEditorString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
@@ -457,12 +454,27 @@ bool SciTEBase::PreOpenCheck(const char *) {
 	return false;
 }
 
+static int GetFileLength(const char *filePath) {
+	int size = -1;
+	if (filePath && *filePath) {
+		FILE *fp = fopen(filePath, fileRead);
+		if (fp) {
+			fseek(fp, 0, SEEK_END);
+			size = ftell(fp);
+			fseek(fp, 0, SEEK_SET);
+			fclose(fp);
+		}
+	}
+	return size;
+}
+
 bool SciTEBase::Open(const char *file, OpenFlags of) {
 	InitialiseBuffers();
 
 	if (!file) {
 		SString msg = LocaliseMessage("Bad file.");
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		return false;
 	}
 #ifdef __vms
 	static char fixedFileName[MAX_PATH];
@@ -483,6 +495,20 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 	// See if we can have a buffer for the file to open
 	if (!CanMakeRoom(!(of & ofNoSaveIfDirty))) {
 		return false;
+	}
+
+	int size = GetFileLength(absPath);
+	int maxSize = props.GetInt("max.file.size");
+	if (maxSize > 0 && size > maxSize) {
+		SString sSize(size), sMaxSize(maxSize);
+		SString msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
+			"larger than the ^2 bytes limit set in the properties.\n"
+			"Do you still want to open it?",
+			fullPath, sSize.c_str(), sMaxSize.c_str());
+		int answer = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+		if (answer != IDYES) {
+			return false;
+		}
 	}
 
 	if (buffers.size == buffers.length) {
@@ -511,7 +537,7 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 			SendEditor(SCI_SETUNDOCOLLECTION, 0);
 		}
 
-		OpenFile(of & ofQuiet);
+		OpenFile(size, of & ofQuiet);
 
 		if (of & ofPreserveUndo) {
 			SendEditor(SCI_ENDUNDOACTION);
@@ -651,7 +677,7 @@ bool SciTEBase::OpenSelected() {
 
 void SciTEBase::Revert() {
 	RecentFile rf = GetFilePosition();
-	OpenFile(false);
+	OpenFile(GetFileLength(fullPath), false);
 	DisplayAround(rf);
 }
 
