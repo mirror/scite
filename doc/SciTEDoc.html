@@ -148,8 +148,10 @@ NameError: mistake
        Command line arguments
     </h3>
     <p>
-       Command line arguments to SciTE include file names and properties. Properties
-       are preceded by "-" use the syntax used in property set files and override any
+       Command line arguments to SciTE include file names, commands and properties.
+       Commands and properties are preceded by "-" and are differentiated by the use in
+       commands of ':' as the first character that is not '.' or alphabetic.
+       Properties use the syntax used in property set files and override any
        properties set in property files. If there is no value given for a property, it is set to 1.
        Double quotes
        may be placed around arguments that contain spaces. On Linux, the standard shell
@@ -165,7 +167,18 @@ NameError: mistake
        <code>
        SciTE "-import c:\os\web_work" SciTEDoc.html
        </code><br />
-
+       The only command currently available is "open:" although this will expand in the
+       future. The following opens /big/icon.txt:<br />
+       <code>
+       SciTE -open:/big/icon.txt
+       </code><br />
+    </p>
+    <p>
+	Command line arguments are evaluated left to right in two phases because
+	opening files requires the user interface to be available and there is also a need
+	to set some user interface properties before the user interface is displayed.
+	The first phase process arguments until just before the first file name would be opened.
+	The second phase processes the remaining arguments.
     </p>
     <h3>
        Buffers
@@ -226,6 +239,12 @@ NameError: mistake
       </li>
       <li>
         Lua
+      </li>
+      <li>
+        Pascal
+      </li>
+      <li>
+        Avenue - a language used in the ESRI ArcView GIS.
       </li>
     </ul>
     <p>
@@ -382,7 +401,8 @@ NameError: mistake
        Folding
     </h3>
     <p>
-       SciTE supports folding for Python and C++/C/Java/JavaScript.
+       SciTE supports folding for Python, HTML/XML, Pascal,
+       and C++/C/Java/JavaScript.
        Fold points are based upon indentation for Python and on counting braces
        for the other languages. The fold point markers can be clicked to
        expand and contract folds. Ctrl+Shift+Click in the fold margin
@@ -445,6 +465,8 @@ NameError: mistake
        <b>CurrentSelection</b> is the value of the currently selected text but not if selection is
       more than 1000 characters.<br />
        <b>CurrentWord</b> is the value of word which the caret is within or near.<br />
+       <b>SciteDefaultHome</b> is the directory in which the Global Options file is found.<br />
+       <b>SciteUserHome</b> is the directory in which the User Options file is found.<br />
     </p>
     <p>
        Some features use file name patterns to see which variable to use. For example, the lexer
@@ -609,9 +631,10 @@ NameError: mistake
           line.numbers
         </td>
         <td>
-          Setting this to a number makes SciTE start up with a column of line numbers displayed to
-          the left of the selection margin. The value is the number of pixels wide the line numbers
-          can be.
+	Setting this to a number makes SciTE start up with a column of line numbers displayed to
+	the left of the selection margin. The value is the number of pixels wide the line numbers
+	can be so make it something like 30, <b>do not make it 1</b>.
+	Setting line.numbers to 1 is the most frequent SciTE support request.
         </td>
       </tr>
       <tr>
