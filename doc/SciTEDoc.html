@@ -1826,6 +1826,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	command.<i>number</i>.<i>filepattern</i><br />
           command.is.filter.<i>number</i>.<i>filepattern</i><br />
           command.subsystem.<i>number</i>.<i>filepattern</i><br />
+          command.save.before.<i>number</i>.<i>filepattern</i><br />
           <span class="windowsonly">command.input.<i>number</i>.<i>filepattern</i></span><br>
           <span class="windowsonly">command.replace.selection.<i>number</i>.<i>filepattern</i></span>
           <span class="windowsonly">command.quiet.<i>number</i>.<i>filepattern</i></span><br>
@@ -1850,6 +1851,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	4 for running HtmlHelp on Windows, and 5 for running WinHelp on Windows.
 	When using subsystem 4 or 5, the command has two parts separated by ! with the first
 	part being the topic to search for and the second the name of the help file.<br />
+	If command.save.before is set to 1, SciTE automatically saves the file before execution.
+	If it is set to 2, SciTE will not save the file, otherwise SciTE asks you.
 
 	On Windows, the optional command.input property specifies text that will be piped
 	to the command.
