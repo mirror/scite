@@ -485,6 +485,7 @@ protected:
 	sptr_t SendOutput(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendOutputString(unsigned int msg, uptr_t wParam, const char *s);
 	sptr_t SendFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
+	sptr_t SendPane(int destination, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendWindow(Window &w, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 	void SendChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendOutputEx(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0, bool direct = true);
@@ -635,7 +636,7 @@ protected:
 	int SaveAllBuffers(bool forceQuestion, bool alwaysYes=false);
 	virtual void CopyAsRTF() {};
 	void SetLineNumberWidth();
-	void MenuCommand(int cmdID);
+	void MenuCommand(int cmdID, int source=0);
 	void FoldChanged(int line, int levelNow, int levelPrev);
 	void FoldChanged(int position);
 	void Expand(int &line, bool doExpand, bool force = false,

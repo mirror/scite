@@ -74,6 +74,7 @@ protected:
 	bool modalParameters;
 	int filterDefault;
 	bool staticBuild;
+	int menuSource;
 
 	HANDLE hWriteSubProcess;
 	DWORD subProcessGroupId;

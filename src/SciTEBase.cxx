@@ -329,6 +329,15 @@ sptr_t SciTEBase::SendFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 		return SendEditor(msg, wParam, lParam);
 }
 
+sptr_t SciTEBase::SendPane(int destination, unsigned int msg, uptr_t wParam, sptr_t lParam) {
+	if (destination == IDM_SRCWIN)
+		return SendEditor(msg, wParam, lParam);
+	else if (destination == IDM_RUNWIN)
+		return SendOutput(msg, wParam, lParam);
+	else
+		return SendFocused(msg, wParam, lParam);
+}
+
 sptr_t SciTEBase::SendWindow(Window &w, unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	if (w.GetID() == wOutput.GetID())
 		return SendOutput(msg, wParam, lParam);
@@ -2820,7 +2829,7 @@ void SciTEBase::SetLineNumberWidth() {
 	SendEditor(SCI_SETMARGINWIDTHN, 0, lineNumbers ? pixelWidth : 0);
 }
 
-void SciTEBase::MenuCommand(int cmdID) {
+void SciTEBase::MenuCommand(int cmdID, int source) {
 	switch (cmdID) {
 	case IDM_NEW:
 		// For the New command, the "are you sure" question is always asked as this gives
@@ -2948,38 +2957,38 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 
 	case IDM_UNDO:
-		SendFocused(SCI_UNDO);
+		SendPane(source, SCI_UNDO);
 		CheckMenus();
 		break;
 	case IDM_REDO:
-		SendFocused(SCI_REDO);
+		SendPane(source, SCI_REDO);
 		CheckMenus();
 		break;
 
 	case IDM_CUT:
-		SendFocused(SCI_CUT);
+		SendPane(source, SCI_CUT);
 		break;
 	case IDM_COPY:
-		SendFocused(SCI_COPY);
+		SendPane(source, SCI_COPY);
 		// does not trigger SCN_UPDATEUI, so do CheckMenusClipboard() here
 		CheckMenusClipboard();
 		break;
 	case IDM_PASTE:
-		SendFocused(SCI_PASTE);
+		SendPane(source, SCI_PASTE);
 		break;
 	case IDM_PASTEANDDOWN: {
 			int pos = SendFocused(SCI_GETCURRENTPOS);
 			SendFocused(SCI_PASTE);
-			SendEditor(SCI_SETCURRENTPOS, pos);
+			SendFocused(SCI_SETCURRENTPOS, pos);
 			SendFocused(SCI_CHARLEFT);
 			SendFocused(SCI_LINEDOWN);
 		}
 		break;
 	case IDM_CLEAR:
-		SendFocused(SCI_CLEAR);
+		SendPane(source, SCI_CLEAR);
 		break;
 	case IDM_SELECTALL:
-		SendFocused(SCI_SELECTALL);
+		SendPane(source, SCI_SELECTALL);
 		break;
 	case IDM_COPYASRTF:
 		CopyAsRTF();

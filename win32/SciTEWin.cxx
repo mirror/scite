@@ -39,6 +39,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	memset(&fr, 0, sizeof(fr));
 	modalParameters = false;
 	filterDefault = 1;
+	menuSource = 0;
 	hWriteSubProcess = NULL;
 
 	// Read properties resource into propsEmbed
@@ -344,7 +345,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		break;
 
 	default:
-		SciTEBase::MenuCommand(cmdID);
+		SciTEBase::MenuCommand(cmdID, menuSource);
 	}
 }
 
@@ -1488,6 +1489,7 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 			}
 		}
 	}
+	menuSource = ::GetDlgCtrlID(reinterpret_cast<HWND>(w.GetID()));
 	ContextMenu(w, pt, wSciTE);
 	return 0;
 }
@@ -1512,6 +1514,11 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_CONTEXTMENU:
 		return ContextMenuMessage(iMessage, wParam, lParam);
+
+	case WM_ENTERMENULOOP:
+		if (!wParam)
+			menuSource = 0;
+		break;
 
 	case WM_SYSCOMMAND:
 		if ((wParam == SC_MINIMIZE) && props.GetInt("minimize.to.tray")) {
