@@ -2376,7 +2376,6 @@ void SciTEBase::CharAdded(char ch) {
  * This routine will auto complete XML or HTML tags that are still open by closing them
  * @parm ch The characer we are dealing with, currently only works with the '/' character
  * @return True if handled, false otherwise
- * @author Scott Kirkwood
  */
 bool SciTEBase::HandleXml(char ch) {
 	// We're looking for this char
@@ -2434,7 +2433,6 @@ bool SciTEBase::HandleXml(char ch) {
 
 /** Search backward through nSize bytes looking for a '<', then return the tag if any
  * @return The tag name
- * @author Scott Kirkwood
  */
 SString SciTEBase::FindOpenXmlTag(const char sel[], int nSize) {
 	SString strRet = "";
