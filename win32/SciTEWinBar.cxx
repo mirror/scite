@@ -336,7 +336,7 @@ void SciTEWin::CheckMenus() {
 	SciTEBase::CheckMenus();
 	CheckMenuRadioItem(GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
 	                   SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
-	CheckMenuRadioItem(GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UTF8,
+	CheckMenuRadioItem(GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UCOOKIE,
 	                   unicodeMode + IDM_ENCODING_DEFAULT, 0);
 }
 

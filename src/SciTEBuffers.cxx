@@ -178,7 +178,7 @@ void SciTEBase::SetDocumentAt(int index) {
 	if (useMonoFont) {
 		SetMonoFont();
 	}
-	if (unicodeMode != 0) {
+	if (unicodeMode != uni8Bit) {
 		// Override the code page if Unicode
 		codePage = SC_CP_UTF8;
 		SendEditor(SCI_SETCODEPAGE, codePage);
@@ -480,7 +480,7 @@ void SciTEBase::Close(bool updateUI) {
 			if (useMonoFont) {
 				SetMonoFont();
 			}
-			if (unicodeMode != 0) {
+			if (unicodeMode != uni8Bit) {
 				// Override the code page if Unicode
 				codePage = SC_CP_UTF8;
 				SendEditor(SCI_SETCODEPAGE, codePage);

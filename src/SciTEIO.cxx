@@ -338,6 +338,49 @@ static bool isSpaceChar(char ch) {
 	return (ch == ' ') || (ch == '\t');
 }
 
+static SString ExtractLine(const char *buf, size_t length) {
+	unsigned int endl = 0;
+	if (length > 0) {
+		while ((endl < length) && (buf[endl] != '\r') && (buf[endl] != '\n')) {
+			endl++;
+		}
+		if (((endl+1) < length) && (buf[endl] == '\r') && (buf[endl+1] == '\n')) {
+			endl++;
+		}
+		if (endl < length) {
+			endl++;
+		}
+	}
+	return SString(buf, 0, endl);
+}
+
+static const char codingCookie[] = "coding";
+
+static UniMode CookieValue(const SString &s) {
+	int posCoding = s.search(codingCookie);
+	if (posCoding >= 0) {
+		posCoding += strlen(codingCookie);
+		if ((s[posCoding] == ':') || (s[posCoding] == '=')) {
+			posCoding++;
+			while ((posCoding < static_cast<int>(s.length())) &&
+				(isSpaceChar(s[posCoding]))) {
+				posCoding++;
+			}
+			size_t endCoding = static_cast<size_t>(posCoding);
+			while ((endCoding < s.length()) &&
+				(isEncodingChar(s[endCoding]))) {
+				endCoding++;
+			}
+			SString code(s.c_str(), posCoding, endCoding);
+			code.lowercase();
+			if (code == "utf-8") {
+				return uniCookie;
+			}
+		}
+	}
+	return uni8Bit;
+}
+
 void SciTEBase::OpenFile(bool initialCmdLine) {
 	Utf8_16_Read convert;
 
@@ -351,37 +394,24 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 			SendEditor(SCI_CLEARALL);
 			char data[blockSize];
 			size_t lenFile = fread(data, 1, sizeof(data), fp);
-			SString startText(data, 0, 200);
+			SString l1 = ExtractLine(data, lenFile);
+			SString l2 = ExtractLine(data+l1.length(), lenFile-l1.length());
 			while (lenFile > 0) {
 				lenFile = convert.convert(data, lenFile);
 				SendEditorString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
 				lenFile = fread(data, 1, sizeof(data), fp);
 			}
 			fclose(fp);
-			unicodeMode = convert.getEncoding();
-			if (unicodeMode == 0) {
-				const char codingCookie[] = "coding";
-				if (startText.contains(codingCookie)) {
-					size_t posCoding = startText.search(codingCookie);
-					posCoding += strlen(codingCookie);
-					if ((startText[posCoding] == ':') || (startText[posCoding] == '=')) {
-						posCoding++;
-						while ((posCoding < startText.length()) && (isSpaceChar(startText[posCoding]))) {
-							posCoding++;
-						}
-						size_t endCoding = posCoding;
-						while ((endCoding < startText.length()) && (isEncodingChar(startText[endCoding]))) {
-							endCoding++;
-						}
-						SString code(startText.c_str(), posCoding, endCoding);
-						code.lowercase();
-						if (code == "utf-8") {
-							unicodeMode = Utf8_16::eUtf8;
-						}
-					}
+			unicodeMode = static_cast<UniMode>(
+				static_cast<int>(convert.getEncoding()));
+			// Check the first two lines for coding cookies
+			if (unicodeMode == uni8Bit) {
+				unicodeMode = CookieValue(l1);
+				if (unicodeMode == uni8Bit) {
+					unicodeMode = CookieValue(l2);
 				}
 			}
-			if (unicodeMode != 0) {
+			if (unicodeMode != uni8Bit) {
 				// Override the code page if Unicode
 				codePage = SC_CP_UTF8;
 			} else {
@@ -766,7 +796,10 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 	SendEditor(SCI_ENDUNDOACTION);
 
 	Utf8_16_Write convert;
-	convert.setEncoding(static_cast<Utf8_16::encodingType>(unicodeMode));
+	if (unicodeMode != uniCookie) {	// Save file with cookie without BOM.
+		convert.setEncoding(static_cast<Utf8_16::encodingType>(
+			static_cast<int>(unicodeMode)));
+	}
 
 	FILE *fp = convert.fopen(saveName, fileWrite);
 	if (fp) {
@@ -836,7 +869,6 @@ bool SciTEBase::SaveAs(const char *file) {
 		if (useMonoFont) {
 			SetMonoFont();
 		}
-		//unicodeMode = 0; // Not sure about this
 		SendEditor(SCI_CLEARDOCUMENTSTYLE);
 		SendEditor(SCI_COLOURISE, 0, -1);
 		Redraw();

@@ -177,7 +177,7 @@ static void HackColour(int &n) {
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) {
 	codePage = 0;
 	characterSet = 0;
-	unicodeMode = 0; // Set to 'unknown'
+	unicodeMode = uni8Bit; // Set to 'unknown'
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	functionDefinition = 0;
@@ -2713,8 +2713,9 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_ENCODING_UCS2BE:
 	case IDM_ENCODING_UCS2LE:
 	case IDM_ENCODING_UTF8:
-		unicodeMode = cmdID - IDM_ENCODING_DEFAULT;
-		if (unicodeMode != 0) {
+	case IDM_ENCODING_UCOOKIE:
+		unicodeMode = static_cast<UniMode>(cmdID - IDM_ENCODING_DEFAULT);
+		if (unicodeMode != uni8Bit) {
 			// Override the code page if Unicode
 			codePage = SC_CP_UTF8;
 		} else {

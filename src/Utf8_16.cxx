@@ -1,6 +1,6 @@
 // Utf8_16.cxx
 // Copyright (C) 2002 Scott Kirkwood
-// 
+//
 // Permission to use, copy, modify, distribute and sell this code
 // and its documentation for any purpose is hereby granted without fee,
 // provided that the above copyright notice appear in all copies or
@@ -105,6 +105,7 @@ int Utf8_16_Read::determineEncoding() {
 // ==================================================================
 
 Utf8_16_Write::Utf8_16_Write() {
+	m_eEncoding = eUnknown;
 	m_pFile = NULL;
 	m_pBuf = NULL;
 	m_bFirstWrite = true;

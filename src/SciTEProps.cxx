@@ -660,7 +660,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	codePage = props.GetInt("code.page");
-	if (unicodeMode != 0) {
+	if (unicodeMode != uni8Bit) {
 		// Override properties file to ensure Unicode displayed.
 		codePage = SC_CP_UTF8;
 	}
@@ -1285,6 +1285,7 @@ int SciTEBase::GetMenuCommandAsInt(SString commandName) {
 	if (commandName == "IDM_ENCODING_UCS2BE") return IDM_ENCODING_UCS2BE;
 	if (commandName == "IDM_ENCODING_UCS2LE") return IDM_ENCODING_UCS2LE;
 	if (commandName == "IDM_ENCODING_UTF8") return IDM_ENCODING_UTF8;
+	if (commandName == "IDM_ENCODING_UCOOKIE") return IDM_ENCODING_UCOOKIE;
 	if (commandName == "IDM_UNDO") return IDM_UNDO;
 	if (commandName == "IDM_REDO") return IDM_REDO;
 	if (commandName == "IDM_CUT") return IDM_CUT;

@@ -710,10 +710,11 @@ void SciTEGTK::CheckMenus() {
 	CheckAMenuItem(IDM_EOL_CR, SendEditor(SCI_GETEOLMODE) == SC_EOL_CR);
 	CheckAMenuItem(IDM_EOL_LF, SendEditor(SCI_GETEOLMODE) == SC_EOL_LF);
 
-	CheckAMenuItem(IDM_ENCODING_DEFAULT, unicodeMode == 0);
-	CheckAMenuItem(IDM_ENCODING_UCS2BE, unicodeMode == 1);
-	CheckAMenuItem(IDM_ENCODING_UCS2LE, unicodeMode == 2);
-	CheckAMenuItem(IDM_ENCODING_UTF8, unicodeMode == 3);
+	CheckAMenuItem(IDM_ENCODING_DEFAULT, unicodeMode == uni8Bit);
+	CheckAMenuItem(IDM_ENCODING_UCS2BE, unicodeMode == uni16BE);
+	CheckAMenuItem(IDM_ENCODING_UCS2LE, unicodeMode == uni16LE);
+	CheckAMenuItem(IDM_ENCODING_UTF8, unicodeMode == uniUTF8);
+	CheckAMenuItem(IDM_ENCODING_UCOOKIE, unicodeMode == uniCookie);
 
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 
@@ -2235,6 +2236,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/Encoding/UCS-2 _Big Endian", NULL, menuSig, IDM_ENCODING_UCS2BE, "/File/Encoding/8 Bit"},
 	                                      {"/File/Encoding/UCS-2 _Little Endian", NULL, menuSig, IDM_ENCODING_UCS2LE, "/File/Encoding/8 Bit"},
 	                                      {"/File/Encoding/_UTF-8", NULL, menuSig, IDM_ENCODING_UTF8, "/File/Encoding/8 Bit"},
+	                                      {"/File/Encoding/UTF-8 _Cookie", NULL, menuSig, IDM_ENCODING_UCOOKIE, "/File/Encoding/8 Bit"},
 	                                      {"/File/_Export", "", 0, 0, "<Branch>"},
 	                                      {"/File/Export/As _HTML...", NULL, menuSig, IDM_SAVEASHTML, 0},
 	                                      {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},

@@ -144,23 +144,30 @@ public:
 	}
 };
 
+// Related to Utf8_16::encodingType but with additional values at end
+enum UniMode {
+	uni8Bit=0, uni16BE=1, uni16LE=2, uniUTF8=3,
+	uniCookie=4
+};
+
 class Buffer : public RecentFile {
 public:
 	sptr_t doc;
 	bool isDirty;
 	bool useMonoFont;
-	int unicodeMode;
+	UniMode unicodeMode;
 	time_t fileModTime;
 	SString overrideExtension;
 	Buffer() :
-		RecentFile(), doc(0), isDirty(false), useMonoFont(false), unicodeMode(0), fileModTime(0) {
+		RecentFile(), doc(0), isDirty(false), useMonoFont(false),
+		unicodeMode(uni8Bit), fileModTime(0) {
 	}
 
 	void Init() {
 		RecentFile::Init();
 		isDirty = false;
 		useMonoFont = false;
-		unicodeMode = 0;
+		unicodeMode = uni8Bit;
 		fileModTime = 0;
 		overrideExtension = "";
 	}
@@ -196,7 +203,7 @@ public:
 // class to hold user defined keyboard short cuts
 class ShortcutItem {
 public:
-	SString menuKey; // the keyboard short cut 
+	SString menuKey; // the keyboard short cut
 	SString menuCommand; // the menu command to be passed to "SciTEBase::MenuCommand"
 };
 
@@ -309,14 +316,14 @@ protected:
 	enum { languageCmdID = IDM_LANGUAGE };
 	LanguageMenuItem *languageMenu;
 	int languageItems;
-	
+
 	// an array of short cut items that are defined by the user in the properties file.
 	ShortcutItem *shortCutItemList; // array
 	int shortCutItems; // length of array
 
 	int codePage;
 	int characterSet;
-	int unicodeMode;
+	UniMode unicodeMode;
 	SString language;
 	int lexLanguage;
 	SString overrideExtension;	///< User has chosen to use a particular language
