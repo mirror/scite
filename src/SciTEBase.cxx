@@ -1003,6 +1003,12 @@ static bool isfilenamecharforsel(char ch) {
 	return !strchr("\t\n\r \"$%'*,;<>?[]^`{|}", ch);
 }
 
+SString SciTEBase::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
+	SBuffer sel(selEnd - selStart);
+	GetRange(win, selStart, selEnd, sel.ptr());
+	return SString(sel);
+}
+	
 SString SciTEBase::RangeExtendAndGrab(
     Window &wCurrent,
     int &selStart,
@@ -1024,12 +1030,9 @@ SString SciTEBase::RangeExtendAndGrab(
 			selEnd++;
 		}
 	}
-	int len = selEnd - selStart;
 	SString selected;
-	if (len > 0) {
-		SBuffer sel(len);
-		GetRange(wCurrent, selStart, selEnd, sel.ptr());
-		selected = sel;
+	if (selStart != selEnd) {
+		selected = GetRangeInUIEncoding(wCurrent, selStart, selEnd);
 	}
 	if (stripEol) {
 		// Change whole line selected but normally end of line characters not wanted.
@@ -1041,6 +1044,7 @@ SString SciTEBase::RangeExtendAndGrab(
 			selected.remove(sellen - 1, 0);
 		}
 	}
+
 	return selected;
 }
 
@@ -1128,6 +1132,10 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 		}
 	}
 	// else findWhat remains the same as last time.
+}
+
+SString SciTEBase::EncodeString(const SString &s) {
+	return SString(s);
 }
 
 void SciTEBase::FindMessageBox(const SString &msg) {
@@ -1303,9 +1311,9 @@ unsigned int UnSlashLowOctal(char *s) {
 }
 
 static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
-	char *sUnslashed = StringDup(s.c_str());
-	size_t len;
 	if (escapes) {
+		char *sUnslashed = StringDup(s.c_str(), s.length());
+		size_t len;
 		if (regularExpression) {
 			// For regular expressions, the only escape sequences allowed start with \0
 			// Other sequences, like \t, are handled by the RE engine.
@@ -1314,12 +1322,12 @@ static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 			// C style escapes allowed
 			len = UnSlash(sUnslashed);
 		}
+		s = sUnslashed;
+		delete []sUnslashed;
+		return static_cast<int>(len);
 	} else {
-		len = strlen(sUnslashed);
+		return s.length();
 	}
-	s = sUnslashed;
-	delete []sUnslashed;
-	return static_cast<int>(len);
 }
 
 int SciTEBase::MarkAll() {
@@ -1345,11 +1353,11 @@ int SciTEBase::IncrementSearchMode() {
 }
 
 int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
-	if (!findWhat[0]) {
+	if (findWhat.length() == 0) {
 		Find();
 		return -1;
 	}
-	SString findTarget = findWhat;
+	SString findTarget = EncodeString(findWhat);
 	int lenFind = UnSlashAsNeeded(findTarget, unSlash, regExp);
 	if (lenFind == 0)
 		return -1;
@@ -1391,7 +1399,8 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		havefound = false;
 		if (showWarnings) {
 			WarnUser(warnNotFound);
-			SString msg = LocaliseMessage("Can not find the string '^0'.", findWhat.c_str());
+			SString msg = LocaliseMessage("Can not find the string '^0'.", 
+				findWhat.c_str());
 			if (wFindReplace.Created()) {
 				FindMessageBox(msg);
 			} else {
@@ -1413,7 +1422,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 
 void SciTEBase::ReplaceOnce() {
 	if (havefound) {
-		SString replaceTarget = replaceWhat;
+		SString replaceTarget = EncodeString(replaceWhat);
 		int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 		CharacterRange cr = GetSelection();
 		SendEditor(SCI_SETTARGETSTART, cr.cpMin);
@@ -1425,14 +1434,13 @@ void SciTEBase::ReplaceOnce() {
 			SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget.c_str());
 		SetSelection(cr.cpMin + lenReplaced, cr.cpMin);
 		havefound = false;
-		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
 
 	FindNext(reverseFind);
 }
 
 int SciTEBase::DoReplaceAll(bool inSelection) {
-	SString findTarget = findWhat;
+	SString findTarget = EncodeString(findWhat);
 	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
 	if (findLen == 0) {
 		return -1;
@@ -1463,7 +1471,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 		// If not wrapFind, replace all only from caret to end of document
 	}
 
-	SString replaceTarget = replaceWhat;
+	SString replaceTarget = EncodeString(replaceWhat);
 	int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	            (matchCase ? SCFIND_MATCHCASE : 0) |

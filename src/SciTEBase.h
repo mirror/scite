@@ -711,6 +711,7 @@ protected:
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
+	virtual SString GetRangeInUIEncoding(Window &win, int selStart, int selEnd);
 	SString RangeExtendAndGrab(Window &wCurrent, int &selStart, int &selEnd,
 		bool (*ischarforsel)(char ch), bool stripEol = true);
 	SString SelectionExtend(bool (*ischarforsel)(char ch), bool stripEol = true);
@@ -720,6 +721,7 @@ protected:
 	SString SelectionFilename();
 	void SelectionIntoProperties();
 	void SelectionIntoFind(bool stripEol = true);
+	virtual SString EncodeString(const SString &s);
 	virtual void Find() = 0;
 	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
 	void FindMessageBox(const SString &msg);

@@ -325,10 +325,13 @@ protected:
 	virtual void Print(bool);
 	virtual void PrintSetup();
 
+	virtual SString GetRangeInUIEncoding(Window &wCurrent, int selStart, int selEnd);
+
 	virtual int WindowMessageBox(Window &w, const SString &msg, int style);
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
+	virtual SString EncodeString(const SString &s);
 	void FindReplaceGrabFields();
 	void HandleFindReplace();
 	virtual void Find();
@@ -1280,6 +1283,18 @@ void SciTEGTK::PrintSetup() {
 	// Printing not yet supported on GTK+
 }
 
+SString SciTEGTK::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
+	int len = selEnd - selStart;
+	SBuffer allocation(len * 3);
+	Platform::SendScintilla(win.GetID(), SCI_SETTARGETSTART, selStart);
+	Platform::SendScintilla(win.GetID(), SCI_SETTARGETEND, selEnd);
+	int byteLength = Platform::SendScintillaPointer(
+		win.GetID(), SCI_TARGETASUTF8, 0, allocation.ptr());
+	SString sel(allocation);
+	sel.remove(byteLength, 0);
+	return sel;
+}
+
 void SciTEGTK::HandleFindReplace() {}
 
 void SciTEGTK::Find() {
@@ -1327,6 +1342,16 @@ static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool u
 	if (useTop) {
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(combo)->entry), mem.At(0).c_str());
 	}
+}
+
+SString SciTEGTK::EncodeString(const SString &s) {
+	Platform::SendScintilla(PWidget(wEditor), SCI_SETLENGTHFORENCODE, s.length(), 0);
+	int len = Platform::SendScintillaPointer(PWidget(wEditor), SCI_ENCODEDFROMUTF8, 
+		reinterpret_cast<uptr_t>(s.c_str()), 0);
+	SBuffer ret(len);
+	Platform::SendScintillaPointer(PWidget(wEditor), SCI_ENCODEDFROMUTF8, 
+		reinterpret_cast<uptr_t>(s.c_str()), ret.ptr());
+	return SString(ret);
 }
 
 void SciTEGTK::FindReplaceGrabFields() {
