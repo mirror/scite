@@ -1062,6 +1062,31 @@ bool SciTEBase::StartAutoCompleteWord() {
 	return true;
 }
 
+bool SciTEBase::StartExpandAbbreviation() {
+	char linebuf[1000];
+	int current = GetLine(linebuf, sizeof(linebuf));
+	int position = SendEditor(SCI_GETCURRENTPOS); // from the beginning
+	int startword = current;
+	int counter = 0;
+	while (startword > 0 && !nonFuncChar(linebuf[startword - 1])) {
+		counter++;
+		startword--;
+	}
+	if (startword == current)
+		return true;
+	linebuf[current] = '\0';
+	const char *abbrev = linebuf + startword;
+	SString expanded = props.Get(abbrev).c_str();
+	// SString language = props.GetNewExpand("lexer.", fileName);
+	// const char* expanded = props.GetNewExpand(abbrev, fileName).c_str();
+	// MessageBox(NULL, language.c_str(), "language", MB_OK);
+	if (expanded.length()) {
+		SendEditor(SCI_SETSEL, position - counter, position);
+		SendEditorString(SCI_REPLACESEL, 0, expanded.c_str());
+	}
+	return true;
+}
+
 int SciTEBase::GetCurrentLineNumber() {
 	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
@@ -1507,6 +1532,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_COMPLETEWORD:
 		StartAutoCompleteWord();
+		break;
+
+	case IDM_ABBREV:
+		StartExpandAbbreviation();
 		break;
 
 	case IDM_TOGGLE_FOLDALL:

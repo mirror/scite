@@ -407,6 +407,7 @@ protected:
 	void ContinueCallTip();
 	virtual bool StartAutoComplete();
 	virtual bool StartAutoCompleteWord();
+	virtual bool StartExpandAbbreviation();
 	void GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
 	int SetLineIndentation(int line, int indent);
 	int GetLineIndentation(int line);
