@@ -354,6 +354,19 @@ void SciTEWin::SaveAsPDF() {
 	}
 }
 
+#ifndef NO_FILER
+void SciTEWin::ShowFilerDlg() {
+	char pth[MAX_PATH];
+	int lpth=MAX_PATH-1;
+	
+	if (filerdlg == NULL){
+		GetDefaultDirectory(pth, lpth);
+		filerdlg = new CFiler("Scite Filer",wSciTE.GetID(),pth);}
+	else
+		SetActiveWindow(filerdlg->GetID());
+}
+#endif
+
 /**  Set up properties for FileTime, FileDate, CurrentTime, CurrentDate
  */
 static void SetPrintProperties(PropSet &ps, const char *fullPath) {

@@ -890,6 +890,15 @@ int testPaints = 1;
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
 	switch (iMessage) {
+#ifndef NO_FILER
+		case 0x400: //WM_USER: sent by filerdlg when user doubleclicks a file in the list
+			Open(filerdlg->GetSelectedPath());
+			break;
+		case 0x401: //WM_USER+1: sent by filerdlg when it closes
+			delete filerdlg;
+			filerdlg=NULL;
+			break;
+#endif
 
 	case WM_CREATE:
 		Creation();

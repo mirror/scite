@@ -87,6 +87,9 @@ protected:
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
+#ifndef NO_FILER
+	virtual void ShowFilerDlg();
+#endif
 
 	virtual void Print(bool showDialog);
 	virtual void PrintSetup();
