@@ -85,6 +85,14 @@ cd scintilla\gtk
 nmake -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
+rem
+rem Target 8: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
+call scite\scripts\clearboth
+cd scintilla\win32
+call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
+nmake -f scintilla_vc6.mak QUIET=1
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 call scite\scripts\clearboth
 goto CLEANUP
 :ERROR
