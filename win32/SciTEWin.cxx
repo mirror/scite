@@ -45,6 +45,7 @@ class SciTEWin : public SciTEBase {
 
 protected:
 
+	int cmdShow;
 	static HINSTANCE hInstance;
 	static char *className;
 	static char *classNameInternal;
@@ -89,6 +90,8 @@ protected:
 	virtual void TabSizeDialog();
 
 	virtual void GetDefaultDirectory(char *directory, size_t size);
+	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
+	virtual bool GetSciteUserHome(char *path, unsigned int lenPath);
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
 	char *pathDefaultDir, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
@@ -136,6 +139,7 @@ char *SciTEWin::className = NULL;
 char *SciTEWin::classNameInternal = NULL;
 
 SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
+	cmdShow = 0;
 	heightBar = 7;
 
 	memset(&fr, 0, sizeof(fr));
@@ -169,6 +173,11 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	int top = props.GetInt("position.top", CW_USEDEFAULT);
 	int width = props.GetInt("position.width", CW_USEDEFAULT);
 	int height = props.GetInt("position.height", CW_USEDEFAULT);
+	if (width == -1 || height == -1) {
+		cmdShow = SW_MAXIMIZE;
+		width = CW_USEDEFAULT;
+		height = CW_USEDEFAULT;
+	}
 	wSciTE = ::CreateWindowEx(
 		0,
 		className,
@@ -303,52 +312,54 @@ void SciTEWin::GetDefaultDirectory(char *directory, size_t size) {
 	directory[size-1] = '\0';
 }
 
-bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps, 
-			char *pathDefaultDir, unsigned int lenPath) {
-	*pathDefaultDir = '\0';
+bool SciTEWin::GetSciteDefaultHome(char *path, unsigned int lenPath) {
+	*path = '\0';
 	char *home = getenv("SciTE_HOME");
 	if (home) {
-		strncpy(pathDefaultDir, home, lenPath);
-		strncpy(pathDefaultProps, home, lenPath);
-		strncat(pathDefaultProps, pathSepString, lenPath);
-		strncat(pathDefaultProps, propGlobalFileName, lenPath);
-		return true;
+		strncpy(path, home, lenPath);
 	} else {
-		::GetModuleFileName(0, pathDefaultProps, lenPath);
-		char *lastSlash = strrchr(pathDefaultProps, pathSepChar);
-		if (lastSlash && ((lastSlash + 1 - pathDefaultProps + strlen(propGlobalFileName)) < lenPath)) {
-		strcpy(pathDefaultDir, pathDefaultProps);
-		pathDefaultDir[lastSlash-pathDefaultProps] = '\0';
-			strcpy(lastSlash + 1, propGlobalFileName);
-			return true;
-		} else {
-			return false;
-		}
+		::GetModuleFileName(0, path, lenPath);
+		char *lastSlash = strrchr(path, pathSepChar);
+		if (lastSlash)
+			*lastSlash = '\0';
 	}
+	return true;
+ }
+ 
+bool SciTEWin::GetSciteUserHome(char *path, unsigned int lenPath) {
+	*path = '\0';
+	char *home = getenv("SciTE_HOME");
+	if (!home)
+		home = getenv("USERPROFILE");
+	if (home) {
+		strncpy(path, home, lenPath);
+	} else {
+		::GetModuleFileName(0, path, lenPath);
+		char *lastSlash = strrchr(path, pathSepChar);
+		if (lastSlash)
+			*lastSlash = '\0';
+	}
+	return true;
 }
 
-bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps, 
-				char *pathUserDir, unsigned int lenPath) {
-	*pathUserDir = '\0';
-	char *home = getenv("SciTE_HOME");
-	if (home) {
-		strncpy(pathUserDir, home, lenPath);
-		strncpy(pathUserProps, home, lenPath);
-		strncat(pathUserProps, pathSepString, lenPath);
-		strncat(pathUserProps, propUserFileName, lenPath);
-		return true;
-	} else {
-		GetModuleFileName(0, pathUserProps, lenPath);
-		char *lastSlash = strrchr(pathUserProps, pathSepChar);
-		if (lastSlash && ((lastSlash + 1 - pathUserProps + strlen(propUserFileName)) < lenPath)) {
-		strcpy(pathUserDir, pathUserProps);
-		pathUserDir[lastSlash-pathUserProps] = '\0';
-			strcpy(lastSlash + 1, propUserFileName);
-			return true;
-		} else {
-			return false;
-		}
-	}
+bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps,
+                                  char *pathDefaultDir, unsigned int lenPath) {
+	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
+		return false;
+	strncpy(pathDefaultProps, pathDefaultDir, lenPath);
+	strncat(pathDefaultProps, pathSepString, lenPath);
+	strncat(pathDefaultProps, propGlobalFileName, lenPath);
+	return true;
+}
+
+bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps,
+                               char *pathUserDir, unsigned int lenPath) {
+	if (!GetSciteUserHome(pathUserDir, lenPath))
+		return false;
+	strncpy(pathUserProps, pathUserDir, lenPath);
+	strncat(pathUserProps, pathSepString, lenPath);
+	strncat(pathUserProps, propUserFileName, lenPath);
+	return true;
 }
 
 void SciTEWin::SetStatusBarText(const char *s) {
@@ -1663,6 +1674,8 @@ void SciTEWin::Run(const char *cmdLine) {
 		Open(cmdLine, true);
 	}
 	wSciTE.Show();
+	if (cmdShow)	// assume SW_MAXIMIZE only
+		ShowWindow(wSciTE.GetID(), cmdShow);
 }
 
 void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
