@@ -843,8 +843,6 @@ void SciTEBase::ReadProperties() {
 		AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_HOMEEXTEND);
 	}
 	AssignKey('L', SCMOD_SHIFT | SCMOD_CTRL, SCI_LINEDELETE);
-	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
-	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
 
 	scrollOutput = props.GetInt("output.scroll", 1);
 
@@ -921,6 +919,10 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK,
 	           ColourOfProperty(props, "bookmark.back", ColourDesired(0x80, 0xff, 0xff)));
 	SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
+
+	// Do these last as they force a style refresh
+	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
+	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
 
 	if (extender) {
 		extender->Clear();
