@@ -569,18 +569,19 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		}
 		AddStyledText(wsci, GetTranslationToAbout("Contributors:").c_str(), trsSty);
 		srand(static_cast<unsigned>(time(0)));
+		for (unsigned int co = 0;co < (sizeof(contributors) / sizeof(contributors[0]));co++) {
+			int colourIndex = 50 + (co % 78);
+			AddStyledText(wsci, "\n    ", colourIndex);
+			AddStyledText(wsci, contributors[co], colourIndex);
+		}
 		int r = rand() % 256;
 		int g = rand() % 256;
 		int b = rand() % 256;
-		for (unsigned int co = 0;co < (sizeof(contributors) / sizeof(contributors[0]));co++) {
-			int colourIndex = 50 + (co % 78);
-			AddStyledText(wsci, "\n", colourIndex);
+		for (unsigned int sty = 0;sty < 78; sty++) {
 			HackColour(r);
 			HackColour(g);
 			HackColour(b);
-			SetAboutStyle(wsci, colourIndex, ColourDesired(r, g, b));
-			AddStyledText(wsci, "    ", colourIndex);
-			AddStyledText(wsci, contributors[co], colourIndex);
+			SetAboutStyle(wsci, sty + 50, ColourDesired(r, g, b));
 		}
 		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
 	}
