@@ -899,7 +899,7 @@ void SciTEWin::CreateUI() {
 	GetNextPropItem(next, val, 32);
 	pagesetupMargin.bottom = atol(val);
 	delete []ps;
-
+	
 	UIAvailable();
 }
 

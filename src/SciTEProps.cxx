@@ -778,6 +778,9 @@ void SciTEBase::ReadProperties() {
 	bufferedDraw = props.GetInt("buffered.draw", 1);
 	SendEditor(SCI_SETBUFFEREDDRAW, bufferedDraw);
 
+	SendEditor(SCI_SETLAYOUTCACHE, props.GetInt("cache.layout"));
+	SendOutput(SCI_SETLAYOUTCACHE, props.GetInt("output.cache.layout"));
+
 	bracesCheck = props.GetInt("braces.check");
 	bracesSloppy = props.GetInt("braces.sloppy");
 
