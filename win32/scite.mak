@@ -107,6 +107,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\LexConf.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexHTML.obj \
+	..\..\scintilla\win32\LexLisp.obj \
 	..\..\scintilla\win32\LexLua.obj \
 	..\..\scintilla\win32\LexOthers.obj \
 	..\..\scintilla\win32\LexPascal.obj \
