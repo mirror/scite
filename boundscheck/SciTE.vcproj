@@ -286,6 +286,9 @@
 				RelativePath="..\..\scintilla\src\LexGui4Cli.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexHaskell.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexHTML.cxx">
 			</File>
 			<File
