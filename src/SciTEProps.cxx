@@ -148,12 +148,12 @@ void SciTEBase::SetImportMenu() {
 			int itemID = importCmdID + stackPos;
 			if (importFiles[stackPos][0]) {
 				SString entry = LocaliseString("Open");
-				entry.append(" ");
+				entry += " ";
 				const char *cpDirEnd = strrchr(importFiles[stackPos].c_str(), pathSepChar);
 				if (cpDirEnd) {
-					entry.append(cpDirEnd + 1);
+					entry += cpDirEnd + 1;
 				} else {
-					entry.append(importFiles[stackPos].c_str());
+					entry += importFiles[stackPos];
 				}
 				SetMenuItem(menuOptions, IMPORT_START + stackPos, itemID, entry.c_str());
 			}

@@ -364,8 +364,8 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 					}
 					text = LocaliseString(text.c_str(), false);
 					if (text.length()) {
-						text.append("\t");
-						text.append(accel.c_str());
+						text += "\t";
+						text += accel;
 						mii.dwTypeData = const_cast<char *>(text.c_str());
 						::SetMenuItemInfo(hmenu, i, TRUE, &mii);
 					}

@@ -315,8 +315,8 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 			AddStyledText(wsci, translator.c_str(), 1);
 			AddStyledText(wsci, "\n", 1);
 		}
-		AddStyledText(wsci, 
-			LocaliseString("Contributors:").append("\n").c_str(), 1);
+		AddStyledText(wsci, LocaliseString("Contributors:").c_str(), 1);
+		AddStyledText(wsci, "\n", 1);
 		srand(static_cast<unsigned>(time(0)));
 		int r = rand() % 256;
 		int g = rand() % 256;
@@ -396,7 +396,7 @@ void SciTEBase::SetOverrideLanguage(int cmdID) {
 	useMonoFont = false;
 
 	overrideExtension = "x.";
-	overrideExtension.append(languageMenu[cmdID].extension.c_str());
+	overrideExtension += languageMenu[cmdID].extension;
 	ReadProperties();
 	SendEditor(SCI_COLOURISE, 0, -1);
 	Redraw();
@@ -1555,7 +1555,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	// at the start and end. this makes it easy to search for words.
 	SString wordsNear;
 	wordsNear.setsizegrowth(1000);
-	wordsNear.append(" ");
+	wordsNear += " ";
 
 	for (;;) {	// search all the document
 		ft.chrg.cpMax = doclen;
@@ -1579,7 +1579,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		int wordlen = wordend - wordstart - 2;
 		if (wordlen > rootlen) {
 			if (!wordsNear.contains(wordstart)) {	// add a new entry
-				wordsNear.append(wordstart + 1);
+				wordsNear += wordstart + 1;
 				if (minWordLength < wordlen)
 					minWordLength = wordlen;
 
@@ -1689,7 +1689,8 @@ bool SciTEBase::StartBlockComment() {
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
-	SString long_comment = comment.append(" ");
+	comment += " ";
+	SString long_comment = comment;
 	char linebuf[1000];
 	int comment_length = comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
@@ -1788,7 +1789,8 @@ bool SciTEBase::StartBoxComment() {
 	}
 	start_comment += white_space;
 	middle_comment += white_space;
-	end_comment = white_space.append(end_comment.c_str());
+	white_space += end_comment;
+	end_comment = white_space;
 	int start_comment_length = start_comment.length();
 	int middle_comment_length = middle_comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
@@ -1858,7 +1860,8 @@ bool SciTEBase::StartStreamComment() {
 		return true;
 	}
 	start_comment += white_space;
-	end_comment = white_space.append(end_comment.c_str());
+	white_space += end_comment;
+	end_comment = white_space;
 	int start_comment_length = start_comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);

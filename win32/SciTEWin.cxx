@@ -692,7 +692,7 @@ void SciTEWin::ProcessExecute() {
 				sExitMessage += "    Time: ";
 				sExitMessage += SString(commandTime.Duration(), 3);
 			}
-			sExitMessage.append("\n");
+			sExitMessage += "\n";
 			OutputAppendStringSynchronised(sExitMessage.c_str());
 			::CloseHandle(pi.hProcess);
 			::CloseHandle(pi.hThread);
