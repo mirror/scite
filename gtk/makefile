@@ -28,7 +28,13 @@ vpath %.cxx ../src
 
 #CXXFLAGS= -g -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -Wwrite-strings 
 INCLUDEDIRS=-I ../../scintilla/include -I ../src 
-CXXFLAGS= -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -W -Wall
+CXXBASEFLAGS= -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -W -Wall
+
+ifdef DEBUG
+CXXFLAGS=-DDEBUG $(CXXBASEFLAGS)
+else
+CXXFLAGS=-DNDEBUG $(CXXBASEFLAGS)
+endif
 
 .cxx.o:
 	$(CC) `gtk-config --cflags` $(INCLUDEDIRS) $(CXXFLAGS) -c $< -o $@

@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <sys/stat.h>
+#include <assert.h>
 
 #include "Platform.h"
 
@@ -406,8 +407,11 @@ void SciTEGTK::Notify(SCNotification *notification) {
 			if (notification->modifiers & SCMOD_ALT)
 				mods |= GDK_MOD1_MASK;
 			//Platform::DebugPrintf("SCN_KEY: %d %d\n", notification->ch, mods);
+			// Some accelerators can not work through the normal mechanism
 			if ((mods == GDK_CONTROL_MASK) && (notification->ch == SCK_TAB)) {
 				Command(IDM_NEXTFILE);
+			} else if ((mods == GDK_CONTROL_MASK) && (notification->ch == SCK_RETURN)) {
+				Command(IDM_COMPLETEWORD);
 			} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK ) && (notification->ch == SCK_TAB)) {
 				Command(IDM_PREVFILE);
 			} else if ((mods == GDK_SHIFT_MASK ) && (notification->ch == GDK_F3)) {
@@ -1437,8 +1441,8 @@ void SciTEGTK::CreateMenu() {
 		{"/Edit/Select t_o Brace", "<control><shift>E", menuSig, IDM_SELECTTOBRACE, 0},
 		{"/Edit/S_how CallTip", "<control><shift>space", menuSig, IDM_SHOWCALLTIP, 0},
 		{"/Edit/Complete S_ymbol", "<control>I", menuSig, IDM_COMPLETE, 0},
-		{"/Edit/Complete Word", "<control>Enter", menuSig, IDM_COMPLETEWORD, 0},
-		{"/Edit/Toggle all folds", "", menuSig, IDM_TOGGLE_FOLDALL, 0},
+		{"/Edit/Complete _Word", "<control>Return", menuSig, IDM_COMPLETEWORD, 0},
+		{"/Edit/Toggle _all folds", "", menuSig, IDM_TOGGLE_FOLDALL, 0},
 		{"/Edit/Make _Selection Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
 		{"/Edit/Make Selection _Lowercase", "<control>U", menuSig, IDM_LWRCASE, 0},
 		
@@ -1712,6 +1716,7 @@ void SciTEGTK::Run(const char *cmdLine) {
 }
 
 int main(int argc, char *argv[]) {
+	//assert(argc==2);
 #ifdef LUA_SCRIPTING
 	LuaExtension luaExtender;
 	Extension *extender = &luaExtender;
