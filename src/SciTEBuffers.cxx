@@ -1033,6 +1033,24 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 				}
 			}
 		}
+	case SCE_ERR_PHP: {
+			// PHP error look like: Fatal error: Call to undefined function:  foo() in example.php on line 11
+			char *idLine = " on line ";
+			char *idFile = " in ";
+			size_t lenLine = strlen(idLine);
+			size_t lenFile = strlen(idFile);
+			char *line = strstr(cdoc, idLine);
+			char *file = strstr(cdoc, idFile);
+			if (line && file) {
+				file += lenFile;
+				size_t length = line - file;
+				strncpy(sourcePath, file, length);
+				sourcePath[length] = '\0';
+				line += lenLine;
+				return atoi(line) - 1;
+			}
+			break;
+		}
 
 	}	// switch
 	return - 1;
@@ -1058,7 +1076,7 @@ void SciTEBase::GoMessage(int dir) {
 		char style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
 		        style != SCE_ERR_CMD &&
-		        style < SCE_ERR_DIFF_CHANGED) {
+		        (style < SCE_ERR_DIFF_CHANGED || style > SCE_ERR_DIFF_MESSAGE)) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
