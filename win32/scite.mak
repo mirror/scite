@@ -116,6 +116,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexEScript.obj \
 	..\..\scintilla\win32\LexForth.obj \
 	..\..\scintilla\win32\LexFortran.obj \
+	..\..\scintilla\win32\LexGui4Cli.obj \
 	..\..\scintilla\win32\LexHTML.obj \
 	..\..\scintilla\win32\LexKix.obj \
 	..\..\scintilla\win32\LexLisp.obj \
