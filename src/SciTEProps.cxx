@@ -625,8 +625,8 @@ void SciTEBase::ReadProperties() {
 	SString kw0 = props.GetNewExpand("keywords.", fileNameForExtension.c_str());
 	SendEditorString(SCI_SETKEYWORDS, 0, kw0.c_str());
 
-	for (int wl = 2; wl <= KEYWORDSET_MAX; wl++) {
-		SString kwk(wl);
+	for (int wl = 1; wl <= KEYWORDSET_MAX; wl++) {
+		SString kwk(wl+1);
 		kwk += '.';
 		kwk.insert(0, "keywords");
 		SString kw = props.GetNewExpand(kwk.c_str(), fileNameForExtension.c_str());
