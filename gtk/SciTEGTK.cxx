@@ -2429,10 +2429,11 @@ void SciTEGTK::CreateUI() {
 	                   GtkSignalFunc(MousePress), gthis);
 
 	gtk_window_set_title(GTK_WINDOW(PWidget(wSciTE)), appName);
-	int left = props.GetInt("position.left", 10);
-	int top = props.GetInt("position.top", 30);
-	int width = props.GetInt("position.width", 300);
-	int height = props.GetInt("position.height", 400);
+	const int useDefault = 0x100000000;
+	int left = props.GetInt("position.left", useDefault);
+	int top = props.GetInt("position.top", useDefault);
+	int width = props.GetInt("position.width", useDefault);
+	int height = props.GetInt("position.height", useDefault);
 	if (width == -1 || height == -1) {
 		width = gdk_screen_width() - left - 10;
 		height = gdk_screen_height() - top - 30;
@@ -2572,10 +2573,13 @@ void SciTEGTK::CreateUI() {
 
 	SetFocus(PWidget(wOutput));
 
-	gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
-	gtk_widget_set_usize(GTK_WIDGET(PWidget(wSciTE)), width, height);
+	if ((left != useDefault) && (top != useDefault))
+		gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
+	if ((width != useDefault) && (height != useDefault))
+		gtk_widget_set_usize(GTK_WIDGET(PWidget(wSciTE)), width, height);
 	gtk_widget_show_all(PWidget(wSciTE));
-	gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
+	if ((left != useDefault) && (top != useDefault))
+		gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
 	AddToolBar();
 	SetIcon();
 
