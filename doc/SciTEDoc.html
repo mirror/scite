@@ -182,7 +182,7 @@ NameError: mistake
         HTML
       </li>
       <li>
-        HTML with embedded JavaScript, VBScript and ASP
+        HTML with embedded JavaScript, VBScript, PHP and ASP
       </li>
       <li>
         XML
@@ -198,9 +198,6 @@ NameError: mistake
       </li>
       <li>
         SQL
-      </li>
-      <li>
-        PHP (see later for setting up)
       </li>
       <li>
         Lua
@@ -291,6 +288,22 @@ NameError: mistake
           F2
         </td>
       </tr>
+      <tr>
+        <td>
+          Find selection.
+        </td>
+        <td>
+          Ctrl+F3
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Find selection backwards.
+        </td>
+        <td>
+          Ctrl+Shift+F3
+        </td>
+      </tr>
     </table>
     <h3>
        Folding
@@ -331,10 +344,6 @@ NameError: mistake
       the command to "jvc".
     </p>
     <p>
-       A <a href="php.properties">properties file for PHP</a>  is available. To use it, copy its 
-       contents into one of your properties files.
-    </p>
-    <p>
        There are commands in the Tools menu for opening each of the properties files.
     </p>
     <p>
@@ -371,6 +380,28 @@ NameError: mistake
       look like this:<br />
        <b>file.patterns.html=*.html;*.htm;*.asp;*.shtml</b><br />
        <b>command.go.$(file.patterns.html)=file://$(FilePath)</b>
+    </p>
+    <h3>
+       Importing properties files and conditional logic
+    </h3>
+    <p>
+       The 'import' statement includes a properties file as if the text were
+       inline at that point. The imported properties file
+       must be in the same directory as the current file and a .properties
+       extension is assumed. Therefore a "import Lua" statement in 
+       c:\os\scite\bin\SciTEGlobal.properties will import 
+       c:\os\scite\bin\Lua.properties.
+    </p>
+    <p>
+      The if statement takes one argument which is a
+      symbol that may be defined earlier in this property set file or in a base
+      property set. If the symbol evaluates to '0' then the test fails. An empty
+      string or not present symbol evaluates to 0. Into the very top property set
+      is inserted one of 'PLAT_GTK' with value '1' or 'PLAT_WIN' with value '1'.
+      If the test succeeds then following indented statements are executed. When a
+      non-indented statement is found the if clause is finished. Only simple set
+      statements are allowed in if clauses. The evaluation of if statements occurs
+      at read time, not at evaluation time.
     </p>
     <h3>
        Defined variables in properties files
@@ -916,6 +947,22 @@ NameError: mistake
           On Windows 95, there can be a delay between a process completing and all of its piped
           output being available. By waiting this number of milliseconds, we can be sure to see all
           the output. Defaults to 500 but may need to be higher for slower machines.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	print.magnification<br />
+	print.colour.mode
+        </td>
+        <td>
+          Printing is normally done with the same settings as screen display.
+	To make the printing larger or smaller, the print.magnification
+	setting is added to the size of every font when printed. To get a 
+	good miniaturisation of text, set print.magnification to -4.<br />
+	Some people prefer light coloured text on a black background on
+	screen but dark text on white on paper. If print.colour.mode is set
+	to 1 then each colour is inverted for printing. If set to 2 then 
+	printing produces black text on white background.
         </td>
       </tr>
       <tr>
