@@ -893,16 +893,13 @@ void SciTEWin::Run(const char *cmdLine) {
 	if (props.GetInt("check.if.already.open")) {
 		HWND hAnother = ::FindWindow("SciTEWindow", NULL);
 		if (hAnother) {
-			if (strlen(cmdLine) > 0) {
-				COPYDATASTRUCT cds;
-				cds.dwData = 0;
-				cds.cbData = strlen(cmdLine)+1;
-				cds.lpData = static_cast<void *>(
-					const_cast<char *>(cmdLine));
-				::SendMessage(hAnother, WM_COPYDATA, 0,
-					reinterpret_cast<LPARAM>(&cds));
-			}
-			exit(0);
+			COPYDATASTRUCT cds;
+			cds.dwData = 0;
+			cds.cbData = strlen(cmdLine)+1;
+			cds.lpData = static_cast<void *>(
+				const_cast<char *>(cmdLine));
+			::SendMessage(hAnother, WM_COPYDATA, 0,
+				reinterpret_cast<LPARAM>(&cds));
 		}
 	}
 
@@ -1008,7 +1005,7 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 	}
 }
 
-void SciTEWin::MinimiseToTray() {
+void SciTEWin::MinimizeToTray() {
 	char n[64] = "SciTE";
 	NOTIFYICONDATA nid;
 	memset(&nid, 0, sizeof(nid));
@@ -1033,21 +1030,19 @@ void SciTEWin::RestoreFromTray() {
 	nid.hWnd = wSciTE.GetID();
 	nid.uID = 1;
 	::ShowWindow(wSciTE.GetID(), SW_SHOW);
-	::ShowWindow(wSciTE.GetID(), SW_RESTORE);
 	::Sleep(100);
 	::Shell_NotifyIcon(NIM_DELETE, &nid);
 }
 
 LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
 	char *text = static_cast<char *>(pcds->lpData);
-	::ShowWindow(wSciTE.GetID(), SW_SHOW);
-	NOTIFYICONDATA nid;
-	memset(&nid, 0, sizeof(nid));
-	nid.cbSize = sizeof(nid);
-	nid.hWnd = wSciTE.GetID();
-	nid.uID = 1;
-	::Shell_NotifyIcon(NIM_DELETE, &nid);
-	Open(text);
+	if (props.GetInt("minimize.to.tray")) {
+		RestoreFromTray();
+	}
+	if (strlen(text) > 0) {
+		Open(text);
+	}
+	::FlashWindow(wSciTE.GetID(), FALSE);
 	return TRUE;
 }
 
@@ -1064,8 +1059,8 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_SYSCOMMAND:
-		if ((wParam == SC_MINIMIZE) && props.GetInt("minimise.to.tray")) {
-			MinimiseToTray();
+		if ((wParam == SC_MINIMIZE) && props.GetInt("minimize.to.tray")) {
+			MinimizeToTray();
 			return 0;
 		}
 		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
@@ -1073,6 +1068,8 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case SCITE_TRAY:
 		if (lParam == WM_LBUTTONDBLCLK) {
 			RestoreFromTray();
+			::ShowWindow(wSciTE.GetID(), SW_RESTORE);
+			::FlashWindow(wSciTE.GetID(), FALSE);
 		}
 		break;
 

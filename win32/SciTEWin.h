@@ -110,7 +110,7 @@ protected:
 
 	virtual void AboutDialog();
 	void DropFiles(HDROP hdrop);
-	void MinimiseToTray();
+	void MinimizeToTray();
 	void RestoreFromTray();
 	LRESULT CopyData(COPYDATASTRUCT *pcds);
 	void AboutDialogWithBuild(int staticBuild);
