@@ -1534,7 +1534,8 @@ void SciTEGTK::CreateMenu() {
 	GtkItemFactoryEntry menuItemsHelp[] = {
 		{"/_Help", NULL, NULL, 0, "<Branch>"},
 		{"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
-		{"/Help/About SciTE", "", menuSig, IDM_ABOUT, 0},
+		{"/Help/_Help", "F1", menuSig, IDM_HELP, 0},
+		{"/Help/_About SciTE", "", menuSig, IDM_ABOUT, 0},
 	};
 	
 	char *gthis = reinterpret_cast<char *>(this);
