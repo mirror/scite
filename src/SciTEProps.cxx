@@ -106,15 +106,16 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *di
 		strcpy(importPath, directoryForImports);
 		strcat(importPath, lineBuffer + strlen("import") + 1);
 		strcat(importPath, ".properties");
-		if (imports) {
-			for (int i = 0; i < sizeImports; i++) {
-				if (!imports[i].length()) {
-					imports[i] = importPath;
-					break;
+		if (Read(importPath, directoryForImports, imports, sizeImports)) {
+			if (imports) {
+				for (int i = 0; i < sizeImports; i++) {
+					if (!imports[i].length()) {
+						imports[i] = importPath;
+						break;
+					}
 				}
 			}
 		}
-		Read(importPath, directoryForImports, imports, sizeImports);
 	} else if (IsAlphabetic(lineBuffer[0]) || (lineBuffer[0] >= '0' && lineBuffer[0] <= '9')) {
 		Set(lineBuffer);
 	} else if (isspace(lineBuffer[0]) && ifIsTrue) {
@@ -134,7 +135,7 @@ void PropSetFile::ReadFromMemory(const char *data, int len, const char *director
 	}
 }
 
-void PropSetFile::Read(const char *filename, const char *directoryForImports,
+bool PropSetFile::Read(const char *filename, const char *directoryForImports,
                        SString imports[], int sizeImports) {
 	FILE *rcfile = fopen(filename, fileRead);
 	if (rcfile) {
@@ -142,9 +143,9 @@ void PropSetFile::Read(const char *filename, const char *directoryForImports,
 		int lenFile = fread(propsData, 1, sizeof(propsData), rcfile);
 		fclose(rcfile);
 		ReadFromMemory(propsData, lenFile, directoryForImports, imports, sizeImports);
-	} else {
-		//printf("Could not open <%s>\n", filename);
+		return true;
 	}
+	return false;
 }
 
 void SciTEBase::SetImportMenu() {

@@ -104,7 +104,7 @@ public:
 	~PropSetFile();
 	bool ReadLine(const char *data, bool ifIsTrue, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 	void ReadFromMemory(const char *data, int len, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
-	void Read(const char *filename, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
+	bool Read(const char *filename, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 };
 
 class FilePath {
