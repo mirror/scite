@@ -48,7 +48,27 @@ def bracesDiff(s):
 	''' Counts the number of '(' and ')' in a string and returns the difference between the two.
 	Used to work out when a function prototype is complete.
 	'''
-	return string.count(s,"(") - string.count(s,")")
+	diff = 0
+	mode=0 # 0 <=> default, 1 <=> comment, 2 <=> string
+	for i in range(len(s)):
+		if mode == 0: # default mode
+			if s[i]=='(':
+				diff += 1
+			elif s[i]==')':
+				diff -= 1
+			elif s[i]=='"':
+				mode=2
+			elif i>0 and s[i-1]=='/' and s[i]=='/':
+				return diff
+			elif i>0 and s[i-1]=='/' and s[i]=='*':
+				mode=1
+		elif mode == 1: # comment
+			if i>0 and s[i-1]=='*' and s[i]=='/':
+				mode=0
+		elif mode == 2: # string
+			if s[i]=='"':
+				mode=0
+	return diff
 
 fc = FileCache()
 prev=""	# For filtering out some duplicates.
@@ -59,33 +79,36 @@ for line in fileinput.input():
 		contents = fc.grabFile(fileName)
 		if not removePrivate or entityName[0] != '_':
 			if tagType[0] == "p":	# Function prototype.
-				braces = bracesDiff(contents[curLineNo])
-				curDef = contents[curLineNo]
-				while braces > 0:	# Search for end of prototype.
-					curLineNo = curLineNo + 1
-					braces = braces + bracesDiff(contents[curLineNo])
-					curDef = curDef + contents[curLineNo]
-				# Normalise the appearance of the prototype.
-				curDef = string.strip(curDef)
-				# Replace whitespace sequences with a single space character.
-				curDef = string.join(string.split(curDef))
-				# Remove space around the '('.
-				curDef = string.replace(string.replace(curDef, " (", '('), "( ", '(')
-				# Remove trailing semicolon.
-				curDef = string.replace(curDef, ";", '')
-				# Remove return type.
-				curDef = curDef[string.find(curDef, entityName):]
-				if winMode:
-					if string.find(curDef, "A(") >= 0:
-						if "A" in include:
-							print string.replace(curDef, "A(", '(')
-					elif string.find(curDef, "W(") >= 0:
-						if "W" in include:
-							print string.replace(curDef, "W(", '(')
-					else:	# A character set independent function.
+				try:
+					braces = bracesDiff(contents[curLineNo])
+					curDef = contents[curLineNo]
+					while braces > 0:	# Search for end of prototype.
+						curLineNo = curLineNo + 1
+						braces = braces + bracesDiff(contents[curLineNo])
+						curDef = curDef + contents[curLineNo]
+					# Normalise the appearance of the prototype.
+					curDef = string.strip(curDef)
+					# Replace whitespace sequences with a single space character.
+					curDef = string.join(string.split(curDef))
+					# Remove space around the '('.
+					curDef = string.replace(string.replace(curDef, " (", '('), "( ", '(')
+					# Remove trailing semicolon.
+					curDef = string.replace(curDef, ";", '')
+					# Remove return type.
+					curDef = curDef[string.find(curDef, entityName):]
+					if winMode:
+						if string.find(curDef, "A(") >= 0:
+							if "A" in include:
+								print string.replace(curDef, "A(", '(')
+						elif string.find(curDef, "W(") >= 0:
+							if "W" in include:
+								print string.replace(curDef, "W(", '(')
+						else:	# A character set independent function.
+							print curDef
+					else:
 						print curDef
-				else:
-					print curDef
+				except IndexError:
+					pass
 			elif tagType[0] == 'd':	# Macro definition.
 				curDef = contents[curLineNo]
 				if (not winMode) or (curDef[-1] not in "AW"):
