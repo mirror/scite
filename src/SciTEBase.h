@@ -118,7 +118,7 @@ typedef EntryMemory<10> ComboMemory;
 enum { 
 	heightTools = 24, 
 	heightStatus = 20, 
-	statusPosWidth = 160
+	statusPosWidth = 256
 };
 
 struct StyleAndWords {
@@ -206,6 +206,9 @@ protected:
 
 	bool indentationWSVisible;
 
+	bool autoCompleteIgnoreCase;
+	bool callTipIgnoreCase;
+	
 	bool margin;
 	int marginWidth;
 	enum { marginWidthDefault = 20};
@@ -257,6 +260,7 @@ protected:
 	long SendOutput(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
 	long SendFocused(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
 	void SendChildren(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
+	long SendOutputEx(unsigned int msg, unsigned long wParam= 0, long lParam = 0, bool direct = true);
 	int LengthDocument();
 	int GetLine(char *text, int sizeText, int line=-1);
 	void GetRange(Window &win, int start, int end, char *text);
@@ -275,6 +279,7 @@ protected:
 	virtual bool OpenDialog()=0;
 	virtual bool SaveAsDialog()=0;
 	void Open(const char *file = 0, bool initialCmdLine = false);
+	void Revert();
 	int SaveIfUnsure(bool forceQuestion = false);
 	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();
@@ -283,6 +288,8 @@ protected:
 	void SaveToHTML(const char *saveName);
 	virtual void SaveAsHTML()=0;
 	virtual void GetDefaultDirectory(char *directory, size_t size)=0;
+	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath)=0;
+	virtual bool GetSciteUserHome(char *path, unsigned int lenPath)=0;
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
 		char *pathDefaultDir, unsigned int lenPath)=0;
 	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
@@ -307,12 +314,14 @@ protected:
 	void GoMatchingBrace(bool select);
 	virtual void FindReplace(bool replace)=0;
 	void OutputAppendString(const char *s, int len = -1);
+	void OutputAppendStringEx(const char *s, int len = -1, bool direct = true);
 	virtual void Execute();
 	virtual void StopExecute()=0;
 	void GoMessage(int dir);
-	void StartCallTip();
+	virtual bool StartCallTip();
 	void ContinueCallTip();
-	void StartAutoComplete();
+	virtual bool StartAutoComplete();
+	virtual bool StartAutoCompleteWord();
 	void GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
 	int SetLineIndentation(int line, int indent);
 	int GetLineIndentation(int line);
@@ -402,6 +411,7 @@ public:
 	WindowID GetID() { return wSciTE.GetID(); }
 };
 
+const char *strcasestr(const char *str, const char *pattn);
 int ControlIDOfCommand(unsigned long);
 void SetAboutMessage(WindowID wsci, const char *appTitle);
 time_t GetModTime(const char *fullPath);
