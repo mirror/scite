@@ -401,6 +401,7 @@ sptr_t SciTEBase::SendOutputEx(unsigned int msg, uptr_t wParam /*= 0*/, sptr_t l
 	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
 }
 
+#if PLAT_GTK && GTK_MAJOR_VERSION >= 2
 static char *UTF8FromLatin1(const char *s, int len) {
 	char *utfForm = new char[len*2+1];
 	size_t lenU = 0;
@@ -416,6 +417,7 @@ static char *UTF8FromLatin1(const char *s, int len) {
 	utfForm[lenU] = '\0';
 	return utfForm;
 }
+#endif
 
 void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 	if (wsci) {
