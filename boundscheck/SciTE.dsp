@@ -179,6 +179,10 @@ SOURCE=..\..\scintilla\src\LexCrontab.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexCSS.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexEiffel.cxx
 # End Source File
 # Begin Source File
@@ -308,6 +312,10 @@ SOURCE=..\..\scintilla\src\ViewStyle.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\Src\WindowAccessor.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\XPM.cxx
 # End Source File
 # End Group
 # Begin Group "Header Files"
