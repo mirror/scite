@@ -236,6 +236,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	localisationRead = false;
 	splitVertical = false;
 	bufferedDraw = true;
+	twoPhaseDraw = true;
 	bracesCheck = true;
 	bracesSloppy = false;
 	bracesStyle = 0;

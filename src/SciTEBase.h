@@ -193,7 +193,7 @@ enum JobSubsystem {
 enum JobFlags {
     jobForceQueue=1, jobHasInput=2, jobQuiet=4, // 8 reserved for jobVeryQuiet
     jobRepSelMask=48, jobRepSelYes=16, jobRepSelAuto=32 };
-    
+
 class Job {
 public:
 	SString command;
@@ -399,6 +399,7 @@ protected:
 	bool localisationRead;
 	bool splitVertical;	///< @c true if the split bar between editor and output is vertical.
 	bool bufferedDraw;
+	bool twoPhaseDraw;
 	bool bracesCheck;
 	bool bracesSloppy;
 	int bracesStyle;

@@ -862,6 +862,9 @@ void SciTEBase::ReadProperties() {
 	bufferedDraw = props.GetInt("buffered.draw", 1);
 	SendEditor(SCI_SETBUFFEREDDRAW, bufferedDraw);
 
+	twoPhaseDraw = props.GetInt("two.phase.draw", 1);
+	SendEditor(SCI_SETTWOPHASEDRAW, twoPhaseDraw);
+
 	SendEditor(SCI_SETLAYOUTCACHE, props.GetInt("cache.layout"));
 	SendOutput(SCI_SETLAYOUTCACHE, props.GetInt("output.cache.layout"));
 
