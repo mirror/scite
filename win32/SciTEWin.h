@@ -61,6 +61,7 @@ protected:
 
 	// Tab Bar
 	TCITEM tie;
+    HFONT fontTabs;
 
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();

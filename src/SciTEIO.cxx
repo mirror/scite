@@ -46,6 +46,8 @@ void SciTEBase::FixFilePath() {
 }
 
 void SciTEBase::SetFileName(const char *openName, bool fixCase) {
+	fullPath[0] = '\0';
+	fullPath[1] = '\0';
 	if (openName[0] == '\"') {
 		char pathCopy[MAX_PATH + 1];
 		pathCopy[0] = '\0';
@@ -56,8 +58,6 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 		AbsolutePath(fullPath, pathCopy, MAX_PATH);
 	} else if (openName[0]) {
 		AbsolutePath(fullPath, openName, MAX_PATH);
-	} else {
-		fullPath[0] = '\0';
 	}
 
     bool absolutePath = fullPath[0] == pathSepChar;

@@ -341,14 +341,14 @@ void SciTEWin::Creation() {
 	if (!wTabBar.Created())
 		exit(FALSE);
 
-	HFONT hFont = ::CreateFont( 8, 0, 0, 0,
+	fontTabs = ::CreateFont( 8, 0, 0, 0,
 	                            FW_NORMAL,
 	                            0, 0, 0, 0,
 	                            0, 0, 0, 0,
 	                            "Ms Sans Serif");
 	::SendMessage(wTabBar.GetID(),
 	              WM_SETFONT,
-	              (WPARAM) hFont,  // handle to font
+	              (WPARAM) fontTabs,  // handle to font
 	              (LPARAM) 0);    // redraw option
 
 	wTabBar.Show();

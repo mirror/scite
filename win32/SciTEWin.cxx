@@ -18,6 +18,7 @@ char *SciTEWin::classNameInternal = NULL;
 SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	cmdShow = 0;
 	heightBar = 7;
+    fontTabs = 0;
 
 	memset(&fr, 0, sizeof(fr));
 	strcpy(openWhat, "Custom Filter");
@@ -83,6 +84,8 @@ SciTEWin::~SciTEWin() {
 		::GlobalFree(hDevNames);
 	if (hHH)
 		::FreeLibrary(hHH);
+    if (fontTabs)
+        ::DeleteObject(fontTabs);
 }
 
 void SciTEWin::Register(HINSTANCE hInstance_) {
