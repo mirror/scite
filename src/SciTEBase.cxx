@@ -803,7 +803,7 @@ void SciTEBase::SetStyleFor(Window &win, const char *lang) {
 		if (style != STYLE_DEFAULT) {
 			char key[200];
 			sprintf(key, "style.%s.%0d", lang, style);
-			SString sval = props.GetNewExpand(key, "");
+			SString sval = props.GetExpanded(key);
 			SetOneStyle(win, style, sval.c_str());
 		}
 	}
