@@ -38,6 +38,9 @@ const char *VMSToUnixStyle(const char *fileName);
 // warning C4800: forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning(disable: 4710 4800)
 #endif
+#ifdef __DMC__
+#include <time.h>
+#endif
 #endif
 
 /**

@@ -42,6 +42,9 @@
 #ifdef __BORLANDC__
 #include <dir.h>
 #endif
+#ifdef __DMC__
+#include <dir.h>
+#endif
 
 #include "SciTE.h"
 #include "PropSet.h"
