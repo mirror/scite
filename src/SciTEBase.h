@@ -118,6 +118,7 @@ typedef EntryMemory<10> ComboMemory;
 
 enum { 
 	heightTools = 24, 
+	heightTab = 24, 
 	heightStatus = 20, 
 	statusPosWidth = 256
 };
@@ -172,20 +173,23 @@ protected:
 	StyleAndWords blockStart;
 	StyleAndWords blockEnd;
 
-	Window wSciTE;  // Contains wToolBar, wContent, and wStatusBar
+	Window wSciTE;  // Contains wToolBar, wTabBar, wContent, and wStatusBar
 	Window wContent;    // Contains wEditor and wOutput
 	Window wEditor;
 	Window wOutput;
 	Window wDivider;	// Not used on Windows
 	Window wToolBar;
 	Window wStatusBar;
+	Window wTabBar;
 	SciFnDirect fnEditor;
 	long ptrEditor;
 	SciFnDirect fnOutput;
 	long ptrOutput;
 	bool tbVisible;
+	bool tabVisible;
 	bool sbVisible;
 	int visHeightTools;
+	int visHeightTab;
 	int visHeightStatus;
 	int visHeightEditor;
 	int heightBar;
@@ -354,6 +358,7 @@ protected:
 	virtual void SetStatusBarText(const char *s)=0;
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar()=0;
+	virtual void ShowTabBar()=0;
 	virtual void ShowStatusBar()=0;
 
 	void BookmarkToggle( int lineno = -1 );

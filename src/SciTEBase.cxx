@@ -3,30 +3,30 @@
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdarg.h>
-#include <sys/stat.h>
-#include <time.h>
+#include <stdlib.h> 
+#include <string.h> 
+#include <ctype.h> 
+#include <stdio.h> 
+#include <fcntl.h> 
+#include <stdarg.h> 
+#include <sys/stat.h> 
+#include <time.h> 
 
 #include "Platform.h"
 
 #if PLAT_GTK
 
-#include <unistd.h>
+#include <unistd.h> 
 
 #endif 
 
 #if PLAT_WIN
 
 #ifdef _MSC_VER
-#include <direct.h>
+#include <direct.h> 
 #endif 
 #ifdef __BORLANDC__
-#include <dir.h>
+#include <dir.h> 
 #endif 
 
 #endif 
@@ -236,6 +236,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	ptrOutput = 0;
 	tbVisible = false;
 	sbVisible = false;
+	tabVisible = false;
 	visHeightTools = 0;
 	visHeightStatus = 0;
 	visHeightEditor = 1;
@@ -332,6 +333,12 @@ void SciTEBase::SetDocumentAt(int index) {
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
 	ReadProperties();
+
+#if PLAT_WIN
+	// Tab Bar
+	::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
+#endif 
+
 	DisplayAround(bufferNext);
 
 	CheckMenus();
@@ -482,6 +489,10 @@ void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
 	int pos;
 	DestroyMenuItem(4, IDM_BUFFERSEP);
+#if PLAT_WIN
+	::SendMessage(wTabBar.GetID(), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
+#endif 
+
 	for (pos = 0; pos < bufferMax; pos++) {
 		DestroyMenuItem(4, IDM_BUFFER + pos);
 	}
@@ -492,21 +503,44 @@ void SciTEBase::BuffersMenu() {
 			int itemID = bufferCmdID + pos;
 			char entry[MAX_PATH + 20];
 			entry[0] = '\0';
+			char titleTab[MAX_PATH + 20];
+			titleTab[0] = '\0';
 #if PLAT_WIN
 			sprintf(entry, "&%d ", pos);
 #endif 
-			if (IsUntitledFileName(buffers.buffers[pos].fileName.c_str()))
+			if (IsUntitledFileName(buffers.buffers[pos].fileName.c_str())) {
 				strcat(entry, "Untitled");
-			else
+				strcat(titleTab, "Untitled");
+			} else {
 				strcat(entry, buffers.buffers[pos].fileName.c_str());
+
+				char *cpDirEnd = strrchr(entry, pathSepChar);
+				if (cpDirEnd) {
+					strcpy(titleTab, cpDirEnd + 1);
+				} else {
+					strcpy(titleTab, entry);
+				}
+			}
 			// For short file names:
 			//char *cpDirEnd = strrchr(buffers.buffers[pos]->fileName, pathSepChar);
 			//strcat(entry, cpDirEnd + 1);
 
-			if (buffers.buffers[pos].isDirty)
+			if (buffers.buffers[pos].isDirty) {
 				strcat(entry, " *");
+				strcat(titleTab, " *");
+			}
 
 			SetMenuItem(4, menuStart + pos + 1, itemID, entry);
+#if PLAT_WIN
+			// Windows specific !
+			TCITEM tie;
+			tie.mask = TCIF_TEXT | TCIF_IMAGE;
+			tie.iImage = -1;
+
+			tie.pszText = titleTab;
+			::SendMessage(wTabBar.GetID(), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
+			::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
+#endif
 		}
 	}
 	CheckMenus();
@@ -899,6 +933,7 @@ void SciTEBase::ReadPropertiesInitial() {
 
 	sbVisible = props.GetInt("statusbar.visible");
 	tbVisible = props.GetInt("toolbar.visible");
+	tabVisible = props.GetInt("tabbar.visible");
 
 	lineNumbersWidth = 0;
 	SString linenums = props.Get("line.numbers");
@@ -1064,6 +1099,7 @@ void SciTEBase::ReadProperties() {
 			fclose(fp);
 			//Platform::DebugPrintf("Finished api file %d\n", len);
 		}
+
 
 
 	}
@@ -1314,6 +1350,7 @@ void SciTEBase::ReadProperties() {
 
 
 
+
 void SciTEBase::SetOverrideLanguage(int cmdID) {
 	EnsureRangeVisible(0, SendEditor(SCI_GETLENGTH));
 	// Zero all the style bytes
@@ -1373,6 +1410,7 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("end colourise %d\n", dwEnd - dwStart);
 }
+
 
 
 #endif 
@@ -1462,6 +1500,7 @@ void SciTEBase::BraceMatch(bool editor) {
 			//Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
 		}
 
+
 		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
 		if (props.GetInt("highlight.indentation.guides"))
 			Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Platform::Minimum(columnAtCaret, columnOpposite), 0);
@@ -1485,9 +1524,11 @@ void SciTEBase::SetWindowName() {
 }
 
 
+
 void SciTEBase::FixFilePath() {
 	// Only used on Windows to fix the case of file names
 }
+
 
 
 void SciTEBase::SetFileName(const char *openName, bool fixCase) {
@@ -1885,22 +1926,22 @@ int GetHexByte(const char *hexbyte) { // "HH"
 
 int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
 	static int highlights[][3] = {
-	    { 0x00, 0x00, 0x00 },  // highlight1  0;0;0       black
-	    { 0x00, 0x00, 0xFF },  // highlight2  0;0;255     blue
-	    { 0x00, 0xFF, 0xFF },  // highlight3  0;255;255   cyan
-	    { 0x00, 0xFF, 0x00 },  // highlight4  0;255;0     green
-	    { 0xFF, 0x00, 0xFF },  // highlight5  255;0;255   violet
-	    { 0xFF, 0x00, 0x00 },  // highlight6  255;0;0     red
-	    { 0xFF, 0xFF, 0x00 },  // highlight7  255;255;0   yellow
-	    { 0xFF, 0xFF, 0xFF },  // highlight8  255;255;255 white
-	    { 0x00, 0x00, 0x80 },  // highlight9  0;0;128     dark blue
-	    { 0x00, 0x80, 0x80 },  // highlight10 0;128;128   dark cyan
-	    { 0x00, 0x80, 0x00 },  // highlight11 0;128;0     dark green
-	    { 0x80, 0x00, 0x80 },  // highlight12 128;0;128   dark violet
-	    { 0x80, 0x00, 0x00 },  // highlight13 128;0;0     brown
-	    { 0x80, 0x80, 0x00 },  // highlight14 128;128;0   khaki
-	    { 0x80, 0x80, 0x80 },  // highlight15 128;128;128 dark grey
-	    { 0xC0, 0xC0, 0xC0 },  // highlight16 192;192;192 grey
+	    { 0x00, 0x00, 0x00 },   // highlight1  0;0;0       black
+	    { 0x00, 0x00, 0xFF },   // highlight2  0;0;255     blue
+	    { 0x00, 0xFF, 0xFF },   // highlight3  0;255;255   cyan
+	    { 0x00, 0xFF, 0x00 },   // highlight4  0;255;0     green
+	    { 0xFF, 0x00, 0xFF },   // highlight5  255;0;255   violet
+	    { 0xFF, 0x00, 0x00 },   // highlight6  255;0;0     red
+	    { 0xFF, 0xFF, 0x00 },   // highlight7  255;255;0   yellow
+	    { 0xFF, 0xFF, 0xFF },   // highlight8  255;255;255 white
+	    { 0x00, 0x00, 0x80 },   // highlight9  0;0;128     dark blue
+	    { 0x00, 0x80, 0x80 },   // highlight10 0;128;128   dark cyan
+	    { 0x00, 0x80, 0x00 },   // highlight11 0;128;0     dark green
+	    { 0x80, 0x00, 0x80 },   // highlight12 128;0;128   dark violet
+	    { 0x80, 0x00, 0x00 },   // highlight13 128;0;0     brown
+	    { 0x80, 0x80, 0x00 },   // highlight14 128;128;0   khaki
+	    { 0x80, 0x80, 0x80 },   // highlight15 128;128;128 dark grey
+	    { 0xC0, 0xC0, 0xC0 },   // highlight16 192;192;192 grey
 	};
 	int maxdelta = 3 * 255 + 1, delta, index = -1;
 	int r = GetHexByte (rgb + 1), g = GetHexByte (rgb + 3), b = GetHexByte (rgb + 5);
@@ -1926,7 +1967,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||  // change
+	if (lastOffset != currentOffset ||   // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -1947,7 +1988,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||  // change
+	if (lastOffset != currentOffset ||   // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -1968,7 +2009,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||  // change
+	if (lastOffset != currentOffset ||   // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -1989,7 +2030,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||  // change
+	if (lastOffset != currentOffset ||   // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -2465,6 +2506,7 @@ void SciTEBase::SelectionWord(char *word, int len) {
 		}
 
 
+
 	}
 	word[0] = '\0';
 	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
@@ -2567,6 +2609,7 @@ void SciTEBase::ReplaceOnce() {
 	}
 
 
+
 	FindNext(reverseFind);
 }
 
@@ -2605,6 +2648,7 @@ void SciTEBase::ReplaceAll() {
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
+
 
 
 void SciTEBase::OutputAppendString(const char *s, int len) {
@@ -3356,6 +3400,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		// For the New command, the are you sure question is always asked as this gives
 		// an opportunity to abandon the edits made to a file when are.you.sure is turned off.
 
+
 		if (IsBufferAvailable() || (SaveIfUnsure(true) != IDCANCEL)) {
 			New();
 			ReadProperties();
@@ -3556,6 +3601,12 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_VIEWTOOLBAR:
 		tbVisible = !tbVisible;
 		ShowToolBar();
+		CheckMenus();
+		break;
+
+	case IDM_VIEWTABBAR:
+		tabVisible = !tabVisible;
+		ShowTabBar();
 		CheckMenus();
 		break;
 
@@ -3990,6 +4041,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);
 	CheckAMenuItem(IDM_VIEWEOL, SendEditor(SCI_GETVIEWEOL));
 	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
+	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 	EnableAMenuItem(IDM_COMPILE, !executing);
 	EnableAMenuItem(IDM_BUILD, !executing);
@@ -3998,6 +4050,14 @@ void SciTEBase::CheckMenus() {
 		EnableAMenuItem(IDM_TOOLS + toolItem, !executing);
 	EnableAMenuItem(IDM_STOPEXECUTE, executing);
 	if (buffers.size > 0) {
+#if PLAT_WIN
+		// Tab Bar
+#ifndef TCM_DESELECTALL
+#define TCM_DESELECTALL TCM_FIRST+50
+#endif
+		::SendMessage(wTabBar.GetID(), TCM_DESELECTALL, (WPARAM)0, (LPARAM)0);
+		::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)buffers.current, (LPARAM)0);
+#endif
 		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
 			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.current);
 		}
@@ -4032,6 +4092,7 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 		SizeContentWindows();
 		//Redraw();
 	}
+
 
 }
 

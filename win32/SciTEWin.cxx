@@ -3,25 +3,25 @@
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdarg.h>
-#include <sys/stat.h>
+#include <stdlib.h> 
+#include <string.h> 
+#include <ctype.h> 
+#include <stdio.h> 
+#include <fcntl.h> 
+#include <stdarg.h> 
+#include <sys/stat.h> 
 
 #include "Platform.h"
 
-#include <io.h>
-#include <process.h>
+#include <io.h> 
+#include <process.h> 
 #include <mmsystem.h>
-#include <commctrl.h>
+#include <commctrl.h> 
 #ifdef _MSC_VER
-#include <direct.h>
+#include <direct.h> 
 #endif 
 #ifdef __BORLANDC__
-#include <dir.h>
+#include <dir.h> 
 #endif 
 
 #include "SciTE.h"
@@ -58,6 +58,9 @@ protected:
 	HGLOBAL hDevNames;
 
 	HMODULE hHH;
+
+	// Tab Bar
+	TCITEM tie;
 
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
@@ -104,6 +107,7 @@ protected:
 
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
+	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
 	void ExecuteHelp(const char *cmd);
 	void Command(WPARAM wParam, LPARAM lParam);
@@ -307,7 +311,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 static void ChopTerminalSlash(char *path) {
 	int endOfPath = strlen(path) - 1;
 	if (path[endOfPath] == pathSepChar)
-	    path[endOfPath] = '\0';
+		path[endOfPath] = '\0';
 }
 
 void SciTEWin::GetDefaultDirectory(char *directory, size_t size) {
@@ -384,10 +388,46 @@ void SciTEWin::SetStatusBarText(const char *s) {
 }
 
 void SciTEWin::Notify(SCNotification *notification) {
-	SciTEBase::Notify(notification);
+	// Manage Windows specific notifications
+	switch (notification->nmhdr.code) {
+	case TCN_SELCHANGE:
+		if (notification->nmhdr.idFrom == IDM_TABWIN) {
+			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_GETCURSEL, (WPARAM)0, (LPARAM)0);
+			SetDocumentAt(index);
+		}
+		break;
+
+#if (_WIN32_IE >= 0x0300)
+	// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
+	case TTN_GETDISPINFO:
+		//		if (notification->nmhdr.idFrom == IDM_TABWIN)
+		{
+			//			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_GETCURFOCUS, (WPARAM)0, (LPARAM)0);
+			Point ptCursor;
+			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
+			Point ptClient = ptCursor;
+			::ScreenToClient(wTabBar.GetID(), reinterpret_cast<POINT *>(&ptClient));
+			TCHITTESTINFO info;
+			info.pt.x = ptClient.x; info.pt.y = ptClient.y;
+			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
+			NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
+			pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].fileName.c_str());
+		}
+		break;
+#endif
+		
+	default: 	// Scintilla notification, use default treatment
+
+		SciTEBase::Notify(notification);
+		break;
+	}
 }
 
 void SciTEWin::ShowToolBar() {
+	SizeSubWindows();
+}
+
+void SciTEWin::ShowTabBar() {
 	SizeSubWindows();
 }
 
@@ -411,7 +451,7 @@ struct XHH_AKLINK {
 void SciTEWin::ExecuteHelp(const char *cmd) {
 	if (!hHH)
 		hHH = ::LoadLibrary("HHCTRL.OCX");
-	
+
 	if (hHH) {
 		char *topic = strdup(cmd);
 		char *path = strchr(topic, '!');
@@ -435,7 +475,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				fnHHA(NULL,
 				      //helpFile.c_str(),
 				      path,
-				      0x000d,  	// HH_KEYWORD_LOOKUP
+				      0x000d,   	// HH_KEYWORD_LOOKUP
 				      reinterpret_cast<DWORD>(&ak)
 				     );
 			}
@@ -491,12 +531,19 @@ void SciTEWin::SizeSubWindows() {
 	PRectangle rcClient = wSciTE.GetClientPosition();
 
 	visHeightTools = tbVisible ? heightTools : 0;
+	if (tabVisible) {
+		int tabNb = ::SendMessage(wTabBar.GetID(), TCM_GETROWCOUNT, 0, 0);
+		visHeightTab = tabNb * heightTab;
+	} else {
+		visHeightTab = 0;
+	}
 	visHeightStatus = sbVisible ? heightStatus : 0;
-	visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus;
+	visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus - visHeightTab;
 	if (visHeightEditor < 1) {
 		visHeightTools = 1;
 		visHeightStatus = 1;
-		visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus;
+		visHeightTab = 1;
+		visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus - visHeightTab;
 	}
 	if (tbVisible) {
 		wToolBar.Show(true);
@@ -506,6 +553,17 @@ void SciTEWin::SizeSubWindows() {
 		wToolBar.Show(false);
 		wToolBar.SetPosition(PRectangle(
 		                         rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
+	}
+	if (tabVisible) {
+		wTabBar.Show(true);
+		wTabBar.SetPosition(PRectangle(
+		                        rcClient.left, rcClient.top + visHeightTools,
+		                        rcClient.Width(), visHeightTab + visHeightTools));
+	} else {
+		wTabBar.Show(false);
+		wTabBar.SetPosition(PRectangle(
+		                        rcClient.left, rcClient.top - 2,
+		                        rcClient.Width(), 1));
 	}
 	if (sbVisible) {
 		wStatusBar.Show(true);
@@ -518,21 +576,22 @@ void SciTEWin::SizeSubWindows() {
 		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 0 | SBT_NOBORDERS,
 		              reinterpret_cast<LPARAM>(""));
 		wStatusBar.SetPosition(PRectangle(rcClient.left,
-		                                  rcClient.top + visHeightTools + visHeightEditor, rcClient.Width(), visHeightStatus));
+		                                  rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
+		                                  rcClient.Width(), visHeightStatus));
 	} else {
 		wStatusBar.Show(false);
 		wStatusBar.SetPosition(PRectangle(
 		                           rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
 	}
 
-	wContent.SetPosition(PRectangle(0, visHeightTools, rcClient.Width(),
-	                                visHeightTools + visHeightEditor));
+	wContent.SetPosition(PRectangle(0, visHeightTools + visHeightTab, rcClient.Width(),
+	                                visHeightTools + visHeightTab + visHeightEditor));
 	SizeContentWindows();
 }
 
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
                            const char *text, const char *mnemonic) {
-	// On Windows the menu items are modified if they already exist or created
+	// On Windows the menu items are modified if they already exist or are created
 	HMENU hmenuBar = ::GetMenu(wSciTE.GetID());
 	HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
 	SString sTextMnemonic = text;
@@ -731,6 +790,7 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 	GetFullPathName(relativePath, size, absPath, &fileBit);
 	//Platform::DebugPrintf("AbsolutePath: <%s> -> <%s>\n", relativePath, absPath);
 }
+
 
 
 #define MULTISELECTOPEN
@@ -1498,6 +1558,7 @@ void SciTEWin::ProcessExecute() {
 										completed = true;    // It's a dead process
 									}
 
+
 								}
 							}
 						}
@@ -1613,11 +1674,11 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 
 	DWORD rc = reinterpret_cast<DWORD>(
 	               ShellExecute(
-	                   wSciTE.GetID(),  // parent wnd for msgboxes during app start
-	                   NULL,   // cmd is open
-	                   mycmd,  // file to open
-	                   myparams,  // parameters
-	                   dir.c_str(),  // launch directory
+	                   wSciTE.GetID(),   // parent wnd for msgboxes during app start
+	                   NULL,    // cmd is open
+	                   mycmd,   // file to open
+	                   myparams,   // parameters
+	                   dir.c_str(),   // launch directory
 	                   SW_SHOWNORMAL)); //default show cmd
 
 	if (rc > 32) {
@@ -1742,6 +1803,7 @@ void SciTEWin::GoLineDialog() {
 			SendEditor(SCI_GOTOLINE, lineNo[0]-1);
 			//}
 		}
+
 
 	}
 	SetFocus(wEditor.GetID());
@@ -2020,6 +2082,39 @@ void SciTEWin::Creation() {
 
 	wToolBar.Show();
 
+	//	InitCommonControls();
+	INITCOMMONCONTROLSEX icce;
+	icce.dwSize = sizeof(icce);
+	icce.dwICC = ICC_TAB_CLASSES;
+	InitCommonControlsEx(&icce);
+	wTabBar = ::CreateWindowEx(
+	              0,
+	              WC_TABCONTROL,
+	              "Tab",
+	              WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+	              TCS_FOCUSNEVER | TCS_TOOLTIPS,
+	              0, 0,
+	              100, heightTab,
+	              wSciTE.GetID(),
+	              reinterpret_cast<HMENU>(IDM_TABWIN),
+	              hInstance,
+	              0 );
+
+	if (!wTabBar.Created())
+		exit(FALSE);
+
+	HFONT hFont = ::CreateFont( 8, 0, 0, 0,
+	                            FW_NORMAL,
+	                            0, 0, 0, 0,
+	                            0, 0, 0, 0,
+	                            "Ms Sans Serif");
+	::SendMessage(wTabBar.GetID(),
+	              WM_SETFONT,
+	              (WPARAM) hFont,  // handle to font
+	              (LPARAM) 0);    // redraw option
+
+	wTabBar.Show();
+
 	wStatusBar = ::CreateWindowEx(
 	                 0,
 	                 STATUSCLASSNAME,
@@ -2125,6 +2220,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			SendEditor(WM_PALETTECHANGED, wParam, lParam);
 			//SendOutput(WM_PALETTECHANGED, wParam, lParam);
 		}
+
 
 		break;
 
@@ -2241,7 +2337,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
 			Point ptClient = ptCursor;
 			::ScreenToClient(wSciTE.GetID(), reinterpret_cast<POINT *>(&ptClient));
-			if ((ptClient.y > visHeightTools) && (ptClient.y < visHeightTools + visHeightEditor)) {
+			if ((ptClient.y > (visHeightTools + visHeightTab)) && (ptClient.y < visHeightTools + visHeightTab + visHeightEditor)) {
 				PRectangle rcScintilla = wEditor.GetPosition();
 				PRectangle rcOutput = wOutput.GetPosition();
 				if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {

@@ -84,6 +84,7 @@ BEGIN
 	MENUITEM "View Line &Numbers",          IDM_LINENUMBERMARGIN
 	MENUITEM "&View End of Line\tCtrl+Shift+O",          IDM_VIEWEOL
 	MENUITEM "View Toolbar",          IDM_VIEWTOOLBAR
+	MENUITEM "View Tab Bar",          IDM_VIEWTABBAR
 	MENUITEM "View Status Bar",          IDM_VIEWSTATUSBAR
 	MENUITEM "",                            2
 	POPUP "&Line End Characters"
@@ -310,6 +311,8 @@ BEGIN
 
 	VK_F6, IDM_NEXT,  VIRTKEY
 	VK_F6, IDM_PREV,  VIRTKEY, SHIFT
+	VK_F6, IDM_NEXT,  VIRTKEY, CONTROL
+	VK_F6, IDM_PREV,  VIRTKEY, CONTROL, SHIFT
 
 	VK_BACK, IDM_UNDO,  VIRTKEY, ALT
 	VK_BACK, IDM_REDO,  VIRTKEY, ALT, SHIFT
