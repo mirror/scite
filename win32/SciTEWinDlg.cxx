@@ -1208,6 +1208,10 @@ bool SciTEWin::ParametersDialog(bool modal) {
 	return success;
 }
 
+int SciTEWin::WindowMessageBox(Window &w, const SString &msg, int style) {
+	return ::MessageBox(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style);
+}
+
 BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 

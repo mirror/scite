@@ -878,21 +878,13 @@ void SciTEBase::SelectionIntoFind() {
 	}
 }
 
-int WindowMessageBox(Window &w, const char *m, const char *t, int style) {
-#if PLAT_GTK
-	return ::MessageBox(reinterpret_cast<GtkWidget *>(w.GetID()), m, t, style);
-#else
-	return ::MessageBox(reinterpret_cast<HWND>(w.GetID()), m, t, style);
-#endif
-}
-
-void SciTEBase::FindMessageBox(const char *msg) {
+void SciTEBase::FindMessageBox(const SString &msg) {
 	dialogsOnScreen++;
 #if PLAT_GTK
-	WindowMessageBox(wSciTE, msg, appName, MB_OK | MB_ICONWARNING);
+	WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 #endif
 #if PLAT_WIN
-	WindowMessageBox(wFindReplace, msg, appName, MB_OK | MB_ICONWARNING);
+	WindowMessageBox(wFindReplace, msg, MB_OK | MB_ICONWARNING);
 #endif
 	dialogsOnScreen--;
 }
@@ -1126,10 +1118,10 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 			WarnUser(warnNotFound);
 			SString msg = LocaliseMessage("Can not find the string '^0'.", findWhat);
 			if (wFindReplace.Created()) {
-				FindMessageBox(msg.c_str());
+				FindMessageBox(msg);
 			} else {
 				dialogsOnScreen++;
-				WindowMessageBox(wSciTE, msg.c_str(), appName, MB_OK);
+				WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 				dialogsOnScreen--;
 			}
 		}
@@ -1173,7 +1165,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	if (findLen == 0) {
 		SString msg = LocaliseMessage(
 			"Find string must not be empty for 'Replace All' command.");
-		FindMessageBox(msg.c_str());
+		FindMessageBox(msg);
 		return;
 	}
 
@@ -1184,7 +1176,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		if (startPosition == endPosition) {
 			SString msg = LocaliseMessage(
 				"Selection must not be empty for 'Replace in Selection' command.");
-			FindMessageBox(msg.c_str());
+			FindMessageBox(msg);
 			return;
 		}
 	} else {
@@ -1241,7 +1233,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	} else {
 		SString msg = LocaliseMessage(
 			"No replacements because string '^0' was not present.", findWhat);
-		FindMessageBox(msg.c_str());
+		FindMessageBox(msg);
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
@@ -1671,7 +1663,7 @@ bool SciTEBase::StartBlockComment() {
 		SString error("Block comment variable \"");
 		error += base.c_str();
 		error += "\" is not defined in SciTE *.properties!";
-		WindowMessageBox(wSciTE, error.c_str(), "Block Comment Error", MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	SString long_comment = comment.append(" ");
@@ -1768,7 +1760,7 @@ bool SciTEBase::StartBoxComment() {
 		error += end_base.c_str();
 		error += "\" are not ";
 		error += "defined in SciTE *.properties!";
-		WindowMessageBox(wSciTE, error.c_str(), "Box Comment Error", MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	start_comment += white_space;
@@ -1839,7 +1831,7 @@ bool SciTEBase::StartStreamComment() {
 		error += end_base.c_str();
 		error += "\" are not ";
 		error += "defined in SciTE *.properties!";
-		WindowMessageBox(wSciTE, error.c_str(), "Stream Comment Error", MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	start_comment += white_space;
@@ -3364,8 +3356,8 @@ void SciTEBase::PerformOne(char *action) {
 			MenuCommand(atoi(arg));
 		} else if (isprefix(action, "cwd:")) {
 			if (chdir(arg) != 0) {
-				WindowMessageBox(wSciTE, arg,
-					"Invalid directory", MB_OK | MB_ICONWARNING);
+				SString msg = LocaliseMessage("Invalid directory '^0'.", arg);
+				WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 			}
 		}
 	}

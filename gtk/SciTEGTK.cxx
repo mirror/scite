@@ -73,7 +73,7 @@ protected:
 	int inputHandle;
 	time_t timeStart;
 
-	//Command Pipe variables
+	// Command Pipe variables
 	int inputWatcher;
 	int fdPipe;
 	char pipeName[MAX_PATH];
@@ -115,8 +115,10 @@ protected:
 	gint	fileSelectorHeight;
 
 	// Fullscreen handling
-	int saved_x, saved_y, saved_h, saved_w;
+	GdkRectangle saved;
 
+	GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
+		      int val, GtkAccelGroup *accel_group, bool isDefault = false);
 	void SetWindowName();
 	void ShowFileInStatus();
 	void SetIcon();
@@ -146,6 +148,7 @@ protected:
 	virtual void Print();
 	virtual void PrintSetup();
 
+	virtual int WindowMessageBox(Window &w, const SString &msg, int style);
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
@@ -155,7 +158,7 @@ protected:
 	void TranslatedSetTitle(GtkWindow *w, const char *original);
 	GtkWidget *TranslatedLabel(const char *original);
 	GtkWidget *TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
-				      GtkSignalFunc func, gpointer data);
+		GtkSignalFunc func, gpointer data, int accelMask=GDK_MOD1_MASK);
 	GtkWidget *TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active);
 	virtual void FindInFiles();
 	virtual void Replace();
@@ -341,23 +344,20 @@ static GtkWidget *MakeToggle(const char *text, GtkAccelGroup *accel_group, bool 
 }
 
 static GtkWidget *MakeCommand(const char *text, GtkAccelGroup *accel_group,
-                              GtkSignalFunc func, gpointer data) {
+		GtkSignalFunc func, gpointer data, int accelMask) {
 	GtkWidget *command = gtk_button_new_with_label("");
 	GTK_WIDGET_SET_FLAGS(command, GTK_CAN_DEFAULT);
 	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(command)->child), text);
 	gtk_widget_add_accelerator(command, "clicked", accel_group,
-	                           key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	                           key, accelMask, (GtkAccelFlags)0);
 	gtk_signal_connect(GTK_OBJECT(command), "clicked", func, data);
 	return command;
 }
 
-static GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
-                              int val, GtkAccelGroup *accel_group, bool isDefault = false) {
-	GtkWidget *button = MakeCommand(label, accel_group,
-	                                 GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val));
-	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), label);
-	gtk_widget_add_accelerator(button, "clicked", accel_group,
-	                           key, 0, (GtkAccelFlags)0);
+GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
+                              int val, GtkAccelGroup *accel_group, bool isDefault) {
+	GtkWidget *button = TranslatedCommand(label, accel_group,
+		GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val), 0);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
 	                   button, TRUE, TRUE, 0);
 	if (isDefault) {
@@ -365,68 +365,6 @@ static GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
 	}
 	gtk_widget_show(button);
 	return button;
-}
-
-int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
-	if (!messageBoxDialog) {
-		GtkAccelGroup *accel_group = gtk_accel_group_new();
-
-		messageBoxResult = -1;
-		messageBoxDialog = gtk_dialog_new();
-		gtk_window_set_title(GTK_WINDOW(messageBoxDialog), t);
-		gtk_container_border_width(GTK_CONTAINER(messageBoxDialog), 0);
-
-		gtk_signal_connect(GTK_OBJECT(messageBoxDialog),
-		                   "destroy", GtkSignalFunc(destroyDialog), 0);
-
-		int escapeResult = IDOK;
-		if ((style & 0xf) == MB_OK) {
-			AddMBButton(messageBoxDialog, "  _Ok  ", IDOK, accel_group, true);
-		} else {
-			AddMBButton(messageBoxDialog, "  _Yes  ", IDYES, accel_group, true);
-			AddMBButton(messageBoxDialog, "  _No  ", IDNO, accel_group);
-			escapeResult = IDNO;
-			if (style == MB_YESNOCANCEL) {
-				AddMBButton(messageBoxDialog, "  _Cancel  ", IDCANCEL, accel_group);
-				escapeResult = IDCANCEL;
-			}
-		}
-		gtk_signal_connect(GTK_OBJECT(messageBoxDialog),
-		                   "key_press_event", GtkSignalFunc(messageBoxKey),
-		                   reinterpret_cast<gpointer>(escapeResult));
-
-		if (style & MB_ABOUTBOX) {
-			GtkWidget *explanation = scintilla_new();
-			scintilla_set_id(SCINTILLA(explanation), 0);
-			gtk_box_pack_start(GTK_BOX(GTK_DIALOG(messageBoxDialog)->vbox),
-			                   explanation, TRUE, TRUE, 0);
-			gtk_widget_set_usize(GTK_WIDGET(explanation), 480, 380);
-			gtk_widget_show_all(explanation);
-#ifdef STATIC_BUILD
-			SetAboutMessage(explanation, "Sc1  ");
-#else
-			SetAboutMessage(explanation, "SciTE");
-#endif
-		} else {
-			GtkWidget *label = gtk_label_new(m);
-			gtk_misc_set_padding(GTK_MISC(label), 10, 10);
-			gtk_box_pack_start(GTK_BOX(GTK_DIALOG(messageBoxDialog)->vbox),
-			                   label, TRUE, TRUE, 0);
-			gtk_widget_show(label);
-		}
-
-		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(messageBoxDialog), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(messageBoxDialog),
-		                              GTK_WINDOW(wParent));
-
-		gtk_widget_show(messageBoxDialog);
-		gtk_window_add_accel_group(GTK_WINDOW(messageBoxDialog), accel_group);
-		while (messageBoxResult < 0) {
-			gtk_main_iteration();
-		}
-	}
-	return messageBoxResult;
 }
 
 void SciTEGTK::GetDefaultDirectory(char *directory, size_t size) {
@@ -599,15 +537,15 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 			gdk_window_get_origin(parent_w, &screen_x, &screen_y);
 			gdk_window_get_geometry(parent_w, &scite_x, &scite_y, &width, &height, NULL);
 
-			saved_x = screen_x - scite_x;
-			saved_y = screen_y - scite_y;
-			saved_w = width;
-			saved_h = height;
+			saved.x = screen_x - scite_x;
+			saved.y = screen_y - scite_y;
+			saved.width = width;
+			saved.height = height;
 			gdk_window_move_resize(parent_w, -scite_x, -scite_y, gdk_screen_width() + 1, gdk_screen_height() + 1);
 			SizeSubWindows();
 		} else {
 			GdkWindow* parent_w = PWidget(wSciTE)->window;
-			gdk_window_move_resize(parent_w, saved_x, saved_y, saved_w, saved_h);
+			gdk_window_move_resize(parent_w, saved.x, saved.y, saved.width, saved.height);
 			SizeSubWindows();
 		}
 		CheckMenus();
@@ -781,11 +719,10 @@ void SciTEGTK::OpenUriList(const char *list) {
 					}
 
 					unquote(uri);
-					//printf("FILE: <%s>\n", uri);
 					Open(uri);
 				} else {
-					MessageBox(PWidget(wSciTE), uri, "URI not understood", MB_OK);
-					//printf("URI: <%s>\n", uri);
+					SString msg = LocaliseMessage("URI '^0' not understood.");
+					WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 				}
 
 				uri = enduri + 1;
@@ -998,8 +935,8 @@ GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
 }
 
 GtkWidget *SciTEGTK::TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
-                              GtkSignalFunc func, gpointer data) {
-	return MakeCommand(Padded(LocaliseString(original)).c_str(), accel_group, func, data);
+                              GtkSignalFunc func, gpointer data, int accelMask) {
+	return MakeCommand(Padded(LocaliseString(original)).c_str(), accel_group, func, data, accelMask);
 }
 
 GtkWidget *SciTEGTK::TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active) {
@@ -1714,9 +1651,71 @@ void SciTEGTK::DestroyFindReplace() {
 	wFindReplace.Destroy();
 }
 
+int SciTEGTK::WindowMessageBox(Window &w, const SString &msg, int style) {
+	if (!messageBoxDialog) {
+		GtkAccelGroup *accel_group = gtk_accel_group_new();
+
+		messageBoxResult = -1;
+		messageBoxDialog = gtk_dialog_new();
+		gtk_window_set_title(GTK_WINDOW(messageBoxDialog), appName);
+		gtk_container_border_width(GTK_CONTAINER(messageBoxDialog), 0);
+
+		gtk_signal_connect(GTK_OBJECT(messageBoxDialog),
+		                   "destroy", GtkSignalFunc(destroyDialog), 0);
+
+		int escapeResult = IDOK;
+		if ((style & 0xf) == MB_OK) {
+			AddMBButton(messageBoxDialog, "_OK", IDOK, accel_group, true);
+		} else {
+			AddMBButton(messageBoxDialog, "_Yes", IDYES, accel_group, true);
+			AddMBButton(messageBoxDialog, "_No", IDNO, accel_group);
+			escapeResult = IDNO;
+			if (style == MB_YESNOCANCEL) {
+				AddMBButton(messageBoxDialog, "_Cancel", IDCANCEL, accel_group);
+				escapeResult = IDCANCEL;
+			}
+		}
+		gtk_signal_connect(GTK_OBJECT(messageBoxDialog),
+		                   "key_press_event", GtkSignalFunc(messageBoxKey),
+		                   reinterpret_cast<gpointer>(escapeResult));
+
+		if (style & MB_ABOUTBOX) {
+			GtkWidget *explanation = scintilla_new();
+			scintilla_set_id(SCINTILLA(explanation), 0);
+			gtk_box_pack_start(GTK_BOX(GTK_DIALOG(messageBoxDialog)->vbox),
+			                   explanation, TRUE, TRUE, 0);
+			gtk_widget_set_usize(GTK_WIDGET(explanation), 480, 380);
+			gtk_widget_show_all(explanation);
+#ifdef STATIC_BUILD
+			SetAboutMessage(explanation, "Sc1  ");
+#else
+			SetAboutMessage(explanation, "SciTE");
+#endif
+		} else {
+			GtkWidget *label = gtk_label_new(msg.c_str());
+			gtk_misc_set_padding(GTK_MISC(label), 10, 10);
+			gtk_box_pack_start(GTK_BOX(GTK_DIALOG(messageBoxDialog)->vbox),
+			                   label, TRUE, TRUE, 0);
+			gtk_widget_show(label);
+		}
+
+		// Mark it as a modal transient dialog
+		gtk_window_set_modal(GTK_WINDOW(messageBoxDialog), TRUE);
+		gtk_window_set_transient_for(GTK_WINDOW(messageBoxDialog),
+				GTK_WINDOW(PWidget(w)));
+
+		gtk_widget_show(messageBoxDialog);
+		gtk_window_add_accel_group(GTK_WINDOW(messageBoxDialog), accel_group);
+		while (messageBoxResult < 0) {
+			gtk_main_iteration();
+		}
+	}
+	return messageBoxResult;
+}
+
 void SciTEGTK::AboutDialog() {
-	MessageBox(PWidget(wSciTE), "SciTE\nby Neil Hodgson neilh@scintilla.org .",
-	           appName, MB_OK | MB_ABOUTBOX);
+	WindowMessageBox(wSciTE, "SciTE\nby Neil Hodgson neilh@scintilla.org .",
+	           MB_OK | MB_ABOUTBOX);
 }
 
 void SciTEGTK::QuitProgram() {

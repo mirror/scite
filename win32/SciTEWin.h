@@ -112,6 +112,7 @@ protected:
 
 	BOOL HandleReplaceCommand(int cmd);
 
+	virtual int WindowMessageBox(Window &w, const SString &msg, int style);
 	virtual void AboutDialog();
 	void DropFiles(HDROP hdrop);
 	void MinimizeToTray();

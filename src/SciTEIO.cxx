@@ -328,7 +328,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 		}
 	} else {
 		SString msg = LocaliseMessage("Could not open file '^0'.", fullPath);
-		WindowMessageBox(wSciTE, msg.c_str(), appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
 	SendEditor(SCI_SETUNDOCOLLECTION, 1);
 	// Flick focus to the output window and back to
@@ -348,7 +348,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 
 	if (!file) {
 		SString msg = LocaliseMessage("Bad file.");
-		WindowMessageBox(wSciTE, msg.c_str(), appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
 #ifdef __vms
 	static char fixedFileName [MAX_PATH];
@@ -528,7 +528,7 @@ void SciTEBase::CheckReload() {
 						"The file '^0' has been modified. Should it be reloaded?", 
 						fullPathToCheck);
 					dialogsOnScreen++;
-					int decision = WindowMessageBox(wSciTE, msg.c_str(), appName, MB_YESNO);
+					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					dialogsOnScreen--;
 					if (decision == IDYES) {
 						Open(fullPathToCheck, false, true);
@@ -569,7 +569,7 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 				msg = LocaliseMessage("Save changes to (Untitled)?");
 			}
 			dialogsOnScreen++;
-			int decision = WindowMessageBox(wSciTE, msg.c_str(), appName, MB_YESNOCANCEL);
+			int decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL);
 			dialogsOnScreen--;
 			if (decision == IDYES) {
 				if (!Save())
@@ -694,7 +694,7 @@ bool SciTEBase::Save() {
 		} else {
 			SString msg = LocaliseMessage("Could not save file '^0'.", fullPath);
 			dialogsOnScreen++;
-			WindowMessageBox(wSciTE, msg.c_str(), appName, MB_OK);
+			WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 			dialogsOnScreen--;
 		}
 		return true;

@@ -421,9 +421,9 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 		fputs(RTF_BODYCLOSE, fp);
 		fclose(fp);
 	} else {
-		SString msg = LocaliseMessage("Could not save file \"^0\".", fullPath);
+		SString msg = LocaliseMessage("Could not save file '^0'.", fullPath);
 		dialogsOnScreen++;
-		WindowMessageBox(wSciTE, msg.c_str(), appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 		dialogsOnScreen--;
 	}
 }
@@ -715,12 +715,10 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		fputs("\n</body>\n</html>\n", fp);
 		fclose(fp);
 	} else {
-		char msg[200];
-		strcpy(msg, "Could not save file \"");
-		strcat(msg, fullPath);
-		strcat(msg, "\".");
+		SString msg = LocaliseMessage(
+			"Could not save file \"^0\".", fullPath);
 		dialogsOnScreen++;
-		WindowMessageBox(wSciTE, msg, appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 		dialogsOnScreen--;
 	}
 }

@@ -506,7 +506,8 @@ protected:
 	void SelectionIntoProperties();
 	void SelectionIntoFind();
 	virtual void Find() = 0;
-	void FindMessageBox(const char *msg);
+	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
+	void FindMessageBox(const SString &msg);
 	void FindNext(bool reverseDirection, bool showWarnings = true);
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
@@ -679,7 +680,7 @@ const int blockSize = 131072;
 #define IDCANCEL	(2)
 #define IDYES	(6)
 #define IDNO	(7)
-int MessageBox(GtkWidget *wParent, const char *m, const char *t = appName, int style = MB_OK);
+//int MessageBox(GtkWidget *wParent, const char *m, const char *t = appName, int style = MB_OK);
 void SetFocus(GtkWidget *hwnd);
 #endif
 
@@ -694,5 +695,4 @@ ColourDesired ColourFromString(const char *val);
 long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault);
 char *Slash(const char *s);
 unsigned int UnSlash(char *s);
-int WindowMessageBox(Window &w, const char *m, const char *t = appName, int style = MB_OK);
 void WindowSetFocus(Window &w);
