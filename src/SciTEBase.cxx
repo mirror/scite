@@ -2472,7 +2472,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		StartExpandAbbreviation();
 		break;
 
-	case IDM_COMMENT:
+	case IDM_BLOCK_COMMENT:
 		StartBlockComment();
 		break;
 

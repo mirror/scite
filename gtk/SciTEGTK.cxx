@@ -1856,7 +1856,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Edit/Complete S_ymbol", "<control>I", menuSig, IDM_COMPLETE, 0},
 	    {"/Edit/Complete _Word", "<control>Return", menuSig, IDM_COMPLETEWORD, 0},
 	    {"/Edit/_Expand Abbreviation", "<control>B", menuSig, IDM_ABBREV, 0},
-	    {"/Edit/Co_mment or Uncomment Selection", "<control>Q", menuSig, IDM_COMMENT, 0},
+	    {"/Edit/Co_mment or Uncomment Selection", "<control>Q", menuSig, IDM_BLOCK_COMMENT, 0},
 	    {"/Edit/Bo_x Comment", "<control><alt>Q", menuSig, IDM_BOX_COMMENT, 0},
 	    {"/Edit/Stream Comme_nt", "<control><shift>Q", menuSig, IDM_STREAM_COMMENT, 0},
 	    {"/Edit/Make _Selection Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
