@@ -2193,7 +2193,7 @@ void SciTEGTK::PipeSignal(void *data, gint fd, GdkInputCondition condition) {
 		while ((readLength = read(fd, pipeData, sizeof(pipeData))) > 0) {
 			//printf("Read: >%s< from pipedata\n", pipeData);
 			//fill the propset with the data from the pipe
-			pipeProps.ReadFromMemory(pipeData, readLength);
+			pipeProps.ReadFromMemory(pipeData, readLength, 0);
 
 			//get filename from open command
 			SString fileName = pipeProps.Get("open");
