@@ -22,13 +22,14 @@ def depunctuate(s):
 	return d
 
 srcPaths = []
+propertiesPaths = []
 for filename in os.listdir(srcRoot):
 	dirname =  srcRoot + os.sep + filename
 	if stat.S_ISDIR(os.stat(dirname)[stat.ST_MODE]):
 		for src in os.listdir(dirname):
 			if src.count(".cxx"):
 				srcPaths.append(dirname + os.sep + src)
-				
+
 propertyNames = {}
 #print srcPaths
 for srcPath in srcPaths:
@@ -65,18 +66,25 @@ for identifier in identifiersSorted:
 # Rest flags for searching properties file
 for identifier in identifiersSorted:
 	propertyNames[identifier] = 0
-		
+
+def keyOfLine(line):
+	if '=' in line:
+		line = line.strip()
+		if line[0] == "#":
+			line = line[1:]
+		line = line[:line.find("=")]
+		line = line.strip()
+		return line
+	else:
+		return None
+
 propsFile = open(propsFileName, "rt")
 for line in propsFile.readlines():
 	if line:
-		if '=' in line:
-			line = line.strip()
-			if line[0] == "#":
-				line = line[1:]
-			line = line[:line.find("=")]
-			line = line.strip()
-			if line in propertyNames.keys():
-				propertyNames[line] = 1
+		key = keyOfLine(line)
+		if key:
+			if key in propertyNames.keys():
+				propertyNames[key] = 1
 propsFile.close()
 
 print "# Not mentioned in", propsFileName
@@ -84,3 +92,23 @@ for identifier in identifiersSorted:
 	if not propertyNames[identifier]:
 		if "." != identifier[-1:]:
 			print identifier
+
+# This is a test to see whether properties are defined in more than one file.
+# It doesn't understand the if directive so yields too many false positives to run often.
+print "# Duplicate mentions"
+"""
+fileOfProp = {}
+notRealProperties = ["abbrev.properties", "SciTE.properties", "Embedded.properties"]
+for filename in os.listdir(srcRoot + os.sep + "src"):
+	if filename.count(".properties") and filename not in notRealProperties:
+		propsFile = open(srcRoot + os.sep + "src" + os.sep + filename, "rt")
+		for line in propsFile.readlines():
+			if line:
+				key = keyOfLine(line)
+				if key:
+					if fileOfProp.has_key(key):
+						print "Clash for", key, fileOfProp[key], filename
+					else:
+						fileOfProp[key] =filename
+		propsFile.close()
+"""
