@@ -120,6 +120,7 @@ BEGIN
 		MENUITEM "P&LSQL",					IDM_LEXER_PLSQL
 		MENUITEM "P&HP",					IDM_LEXER_PHP
 		MENUITEM "La&TeX",					IDM_LEXER_LATEX
+		MENUITEM "Apache Config",			IDM_LEXER_CONF
 	  END // used: abcehijlmnpqrstuvyx
 	MENUITEM "",							4
 	MENUITEM "Open Local &Options File",    IDM_OPENLOCALPROPERTIES

@@ -41,6 +41,8 @@ const char appName[] = "Sc1";
 const char appName[] = "SciTE";
 #endif
 
+#define recentFileName "SciTE.recent"
+
 class SciTEGTK : public SciTEBase {
 
 protected:
@@ -59,6 +61,9 @@ protected:
 	char resultsFile[MAX_PATH];
 	int inputHandle;
 
+	char findInDir[1024];
+	ComboMemory memDir;
+
 	bool savingHTML;
 	bool savingRTF;
 	bool dialogCanceled;
@@ -70,8 +75,17 @@ protected:
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
 	GtkWidget *toggleReverse;
+	GtkWidget *toggleRec;
 	GtkWidget *comboFind;
+	GtkWidget *comboDir;
 	GtkWidget *comboReplace;
+	GtkWidget *compile_btn;
+	GtkWidget *build_btn;
+	GtkWidget *stop_btn;
+	GtkWidget *LineLabel;
+	GtkWidget *CoumnLabel;
+	GtkWidget *ModLabel;
+	GtkWidget *OvrLabel;
 	GtkItemFactory *itemFactory;
 	GtkAccelGroup *accelGroup;
 	
@@ -123,6 +137,7 @@ protected:
 		char *pathUserDir, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
+	void UpdateStatusBar();
 	
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
