@@ -650,6 +650,14 @@ NameError: mistake
 	On GTK+ the menu is always visible.
         </td>
       </tr>
+      <tr class="windowsonly">
+        <td>
+          minimize.to.tray
+        </td>
+        <td>
+	Setting this to 1 minimizes SciTE to the system tray rather than to the task bar.
+        </td>
+      </tr>
       <tr>
         <td>
           line.numbers
@@ -756,16 +764,17 @@ NameError: mistake
           check the appearance of the page in a browser.
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr>
         <td>
            check.if.already.open
         </td>
         <td>
-	Only available for GTK+.
-	When this option is set and SciTE is given a file name to open
-	as a command line argument, it checks to see if there are any
-	other instances of SciTE open with this file. If there is, that
-	instance is activated and this one exits.
+	When this option is set and SciTE is started, it checks to see if 
+	there are any other instances of SciTE open. If there is, another
+	instance is activated and this one exits. On GTK+ the instance with the 
+	file already open as the command line argument is switched to.
+	On Windows an arbitrary instance is chosen and asked to open the 
+	command line argument.
         </td>
       </tr>
       <tr>
