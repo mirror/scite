@@ -782,8 +782,9 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 	case WM_COMMAND:
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
-			wFindReplace = 0;
 			::EndDialog(hDlg, IDCANCEL);
+			wFindReplace.Destroy();
+			wFindReplace = 0;
 			return FALSE;
 		} else if ( (ControlIDOfCommand(wParam) == IDOK) ||
 					   (ControlIDOfCommand(wParam) == IDMARKALL) ){
@@ -802,8 +803,9 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
 			reverseFind = BST_CHECKED ==
 			              ::SendMessage(wUp, BM_GETCHECK, 0, 0);
-			wFindReplace = 0;
 			::EndDialog(hDlg, IDOK);
+			wFindReplace.Destroy();
+			wFindReplace = 0;
 			if (ControlIDOfCommand(wParam) == IDMARKALL){
 				MarkAll();
 			}
@@ -913,10 +915,11 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 	case WM_COMMAND:
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
-			wFindReplace = 0;
 			props.Set("Replacements", "");
 			UpdateStatusBar(false);
 			::EndDialog(hDlg, IDCANCEL);
+			wFindReplace.Destroy();
+			wFindReplace = 0;
 			return FALSE;
 		} else {
 			return HandleReplaceCommand(ControlIDOfCommand(wParam));
@@ -1119,6 +1122,7 @@ void SciTEWin::FindReplace(bool replace) {
 void SciTEWin::DestroyFindReplace() {
 	if (wFindReplace.Created()) {
 		::EndDialog(reinterpret_cast<HWND>(wFindReplace.GetID()), IDCANCEL);
+		wFindReplace.Destroy();
 		wFindReplace = 0;
 	}
 }
@@ -1297,13 +1301,15 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 	case WM_COMMAND:
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
-			wParameters = 0;
 			::EndDialog(hDlg, IDCANCEL);
+			wParameters.Destroy();
+			wParameters = 0;
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
 			ParamGrab();
-			wParameters = 0;
 			::EndDialog(hDlg, IDOK);
+			wParameters.Destroy();
+			wParameters = 0;
 			return TRUE;
 		}
 	}
