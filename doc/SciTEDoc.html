@@ -245,6 +245,17 @@ NameError: mistake
         So, if you need to perform e.g. a find: or a goto: command on a file, you must put
         the command after the filename, to allow SciTE to open the file before performing the command.
     </p>
+	<p>
+	For <span class="windowsonly">Windows</span>:<br />
+	If any simple file name on the command line matches a directory name, the file open dialog appears - this is dependant upon the property
+	"open.dialog.in.file.directory"<br /><br />
+	If the property "buffers" is greater than one and the file name matches either a existing file or by means of a wildcard search, one or more files, the
+	matching files are loaded up to the property "buffers" count.  Directories are not considered a match in this case<br /><br />
+	If the file name is an extension, optionally preceded by a path, and no such simple file name exists, the file open dialog appears, with the given extension as
+	the filter.<br /><br />
+	If the file name contains no extension, the property "source.default.extensions" is used to provide default extensions to attempt to match the file name to an
+	existing file.
+	</p>
     <h3>
        Buffers
     </h3>
@@ -1901,7 +1912,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           command.compile.subsystem.<i>filepattern</i><br />
           command.build.<i>filepattern</i><br />
           command.build.subsystem.<i>filepattern</i><br />
-        command.build.directory.<i>filepattern</i><br />
+          command.build.directory.<i>filepattern</i><br />
           command.go.<i>filepattern</i><br />
         command.go.subsystem.<i>filepattern</i>
         </td>
@@ -2448,6 +2459,20 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 		recognized modifiers are the same as for the user.shortcuts setting described above.  The recognized named
 		keys are also the same as for user.shortcuts, with the addition of "none" to indicate that no accelerator
 		key should be defined for a particular menu.
+        </td>
+      </tr>
+      <tr class="windowsonly">
+        <td>
+          source.default.extensions
+        </td>
+        <td>
+          If the name specified on the command line cannot be found as a directory or file - including a wild-card
+          search, the contents of the property are treated as default extensions to be used to locate the file name.<br />
+          An example is: .cxx|.cpp|.c|.hxx|.hpp|.h|.bat|.txt|.lua<br />
+          Attempting to open win32\SciTEWin would open win32\SciTEWin.cxx since it matches before win32\SciTEWin.h
+          <br />
+          If the property contains an entry such as Bar.cxx|.cxx and you attempt to open win32\SciTEWin, it will open
+          ScTEWinBar.cxx since that is the first match.
         </td>
       </tr>
     </table>
