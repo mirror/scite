@@ -1124,9 +1124,9 @@ void SciTEBase::ReplaceOnce() {
 		SendEditor(SCI_SETTARGETEND, cr.cpMax);
 		int lenReplaced = replaceLen;
 		if (regExp)
-			lenReplaced = SendEditorString(SCI_REPLACETARGETRECOUNTED, replaceLen, replaceTarget);
+			lenReplaced = SendEditorString(SCI_REPLACETARGETRE, replaceLen, replaceTarget);
 		else	// Allow \0 in replacement
-			SendEditorString(SCI_REPLACETARGETCOUNTED, replaceLen, replaceTarget);
+			SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget);
 		SetSelection(cr.cpMin + lenReplaced, cr.cpMin);
 		havefound = false;
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
@@ -1184,9 +1184,9 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			int lenTarget = SendEditor(SCI_GETTARGETEND) - SendEditor(SCI_GETTARGETSTART);
 			int lenReplaced = replaceLen;
 			if (regExp)
-				lenReplaced = SendEditorString(SCI_REPLACETARGETRECOUNTED, replaceLen, replaceTarget);
+				lenReplaced = SendEditorString(SCI_REPLACETARGETRE, replaceLen, replaceTarget);
 			else
-				SendEditorString(SCI_REPLACETARGETCOUNTED, replaceLen, replaceTarget);
+				SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget);
 			// Modify for change caused by replacement
 			endPosition += lenReplaced - lenTarget;
 			lastMatch = posFind + lenReplaced;
@@ -1222,7 +1222,7 @@ void SciTEBase::OutputAppendString(const char *s, int len) {
 	int docLength = SendOutput(SCI_GETTEXTLENGTH);
 	SendOutput(SCI_SETTARGETSTART, docLength);
 	SendOutput(SCI_SETTARGETEND, docLength);
-	SendOutput(SCI_REPLACETARGETCOUNTED, len, reinterpret_cast<sptr_t>(s));
+	SendOutput(SCI_REPLACETARGET, len, reinterpret_cast<sptr_t>(s));
 	int line = SendOutput(SCI_GETLINECOUNT, 0, 0);
 	int lineStart = SendOutput(SCI_POSITIONFROMLINE, line);
 	SendOutput(SCI_GOTOPOS, lineStart);
@@ -1234,7 +1234,7 @@ void SciTEBase::OutputAppendStringSynchronised(const char *s, int len /*= -1*/) 
 	int docLength = SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false);
 	SendOutputEx(SCI_SETTARGETSTART, docLength, 0, false);
 	SendOutputEx(SCI_SETTARGETEND, docLength, 0, false);
-	SendOutputEx(SCI_REPLACETARGETCOUNTED, len, reinterpret_cast<sptr_t>(s), false);
+	SendOutputEx(SCI_REPLACETARGET, len, reinterpret_cast<sptr_t>(s), false);
 	int line = SendOutputEx(SCI_GETLINECOUNT, 0, 0, false);
 	int lineStart = SendOutputEx(SCI_POSITIONFROMLINE, line, 0, false);
 	SendOutputEx(SCI_GOTOPOS, lineStart, 0, false);
