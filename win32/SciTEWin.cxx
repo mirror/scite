@@ -517,7 +517,7 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 	// the kernel GetLongPathName proc is faster and (hopefully) more reliable
 	if (pfnGetLong != NULL) {
 		// call kernel proc
-		ok= (*pfnGetLong)(shortPath, longPath, _MAX_PATH) != 0;
+		ok= (pfnGetLong)(shortPath, longPath, _MAX_PATH) != 0;
 	} else {
 		char short_path[_MAX_PATH];  // copy, so we can modify it
 		char* tok;
@@ -933,6 +933,8 @@ static void FillComboFromMemory(HWND combo, const ComboMemory &mem) {
 
 BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static SciTEWin *sci;
+    if (WM_SETFONT == message)  // Avoid getting dialog items before set up
+        return FALSE;
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
@@ -1022,6 +1024,8 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 
 BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static SciTEWin *sci;
+    if (WM_SETFONT == message)  // Avoid getting dialog items before set up
+        return FALSE;
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wReplaceWith = ::GetDlgItem(hDlg, IDREPLACEWITH);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
@@ -1862,15 +1866,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_CLOSE:
-		if (SaveIfUnsureAll() != IDCANCEL) {
-			::PostQuitMessage(0);
-		}
+        QuitProgram();
 		return 0;
 		
 	case WM_DESTROY:
-		// Unhook before destroying wEditor and thus its document.
-		wEditor.Destroy();
-		wOutput.Destroy();
 		break;
 
 	case WM_SETTINGCHANGE:
