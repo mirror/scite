@@ -3276,6 +3276,12 @@ void SciTEBase::ContextMenu(Window wSource, Point pt, Window wCmd) {
 	AddToPopUp("Delete", IDM_CLEAR, writable && currentPos != anchor);
 	AddToPopUp("");
 	AddToPopUp("Select All", IDM_SELECTALL);
+	AddToPopUp("");
+	if (wSource.GetID() == wOutput.GetID()) {
+		AddToPopUp("Hide", IDM_TOGGLEOUTPUT, true);
+	} else {
+		AddToPopUp("Close", IDM_CLOSE, true);
+	}
 	popup.Show(pt, wCmd);
 }
 
