@@ -303,14 +303,30 @@ static void messageBoxOK(GtkWidget *, gpointer p) {
 	messageBoxResult = reinterpret_cast<long>(p);
 }
 
+static GtkWidget *MakeToggle(const char *text, GtkAccelGroup *accel_group, bool active) {
+	GtkWidget *toggle = gtk_check_button_new_with_label("");
+	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggle)->child), text);
+	gtk_widget_add_accelerator(toggle, "clicked", accel_group,
+	                           key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle), active);
+	return toggle;
+}
+
+static GtkWidget *MakeCommand(const char *text, GtkAccelGroup *accel_group,
+                              GtkSignalFunc func, gpointer data) {
+	GtkWidget *command = gtk_button_new_with_label("");
+	GTK_WIDGET_SET_FLAGS(command, GTK_CAN_DEFAULT);
+	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(command)->child), text);
+	gtk_widget_add_accelerator(command, "clicked", accel_group,
+	                           key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	gtk_signal_connect(GTK_OBJECT(command), "clicked", func, data);
+	return command;
+}
+
 static GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
-                              int val, bool isDefault = false) {
-	GtkWidget * button = gtk_button_new_with_label(label);
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	                   GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val));
-	if (isDefault) {
-		GTK_WIDGET_SET_FLAGS(GTK_WIDGET(button), GTK_CAN_DEFAULT);
-	}
+                              int val, GtkAccelGroup *accel_group, bool isDefault = false) {
+	GtkWidget * button = MakeCommand(label, accel_group,
+	                                 GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val));
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
 	                   button, TRUE, TRUE, 0);
 	if (isDefault) {
@@ -322,10 +338,7 @@ static GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
 
 int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
 	if (!messageBoxDialog) {
-		GtkWidget *button;
-		guint Key;
-		GtkAccelGroup *accel_group;
-		accel_group = gtk_accel_group_new();
+		GtkAccelGroup *accel_group = gtk_accel_group_new();
 
 		messageBoxResult = -1;
 		messageBoxDialog = gtk_dialog_new();
@@ -337,22 +350,13 @@ int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
 
 		int escapeResult = IDOK;
 		if ((style & 0xf) == MB_OK) {
-			button = AddMBButton(messageBoxDialog, "", IDOK, true);
-			Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), "_Ok");
-			gtk_widget_add_accelerator(button, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+			AddMBButton(messageBoxDialog, "  _Ok  ", IDOK, accel_group, true);
 		} else {
-			button = AddMBButton(messageBoxDialog, "", IDYES, true);
-			Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), "_Yes");
-			gtk_widget_add_accelerator(button, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-
-			button = AddMBButton(messageBoxDialog, "", IDNO);
-			Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), "_No");
-			gtk_widget_add_accelerator(button, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+			AddMBButton(messageBoxDialog, "  _Yes  ", IDYES, accel_group, true);
+			AddMBButton(messageBoxDialog, "  _No  ", IDNO, accel_group);
 			escapeResult = IDNO;
 			if (style == MB_YESNOCANCEL) {
-				button = AddMBButton(messageBoxDialog, "", IDCANCEL);
-				Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), "_Cancel");
-				gtk_widget_add_accelerator(button, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+				AddMBButton(messageBoxDialog, "  _Cancel  ", IDCANCEL, accel_group);
 				escapeResult = IDCANCEL;
 			}
 		}
@@ -1038,6 +1042,7 @@ void SciTEGTK::FindInFilesKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *
 }
 
 void SciTEGTK::FindInFiles() {
+	guint key;
 	GtkAccelGroup *accel_group;
 	accel_group = gtk_accel_group_new();
 
@@ -1130,37 +1135,30 @@ void SciTEGTK::FindInFiles() {
 #ifdef RECURSIVE_GREP_WORKING
 	row++;
 
-	toggleRec = gtk_check_button_new_with_label("");
-	GTK_WIDGET_UNSET_FLAGS(toggleRec, GTK_CAN_FOCUS);
-	guint Key;
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleRec)->child), "Re_cursive Directories");
-	gtk_widget_add_accelerator(	toggleRec, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	toggleRec = MakeToggle("  Re_cursive Directories  ", accel_group, false);
 	gtk_table_attach(GTK_TABLE(table), toggleRec, 1, 2, row, row + 1, opts, opts, 3, 0);
 	gtk_widget_show(toggleRec);
 #endif
 
 	gtk_widget_show(table);
 
-	GtkWidget *buttonFind = gtk_button_new_with_label("  Find  ");
+	GtkWidget *btnFind = MakeCommand("  _Find  ", accel_group,
+	                                 GtkSignalFunc(FindInFilesSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
-	                   buttonFind, TRUE, TRUE, 0);
-	gtk_signal_connect(GTK_OBJECT(buttonFind),
-	                   "clicked", GtkSignalFunc(FindInFilesSignal), this);
-	gtk_widget_show(buttonFind);
+	                   btnFind, TRUE, TRUE, 0);
+	gtk_widget_show(btnFind);
 
-	GtkWidget *buttonCancel = gtk_button_new_with_label("  Cancel  ");
+	GtkWidget *btnCancel = MakeCommand("  _Cancel  ", accel_group,
+	                                   GtkSignalFunc(FindInFilesCancelSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
-	                   buttonCancel, TRUE, TRUE, 0);
-	gtk_signal_connect(GTK_OBJECT(buttonCancel),
-	                   "clicked", GtkSignalFunc(FindInFilesCancelSignal), this);
+	                   btnCancel, TRUE, TRUE, 0);
+	gtk_widget_show(btnCancel);
+
 	gtk_signal_connect(GTK_OBJECT(findInFilesDialog.GetID()),
 	                   "key_press_event", GtkSignalFunc(FindInFilesKeySignal),
 	                   this);
 
-	gtk_widget_show(buttonCancel);
-
-	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(buttonFind), GTK_CAN_DEFAULT);
-	gtk_widget_grab_default(GTK_WIDGET(buttonFind));
+	gtk_widget_grab_default(GTK_WIDGET(btnFind));
 	gtk_widget_grab_focus(GTK_WIDGET(GTK_COMBO(comboFind)->entry));
 
 	// Mark it as a modal transient dialog
@@ -1319,6 +1317,10 @@ void SciTEGTK::GotoSignal(GtkWidget *, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::GoLineDialog() {
+	guint key;
+	GtkAccelGroup *accel_group;
+	accel_group = gtk_accel_group_new();
+
 	gotoDialog = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(gotoDialog.GetID()), "Go To");
 	gtk_container_border_width(GTK_CONTAINER(gotoDialog.GetID()), 0);
@@ -1345,46 +1347,36 @@ void SciTEGTK::GoLineDialog() {
 
 	gtk_widget_show(table);
 
-	GtkWidget *buttonGoTo = gtk_button_new_with_label("  Go To  ");
-	gtk_signal_connect(GTK_OBJECT(buttonGoTo),
-	                   "clicked", GtkSignalFunc(GotoSignal), this);
-	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(buttonGoTo), GTK_CAN_DEFAULT);
+	GtkWidget *btnGoTo = MakeCommand("  _Go To  ", accel_group,
+	                                 GtkSignalFunc(GotoSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gotoDialog.GetID())->action_area),
-	                   buttonGoTo, TRUE, TRUE, 0);
-	gtk_widget_grab_default(GTK_WIDGET(buttonGoTo));
-	gtk_widget_show(buttonGoTo);
+	                   btnGoTo, TRUE, TRUE, 0);
+	gtk_widget_grab_default(GTK_WIDGET(btnGoTo));
+	gtk_widget_show(btnGoTo);
 
-	GtkWidget *buttonCancel = gtk_button_new_with_label("  Cancel  ");
-	gtk_signal_connect(GTK_OBJECT(buttonCancel),
-	                   "clicked", GtkSignalFunc(GotoCancelSignal), this);
+	GtkWidget *btnCancel = MakeCommand("  _Cancel  ", accel_group,
+	                                   GtkSignalFunc(GotoCancelSignal), this);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gotoDialog.GetID())->action_area),
+	                   btnCancel, TRUE, TRUE, 0);
+	gtk_widget_show(btnCancel);
+
 	gtk_signal_connect(GTK_OBJECT(gotoDialog.GetID()),
 	                   "key_press_event", GtkSignalFunc(GotoKeySignal),
 	                   this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gotoDialog.GetID())->action_area),
-	                   buttonCancel, TRUE, TRUE, 0);
-	gtk_widget_show(buttonCancel);
 
 	// Mark it as a modal transient dialog
 	gtk_window_set_modal(GTK_WINDOW(gotoDialog.GetID()), TRUE);
 	gtk_window_set_transient_for (GTK_WINDOW(gotoDialog.GetID()),
 	                              GTK_WINDOW(wSciTE.GetID()));
 
+	gtk_window_add_accel_group(GTK_WINDOW(gotoDialog.GetID()), accel_group);
 	gotoDialog.Show();
 }
 
 void SciTEGTK::TabSizeDialog() {}
 
-static GtkWidget *MakeToggle(const char *text, GtkAccelGroup *accel_group, bool active) {
-	GtkWidget *toggle = gtk_check_button_new_with_label("");
-	guint Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggle)->child), text);
-	gtk_widget_add_accelerator(toggle, "clicked", accel_group,
-		Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle), active);
-	return toggle;
-}
-
 void SciTEGTK::FindReplace(bool replace) {
-	guint Key;
+	guint key;
 	GtkAccelGroup *accel_group;
 	accel_group = gtk_accel_group_new();
 
@@ -1481,62 +1473,43 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	gtk_widget_show_all(table);
 
-	gtk_box_set_homogeneous(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area), false);
+	gtk_box_set_homogeneous(
+	    GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area), false);
 
-	GtkWidget *buttonFind = gtk_button_new_with_label("");
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonFind)->child), "  F_ind  ");
-	GTK_WIDGET_SET_FLAGS(buttonFind, GTK_CAN_DEFAULT);
-	gtk_widget_add_accelerator(buttonFind, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-	gtk_signal_connect(GTK_OBJECT(buttonFind),
-	                   "clicked", GtkSignalFunc(FRFindSignal), this);
+	GtkWidget *btnFind = MakeCommand("  _Find  ", accel_group,
+	                                 GtkSignalFunc(FRFindSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
-	                   buttonFind, TRUE, TRUE, 0);
+	                   btnFind, TRUE, TRUE, 0);
 
 	if (replace) {
-		GtkWidget *buttonReplace = gtk_button_new_with_label("");
-		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplace)->child), "  _Replace  ");
-		gtk_widget_add_accelerator(	buttonReplace, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-		GTK_WIDGET_SET_FLAGS (buttonReplace, GTK_CAN_DEFAULT);
+		GtkWidget *btnReplace = MakeCommand("  _Replace  ", accel_group,
+		                                    GtkSignalFunc(FRReplaceSignal), this);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
-		                   buttonReplace, TRUE, TRUE, 0);
-		gtk_signal_connect(GTK_OBJECT(buttonReplace),
-		                   "clicked", GtkSignalFunc(FRReplaceSignal), this);
+		                   btnReplace, TRUE, TRUE, 0);
 
-		GtkWidget *buttonReplaceAll = gtk_button_new_with_label("");
-		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplaceAll)->child), "  Replace _All  ");
-		gtk_widget_add_accelerator(buttonReplaceAll, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-		GTK_WIDGET_SET_FLAGS (buttonReplaceAll, GTK_CAN_DEFAULT);
+		GtkWidget *btnReplaceAll = MakeCommand("  Replace _All  ", accel_group,
+		                                       GtkSignalFunc(FRReplaceAllSignal), this);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
-		                   buttonReplaceAll, TRUE, TRUE, 0);
-		gtk_signal_connect(GTK_OBJECT(buttonReplaceAll),
-		                   "clicked", GtkSignalFunc(FRReplaceAllSignal), this);
+		                   btnReplaceAll, TRUE, TRUE, 0);
 
-		GtkWidget *buttonReplaceInSelection = gtk_button_new_with_label("");
-		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplaceInSelection)->child), "  Replace in _Selection  ");
-		gtk_widget_add_accelerator(buttonReplaceInSelection, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-		GTK_WIDGET_SET_FLAGS (buttonReplaceInSelection, GTK_CAN_DEFAULT);
+		GtkWidget *btnReplaceInSelection = MakeCommand("  Replace in _Selection  ", accel_group,
+		                                   GtkSignalFunc(FRReplaceInSelectionSignal), this);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
-		                   buttonReplaceInSelection, TRUE, TRUE, 0);
-		gtk_signal_connect(GTK_OBJECT(buttonReplaceInSelection),
-		                   "clicked", GtkSignalFunc(FRReplaceInSelectionSignal), this);
+		                   btnReplaceInSelection, TRUE, TRUE, 0);
 	}
 
-	GtkWidget *buttonCancel = gtk_button_new_with_label("");
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonCancel)->child), "  _Cancel  ");
-	gtk_widget_add_accelerator(	buttonCancel, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-	GTK_WIDGET_SET_FLAGS (buttonCancel, GTK_CAN_DEFAULT);
+	GtkWidget *btnCancel = MakeCommand("  _Cancel  ", accel_group,
+	                                   GtkSignalFunc(FRCancelSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
-	                   buttonCancel, TRUE, TRUE, 0);
-	gtk_signal_connect(GTK_OBJECT(buttonCancel),
-	                   "clicked", GtkSignalFunc(FRCancelSignal), this);
+	                   btnCancel, TRUE, TRUE, 0);
+
 	gtk_signal_connect(GTK_OBJECT(wFindReplace.GetID()),
-	                   "key_press_event", GtkSignalFunc(FRKeySignal),
-	                   this);
+	                   "key_press_event", GtkSignalFunc(FRKeySignal), this);
 
 	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(wFindReplace.GetID())->action_area));
 
-	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(buttonFind), GTK_CAN_DEFAULT);
-	gtk_widget_grab_default(GTK_WIDGET(buttonFind));
+	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(btnFind), GTK_CAN_DEFAULT);
+	gtk_widget_grab_default(GTK_WIDGET(btnFind));
 	gtk_widget_grab_focus(GTK_WIDGET(GTK_COMBO(comboFind)->entry));
 
 	// Mark it as a transient dialog
