@@ -22,6 +22,7 @@
 #define IDM_SAVEASHTML		111
 #define IDM_SAVEASRTF		112
 #define IDM_SAVEASPDF		113
+#define IDM_FILER			114
 #define IDM_MRU_SEP			120
 #define IDM_PRINTSETUP		130
 #define IDM_PRINT			131

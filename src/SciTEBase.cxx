@@ -239,6 +239,10 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	wholeWord = false;
 	reverseFind = false;
 
+#ifndef NO_FILER
+	filerdlg=NULL;
+#endif
+
 	windowName[0] = '\0';
 	fullPath[0] = '\0';
 	fileName[0] = '\0';
@@ -261,31 +265,31 @@ SciTEBase::~SciTEBase() {
 		extender->Finalise();
 }
 
-long SciTEBase::SendEditor(unsigned int msg, unsigned long wParam, long lParam) {
+sptr_t SciTEBase::SendEditor(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	return fnEditor(ptrEditor, msg, wParam, lParam);
 }
 
-long SciTEBase::SendEditorString(unsigned int msg, unsigned long wParam, const char *s) {
-	return SendEditor(msg, wParam, reinterpret_cast<long>(s));
+sptr_t SciTEBase::SendEditorString(unsigned int msg, uptr_t wParam, const char *s) {
+	return SendEditor(msg, wParam, reinterpret_cast<sptr_t>(s));
 }
 
-long SciTEBase::SendOutput(unsigned int msg, unsigned long wParam, long lParam) {
+sptr_t SciTEBase::SendOutput(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	return fnOutput(ptrOutput, msg, wParam, lParam);
 }
 
-void SciTEBase::SendChildren(unsigned int msg, unsigned long wParam, long lParam) {
+void SciTEBase::SendChildren(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	SendEditor(msg, wParam, lParam);
 	SendOutput(msg, wParam, lParam);
 }
 
-long SciTEBase::SendFocused(unsigned int msg, unsigned long wParam, long lParam) {
+sptr_t SciTEBase::SendFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	if (wEditor.HasFocus())
 		return SendEditor(msg, wParam, lParam);
 	else
 		return SendOutput(msg, wParam, lParam);
 }
 
-long SciTEBase::SendOutputEx(unsigned int msg, unsigned long wParam/*= 0*/, long lParam /*= 0*/, bool direct /*= true*/) {
+sptr_t SciTEBase::SendOutputEx(unsigned int msg, uptr_t wParam/*= 0*/, sptr_t lParam /*= 0*/, bool direct /*= true*/) {
 	if (direct)
 		return SendOutput(msg, wParam, lParam);
 	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
@@ -484,6 +488,10 @@ void SciTEBase::SetWindowName() {
 	strcat(windowName, appName);
 	wSciTE.SetTitle(windowName);
 	//Platform::DebugPrintf("SetWindowname %s\n", windowName);
+#ifndef NO_FILER
+	if (filerdlg!=NULL && fileName[0] != '\0')
+		filerdlg->ShowPath(fullPath);
+#endif
 }
 
 CharacterRange SciTEBase::GetSelection() {
@@ -768,7 +776,7 @@ void SciTEBase::Execute() {
 		SendOutput(SCI_CLEARALL);
 	}
 
-	SendOutput(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
+	SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
 	SendEditor(SCI_MARKERDELETEALL, 0);
 	// Ensure the output pane is visible
 	if (jobUsesOutputPane) {
@@ -1372,6 +1380,11 @@ void SciTEBase::MenuCommand(int cmdID) {
 			SetFocus(wEditor.GetID());
 		}
 		break;
+#ifndef NO_FILER
+	case IDM_FILER:
+		ShowFilerDlg();
+		break;
+#endif
 	case IDM_PRINT:
 		Print(true);
 		break;
@@ -2065,7 +2078,7 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 }
 
 // Implement ExtensionAPI methods
-int SciTEBase::Send(Pane p, unsigned int msg, unsigned long wParam, long lParam) {
+sptr_t SciTEBase::Send(Pane p, unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	if (p == paneEditor)
 		return SendEditor(msg, wParam, lParam);
 	else

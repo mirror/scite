@@ -414,13 +414,13 @@ void SciTEBase::ReadProperties() {
 	}
 
 	SString fold = props.Get("fold");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("fold"),
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<uptr_t>("fold"),
 	                 fold.c_str());
 	SString stylingWithinPreprocessor = props.Get("styling.within.preprocessor");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("styling.within.preprocessor"),
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<uptr_t>("styling.within.preprocessor"),
 	                 stylingWithinPreprocessor.c_str());
 	SString ttwl = props.Get("tab.timmy.whinge.level");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("tab.timmy.whinge.level"),
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<uptr_t>("tab.timmy.whinge.level"),
 	                 ttwl.c_str());
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
@@ -601,8 +601,6 @@ void SciTEBase::ReadProperties() {
 	} else {
 		SendEditor(SCI_SETWORDCHARS, 0, 0);
 	}
-
-	//SendEditor(SCI_MARKERDELETEALL, static_cast<unsigned long>(-1));
 
 	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
 	int tabSize = props.GetInt("tabsize");

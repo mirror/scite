@@ -721,7 +721,7 @@ void SciTEBase::GoMessage(int dir) {
 		char style = acc.StyleAt(startPosLine);
 		if (style != 0 && style != 4) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
-			SendOutput(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
+			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			SendOutput(SCI_MARKERSETFORE, 0, Colour(0x7f, 0, 0).AsLong());
 			SendOutput(SCI_MARKERSETBACK, 0, Colour(0xff, 0xff, 0).AsLong());

@@ -12,6 +12,8 @@ extern const char propGlobalFileName[];
 extern const char fileRead[];
 extern const char fileWrite[];
 
+#define NO_FILER
+
 #ifdef unix
 #define MAX_PATH 260
 #endif
@@ -119,6 +121,23 @@ public:
 	void RemoveCurrent();
 };
 
+#ifndef NO_FILER
+class CFiler {
+	// Construction
+	public:
+		CFiler(char * title, 	// title of dialog
+			HWND h, 		//Handle of caller window
+			char * path); 	//path to show on opening
+	
+		const char* GetSelectedPath();	// to retrieve path selected in dialog
+		void ShowPath(char * pth);		// to tell the dialog to display a path
+		HWND GetID();					// to send messages 
+		void AddToCombo(char * pth);	// may be used to add any path to Combo Box
+	private:
+		void * dlg;							 // internally used by the dialog
+};
+#endif
+
 enum JobSubsystem { 
 	jobCLI=0, jobGUI=1, jobShell=2, jobExtension=3, jobHelp=4, jobOtherHelp=5};
 class Job {
@@ -195,6 +214,10 @@ protected:
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 	ComboMemory memFiles;
+
+#ifndef NO_FILER
+	CFiler * filerdlg;
+#endif
 
 	int codePage;
 	int characterSet;
@@ -309,12 +332,12 @@ protected:
 	void GetDocumentDirectory(char *docDir, int len);
 	void ReadLocalPropFile();
 
-	long SendEditor(unsigned int msg, unsigned long wParam=0, long lParam=0);
-	long SendEditorString(unsigned int msg, unsigned long wParam, const char *s);
-	long SendOutput(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
-	long SendFocused(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
-	void SendChildren(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
-	long SendOutputEx(unsigned int msg, unsigned long wParam= 0, long lParam = 0, bool direct = true);
+	sptr_t SendEditor(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
+	sptr_t SendEditorString(unsigned int msg, uptr_t wParam, const char *s);
+	sptr_t SendOutput(unsigned int msg, uptr_t wParam= 0, sptr_t lParam = 0);
+	sptr_t SendFocused(unsigned int msg, uptr_t wParam= 0, sptr_t lParam = 0);
+	void SendChildren(unsigned int msg, uptr_t wParam= 0, sptr_t lParam = 0);
+	sptr_t SendOutputEx(unsigned int msg, uptr_t wParam= 0, sptr_t lParam = 0, bool direct = true);
 	int LengthDocument();
 	int GetLine(char *text, int sizeText, int line=-1);
 	void GetRange(Window &win, int start, int end, char *text);
@@ -353,6 +376,9 @@ protected:
 	virtual void SaveAsRTF()=0;
 	void SaveToPDF(const char *saveName);
 	virtual void SaveAsPDF()=0;
+#ifndef NO_FILER
+	virtual void ShowFilerDlg() {};
+#endif
 	virtual void GetDefaultDirectory(char *directory, size_t size)=0;
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath)=0;
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath)=0;
@@ -472,7 +498,7 @@ protected:
 	void MoveSplit(Point ptNewDrag);
 
 	// ExtensionAPI
-	int Send(Pane p, unsigned int msg, unsigned long wParam=0, long lParam=0);
+	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 	char *Range(Pane p, int start, int end);
 	void Remove(Pane p, int start, int end);
 	void Insert(Pane p, int pos, const char *s);
