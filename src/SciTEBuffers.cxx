@@ -349,6 +349,24 @@ void SciTEBase::SetDocumentAt(int index) {
 	}
 	isReadOnly = SendEditor(SCI_GETREADONLY);
 
+	// check to see whether there is saved fold state, restore
+
+	bufferNext.foldState.BeginIteration();
+	// Platform::DebugPrintf("Restoring fold state... (%d states)", count);
+
+	int line;
+	bool folded;
+	while (bufferNext.foldState.GetState(&line, &folded)) {
+		bool expanded = SendEditor(SCI_GETFOLDEXPANDED, line);
+		// set line to state folded
+		if (folded && !expanded) {
+			SendEditor(SCI_TOGGLEFOLD, line);
+		}
+		if (!folded && expanded) {
+			SendEditor(SCI_TOGGLEFOLD, line);
+		}
+	}
+
 #if PLAT_WIN
 	// Tab Bar
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
@@ -383,6 +401,37 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[currentbuf].fileModTime = fileModTime;
 		buffers.buffers[currentbuf].overrideExtension = overrideExtension;
 		buffers.buffers[currentbuf].unicodeMode = unicodeMode;
+
+		// retrieve fold state and store in buffer state info
+		SendEditor(SCI_COLOURISE, 0, -1);
+		int maxLine = SendEditor(SCI_GETLINECOUNT);
+		int foldPoints = 0;
+
+		for (int line = 0; line < maxLine; line++) {
+			int level = SendEditor(SCI_GETFOLDLEVEL, line);
+			if (level & SC_FOLDLEVELHEADERFLAG) {
+
+				foldPoints ++;
+			}
+		}
+
+		FoldState* f = &buffers.buffers[currentbuf].foldState;
+		f->Clear();
+
+		if (foldPoints > 0) {
+			// Platform::DebugPrintf("Retrieving %d fold points and storing them...", foldPoints);
+
+			f->Alloc(foldPoints);
+
+			for (int line = 0; line < maxLine; line++) {
+				int level = SendEditor(SCI_GETFOLDLEVEL, line);
+				if (level & SC_FOLDLEVELHEADERFLAG) {
+
+					bool expanded = SendEditor(SCI_GETFOLDEXPANDED, line);
+					f->PushState(line, expanded);
+				}
+			}
+		}
 	}
 }
 
@@ -698,6 +747,23 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 				SendEditor(SCI_SETCODEPAGE, codePage);
 			}
 			isReadOnly = SendEditor(SCI_GETREADONLY);
+
+			// check to see whether there is saved fold state, restore
+			bufferNext.foldState.BeginIteration();
+
+			int line;
+			bool folded;
+			while (bufferNext.foldState.GetState(&line, &folded)) {
+				bool expanded = SendEditor(SCI_GETFOLDEXPANDED, line);
+				// set line to state folded
+				if (folded && !expanded) {
+					SendEditor(SCI_TOGGLEFOLD, line);
+				}
+				if (!folded && expanded) {
+					SendEditor(SCI_TOGGLEFOLD, line);
+				}
+			}
+
 			DisplayAround(bufferNext);
 		}
 	}
@@ -1002,8 +1068,8 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
 		// This can produce better file state restoring
 		bool foldOnOpen = props.GetInt("fold.on.open");
-		if (foldOnOpen)
-			FoldAll();
+		//~ if (foldOnOpen)
+			//~ FoldAll();
 
 		int lineStart = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMin);
 		SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, lineStart);
@@ -1358,12 +1424,6 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 		}
 
 	case SCE_ERR_CTAG: {
-			//~ char *endPath = strchr(cdoc, '\t');
-			//~ int length = endPath - cdoc;
-			//~ if ((length > 0) && (length < MAX_PATH)) {
-			//~ strncpy(sourcePath, cdoc, length);
-			//~ sourcePath[length] = 0;
-			//~ }
 			for (int i = 0; cdoc[i]; i++) {
 				if ((isdigit(cdoc[i + 1]) || (cdoc[i + 1] == '/' && cdoc[i + 2] == '^')) && cdoc[i] == '\t') {
 					int j = i - 1;

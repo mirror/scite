@@ -157,6 +157,112 @@ enum UniMode {
 	uniCookie=4
 };
 
+// State of folding in a given document, remembers line/state pairs,
+// restore aborts when these pairs mismatch
+class FoldState {
+private:
+	int *lines;
+	bool *folded;
+	int size;
+	int fill;
+	int readout;
+
+	void CopyFrom(const FoldState& b) {
+		Alloc(b.size);
+		memcpy(lines, b.lines, size*sizeof(int));
+		memcpy(folded, b.folded, size*sizeof(bool));
+		fill = b.fill;
+
+		readout = 0;
+	}
+
+public:
+	FoldState() {
+		size = 0;
+		fill = 0;
+		readout = -1;
+		lines = static_cast<int*>(0);
+		folded = static_cast<bool*>(0);
+	}
+
+	FoldState &operator=(const FoldState &b) {
+		if (this != &b) {
+			CopyFrom(b);
+		}
+		return *this;
+	}
+
+	FoldState(const FoldState &b) {
+		readout = -1;
+		size = 0;
+		fill = 0;
+
+		CopyFrom(b);
+	}
+
+	void Alloc(int s) {
+		//assert(s>0);
+		//assert(size==0);
+
+		lines = new int[s];
+		folded = new bool[s];
+		size = s;
+		fill = 0;
+
+		//assert(lines && folded && size>0);
+	}
+
+	void Clear() {
+
+		if (size > 0) {
+			delete[] lines;
+			delete[] folded;
+		}
+
+		size = 0;
+		fill = 0;
+		readout = -1;
+	}
+
+	virtual ~FoldState() {
+
+		Clear();
+	}
+
+	void PushState(int line, bool folded_) {
+		//assert(fill<size);
+		lines[fill] = line;
+		folded[fill] = folded_;
+		fill++;
+	}
+
+	// returns maximum numbers a readout can succeed
+	int BeginIteration() {
+		// strong assertion
+		//assert(fill==size);
+
+		readout = 0;
+		return fill;
+	}
+
+	// returns false at end of iteration
+	// no results are written then
+	bool GetState(int *pline, bool *pfold) {
+		//assert(readout>0);
+		if (readout >= fill) {
+			readout = -1;
+			return false;
+		} else {
+			if (pline && pfold) {
+				*pline = lines[readout];
+				*pfold = folded[readout];
+			}
+			readout++;
+			return true;
+		}
+	}
+};
+
 class Buffer : public RecentFile {
 public:
 	sptr_t doc;
@@ -165,9 +271,10 @@ public:
 	UniMode unicodeMode;
 	time_t fileModTime;
 	SString overrideExtension;
+    FoldState foldState;
 	Buffer() :
 		RecentFile(), doc(0), isDirty(false), useMonoFont(false),
-		unicodeMode(uni8Bit), fileModTime(0) {
+		unicodeMode(uni8Bit), fileModTime(0), foldState() {
 	}
 
 	void Init() {
@@ -177,6 +284,7 @@ public:
 		unicodeMode = uni8Bit;
 		fileModTime = 0;
 		overrideExtension = "";
+        foldState.Clear();
 	}
 };
 
