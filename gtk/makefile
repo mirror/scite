@@ -12,7 +12,7 @@ AR = ar
 # pkg-config which is an OK indication that GTK2 is available
 ifndef GTK1
 ifndef GTK2
-ifneq (,$(findstring /,$(shell whereis -b pkg-config)))
+ifneq (,$(findstring /,$(shell whereis pkg-config)))
 GTK2=1
 else
 GTK1=1
