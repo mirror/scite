@@ -313,10 +313,11 @@ protected:
 	PropSetFile propsEmbed;
 	PropSetFile propsBase;
 	PropSetFile propsUser;
-	PropSetFile propsAbbrev;
 	PropSetFile propsLocal;
 	PropSetFile props;
 
+	PropSetFile propsAbbrev;
+	
 	enum { bufferMax = 10 };
 	BufferList buffers;
 
@@ -556,6 +557,8 @@ bool IsUntitledFileName(const char *name);
 void lowerCaseString(char *s);
 void ChopTerminalSlash(char *path);
 int IntFromHexDigit(const char ch);
+Colour ColourFromString(const char *val);
+Colour ColourOfProperty(PropSet &props, const char *key, Colour colourDefault);
 
 #if PLAT_GTK
 // MessageBox

@@ -245,11 +245,20 @@ int IntFromHexDigit(const char ch) {
 		return 0;
 }
 
-static Colour ColourFromString(const char *val) {
+Colour ColourFromString(const char *val) {
 	int r = IntFromHexDigit(val[1]) * 16 + IntFromHexDigit(val[2]);
 	int g = IntFromHexDigit(val[3]) * 16 + IntFromHexDigit(val[4]);
 	int b = IntFromHexDigit(val[5]) * 16 + IntFromHexDigit(val[6]);
 	return Colour(r, g, b);
+}
+
+Colour ColourOfProperty(PropSet &props, const char *key, Colour colourDefault) {
+	SString colour = props.Get(key);
+	if (colour.length()) {
+		return ColourFromString(colour.c_str());
+	} else {
+		return colourDefault;
+	}
 }
 
 /**
