@@ -1220,47 +1220,143 @@ JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 void SciTEBase::ToolsMenu(int item) {
 	SelectionIntoProperties();
 
-	SString prefix = "command.";
-	prefix += SString(item);
-	prefix += ".";
-	SString command = props.GetWild(prefix.c_str(), fileName);
+	SString itemSuffix = item;
+	itemSuffix += '.';
+	
+	SString propName = "command.";
+	propName += itemSuffix;
+	
+	SString command = props.GetWild(propName.c_str(), fileName);
 	if (command.length()) {
-		prefix = "command.save.before.";
-		prefix += SString(item);
-		prefix += ".";
-		SString saveBefore = props.GetWild(prefix.c_str(), fileName);
-		if (saveBefore[0] == '2' || (saveBefore[0] == '1' && Save()) || SaveIfUnsure() != IDCANCEL) {
+		int saveBefore = 0;
+		
+		JobSubsystem jobType = jobCLI;
+		bool filter = false;
+		bool quiet = false;
+		int repSel = 0;
+
+		propName = "command.mode.";
+		propName += itemSuffix;
+		SString modeVal = props.GetNewExpand(propName.c_str(), fileName);
+		modeVal.remove(" ");
+		if (modeVal.length()) {
+			char *modeTags = modeVal.detach();
+			
+			// copy/paste from style selectors.
+			char *opt = modeTags;
+			while (opt) {
+				// Find attribute separator
+				char *cpComma = strchr(opt, ',');
+				if (cpComma) {
+					// If found, we terminate the current attribute (opt) string
+					*cpComma = '\0';
+				}
+				// Find attribute name/value separator
+				char *colon = strchr(opt, ':');
+				if (colon) {
+					// If found, we terminate the current attribute name and point on the value
+					*colon++ = '\0';
+				}
+
+				if (0 == strcmp(opt, "subsystem") && colon) {
+					if (colon[0] == '0' || 0==strcmp(colon, "console"))
+						jobType = jobCLI;
+					else if (colon[0] == '1' || 0==strcmp(colon, "windows"))
+						jobType = jobGUI;
+					else if (colon[0] == '2' || 0==strcmp(colon, "shellexec"))
+						jobType = jobShell;
+					else if (colon[0] == '3' || 0==strcmp(colon, "lua") || strcmp(colon, "director"))
+						jobType = jobExtension;
+					else if (colon[0] == '4' || 0==strcmp(colon, "winhelp"))
+						jobType = jobHelp;
+					else if (colon[0] == '5' || 0==strcmp(colon, "htmlhelp"))
+						jobType = jobOtherHelp;
+				}
+
+				if (0 == strcmp(opt, "quiet")) {
+					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+						quiet = true;
+					else if (colon[0] == '0' || 0==strcmp(colon, "no"))
+						quiet = false;
+				}
+
+				if (0 == strcmp(opt, "savebefore")) {
+					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+						saveBefore = 1;
+					else if (colon[0] == '0' || 0==strcmp(colon, "no"))
+						saveBefore = 2;
+					else if (0==strcmp(colon, "prompt"))
+						saveBefore = 0;
+				}
+
+				if (0 == strcmp(opt, "filter")) {
+					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+						filter = true;
+					else if (colon[1] == '0' || 0==strcmp(colon, "no"))
+						filter = false;
+				}
+
+				if (0 == strcmp(opt, "replaceselection")) {
+					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+						repSel = 1;
+					else if (colon[0] == '0' || 0==strcmp(colon, "no"))
+						repSel = 0;
+					else if (0==strcmp(colon, "auto"))
+						repSel = 2;
+				}
+				opt = cpComma ? cpComma + 1 : 0;
+			}
+			delete []modeTags;
+		}
+
+		// The mode flags also have classic properties with similar effect.
+		// If the classic property is specified, it overrides the mode.
+		// To see if the property is absent (as opposed to merely evaluating
+		// to nothing after variable expansion), use GetWild for the
+		// existence check.  However, for the value check, use getNewExpand.
+
+		propName = "command.save.before.";
+		propName += itemSuffix;
+		if (props.GetWild(propName.c_str(), fileName).length())
+			saveBefore = props.GetNewExpand(propName.c_str(), fileName).value();
+		
+		if (saveBefore == 2 || (saveBefore == 1 && Save()) || SaveIfUnsure() != IDCANCEL) {
 			int flags = 0;
 
-			SString isfilter = "command.is.filter.";
-			isfilter += SString(item);
-			isfilter += ".";
-			SString filter = props.GetNewExpand(isfilter.c_str(), fileName);
-			if (filter[0] == '1')
+			propName = "command.is.filter.";
+			propName += itemSuffix;
+			if (props.GetWild(propName.c_str(), fileName).length())
+				filter = (props.GetNewExpand(propName.c_str(), fileName)[0]=='1');
+			if (filter)
 				fileModTime -= 1;
 
-			JobSubsystem jobType = SubsystemType("command.subsystem.", item);
+			propName = "command.subsystem.";
+			propName += itemSuffix;
+			if (props.GetWild(propName.c_str(), fileName).length()) {
+				SString subsystemVal = props.GetNewExpand(propName.c_str(), fileName);
+				jobType = SubsystemType(subsystemVal[0]);
+			}
 
-			SString inputProp = "command.input.";
-			inputProp += SString(item);
-			inputProp += ".";
+			propName = "command.input.";
+			propName += itemSuffix;
 			SString input;
-			if (props.GetWild(inputProp.c_str(), fileName).length()) {
-				input = props.GetNewExpand(inputProp.c_str(), fileName);
+			if (props.GetWild(propName.c_str(), fileName).length()) {
+				input = props.GetNewExpand(propName.c_str(), fileName);
 				flags |= jobHasInput;
 			}
 
-			SString quietProp = "command.quiet.";
-			quietProp += SString(item);
-			quietProp += ".";
-			int quiet = props.GetNewExpand(quietProp.c_str(), fileName).value();
-			if (quiet == 1)
+			propName = "command.quiet.";
+			propName += itemSuffix;
+			if (props.GetWild(propName.c_str(), fileName).length())
+				quiet = (props.GetNewExpand(propName.c_str(), fileName).value()==1);
+			if (quiet)
 				flags |= jobQuiet;
 
-			SString repSelProp = "command.replace.selection.";
-			repSelProp += SString(item);
-			repSelProp += ".";
-			int repSel = props.GetNewExpand(repSelProp.c_str(), fileName).value();
+			propName = "command.replace.selection.";
+			propName += itemSuffix;
+			if (props.GetWild(propName.c_str(), fileName).length())
+				repSel = props.GetNewExpand(propName.c_str(), fileName).value();
+
 			if (repSel == 1)
 				flags |= jobRepSelYes;
 			else if (repSel == 2)
