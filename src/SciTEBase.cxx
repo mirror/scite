@@ -528,6 +528,8 @@ void SciTEBase::SetMonoFont() {
 		SString sval = props.GetExpanded("font.monospace");
 		StyleDefinition sd(sval.c_str());
 		for (int style = 0; style <= STYLE_MAX; style++) {
+			if (style == STYLE_LINENUMBER)
+				continue;
 			if (sd.specified & StyleDefinition::sdSize) {
 				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETSIZE, style, sd.size);
 			}
