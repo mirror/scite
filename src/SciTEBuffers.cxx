@@ -197,6 +197,8 @@ void SciTEBase::InitialiseBuffers() {
 			// No buffers, delete the Buffers main menu entry
 			DestroyMenuItem(menuBuffers, 0);
 #if PLAT_WIN
+			// Make previous change visible.
+			::DrawMenuBar(wSciTE.GetID());
 			// Destroy command "View Tab Bar" in the menu "Options"
 			DestroyMenuItem(menuOptions, IDM_VIEWTABBAR);
 #endif
