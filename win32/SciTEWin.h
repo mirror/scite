@@ -48,14 +48,6 @@
 
 const int SCITE_TRAY = WM_APP + 0;
 
-/// Structure passed back and forth with the Indentation Setting dialog
-typedef struct {
-	unsigned tabSize;
-	unsigned indentSize;
-	bool useTabs;
-}
-IndentationSettings;
-
 /** Windows specific stuff.
  **/
 class SciTEWin : public SciTEBase {
@@ -66,11 +58,13 @@ protected:
 	static HINSTANCE hInstance;
 	static char *className;
 	static char *classNameInternal;
+	static SciTEWin *app;
 	WINDOWPLACEMENT winPlace;
 	RECT rcWorkArea;
 	FINDREPLACE fr;
 	char openWhat[200];
 	int filterDefault;
+	bool staticBuild;
 
 	PRectangle pagesetupMargin;
 	HGLOBAL hDevMode;
@@ -123,20 +117,7 @@ protected:
 	void RestoreFromTray();
 	LRESULT CopyData(COPYDATASTRUCT *pcds);
 	SString ProcessArgs(const char *cmdLine);
-	void AboutDialogWithBuild(int staticBuild);
 	virtual void QuitProgram();
-
-	virtual void Find();
-	virtual void FindInFiles();
-	
-	virtual void Replace();
-	virtual void FindReplace(bool replace);
-	virtual void DestroyFindReplace();
-	virtual void GoLineDialog();
-	virtual void TabSizeDialog();
-	void ParamGrab();
-	LRESULT ParametersMessage(UINT message, WPARAM wParam, LPARAM lParam);
-	virtual bool ParametersDialog(bool modal);
 
 	virtual void GetDefaultDirectory(char *directory, size_t size);
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
@@ -164,6 +145,35 @@ protected:
 	void Command(WPARAM wParam, LPARAM lParam);
 	HWND MainHWND();
 
+	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	BOOL ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual void Find();
+	virtual void FindInFiles();
+	virtual void Replace();
+	virtual void FindReplace(bool replace);
+	virtual void DestroyFindReplace();
+
+	BOOL GoLineMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual void GoLineDialog();
+
+	BOOL TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual void TabSizeDialog();
+
+	void ParamGrab();
+	virtual bool ParametersDialog(bool modal);
+	BOOL ParametersMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+	BOOL AboutMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	void AboutDialogWithBuild(int staticBuild);
+	
 public:
 
 	SciTEWin(Extension *ext = 0);
@@ -175,6 +185,7 @@ public:
 	/// Management of the command line parameters.
 	void Run(const char *cmdLine);
 	void ProcessExecute();
+	void ShellExec(const SString &cmd, const SString &dir);
 	virtual void Execute();
 	virtual void StopExecute();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue = false);
@@ -184,17 +195,11 @@ public:
 	LRESULT KeyDown(WPARAM wParam);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam);
-	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	static BOOL CALLBACK ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
 	uptr_t GetInstance();
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
 	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 	static LRESULT PASCAL IWndProc(
 	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
-	void ShellExec(const SString &cmd, const SString &dir);
 };
