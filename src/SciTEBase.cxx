@@ -2999,7 +2999,7 @@ bool SciTEBase::StartAutoCompleteWord() {
 			continue;
 		}
 		char wordstart[WORDCHUNK];
-		GetRange(wEditor, posFind, posFind + WORDCHUNK - 1, wordstart);
+        GetRange(wEditor, posFind, Platform::Minimum(posFind + WORDCHUNK - 1, doclen), wordstart);
 		char *wordend = wordstart + rootlen;
 		while (iswordcharforsel(*wordend))
 			wordend++;
