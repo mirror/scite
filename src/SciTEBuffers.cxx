@@ -264,9 +264,9 @@ void SciTEBase::InitialiseBuffers() {
 #if PLAT_WIN
 			// Make previous change visible.
 			::DrawMenuBar(reinterpret_cast<HWND>(wSciTE.GetID()));
+#endif
 			// Destroy command "View Tab Bar" in the menu "View"
 			DestroyMenuItem(menuView, IDM_VIEWTABBAR);
-#endif
 
 		}
 	}
@@ -680,8 +680,13 @@ void SciTEBase::BuffersMenu() {
 		}
 	}
 	CheckMenus();
+#if PLAT_WIN
 	if (tabVisible)
 		SizeSubWindows();
+#endif
+#if PLAT_GTK
+	ShowTabBar();
+#endif	
 }
 
 void SciTEBase::DeleteFileStackMenu() {

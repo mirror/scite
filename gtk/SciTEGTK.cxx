@@ -550,7 +550,7 @@ void SciTEGTK::ShowToolBar() {
 }
 
 void SciTEGTK::ShowTabBar() {
-	if (tabVisible) {
+	if (tabVisible && (!tabHideOne || buffers.length > 1) && buffers.size>1) {
 		gtk_widget_show(GTK_WIDGET(PWidget(wTabBar)));
 	} else {
 		gtk_widget_hide(GTK_WIDGET(PWidget(wTabBar)));
@@ -619,12 +619,16 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 void SciTEGTK::ReadPropertiesInitial() {
 	SciTEBase::ReadPropertiesInitial();
 	ShowToolBar();
+	ShowTabBar();
 	ShowStatusBar();
 }
 
 void SciTEGTK::ReadProperties() {
 	SciTEBase::ReadProperties();
 	CheckMenus();
+
+//need this here to handle tabbar.hide.one properly
+	ShowTabBar();
 }
 
 void SciTEGTK::SizeContentWindows() {
@@ -690,8 +694,11 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 void SciTEGTK::DestroyMenuItem(int, int itemID) {
 	// On GTK+ menu items are just hidden rather than destroyed as they can not be recreated in the middle of a menu
 	// The menuNumber is ignored as all menu items in GTK+ can be found from the root of the menu tree
+	
+	
 	if (itemID) {
 		GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
+
 		if (item) {
 			gtk_widget_hide(item);
 		}
@@ -731,6 +738,7 @@ void SciTEGTK::CheckMenus() {
 	CheckAMenuItem(IDM_ENCODING_UCOOKIE, unicodeMode == uniCookie);
 
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
+	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
 
 	if (build_btn) {
 		gtk_widget_set_sensitive(build_btn, !executing);
@@ -2543,11 +2551,16 @@ void SciTEGTK::CreateUI() {
 	                   PWidget(wToolBarBox),
 	                   FALSE, FALSE, 0);
 
+
+	//'factory default' setting
+	tabVisible = false;
+
 	wTabBar=gtk_notebook_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
 	gtk_signal_connect_after(GTK_OBJECT(PWidget(wTabBar)),"button-press-event",GTK_SIGNAL_FUNC(GtkTabBarSwitch),NULL);
 
+	
 	wContent = gtk_fixed_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wContent), GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
