@@ -211,6 +211,17 @@ void SciTEBase::SetLanguageMenu() {
 const char propFileName[] = "SciTE.properties";
 
 void SciTEBase::ReadGlobalPropFile() {
+	for (char **e=_environ; *e; e++) {
+		char key[1024];
+		char *k=*e;
+		char *v=strchr(k,'=');
+		if (v && (static_cast<size_t>(v-k) < sizeof(key))) {
+			memcpy(key, k, v-k);
+			key[v-k] = '\0';
+			propsEmbed.Set(key, v+1);
+		}
+	}
+	
 	for (int stackPos = 0; stackPos < importMax; stackPos++) {
 		importFiles[stackPos] = "";
 	}
