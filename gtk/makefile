@@ -41,6 +41,8 @@ pixmapdir=$(datadir)/pixmaps
 bindir=$(prefix)/bin
 SYSCONF_PATH=$(prefix)/share/scite
 
+INSTALL=install -o root -g root
+
 PROG	= ../bin/SciTE
 
 vpath %.h ../src ../../scintilla/include
@@ -85,23 +87,26 @@ include deps.mak
 # This is OK - just means no SciTE in the Gnome Applications menu
 # Dead:	install -D SciTEGTK.properties $(SYSCONF_PATH)/SciTEGlobal.properties
 install:
-	install $(PROG) $(bindir)
-	install -d $(SYSCONF_PATH)
-	install ../src/*.properties $(SYSCONF_PATH)
-	install ../doc/*.html $(SYSCONF_PATH)
-	install ../doc/SciTEIco.png $(SYSCONF_PATH)
-	install ../doc/PrintHi.png $(SYSCONF_PATH)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(bindir) $(DESTDIR)$(SYSCONF_PATH)
+
+	$(INSTALL) -m 755 -s $(PROG) $(DESTDIR)$(bindir)
+
+	for files in ../src/*.properties ../doc/*.html ../doc/SciTEIco.png ../doc/PrintHi.png; \
+	do \
+		$(INSTALL) -m 644 $$files $(DESTDIR)$(SYSCONF_PATH); \
+	done
+
 ifdef gnomeprefix
 ifndef GTK2
-	install SciTE.desktop $(datadir)/gnome/apps/Applications
+	$(INSTALL) -m 644 -D SciTE.desktop $(DESTDIR)$(datadir)/gnome/apps/Applications/SciTE.desktop
 endif
-	install Sci48M.png $(pixmapdir)
+	$(INSTALL) -m 644 -D Sci48M.png $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
 
 uninstall:
-	rm -f $(bindir)/SciTE
-	rm -rf $(SYSCONF_PATH)
+	rm -f $(DESTDIR)$(bindir)/SciTE
+	rm -rf $(DESTDIR)$(SYSCONF_PATH)
 ifdef gnomeprefix
-	rm -f $(datadir)/gnome/apps/Applications/SciTE.desktop
-	rm -f $(pixmapdir)/Sci48M.png
+	rm -f $(DESTDIR)$(datadir)/gnome/apps/Applications/SciTE.desktop
+	rm -f $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
