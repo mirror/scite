@@ -929,6 +929,7 @@ void SciTEWin::Run(const char *cmdLine) {
 	if (props.GetInt("check.if.already.open")) {
 		HWND hAnother = ::FindWindow("SciTEWindow", NULL);
 		if (hAnother) {
+			SetForegroundWindow(hAnother);
 			COPYDATASTRUCT cds;
 			cds.dwData = 0;
 			cds.cbData = strlen(cmdLine)+1;
