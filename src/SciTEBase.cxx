@@ -1170,7 +1170,13 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	SendEditor(SCI_SETTARGETEND, endPosition);
 	SendEditor(SCI_SETSEARCHFLAGS, flags);
 	int posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget);
-	if (posFind != -1) {
+	if ((findLen == 1) && regExp && (findTarget[0] == '^')) {
+		// Special case for replace all start of line so it hits the first line
+		posFind = startPosition;
+		SendEditor(SCI_SETTARGETSTART, startPosition);
+		SendEditor(SCI_SETTARGETEND, startPosition);
+	}
+	if ((posFind != -1) && (posFind <= endPosition)) {
 		int lastMatch = posFind;
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
@@ -1186,7 +1192,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			// For the special cases of start of line and end of line
 			// Something better could be done but there are too many special cases
 			if (lenTarget <= 0)	
-				break;
+				lastMatch++;
 			SendEditor(SCI_SETTARGETSTART, lastMatch);
 			SendEditor(SCI_SETTARGETEND, endPosition);
 			posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget);
