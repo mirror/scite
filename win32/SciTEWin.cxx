@@ -1011,7 +1011,6 @@ void SciTEWin::QuitProgram() {
 }
 
 void SciTEWin::CreateUI() {
-	// Pass 'this' pointer in lpParam of CreateWindow().
 	int left = props.GetInt("position.left", CW_USEDEFAULT);
 	int top = props.GetInt("position.top", CW_USEDEFAULT);
 	int width = props.GetInt("position.width", CW_USEDEFAULT);
@@ -1025,6 +1024,7 @@ void SciTEWin::CreateUI() {
 	        (left != static_cast<int>(CW_USEDEFAULT))) {
 		left += width;
 	}
+	// Pass 'this' pointer in lpParam of CreateWindow().
 	wSciTE = ::CreateWindowEx(
 	             0,
 	             className,
@@ -1062,9 +1062,12 @@ static bool IsASpace(int ch) {
 	return (ch == ' ') || (ch == '\t');
 }
 
+/**
+ * Break up the command line into individual arguments and strip double quotes
+ * from each argument creating a string with each argument separated by '\n'.
+ * @return The number of arguments found.
+ */
 SString SciTEWin::ProcessArgs(const char *cmdLine) {
-	// Break up the command line into individual arguments and strip double quotes
-	// from each argument creating a string with each argument separated by '\n'
 	SString args;
 	const char *startArg = cmdLine;
 	while (*startArg) {
@@ -1164,7 +1167,7 @@ void SciTEWin::Run(const char *cmdLine) {
 	// Check if the user just want to print the file
 	bool performPrint = ProcessCommandLine(args, 0);
 
-	// We create the window, so it can be found by EnumWidows below.
+	// We create the window, so it can be found by EnumWindows below.
 	// We don't show it yet, so if it is destroyed (duplicate instance), it will
 	// not flash on the taskbar or on the display.
 	CreateUI();
@@ -1177,6 +1180,8 @@ void SciTEWin::Run(const char *cmdLine) {
 		return ;
 	}
 
+	// We recheck the check.if.already.open property in case it has been set on the command line,
+	// so we still get a last chance to open a separate instance.
 	if (bAlreadyRunning && props.GetInt("check.if.already.open")) {
 		HWND hOtherWindow = NULL;
 		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(&hOtherWindow));
