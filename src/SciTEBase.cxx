@@ -3123,6 +3123,17 @@ void SciTEBase::Notify(SCNotification *notification) {
 	case SCN_URIDROPPED:
 		OpenUriList(notification->text);
 		break;
+	
+	case SCN_DWELLSTART: {
+			char message[200];
+			sprintf(message, "%0d (%0d,%0d)", notification->position, notification->x, notification->y);
+			SendEditorString(SCI_CALLTIPSHOW, notification->position, message);
+		}
+		break;
+	
+	case SCN_DWELLEND:
+		SendEditorString(SCI_CALLTIPCANCEL, 0, 0);
+		break;
 	}
 }
 

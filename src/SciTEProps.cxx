@@ -520,6 +520,9 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", Colour(0, 0, 0)));
 
+	SendEditor(SCI_SETMOUSEDWELLTIME, 
+		props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
+
 	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 
