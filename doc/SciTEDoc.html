@@ -1276,6 +1276,10 @@ NameError: mistake
           keywords. This is used in the HTML lexer to display JavaScript keywords in a different
           style to HTML tags and attributes.
         </td>
+        <td>
+	Keywords can be prefix based so ^GTK_ will treat all words that start
+	with GTK_ as keywords.
+        </td>
       </tr>
       <tr>
         <td>
@@ -1308,10 +1312,11 @@ NameError: mistake
           each lexer.<br />
            The value of each setting is a set of ',' separated fields, some of which have a
           subvalue after a ':'. The fields are font, size, fore, back, italics, notitalics, bold,
-          notbold, eolfilled, noteolfilled, underlined, and notunderlined.
+          notbold, eolfilled, noteolfilled, underlined, notunderlined, and case.
 	The font field has a subvalue which is the name of
           the font, the fore and back have colour subvalues, the size field has a numeric size
-          subvalue, and the bold, italics and eolfilled fields have no subvalue. The value
+          subvalue, the case field has a subvalue of 'm', 'u', or 'l' for mixed, upper or lower case,
+	and the bold, italics and eolfilled fields have no subvalue. The value
           "fore:#FF0000,font:Courier,size:14" represents 14 point, red Courier text.<br />
            A global style can be set up using style.*.<i>stylenumber</i>. Any style options set in
           the global style will be inherited by each lexer style unless overridden.
@@ -1576,7 +1581,7 @@ NameError: mistake
           fold.compact<br />
         </td>
         <td>
-	For HTML and XML files, turning this option on leads to blank lines following the
+	For HTML, XML and C++ and similar files, turning this option on leads to blank lines following the
 	end of an element folding with that element. Defaults to on.
         </td>
       </tr>
