@@ -327,6 +327,43 @@ void SciTEWin::SaveAsPDF() {
 	}
 }
 
+void SciTEWin::LoadSessionDialog() {
+	char openName[MAX_PATH] = "\0";
+	OPENFILENAME ofn = {
+	    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	};
+	ofn.hwndOwner = wSciTE.GetID();
+	ofn.hInstance = hInstance;
+	ofn.lpstrFile = openName;
+	ofn.nMaxFile = sizeof(openName);
+	ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
+	ofn.lpstrTitle = "Load Session";
+	ofn.Flags = OFN_HIDEREADONLY;
+	if (::GetOpenFileName(&ofn))
+		LoadSession(openName);
+}
+
+void SciTEWin::SaveSessionDialog() {
+	if (0 == dialogsOnScreen) {
+		char saveName[MAX_PATH] = "\0";
+		strcpy(saveName, "current.ses");
+		OPENFILENAME ofn = {
+		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		};
+		ofn.hwndOwner = wSciTE.GetID();
+		ofn.hInstance = hInstance;
+		ofn.lpstrFile = saveName;
+		ofn.nMaxFile = sizeof(saveName);
+		ofn.lpstrTitle = "Save Current Session";
+		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+		ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
+		dialogsOnScreen++;
+		if (::GetSaveFileName(&ofn))
+			SaveSession(saveName);
+		dialogsOnScreen--;
+	}
+}
+
 /**
  * Display the Print dialog (if @a showDialog asks it),
  * allowing it to choose what to print on which printer.

@@ -42,7 +42,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 		}
 		break;
 
-#if (_WIN32_IE >= 0x0300)	// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
+#ifndef __MINGW_H	// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
 	case TTN_GETDISPINFO:
 		// Ask for tooltip text
 		{

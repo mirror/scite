@@ -39,7 +39,8 @@
 #include "Extender.h"
 #include "SciTEBase.h"
 
-#define recentFileName "SciTE.recent"
+const char recentFileName[] = "SciTE.recent";
+const char defaultSessionFileName[] = "SciTE.ses";
 
 Job::Job() {
 	Clear();
@@ -116,7 +117,7 @@ void SciTEBase::SetDocumentAt(int index) {
 	        index == buffers.current ||
 	        buffers.current < 0 ||
 	        buffers.current >= buffers.length)
-		return ;
+		return;
 	UpdateBuffersCurrent();
 
 	buffers.current = index;
@@ -212,7 +213,7 @@ void SciTEBase::InitialiseBuffers() {
 	}
 }
 
-static void RecentFilePath(char *path) {
+static void RecentFilePath(char *path, const char *name) {
 	char *where = getenv("SciTE_HOME");
 	if (!where) {
 		where = getenv("HOME");
@@ -225,17 +226,16 @@ static void RecentFilePath(char *path) {
 #if PLAT_GTK
 	strcat(path, ".");
 #endif
-	strcat(path, recentFileName);
+	strcat(path, name);
 }
 
 void SciTEBase::LoadRecentMenu() {
 	char recentPathName[MAX_PATH + 1];
-	RecentFilePath(recentPathName);
-
+	RecentFilePath(recentPathName, recentFileName);
 	FILE *recentFile = fopen(recentPathName, "r");
 	if (!recentFile) {
 		DeleteFileStackMenu();
-		return ;
+		return;
 	}
 	char line[MAX_PATH + 1];
 	CharacterRange cr;
@@ -244,22 +244,17 @@ void SciTEBase::LoadRecentMenu() {
 		if (!fgets (line, sizeof (line), recentFile))
 			break;
 		line[strlen (line) - 1] = '\0';
-		if (!props.GetInt("buffers")) {
-			AddFileToStack(line, cr, 0);
-		} else {
-			AddFileToBuffer(line /*TODO, cr, 0*/);
-		}	
+		AddFileToStack(line, cr, 0);
 	}
 	fclose(recentFile);
 }
 
 void SciTEBase::SaveRecentStack() {
 	char recentPathName[MAX_PATH + 1];
-	RecentFilePath(recentPathName);
-
+	RecentFilePath(recentPathName, recentFileName);
 	FILE *recentFile = fopen(recentPathName, "w");
 	if (!recentFile)
-		return ;
+		return;
 	int i;
 	const char *line;
 	// save recent files list
@@ -269,12 +264,56 @@ void SciTEBase::SaveRecentStack() {
 			fprintf(recentFile, "%s\n", line);
 	}
 	// save buffers list
-	for (i = buffers.length - 1; i >= 0 ; i--) {
+	for (i = buffers.length - 1; i >= 0; i--) {
 		line = buffers.buffers[i].fileName.c_str();
 		if (line[0])
 			fprintf(recentFile, "%s\n", line);
 	}
 	fclose(recentFile);
+}
+
+void SciTEBase::LoadSession(const char *sessionName) {
+	char sessionPathName[MAX_PATH + 1];
+	if (sessionName[0] == '\0') {
+		RecentFilePath(sessionPathName, defaultSessionFileName);
+	} else {
+		strcpy(sessionPathName, sessionName);
+	}
+	char line[MAX_PATH + 1];
+	CharacterRange cr;
+	cr.cpMin = cr.cpMax = 0;
+	FILE *sessionFile = fopen(sessionPathName, "r");
+	if (!sessionFile)
+		return;
+	// comment next line if you don't want to close all buffers before loading session
+	CloseAllBuffers();
+	for (int i = 0; i < fileStackMax; i++) {
+		if (!fgets (line, sizeof (line), sessionFile))
+			break;
+		line[strlen (line) - 1] = '\0';
+		AddFileToBuffer(line /*TODO, cr, 0*/);
+	}
+	fclose(sessionFile);
+}
+
+void SciTEBase::SaveSession(const char *sessionName) {
+	char sessionPathName[MAX_PATH + 1];
+	if (sessionName[0] == '\0') {
+		RecentFilePath(sessionPathName, defaultSessionFileName);
+	} else {
+		strcpy(sessionPathName, sessionName);
+	}
+	int i = 0;
+	const char *line;
+	FILE *sessionFile = fopen(sessionPathName, "w");
+	if (!sessionFile)
+		return;
+	for (i = buffers.length - 1; i >= 0; i--) {
+	line = buffers.buffers[i].fileName.c_str();
+	if (line[0])
+		fprintf(sessionFile, "%s\n", line);
+	}
+	fclose(sessionFile);
 }
 
 void SciTEBase::New() {
@@ -315,13 +354,7 @@ void SciTEBase::Close(bool updateUI) {
 		if (buffers.current >= 0 && buffers.current < buffers.length) {
 			UpdateBuffersCurrent();
 			Buffer buff = buffers.buffers[buffers.current];
-			// AddFileToStack(buff.fileName.c_str(), buff.selection, buff.scrollPosition);
-			
-			// SciTE.recent currently doesn't make difference between buffered and stacked files
-			// so when buffers are enabled all listed files load at startup into buffers
-			// ==> we can't have a recent file stack together with buffers :(
-			// TODO: add a 'buffer' flag (+ recent file pos + recent bookmarks + recent selection)
-			// into SciTE.recent
+			AddFileToStack(buff.fileName.c_str(), buff.selection, buff.scrollPosition);
 		}
 		bool closingLast = buffers.length == 1;
 		if (closingLast) {
@@ -361,7 +394,7 @@ void SciTEBase::CloseAllBuffers() {
 		if (buffers.buffers[i].isDirty) {
 			SetDocumentAt(i);
 			if (SaveIfUnsure() == IDCANCEL)
-				return ;
+				return;
 		}
 	}
 
@@ -493,7 +526,7 @@ void SciTEBase::AddFileToBuffer(const char *file /*TODO:, CharacterRange selecti
 
 void SciTEBase::AddFileToStack(const char *file, CharacterRange selection, int scrollPos) {
 	if (!file)
-		return ;
+		return;
 	DeleteFileStackMenu();
 	// Only stack non-empty names
 	if ((file[0]) && (file[strlen(file) - 1] != pathSepChar)) {
@@ -513,7 +546,7 @@ void SciTEBase::AddFileToStack(const char *file, CharacterRange selection, int s
 
 void SciTEBase::RemoveFileFromStack(const char *file) {
 	if (!file || !file[0])
-		return ;
+		return;
 	DeleteFileStackMenu();
 	int stackPos;
 	for (stackPos = 0; stackPos < fileStackMax; stackPos++) {
@@ -566,7 +599,7 @@ void SciTEBase::StackMenuNext() {
 		if (recentFileStack[stackPos].fileName[0] != '\0') {
 			SetFileStackMenu();
 			StackMenu(stackPos);
-			return ;
+			return;
 		}
 	}
 	SetFileStackMenu();
@@ -798,7 +831,7 @@ void SciTEBase::GoMessage(int dir) {
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
 			char *cdoc = new char[lineLength + 1];
 			if (!cdoc)
-				return ;
+				return;
 			GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
 			char sourcePath[MAX_PATH];
 			int sourceLine = DecodeMessage(cdoc, sourcePath, style);
@@ -818,7 +851,7 @@ void SciTEBase::GoMessage(int dir) {
 					if (bExists) {
 						if (!Open(messagePath)) {
 							delete []cdoc;
-							return ;
+							return;
 						}
 					}
 				}
@@ -835,7 +868,7 @@ void SciTEBase::GoMessage(int dir) {
 				SetFocus(wEditor.GetID());
 			}
 			delete []cdoc;
-			return ;
+			return;
 		}
 		if (dir == 0)
 			dir = 1;

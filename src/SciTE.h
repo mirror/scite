@@ -30,6 +30,8 @@
 #define IDM_MRU_SEP			120
 #define IDM_PRINTSETUP		130
 #define IDM_PRINT			131
+#define IDM_LOADSESSION		132
+#define IDM_SAVESESSION		133
 #define IDM_QUIT			140
 
 #define MRU_START	8

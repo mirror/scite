@@ -323,7 +323,7 @@ protected:
 	bool jobUsesOutputPane;
 	long cancelFlag;
 	bool timeCommands;
-	
+
 	bool macrosEnabled;
 	char currentmacro[100];
 	bool recording;
@@ -379,6 +379,8 @@ protected:
 	void InitialiseBuffers();
 	void LoadRecentMenu();
 	void SaveRecentStack();
+	void LoadSession(const char *sessionName);
+	void SaveSession(const char *sessionName);
 	void New();
 	void Close(bool updateUI = true);
 	bool IsAbsolutePath(const char *path);
@@ -389,6 +391,8 @@ protected:
 	virtual void FixFilePath();
 	virtual bool OpenDialog() = 0;
 	virtual bool SaveAsDialog() = 0;
+	virtual void LoadSessionDialog() { };
+	virtual void SaveSessionDialog() { };
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
 	bool Open(const char *file = 0, bool initialCmdLine = false, bool forceLoad = false);
 	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad = false);

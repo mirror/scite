@@ -372,6 +372,10 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 		if (props.GetInt("save.recent", 0))
 			LoadRecentMenu();
 	}
+	if (initialCmdLine && props.GetInt("buffers") && !fileName[0]) {
+		if (props.GetInt("save.session", 0))
+			LoadSession("");
+	}
 	if (fileName[0]) {
 		SendEditor(SCI_CANCEL);
 		SendEditor(SCI_SETUNDOCOLLECTION, 0);
@@ -570,6 +574,9 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 	}
 	if (props.GetInt("save.recent", 0))
 		SaveRecentStack();
+	if (props.GetInt("buffers") && props.GetInt("save.session", 0))
+		SaveSession("");
+
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document
 	SendEditor(SCI_SETDOCPOINTER, 0, buffers.buffers[0].doc);

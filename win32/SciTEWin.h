@@ -13,6 +13,10 @@
 #include <stdarg.h>
 #include <sys/stat.h>
 
+#ifdef __MINGW_H
+#define _WIN32_IE	0x0400
+#endif
+
 #include "Platform.h"
 
 #include <io.h>
@@ -92,6 +96,8 @@ protected:
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
+	virtual void LoadSessionDialog();
+	virtual void SaveSessionDialog();
 
 	/// Print the current buffer.
 	virtual void Print(bool showDialog);

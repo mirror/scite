@@ -1059,7 +1059,7 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	            (matchCase ? SCFIND_MATCHCASE : 0) |
 	            (regExp ? SCFIND_REGEXP : 0);
-	
+
 	SendEditor(SCI_SETTARGETSTART, startPosition);
 	SendEditor(SCI_SETTARGETEND, endPosition);
 	SendEditor(SCI_SETSEARCHFLAGS, flags);
@@ -1122,7 +1122,7 @@ void SciTEBase::ReplaceOnce() {
 		SendEditor(SCI_SETTARGETSTART, cr.cpMin);
 		SendEditor(SCI_SETTARGETEND, cr.cpMax);
 		int lenReplaced = replaceLen;
-		if (regExp) 
+		if (regExp)
 			lenReplaced = SendEditorString(SCI_REPLACETARGETRECOUNTED, replaceLen, replaceTarget);
 		else	// Allow \0 in replacement
 			SendEditorString(SCI_REPLACETARGETCOUNTED, replaceLen, replaceTarget);
@@ -1142,7 +1142,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		FindMessageBox("Find string for \"Replace All\" must not be empty.");
 		return;
 	}
-	
+
 	CharacterRange cr = GetSelection();
 	int startPosition = cr.cpMin;
 	int endPosition = cr.cpMax;
@@ -1182,7 +1182,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		while (posFind != -1) {
 			int lenTarget = SendEditor(SCI_GETTARGETEND) - SendEditor(SCI_GETTARGETSTART);
 			int lenReplaced = replaceLen;
-			if (regExp) 
+			if (regExp)
 				lenReplaced = SendEditorString(SCI_REPLACETARGETRECOUNTED, replaceLen, replaceTarget);
 			else
 				SendEditorString(SCI_REPLACETARGETCOUNTED, replaceLen, replaceTarget);
@@ -1191,7 +1191,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			lastMatch = posFind + lenReplaced;
 			// For the special cases of start of line and end of line
 			// Something better could be done but there are too many special cases
-			if (lenTarget <= 0)	
+			if (lenTarget <= 0)
 				lastMatch++;
 			SendEditor(SCI_SETTARGETSTART, lastMatch);
 			SendEditor(SCI_SETTARGETEND, endPosition);
@@ -2357,6 +2357,14 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 	case IDM_PRINTSETUP:
 		PrintSetup();
+		break;
+	case IDM_LOADSESSION:
+		LoadSessionDialog();
+		SetFocus(wEditor.GetID());
+		break;
+	case IDM_SAVESESSION:
+		SaveSessionDialog();
+		SetFocus(wEditor.GetID());
 		break;
 	case IDM_ABOUT:
 		AboutDialog();
