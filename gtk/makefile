@@ -68,7 +68,7 @@ include deps.mak
 install:
 	install -s $(PROG) $(bindir)
 	install -d $(SYSCONF_PATH)
-	install -D ../src/*.properties $(SYSCONF_PATH)
+	install ../src/*.properties $(SYSCONF_PATH)
 	install ../doc/*.html $(SYSCONF_PATH)
 	install ../doc/SciTEIco.png $(SYSCONF_PATH)
 	install ../doc/PrintHi.png $(SYSCONF_PATH)
