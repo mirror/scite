@@ -1338,7 +1338,7 @@ void SciTEBase::ReadPropertiesInitial() {
 
 	// load the user defined short cut props
 	SString shortCutProp = props.GetNewExpand("user.shortcuts");
-	if ( shortCutProp.length() ) {
+	if (shortCutProp.length()) {
 		shortCutItems = 0;
 		for (unsigned int i = 0; i < shortCutProp.length(); i++) {
 			if (shortCutProp[i] == '|')

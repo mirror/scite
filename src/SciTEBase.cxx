@@ -225,6 +225,7 @@ const char *contributors[] = {
                                  "Chris Jones",
                                  "Josiah Reynolds",
                                  "Robert Roessler http://www.rftp.com",
+                                 "Steve Donovan",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -4261,6 +4262,19 @@ void SciTEBase::ContextMenu(Window wSource, Point pt, Window wCmd) {
 		AddToPopUp("Hide", IDM_TOGGLEOUTPUT, true);
 	} else {
 		AddToPopUp("Close", IDM_CLOSE, true);
+	}
+	SString userContextMenu = props.GetNewExpand("user.context.menu");
+	userContextMenu.substitute('|', '\0');
+	const char *userContextItem = userContextMenu.c_str();
+	const char *endDefinition = userContextItem + userContextMenu.length();
+	while (userContextItem < endDefinition) {
+		const char *caption = userContextItem;
+		userContextItem += strlen(userContextItem) + 1;
+		if (userContextItem < endDefinition) {
+			int cmd = GetMenuCommandAsInt(userContextItem);
+			userContextItem += strlen(userContextItem) + 1;
+			AddToPopUp(caption, cmd);
+		}
 	}
 	popup.Show(pt, wCmd);
 }
