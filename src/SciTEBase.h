@@ -554,6 +554,7 @@ time_t GetModTime(const char *fullPath);
 bool IsUntitledFileName(const char *name);
 void lowerCaseString(char *s);
 void ChopTerminalSlash(char *path);
+int IntFromHexDigit(const char ch);
 
 #if PLAT_GTK
 // MessageBox

@@ -234,7 +234,7 @@ void SciTEBase::ReadLocalPropFile() {
 	props.Set("ChromeHighlight", "#FFFFFF");
 }
 
-static int IntFromHexDigit(const char ch) {
+int IntFromHexDigit(const char ch) {
 	if (isdigit(ch))
 		return ch - '0';
 	else if (ch >= 'A' && ch <= 'F')

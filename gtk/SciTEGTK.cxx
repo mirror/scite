@@ -119,6 +119,7 @@ protected:
 	virtual void CheckMenus();
 	virtual void ExecuteNext();
 
+	void OpenUriList(const char *list);
 	virtual void AbsolutePath(char *absPath, const char *relativePath, int size);
 	virtual bool OpenDialog();
 	virtual bool SaveAsDialog();
@@ -205,6 +206,8 @@ protected:
 	static gint DividerMotion(GtkWidget *widget, GdkEventMotion *event, SciTEGTK *scitew);
 	static gint DividerPress(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	static gint DividerRelease(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
+	static void DragDataReceived(GtkWidget *widget, GdkDragContext *context,
+	gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
 
 public:
 
@@ -651,6 +654,56 @@ char *split(char*& s, char c) {
 	char *t = s;
 	if (s && (s = strchr(s, c))) * s++ = '\0';
 	return t;
+}
+
+/**
+ * Replace any %xx escapes by their single-character equivalent.
+ */
+static void unquote(char *s) {
+	char *o=s;
+	while (*s) {
+		if ((*s == '%') && s[1] && s[2]) {
+			*o = IntFromHexDigit(s[1]) * 16 + IntFromHexDigit(s[2]);
+			s += 2;
+		} else {
+			*o = *s;
+		}
+		o++;
+		s++;
+	}
+	*o = '\0';
+}
+
+/**
+ * Open a list of URIs each terminated by "\r\n".
+ * Only "file:" URIs currently understood.
+ */
+void SciTEGTK::OpenUriList(const char *list) {
+	if (list) {
+		char *uri = StringDup(list);
+		if (uri) {
+			char *enduri = strchr(uri, '\r');
+			while (enduri) {
+				*enduri = '\0';
+				if (isprefix(uri, "file:")) {
+					uri += strlen("file:");
+					if (isprefix(uri, "///")) {
+						uri += 2;	// There can be an optional // before the file path that starts with /
+					}
+					unquote(uri);
+					//printf("FILE: <%s>\n", uri);
+					Open(uri);
+				} else {
+					MessageBox(wSciTE.GetID(), uri, "URI not understood", MB_OK);
+					//printf("URI: <%s>\n", uri);
+				}
+				uri = enduri + 1;
+				if (*uri == '\n')
+					uri++;
+				enduri = strchr(uri, '\r');
+			}
+		}
+	}
 }
 
 // on Linux return the shortest path equivalent to pathname (remove . and ..)
@@ -1627,6 +1680,12 @@ gint SciTEGTK::DividerRelease(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 	return TRUE;
 }
 
+void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
+    gint /*x*/, gint /*y*/, GtkSelectionData *seldata, guint /*info*/, guint time, SciTEGTK *scitew) {
+	scitew->OpenUriList(reinterpret_cast<const char *>(seldata->data));
+	gtk_drag_finish(context, TRUE, FALSE, time);
+}
+
 void SciTEGTK::OpenCancelSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->dialogCanceled = true;
 	scitew->fileSelector.Destroy();
@@ -2104,6 +2163,14 @@ void SciTEGTK::CreateUI() {
 	gtk_box_pack_start(GTK_BOX(boxMain), wStatusBar.GetID(), FALSE, FALSE, 0);
 	gtk_statusbar_push(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID, "Initial");
 	sbVisible = false;
+
+	static const GtkTargetEntry dragtypes[] = { { "text/uri-list", 0, 0 } };
+	static const gint n_dragtypes = sizeof(dragtypes) / sizeof(dragtypes[0]);
+
+	gtk_drag_dest_set(wSciTE.GetID(), GTK_DEST_DEFAULT_ALL, dragtypes,
+			  n_dragtypes, GDK_ACTION_COPY);
+	(void)gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "drag_data_received",
+				 GTK_SIGNAL_FUNC(DragDataReceived), this);
 
 	SetFocus(wOutput.GetID());
 
