@@ -490,6 +490,9 @@ BEGIN
 	// redo buttons don't enable/disable when you expect.
 	"Z", IDM_UNDO,  VIRTKEY, CONTROL
 	"Y", IDM_REDO,  VIRTKEY, CONTROL
+
+	"X", IDM_CUT,  VIRTKEY, CONTROL
+	"C", IDM_COPY,  VIRTKEY, CONTROL
 END
 
 IDR_CLOSEFILE BITMAP "closefile.bmp"

@@ -570,6 +570,7 @@ protected:
 	void RangeExtendAndGrab(Window &wCurrent, char *sel, int len,
 	    int &selStart, int &selEnd, int lengthDoc, bool (*ischarforsel)(char ch), bool stripEol = true);
 	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch), bool stripEol = true);
+	void FindWordAtCaret(int &start, int &end);
 	bool SelectWordAtCaret();
 	SString SelectionWord(bool stripEol = true);
 	SString SelectionFilename();

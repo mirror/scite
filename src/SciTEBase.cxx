@@ -963,7 +963,7 @@ void SciTEBase::SelectionExtend(
 	RangeExtendAndGrab(wCurrent, sel, len, selStart, selEnd, lengthDoc, ischarforsel, stripEol);
 }
 
-bool SciTEBase::SelectWordAtCaret() {
+void SciTEBase::FindWordAtCaret(int &start, int &end) {
 	char selection[1000];
 	Window wCurrent;
 
@@ -973,10 +973,16 @@ bool SciTEBase::SelectWordAtCaret() {
 		wCurrent = wEditor;
 	}
 	int lengthDoc = SendFocused(SCI_GETLENGTH);
-	int selStart = SendFocused(SCI_GETSELECTIONSTART);
-	int selEnd = SendFocused(SCI_GETSELECTIONEND);
+	start = SendFocused(SCI_GETSELECTIONSTART);
+	end = SendFocused(SCI_GETSELECTIONEND);
 	RangeExtendAndGrab(wCurrent, selection, sizeof(selection),
-		selStart, selEnd, lengthDoc, iswordcharforsel, false);
+		start, end, lengthDoc, iswordcharforsel, false);
+}
+
+bool SciTEBase::SelectWordAtCaret() {
+	int selStart = 0;
+	int selEnd = 0;
+	FindWordAtCaret(selStart, selEnd);
 	SetSelection(selStart, selEnd);
 	return selStart != selEnd;
 }
@@ -2997,9 +3003,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		if (SendPane(source, SCI_GETSELECTIONSTART) != SendPane(source, SCI_GETSELECTIONEND)) {
 			//fprintf(stderr, "Copy from %d\n", source);
 			SendPane(source, SCI_COPY);
-		} else if (SelectWordAtCaret()) {
-			//fprintf(stderr, "Sel word at caret %d\n", source);
-			SendPane(source, SCI_COPY);
+		} else {
+			int selStart = 0;
+			int selEnd = 0;
+			FindWordAtCaret(selStart, selEnd);
+			if (selStart != selEnd) {
+				//fprintf(stderr, "Sel word at caret %d\n", source);
+				SendPane(source, SCI_COPYRANGE, selStart, selEnd);
+			}
 		}
 		// does not trigger SCN_UPDATEUI, so do CheckMenusClipboard() here
 		CheckMenusClipboard();
