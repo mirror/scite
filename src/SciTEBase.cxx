@@ -1023,15 +1023,17 @@ unsigned int UnSlashLowOctal(char *s) {
 	return o - sStart;
 }
 
-static void UnSlashAsNeeded(char *s, bool escapes, bool regularExpression) {
+static int UnSlashAsNeeded(char *s, bool escapes, bool regularExpression) {
 	if (escapes) {
 		if (regularExpression) {
 			// For regular expressions only escape sequences allowed start with \0
-			UnSlashLowOctal(s);
+			return UnSlashLowOctal(s);
 		} else {
 			// C style escapes allowed
-			UnSlash(s);
+			return UnSlash(s);
 		}
+	} else {
+		return strlen(s);
 	}
 }
 
@@ -1147,7 +1149,12 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 
 	char findTarget[findReplaceMaxLen + 1];
 	strcpy(findTarget, findWhat);
-	UnSlashAsNeeded(findTarget, unSlash, regExp);
+	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
+	if ((findLen == 0) || (findTarget[0] == '\0')) {
+		FindMessageBox("Find string for \"Replace All\" must not be empty.");
+		return;
+	}
+	
 	ft.lpstrText = findTarget;
 	char replaceTarget[findReplaceMaxLen + 1];
 	strcpy(replaceTarget, replaceWhat);
@@ -1171,6 +1178,8 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			ft.chrg.cpMin = endPosition;
 			if (inSelection) 	// Modify for change caused by replacement
 				ft.chrg.cpMax += lenDifference;
+			else
+				ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(SCI_FINDTEXT, flags,
 			                     reinterpret_cast<long>(&ft));
 		}
