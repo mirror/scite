@@ -624,7 +624,7 @@ void SciTEWin::Creation() {
 	               TOOLBARCLASSNAME,
 	               "",
 	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS,
+	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS | CCS_NORESIZE,
 	               0, 0,
 	               100, heightTools,
 	               MainHWND(),
