@@ -3048,7 +3048,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		RecordMacroCommand(notification);
 		break;
 
-	case SCN_URISDROPPED:
+	case SCN_URIDROPPED:
 		OpenUriList(notification->text);
 		break;
 	}
