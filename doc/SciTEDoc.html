@@ -873,6 +873,23 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          two.phase.draw
+        </td>
+        <td>
+	Two phase drawing is a better but slower way of drawing text.
+	In single phase drawing each run of characters in one style is drawn along with
+	its background.
+	If a character overhangs the end of a run, such as in "<i>V</i>_" where the
+	"<i>V</i>" is in a different style from the "_", then this can cause the right hand
+	side of the "<i>V</i>" to be overdrawn by the background of the "_" which
+	cuts it off. Two phase drawing
+	fixes this by drawing all the backgrounds first and then drawing the text in
+	transparent mode. Two phase drawing may flicker more than single phase
+	unless buffered drawing is on. The default is for drawing to be two phase.
+        </td>
+      </tr>
+      <tr>
+        <td>
           load.on.activate<br />
            save.on.deactivate
         </td>
