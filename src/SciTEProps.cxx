@@ -666,6 +666,7 @@ static const char *propertiesToForward[] = {
 	"html.tags.case.sensitive",
 	"ps.level",
 	"ps.tokenize",
+	"sql.backslash.escapes",
 
 	"lexer.tex.interface.default",
 	"lexer.tex.comment.process",
