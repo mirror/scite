@@ -3325,30 +3325,50 @@ void SciTEBase::PerformOne(char *action) {
 	char *arg = strchr(action, ':');
 	if (arg) {
 		arg++;
-		if (isprefix(action, "open:")) {
-			Open(arg);
+		if (isprefix(action, "askfilename:")) {
+			extender->OnMacro("filename", fullPath);
+		} else if (isprefix(action, "close:")) {
+			Close();
+			WindowSetFocus(wEditor);
+		} else if (isprefix(action, "currentmacro:")) {
+			currentMacro = arg;
+		} else if (isprefix(action, "cwd:")) {
+			if (chdir(arg) != 0) {
+				SString msg = LocaliseMessage("Invalid directory '^0'.", arg);
+				WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+			}
 		} else if (isprefix(action, "enumproperties:")) {
 			EnumProperties(arg);
-		} else if (isprefix(action, "property:")) {
-			PropertyFromDirector(arg);
-		} else if (isprefix(action, "goto:") && fnEditor) {
-			GotoLineEnsureVisible(atoi(arg) - 1);
+		} else if (isprefix(action, "exportashtml:")) {
+			SaveToHTML(arg);
+		} else if (isprefix(action, "exportasrtf:")) {
+			SaveToRTF(arg);
+		} else if (isprefix(action, "exportaspdf:")) {
+			SaveToPDF(arg);
 		} else if (isprefix(action, "find:") && fnEditor) {
 			findWhat = arg;
 			FindNext(false, false);
+		} else if (isprefix(action, "goto:") && fnEditor) {
+			GotoLineEnsureVisible(atoi(arg) - 1);
+		} else if (isprefix(action, "insert:") && fnEditor) {
+			SendEditorString(SCI_REPLACESEL, 0, arg);
+		} else if (isprefix(action, "macrocommand:")) {
+			ExecuteMacroCommand(arg);
 		} else if (isprefix(action, "macroenable:")) {
 			macrosEnabled = atoi(arg);
 			SetToolsMenu();
 		} else if (isprefix(action, "macrolist:")) {
 			StartMacroList(arg);
-		} else if (isprefix(action, "currentmacro:")) {
-			currentMacro = arg;
-		} else if (isprefix(action, "macrocommand:")) {
-			ExecuteMacroCommand(arg);
-		} else if (isprefix(action, "askfilename:")) {
-			extender->OnMacro("filename", fullPath);
-		} else if (isprefix(action, "insert:") && fnEditor) {
-			SendEditorString(SCI_REPLACESEL, 0, arg);
+		} else if (isprefix(action, "menucommand:")) {
+			MenuCommand(atoi(arg));
+		} else if (isprefix(action, "open:")) {
+			Open(arg);
+		} else if (isprefix(action, "output:") && fnOutput) {
+			SendOutput(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(arg));
+		} else if (isprefix(action, "property:")) {
+			PropertyFromDirector(arg);
+		} else if (isprefix(action, "quit:")) {
+			QuitProgram();
 		} else if (isprefix(action, "replaceall:") && fnEditor) {
 			if (len > strlen(action)) {
 				char *arg2 = arg + strlen(arg) + 1;
@@ -3358,24 +3378,6 @@ void SciTEBase::PerformOne(char *action) {
 			}
 		} else if (isprefix(action, "saveas:")) {
 			SaveAs(arg);
-		} else if (isprefix(action, "close:")) {
-			Close();
-			WindowSetFocus(wEditor);
-		} else if (isprefix(action, "quit:")) {
-			QuitProgram();
-		} else if (isprefix(action, "exportashtml:")) {
-			SaveToHTML(arg);
-		} else if (isprefix(action, "exportasrtf:")) {
-			SaveToRTF(arg);
-		} else if (isprefix(action, "exportaspdf:")) {
-			SaveToPDF(arg);
-		} else if (isprefix(action, "menucommand:")) {
-			MenuCommand(atoi(arg));
-		} else if (isprefix(action, "cwd:")) {
-			if (chdir(arg) != 0) {
-				SString msg = LocaliseMessage("Invalid directory '^0'.", arg);
-				WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-			}
 		}
 	}
 }
