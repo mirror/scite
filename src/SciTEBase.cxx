@@ -182,6 +182,7 @@ const char *contributors[] = {
                                  "Hans Hagen",
                                  "Jim Cape",
                                  "Roland Walter",
+                                 "Brian Mosher",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -2484,7 +2485,18 @@ void SciTEBase::SetTextProperties(
 	ps.Set("SelLength", temp);
 	int selFirstLine = SendEditor(SCI_LINEFROMPOSITION, crange.cpMin);
 	int selLastLine = SendEditor(SCI_LINEFROMPOSITION, crange.cpMax);
-	sprintf(temp, "%d", selLastLine - selFirstLine + 1);
+	int caretPos = SendEditor(SCI_GETCURRENTPOS);
+	int selAnchor = SendEditor(SCI_GETANCHOR);
+	if (0 == (crange.cpMax - crange.cpMin)) {
+		sprintf(temp, "%d", 0);
+	} else if (selLastLine == selFirstLine) {
+		sprintf(temp, "%d", 1);
+	} else if ((SendEditor(SCI_GETCOLUMN, caretPos) == 0 && (selAnchor <= caretPos)) ||
+ 		((SendEditor( SCI_GETCOLUMN, selAnchor) == 0) && (selAnchor > caretPos ))) {
+		sprintf(temp, "%d", selLastLine - selFirstLine);
+	} else {
+		sprintf(temp, "%d", selLastLine - selFirstLine + 1);
+	}
 	ps.Set("SelHeight", temp);
 }
 
