@@ -1473,6 +1473,7 @@ static char * build_xpm[] = {
 "    #!!+++'.))+.    ",
 "        '+;))!!'    "};
 /* XPM */
+/*
 static char * xbuild_xpm[] = {
 "20 20 17 1",
 " 	c None",
@@ -1512,6 +1513,7 @@ static char * xbuild_xpm[] = {
 "      +#,+))#+      ",
 "      ,#>))+#,      ",
 "      @!!##!!@      "};
+*/
 /* XPM */
 static char * compile_xpm[] = {
 "20 20 16 1",
