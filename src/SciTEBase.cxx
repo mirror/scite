@@ -1315,6 +1315,7 @@ void SciTEBase::ReadProperties() {
 
 
 void SciTEBase::SetOverrideLanguage(int cmdID) {
+	EnsureRangeVisible(0, SendEditor(SCI_GETLENGTH));
 	// Zero all the style bytes
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
 
