@@ -88,6 +88,8 @@ protected:
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
 	GtkWidget *toggleRegExp;
+	GtkWidget *toggleNoWrap;
+	GtkWidget *toggleUnSlash;
 	GtkWidget *toggleReverse;
 	GtkWidget *toggleRec;
 	GtkWidget *comboFind;
@@ -190,6 +192,7 @@ protected:
 	static void FRFindSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FRReplaceSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FRReplaceAllSignal(GtkWidget *w, SciTEGTK *scitew);
+	static void FRReplaceInSelectionSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	static void IOSignal(SciTEGTK *scitew);
 
@@ -256,6 +259,8 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	toggleWord = 0;
 	toggleCase = 0;
 	toggleRegExp = 0;
+	toggleNoWrap = 0;
+	toggleUnSlash = 0;
 	toggleReverse = 0;
 	comboFind = 0;
 	comboReplace = 0;
@@ -911,6 +916,8 @@ void SciTEGTK::FindReplaceGrabFields() {
 	wholeWord = GTK_TOGGLE_BUTTON(toggleWord)->active;
 	matchCase = GTK_TOGGLE_BUTTON(toggleCase)->active;
 	regExp = GTK_TOGGLE_BUTTON(toggleRegExp)->active;
+	noWrap = GTK_TOGGLE_BUTTON(toggleNoWrap)->active;
+	unSlash = GTK_TOGGLE_BUTTON(toggleUnSlash)->active;
 	reverseFind = GTK_TOGGLE_BUTTON(toggleReverse)->active;
 }
 
@@ -944,7 +951,15 @@ void SciTEGTK::FRReplaceSignal(GtkWidget *, SciTEGTK *scitew) {
 void SciTEGTK::FRReplaceAllSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->FindReplaceGrabFields();
 	if (scitew->findWhat[0]) {
-		scitew->ReplaceAll();
+		scitew->ReplaceAll(false);
+		scitew->wFindReplace.Destroy();
+	}
+}
+
+void SciTEGTK::FRReplaceInSelectionSignal(GtkWidget *, SciTEGTK *scitew) {
+	scitew->FindReplaceGrabFields();
+	if (scitew->findWhat[0]) {
+		scitew->ReplaceAll(true);
 		scitew->wFindReplace.Destroy();
 	}
 }
@@ -1328,6 +1343,15 @@ void SciTEGTK::GoLineDialog() {
 
 void SciTEGTK::TabSizeDialog() {}
 
+static GtkWidget *MakeToggle(const char *text, GtkAccelGroup *accel_group, bool active) {
+	GtkWidget *toggle = gtk_check_button_new_with_label("");
+	guint Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggle)->child), text);
+	gtk_widget_add_accelerator(toggle, "clicked", accel_group,
+		Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle), active);
+	return toggle;
+}
+
 void SciTEGTK::FindReplace(bool replace) {
 	guint Key;
 	GtkAccelGroup *accel_group;
@@ -1395,85 +1419,78 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	// Whole Word
-	toggleWord = gtk_check_button_new_with_label("");
-	GTK_WIDGET_UNSET_FLAGS(toggleWord, GTK_CAN_FOCUS);
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleWord)->child), "Whole _Word");
-	gtk_widget_add_accelerator(toggleWord, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	toggleWord = MakeToggle("Match _whole word only", accel_group, wholeWord);
 	gtk_table_attach(GTK_TABLE(table), toggleWord, 0, 2, row, row + 1, opts, opts, 3, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleWord), wholeWord);
-	gtk_widget_show(toggleWord);
 	row++;
 
 	// Case Sensitive
-	toggleCase = gtk_check_button_new_with_label("");
-	GTK_WIDGET_UNSET_FLAGS(toggleCase, GTK_CAN_FOCUS);
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleCase)->child), "Case _Sensitive");
-	gtk_widget_add_accelerator(toggleCase, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	toggleCase = MakeToggle("Match _case", accel_group, matchCase);
 	gtk_table_attach(GTK_TABLE(table), toggleCase, 0, 2, row, row + 1, opts, opts, 3, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleCase), matchCase);
-	gtk_widget_show(toggleCase);
 	row++;
 
 	// Regular Expression
-	toggleRegExp = gtk_check_button_new_with_label("");
-	GTK_WIDGET_UNSET_FLAGS(toggleRegExp, GTK_CAN_FOCUS);
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleRegExp)->child), "Regular _Expression");
-	gtk_widget_add_accelerator(toggleRegExp, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	toggleRegExp = MakeToggle("Regular _Expression", accel_group, regExp);
 	gtk_table_attach(GTK_TABLE(table), toggleRegExp, 0, 2, row, row + 1, opts, opts, 3, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleRegExp), regExp);
-	gtk_widget_show(toggleRegExp);
+	row++;
+
+	// No Wrap Around
+	toggleNoWrap = MakeToggle("N_o wrap around", accel_group, noWrap);
+	gtk_table_attach(GTK_TABLE(table), toggleNoWrap, 0, 2, row, row + 1, opts, opts, 3, 0);
+	row++;
+
+	// Transform backslash expressions
+	toggleUnSlash = MakeToggle("Transform _backslash expressions", accel_group, unSlash);
+	gtk_table_attach(GTK_TABLE(table), toggleUnSlash, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Reverse
-	toggleReverse = gtk_check_button_new_with_label("");
-	GTK_WIDGET_UNSET_FLAGS(toggleReverse, GTK_CAN_FOCUS);
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleReverse)->child), "Re_verse Direction");
-	gtk_widget_add_accelerator(toggleReverse, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	toggleReverse = MakeToggle("Re_verse Direction", accel_group, reverseFind);
 	gtk_table_attach(GTK_TABLE(table), toggleReverse, 0, 2, row, row + 1, opts, opts, 3, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleReverse), reverseFind);
-	gtk_widget_show(toggleReverse);
+	row++;
 
-	gtk_widget_show(table);
+	gtk_widget_show_all(table);
 
 	GtkWidget *buttonFind = gtk_button_new_with_label("");
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonFind)->child), "F_ind");
-	//GTK_WIDGET_UNSET_FLAGS (buttonFind, GTK_CAN_FOCUS);
 	GTK_WIDGET_SET_FLAGS(buttonFind, GTK_CAN_DEFAULT);
 	gtk_widget_add_accelerator(buttonFind, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_signal_connect(GTK_OBJECT(buttonFind),
 	                   "clicked", GtkSignalFunc(FRFindSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 	                   buttonFind, TRUE, TRUE, 0);
-	gtk_widget_show(buttonFind);
 
 	if (replace) {
 		GtkWidget *buttonReplace = gtk_button_new_with_label("");
 		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplace)->child), "_Replace");
 		gtk_widget_add_accelerator(	buttonReplace, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-		//GTK_WIDGET_UNSET_FLAGS (buttonReplace, GTK_CAN_FOCUS);
 		GTK_WIDGET_SET_FLAGS (buttonReplace, GTK_CAN_DEFAULT);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 		                   buttonReplace, TRUE, TRUE, 0);
 		gtk_signal_connect(GTK_OBJECT(buttonReplace),
 		                   "clicked", GtkSignalFunc(FRReplaceSignal), this);
-		gtk_widget_show(buttonReplace);
 
 		GtkWidget *buttonReplaceAll = gtk_button_new_with_label("");
 		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplaceAll)->child), "Replace _All");
-		gtk_widget_add_accelerator(	buttonReplaceAll, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-		//GTK_WIDGET_UNSET_FLAGS (buttonReplaceAll, GTK_CAN_FOCUS);
+		gtk_widget_add_accelerator(buttonReplaceAll, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 		GTK_WIDGET_SET_FLAGS (buttonReplaceAll, GTK_CAN_DEFAULT);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 		                   buttonReplaceAll, TRUE, TRUE, 0);
 		gtk_signal_connect(GTK_OBJECT(buttonReplaceAll),
 		                   "clicked", GtkSignalFunc(FRReplaceAllSignal), this);
-		gtk_widget_show(buttonReplaceAll);
+
+		GtkWidget *buttonReplaceInSelection = gtk_button_new_with_label("");
+		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplaceInSelection)->child), "Replace in _Selection");
+		gtk_widget_add_accelerator(buttonReplaceInSelection, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+		GTK_WIDGET_SET_FLAGS (buttonReplaceInSelection, GTK_CAN_DEFAULT);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
+		                   buttonReplaceInSelection, TRUE, TRUE, 0);
+		gtk_signal_connect(GTK_OBJECT(buttonReplaceInSelection),
+		                   "clicked", GtkSignalFunc(FRReplaceInSelectionSignal), this);
 	}
 
 	GtkWidget *buttonCancel = gtk_button_new_with_label("");
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonCancel)->child), "_Cancel");
 	gtk_widget_add_accelerator(	buttonCancel, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-	//GTK_WIDGET_UNSET_FLAGS (buttonCancel, GTK_CAN_FOCUS);
 	GTK_WIDGET_SET_FLAGS (buttonCancel, GTK_CAN_DEFAULT);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 	                   buttonCancel, TRUE, TRUE, 0);
@@ -1482,7 +1499,8 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_signal_connect(GTK_OBJECT(wFindReplace.GetID()),
 	                   "key_press_event", GtkSignalFunc(FRKeySignal),
 	                   this);
-	gtk_widget_show(buttonCancel);
+
+	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(wFindReplace.GetID())->action_area));
 
 	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(buttonFind), GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(GTK_WIDGET(buttonFind));
@@ -1832,9 +1850,9 @@ void SciTEGTK::CreateMenu() {
 	    {"/Edit/Complete S_ymbol", "<control>I", menuSig, IDM_COMPLETE, 0},
 	    {"/Edit/Complete _Word", "<control>Return", menuSig, IDM_COMPLETEWORD, 0},
 	    {"/Edit/_Expand Abbreviation", "<control>B", menuSig, IDM_ABBREV, 0},
-	    {"/Edit/Co_mment or Uncomment Selection", "<control>K", menuSig, IDM_COMMENT, 0},
-	    {"/Edit/Bo_x Comment", "<control><alt>K", menuSig, IDM_BOX_COMMENT, 0},
-	    {"/Edit/Stream Comme_nt", "<control><shift>K", menuSig, IDM_STREAM_COMMENT, 0},
+	    {"/Edit/Co_mment or Uncomment Selection", "<control>Q", menuSig, IDM_COMMENT, 0},
+	    {"/Edit/Bo_x Comment", "<control><alt>Q", menuSig, IDM_BOX_COMMENT, 0},
+	    {"/Edit/Stream Comme_nt", "<control><shift>Q", menuSig, IDM_STREAM_COMMENT, 0},
 	    {"/Edit/Make _Selection Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
 	    {"/Edit/Make Selection _Lowercase", "<control>U", menuSig, IDM_LWRCASE, 0},
 
@@ -1868,7 +1886,6 @@ void SciTEGTK::CreateMenu() {
 	    {"/View/_Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
 	    {"/View/_Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
 	    {"/View/_Output", "F8", menuSig, IDM_TOGGLEOUTPUT, "<CheckItem>"},
-	    {"/View/Fi_xed Font", "<control>F11", menuSig, IDM_MONOFONT, "<CheckItem>"},
 
 	    {"/_Tools", NULL, NULL, 0, "<Branch>"},
 	    {"/_Tools/tear", NULL, NULL, 0, "<Tearoff>"},
@@ -1928,6 +1945,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Use lexer/Pascal", "", menuSig, IDM_LEXER_PASCAL, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/Avenue", "", menuSig, IDM_LEXER_AVE, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/Ada", "", menuSig, IDM_LEXER_ADA, "/Options/Use lexer/none"},
+	    {"/Options/Use _monospaced font", "<control>F11", menuSig, IDM_MONOFONT, 0},
 	    {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Open Local _Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
 	    {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},

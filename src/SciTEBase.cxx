@@ -374,30 +374,13 @@ int SciTEBase::LengthDocument() {
 	return SendEditor(SCI_GETLENGTH);
 }
 
-/**
- * Copy in @a text buffer up to @a sizeText characters, from either
- * the current line (if @a line == -1) or
- * the line number given in @a line.
- * @return The position of the caret within the current line if @a line == -1,
- * or the number of characters copied if line is specified.
- */
 int SciTEBase::GetLine(char *text, int sizeText, int line) {
 	if (line == -1) {
 		return SendEditor(SCI_GETCURLINE, sizeText, reinterpret_cast<long>(text));
 	} else {
-		// Set the size of the buffer in the first word of the buffer
-		short *pBufSize = reinterpret_cast<short *>(text);
-		*pBufSize = static_cast<short>(sizeText);
-		// Here, we use EM_GETLINE, because it allows to indicate the max. length of the buffer
-		int charNb = SendEditor(EM_GETLINE, line, reinterpret_cast<long>(text));
-		// Following MS spec. of EM_GETLINE, the copied line does not contain a terminating null character.
-		// So we add it to be consistent...
-		if (charNb == sizeText) {
-			// Truncated line
-			charNb--;
-		}
-		text[charNb] = '\0';
-		return charNb;
+		short buflen = static_cast<short>(sizeText);
+		memcpy(text, &buflen, sizeof(buflen));
+		return SendEditor(SCI_GETLINE, line, reinterpret_cast<long>(text));
 	}
 }
 
