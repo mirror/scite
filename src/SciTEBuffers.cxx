@@ -475,11 +475,16 @@ void SciTEBase::New() {
 }
 
 void SciTEBase::Close(bool updateUI) {
+	bool closingLast;
+
 	if (buffers.size == 1) {
 		// With no buffer list, Close means close from MRU
+		closingLast = !(recentFileStack[0].IsSet());
+
 		buffers.buffers[0].Init();
 		buffers.buffers[0].useMonoFont = useMonoFont;
 		fullPath[0] = '\0';
+		ClearDocument(); //avoid double are-you-sure
 		StackMenu(0);
 	} else {
 		if (buffers.current >= 0 && buffers.current < buffers.length) {
@@ -487,7 +492,7 @@ void SciTEBase::Close(bool updateUI) {
 			Buffer buff = buffers.buffers[buffers.current];
 			AddFileToStack(buff.FullPath(), buff.selection, buff.scrollPosition);
 		}
-		bool closingLast = buffers.length == 1;
+		closingLast = (buffers.length == 1);
 		if (closingLast) {
 			buffers.buffers[0].Init();
 			buffers.buffers[0].useMonoFont = useMonoFont;
@@ -500,6 +505,7 @@ void SciTEBase::Close(bool updateUI) {
 		unicodeMode = bufferNext.unicodeMode;
 		fileModTime = bufferNext.fileModTime;
 		overrideExtension = bufferNext.overrideExtension;
+		
 		if (updateUI)
 			SetFileName(bufferNext.FullPath());
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
@@ -521,6 +527,10 @@ void SciTEBase::Close(bool updateUI) {
 	if (updateUI) {
 		BuffersMenu();
 		UpdateStatusBar(true);
+	}
+
+	if (closingLast && props.GetInt("quit.on.close.last")) {
+		QuitProgram();
 	}
 }
 
