@@ -762,7 +762,7 @@ void SciTEGTK::ExecuteNext() {
 }	
 
 void SciTEGTK::ContinueExecute() {
-	char buf[256];
+	char buf[8192];
 	int count = 0;
 	count = read(fdFIFO, buf, sizeof(buf) - 1 );
 	if (count < 0) {
