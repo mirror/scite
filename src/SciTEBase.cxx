@@ -1252,7 +1252,8 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
 	}
 	// Priority goes to character before caret
-	if (charBefore && strchr("[](){}", charBefore) && (styleBefore == bracesStyleCheck)) {
+	if (charBefore && strchr("[](){}", charBefore) && 
+		((styleBefore == bracesStyleCheck) || (!bracesStyle))) {
 		braceAtCaret = caretPos - 1;
 	}
 	bool colonMode = false;
