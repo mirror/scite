@@ -516,7 +516,7 @@ protected:
 	virtual void SaveSessionDialog() { };
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
 	bool Open(const char *file = 0, bool initialCmdLine = false,
-		bool forceLoad = false, bool maySaveIfDirty=true);
+		bool forceLoad = false, bool maySaveIfDirty=true, bool preserveUndo=false);
 	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad = false);
 	bool OpenSelected();
 	void Revert();

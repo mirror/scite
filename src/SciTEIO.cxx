@@ -451,7 +451,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 }
 
 bool SciTEBase::Open(const char *file, bool initialCmdLine,
-                     bool forceLoad, bool maySaveIfDirty) {
+                     bool forceLoad, bool maySaveIfDirty, bool preserveUndo) {
 	InitialiseBuffers();
 
 	if (!file) {
@@ -509,11 +509,19 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 	if (fileName[0]) {
 		SendEditor(SCI_SETREADONLY, 0);
 		SendEditor(SCI_CANCEL);
-		SendEditor(SCI_SETUNDOCOLLECTION, 0);
+		if (!preserveUndo) {
+			SendEditor(SCI_SETUNDOCOLLECTION, 0);
+		} else {
+			SendEditor(SCI_BEGINUNDOACTION);
+		}
 
 		OpenFile(initialCmdLine);
 
-		SendEditor(SCI_EMPTYUNDOBUFFER);
+		if (!preserveUndo) {
+			SendEditor(SCI_EMPTYUNDOBUFFER);
+		} else {
+			SendEditor(SCI_ENDUNDOACTION);
+		}
 		isReadOnly = props.GetInt("read.only");
 		SendEditor(SCI_SETREADONLY, isReadOnly);
 	}
@@ -670,14 +678,14 @@ void SciTEBase::CheckReload() {
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					dialogsOnScreen--;
 					if (decision == IDYES) {
-						Open(fullPathToCheck, false, true, false);
+						Open(fullPathToCheck, false, true, false, (0 != props.GetInt("reload.preserves.undo")));
 						DisplayAround(rf);
 					}
 					fileModLastAsk = newModTime;
 					entered = false;
 				}
 			} else {
-				Open(fullPathToCheck, false, true);
+				Open(fullPathToCheck, false, true, true, (0 != props.GetInt("reload.preserves.undo")));
 				DisplayAround(rf);
 			}
 		}
