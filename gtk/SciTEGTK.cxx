@@ -2005,6 +2005,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Use lexer/Apache Config", "", menuSig, IDM_LEXER_CONF, 0},
 	    {"/Options/Use lexer/Avenue", "", menuSig, IDM_LEXER_AVE, 0},
 	    {"/Options/Use lexer/_Batch", "", menuSig, IDM_LEXER_BATCH, 0},
+	    {"/Options/Use lexer/Bullant", "", menuSig, IDM_LEXER_BULLANT, 0},
 	    {"/Options/Use lexer/_C, C++", "", menuSig, IDM_LEXER_CPP, 0},
 	    {"/Options/Use lexer/C_#", "", menuSig, IDM_LEXER_CS, 0},
 	    {"/Options/Use lexer/_Difference", "", menuSig, IDM_LEXER_DIFF, 0},
