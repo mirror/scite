@@ -70,7 +70,6 @@ bool FilePath::SameNameAs(const char *other) const {
 #ifdef WIN32
 	return EqualCaseInsensitive(fileName.c_str(), other);
 #else
-
 	return fileName == other;
 #endif
 }
@@ -265,7 +264,6 @@ void SciTEBase::InitialiseBuffers() {
 			// Destroy command "View Tab Bar" in the menu "View"
 			DestroyMenuItem(menuView, IDM_VIEWTABBAR);
 #endif
-
 		}
 	}
 }
@@ -291,7 +289,6 @@ static void RecentFilePath(char *path, const char *name) {
 
 		*path = '\0';
 #endif
-
 	} else {
 		strcpy(path, where);
 		EnsureEndsWithPathSeparator(path);
@@ -547,7 +544,6 @@ void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
 	DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
 #if PLAT_WIN
-
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
 #endif
 
@@ -560,12 +556,11 @@ void SciTEBase::BuffersMenu() {
 		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, "");
 		for (pos = 0; pos < buffers.length; pos++) {
 			int itemID = bufferCmdID + pos;
-			char entry[MAX_PATH + 20];
+			char entry[MAX_PATH*2 + 20];
 			entry[0] = '\0';
-			char titleTab[MAX_PATH + 20];
+			char titleTab[MAX_PATH*2 + 20];
 			titleTab[0] = '\0';
 #if PLAT_WIN
-
 			if (pos < 10) {
 				sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
 				sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
@@ -577,7 +572,17 @@ void SciTEBase::BuffersMenu() {
 				strcat(entry, untitled.c_str());
 				strcat(titleTab, untitled.c_str());
 			} else {
-				strcat(entry, buffers.buffers[pos].FullPath());
+				SString path = buffers.buffers[pos].FullPath();
+#if PLAT_WIN
+				// Handle '&' characters in path, since they are interpreted in
+				// menues and tab names.
+				int amp = 0;
+				while ((amp = path.search("&", amp)) >= 0) {
+					path.insert(amp, "&");
+					amp += 2;
+				}
+#endif
+				strcat(entry, path.c_str());
 
 				char *cpDirEnd = strrchr(entry, pathSepChar);
 				if (cpDirEnd) {
@@ -606,7 +611,6 @@ void SciTEBase::BuffersMenu() {
 			::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
 			//::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
 #endif
-
 		}
 	}
 	CheckMenus();
@@ -631,10 +635,8 @@ void SciTEBase::SetFileStackMenu() {
 				char entry[MAX_PATH + 20];
 				entry[0] = '\0';
 #if PLAT_WIN
-
 				sprintf(entry, "&%d ", (stackPos + 1) % 10);
 #endif
-
 				strcat(entry, recentFileStack[stackPos].FullPath());
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, entry);
 			}
@@ -1028,7 +1030,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 					}
 					strncpy(sourcePath, &cdoc[j], i - j);
 					sourcePath[i - j] = 0;
-					//becouse usually the address is a searchPattern, lineNumber has to be evaluated later
+					// Because usually the address is a searchPattern, lineNumber has to be evaluated later
 					return 0;
 				}
 			}
@@ -1116,7 +1118,7 @@ void SciTEBase::GoMessage(int dir) {
 					}
 				}
 
-				//if ctag then get line number after search tag or use ctag line number
+				// If ctag then get line number after search tag or use ctag line number
 				if (style == SCE_ERR_CTAG) {
 					char cTag[200];
 					//without following focus GetCTag wouldn't work correct

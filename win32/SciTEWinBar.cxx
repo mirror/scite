@@ -41,7 +41,6 @@ void SciTEWin::Notify(SCNotification *notification) {
 	switch (notification->nmhdr.code) {
 	case TCN_SELCHANGE:
 		// Change of tab
-
 		if (notification->nmhdr.idFrom == IDM_TABWIN) {
 			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_GETCURSEL, (WPARAM)0, (LPARAM)0);
 			SetDocumentAt(index);
@@ -71,7 +70,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 	case TTN_GETDISPINFO:
 		// Ask for tooltip text
 		{
-			static char ttt[MAX_PATH];
+			static char ttt[MAX_PATH*2 + 1];
 			const char *ttext = 0;
 			NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
 			// Toolbar tooltips
@@ -136,7 +135,16 @@ void SciTEWin::Notify(SCNotification *notification) {
 					info.pt.y = ptClient.y;
 					int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
 					if (index >= 0) {
-						pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].FullPath());
+						SString path = buffers.buffers[index].FullPath();
+						// Handle '&' characters in path, since they are interpreted in
+						// tooltips.
+						int amp = 0;
+						while ((amp = path.search("&", amp)) >= 0) {
+							path.insert(amp, "&");
+							amp += 2;
+						}
+						strcpy(ttt, path.c_str());
+						pDispInfo->lpszText = const_cast<char *>(ttt);
 					}
 				}
 				break;
@@ -436,7 +444,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 		buff[0] = '\0';
 		MENUITEMINFO mii;
 		memset(&mii, 0, sizeof(mii));
-		// Explicitly use the struct size for NT 4 as otherwise 
+		// Explicitly use the struct size for NT 4 as otherwise
 		// GetMenuItemInfo will fail on NT 4.
 		//mii.cbSize = sizeof(mii);
 		mii.cbSize = 44;
