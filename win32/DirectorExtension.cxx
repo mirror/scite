@@ -18,6 +18,7 @@ static ExtensionAPI *host = 0;
 static DirectorExtension *pde = 0;
 static HWND wDirector = 0;
 static HWND wReceiver = 0;
+static bool startedByDirector = false;
 
 static void SendDirector(int typ, const char *path) {
 	//typ values :
@@ -25,10 +26,10 @@ static void SendDirector(int typ, const char *path) {
 	//SCPROJ_OPENED=2000 : ShowPath
 	//SCPROJ_SAVED=2001 : Refresh
 	HWND dest = wDirector; 
-	if (dest == 0) { //should disappear one day..
-		dest = ::FindWindowEx(NULL,NULL,(const char *)32770L,"Filer"); 
-		wDirector = dest; //defined in SciTEWin.h
-	}
+	//if (dest == 0) { //should disappear one day..
+	//	dest = ::FindWindowEx(NULL,NULL,(const char *)32770L,"Filer"); 
+	//	wDirector = dest; //defined in SciTEWin.h
+	//}
 	if (dest != 0) {
 		if (typ == -1) {
 			SetForegroundWindow(dest);
@@ -50,12 +51,13 @@ static void CheckEnvironment(ExtensionAPI *host) {
 		return;
 	if (!wDirector) {
 		char *director = host->Property("director.hwnd");
-        if (director) {
+        	if (director && *director) {
+			startedByDirector = true;
 			wDirector = reinterpret_cast<HWND>(atoi(director));
-            // Director is just seen so identify this to it
-            SendDirector(SCD_IDENTIFY, "SciTE");
-        }
-        delete []director;
+			// Director is just seen so identify this to it
+			SendDirector(SCD_IDENTIFY, "SciTE");
+		}
+		delete []director;
 	}
 	char number[32];
 	sprintf(number, "%0d", reinterpret_cast<int>(wReceiver));
@@ -204,6 +206,8 @@ LRESULT DirectorExtension::HandleMessage(WPARAM wParam, LPARAM lParam) {
 			break;
 		case SCD_CLOSING:
 			wDirector = 0;
+			if (startedByDirector)
+				host->ShutDown();
 			break;
 	}
 	return 0;

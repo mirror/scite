@@ -481,6 +481,7 @@ protected:
 	bool OpenFromExtension(const char *path);
 	void SetProperty(const char *key, const char *val);
 	uptr_t GetInstance();
+	void ShutDown();
 
 public:
 

@@ -15,6 +15,7 @@ public:
 	virtual bool OpenFromExtension(const char *path)=0;
 	virtual void SetProperty(const char *key, const char *val)=0;
 	virtual uptr_t GetInstance()=0;
+	virtual void ShutDown()=0;
 };
 
 // Methods in extensions return true if they have completely handled and event and

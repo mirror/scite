@@ -2129,3 +2129,8 @@ void SciTEBase::SetProperty(const char *key, const char *val) {
 uptr_t SciTEBase::GetInstance() {
 	return 0;
 }
+
+void SciTEBase::ShutDown() {
+	QuitProgram();
+}
+
