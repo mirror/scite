@@ -75,16 +75,17 @@ static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 	return false;
 }
 
-bool PropSetFile::ReadLine(char *linebuf, bool ifIsTrue, const char *directoryForImports, SString imports[], int sizeImports) {
-	if (isalpha(linebuf[0]))    // If clause ends with first non-indented line
+bool PropSetFile::ReadLine(char *lineBuffer, bool ifIsTrue, const char *directoryForImports, SString imports[], int sizeImports) {
+	UnSlash(lineBuffer);
+	if (isalpha(lineBuffer[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
-	if (isprefix(linebuf, "if ")) {
-		const char *expr = linebuf + strlen("if") + 1;
+	if (isprefix(lineBuffer, "if ")) {
+		const char *expr = lineBuffer + strlen("if") + 1;
 		ifIsTrue = GetInt(expr);
-	} else if (isprefix(linebuf, "import ") && directoryForImports) {
+	} else if (isprefix(lineBuffer, "import ") && directoryForImports) {
 		char importPath[1024];
 		strcpy(importPath, directoryForImports);
-		strcat(importPath, linebuf + strlen("import") + 1);
+		strcat(importPath, lineBuffer + strlen("import") + 1);
 		strcat(importPath, ".properties");
 		if (imports) {
 			for (int i=0; i<sizeImports; i++) {
@@ -95,10 +96,10 @@ bool PropSetFile::ReadLine(char *linebuf, bool ifIsTrue, const char *directoryFo
 			}
 		}
 		Read(importPath, directoryForImports, imports, sizeImports);
-	} else if (isalpha(linebuf[0])) {
-		Set(linebuf);
-	} else if (isspace(linebuf[0]) && ifIsTrue) {
-		Set(linebuf);
+	} else if (isalpha(lineBuffer[0])) {
+		Set(lineBuffer);
+	} else if (isspace(lineBuffer[0]) && ifIsTrue) {
+		Set(lineBuffer);
 	}
 	return ifIsTrue;
 }
@@ -106,11 +107,11 @@ bool PropSetFile::ReadLine(char *linebuf, bool ifIsTrue, const char *directoryFo
 void PropSetFile::ReadFromMemory(const char *data, int len, const char *directoryForImports, 
 	SString imports[], int sizeImports) {
 	const char *pd = data;
-	char linebuf[60000];
+	char lineBuffer[60000];
 	bool ifIsTrue = true;
 	while (len > 0) {
-		GetFullLine(pd, len, linebuf, sizeof(linebuf));
-		ifIsTrue = ReadLine(linebuf, ifIsTrue, directoryForImports, imports, sizeImports);
+		GetFullLine(pd, len, lineBuffer, sizeof(lineBuffer));
+		ifIsTrue = ReadLine(lineBuffer, ifIsTrue, directoryForImports, imports, sizeImports);
 	}
 }
 
