@@ -28,6 +28,98 @@ const char appName[] = "Sc1";
 const char appName[] = "SciTE";
 #endif
 
+long SciTEKeys::ParseKeyCode(const char *mnemonic) {
+	int modsInKey = 0;
+	int keyval = -1;
+
+	if (mnemonic && *mnemonic) {
+		SString sKey = mnemonic;
+
+		if (sKey.contains("Ctrl+")) {
+			modsInKey |= SCMOD_CTRL;
+			sKey.remove("Ctrl+");
+		}
+		if (sKey.contains("Shift+")) {
+			modsInKey |= SCMOD_SHIFT;
+			sKey.remove("Shift+");
+		}
+		if (sKey.contains("Alt+")) {
+			modsInKey |= SCMOD_ALT;
+			sKey.remove("Alt+");
+		}
+
+		if (sKey.length() == 1) {
+			keyval = VkKeyScan(sKey[0]) & 0xFF;
+		} else if (sKey.length() > 1) {
+			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
+				sKey.remove("F");
+				int fkeyNum = sKey.value();
+				if (fkeyNum >= 1 && fkeyNum <= 12)
+					keyval = fkeyNum - 1 + VK_F1;
+			} else if ((sKey[0] == 'V') && (isdigit(sKey[1]))) {
+				sKey.remove("V");
+				int vkey = sKey.value();
+				if (vkey > 0 && vkey <= 0x7FFF)
+					keyval = vkey;
+			} else if (sKey.search("Keypad") == 0) {
+				sKey.remove("Keypad");
+				if (isdigit(sKey[0])) {
+					int keyNum = sKey.value();
+					if (keyNum >= 0 && keyNum <= 9)
+						keyval = keyNum + VK_NUMPAD0;
+				} else if (sKey == "Plus") {
+					keyval = VK_ADD;
+				} else if (sKey == "Minus") {
+					keyval = VK_SUBTRACT;
+				} else if (sKey == "Decimal") {
+					keyval = VK_DECIMAL;
+				} else if (sKey == "Divide") {
+					keyval = VK_DIVIDE;
+				} else if (sKey == "Multiply") {
+					keyval = VK_MULTIPLY;
+				}
+			} else if (sKey == "Left") {
+				keyval = VK_LEFT;
+			} else if (sKey == "Right") {
+				keyval = VK_RIGHT;
+			} else if (sKey == "Up") {
+				keyval = VK_UP;
+			} else if (sKey == "Down") {
+				keyval = VK_DOWN;
+			} else if (sKey == "Insert") {
+				keyval = VK_INSERT;
+			} else if (sKey == "End") {
+				keyval = VK_END;
+			} else if (sKey == "Home") {
+				keyval = VK_HOME;
+			} else if (sKey == "Enter") {
+				keyval = VK_RETURN;
+			} else if (sKey == "Space") {
+				keyval = VK_SPACE;
+			} else if (sKey == "Escape") {
+				keyval = VK_ESCAPE;
+			} else if (sKey == "Delete") {
+				keyval = VK_DELETE;
+			} else if (sKey == "PageUp") {
+				keyval = VK_PRIOR;
+			} else if (sKey == "PageDown") {
+				keyval = VK_NEXT;
+			}
+		}
+	}
+
+	return (keyval > 0) ? (keyval | (modsInKey<<16)) : 0;
+}
+
+bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
+	// TODO: are the 0x11 and 0x10 special cases needed, or are they
+	// just short-circuits?  If not needed, this test could removed,
+	// and perhaps the function moved to Platform.h as an inline.
+	if (keyval == 0x11 || keyval == 0x10)
+		return false;
+	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
+}
+
 HINSTANCE SciTEWin::hInstance = 0;
 char *SciTEWin::className = NULL;
 char *SciTEWin::classNameInternal = NULL;
@@ -1374,7 +1466,7 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 	// Alternative implementation:
 	// return SciTEKeys::MatchKeyCode(
 	//	 SciTEKeys::ParseKeyCode(sKey.c_str()), keyval, modifiers));
-	
+
 	if (keyval == 0x11)
 		return false;
 	if (keyval == 0x10)
@@ -1898,101 +1990,3 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 
 	return msg.wParam;
 }
-
-
-
-
-
-
-long SciTEKeys::ParseKeyCode(const char *mnemonic) {
-	int modsInKey = 0;
-	int keyval = -1;
-	
-	if (mnemonic && *mnemonic) {
-		SString sKey = mnemonic;
-
-		if (sKey.contains("Ctrl+")) {
-			modsInKey |= SCMOD_CTRL;
-			sKey.remove("Ctrl+");
-		}
-		if (sKey.contains("Shift+")) {
-			modsInKey |= SCMOD_SHIFT;
-			sKey.remove("Shift+");
-		}
-		if (sKey.contains("Alt+")) {
-			modsInKey |= SCMOD_ALT;
-			sKey.remove("Alt+");
-		}
-
-		if (sKey.length() == 1) {
-			keyval = VkKeyScan(sKey[0]) & 0xFF;
-		} else if (sKey.length() > 1) {
-			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
-				sKey.remove("F");
-				int fkeyNum = sKey.value();
-				if (fkeyNum >= 1 && fkeyNum <= 12)
-					keyval = fkeyNum - 1 + VK_F1;
-			} else if ((sKey[0] == 'V') && (isdigit(sKey[1]))) {
-				sKey.remove("V");
-				int vkey = sKey.value();
-				if (vkey > 0 && vkey <= 0x7FFF)
-					keyval = vkey;
-			} else if (sKey.search("Keypad") == 0) {
-				sKey.remove("Keypad");
-				if (isdigit(sKey[0])) {
-					int keyNum = sKey.value();
-					if (keyNum >= 0 && keyNum <= 9)
-						keyval = keyNum + VK_NUMPAD0;
-				} else if (sKey == "Plus") {
-					keyval = VK_ADD;
-				} else if (sKey == "Minus") {
-					keyval = VK_SUBTRACT;
-				} else if (sKey == "Decimal") {
-					keyval = VK_DECIMAL;
-				} else if (sKey == "Divide") {
-					keyval = VK_DIVIDE;
-				} else if (sKey == "Multiply") {
-					keyval = VK_MULTIPLY;
-				}
-			} else if (sKey == "Left") {
-				keyval = VK_LEFT;
-			} else if (sKey == "Right") {
-				keyval = VK_RIGHT;
-			} else if (sKey == "Up") {
-				keyval = VK_UP;
-			} else if (sKey == "Down") {
-				keyval = VK_DOWN;
-			} else if (sKey == "Insert") {
-				keyval = VK_INSERT;
-			} else if (sKey == "End") {
-				keyval = VK_END;
-			} else if (sKey == "Home") {
-				keyval = VK_HOME;
-			} else if (sKey == "Enter") {
-				keyval = VK_RETURN;
-			} else if (sKey == "Space") {
-				keyval = VK_SPACE;
-			} else if (sKey == "Escape") {
-				keyval = VK_ESCAPE;
-			} else if (sKey == "Delete") {
-				keyval = VK_DELETE;
-			} else if (sKey == "PageUp") {
-				keyval = VK_PRIOR;
-			} else if (sKey == "PageDown") {
-				keyval = VK_NEXT;
-			}
-		}
-	}
-
-	return (keyval > 0) ? (keyval | (modsInKey<<16)) : 0;
-}
-
-bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
-	// TODO: are the 0x11 and 0x10 special cases needed, or are they
-	// just short-circuits?  If not needed, this test could removed,
-	// and perhaps the function moved to Platform.h as an inline.
-	if (keyval == 0x11 || keyval == 0x10)
-		return false;
-	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
-}
-
