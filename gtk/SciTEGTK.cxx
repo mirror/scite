@@ -2738,6 +2738,13 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	gtk_main();
 }
 
+// Avoid zombie detached processes by reaping their exit statuses when 
+// they are shut down.
+void child_signal(int) {
+     int status = 0;
+     wait(&status);
+}
+
 int main(int argc, char *argv[]) {
 #ifdef LUA_SCRIPTING
 	LuaExtension luaExtender;
@@ -2750,6 +2757,8 @@ int main(int argc, char *argv[]) {
 	Extension *extender = 0;
 #endif
 #endif
+
+	signal(SIGCHLD, child_signal);
 
 #ifdef __vms
 	// Store the path part of the module name
