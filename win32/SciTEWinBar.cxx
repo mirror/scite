@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEWinBar.cxx
  ** Bar and menu code for the Windows version of the editor.
- **/ 
+ **/
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -381,7 +381,7 @@ void SciTEWin::MakeAccelerator(SString sAccelerator, ACCEL &Accel) {
 		if (isdigit(s[0])) {
 			int keyNum = s.value();
 			Accel.key = static_cast<WORD>(keyNum + VK_NUMPAD0);
-		} else
+		} else {
 			switch (s[0]) {
 			case '*':
 				Accel.key = VK_MULTIPLY;
@@ -399,6 +399,7 @@ void SciTEWin::MakeAccelerator(SString sAccelerator, ACCEL &Accel) {
 				Accel.key = 0;
 				break;
 			}
+		}
 	}
 }
 
@@ -406,19 +407,22 @@ void SciTEWin::MakeAccelerator(SString sAccelerator, ACCEL &Accel) {
 SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int) {
 #ifdef LOCALISE_ACCELERATORS_WORKED
 	SString translation = LocaliseString(pAccelerator, true);
-	int AccelCount = CopyAcceleratorTable(hAccTable, NULL, 0);
+	int AccelCount = ::CopyAcceleratorTable(hAccTable, NULL, 0);
 	ACCEL *AccelTable = new ACCEL[AccelCount];
-	CopyAcceleratorTable(hAccTable, AccelTable, AccelCount);
-	for (int i = 0; i < AccelCount; i++)
-		if (AccelTable[i].cmd == cmd)
+	::CopyAcceleratorTable(hAccTable, AccelTable, AccelCount);
+	for (int i = 0; i < AccelCount; i++) {
+		if (AccelTable[i].cmd == cmd) {
 			MakeAccelerator(translation, AccelTable[i]);
+		}
+	}
 
-	DestroyAcceleratorTable(hAccTable);
-	hAccTable = CreateAcceleratorTable(AccelTable, AccelCount);
+	::DestroyAcceleratorTable(hAccTable);
+	hAccTable = ::CreateAcceleratorTable(AccelTable, AccelCount);
 	delete []AccelTable;
 
-	if (translation.contains("null"))
+	if (translation.contains("null")) {
 		translation.clear();
+	}
 
 	return translation;
 #else
@@ -500,7 +504,7 @@ void SciTEWin::LocaliseDialog(HWND wDialog) {
 	HWND wChild = ::GetWindow(wDialog, GW_CHILD);
 	while (wChild) {
 		LocaliseControl(wChild);
-		wChild = GetWindow(wChild, GW_HWNDNEXT);
+		wChild = ::GetWindow(wChild, GW_HWNDNEXT);
 	}
 }
 
@@ -520,25 +524,25 @@ struct BarButton {
 };
 
 static BarButton bbs[] = {
-                             { -1, 0 },
-                             { STD_FILENEW, IDM_NEW },
-                             { STD_FILEOPEN, IDM_OPEN },
-                             { STD_FILESAVE, IDM_SAVE },
-                             { 0, IDM_CLOSE },
-                             { -1, 0 },
-                             { STD_PRINT, IDM_PRINT },
-                             { -1, 0 },
-                             { STD_CUT, IDM_CUT },
-                             { STD_COPY, IDM_COPY },
-                             { STD_PASTE, IDM_PASTE },
-                             { STD_DELETE, IDM_CLEAR },
-                             { -1, 0 },
-                             { STD_UNDO, IDM_UNDO },
-                             { STD_REDOW, IDM_REDO },
-                             { -1, 0 },
-                             { STD_FIND, IDM_FIND },
-                             { STD_REPLACE, IDM_REPLACE },
-                         };
+    { -1,           0 },
+    { STD_FILENEW,  IDM_NEW },
+    { STD_FILEOPEN, IDM_OPEN },
+    { STD_FILESAVE, IDM_SAVE },
+    { 0,            IDM_CLOSE },
+    { -1,           0 },
+    { STD_PRINT,    IDM_PRINT },
+    { -1,           0 },
+    { STD_CUT,      IDM_CUT },
+    { STD_COPY,     IDM_COPY },
+    { STD_PASTE,    IDM_PASTE },
+    { STD_DELETE,   IDM_CLEAR },
+    { -1,           0 },
+    { STD_UNDO,     IDM_UNDO },
+    { STD_REDOW,    IDM_REDO },
+    { -1,           0 },
+    { STD_FIND,     IDM_FIND },
+    { STD_REPLACE,  IDM_REPLACE },
+};
 
 /**
  * Create all the needed windows.
@@ -604,17 +608,17 @@ void SciTEWin::Creation() {
 	::DragAcceptFiles(MainHWND(), true);
 
 	HWND hwndToolBar = ::CreateWindowEx(
-	                       0,
-	                       TOOLBARCLASSNAME,
-	                       "",
-	                       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-	                       TBSTYLE_FLAT | TBSTYLE_TOOLTIPS,
-	                       0, 0,
-	                       100, heightTools,
-	                       MainHWND(),
-	                       reinterpret_cast<HMENU>(IDM_TOOLWIN),
-	                       hInstance,
-	                       0);
+	               0,
+	               TOOLBARCLASSNAME,
+	               "",
+	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS,
+	               0, 0,
+	               100, heightTools,
+	               MainHWND(),
+	               reinterpret_cast<HMENU>(IDM_TOOLWIN),
+	               hInstance,
+	               0);
 	wToolBar = hwndToolBar;
 
 	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
@@ -680,7 +684,7 @@ void SciTEWin::Creation() {
 	                 0,
 	                 STATUSCLASSNAME,
 	                 "",
-	                 WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPSIBLINGS,
+	                 WS_CHILD | WS_CLIPSIBLINGS,
 	                 0, 0,
 	                 100, heightStatus,
 	                 MainHWND(),

@@ -51,7 +51,7 @@
     <p>
 	Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
 	feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
-	only one file will be visible. SciTE's initial configuration only allows one file to be in memory 
+	only one file will be visible. SciTE's initial configuration only allows one file to be in memory
 	at once but this can be modified by changing the value of the buffers property. Rectangular
 	regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
 	key on GTK+ while dragging the mouse over the text.
@@ -151,8 +151,8 @@ NameError: mistake
       command.subsystem option can be used to define tools that run in GUI mode. The default
       subsystem, 0, is for command line programs, 1 is for programs which create their own windows,
       and 2 is for using the ShellExecute call. ShellExecute is a good way to open HTML files and
-      similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an 
-      internal extension or director extension, 4 is for calling the Windows specific HtmlHelp program 
+      similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an
+      internal extension or director extension, 4 is for calling the Windows specific HtmlHelp program
       and 5 is for calling the Windows specific WinHelp function.
     </p>
     <h3>
@@ -164,10 +164,10 @@ NameError: mistake
        commands of ':' as the first character that is not '.' or alphabetic.
        Properties use the syntax used in property set files and override any
        properties set in property files. If there is no value given for a property, it is set to 1.
-       Double quotes may be placed around arguments that contain spaces but they must be 
+       Double quotes may be placed around arguments that contain spaces but they must be
        placed around the whole argument, not just around a file name, so "-open:x y.txt" works but
        -open:"x y.txt" doesn't.
-       On Linux, the standard shell quoting is available. 
+       On Linux, the standard shell quoting is available.
        The "-p" argument causes SciTE to print the file and then exit.
     </p>
     <p>
@@ -259,7 +259,7 @@ NameError: mistake
      <p>
 	A session is a list of file names. You can save a complete set of your
 	currently opened buffers as a session for fast batch-loading in the
-	future. 
+	future.
 	Sessions are stored as plain text files with the extension ".ses".
      </p>
      <p>
@@ -316,22 +316,22 @@ NameError: mistake
       checked as they will have to be modified to work for many people.
     </p>
     <p>
-      Language settings are determined from the file extension but this can be changed 
-      by selecting anothr language from the Language menu. The language menu can be 
+      Language settings are determined from the file extension but this can be changed
+      by selecting anothr language from the Language menu. The language menu can be
       changed with the menu.language property.
     </p>
     <h3>
        Find and Replace
     </h3>
     <p>
-       SciTE has options to allow searching for words, regular expressions, 
-       matching case, in the reverse direction, wrapping around the end of the 
-       document. 
-       C style backslash escapes which are listed in the command line 
-       arguments section, may be used to search and replace control 
+       SciTE has options to allow searching for words, regular expressions,
+       matching case, in the reverse direction, wrapping around the end of the
+       document.
+       C style backslash escapes which are listed in the command line
+       arguments section, may be used to search and replace control
        characters.
-       Replacements can be made individually, over the current selection or 
-       over the whole file. When regular expressions are used tagged 
+       Replacements can be made individually, over the current selection or
+       over the whole file. When regular expressions are used tagged
        subexpressions can be used in the replacement text.
     </p>
     <p>
@@ -425,18 +425,18 @@ NameError: mistake
        Abbreviations
     </h3>
     <p>
-       To use an abbreviation, type it and use the Expand Abbreviation 
-       command or the Ctrl+B key. The abbreviation is replaced by an 
-       expansion defined in the Abbreviations file. You can open the 
+       To use an abbreviation, type it and use the Expand Abbreviation
+       command or the Ctrl+B key. The abbreviation is replaced by an
+       expansion defined in the Abbreviations file. You can open the
        Abbreviations file with a command in the Options menu and
        add abbreviations.
     </p>
     <p>
-       Each line in the files looks like "abbreviation=expansion". 
+       Each line in the files looks like "abbreviation=expansion".
        An expansion may contain new line characters indicated by '\n' and
-       a caret position indicated by the '|' character. To include a literal '|' 
+       a caret position indicated by the '|' character. To include a literal '|'
        character, use '||'.
-       Some simple examples are included in the distributed Abbreviations 
+       Some simple examples are included in the distributed Abbreviations
        file.
     </p>
     <h3>
@@ -556,21 +556,21 @@ NameError: mistake
        Command parameters and prompting
     </h3>
     <p>
-      SciTE has 4 properties $(1) .. $(4) which can be used to run commands with 
-      changeable parameters. To set the parameter values, use the View | Parameters 
-      command to view the modeless Parameters dialog which shows the current values 
-      of these parameters and allows setting new values. The accelerator keys for the main 
-      window remain active while this dialog is displayed, so it can be used to rapidly run 
-      a command several times with different parameters. Alternatively, a command can be 
+      SciTE has 4 properties $(1) .. $(4) which can be used to run commands with
+      changeable parameters. To set the parameter values, use the View | Parameters
+      command to view the modeless Parameters dialog which shows the current values
+      of these parameters and allows setting new values. The accelerator keys for the main
+      window remain active while this dialog is displayed, so it can be used to rapidly run
+      a command several times with different parameters. Alternatively, a command can be
       made to display the modal Parameters dialog when executed by starting the
-      command with a '*' which is otherwise ignored. If the modeless Parameters dialog is 
+      command with a '*' which is otherwise ignored. If the modeless Parameters dialog is
       already visible, then the '*' is ignored.
     </p>
     <h3>
        Defined variables in properties files
     </h3>
     <p>
-      Some properties are only available on 
+      Some properties are only available on
       <span class="windowsonly">Windows</span> or
       <span class="gtkonly">GTK+</span>.
     </p>
@@ -593,10 +593,10 @@ NameError: mistake
           position.tile
         </td>
         <td>
-          If there is another copy of SciTE open, set the initial window position to be 
+          If there is another copy of SciTE open, set the initial window position to be
 	  with the left side at position.left + position.width so that most of the time
-	  you can see both copies at once without overlap. 
-	  Works nicely if position.left set to 0 and position.width set to half of the 
+	  you can see both copies at once without overlap.
+	  Works nicely if position.left set to 0 and position.width set to half of the
 	  screen width.
         </td>
       </tr>
@@ -711,7 +711,7 @@ NameError: mistake
           full.screen.hides.menu
         </td>
         <td>
-	Setting this to 1 hides the menu bar when the Full Screen command is used on 
+	Setting this to 1 hides the menu bar when the Full Screen command is used on
 	Windows.
 	On GTK+ the menu is always visible.
         </td>
@@ -776,15 +776,18 @@ NameError: mistake
 	statusbar.text.<i>number</i>
         </td>
         <td>
-	The statusbar.text.1 option defines the information displayed in the status bar 
+	The statusbar.text.1 option defines the information displayed in the status bar
 	by default on all platforms.
-	Property values may be used in this text using the $() syntax. 
-	Extra properties defined for the status bar are LineNumber, ColumnNumber, 
-	SelHeight (the number of selected lines), ReadOnly 
-	(set to "READ" (localised) when in Read-Only mode), 
-	and OverType which is either "OVR" or "INS" depending on the overtype status.
-	On Windows only, further texts may be set as statusbar.text.2 ... and these may be 
-	cycled between by clicking the status bar. 
+	Property values may be used in this text using the $() syntax.
+          Commonly used properties are: ReadOnly, EOLMode, BufferLength,
+          NbOfLines (in buffer), SelLength (chars), SelHeight (lines).
+          Extra properties defined for the status bar are LineNumber, ColumnNumber, and
+          OverType which is either "OVR" or "INS" depending on the overtype status.
+          You can also use file properties, which, unlike those above, are not updated
+          on each keystroke: FileName or FileNameExt, FileDate and FileTime and
+          FileAttr. Plus CurrentDate and CurrentTime.<br />
+	On Windows only, further texts may be set as statusbar.text.2 ... and these may be
+          cycled between by clicking the status bar.<br />
 	The statusbar.number option defines how many texts are to be cycled through.
         </td>
       </tr>
@@ -829,11 +832,11 @@ NameError: mistake
            check.if.already.open
         </td>
         <td>
-	When this option is set and SciTE is started, it checks to see if 
+	When this option is set and SciTE is started, it checks to see if
 	there are any other instances of SciTE open. If there is, another
-	instance is activated and this one exits. On GTK+ the instance with the 
+	instance is activated and this one exits. On GTK+ the instance with the
 	file already open as the command line argument is switched to.
-	On Windows an arbitrary instance is chosen and asked to open the 
+	On Windows an arbitrary instance is chosen and asked to open the
 	command line argument.
         </td>
       </tr>
@@ -894,34 +897,41 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          caret.policy.strict<br />
-          caret.policy.slop<br />
-          caret.policy.lines<br />
+          caret.policy.xslop<br />
+          caret.policy.width<br />
+          caret.policy.xstrict<br />
           caret.policy.xeven<br />
-          caret.policy.xjumps
+          caret.policy.xjumps<br /><br />
+          caret.policy.yslop<br />
+          caret.policy.lines<br />
+          caret.policy.ystrict<br />
+          caret.policy.yeven<br />
+          caret.policy.yjumps<br />
         </td>
         <td>
-          Determines how the display area follows the caret.<br />
-	If slop is set then the value of caret.policy.lines
-	is used to determine the number of lines at the top and bottom of the display area
-	that make up the "unwanted zone" where the caret should not appear if possible.
-	There is also an horizontal unwanted zone of 50 pixels at the left and right of the 
-	display area.<br />
-	When strict is set then the caret is not allowed to move into the
-	unwanted zone. Caret policy is then rechecked even if the caret is completely visible.<br />
-	When strict is not set then the caret is allowed into this zone
-	but when it does go out of the display area, then the display area is repositioned so
-	the caret is not in the unwanted zone.<br />
-	If slop is not set then the area is centred around the caret, with strict
-	determining if this centring is maintained at all times or if it is performed
-	only when the caret is not completely visible.<br />
-	If caret.policy.xeven is set then both the left and right margins are treated
-	equally whereas if it is not set then displaying text to the left is preferred.<br />
-	If caret.policy.xjumps is set then the display is not horizontally repositioned until
-	the caret reaches themargin at which time the display jumps to ensure the 
-	caret is not within the unwanted area. If caret.policy.xjumps is not set then the 
-	caret stays out of the unwanted area causing more but smaller movements.<br />
-	Default: caret.policy.slop=1, all others = 0.
+          <p>If slop is set, we can define a slop value: width for xslop, lines for yslop.<br />
+          This value defines an unwanted zone (UZ) where the caret is... unwanted.<br />
+          This zone is defined as a number of pixels near the vertical margins,
+          and as a number of lines near the horizontal margins.<br />
+          By keeping the caret away from the edges, it is seen within its context,
+          so it is likely that the identifier that the caret is on can be completely seen,
+          and that the current line is seen with some of the lines following it which are
+          often dependent on that line.</p>
+
+          <p>If strict is set, the policy is enforced... strictly.<br />
+          The caret is centred on the display if slop is not set,
+          and cannot go in the UZ if slop is set.</p>
+
+          <p>If jumps is set, the display is moved more energetically
+          so the caret can move in the same direction longer before the policy is applied again.<br />
+          '3UZ' notation is used to indicate three time the size of the UZ as a distance to the margin.</p>
+
+          <p>If even is not set, instead of having symmetrical UZs,
+          the left and bottom UZs are extended up to right and top UZs respectively.<br />
+          This way, we favour the displaying of useful information: the begining of lines,
+          where most code reside, and the lines after the caret, eg. the body of a function.</p>
+          <p>See the table below to see how these settings interact.<br />
+          Default: xslop, yslop, xeven, yeven=1, width=50, all others = 0.</p>
         </td>
       </tr>
       <tr>
@@ -963,11 +973,11 @@ NameError: mistake
           error.marker.back
         </td>
         <td>
-          The colours used to indicate error and warning lines in both the edit and output panes 
-	  are set with these two values. 
-	  If there is a margin on a pane then a symbol is displayed in the margin to indicate 
+          The colours used to indicate error and warning lines in both the edit and output panes
+	  are set with these two values.
+	  If there is a margin on a pane then a symbol is displayed in the margin to indicate
 	  the error message for the output pane or the line causing the error message for the edit pane.
-	  The error.marker.back is used as the fill colour of the symbol and the error.marker.fore 
+	  The error.marker.back is used as the fill colour of the symbol and the error.marker.fore
 	  as the outline colour. If there is no margin then the background to the line is set to the
 	  error.marker.back colour.
         </td>
@@ -1001,7 +1011,7 @@ NameError: mistake
           api.<i>filepattern</i>
         </td>
         <td>
-          Loads a set of API files for a particular language. 
+          Loads a set of API files for a particular language.
 	  If there is more than one API file then the file names are separated by ';'.
 	  API files contain a sorted list of
           identifiers and function prototypes, one per line. The "Complete Identifier" command
@@ -1054,10 +1064,10 @@ NameError: mistake
           autocomplete.*.start.characters
         </td>
         <td>
-	If this setting is not empty, typing any of the characters will cause 
-	autocompletion to start. For example, if 
-	autocomplete.python.start.characters=. and the API file for Python 
-	contains "string.rjust" and "string.replace" then typing "string." will 
+	If this setting is not empty, typing any of the characters will cause
+	autocompletion to start. For example, if
+	autocomplete.python.start.characters=. and the API file for Python
+	contains "string.rjust" and "string.replace" then typing "string." will
 	cause the autocompletion to display both identifiers.
 	The * form is used if there is no lexer specific setting.
         </td>
@@ -1068,11 +1078,11 @@ NameError: mistake
           autocomplete.*.fillups
         </td>
         <td>
-	If this setting is not empty, typing any of the characters will cause 
+	If this setting is not empty, typing any of the characters will cause
 	autocompletion to complete.
-	For example, if 
-	autocomplete.python.fillups=( and the API file for Python 
-	contains "string.replace" then typing "string.r(" will 
+	For example, if
+	autocomplete.python.fillups=( and the API file for Python
+	contains "string.replace" then typing "string.r(" will
 	cause "string.replace(" to be inserted.
 	The * form is used if there is no lexer specific setting.
         </td>
@@ -1083,7 +1093,7 @@ NameError: mistake
         </td>
         <td>
 	If this setting is 1 then when typing a word, if only one word in the document
-	starts with that string then an autocompletion list is displayed with that word so it 
+	starts with that string then an autocompletion list is displayed with that word so it
 	can be chosen by pressing Tab.
         </td>
       </tr>
@@ -1104,13 +1114,13 @@ NameError: mistake
           calltip.*.word.characters
         </td>
         <td>
-	To determine the identifier to look up for calltips, a search is performed 
-	allowing the characters in this set to be included in the identifier. 
-	While the same setting can be used as for word.characters, sometimes 
+	To determine the identifier to look up for calltips, a search is performed
+	allowing the characters in this set to be included in the identifier.
+	While the same setting can be used as for word.characters, sometimes
 	additional characters may be allowed.
-	For example, in Python, '.' is not normally considered part of a word 
-	when selecting text, but it is good to allow "string.replace" to show a 
-	calltip so calltip.python.word.characters=._$(chars.alpha) would be a 
+	For example, in Python, '.' is not normally considered part of a word
+	when selecting text, but it is good to allow "string.replace" to show a
+	calltip so calltip.python.word.characters=._$(chars.alpha) would be a
 	reasonable setting.
 	The * form is used if there is no lexer specific setting.
         </td>
@@ -1122,7 +1132,7 @@ NameError: mistake
         </td>
         <td>
 	API files may contain explanatory text after each function definition.
-	To display the explanation on a second line, set this property to the character used at the 
+	To display the explanation on a second line, set this property to the character used at the
 	end of the definition part. For most languages, this is ')'.
 	The * form is used if there is no lexer specific setting.
         </td>
@@ -1142,7 +1152,7 @@ NameError: mistake
         <td>
           For XML and HTML, setting this property to 1 will automatically insert the
 	corresponding end tag when '&gt;' is typed to end a start tag.
-	Type "&lt;td&gt;" and the result will be "&lt;td&gt;&lt;/td&gt;" with the caret 
+	Type "&lt;td&gt;" and the result will be "&lt;td&gt;&lt;/td&gt;" with the caret
 	placed between the tags.
         </td>
       </tr>
@@ -1174,9 +1184,9 @@ NameError: mistake
 	output.magnification
         </td>
         <td>
-          Sets the initial magnification factor of the edit and output panes. This is useful 
-	when you want to change the size of text globally, such as after changing the 
-	screen resolution without having to touch every style setting. 0 is default, 
+          Sets the initial magnification factor of the edit and output panes. This is useful
+	when you want to change the size of text globally, such as after changing the
+	screen resolution without having to touch every style setting. 0 is default,
 	negative values makes the size smaller and positive values make it larger.
         </td>
       </tr>
@@ -1212,10 +1222,10 @@ NameError: mistake
         <td>
           If horizontal.scrollbar set to 0 then the edit pane's horizontal scrollbar is not displayed.<br />
           horizontal.scroll.width is the document width assumed for scrolling.<br />
-          Similarly, output.horizontal.scrollbar and output.horizontal.scroll.width controls the 
+          Similarly, output.horizontal.scrollbar and output.horizontal.scroll.width controls the
 	horizontal scroll bar of the output pane.<br />
 	To stop the output pane from automatically scrolling, set output.scroll to 0.<br />
-	The vertical scroll range is normally set so that maximum scroll position has 
+	The vertical scroll range is normally set so that maximum scroll position has
 	the last line at the bottom of the view. Set end.at.last.line to 0 to allow
 	scrolling one page below the last line.
         </td>
@@ -1226,9 +1236,9 @@ NameError: mistake
 	output.wrap
         </td>
         <td>
-          If wrap set to 1 then the edit pane is dynamically line wrapped. 
-          If output.wrap set to 1 then the output pane is dynamically line wrapped. 
-	These options have a high performance cost which is proportional to the amount of text 
+          If wrap set to 1 then the edit pane is dynamically line wrapped.
+          If output.wrap set to 1 then the output pane is dynamically line wrapped.
+	These options have a high performance cost which is proportional to the amount of text
 	so should be turned off for large documents on slow machines.
         </td>
       </tr>
@@ -1239,14 +1249,14 @@ NameError: mistake
         </td>
         <td>
 	A large proportion of the time spent in the editor is used to lay out text prior
-	to drawing it. This information often stays static between repaints so can 
+	to drawing it. This information often stays static between repaints so can
 	be cached with these settings. There are four levels of caching. 0 is no caching,
-	1 caches the line that the caret is on, 2 caches the visible page as well as the caret, 
-	and 3 caches the whole document. The more that is cached, the greater the 
-	amount of memory used, with 3 using large amounts of memory, 7 times the 
+	1 caches the line that the caret is on, 2 caches the visible page as well as the caret,
+	and 3 caches the whole document. The more that is cached, the greater the
+	amount of memory used, with 3 using large amounts of memory, 7 times the
 	size of the text in the document. However,
-	level 3 dramatically speeds up dynamic wrapping by around 25 times on large 
-	source files so is a very good option to use when wrapping is turned on and 
+	level 3 dramatically speeds up dynamic wrapping by around 25 times on large
+	source files so is a very good option to use when wrapping is turned on and
 	memory is plentiful.
         </td>
       </tr>
@@ -1281,16 +1291,16 @@ NameError: mistake
 	  save.session
         </td>
         <td>
-          Setting save.recent causes the most recently used files list to be 
+          Setting save.recent causes the most recently used files list to be
 	saved on exit and
 	reloaded at start up. This list is kept in a file called "SciTE.recent" on
 	Windows and ".SciTE.recent" on GTK+ and is located in the directory
 	given by the SciTE_HOME environment variable and if that is not
 	set, the value of the HOME environment variable and if that is not
-	set the top level directory on GTK+ and the directory of the SciTE 
+	set the top level directory on GTK+ and the directory of the SciTE
 	executable on Windows.<br />
 	If you set "save.session=1", current session
-	will be automatically saved to a file "SciTE.ses" on Windows and 
+	will be automatically saved to a file "SciTE.ses" on Windows and
 	".SciTE.ses" on GTK+ located at the same
 	place as "SciTE.recent" file. When you start SciTE next time the last
 	session will be automatically loaded.
@@ -1301,9 +1311,9 @@ NameError: mistake
 	open.dialog.in.file.directory
         </td>
         <td>
-          Setting open.dialog.in.file.directory causes the open dialog to initially 
-	  display the same directory as the current file. If it is not set then the 
-	  system default is used which on Windows 2000 is the last directory 
+          Setting open.dialog.in.file.directory causes the open dialog to initially
+	  display the same directory as the current file. If it is not set then the
+	  system default is used which on Windows 2000 is the last directory
 	  visited by the open dialog in any instance of SciTE. This is hard
 	  to use with multiple instances of SciTE.
         </td>
@@ -1319,7 +1329,7 @@ NameError: mistake
           These properties define the initial conditions for find and replace commands.
 	The find.replace.matchcase property turns of the "Match case" option,
 	find.replace.regexp the "Regular expression" option,
-	find.replace.wrap the "Wrap around" option and 
+	find.replace.wrap the "Wrap around" option and
 	find.replace.escapes the "Transform backslash expressions" option.
         </td>
       </tr>
@@ -1332,13 +1342,13 @@ NameError: mistake
           command line tool with output redirected to the output pane. If the command produces
           output understood by one of the error output passes, as does grep, then the F4 and
           Shift+F4 keys can be used to move through all the matches. The $(find.what),
-          $(find.files), and $(find.directory) variables can be used for the values from the 
+          $(find.files), and $(find.directory) variables can be used for the values from the
 	  Find in Files dialog.<br />
-	  There are some scripts that implement this feature in Perl better than grep does 
+	  There are some scripts that implement this feature in Perl better than grep does
 	  itself
 	  <a href="http://jenda.krynicky.cz/#SciteFind">here</a> and
 	  <a href="http://www.forusers.com/forme/finder.zip">here</a>.
-	  This command line works with Cygwin on Windows, with modifications to suit 
+	  This command line works with Cygwin on Windows, with modifications to suit
 	  the Cygwin installation directory:<br />
 	  <code>
 find.command=cmd /c c:\cygwin\bin\find "$(find.directory)"
@@ -1354,11 +1364,11 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
           This is the default set of files to search through using the Find in Files command.
 	  The find.files property can contain a list of sets of files separated by '|' like
-	  "*.cxx *.h|*.py *.pyw|*.html" which adds three entries to the history and 
+	  "*.cxx *.h|*.py *.pyw|*.html" which adds three entries to the history and
 	  uses the first as the default value.<br />
-	  The evaluation of this setting is a little unusual in that each entry in the value 
-	  from the property files is appended to the end of the history if that entry is 
-	  not already present. This means that opening files from different directories 
+	  The evaluation of this setting is a little unusual in that each entry in the value
+	  from the property files is appended to the end of the history if that entry is
+	  not already present. This means that opening files from different directories
 	  will result in any local setting of find.files being added to the list.
         </td>
       </tr>
@@ -1385,10 +1395,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
           This setting allows changing the character set that is asked for when setting up fonts.
 	To use Russian Cyrillic characters, set character.set to
-	204. Other values that may work include Chinese (GB2312=134 or BIG5=136), 
+	204. Other values that may work include Chinese (GB2312=134 or BIG5=136),
 	Korean (129), Greek (161),
-	Eastern European (238), Baltic (186), 
-	Turkish (162), Hebrew (177), Arabic (178), Thai (222), or Japanese (128). 
+	Eastern European (238), Baltic (186),
+	Turkish (162), Hebrew (177), Arabic (178), Thai (222), or Japanese (128).
 	All of these values may work on Windows, but on GTK+ Baltic, Turkish, Thai and Vietnamese
 	will probably not work.
 	Please send email	if you use one of these settings and it works or doesn't or if you
@@ -1406,26 +1416,26 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	comment.box.end.<i>lexer</i>
         </td>
         <td>
-	These settings are for the comment commands in the Edit menu and are 
+	These settings are for the comment commands in the Edit menu and are
 	defined separately for each lexer. Not all languages support
 	both stream and block comments.<br />
-	Block comments are comments that start with a particular string and 
+	Block comments are comments that start with a particular string and
 	continue until the end of line.
 	The comment.block property sets the string to be inserted or deleted
 	at the start of the selected lines when the Block Comment or Uncomment
 	command is performed. To make this command perform sensibly over
-	a range of text that already contains comments and other code, the string 
-	can be defined to contain a character such as '~' that is not used in real 
+	a range of text that already contains comments and other code, the string
+	can be defined to contain a character such as '~' that is not used in real
 	comments.<br />
-	Set comment.block.at.line.start to "1" to place block comment symbols 
-	at the start of the lines, instead of just before the first non-blank 
+	Set comment.block.at.line.start to "1" to place block comment symbols
+	at the start of the lines, instead of just before the first non-blank
 	character of the lines.<br />
-	Stream comments start with a particular string and end with another 
-	particular string and may continue over line ends. These are defined 
+	Stream comments start with a particular string and end with another
+	particular string and may continue over line ends. These are defined
 	with comment.stream.start and comment.stream.end. <br />
-	Box comments are a form of stream comment that takes several lines 
+	Box comments are a form of stream comment that takes several lines
 	and uses different strings for the start, end and other lines in the range.
-	These are defined with comment.box.start, 
+	These are defined with comment.box.start,
 	comment.box.middle and comment.stream.end.
         </td>
       </tr>
@@ -1441,7 +1451,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	The character that defines preprocessor lines is defined by preprocessor.symbol.
 	The preprocessor keywords that make up the start (if), middle (else), and end (endif)
 	of preprocessor conditionals are defined by the other three properties.
-	There may be multiple values for each of these, as, for example, C uses "if", "ifdef", 
+	There may be multiple values for each of these, as, for example, C uses "if", "ifdef",
 	and "ifndef" to begin preprocessor conditionals.
         </td>
       </tr>
@@ -1641,11 +1651,11 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           load.on.activate is set.<br />
            The subsystem determines how the command is executed on Windows. 0, the default is for
           command line programs, 1 for programs which create their own windows, 2 for running
-	by using ShellExecute, 3 for running in an internal extension or director extension, 
+	by using ShellExecute, 3 for running in an internal extension or director extension,
 	4 for running HtmlHelp on Windows, and 5 for running WinHelp on Windows.
 	When using subsystem 4 or 5, the command has two parts separated by ! with the first
 	part being the topic to search for and the second the name of the help file.<br />
-	If the text of a command starts with '*' then the Parameters dialog is displayed to 
+	If the text of a command starts with '*' then the Parameters dialog is displayed to
 	prompt for parameters before executing the command. The initial '*' is not included
 	in the command that is executed.
         </td>
@@ -1670,7 +1680,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           command.scite.help.subsystem
         </td>
         <td>
-	Defines a command to be executed for help on the SciTE program itself which normally 
+	Defines a command to be executed for help on the SciTE program itself which normally
 	means displaying this file in a browser.
         </td>
       </tr>
@@ -1686,7 +1696,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
-	time.commands      
+	time.commands
         </td>
         <td>
           When a command is completed, print the time it took in seconds.
@@ -1760,14 +1770,14 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	export.keep.ext
         </td>
         <td>
-	This property determines how the file name 
-	(for example, LineMarker.cxx) is transformed when 
-	exporting to include the appropriate export format extension - 
-	.html for HTML and .rtf for RTF. 
+	This property determines how the file name
+	(for example, LineMarker.cxx) is transformed when
+	exporting to include the appropriate export format extension -
+	.html for HTML and .rtf for RTF.
 	If export.keep.ext is the default, 0, then the current extension is replaced
-	(LineMarker.html). 
+	(LineMarker.html).
 	If it is 1, then the export format extension is added (LineMarker.cxx.html).
-	If it is 2 then the final '.' is replaced by '_' and the 
+	If it is 2 then the final '.' is replaced by '_' and the
 	export format extension added (LineMarker_cxx.html).
         </td>
       </tr>
@@ -1784,10 +1794,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	file but which is less completely specified so may look more different to the on screen display.
 	When export.html.tabs is set to 1 and export.html.wysiwyg is set to 0 then tab characters in
 	the file are exported as tab characters rather than a sequence of space characters.<br />
-	The exported file can be made to fold in browsers that support CSS well (Mozilla and Internet 
+	The exported file can be made to fold in browsers that support CSS well (Mozilla and Internet
 	Explorer) by setting export.html.folding to 1.
 	Only export styles actually used when export.html.styleused set to 1.
-	The full path name of the file is put in the title, instead of just the file name 
+	The full path name of the file is put in the title, instead of just the file name
 	when export.html.title.fullpath set to 1.
         </td>
       </tr>
@@ -1819,7 +1829,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
         	Options to control folding. Folding is turned on be setting fold to 1.
 	The fold.symbols setting chooses between four ways of showing folding.
-	Set to 0 (the default) for MacOS style arrows to indicate contracted 
+	Set to 0 (the default) for MacOS style arrows to indicate contracted
 	(facing right) and expanded (facing down); 1 to display contracted folds
 	with "+" and expanded with "-"; 2 for a flattened tree control with round
 	headers and rounded joins; 3 for a flattened tree control with square headers.
@@ -1833,7 +1843,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
         	Not really documented ;) bit flags which may go away.
-	2, 4, 8, and 16 control drawing lines above and below folding lines if 
+	2, 4, 8, and 16 control drawing lines above and below folding lines if
 	expanded or not expanded.
 	Set to 64 to help debug folding by showing hexadecimal fold levels in margin.
         </td>
@@ -1870,7 +1880,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.preprocessor
         </td>
         <td>
-	This option enables folding preprocessor directives when using the C++ 
+	This option enables folding preprocessor directives when using the C++
 	lexer. Includes C#'s explicit #region and #endregion folding directives.
         </td>
       </tr>
@@ -1880,7 +1890,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	fold.quotes.python
         </td>
         <td>
-	These options enable folding multi-line comments or quoted strings when 
+	These options enable folding multi-line comments or quoted strings when
 	using the Python lexer.
         </td>
       </tr>
@@ -1914,8 +1924,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	files that match a pattern by using the using the file pattern forms: <br /><code>
 	indent.size.*.pas=3</code><br />
 	If tab.indents is set then pressing tab within indentation whitespace indents by indent.size
-	rather than inserting a tab character. If backspace.unindents then pressing backspace 
-	within indentation whitespace unindents by indent.size rather than deleting the character 
+	rather than inserting a tab character. If backspace.unindents then pressing backspace
+	within indentation whitespace unindents by indent.size rather than deleting the character
 	before the caret.
         </td>
       </tr>
@@ -1943,7 +1953,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 		&nbsp;&nbsp;&nbsp;&nbsp;s;<br />
 		&nbsp;&nbsp;&nbsp;&nbsp;}<br />
 	 </code><br />
-	 Automatic indentation may be changed to simply repeat the indentation of the 	
+	 Automatic indentation may be changed to simply repeat the indentation of the
 	 previous line for some files with indent.maintain.<i>filepattern</i>=1 which
 	 overrides the other language specific specific settings.
 	 </td>
@@ -2011,8 +2021,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	</code><br />
 	will play the glass sound if open selected is given a bad file name.
 	The findwrapped warning occurs when a find operation wraps past
-	either end of the file, 
-	notfound when the find or preprocessor conditional move commands 
+	either end of the file,
+	notfound when the find or preprocessor conditional move commands
 	fail to find a match,
 	executeok when a command such as build
 	executes successfully, executeko when a command fails, and
@@ -2042,6 +2052,126 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
       </tr>
     </table>
+    <p>
+    caret.policy.{x|y}&lt;param&gt; interaction:
+    </p>
+    <table cellpadding="1" cellspacing="0" border="1">
+     <tr>
+      <th>slop</th>
+      <th>strict</th>
+      <th>jumps</th>
+      <th>even</th>
+      <th>Caret can go to the  margin</th>
+      <th>When reaching limit<br />
+      (going out of visibility or<br />
+       going into the UZ)<br />
+      display is...</th>
+     </tr>
+     <tr>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td>Yes</td>
+      <td>moved to put caret on top/on right</td>
+     </tr>
+     <tr>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td>Yes</td>
+      <td>moved by one position</td>
+     </tr>
+     <tr>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td align="center">0</td>
+      <td>Yes</td>
+      <td>moved to put caret on top/on right</td>
+     </tr>
+     <tr>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td align="center">1</td>
+      <td>Yes</td>
+      <td>centred on the caret</td>
+     </tr>
+     <tr>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td align="center">-</td>
+      <td align="center">0</td>
+      <td>Caret is always on top/on right of display</td>
+      <td>-</td>
+     </tr>
+     <tr>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td align="center">-</td>
+      <td align="center">1</td>
+      <td>No, caret is always centred</td>
+      <td>-</td>
+     </tr>
+     <tr>
+      <td align="center">1</td>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td>Yes</td>
+      <td>moved to put caret out of the asymmetrical UZ</td>
+     </tr>
+     <tr>
+      <td align="center">1</td>
+      <td align="center">0</td>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td>Yes</td>
+      <td>moved to put caret out of the UZ</td>
+     </tr>
+     <tr>
+      <td align="center">1</td>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td align="center">0</td>
+      <td>Yes</td>
+      <td>moved to put caret at 3UZ of the top or right margin</td>
+     </tr>
+     <tr>
+      <td align="center">1</td>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td align="center">1</td>
+      <td>Yes</td>
+      <td>moved to put caret at 3UZ of the margin</td>
+     </tr>
+     <tr>
+      <td align="center">1</td>
+      <td align="center">1</td>
+      <td align="center">-</td>
+      <td align="center">0</td>
+      <td>Caret is always at UZ of top/right margin</td>
+      <td>-</td>
+     </tr>
+     <tr>
+      <td align="center">1</td>
+      <td align="center">1</td>
+      <td align="center">0</td>
+      <td align="center">1</td>
+      <td>No, kept out of UZ</td>
+      <td>moved by one position</td>
+     </tr>
+     <tr>
+      <td align="center">1</td>
+      <td align="center">1</td>
+      <td align="center">1</td>
+      <td align="center">0</td>
+      <td>No, kept out of UZ</td>
+      <td>moved to put caret at 3UZ of the margin</td>
+     </tr>
+    </table>
     <h3>
        Supporting a new language
     </h3>
@@ -2069,21 +2199,21 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
     <p>
        The .api files can be generated by hand or by using a program.
     </p>
-    <p> 
-	For C/C++ headers, an API file can be generated using 
-	<a href="http://ctags.sourceforge.net/">ctags</a> 
+    <p>
+	For C/C++ headers, an API file can be generated using
+	<a href="http://ctags.sourceforge.net/">ctags</a>
 	and then the <a href="tags2api.py">
 	tags2api Python script</a> (which assumes C/C++ source) on the tags file to grab complete
-	multiple line function prototypes. 
+	multiple line function prototypes.
 	Some common headers surround parameter lists with a __P macro and may have
 	comments. The <a href="cleanapi.cc">cleanapi</a> utility may be used on these files.
     </p>
-    <p> 
-	To generate an API file for Python modules, there is a 
+    <p>
+	To generate an API file for Python modules, there is a
 	<a href="http://stud4.tuwien.ac.at/~e9326522/gen_python_api.zip">gen_python script</a>.
     </p>
-    <p> 
-	To generate an API file for Java classes, there is a 
+    <p>
+	To generate an API file for Java classes, there is a
 	<a href="ApiBuilder.java">ApiBuilder.java</a> program.
     </p>
     <h3>

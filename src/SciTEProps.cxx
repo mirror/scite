@@ -314,10 +314,10 @@ long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefau
  * @return NULL if the end of the list is met, else, it points to the next item.
  */
 const char *SciTEBase::GetNextPropItem(
-    const char *pStart,    	/**< the property string to parse for the first call,
-        							 * pointer returned by the previous call for the following. */
-    char *pPropItem,    	///< pointer on a buffer receiving the requested prop item
-    int maxLen)			///< size of the above buffer
+	const char *pStart,	/**< the property string to parse for the first call,
+						 * pointer returned by the previous call for the following. */
+	char *pPropItem,	///< pointer on a buffer receiving the requested prop item
+	int maxLen)			///< size of the above buffer
 {
 	int size = maxLen - 1;
 
@@ -439,7 +439,7 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 	if (sd.specified & StyleDefinition::sdBold)
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETBOLD, style, sd.bold ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdFont)
-		Platform::SendScintillaPointer(win.GetID(), SCI_STYLESETFONT, style, 
+		Platform::SendScintillaPointer(win.GetID(), SCI_STYLESETFONT, style,
 			const_cast<char *>(sd.font.c_str()));
 	if (sd.specified & StyleDefinition::sdFore)
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETFORE, style, sd.fore.AsLong());
@@ -670,12 +670,19 @@ void SciTEBase::ReadProperties() {
 		SendOutput(SCI_SETCARETPERIOD, caretPeriod.value());
 	}
 
-	int caretStrict = props.GetInt("caret.policy.strict") ? CARET_STRICT : 0;
-	int caretSlop = props.GetInt("caret.policy.slop", 1) ? CARET_SLOP : 0;
-	int caretLines = props.GetInt("caret.policy.lines");
-	int caretXEven = props.GetInt("caret.policy.xeven") ? CARET_XEVEN : 0;
-	int caretXJumps = props.GetInt("caret.policy.xjumps") ? CARET_XJUMPS : 0;
-	SendEditor(SCI_SETCARETPOLICY, caretStrict | caretSlop | caretXEven | caretXJumps, caretLines);
+	int caretSlop = props.GetInt("caret.policy.xslop", 1) ? CARET_SLOP : 0;
+	int caretZone = props.GetInt("caret.policy.width", 50);
+	int caretStrict = props.GetInt("caret.policy.xstrict") ? CARET_STRICT : 0;
+	int caretEven = props.GetInt("caret.policy.xeven", 1) ? CARET_EVEN : 0;
+	int caretJumps = props.GetInt("caret.policy.xjumps") ? CARET_JUMPS : 0;
+	SendEditor(SCI_SETXCARETPOLICY, caretStrict | caretSlop | caretEven | caretJumps, caretZone);
+
+	caretSlop = props.GetInt("caret.policy.yslop", 1) ? CARET_SLOP : 0;
+	caretZone = props.GetInt("caret.policy.lines");
+	caretStrict = props.GetInt("caret.policy.ystrict") ? CARET_STRICT : 0;
+	caretEven = props.GetInt("caret.policy.yeven", 1) ? CARET_EVEN : 0;
+	caretJumps = props.GetInt("caret.policy.yjumps") ? CARET_JUMPS : 0;
+	SendEditor(SCI_SETYCARETPOLICY, caretStrict | caretSlop | caretEven | caretJumps, caretZone);
 
 	int visibleStrict = props.GetInt("visible.policy.strict") ? VISIBLE_STRICT : 0;
 	int visibleSlop = props.GetInt("visible.policy.slop", 1) ? VISIBLE_SLOP : 0;
