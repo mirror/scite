@@ -580,8 +580,8 @@ static bool isfilenamecharforsel(char ch) {
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel,     ///< Buffer receiving the result.
-    int len,     ///< Size of the buffer.
+    char *sel,       ///< Buffer receiving the result.
+    int len,       ///< Size of the buffer.
     bool (*ischarforsel)(char ch)) { ///< Function returning @c true if the given char. is part of the selection.
 
 	int lengthDoc, selStart, selEnd;
@@ -1291,9 +1291,9 @@ bool SciTEBase::StartExpandAbbreviation() {
 	int j = 0; // temporary variable for caret position counting
 	int caret_pos = -1; // caret position
 	//~ int line = 0; // counting lines in multiline abbreviations
+	char c = '\0'; // current char
 	for (int i = 0; i < dataLength; i++) {
-		char c = expbuff[i]; // current char
-		switch (c) {
+		switch (c = expbuff[i]) {
 		case '|':
 			if (i < (dataLength - 1) && expbuff[i + 1] == '|') {
 				i++;
