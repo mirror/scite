@@ -420,14 +420,9 @@ static int cf_pane_iface_function(lua_State *L) {
 				const char *s = lua_tostring(L, arg++);
 				params[i] = reinterpret_cast<int>(s ? s : "");
 			} else if (func->paramType[i] == iface_keymod) {
-				const char *pszKeymod = lua_tostring(L, arg++);
-				if (pszKeymod)
-					params[i] = SciTEKeys::ParseKeyCode(pszKeymod);
-				if (params[i] == 0) {
-					lua_pushstring(L, "Lua: invalid argument where keymod expression expected");
-					lua_error(L);
-					return 0;
-				}
+				int keycode = static_cast<int>(luaL_checknumber(L, arg++)) & 0xFFFF;
+				int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) & (SCMOD_SHIFT|SCMOD_CTRL|SCMOD_ALT);
+				params[i] = keycode | (modifiers<<16);
 			} else if (IFaceTypeIsNumeric(func->paramType[i])) {
 				params[i] = static_cast<int>(luaL_checknumber(L, arg++));
 			}

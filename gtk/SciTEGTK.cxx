@@ -2018,79 +2018,9 @@ static KeyToCommand kmap[] = {
                                  {0, 0, 0},
                              };
 
-static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
-	if (!*menuKey)
-		return false;
-	int modsInKey = 0;
-	SString sKey(menuKey);
-	if (sKey.contains("Ctrl+")) {
-		modsInKey |= GDK_CONTROL_MASK;
-		sKey.remove("Ctrl+");
-	}
-	if (sKey.contains("Shift+")) {
-		modsInKey |= GDK_SHIFT_MASK;
-		sKey.remove("Shift+");
-	}
-	if (sKey.contains("Alt+")) {
-		modsInKey |= GDK_MOD1_MASK;
-		sKey.remove("Alt+");
-	}
-	if (modifiers != modsInKey)
-		return false;
-	if ((sKey.length() > 1) && (sKey[0] == 'F') && (isdigit(sKey[1]))) {
-		sKey.remove("F");
-		int keyNum = sKey.value();
-		if (keyNum == (keyval - GDK_F1 + 1))
-			return true;
-	} else if ((sKey.length() == 1) && (modsInKey & GDK_CONTROL_MASK)) {
-		char keySought = sKey[0];
-		if (!(modsInKey & GDK_SHIFT_MASK))
-			keySought = keySought - 'A' + 'a';
-		return keySought == keyval;
-	}
-
-	// handle "name" keys
-	if (sKey.length() > 1) {
-		if (sKey == "Left") {
-			return keyval == GDK_Left;
-		} else if (sKey == "Right") {
-			return keyval == GDK_Right;
-		} else if (sKey == "Up") {
-			return keyval == GDK_Up;
-		} else if (sKey == "Down") {
-			return keyval == GDK_Down;
-		} else if (sKey == "Insert") {
-			return keyval == GDK_Escape;
-		} else if (sKey == "End") {
-			return keyval == GDK_End;
-		} else if (sKey == "Home") {
-			return keyval == GDK_Home;
-		} else if (sKey == "Enter") {
-			return keyval == GDK_Return;
-		} else if (sKey == "Space") {
-			return keyval == GDK_space;
-		} else if (sKey == "KeypadPlus") {
-			return keyval == GDK_KP_Add;
-		} else if (sKey == "KeypadMinus") {
-			return keyval == GDK_KP_Subtract;
-		} else if (sKey == "Escape") {
-			return keyval == GDK_Escape;
-		} else if (sKey == "Delete") {
-			return keyval == GDK_Delete;
-		} else if (sKey == "PageUp") {
-			return keyval == GDK_Page_Up;
-		} else if (sKey == "PageDown") {
-			return keyval == GDK_Page_Down;
-		} else if (sKey == "Slash") {
-			return keyval == GDK_slash;
-		} else if (sKey == "Question") {
-			return keyval == GDK_question;
-		} else if (sKey == "Equal") {
-			return keyval == GDK_equal;
-		}
-	}
-
-	return false;
+inline bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
+	return SciTEKeys::MatchKeyCode(
+		SciTEKeys::ParseKeyCode(menuKey), keyval, modifiers);
 }
 
 gint SciTEGTK::Key(GdkEventKey *event) {

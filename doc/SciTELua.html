@@ -119,8 +119,11 @@ using normal Lua table-access semantics, e.g. props["property.name"].
 The editor and output panes support the following properties / methods:
 
   textrange(startPos, endPos) - gets the text in the specified range
+
   findtext(text, [flags], [startPos, [endPos]])
-    - returns the start and end of the first match, or -1 if no match
+    - returns the start and end of the first match, or (-1, nil)
+    - flags can be 0 (the default), or a combination of <a href="http://scintilla.sourceforge.net/ScintillaDoc.html#searchFlags">SCFIND constants</a>
+      such as SCFIND_WHOLEWORD, SCFIND_MATCHCASE, and SCFIND_REGEXP
 
   insert(pos, text) - inserts text at the specified position *
   remove(startPos, endPos) - removes the text in the range *
@@ -133,10 +136,12 @@ For both strings and stringresults, if the function is documented as
 expecting a length as its first parameter, you do not pass the length
 from Lua.  Instead, it is inferred from the context.
 
-Functions that have more complex parameters are not supported.  The keymod
-parameter type has partial support.  For a keymod parameter, you  would
-pass a string in the same notation used in SciTEGlobal.properties for key
-sequences, e.g. &quot;Ctrl+Shift+F5&quot;.
+The keymod parameter type has partial support.  When an iface function is
+declared as taking a keymod, the Lua equivalent expects two numbers: first
+the key code (e.g. SCK_LEFT or string.byte("'"), and second the modifiers
+(e.g. SCMOD_CTRL).
+
+Functions that have more complex parameters are not supported.
 
 Functions that are declared to return a numeric type have the result
 added to their return value.  If the function also has a stringresult,
