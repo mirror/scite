@@ -1795,7 +1795,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/_View Output", "F8", menuSig, IDM_TOGGLEOUTPUT, "<CheckItem>"},
 	    {"/Options/View Status _Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
 	    {"/Options/sep2", NULL, NULL, 0, "<Separator>"},
-	    {"/Options/Clear Out&put", "", menuSig, IDM_CLEAROUTPUT, 0},
+	    {"/Options/Clear Out_put", "", menuSig, IDM_CLEAROUTPUT, 0},
 	    {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Line End C_haracters", "", 0, 0, "<Branch>"},
 	    {"/Options/Line End Characters/CR _+ LF", "", menuSig, IDM_EOL_CRLF, "<RadioItem>"},
