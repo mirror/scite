@@ -1981,6 +1981,8 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Use lexer/Pascal", "", menuSig, IDM_LEXER_PASCAL, 0},
 	    {"/Options/Use lexer/Avenue", "", menuSig, IDM_LEXER_AVE, 0},
 	    {"/Options/Use lexer/Ada", "", menuSig, IDM_LEXER_ADA, 0},
+	    {"/Options/Use lexer/Lisp", "", menuSig, IDM_LEXER_LISP, 0},
+	    {"/Options/Use lexer/Ruby", "", menuSig, IDM_LEXER_RUBY, 0},
 	    {"/Options/Use _monospaced font", "<control>F11", menuSig, IDM_MONOFONT, "<CheckItem>"},
 	    {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Open Local _Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
