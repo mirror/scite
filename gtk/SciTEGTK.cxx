@@ -2480,7 +2480,7 @@ void SciTEGTK::CreateMenu() {
 	itemFactory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", accelGroup);
 	CreateTranslatedMenu(ELEMENTS(menuItems), menuItems);
 	CreateTranslatedMenu(ELEMENTS(menuItemsOptions), menuItemsOptions,
-	                     30, "/Options/Edit Properties/Props", 0, IDM_IMPORT, 0);
+	                     50, "/Options/Edit Properties/Props", 0, IDM_IMPORT, 0);
 	CreateTranslatedMenu(ELEMENTS(menuItemsLanguage), menuItemsLanguage,
 	                     50, "/Language/Language", 0, IDM_LANGUAGE, 0);
 	if (props.GetInt("buffers") > 1)
