@@ -30,10 +30,10 @@ rem
 rem Target 2: Normal gcc build
 call scite\scripts\clearboth
 cd scintilla\win32
-make
+mingw32-make
 if ERRORLEVEL 2 goto ERROR
 cd ..\..\scite\win32
-make
+mingw32-make
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
