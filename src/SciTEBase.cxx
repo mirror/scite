@@ -2359,6 +2359,7 @@ bool SciTEBase::StartBlockComment() {
 }
 
 bool SciTEBase::StartBoxComment() {
+	// Get start/middle/end comment strings from options file(s)
 	SString fileNameForExtension = ExtensionFileName();
 	SString language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString start_base("comment.box.start.");
@@ -2378,48 +2379,99 @@ bool SciTEBase::StartBoxComment() {
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
-	start_comment += white_space;
-	middle_comment += white_space;
-	white_space += end_comment;
-	end_comment = white_space;
-	size_t start_comment_length = start_comment.length();
-	size_t middle_comment_length = middle_comment.length();
+
+	// Note selection and cursor location so that we can reselect text and reposition cursor after we insert comment strings
 	size_t selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	size_t selectionEnd = SendEditor(SCI_GETSELECTIONEND);
 	size_t caretPosition = SendEditor(SCI_GETCURRENTPOS);
-	// checking if caret is located in _beginning_ of selected block
 	bool move_caret = caretPosition < selectionEnd;
 	size_t selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	size_t selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
-	size_t lines = selEndLine - selStartLine;
-	// "caret return" is part of the last selected line
-	if ((lines > 0) && (
-	            selectionEnd == static_cast<size_t>(SendEditor(SCI_POSITIONFROMLINE, selEndLine)))) {
+	size_t lines = selEndLine - selStartLine + 1;
+
+	// If selection ends at start of last selected line, fake it so that selection goes to end of second-last selected line
+	if (lines > 1 && selectionEnd == static_cast<size_t>(SendEditor(SCI_POSITIONFROMLINE, selEndLine))) {
 		selEndLine--;
 		lines--;
-		// get rid of CRLF problems
 		selectionEnd = SendEditor(SCI_GETLINEENDPOSITION, selEndLine);
 	}
+
+	// Pad comment strings with appropriate whitespace, then figure out their lengths (end_comment is a bit special-- see below)
+	start_comment += white_space;
+	middle_comment += white_space;
+	size_t start_comment_length = start_comment.length();
+	size_t middle_comment_length = middle_comment.length();
+	size_t end_comment_length = end_comment.length();
+	size_t whitespace_length = white_space.length();
+
+	// Calculate the length of the longest comment string to be inserted, and allocate a null-terminated char buffer of equal size
+	size_t maxCommentLength = start_comment_length;
+	if (middle_comment_length > maxCommentLength)
+		maxCommentLength = middle_comment_length;
+	if (end_comment_length + whitespace_length > maxCommentLength)
+		maxCommentLength = end_comment_length + whitespace_length;
+	char *tempString = new char[maxCommentLength + 1];
+
 	SendEditor(SCI_BEGINUNDOACTION);
-	// first commented line (start_comment)
+
+	// Insert start_comment if needed
 	int lineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
-	SendEditorString(SCI_INSERTTEXT, lineStart, start_comment.c_str());
-	selectionStart += start_comment_length;
-	// lines between first and last commented lines (middle_comment)
-	for (size_t i = selStartLine + 1; i <= selEndLine; i++) {
-		lineStart = SendEditor(SCI_POSITIONFROMLINE, i);
-		SendEditorString(SCI_INSERTTEXT, lineStart, middle_comment.c_str());
-		selectionEnd += middle_comment_length;
+	GetRange(wEditor, lineStart, lineStart + start_comment_length, tempString);
+	tempString[start_comment_length] = '\0';
+	if (start_comment != tempString) {
+		SendEditorString(SCI_INSERTTEXT, lineStart, start_comment.c_str());
+		selectionStart += start_comment_length;
+		selectionEnd += start_comment_length;
 	}
-	// last commented line (end_comment)
-	int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, selEndLine);
-	if (lines > 0) {
-		SendEditorString(SCI_INSERTTEXT, lineEnd, "\n");
-		SendEditorString(SCI_INSERTTEXT, lineEnd + 1, (end_comment.c_str() + 1));
+
+	if (lines <= 1) {
+		// Only a single line was selected, so just append whitespace + end-comment at end of line if needed
+		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, selEndLine);
+		GetRange(wEditor, lineEnd - end_comment_length, lineEnd, tempString);
+		tempString[end_comment_length] = '\0';
+		if (end_comment != tempString) {
+			end_comment.insert(0, white_space.c_str());
+			SendEditorString(SCI_INSERTTEXT, lineEnd, end_comment.c_str());
+		}
 	} else {
-		SendEditorString(SCI_INSERTTEXT, lineEnd, end_comment.c_str());
+		// More than one line selected, so insert middle_comments where needed
+		for (size_t i = selStartLine + 1; i < selEndLine; i++) {
+			lineStart = SendEditor(SCI_POSITIONFROMLINE, i);
+			GetRange(wEditor, lineStart, lineStart + middle_comment_length, tempString);
+			tempString[middle_comment_length] = '\0';
+			if (middle_comment != tempString) {
+				SendEditorString(SCI_INSERTTEXT, lineStart, middle_comment.c_str());
+				selectionEnd += middle_comment_length;
+			}
+		}
+
+		// If last selected line is not middle-comment or end-comment, we need to insert
+		// a middle-comment at the start of last selected line and possibly still insert
+		// and end-comment tag after the last line (extra logic is necessary to
+		// deal with the case that user selected the end-comment tag)
+		lineStart = SendEditor(SCI_POSITIONFROMLINE, selEndLine);
+		GetRange(wEditor, lineStart, lineStart + end_comment_length, tempString);
+		tempString[end_comment_length] = '\0';
+		if (end_comment != tempString) {
+			GetRange(wEditor, lineStart, lineStart + middle_comment_length, tempString);
+			tempString[middle_comment_length] = '\0';
+			if (middle_comment != tempString) {
+				SendEditorString(SCI_INSERTTEXT, lineStart, middle_comment.c_str());
+				selectionEnd += middle_comment_length;
+			}
+
+			// And since we didn't find the end-comment string yet, we need to check the *next* line
+			//  to see if it's necessary to insert an end-comment string and a linefeed there....
+			lineStart = SendEditor(SCI_POSITIONFROMLINE, selEndLine + 1);
+			GetRange(wEditor, lineStart, lineStart + (int) end_comment_length, tempString);
+			tempString[end_comment_length] = '\0';
+			if (end_comment != tempString) {
+				end_comment.append("\n");
+				SendEditorString(SCI_INSERTTEXT, lineStart, end_comment.c_str());
+			}
+		}
 	}
-	selectionEnd += (start_comment_length);
+
 	if (move_caret) {
 		// moving caret to the beginning of selected block
 		SendEditor(SCI_GOTOPOS, selectionEnd);
@@ -2427,7 +2479,11 @@ bool SciTEBase::StartBoxComment() {
 	} else {
 		SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
 	}
+
 	SendEditor(SCI_ENDUNDOACTION);
+
+	delete[] tempString;
+
 	return true;
 }
 
