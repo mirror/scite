@@ -947,9 +947,11 @@ void SciTEBase::ReadProperties() {
 		if (props.GetInt("vc.home.key", 1)) {
 			AssignKey(SCK_HOME, 0, SCI_VCHOMEWRAP);
 			AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_VCHOMEWRAPEXTEND);
+			AssignKey(SCK_HOME, SCMOD_SHIFT | SCMOD_ALT, SCI_VCHOMERECTEXTEND);
 		} else {
 			AssignKey(SCK_HOME, 0, SCI_HOMEWRAP);
 			AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_HOMEWRAPEXTEND);
+			AssignKey(SCK_HOME, SCMOD_SHIFT | SCMOD_ALT, SCI_HOMERECTEXTEND);
 		}
 		AssignKey(SCK_END, 0, SCI_LINEENDWRAP);
 		AssignKey(SCK_END, SCMOD_SHIFT, SCI_LINEENDWRAPEXTEND);
@@ -957,9 +959,11 @@ void SciTEBase::ReadProperties() {
 		if (props.GetInt("vc.home.key", 1)) {
 			AssignKey(SCK_HOME, 0, SCI_VCHOME);
 			AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_VCHOMEEXTEND);
+			AssignKey(SCK_HOME, SCMOD_SHIFT | SCMOD_ALT, SCI_VCHOMERECTEXTEND);
 		} else {
 			AssignKey(SCK_HOME, 0, SCI_HOME);
 			AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_HOMEEXTEND);
+			AssignKey(SCK_HOME, SCMOD_SHIFT | SCMOD_ALT, SCI_HOMERECTEXTEND);
 		}
 		AssignKey(SCK_END, 0, SCI_LINEEND);
 		AssignKey(SCK_END, SCMOD_SHIFT, SCI_LINEENDEXTEND);
