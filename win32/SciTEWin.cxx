@@ -525,11 +525,6 @@ void SciTEWin::ProcessExecute() {
 		//Platform::DebugPrintf("Execute <%s>\n", command);
 		OutputAppendStringSynchronised(">");
 		OutputAppendStringSynchronised(jobQueue[icmd].command.c_str());
-		if (jobQueue[icmd].input.length()) {
-			OutputAppendStringSynchronised(" <<EOF\n");
-			OutputAppendStringSynchronised(jobQueue[icmd].input.c_str());
-			OutputAppendStringSynchronised("\n>EOF");
-		}
 		OutputAppendStringSynchronised("\n");
 
 		sa.bInheritHandle = TRUE;
@@ -617,25 +612,42 @@ void SciTEWin::ProcessExecute() {
 
 		bool completed = !worked;
 		DWORD timeDetectedDeath = 0;
-		
+
 		if (worked) {
 			subProcessGroupId = pi.dwProcessId;
-			
-			if (jobQueue[icmd].input.length()) {
-				::Sleep(50L);
-				DWORD bytesWrote = 0;
-				::WriteFile(
-					hWriteSubProcess, 
-					const_cast<char *>(jobQueue[icmd].input.c_str()),
-					jobQueue[icmd].input.length(), &bytesWrote, NULL);
 
-				::Sleep(100L);
-				
-				::CloseHandle(hWriteSubProcess);
-				hWriteSubProcess = INVALID_HANDLE_VALUE;
+			if (jobQueue[icmd].input.length()) {
+				SString input = jobQueue[icmd].input;
+
+				int eofPosition = input.search("\x1a");
+				if (eofPosition >= 0) {
+					input.remove(eofPosition,0);
+				}
+
+				if (input.length() > 0) {
+					::Sleep(50L);
+
+					DWORD bytesWrote = 0;
+					::WriteFile(hWriteSubProcess, 
+						const_cast<char *>(input.c_str()),
+						input.length(), &bytesWrote, NULL);
+
+					input.substitute("\n","\n>> ");
+
+					OutputAppendStringSynchronised(">> ");
+					OutputAppendStringSynchronised(input.c_str());
+					OutputAppendStringSynchronised("\n");
+
+					::Sleep(100L);
+				}
+
+				if (eofPosition >= 0) {
+					::CloseHandle(hWriteSubProcess);
+					hWriteSubProcess = INVALID_HANDLE_VALUE;
+				}
 			}
 		}
-							
+
 		while (!completed) {
 
 			::Sleep(100L);

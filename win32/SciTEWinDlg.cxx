@@ -991,9 +991,16 @@ void SciTEWin::FindInFiles() {
 	if (DoDialog(hInstance, "Grep", MainHWND(), reinterpret_cast<DLGPROC>(GrepDlg)) == IDOK) {
 		//Platform::DebugPrintf("asked to find %s %s %s\n", props.Get("find.what"), props.Get("find.files"), props.Get("find.directory"));
 		SelectionIntoProperties();
+		
+		SString findInput;
+		if (props.Get("find.input").length()) {
+			findInput += props.GetNewExpand("find.input");
+			findInput += '\x1a';
+		}
+		
 		AddCommand(props.GetNewExpand("find.command"), 
 			props.Get("find.directory"), 
-			jobCLI, props.GetNewExpand("find.input"));
+			jobCLI, findInput);
 		if (commandCurrent > 0)
 			Execute();
 	}
