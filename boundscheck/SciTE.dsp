@@ -363,6 +363,10 @@ SOURCE=..\..\scintilla\src\LexVerilog.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexVHDL.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexYAML.cxx
 # End Source File
 # Begin Source File
