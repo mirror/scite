@@ -618,6 +618,8 @@ void SciTEBase::ReadProperties() {
 		lexLanguage = SCLEX_MAKEFILE;
 	} else if (language == "batch") {
 		lexLanguage = SCLEX_BATCH;
+	} else if (language == "latex") {
+		lexLanguage = SCLEX_LATEX;	
 	} else {
 		lexLanguage = SCLEX_NULL;
 	}
