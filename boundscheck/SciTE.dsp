@@ -219,6 +219,10 @@ SOURCE=..\..\scintilla\src\LexPerl.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexPOV.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexPython.cxx
 # End Source File
 # Begin Source File
