@@ -421,14 +421,14 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
 		AddStyledText(wsci, LocaliseString("Version").c_str(), 1);
-		AddStyledText(wsci, " 1.58\n", 1);
+		AddStyledText(wsci, " 1.59\n", 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
 		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, LocaliseString("by").c_str(), 2);
 		AddStyledText(wsci, " Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "December 1998-January 2004.\n", 3);
+		AddStyledText(wsci, "December 1998-February 2004.\n", 3);
 		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		SString translator = LocaliseString("TranslationCredit", false);
