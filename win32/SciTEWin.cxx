@@ -1081,22 +1081,24 @@ void SciTEWin::Run(const char *cmdLine) {
 	}
 
 	if (performPrint) {
+		ProcessCommandLine(args, 1);
 		Print(false);
 		::PostQuitMessage(0);
-	}
+		wSciTE.Destroy();
+	} else {
+		SizeSubWindows();
+		wSciTE.Show();
+		if (cmdShow) {	// assume SW_MAXIMIZE only
+			::ShowWindow(MainHWND(), cmdShow);
+		}
 
-	SizeSubWindows();
-	wSciTE.Show();
-	if (cmdShow) {	// assume SW_MAXIMIZE only
-		::ShowWindow(MainHWND(), cmdShow);
+		// Open all files given on command line.
+		// The filenames containing spaces must be enquoted.
+		// In case of not using buffers they get closed immediately except
+		// the last one, but they move to the MRU file list
+		ProcessCommandLine(args, 1);
+		Redraw();
 	}
-
-	// Open all files given on command line.
-	// The filenames containing spaces must be enquoted.
-	// In case of not using buffers they get closed immediately except
-	// the last one, but they move to the MRU file list
-	ProcessCommandLine(args, 1);
-	Redraw();
 }
 
 void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
