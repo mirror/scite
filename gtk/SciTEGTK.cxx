@@ -1081,6 +1081,9 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 				      NULL);
 		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dlg), TRUE);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
+		if (props.GetInt("open.dialog.in.file.directory")) {
+			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), dirName);
+		}
 
 		// Add a show hidden files toggle
 		GtkWidget *toggle = gtk_check_button_new_with_label(
@@ -1089,6 +1092,8 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(dlg), toggle);
 		g_signal_connect(toggle, "toggled",
 			G_CALLBACK(toggle_hidden_cb), GTK_DIALOG(dlg));
+		if (props.GetInt("fileselector.show.hidden"))
+			g_object_set(GTK_OBJECT(toggle), "active", TRUE, NULL);
 
 		SString openFilter;
 		if (filter)
@@ -1120,6 +1125,7 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 			}
 		}
 
+		gtk_window_set_default_size(GTK_WINDOW(dlg), fileSelectorWidth, fileSelectorHeight);
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			GSList *names = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dlg));
 			GSList *nameCurrent = names;
@@ -1263,6 +1269,7 @@ void SciTEGTK::LoadSessionDialog() {
 				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
 
+		gtk_window_set_default_size(GTK_WINDOW(dlg), fileSelectorWidth, fileSelectorHeight);
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
 
@@ -2836,7 +2843,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/View/_Status Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
 	                                      {"/View/sep2", NULL, NULL, 0, "<Separator>"},
 	                                      {"/View/_Whitespace", "<control><shift>A", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
-	                                      {"/View/_End of Line", "<control><shift>B", menuSig, IDM_VIEWEOL, "<CheckItem>"},
+	                                      {"/View/_End of Line", "<control><shift>D", menuSig, IDM_VIEWEOL, "<CheckItem>"},
 	                                      {"/View/_Indentation Guides", NULL, menuSig, IDM_VIEWGUIDES, "<CheckItem>"},
 	                                      {"/View/_Line Numbers", "", menuSig, IDM_LINENUMBERMARGIN, "<CheckItem>"},
 	                                      {"/View/_Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
@@ -2973,7 +2980,7 @@ void SciTEGTK::CreateMenu() {
 	CreateTranslatedMenu(ELEMENTS(menuItemsOptions), menuItemsOptions,
 	                     50, "/Options/Edit Properties/Props", 0, IDM_IMPORT, 0);
 	CreateTranslatedMenu(ELEMENTS(menuItemsLanguage), menuItemsLanguage,
-	                     50, "/Language/Language", 0, IDM_LANGUAGE, 0);
+	                     60, "/Language/Language", 0, IDM_LANGUAGE, 0);
 	if (props.GetInt("buffers") > 1)
 		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer,
 		                     30, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
@@ -3049,6 +3056,7 @@ void SciTEGTK::CreateUI() {
 	wToolBar = gtk_toolbar_new();
 	gtk_toolbar_set_orientation(GTK_TOOLBAR(PWidget(wToolBar)), GTK_ORIENTATION_HORIZONTAL);
 #endif
+	gtk_toolbar_set_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_ICONS);
 	toolbarDetachable = props.GetInt("toolbar.detachable");
 	if (toolbarDetachable == 1) {
 		wToolBarBox = gtk_handle_box_new();
