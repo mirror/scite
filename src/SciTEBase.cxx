@@ -253,6 +253,10 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	dirNameAtExecute[0] = '\0';
 	fileModTime = 0;
 
+	currentmacro[0] = '\0';
+	recording = false;
+	playing = false;
+        
 	propsBase.superPS = &propsEmbed;
 	propsUser.superPS = &propsBase;
 	propsLocal.superPS = &propsUser;
@@ -402,7 +406,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
 	}
 	// Priority goes to character before caret
-	if (charBefore && strchr("[](){}", charBefore) &&
+	if (charBefore && strchr("[]() {}", charBefore) &&
 	        ((styleBefore == bracesStyleCheck) || (!bracesStyle))) {
 		braceAtCaret = caretPos - 1;
 	}
@@ -416,7 +420,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		// No brace found so check other side
 		char charAfter = acc[caretPos];
 		char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
-		if (charAfter && strchr("[](){}", charAfter) && (styleAfter == bracesStyleCheck)) {
+		if (charAfter && strchr("[]() {}", charAfter) && (styleAfter == bracesStyleCheck)) {
 			braceAtCaret = caretPos;
 			isAfter = false;
 		}
@@ -657,38 +661,22 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		Find();
 		return ;
 	}
-	TextToFind ft = {{0, 0}, 0, {0, 0}};
-	CharacterRange crange = GetSelection();
-	if (reverseDirection) {
-		ft.chrg.cpMin = crange.cpMin - 1;
-		ft.chrg.cpMax = 0;
-	} else {
-		ft.chrg.cpMin = crange.cpMax;
-		ft.chrg.cpMax = LengthDocument();
-	}
-	ft.lpstrText = findWhat;
-	ft.chrgText.cpMin = 0;
-	ft.chrgText.cpMax = 0;
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
+
 	//DWORD dwStart = timeGetTime();
-	int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
+	int posFind = SendEditor((reverseDirection ? SCI_SEARCHPREV : SCI_SEARCHNEXT), flags, reinterpret_cast<long>(findWhat));
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
 	if (posFind == -1) {
 		// Failed to find in indicated direction so search on other side
-		if (reverseDirection) {
-			ft.chrg.cpMin = LengthDocument();
-			ft.chrg.cpMax = 0;
-		} else {
-			ft.chrg.cpMin = 0;
-			ft.chrg.cpMax = LengthDocument();
-		}
-		posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
-		WarnUser(warnFindWrapped);
-	}
+		posFind = SendEditor((reverseDirection ? SCI_SEARCHNEXT : SCI_SEARCHPREV), flags, reinterpret_cast<long>(findWhat));
+	}	
+
 	if (posFind == -1) {
 		havefound = false;
 		if (showWarnings) {
+			if (strlen(findWhat) > 200) 
+				findWhat[200] = '\0';
 			char msg[300];
 			strcpy(msg, "Cannot find the string \"");
 			strcat(msg, findWhat);
@@ -703,8 +691,8 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		}
 	} else {
 		havefound = true;
-		EnsureRangeVisible(ft.chrgText.cpMin, ft.chrgText.cpMax);
-		SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
+		EnsureRangeVisible(SendEditor(SCI_GETSELECTIONSTART),SendEditor(SCI_GETSELECTIONEND));
+		SendEditor(SCI_SCROLLCARET);
 		if (!replacing) {
 			DestroyFindReplace();
 		}
@@ -726,34 +714,27 @@ void SciTEBase::ReplaceAll() {
 		FindMessageBox("Find string for Replace All must not be empty.");
 		return ;
 	}
-
-	TextToFind ft;
-	ft.chrg.cpMin = 0;
-	ft.chrg.cpMax = LengthDocument();
-	ft.lpstrText = findWhat;
-	ft.chrgText.cpMin = 0;
-	ft.chrgText.cpMax = 0;
+	int actpos=SendEditor(SCI_GETCURRENTPOS);
+	SendEditor(SCI_GOTOPOS,0);
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
-	int posFind = SendEditor(SCI_FINDTEXT, flags,
-	                         reinterpret_cast<long>(&ft));
+	int posFind = SendEditor(SCI_SEARCHNEXT, flags, reinterpret_cast<long>(findWhat));
 	if (posFind != -1) {
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
-			SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
 			SendEditorString(SCI_REPLACESEL, 0, replaceWhat);
-			ft.chrg.cpMin = posFind + strlen(replaceWhat);
-			ft.chrg.cpMax = LengthDocument();
-			posFind = SendEditor(SCI_FINDTEXT, flags,
-			                     reinterpret_cast<long>(&ft));
+			posFind = SendEditor(SCI_SEARCHNEXT, flags, reinterpret_cast<long>(findWhat));
 		}
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
-		char msg[200];
+		if (strlen(findWhat) > 200) 
+			findWhat[200] = '\0';
+		char msg[300];
 		strcpy(msg, "No replacements because string \"");
 		strcat(msg, findWhat);
 		strcat(msg, "\" was not present.");
 		FindMessageBox(msg);
 	}
+	SendEditor(SCI_GOTOPOS, actpos);
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
 
@@ -998,11 +979,6 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	const char *root = linebuf + startword;
 	int rootlen = current - startword;
 	int doclen = LengthDocument();
-	TextToFind ft = {{0, 0}, 0, {0, 0}};
-	ft.lpstrText = const_cast<char*>(root);
-	ft.chrg.cpMin = 0;
-	ft.chrgText.cpMin = 0;
-	ft.chrgText.cpMax = 0;
 	int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	//int flags = (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	int posCurrentWord = SendEditor (SCI_GETCURRENTPOS) - rootlen;
@@ -1015,15 +991,15 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	int size = WORDCHUNK;
 	char *words = (char*) malloc(size);
 	*words = '\0';
+	SendEditor(SCI_GOTOPOS,0);
 	for (;;) {	// search all the document
-		ft.chrg.cpMax = doclen;
-		int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
+		int posFind = SendEditor(SCI_SEARCHNEXT, flags, reinterpret_cast<long>(root));
+
 		if (posFind == -1 || posFind >= doclen)
 			break;
-		if (posFind == posCurrentWord) {
-			ft.chrg.cpMin = posFind + rootlen;
+		if (posFind == posCurrentWord) 
 			continue;
-		}
+		
 		char wordstart[WORDCHUNK];
 		GetRange(wEditor, posFind, Platform::Minimum(posFind + WORDCHUNK - 1, doclen), wordstart);
 		char *wordend = wordstart + rootlen;
@@ -1064,10 +1040,10 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				return true; 
 			}
 		}
-		ft.chrg.cpMin = posFind + wordlen;
 	}
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found %d characters took %d\n", root, length, dwEnd - dwStart);
+	SendEditor(SCI_GOTOPOS,posCurrentWord+rootlen);
 	if (length) {
 		SendEditorString(SCI_AUTOCSHOW, rootlen, words);
 	}
@@ -1421,6 +1397,8 @@ void SciTEBase::AutomaticIndentation(char ch) {
  * such as displaying a completion list.
  */
 void SciTEBase::CharAdded(char ch) {
+	if (recording || playing) 
+                return;
 	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
 	int selEnd = crange.cpMax;
@@ -1947,6 +1925,19 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SetOverrideLanguage(cmdID);
 		break;
 
+	case IDM_STARTRECORDMACRO:
+		StartRecordMacro();
+                break;
+	case IDM_STOPRECORDMACRO:
+		StopRecordMacro();
+                break;
+	case IDM_STARTPLAYMACRO:
+		StartPlayMacro();
+                break;
+	case IDM_STARTMACROLIST:
+		AskMacroList();
+                break;
+        
 	case IDM_HELP: {
 			SelectionIntoProperties();
 			AddCommand(props.GetNewExpand("command.help.", fileName), "",
@@ -2219,6 +2210,16 @@ void SciTEBase::Notify(SCNotification *notification) {
 			EnsureRangeVisible(notification->position, notification->position + notification->length);
 		}
 		break;
+                
+	case SCN_USERLISTSELECTION: {
+			if (notification->wParam==2)
+				ContinueMacroList((char *)(notification->text));
+		}
+		break;
+
+	case SCN_MACRORECORD:
+		handled = RecordMacroCommand(notification);
+		break;
 	}
 }
 
@@ -2260,6 +2261,9 @@ void SciTEBase::CheckMenus() {
 			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.current);
 		}
 	}
+	EnableAMenuItem(IDM_STARTPLAYMACRO, !recording);
+	EnableAMenuItem(IDM_STARTRECORDMACRO, !recording);
+	EnableAMenuItem(IDM_STOPRECORDMACRO, recording);
 }
 
 /**
@@ -2329,6 +2333,12 @@ void SciTEBase::PerformOne(const char *action) {
 			strncpy(findWhat, arg, sizeof(findWhat));
 			findWhat[sizeof(findWhat)-1] = '\0';
 			FindNext(false, false);
+		} else if (isprefix(action, "macrolist:")) {
+			StartMacroList((char *)arg);
+		} else if (isprefix(action, "currentmacro:")) {
+			strcpy(currentmacro, arg);
+		} else if (isprefix(action, "macrocommand:")) {
+			ExecuteMacroCommand(arg);
 		}
 	}
 }
@@ -2360,7 +2370,7 @@ void SciTEBase::EnumProperties(const char *propkind) {
 	else if (!strcmp(propkind,"embed"))
 		pf = &propsEmbed;
 
-	if (pf != NULL){
+	if (pf != NULL) {
 		bool b = pf->GetFirst(&key,&val);	
 		while (b) {
 			SendOneProperty(propkind,key,val);
@@ -2390,6 +2400,181 @@ void SciTEBase::PropertyFromDirector(const char *arg) {
 		*equal = '\0';
 		SetProperty(prop, equal+1);
 		delete []prop;
+	}
+}
+
+/*
+ Menu/Toolbar command "Record"
+*/
+void SciTEBase::StartRecordMacro() {
+	recording = TRUE;
+	CheckMenus();
+	SendEditor(SCI_STARTRECORD);
+}
+
+/*
+	Received a SCN_MACRORECORD from Scintilla : send it to director
+*/
+bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
+	if (extender) {
+		char *szMessage;
+		char *t;
+		bool handled;
+		t = (char*)(notification->lParam);
+		if (t != NULL) {
+			//format : "<message>;<wParam>;1;<text>"
+			szMessage = new char[50+strlen(t)+4];
+			sprintf(szMessage,"%d;%ld;1;%s",notification->message,notification->wParam,t);
+		}else{
+			//format : "<message>;<wParam>;0;"
+			szMessage = new char[50];
+			sprintf(szMessage,"%d;%ld;0;",notification->message,notification->wParam);
+		}
+		handled = extender->OnMacro("macro:record",szMessage);
+		delete []szMessage;
+		return handled;
+	}
+	return true;
+}
+
+/*
+ Menu/Toolbar command "Stop recording"
+*/
+void SciTEBase::StopRecordMacro() {
+	SendEditor(SCI_STOPRECORD);
+	if (extender)
+		extender->OnMacro("macro:stoprecord","");
+	recording=FALSE;
+	CheckMenus();
+}
+
+/*
+Menu/Toolbar command "Play macro..."  : tell director to build list of Macro names 
+Through this call, user has access to all macros in Filerx
+*/
+void SciTEBase::AskMacroList() {
+	if (extender) 
+		extender->OnMacro("macro:getlist","");
+}
+
+/*
+List of Macro names has been created. Ask Scintilla to show it
+*/
+bool SciTEBase::StartMacroList(char *words) {
+	if (words) {
+		SendEditorString(SCI_USERLISTSHOW, 2, words);//listtype=2
+	}
+	return true;
+
+}
+
+/*
+User has chosen a macro in the list. Ask director to execute it
+*/
+void SciTEBase::ContinueMacroList(char * stext) {
+	if ((extender) && (*stext != '\0')) {
+		strcpy(currentmacro,stext);
+		StartPlayMacro();
+	}
+}
+
+/*
+Menu/Toolbar command "Play current macro" (or called from ContinueMacroList)
+*/
+void SciTEBase::StartPlayMacro() {
+	if (extender) 
+		extender->OnMacro("macro:run",currentmacro);
+}
+
+/*
+SciTE received a macro command from director : execute it.
+If command needs answer (SCI_GETTEXTLENGTH ...) : give answer to director
+*/
+
+static uptr_t readnum(char **t) {
+	char *argend = strchr(*t,';');	// find ';' 
+	*argend = '\0';					// replace by null
+	uptr_t v = atoi(*t);				// read value
+	*t = argend+1;					// update pointer
+	return(v);						// return value
+}
+
+void SciTEBase::ExecuteMacroCommand(const char * command) {
+	char *nextarg = (char *)command;
+	uptr_t message;
+	uptr_t wParam;
+	int rep = 0;				//Scintilla's answer
+	char response[100];
+	char *answercmd=NULL;
+	int alen = 0;
+	int l;
+	char *tbuff = NULL;
+	int lParamTyp;
+
+	// replace \v (vertical tabs) by \n .... Trick to transmit \n's in strings
+	char * p = (char *)command;
+	while ((p = strchr(p,'\v')) != NULL) 
+                *p = '\n';
+
+	//extract message,wParam : same format as in RecordMacroCommand
+	
+	message = readnum(&nextarg);
+	wParam = readnum(&nextarg);
+	lParamTyp = readnum(&nextarg);
+	//prepare for eventual answers
+
+	switch (message) {
+		case SCI_GETLENGTH:
+			answercmd = "sci_length"; break;
+		case SCI_GETLINECOUNT:
+			answercmd = "sci_linecount"; break;
+		case SCI_GETCURRENTPOS:
+			answercmd = "sci_currentpos"; break;
+		case SCI_GETSELECTIONSTART:
+			answercmd = "sci_selectionstart"; break;
+		case SCI_GETSELECTIONEND:
+			answercmd = "sci_selectionend"; break;
+		case SCI_GETCHARAT:
+			answercmd = "sci_charat"; break;
+		case SCI_GETSELTEXT:
+			answercmd = "sci_seltext:"; break;
+		case SCI_GETCURLINE:
+			answercmd = "sci_curline:"; break;
+	}
+	if (answercmd != NULL)
+		alen = strlen(answercmd);
+
+
+	//Send Messages to Scintilla
+	if (message==SCI_GETSELTEXT) {
+		l = SendEditor(SCI_GETSELECTIONEND)-SendEditor(SCI_GETSELECTIONSTART);
+		tbuff = new char[l+alen+1];
+		strcpy(tbuff,answercmd);
+		if (l != 0)
+			rep = SendEditor(SCI_GETSELTEXT,0,(long)(tbuff+alen));
+	} else if (message == SCI_GETCURLINE) {
+		int line = SendEditor(SCI_LINEFROMPOSITION,SendEditor(SCI_GETCURRENTPOS));
+		l = SendEditor(SCI_LINELENGTH,line);
+		tbuff = new char[l+alen+1];
+		if (l != 0)
+			rep = SendEditor(SCI_GETCURLINE,l,(long)(tbuff+alen));
+	} else if (lParamTyp==1)		//lParam flag
+		rep = SendEditor(message,wParam,(long)readnum(&nextarg));  
+	else if (lParamTyp==2)		//lParam flag
+		rep = SendEditor(message,wParam,(long)nextarg);  
+	else
+		rep = SendEditor(message,wParam,0);
+
+	// Prepare and send answers to director
+
+	if (answercmd != NULL) {
+		if (tbuff == NULL) {
+			sprintf(response,"%s:%i",answercmd,rep);
+			extender->OnMacro("macro:info",response);
+		} else {
+			extender->OnMacro("macro:info",tbuff);
+			delete []tbuff;
+		}
 	}
 }
 

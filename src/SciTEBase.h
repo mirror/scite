@@ -306,6 +306,10 @@ protected:
 	bool jobUsesOutputPane;
 	long cancelFlag;
 
+	char currentmacro[100];
+	bool recording;
+	bool playing; //not used : never set to true ...
+        
 	PropSetFile propsEmbed;
 	PropSetFile propsBase;
 	PropSetFile propsUser;
@@ -506,6 +510,14 @@ protected:
 
 	void UIAvailable();
 	void PerformOne(const char *action);
+	void StartRecordMacro();
+	void StopRecordMacro();
+	void StartPlayMacro();
+	bool RecordMacroCommand(SCNotification *notification);
+	void ExecuteMacroCommand(const char * command);
+	void AskMacroList();
+	bool StartMacroList(char * words);
+	void ContinueMacroList(char * stxt);
 	bool ProcessCommandLine(SString &args, int phase);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);

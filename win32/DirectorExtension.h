@@ -27,6 +27,7 @@ public:
 	virtual bool OnDoubleClick();
 	virtual bool OnUpdateUI();
 	virtual bool OnMarginClick();
+	virtual bool OnMacro(const char *command, const char *params);
 	
 	virtual bool SendProperty(const char *prop);
 

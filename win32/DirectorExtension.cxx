@@ -210,6 +210,11 @@ bool DirectorExtension::OnMarginClick() {
 	return false;
 }
 
+bool DirectorExtension::OnMacro(const char *command, const char *params) {
+	SendDirector(command, params);
+	return true;
+}
+
 bool DirectorExtension::SendProperty(const char *prop) {
 	CheckEnvironment(host);
 	if (*prop) {

@@ -169,6 +169,10 @@ BEGIN
 #else
 	MENUITEM "&About SciTE...",			IDM_ABOUT
 #endif
+	MENUITEM "Run Macro...",        IDM_STARTMACROLIST
+	MENUITEM "Run Current Macro", IDM_STARTPLAYMACRO
+	MENUITEM "Record Macro",        IDM_STARTRECORDMACRO
+	MENUITEM "Stop Recording",     IDM_STOPRECORDMACRO
   END
 END
 
