@@ -733,6 +733,13 @@ void SciTEBase::GoMessage(int dir) {
 							delete []cdoc;
 							return ;
 						}
+                                        } else if (Exists(NULL, sourcePath, messagePath)) { 
+                                                if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) { 
+                                                        Open(messagePath); 
+                                                } else { 
+                                                        delete []cdoc; 
+                                                        return ; 
+                                                } 
 					}
 				}
 				SendEditor(SCI_MARKERDELETEALL, 0);
