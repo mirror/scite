@@ -155,7 +155,7 @@ void SciTEBase::SetImportMenu() {
 		for (int stackPos = 0; stackPos < importMax; stackPos++) {
 			int itemID = importCmdID + stackPos;
 			if (importFiles[stackPos][0]) {
-				SString entry = LocaliseString("Open", true);
+				SString entry = LocaliseString("Open");
 				entry.append(" ");
 				const char *cpDirEnd = strrchr(importFiles[stackPos].c_str(), pathSepChar);
 				if (cpDirEnd) {
@@ -975,6 +975,15 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 	} else {
 		return s;
 	}
+}
+
+SString SciTEBase::LocaliseMessage(const char *s, const char *param0, const char *param1) {
+	SString translation = LocaliseString(s);
+	if (param0)
+		translation.substitute("^0", param0);
+	if (param1)
+		translation.substitute("^1", param1);
+	return translation;
 }
 
 void SciTEBase::ReadLocalisation() {

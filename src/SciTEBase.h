@@ -607,7 +607,8 @@ protected:
 	void ImportMenu(int pos);
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
-	SString LocaliseString(const char *s, bool retainIfNotFound=false);
+	SString LocaliseString(const char *s, bool retainIfNotFound=true);
+	SString LocaliseMessage(const char *s, const char *param0=0, const char *param1=0);
 	void ReadLocalisation();
 	virtual void ReadPropertiesInitial();
 	void SetMonoFont();

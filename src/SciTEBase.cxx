@@ -1124,17 +1124,12 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		havefound = false;
 		if (showWarnings) {
 			WarnUser(warnNotFound);
-			if (strlen(findWhat) > findReplaceMaxLen)
-				findWhat[findReplaceMaxLen] = '\0';
-			char msg[findReplaceMaxLen + 50];
-			strcpy(msg, "Cannot find the string \"");
-			strcat(msg, findWhat);
-			strcat(msg, "\".");
+			SString msg = LocaliseMessage("Can not find the string '^0'.", findWhat);
 			if (wFindReplace.Created()) {
-				FindMessageBox(msg);
+				FindMessageBox(msg.c_str());
 			} else {
 				dialogsOnScreen++;
-				WindowMessageBox(wSciTE, msg, appName, MB_OK);
+				WindowMessageBox(wSciTE, msg.c_str(), appName, MB_OK);
 				dialogsOnScreen--;
 			}
 		}
@@ -1176,7 +1171,9 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	strcpy(findTarget, findWhat);
 	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
 	if (findLen == 0) {
-		FindMessageBox("Find string for \"Replace All\" must not be empty.");
+		SString msg = LocaliseMessage(
+			"Find string must not be empty for 'Replace All' command.");
+		FindMessageBox(msg.c_str());
 		return;
 	}
 
@@ -1185,7 +1182,9 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	int endPosition = cr.cpMax;
 	if (inSelection) {
 		if (startPosition == endPosition) {
-			FindMessageBox("Selection for \"Replace in Selection\" must not be empty.");
+			SString msg = LocaliseMessage(
+				"Selection must not be empty for 'Replace in Selection' command.");
+			FindMessageBox(msg.c_str());
 			return;
 		}
 	} else {
@@ -1240,13 +1239,9 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			SetSelection(lastMatch, lastMatch);
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
-		if (strlen(findWhat) > findReplaceMaxLen)
-			findWhat[findReplaceMaxLen] = '\0';
-		char msg[findReplaceMaxLen + 50];
-		strcpy(msg, "No replacements because string \"");
-		strcat(msg, findWhat);
-		strcat(msg, "\" was not present.");
-		FindMessageBox(msg);
+		SString msg = LocaliseMessage(
+			"No replacements because string '^0' was not present.", findWhat);
+		FindMessageBox(msg.c_str());
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }

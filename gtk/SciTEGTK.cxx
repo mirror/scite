@@ -152,7 +152,6 @@ protected:
 	void FindReplaceGrabFields();
 	void HandleFindReplace();
 	virtual void Find();
-	SString Translated(const char *original);
 	void TranslatedSetTitle(GtkWindow *w, const char *original);
 	GtkWidget *TranslatedLabel(const char *original);
 	GtkWidget *TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
@@ -871,7 +870,7 @@ bool SciTEGTK::SaveAsDialog() {
 	savingRTF = false;
 	savingPDF = false;
 	if (!fileSelector.Created()) {
-		fileSelector = gtk_file_selection_new(Translated("Save File As").c_str());
+		fileSelector = gtk_file_selection_new(LocaliseString("Save File As").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
@@ -898,7 +897,7 @@ bool SciTEGTK::SaveAsDialog() {
 void SciTEGTK::SaveAsHTML() {
 	if (!fileSelector.Created()) {
 		savingHTML = true;
-		fileSelector = gtk_file_selection_new(Translated("Export File As HTML").c_str());
+		fileSelector = gtk_file_selection_new(LocaliseString("Export File As HTML").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
@@ -921,7 +920,7 @@ void SciTEGTK::SaveAsHTML() {
 void SciTEGTK::SaveAsRTF() {
 	if (!fileSelector.Created()) {
 		savingRTF = true;
-		fileSelector = gtk_file_selection_new(Translated("Export File As RTF").c_str());
+		fileSelector = gtk_file_selection_new(LocaliseString("Export File As RTF").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
@@ -979,10 +978,6 @@ void SciTEGTK::Find() {
 	FindReplace(false);
 }
 
-SString SciTEGTK::Translated(const char *original) {
-	return LocaliseString(original, true);
-}
-
 static SString Padded(const SString &s) {
 	SString ret(s);
 	ret.insert(0, "  ");
@@ -991,11 +986,11 @@ static SString Padded(const SString &s) {
 }
 
 void SciTEGTK::TranslatedSetTitle(GtkWindow *w, const char *original) {
-	gtk_window_set_title(w, Translated(original).c_str());
+	gtk_window_set_title(w, LocaliseString(original).c_str());
 }
 
 GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
-	SString text = Translated(original);
+	SString text = LocaliseString(original);
 	// Don't know how to make an access key on a label transfer focus 
 	// to the next widget so remove the access key indicator.
 	text.remove("_");
@@ -1004,11 +999,11 @@ GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
 
 GtkWidget *SciTEGTK::TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
                               GtkSignalFunc func, gpointer data) {
-	return MakeCommand(Padded(Translated(original)).c_str(), accel_group, func, data);
+	return MakeCommand(Padded(LocaliseString(original)).c_str(), accel_group, func, data);
 }
 
 GtkWidget *SciTEGTK::TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active) {
-	return MakeToggle(Translated(original).c_str(), accel_group, active);
+	return MakeToggle(LocaliseString(original).c_str(), accel_group, active);
 }
 
 static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool useTop=false) {
@@ -2117,11 +2112,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]) {
 			SString segment(spath.c_str(), 0, end);
 			SString segmentLocalised = LocaliseString(segment.c_str());
 			spathTranslated.append("/");
-			if (segmentLocalised.length()) {
-				spathTranslated.append(segmentLocalised.c_str());
-			} else {
-				spathTranslated.append(segment.c_str());
-			}
+			spathTranslated.append(segmentLocalised.c_str());
 			spath.remove(0, end+1);
 			end = spath.search("/");
 		}

@@ -95,6 +95,7 @@ protected:
 
 	virtual void FixFilePath();
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size);
+	int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc);
 	virtual bool OpenDialog();
 	SString ChooseSaveName(const char *title, const char *filter=0, const char *ext=0);
 	virtual bool SaveAsDialog();

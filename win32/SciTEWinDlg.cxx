@@ -133,15 +133,13 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 }
 
 //  DoDialog is a bit like something in PC Magazine May 28, 1991, page 357
-int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc) {
+int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc) {
 	int result = ::DialogBox(hInst, resName, hWnd, lpProc);
 
 	if (result == -1) {
-		DWORD dwError = ::GetLastError();
-		SString errormsg = "Failed to create Dialog box ";
-		errormsg += SString(dwError).c_str();
-		errormsg += ".";
-		MessageBox(hWnd, errormsg.c_str(), appName, MB_OK);
+		SString errorNum(::GetLastError());
+		SString msg = LocaliseMessage("Failed to create dialog box: ^0.", errorNum.c_str());
+		MessageBox(hWnd, msg.c_str(), appName, MB_OK);
 	}
 
 	return result;
@@ -175,13 +173,13 @@ bool SciTEWin::OpenDialog() {
 	}
 	ofn.lpstrFilter = filter;
 	if (!openWhat[0]) {
-		strcpy(openWhat, LocaliseString("Custom Filter", true).c_str());
+		strcpy(openWhat, LocaliseString("Custom Filter").c_str());
 		openWhat[strlen(openWhat) + 1] = '\0';
 	}
 	ofn.lpstrCustomFilter = openWhat;
 	ofn.nMaxCustFilter = sizeof(openWhat);
 	ofn.nFilterIndex = filterDefault;
-	SString translatedTitle = LocaliseString("Open File", true);
+	SString translatedTitle = LocaliseString("Open File");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	if (props.GetInt("open.dialog.in.file.directory")) {
 		ofn.lpstrInitialDir = dirName;
@@ -263,7 +261,7 @@ SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const ch
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
 		ofn.nMaxFile = sizeof(saveName);
-		SString translatedTitle = LocaliseString(title, true);
+		SString translatedTitle = LocaliseString(title);
 		ofn.lpstrTitle = translatedTitle.c_str();
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 		ofn.lpstrFilter = filter;
@@ -330,7 +328,7 @@ void SciTEWin::LoadSessionDialog() {
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
 	ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
-	SString translatedTitle = LocaliseString("Load Session", true);
+	SString translatedTitle = LocaliseString("Load Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	ofn.Flags = OFN_HIDEREADONLY;
 	if (::GetOpenFileName(&ofn))
@@ -348,7 +346,7 @@ void SciTEWin::SaveSessionDialog() {
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
 		ofn.nMaxFile = sizeof(saveName);
-		SString translatedTitle = LocaliseString("Save Current Session", true);
+		SString translatedTitle = LocaliseString("Save Current Session");
 		ofn.lpstrTitle = translatedTitle.c_str();
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 		ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
@@ -533,7 +531,8 @@ void SciTEWin::Print(
 	di.lpszDatatype = 0;
 	di.fwType = 0;
 	if (::StartDoc(hdc, &di) < 0) {
-		MessageBox(MainHWND(), "Can not start printer document.", 0, MB_OK);
+		SString msg = LocaliseMessage("Can not start printer document.");
+		MessageBox(MainHWND(), msg.c_str(), 0, MB_OK);
 		return ;
 	}
 
