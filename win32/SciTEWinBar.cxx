@@ -348,7 +348,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 					} else {
 						accel = "";
 					}
-					LocaliseString(text);
+					text = LocaliseString(text.c_str());
 					if (text.length()) {
 						text.append("\t");
 						text.append(accel.c_str());
@@ -369,8 +369,7 @@ void SciTEWin::LocaliseMenus() {
 void SciTEWin::LocaliseControl(HWND w) {
 	char wtext[200];
 	if (::GetWindowText(w, wtext, sizeof(wtext))) {
-		SString text(wtext);
-		LocaliseString(text);
+		SString text = LocaliseString(wtext);
 		if (text.length())
 			::SetWindowText(w, text.c_str());
 	}

@@ -980,12 +980,7 @@ void SciTEGTK::Find() {
 }
 
 SString SciTEGTK::Translated(const char *original) {
-	SString text(original);
-	LocaliseString(text);
-	if (text.length())
-		return text;
-	else
-		return original;
+	return LocaliseString(original, true);
 }
 
 static SString Padded(const SString &s) {
@@ -2120,8 +2115,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]) {
 		int end = spath.search("/");
 		while (spath.length() > 1) {
 			SString segment(spath.c_str(), 0, end);
-			SString segmentLocalised = segment;
-			LocaliseString(segmentLocalised);
+			SString segmentLocalised = LocaliseString(segment.c_str());
 			spathTranslated.append("/");
 			if (segmentLocalised.length()) {
 				spathTranslated.append(segmentLocalised.c_str());

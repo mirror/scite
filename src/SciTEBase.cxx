@@ -684,7 +684,10 @@ void SciTEBase::BraceMatch(bool editor) {
 
 void SciTEBase::SetWindowName() {
 	if (fileName[0] == '\0') {
-		strcpy(windowName, "(Untitled)");
+		SString untitled = LocaliseString("Untitled");
+		untitled.insert(0, "(");
+		untitled.append(")");
+		strcpy(windowName, untitled.c_str());
 	} else if (props.GetInt("title.full.path") == 2) {
 		strcpy(windowName, fileName);
 		strcat(windowName, " @ ");

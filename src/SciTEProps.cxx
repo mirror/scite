@@ -155,8 +155,7 @@ void SciTEBase::SetImportMenu() {
 		for (int stackPos = 0; stackPos < importMax; stackPos++) {
 			int itemID = importCmdID + stackPos;
 			if (importFiles[stackPos][0]) {
-				SString entry("Open");
-				LocaliseString(entry, true);
+				SString entry = LocaliseString("Open", true);
 				entry.append(" ");
 				const char *cpDirEnd = strrchr(importFiles[stackPos].c_str(), pathSepChar);
 				if (cpDirEnd) {
@@ -957,7 +956,7 @@ void SciTEBase::SetPropertiesInitial() {
 		foldMarginWidth = foldMarginWidthDefault;
 }
 
-void SciTEBase::LocaliseString(SString &s, bool retainIfNotFound) {
+SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 	SString translation = s;
 	int ellipseIndicator = translation.remove("...");
 	int accessKeyPresent = translation.remove(menuAccessIndicator);
@@ -972,7 +971,9 @@ void SciTEBase::LocaliseString(SString &s, bool retainIfNotFound) {
 		translation = props.Get("translation.missing");
 	}
 	if ((translation.length() > 0) || !retainIfNotFound) {
-		s = translation;
+		return translation;
+	} else {
+		return s;
 	}
 }
 

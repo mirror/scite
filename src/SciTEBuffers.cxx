@@ -488,8 +488,9 @@ void SciTEBase::BuffersMenu() {
 			sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
 #endif
 			if (buffers.buffers[pos].IsUntitled()) {
-				strcat(entry, "Untitled");
-				strcat(titleTab, "Untitled");
+				SString untitled = LocaliseString("Untitled");
+				strcat(entry, untitled.c_str());
+				strcat(titleTab, untitled.c_str());
 			} else {
 				strcat(entry, buffers.buffers[pos].FullPath());
 

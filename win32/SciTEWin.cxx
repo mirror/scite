@@ -32,9 +32,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	winPlace.length = 0;
 
+	openWhat[0] = '\0';
 	memset(&fr, 0, sizeof(fr));
-	strcpy(openWhat, "Custom Filter");
-	openWhat[strlen(openWhat) + 1] = '\0';
 	filterDefault = 1;
 
 	// Read properties resource into propsEmbed
