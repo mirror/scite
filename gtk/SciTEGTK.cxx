@@ -1986,7 +1986,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Open Local _Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
 	    {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
 	    {"/Options/Open _Global Options File", "", menuSig, IDM_OPENGLOBALPROPERTIES, 0},
-	    {"/Options/Open _Abbreviations Options File", "", menuSig, IDM_OPENABBREVPROPERTIES, 0},
+	    {"/Options/Open _Abbreviations File", "", menuSig, IDM_OPENABBREVPROPERTIES, 0},
 	    {"/Options/sep4", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Edit Props", "", 0, 0, "<Branch>"},
 	    {"/Options/Edit Props/Props0", "", menuSig, IDM_IMPORT + 0, 0},
