@@ -26,7 +26,7 @@ const char *VMSToUnixStyle(const char *fileName);
 #endif
 #ifdef WIN32
 #ifdef _MSC_VER
-// Shut up level 4 warning:  
+// Shut up level 4 warning:
 // warning C4710: function 'void whatever(...)' not inlined
 // warning C4800: forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning(disable: 4710 4800)
@@ -149,7 +149,7 @@ public:
 	bool useMonoFont;
 	time_t fileModTime;
 	SString overrideExtension;
-	Buffer() : 
+	Buffer() :
 		RecentFile(), doc(0), isDirty(false), useMonoFont(false), fileModTime(0) {
 	}
 
@@ -310,6 +310,7 @@ protected:
 	int indentSize;
 	bool indentOpening;
 	bool indentClosing;
+	bool indentMaintain;
 	int statementLookback;
 	StyleAndWords statementIndent;
 	StyleAndWords statementEnd;
@@ -420,7 +421,7 @@ protected:
 	PropSetFile props;
 
 	PropSetFile propsAbbrev;
-	
+
 	PropSetFile propsUI;
 
 	PropSet propsStatus;
@@ -483,7 +484,7 @@ protected:
 	virtual void LoadSessionDialog() { };
 	virtual void SaveSessionDialog() { };
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
-	bool Open(const char *file = 0, bool initialCmdLine = false, 
+	bool Open(const char *file = 0, bool initialCmdLine = false,
 		bool forceLoad = false, bool maySaveIfDirty=true);
 	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad = false);
 	void OpenSelected();
@@ -560,6 +561,7 @@ protected:
 	bool RangeIsAllWhitespace(int start, int end);
 	IndentationStatus GetIndentState(int line);
 	int IndentOfBlock(int line);
+	void MaintainIndentation(char ch);
 	void AutomaticIndentation(char ch);
 	void CharAdded(char ch);
 	void SetTextProperties(PropSet &ps);

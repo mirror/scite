@@ -807,6 +807,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETINDENT, indentSize);
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
+	indentMaintain = props.GetNewExpand("indent.maintain.", fileNameForExtension.c_str()).value();
+
 	SString lookback = props.GetNewExpand("statement.lookback.", fileNameForExtension.c_str());
 	statementLookback = lookback.value();
 	statementIndent = GetStyleAndWords("statement.indent.");

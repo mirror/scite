@@ -1824,7 +1824,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
 	indent.automatic<br />
 	indent.opening<br />
-	indent.closing
+	indent.closing<br />
+	indent.maintain.<i>filepattern</i>
         </td>
         <td>
           Determines the look of automatic indentation. Automatic indentation is turned on with
@@ -1842,7 +1843,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 		&nbsp;&nbsp;&nbsp;&nbsp;{<br />
 		&nbsp;&nbsp;&nbsp;&nbsp;s;<br />
 		&nbsp;&nbsp;&nbsp;&nbsp;}<br />
-	 </code>
+	 </code><br />
+	 Automatic indentation may be changed to simply repeat the indentation of the 	
+	 previous line for some files with indent.maintain.<i>filepattern</i>=1 which
+	 overrides the other language specific specific settings.
 	 </td>
       </tr>
       <tr>

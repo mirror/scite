@@ -225,10 +225,10 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	regExp = false;
 	wrapFind = true;
 	unSlash = false;
-	
+
 	languageMenu = 0;
 	languageItems = 0;
-	
+
 	fullPath[0] = '\0';
 	fileName[0] = '\0';
 	fileExt[0] = '\0';
@@ -1337,7 +1337,7 @@ void SciTEBase::Execute() {
 	for (ic = 0; ic < commandMax; ic++) {
 		jobQueue[ic].command = props.Expand(jobQueue[ic].command.c_str());
 	}
-	
+
 	if (clearBeforeExecute) {
 		SendOutput(SCI_CLEARALL);
 	}
@@ -1460,13 +1460,13 @@ bool SciTEBase::StartCallTip() {
 	functionDefinition = "";
 	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", linebuf + startword, rootlen, pos, pos - rootlen);
 	if (apis) {
-		const char *word = apis.GetNearestWord(linebuf + startword, rootlen, 
+		const char *word = apis.GetNearestWord(linebuf + startword, rootlen,
 			callTipIgnoreCase, calltipWordCharacters);
 		if (word) {
 			functionDefinition = word;
 			if (calltipEndDefinition != "") {
 				int posEndDef = functionDefinition.search(calltipEndDefinition.c_str());
-				if ((posEndDef > 1) && 
+				if ((posEndDef > 1) &&
 					((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
 						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n");
 				}
@@ -2061,24 +2061,24 @@ void SciTEBase::SetLineIndentation(int line, int indent) {
 	if (posAfter > posBefore) {
 		// Move selection on
 		if (crange.cpMin >= posBefore) {
-			crange.cpMin += posDifference; 
+			crange.cpMin += posDifference;
 		}
 		if (crange.cpMax >= posBefore) {
-			crange.cpMax += posDifference; 
+			crange.cpMax += posDifference;
 		}
 	} else if (posAfter < posBefore) {
 		// Move selection back
 		if (crange.cpMin >= posAfter) {
 			if (crange.cpMin >= posBefore)
-				crange.cpMin += posDifference; 
-			else 
-				crange.cpMin = posAfter; 
+				crange.cpMin += posDifference;
+			else
+				crange.cpMin = posAfter;
 		}
 		if (crange.cpMax >= posAfter) {
 			if (crange.cpMax >= posBefore)
-				crange.cpMax += posDifference; 
-			else 
-				crange.cpMax = posAfter; 
+				crange.cpMax += posDifference;
+			else
+				crange.cpMax = posAfter;
 		}
 	}
 	SetSelection(crange.cpMin, crange.cpMax);
@@ -2163,7 +2163,7 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 	// C like language indentation defined by braces and keywords
 	IndentationStatus indentState = isNone;
 	SString controlWords[20];
-	unsigned int parts = GetLinePartsInStyle(line, statementIndent.styleNumber, 
+	unsigned int parts = GetLinePartsInStyle(line, statementIndent.styleNumber,
 		-1, controlWords, ELEMENTS(controlWords));
 	for (unsigned int i = 0; i < parts; i++) {
 		if (includes(statementIndent, controlWords[i]))
@@ -2171,7 +2171,7 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 	}
 	// Braces override keywords
 	SString controlStrings[20];
-	parts = GetLinePartsInStyle(line, blockEnd.styleNumber, 
+	parts = GetLinePartsInStyle(line, blockEnd.styleNumber,
 		-1, controlStrings, ELEMENTS(controlStrings));
 	for (unsigned int j = 0; j < parts; j++) {
 		if (includes(blockEnd, controlStrings[j]))
@@ -2216,12 +2216,32 @@ int SciTEBase::IndentOfBlock(int line) {
 	return indentBlock;
 }
 
+void SciTEBase::MaintainIndentation(char ch) {
+	int curLine = GetCurrentLineNumber();
+	int lastLine = curLine - 1;
+	int indentAmount = 0;
+	int eolMode = SendEditor(SCI_GETEOLMODE);
+
+	if (((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') || (eolMode == SC_EOL_CR && ch == '\r')) {
+		if (props.GetInt("indent.automatic"))
+			while (indentAmount == 0 && lastLine > 0)
+				indentAmount = GetLineIndentation(lastLine--);
+		else
+			if (curLine > 0)
+				indentAmount = GetLineIndentation(lastLine);
+
+		if (indentAmount > 0)
+			SetLineIndentation(curLine, indentAmount);
+	}
+}
+
 void SciTEBase::AutomaticIndentation(char ch) {
 	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
 	int curLine = GetCurrentLineNumber();
 	int thisLineStart = SendEditor(SCI_POSITIONFROMLINE, curLine);
 	int indentBlock = IndentOfBlock(curLine - 1);
+
 	if (blockEnd.IsSingleChar() && ch == blockEnd.words[0]) {	// Dedent maybe
 		if (!indentClosing) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
@@ -2240,7 +2260,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 	} else if ((ch == '\r' || ch == '\n') && (selStart == thisLineStart)) {
 		if (!indentClosing && !blockEnd.IsSingleChar()) {	// Dedent previous line maybe
 			SString controlWords[1];
-			if (GetLinePartsInStyle(curLine-1, blockEnd.styleNumber, 
+			if (GetLinePartsInStyle(curLine-1, blockEnd.styleNumber,
 				-1, controlWords, ELEMENTS(controlWords))) {
 				if (includes(blockEnd, controlWords[0])) {
 					// Check if first keyword on line is an ender
@@ -2295,7 +2315,9 @@ void SciTEBase::CharAdded(char ch) {
 					StartCallTip();
 				} else {
 					autoCCausedByOnlyOne = false;
-					if (props.GetInt("indent.automatic"))
+					if (indentMaintain)
+						MaintainIndentation(ch);
+					else if (props.GetInt("indent.automatic"))
 						AutomaticIndentation(ch);
 					if (autoCompleteStartCharacters.contains(ch)) {
 						StartAutoComplete();
@@ -2679,7 +2701,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SendOutput(SCI_SETWRAPMODE, wrapOutput ? SC_WRAP_WORD : SC_WRAP_NONE);
 		CheckMenus();
 		break;
-		
+
 	case IDM_VIEWTABBAR:
 		tabVisible = !tabVisible;
 		ShowTabBar();
@@ -3223,21 +3245,21 @@ void SciTEBase::Notify(SCNotification *notification) {
 	case SCN_URIDROPPED:
 		OpenUriList(notification->text);
 		break;
-	
+
 	case SCN_DWELLSTART: {
 			char message[200];
 			if (INVALID_POSITION == notification->position) {
 				sprintf(message, "%0d (%0d,%0d)", notification->position, notification->x, notification->y);
 			} else {
 				int lengthDoc = SendEditor(SCI_GETLENGTH);
-				RangeExtendAndGrab(wEditor, message, sizeof(message), 
+				RangeExtendAndGrab(wEditor, message, sizeof(message),
 					notification->position, notification->position, lengthDoc, iswordcharforsel);
 				if (message[0])
 					SendEditorString(SCI_CALLTIPSHOW, notification->position, message);
 			}
 		}
 		break;
-	
+
 	case SCN_DWELLEND:
 		SendEditorString(SCI_CALLTIPCANCEL, 0, 0);
 		break;
