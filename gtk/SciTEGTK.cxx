@@ -2840,6 +2840,7 @@ void SciTEGTK::CreateMenu() {
 	            {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
 	            {"/Options/Open _Global Options File", "", menuSig, IDM_OPENGLOBALPROPERTIES, 0},
 	            {"/Options/Open A_bbreviations File", "", menuSig, IDM_OPENABBREVPROPERTIES, 0},
+	            {"/Options/Open Lua Startup Scr_ipt", "", menuSig, IDM_OPENLUAEXTERNALFILE, 0},
 	            {"/Options/sep4", NULL, NULL, 0, "<Separator>"},
 	            {"/Options/Edit Properties", "", 0, 0, "<Branch>"},
 	        };
