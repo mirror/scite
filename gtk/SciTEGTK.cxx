@@ -161,7 +161,7 @@ protected:
 	        char *pathDefaultDir, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
-	void UpdateStatusBar();
+	virtual void UpdateStatusBar(bool bUpdateSlowData);
 
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
@@ -521,8 +521,8 @@ void SciTEGTK::SetStatusBarText(const char *s) {
 	gtk_statusbar_push(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID, s);
 }
 
-void SciTEGTK::UpdateStatusBar() {
-	SciTEBase::UpdateStatusBar();
+void SciTEGTK::UpdateStatusBar(bool bUpdateSlowData) {
+	SciTEBase::UpdateStatusBar(bUpdateSlowData);
 }
 
 void SciTEGTK::Notify(SCNotification *notification) {
@@ -589,7 +589,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 	default:
 		SciTEBase::MenuCommand(cmdID);
 	}
-	UpdateStatusBar();
+	UpdateStatusBar(true);
 }
 
 void SciTEGTK::ReadPropertiesInitial() {
