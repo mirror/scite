@@ -1,4 +1,4 @@
-sci_base=/mnt/windows/os
+sci_base=/eff/os
 cd $sci_base/scintilla/gtk
 make
 cd $sci_base/scite/gtk
