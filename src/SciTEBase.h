@@ -9,6 +9,7 @@ extern const char appName[];
 
 extern const char pathSepString[];
 extern const char pathSepChar;
+extern const char configFileVisibilityString[];
 extern const char propUserFileName[];
 extern const char propGlobalFileName[];
 extern const char propAbbrevFileName[];

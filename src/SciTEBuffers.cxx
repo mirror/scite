@@ -234,6 +234,13 @@ void SciTEBase::InitialiseBuffers() {
 	}
 }
 
+static void EnsureEndsWithPathSeparator(char *path) {
+	int pathLen = strlen(path);
+	if ((pathLen > 0) && path[pathLen - 1] != pathSepChar) {
+		strcat(path, pathSepString);
+	}
+}
+
 static void RecentFilePath(char *path, const char *name) {
 	char *where = getenv("SciTE_HOME");
 	if (!where) {
@@ -243,10 +250,8 @@ static void RecentFilePath(char *path, const char *name) {
 		}
 	}
 	strcpy(path, where);
-	strcat(path, pathSepString);
-#if PLAT_GTK
-	strcat(path, ".");
-#endif
+	EnsureEndsWithPathSeparator(path);
+	strcat(path, configFileVisibilityString);
 	strcat(path, name);
 }
 

@@ -43,6 +43,7 @@
 #ifdef unix
 const char pathSepString[] = "/";
 const char pathSepChar = '/';
+const char configFileVisibilityString[] = ".";
 const char propUserFileName[] = ".SciTEUser.properties";
 const char fileRead[]="rb";
 const char fileWrite[]="wb";
@@ -50,6 +51,7 @@ const char fileWrite[]="wb";
 #ifdef __vms
 const char pathSepString[] = "/";
 const char pathSepChar = '/';
+const char configFileVisibilityString[] = "";
 const char propUserFileName[] = "SciTEUser.properties";
 const char fileRead[]="r";
 const char fileWrite[]="w";
@@ -58,6 +60,7 @@ const char fileWrite[]="w";
 // Windows
 const char pathSepString[] = "\\";
 const char pathSepChar = '\\';
+const char configFileVisibilityString[] = "";
 const char propUserFileName[] = "SciTEUser.properties";
 const char fileRead[]="rb";
 const char fileWrite[]="wb";
