@@ -389,6 +389,10 @@ void SciTEBase::OpenFile(bool suppressMessage) {
 
 	FILE *fp = fopen(fullPath, fileRead);
 	if (fp) {
+		fseek(fp, 0, SEEK_END);
+		int allocation = ftell(fp);
+		SendEditor(SCI_ALLOCATE, allocation + 1000);
+		fseek(fp, 0, SEEK_SET);
 		fileModTime = GetModTime(fullPath);
 		fileModLastAsk = fileModTime;
 		SendEditor(SCI_CLEARALL);
