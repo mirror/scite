@@ -879,7 +879,7 @@ void SciTEWin::CreateUI() {
 	SString pageSetup = props.Get("print.margins");
 	char val[32];
 	char *ps = StringDup(pageSetup.c_str());
-	char *next = GetNextPropItem(ps, val, 32);
+	const char *next = GetNextPropItem(ps, val, 32);
 	pagesetupMargin.left = atol(val);
 	next = GetNextPropItem(next, val, 32);
 	pagesetupMargin.right = atol(val);

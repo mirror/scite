@@ -75,7 +75,7 @@ void PlayThisSound(
 
 void SciTEWin::WarnUser(int warnID) {
 	SString warning;
-	char *warn, *next;
+	char *warn;
 	char flashDuration[10], sound[_MAX_PATH], soundDuration[10];
 
 	switch (warnID) {
@@ -102,7 +102,7 @@ void SciTEWin::WarnUser(int warnID) {
 		break;
 	}
 	warn = StringDup(warning.c_str());
-	next = GetNextPropItem(warn, flashDuration, 10);
+	const char *next = GetNextPropItem(warn, flashDuration, 10);
 	next = GetNextPropItem(next, sound, _MAX_PATH);
 	GetNextPropItem(next, soundDuration, 10);
 	delete []warn;
