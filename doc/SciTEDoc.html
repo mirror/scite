@@ -885,6 +885,7 @@ NameError: mistake
         <td>
 	statement.indent.<i>filepattern</i><br />
 	statement.end.<i>filepattern</i><br />
+	statement.lookback.<i>filepattern</i><br />
 	block.start.<i>filepattern</i><br />
 	block.end.<i>filepattern</i>
         </td>
@@ -903,6 +904,9 @@ NameError: mistake
 	 <code>
 		statement.end.$(file.patterns.cpp)=10 ;
 	 </code><br /><br />
+	 The number of lines looked at to determine indentation can be set with statement.lookback.
+	 This can be used either to bound the amount of time spent on this task or to specify 
+	 that only the last line be examined for indentation.<br />
 	 The block.start and block.end properties define the language elements used to bracket groups
 	 of statements. In C++ these are '{' and '}'.
         </td>
