@@ -70,6 +70,8 @@ protected:
 	HGLOBAL hDevMode;
 	HGLOBAL hDevNames;
 
+	HANDLE mutex;
+
 	/// HTMLHelp module
 	HMODULE hHH;
 	/// Multimedia (sound) module
