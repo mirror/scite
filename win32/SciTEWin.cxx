@@ -1252,6 +1252,8 @@ void SciTEWin::ProcessExecute() {
 		/* now that this has been inherited, close it to be safe.
 		You don't want to write to it accidentally */
 		CloseHandle(hPipeWrite);
+		CloseHandle(hRead2);
+		CloseHandle(hWrite2);
 
 		bool completed = !worked;
 		DWORD timeDetectedDeath = 0;
@@ -1324,6 +1326,7 @@ void SciTEWin::ProcessExecute() {
 			sprintf(exitmessage, ">Exit code: %ld\n", exitcode);
 			OutputAppendString(exitmessage);
 			CloseHandle(pi.hProcess);
+			CloseHandle(pi.hThread);
 		}
 		CloseHandle(hPipeRead);
 	}
