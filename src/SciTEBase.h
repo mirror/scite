@@ -386,6 +386,7 @@ protected:
 	virtual void FindReplace(bool replace)=0;
 	void OutputAppendString(const char *s, int len = -1);
 	void OutputAppendStringEx(const char *s, int len = -1, bool direct = true);
+	void MakeOutputVisible();
 	virtual void Execute();
 	virtual void StopExecute()=0;
 	void GoMessage(int dir);

@@ -751,6 +751,17 @@ void SciTEBase::OutputAppendStringEx(const char *s, int len /*= -1*/, bool direc
 	}
 }
 
+void SciTEBase::MakeOutputVisible() {
+	if (heightOutput < 20) {
+		if (splitVertical)
+			heightOutput = NormaliseSplit(300);
+		else
+			heightOutput = NormaliseSplit(100);
+		SizeSubWindows();
+		Redraw();
+	}
+}
+
 void SciTEBase::Execute() {
 	if (clearBeforeExecute) {
 		SendOutput(SCI_CLEARALL);
@@ -759,13 +770,8 @@ void SciTEBase::Execute() {
 	SendOutput(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
 	SendEditor(SCI_MARKERDELETEALL, 0);
 	// Ensure the output pane is visible
-	if (jobUsesOutputPane && heightOutput < 20) {
-		if (splitVertical)
-			heightOutput = NormaliseSplit(300);
-		else
-			heightOutput = NormaliseSplit(100);
-		SizeSubWindows();
-		Redraw();
+	if (jobUsesOutputPane) {
+		MakeOutputVisible();
 	}
 
 	cancelFlag = 0L;

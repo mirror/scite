@@ -471,6 +471,7 @@ void SciTEWin::ProcessExecute() {
 		SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
 		char buffer[16384];
 		//Platform::DebugPrintf("Execute <%s>\n", command);
+		MakeOutputVisible();
 		OutputAppendString(">");
 		OutputAppendString(jobQueue[icmd].command.c_str());
 		OutputAppendString("\n");
