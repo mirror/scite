@@ -218,7 +218,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				ak.fIndexOnFail = TRUE;
 				fnHHA(NULL,
 				      path,
-				      0x000d,         	// HH_KEYWORD_LOOKUP
+				      0x000d,          	// HH_KEYWORD_LOOKUP
 				      reinterpret_cast<DWORD>(&ak)
 				     );
 			}
@@ -599,7 +599,7 @@ void SciTEWin::ProcessExecute() {
 			    FORMAT_MESSAGE_IGNORE_INSERTS,
 			    NULL,
 			    nRet,
-			    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),  // Default language
+			    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   // Default language
 			    reinterpret_cast<LPTSTR>(&lpMsgBuf),
 			    0,
 			    NULL
@@ -621,7 +621,7 @@ void SciTEWin::ProcessExecute() {
 
 				int eofPosition = input.search("\x1a");
 				if (eofPosition >= 0) {
-					input.remove(eofPosition,0);
+					input.remove(eofPosition, 0);
 				}
 
 				if (input.length() > 0) {
@@ -629,10 +629,10 @@ void SciTEWin::ProcessExecute() {
 
 					DWORD bytesWrote = 0;
 					::WriteFile(hWriteSubProcess,
-						const_cast<char *>(input.c_str()),
-						input.length(), &bytesWrote, NULL);
+					            const_cast<char *>(input.c_str()),
+					            input.length(), &bytesWrote, NULL);
 
-					input.substitute("\n","\n>> ");
+					input.substitute("\n", "\n>> ");
 
 					OutputAppendStringSynchronised(">> ");
 					OutputAppendStringSynchronised(input.c_str());
@@ -687,8 +687,7 @@ void SciTEWin::ProcessExecute() {
 									completed = true;    // It's a dead process
 								}
 							}
-						}
-						else {	// NT, so dead already
+						} else {	// NT, so dead already
 							completed = true;
 						}
 					}
@@ -711,7 +710,7 @@ void SciTEWin::ProcessExecute() {
 		if (worked) {
 			if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 1000)) {
 				OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...");
-				::TerminateProcess(pi.hProcess,2);
+				::TerminateProcess(pi.hProcess, 2);
 			}
 			::GetExitCodeProcess(pi.hProcess, &exitcode);
 			if (isBuilding) {
@@ -818,18 +817,18 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	}
 
 	uptr_t rc = reinterpret_cast<uptr_t>(
-	               ::ShellExecute(
-	                   MainHWND(),         // parent wnd for msgboxes during app start
-	                   NULL,          // cmd is open
-	                   mycmd,         // file to open
-	                   myparams,         // parameters
-	                   dir.c_str(),         // launch directory
-	                   SW_SHOWNORMAL)); //default show cmd
+	                ::ShellExecute(
+	                    MainHWND(),          // parent wnd for msgboxes during app start
+	                    NULL,           // cmd is open
+	                    mycmd,          // file to open
+	                    myparams,          // parameters
+	                    dir.c_str(),          // launch directory
+	                    SW_SHOWNORMAL)); //default show cmd
 
 	if (rc > 32) {
 		// it worked!
 		delete []mycmdcopy;
-		return;
+		return ;
 	}
 
 	const int numErrcodes = 15;
@@ -882,7 +881,7 @@ void SciTEWin::Execute() {
 }
 
 void SciTEWin::StopExecute() {
-	if (hWriteSubProcess && (hWriteSubProcess!=INVALID_HANDLE_VALUE)) {
+	if (hWriteSubProcess && (hWriteSubProcess != INVALID_HANDLE_VALUE)) {
 		char stop[] = "\032";
 		DWORD bytesWrote = 0;
 		::WriteFile(hWriteSubProcess, stop, strlen(stop), &bytesWrote, NULL);
@@ -916,7 +915,7 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 				pCmd.remove(0);
 				parameterisedCommand = pCmd;
 				if (!ParametersDialog(true)) {
-					return;
+					return ;
 				}
 			} else {
 				ParamGrab();
@@ -950,7 +949,7 @@ void SciTEWin::CreateUI() {
 		height = CW_USEDEFAULT;
 	}
 	if (props.GetInt("position.tile") && ::FindWindow("SciTEWindow", NULL) &&
-		(left != static_cast<int>(CW_USEDEFAULT))) {
+	        (left != static_cast<int>(CW_USEDEFAULT))) {
 		left += width;
 	}
 	wSciTE = ::CreateWindowEx(
@@ -1098,7 +1097,7 @@ void SciTEWin::Run(const char *cmdLine) {
 		Print(false);
 		::PostQuitMessage(0);
 		wSciTE.Destroy();
-		return;
+		return ;
 	}
 
 	if (bAlreadyRunning && props.GetInt("check.if.already.open")) {
@@ -1142,7 +1141,7 @@ void SciTEWin::Run(const char *cmdLine) {
 
 			// Kill itself, leaving room to the previous instance
 			::PostQuitMessage(0);
-			return;	/* Don't do anything else */
+			return ;	/* Don't do anything else */
 		}
 	}
 
@@ -1299,47 +1298,36 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 		if (keyNum == (keyval - VK_F1 + 1))
 			return true;
 	}
-	
+
 	// handle "name" keys
-	if ( (sKey.length() > 1) ) {
-		if ( sKey == "Left" ) {
-			return ( keyval == VK_LEFT );
-		}
-		else if ( sKey == "Right" ) {
-			return ( keyval == VK_RIGHT );
-		}
-		else if ( sKey == "Up" ) {
-			return ( keyval == VK_UP );
-		}
-		else if ( sKey == "Down" ) {
-			return ( keyval == VK_DOWN );
-		}
-		else if ( sKey == "Insert" ) {
-			return ( keyval == VK_INSERT );
-		}
-		else if ( sKey == "End" ) {
-			return ( keyval == VK_END );
-		}
-		else if ( sKey == "Home" ) {
-			return ( keyval == VK_HOME );
-		}		
-		else if ( sKey == "Enter" ) {
-			return ( keyval == VK_RETURN );
-		}
-		else if ( sKey == "Escape" ) {
-			return ( keyval == VK_ESCAPE );
-		}
-		else if ( sKey == "Delete" ) {
-			return ( keyval == VK_DELETE );
-		}	
-		else if ( sKey == "PageUp" ) {
-			return ( keyval == VK_PRIOR );
-		}
-		else if ( sKey == "PageDown" ) {
-			return ( keyval == VK_NEXT );
+	if (sKey.length() > 1) {
+		if (sKey == "Left") {
+			return keyval == VK_LEFT;
+		} else if (sKey == "Right") {
+			return keyval == VK_RIGHT;
+		} else if (sKey == "Up") {
+			return keyval == VK_UP;
+		} else if (sKey == "Down") {
+			return keyval == VK_DOWN;
+		} else if (sKey == "Insert") {
+			return keyval == VK_INSERT;
+		} else if (sKey == "End") {
+			return keyval == VK_END;
+		} else if (sKey == "Home") {
+			return keyval == VK_HOME;
+		} else if (sKey == "Enter") {
+			return keyval == VK_RETURN;
+		} else if (sKey == "Escape") {
+			return keyval == VK_ESCAPE;
+		} else if (sKey == "Delete") {
+			return keyval == VK_DELETE;
+		} else if (sKey == "PageUp") {
+			return keyval == VK_PRIOR;
+		} else if (sKey == "PageDown") {
+			return keyval == VK_NEXT;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -1355,7 +1343,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 			return 1l;
 		}
 	}
-	
+
 	// loop through the keyboard short cuts defined by user.. if found
 	// exec it the command defined
 	for (int cut_i = 0; cut_i < shortCutItems; cut_i++) {
@@ -1367,7 +1355,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 			}
 		}
 	}
-	
+
 	return 0l;
 }
 
