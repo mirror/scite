@@ -319,10 +319,14 @@ int IntFromHexDigit(const char ch) {
 }
 
 ColourDesired ColourFromString(const char *val) {
-	int r = IntFromHexDigit(val[1]) * 16 + IntFromHexDigit(val[2]);
-	int g = IntFromHexDigit(val[3]) * 16 + IntFromHexDigit(val[4]);
-	int b = IntFromHexDigit(val[5]) * 16 + IntFromHexDigit(val[6]);
-	return ColourDesired(r, g, b);
+	if (val) {
+		int r = IntFromHexDigit(val[1]) * 16 + IntFromHexDigit(val[2]);
+		int g = IntFromHexDigit(val[3]) * 16 + IntFromHexDigit(val[4]);
+		int b = IntFromHexDigit(val[5]) * 16 + IntFromHexDigit(val[6]);
+		return ColourDesired(r, g, b);
+	} else {
+		return ColourDesired();
+	}
 }
 
 long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault) {
