@@ -622,8 +622,14 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 				return IDCANCEL;
 		}
 	}
-	if (props.GetInt("save.recent", 0))
+	if (props.GetInt("save.recent", 0)) {
+		for (int i = 0; i < buffers.length; ++i) {
+			Buffer buff = buffers.buffers[i];
+			AddFileToStack(buff.FullPath(),
+				buff.selection, buff.scrollPosition);
+		}
 		SaveRecentStack();
+	}
 	if (props.GetInt("buffers") && props.GetInt("save.session", 0))
 		SaveSession("");
 
