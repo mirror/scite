@@ -607,7 +607,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 		DWORD timeDetectedDeath = 0;
 
-		unsigned totalBytesToWrite = 0;
+		size_t totalBytesToWrite = 0;
 		if (jobToRun.flags & jobHasInput) {
 			totalBytesToWrite = jobToRun.input.length();
 		}
@@ -640,7 +640,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 				// There is input to transmit to the process.  Do it in small blocks, interleaved
 				// with reads, so that our hRead buffer will not be overrun with results.
 
-				int bytesToWrite = jobToRun.input.search("\n", writingPosition) + 1 - writingPosition;
+				size_t bytesToWrite = jobToRun.input.search("\n", writingPosition) + 1 - writingPosition;
 				if ((bytesToWrite <= 0) || (writingPosition + bytesToWrite >= totalBytesToWrite)) {
 					bytesToWrite = totalBytesToWrite - writingPosition;
 				}
@@ -667,7 +667,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 							// Write a Ctrl+Z to output to mark the end of the text
 							char stop[] = "\032";
 							::WriteFile(hWriteSubProcess,
-								stop, strlen(stop), &bytesWrote, NULL);
+								stop, static_cast<DWORD>(strlen(stop)), &bytesWrote, NULL);
 						}
 						::CloseHandle(hWriteSubProcess);
 						hWriteSubProcess = INVALID_HANDLE_VALUE;
@@ -958,7 +958,7 @@ void SciTEWin::StopExecute() {
 	if (hWriteSubProcess && (hWriteSubProcess != INVALID_HANDLE_VALUE)) {
 		char stop[] = "\032";
 		DWORD bytesWrote = 0;
-		::WriteFile(hWriteSubProcess, stop, strlen(stop), &bytesWrote, NULL);
+		::WriteFile(hWriteSubProcess, stop, static_cast<DWORD>(strlen(stop)), &bytesWrote, NULL);
 		Sleep(500L);
 	}
 

@@ -1900,7 +1900,7 @@ bool SciTEBase::StartInsertAbbreviation() {
 		}
 		SendEditorString(SCI_INSERTTEXT, caret_pos, abbrevText.c_str());
 		if (at_start) {
-			sel_start += abbrevText.length();
+			sel_start += static_cast<int>(abbrevText.length());
 		}
 		if (c == '\n') {
 			SetLineIndentation(currentLineNumber+1, indent);
@@ -1909,7 +1909,7 @@ bool SciTEBase::StartInsertAbbreviation() {
 
 	// set the caret to the desired position
 	if (!at_start && sel_length == 0) {
-		sel_start += expbuflen;
+		sel_start += static_cast<int>(expbuflen);
 	}
 	SendEditor(SCI_SETSEL, sel_start, sel_start + sel_length);
 

@@ -61,7 +61,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 		if (slashedMessage) {
 			COPYDATASTRUCT cds;
 			cds.dwData = 0;
-			cds.cbData = strlen(slashedMessage);
+			cds.cbData = static_cast<int>(strlen(slashedMessage));
 			cds.lpData = reinterpret_cast<void *>(
 			                 const_cast<char *>(slashedMessage));
 			::SendMessage(wDestination, WM_COPYDATA,
