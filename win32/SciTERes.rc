@@ -54,10 +54,10 @@ BEGIN
 	MENUITEM "Toggle Bookmar&k\tCtrl+F2",			IDM_BOOKMARK_TOGGLE
 	MENUITEM "Match &Brace\tCtrl+E",			IDM_MATCHBRACE
 	MENUITEM "Select t&o Brace\tCtrl+Shift+E",			IDM_SELECTTOBRACE
-	MENUITEM "Show Calltip\tCtrl+Shift+Space",		IDM_SHOWCALLTIP
+	MENUITEM "S&how Calltip\tCtrl+Shift+Space",		IDM_SHOWCALLTIP
 	MENUITEM "Complete S&ymbol\tCtrl+I",		IDM_COMPLETE
 	MENUITEM "Complete &Word\tCtrl+Enter",		IDM_COMPLETEWORD
-	MENUITEM "Toggle all folds",			IDM_TOGGLE_FOLDALL
+	MENUITEM "Toggle &all folds",			IDM_TOGGLE_FOLDALL
 	MENUITEM "Make &Selection Uppercase\tCtrl+Shift+U",		IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",		IDM_LWRCASE
   END
