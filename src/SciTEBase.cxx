@@ -89,6 +89,7 @@ const char *contributors[] = {
     "ActiveState http://www.activestate.com",
     "James Larcombe",
     "Alexey",
+    "Jan Hercek",
 };
 
 const char *extList[] = {
@@ -193,6 +194,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	visHeightEditor = 1;
 	heightBar = 7;
 	dialogsOnScreen = 0;
+	topMost = false;
 
 	heightOutput = 0;
 	previousHeightOutput = 0;
@@ -1692,6 +1694,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		BookmarkPrev();
 		break;
 
+	case IDM_BOOKMARK_CLEARALL:
+		SendEditor(SCI_MARKERDELETEALL, SciTE_MARKER_BOOKMARK);
+		break;
+
 	case IDM_TABSIZE:
 		TabSizeDialog();
 		break;
@@ -1736,6 +1742,12 @@ void SciTEBase::MenuCommand(int cmdID) {
 				Execute();
 			}
 		}
+		break;
+
+	case IDM_ONTOP:
+		topMost = (topMost ? false : true);
+		SetWindowPos(wSciTE.GetID(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0,0,0,0, SWP_NOMOVE + SWP_NOSIZE);
+		CheckAMenuItem(IDM_ONTOP, topMost);
 		break;
 
 	default:

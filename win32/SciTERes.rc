@@ -51,7 +51,6 @@ BEGIN
 	MENUITEM "S&how Calltip\tCtrl+Shift+Space",		IDM_SHOWCALLTIP
 	MENUITEM "Complete S&ymbol\tCtrl+I",		IDM_COMPLETE
 	MENUITEM "Complete &Word\tCtrl+Enter",		IDM_COMPLETEWORD
-	MENUITEM "Toggle &all folds",			IDM_TOGGLE_FOLDALL
 	MENUITEM "Make &Selection Uppercase\tCtrl+Shift+U",		IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",		IDM_LWRCASE
   END
@@ -68,6 +67,25 @@ BEGIN
 	MENUITEM "Next Book&mark\tF2",			IDM_BOOKMARK_NEXT
 	MENUITEM "Pre&vious Bookmark\tShift+F2",		IDM_BOOKMARK_PREV
 	MENUITEM "Toggle Bookmar&k\tCtrl+F2",			IDM_BOOKMARK_TOGGLE
+	MENUITEM "&Clear All Bookmarks",			IDM_BOOKMARK_CLEARALL
+  END
+
+  POPUP "&View"
+  BEGIN
+	MENUITEM "Toggle &current fold",		IDM_EXPAND
+	MENUITEM "Toggle &all folds",	IDM_TOGGLE_FOLDALL
+	MENUITEM SEPARATOR
+	MENUITEM "&Tool Bar",          IDM_VIEWTOOLBAR
+	MENUITEM "Tab &Bar",          IDM_VIEWTABBAR
+	MENUITEM "&Status Bar",          IDM_VIEWSTATUSBAR
+	MENUITEM SEPARATOR
+	MENUITEM "&Whitespace\tCtrl+Shift+8", IDM_VIEWSPACE
+	MENUITEM "&End of Line\tCtrl+Shift+9", IDM_VIEWEOL
+	MENUITEM "&Indentation Guides", IDM_VIEWGUIDES
+	MENUITEM "&Line Numbers",          IDM_LINENUMBERMARGIN
+	MENUITEM "&Margin",          IDM_SELMARGIN
+	MENUITEM "&Fold Margin",			IDM_FOLDMARGIN
+	MENUITEM "&Output\tF8",		IDM_TOGGLEOUTPUT
   END
 
   POPUP "&Tools"
@@ -83,26 +101,15 @@ BEGIN
 
   POPUP "&Options"
   BEGIN
+	MENUITEM "&Always On Top",   IDM_ONTOP
 	MENUITEM "Vertical &Split", IDM_SPLITVERTICAL
-	MENUITEM SEPARATOR
-	MENUITEM "View &Whitespace\tCtrl+Shift+8", IDM_VIEWSPACE
-	MENUITEM "View &End of Line\tCtrl+Shift+9", IDM_VIEWEOL
-	MENUITEM "View &Indentation Guides", IDM_VIEWGUIDES
-	MENUITEM "View &Margin", IDM_SELMARGIN
-	MENUITEM "View &Fold Margin", IDM_FOLDMARGIN
-	MENUITEM "View Line &Numbers", IDM_LINENUMBERMARGIN
-	MENUITEM "View Toolba&r", IDM_VIEWTOOLBAR
-	MENUITEM "View T&ab Bar", IDM_VIEWTABBAR
-	MENUITEM "&View Output\tF8", IDM_TOGGLEOUTPUT
-	MENUITEM "View Status &Bar", IDM_VIEWSTATUSBAR
-	MENUITEM SEPARATOR
 	MENUITEM "Clear Out&put", IDM_CLEAROUTPUT
 	MENUITEM SEPARATOR
 	POPUP "&Line End Characters"
 	BEGIN
-		MENUITEM "CR + LF",          IDM_EOL_CRLF
-		MENUITEM "CR",          IDM_EOL_CR
-		MENUITEM "LF",          IDM_EOL_LF
+		MENUITEM "CR &+ LF",          IDM_EOL_CRLF
+		MENUITEM "&CR",          IDM_EOL_CR
+		MENUITEM "&LF",          IDM_EOL_LF
 	END
 	MENUITEM "&Convert Line End Characters",          IDM_EOL_CONVERT
 	MENUITEM SEPARATOR
@@ -365,8 +372,8 @@ IDC_MARGIN         CURSOR  DISCARDABLE     "Margin.cur"
 #endif
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION	1, 3, 5, 0
-PRODUCTVERSION	1, 3, 5, 0
+FILEVERSION	1, 3, 6, 0
+PRODUCTVERSION	1, 3, 6, 0
 FILEFLAGSMASK	0x3fL
 FILEFLAGS 0
 FILEOS VOS_NT_WINDOWS32
@@ -383,12 +390,12 @@ BEGIN
 		BEGIN
 			VALUE	"CompanyName",	"Neil Hodgson neilh@scintilla.org\0"
 			VALUE	"FileDescription",	"SciTE - a Scintilla based Text Editor\0"
-			VALUE	"FileVersion",	"1.35\0"
+			VALUE	"FileVersion",	"1.36\0"
 			VALUE	"InternalName",	"SciTE\0"
 			VALUE	"LegalCopyright",	"Copyright 1998-2001 by Neil Hodgson\0"
 			VALUE	"OriginalFilename",	"SciTE.EXE\0"
 			VALUE	"ProductName",	"SciTE\0"
-			VALUE	"ProductVersion",	"1.35\0"
+			VALUE	"ProductVersion",	"1.36\0"
 		END
 	END
 END

@@ -49,6 +49,7 @@
 #define IDM_BOOKMARK_NEXT	221
 #define IDM_BOOKMARK_TOGGLE	222
 #define IDM_BOOKMARK_PREV	223
+#define IDM_BOOKMARK_CLEARALL	224
 #define IDM_MATCHBRACE		230
 #define IDM_SELECTTOBRACE	231
 #define IDM_SHOWCALLTIP		232
@@ -122,6 +123,9 @@
 // Help
 #define IDM_HELP			901
 #define IDM_ABOUT			902
+
+// Top
+#define IDM_ONTOP			960
 
 #define LEXER_BASE			800
 

@@ -27,8 +27,8 @@ const char *VMSToUnixStyle(const char *fileName);
 
 // The order of menus on Windows - the Buffers menu may not be present
 // and there is a Help menu at the end.
-enum { menuFile=0, menuEdit=1, menuSearch=2, menuTools=3, 
-	menuOptions=4, menuBuffers=5 };
+enum { menuFile=0, menuEdit=1, menuSearch=2, menuView=3, 
+	menuTools=4, menuOptions=5, menuBuffers=6 };
 
 // This is a fixed length list of strings suitable for display  in combo boxes
 // as a memory of user entries
@@ -238,6 +238,7 @@ protected:
 	int visHeightEditor;
 	int heightBar;
 	int dialogsOnScreen;
+	bool topMost;
 	enum { toolMax = 10 };
 	Extension *extender;
 
