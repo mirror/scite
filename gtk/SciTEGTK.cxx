@@ -268,14 +268,14 @@ void SciTEGTK::WarnUser(int) {
 }
 
 static GtkWidget *messageBoxDialog = 0;
-static int messageBoxResult = 0;
+static long messageBoxResult = 0;
 
 static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
 	if (event->keyval == GDK_Escape) {
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
 		gtk_widget_destroy(GTK_WIDGET(w));
 		messageBoxDialog = 0;
-		messageBoxResult = reinterpret_cast<int>(p);
+		messageBoxResult = reinterpret_cast<long>(p);
 	}
 	return 0;
 }
@@ -283,7 +283,7 @@ static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
 static void messageBoxOK(GtkWidget *, gpointer p) {
 	gtk_widget_destroy(GTK_WIDGET(messageBoxDialog));
 	messageBoxDialog = 0;
-	messageBoxResult = reinterpret_cast<int>(p);
+	messageBoxResult = reinterpret_cast<long>(p);
 }
 
 static GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
