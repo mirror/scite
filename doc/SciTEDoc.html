@@ -326,6 +326,22 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          Delete to start of line
+        </td>
+        <td>
+          Ctrl+Shift+BackSpace
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Delete to end of line
+        </td>
+        <td>
+          Ctrl+Shift+Delete
+        </td>
+      </tr>
+      <tr>
+        <td>
           Expand or contract a fold point.
         </td>
         <td>
@@ -761,6 +777,7 @@ NameError: mistake
         <td>
           caret.policy.strict<br />
           caret.policy.slop<br />
+          caret.policy.xeven<br />
 	caret.policy.lines
         </td>
         <td>
@@ -776,6 +793,8 @@ NameError: mistake
 	If slop is not set then the area is centred around the caret, with strict
 	determining if this centring is maintained at all times or if it is performed
 	only when the caret is not completely visible.
+	If caret.policy.xeven is set then both the left and right margins are treated
+	equally whereas if it is not set then displaying text to the left is preferred.
         </td>
       </tr>
       <tr>
