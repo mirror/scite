@@ -193,11 +193,10 @@ void SciTEBase::InitialiseBuffers() {
 		SendEditor(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
 		if (buffersWanted == 1) {
 			// No buffers, delete the Buffers main menu entry
-			//			DestroyMenuItem(4, IDM_CLOSEALL);
-			DestroyMenuItem(4, 0);
+			DestroyMenuItem(menuBuffers, 0);
 #if PLAT_WIN
 			// Destroy command "View Tab Bar" in the menu "Options"
-			DestroyMenuItem(3, IDM_VIEWTABBAR);
+			DestroyMenuItem(menuOptions, IDM_VIEWTABBAR);
 #endif
 		}
 	}
@@ -363,18 +362,18 @@ void SciTEBase::Prev() {
 
 void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
-	DestroyMenuItem(4, IDM_BUFFERSEP);
+	DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
 #if PLAT_WIN
 	::SendMessage(wTabBar.GetID(), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
 #endif
 
 	int pos;
 	for (pos = 0; pos < bufferMax; pos++) {
-		DestroyMenuItem(4, IDM_BUFFER + pos);
+		DestroyMenuItem(menuBuffers, IDM_BUFFER + pos);
 	}
 	if (buffers.size > 1) {
 		int menuStart = 4;
-		SetMenuItem(4, menuStart, IDM_BUFFERSEP, "");
+		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, "");
 		for (pos = 0; pos < buffers.length; pos++) {
 			int itemID = bufferCmdID + pos;
 			char entry[MAX_PATH + 20];
@@ -406,7 +405,7 @@ void SciTEBase::BuffersMenu() {
 				strcat(titleTab, " *");
 			}
 
-			SetMenuItem(4, menuStart + pos + 1, itemID, entry);
+			SetMenuItem(menuBuffers, menuStart + pos + 1, itemID, entry);
 #if PLAT_WIN
 			// Windows specific !
 			TCITEM tie;
@@ -426,14 +425,14 @@ void SciTEBase::BuffersMenu() {
 
 void SciTEBase::DeleteFileStackMenu() {
 	for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
-		DestroyMenuItem(0, fileStackCmdID + stackPos);
+		DestroyMenuItem(menuFile, fileStackCmdID + stackPos);
 	}
-	DestroyMenuItem(0, IDM_MRU_SEP);
+	DestroyMenuItem(menuFile, IDM_MRU_SEP);
 }
 
 void SciTEBase::SetFileStackMenu() {
 	if (recentFileStack[0].fileName[0]) {
-		SetMenuItem(0, MRU_START, IDM_MRU_SEP, "");
+		SetMenuItem(menuFile, MRU_START, IDM_MRU_SEP, "");
 		for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
 			//Platform::DebugPrintf("Setfile %d %s\n", stackPos, recentFileStack[stackPos].fileName.c_str());
 			int itemID = fileStackCmdID + stackPos;
@@ -444,7 +443,7 @@ void SciTEBase::SetFileStackMenu() {
 				sprintf(entry, "&%d ", stackPos);
 #endif
 				strcat(entry, recentFileStack[stackPos].fileName.c_str());
-				SetMenuItem(0, MRU_START + stackPos + 1, itemID, entry);
+				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, entry);
 			}
 		}
 	}
@@ -562,7 +561,7 @@ void SciTEBase::StackMenu(int pos) {
 
 void SciTEBase::RemoveToolsMenu() {
 	for (int pos = 0; pos < toolMax; pos++) {
-		DestroyMenuItem(2, IDM_TOOLS + pos);
+		DestroyMenuItem(menuTools, IDM_TOOLS + pos);
 	}
 }
 
@@ -581,7 +580,7 @@ void SciTEBase::SetToolsMenu() {
 			SString sMenuItem = commandName;
 			SString sMnemonic = "Ctrl+";
 			sMnemonic += SString(item).c_str();
-			SetMenuItem(2, menuPos + item, itemID, sMenuItem.c_str(), sMnemonic.c_str());
+			SetMenuItem(menuTools, menuPos + item, itemID, sMenuItem.c_str(), sMnemonic.c_str());
 		}
 	}
 }

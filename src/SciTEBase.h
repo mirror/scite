@@ -34,6 +34,11 @@ const char fileWrite[]="wb";
 #endif
 #endif
 
+// The order of menus on Windows - the Buffers menu may not be present
+// and there is a Help menu at the end.
+enum { menuFile=0, menuEdit=1, menuSearch=2, menuTools=3, 
+	menuOptions=4, menuBuffers=5 };
+
 const char propGlobalFileName[] = "SciTEGlobal.properties";
 
 // This is a fixed length list of strings suitable for display  in combo boxes

@@ -46,16 +46,6 @@ BEGIN
 	MENUITEM "&Delete\tDel",			IDM_CLEAR
 	MENUITEM "Select &All\tCtrl+A",			IDM_SELECTALL
 	MENUITEM SEPARATOR
-	MENUITEM "&Find...\tCtrl+F",			IDM_FIND
-	MENUITEM "Find &Next\tF3",			IDM_FINDNEXT
-	MENUITEM "Find Previou&s\tShift+F3",		IDM_FINDNEXTBACK
-	MENUITEM "F&ind in Files...\tCtrl+Shift+F",	IDM_FINDINFILES
-	MENUITEM "R&eplace...\tCtrl+H",			IDM_REPLACE
-	MENUITEM SEPARATOR
-	MENUITEM "&Go to...\tCtrl+G",			IDM_GOTO
-	MENUITEM "Next Book&mark\tF2",			IDM_BOOKMARK_NEXT
-	MENUITEM "Pre&vious Bookmark\tShift+F2",		IDM_BOOKMARK_PREV
-	MENUITEM "Toggle Bookmar&k\tCtrl+F2",			IDM_BOOKMARK_TOGGLE
 	MENUITEM "Match &Brace\tCtrl+E",			IDM_MATCHBRACE
 	MENUITEM "Select t&o Brace\tCtrl+Shift+E",			IDM_SELECTTOBRACE
 	MENUITEM "S&how Calltip\tCtrl+Shift+Space",		IDM_SHOWCALLTIP
@@ -66,6 +56,20 @@ BEGIN
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",		IDM_LWRCASE
   END
 
+  POPUP "&Search"
+  BEGIN
+	MENUITEM "&Find...\tCtrl+F",			IDM_FIND
+	MENUITEM "Find &Next\tF3",			IDM_FINDNEXT
+	MENUITEM "Find Previou&s\tShift+F3",		IDM_FINDNEXTBACK
+	MENUITEM "F&ind in Files...\tCtrl+Shift+F",	IDM_FINDINFILES
+	MENUITEM "R&eplace...\tCtrl+H",			IDM_REPLACE
+	MENUITEM SEPARATOR
+	MENUITEM "&Go to...\tCtrl+G",			IDM_GOTO
+	MENUITEM "Next Book&mark\tF2",			IDM_BOOKMARK_NEXT
+	MENUITEM "Pre&vious Bookmark\tShift+F2",		IDM_BOOKMARK_PREV
+	MENUITEM "Toggle Bookmar&k\tCtrl+F2",			IDM_BOOKMARK_TOGGLE
+  END
+  
   POPUP "&Tools"
   BEGIN
 	MENUITEM "&Compile\tCtrl+F7",			IDM_COMPILE
