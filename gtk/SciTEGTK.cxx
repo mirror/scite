@@ -1428,6 +1428,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREV, 0},
 	    {"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXT, 0},
+	    {"/Buffers/_Close All", "", menuSig, IDM_CLOSEALL, 0},
 	    {"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
 	    {"/Buffers/Buffer0", "", menuSig, bufferCmdID + 0, "<RadioItem>"},
 	    {"/Buffers/Buffer1", "", menuSig, bufferCmdID + 1, "/Buffers/Buffer0"},
