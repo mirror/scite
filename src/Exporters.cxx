@@ -432,15 +432,17 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		tabSize = 4;
 	int wysiwyg = props.GetInt("export.html.wysiwyg", 1);
 	int tabs = props.GetInt("export.html.tabs", 0);
+#ifdef FOLDING_HTML
 	int folding = props.GetInt("export.html.folding", 0);
 	int foldno = 0;
 	char startfolded[5] = "";
-
+	
 	if (props.GetInt("export.html.startfolded", 1)) {
 	        strcpy(startfolded, "none");
         } else {
 	        strcpy(startfolded, "all");
         }
+#endif
 
         FILE *fp = fopen(saveName, "wt");
         if (fp) {
@@ -598,6 +600,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 				        fputs("&gt;", fp);
 			        } else if (ch == '&') {
 				        fputs("&amp;", fp);
+#ifdef FOLDING_HTML
 			        } else if (ch == '{' && folding) {
 				        fprintf(fp, "<A id=\"fold%0dp\" href=\"javascript:void(0);\"", foldno);
 				        fprintf(fp, "onClick=\"if( fold%0d.style.display ) { fold%0d.style.display = ''; fold%0dp.text = '-'; }", foldno, foldno, foldno);
@@ -605,6 +608,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 				        fprintf(fp, "<SPAN id=\"fold%0d\" style=\"show: %s\">{", foldno++, startfolded);
 			        } else if (ch == '}' && folding) {
 				        fputs("}</SPAN>", fp);
+#endif
 			        } else {
 				        fputc(ch, fp);
 			        }
