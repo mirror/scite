@@ -84,6 +84,7 @@ const char *contributors[] = {
 	"Adam Gates",
 	"Steve Lhomme",
 	"Ferdinand Prantl",
+	"Jan Dries",
 };
 
 const char *extList[] = {
@@ -110,10 +111,10 @@ void SetAboutStyle(WindowID wsci, int style, Colour fore) {
 
 static void HackColour(int &n) {
 	n += (rand() % 100) - 50;
-	if (n < 0x40)
-		n = 0xC0;
-	if (n > 0xFF)
-		n = 0xC0;
+	if (n > 0xE7)
+		n = 0x60;
+	if (n < 0)
+		n = 0x80;
 }
 
 void SetAboutMessage(WindowID wsci, const char *appTitle) {
@@ -128,22 +129,22 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		fontSize = 14;
 #endif 
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
-		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, Colour(0, 0, 0).AsLong());
+		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, Colour(0xff, 0xff, 0xff).AsLong());
 		Platform::SendScintilla(wsci, SCI_STYLECLEARALL, 0, 0);
 
 		SetAboutStyle(wsci, 0, Colour(0xff, 0xff, 0xff));
-		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, 0, 24);
+		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, 0, fontSize);
 		Platform::SendScintilla(wsci, SCI_STYLESETBACK, 0, Colour(0, 0, 0x80).AsLong());
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
-		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff));
+		SetAboutStyle(wsci, 1, Colour(0, 0, 0));
 		AddStyledText(wsci, "Version 1.30\n", 1);
-		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff));
+		SetAboutStyle(wsci, 2, Colour(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
-		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff));
+		SetAboutStyle(wsci, 3, Colour(0, 0, 0));
 		AddStyledText(wsci, "December 1998-July 2000.\n", 3);
-		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff));
+		SetAboutStyle(wsci, 4, Colour(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
 		srand(static_cast<unsigned>(time(0)));
