@@ -346,6 +346,7 @@ protected:
 	int heightBar;
 	int dialogsOnScreen;
 	bool topMost;
+	bool wrap;
 	bool checkIfOpen;
 	bool fullScreen;
 	enum { toolMax = 10 };

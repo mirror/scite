@@ -925,6 +925,7 @@ void SciTEBase::ReadProperties() {
 void SciTEBase::SetPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
 	checkIfOpen = props.GetInt("check.if.already.open");
+	wrap = props.GetInt("wrap");
 	indentationWSVisible = props.GetInt("view.indentation.whitespace", 1);
 	sbVisible = props.GetInt("statusbar.visible");
 	tbVisible = props.GetInt("toolbar.visible");

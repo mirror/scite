@@ -58,7 +58,7 @@ BEGIN
 	MENUITEM "Complete &Word\tCtrl+Enter",		IDM_COMPLETEWORD
 	MENUITEM "&Expand Abbreviation\tCtrl+B",	IDM_ABBREV
 	MENUITEM "Block Co&mment or Uncomment\tCtrl+Q",	IDM_BLOCK_COMMENT
-	MENUITEM "Bo&x Comment\tCtrl+Alt+Q",		IDM_BOX_COMMENT
+	MENUITEM "Bo&x Comment\tCtrl+Shift+B",	IDM_BOX_COMMENT
 	MENUITEM "Stream Comme&nt\tCtrl+Shift+Q",	IDM_STREAM_COMMENT
 	MENUITEM "Make &Selection Uppercase\tCtrl+Shift+U",	IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",	IDM_LWRCASE
@@ -117,6 +117,7 @@ BEGIN
 	MENUITEM "&Always On Top",			IDM_ONTOP
 	MENUITEM "C&heck if already open",	IDM_CHECKIFOPEN
 	MENUITEM "Vertical &Split",			IDM_SPLITVERTICAL
+	MENUITEM "&Wrap",			IDM_WRAP
 	MENUITEM SEPARATOR
 	POPUP "&Line End Characters"
 	BEGIN
@@ -359,7 +360,7 @@ BEGIN
 	"K", IDM_SELECTTONEXTMATCHPPC, VIRTKEY, CONTROL, SHIFT
 	"Q", IDM_BLOCK_COMMENT, VIRTKEY, CONTROL
 	"Q", IDM_STREAM_COMMENT, VIRTKEY, CONTROL, SHIFT
-	"Q", IDM_BOX_COMMENT, VIRTKEY, CONTROL, ALT
+	"B", IDM_BOX_COMMENT, VIRTKEY, CONTROL, SHIFT
 	VK_RETURN, IDM_COMPLETEWORD, VIRTKEY, CONTROL
 
 	// this does not work and gives RC warning:
