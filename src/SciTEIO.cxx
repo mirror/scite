@@ -375,7 +375,9 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 	file = fixedFileName;
 #endif
 
-	int index = buffers.GetDocumentByName(file);
+	char absPath[MAX_PATH];
+	AbsolutePath(absPath, file, MAX_PATH);
+ 	int index = buffers.GetDocumentByName(absPath);
 	if (index >= 0) {
 		SetDocumentAt(index);
 		DeleteFileStackMenu();
@@ -398,7 +400,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 	}
 
 	//Platform::DebugPrintf("Opening %s\n", file);
-	SetFileName(file);
+	SetFileName(absPath);
 	overrideExtension = "";
 	ReadProperties();
 	if (useMonoFont) {
