@@ -147,11 +147,15 @@ public:
 	bool useMonoFont;
 	time_t fileModTime;
 	SString overrideExtension;
-	Buffer() : RecentFile(), doc(0), isDirty(false) {}
+	Buffer() : 
+		RecentFile(), doc(0), isDirty(false), useMonoFont(false), fileModTime(0) {
+	}
 
 	void Init() {
 		RecentFile::Init();
 		isDirty = false;
+		useMonoFont = false;
+		fileModTime = 0;
 		overrideExtension = "";
 	}
 };

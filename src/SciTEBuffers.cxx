@@ -158,10 +158,10 @@ void SciTEBase::SetDocumentAt(int index) {
 	buffers.current = index;
 
 	Buffer bufferNext = buffers.buffers[buffers.current];
-	overrideExtension = bufferNext.overrideExtension;
 	isDirty = bufferNext.isDirty;
 	useMonoFont = bufferNext.useMonoFont;
 	fileModTime = bufferNext.fileModTime;
+	overrideExtension = bufferNext.overrideExtension;
 	SetFileName(bufferNext.FullPath());
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
@@ -191,8 +191,8 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[buffers.current].scrollPosition = GetCurrentScrollPosition();
 		buffers.buffers[buffers.current].isDirty = isDirty;
 		buffers.buffers[buffers.current].useMonoFont = useMonoFont;
-		buffers.buffers[buffers.current].overrideExtension = overrideExtension;
 		buffers.buffers[buffers.current].fileModTime = fileModTime;
+		buffers.buffers[buffers.current].overrideExtension = overrideExtension;
 	}
 }
 
@@ -274,7 +274,7 @@ static void RecentFilePath(char *path, const char *name) {
 void SciTEBase::LoadRecentMenu() {
 	char recentPathName[MAX_PATH + 1];
 	RecentFilePath(recentPathName, recentFileName);
-	FILE *recentFile = fopen(recentPathName, "r");
+	FILE *recentFile = fopen(recentPathName, fileRead);
 	if (!recentFile) {
 		DeleteFileStackMenu();
 		return;
@@ -294,7 +294,7 @@ void SciTEBase::LoadRecentMenu() {
 void SciTEBase::SaveRecentStack() {
 	char recentPathName[MAX_PATH + 1];
 	RecentFilePath(recentPathName, recentFileName);
-	FILE *recentFile = fopen(recentPathName, "w");
+	FILE *recentFile = fopen(recentPathName, fileWrite);
 	if (!recentFile)
 		return;
 	int i;
@@ -321,7 +321,7 @@ void SciTEBase::LoadSession(const char *sessionName) {
 	char line[MAX_PATH + 1];
 	CharacterRange cr;
 	cr.cpMin = cr.cpMax = 0;
-	FILE *sessionFile = fopen(sessionPathName, "r");
+	FILE *sessionFile = fopen(sessionPathName, fileRead);
 	if (!sessionFile)
 		return;
 	// comment next line if you don't want to close all buffers before loading session
@@ -342,7 +342,7 @@ void SciTEBase::SaveSession(const char *sessionName) {
 	} else {
 		strcpy(sessionPathName, sessionName);
 	}
-	FILE *sessionFile = fopen(sessionPathName, "w");
+	FILE *sessionFile = fopen(sessionPathName, fileWrite);
 	if (!sessionFile)
 		return;
 	for (int i = buffers.length - 1; i >= 0; i--) {
@@ -406,10 +406,10 @@ void SciTEBase::Close(bool updateUI) {
 			buffers.RemoveCurrent();
 		}
 		Buffer bufferNext = buffers.buffers[buffers.current];
-		overrideExtension = bufferNext.overrideExtension;
 		isDirty = bufferNext.isDirty;
 		useMonoFont = bufferNext.useMonoFont;
 		fileModTime = bufferNext.fileModTime;
+		overrideExtension = bufferNext.overrideExtension;
 		if (updateUI)
 			SetFileName(bufferNext.FullPath());
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
@@ -563,7 +563,7 @@ void SciTEBase::DropFileStackTop() {
 }
 
 void SciTEBase::AddFileToBuffer(const char *file /*TODO:, CharacterRange selection, int scrollPos */) {
-	FILE *fp = fopen(file, "r");  // file existence test 
+	FILE *fp = fopen(file, fileRead);  // file existence test 
 	if (fp)                       // for missing files Open() gives an empty buffer - do not want this
 		Open(file, false, file);
 }
@@ -694,8 +694,10 @@ void SciTEBase::StackMenu(int pos) {
 		} else if (recentFileStack[pos].IsSet()) {
 			RecentFile rf = recentFileStack[pos];
 			//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
-			overrideExtension = "";
 			isDirty = false;
+			// useMonoFont = false?
+			overrideExtension = "";
+			fileModTime = 0;
 			Open(rf.FullPath());
 			DisplayAround(rf);
 		}

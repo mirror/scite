@@ -165,8 +165,6 @@ void SciTEBase::ImportMenu(int pos) {
 	//Platform::DebugPrintf("Stack menu %d\n", pos);
 	if (pos >= 0) {
 		if (importFiles[pos][0] != '\0') {
-			overrideExtension = "";
-			isDirty = false;
 			Open(importFiles[pos].c_str());
 		}
 	}
