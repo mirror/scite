@@ -436,14 +436,17 @@ void SciTEBase::DiscoverIndentSetting() {
 		}
 	}
 	// maximum non-zero indent
-	int topTabSize = -1;
+	int topIndentSize = -1;
 	for (int j = 0; j <= 8; j++) {
-		if (tabSizes[j] && (topTabSize == -1 || tabSizes[j] > tabSizes[topTabSize])) {
-			topTabSize = j;
+		if (tabSizes[j] && (topIndentSize == -1 || tabSizes[j] > tabSizes[topIndentSize])) {
+			topIndentSize = j;
 		}
 	}
 	// set indentation
-	SendEditor(SCI_SETINDENT, topTabSize);
+	if (topIndentSize <= 0)
+		SendEditor(SCI_SETINDENT, 8);
+	else 
+		SendEditor(SCI_SETINDENT, topIndentSize);
 }
 
 void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
