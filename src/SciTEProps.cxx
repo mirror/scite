@@ -479,6 +479,8 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("fold");
 	ForwardPropertyToEditor("fold.compact");
 	ForwardPropertyToEditor("fold.comment");
+	ForwardPropertyToEditor("fold.comment.python");
+	ForwardPropertyToEditor("fold.quotes.python");
 	ForwardPropertyToEditor("fold.html");
 	ForwardPropertyToEditor("styling.within.preprocessor");
 	ForwardPropertyToEditor("tab.timmy.whinge.level");
