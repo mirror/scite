@@ -147,6 +147,7 @@ const char *contributors[] = {
 				 "Alexander Scripnik",
 				 "Ryan Christianson",
 				 "Martin Steffensen",
+				 "Jakub Vrána",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -371,13 +372,14 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		int g = rand() % 256;
 		int b = rand() % 256;
 		for (unsigned int co = 0;co < (sizeof(contributors) / sizeof(contributors[0]));co++) {
-			AddStyledText(wsci, "\n", 50 + co);
+			int colourIndex = 50 + (co % 78);
+			AddStyledText(wsci, "\n", colourIndex);
 			HackColour(r);
 			HackColour(g);
 			HackColour(b);
-			SetAboutStyle(wsci, 50 + co, ColourDesired(r, g, b));
-			AddStyledText(wsci, "    ", 50 + co);
-			AddStyledText(wsci, contributors[co], 50 + co);
+			SetAboutStyle(wsci, colourIndex, ColourDesired(r, g, b));
+			AddStyledText(wsci, "    ", colourIndex);
+			AddStyledText(wsci, contributors[co], colourIndex);
 		}
 		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
 	}
