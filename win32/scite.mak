@@ -37,8 +37,8 @@ LD=link
 INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src 
 CXXFLAGS=/TP /W4 
 # For something scary:/Wp64
-CXXDEBUG=/Zi /Od /MDd
-CXXNDEBUG=/Ox /MD
+CXXDEBUG=/Zi /Od /MDd -DDEBUG
+CXXNDEBUG=/Ox /MD -DNDEBUG
 NAMEFLAG=-Fo
 LDFLAGS=/opt:nowin98 /NODEFAULTLIB:LIBC
 LDDEBUG=/DEBUG
@@ -55,8 +55,8 @@ INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src
 CXXFLAGS =-v
 CXXFLAGS=-P -tWM -w -w-prc -w-inl -RT- -x-
 # Above turns off warnings for clarfying parentheses and inlines with for not expanded
-CXXDEBUG=-v
-CXXNDEBUG=-O1
+CXXDEBUG=-v -DDEBUG
+CXXNDEBUG=-O1 -DNDEBUG
 NAMEFLAG=-o
 LDFLAGS=
 LDDEBUG=-v
