@@ -252,6 +252,9 @@
 				RelativePath="..\..\scintilla\src\LexRuby.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexScriptol.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexSQL.cxx">
 			</File>
 			<File
