@@ -3028,7 +3028,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_MODIFIED:
-		if (notification->modificationType == SC_MOD_CHANGEFOLD) {
+		if (0 != (notification->modificationType & SC_MOD_CHANGEFOLD)) {
 			FoldChanged(notification->line,
 			            notification->foldLevelNow, notification->foldLevelPrev);
 		}
