@@ -542,7 +542,7 @@ protected:
 	bool isReadOnly;
 	bool openFilesHere;
 	bool fullScreen;
-	enum { toolMax = 10 };
+	enum { toolMax = 50 };
 	Extension *extender;
 
 	int heightOutput;
@@ -935,6 +935,11 @@ public:
 
 	void ProcessExecute();
 	WindowID GetID() { return wSciTE.GetID(); }
+
+private:
+	// un-implemented copy-constructor and assignment operator
+	SciTEBase(const SciTEBase&);
+	void operator=(const SciTEBase&);
 };
 
 /// Base size of file I/O operations.
