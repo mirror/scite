@@ -5,6 +5,8 @@
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#include <time.h>
+
 #include "SciTEWin.h"
 #ifndef NO_FILER
 #include "DirectorExtension.h"
@@ -476,12 +478,13 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
  */
 void SciTEWin::ProcessExecute() {
 	DWORD exitcode = 0;
-
 	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
 	bool seenOutput = false;
 
 	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
+
+		time_t timeStart = time(0);
 
 		if (jobQueue[icmd].jobType == jobShell) {
 			ShellExec(jobQueue[icmd].command, jobQueue[icmd].directory);
@@ -657,7 +660,12 @@ void SciTEWin::ProcessExecute() {
 					isBuilt = true;
 			}
 			char exitmessage[80];
-			sprintf(exitmessage, ">Exit code: %ld\n", exitcode);
+			if (timeCommands) {
+				sprintf(exitmessage, ">Exit code: %0ld    Time: %0ld\n", exitcode, time(0) - timeStart);
+			} else {
+				sprintf(exitmessage, ">Exit code: %0ld\n", exitcode);
+			}
+			
 			OutputAppendString(exitmessage);
 			::CloseHandle(pi.hProcess);
 			::CloseHandle(pi.hThread);
