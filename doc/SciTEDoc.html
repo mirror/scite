@@ -1531,13 +1531,16 @@ NameError: mistake
       <tr>
         <td>
 	export.html.wysiwyg<br />
-	export.html.tabs
+	export.html.tabs<br />
+	export.html.folding
         </td>
         <td>
 	When export.html.wysiwyg is set to 0 then exporting to a HTML file produces a smaller
 	file but which is less completely specified so may look more different to the on screen display.
 	When export.html.tabs is set to 1 and export.html.wysiwyg is set to 0 then tab characters in
-	the file are exported as tab characters rather than a sequence of space characters.
+	the file are exported as tab characters rather than a sequence of space characters.<br />
+	The exported file can be made to fold in browsers that support CSS well (Mozilla and Internet 
+	Explorer) by setting export.html.folding to 1.
         </td>
       </tr>
       <tr>
