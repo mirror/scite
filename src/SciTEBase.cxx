@@ -1825,6 +1825,390 @@ bool SciTEBase::SaveAs(char *file) {
 	}
 }
 
+#define RTF_HEADEROPEN "{\\rtf1\\ansi\\deff0\\deftab720"
+#define RTF_FONTDEFOPEN "{\\fonttbl"
+#define RTF_FONTDEF "{\\f%d\\fnil\\fcharset0 %s;}"
+#define RTF_FONTDEFCLOSE "}"
+#define RTF_COLORDEFOPEN "{\\colortbl"
+#define RTF_COLORDEF "\\red%d\\green%d\\blue%d;"
+#define RTF_COLORDEFCLOSE "}"
+#define RTF_HEADERCLOSE "\n"
+#define RTF_BODYOPEN ""
+#define RTF_BODYCLOSE "}"
+
+#define RTF_SETFONTFACE "\\f"
+#define RTF_SETFONTSIZE "\\fs"
+#define RTF_SETCOLOR "\\cf"
+#define RTF_SETBACKGROUND "\\highlight"
+#define RTF_BOLD_ON "\\b"
+#define RTF_BOLD_OFF "\\b0"
+#define RTF_ITALIC_ON "\\i"
+#define RTF_ITALIC_OFF "\\i0"
+#define RTF_UNDERLINE_ON "\\ul"
+#define RTF_UNDERLINE_OFF "\\ulnone"
+#define RTF_STRIKE_ON "\\i"
+#define RTF_STRIKE_OFF "\\strike0"
+
+#define RTF_EOLN "\\par\n"
+#define RTF_TAB "\\tab "
+
+#define MAX_STYLEDEF 128
+#define MAX_FONTDEF 64
+#define MAX_COLORDEF 8
+#define RTF_FONTFACE "Courier New"
+#define RTF_COLOR "#000000"
+
+int GetHexChar(char ch) { // 'H'
+	return ch > '9' ? (ch | 0x20) - 'a' + 10 : ch - '0';
+}
+
+int GetHexByte(const char *hexbyte) { // "HH"
+	return (GetHexChar(*hexbyte) << 4) | GetHexChar(hexbyte[1]);
+}
+
+int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
+	static int highlights[][3] = {
+		{ 0x00, 0x00, 0x00 }, // highlight1  0;0;0       black
+		{ 0x00, 0x00, 0xFF }, // highlight2  0;0;255     blue
+		{ 0x00, 0xFF, 0xFF }, // highlight3  0;255;255   cyan
+		{ 0x00, 0xFF, 0x00 }, // highlight4  0;255;0     green
+		{ 0xFF, 0x00, 0xFF }, // highlight5  255;0;255   violet
+		{ 0xFF, 0x00, 0x00 }, // highlight6  255;0;0     red
+		{ 0xFF, 0xFF, 0x00 }, // highlight7  255;255;0   yellow
+		{ 0xFF, 0xFF, 0xFF }, // highlight8  255;255;255 white
+		{ 0x00, 0x00, 0x80 }, // highlight9  0;0;128     dark blue
+		{ 0x00, 0x80, 0x80 }, // highlight10 0;128;128   dark cyan
+		{ 0x00, 0x80, 0x00 }, // highlight11 0;128;0     dark green
+		{ 0x80, 0x00, 0x80 }, // highlight12 128;0;128   dark violet
+		{ 0x80, 0x00, 0x00 }, // highlight13 128;0;0     brown
+		{ 0x80, 0x80, 0x00 }, // highlight14 128;128;0   khaki
+		{ 0x80, 0x80, 0x80 }, // highlight15 128;128;128 dark grey
+		{ 0xC0, 0xC0, 0xC0 }, // highlight16 192;192;192 grey
+	};
+	int maxdelta = 3 * 255 + 1, delta, index = -1;
+	int r = GetHexByte (rgb + 1), g = GetHexByte (rgb + 3), b = GetHexByte (rgb + 5);
+	for (unsigned int i = 0; i < sizeof(highlights)/sizeof(*highlights); i++) {
+		delta = abs (r - *highlights[i]) +
+			abs (g - highlights[i][1]) +
+			abs (b - highlights[i][2]);
+		if (delta < maxdelta) {
+			maxdelta = delta;
+			index = i;
+		}
+	}
+	return index + 1;
+}
+
+void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs20\cf0\highlight0\b0\i0
+	int lastLen = strlen(last), offset = 2, lastOffset, currentOffset, len;
+	*delta = '\0';
+	// font face
+	lastOffset = offset + 1;
+	while (last[lastOffset] != '\\')
+		lastOffset++;
+	currentOffset = offset + 1;
+	while (current[currentOffset] != '\\')
+		currentOffset++;
+	if (lastOffset != currentOffset || // change
+		strncmp(last + offset, current + offset, lastOffset - offset)) {
+		if (lastOffset != currentOffset) {
+			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
+			lastLen += currentOffset - lastOffset;
+		}
+		len = currentOffset - offset;
+		memcpy(last + offset, current + offset, len);
+		strcat (delta, RTF_SETFONTFACE);
+		lastOffset = strlen(delta);
+		memcpy(delta + lastOffset, last + offset, len);
+		delta[lastOffset + len] = '\0';
+	}
+	offset = currentOffset + 3;
+	// size
+	lastOffset = offset + 1;
+	while (last[lastOffset] != '\\')
+		lastOffset++;
+	currentOffset = offset + 1;
+	while (current[currentOffset] != '\\')
+		currentOffset++;
+	if (lastOffset != currentOffset || // change
+		strncmp(last + offset, current + offset, lastOffset - offset)) {
+		if (lastOffset != currentOffset) {
+			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
+			lastLen += currentOffset - lastOffset;
+		}
+		len = currentOffset - offset;
+		memcpy(last + offset, current + offset, len);
+		strcat (delta, RTF_SETFONTSIZE);
+		lastOffset = strlen(delta);
+		memcpy(delta + lastOffset, last + offset, len);
+		delta[lastOffset + len] = '\0';
+	}
+	offset = currentOffset + 3;
+	// color
+	lastOffset = offset + 1;
+	while (last[lastOffset] != '\\')
+		lastOffset++;
+	currentOffset = offset + 1;
+	while (current[currentOffset] != '\\')
+		currentOffset++;
+	if (lastOffset != currentOffset || // change
+		strncmp(last + offset, current + offset, lastOffset - offset)) {
+		if (lastOffset != currentOffset) {
+			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
+			lastLen += currentOffset - lastOffset;
+		}
+		len = currentOffset - offset;
+		memcpy(last + offset, current + offset, len);
+		strcat (delta, RTF_SETCOLOR);
+		lastOffset = strlen(delta);
+		memcpy(delta + lastOffset, last + offset, len);
+		delta[lastOffset + len] = '\0';
+	}
+	offset = currentOffset + 10;
+	// background
+	lastOffset = offset + 1;
+	while (last[lastOffset] != '\\')
+		lastOffset++;
+	currentOffset = offset + 1;
+	while (current[currentOffset] != '\\')
+		currentOffset++;
+	if (lastOffset != currentOffset || // change
+		strncmp(last + offset, current + offset, lastOffset - offset)) {
+		if (lastOffset != currentOffset) {
+			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
+			lastLen += currentOffset - lastOffset;
+		}
+		len = currentOffset - offset;
+		memcpy(last + offset, current + offset, len);
+		strcat (delta, RTF_SETBACKGROUND);
+		lastOffset = strlen(delta);
+		memcpy(delta + lastOffset, last + offset, len);
+		delta[lastOffset + len] = '\0';
+	}
+	offset = currentOffset + 2;
+	// bold
+	if (last[offset] != current[offset]) {
+		if (current[offset] == '\\') { // turn on
+			memmove (last + offset, last + offset + 1, lastLen-- - offset);
+			strcat (delta, RTF_BOLD_ON);
+			offset += 2;
+		} else { // turn off
+			memmove (last + offset + 1, last + offset, ++lastLen - offset);
+			last[offset] = '0';
+			strcat (delta, RTF_BOLD_OFF);
+			offset += 3;
+		}
+	} else
+		offset += current[offset] == '\\' ? 2 : 3;
+	// italic
+	if (last[offset] != current[offset]) {
+		if (current[offset] == '\\') { // turn on
+			memmove (last + offset, last + offset + 1, lastLen-- - offset);
+			strcat (delta, RTF_ITALIC_ON);
+		} else { // turn off
+			memmove (last + offset + 1, last + offset, ++lastLen - offset);
+			last[offset] = '0';
+			strcat (delta, RTF_ITALIC_OFF);
+		}
+	}
+	if (*delta) {
+		lastOffset = strlen(delta);
+		delta[lastOffset] = ' ';
+		delta[lastOffset + 1] = '\0';
+	}
+}
+
+void SciTEBase::SaveToRTF(const char *saveName) {
+	SendEditor(SCI_COLOURISE, 0, -1);
+	int tabSize = props.GetInt("saveas.rtf.tabsize", props.GetInt("tabsize"));;
+	int wysiwyg = props.GetInt("saveas.rtf.wysiwyg", 1);
+	SString fontFace = props.GetExpanded("saveas.rtf.font.face");
+	int fontSize = props.GetInt("saveas.rtf.font.size", 10 << 1);
+	int tabs = props.GetInt("saveas.rtf.tabs", 0);
+	if (tabSize == 0)
+		tabSize = 4;
+	if (!fontFace.length())
+		fontFace = RTF_FONTFACE;
+	FILE *fp = fopen(saveName, "wt");
+	if (fp) {
+		char styles[STYLE_DEFAULT + 1][MAX_STYLEDEF];
+		char fonts[STYLE_DEFAULT + 1][MAX_FONTDEF];
+		char colors[STYLE_DEFAULT + 1][MAX_COLORDEF];
+		char lastStyle[MAX_STYLEDEF], deltaStyle[MAX_STYLEDEF];
+		int fontCount = 1, colorCount = 1, i;
+		fputs(RTF_HEADEROPEN RTF_FONTDEFOPEN, fp);
+		strncpy(*fonts, fontFace.c_str(), MAX_FONTDEF);
+		fprintf(fp, RTF_FONTDEF, 0, fontFace.c_str());
+		strncpy(*colors, "#000000", MAX_COLORDEF);
+		for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
+			char key[200];
+			sprintf(key, "style.*.%0d", istyle);
+			char *valdef = StringDup(props.GetExpanded(key).c_str());
+			sprintf(key, "style.%s.%0d", language.c_str(), istyle);
+			char *val = StringDup(props.GetExpanded(key).c_str());
+			SString family;
+			SString fore;
+			SString back;
+			bool italics = false;
+			bool bold = false;
+			int size = 0;
+			if ((valdef && *valdef) || (val && *val)) {
+				if (valdef && *valdef) {
+					char *opt = valdef;
+					while (opt) {
+						char *cpComma = strchr(opt, ',');
+						if (cpComma)
+							*cpComma = '\0';
+						char *colon = strchr(opt, ':');
+						if (colon)
+							*colon++ = '\0';
+						if (0 == strcmp(opt, "italics"))
+							italics = true;
+						if (0 == strcmp(opt, "notitalics"))
+							italics = false;
+						if (0 == strcmp(opt, "bold"))
+							bold = true;
+						if (0 == strcmp(opt, "notbold"))
+							bold = false;
+						if (0 == strcmp(opt, "font"))
+							family = colon;
+						if (0 == strcmp(opt, "fore"))
+							fore = colon;
+						if (0 == strcmp(opt, "back"))
+							back = colon;
+						if (0 == strcmp(opt, "size"))
+							size = atoi(colon);
+						if (cpComma)
+							opt = cpComma + 1;
+						else
+							opt = 0;
+					}
+				}
+				if (val && *val) {
+					char *opt = val;
+					while (opt) {
+						char *cpComma = strchr(opt, ',');
+						if (cpComma)
+							*cpComma = '\0';
+						char *colon = strchr(opt, ':');
+						if (colon)
+							*colon++ = '\0';
+						if (0 == strcmp(opt, "italics"))
+							italics = true;
+						if (0 == strcmp(opt, "notitalics"))
+							italics = false;
+						if (0 == strcmp(opt, "bold"))
+							bold = true;
+						if (0 == strcmp(opt, "notbold"))
+							bold = false;
+						if (0 == strcmp(opt, "font"))
+							family = colon;
+						if (0 == strcmp(opt, "fore"))
+							fore = colon;
+						if (0 == strcmp(opt, "back"))
+							back = colon;
+						if (0 == strcmp(opt, "size"))
+							size = atoi(colon);
+						if (cpComma)
+							opt = cpComma + 1;
+						else
+							opt = 0;
+					}
+				}
+				if (wysiwyg && family.length()) {
+					for (i = 0; i < fontCount; i++)
+						if (!strcasecmp(family.c_str(), fonts[i]))
+							break;
+					if (i >= fontCount) {
+						strncpy(fonts[fontCount++], family.c_str(), MAX_FONTDEF);
+						fprintf(fp, RTF_FONTDEF, i, family.c_str());
+					}
+					sprintf(lastStyle, RTF_SETFONTFACE "%d", i);
+				} else
+					strcpy(lastStyle, RTF_SETFONTFACE "0");
+				sprintf(lastStyle + strlen(lastStyle), RTF_SETFONTSIZE "%d",
+					wysiwyg && size ? size << 1 : fontSize);
+				if (fore.length()) {
+					for (i = 0; i < colorCount; i++)
+						if (!strcasecmp(fore.c_str(), colors[i]))
+							break;
+					if (i >= colorCount)
+						strncpy(colors[colorCount++], fore.c_str(), MAX_COLORDEF);
+					sprintf(lastStyle + strlen(lastStyle), RTF_SETCOLOR "%d", i);
+				} else
+					strcat(lastStyle, RTF_SETCOLOR "0");
+				sprintf(lastStyle + strlen(lastStyle), RTF_SETBACKGROUND "%d",
+					back.length() ? GetRTFHighlight(back.c_str()) : 0);
+				strcat(lastStyle, bold ? RTF_BOLD_ON : RTF_BOLD_OFF);
+				strcat(lastStyle, italics ? RTF_ITALIC_ON : RTF_ITALIC_OFF);
+				strncpy(styles[istyle], lastStyle, MAX_STYLEDEF);
+			} else
+				sprintf(styles[istyle], RTF_SETFONTFACE "0" RTF_SETFONTSIZE "%d"
+					RTF_SETCOLOR "0" RTF_SETBACKGROUND "0"
+					RTF_BOLD_OFF RTF_ITALIC_OFF, fontSize);
+			if (val)
+				delete []val;
+			if (valdef)
+				delete []valdef;
+		}
+		fputs(RTF_FONTDEFCLOSE RTF_COLORDEFOPEN, fp);
+		for (i = 0; i < colorCount; i++) {
+			fprintf(fp, RTF_COLORDEF, GetHexByte(colors[i] + 1),
+				GetHexByte(colors[i] + 3), GetHexByte(colors[i] + 5));
+		}
+		fprintf(fp, RTF_COLORDEFCLOSE RTF_HEADERCLOSE RTF_BODYOPEN RTF_SETFONTFACE "0"
+			RTF_SETFONTSIZE "%d" RTF_SETCOLOR "0 ", fontSize);
+		sprintf(lastStyle, RTF_SETFONTFACE "0" RTF_SETFONTSIZE "%d"
+			RTF_SETCOLOR "0" RTF_SETBACKGROUND "0"
+			RTF_BOLD_OFF RTF_ITALIC_OFF, fontSize);
+		int lengthDoc = LengthDocument();
+		bool prevCR = false;
+		int styleCurrent = -1;
+		WindowAccessor acc(wEditor.GetID(), props);
+		for (i = 0; i < lengthDoc; i++) {
+			char ch = acc[i];
+			int style = acc.StyleAt(i);
+			if (style != styleCurrent) {
+				GetRTFStyleChange(deltaStyle, lastStyle, styles[style]);
+				if (*deltaStyle)
+					fputs(deltaStyle, fp);
+				styleCurrent = style;
+			}
+			if (ch == '{')
+				fputs("\\{", fp);
+			else if (ch == '}')
+				fputs("\\}", fp);
+			else if (ch == '\\')
+				fputs("\\", fp);
+			else if (ch == '\t') {
+				if (tabs)
+					fputs(RTF_TAB, fp);
+				else
+					for (int itab = 0; itab < tabSize; itab++)
+						fputc(' ', fp);
+			} else if (ch == '\n') {
+				if (!prevCR)
+					fputs(RTF_EOLN, fp);
+			} else if (ch == '\r')
+				fputs(RTF_EOLN, fp);
+			else
+				fputc(ch, fp);
+			prevCR = ch == '\r';
+		}
+		fputs(RTF_BODYCLOSE, fp);
+		fclose(fp);
+	} else {
+		char msg[200];
+		strcpy(msg, "Could not save file \"");
+		strcat(msg, fullPath);
+		strcat(msg, "\".");
+		dialogsOnScreen++;
+		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		dialogsOnScreen--;
+	}
+}
+
+
 void SciTEBase::SaveToHTML(const char *saveName) {
 	SendEditor(SCI_COLOURISE, 0, -1);
 	int tabSize = props.GetInt("tabsize");
@@ -2634,7 +3018,7 @@ bool SciTEBase::StartAutoComplete() {
 							break;
 						word = apis[pivot];
 						if (strncasecmp(root, word, rootlen))
-							break;
+							break;                 
 						brace = strchr(word, '(');
 						if (brace)
 							wordlen = brace - word;
@@ -3156,6 +3540,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SaveAsHTML();
 		SetFocus(wEditor.GetID());
 		break;
+	case IDM_SAVEASRTF:
+		SaveAsRTF();
+ 		SetFocus(wEditor.GetID());
+ 		break;
 	case IDM_REVERT:
 		if (SaveIfUnsure() != IDCANCEL) {
 			Revert();

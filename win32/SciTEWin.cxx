@@ -72,6 +72,7 @@ protected:
 	virtual bool OpenDialog();
 	virtual bool SaveAsDialog();
 	virtual void SaveAsHTML();
+	virtual void SaveAsRTF();
 
 	virtual void Print(bool showDialog);
 	virtual void PrintSetup();
@@ -756,6 +757,36 @@ void SciTEWin::SaveAsHTML() {
 		}
 		dialogsOnScreen--;
 	}
+}
+
+void SciTEWin::SaveAsRTF() {
+	if (0 == dialogsOnScreen) {
+		char saveName[MAX_PATH] = "\0";
+		strcpy(saveName, fileName);
+		char *cpDot = strrchr(saveName, '.');
+		if (cpDot != NULL)
+			strcpy(cpDot, ".rtf");
+		else
+			strcat(saveName, ".rtf");
+		OPENFILENAME ofn = {
+			sizeof(OPENFILENAME),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+		};
+		ofn.hwndOwner = wSciTE.GetID();
+		ofn.hInstance = hInstance;
+		ofn.lpstrFile = saveName;
+		ofn.nMaxFile = sizeof(saveName);
+		ofn.lpstrTitle = "Save File As RTF";
+		ofn.Flags = OFN_HIDEREADONLY;
+
+		ofn.lpstrFilter = "RTF (.rtf)\0*.rtf\0";
+
+		dialogsOnScreen++;
+		if (::GetSaveFileName(&ofn)) {
+			//Platform::DebugPrintf("Save As RTF: <%s>\n", saveName);
+			SaveToRTF(saveName);
+ 		}
+ 		dialogsOnScreen--;
+ 	}
 }
 
 void SciTEWin::Print(bool showDialog) {

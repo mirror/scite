@@ -59,6 +59,7 @@ protected:
 	int inputHandle;
 
 	bool savingHTML;
+	bool savingRTF;
 	Window fileSelector;
 	Window findInFilesDialog;
 	GtkWidget *comboFiles;
@@ -93,6 +94,7 @@ protected:
 	virtual bool OpenDialog();
 	virtual bool SaveAsDialog();
 	virtual void SaveAsHTML();
+	virtual void SaveAsRTF();
 
 	virtual void Print();
 	virtual void PrintSetup();
@@ -197,6 +199,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	ptOld = Point(0, 0);
 	xor_gc = 0;
 	savingHTML = false;
+	savingRTF = false;
 	comboFiles = 0;
 	gotoEntry = 0;
 	toggleWord = 0;
@@ -582,6 +585,7 @@ bool SciTEGTK::OpenDialog() {
 
 bool SciTEGTK::SaveAsDialog() {
 	savingHTML = false;
+	savingRTF = false;
 	if (!fileSelector.Created()) {
 		fileSelector = gtk_file_selection_new("Save File As");
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
@@ -605,6 +609,26 @@ void SciTEGTK::SaveAsHTML() {
 	if (!fileSelector.Created()) {
 		savingHTML = true;
 		fileSelector = gtk_file_selection_new("Save File As HTML");
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
+		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),
+		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
+		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
+		                   this);
+		// Other ways to destroy
+		// Mark it as a modal transient dialog
+		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
+		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
+		                              GTK_WINDOW(wSciTE.GetID()));
+		fileSelector.Show();
+	}
+}
+
+void SciTEGTK::SaveAsRTF() {
+	if (!fileSelector.Created()) {
+		savingRTF = true;
+		fileSelector = gtk_file_selection_new("Save File As RTF");
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),
@@ -1311,6 +1335,9 @@ void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	if (scitew->savingHTML)
 		scitew->SaveToHTML(gtk_file_selection_get_filename(
 		                       GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
+	else if (scitew->savingRTF)
+		scitew->SaveToRTF(gtk_file_selection_get_filename(
+		                       GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
 	else
 		scitew->SaveAs(gtk_file_selection_get_filename(
 		                   GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
@@ -1370,7 +1397,9 @@ void SciTEGTK::CreateMenu() {
 		{"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 		{"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
 		{"/File/Save _As", NULL, menuSig, IDM_SAVEAS, 0},
-		{"/File/Save As _HTML", NULL, menuSig, IDM_SAVEASHTML, 0},
+		{"/File/_Export", "", 0, 0, "<Branch>"},
+		{"/File/Export/As _HTML", NULL, menuSig, IDM_SAVEASHTML, 0},
+		{"/File/Export/As _RTF", NULL, menuSig, IDM_SAVEASRTF, 0},
 		{"/File/sep1", NULL, NULL, 0, "<Separator>"},
 		{"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
 		{"/File/File1", "", menuSig, fileStackCmdID + 1, 0},
