@@ -1233,7 +1233,8 @@ static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 	size_t len;
 	if (escapes) {
 		if (regularExpression) {
-			// For regular expressions only escape sequences allowed start with \0
+			// For regular expressions, the only escape sequences allowed start with \0
+			// Other sequences, like \t, are handled by the RE engine.
 			len = UnSlashLowOctal(sUnslashed);
 		} else {
 			// C style escapes allowed
@@ -1366,9 +1367,18 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	CharacterRange cr = GetSelection();
 	int startPosition = cr.cpMin;
 	int endPosition = cr.cpMax;
+	int selType = SC_SEL_STREAM;
 	if (inSelection) {
 		if (startPosition == endPosition) {
 			return -2;
+		}
+		selType = SendEditor(SCI_GETSELECTIONMODE);
+		if (selType == SC_SEL_LINES) {
+			// Take care to replace in whole lines
+			int startLine = SendEditor(SCI_LINEFROMPOSITION, startPosition);
+			startPosition = SendEditor(SCI_POSITIONFROMLINE, startLine);
+			int endLine = SendEditor(SCI_LINEFROMPOSITION, endPosition);
+			endPosition = SendEditor(SCI_POSITIONFROMLINE, endLine+1);
 		}
 	} else {
 		endPosition = LengthDocument();
@@ -1399,28 +1409,53 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 		int lastMatch = posFind;
 		int replacements = 0;
 		SendEditor(SCI_BEGINUNDOACTION);
+		// Replacement loop
 		while (posFind != -1) {
 			int lenTarget = SendEditor(SCI_GETTARGETEND) - SendEditor(SCI_GETTARGETSTART);
+			if (inSelection && selType == SC_SEL_RECTANGLE) {
+				// We must check that the found target is entirely inside the rectangular selection:
+				// it must fit in one line, and inside the selection bounds of this line.
+				int line = SendEditor(SCI_LINEFROMPOSITION, posFind);
+				int startPos = SendEditor(SCI_GETLINESELSTARTPOSITION, line);
+				int endPos = SendEditor(SCI_GETLINESELENDPOSITION, line);
+				if (startPos == INVALID_POSITION ||	// No selection on this line (?)
+				    posFind < startPos || posFind + lenTarget > endPos) {
+					// Found target is totally or partly outside the rectangular selection
+					lastMatch = posFind + 1;
+					if (lastMatch >= endPosition) {
+						// Run off the end of the document/selection with an empty match
+						posFind = -1;
+					} else {
+						SendEditor(SCI_SETTARGETSTART, lastMatch);
+						SendEditor(SCI_SETTARGETEND, endPosition);
+						posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
+					}
+					continue;	// No replacement
+				}
+			}
 			int movepastEOL = 0;
 			if (lenTarget <= 0) {
 				char chNext = static_cast<char>(SendEditor(SCI_GETCHARAT, SendEditor(SCI_GETTARGETEND)));
-				if (chNext == '\r' || chNext == '\n')
+				if (chNext == '\r' || chNext == '\n') {
 					movepastEOL = 1;
 			}
+			}
 			int lenReplaced = replaceLen;
-			if (regExp)
+			if (regExp) {
 				lenReplaced = SendEditorString(SCI_REPLACETARGETRE, replaceLen, replaceTarget.c_str());
-			else
+			} else {
 				SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget.c_str());
+			}
 			// Modify for change caused by replacement
 			endPosition += lenReplaced - lenTarget;
 			// For the special cases of start of line and end of line
 			// something better could be done but there are too many special cases
 			lastMatch = posFind + lenReplaced + movepastEOL;
-			if (lenReplaced == 0 && lenTarget == 0)
+			if (lenReplaced == 0 && lenTarget == 0) {
 				lastMatch++;
+			}
 			if (lastMatch >= endPosition) {
-				// Run off the end of the document with an empty match
+				// Run off the end of the document/selection with an empty match
 				posFind = -1;
 			} else {
 				SendEditor(SCI_SETTARGETSTART, lastMatch);
@@ -1429,10 +1464,11 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			}
 			replacements++;
 		}
-		if (inSelection)
+		if (inSelection) {
 			SetSelection(startPosition, endPosition);
-		else
+		} else {
 			SetSelection(lastMatch, lastMatch);
+		}
 		SendEditor(SCI_ENDUNDOACTION);
 		return replacements;
 	}

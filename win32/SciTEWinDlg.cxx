@@ -900,7 +900,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
 	HWND wWrap = ::GetDlgItem(hDlg, IDWRAP);
 	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
-	HWND wReplaceInSel = ::GetDlgItem(hDlg, IDREPLACEINSEL);
+//~	HWND wReplaceInSel = ::GetDlgItem(hDlg, IDREPLACEINSEL);
 
 	switch (message) {
 
@@ -924,7 +924,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SetFocus(wReplaceWith);
 			return FALSE;
 		}
-		::EnableWindow(wReplaceInSel, !SendEditor(SCI_SELECTIONISRECTANGLE));
+//~		::EnableWindow(wReplaceInSel, !SendEditor(SCI_SELECTIONISRECTANGLE));
 		return TRUE;
 
 	case WM_CLOSE:
