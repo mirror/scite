@@ -1400,6 +1400,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleWord)->child), "Whole _Word");
 	gtk_widget_add_accelerator(toggleWord, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_table_attach(GTK_TABLE(table), toggleWord, 0, 2, row, row + 1, opts, opts, 3, 0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleWord), wholeWord);
 	gtk_widget_show(toggleWord);
 	row++;
 
@@ -1409,16 +1410,18 @@ void SciTEGTK::FindReplace(bool replace) {
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleCase)->child), "Case _Sensitive");
 	gtk_widget_add_accelerator(toggleCase, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_table_attach(GTK_TABLE(table), toggleCase, 0, 2, row, row + 1, opts, opts, 3, 0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleCase), matchCase);
 	gtk_widget_show(toggleCase);
 	row++;
 
 	// Regular Expression
-	toggleRegEx = gtk_check_button_new_with_label("");
-	GTK_WIDGET_UNSET_FLAGS(toggleRegEx, GTK_CAN_FOCUS);
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleRegEx)->child), "Regular _Expression");
-	gtk_widget_add_accelerator(toggleRegEx, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-	gtk_table_attach(GTK_TABLE(table), toggleRegEx, 0, 2, row, row + 1, opts, opts, 3, 0);
-	gtk_widget_show(toggleRegEx);
+	toggleRegExp = gtk_check_button_new_with_label("");
+	GTK_WIDGET_UNSET_FLAGS(toggleRegExp, GTK_CAN_FOCUS);
+	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleRegExp)->child), "Regular _Expression");
+	gtk_widget_add_accelerator(toggleRegExp, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	gtk_table_attach(GTK_TABLE(table), toggleRegExp, 0, 2, row, row + 1, opts, opts, 3, 0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleRegExp), regExp);
+	gtk_widget_show(toggleRegExp);
 	row++;
 
 	// Reverse
@@ -1427,6 +1430,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleReverse)->child), "_Reverse Direction");
 	gtk_widget_add_accelerator(toggleReverse, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_table_attach(GTK_TABLE(table), toggleReverse, 0, 2, row, row + 1, opts, opts, 3, 0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleReverse), reverseFind);
 	gtk_widget_show(toggleReverse);
 
 	gtk_widget_show(table);
@@ -1434,8 +1438,8 @@ void SciTEGTK::FindReplace(bool replace) {
 	GtkWidget *buttonFind = gtk_button_new_with_label("");
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonFind)->child), "F_ind");
 	//GTK_WIDGET_UNSET_FLAGS (buttonFind, GTK_CAN_FOCUS);
-	GTK_WIDGET_SET_FLAGS (buttonFind, GTK_CAN_DEFAULT);
-	gtk_widget_add_accelerator(	buttonFind, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	GTK_WIDGET_SET_FLAGS(buttonFind, GTK_CAN_DEFAULT);
+	gtk_widget_add_accelerator(buttonFind, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_signal_connect(GTK_OBJECT(buttonFind),
 	                   "clicked", GtkSignalFunc(FRFindSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
