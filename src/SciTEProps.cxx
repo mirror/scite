@@ -469,6 +469,8 @@ void SciTEBase::ReadProperties() {
 		lexLanguage = SCLEX_PASCAL;
 	} else if (language == "ave") {
 		lexLanguage = SCLEX_AVE;
+	} else if (language == "ada") {
+		lexLanguage = SCLEX_ADA;
 	} else {
 		lexLanguage = SCLEX_NULL;
 	}

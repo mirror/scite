@@ -94,13 +94,14 @@ const char *contributors[] = {
     "Jan Hercek",
     "Richard Pecl",
     "Edward K. Ream",
+    "Valery Kondakoff",
 };
 
 const char *extList[] = {
     "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
     "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
     "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.cs", "x.conf",
-    "x.pas", "x.ave"
+    "x.pas", "x.ave", "x.ads", 
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -148,12 +149,12 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, Colour(0, 0, 0));
-		AddStyledText(wsci, "Version 1.36\n", 1);
+		AddStyledText(wsci, "Version 1.37\n", 1);
 		SetAboutStyle(wsci, 2, Colour(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, Colour(0, 0, 0));
-		AddStyledText(wsci, "December 1998-March 2001.\n", 3);
+		AddStyledText(wsci, "December 1998-April 2001.\n", 3);
 		SetAboutStyle(wsci, 4, Colour(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
@@ -1300,9 +1301,9 @@ bool SciTEBase::StartExpandAbbreviation() {
 	int caret_pos = -1; // caret position
 	int line = 0; // counting lines in multiline abbreviations
 	int line_before_caret = 0;
-	char c = '\0'; // current char
 	for (int i = 0; i < dataLength; i++) {
-		switch(c = expbuf[i]) {
+		char c = expbuf[i];
+		switch(c) {
 			case '|':
 				if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
 					i++;
@@ -1368,9 +1369,8 @@ bool SciTEBase::StartExpandAbbreviation() {
  	if (caret_pos != -1) {
  		// calculating caret position _after_ (auto)indenting
  		int add_indent = 0;
- 		int lineIndent = 0;
  		for(int i = 1; i <= line_before_caret; i++) {
- 			lineIndent = GetLineIndentPosition(currentLineNumber + i);
+ 			int lineIndent = GetLineIndentPosition(currentLineNumber + i);
  			int lineStart = SendEditor(SCI_POSITIONFROMLINE, currentLineNumber + i);
 			int difference = lineIndent - lineStart;
  			add_indent += difference;
@@ -2341,6 +2341,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_CONF:
 	case IDM_LEXER_PASCAL:
 	case IDM_LEXER_AVE:
+	case IDM_LEXER_ADA:
 		SetOverrideLanguage(cmdID);
 		break;
 

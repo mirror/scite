@@ -143,6 +143,10 @@ SOURCE=..\..\scintilla\src\KeyWords.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexAda.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexAVE.cxx
 # End Source File
 # Begin Source File

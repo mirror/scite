@@ -42,6 +42,7 @@ endif
 all: $(PROG)
 
 LEXEROBJS=\
+	../../scintilla/gtk/LexAda.o \
 	../../scintilla/gtk/LexAVE.o \
 	../../scintilla/gtk/LexConf.o \
 	../../scintilla/gtk/LexCPP.o \
