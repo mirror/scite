@@ -580,8 +580,8 @@ static bool isfilenamecharforsel(char ch) {
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel,    ///< Buffer receiving the result.
-    int len,    ///< Size of the buffer.
+    char *sel,     ///< Buffer receiving the result.
+    int len,     ///< Size of the buffer.
     bool (*ischarforsel)(char ch)) { ///< Function returning @c true if the given char. is part of the selection.
 
 	int lengthDoc, selStart, selEnd;
@@ -669,10 +669,153 @@ void SciTEBase::FindMessageBox(const char *msg) {
 	dialogsOnScreen--;
 }
 
+/**
+ * Convert a string into C string literal form using \a, \b, \f, \n, \r, \t, \v, and \ooo.
+ * The return value is a newly allocated character array containing the result.
+ * 4 bytes are allocated for each byte of the input because that is the maximum
+ * expansion needed when all of the input needs to be output using the octal form.
+ * The return value should be deleted with delete[].
+ */
+char *Slash(const char *s) {
+	char *oRet = new char[strlen(s) * 4 + 1];
+	if (oRet) {
+		char *o = oRet;
+		while (*s) {
+			if (*s == '\a') {
+				*o++ = '\\';
+				*o++ = 'a';
+			} else if (*s == '\b') {
+				*o++ = '\\';
+				*o++ = 'b';
+			} else if (*s == '\f') {
+				*o++ = '\\';
+				*o++ = 'f';
+			} else if (*s == '\n') {
+				*o++ = '\\';
+				*o++ = 'n';
+			} else if (*s == '\r') {
+				*o++ = '\\';
+				*o++ = 'r';
+			} else if (*s == '\t') {
+				*o++ = '\\';
+				*o++ = 't';
+			} else if (*s == '\v') {
+				*o++ = '\\';
+				*o++ = 'v';
+			} else if (*s == '\\') {
+				*o++ = '\\';
+				*o++ = '\\';
+			} else if (*s < ' ') {
+				*o++ = '\\';
+				*o++ = static_cast<char>((*s >> 6) + '0');
+				*o++ = static_cast<char>((*s >> 3) + '0');
+				*o++ = static_cast<char>((*s & 0x7) + '0');
+			} else {
+				*o++ = *s;
+			}
+			s++;
+		}
+		*o = '\0';
+	}
+	return oRet;
+}
+
+/**
+ * Is the character an octal digit.
+ */
+static bool IsOctalDigit(char ch) {
+	return ch >= '0' && ch <= '7';
+}
+
+/**
+ * Convert C style \a, \b, \f, \n, \r, \t, \v, and \ooo into their indicated characters.
+ * Hexadecimal forms, \xhh, are not supported.
+ */
+unsigned int UnSlash(char *s) {
+	char *sStart = s;
+	char *o = s;
+	while (*s) {
+		if (*s == '\\') {
+			s++;
+			if (*s == 'a') {
+				*o = '\a';
+			} else if (*s == 'b') {
+				*o = '\b';
+			} else if (*s == 'f') {
+				*o = '\f';
+			} else if (*s == 'n') {
+				*o = '\n';
+			} else if (*s == 'r') {
+				*o = '\r';
+			} else if (*s == 't') {
+				*o = '\t';
+			} else if (*s == 'v') {
+				*o = '\v';
+			} else if (IsOctalDigit(*s)) {
+				int val = *s - '0';
+				if (IsOctalDigit(*(s + 1))) {
+					s++;
+					val *= 8;
+					val += *s - '0';
+					if (IsOctalDigit(*(s + 1))) {
+						s++;
+						val *= 8;
+						val += *s - '0';
+					}
+				}
+				*o = static_cast<char>(val);
+			} else {
+				*o = *s;
+			}
+		} else {
+			*o = *s;
+		}
+		o++;
+		if (*s)
+			s++;
+	}
+	*o = '\0';
+	return o - sStart;
+}
+
+/**
+ * Convert C style \0oo into their indicated characters.
+ * This is used to get control characters into the regular expresion engine.
+ */
+unsigned int UnSlashLowOctal(char *s) {
+	char *sStart = s;
+	char *o = s;
+	while (*s) {
+		if ((s[0] == '\\') && (s[1] == '0') && IsOctalDigit(s[2]) && IsOctalDigit(s[3])) {
+			*o = static_cast<char>(8 * (s[2] - '0') + (s[3] - '0'));
+			s += 3;
+		} else {
+			*o = *s;
+		}
+		o++;
+		if (*s)
+			s++;
+	}
+	*o = '\0';
+	return o - sStart;
+}
+
+static void UnSlashAsNeeded(char *s, bool escapes, bool regularExpression) {
+	if (escapes) {
+		if (regularExpression) {
+			// For regular expressions only escape sequences allowed start with \0
+			UnSlashLowOctal(s);
+		} else {
+			// C style escapes allowed
+			UnSlash(s);
+		}
+	}
+}
+
 void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (!findWhat[0]) {
 		Find();
-		return;
+		return ;
 	}
 	TextToFind ft = {{0, 0}, 0, {0, 0}};
 	CharacterRange crange = GetSelection();
@@ -685,14 +828,14 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	}
 	char findTarget[200];
 	strcpy(findTarget, findWhat);
-	if (!regExp && props.GetInt("escapes.in.find.replace"))
-		UnSlash(findTarget);
+	UnSlashAsNeeded(findTarget, props.GetInt("escapes.in.find.replace"), regExp);
+
 	ft.lpstrText = findTarget;
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
-	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | 
-			(matchCase ? SCFIND_MATCHCASE : 0) |
-			(regExp ? SCFIND_REGEXP : 0);
+	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
+	            (matchCase ? SCFIND_MATCHCASE : 0) |
+	            (regExp ? SCFIND_REGEXP : 0);
 	//DWORD dwStart = timeGetTime();
 	int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
 	//DWORD dwEnd = timeGetTime();
@@ -740,8 +883,7 @@ void SciTEBase::ReplaceOnce() {
 	if (havefound) {
 		char replaceTarget[200];
 		strcpy(replaceTarget, replaceWhat);
-		if (!regExp && props.GetInt("escapes.in.find.replace"))
-			UnSlash(replaceTarget);
+		UnSlashAsNeeded(replaceTarget, props.GetInt("escapes.in.find.replace"), regExp);
 		CharacterRange cr = GetSelection();
 		SendEditor(SCI_SETTARGETSTART, cr.cpMin);
 		SendEditor(SCI_SETTARGETEND, cr.cpMax);
@@ -765,18 +907,16 @@ void SciTEBase::ReplaceAll() {
 	ft.chrg.cpMax = LengthDocument();
 	char findTarget[200];
 	strcpy(findTarget, findWhat);
-	if (!regExp && props.GetInt("escapes.in.find.replace"))
-		UnSlash(findTarget);
+	UnSlashAsNeeded(findTarget, props.GetInt("escapes.in.find.replace"), regExp);
 	ft.lpstrText = findTarget;
 	char replaceTarget[200];
 	strcpy(replaceTarget, replaceWhat);
-	if (!regExp && props.GetInt("escapes.in.find.replace"))
-		UnSlash(replaceTarget);
+	UnSlashAsNeeded(replaceTarget, props.GetInt("escapes.in.find.replace"), regExp);
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
-	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | 
-			(matchCase ? SCFIND_MATCHCASE : 0) |
-			(regExp ? SCFIND_REGEXP : 0);
+	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
+	            (matchCase ? SCFIND_MATCHCASE : 0) |
+	            (regExp ? SCFIND_REGEXP : 0);
 	int posFind = SendEditor(SCI_FINDTEXT, flags,
 	                         reinterpret_cast<long>(&ft));
 	if (posFind != -1) {
@@ -795,7 +935,8 @@ void SciTEBase::ReplaceAll() {
 		SetSelection(endPosition, endPosition);
 		SendEditor(SCI_ENDUNDOACTION);
 		//FindMessageBox("bow");
-	} else {
+	}
+	else {
 		if (strlen(findWhat) >= 200)
 			findWhat[200-1] = '\0';
 		char msg[300];
@@ -1144,41 +1285,43 @@ bool SciTEBase::StartExpandAbbreviation() {
 	if (dataLength == 0) {
 		return true; // returning if expanded abbreviation is empty
 	}
+
 	const char *expbuff = data.c_str();
 	SString expanded(""); // parsed expanded abbreviation
 	int j = 0; // temporary variable for caret position counting
 	int caret_pos = -1; // caret position
 	//~ int line = 0; // counting lines in multiline abbreviations
-	char c = '\0'; // current char
 	for (int i = 0; i < dataLength; i++) {
-		switch(c = expbuff[i]) {
-			case '|':
-				if (i < (dataLength - 1) && expbuff[i + 1] == '|') {
-					i++;
-					expanded += c;
-				} else {
-					if (caret_pos != -1) {
-						break;
-					}
-					caret_pos = j; // this is the caret position
-				}
-				break;
-			case '\\':
-				if (i < (dataLength - 1) && expbuff[i + 1] == 'n') {
-					i++;
-					//~ line++;
-					expanded += '\n';
-				} else {
-					expanded += c;
-				}
-				break;
-			//~ case '\n':
-				//~ line++;
-				//~ expanded += (c);
-				//~ break;
-			default:
+		char c = expbuff[i]; // current char
+		switch (c) {
+		case '|':
+			if (i < (dataLength - 1) && expbuff[i + 1] == '|') {
+				i++;
 				expanded += c;
-				break;
+			} else {
+				if (caret_pos != -1) {
+					break;
+				}
+				caret_pos = j; // this is the caret position
+			}
+
+			break;
+		case '\\':
+			if (i < (dataLength - 1) && expbuff[i + 1] == 'n') {
+				i++;
+				//~ line++;
+				expanded += '\n';
+			} else {
+				expanded += c;
+			}
+			break;
+			//~ case '\n':
+			//~ line++;
+			//~ expanded += (c);
+			//~ break;
+		default:
+			expanded += c;
+			break;
 		}
 		j++;
 	}
@@ -1186,19 +1329,18 @@ bool SciTEBase::StartExpandAbbreviation() {
 	SendEditorString(SCI_REPLACESEL, 0, expanded.c_str());
 	if (caret_pos != -1) {
 		//~ SendEditor(SCI_SETSEL, position - counter + pos,
-									//~ position - counter + pos);
+		//~ position - counter + pos);
 		SendEditor(SCI_GOTOPOS, position - counter + caret_pos);
 	}
 	//~ if(line > 0) {
-		//~ int currentLineNumber = GetCurrentLineNumber();
-		//~ for(int i = 0; i < line; i++) {
-			//~ int indent = GetLineIndentation(currentLineNumber + i - 1);
-			//~ SetLineIndentation(currentLineNumber + i , indent);
-		//~ }
+	//~ int currentLineNumber = GetCurrentLineNumber();
+	//~ for(int i = 0; i < line; i++) {
+	//~ int indent = GetLineIndentation(currentLineNumber + i - 1);
+	//~ SetLineIndentation(currentLineNumber + i , indent);
+	//~ }
 	//~ }
 	return true;
 }
-
 
 bool SciTEBase::StartBlockComment() {
 	SString language = props.GetNewExpand("lexer.", fileName);
@@ -1295,7 +1437,7 @@ bool SciTEBase::StartBoxComment() {
 		return true;
 	}
 	start_comment += white_space;
-	middle_comment +=white_space;
+	middle_comment += white_space;
 	end_comment = white_space.append(end_comment.c_str());
 	int start_comment_length = start_comment.length();
 	int middle_comment_length = middle_comment.length();
@@ -1388,10 +1530,10 @@ bool SciTEBase::StartStreamComment() {
 		selectionEnd += (end_counter + 1);
 		//~ if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, i))
 	}
-/* 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
-	if (selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine)) {
-		selectionEnd -= 2;
-	} */
+	/* 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
+		if (selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine)) {
+			selectionEnd -= 2;
+		} */
 	SendEditor(SCI_BEGINUNDOACTION);
 
 	SendEditorString(SCI_INSERTTEXT, selectionStart, start_comment.c_str());
@@ -2531,115 +2673,6 @@ char AfterName(const char *s) {
 	              (*s >= 'A' && *s <= 'A')))
 		s++;
 	return *s;
-}
-
-/**
- * Convert a string into C string literal form using \a, \b, \f, \n, \r, \t, \v, and \ooo.
- * The return value is a newly allocated character array containing the result.
- * 4 bytes are allocated for each byte of the input because that is the maximum
- * expansion needed when all of the input needs to be output using the octal form.
- * The return value should be deleted with delete[].
- */
-char *Slash(const char *s) {
-	char *oRet = new char[strlen(s) * 4 + 1];
-	if (oRet) {
-		char *o = oRet;
-		while (*s) {
-			if (*s == '\a') {
-				*o++ = '\\';
-				*o++ = 'a';
-			} else if (*s == '\b') {
-				*o++ = '\\';
-				*o++ = 'b';
-			} else if (*s == '\f') {
-				*o++ = '\\';
-				*o++ = 'f';
-			} else if (*s == '\n') {
-				*o++ = '\\';
-				*o++ = 'n';
-			} else if (*s == '\r') {
-				*o++ = '\\';
-				*o++ = 'r';
-			} else if (*s == '\t') {
-				*o++ = '\\';
-				*o++ = 't';
-			} else if (*s == '\v') {
-				*o++ = '\\';
-				*o++ = 'v';
-			} else if (*s == '\\') {
-				*o++ = '\\';
-				*o++ = '\\';
-			} else if (*s < ' ') {
-				*o++ = '\\';
-				*o++ = static_cast<char>((*s >> 6) + '0');
-				*o++ = static_cast<char>((*s >> 3) + '0');
-				*o++ = static_cast<char>((*s & 0x7) + '0');
-			} else {
-				*o++ = *s;
-			}
-			s++;
-		}
-		*o = '\0';
-	}
-	return oRet;
-}
-
-/**
- * Is the character an octal digit.
- */
-static bool IsOctalDigit(char ch) {
-	return ch >= '0' && ch <= '7';
-}
-
-/**
- * Convert C style \a, \b, \f, \n, \r, \t, \v, and \ooo into their indicated characters.
- * Hexadecimal forms, \xhh, are not supported.
- */
-unsigned int UnSlash(char *s) {
-	char *sStart = s;
-	char *o = s;
-	while (*s) {
-		if (*s == '\\') {
-			s++;
-			if (*s == 'a') {
-				*o = '\a';
-			} else if (*s == 'b') {
-				*o = '\b';
-			} else if (*s == 'f') {
-				*o = '\f';
-			} else if (*s == 'n') {
-				*o = '\n';
-			} else if (*s == 'r') {
-				*o = '\r';
-			} else if (*s == 't') {
-				*o = '\t';
-			} else if (*s == 'v') {
-				*o = '\v';
-			} else if (IsOctalDigit(*s)) {
-				int val = *s - '0';
-				if (IsOctalDigit(*(s + 1))) {
-					s++;
-					val *= 8;
-					val += *s - '0';
-					if (IsOctalDigit(*(s + 1))) {
-						s++;
-						val *= 8;
-						val += *s - '0';
-					}
-				}
-				*o = static_cast<char>(val);
-			} else {
-				*o = *s;
-			}
-		} else {
-			*o = *s;
-		}
-		o++;
-		if (*s)
-			s++;
-	}
-	*o = '\0';
-	return o - sStart;
 }
 
 void SciTEBase::PerformOne(char *action) {
