@@ -74,8 +74,8 @@ deps:
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=../../scintilla/bin/scintilla.a
 
-$(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o DirectorExtension.o \
-SciTEProps.o Utf8_16.o $(COMPLIB)
+$(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o \
+MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o $(COMPLIB)
 	$(CC) `$(CONFIGLIB)` `glib-config --libs gthread` -DGTK $^ -o $@
 
 # Automatically generate header dependencies with "make deps"
