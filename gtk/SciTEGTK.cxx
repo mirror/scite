@@ -569,7 +569,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 			int width, height;
 			GdkWindow* parent_w = wSciTE.GetID()->window;
 
-			gdk_window_get_root_origin(parent_w, &screen_x, &screen_y);
+			gdk_window_get_origin(parent_w, &screen_x, &screen_y);
 			gdk_window_get_geometry(parent_w, &scite_x, &scite_y, &width, &height, NULL);
 
 			saved_x = screen_x - scite_x;
