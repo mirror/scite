@@ -1094,7 +1094,7 @@ bool SciTEBase::StartBlockComment() {
 	if (s_comment == "") {
 		MessageBox(wSciTE.GetID(),
 			"Define comment characters for this lexer in your *.properties!",
-			"Error", MB_OK | MB_ICONERROR);
+			"Error", MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	const char *comment = s_comment.begin(); // .begin() - for W'2000
