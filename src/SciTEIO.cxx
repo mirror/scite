@@ -606,6 +606,22 @@ bool SciTEBase::OpenSelected() {
 	// filename is an absolute pathname
 	if (!IsAbsolutePath(selectedFilename)) {
 		GetDocumentDirectory(path, sizeof(path));
+#if PLAT_WIN
+		// If not there, look in openpath
+		if (!Exists(path, selectedFilename, NULL)) {
+			SString fn = ExtensionFileName();
+			SString openPath = props.GetNewExpand("openpath.", fn.c_str());
+			//Platform::DebugPrintf("openPath=%s", openPath.c_str());
+			if (openPath.length()) {
+				LPTSTR lp;
+				if (::SearchPath(openPath.c_str(), selectedFilename,
+					NULL, sizeof(path), path, &lp)) {
+					lp--;
+					*lp = '\0';
+				}
+			}
+		}
+#endif
 	}
 	if (Exists(path, selectedFilename, path)) {
 		if (Open(path, false)) {
