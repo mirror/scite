@@ -3230,13 +3230,7 @@ void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *v
 }
 
 void SciTEBase::PropertyFromDirector(const char *arg) {
-	char *prop = StringDup(arg);
-	if (prop) {
-		char *equal = strchr(prop, '=');
-		*equal = '\0';
-		SetProperty(prop, equal + 1);
-		delete []prop;
-	}
+	props.Set(arg);
 }
 
 /**
