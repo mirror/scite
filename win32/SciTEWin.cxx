@@ -589,14 +589,29 @@ void SciTEWin::ProcessExecute() {
 		                  &si, &pi);
 
 		if (!worked) {
-			OutputAppendStringSynchronised(">Failed to CreateProcess\n");
+			DWORD nRet = ::GetLastError();
+			LPVOID lpMsgBuf = NULL;
+			::FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				nRet,
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+				reinterpret_cast<LPTSTR>(&lpMsgBuf),
+				0,
+				NULL
+			);
+			OutputAppendStringSynchronised(">");
+			OutputAppendStringSynchronised(reinterpret_cast<LPCTSTR>(lpMsgBuf));
+			::LocalFree(lpMsgBuf);
 		}
 
 		bool completed = !worked;
 		DWORD timeDetectedDeath = 0;
 		while (!completed) {
 
-			Sleep(100L);
+			::Sleep(100L);
 
 			DWORD bytesRead = 0;
 			DWORD bytesAvail = 0;
