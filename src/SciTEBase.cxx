@@ -3562,13 +3562,14 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 			int line = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
 			l = SendEditor(SCI_LINELENGTH, line);
 			wParam = l;
-		} else if (message == SCI_GETTEXT)
-			l = wParam;
-		else if (message == SCI_GETLINE)
+		} else if (message == SCI_GETTEXT) {
+			l = SendEditor(SCI_GETLENGTH);
+			wParam = l;
+		} else if (message == SCI_GETLINE) {
 			l = SendEditor(SCI_LINELENGTH, wParam);
-		else
+		} else {
 			l = 0; //unsupported calls EM
-
+		}
 		answercmd = "stringinfo:";
 
 	} else {
