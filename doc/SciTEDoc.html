@@ -686,6 +686,31 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          caret.policy.slop<br />
+	caret.policy.strict
+        </td>
+        <td>
+          Determines how the display area follows the caret. 
+	The slop value is the number of lines at the top and bottom of the display area 
+	that make up the "unwanted zone" where the caret should not appear if possible.
+	When caret.policy.strict is set then the caret is not allowed to move into the 
+	unwanted zone. Then it is not set then the caret is allowed into this zone but when
+	it does go out of the display are, then the display area is repositioned so the
+	caret is not in the unwanted zone.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          visible.policy.slop<br />
+	visible.policy.strict
+        </td>
+        <td>
+          Determines how the display area is determined after a Go to command or 
+	equivalent such as a Fond or Next Message. options are similar to caret.policy.*.
+        </td>
+      </tr>
+      <tr>
+        <td>
           edge.mode<br />
            edge.column<br />
            edge.colour<br />

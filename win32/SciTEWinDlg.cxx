@@ -806,7 +806,7 @@ void SciTEWin::GoLineDialog() {
 			//	selStop = SendEditor(EM_LINEINDEX, lineNo[0] - 1, 0L);
 			//	SendEditor(EM_SETSEL, selStart, selStop);
 			//} else {
-			SendEditor(SCI_GOTOLINE, lineNo[0]-1);
+			GotoLineEnsureVisible(lineNo[0]-1);
 			//}
 		}
 

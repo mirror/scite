@@ -1232,7 +1232,7 @@ void SciTEGTK::GotoSignal(GtkWidget *, SciTEGTK *scitew) {
 	char *lineEntry = gtk_entry_get_text(GTK_ENTRY(scitew->gotoEntry));
 	int lineNo = atoi(lineEntry);
 
-	scitew->SendEditor(SCI_GOTOLINE, lineNo - 1);
+	GotoLineEnsureVisible(lineNo - 1);
 
 	scitew->gotoDialog.Destroy();
 }

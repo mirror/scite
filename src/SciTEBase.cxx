@@ -767,8 +767,7 @@ void SciTEBase::BookmarkNext() {
 	if (nextLine < 0 || nextLine == lineno)
 		; // how do I beep?
 	else {
-		SendEditor(SCI_ENSUREVISIBLE, nextLine);
-		SendEditor(SCI_GOTOLINE, nextLine);
+		GotoLineEnsureVisible(nextLine);
 	}
 }
 
@@ -783,8 +782,7 @@ void SciTEBase::BookmarkPrev() {
 	if (prevLine < 0 || prevLine == lineno)
 		; // beep
 	else {
-		SendEditor(SCI_ENSUREVISIBLE, prevLine);
-		SendEditor(SCI_GOTOLINE, prevLine);
+		GotoLineEnsureVisible(prevLine);
 	}
 }
 
@@ -1786,6 +1784,11 @@ void SciTEBase::FoldAll() {
 			}
 		}
 	}
+}
+
+void SciTEBase::GotoLineEnsureVisible(int line) {
+	SendEditor(SCI_ENSUREVISIBLE, line);
+	SendEditor(SCI_GOTOLINE, line);
 }
 
 void SciTEBase::EnsureRangeVisible(int posStart, int posEnd) {

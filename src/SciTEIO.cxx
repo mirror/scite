@@ -433,7 +433,7 @@ void SciTEBase::OpenSelected() {
 		if (CanMakeRoom()) {
 			Open(path, false);	// TODO: test result?
 			if (lineNumber > 0) {
-				SendEditor(SCI_GOTOLINE, lineNumber);
+				GotoLineEnsureVisible(lineNumber);
 			}
 		}
 	} else {
