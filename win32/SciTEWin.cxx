@@ -181,7 +181,7 @@ bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps,
 
 // Help command lines contain topic!path
 void SciTEWin::ExecuteOtherHelp(const char *cmd) {
-	char *topic = strdup(cmd);
+	char *topic = StringDup(cmd);
 	char *path = strchr(topic, '!');
 	if (topic && path) {
 		*path = '\0';
@@ -192,7 +192,7 @@ void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 		        reinterpret_cast<unsigned long>(topic));
 	}
 	if (topic) {
-		free(topic);
+		delete []topic;
 	}
 }
 
@@ -214,7 +214,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 		hHH = ::LoadLibrary("HHCTRL.OCX");
 
 	if (hHH) {
-		char *topic = strdup(cmd);
+		char *topic = StringDup(cmd);
 		char *path = strchr(topic, '!');
 		if (topic && path) {
 			*path = '\0';
@@ -238,8 +238,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				     );
 			}
 		}
-		if (topic)
-			free(topic);
+		delete []topic;
 	}
 }
 
@@ -709,7 +708,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 
 	// guess if cmd is an executable, if this succeeds it can
 	// contain spaces without enclosing it with "
-	char *mycmdcopy = strdup(cmd.c_str());
+	char *mycmdcopy = StringDup(cmd.c_str());
 	strlwr(mycmdcopy);
 
 	char *mycmd_end = NULL;
@@ -724,13 +723,13 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 		s = strstr(mycmdcopy, ".com");
 	if ((s != NULL) && ((*(s + 4) == '\0') || (*(s + 4) == ' '))) {
 		int len_mycmd = s - mycmdcopy + 4;
-		free(mycmdcopy);
-		mycmdcopy = strdup(cmd.c_str());
+		delete []mycmdcopy;
+		mycmdcopy = StringDup(cmd.c_str());
 		mycmd = mycmdcopy;
 		mycmd_end = mycmdcopy + len_mycmd;
 	} else {
-		free(mycmdcopy);
-		mycmdcopy = strdup(cmd.c_str());
+		delete []mycmdcopy;
+		mycmdcopy = StringDup(cmd.c_str());
 		if (*mycmdcopy != '"') {
 			// get next space to separate cmd and parameters
 			mycmd_end = strchr(mycmdcopy, ' ');
@@ -770,7 +769,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 
 	if (rc > 32) {
 		// it worked!
-		free(mycmdcopy);
+		delete []mycmdcopy;
 		return ;
 	}
 
@@ -814,7 +813,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	}
 	MessageBox(wSciTE.GetID(), errormsg.c_str(), appName, MB_OK);
 
-	free(mycmdcopy);
+	delete []mycmdcopy;
 }
 
 void SciTEWin::Execute() {
