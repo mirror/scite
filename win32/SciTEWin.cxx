@@ -1375,8 +1375,10 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 #ifdef STATIC_BUILD
 	Scintilla_RegisterClasses(hInstance);
 #else
-	::LoadLibrary("Scintilla.DLL");
-	//::LoadLibrary("SciLexer.DLL");
+	HMODULE hmod = ::LoadLibrary("Scintilla.DLL");
+	//HMODULE hmod = ::LoadLibrary("SciLexer.DLL");
+	if (hmod==NULL)
+		MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
 #endif
 
 	SciTEWin MainWind;
