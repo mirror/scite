@@ -135,6 +135,10 @@ SOURCE=..\..\scintilla\src\ExternalLexer.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\IFaceTable.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\Indicator.cxx
 # End Source File
 # Begin Source File
@@ -183,7 +187,15 @@ SOURCE=..\..\scintilla\src\LexAda.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexAPDL.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexAsm.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexAU3.cxx
 # End Source File
 # Begin Source File
 
@@ -192,6 +204,10 @@ SOURCE=..\..\scintilla\src\LexAVE.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\LexBaan.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexBash.cxx
 # End Source File
 # Begin Source File
 
@@ -488,6 +504,10 @@ SOURCE=..\win32\SciTEWinBar.cxx
 # Begin Source File
 
 SOURCE=..\win32\SciTEWinDlg.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\win32\SingleThreadExtension.cxx
 # End Source File
 # Begin Source File
 
