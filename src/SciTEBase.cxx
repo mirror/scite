@@ -72,6 +72,8 @@ const char *contributors[] = {
 	"Icons Copyright(C) 1998 by Dean S. Jones",
 	"    http://jfa.javalobby.org/projects/icons/",
 #endif
+	"Ragnar Højland",
+	"Christian Obrecht",
 };
 
 // AddStyledText only called from About so static size buffer is OK
