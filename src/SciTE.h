@@ -14,7 +14,7 @@
 #define IDM_TOOLS			1100
 #define IDM_BUFFER			1200
 #define IDM_IMPORT			1300
-#define IDM_LANGUAGE		1400
+#define IDM_LANGUAGE			1400
 
 // File
 #define IDM_NEW			101
@@ -29,6 +29,7 @@
 #define IDM_SAVEASPDF		113
 #define IDM_FILER			114
 #define IDM_SAVEASTEX		115
+#define IDM_SAVEACOPY		116
 #define IDM_MRU_SEP			120
 #define IDM_PRINTSETUP		130
 #define IDM_PRINT			131
@@ -36,7 +37,7 @@
 #define IDM_SAVESESSION		133
 #define IDM_QUIT			140
 
-#define MRU_START	8
+#define MRU_START	9
 #define IMPORT_START 18
 #define TOOLS_START 3
 

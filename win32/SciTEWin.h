@@ -107,6 +107,7 @@ protected:
 	virtual bool OpenDialog();
 	SString ChooseSaveName(const char *title, const char *filter=0, const char *ext=0);
 	virtual bool SaveAsDialog();
+	virtual void SaveACopy();
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();

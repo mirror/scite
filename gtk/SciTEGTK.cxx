@@ -131,7 +131,7 @@ protected:
 	int fdPipe;
 	char pipeName[MAX_PATH];
 
-	enum FileFormat { sfSource, sfHTML, sfRTF, sfPDF, sfTEX } saveFormat;
+	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX } saveFormat;
 	Dialog dlgFileSelector;
 	Dialog dlgFindInFiles;
 	GtkWidget *comboFiles;
@@ -192,6 +192,7 @@ protected:
 	void HandleSaveAs(const char *savePath);
 	bool SaveAsXXX(FileFormat fmt, const char *title);
 	virtual bool SaveAsDialog();
+	virtual void SaveACopy();
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
@@ -815,6 +816,9 @@ bool SciTEGTK::OpenDialog() {
 
 void SciTEGTK::HandleSaveAs(const char *savePath) {
 	switch (saveFormat) {
+		case sfCopy:
+			SaveBuffer(savePath);
+			break;
 		case sfHTML:
 			SaveToHTML(savePath);
 			break;
@@ -852,6 +856,10 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
 
 bool SciTEGTK::SaveAsDialog() {
 	return SaveAsXXX(sfSource, "Save File As");
+}
+
+void SciTEGTK::SaveACopy() {
+	SaveAsXXX(sfCopy, "Save a Copy");
 }
 
 void SciTEGTK::SaveAsHTML() {

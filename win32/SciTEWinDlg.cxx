@@ -302,6 +302,13 @@ bool SciTEWin::SaveAsDialog() {
 	return false;
 }
 
+void SciTEWin::SaveACopy() {
+	SString path = ChooseSaveName("Save a Copy");
+	if (path.length()) {
+		SaveBuffer(path.c_str());
+	}
+}
+
 void SciTEWin::SaveAsHTML() {
 	SString path = ChooseSaveName("Export File As HTML", 
 		"Web (.html;.htm)\0*.html;*.htm\0", ".html");

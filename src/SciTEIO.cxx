@@ -201,8 +201,7 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 		strcpy(dirName, fullPath);
 		dirName[cpDirEnd - fullPath] = '\0';
 		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
-	}
-	else {
+	} else {
 		// Relative path. Since we ran AbsolutePath, we probably are here because fullPath is empty.
 		GetDocumentDirectory(dirName, sizeof(dirName));
 		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
@@ -694,6 +693,28 @@ int StripTrailingSpaces(char *data, int ds, bool lastBlock) {
 	return w - data;
 }
 
+// Writes the buffer to the given filename
+bool SciTEBase::SaveBuffer(const char *saveName) {
+	FILE *fp = fopen(saveName, fileWrite);
+	if (fp) {
+		char data[blockSize + 1];
+		int lengthDoc = LengthDocument();
+		for (int i = 0; i < lengthDoc; i += blockSize) {
+			int grabSize = lengthDoc - i;
+			if (grabSize > blockSize)
+				grabSize = blockSize;
+			GetRange(wEditor, i, i + grabSize, data);
+			if (props.GetInt("strip.trailing.spaces"))
+				grabSize = StripTrailingSpaces(
+				               data, grabSize, grabSize != blockSize);
+			fwrite(data, grabSize, 1, fp);
+		}
+		fclose(fp);
+		return true;	  
+	}
+	return false;
+}
+
 // Returns false only if cancelled
 bool SciTEBase::Save() {
 	if (fileName[0]) {
@@ -701,21 +722,7 @@ bool SciTEBase::Save() {
 			unlink(fullPath);
 		}
 
-		FILE *fp = fopen(fullPath, fileWrite);
-		if (fp) {
-			char data[blockSize + 1];
-			int lengthDoc = LengthDocument();
-			for (int i = 0; i < lengthDoc; i += blockSize) {
-				int grabSize = lengthDoc - i;
-				if (grabSize > blockSize)
-					grabSize = blockSize;
-				GetRange(wEditor, i, i + grabSize, data);
-				if (props.GetInt("strip.trailing.spaces"))
-					grabSize = StripTrailingSpaces(
-					               data, grabSize, grabSize != blockSize);
-				fwrite(data, grabSize, 1, fp);
-			}
-			fclose(fp);
+		if (SaveBuffer(fullPath)) {
 
 			//MoveFile(fullPath, fullPath);
 

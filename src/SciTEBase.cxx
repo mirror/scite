@@ -126,7 +126,8 @@ const char *contributors[] = {
                                  "Scott Kirkwood",
                                  "Brian Quinlan",
                                  "Ubi",
-				 "Michael R. Duerig",
+                                 "Michael R. Duerig",
+                                 "Deepak T",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -2594,6 +2595,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SaveAs();
 		WindowSetFocus(wEditor);
 		break;
+	case IDM_SAVEACOPY:
+		SaveACopy();
+		WindowSetFocus(wEditor);
+		break;		
 	case IDM_SAVEASHTML:
 		SaveAsHTML();
 		WindowSetFocus(wEditor);
