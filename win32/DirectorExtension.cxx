@@ -206,8 +206,10 @@ bool DirectorExtension::OnChar(char) {
 	return false;
 }
 
-bool DirectorExtension::OnExecute(const char *) {
-	return false;
+bool DirectorExtension::OnExecute(const char *cmd) {
+	CheckEnvironment(host);
+	::SendDirector("macro:run", cmd);
+	return true;
 }
 
 bool DirectorExtension::OnSavePointReached() {
