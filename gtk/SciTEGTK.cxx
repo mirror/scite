@@ -1823,10 +1823,6 @@ void SciTEGTK::FindReplace(bool replace) {
 #endif
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
 		                   btnReplaceInSelection, TRUE, TRUE, 0);
-		if (SendEditor(SCI_SELECTIONISRECTANGLE)) {
-			// Disable replace in selection for rectangular selections as it does not work.
-			gtk_widget_set_sensitive(btnReplaceInSelection, 0);
-		}
 	}
 
 	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
