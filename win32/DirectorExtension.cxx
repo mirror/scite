@@ -26,6 +26,7 @@ static HWND wDirector = 0;
 static HWND wCorrespondent = 0;
 static HWND wReceiver = 0;
 static bool startedByDirector = false;
+static bool shuttingDown = false;
 unsigned int SDI = 0;
 
 static void SendDirector(const char *verb, const char *arg = 0) {
@@ -65,21 +66,21 @@ static void SendDirector(const char *verb, sptr_t arg) {
 }
 
 static void CheckEnvironment(ExtensionAPI *host) {
-	if (!host)
-		return ;
-	if (!wDirector) {
-		char *director = host->Property("director.hwnd");
-		if (director && *director) {
-			startedByDirector = true;
-			wDirector = reinterpret_cast<HWND>(atoi(director));
-			// Director is just seen so identify this to it
-			::SendDirector("identity", reinterpret_cast<sptr_t>(wReceiver));
+	if (host && !shuttingDown) {
+		if (!wDirector) {
+			char *director = host->Property("director.hwnd");
+			if (director && *director) {
+				startedByDirector = true;
+				wDirector = reinterpret_cast<HWND>(atoi(director));
+				// Director is just seen so identify this to it
+				::SendDirector("identity", reinterpret_cast<sptr_t>(wReceiver));
+			}
+			delete []director;
 		}
-		delete []director;
+		char number[32];
+		sprintf(number, "%0d", reinterpret_cast<int>(wReceiver));
+		host->SetProperty("WindowID", number);
 	}
-	char number[32];
-	sprintf(number, "%0d", reinterpret_cast<int>(wReceiver));
-	host->SetProperty("WindowID", number);
 }
 
 static char DirectorExtension_ClassName[] = "DirectorExtension";
@@ -268,8 +269,11 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 				wDirector = reinterpret_cast<HWND>(atoi(arg + 1));
 		} else if (isprefix(cmd, "closing:")) {
 			wDirector = 0;
-			if (startedByDirector)
+			if (startedByDirector) {
+				shuttingDown = true;
 				host->ShutDown();
+				shuttingDown = false;
+			}
 		} else if (host) {
 			host->Perform(cmd);
 		}
