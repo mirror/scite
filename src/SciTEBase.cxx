@@ -1212,7 +1212,8 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	            (matchCase ? SCFIND_MATCHCASE : 0) |
-	            (regExp ? SCFIND_REGEXP : 0);
+	            (regExp ? SCFIND_REGEXP : 0) |
+	            (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
 
 	SendEditor(SCI_SETTARGETSTART, startPosition);
 	SendEditor(SCI_SETTARGETEND, endPosition);
@@ -1307,7 +1308,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	            (matchCase ? SCFIND_MATCHCASE : 0) |
-	            (regExp ? SCFIND_REGEXP : 0);
+	            (regExp ? SCFIND_REGEXP : 0) |
+	            (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
 	SendEditor(SCI_SETTARGETSTART, startPosition);
 	SendEditor(SCI_SETTARGETEND, endPosition);
 	SendEditor(SCI_SETSEARCHFLAGS, flags);
