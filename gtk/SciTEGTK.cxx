@@ -101,6 +101,7 @@ protected:
 	virtual void FindReplace(bool replace);
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
+	virtual void TabSizeDialog();
 
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
@@ -914,6 +915,9 @@ void SciTEGTK::GoLineDialog() {
 	                              GTK_WINDOW(wSciTE.GetID()));
 
 	gotoDialog.Show();
+}
+
+void SciTEGTK::TabSizeDialog() {
 }
 
 void SciTEGTK::FindReplace(bool replace) {
