@@ -202,6 +202,9 @@ void SciTEBase::ReadGlobalPropFile() {
 		strcat(propdir, pathSepString);
 		propsUser.Read(propfile, propdir, importFiles, importMax);
 	}
+	if (!localisationRead) {
+		ReadLocalisation();
+	}
 }
 
 void SciTEBase::ReadAbbrevPropFile() {
@@ -903,12 +906,11 @@ void SciTEBase::ReadLocalisation() {
 		spf.substitute(propAbbrevFileName, "locale.properties");
 		strcat(propdir, pathSepString);
 		propsUI.Read(spf.c_str(), propdir, importFiles, importMax);
-		LocaliseMenus();
 	}
+	localisationRead = true;
 }
 
 void SciTEBase::ReadPropertiesInitial() {
-	ReadLocalisation();
 	SetPropertiesInitial();
 	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
 	int sizeVertical = props.GetInt("output.vertical.size", 0);

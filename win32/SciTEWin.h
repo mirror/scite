@@ -90,7 +90,7 @@ protected:
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
 	virtual void CheckMenus();
 	void LocaliseAMenu(HMENU hmenu);
-	virtual void LocaliseMenus();
+	void LocaliseMenus();
 
 	virtual void FixFilePath();
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size);

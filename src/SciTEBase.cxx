@@ -228,6 +228,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	ptStartDrag.y = 0;
 	capturedMouse = false;
 	firstPropertiesRead = true;
+	localisationRead = false;
 	splitVertical = false;
 	bufferedDraw = true;
 	bracesCheck = true;

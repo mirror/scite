@@ -344,6 +344,7 @@ protected:
 	bool capturedMouse;
 	int previousHeightOutput;
 	bool firstPropertiesRead;
+	bool localisationRead;
 	bool splitVertical;	///< @c true if the split bar between editor and output is vertical.
 	bool bufferedDraw;
 	bool bracesCheck;
@@ -599,7 +600,6 @@ protected:
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
 	void ReadLocalisation();
-	virtual void LocaliseMenus()=0;
 	virtual void ReadPropertiesInitial();
 	void SetMonoFont();
 	void SetOverrideLanguage(int cmdID);

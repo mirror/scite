@@ -344,6 +344,7 @@ void SciTEWin::LocaliseAMenu(HMENU hmenu) {
 					} else {
 						accel = "";
 					}
+					text.remove("&");
 					SString localisedItem = propsUI.Get(text.c_str());
 					if (localisedItem.length()) {
 						localisedItem.append("\t");

@@ -232,6 +232,7 @@ public:
 	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
 	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
 	void AddToolBar();
+	void CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]);
 	void CreateMenu();
 	void CreateUI();
 	void Run(int argc, char *argv[]);
@@ -1935,6 +1936,39 @@ void SciTEGTK::AddToolBar() {
 	AddToolButton("Next Buffer", IDM_NEXTFILE, next_xpm);
 }
 
+void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]) {
+	char *gthis = reinterpret_cast<char *>(this);
+	GtkItemFactoryEntry *translatedItems = new GtkItemFactoryEntry[n];
+	SString *translatedText = new SString[n];
+	for (int i=0; i<n; i++) {
+		translatedItems[i] = items[i];
+		SString spathTranslated;
+		SString spath(translatedItems[i].path, 1, strlen(translatedItems[i].path));
+		spath.append("/");
+		int end = spath.search("/");
+		while (spath.length() > 1) {
+			SString segment(spath.c_str(), 0, end);
+			SString segmentNoAccess = segment;
+			segmentNoAccess.remove("_");
+			printf("CTM:<%s> <%s>\n", spath.c_str(), segment.c_str());
+			spathTranslated.append("/");
+			SString localisedSegment = propsUI.Get(segmentNoAccess.c_str());
+			if (localisedSegment.length()) {
+				printf("Localised CTM:<%s>\n", segment.c_str());
+				spathTranslated.append(localisedSegment.c_str());
+			} else
+				spathTranslated.append(segment.c_str());
+			spath.remove(0, end+1);
+			end = spath.search("/");
+		}
+		translatedText[i] = spathTranslated;
+		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
+	}
+	gtk_item_factory_create_items(itemFactory, n, translatedItems, gthis);
+	delete []translatedText;
+	delete []translatedItems;
+}
+
 #define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
 void SciTEGTK::CreateMenu() {
@@ -2154,13 +2188,12 @@ void SciTEGTK::CreateMenu() {
 	    {"/Help/_About SciTE...", "", menuSig, IDM_ABOUT, 0},
 	};
 
-	char *gthis = reinterpret_cast<char *>(this);
 	accelGroup = gtk_accel_group_new();
 	itemFactory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", accelGroup);
-	gtk_item_factory_create_items(itemFactory, ELEMENTS(menuItems), menuItems, gthis);
+	CreateTranslatedMenu(ELEMENTS(menuItems), menuItems);
 	if (props.GetInt("buffers") > 1)
-		gtk_item_factory_create_items(itemFactory, ELEMENTS(menuItemsBuffer), menuItemsBuffer, gthis);
-	gtk_item_factory_create_items(itemFactory, ELEMENTS(menuItemsHelp), menuItemsHelp, gthis);
+		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer);
+	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
 
 	gtk_accel_group_attach(accelGroup, GTK_OBJECT(wSciTE.GetID()));
 }
@@ -2563,15 +2596,14 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Process any initial switches
 	ProcessCommandLine(args, 0);
 
-	if( props.Get("ipc.director.name").size() == 0 ){
-	// If a file name argument, check if already open in another SciTE
-	for (arg = 1; arg < argc; arg++) {
-		if (argv[arg][0] != '-') {
-			CheckAlreadyOpen(argv[arg]);
+	if (props.Get("ipc.director.name").size() == 0 ) {
+		// If a file name argument, check if already open in another SciTE
+		for (arg = 1; arg < argc; arg++) {
+			if (argv[arg][0] != '-') {
+				CheckAlreadyOpen(argv[arg]);
+			}
 		}
 	}
-	}
-	
 
 	CreateUI();
 
