@@ -2482,25 +2482,25 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
           The ext.lua properties are specific to the <a href="SciTELua.html">
           SciTE Lua Scripting Extension</a>.  The extension.<i>filepatten</i> property
-          is part of the generic <a href="SciTEExtension.html">SciTE Extension 
+          is part of the generic <a href="SciTEExtension.html">SciTE Extension
           Interface</a> but is currently only used by the Lua Scripting Extension.
           <br />
-          The ext.lua.startup.script property defines the filename of a Lua script that 
+          The ext.lua.startup.script property defines the filename of a Lua script that
           will be loaded when SciTE starts to set up the global state for Lua.  You
-          should use an absolute path for this property, but can reference the 
+          should use an absolute path for this property, but can reference the
           $(SciteDefaultHome) or $(SciteUserHome) properties.  Global event handlers,
           command functions, as well as other functions and objects can be defined here.
           <br />
-          The ext.lua.reset property is primarily for debugging and modifying the startup 
-          script.  If ext.lua.reset is 0 (the default), the startup script property is 
+          The ext.lua.reset property is primarily for debugging and modifying the startup
+          script.  If ext.lua.reset is 0 (the default), the startup script property is
           checked only once - when SciTE starts.  If ext.lua.reset is changed to 1, the
           startup script property will be re-evaluated each time you switch buffers, so
           that you can see the results of your changes without having to exit and restart
-          SciTE.  When you are not modifying the startup script, you should leave the 
+          SciTE.  When you are not modifying the startup script, you should leave the
           ext.lua.reset property as 0 or comment out the property.
           <br />
           Aside from ext.lua.startup.script, the extension.<i>filepattern</i> property
-          provides a way to load additional functions and event handlers that may be 
+          provides a way to load additional functions and event handlers that may be
           specific to a given file type.  If the extension property value ends in .lua
           and names a file that exists, the Lua extension evaluates the script so that event
           handlers and commands defined in the script are available while that buffer
@@ -2508,7 +2508,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           still accessible, unless they are overridden.
           <br />
           The extension property can also define behavior that is specific to a given
-          directory.  If a bare filename (no path) is specified in the extension 
+          directory.  If a bare filename (no path) is specified in the extension
           property, SciTE looks for the file in the standard property file locations,
           starting with the local directory.  This can be very useful in combination
           with a local SciTE.properties file.
@@ -2713,7 +2713,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        Why doesn't my <code>line.numbers</code> setting work?
     </h4>
     <p>
-       <code>line.numbers</code> has been replace with two properties: <code>line.margin.visible</code>
+       <code>line.numbers</code> has been replaced with two properties: <code>line.margin.visible</code>
        and <code>line.margin.width</code> which are explained earlier in this document.
     </p>
     <h4>
