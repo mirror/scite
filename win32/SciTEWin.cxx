@@ -1670,7 +1670,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			::BeginPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
 			Surface *surfaceWindow = Surface::Allocate();
 			if (surfaceWindow) {
-				surfaceWindow->Init(ps.hdc);
+				surfaceWindow->Init(ps.hdc, wContent.GetID());
 				PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 				Paint(surfaceWindow, rcPaint);
 				surfaceWindow->Release();
