@@ -716,13 +716,13 @@ void SciTEBase::SetToolsMenu() {
 	for (int item = 0; item < toolMax; item++) {
 		int itemID = IDM_TOOLS + item;
 		SString prefix = "command.name.";
-		prefix += SString(item).c_str();
+		prefix += SString(item);
 		prefix += ".";
 		SString commandName = props.GetNewExpand(prefix.c_str(), fileName);
 		if (commandName.length()) {
 			SString sMenuItem = commandName;
 			SString sMnemonic = "Ctrl+";
-			sMnemonic += SString(item).c_str();
+			sMnemonic += SString(item);
 			SetMenuItem(menuTools, menuPos, itemID, sMenuItem.c_str(), sMnemonic.c_str());
 			menuPos++;
 		}
@@ -751,7 +751,7 @@ JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 	JobSubsystem jobType = jobCLI;
 	SString subsysprefix = cmd;
 	if (item >= 0) {
-		subsysprefix += SString(item).c_str();
+		subsysprefix += SString(item);
 		subsysprefix += ".";
 	}
 	SString subsystem = props.GetNewExpand(subsysprefix.c_str(), fileName);
@@ -772,13 +772,13 @@ void SciTEBase::ToolsMenu(int item) {
 	SelectionIntoProperties();
 
 	SString prefix = "command.";
-	prefix += SString(item).c_str();
+	prefix += SString(item);
 	prefix += ".";
 	SString command = props.GetNewExpand(prefix.c_str(), fileName);
 	if (command.length()) {
 		if (SaveIfUnsure() != IDCANCEL) {
 			SString isfilter = "command.is.filter.";
-			isfilter += SString(item).c_str();
+			isfilter += SString(item);
 			isfilter += ".";
 			SString filter = props.GetNewExpand(isfilter.c_str(), fileName);
 			if (filter[0] == '1')

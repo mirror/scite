@@ -326,7 +326,7 @@ const char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-		size(0), fore(0), back(ColourDesired(0xff, 0xff, 0xff)), bold(false), italics(false),
+size(0), fore(0), back(ColourDesired(0xff, 0xff, 0xff)), bold(false), italics(false),
 eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED) {
 	specified = sdNone;
 	char *val = StringDup(definition);
@@ -532,8 +532,8 @@ void SciTEBase::ReadProperties() {
 	SendEditorString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
 	lexLanguage = SendEditor(SCI_GETLEXER);
 
-	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML) ||
-	        (lexLanguage == SCLEX_ASP) || (lexLanguage == SCLEX_PHP))
+	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML) || 
+		(lexLanguage == SCLEX_ASP) || (lexLanguage == SCLEX_PHP))
 		SendEditor(SCI_SETSTYLEBITS, 7);
 	else
 		SendEditor(SCI_SETSTYLEBITS, 5);
@@ -594,8 +594,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", ColourDesired(0, 0, 0)));
 
-	SendEditor(SCI_SETMOUSEDWELLTIME,
-	           props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
+	SendEditor(SCI_SETMOUSEDWELLTIME, 
+		props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
 
 	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
@@ -1014,7 +1014,7 @@ void SciTEBase::ReadPropertiesInitial() {
 
 	SString menuLanguageProp = props.GetNewExpand("menu.language", "");
 	languageItems = 0;
-	for (int i = 0;i < menuLanguageProp.length();i++) {
+	for (int i = 0; i < menuLanguageProp.length(); i++) {
 		if (menuLanguageProp[i] == '|')
 			languageItems++;
 	}
@@ -1023,7 +1023,7 @@ void SciTEBase::ReadPropertiesInitial() {
 
 	menuLanguageProp.substitute('|', '\0');
 	const char *sMenuLanguage = menuLanguageProp.c_str();
-	for (int item = 0; item < languageItems; item++) {
+	for (int item=0; item < languageItems; item++) {
 		languageMenu[item].menuItem = sMenuLanguage;
 		sMenuLanguage += strlen(sMenuLanguage) + 1;
 		languageMenu[item].extension = sMenuLanguage;

@@ -508,7 +508,7 @@ void SciTEWin::ProcessExecute() {
 
 	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
 
-		time_t timeStart = time(0);
+		ElapsedTime commandTime;
 
 		if (jobQueue[icmd].jobType == jobShell) {
 			ShellExec(jobQueue[icmd].command, jobQueue[icmd].directory);
@@ -680,11 +680,11 @@ void SciTEWin::ProcessExecute() {
 				if (exitcode == 0)
 					isBuilt = true;
 			}
-			SString sExitMessage(exitcode);
+			SString sExitMessage(static_cast<int>(exitcode));
 			sExitMessage.insert(0, ">Exit code: ");
 			if (timeCommands) {
 				sExitMessage += "    Time: ";
-				sExitMessage += SString(time(0) - timeStart);
+				sExitMessage += SString(commandTime.Duration());
 			}
 			sExitMessage.append("\n");
 			OutputAppendStringSynchronised(sExitMessage.c_str());
@@ -820,8 +820,8 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	if (i < numErrcodes) {
 		errormsg += field[i].descr;
 	} else {
-		errormsg += "Unknown error code:";
-		errormsg += SString(rc).c_str();
+		errormsg += "Unknown error code: ";
+		errormsg += SString(static_cast<int>(rc));
 	}
 	::MessageBox(MainHWND(), errormsg.c_str(), appName, MB_OK);
 
@@ -978,8 +978,9 @@ void SciTEWin::Run(const char *cmdLine) {
 
 	SizeSubWindows();
 	wSciTE.Show();
-	if (cmdShow)	// assume SW_MAXIMIZE only
+	if (cmdShow) {	// assume SW_MAXIMIZE only
 		::ShowWindow(MainHWND(), cmdShow);
+	}
 
 	// Open all files given on command line.
 	// The filenames containing spaces must be enquoted.
@@ -1061,7 +1062,7 @@ void SciTEWin::MinimizeToTray() {
 	nid.uCallbackMessage = SCITE_TRAY;
 	nid.hIcon  = static_cast<HICON>(
 		::LoadImage(hInstance, "SCITE", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
-	strcpy(nid.szTip,n);
+	strcpy(nid.szTip, n);
 	::ShowWindow(MainHWND(), SW_MINIMIZE);
 	if (::Shell_NotifyIcon(NIM_ADD, &nid)){
 		::ShowWindow(MainHWND(), SW_HIDE);
@@ -1100,7 +1101,7 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 		return false;
 	if (keyval == 0x10)
 		return false;
-	if (0 == sKey.length()) 
+	if (0 == sKey.length())
 		return false;
 	int modsInKey = 0;
 	if (sKey.contains("Ctrl+")) {
