@@ -365,6 +365,9 @@ static UniMode CookieValue(const SString &s) {
 		posCoding += static_cast<int>(strlen(codingCookie));
 		if ((s[posCoding] == ':') || (s[posCoding] == '=')) {
 			posCoding++;
+			if ((s[posCoding] == '\"') || (s[posCoding] == '\'')) {
+				posCoding++;
+			}
 			while ((posCoding < static_cast<int>(s.length())) &&
 				(isSpaceChar(s[posCoding]))) {
 				posCoding++;
