@@ -362,11 +362,6 @@ void SciTEBase::InitialiseBuffers() {
 
 void SciTEBase::New() {
 	InitialiseBuffers();
-
-	//if (isDirty) {
-	//	MessageBox(wSciTE.GetID(), "Current buffer unclean!", appName, MB_OK);
-	//	return;
-	//}
 	UpdateBuffersCurrent();
 	
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
@@ -378,7 +373,6 @@ void SciTEBase::New() {
 		buffers.current = buffers.Add();
 
 	int doc = GetDocumentAt(buffers.current);
-	//SendEditor(SCI_ADDREFDOC, 0, doc);
 	SendEditor(SCI_SETDOCPOINTER, 0, doc);
 
 	fullPath[0] = '\0';
@@ -600,8 +594,10 @@ void SciTEBase::RemoveFileFromStack(const char *file) {
 
 void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
+		int curScrollPos = SendEditor(EM_GETFIRSTVISIBLELINE);
+		int curTop = SendEditor(SCI_VISIBLEFROMDOCLINE, curScrollPos);
 		int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
-		SendEditor(EM_LINESCROLL, 0, lineTop);
+		SendEditor(EM_LINESCROLL, 0, lineTop - curTop);
 		int lineStart = SendEditor(EM_LINEFROMCHAR, rf.selection.cpMin);
 		SendEditor(SCI_ENSUREVISIBLE, lineStart);
 		int lineEnd = SendEditor(EM_LINEFROMCHAR, rf.selection.cpMax);
@@ -1433,10 +1429,13 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 }
 
 int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
+	UpdateBuffersCurrent();	// Ensure isDirty copied
 	for (int i = 0; i < buffers.length; i++) {
-		SetDocumentAt(i);
-		if (SaveIfUnsure(forceQuestion) == IDCANCEL)
-			return IDCANCEL;
+		if (buffers.buffers[i].isDirty) {
+			SetDocumentAt(i);
+			if (SaveIfUnsure(forceQuestion) == IDCANCEL)
+				return IDCANCEL;
+		}
 	}
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document
