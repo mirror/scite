@@ -105,6 +105,12 @@ Sc1.obj: SciTEWin.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) /D STATIC_BUILD /c SciTEWin.cxx /FoSc1.obj
+
+# A custom rule for .obj files built by scintilla:
+..\..\scintilla\win32\PlatWin.obj: 	..\..\scintilla\win32\PlatWin.cxx
+	echo You must run the Scintilla makefile to build $*.obj
+	fail_the_build # Is there an official way to do this?
 	
+
 $(PROGSTATIC): $(OBJSSTATIC) SciTERes.res
 	$(LD) /OUT:$(PROGSTATIC) $(OBJSSTATIC) SciTERes.res $(LDFLAGS)
