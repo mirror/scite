@@ -52,7 +52,7 @@ LEXEROBJS=$(wildcard ../../scintilla/gtk/Lex*.o)
 
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o DirectorExtension.o \
 SciTEProps.o Utf8_16.o $(LEXEROBJS) ../../scintilla/bin/scintilla.a
-	$(CC) `gtk-config --libs` -DGTK $^ -o $@
+	$(CC) `gtk-config --libs` `glib-config --libs gthread` -DGTK $^ -o $@
 
 # SciTE-static no longer builds. Kept here in case of later need.
 SciTE-static: SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
