@@ -1303,14 +1303,10 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_COMMAND:
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
 			::EndDialog(hDlg, IDCANCEL);
-			wParameters.Destroy();
-			wParameters = 0;
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
 			ParamGrab();
 			::EndDialog(hDlg, IDOK);
-			wParameters.Destroy();
-			wParameters = 0;
 			return TRUE;
 		}
 	}
@@ -1336,6 +1332,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 		                   "PARAMETERS",
 		                   MainHWND(),
 		                   reinterpret_cast<DLGPROC>(ParametersDlg)) == IDOK;
+		wParameters.Destroy();
 		WindowSetFocus(wEditor);
 	} else {
 		::CreateDialogParam(hInstance,
