@@ -286,24 +286,40 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 }
 
 bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath) {
-	GetModuleFileName(0, pathDefaultProps, lenPath);
-	char *lastSlash = strrchr(pathDefaultProps, pathSepChar);
-	if (lastSlash && ((lastSlash + 1 - pathDefaultProps + strlen(propGlobalFileName)) < lenPath)) {
-		strcpy(lastSlash + 1, propGlobalFileName);
+   	char *home = getenv("SciTE_HOME");
+        if (home) {
+		strncpy(pathDefaultProps, home, lenPath);
+		strncat(pathDefaultProps, pathSepString, lenPath);
+		strncat(pathDefaultProps, propGlobalFileName, lenPath);
 		return true;
 	} else {
-		return false;
+		::GetModuleFileName(0, pathDefaultProps, lenPath);
+		char *lastSlash = strrchr(pathDefaultProps, pathSepChar);
+		if (lastSlash && ((lastSlash + 1 - pathDefaultProps + strlen(propGlobalFileName)) < lenPath)) {
+			strcpy(lastSlash + 1, propGlobalFileName);
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 
 bool SciTEWin::GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath) {
-	GetModuleFileName(0, pathDefaultProps, lenPath);
-	char *lastSlash = strrchr(pathDefaultProps, pathSepChar);
-	if (lastSlash && ((lastSlash + 1 - pathDefaultProps + strlen(propUserFileName)) < lenPath)) {
-		strcpy(lastSlash + 1, propUserFileName);
+   	char *home = getenv("SciTE_HOME");
+        if (home) {
+		strncpy(pathDefaultProps, home, lenPath);
+		strncat(pathDefaultProps, pathSepString, lenPath);
+		strncat(pathDefaultProps, propUserFileName, lenPath);
 		return true;
 	} else {
-		return false;
+		GetModuleFileName(0, pathDefaultProps, lenPath);
+		char *lastSlash = strrchr(pathDefaultProps, pathSepChar);
+		if (lastSlash && ((lastSlash + 1 - pathDefaultProps + strlen(propUserFileName)) < lenPath)) {
+			strcpy(lastSlash + 1, propUserFileName);
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 

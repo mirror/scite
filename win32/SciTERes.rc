@@ -72,7 +72,7 @@ BEGIN
 	MENUITEM "View &Fold Margin",          IDM_FOLDMARGIN
 	MENUITEM "View &Margin",          IDM_SELMARGIN
 	MENUITEM "View Line &Numbers",          IDM_LINENUMBERMARGIN
-	MENUITEM "&View End of Line",          IDM_VIEWEOL
+	MENUITEM "&View End of Line\tCtrl+Shift+E",          IDM_VIEWEOL
 	MENUITEM "View Toolbar",          IDM_VIEWTOOLBAR
 	MENUITEM "View Status Bar",          IDM_VIEWSTATUSBAR
 	MENUITEM "",                            2
@@ -248,6 +248,7 @@ BEGIN
 	//"U", IDM_UPRCASE,   VIRTKEY, CONTROL, SHIFT
 	//"U", IDM_LWRCASE,  VIRTKEY, CONTROL
 	"8", IDM_VIEWSPACE, VIRTKEY, CONTROL, SHIFT
+	"E", IDM_VIEWEOL, VIRTKEY, CONTROL, SHIFT
 
 	VK_MULTIPLY, IDM_EXPAND,  VIRTKEY, CONTROL
 	
