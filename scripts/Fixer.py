@@ -11,8 +11,9 @@ recurse = 1
 
 def fixCode(code):
 	#code = string.replace(code, "if(", "if (")
+	code = string.replace(code, "return ;", "return;")
 	return code
-	
+
 def fixLine(line, inComment):
 	line = string.rstrip(line)
 	if inComment:
@@ -33,7 +34,7 @@ def fixLine(line, inComment):
 		else:
 			line = fixCode(line)
 	return line, inComment
-	
+
 def fixFile(filename):
 	os.system("astyle -tapO %s" % filename)
 	out = open(tempname, "wt")
