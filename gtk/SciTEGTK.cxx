@@ -412,6 +412,11 @@ protected:
 	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
 	static void GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event);
 
+#if GTK_MAJOR_VERSION >= 2
+	// This is used to create the pixmaps used in the interface.
+	GdkPixbuf *CreatePixbuf(const char *filename);
+#endif
+
 public:
 
 	// TODO: get rid of this - use callback argument to find SciTEGTK
@@ -558,6 +563,25 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	gtk_widget_show(button);
 	return button;
 }
+
+#if GTK_MAJOR_VERSION >= 2
+// This is an internally used function to create pixmaps.
+GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
+	char path[MAX_PATH + 20];
+	strncpy(path, PIXMAP_PATH, sizeof(path));
+	strcat(path, pathSepString);
+	strcat(path, filename);
+
+	GError *error = NULL;
+	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(path, &error);
+	if (!pixbuf) {
+		fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",
+			path, error->message);
+		g_error_free(error);
+	}
+	return pixbuf;
+}
+#endif
 
 void SciTEGTK::GetDefaultDirectory(char *directory, size_t size) {
 	directory[0] = '\0';
@@ -3005,14 +3029,19 @@ void SciTEGTK::FindIncrement(){
 }
 
 void SciTEGTK::SetIcon() {
-	GtkStyle *style;
-	GdkPixmap *icon_pix;
+#if GTK_MAJOR_VERSION >= 2
+	GdkPixbuf *icon_pix_buf = CreatePixbuf("Sci48M.png");
+	if (icon_pix_buf) {
+		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), icon_pix_buf);
+		gdk_pixbuf_unref(icon_pix_buf);
+		return;
+	}
+#endif
+	GtkStyle *style = gtk_widget_get_style(PWidget(wSciTE));
 	GdkBitmap *mask;
-	style = gtk_widget_get_style(PWidget(wSciTE));
-	icon_pix = gdk_pixmap_create_from_xpm_d(PWidget(wSciTE)->window,
-	                                        &mask,
-	                                        &style->bg[GTK_STATE_NORMAL],
-	                                        (gchar **)SciIcon_xpm);
+	GdkPixmap *icon_pix = gdk_pixmap_create_from_xpm_d(
+		PWidget(wSciTE)->window, &mask,
+		&style->bg[GTK_STATE_NORMAL], (gchar **)SciIcon_xpm);
 	gdk_window_set_icon(PWidget(wSciTE)->window, NULL, icon_pix, mask);
 }
 
