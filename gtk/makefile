@@ -28,7 +28,7 @@ vpath %.cxx ../src
 
 #CXXFLAGS= -g -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -Wwrite-strings
 INCLUDEDIRS=-I ../../scintilla/include -I ../src
-CXXBASEFLAGS= -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -W -Wall
+CXXBASEFLAGS=-W -Wall -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
 
 ifdef DEBUG
 CXXFLAGS=-DDEBUG $(CXXBASEFLAGS)
@@ -37,23 +37,18 @@ CXXFLAGS=-DNDEBUG $(CXXBASEFLAGS)
 endif
 
 .cxx.o:
-	$(CC) `gtk-config --cflags` $(INCLUDEDIRS) $(CXXFLAGS) -c $< -o $@
+	$(CC) `gtk-config --cflags` $(CXXFLAGS) -c $< -o $@
 
 all: $(PROG)
 
-LEXEROBJS=\
-	../../scintilla/gtk/LexAda.o \
-	../../scintilla/gtk/LexAVE.o \
-	../../scintilla/gtk/LexConf.o \
-	../../scintilla/gtk/LexCPP.o \
-	../../scintilla/gtk/LexHTML.o \
-	../../scintilla/gtk/LexLua.o \
-	../../scintilla/gtk/LexOthers.o \
-	../../scintilla/gtk/LexPascal.o \
-	../../scintilla/gtk/LexPerl.o \
-	../../scintilla/gtk/LexPython.o \
-	../../scintilla/gtk/LexSQL.o \
-	../../scintilla/gtk/LexVB.o
+clean:
+	rm -f *.o $(PROG)
+
+deps:
+	$(CC) -MM `gtk-config --cflags` $(CXXFLAGS) *.cxx ../src/*.cxx >deps.mak
+
+# make should be run in ../../scintilla/gtk to compile all the lexers.
+LEXEROBJS=$(wildcard ../../scintilla/gtk/Lex*.o)
 
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o \
 SciTEProps.o ../../scintilla/bin/scintilla.a $(LEXEROBJS)
@@ -64,21 +59,8 @@ SciTE-static: SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEP
 KeyWords.o Document.o Scintilla.o PropSet.o
 	$(CC) -L/usr/X11R6/lib -lXext -lX11 -lm -DGTK -DSCI_LEXER SciTE.o KeyWords.o Document.o Scintilla.o PropSet.o /usr/local/lib/libgtk.a /usr/local/lib/libgdk.a /usr/local/lib/libgmodule.a /usr/local/lib/libglib.a -o SciTE-static
 
-SciTEBase.o: SciTEBase.cxx Platform.h WinDefs.h SciTE.h PropSet.h SString.h \
- Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
-SciTEBuffers.o: SciTEBuffers.cxx Platform.h WinDefs.h SciTE.h PropSet.h SString.h \
- Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
-SciTEIO.o: SciTEIO.cxx Platform.h WinDefs.h SciTE.h PropSet.h SString.h \
- Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
-Exporters.o: Exporters.cxx Platform.h WinDefs.h SciTE.h PropSet.h SString.h \
- Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
-SciTEProps.o: SciTEProps.cxx Platform.h WinDefs.h SciTE.h PropSet.h SString.h \
- Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
-SciTEGTK.o: SciTEGTK.cxx Platform.h WinDefs.h SciTE.h PropSet.h SString.h \
- Accessor.h WindowAccessor.h KeyWords.h Scintilla.h ScintillaWidget.h SciTEBase.h
-
-clean:
-	rm -f *.o $(PROG)
+# Automatically generate header dependencies with "make deps"
+include deps.mak
 
 # The two last install commands will fail if Gnome is not installed or is not at $(prefix).
 # This is OK - just means no SciTE in the Gnome Applications menu
