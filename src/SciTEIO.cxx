@@ -600,14 +600,7 @@ bool SciTEBase::Save() {
 			//Platform::DebugPrintf("Saved file=%d\n", dwEnd - dwStart);
 			fileModTime = GetModTime(fullPath);
 			SendEditor(SCI_SETSAVEPOINT);
-#if 0
-			char fileNameLowered[MAX_PATH];
-			strcpy(fileNameLowered, fileName);
-			lowerCaseString(fileNameLowered);
-			if (0 != strstr(fileNameLowered, ".properties")) {
-#else
 			if (IsPropertiesFile(fileName)) {
-#endif
 				ReadGlobalPropFile();
 				ReadLocalPropFile();
 				ReadProperties();

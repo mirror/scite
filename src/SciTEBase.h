@@ -69,6 +69,14 @@ public:
 	}
 };
 
+class PropSetFile : public PropSet {
+public:
+	PropSetFile();
+	~PropSetFile();
+	void ReadFromMemory(const char *data, int len, const char *directoryForImports=0);
+	void Read(const char *filename, const char *directoryForImports);
+};
+
 class RecentFile {
 public:
 	SString fileName;
@@ -265,10 +273,10 @@ protected:
 	bool jobUsesOutputPane;
 	long cancelFlag;
 
-	PropSet propsEmbed;
-	PropSet propsBase;
-	PropSet propsUser;
-	PropSet props;
+	PropSetFile propsEmbed;
+	PropSetFile propsBase;
+	PropSetFile propsUser;
+	PropSetFile props;
 
 	enum { bufferMax = 10 };
 	BufferList buffers;
