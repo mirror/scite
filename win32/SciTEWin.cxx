@@ -304,11 +304,18 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		::exit(FALSE);
 }
 
+static void ChopTerminalSlash(char *path) {
+	int endOfPath = strlen(path) - 1;
+	if (path[endOfPath] == pathSepChar)
+	    path[endOfPath] = '\0';
+}
+
 void SciTEWin::GetDefaultDirectory(char *directory, size_t size) {
 	directory[0] = '\0';
 	char *home = getenv("SciTE_HOME");
 	if (home) {
 		strncpy(directory, home, size);
+		ChopTerminalSlash(directory);
 	} else {
 		char modulePath[MAX_PATH];
 		::GetModuleFileName(0, modulePath, MAX_PATH);
@@ -325,6 +332,7 @@ bool SciTEWin::GetSciteDefaultHome(char *path, unsigned int lenPath) {
 	char *home = getenv("SciTE_HOME");
 	if (home) {
 		strncpy(path, home, lenPath);
+		ChopTerminalSlash(path);
 	} else {
 		::GetModuleFileName(0, path, lenPath);
 		char *lastSlash = strrchr(path, pathSepChar);
@@ -341,6 +349,7 @@ bool SciTEWin::GetSciteUserHome(char *path, unsigned int lenPath) {
 		home = getenv("USERPROFILE");
 	if (home) {
 		strncpy(path, home, lenPath);
+		ChopTerminalSlash(path);
 	} else {
 		::GetModuleFileName(0, path, lenPath);
 		char *lastSlash = strrchr(path, pathSepChar);
