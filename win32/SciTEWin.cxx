@@ -91,13 +91,14 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 
 	WNDCLASS wndclass;
 
+	// Register the frame window
 	className = "SciTEWindow";
 	wndclass.style = 0;
 	wndclass.lpfnWndProc = SciTEWin::TWndProc;
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = sizeof(SciTEWin*);
 	wndclass.hInstance = hInstance;
-	wndclass.hIcon = LoadIcon(hInstance, resourceName);
+	wndclass.hIcon = ::LoadIcon(hInstance, resourceName);
 	wndclass.hCursor = NULL;
 	wndclass.hbrBackground = NULL;
 	wndclass.lpszMenuName = resourceName;
@@ -105,6 +106,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	if (!::RegisterClass(&wndclass))
 		::exit(FALSE);
 
+	// Register the window that holds the two Scintilla edit windows and the separator
 	classNameInternal = "SciTEWindowContent";
 	wndclass.lpfnWndProc = SciTEWin::IWndProc;
 	wndclass.lpszMenuName = 0;
@@ -1072,6 +1074,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		if (lParam == WM_LBUTTONDBLCLK) {
 			RestoreFromTray();
 		}
+		break;
+
+	case WM_NOTIFY:
+		Notify(reinterpret_cast<SCNotification *>(lParam));
 		break;
 
 	case WM_KEYDOWN:

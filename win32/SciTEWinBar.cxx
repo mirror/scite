@@ -392,7 +392,7 @@ void SciTEWin::Creation() {
 	//	SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
 	//	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
 	//	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
-	SetFocus(wEditor.GetID());
+	::SetFocus(wEditor.GetID());
 
 	wOutput = ::CreateWindowEx(
 	              0,
