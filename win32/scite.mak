@@ -120,6 +120,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexPerl.obj \
 	..\..\scintilla\win32\LexPython.obj \
 	..\..\scintilla\win32\LexRuby.obj \
+	..\..\scintilla\win32\LexScriptol.obj \
 	..\..\scintilla\win32\LexSQL.obj \
 	..\..\scintilla\win32\LexVB.obj \
 
