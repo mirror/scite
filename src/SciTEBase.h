@@ -545,8 +545,8 @@ protected:
 	bool RecordMacroCommand(SCNotification *notification);
 	void ExecuteMacroCommand(const char * command);
 	void AskMacroList();
-	bool StartMacroList(char * words);
-	void ContinueMacroList(char * stxt);
+	bool StartMacroList(const char *words);
+	void ContinueMacroList(const char *stxt);
 	bool ProcessCommandLine(SString &args, int phase);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);

@@ -3041,7 +3041,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 	case SCN_USERLISTSELECTION: {
 			if (notification->wParam == 2)
-				ContinueMacroList((char *)(notification->text));
+				ContinueMacroList(notification->text);
 		}
 		break;
 
@@ -3172,7 +3172,7 @@ void SciTEBase::PerformOne(char *action) {
 			macrosEnabled = atoi(arg);
 			SetToolsMenu();
 		} else if (isprefix(action, "macrolist:")) {
-			StartMacroList((char *)arg);
+			StartMacroList(arg);
 		} else if (isprefix(action, "currentmacro:")) {
 			strcpy(currentmacro, arg);
 		} else if (isprefix(action, "macrocommand:")) {
@@ -3195,6 +3195,12 @@ void SciTEBase::PerformOne(char *action) {
 			SetFocus(wEditor.GetID());
 		} else if (isprefix(action, "quit:")) {
 			QuitProgram();
+		} else if (isprefix(action, "exportashtml:")) {
+			SaveToHTML(arg);
+		} else if (isprefix(action, "exportasrtf:")) {
+			SaveToRTF(arg);
+		} else if (isprefix(action, "exportaspdf:")) {
+			SaveToPDF(arg);
 		}
 	}
 }
@@ -3312,7 +3318,7 @@ void SciTEBase::AskMacroList() {
 /**
  * List of Macro names has been created. Ask Scintilla to show it.
  */
-bool SciTEBase::StartMacroList(char *words) {
+bool SciTEBase::StartMacroList(const char *words) {
 	if (words) {
 		SendEditorString(SCI_USERLISTSHOW, 2, words);//listtype=2
 	}
@@ -3323,7 +3329,7 @@ bool SciTEBase::StartMacroList(char *words) {
 /**
  * User has chosen a macro in the list. Ask director to execute it.
  */
-void SciTEBase::ContinueMacroList(char * stext) {
+void SciTEBase::ContinueMacroList(const char *stext) {
 	if ((extender) && (*stext != '\0')) {
 		strcpy(currentmacro, stext);
 		StartPlayMacro();
