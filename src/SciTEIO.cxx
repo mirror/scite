@@ -258,6 +258,8 @@ bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 }
 
 time_t GetModTime(const char *fullPath) {
+	if (IsUntitledFileName(fullPath))
+		return 0;
 	struct stat statusFile;
 	if (stat(fullPath, &statusFile) != -1)
 		return statusFile.st_mtime;
