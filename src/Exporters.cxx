@@ -2,7 +2,7 @@
 /** @file Exporters.cxx
  ** Export the current document to various markup languages.
  **/
-// Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -90,157 +90,36 @@
 #define RTF_FONTFACE "Courier New"
 #define RTF_COLOR "#000000"
 
-// PL: if my change below is kept, this function is to be removed.
-int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
-	static int highlights[][3] = {
-	                                 { 0x00, 0x00, 0x00 },          // highlight1  0;0;0       black
-	                                 { 0x00, 0x00, 0xFF },          // highlight2  0;0;255     blue
-	                                 { 0x00, 0xFF, 0xFF },          // highlight3  0;255;255   cyan
-	                                 { 0x00, 0xFF, 0x00 },          // highlight4  0;255;0     green
-	                                 { 0xFF, 0x00, 0xFF },          // highlight5  255;0;255   violet
-	                                 { 0xFF, 0x00, 0x00 },          // highlight6  255;0;0     red
-	                                 { 0xFF, 0xFF, 0x00 },          // highlight7  255;255;0   yellow
-	                                 { 0xFF, 0xFF, 0xFF },          // highlight8  255;255;255 white
-	                                 { 0x00, 0x00, 0x80 },          // highlight9  0;0;128     dark blue
-	                                 { 0x00, 0x80, 0x80 },          // highlight10 0;128;128   dark cyan
-	                                 { 0x00, 0x80, 0x00 },          // highlight11 0;128;0     dark green
-	                                 { 0x80, 0x00, 0x80 },          // highlight12 128;0;128   dark violet
-	                                 { 0x80, 0x00, 0x00 },          // highlight13 128;0;0     brown
-	                                 { 0x80, 0x80, 0x00 },          // highlight14 128;128;0   khaki
-	                                 { 0x80, 0x80, 0x80 },          // highlight15 128;128;128 dark grey
-	                                 { 0xC0, 0xC0, 0xC0 },          // highlight16 192;192;192 grey
-	                             };
-	int maxdelta = 3 * 255 + 1, delta, index = -1;
-	int r = IntFromHexByte(rgb + 1), g = IntFromHexByte(rgb + 3), b = IntFromHexByte(rgb + 5);
-	for (unsigned int i = 0; i < sizeof(highlights) / sizeof(*highlights); i++) {
-		delta = abs(r - highlights[i][0]) +
-		        abs(g - highlights[i][1]) +
-		        abs(b - highlights[i][2]);
-		if (delta < maxdelta) {
-			maxdelta = delta;
-			index = i;
-		}
-	}
-	return index + 1;
+// extract the next RTF control word from *style
+void GetRTFNextControl(char **style, char *control) {
+	int len;
+	char *pos = *style;
+	*control = '\0';
+	if ('\0' == *pos) return;
+	pos++; // implicit skip over leading '\'
+	while ('\0' != *pos && '\\' != *pos) { pos++; }
+	len = pos - *style;
+	memcpy(control, *style, len);
+	*(control + len) = '\0';
+	*style = pos;
 }
 
-void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs20\cf0\highlight0\b0\i0
-	int lastLen = strlen(last), offset = 2, lastOffset, currentOffset, len;
+// extracts control words that are different between two styles
+void GetRTFStyleChange(char *delta, char *last, char *current) { // \f0\fs20\cf0\highlight0\b0\i0
+	char lastControl[MAX_STYLEDEF], currentControl[MAX_STYLEDEF];
+	char *lastPos = last;
+	char *currentPos = current;
 	*delta = '\0';
-	// font face
-	lastOffset = offset + 1;
-	while (last[lastOffset] != '\\')
-		lastOffset++;
-	currentOffset = offset + 1;
-	while (current[currentOffset] != '\\')
-		currentOffset++;
-	if (lastOffset != currentOffset ||          // change
-	        strncmp(last + offset, current + offset, lastOffset - offset)) {
-		if (lastOffset != currentOffset) {
-			memmove(last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
-			lastLen += currentOffset - lastOffset;
-		}
-		len = currentOffset - offset;
-		memcpy(last + offset, current + offset, len);
-		strcat(delta, RTF_SETFONTFACE);
-		lastOffset = strlen(delta);
-		memcpy(delta + lastOffset, last + offset, len);
-		delta[lastOffset + len] = '\0';
-	}
-	offset = currentOffset + 3;
-	// size
-	lastOffset = offset + 1;
-	while (last[lastOffset] != '\\')
-		lastOffset++;
-	currentOffset = offset + 1;
-	while (current[currentOffset] != '\\')
-		currentOffset++;
-	if (lastOffset != currentOffset ||          // change
-	        strncmp(last + offset, current + offset, lastOffset - offset)) {
-		if (lastOffset != currentOffset) {
-			memmove(last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
-			lastLen += currentOffset - lastOffset;
-		}
-		len = currentOffset - offset;
-		memcpy(last + offset, current + offset, len);
-		strcat(delta, RTF_SETFONTSIZE);
-		lastOffset = strlen(delta);
-		memcpy(delta + lastOffset, last + offset, len);
-		delta[lastOffset + len] = '\0';
-	}
-	offset = currentOffset + 3;
-	// color
-	lastOffset = offset + 1;
-	while (last[lastOffset] != '\\')
-		lastOffset++;
-	currentOffset = offset + 1;
-	while (current[currentOffset] != '\\')
-		currentOffset++;
-	if (lastOffset != currentOffset ||          // change
-	        strncmp(last + offset, current + offset, lastOffset - offset)) {
-		if (lastOffset != currentOffset) {
-			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
-			lastLen += currentOffset - lastOffset;
-		}
-		len = currentOffset - offset;
-		memcpy(last + offset, current + offset, len);
-		strcat (delta, RTF_SETCOLOR);
-		lastOffset = strlen(delta);
-		memcpy(delta + lastOffset, last + offset, len);
-		delta[lastOffset + len] = '\0';
-	}
-	offset = currentOffset + 10;
-	// background
-	lastOffset = offset + 1;
-	while (last[lastOffset] != '\\')
-		lastOffset++;
-	currentOffset = offset + 1;
-	while (current[currentOffset] != '\\')
-		currentOffset++;
-	if (lastOffset != currentOffset ||          // change
-	        strncmp(last + offset, current + offset, lastOffset - offset)) {
-		if (lastOffset != currentOffset) {
-			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
-			lastLen += currentOffset - lastOffset;
-		}
-		len = currentOffset - offset;
-		memcpy(last + offset, current + offset, len);
-		strcat (delta, RTF_SETBACKGROUND);
-		lastOffset = strlen(delta);
-		memcpy(delta + lastOffset, last + offset, len);
-		delta[lastOffset + len] = '\0';
-	}
-	offset = currentOffset + 2;
-	// bold
-	if (last[offset] != current[offset]) {
-		if (current[offset] == '\\') { // turn on
-			memmove (last + offset, last + offset + 1, lastLen-- - offset);
-			strcat (delta, RTF_BOLD_ON);
-			offset += 2;
-		} else { // turn off
-			memmove (last + offset + 1, last + offset, ++lastLen - offset);
-			last[offset] = '0';
-			strcat (delta, RTF_BOLD_OFF);
-			offset += 3;
-		}
-	} else
-		offset += current[offset] == '\\' ? 2 : 3;
-	// italic
-	if (last[offset] != current[offset]) {
-		if (current[offset] == '\\') { // turn on
-			memmove (last + offset, last + offset + 1, lastLen-- - offset);
-			strcat (delta, RTF_ITALIC_ON);
-		} else { // turn off
-			memmove (last + offset + 1, last + offset, ++lastLen - offset);
-			last[offset] = '0';
-			strcat (delta, RTF_ITALIC_OFF);
+	// font face, size, color, background, bold, italic
+	for (int i = 0; i < 6; i++) {
+		GetRTFNextControl(&lastPos, lastControl);
+		GetRTFNextControl(&currentPos, currentControl);
+		if (strcmp(lastControl, currentControl)) {	// changed
+			strcat(delta, currentControl);
 		}
 	}
-	if (*delta) {
-		lastOffset = strlen(delta);
-		delta[lastOffset] = ' ';
-		delta[lastOffset + 1] = '\0';
-	}
+	if ('\0' != *delta) { strcat(delta, " "); }
+	strcpy(last, current);
 }
 
 void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
