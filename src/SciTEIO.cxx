@@ -484,7 +484,7 @@ void SciTEBase::OpenSelected() {
 		if (endPath) {	// Visual Studio error message: F:\scite\src\SciTEBase.h(312):	bool Exists(
 			lineNumber = atol(endPath + 1);
 		} else {
-			char *endPath = strchr(selectedFilename + 2, ':');	// Skip Windows' drive separator
+			endPath = strchr(selectedFilename + 2, ':');	// Skip Windows' drive separator
 			if (endPath) {	// grep -n line, perhaps gcc too: F:\scite\src\SciTEBase.h:312:	bool Exists(
 				lineNumber = atol(endPath + 1);
 			}
