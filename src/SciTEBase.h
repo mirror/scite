@@ -189,12 +189,18 @@ public:
 
 enum JobSubsystem {
     jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5};
+
+enum JobFlags {
+    jobForceQueue=1, jobHasInput=2, jobQuiet=4, // 8 reserved for jobVeryQuiet
+    jobRepSelMask=48, jobRepSelYes=16, jobRepSelAuto=32 };
+    
 class Job {
 public:
 	SString command;
 	SString directory;
 	SString input;
 	JobSubsystem jobType;
+	int flags;
 
 	Job();
 	void Clear();
@@ -614,7 +620,7 @@ protected:
 	int GetCurrentScrollPosition();
 	virtual void AddCommand(const SString &cmd, const SString &dir,
 		JobSubsystem jobType, const SString &input = "",
-		bool forceQueue = false);
+		int flags = 0);
 	virtual void AboutDialog() = 0;
 	virtual void QuitProgram() = 0;
 	void CloseAllBuffers();

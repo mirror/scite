@@ -211,7 +211,7 @@ public:
 	void ShellExec(const SString &cmd, const SString &dir);
 	virtual void Execute();
 	virtual void StopExecute();
-	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input = "", bool forceQueue = false);
+	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input = "", int flags=0);
 
 	void Paint(Surface *surfaceWindow, PRectangle rcPaint);
 	void Creation();

@@ -611,18 +611,22 @@ void SciTEWin::ProcessExecute() {
 		}
 
 		bool completed = !worked;
+		bool cancelled = false;
+
+		SString repSelBuf;
+
 		DWORD timeDetectedDeath = 0;
 
-		int totalBytesToWrite = jobQueue[icmd].input.search("\x1a");
-		if (totalBytesToWrite < 0) {
+		unsigned totalBytesToWrite = 0;
+		if (jobQueue[icmd].flags & jobHasInput) {
 			totalBytesToWrite = jobQueue[icmd].input.length();
 		}
 
 		if (worked) {
 			subProcessGroupId = pi.dwProcessId;
 
-			if (totalBytesToWrite > 0) {
-				SString input = jobQueue[icmd].input.substr(0, totalBytesToWrite);
+			if (totalBytesToWrite > 0 && !(jobQueue[icmd].flags & jobQuiet)) {
+				SString input = jobQueue[icmd].input;
 				input.substitute("\n", "\n>> ");
 
 				OutputAppendStringSynchronised(">> ");
@@ -631,7 +635,7 @@ void SciTEWin::ProcessExecute() {
 			}
 		}
 
-		int writingPosition = 0;
+		unsigned writingPosition = 0;
 
 		while (!completed) {
 			if (writingPosition >= totalBytesToWrite) {
@@ -672,7 +676,7 @@ void SciTEWin::ProcessExecute() {
 
 					writingPosition += bytesWrote;
 
-					if (writingPosition >= totalBytesToWrite && (jobQueue[icmd].input[totalBytesToWrite] == 0x1a)) {
+					if (writingPosition >= totalBytesToWrite) {
 						::CloseHandle(hWriteSubProcess);
 						hWriteSubProcess = INVALID_HANDLE_VALUE;
 					}
@@ -689,12 +693,20 @@ void SciTEWin::ProcessExecute() {
 				                       sizeof(buffer), &bytesRead, NULL);
 
 				if (bTest && bytesRead) {
-					if (!seenOutput) {
-						MakeOutputVisible();
-						seenOutput = true;
+
+					if (jobQueue[icmd].flags & jobRepSelMask) {
+						repSelBuf.append(buffer, bytesRead);
 					}
-					// Display the data
-					OutputAppendStringSynchronised(buffer, bytesRead);
+
+					if (!(jobQueue[icmd].flags & jobQuiet)) {
+						if (!seenOutput) {
+							MakeOutputVisible();
+							seenOutput = true;
+						}
+						// Display the data
+						OutputAppendStringSynchronised(buffer, bytesRead);
+					}
+
 					::UpdateWindow(MainHWND());
 				} else {
 					completed = true;
@@ -730,6 +742,7 @@ void SciTEWin::ProcessExecute() {
 					::TerminateProcess(pi.hProcess, 1);
 				}
 				completed = true;
+				cancelled = true;
 			}
 		}
 
@@ -757,6 +770,19 @@ void SciTEWin::ProcessExecute() {
 
 			::CloseHandle(pi.hProcess);
 			::CloseHandle(pi.hThread);
+
+			if (!cancelled) {
+				bool doRepSel = false;
+				if (jobQueue[icmd].flags & jobRepSelYes)
+					doRepSel = true;
+				else if (jobQueue[icmd].flags & jobRepSelAuto)
+					doRepSel = (0 == exitcode);
+
+				if (doRepSel) {
+					SendEditor(SCI_REPLACESEL,0,(sptr_t)(repSelBuf.c_str()));
+				}
+			}
+
 			WarnUser(warnExecuteOK);
 		} else {
 			WarnUser(warnExecuteKO);
@@ -932,9 +958,9 @@ void SciTEWin::StopExecute() {
 	::InterlockedExchange(&cancelFlag, 1L);
 }
 
-void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, bool forceQueue) {
+void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, int flags) {
 	if (cmd.length()) {
-		if ((jobType == jobShell) && !forceQueue) {
+		if ((jobType == jobShell) && ((flags & jobForceQueue) == 0)) {
 			SString pCmd = cmd;
 			parameterisedCommand = "";
 			if (pCmd[0] == '*') {
@@ -949,7 +975,7 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 			pCmd = props.Expand(pCmd.c_str());
 			ShellExec(pCmd, dir);
 		} else {
-			SciTEBase::AddCommand(cmd, dir, jobType, input, forceQueue);
+			SciTEBase::AddCommand(cmd, dir, jobType, input, flags);
 		}
 	}
 }

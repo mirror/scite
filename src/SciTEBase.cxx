@@ -156,7 +156,6 @@ const char *contributors[] = {
                                  "Jochen Tucht",
 				 "Greg Smith",
 				 "Steve Schoettler",
-				 "",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -2715,7 +2714,7 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 	}
 }
 
-void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, bool) {
+void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, int flags) {
 	if (commandCurrent == 0)
 		jobUsesOutputPane = false;
 	if (cmd.length()) {
@@ -2723,6 +2722,7 @@ void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem 
 		jobQueue[commandCurrent].directory = dir;
 		jobQueue[commandCurrent].jobType = jobType;
 		jobQueue[commandCurrent].input = input;
+		jobQueue[commandCurrent].flags = flags;
 		commandCurrent++;
 		if ((jobType == jobCLI) || (jobType == jobExtension))
 			jobUsesOutputPane = true;
@@ -3169,18 +3169,19 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_GO: {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
-				bool forceQueue = false;
+				long flags = 0;
+				
 				if (!isBuilt) {
 					SString buildcmd = props.GetNewExpand("command.go.needs.", fileName);
 					AddCommand(buildcmd, "",
 					           SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
 						isBuilding = true;
-						forceQueue = true;
+						flags |= jobForceQueue;
 					}
 				}
 				AddCommand(props.GetWild("command.go.", fileName), "",
-				           SubsystemType("command.go.subsystem."), "", forceQueue);
+				           SubsystemType("command.go.subsystem."), "", flags);
 				if (commandCurrent > 0)
 					Execute();
 			}

@@ -1076,14 +1076,15 @@ void SciTEWin::FindInFiles() {
 		SelectionIntoProperties();
 
 		SString findInput;
+		long flags = 0;
 		if (props.Get("find.input").length()) {
-			findInput += props.GetNewExpand("find.input");
-			findInput += '\x1a';
+			findInput = props.GetNewExpand("find.input");
+			flags += jobHasInput;
 		}
 
 		AddCommand(props.GetNewExpand("find.command"),
 		           props.Get("find.directory"),
-		           jobCLI, findInput);
+		           jobCLI, findInput, flags);
 		if (commandCurrent > 0)
 			Execute();
 	}

@@ -1743,7 +1743,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	command.<i>number</i>.<i>filepattern</i><br />
           command.is.filter.<i>number</i>.<i>filepattern</i><br />
           command.subsystem.<i>number</i>.<i>filepattern</i><br />
-          <span class="windowsonly">command.input.<i>number</i>.<i>filepattern</i></span>
+          <span class="windowsonly">command.input.<i>number</i>.<i>filepattern</i></span><br>
+          <span class="windowsonly">command.replace.selection.<i>number</i>.<i>filepattern</i></span>
+          <span class="windowsonly">command.quiet.<i>number</i>.<i>filepattern</i></span><br>
         </td>
         <td>
           Extra commands can be added to the Tools menu. For example to include the 'astyle'
@@ -1773,6 +1775,22 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	would pipe the current selection to the command processes.
 	The command.input property is only supported for subsystem 0
 	(command line programs).<br />
+
+        On Windows, the optional command.replace.selection can be used to specify that the
+        command output should replace the current selection (or be inserted at the cursor 
+        location, if there is no selection).  This property has three available settings: 
+        0, the default, means do not replace the selection.  1 means replace the selection 
+        when the command finishes.  2 means replace the selection only if the command 
+        finishes with an exit code of 0.  If the user cancels the command via "Tools / Stop 
+        Executing", the selection will not be replaced even in mode 1.  Note, commands run
+        asynchronously, so you are not prevented from modifying the document or even 
+        switching buffers while a command is running.  However, please bear in mind that 
+        command.replace.selection will send the output to whatever window is active <i>when 
+        the command completes</i>.<br />
+
+        A final command property that is currently supported only on windows is command.quiet.
+        A value of 1 indicates that the command I/O should not be echoed to the output pane.
+        This may be useful in combination with command.input and command.replace.selection.<br />
 
 	If the text of a command starts with '*' then the Parameters dialog is displayed to
 	prompt for parameters before executing the command. The initial '*' is not included

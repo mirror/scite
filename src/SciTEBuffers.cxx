@@ -64,6 +64,8 @@ void Job::Clear() {
 	command = "";
 	directory = "";
 	jobType = jobCLI;
+	input = "";
+	flags = 0;
 }
 
 bool FilePath::SameNameAs(const char *other) const {
@@ -913,6 +915,8 @@ void SciTEBase::ToolsMenu(int item) {
 	SString command = props.GetWild(prefix.c_str(), fileName);
 	if (command.length()) {
 		if (SaveIfUnsure() != IDCANCEL) {
+			int flags = 0;
+
 			SString isfilter = "command.is.filter.";
 			isfilter += SString(item);
 			isfilter += ".";
@@ -925,14 +929,29 @@ void SciTEBase::ToolsMenu(int item) {
 			SString inputProp = "command.input.";
 			inputProp += SString(item);
 			inputProp += ".";
-
 			SString input;
 			if (props.GetWild(inputProp.c_str(), fileName).length()) {
-				input += props.GetNewExpand(inputProp.c_str(), fileName);
-				input += '\x1a';
+				input = props.GetNewExpand(inputProp.c_str(), fileName);
+				flags |= jobHasInput;
 			}
 
-			AddCommand(command, "", jobType, input);
+			SString quietProp = "command.quiet.";
+			quietProp += SString(item);
+			quietProp += ".";
+			int quiet = props.GetNewExpand(quietProp.c_str(), fileName).value();
+			if (quiet == 1)
+				flags |= jobQuiet;
+	
+			SString repSelProp = "command.replace.selection.";
+			repSelProp += SString(item);
+			repSelProp += ".";
+			int repSel = props.GetNewExpand(repSelProp.c_str(), fileName).value();
+			if (repSel == 1)
+				flags |= jobRepSelYes;
+			else if (repSel == 2)
+				flags |= jobRepSelAuto;
+	
+			AddCommand(command, "", jobType, input, flags);
 			if (commandCurrent > 0)
 				Execute();
 		}
