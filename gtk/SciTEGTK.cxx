@@ -265,6 +265,7 @@ protected:
 	GtkWidget *toggleReverse;
 	GtkWidget *toggleRec;
 	GtkWidget *comboFind;
+	GtkWidget *comboFindInFiles;
 	GtkWidget *comboDir;
 	GtkWidget *comboReplace;
 	GtkWidget *entryParam[maxParam];
@@ -314,6 +315,8 @@ protected:
 	virtual void SaveAsPDF();
 	virtual void SaveAsTEX();
 	virtual void SaveAsXML();
+	virtual void LoadSessionDialog();
+	virtual void SaveSessionDialog();
 
 	virtual void Print(bool);
 	virtual void PrintSetup();
@@ -363,6 +366,8 @@ protected:
 	static void OpenCancelSignal(GtkWidget *w, SciTEGTK *scitew);
 	static gint OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	static void OpenOKSignal(GtkWidget *w, SciTEGTK *scitew);
+	static void OpenSessionOKSignal(GtkWidget *w, SciTEGTK *scitew);
+	static void SaveSessionOKSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void OpenResizeSignal(GtkWidget *w, GtkAllocation *allocation, SciTEGTK *scitew);
 	static void SaveAsSignal(GtkWidget *w, SciTEGTK *scitew);
 
@@ -470,6 +475,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	toggleUnSlash = 0;
 	toggleReverse = 0;
 	comboFind = 0;
+	comboFindInFiles = 0;
 	comboReplace = 0;
 	btnCompile = 0;
 	btnBuild = 0;
@@ -1091,6 +1097,42 @@ void SciTEGTK::SaveAsXML() {
 	SaveAsXXX(sfXML, "Export File As XML");
 }
 
+void SciTEGTK::LoadSessionDialog() {
+	chdir(dirName);
+	if (!dlgFileSelector.Created()) {
+		dlgFileSelector = gtk_file_selection_new(LocaliseString("Load Session").c_str());
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
+		                   "clicked", GtkSignalFunc(OpenSessionOKSignal), this);
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
+		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
+		gtk_signal_connect(GTK_OBJECT(PWidget(dlgFileSelector)),
+		                   "size_allocate", GtkSignalFunc(OpenResizeSignal),
+		                   this);
+		// Get a bigger open dialog
+		gtk_window_set_default_size(GTK_WINDOW(PWidget(dlgFileSelector)),
+		                            fileSelectorWidth, fileSelectorHeight);
+		dlgFileSelector.ShowModal(PWidget(wSciTE));
+	}
+}
+
+void SciTEGTK::SaveSessionDialog() {
+	chdir(dirName);
+	if (!dlgFileSelector.Created()) {
+		dlgFileSelector = gtk_file_selection_new(LocaliseString("Save Session").c_str());
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
+		                   "clicked", GtkSignalFunc(SaveSessionOKSignal), this);
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
+		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
+		gtk_signal_connect(GTK_OBJECT(PWidget(dlgFileSelector)),
+		                   "size_allocate", GtkSignalFunc(OpenResizeSignal),
+		                   this);
+		// Get a bigger open dialog
+		gtk_window_set_default_size(GTK_WINDOW(PWidget(dlgFileSelector)),
+		                            fileSelectorWidth, fileSelectorHeight);
+		dlgFileSelector.ShowModal(PWidget(wSciTE));
+	}
+}
+
 void SciTEGTK::Print(bool) {
 	SelectionIntoProperties();
 	AddCommand(props.GetWild("command.print.", fileName), "",
@@ -1108,6 +1150,8 @@ void SciTEGTK::PrintSetup() {
 void SciTEGTK::HandleFindReplace() {}
 
 void SciTEGTK::Find() {
+	if (wFindReplace.Created())
+		return;
 	SelectionIntoFind();
 	FindReplace(false);
 }
@@ -1214,7 +1258,7 @@ void SciTEGTK::FRReplaceInSelectionSignal(GtkWidget *, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
-	const char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFind)->entry));
+	const char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFindInFiles)->entry));
 	scitew->props.Set("find.what", findEntry);
 	scitew->memFinds.Insert(findEntry);
 
@@ -1279,25 +1323,25 @@ void SciTEGTK::FindInFiles() {
 
 	int row = 0;
 
-	comboFind = gtk_combo_new();
+	comboFindInFiles = gtk_combo_new();
 
 	GtkWidget *labelFind = TranslatedLabel("Find what:");
 	gtk_table_attach(GTK_TABLE(table), labelFind, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
 	gtk_widget_show(labelFind);
 
-	FillComboFromMemory(comboFind, memFinds);
-	gtk_combo_set_case_sensitive(GTK_COMBO(comboFind), TRUE);
-	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFind), TRUE);
+	FillComboFromMemory(comboFindInFiles, memFinds);
+	gtk_combo_set_case_sensitive(GTK_COMBO(comboFindInFiles), TRUE);
+	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFindInFiles), TRUE);
 
-	gtk_table_attach(GTK_TABLE(table), comboFind, 1, 2,
+	gtk_table_attach(GTK_TABLE(table), comboFindInFiles, 1, 2,
 	                 row, row + 1, optse, opts, 5, 5);
-	gtk_widget_show(comboFind);
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry), findWhat.c_str());
-	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 0, findWhat.length());
-	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFind)->entry),
+	gtk_widget_show(comboFindInFiles);
+	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), findWhat.c_str());
+	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), 0, findWhat.length());
+	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFindInFiles)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
-	gtk_combo_disable_activate(GTK_COMBO(comboFind));
+	gtk_combo_disable_activate(GTK_COMBO(comboFindInFiles));
 
 	row++;
 
@@ -1368,13 +1412,15 @@ void SciTEGTK::FindInFiles() {
 	gtk_widget_show(btnCancel);
 
 	gtk_widget_grab_default(GTK_WIDGET(btnFind));
-	gtk_widget_grab_focus(GTK_WIDGET(GTK_COMBO(comboFind)->entry));
+	gtk_widget_grab_focus(GTK_WIDGET(GTK_COMBO(comboFindInFiles)->entry));
 
 	gtk_window_add_accel_group(GTK_WINDOW(PWidget(dlgFindInFiles)), accel_group);
 	dlgFindInFiles.ShowModal(PWidget(wSciTE));
 }
 
 void SciTEGTK::Replace() {
+	if (wFindReplace.Created())
+		return;
 	SelectionIntoFind();
 	FindReplace(true);
 }
@@ -2271,6 +2317,18 @@ void SciTEGTK::OpenOKSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->dlgFileSelector.OK();
 }
 
+void SciTEGTK::OpenSessionOKSignal(GtkWidget *, SciTEGTK *scitew) {
+	scitew->LoadSession(gtk_file_selection_get_filename(
+	                 GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
+	scitew->dlgFileSelector.OK();
+}
+
+void SciTEGTK::SaveSessionOKSignal(GtkWidget *, SciTEGTK *scitew) {
+	scitew->SaveSession(gtk_file_selection_get_filename(
+	                 GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
+	scitew->dlgFileSelector.OK();
+}
+
 void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK *scitew) {
 	scitew->fileSelectorWidth = allocation->width;
 	scitew->fileSelectorHeight = allocation->height;
@@ -2489,6 +2547,9 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/File8", "", menuSig, fileStackCmdID + 8, 0},
 	                                      {"/File/File9", "", menuSig, fileStackCmdID + 9, 0},
 	                                      {"/File/sep2", NULL, menuSig, IDM_MRU_SEP, "<Separator>"},
+	                                      {"/File/Load Session...", "", menuSig, IDM_LOADSESSION, 0},
+	                                      {"/File/Save Session...", "", menuSig, IDM_SAVESESSION, 0},
+	                                      {"/File/sep3", NULL, NULL, 0, "<Separator>"},
 	                                      {"/File/E_xit", "", menuSig, IDM_QUIT, 0},
 
 	                                      {"/_Edit", NULL, NULL, 0, "<Branch>"},
