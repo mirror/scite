@@ -87,6 +87,7 @@ const char *contributors[] = {
     "Garrett Serack",
     "Holger Schmidt",
     "ActiveState http://www.activestate.com",
+    "James Larcombe",
 };
 
 const char *extList[] = {
@@ -1942,7 +1943,6 @@ void SciTEBase::Notify(SCNotification *notification) {
 			EnsureRangeVisible(notification->position, notification->position + notification->length);
 		}
 		break;
-
 	}
 }
 
