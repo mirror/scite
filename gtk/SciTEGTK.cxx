@@ -2089,8 +2089,8 @@ SString SciTEGTK::TranslatePath(const char *path) {
 }
 
 void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[],
-	int nRepeats=0, const char *prefix=0, int startNum=0, 
-	int startID=0, const char *radioStart) {
+	int nRepeats, const char *prefix, int startNum, 
+	int startID, const char *radioStart) {
 	
 	char *gthis = reinterpret_cast<char *>(this);
 	int dim = n + nRepeats;
