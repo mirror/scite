@@ -388,6 +388,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	DeleteFileStackMenu();
 	SetFileStackMenu();
 	SetWindowName();
+	UpdateStatusBar(true);
 	if (extender)
 		extender->OnOpen(fullPath);
 	return true;

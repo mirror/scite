@@ -343,7 +343,6 @@ protected:
 	bool macrosEnabled;
 	char currentmacro[100];
 	bool recording;
-	bool playing; //not used : never set to true ...
 
 	PropSetFile propsEmbed;
 	PropSetFile propsBase;
@@ -352,6 +351,8 @@ protected:
 	PropSetFile props;
 
 	PropSetFile propsAbbrev;
+	
+	PropSet propsStatus;
 
 	enum { bufferMax = 10 };
 	BufferList buffers;

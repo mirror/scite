@@ -265,12 +265,13 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	macrosEnabled = false;
 	currentmacro[0] = '\0';
 	recording = false;
-	playing = false;
 
 	propsBase.superPS = &propsEmbed;
 	propsUser.superPS = &propsBase;
 	propsLocal.superPS = &propsUser;
 	props.superPS = &propsLocal;
+
+	propsStatus.superPS = &props;
 }
 
 SciTEBase::~SciTEBase() {
@@ -641,7 +642,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 
 void SciTEBase::BraceMatch(bool editor) {
 	if (!bracesCheck)
-		return ;
+		return;
 	int braceAtCaret = -1;
 	int braceOpposite = -1;
 	FindMatchingBracePosition(editor, braceAtCaret, braceOpposite, bracesSloppy);
@@ -1981,9 +1982,7 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 			sbValue = msg;
 		}
 #else
-		PropSet propsStatus;
 		char tmp[32];
-		propsStatus.superPS = &props;
 		if (bUpdateSlowData) {
 			SetFileProperties(propsStatus);
 		}
@@ -2170,8 +2169,8 @@ void SciTEBase::AutomaticIndentation(char ch) {
  * such as displaying a completion list.
  */
 void SciTEBase::CharAdded(char ch) {
-	if (recording || playing)
-		return ;
+	if (recording)
+		return;
 	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
 	int selEnd = crange.cpMax;
@@ -3232,7 +3231,7 @@ void SciTEBase::EnumProperties(const char *propkind) {
 	PropSetFile *pf = NULL;
 
 	if (!extender)
-		return ;
+		return;
 	if (!strcmp(propkind, "dyn"))
 		pf = &props;
 	else if (!strcmp(propkind, "local"))
