@@ -48,6 +48,7 @@ protected:
 	char openWhat[200];
 	int filterDefault;
 	
+	bool startedToPrintOnly;
 	PRectangle  pagesetupMargin;
 	HGLOBAL     hDevMode;
 	HGLOBAL     hDevNames;
@@ -179,6 +180,7 @@ SciTEWin::SciTEWin() {
 	if (!wSciTE.Created())
 		exit(FALSE);
 
+	startedToPrintOnly = false;
 	hDevMode  = 0;
 	hDevNames = 0;
 	ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
@@ -749,7 +751,8 @@ void SciTEWin::Print() {
 		reinterpret_cast<WPARAM>(&startPos),
 		reinterpret_cast<LPARAM>(&endPos)) == 0)
 	pdlg.Flags |= PD_NOSELECTION;
-	
+	if (startedToPrintOnly)
+	    pdlg.Flags |= PD_RETURNDEFAULT;
 	if (!::PrintDlg(&pdlg)) {
 		return;
 	}
@@ -887,6 +890,8 @@ void SciTEWin::Print() {
 	
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
+	if (startedToPrintOnly)
+		::PostQuitMessage(0);
 }
 
 void SciTEWin::PrintSetup() {
@@ -1620,7 +1625,13 @@ void SciTEWin::QuitProgram() {
 }
 
 void SciTEWin::Run(const char *cmdLine) {
-	Open(cmdLine, true);
+	if (0 == strncmp(cmdLine, "/p ", 3)) {
+		startedToPrintOnly = true;
+		Open(cmdLine + 3, true);
+		Print();
+	} else {
+		Open(cmdLine, true);
+	}
 	wSciTE.Show();
 }
 
