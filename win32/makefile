@@ -57,7 +57,7 @@ endif
 
 CXXFLAGS = $(CFLAGS) -pedantic -fno-exceptions $(THUNKFLAGS) -fno-rtti -mno-cygwin
 
-LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS)
+LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS) -mno-cygwin
 
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
