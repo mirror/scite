@@ -31,8 +31,9 @@ endif
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-LEXOBJS	= LexAda.o LexAVE.o LexConf.o LexCPP.o LexCrontab.o LexEiffel.o LexHTML.o LexLisp.o \
- LexLua.o LexOthers.o LexPascal.o LexPerl.o LexPython.o LexRuby.o LexSQL.o LexVB.o
+LEXOBJS	= LexAda.o LexAVE.o LexBaan.o LexBullant.o LexConf.o LexCPP.o \
+ LexCrontab.o LexEiffel.o LexHTML.o LexLisp.o LexLua.o LexOthers.o \
+ LexPascal.o LexPerl.o LexPython.o LexRuby.o LexSQL.o LexVB.o
 OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o SciTERes.o DirectorExtension.o
@@ -40,7 +41,8 @@ PropSet.o PlatWin.o UniConversion.o SciTERes.o DirectorExtension.o
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
 PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
-..\bin\ada.properties ..\bin\ave.properties ..\bin\bullant.properties ..\bin\conf.properties \
+..\bin\ada.properties ..\bin\ave.properties ..\bin\baan.properties \
+..\bin\bullant.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
 ..\bin\nncrontab.properties ..\bin\others.properties \
@@ -48,7 +50,8 @@ PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
 ..\bin\sql.properties ..\bin\tcl.properties ..\bin\vb.properties
 
 LEXPROPS=\
-..\bin\ada.properties ..\bin\ave.properties ..\bin\bullant.properties ..\bin\conf.properties \
+..\bin\ada.properties ..\bin\ave.properties ..\bin\ave.properties \
+..\bin\bullant.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
 ..\bin\nncrontab.properties ..\bin\others.properties \
@@ -77,6 +80,8 @@ deps:
 ..\bin\ada.properties:	..\src\ada.properties
 	copy $^ $@
 ..\bin\ave.properties:	..\src\ave.properties
+	copy $^ $@
+..\bin\baan.properties:	..\src\baan.properties
 	copy $^ $@
 ..\bin\bullant.properties:	..\src\bullant.properties
 	copy $^ $@
