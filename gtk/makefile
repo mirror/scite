@@ -122,8 +122,10 @@ install:
 	done
 
 ifdef gnomeprefix
-ifndef GTK2
-	$(INSTALL) -m 644 -D SciTE.desktop $(DESTDIR)$(datadir)/gnome/apps/Applications/SciTE.desktop
+ifdef GTK2
+	$(INSTALL) -m 755 -D SciTE.desktop $(DESTDIR)$(datadir)/applications/SciTE.desktop
+else
+	$(INSTALL) -m 755 -D SciTE.desktop $(DESTDIR)$(datadir)/gnome/apps/Applications/SciTE.desktop
 endif
 	$(INSTALL) -m 644 -D Sci48M.png $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
