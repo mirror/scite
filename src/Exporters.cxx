@@ -640,8 +640,8 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		char *PDFColours[STYLE_DEFAULT];
 		
 		// initialize that array...
-		for(int i = 0; i < STYLE_DEFAULT; i++) {
-			PDFColours[i] = NULL;
+		for(int j = 0; j < STYLE_DEFAULT; j++) {
+			PDFColours[j] = NULL;
 		}
 		
 		// collect all styles available for that 'language'
@@ -940,19 +940,19 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		// now create all the page objects...
 		SString pageRefs = "";
 		int pageCount = 0;
-		for(int i = 100; i < pageObjNumber; i+=2 ) {
+		for(int k = 100; k < pageObjNumber; k+=2 ) {
 			//
 			char buffer[20];
-			sprintf( buffer,"%% page number %d\n", (i-99)); 
+			sprintf( buffer,"%% page number %d\n", (k-99)); 
 	
-			sprintf( buffer, "%d 0 obj\n", i );
+			sprintf( buffer, "%d 0 obj\n", k );
 			fputs(buffer,fp);
 			fputs("<< /Type /Page\n",fp);
 			fputs("/Parent 3 0 R\n",fp);
 			fputs("/MediaBox [ 0 0 612 792 ]\n", fp);
 			
 			// we need to patch in the corresponding page text object!
-			int textObjNumber = (i +1);
+			int textObjNumber = (k +1);
 			//sprintf( buffer, "/Contents %d 0 R\n", textObjNumber);
 			sprintf( buffer, "/Contents %d 0 R\n", textObjNumber);
 			fputs(buffer,fp);
