@@ -166,7 +166,7 @@ bool SciTEWin::OpenDialog() {
 	SString openFilter = props.GetExpanded("open.filter");
 	if (openFilter.length()) {
 		openFilter.substitute('|', '\0');
-		int start=0;
+		unsigned int start=0;
 		while (start < openFilter.length()) {
 			const char *filterName = openFilter.c_str() + start;
 			SString localised = LocaliseString(filterName, false);
