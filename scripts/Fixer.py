@@ -5,29 +5,38 @@ import string
 import os
 import glob
 import stat
+import shutil
+import cStringIO
 
 tempname = "FixStyle.tmp"
 recurse = 1
 
 def fixCode(code):
+	ocode = code
 	#code = string.replace(code, "if(", "if (")
-	code = string.replace(code, "return ;", "return;")
+	code = code.replace("return ;", "return;")
+	code = code.replace("( -", "(-")
+	#~ if code != ocode:
+		#~ print "!", ocode, ">", code
 	return code
 
 def fixLine(line, inComment):
-	line = string.rstrip(line)
+	line = line.rstrip()
 	if inComment:
-		if string.find(line, "*/") != -1:
+		if line.find("*/") != -1:
 			inComment = 0
 	else:
-		if string.find(line, "#include") == 0:
-			line = string.replace(line, " / ", "/")
-			line = string.replace(line, "< ", "<")
-			line = string.replace(line, " >", ">")
-		elif string.find(line, "/*") != -1:
+		if line.find("#include") == 0:
+			line = line.replace(" / ", "/")
+			line = line.replace("< ", "<")
+			line = line.replace(" >", ">")
+		elif line.find("/*") != -1:
 			inComment = 1
-		elif string.find(line, "//") != -1:
-			pos = string.find(line, "//")
+			if line.find("*/") != -1:
+				# Both start and end comment on one line
+				inComment = 0
+		elif line.find("//") != -1:
+			pos = line.find("//")
 			code = line[:pos]
 			comment = line[pos:]
 			line = fixCode(code) + comment
@@ -35,23 +44,41 @@ def fixLine(line, inComment):
 			line = fixCode(line)
 	return line, inComment
 
+def contents(filename):
+	f = file(filename)
+	t = f.read()
+	f.close()
+	return t
+
 def fixFile(filename):
-	os.system("astyle -tapO %s" % filename)
-	out = open(tempname, "wt")
-	cfile = open(filename, "rt")
+	#print filename
+	inText = contents(filename)
+	tmpFileName = os.path.splitext(filename)[0] + ".fix"
+	origFileName = tmpFileName + ".orig"
+	shutil.copyfile(filename, tmpFileName)
+	os.system("astyle -tapO " + tmpFileName)
+	cfile = file(tmpFileName)
 	lastLine = 1
 	#~ print "processing", filename
+	outList = []
 	inComment = 0
 	for line in cfile.readlines():
 		line, inComment = fixLine(line, inComment)
 		if line or lastLine:
-			out.write(line)
-			out.write("\n")
+			outList.append(line)
 		lastLine = line
-	out.close()
 	cfile.close()
-	os.unlink(filename)
-	os.rename(tempname, filename)
+	outText = "\n".join(outList)
+	if outText != inText:
+		print len(inText), len(outText)
+		#print len(os.path.commonprefix([outText,inText]))
+		print "Replacing", filename
+		os.unlink(filename)
+		outFile = file(filename, "wt")
+		outFile.write(outText)
+		outFile.close()
+	os.unlink(tmpFileName)
+	#os.unlink(origFileName)
 
 def fixDir(dir, extensions):
 	print "dir", dir
