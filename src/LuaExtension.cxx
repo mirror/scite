@@ -1508,6 +1508,9 @@ bool LuaExtension::Clear() {
 	} else if ((GetPropertyInt("ext.lua.reset") >= 1) && CheckStartupScript()) {
 		InitGlobalScope(false);
 	}
+	if (luaState) {
+		CallNamedFunction("OnClear");
+	}
 	return false;
 }
 
