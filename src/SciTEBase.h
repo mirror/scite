@@ -520,6 +520,7 @@ protected:
 	bool topMost;
 	bool wrap;
 	bool wrapOutput;
+	int wrapStyle;
 	bool isReadOnly;
 	bool openFilesHere;
 	bool fullScreen;
@@ -635,6 +636,7 @@ protected:
 	sptr_t SendWindow(Window &w, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 	void SendChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendOutputEx(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0, bool direct = true);
+	SString GetTranslationToAbout(const char * const propname, bool retainIfNotFound=true);
 	int LengthDocument();
 	int GetCaretInLine();
 	void GetLine(char *text, int sizeText, int line=-1);

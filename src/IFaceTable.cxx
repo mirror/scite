@@ -1246,6 +1246,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_WRAPVISUALFLAG_START",0x0002},
 	{"SC_WRAP_NONE",0},
 	{"SC_WRAP_WORD",1},
+	{"SC_WRAP_CHAR",2},
 	{"STYLE_BRACEBAD",35},
 	{"STYLE_BRACELIGHT",34},
 	{"STYLE_CONTROLCHAR",36},

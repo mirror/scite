@@ -756,6 +756,8 @@ void SciTEBase::ReadProperties() {
 		setlocale(LC_CTYPE, "C");
 #endif
 
+	wrapStyle = props.GetInt("wrap.style", SC_WRAP_WORD);
+
 	SendEditor(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", ColourDesired(0, 0, 0)));
 
@@ -1239,8 +1241,21 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 	if (translation.length()) {
 		if (ellipseIndicator)
 			translation += "...";
-		if (0 == accessKeyPresent)
+		if (0 == accessKeyPresent) {
+#if PLAT_WIN
+			// Following codes are required because accelerator is not always
+			// part of alphabetical word in several language. In these cases,
+			// accelerator is written like "(&O)".
+			int posOpenParenAnd = translation.search("(&");
+			if (posOpenParenAnd > 0 && translation.search(")", posOpenParenAnd) == posOpenParenAnd+3) {
+				translation.remove(posOpenParenAnd, 4);
+			} else {
+				translation.remove("&");
+			}
+#else
 			translation.remove("&");
+#endif
+		}
 		translation.substitute("&", menuAccessIndicator);
 		translation.substitute("\\n", "\n");
 	} else {
@@ -1295,8 +1310,8 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
 	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
-	SendEditor(SCI_SETWRAPMODE, wrap ? SC_WRAP_WORD : SC_WRAP_NONE);
-	SendOutput(SCI_SETWRAPMODE, wrapOutput ? SC_WRAP_WORD : SC_WRAP_NONE);
+	SendEditor(SCI_SETWRAPMODE, wrap ? wrapStyle : SC_WRAP_NONE);
+	SendOutput(SCI_SETWRAPMODE, wrapOutput ? wrapStyle : SC_WRAP_NONE);
 
 	useMonoFont = false;
 

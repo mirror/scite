@@ -66,6 +66,7 @@
 #include "Extender.h"
 #include "SciTEBase.h"
 
+// Contributor names are in UTF-8
 const char *contributors[] = {
                                  "Atsuo Ishimoto",
                                  "Mark Hammond",
@@ -93,7 +94,7 @@ const char *contributors[] = {
                                  "Icons Copyright(C) 1998 by Dean S. Jones",
                                  "    http://jfa.javalobby.org/projects/icons/",
 #endif
-                                 "Ragnar Højland",
+                                 "Ragnar H\xc3\xb8jland",
                                  "Christian Obrecht",
                                  "Andreas Neukoetter",
                                  "Adam Gates",
@@ -115,7 +116,7 @@ const char *contributors[] = {
                                  "Richard Pecl",
                                  "Edward K. Ream",
                                  "Valery Kondakoff",
-                                 "Smári McCarthy",
+                                 "Sm\xc3\xa1ri McCarthy",
                                  "Clemens Wyss",
                                  "Simon Steele",
                                  "Serge A. Baranov",
@@ -131,7 +132,7 @@ const char *contributors[] = {
                                  "Marcos E. Wurzius",
                                  "Martin Alderson",
                                  "Robert Gustavsson",
-                                 "José Fonseca",
+                                 "Jos\xc3\xa9 Fonseca",
                                  "Holger Kiemes",
                                  "Francis Irving",
                                  "Scott Kirkwood",
@@ -150,7 +151,7 @@ const char *contributors[] = {
                                  "Alexander Scripnik",
                                  "Ryan Christianson",
                                  "Martin Steffensen",
-                                 "Jakub Vrána",
+                                 "Jakub Vr\xc3\xa1na",
                                  "The Black Horus",
                                  "Bernd Kreuss",
                                  "Thomas Lauer",
@@ -174,8 +175,8 @@ const char *contributors[] = {
                                  "Angelo Mandato http://www.spaceblue.com",
                                  "Denis Sureau",
                                  "Kaspar Schiess",
-                                 "Christoph Hösler",
-                                 "João Paulo F Farias",
+                                 "Christoph H\xc3\xb6sler",
+                                 "Jo\xc3\xa3o Paulo F Farias",
                                  "Ron Schofield",
                                  "Stefan Wosnik",
                                  "Marius Gheorghe",
@@ -218,8 +219,8 @@ const char *contributors[] = {
                                  "Carsten Sperber",
                                  "Phil Reid",
                                  "Iago Rubio",
-                                 "Régis Vaquette",
-                                 "Massimo Cor\340",
+                                 "R\xc3\xa9gis Vaquette",
+                                 "Massimo Cor\xc3\xa0",
                                  "Elias Pschernig",
                                  "Chris Jones",
                                  "Josiah Reynolds",
@@ -279,6 +280,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	topMost = false;
 	wrap = false;
 	wrapOutput = false;
+	wrapStyle = SC_WRAP_WORD;
 	isReadOnly = false;
 	openFilesHere = false;
 	fullScreen = false;
@@ -427,23 +429,71 @@ sptr_t SciTEBase::SendOutputEx(unsigned int msg, uptr_t wParam /*= 0*/, sptr_t l
 	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
 }
 
-#if PLAT_GTK && GTK_MAJOR_VERSION >= 2
-static char *UTF8FromLatin1(const char *s, int len) {
-	char *utfForm = new char[len*2+1];
-	size_t lenU = 0;
-	for (int i=0;i<len;i++) {
-		unsigned int uch = static_cast<unsigned char>(s[i]);
+#if PLAT_WIN
+static unsigned int UTF8Length(const wchar_t *uptr, unsigned int tlen) {
+	unsigned int len = 0;
+	for (unsigned int i = 0; i < tlen && uptr[i]; i++) {
+		unsigned int uch = uptr[i];
+		if (uch < 0x80)
+			len++;
+		else if (uch < 0x800)
+			len += 2;
+		else
+			len +=3;
+	}
+	return len;
+}
+
+static void UTF8FromUCS2(const wchar_t *uptr, unsigned int tlen, char *putf, unsigned int len) {
+	int k = 0;
+	for (unsigned int i = 0; i < tlen && uptr[i]; i++) {
+		unsigned int uch = uptr[i];
 		if (uch < 0x80) {
-			utfForm[lenU++] = uch;
+			putf[k++] = static_cast<char>(uch);
+		} else if (uch < 0x800) {
+			putf[k++] = static_cast<char>(0xC0 | (uch >> 6));
+			putf[k++] = static_cast<char>(0x80 | (uch & 0x3f));
 		} else {
-			utfForm[lenU++] = static_cast<char>(0xC0 | (uch >> 6));
-			utfForm[lenU++] = static_cast<char>(0x80 | (uch & 0x3f));
+			putf[k++] = static_cast<char>(0xE0 | (uch >> 12));
+			putf[k++] = static_cast<char>(0x80 | ((uch >> 6) & 0x3f));
+			putf[k++] = static_cast<char>(0x80 | (uch & 0x3f));
 		}
 	}
-	utfForm[lenU] = '\0';
-	return utfForm;
+	putf[len] = '\0';
 }
 #endif
+
+SString SciTEBase::GetTranslationToAbout(const char * const propname, bool retainIfNotFound){
+#if PLAT_WIN
+	// By code below, all translators can write their name in their own 
+	// language in locale.properties on Windows.
+	SString result = LocaliseString(propname, retainIfNotFound);
+	if (!result.length()) 
+		return result;
+	int translationCodePage = props.GetInt("code.page", CP_ACP);
+	int bufwSize = ::MultiByteToWideChar(translationCodePage, MB_PRECOMPOSED, result.c_str(), -1, NULL, 0);
+	if (!bufwSize) 
+		return result;
+	wchar_t *bufw = new wchar_t[bufwSize+1];
+	bufwSize = ::MultiByteToWideChar(translationCodePage, MB_PRECOMPOSED, result.c_str(), -1, bufw, bufwSize);
+	if(!bufwSize) {
+		delete []bufw;
+		return result;
+	}
+	int bufcSize = UTF8Length(bufw, bufwSize);
+	if (!bufcSize) 
+		return result;
+	char *bufc = new char[bufcSize+1];
+	UTF8FromUCS2(bufw, bufwSize, bufc, bufcSize);
+	delete []bufw;
+	result = bufcSize ? bufc : "";
+	delete []bufc;
+	return result;
+#else
+	// On GTK+, LocaliseString always converts to UTF-8.
+	return LocaliseString(propname, retainIfNotFound);
+#endif
+}
 
 void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 	if (wsci) {
@@ -452,18 +502,17 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		int fontSize = 15;
 #if PLAT_GTK
 #if GTK_MAJOR_VERSION == 1
-		// On GTK+ 1.x, new century schoolbook looks better in large sizes than default font
+		// On GTK+ 1.x, try a font set that may allow unicode display
 		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
-		                        reinterpret_cast<uptr_t>("new century schoolbook"));
+		                        reinterpret_cast<uptr_t>("misc-fixed-iso10646-1,*"));
 #else
 		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
 		                        reinterpret_cast<uptr_t>("!Serif"));
 #endif
 		fontSize = 14;
-#if GTK_MAJOR_VERSION >= 2
+#endif
+
 		Platform::SendScintilla(wsci, SCI_SETCODEPAGE, SC_CP_UTF8, 0);
-#endif
-#endif
 
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
 		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, ColourDesired(0xff, 0xff, 0xff).AsLong());
@@ -475,12 +524,29 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, LocaliseString("Version").c_str(), 1);
+		int trsSty = 5; // define the stylenumber to assign font for translators.
+		SString translator = GetTranslationToAbout("TranslationCredit", false);
+		SetAboutStyle(wsci, trsSty, ColourDesired(0, 0, 0));
+#if PLAT_WIN
+		// On Windows Me (maybe 9x also), we must assign another font to display translaiton.
+		if (translator.length()) {
+			SString fontBase = props.GetExpanded("font.translators");
+			StyleDefinition sd(fontBase.c_str());
+			if (sd.specified & StyleDefinition::sdFont) {
+				Platform::SendScintilla(wsci, SCI_STYLESETFONT, trsSty, 
+							reinterpret_cast<uptr_t>(sd.font.c_str()));
+			}
+			if (sd.specified & StyleDefinition::sdSize) {
+				Platform::SendScintilla(wsci, SCI_STYLESETSIZE, trsSty, sd.size);
+			}
+		}
+#endif
+		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
 		AddStyledText(wsci, " 1.62\n", 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
 		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
-		AddStyledText(wsci, LocaliseString("by").c_str(), 2);
+		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
 		AddStyledText(wsci, " Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
 		AddStyledText(wsci, "December 1998-October 2004.\n", 3);
@@ -488,12 +554,11 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Lua scripting language by TeCGraf, PUC-Rio\n", 3);
 		AddStyledText(wsci, "    http://www.lua.org\n", 4);
-		SString translator = LocaliseString("TranslationCredit", false);
 		if (translator.length()) {
-			AddStyledText(wsci, translator.c_str(), 1);
-			AddStyledText(wsci, "\n", 1);
+			AddStyledText(wsci, translator.c_str(), trsSty);
+			AddStyledText(wsci, "\n", 5);
 		}
-		AddStyledText(wsci, LocaliseString("Contributors:").c_str(), 1);
+		AddStyledText(wsci, GetTranslationToAbout("Contributors:").c_str(), trsSty);
 		srand(static_cast<unsigned>(time(0)));
 		int r = rand() % 256;
 		int g = rand() % 256;
@@ -506,13 +571,7 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 			HackColour(b);
 			SetAboutStyle(wsci, colourIndex, ColourDesired(r, g, b));
 			AddStyledText(wsci, "    ", colourIndex);
-#if PLAT_GTK && GTK_MAJOR_VERSION >= 2
-			char *uContributor = UTF8FromLatin1(contributors[co], strlen(contributors[co]));
-			AddStyledText(wsci, uContributor, colourIndex);
-			delete []uContributor;
-#else
 			AddStyledText(wsci, contributors[co], colourIndex);
-#endif
 		}
 		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
 	}
@@ -3524,13 +3583,13 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_WRAP:
 		wrap = !wrap;
-		SendEditor(SCI_SETWRAPMODE, wrap ? SC_WRAP_WORD : SC_WRAP_NONE);
+		SendEditor(SCI_SETWRAPMODE, wrap ? wrapStyle : SC_WRAP_NONE);
 		CheckMenus();
 		break;
 
 	case IDM_WRAPOUTPUT:
 		wrapOutput = !wrapOutput;
-		SendOutput(SCI_SETWRAPMODE, wrapOutput ? SC_WRAP_WORD : SC_WRAP_NONE);
+		SendOutput(SCI_SETWRAPMODE, wrapOutput ? wrapStyle : SC_WRAP_NONE);
 		CheckMenus();
 		break;
 
