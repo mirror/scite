@@ -702,8 +702,6 @@ void SciTEBase::StackMenu(int pos) {
 		} else if (recentFileStack[pos].IsSet()) {
 			RecentFile rf = recentFileStack[pos];
 			//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
-			isDirty = false;
-			// useMonoFont = false?
 			overrideExtension = "";
 			fileModTime = 0;
 			fileModLastAsk = 0;
