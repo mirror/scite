@@ -967,7 +967,7 @@ void SciTEBase::SelectionIntoProperties() {
 	int selStart = SendFocused(SCI_GETSELECTIONSTART);
 	int selEnd = SendFocused(SCI_GETSELECTIONEND);
 	char *currentSelection = new char[selEnd - selStart + 1];
-	SelectionExtend(currentSelection, selEnd - selStart + 1, 0);
+	SelectionExtend(currentSelection, selEnd - selStart + 1, 0, 0);
 	props.Set("CurrentSelection", currentSelection);
 	delete []currentSelection;
 
@@ -1358,7 +1358,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			// Modify for change caused by replacement
 			endPosition += lenReplaced - lenTarget;
 			// For the special cases of start of line and end of line
-			// Something better could be done but there are too many special cases
+			// something better could be done but there are too many special cases
 			lastMatch = posFind + lenReplaced + movepastEOL;
 			if (lastMatch >= endPosition) {
 				// Run off the end of the document with an empty match
@@ -1810,8 +1810,9 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 }
 
 bool SciTEBase::StartInsertAbbreviation() {
-	if (!AbbrevDialog())
+	if (!AbbrevDialog()) {
 		return true;
+	}
 
 	SString data = propsAbbrev.Get(abbrevInsert);
 	size_t dataLength = data.length();
@@ -1819,7 +1820,7 @@ bool SciTEBase::StartInsertAbbreviation() {
 		return true; // returning if expanded abbreviation is empty
 	}
 
-	char expbuf[1000];
+	char *expbuf = new char[dataLength + 1];
 	strcpy(expbuf, data.c_str());
 	UnSlash(expbuf);
 	size_t expbuflen = strlen(expbuf);
@@ -1829,12 +1830,13 @@ bool SciTEBase::StartInsertAbbreviation() {
 	bool at_start = false;
 	int currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
-	if (props.GetInt("indent.automatic"))
+	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
+	}
 
 	SendEditor(SCI_BEGINUNDOACTION);
 
-	// add the abbreviation a character at a time
+	// add the abbreviation one character at a time
 	for (size_t i = expbuflen; i--; ) {
 		// go from end - selected text will be at last '|', caret will be at first '|'
 		char c = expbuf[i];
@@ -1860,63 +1862,77 @@ bool SciTEBase::StartInsertAbbreviation() {
 			break;
 		}
 		SendEditorString(SCI_INSERTTEXT, caret_pos, abbrevText.c_str());
-		if (at_start)
+		if (at_start) {
 			sel_start += abbrevText.length();
+		}
 		if (c == '\n') {
-			SetLineIndentation(currentLineNumber + 1, indent);
+			SetLineIndentation(currentLineNumber+1, indent);
 		}
 	}
 
 	// set the caret to the desired position
-	if (!at_start && sel_length == 0)
+	if (!at_start && sel_length == 0) {
 		sel_start += expbuflen;
+	}
 	SendEditor(SCI_SETSEL, sel_start, sel_start + sel_length);
 
 	SendEditor(SCI_ENDUNDOACTION);
+	delete []expbuf;
 	return true;
 }
 
 bool SciTEBase::StartExpandAbbreviation() {
-	char linebuf[1000];
-	GetLine(linebuf, sizeof(linebuf));
-	int current = GetCaretInLine();
+	int currentPos = GetCaretInLine();
 	int position = SendEditor(SCI_GETCURRENTPOS); // from the beginning
-	int startword = current;
-	int counter = 0;
-	while (startword > 0 && wordCharacters.contains(linebuf[startword - 1])) {
-		counter++;
-		startword--;
+	char *linebuf = new char[currentPos + 2];
+	GetLine(linebuf, currentPos + 2);	// Just get text to the left of the caret
+	linebuf[currentPos] = '\0';
+	int abbrevPos = currentPos - 1;
+	const char *abbrev = linebuf + abbrevPos;
+	SString data;
+	size_t dataLength = 0;
+	int abbrevLength = 1;
+	// Try each potential abbreviation from the first letter to the left of the caret
+	// and expanding to the left.
+	// We arbitrarily limits the length of an abbreviation (seems a reasonable value..),
+	// and of course stop on the start of the line.
+	while (abbrevPos >= 0 && abbrevLength <= 32) {
+		data = propsAbbrev.Get(abbrev);
+		dataLength = data.length();
+		if (dataLength > 0) {
+			break;	/* Found */
+		}
+		abbrevPos--;
+		abbrev--;	// One more letter to the left
+		abbrevLength++;
 	}
-	if (startword == current)
-		return true;
-	linebuf[current] = '\0';
-	const char *abbrev = linebuf + startword;
-	SString data = propsAbbrev.Get(abbrev);
-	size_t dataLength = data.length();
+
 	if (dataLength == 0) {
+		WarnUser(warnNotFound);	// No need for a special warning
 		return true; // returning if expanded abbreviation is empty
 	}
 
-	char expbuf[1000];
+	char *expbuf = new char[dataLength + 1];
 	strcpy(expbuf, data.c_str());
 	UnSlash(expbuf);
 	size_t expbuflen = strlen(expbuf);
 	int caret_pos = -1; // caret position
 	int currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
-	if (props.GetInt("indent.automatic"))
+	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
+	}
 
 	SendEditor(SCI_BEGINUNDOACTION);
-	SendEditor(SCI_SETSEL, position - counter, position);
+	SendEditor(SCI_SETSEL, position - abbrevLength, position);
 
-	// add the abbreviation a character at a time
+	// add the abbreviation one character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
 		char c = expbuf[i];
 		SString abbrevText("");
 		switch (c) {
 		case '|':
-			// user may want to insert '|' istead of caret
+			// user may want to insert '|' instead of caret
 			if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
 				// put '|' into the line
 				abbrevText += c;
@@ -1924,7 +1940,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 			} else if (caret_pos == -1) {
 				if (i == 0) {
 					// when caret is set at the first place in abbreviation
-					caret_pos = SendEditor(SCI_GETCURRENTPOS) - counter;
+					caret_pos = SendEditor(SCI_GETCURRENTPOS) - abbrevLength;
 				} else {
 					caret_pos = SendEditor(SCI_GETCURRENTPOS);
 				}
@@ -1936,16 +1952,19 @@ bool SciTEBase::StartExpandAbbreviation() {
 		}
 		SendEditorString(SCI_REPLACESEL, 0, abbrevText.c_str());
 		if (c == '\n') {
-			currentLineNumber ++;
+			currentLineNumber++;
 			SetLineIndentation(currentLineNumber, indent);
 		}
 	}
 
 	// set the caret to the desired position
-	if (caret_pos != -1)
+	if (caret_pos != -1) {
 		SendEditor(SCI_GOTOPOS, caret_pos);
+	}
 
 	SendEditor(SCI_ENDUNDOACTION);
+	delete []expbuf;
+	delete []linebuf;
 	return true;
 }
 
@@ -1958,9 +1977,8 @@ bool SciTEBase::StartBlockComment() {
 	comment_at_line_start += language;
 	SString comment = props.Get(base.c_str());
 	if (comment == "") { // user friendly error message box
-		SString error("Block comment variable \"");
-		error += base;
-		error += "\" is not defined in SciTE *.properties!";
+		SString error = LocaliseMessage(
+			"Block comment variable '^0' is not defined in SciTE *.properties!", base.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -2052,14 +2070,9 @@ bool SciTEBase::StartBoxComment() {
 	SString middle_comment = props.Get(middle_base.c_str());
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || middle_comment == "" || end_comment == "") {
-		SString error("Box comment variables \"");
-		error += start_base;
-		error += "\", \"";
-		error += middle_base;
-		error += "\"\nand \"";
-		error += end_base;
-		error += "\" are not ";
-		error += "defined in SciTE *.properties!";
+		SString error = LocaliseMessage(
+			"Box comment variables '^0', '^1' and '^2' are not defined in SciTE *.properties!",
+			start_base.c_str(), middle_base.c_str(), end_base.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -2127,12 +2140,9 @@ bool SciTEBase::StartStreamComment() {
 	SString start_comment = props.Get(start_base.c_str());
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || end_comment == "") {
-		SString error("Stream comment variables \"");
-		error += start_base;
-		error += "\" and \n\"";
-		error += end_base;
-		error += "\" are not ";
-		error += "defined in SciTE *.properties!";
+		SString error = LocaliseMessage(
+			"Stream comment variables '^0' and '^1' are not defined in SciTE *.properties!",
+			start_base.c_str(), end_base.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -3554,8 +3564,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			}
 			// Colourisation is now normally performed by the SciLexer DLL
 #ifdef OLD_CODE
-			if (notification->nmhdr.idFrom == IDM_SRCWIN)
-			{
+			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
 				int endStyled = SendEditor(SCI_GETENDSTYLED);
 				int lineEndStyled = SendEditor(SCI_LINEFROMPOSITION, endStyled);
 				endStyled = SendEditor(SCI_POSITIONFROMLINE, lineEndStyled);
