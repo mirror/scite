@@ -1302,6 +1302,7 @@ void SciTEBase::ClearJobQueue() {
 }
 
 void SciTEBase::Execute() {
+	dirNameForExecute = "";
 	bool displayParameterDialog = false;
 	int ic;
 	parameterisedCommand = "";
@@ -1310,6 +1311,9 @@ void SciTEBase::Execute() {
 			displayParameterDialog = true;
 			jobQueue[ic].command.remove(0);
 			parameterisedCommand = jobQueue[ic].command;
+		}
+		if (!(jobQueue[ic].directory == "")) {
+			dirNameForExecute = jobQueue[ic].directory;
 		}
 	}
 	if (displayParameterDialog) {

@@ -258,6 +258,7 @@ protected:
 	char fileExt[MAX_PATH];
 	char dirName[MAX_PATH];
 	SString dirNameAtExecute;
+	SString dirNameForExecute;
 	bool useMonoFont;
 	time_t fileModTime;
 	time_t fileModLastAsk;

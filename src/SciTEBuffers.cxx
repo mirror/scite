@@ -960,6 +960,8 @@ void SciTEBase::GoMessage(int dir) {
 					bool bExists = false;
 					if (Exists(dirNameAtExecute.c_str(), sourcePath, messagePath)) {
 						bExists = true;
+					} else if (Exists(dirNameForExecute.c_str(), sourcePath, messagePath)) {
+						bExists = true;
 					} else if (Exists(dirName, sourcePath, messagePath)) {
 						bExists = true;
 					} else if (Exists(NULL, sourcePath, messagePath)) {
