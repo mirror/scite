@@ -498,132 +498,108 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
  * so the output can be put in a window.
  * It is based upon several usenet posts and a knowledge base article.
  */
-void SciTEWin::ProcessExecute() {
+DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	DWORD exitcode = 0;
-	if (scrollOutput)
-		SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
-	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
-	bool seenOutput = false;
+	ElapsedTime commandTime;
 
-	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
-		ElapsedTime commandTime;
+	if (jobToRun.jobType == jobShell) {
+		ShellExec(jobToRun.command, jobToRun.directory);
+		return exitcode;
+	}
 
-		if (jobQueue[icmd].jobType == jobShell) {
-			ShellExec(jobQueue[icmd].command, jobQueue[icmd].directory);
-			continue;
-		}
+	if (jobToRun.jobType == jobExtension) {
+		if (extender)
+			extender->OnExecute(jobToRun.command.c_str());
+		return exitcode;
+	}
 
-		if (jobQueue[icmd].jobType == jobExtension) {
-			if (extender)
-				extender->OnExecute(jobQueue[icmd].command.c_str());
-			continue;
-		}
+	if (jobToRun.jobType == jobHelp) {
+		ExecuteHelp(jobToRun.command.c_str());
+		return exitcode;
+	}
 
-		if (jobQueue[icmd].jobType == jobHelp) {
-			ExecuteHelp(jobQueue[icmd].command.c_str());
-			continue;
-		}
+	if (jobToRun.jobType == jobOtherHelp) {
+		ExecuteOtherHelp(jobToRun.command.c_str());
+		return exitcode;
+	}
 
-		if (jobQueue[icmd].jobType == jobOtherHelp) {
-			ExecuteOtherHelp(jobQueue[icmd].command.c_str());
-			continue;
-		}
+	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
+	::GetVersionEx(&osv);
+	bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
 
-		OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
-		::GetVersionEx(&osv);
-		bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
+	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
+	char buffer[16384];
+	//Platform::DebugPrintf("Execute <%s>\n", command);
+	OutputAppendStringSynchronised(">");
+	OutputAppendStringSynchronised(jobToRun.command.c_str());
+	OutputAppendStringSynchronised("\n");
 
-		SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
-		char buffer[16384];
-		//Platform::DebugPrintf("Execute <%s>\n", command);
-		OutputAppendStringSynchronised(">");
-		OutputAppendStringSynchronised(jobQueue[icmd].command.c_str());
-		OutputAppendStringSynchronised("\n");
+	sa.bInheritHandle = TRUE;
+	sa.lpSecurityDescriptor = NULL;
 
-		sa.bInheritHandle = TRUE;
-		sa.lpSecurityDescriptor = NULL;
+	SECURITY_DESCRIPTOR sd;
+	// If NT make a real security thing to allow inheriting handles
+	if (!windows95) {
+		::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
+		::SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
+		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+		sa.lpSecurityDescriptor = &sd;
+	}
 
-		SECURITY_DESCRIPTOR sd;
-		// If NT make a real security thing to allow inheriting handles
-		if (!windows95) {
-			::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-			::SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
-			sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-			sa.lpSecurityDescriptor = &sd;
-		}
+	HANDLE hPipeWrite = NULL;
+	HANDLE hPipeRead = NULL;
+	// Create pipe for output redirection
+	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
+	::CreatePipe(&hPipeRead, &hPipeWrite, &sa, 0);
 
-		HANDLE hPipeWrite = NULL;
-		HANDLE hPipeRead = NULL;
-		// Create pipe for output redirection
-		// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
-		::CreatePipe(&hPipeRead, &hPipeWrite, &sa, 0);
+	//Platform::DebugPrintf("2Execute <%s>\n");
+	// Create pipe for input redirection. In this code, you do not
+	// redirect the output of the child process, but you need a handle
+	// to set the hStdInput field in the STARTUP_INFO struct. For safety,
+	// you should not set the handles to an invalid handle.
 
-		//Platform::DebugPrintf("2Execute <%s>\n");
-		// Create pipe for input redirection. In this code, you do not
-		// redirect the output of the child process, but you need a handle
-		// to set the hStdInput field in the STARTUP_INFO struct. For safety,
-		// you should not set the handles to an invalid handle.
+	hWriteSubProcess = NULL;
+	subProcessGroupId = 0;
+	HANDLE hRead2 = NULL;
+	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
+	::CreatePipe(&hRead2, &hWriteSubProcess, &sa, 0);
 
-		hWriteSubProcess = NULL;
-		subProcessGroupId = 0;
-		HANDLE hRead2 = NULL;
-		// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
-		::CreatePipe(&hRead2, &hWriteSubProcess, &sa, 0);
+	::SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
+	::SetHandleInformation(hWriteSubProcess, HANDLE_FLAG_INHERIT, 0);
 
-		::SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
-		::SetHandleInformation(hWriteSubProcess, HANDLE_FLAG_INHERIT, 0);
+	//Platform::DebugPrintf("3Execute <%s>\n");
+	// Make child process use hPipeWrite as standard out, and make
+	// sure it does not show on screen.
+	STARTUPINFO si = {
+			     sizeof(STARTUPINFO), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			 };
+	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+	if (jobToRun.jobType == jobCLI)
+		si.wShowWindow = SW_HIDE;
+	else
+		si.wShowWindow = SW_SHOW;
+	si.hStdInput = hRead2;
+	si.hStdOutput = hPipeWrite;
+	si.hStdError = hPipeWrite;
 
-		//Platform::DebugPrintf("3Execute <%s>\n");
-		// Make child process use hPipeWrite as standard out, and make
-		// sure it does not show on screen.
-		STARTUPINFO si = {
-		                     sizeof(STARTUPINFO), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		                 };
-		si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-		if (jobQueue[icmd].jobType == jobCLI)
-			si.wShowWindow = SW_HIDE;
-		else
-			si.wShowWindow = SW_SHOW;
-		si.hStdInput = hRead2;
-		si.hStdOutput = hPipeWrite;
-		si.hStdError = hPipeWrite;
+	char startDirectory[_MAX_PATH];
+	startDirectory[0] = '\0';
+	AbsolutePath(startDirectory, jobToRun.directory.c_str(), _MAX_PATH);
 
-		char startDirectory[_MAX_PATH];
-		startDirectory[0] = '\0';
-		AbsolutePath(startDirectory, jobQueue[icmd].directory.c_str(), _MAX_PATH);
+	PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
-		PROCESS_INFORMATION pi = {0, 0, 0, 0};
+	bool running = ::CreateProcess(
+			  NULL,
+			  const_cast<char *>(jobToRun.command.c_str()),
+			  NULL, NULL,
+			  TRUE, CREATE_NEW_PROCESS_GROUP,
+			  NULL,
+			  startDirectory[0] ? startDirectory : NULL,
+			  &si, &pi);
 
-		bool worked = ::CreateProcess(
-		                  NULL,
-		                  const_cast<char *>(jobQueue[icmd].command.c_str()),
-		                  NULL, NULL,
-		                  TRUE, CREATE_NEW_PROCESS_GROUP,
-		                  NULL,
-		                  startDirectory[0] ? startDirectory : NULL,
-		                  &si, &pi);
+	if (running) {
+		subProcessGroupId = pi.dwProcessId;
 
-		if (!worked) {
-			DWORD nRet = ::GetLastError();
-			LPVOID lpMsgBuf = NULL;
-			::FormatMessage(
-			    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-			    FORMAT_MESSAGE_FROM_SYSTEM |
-			    FORMAT_MESSAGE_IGNORE_INSERTS,
-			    NULL,
-			    nRet,
-			    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   // Default language
-			    reinterpret_cast<LPTSTR>(&lpMsgBuf),
-			    0,
-			    NULL
-			);
-			OutputAppendStringSynchronised(">");
-			OutputAppendStringSynchronised(reinterpret_cast<LPCTSTR>(lpMsgBuf));
-			::LocalFree(lpMsgBuf);
-
-		}
-
-		bool completed = !worked;
 		bool cancelled = false;
 
 		SString repSelBuf;
@@ -631,26 +607,22 @@ void SciTEWin::ProcessExecute() {
 		DWORD timeDetectedDeath = 0;
 
 		unsigned totalBytesToWrite = 0;
-		if (jobQueue[icmd].flags & jobHasInput) {
-			totalBytesToWrite = jobQueue[icmd].input.length();
+		if (jobToRun.flags & jobHasInput) {
+			totalBytesToWrite = jobToRun.input.length();
 		}
 
-		if (worked) {
-			subProcessGroupId = pi.dwProcessId;
+		if (totalBytesToWrite > 0 && !(jobToRun.flags & jobQuiet)) {
+			SString input = jobToRun.input;
+			input.substitute("\n", "\n>> ");
 
-			if (totalBytesToWrite > 0 && !(jobQueue[icmd].flags & jobQuiet)) {
-				SString input = jobQueue[icmd].input;
-				input.substitute("\n", "\n>> ");
-
-				OutputAppendStringSynchronised(">> ");
-				OutputAppendStringSynchronised(input.c_str());
-				OutputAppendStringSynchronised("\n");
-			}
+			OutputAppendStringSynchronised(">> ");
+			OutputAppendStringSynchronised(input.c_str());
+			OutputAppendStringSynchronised("\n");
 		}
 
 		unsigned writingPosition = 0;
 
-		while (!completed) {
+		while (running) {
 			if (writingPosition >= totalBytesToWrite) {
 				::Sleep(100L);
 			}
@@ -659,7 +631,7 @@ void SciTEWin::ProcessExecute() {
 			DWORD bytesAvail = 0;
 
 			if (!::PeekNamedPipe(hPipeRead, buffer,
-			                     sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+					     sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
 				bytesAvail = 0;
 			}
 
@@ -667,7 +639,7 @@ void SciTEWin::ProcessExecute() {
 				// There is input to transmit to the process.  Do it in small blocks, interleaved
 				// with reads, so that our hRead buffer will not be overrun with results.
 
-				int bytesToWrite = jobQueue[icmd].input.search("\n", writingPosition) + 1 - writingPosition;
+				int bytesToWrite = jobToRun.input.search("\n", writingPosition) + 1 - writingPosition;
 				if ((bytesToWrite <= 0) || (writingPosition + bytesToWrite >= totalBytesToWrite)) {
 					bytesToWrite = totalBytesToWrite - writingPosition;
 				}
@@ -678,7 +650,7 @@ void SciTEWin::ProcessExecute() {
 				DWORD bytesWrote = 0;
 
 				int bTest = ::WriteFile(hWriteSubProcess,
-					    const_cast<char *>(jobQueue[icmd].input.c_str() + writingPosition),
+					    const_cast<char *>(jobToRun.input.c_str() + writingPosition),
 					    bytesToWrite, &bytesWrote, NULL);
 
 				if (bTest) {
@@ -709,15 +681,15 @@ void SciTEWin::ProcessExecute() {
 
 			} else if (bytesAvail > 0) {
 				int bTest = ::ReadFile(hPipeRead, buffer,
-				                       sizeof(buffer), &bytesRead, NULL);
+						       sizeof(buffer), &bytesRead, NULL);
 
 				if (bTest && bytesRead) {
 
-					if (jobQueue[icmd].flags & jobRepSelMask) {
+					if (jobToRun.flags & jobRepSelMask) {
 						repSelBuf.append(buffer, bytesRead);
 					}
 
-					if (!(jobQueue[icmd].flags & jobQuiet)) {
+					if (!(jobToRun.flags & jobQuiet)) {
 						if (!seenOutput) {
 							MakeOutputVisible();
 							seenOutput = true;
@@ -728,24 +700,23 @@ void SciTEWin::ProcessExecute() {
 
 					::UpdateWindow(MainHWND());
 				} else {
-					completed = true;
+					running = false;
 				}
 			} else {
-				DWORD dwExitCode = STILL_ACTIVE;
-				if (::GetExitCodeProcess(pi.hProcess, &dwExitCode)) {
-					if (STILL_ACTIVE != dwExitCode) {
+				if (::GetExitCodeProcess(pi.hProcess, &exitcode)) {
+					if (STILL_ACTIVE != exitcode) {
 						if (windows95) {
 							// Process is dead, but wait a second in case there is some output in transit
 							if (timeDetectedDeath == 0) {
 								timeDetectedDeath = ::GetTickCount();
 							} else {
 								if ((::GetTickCount() - timeDetectedDeath) >
-								        static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
-									completed = true;    // It's a dead process
+									static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
+									running = false;    // It's a dead process
 								}
 							}
 						} else {	// NT, so dead already
-							completed = true;
+							running = false;
 						}
 					}
 				}
@@ -760,58 +731,89 @@ void SciTEWin::ProcessExecute() {
 					OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...\n");
 					::TerminateProcess(pi.hProcess, 1);
 				}
-				completed = true;
+				running = false;
 				cancelled = true;
 			}
 		}
 
-		if (worked) {
-			if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 1000)) {
-				OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...");
-				::TerminateProcess(pi.hProcess, 2);
-			}
-			::GetExitCodeProcess(pi.hProcess, &exitcode);
-			if (isBuilding) {
-				// The build command is first command in a sequence so it is only built if
-				// that command succeeds not if a second returns after document is modified.
-				isBuilding = false;
-				if (exitcode == 0)
-					isBuilt = true;
-			}
-			SString sExitMessage(exitcode);
-			sExitMessage.insert(0, ">Exit code: ");
-			if (timeCommands) {
-				sExitMessage += "    Time: ";
-				sExitMessage += SString(commandTime.Duration(), 3);
-			}
-			sExitMessage += "\n";
-			OutputAppendStringSynchronised(sExitMessage.c_str());
-
-			::CloseHandle(pi.hProcess);
-			::CloseHandle(pi.hThread);
-
-			if (!cancelled) {
-				bool doRepSel = false;
-				if (jobQueue[icmd].flags & jobRepSelYes)
-					doRepSel = true;
-				else if (jobQueue[icmd].flags & jobRepSelAuto)
-					doRepSel = (0 == exitcode);
-
-				if (doRepSel) {
-					SendEditor(SCI_REPLACESEL,0,(sptr_t)(repSelBuf.c_str()));
-				}
-			}
-
-			WarnUser(warnExecuteOK);
-		} else {
-			WarnUser(warnExecuteKO);
+		if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 1000)) {
+			OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...");
+			::TerminateProcess(pi.hProcess, 2);
 		}
-		::CloseHandle(hPipeRead);
-		::CloseHandle(hPipeWrite);
-		::CloseHandle(hRead2);
-		::CloseHandle(hWriteSubProcess);
-		hWriteSubProcess = NULL;
-		subProcessGroupId = 0;
+		::GetExitCodeProcess(pi.hProcess, &exitcode);
+		SString sExitMessage(exitcode);
+		sExitMessage.insert(0, ">Exit code: ");
+		if (timeCommands) {
+			sExitMessage += "    Time: ";
+			sExitMessage += SString(commandTime.Duration(), 3);
+		}
+		sExitMessage += "\n";
+		OutputAppendStringSynchronised(sExitMessage.c_str());
+
+		::CloseHandle(pi.hProcess);
+		::CloseHandle(pi.hThread);
+
+		if (!cancelled) {
+			bool doRepSel = false;
+			if (jobToRun.flags & jobRepSelYes)
+				doRepSel = true;
+			else if (jobToRun.flags & jobRepSelAuto)
+				doRepSel = (0 == exitcode);
+
+			if (doRepSel) {
+				SendEditor(SCI_REPLACESEL,0,(sptr_t)(repSelBuf.c_str()));
+			}
+		}
+
+		WarnUser(warnExecuteOK);
+
+	} else {
+		DWORD nRet = ::GetLastError();
+		LPTSTR lpMsgBuf = NULL;
+		::FormatMessage(
+		    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		    FORMAT_MESSAGE_FROM_SYSTEM |
+		    FORMAT_MESSAGE_IGNORE_INSERTS,
+		    NULL,
+		    nRet,
+		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   // Default language
+		    reinterpret_cast<LPTSTR>(&lpMsgBuf),
+		    0,
+		    NULL
+		);
+		OutputAppendStringSynchronised(">");
+		OutputAppendStringSynchronised(lpMsgBuf);
+		::LocalFree(lpMsgBuf);
+		WarnUser(warnExecuteKO);
+	}
+	::CloseHandle(hPipeRead);
+	::CloseHandle(hPipeWrite);
+	::CloseHandle(hRead2);
+	::CloseHandle(hWriteSubProcess);
+	hWriteSubProcess = NULL;
+	subProcessGroupId = 0;
+	return exitcode;
+}
+
+/**
+ * Run the commands in the job queue, stopping if one fails.
+ */
+void SciTEWin::ProcessExecute() {
+	DWORD exitcode = 0;
+	if (scrollOutput)
+		SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
+	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
+	bool seenOutput = false;
+
+	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
+		exitcode = ExecuteOne(jobQueue[icmd], seenOutput);
+		if (isBuilding) {
+			// The build command is first command in a sequence so it is only built if
+			// that command succeeds not if a second returns after document is modified.
+			isBuilding = false;
+			if (exitcode == 0)
+				isBuilt = true;
+		}
 	}
 
 	// Move selection back to beginning of this run so that F4 will go

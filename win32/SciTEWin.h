@@ -96,7 +96,7 @@ protected:
 	HFONT fontTabs;
 
 	/// Preserve focus during deactivation
-	HWND wFocus; 
+	HWND wFocus;
 
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
@@ -211,6 +211,7 @@ public:
 	/// Management of the command line parameters.
 	static BOOL CALLBACK SearchOtherInstance(HWND hWnd, LPARAM lParam);
 	void Run(const char *cmdLine);
+	DWORD ExecuteOne(const Job &jobToRun, bool &seenOutput);
 	void ProcessExecute();
 	void ShellExec(const SString &cmd, const SString &dir);
 	virtual void Execute();
