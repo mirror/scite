@@ -310,6 +310,7 @@ protected:
 	SString overrideExtension;	///< User has chosen to use a particular language
 	enum {numWordLists = 6};
 	WordList apis;
+	SString apisFileNames;
 	SString functionDefinition;
 
 	bool indentOpening;

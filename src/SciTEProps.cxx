@@ -601,8 +601,6 @@ void SciTEBase::ReadProperties() {
 
 	SendOutput(SCI_SETLEXER, SCLEX_ERRORLIST);
 
-	apis.Clear();
-
 	SString kw0 = props.GetNewExpand("keywords.", fileNameForExtension.c_str());
 	SendEditorString(SCI_SETKEYWORDS, 0, kw0.c_str());
 	SString kw1 = props.GetNewExpand("keywords2.", fileNameForExtension.c_str());
@@ -635,7 +633,11 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("tab.timmy.whinge.level");
 	ForwardPropertyToEditor("asp.default.language");
 
-	ReadAPI(fileNameForExtension);
+	if (apisFileNames != props.GetNewExpand("api.",	fileNameForExtension.c_str())) {
+		apis.Clear();
+		ReadAPI(fileNameForExtension);
+		apisFileNames = props.GetNewExpand("api.", fileNameForExtension.c_str());
+	}
 
 	if (!props.GetInt("eol.auto")) {
 		SString eol_mode = props.Get("eol.mode");
