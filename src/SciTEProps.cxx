@@ -317,7 +317,7 @@ const char *SciTEBase::GetNextPropItem(
 
 StyleDefinition::StyleDefinition(const char *definition) :
 		size(0), fore(0), back(ColourDesired(0xff, 0xff, 0xff)), bold(false), italics(false),
-eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED) {
+eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED), visible(true) {
 	specified = sdNone;
 	char *val = StringDup(definition);
 	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);
@@ -385,6 +385,22 @@ eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED) {
 			else if (*colon == 'l')
 				caseForce = SC_CASE_LOWER;
 		}
+		if (0 == strcmp(opt, "visible")) {
+			specified = static_cast<flags>(specified | sdVisible);
+			visible = true;
+		}
+		if (0 == strcmp(opt, "notvisible")) {
+			specified = static_cast<flags>(specified | sdVisible);
+			visible = false;
+		}
+		if (0 == strcmp(opt, "changeable")) {
+			specified = static_cast<flags>(specified | sdChangeable);
+			changeable = true;
+		}
+		if (0 == strcmp(opt, "notchangeable")) {
+			specified = static_cast<flags>(specified | sdChangeable);
+			changeable = false;
+		}
 		if (cpComma)
 			opt = cpComma + 1;
 		else
@@ -413,6 +429,10 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETUNDERLINE, style, sd.underlined ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdCaseForce)
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETCASE, style, sd.caseForce);
+	if (sd.specified & StyleDefinition::sdVisible)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETVISIBLE, style, sd.visible ? 1 : 0);
+	if (sd.specified & StyleDefinition::sdChangeable)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETCHANGEABLE, style, sd.changeable ? 1 : 0);
 	Platform::SendScintilla(win.GetID(), SCI_STYLESETCHARACTERSET, style, characterSet);
 }
 

@@ -235,9 +235,11 @@ public:
 	bool eolfilled;
 	bool underlined;
 	int caseForce;
+	bool visible;
+	bool changeable;
 	enum flags { sdNone = 0, sdFont = 0x1, sdSize = 0x2, sdFore = 0x4, sdBack = 0x8,
 	             sdBold = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined = 0x80,
-	              sdCaseForce = 0x100} specified;
+	              sdCaseForce = 0x100, sdVisible = 0x200, sdChangeable = 0x400} specified;
 	StyleDefinition(const char *definition);
 };
 
