@@ -783,7 +783,6 @@ void SciTEWin::Run(const char *cmdLine) {
 	// The print switch /p is special cased.
 	bool performPrint = false;
 	SString files;
-	int fileCount = 0;
 	SString switches;
 	const char *startArg = cmdLine;
 	while (*startArg) {
@@ -812,7 +811,6 @@ void SciTEWin::Run(const char *cmdLine) {
 				switches += SString(startArg, 0, endArg - startArg);
 			}
 		} else {	// Not a switch: it is a file name
-			fileCount++;
 			files += SString(startArg, 0, endArg - startArg);
 			files += "\n";
 		}
