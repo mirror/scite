@@ -45,6 +45,10 @@ protected:
 	FINDREPLACE fr;
 	char openWhat[200];
 	int filterDefault;
+	
+	PRectangle  pagesetupMargin;
+	HGLOBAL     hDevMode;
+	HGLOBAL     hDevNames;
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID, 
 		const char *text, const char *mnemonic=0);
@@ -155,9 +159,17 @@ SciTEWin::SciTEWin() {
 	             reinterpret_cast<LPSTR>(this));
 	if (!wSciTE.Created())
 		exit(FALSE);
+
+	hDevMode  = 0;
+	hDevNames = 0;
+	ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
 }
 
 SciTEWin::~SciTEWin() {
+	if (hDevMode)
+		GlobalFree(hDevMode);
+	if (hDevNames)
+		GlobalFree(hDevNames);
 }
 
 bool SciTEWin::ModelessHandler(MSG *pmsg) {
@@ -458,36 +470,101 @@ void SciTEWin::SaveAsHTML() {
 	}
 }
 
-// TODO: Use margins from Page Setup dialog.
 void SciTEWin::Print() {
 
 	PRINTDLG pdlg = {sizeof(PRINTDLG)};
 	pdlg.hwndOwner = wSciTE.GetID();
 	pdlg.hInstance = hInstance;
-	pdlg.Flags = PD_USEDEVMODECOPIES | PD_ALLPAGES |
-	             PD_NOPAGENUMS | PD_NOSELECTION | PD_RETURNDC;
+	pdlg.Flags = PD_USEDEVMODECOPIES | PD_ALLPAGES | PD_RETURNDC;
 	pdlg.nFromPage = 1;
 	pdlg.nToPage = 1;
 	pdlg.nMinPage = 1;
-	pdlg.nMaxPage = 1000;
+	pdlg.nMaxPage = 0xffffU; // We do not know how many pages in the
+		// document until the printer is selected and the paper size is known.
 	pdlg.nCopies = 1;
 	pdlg.hDC = 0;
+	pdlg.hDevMode   = hDevMode;
+	pdlg.hDevNames  = hDevNames;
+	
+	// See if a range has been selected
+	int startPos = 0;
+	int endPos = 0;
+	
+	if (SendEditor(EM_GETSEL,
+		reinterpret_cast<WPARAM>(&startPos),
+		reinterpret_cast<LPARAM>(&endPos)) == 0)
+	pdlg.Flags |= PD_NOSELECTION;
+	
 	if (!::PrintDlg(&pdlg)) {
 		return;
 	}
-	if (pdlg.hDevMode)
-		::GlobalFree(pdlg.hDevMode);
-	if (pdlg.hDevNames != NULL)
-		::GlobalFree(pdlg.hDevNames);
-
+	
+	hDevMode   = pdlg.hDevMode;
+	hDevNames  = pdlg.hDevNames;
+    
 	HDC hdc = pdlg.hDC;
 
-	PRectangle rc;
-	rc.right = ::GetDeviceCaps(hdc, HORZRES);
-	rc.bottom = ::GetDeviceCaps(hdc, VERTRES);
-	// Set top to be 2% down page, otherwise frst line is half printed, should use Page Setup margins but
-	// should not have to do a Page Setup. May need to set other margins.
-	rc.top = rc.bottom / 50;
+	PRectangle rectMargins;
+	Point      ptPage;
+	
+	// Start by getting the dimensions of the unprintable
+	// part of the page (in device units).
+	
+	rectMargins.left = GetDeviceCaps(hdc, PHYSICALOFFSETX);
+	rectMargins.top  = GetDeviceCaps(hdc, PHYSICALOFFSETY);
+
+	// To get the right and lower unprintable area, we need to take
+	// the entire width and height of the paper and
+	// subtract everything else.
+	
+	// Get the physical page size (in device units).
+	ptPage.x = GetDeviceCaps(hdc, PHYSICALWIDTH);   // device units
+	ptPage.y = GetDeviceCaps(hdc, PHYSICALHEIGHT);  // device units
+	
+	rectMargins.right  = ptPage.x                       // total paper width
+	                  - GetDeviceCaps(hdc, HORZRES) // printable width
+	                  - rectMargins.left;           // left unprtable margin
+	
+	rectMargins.bottom = ptPage.y                       // total paper height
+	                  - GetDeviceCaps(hdc, VERTRES) // printable ht
+	                  - rectMargins.top;            // rt unprtable margin
+
+	// At this point, rectMargins contains the widths of the
+	// unprintable regions on all four sides of the page in device units.
+
+	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
+		pagesetupMargin.top  != 0 || pagesetupMargin.bottom != 0) {
+		PRectangle rectSetup;
+		Point      ptDpi;
+		
+		// Convert the HiMetric margin values from the Page Setup dialog
+		// to device units and subtract the unprintable part we just
+		// calculated. (2540 tenths of a mm in an inch)
+		
+		ptDpi.x = GetDeviceCaps(hdc, LOGPIXELSX);    // dpi in X direction
+		ptDpi.y = GetDeviceCaps(hdc, LOGPIXELSY);    // dpi in Y direction
+
+		rectSetup.left   = MulDiv (pagesetupMargin.left, ptDpi.x, 2540);
+		rectSetup.top    = MulDiv (pagesetupMargin.top,  ptDpi.y, 2540);
+		rectSetup.right  = ptPage.x - MulDiv (pagesetupMargin.right,ptDpi.x, 2540);
+		rectSetup.bottom = ptPage.y - MulDiv (pagesetupMargin.bottom,ptDpi.y, 2540);
+
+        	// Dont reduce margins below the minimum printable area
+	        rectMargins.left   = Platform::Maximum(rectMargins.left, rectSetup.left);
+	        rectMargins.top    = Platform::Maximum(rectMargins.top, rectSetup.top);
+	        rectMargins.right  = Platform::Minimum(rectMargins.right, rectSetup.right);
+	        rectMargins.bottom = Platform::Minimum(rectMargins.bottom, rectSetup.bottom);
+	}
+	
+	// rectMargins now contains the values used to shrink the printable
+	// area of the page.
+	
+	// Convert to logical units
+	DPtoLP(hdc, (LPPOINT) &rectMargins, 2);
+	
+	// Convert page size to logical units and we're done!
+	DPtoLP(hdc, (LPPOINT) &ptPage, 1);
+
 	DOCINFO di = {sizeof(DOCINFO)};
 	di.lpszDocName = windowName;
 	di.lpszOutput = 0;
@@ -499,52 +576,93 @@ void SciTEWin::Print() {
 	}
 
 	LONG lengthDoc = SendEditor(SCI_GETLENGTH);
-
-	// Print each page
+	LONG lengthDocMax  = lengthDoc;
 	LONG lengthPrinted = 0;
+
+	// Requested to print selection
+	if (pdlg.Flags & PD_SELECTION) {
+		if (startPos > endPos) {
+			lengthPrinted = endPos;
+			lengthDoc   = startPos;
+		} else {
+			lengthDoc   = startPos;
+			lengthPrinted = endPos;
+		}
+		
+		if (lengthPrinted < 0)
+			lengthPrinted = 0;
+		if (lengthDoc > lengthDocMax)
+			lengthDoc = lengthDocMax;
+	}
+
+	int pageNum = 1;
+	// Print each page
 	while (lengthPrinted < lengthDoc) {
-		//Platform::DebugPrintf("Printing a page %d\n", lengthPrinted);
-		::StartPage(hdc);
+		bool printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
+			(pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage));
 
-		FORMATRANGE frPrint = {0};
-		frPrint.hdc = hdc;
-		frPrint.hdcTarget = hdc;
-		frPrint.rc.left = rc.left;
-		frPrint.rc.top = rc.top;
-		frPrint.rc.right = rc.right;
-		frPrint.rc.bottom = rc.bottom;
-		frPrint.rcPage = frPrint.rc;
-		frPrint.chrg.cpMin = lengthPrinted;
-		frPrint.chrg.cpMax = lengthDoc;
+		if (printPage)
+			::StartPage(hdc);
 
-		lengthPrinted = SendEditor(EM_FORMATRANGE, TRUE,
+		FORMATRANGE frPrint   = {0};
+		frPrint.hdc           = hdc;
+		frPrint.hdcTarget     = hdc;
+		frPrint.rc.left       = rectMargins.left;
+		frPrint.rc.top        = rectMargins.top;
+		frPrint.rc.right      = ptPage.x - (rectMargins.right  + rectMargins.left);
+		frPrint.rc.bottom     = ptPage.y - (rectMargins.bottom + rectMargins.top);
+		frPrint.rcPage.left   = 0;
+		frPrint.rcPage.top    = 0;
+		frPrint.rcPage.right  = ptPage.x;
+		frPrint.rcPage.bottom = ptPage.y;
+		frPrint.chrg.cpMin    = lengthPrinted;
+		frPrint.chrg.cpMax    = lengthDoc;
+		
+		lengthPrinted = SendEditor(EM_FORMATRANGE,
+		                           printPage,
 		                           reinterpret_cast<LPARAM>(&frPrint));
-		::EndPage(hdc);
-	};
-	SendEditor(EM_FORMATRANGE, FALSE, 0);
+		if (printPage)
+			::EndPage(hdc);
 
+		if ((pdlg.Flags & PD_PAGENUMS) && (pageNum++ > pdlg.nToPage))
+			 break;
+    	};
+
+	SendEditor(EM_FORMATRANGE, FALSE, 0);
+	
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
-
 }
 
 void SciTEWin::PrintSetup() {
-#ifdef PAGE_SETUP_IMPLEMENTED
 	PAGESETUPDLG pdlg = {sizeof(PAGESETUPDLG)};
+	
 	pdlg.hwndOwner = wSciTE.GetID();
 	pdlg.hInstance = hInstance;
-	pdlg.Flags = 0;
+	
+	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
+		pagesetupMargin.top  != 0 || pagesetupMargin.bottom != 0) {
+		pdlg.Flags = PSD_MARGINS;
+		
+		pdlg.rtMargin.left   = pagesetupMargin.left;
+		pdlg.rtMargin.top    = pagesetupMargin.top;
+		pdlg.rtMargin.right  = pagesetupMargin.right;
+		pdlg.rtMargin.bottom = pagesetupMargin.bottom;
+	}
+	
+	pdlg.hDevMode  = hDevMode;
+	pdlg.hDevNames = hDevNames;
+	
 	if (!PageSetupDlg(&pdlg))
 		return;
-	Platform::DebugPrintf("PrintSize %d %d\n",
-	                      pdlg.ptPaperSize.x, pdlg.ptPaperSize.y);
-	Platform::DebugPrintf("MinMargin %d %d %d %d\n",
-	                      pdlg.rtMinMargin.left, pdlg.rtMinMargin.top,
-	                      pdlg.rtMinMargin.right, pdlg.rtMinMargin.bottom);
-	Platform::DebugPrintf("Margin %d %d %d %d\n",
-	                      pdlg.rtMargin.left, pdlg.rtMargin.top,
-	                      pdlg.rtMargin.right, pdlg.rtMargin.bottom);
-#endif
+	
+	pagesetupMargin.left   = pdlg.rtMargin.left;
+	pagesetupMargin.top    = pdlg.rtMargin.top;
+	pagesetupMargin.right  = pdlg.rtMargin.right;
+	pagesetupMargin.bottom = pdlg.rtMargin.bottom;
+	
+	hDevMode  = pdlg.hDevMode;
+	hDevNames = pdlg.hDevNames;
 }
 
 static void FillComboFromMemory(HWND combo, const ComboMemory &mem) {
