@@ -193,6 +193,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	dialogsOnScreen = 0;
 
 	heightOutput = 0;
+	previousHeightOutput = 0;
 
 	allowMenuActions = true;
 	isDirty = false;
@@ -723,7 +724,25 @@ void SciTEBase::Execute() {
 	strcpy(dirNameAtExecute, dirName);
 }
 
-void SciTEBase::BookmarkToggle( int lineno ) {
+void SciTEBase::ToggleOutputVisible() {
+	if (heightOutput > 0) {
+		heightOutput = NormaliseSplit(0);
+	} else {
+		if (previousHeightOutput < 20) {
+			if (splitVertical)
+				heightOutput = NormaliseSplit(300);
+			else
+				heightOutput = NormaliseSplit(100);
+			previousHeightOutput = heightOutput;
+		} else {
+			heightOutput = NormaliseSplit(previousHeightOutput);
+		}
+	}
+	SizeSubWindows();
+	Redraw();
+}
+
+void SciTEBase::BookmarkToggle(int lineno) {
 	if (lineno == -1)
 		lineno = GetCurrentLineNumber();
 	int state = SendEditor(SCI_MARKERGET, lineno);
@@ -748,6 +767,22 @@ void SciTEBase::BookmarkNext() {
 	else {
 		SendEditor(SCI_ENSUREVISIBLE, nextLine);
 		SendEditor(SCI_GOTOLINE, nextLine);
+	}
+}
+
+void SciTEBase::BookmarkPrev() {
+	// maybe this and BookmarkNext() should be merged
+	int lineno = GetCurrentLineNumber();
+	int prevLine = SendEditor(SCI_MARKERPREVIOUS, lineno - 1, 1 << SciTE_MARKER_BOOKMARK);
+	if (prevLine < 0) {
+		int linecount = SendEditor(SCI_GETLINECOUNT);
+		prevLine = SendEditor(SCI_MARKERPREVIOUS, linecount - 1, 1 << SciTE_MARKER_BOOKMARK);
+	}
+	if (prevLine < 0 || prevLine == lineno)
+		; // beep
+	else {
+		SendEditor(SCI_ENSUREVISIBLE, prevLine);
+		SendEditor(SCI_GOTOLINE, prevLine);
 	}
 }
 
@@ -1576,6 +1611,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		GoMessage( -1);
 		break;
 
+	case IDM_TOGGLEOUTPUT:
+		ToggleOutputVisible();
+		break;
+
 	case IDM_OPENLOCALPROPERTIES:
 		OpenProperties(IDM_OPENLOCALPROPERTIES);
 		SetFocus(wEditor.GetID());
@@ -1600,6 +1639,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_BOOKMARK_NEXT:
 		BookmarkNext();
+		break;
+
+	case IDM_BOOKMARK_PREV:
+		BookmarkPrev();
 		break;
 
 	case IDM_TABSIZE:
@@ -1968,7 +2011,7 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 		SizeContentWindows();
 		//Redraw();
 	}
-
+	previousHeightOutput = newHeightOutput;
 }
 
 // Implement ExtensionAPI methods

@@ -205,6 +205,7 @@ SciTEBase.obj: \
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h \
@@ -217,6 +218,7 @@ SciTEBuffers.obj: \
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h \
@@ -229,6 +231,7 @@ SciTEIO.obj: \
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h \
@@ -241,6 +244,7 @@ Exporters.obj: \
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h \
@@ -253,6 +257,7 @@ SciTEProps.obj:\
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h \
@@ -266,6 +271,7 @@ SciTEWin.obj:\
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h \
@@ -279,6 +285,7 @@ SciTEWinBar.obj:\
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h \
@@ -292,6 +299,7 @@ SciTEWinDlg.obj:\
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h \
@@ -305,6 +313,7 @@ Sc1.obj:\
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h

@@ -234,6 +234,7 @@ protected:
 	int heightOutputStartDrag;
 	Point ptStartDrag;
 	bool capturedMouse;
+	int previousHeightOutput;
 	bool firstPropertiesRead;
 	bool splitVertical;
 	bool bufferedDraw;
@@ -409,6 +410,8 @@ protected:
 
 	void BookmarkToggle( int lineno = -1 );
 	void BookmarkNext();
+	void BookmarkPrev();
+	void ToggleOutputVisible();
 	virtual void SizeContentWindows()=0;
 	virtual void SizeSubWindows()=0;
 
