@@ -44,6 +44,7 @@ protected:
 	GdkGC *xor_gc;
 
 	guint sbContextID;
+	Window wToolBarBox;
 
 	// Control of sub process
 	int icmd;
@@ -70,6 +71,7 @@ protected:
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
 
+	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
 	
 	virtual void SetMenuItem(int menuNumber, int position, int itemID, 
@@ -135,6 +137,7 @@ protected:
 
 	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
 	static void QuitSignal(GtkWidget *w, SciTEGTK *scitew);
+	static void ButtonSignal(GtkWidget *widget, gpointer data);
 	static void MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *w);
 	static void CommandSignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
 	static void NotifySignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
@@ -147,14 +150,21 @@ protected:
 
 public:
 
+	// TODO: get rid of this - use callback argument to find SciTEGTK
+	static SciTEGTK *instance;
+
 	SciTEGTK();
 	~SciTEGTK();
 
+	void AddToolButton(const char *text, int cmd, char *icon[]);
+	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
 	void Run(const char *cmdLine);
 	void ProcessExecute();
 	virtual void Execute();
 	virtual void StopExecute();
 };
+
+SciTEGTK *SciTEGTK::instance;
 
 SciTEGTK::SciTEGTK() {
 	// Control of sub process
@@ -179,6 +189,8 @@ SciTEGTK::SciTEGTK() {
 	comboFind = 0;
 	comboReplace = 0;
 	itemFactory = 0;
+	
+	instance = this;
 }
 
 SciTEGTK::~SciTEGTK() {
@@ -340,9 +352,9 @@ void SciTEGTK::Notify(SCNotification *notification) {
 
 void SciTEGTK::ShowToolBar() {
 	if (tbVisible) {
-		//gtk_widget_show(GTK_WIDGET(wStatusBar.GetID()));
+		gtk_widget_show(GTK_WIDGET(wToolBarBox.GetID()));
 	} else {
-		//gtk_widget_hide(GTK_WIDGET(wStatusBar.GetID()));
+		gtk_widget_hide(GTK_WIDGET(wToolBarBox.GetID()));
 	}
 }
 
@@ -358,16 +370,6 @@ void SciTEGTK::Command(WPARAM wParam, LPARAM) {
 	int cmdID = ControlIDOfCommand(wParam);
 	switch (cmdID) {
 
-	case IDM_VIEWSTATUSBAR:
-		sbVisible = ! sbVisible;
-		if (sbVisible) {
-			gtk_widget_show(GTK_WIDGET(wStatusBar.GetID()));
-		} else {
-			gtk_widget_hide(GTK_WIDGET(wStatusBar.GetID()));
-		}
-		CheckMenus();
-		break;
-		
 	case IDM_SRCWIN:
 	case IDM_RUNWIN:
 		if ((wParam >> 16) == EN_SETFOCUS) 
@@ -381,10 +383,8 @@ void SciTEGTK::Command(WPARAM wParam, LPARAM) {
 
 void SciTEGTK::ReadPropertiesInitial() {
 	SciTEBase::ReadPropertiesInitial();
-	if (sbVisible)
-		gtk_widget_show(GTK_WIDGET(wStatusBar.GetID()));
-	else
-		gtk_widget_hide(GTK_WIDGET(wStatusBar.GetID()));
+	ShowToolBar();
+	ShowStatusBar();
 }
 
 void SciTEGTK::ReadProperties() {
@@ -1049,6 +1049,10 @@ void SciTEGTK::QuitSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->Command(IDM_QUIT);
 }
 
+void SciTEGTK::ButtonSignal(GtkWidget *, gpointer data) {
+	instance->Command((guint)data);
+}
+
 void SciTEGTK::MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *) {
 	//Platform::DebugPrintf("action %d %x \n", action, w);
 	if (scitew->allowMenuActions)
@@ -1205,6 +1209,41 @@ void SetFocus(GtkWidget *hwnd) {
 	Platform::SendScintilla(hwnd, SCI_GRABFOCUS, 0, 0);
 }
 
+void SciTEGTK::AddToolButton(const char *text, int cmd, char *icon[]) {
+
+	GtkWidget *toolbar_icon = pixmap_new(wSciTE.GetID(), icon);
+	GtkWidget *button = gtk_toolbar_append_element(GTK_TOOLBAR(wToolBar.GetID()),
+	                            GTK_TOOLBAR_CHILD_BUTTON,
+	                            NULL,
+	                            NULL,
+	                            text, NULL,
+	                            toolbar_icon, NULL, NULL);
+
+	//gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+
+	gtk_signal_connect(GTK_OBJECT(button), "clicked",
+	                    GTK_SIGNAL_FUNC (ButtonSignal),
+	                    (gpointer)cmd);
+}
+
+GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
+	GdkBitmap *mask=0;
+
+	/* now for the pixmap from gdk */
+	GtkStyle *style = gtk_widget_get_style(window);
+	GdkPixmap *pixmap = gdk_pixmap_create_from_xpm_d(
+		window->window,  
+		&mask,
+		&style->bg[GTK_STATE_NORMAL],
+		xpm);
+
+	/* a pixmap widget to contain the pixmap */
+	GtkWidget *pixmapwid = gtk_pixmap_new(pixmap, mask);
+	gtk_widget_show(pixmapwid);
+
+	return pixmapwid;
+}
+
 void SciTEGTK::Run(const char *cmdLine) {
 
 	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
@@ -1283,6 +1322,7 @@ void SciTEGTK::Run(const char *cmdLine) {
 	    {"/Options/View _Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
 	    {"/Options/View Line _Numbers", "", menuSig, IDM_LINENUMBERMARGIN, "<CheckItem>"},
 	    {"/Options/_View End of Line", "", menuSig, IDM_VIEWEOL, "<CheckItem>"},
+	    {"/Options/View _Toolbar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
 	    {"/Options/View Status _Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
 	    {"/Options/sep2", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Line End C_haracters", "", 0, 0, "<Branch>"},
@@ -1342,6 +1382,21 @@ void SciTEGTK::Run(const char *cmdLine) {
 	                   handle_box,
 	                   FALSE, FALSE, 0);
 
+	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
+	gtk_widget_show(wSciTE.GetID());
+
+	wToolBarBox = gtk_handle_box_new();
+
+	wToolBar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
+	//wToolBar.Show();
+	tbVisible = false;
+
+	gtk_container_add(GTK_CONTAINER(wToolBarBox.GetID()), wToolBar.GetID());
+
+	gtk_box_pack_start(GTK_BOX(boxMain),
+	                   wToolBarBox.GetID(),
+	                   FALSE, FALSE, 0);
+
 	wContent = gtk_fixed_new();
 	GTK_WIDGET_UNSET_FLAGS(wContent.GetID(), GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain), wContent.GetID(), TRUE, TRUE, 0);
@@ -1392,7 +1447,40 @@ void SciTEGTK::Run(const char *cmdLine) {
 
 	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
 	gtk_widget_show_all(wSciTE.GetID());
+	
+	gtk_widget_hide(GTK_WIDGET(wToolBarBox.GetID()));
 
+	gtk_container_set_border_width(GTK_CONTAINER(wToolBar.GetID()), 2);
+	gtk_toolbar_set_space_size(GTK_TOOLBAR(wToolBar.GetID()), 17);
+	gtk_toolbar_set_space_style(GTK_TOOLBAR(wToolBar.GetID()), GTK_TOOLBAR_SPACE_LINE);
+	gtk_toolbar_set_button_relief(GTK_TOOLBAR(wToolBar.GetID()), GTK_RELIEF_NONE);
+
+	AddToolButton("New", 	IDM_NEW,  filenew_xpm);
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Open", 	IDM_OPEN, fileopen_xpm);
+	AddToolButton("Save", 	IDM_SAVE, filesave_xpm);
+	AddToolButton("Close", 	IDM_CLOSE,close_xpm);
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Cut", 	IDM_CUT,  editcut_xpm);
+	AddToolButton("Copy", 	IDM_COPY, editcopy_xpm);
+	AddToolButton("Paste", 	IDM_PASTE,editpaste_xpm);
+	
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Undo", 	IDM_UNDO, undo_xpm);
+	AddToolButton("Redo", 	IDM_REDO, redo_xpm);
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Find in Files", IDM_FINDINFILES, findinfiles_xpm);
+	AddToolButton("Find", 	IDM_FIND, search_xpm);
+	AddToolButton("Find Next", IDM_FINDNEXT, findnext_xpm);
+	AddToolButton("Replace", IDM_REPLACE, replace_xpm);
+
+	// Commented out until buffers are working
+	//AddToolButton("Previous Buffer", IDM_PREV, prev_xpm);
+	//AddToolButton("Next Buffer", IDM_NEXT, next_xpm);
+	
 	wStatusBar = gtk_statusbar_new();
 	sbContextID = gtk_statusbar_get_context_id(
 	                  GTK_STATUSBAR(wStatusBar.GetID()), "global");
