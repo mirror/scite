@@ -3937,7 +3937,7 @@ void SciTEBase::CheckMenus() {
 #if PLAT_GTK
 
 		if (wTabBar.GetID())
-			gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), buffers.current);
+			gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), buffers.Current());
 #endif
 
 		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
