@@ -671,7 +671,7 @@ void SciTEBase::FindMessageBox(const char *msg) {
 void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (!findWhat[0]) {
 		Find();
-		return ;
+		return;
 	}
 	TextToFind ft = {{0, 0}, 0, {0, 0}};
 	CharacterRange crange = GetSelection();
