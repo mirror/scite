@@ -1,14 +1,24 @@
 # Make file for SciTE on Windows
 # Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 # The License.txt file describes the conditions under which this software may be distributed.
-# This makefile assumes the mingw32 version of GCC 2.95.3 is used and changes will
+# This makefile assumes the mingw32 version of GCC 3.2 is used and changes will
 # be needed to use other compilers.
+
+ifdef TERM
+# Assume that any defined TERM implies cygwin.
+CYGWIN = 1
+endif
 
 .SUFFIXES: .cxx
 CC = g++
 DLLWRAP = dllwrap
+ifndef CYGWIN
 DEL = del /q
 COPY = copy
+else
+DEL = rm
+COPY = cp
+endif
 
 PROG	= ../bin/SciTE.exe
 PROGSTATIC = ../bin/Sc1.exe
