@@ -44,14 +44,6 @@ clean:
 
 OBJS = SciTEBase.obj SciTEWin.obj \
 	..\..\scintilla\win32\Accessor.obj \
-	..\..\scintilla\win32\KeyWords.obj \
-	..\..\scintilla\win32\LexCPP.obj \
-	..\..\scintilla\win32\LexHTML.obj \
-	..\..\scintilla\win32\LexOthers.obj \
-	..\..\scintilla\win32\LexPerl.obj \
-	..\..\scintilla\win32\LexPython.obj \
-	..\..\scintilla\win32\LexSQL.obj \
-	..\..\scintilla\win32\LexVB.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\PlatWin.obj
 
@@ -69,8 +61,8 @@ OBJSSTATIC = Sc1.obj SciTEBase.obj \
 	..\..\scintilla\win32\LexVB.obj \
 	..\..\scintilla\win32\Accessor.obj \
 	..\..\scintilla\win32\PropSet.obj \
-	..\..\scintilla\win32\ScintillaWinS.obj \
-	..\..\scintilla\win32\ScintillaBase.obj \
+	..\..\scintilla\win32\ScintillaWinL.obj \
+	..\..\scintilla\win32\ScintillaBaseL.obj \
 	..\..\scintilla\win32\Editor.obj \
 	..\..\scintilla\win32\Document.obj \
 	..\..\scintilla\win32\CellBuffer.obj \
