@@ -200,15 +200,17 @@ bool SciTEBase::IsBufferAvailable() {
 	return buffers.size > 1 && buffers.length < buffers.size;
 }
 
-bool SciTEBase::CanMakeRoom() {
+bool SciTEBase::CanMakeRoom(bool maySaveIfDirty) {
 	if (IsBufferAvailable()) {
 		return true;
-	} else {
+	} else if (maySaveIfDirty) {
 		// All available buffers are taken, try and close the current one
 		if (SaveIfUnsure(true) != IDCANCEL) {
 			// The file isn't dirty, or the user agreed to close the current one
 			return true;
 		}
+	} else {
+		return true;	// Told not to save so must be OK.
 	}
 	return false;
 }
@@ -698,6 +700,7 @@ void SciTEBase::StackMenu(int pos) {
 			// useMonoFont = false?
 			overrideExtension = "";
 			fileModTime = 0;
+			fileModLastAsk = 0;
 			Open(rf.FullPath());
 			DisplayAround(rf);
 		}

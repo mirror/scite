@@ -260,6 +260,7 @@ protected:
 	SString dirNameAtExecute;
 	bool useMonoFont;
 	time_t fileModTime;
+	time_t fileModLastAsk;
 
 	enum { fileStackMax = 10 };
 	RecentFile recentFileStack[fileStackMax];
@@ -423,7 +424,7 @@ protected:
 	int AddBuffer();
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable();
-	bool CanMakeRoom();
+	bool CanMakeRoom(bool maySaveIfDirty=true);
 	void SetDocumentAt(int index);
 	void BuffersMenu();
 	void Next();
@@ -473,7 +474,8 @@ protected:
 	virtual void LoadSessionDialog() { };
 	virtual void SaveSessionDialog() { };
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
-	bool Open(const char *file = 0, bool initialCmdLine = false, bool forceLoad = false);
+	bool Open(const char *file = 0, bool initialCmdLine = false, 
+		bool forceLoad = false, bool maySaveIfDirty=true);
 	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad = false);
 	void OpenSelected();
 	void Revert();

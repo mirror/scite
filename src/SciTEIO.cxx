@@ -304,7 +304,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 		// with the given name
 		if (fp) {
 			fileModTime = GetModTime(fullPath);
-
+			fileModLastAsk = fileModTime;
 			SendEditor(SCI_CLEARALL);
 			char data[blockSize];
 			int lenFile = fread(data, 1, sizeof(data), fp);
@@ -343,7 +343,8 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 	Redraw();
 }
 
-bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
+bool SciTEBase::Open(const char *file, bool initialCmdLine, 
+	bool forceLoad, bool maySaveIfDirty) {
 	InitialiseBuffers();
 
 	if (!file) {
@@ -365,7 +366,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 			return true;
 	}
 	// See if we can have a buffer for the file to open
-	if (!CanMakeRoom()) {
+	if (!CanMakeRoom(maySaveIfDirty)) {
 		return false;
 	}
 
@@ -525,7 +526,7 @@ void SciTEBase::CheckReload() {
 			RecentFile rf = GetFilePosition();
 			if (isDirty) {
 				static bool entered = false; // Stop reentrancy
-				if (!entered && (0 == dialogsOnScreen)) {
+				if (!entered && (0 == dialogsOnScreen) && (newModTime != fileModLastAsk)) {
 					entered = true;
 					SString msg = LocaliseMessage(
 						"The file '^0' has been modified. Should it be reloaded?", 
@@ -534,9 +535,10 @@ void SciTEBase::CheckReload() {
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					dialogsOnScreen--;
 					if (decision == IDYES) {
-						Open(fullPathToCheck, false, true);
+						Open(fullPathToCheck, false, true, false);
 						DisplayAround(rf);
 					}
+					fileModLastAsk = newModTime;
 					entered = false;
 				}
 			} else {

@@ -221,6 +221,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	dirName[0] = '\0';
 	useMonoFont = false;
 	fileModTime = 0;
+	fileModLastAsk = 0;
 
 	macrosEnabled = false;
 	recording = false;
