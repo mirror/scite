@@ -41,14 +41,10 @@ LRESULT PASCAL SingleThreadExtension::WndProc(HWND hwnd, UINT uMsg, WPARAM wPara
 	return ::DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-#ifndef HWND_MESSAGE
-#define HWND_MESSAGE reinterpret_cast<HWND>(0x84)
-#endif
-
 bool SingleThreadExtension::Initialise(ExtensionAPI *host_) {
 	hwndDispatcher = CreateWindow(
 		"STATIC", "SciTE_SingleThreadExtension_Dispatcher",
-		0, 0, 0, 0, 0, HWND_MESSAGE, 0, GetModuleHandle(NULL), 0
+		0, 0, 0, 0, 0, 0, 0, GetModuleHandle(NULL), 0
 	);
 
 	LONG subclassedProc = SetWindowLong(hwndDispatcher, GWL_WNDPROC, reinterpret_cast<LONG>(WndProc));
