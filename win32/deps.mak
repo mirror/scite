@@ -21,14 +21,13 @@ SciTEWinDlg.o: SciTEWinDlg.cxx SciTEWin.h \
  ../../scintilla/include/Accessor.h ../../scintilla/include/KeyWords.h \
  ../../scintilla/include/Scintilla.h ../src/Extender.h \
  ../src/SciTEBase.h
+DocumentPath.o: ../src/DocumentPath.cxx ../src/DocumentPath.h
 Exporters.o: ../src/Exporters.cxx ../../scintilla/include/Platform.h \
  ../src/SciTE.h ../../scintilla/include/PropSet.h \
  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \
  ../../scintilla/include/WindowAccessor.h \
  ../../scintilla/include/Scintilla.h ../src/Extender.h \
  ../src/SciTEBase.h
-FilePath.o: ../src/FilePath.cxx ../../scintilla/include/PropSet.h \
- ../../scintilla/include/SString.h ../src/FilePath.h
 SciTEBase.o: ../src/SciTEBase.cxx ../../scintilla/include/Platform.h \
  ../src/SciTE.h ../../scintilla/include/PropSet.h \
  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \

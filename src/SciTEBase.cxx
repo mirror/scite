@@ -120,6 +120,7 @@ const char *contributors[] = {
     "Marcos E. Wurzius",
     "Martin Alderson",
     "Robert Gustavsson",
+    "José Fonseca",
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -2865,42 +2866,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		useMonoFont = !useMonoFont;
 		SetMonoFont();
 		break;
-/*
-	case IDM_LEXER_NONE:
-	case IDM_LEXER_CPP:
-	case IDM_LEXER_VB:
-	case IDM_LEXER_RC:
-	case IDM_LEXER_HTML:
-	case IDM_LEXER_XML:
-	case IDM_LEXER_JS:
-	case IDM_LEXER_WSCRIPT:
-	case IDM_LEXER_PROPS:
-	case IDM_LEXER_BATCH:
-	case IDM_LEXER_MAKE:
-	case IDM_LEXER_ERRORL:
-	case IDM_LEXER_JAVA:
-	case IDM_LEXER_LUA:
-	case IDM_LEXER_PYTHON:
-	case IDM_LEXER_PERL:
-	case IDM_LEXER_SQL:
-	case IDM_LEXER_PLSQL:
-	case IDM_LEXER_PHP:
-	case IDM_LEXER_LATEX:
-	case IDM_LEXER_DIFF:
-	case IDM_LEXER_CS:
-	case IDM_LEXER_CONF:
-	case IDM_LEXER_PASCAL:
-	case IDM_LEXER_AVE:
-	case IDM_LEXER_ADA:
-	case IDM_LEXER_LISP:
-	case IDM_LEXER_RUBY:
-	case IDM_LEXER_EIFFEL:
-	case IDM_LEXER_TCL:
-	case IDM_LEXER_NNCRONTAB:
-	case IDM_LEXER_BULLANT:
-		SetOverrideLanguage(cmdID);
-		break;
-*/
+
 	case IDM_MACROLIST:
 		AskMacroList();
 		break;

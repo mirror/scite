@@ -191,6 +191,10 @@ SOURCE=..\..\scintilla\src\LexLua.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexMatlab.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexOthers.cxx
 # End Source File
 # Begin Source File
