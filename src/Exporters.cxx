@@ -334,7 +334,7 @@ void SciTEBase::SaveToRTF(const char *saveName) {
 				}
 				if (wysiwyg && family.length()) {
 					for (i = 0; i < fontCount; i++)
-						if (!strcasecmp(family.c_str(), fonts[i]))
+						if (EqualCaseInsensitive(family.c_str(), fonts[i]))
 							break;
 					if (i >= fontCount) {
 						strncpy(fonts[fontCount++], family.c_str(), MAX_FONTDEF);
@@ -347,7 +347,7 @@ void SciTEBase::SaveToRTF(const char *saveName) {
 				        wysiwyg && size ? size << 1 : fontSize);
 				if (fore.length()) {
 					for (i = 0; i < colorCount; i++)
-						if (!strcasecmp(fore.c_str(), colors[i]))
+						if (EqualCaseInsensitive(fore.c_str(), colors[i]))
 							break;
 					if (i >= colorCount)
 						strncpy(colors[colorCount++], fore.c_str(), MAX_COLORDEF);

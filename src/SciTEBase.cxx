@@ -955,22 +955,6 @@ bool SciTEBase::StartAutoComplete() {
 	return true;
 }
 
-const char *strcasestr(const char *str, const char *pattn) {
-	int i;
-	int pattn0 = tolower (pattn[0]);
-
-	for (; *str; str++) {
-		if (tolower (*str) == pattn0) {
-			for (i = 1; tolower (str[i]) == tolower (pattn[i]); i++)
-				if (pattn[i] == '\0')
-					return str;
-			if (pattn[i] == '\0')
-				return str;
-		}
-	}
-	return NULL;
-}
-
 bool SciTEBase::StartAutoCompleteWord() {
 	char linebuf[1000];
 	int current = GetLine(linebuf, sizeof(linebuf));
