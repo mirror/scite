@@ -1974,9 +1974,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           command.is.filter.<i>number</i>.<i>filepattern</i><br />
           command.subsystem.<i>number</i>.<i>filepattern</i><br />
           command.save.before.<i>number</i>.<i>filepattern</i><br />
-          <span class="windowsonly">command.input.<i>number</i>.<i>filepattern</i></span><br>
-          <span class="windowsonly">command.replace.selection.<i>number</i>.<i>filepattern</i></span>
-          <span class="windowsonly">command.quiet.<i>number</i>.<i>filepattern</i></span><br>
+          <span class="windowsonly">command.input.<i>number</i>.<i>filepattern</i></span><br />
+          <span class="windowsonly">command.replace.selection.<i>number</i>.<i>filepattern</i></span><br />
+          <span class="windowsonly">command.quiet.<i>number</i>.<i>filepattern</i></span><br />
+          command.mode.<i>number</i>.<i>filepattern</i>
         </td>
         <td>
           Extra commands can be added to the Tools menu. For example to include the 'astyle'
@@ -2002,8 +2003,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         If it is set to 2, SciTE will not save the file, otherwise SciTE asks you.
 
         On Windows, the optional command.input property specifies text that will be piped
-        to the command.
-        This may reference other properties; for example,
+        to the command.  This may reference other properties; for example,
         <code>command.input.0.*.cc=$(CurrentSelection)</code>
         would pipe the current selection to the command processes.
         The command.input property is only supported for subsystem 0
@@ -2024,6 +2024,27 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         A final command property that is currently supported only on windows is command.quiet.
         A value of 1 indicates that the command I/O should not be echoed to the output pane.
         This may be useful in combination with command.input and command.replace.selection.<br />
+
+        The command.mode property is a comma-separated list of flags / settings.  Each mode
+        setting can have an argument, separated from the setting name by a colon.  For
+        most of these, the argument portion is optional; if the setting name appears without
+        an argument, this works the same as "setting:yes".  If a setting is included in
+        the command.mode but also appears as a separate command property, the mode property
+        will be overridden.  Similarly, if a single setting appears more than once with
+        different arguments, the last valid argument takes priority.  The supported 
+        command.mode settings are:<pre>
+  filter - accepts keyword arguments yes and no
+  quiet - accepts keyword arguments yes and no
+  replaceselection - accepts yes, no, and auto
+  savebefore - accepts yes, no, and prompt
+  subsystem - console, windows, shellexec, lua, director, winhelp, htmlhelp
+  groupundo - yes or no</pre>
+        Currently, all of these except groupundo are based on individual properties with
+        similar names, and so are not described separately here.  The groupundo setting
+        works with subsystem 3 (lua / director), and indicates that SciTE should treat any
+        changes made by the command as a single undo action.  A command that uses the 
+        groupundo setting should not change which buffer is active in the editor.
+        <br />
 
         If the text of a command starts with '*' then the Parameters dialog is displayed to
         prompt for parameters before executing the command. The initial '*' is not included
