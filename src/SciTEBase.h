@@ -243,8 +243,10 @@ protected:
 	virtual bool SaveAs(char *file = 0);
 	void SaveToHTML(const char *saveName);
 	virtual void SaveAsHTML()=0;
-	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath)=0;
-	virtual bool GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath)=0;
+	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
+        char *pathDefaultDir, unsigned int lenPath)=0;
+	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
+        char *pathUserDir, unsigned int lenPath)=0;
 	void OpenProperties(int propsFile);
 	virtual void Print() {};
 	virtual void PrintSetup() {};

@@ -475,23 +475,37 @@ SciTEBase::~SciTEBase() {}
 
 void SciTEBase::ReadGlobalPropFile() {
 	char propfile[MAX_PATH + 20];
-	if (GetDefaultPropertiesFileName(propfile, sizeof(propfile))) {
-		propsBase.Read(propfile);
+	char propdir[MAX_PATH + 20];
+    propsBase.Clear();
+#if PLAT_GTK
+    propsBase.Set("PLAT_GTK", "1");
+#else
+    propsBase.Set("PLAT_WIN", "1");
+#endif
+	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
+    	strcat(propdir, pathSepString);
+		propsBase.Read(propfile, propdir);
 	}
-	if (GetUserPropertiesFileName(propfile, sizeof(propfile))) {
-		propsUser.Read(propfile);
+    propsUser.Clear();
+	if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
+    	strcat(propdir, pathSepString);
+		propsUser.Read(propfile, propdir);
 	}
 }
 
 void SciTEBase::ReadLocalPropFile() {
-	char propfile[MAX_PATH + 20];
+	char propdir[MAX_PATH + 20];
 	if (dirName[0])
-		strcpy(propfile, dirName);
+		strcpy(propdir, dirName);
 	else
-		getcwd(propfile, sizeof(propfile));
+		getcwd(propdir, sizeof(propdir));
+	char propfile[MAX_PATH + 20];
+    strcpy(propfile, propdir);
+	strcat(propdir, pathSepString);
 	strcat(propfile, pathSepString);
 	strcat(propfile, propFileName);
-	props.Read(propfile);
+    props.Clear();
+	props.Read(propfile, propdir);
 	//Platform::DebugPrintf("Reading local properties from %s\n", propfile);
 
 	// TODO: Grab these from Platform and update when environment says to
@@ -1784,17 +1798,18 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 void SciTEBase::OpenProperties(int propsFile) {
 	if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
 		char propfile[MAX_PATH + 20];
+		char propdir[MAX_PATH + 20];
 		if (propsFile == IDM_OPENLOCALPROPERTIES) {
 			getcwd(propfile, sizeof(propfile));
 			strcat(propfile, pathSepString);
 			strcat(propfile, propFileName);
 			Open(propfile);
 		} else if (propsFile == IDM_OPENUSERPROPERTIES) {
-			if (GetUserPropertiesFileName(propfile, sizeof(propfile))) {
+			if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 				Open(propfile);
 			}
 		} else {	// IDM_OPENGLOBALPROPERTIES
-			if (GetDefaultPropertiesFileName(propfile, sizeof(propfile))) {
+			if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 				Open(propfile);
 			}
 		}

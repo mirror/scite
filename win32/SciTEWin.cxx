@@ -84,8 +84,10 @@ protected:
 	virtual void GoLineDialog();
 	virtual void TabSizeDialog();
 
-	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
-	virtual bool GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
+	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
+        char *pathDefaultDir, unsigned int lenPath);
+	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
+        char *pathUserDir, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
 
@@ -142,6 +144,7 @@ SciTEWin::SciTEWin() {
 	// The embedded properties file is to allow distributions to be sure
 	// that they have a sensible default configuration even if the properties
 	// files are missing. Also allows a one file distribution of Sc1.EXE.
+    propsEmbed.Clear();
 	HRSRC handProps = ::FindResource(hInstance, "Embedded", "Properties");
 	if (handProps) {
 		DWORD size = ::SizeofResource(hInstance, handProps);
@@ -279,9 +282,12 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		::exit(FALSE);
 }
 
-bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath) {
+bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps, 
+                                  char *pathDefaultDir, unsigned int lenPath) {
+    *pathDefaultDir = '\0';
    	char *home = getenv("SciTE_HOME");
         if (home) {
+		strncpy(pathDefaultDir, home, lenPath);
 		strncpy(pathDefaultProps, home, lenPath);
 		strncat(pathDefaultProps, pathSepString, lenPath);
 		strncat(pathDefaultProps, propGlobalFileName, lenPath);
@@ -290,6 +296,8 @@ bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int
 		::GetModuleFileName(0, pathDefaultProps, lenPath);
 		char *lastSlash = strrchr(pathDefaultProps, pathSepChar);
 		if (lastSlash && ((lastSlash + 1 - pathDefaultProps + strlen(propGlobalFileName)) < lenPath)) {
+    		strcpy(pathDefaultDir, pathDefaultProps);
+            pathDefaultDir[lastSlash-pathDefaultProps] = '\0';
 			strcpy(lastSlash + 1, propGlobalFileName);
 			return true;
 		} else {
@@ -298,17 +306,22 @@ bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int
 	}
 }
 
-bool SciTEWin::GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath) {
+bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps, 
+                               char *pathUserDir, unsigned int lenPath) {
+    *pathUserDir = '\0';
    	char *home = getenv("SciTE_HOME");
         if (home) {
-		strncpy(pathDefaultProps, home, lenPath);
-		strncat(pathDefaultProps, pathSepString, lenPath);
-		strncat(pathDefaultProps, propUserFileName, lenPath);
+		strncpy(pathUserDir, home, lenPath);
+		strncpy(pathUserProps, home, lenPath);
+		strncat(pathUserProps, pathSepString, lenPath);
+		strncat(pathUserProps, propUserFileName, lenPath);
 		return true;
 	} else {
-		GetModuleFileName(0, pathDefaultProps, lenPath);
-		char *lastSlash = strrchr(pathDefaultProps, pathSepChar);
-		if (lastSlash && ((lastSlash + 1 - pathDefaultProps + strlen(propUserFileName)) < lenPath)) {
+		GetModuleFileName(0, pathUserProps, lenPath);
+		char *lastSlash = strrchr(pathUserProps, pathSepChar);
+		if (lastSlash && ((lastSlash + 1 - pathUserProps + strlen(propUserFileName)) < lenPath)) {
+    		strcpy(pathUserDir, pathUserProps);
+            pathUserDir[lastSlash-pathUserProps] = '\0';
 			strcpy(lastSlash + 1, propUserFileName);
 			return true;
 		} else {

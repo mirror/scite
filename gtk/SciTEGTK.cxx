@@ -107,8 +107,10 @@ protected:
 	virtual void GoLineDialog();
 	virtual void TabSizeDialog();
 
-	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
-	virtual bool GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
+	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
+        char *pathDefaultDir, unsigned int lenPath);
+	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
+        char *pathUserDir, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
 	
@@ -306,7 +308,8 @@ int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
 	return messageBoxResult;
 }
 
-bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath) {
+bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps, 
+                                            char *pathDefaultDir, unsigned int lenPath) {
 	char *where = getenv("SciTE_HOME");
 #ifdef SYSCONF_PATH
         if (!where) {
@@ -317,17 +320,20 @@ bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int
 		where = getenv("HOME");
 	}
 #endif
+	strncpy(pathDefaultDir, where, lenPath);
 	strncpy(pathDefaultProps, where, lenPath);
 	strncat(pathDefaultProps, pathSepString, lenPath);
 	strncat(pathDefaultProps, propGlobalFileName, lenPath);
 	return true;
 }
 
-bool SciTEGTK::GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath) {
+bool SciTEGTK::GetUserPropertiesFileName(char *pathUserProps, 
+                                         char *pathUserDir, unsigned int lenPath) {
 	char *where = getenv("SciTE_HOME");
         if (!where) {
 		where = getenv("HOME");
 	}
+	strncpy(pathDefaultDir, where, lenPath);
 	strncpy(pathDefaultProps, where, lenPath);
 	strncat(pathDefaultProps, pathSepString, lenPath);
 	strncat(pathDefaultProps, propUserFileName, lenPath);
@@ -503,7 +509,9 @@ bool SciTEGTK::OpenDialog() {
 		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
 		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
 		                   this);
-		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),		                   "size_allocate", GtkSignalFunc(OpenResizeSignal),		                   this);		
+		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		                   "size_allocate", GtkSignalFunc(OpenResizeSignal),
+		                   this);		
 		// Other ways to destroy
 		// Mark it as a modal transient dialog
 		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
@@ -1239,7 +1247,8 @@ void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK
 	scitew->fileSelectorWidth = allocation->width;
 	scitew->fileSelectorHeight = allocation->height;	
 }
-void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
+
+void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("Do Save As\n");
 	if (scitew->savingHTML)
 		scitew->SaveToHTML(gtk_file_selection_get_filename(
