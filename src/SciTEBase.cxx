@@ -2441,7 +2441,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 		
 	case SCN_NEEDSHOWN: {
-			EnsureRangeVisible(notification->position, notification->position + notification->length-1);
+			EnsureRangeVisible(notification->position, notification->position + notification->length);
 		}
 		break;
 
