@@ -341,12 +341,12 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "Version 1.46\n", 1);
+		AddStyledText(wsci, "Version 1.47\n", 1);
 		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "December 1998-May 2002.\n", 3);
+		AddStyledText(wsci, "December 1998-August 2002.\n", 3);
 		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		SString translator = LocaliseString("TranslationCredit", false);
