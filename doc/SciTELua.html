@@ -61,6 +61,15 @@ OnBeforeSave will receive the filename of the affected buffer as
 their first argument.  OnChar can expect a single-character string
 argument. The other event handlers will not be passed any arguments.
 
+Event handlers return a boolean value to indicate whether SciTE should
+continue processing the event.  Return a true value to indicate that
+the event has been fully handled, and that no further handlers should
+be called.  Return a false value to give other extensions a chance to
+process the same event.  In many but not all cases, a well behaved
+event handler will return false.  Remember that, in Lua, the only
+non-true values are false and nil.  Unlike in C++, Python and many
+other languages, 0 evaluates to true.
+
 In addition to event handlers, you can also use define new commands
 that are available through the Tools menu or through keyboard shortcuts.
 To specify that a command that will be handled by Lua, specify
