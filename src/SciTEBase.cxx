@@ -2133,7 +2133,6 @@ bool SciTEBase::StartExpandAbbreviation() {
 		if (dataLength > 0) {
 			break;	/* Found */
 		}
-		abbrevPos++;
 		abbrev++;	// One more letter to the right
 		abbrevLength--;
 	}
