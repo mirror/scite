@@ -1744,7 +1744,7 @@ Prev File|IDM_PREVFILE|<br/>
         session will be automatically loaded.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr>
         <td>
         open.dialog.in.file.directory
         </td>
@@ -1753,7 +1753,8 @@ Prev File|IDM_PREVFILE|<br/>
           display the same directory as the current file. If it is not set then the
           system default is used which on Windows 2000 is the last directory
           visited by the open dialog in any instance of SciTE. This is hard
-          to use with multiple instances of SciTE.
+          to use with multiple instances of SciTE. <br />
+	  	  Some versions of GTK+ may also set an unexpected directory.
         </td>
       </tr>
       <tr>
@@ -2664,6 +2665,15 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
                 For the GTK+ version determines the initial size of the file
         selector dialog invoked by the Open and Save commands.
         Setting has no effect on Windows.
+        </td>
+      </tr>
+      <tr class="gtkonly">
+        <td>
+          fileselector.show.hidden
+        </td>
+        <td>
+		On GTK+ setting this to 1 makes the file selector dialog 
+		invoked by the Open command show hidden files automatically.
         </td>
       </tr>
       <tr>
