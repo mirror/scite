@@ -1380,8 +1380,8 @@ void SciTEGTK::Run(const char *cmdLine) {
 
 	Open(cmdLine, true);
 	CheckMenus();
-
 	SizeSubWindows();
+	SetFocus(wEditor.GetID());
 
 	gtk_main();
 }
