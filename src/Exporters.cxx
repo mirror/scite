@@ -560,7 +560,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			        int style = acc.StyleAt(i);
 			        if (style != styleCurrent) {
 				        if (wysiwyg || styleCurrent != 0)
-					        fputs("</SPAN>", fp);
+					        fputs("</SPAN>\n", fp);
 				        if (wysiwyg || style != 0)
 					        fprintf(fp, "<SPAN class=S%0d>", style);
 				        styleCurrent = style;
@@ -597,7 +597,6 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			        } else if (ch == '&') {
 				        fputs("&amp;", fp);
 			        } else if (ch == '{' && folding) {
-				        fputc(ch, fp);
 				        fprintf(fp, "<A id=\"fold%0dp\" href=\"javascript:void(0);\"", foldno);
 				        fprintf(fp, "onClick=\"if( fold%0d.style.display ) { fold%0d.style.display = ''; fold%0dp.text = '-'; }", foldno, foldno, foldno);
 				        fprintf(fp, "else { fold%0d.style.display = 'none'; fold%0dp.text = '+'; } return true;\">+</A>&nbsp;", foldno, foldno);
