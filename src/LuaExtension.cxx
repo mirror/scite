@@ -848,7 +848,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	int arg = 2;
 
-	int params[2] = {0,0};
+	long params[2] = {0,0};
 
 	char *stringResult = 0;
 	bool needStringResult = false;
@@ -856,8 +856,8 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	int loopParamCount = 2;
 
 	if (func.paramType[0] == iface_length && func.paramType[1] == iface_string) {
-		params[0] = static_cast<int>(lua_strlen(L, arg));
-		params[1] = reinterpret_cast<int>(params[0] ? lua_tostring(L, arg) : "");
+		params[0] = static_cast<long>(lua_strlen(L, arg));
+		params[1] = reinterpret_cast<long>(params[0] ? lua_tostring(L, arg) : "");
 		loopParamCount = 0;
 	} else if (func.paramType[1] == iface_stringresult) {
 		needStringResult = true;
@@ -873,7 +873,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	for (int i=0; i<loopParamCount; ++i) {
 		if (func.paramType[i] == iface_string) {
 			const char *s = lua_tostring(L, arg++);
-			params[i] = reinterpret_cast<int>(s ? s : "");
+			params[i] = reinterpret_cast<long>(s ? s : "");
 		} else if (func.paramType[i] == iface_keymod) {
 			int keycode = static_cast<int>(luaL_checknumber(L, arg++)) & 0xFFFF;
 			int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) & (SCMOD_SHIFT|SCMOD_CTRL|SCMOD_ALT);
@@ -881,7 +881,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		} else if (func.paramType[i] == iface_bool) {
 			params[i] = lua_toboolean(L, arg++);
 		} else if (IFaceTypeIsNumeric(func.paramType[i])) {
-			params[i] = static_cast<int>(luaL_checknumber(L, arg++));
+			params[i] = static_cast<long>(luaL_checknumber(L, arg++));
 		}
 	}
 
@@ -893,7 +893,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 			stringResult = new char[stringResultLen+1];
 			if (stringResult) {
 				stringResult[stringResultLen]='\0';
-				params[1] = reinterpret_cast<int>(stringResult);
+				params[1] = reinterpret_cast<long>(stringResult);
 			} else {
 				raise_error(L, "String result buffer allocation failed");
 				return 0;
