@@ -67,6 +67,22 @@ static bool luaDisabled = false;
 
 static char *startupScript = NULL;
 
+static bool tracebackEnabled = true;
+
+
+static int GetPropertyInt(const char *propName) {
+	int propVal = 0;
+	if (host) {
+		char *pszPropVal = host->Property(propName);
+		if (pszPropVal) {
+			propVal = atoi(pszPropVal);
+			delete [] pszPropVal;
+		}
+	}
+	return propVal;
+}
+
+
 LuaExtension::LuaExtension() {}
 
 LuaExtension::~LuaExtension() {}
@@ -172,7 +188,7 @@ static void push_pane_object(lua_State *L, ExtensionAPI::Pane p);
 static ExtensionAPI::Pane check_pane_object(lua_State *L, int index) {
 	ExtensionAPI::Pane *pPane = reinterpret_cast<ExtensionAPI::Pane*>(luaL_checkudata(L, index, "SciTE_MT_Pane"));
 
-	if (!pPane) {
+	if ((!pPane) && lua_istable(L, index)) {
 		// so that nested objects have a convenient way to do a back reference
 		int absIndex = absolute_index(L, index);
 		lua_pushliteral(L, "pane");
@@ -621,7 +637,23 @@ static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValu
 	bool handled = false;
 
 	if (L) {
-		int result = lua_pcall(L, nargs, ignoreFunctionReturnValue ? 0 : 1, 0);
+		int traceback = 0;
+		if (tracebackEnabled) {
+			lua_pushliteral(L, "_TRACEBACK");
+			if (safe_getglobal(L) && lua_isfunction(L, -1)) {
+				traceback = lua_gettop(L) - nargs - 1;
+				lua_insert(L, traceback);
+			} else {
+				lua_pop(L, 1);
+			}
+		}
+
+		int result = lua_pcall(L, nargs, ignoreFunctionReturnValue ? 0 : 1, traceback);
+
+		if (traceback) {
+			lua_remove(L, traceback);
+		}
+
 		if (0 == result) {
 			if (ignoreFunctionReturnValue) {
 				handled = true;
@@ -636,7 +668,7 @@ static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValu
 			if (result == LUA_ERRMEM) {
 				host->Trace("> Lua: memory allocation error\n");
 			} else if (result == LUA_ERRERR) {
-				host->Trace("> Lua: error function failed\n");
+				host->Trace("> Lua: an error occurred, but cannot be reported due to failure in _TRACEBACK\n");
 			} else {
 				host->Trace("> Lua: unexpected error\n");
 			}
@@ -1047,6 +1079,11 @@ void push_pane_object(lua_State *L, ExtensionAPI::Pane p) {
 static int cf_global_metatable_index(lua_State *L) {
 	if (lua_isstring(L, 2)) {
 		const char *name = lua_tostring(L, 2);
+		if ((name[0] < 'A') || (name[0] > 'Z') || ((name[1] >= 'a') && (name[1] <= 'z'))) {
+			// short circuit; iface constants are always upper-case and start with a letter
+			return 0;
+		}
+
 		int i = IFaceTable::FindConstant(name);
 		if (i >= 0) {
 			lua_pushnumber(L, IFaceTable::constants[i].value);
@@ -1100,13 +1137,7 @@ static char *CheckStartupScript() {
 }
 
 static inline int CheckResetMode() {
-	int resetMode = 0;
-	char *pszResetMode = host->Property("ext.lua.reset");
-	if (pszResetMode) {
-		resetMode = atoi(pszResetMode);
-		delete [] pszResetMode;
-	}
-	return resetMode;
+	return GetPropertyInt("ext.lua.reset");
 }
 
 
@@ -1117,6 +1148,8 @@ static bool InitGlobalScope(bool checkProperties) {
 		lua_close(luaState);
 		luaState = 0;
 	}
+
+	tracebackEnabled = (GetPropertyInt("ext.lua.debug.traceback") == 1);
 
 	if (luaState) {
 		// The Clear / Load used to use metatables to setup without having to re-run the scripts,
@@ -1214,11 +1247,9 @@ static bool InitGlobalScope(bool checkProperties) {
 	}
 
 	if (startupScript) {
-		int status = lua_dofile(luaState, startupScript);
-
-		if (status != 0) {
-			host->Trace("> Lua: error occurred in startup script\n");
-			// reset, or leave things in a possibly invalid state?
+		luaL_loadfile(luaState, startupScript);
+		if (!call_function(luaState, 0, true)) {
+			host->Trace(">Lua: error occurred while loading startup script\n");
 		}
 	}
 
@@ -1281,20 +1312,9 @@ bool LuaExtension::Load(const char *filename) {
 		int sl = strlen(filename);
 		if (sl >= 4 && strcmp(filename+sl-4, ".lua")==0) {
 			if (luaState || InitGlobalScope(false)) {
-				//host->Trace("> dofile ");
-				//host->Trace(filename);
-				//host->Trace("\n");
-
-				/* if (rawget_library_object(luaState,"dofile")) {
-					lua_pushstring(luaState, filename);
-					if (0 != lua_pcall(luaState, 1, 0, 0)) {
-						host->Trace("> Lua: error loading extension script\n");
-					}
-				} */
-
-				int status = lua_dofile(luaState, filename);
-				if (status != 0) {
-					host->Trace("> Lua: error loading extension script\n");
+				luaL_loadfile(luaState, filename);
+				if (!call_function(luaState, 0, true)) {
+					host->Trace(">Lua: error occurred while loading extension script\n");
 				}
 				loaded = true;
 			}
@@ -1331,7 +1351,7 @@ bool LuaExtension::OnExecute(const char *s) {
 						lua_settop(luaState, stackBase+2);
 
 						if (!call_function(luaState, 1, true)) {
-							host->Trace("> Lua: error occurred while processing command\n");
+							host->Trace(">Lua: error occurred while processing command\n");
 						}
 					}
 				} else {
@@ -1363,15 +1383,12 @@ bool LuaExtension::OnSave(const char *filename) {
 	// should this be case insensitive on windows?  check for different
 	// ways of spelling a filename, e.g. short vs. long?
 	if (startupScript && 0 == strcmp(filename, startupScript)) {
-		char *autoReload = host->Property("ext.lua.auto.reload");
-		if (autoReload) {
-			if (autoReload[0] == '1') {
-				int status = lua_dofile(luaState, filename);
-				if (status != 0) {
-					host->Trace("> Lua: error reloading startup script\n");
-				}
+		int autoReload = GetPropertyInt("ext.lua.auto.reload");
+		if (autoReload == 1) {
+			luaL_loadfile(luaState, startupScript);
+			if (!call_function(luaState, 0, true)) {
+				host->Trace(">Lua: error occurred while reloading startup script\n");
 			}
-			delete [] autoReload;
 		}
 	}
 
