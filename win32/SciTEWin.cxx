@@ -860,7 +860,7 @@ void SciTEWin::Print(bool showDialog) {
 		if (printPage)
 			::StartPage(hdc);
 
-		FORMATRANGE frPrint   = {0,0,{0,0,0,0},{0,0,0,0},{0,0}};
+		RangeToFormat frPrint   = {0,0,PRectangle(0,0,0,0),PRectangle(0,0,0,0),{0,0}};
 		frPrint.hdc           = hdc;
 		frPrint.hdcTarget     = hdc;
 		frPrint.rc.left       = rectMargins.left;

@@ -58,7 +58,7 @@ public:
 class RecentFile {
 public:
 	SString fileName;
-	CHARRANGE selection;
+	CharacterRange selection;
 	int scrollPosition;
 	RecentFile() {
 		fileName = "";
@@ -246,11 +246,11 @@ protected:
 	void ReadGlobalPropFile();
 	void ReadLocalPropFile();
 	
-	LRESULT SendEditor(UINT msg, WPARAM wParam = 0, LPARAM lParam = 0);
-	LRESULT SendEditorString(UINT msg, WPARAM wParam, const char *s);
-	LRESULT SendOutput(UINT msg, WPARAM wParam = 0, LPARAM lParam = 0);
-	LRESULT SendFocused(UINT msg, WPARAM wParam = 0, LPARAM lParam = 0);
-	void SendChildren(UINT msg, WPARAM wParam = 0, LPARAM lParam = 0);
+	long SendEditor(unsigned int msg, unsigned long wParam=0, long lParam=0);
+	long SendEditorString(unsigned int msg, unsigned long wParam, const char *s);
+	long SendOutput(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
+	long SendFocused(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
+	void SendChildren(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
 	int LengthDocument();
 	int GetLine(char *text, int sizeText, int line=-1);
 	void GetRange(Window &win, int start, int end, char *text);
@@ -283,7 +283,7 @@ protected:
 	void OpenProperties(int propsFile);
 	virtual void Print(bool) {};
 	virtual void PrintSetup() {};
-	CHARRANGE GetSelection();
+	CharacterRange GetSelection();
 	void SetSelection(int anchor, int currentPos);
 	void SelectionIntoProperties();
 	void SelectionIntoFind();
@@ -348,7 +348,7 @@ protected:
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	void DropFileStackTop();
-	void AddFileToStack(const char *file, CHARRANGE selection, int scrollPos);
+	void AddFileToStack(const char *file, CharacterRange selection, int scrollPos);
 	void RemoveFileFromStack(const char *file);
 	void DisplayAround(const RecentFile &rf);
 	void StackMenu(int pos);
@@ -386,7 +386,7 @@ public:
 	WindowID GetID() { return wSciTE.GetID(); }
 };
 
-int ControlIDOfCommand(WPARAM wParam);
+int ControlIDOfCommand(unsigned long);
 void SetAboutMessage(WindowID wsci, const char *appTitle);
 time_t GetModTime(const char *fullPath);
 const int blockSize = 131072;

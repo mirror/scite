@@ -17,7 +17,8 @@
 #if PLAT_GTK
 
 #include <unistd.h> 
-#include "WinDefs.h"
+#define MAKELONG(a, b) ((a) | ((b) << 16))
+//#include "WinDefs.h"
 
 #endif 
 
@@ -95,7 +96,7 @@ void AddStyledText(WindowID hwnd, const char *s, int attr) {
 		buf[i*2 + 1] = static_cast<char>(attr);
 	}
 	Platform::SendScintilla(hwnd, SCI_ADDSTYLEDTEXT, len*2,
-	                        reinterpret_cast<LPARAM>(static_cast < char * > (buf)));
+	                        reinterpret_cast<long>(static_cast < char * > (buf)));
 }
 
 void SetAboutStyle(WindowID wsci, int style, Colour fore) {
@@ -153,7 +154,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 			AddStyledText(wsci, contributors[co], 50 + co);
 			AddStyledText(wsci, "\n", 50 + co);
 		}
-		Platform::SendScintilla(wsci, EM_SETREADONLY, 1, 0);
+		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
 	}
 }
 
@@ -342,7 +343,7 @@ static bool IsUntitledFileName(const char *name) {
 
 void SciTEBase::ClearDocument() {
 	SendEditor(SCI_CLEARALL);
-	SendEditor(EM_EMPTYUNDOBUFFER);
+	SendEditor(SCI_EMPTYUNDOBUFFER);
 	SendEditor(SCI_SETSAVEPOINT);
 }
 
@@ -516,24 +517,24 @@ void SciTEBase::ReadLocalPropFile() {
 	props.Set("ChromeHighlight", "#FFFFFF");
 }
 
-LRESULT SciTEBase::SendEditor(UINT msg, WPARAM wParam, LPARAM lParam) {
+long SciTEBase::SendEditor(unsigned int msg, unsigned long wParam, long lParam) {
 	return Platform::SendScintilla(wEditor.GetID(), msg, wParam, lParam);
 }
 
-LRESULT SciTEBase::SendEditorString(UINT msg, WPARAM wParam, const char *s) {
-	return SendEditor(msg, wParam, reinterpret_cast<LPARAM>(s));
+long SciTEBase::SendEditorString(unsigned int msg, unsigned long wParam, const char *s) {
+	return SendEditor(msg, wParam, reinterpret_cast<long>(s));
 }
 
-LRESULT SciTEBase::SendOutput(UINT msg, WPARAM wParam, LPARAM lParam) {
+long SciTEBase::SendOutput(unsigned int msg, unsigned long wParam, long lParam) {
 	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
 }
 
-void SciTEBase::SendChildren(UINT msg, WPARAM wParam, LPARAM lParam) {
+void SciTEBase::SendChildren(unsigned int msg, unsigned long wParam, long lParam) {
 	SendEditor(msg, wParam, lParam);
 	SendOutput(msg, wParam, lParam);
 }
 
-LRESULT SciTEBase::SendFocused(UINT msg, WPARAM wParam, LPARAM lParam) {
+long SciTEBase::SendFocused(unsigned int msg, unsigned long wParam, long lParam) {
 	if (wEditor.HasFocus())
 		return SendEditor(msg, wParam, lParam);
 	else
@@ -575,7 +576,7 @@ void SciTEBase::DropFileStackTop() {
 	SetFileStackMenu();
 }
 
-void SciTEBase::AddFileToStack(const char *file, CHARRANGE selection, int scrollPos) {
+void SciTEBase::AddFileToStack(const char *file, CharacterRange selection, int scrollPos) {
 	if (!file)
 		return;
 	DeleteFileStackMenu();
@@ -613,13 +614,13 @@ void SciTEBase::RemoveFileFromStack(const char *file) {
 
 void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
-		int curScrollPos = SendEditor(EM_GETFIRSTVISIBLELINE);
+		int curScrollPos = SendEditor(SCI_GETFIRSTVISIBLELINE);
 		int curTop = SendEditor(SCI_VISIBLEFROMDOCLINE, curScrollPos);
 		int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
-		SendEditor(EM_LINESCROLL, 0, lineTop - curTop);
-		int lineStart = SendEditor(EM_LINEFROMCHAR, rf.selection.cpMin);
+		SendEditor(SCI_LINESCROLL, 0, lineTop - curTop);
+		int lineStart = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMin);
 		SendEditor(SCI_ENSUREVISIBLE, lineStart);
-		int lineEnd = SendEditor(EM_LINEFROMCHAR, rf.selection.cpMax);
+		int lineEnd = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMax);
 		SendEditor(SCI_ENSUREVISIBLE, lineEnd);
 		SetSelection(rf.selection.cpMax, rf.selection.cpMin);
 	}
@@ -781,7 +782,7 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 		if (0 == strcmp(opt, "notbold"))
 			Platform::SendScintilla(win.GetID(), SCI_STYLESETBOLD, style, 0);
 		if (0 == strcmp(opt, "font"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<LPARAM>(colon));
+			Platform::SendScintilla(win.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(colon));
 		if (0 == strcmp(opt, "fore"))
 			Platform::SendScintilla(win.GetID(), SCI_STYLESETFORE, style, ColourFromString(colon).AsLong());
 		if (0 == strcmp(opt, "back"))
@@ -950,13 +951,13 @@ void SciTEBase::ReadProperties() {
 	SendEditorString(SCI_SETKEYWORDS, 4, kw4.c_str());
 
 	SString fold = props.Get("fold");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"),
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("fold"),
 	                 fold.c_str());
 	SString stylingWithinPreprocessor = props.Get("styling.within.preprocessor");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("styling.within.preprocessor"),
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("styling.within.preprocessor"),
 	                 stylingWithinPreprocessor.c_str());
 	SString ttwl = props.Get("tab.timmy.whinge.level");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("tab.timmy.whinge.level"),
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("tab.timmy.whinge.level"),
 	                 ttwl.c_str());
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
@@ -1079,9 +1080,11 @@ void SciTEBase::ReadProperties() {
 
 	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
 	int blankMarginRight = props.GetInt("blank.margin.right", 1);
-	long marginCombined = MAKELONG(blankMarginLeft, blankMarginRight);
-	SendEditor(EM_SETMARGINS, EC_LEFTMARGIN | EC_RIGHTMARGIN, marginCombined);
-	SendOutput(EM_SETMARGINS, EC_LEFTMARGIN | EC_RIGHTMARGIN, marginCombined);
+	//long marginCombined = MAKELONG(blankMarginLeft, blankMarginRight);
+	SendEditor(SCI_SETMARGINLEFT, 0, blankMarginLeft);
+	SendEditor(SCI_SETMARGINRIGHT, 0, blankMarginRight);
+	SendOutput(SCI_SETMARGINLEFT, 0, blankMarginLeft);
+	SendOutput(SCI_SETMARGINRIGHT, 0, blankMarginRight);
 
 	SendEditor(SCI_SETMARGINWIDTHN, 1, margin ? marginWidth : 0);
 	SendEditor(SCI_SETMARGINWIDTHN, 0, lineNumbers ? lineNumbersWidth : 0);
@@ -1099,7 +1102,7 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_SETWORDCHARS, 0, 0);
 	}
 
-	SendEditor(SCI_MARKERDELETEALL, static_cast<WPARAM>( -1));
+	SendEditor(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
 
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize) {
@@ -1118,11 +1121,11 @@ void SciTEBase::ReadProperties() {
 
 	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
 	if (props.GetInt("vc.home.key", 1)) {
-		AssignKey(VK_HOME, 0, SCI_VCHOME);
-		AssignKey(VK_HOME, SHIFT_PRESSED, SCI_VCHOMEEXTEND);
+		AssignKey(SCK_HOME, 0, SCI_VCHOME);
+		AssignKey(SCK_HOME, SHIFT_PRESSED, SCI_VCHOMEEXTEND);
 	} else {
-		AssignKey(VK_HOME, 0, SCI_HOME);
-		AssignKey(VK_HOME, SHIFT_PRESSED, SCI_HOMEEXTEND);
+		AssignKey(SCK_HOME, 0, SCI_HOME);
+		AssignKey(SCK_HOME, SHIFT_PRESSED, SCI_HOMEEXTEND);
 	}
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
@@ -1182,20 +1185,20 @@ int SciTEBase::LengthDocument() {
 
 int SciTEBase::GetLine(char *text, int sizeText, int line) {
 	if (line == -1) {
-		return SendEditor(SCI_GETCURLINE, sizeText, reinterpret_cast<LPARAM>(text));
+		return SendEditor(SCI_GETCURLINE, sizeText, reinterpret_cast<long>(text));
 	} else {
-		WORD buflen = static_cast<WORD>(sizeText);
+		short buflen = static_cast<short>(sizeText);
 		memcpy(text, &buflen, sizeof(buflen));
-		return SendEditor(EM_GETLINE, line, reinterpret_cast<LPARAM>(text));
+		return SendEditor(SCI_GETLINE, line, reinterpret_cast<long>(text));
 	}
 }
 
 void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
-	TEXTRANGE tr;
+	TextRange tr;
 	tr.chrg.cpMin = start;
 	tr.chrg.cpMax = end;
 	tr.lpstrText = text;
-	Platform::SendScintilla(win.GetID(), EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
+	Platform::SendScintilla(win.GetID(), SCI_GETTEXTRANGE, 0, reinterpret_cast<long>(&tr));
 }
 
 #ifdef OLD_CODE
@@ -1269,7 +1272,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	}
 	if (braceAtCaret >= 0) {
 		if (colonMode) {
-			int lineStart = Platform::SendScintilla(win.GetID(), EM_LINEFROMCHAR, braceAtCaret);
+			int lineStart = Platform::SendScintilla(win.GetID(), SCI_LINEFROMPOSITION, braceAtCaret);
 			int lineMaxSubord = Platform::SendScintilla(win.GetID(), SCI_GETLASTCHILD, lineStart, -1);
 			braceOpposite = Platform::SendScintilla(win.GetID(), SCI_GETLINEENDPOSITION, lineMaxSubord);
 		} else {
@@ -1299,7 +1302,7 @@ void SciTEBase::BraceMatch(bool editor) {
 		Platform::SendScintilla(win.GetID(), SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
 		int columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceAtCaret, 0);
 		if (chBrace == ':') {
-			int lineStart = Platform::SendScintilla(win.GetID(), EM_LINEFROMCHAR, braceAtCaret);
+			int lineStart = Platform::SendScintilla(win.GetID(), SCI_LINEFROMPOSITION, braceAtCaret);
 			int indentPos = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart, 0);
 			int indentPosNext = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart+1, 0);
 			columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, indentPos, 0);
@@ -1477,7 +1480,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 		// ensure palette realised correctly.
 		SetFocus(wOutput.GetID());
 		SetFocus(wEditor.GetID());
-		SendEditor(EM_EMPTYUNDOBUFFER);
+		SendEditor(SCI_EMPTYUNDOBUFFER);
 		SendEditor(SCI_SETSAVEPOINT);
 		if (props.GetInt("fold.on.open") > 0) {
 			FoldAll();
@@ -1828,17 +1831,15 @@ void SciTEBase::OpenProperties(int propsFile) {
 	}
 }
 
-CHARRANGE SciTEBase::GetSelection() {
-	CHARRANGE crange;
-	SendEditor(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+CharacterRange SciTEBase::GetSelection() {
+	CharacterRange crange;
+	crange.cpMin = SendEditor(SCI_GETSELECTIONSTART);
+	crange.cpMax = SendEditor(SCI_GETSELECTIONEND);
 	return crange;
 }
 
 void SciTEBase::SetSelection(int anchor, int currentPos) {
-	CHARRANGE crange;
-	crange.cpMin = anchor;
-	crange.cpMax = currentPos;
-	SendEditor(EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+	SendEditor(SCI_SETSEL, anchor, currentPos);
 }
 
 static bool iswordcharforsel(char ch) {
@@ -1846,7 +1847,7 @@ static bool iswordcharforsel(char ch) {
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	CHARRANGE cr = GetSelection();
+	CharacterRange cr = GetSelection();
 	char currentSelection[1000];
 	if ((cr.cpMin < cr.cpMax) && ((cr.cpMax - cr.cpMin + 1) < static_cast<int>(sizeof(currentSelection)))) {
 		GetRange(wEditor, cr.cpMin, cr.cpMax, currentSelection);
@@ -1861,7 +1862,7 @@ void SciTEBase::SelectionIntoProperties() {
 
 void SciTEBase::SelectionIntoFind() {
 	int lengthDoc = LengthDocument();
-	CHARRANGE cr = GetSelection();
+	CharacterRange cr = GetSelection();
 	int selStart = cr.cpMin;
 	int selEnd = cr.cpMax;
 	if (selStart == selEnd) {
@@ -1897,8 +1898,8 @@ void SciTEBase::FindNext(bool reverseDirection) {
 		Find();
 		return;
 	}
-	FINDTEXTEX ft = {{0, 0}, 0, {0, 0}};
-	CHARRANGE crange = GetSelection();
+	TextToFind ft = {{0, 0}, 0, {0, 0}};
+	CharacterRange crange = GetSelection();
 	if (reverseDirection) {
 		ft.chrg.cpMin = crange.cpMin - 1;
 		ft.chrg.cpMax = 0;
@@ -1909,9 +1910,9 @@ void SciTEBase::FindNext(bool reverseDirection) {
 	ft.lpstrText = findWhat;
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
-	int flags = (wholeWord ? FR_WHOLEWORD : 0) | (matchCase ? FR_MATCHCASE : 0);
+	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
 	//DWORD dwStart = timeGetTime();
-	int posFind = SendEditor(EM_FINDTEXTEX, flags, reinterpret_cast<LPARAM>(&ft));
+	int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
 	if (posFind == -1) {
@@ -1923,7 +1924,7 @@ void SciTEBase::FindNext(bool reverseDirection) {
 			ft.chrg.cpMin = 0;
 			ft.chrg.cpMax = LengthDocument();
 		}
-		posFind = SendEditor(EM_FINDTEXTEX, flags, reinterpret_cast<LPARAM>(&ft));
+		posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
 	}
 	if (posFind == -1) {
 		havefound = false;
@@ -1950,7 +1951,7 @@ void SciTEBase::FindNext(bool reverseDirection) {
 
 void SciTEBase::ReplaceOnce() {
 	if (havefound) {
-		SendEditorString(EM_REPLACESEL, 0, replaceWhat);
+		SendEditorString(SCI_REPLACESEL, 0, replaceWhat);
 		havefound = false;
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
@@ -1964,24 +1965,24 @@ void SciTEBase::ReplaceAll() {
 		return;
 	}
 	
-	FINDTEXTEX ft;
+	TextToFind ft;
 	ft.chrg.cpMin = 0;
 	ft.chrg.cpMax = LengthDocument();
 	ft.lpstrText = findWhat;
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
-	int flags = (wholeWord ? FR_WHOLEWORD : 0) | (matchCase ? FR_MATCHCASE : 0);
-	int posFind = SendEditor(EM_FINDTEXTEX, flags,
-	                         reinterpret_cast<LPARAM>(&ft));
+	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
+	int posFind = SendEditor(SCI_FINDTEXT, flags,
+	                         reinterpret_cast<long>(&ft));
 	if (posFind != -1) {
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
 			SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
-			SendEditorString(EM_REPLACESEL, 0, replaceWhat);
+			SendEditorString(SCI_REPLACESEL, 0, replaceWhat);
 			ft.chrg.cpMin = posFind + strlen(replaceWhat);
 			ft.chrg.cpMax = LengthDocument();
-			posFind = SendEditor(EM_FINDTEXTEX, flags,
-			                     reinterpret_cast<LPARAM>(&ft));
+			posFind = SendEditor(SCI_FINDTEXT, flags,
+			                     reinterpret_cast<long>(&ft));
 		}
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
@@ -1998,9 +1999,9 @@ void SciTEBase::ReplaceAll() {
 void SciTEBase::OutputAppendString(const char *s, int len) {
 	if (len == -1)
 		len = strlen(s);
-	SendOutput(SCI_GOTOPOS, SendOutput(WM_GETTEXTLENGTH));
-	SendOutput(SCI_ADDTEXT, len, reinterpret_cast<LPARAM>(s));
-	SendOutput(SCI_GOTOPOS, SendOutput(WM_GETTEXTLENGTH));
+	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
+	SendOutput(SCI_ADDTEXT, len, reinterpret_cast<long>(s));
+	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 }
 
 void SciTEBase::Execute() {
@@ -2008,7 +2009,7 @@ void SciTEBase::Execute() {
 		SendOutput(SCI_CLEARALL);
 	}
 
-	SendOutput(SCI_MARKERDELETEALL, static_cast<WPARAM>( -1));
+	SendOutput(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
 	SendEditor(SCI_MARKERDELETEALL, 0);
 	// Ensure the output pane is visible
 	if (heightOutput < 20) {
@@ -2165,11 +2166,12 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 }
 
 void SciTEBase::GoMessage(int dir) {
-	CHARRANGE crange;
-	SendOutput(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+	CharacterRange crange;
+	crange.cpMin = SendOutput(SCI_GETSELECTIONSTART);
+	crange.cpMax = SendOutput(SCI_GETSELECTIONEND);
 	int selStart = crange.cpMin;
-	int curLine = SendOutput(EM_LINEFROMCHAR, selStart);
-	int maxLine = SendOutput(EM_GETLINECOUNT);
+	int curLine = SendOutput(SCI_LINEFROMPOSITION, selStart);
+	int maxLine = SendOutput(SCI_GETLINECOUNT);
 	int lookLine = curLine + dir;
 	if (lookLine < 0)
 		lookLine = maxLine - 1;
@@ -2177,25 +2179,25 @@ void SciTEBase::GoMessage(int dir) {
 		lookLine = 0;
 	WindowAccessor acc(wOutput.GetID(), props);
 	while ((dir == 0) || (lookLine != curLine)) {
-		int startPosLine = SendOutput(EM_LINEINDEX, lookLine, 0);
+		int startPosLine = SendOutput(SCI_POSITIONFROMLINE, lookLine, 0);
 		int lineLength = SendOutput(SCI_LINELENGTH, lookLine, 0);
 		//Platform::DebugPrintf("GOMessage %d %d %d of %d linestart = %d\n", selStart, curLine, lookLine, maxLine, startPosLine);
 		char style = acc.StyleAt(startPosLine);
 		if (style != 0 && style != 4) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
-			SendOutput(SCI_MARKERDELETEALL, static_cast<WPARAM>( -1));
+			SendOutput(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			SendOutput(SCI_MARKERSETFORE, 0, Colour(0x7f, 0, 0).AsLong());
 			SendOutput(SCI_MARKERSETBACK, 0, Colour(0xff, 0xff, 0).AsLong());
 			SendOutput(SCI_MARKERADD, lookLine, 0);
-			CHARRANGE crangeset = {startPosLine, startPosLine};
-			SendOutput(EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&crangeset));
+			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
 			char *cdoc = new char[lineLength + 1];
 			if (!cdoc)
 				return;
 			GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
 			char sourcePath[MAX_PATH];
 			int sourceLine = DecodeMessage(cdoc, sourcePath, style);
+			printf("<%s> %d %d\n",sourcePath, sourceLine, lookLine);
 			//Platform::DebugPrintf("<%s> %d %d\n",sourcePath, sourceLine, lookLine);
 			if (sourceLine >= 0) {
 				if (0 != strcmp(sourcePath, fileName)) {
@@ -2221,7 +2223,7 @@ void SciTEBase::GoMessage(int dir) {
 				SendEditor(SCI_MARKERSETFORE, 0, Colour(0x7f, 0, 0).AsLong());
 				SendEditor(SCI_MARKERSETBACK, 0, Colour(0xff, 0xff, 0).AsLong());
 				SendEditor(SCI_MARKERADD, sourceLine, 0);
-				int startSourceLine = SendEditor(EM_LINEINDEX, sourceLine, 0);
+				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
 				EnsureRangeVisible(startSourceLine, startSourceLine);
 				SetSelection(startSourceLine, startSourceLine);
 				SetFocus(wEditor.GetID());
@@ -2347,13 +2349,13 @@ void SciTEBase::StartAutoComplete() {
 }
 
 int SciTEBase::GetCurrentLineNumber() {
-	CHARRANGE crange = GetSelection();
+	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
-	return SendEditor(EM_LINEFROMCHAR, selStart);
+	return SendEditor(SCI_LINEFROMPOSITION, selStart);
 }
 
 int SciTEBase::GetCurrentScrollPosition() {
-	int lineDisplayTop = SendEditor(EM_GETFIRSTVISIBLELINE);
+	int lineDisplayTop = SendEditor(SCI_GETFIRSTVISIBLELINE);
 	return SendEditor(SCI_DOCLINEFROMVISIBLE, lineDisplayTop);
 }
 
@@ -2361,7 +2363,7 @@ void SciTEBase::UpdateStatusBar() {
 	if (sbVisible) {
 		SString msg;
 		int caretPos = SendEditor(SCI_GETCURRENTPOS);
-		int caretLine = SendEditor(EM_LINEFROMCHAR, caretPos);
+		int caretLine = SendEditor(SCI_LINEFROMPOSITION, caretPos);
 		int caretColumn = SendEditor(SCI_GETCOLUMN, caretPos);
 		msg = "Column=";
 		msg += SString(caretColumn + 1).c_str();
@@ -2406,8 +2408,8 @@ void SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, SString sv
 	WindowAccessor acc(wEditor.GetID(), props);
 	SString s;
 	int part = 0;
-	int thisLineStart = SendEditor(EM_LINEINDEX, line);
-	int nextLineStart = SendEditor(EM_LINEINDEX, line + 1);
+	int thisLineStart = SendEditor(SCI_POSITIONFROMLINE, line);
+	int nextLineStart = SendEditor(SCI_POSITIONFROMLINE, line + 1);
 	for (int pos = thisLineStart; pos < nextLineStart; pos++) {
 		if ((acc.StyleAt(pos) == style1) || (acc.StyleAt(pos) == style2)) {
 			char c[2];
@@ -2479,10 +2481,10 @@ int SciTEBase::GetIndentState(int line) {
 }
 
 void SciTEBase::AutomaticIndentation(char ch) {
-	CHARRANGE crange = GetSelection();
+	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
 	int curLine = GetCurrentLineNumber();
-	int thisLineStart = SendEditor(EM_LINEINDEX, curLine);
+	int thisLineStart = SendEditor(SCI_POSITIONFROMLINE, curLine);
 	int indent = GetLineIndentation(curLine - 1);
 	int indentBlock = indent;
 	int backLine = curLine - 1;
@@ -2536,7 +2538,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 // Upon a character being added, SciTE may decide to perform some action
 // such as displaying a completion list.
 void SciTEBase::CharAdded(char ch) {
-	CHARRANGE crange = GetSelection();
+	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
 	int selEnd = crange.cpMax;
 	if ((selEnd == selStart) && (selStart > 0)) {
@@ -2613,7 +2615,7 @@ void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem 
 	}
 }
 
-int ControlIDOfCommand(WPARAM wParam) {
+int ControlIDOfCommand(unsigned long wParam) {
 	return wParam & 0xffff;
 }
 
@@ -2686,23 +2688,23 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 
 	case IDM_UNDO:
-		SendFocused(WM_UNDO);
+		SendFocused(SCI_UNDO);
 		break;
 	case IDM_REDO:
 		SendFocused(SCI_REDO);
 		break;
 
 	case IDM_CUT:
-		SendFocused(WM_CUT);
+		SendFocused(SCI_CUT);
 		break;
 	case IDM_COPY:
-		SendFocused(WM_COPY);
+		SendFocused(SCI_COPY);
 		break;
 	case IDM_PASTE:
-		SendFocused(WM_PASTE);
+		SendFocused(SCI_PASTE);
 		break;
 	case IDM_CLEAR:
-		SendFocused(WM_CLEAR);
+		SendFocused(SCI_CLEAR);
 		break;
 	case IDM_SELECTALL:
 		SendFocused(SCI_SELECTALL);
@@ -3018,7 +3020,7 @@ void SciTEBase::Expand(int &line, bool doExpand, bool force, int visLevels, int 
 
 void SciTEBase::FoldAll() {
 	SendEditor(SCI_COLOURISE, 0, -1);
-	int maxLine = SendEditor(EM_GETLINECOUNT);
+	int maxLine = SendEditor(SCI_GETLINECOUNT);
 	bool expanding = true;
 	for (int lineSeek = 0; lineSeek < maxLine; lineSeek++) {
 		if (SendEditor(SCI_GETFOLDLEVEL, lineSeek) & SC_FOLDLEVELHEADERFLAG) {
@@ -3045,15 +3047,15 @@ void SciTEBase::FoldAll() {
 }
 
 void SciTEBase::EnsureRangeVisible(int posStart, int posEnd) {
-	int lineStart = SendEditor(EM_LINEFROMCHAR, Platform::Minimum(posStart, posEnd));
-	int lineEnd = SendEditor(EM_LINEFROMCHAR, Platform::Maximum(posStart, posEnd));
+	int lineStart = SendEditor(SCI_LINEFROMPOSITION, Platform::Minimum(posStart, posEnd));
+	int lineEnd = SendEditor(SCI_LINEFROMPOSITION, Platform::Maximum(posStart, posEnd));
 	for (int line = lineStart; line <= lineEnd; line++) {
 		SendEditor(SCI_ENSUREVISIBLE, line);
 	}
 }
 
 bool SciTEBase::MarginClick(int position, int modifiers) {
-	int lineClick = SendEditor(EM_LINEFROMCHAR, position);
+	int lineClick = SendEditor(SCI_LINEFROMPOSITION, position);
 	//Platform::DebugPrintf("Margin click %d %d %x\n", position, lineClick,
 	//	SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG);
 	if ((modifiers & SHIFT_PRESSED) && (modifiers & LEFT_CTRL_PRESSED)) {
@@ -3080,7 +3082,8 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 void SciTEBase::Notify(SCNotification *notification) {
 	//Platform::DebugPrintf("Notify %d\n", notification->nmhdr.code);
 	switch (notification->nmhdr.code) {
-	case EN_SETFOCUS:
+	case SCEN_SETFOCUS:
+	case SCEN_KILLFOCUS:
 		CheckMenus();
 		break;
 
@@ -3089,13 +3092,13 @@ void SciTEBase::Notify(SCNotification *notification) {
 #ifdef OLD_CODE
 			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
 				int endStyled = SendEditor(SCI_GETENDSTYLED);
-				int lineEndStyled = SendEditor(EM_LINEFROMCHAR, endStyled);
-				endStyled = SendEditor(EM_LINEINDEX, lineEndStyled);
+				int lineEndStyled = SendEditor(SCI_LINEFROMPOSITION, endStyled);
+				endStyled = SendEditor(SCI_POSITIONFROMLINE, lineEndStyled);
 				Colourise(endStyled, notification->position);
 			} else {
 				int endStyled = SendOutput(SCI_GETENDSTYLED);
-				int lineEndStyled = SendOutput(EM_LINEFROMCHAR, endStyled);
-				endStyled = SendOutput(EM_LINEINDEX, lineEndStyled);
+				int lineEndStyled = SendOutput(SCI_LINEFROMPOSITION, endStyled);
+				endStyled = SendOutput(SCI_POSITIONFROMLINE, lineEndStyled);
 				Colourise(endStyled, notification->position, false);
 			}
 #endif 
@@ -3163,9 +3166,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_SAVE, isDirty);
-	EnableAMenuItem(IDM_UNDO, SendFocused(EM_CANUNDO));
+	EnableAMenuItem(IDM_UNDO, SendFocused(SCI_CANUNDO));
 	EnableAMenuItem(IDM_REDO, SendFocused(SCI_CANREDO));
-	EnableAMenuItem(IDM_PASTE, SendFocused(EM_CANPASTE));
+	EnableAMenuItem(IDM_PASTE, SendFocused(SCI_CANPASTE));
 	EnableAMenuItem(IDM_FINDINFILES, !executing);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);

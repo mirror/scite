@@ -18,7 +18,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include "WinDefs.h"
+//#include "WinDefs.h"
 
 #include "SciTE.h"
 #include "PropSet.h"
@@ -117,7 +117,7 @@ protected:
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
 	virtual void ShowStatusBar();
-	void Command(WPARAM wParam, LPARAM lParam = 0);
+	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute();
 
 	// GTK+ Signal Handlers
@@ -356,9 +356,9 @@ void SciTEGTK::Notify(SCNotification *notification) {
 			if (notification->modifiers & LEFT_ALT_PRESSED)
 				mods |= GDK_MOD1_MASK;
 			//Platform::DebugPrintf("SCN_KEY: %d %d\n", notification->ch, mods);
-			if ((mods == GDK_CONTROL_MASK) && (notification->ch == VK_TAB)) {
+			if ((mods == GDK_CONTROL_MASK) && (notification->ch == SCK_TAB)) {
 				Command(IDM_NEXTFILE);
-			} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK ) && (notification->ch == VK_TAB)) {
+			} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK ) && (notification->ch == SCK_TAB)) {
 				Command(IDM_PREVFILE);
 			} else if ((mods == GDK_SHIFT_MASK ) && (notification->ch == GDK_F3)) {
 				Command(IDM_FINDNEXTBACK);
@@ -396,16 +396,18 @@ void SciTEGTK::ShowStatusBar() {
 	}
 }
 
-void SciTEGTK::Command(WPARAM wParam, LPARAM) {
+void SciTEGTK::Command(unsigned long wParam, long) {
 	int cmdID = ControlIDOfCommand(wParam);
 	switch (cmdID) {
-
+		
+#ifdef EN_SETFOCUS
 	case IDM_SRCWIN:
 	case IDM_RUNWIN:
 		if ((wParam >> 16) == EN_SETFOCUS) 
 			CheckMenus();
 		break;
-
+#endif
+		
 	default:
 		SciTEBase::MenuCommand(cmdID);
 	}
@@ -837,7 +839,7 @@ int xsystem(const char *s, const char *resultsFile) {
 void SciTEGTK::Execute() {
 	SciTEBase::Execute();
 
-	SendOutput(SCI_GOTOPOS, SendOutput(WM_GETTEXTLENGTH));
+	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	originalEnd = SendOutput(SCI_GETCURRENTPOS);
 
 	OutputAppendString(">");
@@ -1116,7 +1118,7 @@ void SciTEGTK::MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *) {
 
 void SciTEGTK::CommandSignal(GtkWidget *, gint wParam, gpointer lParam, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("Command: %x %x %x\n", w, wParam, lParam);
-	scitew->Command(wParam, reinterpret_cast<LPARAM>(lParam));
+	scitew->Command(wParam, reinterpret_cast<long>(lParam));
 }
 
 void SciTEGTK::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciTEGTK *scitew) {
