@@ -611,41 +611,14 @@ void SciTEWin::ProcessExecute() {
 
 			Sleep(100L);
 
-			if (cancelFlag) {
-				::TerminateProcess(pi.hProcess, 1);
-				break;
-			}
-
-			bool NTOrData = true;
-
 			DWORD bytesRead = 0;
-
-			if (windows95) {
-				DWORD bytesAvail = 0;
-				if (::PeekNamedPipe(hPipeRead, buffer,
-				                    sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
-					if (0 == bytesAvail) {
-						NTOrData = false;
-						DWORD dwExitCode = STILL_ACTIVE;
-						if (::GetExitCodeProcess(pi.hProcess, &dwExitCode)) {
-							if (STILL_ACTIVE != dwExitCode) {
-								// Process is dead, but wait a second in case there is some output in transit
-								if (timeDetectedDeath == 0) {
-									timeDetectedDeath = ::GetTickCount();
-								} else {
-									if ((::GetTickCount() - timeDetectedDeath) >
-									        static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
-										completed = true;    // It's a dead process
-									}
-
-								}
-							}
-						}
-					}
-				}
+			DWORD bytesAvail = 0;
+			if (!::PeekNamedPipe(hPipeRead, buffer,
+				                sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+				bytesAvail = 0;
 			}
 
-			if (!completed && NTOrData) {
+			if (bytesAvail > 0) {
 				int bTest = ::ReadFile(hPipeRead, buffer,
 				                       sizeof(buffer), &bytesRead, NULL);
 
@@ -660,6 +633,30 @@ void SciTEWin::ProcessExecute() {
 				} else {
 					completed = true;
 				}
+			} else {
+				DWORD dwExitCode = STILL_ACTIVE;
+				if (::GetExitCodeProcess(pi.hProcess, &dwExitCode)) {
+					if (STILL_ACTIVE != dwExitCode) {
+						if (windows95) {
+							// Process is dead, but wait a second in case there is some output in transit
+							if (timeDetectedDeath == 0) {
+								timeDetectedDeath = ::GetTickCount();
+							} else {
+								if ((::GetTickCount() - timeDetectedDeath) >
+										static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
+									completed = true;    // It's a dead process
+								}
+							}
+						} else {	// NT, so dead already
+							completed = true;
+						}
+					}
+				}
+			}
+
+			if (cancelFlag) {
+				::TerminateProcess(pi.hProcess, 1);
+				completed = true;
 			}
 		}
 
