@@ -1167,7 +1167,7 @@ void SciTEBase::ReadProperties() {
 
 
 void SciTEBase::SetOverrideLanguage(int cmdID) {
-    // Zero all the style bytes
+	// Zero all the style bytes
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
 
 	overrideExtension = extList[cmdID - LEXER_BASE];
@@ -1636,6 +1636,7 @@ bool SciTEBase::SaveAs(char *file) {
 		SetFileName(file);
 		Save();
 		ReadProperties();
+		SendEditor(SCI_CLEARDOCUMENTSTYLE);
 		SendEditor(SCI_COLOURISE, 0, -1);
 		Redraw();
 		SetWindowName();
@@ -1648,7 +1649,6 @@ bool SciTEBase::SaveAs(char *file) {
 
 void SciTEBase::SaveToHTML(const char *saveName) {
 	SendEditor(SCI_COLOURISE, 0, -1);
-	//Colourise();   	// Ensure whole file styled
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;
@@ -3018,7 +3018,6 @@ void SciTEBase::Expand(int &line, bool doExpand, bool force, int visLevels, int 
 
 void SciTEBase::FoldAll() {
 	SendEditor(SCI_COLOURISE, 0, -1);
-	//Colourise();
 	int maxLine = SendEditor(EM_GETLINECOUNT);
 	bool expanding = true;
 	for (int lineSeek = 0; lineSeek < maxLine; lineSeek++) {
