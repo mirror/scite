@@ -167,7 +167,7 @@ static void HackColour(int &n) {
 		n = 0x80;
 }
 
-SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
+SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) {
 	codePage = 0;
 	characterSet = 0;
 	unicodeMode = 0; // Set to 'unknown'

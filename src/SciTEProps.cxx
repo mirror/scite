@@ -65,7 +65,7 @@ const char menuAccessIndicator[] = "&";
 #include "Extender.h"
 #include "SciTEBase.h"
 
-PropSetFile::PropSetFile() {}
+PropSetFile::PropSetFile(bool lowerKeys_) : lowerKeys(lowerKeys_) {}
 
 PropSetFile::~PropSetFile() {}
 
@@ -139,6 +139,13 @@ void PropSetFile::ReadFromMemory(const char *data, int len, const char *director
 	bool ifIsTrue = true;
 	while (len > 0) {
 		GetFullLine(pd, len, lineBuffer, sizeof(lineBuffer));
+		if (lowerKeys) {
+			for (int i=0; (i<len) && (lineBuffer[i] != '='); i++) {
+				if ((lineBuffer[i] >= 'A') && (lineBuffer[i] <= 'Z')) {
+					lineBuffer[i] = lineBuffer[i] - 'A' + 'a';
+				}
+			}
+		}
 		ifIsTrue = ReadLine(lineBuffer, ifIsTrue, directoryForImports, imports, sizeImports);
 	}
 }
@@ -227,7 +234,7 @@ void SciTEBase::ReadGlobalPropFile() {
 			propsEmbed.Set(key, v+1);
 		}
 	}
-	
+
 	for (int stackPos = 0; stackPos < importMax; stackPos++) {
 		importFiles[stackPos] = "";
 	}
@@ -1055,6 +1062,7 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 	SString translation = s;
 	int ellipseIndicator = translation.remove("...");
 	int accessKeyPresent = translation.remove(menuAccessIndicator);
+	translation.lowercase();
 	translation = propsUI.Get(translation.c_str());
 	if (translation.length()) {
 		if (ellipseIndicator)

@@ -99,8 +99,9 @@ public:
 };
 
 class PropSetFile : public PropSet {
+	bool lowerKeys;
 public:
-	PropSetFile();
+	PropSetFile(bool lowerKeys_=false);
 	~PropSetFile();
 	bool ReadLine(const char *data, bool ifIsTrue, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 	void ReadFromMemory(const char *data, int len, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
