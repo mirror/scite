@@ -491,8 +491,7 @@ void SciTEWin::Print(
 	SString footerFormat = props.Get("print.footer.format");
 
 	TEXTMETRIC tm;
-	SString headerOrFooter;
-	headerOrFooter.assign("", MAX_PATH + 100);	// Usually the path, date et page number
+	SString headerOrFooter;	// Usually the path, date and page number
 
 	SString headerStyle = props.Get("print.header.style");
 	StyleDefinition sdHeader(headerStyle.c_str());

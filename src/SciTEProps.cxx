@@ -347,7 +347,7 @@ eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED) {
 		}
 		if (0 == strcmp(opt, "font")) {
 			specified = static_cast<flags>(specified | sdFont);
-			font.assign(colon);
+			font = colon;
 		}
 		if (0 == strcmp(opt, "fore")) {
 			specified = static_cast<flags>(specified | sdFore);
