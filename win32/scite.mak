@@ -90,6 +90,7 @@ OBJS=\
 	SciTEIO.obj \
 	Exporters.obj \
 	SciTEProps.obj \
+	Utf8_16.obj \
 	SciTEWin.obj \
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
@@ -130,6 +131,7 @@ OBJSSTATIC=\
 	SciTEIO.obj \
 	Exporters.obj \
 	SciTEProps.obj \
+	Utf8_16.obj \
 	Sc1.obj \
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
@@ -318,7 +320,8 @@ SciTEIO.obj: \
 	../../scintilla/include/WindowAccessor.h \
 	../../scintilla/include/Scintilla.h \
 	../src/Extender.h \
-	../src/SciTEBase.h
+	../src/SciTEBase.h \
+	../src/Utf8_16.h
 SciTEProps.obj: \
 	../src/SciTEProps.cxx \
 	../../scintilla/include/Platform.h \

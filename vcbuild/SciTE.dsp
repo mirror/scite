@@ -147,6 +147,10 @@ SOURCE=..\..\scintilla\Src\UniConversion.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\Utf8_16.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\Src\WindowAccessor.cxx
 # End Source File
 # End Group

@@ -169,6 +169,7 @@ void SciTEBase::SetDocumentAt(int index) {
 	Buffer bufferNext = buffers.buffers[buffers.current];
 	isDirty = bufferNext.isDirty;
 	useMonoFont = bufferNext.useMonoFont;
+	unicodeMode = bufferNext.unicodeMode;
 	fileModTime = bufferNext.fileModTime;
 	overrideExtension = bufferNext.overrideExtension;
 	SetFileName(bufferNext.FullPath());
@@ -177,6 +178,11 @@ void SciTEBase::SetDocumentAt(int index) {
 	ReadProperties();
 	if (useMonoFont) {
 		SetMonoFont();
+	}
+	if (unicodeMode != 0) {
+		// Override the code page if Unicode
+		codePage = SC_CP_UTF8;
+		SendEditor(SCI_SETCODEPAGE, codePage);
 	}
 	isReadOnly = SendEditor(SCI_GETREADONLY);
 
@@ -203,6 +209,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[buffers.current].useMonoFont = useMonoFont;
 		buffers.buffers[buffers.current].fileModTime = fileModTime;
 		buffers.buffers[buffers.current].overrideExtension = overrideExtension;
+		buffers.buffers[buffers.current].unicodeMode = unicodeMode;
 	}
 }
 
@@ -461,6 +468,7 @@ void SciTEBase::Close(bool updateUI) {
 		Buffer bufferNext = buffers.buffers[buffers.current];
 		isDirty = bufferNext.isDirty;
 		useMonoFont = bufferNext.useMonoFont;
+		unicodeMode = bufferNext.unicodeMode;
 		fileModTime = bufferNext.fileModTime;
 		overrideExtension = bufferNext.overrideExtension;
 		if (updateUI)
@@ -474,6 +482,11 @@ void SciTEBase::Close(bool updateUI) {
 			ReadProperties();
 			if (useMonoFont) {
 				SetMonoFont();
+			}
+			if (unicodeMode != 0) {
+				// Override the code page if Unicode
+				codePage = SC_CP_UTF8;
+				SendEditor(SCI_SETCODEPAGE, codePage);
 			}
 			isReadOnly = SendEditor(SCI_GETREADONLY);
 			DisplayAround(bufferNext);

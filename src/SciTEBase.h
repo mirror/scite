@@ -147,16 +147,18 @@ public:
 	sptr_t doc;
 	bool isDirty;
 	bool useMonoFont;
+	int unicodeMode;
 	time_t fileModTime;
 	SString overrideExtension;
 	Buffer() :
-		RecentFile(), doc(0), isDirty(false), useMonoFont(false), fileModTime(0) {
+		RecentFile(), doc(0), isDirty(false), useMonoFont(false), unicodeMode(0), fileModTime(0) {
 	}
 
 	void Init() {
 		RecentFile::Init();
 		isDirty = false;
 		useMonoFont = false;
+		unicodeMode = 0;
 		fileModTime = 0;
 		overrideExtension = "";
 	}
@@ -300,6 +302,7 @@ protected:
 
 	int codePage;
 	int characterSet;
+	int unicodeMode;
 	SString language;
 	int lexLanguage;
 	SString overrideExtension;	///< User has chosen to use a particular language

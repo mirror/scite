@@ -49,6 +49,7 @@
 #define IDM_PASTE			205
 #define IDM_CLEAR			206
 #define IDM_SELECTALL		207
+#define IDM_PASTEANDDOWN	208
 #define IDM_FIND			210
 #define IDM_FINDNEXT			211
 #define IDM_FINDNEXTBACK		212

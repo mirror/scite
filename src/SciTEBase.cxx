@@ -166,6 +166,7 @@ static void HackColour(int &n) {
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	codePage = 0;
 	characterSet = 0;
+	unicodeMode = 0; // Set to 'unknown'
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	functionDefinition = 0;
@@ -2687,6 +2688,15 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 	case IDM_PASTE:
 		SendFocused(SCI_PASTE);
+		break;
+	case IDM_PASTEANDDOWN:
+		{
+		int pos = SendFocused(SCI_GETCURRENTPOS);
+		SendFocused(SCI_PASTE);
+		SendEditor(SCI_SETCURRENTPOS, pos);
+		SendFocused(SCI_CHARLEFT);
+		SendFocused(SCI_LINEDOWN);
+		}
 		break;
 	case IDM_CLEAR:
 		SendFocused(SCI_CLEAR);

@@ -41,7 +41,7 @@ LexPerl.o LexPython.o LexRuby.o LexSQL.o LexVB.o
 
 OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o WindowAccessor.o \
-PropSet.o PlatWin.o UniConversion.o SciTERes.o DirectorExtension.o
+PropSet.o PlatWin.o UniConversion.o Utf8_16.o SciTERes.o DirectorExtension.o
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
@@ -138,7 +138,7 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o SciTEBase.o SciTEBuffers.o \
 	WindowAccessor.o DocumentAccessor.o KeyWords.o ExternalLexer.o StyleContext.o\
 	$(LEXOBJS) PropSet.o \
 	ContractionState.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
-	UniConversion.o KeyMap.o Indicator.o LineMarker.o RESearch.o Style.o \
+	UniConversion.o Utf8_16.o KeyMap.o Indicator.o LineMarker.o RESearch.o Style.o \
 	ViewStyle.o AutoComplete.o DirectorExtension.o
 
 $(PROGSTATIC): $(OBJSSTATIC)

@@ -58,6 +58,7 @@
 #include "WindowAccessor.h"
 #include "Scintilla.h"
 #include "Extender.h"
+#include "Utf8_16.h"
 #include "SciTEBase.h"
 
 #ifdef unix
@@ -328,6 +329,8 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 }
 
 void SciTEBase::OpenFile(bool initialCmdLine) {
+	Utf8_16_Read convert;
+
 	FILE *fp = fopen(fullPath, fileRead);
 	if (fp || initialCmdLine) {
 		// If initial run and no fp, just open an empty buffer
@@ -339,10 +342,18 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 			char data[blockSize];
 			size_t lenFile = fread(data, 1, sizeof(data), fp);
 			while (lenFile > 0) {
-				SendEditorString(SCI_ADDTEXT, lenFile, data);
+				lenFile = convert.convert(data, lenFile);
+				SendEditorString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
 				lenFile = fread(data, 1, sizeof(data), fp);
 			}
 			fclose(fp);
+			unicodeMode = convert.getEncoding();
+			if (unicodeMode != 0) {
+				// Override the code page if Unicode
+				codePage = SC_CP_UTF8;
+				SendEditor(SCI_SETCODEPAGE, codePage);
+			}
+
 			if (props.GetInt("eol.auto")) {
 				int linesCR;
 				int linesLF;
@@ -703,7 +714,11 @@ int StripTrailingSpaces(char *data, int ds, bool lastBlock) {
 
 // Writes the buffer to the given filename
 bool SciTEBase::SaveBuffer(const char *saveName) {
-	FILE *fp = fopen(saveName, fileWrite);
+	Utf8_16_Write convert;
+
+	convert.setEncoding(static_cast<Utf8_16::encodingType>(unicodeMode));
+
+	FILE *fp = convert.fopen(saveName, fileWrite);
 	if (fp) {
 		char data[blockSize + 1];
 		int lengthDoc = LengthDocument();
@@ -715,10 +730,10 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 			if (props.GetInt("strip.trailing.spaces"))
 				grabSize = StripTrailingSpaces(
 				               data, grabSize, grabSize != blockSize);
-			fwrite(data, grabSize, 1, fp);
+			convert.fwrite(data, grabSize);
 		}
-		fclose(fp);
-		return true;	  
+		convert.fclose();
+		return true;
 	}
 	return false;
 }
@@ -765,6 +780,7 @@ bool SciTEBase::SaveAs(const char *file) {
 		Save();
 		ReadProperties();
 		useMonoFont = false;
+		unicodeMode = 0; // Not sure about this
 		SendEditor(SCI_CLEARDOCUMENTSTYLE);
 		SendEditor(SCI_COLOURISE, 0, -1);
 		Redraw();
