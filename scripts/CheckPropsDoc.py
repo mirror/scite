@@ -30,7 +30,25 @@ for filename in os.listdir(srcRoot):
 			if src.count(".cxx"):
 				srcPaths.append(dirname + os.sep + src)
 
+def nameOKSrc(src):
+	if os.path.splitext(srcPath)[1] not in [".cxx", ".h"]:
+		return False
+	if "lua" in srcPath.lower():
+		return False
+	if "IFaceTable" in srcPath:
+		return False
+	return True
+
+def grabQuoted(s):
+	if '"' in s:
+		s = s[s.find('"')+1:]
+		if '"' in s:
+			return s[:s.find('"')]
+	return ""
+
 propertyNames = {}
+literalStrings = set()
+dontLook = False	# ignore contributor names as they don't get localised
 #print srcPaths
 for srcPath in srcPaths:
 	srcFile = open(srcPath)
@@ -47,6 +65,14 @@ for srcPath in srcPaths:
 					if propertyName:
 						propertyNames[propertyName] = 0
 						#print propertyName
+		if '"' in srcLine and nameOKSrc(srcPath):
+			if "Atsuo" in srcLine or '{"IDM_' in srcLine or dontLook:
+				dontLook = ";" not in srcLine
+			elif not srcLine.startswith("#"):
+				srcLine = grabQuoted(srcLine)
+				if srcLine:
+					if srcLine[:1] not in ["<"]:
+						literalStrings.add(srcLine)
 	srcFile.close()
 
 docFile = open(docFileName, "rt")
@@ -112,3 +138,52 @@ for filename in os.listdir(srcRoot + os.sep + "src"):
 						fileOfProp[key] =filename
 		propsFile.close()
 """
+
+propertiesSet = set(propertyNames.keys())
+#~ print "# Properties"
+#~ print "\n".join(sorted(list(propertiesSet)))
+
+localeFileName = srcRoot + "/win32/locale.properties"
+localeSet = set()
+for line in file(localeFileName):
+	if not line.startswith("#"):
+		line = line.strip().strip("=")
+		localeSet.add(line.lower())
+		
+#~ print "# Locale"
+#~ print "\n".join(sorted(list(localeSet)))
+
+resourceFileName = srcRoot + "/win32/SciTERes.rc"
+resourceSet = set()
+for line in file(resourceFileName):
+	line = line.strip()
+	if "VIRTKEY" not in line and \
+		"VALUE" not in line and \
+		"1234567" not in line and \
+		not line.startswith("BLOCK") and \
+		not line.startswith("FONT") and \
+		not line.startswith("ICON") and \
+		not line.startswith("ID") and \
+		"#include" not in line:
+		#~ print "::", line
+		line = grabQuoted(line)
+		if line:
+			if '\\t' in line:
+				line = line[:line.find('\\t')]
+			line = line.replace('&','')
+			line = line.replace('...','')
+			if len(line) > 2:
+				resourceSet.add(line)
+		
+#~ print "# Resource"
+#~ print "\n".join(sorted(list(resourceSet)))
+
+print "# Missing localisation of resource"
+for l in sorted(resourceSet):
+	if l.lower() not in localeSet:
+		print l
+
+#~ literalStrings = literalStrings.difference(propertiesSet)
+#~ print "# Literals", len(literalStrings)
+#~ lits = sorted(list(literalStrings))
+#~ print "\n".join(lits)
