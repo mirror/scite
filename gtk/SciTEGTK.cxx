@@ -122,6 +122,8 @@ protected:
 	int originalEnd;
 	int fdFIFO;
 	int pidShell;
+	int exitStatus;
+	guint pollID;
 	char resultsFile[MAX_PATH];
 	int inputHandle;
 	ElapsedTime commandTime;
@@ -235,7 +237,7 @@ protected:
 	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
 	void Command(unsigned long wParam, long lParam = 0);
-	void ContinueExecute();
+	void ContinueExecute(int fromPoll);
 
 	bool SendPipeCommand(const char *pipeCommand);
 	bool CreatePipe(bool forceNew = false);
@@ -309,6 +311,8 @@ public:
 	void ProcessExecute();
 	virtual void Execute();
 	virtual void StopExecute();
+	static int PollTool(SciTEGTK *scitew);
+	static void ChildSignal(int);
 };
 
 SciTEGTK *SciTEGTK::instance;
@@ -319,6 +323,8 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	originalEnd = 0;
 	fdFIFO = 0;
 	pidShell = 0;
+	exitStatus = 0;
+	pollID = 0;
 	sprintf(resultsFile, "/tmp/SciTE%x.results",
 	        static_cast<int>(getpid()));
 	inputHandle = 0;
@@ -1194,17 +1200,20 @@ void SciTEGTK::ExecuteNext() {
 	}
 }
 
-void SciTEGTK::ContinueExecute() {
+void SciTEGTK::ContinueExecute(int fromPoll) {
 	char buf[8192];
 	int count = read(fdFIFO, buf, sizeof(buf) - 1);
 	if (count > 0) {
 		buf[count] = '\0';
 		OutputAppendString(buf);
 	} else if (count == 0) {
-		int exitcode = 0;
-		wait(&exitcode);
-		SString sExitMessage(exitcode);
+		SString sExitMessage(WEXITSTATUS(exitStatus));
 		sExitMessage.insert(0, ">Exit code: ");
+		if (WIFSIGNALED(exitStatus)) {
+			SString sSignal(WTERMSIG(exitStatus));
+			sSignal.insert(0, " Signal: ");
+			sExitMessage += sSignal;
+		}
 		if (timeCommands) {
 			sExitMessage += "    Time: ";
 			sExitMessage += SString(commandTime.Duration(), 3);
@@ -1218,17 +1227,23 @@ void SciTEGTK::ContinueExecute() {
 		returnOutputToCommand = true;
 		gdk_input_remove(inputHandle);
 		inputHandle = 0;
+		gtk_timeout_remove(pollID);
+		pollID = 0;
 		close(fdFIFO);
 		fdFIFO = 0;
 		unlink(resultsFile);
+		pidShell = 0;
 		ExecuteNext();
 	} else { // count < 0
-		OutputAppendString(">End Bad\n");
+		// The FIFO is not ready - expected when called from polling callback.
+		if (!fromPoll) {
+			OutputAppendString(">End Bad\n");
+		}
 	}
 }
 
 void SciTEGTK::IOSignal(SciTEGTK *scitew) {
-	scitew->ContinueExecute();
+	scitew->ContinueExecute(FALSE);
 }
 
 int xsystem(const char *s, const char *resultsFile) {
@@ -1297,10 +1312,13 @@ void SciTEGTK::Execute() {
 		fdFIFO = open(resultsFile, O_RDONLY | O_NONBLOCK);
 		if (fdFIFO < 0) {
 			OutputAppendString(">Failed to open\n");
+			fdFIFO = 0;
 			return;
 		}
 		inputHandle = gdk_input_add(fdFIFO, GDK_INPUT_READ,
 		                            (GdkInputFunction) IOSignal, this);
+		// Also add a background task in case there is no output from the tool
+		pollID = gtk_timeout_add(200, SciTEGTK::PollTool, this);
 	}
 }
 
@@ -2746,9 +2764,20 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 
 // Avoid zombie detached processes by reaping their exit statuses when
 // they are shut down.
-void child_signal(int) {
+void SciTEGTK::ChildSignal(int) {
 	int status = 0;
-	wait(&status);
+	int pid = wait(&status);
+	if (pid == instance->pidShell) {
+		// If this child is the currently running tool, save the exit status
+		instance->pidShell = 0;
+		instance->exitStatus = status;
+	}
+}
+
+// Detect if the tool has exited without producing any output
+int SciTEGTK::PollTool(SciTEGTK *scitew) {
+	scitew->ContinueExecute(TRUE);
+	return TRUE;
 }
 
 int main(int argc, char *argv[]) {
@@ -2766,7 +2795,7 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
 
-	signal(SIGCHLD, child_signal);
+	signal(SIGCHLD, SciTEGTK::ChildSignal);
 
 #ifdef __vms
 	// Store the path part of the module name
