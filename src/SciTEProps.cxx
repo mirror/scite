@@ -332,7 +332,7 @@ int IntFromHexDigit(const char ch) {
 		return ch - 'a' + 10;
 	} else {
 		return 0;
-}
+	}
 }
 
 int IntFromHexByte(const char *hexByte) {
@@ -672,6 +672,8 @@ static const char *propertiesToForward[] = {
 	"lexer.tex.use.keywords",
 	"lexer.metapost.interface.default",
 	"lexer.metapost.comment.process",
+	"nsis.uservars",
+	"nsis.ignorecase",
 
 	0,
 };
