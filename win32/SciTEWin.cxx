@@ -320,6 +320,10 @@ static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
 		strncpy(path, home, lenPath);
 	} else {
 		::GetModuleFileName(0, path, lenPath);
+		// Remove the SciTE.exe 
+		char *lastSlash = strrchr(path, pathSepChar);
+		if (lastSlash)
+			*lastSlash = '\0';
 	}
 	path[lenPath - 1] = '\0';
 	ChopTerminalSlash(path);
