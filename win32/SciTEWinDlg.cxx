@@ -1057,6 +1057,7 @@ void SciTEWin::FindIncrement() {
 	fr.Flags = 0;
 	if (!reverseFind)
 		fr.Flags |= FR_DOWN;
+	findWhat.clear();
 	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 
