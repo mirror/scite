@@ -127,6 +127,7 @@ void SciTEBase::SetDocumentAt(int index) {
 	Buffer bufferNext = buffers.buffers[buffers.current];
 	overrideExtension = bufferNext.overrideExtension;
 	isDirty = bufferNext.isDirty;
+	fileModTime = bufferNext.fileModTime;
 	SetFileName(bufferNext.fileName.c_str());
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
@@ -149,6 +150,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[buffers.current].scrollPosition = GetCurrentScrollPosition();
 		buffers.buffers[buffers.current].isDirty = isDirty;
 		buffers.buffers[buffers.current].overrideExtension = overrideExtension;
+		buffers.buffers[buffers.current].fileModTime = fileModTime;
 	}
 }
 
@@ -160,9 +162,9 @@ bool SciTEBase::CanMakeRoom() {
 	if (IsBufferAvailable()) {
 		return true;
 	} else {
-		/* All available buffers are taken, try and close the current one */
+		// All available buffers are taken, try and close the current one
 		if (SaveIfUnsure(true) != IDCANCEL) {
-			/* The file isn't dirty, or the user agreed to close the current one */
+			// The file isn't dirty, or the user agreed to close the current one
 			return true;
 		}
 	}
@@ -312,6 +314,7 @@ void SciTEBase::Close(bool updateUI) {
 		Buffer bufferNext = buffers.buffers[buffers.current];
 		overrideExtension = bufferNext.overrideExtension;
 		isDirty = bufferNext.isDirty;
+		fileModTime = bufferNext.fileModTime;
 		if (updateUI)
 			SetFileName(bufferNext.fileName.c_str());
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
@@ -601,6 +604,8 @@ JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 		jobType = jobExtension;
 	else if (subsystem[0] == '4')
 		jobType = jobHelp;
+	else if (subsystem[0] == '5')
+		jobType = jobOtherHelp;
 	return jobType;
 }
 
