@@ -3388,7 +3388,6 @@ void SciTEBase::Notify(SCNotification *notification) {
 		if (extender)
 			handled = extender->OnDoubleClick();
 		if (!handled && notification->nmhdr.idFrom == IDM_RUNWIN) {
-			//Platform::DebugPrintf("Double click 0\n");
 			GoMessage(0);
 		}
 		break;

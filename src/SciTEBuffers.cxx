@@ -1120,12 +1120,12 @@ void SciTEBase::GoMessage(int dir) {
 			delete []cdoc;
 			return;
 		}
-		if (dir == 0)
-			dir = 1;
 		lookLine += dir;
 		if (lookLine < 0)
 			lookLine = maxLine - 1;
 		else if (lookLine >= maxLine)
 			lookLine = 0;
+		if (dir == 0)
+			return;
 	}
 }
