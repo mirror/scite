@@ -74,7 +74,7 @@ class PropSetFile : public PropSet {
 public:
 	PropSetFile();
 	~PropSetFile();
-	bool ReadLine(char *data, bool ifIsTrue, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
+	bool ReadLine(const char *data, bool ifIsTrue, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 	void ReadFromMemory(const char *data, int len, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 	void Read(const char *filename, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 };
