@@ -64,6 +64,7 @@ protected:
 
 	bool savingHTML;
 	bool savingRTF;
+	bool savingPDF;
 	bool dialogCanceled;
 	Window fileSelector;
 	Window findInFilesDialog;
@@ -219,6 +220,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	xor_gc = 0;
 	savingHTML = false;
 	savingRTF = false;
+	savingPDF = false;
 	dialogCanceled = false;
 	comboFiles = 0;
 	gotoEntry = 0;
@@ -698,6 +700,7 @@ bool SciTEGTK::OpenDialog() {
 bool SciTEGTK::SaveAsDialog() {
 	savingHTML = false;
 	savingRTF = false;
+	savingPDF = false;
 	if (!fileSelector.Created()) {
 		fileSelector = gtk_file_selection_new("Save File As");
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
@@ -771,7 +774,7 @@ void SciTEGTK::SaveAsRTF() {
 
 void SciTEGTK::SaveAsPDF() {
 	if (!fileSelector.Created()) {
-		savingRTF = true;
+		savingPDF = true;
 		fileSelector = gtk_file_selection_new("Save File As PDF");
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
@@ -1589,6 +1592,9 @@ void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	else if (scitew->savingRTF)
 		scitew->SaveToRTF(gtk_file_selection_get_filename(
 		                       GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
+	else if (scitew->savingPDF)
+		scitew->SaveToPDF(gtk_file_selection_get_filename(
+		                       GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
 	else
 		scitew->SaveAs(gtk_file_selection_get_filename(
 		                   GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
@@ -1652,6 +1658,7 @@ void SciTEGTK::CreateMenu() {
 		{"/File/_Export", "", 0, 0, "<Branch>"},
 		{"/File/Export/As _HTML", NULL, menuSig, IDM_SAVEASHTML, 0},
 		{"/File/Export/As _RTF", NULL, menuSig, IDM_SAVEASRTF, 0},
+		{"/File/Export/As _PDF", NULL, menuSig, IDM_SAVEASPDF, 0},
 		{"/File/sep1", NULL, NULL, 0, "<Separator>"},
 		{"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
 		{"/File/File1", "", menuSig, fileStackCmdID + 1, 0},
