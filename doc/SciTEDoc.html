@@ -885,6 +885,30 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          autocomplete.<i>lexer</i>.start.characters<br />
+          autocomplete.*.start.characters
+        </td>
+        <td>
+	If this setting is not empty, typing any of the characters will cause 
+	autocompletion to start. For example, if 
+	autocomplete.python.start.characters=. and the API file for Python 
+	contains "string.rjust" and "string.replace" then typing "string." will 
+	cause the autocompletion to display both identifiers.
+	The * form is used if there is no lexer specific setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          autocompleteword.automatic
+        </td>
+        <td>
+	If this setting is 1 then when typing a word, if only one word in the document
+	starts with that string then an autocompletion list is displayed with that word so it 
+	can be chosen by pressing Tab.
+        </td>
+      </tr>
+      <tr>
+        <td>
           calltip.<i>lexer</i>.ignorecase<br />
           calltip.*.ignorecase
         </td>
@@ -892,6 +916,23 @@ NameError: mistake
           When set to 1 the api file is searched in a case insensitive way to find the function
 	which will have its signature displayed as a calltip. The * form is use if there
 	is no lexer specific setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          calltip.<i>lexer</i>.word.characters<br />
+          calltip.*.word.characters
+        </td>
+        <td>
+	To determine the identifier to look up for calltips, a search is performed 
+	allowing the characters in this set to be included in the identifier. 
+	While the same setting can be used as for word.characters, sometimes 
+	additional characters may be allowed.
+	For example, in Python, '.' is not normally considered part of a word 
+	when selecting text, but it is good to allow "string.replace" to show a 
+	calltip so calltip.python.word.characters=._$(chars.alpha) would be a 
+	reasonable setting.
+	The * form is used if there is no lexer specific setting.
         </td>
       </tr>
       <tr>
