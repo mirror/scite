@@ -55,6 +55,8 @@
 	bool OnDoubleClick();<br />
 	bool OnUpdateUI();<br />
 	bool OnMarginClick();<br />
+	bool OnMacro(const char *, const char *);<br />
+	bool SendProperty(const char *);<br />
     </code>
 	<p>An extension must implement the Extension interface defined in scite/src/Extender.h
 	Only the first 4 methods must be implemented although an implementation can be as
