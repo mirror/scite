@@ -79,13 +79,13 @@ $(PROGSTATIC): $(OBJSSTATIC)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
 
 SciTEBase.o: SciTEBase.cxx Platform.h SciTE.h PropSet.h Accessor.h WindowAccessor.h \
- KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
+ KeyWords.h Scintilla.h SciLexer.h SciTEBase.h Extender.h
 SciTEWin.o: SciTEWin.cxx Platform.h SciTE.h PropSet.h Accessor.h WindowAccessor.h \
- KeyWords.h Scintilla.h SciTEBase.h
+ KeyWords.h Scintilla.h SciTEBase.h Extender.h
 
 #	$(CC) -Xlinker --subsystem -Xlinker windows -o $(PROGSTATIC) $(OBJSSTATIC) $(LDFLAGS)
 
-Sc1.o: SciTEWin.cxx SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h Scintilla.h
+Sc1.o: SciTEWin.cxx SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h Scintilla.h Extender.h
 	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
 
 SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h
