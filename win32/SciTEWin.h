@@ -39,10 +39,11 @@
 
 /// Structure passed back and forth with the Indentation Setting dialog
 typedef struct {
-    unsigned tabSize;
-    unsigned indentSize;
-    bool useTabs;
-} IndentationSettings;
+	unsigned tabSize;
+	unsigned indentSize;
+	bool useTabs;
+}
+IndentationSettings;
 
 /** Windows specific stuff.
  **/

@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
-#include <time.h>  	// For time_t
+#include <time.h>   	// For time_t
 
 #include "Platform.h"
 
@@ -124,11 +124,15 @@ void SciTEBase::SetDocumentAt(int index) {
 	Buffer bufferNext = buffers.buffers[buffers.current];
 	overrideExtension = bufferNext.overrideExtension;
 	isDirty = bufferNext.isDirty;
+	useMonoFont = bufferNext.useMonoFont;
 	fileModTime = bufferNext.fileModTime;
 	SetFileName(bufferNext.fileName.c_str());
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
 	ReadProperties();
+	if (useMonoFont) {
+		SetMonoFont();
+	}
 
 #if PLAT_WIN
 	// Tab Bar
@@ -138,6 +142,7 @@ void SciTEBase::SetDocumentAt(int index) {
 	DisplayAround(bufferNext);
 
 	CheckMenus();
+	UpdateStatusBar();
 
 	if (extender)
 		extender->OnSwitchFile(fullPath);
@@ -149,6 +154,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[buffers.current].selection = GetSelection();
 		buffers.buffers[buffers.current].scrollPosition = GetCurrentScrollPosition();
 		buffers.buffers[buffers.current].isDirty = isDirty;
+		buffers.buffers[buffers.current].useMonoFont = useMonoFont;
 		buffers.buffers[buffers.current].overrideExtension = overrideExtension;
 		buffers.buffers[buffers.current].fileModTime = fileModTime;
 	}
@@ -316,6 +322,7 @@ void SciTEBase::Close(bool updateUI) {
 		Buffer bufferNext = buffers.buffers[buffers.current];
 		overrideExtension = bufferNext.overrideExtension;
 		isDirty = bufferNext.isDirty;
+		useMonoFont = bufferNext.useMonoFont;
 		fileModTime = bufferNext.fileModTime;
 		if (updateUI)
 			SetFileName(bufferNext.fileName.c_str());
@@ -326,11 +333,16 @@ void SciTEBase::Close(bool updateUI) {
 		if (updateUI) {
 			SetWindowName();
 			ReadProperties();
+			if (useMonoFont) {
+				SetMonoFont();
+			}
 			DisplayAround(bufferNext);
 		}
 	}
-	if (updateUI)
+	if (updateUI) {
 		BuffersMenu();
+		UpdateStatusBar();
+	}
 }
 
 void SciTEBase::CloseAllBuffers() {
@@ -386,8 +398,8 @@ void SciTEBase::BuffersMenu() {
 			char titleTab[MAX_PATH + 20];
 			titleTab[0] = '\0';
 #if PLAT_WIN
-			sprintf(entry, "&%d ", (pos+1) % 10 ); // hotkey 1..0
-			sprintf(titleTab, "&%d ", (pos+1) % 10); // add hotkey to the tabbar
+			sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
+			sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
 #endif
 			if (IsUntitledFileName(buffers.buffers[pos].fileName.c_str())) {
 				strcat(entry, "Untitled");
@@ -446,7 +458,7 @@ void SciTEBase::SetFileStackMenu() {
 				char entry[MAX_PATH + 20];
 				entry[0] = '\0';
 #if PLAT_WIN
-				sprintf(entry, "&%d ", (stackPos+1) % 10);
+				sprintf(entry, "&%d ", (stackPos + 1) % 10);
 #endif
 				strcat(entry, recentFileStack[stackPos].fileName.c_str());
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, entry);
@@ -608,14 +620,14 @@ void SciTEBase::SetToolsMenu() {
 	menuPos++;
 	if (macrosEnabled) {
 		SetMenuItem(menuTools, menuPos++, IDM_MACRO_SEP, "");
-		SetMenuItem(menuTools, menuPos++, IDM_MACROLIST, 
-			"&List Macros...\tShift+F9");
-		SetMenuItem(menuTools, menuPos++, IDM_MACROPLAY, 
-			"Run Current &Macro\tF9");
-		SetMenuItem(menuTools, menuPos++, IDM_MACRORECORD, 
-			"&Record Macro\tCtrl+F9");
-		SetMenuItem(menuTools, menuPos++, IDM_MACROSTOPRECORD, 
-			"S&top Recording Macro\tCtrl+Shift+F9");
+		SetMenuItem(menuTools, menuPos++, IDM_MACROLIST,
+		            "&List Macros...\tShift+F9");
+		SetMenuItem(menuTools, menuPos++, IDM_MACROPLAY,
+		            "Run Current &Macro\tF9");
+		SetMenuItem(menuTools, menuPos++, IDM_MACRORECORD,
+		            "&Record Macro\tCtrl+F9");
+		SetMenuItem(menuTools, menuPos++, IDM_MACROSTOPRECORD,
+		            "S&top Recording Macro\tCtrl+Shift+F9");
 	}
 }
 
@@ -711,9 +723,9 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 				space++;
 			char *space2 = strchr(space, ' ');
 			if (space2) {
-                unsigned int len = space2 - space;
+				unsigned int len = space2 - space;
 				strncpy(sourcePath, space, len);
-                sourcePath[len] = '\0';
+				sourcePath[len] = '\0';
 				return atoi(space2) - 1;
 			}
 		}
@@ -753,10 +765,10 @@ void SciTEBase::GoMessage(int dir) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
-			SendOutput(SCI_MARKERSETFORE, 0, ColourOfProperty(props, 
-				"error.marker.fore", Colour(0x7f, 0, 0)));
-			SendOutput(SCI_MARKERSETBACK, 0, ColourOfProperty(props, 
-				"error.marker.back", Colour(0xff, 0xff, 0)));
+			SendOutput(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
+			           "error.marker.fore", Colour(0x7f, 0, 0)));
+			SendOutput(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
+			           "error.marker.back", Colour(0xff, 0xff, 0)));
 			SendOutput(SCI_MARKERADD, lookLine, 0);
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
 			char *cdoc = new char[lineLength + 1];
@@ -787,10 +799,10 @@ void SciTEBase::GoMessage(int dir) {
 				}
 				SendEditor(SCI_MARKERDELETEALL, 0);
 				SendEditor(SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
-				SendEditor(SCI_MARKERSETFORE, 0, ColourOfProperty(props, 
-					"error.marker.fore", Colour(0x7f, 0, 0)));
-				SendEditor(SCI_MARKERSETBACK, 0, ColourOfProperty(props, 
-					"error.marker.back", Colour(0xff, 0xff, 0)));
+				SendEditor(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
+				           "error.marker.fore", Colour(0x7f, 0, 0)));
+				SendEditor(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
+				           "error.marker.back", Colour(0xff, 0xff, 0)));
 				SendEditor(SCI_MARKERADD, sourceLine, 0);
 				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
 				EnsureRangeVisible(startSourceLine, startSourceLine);

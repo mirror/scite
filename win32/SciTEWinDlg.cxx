@@ -8,30 +8,39 @@
 #include "SciTEWin.h"
 
 /**
- * Flash the SciTE window to visually warn the user.
- * Flashing only the wEditor window would be better,
- * but I didn't get it to work...
+ * Flash the given window for the asked @a duration to visually warn the user.
  */
-void FlashThisWindow(HWND hWnd, int duration) {
-	::ShowWindow(hWnd, SW_HIDE);
-	::Sleep(duration);
-	::ShowWindow(hWnd, SW_SHOW);
+void FlashThisWindow(
+    HWND hWnd, 		///< Window to flash handle.
+    int duration) {	///< Duration of the flash state.
 
-	// This one is discarded: too discrete
-	//		::FlashWindow(wEditor.GetID(), FALSE);
-	//		::Sleep(100L);
-	//		::FlashWindow(wEditor.GetID(), TRUE);
+	HDC hDC;
+
+	hDC = ::GetDC(hWnd);
+	if (hDC != NULL) {
+		RECT rc;
+		::GetClientRect(hWnd, &rc);
+		::FillRect(hDC, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
+		::Sleep(duration);
+	}
+	::ReleaseDC(hWnd, hDC);
+	::InvalidateRect(hWnd, NULL, true);
 }
 
 /**
  * Play the given sound, loading if needed the corresponding DLL function.
  */
-void PlayThisSound(const char *sound, int duration, HMODULE &hMM) {
+void PlayThisSound(
+    const char *sound, 	///< Path to a .wav file or string with a frequency value.
+    int duration, 		///< If @a sound is a frequency, gives the duration of the sound.
+    HMODULE &hMM) {		///< Multimedia DLL handle.
+
 	bool bPlayOK = false;
 	int soundFreq;
 	if (*sound == '\0') {
 		soundFreq = -1;	// No sound at all
-	} else {
+	}
+	else {
 		soundFreq = atoi(sound);	// May be a frequency, not a filename
 	}
 
@@ -50,13 +59,16 @@ void PlayThisSound(const char *sound, int duration, HMODULE &hMM) {
 		}
 	}
 	if (!bPlayOK && soundFreq >= 0) {	// The sound could no be played, or user gave a frequency
+		// Will use the speaker to generate a sound
 		if (soundFreq < 37 || soundFreq > 32767) {
 			soundFreq = 440;
 		}
 		if (duration < 50) {
 			duration = 50;
 		}
-		::Beep(soundFreq, duration);	// Values are not used on Win9x
+		// soundFreq and duration are not used on Win9x
+		// On those systems, PC will either use the default sound event or emit a standard speaker sound
+		::Beep(soundFreq, duration);
 	}
 
 }
@@ -69,6 +81,9 @@ void SciTEWin::WarnUser(int warnID) {
 	switch (warnID) {
 	case warnFindWrapped:
 		warning = props.Get("warning.findwrapped");
+		break;
+	case warnNotFound:
+		warning = props.Get("warning.notfound");
 		break;
 	case warnWrongFile:
 		warning = props.Get("warning.wrongfile");
@@ -94,7 +109,7 @@ void SciTEWin::WarnUser(int warnID) {
 
 	int flashLen = atoi(flashDuration);
 	if (flashLen) {
-		FlashThisWindow(wSciTE.GetID(), flashLen);
+		FlashThisWindow(wEditor.GetID(), flashLen);
 	}
 	PlayThisSound(sound, atoi(soundDuration), hMM);
 }
@@ -363,49 +378,12 @@ void SciTEWin::SaveAsPDF() {
 }
 
 /**
- * Set up properties for FileTime, FileDate, CurrentTime, CurrentDate.
- */
-static void SetPrintProperties(
-		PropSet &ps,			///< Property set to update.
-		const char *fullPath) {	///< Full path of the file opened in the current buffer.
-
-    const int TEMP_LEN=100;
-	char temp[TEMP_LEN];
-	HANDLE hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-	if (hf != INVALID_HANDLE_VALUE) {
-		FILETIME ft;
-		::GetFileTime(hf, NULL, NULL, &ft);
-		FILETIME lft;
-		::FileTimeToLocalFileTime(&ft, &lft);
-		SYSTEMTIME st;
-		::FileTimeToSystemTime(&lft, &st);
-		::CloseHandle(hf);
-		::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
-			0, &st,
-			NULL, temp, TEMP_LEN);
-		ps.Set("FileTime", temp);
-		::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
-			DATE_SHORTDATE, &st,
-			NULL, temp, TEMP_LEN);
-		ps.Set("FileDate", temp);
-	}
-	::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
-		DATE_SHORTDATE, NULL, 	// Current date
-		NULL, temp, TEMP_LEN);
-	ps.Set("CurrentDate", temp);
-	::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
-		0, NULL, 	// Current time
-		NULL, temp, TEMP_LEN);
-	ps.Set("CurrentTime", temp);
-}
-
-/**
  * Display the Print dialog (if @a showDialog asks it),
  * allowing it to choose what to print on which printer.
  * If OK, print the user choice, with optionally defined header and footer.
  */
 void SciTEWin::Print(
-		bool showDialog) {	///< false if must print silently (using default settings).
+    bool showDialog) {	///< false if must print silently (using default settings).
 
 	PRINTDLG pdlg = {
 	    sizeof(PRINTDLG), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -535,8 +513,8 @@ void SciTEWin::Print(
 	StyleDefinition sdHeader(headerStyle.c_str());
 
 	int headerLineHeight = ::MulDiv(
-		(sdHeader.specified & StyleDefinition::sdSize) ? sdHeader.size : 9,
-		ptDpi.y, 72);
+	                           (sdHeader.specified & StyleDefinition::sdSize) ? sdHeader.size : 9,
+	                           ptDpi.y, 72);
 	HFONT fontHeader = ::CreateFont(headerLineHeight,
 	                                0, 0, 0,
 	                                sdHeader.bold ? FW_BOLD : FW_NORMAL,
@@ -553,8 +531,8 @@ void SciTEWin::Print(
 	StyleDefinition sdFooter(footerStyle.c_str());
 
 	int footerLineHeight = ::MulDiv(
-		(sdFooter.specified & StyleDefinition::sdSize) ? sdFooter.size : 9,
-		ptDpi.y, 72);
+	                           (sdFooter.specified & StyleDefinition::sdSize) ? sdFooter.size : 9,
+	                           ptDpi.y, 72);
 	HFONT fontFooter = ::CreateFont(footerLineHeight,
 	                                0, 0, 0,
 	                                sdFooter.bold ? FW_BOLD : FW_NORMAL,
@@ -620,7 +598,7 @@ void SciTEWin::Print(
 	bool printPage;
 	PropSet propsPrint;
 	propsPrint.superPS = &props;
-	SetPrintProperties(propsPrint, fullPath);
+	SetFileProperties(propsPrint);
 
 	while (lengthPrinted < lengthDoc) {
 		printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
@@ -634,18 +612,18 @@ void SciTEWin::Print(
 			::StartPage(hdc);
 
 			if (headerFormat.size()) {
-				SString sHeader=propsPrint.GetExpanded("print.header.format");
+				SString sHeader = propsPrint.GetExpanded("print.header.format");
 				::SetTextColor(hdc, sdHeader.fore.AsLong());
 				::SetBkColor(hdc, sdHeader.back.AsLong());
 				::SelectObject(hdc, fontHeader);
 				UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
 				RECT rcw = {frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight / 2,
-					frPrint.rc.right, frPrint.rc.top - headerLineHeight / 2};
+				            frPrint.rc.right, frPrint.rc.top - headerLineHeight / 2};
 				rcw.bottom = rcw.top + headerLineHeight;
-				::ExtTextOut(hdc, frPrint.rc.left+5, frPrint.rc.top - headerLineHeight / 2,
-					ETO_OPAQUE, &rcw, sHeader.c_str(), sHeader.length(), NULL);
+				::ExtTextOut(hdc, frPrint.rc.left + 5, frPrint.rc.top - headerLineHeight / 2,
+				             ETO_OPAQUE, &rcw, sHeader.c_str(), sHeader.length(), NULL);
 				::SetTextAlign(hdc, ta);
-				HPEN pen = ::CreatePen(0,1,sdHeader.fore.AsLong());
+				HPEN pen = ::CreatePen(0, 1, sdHeader.fore.AsLong());
 				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
 				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, NULL);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight / 4);
@@ -663,17 +641,17 @@ void SciTEWin::Print(
 
 		if (printPage) {
 			if (footerFormat.size()) {
-				SString sFooter=propsPrint.GetExpanded("print.footer.format");
+				SString sFooter = propsPrint.GetExpanded("print.footer.format");
 				::SetTextColor(hdc, sdFooter.fore.AsLong());
 				::SetBkColor(hdc, sdFooter.back.AsLong());
 				::SelectObject(hdc, fontFooter);
 				UINT ta = ::SetTextAlign(hdc, TA_TOP);
 				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2,
-					frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2};
-				::ExtTextOut(hdc, frPrint.rc.left+5, frPrint.rc.bottom + footerLineHeight / 2,
-					ETO_OPAQUE, &rcw, sFooter.c_str(), sFooter.length(), NULL);
+				            frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2};
+				::ExtTextOut(hdc, frPrint.rc.left + 5, frPrint.rc.bottom + footerLineHeight / 2,
+				             ETO_OPAQUE, &rcw, sFooter.c_str(), sFooter.length(), NULL);
 				::SetTextAlign(hdc, ta);
-				HPEN pen = ::CreatePen(0,1,sdFooter.fore.AsLong());
+				HPEN pen = ::CreatePen(0, 1, sdFooter.fore.AsLong());
 				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
 				::SetBkColor(hdc, sdFooter.fore.AsLong());
 				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 4, NULL);
@@ -761,12 +739,14 @@ static void FillComboFromMemory(HWND combo, const ComboMemory &mem) {
 BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static SciTEWin *sci;
 	// Avoid getting dialog items before set up or during tear down.
-	if (WM_SETFONT == message || WM_NCDESTROY == message)  
+	if (WM_SETFONT == message || WM_NCDESTROY == message)
 		return FALSE;
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
 	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
+	HWND wNoWrap = ::GetDlgItem(hDlg, IDNOWRAP);
+	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
 	HWND wUp = ::GetDlgItem(hDlg, IDDIRECTIONUP);
 	HWND wDown = ::GetDlgItem(hDlg, IDDIRECTIONDOWN);
 
@@ -782,6 +762,10 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->regExp)
 			::SendMessage(wRegExp, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->noWrap)
+			::SendMessage(wNoWrap, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->unSlash)
+			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->reverseFind) {
 			::SendMessage(wUp, BM_SETCHECK, BST_CHECKED, 0);
 		} else {
@@ -810,7 +794,11 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			sci->matchCase = BST_CHECKED ==
 			                 ::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
 			sci->regExp = BST_CHECKED ==
-			                 ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
+			              ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
+			sci->noWrap = BST_CHECKED ==
+			              ::SendMessage(wNoWrap, BM_GETCHECK, 0, 0);
+			sci->unSlash = BST_CHECKED ==
+			               ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
 			sci->reverseFind = BST_CHECKED ==
 			                   ::SendMessage(wUp, BM_GETCHECK, 0, 0);
 			sci->wFindReplace = 0;
@@ -829,7 +817,10 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	HWND wWholeWord = ::GetDlgItem(wFindReplace.GetID(), IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(wFindReplace.GetID(), IDMATCHCASE);
 	HWND wRegExp = ::GetDlgItem(wFindReplace.GetID(), IDREGEXP);
-	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
+	HWND wNoWrap = ::GetDlgItem(wFindReplace.GetID(), IDNOWRAP);
+	HWND wUnSlash = ::GetDlgItem(wFindReplace.GetID(), IDUNSLASH);
+
+	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		::GetDlgItemText(wFindReplace.GetID(), IDFINDWHAT, findWhat, sizeof(findWhat));
 		props.Set("find.what", findWhat);
 		memFinds.Insert(findWhat);
@@ -838,9 +829,13 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		matchCase = BST_CHECKED ==
 		            ::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
 		regExp = BST_CHECKED ==
-		            ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
+		         ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
+		noWrap = BST_CHECKED ==
+		         ::SendMessage(wNoWrap, BM_GETCHECK, 0, 0);
+		unSlash = BST_CHECKED ==
+		          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
 	}
-	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
+	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		::GetDlgItemText(wFindReplace.GetID(), IDREPLACEWITH, replaceWhat, sizeof(replaceWhat));
 		memReplaces.Insert(replaceWhat);
 	}
@@ -853,8 +848,8 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		} else {
 			FindNext(reverseFind);
 		}
-	} else if (cmd == IDREPLACEALL) {
-		ReplaceAll();
+	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
+		ReplaceAll(cmd == IDREPLACEINSEL);
 	}
 
 	return TRUE;
@@ -863,13 +858,15 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static SciTEWin *sci;
 	// Avoid getting dialog items before set up or during tear down.
-	if (WM_SETFONT == message || WM_NCDESTROY == message)  
+	if (WM_SETFONT == message || WM_NCDESTROY == message)
 		return FALSE;
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wReplaceWith = ::GetDlgItem(hDlg, IDREPLACEWITH);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
 	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
+	HWND wNoWrap = ::GetDlgItem(hDlg, IDNOWRAP);
+	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
 
 	switch (message) {
 
@@ -885,6 +882,10 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->regExp)
 			::SendMessage(wRegExp, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->noWrap)
+			::SendMessage(wNoWrap, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->unSlash)
+			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
 		return TRUE;
 
 	case WM_CLOSE:

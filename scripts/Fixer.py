@@ -4,6 +4,10 @@ import sys
 import string
 import os
 import glob
+import stat
+
+tempname = "FixStyle.tmp"
+recurse = 1
 
 def fixCode(code):
 	#code = string.replace(code, "if(", "if (")
@@ -29,15 +33,13 @@ def fixLine(line, inComment):
 		else:
 			line = fixCode(line)
 	return line, inComment
-
-tempname = "FixStyle.tmp"
-argname = sys.argv[1]
-for filename in glob.glob(argname):
+	
+def fixFile(filename):
 	os.system("astyle -tapO %s" % filename)
 	out = open(tempname, "wt")
 	cfile = open(filename, "rt")
 	lastLine = 1
-	print "processing", filename
+	#~ print "processing", filename
 	inComment = 0
 	for line in cfile.readlines():
 		line, inComment = fixLine(line, inComment)
@@ -50,3 +52,21 @@ for filename in glob.glob(argname):
 	os.unlink(filename)
 	os.rename(tempname, filename)
 
+def fixDir(dir, extensions):
+	print "dir", dir
+	for filename in os.listdir(dir):
+		for ext in extensions:
+			if not filename.count(".orig") and filename.count(ext):
+				fixFile(dir + os.sep + filename)
+	if recurse:
+		for filename in os.listdir(dir):
+			dirname =  dir + os.sep + filename
+			#print ":", dirname
+			if stat.S_ISDIR(os.stat(dirname)[stat.ST_MODE]):
+				fixDir(dirname, extensions)
+
+#os.chdir("\\os\\Updates\\SciTE-1.36+pl01")
+if len(sys.argv) > 1:
+	fixFile(sys.argv[1])
+else:
+	fixDir(os.getcwd(), [".cxx", ".h"])

@@ -7,14 +7,21 @@
 
 #include "SciTEWin.h"
 
+/**
+ * Update the status bar text.
+ */
 void SciTEWin::SetStatusBarText(const char *s) {
 	::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 1, reinterpret_cast<LPARAM>(s));
 }
 
+/**
+ * Manage Windows specific notifications.
+ */
 void SciTEWin::Notify(SCNotification *notification) {
-	// Manage Windows specific notifications
 	switch (notification->nmhdr.code) {
 	case TCN_SELCHANGE:
+		// Change of tab
+
 		if (notification->nmhdr.idFrom == IDM_TABWIN) {
 			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_GETCURSEL, (WPARAM)0, (LPARAM)0);
 			SetDocumentAt(index);
@@ -22,11 +29,25 @@ void SciTEWin::Notify(SCNotification *notification) {
 		}
 		break;
 
-#if (_WIN32_IE >= 0x0300)
-		// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
+	case NM_CLICK:
+		// Click on a control
+
+		if (notification->nmhdr.idFrom == IDM_STATUSWIN) {
+			// Click on the status bar
+			sbNum++;
+			if (sbNum > props.GetInt("statusbar.number")) {
+				sbNum = 1;
+			}
+			UpdateStatusBar();
+		}
+		break;
+
+#if (_WIN32_IE >= 0x0300)	// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
 	case TTN_GETDISPINFO:
+		// Ask for tooltip text
 		{
 			NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
+			// Toolbar tooltips
 			switch (notification->nmhdr.idFrom) {
 			case IDM_NEW:
 				pDispInfo->lpszText = "New";
@@ -74,7 +95,8 @@ void SciTEWin::Notify(SCNotification *notification) {
 				pDispInfo->lpszText = "Run Macro";
 				break;
 			default:
-				{ // notification->nmhdr.idFrom appears to be the buffer number for tabbar tooltips
+				{
+					// notification->nmhdr.idFrom appears to be the buffer number for tabbar tooltips
 					Point ptCursor;
 					::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
 					Point ptClient = ptCursor;
@@ -88,8 +110,9 @@ void SciTEWin::Notify(SCNotification *notification) {
 			}
 			break;
 		}
-#endif
-	default:   	// Scintilla notification, use default treatment
+#endif 	// _WIN32_IE >= 0x0300
+
+	default:    	// Scintilla notification, use default treatment
 
 		SciTEBase::Notify(notification);
 		break;
@@ -108,6 +131,9 @@ void SciTEWin::ShowStatusBar() {
 	SizeSubWindows();
 }
 
+/**
+ * Resize the content windows, embedding the editor and output windows.
+ */
 void SciTEWin::SizeContentWindows() {
 	PRectangle rcInternal = wContent.GetClientPosition();
 
@@ -125,17 +151,20 @@ void SciTEWin::SizeContentWindows() {
 	wContent.InvalidateAll();
 }
 
+/**
+ * Resize the sub-windows, ie. the toolbar, tab bar, status bar. And call @a SizeContentWindows.
+ */
 void SciTEWin::SizeSubWindows() {
 	PRectangle rcClient = wSciTE.GetClientPosition();
 	bool showTab = false;
 
 	//::SendMessage(wSciTE.GetID(), WM_SETREDRAW, false, 0); // suppress flashing
-	visHeightTools = tbVisible ?  heightTools : 0;
+	visHeightTools = tbVisible ? heightTools : 0;
 
 	if (tabVisible) {	// ? hide one tab only
 		showTab = tabHideOne ?
-			::SendMessage(wTabBar.GetID(), TCM_GETITEMCOUNT, 0, 0) > 1 :
-			true;
+		          ::SendMessage(wTabBar.GetID(), TCM_GETITEMCOUNT, 0, 0) > 1 :
+		          true;
 	}
 
 	if (showTab) {
@@ -173,10 +202,16 @@ void SciTEWin::SizeSubWindows() {
 		                        rcClient.Width(), 1));
 	}
 	if (sbVisible) {
-		int startLineNum = rcClient.Width() - statusPosWidth;
+		int spw = props.GetInt("statusbar.size");
+		if (spw <= 0) {
+			spw = statusPosWidth;
+		}
+		int startLineNum = rcClient.Width() - spw;
 		if (startLineNum < 0)
 			startLineNum = 0;
-		int widths[] = {startLineNum, rcClient.Width()};
+		int widths[] = { startLineNum, rcClient.Width() };
+		// Perhaps we can define a syntax to create more parts,
+		// but it is probably an overkill for a marginal feature
 		::SendMessage(wStatusBar.GetID(), SB_SETPARTS, 2,
 		              reinterpret_cast<LPARAM>(widths));
 		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 0 | SBT_NOBORDERS,
@@ -290,6 +325,9 @@ static BarButton bbs[] = {
     { STD_REPLACE, IDM_REPLACE },
 };
 
+/**
+ * Create all the needed windows.
+ */
 void SciTEWin::Creation() {
 
 	wContent = ::CreateWindowEx(
@@ -414,7 +452,7 @@ void SciTEWin::Creation() {
 	                         "Ms Sans Serif");
 	::SendMessage(wTabBar.GetID(),
 	              WM_SETFONT,
-	              (WPARAM) fontTabs,    // handle to font
+	              (WPARAM) fontTabs,     // handle to font
 	              (LPARAM) 0);    // redraw option
 
 	wTabBar.Show();

@@ -149,7 +149,7 @@ void SciTEBase::SetImportMenu() {
 				} else {
 					strcat(entry, importFiles[stackPos].c_str());
 				}
-				SetMenuItem(menuOptions, IMPORT_START + stackPos + 3, itemID, entry);
+				SetMenuItem(menuOptions, IMPORT_START + stackPos + 4, itemID, entry);
 			}
 		}
 	}
@@ -384,15 +384,11 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 }
 
 void SciTEBase::SetStyleFor(Window &win, const char *lang) {
-	SString mono = ",";
-	mono += props.Get("font.monospace");
 	for (int style = 0; style <= STYLE_MAX; style++) {
 		if (style != STYLE_DEFAULT) {
 			char key[200];
 			sprintf(key, "style.%s.%0d", lang, style);
 			SString sval = props.GetExpanded(key);
-			if (monofont)
-				sval += mono;
 			SetOneStyle(win, style, sval.c_str());
 		}
 	}
@@ -648,19 +644,13 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_STYLERESETDEFAULT, 0, 0);
 	SendOutput(SCI_STYLERESETDEFAULT, 0, 0);
 
-	SString mono = ",";
-	mono += props.Get("font.monospace");
 	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
 	sval = props.GetNewExpand(key, "");
-	if (monofont)
-		sval += mono;
 	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
 	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
 
 	sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
 	sval = props.GetNewExpand(key, "");
-	if (monofont)
-		sval += mono;
 	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
 
 	SendEditor(SCI_STYLECLEARALL, 0, 0);
@@ -672,8 +662,6 @@ void SciTEBase::ReadProperties() {
 
 	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
 	sval = props.GetNewExpand(key, "");
-	if (monofont)
-		sval += mono;
 	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
 
 	SendOutput(SCI_STYLECLEARALL, 0, 0);
@@ -736,6 +724,24 @@ void SciTEBase::ReadProperties() {
 	statementEnd = GetStyleAndWords("statement.end.");
 	blockStart = GetStyleAndWords("block.start.");
 	blockEnd = GetStyleAndWords("block.end.");
+
+	SString list;
+	list = props.GetNewExpand("preprocessor.symbol.", fileNameForExtension.c_str());
+	preprocessorSymbol = list[0];
+	list = props.GetNewExpand("preprocessor.start.", fileNameForExtension.c_str());
+	preprocCondStart.Clear();
+	preprocCondStart.Set(list.c_str());
+	list = props.GetNewExpand("preprocessor.middle.", fileNameForExtension.c_str());
+	preprocCondMiddle.Clear();
+	preprocCondMiddle.Set(list.c_str());
+	list = props.GetNewExpand("preprocessor.end.", fileNameForExtension.c_str());
+	preprocCondEnd.Clear();
+	preprocCondEnd.Set(list.c_str());
+
+	matchCase = props.GetInt("find.replace.matchcase");
+	regExp = props.GetInt("find.replace.regexp");
+	unSlash = props.GetInt("find.replace.escapes");
+	noWrap = props.GetInt("find.replace.nowrap");
 
 	if (props.GetInt("vc.home.key", 1)) {
 		AssignKey(SCK_HOME, 0, SCI_VCHOME);
@@ -844,7 +850,6 @@ void SciTEBase::SetPropertiesInitial() {
 	foldMargin = foldMarginWidth;
 	if (foldMarginWidth == 0)
 		foldMarginWidth = foldMarginWidthDefault;
-	monofont = props.GetInt("use.fixed.font");
 }
 
 void SciTEBase::ReadPropertiesInitial() {

@@ -101,7 +101,7 @@ const char *extList[] = {
     "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
     "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
     "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.cs", "x.conf",
-    "x.pas", "x.ave", "x.ads", 
+    "x.pas", "x.ave", "x.ads",
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -185,7 +185,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	indentOpening = true;
 	indentClosing = true;
 	statementLookback = 10;
-	monofont = false;
 
 	fnEditor = 0;
 	ptrEditor = 0;
@@ -195,6 +194,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	sbVisible = false;
 	tabVisible = false;
 	tabMultiLine = false;
+	sbNum = 1;
 	visHeightTools = 0;
 	visHeightStatus = 0;
 	visHeightEditor = 1;
@@ -248,6 +248,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	wholeWord = false;
 	reverseFind = false;
 	regExp = false;
+	noWrap = false;
+	unSlash = false;
 
 	windowName[0] = '\0';
 	fullPath[0] = '\0';
@@ -255,6 +257,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	fileExt[0] = '\0';
 	dirName[0] = '\0';
 	dirNameAtExecute[0] = '\0';
+	useMonoFont = false;
 	fileModTime = 0;
 
 	macrosEnabled = false;
@@ -329,10 +332,37 @@ void SciTEBase::AssignKey(int key, int mods, int cmd) {
 	                                       static_cast<short>(mods)), cmd);
 }
 
+/**
+ * Keep the colors and other attributes, set the size and font to
+ * those defined in the @c font.monospace property.
+ */
+void SciTEBase::SetMonoFont() {
+	SString sval = props.GetExpanded("font.monospace");
+	StyleDefinition sd(sval.c_str());
+	for (int style = 0; style <= STYLE_MAX; style++) {
+		if (style != STYLE_DEFAULT) {
+			if (sd.specified & StyleDefinition::sdSize) {
+				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETSIZE, style, sd.size);
+			}
+			if (sd.specified & StyleDefinition::sdFont) {
+				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(sd.font.c_str()));
+			}
+		}
+	}
+	SendEditor(SCI_COLOURISE, 0, -1);
+	Redraw();
+	useMonoFont = true;
+}
+
+/**
+ * Override the language of the current file with the one indicated by @a cmdID.
+ * Mostly used to set a language on a file of unknown extension.
+ */
 void SciTEBase::SetOverrideLanguage(int cmdID) {
 	EnsureRangeVisible(0, SendEditor(SCI_GETLENGTH));
 	// Zero all the style bytes
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
+	useMonoFont = false;
 
 	overrideExtension = extList[cmdID - LEXER_BASE];
 	ReadProperties();
@@ -344,13 +374,30 @@ int SciTEBase::LengthDocument() {
 	return SendEditor(SCI_GETLENGTH);
 }
 
+/**
+ * Copy in @a text buffer up to @a sizeText characters, from either
+ * the current line (if @a line == -1) or
+ * the line number given in @a line.
+ * @return The position of the caret within the current line if @a line == -1,
+ * or the number of characters copied if line is specified.
+ */
 int SciTEBase::GetLine(char *text, int sizeText, int line) {
 	if (line == -1) {
 		return SendEditor(SCI_GETCURLINE, sizeText, reinterpret_cast<long>(text));
 	} else {
-		short buflen = static_cast<short>(sizeText);
-		memcpy(text, &buflen, sizeof(buflen));
-		return SendEditor(SCI_GETLINE, line, reinterpret_cast<long>(text));
+		// Set the size of the buffer in the first word of the buffer
+		short *pBufSize = reinterpret_cast<short *>(text);
+		*pBufSize = static_cast<short>(sizeText);
+		// Here, we use EM_GETLINE, because it allows to indicate the max. length of the buffer
+		int charNb = SendEditor(EM_GETLINE, line, reinterpret_cast<long>(text));
+		// Following MS spec. of EM_GETLINE, the copied line does not contain a terminating null character.
+		// So we add it to be consistent...
+		if (charNb == sizeText) {
+			// Truncated line
+			charNb--;
+		}
+		text[charNb] = '\0';
+		return charNb;
 	}
 }
 
@@ -392,6 +439,135 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 #endif
 
 /**
+ * Check if the given line is a preprocessor condition line.
+ * @return The kind of preprocessor condition (enum values).
+ */
+int SciTEBase::IsLinePreprocessorCondition(char *line) {
+	char *currChar = line;
+	char word[32];
+	int i = 0;
+
+	if (!currChar) {
+		return false;
+	}
+	while (isspacechar(*currChar) && *currChar) {
+		currChar++;
+	}
+	if (*currChar == preprocessorSymbol) {
+		currChar++;
+		while (isspacechar(*currChar) && *currChar) {
+			currChar++;
+		}
+		while (!isspacechar(*currChar) && *currChar) {
+			word[i++] = *currChar++;
+		}
+		word[i] = '\0';
+		if (preprocCondStart.InList(word)) {
+			return ppcStart;
+		}
+		if (preprocCondMiddle.InList(word)) {
+			return ppcMiddle;
+		}
+		if (preprocCondEnd.InList(word)) {
+			return ppcEnd;
+		}
+	}
+	return noPPC;
+}
+
+/**
+ * Search a matching preprocessor condition line.
+ * @return @c true if the end condition are meet.
+ * Also set curLine to the line where one of these conditions is mmet.
+ */
+bool SciTEBase::FindMatchingPreprocessorCondition(
+    int &curLine, 		///< Number of the line where to start the search
+    int direction, 		///< Direction of search: 1 = forward, -1 = backward
+    int condEnd1, 		///< First status of line for which the search is OK
+    int condEnd2) {		///< Second one
+
+	bool isInside = false;
+	char line[80];
+	int status, level = 0;
+	int maxLines = SendEditor(SCI_GETLINECOUNT);
+
+	while (curLine < maxLines && curLine > 0 && !isInside) {
+		curLine += direction;	// Increment or decrement
+		GetLine(line, sizeof(line), curLine);
+		status = IsLinePreprocessorCondition(line);
+
+		if ((direction == 1 && status == ppcStart) || (direction == -1 && status == ppcEnd)) {
+			level++;
+		} else if (level > 0 && ((direction == 1 && status == ppcEnd) || (direction == -1 && status == ppcStart))) {
+			level--;
+		} else if (level == 0 && (status == condEnd1 || status == condEnd2)) {
+			isInside = true;
+		}
+	}
+
+	return isInside;
+}
+
+/**
+ * Find if there is a preprocessor condition after or before the caret position,
+ * @return true if inside a preprocessor condition.
+ */
+bool SciTEBase::FindMatchingPreprocCondPosition(
+    bool isForward, 		///< @c true if search forward
+    int &mppcAtCaret, 	///< Matching preproc. cond.: current position of caret
+    int &mppcMatch) {	///< Matching preproc. cond.: matching position
+
+	bool isInside = false;
+	int curLine;
+	char line[80];	// Probably no need to get more characters, even if the line is longer, unless very strange layout...
+	int status;
+
+	// Get current line
+	curLine = SendEditor(SCI_LINEFROMPOSITION, mppcAtCaret);
+	GetLine(line, sizeof(line), curLine);
+	status = IsLinePreprocessorCondition(line);
+
+	switch (status) {
+	case ppcStart:
+		if (isForward) {
+			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
+		} else {
+			mppcMatch = mppcAtCaret;
+			return true;
+		}
+		break;
+	case ppcMiddle:
+		if (isForward) {
+			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
+		} else {
+			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
+		}
+		break;
+	case ppcEnd:
+		if (isForward) {
+			mppcMatch = mppcAtCaret;
+			return true;
+		} else {
+			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
+		}
+		break;
+	default: 	// Should be noPPC
+
+		if (isForward) {
+			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
+		} else {
+			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
+		}
+		break;
+	}
+
+	if (isInside) {
+		mppcMatch = SendEditor(SCI_POSITIONFROMLINE, curLine);
+	}
+	return isInside;
+}
+
+/**
  * Find if there is a brace next to the caret, checking before caret first, then
  * after caret. If brace found also find its matching brace.
  * @return true if inside a bracket pair.
@@ -411,7 +587,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
 	}
 	// Priority goes to character before caret
-	if (charBefore && strchr("[]() {}", charBefore) &&
+	if (charBefore && strchr("[](){}", charBefore) &&
 	        ((styleBefore == bracesStyleCheck) || (!bracesStyle))) {
 		braceAtCaret = caretPos - 1;
 	}
@@ -425,7 +601,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		// No brace found so check other side
 		char charAfter = acc[caretPos];
 		char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
-		if (charAfter && strchr("[]() {}", charAfter) && (styleAfter == bracesStyleCheck)) {
+		if (charAfter && strchr("[](){}", charAfter) && (styleAfter == bracesStyleCheck)) {
 			braceAtCaret = caretPos;
 			isAfter = false;
 		}
@@ -517,10 +693,11 @@ void SciTEBase::GetCTag(char *sel, int len) {
 	char c;
 	Window wCurrent;
 
-	if (wEditor.HasFocus())
+	if (wEditor.HasFocus()) {
 		wCurrent = wEditor;
-	else
+	} else {
 		wCurrent = wOutput;
+	}
 	lengthDoc = SendFocused(SCI_GETLENGTH);
 	selStart = selEnd = SendFocused(SCI_GETSELECTIONEND);
 	WindowAccessor acc(wCurrent.GetID(), props);
@@ -571,7 +748,7 @@ static bool iswordcharforsel(char ch) {
 // Accept path separators '/' and '\', extension separator '.', and ':', MS drive unit
 // separator, and also used for separating the line number for grep. Same for '(' and ')' for cl.
 static bool isfilenamecharforsel(char ch) {
-	return !strchr("\t\n\r \"#$%'*,;<>?@[]^`{|}", ch);
+	return !strchr("\t\n\r \"$%'*,;<>?[]^`{|}", ch);
 }
 
 /**
@@ -583,9 +760,9 @@ static bool isfilenamecharforsel(char ch) {
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel,        ///< Buffer receiving the result.
-    int len,        ///< Size of the buffer.
-    bool (*ischarforsel)(char ch)) { ///< Function returning @c true if the given char. is part of the selection.
+    char *sel, 	///< Buffer receiving the result.
+    int len, 	///< Size of the buffer.
+    bool (*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
 
 	int lengthDoc, selStart, selEnd;
 	Window wCurrent;
@@ -609,7 +786,7 @@ void SciTEBase::SelectionExtend(
 				selEnd++;
 			}
 			if (selStart < selEnd) {
-				selEnd++;   // Because normal selections end one past
+				selEnd++;   	// Because normal selections end one past
 			}
 
 		}
@@ -651,7 +828,7 @@ void SciTEBase::SelectionIntoProperties() {
 
 void SciTEBase::SelectionIntoFind() {
 	SelectionWord(findWhat, sizeof(findWhat));
-	if (props.GetInt("escapes.in.find.replace")) {
+	if (unSlash) {
 		char *slashedFind = Slash(findWhat);
 		if (slashedFind) {
 			strncpy(findWhat, slashedFind, sizeof(findWhat));
@@ -724,19 +901,35 @@ char *Slash(const char *s) {
 }
 
 /**
- * Is the character an octal digit.
+ * Is the character an octal digit?
  */
 static bool IsOctalDigit(char ch) {
 	return ch >= '0' && ch <= '7';
 }
 
 /**
- * Convert C style \a, \b, \f, \n, \r, \t, \v, and \ooo into their indicated characters.
- * Hexadecimal forms, \xhh, are not supported.
+ * If the character is an hexa digit, get its value.
+ */
+static int GetHexaDigit(char ch) {
+	if (ch >= '0' && ch <= '9') {
+		return ch - '0';
+	}
+	if (ch >= 'A' && ch <= 'F') {
+		return ch - 'A' + 10;
+	}
+	if (ch >= 'a' && ch <= 'f') {
+		return ch - 'a' + 10;
+	}
+	return -1;
+}
+
+/**
+ * Convert C style \a, \b, \f, \n, \r, \t, \v, \ooo and \xhh into their indicated characters.
  */
 unsigned int UnSlash(char *s) {
 	char *sStart = s;
 	char *o = s;
+
 	while (*s) {
 		if (*s == '\\') {
 			s++;
@@ -767,6 +960,21 @@ unsigned int UnSlash(char *s) {
 					}
 				}
 				*o = static_cast<char>(val);
+			} else if (*s == 'x') {
+				s++;
+				int val = 0;
+				int ghd = GetHexaDigit(*s);
+				if (ghd >= 0) {
+					s++;
+					val = ghd;
+					ghd = GetHexaDigit(*s);
+					if (ghd >= 0) {
+						s++;
+						val *= 16;
+						val += ghd;
+					}
+				}
+				*o = static_cast<char>(val);
 			} else {
 				*o = *s;
 			}
@@ -774,8 +982,9 @@ unsigned int UnSlash(char *s) {
 			*o = *s;
 		}
 		o++;
-		if (*s)
+		if (*s) {
 			s++;
+		}
 	}
 	*o = '\0';
 	return o - sStart;
@@ -829,9 +1038,9 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		ft.chrg.cpMin = crange.cpMax;
 		ft.chrg.cpMax = LengthDocument();
 	}
-	char findTarget[200];
+	char findTarget[findReplaceMaxLen + 1];
 	strcpy(findTarget, findWhat);
-	UnSlashAsNeeded(findTarget, props.GetInt("escapes.in.find.replace"), regExp);
+	UnSlashAsNeeded(findTarget, unSlash, regExp);
 
 	ft.lpstrText = findTarget;
 	ft.chrgText.cpMin = 0;
@@ -843,8 +1052,10 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
-	if (posFind == -1) {
-		// Failed to find in indicated direction so search on other side
+	if (posFind == -1 && !noWrap) {
+		// Failed to find in indicated direction
+		// so search from the beginning (forward) or from the end (reverse)
+		// unless noWrap is true
 		if (reverseDirection) {
 			ft.chrg.cpMin = LengthDocument();
 			ft.chrg.cpMax = 0;
@@ -858,9 +1069,10 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (posFind == -1) {
 		havefound = false;
 		if (showWarnings) {
-			if (strlen(findWhat) >= 200)
-				findWhat[200-1] = '\0';
-			char msg[300];
+			WarnUser(warnNotFound);
+			if (strlen(findWhat) > findReplaceMaxLen)
+				findWhat[findReplaceMaxLen] = '\0';
+			char msg[findReplaceMaxLen + 50];
 			strcpy(msg, "Cannot find the string \"");
 			strcat(msg, findWhat);
 			strcat(msg, "\".");
@@ -884,9 +1096,9 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 
 void SciTEBase::ReplaceOnce() {
 	if (havefound) {
-		char replaceTarget[200];
+		char replaceTarget[findReplaceMaxLen + 1];
 		strcpy(replaceTarget, replaceWhat);
-		UnSlashAsNeeded(replaceTarget, props.GetInt("escapes.in.find.replace"), regExp);
+		UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 		CharacterRange cr = GetSelection();
 		SendEditor(SCI_SETTARGETSTART, cr.cpMin);
 		SendEditor(SCI_SETTARGETEND, cr.cpMax);
@@ -899,22 +1111,35 @@ void SciTEBase::ReplaceOnce() {
 	FindNext(reverseFind);
 }
 
-void SciTEBase::ReplaceAll() {
+void SciTEBase::ReplaceAll(bool inSelection) {
 	if (findWhat[0] == '\0') {
-		FindMessageBox("Find string for Replace All must not be empty.");
+		FindMessageBox("Find string for \"Replace All\" must not be empty.");
 		return ;
 	}
 
 	TextToFind ft;
-	ft.chrg.cpMin = 0;
-	ft.chrg.cpMax = LengthDocument();
-	char findTarget[200];
+	ft.chrg = GetSelection();
+	if (inSelection) {
+		if (ft.chrg.cpMin == ft.chrg.cpMax) {
+			FindMessageBox("Selection for \"Replace in Selection\" must not be empty.");
+			return ;
+		}
+	} else {
+		ft.chrg.cpMax = LengthDocument();
+		if (!noWrap) {
+			// Whole document
+			ft.chrg.cpMin = 0;
+		}
+		// If noWrap, replace all only from caret to end of document
+	}
+
+	char findTarget[findReplaceMaxLen + 1];
 	strcpy(findTarget, findWhat);
-	UnSlashAsNeeded(findTarget, props.GetInt("escapes.in.find.replace"), regExp);
+	UnSlashAsNeeded(findTarget, unSlash, regExp);
 	ft.lpstrText = findTarget;
-	char replaceTarget[200];
+	char replaceTarget[findReplaceMaxLen + 1];
 	strcpy(replaceTarget, replaceWhat);
-	UnSlashAsNeeded(replaceTarget, props.GetInt("escapes.in.find.replace"), regExp);
+	UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
@@ -940,9 +1165,9 @@ void SciTEBase::ReplaceAll() {
 		//FindMessageBox("bow");
 	}
 	else {
-		if (strlen(findWhat) >= 200)
-			findWhat[200-1] = '\0';
-		char msg[300];
+		if (strlen(findWhat) > findReplaceMaxLen)
+			findWhat[findReplaceMaxLen] = '\0';
+		char msg[findReplaceMaxLen + 50];
 		strcpy(msg, "No replacements because string \"");
 		strcat(msg, findWhat);
 		strcat(msg, "\" was not present.");
@@ -1274,6 +1499,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	free(words);
 	return true;
 }
+
 bool SciTEBase::StartExpandAbbreviation() {
 	char linebuf[1000];
 	int current = GetLine(linebuf, sizeof(linebuf));
@@ -1289,10 +1515,11 @@ bool SciTEBase::StartExpandAbbreviation() {
 	linebuf[current] = '\0';
 	const char *abbrev = linebuf + startword;
 	SString data = propsAbbrev.Get(abbrev);
-		int dataLength = data.length();
+	int dataLength = data.length();
 	if (dataLength == 0) {
 		return true; // returning if expanded abbreviation is empty
 	}
+
 	char expbuf[1000];
 	strcpy(expbuf, data.c_str());
 	UnSlash(expbuf);
@@ -1303,40 +1530,42 @@ bool SciTEBase::StartExpandAbbreviation() {
 	int line_before_caret = 0;
 	for (int i = 0; i < dataLength; i++) {
 		char c = expbuf[i];
-		switch(c) {
-			case '|':
-				if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
-					i++;
-					expanded += c;
-				} else {
-					if (caret_pos != -1) {
-						break;
-					}
-					caret_pos = j; // this is the caret position
-				}
-				break;
-			case '\n':
-				// we can't use tabs and spaces after '\n'
-				if (expbuf[i + 1] == '\t' || expbuf[i + 1] == ' ') {
-					SString error("Can't expand abbreviation \"");
-					error += abbrev;
-					error += "\"!\n";
-					error += "Don't use tabs and spaces after \'\\n\' symbol when defining abbreviations.";
-					MessageBox(wSciTE.GetID(),
-					error.c_str(),
-					"Expand Abbreviation Error", MB_OK);
-					return true;
-				}
-				line++;
+		switch (c) {
+		case '|':
+			if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
+				i++;
 				expanded += c;
-				// counting newlines before caret position
-				if (caret_pos != -1)
+			} else {
+				if (caret_pos != -1) {
 					break;
-				line_before_caret++;
+				}
+				caret_pos = j; // this is the caret position
+			}
+
+			break;
+		case '\n':
+			// we can't use tabs and spaces after '\n'
+
+			if (expbuf[i + 1] == '\t' || expbuf[i + 1] == ' ') {
+				SString error("Can't expand abbreviation \"");
+				error += abbrev;
+				error += "\"!\n";
+				error += "Don't use tabs and spaces after \'\\n\' symbol when defining abbreviations.";
+				MessageBox(wSciTE.GetID(),
+				           error.c_str(),
+				           "Expand Abbreviation Error", MB_OK);
+				return true;
+			}
+			line++;
+			expanded += c;
+			// counting newlines before caret position
+			if (caret_pos != -1)
 				break;
-			default:
-				expanded += c;
-				break;
+			line_before_caret++;
+			break;
+		default:
+			expanded += c;
+			break;
 		}
 		j++;
 	}
@@ -1349,7 +1578,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	// indenting expanded abbreviation using previous line indent
 	// if there is empty line in expanded abbreviation it is indented twice!
 	if (line > 0) {
-		for(int i = 1; i <= line; i++) {
+		for (int i = 1; i <= line; i++) {
 			SetLineIndentation(currentLineNumber + i , indent);
 			int lineIndent = GetLineIndentPosition(currentLineNumber + i);
 			int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, currentLineNumber + i);
@@ -1361,22 +1590,22 @@ bool SciTEBase::StartExpandAbbreviation() {
 		}
 		// setting cursor after expanded abbreviation
 		if (caret_pos == -1) {
-		int curLine = GetCurrentLineNumber();
-		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, curLine);
-		SendEditor(SCI_GOTOPOS, lineEnd);
+			int curLine = GetCurrentLineNumber();
+			int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, curLine);
+			SendEditor(SCI_GOTOPOS, lineEnd);
 		}
 	}
- 	if (caret_pos != -1) {
- 		// calculating caret position _after_ (auto)indenting
- 		int add_indent = 0;
- 		for(int i = 1; i <= line_before_caret; i++) {
- 			int lineIndent = GetLineIndentPosition(currentLineNumber + i);
- 			int lineStart = SendEditor(SCI_POSITIONFROMLINE, currentLineNumber + i);
+	if (caret_pos != -1) {
+		// calculating caret position _after_ (auto)indenting
+		int add_indent = 0;
+		for (int i = 1; i <= line_before_caret; i++) {
+			int lineIndent = GetLineIndentPosition(currentLineNumber + i);
+			int lineStart = SendEditor(SCI_POSITIONFROMLINE, currentLineNumber + i);
 			int difference = lineIndent - lineStart;
- 			add_indent += difference;
- 		}
- 		SendEditor(SCI_GOTOPOS, position - counter + caret_pos + add_indent);
- 	}
+			add_indent += difference;
+		}
+		SendEditor(SCI_GOTOPOS, position - counter + caret_pos + add_indent);
+	}
 	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
@@ -1403,8 +1632,8 @@ bool SciTEBase::StartBlockComment() {
 	int comment_length = comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
-/* 	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
-* 	bool moveCaret = caretPosition < selectionEnd; */
+	/* 	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
+	* 	bool moveCaret = caretPosition < selectionEnd; */
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
@@ -1443,14 +1672,14 @@ bool SciTEBase::StartBlockComment() {
 			selectionStart += comment_length;
 		selectionEnd += comment_length; // every iteration
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment.c_str());
-/* 		SendEditor(SCI_SETCURRENTPOS, selectionEnd); // moving caret to the
-* 		// end of selection: if (moveCaret))  */
+		/* 		SendEditor(SCI_SETCURRENTPOS, selectionEnd); // moving caret to the
+		* 		// end of selection: if (moveCaret))  */
 	}
-/* 	if (moveCaret) {
-* 		SendEditor(SCI_SETCURRENTPOS, selectionStart);
-* 		SendEditor(SCI_ENDUNDOACTION);
-* 		return true;
-* 	} */
+	/* 	if (moveCaret) {
+	* 		SendEditor(SCI_SETCURRENTPOS, selectionStart);
+	* 		SendEditor(SCI_ENDUNDOACTION);
+	* 		return true;
+	* 	} */
 	// after uncommenting selection may promote itself to the lines
 	// before the first initially selected line
 	if (selectionStart < firstSelLineStart)
@@ -1619,8 +1848,98 @@ int SciTEBase::GetCurrentScrollPosition() {
 	return SendEditor(SCI_DOCLINEFROMVISIBLE, lineDisplayTop);
 }
 
+/**
+ * Set up properties for FileTime, FileDate, CurrentTime, CurrentDate and FileAttr.
+ */
+void SciTEBase::SetFileProperties(
+    PropSet &ps) {			///< Property set to update.
+
+	const int TEMP_LEN = 100;
+	char temp[TEMP_LEN];
+#if PLAT_WIN	// Use the Windows specific locale functions
+	HANDLE hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (hf != INVALID_HANDLE_VALUE) {
+		FILETIME ft;
+		::GetFileTime(hf, NULL, NULL, &ft);
+		FILETIME lft;
+		::FileTimeToLocalFileTime(&ft, &lft);
+		SYSTEMTIME st;
+		::FileTimeToSystemTime(&lft, &st);
+		::CloseHandle(hf);
+		::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
+		                0, &st,
+		                NULL, temp, TEMP_LEN);
+		ps.Set("FileTime", temp);
+
+		::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
+		                DATE_SHORTDATE, &st,
+		                NULL, temp, TEMP_LEN);
+		ps.Set("FileDate", temp);
+
+		DWORD attr = GetFileAttributes(fullPath);
+		SString fa;
+		if (attr & FILE_ATTRIBUTE_READONLY) {
+			fa += "R";
+		}
+		if (attr & FILE_ATTRIBUTE_HIDDEN) {
+			fa += "H";
+		}
+		if (attr & FILE_ATTRIBUTE_SYSTEM) {
+			fa += "S";
+		}
+		ps.Set("FileAttr", fa.c_str());
+	}
+
+	::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
+	                DATE_SHORTDATE, NULL,  	// Current date
+	                NULL, temp, TEMP_LEN);
+	ps.Set("CurrentDate", temp);
+
+	::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
+	                0, NULL,  	// Current time
+	                NULL, temp, TEMP_LEN);
+	ps.Set("CurrentTime", temp);
+#endif 	// PLAT_WIN
+#if PLAT_GTK	// Could use Unix standard calls here, someone less lazy than me (PL) should do it.
+	// Or just declare the function in SciTEBase.h and define it in SciTEWin.cxx and SciTEGTK.cxx?
+	temp[0] = '\0';
+	/* If file exists */
+	{
+		ps.Set("FileTime", temp);
+		ps.Set("FileDate", temp);
+		ps.Set("FileAttr", temp);
+	}
+	ps.Set("CurrentDate", temp);
+	ps.Set("CurrentTime", temp);
+#endif
+}
+
+/**
+ * Set up properties for EOLMode, BufferLength, NbOfLines, SelLength.
+ */
+void SciTEBase::SetTextProperties(
+    PropSet &ps) {			///< Property set to update.
+
+	const int TEMP_LEN = 100;
+	char temp[TEMP_LEN];
+
+	int eolMode = SendEditor(SCI_GETEOLMODE);
+	ps.Set("EOLMode", eolMode == SC_EOL_CRLF ? "CR+LF" : (eolMode == SC_EOL_LF ? "LF" : "CR"));
+
+	sprintf(temp, "%d", LengthDocument());
+	ps.Set("BufferLength", temp);
+
+	sprintf(temp, "%d", static_cast<int>(SendEditor(SCI_GETLINECOUNT)));
+	ps.Set("NbOfLines", temp);
+
+	CharacterRange crange = GetSelection();
+	sprintf(temp, "%ld", crange.cpMax - crange.cpMin);
+	ps.Set("SelLength", temp);
+}
+
 void SciTEBase::UpdateStatusBar() {
 	if (sbVisible) {
+#ifdef OLD
 		SString msg;
 		int caretPos = SendEditor(SCI_GETCURRENTPOS);
 		int caretLine = SendEditor(SCI_LINEFROMPOSITION, caretPos);
@@ -1634,6 +1953,27 @@ void SciTEBase::UpdateStatusBar() {
 			SetStatusBarText(msg.c_str());
 			sbValue = msg;
 		}
+#else
+		PropSet propsStatus;
+		char tmp[32];
+		propsStatus.superPS = &props;
+		SetFileProperties(propsStatus);
+		SetTextProperties(propsStatus);
+		int caretPos = SendEditor(SCI_GETCURRENTPOS);
+		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_LINEFROMPOSITION, caretPos)));
+		propsStatus.Set("LineNumber", tmp);
+		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_GETCOLUMN, caretPos)));
+		propsStatus.Set("ColumnNumber", tmp);
+		propsStatus.Set("OverType", SendEditor(SCI_GETOVERTYPE) ? "OVR" : "INS");
+
+		char sbKey[32];
+		sprintf(sbKey, "statusbar.text.%d", sbNum);
+		SString msg = propsStatus.GetExpanded(sbKey);
+		if (msg.size() && sbValue != msg) {	// To avoid flickering, update only if needed
+			SetStatusBarText(msg.c_str());
+			sbValue = msg;
+		}
+#endif
 	} else {
 		sbValue = "";
 	}
@@ -1725,14 +2065,14 @@ int SciTEBase::GetIndentState(int line) {
 	int indentState = 0;
 	SString controlWords[10];
 	GetLinePartsInStyle(line, SCE_C_WORD, -1, controlWords, ELEMENTS(controlWords));
-	for (unsigned int i = 0;i < ELEMENTS(controlWords);i++) {
+	for (unsigned int i = 0; i < ELEMENTS(controlWords); i++) {
 		if (includes(statementIndent, controlWords[i]))
 			indentState = 2;
 	}
 	// Braces override keywords
 	SString controlStrings[10];
 	GetLinePartsInStyle(line, SCE_C_OPERATOR, -1, controlStrings, ELEMENTS(controlStrings));
-	for (unsigned int j = 0;j < ELEMENTS(controlStrings);j++) {
+	for (unsigned int j = 0; j < ELEMENTS(controlStrings); j++) {
 		if (includes(blockEnd, controlStrings[j]))
 			indentState = -1;
 		if (includes(blockStart, controlStrings[j]))
@@ -1855,7 +2195,7 @@ void SciTEBase::GoMatchingBrace(bool select) {
 	int braceAtCaret = -1;
 	int braceOpposite = -1;
 	bool isInside = FindMatchingBracePosition(true, braceAtCaret, braceOpposite, true);
-	// Convert the chracter positions into caret positions based on whether
+	// Convert the character positions into caret positions based on whether
 	// the caret position was inside or outside the braces.
 	if (isInside) {
 		if (braceOpposite > braceAtCaret) {
@@ -1877,6 +2217,36 @@ void SciTEBase::GoMatchingBrace(bool select) {
 		} else {
 			SetSelection(braceOpposite, braceOpposite);
 		}
+	}
+}
+
+// Text	ConditionalUp	Ctrl+J	Finds the previous matching preprocessor condition
+// Text	ConditionalDown	Ctrl+K	Finds the next matching preprocessor condition
+void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
+	int mppcAtCaret = SendEditor(SCI_GETCURRENTPOS);
+	int mppcMatch = -1;
+	int forward = (direction == IDM_NEXTMATCHPPC);
+	bool isInside = FindMatchingPreprocCondPosition(forward, mppcAtCaret, mppcMatch);
+
+	if (isInside && mppcMatch >= 0) {
+		EnsureRangeVisible(mppcMatch, mppcMatch);
+		if (select) {
+			// Selection changes the rules a bit...
+			int selStart = SendEditor(SCI_GETSELECTIONSTART);
+			int selEnd = SendEditor(SCI_GETSELECTIONEND);
+			// pivot isn't the caret position but the opposite (if there is a selection)
+			int pivot = (mppcAtCaret == selStart ? selEnd : selStart);
+			if (forward) {
+				// Caret goes one line beyond the target, to allow selecting the whole line
+				int lineNb = SendEditor(SCI_LINEFROMPOSITION, mppcMatch);
+				mppcMatch = SendEditor(SCI_POSITIONFROMLINE, lineNb + 1);
+			}
+			SetSelection(pivot, mppcMatch);
+		} else {
+			SetSelection(mppcMatch, mppcMatch);
+		}
+	} else {
+		WarnUser(warnNotFound);
 	}
 }
 
@@ -2059,6 +2429,22 @@ void SciTEBase::MenuCommand(int cmdID) {
 		GoMatchingBrace(true);
 		break;
 
+	case IDM_PREVMATCHPPC:
+		GoMatchingPreprocCond(IDM_PREVMATCHPPC, false);
+		break;
+
+	case IDM_SELECTTOPREVMATCHPPC:
+		GoMatchingPreprocCond(IDM_PREVMATCHPPC, true);
+		break;
+
+	case IDM_NEXTMATCHPPC:
+		GoMatchingPreprocCond(IDM_NEXTMATCHPPC, false);
+		break;
+
+	case IDM_SELECTTONEXTMATCHPPC:
+		GoMatchingPreprocCond(IDM_NEXTMATCHPPC, true);
+		break;
+
 	case IDM_SHOWCALLTIP:
 		StartCallTip();
 		break;
@@ -2157,12 +2543,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 		sbVisible = !sbVisible;
 		ShowStatusBar();
 		UpdateStatusBar();
-		CheckMenus();
-		break;
-
-	case IDM_MONOFONT:
-		monofont = !monofont;
-		ReadProperties();
 		CheckMenus();
 		break;
 
@@ -2314,6 +2694,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_TABSIZE:
 		TabSizeDialog();
+		break;
+
+	case IDM_MONOFONT:
+		SetMonoFont();
 		break;
 
 	case IDM_LEXER_NONE:
@@ -2666,7 +3050,6 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
-	CheckAMenuItem(IDM_MONOFONT, monofont);
 	EnableAMenuItem(IDM_COMPILE, !executing);
 	EnableAMenuItem(IDM_BUILD, !executing);
 	EnableAMenuItem(IDM_GO, !executing);
@@ -2731,7 +3114,7 @@ void SciTEBase::UIAvailable() {
 }
 
 /**
- * Find the character following a name which is made up of character from
+ * Find the character following a name which is made up of characters from
  * the set [a-zA-Z.]
  */
 char AfterName(const char *s) {
@@ -2777,7 +3160,7 @@ void SciTEBase::PerformOne(char *action) {
 				char *arg2 = arg + strlen(arg) + 1;
 				strcpy(findWhat, arg);
 				strcpy(replaceWhat, arg2);
-				ReplaceAll();
+				ReplaceAll(false);
 			}
 		}
 	}
@@ -2845,18 +3228,18 @@ void SciTEBase::PropertyFromDirector(const char *arg) {
 	}
 }
 
-/*
- Menu/Toolbar command "Record"
-*/
+/**
+ * Menu/Toolbar command "Record".
+ */
 void SciTEBase::StartRecordMacro() {
 	recording = TRUE;
 	CheckMenus();
 	SendEditor(SCI_STARTRECORD);
 }
 
-/*
-	Received a SCN_MACRORECORD from Scintilla : send it to director
-*/
+/**
+ * Received a SCN_MACRORECORD from Scintilla: send it to director.
+ */
 bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
 	if (extender) {
 		char *szMessage;
@@ -2879,9 +3262,9 @@ bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
 	return true;
 }
 
-/*
- Menu/Toolbar command "Stop recording"
-*/
+/**
+ * Menu/Toolbar command "Stop recording".
+ */
 void SciTEBase::StopRecordMacro() {
 	SendEditor(SCI_STOPRECORD);
 	if (extender)
@@ -2890,30 +3273,29 @@ void SciTEBase::StopRecordMacro() {
 	CheckMenus();
 }
 
-/*
-Menu/Toolbar command "Play macro..."  : tell director to build list of Macro names
-Through this call, user has access to all macros in Filerx
-*/
+/**
+ * Menu/Toolbar command "Play macro...": tell director to build list of Macro names
+ * Through this call, user has access to all macros in Filerx.
+ */
 void SciTEBase::AskMacroList() {
 	if (extender)
 		extender->OnMacro("macro:getlist", "");
 }
 
-/*
-List of Macro names has been created. Ask Scintilla to show it
-*/
+/**
+ * List of Macro names has been created. Ask Scintilla to show it.
+ */
 bool SciTEBase::StartMacroList(char *words) {
 	if (words) {
 		SendEditorString(SCI_USERLISTSHOW, 2, words);//listtype=2
 	}
 
 	return true;
-
 }
 
-/*
-User has chosen a macro in the list. Ask director to execute it
-*/
+/**
+ * User has chosen a macro in the list. Ask director to execute it.
+ */
 void SciTEBase::ContinueMacroList(char * stext) {
 	if ((extender) && (*stext != '\0')) {
 		strcpy(currentmacro, stext);
@@ -2921,17 +3303,17 @@ void SciTEBase::ContinueMacroList(char * stext) {
 	}
 }
 
-/*
-Menu/Toolbar command "Play current macro" (or called from ContinueMacroList)
-*/
+/**
+ * Menu/Toolbar command "Play current macro" (or called from ContinueMacroList).
+ */
 void SciTEBase::StartPlayMacro() {
 	if (extender)
 		extender->OnMacro("macro:run", currentmacro);
 }
 
-/*
-SciTE received a macro command from director : execute it.
-If command needs answer (SCI_GETTEXTLENGTH ...) : give answer to director
+/**
+ * SciTE received a macro command from director: execute it.
+ * If command needs answer (SCI_GETTEXTLENGTH...): give answer to director.
 */
 
 static uptr_t readnum(char **t) {
@@ -2946,7 +3328,7 @@ void SciTEBase::ExecuteMacroCommand(const char * command) {
 	char *nextarg = (char *)command;
 	uptr_t message;
 	uptr_t wParam;
-	int rep = 0;				//Scintilla's answer
+	int rep = 0;				// Scintilla's answer
 	char response[100];
 	char *answercmd = NULL;
 	int alen = 0;
@@ -2954,12 +3336,12 @@ void SciTEBase::ExecuteMacroCommand(const char * command) {
 	char *tbuff = NULL;
 	int lParamTyp;
 
-	// replace \v (vertical tabs) by \n .... Trick to transmit \n's in strings
+	// replace \v (vertical tabs) by \n... Trick to transmit \n's in strings
 	char * p = (char *)command;
 	while ((p = strchr(p, '\v')) != NULL)
 		* p = '\n';
 
-	//extract message,wParam : same format as in RecordMacroCommand
+	// extract message,wParam: same format as in RecordMacroCommand
 
 	message = readnum(&nextarg);
 	wParam = readnum(&nextarg);
@@ -2995,7 +3377,7 @@ void SciTEBase::ExecuteMacroCommand(const char * command) {
 	if (answercmd != NULL)
 		alen = strlen(answercmd);
 
-	//Send Messages to Scintilla
+	// Send Messages to Scintilla
 	if (message == SCI_GETSELTEXT) {
 		l = SendEditor(SCI_GETSELECTIONEND) - SendEditor(SCI_GETSELECTIONSTART);
 		tbuff = new char[l + alen + 1];
@@ -3155,4 +3537,3 @@ void SciTEBase::Perform(const char *actionList) {
 	PerformOne(actions);
 	delete []actionsDup;
 }
-

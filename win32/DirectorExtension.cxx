@@ -28,7 +28,7 @@ static HWND wReceiver = 0;
 static bool startedByDirector = false;
 unsigned int SDI = 0;
 
-static void SendDirector(const char *verb, const char *arg=0) {
+static void SendDirector(const char *verb, const char *arg = 0) {
 	if ((wDirector != 0) || (wCorrespondent != 0)) {
 		HWND wDestination = wCorrespondent;
 		SString addressedMessage;
@@ -50,10 +50,10 @@ static void SendDirector(const char *verb, const char *arg=0) {
 			cds.dwData = 0;
 			cds.cbData = strlen(slashedMessage);
 			cds.lpData = reinterpret_cast<void *>(
-				const_cast<char *>(slashedMessage));
+			                 const_cast<char *>(slashedMessage));
 			::SendMessage(wDestination, WM_COPYDATA,
-				reinterpret_cast<WPARAM>(wReceiver),
-				reinterpret_cast<LPARAM>(&cds));
+			              reinterpret_cast<WPARAM>(wReceiver),
+			              reinterpret_cast<LPARAM>(&cds));
 			delete []slashedMessage;
 		}
 	}
@@ -66,10 +66,10 @@ static void SendDirector(const char *verb, sptr_t arg) {
 
 static void CheckEnvironment(ExtensionAPI *host) {
 	if (!host)
-		return;
+		return ;
 	if (!wDirector) {
 		char *director = host->Property("director.hwnd");
-        	if (director && *director) {
+		if (director && *director) {
 			startedByDirector = true;
 			wDirector = reinterpret_cast<HWND>(atoi(director));
 			// Director is just seen so identify this to it
@@ -137,17 +137,17 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	host = host_;
 	SDI = ::RegisterWindowMessage("SciTEDirectorInterface");
 	HINSTANCE hInstance = reinterpret_cast<HINSTANCE>(
-		host->GetInstance());
+	                          host->GetInstance());
 	DirectorExtension_Register(hInstance);
 	wReceiver = ::CreateWindow(
-		DirectorExtension_ClassName,
-		DirectorExtension_ClassName,
-		0,
-		0,0,0,0,
-		0,
-		0,
-		hInstance,
-		0);
+	                DirectorExtension_ClassName,
+	                DirectorExtension_ClassName,
+	                0,
+	                0, 0, 0, 0,
+	                0,
+	                0,
+	                hInstance,
+	                0);
 	if (!wReceiver)
 		::exit(FALSE);
 	CheckEnvironment(host);
@@ -252,17 +252,17 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 		char *cmd = wlMessage[i];
 		if (*cmd == ':') {
 			// There is a return address
-			char *colon = strchr(cmd+1, ':');
+			char *colon = strchr(cmd + 1, ':');
 			if (colon) {
 				*colon = '\0';
-				wCorrespondent = reinterpret_cast<HWND>(atoi(cmd+1));
-				cmd = colon+1;
+				wCorrespondent = reinterpret_cast<HWND>(atoi(cmd + 1));
+				cmd = colon + 1;
 			}
 		}
 		if (isprefix(cmd, "identity:")) {
 			char *arg = strchr(cmd, ':');
 			if (arg)
-				wDirector = reinterpret_cast<HWND>(atoi(arg+1));
+				wDirector = reinterpret_cast<HWND>(atoi(arg + 1));
 		} else if (isprefix(cmd, "closing:")) {
 			wDirector = 0;
 			if (startedByDirector)
