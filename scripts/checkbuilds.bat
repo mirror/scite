@@ -52,18 +52,18 @@ rem Set path for VC 6
 path %MSDEV_BASE%;%path%
 rem
 rem Target 4: Visual C++ using scintilla\vcbuild\scite.dsp
-rem call scite\scripts\clearboth
-rem cd scintilla\vcbuild
-rem msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
-rem if ERRORLEVEL 2 goto ERROR
-rem cd ..\..
+call scite\scripts\clearboth
+cd scintilla\vcbuild
+msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 rem
-rem Target 5: Visual C++ using scintilla\vcbuild\SciTE.dsp
-rem call scite\scripts\clearboth
-rem cd scite\vcbuild
-rem msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-rem if ERRORLEVEL 2 goto ERROR
-rem cd ..\..
+rem Target 5: Visual C++ using scite\vcbuild\SciTE.dsp
+call scite\scripts\clearboth
+cd scite\vcbuild
+msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 rem
 rem Target 6: Visual C++ using scite\boundscheck\SciTE.dsp
 call scite\scripts\clearboth
@@ -87,12 +87,12 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
 rem Target 8: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
-REM ~ call scite\scripts\clearboth
-REM ~ cd scintilla\win32
-REM ~ call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
-REM ~ nmake -f scintilla_vc6.mak QUIET=1
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
+call scite\scripts\clearboth
+cd scintilla\win32
+call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
+nmake -f scintilla_vc6.mak QUIET=1
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 call scite\scripts\clearboth
 goto CLEANUP
 :ERROR
