@@ -727,6 +727,19 @@ void SciTEBase::ReadProperties() {
 			SendChildren(SCI_SETSELBACK, 1, ColourDesired(0xC0, 0xC0, 0xC0).AsLong());
 	}
 
+	SString whitespaceFore = props.Get("whitespace.fore");
+	if (whitespaceFore.length()) {
+		SendChildren(SCI_SETWHITESPACEFORE, 1, ColourFromString(whitespaceFore.c_str()).AsLong());
+	} else {
+		SendChildren(SCI_SETWHITESPACEFORE, 0, 0);
+	}
+	SString whitespaceBack = props.Get("whitespace.back");
+	if (whitespaceBack.length()) {
+		SendChildren(SCI_SETWHITESPACEBACK, 1, ColourFromString(whitespaceBack.c_str()).AsLong());
+	} else {
+		SendChildren(SCI_SETWHITESPACEBACK, 0, 0);
+	}
+
 	char bracesStyleKey[200];
 	sprintf(bracesStyleKey, "braces.%s.style", language.c_str());
 	bracesStyle = props.GetInt(bracesStyleKey, 0);
