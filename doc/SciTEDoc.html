@@ -49,7 +49,7 @@
        SciTE Documentation
     </h2>
     <p>
-    <a href="#FAQ">Frequently Asked Questions</a>
+    <a href="SciTEFAQ.html">Frequently Asked Questions</a>
     </p>
     <h3>
        Standard Editing
@@ -576,16 +576,16 @@ NameError: mistake
        Much of SciTE's behaviour can be changed by editing the properties files.
     </p>
     <p>
-       There are three properties files used, a global properties file called "SciTEGlobal.properties",
-      a per user file called "SciTEUser.properties"
-      (with a dot for the GTK+ version: ".SciTEUser.properties")
-      and a local one called
-      "SciTE.properties" which may be present in the same directory as the file being edited.
-      On Windows, both the global and user properties files are in the directory of the executable.
-      For GTK+ the user properties file is found in the user's home directory and the global
-      properties in a directory set at build time - normally /usr/share/scite.
-      If the "SciTE_HOME" environment variable is set on either Windows or GTK+ then it is where
-      both the global and user properties files are found.
+       There are three properties files used:
+       <ul>
+       <li>Local properties file called "SciTE.properties" which may be
+       present in the same directory as the file being edited.</li>
+       <li>User properties file called "SciTEUser.properties" on Windows
+       and "SciTEUser.properties" on GTK+</li>
+       <li>Global properties file called "SciTEGlobal.properties"</li>
+       </ul>
+    </p>
+    <p>
       Settings in the local properties file override those in the user properties file which override those
       in the global properties files. Environment variables are also available as properties and these
       are overridden by an explicit setting in one of the properties files.
@@ -599,6 +599,16 @@ NameError: mistake
       command for compiling .java files to "javac". If I want to use the jvc compiler for the files
       in one directory, then the SciTE.properties file in that directory contains an entry setting
       the command to "jvc".
+    </p>
+    <p>
+     On Windows, the global properties file is located in the directory of the executable.
+      The user properties file is looked for in the user profile directory as set in the
+      USERPROFILE environment variable, or in the directory of the executable if
+      USERPROFILE is not set.
+      For GTK+ the user properties file is found in the user's home directory and the global
+      properties in a directory set at build time - normally /usr/share/scite.
+      If the "SciTE_HOME" environment variable is set on either Windows or GTK+ then it is where
+      both the global and user properties files are found.
     </p>
     <p>
        There are commands in the Options menu for opening each of the properties files.
@@ -1608,12 +1618,12 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
           max.file.size
         </td>
         <td>
-        To avoid to load accidently huge files on slow media, or just to ensure SciTE is used 
-        only to edit human readable code, user can set the max.file.size property to specify 
+        To avoid to load accidently huge files on slow media, or just to ensure SciTE is used
+        only to edit human readable code, user can set the max.file.size property to specify
         a limit to file loading.
         If unset or set to 0, there is no limits.
-        If set to a given byte size and if a file to load exceeds this limit, user is asked 
-        if the file has to be loaded. If accepted, the file is read as usual. If rejected, no 
+        If set to a given byte size and if a file to load exceeds this limit, user is asked
+        if the file has to be loaded. If accepted, the file is read as usual. If rejected, no
         action is taken (no file loaded, no buffer created).
         </td>
       </tr>
@@ -1948,14 +1958,6 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
            A * can be used instead of a lexer to indicate a global style setting.
         </td>
       </tr>
-      <tr>
-        <td>
-        use.monospaced
-        </td>
-        <td>
-        If set to 1, start in Use Monospaced Font mode.
-        </td>
-      </tr>
        <tr>
         <td>
           braces.check<br />
@@ -1984,7 +1986,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
         Defines, with the same syntax as the style properties,
-        the font name and size to be used when the Use monospaced font
+        the font name and size to be used when the Use Monospaced Font
         command is performed.
         </td>
       </tr>
@@ -2863,108 +2865,6 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        is for extending SciTE with code compiled into the SciTE executable and the
        <a href="SciTEDirector.html">SciTE Director Interface</a> is for
        manipulating SciTE on Windows from another application.
-    </p>
-    <a name="FAQ"></a>
-    <h3>
-       Frequently Asked Questions
-    </h3>
-    <h4>
-       Why doesn't my <code>line.numbers</code> setting work?
-    </h4>
-    <p>
-       <code>line.numbers</code> has been replaced with two properties: <code>line.margin.visible</code>
-       and <code>line.margin.width</code> which are explained earlier in this document.
-    </p>
-    <h4>
-       How do I change SciTE to use black as the background colour?
-    </h4>
-    <p>
-       You need to change the style settings. The main change is in the global
-       options file to the global default style and caret colour but you may have
-       to change other style settings to make this work well:<br /><code>
-       style.*.32=$(font.base),back:#000000,fore:#ffffff<br />
-       caret.fore=#FFFFFF</code>
-    </p>
-    <h4>
-       How do I change the colours of the output pane?
-    </h4>
-    <p>
-       The output pane often lists error and warning messages and
-       is styled by the "errorlist" lexer. The default errorlist styles are found
-       in others.properties. To change the ouput pane background to black
-       and the default text to white set<br /><code>
-       style.errorlist.32=$(font.small),back:#000000<br />
-       style.errorlist.0=fore:#FFFFFF</code>
-    </p>
-    <h4>
-       How do I make the horizontal scroll bar adjust to the width of text?
-    </h4>
-    <p>
-       To avoid slow performance the horizontal scroll bar does not automatically adjust.
-       You can use the <code>horizontal.scroll.width</code> property to change the horizontal scroll range.
-    </p>
-    <h4>
-        How do I enable tabbed window mode in SciTE?
-    </h4>
-    <p>
-        Tabbed window mode is only available on Windows and GTK+ 2, not on GTK+ 1.
-        Multiple buffers must be allocated by setting, for example, <code>buffers=10</code>
-        in your SciTEGlobal.properties. To have the tab bar visible upon starting
-        SciTE, set <code>tabbar.visible=1</code>.
-        You can also set <code>tabbar.hide.one=0</code> to always show tabs,
-        or 1 to hide when only one file is open.
-        <code>tabbar.multiline=1</code> splits tabs across various lines if neccesary.
-    </p>
-    <h4>
-        How do I enable autocomplete?
-    </h4>
-    <p>
-        Goto Options | Open Global Options File and uncomment<br />
-        <code>autocompleteword.automatic=1</code>
-    </p>
-    <h4>
-        When I try to compile/build/run my [some language] source files, I get the following error:
-        'The system cannot find the file specified'.
-    </h4>
-    <p>
-        Make sure that the path to your compiler is set correctly on your system.
-        Try to execute from console the same command you get in SciTE and see if it works.
-        You can also search in your [language].properties for the compile
-        commands used. If you have a different compiler or use different arguments,
-        edit the commands to suit your needs.
-        The lines to look for:<code><br />
-        command.compile.filepattern=<br />
-        command.build.filepattern=<br />
-        command.go.filepattern=</code>
-    </p>
-    <h4>
-       How can I add [some external application] to the tools menu on SciTE?
-    </h4>
-    <p>
-In your properties file, you'll need to add some lines:
-    </p>
-    <p>
-<code>command.name.number.filepattern</code><br />
-(e.g.: <code>command.name.1.$(file.patterns.web)=HTML Tidy</code>)<br />
-This defines the Text that will appear on the Tools Menu.
-    </p>
-    <p>
-<code>command.number.filepattern</code><br />
-(e.g.: <code>command.1.$(file.patterns.web)=tidy -i -wrap 0 -m $(FilePath)</code> )<br />
-This is the actual command that SciTE executes. You should provide the appropiate paths, options and parameters as you would from a command line. See SciTEDoc.html for more information on parameters and how to make SciTE prompt a Parameters Dialog.
-    </p>
-    <p>
-<code>command.is.filter.number.filepattern</code><br />
-(e.g.: <code>command.is.filter.1.$(file.patterns.web)=1</code>)<br />
-The external application may have modified your file, so setting this to true makes SciTE reload the file after execution of the command.
-    </p>
-    <p>
-<code>command.subsystem.number.filepattern</code><br />
-(e.g.: <code>command.subsystem.1.$(file.patterns.web)=2</code>)<br />
-This is for Windows and defines the subsystem through which the program is called. See SciTEDoc.html for more information on this.
-    </p>
-    <p>
-You can set a command for all files using * as a file pattern. Up to 10 commands (0 - 9) can be defined in the Tools Menu at any time. Commands also get executed with Ctrl+number.
     </p>
   </body>
 </html>

@@ -1276,7 +1276,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETWRAPMODE, wrap ? SC_WRAP_WORD : SC_WRAP_NONE);
 	SendOutput(SCI_SETWRAPMODE, wrapOutput ? SC_WRAP_WORD : SC_WRAP_NONE);
 
-	useMonoFont = props.GetInt("use.monospaced");
+	useMonoFont = false;
 
 	SString menuLanguageProp = props.GetNewExpand("menu.language");
 	languageItems = 0;
