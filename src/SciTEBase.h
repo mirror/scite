@@ -22,6 +22,39 @@ const char propUserFileName[] = "SciTEUser.properties";
 
 const char propGlobalFileName[] = "SciTEGlobal.properties";
 
+// This is a fixed length list of strings suitable for display  in combo boxes
+// as a memory of user entries
+template<int sz>
+class EntryMemory {
+	SString entries[sz];
+public:
+	void Insert(SString s) {
+		for (int i=0;i<sz;i++) {
+			if (entries[i] == s) {
+				for (int j=i;j>0;j--) {
+					entries[j] = entries[j-1];
+				}
+				entries[0] = s;
+				return;
+			}
+		}
+		for (int k=sz-1;k>0;k--) {
+			entries[k] = entries[k-1];
+		}
+		entries[0] = s;
+	}
+	int Length() const {
+		int len = 0;
+		for (int i=0;i<sz;i++)
+			if (entries[i].length())
+				len++;
+		return len;
+	}
+	SString At(int n) const {
+		return entries[n];
+	}
+};
+
 class RecentFile {
 public:
 	SString fileName;
@@ -255,6 +288,7 @@ protected:
 	void SelectionIntoProperties();
 	void SelectionIntoFind();
 	virtual void Find()=0;
+	void FindMessageBox(const char *msg);
 	void FindNext(bool reverseDirection);
 	virtual void FindInFiles()=0;
 	virtual void Replace()=0;

@@ -1876,6 +1876,16 @@ void SciTEBase::SelectionIntoFind() {
 	}
 }
 
+void SciTEBase::FindMessageBox(const char *msg) {
+	dialogsOnScreen++;
+#if PLAT_GTK
+	MessageBox(wSciTE.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
+#else
+	MessageBox(wFindReplace.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
+#endif 
+	dialogsOnScreen--;
+}
+
 void SciTEBase::FindNext(bool reverseDirection) {
 	if (!findWhat[0]) {
 		Find();
@@ -1887,7 +1897,7 @@ void SciTEBase::FindNext(bool reverseDirection) {
 		ft.chrg.cpMin = crange.cpMin - 1;
 		ft.chrg.cpMax = 0;
 	} else {
-		ft.chrg.cpMin = crange.cpMax + 1;
+		ft.chrg.cpMin = crange.cpMax;
 		ft.chrg.cpMax = LengthDocument();
 	}
 	ft.lpstrText = findWhat;
@@ -1915,12 +1925,13 @@ void SciTEBase::FindNext(bool reverseDirection) {
 		strcpy(msg, "Cannot find the string \"");
 		strcat(msg, findWhat);
 		strcat(msg, "\".");
-		dialogsOnScreen++;
-		if (wFindReplace.Created())
-			MessageBox(wFindReplace.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
-		else
+		if (wFindReplace.Created()) {
+			FindMessageBox(msg);
+		} else {
+			dialogsOnScreen++;
 			MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
-		dialogsOnScreen--;
+			dialogsOnScreen--;
+		}
 	} else {
 		havefound = true;
 		EnsureRangeVisible(ft.chrgText.cpMin, ft.chrgText.cpMax);
@@ -1942,6 +1953,11 @@ void SciTEBase::ReplaceOnce() {
 }
 
 void SciTEBase::ReplaceAll() {
+	if (findWhat[0] == '\0') {
+		FindMessageBox("Find string for Replace All must not be empty.");
+		return;
+	}
+	
 	FINDTEXTEX ft;
 	ft.chrg.cpMin = 0;
 	ft.chrg.cpMax = LengthDocument();
@@ -1956,7 +1972,7 @@ void SciTEBase::ReplaceAll() {
 		while (posFind != -1) {
 			SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
 			SendEditorString(EM_REPLACESEL, 0, replaceWhat);
-			ft.chrg.cpMin = posFind + strlen(replaceWhat) + 1;
+			ft.chrg.cpMin = posFind + strlen(replaceWhat);
 			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(EM_FINDTEXTEX, flags,
 			                     reinterpret_cast<LPARAM>(&ft));
@@ -1967,13 +1983,7 @@ void SciTEBase::ReplaceAll() {
 		strcpy(msg, "No replacements because string \"");
 		strcat(msg, findWhat);
 		strcat(msg, "\" was not present.");
-		dialogsOnScreen++;
-#if PLAT_GTK
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
-#else
-		MessageBox(wFindReplace.GetID(), msg, appName, MB_OK);
-#endif 
-		dialogsOnScreen--;
+		FindMessageBox(msg);
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
