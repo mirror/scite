@@ -1401,7 +1401,7 @@ NameError: mistake
         found in from scite/src/SciTE.h.
         The modifiers are Ctrl, Shift, and Alt and the named keys are Left,
         Right, Up, Down, Insert, End, Home, Enter, Space, KeypadPlus, KeypadMinus,
-        Escape, Delete, PageUp, and PageDown.
+        Escape, Delete, PageUp, PageDown, Slash, Question, Equal.
         <br/>
         <code>
 user.shortcuts=\<br/>
@@ -2388,6 +2388,33 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         translation file then use the value of translation.missing instead. By setting
         this to a marker such as "***" it is easier to check where terms have not been
         provided with translations.
+        </td>
+      </tr>
+      <tr class="gtkonly">
+        <td>
+        menukey.*
+        </td>
+        <td>
+                The menukey.* settings allow the user to redefine accelerator keys for menus
+		without having to resort to modifying the SciTE source code.  The syntax for the setting is:
+		<br /><br />
+		<code>
+		menukey.menu_title.menu_name=&lt;modifier&gt;key
+		</code>
+		<br /><br />
+		For example, the File | Exit command accelerator could be specifed as follows:
+		<br /><br />
+		<code>
+		menukey.file.exit=&lt;control&gt;Q
+		</code>
+		<br /><br />
+		Note that spaces in menu titles and names must be converted to underscores, 
+		and trailing ellipses removed.  For example, "File | Save As...." is referenced as "menukey.file.save_as".
+		<br /><br />
+		Multiple modifiers may be specified, though each must be surrounded by angle brackets.  The 
+		recognized modifiers are the same as for the user.shortcuts setting described above.  The recognized named
+		keys are also the same as for user.shortcuts, with the addition of "none" to indicate that no accelerator
+		key should be defined for a particular menu.
         </td>
       </tr>
     </table>

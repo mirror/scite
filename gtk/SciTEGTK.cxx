@@ -1926,6 +1926,12 @@ static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 			return keyval == GDK_Page_Up;
 		} else if (sKey == "PageDown") {
 			return keyval == GDK_Page_Down;
+		} else if (sKey == "Slash") {
+			return keyval == GDK_slash;
+		} else if (sKey == "Question") {
+			return keyval == GDK_question;
+		} else if (sKey == "Equal") {
+			return keyval == GDK_equal;
 		}
 	}
 
@@ -2271,8 +2277,35 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 	GtkItemFactoryEntry *translatedItems = new GtkItemFactoryEntry[dim];
 	SString *translatedText = new SString[dim];
 	SString *translatedRadios = new SString[dim];
+	char** userDefinedAccels = new char*[n];
+	SString menuPath;
 	int i = 0;
+										
 	for (; i < n; i++) {
+		// Try to find user-defined accelerator key
+		menuPath = "menukey";			// menupath="menukey"
+		menuPath += items[i].path;		// menupath="menukey/File/Save _As..."
+		menuPath.remove("_");			// menupath="menukey/File/Save As..."
+		menuPath.remove(".");			// menupath="menukey/File/Save As"
+		menuPath.substitute('/', '.');	// menupath="menukey.File.Save As"
+		menuPath.substitute(' ', '_');	// menupath="menukey.File.Save_As"
+		menuPath.lowercase();			// menupath="menukey.file.save_as"
+		
+		SString accelKey = props.Get(menuPath.c_str());
+		
+		int accLength = accelKey.length();
+		if (accLength > 0) {
+			if (accelKey == "\"\"" || accelKey == "none") {
+				accelKey.clear();	// Allow user to clear accelerator key
+			}
+			userDefinedAccels[i] = new char[accLength + 1];
+			strncpy(userDefinedAccels[i], accelKey.c_str(), accLength + 1);
+			items[i].accelerator = userDefinedAccels[i];
+		} else {
+			userDefinedAccels[i] = NULL;
+		}
+		
+		
 		translatedItems[i].path = items[i].path;
 		translatedItems[i].accelerator = items[i].accelerator;
 		translatedItems[i].callback = items[i].callback;
@@ -2285,6 +2318,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
 		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
 		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
+		
 	}
 	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
 	for (; i < dim; i++) {
@@ -2303,6 +2337,13 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 	delete []translatedRadios;
 	delete []translatedText;
 	delete []translatedItems;
+	
+	// Release all the memory allocated for the user-defined accelerator keys
+	for (i = 0; i < n; i++) {
+		if (userDefinedAccels[i] != NULL)
+			delete[] userDefinedAccels[i];
+	}
+	delete[] userDefinedAccels;
 }
 
 #define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))

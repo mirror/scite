@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="SciTE"
 	ProjectGUID="{620BEA1D-631C-43F3-9C57-E3855682D13D}"
 	SccProjectName=""
@@ -71,7 +71,13 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -130,9 +136,17 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
@@ -284,7 +298,6 @@
 			<File
 				RelativePath="..\..\scintilla\src\LexYAML.cxx">
 			</File>
-
 			<File
 				RelativePath="..\..\scintilla\src\LineMarker.cxx">
 			</File>
@@ -296,6 +309,12 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\RESearch.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\ScintillaBase.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\win32\ScintillaWin.cxx">
 			</File>
 			<File
 				RelativePath="..\Src\SciTEBase.cxx">
@@ -332,12 +351,6 @@
 			</File>
 			<File
 				RelativePath="..\win32\SciTEWinDlg.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\src\ScintillaBase.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\win32\ScintillaWin.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\Style.cxx">
@@ -383,13 +396,13 @@
 				RelativePath="..\..\scintilla\Include\SciLexer.h">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\Include\Scintilla.h">
+			</File>
+			<File
 				RelativePath="..\Src\SciTE.h">
 			</File>
 			<File
 				RelativePath="..\Src\SciTEBase.h">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\Include\Scintilla.h">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Include\WinDefs.h">
@@ -406,6 +419,4 @@
 			</File>
 		</Filter>
 	</Files>
-	<Globals>
-	</Globals>
 </VisualStudioProject>
