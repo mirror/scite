@@ -70,9 +70,15 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 	char *cpDirEnd = strrchr(fullPath, pathSepChar);
 	if (absolutePath) {
 		// Absolute path
-		strcpy(fileName, cpDirEnd + 1);
-		strcpy(dirName, fullPath);
-		dirName[cpDirEnd - fullPath] = '\0';
+		if (cpDirEnd) {
+			strcpy(fileName, cpDirEnd + 1);
+			strcpy(dirName, fullPath);
+			dirName[cpDirEnd - fullPath] = '\0';
+		} else {
+			// This shouldn't happen but don't crash
+			fileName[0] = '\0';
+			strcpy(dirName, fullPath);
+		}
 		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
 	} else {
 		// Relative path
