@@ -7,14 +7,14 @@
 
 CC = bcc32
 RC = brcc32
-LD = tlink32
+LD = ilink32
 
 PROG	= ..\bin\SciTE.exe
 PROGSTATIC = ..\bin\Sc1.exe
 
 LDFLAGS = import32 cw32mt
 INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src 
-CXXFLAGS = -P -tW -w -RT- -x- -v
+CXXFLAGS = -P -tWM -w -RT- -x- -v
 
 .cxx.obj:
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -o$@ -c $*.cxx
@@ -98,7 +98,7 @@ Sc1.obj: SciTEWin.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h
-	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -o$* /DSTATIC_BUILD /c SciTEWin.cxx
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -o$@ /DSTATIC_BUILD /c SciTEWin.cxx
 	
 $(PROGSTATIC): $(OBJSSTATIC) SciTERes.res
 	$(LD) -Tpe -aa /c c0w32 $(OBJSSTATIC), $(PROGSTATIC), ,$(LDFLAGS), , SciTERes.res

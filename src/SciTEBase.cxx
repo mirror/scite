@@ -1716,6 +1716,10 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 		if (space) {
 			while (isspace(*space))
 				space++;
+			while (*space && !isspace(*space))
+				space++;
+			while (isspace(*space))
+				space++;
 			char *space2 = strchr(space, ' ');
 			if (space2) {
 				strncpy(sourcePath, space, space2-space);
