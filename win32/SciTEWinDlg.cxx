@@ -1000,7 +1000,7 @@ void SciTEWin::FindInFiles() {
 		//Platform::DebugPrintf("asked to find %s %s %s\n", props.Get("find.what"), props.Get("find.files"), props.Get("find.directory"));
 		SelectionIntoProperties();
 		AddCommand(props.GetNewExpand("find.command"), 
-			props.GetNewExpand("find.directory"), 
+			props.Get("find.directory"), 
 			jobCLI);
 		if (commandCurrent > 0)
 			Execute();
