@@ -218,7 +218,7 @@ protected:
 	int LengthDocument();
 	int GetLine(char *text, int sizeText, int line=-1);
 	void GetRange(Window &win, int start, int end, char *text);
-	void FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite);
+	bool FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy);
 	void BraceMatch(bool editor);
 
 	void SetWindowName();
@@ -258,7 +258,7 @@ protected:
 	virtual void DestroyFindReplace()=0;
 	virtual void GoLineDialog()=0;
 	virtual void TabSizeDialog()=0;
-	void GoMatchingBrace();
+	void GoMatchingBrace(bool select);
 	virtual void FindReplace(bool replace)=0;
 	void OutputAppendString(const char *s, int len = -1);
 	virtual void Execute();

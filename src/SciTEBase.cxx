@@ -74,6 +74,7 @@ const char *contributors[] = {
 #endif 
     "Ragnar Højland",
     "Christian Obrecht",
+    "Andreas Neukoetter",
 };
 
 const char *extList[] = {
@@ -126,12 +127,12 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff));
-		AddStyledText(wsci, "Version 1.25\n", 1);
+		AddStyledText(wsci, "Version 1.26\n", 1);
 		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff));
-		AddStyledText(wsci, "December 1998-May 2000.\n", 3);
+		AddStyledText(wsci, "December 1998-June 2000.\n", 3);
 		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
@@ -1172,7 +1173,11 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 
 #endif 
 
-void SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite) {
+// Find if there is a brace next to the caret, checking before caret first, then 
+// after caret. If brace found also find its matching brace. 
+// Returns true if inside a bracket pair.
+bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy) {
+	bool isInside = false;
 	Window &win = editor ? wEditor : wOutput;
 	int bracesStyleCheck = editor ? bracesStyle : 0;
 	int caretPos = Platform::SendScintilla(win.GetID(), SCI_GETCURRENTPOS, 0, 0);
@@ -1189,18 +1194,26 @@ void SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	if (charBefore && strchr("[](){}", charBefore) && (styleBefore == bracesStyleCheck)) {
 		braceAtCaret = caretPos - 1;
 	}
-	if (bracesSloppy && (braceAtCaret < 0)) {
+	bool isAfter = true;
+	if (sloppy && (braceAtCaret < 0)) {
 		// No brace found so check other side
 		char charAfter = acc[caretPos];
 		char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
 		if (charAfter && strchr("[](){}", charAfter) && (styleAfter == bracesStyleCheck)) {
 			braceAtCaret = caretPos;
+			isAfter = false;
 		}
 	}
 	if (braceAtCaret >= 0) {
 		braceOpposite =
 		    Platform::SendScintilla(win.GetID(), SCI_BRACEMATCH, braceAtCaret, 0);
+		if (braceOpposite > braceAtCaret) {
+			isInside = isAfter;
+		} else {
+			isInside = !isAfter;
+		}
 	}
+	return isInside;
 }
 
 void SciTEBase::BraceMatch(bool editor) {
@@ -1208,7 +1221,7 @@ void SciTEBase::BraceMatch(bool editor) {
 		return;
 	int braceAtCaret = -1;
 	int braceOpposite = -1;
-	FindMatchingBracePosition(editor, braceAtCaret, braceOpposite);
+	FindMatchingBracePosition(editor, braceAtCaret, braceOpposite, bracesSloppy);
 	Window &win = editor ? wEditor : wOutput;
 	if ((braceAtCaret != -1) && (braceOpposite == -1))
 		Platform::SendScintilla(win.GetID(), SCI_BRACEBADLIGHT, braceAtCaret, 0);
@@ -2453,15 +2466,32 @@ void SciTEBase::CharAdded(char ch) {
 	}
 }
 
-void SciTEBase::GoMatchingBrace() {
+void SciTEBase::GoMatchingBrace(bool select) {
 	int braceAtCaret = -1;
 	int braceOpposite = -1;
-	FindMatchingBracePosition(true, braceAtCaret, braceOpposite);
+	bool isInside = FindMatchingBracePosition(true, braceAtCaret, braceOpposite, true);
+	// Convert the chracter positions into caret positions based on whether
+	// the caret position was inside or outside the braces.
+	if (isInside) {
+		if (braceOpposite > braceAtCaret) {
+			braceAtCaret++;
+		} else {
+			braceOpposite++;
+		}
+	} else {    // Outside
+		if (braceOpposite > braceAtCaret) {
+			braceOpposite++;
+		} else {
+			braceAtCaret++;
+		}
+	}
 	if (braceOpposite >= 0) {
-		//SendEditor(SCI_GETCHARAT, braceOpposite);
-		braceOpposite++;
 		EnsureRangeVisible(braceOpposite, braceOpposite);
-		SetSelection(braceOpposite, braceOpposite);
+		if (select) {
+			SetSelection(braceAtCaret, braceOpposite);
+		} else {
+			SetSelection(braceOpposite, braceOpposite);
+		}
 	}
 }
 
@@ -2590,7 +2620,11 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 
 	case IDM_MATCHBRACE:
-		GoMatchingBrace();
+		GoMatchingBrace(false);
+		break;
+
+	case IDM_SELECTTOBRACE:
+		GoMatchingBrace(true);
 		break;
 
 	case IDM_COMPLETE:

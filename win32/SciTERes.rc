@@ -47,7 +47,7 @@ BEGIN
 	MENUITEM "&Go to...\tCtrl+G",			IDM_GOTO
 	MENUITEM "Next Book&mark\tF2",			IDM_BOOKMARK_NEXT
 	MENUITEM "Toggle Bookmar&k\tCtrl+F2",			IDM_BOOKMARK_TOGGLE
-	MENUITEM "Match &Brace\tCtrl+B",			IDM_MATCHBRACE
+	MENUITEM "Match Brac&e\tCtrl+E",			IDM_MATCHBRACE
 	MENUITEM "C&omplete Identifier\tCtrl+I",		IDM_COMPLETE
 	MENUITEM "Make Selection &Uppercase\tCtrl+Shift+U",		IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",		IDM_LWRCASE
@@ -72,7 +72,7 @@ BEGIN
 	MENUITEM "View &Fold Margin",          IDM_FOLDMARGIN
 	MENUITEM "View &Margin",          IDM_SELMARGIN
 	MENUITEM "View Line &Numbers",          IDM_LINENUMBERMARGIN
-	MENUITEM "&View End of Line\tCtrl+Shift+E",          IDM_VIEWEOL
+	MENUITEM "&View End of Line\tCtrl+Shift+O",          IDM_VIEWEOL
 	MENUITEM "View Toolbar",          IDM_VIEWTOOLBAR
 	MENUITEM "View Status Bar",          IDM_VIEWSTATUSBAR
 	MENUITEM "",                            2
@@ -218,6 +218,8 @@ BEGIN
 	PUSHBUTTON      	"Cancel",IDCANCEL,174,55,50,14
 END
 
+// 0xDD is VK_OEM_6, ']}' but not in mingw headers
+
 ACCELS ACCELERATORS
 BEGIN
 	"N", IDM_NEW,   VIRTKEY, CONTROL
@@ -230,7 +232,10 @@ BEGIN
 	VK_F3, IDM_FINDNEXT,   VIRTKEY
 	"H", IDM_REPLACE,  VIRTKEY, CONTROL
 	"G", IDM_GOTO, VIRTKEY, CONTROL
-	"B", IDM_MATCHBRACE, VIRTKEY, CONTROL
+	"E", IDM_MATCHBRACE, VIRTKEY, CONTROL
+	"E", IDM_SELECTTOBRACE, VIRTKEY, CONTROL, SHIFT
+	0xDD, IDM_MATCHBRACE, VIRTKEY, CONTROL
+	0xDD, IDM_SELECTTOBRACE, VIRTKEY, CONTROL, SHIFT
 	"I", IDM_COMPLETE, VIRTKEY, CONTROL
 	"*", IDM_EXPAND,  VIRTKEY, CONTROL
 		
@@ -248,7 +253,7 @@ BEGIN
 	//"U", IDM_UPRCASE,   VIRTKEY, CONTROL, SHIFT
 	//"U", IDM_LWRCASE,  VIRTKEY, CONTROL
 	"8", IDM_VIEWSPACE, VIRTKEY, CONTROL, SHIFT
-	"E", IDM_VIEWEOL, VIRTKEY, CONTROL, SHIFT
+	"O", IDM_VIEWEOL, VIRTKEY, CONTROL, SHIFT
 
 	VK_MULTIPLY, IDM_EXPAND,  VIRTKEY, CONTROL
 	
@@ -280,8 +285,8 @@ IDC_MARGIN         CURSOR  DISCARDABLE     "Margin.cur"
 #endif
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION	1, 2, 5, 0
-PRODUCTVERSION	1, 2, 5, 0
+FILEVERSION	1, 2, 6, 0
+PRODUCTVERSION	1, 2, 6, 0
 FILEFLAGSMASK	0x3fL
 FILEFLAGS 0
 FILEOS VOS_NT_WINDOWS32
@@ -298,12 +303,12 @@ BEGIN
 		BEGIN
 			VALUE	"CompanyName",	"Neil Hodgson neilh@scintilla.org\0"
 			VALUE	"FileDescription",	"SciTE - a Scintilla based Text Editor\0"
-			VALUE	"FileVersion",	"1.25\0"
+			VALUE	"FileVersion",	"1.26\0"
 			VALUE	"InternalName",	"SciTE\0"
 			VALUE	"LegalCopyright",	"Copyright 1998-2000 by Neil Hodgson\0"
 			VALUE	"OriginalFilename",	"SciTE.EXE\0"
 			VALUE	"ProductName",	"SciTE\0"
-			VALUE	"ProductVersion",	"1.25\0"
+			VALUE	"ProductVersion",	"1.26\0"
 		END
 	END
 END
