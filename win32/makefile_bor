@@ -14,7 +14,7 @@ PROGSTATIC = ..\bin\Sc1.exe
 
 LDFLAGS = import32 cw32mt
 INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src 
-CXXFLAGS = -P -tWM -w -RT- -x- -v
+CXXFLAGS = -P -O1 -tWM -w -RT- -x- -v-
 
 .cxx.obj:
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -o$@ -c $*.cxx
@@ -45,7 +45,7 @@ OBJS = SciTEBase.obj SciTEWin.obj \
 	..\..\scintilla\win32\UniConversion.obj
 
 $(PROG): $(OBJS) SciTERes.res
-	$(LD) -Tpe -aa /c c0w32 $(OBJS), $(PROG), ,$(LDFLAGS), , SciTERes.res
+	$(LD) -Tpe -aa -Gn -x c0w32 $(OBJS), $(PROG), ,$(LDFLAGS), , SciTERes.res
 	
 OBJSSTATIC = Sc1.obj SciTEBase.obj \
 	..\..\scintilla\win32\KeyWords.obj \
@@ -105,4 +105,4 @@ Sc1Res.res:	SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
 	$(RC) $(INCLUDEDIRS) -dSTATIC_BUILD -fo$@ SciTERes.rc
 	
 $(PROGSTATIC): $(OBJSSTATIC) Sc1Res.res
-	$(LD) -Tpe -aa /c c0w32 $(OBJSSTATIC), $(PROGSTATIC), ,$(LDFLAGS), , Sc1Res.res
+	$(LD) -Tpe -aa -Gn -x c0w32 $(OBJSSTATIC), $(PROGSTATIC), ,$(LDFLAGS), , Sc1Res.res

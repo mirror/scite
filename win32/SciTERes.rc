@@ -69,6 +69,7 @@ BEGIN
 	MENUITEM "Vertical &Split",              IDM_SPLITVERTICAL
 	MENUITEM "",                            1
 	MENUITEM "View &Whitespace\tCtrl+Shift+8", IDM_VIEWSPACE
+	MENUITEM "View &Indentation Guides", IDM_VIEWGUIDES
 	MENUITEM "View &Fold Margin",          IDM_FOLDMARGIN
 	MENUITEM "View &Margin",          IDM_SELMARGIN
 	MENUITEM "View Line &Numbers",          IDM_LINENUMBERMARGIN
@@ -76,8 +77,8 @@ BEGIN
 	MENUITEM "View Toolbar",          IDM_VIEWTOOLBAR
 	MENUITEM "View Status Bar",          IDM_VIEWSTATUSBAR
 	MENUITEM "",                            2
-    POPUP "&Line End Characters"
-    BEGIN
+	POPUP "&Line End Characters"
+	BEGIN
 		MENUITEM "CR + LF",          IDM_EOL_CRLF
 		MENUITEM "CR",          IDM_EOL_CR
 		MENUITEM "LF",          IDM_EOL_LF
@@ -261,7 +262,6 @@ BEGIN
 	VK_F7, IDM_COMPILE,  VIRTKEY, CONTROL
 	VK_F7, IDM_BUILD,  VIRTKEY
 	VK_F5, IDM_GO,  VIRTKEY
-	VK_F8, IDM_STEP,  VIRTKEY
 
 	VK_F4, IDM_NEXTMSG,  VIRTKEY
 	VK_F4, IDM_PREVMSG,  VIRTKEY, SHIFT

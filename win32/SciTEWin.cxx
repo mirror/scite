@@ -867,7 +867,7 @@ void SciTEWin::Print() {
 			::EndPage(hdc);
 
 		if ((pdlg.Flags & PD_PAGENUMS) && (pageNum++ > pdlg.nToPage))
-			 break;
+			break;
     	};
 
 	SendEditor(EM_FORMATRANGE, FALSE, 0);
@@ -1773,13 +1773,30 @@ void SciTEWin::Creation() {
 	wStatusBar.Show(); 
 }
 
+int testPaints = 1;
+
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
 	switch (iMessage) {
 
 	case WM_CREATE:
 		Creation();
+		//::SetTimer(wSciTE.GetID(), 5, 500, NULL);
 		break;
+	
+	case WM_TIMER:
+#if 0
+		if (testPaints && wParam == 5) {
+			if (testPaints < 30) {
+				testPaints++;
+				::InvalidateRect(wEditor.GetID(), NULL, TRUE);
+			} else {
+				::PostQuitMessage(0);
+			}
+		}
+#endif
+		break;
+	
 #if 0
 	case WM_PAINT: {
 			PAINTSTRUCT ps;

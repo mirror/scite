@@ -797,6 +797,7 @@ void SciTEBase::SetStyleFor(Window &win, const char *lang) {
 void SciTEBase::ReadPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
 	SendEditor(SCI_SETVIEWWS, props.GetInt("view.whitespace"));
+	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides"));
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
 
 	sbVisible = props.GetInt("statusbar.visible");
@@ -837,7 +838,7 @@ StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 
 static void lowerCaseString(char *s) {
 	while (*s) {
-		*s = tolower(*s);
+		*s = static_cast<char>(tolower(*s));
 		s++;
 	}
 }
@@ -853,7 +854,7 @@ SString SciTEBase::ExtensionFileName() {
 		if (extension) {
 			lowerCaseString(extension);
 		}
-		return fileNameWithLowerCaseExtension;
+		return SString(fileNameWithLowerCaseExtension);
 	} else
 		return props.Get("default.file.ext");
 }
@@ -1212,6 +1213,11 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	if (charBefore && strchr("[](){}", charBefore) && (styleBefore == bracesStyleCheck)) {
 		braceAtCaret = caretPos - 1;
 	}
+	bool colonMode = false;
+	if (lexLanguage == SCLEX_PYTHON && ':' == charBefore) {
+		braceAtCaret = caretPos - 1;
+		colonMode = true;
+	}
 	bool isAfter = true;
 	if (sloppy && (braceAtCaret < 0)) {
 		// No brace found so check other side
@@ -1221,10 +1227,19 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 			braceAtCaret = caretPos;
 			isAfter = false;
 		}
+		if (lexLanguage == SCLEX_PYTHON && ':' == charAfter) {
+			braceAtCaret = caretPos;
+			colonMode = true;
+		}
 	}
 	if (braceAtCaret >= 0) {
-		braceOpposite =
-		    Platform::SendScintilla(win.GetID(), SCI_BRACEMATCH, braceAtCaret, 0);
+		if (colonMode) {
+			int lineStart = Platform::SendScintilla(win.GetID(), EM_LINEFROMCHAR, braceAtCaret);
+			int lineMaxSubord = Platform::SendScintilla(win.GetID(), SCI_GETLASTCHILD, lineStart, -1);
+			braceOpposite = Platform::SendScintilla(win.GetID(), EM_LINEINDEX, lineMaxSubord+1)-1;
+		} else {
+			braceOpposite = Platform::SendScintilla(win.GetID(), SCI_BRACEMATCH, braceAtCaret, 0);
+		}
 		if (braceOpposite > braceAtCaret) {
 			isInside = isAfter;
 		} else {
@@ -1241,10 +1256,22 @@ void SciTEBase::BraceMatch(bool editor) {
 	int braceOpposite = -1;
 	FindMatchingBracePosition(editor, braceAtCaret, braceOpposite, bracesSloppy);
 	Window &win = editor ? wEditor : wOutput;
-	if ((braceAtCaret != -1) && (braceOpposite == -1))
+	if ((braceAtCaret != -1) && (braceOpposite == -1)) {
 		Platform::SendScintilla(win.GetID(), SCI_BRACEBADLIGHT, braceAtCaret, 0);
-	else
+		SendEditor(SCI_SETHIGHLIGHTGUIDE, 0);
+	} else {
+		char chBrace = Platform::SendScintilla(win.GetID(), SCI_GETCHARAT, braceAtCaret, 0);
 		Platform::SendScintilla(win.GetID(), SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
+		int columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceAtCaret, 0);
+		if (chBrace == ':') {
+			int lineStart = Platform::SendScintilla(win.GetID(), EM_LINEFROMCHAR, braceAtCaret);
+			int indentPos = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart, 0);
+			columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, indentPos, 0);
+			Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
+		}
+		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
+		Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Platform::Minimum(columnAtCaret, columnOpposite), 0);
+	}
 }
 
 void SciTEBase::SetWindowName() {
@@ -2339,7 +2366,7 @@ void SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, SString sv
 		}
 	}
 	if ((s.length() > 0) && (part < len)) {
-		sv[part++] = s;
+		sv[part] = s;
 	}
 }
 
@@ -2738,6 +2765,14 @@ void SciTEBase::MenuCommand(int cmdID) {
 		}
 		break;
 
+	case IDM_VIEWGUIDES: {
+			int viewIG = SendEditor(SCI_GETINDENTATIONGUIDES, 0, 0);
+			SendEditor(SCI_SETINDENTATIONGUIDES, !viewIG);
+			CheckMenus();
+			Redraw();
+		}
+		break;
+
 	case IDM_COMPILE: {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
@@ -3068,6 +3103,7 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);
 	CheckAMenuItem(IDM_VIEWSPACE, SendEditor(SCI_GETVIEWWS));
+	CheckAMenuItem(IDM_VIEWGUIDES, SendEditor(SCI_GETINDENTATIONGUIDES));
 	CheckAMenuItem(IDM_LINENUMBERMARGIN, lineNumbers);
 	CheckAMenuItem(IDM_SELMARGIN, margin);
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);
