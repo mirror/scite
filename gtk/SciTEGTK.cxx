@@ -1494,7 +1494,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 		Command(IDM_NEXTFILE);
 	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_KP_Enter)) {
 		Command(IDM_COMPLETEWORD);
-	} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK) && (key == GDK_ISO_Left_Tab)) {
+	} else if ((mods == (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) && (key == GDK_ISO_Left_Tab)) {
 		Command(IDM_PREVFILE);
 	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_F3)) {
 		Command(IDM_FINDNEXTSEL);
