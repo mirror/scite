@@ -8,6 +8,8 @@
 
 #include "Platform.h"
 
+#include "PropSet.h"
+
 #include "Scintilla.h"
 #include "Accessor.h"
 #include "Extender.h"
@@ -20,31 +22,35 @@ static HWND wDirector = 0;
 static HWND wReceiver = 0;
 static bool startedByDirector = false;
 
+//#define INT_BASED_VERBS
+
 static void SendDirector(int typ, const char *path) {
-	//typ values :
-	//-1: Bring Filerx to foreground (no message is sent , calls SetForegroundWindow)
-	//SCPROJ_OPENED=2000 : ShowPath
-	//SCPROJ_SAVED=2001 : Refresh
-	HWND dest = wDirector; 
-	//if (dest == 0) { //should disappear one day..
-	//	dest = ::FindWindowEx(NULL,NULL,(const char *)32770L,"Filer"); 
-	//	wDirector = dest; //defined in SciTEWin.h
-	//}
-	if (dest != 0) {
-		if (typ == -1) {
-			SetForegroundWindow(dest);
-		} else {
-			COPYDATASTRUCT cds;
-			cds.dwData = typ;
-			cds.cbData = strlen(path);
-			cds.lpData = reinterpret_cast<void *>(
-				const_cast<char *>(path));
-			::SendMessage(dest, WM_COPYDATA,
-				reinterpret_cast<WPARAM>(wReceiver),
-				reinterpret_cast<LPARAM>(&cds));
-		}
+	if (wDirector != 0) {
+		COPYDATASTRUCT cds;
+		cds.dwData = typ;
+		cds.cbData = strlen(path);
+		cds.lpData = reinterpret_cast<void *>(
+			const_cast<char *>(path));
+		::SendMessage(wDirector, WM_COPYDATA,
+			reinterpret_cast<WPARAM>(wReceiver),
+			reinterpret_cast<LPARAM>(&cds));
 	}
 }
+
+#ifndef INT_BASED_VERBS
+static void SendDirector(const char *verb, const char *arg=0) {
+	SString message(verb);
+	message += ":";
+	if (arg)
+		message += arg;
+	::SendDirector(0, message.c_str());
+}
+
+static void SendDirector(const char *verb, sptr_t arg) {
+	SString s(arg);
+	::SendDirector(verb, s.c_str());
+}
+#endif
 
 static void CheckEnvironment(ExtensionAPI *host) {
 	if (!host)
@@ -55,7 +61,11 @@ static void CheckEnvironment(ExtensionAPI *host) {
 			startedByDirector = true;
 			wDirector = reinterpret_cast<HWND>(atoi(director));
 			// Director is just seen so identify this to it
-			SendDirector(SCD_IDENTIFY, "SciTE");
+#ifdef INT_BASED_VERBS
+			::SendDirector(SCD_IDENTIFY, "SciTE");
+#else
+			::SendDirector("identity", reinterpret_cast<sptr_t>(wReceiver));
+#endif
 		}
 		delete []director;
 	}
@@ -119,7 +129,11 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 }
 
 bool DirectorExtension::Finalise() {
-    SendDirector(SCD_CLOSING, "");
+#ifdef INT_BASED_VERBS
+	::SendDirector(SCD_CLOSING, "");
+#else
+	::SendDirector("closing");
+#endif
 	if (wReceiver)
 		::DestroyWindow(wReceiver);
 	wReceiver = 0;
@@ -136,22 +150,37 @@ bool DirectorExtension::Load(const char *) {
 
 bool DirectorExtension::OnOpen(const char *path) {
 	CheckEnvironment(host);
-	if (*path)
-		::SendDirector(SCD_OPENED, path);	// ShowPath 
+	if (*path) {
+#ifdef INT_BASED_VERBS
+		::SendDirector(SCD_OPENED, path);
+#else
+		::SendDirector("opened", path);
+#endif
+	}
 	return true;
 }
 
 bool DirectorExtension::OnSwitchFile(const char *path) { 
 	CheckEnvironment(host);
-	if (*path)
-		::SendDirector(SCD_SWITCHED, path);	// ShowPath 
+	if (*path) {
+#ifdef INT_BASED_VERBS
+		::SendDirector(SCD_SWITCHED, path);
+#else
+		::SendDirector("switched", path);
+#endif
+	}
 	return true; 
 };
 
 bool DirectorExtension::OnSave(const char *path) {
 	CheckEnvironment(host);
-	if (*path)
-		::SendDirector(SCD_SAVED, path);	// Refresh 
+	if (*path) {
+#ifdef INT_BASED_VERBS
+		::SendDirector(SCD_SAVED, path);
+#else
+		::SendDirector("saved", path);
+#endif
+	}
 	return true;
 }
 
@@ -189,6 +218,21 @@ bool DirectorExtension::OnMarginClick() {
 	return false;
 }
 
+void DirectorExtension::HandleStringMessage(const char *message) {
+	const char *arg = strchr(message, ':');
+	if (arg)
+		arg++;
+	if (isprefix(message, "identity:")) {
+		wDirector = reinterpret_cast<HWND>(atoi(arg));
+	} else if (isprefix(message, "closing:")) {
+		wDirector = 0;
+		if (startedByDirector)
+			host->ShutDown();
+	} else if (host) {
+		host->Perform(message);
+	}
+}
+
 LRESULT DirectorExtension::HandleMessage(WPARAM wParam, LPARAM lParam) {
 	COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
 	char path[MAX_PATH];
@@ -208,6 +252,9 @@ LRESULT DirectorExtension::HandleMessage(WPARAM wParam, LPARAM lParam) {
 			wDirector = 0;
 			if (startedByDirector)
 				host->ShutDown();
+			break;
+		case 0:
+			HandleStringMessage(path);
 			break;
 	}
 	return 0;

@@ -131,6 +131,10 @@ public:
 	void Clear();
 };
 
+/// Find the character following a name which is made up of character from 
+/// the set [a-zA-Z.]
+char AfterName(const char *s);
+
 typedef EntryMemory<10> ComboMemory;
 
 enum { 
@@ -473,6 +477,8 @@ protected:
 	int NormaliseSplit(int splitPos);
 	void MoveSplit(Point ptNewDrag);
 
+	void PerformOne(const char *action);
+	
 	// ExtensionAPI
 	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 	char *Range(Pane p, int start, int end);
@@ -484,6 +490,7 @@ protected:
 	void SetProperty(const char *key, const char *val);
 	uptr_t GetInstance();
 	void ShutDown();
+	void Perform(const char *actions);
 
 public:
 

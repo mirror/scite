@@ -2044,9 +2044,11 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	SString switches;
 	for (int arg=1; arg < argc; arg++) {
 		if (argv[arg][0] == '-') {
-			if (switches.length())
-				switches += "\n";
-			switches += (argv[arg] + 1);
+			if (AfterName(argv[arg] + 1) == ':') {
+				commands.appendwithseparator(argv[arg] + 1, '\n');
+			} else {
+				switches.appendwithseparator(argv[arg] + 1, '\n');
+			}
 		} else {
 			fileCount++;
 			files += argv[arg];

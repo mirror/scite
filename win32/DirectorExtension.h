@@ -28,5 +28,6 @@ public:
 
 	// Allow messages through to extension
 	LRESULT HandleMessage(WPARAM wParam, LPARAM lParam);
+	void HandleStringMessage(const char *message);
 };
 

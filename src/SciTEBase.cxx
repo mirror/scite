@@ -2080,6 +2080,26 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 	previousHeightOutput = newHeightOutput;
 }
 
+/// Find the character following a name which is made up of character from 
+/// the set [a-zA-Z.]
+char AfterName(const char *s) {
+	while (*s && ((*s == '.') || 
+		(*s >= 'a' && *s <= 'z') ||
+		(*s >= 'A' && *s <= 'A')))
+		s++;
+	return *s;
+}
+
+void SciTEBase::PerformOne(const char *action) {
+	const char *arg=strchr(action, ':');
+	if (arg) {
+		arg++;
+		if (isprefix(action, "open:")) {
+			Open(arg);
+		}
+	}
+}
+
 // Implement ExtensionAPI methods
 sptr_t SciTEBase::Send(Pane p, unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	if (p == paneEditor)
@@ -2145,4 +2165,14 @@ uptr_t SciTEBase::GetInstance() {
 void SciTEBase::ShutDown() {
 	QuitProgram();
 }
+
+void SciTEBase::Perform(const char *actions) {
+	while (const char *nextAct = strchr(actions, '\n')) {
+		SString command(actions, 0, nextAct-actions);
+		PerformOne(command.c_str());
+		actions = nextAct + 1;
+	}
+	PerformOne(actions);
+}
+
 

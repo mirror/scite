@@ -801,6 +801,7 @@ void SciTEWin::Run(const char *cmdLine) {
 	bool performPrint = false;
 	SString files;
 	SString switches;
+	SString commands;
 	const char *startArg = cmdLine;
 	while (*startArg) {
 		while (isspace(*startArg)) {
@@ -823,9 +824,12 @@ void SciTEWin::Run(const char *cmdLine) {
 			if ((tolower(*startArg) == 'p') && ((endArg - startArg) == 1)) {
 				performPrint = true;
 			} else {
-				if (switches.length())
-					switches += "\n";
-				switches += SString(startArg, 0, endArg - startArg);
+				SString arg(startArg, 0, endArg - startArg);
+				if (AfterName(arg.c_str()) == ':') {
+					commands.appendwithseparator(arg.c_str(), '\n');
+				} else {
+					switches.appendwithseparator(arg.c_str(), '\n');
+				}
 			}
 		} else {	// Not a switch: it is a file name
 			files += SString(startArg, 0, endArg - startArg);
@@ -844,6 +848,8 @@ void SciTEWin::Run(const char *cmdLine) {
 	// In case of not using buffers they get closed immediately except
 	// the last one, but they move to the MRU file list
 	OpenMultiple(files.c_str(), true);
+	
+	Perform(commands.c_str());
 
 	if (performPrint) {
 		Print(false);
