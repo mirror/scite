@@ -426,7 +426,7 @@ protected:
 
 	PropSet propsStatus;
 
-	enum { bufferMax = 10 };
+	enum { bufferMax = 100 };
 	BufferList buffers;
 
 	// Handle buffers
