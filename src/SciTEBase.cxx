@@ -1687,20 +1687,25 @@ bool SciTEBase::StartExpandAbbreviation() {
 	SendEditor(SCI_BEGINUNDOACTION);
 	SendEditor(SCI_SETSEL, position - counter, position);
 
-	//add the abbreviation a character at a time
+	// add the abbreviation a character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
 		char c = expbuf[i];
 		SString abbrevText("");
 		switch (c) {
 		case '|':
-			//check for c/c++ "OR" which looks like ||
+			// user may want to insert '|' istead of caret
 			if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
-				//put || into the line
-				abbrevText += c;
+				// put '|' into the line
 				abbrevText += c;
 				i++;
-			} else if (caret_pos == -1)
-				caret_pos = SendEditor(SCI_GETCURRENTPOS);
+			} else if (caret_pos == -1) {
+				if (i == 0) {
+					// when caret is set at the first place in abbreviation
+					caret_pos = SendEditor(SCI_GETCURRENTPOS) - counter;
+				} else {
+					caret_pos = SendEditor(SCI_GETCURRENTPOS);
+				}
+			}
 			break;
 		default:
 			abbrevText += c;
