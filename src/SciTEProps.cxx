@@ -220,7 +220,9 @@ void SciTEBase::SetLanguageMenu() {
 #endif
 			entry += languageMenu[item].menuKey;
 		}
-		SetMenuItem(menuLanguage, item, itemID, entry.c_str());
+		if (entry[0] != '#') {
+			SetMenuItem(menuLanguage, item, itemID, entry.c_str());
+		}
 	}
 }
 

@@ -2404,6 +2404,18 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         provided with translations.
         </td>
       </tr>
+      <tr>
+        <td>
+        menu.language
+        </td>
+        <td>
+                Defines the entries in the Language menu and the file extensions they map to.
+		Each menu item is defined by 3 elements, language name, extension and an optional
+		keyboard equivalent. Each element is terminated by '|'. For example:<br />
+		H&amp;ypertext|html|F12|<br />
+		Menu items may be commented out by prefixing the name with '#'.
+        </td>
+      </tr>
       <tr class="gtkonly">
         <td>
         menukey.*
@@ -2422,10 +2434,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 		menukey.file.exit=&lt;control&gt;Q
 		</code>
 		<br /><br />
-		Note that spaces in menu titles and names must be converted to underscores, 
+		Note that spaces in menu titles and names must be converted to underscores,
 		and trailing ellipses removed.  For example, "File | Save As...." is referenced as "menukey.file.save_as".
 		<br /><br />
-		Multiple modifiers may be specified, though each must be surrounded by angle brackets.  The 
+		Multiple modifiers may be specified, though each must be surrounded by angle brackets.  The
 		recognized modifiers are the same as for the user.shortcuts setting described above.  The recognized named
 		keys are also the same as for user.shortcuts, with the addition of "none" to indicate that no accelerator
 		key should be defined for a particular menu.
