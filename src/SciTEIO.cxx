@@ -61,21 +61,42 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 		fullPath[0] = '\0';
 	}
 
+    bool absolutePath = fullPath[0] == pathSepChar;
+#if PLAT_WIN
+    if (fullPath[1] == ':')
+        absolutePath = true;
+#endif
+
+	// Break fullPath into directory and file name using working directory for relative paths
 	char *cpDirEnd = strrchr(fullPath, pathSepChar);
-	if (cpDirEnd) {
+	if (absolutePath) {
+		// Absolute path
 		strcpy(fileName, cpDirEnd + 1);
 		strcpy(dirName, fullPath);
 		dirName[cpDirEnd - fullPath] = '\0';
 		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
-	}
-	else {
-		strcpy(fileName, fullPath);
+	} else {
+		// Relative path
 		getcwd(dirName, sizeof(dirName));
 		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
-		strcpy(fullPath, dirName);
-		strcat(fullPath, pathSepString);
-		strcat(fullPath, fileName);
+		if (cpDirEnd) {
+			// directories and file name
+			strcpy(fileName, cpDirEnd + 1);
+			*cpDirEnd = '\0';
+			strncat(dirName, pathSepString, sizeof(dirName));
+			strncat(dirName, fullPath, sizeof(dirName));
+		} else {
+			// Just a file name
+			strcpy(fileName, fullPath);
+		}
 	}
+	
+	// Rebuild fullPath from directory and name
+	strcpy(fullPath, dirName);
+	strcat(fullPath, pathSepString);
+	strcat(fullPath, fileName);
+	//Platform::DebugPrintf("Path: <%s>\n", fullPath);
+	
 	if (fixCase)
 		FixFilePath();
 	char fileBase[MAX_PATH];
