@@ -1057,6 +1057,8 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
+		g_object_set(dlg, "show-hidden", TRUE, NULL);
+		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dlg), TRUE);
 		SString openFilter;
 		if (filter)
 			openFilter = filter;
@@ -1088,9 +1090,15 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 		}
 
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
-			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-			Open(filename);
-			g_free(filename);
+			GSList *names = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dlg));
+			GSList *nameCurrent = names;
+			while (nameCurrent) {
+				char *filename = static_cast<char *>(nameCurrent->data);
+				Open(filename);
+				g_free(filename);
+				nameCurrent = g_slist_next(nameCurrent);
+			}
+			g_slist_free(names);
 			canceled = false;
 		}
 		gtk_widget_destroy(dlg);
@@ -1130,6 +1138,7 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
 	bool canceled = true;
 	saveFormat = fmt;
 	if (!dlgFileSelector.Created()) {
+#ifndef USE_FILE_CHOOSER
 		dlgFileSelector = gtk_file_selection_new(LocaliseString(title).c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
@@ -1139,6 +1148,21 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
 		gtk_window_set_default_size(GTK_WINDOW(PWidget(dlgFileSelector)),
 		                            fileSelectorWidth, fileSelectorHeight);
 		canceled = dlgFileSelector.ShowModal(PWidget(wSciTE));
+#else
+		GtkWidget *dlg = gtk_file_chooser_dialog_new(LocaliseString(title).c_str(),
+				      GTK_WINDOW(wSciTE.GetID()),
+				      GTK_FILE_CHOOSER_ACTION_SAVE,
+				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+				      NULL);
+		
+		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
+			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+			HandleSaveAs(filename);
+			g_free(filename);
+		}
+		gtk_widget_destroy(dlg);
+#endif
 	}
 	return !canceled;
 }
