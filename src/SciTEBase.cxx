@@ -112,6 +112,7 @@ static void HackColour(int &n) {
 
 void SetAboutMessage(WindowID wsci, const char *appTitle) {
 	if (wsci) {
+		Platform::SendScintilla(wsci, SCI_SETSTYLEBITS, 7, 0);
 		Platform::SendScintilla(wsci, SCI_STYLERESETDEFAULT, 0, 0);
 		int fontSize = 15;
 #if PLAT_GTK
@@ -147,10 +148,10 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 			HackColour(r);
 			HackColour(g);
 			HackColour(b);
-			SetAboutStyle(wsci, 5 + co, Colour(r, g, b));
-			AddStyledText(wsci, "    ", 5 + co);
-			AddStyledText(wsci, contributors[co], 5 + co);
-			AddStyledText(wsci, "\n", 5 + co);
+			SetAboutStyle(wsci, 50 + co, Colour(r, g, b));
+			AddStyledText(wsci, "    ", 50 + co);
+			AddStyledText(wsci, contributors[co], 50 + co);
+			AddStyledText(wsci, "\n", 50 + co);
 		}
 		Platform::SendScintilla(wsci, EM_SETREADONLY, 1, 0);
 	}
