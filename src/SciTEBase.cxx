@@ -877,7 +877,8 @@ void SciTEBase::RangeExtendAndGrab(
     int selStart,
     int selEnd,
     int lengthDoc,
-    bool (*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
+    bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
+	bool stripEol /*=true*/) {
 	if (selStart == selEnd && ischarforsel) {
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
@@ -895,13 +896,15 @@ void SciTEBase::RangeExtendAndGrab(
 	if (selStart < selEnd) {
 		GetRange(wCurrent, selStart, selEnd, sel);
 	}
-	// Change whole line selected but normally end of line characters not wanted.
-	// Remove possible terminating \r, \n, or \r\n.
-	size_t sellen = strlen(sel);
-	if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] == '\n')) {
-		sel[sellen - 2] = '\0';
-	} else if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] == '\n')) {
-		sel[sellen - 1] = '\0';
+	if (stripEol) {
+		// Change whole line selected but normally end of line characters not wanted.
+		// Remove possible terminating \r, \n, or \r\n.
+		size_t sellen = strlen(sel);
+		if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] == '\n')) {
+			sel[sellen - 2] = '\0';
+		} else if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] == '\n')) {
+			sel[sellen - 1] = '\0';
+		}
 	}
 }
 
@@ -916,7 +919,8 @@ void SciTEBase::RangeExtendAndGrab(
 void SciTEBase::SelectionExtend(
     char *sel,   	///< Buffer receiving the result.
     int len,   	///< Size of the buffer.
-    bool (*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
+    bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
+	bool stripEol /*=true*/) {
 
 	Window wCurrent;
 
@@ -928,12 +932,12 @@ void SciTEBase::SelectionExtend(
 	int lengthDoc = SendFocused(SCI_GETLENGTH);
 	int selStart = SendFocused(SCI_GETSELECTIONSTART);
 	int selEnd = SendFocused(SCI_GETSELECTIONEND);
-	RangeExtendAndGrab(wCurrent, sel, len, selStart, selEnd, lengthDoc, ischarforsel);
+	RangeExtendAndGrab(wCurrent, sel, len, selStart, selEnd, lengthDoc, ischarforsel, stripEol);
 }
 
-SString SciTEBase::SelectionWord() {
+SString SciTEBase::SelectionWord(bool stripEol /*=true*/) {
 	char selection[1000];
-	SelectionExtend(selection, sizeof(selection), iswordcharforsel);
+	SelectionExtend(selection, sizeof(selection), iswordcharforsel, stripEol);
 	return SString(selection);
 }
 
@@ -958,21 +962,21 @@ void SciTEBase::SelectionIntoProperties() {
 	props.SetInteger("SelectionEndColumn", SendFocused(SCI_GETCOLUMN, selEnd) + 1);
 }
 
-void SciTEBase::SelectionIntoFind() {
-	SString sel = SelectionWord();
+void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
+	SString sel = SelectionWord(stripEol);
 	if (sel.length() && !sel.contains('\r') && !sel.contains('\n')) {
 		// The selection does not include a new line, so is likely to be
 		// the expression to search...
 		findWhat = sel;
-	}
-	// else findWhat remains the same as last time.
-	if (unSlash) {
-		char *slashedFind = Slash(findWhat.c_str());
-		if (slashedFind) {
-			findWhat = slashedFind;
-			delete []slashedFind;
+		if (unSlash) {
+			char *slashedFind = Slash(findWhat.c_str());
+			if (slashedFind) {
+				findWhat = slashedFind;
+				delete []slashedFind;
+			}
 		}
 	}
+	// else findWhat remains the same as last time.
 }
 
 void SciTEBase::FindMessageBox(const SString &msg) {
@@ -1276,18 +1280,11 @@ void SciTEBase::ReplaceOnce() {
 	FindNext(reverseFind);
 }
 
-void SciTEBase::ReplaceAll(bool inSelection) {
+int SciTEBase::DoReplaceAll(bool inSelection) {
 	SString findTarget = findWhat;
-	props.SetInteger("Replacements", 0);
 	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
 	if (findLen == 0) {
-		SString msg = LocaliseMessage(
-		                  inSelection ?
-		                  "Find string must not be empty for 'Replace in Selection' command." :
-		                  "Find string must not be empty for 'Replace All' command.");
-		UpdateStatusBar(false);
-		FindMessageBox(msg);
-		return;
+		return -1;
 	}
 
 	CharacterRange cr = GetSelection();
@@ -1295,11 +1292,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	int endPosition = cr.cpMax;
 	if (inSelection) {
 		if (startPosition == endPosition) {
-			SString msg = LocaliseMessage(
-			                  "Selection must not be empty for 'Replace in Selection' command.");
-			UpdateStatusBar(false);
-			FindMessageBox(msg);
-			return;
+			return -2;
 		}
 	} else {
 		endPosition = LengthDocument();
@@ -1361,16 +1354,56 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			SetSelection(startPosition, endPosition);
 		else
 			SetSelection(lastMatch, lastMatch);
-		props.SetInteger("Replacements", replacements);
-		UpdateStatusBar(false);
 		SendEditor(SCI_ENDUNDOACTION);
+		return replacements;
 	} else {
-		SString msg = LocaliseMessage(
-		                  "No replacements because string '^0' was not present.", findWhat.c_str());
-		UpdateStatusBar(false);
-		FindMessageBox(msg);
+		return 0;
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
+}
+
+void SciTEBase::ReplaceAll(bool inSelection) {
+	int replacements = DoReplaceAll(inSelection);
+	props.SetInteger("Replacements", (replacements > 0 ? replacements : 0));
+	UpdateStatusBar(false);
+	if (replacements == -1) {
+		SString msg = LocaliseMessage(
+		                  inSelection ?
+		                  "Find string must not be empty for 'Replace in Selection' command." :
+		                  "Find string must not be empty for 'Replace All' command.");
+		FindMessageBox(msg);
+	} else if (replacements == -2) {
+		SString msg = LocaliseMessage(
+						  "Selection must not be empty for 'Replace in Selection' command.");
+		FindMessageBox(msg);
+	} else if (replacements == 0) {
+		SString msg = LocaliseMessage(
+		                  "No replacements because string '^0' was not present.", findWhat.c_str());
+		FindMessageBox(msg);
+	}
+}
+
+void SciTEBase::ReplaceInBuffers() {
+	int currentBuffer = buffers.current;
+	int replacements = 0;
+	for (int i = 0; i < buffers.length; i++) {
+		SetDocumentAt(i);
+		replacements += DoReplaceAll(false);
+		if (i == 0 && replacements < 0) {
+			SString msg = LocaliseMessage(
+							  "Find string must not be empty for 'Replace in Buffers' command.");
+			FindMessageBox(msg);
+			break;
+		}
+	}
+	SetDocumentAt(currentBuffer);
+	props.SetInteger("Replacements", replacements);
+	UpdateStatusBar(false);
+	if (replacements == 0) {
+		SString msg = LocaliseMessage(
+		                  "No replacements because string '^0' was not present.", findWhat.c_str());
+		FindMessageBox(msg);
+	}
 }
 
 void SciTEBase::OutputAppendString(const char *s, int len, bool startLine) {

@@ -562,12 +562,12 @@ protected:
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
 	void RangeExtendAndGrab(Window &wCurrent, char *sel, int len,
-	    int selStart, int selEnd, int lengthDoc, bool (*ischarforsel)(char ch));
-	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch));
-	SString SelectionWord();
+	    int selStart, int selEnd, int lengthDoc, bool (*ischarforsel)(char ch), bool stripEol = true);
+	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch), bool stripEol = true);
+	SString SelectionWord(bool stripEol = true);
 	SString SelectionFilename();
 	void SelectionIntoProperties();
-	void SelectionIntoFind();
+	void SelectionIntoFind(bool stripEol = true);
 	virtual void Find() = 0;
 	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
 	void FindMessageBox(const SString &msg);
@@ -575,7 +575,9 @@ protected:
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
 	void ReplaceOnce();
+	int DoReplaceAll(bool inSelection); // returns number of replacements or negative value if error
 	void ReplaceAll(bool inSelection);
+	void ReplaceInBuffers();
 	virtual void DestroyFindReplace() = 0;
 	virtual void GoLineDialog() = 0;
 	virtual bool AbbrevDialog() = 0;
