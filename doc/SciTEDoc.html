@@ -33,7 +33,7 @@
       </tr>
     </table>
     <h2>
-       SciTE Documentatation
+       SciTE Documentation
     </h2>
     <h3>
        Standard Editing
@@ -143,6 +143,20 @@ NameError: mistake
       similar as it handles this similarly to a user opening the file from the shell.
     </p>
     <h3>
+       Buffers
+    </h3>
+    <p>
+       SciTE may be configured to use between 1 and 10 buffers each containing a 
+       file. The default is 1 and this effectively turns off buffers. With more than one buffer,
+       the Buffers menu can be used to switch between buffers, either by selecting the 
+       file name or using the Previous (F6) and Next (Shift+F6) commands. 
+     </p>
+     <p>
+       When all the buffers contain files, then opening a new file causes a buffer to be reused
+       which may require a file to be saved. In this case an alert is displayed to ensure the user 
+       wants the file saved.
+    </p>
+    <h3>
        Languages understood by SciTE
     </h3>
     <p>
@@ -187,6 +201,9 @@ NameError: mistake
       </li>
       <li>
         PHP (see later for setting up)
+      </li>
+      <li>
+        Lua
       </li>
     </ul>
     <p>
@@ -303,7 +320,7 @@ NameError: mistake
       Compile, Build and Go commands for the files in a directory. For example, I use the javac
       compiler from the Java Development Kit for most work, so SciTEGlobal.properties sets the
       command for compiling .java files to "javac". If I want to use the jvc compiler for the files
-      in one directory, then the SciTE.Properties file in that directory contains an entry setting
+      in one directory, then the SciTE.properties file in that directory contains an entry setting
       the command to "jvc".
     </p>
     <p>
@@ -363,6 +380,16 @@ NameError: mistake
           Set the initial window size and position. If these are omitted or set to 0 then the
           environments defaults are used. Currently, the GTK+ version uses hard coded sizes rather
           than these.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          buffers
+        </td>
+        <td>
+          Set to a number between 1 and 10 to configure that many buffers. 
+	Values outside this range are clamped to be within the range.
+	The default is 1 which turns off UI features concerned with buffers.
         </td>
       </tr>
       <tr>
@@ -591,11 +618,41 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          styling.within.preprocessor
+        </td>
+        <td>
+          For C++ code, determines whether all preprocessor code is styled in the preprocessor 
+	style (0, the default) or only from the initial # to the end of the command word(1).
+        </td>
+      </tr>
+      <tr>
+        <td>
+          tab.timmy.whinge.level
+        </td>
+        <td>
+          For Python code, checks whether indenting is consistent. The default, 0 turns off 
+	indentation checking, 1 checks whether each line is potentially inconsistent  with the
+	previous line, 2 checks whether any space characters occur before a tab character
+	in the indentation, 3 checks whether any spaces are in the indentation, and 4 checks 
+	for any tab characters in the indentation. <br />
+	1 is a good level to use.
+        </td>
+      </tr>
+      <tr>
+        <td>
           split.vertical
         </td>
         <td>
           If set to 1 then the output pane is to the left of the editing pane, if set to 0 then the
           output pane is below the editing pane.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          clear.before.execute
+        </td>
+        <td>
+          If set to 1 then the output pane is cleared before any tool commands are run.
         </td>
       </tr>
       <tr>
@@ -925,6 +982,16 @@ NameError: mistake
 	 that only the last line be examined for indentation.<br />
 	 The block.start and block.end properties define the language elements used to bracket groups
 	 of statements. In C++ these are '{' and '}'.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	  vc.home.key
+        </td>
+        <td>
+        	Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like 
+	Visual C++ moving the caret to the end of then line indentation unless already 
+	there, in which case it moves to the start of the line. 0 moves to the start of the line.
         </td>
       </tr>
     </table>
