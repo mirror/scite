@@ -199,8 +199,8 @@ void SciTEBase::InitialiseBuffers() {
 #if PLAT_WIN
 			// Make previous change visible.
 			::DrawMenuBar(wSciTE.GetID());
-			// Destroy command "View Tab Bar" in the menu "Options"
-			DestroyMenuItem(menuOptions, IDM_VIEWTABBAR);
+			// Destroy command "View Tab Bar" in the menu "View"
+			DestroyMenuItem(menuView, IDM_VIEWTABBAR);
 #endif
 		}
 	}
@@ -598,6 +598,24 @@ void SciTEBase::SetToolsMenu() {
 			SetMenuItem(menuTools, menuPos, itemID, sMenuItem.c_str(), sMnemonic.c_str());
 			menuPos++;
 		}
+	}
+
+	DestroyMenuItem(menuTools, IDM_MACRO_SEP);
+	DestroyMenuItem(menuTools, IDM_MACROLIST);
+	DestroyMenuItem(menuTools, IDM_MACROPLAY);
+	DestroyMenuItem(menuTools, IDM_MACRORECORD);
+	DestroyMenuItem(menuTools, IDM_MACROSTOPRECORD);
+	menuPos++;
+	if (macrosEnabled) {
+		SetMenuItem(menuTools, menuPos++, IDM_MACRO_SEP, "");
+		SetMenuItem(menuTools, menuPos++, IDM_MACROLIST, 
+			"&List Macros...\tShift+F9");
+		SetMenuItem(menuTools, menuPos++, IDM_MACROPLAY, 
+			"Run Current &Macro\tF9");
+		SetMenuItem(menuTools, menuPos++, IDM_MACRORECORD, 
+			"&Record Macro\tCtrl+F9");
+		SetMenuItem(menuTools, menuPos++, IDM_MACROSTOPRECORD, 
+			"S&top Recording Macro\tCtrl+Shift+F9");
 	}
 }
 

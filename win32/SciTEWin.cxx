@@ -304,6 +304,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		if (fullScreen) {
 			winPlace.length = sizeof(winPlace);
 			::GetWindowPlacement(wSciTE.GetID(), &winPlace);
+			winPlace.length = sizeof(winPlace);
 			int topStuff = ::GetSystemMetrics(SM_CYMENU) +
 				::GetSystemMetrics(SM_CYEDGE);
 			if (props.GetInt("full.screen.hides.menu"))

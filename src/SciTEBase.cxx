@@ -256,6 +256,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	dirNameAtExecute[0] = '\0';
 	fileModTime = 0;
 
+	macrosEnabled = false;
 	currentmacro[0] = '\0';
 	recording = false;
 	playing = false;
@@ -2009,10 +2010,12 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 
 	case IDM_COMPLETE:
+		autoCCausedByOnlyOne = false;
 		StartAutoComplete();
 		break;
 
 	case IDM_COMPLETEWORD:
+		autoCCausedByOnlyOne = false;
 		StartAutoCompleteWord(false);
 		break;
 
@@ -2259,9 +2262,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 		TabSizeDialog();
 		break;
 
-	case IDM_FIXED_FONT:
-		break;
-
 	case IDM_LEXER_NONE:
 	case IDM_LEXER_CPP:
 	case IDM_LEXER_VB:
@@ -2290,17 +2290,17 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SetOverrideLanguage(cmdID);
 		break;
 
-	case IDM_STARTRECORDMACRO:
-		StartRecordMacro();
+	case IDM_MACROLIST:
+		AskMacroList();
 		break;
-	case IDM_STOPRECORDMACRO:
-		StopRecordMacro();
-		break;
-	case IDM_STARTPLAYMACRO:
+	case IDM_MACROPLAY:
 		StartPlayMacro();
 		break;
-	case IDM_STARTMACROLIST:
-		AskMacroList();
+	case IDM_MACRORECORD:
+		StartRecordMacro();
+		break;
+	case IDM_MACROSTOPRECORD:
+		StopRecordMacro();
 		break;
 
 	case IDM_HELP: {
@@ -2631,9 +2631,9 @@ void SciTEBase::CheckMenus() {
 			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.current);
 		}
 	}
-	EnableAMenuItem(IDM_STARTPLAYMACRO, !recording);
-	EnableAMenuItem(IDM_STARTRECORDMACRO, !recording);
-	EnableAMenuItem(IDM_STOPRECORDMACRO, recording);
+	EnableAMenuItem(IDM_MACROPLAY, !recording);
+	EnableAMenuItem(IDM_MACRORECORD, !recording);
+	EnableAMenuItem(IDM_MACROSTOPRECORD, recording);
 }
 
 /**
@@ -2704,6 +2704,9 @@ void SciTEBase::PerformOne(char *action) {
 			strncpy(findWhat, arg, sizeof(findWhat));
 			findWhat[sizeof(findWhat) - 1] = '\0';
 			FindNext(false, false);
+		} else if (isprefix(action, "macroenable:")) {
+			macrosEnabled = atoi(arg);
+			SetToolsMenu();
 		} else if (isprefix(action, "macrolist:")) {
 			StartMacroList((char *)arg);
 		} else if (isprefix(action, "currentmacro:")) {

@@ -309,6 +309,7 @@ protected:
 	bool jobUsesOutputPane;
 	long cancelFlag;
 
+	bool macrosEnabled;
 	char currentmacro[100];
 	bool recording;
 	bool playing; //not used : never set to true ...
