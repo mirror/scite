@@ -53,7 +53,7 @@ void Job::Clear() {
 }
 
 bool FilePath::SameNameAs(const char *other) const {
-#ifdef xWIN32
+#ifdef WIN32
 	return EqualCaseInsensitive(fileName.c_str(), other);
 #else
 	return fileName == other;
