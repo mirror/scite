@@ -822,7 +822,9 @@ void SciTEWin::ProcessExecute() {
 
 	// Move selection back to beginning of this run so that F4 will go
 	// to first error of this run.
-	if (scrollOutput && returnOutputToCommand)
+	// scroll and return only if output.scroll equals
+	// one in the properties file
+	if (props.GetInt("output.scroll", 1) == 1 && returnOutputToCommand)
 		SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
 	returnOutputToCommand = true;
 	::SendMessage(MainHWND(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
