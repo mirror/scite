@@ -956,16 +956,18 @@ SString SciTEBase::SelectionFilename() {
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	char currentSelection[20000];
-	SelectionExtend(currentSelection, sizeof(currentSelection), 0);
+	int selStart = SendFocused(SCI_GETSELECTIONSTART);
+	int selEnd = SendFocused(SCI_GETSELECTIONEND);
+	char *currentSelection = new char[selEnd - selStart + 1];
+	SelectionExtend(currentSelection, selEnd - selStart + 1, 0);
 	props.Set("CurrentSelection", currentSelection);
+	delete []currentSelection;
+
 	SString word = SelectionWord();
 	props.Set("CurrentWord", word.c_str());
 
-	int selStart = SendFocused(SCI_GETSELECTIONSTART);
 	props.SetInteger("SelectionStartLine", SendFocused(SCI_LINEFROMPOSITION, selStart) + 1);
 	props.SetInteger("SelectionStartColumn", SendFocused(SCI_GETCOLUMN, selStart) + 1);
-	int selEnd = SendFocused(SCI_GETSELECTIONEND);
 	props.SetInteger("SelectionEndLine", SendFocused(SCI_LINEFROMPOSITION, selEnd) + 1);
 	props.SetInteger("SelectionEndColumn", SendFocused(SCI_GETCOLUMN, selEnd) + 1);
 }
