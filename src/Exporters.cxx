@@ -403,7 +403,7 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 			else if (ch == '}')
 				fputs("\\}", fp);
 			else if (ch == '\\')
-				fputs("\\", fp);
+				fputs("\\\\", fp);
 			else if (ch == '\t') {
 				if (tabs)
 					fputs(RTF_TAB, fp);
