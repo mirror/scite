@@ -838,6 +838,17 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			line += 6;
 			return atoi(line) - 1;
 		}
+	} else if (format == SCE_ERR_NET) {
+		// .NET traceback
+		char *in = strstr(cdoc, " in ");
+		char *line = strstr(cdoc, ":line ");
+		if (in && line && (line > in)) {
+			in += 4;
+			strncpy(sourcePath, in, line - in);
+			sourcePath[line - in] = 0;
+			line += 6;
+			return atoi(line) - 1;
+		}
 	}
 	return - 1;
 }
