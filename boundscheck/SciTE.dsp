@@ -155,6 +155,10 @@ SOURCE=..\..\scintilla\src\LexAVE.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexBullant.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexConf.cxx
 # End Source File
 # Begin Source File
