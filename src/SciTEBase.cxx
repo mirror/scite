@@ -61,20 +61,22 @@ void SetAboutStyle(WindowID wsci, int style, Colour fore, Colour back, int size)
 
 void SetAboutMessage(WindowID wsci, const char *appTitle) {
 	if (wsci) {
+		Platform::SendScintilla(wsci, SCI_STYLERESETDEFAULT, 0, 0);
 		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, Colour(0, 0, 0).AsLong());
-		Platform::SendScintilla(wsci, EM_SETREADONLY, 0, 0);
+		Platform::SendScintilla(wsci, SCI_STYLECLEARALL, 0, 0);
 		SetAboutStyle(wsci, 0, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 24);
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 12);
-		AddStyledText(wsci, "Version 1.22\n", 1);
+		AddStyledText(wsci, "Version 1.23\n", 1);
 		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 12);
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 12);
-		AddStyledText(wsci, "December 1998-February 2000.\n", 3);
+		AddStyledText(wsci, "December 1998-March 2000.\n", 3);
 		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff), Colour(0, 0, 0x80), 10);
 		AddStyledText(wsci, "http://www.scintilla.org", 4);
+		Platform::SendScintilla(wsci, EM_SETREADONLY, 0, 0);
 	}
 }
 
@@ -532,17 +534,19 @@ void SciTEBase::ReadProperties() {
 	else
 		SendEditor(SCI_SETSTYLEBITS, 5);
 		
-	for (int wl=0;wl<numWordLists;wl++) {
-		keyWords[wl].Clear();
-		keyWordLists[wl] = &keyWords[wl];
-	}
+	SendEditor(SCI_SETLEXER, lexLanguage);
+	SendOutput(SCI_SETLEXER, SCLEX_ERRORLIST);
 
 	apis.Clear();
 
-	keyWords[0].Set(props.GetNewExpand("keywords.", fileNameForExtension.c_str()).c_str());
-	keyWords[1].Set(props.GetNewExpand("keywords2.", fileNameForExtension.c_str()).c_str());
-	keyWords[2].Set(props.GetNewExpand("keywords3.", fileNameForExtension.c_str()).c_str());
-	keyWords[3].Set(props.GetNewExpand("keywords4.", fileNameForExtension.c_str()).c_str());
+	SString kw0 = props.GetNewExpand("keywords.", fileNameForExtension.c_str());
+	SendEditor(SCI_SETKEYWORDS, 0, reinterpret_cast<LPARAM>(kw0.c_str()));
+	SString kw1 = props.GetNewExpand("keywords2.", fileNameForExtension.c_str());
+	SendEditor(SCI_SETKEYWORDS, 1, reinterpret_cast<LPARAM>(kw1.c_str()));
+	SString kw2 = props.GetNewExpand("keywords3.", fileNameForExtension.c_str());
+	SendEditor(SCI_SETKEYWORDS, 2, reinterpret_cast<LPARAM>(kw2.c_str()));
+	SString kw3 = props.GetNewExpand("keywords4.", fileNameForExtension.c_str());
+	SendEditor(SCI_SETKEYWORDS, 3, reinterpret_cast<LPARAM>(kw3.c_str()));
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
 	if (apifilename.length()) {
@@ -730,6 +734,8 @@ void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
 }
 
 void SciTEBase::Colourise(int start, int end, bool editor) {
+// Colourisation is now performed by the SciLexer DLL
+#ifdef OLD_CODE
 	//DWORD dwStart = timeGetTime();
 	Window &win = editor ? wEditor : wOutput;
 	int lengthDoc = Platform::SendScintilla(win.GetID(), SCI_GETLENGTH, 0, 0);
@@ -752,6 +758,7 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 	styler.Flush();
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("end colourise %d\n", dwEnd - dwStart);
+#endif
 }
 
 void SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite) {

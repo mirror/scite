@@ -73,8 +73,6 @@ protected:
 	SString language;
 	int lexLanguage;
 	enum {numWordLists=5};
-	WordList *keyWordLists[numWordLists];
-	WordList keyWords[numWordLists];
 	WordList apis;
 	SString functionDefinition;
 
