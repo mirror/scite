@@ -651,7 +651,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	codePage = props.GetInt("code.page");
-	if (unicodeMode != IDM_ENCODING_DEFAULT) {
+	if (unicodeMode != 0) {
 		// Override properties file to ensure Unicode displayed.
 		codePage = SC_CP_UTF8;
 	}

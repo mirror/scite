@@ -351,8 +351,10 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 			if (unicodeMode != 0) {
 				// Override the code page if Unicode
 				codePage = SC_CP_UTF8;
-				SendEditor(SCI_SETCODEPAGE, codePage);
+			} else {
+				codePage = props.GetInt("code.page");
 			}
+			SendEditor(SCI_SETCODEPAGE, codePage);
 
 			if (props.GetInt("eol.auto")) {
 				int linesCR;
