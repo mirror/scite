@@ -730,6 +730,7 @@ void SciTEBase::ReadProperties() {
 	regExp = props.GetInt("find.replace.regexp");
 	unSlash = props.GetInt("find.replace.escapes");
 	wrapFind = props.GetInt("find.replace.wrap", 1);
+	memFiles.AppendList(props.GetNewExpand("find.files", ""));
 
 	if (props.GetInt("vc.home.key", 1)) {
 		AssignKey(SCK_HOME, 0, SCI_VCHOME);
