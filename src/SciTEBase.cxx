@@ -1781,6 +1781,8 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	char linebuf[1000];
 	GetLine(linebuf, sizeof(linebuf));
 	int current = GetCaretInLine();
+	if (current >= static_cast<int>(sizeof(linebuf)))
+		return false;
 
 	int startword = current;
 	while (startword > 0 && wordCharacters.contains(linebuf[startword - 1]))
@@ -2049,7 +2051,7 @@ bool SciTEBase::StartBlockComment() {
 		int lineStart = SendEditor(SCI_POSITIONFROMLINE, i);
 		int lineIndent = lineStart;
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, i);
-		if ((lineEnd - lineIndent) >= sizeof(linebuf))	// Avoid buffer size problems
+		if ((lineEnd - lineIndent) >= static_cast<int>(sizeof(linebuf)))	// Avoid buffer size problems
 			continue;
 		if (props.GetInt(comment_at_line_start.c_str())) {
 			GetRange(wEditor, lineIndent, lineEnd, linebuf);
