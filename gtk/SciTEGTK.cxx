@@ -814,12 +814,12 @@ void SciTEGTK::Execute() {
 
 	if (jobQueue[icmd].jobType != jobShell) {
 	
-		int fdp = mkfifo(resultsFile, S_IRUSR | S_IWUSR);
-		if (fdp < 0) {
+		if (mkfifo(resultsFile, S_IRUSR | S_IWUSR) < 0) {
 			OutputAppendString(">Failed to create FIFO\n");
+			ExecuteNext();
 			return;
 		}
-		close(fdp);
+		
 		pidShell = xsystem(jobQueue[icmd].command.c_str(), resultsFile);
 		fdFIFO = open(resultsFile, O_RDONLY | O_NONBLOCK);
 		if (fdFIFO < 0) {
