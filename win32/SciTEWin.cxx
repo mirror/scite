@@ -290,6 +290,12 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 
+	case IDM_ONTOP:
+		topMost = (topMost ? false : true);
+		SetWindowPos(wSciTE.GetID(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0,0,0,0, SWP_NOMOVE + SWP_NOSIZE);
+		CheckAMenuItem(IDM_ONTOP, topMost);
+		break;
+
 	default:
 		SciTEBase::MenuCommand(cmdID);
 	}

@@ -2042,6 +2042,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	SString files;
 	int fileCount = 0;
 	SString switches;
+	SString commands;
 	for (int arg=1; arg < argc; arg++) {
 		if (argv[arg][0] == '-') {
 			if (AfterName(argv[arg] + 1) == ':') {
@@ -2254,6 +2255,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	SetFocus(wOutput.GetID());
 
 	OpenMultiple(files.c_str(), true);
+	Perform(commands.c_str());
 	CheckMenus();
 	SizeSubWindows();
 	SetFocus(wEditor.GetID());
