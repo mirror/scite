@@ -1087,6 +1087,50 @@ bool SciTEBase::StartExpandAbbreviation() {
 	return true;
 }
 
+bool SciTEBase::StartBlockComment() {
+	SString language = props.GetNewExpand("lexer.", fileName);
+	SString s_comment = props.GetNewExpand("comment.", language.c_str());
+	s_comment += ""; // attempt to solve W'2000 SString problems
+	if (s_comment == "") {
+		MessageBox(wSciTE.GetID(),
+			"Define comment characters for this lexer in your *.properties!",
+			"Error", MB_OK | MB_ICONERROR);
+		return true;
+	}
+	const char *comment = s_comment.begin(); // .begin() - for W'2000
+	s_comment += " "; // adding space between comment and source
+	const char *long_comment = s_comment.begin(); // .begin() - for W'2000
+	char linebuf[1000];
+	int comment_length = strlen(comment);
+	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
+	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
+	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd) + 1;
+	for (int i = selStartLine; i < selEndLine; i++) {
+		int lineIndent = GetLineIndentPosition(i);
+		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, i);
+		GetRange(wEditor, lineIndent, lineEnd, linebuf);
+		if(strlen(linebuf) < 1)
+			continue; // empty lines are not commented
+		if(memcmp(linebuf, comment, comment_length - 1) == 0) {
+			if(memcmp(linebuf, long_comment, comment_length) == 0) {
+				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length);
+				SendEditorString(SCI_REPLACESEL, 0, "");
+				SendEditor(SCI_GOTOPOS, selectionEnd - comment_length);
+				continue; // removing comment with space after it
+			} else {
+				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length - 1);
+				SendEditorString(SCI_REPLACESEL, 0, "");
+				SendEditor(SCI_GOTOPOS, selectionEnd - comment_length + 1);
+				continue; // remowing comment _without_ space
+			}
+		}
+		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment);
+		SendEditor(SCI_GOTOPOS, selectionEnd + comment_length);
+	}
+	return true;
+}
+
 int SciTEBase::GetCurrentLineNumber() {
 	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
@@ -1537,6 +1581,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_ABBREV:
 		StartExpandAbbreviation();
+		break;
+
+	case IDM_COMMENT:
+		StartBlockComment();
 		break;
 
 	case IDM_TOGGLE_FOLDALL:

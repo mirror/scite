@@ -52,6 +52,7 @@ BEGIN
 	MENUITEM "Complete S&ymbol\tCtrl+I",		IDM_COMPLETE
 	MENUITEM "Complete &Word\tCtrl+Enter",		IDM_COMPLETEWORD
 	MENUITEM "&Expand Abbreviation\tCtrl+B",		IDM_ABBREV
+	MENUITEM "Co&mment/Uncomment Selection\tCtrl+K",		IDM_COMMENT
 	MENUITEM "Make &Selection Uppercase\tCtrl+Shift+U",		IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",		IDM_LWRCASE
   END
@@ -283,6 +284,7 @@ BEGIN
 	VK_SPACE, IDM_COMPLETE, VIRTKEY, CONTROL
 	"B", IDM_ABBREV, VIRTKEY, CONTROL
 	"I", IDM_COMPLETE, VIRTKEY, CONTROL
+	"K", IDM_COMMENT, VIRTKEY, CONTROL
 	VK_RETURN, IDM_COMPLETEWORD, VIRTKEY, CONTROL
 
 	// this does not work and gives RC warning:
