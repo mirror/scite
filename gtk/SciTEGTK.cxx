@@ -2585,7 +2585,9 @@ void SciTEGTK::CreateUI() {
 	int top = props.GetInt("position.top", useDefault);
 	int width = props.GetInt("position.width", useDefault);
 	int height = props.GetInt("position.height", useDefault);
+	bool maximize = false;
 	if (width == -1 || height == -1) {
+		maximize = true;
 		width = gdk_screen_width() - left - 10;
 		height = gdk_screen_height() - top - 30;
 	}
@@ -2749,6 +2751,11 @@ void SciTEGTK::CreateUI() {
 	//	gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
 	AddToolBar();
 	SetIcon();
+
+#if GTK_MAJOR_VERSION >= 2
+	if (maximize)
+		gtk_window_maximize(GTK_WINDOW(PWidget(wSciTE)));
+#endif
 
 	UIAvailable();
 #ifdef INCREMENTAL_SEARCH
