@@ -513,7 +513,7 @@ protected:
 	void Close(bool updateUI = true, bool loadingSession = false);
 	bool IsAbsolutePath(const char *path);
 	bool Exists(const char *dir, const char *path, char *testPath);
-	void OpenFile(bool initialCmdLine);
+	void OpenFile(bool suppressMessage);
 	virtual void OpenUriList(const char *) {};
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size) = 0;
 	virtual void FixFilePath();
@@ -522,9 +522,14 @@ protected:
 	virtual void LoadSessionDialog() { };
 	virtual void SaveSessionDialog() { };
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
-	bool Open(const char *file = 0, bool initialCmdLine = false,
-		bool forceLoad = false, bool maySaveIfDirty=true, bool preserveUndo=false);
-	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad = false);
+	enum OpenFlags {
+		ofNone=0, 		// Default
+		ofNoSaveIfDirty=1, 	// Suppress check for unsaved changes
+		ofForceLoad=2,	// Reload file even if already in a buffer
+		ofPreserveUndo=4,	// Do not delete undo history
+		ofQuiet=8		// Avoid "Could not open file" message
+	};
+	bool Open(const char *file, OpenFlags of=ofNone);
 	bool OpenSelected();
 	void Revert();
 	int SaveIfUnsure(bool forceQuestion = false);
@@ -727,6 +732,7 @@ protected:
 	void AskMacroList();
 	bool StartMacroList(const char *words);
 	void ContinueMacroList(const char *stxt);
+	void LoadMRUAndSession(bool allowLoadSession);
 	bool ProcessCommandLine(SString &args, int phase);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);

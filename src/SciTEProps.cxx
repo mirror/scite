@@ -1285,18 +1285,18 @@ void SciTEBase::OpenProperties(int propsFile) {
 
 		strcat(propfile, pathSepString);
 		strcat(propfile, propFileName);
-		Open(propfile);
+		Open(propfile, ofQuiet);
 	} else if (propsFile == IDM_OPENUSERPROPERTIES) {
 		if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-			Open(propfile);
+			Open(propfile, ofQuiet);
 		}
 	} else if (propsFile == IDM_OPENABBREVPROPERTIES) {
 		if (GetAbbrevPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-			Open(propfile);
+			Open(propfile, ofQuiet);
 		}
 	} else {	// IDM_OPENGLOBALPROPERTIES
 		if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-			Open(propfile);
+			Open(propfile, ofQuiet);
 		}
 	}
 }

@@ -381,59 +381,55 @@ static UniMode CookieValue(const SString &s) {
 	return uni8Bit;
 }
 
-void SciTEBase::OpenFile(bool initialCmdLine) {
+void SciTEBase::OpenFile(bool suppressMessage) {
 	Utf8_16_Read convert;
 
 	FILE *fp = fopen(fullPath, fileRead);
-	if (fp || initialCmdLine) {
-		// If initial run and no fp, just open an empty buffer
-		// with the given name
-		if (fp) {
-			fileModTime = GetModTime(fullPath);
-			fileModLastAsk = fileModTime;
-			SendEditor(SCI_CLEARALL);
-			char data[blockSize];
-			size_t lenFile = fread(data, 1, sizeof(data), fp);
-			SString l1 = ExtractLine(data, lenFile);
-			SString l2 = ExtractLine(data+l1.length(), lenFile-l1.length());
-			while (lenFile > 0) {
-				lenFile = convert.convert(data, lenFile);
-				SendEditorString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
-				lenFile = fread(data, 1, sizeof(data), fp);
-			}
-			fclose(fp);
-			unicodeMode = static_cast<UniMode>(
-				static_cast<int>(convert.getEncoding()));
-			// Check the first two lines for coding cookies
+	if (fp) {
+		fileModTime = GetModTime(fullPath);
+		fileModLastAsk = fileModTime;
+		SendEditor(SCI_CLEARALL);
+		char data[blockSize];
+		size_t lenFile = fread(data, 1, sizeof(data), fp);
+		SString l1 = ExtractLine(data, lenFile);
+		SString l2 = ExtractLine(data+l1.length(), lenFile-l1.length());
+		while (lenFile > 0) {
+			lenFile = convert.convert(data, lenFile);
+			SendEditorString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
+			lenFile = fread(data, 1, sizeof(data), fp);
+		}
+		fclose(fp);
+		unicodeMode = static_cast<UniMode>(
+			static_cast<int>(convert.getEncoding()));
+		// Check the first two lines for coding cookies
+		if (unicodeMode == uni8Bit) {
+			unicodeMode = CookieValue(l1);
 			if (unicodeMode == uni8Bit) {
-				unicodeMode = CookieValue(l1);
-				if (unicodeMode == uni8Bit) {
-					unicodeMode = CookieValue(l2);
-				}
-			}
-			if (unicodeMode != uni8Bit) {
-				// Override the code page if Unicode
-				codePage = SC_CP_UTF8;
-			} else {
-				codePage = props.GetInt("code.page");
-			}
-			SendEditor(SCI_SETCODEPAGE, codePage);
-
-			if (props.GetInt("eol.auto")) {
-				int linesCR;
-				int linesLF;
-				int linesCRLF;
-				SetEol();
-				CountLineEnds(linesCR, linesLF, linesCRLF);
-				if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
-					SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
-				else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
-					SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
-				else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
-					SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+				unicodeMode = CookieValue(l2);
 			}
 		}
-	} else {
+		if (unicodeMode != uni8Bit) {
+			// Override the code page if Unicode
+			codePage = SC_CP_UTF8;
+		} else {
+			codePage = props.GetInt("code.page");
+		}
+		SendEditor(SCI_SETCODEPAGE, codePage);
+
+		if (props.GetInt("eol.auto")) {
+			int linesCR;
+			int linesLF;
+			int linesCRLF;
+			SetEol();
+			CountLineEnds(linesCR, linesLF, linesCRLF);
+			if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
+				SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
+			else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
+				SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
+			else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
+				SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+		}
+	} else if (!suppressMessage) {
 		SString msg = LocaliseMessage("Could not open file '^0'.", fullPath);
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
@@ -450,8 +446,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 	Redraw();
 }
 
-bool SciTEBase::Open(const char *file, bool initialCmdLine,
-                     bool forceLoad, bool maySaveIfDirty, bool preserveUndo) {
+bool SciTEBase::Open(const char *file, OpenFlags of) {
 	InitialiseBuffers();
 
 	if (!file) {
@@ -471,11 +466,11 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 		SetDocumentAt(index);
 		DeleteFileStackMenu();
 		SetFileStackMenu();
-		if (!forceLoad) // Just rotate into view
+		if (!(of & ofForceLoad)) // Just rotate into view
 			return true;
 	}
 	// See if we can have a buffer for the file to open
-	if (!CanMakeRoom(maySaveIfDirty)) {
+	if (!CanMakeRoom(!(of & ofNoSaveIfDirty))) {
 		return false;
 	}
 
@@ -483,7 +478,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 		AddFileToStack(fullPath, GetSelection(), GetCurrentScrollPosition());
 		ClearDocument();
 	} else {
-		if (index < 0 || !forceLoad) { // No new buffer, already opened
+		if (index < 0 || !(of & ofForceLoad)) { // No new buffer, already opened
 			New();
 		}
 	}
@@ -496,31 +491,21 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 	UpdateBuffersCurrent();
 	SizeSubWindows();
 
-	if (initialCmdLine) {
-		if (props.GetInt("save.recent", 0))
-			LoadRecentMenu();
-	}
-	if (initialCmdLine && props.GetInt("buffers") && !fileName[0]) {
-		if (props.GetInt("save.session", 0)) {
-			LoadSession("");
-			return TRUE;
-		}
-	}
 	if (fileName[0]) {
 		SendEditor(SCI_SETREADONLY, 0);
 		SendEditor(SCI_CANCEL);
-		if (!preserveUndo) {
-			SendEditor(SCI_SETUNDOCOLLECTION, 0);
-		} else {
+		if (of & ofPreserveUndo) {
 			SendEditor(SCI_BEGINUNDOACTION);
+		} else {
+			SendEditor(SCI_SETUNDOCOLLECTION, 0);
 		}
 
-		OpenFile(initialCmdLine);
+		OpenFile(of & ofQuiet);
 
-		if (!preserveUndo) {
-			SendEditor(SCI_EMPTYUNDOBUFFER);
-		} else {
+		if (of & ofPreserveUndo) {
 			SendEditor(SCI_ENDUNDOACTION);
+		} else {
+			SendEditor(SCI_EMPTYUNDOBUFFER);
 		}
 		isReadOnly = props.GetInt("read.only");
 		SendEditor(SCI_SETREADONLY, isReadOnly);
@@ -533,17 +518,6 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 	if (extender)
 		extender->OnOpen(fullPath);
 	return true;
-}
-
-void SciTEBase::OpenMultiple(const char *files, bool initialCmdLine, bool forceLoad) {
-	if (*files) {
-		while (*files) {
-			Open(files, initialCmdLine, forceLoad);
-			files = files + strlen(files) + 1;
-		}
-	} else {
-		Open("", initialCmdLine, forceLoad);
-	}
 }
 
 // Returns true if editor should get the focus
@@ -633,7 +607,7 @@ bool SciTEBase::OpenSelected() {
 #endif
 	}
 	if (Exists(path, selectedFilename, path)) {
-		if (Open(path, false)) {
+		if (Open(path)) {
 			if (lineNumber > 0) {
 				SendEditor(SCI_GOTOLINE, lineNumber - 1);
 			} else if (cTag[0] != '\0') {
@@ -667,6 +641,7 @@ void SciTEBase::CheckReload() {
 		//Platform::DebugPrintf("Times are %d %d\n", fileModTime, newModTime);
 		if (newModTime > fileModTime) {
 			RecentFile rf = GetFilePosition();
+			OpenFlags of = props.GetInt("reload.preserves.undo") ? ofPreserveUndo : ofNone;
 			if (isDirty || props.GetInt("are.you.sure.on.reload") != 0) {
 				static bool entered = false; // Stop reentrancy
 				if (!entered && (0 == dialogsOnScreen) && (newModTime != fileModLastAsk)) {
@@ -685,14 +660,14 @@ void SciTEBase::CheckReload() {
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					dialogsOnScreen--;
 					if (decision == IDYES) {
-						Open(fullPathToCheck, false, true, false, (0 != props.GetInt("reload.preserves.undo")));
+						Open(fullPathToCheck, static_cast<OpenFlags>(of | ofForceLoad));
 						DisplayAround(rf);
 					}
 					fileModLastAsk = newModTime;
 					entered = false;
 				}
 			} else {
-				Open(fullPathToCheck, false, true, true, (0 != props.GetInt("reload.preserves.undo")));
+				Open(fullPathToCheck, of);
 				DisplayAround(rf);
 			}
 		}

@@ -700,7 +700,7 @@ void SciTEBase::AddFileToBuffer(const char *file, int pos) {
 	FILE *fp = fopen(file, fileRead);  // file existence test
 	if (fp) {                      // for missing files Open() gives an empty buffer - do not want this
 		fclose(fp);
-		Open(file, false, file);
+		Open(file, ofForceLoad);
 		SendEditor(SCI_GOTOPOS, pos);
 	}
 }
@@ -822,7 +822,7 @@ void SciTEBase::StackMenuPrev() {
 
 void SciTEBase::StackMenu(int pos) {
 	//Platform::DebugPrintf("Stack menu %d\n", pos);
-	if (SaveIfUnsure() != IDCANCEL) {
+	if (CanMakeRoom(true)) {
 		if (pos >= 0) {
 			if ((pos == 0) && (!recentFileStack[pos].IsSet())) {	// Empty
 				New();
@@ -834,7 +834,7 @@ void SciTEBase::StackMenu(int pos) {
 				//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
 				overrideExtension = "";
 				// Already asked user so don't allow Open to ask again.
-				Open(rf.FullPath(), false, false, false);
+				Open(rf.FullPath(), ofNoSaveIfDirty);
 				DisplayAround(rf);
 			}
 		}

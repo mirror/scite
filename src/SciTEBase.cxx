@@ -4170,6 +4170,17 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	delete []tbuff;
 }
 
+void SciTEBase::LoadMRUAndSession(bool allowLoadSession) {
+	InitialiseBuffers();
+	if (props.GetInt("save.recent")) {
+		LoadRecentMenu();
+	}
+	if (allowLoadSession && props.GetInt("buffers") &&
+		props.GetInt("save.session")) {
+		LoadSession("");
+	}
+}
+
 /**
  * Process all the command line arguments.
  * Arguments that start with '-' (also '/' on Windows) are switches or commands with
@@ -4211,13 +4222,20 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 				return performPrint;
 			else
 				evaluate = true;
-			Open(arg, true);
+			LoadMRUAndSession(false);
+			Open(arg, ofQuiet);
 		}
 	}
-	// If we have finished with all args and no buffer
-	// is open, create one.
-	if ((phase == 1) && (buffers.size == 0)) {
-		Open("", true);
+	if (phase == 1) {
+		// If we have finished with all args and no buffer is open
+		// try to load session.
+		if (buffers.size == 0) {
+			LoadMRUAndSession(true);
+		}
+		// No open file after session load so create empty document.
+		if (IsUntitledFileName(fullPath)) {
+			Open("");
+		}
 	}
 	return performPrint;
 }
