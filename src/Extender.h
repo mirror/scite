@@ -5,6 +5,12 @@
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef EXTENDER_H
+#define EXTENDER_H
+
+#include "Scintilla.h"
+class Accessor;
+
 class ExtensionAPI {
 public:
 	enum Pane { paneEditor=1, paneOutput=2, paneFindOutput=3 };
@@ -26,26 +32,29 @@ public:
  */
 class Extension {
 public:
+	virtual ~Extension() {}
+
 	virtual bool Initialise(ExtensionAPI *host_)=0;
 	virtual bool Finalise()=0;
 	virtual bool Clear()=0;
 	virtual bool Load(const char *filename)=0;
 
-	virtual bool OnOpen(const char *) { return false; };
-	virtual bool OnSwitchFile(const char *) { return false; };
-	virtual bool OnSave(const char *) { return false; };
-	virtual bool OnChar(char) { return false; };
-	virtual bool OnExecute(const char *) { return false; };
-	virtual bool OnSavePointReached() { return false; };
-	virtual bool OnSavePointLeft() { return false; };
+	virtual bool OnOpen(const char *) { return false; }
+	virtual bool OnSwitchFile(const char *) { return false; }
+	virtual bool OnSave(const char *) { return false; }
+	virtual bool OnChar(char) { return false; }
+	virtual bool OnExecute(const char *) { return false; }
+	virtual bool OnSavePointReached() { return false; }
+	virtual bool OnSavePointLeft() { return false; }
 	virtual bool OnStyle(unsigned int, int, int, Accessor *) {
 		return false;
 	}
-	virtual bool OnDoubleClick() { return false; };
-	virtual bool OnUpdateUI() { return false; };
-	virtual bool OnMarginClick() { return false; };
-	virtual bool OnMacro(const char *, const char *) { return false; };
+	virtual bool OnDoubleClick() { return false; }
+	virtual bool OnUpdateUI() { return false; }
+	virtual bool OnMarginClick() { return false; }
+	virtual bool OnMacro(const char *, const char *) { return false; }
 	
-	virtual bool SendProperty(const char *) { return false; };
+	virtual bool SendProperty(const char *) { return false; }
 };
 
+#endif

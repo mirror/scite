@@ -52,18 +52,18 @@ rem Set path for VC 6
 path %MSDEV_BASE%;%path%
 rem
 rem Target 4: Visual C++ using scintilla\vcbuild\SciLexer.dsp
-REM ~ call scite\scripts\clearboth
-REM ~ cd scintilla\vcbuild
-REM ~ msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
-rem
-rem Target 5: Visual C++ using scite\vcbuild\SciTE.dsp
 call scite\scripts\clearboth
-cd scite\vcbuild
-msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+cd scintilla\vcbuild
+msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
+rem
+rem Target 5: Visual C++ using scite\vcbuild\SciTE.dsp
+REM ~ call scite\scripts\clearboth
+REM ~ cd scite\vcbuild
+REM ~ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
 rem
 rem Target 6: Visual C++ using scite\boundscheck\SciTE.dsp
 call scite\scripts\clearboth

@@ -33,6 +33,10 @@
 #include "ScintillaWidget.h"
 #include "Extender.h"
 #include "SciTEBase.h"
+
+#ifndef NO_EXTENSIONS
+#include "MultiplexExtension.h"
+#endif
 #ifdef LUA_SCRIPTING
 #include "LuaExtension.h"
 #endif
@@ -2953,17 +2957,17 @@ int SciTEGTK::PollTool(SciTEGTK *scitew) {
 }
 
 int main(int argc, char *argv[]) {
-#ifdef LUA_SCRIPTING
-	LuaExtension luaExtender;
-	Extension *extender = &luaExtender;
-#else
-#ifndef NO_FILER
-
-	DirectorExtension director;
-	Extension *extender = &director;
-#else
-
+#ifdef NO_EXTENSIONS
 	Extension *extender = 0;
+#else
+	MultiplexExtension multiExtender;
+	Extension *extender = &multiExtender;
+    
+#ifdef LUA_SCRIPTING
+	multiExtender.RegisterExtension(LuaExtension::Instance());
+#endif
+#ifndef NO_FILER
+	multiExtender.RegisterExtension(DirectorExtension::Instance());
 #endif
 #endif
 

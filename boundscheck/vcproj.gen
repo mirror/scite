@@ -286,6 +286,9 @@
 				RelativePath="..\win32\SciTEWinDlg.cxx">
 			</File>
 			<File
+				RelativePath="..\win32\MultiplexExtension.cxx">
+			</File>
+			<File
 				RelativePath="..\win32\UniqueInstance.cxx">
 			</File>
 			<File

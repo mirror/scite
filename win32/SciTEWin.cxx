@@ -9,6 +9,10 @@
 
 #include "SciTEWin.h"
 
+#ifndef NO_EXTENSIONS
+#include "MultiplexExtension.h"
+#endif
+
 #ifndef NO_FILER
 #include "DirectorExtension.h"
 #endif
@@ -1682,17 +1686,18 @@ LRESULT PASCAL SciTEWin::IWndProc(
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 
-#ifdef LUA_SCRIPTING
-	LuaExtension luaExtender;
-	Extension *extender = &luaExtender;
-#else
-#ifndef NO_FILER
-
-	DirectorExtension director;
-	Extension *extender = &director;
-#else
-
+#ifdef NO_EXTENSIONS
 	Extension *extender = 0;
+#else
+	MultiplexExtension multiExtender;
+	Extension *extender = &multiExtender;
+	
+#ifdef LUA_SCRIPTING
+	multiExtender.RegisterExtension(LuaExtension::Instance());
+#endif
+	
+#ifndef NO_FILER
+	multiExtender.RegisterExtension(DirectorExtension::Instance());
 #endif
 #endif
 	//Platform::DebugPrintf("Command line is \n%s\n<<", lpszCmdLine);

@@ -33,7 +33,6 @@
 #include "SciTEBase.h"
 
 static ExtensionAPI *host = 0;
-static DirectorExtension *pde = 0;
 static HWND wDirector = 0;
 static HWND wCorrespondent = 0;
 static HWND wReceiver = 0;
@@ -100,12 +99,12 @@ static char DirectorExtension_ClassName[] = "DirectorExtension";
 static LRESULT HandleCopyData(LPARAM lParam) {
 	COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
 	// Copy into an temporary buffer to ensure \0 terminated
-	if (pde && pcds->lpData) {
+	if (pcds->lpData) {
 		char *dataCopy = new char[pcds->cbData + 1];
 		if (dataCopy) {
 			strncpy(dataCopy, reinterpret_cast<char *>(pcds->lpData), pcds->cbData);
 			dataCopy[pcds->cbData] = '\0';
-			pde->HandleStringMessage(dataCopy);
+			DirectorExtension::Instance().HandleStringMessage(dataCopy);
 			delete []dataCopy;
 		}
 	}
@@ -138,12 +137,9 @@ static void DirectorExtension_Register(HINSTANCE hInstance) {
 		::exit(FALSE);
 }
 
-DirectorExtension::DirectorExtension() {
-	pde = this;
-}
-
-DirectorExtension::~DirectorExtension() {
-	pde = 0;
+DirectorExtension &DirectorExtension::Instance() {
+	static DirectorExtension singleton;
+	return singleton;
 }
 
 bool DirectorExtension::Initialise(ExtensionAPI *host_) {
@@ -179,11 +175,11 @@ bool DirectorExtension::Finalise() {
 }
 
 bool DirectorExtension::Clear() {
-	return true;
+	return false;
 }
 
 bool DirectorExtension::Load(const char *) {
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnOpen(const char *path) {
@@ -191,7 +187,7 @@ bool DirectorExtension::OnOpen(const char *path) {
 	if (*path) {
 		::SendDirector("opened", path);
 	}
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnSwitchFile(const char *path) {
@@ -199,7 +195,7 @@ bool DirectorExtension::OnSwitchFile(const char *path) {
 	if (*path) {
 		::SendDirector("switched", path);
 	}
-	return true;
+	return false;
 };
 
 bool DirectorExtension::OnSave(const char *path) {
@@ -207,7 +203,7 @@ bool DirectorExtension::OnSave(const char *path) {
 	if (*path) {
 		::SendDirector("saved", path);
 	}
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnChar(char) {
@@ -217,7 +213,7 @@ bool DirectorExtension::OnChar(char) {
 bool DirectorExtension::OnExecute(const char *cmd) {
 	CheckEnvironment(host);
 	::SendDirector("macro:run", cmd);
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnSavePointReached() {
@@ -248,7 +244,7 @@ bool DirectorExtension::OnMarginClick() {
 
 bool DirectorExtension::OnMacro(const char *command, const char *params) {
 	SendDirector(command, params);
-	return true;
+	return false;
 }
 
 bool DirectorExtension::SendProperty(const char *prop) {
@@ -256,7 +252,7 @@ bool DirectorExtension::SendProperty(const char *prop) {
 	if (*prop) {
 		::SendDirector("property", prop);
 	}
-	return true;
+	return false;
 }
 
 void DirectorExtension::HandleStringMessage(const char *message) {

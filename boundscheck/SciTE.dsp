@@ -299,6 +299,10 @@ SOURCE=..\..\scintilla\src\LineMarker.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\MultiplexExtension.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\Win32\PlatWin.cxx
 # End Source File
 # Begin Source File
@@ -360,6 +364,10 @@ SOURCE=..\..\scintilla\src\StyleContext.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\Src\UniConversion.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\win32\UniqueInstance.cxx
 # End Source File
 # Begin Source File
 

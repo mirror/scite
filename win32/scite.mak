@@ -90,6 +90,7 @@ OBJS=\
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
 	DirectorExtension.obj \
+	MultiplexExtension.obj \
 	UniqueInstance.obj \
 	..\..\scintilla\win32\PlatWin.obj \
 	..\..\scintilla\win32\PropSet.obj \
@@ -151,6 +152,7 @@ OBJSSTATIC=\
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
 	DirectorExtension.obj \
+	MultiplexExtension.obj \
 	UniqueInstance.obj \
 	..\..\scintilla\win32\AutoComplete.obj \
 	..\..\scintilla\win32\CallTip.obj \
@@ -353,6 +355,16 @@ DirectorExtension.obj: \
 	DirectorExtension.h \
 	../src/SciTE.h \
 	../src/SciTEBase.h
+MultiplexExtension.obj: \
+	../src/MultiplexExtension.cxx \
+	../src/MultiplexExtension.h \
+	../src/Extender.h \
+	../../scintilla/include/Scintilla.h
+UniqueInstance.obj: \
+	UniqueInstance.cxx \
+	UniqueInstance.h \
+	SciTEWin.h \
+	../../scintilla/include/Platform.h
 SciTEWin.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \

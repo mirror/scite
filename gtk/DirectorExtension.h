@@ -6,9 +6,13 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 class DirectorExtension : public Extension {
+private:
+	DirectorExtension() {} // Singleton
+	DirectorExtension(const DirectorExtension &); // Disable copy ctor
+	void operator=(const DirectorExtension &);    // Disable operator=
+
 public:
-	DirectorExtension();
-	virtual ~DirectorExtension();
+	static DirectorExtension &Instance();
 
 	// Implement the Extension interface
 	virtual bool Initialise(ExtensionAPI *host_);

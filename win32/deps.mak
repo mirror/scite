@@ -3,6 +3,8 @@ DirectorExtension.o: DirectorExtension.cxx \
  ../../scintilla/include/SString.h ../../scintilla/include/Scintilla.h \
  ../../scintilla/include/Accessor.h ../src/Extender.h \
  DirectorExtension.h ../src/SciTE.h ../src/SciTEBase.h
+MultiplexExtension.o: ../src/MultiplexExtension.cxx ../src/Extender.h \
+ ../src/MultiplexExtension.h ../../scintilla/include/Scintilla.h
 SciTEWin.o: SciTEWin.cxx SciTEWin.h ../../scintilla/include/Platform.h \
  ../src/SciTE.h ../../scintilla/include/PropSet.h \
  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \

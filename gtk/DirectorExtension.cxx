@@ -30,7 +30,6 @@
 
 
 static ExtensionAPI *host = 0;
-static DirectorExtension *pde = 0;
 static int fdDirector = 0;
 static int fdCorrespondent = 0;
 static int fdReceiver = 0;
@@ -102,12 +101,9 @@ static void CheckEnvironment(ExtensionAPI *host) {
 	}
 }
 
-DirectorExtension::DirectorExtension() {
-	pde = this;
-}
-
-DirectorExtension::~DirectorExtension() {
-	pde = 0;
+DirectorExtension &DirectorExtension::Instance() {
+	static DirectorExtension singleton;
+	return singleton;
 }
 
 bool DirectorExtension::Initialise(ExtensionAPI *host_) {
@@ -130,11 +126,11 @@ bool DirectorExtension::Finalise() {
 }
 
 bool DirectorExtension::Clear() {
-	return true;
+	return false;
 }
 
 bool DirectorExtension::Load(const char *) {
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnOpen(const char *path) {
@@ -142,7 +138,7 @@ bool DirectorExtension::OnOpen(const char *path) {
 	if (*path) {
 		::SendDirector("opened", path);
 	}
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnSwitchFile(const char *path) {
@@ -150,7 +146,7 @@ bool DirectorExtension::OnSwitchFile(const char *path) {
 	if (*path) {
 		::SendDirector("switched", path);
 	}
-	return true;
+	return false;
 };
 
 bool DirectorExtension::OnSave(const char *path) {
@@ -158,7 +154,7 @@ bool DirectorExtension::OnSave(const char *path) {
 	if (*path) {
 		::SendDirector("saved", path);
 	}
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnChar(char) {
@@ -168,7 +164,7 @@ bool DirectorExtension::OnChar(char) {
 bool DirectorExtension::OnExecute(const char *cmd) {
 	CheckEnvironment(host);
 	::SendDirector("macro:run", cmd);
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnSavePointReached() {
@@ -199,7 +195,7 @@ bool DirectorExtension::OnMarginClick() {
 
 bool DirectorExtension::OnMacro(const char *command, const char *params) {
 	SendDirector(command, params);
-	return true;
+	return false;
 }
 
 bool DirectorExtension::SendProperty(const char *prop) {
@@ -207,7 +203,7 @@ bool DirectorExtension::SendProperty(const char *prop) {
 	if (*prop) {
 		::SendDirector("property", prop);
 	}
-	return true;
+	return false;
 }
 
 void DirectorExtension::HandleStringMessage(const char *message) {
