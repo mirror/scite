@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include "Platform.h"
 
@@ -41,6 +42,27 @@
 
 #define SciTE_MARKER_BOOKMARK 1
 
+const char *contributors[] = {
+        "Atsuo Ishimoto",
+        "Mark Hammond",
+        "Francois Le Coguiec",
+        "Dale Nagata",
+        "Ralf Reinhardt",
+        "Philippe Lhoste",
+        "Andrew McKinlay",
+        "Stephan R. A. Deibel",
+        "Hans Eckardt",
+        "Vassili Bourdo",
+        "Maksim Lin",
+        "Robin Dunn",
+        "John Ehresman",
+        "Steffen Goeldner",
+        "Deepak S.",
+        "DevelopMentor http://www.develop.com",
+        "Yann Gaillard",
+        "Aubin Paul",
+};
+
 // AddStyledText only called from About so static size buffer is OK
 void AddStyledText(WindowID hwnd, const char *s, int attr) {
 	char buf[1000];
@@ -59,6 +81,14 @@ void SetAboutStyle(WindowID wsci, int style, Colour fore, Colour back, int size)
 	Platform::SendScintilla(wsci, SCI_STYLESETSIZE, style, size);
 }
 
+static void HackColour(int &n) {
+	n += (rand() % 100) - 50;
+	if (n < 0x40)
+		n = 0xC0;
+	if (n > 0xFF)
+		n = 0xC0;
+}
+
 void SetAboutMessage(WindowID wsci, const char *appTitle) {
 	if (wsci) {
 		Platform::SendScintilla(wsci, SCI_STYLERESETDEFAULT, 0, 0);
@@ -67,15 +97,29 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		SetAboutStyle(wsci, 0, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 24);
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
-		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 12);
+		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0), 15);
 		AddStyledText(wsci, "Version 1.23\n", 1);
-		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 12);
+		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0), 15);
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
-		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 12);
+		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0), 15);
 		AddStyledText(wsci, "December 1998-March 2000.\n", 3);
-		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff), Colour(0, 0, 0x80), 10);
-		AddStyledText(wsci, "http://www.scintilla.org", 4);
+		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff), Colour(0, 0, 0), 15);
+		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
+		AddStyledText(wsci, "Contributors:\n", 1);
+		srand(static_cast<unsigned>(time(0)));
+		int r=rand()%256;
+		int g=rand()%256;
+		int b=rand()%256;
+		for (int co=0;co<(sizeof(contributors)/sizeof(contributors[0]));co++) {
+			HackColour(r);
+			HackColour(g);
+			HackColour(b);
+			SetAboutStyle(wsci, 5+co, Colour(r, g, b), Colour(0, 0, 0), 15);
+			AddStyledText(wsci, "    ", 5+co);
+			AddStyledText(wsci, contributors[co], 5+co);
+			AddStyledText(wsci, "\n", 5+co);
+		}
 		Platform::SendScintilla(wsci, EM_SETREADONLY, 0, 0);
 	}
 }
