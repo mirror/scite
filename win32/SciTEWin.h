@@ -103,7 +103,7 @@ protected:
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
 	virtual void CheckMenus();
-  
+
 	void LocaliseAccelerators();
 	SString LocaliseAccelerator(const char *Accelerator, int cmd);
 	void LocaliseMenu(HMENU hmenu);
@@ -193,7 +193,7 @@ protected:
 	BOOL AboutMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	void AboutDialogWithBuild(int staticBuild);
-	
+
 	void MakeAccelerator(SString sKey, ACCEL &Accel);
 
 public:

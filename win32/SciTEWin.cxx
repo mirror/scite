@@ -985,13 +985,17 @@ void SciTEWin::CreateUI() {
 	UIAvailable();
 }
 
+static bool IsASpace(int ch) {
+	return (ch == ' ') || (ch == '\t');
+}
+
 SString SciTEWin::ProcessArgs(const char *cmdLine) {
 	// Break up the command line into individual arguments and strip double quotes
 	// from each argument creating a string with each argument separated by '\n'
 	SString args;
 	const char *startArg = cmdLine;
 	while (*startArg) {
-		while (isspace(*startArg)) {
+		while (IsASpace(*startArg)) {
 			startArg++;
 		}
 		const char *endArg = startArg;
@@ -1002,7 +1006,7 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
 				endArg++;
 			}
 		} else {	// No double-quote, end of argument on first space
-			while (*endArg && !isspace(*endArg)) {
+			while (*endArg && !IsASpace(*endArg)) {
 				endArg++;
 			}
 		}
