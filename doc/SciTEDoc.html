@@ -310,26 +310,54 @@ NameError: mistake
     </p>
     <ul>
         <li>Ada</li>
+        <li>Assembler (NASM, MASM)</li>
+        <li>AutoIt</li>
         <li>Avenue</li>
+        <li>Batch files (MS-DOS)</li>
+        <li>Baan</li>
+        <li>Bash</li>
+        <li>Bullant</li>
         <li>C/C++/C#</li>
         <li>CSS</li>
+        <li>diff files</li>
+        <li>E-Script</li>
         <li>Eiffel</li>
+        <li>Erlang</li>
+        <li>Fortran</li>
+        <li>Forth</li>
         <li>HTML</li>
         <li>HTML with embedded JavaScript, VBScript, PHP and ASP</li>
         <li>IDL - both MSIDL and XPIDL</li>
         <li>INI, properties and similar</li>
         <li>Java</li>
         <li>JavaScript</li>
-        <li>Lisp</li>
+        <li>LISP</li>
+        <li>LOT</li>
+        <li>Lout</li>
         <li>Lua</li>
         <li>Make</li>
-        <li>Pascal</li>
-        <li>Perl, but not all of the language</li>
+        <li>Matlab</li>
+        <li>Metapost</li>
+        <li>MMIXAL</li>
+        <li>nnCron</li>
+        <li>NSIS</li>
+        <li>Octave</li>
+        <li>Pascal/Delphi</li>
+        <li>Perl, most of it except for some ambiguous cases</li>
+        <li>PostScript</li>
+        <li>POV-Ray</li>
         <li>Python</li>
         <li>Ruby</li>
+        <li>Scheme</li>
+        <li>scriptol</li>
+        <li>Specman E</li>
         <li>SQL and PLSQL</li>
+        <li>TeX and LaTeX</li>
+        <li>Tcl/Tk - using the cpp lexer</li>
         <li>VB and VBScript</li>
+        <li>Verilog</li>
         <li>XML</li>
+        <li>YAML</li>
     </ul>
     <p>
        Running and building commands for some of these languages have been set up but should be
@@ -2168,6 +2196,40 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         export.rtf.font.face and export.rtf.font.size can be used to select a particular font and size
         for the exported RTF file. export.rtf.tabsize can be set to use a different tab size than that
         defined by the tabsize setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
+        export.pdf.magnification<br />
+        export.pdf.font<br />
+        export.pdf.pagesize<br />
+        export.pdf.margins
+        </td>
+        <td>
+        export.pdf.magnification is a value that is added to the font size of the default screen style in use.
+        A positive value increases the PDF document's font size, and vice versa.<br />
+        export.pdf.font accepts a one-word parameter that selects one of the default PDF fonts: Courier,
+        Helvetica or Times. Helvetica is the default. Helvetica and Times do not line wrap, Courier line
+        wraps.<br />
+        export.pdf.pagesize is used to set the document's page size, using points (1/72th of an inch) as
+        the unit. E.g. Letter paper (8.5 inch x 11 inch) is specified using the values 612,792.<br />
+        export.pdf.margins sets the widths of the page margins. Margins defaults to 72 points,
+        or 1 inch.<br />
+        The PDF exporter is necessarily feature-limited because PDF is a document archival format. Supporting
+        a full set of features will bloat SciTE. Wrapping Helvetica or Times adequately isn't possible without
+        the complexities of font metrics and kerning. The PDF produced uses WinAnsiEncoding, so pre-encoding
+        has to be done before exporting to PDF, if you want to use extended characters.
+        </td>
+      </tr>
+      <tr>
+        <td>
+        export.xml.collapse.spaces<br />
+        export.xml.collapse.lines
+        </td>
+        <td>
+        export.xml.collapse.spaces and export.xml.collapse.lines are flags that control how empty lines
+        and runs of space characters are converted into XML. The flags are enabled if set to 1. Tab
+        characters are always converted by the XML exporter into spaces according to the tabsize property.
         </td>
       </tr>
       <tr>
