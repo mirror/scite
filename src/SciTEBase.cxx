@@ -606,9 +606,9 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
  * Also set curLine to the line where one of these conditions is mmet.
  */
 bool SciTEBase::FindMatchingPreprocessorCondition(
-    int &curLine,    		///< Number of the line where to start the search
-    int direction,    		///< Direction of search: 1 = forward, -1 = backward
-    int condEnd1,    		///< First status of line for which the search is OK
+    int &curLine,   		///< Number of the line where to start the search
+    int direction,   		///< Direction of search: 1 = forward, -1 = backward
+    int condEnd1,   		///< First status of line for which the search is OK
     int condEnd2) {		///< Second one
 
 	bool isInside = false;
@@ -643,9 +643,9 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
 #pragma warn -aus
 #endif
 bool SciTEBase::FindMatchingPreprocCondPosition(
-    bool isForward,    		///< @c true if search forward
-    int &mppcAtCaret,    	///< Matching preproc. cond.: current position of caret
-    int &mppcMatch) {	///< Matching preproc. cond.: matching position
+    bool isForward,   		///< @c true if search forward
+    int &mppcAtCaret,   	///< Matching preproc. cond.: current position of caret
+    int &mppcMatch) {		///< Matching preproc. cond.: matching position
 
 	bool isInside = false;
 	int curLine;
@@ -681,7 +681,7 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
 		}
 		break;
-	default:    	// Should be noPPC
+	default:   	// Should be noPPC
 
 		if (isForward) {
 			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
@@ -923,13 +923,13 @@ static bool isfilenamecharforsel(char ch) {
 
 void SciTEBase::RangeExtendAndGrab(
     Window &wCurrent,
-    char *sel,    	///< Buffer receiving the result.
-    int len,    	///< Size of the buffer.
+    char *sel,  ///< Buffer receiving the result.
+    int len,  	///< Size of the buffer.
     int &selStart,
     int &selEnd,
     int lengthDoc,
-    bool (*ischarforsel)(char ch), 	///< Function returning @c true if the given char. is part of the selection.
-    bool stripEol /*=true*/) {
+    bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
+	bool stripEol /*=true*/) {
 	if (selStart == selEnd && ischarforsel) {
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
@@ -968,10 +968,10 @@ void SciTEBase::RangeExtendAndGrab(
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel,    	///< Buffer receiving the result.
-    int len,    	///< Size of the buffer.
-    bool (*ischarforsel)(char ch), 	///< Function returning @c true if the given char. is part of the selection.
-    bool stripEol /*=true*/) {
+    char *sel,  	///< Buffer receiving the result.
+    int len,  	///< Size of the buffer.
+    bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
+	bool stripEol /*=true*/) {
 
 	Window wCurrent;
 
@@ -999,7 +999,7 @@ void SciTEBase::FindWordAtCaret(int &start, int &end) {
 	start = SendFocused(SCI_GETSELECTIONSTART);
 	end = SendFocused(SCI_GETSELECTIONEND);
 	RangeExtendAndGrab(wCurrent, selection, sizeof(selection),
-	                   start, end, lengthDoc, iswordcharforsel, false);
+		start, end, lengthDoc, iswordcharforsel, false);
 }
 
 bool SciTEBase::SelectWordAtCaret() {
@@ -1438,7 +1438,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 				char chNext = static_cast<char>(SendEditor(SCI_GETCHARAT, SendEditor(SCI_GETTARGETEND)));
 				if (chNext == '\r' || chNext == '\n') {
 					movepastEOL = 1;
-			}
+				}
 			}
 			int lenReplaced = replaceLen;
 			if (regExp) {
