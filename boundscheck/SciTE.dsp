@@ -199,6 +199,10 @@ SOURCE=..\..\scintilla\src\LexLisp.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexLout.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexLua.cxx
 # End Source File
 # Begin Source File
