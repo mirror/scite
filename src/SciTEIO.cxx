@@ -180,6 +180,10 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 		// Relative path
 		getcwd(dirName, sizeof(dirName));
 		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
+		int ldn = strlen(dirName) - 1;
+		if (dirName[ldn] == pathSepChar) {
+			dirName[ldn] = '\0'; // Remove trailing path separator
+		}
 		if (cpDirEnd) {
 			// directories and file name
 			strcpy(fileName, cpDirEnd + 1);
@@ -489,7 +493,7 @@ void SciTEBase::CheckReload() {
 		//Platform::DebugPrintf("Times are %d %d\n", fileModTime, newModTime);
 		if (newModTime > fileModTime) {
 			if (isDirty) {
-				static bool entered = false;   	// Stop reentrancy
+				static bool entered = false;		// Stop reentrancy
 				if (!entered && (0 == dialogsOnScreen)) {
 					entered = true;
 					char msg[MAX_PATH + 100];
