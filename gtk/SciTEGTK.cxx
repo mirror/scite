@@ -453,6 +453,7 @@ void SciTEGTK::UpdateStatusBar() {
 void SciTEGTK::Notify(SCNotification *notification) {
 	switch (notification->nmhdr.code) {
 	case SCN_KEY: {
+#ifdef DIRECTKEYNOTIFICATIONS
 			int mods = 0;
 			if (notification->modifiers & SCMOD_SHIFT)
 				mods |= GDK_SHIFT_MASK;
@@ -478,6 +479,7 @@ void SciTEGTK::Notify(SCNotification *notification) {
 				gtk_accel_group_activate(accelGroup, notification->ch,
 				                         static_cast<GdkModifierType>(mods));
 			}
+#endif
 		}
 		break;
 
