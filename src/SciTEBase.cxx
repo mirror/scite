@@ -2464,7 +2464,7 @@ bool SciTEBase::HandleXml(char ch) {
 	// Grab the last 512 characters or so
 	int nCaret = SendEditor(SCI_GETCURRENTPOS);
 	char sel[512];
-	int nMin = nCaret - sizeof(sel) - 1;
+	int nMin = nCaret - (sizeof(sel) - 1);
 	if (nMin < 0) {
 		nMin = 0;
 	}
@@ -2473,6 +2473,7 @@ bool SciTEBase::HandleXml(char ch) {
 		return false; // Smallest tag is 3 characters ex. <p>
 	}
 	GetRange(wEditor, nMin, nCaret, sel);
+	sel[sizeof(sel) - 1] = '\0';
 
 	if (sel[nCaret - nMin - 2] == '/') {
 		// User typed something like "<br/>"
