@@ -111,6 +111,8 @@ protected:
 	virtual void TabSizeDialog();
 
 	virtual void GetDefaultDirectory(char *directory, size_t size);
+	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
+	virtual bool GetSciteUserHome(char *path, unsigned int lenPath);
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
 		char *pathDefaultDir, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
@@ -329,8 +331,7 @@ void SciTEGTK::GetDefaultDirectory(char *directory, size_t size) {
 	directory[size-1] = '\0';
 }
 
-bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps, 
-                                            char *pathDefaultDir, unsigned int lenPath) {
+bool SciTEGTK::GetSciteDefaultHome(char *path, unsigned int lenPath) {
 	char *where = getenv("SciTE_HOME");
 #ifdef SYSCONF_PATH
 	if (!where) {
@@ -341,24 +342,49 @@ bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps,
 		where = getenv("HOME");
 	}
 #endif
-	strncpy(pathDefaultDir, where, lenPath);
-	strncpy(pathDefaultProps, where, lenPath);
-	strncat(pathDefaultProps, pathSepString, lenPath);
-	strncat(pathDefaultProps, propGlobalFileName, lenPath);
-	return true;
+	if (where) {
+		strncpy(path, where, lenPath);
+		return true;
+	}
+	return false;
 }
 
-bool SciTEGTK::GetUserPropertiesFileName(char *pathUserProps, 
-                                         char *pathUserDir, unsigned int lenPath) {
+bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps, 
+                                            char *pathDefaultDir, unsigned int lenPath) {
+	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
+		return false;
+	if (strlen(pathDefaultProps) + 1 + strlen(propGlobalFileName) < lenPath) {
+		strncpy(pathDefaultProps, pathDefaultDir, lenPath);
+		strncat(pathDefaultProps, pathSepString, lenPath);
+		strncat(pathDefaultProps, propGlobalFileName, lenPath);
+		return true;
+	}
+	return false;
+}
+
+bool SciTEGTK::GetSciteUserHome(char *path, unsigned int lenPath) {
 	char *where = getenv("SciTE_HOME");
-        if (!where) {
+	if (!where) {
 		where = getenv("HOME");
 	}
-	strncpy(pathUserDir, where, lenPath);
-	strncpy(pathUserProps, where, lenPath);
-	strncat(pathUserProps, pathSepString, lenPath);
-	strncat(pathUserProps, propUserFileName, lenPath);
-	return true;
+	if (where) {
+		strncpy(path, where, lenPath);
+		return true;
+	}
+	return false;
+}
+
+bool SciTEGTK::GetUserPropertiesFileName(char *pathUserProps,
+                                         char *pathUserDir, unsigned int lenPath) {
+	if (!GetSciteUserHome(pathUserDir, lenPath))
+		return false;
+	if (strlen(pathUserProps) + 1 + strlen(propUserFileName) < lenPath) {
+		strncpy(pathUserProps, pathUserDir, lenPath);
+		strncat(pathUserProps, pathSepString, lenPath);
+		strncat(pathUserProps, propUserFileName, lenPath);
+		return true;
+	}
+	return false;
 }
 
 void SciTEGTK::SetStatusBarText(const char *s) {
@@ -1340,6 +1366,7 @@ void SciTEGTK::CreateMenu() {
 		{"/_File/tear", NULL, NULL, 0, "<Tearoff>"},
 		{"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
 		{"/File/_Open", "<control>O", menuSig, IDM_OPEN, 0},
+		{"/File/_Revert", "<control>R", menuSig, IDM_REVERT, 0},
 		{"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 		{"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
 		{"/File/Save _As", NULL, menuSig, IDM_SAVEAS, 0},
@@ -1379,7 +1406,10 @@ void SciTEGTK::CreateMenu() {
 		{"/Edit/Toggle Bookmar_k", "<control>F2", menuSig, IDM_BOOKMARK_TOGGLE, 0},
 		{"/Edit/Match _Brace", "<control>E", menuSig, IDM_MATCHBRACE, 0},
 		{"/Edit/Select t_o Brace", "<control><shift>E", menuSig, IDM_SELECTTOBRACE, 0},
+		{"/Edit/S_how CallTip", "<control><shift>space", menuSig, IDM_SHOWCALLTIP, 0},
 		{"/Edit/Complete S_ymbol", "<control>I", menuSig, IDM_COMPLETE, 0},
+		{"/Edit/Complete Word", "<control>Enter", menuSig, IDM_COMPLETEWORD, 0},
+		{"/Edit/Toggle all folds", "", menuSig, IDM_TOGGLE_FOLDALL, 0},
 		{"/Edit/Make _Selection Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
 		{"/Edit/Make Selection _Lowercase", "<control>U", menuSig, IDM_LWRCASE, 0},
 		
@@ -1434,6 +1464,7 @@ void SciTEGTK::CreateMenu() {
 		{"/Options/Use lexer/_Batch", "", menuSig, IDM_LEXER_BATCH, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/_Makefile", "", menuSig, IDM_LEXER_MAKE, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/_Errorlist", "", menuSig, IDM_LEXER_ERRORL, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_Difference", "", menuSig, IDM_LEXER_DIFF, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/_Java", "", menuSig, IDM_LEXER_JAVA, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/Lu_a", "", menuSig, IDM_LEXER_LUA, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/Pytho_n", "", menuSig, IDM_LEXER_PYTHON, "/Options/Use lexer/none"},
@@ -1506,6 +1537,10 @@ void SciTEGTK::Run(const char *cmdLine) {
 	int top = props.GetInt("position.top", 30);
 	int width = props.GetInt("position.width", 300);
 	int height = props.GetInt("position.height", 400);
+	if (width == -1 || height == -1) {
+		width = gdk_screen_width() - left - 10;
+		height = gdk_screen_height() - top - 30;
+	}
 	gtk_widget_set_usize(GTK_WIDGET(wSciTE.GetID()), width, height);
 
 	GtkWidget *boxMain = gtk_vbox_new(FALSE, 1);
