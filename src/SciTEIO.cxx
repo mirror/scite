@@ -734,7 +734,7 @@ bool SciTEBase::Save() {
 	}
 }
 
-bool SciTEBase::SaveAs(char *file) {
+bool SciTEBase::SaveAs(const char *file) {
 	if (file && *file) {
 		SetFileName(file);
 		Save();

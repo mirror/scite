@@ -494,7 +494,7 @@ protected:
 	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();
 	bool Save();
-	virtual bool SaveAs(char *file = 0);
+	virtual bool SaveAs(const char *file = 0);
 	void SaveToHTML(const char *saveName);
 	virtual void SaveAsHTML() = 0;
 	void SaveToRTF(const char *saveName, int start = 0, int end = -1);
