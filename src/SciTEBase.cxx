@@ -1,6 +1,6 @@
 // SciTE - Scintilla based Text Editor
 // SciTEBase.cxx - platform independent base class of editor
-// Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -1335,10 +1335,12 @@ void SciTEBase::MenuCommand(int cmdID) {
 		}
 		break;
 	case IDM_OPEN:
-		if (CanMakeRoom()) {
-			OpenDialog();
-			SetFocus(wEditor.GetID());
-		}
+        // No need to see if can make room as that will occur 
+        // when doing the opening. Must be done there as user
+        // may decide to open multiple files so do not know yet
+        // how much room needed.
+		OpenDialog();
+		SetFocus(wEditor.GetID());
 		break;
 	case IDM_OPENSELECTED:
 		OpenSelected();
