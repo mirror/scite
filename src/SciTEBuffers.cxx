@@ -309,6 +309,9 @@ void SciTEBase::SetDocumentAt(int index) {
 		gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), index);
 #endif
 
+	if (lineNumbers && lineNumbersExpand)
+		SetLineNumberWidth();
+
 	DisplayAround(bufferNext);
 
 	CheckMenus();

@@ -461,7 +461,8 @@ protected:
 
 	bool lineNumbers;
 	int lineNumbersWidth;
-	enum { lineNumbersWidthDefault = 4};
+	enum { lineNumbersWidthDefault = 4 };
+	bool lineNumbersExpand;
 
 	bool usePalette;
 	bool clearBeforeExecute;

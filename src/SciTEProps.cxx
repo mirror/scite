@@ -1110,9 +1110,6 @@ void SciTEBase::ReadProperties() {
 		}
 	}
 
-
-
-
 	firstPropertiesRead = false;
 }
 
@@ -1134,6 +1131,7 @@ void SciTEBase::SetPropertiesInitial() {
 	lineNumbers = lineNumbersWidth;
 	if (lineNumbersWidth == 0)
 		lineNumbersWidth = lineNumbersWidthDefault;
+	lineNumbersExpand = linenums.contains('+');
 	marginWidth = 0;
 	SString margwidth = props.Get("margin.width");
 	if (margwidth.length())

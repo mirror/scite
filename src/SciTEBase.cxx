@@ -288,6 +288,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	foldMarginWidth = foldMarginWidthDefault;
 	lineNumbers = false;
 	lineNumbersWidth = lineNumbersWidthDefault;
+	lineNumbersExpand = false;
 	usePalette = false;
 
 	clearBeforeExecute = false;
@@ -2997,9 +2998,33 @@ void WindowSetFocus(Window &w) {
 }
 
 void SciTEBase::SetLineNumberWidth() {
-	// The 4 here allows for spacing: 1 poxel on left and 3 on right.
-	int pixelWidth = 4 + lineNumbersWidth * SendEditorString(SCI_TEXTWIDTH, STYLE_LINENUMBER, "9");
-	SendEditor(SCI_SETMARGINWIDTHN, 0, lineNumbers ? pixelWidth : 0);
+	if (lineNumbers) {
+		int lineNumWidth = lineNumbersWidth;
+		
+		if (lineNumbersExpand) {
+			// The margin size will be expanded if the current buffer's maximum
+			// line number would overflow the margin.
+
+			int lineCount = SendEditor(SCI_GETLINECOUNT);
+
+			lineNumWidth = 1;
+			while (lineCount >= 10) {
+				lineCount /= 10;
+				++lineNumWidth;
+			}
+
+			if (lineNumWidth < lineNumbersWidth) {
+				lineNumWidth = lineNumbersWidth;
+			}
+		}
+
+		// The 4 here allows for spacing: 1 pixel on left and 3 on right.
+		int pixelWidth = 4 + lineNumWidth * SendEditorString(SCI_TEXTWIDTH, STYLE_LINENUMBER, "9");
+
+		SendEditor(SCI_SETMARGINWIDTHN, 0, pixelWidth);
+	} else {
+		SendEditor(SCI_SETMARGINWIDTHN, 0, 0);
+	}
 }
 
 void SciTEBase::MenuCommand(int cmdID, int source) {
@@ -3871,6 +3896,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 			EnableAMenuItem(IDM_UNDO, TRUE);
 			EnableAMenuItem(IDM_REDO, FALSE);
 		}
+
+		if (notification->linesAdded && lineNumbers && lineNumbersExpand)
+			SetLineNumberWidth();
 
 		if (0 != (notification->modificationType & SC_MOD_CHANGEFOLD)) {
 			FoldChanged(notification->line,
