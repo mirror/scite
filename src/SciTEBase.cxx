@@ -101,7 +101,7 @@ const char *extList[] = {
     "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
     "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
     "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.cs", "x.conf",
-    "x.pas", "x.ave", "x.ads", "x.rb",
+    "x.pas", "x.ave", "x.ads", "x.lisp", "x.rb",
 };
 
 // AddStyledText only called from About so static size buffer is OK

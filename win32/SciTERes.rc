@@ -149,6 +149,7 @@ BEGIN
 		MENUITEM "Pascal",					IDM_LEXER_PASCAL
 		MENUITEM "Avenue",					IDM_LEXER_AVE
 		MENUITEM "Ada",					IDM_LEXER_ADA
+		MENUITEM "Lisp",					IDM_LEXER_LISP
 		MENUITEM "Rub&y",					IDM_LEXER_RUBY
 	END // used: abceghijlmnpqrstuvyx
 	MENUITEM "Use &monospaced font\tCtrl+F11",	IDM_MONOFONT
