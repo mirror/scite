@@ -1476,12 +1476,14 @@ void SciTEGTK::ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew
 void SciTEGTK::ParamCancelSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->dialogCanceled = true;
 	scitew->wParameters.Destroy();
+	scitew->CheckMenus();
 }
 
 void SciTEGTK::ParamSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->dialogCanceled = false;
 	scitew->ParamGrab();
 	scitew->wParameters.Destroy();
+	scitew->CheckMenus();
 }
 
 bool SciTEGTK::ParametersDialog(bool modal) {
@@ -1510,8 +1512,8 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	int row = 0;
 	if (modal) {
 		GtkWidget *cmd = gtk_label_new(parameterisedCommand.c_str());
-		gtk_table_attach(GTK_TABLE(table), label, 0, 2, row, row+1, opts, opts, 5, 5);
-		gtk_widget_show(label);
+		gtk_table_attach(GTK_TABLE(table), cmd, 0, 2, row, row+1, opts, opts, 5, 5);
+		gtk_widget_show(cmd);
 		row++;
 	}
 	
@@ -1527,7 +1529,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		gtk_entry_set_text(GTK_ENTRY(entryParam[param]), paramTextVal.c_str());
 		if (param == 0)
 			gtk_entry_select_region(GTK_ENTRY(entryParam[param]), 0, paramTextVal.length());
-		gtk_table_attach(GTK_TABLE(table), entryParam[param], 1, 2, param, param+1, opts, opts, 5, 5);
+		gtk_table_attach(GTK_TABLE(table), entryParam[param], 1, 2, row, row+1, opts, opts, 5, 5);
 		gtk_signal_connect(GTK_OBJECT(entryParam[param]),
 				   "activate", GtkSignalFunc(ParamSignal), this);
 		gtk_widget_show(entryParam[param]);
@@ -1538,14 +1540,12 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	gtk_widget_grab_focus(GTK_WIDGET(entryParam[0]));
 	gtk_widget_show(table);
 
-	if (modal) {
-		GtkWidget *btnExecute = TranslatedCommand("_Execute", accel_group,
-						 GtkSignalFunc(ParamSignal), this);
-		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wParameters))->action_area),
-				   btnExecute, TRUE, TRUE, 0);
-		gtk_widget_grab_default(GTK_WIDGET(btnExecute));
-		gtk_widget_show(btnExecute);
-	}
+	GtkWidget *btnExecute = TranslatedCommand(modal ? "_Execute" : "_Set", accel_group,
+					 GtkSignalFunc(ParamSignal), this);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wParameters))->action_area),
+			   btnExecute, TRUE, TRUE, 0);
+	gtk_widget_grab_default(GTK_WIDGET(btnExecute));
+	gtk_widget_show(btnExecute);
 
 	GtkWidget *btnCancel = TranslatedCommand(modal ? "_Cancel" : "_Close", 
 		accel_group,
