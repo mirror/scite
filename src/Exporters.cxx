@@ -400,6 +400,8 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 		for (i = start; i < end; i++) {
 			char ch = acc[i];
 			int style = acc.StyleAt(i);
+			if (style > STYLE_DEFAULT)
+				style = 0;
 			if (style != styleCurrent) {
 				GetRTFStyleChange(deltaStyle, lastStyle, styles[style]);
 				if (*deltaStyle)
