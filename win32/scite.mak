@@ -128,7 +128,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\KeyMap.obj \
 	..\..\scintilla\win32\Indicator.obj \
 	..\..\scintilla\win32\LineMarker.obj \
-	..\..\scintilla\win32\PosRegExp.obj \
+	..\..\scintilla\win32\RESearch.obj \
 	..\..\scintilla\win32\Style.obj \
 	..\..\scintilla\win32\ViewStyle.obj \
 	..\..\scintilla\win32\AutoComplete.obj

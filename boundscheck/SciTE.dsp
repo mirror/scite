@@ -195,11 +195,11 @@ SOURCE=..\..\scintilla\Win32\PlatWin.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\PosRegExp.cxx
+SOURCE=..\..\scintilla\Src\PropSet.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\Src\PropSet.cxx
+SOURCE=..\..\scintilla\src\RESearch.cxx
 # End Source File
 # Begin Source File
 
