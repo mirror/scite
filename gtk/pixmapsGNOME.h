@@ -343,6 +343,7 @@ static char * close_xpm[] = {
 "    . . r . .             s+. r . .     ",
 "      . . .                 s+. .       ",
 "                                        "};
+#if 0
 /* XPM */
 static char * DocumentIn_xpm[] = {
 "20 20 17 1",
@@ -383,6 +384,8 @@ static char * DocumentIn_xpm[] = {
 "  +@.--%!!!!****@+. ",
 "  +@@@@@@@@@@@@@@+. ",
 "  .++++++++++++++.  "};
+#endif
+#if 0
 /* XPM */
 static char * Forward_xpm[] = {
 "20 20 22 1",
@@ -428,6 +431,8 @@ static char * Forward_xpm[] = {
 "     ##@ +#*%#*%#+  ",
 "     @@  +#$$#$$#+  ",
 "         +#######+  "};
+#endif
+#if 0
 /* XPM */
 static char * Help_xpm[] = {
 "20 20 20 1",
@@ -471,6 +476,8 @@ static char * Help_xpm[] = {
 "  +@%%$@@>++++++++. ",
 "  +@$@@>+           ",
 "  +@@@+.            "};
+#endif
+#if 0
 /* XPM */
 static char * Left_xpm[] = {
 "20 20 11 1",
@@ -505,6 +512,7 @@ static char * Left_xpm[] = {
 "      ..            ",
 "                    ",
 "                    "};
+#endif
 /* XPM */
 static char * search_xpm[] = {
 "20 20 21 1",
@@ -667,6 +675,7 @@ static char * editpaste_xpm[] = {
 " .@++++++>,'''''''+@",
 "  .@@@@@+++++++++++@",
 "   .....@@@@@@@@@@@."};
+#if 0
 /* XPM */
 static char * Print_xpm[] = {
 "20 20 25 1",
@@ -715,6 +724,7 @@ static char * Print_xpm[] = {
 " .+@@@@@@@@@@@@@#.  ",
 "  .+++++++++++++.   ",
 "   .............    "};
+#endif
 /* XPM */
 static char * redo_xpm[] = {
 "20 20 12 1",
@@ -789,6 +799,7 @@ static char * filesave_xpm[] = {
 "+@+-,===****,'-;%#@+",
 "=+@@@@@@@@@@@@@@@@@+",
 " =+++++++++++++++++."};
+#if 0
 /* XPM */
 static char * filesave_all_xpm[] = {
 "20 20 13 1",
@@ -825,6 +836,7 @@ static char * filesave_all_xpm[] = {
 "#+@@@@@@@@@@@@+#    ",
 " #++++++++++++.#    ",
 "  #############     "};
+#endif
 /* XPM */
 static char * undo_xpm[] = {
 "20 20 16 1",
@@ -896,6 +908,7 @@ static char * replace_xpm[] = {
 ".@@@@@@@@@@@@.      ",
 " .....+.....+       ",
 "                    "};
+#if 0
 /* XPM */
 static char * World_xpm[] = {
 "20 20 32 1",
@@ -951,6 +964,7 @@ static char * World_xpm[] = {
 "   .*&3%;;;.@3&*.   ",
 "    .@$%&%%&%$@.    ",
 "     ..+@##@+..     "};
+#endif
 /* XPM */
 static char * findinfiles_xpm[] = {
 "20 20 28 1",

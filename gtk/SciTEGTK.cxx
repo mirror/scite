@@ -165,6 +165,7 @@ public:
 
 	void AddToolButton(const char *text, int cmd, char *icon[]);
 	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
+	void CreateMenu();
 	void Run(const char *cmdLine);
 	void ProcessExecute();
 	virtual void Execute();
@@ -446,7 +447,6 @@ void SciTEGTK::DestroyMenuItem(int, int itemID) {
 	if (itemID) {
 		GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
 		if (item) {
-			Platform::DebugPrintf("Destroying[%0d]\n", itemID);
 			gtk_widget_hide(item);
 		}
 	}
@@ -1278,7 +1278,9 @@ GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
 	return pixmapwid;
 }
 
-void SciTEGTK::Run(const char *cmdLine) {
+#define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
+
+void SciTEGTK::CreateMenu() {
 
 	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
 	GtkItemFactoryEntry menuItems[] = {
@@ -1391,11 +1393,13 @@ void SciTEGTK::Run(const char *cmdLine) {
 	    {"/Options/Open _Local Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
 	    {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
 	    {"/Options/Open _Global Options File", "", menuSig, IDM_OPENGLOBALPROPERTIES, 0},
+	};
 
-		{"/_Buffers", NULL, NULL, 0, "<Branch>"},
-		{"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
-		{"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREV, 0},
-		{"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXT, 0},
+	GtkItemFactoryEntry menuItemsBuffer[] = {
+	    {"/_Buffers", NULL, NULL, 0, "<Branch>"},
+	    {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
+	    {"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREV, 0},
+	    {"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXT, 0},
 	    {"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
 	    {"/Buffers/Buffer0", "", menuSig, bufferCmdID + 0, "<RadioItem>"},
 	    {"/Buffers/Buffer1", "", menuSig, bufferCmdID + 1, "/Buffers/Buffer0"},
@@ -1407,18 +1411,33 @@ void SciTEGTK::Run(const char *cmdLine) {
 	    {"/Buffers/Buffer7", "", menuSig, bufferCmdID + 7, "/Buffers/Buffer0"},
 	    {"/Buffers/Buffer8", "", menuSig, bufferCmdID + 8, "/Buffers/Buffer0"},
 	    {"/Buffers/Buffer9", "", menuSig, bufferCmdID + 9, "/Buffers/Buffer0"},
-
+	};
+	   
+	GtkItemFactoryEntry menuItemsHelp[] = {
 	    {"/_Help", NULL, NULL, 0, "<Branch>"},
 	    {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Help/About SciTE", "", menuSig, IDM_ABOUT, 0},
 	};
-
+	
 	char *gthis = reinterpret_cast<char *>(this);
+	accelGroup = gtk_accel_group_new();
+	itemFactory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", accelGroup);
+	gtk_item_factory_create_items(itemFactory, ELEMENTS(menuItems), menuItems, gthis);
+	if (props.GetInt("buffers") > 1) 
+		gtk_item_factory_create_items(itemFactory, ELEMENTS(menuItemsBuffer), menuItemsBuffer, gthis);
+	gtk_item_factory_create_items(itemFactory, ELEMENTS(menuItemsHelp), menuItemsHelp, gthis);
 
+	gtk_accel_group_attach(accelGroup, GTK_OBJECT(wSciTE.GetID()));
+}
+
+void SciTEGTK::Run(const char *cmdLine) {
+	
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	//GTK_WIDGET_UNSET_FLAGS(wSciTE.GetID(), GTK_CAN_FOCUS);
 	gtk_window_set_policy(GTK_WINDOW(wSciTE.GetID()), TRUE, TRUE, FALSE);
 
+	char *gthis = reinterpret_cast<char *>(this);
+	
 	gtk_widget_set_events(wSciTE.GetID(),
 	                      GDK_EXPOSURE_MASK
 	                      | GDK_LEAVE_NOTIFY_MASK
@@ -1438,13 +1457,8 @@ void SciTEGTK::Run(const char *cmdLine) {
 	GtkWidget *boxMain = gtk_vbox_new(FALSE, 1);
 	gtk_container_add(GTK_CONTAINER(wSciTE.GetID()), boxMain);
 	GTK_WIDGET_UNSET_FLAGS(boxMain, GTK_CAN_FOCUS);
-
-	int nItems = sizeof(menuItems) / sizeof(menuItems[0]);
-	accelGroup = gtk_accel_group_new();
-	itemFactory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", accelGroup);
-	gtk_item_factory_create_items(itemFactory, nItems, menuItems, gthis);
-
-	gtk_accel_group_attach(accelGroup, GTK_OBJECT(wSciTE.GetID()));
+	
+	CreateMenu();
 
 	GtkWidget *handle_box = gtk_handle_box_new();
 
