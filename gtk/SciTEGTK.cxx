@@ -298,7 +298,9 @@ public:
 	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
 	void AddToolBar();
 	SString SciTEGTK::TranslatePath(const char *path);
-	void CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]);
+	void CreateTranslatedMenu(int n, GtkItemFactoryEntry items[], 
+		int nRepeats=0, const char *prefix=0, int startNum=0, 
+		int startID=0, const char *radioStart=0);
 	void CreateMenu();
 	void CreateUI();
 	void Run(int argc, char *argv[]);
@@ -2075,19 +2077,30 @@ SString SciTEGTK::TranslatePath(const char *path) {
 	}
 }
 
-void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]) {
+void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[],
+	int nRepeats=0, const char *prefix=0, int startNum=0, 
+	int startID=0, const char *radioStart) {
+	
 	char *gthis = reinterpret_cast<char *>(this);
-	GtkItemFactoryEntry *translatedItems = new GtkItemFactoryEntry[n];
-	SString *translatedText = new SString[n];
-	SString *translatedRadios = new SString[n];
-	for (int i=0; i<n; i++) {
+	int dim = n + nRepeats;
+	GtkItemFactoryEntry *translatedItems = new GtkItemFactoryEntry[dim];
+	SString *translatedText = new SString[dim];
+	SString *translatedRadios = new SString[dim];
+	int i=0;
+	for (; i<n; i++) {
 		translatedItems[i] = items[i];
 		translatedText[i] = TranslatePath(translatedItems[i].path);
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
 		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
 		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
 	}
-	gtk_item_factory_create_items(itemFactory, n, translatedItems, gthis);
+	for (; i<dim; i++) {
+		translatedText[i] = prefix + SString(i-n + startNum);
+		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
+		translatedRadios[i] = TranslatePath(radioStart);
+		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
+	}
+	gtk_item_factory_create_items(itemFactory, dim, translatedItems, gthis);
 	delete []translatedRadios;
 	delete []translatedText;
 	delete []translatedItems;
@@ -2108,6 +2121,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 	    {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
 	    {"/File/Save _As...", "<control><shift>S", menuSig, IDM_SAVEAS, 0},
+	    {"/File/Save A Co_py...", "<control><shift>P", menuSig, IDM_SAVEACOPY, 0},
 	    {"/File/_Export", "", 0, 0, "<Branch>"},
 	    {"/File/Export/As _HTML...", NULL, menuSig, IDM_SAVEASHTML, 0},
 	    {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},
@@ -2333,7 +2347,8 @@ void SciTEGTK::CreateMenu() {
 	itemFactory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", accelGroup);
 	CreateTranslatedMenu(ELEMENTS(menuItems), menuItems);
 	if (props.GetInt("buffers") > 1)
-		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer);
+		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer,
+		10, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
 	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
 
 	gtk_accel_group_attach(accelGroup, GTK_OBJECT(PWidget(wSciTE)));
