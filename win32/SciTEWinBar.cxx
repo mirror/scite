@@ -210,18 +210,23 @@ struct BarButton {
 };
 
 static BarButton bbs[] = {
-    { -1, 0 },
-    { STD_FILENEW, IDM_NEW },
-    { STD_FILEOPEN, IDM_OPEN },
-    { STD_FILESAVE, IDM_SAVE },
-    { -1, 0 },
-    { STD_CUT, IDM_CUT },
-    { STD_COPY, IDM_COPY },
-    { STD_PASTE, IDM_PASTE },
-    { STD_DELETE, IDM_CLEAR },
-    { -1, 0 },
-    { STD_UNDO, IDM_UNDO },
-    { STD_REDOW, IDM_REDO },
+	{ -1, 0 },
+	{ STD_FILENEW, IDM_NEW },
+	{ STD_FILEOPEN, IDM_OPEN },
+	{ STD_FILESAVE, IDM_SAVE },
+	{ -1, 0 },
+	{ STD_PRINT, IDM_PRINT },
+	{ -1, 0 },
+	{ STD_CUT, IDM_CUT },
+	{ STD_COPY, IDM_COPY },
+	{ STD_PASTE, IDM_PASTE },
+	{ STD_DELETE, IDM_CLEAR },
+	{ -1, 0 },
+	{ STD_UNDO, IDM_UNDO },
+	{ STD_REDOW, IDM_REDO },
+	{ -1, 0 },
+	{ STD_FIND, IDM_FIND },
+	{ STD_REPLACE, IDM_REPLACE },
 };
 
 void SciTEWin::Creation() {
