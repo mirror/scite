@@ -16,9 +16,7 @@ void FlashThisWindow(
     HWND hWnd,    		///< Window to flash handle.
     int duration) {	///< Duration of the flash state.
 
-	HDC hDC;
-
-	hDC = ::GetDC(hWnd);
+	HDC hDC = ::GetDC(hWnd);
 	if (hDC != NULL) {
 		RECT rc;
 		::GetClientRect(hWnd, &rc);
@@ -72,6 +70,13 @@ void PlayThisSound(
 		::Beep(soundFreq, duration);
 	}
 
+}
+
+static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
+	if (message == WM_INITDIALOG) {
+		SetWindowLong(hDlg, DWL_USER, lParam);
+	}
+	return reinterpret_cast<SciTEWin*>(GetWindowLong(hDlg, DWL_USER));
 }
 
 void SciTEWin::WarnUser(int warnID) {
@@ -138,7 +143,7 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 
 //  DoDialog is a bit like something in PC Magazine May 28, 1991, page 357
 int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc) {
-	int result = ::DialogBox(hInst, resName, hWnd, lpProc);
+	int result = ::DialogBoxParam(hInst, resName, hWnd, lpProc, reinterpret_cast<LPARAM>(this));
 
 	if (result == -1) {
 		SString errorNum(::GetLastError());
@@ -810,8 +815,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
-	return app->FindMessage(hDlg, message, wParam);
+BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->FindMessage(hDlg, message, wParam);
 }
 
 BOOL SciTEWin::HandleReplaceCommand(int cmd) {
@@ -921,8 +926,8 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
-	return app->ReplaceMessage(hDlg, message, wParam);
+BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->ReplaceMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::Find() {
@@ -944,7 +949,7 @@ void SciTEWin::Find() {
 	                                   MAKEINTRESOURCE(IDD_FIND),
 	                                   MainHWND(),
 	                                   reinterpret_cast<DLGPROC>(FindDlg),
-	                                   0);
+	                                   reinterpret_cast<LPARAM>(this));
 	wFindReplace.Show();
 
 	replacing = false;
@@ -1053,8 +1058,8 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
-	return app->GrepMessage(hDlg, message, wParam);
+BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->GrepMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::FindInFiles() {
@@ -1151,8 +1156,8 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
-	return app->GoLineMessage(hDlg, message, wParam);
+BOOL CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->GoLineMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::GoLineDialog() {
@@ -1187,8 +1192,8 @@ BOOL SciTEWin::AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
-	return app->AbbrevMessage(hDlg, message, wParam);
+BOOL CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->AbbrevMessage(hDlg, message, wParam);
 }
 
 bool SciTEWin::AbbrevDialog() {
@@ -1247,8 +1252,8 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
-	return app->TabSizeMessage(hDlg, message, wParam);
+BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->TabSizeMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::TabSizeDialog() {
@@ -1306,8 +1311,8 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
-	return app->ParametersMessage(hDlg, message, wParam);
+BOOL CALLBACK SciTEWin::ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->ParametersMessage(hDlg, message, wParam);
 }
 
 bool SciTEWin::ParametersDialog(bool modal) {
@@ -1330,7 +1335,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 		                    "PARAMETERSNONMODAL",
 		                    MainHWND(),
 		                    reinterpret_cast<DLGPROC>(ParametersDlg),
-		                    0);
+		                    reinterpret_cast<LPARAM>(this));
 		wParameters.Show();
 	}
 
@@ -1367,8 +1372,8 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
-	return app->AboutMessage(hDlg, message, wParam);
+BOOL CALLBACK SciTEWin::AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->AboutMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::AboutDialogWithBuild(int staticBuild_) {
