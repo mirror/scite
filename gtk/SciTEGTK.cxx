@@ -1273,7 +1273,7 @@ int xsystem(const char *s, const char *resultsFile) {
 		dup(fh);
 		close(2);
 		dup(fh);
-		execlp("/bin/sh", "sh", "-c", s, 0);
+		execlp("/bin/sh", "sh", "-c", s, NULL);
 		exit(127);
 	}
 	return pid;
@@ -1312,7 +1312,7 @@ void SciTEGTK::Execute() {
 
 	if (jobQueue[icmd].jobType == jobShell) {
 		if (fork() == 0)
-			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(), 0);
+			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(), NULL);
 		else
 			ExecuteNext();
 	} else if (jobQueue[icmd].jobType == jobExtension) {

@@ -19,11 +19,18 @@ extern const char fileWrite[];
 extern const char menuAccessIndicator[];
 
 #ifdef unix
+#include <limits.h>
+#ifdef PATH_MAX
+#define MAX_PATH PATH_MAX
+#else
 #define MAX_PATH 260
 #endif
+#endif
+
 #ifdef __vms
 const char *VMSToUnixStyle(const char *fileName);
 #endif
+
 #ifdef WIN32
 #ifdef _MSC_VER
 // Shut up level 4 warning:
