@@ -568,10 +568,27 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          tabbar.visible<br />
+	tabbar.multiline
+        </td>
+        <td>
+          Setting tabbar.visible this to 1 makes the tab bar visible at start up on Windows.
+          Setting tabbar.multiline uses multiple lines for the tab bar
+        </td>
+      <tr>
+        <td>
           tabbar.visible
         </td>
         <td>
-          Setting this to 1 makes the tab bar visible at start up on Windows.
+          Setting tabbar.visible this to 1 makes the tab bar visible at start up on Windows.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	tabbar.multiline
+        </td>
+        <td>
+          Setting tabbar.multiline uses multiple lines for the tab bar
         </td>
       </tr>
       <tr>
@@ -1091,18 +1108,25 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-	print.magnification<br />
-	print.colour.mode
+	print.magnification
         </td>
         <td>
           Printing is normally done with the same settings as screen display.
 	To make the printing larger or smaller, the print.magnification
 	setting is added to the size of every font when printed. To get a 
-	good miniaturisation of text, set print.magnification to -4.<br />
+	good miniaturisation of text, set print.magnification to -4.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	print.colour.mode
+        </td>
+        <td>
 	Some people prefer light coloured text on a black background on
 	screen but dark text on white on paper. If print.colour.mode is set
 	to 1 then each colour is inverted for printing. If set to 2 then 
-	printing produces black text on white background.
+	printing produces black text on white background. 3 forces the 
+	background to white and 4 forces the default background to white.
         </td>
       </tr>
       <tr>
@@ -1235,6 +1259,22 @@ NameError: mistake
         </td>
         <td>
         	Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like 
+	Visual C++ moving the caret to the end of then line indentation unless already 
+	there, in which case it moves to the start of the line. 0 moves to the start of the line.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	  warning.sound<br />
+	  warning.flash
+        </td>
+        <td>
+        	Allows for sounds to be played and the window to be flashed
+	on Windows when particular events occur. The warning.sound
+	value is the length in milliseconds for warning sounds to play. 
+	The warning.flash value is the duration to hide the window 
+	when a warning occurs.
+		Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like 
 	Visual C++ moving the caret to the end of then line indentation unless already 
 	there, in which case it moves to the start of the line. 0 moves to the start of the line.
         </td>
