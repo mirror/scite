@@ -333,10 +333,10 @@ bool SciTEGTK::GetUserPropertiesFileName(char *pathUserProps,
         if (!where) {
 		where = getenv("HOME");
 	}
-	strncpy(pathDefaultDir, where, lenPath);
-	strncpy(pathDefaultProps, where, lenPath);
-	strncat(pathDefaultProps, pathSepString, lenPath);
-	strncat(pathDefaultProps, propUserFileName, lenPath);
+	strncpy(pathUserDir, where, lenPath);
+	strncpy(pathUserProps, where, lenPath);
+	strncat(pathUserProps, pathSepString, lenPath);
+	strncat(pathUserProps, propUserFileName, lenPath);
 	return true;
 }
 
