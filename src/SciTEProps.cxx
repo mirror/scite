@@ -644,13 +644,19 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_STYLERESETDEFAULT, 0, 0);
 	SendOutput(SCI_STYLERESETDEFAULT, 0, 0);
 
+	SString mono = ",";
+	mono += props.Get("font.monospace");
 	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
 	sval = props.GetNewExpand(key, "");
+	if (monofont)
+		sval += mono;
 	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
 	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
 
 	sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
 	sval = props.GetNewExpand(key, "");
+	if (monofont)
+		sval += mono;
 	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
 
 	SendEditor(SCI_STYLECLEARALL, 0, 0);
@@ -662,6 +668,8 @@ void SciTEBase::ReadProperties() {
 
 	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
 	sval = props.GetNewExpand(key, "");
+	if (monofont)
+		sval += mono;
 	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
 
 	SendOutput(SCI_STYLECLEARALL, 0, 0);
