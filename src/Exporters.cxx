@@ -575,7 +575,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		WindowAccessor acc(wEditor.GetID(), props);
 		int line = acc.GetLine(0);
 		int level = (acc.LevelAt(line) & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
-		int newLevel = level;
+		int newLevel;
 		if (wysiwyg) {
 			line = acc.GetLine(0); // no \n count
 			int lvl = acc.LevelAt(line);
