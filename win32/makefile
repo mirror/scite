@@ -129,7 +129,8 @@ DirectorExtension.o: Platform.h PropSet.h SString.h Accessor.h Scintilla.h Exten
 
 #	$(CC) -Xlinker --subsystem -Xlinker windows -o $(PROGSTATIC) $(OBJSSTATIC) $(LDFLAGS)
 
-Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h SString.h Scintilla.h Extender.h
+Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h \
+ SString.h Scintilla.h Extender.h SciTEBase.h
 	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
 
 SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h
