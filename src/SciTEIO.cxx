@@ -420,6 +420,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 			LoadSession("");
 	}
 	if (fileName[0]) {
+		SendEditor(SCI_SETREADONLY, 0);
 		SendEditor(SCI_CANCEL);
 		SendEditor(SCI_SETUNDOCOLLECTION, 0);
 
