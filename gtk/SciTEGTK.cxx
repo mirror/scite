@@ -162,7 +162,7 @@ protected:
 
 	bool SendPipeCommand(const char *pipeCommand);
 	bool CreatePipe(bool forceNew = false);
-	static void PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition);
+	static void PipeSignal(void * data, gint fd, GdkInputCondition condition);
 	void CheckAlreadyOpen(const char *cmdLine);
 
 	// GTK+ Signal Handlers
@@ -2158,10 +2158,11 @@ bool SciTEGTK::SendPipeCommand(const char *pipeCommand) {
 }
 
 //signal handler for gdk_input_add for the pipe listener.
-void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition) {
+void SciTEGTK::PipeSignal(void *data, gint fd, GdkInputCondition condition) {
 	int readLength;
 	char pipeData[8192];
 	PropSetFile pipeProps;
+	SciTEGTK *scitew = reinterpret_cast<SciTEGTK *>(data);
 
 	//printf("Pipe read signal\n");
 
