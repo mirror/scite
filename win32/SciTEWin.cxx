@@ -523,14 +523,19 @@ void SciTEWin::ProcessExecute() {
 		si.hStdOutput = hPipeWrite;
 		si.hStdError = hPipeWrite;
 
-		PROCESS_INFORMATION pi = {0, 0, 0, 0};
+    	char startDirectory[_MAX_PATH];
+        startDirectory[0] = '\0';
+        AbsolutePath(startDirectory, jobQueue[icmd].directory.c_str(), _MAX_PATH);
+
+        PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
 		bool worked = ::CreateProcess(
 		                  NULL,
 		                  const_cast<char *>(jobQueue[icmd].command.c_str()),
 		                  NULL, NULL,
 		                  TRUE, 0,
-		                  NULL, NULL,
+		                  NULL, 
+                          startDirectory[0] ? startDirectory : NULL,
 		                  &si, &pi);
 
 		if (!worked) {

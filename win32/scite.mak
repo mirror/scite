@@ -1,7 +1,7 @@
 # Make file for SciTE on Windows Visual C++ and Borland C++ version
 # Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 # The License.txt file describes the conditions under which this software may be distributed.
-# This makefile is for using Visual C++ with nmake or Borland C++ with make depending on 
+# This makefile is for using Visual C++ with nmake or Borland C++ with make depending on
 # the setting of the VENDOR macro. If no VENDOR is defined n the command line then
 # the tool used is automatically detected.
 # Usage for Microsoft:
@@ -34,8 +34,8 @@ CC=cl
 RC=rc
 LD=link
 
-INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src 
-CXXFLAGS=/TP /W4 
+INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src
+CXXFLAGS=/TP /W4
 # For something scary:/Wp64
 CXXDEBUG=/Zi /Od /MDd -DDEBUG
 CXXNDEBUG=/Ox /MD -DNDEBUG
@@ -51,7 +51,7 @@ CC=bcc32
 RC=brcc32 -r
 LD=ilink32
 
-INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src 
+INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src
 CXXFLAGS =-v
 CXXFLAGS=-P -tWM -w -w-prc -w-inl -RT- -x-
 # Above turns off warnings for clarfying parentheses and inlines with for not expanded
@@ -100,6 +100,7 @@ OBJSSTATIC=\
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
 	..\..\scintilla\win32\KeyWords.obj \
+	..\..\scintilla\win32\LexAVE.obj \
 	..\..\scintilla\win32\LexConf.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexHTML.obj \

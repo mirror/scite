@@ -19,8 +19,8 @@ LDFLAGS = -lkernel32 -lgdi32 -luser32 -lcomdlg32 -lcomctl32 -limm32 -lole32 -luu
 #CXXFLAGS = -W -Wall
 # Add -MMD to get dependencies
 #CXXFLAGS = -g -pg -pedantic -Os -fno-exceptions -fvtable-thunks -fno-rtti
-INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src 
-RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src 
+INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src
+RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src
 CXXBASEFLAGS = -W -Wall -pedantic $(INCLUDEDIRS) -Os -fno-exceptions -fvtable-thunks -fno-rtti
 
 ifdef DEBUG
@@ -32,8 +32,8 @@ endif
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-LEXOBJS	=  LexConf.o LexCPP.o LexHTML.o LexLua.o LexOthers.o LexPascal.o \
-LexPerl.o LexPython.o LexSQL.o LexVB.o
+LEXOBJS	=  LexAVE.o LexConf.o LexCPP.o LexHTML.o LexLua.o LexOthers.o \
+LexPascal.o LexPerl.o LexPython.o LexSQL.o LexVB.o
 OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o SciTERes.o
@@ -41,13 +41,13 @@ PropSet.o PlatWin.o UniConversion.o SciTERes.o
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
 PROPS=..\bin\SciTEGlobal.properties \
-..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
+..\bin\ave.properties ..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
 ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
 ..\bin\sql.properties ..\bin\vb.properties
 
 LEXPROPS=\
-..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
+..\bin\ave.properties ..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
 ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
 ..\bin\sql.properties ..\bin\vb.properties
@@ -62,8 +62,10 @@ clean:
 
 ..\bin\SciLexer.dll:	..\..\scintilla\bin\SciLexer.dll
 	copy ..\..\scintilla\bin\SciLexer.dll $@
-	
+
 ..\bin\SciTEGlobal.properties:	..\src\SciTEGlobal.properties
+	copy $^ $@
+..\bin\ave.properties:	..\src\ave.properties
 	copy $^ $@
 ..\bin\conf.properties:	..\src\conf.properties
 	copy $^ $@
@@ -134,4 +136,4 @@ SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h
 # so must explicitly ask to build it.
 Sc1Res.o:	SciTERes.rc SciTE.h PlatformRes.h
 	windres $(RCINCLUDEDIRS) SciTERes.rc --define STATIC_BUILD $@
-	
+
