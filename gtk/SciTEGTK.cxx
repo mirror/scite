@@ -738,6 +738,7 @@ void SciTEGTK::ExecuteNext() {
 	} else {	
 		icmd = 0;	
 		executing = false;	
+		CheckReload();	
 		CheckMenus();	
 		for (int ic = 0; ic < commandMax; ic++) {	
 			jobQueue[ic].Clear();	
