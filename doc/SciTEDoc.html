@@ -241,10 +241,12 @@ NameError: mistake
        Buffers
     </h3>
     <p>
-       SciTE may be configured to use between 1 and 10 buffers each containing a
+       SciTE may be configured to use between 1 and 100 buffers each containing a
        file. The default is 1 and this effectively turns off buffers. With more than one buffer,
        the Buffers menu can be used to switch between buffers, either by selecting the
        file name or using the Previous (F6) and Next (Shift+F6) commands.
+       Setting more than 10 buffers may cause problems as some menus are fixed in length
+       and thus files beyond that length may not be accessible.
      </p>
      <p>
        When all the buffers contain files, then opening a new file causes a buffer to be reused
