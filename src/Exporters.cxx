@@ -737,382 +737,501 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 //---------- Save to PDF ----------
 
 /*
-	PDF Exporter...
+	PDF Exporter. Status: Beta
 	Contributed by Ahmad M. Zawawi <zeus_go64@hotmail.com>
-	Modifications by Darren Schroeder Feb 22, 2003
-	Status: Alpha
-	Known Problems:
-		doesn't support background colours for now
-		doesn't support most styles
-		output not fully optimized
-		not Object Oriented :-(
+	Modifications by Darren Schroeder Feb 22, 2003; Philippe Lhoste 2003-10
+	Overhauled by Kein-Hong Man 2003-11
+
+	This exporter is meant to be small and simple; users are expected to
+	use other methods for heavy-duty formatting. PDF elements marked with
+	"PDF1.4Ref" states where in the PDF 1.4 Reference Spec (the PDF file of
+	which is freely available from Adobe) the particular element can be found.
+
+	Possible TODOs that will probably not be implemented: full styling,
+	optimization, font substitution, compression, character set encoding.
 */
+#define PDF_TAB_DEFAULT		8
+#define PDF_FONT_DEFAULT	1	// Helvetica
+#define PDF_FONTSIZE_DEFAULT	10
+#define PDF_SPACING_DEFAULT	1.2
+#define PDF_HEIGHT_DEFAULT	792	// Letter
+#define PDF_WIDTH_DEFAULT	612
+#define PDF_MARGIN_DEFAULT	72	// 1.0"
+#define PDF_ENCODING		"WinAnsiEncoding"
+
+struct PDFStyle {
+	char fore[24];
+	int font;
+};
+
+static char *PDFfontNames[] = {
+	"Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
+	"Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
+	"Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic"
+};
+
+// ascender, descender aligns font origin point with page
+static short PDFfontAscenders[] =  { 629, 718, 699 };
+static short PDFfontDescenders[] = { 157, 207, 217 };
+static short PDFfontWidths[] =     { 600,   0,   0 };
+
+inline void getPDFRGB(char* pdfcolour, const char* stylecolour) {
+	// grab colour components (max string length produced = 18)
+	for (int i = 1; i < 6; i += 2) {
+		char val[20];
+		// 3 decimal places for enough dynamic range
+		int c = (IntFromHexByte(stylecolour + i) * 1000 + 127) / 255;
+		if (c == 0 || c == 1000) {	// optimise
+			sprintf(val, "%d ", c / 1000);
+		} else {
+			sprintf(val, "0.%03d ", c);
+		}
+		strcat(pdfcolour, val);
+	}
+}
+
 void SciTEBase::SaveToPDF(const char *saveName) {
+	// This class conveniently handles the tracking of PDF objects
+	// so that the cross-reference table can be built (PDF1.4Ref(p39))
+	// All writes to fp passes through a PDFObjectTracker object.
+	class PDFObjectTracker {
+	private:
+		FILE *fp;
+		int *offsetList, tableSize;
+	public:
+		int index;
+		PDFObjectTracker(FILE *fp_) {
+			fp = fp_;
+			tableSize = 100;
+			offsetList = new int[tableSize];
+			index = 1;
+		}
+		~PDFObjectTracker() {
+			delete []offsetList;
+		}
+		void write(const char *objectData) {
+			unsigned int length = strlen(objectData);
+			// note binary write used, open with "wb"
+			fwrite(objectData, sizeof(char), length, fp);
+		}
+		void write(int objectData) {
+			char val[20];
+			sprintf(val, "%d", objectData);
+			write(val);
+		}
+		// returns object number assigned to the supplied data
+		int add(const char *objectData) {
+			// resize xref offset table if too small
+			if (index > tableSize) {
+				int newSize = tableSize * 2;
+				int *newList = new int[newSize];
+				for (int i = 0; i < tableSize; i++) {
+					newList[i] = offsetList[i];
+				}
+				delete []offsetList;
+				offsetList = newList;
+				tableSize = newSize;
+			}
+			// save offset, then format and write object
+			offsetList[index - 1] = ftell(fp);
+			write(index);
+			write(" 0 obj\n");
+			write(objectData);
+			write("endobj\n");
+			return index++;
+		}
+		// builds xref table, returns file offset of xref table
+		int xref() {
+			char val[32];
+			// xref start index and number of entries
+			int xrefStart = ftell(fp);
+			write("xref\n0 ");
+			write(index);
+			// a xref entry *must* be 20 bytes long (PDF1.4Ref(p64))
+			// so extra space added; also the first entry is special
+			write("\n0000000000 65535 f \n");
+			for (int i = 0; i < index - 1; i++) {
+				sprintf(val, "%010d 00000 n \n", offsetList[i]);
+				write(val);
+			}
+			return xrefStart;
+		}
+	};
+
+	// Object to manage line and page rendering. Apart from startPDF, endPDF
+	// everything goes in via add() and nextLine() so that line formatting
+	// and pagination can be done properly.
+	class PDFRender {
+	private:
+		bool pageStarted;
+		bool firstLine;
+		int pageCount;
+		int pageContentStart;
+		double xPos, yPos;	// position tracking for line wrapping
+		SString pageData;	// holds PDF stream contents
+		SString segment;	// character data
+		char *segStyle;		// style of segment
+		bool justWhiteSpace;
+		int styleCurrent, stylePrev;
+		double leading;
+		char *buffer;
+	public:
+		PDFObjectTracker *oT;
+		PDFStyle *style;
+		int fontSize;		// properties supplied by user
+		int fontSet;
+		int pageWidth, pageHeight;
+		PRectangle pageMargin;
+		//
+		PDFRender() {
+			pageStarted = false;
+			pageCount = 0;
+			style = NULL;
+			buffer = new char[250];
+			segStyle = new char[100];
+		}
+		~PDFRender() {
+			if (style) { delete []style; }
+			delete []buffer;
+			delete []segStyle;
+		}
+		//
+		double fontToPoints(int thousandths) {
+			return (double)fontSize * thousandths / 1000.0;
+		}
+		void setStyle(char *buff, int style_) {
+			int styleNext = style_;
+			if (style_ == -1) { styleNext = styleCurrent; }
+			*buff = '\0';
+			if (styleNext != styleCurrent || style_ == -1) {
+				if (style[styleCurrent].font != style[styleNext].font
+				    || style_ == -1) {
+					sprintf(buff, "/F%d %d Tf ",
+						style[styleNext].font + 1, fontSize);
+				}
+				if (strcmp(style[styleCurrent].fore, style[styleNext].fore) != 0
+				    || style_ == -1) {
+					strcat(buff, style[styleNext].fore);
+					strcat(buff, "rg ");
+				}
+			}
+		}
+		//
+		void startPDF() {
+			if (fontSize <= 0) {
+			    fontSize = PDF_FONTSIZE_DEFAULT;
+			}
+			// leading is the term for distance between lines
+			leading = fontSize * PDF_SPACING_DEFAULT;
+			// sanity check for page size and margins
+			int pageWidthMin = (int)leading + pageMargin.left + pageMargin.right;
+			if (pageWidth < pageWidthMin) {
+				pageWidth = pageWidthMin;
+			}
+			int pageHeightMin = (int)leading + pageMargin.top + pageMargin.bottom;
+			if (pageHeight < pageHeightMin) {
+				pageHeight = pageHeightMin;
+			}
+			// start to write PDF file here (PDF1.4Ref(p63))
+			// ASCII>127 characters to indicate binary-possible stream
+			oT->write("%PDF-1.3\n%«Ïè¢\n");
+			styleCurrent = STYLE_DEFAULT;
+
+			// build objects for font resources; note that font objects are
+			// *expected* to start from index 1 since they are the first objects
+			// to be inserted (PDF1.4Ref(p317))
+			for (int i = 0; i < 4; i++) {
+				sprintf(buffer, "<</Type/Font/Subtype/Type1"
+						"/Name/F%d/BaseFont/%s/Encoding/"
+						PDF_ENCODING
+						">>\n", i + 1,
+						PDFfontNames[fontSet * 4 + i]);
+				oT->add(buffer);
+			}
+			pageContentStart = oT->index;
+		}
+		void endPDF() {
+			if (pageStarted) {	// flush buffers
+				endPage();
+			}
+			// refer to all used or unused fonts for simplicity
+			int resourceRef = oT->add(
+				"<</ProcSet[/PDF/Text]\n"
+				"/Font<</F1 1 0 R/F2 2 0 R/F3 3 0 R"
+				"/F4 4 0 R>> >>\n");
+			// create all the page objects (PDF1.4Ref(p88))
+			// forward reference pages object; calculate its object number
+			int pageObjectStart = oT->index;
+			int pagesRef = pageObjectStart + pageCount;
+			for (int i = 0; i < pageCount; i++) {
+				sprintf(buffer, "<</Type/Page/Parent %d 0 R\n"
+						"/MediaBox[ 0 0 %d %d"
+						"]\n/Contents %d 0 R\n"
+						"/Resources %d 0 R\n>>\n",
+						pagesRef, pageWidth, pageHeight,
+						pageContentStart + i, resourceRef);
+				oT->add(buffer);
+			}
+			// create page tree object (PDF1.4Ref(p86))
+			pageData = "<</Type/Pages/Kids[\n";
+			for (int j = 0; j < pageCount; j++) {
+				sprintf(buffer, "%d 0 R\n", pageObjectStart + j);
+				pageData += buffer;
+			}
+			sprintf(buffer, "]/Count %d\n>>\n", pageCount);
+			pageData += buffer;
+			oT->add(pageData.c_str());
+			// create catalog object (PDF1.4Ref(p83))
+			sprintf(buffer, "<</Type/Catalog/Pages %d 0 R >>\n", pagesRef);
+			int catalogRef = oT->add(buffer);
+			// append the cross reference table (PDF1.4Ref(p64))
+			int xref = oT->xref();
+			// end the file with the trailer (PDF1.4Ref(p67))
+			sprintf(buffer, "trailer\n<< /Size %d /Root %d 0 R\n>>"
+					"\nstartxref\n%d\n%%%%EOF\n",
+					oT->index, catalogRef, xref);
+			oT->write(buffer);
+		}
+		void add(char ch, int style_) {
+			if (!pageStarted) {
+				startPage();
+			}
+			// get glyph width (TODO future non-monospace handling)
+			double glyphWidth = fontToPoints(PDFfontWidths[fontSet]);
+			xPos += glyphWidth;
+			// if cannot fit into a line, flush, wrap to next line
+			if (xPos > pageWidth - pageMargin.right) {
+				nextLine();
+				xPos += glyphWidth;
+			}
+			// if different style, then change to style
+			if (style_ != styleCurrent) {
+				flushSegment();
+				// output code (if needed) for new style
+				setStyle(segStyle, style_);
+				stylePrev = styleCurrent;
+				styleCurrent = style_;
+			}
+			// escape these characters
+			if (ch == ')' || ch == '(' || ch == '\\') {
+				segment += '\\';
+			}
+			if (ch != ' ') { justWhiteSpace = false; }
+			segment += ch;	// add to segment data
+		}
+		void flushSegment() {
+			if (segment.length() > 0) {
+				if (justWhiteSpace) {	// optimise
+					styleCurrent = stylePrev;
+				} else {
+					pageData += segStyle;
+				}
+				pageData += "(";
+				pageData += segment;
+				pageData += ")Tj\n";
+			}
+			segment.clear();
+			*segStyle = '\0';
+			justWhiteSpace = true;
+		}
+		void startPage() {
+			pageStarted = true;
+			firstLine = true;
+			pageCount++;
+			double fontAscender = fontToPoints(PDFfontAscenders[fontSet]);
+			yPos = pageHeight - pageMargin.top - fontAscender;
+			// start a new page
+			sprintf(buffer, "BT 1 0 0 1 %d %d Tm\n",
+				pageMargin.left, (int)yPos);
+			// force setting of initial font, colour
+			setStyle(segStyle, -1);
+			strcat(buffer, segStyle);
+			pageData = buffer;
+			xPos = pageMargin.left;
+			segment.clear();
+			flushSegment();
+		}
+		void endPage() {
+			pageStarted = false;
+			flushSegment();
+			// build actual text object; +3 is for "ET\n"
+			// PDF1.4Ref(p38) EOL marker preceding endstream not counted
+			char *textObj = new char[pageData.length() + 100];
+			// concatenate stream within the text object
+			sprintf(textObj, "<</Length %d>>\nstream\n%s"
+					 "ET\nendstream\n",
+					 pageData.length() - 1 + 3,
+					 pageData.c_str());
+			oT->add(textObj);
+			delete []textObj;
+		}
+		void nextLine() {
+			if (!pageStarted) {
+				startPage();
+			}
+			xPos = pageMargin.left;
+			flushSegment();
+			// PDF follows cartesian coords, subtract -> down
+			yPos -= leading;
+			double fontDescender = fontToPoints(PDFfontDescenders[fontSet]);
+			if (yPos < pageMargin.bottom + fontDescender) {
+				endPage();
+				startPage();
+				return;
+			}
+			if (firstLine) {
+				sprintf(buffer, "0 -%.1f TD\n", leading);
+				firstLine = false;
+			} else {
+				sprintf(buffer, "T*\n");
+			}
+			pageData += buffer;
+		}
+	};
+	PDFRender pr;
+
 	SendEditor(SCI_COLOURISE, 0, -1);
-
-	// read the tabsize, wsysiwyg and 'expand tabs' flag...
-	int tabSize = props.GetInt("tabsize");
-	if (tabSize == 0)	{
-		tabSize = 4;
+	// read exporter flags
+	int tabSize = props.GetInt("tabsize", PDF_TAB_DEFAULT);
+	if (tabSize < 0) {
+		tabSize = PDF_TAB_DEFAULT;
 	}
-	// P.S. currently those are not currently used in the code...
-	//int wysiwyg = props.GetInt("export.pdf.wysiwyg", 1);
-	//int tabs = props.GetInt("export.pdf.tabs", 0);
-
-	// check that we have content
-	if (!LengthDocument()) {
-		// no content to export, issue an error message
-		char msg[200];
-		strcpy(msg, "Nothing to export as PDF");	// Should be localized...
-		WindowMessageBox(wSciTE, msg, MB_OK);
-		return;
+	// read magnification value to add to default screen font size
+	pr.fontSize = props.GetInt("export.pdf.magnification");
+	// set font family according to face name
+	SString propItem = props.GetExpanded("export.pdf.font");
+	pr.fontSet = PDF_FONT_DEFAULT;
+	if (propItem.length()) {
+		if (propItem == "Courier")
+			pr.fontSet = 0;
+		else if (propItem == "Helvetica")
+			pr.fontSet = 1;
+		else if (propItem == "Times")
+			pr.fontSet = 2;
 	}
-
-	FILE *fp = fopen(saveName, "wt");
-	if (!fp) {
-		SString msg = LocaliseMessage("Could not save file \"^0\".", fullPath) ;
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING) ;
-		return;
+	// page size: width, height
+	propItem = props.GetExpanded("export.pdf.pagesize");
+	char *buffer = new char[200];
+	char *ps = StringDup(propItem.c_str());
+	const char *next = GetNextPropItem(ps, buffer, 32);
+	if (0 >= (pr.pageWidth = atol(buffer))) {
+		pr.pageWidth = PDF_WIDTH_DEFAULT;
 	}
-
-	char *PDFColours[STYLE_DEFAULT + 1];
-	int defaultSize = 9;
-	int j;
-
-	// initialize that array...
-	for (j = 0; j <= STYLE_DEFAULT; j++) {
-		PDFColours[j] = NULL;
+	next = GetNextPropItem(next, buffer, 32);
+	if (0 >= (pr.pageHeight = atol(buffer))) {
+		pr.pageHeight = PDF_HEIGHT_DEFAULT;
 	}
+	delete []ps;
+	// page margins: left, right, top, bottom
+	propItem = props.GetExpanded("export.pdf.margins");
+	ps = StringDup(propItem.c_str());
+	next = GetNextPropItem(ps, buffer, 32);
+	if (0 >= (pr.pageMargin.left = atol(buffer))) {
+		pr.pageMargin.left = PDF_MARGIN_DEFAULT;
+	}
+	next = GetNextPropItem(next, buffer, 32);
+	if (0 >= (pr.pageMargin.right = atol(buffer))) {
+		pr.pageMargin.right = PDF_MARGIN_DEFAULT;
+	}
+	next = GetNextPropItem(next, buffer, 32);
+	if (0 >= (pr.pageMargin.top = atol(buffer))) {
+		pr.pageMargin.top = PDF_MARGIN_DEFAULT;
+	}
+	GetNextPropItem(next, buffer, 32);
+	if (0 >= (pr.pageMargin.bottom = atol(buffer))) {
+		pr.pageMargin.bottom = PDF_MARGIN_DEFAULT;
+	}
+	delete []ps;
 
 	// collect all styles available for that 'language'
-	// or the default style if no language is available
-	// (or an attribute isn't defined for this language/style)...
-	for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
-		char key[200];
-		sprintf(key, "style.*.%0d", istyle);
-		char *valdef = StringDup(props.GetExpanded(key).c_str());
-		sprintf(key, "style.%s.%0d", language.c_str(), istyle);
-		char *val = StringDup(props.GetExpanded(key).c_str());
+	// or the default style if no language is available...
+	pr.style = new PDFStyle[STYLE_MAX + 1];
+	for (int i = 0; i <= STYLE_MAX; i++) {	// get keys
+		pr.style[i].font = 0;
+		pr.style[i].fore[0] = '\0';
+
+		sprintf(buffer, "style.*.%0d", i);
+		char *valdef = StringDup(props.GetExpanded(buffer).c_str());
+		sprintf(buffer, "style.%s.%0d", language.c_str(), i);
+		char *val = StringDup(props.GetExpanded(buffer).c_str());
 
 		StyleDefinition sd(valdef);
 		sd.ParseStyleDefinition(val);
 
 		if (sd.specified != StyleDefinition::sdNone) {
+			if (sd.italics) { pr.style[i].font |= 2; }
+			if (sd.bold) { pr.style[i].font |= 1; }
 			if (sd.fore.length()) {
-				int red, green, blue;
-				char buffer[30];
-
-				red = IntFromHexByte(sd.fore.c_str() + 1);
-				green = IntFromHexByte(sd.fore.c_str() + 3);
-				blue = IntFromHexByte(sd.fore.c_str() + 5);
-
-				// at last, we got the PDF colour!!!
-				sprintf(buffer, "%3.2f %3.2f %3.2f", (red / 256.0f), (green / 256.0f), (blue / 256.0f) );
-				PDFColours[istyle] = StringDup(buffer);
+				getPDFRGB(pr.style[i].fore, sd.fore.c_str());
+			} else if (i == STYLE_DEFAULT) {
+				strcpy(pr.style[i].fore, "0 0 0 ");
 			}
-			if (istyle == STYLE_DEFAULT && sd.size > 0) {
-				defaultSize = sd.size;
+			// grab font size from default style
+			if (i == STYLE_DEFAULT) {
+				if (sd.size > 0)
+					pr.fontSize += sd.size;
+				else
+					pr.fontSize = PDF_FONTSIZE_DEFAULT;
 			}
 		}
-
-		if (val) {
-			delete []val;
-		}
-		if (valdef) {
-			delete []valdef;
-		}
+		if (val) delete []val;
+		if (valdef) delete []valdef;
 	}
-	// If not defined, default colour is black
-	if (PDFColours[STYLE_DEFAULT] == NULL) {
-		PDFColours[STYLE_DEFAULT] = StringDup("0.00 0.00 0.00");
-	}
-	// If one colour isn't defined, it takes the default colour
-	for (j = 0; j < STYLE_DEFAULT; j++) {
-		if (PDFColours[j] == NULL) {
-			PDFColours[j] = StringDup(PDFColours[STYLE_DEFAULT]);
+	// patch in default foregrounds
+	for (int j = 0; j <= STYLE_MAX; j++) {
+		if (pr.style[j].fore[0] == '\0') {
+			strcpy(pr.style[j].fore, pr.style[STYLE_DEFAULT].fore);
 		}
 	}
+	delete []buffer;
 
-	// the thing that identifies a PDF 1.3 file...
-	fputs("%PDF-1.3\n", fp);
-
-	int pageObjNumber = 100;	// it starts at object #100, it should fix this one to be more generic
-//	const int pageHeight = 60;	// for now this is fixed... i fix it once i have fonts & styles implemented...
-	// PL: I replaced the fixed height of '12' by the size found in the default style.
-	// Not perfect, but better as it is smaller (for me)...
-	// So I compute an empirical page height based on the previous values.
-	// A more precise method should be used here.
-	const int pageHeight = 60 * 12 / (defaultSize + 1);
+	FILE *fp = fopen(saveName, "wb");
+	if (!fp) {
+		// couldn't open the file for saving, issue an error message
+		SString msg = LocaliseMessage("Could not save file '^0'.", fullPath);
+		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		return;
+	}
+	// initialise PDF rendering
+	PDFObjectTracker ot(fp);
+	pr.oT = &ot;
+	pr.startPDF();
 
 	// do here all the writing
 	int lengthDoc = LengthDocument();
-	int numLines = 0;
 	WindowAccessor acc(wEditor.GetID(), props);
+	int lineIndex = 0;
 
-	//
-	bool firstTime = true;
-	SString textObj = "";
-	SString stream = "";
-	int styleCurrent = 0;
-	int column = 0;
-	for (int i = 0; i < lengthDoc; i++) {
-		char ch = acc[i];
-
-		// a new page is needed whenever the number of lines exceeds that of page height or
-		// the first time it is created...
-		int newPageNeeded = (numLines > pageHeight) || firstTime;
-		if ( newPageNeeded ) {
-			// create a new text object using (pageObjNumber + 1)
-			int textObjNumber = (pageObjNumber + 1);
-
-			// if not the first text object created, we should close the previous
-			// all of this wouldnt have happened if i used OOP
-			// which i'm gonna add in the next edition of the Save2PDF feature
-			if ( !firstTime ) {
-				// close the opened text object if there are any...
-				stream += ") Tj\n";
-
-				// close last text object
-				stream += "ET\n";
-
-				// patch in the stream size (minus 1 since the newline is not counted... go figure)
-				char *buffer = new char[textObj.size() + 1 + 200]; // Copied Neil's [2/22/2003 21:04]
-				sprintf(buffer, textObj.c_str(), stream.length() - 1); // Length instead of size [2/22/2003 21:08]
-				textObj = buffer;
-				delete [] buffer;
-
-				// concatenate stream within the text object
-				textObj += stream;
-				textObj += "endstream\n";
-				textObj += "endobj\n";
-
-				// write the actual object to the PDF
-				fputs( textObj.c_str(), fp );
-
-				// reinitialize the stream [2/22/2003 20:39]
-				stream.clear();
-			}
-			firstTime = false;
-
-			// open a text object
-			char buffer[20];
-			sprintf(buffer, "%d 0 obj\n", textObjNumber);
-			textObj = buffer;
-			textObj += "<< /Length %d >>\n"; // we should patch the length here correctly...
-			textObj += "stream\n";
-
-			// new stream ;-)
-			stream = "BT\n";
-
-			stream += "%% draw text string using current graphics state\n";
-			sprintf(buffer, "/F1 %d Tf\n", defaultSize);	// Size of the default style
-			stream += buffer;
-			stream += "1 0 0 1 20 750 Tm\n";
-
-			// a new page should take the previous style information...
-			// this is a glitch in the PDF spec... it is not persisted over multiple pages...
+	if (!lengthDoc) {	// enable zero length docs
+		pr.nextLine();
+	} else {
+		for (int i = 0; i < lengthDoc; i++) {
+			char ch = acc[i];
 			int style = acc.StyleAt(i);
-			if (style <= STYLE_DEFAULT) {
-				stream += PDFColours[style];
-				stream += " rg\n";
-				stream += PDFColours[style];
-				stream += " RG\n";
-				styleCurrent = style;
-			}
 
-			// start the first text string with that text object..
-			stream += "(";
-
-			// update the page numbers
-			pageObjNumber += 2;	// since (pageObjNumber + 1) is reserved for the textObject for that page...
-
-			// make numLines equal to zero...
-			numLines = 0;
-		}
-
-		// apply only new styles...
-		int style = acc.StyleAt(i);
-		if (style != styleCurrent) {
-			if (style <= STYLE_DEFAULT) {
-				stream += ") Tj\n";
-				stream += PDFColours[style];
-				stream += " rg\n";
-				stream += PDFColours[style];
-				stream += " RG\n";
-				stream += "(";
-				styleCurrent = style;
+			if (ch == '\t') {
+				// expand tabs
+				int ts = tabSize - (lineIndex % tabSize);
+				lineIndex += ts;
+				for (; ts; ts--) {	// add ts count of spaces
+					pr.add(' ', style);	// add spaces
+				}
+			} else if (ch == '\r' || ch == '\n') {
+				if (ch == '\r' && acc[i + 1] == '\n') {
+					i++;
+				}
+				// close and begin a newline...
+					pr.nextLine();
+					lineIndex = 0;
+			} else {
+				// write the character normally...
+					pr.add(ch, style);
+					lineIndex++;
 			}
 		}
-
-		if (ch == '\t') {
-			// expand tabs into equals 'tabsize' spaces...
-			int ts = tabSize - (column % tabSize);
-			for (int itab = 0; itab < ts; itab++) {
-				stream += " ";
-			}
-			column += ts;
-		} else if (ch == '\r' || ch == '\n') {
-			if (ch == '\r' && acc[i + 1] == '\n') {
-				i++;
-			}
-			// close and begin a newline...
-			char buffer[20];
-			stream += ") Tj\n";
-			sprintf(buffer, "0 -%d TD\n", defaultSize+1);	// Size of the default style
-			stream += buffer;	// We should compute these strings only once
-			stream += "(";
-			column = 0;
-			numLines++;
-		} else if ((ch == ')') || (ch == '(') || (ch == '\\')) {
-			// you should escape those characters for PDF 1.2+
-			char buffer[10];
-			sprintf(buffer, "\\%c", ch);
-			stream += buffer;
-			column++;
-		} else {
-			// write the character normally...
-			stream += ch;
-			column++;
-		}
 	}
-	// Clean up
-	for (j = 0; j <= STYLE_DEFAULT; j++) {
-		delete [] PDFColours[j];
-	}
-
-	// close the opened text object if there are any...
-	stream += ") Tj\n";
-
-	// close last text object if and only if there is one open...
-	if (lengthDoc > 0) {
-		// close last text object
-		stream += "ET\n";
-
-		// patch in the stream size (minus 1 since the newline is not counted... go figure)
-		char *buffer = new char[textObj.size() + 1 + 200];  // 200 by Neil as this is quite indeterminate
-		sprintf(buffer, textObj.c_str(), stream.length() - 1);  // Length instead of size [2/22/2003 21:08]
-		textObj = buffer;
-		delete [] buffer;
-
-		// concatenate stream within the text object
-		textObj += stream;
-		textObj += "endstream\n";
-		textObj += "endobj\n";
-
-		// write the actual object to the PDF
-		fputs( textObj.c_str(), fp );
-
-		// empty the stream [2/22/2003 20:56]
-		stream.clear();
-	}
-
-	// now create all the page objects...
-	SString pageRefs = "";
-	int pageCount = 0;
-	for (int k = 100; k < pageObjNumber; k += 2 ) {
-		//
-		char buffer[20];
-		sprintf( buffer, "%% page number %d\n", (k - 99));
-		fputs(buffer, fp);
-
-		sprintf( buffer, "%d 0 obj\n", k );
-		fputs(buffer, fp);
-		fputs("<< /Type /Page\n"
-		      "/Parent 3 0 R\n"
-		      "/MediaBox [ 0 0 612 792 ]\n", fp);
-
-		// we need to patch in the corresponding page text object!
-		int textObjNumber = (k + 1);
-		sprintf( buffer, "/Contents %d 0 R\n", textObjNumber);
-		fputs(buffer, fp);
-
-		fputs("/Resources << /ProcSet 6 0 R\n"
-		      "/Font << /F1 7 0 R >>\n"
-		      ">>\n"
-		      ">>\n"
-		      "endobj\n", fp);
-
-		// add this to the list of page number references...
-		sprintf(buffer, "%d 0 R ", k);
-		pageRefs += buffer;
-
-		// increment the page count...
-		pageCount++;
-	}
-
-	//
-	fputs("3 0 obj\n", fp);
-	fputs("<< /Type /Pages\n", fp);
-
-	// new scope...
-	{
-		SString buff = "";
-		buff += "/Kids [";
-		buff += pageRefs;
-		buff += "]\n";
-		fputs(buff.c_str(), fp);		// need to patch in all the page objects
-	}
-
-	{
-		char buffer[20];
-		sprintf(buffer, "/Count %d\n", pageCount);
-		fputs(buffer, fp);		// we need to patch also the number of page objects created
-	}
-
-	fputs(">>\n", fp);
-	fputs("endobj\n", fp);
-
-	// create catalog object
-	fputs("% catalog object\n"
-	      "1 0 obj\n"
-	      "<< /Type /Catalog\n"
-	      "/Outlines 2 0 R\n"
-	      "/Pages 3 0 R\n"
-	      ">>\n"
-	      "endobj\n", fp);
-
-	// create an empty outline object
-	fputs("2 0 obj\n"
-	      "<< /Type /Outlines\n"
-	      "/Count 0\n"
-	      ">>\n"
-	      "endobj\n", fp);
-
-	//
-	fputs("6 0 obj\n"
-	      "[ /PDF /Text ]\n"
-	      "endobj\n", fp);
-
-	//
-	fputs("7 0 obj\n"
-	      "<< /Type /Font\n"
-	      "/Subtype /Type1\n"
-	      "/Name /F1\n"
-	      "/BaseFont /Helvetica\n"
-	      "/Encoding /MacRomanEncoding\n"
-	      ">>\n"
-	      "endobj\n", fp);
-
-	// end the file, with the trailer
-	fputs("xref\n"
-	      "0 8\n"
-	      "0000000000 65535 f\n"
-	      "0000000009 00000 n\n"
-	      "0000000074 00000 n\n"
-	      "0000000120 00000 n\n"
-	      "0000000179 00000 n\n"
-	      "0000000364 00000 n\n"
-	      "0000000466 00000 n\n"
-	      "0000000496 00000 n\n"
-	      "trailer\n"
-	      "<< /Size 8\n"
-	      "/Root 1 0 R\n"
-	      ">>\n"
-	      "startxref\n"
-	      "0\n"
-	      "%%EOF\n", fp);
-
-	// and close the PDF file
+	// write required stuff and close the PDF file
+	pr.endPDF();
 	fclose(fp);
 }
 
