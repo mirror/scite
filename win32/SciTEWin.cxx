@@ -1532,6 +1532,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			SizeSubWindows();
 		break;
 
+	case WM_MOVE:
+		SendEditor(SCI_CALLTIPCANCEL);
+		break;
+
 	case WM_GETMINMAXINFO: {
 			MINMAXINFO *pmmi = reinterpret_cast<MINMAXINFO *>(lParam);
 			if (fullScreen) {
