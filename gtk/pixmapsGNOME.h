@@ -1,8 +1,10 @@
 // Set of images for tool bar buttons
-// Drawn by Dean Jones
+// Icons  Copyright(C) 1998  by  Dean S. Jones
+// http://jfa.javalobby.org/projects/icons/
 // Modified to have same names as tigert.h
 // Not really anything to do with Gnome - just calling this 
 // file pixmapsGNOME to fit in with previous code.
+
 /* XPM */
 static char * editcopy_xpm[] = {
 "20 20 13 1",
