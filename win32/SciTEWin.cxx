@@ -1914,14 +1914,18 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		SetFocus(wEditor.GetID());
 		break;
 
-	case WM_DROPFILES:
+	case WM_DROPFILES: {
+			HDROP hdrop = reinterpret_cast<HDROP>(wParam);
+			int filesDropped = DragQueryFile(hdrop, 0xffffffff, NULL, 0);
+
+			for(int i= 0; i < filesDropped; ++i) {
 		if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
 			char pathDropped[MAX_PATH];
-			HDROP hdrop = reinterpret_cast<HDROP>(wParam);
-			int filesDropped = DragQueryFile(hdrop, 0xffffffff, pathDropped, sizeof(pathDropped));
-			if (filesDropped == 1) {
-				DragQueryFile(hdrop, 0, pathDropped, sizeof(pathDropped));
+					DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
 				Open(pathDropped);
+				}
+				else
+					break;
 			}
 			DragFinish(hdrop);
 		}

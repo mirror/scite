@@ -266,7 +266,7 @@ protected:
 	void ClearDocument();
 	void InitialiseBuffers();
 	void New();
-	void Close();
+	void Close(bool updateUI= true);
 	bool Exists(const char *dir, const char *path, char *testPath);
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size)=0;
 	virtual void FixFilePath();
@@ -324,6 +324,7 @@ protected:
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue = false);
 	virtual void AboutDialog()=0;
 	virtual void QuitProgram()=0;
+	void CloseAllBuffers();
 	void MenuCommand(int cmdID);
 	void FoldChanged(int line, int levelNow, int levelPrev);
 	void FoldChanged(int position);

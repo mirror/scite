@@ -27,6 +27,7 @@
 #define IDM_NEXT        115
 #define IDM_PREV        116
 #define IDM_BUFFERSEP 117
+#define IDM_CLOSEALL   118
 
 #define IDM_UNDO	120
 #define IDM_REDO	121

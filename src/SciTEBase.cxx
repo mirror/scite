@@ -363,6 +363,7 @@ void SciTEBase::InitialiseBuffers() {
 		if (buffersWanted == 1) {
 			DestroyMenuItem(4, IDM_PREV);
 			DestroyMenuItem(4, IDM_NEXT);
+			DestroyMenuItem(4, IDM_CLOSEALL);
 			DestroyMenuItem(4, 0);
 		}
 	}
@@ -396,7 +397,7 @@ void SciTEBase::New() {
 	SetFileStackMenu();
 }
 
-void SciTEBase::Close() {
+void SciTEBase::Close(bool updateUI) {
 	if (buffers.size == 1) {
 		// With no buffer list, Close means close from MRU
 		buffers.buffers[0].Init();
@@ -417,16 +418,37 @@ void SciTEBase::Close() {
 		Buffer bufferNext = buffers.buffers[buffers.current];
 		overrideExtension = bufferNext.overrideExtension;
 		isDirty = bufferNext.isDirty;
+		if (updateUI)
 		SetFileName(bufferNext.fileName.c_str());
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 		if (closingLast) {
 			ClearDocument();
 		}
+		if (updateUI) {
 		SetWindowName();
 		ReadProperties();
 		DisplayAround(bufferNext);
 	}
+	}
+	if (updateUI)
 	BuffersMenu();
+}
+
+void SciTEBase::CloseAllBuffers() {
+
+	UpdateBuffersCurrent();	// Ensure isDirty copied
+	for (int i = 0; i < buffers.length; i++) {
+		if (buffers.buffers[i].isDirty) {
+			SetDocumentAt(i);
+			if (SaveIfUnsure() == IDCANCEL)
+				return;
+		}
+	}
+
+	while (buffers.length > 1)
+		Close(false);
+
+	Close();
 }
 
 void SciTEBase::Next() {
@@ -451,7 +473,7 @@ void SciTEBase::BuffersMenu() {
 		DestroyMenuItem(4, IDM_BUFFER + pos);
 	}
 	if (buffers.size > 1) {
-		int menuStart = 3;
+		int menuStart = 4;
 		SetMenuItem(4, menuStart, IDM_BUFFERSEP, "");
 		for (pos = 0; pos < buffers.length; pos++) {
 			int itemID = bufferCmdID + pos;
@@ -2655,6 +2677,9 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_NEXT:
 		Next();
 		SetFocus(wEditor.GetID());
+		break;
+	case IDM_CLOSEALL:
+		CloseAllBuffers();
 		break;
 	case IDM_SAVE:
 		Save();

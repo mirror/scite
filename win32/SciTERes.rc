@@ -119,6 +119,7 @@ BEGIN
   BEGIN
 	MENUITEM "&Previous\tF6",			IDM_PREV
 	MENUITEM "&Next\tShift+F6",			IDM_NEXT
+	MENUITEM "&Close all",			    IDM_CLOSEALL
   END
 
   POPUP "&Help"
@@ -242,7 +243,13 @@ BEGIN
 	0xDD, IDM_MATCHBRACE, VIRTKEY, CONTROL
 	0xDD, IDM_SELECTTOBRACE, VIRTKEY, CONTROL, SHIFT
 	"I", IDM_COMPLETE, VIRTKEY, CONTROL
-	"*", IDM_EXPAND,  VIRTKEY, CONTROL
+
+	// this does not work and gives RC warning:
+	// ASCII character not equivalent to virtual key code
+	//"*", IDM_EXPAND,  VIRTKEY, CONTROL
+
+	// this works for a german keyboard
+	187, IDM_EXPAND,  VIRTKEY, CONTROL, SHIFT
 		
 	"0", IDM_TOOLS+0, VIRTKEY, CONTROL
 	"1", IDM_TOOLS+1, VIRTKEY, CONTROL
