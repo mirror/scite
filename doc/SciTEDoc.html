@@ -1806,7 +1806,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         and the bold, italics and eolfilled fields have no subvalue. The value
           "fore:#FF0000,font:Courier,size:14" represents 14 point, red Courier text.<br />
            A global style can be set up using style.*.<i>stylenumber</i>. Any style options set in
-          the global style will be inherited by each lexer style unless overridden.
+          the global style will be inherited by each lexer style unless overridden.<br />
+	On GTK+ 2, Pango anti-aliased fonts can be chosen by prefixing the font name with "!",
+	such as "font:!Sans".
         </td>
       </tr>
       <tr>
