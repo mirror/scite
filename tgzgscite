@@ -1,7 +1,7 @@
 cd ..
 rm -f gscite.tgz
 mkdir gscite
-cp scite/license.txt gscite
+cp scite/*.txt gscite
 cp scite/bin/SciTE gscite
 strip gscite/SciTE
 cp scite/src/*.properties gscite
