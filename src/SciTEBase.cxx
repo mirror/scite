@@ -539,7 +539,7 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		SString translator = GetTranslationToAbout("TranslationCredit", false);
 		SetAboutStyle(wsci, trsSty, ColourDesired(0, 0, 0));
 #if PLAT_WIN
-		// On Windows Me (maybe 9x also), we must assign another font to display translaiton.
+		// On Windows Me (maybe 9x also), we must assign another font to display translation.
 		if (translator.length()) {
 			SString fontBase = props.GetExpanded("font.translators");
 			StyleDefinition sd(fontBase.c_str());
