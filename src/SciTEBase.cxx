@@ -76,6 +76,19 @@ const char *contributors[] = {
 	"Christian Obrecht",
 };
 
+#ifdef OLD /* PL 2000/05/18 */
+#else  /* OLD PL 2000/05/18 */
+#if PLAT_WIN
+
+const char *extList[] = {
+	"x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
+	"x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.py",
+	"x.pl", "x.sql", "x.spec", "x.php3", "x.tex"
+};
+
+#endif
+#endif  /* OLD PL 2000/05/18 */
+
 // AddStyledText only called from About so static size buffer is OK
 void AddStyledText(WindowID hwnd, const char *s, int attr) {
 	char buf[1000];
@@ -2730,6 +2743,41 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_BOOKMARK_NEXT:
 		BookmarkNext();
 		break;
+
+#ifdef OLD /* PL 2000/05/18 */
+#else  /* OLD PL 2000/05/18 */
+	case IDM_TABSIZE:
+		TabSizeDialog();
+		break;
+
+	case IDM_LEXER_NONE:
+	case IDM_LEXER_CPP:
+	case IDM_LEXER_VB:
+	case IDM_LEXER_RC:
+	case IDM_LEXER_HTML:
+	case IDM_LEXER_XML:
+	case IDM_LEXER_JS:
+	case IDM_LEXER_WSCRIPT:
+	case IDM_LEXER_PROPS:
+	case IDM_LEXER_BATCH:
+	case IDM_LEXER_MAKE:
+	case IDM_LEXER_ERRORL:
+	case IDM_LEXER_JAVA:
+	case IDM_LEXER_PYTHON:
+	case IDM_LEXER_PERL:
+	case IDM_LEXER_SQL:
+	case IDM_LEXER_PLSQL:
+	case IDM_LEXER_PHP:
+	case IDM_LEXER_LATEX:
+		char oldFileName[MAX_PATH];	// Bad hack, perhaps should change ReadProperties to accept a parameter instead...
+		strcpy(oldFileName, fileName);
+		strcpy(fileName, extList[cmdID - LEXER_BASE]);
+		ReadProperties();
+		strcpy(fileName, oldFileName);	// Restore real name
+		SendEditor(SCI_COLOURISE, 0, -1);
+		Redraw();
+		break;
+#endif /* OLD PL 2000/05/18 */
 
 	default:
 		if ((cmdID >= bufferCmdID) &&

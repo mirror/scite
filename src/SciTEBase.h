@@ -244,6 +244,10 @@ protected:
 	void ReplaceAll();
 	virtual void DestroyFindReplace()=0;
 	virtual void GoLineDialog()=0;
+#ifdef OLD /* FW000402 PL 2000/05/18 */
+#else  /* OLD FW000402 PL 2000/05/18 */
+	virtual void TabSizeDialog()=0;
+#endif /* OLD FW000402 PL 2000/05/18 */
 	void GoMatchingBrace();
 	virtual void FindReplace(bool replace)=0;
 	void OutputAppendString(const char *s, int len = -1);

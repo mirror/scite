@@ -82,6 +82,10 @@ protected:
 	virtual void FindReplace(bool replace);
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
+#ifdef OLD /* FW000402 PL 2000/05/18 */
+#else  /* OLD FW000402 PL 2000/05/18 */
+	virtual void TabSizeDialog();
+#endif /* OLD FW000402 PL 2000/05/18 */
 
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
@@ -114,6 +118,10 @@ public:
 	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+#ifdef OLD /* FW000402 PL 2000/05/19 */
+#else  /* OLD FW000402 PL 2000/05/19 */
+	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+#endif /* OLD FW000402 PL 2000/05/19 */
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
 		    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
@@ -1400,6 +1408,58 @@ void SciTEWin::GoLineDialog() {
 	}
 	SetFocus(wEditor.GetID());
 }
+
+#ifdef OLD /* PL 2000/05/18 */
+#else  /* OLD PL 2000/05/18 */
+BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	static int *pTabSize;
+
+	switch (message) {
+
+	case WM_INITDIALOG:
+		pTabSize = reinterpret_cast<int *>(lParam);
+		SendDlgItemMessage(hDlg, IDTABSIZE, EM_LIMITTEXT, 2, 1);
+		char tmp[3];
+		if (*pTabSize > 99)
+			*pTabSize = 99;
+		sprintf(tmp, "%d", *pTabSize);
+		SendDlgItemMessage(hDlg, IDTABSIZE, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(tmp));
+		return TRUE;
+
+	case WM_CLOSE:
+		SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
+		break;
+
+	case WM_COMMAND:
+		if (ControlIDOfCommand(wParam) == IDCANCEL) {
+			EndDialog(hDlg, IDCANCEL);
+			return FALSE;
+		} else if (ControlIDOfCommand(wParam) == IDOK) {
+			BOOL bOK;
+			*pTabSize = static_cast<int>(GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
+//			if (!bOK)
+//				pTabSize = 0;
+			EndDialog(hDlg, IDOK);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+void SciTEWin::TabSizeDialog() {
+	int tabSize;
+
+	tabSize = SendEditor(SCI_GETTABWIDTH);
+	if (DoDialog(hInstance, "TabSize", wSciTE.GetID(),
+		reinterpret_cast<DLGPROC>(TabSizeDlg),
+		reinterpret_cast<DWORD>(&tabSize)) == IDOK) {
+		if (tabSize > 0)
+			SendEditor(SCI_SETTABWIDTH, tabSize);
+	}
+	SetFocus(wEditor.GetID());
+}
+#endif /* OLD PL 2000/05/18 */
 
 void SciTEWin::FindReplace(bool replace) {
 	replacing = replace;
