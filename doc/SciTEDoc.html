@@ -1228,10 +1228,14 @@ NameError: mistake
         </td>
         <td>
           This setting allows changing the character set that is asked for when setting up fonts.
-	Works on Windows but not on GTK+. To use Russian Cyrillic characters, set character.set to
+	To use Russian Cyrillic characters, set character.set to
 	204. Other values that may work include Chinese (134 or 136), Korean (129), Greek (161),
-	Turkish (162), Hebrew (177), Arabic (178), Thai(222), or Japanese(128). Please send email
-	if you use one of these settings and it works or doesn't.
+	Eastern European (234), Baltic (186), 
+	Turkish (162), Hebrew (177), Arabic (178), Thai (222), or Japanese (128). 
+	All of these values may work on Windows, but on GTK+ Baltic, Turkish, Thai and Vietnamese
+	will probably not work.
+	Please send email	if you use one of these settings and it works or doesn't or if you
+	have information on how to support other languages.
         </td>
       </tr>
       <tr>
