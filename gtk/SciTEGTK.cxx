@@ -1361,6 +1361,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
 	    {"/Options/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/View _Whitespace", "<control><shift>W", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
+	    {"/Options/View _Indentation Guides", NULL, menuSig, IDM_VIEWGUIDES, "<CheckItem>"},
 	    {"/Options/View _Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
 	    {"/Options/View _Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
 	    {"/Options/View Line _Numbers", "", menuSig, IDM_LINENUMBERMARGIN, "<CheckItem>"},

@@ -1236,7 +1236,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		if (colonMode) {
 			int lineStart = Platform::SendScintilla(win.GetID(), EM_LINEFROMCHAR, braceAtCaret);
 			int lineMaxSubord = Platform::SendScintilla(win.GetID(), SCI_GETLASTCHILD, lineStart, -1);
-			braceOpposite = Platform::SendScintilla(win.GetID(), EM_LINEINDEX, lineMaxSubord+1)-1;
+			braceOpposite = Platform::SendScintilla(win.GetID(), SCI_GETLINEENDPOSITION, lineMaxSubord);
 		} else {
 			braceOpposite = Platform::SendScintilla(win.GetID(), SCI_BRACEMATCH, braceAtCaret, 0);
 		}
@@ -1266,7 +1266,12 @@ void SciTEBase::BraceMatch(bool editor) {
 		if (chBrace == ':') {
 			int lineStart = Platform::SendScintilla(win.GetID(), EM_LINEFROMCHAR, braceAtCaret);
 			int indentPos = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart, 0);
+			int indentPosNext = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart+1, 0);
 			columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, indentPos, 0);
+			int columnAtCaretNext = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, indentPosNext, 0);
+			indentSize = props.GetInt("indent.size");
+			if (columnAtCaretNext - indentSize > 1)
+				columnAtCaret = columnAtCaretNext - indentSize; 
 			Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
 		}
 		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
