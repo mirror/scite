@@ -626,10 +626,11 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			}
 			if (ch == ' ') {
 				if (wysiwyg) {
-					if (acc[i+1] != ' ' || i+1 >= lengthDoc) {
+					if (acc[i + 1] != ' ') {
+						// Single space, kept as is
 						fputc(' ', fp);
 					} else {
-						while (acc[i] == ' ') {
+						while (i < lengthDoc && acc[i] == ' ') {
 							fputs("&nbsp;", fp);
 							i++;
 						}
