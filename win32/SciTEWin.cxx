@@ -1108,6 +1108,11 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
 	return args;
 }
 
+/**
+ * Process the command line, check for other instance wanting to open files,
+ * create the SciTE window, perform batch processing (print) or transmit command line
+ * to other instance and exit or just show the window and open files.
+ */
 void SciTEWin::Run(const char *cmdLine) {
 	// Break up the command line into individual arguments
 	SString args = ProcessArgs(cmdLine);
@@ -1164,6 +1169,9 @@ void SciTEWin::Run(const char *cmdLine) {
 	Redraw();
 }
 
+/**
+ * Draw the split bar.
+ */
 void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
 	PRectangle rcInternal = GetClientRectangle();
 	//surfaceWindow->FillRectangle(rcInternal, Colour(0xff,0x80,0x80));
@@ -1197,11 +1205,13 @@ void SciTEWin::AboutDialog() {
 #ifdef STATIC_BUILD
 	AboutDialogWithBuild(1);
 #else
-
 	AboutDialogWithBuild(0);
 #endif
 }
 
+/**
+ * Open files dropped on the SciTE window.
+ */
 void SciTEWin::DropFiles(HDROP hdrop) {
 	// If drag'n'drop inside the SciTE window but outside
 	// Scintilla, hdrop is null, and an exception is generated!
@@ -1226,7 +1236,9 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 	}
 }
 
-/* Handle simple wild-card file patterns & and directory requests */
+/**
+ * Handle simple wild-card file patterns and directory requests.
+ */
 bool SciTEWin::PreOpenCheck(const char *arg) {
 	bool isHandled = false;
 	HANDLE hFFile;
@@ -1235,24 +1247,25 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 	char filename[MAX_PATH];
 	int nbuffers = props.GetInt("buffers");
 
-	if (fileattributes != (DWORD) -1) {
-		/* if the command line argument is a directory, use OpenDialog() */
-		if ((fileattributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
+	if (fileattributes != (DWORD) -1) {	// arg is an existing directory or filename
+		// if the command line argument is a directory, use OpenDialog()
+		if (fileattributes & FILE_ATTRIBUTE_DIRECTORY) {
 			strcpy(dirName, arg);
 			OpenDialog();
 			isHandled = true;
-		} else /* it is a file */
-			isHandled = false;
+		}
 	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(arg, &ffile)) != INVALID_HANDLE_VALUE) {
+		// If several buffers is accepted and the arg is a filename pattern matching at least an existing file
 		isHandled = true;
 		strcpy(filename, arg);
 		char *lastslash;
 		if (NULL == (lastslash = strrchr(filename, '\\')))
-			lastslash = &filename[0];
+			lastslash = filename;	// No path
 		else
 			lastslash++;
+		// Open files matching the given pattern until no more files or all available buffers are exhausted
 		do {
-			if ((ffile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY) {
+			if (!(ffile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {	// Skip directories
 				strcpy(lastslash, ffile.cFileName);
 				Open(filename);
 				--nbuffers;
@@ -1263,24 +1276,25 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 		const char *lastslash = strrchr(arg, '\\');
 		const char *lastdot = strrchr(arg, '.');
 
-		/* if the filename is only an extension, open the dialog box with it as the extension filter */
-		if (lastslash && lastdot && lastslash == (lastdot - 1) || !lastslash && lastdot == arg) {
+		// if the filename is only an extension, open the dialog box with it as the extension filter
+		if (lastslash && lastdot && lastslash == lastdot - 1 || !lastslash && lastdot == arg) {
 			isHandled = true;
 
-			if (lastslash) { /* the arg contains a path, so copy that part to dirName */
+			if (lastslash) { // the arg contains a path, so copy that part to dirName
 				strncpy(dirName, arg, lastslash - arg + 1);
 				dirName[lastslash - arg + 1] = '\0';
-			} else
+			} else {
 				strcpy(dirName, ".\\");
+			}
 
 			strcpy(filename, "*");
 			strcat(filename, lastdot);
 			strcat(filename, "|");
 			strcat(filename, "*");
 			strcat(filename, lastdot);
-			OpenDialog(&filename[0]);
+			OpenDialog(filename);
 		} else if (!lastdot || lastslash && lastdot < lastslash) {
-			/* if the filename has no extension, try to match a file with list of standard extensions */
+			// if the filename has no extension, try to match a file with list of standard extensions
 			SString extensions = props.GetExpanded("source.default.extensions");
 			if (extensions.length()) {
 				strcpy(filename, arg);
@@ -1293,18 +1307,14 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 					if (::GetFileAttributes(filename) != (DWORD) -1) {
 						isHandled = true;
 						Open(filename);
-						break;
+						break;	// Found!
 					} else {
+						// Next extension
 						start += strlen(extensions.c_str() + start) + 1;
 					}
 				}
-				if (!(start < extensions.length())) {
-					isHandled = false;
-				}
-			} else
-				isHandled = false;
-		} else
-			isHandled = false;
+			}
+		}
 	}
 
 	return isHandled;
