@@ -132,53 +132,6 @@ static void HackColour(int &n) {
 		n = 0x80;
 }
 
-void SetAboutMessage(WindowID wsci, const char *appTitle) {
-	if (wsci) {
-		Platform::SendScintilla(wsci, SCI_SETSTYLEBITS, 7, 0);
-		Platform::SendScintilla(wsci, SCI_STYLERESETDEFAULT, 0, 0);
-		int fontSize = 15;
-#if PLAT_GTK
-		// On GTK+, new century schoolbook looks better in large sizes than default font
-		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
-		                        reinterpret_cast<uptr_t>("new century schoolbook"));
-		fontSize = 14;
-#endif
-		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
-		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, ColourDesired(0xff, 0xff, 0xff).AsLong());
-		Platform::SendScintilla(wsci, SCI_STYLECLEARALL, 0, 0);
-
-		SetAboutStyle(wsci, 0, ColourDesired(0xff, 0xff, 0xff));
-		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, 0, fontSize);
-		Platform::SendScintilla(wsci, SCI_STYLESETBACK, 0, ColourDesired(0, 0, 0x80).AsLong());
-		AddStyledText(wsci, appTitle, 0);
-		AddStyledText(wsci, "\n", 0);
-		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "Version 1.41\n", 1);
-		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
-		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
-		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
-		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "December 1998-November 2001.\n", 3);
-		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
-		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
-		AddStyledText(wsci, "Contributors:\n", 1);
-		srand(static_cast<unsigned>(time(0)));
-		int r = rand() % 256;
-		int g = rand() % 256;
-		int b = rand() % 256;
-		for (unsigned int co = 0;co < (sizeof(contributors) / sizeof(contributors[0]));co++) {
-			HackColour(r);
-			HackColour(g);
-			HackColour(b);
-			SetAboutStyle(wsci, 50 + co, ColourDesired(r, g, b));
-			AddStyledText(wsci, "    ", 50 + co);
-			AddStyledText(wsci, contributors[co], 50 + co);
-			AddStyledText(wsci, "\n", 50 + co);
-		}
-		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
-	}
-}
-
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	codePage = 0;
 	characterSet = 0;
@@ -318,6 +271,59 @@ sptr_t SciTEBase::SendOutputEx(unsigned int msg, uptr_t wParam/*= 0*/, sptr_t lP
 	if (direct)
 		return SendOutput(msg, wParam, lParam);
 	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
+}
+
+void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
+	if (wsci) {
+		Platform::SendScintilla(wsci, SCI_SETSTYLEBITS, 7, 0);
+		Platform::SendScintilla(wsci, SCI_STYLERESETDEFAULT, 0, 0);
+		int fontSize = 15;
+#if PLAT_GTK
+		// On GTK+, new century schoolbook looks better in large sizes than default font
+		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
+		                        reinterpret_cast<uptr_t>("new century schoolbook"));
+		fontSize = 14;
+#endif
+		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
+		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, ColourDesired(0xff, 0xff, 0xff).AsLong());
+		Platform::SendScintilla(wsci, SCI_STYLECLEARALL, 0, 0);
+
+		SetAboutStyle(wsci, 0, ColourDesired(0xff, 0xff, 0xff));
+		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, 0, fontSize);
+		Platform::SendScintilla(wsci, SCI_STYLESETBACK, 0, ColourDesired(0, 0, 0x80).AsLong());
+		AddStyledText(wsci, appTitle, 0);
+		AddStyledText(wsci, "\n", 0);
+		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
+		AddStyledText(wsci, "Version 1.41\n", 1);
+		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
+		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
+		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
+		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
+		AddStyledText(wsci, "December 1998-November 2001.\n", 3);
+		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
+		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
+		SString translator = LocaliseString("TranslationCredit", false);
+		if (translator.length()) {
+			AddStyledText(wsci, translator.c_str(), 1);
+			AddStyledText(wsci, "\n", 1);
+		}
+		AddStyledText(wsci, 
+			LocaliseString("Contributors:").append("\n").c_str(), 1);
+		srand(static_cast<unsigned>(time(0)));
+		int r = rand() % 256;
+		int g = rand() % 256;
+		int b = rand() % 256;
+		for (unsigned int co = 0;co < (sizeof(contributors) / sizeof(contributors[0]));co++) {
+			HackColour(r);
+			HackColour(g);
+			HackColour(b);
+			SetAboutStyle(wsci, 50 + co, ColourDesired(r, g, b));
+			AddStyledText(wsci, "    ", 50 + co);
+			AddStyledText(wsci, contributors[co], 50 + co);
+			AddStyledText(wsci, "\n", 50 + co);
+		}
+		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
+	}
 }
 
 void SciTEBase::ViewWhitespace(bool view) {

@@ -604,6 +604,7 @@ protected:
 
 	void AssignKey(int key, int mods, int cmd);
 	void ViewWhitespace(bool view);
+	void SetAboutMessage(WindowID wsci, const char *appTitle);
 	void SetImportMenu();
 	void ImportMenu(int pos);
 	void SetLanguageMenu();
@@ -685,7 +686,6 @@ void SetFocus(GtkWidget *hwnd);
 #endif
 
 int ControlIDOfCommand(unsigned long);
-void SetAboutMessage(WindowID wsci, const char *appTitle);
 time_t GetModTime(const char *fullPath);
 bool IsUntitledFileName(const char *name);
 void LowerCaseString(char *s);
