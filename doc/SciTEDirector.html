@@ -120,10 +120,10 @@
     <h3>
        Direct connection, broadcasting and explicit return addresses.
     </h3>
-	<p>One application at a time is <i>the director</i> of SciTE, 
+	<p>One application at a time is <i>the director</i> of SciTE,
 	controlling SciTE as it wishes. To support other communications techniques
-	applications may broadcast to all active director interfaces. When doing so, 
-	each message should contain an explicit return address where replies to the 
+	applications may broadcast to all active director interfaces. When doing so,
+	each message should contain an explicit return address where replies to the
 	broadcast message will be sent.
 	</p>
     <h3>
@@ -159,7 +159,7 @@
 	its window handle to the other application using an identity message as described later.
 	Then both sides are able to send messages.</p>
 	<p>To broadcast a message on Windows, the set of active director
-	interfaces can be found by broadcasting the "SciTEDirectorInterface" 
+	interfaces can be found by broadcasting the "SciTEDirectorInterface"
 	message and seeing which windows reply with the same value as that message.
 	Example broadcast code:</p>
 <SPAN class=S0></SPAN><SPAN class=S5>unsigned</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>int</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>SDI</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>::</SPAN><SPAN class=S11>RegisterWindowMessage</SPAN><SPAN class=S10>(</SPAN><SPAN class=S0></SPAN><SPAN class=S6>"SciTEDirectorInterface"</SPAN><SPAN class=S10>);</SPAN><SPAN class=S0><BR>
@@ -191,19 +191,19 @@
        Low level interface on GTK+.
     </h3>
 	<p>This is not yet implemented.
-	The proposed design uses an input fifo for each application supporting the director 
-	interface located in /tmp with a name using a pattern such as 
-	"/tmp/SciTE&lt;PID&gt;.director". 
+	The proposed design uses an input fifo for each application supporting the director
+	interface located in /tmp with a name using a pattern such as
+	"/tmp/SciTE&lt;PID&gt;.director".
 	This allows enumerating all active director interfaces and also opening
-	a specific interface when the fifo name has been communicated through some 
+	a specific interface when the fifo name has been communicated through some
 	other means such as a command line argument or an identity: command.</p>
     <h3>
        High level interface.
     </h3>
-	<p>Messages use C style escapes to represent control characters and 
-	ensure that only visible characters are transmitted apart from the use 
+	<p>Messages use C style escapes to represent control characters and
+	ensure that only visible characters are transmitted apart from the use
 	of '\n' to separate messages.</p>
-	<p>The string transmitted by the low level interface contains an optional 
+	<p>The string transmitted by the low level interface contains an optional
 	return address surrounded by ':' characters, an action, a ':' character and
 	an optional argument. The argument is often a file path. The ':' must be present even if there
 	is no argument. For example, SciTE understands the message</p>
@@ -212,7 +212,7 @@
 	</code>
 	<p>as a command to open the file "c:\os\scintilla\include\Scintilla.iface" just as if the user
 	had performed this operation.</p>
-	<p>If the first character of the message is a ':' then up to the next ':' is a return 
+	<p>If the first character of the message is a ':' then up to the next ':' is a return
 	address, so SciTE will reply to the message</p>
 	<code>
 	:73658:askfilename:
@@ -224,6 +224,10 @@
 		<tr>
 			<td>askfilename:</td>
 			<td>Return the name of the file being edited.</td>
+		</tr>
+		<tr>
+			<td>askproperty:&lt;key&gt;</td>
+			<td>Return the value of a property.</td>
 		</tr>
 		<tr>
 			<td>close:</td>
@@ -274,8 +278,8 @@
 		</tr>
 		<tr>
 			<td>macrocommand:&lt;command&gt;</td>
-			<td>Execute a macro command. 
-			See the SciTE source code for the syntax of the 
+			<td>Execute a macro command.
+			See the SciTE source code for the syntax of the
 			command argument.</td>
 		</tr>
 		<tr>
@@ -309,7 +313,7 @@
 		</tr>
 		<tr>
 			<td>replaceall:&lt;search&gt;\000&lt;replace&gt;</td>
-			<td>Replace all instances of he search string in the 
+			<td>Replace all instances of he search string in the
 			document with the replace string.</td>
 		</tr>
 		<tr>
@@ -339,13 +343,13 @@
 		</tr>
 		<tr>
 			<td>macro:getlist</td>
-			<td>Retrieve the list of available macros which will be 
+			<td>Retrieve the list of available macros which will be
 			returned by the macrolist command.</td>
 		</tr>
 		<tr>
 			<td>macro:record:&lt;details&gt;</td>
 			<td>Start recording a macro.
-			See the SciTE source code for the syntax of the 
+			See the SciTE source code for the syntax of the
 			details argument.</td>
 		</tr>
 		<tr>
