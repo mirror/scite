@@ -56,6 +56,7 @@ protected:
 	static char *className;
 	static char *classNameInternal;
 	WINDOWPLACEMENT winPlace;
+	RECT rcWorkArea;
 	FINDREPLACE fr;
 	char openWhat[200];
 	int filterDefault;
@@ -132,6 +133,7 @@ protected:
 	void ExecuteHelp(const char *cmd);
 	void ExecuteOtherHelp(const char *cmd);
 	void CopyAsRTF();
+	void FullScreenToggle();
 	void Command(WPARAM wParam, LPARAM lParam);
 
 public:

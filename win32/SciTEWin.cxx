@@ -270,6 +270,44 @@ void SciTEWin::CopyAsRTF() {
 	}
 }
 
+void SciTEWin::FullScreenToggle() {
+	fullScreen = !fullScreen;
+	if (fullScreen) {
+		::SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
+		RECT rcFullScreen = { 0,0, ::GetSystemMetrics(SM_CXSCREEN),
+			::GetSystemMetrics(SM_CYSCREEN)};
+		::SystemParametersInfo(SPI_SETWORKAREA, 0, &rcFullScreen, 0);
+		
+		winPlace.length = sizeof(winPlace);
+		::GetWindowPlacement(wSciTE.GetID(), &winPlace);
+		int topStuff = ::GetSystemMetrics(SM_CYMENU) +
+			       ::GetSystemMetrics(SM_CYEDGE);
+		if (props.GetInt("full.screen.hides.menu"))
+			topStuff += ::GetSystemMetrics(SM_CYCAPTION);
+		//HWND wTopmost = ::GetWindow(wSciTE.GetID(), GW_HWNDFIRST);
+		::SetForegroundWindow(wSciTE.GetID());
+		::SetWindowPos(wSciTE.GetID(), HWND_TOP,
+			       -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
+			       -topStuff - 1,
+			       ::GetSystemMetrics(SM_CXSCREEN) +
+			       2 * ::GetSystemMetrics(SM_CXSIZEFRAME) + 2,
+			       ::GetSystemMetrics(SM_CYSCREEN) + topStuff +
+			       ::GetSystemMetrics(SM_CYSIZEFRAME) + 3,
+			       0);
+	} else {
+		if (winPlace.length) {
+			::SystemParametersInfo(SPI_SETWORKAREA, 0, &rcWorkArea, 0);
+			if (winPlace.showCmd == SW_SHOWMAXIMIZED) {
+				::ShowWindow(wSciTE.GetID(), SW_RESTORE);
+				::ShowWindow(wSciTE.GetID(), SW_SHOWMAXIMIZED);
+			} else {
+				::SetWindowPlacement(wSciTE.GetID(), &winPlace);
+			}
+		}
+	}
+	CheckMenus();
+}
+
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	int cmdID = ControlIDOfCommand(wParam);
 	switch (cmdID) {
@@ -297,30 +335,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case IDM_FULLSCREEN:
-		fullScreen = !fullScreen;
-		if (fullScreen) {
-			winPlace.length = sizeof(winPlace);
-			::GetWindowPlacement(wSciTE.GetID(), &winPlace);
-			winPlace.length = sizeof(winPlace);
-			int topStuff = ::GetSystemMetrics(SM_CYMENU) +
-			               ::GetSystemMetrics(SM_CYEDGE);
-			if (props.GetInt("full.screen.hides.menu"))
-				topStuff += ::GetSystemMetrics(SM_CYCAPTION);
-			//HWND wTopmost = ::GetWindow(wSciTE.GetID(), GW_HWNDFIRST);
-			::SetForegroundWindow(wSciTE.GetID());
-			::SetWindowPos(wSciTE.GetID(), HWND_TOP,
-			               -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
-			               -topStuff - 1,
-			               ::GetSystemMetrics(SM_CXSCREEN) +
-			               2 * ::GetSystemMetrics(SM_CXSIZEFRAME) + 2,
-			               ::GetSystemMetrics(SM_CYSCREEN) + topStuff +
-			               ::GetSystemMetrics(SM_CYSIZEFRAME) + 3,
-			               0);
-		} else {
-			if (winPlace.length)
-				SetWindowPlacement(wSciTE.GetID(), &winPlace);
-		}
-		CheckMenus();
+		FullScreenToggle();
 		break;
 
 	default:
@@ -1004,8 +1019,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				                    3;
 				pmmi->ptMaxTrackSize.x = pmmi->ptMaxSize.x;
 				pmmi->ptMaxTrackSize.y = pmmi->ptMaxSize.y;
+				return 0;
+			} else {
+				return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
 			}
-			return 0;
 		}
 
 	case WM_INITMENU:
