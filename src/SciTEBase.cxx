@@ -686,12 +686,17 @@ void SciTEBase::BraceMatch(bool editor) {
 }
 
 void SciTEBase::SetWindowName() {
-	if (fileName[0] == '\0')
+	if (fileName[0] == '\0') {
 		strcpy(windowName, "(Untitled)");
-	else if (props.GetInt("title.full.path"))
-		strcpy(windowName, fullPath);
-	else
+	} else if (props.GetInt("title.full.path") == 2) {
 		strcpy(windowName, fileName);
+		strcat(windowName, " @ ");
+		strcat(windowName, dirName);
+	} else if (props.GetInt("title.full.path") == 1) {
+		strcpy(windowName, fullPath);
+	} else {
+		strcpy(windowName, fileName);
+	}
 	if (isDirty)
 		strcat(windowName, " * ");
 	else
