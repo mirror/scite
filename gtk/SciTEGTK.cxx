@@ -82,8 +82,10 @@ protected:
 	Window findInFilesDialog;
 	GtkWidget *comboFiles;
 	Window gotoDialog;
+#ifdef CLIENT_3D_EFFECT
 	Window topFrame;
 	Window outputFrame;
+#endif
 	GtkWidget *gotoEntry;
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
@@ -581,18 +583,25 @@ void SciTEGTK::SizeContentWindows() {
 	int h = rcClient.bottom - rcClient.top;
 	heightOutput = NormaliseSplit(heightOutput);
 	if (splitVertical) {
+#ifdef CLIENT_3D_EFFECT
 		topFrame.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
-		///wEditor.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
 		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar, 0, w - heightOutput, h));
 		outputFrame.SetPosition(PRectangle(w - heightOutput, 0, w, h));
-		///wOutput.SetPosition(PRectangle(w - heightOutput, 0, w, h));
-	}
-	else {
+#else
+		wEditor.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
+		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar, 0, w - heightOutput, h));
+		wOutput.SetPosition(PRectangle(w - heightOutput, 0, w, h));
+#endif
+	} else {
+#ifdef CLIENT_3D_EFFECT
 		topFrame.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
-		///wEditor.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
 		wDivider.SetPosition(PRectangle(0, h - heightOutput - heightBar, w, h - heightOutput));
 		outputFrame.SetPosition(PRectangle(0, h - heightOutput, w, h));
-		///wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
+#else
+		wEditor.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
+		wDivider.SetPosition(PRectangle(0, h - heightOutput - heightBar, w, h - heightOutput));
+		wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
+#endif
 	}
 }
 
@@ -2102,11 +2111,13 @@ void SciTEGTK::Run(const char *cmdLine) {
 	gtk_signal_connect(GTK_OBJECT(wContent.GetID()), "size_allocate",
 	                   GTK_SIGNAL_FUNC(MoveResize), gthis);
 
+#ifdef CLIENT_3D_EFFECT
 	topFrame = gtk_frame_new(NULL);
 	gtk_widget_show(topFrame.GetID());
 	gtk_frame_set_shadow_type(GTK_FRAME(topFrame.GetID()), GTK_SHADOW_IN);
 	gtk_fixed_put(GTK_FIXED(wContent.GetID()), topFrame.GetID(), 0, 0);
 	gtk_widget_set_usize(topFrame.GetID(), 600, 600);
+#endif
 
 	wEditor = scintilla_new();
 	scintilla_set_id(SCINTILLA(wEditor.GetID()), IDM_SRCWIN);
@@ -2114,9 +2125,12 @@ void SciTEGTK::Run(const char *cmdLine) {
 	               wEditor.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrEditor = Platform::SendScintilla(wEditor.GetID(),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
-	//gtk_fixed_put(GTK_FIXED(wContent.GetID()), wEditor.GetID(), 0, 0);
+#ifdef CLIENT_3D_EFFECT
 	gtk_container_add(GTK_CONTAINER(topFrame.GetID()), wEditor.GetID());
-	///gtk_widget_set_usize(wEditor.GetID(), 600, 600);
+#else
+	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wEditor.GetID(), 0, 0);
+	gtk_widget_set_usize(wEditor.GetID(), 600, 600);
+#endif
 	gtk_signal_connect(GTK_OBJECT(wEditor.GetID()), "command",
 	                   GtkSignalFunc(CommandSignal), this);
 	gtk_signal_connect(GTK_OBJECT(wEditor.GetID()), "notify",
@@ -2142,11 +2156,13 @@ void SciTEGTK::Run(const char *cmdLine) {
 	gtk_drawing_area_size(GTK_DRAWING_AREA(wDivider.GetID()), width, 10);
 	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wDivider.GetID(), 0, 600);
 
+#ifdef CLIENT_3D_EFFECT
 	outputFrame = gtk_frame_new(NULL);
 	gtk_widget_show(outputFrame.GetID());
 	gtk_frame_set_shadow_type (GTK_FRAME(outputFrame.GetID()), GTK_SHADOW_IN);
 	gtk_fixed_put(GTK_FIXED(wContent.GetID()), outputFrame.GetID(), 0, width);
 	gtk_widget_set_usize(outputFrame.GetID(), width, 100);
+#endif
 
 	wOutput = scintilla_new();
 	scintilla_set_id(SCINTILLA(wOutput.GetID()), IDM_RUNWIN);
@@ -2154,9 +2170,12 @@ void SciTEGTK::Run(const char *cmdLine) {
 	               wOutput.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrOutput = Platform::SendScintilla(wOutput.GetID(),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
+#ifdef CLIENT_3D_EFFECT
 	gtk_container_add(GTK_CONTAINER(outputFrame.GetID()), wOutput.GetID());
-	///gtk_fixed_put(GTK_FIXED(wContent.GetID()), wOutput.GetID(), 0, width);
-	//gtk_widget_set_usize(wOutput.GetID(), width, 100);
+#else
+	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wOutput.GetID(), 0, width);
+	gtk_widget_set_usize(wOutput.GetID(), width, 100);
+#endif
 	gtk_signal_connect(GTK_OBJECT(wOutput.GetID()), "command",
 	                   GtkSignalFunc(CommandSignal), this);
 	gtk_signal_connect(GTK_OBJECT(wOutput.GetID()), "notify",
