@@ -164,9 +164,13 @@ NameError: mistake
        commands of ':' as the first character that is not '.' or alphabetic.
        Properties use the syntax used in property set files and override any
        properties set in property files. If there is no value given for a property, it is set to 1.
-       Double quotes
-       may be placed around arguments that contain spaces. On Linux, the standard shell
-       quoting is available. The "-p" argument causes SciTE to print the file and then exit.
+       Double quotes may be placed around arguments that contain spaces but they must be 
+       placed around the whole argument, not just around a file name, so "-open:x y.txt" works but
+       -open:"x y.txt" doesn't.
+       On Linux, the standard shell quoting is available. 
+       The "-p" argument causes SciTE to print the file and then exit.
+    </p>
+    <p>
        For example, <br />
        <code>
        SciTE "-font.base=font:MS Gothic,size:11" -save.recent ScintillaGTK.cxx
@@ -220,7 +224,7 @@ NameError: mistake
        On Windows, the following opens C:\Program Files\SciTE\SciTEDoc.html
        and goes to the 123th line:<br />
        <code>
-       SciTE -open:"C:\\Program Files\\SciTE\\SciTEDoc.html" -goto:123
+       SciTE "-open:C:\\Program Files\\SciTE\\SciTEDoc.html" -goto:123
        </code><br />
     <p>
 	Command line arguments are evaluated left to right in two phases because
