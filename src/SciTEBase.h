@@ -189,8 +189,10 @@ public:
 	bool italics;
 	bool eolfilled;
 	bool underlined;
+	int caseForce;
 	enum flags { sdNone = 0, sdFont = 0x1, sdSize = 0x2, sdFore = 0x4, sdBack = 0x8,
-	             sdBold = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined = 0x80 } specified;
+	             sdBold = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined = 0x80,
+	              sdCaseForce = 0x100} specified;
 	StyleDefinition(const char *definition);
 };
 

@@ -294,7 +294,8 @@ char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-size(0), fore(0), back(Colour(0xff, 0xff, 0xff)), bold(false), italics(false), eolfilled(false), underlined(false) {
+size(0), fore(0), back(Colour(0xff, 0xff, 0xff)), bold(false), italics(false),
+eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED) {
 	specified = sdNone;
 	char *val = StringDup(definition);
 	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);
@@ -354,6 +355,14 @@ size(0), fore(0), back(Colour(0xff, 0xff, 0xff)), bold(false), italics(false), e
 			specified = static_cast<flags>(specified | sdUnderlined);
 			underlined = false;
 		}
+		if (0 == strcmp(opt, "case")) {
+			specified = static_cast<flags>(specified | sdCaseForce);
+			caseForce = SC_CASE_MIXED;
+			if (*colon == 'u')
+				caseForce = SC_CASE_UPPER;
+			else if (*colon == 'l')
+				caseForce = SC_CASE_LOWER;
+		}
 		if (cpComma)
 			opt = cpComma + 1;
 		else
@@ -380,6 +389,8 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETEOLFILLED, style, sd.eolfilled ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdUnderlined)
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETUNDERLINE, style, sd.underlined ? 1 : 0);
+	if (sd.specified & StyleDefinition::sdCaseForce)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETCASE, style, sd.caseForce);
 	Platform::SendScintilla(win.GetID(), SCI_STYLESETCHARACTERSET, style, characterSet);
 }
 
