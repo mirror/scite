@@ -25,7 +25,6 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	heightBar = 7;
 	fontTabs = 0;
 
-	fullScreen = false;
 	winPlace.length = 0;
 
 	memset(&fr, 0, sizeof(fr));
@@ -300,7 +299,6 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 
 	case IDM_FULLSCREEN:
 		fullScreen = !fullScreen;
-		CheckAMenuItem(IDM_FULLSCREEN, fullScreen);
 		if (fullScreen) {
 			winPlace.length = sizeof(winPlace);
 			::GetWindowPlacement(wSciTE.GetID(), &winPlace);
@@ -323,6 +321,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 			if (winPlace.length)
 				SetWindowPlacement(wSciTE.GetID(), &winPlace);
 		}
+		CheckMenus();
 		break;
 
 	default:

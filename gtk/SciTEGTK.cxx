@@ -104,6 +104,9 @@ protected:
 	gint	fileSelectorWidth;
 	gint	fileSelectorHeight;
 
+	// Fullscreen handling
+	int saved_x, saved_y, saved_h, saved_w;
+
 	void SetWindowName();
 	void ShowFileInStatus();
 	void SetIcon();
@@ -268,6 +271,9 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	fileSelectorWidth = 580;
 	fileSelectorHeight = 480;
+
+	// Fullscreen handling
+	fullScreen = false;
 
 	instance = this;
 }
@@ -547,6 +553,31 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		break;
 #endif
 
+	case IDM_FULLSCREEN:
+		fullScreen = !fullScreen;
+		if (fullScreen) {
+			int screen_x, screen_y;
+			int scite_x, scite_y;
+			int width, height;
+			GdkWindow* parent_w = wSciTE.GetID()->window;
+
+			gdk_window_get_origin(parent_w, &screen_x, &screen_y);
+			gdk_window_get_geometry(parent_w, &scite_x, &scite_y, &width, &height, NULL);
+
+			saved_x = screen_x - scite_x;
+			saved_y = screen_y - scite_y;
+			saved_w = width;
+			saved_h = height;
+			gdk_window_move_resize(parent_w, -scite_x, -scite_y, gdk_screen_width() + 1, gdk_screen_height() + 1);
+			SizeSubWindows();
+		} else {
+			GdkWindow* parent_w = wSciTE.GetID()->window;
+			gdk_window_move_resize(parent_w, saved_x, saved_y, saved_w, saved_h);
+			SizeSubWindows();
+		}
+		CheckMenus();
+		break;
+		
 	default:
 		SciTEBase::MenuCommand(cmdID);
 	}
@@ -1875,6 +1906,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/View/Toggle _current fold", "", menuSig, IDM_EXPAND, 0},
 	    {"/View/Toggle _all folds", "", menuSig, IDM_TOGGLE_FOLDALL, 0},
 	    {"/View/sep1", NULL, NULL, 0, "<Separator>"},
+	    {"/View/Full Scree_n", "F11", menuSig, IDM_FULLSCREEN, "<CheckItem>"},
 	    {"/View/_Tool Bar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
 	    //{"/View/Tab _Bar", "", menuSig, IDM_VIEWTABBAR, "<CheckItem>"},
 	    {"/View/_Status Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},

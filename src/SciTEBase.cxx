@@ -201,6 +201,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	heightBar = 7;
 	dialogsOnScreen = 0;
 	topMost = false;
+	fullScreen = false;
 
 	heightOutput = 0;
 	previousHeightOutput = 0;
@@ -3031,16 +3032,17 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);
+	CheckAMenuItem(IDM_FULLSCREEN, fullScreen);
+	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
+	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
+	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
+	CheckAMenuItem(IDM_VIEWEOL, SendEditor(SCI_GETVIEWEOL));
 	CheckAMenuItem(IDM_VIEWSPACE, SendEditor(SCI_GETVIEWWS));
 	CheckAMenuItem(IDM_VIEWGUIDES, SendEditor(SCI_GETINDENTATIONGUIDES));
 	CheckAMenuItem(IDM_LINENUMBERMARGIN, lineNumbers);
 	CheckAMenuItem(IDM_SELMARGIN, margin);
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);
-	CheckAMenuItem(IDM_VIEWEOL, SendEditor(SCI_GETVIEWEOL));
-	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
-	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
-	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 	EnableAMenuItem(IDM_COMPILE, !executing);
 	EnableAMenuItem(IDM_BUILD, !executing);
 	EnableAMenuItem(IDM_GO, !executing);
