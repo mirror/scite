@@ -83,7 +83,7 @@ public:
 typedef EntryMemory<10> ComboMemory;
 
 enum { 
-	heightTools = 28, 
+	heightTools = 24, 
 	heightStatus = 20, 
 	statusPosWidth = 160
 };
