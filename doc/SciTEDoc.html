@@ -2528,7 +2528,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	How do I enable tabbed window mode in SciTE?
     </h4>
     <p>
-	Tabbed window mode is only available on Windows, not on GTK+/Linux.
+	Tabbed window mode is only available on Windows and GTK+ 2, not on GTK+ 1.
 	Multiple buffers must be allocated by setting <code>buffers=10</code>
 	in your SciTEGlobal.properties. To have the tab bar visible upon starting
 	SciTE, set <code>tabbar.visible=1</code>.
@@ -2585,6 +2585,12 @@ This is for Windows and defines the subsystem through which the program is calle
     </p>
     <p>
 You can set a command for all files using * as a file pattern. Up to 10 commands (0 - 9) can be defined in the Tools Menu at any time. Commands also get executed with Ctrl+number.
+    </p>
+    <h4>
+	When I switch buffers all of the folds are opened. How do I make them stay as they were?
+    </h4>
+    <p>
+	SciTE does not have the ability to remember the fold state of other buffers.
     </p>
   </body>
 </html>
