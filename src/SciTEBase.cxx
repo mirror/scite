@@ -1455,7 +1455,7 @@ void SciTEBase::BraceMatch(bool editor) {
 			indentSize = props.GetInt("indent.size");
 			if (columnAtCaretNext - indentSize > 1)
 				columnAtCaret = columnAtCaretNext - indentSize; 
-			Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
+			//Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
 		}
 		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
 		if (props.GetInt("highlight.indentation.guides"))
@@ -1484,10 +1484,9 @@ void SciTEBase::FixFilePath() {
 }
 
 void SciTEBase::SetFileName(const char *openName) {
-	char pathCopy[MAX_PATH + 1];
-	pathCopy[0] = '\0';
-
 	if (openName[0] == '\"') {
+	    char pathCopy[MAX_PATH + 1];
+	    pathCopy[0] = '\0';
 		strncpy(pathCopy, openName + 1, MAX_PATH);
 		pathCopy[MAX_PATH] = '\0';
 		if (pathCopy[strlen(pathCopy) - 1] == '\"')
@@ -1504,6 +1503,7 @@ void SciTEBase::SetFileName(const char *openName) {
 		strcpy(fileName, cpDirEnd + 1);
 		strcpy(dirName, fullPath);
 		dirName[cpDirEnd - fullPath] = '\0';
+		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
 	} else {
 		strcpy(fileName, fullPath);
 		getcwd(dirName, sizeof(dirName));

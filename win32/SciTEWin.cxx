@@ -708,7 +708,11 @@ void SciTEWin::FixFilePath() {
 }
 
 void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
-	_fullpath(absPath, relativePath, size);
+    // The runtime libraries for GCC and Visual C++ give different results for _fullpath
+    // so use the OS.
+    LPTSTR fileBit=0;
+    GetFullPathName(relativePath, size, absPath, &fileBit);
+    //Platform::DebugPrintf("AbsolutePath: <%s> -> <%s>\n", relativePath, absPath);
 }
 
 bool SciTEWin::OpenDialog() {
@@ -766,7 +770,7 @@ bool SciTEWin::SaveAsDialog() {
 		dialogsOnScreen++;
 		choseOK = ::GetSaveFileName(&ofn);
 		if (choseOK) {
-			Platform::DebugPrintf("Save: <%s>\n", openName);
+			//Platform::DebugPrintf("Save: <%s>\n", openName);
 			SetFileName(openName);
 			Save();
 			ReadProperties();
