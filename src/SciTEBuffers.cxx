@@ -93,11 +93,11 @@ int BufferList::Add() {
 	return length - 1;
 }
 
-int BufferList::GetDocumentByName(const char *fileName) {
-	if (!fileName || !fileName[0])
+int BufferList::GetDocumentByName(const char *filename) {
+	if (!filename || !filename[0])
 		return -1;
 	for (int i = 0;i < length;i++)
-		if (buffers[i].SameNameAs(fileName))
+		if (buffers[i].SameNameAs(filename))
 			return i;
 	return -1;
 }
@@ -164,7 +164,7 @@ void SciTEBase::SetDocumentAt(int index) {
 	DisplayAround(bufferNext);
 
 	CheckMenus();
-	UpdateStatusBar();
+	UpdateStatusBar(true);
 
 	if (extender)
 		extender->OnSwitchFile(fullPath);
@@ -405,7 +405,7 @@ void SciTEBase::Close(bool updateUI) {
 	}
 	if (updateUI) {
 		BuffersMenu();
-		UpdateStatusBar();
+		UpdateStatusBar(true);
 	}
 }
 

@@ -14,6 +14,21 @@ void SciTEWin::SetStatusBarText(const char *s) {
 	::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 1, reinterpret_cast<LPARAM>(s));
 }
 
+#ifdef __MINGW_H	
+// Mingw headers do not have NMMOUSE, TTN_GETDISPINFO or NMTTDISPINFO
+struct NMMOUSE {
+	NMHDR hdr;
+	DWORD dwItemSpec;
+	// Other fields
+};
+#define TTN_GETDISPINFO TTN_FIRST
+struct NMTTDISPINFO {
+	NMHDR hdr;
+	LPSTR lpszText;
+	// Other fields
+};
+#endif
+
 /**
  * Manage Windows specific notifications.
  */
@@ -31,18 +46,26 @@ void SciTEWin::Notify(SCNotification *notification) {
 
 	case NM_CLICK:
 		// Click on a control
-
 		if (notification->nmhdr.idFrom == IDM_STATUSWIN) {
 			// Click on the status bar
-			sbNum++;
-			if (sbNum > props.GetInt("statusbar.number")) {
-				sbNum = 1;
+			NMMOUSE *pNMMouse = (NMMOUSE *)notification;
+			switch (pNMMouse->dwItemSpec) {
+			case 1:		/* Display of status */
+				sbNum++;
+				if (sbNum > props.GetInt("statusbar.number")) {
+					sbNum = 1;
+				}
+				UpdateStatusBar(true);
+				break;
+			case 2:		/* Refresh button */
+				UpdateStatusBar(true);
+				break;
+			default:
+				break;
 			}
-			UpdateStatusBar();
 		}
 		break;
 
-#ifndef __MINGW_H	// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
 	case TTN_GETDISPINFO:
 		// Ask for tooltip text
 		{
@@ -110,7 +133,6 @@ void SciTEWin::Notify(SCNotification *notification) {
 			}
 			break;
 		}
-#endif 	// _WIN32_IE >= 0x0300
 
 	default:    	// Scintilla notification, use default treatment
 
@@ -206,16 +228,19 @@ void SciTEWin::SizeSubWindows() {
 		if (spw <= 0) {
 			spw = statusPosWidth;
 		}
-		int startLineNum = rcClient.Width() - spw;
+		int refreshWidth = 70;
+		int startLineNum = rcClient.Width() - spw - refreshWidth;
 		if (startLineNum < 0)
 			startLineNum = 0;
-		int widths[] = { startLineNum, rcClient.Width() };
+		int widths[] = { startLineNum, rcClient.Width() - refreshWidth, rcClient.Width() };
 		// Perhaps we can define a syntax to create more parts,
 		// but it is probably an overkill for a marginal feature
-		::SendMessage(wStatusBar.GetID(), SB_SETPARTS, 2,
+		::SendMessage(wStatusBar.GetID(), SB_SETPARTS, 3,
 		              reinterpret_cast<LPARAM>(widths));
 		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 0 | SBT_NOBORDERS,
 		              reinterpret_cast<LPARAM>(""));
+		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 2 | SBT_POPOUT,
+		              reinterpret_cast<LPARAM>("Refresh"));
 		wStatusBar.SetPosition(PRectangle(rcClient.left,
 		                                  rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
 		                                  rcClient.Width(), visHeightStatus));

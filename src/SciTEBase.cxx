@@ -1964,7 +1964,7 @@ void SciTEBase::SetTextProperties(
 	ps.Set("SelLength", temp);
 }
 
-void SciTEBase::UpdateStatusBar() {
+void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 	if (sbVisible) {
 #ifdef OLD
 		SString msg;
@@ -1984,7 +1984,9 @@ void SciTEBase::UpdateStatusBar() {
 		PropSet propsStatus;
 		char tmp[32];
 		propsStatus.superPS = &props;
-		SetFileProperties(propsStatus);
+		if (bUpdateSlowData) {
+			SetFileProperties(propsStatus);
+		}
 		SetTextProperties(propsStatus);
 		int caretPos = SendEditor(SCI_GETCURRENTPOS);
 		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_LINEFROMPOSITION, caretPos)) + 1);
@@ -2303,7 +2305,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
-			UpdateStatusBar();
+			UpdateStatusBar(true);
 		}
 		break;
 	case IDM_OPEN:
@@ -2577,7 +2579,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_VIEWSTATUSBAR:
 		sbVisible = !sbVisible;
 		ShowStatusBar();
-		UpdateStatusBar();
+		UpdateStatusBar(true);
 		CheckMenus();
 		break;
 
@@ -3019,7 +3021,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		if (!handled) {
 			BraceMatch(notification->nmhdr.idFrom == IDM_SRCWIN);
 			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-				UpdateStatusBar();
+				UpdateStatusBar(false);
 			}
 		}
 		break;

@@ -483,7 +483,7 @@ protected:
 	void CharAdded(char ch);
 	void SetTextProperties(PropSet &ps);
 	void SetFileProperties(PropSet &ps);
-	virtual void UpdateStatusBar();
+	virtual void UpdateStatusBar(bool bUpdateSlowData);
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue = false);
