@@ -1255,8 +1255,9 @@ void SciTEBase::ToolsMenu(int item) {
 	}
 }
 
-int DecodeMessage(char *cdoc, char *sourcePath, int format) {
+int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 	sourcePath[0] = '\0';
+	column= -1; // default to not detected
 	switch (format) {
 	case SCE_ERR_PYTHON: {
 			// Python
@@ -1522,6 +1523,31 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			break;
 		}
 
+	case SCE_ERR_TIDY: {
+			/* HTML Tidy error/warnings look like:
+			 * line 8 column 1 - Error: unexpected </head> in <meta>
+			 * line 41 column 1 - Warning: <table> lacks "summary" attribute
+			 */
+			char *line = strchr(cdoc, ' ');
+			if (line) {
+				char *col = strchr(line+1, ' ');
+				if (col) {
+					*col = '\0';
+					int lnr = atoi(line) - 1;
+					col = strchr(col+1, ' ');
+					if (col) {
+						char *endcol = strchr(col+1, ' ');
+						if (endcol) {
+							*endcol = '\0';
+							column = atoi(col)-1;
+							return lnr;
+						}
+					}
+				}
+			}
+			break;
+		}
+
 	case SCE_ERR_JAVA_STACK: {
 			/* Java runtime stack trace
 				\tat <methodname>(<filename>:<line>)
@@ -1575,8 +1601,8 @@ void SciTEBase::GoMessage(int dir) {
 				return;
 			GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
 			char sourcePath[MAX_PATH];
-			int sourceLine = DecodeMessage(cdoc, sourcePath, style);
-			//printf("<%s> %d %d\n",sourcePath, sourceLine, lookLine);
+			int column;
+			int sourceLine = DecodeMessage(cdoc, sourcePath, style, column);
 			//Platform::DebugPrintf("<%s> %d %d\n",sourcePath, sourceLine, lookLine);
 			if (sourceLine >= 0) {
 				if (0 != strcmp(sourcePath, fileName)) {
@@ -1627,8 +1653,17 @@ void SciTEBase::GoMessage(int dir) {
 				           "error.marker.back", ColourDesired(0xff, 0xff, 0)));
 				SendEditor(SCI_MARKERADD, sourceLine, 0);
 				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
+				int endSourceline= SendEditor(SCI_POSITIONFROMLINE, sourceLine+1, 0);
+				if (column >= 0)
+					startSourceLine += column;
 				EnsureRangeVisible(startSourceLine, startSourceLine);
-				SetSelection(startSourceLine, startSourceLine);
+				if (props.GetInt("error.select.line")==1) {
+					//select whole source source line from column with error
+					SetSelection(endSourceline, startSourceLine);
+				} else {
+					//simply move cursor to line, don't do any selection
+					SetSelection(startSourceLine, startSourceLine);
+				}
 				WindowSetFocus(wEditor);
 			}
 			delete []cdoc;
