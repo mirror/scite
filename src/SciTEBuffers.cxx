@@ -924,7 +924,11 @@ void SciTEBase::ToolsMenu(int item) {
 	prefix += ".";
 	SString command = props.GetWild(prefix.c_str(), fileName);
 	if (command.length()) {
-		if (SaveIfUnsure() != IDCANCEL) {
+		prefix = "command.save.before.";
+		prefix += SString(item);
+		prefix += ".";
+		SString saveBefore = props.GetWild(prefix.c_str(), fileName);
+		if (saveBefore[0] == '2' || (saveBefore[0] == '1' && Save()) || SaveIfUnsure() != IDCANCEL) {
 			int flags = 0;
 
 			SString isfilter = "command.is.filter.";
