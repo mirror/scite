@@ -2260,8 +2260,8 @@ void SciTEGTK::CreateMenu() {
 	GtkItemFactoryEntry menuItemsBuffer[] = {
 	    {"/_Buffers", NULL, NULL, 0, "<Branch>"},
 	    {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/Buffers/_Previous", "F6", menuSig, IDM_PREVFILE, 0},
-	    {"/Buffers/_Next", "<shift>F6", menuSig, IDM_NEXTFILE, 0},
+	    {"/Buffers/_Previous", "<shift>F6", menuSig, IDM_PREVFILE, 0},
+	    {"/Buffers/_Next", "F6", menuSig, IDM_NEXTFILE, 0},
 	    {"/Buffers/_Close All", "", menuSig, IDM_CLOSEALL, 0},
 	    {"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
 	    {"/Buffers/Buffer0", "<alt>1", menuSig, bufferCmdID + 0, "<RadioItem>"},
