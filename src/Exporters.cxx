@@ -83,22 +83,22 @@ int GetHexByte(const char *hexbyte) { // "HH"
 
 int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
 	static int highlights[][3] = {
-	                                 { 0x00, 0x00, 0x00 },       // highlight1  0;0;0       black
-	                                 { 0x00, 0x00, 0xFF },       // highlight2  0;0;255     blue
-	                                 { 0x00, 0xFF, 0xFF },       // highlight3  0;255;255   cyan
-	                                 { 0x00, 0xFF, 0x00 },       // highlight4  0;255;0     green
-	                                 { 0xFF, 0x00, 0xFF },       // highlight5  255;0;255   violet
-	                                 { 0xFF, 0x00, 0x00 },       // highlight6  255;0;0     red
-	                                 { 0xFF, 0xFF, 0x00 },       // highlight7  255;255;0   yellow
-	                                 { 0xFF, 0xFF, 0xFF },       // highlight8  255;255;255 white
-	                                 { 0x00, 0x00, 0x80 },       // highlight9  0;0;128     dark blue
-	                                 { 0x00, 0x80, 0x80 },       // highlight10 0;128;128   dark cyan
-	                                 { 0x00, 0x80, 0x00 },       // highlight11 0;128;0     dark green
-	                                 { 0x80, 0x00, 0x80 },       // highlight12 128;0;128   dark violet
-	                                 { 0x80, 0x00, 0x00 },       // highlight13 128;0;0     brown
-	                                 { 0x80, 0x80, 0x00 },       // highlight14 128;128;0   khaki
-	                                 { 0x80, 0x80, 0x80 },       // highlight15 128;128;128 dark grey
-	                                 { 0xC0, 0xC0, 0xC0 },       // highlight16 192;192;192 grey
+	                                 { 0x00, 0x00, 0x00 },        // highlight1  0;0;0       black
+	                                 { 0x00, 0x00, 0xFF },        // highlight2  0;0;255     blue
+	                                 { 0x00, 0xFF, 0xFF },        // highlight3  0;255;255   cyan
+	                                 { 0x00, 0xFF, 0x00 },        // highlight4  0;255;0     green
+	                                 { 0xFF, 0x00, 0xFF },        // highlight5  255;0;255   violet
+	                                 { 0xFF, 0x00, 0x00 },        // highlight6  255;0;0     red
+	                                 { 0xFF, 0xFF, 0x00 },        // highlight7  255;255;0   yellow
+	                                 { 0xFF, 0xFF, 0xFF },        // highlight8  255;255;255 white
+	                                 { 0x00, 0x00, 0x80 },        // highlight9  0;0;128     dark blue
+	                                 { 0x00, 0x80, 0x80 },        // highlight10 0;128;128   dark cyan
+	                                 { 0x00, 0x80, 0x00 },        // highlight11 0;128;0     dark green
+	                                 { 0x80, 0x00, 0x80 },        // highlight12 128;0;128   dark violet
+	                                 { 0x80, 0x00, 0x00 },        // highlight13 128;0;0     brown
+	                                 { 0x80, 0x80, 0x00 },        // highlight14 128;128;0   khaki
+	                                 { 0x80, 0x80, 0x80 },        // highlight15 128;128;128 dark grey
+	                                 { 0xC0, 0xC0, 0xC0 },        // highlight16 192;192;192 grey
 	                             };
 	int maxdelta = 3 * 255 + 1, delta, index = -1;
 	int r = GetHexByte (rgb + 1), g = GetHexByte (rgb + 3), b = GetHexByte (rgb + 5);
@@ -124,7 +124,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||       // change
+	if (lastOffset != currentOffset ||        // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -145,7 +145,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||       // change
+	if (lastOffset != currentOffset ||        // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -166,7 +166,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||       // change
+	if (lastOffset != currentOffset ||        // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -187,7 +187,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||       // change
+	if (lastOffset != currentOffset ||        // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -433,43 +433,34 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 	int wysiwyg = props.GetInt("export.html.wysiwyg", 1);
 	int tabs = props.GetInt("export.html.tabs", 0);
 
-#ifdef FOLDING_HTML
 	int folding = props.GetInt("export.html.folding", 0);
-	int foldno = 0;
-	char startfolded[5] = "";
-
-	if (props.GetInt("export.html.startfolded", 1)) {
-		strcpy(startfolded, "none");
-	} else {
-		strcpy(startfolded, "all");
-	}
-#endif
 
 	FILE *fp = fopen(saveName, "wt");
 	if (fp) {
 		int styleCurrent = 0;
 		fputs("<!DOCTYPE html  PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n", fp);
-		fputs("<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
-		fputs("<HEAD>\n", fp);
+		fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
+		fputs("<head>\n", fp);
+		fputs("<title>SciTE generated</title>\n", fp);
 
-		fputs("<script language=\"Javascript\">\n"
-			"<!--\n"
-			"function toggleBlock(thisid)\n"
-			"{\n"
-			"var thislayer=document.getElementById(thisid);\n"
-			"if (thislayer.style.display == 'none')\n"
-			" {\n"
-			" thislayer.style.display='block';\n"
-			" }\n"
-			" else\n"
-			" {\n"
-			" thislayer.style.display='none';\n"
-			" }\n"
-			"}\n"
-			"//-->\n"
-			"</script>\n", fp);
+		fputs("<script language=\"Javascript\" type=\"text/javascript\">\n"
+		      "<!--\n"
+		      "function toggleBlock(thisid)\n"
+		      "{\n"
+		      "var thislayer=document.getElementById(thisid);\n"
+		      "if (thislayer.style.display == 'none')\n"
+		      " {\n"
+		      " thislayer.style.display='block';\n"
+		      " }\n"
+		      " else\n"
+		      " {\n"
+		      " thislayer.style.display='none';\n"
+		      " }\n"
+		      "}\n"
+		      "//-->\n"
+		      "</script>\n", fp);
 
-		fputs("<STYLE>\n", fp);
+		fputs("<style type=\"text/css\">\n", fp);
 		SString colour;
 		for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
 			char key[200];
@@ -485,7 +476,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			int size = 0;
 			if ((valdef && *valdef) || (val && *val)) {
 				if (istyle == STYLE_DEFAULT)
-					fprintf(fp, "SPAN {\n");
+					fprintf(fp, "span {\n");
 				else
 					fprintf(fp, ".S%0d {\n", istyle);
 				if (valdef && *valdef) {
@@ -569,34 +560,33 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			if (valdef)
 				delete []valdef;
 		}
-		fputs("</STYLE>\n", fp);
-		fputs("</HEAD>\n", fp);
-		fputs("<BODY>\n", fp);
+		fputs("</style>\n", fp);
+		fputs("</head>\n", fp);
+		fputs("<body>\n", fp);
 		WindowAccessor acc(wEditor.GetID(), props);
 		int line = acc.GetLine(0);
 		int level = (acc.LevelAt(line) & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 		int newLevel;
-		if (wysiwyg) {
+		styleCurrent = acc.StyleAt(0);
+		if (!wysiwyg)
+			fputs("<pre>", fp);
+		if (folding != 0) {
+			fputs("&nbsp;&nbsp;", fp);
 			line = acc.GetLine(0); // no \n count
 			int lvl = acc.LevelAt(line);
-			fputs("&nbsp;&nbsp;", fp);
 			if (lvl & SC_FOLDLEVELHEADERFLAG)
-				fprintf(fp, "<SPAN onClick=\"toggleBlock('ln%d')\">-</SPAN>&nbsp;", line+1);
-			fputs("<SPAN class=\"S0\">", fp);
-		} else {
-			fputs("<PRE class=\"S0\">", fp);
+				fprintf(fp, "<span onClick=\"toggleBlock('ln%d')\">-</span>&nbsp;", line + 1);
 		}
+		fprintf(fp, "<span class=\"S%d\">", styleCurrent);
+
 		int lengthDoc = LengthDocument();
-		bool prevCR = false;
 		for (int i = 0; i < lengthDoc; i++) {
 			char ch = acc[i];
 			int style = acc.StyleAt(i);
-			
+
 			if (style != styleCurrent) {
-				if (wysiwyg || styleCurrent != 0)
-					fputs("</SPAN>", fp);
-				if (wysiwyg || style != 0)
-					fprintf(fp, "<SPAN class=\"S%0d\">", style);
+				fputs("</span>", fp);
+				fprintf(fp, "<span class=\"S%0d\">", style);
 				styleCurrent = style;
 			}
 			if (ch == ' ') {
@@ -616,76 +606,53 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 							fputc(' ', fp);
 					}
 				}
-			} else if (ch == '\r') {
+			} else if ((ch == '\r') || (ch == '\n')) {
+				if (ch == '\r')
+					i++;
 				if (wysiwyg) {
-					line = acc.GetLine(i+2); // no \n count
+					fputs("<br/>", fp);
+				}
+
+				fputs("</span>", fp);
+				styleCurrent = acc.StyleAt(i + 1);
+				if (styleCurrent == 5)
+					styleCurrent = 5;
+				if (folding != 0) {
+					line = acc.GetLine(i + 1);
+
 					int lvl = acc.LevelAt(line);
-					fputs("</SPAN>", fp);
-					fputs("<BR/>", fp);
-					fputs("\n", fp);
 					newLevel = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
-					if (newLevel > level)
-						fprintf(fp, "<SPAN id=\"ln%d\">", line);
+
 					if (newLevel < level)
-						fprintf(fp, "</SPAN>&nbsp;&nbsp;");
+						fprintf(fp, "</span>");
+					fputc('\n', fp); // here to get clean code
+					if (newLevel > level)
+						fprintf(fp, "<span id=\"ln%d\">", line);
+
+					if (lvl & SC_FOLDLEVELHEADERFLAG)
+						fprintf(fp, "<span onClick=\"toggleBlock('ln%d')\">-</span>&nbsp;", line + 1);
 					else
 						fputs("&nbsp;&nbsp;", fp);
 					level = newLevel;
-					if (lvl & SC_FOLDLEVELHEADERFLAG)
-						fprintf(fp, "<SPAN onClick=\"toggleBlock('ln%d')\">-</SPAN>&nbsp;", line+1);
-					fprintf(fp, "<SPAN class=\"S%0d\">", style);
-				} else {
+				} else
 					fputc('\n', fp);
-				}
-			} else if (ch == '\n') {
-				if (!prevCR) {
-					if (wysiwyg) {
-						line = acc.GetLine(i+1);
-						int lvl = acc.LevelAt(line);
-						fputs("</SPAN>", fp);
-						fputs("<BR/>", fp);
-						fputs("\n", fp);
-						newLevel = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
-						if (newLevel > level)
-							fprintf(fp, "<SPAN id=\"ln%d\">", line);
-						if (newLevel < level)
-							fprintf(fp, "</SPAN>&nbsp;&nbsp;");
-						else
-							fputs("&nbsp;&nbsp;", fp);
-						level = newLevel;
-						if (lvl & SC_FOLDLEVELHEADERFLAG)
-							fprintf(fp, "<SPAN onClick=\"toggleBlock('ln%d')\">-</SPAN>&nbsp;", line+1);
-						fprintf(fp, "<SPAN class=\"S%0d\">", style);
-					} else {
-						fputc('\n', fp);
-					}
-				}
+
+				fprintf(fp, "<span class=\"S%0d\">", styleCurrent); // we know it's the correct next style
 			} else if (ch == '<') {
 				fputs("&lt;", fp);
 			} else if (ch == '>') {
 				fputs("&gt;", fp);
 			} else if (ch == '&') {
 				fputs("&amp;", fp);
-#ifdef FOLDING_HTML
-			} else if (ch == '{' && folding) {
-				fprintf(fp, "<A id=\"fold%0dp\" href=\"javascript:void(0);\"", foldno);
-				fprintf(fp, "onClick=\"if( fold%0d.style.display ) { fold%0d.style.display = ''; fold%0dp.text = '-'; }", foldno, foldno, foldno);
-				fprintf(fp, "else { fold%0d.style.display = 'none'; fold%0dp.text = '+'; } return true;\">+</A>&nbsp;", foldno, foldno);
-				fprintf(fp, "<SPAN id=\"fold%0d\" style=\"show: %s\">{", foldno++, startfolded);
-			} else if (ch == '}' && folding) {
-				fputs("}</SPAN>", fp);
-#endif
-
 			} else {
 				fputc(ch, fp);
 			}
-			prevCR = ch == '\r';
 		}
-		if (wysiwyg)
-			fputs("</SPAN>\n", fp);
-		else
-			fputs("</PRE>\n", fp);
-		fputs("</BODY>\n</HTML>\n", fp);
+
+		fputs("</span>", fp);
+		if (!wysiwyg)
+			fputs("</pre>", fp);
+		fputs("\n</body>\n</html>\n", fp);
 		fclose(fp);
 	} else {
 		char msg[200];
@@ -708,7 +675,9 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		output not fully optimized
 		not Object Oriented :-(
 */
-void SciTEBase::SaveToPDF(const char *saveName) {
+//void SciTEBase::SaveToPDF(const char *saveName) {
+void SciTEBase::SaveToPDF(const char *) {
+#ifdef CODE_MADE_TO_WORK
 
 	SendEditor(SCI_COLOURISE, 0, -1);
 
@@ -1109,4 +1078,6 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 
 	// and close the PDF file
 	fclose(fp);
+#endif
 }
+
