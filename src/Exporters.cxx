@@ -964,7 +964,7 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 			fputs("endobj\n",fp);
 			
 			// add this to the list of page number references...
-			sprintf( buffer, "%d 0 R ", i);
+			sprintf( buffer, "%d 0 R ", k);
 			pageRefs += buffer;
 			
 			// increment the page count...

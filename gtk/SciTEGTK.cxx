@@ -1889,7 +1889,7 @@ bool SciTEGTK::CreatePipe( bool forceNew ){
 			break;
 		}
 		//there is so just open it (and we don't want out own)
-		else if ( forceNew == false )
+		else if ( forceNew == false ) {
 			printf("Another one there - opening\n");
 
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
