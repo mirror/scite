@@ -1256,7 +1256,8 @@ int xsystem(const char *s, const char *resultsFile) {
 void SciTEGTK::Execute() {
 	SciTEBase::Execute();
 
-	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
+	if (scrollOutput)
+		SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	originalEnd = SendOutput(SCI_GETCURRENTPOS);
 
 	OutputAppendString(">");

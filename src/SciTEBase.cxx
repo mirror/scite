@@ -1236,9 +1236,11 @@ void SciTEBase::OutputAppendString(const char *s, int len) {
 	SendOutput(SCI_SETTARGETSTART, docLength);
 	SendOutput(SCI_SETTARGETEND, docLength);
 	SendOutput(SCI_REPLACETARGET, len, reinterpret_cast<sptr_t>(s));
-	int line = SendOutput(SCI_GETLINECOUNT, 0, 0);
-	int lineStart = SendOutput(SCI_POSITIONFROMLINE, line);
-	SendOutput(SCI_GOTOPOS, lineStart);
+	if (scrollOutput) {
+		int line = SendOutput(SCI_GETLINECOUNT, 0, 0);
+		int lineStart = SendOutput(SCI_POSITIONFROMLINE, line);
+		SendOutput(SCI_GOTOPOS, lineStart);
+	}
 }
 
 void SciTEBase::OutputAppendStringSynchronised(const char *s, int len /*= -1*/) {
