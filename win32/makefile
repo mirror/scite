@@ -37,16 +37,16 @@ clean:
 	del /q *.exe *.o *.obj *.dll *.res *.map
 
 ..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
-	copy ..\..\scintilla\bin\Scintilla.dll ..\bin
+	copy ..\..\scintilla\bin\Scintilla.dll $@
 
 ..\bin\SciLexer.dll:	..\..\scintilla\bin\SciLexer.dll
-	copy ..\..\scintilla\bin\SciLexer.dll ..\bin
+	copy ..\..\scintilla\bin\SciLexer.dll $@
 	
 ..\bin\SciTEGlobal.properties:	..\src\SciTEGlobal.properties
-	copy ..\src\SciTEGlobal.properties ..\bin
+	copy ..\src\SciTEGlobal.properties $@
 
 $(PROG): $(OBJS)
-	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $(PROG) $^ $(LDFLAGS)
+	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
 
 OBJSSTATIC = Sc1.o SciTEBase.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
 	WindowAccessor.o DocumentAccessor.o KeyWords.o $(LEXOBJS) PropSet.o \
@@ -54,7 +54,7 @@ OBJSSTATIC = Sc1.o SciTEBase.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
 	KeyMap.o Indicator.o LineMarker.o Style.o ViewStyle.o AutoComplete.o
 
 $(PROGSTATIC): $(OBJSSTATIC)
-	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $(PROGSTATIC) $^ $(LDFLAGS)
+	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
 
 SciTEBase.o: SciTEBase.cxx Platform.h SciTE.h PropSet.h Accessor.h WindowAccessor.h \
  KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
@@ -64,10 +64,10 @@ SciTEWin.o: SciTEWin.cxx Platform.h SciTE.h PropSet.h Accessor.h WindowAccessor.
 #	$(CC) -Xlinker --subsystem -Xlinker windows -o $(PROGSTATIC) $(OBJSSTATIC) $(LDFLAGS)
 
 Sc1.o: SciTEWin.cxx SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h Scintilla.h
-	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o Sc1.o
+	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
 
 SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h
-	windres $(RCINCLUDEDIRS) SciTERes.rc SciTERes.o
+	windres $(RCINCLUDEDIRS) SciTERes.rc $@
 
 Sc1Res.o:	SciTERes.rc SciTE.h PlatformRes.h
-	windres $(RCINCLUDEDIRS) SciTERes.rc --define STATIC_BUILD Sc1Res.o
+	windres $(RCINCLUDEDIRS) SciTERes.rc --define STATIC_BUILD $@
