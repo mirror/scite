@@ -728,11 +728,14 @@ void SciTEWin::PrintSetup() {
 	hDevNames = pdlg.hDevNames;
 }
 
-static void FillComboFromMemory(HWND combo, const ComboMemory &mem) {
+static void FillComboFromMemory(HWND combo, const ComboMemory &mem, bool useTop=false) {
 	for (int i = 0; i < mem.Length(); i++) {
 		//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
 		SendMessage(combo, CB_ADDSTRING, 0,
 		            reinterpret_cast<LPARAM>(mem.At(i).c_str()));
+	}
+	if (useTop) {
+		SendMessage(combo, CB_SETCURSEL, 0, 0);
 	}
 }
 
@@ -950,11 +953,10 @@ BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	case WM_INITDIALOG:
 		sci = reinterpret_cast<SciTEWin *>(lParam);
 		SetDlgItemText(hDlg, IDFINDWHAT, sci->props.Get("find.what").c_str());
-		SetDlgItemText(hDlg, IDFILES, sci->props.Get("find.files").c_str());
 		hFindWhat = GetDlgItem(hDlg, IDFINDWHAT);
 		FillComboFromMemory(hFindWhat, sci->memFinds);
 		hFiles = GetDlgItem(hDlg, IDFILES);
-		FillComboFromMemory(hFiles, sci->memFiles);
+		FillComboFromMemory(hFiles, sci->memFiles, true);
 		//SetDlgItemText(hDlg, IDDIRECTORY, props->Get("find.directory"));
 		return TRUE;
 
@@ -967,7 +969,6 @@ BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			EndDialog(hDlg, IDCANCEL);
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
-			//Platform::DebugPrintf("Finding\n");
 			char s[200];
 			GetDlgItemText(hDlg, IDFINDWHAT, s, sizeof(s));
 			sci->props.Set("find.what", s);
