@@ -3412,7 +3412,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	char *tbuff = new char[l + alen + 1];
 	strcpy(tbuff, answercmd);
 	if (*params == 'S')
-		lParam = (long)(tbuff + alen);
+		lParam = reinterpret_cast<long>(tbuff + alen);
 
 	if (l > 0)
 		rep = SendEditor(message, wParam, lParam);
