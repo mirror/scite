@@ -42,6 +42,17 @@ public:
 
 typedef EntryMemory<10> ComboMemory;
 
+enum { 
+	heightTools = 28, 
+	heightStatus = 20, 
+	statusPosWidth = 140
+};
+
+struct StyleAndWords {
+	int styleNumber;
+	SString words;
+};
+		
 class SciTEBase {
 protected:
 	char windowName[MAX_PATH + 20];
@@ -75,12 +86,27 @@ protected:
 	WordList apis;
 	SString functionDefinition;
 
-	Window wSciTE;
+	int indentSize;
+	bool indentOpening;
+	bool indentClosing;
+	StyleAndWords statementIndent;
+	StyleAndWords statementEnd;
+	StyleAndWords blockStart;
+	StyleAndWords blockEnd;
+	
+	Window wSciTE;  // Contains wToolBar, wContent, and wStatusBar
+	Window wContent;    // Contains wEditor and wOutput
 	Window wEditor;
 	Window wOutput;
-#if PLAT_GTK
-	Window wDivider;
-#endif
+	Window wDivider;	// Not used on Windows
+	Window wToolBar;
+	Window wStatusBar;
+	bool tbVisible;
+	bool sbVisible;
+	int visHeightTools;
+	int visHeightStatus;
+	int visHeightEditor;
+	int heightBar;
 	int dialogsOnScreen;
 	enum { toolMax = 10 };
 
@@ -95,6 +121,7 @@ protected:
 	bool bracesSloppy;
 	int bracesStyle;
 	int braceCount;
+	SString sbValue;
 
 	bool margin;
 	int marginWidth;
@@ -107,10 +134,6 @@ protected:
 	bool lineNumbers;
 	int lineNumbersWidth;
 	enum { lineNumbersWidthDefault = 40};
-
-	// On GTK+, heightBar should be 12 to be consistent with other apps but this is too big
-	// for my tastes.
-	enum { heightBar = 7};
 
 	bool usePalette;
 	bool clearBeforeExecute;
@@ -183,9 +206,15 @@ protected:
 	void StartCallTip();
 	void ContinueCallTip();
 	void StartAutoComplete();
+	void GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
+	int SetLineIndentation(int line, int indent);
+	int GetLineIndentation(int line);
+	int GetLineIndentPosition(int line);
+	bool RangeIsAllWhitespace(int start, int end);
 	int GetIndentState(int line);
-	void EnterPressed();
+	void AutomaticIndentation(char ch);
 	void CharAdded(char ch);
+	void UpdateStatusBar();
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue = false);
@@ -199,11 +228,15 @@ protected:
 	void FoldAll();
 	void EnsureRangeVisible(int posStart, int posEnd);
 	bool MarginClick(int position, int modifiers);
+	virtual void SetStatusBarText(const char *s)=0;
 	virtual void Notify(SCNotification *notification);
+	virtual void ShowToolBar()=0;
+	virtual void ShowStatusBar()=0;
 
 	void BookmarkToggle( int lineno = -1 );
 	void BookmarkNext();
-	void SizeSubWindows();
+	virtual void SizeContentWindows()=0;
+	virtual void SizeSubWindows()=0;
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID, 
 		const char *text, const char *mnemonic=0)=0;
@@ -228,6 +261,7 @@ protected:
 	void ToolsMenu(int item);
 
 	virtual void ReadPropertiesInitial();
+	StyleAndWords GetStyleAndWords(const char *base);
 	SString ExtensionFileName();
 	virtual void ReadProperties();
 	void SetOneStyle(Window &win, int style, const char *s);
@@ -235,7 +269,7 @@ protected:
 
 	void CheckReload();
 	void Activate(bool activeApp);
-	virtual PRectangle GetClientRectangle()=0;
+	PRectangle GetClientRectangle();
 	void Redraw();
 	int NormaliseSplit(int splitPos);
 	void MoveSplit(Point ptNewDrag);

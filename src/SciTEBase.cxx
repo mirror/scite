@@ -67,6 +67,7 @@ const char *contributors[] = {
 	"Jason Diamond",
 	"Ahmad Baitalmal",
 	"Paul Winwood",
+        "Maxim Baranov",
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -118,7 +119,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff));
-		AddStyledText(wsci, "December 1998-March 2000.\n", 3);
+		AddStyledText(wsci, "December 1998-April 2000.\n", 3);
 		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
@@ -154,7 +155,16 @@ SciTEBase::SciTEBase() : apis(true) {
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	functionDefinition = 0;
+	indentSize = 8;
+	indentOpening = true;
+	indentClosing = true;
 
+	tbVisible = false;
+	sbVisible = false;
+	visHeightTools = 0;
+	visHeightStatus = 0;
+	visHeightEditor = 1;
+	heightBar = 7;
 	dialogsOnScreen = 0;
 
 	heightOutput = 0;
@@ -536,6 +546,9 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETVIEWWS, props.GetInt("view.whitespace"));
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
 
+	sbVisible = props.GetInt("statusbar.visible");
+	tbVisible = props.GetInt("toolbar.visible");
+	
 	lineNumbersWidth = 0;
 	SString linenums = props.Get("line.numbers");
 	if (linenums.length())
@@ -556,6 +569,17 @@ void SciTEBase::ReadPropertiesInitial() {
 	foldMargin = foldMarginWidth;
 	if (foldMarginWidth == 0)
 		foldMarginWidth = foldMarginWidthDefault;
+}
+
+StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
+	StyleAndWords sw;
+	SString fileNameForExtension = ExtensionFileName();
+	SString sAndW = props.GetNewExpand(base, fileNameForExtension.c_str());
+	sw.styleNumber = sAndW.value();
+	const char *space = strchr(sAndW.c_str(), ' ');
+	if (space)
+		sw.words = space + 1;
+	return sw;
 }
 
 SString SciTEBase::ExtensionFileName() {
@@ -691,7 +715,7 @@ void SciTEBase::ReadProperties() {
 		else	// Have to show selection somehow
 			SendChildren(SCI_SETSELBACK, 1, Colour(0xC0, 0xC0, 0xC0).AsLong());
 	}
-
+	
 	char bracesStyleKey[200];
 	sprintf(bracesStyleKey, "braces.%s.style", language.c_str());
 	bracesStyle = props.GetInt(bracesStyleKey, 0);
@@ -768,7 +792,15 @@ void SciTEBase::ReadProperties() {
 	if (tabSize) {
 		SendEditor(SCI_SETTABWIDTH, tabSize);
 	}
-	SendEditor(SCI_SETINDENT, props.GetInt("indent.size"));
+	indentSize = props.GetInt("indent.size");
+	SendEditor(SCI_SETINDENT, indentSize);
+	indentOpening = props.GetInt("indent.opening");
+	indentClosing = props.GetInt("indent.closing");
+	statementIndent = GetStyleAndWords("statement.indent.");
+	statementEnd = GetStyleAndWords("statement.end.");
+	blockStart = GetStyleAndWords("block.start.");
+	blockEnd = GetStyleAndWords("block.end.");
+	
 	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 
@@ -1103,6 +1135,34 @@ int SciTEBase::SaveIfUnsureForBuilt() {
 	return IDYES;
 }
 
+int StripTrailingSpaces(char *data, int ds, bool lastBlock) {
+	int lastRead = 0;
+	char *w = data;
+	
+	for (int i=0; i<ds; i++) {
+		char ch = data[i];
+		if ((ch == ' ') || (ch == '\t')) {
+			// Swallow those spaces
+		} else if ((ch == '\r') || (ch == '\n')) {
+			*w++ = ch;
+			lastRead = i+1;
+		} else {
+			while (lastRead < i) {
+				*w++ = data[lastRead++];
+			}
+			*w++ = ch;
+			lastRead=i+1;
+		}
+	}
+	// If a non-final block, then preserve whitespace at end of block as it may be significant.
+	if (!lastBlock) {
+		while (lastRead < ds) {
+			*w++ = data[lastRead++];
+		}
+	}
+	return w - data;
+}
+
 // Returns false only if cancelled
 bool SciTEBase::Save() {
 	if (fileName[0]) {
@@ -1119,6 +1179,9 @@ bool SciTEBase::Save() {
 				if (grabSize > blockSize)
 					grabSize = blockSize;
 				GetRange(wEditor, i, i + grabSize, data);
+ 				if (props.GetInt("strip.trailing.spaces"))
+ 					grabSize = StripTrailingSpaces(
+						data, grabSize, grabSize != blockSize);
 				fwrite(data, grabSize, 1, fp);
 			}
 			fclose(fp);
@@ -1598,6 +1661,10 @@ void SciTEBase::Activate(bool activeApp) {
 	}
 }
 
+PRectangle SciTEBase::GetClientRectangle() {
+	return wContent.GetClientPosition();
+}
+
 void SciTEBase::Redraw() {
 	wSciTE.InvalidateAll();
 	wEditor.InvalidateAll();
@@ -1848,70 +1915,174 @@ int SciTEBase::GetCurrentScrollPosition() {
 	return SendEditor(SCI_DOCLINEFROMVISIBLE, lineDisplayTop);
 }
 
-int SciTEBase::GetIndentState(int line) {
-	WindowAccessor acc(wEditor.GetID(), props);
-	int thisLineStart = SendEditor(EM_LINEINDEX, line);
-	int nextLineStart = SendEditor(EM_LINEINDEX, line+1);
-	char lastCodeChar = ' ';
-	for (int j = thisLineStart; j < nextLineStart; j++) {
-		if (acc.StyleAt(j) == SCE_C_OPERATOR)
-			lastCodeChar = acc[j];
+void SciTEBase::UpdateStatusBar() {
+	if (sbVisible) {
+		SString msg;
+		int caretPos = SendEditor(SCI_GETCURRENTPOS);
+		int caretLine = SendEditor(EM_LINEFROMCHAR, caretPos);
+		int caretLineStart = SendEditor(EM_LINEINDEX, caretLine);
+		msg = "Column=";
+		msg += SString(caretPos - caretLineStart + 1).c_str();
+		msg += "    Line=";
+		msg += SString(caretLine + 1).c_str();
+		if (!(sbValue == msg)) {
+			SetStatusBarText(msg.c_str());
+			sbValue = msg;
+		}
+	} else {
+		sbValue = "";
 	}
-	if (lastCodeChar == '}')
-		return -1;
-	else if (lastCodeChar == '{')
-		return 1;
-	else
-		return 0;
 }
 
-void SciTEBase::EnterPressed() {
+int SciTEBase::SetLineIndentation(int line, int indent) {
+	SendEditor(SCI_SETLINEINDENTATION, line, indent);
+	int pos = GetLineIndentPosition(line);
+	SetSelection(pos,pos);
+	return pos;
+}
+
+int SciTEBase::GetLineIndentation(int line) {
+	return SendEditor(SCI_GETLINEINDENTATION, line);
+}
+
+int SciTEBase::GetLineIndentPosition(int line) {
+	return SendEditor(SCI_GETLINEINDENTPOSITION, line);
+}
+
+bool SciTEBase::RangeIsAllWhitespace(int start, int end) {
 	WindowAccessor acc(wEditor.GetID(), props);
-	char linebuf[1000];
-	int curLine = GetCurrentLineNumber();
-	int lineLength = SendEditor(SCI_LINELENGTH, curLine);
-	SString indentOpening = props.GetNewExpand("indent.opening.", ExtensionFileName().c_str());
-	if (indentOpening.length()) {
-		int indentPreviousLine = SendEditor(SCI_GETLINEINDENTATION, curLine-1);
-		int indentBlock = indentPreviousLine;
-		int backLine = curLine - 1;
-		int indentState = 0;
-		while ((backLine >= 0) && (indentState == 0)) {
-			indentState = GetIndentState(backLine);
-			if (indentState != 0) {
-				indentBlock = SendEditor(SCI_GETLINEINDENTATION, backLine);
-				if (indentState == 1)
-					indentBlock += props.GetInt("indent.size");
+	for (int i=start;i<end;i++) {
+		if ((acc[i] != ' ') && (acc[i] != '\t')) 
+			return false;
+	}
+	return true;
+}
+
+void SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len) {
+	for (int i=0; i<len; i++)
+		sv[i] = "";
+	WindowAccessor acc(wEditor.GetID(), props);
+	SString s;
+	int part = 0;
+	int thisLineStart = SendEditor(EM_LINEINDEX, line);
+	int nextLineStart = SendEditor(EM_LINEINDEX, line+1);
+	for (int pos=thisLineStart; pos < nextLineStart; pos++) {
+		if ((acc.StyleAt(pos) == style1) || (acc.StyleAt(pos) == style2)) {
+			char c[2];
+			c[0] = acc[pos];
+			c[1] = '\0';
+			s += c;
+		} else if (s.length() > 0) {
+			if (part < len) {
+				sv[part++] = s;
 			}
-			backLine--;
+			s = "";
 		}
-		char lastCodeChar = ';';
-		int prevLineStart = SendEditor(EM_LINEINDEX, curLine - 1);
-		int thisLineStart = SendEditor(EM_LINEINDEX, curLine);
-		for (int j = prevLineStart; j < thisLineStart; j++) {
-			if (acc.StyleAt(j) == SCE_C_OPERATOR)
-				lastCodeChar = acc[j];
-		}
-		int indent = indentBlock;
-		if ((lastCodeChar != '{') && (lastCodeChar != '}') && (lastCodeChar != ';'))
-			indent = indentBlock + props.GetInt("indent.size");
-		SendEditor(SCI_SETLINEINDENTATION, curLine, indent);
-		int indentPos = SendEditor(SCI_GETLINEINDENTPOSITION, curLine);
-		SetSelection(indentPos, indentPos);
-	} else {
-		//Platform::DebugPrintf("[CR] %d len = %d\n", curLine, lineLength);
-		if (curLine > 0 && lineLength <= 2) {
-			unsigned int prevLineLength = SendEditor(SCI_LINELENGTH, curLine - 1);
-			if (prevLineLength < sizeof(linebuf)) {
-				GetLine(linebuf, sizeof(linebuf), curLine - 1);
-				linebuf[prevLineLength] = '\0';
-				for (int pos = 0; linebuf[pos]; pos++) {
-					if (linebuf[pos] != ' ' && linebuf[pos] != '\t')
-						linebuf[pos] = '\0';
+	}
+	if ((s.length() > 0) && (part < len)) {
+		sv[part++] = s;
+	}
+}
+
+static bool includes(const StyleAndWords &symbols, const SString value) {
+	if (symbols.words.length() == 0) {
+		return false;
+	} else if (strchr(symbols.words.c_str(), ' ')) {
+		// Set of symbols separated by spaces
+		int lenVal = value.length();
+		const char *symbol = symbols.words.c_str();
+		while (symbol) {
+			const char *symbolEnd = strchr(symbol, ' ');
+			int lenSymbol = strlen(symbol);
+			if (symbolEnd)
+				lenSymbol = symbolEnd - symbol;
+			if (lenSymbol == lenVal) {
+				if (strncmp(symbol, value.c_str(), lenSymbol) == 0) {
+					return true;
 				}
-				SendEditorString(EM_REPLACESEL, 0, linebuf);
+			}
+			symbol = symbolEnd; 
+			if (symbol) 
+				symbol++;
+		}
+		return false;
+	} else {
+		// Set of individual characters. Only one character allowed for now
+		char ch = symbols.words[0];
+		return strchr(value.c_str(), ch) != 0;
+	}
+}
+
+#define ELEMENTS(a)	(sizeof(a) / sizeof(a[0]))
+
+int SciTEBase::GetIndentState(int line) {
+	// C like language indentation defined by braces and keywords
+	int indentState = 0;
+	SString controlWords[10];
+	GetLinePartsInStyle(line, SCE_C_WORD, -1, controlWords, ELEMENTS(controlWords));
+	for (unsigned int i=0;i<ELEMENTS(controlWords);i++) {
+		if (includes(statementIndent, controlWords[i]))
+			indentState = 2;
+	}
+	// Braces override keywords
+	SString controlStrings[10];
+	GetLinePartsInStyle(line, SCE_C_OPERATOR, -1, controlStrings, ELEMENTS(controlStrings));
+	for (unsigned int j=0;j<ELEMENTS(controlStrings);j++) {
+		if (includes(blockEnd, controlStrings[j]))
+			indentState = -1;
+		if (includes(blockStart, controlStrings[j]))
+			indentState = 1;
+	}
+	return indentState;
+}
+
+void SciTEBase::AutomaticIndentation(char ch) {
+	CHARRANGE crange;
+	SendEditor(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+	int selStart = crange.cpMin;
+	int curLine = GetCurrentLineNumber();
+	int thisLineStart = SendEditor(EM_LINEINDEX, curLine);
+	int indent = GetLineIndentation(curLine - 1);
+	int indentBlock = indent;
+	int backLine = curLine - 1;
+	int indentState = 0;
+	while ((backLine >= 0) && (indentState == 0)) {
+		indentState = GetIndentState(backLine);
+		if (indentState != 0) {
+			indentBlock = GetLineIndentation(backLine);
+			if (indentState == 1) {
+				if (!indentOpening)
+					indentBlock += indentSize;
+			}
+			if (indentState == -1) {
+				if (indentClosing)
+					indentBlock -= indentSize;
+				if (indentBlock < 0)
+					indentBlock = 0;
+			}
+			if ((indentState == 2) && (backLine == (curLine - 1)))
+				indentBlock += indentSize;
+		}
+		backLine--;
+	}
+	if (ch == blockEnd.words[0]) {	// Dedent maybe
+		if (!indentClosing) {
+			if (RangeIsAllWhitespace(thisLineStart, selStart-1)) {
+				int pos = SetLineIndentation(curLine, indentBlock - indentSize);
+				// Move caret after '}'
+				SetSelection(pos+1, pos+1);
 			}
 		}
+	} else if (ch == blockStart.words[0]) {	// Dedent maybe if first on line 
+		if (!indentOpening) {
+			if (RangeIsAllWhitespace(thisLineStart, selStart-1)) {
+				int pos = SetLineIndentation(curLine, indentBlock - indentSize);
+				// Move caret after '{'
+				SetSelection(pos+1, pos+1);
+			}
+		}
+	} else if ((ch == '\r' || ch == '\n') && (selStart == thisLineStart)) {
+		SetLineIndentation(curLine, indentBlock);
 	}
 }
 
@@ -1949,8 +2120,9 @@ void SciTEBase::CharAdded(char ch) {
 				if (ch == '(') {
 					braceCount = 1;
 					StartCallTip();
-				} else if (ch == '\r' || ch == '\n') {
-					EnterPressed();
+				} else {
+					if (props.GetInt("indent.automatic"))
+						AutomaticIndentation(ch);
 				}
 			}
 		}
@@ -2134,6 +2306,19 @@ void SciTEBase::MenuCommand(int cmdID) {
 	
 	case IDM_VIEWEOL:
 		SendEditor(SCI_SETVIEWEOL, !SendEditor(SCI_GETVIEWEOL));
+		CheckMenus();
+		break;
+
+	case IDM_VIEWTOOLBAR:
+		tbVisible = !tbVisible;
+		ShowToolBar();
+		CheckMenus();
+		break;
+
+	case IDM_VIEWSTATUSBAR:
+		sbVisible = !sbVisible;
+		ShowStatusBar();
+		UpdateStatusBar();
 		CheckMenus();
 		break;
 
@@ -2424,6 +2609,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 	case SCN_UPDATEUI:
 		BraceMatch(notification->nmhdr.idFrom == IDM_SRCWIN);
+		if (notification->nmhdr.idFrom == IDM_SRCWIN) {
+			UpdateStatusBar();
+		}
 		break;
 
 	case SCN_MODIFIED:
@@ -2461,6 +2649,8 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_SELMARGIN, margin);
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);
 	CheckAMenuItem(IDM_VIEWEOL, SendEditor(SCI_GETVIEWEOL));
+	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
+	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 	EnableAMenuItem(IDM_COMPILE, !executing);
 	EnableAMenuItem(IDM_BUILD, !executing);
 	EnableAMenuItem(IDM_GO, !executing);
@@ -2469,33 +2659,14 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_STOPEXECUTE, executing);
 }
 
-void SciTEBase::SizeSubWindows() {
-	PRectangle rcClient = GetClientRectangle();
-	int w = rcClient.right - rcClient.left;
-	int h = rcClient.bottom - rcClient.top;
-	heightOutput = NormaliseSplit(heightOutput);
-	if (splitVertical) {
-		wEditor.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
-#if PLAT_GTK
-		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar, 0, w - heightOutput, h));
-#endif
-		wOutput.SetPosition(PRectangle(w - heightOutput, 0, w, h));
-	} else {
-		wEditor.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
-#if PLAT_GTK
-		wDivider.SetPosition(PRectangle(0, h - heightOutput - heightBar, w, h - heightOutput));
-#endif
-		wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
-	}
-}
 
 // Ensure that a splitter bar position is inside the main window
 int SciTEBase::NormaliseSplit(int splitPos) {
 	PRectangle rcClient = GetClientRectangle();
-	int w = rcClient.right - rcClient.left;
-	int h = rcClient.bottom - rcClient.top;
+	int w = rcClient.Width();
+	int h = rcClient.Height();
 	if (splitPos < 20)
-		splitPos = 0;
+		splitPos = heightBar - heightBar;
 	if (splitVertical) {
 		if (splitPos > w - heightBar - 20)
 			splitPos = w - heightBar;
@@ -2513,7 +2684,7 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 	newHeightOutput = NormaliseSplit(newHeightOutput);
 	if (heightOutput != newHeightOutput) {
 		heightOutput = newHeightOutput;
-		SizeSubWindows();
-		Redraw();
+		SizeContentWindows();
+		//Redraw();
 	}
 }
