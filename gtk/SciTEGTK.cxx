@@ -67,6 +67,9 @@ protected:
 	GtkWidget *comboReplace;
 	GtkItemFactory *itemFactory;
 	GtkAccelGroup *accelGroup;
+	
+	gint	fileSelectorWidth;
+	gint	fileSelectorHeight;
 
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
@@ -119,6 +122,7 @@ protected:
 	static void OpenCancelSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	static void OpenOKSignal(GtkWidget *w, SciTEGTK *scitew);
+ 	static void OpenResizeSignal(GtkWidget *w, GtkAllocation *allocation, SciTEGTK *scitew);
 	static void SaveAsSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	static void FindInFilesSignal(GtkWidget *w, SciTEGTK *scitew);
@@ -192,6 +196,9 @@ SciTEGTK::SciTEGTK() {
 	comboReplace = 0;
 	itemFactory = 0;
 	
+	fileSelectorWidth = 580;
+	fileSelectorHeight = 480;
+
 	instance = this;
 }
 
@@ -489,11 +496,15 @@ bool SciTEGTK::OpenDialog() {
 		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
 		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
 		                   this);
+		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),		                   "size_allocate", GtkSignalFunc(OpenResizeSignal),		                   this);		
 		// Other ways to destroy
 		// Mark it as a modal transient dialog
 		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
+		gtk_window_set_transient_for(GTK_WINDOW(fileSelector.GetID()),
 		                              GTK_WINDOW(wSciTE.GetID()));
+		// Get a bigger open dialog
+		gtk_window_set_default_size(GTK_WINDOW(fileSelector.GetID()), 
+			fileSelectorWidth, fileSelectorHeight);
 		fileSelector.Show();
 	}
 	return true;
@@ -1212,7 +1223,11 @@ void SciTEGTK::OpenOKSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->fileSelector.Destroy();
 }
 
-void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
+void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK *scitew) {
+	scitew->fileSelectorWidth = allocation->width;
+	scitew->fileSelectorHeight = allocation->height;	
+}
+void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("Do Save As\n");
 	if (scitew->savingHTML)
 		scitew->SaveToHTML(gtk_file_selection_get_filename(
@@ -1349,6 +1364,26 @@ void SciTEGTK::Run(const char *cmdLine) {
 	    {"/Options/Line End Characters/_CR", "", menuSig, IDM_EOL_CR, "/Options/Line End Characters/CR + LF"},
 	    {"/Options/Line End Characters/_LF", "", menuSig, IDM_EOL_LF, "/Options/Line End Characters/CR + LF"},
 	    {"/Options/_Convert Line End Characters", "", menuSig, IDM_EOL_CONVERT, 0},
+	    {"/Options/_Use lexer", "", 0, 0, "<Branch>"},
+	    {"/Options/Use lexer/none", "", menuSig, IDM_LEXER_NONE, "<RadioItem>"},
+	    {"/Options/Use lexer/_C, C++", "", menuSig, IDM_LEXER_CPP, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_VB", "", menuSig, IDM_LEXER_VB, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/Reso_urce", "", menuSig, IDM_LEXER_RC, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/H_ypertext", "", menuSig, IDM_LEXER_HTML, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_XML", "", menuSig, IDM_LEXER_XML, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/Java_Script", "", menuSig, IDM_LEXER_JS, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/VBScr_ipt", "", menuSig, IDM_LEXER_WSCRIPT, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_Properties", "", menuSig, IDM_LEXER_PROPS, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_Batch", "", menuSig, IDM_LEXER_BATCH, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_Makefile", "", menuSig, IDM_LEXER_MAKE, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_Errorlist", "", menuSig, IDM_LEXER_ERRORL, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_Java", "", menuSig, IDM_LEXER_JAVA, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/Pytho_n", "", menuSig, IDM_LEXER_PYTHON, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/Pe_rl", "", menuSig, IDM_LEXER_PERL, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/S_QL", "", menuSig, IDM_LEXER_SQL, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/P_LSQ", "", menuSig, IDM_LEXER_PLSQL, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/P_HP", "", menuSig, IDM_LEXER_PHP, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/La_TeX", "", menuSig, IDM_LEXER_LATEX, "/Options/Use lexer/none"},
 	    {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Open _Local Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
 	    {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
@@ -1359,16 +1394,16 @@ void SciTEGTK::Run(const char *cmdLine) {
 		{"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREV, 0},
 		{"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXT, 0},
 	    {"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
-	    {"/Buffers/Buffer0", "", menuSig, bufferCmdID + 0, "<CheckItem>"},
-	    {"/Buffers/Buffer1", "", menuSig, bufferCmdID + 1, "<CheckItem>"},
-	    {"/Buffers/Buffer2", "", menuSig, bufferCmdID + 2, "<CheckItem>"},
-	    {"/Buffers/Buffer3", "", menuSig, bufferCmdID + 3, "<CheckItem>"},
-	    {"/Buffers/Buffer4", "", menuSig, bufferCmdID + 4, "<CheckItem>"},
-	    {"/Buffers/Buffer5", "", menuSig, bufferCmdID + 5, "<CheckItem>"},
-	    {"/Buffers/Buffer6", "", menuSig, bufferCmdID + 6, "<CheckItem>"},
-	    {"/Buffers/Buffer7", "", menuSig, bufferCmdID + 7, "<CheckItem>"},
-	    {"/Buffers/Buffer8", "", menuSig, bufferCmdID + 8, "<CheckItem>"},
-	    {"/Buffers/Buffer9", "", menuSig, bufferCmdID + 9, "<CheckItem>"},
+	    {"/Buffers/Buffer0", "", menuSig, bufferCmdID + 0, "<RadioItem>"},
+	    {"/Buffers/Buffer1", "", menuSig, bufferCmdID + 1, "/Buffers/Buffer0"},
+	    {"/Buffers/Buffer2", "", menuSig, bufferCmdID + 2, "/Buffers/Buffer0"},
+	    {"/Buffers/Buffer3", "", menuSig, bufferCmdID + 3, "/Buffers/Buffer0"},
+	    {"/Buffers/Buffer4", "", menuSig, bufferCmdID + 4, "/Buffers/Buffer0"},
+	    {"/Buffers/Buffer5", "", menuSig, bufferCmdID + 5, "/Buffers/Buffer0"},
+	    {"/Buffers/Buffer6", "", menuSig, bufferCmdID + 6, "/Buffers/Buffer0"},
+	    {"/Buffers/Buffer7", "", menuSig, bufferCmdID + 7, "/Buffers/Buffer0"},
+	    {"/Buffers/Buffer8", "", menuSig, bufferCmdID + 8, "/Buffers/Buffer0"},
+	    {"/Buffers/Buffer9", "", menuSig, bufferCmdID + 9, "/Buffers/Buffer0"},
 
 	    {"/_Help", NULL, NULL, 0, "<Branch>"},
 	    {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
