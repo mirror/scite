@@ -87,34 +87,41 @@ void BufferList::Allocate(int maxSize) {
 }
 
 int BufferList::Add() {
-	if (length < size)
+	if (length < size) {
 		length++;
+	}
 	buffers[length - 1].Init();
 	return length - 1;
 }
 
 int BufferList::GetDocumentByName(const char *filename) {
-	if (!filename || !filename[0])
+	if (!filename || !filename[0]) {
 		return -1;
-	for (int i = 0;i < length;i++)
-		if (buffers[i].SameNameAs(filename))
+	}
+	for (int i = 0;i < length;i++) {
+		if (buffers[i].SameNameAs(filename)) {
 			return i;
+		}
+	}
 	return -1;
 }
 
 void BufferList::RemoveCurrent() {
 	// Delete and move up to fill gap but ensure doc pointer is saved.
 	int currentDoc = buffers[current].doc;
-	for (int i = current;i < length - 1;i++)
+	for (int i = current;i < length - 1;i++) {
 		buffers[i] = buffers[i + 1];
+	}
 	buffers[length - 1].doc = currentDoc;
 	if (length > 1) {
 		length--;
 		buffers[length].Init();
-		if (current >= length)
+		if (current >= length) {
 			current = length - 1;
-		if (current < 0)
+		}
+		if (current < 0) {
 			current = 0;
+		}
 	} else {
 		buffers[current].Init();
 	}
@@ -137,8 +144,9 @@ void SciTEBase::SetDocumentAt(int index) {
 	        index >= buffers.length ||
 	        index == buffers.current ||
 	        buffers.current < 0 ||
-	        buffers.current >= buffers.length)
+	        buffers.current >= buffers.length) {
 		return;
+	}
 	UpdateBuffersCurrent();
 
 	buffers.current = index;
@@ -213,10 +221,12 @@ void SciTEBase::ClearDocument() {
 void SciTEBase::InitialiseBuffers() {
 	if (buffers.size == 0) {
 		int buffersWanted = props.GetInt("buffers");
-		if (buffersWanted > bufferMax)
+		if (buffersWanted > bufferMax) {
 			buffersWanted = bufferMax;
-		if (buffersWanted < 1)
+		}
+		if (buffersWanted < 1) {
 			buffersWanted = 1;
+		}
 		buffers.Allocate(buffersWanted);
 		// First document is the default from creation of control
 		buffers.buffers[0].doc = SendEditor(SCI_GETDOCPOINTER, 0, 0);
