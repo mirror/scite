@@ -153,6 +153,7 @@ protected:
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath);
 
+	virtual void SetFileProperties(PropSet &ps);
 	virtual void SetStatusBarText(const char *s);
 
 	/// Warn the user, by means defined in its properties.

@@ -355,6 +355,7 @@ protected:
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
+	virtual void SetFileProperties(PropSet &ps);
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
 
 	virtual void Notify(SCNotification *notification);
@@ -672,6 +673,15 @@ void SciTEGTK::SetWindowName() {
 void SciTEGTK::SetStatusBarText(const char *s) {
 	gtk_statusbar_pop(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID);
 	gtk_statusbar_push(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID, s);
+}
+
+void SciTEGTK::SetFileProperties(PropSet &ps) {
+	// Could use Unix standard calls here, someone less lazy than me (PL) should do it.
+	ps.Set("FileTime", "");
+	ps.Set("FileDate", "");
+	ps.Set("FileAttr", "");
+	ps.Set("CurrentDate", "");
+	ps.Set("CurrentTime", "");
 }
 
 void SciTEGTK::UpdateStatusBar(bool bUpdateSlowData) {

@@ -774,7 +774,7 @@ protected:
 	void AutomaticIndentation(char ch);
 	void CharAdded(char ch);
 	void SetTextProperties(PropSetFile &ps);
-	void SetFileProperties(PropSet &ps);
+	virtual void SetFileProperties(PropSet &ps) = 0;
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
 	int GetLineLength(int line);
 	int GetCurrentLineNumber();

@@ -8,6 +8,63 @@
 #include "SciTEWin.h"
 
 /**
+ * Set up properties for FileTime, FileDate, CurrentTime, CurrentDate and FileAttr.
+ */
+void SciTEWin::SetFileProperties(
+    PropSet &ps) {			///< Property set to update.
+
+	const int TEMP_LEN = 100;
+	char temp[TEMP_LEN];
+	HANDLE hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hf != INVALID_HANDLE_VALUE) {
+		FILETIME ft;
+		::GetFileTime(hf, NULL, NULL, &ft);
+		::CloseHandle(hf);
+		FILETIME lft;
+		::FileTimeToLocalFileTime(&ft, &lft);
+		SYSTEMTIME st;
+		::FileTimeToSystemTime(&lft, &st);
+		::GetTimeFormat(LOCALE_USER_DEFAULT,
+		                0, &st,
+		                NULL, temp, TEMP_LEN);
+		ps.Set("FileTime", temp);
+
+		::GetDateFormat(LOCALE_USER_DEFAULT,
+		                DATE_SHORTDATE, &st,
+		                NULL, temp, TEMP_LEN);
+		ps.Set("FileDate", temp);
+
+		DWORD attr = ::GetFileAttributes(fullPath);
+		SString fa;
+		if (attr & FILE_ATTRIBUTE_READONLY) {
+			fa += "R";
+		}
+		if (attr & FILE_ATTRIBUTE_HIDDEN) {
+			fa += "H";
+		}
+		if (attr & FILE_ATTRIBUTE_SYSTEM) {
+			fa += "S";
+		}
+		ps.Set("FileAttr", fa.c_str());
+	} else {
+		/* Reset values for new buffers with no file */
+		ps.Set("FileTime", "");
+		ps.Set("FileDate", "");
+		ps.Set("FileAttr", "");
+	}
+
+	::GetDateFormat(LOCALE_USER_DEFAULT,
+	                DATE_SHORTDATE, NULL,     	// Current date
+	                NULL, temp, TEMP_LEN);
+	ps.Set("CurrentDate", temp);
+
+	::GetTimeFormat(LOCALE_USER_DEFAULT,
+	                0, NULL,     	// Current time
+	                NULL, temp, TEMP_LEN);
+	ps.Set("CurrentTime", temp);
+}
+
+/**
  * Update the status bar text.
  */
 void SciTEWin::SetStatusBarText(const char *s) {
