@@ -271,6 +271,8 @@ bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 		strcat(copyPath, pathSepString);
 		strcat(copyPath, path);
 	}
+	if (!copyPath[0])
+		return false;
 	FILE *fp = fopen(copyPath, fileRead);
 	if (!fp)
 		return false;
