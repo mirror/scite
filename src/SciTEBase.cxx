@@ -2235,7 +2235,8 @@ void SciTEBase::ShutDown() {
 }
 
 void SciTEBase::Perform(const char *actions) {
-	while (const char *nextAct = strchr(actions, '\n')) {
+	const char *nextAct;
+	while ((nextAct = strchr(actions, '\n'))) {
 		SString command(actions, 0, nextAct-actions);
 		PerformOne(command.c_str());
 		actions = nextAct + 1;
