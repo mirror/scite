@@ -156,11 +156,11 @@ bool DirectorExtension::OnSave(const char *path) {
 }
 
 bool DirectorExtension::OnChar(char) {
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnExecute(const char *) {
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnSavePointReached() {
@@ -172,17 +172,17 @@ bool DirectorExtension::OnSavePointLeft() {
 }
 
 bool DirectorExtension::OnStyle(unsigned int, int, int, Accessor *) {
-	return true;
+	return false;
 }
 
 // These should probably have arguments
 
 bool DirectorExtension::OnDoubleClick() {
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnUpdateUI() {
-	return true;
+	return false;
 }
 
 bool DirectorExtension::OnMarginClick() {
