@@ -162,6 +162,7 @@ const char *contributors[] = {
                                  "Steven te Brinke",
                                  "Dan Petitt",
                                  "Biswapesh Chattopadhyay",
+				 "Kein-Hong Man",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -972,7 +973,7 @@ bool SciTEBase::SelectWordAtCaret() {
 	int lengthDoc = SendFocused(SCI_GETLENGTH);
 	int selStart = SendFocused(SCI_GETSELECTIONSTART);
 	int selEnd = SendFocused(SCI_GETSELECTIONEND);
-	RangeExtendAndGrab(wCurrent, selection, sizeof(selection), 
+	RangeExtendAndGrab(wCurrent, selection, sizeof(selection),
 		selStart, selEnd, lengthDoc, iswordcharforsel, false);
 	SetSelection(selStart, selEnd);
 	return selStart != selEnd;
