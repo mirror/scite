@@ -477,7 +477,7 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 void SciTEWin::ProcessExecute() {
 	DWORD exitcode = 0;
 
-	SendOutput(SCI_GOTOPOS, SendOutput(WM_GETTEXTLENGTH));
+	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
 	bool seenOutput = false;
 
