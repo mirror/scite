@@ -49,12 +49,12 @@
        Standard Editing
     </h3>
     <p>
-       Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
-      feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
-      only one file will be visible. SciTE's initial configuration only allows one file to be in memory 
-      at once but this can be modified by changing the value of the buffers property. Rectangular
-      regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
-      key on GTK+ while dragging the mouse over the text.
+	Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
+	feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
+	only one file will be visible. SciTE's initial configuration only allows one file to be in memory 
+	at once but this can be modified by changing the value of the buffers property. Rectangular
+	regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
+	key on GTK+ while dragging the mouse over the text.
     </p>
     <p>
        There are two panes in SciTE, the editing pane and the output pane. The output pane is
@@ -930,7 +930,16 @@ NameError: mistake
           2 changes the background colour of characters beyond that column. For proportional fonts,
           an edge.mode of 2 is more useful than 1.
         </td>
-       </tr>
+      </tr>
+      <tr>
+        <td>
+          control.char.symbol
+        </td>
+        <td>
+          Sets the character to use to indicate control characters. If
+	  not set, control characters are shown as mnemonics.
+        </td>
+      </tr>
       <tr>
         <td>
           error.marker.fore<br />
