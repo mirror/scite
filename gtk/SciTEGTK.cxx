@@ -24,6 +24,7 @@
 #include "PropSet.h"
 #include "Accessor.h"
 #include "KeyWords.h"
+#include "ScintillaWidget.h"
 #include "Scintilla.h"
 #include "SciTEBase.h"
 #include "pixmapsGNOME.h"
@@ -1549,8 +1550,9 @@ void SciTEGTK::Run(const char *cmdLine) {
 	AddToolButton("Replace", IDM_REPLACE, replace_xpm);
 
 	// Commented out until buffers are working
-	//AddToolButton("Previous Buffer", IDM_PREV, prev_xpm);
-	//AddToolButton("Next Buffer", IDM_NEXT, next_xpm);
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Previous Buffer", IDM_PREV, prev_xpm);
+	AddToolButton("Next Buffer", IDM_NEXT, next_xpm);
 	
 	wStatusBar = gtk_statusbar_new();
 	sbContextID = gtk_statusbar_get_context_id(

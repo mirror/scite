@@ -43,7 +43,7 @@ SciTE-static: SciTEGTK.o SciTEBase.o KeyWords.o Document.o Scintilla.o PropSet.o
 SciTEBase.o: SciTEBase.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
  Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
 SciTEGTK.o: SciTEGTK.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
- Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciTEBase.h
+ Accessor.h WindowAccessor.h KeyWords.h Scintilla.h ScintillaWidget.h SciTEBase.h
 
 clean: 
 	rm -f *.o $(PROG)

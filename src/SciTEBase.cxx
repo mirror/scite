@@ -37,6 +37,7 @@
 #include "Accessor.h"
 #include "WindowAccessor.h"
 #include "KeyWords.h"
+#include "ScintillaWidget.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "SciTEBase.h"
@@ -781,7 +782,6 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 	}
 	if (val)
 		delete []val;
-	Platform::SendScintilla(win.GetID(), SCI_STYLESETCHARACTERSET, style, SC_CHARSET_RUSSIAN);
 }
 
 void SciTEBase::SetStyleFor(Window &win, const char *lang) {
