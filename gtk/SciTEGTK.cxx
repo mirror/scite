@@ -19,7 +19,6 @@
 #include <signal.h> 
 #include <sys/wait.h> 
 #include <sys/types.h> 
-#include <sys/stat.h> 
 #include <errno.h> 
 
 #include "SciTE.h"
@@ -161,7 +160,7 @@ protected:
 	//ajkc
 	bool SendPipeCommand(const char *pipeCommand);
 	bool CreatePipe(bool forceNew = false);
-	static void PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition );
+	static void PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition);
 	void CheckAlreadyOpen(const char *cmdLine);
 #endif 
 
@@ -255,7 +254,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 }
 
 SciTEGTK::~SciTEGTK() {}
-
 
 static void destroyDialog(GtkWidget *) {}
 
@@ -485,9 +483,9 @@ void SciTEGTK::Notify(SCNotification *notification) {
 				Command(IDM_NEXTFILE);
 			} else if ((mods == GDK_CONTROL_MASK) && (notification->ch == SCK_RETURN)) {
 				Command(IDM_COMPLETEWORD);
-			} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK ) && (notification->ch == SCK_TAB)) {
+			} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK) && (notification->ch == SCK_TAB)) {
 				Command(IDM_PREVFILE);
-			} else if ((mods == GDK_SHIFT_MASK ) && (notification->ch == GDK_F3)) {
+			} else if ((mods == GDK_SHIFT_MASK) && (notification->ch == GDK_F3)) {
 				Command(IDM_FINDNEXTBACK);
 			} else if ((mods == GDK_CONTROL_MASK) && (notification->ch == GDK_F3)) {
 				Command(IDM_FINDNEXTSEL);
@@ -554,7 +552,6 @@ void SciTEGTK::ReadPropertiesInitial() {
 
 void SciTEGTK::ReadProperties() {
 	SciTEBase::ReadProperties();
-
 	CheckMenus();
 }
 
@@ -577,7 +574,6 @@ void SciTEGTK::SizeContentWindows() {
 		outputFrame.SetPosition(PRectangle(0, h - heightOutput, w, h));
 		///wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
 	}
-
 }
 
 void SciTEGTK::SizeSubWindows() {
@@ -820,14 +816,11 @@ void SciTEGTK::Print() {
 	// Printing not yet supported on GTK+
 }
 
-
 void SciTEGTK::PrintSetup() {
 	// Printing not yet supported on GTK+
 }
 
-
 void SciTEGTK::HandleFindReplace() {}
-
 
 void SciTEGTK::Find() {
 	SelectionIntoFind();
@@ -1094,7 +1087,7 @@ void SciTEGTK::ExecuteNext() {
 void SciTEGTK::ContinueExecute() {
 	char buf[8192];
 	int count = 0;
-	count = read(fdFIFO, buf, sizeof(buf) - 1 );
+	count = read(fdFIFO, buf, sizeof(buf) - 1);
 	if (count < 0) {
 		OutputAppendString(">End Bad\n");
 		return ;
@@ -1265,8 +1258,7 @@ void SciTEGTK::GoLineDialog() {
 	gotoDialog.Show();
 }
 
-void SciTEGTK::TabSizeDialog() {
-}
+void SciTEGTK::TabSizeDialog() {}
 
 void SciTEGTK::FindReplace(bool replace) {
 	guint Key;
@@ -1436,8 +1428,8 @@ void SciTEGTK::QuitProgram() {
 	if (SaveIfUnsureAll() != IDCANCEL) {
 #ifdef SINGLE_INSTANCE
 		//clean up any pipes that are ours
-		if ( fdPipe != -1 && inputWatcher != -1 ) {
-			printf("Cleaning up pipe\n");
+		if (fdPipe != -1 && inputWatcher != -1) {
+			//printf("Cleaning up pipe\n");
 			close(fdPipe);
 			unlink(pipeName);
 
@@ -1458,8 +1450,8 @@ gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
 
 #ifdef SINGLE_INSTANCE
 		//clean up any pipes that are ours
-		if ( scitew->fdPipe != -1 && scitew->inputWatcher != -1 ) {
-			printf("Cleaning up pipe\n");
+		if (scitew->fdPipe != -1 && scitew->inputWatcher != -1) {
+			//printf("Cleaning up pipe\n");
 			close(scitew->fdPipe);
 			unlink(scitew->pipeName);
 
@@ -1865,41 +1857,41 @@ void SciTEGTK::SetIcon() {
 }
 
 #ifdef SINGLE_INSTANCE
-bool SciTEGTK::CreatePipe( bool forceNew ) {
+bool SciTEGTK::CreatePipe(bool forceNew) {
 
 	bool anotherPipe = false;
 
 	fdPipe = -1;
 	inputWatcher = -1;
 
-	printf("In CreatePipe\n");
+	//printf("In CreatePipe\n");
 
 	//possible bug here (eventually), can't have more than a 1000 SciTE's open - ajkc 20001112
-	for ( int i = 0 ; i < 1000 ; i++ ) {
+	for (int i=0; i<1000; i++) {
 
 		//create the pipe name - we use a number as well just incase multiple people have pipes open
 		//or we are forceing a new instance of scite (even if there is already one)
 		sprintf(pipeName, "/tmp/.SciTE.%d.ipc", i);
 
-		printf("Trying pipe %s\n", pipeName);
+		//printf("Trying pipe %s\n", pipeName);
 		//check to see if there is already one
 		fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
 
 		//there is one but it isn't ours
-		if ( fdPipe == -1 && errno == EACCES ) {
-			printf("No access\n");
+		if (fdPipe == -1 && errno == EACCES) {
+			//printf("No access\n");
 			continue;
 		}
 		//there isn't one - so create one
-		else if ( fdPipe == -1 ) {
-			printf("Non found - making\n");
+		else if (fdPipe == -1) {
+			//printf("Non found - making\n");
 			mkfifo(pipeName, 0777);
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
 			break;
 		}
 		//there is so just open it (and we don't want out own)
-		else if ( forceNew == false ) {
-			printf("Another one there - opening\n");
+		else if (forceNew == false) {
+			//printf("Another one there - opening\n");
 
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
 
@@ -1908,14 +1900,11 @@ bool SciTEGTK::CreatePipe( bool forceNew ) {
 			//I don;t think it is a good idea to be able to listen to our own pipes (yet) so just return
 			//break;
 			return anotherPipe;
-
 		}
-
 		//we must want another one
 	}
 
-
-	if ( fdPipe != -1 ) {
+	if (fdPipe != -1) {
 		//store the inputwatcher so we can remove it.
 		inputWatcher = gdk_input_add(fdPipe, GDK_INPUT_READ, PipeSignal, this);
 		//store the file descriptor of the pipe so we can write to it again.
@@ -1929,43 +1918,43 @@ bool SciTEGTK::CreatePipe( bool forceNew ) {
 
 //use to send a command through a pipe.  (there is no checking to see whos's pipe it is. Probably not a good
 //idea to send commands to  our selves.
-bool SciTEGTK::SendPipeCommand(const char *pipeCommand ) {
+bool SciTEGTK::SendPipeCommand(const char *pipeCommand) {
 	//check that there is actually a pipe
 	int size = 0;
 
-	if ( fdPipe != -1 ) {
+	if (fdPipe != -1) {
 		size = write(fdPipe, pipeCommand, strlen(pipeCommand) + 1);
-		printf("dd: Send pipecommand: %s %d bytes\n", pipeCommand, size);
-		if ( size != -1)
+		//printf("dd: Send pipecommand: %s %d bytes\n", pipeCommand, size);
+		if (size != -1)
 			return true;
 	}
 	return false;
 }
 
 //signal handler for gdk_input_add for the pipe listener.
-void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition ) {
+void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition) {
 	int readLength;
 	char pipeData[8192];
 	PropSet pipeProps;
 
-	printf("Pipe read signal\n");
+	//printf("Pipe read signal\n");
 
-	if ( condition == GDK_INPUT_READ ) {
+	if (condition == GDK_INPUT_READ) {
 		//use a propset so we don't have to fuss (it's already done!)
-		while ( ( readLength = read(fd, pipeData, sizeof(pipeData)) ) > 0 ) {
-			printf("Read: >%s< from pipedata\n", pipeData);
+		while ((readLength = read(fd, pipeData, sizeof(pipeData))) > 0) {
+			//printf("Read: >%s< from pipedata\n", pipeData);
 			//fill the propset with the data from the pipe
 			pipeProps.ReadFromMemory(pipeData, readLength);
 
 			//get filename from open command
 			SString fileName = pipeProps.Get("open");
 
-			printf("filename from pipe: %s\n", fileName.c_str());
+			//printf("filename from pipe: %s\n", fileName.c_str());
 
 			//is filename zero length if propset.get fails?
 			//if there is a file name, open it.
-			if ( fileName.size() > 0 ) {
-				printf("opening >%s< from pipecommand\n", fileName.c_str());
+			if (fileName.size() > 0) {
+				//printf("opening >%s< from pipecommand\n", fileName.c_str());
 				scitew->Open(fileName.c_str());
 
 				//grab the focus back to us.  (may not work) - any ideas?
@@ -1974,9 +1963,9 @@ void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition
 			//add other commands here
 		}
 
+
 	}
 }
-
 void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 	// Create a pipe and see if it finds another one already there
 
@@ -1987,15 +1976,22 @@ void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 
 		//create the command to send thru the pipe
 		char pipeCommand[CHAR_MAX];
-		sprintf(pipeCommand, "open=%s/%s", currentPath, cmdLine);
-		printf("Sending %s through pipe\n", pipeCommand);
+
+		//check to see if path is already absolute
+		if (cmdLine[0] == '/')
+			sprintf(pipeCommand, "open=%s", cmdLine);
+		//if it isn't then add the absolute path to the from of the command to send.
+		else
+			sprintf(pipeCommand, "open=%s/%s", currentPath, cmdLine);
+
+		//printf("Sending %s through pipe\n", pipeCommand);
 		//send it
 		bool piperet = SendPipeCommand(pipeCommand);
-		printf("Sent.\n");
+		//printf("Sent.\n");
 
 		//if it was OK then quit (we should really get an anwser back just in case
 		if (piperet == true) {
-			printf("Sent OK -> Quitting\n");
+			//printf("Sent OK -> Quitting\n");
 			gtk_exit(0);
 		}
 	}
