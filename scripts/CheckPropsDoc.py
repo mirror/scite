@@ -1,5 +1,5 @@
 # CheckMentioned.py
-# Find all the properties used in SciTE source files and check if they 
+# Find all the properties used in SciTE source files and check if they
 # are mentioned in scite/doc/SciTEDoc.html.
 
 import os
@@ -34,13 +34,13 @@ propertyNames = {}
 #print srcPaths
 for srcPath in srcPaths:
 	srcFile = open(srcPath)
-	for line in srcFile.readlines():
-		line = line.strip()
-		if line.count("props") and line.count("Get"):
-			propsPos = line.find("props")
-			getPos = line.find("Get")
+	for srcLine in srcFile.readlines():
+		srcLine = srcLine.strip()
+		if srcLine.count("props") and srcLine.count("Get"):
+			propsPos = srcLine.find("props")
+			getPos = srcLine.find("Get")
 			if propsPos < getPos:
-				parts = line[getPos:].split('\"')
+				parts = srcLine[getPos:].split('\"')
 				#print parts
 				if len(parts) > 1:
 					propertyName = parts[1]
@@ -50,8 +50,8 @@ for srcPath in srcPaths:
 	srcFile.close()
 
 docFile = open(docFileName, "rt")
-for line in docFile.readlines():
-	for word in depunctuate(line).split():
+for docLine in docFile.readlines():
+	for word in depunctuate(docLine).split():
 		if word in propertyNames.keys():
 			propertyNames[word] = 1
 docFile.close()
@@ -79,9 +79,9 @@ def keyOfLine(line):
 		return None
 
 propsFile = open(propsFileName, "rt")
-for line in propsFile.readlines():
-	if line:
-		key = keyOfLine(line)
+for propLine in propsFile.readlines():
+	if propLine:
+		key = keyOfLine(propLine)
 		if key:
 			if key in propertyNames.keys():
 				propertyNames[key] = 1

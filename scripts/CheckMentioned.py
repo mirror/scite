@@ -1,8 +1,7 @@
 # CheckMentioned.py
-# Find all the symbols in scintilla/include/Scintilla.h and check if they 
+# Find all the symbols in scintilla/include/Scintilla.h and check if they
 # are mentioned in scintilla/doc/ScintillaDoc.html.
 
-import os
 import string
 srcRoot = "../.."
 incFileName = srcRoot + "/scintilla/include/Scintilla.h"
