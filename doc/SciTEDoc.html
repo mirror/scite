@@ -2508,9 +2508,13 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	How do I enable tabbed window mode in SciTE?
     </h4>
     <p>
-Set <code>tabbar.visible=1</code> in your SciTEGlobal.properties but beware that tabs are only avaliable on Windows.
-You can also set <code>tabbar.hide.one=0</code> to always show tabs, or 1 to hide when only one file is open.
-<code>tabbar.multiline=1</code> splits tabs across various lines if neccesary.
+	Tabbed window mode is only available on Windows, not on GTK+/Linux.
+	Multiple buffers must be allocated by setting <code>buffers=10</code>
+	in your SciTEGlobal.properties. To have the tab bar visible upon starting
+	SciTE, set <code>tabbar.visible=1</code>.
+	You can also set <code>tabbar.hide.one=0</code> to always show tabs,
+	or 1 to hide when only one file is open.
+	<code>tabbar.multiline=1</code> splits tabs across various lines if neccesary.
     </p>
     <h4>
 	How do I enable autocomplete?
