@@ -3,33 +3,33 @@
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h> 
-#include <string.h> 
-#include <ctype.h> 
-#include <stdio.h> 
-#include <fcntl.h> 
-#include <stdarg.h> 
-#include <sys/stat.h> 
-#include <time.h> 
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <sys/stat.h>
+#include <time.h>
 
 #include "Platform.h"
 
 #if PLAT_GTK
 
-#include <unistd.h> 
+#include <unistd.h>
 
-#endif 
+#endif
 
 #if PLAT_WIN
 
 #ifdef _MSC_VER
-#include <direct.h> 
-#endif 
+#include <direct.h>
+#endif
 #ifdef __BORLANDC__
-#include <dir.h> 
-#endif 
+#include <dir.h>
+#endif
 
-#endif 
+#endif
 
 #include "SciTE.h"
 #include "PropSet.h"
@@ -70,7 +70,7 @@ const char *contributors[] = {
 #if PLAT_GTK
     "Icons Copyright(C) 1998 by Dean S. Jones",
     "    http://jfa.javalobby.org/projects/icons/",
-#endif 
+#endif
     "Ragnar Højland",
     "Christian Obrecht",
     "Andreas Neukoetter",
@@ -129,7 +129,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
 		                        reinterpret_cast<unsigned int>("new century schoolbook"));
 		fontSize = 14;
-#endif 
+#endif
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
 		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, Colour(0xff, 0xff, 0xff).AsLong());
 		Platform::SendScintilla(wsci, SCI_STYLECLEARALL, 0, 0);
@@ -371,7 +371,8 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("end colourise %d\n", dwEnd - dwStart);
 }
-#endif 
+
+#endif
 
 // Find if there is a brace next to the caret, checking before caret first, then
 // after caret. If brace found also find its matching brace.
@@ -458,7 +459,6 @@ void SciTEBase::BraceMatch(bool editor) {
 			//Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
 		}
 
-
 		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
 		if (props.GetInt("highlight.indentation.guides"))
 			Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Platform::Minimum(columnAtCaret, columnOpposite), 0);
@@ -527,12 +527,13 @@ void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch
 			if (selStart < selEnd)
 				selEnd++;   	// Because normal selections end one past
 		}
+
 	}
 	sel[0] = '\0';
 	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
 		GetRange(wCurrent, selStart, selEnd, sel);
 	}
-	}
+}
 
 void SciTEBase::SelectionWord(char *word, int len) {
 	SelectionExtend(word, len, iswordcharforsel);
@@ -570,7 +571,7 @@ void SciTEBase::FindMessageBox(const char *msg) {
 #endif
 #if PLAT_WIN
 	MessageBox(wFindReplace.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
-#endif 
+#endif
 	dialogsOnScreen--;
 }
 
@@ -1244,6 +1245,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_NEW:
 		// For the New command, the "are you sure" question is always asked as this gives
 		// an opportunity to abandon the edits made to a file when are.you.sure is turned off.
+
 		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
@@ -1313,7 +1315,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		} else {
 			// Not using buffers - switch to next file on MRU
 			if (SaveIfUnsure() != IDCANCEL)
-			StackMenuNext();
+				StackMenuNext();
 		}
 		break;
 	case IDM_PREVFILE:
@@ -1323,7 +1325,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		} else {
 			// Not using buffers - switch to previous file on MRU
 			if (SaveIfUnsure() != IDCANCEL)
-			StackMenuPrev();
+				StackMenuPrev();
 		}
 		break;
 
@@ -1499,7 +1501,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_WORDPARTRIGHTEXTEND:
 		SendEditor(SCI_WORDPARTRIGHTEXTEND);
 		break;
-	
+
 	case IDM_VIEWSPACE:
 		ViewWhitespace(!SendEditor(SCI_GETVIEWWS));
 		CheckMenus();
@@ -1646,6 +1648,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		if ((cmdID >= bufferCmdID) &&
 		        (cmdID < bufferCmdID + buffers.size)) {
 			SetDocumentAt(cmdID - bufferCmdID);
+			CheckReload();
 		} else if ((cmdID >= fileStackCmdID) &&
 		           (cmdID < fileStackCmdID + fileStackMax)) {
 			if (CanMakeRoom()) {
@@ -1812,7 +1815,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 				endStyled = SendOutput(SCI_POSITIONFROMLINE, lineEndStyled);
 				Colourise(endStyled, notification->position, false);
 			}
-#endif 
+#endif
 		}
 		break;
 
@@ -1935,7 +1938,6 @@ void SciTEBase::CheckMenus() {
 	}
 }
 
-
 // Ensure that a splitter bar position is inside the main window
 int SciTEBase::NormaliseSplit(int splitPos) {
 	PRectangle rcClient = GetClientRectangle();
@@ -1963,6 +1965,7 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 		SizeContentWindows();
 		//Redraw();
 	}
+
 }
 
 // Implement ExtensionAPI methods

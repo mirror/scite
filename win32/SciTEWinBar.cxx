@@ -16,11 +16,12 @@ void SciTEWin::Notify(SCNotification *notification) {
 		if (notification->nmhdr.idFrom == IDM_TABWIN) {
 			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_GETCURSEL, (WPARAM)0, (LPARAM)0);
 			SetDocumentAt(index);
+			CheckReload();
 		}
 		break;
 
 #if (_WIN32_IE >= 0x0300)
-	// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
+		// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
 	case TTN_GETDISPINFO:
 		//		if (notification->nmhdr.idFrom == IDM_TABWIN)
 		{
@@ -37,8 +38,8 @@ void SciTEWin::Notify(SCNotification *notification) {
 		}
 		break;
 #endif
-		
-	default: 	// Scintilla notification, use default treatment
+
+	default:  	// Scintilla notification, use default treatment
 
 		SciTEBase::Notify(notification);
 		break;
@@ -196,10 +197,10 @@ void SciTEWin::CheckMenus() {
 // Mingw headers do not have this:
 #ifndef TBSTYLE_FLAT
 #define TBSTYLE_FLAT 0x0800
-#endif 
+#endif
 #ifndef TB_LOADIMAGES
 #define TB_LOADIMAGES (WM_USER + 50)
-#endif 
+#endif
 
 #define ELEMENTS(a)	(sizeof(a) / sizeof(a[0]))
 
@@ -342,13 +343,13 @@ void SciTEWin::Creation() {
 		exit(FALSE);
 
 	fontTabs = ::CreateFont( 8, 0, 0, 0,
-	                            FW_NORMAL,
-	                            0, 0, 0, 0,
-	                            0, 0, 0, 0,
-	                            "Ms Sans Serif");
+	                         FW_NORMAL,
+	                         0, 0, 0, 0,
+	                         0, 0, 0, 0,
+	                         "Ms Sans Serif");
 	::SendMessage(wTabBar.GetID(),
 	              WM_SETFONT,
-	              (WPARAM) fontTabs,  // handle to font
+	              (WPARAM) fontTabs,   // handle to font
 	              (LPARAM) 0);    // redraw option
 
 	wTabBar.Show();

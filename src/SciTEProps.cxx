@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <time.h>	// For time_t
+#include <time.h> 	// For time_t
 
 #include "Platform.h"
 
@@ -51,7 +51,7 @@ void SciTEBase::ReadGlobalPropFile() {
 #endif
 #if PLAT_WIN
 	propsBase.Set("PLAT_WIN", "1");
-#endif 
+#endif
 	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 		strcat(propdir, pathSepString);
 		propsBase.Read(propfile, propdir);
@@ -285,6 +285,7 @@ void SciTEBase::ReadProperties() {
 			fclose(fp);
 			//Platform::DebugPrintf("Finished api file %d\n", len);
 		}
+
 	}
 
 	if (!props.GetInt("eol.auto")) {
@@ -535,6 +536,7 @@ void SciTEBase::ReadProperties() {
 }
 
 // Properties that are interactively modifiable are only read from the properties file once.
+
 void SciTEBase::ReadPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
 	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
@@ -559,7 +561,7 @@ void SciTEBase::ReadPropertiesInitial() {
 		::SetWindowLong(wTabBar.GetID(), GWL_STYLE, wl | TCS_MULTILINE);
 	}
 #endif
-	
+
 	lineNumbersWidth = 0;
 	SString linenums = props.Get("line.numbers");
 	if (linenums.length())

@@ -10,7 +10,7 @@
 //#include <fcntl.h>
 //#include <stdarg.h>
 //#include <sys/stat.h>
-#include <time.h>	// For time_t
+#include <time.h> 	// For time_t
 
 #include "Platform.h"
 
@@ -135,7 +135,7 @@ void SciTEBase::SetDocumentAt(int index) {
 #if PLAT_WIN
 	// Tab Bar
 	::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
-#endif 
+#endif
 
 	DisplayAround(bufferNext);
 
@@ -193,19 +193,19 @@ void SciTEBase::InitialiseBuffers() {
 		SendEditor(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
 		if (buffersWanted == 1) {
 			// No buffers, delete the Buffers main menu entry
-//			DestroyMenuItem(4, IDM_CLOSEALL);
+			//			DestroyMenuItem(4, IDM_CLOSEALL);
 			DestroyMenuItem(4, 0);
 #if PLAT_WIN
 			// Destroy command "View Tab Bar" in the menu "Options"
 			DestroyMenuItem(3, IDM_VIEWTABBAR);
-#endif      
+#endif
 		}
 	}
 }
 
 void SciTEBase::LoadRecentMenu() {
 	char recentPathName[MAX_PATH + 1];
-   	char *where = getenv("SciTE_HOME");
+	char *where = getenv("SciTE_HOME");
 	char *pat;
 	if (!where) {
 		where = getenv("HOME");
@@ -213,19 +213,19 @@ void SciTEBase::LoadRecentMenu() {
 	} else
 		pat = "%s/%s";
 	sprintf (	recentPathName, pat,
-				where,
-				recentFileName);
+	          where,
+	          recentFileName);
 
 	FILE *recentFile = fopen (recentPathName, "r");
 	if (!recentFile) {
 		DeleteFileStackMenu();
-		return;
+		return ;
 	}
 	char line[MAX_PATH + 1];
 	CharacterRange cr;
 	cr.cpMin = cr.cpMax = 0;
 	for (int i = 0; i < fileStackMax; i++) {
-		if(!fgets (line, sizeof (line), recentFile))
+		if (!fgets (line, sizeof (line), recentFile))
 			break;
 		line[strlen (line) - 1] = '\0';
 		AddFileToStack (line, cr, 0);
@@ -235,7 +235,7 @@ void SciTEBase::LoadRecentMenu() {
 
 void SciTEBase::SaveRecentStack() {
 	char recentPathName[MAX_PATH + 1];
-   	char *where = getenv("SciTE_HOME");
+	char *where = getenv("SciTE_HOME");
 	char *pat;
 	if (!where) {
 		where = getenv("HOME");
@@ -243,12 +243,12 @@ void SciTEBase::SaveRecentStack() {
 	} else
 		pat = "%s/%s";
 	sprintf (	recentPathName, pat,
-				where,
-				recentFileName);
+	          where,
+	          recentFileName);
 
 	FILE *recentFile = fopen (recentPathName, "w");
 	if (!recentFile)
-		return;
+		return ;
 	int i;
 	const char *line;
 	// save recent files list
@@ -352,6 +352,7 @@ void SciTEBase::Next() {
 	if (++next >= buffers.length)
 		next = 0;
 	SetDocumentAt(next);
+	CheckReload();
 }
 
 void SciTEBase::Prev() {
@@ -359,6 +360,7 @@ void SciTEBase::Prev() {
 	if (--prev < 0)
 		prev = buffers.length - 1;
 	SetDocumentAt(prev);
+	CheckReload();
 }
 
 void SciTEBase::BuffersMenu() {
@@ -366,7 +368,7 @@ void SciTEBase::BuffersMenu() {
 	DestroyMenuItem(4, IDM_BUFFERSEP);
 #if PLAT_WIN
 	::SendMessage(wTabBar.GetID(), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
-#endif 
+#endif
 
 	int pos;
 	for (pos = 0; pos < bufferMax; pos++) {
@@ -383,7 +385,7 @@ void SciTEBase::BuffersMenu() {
 			titleTab[0] = '\0';
 #if PLAT_WIN
 			sprintf(entry, "&%d ", pos);
-#endif 
+#endif
 			if (IsUntitledFileName(buffers.buffers[pos].fileName.c_str())) {
 				strcat(entry, "Untitled");
 				strcat(titleTab, "Untitled");
@@ -442,7 +444,7 @@ void SciTEBase::SetFileStackMenu() {
 				entry[0] = '\0';
 #if PLAT_WIN
 				sprintf(entry, "&%d ", stackPos);
-#endif 
+#endif
 				strcat(entry, recentFileStack[stackPos].fileName.c_str());
 				SetMenuItem(0, MRU_START + stackPos + 1, itemID, entry);
 			}
@@ -736,16 +738,16 @@ void SciTEBase::GoMessage(int dir) {
 						bExists = true;
 					} else if (Exists(dirName, sourcePath, messagePath)) {
 						bExists = true;
-                                        } else if (Exists(NULL, sourcePath, messagePath)) { 
+					} else if (Exists(NULL, sourcePath, messagePath)) {
 						bExists = true;
 					}
 					if (bExists) {
 						if (CanMakeRoom()) {
-                                                        Open(messagePath); 
-                                                } else { 
-                                                        delete []cdoc; 
-                                                        return ; 
-                                                } 
+							Open(messagePath);
+						} else {
+							delete []cdoc;
+							return ;
+						}
 					}
 				}
 				SendEditor(SCI_MARKERDELETEALL, 0);

@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <time.h>	// For time_t
+#include <time.h>  	// For time_t
 
 #include "Platform.h"
 
@@ -147,11 +147,12 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 	char *cpDirEnd = strrchr(fullPath, pathSepChar);
 	if (IsAbsolutePath(fullPath)) {
 		// Absolute path
-			strcpy(fileName, cpDirEnd + 1);
-			strcpy(dirName, fullPath);
-			dirName[cpDirEnd - fullPath] = '\0';
+		strcpy(fileName, cpDirEnd + 1);
+		strcpy(dirName, fullPath);
+		dirName[cpDirEnd - fullPath] = '\0';
 		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
-	} else {
+	}
+	else {
 		// Relative path
 		getcwd(dirName, sizeof(dirName));
 		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
@@ -166,13 +167,13 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 			strcpy(fileName, fullPath);
 		}
 	}
-	
+
 	// Rebuild fullPath from directory and name
 	strcpy(fullPath, dirName);
 	strcat(fullPath, pathSepString);
 	strcat(fullPath, fileName);
 	//Platform::DebugPrintf("Path: <%s>\n", fullPath);
-	
+
 	if (fixCase)
 		FixFilePath();
 	char fileBase[MAX_PATH];
@@ -205,8 +206,7 @@ bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 	char copyPath[MAX_PATH];
 	if (IsAbsolutePath(path) || !dir) {
 		strcpy(copyPath, path);
-	}
-	else if (dir) {
+	} else if (dir) {
 		if ((strlen(dir) + strlen(pathSepString) + strlen(path) + 1) > MAX_PATH)
 			return false;
 		strcpy(copyPath, dir);
@@ -218,7 +218,7 @@ bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 		return false;
 	fclose(fp);
 	if (testPath)
-	AbsolutePath(testPath, copyPath, MAX_PATH);
+		AbsolutePath(testPath, copyPath, MAX_PATH);
 	return true;
 }
 
@@ -239,11 +239,11 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 	WindowAccessor acc(wEditor.GetID(), props);
 	for (int i = 0; i < lengthDoc; i++) {
 		char ch = acc[i];
-		char chNext = acc.SafeGetCharAt(i+1);
+		char chNext = acc.SafeGetCharAt(i + 1);
 		if (ch == '\r') {
 			if (chNext == '\n')
 				linesCRLF++;
-			else 
+			else
 				linesCR++;
 		} else if (ch == '\n') {
 			if (chPrev != '\r') {
@@ -268,7 +268,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 			while (lenFile > 0) {
 				SendEditorString(SCI_ADDTEXT, lenFile, data);
 				lenFile = fread(data, 1, sizeof(data), fp);
-		}
+			}
 			fclose(fp);
 			if (props.GetInt("eol.auto")) {
 				int linesCR;
@@ -281,15 +281,15 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 					SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
 				if ((linesCRLF > linesLF) && (linesCRLF > linesCR))
 					SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+			}
 		}
-	}
-		} else {
+	} else {
 		char msg[MAX_PATH + 100];
 		strcpy(msg, "Could not open file \"");
 		strcat(msg, fullPath);
 		strcat(msg, "\".");
 		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
-			}
+	}
 	SendEditor(SCI_SETUNDOCOLLECTION, 1);
 	// Flick focus to the output window and back to
 	// ensure palette realised correctly.
@@ -298,10 +298,10 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 	SendEditor(SCI_SETSAVEPOINT);
 	if (props.GetInt("fold.on.open") > 0) {
 		FoldAll();
-		}
+	}
 	SendEditor(SCI_GOTOPOS, 0);
 	Redraw();
-	}
+}
 
 void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	InitialiseBuffers();
@@ -314,14 +314,14 @@ void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	strcpy(fixedFileName, VMSToUnixStyle(file));
 	file = fixedFileName;
 #endif
-	
+
 	int index = buffers.GetDocumentByName(file);
 	if (index >= 0) {
 		SetDocumentAt(index);
 		DeleteFileStackMenu();
 		SetFileStackMenu();
-        if (!forceLoad) // Just rotate into view
-		    return;
+		if (!forceLoad) // Just rotate into view
+			return ;
 	}
 
 	if (buffers.size == buffers.length) {
@@ -348,7 +348,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 		OpenFile(initialCmdLine);
 
 		SendEditor(SCI_EMPTYUNDOBUFFER);
-		}
+	}
 	RemoveFileFromStack(fullPath);
 	DeleteFileStackMenu();
 	SetFileStackMenu();
@@ -364,14 +364,16 @@ void SciTEBase::OpenSelected() {
 	SelectionFilename(selectedFilename, sizeof(selectedFilename));
 	if (selectedFilename[0] == '\0') {
 		WarnUser(warnWrongFile);
-		return;	// No selection
+		return ;	// No selection
 	}
+
 	if (strcasecmp(selectedFilename, fileName) == 0) {
 		WarnUser(warnWrongFile);
-		return;	// Do not open if it is the current file!
+		return ;	// Do not open if it is the current file!
 	}
+
 	if (IsPropertiesFile(fileName) &&
-		strlen(fileName) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
+	        strlen(fileName) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
 		// We are in a properties file, we append the correct extension
 		// to open the include
 		strcat(selectedFilename, PROPERTIES_EXTENSION);
@@ -392,10 +394,10 @@ void SciTEBase::OpenSelected() {
 		}
 		// Can't do much for space separated line numbers...
 
-//		if (strncmp(selectedFilename, "http", 4) == 0) {
-//			SString cmd = selectedFilename;
-//			ShellExec(cmd, NULL);
-//		}
+		//		if (strncmp(selectedFilename, "http", 4) == 0) {
+		//			SString cmd = selectedFilename;
+		//			ShellExec(cmd, NULL);
+		//		}
 		// Currently don't work (have to declare virtual function in SciTEBase.h,
 		// or to do another way), no much time to work on it.
 		// It would be nice to make it work though.
@@ -404,6 +406,7 @@ void SciTEBase::OpenSelected() {
 		if (lineNumber == 0) {
 			// To be done...
 		}
+
 	}
 
 	char path[MAX_PATH];
@@ -452,8 +455,8 @@ void SciTEBase::CheckReload() {
 						Open(fullPathToCheck, false, true);
 					}
 					entered = false;
-		}
-	} else {
+				}
+			} else {
 				Open(fullPathToCheck, false, true);
 			}
 		}

@@ -18,7 +18,7 @@ char *SciTEWin::classNameInternal = NULL;
 SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	cmdShow = 0;
 	heightBar = 7;
-    fontTabs = 0;
+	fontTabs = 0;
 
 	memset(&fr, 0, sizeof(fr));
 	strcpy(openWhat, "Custom Filter");
@@ -84,8 +84,8 @@ SciTEWin::~SciTEWin() {
 		::GlobalFree(hDevNames);
 	if (hHH)
 		::FreeLibrary(hHH);
-    if (fontTabs)
-        ::DeleteObject(fontTabs);
+	if (fontTabs)
+		::DeleteObject(fontTabs);
 }
 
 void SciTEWin::Register(HINSTANCE hInstance_) {
@@ -129,7 +129,7 @@ static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
 		strncpy(path, home, lenPath);
 	} else {
 		::GetModuleFileName(0, path, lenPath);
-		// Remove the SciTE.exe 
+		// Remove the SciTE.exe
 		char *lastSlash = strrchr(path, pathSepChar);
 		if (lastSlash)
 			*lastSlash = '\0';
@@ -219,7 +219,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				fnHHA(NULL,
 				      //helpFile.c_str(),
 				      path,
-				      0x000d,   	// HH_KEYWORD_LOOKUP
+				      0x000d,    	// HH_KEYWORD_LOOKUP
 				      reinterpret_cast<DWORD>(&ak)
 				     );
 			}
@@ -401,6 +401,7 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 // ProcessExecute runs a command with redirected input and output streams
 // so the output can be put in a window.
 // It is based upon several usenet posts and a knowledge base article.
+
 void SciTEWin::ProcessExecute() {
 	DWORD exitcode = 0;
 
@@ -536,6 +537,7 @@ void SciTEWin::ProcessExecute() {
 									        static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
 										completed = true;    // It's a dead process
 									}
+
 								}
 							}
 						}
@@ -649,11 +651,11 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 
 	DWORD rc = reinterpret_cast<DWORD>(
 	               ShellExecute(
-	                   wSciTE.GetID(),   // parent wnd for msgboxes during app start
-	                   NULL,    // cmd is open
-	                   mycmd,   // file to open
-	                   myparams,   // parameters
-	                   dir.c_str(),   // launch directory
+	                   wSciTE.GetID(),    // parent wnd for msgboxes during app start
+	                   NULL,     // cmd is open
+	                   mycmd,    // file to open
+	                   myparams,    // parameters
+	                   dir.c_str(),    // launch directory
 	                   SW_SHOWNORMAL)); //default show cmd
 
 	if (rc > 32) {
@@ -840,7 +842,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				::PostQuitMessage(0);
 			}
 		}
-#endif 
+#endif
 		break;
 
 #if 0
@@ -855,7 +857,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			::EndPaint(wSciTE.GetID(), &ps);
 			return 0;
 		}
-#endif 
+#endif
 	case WM_COMMAND:
 		Command(wParam, lParam);
 		break;
@@ -910,6 +912,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			SendEditor(WM_PALETTECHANGED, wParam, lParam);
 			//SendOutput(WM_PALETTECHANGED, wParam, lParam);
 		}
+
 		break;
 
 	case WM_QUERYNEWPALETTE:
@@ -982,7 +985,6 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_NOTIFY:
 		Notify(reinterpret_cast<SCNotification *>(lParam));
 		break;
-
 
 	case WM_PAINT:
 		{
@@ -1071,7 +1073,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	Extension *extender = &luaExtender;
 #else
 	Extension *extender = 0;
-#endif 
+#endif
 	//Platform::DebugPrintf("Command line is \n%s\n<<", lpszCmdLine);
 
 	HACCEL hAccTable = LoadAccelerators(hInstance, "ACCELS");
@@ -1083,7 +1085,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	HMODULE hmod = ::LoadLibrary("SciLexer.DLL");
 	if (hmod == NULL)
 		MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
-#endif 
+#endif
 
 	MSG msg;
 	msg.wParam = 0; {
@@ -1105,7 +1107,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 
 #ifndef STATIC_BUILD
 	::FreeLibrary(hmod);
-#endif 
+#endif
 
 	return msg.wParam;
 }

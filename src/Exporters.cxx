@@ -3,33 +3,33 @@
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h> 
-#include <string.h> 
-#include <ctype.h> 
-#include <stdio.h> 
-#include <fcntl.h> 
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <fcntl.h>
 //#include <stdarg.h>
-#include <sys/stat.h> 
-#include <time.h> 	// For time_t
+#include <sys/stat.h>
+#include <time.h>  	// For time_t
 
 #include "Platform.h"
 
 #if PLAT_GTK
 
-#include <unistd.h> 
+#include <unistd.h>
 
-#endif 
+#endif
 
 #if PLAT_WIN
 // For getcwd and chdir
 #ifdef _MSC_VER
-#include <direct.h> 
-#endif 
+#include <direct.h>
+#endif
 #ifdef __BORLANDC__
-#include <dir.h> 
-#endif 
+#include <dir.h>
+#endif
 
-#endif 
+#endif
 
 #include "SciTE.h"
 #include "PropSet.h"
@@ -85,22 +85,22 @@ int GetHexByte(const char *hexbyte) { // "HH"
 
 int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
 	static int highlights[][3] = {
-	    { 0x00, 0x00, 0x00 },    // highlight1  0;0;0       black
-	    { 0x00, 0x00, 0xFF },    // highlight2  0;0;255     blue
-	    { 0x00, 0xFF, 0xFF },    // highlight3  0;255;255   cyan
-	    { 0x00, 0xFF, 0x00 },    // highlight4  0;255;0     green
-	    { 0xFF, 0x00, 0xFF },    // highlight5  255;0;255   violet
-	    { 0xFF, 0x00, 0x00 },    // highlight6  255;0;0     red
-	    { 0xFF, 0xFF, 0x00 },    // highlight7  255;255;0   yellow
-	    { 0xFF, 0xFF, 0xFF },    // highlight8  255;255;255 white
-	    { 0x00, 0x00, 0x80 },    // highlight9  0;0;128     dark blue
-	    { 0x00, 0x80, 0x80 },    // highlight10 0;128;128   dark cyan
-	    { 0x00, 0x80, 0x00 },    // highlight11 0;128;0     dark green
-	    { 0x80, 0x00, 0x80 },    // highlight12 128;0;128   dark violet
-	    { 0x80, 0x00, 0x00 },    // highlight13 128;0;0     brown
-	    { 0x80, 0x80, 0x00 },    // highlight14 128;128;0   khaki
-	    { 0x80, 0x80, 0x80 },    // highlight15 128;128;128 dark grey
-	    { 0xC0, 0xC0, 0xC0 },    // highlight16 192;192;192 grey
+	    { 0x00, 0x00, 0x00 },     // highlight1  0;0;0       black
+	    { 0x00, 0x00, 0xFF },     // highlight2  0;0;255     blue
+	    { 0x00, 0xFF, 0xFF },     // highlight3  0;255;255   cyan
+	    { 0x00, 0xFF, 0x00 },     // highlight4  0;255;0     green
+	    { 0xFF, 0x00, 0xFF },     // highlight5  255;0;255   violet
+	    { 0xFF, 0x00, 0x00 },     // highlight6  255;0;0     red
+	    { 0xFF, 0xFF, 0x00 },     // highlight7  255;255;0   yellow
+	    { 0xFF, 0xFF, 0xFF },     // highlight8  255;255;255 white
+	    { 0x00, 0x00, 0x80 },     // highlight9  0;0;128     dark blue
+	    { 0x00, 0x80, 0x80 },     // highlight10 0;128;128   dark cyan
+	    { 0x00, 0x80, 0x00 },     // highlight11 0;128;0     dark green
+	    { 0x80, 0x00, 0x80 },     // highlight12 128;0;128   dark violet
+	    { 0x80, 0x00, 0x00 },     // highlight13 128;0;0     brown
+	    { 0x80, 0x80, 0x00 },     // highlight14 128;128;0   khaki
+	    { 0x80, 0x80, 0x80 },     // highlight15 128;128;128 dark grey
+	    { 0xC0, 0xC0, 0xC0 },     // highlight16 192;192;192 grey
 	};
 	int maxdelta = 3 * 255 + 1, delta, index = -1;
 	int r = GetHexByte (rgb + 1), g = GetHexByte (rgb + 3), b = GetHexByte (rgb + 5);
@@ -126,7 +126,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||    // change
+	if (lastOffset != currentOffset ||     // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -147,7 +147,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||    // change
+	if (lastOffset != currentOffset ||     // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -168,7 +168,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||    // change
+	if (lastOffset != currentOffset ||     // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -189,7 +189,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||    // change
+	if (lastOffset != currentOffset ||     // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -425,7 +425,6 @@ void SciTEBase::SaveToRTF(const char *saveName) {
 	}
 }
 
-
 void SciTEBase::SaveToHTML(const char *saveName) {
 	SendEditor(SCI_COLOURISE, 0, -1);
 	int tabSize = props.GetInt("tabsize");
@@ -656,7 +655,6 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
 		dialogsOnScreen--;
 	}
-
 
 	char *PDFColours[STYLE_DEFAULT];
 
@@ -928,7 +926,6 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		// write the actual object to the PDF
 		fputs( textObj.c_str(), fp );
 	}
-
 
 	// now create all the page objects...
 	SString pageRefs = "";

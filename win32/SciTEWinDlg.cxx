@@ -18,10 +18,11 @@ void SciTEWin::WarnUser(const int warnID) {
 		::ShowWindow(wSciTE.GetID(), SW_SHOW);
 
 		// This one is discarded: too discrete
-//		::FlashWindow(wEditor.GetID(), FALSE);
-//		::Sleep(100L);
-//		::FlashWindow(wEditor.GetID(), TRUE);
+		//		::FlashWindow(wEditor.GetID(), FALSE);
+		//		::Sleep(100L);
+		//		::FlashWindow(wEditor.GetID(), TRUE);
 	}
+
 	if (soundWarn) {
 		switch (warnID) {
 		case warnFindWrapped:
@@ -35,6 +36,7 @@ void SciTEWin::WarnUser(const int warnID) {
 			}
 			Beep(frequency, soundWarn);	// Values not used on Win9x
 		}
+
 	}
 	// We can play different sounds, based on settings, like Visual Studio playing various waves
 	// when hitting a breakpoint, finishing compiling with or without errors/warnings, etc.
@@ -108,7 +110,7 @@ bool SciTEWin::OpenDialog() {
 	char openName[2048]; // maximum common dialog buffer size (says mfc..)
 #else
 	char openName[MAX_PATH];
-#endif 
+#endif
 	*openName = '\0';
 
 	OPENFILENAME ofn = {
@@ -140,7 +142,7 @@ bool SciTEWin::OpenDialog() {
 		    OFN_PATHMUSTEXIST |
 		    OFN_ALLOWMULTISELECT;
 	}
-#endif 
+#endif
 	if (::GetOpenFileName(&ofn)) {
 		filterDefault = ofn.nFilterIndex;
 		delete []filter;
@@ -172,7 +174,7 @@ bool SciTEWin::OpenDialog() {
 		}
 #else
 		Open(openName);
-#endif 
+#endif
 	} else {
 		delete []filter;
 		return false;
@@ -807,6 +809,7 @@ void SciTEWin::GoLineDialog() {
 			SendEditor(SCI_GOTOLINE, lineNo[0]-1);
 			//}
 		}
+
 	}
 	SetFocus(wEditor.GetID());
 }
