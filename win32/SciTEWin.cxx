@@ -512,8 +512,13 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	}
 
 	if (jobToRun.jobType == jobExtension) {
-		if (extender)
+		if (extender) {
 			extender->OnExecute(jobToRun.command.c_str());
+			Redraw();
+			// A Redraw "might" be needed, since Lua and Director
+			// provide enough low-level capabilities to corrupt the
+			// display.
+		}
 		return exitcode;
 	}
 
