@@ -2362,7 +2362,6 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 					fputs("&nbsp;", fp);
 				else
 					fputc(' ', fp);
-				fputs("&nbsp;", fp);
 			} else if (ch == '\t') {
 				if (wysiwyg) {
 					for (int itab = 0; itab < tabSize; itab++)
