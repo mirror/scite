@@ -244,7 +244,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	wrap = false;
 	wrapOutput = false;
 	isReadOnly = false;
-	checkIfOpen = false;
+	openFilesHere = false;
 	fullScreen = false;
 
 	heightOutput = 0;
@@ -3993,7 +3993,8 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);
-	CheckAMenuItem(IDM_CHECKIFOPEN, checkIfOpen);
+	EnableAMenuItem(IDM_OPENFILESHERE, props.GetInt("check.if.already.open") != 0);
+	CheckAMenuItem(IDM_OPENFILESHERE, openFilesHere);
 	CheckAMenuItem(IDM_WRAP, wrap);
 	CheckAMenuItem(IDM_WRAPOUTPUT, wrapOutput);
 	CheckAMenuItem(IDM_READONLY, isReadOnly);

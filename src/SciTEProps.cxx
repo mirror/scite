@@ -1160,7 +1160,7 @@ void SciTEBase::ReadProperties() {
 // Properties that are interactively modifiable are only read from the properties file once.
 void SciTEBase::SetPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
-	checkIfOpen = props.GetInt("check.if.already.open");
+	openFilesHere = props.GetInt("check.if.already.open");
 	wrap = props.GetInt("wrap");
 	wrapOutput = props.GetInt("output.wrap");
 	indentationWSVisible = props.GetInt("view.indentation.whitespace", 1);
@@ -1479,7 +1479,7 @@ int SciTEBase::GetMenuCommandAsInt(SString commandName) {
 		{"IDM_VIEWTABBAR",	IDM_VIEWTABBAR},
 		{"IDM_VIEWSTATUSBAR",	IDM_VIEWSTATUSBAR},
 		{"IDM_TOGGLEPARAMETERS",	IDM_TOGGLEPARAMETERS},
-		{"IDM_CHECKIFOPEN",	IDM_CHECKIFOPEN},
+		{"IDM_OPENFILESHERE",	IDM_OPENFILESHERE},
 		{"IDM_WRAP",	IDM_WRAP},
 		{"IDM_WRAPOUTPUT",	IDM_WRAPOUTPUT},
 		{"IDM_READONLY",	IDM_READONLY},

@@ -19,8 +19,6 @@ const char appName[] = "Sc1";
 const char appName[] = "SciTE";
 #endif
 
-static UINT identityMessage;	///< Registered message to identify SciTE instances
-
 HINSTANCE SciTEWin::hInstance = 0;
 char *SciTEWin::className = NULL;
 char *SciTEWin::classNameInternal = NULL;
@@ -70,7 +68,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	}
 
 	ReadGlobalPropFile();
-	/// Need to copy properties to variables before setting up Window
+	/// Need to copy properties to variables before setting up window
 	SetPropertiesInitial();
 	ReadAbbrevPropFile();
 
@@ -78,10 +76,9 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	hDevNames = 0;
 	::ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
 
-	mutex = 0;
-
 	hHH = 0;
 	hMM = 0;
+	uniqueInstance.Init(this);
 
 	hAccTable = ::LoadAccelerators(hInstance, "ACCELS"); // md
 }
@@ -91,8 +88,6 @@ SciTEWin::~SciTEWin() {
 		::GlobalFree(hDevMode);
 	if (hDevNames)
 		::GlobalFree(hDevNames);
-	if (mutex)
-		::CloseHandle(mutex);
 	if (hHH)
 		::FreeLibrary(hHH);
 	if (hMM)
@@ -134,8 +129,6 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.lpszClassName = classNameInternal;
 	if (!::RegisterClass(&wndclass))
 		exit(FALSE);
-
-	identityMessage = ::RegisterWindowMessage("SciTEInstanceIdentifier");
 }
 
 static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
@@ -342,9 +335,8 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		CheckAMenuItem(IDM_ONTOP, topMost);
 		break;
 
-	case IDM_CHECKIFOPEN:
-		checkIfOpen = (checkIfOpen ? false : true);
-		CheckMenus();
+	case IDM_OPENFILESHERE:
+		uniqueInstance.ToggleOpenFilesHere();
 		break;
 
 	case IDM_FULLSCREEN:
@@ -1072,8 +1064,8 @@ static bool IsASpace(int ch) {
 
 /**
  * Break up the command line into individual arguments and strip double quotes
- * from each argument creating a string with each argument separated by '\n'.
- * @return The number of arguments found.
+ * from each argument.
+ * @return A string with each argument separated by '\n'.
  */
 SString SciTEWin::ProcessArgs(const char *cmdLine) {
 	SString args;
@@ -1105,136 +1097,48 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
 	return args;
 }
 
-/**
- * Function called by EnumWindows.
- * @a hWnd is the handle to the currently enumerated window.
- * @a lParam is seen as a pointer to a HWND, it receives
- * the handle to the found other SciTE window, if any.
- * @return FALSE if found, to stop EnumWindows.
- */
-BOOL CALLBACK SciTEWin::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
-	BOOL bResult = TRUE;
-	DWORD result;
-	// Send a message to the given window, to see if it will answer with
-	// the same message. If it does, it is a SciTE window with
-	// checkIfOpen set.
-	// We use a timeout to avoid being blocked by hung processes.
-	LRESULT found = ::SendMessageTimeout(hWnd,
-	                                     identityMessage, 0, 0, SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
-	if (found != 0 && result == static_cast<DWORD>(identityMessage)) {
-		// Found? Is it ourself?
-		if (hWnd != reinterpret_cast<HWND>(app->GetID())) {
-			// Not ourself! Another SciTE window found!
-			// We return in lParam the window handle of the found SciTE
-			HWND *target = reinterpret_cast<HWND *>(lParam);
-			*target = hWnd;
-			bResult = FALSE;
-		}
-	}
-	return bResult;
-}
-
 void SciTEWin::Run(const char *cmdLine) {
-	bool bAlreadyRunning = false;
-	if (checkIfOpen && identityMessage) {
-		// Use the method explained by Joseph M. Newcomer to avoid multiple instances of an application:
-		// http://www.codeproject.com/cpp/avoidmultinstance.asp
-		// I limit instances by desktop, it seems to make sense with a GUI application...
-		SString mutexName = "SciTE-UniqueInstanceMutex-";	// I doubt I really need a GUID here...
-		HDESK desktop = ::GetThreadDesktop(::GetCurrentThreadId());
-		DWORD len = 0;
-		// Query the needed size for the buffer
-		BOOL result = ::GetUserObjectInformation(desktop, UOI_NAME, NULL, 0, &len);
-		if (result == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-			// WinNT / Win2000
-			char *info = new char[len];
-			::GetUserObjectInformation(desktop, UOI_NAME, info, len, &len);
-			mutexName += info;
-			delete []info;
-		} else {
-			// Win9x: no multiple desktop, GetUserObjectInformation can be called
-			// but is bogus...
-			mutexName += "Win9x";
-		}
-		// We create a mutex because it is an atomic operation.
-		// An operation like EnumWindows is long, so if we use it only, we can fall in a race condition.
-		// Note from MSDN: "The system closes the handle automatically when the process terminates.
-		// The mutex object is destroyed when its last handle has been closed."
-		// If the mutex already exists, the new process get a handle on it, so even if the first
-		// process exits, the mutex isn't destroyed, until all SciTE instances exit.
-		mutex = ::CreateMutex(NULL, FALSE, mutexName.c_str());
-		// The call fails with ERROR_ACCESS_DENIED if the mutex was
-		// created in a different user session because of passing
-		// NULL for the SECURITY_ATTRIBUTES on mutex creation);
-		bAlreadyRunning = (::GetLastError() == ERROR_ALREADY_EXISTS ||
-		                   ::GetLastError() == ERROR_ACCESS_DENIED);
+	// Break up the command line into individual arguments
+	SString args = ProcessArgs(cmdLine);
+	// Read the command line parameters:
+	// In case the check.if.already.open property has been set or reset on the command line,
+	// we still get a last chance to force checking or to open a separate instance;
+	// Check if the user just want to print the file(s).
+	// Don't process files yet.
+	bool bBatchProcessing = ProcessCommandLine(args, 0);
+
+	// No need to check for other instances when doing a batch job:
+	// perform some tasks and exit immediately.
+	if (!bBatchProcessing && props.GetInt("check.if.already.open") != 0) {
+		uniqueInstance.CheckOtherInstance();
 	}
 
-	SString args = ProcessArgs(cmdLine);
-
-	// Check if the user just want to print the file
-	bool performPrint = ProcessCommandLine(args, 0);
-
-	// We create the window, so it can be found by EnumWindows below.
+	// We create the window, so it can be found by EnumWindows below,
+	// and the Scintilla control is thus created, allowing to print the file(s).
 	// We don't show it yet, so if it is destroyed (duplicate instance), it will
 	// not flash on the taskbar or on the display.
 	CreateUI();
 
-	if (performPrint) {
+	if (bBatchProcessing) {
+		// Reprocess the command line and read the files
 		ProcessCommandLine(args, 1);
-		Print(false);
+		Print(false);	// Don't ask user for print parameters
+		// Done, we exit the program
 		::PostQuitMessage(0);
 		wSciTE.Destroy();
-		return ;
+		return;
 	}
 
-	// We recheck the check.if.already.open property in case it has been set on the command line,
-	// so we still get a last chance to open a separate instance.
-	if (bAlreadyRunning && props.GetInt("check.if.already.open")) {
-		HWND hOtherWindow = NULL;
-		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(&hOtherWindow));
-		if (hOtherWindow) {
-			// On Win2k, windows can't get focus by themselves,
-			// so it is the responsability of the new process to bring the window
-			// to foreground.
-			// Put the other SciTE uniconized and to forefront.
-			if (::IsIconic(hOtherWindow)) {
-				::ShowWindow(hOtherWindow, SW_RESTORE);
-			}
-			::SetForegroundWindow(hOtherWindow);
+	if (props.GetInt("check.if.already.open") != 0 && uniqueInstance.FindOtherInstance()) {
+		uniqueInstance.SendCommands(cmdLine);
 
-			COPYDATASTRUCT cds;
-			cds.dwData = 0;
-			// Send 2 messages - first the CWD, then the real
-			// command-line. (Restoring the cwd could be done,
-			// but keeping it to the last file opened can also
-			// be useful)
-			TCHAR cwdCmd[MAX_PATH + 7]; // 7 for "-cwd:" and 2x'"'
-			strcpy(cwdCmd, "\"-cwd:");
-			getcwd(cwdCmd + strlen(cwdCmd), MAX_PATH);
-			strcat(cwdCmd, "\"");
-			// defeat the "\" mangling - convert "\" to "/"
-			for (char *temp = cwdCmd; *temp; temp++) {
-				if (*temp == '\\') {
-					*temp = '/';
-				}
-			}
-			cds.cbData = static_cast<DWORD>(strlen(cwdCmd) + 1);
-			cds.lpData = static_cast<void *>(cwdCmd);
-			::SendMessage(hOtherWindow, WM_COPYDATA, 0,
-			              reinterpret_cast<LPARAM>(&cds));
-			// now the commandline itself.
-			cds.cbData = static_cast<DWORD>(strlen(cmdLine) + 1);
-			cds.lpData = static_cast<void *>(const_cast<char *>(cmdLine));
-			::SendMessage(hOtherWindow, WM_COPYDATA, 0,
-			              reinterpret_cast<LPARAM>(&cds));
-
-			// Kill itself, leaving room to the previous instance
-			::PostQuitMessage(0);
-			return ;	/* Don't do anything else */
-		}
+		// Kill itself, leaving room to the previous instance
+		::PostQuitMessage(0);
+		wSciTE.Destroy();
+		return;	// Don't do anything else
 	}
 
+	// OK, the instance will be displayed
 	SizeSubWindows();
 	wSciTE.Show();
 	if (cmdShow) {	// assume SW_MAXIMIZE only
@@ -1338,22 +1242,6 @@ void SciTEWin::RestoreFromTray() {
 	::ShowWindow(MainHWND(), SW_SHOW);
 	::Sleep(100);
 	::Shell_NotifyIcon(NIM_DELETE, &nid);
-}
-
-LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
-	if (pcds) {
-		if (props.GetInt("minimize.to.tray")) {
-			RestoreFromTray();
-		}
-		const char *text = static_cast<char *>(pcds->lpData);
-		if (text && (strlen(text) > 0)) {
-			SString args = ProcessArgs(text);
-			ProcessCommandLine(args, 0);
-			ProcessCommandLine(args, 1);
-		}
-		::FlashWindow(MainHWND(), FALSE);
-	}
-	return TRUE;
 }
 
 static bool KeyMatch(SString sKey, int keyval, int modifiers) {
@@ -1513,10 +1401,9 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, MainHWND());
-	if (iMessage == identityMessage) {
-		if (checkIfOpen || wParam != 0) {
-			return identityMessage;
-		}
+	LRESULT uim = uniqueInstance.CheckMessage(iMessage, wParam, lParam);
+	if (uim != 0) {
+		return uim;
 	}
 
 	switch (iMessage) {
@@ -1648,7 +1535,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_COPYDATA:
-		return CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
+		return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
 
 	default:
 		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);

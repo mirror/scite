@@ -40,7 +40,7 @@ endif
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
 OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
-SciTEWin.o SciTEWinBar.o SciTEWinDlg.o WindowAccessor.o \
+SciTEWin.o SciTEWinBar.o SciTEWinDlg.o UniqueInstance.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
 DirectorExtension.o XPM.o
 
@@ -172,7 +172,7 @@ deps:
 $(PROG): $(OBJS)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
 
-OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o SciTEBase.o SciTEBuffers.o \
+OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o UniqueInstance.o SciTEBase.o SciTEBuffers.o \
 	SciTEIO.o Exporters.o SciTEProps.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
 	WindowAccessor.o DocumentAccessor.o KeyWords.o ExternalLexer.o StyleContext.o\
 	Lexers.a PropSet.o \

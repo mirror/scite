@@ -135,7 +135,7 @@ END
 POPUP "&Options"
 BEGIN
 	MENUITEM "&Always On Top",			IDM_ONTOP
-	MENUITEM "C&heck if already open",	IDM_CHECKIFOPEN
+	MENUITEM "Open Files &Here",		IDM_OPENFILESHERE
 	MENUITEM "Vertical &Split",			IDM_SPLITVERTICAL
 	MENUITEM "&Wrap",			IDM_WRAP
 	MENUITEM "Wrap Out&put",			IDM_WRAPOUTPUT

@@ -50,6 +50,7 @@
 #include "Scintilla.h"
 #include "Extender.h"
 #include "SciTEBase.h"
+#include "UniqueInstance.h"
 #ifdef LUA_SCRIPTING
 #include "LuaExtension.h"
 #endif
@@ -85,7 +86,7 @@ protected:
 	HGLOBAL hDevMode;
 	HGLOBAL hDevNames;
 
-	HANDLE mutex;
+	UniqueInstance uniqueInstance;
 
 	/// HTMLHelp module
 	HMODULE hHH;
@@ -143,7 +144,6 @@ protected:
 	void DropFiles(HDROP hdrop);
 	void MinimizeToTray();
 	void RestoreFromTray();
-	LRESULT CopyData(COPYDATASTRUCT *pcds);
 	SString ProcessArgs(const char *cmdLine);
 	virtual void QuitProgram();
 
@@ -214,7 +214,6 @@ public:
 
 	void CreateUI();
 	/// Management of the command line parameters.
-	static BOOL CALLBACK SearchOtherInstance(HWND hWnd, LPARAM lParam);
 	void Run(const char *cmdLine);
 	DWORD ExecuteOne(const Job &jobToRun, bool &seenOutput);
 	void ProcessExecute();
@@ -242,4 +241,6 @@ public:
 	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 	static LRESULT PASCAL IWndProc(
 	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+
+	friend class UniqueInstance;
 };

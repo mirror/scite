@@ -532,7 +532,7 @@ protected:
 	bool wrap;
 	bool wrapOutput;
 	bool isReadOnly;
-	bool checkIfOpen;
+	bool openFilesHere;
 	bool fullScreen;
 	enum { toolMax = 10 };
 	Extension *extender;

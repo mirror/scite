@@ -90,6 +90,7 @@ OBJS=\
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
 	DirectorExtension.obj \
+	UniqueInstance.obj \
 	..\..\scintilla\win32\PlatWin.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\UniConversion.obj \
@@ -150,6 +151,7 @@ OBJSSTATIC=\
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
 	DirectorExtension.obj \
+	UniqueInstance.obj \
 	..\..\scintilla\win32\AutoComplete.obj \
 	..\..\scintilla\win32\CallTip.obj \
 	..\..\scintilla\win32\CellBuffer.obj \
