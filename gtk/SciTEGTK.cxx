@@ -250,10 +250,12 @@ protected:
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute(int fromPoll);
 
+#ifdef CHECK_IF_ALREADY_OPEN
 	bool SendPipeCommand(const char *pipeCommand);
 	bool CreatePipe(bool forceNew = false);
 	static void PipeSignal(void * data, gint fd, GdkInputCondition condition);
 	void CheckAlreadyOpen(const char *cmdLine);
+#endif
 
 	// GTK+ Signal Handlers
 
@@ -2751,6 +2753,7 @@ void SciTEGTK::SetIcon() {
 	gdk_window_set_icon(PWidget(wSciTE)->window, NULL, icon_pix, mask);
 }
 
+#ifdef CHECK_IF_ALREADY_OPEN
 bool SciTEGTK::CreatePipe(bool forceNew) {
 
 	bool anotherPipe = false;
@@ -2923,6 +2926,7 @@ void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 		CreatePipe(true);
 	}
 }
+#endif
 
 void SciTEGTK::Run(int argc, char *argv[]) {
 	// Collect the argv into one string with each argument separated by '\n'
@@ -2935,6 +2939,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Process any initial switches
 	ProcessCommandLine(args, 0);
 
+#ifdef CHECK_IF_ALREADY_OPEN
 	if (props.Get("ipc.director.name").size() == 0) {
 		// If a file name argument, check if already open in another SciTE
 		for (arg = 1; arg < argc; arg++) {
@@ -2943,6 +2948,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 			}
 		}
 	}
+#endif
 
 	CreateUI();
 
