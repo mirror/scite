@@ -466,6 +466,8 @@ void SciTEBase::ReadProperties() {
 	SendEditorString(SCI_SETKEYWORDS, 3, kw3.c_str());
 	SString kw4 = props.GetNewExpand("keywords5.", fileNameForExtension.c_str());
 	SendEditorString(SCI_SETKEYWORDS, 4, kw4.c_str());
+	SString kw5 = props.GetNewExpand("keywords6.", fileNameForExtension.c_str());
+	SendEditorString(SCI_SETKEYWORDS, 5, kw5.c_str());
 
 	char homepath[MAX_PATH + 20];
 	if (GetSciteDefaultHome(homepath, sizeof(homepath))) {

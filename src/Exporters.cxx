@@ -439,29 +439,29 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 	int lengthDoc = LengthDocument();
 	WindowAccessor acc(wEditor.GetID(), props);
 
-	bool styleIsUsed[STYLE_DEFAULT+1];
-	if (onlyStylesUsed != 0) {
+	bool styleIsUsed[STYLE_MAX+1];
+	if (onlyStylesUsed) {
 		int i;
-		for (i = 0; i < STYLE_DEFAULT; i++) {
+		for (i = 0; i <= STYLE_MAX; i++) {
 			styleIsUsed[i] = false;
 		}
-		styleIsUsed[STYLE_DEFAULT] = true;
 		// check the used styles
 		for (i = 0; i < lengthDoc; i++) {
 			styleIsUsed[acc.StyleAt(i)] = true;
 		}
 	} else {
-		for (int i = 0; i <= STYLE_DEFAULT; i++) {
+		for (int i = 0; i <= STYLE_MAX; i++) {
 			styleIsUsed[i] = true;
 		}
 	}
+	styleIsUsed[STYLE_DEFAULT] = true;
 
 	FILE *fp = fopen(saveName, "wt");
 	if (fp) {
 		fputs("<!DOCTYPE html  PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-strict.dtd\">\n", fp);
 		fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
 		fputs("<head>\n", fp);
-		if (titleFullPath != 0)
+		if (titleFullPath)
 			fprintf(fp, "<title>%s</title>\n", fullPath);
 		else
 			fprintf(fp, "<title>%s</title>\n", fileName);
@@ -469,7 +469,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		// at the source code doesn't hurt...
 		fputs("<meta name=\"GENERATOR\" content=\"SciTE - www.Scintilla.org\" />\n", fp);
 
-		if (folding != 0) {
+		if (folding) {
 			fputs("<script language=\"JavaScript\" type=\"text/javascript\">\n"
 						"<!--\n"
 						"function toggle(thisid) {\n"
@@ -486,7 +486,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 
 		fputs("<style type=\"text/css\">\n", fp);
 		SString colour;
-		for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
+		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 			if (styleIsUsed[istyle]) {
 				char key[200];
 				sprintf(key, "style.*.%0d", istyle);
@@ -596,11 +596,11 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		int styleCurrent = acc.StyleAt(0);
 		if (wysiwyg) {
 			fputs("<span>", fp);
-		} else { // if (folding != 0)
+		} else {
 			fputs("<pre>", fp);
 		}
 
-		if (folding != 0) {
+		if (folding) {
 			int lvl = acc.LevelAt(0);
 			level = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 
@@ -624,10 +624,11 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			}
 			if (ch == ' ') {
 				if (wysiwyg) {
-					if (acc[i+1] != ' ' || i+1 >= lengthDoc) {
+					if (acc[i+1] != ' ') {
+						// Single space, kept as is
 						fputc(' ', fp);
 					} else {
-						while (acc[i] == ' ') {
+						while (i < lengthDoc && acc[i] == ' ') {
 							fputs("&nbsp;", fp);
 							i++;
 						}
@@ -657,7 +658,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 
 				fputs("</span>", fp);
 				styleCurrent = acc.StyleAt(i + 1);
-				if (folding != 0) {
+				if (folding) {
 					line = acc.GetLine(i + 1);
 
 					int lvl = acc.LevelAt(line);
@@ -692,7 +693,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 
 		fputs("</span>", fp);
 
-		if (folding != 0) {
+		if (folding) {
 			while (level > 0) {
 				fprintf(fp, "</span>");
 				level--;
@@ -701,7 +702,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 
 		if (!wysiwyg) {
 			fputs("</pre>", fp);
-		} else { // if (folding != 0)
+		} else {
 			fputs("</span>", fp);
 		}
 
@@ -1133,4 +1134,3 @@ void SciTEBase::SaveToPDF(const char *) {
 	fclose(fp);
 #endif
 }
-
