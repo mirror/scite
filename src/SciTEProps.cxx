@@ -76,7 +76,7 @@ static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 }
 
 bool PropSetFile::ReadLine(char *lineBuffer, bool ifIsTrue, const char *directoryForImports, SString imports[], int sizeImports) {
-	UnSlash(lineBuffer);
+	//UnSlash(lineBuffer);
 	if (isalpha(lineBuffer[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
 	if (isprefix(lineBuffer, "if ")) {
