@@ -623,7 +623,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 			if (jobToRun.flags & jobGroupUndo)
 				SendEditor(SCI_BEGINUNDOACTION);
-			
+
 			extender->OnExecute(jobToRun.command.c_str());
 
 			if (jobToRun.flags & jobGroupUndo)
@@ -1855,6 +1855,99 @@ LRESULT PASCAL SciTEWin::IWndProc(
 			return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 	} else
 		return scite->WndProcI(iMessage, wParam, lParam);
+}
+
+// IsNT() did not work on my machine... :-(
+// I found that Platform_Initialise() was never called
+bool IsWindowsNT() {
+	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
+	::GetVersionEx(&osv);
+	return (osv.dwPlatformId == VER_PLATFORM_WIN32_NT);
+}
+
+// from ScintillaWin.cxx
+static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
+	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
+	BOOL bci = ::TranslateCharsetInfo((DWORD*)characterSet,
+	                                  &ci, TCI_SRCCHARSET);
+
+	UINT cp;
+	if (bci)
+		cp = ci.ciACP;
+	else
+		cp = documentCodePage;
+
+	CPINFO cpi;
+	if (!IsValidCodePage(cp) && !GetCPInfo(cp, &cpi))
+		cp = CP_ACP;
+
+	return cp;
+}
+
+// On NT, convert String from UTF-8 to doc encoding
+SString SciTEWin::EncodeString(const SString &s) {
+	//MessageBox(GetFocus(),SString(s).c_str(),"EncodeString:in",0);
+
+	if (IsWindowsNT()) {
+		UINT codePage = SendEditor(SCI_GETCODEPAGE);
+
+		if (codePage != SC_CP_UTF8) {
+			DWORD charSet = props.GetInt("character.set", DEFAULT_CHARSET);
+			codePage = CodePageFromCharSet(charSet, codePage);
+
+			int cchWide = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0);
+			wchar_t *pszWide = new wchar_t[cchWide + 1];
+			MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
+
+			int cchMulti = WideCharToMultiByte(codePage, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
+			char *pszMulti = new char[cchMulti + 1];
+			WideCharToMultiByte(codePage, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
+			pszMulti[cchMulti] = 0;
+
+			SString result(pszMulti);
+
+			delete []pszWide;
+			delete []pszMulti;
+
+			//MessageBox(GetFocus(),result.c_str(),"EncodeString:out",0);
+			return result;
+		}
+	}
+	return SciTEBase::EncodeString(s);
+}
+
+// On NT, convert String from doc encoding to UTF-8
+SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
+	SString s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
+
+	//MessageBox(GetFocus(),s.c_str(),"GetRangeInUIEncoding:in",0);
+
+	if (IsWindowsNT()) {
+		UINT codePage = SendEditor(SCI_GETCODEPAGE);
+
+		if (codePage != SC_CP_UTF8) {
+			DWORD charSet = props.GetInt("character.set", DEFAULT_CHARSET);
+			codePage = CodePageFromCharSet(charSet, codePage);
+
+			int cchWide = MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), NULL, 0);
+			wchar_t *pszWide = new wchar_t[cchWide + 1];
+			MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
+
+			int cchMulti = WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
+			char *pszMulti = new char[cchMulti + 1];
+			WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
+			pszMulti[cchMulti] = 0;
+
+			SString result(pszMulti);
+
+			delete []pszWide;
+			delete []pszMulti;
+
+			//MessageBox(GetFocus(),result.c_str(),"GetRangeInUIEncoding:out",0);
+			return result;
+		}
+	}
+	return s;
 }
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {

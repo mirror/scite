@@ -234,6 +234,9 @@ public:
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
+	virtual SString EncodeString(const SString &s);
+	virtual SString GetRangeInUIEncoding(Window &wCurrent, int selStart, int selEnd);
+
 	HACCEL GetAcceleratorTable() {
 		return hAccTable;
 	}

@@ -75,6 +75,53 @@ static void PlayThisSound(
 	}
 }
 
+// Handle Unicode controls (assume strings to be UTF-8 on Windows NT)
+
+// This is a reasonable buffer size for dialog box text conversions
+#define CTL_TEXT_BUF 512
+
+SString GetDlgItemText2(HWND hDlg, int idItem) {
+	SString result = "";
+	WCHAR wsz[CTL_TEXT_BUF];
+	char	msz[CTL_TEXT_BUF];
+
+	if (IsWindowUnicode(GetDlgItem(hDlg, idItem))) {
+		if (GetDlgItemTextW(hDlg, idItem, wsz, CTL_TEXT_BUF)) {
+			if (WideCharToMultiByte(CP_UTF8, 0, wsz, -1, msz, CTL_TEXT_BUF, NULL, NULL))
+				result = msz;
+		}
+	}
+	else {
+		if (GetDlgItemTextA(hDlg, idItem, msz, CTL_TEXT_BUF))
+			result = msz;
+	}
+
+	//MessageBox(GetFocus(),result.c_str(),"GetDlgItemText2():out",0);
+
+	return result;
+}
+
+BOOL SetDlgItemText2(HWND hDlg, int idItem, LPCSTR pmsz) {
+	BOOL bSuccess = FALSE;
+	WCHAR wsz[CTL_TEXT_BUF];
+
+	if (!pmsz || *pmsz == 0)
+		return SetDlgItemTextA(hDlg, idItem, "");
+
+	//MessageBox(GetFocus(),pmsz,"SetDlgItemText2():in",0);
+
+	if (IsWindowUnicode(GetDlgItem(hDlg, idItem))) {
+		if (MultiByteToWideChar(CP_UTF8, 0, pmsz, -1, wsz, CTL_TEXT_BUF)) {
+			bSuccess = SetDlgItemTextW(hDlg, idItem, wsz);
+		}
+	}
+	else {
+		bSuccess = SetDlgItemTextA(hDlg, idItem, pmsz);
+	}
+
+	return bSuccess;
+}
+
 static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
 	if (message == WM_INITDIALOG) {
 		SetWindowLong(hDlg, DWL_USER, lParam);
@@ -732,11 +779,25 @@ void SciTEWin::PrintSetup() {
 	hDevNames = pdlg.hDevNames;
 }
 
+// IsWindowsNT() introduced because IsNT() did not work
+extern bool IsWindowsNT();
+
 static void FillComboFromMemory(HWND combo, const ComboMemory &mem, bool useTop = false) {
-	for (int i = 0; i < mem.Length(); i++) {
-		//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
-		::SendMessage(combo, CB_ADDSTRING, 0,
-		              reinterpret_cast<LPARAM>(mem.At(i).c_str()));
+	if (IsWindowUnicode(combo)) {
+		for (int i = 0; i < mem.Length(); i++) {
+			//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
+			WCHAR wszBuf[CTL_TEXT_BUF];
+			MultiByteToWideChar(CP_UTF8, 0, mem.At(i).c_str(), -1, wszBuf,
+			                    CTL_TEXT_BUF);
+			::SendMessageW(combo, CB_ADDSTRING, 0,
+			               reinterpret_cast<LPARAM>(wszBuf));
+		}
+	} else {
+		for (int i = 0; i < mem.Length(); i++) {
+			//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
+			::SendMessage(combo, CB_ADDSTRING, 0,
+			              reinterpret_cast<LPARAM>(mem.At(i).c_str()));
+		}
 	}
 	if (useTop) {
 		::SendMessage(combo, CB_SETCURSEL, 0, 0);
@@ -781,7 +842,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
-		::SetDlgItemText(hDlg, IDFINDWHAT, findWhat.c_str());
+		SetDlgItemText2(hDlg, IDFINDWHAT, findWhat.c_str());
 		FillComboFromMemory(wFindWhat, memFinds);
 		if (wholeWord)
 			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
@@ -811,8 +872,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			wFindReplace = 0;
 			return FALSE;
 		} else if ( (ControlIDOfCommand(wParam) == IDOK) ||
-					   (ControlIDOfCommand(wParam) == IDMARKALL) ){
-			findWhat = GetItemText(hDlg, IDFINDWHAT);
+		            (ControlIDOfCommand(wParam) == IDMARKALL) ) {
+			findWhat = GetDlgItemText2(hDlg, IDFINDWHAT);
 			props.Set("find.what", findWhat.c_str());
 			memFinds.Insert(findWhat.c_str());
 			wholeWord = BST_CHECKED ==
@@ -856,7 +917,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	HWND wUnSlash = ::GetDlgItem(hwndFR, IDUNSLASH);
 
 	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
-		findWhat = GetItemText(hwndFR, IDFINDWHAT);
+		findWhat = GetDlgItemText2(hwndFR, IDFINDWHAT);
 		props.Set("find.what", findWhat.c_str());
 		memFinds.Insert(findWhat.c_str());
 		wholeWord = BST_CHECKED ==
@@ -871,7 +932,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
 	}
 	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
-		replaceWhat = GetItemText(hwndFR, IDREPLACEWITH);
+		replaceWhat = GetDlgItemText2(hwndFR, IDREPLACEWITH);
 		memReplaces.Insert(replaceWhat.c_str());
 	}
 
@@ -917,9 +978,9 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
-		::SetDlgItemText(hDlg, IDFINDWHAT, findWhat.c_str());
+		SetDlgItemText2(hDlg, IDFINDWHAT, findWhat.c_str());
 		FillComboFromMemory(wFindWhat, memFinds);
-		::SetDlgItemText(hDlg, IDREPLACEWITH, replaceWhat.c_str());
+		SetDlgItemText2(hDlg, IDREPLACEWITH, replaceWhat.c_str());
 		FillComboFromMemory(wReplaceWith, memReplaces);
 		if (wholeWord)
 			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
@@ -974,7 +1035,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		wFindIncrement = hDlg;
 		LocaliseDialog(hDlg);
 		SetWindowLong(hDlg, GWL_STYLE, WS_TABSTOP || GetWindowLong(hDlg, GWL_STYLE));
-		::SetDlgItemText(hDlg, IDC_INCFINDTEXT, ""); //findWhat.c_str()
+		SetDlgItemText2(hDlg, IDC_INCFINDTEXT, ""); //findWhat.c_str()
 		SetFocus(hDlg);
 
 		PRectangle aRect = wFindIncrement.GetPosition();
@@ -1015,25 +1076,24 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			wFindIncrement.Destroy();
 			wFindIncrement = 0;
 			return FALSE;
-		} else
-		if (((ControlIDOfCommand(wParam) == IDC_INCFINDTEXT) && ((wParam >> 16) == 0x0300))
-			|| (ControlIDOfCommand(wParam) == IDC_INCFINDBTNOK)){
+		} else if (((ControlIDOfCommand(wParam) == IDC_INCFINDTEXT) && ((wParam >> 16) == 0x0300))
+			|| (ControlIDOfCommand(wParam) == IDC_INCFINDBTNOK)) {
 			SString ffLastWhat;
 			ffLastWhat = findWhat;
-			findWhat =  GetItemText(hDlg, IDC_INCFINDTEXT);
+			findWhat = GetDlgItemText2(hDlg, IDC_INCFINDTEXT);
 
-			if (ControlIDOfCommand(wParam) != IDC_INCFINDBTNOK){
+			if (ControlIDOfCommand(wParam) != IDC_INCFINDBTNOK) {
 				CharacterRange cr = GetSelection();
-				if (ffLastWhat.length()){
-					SetSelection(cr.cpMin - ffLastWhat.length(),cr.cpMin - ffLastWhat.length());
+				if (ffLastWhat.length()) {
+					SetSelection(cr.cpMin - ffLastWhat.length(), cr.cpMin - ffLastWhat.length());
 				}
 			}
 			wholeWord = false;
-			FindNext(false,false);
-			if ((!havefound)&&(ffLastWhat.length() == findWhat.length()-1) &&
-				strncmp(findWhat.c_str(),ffLastWhat.c_str(), ffLastWhat.length()) == 0 ){
+			FindNext(false, false);
+			if ((!havefound) && (ffLastWhat.length() == findWhat.length()-1) &&
+				strncmp(findWhat.c_str(), ffLastWhat.c_str(), ffLastWhat.length()) == 0) {
 				findWhat = ffLastWhat;
-				::SetDlgItemText(hDlg, IDC_INCFINDTEXT, findWhat.c_str());
+				SetDlgItemText2(hDlg, IDC_INCFINDTEXT, findWhat.c_str());
 				SendMessage(wFindWhat, EM_SETSEL, ffLastWhat.length(), ffLastWhat.length());
 			}
 			return FALSE;
@@ -1064,10 +1124,19 @@ void SciTEWin::FindIncrement() {
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 
 	replacing = false;
-	DoDialog(hInstance,
-		   MAKEINTRESOURCE(IDD_FIND2),
-		   MainHWND(),
-		   reinterpret_cast<DLGPROC>(FindIncrementDlg));
+	//DoDialog(hInstance,
+	//		 MAKEINTRESOURCE(IDD_FIND2),
+	//		 MainHWND(),
+	//		 reinterpret_cast<DLGPROC>(FindIncrementDlg));
+	if (IsWindowsNT()) {
+		DialogBoxParamW(hInstance, (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
+		                MainHWND(), reinterpret_cast<DLGPROC>(FindIncrementDlg),
+		                reinterpret_cast<LPARAM>(this));
+	} else {
+		DialogBoxParamA(hInstance, MAKEINTRESOURCE(IDD_FIND2),
+		                MainHWND(), reinterpret_cast<DLGPROC>(FindIncrementDlg),
+		                reinterpret_cast<LPARAM>(this));
+	}
 	WindowSetFocus(wEditor);
 }
 
@@ -1088,11 +1157,19 @@ void SciTEWin::Find() {
 	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 
-	wFindReplace = ::CreateDialogParam(hInstance,
-	                                   MAKEINTRESOURCE(IDD_FIND),
-	                                   MainHWND(),
-	                                   reinterpret_cast<DLGPROC>(FindDlg),
-	                                   reinterpret_cast<LPARAM>(this));
+	if (IsWindowsNT()) {
+		wFindReplace = ::CreateDialogParamW(hInstance,
+		                                    (LPCWSTR)MAKEINTRESOURCE(IDD_FIND),
+		                                    MainHWND(),
+		                                    reinterpret_cast<DLGPROC>(FindDlg),
+		                                    reinterpret_cast<LPARAM>(this));
+	} else {
+		wFindReplace = ::CreateDialogParamA(hInstance,
+		                                    MAKEINTRESOURCE(IDD_FIND),
+		                                    MainHWND(),
+		                                    reinterpret_cast<DLGPROC>(FindDlg),
+		                                    reinterpret_cast<LPARAM>(this));
+	}
 	wFindReplace.Show();
 
 	replacing = false;
@@ -1245,11 +1322,19 @@ void SciTEWin::Replace() {
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 	fr.wReplaceWithLen = static_cast<WORD>(replaceWhat.length() + 1);
 
-	wFindReplace = ::CreateDialogParam(hInstance,
-	                                   MAKEINTRESOURCE(IDD_REPLACE),
-	                                   MainHWND(),
-	                                   reinterpret_cast<DLGPROC>(ReplaceDlg),
-	                                   reinterpret_cast<sptr_t>(this));
+	if (IsWindowsNT()) {
+		wFindReplace = ::CreateDialogParamW(hInstance,
+		                                    (LPCWSTR)MAKEINTRESOURCE(IDD_REPLACE),
+		                                    MainHWND(),
+		                                    reinterpret_cast<DLGPROC>(ReplaceDlg),
+		                                    reinterpret_cast<sptr_t>(this));
+	} else {
+		wFindReplace = ::CreateDialogParamA(hInstance,
+		                                    MAKEINTRESOURCE(IDD_REPLACE),
+		                                    MainHWND(),
+		                                    reinterpret_cast<DLGPROC>(ReplaceDlg),
+		                                    reinterpret_cast<sptr_t>(this));
+	}
 	wFindReplace.Show();
 
 	replacing = true;
@@ -1528,7 +1613,7 @@ int SciTEWin::WindowMessageBox(Window &w, const SString &msg, int style) {
 	dialogsOnScreen++;
 	int ret = ::MessageBox(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
 	dialogsOnScreen--;
-	return  ret;
+	return ret;
 }
 
 BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
