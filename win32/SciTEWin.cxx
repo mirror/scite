@@ -1032,6 +1032,14 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 			}
 		}
 		::DragFinish(hdrop);
+		// Put SciTE to forefront
+		// May not work for Win2k, but OK for lower versions
+		// Note: how to drop a file to an iconic window?
+		// Actually, it is the Send To command that generates a drop.
+		if (::IsIconic(wSciTE.GetID())) {
+			::ShowWindow(wSciTE.GetID(), SW_RESTORE);
+		}
+		::SetForegroundWindow(wSciTE.GetID());
 	}
 }
 
