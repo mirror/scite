@@ -2787,7 +2787,9 @@ void SciTEBase::MenuCommand(int cmdID) {
 void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 	//Platform::DebugPrintf("Fold %d %x->%x\n", line, levelPrev, levelNow);
 	if (levelNow & SC_FOLDLEVELHEADERFLAG) {
-		SendEditor(SCI_SETFOLDEXPANDED, line, 1);
+		if (!(levelPrev & SC_FOLDLEVELHEADERFLAG)) {
+			SendEditor(SCI_SETFOLDEXPANDED, line, 1);
+		}
 	} else if (levelPrev & SC_FOLDLEVELHEADERFLAG) {
 		//Platform::DebugPrintf("Fold removed %d-%d\n", line, SendEditor(SCI_GETLASTCHILD, line));
 		if (!SendEditor(SCI_GETFOLDEXPANDED, line)) {
