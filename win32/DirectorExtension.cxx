@@ -43,6 +43,21 @@ static void SendFiler(int typ, const char *path) {
 	}
 }
 
+static void CheckEnvironment(ExtensionAPI *host) {
+	if (!host)
+		return;
+	if (!wDirector) {
+		char *director = host->Property("director.hwnd");
+		if (director)
+			wDirector = reinterpret_cast<HWND>(atoi(director));
+	}
+	if (!wReceiver) {
+		char *receiver = host->Property("WindowID");
+		if (receiver)
+			wReceiver = reinterpret_cast<HWND>(atoi(receiver));
+	}
+}
+
 DirectorExtension::DirectorExtension() {
 }
 
@@ -50,12 +65,7 @@ DirectorExtension::~DirectorExtension() {}
 
 bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	host = host_;
-	char *owner = host->Property("owner.hwnd");
-	if (owner)
-		wDirector = reinterpret_cast<HWND>(atoi(owner));
-	char *receiver = host->Property("WindowID");
-	if (receiver)
-		wReceiver = reinterpret_cast<HWND>(atoi(receiver));
+	CheckEnvironment(host);
 	return true;
 }
 
@@ -72,12 +82,14 @@ bool DirectorExtension::Load(const char *) {
 }
 
 bool DirectorExtension::OnOpen(const char *path) {
+	CheckEnvironment(host);
 	if (*path)
 		::SendFiler(SCD_OPENED, path);	// ShowPath 
 	return true;
 }
 
 bool DirectorExtension::OnSave(const char *path) {
+	CheckEnvironment(host);
 	if (*path)
 		::SendFiler(SCD_SAVED, path);	// Refresh 
 	return true;
