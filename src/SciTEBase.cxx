@@ -652,7 +652,7 @@ void SciTEBase::FindMessageBox(const char *msg) {
 	dialogsOnScreen--;
 }
 
-void SciTEBase::FindNext(bool reverseDirection) {
+void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (!findWhat[0]) {
 		Find();
 		return ;
@@ -688,16 +688,18 @@ void SciTEBase::FindNext(bool reverseDirection) {
 	}
 	if (posFind == -1) {
 		havefound = false;
-		char msg[300];
-		strcpy(msg, "Cannot find the string \"");
-		strcat(msg, findWhat);
-		strcat(msg, "\".");
-		if (wFindReplace.Created()) {
-			FindMessageBox(msg);
-		} else {
-			dialogsOnScreen++;
-			MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
-			dialogsOnScreen--;
+		if (showWarnings) {
+			char msg[300];
+			strcpy(msg, "Cannot find the string \"");
+			strcat(msg, findWhat);
+			strcat(msg, "\".");
+			if (wFindReplace.Created()) {
+				FindMessageBox(msg);
+			} else {
+				dialogsOnScreen++;
+				MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+				dialogsOnScreen--;
+			}
 		}
 	} else {
 		havefound = true;
@@ -2215,6 +2217,12 @@ void SciTEBase::PerformOne(const char *action) {
 			EnumProperties(arg);
 		} else if (isprefix(action, "property:")) {
 			PropertyFromDirector(arg);
+		} else if (isprefix(action, "goto:")) {
+			GotoLineEnsureVisible(atoi(arg)-1);
+		} else if (isprefix(action, "find:")) {
+			strncpy(findWhat, arg, sizeof(findWhat));
+			findWhat[sizeof(findWhat)-1] = '\0';
+			FindNext(false, false);
 		}
 	}
 }

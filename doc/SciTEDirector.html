@@ -95,29 +95,45 @@
 	<h4>The actions understood by SciTE are:</h4>
 	<table border="1">
 		<tr>
+			<td>closing:</td>
+			<td>Director is closing - SciTE closes if it was started by the director.</td>
+		</tr>
+		<tr>
+			<td>enumproperties:dyn|local|user|base|embed</td>
+			<td>Enumerate all the properties in the argument set.</td>
+		</tr>
+		<tr>
+			<td>find:&lt;string&gt;</td>
+			<td>Search for a string, select and show it.</td>
+		</tr>
+		<tr>
 			<td>identity:&lt;hwndDirector&gt;</td>
 			<td>Sets the director window handle to which SciTE sends messages.
 			The argument is in decimal.</td>
 		</tr>
 		<tr>
-			<td>closing:</td>
-			<td>Director is closing - SciTE closes if it was started by the director.</td>
-		</tr>
-		<tr>
 			<td>open:&lt;path&gt;</td>
 			<td>Open the indicated file.</td>
+		</tr>
+		<tr>
+			<td>property:&lt;key&gt;=&lt;value&gt;</td>
+			<td>Set a property to a value.</td>
 		</tr>
 	</table>
 	<h4>The actions sent by SciTE are:</h4>
 	<table border="1">
 		<tr>
+			<td>closing:</td>
+			<td>SciTE is closing.</td>
+		</tr>
+		<tr>
+			<td>dyn|local|user|base|embed:&lt;key&gt;=&lt;value&gt;</td>
+			<td>Set a property in a set to a value.</td>
+		</tr>
+		<tr>
 			<td>identity:&lt;hwndSciTEReceiving&gt;</td>
 			<td>SciTE indicates to the director the window handle to which it should send
 			messages. The argument is in decimal.</td>
-		</tr>
-		<tr>
-			<td>closing:</td>
-			<td>SciTE is closing.</td>
 		</tr>
 		<tr>
 			<td>opened:&lt;path&gt;</td>

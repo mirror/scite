@@ -387,7 +387,7 @@ protected:
 	void SelectionIntoFind();
 	virtual void Find()=0;
 	void FindMessageBox(const char *msg);
-	void FindNext(bool reverseDirection);
+	void FindNext(bool reverseDirection, bool showWarnings=true);
 	virtual void FindInFiles()=0;
 	virtual void Replace()=0;
 	void ReplaceOnce();
