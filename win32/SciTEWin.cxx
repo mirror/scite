@@ -104,7 +104,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.lpszMenuName = resourceName;
 	wndclass.lpszClassName = className;
 	if (!::RegisterClass(&wndclass))
-		::exit(FALSE);
+		exit(FALSE);
 
 	// Register the window that holds the two Scintilla edit windows and the separator
 	classNameInternal = "SciTEWindowContent";
@@ -112,7 +112,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.lpszMenuName = 0;
 	wndclass.lpszClassName = classNameInternal;
 	if (!::RegisterClass(&wndclass))
-		::exit(FALSE);
+		exit(FALSE);
 }
 
 static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
@@ -188,7 +188,7 @@ void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 	if (topic && path) {
 		*path = '\0';
 		path++;	// After the !
-		WinHelp(wSciTE.GetID(),
+		::WinHelp(wSciTE.GetID(),
 		        path,
 		        HELP_KEY,
 		        reinterpret_cast<unsigned long>(topic));
@@ -331,7 +331,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 
 	case IDM_ONTOP:
 		topMost = (topMost ? false : true);
-		SetWindowPos(wSciTE.GetID(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0, 0, 0, 0, SWP_NOMOVE + SWP_NOSIZE);
+		::SetWindowPos(wSciTE.GetID(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0, 0, 0, 0, SWP_NOMOVE + SWP_NOSIZE);
 		CheckAMenuItem(IDM_ONTOP, topMost);
 		break;
 
@@ -363,11 +363,11 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 	if (!kernelTried) {
 		HMODULE hModule;
 		kernelTried = true;
-		hModule = GetModuleHandleA("KERNEL32");
+		hModule = ::GetModuleHandleA("KERNEL32");
 		//assert(hModule != NULL); // must not call FreeLibrary on such handle
 
 		// attempt to get GetLongPathName (implemented in Win98/2000 only!)
-		(FARPROC&)pfnGetLong = GetProcAddress(hModule, "GetLongPathNameA");
+		(FARPROC&)pfnGetLong = ::GetProcAddress(hModule, "GetLongPathNameA");
 	}
 
 	// the kernel GetLongPathName proc is faster and (hopefully) more reliable
@@ -417,7 +417,7 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 				// temporary add short component
 				strcpy(tokend, tok);
 
-				hfind = FindFirstFile(longPath, &fd);
+				hfind = ::FindFirstFile(longPath, &fd);
 				if (hfind == INVALID_HANDLE_VALUE)
 					break;
 
@@ -426,7 +426,7 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 				// finally add long component we got
 				strcpy(tokend, fd.cFileName);
 
-				FindClose(hfind);
+				::FindClose(hfind);
 			}
 			ok = tok == NULL;
 
@@ -460,7 +460,7 @@ void SciTEWin::FixFilePath() {
 		// is saved with correct capitalisation FindFirstFile is used to find out the
 		// real name of the file.
 		WIN32_FIND_DATA FindFileData;
-		HANDLE hFind = FindFirstFile(fullPath, &FindFileData);
+		HANDLE hFind = ::FindFirstFile(fullPath, &FindFileData);
 		if (hFind != INVALID_HANDLE_VALUE) {	// FindFirstFile found the file
 			char *cpDirEnd = strrchr(fullPath, pathSepChar);
 			if (cpDirEnd) {
@@ -471,21 +471,25 @@ void SciTEWin::FixFilePath() {
 				strcat(fullPath, pathSepString);
 				strcat(fullPath, fileName);
 			}
-			FindClose(hFind);
+			::FindClose(hFind);
 		}
 	}
 }
 
+/**
+ * Take a filename or relative path and put it at the end of the current path.
+ * If the path is absolute, return the same path.
+ */
 void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 	// The runtime libraries for GCC and Visual C++ give different results for _fullpath
 	// so use the OS.
 	LPTSTR fileBit = 0;
-	GetFullPathName(relativePath, size, absPath, &fileBit);
+	::GetFullPathName(relativePath, size, absPath, &fileBit);
 	//Platform::DebugPrintf("AbsolutePath: <%s> -> <%s>\n", relativePath, absPath);
 }
 
 /**
- * ProcessExecute runs a command with redirected input and output streams
+ * Run a command with redirected input and output streams
  * so the output can be put in a window.
  * It is based upon several usenet posts and a knowledge base article.
  */
@@ -674,7 +678,7 @@ void SciTEWin::ProcessExecute() {
 			if (timeCommands) {
 				sprintf(exitmessage, ">Exit code: %0ld    Time: %0ld\n", exitcode, time(0) - timeStart);
 			} else {
-				sprintf(exitmessage, ">Exit code: %0ld\n", exitcode);
+				sprintf(exitmessage, "\n>Exit code: %0ld\n", exitcode);
 			}
 
 			OutputAppendStringSynchronised(exitmessage);
@@ -761,7 +765,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	}
 
 	DWORD rc = reinterpret_cast<DWORD>(
-	               ShellExecute(
+	               ::ShellExecute(
 	                   wSciTE.GetID(),        // parent wnd for msgboxes during app start
 	                   NULL,         // cmd is open
 	                   mycmd,        // file to open
@@ -813,7 +817,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 		errormsg += "Unknown error code:";
 		errormsg += SString(rc).c_str();
 	}
-	MessageBox(wSciTE.GetID(), errormsg.c_str(), appName, MB_OK);
+	::MessageBox(wSciTE.GetID(), errormsg.c_str(), appName, MB_OK);
 
 	delete []mycmdcopy;
 }
@@ -825,7 +829,7 @@ void SciTEWin::Execute() {
 }
 
 void SciTEWin::StopExecute() {
-	InterlockedExchange(&cancelFlag, 1L);
+	::InterlockedExchange(&cancelFlag, 1L);
 }
 
 void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue) {
@@ -891,7 +895,7 @@ void SciTEWin::CreateUI() {
 
 SString SciTEWin::ProcessArgs(const char *cmdLine) {
 	// Break up the command line into individual arguments and strip double quotes
-	// from each argument creatng a string with each argument separated by '\n'
+	// from each argument creating a string with each argument separated by '\n'
 	SString args;
 	const char *startArg = cmdLine;
 	while (*startArg) {
@@ -921,12 +925,11 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
 	return args;
 }
 
-
 void SciTEWin::Run(const char *cmdLine) {
 	if (props.GetInt("check.if.already.open")) {
 		HWND hAnother = ::FindWindow("SciTEWindow", NULL);
 		if (hAnother) {
-			SetForegroundWindow(hAnother);
+			::SetForegroundWindow(hAnother);
 			COPYDATASTRUCT cds;
 			cds.dwData = 0;
 			// Send 2 messages - first the CWD, then the real 
@@ -969,7 +972,7 @@ void SciTEWin::Run(const char *cmdLine) {
 	SizeSubWindows();
 	wSciTE.Show();
 	if (cmdShow)	// assume SW_MAXIMIZE only
-		ShowWindow(wSciTE.GetID(), cmdShow);
+		::ShowWindow(wSciTE.GetID(), cmdShow);
 
 	// Open all files given on command line.
 	// The filenames containing spaces must be enquoted.
@@ -1020,15 +1023,15 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 	// If drag'n'drop inside the SciTE window but outside
 	// Scintilla, hdrop is null, and an exception is generated!
 	if (hdrop) {
-		int filesDropped = DragQueryFile(hdrop, 0xffffffff, NULL, 0);
+		int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, NULL, 0);
 		for (int i = 0; i < filesDropped; ++i) {
 			char pathDropped[MAX_PATH];
-			DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
+			::DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
 			if (!Open(pathDropped)) {
 				break;
 			}
 		}
-		DragFinish(hdrop);
+		::DragFinish(hdrop);
 	}
 }
 
@@ -1185,7 +1188,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_ACTIVATE:
-		SetFocus(wEditor.GetID());
+		::SetFocus(wEditor.GetID());
 		break;
 
 	case WM_DROPFILES:
@@ -1215,10 +1218,10 @@ LRESULT PASCAL SciTEWin::TWndProc(
 			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			scite = reinterpret_cast<SciTEWin *>(cs->lpCreateParams);
 			scite->wSciTE = hWnd;
-			SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(scite));
+			::SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(scite));
 			return scite->WndProc(iMessage, wParam, lParam);
 		} else
-			return DefWindowProc(hWnd, iMessage, wParam, lParam);
+			return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 	} else
 		return scite->WndProc(iMessage, wParam, lParam);
 }
@@ -1306,10 +1309,10 @@ LRESULT PASCAL SciTEWin::IWndProc(
 			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			scite = reinterpret_cast<SciTEWin *>(cs->lpCreateParams);
 			scite->wContent = hWnd;
-			SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(scite));
+			::SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(scite));
 			return scite->WndProcI(iMessage, wParam, lParam);
 		} else
-			return DefWindowProc(hWnd, iMessage, wParam, lParam);
+			return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 	} else
 		return scite->WndProcI(iMessage, wParam, lParam);
 }
@@ -1329,7 +1332,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 #endif
 	//Platform::DebugPrintf("Command line is \n%s\n<<", lpszCmdLine);
 
-	HACCEL hAccTable = LoadAccelerators(hInstance, "ACCELS");
+	HACCEL hAccTable = ::LoadAccelerators(hInstance, "ACCELS");
 
 	SciTEWin::Register(hInstance);
 #ifdef STATIC_BUILD
@@ -1337,7 +1340,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 #else
 	HMODULE hmod = ::LoadLibrary("SciLexer.DLL");
 	if (hmod == NULL)
-		MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
+		::MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
 #endif
 
 	MSG msg;
