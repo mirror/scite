@@ -193,6 +193,13 @@ public:
 	void Clear();
 };
 
+// class to hold user defined keyboard short cuts
+class ShortcutItem {
+public:
+	SString menuKey; // the keyboard short cut 
+	SString menuCommand; // the menu command to be passed to "SciTEBase::MenuCommand"
+};
+
 class LanguageMenuItem {
 public:
 	SString menuItem;
@@ -302,6 +309,10 @@ protected:
 	enum { languageCmdID = IDM_LANGUAGE };
 	LanguageMenuItem *languageMenu;
 	int languageItems;
+	
+	// an array of short cut items that are defined by the user in the properties file.
+	ShortcutItem *shortCutItemList; // array
+	int shortCutItems; // length of array
 
 	int codePage;
 	int characterSet;
@@ -527,6 +538,7 @@ protected:
 	bool GetAbbrevPropertiesFileName(char *pathAbbrevProps,
 	        char *pathDefaultDir, unsigned int lenPath);
 	void OpenProperties(int propsFile);
+	int GetMenuCommandAsInt(SString commandName);
 	virtual void Print(bool) {};
 	virtual void PrintSetup() {};
 	CharacterRange GetSelection();

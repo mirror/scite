@@ -1835,6 +1835,50 @@ static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 			keySought = keySought - 'A' + 'a';
 		return keySought == keyval;
 	}
+	
+	/*
+	// handle "name" keys
+	// TODO can someone put in the gtk keyboard key constants?
+	if ( (sKey.length() > 1) ) {
+		if ( sKey == "Left" ) {
+			return ( keyval == VK_LEFT );
+		}
+		else if ( sKey == "Right" ) {
+			return ( keyval == VK_RIGHT );
+		}
+		else if ( sKey == "Up" ) {
+			return ( keyval == VK_UP );
+		}
+		else if ( sKey == "Down" ) {
+			return ( keyval == VK_DOWN );
+		}
+		else if ( sKey == "Insert" ) {
+			return ( keyval == VK_INSERT );
+		}
+		else if ( sKey == "End" ) {
+			return ( keyval == VK_END );
+		}
+		else if ( sKey == "Home" ) {
+			return ( keyval == VK_HOME );
+		}		
+		else if ( sKey == "Enter" ) {
+			return ( keyval == VK_RETURN );
+		}
+		else if ( sKey == "Escape" ) {
+			return ( keyval == VK_ESCAPE );
+		}
+		else if ( sKey == "Delete" ) {
+			return ( keyval == VK_DELETE );
+		}	
+		else if ( sKey == "PageUp" ) {
+			return ( keyval == VK_PRIOR );
+		}
+		else if ( sKey == "PageDown" ) {
+			return ( keyval == VK_NEXT );
+		}
+	}
+	*/
+	
 	return false;
 }
 
@@ -1863,6 +1907,20 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 		gtk_signal_emit_stop_by_name(
 		    GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
 	}
+	
+	/*
+	TODO, can some one uncomment this, and test it in gtk?
+	// check user defined keys
+	for (int cut_i = 0; cut_i < shortCutItems; cut_i++) {
+		if (KeyMatch(shortCutItemList[cut_i].menuKey.c_str(), event->keyval, modifiers)) {
+			int commandNum = SciTEBase::GetMenuCommandAsInt( shortCutItemList[cut_i].menuCommand );
+			if ( commandNum != -1 ) {
+				SciTEBase::MenuCommand( commandNum );
+			}
+		}
+	}
+	*/
+	
 	return 0;
 }
 

@@ -145,6 +145,7 @@ const char *contributors[] = {
 				 "Chuan-jian Shen",
 				 "Shane Caraveo",
 				 "Alexander Scripnik",
+				 "Ryan Christianson",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -258,6 +259,9 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	languageMenu = 0;
 	languageItems = 0;
 
+	shortCutItemList = 0;
+	shortCutItems = 0;
+
 	fullPath[0] = '\0';
 	fileName[0] = '\0';
 	fileExt[0] = '\0';
@@ -281,6 +285,7 @@ SciTEBase::~SciTEBase() {
 	if (extender)
 		extender->Finalise();
 	delete []languageMenu;
+	delete []shortCutItemList;
 	popup.Destroy();
 }
 

@@ -1299,6 +1299,47 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 		if (keyNum == (keyval - VK_F1 + 1))
 			return true;
 	}
+	
+	// handle "name" keys
+	if ( (sKey.length() > 1) ) {
+		if ( sKey == "Left" ) {
+			return ( keyval == VK_LEFT );
+		}
+		else if ( sKey == "Right" ) {
+			return ( keyval == VK_RIGHT );
+		}
+		else if ( sKey == "Up" ) {
+			return ( keyval == VK_UP );
+		}
+		else if ( sKey == "Down" ) {
+			return ( keyval == VK_DOWN );
+		}
+		else if ( sKey == "Insert" ) {
+			return ( keyval == VK_INSERT );
+		}
+		else if ( sKey == "End" ) {
+			return ( keyval == VK_END );
+		}
+		else if ( sKey == "Home" ) {
+			return ( keyval == VK_HOME );
+		}		
+		else if ( sKey == "Enter" ) {
+			return ( keyval == VK_RETURN );
+		}
+		else if ( sKey == "Escape" ) {
+			return ( keyval == VK_ESCAPE );
+		}
+		else if ( sKey == "Delete" ) {
+			return ( keyval == VK_DELETE );
+		}	
+		else if ( sKey == "PageUp" ) {
+			return ( keyval == VK_PRIOR );
+		}
+		else if ( sKey == "PageDown" ) {
+			return ( keyval == VK_NEXT );
+		}
+	}
+	
 	return false;
 }
 
@@ -1314,6 +1355,19 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 			return 1l;
 		}
 	}
+	
+	// loop through the keyboard short cuts defined by user.. if found
+	// exec it the command defined
+	for (int cut_i = 0; cut_i < shortCutItems; cut_i++) {
+		if (KeyMatch(shortCutItemList[cut_i].menuKey, wParam, modifiers)) {
+			int commandNum = SciTEBase::GetMenuCommandAsInt( shortCutItemList[cut_i].menuCommand );
+			if ( commandNum != -1 ) {
+				SciTEBase::MenuCommand( commandNum );
+				return 1l;
+			}
+		}
+	}
+	
 	return 0l;
 }
 

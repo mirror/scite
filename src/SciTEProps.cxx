@@ -1164,6 +1164,28 @@ void SciTEBase::ReadPropertiesInitial() {
 	}
 	SetLanguageMenu();
 
+	// load the user defined short cut props
+	SString shortCutProp = props.GetNewExpand("user.shortcuts");
+	if ( shortCutProp.length() ) {
+		shortCutItems = 0;
+		for (unsigned int i = 0; i < shortCutProp.length(); i++) {
+			if (shortCutProp[i] == '|')
+				shortCutItems++;
+		}
+		shortCutItems /= 2;
+		shortCutItemList = new ShortcutItem[shortCutItems];
+		shortCutProp.substitute('|', '\0');
+		const char *sShortCutProp = shortCutProp.c_str();
+		for (int item = 0; item < shortCutItems; item++) {
+			shortCutItemList[item].menuKey = sShortCutProp;
+			sShortCutProp += strlen(sShortCutProp) + 1;
+			shortCutItemList[item].menuCommand = sShortCutProp;
+			sShortCutProp += strlen(sShortCutProp) + 1;
+		}
+	}
+	// end load the user defined short cut props
+	
+	
 #if PLAT_WIN
 
 	if (tabMultiLine) {	// Windows specific!
@@ -1231,4 +1253,132 @@ void SciTEBase::OpenProperties(int propsFile) {
 			Open(propfile);
 		}
 	}
+}
+
+
+// return the int value of the command name passed in.
+int SciTEBase::GetMenuCommandAsInt(SString commandName) {
+	if ( commandName == "IDM_MRUFILE") return IDM_MRUFILE;
+	if ( commandName == "IDM_TOOLS") return IDM_TOOLS;
+	if ( commandName == "IDM_BUFFER") return IDM_BUFFER;
+	if ( commandName == "IDM_IMPORT") return IDM_IMPORT;
+	if ( commandName == "IDM_LANGUAGE") return IDM_LANGUAGE;
+	if ( commandName == "IDM_NEW") return IDM_NEW;
+	if ( commandName == "IDM_OPEN") return IDM_OPEN;
+	if ( commandName == "IDM_OPENSELECTED") return IDM_OPENSELECTED;
+	if ( commandName == "IDM_REVERT") return IDM_REVERT;
+	if ( commandName == "IDM_CLOSE") return IDM_CLOSE;
+	if ( commandName == "IDM_SAVE") return IDM_SAVE;
+	if ( commandName == "IDM_SAVEAS") return IDM_SAVEAS;
+	if ( commandName == "IDM_SAVEASHTML") return IDM_SAVEASHTML;
+	if ( commandName == "IDM_SAVEASRTF") return IDM_SAVEASRTF;
+	if ( commandName == "IDM_SAVEASPDF") return IDM_SAVEASPDF;
+	if ( commandName == "IDM_FILER") return IDM_FILER;
+	if ( commandName == "IDM_SAVEASTEX") return IDM_SAVEASTEX;
+	if ( commandName == "IDM_SAVEACOPY") return IDM_SAVEACOPY;
+	if ( commandName == "IDM_MRU_SEP") return IDM_MRU_SEP;
+	if ( commandName == "IDM_PRINTSETUP") return IDM_PRINTSETUP;
+	if ( commandName == "IDM_PRINT") return IDM_PRINT;
+	if ( commandName == "IDM_LOADSESSION") return IDM_LOADSESSION;
+	if ( commandName == "IDM_SAVESESSION") return IDM_SAVESESSION;
+	if ( commandName == "IDM_QUIT") return IDM_QUIT;
+	if ( commandName == "IDM_ENCODING_DEFAULT") return IDM_ENCODING_DEFAULT;
+	if ( commandName == "IDM_ENCODING_UCS2BE") return IDM_ENCODING_UCS2BE;
+	if ( commandName == "IDM_ENCODING_UCS2LE") return IDM_ENCODING_UCS2LE;
+	if ( commandName == "IDM_ENCODING_UTF8") return IDM_ENCODING_UTF8;
+	if ( commandName == "IDM_UNDO") return IDM_UNDO;
+	if ( commandName == "IDM_REDO") return IDM_REDO;
+	if ( commandName == "IDM_CUT") return IDM_CUT;
+	if ( commandName == "IDM_COPY") return IDM_COPY;
+	if ( commandName == "IDM_PASTE") return IDM_PASTE;
+	if ( commandName == "IDM_CLEAR") return IDM_CLEAR;
+	if ( commandName == "IDM_SELECTALL") return IDM_SELECTALL;
+	if ( commandName == "IDM_PASTEANDDOWN") return IDM_PASTEANDDOWN;
+	if ( commandName == "IDM_FIND") return IDM_FIND;
+	if ( commandName == "IDM_FINDNEXT") return IDM_FINDNEXT;
+	if ( commandName == "IDM_FINDNEXTBACK") return IDM_FINDNEXTBACK;
+	if ( commandName == "IDM_FINDNEXTSEL") return IDM_FINDNEXTSEL;
+	if ( commandName == "IDM_FINDNEXTBACKSEL") return IDM_FINDNEXTBACKSEL;
+	if ( commandName == "IDM_FINDINFILES") return IDM_FINDINFILES;
+	if ( commandName == "IDM_REPLACE") return IDM_REPLACE;
+	if ( commandName == "IDM_GOTO") return IDM_GOTO;
+	if ( commandName == "IDM_BOOKMARK_NEXT") return IDM_BOOKMARK_NEXT;
+	if ( commandName == "IDM_BOOKMARK_TOGGLE") return IDM_BOOKMARK_TOGGLE;
+	if ( commandName == "IDM_BOOKMARK_PREV") return IDM_BOOKMARK_PREV;
+	if ( commandName == "IDM_BOOKMARK_CLEARALL") return IDM_BOOKMARK_CLEARALL;
+	if ( commandName == "IDM_MATCHBRACE") return IDM_MATCHBRACE;
+	if ( commandName == "IDM_SELECTTOBRACE") return IDM_SELECTTOBRACE;
+	if ( commandName == "IDM_SHOWCALLTIP") return IDM_SHOWCALLTIP;
+	if ( commandName == "IDM_COMPLETE") return IDM_COMPLETE;
+	if ( commandName == "IDM_COMPLETEWORD") return IDM_COMPLETEWORD;
+	if ( commandName == "IDM_EXPAND") return IDM_EXPAND;
+	if ( commandName == "IDM_TOGGLE_FOLDALL") return IDM_TOGGLE_FOLDALL;
+	if ( commandName == "IDM_UPRCASE") return IDM_UPRCASE;
+	if ( commandName == "IDM_LWRCASE") return IDM_LWRCASE;
+	if ( commandName == "IDM_ABBREV") return IDM_ABBREV;
+	if ( commandName == "IDM_BLOCK_COMMENT") return IDM_BLOCK_COMMENT;
+	if ( commandName == "IDM_STREAM_COMMENT") return IDM_STREAM_COMMENT;
+	if ( commandName == "IDM_COPYASRTF") return IDM_COPYASRTF;
+	if ( commandName == "IDM_BOX_COMMENT") return IDM_BOX_COMMENT;
+	if ( commandName == "IDM_PREVMATCHPPC") return IDM_PREVMATCHPPC;
+	if ( commandName == "IDM_SELECTTOPREVMATCHPPC") return IDM_SELECTTOPREVMATCHPPC;
+	if ( commandName == "IDM_NEXTMATCHPPC") return IDM_NEXTMATCHPPC;
+	if ( commandName == "IDM_SELECTTONEXTMATCHPPC") return IDM_SELECTTONEXTMATCHPPC;
+	if ( commandName == "IDM_COMPILE") return IDM_COMPILE;
+	if ( commandName == "IDM_BUILD") return IDM_BUILD;
+	if ( commandName == "IDM_GO") return IDM_GO;
+	if ( commandName == "IDM_STOPEXECUTE") return IDM_STOPEXECUTE;
+	if ( commandName == "IDM_FINISHEDEXECUTE") return IDM_FINISHEDEXECUTE;
+	if ( commandName == "IDM_NEXTMSG") return IDM_NEXTMSG;
+	if ( commandName == "IDM_PREVMSG") return IDM_PREVMSG;
+	if ( commandName == "IDM_MACRO_SEP") return IDM_MACRO_SEP;
+	if ( commandName == "IDM_MACRORECORD") return IDM_MACRORECORD;
+	if ( commandName == "IDM_MACROSTOPRECORD") return IDM_MACROSTOPRECORD;
+	if ( commandName == "IDM_MACROPLAY") return IDM_MACROPLAY;
+	if ( commandName == "IDM_MACROLIST") return IDM_MACROLIST;
+	if ( commandName == "IDM_ACTIVATE") return IDM_ACTIVATE;
+	if ( commandName == "IDM_SRCWIN") return IDM_SRCWIN;
+	if ( commandName == "IDM_RUNWIN") return IDM_RUNWIN;
+	if ( commandName == "IDM_TOOLWIN") return IDM_TOOLWIN;
+	if ( commandName == "IDM_STATUSWIN") return IDM_STATUSWIN;
+	if ( commandName == "IDM_TABWIN") return IDM_TABWIN;
+	if ( commandName == "IDM_SPLITVERTICAL") return IDM_SPLITVERTICAL;
+	if ( commandName == "IDM_VIEWSPACE") return IDM_VIEWSPACE;
+	if ( commandName == "IDM_VIEWEOL") return IDM_VIEWEOL;
+	if ( commandName == "IDM_VIEWGUIDES") return IDM_VIEWGUIDES;
+	if ( commandName == "IDM_SELMARGIN") return IDM_SELMARGIN;
+	if ( commandName == "IDM_FOLDMARGIN") return IDM_FOLDMARGIN;
+	if ( commandName == "IDM_LINENUMBERMARGIN") return IDM_LINENUMBERMARGIN;
+	if ( commandName == "IDM_VIEWTOOLBAR") return IDM_VIEWTOOLBAR;
+	if ( commandName == "IDM_TOGGLEOUTPUT") return IDM_TOGGLEOUTPUT;
+	if ( commandName == "IDM_VIEWTABBAR") return IDM_VIEWTABBAR;
+	if ( commandName == "IDM_VIEWSTATUSBAR") return IDM_VIEWSTATUSBAR;
+	if ( commandName == "IDM_TOGGLEPARAMETERS") return IDM_TOGGLEPARAMETERS;
+	if ( commandName == "IDM_CHECKIFOPEN") return IDM_CHECKIFOPEN;
+	if ( commandName == "IDM_WRAP") return IDM_WRAP;
+	if ( commandName == "IDM_WRAPOUTPUT") return IDM_WRAPOUTPUT;
+	if ( commandName == "IDM_READONLY") return IDM_READONLY;
+	if ( commandName == "IDM_CLEAROUTPUT") return IDM_CLEAROUTPUT;
+	if ( commandName == "IDM_SWITCHPANE") return IDM_SWITCHPANE;
+	if ( commandName == "IDM_EOL_CRLF") return IDM_EOL_CRLF;
+	if ( commandName == "IDM_EOL_CR") return IDM_EOL_CR;
+	if ( commandName == "IDM_EOL_LF") return IDM_EOL_LF;
+	if ( commandName == "IDM_EOL_CONVERT") return IDM_EOL_CONVERT;
+	if ( commandName == "IDM_TABSIZE") return IDM_TABSIZE;
+	if ( commandName == "IDM_MONOFONT") return IDM_MONOFONT;
+	if ( commandName == "IDM_OPENLOCALPROPERTIES") return IDM_OPENLOCALPROPERTIES;
+	if ( commandName == "IDM_OPENUSERPROPERTIES") return IDM_OPENUSERPROPERTIES;
+	if ( commandName == "IDM_OPENGLOBALPROPERTIES") return IDM_OPENGLOBALPROPERTIES;
+	if ( commandName == "IDM_OPENABBREVPROPERTIES") return IDM_OPENABBREVPROPERTIES;
+	if ( commandName == "IDM_PREVFILE") return IDM_PREVFILE;
+	if ( commandName == "IDM_NEXTFILE") return IDM_NEXTFILE;
+	if ( commandName == "IDM_CLOSEALL") return IDM_CLOSEALL;
+	if ( commandName == "IDM_SAVEALL") return IDM_SAVEALL;
+	if ( commandName == "IDM_BUFFERSEP") return IDM_BUFFERSEP;
+	if ( commandName == "IDM_HELP") return IDM_HELP;
+	if ( commandName == "IDM_ABOUT") return IDM_ABOUT;
+	if ( commandName == "IDM_HELP_SCITE") return IDM_HELP_SCITE;
+	if ( commandName == "IDM_ONTOP") return IDM_ONTOP;
+	if ( commandName == "IDM_FULLSCREEN") return IDM_FULLSCREEN;
+	return -1;
 }
