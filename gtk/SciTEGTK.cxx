@@ -1232,6 +1232,18 @@ int xsystem(const char *s, const char *resultsFile) {
 	return pid;
 }
 
+static bool MakePipe(const char *name) {
+// comment: () isn't implemented in cygwin yet
+#if defined(__vms) || defined(__CYGWIN__)
+	// No mkfifo on OpenVMS or CYGWIN
+	int fd = creat(name, 0777);
+	close(fd);	// Handle must be closed before re-opened
+#else
+	int fd = mkfifo(name, S_IRUSR | S_IWUSR);
+#endif
+	return fd >= 0;
+}
+
 void SciTEGTK::Execute() {
 	SciTEBase::Execute();
 
@@ -1258,12 +1270,7 @@ void SciTEGTK::Execute() {
 		if (extender)
 			extender->OnExecute(jobQueue[icmd].command.c_str());
 	} else {
-#ifndef __vms
-		if (mkfifo(resultsFile, S_IRUSR | S_IWUSR) < 0) {
-#else           // no mkfifo on OpenVMS!
-		creat (resultsFile, 0777);
-		if (jobQueue[icmd].jobType == jobShell) {   // Always false!
-#endif
+		if (!MakePipe(resultsFile)) {
 			OutputAppendString(">Failed to create FIFO\n");
 			ExecuteNext();
 			return;
@@ -2518,8 +2525,7 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 	inputWatcher = -1;
 
 	//check we have been given a specific pipe name
-	if (pipeFilename.size() > 0)
-	{
+	if (pipeFilename.size() > 0) {
 		//printf("CreatePipe: if (pipeFilename.size() > 0): %s\n", pipeFilename.c_str());
 		snprintf(pipeName, CHAR_MAX - 1, "%s", pipeFilename.c_str());
 
@@ -2527,26 +2533,16 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 		if (fdPipe == -1 && errno == EACCES) {
 			//printf("CreatePipe: No access\n");
 			tryStandardPipeCreation = true;
-		}
-		//there isn't one - so create one
-		else if (fdPipe == -1) {
+		} else if (fdPipe == -1) {	// there isn't one - so create one
 			SString fdPipeString;
 			//printf("CreatePipe: Non found - making\n");
-//WB++
-#ifndef __vms
-			mkfifo(pipeName, 0777);
-#else           // no mkfifo on OpenVMS!
-			creat(pipeName, 0777);
-#endif
-//WB--
+			MakePipe(pipeName);
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
 
 			fdPipeString = fdPipe;
 			props.Set("ipc.scite.fdpipe",fdPipeString.c_str());
 			tryStandardPipeCreation = false;
-		}
-		else
-		{
+		} else {
 			//printf("CreatePipe: Another one there - opening\n");
 
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
@@ -2557,14 +2553,11 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 			//break;
 			return anotherPipe;
 		}
-	}
-	else
-	{
+	} else {
 		tryStandardPipeCreation = true;
 	}
 
-	if( tryStandardPipeCreation )
-	{
+	if( tryStandardPipeCreation ) {
 	//possible bug here (eventually), can't have more than a 1000 SciTE's open - ajkc 20001112
 	for (int i = 0; i < 1000; i++) {
 
@@ -2584,14 +2577,7 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 		//there isn't one - so create one
 		else if (fdPipe == -1) {
 				SString fdPipeString;
-			//printf("Non found - making\n");
-//WB++
-#ifndef __vms
-			mkfifo(pipeName, 0755);
-#else           // no mkfifo on OpenVMS!
-			creat(pipeName, 0755);
-#endif
-//WB--
+			MakePipe(pipeName);
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
 				//store the file descriptor of the pipe so we can write to it again. (mainly for the director interface)
 				fdPipeString = fdPipe;
