@@ -748,6 +748,13 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_MARKERSETFORE, SC_MARKNUM_FOLDER, Colour(0, 0, 0).AsLong());
 		SendEditor(SCI_MARKERSETBACK, SC_MARKNUM_FOLDER, Colour(0, 0, 0).AsLong());
 	}
+	
+	SendEditor(SCI_MARKERSETFORE, SciTE_MARKER_BOOKMARK,
+	           ColourOfProperty(props, "bookmark.fore", Colour(0, 0, 0x7f)));
+	SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK,
+	           ColourOfProperty(props, "bookmark.back", Colour(0x80, 0xff, 0xff)));
+	SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
+	
 	if (extender) {
 		extender->Clear();
 

@@ -184,6 +184,8 @@ struct StyleAndWords {
 	bool IsEmpty() { return words.length() == 0; }
 };
 
+#define SciTE_MARKER_BOOKMARK 1
+
 class SciTEBase : public ExtensionAPI {
 protected:
 	char windowName[MAX_PATH + 20];

@@ -44,8 +44,6 @@
 #include "Extender.h"
 #include "SciTEBase.h"
 
-#define SciTE_MARKER_BOOKMARK 1
-
 const char *contributors[] = {
     "Atsuo Ishimoto",
     "Mark Hammond",
@@ -1266,13 +1264,9 @@ void SciTEBase::BookmarkToggle(int lineno) {
 	if (lineno == -1)
 		lineno = GetCurrentLineNumber();
 	int state = SendEditor(SCI_MARKERGET, lineno);
-	if ( state & (1 << SciTE_MARKER_BOOKMARK))
+	if ( state & (1 << SciTE_MARKER_BOOKMARK)) {
 		SendEditor(SCI_MARKERDELETE, lineno, SciTE_MARKER_BOOKMARK);
-	else {
-		// no need to do each time, but can't hurt either :-)
-		SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
-		SendEditor(SCI_MARKERSETFORE, SciTE_MARKER_BOOKMARK, Colour(0x7f, 0, 0).AsLong());
-		SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK, Colour(0x80, 0xff, 0xff).AsLong());
+	} else {
 		SendEditor(SCI_MARKERADD, lineno, SciTE_MARKER_BOOKMARK);
 	}
 }
