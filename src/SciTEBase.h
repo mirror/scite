@@ -12,7 +12,7 @@ const char propUserFileName[] = ".SciTEUser.properties";
 const char fileRead[]="rb";
 const char fileWrite[]="wb";
 #define MAX_PATH 260
-#else
+#endif
 #ifdef __vms
 const char pathSepString[] = "/";
 const char pathSepChar = '/';
@@ -20,7 +20,8 @@ const char propUserFileName[] = "SciTEUser.properties";
 const char *VMSToUnixStyle(const char *fileName);
 const char fileRead[]="r";
 const char fileWrite[]="w";
-#else
+#endif
+#ifdef WIN32
 // Windows
 const char pathSepString[] = "\\";
 const char pathSepChar = '\\';
@@ -30,7 +31,6 @@ const char fileWrite[]="wb";
 #ifdef _MSC_VER
 // Shut up level 4 warning:  warning C4710: function 'void whatever(...)' not inlined
 #pragma warning(disable:4710)
-#endif
 #endif
 #endif
 
@@ -137,6 +137,14 @@ enum {
 	statusPosWidth = 256
 };
 
+// warning IDs, here they are also sound frequencies
+enum {
+	warnFindWrapped = 220,
+	warnWrongFile = 110,
+	warnExecuteOK = 440,
+	warnExecuteKO = 330
+};
+
 struct StyleAndWords {
 	int styleNumber;
 	SString words;
@@ -191,7 +199,9 @@ protected:
 	Window wContent;    // Contains wEditor and wOutput
 	Window wEditor;
 	Window wOutput;
+#if PLAT_GTK
 	Window wDivider;	// Not used on Windows
+#endif
 	Window wToolBar;
 	Window wStatusBar;
 	Window wTabBar;
@@ -268,6 +278,7 @@ protected:
 	int AddBuffer();
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable();
+	bool CanMakeRoom();
 	void SetDocumentAt(int index);
 	void BuffersMenu();
 	void Next();
@@ -289,6 +300,7 @@ protected:
 	bool FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy);
 	void BraceMatch(bool editor);
 
+	virtual void WarnUser(const int warnID)=0;
 	void SetWindowName();
 	void SetFileName(const char *openName, bool fixCase= true);
 	void ClearDocument();
@@ -297,13 +309,16 @@ protected:
 	void SaveRecentStack();
 	void New();
 	void Close(bool updateUI= true);
+	bool IsAbsolutePath(const char *path);
 	bool Exists(const char *dir, const char *path, char *testPath);
+	void OpenFile(bool initialCmdLine);
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size)=0;
 	virtual void FixFilePath();
 	virtual bool OpenDialog()=0;
 	virtual bool SaveAsDialog()=0;
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
 	void Open(const char *file = 0, bool initialCmdLine = false);
+	void OpenSelected();
 	void Revert();
 	int SaveIfUnsure(bool forceQuestion = false);
 	int SaveIfUnsureAll(bool forceQuestion = false);
@@ -328,7 +343,10 @@ protected:
 	virtual void PrintSetup() {};
 	CharacterRange GetSelection();
 	void SetSelection(int anchor, int currentPos);
+//	void SelectionExtend(char *sel, int len, char *notselchar);
+	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch));
 	void SelectionWord(char *word, int len);
+	void SelectionFilename(char *filename, int len);
 	void SelectionIntoProperties();
 	void SelectionIntoFind();
 	virtual void Find()=0;

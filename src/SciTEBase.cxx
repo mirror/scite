@@ -82,6 +82,7 @@ const char *contributors[] = {
     "Tahir Karaca",
     "Ahmad Zawawi",
     "Laurent le Tynevez",
+    "Garrett Serack",
 };
 
 const char *extList[] = {
@@ -163,7 +164,6 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 }
 
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
-
 	codePage = 0;
 	characterSet = 0;
 	language = "java";
@@ -368,9 +368,6 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("end colourise %d\n", dwEnd - dwStart);
 }
-
-
-
 #endif 
 
 // Find if there is a brace next to the caret, checking before caret first, then
@@ -492,34 +489,54 @@ void SciTEBase::SetSelection(int anchor, int currentPos) {
 	SendEditor(SCI_SETSEL, anchor, currentPos);
 }
 
+// Should also use word.characters.*, if exists, in the opposite way (in set instead of not in set)
 static bool iswordcharforsel(char ch) {
 	return !strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch);
 }
 
-void SciTEBase::SelectionWord(char *word, int len) {
-	int lengthDoc = LengthDocument();
-	CharacterRange cr = GetSelection();
-	int selStart = cr.cpMin;
-	int selEnd = cr.cpMax;
+// Accept slighly more characters than for a word
+// Doesn't accept all valid characters, as they are rarely used in source filenames...
+// Accept path separators '/' and '\', extension separator '.', and ':', MS drive unit
+// separator, and also used for separating the line number for grep. Same for '(' and ')' for cl.
+static bool isfilenamecharforsel(char ch) {
+	return !strchr("\t\n\r !\"#$%&'*,;<>?@[]^`{|}", ch);
+}
+
+void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch)) {
+	int lengthDoc, selStart, selEnd;
+	Window wCurrent;
+	if (wEditor.HasFocus())
+		wCurrent = wEditor;
+	else
+		wCurrent = wOutput;
+
+	lengthDoc = SendFocused(SCI_GETLENGTH);
+	selStart = SendFocused(SCI_GETSELECTIONSTART);
+	selEnd = SendFocused(SCI_GETSELECTIONEND);
 	if (selStart == selEnd) {
-		WindowAccessor acc(wEditor.GetID(), props);
+		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
-		if (iswordcharforsel(acc[selStart])) {
-			while ((selStart > 0) && (iswordcharforsel(acc[selStart - 1])))
+		if (ischarforsel(acc[selStart])) {
+			while ((selStart > 0) && (ischarforsel(acc[selStart - 1])))
 				selStart--;
-			while ((selEnd < lengthDoc - 1) && (iswordcharforsel(acc[selEnd + 1])))
+			while ((selEnd < lengthDoc - 1) && (ischarforsel(acc[selEnd + 1])))
 				selEnd++;
 			if (selStart < selEnd)
 				selEnd++;   	// Because normal selections end one past
 		}
-
-
-
 	}
-	word[0] = '\0';
+	sel[0] = '\0';
 	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
-		GetRange(wEditor, selStart, selEnd, word);
+		GetRange(wCurrent, selStart, selEnd, sel);
 	}
+	}
+
+void SciTEBase::SelectionWord(char *word, int len) {
+	SelectionExtend(word, len, iswordcharforsel);
+}
+
+void SciTEBase::SelectionFilename(char *filename, int len) {
+	SelectionExtend(filename, len, isfilenamecharforsel);
 }
 
 void SciTEBase::SelectionIntoProperties() {
@@ -547,7 +564,8 @@ void SciTEBase::FindMessageBox(const char *msg) {
 	dialogsOnScreen++;
 #if PLAT_GTK
 	MessageBox(wSciTE.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
-#else
+#endif
+#if PLAT_WIN
 	MessageBox(wFindReplace.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
 #endif 
 	dialogsOnScreen--;
@@ -585,6 +603,7 @@ void SciTEBase::FindNext(bool reverseDirection) {
 			ft.chrg.cpMax = LengthDocument();
 		}
 		posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
+		WarnUser(warnFindWrapped);
 	}
 	if (posFind == -1) {
 		havefound = false;
@@ -615,8 +634,6 @@ void SciTEBase::ReplaceOnce() {
 		havefound = false;
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
-
-
 
 	FindNext(reverseFind);
 }
@@ -656,8 +673,6 @@ void SciTEBase::ReplaceAll() {
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
-
-
 
 void SciTEBase::OutputAppendString(const char *s, int len) {
 	if (len == -1)
@@ -716,7 +731,6 @@ void SciTEBase::BookmarkToggle( int lineno ) {
 		SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK, Colour(0x80, 0xff, 0xff).AsLong());
 		SendEditor(SCI_MARKERADD, lineno, SciTE_MARKER_BOOKMARK);
 	}
-
 }
 
 void SciTEBase::BookmarkNext() {
@@ -729,50 +743,6 @@ void SciTEBase::BookmarkNext() {
 	else {
 		SendEditor(SCI_ENSUREVISIBLE, nextLine);
 		SendEditor(SCI_GOTOLINE, nextLine);
-	}
-}
-
-void SciTEBase::CheckReload() {
-	if (props.GetInt("load.on.activate")) {
-		// Make a copy of fullPath as otherwise it gets aliased in Open
-		char fullPathToCheck[MAX_PATH];
-		strcpy(fullPathToCheck, fullPath);
-		time_t newModTime = GetModTime(fullPathToCheck);
-		//Platform::DebugPrintf("Times are %d %d\n", fileModTime, newModTime);
-		if (newModTime > fileModTime) {
-			if (isDirty) {
-				static bool entered = false;   	// Stop reentrancy
-				if (!entered && (0 == dialogsOnScreen)) {
-					entered = true;
-					char msg[MAX_PATH + 100];
-					strcpy(msg, "The file \"");
-					strcat(msg, fullPathToCheck);
-					strcat(msg, "\" has been modified. Should it be reloaded?");
-					dialogsOnScreen++;
-					int decision = MessageBox(wSciTE.GetID(), msg, appName, MB_YESNO);
-					dialogsOnScreen--;
-					if (decision == IDYES) {
-						Open(fullPathToCheck);
-					}
-					entered = false;
-				}
-			} else {
-				Open(fullPathToCheck);
-			}
-		}
-	}
-}
-
-void SciTEBase::Activate(bool activeApp) {
-	if (activeApp) {
-		CheckReload();
-	} else {
-		if (isDirty) {
-			if (props.GetInt("save.on.deactivate") && fileName[0]) {
-				// Trying to save at deactivation when no file name -> dialogs
-				Save();
-			}
-		}
 	}
 }
 
@@ -1092,12 +1062,12 @@ static bool includes(const StyleAndWords &symbols, const SString value) {
 			if (symbol)
 				symbol++;
 		}
-		return false;
 	} else {
 		// Set of individual characters. Only one character allowed for now
 		char ch = symbols.words[0];
 		return strchr(value.c_str(), ch) != 0;
 	}
+	return false;
 }
 
 #define ELEMENTS(a)	(sizeof(a) / sizeof(a[0]))
@@ -1269,20 +1239,22 @@ int ControlIDOfCommand(unsigned long wParam) {
 void SciTEBase::MenuCommand(int cmdID) {
 	switch (cmdID) {
 	case IDM_NEW:
-		// For the New command, the are you sure question is always asked as this gives
+		// For the New command, the "are you sure" question is always asked as this gives
 		// an opportunity to abandon the edits made to a file when are.you.sure is turned off.
-
-
-		if (IsBufferAvailable() || (SaveIfUnsure(true) != IDCANCEL)) {
+		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
 		}
 		break;
 	case IDM_OPEN:
-		if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
+		if (CanMakeRoom()) {
 			OpenDialog();
 			SetFocus(wEditor.GetID());
 		}
+		break;
+	case IDM_OPENSELECTED:
+		OpenSelected();
+		SetFocus(wEditor.GetID());
 		break;
 	case IDM_CLOSE:
 		if (SaveIfUnsure() != IDCANCEL) {
@@ -1332,7 +1304,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		QuitProgram();
 		break;
 	case IDM_NEXTFILE:
-		if (IsBufferAvailable()) {
+		if (buffers.size > 1) {
 			Prev(); // Use Prev to tabs move left-to-right
 			SetFocus(wEditor.GetID());
 		} else {
@@ -1342,7 +1314,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		}
 		break;
 	case IDM_PREVFILE:
-		if (IsBufferAvailable()) {
+		if (buffers.size > 1) {
 			Next(); // Use Next to tabs move right-to-left
 			SetFocus(wEditor.GetID());
 		} else {
@@ -1626,6 +1598,9 @@ void SciTEBase::MenuCommand(int cmdID) {
 		TabSizeDialog();
 		break;
 
+	case IDM_FIXED_FONT:
+		break;
+
 	case IDM_LEXER_NONE:
 	case IDM_LEXER_CPP:
 	case IDM_LEXER_VB:
@@ -1670,7 +1645,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			SetDocumentAt(cmdID - bufferCmdID);
 		} else if ((cmdID >= fileStackCmdID) &&
 		           (cmdID < fileStackCmdID + fileStackMax)) {
-			if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
+			if (CanMakeRoom()) {
 				StackMenu(cmdID - fileStackCmdID);
 			}
 		} else if (cmdID >= IDM_TOOLS && cmdID < IDM_TOOLS + 10) {
@@ -1985,8 +1960,6 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 		SizeContentWindows();
 		//Redraw();
 	}
-
-
 }
 
 // Implement ExtensionAPI methods

@@ -17,7 +17,7 @@ BEGIN
   BEGIN
 	MENUITEM "&New\tCtrl+N",  				IDM_NEW
 	MENUITEM "&Open...\tCtrl+O",			IDM_OPEN
-	MENUITEM "&Open selected filename\tCtrl+Shift+O",	IDM_OPENSELECTED
+	MENUITEM "&Open Selected Filename\tCtrl+Shift+O",	IDM_OPENSELECTED
 	MENUITEM "&Revert\tCtrl+R",			IDM_REVERT
 	MENUITEM "&Close\tCtrl+W",			IDM_CLOSE
 	MENUITEM "&Save\tCtrl+S",  				IDM_SAVE
@@ -78,17 +78,17 @@ BEGIN
   POPUP "&Options"
   BEGIN
 	MENUITEM "Vertical &Split",              IDM_SPLITVERTICAL
-	MENUITEM "",                            1
+	MENUITEM SEPARATOR
 	MENUITEM "View &Whitespace\tCtrl+Shift+8", IDM_VIEWSPACE
 	MENUITEM "&View End of Line\tCtrl+Shift+9", IDM_VIEWEOL
 	MENUITEM "View &Indentation Guides", IDM_VIEWGUIDES
-	MENUITEM "View &Fold Margin",          IDM_FOLDMARGIN
 	MENUITEM "View &Margin",          IDM_SELMARGIN
+	MENUITEM "View &Fold Margin",			IDM_FOLDMARGIN
 	MENUITEM "View Line &Numbers",          IDM_LINENUMBERMARGIN
 	MENUITEM "View Toolbar",          IDM_VIEWTOOLBAR
 	MENUITEM "View Tab Bar",          IDM_VIEWTABBAR
 	MENUITEM "View Status Bar",          IDM_VIEWSTATUSBAR
-	MENUITEM "",                            2
+	MENUITEM SEPARATOR
 	POPUP "&Line End Characters"
 	BEGIN
 		MENUITEM "CR + LF",          IDM_EOL_CRLF
@@ -96,7 +96,7 @@ BEGIN
 		MENUITEM "LF",          IDM_EOL_LF
 	END
 	MENUITEM "&Convert Line End Characters",          IDM_EOL_CONVERT
-	MENUITEM "",                            3
+	MENUITEM SEPARATOR
 	MENUITEM "Change Inden&tation Settings...",			IDM_TABSIZE
 	POPUP "Use le&xer"
 	  BEGIN
@@ -125,7 +125,7 @@ BEGIN
 		MENUITEM "Apache Confi&g",			IDM_LEXER_CONF
 		MENUITEM "Pascal",					IDM_LEXER_PASCAL
 	  END // used: abceghijlmnpqrstuvyx
-	MENUITEM "",							4
+	MENUITEM SEPARATOR
 	MENUITEM "Open Local &Options File",    IDM_OPENLOCALPROPERTIES
 	MENUITEM "Open &User Options File",   IDM_OPENUSERPROPERTIES
 	MENUITEM "Open &Global Options File",   IDM_OPENGLOBALPROPERTIES
@@ -316,12 +316,15 @@ BEGIN
 	VK_F4, IDM_PREVMSG,  VIRTKEY, SHIFT
 	VK_F4, IDM_CLOSE,   VIRTKEY, CONTROL
 
-	VK_F7, IDM_COMPILE,  VIRTKEY, CONTROL
-	VK_F7, IDM_BUILD,  VIRTKEY
 	VK_F5, IDM_GO,  VIRTKEY
 
 	VK_F6, IDM_NEXTFILE,  VIRTKEY
+	VK_F6, IDM_NEXTFILE,  VIRTKEY, CONTROL
 	VK_F6, IDM_PREVFILE,  VIRTKEY, SHIFT
+	VK_F6, IDM_PREVFILE,  VIRTKEY, CONTROL, SHIFT
+
+	VK_F7, IDM_COMPILE,  VIRTKEY, CONTROL
+	VK_F7, IDM_BUILD,  VIRTKEY
 
 	VK_F11, IDM_LEXER_NONE,  VIRTKEY
 	VK_F11, IDM_FIXED_FONT,  VIRTKEY, CONTROL

@@ -48,7 +48,8 @@ void SciTEBase::ReadGlobalPropFile() {
 	propsBase.Clear();
 #if PLAT_GTK
 	propsBase.Set("PLAT_GTK", "1");
-#else
+#endif
+#if PLAT_WIN
 	propsBase.Set("PLAT_WIN", "1");
 #endif 
 	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
@@ -439,11 +440,6 @@ void SciTEBase::ReadProperties() {
 
 	SendEditor(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
 
-	int tabSize = props.GetInt("tabsize");
-	if (tabSize) {
-		SendEditor(SCI_SETTABWIDTH, tabSize);
-	}
-	indentSize = props.GetInt("indent.size");
 	SendEditor(SCI_SETINDENT, indentSize);
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
@@ -454,7 +450,13 @@ void SciTEBase::ReadProperties() {
 	blockStart = GetStyleAndWords("block.start.");
 	blockEnd = GetStyleAndWords("block.end.");
 
+	int tabSize = props.GetInt("tabsize");
+	if (tabSize) {
+		SendEditor(SCI_SETTABWIDTH, tabSize);
+	}
+	indentSize = props.GetInt("indent.size");
 	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
+
 	if (props.GetInt("vc.home.key", 1)) {
 		AssignKey(SCK_HOME, 0, SCI_VCHOME);
 		AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_VCHOMEEXTEND);
@@ -589,7 +591,7 @@ void SciTEBase::ReadPropertiesInitial() {
 }
 
 void SciTEBase::OpenProperties(int propsFile) {
-	if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
+	if (CanMakeRoom()) {
 		char propfile[MAX_PATH + 20];
 		char propdir[MAX_PATH + 20];
 		if (propsFile == IDM_OPENLOCALPROPERTIES) {

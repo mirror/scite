@@ -117,7 +117,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		::exit(FALSE);
 }
 
-static void ChopTerminalSlash(char *path) {
+static void ChopTerminalSlash(char *path) {	// Could be in SciTEBase?
 	int endOfPath = strlen(path) - 1;
 	if (path[endOfPath] == pathSepChar)
 		path[endOfPath] = '\0';
@@ -254,7 +254,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	}
 }
 
-/***************************************************************************
+/*#*************************************************************************
  * Function: MakeLongPath
  *
  * Purpose:
@@ -358,7 +358,6 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 }
 
 void SciTEWin::FixFilePath() {
-
 	char longPath[_MAX_PATH];
 	// first try MakeLongPath which corrects the path and the case of filename too
 	if (MakeLongPath(fullPath, longPath)) {
@@ -403,7 +402,6 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 // so the output can be put in a window.
 // It is based upon several usenet posts and a knowledge base article.
 void SciTEWin::ProcessExecute() {
-
 	DWORD exitcode = 0;
 
 	SendOutput(SCI_GOTOPOS, SendOutput(WM_GETTEXTLENGTH));
@@ -538,8 +536,6 @@ void SciTEWin::ProcessExecute() {
 									        static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
 										completed = true;    // It's a dead process
 									}
-
-
 								}
 							}
 						}
@@ -597,7 +593,6 @@ struct ShellErr {
 };
 
 void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
-
 	char *mycmd;
 
 	// guess if cmd is an executable, if this succeeds it can
@@ -606,7 +601,6 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	strlwr(mycmdcopy);
 
 	char *mycmd_end = NULL;
-
 	char *myparams = NULL;
 
 	char *s = strstr(mycmdcopy, ".exe");
@@ -916,8 +910,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			SendEditor(WM_PALETTECHANGED, wParam, lParam);
 			//SendOutput(WM_PALETTECHANGED, wParam, lParam);
 		}
-
-
 		break;
 
 	case WM_QUERYNEWPALETTE:
@@ -941,7 +933,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			int filesDropped = DragQueryFile(hdrop, 0xffffffff, NULL, 0);
 
 			for (int i = 0; i < filesDropped; ++i) {
-				if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
+				if (CanMakeRoom()) {
 					char pathDropped[MAX_PATH];
 					DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
 					Open(pathDropped);

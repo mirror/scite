@@ -41,13 +41,94 @@
 #include "Extender.h"
 #include "SciTEBase.h"
 
+#define PROPERTIES_EXTENSION	".properties"
+
+static bool IsPropertiesFile(char *filename) {
+	int nameLen = strlen(filename);
+	int propLen = strlen(PROPERTIES_EXTENSION);
+	if (nameLen <= propLen)
+		return false;
+	if (stricmp(filename + nameLen - propLen, PROPERTIES_EXTENSION) == 0)
+		return true;
+	return false;
+}
+
+bool SciTEBase::IsAbsolutePath(const char *path) {
+	if (!path || *path == '\0')
+		return false;
+#ifdef unix
+	if (path[0] == '/')
+		return true;
+#endif
+#ifdef WIN32
+	if (path[0] == '\\' || path[1] == ':')	// UNC path or drive separator
+		return true;
+#endif
+	return false;
+}
+
 void SciTEBase::FixFilePath() {
 	// Only used on Windows to fix the case of file names
 }
 
+#ifdef __vms
+const char *VMSToUnixStyle(const char *fileName) {
+	// possible formats:
+	// o disk:[dir.dir]file.type
+	// o logical:file.type
+	// o [dir.dir]file.type
+	// o file.type
+	// o /disk//dir/dir/file.type
+	// o /disk/dir/dir/file.type
+
+	static char unixStyleFileName[MAX_PATH + 20];
+
+	if (strchr(fileName, ':') == NULL && strchr(fileName, '[') == NULL) {
+		// o file.type
+		// o /disk//dir/dir/file.type
+		// o /disk/dir/dir/file.type
+		if (strstr (fileName, "//") == NULL) {
+			return fileName;
+		}
+		strcpy(unixStyleFileName, fileName);
+		char *p;
+		while ((p = strstr (unixStyleFileName, "//")) != NULL) {
+			strcpy (p, p + 1);
+		}
+		return unixStyleFileName;
+	}
+
+	// o disk:[dir.dir]file.type
+	// o logical:file.type
+	// o [dir.dir]file.type
+
+	if (fileName [0] == '/') {
+		strcpy(unixStyleFileName, fileName);
+	} else {
+		unixStyleFileName [0] = '/';
+		strcpy(unixStyleFileName + 1, fileName);
+		char *p = strstr(unixStyleFileName, ":[");
+		if (p == NULL) {
+			// o logical:file.type
+			p = strchr(unixStyleFileName, ':');
+			*p = '/';
+		} else {
+			*p = '/';
+			strcpy(p + 1, p + 2);
+			char *end = strchr(unixStyleFileName, ']');
+			if (*end != NULL) {
+				*end = '/';
+			}
+			while (p = strchr(unixStyleFileName, '.'), p != NULL && p < end) {
+				*p = '/';
+			}
+		}
+	}
+	return unixStyleFileName;
+} // VMSToUnixStyle
+#endif
+
 void SciTEBase::SetFileName(const char *openName, bool fixCase) {
-	fullPath[0] = '\0';
-	fullPath[1] = '\0';
 	if (openName[0] == '\"') {
 		char pathCopy[MAX_PATH + 1];
 		pathCopy[0] = '\0';
@@ -58,27 +139,17 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 		AbsolutePath(fullPath, pathCopy, MAX_PATH);
 	} else if (openName[0]) {
 		AbsolutePath(fullPath, openName, MAX_PATH);
+	} else {
+		fullPath[0] = '\0';
 	}
-
-    bool absolutePath = fullPath[0] == pathSepChar;
-#if PLAT_WIN
-    if (fullPath[1] == ':')
-        absolutePath = true;
-#endif
 
 	// Break fullPath into directory and file name using working directory for relative paths
 	char *cpDirEnd = strrchr(fullPath, pathSepChar);
-	if (absolutePath) {
+	if (IsAbsolutePath(fullPath)) {
 		// Absolute path
-		if (cpDirEnd) {
 			strcpy(fileName, cpDirEnd + 1);
 			strcpy(dirName, fullPath);
 			dirName[cpDirEnd - fullPath] = '\0';
-		} else {
-			// This shouldn't happen but don't crash
-			fileName[0] = '\0';
-			strcpy(dirName, fullPath);
-		}
 		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
 	} else {
 		// Relative path
@@ -132,23 +203,21 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 
 bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 	char copyPath[MAX_PATH];
-	if (dir) {
+	if (IsAbsolutePath(path) || !dir) {
+		strcpy(copyPath, path);
+	}
+	else if (dir) {
 		if ((strlen(dir) + strlen(pathSepString) + strlen(path) + 1) > MAX_PATH)
 			return false;
 		strcpy(copyPath, dir);
 		strcat(copyPath, pathSepString);
 		strcat(copyPath, path);
-	} else {
-		strcpy(copyPath, path);
 	}
-#if PLAT_GTK
-	if(path[0] == '/')// absolute path
-		strcpy(copyPath, path);
-#endif
 	FILE *fp = fopen(copyPath, fileRead);
 	if (!fp)
 		return false;
 	fclose(fp);
+	if (testPath)
 	AbsolutePath(testPath, copyPath, MAX_PATH);
 	return true;
 }
@@ -185,78 +254,67 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 	}
 }
 
-#ifdef __vms
-const char *VMSToUnixStyle(const char *fileName) {
+void SciTEBase::OpenFile(bool initialCmdLine) {
+	FILE *fp = fopen(fullPath, fileRead);
+	if (fp || initialCmdLine) {
+		// If initial run and no fp, just open an empty buffer
+		// with the given name
+		if (fp) {
+			fileModTime = GetModTime(fullPath);
 
-	// possible formats:
-	// o disk:[dir.dir]file.type
-	// o logical:file.type
-	// o [dir.dir]file.type
-	// o file.type
-	// o /disk//dir/dir/file.type
-	// o /disk/dir/dir/file.type
-
-	static char unixStyleFileName[MAX_PATH + 20];
-
-	if (strchr(fileName, ':') == NULL && strchr(fileName, '[') == NULL) {
-		// o file.type
-		// o /disk//dir/dir/file.type
-		// o /disk/dir/dir/file.type
-		if (strstr (fileName, "//") == NULL) {
-			return fileName;
+			SendEditor(SCI_CLEARALL);
+			char data[blockSize];
+			int lenFile = fread(data, 1, sizeof(data), fp);
+			while (lenFile > 0) {
+				SendEditorString(SCI_ADDTEXT, lenFile, data);
+				lenFile = fread(data, 1, sizeof(data), fp);
 		}
-		strcpy (unixStyleFileName, fileName);
-		char *p;
-		while ((p = strstr (unixStyleFileName, "//")) != NULL) {
-			strcpy (p, p + 1);
+			fclose(fp);
+			if (props.GetInt("eol.auto")) {
+				int linesCR;
+				int linesLF;
+				int linesCRLF;
+				CountLineEnds(linesCR, linesLF, linesCRLF);
+				if ((linesLF > linesCR) && (linesLF > linesCRLF))
+					SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
+				if ((linesCR > linesLF) && (linesCR > linesCRLF))
+					SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
+				if ((linesCRLF > linesLF) && (linesCRLF > linesCR))
+					SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
 		}
-		return unixStyleFileName;
 	}
-
-	// o disk:[dir.dir]file.type
-	// o logical:file.type
-	// o [dir.dir]file.type
-
-	if (fileName [0] == '/') {
-		strcpy (unixStyleFileName, fileName);
-	} else {
-		unixStyleFileName [0] = '/';
-		strcpy (unixStyleFileName + 1, fileName);
-		char *p = strstr(unixStyleFileName, ":[");
-		if (p == NULL) {
-			// o logical:file.type
-			p = strchr(unixStyleFileName, ':');
-			*p = '/';
 		} else {
-			*p = '/';
-			strcpy (p + 1, p + 2);
-			char *end = strchr(unixStyleFileName, ']');
-			if (*end != NULL) {
-				*end = '/';
+		char msg[MAX_PATH + 100];
+		strcpy(msg, "Could not open file \"");
+		strcat(msg, fullPath);
+		strcat(msg, "\".");
+		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
 			}
-			while (p = strchr (unixStyleFileName, '.'), p != NULL && p < end) {
-				*p = '/';
-			}
+	SendEditor(SCI_SETUNDOCOLLECTION, 1);
+	// Flick focus to the output window and back to
+	// ensure palette realised correctly.
+	SetFocus(wOutput.GetID());
+	SetFocus(wEditor.GetID());
+	SendEditor(SCI_SETSAVEPOINT);
+	if (props.GetInt("fold.on.open") > 0) {
+		FoldAll();
 		}
+	SendEditor(SCI_GOTOPOS, 0);
+	Redraw();
 	}
-	return unixStyleFileName;
-} // VMSToUnixStyle
-#endif
 
 void SciTEBase::Open(const char *file, bool initialCmdLine) {
+	InitialiseBuffers();
 
+	if (!file) {
+		MessageBox(wSciTE.GetID(), "Bad file", appName, MB_OK);
+	}
 #ifdef __vms
 	static char fixedFileName [MAX_PATH];
 	strcpy(fixedFileName, VMSToUnixStyle(file));
 	file = fixedFileName;
 #endif
 	
-	InitialiseBuffers();
-
-	if (!file) {
-		MessageBox(wSciTE.GetID(), "Bad file", appName, MB_OK);
-	}
-
 	int index = buffers.GetDocumentByName(file);
 	if (index >= 0) {
 		SetDocumentAt(index);
@@ -282,56 +340,14 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 		if (props.GetInt("save.recent", 0))
 			LoadRecentMenu();
 	}
-	
 	if (fileName[0]) {
 		SendEditor(SCI_CANCEL);
 		SendEditor(SCI_SETUNDOCOLLECTION, 0);
 
-		fileModTime = GetModTime(fullPath);
+		OpenFile(initialCmdLine);
 
-		FILE *fp = fopen(fullPath, fileRead);
-		if (fp || initialCmdLine) {
-			if (fp) {
-				char data[blockSize];
-				int lenFile = fread(data, 1, sizeof(data), fp);
-				while (lenFile > 0) {
-					SendEditorString(SCI_ADDTEXT, lenFile, data);
-					lenFile = fread(data, 1, sizeof(data), fp);
-				}
-				fclose(fp);
-				if (props.GetInt("eol.auto")) {
-					int linesCR;
-					int linesLF;
-					int linesCRLF;
-					CountLineEnds(linesCR, linesLF, linesCRLF);
-					if ((linesLF > linesCR) && (linesLF > linesCRLF))
-						SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
-					if ((linesCR > linesLF) && (linesCR > linesCRLF))
-						SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
-					if ((linesCRLF > linesLF) && (linesCRLF > linesCR))
-						SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
-				}
-			}
-		} else {
-			char msg[MAX_PATH + 100];
-			strcpy(msg, "Could not open file \"");
-			strcat(msg, fullPath);
-			strcat(msg, "\".");
-			MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
-		}
-		SendEditor(SCI_SETUNDOCOLLECTION, 1);
-		// Flick focus to the output window and back to
-		// ensure palette realised correctly.
-		SetFocus(wOutput.GetID());
-		SetFocus(wEditor.GetID());
 		SendEditor(SCI_EMPTYUNDOBUFFER);
-		SendEditor(SCI_SETSAVEPOINT);
-		if (props.GetInt("fold.on.open") > 0) {
-			FoldAll();
 		}
-		SendEditor(SCI_GOTOPOS, 0);
-	}
-	Redraw();
 	RemoveFileFromStack(fullPath);
 	DeleteFileStackMenu();
 	SetFileStackMenu();
@@ -340,32 +356,119 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 		extender->OnOpen();
 }
 
-void SciTEBase::Revert() {
-	FILE *fp = fopen(fullPath, fileRead);
+void SciTEBase::OpenSelected() {
+	char selectedFilename[MAX_PATH];
+	unsigned long lineNumber = 0;
 
-	if (fp) {
-		SendEditor(SCI_CANCEL);
-		SendEditor(SCI_CLEARALL);
-		fileModTime = GetModTime(fullPath);
-		char data[blockSize];
-		int lenFile = fread(data, 1, sizeof(data), fp);
-		while (lenFile > 0) {
-			SendEditorString(SCI_ADDTEXT, lenFile, data);
-			lenFile = fread(data, 1, sizeof(data), fp);
-		}
-		fclose(fp);
-		SendEditor(SCI_SETUNDOCOLLECTION, 1);
-		// Flick focus to the output window and back to
-		// ensure palette realised correctly.
-		SendEditor(SCI_SETSAVEPOINT);
-		SendEditor(SCI_GOTOPOS, 0);
-		Redraw();
+	SelectionFilename(selectedFilename, sizeof(selectedFilename));
+	if (selectedFilename[0] == '\0') {
+		WarnUser(warnWrongFile);
+		return;	// No selection
+	}
+	if (stricmp(selectedFilename, fileName) == 0) {
+		WarnUser(warnWrongFile);
+		return;	// Do not open if it is the current file!
+	}
+	if (IsPropertiesFile(fileName) &&
+		strlen(fileName) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
+		// We are in a properties file, we append the correct extension
+		// to open the include
+		strcat(selectedFilename, PROPERTIES_EXTENSION);
 	} else {
-		char msg[MAX_PATH + 100];
-		strcpy(msg, "Could not revert file \"");
-		strcat(msg, fullPath);
-		strcat(msg, "\".");
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		// Check if we have a line number (error message or grep result)
+		// A bit of duplicate work with DecodeMessage, but we don't know
+		// here the format of the line, so we do guess work.
+		char *endPath = strchr(selectedFilename, '(');
+		if (endPath) {	// Visual Studio error: F:\scite\src\SciTEBase.h(312):	bool Exists(
+			lineNumber = atol(endPath + 1);
+			*(endPath - 1) = '\0';
+		} else {
+			char *endPath = strchr(selectedFilename + 2, ':');	// Skip Windows' drive separator
+			if (endPath) {	// grep -n line, perhaps gcc too: F:\scite\src\SciTEBase.h:312:	bool Exists(
+				lineNumber = atol(endPath + 1);
+				*(endPath - 1) = '\0';
+			}
+		}
+		// Can't do much for space separated line numbers...
+
+//		if (strncmp(selectedFilename, "http", 4) == 0) {
+//			SString cmd = selectedFilename;
+//			ShellExec(cmd, NULL);
+//		}
+		// Currently don't work (have to declare virtual function in SciTEBase.h,
+		// or to do another way), no much time to work on it.
+		// It would be nice to make it work though.
+
+		// Try to implement the ctags format...
+		if (lineNumber == 0) {
+			// To be done...
+		}
+	}
+
+	char path[MAX_PATH];
+	*path = '\0';
+	// Don't load the path of the current file if the selected
+	// filename is an absolute pathname
+	if (!IsAbsolutePath(selectedFilename)) {
+		getcwd(path, sizeof(path));
+	}
+	if (Exists(path, selectedFilename, path)) {
+		if (CanMakeRoom()) {
+			Open(path, false);	// TODO: test result?
+			if (lineNumber > 0) {
+				SendEditor(SCI_GOTOLINE, lineNumber);
+			}
+		}
+	} else {
+		WarnUser(warnWrongFile);
+	}
+}
+
+void SciTEBase::Revert() {
+	OpenFile(false);
+}
+
+void SciTEBase::CheckReload() {
+	if (props.GetInt("load.on.activate")) {
+		// Make a copy of fullPath as otherwise it gets aliased in Open
+		char fullPathToCheck[MAX_PATH];
+		strcpy(fullPathToCheck, fullPath);
+		time_t newModTime = GetModTime(fullPathToCheck);
+		//Platform::DebugPrintf("Times are %d %d\n", fileModTime, newModTime);
+		if (newModTime > fileModTime) {
+			if (isDirty) {
+				static bool entered = false;   	// Stop reentrancy
+				if (!entered && (0 == dialogsOnScreen)) {
+					entered = true;
+					char msg[MAX_PATH + 100];
+					strcpy(msg, "The file \"");
+					strcat(msg, fullPathToCheck);
+					strcat(msg, "\" has been modified. Should it be reloaded?");
+					dialogsOnScreen++;
+					int decision = MessageBox(wSciTE.GetID(), msg, appName, MB_YESNO);
+					dialogsOnScreen--;
+					if (decision == IDYES) {
+						Open(fullPathToCheck);
+					}
+					entered = false;
+		}
+	} else {
+				Open(fullPathToCheck);
+			}
+		}
+	}
+}
+
+void SciTEBase::Activate(bool activeApp) {
+	if (activeApp) {
+		CheckReload();
+	} else {
+		if (isDirty) {
+			if (props.GetInt("save.on.deactivate") && fileName[0]) {
+				// Trying to save at deactivation when no file name -> dialogs
+				Save();
+			}
+		}
 	}
 }
 
@@ -463,7 +566,6 @@ int StripTrailingSpaces(char *data, int ds, bool lastBlock) {
 // Returns false only if cancelled
 bool SciTEBase::Save() {
 	if (fileName[0]) {
-
 		if (props.GetInt("save.deletes.first")) {
 			unlink(fullPath);
 		}
@@ -492,10 +594,14 @@ bool SciTEBase::Save() {
 			//Platform::DebugPrintf("Saved file=%d\n", dwEnd - dwStart);
 			fileModTime = GetModTime(fullPath);
 			SendEditor(SCI_SETSAVEPOINT);
+#if 0
 			char fileNameLowered[MAX_PATH];
 			strcpy(fileNameLowered, fileName);
 			lowerCaseString(fileNameLowered);
 			if (0 != strstr(fileNameLowered, ".properties")) {
+#else
+			if (IsPropertiesFile(fileName)) {
+#endif
 				ReadGlobalPropFile();
 				ReadLocalPropFile();
 				ReadProperties();
@@ -533,4 +639,3 @@ bool SciTEBase::SaveAs(char *file) {
 		return SaveAsDialog();
 	}
 }
-

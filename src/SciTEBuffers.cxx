@@ -156,6 +156,18 @@ bool SciTEBase::IsBufferAvailable() {
 	return buffers.size > 1 && buffers.length < buffers.size;
 }
 
+bool SciTEBase::CanMakeRoom() {
+	if (IsBufferAvailable()) {
+		return true;
+	} else {
+		/* All available buffers are taken, try and close the current one */
+		if (SaveIfUnsure(true) != IDCANCEL) {
+			/* The file isn't dirty, or the user agreed to close the current one */
+			return true;
+		}
+	}
+	return false;
+}
 
 bool IsUntitledFileName(const char *name) {
 	const char *dirEnd = strrchr(name, pathSepChar);
@@ -180,7 +192,8 @@ void SciTEBase::InitialiseBuffers() {
 		buffers.buffers[0].doc = SendEditor(SCI_GETDOCPOINTER, 0, 0);
 		SendEditor(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
 		if (buffersWanted == 1) {
-			DestroyMenuItem(4, IDM_CLOSEALL);
+			// No buffers, delete the Buffers main menu entry
+//			DestroyMenuItem(4, IDM_CLOSEALL);
 			DestroyMenuItem(4, 0);
 #if PLAT_WIN
 			// Destroy command "View Tab Bar" in the menu "Options"
@@ -319,7 +332,6 @@ void SciTEBase::Close(bool updateUI) {
 }
 
 void SciTEBase::CloseAllBuffers() {
-
 	UpdateBuffersCurrent();	// Ensure isDirty copied
 	for (int i = 0; i < buffers.length; i++) {
 		if (buffers.buffers[i].isDirty) {
@@ -351,12 +363,12 @@ void SciTEBase::Prev() {
 
 void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
-	int pos;
 	DestroyMenuItem(4, IDM_BUFFERSEP);
 #if PLAT_WIN
 	::SendMessage(wTabBar.GetID(), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
 #endif 
 
+	int pos;
 	for (pos = 0; pos < bufferMax; pos++) {
 		DestroyMenuItem(4, IDM_BUFFER + pos);
 	}
@@ -420,9 +432,8 @@ void SciTEBase::DeleteFileStackMenu() {
 }
 
 void SciTEBase::SetFileStackMenu() {
-	int menuStart = 8;
 	if (recentFileStack[0].fileName[0]) {
-		SetMenuItem(0, menuStart, IDM_MRU_SEP, "");
+		SetMenuItem(0, MRU_START, IDM_MRU_SEP, "");
 		for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
 			//Platform::DebugPrintf("Setfile %d %s\n", stackPos, recentFileStack[stackPos].fileName.c_str());
 			int itemID = fileStackCmdID + stackPos;
@@ -433,7 +444,7 @@ void SciTEBase::SetFileStackMenu() {
 				sprintf(entry, "&%d ", stackPos);
 #endif 
 				strcat(entry, recentFileStack[stackPos].fileName.c_str());
-				SetMenuItem(0, menuStart + stackPos + 1, itemID, entry);
+				SetMenuItem(0, MRU_START + stackPos + 1, itemID, entry);
 			}
 		}
 	}
@@ -618,6 +629,7 @@ void SciTEBase::ToolsMenu(int item) {
 		}
 	}
 }
+
 int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 	sourcePath[0] = '\0';
 	if (format == SCE_ERR_PYTHON) {
@@ -719,22 +731,16 @@ void SciTEBase::GoMessage(int dir) {
 			if (sourceLine >= 0) {
 				if (0 != strcmp(sourcePath, fileName)) {
 					char messagePath[MAX_PATH];
+					bool bExists = false;
 					if (Exists(dirNameAtExecute, sourcePath, messagePath)) {
-						if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
-							Open(messagePath);
-						} else {
-							delete []cdoc;
-							return ;
-						}
+						bExists = true;
 					} else if (Exists(dirName, sourcePath, messagePath)) {
-						if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
-							Open(messagePath);
-						} else {
-							delete []cdoc;
-							return ;
-						}
+						bExists = true;
                                         } else if (Exists(NULL, sourcePath, messagePath)) { 
-                                                if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) { 
+						bExists = true;
+					}
+					if (bExists) {
+						if (CanMakeRoom()) {
                                                         Open(messagePath); 
                                                 } else { 
                                                         delete []cdoc; 
@@ -764,4 +770,3 @@ void SciTEBase::GoMessage(int dir) {
 			lookLine = 0;
 	}
 }
-

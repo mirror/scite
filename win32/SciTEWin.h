@@ -108,6 +108,8 @@ protected:
 
 	virtual void SetStatusBarText(const char *s);
 
+	virtual void WarnUser(const int warnID);
+
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
 	virtual void ShowTabBar();

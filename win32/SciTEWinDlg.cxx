@@ -5,6 +5,42 @@
 
 #include "SciTEWin.h"
 
+void SciTEWin::WarnUser(const int warnID) {
+	int soundWarn = props.GetInt("warning.sound");
+	int flashWarn = props.GetInt("warning.flash");
+
+	if (flashWarn && warnID == warnFindWrapped) {
+		// Flash the window (only the wEditor would be better, but I didn't get it to work...)
+		// to indicate we are starting again on the other side (to avoid infinite loop if we
+		// don't look closely at the scrollbar...).
+		::ShowWindow(wSciTE.GetID(), SW_HIDE);
+		::Sleep(flashWarn);
+		::ShowWindow(wSciTE.GetID(), SW_SHOW);
+
+		// This one is discarded: too discrete
+//		::FlashWindow(wEditor.GetID(), FALSE);
+//		::Sleep(100L);
+//		::FlashWindow(wEditor.GetID(), TRUE);
+	}
+	if (soundWarn) {
+		switch (warnID) {
+		case warnFindWrapped:
+		case warnWrongFile:
+		case warnExecuteOK:
+		case warnExecuteKO:
+		default:
+			int frequency = 200;
+			if (warnID > 31 && warnID < 32758) {
+				frequency = warnID;
+			}
+			Beep(frequency, soundWarn);	// Values not used on Win9x
+		}
+	}
+	// We can play different sounds, based on settings, like Visual Studio playing various waves
+	// when hitting a breakpoint, finishing compiling with or without errors/warnings, etc.
+	// But I am not sure it is worth linking against winmm just to play some fancy sounds...
+}
+
 bool SciTEWin::ModelessHandler(MSG *pmsg) {
 	if (wFindReplace.GetID()) {
 		if (::IsDialogMessage(wFindReplace.GetID(), pmsg))
@@ -63,9 +99,6 @@ int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc,
 
 	return result;
 }
-
-
-
 
 #define MULTISELECTOPEN
 
@@ -140,11 +173,11 @@ bool SciTEWin::OpenDialog() {
 #else
 		Open(openName);
 #endif 
-		return true;
 	} else {
 		delete []filter;
 		return false;
 	}
+	return true;
 }
 
 bool SciTEWin::SaveAsDialog() {
@@ -270,7 +303,6 @@ void SciTEWin::SaveAsPDF() {
 }
 
 void SciTEWin::Print(bool showDialog) {
-
 	PRINTDLG pdlg = {
 	    sizeof(PRINTDLG), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
