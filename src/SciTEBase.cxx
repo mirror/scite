@@ -44,6 +44,11 @@
 
 #define SciTE_MARKER_BOOKMARK 1
 
+#ifdef WIN32
+# define strcasecmp  stricmp
+# define strncasecmp strnicmp
+#endif /* WIN32 */
+
 const char propFileName[] = "SciTE.properties";
 
 const char *contributors[] = {
@@ -78,6 +83,7 @@ const char *contributors[] = {
 	"Andreas Neukoetter",
 	"Adam Gates",
 	"Steve Lhomme",
+	"Ferdinand Prantl",
 };
 
 const char *extList[] = {
@@ -259,6 +265,9 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext)  {
 	braceCount = 0;
 
 	indentationWSVisible = true;
+	
+	autoCompleteIgnoreCase = false;
+	callTipIgnoreCase = false;
 	
 	margin = false;
 	marginWidth = marginWidthDefault;
@@ -577,6 +586,12 @@ long SciTEBase::SendFocused(unsigned int msg, unsigned long wParam, long lParam)
 		return SendOutput(msg, wParam, lParam);
 }
 
+long SciTEBase::SendOutputEx(unsigned int msg, unsigned long wParam/*= 0*/, long lParam /*= 0*/, bool direct /*= true*/) {
+	if (direct)
+		return SendOutput(msg, wParam, lParam);
+	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
+}
+
 void SciTEBase::DeleteFileStackMenu() {
 	for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
 		DestroyMenuItem(0, fileStackCmdID + stackPos);
@@ -867,6 +882,13 @@ void SciTEBase::ViewWhitespace(bool view) {
 // Properties that are interactively modifiable are only read from the properties file once.
 void SciTEBase::ReadPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
+	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
+	int sizeVertical = props.GetInt("output.vertical.size", 0);
+	if (splitVertical && sizeVertical > 0 && heightOutput < sizeVertical || sizeHorizontal && heightOutput < sizeHorizontal) {
+		heightOutput = NormaliseSplit(splitVertical ? sizeVertical : sizeHorizontal);
+		SizeSubWindows();
+		Redraw();
+	}
 	indentationWSVisible = props.GetInt("view.indentation.whitespace",1);
 	ViewWhitespace(props.GetInt("view.whitespace"));
 	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides"));
@@ -895,6 +917,14 @@ void SciTEBase::ReadPropertiesInitial() {
 	foldMargin = foldMarginWidth;
 	if (foldMarginWidth == 0)
 		foldMarginWidth = foldMarginWidthDefault;
+
+	char homepath[MAX_PATH + 20];
+	if (GetSciteDefaultHome(homepath, sizeof(homepath))) {
+		props.Set("SciteDefaultHome", homepath);
+	}
+	if (GetSciteUserHome(homepath, sizeof(homepath))) {
+		props.Set("SciteUserHome", homepath);
+	}
 }
 
 StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
@@ -998,6 +1028,14 @@ void SciTEBase::ReadProperties() {
 	SString kw4 = props.GetNewExpand("keywords5.", fileNameForExtension.c_str());
 	SendEditorString(SCI_SETKEYWORDS, 4, kw4.c_str());
 
+	char homepath[MAX_PATH + 20];
+	if (GetSciteDefaultHome(homepath, sizeof(homepath))) {
+		props.Set("SciteDefaultHome", homepath);
+	}
+	if (GetSciteUserHome(homepath, sizeof(homepath))) {
+		props.Set("SciteUserHome", homepath);
+	}
+
 	SString fold = props.Get("fold");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("fold"),
 			fold.c_str());
@@ -1084,6 +1122,26 @@ void SciTEBase::ReadProperties() {
 
 	char key[200];
 	SString sval;
+
+	sprintf(key, "calltip.%s.ignorecase", "*");
+	sval = props.GetNewExpand(key, "");
+	callTipIgnoreCase = sval == "1";
+	sprintf(key, "calltip.%s.ignorecase", language.c_str());
+	sval = props.GetNewExpand(key, "");
+	if (sval != "")
+		callTipIgnoreCase = sval == "1";
+
+	sprintf(key, "autocomplete.%s.ignorecase", "*");
+	sval = props.GetNewExpand(key, "");
+	autoCompleteIgnoreCase = sval == "1";
+	sprintf(key, "autocomplete.%s.ignorecase", language.c_str());
+	sval = props.GetNewExpand(key, "");
+	if (sval != "")
+		autoCompleteIgnoreCase = sval == "1";
+	SendEditor(SCI_AUTOCSETIGNORECASE, autoCompleteIgnoreCase ? 1 : 0);
+	
+	int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
+	SendEditor(SCI_AUTOCSETCHOOSESINGLE, autoCChooseSingle),
 
 	// Set styles
 	// For each window set the global default style, then the language default style, then the other global styles, then the other language styles
@@ -1575,6 +1633,35 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 		extender->OnOpen();
 }
 
+void SciTEBase::Revert() {
+	FILE *fp = fopen(fullPath, "rb");
+
+	if (fp) {
+		SendEditor(SCI_CANCEL);
+		SendEditor(SCI_CLEARALL);
+		fileModTime = GetModTime(fullPath);
+		char data[blockSize];
+		int lenFile = fread(data, 1, sizeof(data), fp);
+		while (lenFile > 0) {
+			SendEditorString(SCI_ADDTEXT, lenFile, data);
+			lenFile = fread(data, 1, sizeof(data), fp);
+		}
+		fclose(fp);
+		SendEditor(SCI_SETUNDOCOLLECTION, 1);
+		// Flick focus to the output window and back to
+		// ensure palette realised correctly.
+		SendEditor(SCI_SETSAVEPOINT);
+		SendEditor(SCI_GOTOPOS, 0);
+		Redraw();
+	} else {
+		char msg[MAX_PATH + 100];
+		strcpy(msg, "Could not revert file \"");
+		strcat(msg, fullPath);
+		strcat(msg, "\".");
+		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+	}
+}
+
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 	if (isDirty) {
 		if (props.GetInt("are.you.sure", 1) || forceQuestion) {
@@ -1738,9 +1825,11 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;
+	int wysiwyg = props.GetInt("saveas.html.wysiwyg", 1);
+	int tabs = props.GetInt("saveas.html.tabs", 0);
 	FILE *fp = fopen(saveName, "wt");
 	if (fp) {
-		int styleCurrent = -1;
+		int styleCurrent = 0;
 		fputs("<HTML>\n", fp);
 		fputs("<HEAD>\n", fp);
 		fputs("<STYLE>\n", fp);
@@ -1748,9 +1837,9 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
 			char key[200];
 			sprintf(key, "style.*.%0d", istyle);
-			char *valdef = StringDup(props.Get(key).c_str());
+			char *valdef = StringDup(props.GetExpanded(key).c_str());
 			sprintf(key, "style.%s.%0d", language.c_str(), istyle);
-			char *val = StringDup(props.Get(key).c_str());
+			char *val = StringDup(props.GetExpanded(key).c_str());
 			SString family;
 			SString fore;
 			SString back;
@@ -1828,13 +1917,13 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 					fprintf(fp, "\tfont-style: italic;\n");
 				if (bold)
 					fprintf(fp, "\tfont-weight: bold;\n");
-				if (family.length())
+				if (wysiwyg && family.length())
 					fprintf(fp, "\tfont-family: %s;\n", family.c_str());
 				if (fore.length())
 					fprintf(fp, "\tcolor: %s;\n", fore.c_str());
 				if (back.length())
 					fprintf(fp, "\tbackground: %s;\n", back.c_str());
-				if (size)
+				if (wysiwyg && size)
 					fprintf(fp, "\tfont-size: %0dpt;\n", size);
 				fprintf(fp, "}\n");
 			}
@@ -1846,7 +1935,10 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		fputs("</STYLE>\n", fp);
 		fputs("</HEAD>\n", fp);
 		fputs("<BODY>\n", fp);
-		fputs("<SPAN class=\'S0\'>", fp);
+		if (wysiwyg)
+			fputs("<SPAN class=S0>", fp);
+		else
+			fputs("<PRE class=S0>", fp);
 		int lengthDoc = LengthDocument();
 		bool prevCR = false;
 		WindowAccessor acc(wEditor.GetID(), props);
@@ -1854,17 +1946,35 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			char ch = acc[i];
 			int style = acc.StyleAt(i);
 			if (style != styleCurrent) {
-				fputs("</SPAN>", fp);
-				fprintf(fp, "<SPAN class=\'S%0d\'>", style);
+				if (wysiwyg || styleCurrent != 0)
+					fputs("</SPAN>", fp);
+				if (wysiwyg || style != 0)
+					fprintf(fp, "<SPAN class=S%0d>", style);
 				styleCurrent = style;
 			}
 			if (ch == ' ') {
+				if (wysiwyg)
+					fputs("&nbsp;", fp);
+				else
+					fputc(' ', fp);
 				fputs("&nbsp;", fp);
 			} else if (ch == '\t') {
-				for (int itab = 0; itab < tabSize; itab++)
-					fputs("&nbsp;", fp);
+				if (wysiwyg) {
+					for (int itab = 0; itab < tabSize; itab++)
+						fputs("&nbsp;", fp);
+				} else {
+					if (tabs) {
+						fputc(ch, fp);
+					} else {
+						for (int itab = 0; itab < tabSize; itab++)
+							fputc(' ', fp);
+					}
+				}
 			} else if (ch == '\r') {
-				fputs("<BR>\n", fp);
+				if (wysiwyg)
+					fputs("<BR>\n", fp);
+				else
+					fputc('\n', fp);
 			} else if (ch == '\n') {
 				if (!prevCR)
 					fputs("<BR>\n", fp);
@@ -1879,7 +1989,10 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			}
 			prevCR = ch == '\r';
 		}
-		fputs("</SPAN>", fp);
+		if (wysiwyg)
+			fputs("</SPAN>", fp);
+		else
+			fputs("</PRE>", fp);
 		fputs("</BODY>\n</HTML>\n", fp);
 		fclose(fp);
 	} else {
@@ -1926,7 +2039,7 @@ void SciTEBase::SetSelection(int anchor, int currentPos) {
 }
 
 static bool iswordcharforsel(char ch) {
-	return isalnum(ch) || ch == '_';
+	return !strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch);
 }
 
 void SciTEBase::SelectionIntoProperties() {
@@ -2078,13 +2191,24 @@ void SciTEBase::ReplaceAll() {
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
 
-
 void SciTEBase::OutputAppendString(const char *s, int len) {
 	if (len == -1)
 		len = strlen(s);
 	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	SendOutput(SCI_ADDTEXT, len, reinterpret_cast<long>(s));
 	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
+}
+
+void SciTEBase::OutputAppendStringEx(const char *s, int len /*= -1*/, bool direct /*= true*/) {
+	if (direct)
+		OutputAppendString(s, len);
+	else {
+		if (len == -1)
+			len = strlen(s);
+		SendOutputEx(SCI_GOTOPOS, SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false));
+		SendOutputEx(SCI_ADDTEXT, len, reinterpret_cast<long>(s), false);
+		SendOutputEx(SCI_GOTOPOS, SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false), false);
+	}
 }
 
 void SciTEBase::Execute() {
@@ -2325,14 +2449,37 @@ void SciTEBase::GoMessage(int dir) {
 }
 
 inline bool nonFuncChar(char ch) {
-	return isspace(ch) || ch == '*' || ch == '/' || ch == '%' || ch == '+' || ch == '-' || ch == '=' || ch == '(';
+	return strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch) != NULL;
 }
 
-void SciTEBase::StartCallTip() {
+bool SciTEBase::StartCallTip() {
 	//Platform::DebugPrintf("StartCallTip\n");
 	char linebuf[1000];
 	int current = GetLine(linebuf, sizeof(linebuf));
 	int pos = SendEditor(SCI_GETCURRENTPOS);
+	int braces;
+	do {
+		braces = 0;
+		while (current > 0 && (braces || linebuf[current - 1] != '(')) {
+			if (linebuf[current - 1] == '(')
+				braces--;
+			else if (linebuf[current - 1] == ')')
+				braces++;
+			current--;
+			pos--;
+		}
+		if (current > 0) {
+			current--;
+			pos--;
+		} else
+			break;
+		while (current > 0 && isspace(linebuf[current - 1])) {
+			current--;
+			pos--;
+		}
+	} while (current > 0 && nonFuncChar(linebuf[current - 1]));
+	if (current <= 0)
+		return true;
 
 	int startword = current - 1;
 	while (startword > 0 && !nonFuncChar(linebuf[startword - 1]))
@@ -2342,15 +2489,47 @@ void SciTEBase::StartCallTip() {
 	functionDefinition = "";
 	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", linebuf + startword, rootlen, pos, pos - rootlen);
 	if (apis) {
-		int i;
-		for (i = 0; apis[i][0]; i++) {
-			if (0 == strncmp(linebuf + startword, apis[i], rootlen)) {
-				functionDefinition = apis[i];
-				SendEditorString(SCI_CALLTIPSHOW, pos - rootlen, apis[i]);
-				ContinueCallTip();
+		int start = 0;	// variables for binary searching
+		int end = apis.len - 1;
+		int pivot;
+		int cond;
+		const char *word;	// variables for browsing api entries
+		const char *needle = linebuf + startword;
+		if (callTipIgnoreCase) {
+			while (start <= end) {	// binary searching loop
+				pivot = (start + end) >> 1;
+				word = apis[pivot];
+				cond = strncasecmp(needle, word, rootlen);
+				if (!cond && nonFuncChar(word[rootlen])) {
+					functionDefinition = word;
+					SendEditorString(SCI_CALLTIPSHOW, pos - rootlen + 1, word);
+					ContinueCallTip();
+					break;
+				}
+				if (cond < 0)
+					end = pivot - 1;
+				else if (cond > 0)
+					start = pivot + 1;
+			}
+		} else {
+			while (start <= end) {	// binary searching loop
+				pivot = (start + end) >> 1;
+				word = apis[pivot];
+				cond = strncmp(needle, word, rootlen);
+				if (!cond && nonFuncChar(word[rootlen])) {
+					functionDefinition = word;
+					SendEditorString(SCI_CALLTIPSHOW, pos - rootlen + 1, word);
+					ContinueCallTip();
+					break;
+				}
+				if (cond >= 0)
+					start = pivot + 1;
+				else if (cond < 0)
+					end = pivot - 1;
 			}
 		}
 	}
+	return true;
 }
 
 void SciTEBase::ContinueCallTip() {
@@ -2384,51 +2563,275 @@ void SciTEBase::ContinueCallTip() {
 	SendEditor(SCI_CALLTIPSETHLT, startHighlight, endHighlight);
 }
 
-void SciTEBase::StartAutoComplete() {
+bool SciTEBase::StartAutoComplete() {
 	char linebuf[1000];
 	int current = GetLine(linebuf, sizeof(linebuf));
 
 	int startword = current;
 	while (startword > 0 && !nonFuncChar(linebuf[startword - 1]))
 		startword--;
+	if (startword == current)
+		return true;
 	linebuf[current] = '\0';
 	const char *root = linebuf + startword;
 	int rootlen = current - startword;
 	if (apis) {
-		int lenchoices = 0;
-		int i;
-		for (i = 0; apis[i][0]; i++) {
-			if (0 == strncmp(root, apis[i], rootlen)) {
-				const char *brace = strchr(apis[i], '(');
-				if (brace)
-					lenchoices += brace - apis[i];
-				else
-					lenchoices += strlen(apis[i]);
-				lenchoices++;
+		int wordlen;	// variables for reallocatable array creation
+		int length = 0;
+		int newlength;
+		#undef WORDCHUNK
+		#define WORDCHUNK 100
+		int size = WORDCHUNK;
+		char *words = (char*) malloc(size);
+		int start = 0;	// variables for binary searching
+		int end = apis.len - 1;
+		int pivot;
+		int oldpivot;
+		int cond;
+		const char *word;	// variables for browsing api entries
+		const char *brace;
+		*words = '\0';
+		if (callTipIgnoreCase) {
+			while (start <= end) {	// binary searching loop
+				pivot = (start + end) >> 1;
+				word = apis[pivot];
+				cond = strncasecmp(root, word, rootlen);
+				if (!cond) {
+					oldpivot = pivot;
+					do {	// browse sequentially the rest after the hit
+						brace = strchr(word, '(');
+						if (brace)
+							wordlen = brace - word;
+						else
+							wordlen = strlen(word);
+						newlength = length + wordlen; // stretch the buffer
+						if (length)
+							newlength++;
+						if (newlength >= size)
+						{
+							do
+								size += WORDCHUNK;
+							while (size <= newlength);
+							words = (char*) realloc (words, size);
+						}
+						if (length)	// append a new entry
+							words[length++] = ' ';
+						memcpy (words + length, word, wordlen);
+						length = newlength;
+						words[length] = '\0';
+						if (++pivot >= end)
+							break;
+						word = apis[pivot];
+					} while (!strncasecmp(root, word, rootlen));
+					pivot = oldpivot;
+					for (;;) {	// browse sequentially the rest before the hit
+						if (--pivot < start)
+							break;
+						word = apis[pivot];
+						if (strncasecmp(root, word, rootlen))
+							break;
+						brace = strchr(word, '(');
+						if (brace)
+							wordlen = brace - word;
+						else
+							wordlen = strlen(word);
+						newlength = length + wordlen; // stretch the buffer
+						if (length)
+							newlength++;
+						if (newlength >= size)
+						{
+							do
+								size += WORDCHUNK;
+							while (size <= newlength);
+							words = (char*) realloc (words, size);
+						}
+						if (length)	// append a new entry
+							words[length++] = ' ';
+						memcpy (words + length, word, wordlen);
+						length = newlength;
+						words[length] = '\0';
+					}
+					SendEditorString(SCI_AUTOCSHOW, rootlen, words);
+					break;
+				}
+				if (cond < 0)
+					end = pivot - 1;
+				else if (cond > 0)
+					start = pivot + 1;
+			}
+		} else {
+			while (start <= end) {	// binary searching loop
+				pivot = (start + end) >> 1;
+				word = apis[pivot];
+				cond = strncmp(root, word, rootlen);
+				if (!cond) {
+					oldpivot = pivot;
+					do {	// browse sequentially the rest after the hit
+						brace = strchr(word, '(');
+						if (brace)
+							wordlen = brace - word;
+						else
+							wordlen = strlen(word);
+						newlength = length + wordlen; // stretch the buffer
+						if (length)
+							newlength++;
+						if (newlength >= size)
+						{
+							do
+								size += WORDCHUNK;
+							while (size <= newlength);
+							words = (char*) realloc (words, size);
+						}
+						if (length)	// append a new entry
+							words[length++] = ' ';
+						memcpy (words + length, word, wordlen);
+						length = newlength;
+						words[length] = '\0';
+						if (++pivot >= end)
+							break;
+						word = apis[pivot];
+					} while (!strncmp(root, word, rootlen));
+					pivot = oldpivot;
+					for (;;) {	// browse sequentially the rest before the hit
+						if (--pivot < start)
+							break;
+						word = apis[pivot];
+						if (strncmp(root, word, rootlen))
+							break;
+						brace = strchr(word, '(');
+						if (brace)
+							wordlen = brace - word;
+						else
+							wordlen = strlen(word);
+						newlength = length + wordlen; // stretch the buffer
+						if (length)
+							newlength++;
+						if (newlength >= size)
+						{
+							do
+								size += WORDCHUNK;
+							while (size <= newlength);
+							words = (char*) realloc (words, size);
+						}
+						if (length)	// append a new entry
+							words[length++] = ' ';
+						memcpy (words + length, word, wordlen);
+						length = newlength;
+						words[length] = '\0';
+					}
+					SendEditorString(SCI_AUTOCSHOW, rootlen, words);
+					break;
+				}
+				if (cond < 0)
+					end = pivot - 1;
+				else if (cond > 0)
+					start = pivot + 1;
 			}
 		}
-		if (lenchoices) {
-			char *choices = new char[lenchoices + 1];
-			if (choices) {
-				char *endchoice = choices;
-				for (i = 0; apis[i][0]; i++) {
-					if (0 == strncmp(root, apis[i], rootlen)) {
-						if (endchoice != choices)
-							*endchoice++ = ' ';
-						const char *brace = strchr(apis[i], '(');
-						int len = strlen(apis[i]);
-						if (brace)
-							len = brace - apis[i];
-						strncpy(endchoice, apis[i], len);
-						endchoice += len;
-					}
-					*endchoice = '\0';
-				}
-				SendEditorString(SCI_AUTOCSHOW, rootlen, choices);
-				delete []choices;
-			}
+		free(words);
+	}
+	return true;
+}
+
+const char *strcasestr(const char *str, const char *pattn) {
+	int i;
+	int pattn0 = tolower (pattn[0]);
+
+	for (; *str; str++) {
+		if (tolower (*str) == pattn0) {
+			for (i = 1; tolower (str[i]) == tolower (pattn[i]); i++)
+				if (pattn[i] == '\0')
+					return str;
+			if (pattn[i] == '\0')
+				return str;
 		}
 	}
+	return NULL;
+}
+
+bool SciTEBase::StartAutoCompleteWord() {
+	char linebuf[1000];
+	int current = GetLine(linebuf, sizeof(linebuf));
+
+	int startword = current;
+	while (startword > 0 && !nonFuncChar(linebuf[startword - 1]))
+		startword--;
+	if (startword == current)
+		return true;
+	linebuf[current] = '\0';
+	const char *root = linebuf + startword;
+	int rootlen = current - startword;
+	int doclen = LengthDocument();
+	TextToFind ft = {{0, 0}, 0, {0, 0}};
+	ft.lpstrText = const_cast<char*>(root);
+	ft.chrg.cpMin = 0;
+	ft.chrgText.cpMin = 0;
+	ft.chrgText.cpMax = 0;
+	//int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
+	int flags = (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
+	int posCurrentWord = SendEditor (SCI_GETCURRENTPOS) - rootlen;
+	//DWORD dwStart = timeGetTime();
+	int length = 0;	// variables for reallocatable array creation
+	int newlength;
+	#undef WORDCHUNK
+	#define WORDCHUNK 100
+	int size = WORDCHUNK;
+	char *words = (char*) malloc(size);
+	*words = '\0';
+	for (;;) {	// search all the document
+		ft.chrg.cpMax = doclen;
+		int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
+		if (posFind == -1 || posFind >= doclen)
+			break;
+		if (posFind == posCurrentWord) {
+			ft.chrg.cpMin = posFind + rootlen;
+			continue;
+		}
+		char wordstart[WORDCHUNK];
+		GetRange(wEditor, posFind, posFind + WORDCHUNK - 1, wordstart);
+		char *wordend = wordstart + rootlen;
+		while (iswordcharforsel(*wordend))
+			*wordend++;
+		*wordend = '\0';
+		int wordlen = wordend - wordstart;
+		const char *wordbreak = words;
+		const char *wordpos;
+		for (;;) {	// searches the found word in the storage
+			wordpos = strstr (wordbreak, wordstart);
+			if (!wordpos)
+				break;
+			if (wordpos > words && wordpos[-1] != ' ' ||
+				wordpos[wordlen] && wordpos[wordlen] != ' ')
+				wordbreak = wordpos + wordlen;
+			else
+				break;
+		}
+		if (!wordpos) {	// add a new entry
+			newlength = length + wordlen;
+			if (length)
+				newlength++;
+			if (newlength >= size)
+			{
+				do
+					size += WORDCHUNK;
+				while (size <= newlength);
+				words = (char*) realloc (words, size);
+			}
+			if (length)
+				words[length++] = ' ';
+			memcpy (words + length, wordstart, wordlen);
+			length = newlength;
+			words[length] = '\0';
+		}
+		ft.chrg.cpMin = posFind + wordlen;
+	}
+	//DWORD dwEnd = timeGetTime();
+	//Platform::DebugPrintf("<%s> found %d characters took %d\n", root, length, dwEnd - dwStart);
+	if (length) {
+		SendEditorString(SCI_AUTOCSHOW, rootlen, words);
+	}
+	free(words);
+	return true;
 }
 
 int SciTEBase::GetCurrentLineNumber() {
@@ -2452,7 +2855,8 @@ void SciTEBase::UpdateStatusBar() {
 		msg += SString(caretColumn + 1).c_str();
 		msg += "    Line=";
 		msg += SString(caretLine + 1).c_str();
-		if (!(sbValue == msg)) {
+		msg += SendEditor(SCI_GETOVERTYPE) ? "    OVR" :  "    INS";
+		if (sbValue != msg) {
 			SetStatusBarText(msg.c_str());
 			sbValue = msg;
 		}
@@ -2748,6 +3152,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SetFocus(wEditor.GetID());
 		break;
 	case IDM_REVERT:
+		if (SaveIfUnsure() != IDCANCEL) {
+			Revert();
+			SetFocus(wEditor.GetID());
+		}
 		break;
 	case IDM_PRINT:
 		Print(true);
@@ -2837,8 +3245,20 @@ void SciTEBase::MenuCommand(int cmdID) {
 		GoMatchingBrace(true);
 		break;
 
+	case IDM_SHOWCALLTIP:
+		StartCallTip();
+		break;
+	
 	case IDM_COMPLETE:
 		StartAutoComplete();
+		break;
+
+	case IDM_COMPLETEWORD:
+		StartAutoCompleteWord();
+		break;
+
+	case IDM_TOGGLE_FOLDALL:
+		FoldAll();
 		break;
 
 	case IDM_UPRCASE:
@@ -3035,6 +3455,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_PLSQL:
 	case IDM_LEXER_PHP:
 	case IDM_LEXER_LATEX:
+	case IDM_LEXER_DIFF:
 		SetOverrideLanguage(cmdID);
 		break;
 
@@ -3293,6 +3714,7 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_REDO, SendFocused(SCI_CANREDO));
 	EnableAMenuItem(IDM_PASTE, SendFocused(SCI_CANPASTE));
 	EnableAMenuItem(IDM_FINDINFILES, !executing);
+	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);
 	CheckAMenuItem(IDM_VIEWSPACE, SendEditor(SCI_GETVIEWWS));
