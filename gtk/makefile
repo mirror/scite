@@ -8,16 +8,21 @@
 CC = g++
 AR = ar
 
-bindir=/usr/local/bin
+# For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
+prefix=/usr/local
+bindir=$(prefix)/bin
+datadir=$(prefix)/share
+pixmapdir=$(datadir)/pixmaps
+SYSCONF_PATH=$(prefix)/share/scite
 
 PROG	= ../bin/SciTE
 
 vpath %.h ../src ../../scintilla/include
 vpath %.cxx ../src
 
-#CXXFLAGS= -g -DGTK -DSCI_LEXER -Wwrite-strings
+#CXXFLAGS= -g -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -Wwrite-strings 
 INCLUDEDIRS=-I ../../scintilla/include -I ../src 
-CXXFLAGS= -DGTK -DSCI_LEXER -W -Wall
+CXXFLAGS= -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -W -Wall
 
 .cxx.o:
 	$(CC) `gtk-config --cflags` $(INCLUDEDIRS) $(CXXFLAGS) -c $< -o $@
@@ -49,8 +54,16 @@ SciTEGTK.o: SciTEGTK.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
 clean: 
 	rm -f *.o $(PROG)
 	
+# The two last install commands will fail if Gnome is not installed or is not at $(prefix).
+# This is OK - just means no SciTE in the Gnome Applications menu
 install:
 	install -s $(PROG) $(bindir)
+	install -D SciTEGTK.properties $(SYSCONF_PATH)/SciTEGlobal.properties
+	install SciTE.desktop $(datadir)/gnome/apps/Applications
+	install Sci48M.png $(pixmapdir)
 
 uninstall:
 	rm -f $(bindir)/SciTE
+	rm -rf $(SYSCONF_PATH)
+	rm -f $(datadir)/gnome/apps/Applications/SciTE.desktop
+	rm -f $(pixmapdir)/Sci48M.png

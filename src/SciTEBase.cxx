@@ -128,7 +128,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff));
-		AddStyledText(wsci, "Version 1.27\n", 1);
+		AddStyledText(wsci, "Version 1.28\n", 1);
 		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
