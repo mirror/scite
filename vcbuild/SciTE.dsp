@@ -107,11 +107,31 @@ SOURCE=..\Src\SciTEBase.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\SciTEBuffers.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\SciTEIO.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\SciTEProps.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\Win32\SciTERes.rc
 # End Source File
 # Begin Source File
 
 SOURCE=..\Win32\SciTEWin.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\win32\SciTEWinBar.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\win32\SciTEWinDlg.cxx
 # End Source File
 # Begin Source File
 
