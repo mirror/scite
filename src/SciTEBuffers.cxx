@@ -189,8 +189,9 @@ void SciTEBase::SetDocumentAt(int index) {
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
 #endif
 #if PLAT_GTK
+
 	if (wTabBar.GetID())
-		gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()),index);
+		gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), index);
 #endif
 
 	DisplayAround(bufferNext);
@@ -603,11 +604,12 @@ void SciTEBase::BuffersMenu() {
 #endif
 
 #if PLAT_GTK
+
 	if (wTabBar.GetID()) {
 		GtkWidget *tab;
 
-		while((tab=gtk_notebook_get_nth_page(GTK_NOTEBOOK(wTabBar.GetID()),0)))
-			gtk_notebook_remove_page(GTK_NOTEBOOK(wTabBar.GetID()),0);
+		while ((tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(wTabBar.GetID()), 0)))
+			gtk_notebook_remove_page(GTK_NOTEBOOK(wTabBar.GetID()), 0);
 	}
 #endif
 	int pos;
@@ -676,20 +678,21 @@ void SciTEBase::BuffersMenu() {
 			//::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
 #endif
 #if PLAT_GTK
+
 			if (wTabBar.GetID()) {
-				GtkWidget *tablabel,*tabcontent;
+				GtkWidget *tablabel, *tabcontent;
 
-				tablabel=gtk_label_new(titleTab);
+				tablabel = gtk_label_new(titleTab);
 
-				if(buffers.buffers[pos].IsUntitled())
-					tabcontent=gtk_label_new(LocaliseString("Untitled").c_str());
+				if (buffers.buffers[pos].IsUntitled())
+					tabcontent = gtk_label_new(LocaliseString("Untitled").c_str());
 				else
-					tabcontent=gtk_label_new(buffers.buffers[pos].FullPath());
+					tabcontent = gtk_label_new(buffers.buffers[pos].FullPath());
 
 				gtk_widget_show(tablabel);
 				gtk_widget_show(tabcontent);
 
-				gtk_notebook_append_page(GTK_NOTEBOOK(wTabBar.GetID()),tabcontent,tablabel);
+				gtk_notebook_append_page(GTK_NOTEBOOK(wTabBar.GetID()), tabcontent, tablabel);
 			}
 #endif
 
@@ -697,10 +700,12 @@ void SciTEBase::BuffersMenu() {
 	}
 	CheckMenus();
 #if PLAT_WIN
+
 	if (tabVisible)
 		SizeSubWindows();
 #endif
 #if PLAT_GTK
+
 	ShowTabBar();
 #endif
 }
@@ -1079,12 +1084,29 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 				while (isspace(*space)) {
 					space++;
 				}
-				char *space2 = strchr(space, ' ');
+
+				char *space2 = NULL;
+
+				if (strlen(space) > 2) {
+					space2 = strchr(space + 2, ':');
+				}
+
 				if (space2) {
+					while (!isspace(*space2)) {
+						space2--;
+					}
+
+					while (isspace(*(space2 - 1))) {
+						space2--;
+					}
+
 					unsigned int length = space2 - space;
-					strncpy(sourcePath, space, length);
-					sourcePath[length] = '\0';
-					return atoi(space2) - 1;
+
+					if (length > 0) {
+						strncpy(sourcePath, space, length);
+						sourcePath[length] = '\0';
+						return atoi(space2) - 1;
+					}
 				}
 			}
 			break;
@@ -1181,21 +1203,21 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			// Essential Lahey Fortran error look like: Line 11, file c:\fortran90\codigo\demo.f90
 			char *line = strchr(cdoc, ' ');
 			if (line) {
-				while(isspace(*line)) {
+				while (isspace(*line)) {
 					line++;
 				}
 				char *file = strchr(line, ' ');
 				if (file) {
-					while(isspace(*file)) {
+					while (isspace(*file)) {
 						file++;
 					}
-					while(*file && !isspace(*file)) {
+					while (*file && !isspace(*file)) {
 						file++;
 					}
 					size_t length = strlen(file);
 					strncpy(sourcePath, file, length);
 					sourcePath[length] = '\0';
-					return atoi(line)-1;
+					return atoi(line) - 1;
 				}
 			}
 			break;
