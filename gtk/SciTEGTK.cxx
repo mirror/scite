@@ -1063,7 +1063,7 @@ void SciTEGTK::AboutDialog() {
 }
 
 void SciTEGTK::QuitProgram() {
-	if (SaveIfUnsure() != IDCANCEL) {
+	if (SaveIfUnsureAll() != IDCANCEL) {
 		gtk_exit(0);
 	}
 }

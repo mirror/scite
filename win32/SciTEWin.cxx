@@ -568,7 +568,7 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 }
 
 void SciTEWin::FixFilePath() {
-
+	
 	char longPath[_MAX_PATH];
 	// first try MakeLongPath which corrects the path and the case of filename too
 	if (MakeLongPath(fullPath, longPath)) {
@@ -580,25 +580,25 @@ void SciTEWin::FixFilePath() {
 			dirName[cpDirEnd - fullPath] = '\0';
 		}
 	} else {
-	// On windows file comparison is done case insensitively so the user can
-	// enter scite.cxx and still open this file, SciTE.cxx. To ensure that the file
-	// is saved with correct capitalisation FindFirstFile is used to find out the
-	// real name of the file.
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = FindFirstFile(fullPath, &FindFileData);
-	if (hFind != INVALID_HANDLE_VALUE) {	// FindFirstFile found the file
-		char *cpDirEnd = strrchr(fullPath, pathSepChar);
-		if (cpDirEnd) {
-			strcpy(fileName, FindFileData.cFileName);
-			strcpy(dirName, fullPath);
-			dirName[cpDirEnd - fullPath] = '\0';
-			strcpy(fullPath, dirName);
-			strcat(fullPath, pathSepString);
-			strcat(fullPath, fileName);
+		// On windows file comparison is done case insensitively so the user can
+		// enter scite.cxx and still open this file, SciTE.cxx. To ensure that the file
+		// is saved with correct capitalisation FindFirstFile is used to find out the
+		// real name of the file.
+		WIN32_FIND_DATA FindFileData;
+		HANDLE hFind = FindFirstFile(fullPath, &FindFileData);
+		if (hFind != INVALID_HANDLE_VALUE) {	// FindFirstFile found the file
+			char *cpDirEnd = strrchr(fullPath, pathSepChar);
+			if (cpDirEnd) {
+				strcpy(fileName, FindFileData.cFileName);
+				strcpy(dirName, fullPath);
+				dirName[cpDirEnd - fullPath] = '\0';
+				strcpy(fullPath, dirName);
+				strcat(fullPath, pathSepString);
+				strcat(fullPath, fileName);
+			}
+			FindClose(hFind);
 		}
-		FindClose(hFind);
 	}
-}
 }
 
 void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
@@ -1595,8 +1595,9 @@ void SciTEWin::AboutDialog() {
 }
 
 void SciTEWin::QuitProgram() {
-	if (SaveIfUnsure() != IDCANCEL) {
+	if (SaveIfUnsureAll() != IDCANCEL) {
 		::PostQuitMessage(0);
+		wSciTE.Destroy();
 	}
 }
 
@@ -1817,7 +1818,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_CLOSE:
-		if (SaveIfUnsure() != IDCANCEL) {
+		if (SaveIfUnsureAll() != IDCANCEL) {
 			::PostQuitMessage(0);
 		}
 		return 0;
@@ -1865,7 +1866,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_DROPFILES:
-		if (SaveIfUnsure() != IDCANCEL) {
+		if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
 			char pathDropped[MAX_PATH];
 			HDROP hdrop = reinterpret_cast<HDROP>(wParam);
 			int filesDropped = DragQueryFile(hdrop, 0xffffffff, pathDropped, sizeof(pathDropped));

@@ -23,11 +23,15 @@ const char propUserFileName[] = "SciTEUser.properties";
 
 class RecentFile {
 public:
-	char fileName[MAX_PATH];
+	SString fileName;
 	int lineNumber;
 	int scrollPosition;
 	RecentFile() {
-		fileName[0] = '\0';
+		lineNumber = -1;
+		scrollPosition = 0;
+	}
+	void Init() {
+		fileName = "";
 		lineNumber = -1;
 		scrollPosition = 0;
 	}
@@ -37,24 +41,28 @@ class Buffer : public RecentFile {
 public:
 	int doc;
 	bool isDirty;
-	int lexLanguage;
-	int generation;
-	Buffer() : RecentFile(), doc(0), isDirty(false), lexLanguage(0), generation(0) { 
+	SString overrideExtension;
+	Buffer() : RecentFile(), doc(0), isDirty(false) { 
+	}
+	void Init() {
+		RecentFile::Init();
+		isDirty = false;
+		overrideExtension = "";
 	}
 };
 
 class BufferList {
 public:
-	Buffer **buffers;
+	Buffer *buffers;
 	int size;
 	int length;
 	int current;
-	int generation;
 	BufferList();
 	~BufferList();
 	void Allocate(int maxSize);
 	int Add();
 	int GetDocumentByName(const char *filename);
+    void RemoveCurrent();
 };
 		
 enum JobSubsystem { jobCLI = 0, jobGUI = 1, jobShell = 2};
@@ -111,6 +119,7 @@ protected:
 	int codePage;
 	SString language;
 	int lexLanguage;
+	SString overrideExtension;	// User has chosen to use a particular language
 	enum {numWordLists=5};
 	WordList apis;
 	SString functionDefinition;
@@ -183,15 +192,13 @@ protected:
 	PropSet props;
 
 	enum { bufferMax = 10 };
-    BufferList buffers;
+	BufferList buffers;
 
 	// Handle buffers
 	int GetDocumentAt(int index);
 	int AddBuffer();
-    void UpdateBuffersCurrent();
-	bool CloseBuffer(int bufferIndex);
-	int CloseCurrentBuffer();
-    bool EnsureRoomForNew();
+	void UpdateBuffersCurrent();
+	bool IsBufferAvailable();
 	void SetDocumentAt(int index);
 	void BuffersMenu();
 	void Next();
@@ -213,6 +220,8 @@ protected:
 
 	void SetWindowName();
 	void SetFileName(const char *openName);
+    void ClearDocument();
+	void InitialiseBuffers();
 	void New();
 	void Close();
 	bool Exists(const char *dir, const char *path, char *testPath);
@@ -244,10 +253,7 @@ protected:
 	void ReplaceAll();
 	virtual void DestroyFindReplace()=0;
 	virtual void GoLineDialog()=0;
-#ifdef OLD /* FW000402 PL 2000/05/18 */
-#else  /* OLD FW000402 PL 2000/05/18 */
 	virtual void TabSizeDialog()=0;
-#endif /* OLD FW000402 PL 2000/05/18 */
 	void GoMatchingBrace();
 	virtual void FindReplace(bool replace)=0;
 	void OutputAppendString(const char *s, int len = -1);
@@ -300,7 +306,7 @@ protected:
 	void SetFileStackMenu();
 	void DropFileStackTop();
 	void AddFileToStack(const char *file, int line = -1, int scrollPos=0);
-	void RememberLineNumberStack(const char *file, int line = -1, int scrollPos=0);
+    void RemoveFileFromStack(const char *file);
 	void DisplayAround(int scrollPosition, int lineNumber);
 	void StackMenu(int pos);
 	void StackMenuNext();
@@ -312,6 +318,7 @@ protected:
 	void ToolsMenu(int item);
 
 	virtual void ReadPropertiesInitial();
+	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);
 	SString ExtensionFileName();
 	virtual void ReadProperties();
