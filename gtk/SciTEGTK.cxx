@@ -2437,7 +2437,7 @@ void SciTEGTK::CreateUI() {
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), "command",
 	                   GtkSignalFunc(CommandSignal), this);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), "notify",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), SCINTILLA_NOTIFY,
 	                   GtkSignalFunc(NotifySignal), this);
 
 	wDivider = gtk_drawing_area_new();
