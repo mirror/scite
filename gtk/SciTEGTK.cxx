@@ -32,6 +32,9 @@
 #ifdef LUA_SCRIPTING
 #include "LuaExtension.h"
 #endif
+#ifndef NO_FILER
+#include "DirectorExtension.h"
+#endif
 #include "pixmapsGNOME.h"
 #include "SciIcon.h"
 
@@ -1532,13 +1535,21 @@ void SciTEGTK::AboutDialog() {
 
 void SciTEGTK::QuitProgram() {
 	if (SaveIfUnsureAll() != IDCANCEL) {
+
+#ifndef NO_FILER
+		int fdPipe = props.GetInt("scite.ipc_fdpipe");
+		if( fdPipe != -1 ){
+			close(fdPipe);
+			unlink(props.Get("scite.ipc_name").c_str());
+		}
+#else
 		//clean up any pipes that are ours
 		if (fdPipe != -1 && inputWatcher != -1) {
 			//printf("Cleaning up pipe\n");
 			close(fdPipe);
 			unlink(pipeName);
-
 		}
+#endif
 		gtk_exit(0);
 	}
 }
@@ -2266,12 +2277,59 @@ void SciTEGTK::SetIcon() {
 bool SciTEGTK::CreatePipe(bool forceNew) {
 
 	bool anotherPipe = false;
-
+	bool tryStandardPipeCreation = false;
+	SString pipeFilename = props.Get("ipc.scite.name");
 	fdPipe = -1;
 	inputWatcher = -1;
 
-	//printf("In CreatePipe\n");
+	//check we have been given a specific pipe name
+	if (pipeFilename.size() > 0)
+	{
+		//printf("CreatePipe: if (pipeFilename.size() > 0): %s\n", pipeFilename.c_str());
+		snprintf(pipeName, CHAR_MAX - 1, "%s", pipeFilename.c_str());
 
+		fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
+		if (fdPipe == -1 && errno == EACCES) {
+			//printf("CreatePipe: No access\n");
+			tryStandardPipeCreation = true;
+		}
+		//there isn't one - so create one
+		else if (fdPipe == -1) {
+			SString fdPipeString;
+			//printf("CreatePipe: Non found - making\n");
+//WB++
+#ifndef __vms
+			mkfifo(pipeName, 0777);
+#else           // no mkfifo on OpenVMS!
+			creat(pipeName, 0777);
+#endif
+//WB--
+			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
+			
+			fdPipeString = fdPipe;
+			props.Set("ipc.scite.fdpipe",fdPipeString.c_str());
+			tryStandardPipeCreation = false;
+		}
+		else
+		{
+			//printf("CreatePipe: Another one there - opening\n");
+
+			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
+
+			//there is already another pipe so set it to true for the return value
+			anotherPipe = true;
+			//I don;t think it is a good idea to be able to listen to our own pipes (yet) so just return
+			//break;
+			return anotherPipe;
+		}
+	}
+	else
+	{
+		tryStandardPipeCreation = true;
+	}
+	
+	if( tryStandardPipeCreation )
+	{
 	//possible bug here (eventually), can't have more than a 1000 SciTE's open - ajkc 20001112
 	for (int i = 0; i < 1000; i++) {
 
@@ -2290,15 +2348,19 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 		}
 		//there isn't one - so create one
 		else if (fdPipe == -1) {
+				SString fdPipeString;
 			//printf("Non found - making\n");
 //WB++
 #ifndef __vms
-			mkfifo(pipeName, 0777);
+			mkfifo(pipeName, 0755);
 #else           // no mkfifo on OpenVMS!
-			creat(pipeName, 0777);
+			creat(pipeName, 0755);
 #endif
 //WB--
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
+				//store the file descriptor of the pipe so we can write to it again. (mainly for the director interface)
+				fdPipeString = fdPipe;
+				props.Set("ipc.scite.fdpipe",fdPipeString.c_str());
 			break;
 		}
 		//there is so just open it (and we don't want out own)
@@ -2315,12 +2377,12 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 		}
 		//we must want another one
 	}
+	}
 
 	if (fdPipe != -1) {
+		
 		//store the inputwatcher so we can remove it.
 		inputWatcher = gdk_input_add(fdPipe, GDK_INPUT_READ, PipeSignal, this);
-		//store the file descriptor of the pipe so we can write to it again.
-
 		return anotherPipe;
 	}
 
@@ -2373,9 +2435,7 @@ void SciTEGTK::PipeSignal(void *data, gint fd, GdkInputCondition condition) {
 				//grab the focus back to us.  (may not work) - any ideas?
 				gtk_widget_grab_focus(GTK_WIDGET(scitew->GetID()));
 			}
-			//add other commands here
 		}
-
 	}
 }
 
@@ -2385,6 +2445,7 @@ void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 
 	// Create a pipe and see if it finds another one already there
 
+	//printf("CheckAlreadyOpen: cmdLine: %s\n", cmdLine);
 	// If we are not given a command line filename, assume that we just want to load ourselves.
 	if ((strlen(cmdLine) > 0) && (CreatePipe() == true)) {
 		char currentPath[MAX_PATH];
@@ -2395,10 +2456,10 @@ void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 
 		//check to see if path is already absolute
 		if (cmdLine[0] == '/')
-			sprintf(pipeCommand, "open=%s", cmdLine);
+			sprintf(pipeCommand, "open:%s", cmdLine);
 		//if it isn't then add the absolute path to the from of the command to send.
 		else
-			sprintf(pipeCommand, "open=%s/%s", currentPath, cmdLine);
+			sprintf(pipeCommand, "open:%s/%s", currentPath, cmdLine);
 
 		//printf("Sending %s through pipe\n", pipeCommand);
 		//send it
@@ -2428,12 +2489,15 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Process any initial switches
 	ProcessCommandLine(args, 0);
 
+	if( props.Get("ipc.director.name").size() == 0 ){
 	// If a file name argument, check if already open in another SciTE
 	for (arg = 1; arg < argc; arg++) {
 		if (argv[arg][0] != '-') {
 			CheckAlreadyOpen(argv[arg]);
 		}
 	}
+	}
+	
 
 	CreateUI();
 
@@ -2452,7 +2516,12 @@ int main(int argc, char *argv[]) {
 	LuaExtension luaExtender;
 	Extension *extender = &luaExtender;
 #else
+#ifndef NO_FILER
+	DirectorExtension director;
+	Extension *extender = &director;
+#else
 	Extension *extender = 0;
+#endif
 #endif
 
 #ifdef __vms
