@@ -599,65 +599,39 @@ void SciTEWin::Print(bool showDialog) {
 	SString footerFormat = props.Get("print.footer.format");
 
 	TEXTMETRIC tm;
-	char *style, *next;
-	char fntFace[33], fntHeight[4], fntAttr1[2], fntAttr2[2];
 	SString headerOrFooter;
 	headerOrFooter.assign("", MAX_PATH + 100);	// Usually the path, date et page number
 
 	SString headerStyle = props.Get("print.header.style");
-	style = StringDup(headerStyle.c_str());
-	next = GetNextPropItem(style, fntFace, 33);
-	if (fntFace[0] == '\0') {
-		strcpy(fntFace, "Arial");	// Default value
-	}
-
-	next = GetNextPropItem(next, fntHeight, 4);
-	if (fntHeight[0] == '\0') {
-		fntHeight[0] = '9';
-		fntHeight[1] = '\0';	// Default value
-	}
-
-	next = GetNextPropItem(next, fntAttr1, 2);
-	next = GetNextPropItem(next, fntAttr2, 2);
-	delete []style;
-
-	int headerLineHeight = ::MulDiv(atoi(fntHeight), ptDpi.y, 72);
+	StyleDefinition sdHeader(headerStyle.c_str());
+	
+	int headerLineHeight = ::MulDiv(
+		(sdHeader.specified & StyleDefinition::sdSize) ? sdHeader.size : 9, 
+		ptDpi.y, 72);
 	HFONT fontHeader = ::CreateFont(headerLineHeight,
 	                                0, 0, 0,
-	                                tolower(fntAttr1[0]) == 'b' || tolower(fntAttr2[0]) == 'b' ? FW_BOLD : FW_NORMAL,
-	                                tolower(fntAttr1[0]) == 'i' || tolower(fntAttr2[0]) == 'i' ,
+	                                sdHeader.bold ? FW_BOLD : FW_NORMAL,
+	                                sdHeader.italics,
 	                                0, 0, 0,
 	                                0, 0, 0, 0,
-	                                fntFace);
+	                                (sdHeader.specified & StyleDefinition::sdFont) ? sdHeader.font.c_str() : "Arial");
 	::SelectObject(hdc, fontHeader);
 	::GetTextMetrics(hdc, &tm);
 	headerLineHeight = tm.tmHeight + tm.tmExternalLeading;
 
 	SString footerStyle = props.Get("print.footer.style");
-	style = StringDup(footerStyle.c_str());
-	next = GetNextPropItem(style, fntFace, 33);
-	if (fntFace[0] == '\0') {
-		strcpy(fntFace, "Arial");	// Default value
-	}
+	StyleDefinition sdFooter(footerStyle.c_str());
 
-	next = GetNextPropItem(next, fntHeight, 4);
-	if (fntHeight[0] == '\0') {
-		fntHeight[0] = '9';
-		fntHeight[1] = '\0';	// Default value
-	}
-
-	next = GetNextPropItem(next, fntAttr1, 2);
-	next = GetNextPropItem(next, fntAttr2, 2);
-	delete []style;
-
-	int footerLineHeight = ::MulDiv(atoi(fntHeight), ptDpi.y, 72);
+	int footerLineHeight = ::MulDiv(
+		(sdFooter.specified & StyleDefinition::sdSize) ? sdFooter.size : 9, 
+		ptDpi.y, 72);
 	HFONT fontFooter = ::CreateFont(footerLineHeight,
 	                                0, 0, 0,
-	                                tolower(fntAttr1[0]) == 'b' || tolower(fntAttr2[0]) == 'b' ? FW_BOLD : FW_NORMAL,
-	                                tolower(fntAttr1[0]) == 'i' || tolower(fntAttr2[0]) == 'i' ,
+	                                sdFooter.bold ? FW_BOLD : FW_NORMAL,
+	                                sdFooter.italics,
 	                                0, 0, 0,
 	                                0, 0, 0, 0,
-	                                fntFace);
+	                                (sdFooter.specified & StyleDefinition::sdFont) ? sdFooter.font.c_str() : "Arial");
 	::SelectObject(hdc, fontFooter);
 	::GetTextMetrics(hdc, &tm);
 	footerLineHeight = tm.tmHeight + tm.tmExternalLeading;
