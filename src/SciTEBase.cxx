@@ -3141,7 +3141,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 				int lengthDoc = SendEditor(SCI_GETLENGTH);
 				RangeExtendAndGrab(wEditor, message, sizeof(message), 
 					notification->position, notification->position, lengthDoc, iswordcharforsel);
-				SendEditorString(SCI_CALLTIPSHOW, notification->position, message);
+				if (message[0])
+					SendEditorString(SCI_CALLTIPSHOW, notification->position, message);
 			}
 		}
 		break;
