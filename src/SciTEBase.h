@@ -33,6 +33,16 @@ public:
 	}
 };
 
+class Buffer : public RecentFile {
+public:
+	int doc;
+	bool isDirty;
+	int lexLanguage;
+	Buffer() : RecentFile(), doc(0) { 
+		isDirty = false; lexLanguage = 0; 
+	}
+};
+
 enum JobSubsystem { jobCLI = 0, jobGUI = 1, jobShell = 2};
 class Job {
 public:
@@ -70,7 +80,7 @@ protected:
 
 	enum { fileStackMax = 10 };
 	RecentFile recentFileStack[fileStackMax];
-	enum { fileStackCmdID = IDM_MRUFILE };
+	enum { fileStackCmdID = IDM_MRUFILE, bufferCmdID = IDM_BUFFER };
 
 	char findWhat[200];
 	char replaceWhat[200];
@@ -158,6 +168,22 @@ protected:
 	PropSet propsUser;
 	PropSet props;
 
+	// Multiple buffers
+	enum { buffersMax = 10 };
+	Buffer *buffer[buffersMax];
+	int numOfBuffers;
+	int currentBuffer;
+
+	// Handle buffers
+	int GetDocumentAt(int index);
+	int GetDocumentByName(const char *filename);
+	int AddBuffer();
+	int CloseCurrentBuffer();
+	void SetDocumentAt(int index);
+	void BuffersMenu();
+	void Next();
+	void Prev();
+
 	void ReadGlobalPropFile();
 	void ReadLocalPropFile();
 	
@@ -175,6 +201,7 @@ protected:
 	void SetWindowName();
 	void SetFileName(const char *openName);
 	void New();
+	void Close();
 	bool Exists(const char *dir, const char *path, char *testPath);
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size)=0;
 	virtual void FixFilePath();
@@ -182,6 +209,7 @@ protected:
 	virtual bool SaveAsDialog()=0;
 	void Open(const char *file = 0, bool initialCmdLine = false);
 	int SaveIfUnsure(bool forceQuestion = false);
+	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();
 	bool Save();
 	virtual bool SaveAs(char *file = 0);

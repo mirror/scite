@@ -89,6 +89,13 @@ BEGIN
 	MENUITEM "Open &Global Options File",   IDM_OPENGLOBALPROPERTIES
   END
 
+  POPUP "&Buffers"
+  BEGIN
+	MENUITEM "&Previous",			IDM_PREV
+	MENUITEM "&Next",			IDM_NEXT
+	MENUITEM SEPARATOR
+  END
+
   POPUP "&Help"
   BEGIN
 #ifdef STATIC_BUILD

@@ -7,6 +7,7 @@
 #define SCITE_H
 
 // menu defines
+#define IDM_BUFFER 70
 #define IDM_MRUFILE	90
 
 #define IDM_NEW		101
@@ -23,6 +24,8 @@
 #define IDM_MRU_SEP	112
 #define IDM_SAVEASHTML 113
 #define IDM_PREVFILE    114
+#define IDM_NEXT        115
+#define IDM_PREV        116
 
 #define IDM_UNDO	120
 #define IDM_REDO	121
