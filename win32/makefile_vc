@@ -1,0 +1,99 @@
+# Make file for SciTE on Windows Visual C++ version
+# Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
+# The License.txt file describes the conditions under which this software may be distributed.
+# This makefile is for using Visual C++ and nmake. 
+# The main makefile uses mingw32 gcc and may be more current than this file.
+
+CC = cl
+RC = rc
+LD = link
+
+PROG	= ../bin/SciTE.exe
+PROGSTATIC = ../bin/Sc1.exe
+
+LDFLAGS = /NODEFAULTLIB:LIBC KERNEL32.lib USER32.lib GDI32.lib COMDLG32.lib WINMM.lib COMCTL32.lib ADVAPI32.lib IMM32.lib SHELL32.LIB OLE32.LIB
+INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src 
+CXXFLAGS = /TP /MD /Ox 
+
+!IFDEF DEBUG
+CXXFLAGS=$(CXXFLAGS) /Zi 
+LDFLAGS=/DEBUG $(LDFLAGS)
+!ENDIF
+
+.cxx.obj:
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $*.cxx -o $@
+
+.rc.res:
+	$(RC) $(INCLUDEDIRS) $*.rc
+	
+DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
+
+ALL:	$(PROG) $(PROGSTATIC) $(DLLS) ..\bin\SciTEGlobal.properties
+
+clean:
+	del /q *.exe *.o *.obj *.dll *.res *.map
+
+..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
+	copy ..\..\scintilla\bin\Scintilla.dll ..\bin
+
+..\bin\SciLexer.dll:	..\..\scintilla\bin\SciLexer.dll
+	copy ..\..\scintilla\bin\SciLexer.dll ..\bin
+	
+..\bin\SciTEGlobal.properties:	..\src\SciTEGlobal.properties
+	copy ..\src\SciTEGlobal.properties ..\bin
+
+OBJS = SciTEBase.obj SciTEWin.obj \
+	..\..\scintilla\win32\Accessor.obj \
+	..\..\scintilla\win32\KeyWords.obj \
+	..\..\scintilla\win32\PropSet.obj \
+	..\..\scintilla\win32\PlatWin.obj
+
+$(PROG): $(OBJS) SciTERes.res
+	$(LD) /OUT:$(PROG) $(OBJS) SciTERes.res $(LDFLAGS)
+	
+OBJSSTATIC = Sc1.obj SciTEBase.obj \
+	..\..\scintilla\win32\KeyWords.obj \
+	..\..\scintilla\win32\Accessor.obj \
+	..\..\scintilla\win32\PropSet.obj \
+	..\..\scintilla\win32\ScintillaWinS.obj \
+	..\..\scintilla\win32\ScintillaBase.obj \
+	..\..\scintilla\win32\Editor.obj \
+	..\..\scintilla\win32\Document.obj \
+	..\..\scintilla\win32\CellBuffer.obj \
+	..\..\scintilla\win32\ContractionState.obj \
+	..\..\scintilla\win32\CallTip.obj \
+	..\..\scintilla\win32\PlatWin.obj \
+	..\..\scintilla\win32\KeyMap.obj \
+	..\..\scintilla\win32\Indicator.obj \
+	..\..\scintilla\win32\LineMarker.obj \
+	..\..\scintilla\win32\Style.obj \
+	..\..\scintilla\win32\ViewStyle.obj \
+	..\..\scintilla\win32\AutoComplete.obj
+
+SciTEBase.obj: ..\src\SciTEBase.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) /c ..\src\SciTEBase.cxx /Fo$@
+	
+SciTEWin.obj: SciTEWin.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+
+Sc1.obj: SciTEWin.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) /D STATIC_BUILD /c SciTEWin.cxx /FoSc1.obj
+	
+$(PROGSTATIC): $(OBJSSTATIC) SciTERes.res
+	$(LD) /OUT:$(PROGSTATIC) $(OBJSSTATIC) SciTERes.res $(LDFLAGS)

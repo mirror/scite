@@ -1,0 +1,5 @@
+cd ..
+rm -f scite.zip
+tar --create scintilla/* scite/* --exclude=*.o --exclude=*.obj \
+	--exclude=*.dll --exclude=*.exe --exclude=*.a --exclude=SciTE \
+	| gzip -c >scite.tgz

@@ -1,0 +1,802 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta name="generator" content="HTML Tidy, see www.w3.org" />
+    <meta name="generator" content="SciTE" />
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>
+      SciTE
+    </title>
+<style type="text/css">
+        table {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        td {
+            border: 1px solid black;
+            padding: 1px 5px 1px 5px;
+        }
+</style>
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td>
+          <img src="SciTEIco.png" border="3" height="64" width="64" alt="Scintilla icon" />
+        </td>
+        <td>
+          <a href="index.html" style="color:white;text-decoration:none"><font size="5">
+          SciTE</font></a>
+        </td>
+      </tr>
+    </table>
+    <h2>
+       SciTE Documentatation
+    </h2>
+    <h3>
+       Standard Editing
+    </h3>
+    <p>
+       Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
+      feature of automatic syntax styling. SciTE will only edit one file at a time, but does list
+      recently opened files on the File menu making it easier to open recent files. Rectangular
+      regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
+      key on GTK+ while dragging the mouse over the text.
+    </p>
+    <p>
+       There are two panes in SciTE, the editing pane and the output pane. The output pane is
+      located either to the left of the editing pane or below it. Initially it is of zero size, but
+      it can be made larger by dragging the divider between it and the editing pane. The Edit |
+      Vertical Split command can be used to move the output pane beneath the editing pane.
+    </p>
+    <p>
+       SciTE can perform commands to compile or run source files with the output from these
+      commands directed into the output pane.
+    </p>
+    <p>
+       For example, if <a href="http://www.python.org">Python</a> is installed on the machine, open
+      a new document, type:
+    </p>
+    <blockquote>
+<kbd>
+print "Hi"
+</kbd>
+    </blockquote>
+    <p>
+       as that document's text.
+    </p>
+    Save the document as printhi.py. <br />
+     The document should now appear coloured as SciTE is using the file's extension to decide upon
+    the syntax styling to use: 
+    <blockquote>
+	<code>
+		<b><font color="#000080">print </font></b>
+		<i><font color="#800080">"hi"</font></i>
+	</code>
+    </blockquote>
+    Perform the Tools | Go command.<br />
+     The output window will be made visible if it is not already visible and will show:<br />
+    <blockquote>
+	<code>
+		<font color="#0000FF">&gt;python -u printhi.py</font><br />
+		hi<br />
+		<font color="#0000FF">&gt;Exit code: 0</font>
+	</code>
+    </blockquote>
+    The first blue line is from SciTE showing the command it will use to run the program. The black
+    line is the output from running the Python program. The last blue line is from SciTE showing
+    that the program has finished and displaying its exit code. An exit code of zero indicates a
+    successful run. <br />
+     
+    <p>
+       SciTE partially understands the error messages produced by Python, GCC, Visual C++, Borland
+      C++ and other tools which use the same format as one of these. To see this, add a mistake to
+      the Python file by adding a second line to make the file:
+    </p>
+    <blockquote>
+	<code>
+	<span style="color:#000080;font-weight:bold;">print </span>
+	<span style="color:#800080;font-style:italic;">"hi"</span><br />
+	mistake
+	</code>
+    </blockquote>
+    <p>
+       Perform the Tools | Go command. The results should look like:
+    </p>
+    <blockquote>
+<pre>
+<span style="color:#0000FF">&gt;python -u printhi.py</span>
+hi
+Traceback (innermost last):
+  <span style="color:#FF0000">File "printhi.py", line 2, in ?</span>
+    mistake
+NameError: mistake
+<span style="color:#0000FF">&gt;Exit code: 1</span>
+</pre>
+    </blockquote>
+    <p>
+       While it is easy to see where the problem is in this simple case, when a file is larger the
+      Tools | Next Message command can be used to view each of the reported errors. Upon performing
+      Tools | Next Message, the first error message in the output pane is highlighted with a yellow
+      background, and an error indicator is displayed for the appropriate line in the editing pane.
+      The caret is moved to this line and the pane is scrolled if needed to show the line. SciTE
+      now looks like this:
+    </p>
+    <img src="PrintHi.png" alt="SciTE after running Python interpreter" /> 
+    <p>
+       SciTE understands both the file name and line number parts of error messages in most cases
+      so can open another file (such as a header file) if errors were caused by that file. This
+      feature may not work where the file name is complicated by containing spaces or ".."
+    </p>
+    <p>
+       If command execution has failed and is taking too long to complete then the Tools | Stop
+      Executing command can be used.
+    </p>
+    <p>
+       On Windows, SciTE defaults to executing tools as command line programs. Executing a GUI
+      program in this mode results in that program being run without displaying a window. The
+      command.subsystem option can be used to define tools that run in GUI mode. The default
+      subsystem, 0, is for command line programs, 1 is for programs which create their own windows,
+      and 2 is for using the ShellExecute call. ShellExecute is a good way to open HTML files and
+      similar as it handles this similarly to a user opening the file from the shell.
+    </p>
+    <h3>
+       Languages understood by SciTE
+    </h3>
+    <p>
+       SciTE currently is able to syntax style these languages:
+    </p>
+    <ul>
+      <li>
+        Python
+      </li>
+      <li>
+        C/C++
+      </li>
+      <li>
+        Java
+      </li>
+      <li>
+        JavaScript
+      </li>
+      <li>
+        HTML
+      </li>
+      <li>
+        HTML with embedded JavaScript
+      </li>
+      <li>
+        XML
+      </li>
+      <li>
+        INI, properties and similar
+      </li>
+      <li>
+        VB and VBScript
+      </li>
+      <li>
+        A subset of Perl
+      </li>
+      <li>
+        SQL
+      </li>
+    </ul>
+    <p>
+       Running and building commands for some of these languages have been set up but should be
+      checked as they will have to be modified to work for many people.
+    </p>
+    <h3>
+       Keyboard commands
+    </h3>
+    <p>
+       Keyboard commands in SciTE mostly follow common Windows and GTK+ conventions. Keyboard
+      equivalents of menu commands are listed in the menus. Some less common commands with no menu
+      equivalent are:
+    </p>
+    <table cellpadding="0" cellspacing="0" border="1">
+      <tr>
+        <td>
+          Magnify text size
+        </td>
+        <td>
+          Ctrl Keypad+
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Reduce text size
+        </td>
+        <td>
+          Ctrl Keypad-
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Previous file
+        </td>
+        <td>
+          Ctrl Tab
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Delete to start of word
+        </td>
+        <td>
+          Ctrl BackSpace
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Delete to end of word
+        </td>
+        <td>
+          Ctrl Delete
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Expand or contract a fold point.
+        </td>
+        <td>
+          Ctrl Keypad*
+        </td>
+      </tr>
+    </table>
+    <h3>
+       Folding
+    </h3>
+    <p>
+       SciTE supports folding for Python and C++/C/Java/Javascript. 
+       Fold points are based upon indentation for Python and on counting braces 
+       for the other languages.
+    </p>
+    <h3>
+       Properties file
+    </h3>
+    <p>
+       Much of SciTE's behaviour can be changed by editing the properties files.
+    </p>
+    <p>
+       There are three properties files used, two global properties file found in the directory of the
+      executable (for Linux, in the user's home directory) called "SciTEGlobal.properties" and 
+      "SciTEUser.properties" and a
+      local one which may be present in the same directory as the file being edited called
+      "SciTE.properties". Settings in the local properties file override those in the global 
+      properties files. The SciTEUser.properties file is intended for customisation by the user, 
+      leaving the SciTEGlobal.properties file to contain the default options distributed with SciTE.
+      The main use of the local properties files is to change the effects of the
+      Compile, Build and Go commands for the files in a directory. For example, I use the javac
+      compiler from the Java Development Kit for most work, so SciTEGlobal.properties sets the
+      command for compiling .java files to "javac". If I want to use the jvc compiler for the files
+      in one directory, then the SciTE.Properties file in that directory contains an entry setting
+      the command to "jvc".
+    </p>
+    <p>
+       There are commands in the Tools menu for opening the global and local properties files.
+    </p>
+    <p>
+       The files are in approximately the same format as Java properties files which have a simple
+      text format. Lines that start with '#' or that are completely blank are comments. Other lines
+      are of the form
+    </p>
+    <p>
+       variable=value
+    </p>
+    <p>
+       For long values, a '\' character at the end of the line continues that value on the next
+      line. Values may include the values of other variables by using $(variablename). There are
+      some variables set by the environment to access the name of the current file as well:
+    </p>
+    <p>
+       <b>FilePath</b> is the full path of the current file.<br />
+       <b>FileDir</b> is the directory of the current file without a trailing slash.<br />
+       <b>FileName</b> is the base name of the current file.<br />
+       <b>FileExt</b> is the extension of the current file.<br />
+       <b>FileNameExt</b> is $(FileName).$(FileExt).<br />
+       <b>CurrentSelection</b> is the value of the currently selected text but not if selection is
+      more than 1000 characters.<br />
+    </p>
+    <p>
+       Some features use file name patterns to see which variable to use. For example, the lexer
+      variable can be specialised for a particular file, or a group of files based upon wildcard
+      matching so:<br />
+       <b>lexer.makefile=makefile</b> indicates that the lexer called "makefile" should be used on
+      files called "makefile".<br />
+       <b>lexer.*.cxx=cpp</b> indicates that the lexer called "cpp" should be used on files with a
+      "cxx" extension.<br />
+       Variable substitution is available on the left hand side of file pattern assignments and
+      look like this:<br />
+       <b>file.patterns.html=*.html;*.htm;*.asp;*.shtml</b><br />
+       <b>command.go.$(file.patterns.html)=file://$(FilePath)</b>
+    </p>
+    <h3>
+       Defined variables in properties files
+    </h3>
+    <table cellpadding="1" cellspacing="0" border="1">
+      <tr>
+        <td>
+          tabsize
+        </td>
+        <td>
+          Sets the size of a tab as a multiple of the size of a space character in the style of the
+          default style definition.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          position.left<br />
+           position.top<br />
+           position.width<br />
+           position.height
+        </td>
+        <td>
+          Set the initial window size and position. If these are ommitted or set to 0 then the
+          environments defaults are used. Currently, the GTK+ version uses hard coded sizes rather
+          than these.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          are.you.sure<br />
+           are.you.sure.for.build
+        </td>
+        <td>
+          The classic GUI question. Normally, when SciTE is about to close a file which has unsaved
+          edits it asks this annoying question. To turn off the question, set are.you.sure to 0 and
+          files will be automatically saved without bothering the user. To abandon edits to a file
+          use the New command. New always asks "Are you sure?" giving an opportunity to not save
+          the file.<br />
+           When running or building a file, its most likely that you want the file to be saved
+          first. To enable a confirmation dialog for performing commands in the Tools menu, set
+          are.you.sure.for.build=1.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          view.whitespace
+        </td>
+        <td>
+          Setting this to 1 makes SciTE start up with whitespace visible.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          view.eol
+        </td>
+        <td>
+          Setting this to 1 makes SciTE display the characters that make up line ends. This looks
+          similar to (CR), (LF), or (CR)(LF). This is useful when using files created on another
+          operating system with software that is picky about line ends.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          blank.margin.left<br />
+           blank.margin.right
+        </td>
+        <td>
+          There is a blank margin on both sides of the text. It is drawn in the background colour
+          of default text. This defaults to one pixel for both left and right sides but may be
+          altered with these settings.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          margin.width
+        </td>
+        <td>
+          Setting this to a number makes SciTE display a selection margin to the left of the text.
+          The value is the number of pixels wide the selection margin should be. Line markers are
+          displayed in the selection margin area.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          line.numbers
+        </td>
+        <td>
+          Setting this to a number makes SciTE start up with a column of line numbers displayed to
+          the left of the selection margin. The value is the number of pixels wide the line numbers
+          can be.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          use.palette
+        </td>
+        <td>
+          Setting this to 1 makes SciTE use a palette to enable it to display more colours on 8 bit
+          displays. Without this option SciTE will only display with colours already available
+          which is normally the 20 colour Windows system palette. The downside of turning on this
+          option is that there will be some flashing as windows are activated. This option has no
+          effect on GTK+ where a palette is always used.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          buffered.draw
+        </td>
+        <td>
+          Setting this to 0 rather than the default 1 makes SciTE draw output directly to the
+          screen rather than into a buffer bitmap first and then to the screen. Buffered drawing
+          flickers less but is slower.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          load.on.activate<br />
+           save.on.deactivate
+        </td>
+        <td>
+          The load.on.activate property causes SciTE to check whether the current file has been
+          updated by another process whenever it is activated. This is useful when another editor
+          such as a WYSIWYG HTML editor, is being used in conjunction with SciTE.<br />
+           The save.on.deactivate property causes SciTE to save the file whenever the SciTE
+          application loses focus. This is useful when developing web pages and you want to often
+          check the appearance of the page in a browser.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          selection.fore<br />
+           selection.back
+        </td>
+        <td>
+          Sets the colours used for displaying selected text. If one of these is not set then that
+          attribute is not changed for the selection. The default is to show the selection by
+          changing the background to light grey and leaving the foreground the same as when it was
+          not selected.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          caret.fore
+        </td>
+        <td>
+          Sets the colour used for the caret.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          caret.period
+        </td>
+        <td>
+          Sets the rate at which the caret blinks. The value is the time in milliseconds that the
+          caret is visible before it is switched to invisible. It then stays invisible for the same
+          period before appearing again. A value of 0 stops the caret from blinking.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          edge.mode<br />
+           edge.column<br />
+           edge.colour<br />
+        </td>
+        <td>
+          Indicates long lines. The default edge.mode, 0, does not indicate long lines. An
+          edge.mode of 1 uses a vertical line to indicate the specified column and an edge.mode of
+          2 changes the background colour of characters beyond that column. For proportional fonts,
+          an edge.mode of 2 is more useful than 1.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          api.<i>filepattern</i>
+        </td>
+        <td>
+          Loads an API file for a particular language. API files contain a sorted list of
+          identifiers and function prototypes, one per line. The "Complete Identifier" command
+          looks at the characters before the caret and displayed the subset of the api file
+          starting with that string. When an opening brace is typed, the file is searched for the
+          text preceding the caret and if a function prototype is found then it is displayed as a
+          calltip. The .api files can be generated by hand or by using <a
+          href="http://fly.hiwaay.net/~darren/ctags">ctags</a> and then the <a href="tags2api.py">
+          tags2api Python script</a> (which assumes C/C++ source) on the tags file to grab complete
+          multiple line function prototypes. For example, the setting <br /><br />
+	 <code>
+		api.*.c=w.api<br />
+	 </code><br />
+	          could be used with a w.api file containing <br /><br />
+	 <code>
+		fclose(FILE* fileClose)<br />
+		FILE<br />
+		fopen(const char* szFileName, const char* szMode)<br />
+		fpos_t<br />
+		fread(void* buf, size_t size, size_t count, FILE* file)<br />
+		fseek(FILE* file, long lnOffset, int nOrigin)<br />
+	 </code><br />
+          to provide autocompletion and calltips for some of the C file functions. It is best to
+          use the full path to the API file as otherwise the current directory is used.<br />
+          Some common headers surround parameter lists with a __P macro and may have 
+	  comments. The <a href="cleanapi.cc">cleanapi</a> utility may be used on these 
+          files. 
+        </td>
+      </tr>
+      <tr>
+        <td>
+          calltip.back
+        </td>
+        <td>
+          Sets the colour used for the background of any calltips. The default is white.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          split.vertical
+        </td>
+        <td>
+          If set to 1 then the output pane is to the left of the editing pane, if set to 0 then the
+          output pane is below the editing pane.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          open.filter
+        </td>
+        <td>
+          This is a complex expresion used for determining the file types that will be available in
+          the open file dialog. For each type of file, there is some explanatory text, a '|'
+          character, some file patterns, and another '|' character. In the distributed
+          SciTEGlobal.properties file, the line continuation character '\', is used to spread these
+          items out, one per line. These file types appear in the "Files of type:" pull down. The
+          first item is the default, so you may wish to change the first item to include the file
+          types you commonly open. This option has no effect on GTK+ where a filter of * is always
+          in effect.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          find.command
+        </td>
+        <td>
+          The Find in Files command works in a similar way to the building commands executing a
+          command line tool with output redirected to the output pane. If the command produces
+          output understood by one of the error output passes, as does grep, then the F4 and
+          Shift+F4 keys can be used to move through all the matches. The $(find.what) and
+          $(find.files) variables can be used to use the values from the Find in Files dialog.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          find.files
+        </td>
+        <td>
+          This is the default set of files to search through using the Find in Files command.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          code.page
+        </td>
+        <td>
+          To support a DBCS language such as Japanese, a code page can be set here. This ensures
+          that double byte characters are always treated as a unit so the caret is never located
+          between the two bytes of a double byte character. This option has no effect on GTK+ where
+          SciTE only supports single byte character sets.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          lexer.<i>filepattern</i>
+        </td>
+        <td>
+          A lexer splits a file up into syntactic pieces. SciTE can then display these pieces in
+          different visual styles. Several lexers are available in SciTE for some of the popular
+          programming languages such as Python, Java, C/C++, JavaScript and VB. Often several file
+          extensions (.cpp, .cc, .h) can map to one language (C++) and hence one lexer. These
+          settings associate a file name with a lexer.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          keywords.<i>filepattern</i><br />
+           keywords2.<i>filepattern</i><br />
+           keywordclass.<i>lexer</i>
+        </td>
+        <td>
+          Most of the lexers differentiate between names and keywords and use the keywords
+          variables to do so. To avoid repeating the keyword list for each file extension, where
+          several file extensions are sed for one language, a keywordclass variable is defined in
+          the distributed properties file although this is just a convention. Some lexers define a
+          second set of keywords which will be displayed in a diferrent style to the first set of
+          keywords. This is used in the HTML lexer to display JavaScript keywords in a different
+          style to HTML tags and attributes.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          default.file.ext
+        </td>
+        <td>
+          Defines the language mode used before the file has a name. For example, if
+          default.file.ext=.py, then when the New command is used to create a new file then Python
+          syntax styling is used.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          word.characters.<i>filepattern</i>
+        </td>
+        <td>
+          Defines which characters can be parts of words. The default value here is all the
+          alphabetic and numeric characters and the underscore which is a reasonable value for
+          languages such as C++.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          style.*.<i>stylenumber</i><br />
+           style.<i>lexer</i>.<i>stylenumber</i>
+        </td>
+        <td>
+          The lexers determine a style number for each lexical type, such as keyword, comment or
+          number. These settings determine the visual style to be used for each style number of
+          each lexer.<br />
+           The value of each setting is a set of ',' separated fields, some of which have a
+          subvalue after a ':'. The fields are font, size, fore, back, italics, notitalics, bold,
+          notbold, eolfilled, and noteolfilled. The font field has a subvalue which is the name of
+          the font, the fore and back have colour subvalues, the size field has a numeric size
+          subvalue, and the bold, italics and eolfilled fields have no subvalue. The value
+          "fore:#FF0000,font:Courier,size:14" represents 14 point, red Courier text.<br />
+           A global style can be set up using style.*.<i>stylenumber</i>. Any style options set in
+          the global style wil be inherited by each lexer style unless overridden.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          style.<i>lexer</i>.32<br />
+           style.<i>lexer</i>.33<br />
+           style.<i>lexer</i>.34<br />
+           style.<i>lexer</i>.35<br />
+           style.<i>lexer</i>.36
+        </td>
+        <td>
+          As well as the styles generated by the lexer, there are other numbered styles used.<br />
+           Style 32 is the default style and its features will be inherited by all other styles
+          unless overridden.<br />
+           Style 33 is used to display line numbers in the margin.<br />
+           Styles 34 and 35 are used to display matching and non-matching braces
+          respectively.<br />
+           Style 36 is used for displaying control characters. This is not a full style as the
+          foreground and background colours for control characters are determined by their lexical
+          state rather than this style.<br />
+           A * can be used instead of a lexer to indicate a global style setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          braces.check<br />
+           braces.sloppy<br />
+           style.<i>lexer</i>.34<br />
+           style.<i>lexer</i>.35<br />
+           braces.<i>lexer</i>.style
+        </td>
+        <td>
+          Brace highlighting is a feature that shows the range of a brace when the caret is
+          positioned immediately after it. It is especially useful when complex nested braces are
+          used. The characters '(', ')', '[', ']', '{', and '}' are considered braces. The feature
+          defaults to off (because it slows cursor movement) unless braces.check is set to 1. If
+          braces.sloppy is set to 1 then if there is no brace before the caret then the character
+          after the caret is checked. The highlighting is performed by displaying the braces in
+          style number 34 or in style number 35 if there is no matching brace. While this is a full
+          style, to avoid partial display of the braces, it is best to make this style differ from
+          the standard style of braces only in foreground and background colour. Only braces with
+          style set to braces.<i>lexer</i>.style (which defaults to 0) are candidates for brace
+          match highlighting.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          command.compile.<i>filepattern</i><br />
+           command.compile.subsystem.<i>filepattern</i><br />
+           command.build.<i>filepattern</i><br />
+           command.build.subsystem.<i>filepattern</i><br />
+           command.go.<i>filepattern</i><br />
+	   command.go.subsystem.<i>filepattern</i>
+        </td>
+        <td>
+          These settings choose which commands to execute when the Compile, Build or Go menu items
+          are selected. The subsystem options determine for Windows whether the tools are run as
+          command line or windowed applications.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          command.go.needs.<i>filepattern</i><br />
+	  command.go.needs.subsystem.<i>filepattern</i>
+        </td>
+        <td>
+          Sometimes a file must be compiled or built before it can be run. If this is the case,
+          this setting indicates what command needs to be run to perform the compile or build step
+          before running the file. When a file is compiled, this is noted and future runs will not
+          perform a compile or build. To make a 'compile and go' Go command for .c files:<br /><br />
+	 <code>
+		command.go.*.c=$(FileName)<br />
+		command.go.needs.*.c=g++ $(FileNameExt) -o $(FileName)<br />
+	 </code>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          command.name.<i>number</i>.<i>filepattern</i><br />
+	  command.<i>number</i>.<i>filepattern</i><br />
+          command.is.filter.<i>number</i>.<i>filepattern</i><br />
+          command.subsystem.<i>number</i>.<i>filepattern</i>
+        </td>
+        <td>
+          Extra commands can be added to the tools menu. For example to include the 'astyle'
+          indenter, the properties file could contain<br /><br />
+           
+	 <code>
+		command.name.0.*.cc=Indent<br />
+		command.0.*.cc=astyle -taO $(FileNameExt)<br />
+		command.is.filter.0.*.cc=1<br />
+	 </code><br />
+          The first line defines the string that will appear in the tools menu (immediately below
+          'Go'. The second line is the command string, similar to those of the compile, build, and
+          go commands. The optional command.is.filter property states that the command modifies the
+          current file so it may need to be read in after performing the command if
+          load.on.activate is set.<br />
+           The subsystem determines how the command is executed on Windows. 0, the default is for
+          command line programs and 1 for programs which create their own windows.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          win95.death.delay
+        </td>
+        <td>
+          On Windows 95, there can be a delay between a process completing and all of its piped
+          output being available. By waiting this number of milliseconds, we can be sure to see all
+          the output. Defaults to 500 but may need to be higher for slower machines.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          fold<br />
+          fold.margin.width<br />
+          fold.use.plus<br />
+          fold.on.open
+        </td>
+        <td>
+        	Options to control folding. Folding is turned on be setting fold to 1.
+        	Arrows pointing down or to the right are used to indicate expanded
+        	and contracted folds unless fold.use.plus is set to one and then 
+        	plus and minus signs are used instead. 
+		To automatically fold files as much as possible when loaded, set
+		fold.on.open to 1.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	  title.full.path
+        </td>
+        <td>
+        	Changes title of window to use the full path rather than just the file name.
+        </td>
+      </tr>
+    </table>
+    <h3>
+       Supporting a new language
+    </h3>
+    <p>
+       For languages very similar to existing supported languages, which may only differ in a minor
+      feature such as the keywords used, the existing lexers can often be reused. The set of
+      keywords can then be changed to suit the new language. Java and JavaScript could have
+      reasonably reused the C++ lexer. The Java lexer was added only to support doc comments.
+    </p>
+    <p>
+       For languages that can not be lexed with the existing lexers, a new lexer can be coded in
+      C++.
+    </p>
+    <p>
+       The open.filter should be modified to include the file extensions used for the new language
+      and entries added for command.compile, command.build, command.go and command.go.needs for the
+      language.
+    </p>
+  </body>
+</html>
+

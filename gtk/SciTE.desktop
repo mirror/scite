@@ -1,0 +1,10 @@
+
+[Desktop Entry]
+Name[en_US.ISO8859-1]=SciTE
+Name=SciTE
+Comment=SciTE Text Editor
+Exec=SciTE
+Icon=SciTEIco.png
+Terminal=false
+MultipleArgs=false
+Type=Application
