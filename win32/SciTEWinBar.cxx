@@ -308,7 +308,7 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA;
-		//mii.dwItemData = *reinterpret_cast<ULONG_PTR*>(&keycode);
+		mii.dwItemData = reinterpret_cast<DWORD&>(keycode);
 		::SetMenuItemInfo(hmenu, itemID, FALSE, &mii);
 	}
 }
