@@ -316,6 +316,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	props.superPS = &propsLocal;
 
 	propsStatus.superPS = &props;
+	
+	ctrltabStarted=false;
 }
 
 SciTEBase::~SciTEBase() {
@@ -826,7 +828,7 @@ void SciTEBase::SetWindowName() {
 
 	if (buffers.length > 1 && props.GetInt("title.show.buffers")) {
 		windowName += " [";
-		windowName += SString(buffers.current + 1);
+		windowName += SString(buffers.Current() + 1);
 		windowName += " of ";
 		windowName += SString(buffers.length);
 		windowName += "]";
@@ -1458,7 +1460,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 }
 
 void SciTEBase::ReplaceInBuffers() {
-	int currentBuffer = buffers.current;
+	int currentBuffer = buffers.Current();
 	int replacements = 0;
 	for (int i = 0; i < buffers.length; i++) {
 		SetDocumentAt(i);
@@ -3072,6 +3074,26 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			StackMenuPrev();
 		}
 		break;
+	case IDM_NEXTFILE_ZORDER:
+		if (buffers.size > 1) {
+			ctrltabStarted=true;
+			NextZOrder(); // Use Next to tabs move left-to-right
+			WindowSetFocus(wEditor);
+		} else {
+			// Not using buffers - switch to next file on MRU
+			StackMenuNext();
+		}
+		break;
+	case IDM_PREVFILE_ZORDER:
+		if (buffers.size > 1) {
+			ctrltabStarted=true;
+			PrevZOrder(); // Use Prev to tabs move right-to-left
+			WindowSetFocus(wEditor);
+		} else {
+			// Not using buffers - switch to previous file on MRU
+			StackMenuPrev();
+		}
+		break;
 
 	case IDM_UNDO:
 		SendPane(source, SCI_UNDO);
@@ -3909,7 +3931,7 @@ void SciTEBase::CheckMenus() {
 #define TCM_DESELECTALL TCM_FIRST+50
 #endif
 		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DESELECTALL, (WPARAM)0, (LPARAM)0);
-		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)buffers.current, (LPARAM)0);
+		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)buffers.Current(), (LPARAM)0);
 #endif
 #if PLAT_GTK
 
@@ -3918,7 +3940,7 @@ void SciTEBase::CheckMenus() {
 #endif
 
 		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
-			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.current);
+			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.Current());
 		}
 	}
 	EnableAMenuItem(IDM_MACROPLAY, !recording);

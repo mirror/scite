@@ -1426,6 +1426,10 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	    (Platform::IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
 	    (Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
 	    (Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
+
+	if((!Platform::IsKeyDown(VK_CONTROL)) && (SciTEBase::ctrltabStarted))
+		SciTEBase::ControlTabEnd();	// if Control was depressed but we are still in ControlTab mode, then exit from this mode
+
 	for (int j = 0; j < languageItems; j++) {
 		if (KeyMatch(languageMenu[j].menuKey, wParam, modifiers)) {
 			SciTEBase::MenuCommand(IDM_LANGUAGE + j);
@@ -1451,6 +1455,12 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 		}
 	}
 
+	return 0l;
+}
+
+LRESULT SciTEWin::KeyUp(WPARAM) {
+	if((!Platform::IsKeyDown(VK_CONTROL)) && (SciTEBase::ctrltabStarted))
+		SciTEBase::ControlTabEnd();	// if Control was depressed but we are still in ControlTab mode, then exit from this mode
 	return 0l;
 }
 
@@ -1543,8 +1553,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		return KeyDown(wParam);
 
 	case WM_KEYUP:
-		//Platform::DebugPrintf("keyup %d %x %x\n",iMessage, wParam, lParam);
-		break;
+		return KeyUp(wParam);
 
 	case WM_SIZE:
 		//Platform::DebugPrintf("size %d %x %x\n",iMessage, wParam, lParam);

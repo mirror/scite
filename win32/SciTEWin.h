@@ -225,6 +225,7 @@ public:
 	void Paint(Surface *surfaceWindow, PRectangle rcPaint);
 	void Creation();
 	LRESULT KeyDown(WPARAM wParam);
+	LRESULT KeyUp(WPARAM wParam);
 	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true);
 	LRESULT ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);

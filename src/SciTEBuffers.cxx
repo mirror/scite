@@ -89,7 +89,7 @@ const char *FilePath::FullPath() const {
 	return fileName.c_str();
 }
 
-BufferList::BufferList() : buffers(0), size(0), length(0), current(0) {}
+BufferList::BufferList() : ctrltabStarted(false), current(0), buffers(0), size(0), length(0) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
@@ -100,6 +100,11 @@ void BufferList::Allocate(int maxSize) {
 	buffers = new Buffer[size];
 	length = 1;
 	current = 0;
+
+	LinkedList *tmpll = new LinkedList;	// alocate a single list item. everyting else will be allocated when needed
+
+	bufferListTop = tmpll;				// assign top
+	bufferListBottom = tmpll;				// assign bottom
 }
 
 int BufferList::Add() {
@@ -107,6 +112,22 @@ int BufferList::Add() {
 		length++;
 	}
 	buffers[length - 1].Init();
+
+	// the new buffer will be placed at the bottom of the z-order
+	LinkedList *newt;
+	newt = new LinkedList;				// allocate a new list item
+	newt->data = length - 1;				// and set it with newer document number
+
+	newt->next = bufferListTop;			// new's next is the previous bottom
+	newt->prev = bufferListBottom;		// new's previous is the top
+
+	bufferListBottom->next = newt;		// bottom's next is the new bottom
+
+	if (length == 2)
+		bufferListBottom->prev = bufferListBottom->next; // if only 2 documents then bottom's previous is same with bottom's next
+
+	bufferListBottom = newt;				// assign new bottom
+
 	return length - 1;
 }
 
@@ -122,25 +143,111 @@ int BufferList::GetDocumentByName(const char *filename) {
 	return -1;
 }
 
-void BufferList::RemoveCurrent() {
+void BufferList::RemoveCurrent(bool zorder) {
 	// Delete and move up to fill gap but ensure doc pointer is saved.
 	int currentDoc = buffers[current].doc;
 	for (int i = current;i < length - 1;i++) {
 		buffers[i] = buffers[i + 1];
 	}
 	buffers[length - 1].doc = currentDoc;
+
+	bufferListTop->next->prev = bufferListTop->prev;		// \ connect adjacent
+	bufferListTop->prev->next = bufferListTop->next;		// /
+	LinkedList *tmpll = bufferListTop->next;				// hold the next in MRU list
+	delete bufferListTop;								// delete current top
+	bufferListTop = tmpll;								// assign new top
+
+	// reduce every link item with higher document number then the deleted
+	tmpll = bufferListTop;
+	for (int j = 0;j < length - 1;j++) {
+		if (tmpll->data > current)
+			tmpll->data--;
+		tmpll = tmpll->next;
+	}
+
 	if (length > 1) {
 		length--;
-		buffers[length].Init();
-		if (current >= length) {
-			current = length - 1;
-		}
-		if (current < 0) {
-			current = 0;
+
+		if (zorder) {
+			current = bufferListTop->data;
+		} else {
+			buffers[length].Init();
+			if (current >= length) {
+				SetCurrent(length - 1);
+			}
+			if (current < 0) {
+				SetCurrent(0);
+			}
 		}
 	} else {
 		buffers[current].Init();
 	}
+}
+
+void BufferList::InControlTab() {
+	if (!ctrltabStarted) {
+		bufferListTopPrev = bufferListTop;	// \ Ctrl+Tab swithing has started
+		ctrltabStarted = true;				// /
+	}
+}
+
+int BufferList::Current() {
+	return current;
+}
+
+void BufferList::SetCurrent(int index) {
+	current = index;
+
+	LinkedList *newt;
+	int i;
+	for (newt = bufferListTop, i = 0;(newt->data != current) && (i < length);newt = newt->next, i++)
+		;	// find the item associated with requested document
+
+	if (!ctrltabStarted) {
+		// simulate a Ctrl+Tab stop
+		bufferListTopPrev = bufferListTop;
+		bufferListTop = newt;
+		ControlTabEnd();
+	} else
+		bufferListTop = newt;		// if still in Ctrl+Tab then just assign the requested as top
+}
+
+void BufferList::ControlTabEnd() {
+	LinkedList *oldt, *newt;
+	oldt = bufferListTopPrev;
+	newt = bufferListTop;
+
+	if (newt != oldt) {
+		if (newt == bufferListBottom) {
+			bufferListBottom = bufferListBottom->prev;
+			bufferListBottom->next = newt;	// bottom's next is the new top
+			oldt->prev = newt;				// old top's previous is the new item
+			newt->next = oldt;				// new's next is the one that was top when Ctrl+Tab started
+			newt->prev = bufferListBottom;	// new previous is the list's bottom
+		} else
+			if (length > 2) {
+				newt->next->prev = newt->prev;	// \ removing list item from it's position, so connect adjacent
+				newt->prev->next = newt->next;	// /
+
+				newt->next = oldt;				// new next is the one that was top when Ctrl+Tab started
+				newt->prev = bufferListBottom;	// new previous is the list's bottom
+				oldt->prev = newt;				// next's previous is new item
+
+				bufferListBottom->next = newt;	// bottom's next is the new top
+			}
+		//		else
+		//			bufferListBottom=newt->next;
+	}
+
+	ctrltabStarted = false;
+}
+
+int BufferList::NextZOrder() {
+	return bufferListTop->next->data;
+}
+
+int BufferList::PrevZOrder() {
+	return bufferListTop->prev->data;
 }
 
 sptr_t SciTEBase::GetDocumentAt(int index) {
@@ -155,26 +262,33 @@ sptr_t SciTEBase::GetDocumentAt(int index) {
 	return buffers.buffers[index].doc;
 }
 
+void SciTEBase::ControlTabEnd() {
+	buffers.ControlTabEnd();
+	ctrltabStarted = false;
+}
+
 void SciTEBase::SetDocumentAt(int index) {
+	int currentbuf = buffers.Current();
+
 	if (	index < 0 ||
 	        index >= buffers.length ||
-	        index == buffers.current ||
-	        buffers.current < 0 ||
-	        buffers.current >= buffers.length) {
+	        index == currentbuf ||
+	        currentbuf < 0 ||
+	        currentbuf >= buffers.length) {
 		return;
 	}
 	UpdateBuffersCurrent();
 
-	buffers.current = index;
+	buffers.SetCurrent(index);
 
-	Buffer bufferNext = buffers.buffers[buffers.current];
+	Buffer bufferNext = buffers.buffers[buffers.Current()];
 	isDirty = bufferNext.isDirty;
 	useMonoFont = bufferNext.useMonoFont;
 	unicodeMode = bufferNext.unicodeMode;
 	fileModTime = bufferNext.fileModTime;
 	overrideExtension = bufferNext.overrideExtension;
 	SetFileName(bufferNext.FullPath());
-	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
+	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 	SetWindowName();
 	ReadProperties();
 	if (unicodeMode != uni8Bit) {
@@ -204,15 +318,17 @@ void SciTEBase::SetDocumentAt(int index) {
 }
 
 void SciTEBase::UpdateBuffersCurrent() {
-	if ((buffers.length > 0) && (buffers.current >= 0)) {
-		buffers.buffers[buffers.current].Set(fullPath);
-		buffers.buffers[buffers.current].selection = GetSelection();
-		buffers.buffers[buffers.current].scrollPosition = GetCurrentScrollPosition();
-		buffers.buffers[buffers.current].isDirty = isDirty;
-		buffers.buffers[buffers.current].useMonoFont = useMonoFont;
-		buffers.buffers[buffers.current].fileModTime = fileModTime;
-		buffers.buffers[buffers.current].overrideExtension = overrideExtension;
-		buffers.buffers[buffers.current].unicodeMode = unicodeMode;
+	int currentbuf = buffers.Current();
+
+	if ((buffers.length > 0) && (currentbuf >= 0)) {
+		buffers.buffers[currentbuf].Set(fullPath);
+		buffers.buffers[currentbuf].selection = GetSelection();
+		buffers.buffers[currentbuf].scrollPosition = GetCurrentScrollPosition();
+		buffers.buffers[currentbuf].isDirty = isDirty;
+		buffers.buffers[currentbuf].useMonoFont = useMonoFont;
+		buffers.buffers[currentbuf].fileModTime = fileModTime;
+		buffers.buffers[currentbuf].overrideExtension = overrideExtension;
+		buffers.buffers[currentbuf].unicodeMode = unicodeMode;
 	}
 }
 
@@ -386,7 +502,7 @@ void SciTEBase::SaveSession(const char *sessionName) {
 	FILE *sessionFile = fopen(sessionPathName, fileWrite);
 	if (!sessionFile)
 		return;
-	int curr = buffers.current;
+	int curr = buffers.Current();
 	for (int i = 0; i < buffers.length; i++) {
 		if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
 			int pos;
@@ -455,12 +571,12 @@ void SciTEBase::New() {
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
 	// otherwise add a new buffer.
 	if ((buffers.length > 1) ||
-	        (buffers.current != 0) ||
+	        (buffers.Current() != 0) ||
 	        (buffers.buffers[0].isDirty) ||
 	        (!buffers.buffers[0].IsUntitled()))
-		buffers.current = buffers.Add();
+		buffers.SetCurrent(buffers.Add());
 
-	sptr_t doc = GetDocumentAt(buffers.current);
+	sptr_t doc = GetDocumentAt(buffers.Current());
 	SendEditor(SCI_SETDOCPOINTER, 0, doc);
 
 	fullPath[0] = '\0';
@@ -491,9 +607,9 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 		ClearDocument(); //avoid double are-you-sure
 		StackMenu(0);
 	} else if (buffers.size > 1) {
-		if (buffers.current >= 0 && buffers.current < buffers.length) {
+		if (buffers.Current() >= 0 && buffers.Current() < buffers.length) {
 			UpdateBuffersCurrent();
-			Buffer buff = buffers.buffers[buffers.current];
+			Buffer buff = buffers.buffers[buffers.Current()];
 			AddFileToStack(buff.FullPath(), buff.selection, buff.scrollPosition);
 		}
 		closingLast = (buffers.length == 1);
@@ -501,9 +617,12 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 			buffers.buffers[0].Init();
 			buffers.buffers[0].useMonoFont = useMonoFont;
 		} else {
-			buffers.RemoveCurrent();
+			if (props.GetInt("buffers.zorder.switching") == 1)
+				buffers.RemoveCurrent(true);
+			else
+				buffers.RemoveCurrent(false);
 		}
-		Buffer bufferNext = buffers.buffers[buffers.current];
+		Buffer bufferNext = buffers.buffers[buffers.Current()];
 		isDirty = bufferNext.isDirty;
 		useMonoFont = bufferNext.useMonoFont;
 		unicodeMode = bufferNext.unicodeMode;
@@ -512,7 +631,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 
 		if (updateUI)
 			SetFileName(bufferNext.FullPath());
-		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
+		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 		if (closingLast) {
 			ClearDocument();
 		}
@@ -550,7 +669,7 @@ void SciTEBase::CloseAllBuffers(bool loadingSession) {
 int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
 	int choice = IDYES;
 	UpdateBuffersCurrent();	// Ensure isDirty copied
-	int currentBuffer = buffers.current;
+	int currentBuffer = buffers.Current();
 	for (int i = 0; (i < buffers.length) && (choice != IDCANCEL); i++) {
 		if (buffers.buffers[i].isDirty) {
 			SetDocumentAt(i);
@@ -569,7 +688,7 @@ int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
 
 void SciTEBase::SaveTitledBuffers() {
 	UpdateBuffersCurrent(); // Ensure isDirty copied
-	int currentBuffer = buffers.current;
+	int currentBuffer = buffers.Current();
 	for (int i = 0; i < buffers.length; i++) {
 		if (buffers.buffers[i].isDirty && !buffers.buffers[i].IsUntitled()) {
 			SetDocumentAt(i);
@@ -580,7 +699,7 @@ void SciTEBase::SaveTitledBuffers() {
 }
 
 void SciTEBase::Next() {
-	int next = buffers.current;
+	int next = buffers.Current();
 	if (++next >= buffers.length)
 		next = 0;
 	SetDocumentAt(next);
@@ -588,9 +707,36 @@ void SciTEBase::Next() {
 }
 
 void SciTEBase::Prev() {
-	int prev = buffers.current;
+	int prev = buffers.Current();
 	if (--prev < 0)
 		prev = buffers.length - 1;
+
+	SetDocumentAt(prev);
+	CheckReload();
+}
+
+void SciTEBase::NextZOrder() {
+	if (props.GetInt("buffers.zorder.switching") != 1) {
+		Next();	// if MRU list switching is not enabled then jump to regular serial switching
+		return;
+	}
+
+	buffers.InControlTab();
+	int next = buffers.NextZOrder();
+
+	SetDocumentAt(next);
+	CheckReload();
+}
+
+void SciTEBase::PrevZOrder() {
+	if (props.GetInt("buffers.zorder.switching") != 1) {
+		Prev();	// if MRU list switching is not enabled then jump to regular serial switching
+		return;
+	}
+
+	buffers.InControlTab();
+	int prev = buffers.PrevZOrder();
+
 	SetDocumentAt(prev);
 	CheckReload();
 }
@@ -1273,7 +1419,7 @@ void SciTEBase::GoMessage(int dir) {
 		        style != SCE_ERR_CMD &&
 		        (style < SCE_ERR_DIFF_CHANGED || style > SCE_ERR_DIFF_MESSAGE)) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
-			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
+			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			SendOutput(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
 			           "error.marker.fore", ColourDesired(0x7f, 0, 0)));

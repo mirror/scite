@@ -144,7 +144,11 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 	if (pmsg->message == WM_KEYDOWN) {
 		if (KeyDown(pmsg->wParam))
 			return true;
+	} else if (pmsg->message == WM_KEYUP) {
+		if (KeyUp(pmsg->wParam))
+			return true;
 	}
+
 	return false;
 }
 
