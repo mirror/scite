@@ -4,7 +4,8 @@ mkdir gscite
 cp scite/license.txt gscite
 cp scite/bin/SciTE gscite
 strip gscite/SciTE
-cp scite/gtk/SciTEGTK.properties gscite/SciTEGlobal.properties
+cp scite/src/*.properties gscite
+rm -f gscite/Embedded.properties
 cp scite/doc/*.html gscite
 cp scite/doc/*.png gscite
 cp scite/doc/*.jpg gscite
