@@ -132,6 +132,7 @@ protected:
 	int originalEnd;
 	int fdFIFO;
 	int pidShell;
+	bool triedKill;
 	int exitStatus;
 	guint pollID;
 	char resultsFile[MAX_PATH];
@@ -341,6 +342,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	originalEnd = 0;
 	fdFIFO = 0;
 	pidShell = 0;
+	triedKill = false;
 	exitStatus = 0;
 	pollID = 0;
 	sprintf(resultsFile, "/tmp/SciTE%x.results",
@@ -814,9 +816,9 @@ void SciTEGTK::OpenUriList(const char *list) {
 void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*/) {
 	char path[MAX_PATH + 1], *cur, *last, *part, *tmp;
 	if (!absPath)
-		return ;
+		return;
 	if (!relativePath)
-		return ;
+		return;
 	strcpy(path, relativePath);
 	cur = absPath;
 	*cur = '\0';
@@ -1272,6 +1274,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		fdFIFO = 0;
 		unlink(resultsFile);
 		pidShell = 0;
+		triedKill = false;
 		ExecuteNext();
 	} else { // count < 0
 		// The FIFO is not ready - expected when called from polling callback.
@@ -1344,15 +1347,16 @@ void SciTEGTK::Execute() {
 		if (!MakePipe(resultsFile)) {
 			OutputAppendString(">Failed to create FIFO\n");
 			ExecuteNext();
-			return ;
+			return;
 		}
 
 		pidShell = xsystem(jobQueue[icmd].command.c_str(), resultsFile);
+		triedKill = false;
 		fdFIFO = open(resultsFile, O_RDONLY | O_NONBLOCK);
 		if (fdFIFO < 0) {
 			OutputAppendString(">Failed to open\n");
 			fdFIFO = 0;
-			return ;
+			return;
 		}
 		inputHandle = gdk_input_add(fdFIFO, GDK_INPUT_READ,
 		                            (GdkInputFunction) IOSignal, this);
@@ -1362,7 +1366,10 @@ void SciTEGTK::Execute() {
 }
 
 void SciTEGTK::StopExecute() {
-	kill(pidShell, SIGKILL);
+	if (!triedKill && pidShell) {
+		kill(pidShell, SIGKILL);
+		triedKill = true;
+	}
 }
 
 void SciTEGTK::GotoSignal(GtkWidget *, SciTEGTK *scitew) {
@@ -2890,7 +2897,7 @@ void SciTEGTK::PipeSignal(void *data, gint fd, GdkInputCondition condition) {
 
 void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 	if (!props.GetInt("check.if.already.open"))
-		return ;
+		return;
 
 	// Create a pipe and see if it finds another one already there
 
@@ -2970,6 +2977,7 @@ void SciTEGTK::ChildSignal(int) {
 	if (pid == instance->pidShell) {
 		// If this child is the currently running tool, save the exit status
 		instance->pidShell = 0;
+		instance->triedKill = false;
 		instance->exitStatus = status;
 	}
 }
