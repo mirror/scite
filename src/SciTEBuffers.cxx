@@ -321,11 +321,10 @@ void SciTEBase::SaveSession(const char *sessionName) {
 	} else {
 		strcpy(sessionPathName, sessionName);
 	}
-	int i = 0;
 	FILE *sessionFile = fopen(sessionPathName, "w");
 	if (!sessionFile)
 		return;
-	for (i = buffers.length - 1; i >= 0; i--) {
+	for (int i = buffers.length - 1; i >= 0; i--) {
 		if (buffers.buffers[i].IsSet())
 			fprintf(sessionFile, "%s\n", buffers.buffers[i].FullPath());
 	}

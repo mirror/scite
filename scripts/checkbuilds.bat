@@ -7,7 +7,7 @@ rem Assumes environment set up so gcc and MSVC can be called.
 rem 
 cd ..\..
 set
-set BORLAND_BASE=G:\Borland\bcc55
+set BORLAND_BASE=F:\Borland\bcc55
 rem 
 rem Target 1: Normal gcc build
 call scite\scripts\clearboth
