@@ -836,9 +836,18 @@ StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 }
 
 SString SciTEBase::ExtensionFileName() {
-	if (fileName[0])
-		return fileName;
-	else
+	if (overrideExtension.length())
+		return overrideExtension;
+	else if (fileName[0]) {
+		// Force extension to lower case
+		char fileNameWithLowerCaseExtension[MAX_PATH];
+		strcpy(fileNameWithLowerCaseExtension, fileName);
+		char *extension = strrchr(fileNameWithLowerCaseExtension, '.');
+		if (extension) {
+			strlwr(extension);
+		}
+		return fileNameWithLowerCaseExtension;
+	} else
 		return props.Get("default.file.ext");
 }
 
@@ -849,8 +858,6 @@ void SciTEBase::AssignKey(int key, int mods, int cmd) {
 void SciTEBase::ReadProperties() {
 	//DWORD dwStart = timeGetTime();
 	SString fileNameForExtension = ExtensionFileName();
-	if (overrideExtension.length())
-		fileNameForExtension = overrideExtension;
 
 	language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 
@@ -1285,10 +1292,10 @@ void SciTEBase::SetFileName(const char *openName) {
 	FixFilePath();
 	char fileBase[MAX_PATH];
 	strcpy(fileBase, fileName);
-	char *cpExt = strrchr(fileBase, '.');
-	if (cpExt) {
-		*cpExt = '\0';
-		strcpy(fileExt, cpExt + 1);
+	char *extension = strrchr(fileBase, '.');
+	if (extension) {
+		*extension = '\0';
+		strcpy(fileExt, extension + 1);
 	} else { // No extension
 		fileExt[0] = '\0';
 	}
