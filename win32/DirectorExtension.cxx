@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "Platform.h"
 
@@ -16,6 +17,8 @@
 #include "Accessor.h"
 #include "Extender.h"
 #include "DirectorExtension.h"
+#include "SciTE.h"
+#include "SciTEBase.h"
 
 static ExtensionAPI *host = 0;
 static DirectorExtension *pde = 0;
@@ -25,19 +28,23 @@ static HWND wReceiver = 0;
 static bool startedByDirector = false;
 unsigned int SDI = 0;
 
-static void SendDirector(int typ, const char *path) {
+static void SendDirectorMessage(const char *message) {
 	if ((wDirector != 0) || (wCorrespondent != 0)) {
 		HWND wDestination = wCorrespondent;
 		if (!wDestination)
 			wDestination = wDirector;
-		COPYDATASTRUCT cds;
-		cds.dwData = typ;
-		cds.cbData = strlen(path);
-		cds.lpData = reinterpret_cast<void *>(
-			const_cast<char *>(path));
-		::SendMessage(wDestination, WM_COPYDATA,
-			reinterpret_cast<WPARAM>(wReceiver),
-			reinterpret_cast<LPARAM>(&cds));
+		char *slashedMessage = Slash(message);
+		if (slashedMessage) {
+			COPYDATASTRUCT cds;
+			cds.dwData = 0;
+			cds.cbData = strlen(slashedMessage);
+			cds.lpData = reinterpret_cast<void *>(
+				const_cast<char *>(slashedMessage));
+			::SendMessage(wDestination, WM_COPYDATA,
+				reinterpret_cast<WPARAM>(wReceiver),
+				reinterpret_cast<LPARAM>(&cds));
+			delete []slashedMessage;
+		}
 	}
 }
 
@@ -46,7 +53,7 @@ static void SendDirector(const char *verb, const char *arg=0) {
 	message += ":";
 	if (arg)
 		message += arg;
-	::SendDirector(0, message.c_str());
+	::SendDirectorMessage(message.c_str());
 }
 
 static void SendDirector(const char *verb, sptr_t arg) {

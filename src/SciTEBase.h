@@ -554,11 +554,13 @@ int ControlIDOfCommand(unsigned long);
 void SetAboutMessage(WindowID wsci, const char *appTitle);
 time_t GetModTime(const char *fullPath);
 bool IsUntitledFileName(const char *name);
-void lowerCaseString(char *s);
+void LowerCaseString(char *s);
 void ChopTerminalSlash(char *path);
 int IntFromHexDigit(const char ch);
 Colour ColourFromString(const char *val);
 long ColourOfProperty(PropSet &props, const char *key, Colour colourDefault);
+char *Slash(const char *s);
+unsigned int UnSlash(char *s);
 
 #if PLAT_GTK
 // MessageBox

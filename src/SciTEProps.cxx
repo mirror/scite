@@ -393,7 +393,7 @@ void SciTEBase::SetStyleFor(Window &win, const char *lang) {
 	}
 }
 
-void lowerCaseString(char *s) {
+void LowerCaseString(char *s) {
 	while (*s) {
 		*s = static_cast<char>(tolower(*s));
 		s++;
@@ -409,7 +409,7 @@ SString SciTEBase::ExtensionFileName() {
 		strcpy(fileNameWithLowerCaseExtension, fileName);
 		char *extension = strrchr(fileNameWithLowerCaseExtension, '.');
 		if (extension) {
-			lowerCaseString(extension);
+			LowerCaseString(extension);
 		}
 		return SString(fileNameWithLowerCaseExtension);
 	} else

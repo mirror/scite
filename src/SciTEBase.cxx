@@ -2357,6 +2357,57 @@ char AfterName(const char *s) {
 }
 
 /**
+ * Convert a string into C string literal form using \a, \b, \f, \n, \r, \t, \v, and \ooo.
+ * The return value is a newly allocated character array containing the result.
+ * 4 bytes are allocated for each byte of the input because that is the maximum
+ * expansion needed when all of the input needs to be output using the octal form.
+ * The return value should be deleted with delete[].
+ */
+char *Slash(const char *s) {
+	char *oRet = new char[strlen(s) * 4 + 1];
+	if (oRet) {
+		char *o = oRet;
+		while (*s) {
+			if (*s == '\a') {
+				*o++ = '\\';
+				*o++ = 'a';
+			} else if (*s == '\b') {
+				*o++ = '\\';
+				*o++ = 'b';
+			} else if (*s == '\f') {
+				*o++ = '\\';
+				*o++ = 'f';
+			} else if (*s == '\n') {
+				*o++ = '\\';
+				*o++ = 'n';
+			} else if (*s == '\r') {
+				*o++ = '\\';
+				*o++ = 'r';
+			} else if (*s == '\t') {
+				*o++ = '\\';
+				*o++ = 't';
+			} else if (*s == '\v') {
+				*o++ = '\\';
+				*o++ = 'v';
+			} else if (*s == '\\') {
+				*o++ = '\\';
+				*o++ = '\\';
+			} else if (*s < ' ') {
+				*o++ = '\\';
+				*o++ = (*s >> 6) + '0';
+				*o++ = (*s >> 3) + '0';
+				*o++ = (*s & 0x7) + '0';
+			} else {
+				*o++ = *s;
+			}
+			s++;
+		}
+		*o = '\0';
+	}
+	return oRet;
+}
+
+/**
  * Is the character an octal digit.
  */
 static bool IsOctalDigit(char ch) {
@@ -2364,20 +2415,29 @@ static bool IsOctalDigit(char ch) {
 }
 
 /**
- * Convert C style \nnn, \r, \n, \t into their indicated characters
+ * Convert C style \a, \b, \f, \n, \r, \t, \v, and \ooo into their indicated characters.
+ * Hexadecimal forms, \xhh, are not supported.
  */
-static unsigned int UnSlash(char *s) {
+unsigned int UnSlash(char *s) {
 	char *sStart = s;
 	char *o = s;
 	while (*s) {
 		if (*s == '\\') {
 			s++;
-			if (*s == 'r') {
-				*o = '\r';
+			if (*s == 'a') {
+				*o = '\a';
+			} else if (*s == 'b') {
+				*o = '\b';
+			} else if (*s == 'f') {
+				*o = '\f';
 			} else if (*s == 'n') {
 				*o = '\n';
+			} else if (*s == 'r') {
+				*o = '\r';
 			} else if (*s == 't') {
 				*o = '\t';
+			} else if (*s == 'v') {
+				*o = '\v';
 			} else if (IsOctalDigit(*s)) {
 				int val = *s - '0';
 				if (IsOctalDigit(*(s+1))) {
@@ -2398,7 +2458,8 @@ static unsigned int UnSlash(char *s) {
 			*o = *s;
 		}
 		o++;
-		s++;
+		if (*s)
+			s++;
 	}
 	*o = '\0';
 	return o - sStart;
@@ -2468,6 +2529,8 @@ void SciTEBase::EnumProperties(const char *propkind) {
 		pf = &propsBase;
 	else if (!strcmp(propkind, "embed"))
 		pf = &propsEmbed;
+	else if (!strcmp(propkind,"abbrev"))
+		pf = &propsAbbrev;
 
 	if (pf != NULL) {
 		bool b = pf->GetFirst(&key, &val);
