@@ -2245,16 +2245,14 @@ int SciTEBase::IndentOfBlock(int line) {
 void SciTEBase::MaintainIndentation(char ch) {
 	int eolMode = SendEditor(SCI_GETEOLMODE);
 	int curLine = GetCurrentLineNumber();
-	int lastLine = curLine;
+	int lastLine = curLine - 1;
 	int indentAmount = 0;
 
 	if (((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') ||
 	        (eolMode == SC_EOL_CR && ch == '\r')) {
-		if (lastLine >= 1 && props.GetInt("indent.automatic")) {
-			int lineLen;
-			do {
-				lineLen = GetLineLength(--lastLine);
-			} while (lineLen == 0 && lastLine > 0);
+		if (props.GetInt("indent.automatic")) {
+			while (lastLine >= 0 && GetLineLength(lastLine) == 0)
+				lastLine--;
 		}
 		if (lastLine >= 0) {
 			indentAmount = GetLineIndentation(lastLine);
