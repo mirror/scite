@@ -432,154 +432,187 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		tabSize = 4;
 	int wysiwyg = props.GetInt("export.html.wysiwyg", 1);
 	int tabs = props.GetInt("export.html.tabs", 0);
-
 	int folding = props.GetInt("export.html.folding", 0);
+	int onlyStylesUsed = props.GetInt("export.html.styleused",0);
+	int titleFullPath = props.GetInt("export.html.title.fullpath",0);
+
+	int lengthDoc = LengthDocument();
+	WindowAccessor acc(wEditor.GetID(), props);
+
+	bool * styleIsUsed = new bool[STYLE_DEFAULT+1];
+	if (onlyStylesUsed != 0) {
+		int i;
+		for (i = 0; i < STYLE_DEFAULT; i++) {
+			styleIsUsed[i] = false;
+		}
+		styleIsUsed[STYLE_DEFAULT] = true;
+		// check the used styles
+		for (i = 0; i < lengthDoc; i++) {
+			styleIsUsed[acc.StyleAt(i)] = true;
+		}
+	} else {
+		for (int i = 0; i <= STYLE_DEFAULT; i++) {
+			styleIsUsed[i] = true;
+		}
+	}
 
 	FILE *fp = fopen(saveName, "wt");
 	if (fp) {
-		int styleCurrent = 0;
-		fputs("<!DOCTYPE html  PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-transitional.dtd\">\n", fp);
+		fputs("<!DOCTYPE html  PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-strict.dtd\">\n", fp);
 		fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
 		fputs("<head>\n", fp);
-		fputs("<title>SciTE generated</title>\n", fp);
+		if (titleFullPath != 0)
+			fprintf(fp, "<title>%s</title>\n", fullPath);
+		else
+			fprintf(fp, "<title>%s</title>\n", fileName);
+		// Probably not used by robots, but making a little advertisement for those looking
+		// at the source code doesn't hurt...
+		fputs("<meta name=\"GENERATOR\" content=\"SciTE - www.Scintilla.org\" />\n", fp);
 
-		fputs("<script language=\"Javascript\" type=\"text/javascript\">\n"
-		      "<!--\n"
-		      "function toggleBlock(thisid)\n"
-		      "{\n"
-		      "var thislayer=document.getElementById(thisid);\n"
-		      "if (thislayer.style.display == 'none')\n"
-		      " {\n"
-		      " thislayer.style.display='block';\n"
-		      " }\n"
-		      " else\n"
-		      " {\n"
-		      " thislayer.style.display='none';\n"
-		      " }\n"
-		      "}\n"
-		      "//-->\n"
-		      "</script>\n", fp);
+		if (folding != 0) {
+			fputs("<script language=\"JavaScript\" type=\"text/javascript\">\n"
+						"<!--\n"
+						"function toggle(thisid) {\n"
+						"var thislayer=document.getElementById(thisid);\n"
+						"if (thislayer.style.display == 'none') {\n"
+						" thislayer.style.display='block';\n"
+						"} else {\n"
+						" thislayer.style.display='none';\n"
+						"}\n"
+						"}\n"
+						"//-->\n"
+						"</script>\n", fp);
+		}
 
 		fputs("<style type=\"text/css\">\n", fp);
 		SString colour;
 		for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
-			char key[200];
-			sprintf(key, "style.*.%0d", istyle);
-			char *valdef = StringDup(props.GetExpanded(key).c_str());
-			sprintf(key, "style.%s.%0d", language.c_str(), istyle);
-			char *val = StringDup(props.GetExpanded(key).c_str());
-			SString family;
-			SString fore;
-			SString back;
-			bool italics = false;
-			bool bold = false;
-			int size = 0;
-			if ((valdef && *valdef) || (val && *val)) {
-				if (istyle == STYLE_DEFAULT)
-					fprintf(fp, "span {\n");
-				else
-					fprintf(fp, ".S%0d {\n", istyle);
-				if (valdef && *valdef) {
-					char *opt = valdef;
-					while (opt) {
-						char *cpComma = strchr(opt, ',');
-						if (cpComma)
-							*cpComma = '\0';
-						char *colon = strchr(opt, ':');
-						if (colon)
-							*colon++ = '\0';
-						if (0 == strcmp(opt, "italics"))
-							italics = true;
-						if (0 == strcmp(opt, "notitalics"))
-							italics = false;
-						if (0 == strcmp(opt, "bold"))
-							bold = true;
-						if (0 == strcmp(opt, "notbold"))
-							bold = false;
-						if (0 == strcmp(opt, "font"))
-							family = colon;
-						if (0 == strcmp(opt, "fore"))
-							fore = colon;
-						if (0 == strcmp(opt, "back"))
-							back = colon;
-						if (0 == strcmp(opt, "size"))
-							size = atoi(colon);
-						if (cpComma)
-							opt = cpComma + 1;
-						else
-							opt = 0;
+			if (styleIsUsed[istyle]) {
+				char key[200];
+				sprintf(key, "style.*.%0d", istyle);
+				char *valdef = StringDup(props.GetExpanded(key).c_str());
+				sprintf(key, "style.%s.%0d", language.c_str(), istyle);
+				char *val = StringDup(props.GetExpanded(key).c_str());
+				SString family;
+				SString fore;
+				SString back;
+				bool italics = false;
+				bool bold = false;
+				int size = 0;
+				if ((valdef && *valdef) || (val && *val)) {
+					if (istyle == STYLE_DEFAULT)
+						fprintf(fp, "span {\n");
+					else
+						fprintf(fp, ".S%0d {\n", istyle);
+					if (valdef && *valdef) {
+						char *opt = valdef;
+						while (opt) {
+							char *cpComma = strchr(opt, ',');
+							if (cpComma)
+								*cpComma = '\0';
+							char *colon = strchr(opt, ':');
+							if (colon)
+								*colon++ = '\0';
+							if (0 == strcmp(opt, "italics"))
+								italics = true;
+							if (0 == strcmp(opt, "notitalics"))
+								italics = false;
+							if (0 == strcmp(opt, "bold"))
+								bold = true;
+							if (0 == strcmp(opt, "notbold"))
+								bold = false;
+							if (0 == strcmp(opt, "font"))
+								family = colon;
+							if (0 == strcmp(opt, "fore"))
+								fore = colon;
+							if (0 == strcmp(opt, "back"))
+								back = colon;
+							if (0 == strcmp(opt, "size"))
+								size = atoi(colon);
+							if (cpComma)
+								opt = cpComma + 1;
+							else
+								opt = 0;
+						}
 					}
-				}
-				if (val && *val) {
-					char *opt = val;
-					while (opt) {
-						char *cpComma = strchr(opt, ',');
-						if (cpComma)
-							*cpComma = '\0';
-						char *colon = strchr(opt, ':');
-						if (colon)
-							*colon++ = '\0';
-						if (0 == strcmp(opt, "italics"))
-							italics = true;
-						if (0 == strcmp(opt, "notitalics"))
-							italics = false;
-						if (0 == strcmp(opt, "bold"))
-							bold = true;
-						if (0 == strcmp(opt, "notbold"))
-							bold = false;
-						if (0 == strcmp(opt, "font"))
-							family = colon;
-						if (0 == strcmp(opt, "fore"))
-							fore = colon;
-						if (0 == strcmp(opt, "back"))
-							back = colon;
-						if (0 == strcmp(opt, "size"))
-							size = atoi(colon);
-						if (cpComma)
-							opt = cpComma + 1;
-						else
-							opt = 0;
+					if (val && *val) {
+						char *opt = val;
+						while (opt) {
+							char *cpComma = strchr(opt, ',');
+							if (cpComma)
+								*cpComma = '\0';
+							char *colon = strchr(opt, ':');
+							if (colon)
+								*colon++ = '\0';
+							if (0 == strcmp(opt, "italics"))
+								italics = true;
+							if (0 == strcmp(opt, "notitalics"))
+								italics = false;
+							if (0 == strcmp(opt, "bold"))
+								bold = true;
+							if (0 == strcmp(opt, "notbold"))
+								bold = false;
+							if (0 == strcmp(opt, "font"))
+								family = colon;
+							if (0 == strcmp(opt, "fore"))
+								fore = colon;
+							if (0 == strcmp(opt, "back"))
+								back = colon;
+							if (0 == strcmp(opt, "size"))
+								size = atoi(colon);
+							if (cpComma)
+								opt = cpComma + 1;
+							else
+								opt = 0;
+						}
 					}
+					if (italics)
+						fprintf(fp, "\tfont-style: italic;\n");
+					if (bold)
+						fprintf(fp, "\tfont-weight: bold;\n");
+					if (wysiwyg && family.length())
+						fprintf(fp, "\tfont-family: %s;\n", family.c_str());
+					if (fore.length())
+						fprintf(fp, "\tcolor: %s;\n", fore.c_str());
+					if (back.length())
+						fprintf(fp, "\tbackground: %s;\n", back.c_str());
+					if (wysiwyg && size)
+						fprintf(fp, "\tfont-size: %0dpt;\n", size);
+					fprintf(fp, "}\n");
 				}
-				if (italics)
-					fprintf(fp, "\tfont-style: italic;\n");
-				if (bold)
-					fprintf(fp, "\tfont-weight: bold;\n");
-				if (wysiwyg && family.length())
-					fprintf(fp, "\tfont-family: %s;\n", family.c_str());
-				if (fore.length())
-					fprintf(fp, "\tcolor: %s;\n", fore.c_str());
-				if (back.length())
-					fprintf(fp, "\tbackground: %s;\n", back.c_str());
-				if (wysiwyg && size)
-					fprintf(fp, "\tfont-size: %0dpt;\n", size);
-				fprintf(fp, "}\n");
+				if (val)
+					delete []val;
+				if (valdef)
+					delete []valdef;
 			}
-			if (val)
-				delete []val;
-			if (valdef)
-				delete []valdef;
 		}
 		fputs("</style>\n", fp);
 		fputs("</head>\n", fp);
 		fputs("<body>\n", fp);
-		WindowAccessor acc(wEditor.GetID(), props);
+
 		int line = acc.GetLine(0);
 		int level = (acc.LevelAt(line) & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 		int newLevel;
-		styleCurrent = acc.StyleAt(0);
-		if (!wysiwyg)
+		int styleCurrent = acc.StyleAt(0);
+		if (wysiwyg) {
+			fputs("<span>", fp);
+		} else { // if (folding != 0)
 			fputs("<pre>", fp);
-		if (folding != 0) {
-			fputs("&nbsp;&nbsp;", fp);
-			line = acc.GetLine(0); // no \n count
-			int lvl = acc.LevelAt(line);
-			if (lvl & SC_FOLDLEVELHEADERFLAG)
-				fprintf(fp, "<span onClick=\"toggleBlock('ln%d')\">-</span>&nbsp;", line + 1);
 		}
+
+		if (folding != 0) {
+			int lvl = acc.LevelAt(0);
+			level = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
+
+			if (lvl & SC_FOLDLEVELHEADERFLAG) {
+				fprintf(fp, "<span onclick=\"toggle('ln%d')\">-</span> ", line + 1);
+			} else {
+				fputs("&nbsp;&nbsp;", fp);
+			}
+		}
+
 		fprintf(fp, "<span class=\"S%d\">", styleCurrent);
 
-		int lengthDoc = LengthDocument();
 		for (int i = 0; i < lengthDoc; i++) {
 			char ch = acc[i];
 			int style = acc.StyleAt(i);
@@ -590,10 +623,18 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 				styleCurrent = style;
 			}
 			if (ch == ' ') {
-				if (wysiwyg)
-					fputs("&nbsp;", fp);
-				else
+				if (wysiwyg) {
+					if (acc[i+1] != ' ' || i+1 >= lengthDoc) {
+						fputc(' ', fp);
+					} else {
+						while (acc[i] == ' ') {
+							fputs("&nbsp;", fp);
+							i++;
+						}
+					}
+				} else {
 					fputc(' ', fp);
+				}
 			} else if (ch == '\t') {
 				if (wysiwyg) {
 					for (int itab = 0; itab < tabSize; itab++)
@@ -607,10 +648,11 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 					}
 				}
 			} else if ((ch == '\r') || (ch == '\n')) {
-				if (ch == '\r')
+				if (ch == '\r' && acc[i+1] == '\n') {
 					i++;
+				}
 				if (wysiwyg) {
-					fputs("<br/>", fp);
+					fputs("<br />", fp);
 				}
 
 				fputs("</span>", fp);
@@ -628,12 +670,13 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 						fprintf(fp, "<span id=\"ln%d\">", line);
 
 					if (lvl & SC_FOLDLEVELHEADERFLAG)
-						fprintf(fp, "<span onClick=\"toggleBlock('ln%d')\">-</span>&nbsp;", line + 1);
+						fprintf(fp, "<span onclick=\"toggle('ln%d')\">-</span> ", line + 1);
 					else
 						fputs("&nbsp;&nbsp;", fp);
 					level = newLevel;
-				} else
+				} else {
 					fputc('\n', fp);
+				}
 
 				fprintf(fp, "<span class=\"S%0d\">", styleCurrent); // we know it's the correct next style
 			} else if (ch == '<') {
@@ -648,8 +691,20 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		}
 
 		fputs("</span>", fp);
-		if (!wysiwyg)
+
+		if (folding != 0) {
+			while (level > 0) {
+				fprintf(fp, "</span>");
+				level--;
+			}
+		}
+
+		if (!wysiwyg) {
 			fputs("</pre>", fp);
+		} else { // if (folding != 0)
+			fputs("</span>", fp);
+		}
+
 		fputs("\n</body>\n</html>\n", fp);
 		fclose(fp);
 	} else {
@@ -661,6 +716,9 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
 		dialogsOnScreen--;
 	}
+
+	if (styleIsUsed != NULL)
+		delete [] styleIsUsed;
 }
 
 /*
