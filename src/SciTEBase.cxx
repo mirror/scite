@@ -1591,6 +1591,8 @@ void SciTEBase::Redraw() {
 
 bool SciTEBase::StartCallTip() {
 	//Platform::DebugPrintf("StartCallTip\n");
+	SendEditor(SCI_CALLTIPCANCEL);
+	
 	char linebuf[1000];
 	GetLine(linebuf, sizeof(linebuf));
 	int current = GetCaretInLine();
@@ -1656,9 +1658,14 @@ void SciTEBase::ContinueCallTip() {
 	GetLine(linebuf, sizeof(linebuf));
 	int current = GetCaretInLine();
 
+	int braces = 0;
 	int commas = 0;
 	for (int i = startCalltipWord; i < current; i++) {
-		if (IsCallTipSeparator(linebuf[i]))
+		if (linebuf[i] == '(')
+			braces++;
+		else if (linebuf[i] == ')' && braces > 0)
+			braces--;
+		else if (braces == 1 && IsCallTipSeparator(linebuf[i]))
 			commas++;
 	}
 
@@ -2557,8 +2564,11 @@ void SciTEBase::CharAdded(char ch) {
 					braceCount--;
 					if (braceCount < 1)
 						SendEditor(SCI_CALLTIPCANCEL);
+					else
+						StartCallTip();
 				} else if (ch == '(') {
 					braceCount++;
+					StartCallTip();
 				} else {
 					ContinueCallTip();
 				}
@@ -2599,7 +2609,7 @@ void SciTEBase::CharAdded(char ch) {
 
 /**
  * This routine will auto complete XML or HTML tags that are still open by closing them
- * @parm ch The characer we are dealing with, currently only works with the '/' character
+ * @parm ch The characer we are dealing with, currently only works with the '>' character
  * @return True if handled, false otherwise
  */
 bool SciTEBase::HandleXml(char ch) {
