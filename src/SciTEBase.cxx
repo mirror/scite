@@ -835,6 +835,13 @@ StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 	return sw;
 }
 
+static void lowerCaseString(char *s) {
+	while (*s) {
+		*s = tolower(*s);
+		s++;
+	}
+}
+
 SString SciTEBase::ExtensionFileName() {
 	if (overrideExtension.length())
 		return overrideExtension;
@@ -844,7 +851,7 @@ SString SciTEBase::ExtensionFileName() {
 		strcpy(fileNameWithLowerCaseExtension, fileName);
 		char *extension = strrchr(fileNameWithLowerCaseExtension, '.');
 		if (extension) {
-			strlwr(extension);
+			lowerCaseString(extension);
 		}
 		return fileNameWithLowerCaseExtension;
 	} else
