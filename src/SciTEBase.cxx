@@ -383,8 +383,6 @@ void SciTEBase::InitialiseBuffers() {
 		buffers.buffers[0].doc = SendEditor(SCI_GETDOCPOINTER, 0, 0);
 		SendEditor(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc);	// We own this reference
 		if (buffersWanted == 1) {
-			DestroyMenuItem(4, IDM_PREV);
-			DestroyMenuItem(4, IDM_NEXT);
 			DestroyMenuItem(4, IDM_CLOSEALL);
 			DestroyMenuItem(4, 0);
 		}
@@ -3435,14 +3433,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 			SetFocus(wEditor.GetID());
 		}
 		break;
-	case IDM_PREV:
-		Prev();
-		SetFocus(wEditor.GetID());
-		break;
-	case IDM_NEXT:
-		Next();
-		SetFocus(wEditor.GetID());
-		break;
 	case IDM_CLOSEALL:
 		CloseAllBuffers();
 		break;
@@ -3481,12 +3471,22 @@ void SciTEBase::MenuCommand(int cmdID) {
 		QuitProgram();
 		break;
 	case IDM_NEXTFILE:
-		if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
+		if (IsBufferAvailable()) {
+			Prev(); // Use Prev to tabs move left-to-right
+			SetFocus(wEditor.GetID());
+		} else {
+			// Not using buffers - switch to next file on MRU
+			if (SaveIfUnsure() != IDCANCEL)
 			StackMenuNext();
 		}
 		break;
 	case IDM_PREVFILE:
-		if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
+		if (IsBufferAvailable()) {
+			Next(); // Use Next to tabs move right-to-left
+			SetFocus(wEditor.GetID());
+		} else {
+			// Not using buffers - switch to previous file on MRU
+			if (SaveIfUnsure() != IDCANCEL)
 			StackMenuPrev();
 		}
 		break;

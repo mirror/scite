@@ -41,6 +41,12 @@ const char appName[] = "Sc1";
 const char appName[] = "SciTE";
 #endif 
 
+typedef struct {
+    unsigned tabSize;
+    unsigned indentSize;
+    bool useTabs;
+} IndentationSettings;
+
 class SciTEWin : public SciTEBase {
 
 protected:
@@ -1797,18 +1803,26 @@ void SciTEWin::GoLineDialog() {
 }
 
 BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-	static int *pTabSize;
+	static IndentationSettings *pSettings;
 
 	switch (message) {
 
 	case WM_INITDIALOG:
-		pTabSize = reinterpret_cast<int *>(lParam);
+		pSettings = reinterpret_cast<IndentationSettings *>(lParam);
 		SendDlgItemMessage(hDlg, IDTABSIZE, EM_LIMITTEXT, 2, 1);
 		char tmp[3];
-		if (*pTabSize > 99)
-			*pTabSize = 99;
-		sprintf(tmp, "%d", *pTabSize);
+		if (pSettings->tabSize > 99)
+			pSettings->tabSize = 99;
+		sprintf(tmp, "%d", pSettings->tabSize);
 		SendDlgItemMessage(hDlg, IDTABSIZE, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(tmp));
+
+		SendDlgItemMessage(hDlg, IDINDENTSIZE, EM_LIMITTEXT, 2, 1);
+		if (pSettings->indentSize > 99)
+			pSettings->indentSize = 99;
+		sprintf(tmp, "%d", pSettings->indentSize);
+		SendDlgItemMessage(hDlg, IDINDENTSIZE, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(tmp));
+
+		CheckDlgButton(hDlg, IDUSETABS, pSettings->useTabs);
 		return TRUE;
 
 	case WM_CLOSE:
@@ -1821,7 +1835,9 @@ BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
 			BOOL bOK;
-			*pTabSize = static_cast<int>(GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
+			pSettings->tabSize = static_cast<int>(GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
+			pSettings->indentSize = static_cast<int>(GetDlgItemInt(hDlg, IDINDENTSIZE, &bOK, FALSE));
+			pSettings->useTabs = static_cast<bool>(IsDlgButtonChecked(hDlg, IDUSETABS));
 			//			if (!bOK)
 			//				pTabSize = 0;
 			EndDialog(hDlg, IDOK);
@@ -1833,14 +1849,19 @@ BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 }
 
 void SciTEWin::TabSizeDialog() {
-	int tabSize;
+    IndentationSettings settings;
 
-	tabSize = SendEditor(SCI_GETTABWIDTH);
+	settings.tabSize = SendEditor(SCI_GETTABWIDTH);
+	settings.indentSize = SendEditor(SCI_GETINDENT);
+	settings.useTabs = SendEditor(SCI_GETUSETABS);
 	if (DoDialog(hInstance, "TabSize", wSciTE.GetID(),
 	             reinterpret_cast<DLGPROC>(TabSizeDlg),
-	             reinterpret_cast<DWORD>(&tabSize)) == IDOK) {
-		if (tabSize > 0)
-			SendEditor(SCI_SETTABWIDTH, tabSize);
+	             reinterpret_cast<DWORD>(&settings)) == IDOK) {
+		if (settings.tabSize > 0)
+			SendEditor(SCI_SETTABWIDTH, settings.tabSize);
+		if (settings.indentSize > 0)
+			SendEditor(SCI_SETINDENT, settings.indentSize);
+		SendEditor(SCI_SETUSETABS, settings.useTabs);
 	}
 	SetFocus(wEditor.GetID());
 }

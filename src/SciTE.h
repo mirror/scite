@@ -24,8 +24,8 @@
 #define IDM_MRU_SEP	112
 #define IDM_SAVEASHTML 113
 #define IDM_PREVFILE    114
-#define IDM_NEXT        115
-#define IDM_PREV        116
+// 115 has been recycled.
+// 116 has been recycled.
 #define IDM_BUFFERSEP 117
 #define IDM_CLOSEALL   118
 #define IDM_SAVEASRTF 119
@@ -80,6 +80,8 @@
 #define IDLASTLINE 226
 #define IDEXTEND 227
 #define IDTABSIZE 228
+#define IDINDENTSIZE 229
+#define IDUSETABS 230
 
 #define IDREPLACEWITH 231
 #define IDWHOLEWORD 232

@@ -1554,8 +1554,8 @@ void SciTEGTK::CreateMenu() {
 	GtkItemFactoryEntry menuItemsBuffer[] = {
 		{"/_Buffers", NULL, NULL, 0, "<Branch>"},
 		{"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
-		{"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREV, 0},
-		{"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXT, 0},
+		{"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREVFILE, 0},
+		{"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXTFILE, 0},
 		{"/Buffers/_Close All", "", menuSig, IDM_CLOSEALL, 0},
 		{"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
 		{"/Buffers/Buffer0", "<alt>1", menuSig, bufferCmdID + 0, "<RadioItem>"},
@@ -1735,8 +1735,8 @@ void SciTEGTK::Run(const char *cmdLine) {
 	AddToolButton("Build",  IDM_BUILD, build_xpm);
 	
 	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
-	AddToolButton("Previous Buffer", IDM_PREV, prev_xpm);
-	AddToolButton("Next Buffer", IDM_NEXT, next_xpm);
+	AddToolButton("Previous Buffer", IDM_PREVFILE, prev_xpm);
+	AddToolButton("Next Buffer", IDM_NEXTFILE, next_xpm);
 	
 	wStatusBar = gtk_statusbar_new();
 	sbContextID = gtk_statusbar_get_context_id(
