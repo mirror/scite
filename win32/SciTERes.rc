@@ -201,6 +201,9 @@ BEGIN
 
 	DEFPUSHBUTTON "&Find", IDOK, 180, 5, 50, 14, WS_TABSTOP
 	PUSHBUTTON "Cancel", IDCANCEL, 180, 23, 50, 14, WS_TABSTOP
+
+	PUSHBUTTON "&Browse...", IDBROWSE, 180, 41, 50, 14,  WS_TABSTOP
+
 END
 
 GOLINE DIALOG 26, 41, 195, 50
@@ -458,8 +461,8 @@ BEGIN
 	VK_BACK, IDM_UNDO,  VIRTKEY, ALT
 	VK_BACK, IDM_REDO,  VIRTKEY, ALT, SHIFT
 	VK_CANCEL, IDM_STOPEXECUTE,  VIRTKEY, CONTROL
-	
-	// Workaround for the most common case where SciTE undo and 
+
+	// Workaround for the most common case where SciTE undo and
 	// redo buttons don't enable/disable when you expect.
 	"Z", IDM_UNDO,  VIRTKEY, CONTROL
 	"Y", IDM_REDO,  VIRTKEY, CONTROL

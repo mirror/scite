@@ -191,6 +191,9 @@
 #define IDUNSLASH			241
 #define IDCMD			242
 
+// id for the browse button in the grep dialog
+#define IDBROWSE 243
+
 #define IDPARAMSTART		300
 
 // Dialog IDs
