@@ -465,7 +465,7 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
 #ifdef __vms
-	static char fixedFileName [MAX_PATH];
+	static char fixedFileName[MAX_PATH];
 	strcpy(fixedFileName, VMSToUnixStyle(file));
 	file = fixedFileName;
 #endif
@@ -555,9 +555,12 @@ bool SciTEBase::OpenSelected() {
 
 	cTag[0] = '\0';
 	if (IsPropertiesFile(fileName) &&
-	        strlen(fileName) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
-		// We are in a properties file, we append the correct extension
-		// to open the include
+			strchr(selectedFilename, '.') == 0 &&
+	        strlen(selectedFilename) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
+		// We are in a properties file and try to open a file without extension,
+		// we suppose we want to open an imported .properties file
+		// So we append the correct extension to open the included file.
+		// Maybe we should check if the filename is preceded by "import"...
 		strcat(selectedFilename, PROPERTIES_EXTENSION);
 	} else {
 		// Check if we have a line number (error message or grep result)
@@ -799,8 +802,11 @@ void SciTEBase::EnsureFinalNewLine() {
 	}
 }
 
-// Writes the buffer to the given filename
+/**
+ * Writes the buffer to the given filename.
+ */
 bool SciTEBase::SaveBuffer(const char *saveName) {
+	bool retVal = false;
 	// Perform clean ups on text before saving
 	SendEditor(SCI_BEGINUNDOACTION);
 	if (props.GetInt("strip.trailing.spaces"))
@@ -825,6 +831,7 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 	if (fp) {
 		char data[blockSize + 1];
 		int lengthDoc = LengthDocument();
+		retVal = true;
 		for (int i = 0; i < lengthDoc; i += blockSize) {
 			int grabSize = lengthDoc - i;
 			if (grabSize > blockSize)
@@ -833,8 +840,8 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 			GetRange(wEditor, i, i + grabSize, data);
 			size_t written = convert.fwrite(data, grabSize);
 			if (written == 0) {
-				convert.fclose();
-				return false;
+				retVal = false;
+				break;
 			}
 		}
 		convert.fclose();
@@ -842,9 +849,10 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 		if (extender)
 			extender->OnSave(saveName);
 
-		return true;
+		retVal = true;
 	}
-	return false;
+	UpdateStatusBar(true);
+	return retVal;
 }
 
 // Returns false if cancelled or failed to save
