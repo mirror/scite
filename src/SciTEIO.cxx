@@ -525,6 +525,8 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 	DeleteFileStackMenu();
 	SetFileStackMenu();
 	SetWindowName();
+	if (lineNumbers && lineNumbersExpand)
+		SetLineNumberWidth();
 	UpdateStatusBar(true);
 	if (extender)
 		extender->OnOpen(fullPath);
