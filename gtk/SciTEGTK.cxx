@@ -70,6 +70,7 @@ protected:
 	int pidShell;
 	char resultsFile[MAX_PATH];
 	int inputHandle;
+	time_t timeStart;
 
 	//Command Pipe variables
 	int inputWatcher;
@@ -268,6 +269,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	sprintf(resultsFile, "/tmp/SciTE%x.results",
 	        static_cast<int>(getpid()));
 	inputHandle = 0;
+	timeStart = 0;
 
 	propsEmbed.Set("PLAT_GTK", "1");
 
@@ -1281,11 +1283,14 @@ void SciTEGTK::ContinueExecute() {
 		return;
 	}
 	if (count == 0) {
-		int status;
-		//int pidWaited = wait(&status);
-		wait(&status);
+		int exitcode;
+		wait(&exitcode);
 		char exitmessage[80];
-		sprintf(exitmessage, ">Exit code: %d\n", status);
+		if (timeCommands) {
+			sprintf(exitmessage, ">Exit code: %0ld    Time: %0d\n", exitcode, time(0) - timeStart);
+		} else {
+			sprintf(exitmessage, "\n>Exit code: %0d\n", exitcode);
+		}
 		OutputAppendString(exitmessage);
 		// Move selection back to beginning of this run so that F4 will go
 		// to first error of this run.
@@ -1329,6 +1334,7 @@ int xsystem(const char *s, const char *resultsFile) {
 void SciTEGTK::Execute() {
 	SciTEBase::Execute();
 
+	timeStart = time(0);
 	if (scrollOutput)
 		SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	originalEnd = SendOutput(SCI_GETCURRENTPOS);
