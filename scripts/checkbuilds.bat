@@ -87,12 +87,12 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
 rem Target 8: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
-call scite\scripts\clearboth
-cd scintilla\win32
-call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
-nmake -f scintilla_vc6.mak QUIET=1
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
+REM ~ call scite\scripts\clearboth
+REM ~ cd scintilla\win32
+REM ~ call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
+REM ~ nmake -f scintilla_vc6.mak QUIET=1
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
 call scite\scripts\clearboth
 goto CLEANUP
 :ERROR
