@@ -70,6 +70,7 @@ bool FilePath::SameNameAs(const char *other) const {
 #ifdef WIN32
 	return EqualCaseInsensitive(fileName.c_str(), other);
 #else
+
 	return fileName == other;
 #endif
 }
@@ -261,6 +262,7 @@ void SciTEBase::InitialiseBuffers() {
 			// Destroy command "View Tab Bar" in the menu "View"
 			DestroyMenuItem(menuView, IDM_VIEWTABBAR);
 #endif
+
 		}
 	}
 }
@@ -286,6 +288,7 @@ static void RecentFilePath(char *path, const char *name) {
 
 		*path = '\0';
 #endif
+
 	} else {
 		strcpy(path, where);
 		EnsureEndsWithPathSeparator(path);
@@ -341,21 +344,30 @@ void SciTEBase::LoadSession(const char *sessionName) {
 	} else {
 		strcpy(sessionPathName, sessionName);
 	}
-	char line[MAX_PATH + 1];
-	CharacterRange cr;
-	cr.cpMin = cr.cpMax = 0;
 	FILE *sessionFile = fopen(sessionPathName, fileRead);
 	if (!sessionFile)
 		return;
 	// comment next line if you don't want to close all buffers before loading session
 	CloseAllBuffers();
+	int curr = -1, pos = 0;
+	char *file, line[MAX_PATH + 128];
 	for (int i = 0; i < bufferMax; i++) {
 		if (!fgets (line, sizeof (line), sessionFile))
 			break;
 		line[strlen (line) - 1] = '\0';
-		AddFileToBuffer(line /*TODO, cr, 0*/);
+		if (sscanf(line, "<pos=%i>", &pos) != 1)
+			break;
+		file = strchr(line, '>') + 2;
+		//Platform::DebugPrintf("pos=%i file=:%s:", pos, file);
+		if (pos < 0) {
+			curr = i;
+			pos = -pos;
+		}
+		AddFileToBuffer(file, pos - 1);
 	}
 	fclose(sessionFile);
+	if (curr != -1)
+		SetDocumentAt(curr);
 }
 
 void SciTEBase::SaveSession(const char *sessionName) {
@@ -368,11 +380,19 @@ void SciTEBase::SaveSession(const char *sessionName) {
 	FILE *sessionFile = fopen(sessionPathName, fileWrite);
 	if (!sessionFile)
 		return;
-	for (int i = buffers.length - 1; i >= 0; i--) {
-		if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled())
-			fprintf(sessionFile, "%s\n", buffers.buffers[i].FullPath());
+	int curr = buffers.current;
+	for (int i = 0; i < buffers.length; i++) {
+		if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
+			int pos;
+			SetDocumentAt(i);
+			pos = SendEditor(SCI_GETCURRENTPOS) + 1;
+			if (i == curr)
+				pos = -pos;
+			fprintf(sessionFile, "<pos=%i> %s\n", pos, buffers.buffers[i].FullPath());
+		}
 	}
 	fclose(sessionFile);
+	SetDocumentAt(curr);
 }
 
 void SciTEBase::SetIndentSettings() {
@@ -551,6 +571,7 @@ void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
 	DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
 #if PLAT_WIN
+
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
 #endif
 
@@ -568,6 +589,7 @@ void SciTEBase::BuffersMenu() {
 			char titleTab[MAX_PATH*2 + 20];
 			titleTab[0] = '\0';
 #if PLAT_WIN
+
 			if (pos < 10) {
 				sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
 				sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
@@ -618,6 +640,7 @@ void SciTEBase::BuffersMenu() {
 			::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
 			//::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
 #endif
+
 		}
 	}
 	CheckMenus();
@@ -642,8 +665,10 @@ void SciTEBase::SetFileStackMenu() {
 				char entry[MAX_PATH + 20];
 				entry[0] = '\0';
 #if PLAT_WIN
+
 				sprintf(entry, "&%d ", (stackPos + 1) % 10);
 #endif
+
 				strcat(entry, recentFileStack[stackPos].FullPath());
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, entry);
 			}
@@ -659,11 +684,12 @@ void SciTEBase::DropFileStackTop() {
 	SetFileStackMenu();
 }
 
-void SciTEBase::AddFileToBuffer(const char *file /*TODO:, CharacterRange selection, int scrollPos */) {
+void SciTEBase::AddFileToBuffer(const char *file, int pos) {
 	FILE *fp = fopen(file, fileRead);  // file existence test
 	if (fp) {                      // for missing files Open() gives an empty buffer - do not want this
 		fclose(fp);
 		Open(file, false, file);
+		SendEditor(SCI_GOTOPOS, pos);
 	}
 }
 

@@ -502,8 +502,10 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 			LoadRecentMenu();
 	}
 	if (initialCmdLine && props.GetInt("buffers") && !fileName[0]) {
-		if (props.GetInt("save.session", 0))
+    if (props.GetInt("save.session", 0)) {
 			LoadSession("");
+      return TRUE;
+    }
 	}
 	if (fileName[0]) {
 		SendEditor(SCI_SETREADONLY, 0);
