@@ -607,6 +607,36 @@ SString SciTEBase::FindLanguageProperty(const char *pattern, const char *default
 	return ret;
 }
 
+/**
+ * A list of all the properties that should be forwarded to Scintilla lexers.
+ */
+static const char *propertiesToForward[] = {
+	"fold",
+	"fold.comment",
+	"fold.comment.python",
+	"fold.compact",
+	"fold.at.else",
+	"fold.html",
+	"fold.html.preprocessor",
+	"fold.preprocessor",
+	"fold.quotes.python",
+	"styling.within.preprocessor",
+	"tab.timmy.whinge.level",
+	"asp.default.language",
+	"html.tags.case.sensitive",
+	"ps.level",
+	"ps.tokenize",
+
+	"lexer.tex.interface.default",
+	"lexer.tex.comment.process",
+	"lexer.tex.auto.if",
+	"lexer.tex.use.keywords",
+	"lexer.metapost.interface.default",
+	"lexer.metapost.comment.process",
+
+	0,
+};
+
 void SciTEBase::ReadProperties() {
 	SString fileNameForExtension = ExtensionFileName();
 
@@ -641,30 +671,9 @@ void SciTEBase::ReadProperties() {
 		props.Set("SciteUserHome", homepath);
 	}
 
-	ForwardPropertyToEditor("fold");
-	ForwardPropertyToEditor("fold.comment");
-	ForwardPropertyToEditor("fold.comment.python");
-	ForwardPropertyToEditor("fold.compact");
-	ForwardPropertyToEditor("fold.at.else");
-	ForwardPropertyToEditor("fold.html");
-	ForwardPropertyToEditor("fold.html.preprocessor");
-	ForwardPropertyToEditor("fold.flags");
-	ForwardPropertyToEditor("fold.preprocessor");
-	ForwardPropertyToEditor("fold.quotes.python");
-	ForwardPropertyToEditor("styling.within.preprocessor");
-	ForwardPropertyToEditor("tab.timmy.whinge.level");
-	ForwardPropertyToEditor("asp.default.language");
-	ForwardPropertyToEditor("html.tags.case.sensitive");
-	ForwardPropertyToEditor("ps.level");
-	ForwardPropertyToEditor("ps.tokenize");
-
-	ForwardPropertyToEditor("lexer.tex.interface.default") ;
-	ForwardPropertyToEditor("lexer.tex.comment.process") ;
-	ForwardPropertyToEditor("lexer.metapost.interface.default") ;
-	ForwardPropertyToEditor("lexer.metapost.comment.process") ;
-
-	ForwardPropertyToEditor("export.xml.collapse.spaces") ;
-	ForwardPropertyToEditor("export.xml.collapse.lines") ;
+	for (size_t i=0; propertiesToForward[i]; i++) {
+		ForwardPropertyToEditor(propertiesToForward[i]);
+	}
 
 	if (apisFileNames != props.GetNewExpand("api.",	fileNameForExtension.c_str())) {
 		apis.Clear();
