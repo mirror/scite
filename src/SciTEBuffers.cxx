@@ -1255,21 +1255,17 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			return sourceNumber;
 		}
 	case SCE_ERR_GCC: {
-			// GCC - look for number followed by colon to be line number
+			// GCC - look for number after colon to be line number
 			// This will be preceded by file name.
 			// Lua debug traceback messages also piggyback this style, but begin with a tab.
 			if (cdoc[0] == '\t')
 				++cdoc;
 			for (int i = 0; cdoc[i]; i++) {
-				if (isdigit(cdoc[i]) && cdoc[i + 1] == ':') {
-					int j = i;
-					while (j > 0 && isdigit(cdoc[j - 1])) {
-						j--;
-					}
-					int sourceNumber = atoi(cdoc + j) - 1;
-					if (j > 0) {
-						strncpy(sourcePath, cdoc, j - 1);
-						sourcePath[j - 1] = 0;
+				if (cdoc[i] == ':' && isdigit(cdoc[i + 1])) {
+					int sourceNumber = atoi(cdoc + i + 1) - 1;
+					if (i > 0) {
+						strncpy(sourcePath, cdoc, i);
+						sourcePath[i] = 0;
 					}
 					return sourceNumber;
 				}
