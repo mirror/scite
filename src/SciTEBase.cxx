@@ -765,30 +765,14 @@ static bool isfilenamecharforsel(char ch) {
 	return !strchr("\t\n\r \"$%'*,;<>?[]^`{|}", ch);
 }
 
-/**
- * If there is selected text, either in the editor or the output pane,
- * put the selection in the @a sel buffer, up to @a len characters.
- * Otherwise, try and select characters around the caret, as long as they are OK
- * for the @a ischarforsel function.
- * Remove the last two character controls from the result, as they are likely
- * to be CR and/or LF.
- */
-void SciTEBase::SelectionExtend(
+void SciTEBase::RangeExtendAndGrab(
+    Window &wCurrent,
     char *sel,  	///< Buffer receiving the result.
     int len,  	///< Size of the buffer.
+    int selStart,
+    int selEnd,
+    int lengthDoc,
     bool (*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
-
-	int lengthDoc, selStart, selEnd;
-	Window wCurrent;
-
-	if (wEditor.HasFocus()) {
-		wCurrent = wEditor;
-	} else {
-		wCurrent = wOutput;
-	}
-	lengthDoc = SendFocused(SCI_GETLENGTH);
-	selStart = SendFocused(SCI_GETSELECTIONSTART);
-	selEnd = SendFocused(SCI_GETSELECTIONEND);
 	if (selStart == selEnd && ischarforsel) {
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
@@ -821,6 +805,32 @@ void SciTEBase::SelectionExtend(
 		}
 		sel[sellen - 1] = '\0';
 	}
+}
+
+/**
+ * If there is selected text, either in the editor or the output pane,
+ * put the selection in the @a sel buffer, up to @a len characters.
+ * Otherwise, try and select characters around the caret, as long as they are OK
+ * for the @a ischarforsel function.
+ * Remove the last two character controls from the result, as they are likely
+ * to be CR and/or LF.
+ */
+void SciTEBase::SelectionExtend(
+    char *sel,  	///< Buffer receiving the result.
+    int len,  	///< Size of the buffer.
+    bool (*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
+
+	Window wCurrent;
+
+	if (wEditor.HasFocus()) {
+		wCurrent = wEditor;
+	} else {
+		wCurrent = wOutput;
+	}
+	int lengthDoc = SendFocused(SCI_GETLENGTH);
+	int selStart = SendFocused(SCI_GETSELECTIONSTART);
+	int selEnd = SendFocused(SCI_GETSELECTIONEND);
+	RangeExtendAndGrab(wCurrent, sel, len, selStart, selEnd, lengthDoc, ischarforsel);
 }
 
 void SciTEBase::SelectionWord(char *word, int len) {
@@ -3125,7 +3135,13 @@ void SciTEBase::Notify(SCNotification *notification) {
 	
 	case SCN_DWELLSTART: {
 			char message[200];
-			sprintf(message, "%0d (%0d,%0d)", notification->position, notification->x, notification->y);
+			if (INVALID_POSITION == notification->position) {
+				sprintf(message, "%0d (%0d,%0d)", notification->position, notification->x, notification->y);
+			} else {
+				int lengthDoc = SendEditor(SCI_GETLENGTH);
+				RangeExtendAndGrab(wEditor, message, sizeof(message), 
+					notification->position, notification->position, lengthDoc, iswordcharforsel);
+			}
 			SendEditorString(SCI_CALLTIPSHOW, notification->position, message);
 		}
 		break;

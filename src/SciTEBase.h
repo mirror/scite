@@ -454,6 +454,8 @@ protected:
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
+	void RangeExtendAndGrab(Window &wCurrent, char *sel, int len,
+	    int selStart, int selEnd, int lengthDoc, bool (*ischarforsel)(char ch));
 	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch));
 	void SelectionWord(char *word, int len);
 	void SelectionFilename(char *filename, int len);
