@@ -271,6 +271,10 @@ SOURCE=..\..\scintilla\src\LexGui4Cli.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexHaskell.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexHTML.cxx
 # End Source File
 # Begin Source File
