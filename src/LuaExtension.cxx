@@ -726,7 +726,7 @@ inline bool IFaceFunctionIsScriptable(const IFaceFunction &f) {
 }
 
 inline bool IFacePropertyIsScriptable(const IFaceProperty &p) {
-	return (((p.valueType > iface_void) && (p.valueType < iface_keymod)) &&
+	return (((p.valueType > iface_void) && (p.valueType <= iface_string) && (p.valueType != iface_keymod)) &&
 		((p.paramType < iface_colour) || (p.paramType == iface_string) ||
 		(p.paramType == iface_bool)) && (p.getter || p.setter));
 }
@@ -901,8 +901,10 @@ static int push_iface_propval(lua_State *L, const char *name) {
 	int propidx = IFaceTable::FindProperty(name);
 	if (propidx >= 0) {
 		const IFaceProperty &prop = IFaceTable::properties[propidx];
-		if (!IFacePropertyIsScriptable(prop))
-			return 0;
+		if (!IFacePropertyIsScriptable(prop)) {
+			raise_error(L, "Error: iface property is not scriptable.");
+			return -1;
+		}
 
 		if (prop.paramType == iface_void) {
 			if (prop.getter) {
