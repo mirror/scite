@@ -318,6 +318,9 @@
 			<File
 				RelativePath="..\..\scintilla\Src\WindowAccessor.cxx">
 			</File>
+			<File
+				RelativePath="..\..\scintilla\Src\XPM.cxx">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
