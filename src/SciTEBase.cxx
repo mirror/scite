@@ -1986,11 +1986,11 @@ void SciTEBase::SetFileProperties(
 	if (hf != INVALID_HANDLE_VALUE) {
 		FILETIME ft;
 		::GetFileTime(hf, NULL, NULL, &ft);
+		::CloseHandle(hf);
 		FILETIME lft;
 		::FileTimeToLocalFileTime(&ft, &lft);
 		SYSTEMTIME st;
 		::FileTimeToSystemTime(&lft, &st);
-		::CloseHandle(hf);
 		::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
 		                0, &st,
 		                NULL, temp, TEMP_LEN);
