@@ -1521,6 +1521,21 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			}
 			break;
 		}
+
+	case SCE_ERR_JAVA_STACK: {
+			/* Java runtime stack trace
+				\tat <methodname>(<filename>:<line>)
+				 */
+			char *startPath = strchr(cdoc, '(') + 1;
+			char *endPath = strchr(startPath, ':');
+			int length = endPath - startPath;
+			if (length > 0) {
+				strncpy(sourcePath, startPath, length);
+				sourcePath[length] = 0;
+				int sourceNumber = atoi(endPath+1) - 1;
+				return sourceNumber;
+			}
+		}
 	}	// switch
 	return - 1;
 }
