@@ -61,6 +61,7 @@ protected:
 
 	bool savingHTML;
 	bool savingRTF;
+	bool dialogCanceled;
 	Window fileSelector;
 	Window findInFilesDialog;
 	GtkWidget *comboFiles;
@@ -201,6 +202,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	xor_gc = 0;
 	savingHTML = false;
 	savingRTF = false;
+	dialogCanceled = false;
 	comboFiles = 0;
 	gotoEntry = 0;
 	toggleWord = 0;

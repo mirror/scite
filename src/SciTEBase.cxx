@@ -1761,9 +1761,9 @@ int StripTrailingSpaces(char *data, int ds, bool lastBlock) {
 bool SciTEBase::Save() {
 	if (fileName[0]) {
 
-	if (props.GetInt("save.deletes.first")) {
-		unlink(fullPath);
-	}
+		if (props.GetInt("save.deletes.first")) {
+			unlink(fullPath);
+		}
 
 		//Platform::DebugPrintf("Saving <%s><%s>\n", fileName, fullPath);
 		//DWORD dwStart = timeGetTime();
@@ -2814,7 +2814,7 @@ void SciTEBase::GoMessage(int dir) {
 			GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
 			char sourcePath[MAX_PATH];
 			int sourceLine = DecodeMessage(cdoc, sourcePath, style);
-			printf("<%s> %d %d\n",sourcePath, sourceLine, lookLine);
+			//printf("<%s> %d %d\n",sourcePath, sourceLine, lookLine);
 			//Platform::DebugPrintf("<%s> %d %d\n",sourcePath, sourceLine, lookLine);
 			if (sourceLine >= 0) {
 				if (0 != strcmp(sourcePath, fileName)) {
