@@ -2852,7 +2852,7 @@ void SciTEBase::FoldAll() {
 		        (SC_FOLDLEVELBASE == (level & SC_FOLDLEVELNUMBERMASK))) {
 			if (expanding) {
 				SendEditor(SCI_SETFOLDEXPANDED, line, 1);
-				Expand(line, true);
+				Expand(line, true, false, 0, level);
 				line--;
 			} else {
 				int lineMaxSubord = SendEditor(SCI_GETLASTCHILD, line, -1);
@@ -2883,24 +2883,27 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 	//	SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG);
 	if ((modifiers & SCMOD_SHIFT) && (modifiers & SCMOD_CTRL)) {
 		FoldAll();
-	} else if (SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG) {
-		if (modifiers & SCMOD_SHIFT) {
-			// Ensure all children visible
-			SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
-			Expand(lineClick, true, true, 100);
-		} else if (modifiers & SCMOD_CTRL) {
-			if (SendEditor(SCI_GETFOLDEXPANDED, lineClick)) {
-				// Contract this line and all children
-				SendEditor(SCI_SETFOLDEXPANDED, lineClick, 0);
-				Expand(lineClick, false, true, 0);
-			} else {
-				// Expand this line and all children
+	} else {
+		int levelClick = SendEditor(SCI_GETFOLDLEVEL, lineClick);
+		if (levelClick & SC_FOLDLEVELHEADERFLAG) {
+			if (modifiers & SCMOD_SHIFT) {
+				// Ensure all children visible
 				SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
-				Expand(lineClick, true, true, 100);
+				Expand(lineClick, true, true, 100, levelClick);
+			} else if (modifiers & SCMOD_CTRL) {
+				if (SendEditor(SCI_GETFOLDEXPANDED, lineClick)) {
+					// Contract this line and all children
+					SendEditor(SCI_SETFOLDEXPANDED, lineClick, 0);
+					Expand(lineClick, false, true, 0, levelClick);
+				} else {
+					// Expand this line and all children
+					SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
+					Expand(lineClick, true, true, 100, levelClick);
+				}
+			} else {
+				// Toggle this line
+				SendEditor(SCI_TOGGLEFOLD, lineClick);
 			}
-		} else {
-			// Toggle this line
-			SendEditor(SCI_TOGGLEFOLD, lineClick);
 		}
 	}
 	return true;
