@@ -192,6 +192,9 @@
 				RelativePath="..\..\scintilla\src\LexBullant.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexCLW.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexConf.cxx">
 			</File>
 			<File

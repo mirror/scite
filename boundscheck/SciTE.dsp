@@ -167,6 +167,10 @@ SOURCE=..\..\scintilla\src\LexBullant.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexCLW.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexConf.cxx
 # End Source File
 # Begin Source File
