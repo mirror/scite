@@ -680,11 +680,11 @@ void SciTEWin::ProcessExecute() {
 				if (exitcode == 0)
 					isBuilt = true;
 			}
-			SString sExitMessage(static_cast<int>(exitcode));
+			SString sExitMessage(exitcode);
 			sExitMessage.insert(0, ">Exit code: ");
 			if (timeCommands) {
 				sExitMessage += "    Time: ";
-				sExitMessage += SString(commandTime.Duration());
+				sExitMessage += SString(commandTime.Duration(), 3);
 			}
 			sExitMessage.append("\n");
 			OutputAppendStringSynchronised(sExitMessage.c_str());
@@ -821,7 +821,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 		errormsg += field[i].descr;
 	} else {
 		errormsg += "Unknown error code: ";
-		errormsg += SString(static_cast<int>(rc));
+		errormsg += SString(rc);
 	}
 	::MessageBox(MainHWND(), errormsg.c_str(), appName, MB_OK);
 

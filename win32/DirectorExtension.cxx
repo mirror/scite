@@ -65,7 +65,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 }
 
 static void SendDirector(const char *verb, sptr_t arg) {
-	SString s(static_cast<int>(arg));
+	SString s(arg);
 	::SendDirector(verb, s.c_str());
 }
 

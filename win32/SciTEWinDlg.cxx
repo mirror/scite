@@ -137,7 +137,7 @@ int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC 
 	int result = ::DialogBox(hInst, resName, hWnd, lpProc);
 
 	if (result == -1) {
-		SString errorNum(static_cast<int>(::GetLastError()));
+		SString errorNum(::GetLastError());
 		SString msg = LocaliseMessage("Failed to create dialog box: ^0.", errorNum.c_str());
 		MessageBox(hWnd, msg.c_str(), appName, MB_OK);
 	}

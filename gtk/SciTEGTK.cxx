@@ -1216,7 +1216,7 @@ void SciTEGTK::ContinueExecute() {
 		sExitMessage.insert(0, ">Exit code: ");
 		if (timeCommands) {
 			sExitMessage += "    Time: ";
-			sExitMessage += SString(commandTime.Duration());
+			sExitMessage += SString(commandTime.Duration(), 3);
 		}
 		sExitMessage.append("\n");
 		OutputAppendString(sExitMessage.c_str());
