@@ -274,7 +274,7 @@ NameError: mistake
 	command line last session will not restore even if "save.session"
 	variable is set to "1". This makes "save.session" safe to use - you
 	will never open a couple of files when you are trying to open just
-	one, specific file."
+	one, specific file.
      </p>
     <h3>
        Languages understood by SciTE
@@ -283,26 +283,35 @@ NameError: mistake
        SciTE currently is able to syntax style these languages:
     </p>
     <ul>
-	<li>Python</li>
-	<li>C/C++</li>
-	<li>IDL - both MSIDL and XPIDL</li>
-	<li>Java</li>
-	<li>JavaScript</li>
+	<li>Ada</li>
+	<li>Avenue</li>
+	<li>C/C++/C#</li>
+	<li>Eiffel</li>
 	<li>HTML</li>
 	<li>HTML with embedded JavaScript, VBScript, PHP and ASP</li>
-	<li>XML</li>
+	<li>IDL - both MSIDL and XPIDL</li>
 	<li>INI, properties and similar</li>
-	<li>VB and VBScript</li>
-	<li>A subset of Perl</li>
-	<li>SQL</li>
+	<li>Java</li>
+	<li>JavaScript</li>
+	<li>Lisp</li>
 	<li>Lua</li>
+	<li>Make</li>
 	<li>Pascal</li>
-	<li>Avenue - a language used in the ESRI ArcView GIS</li>
-	<li>Ada</li>
+	<li>Perl, but not all of the language</li>
+	<li>Python</li>
+	<li>Ruby</li>
+	<li>SQL and PLSQL</li>
+	<li>VB and VBScript</li>
+	<li>XML</li>
     </ul>
     <p>
        Running and building commands for some of these languages have been set up but should be
       checked as they will have to be modified to work for many people.
+    </p>
+    <p>
+      Language settings are determined from the file extension but this can be changed 
+      by selecting anothr language from the Language menu. The language menu can be 
+      changed with the menu.language property.
     </p>
     <h3>
        Find and Replace
@@ -524,6 +533,20 @@ NameError: mistake
       non-indented statement is found the if clause is finished. Only simple set
       statements are allowed in if clauses. The evaluation of if statements occurs
       at read time, not at evaluation time.
+    </p>
+    <h3>
+       Command parameters and prompting
+    </h3>
+    <p>
+      SciTE has 4 properties $(1) .. $(4) which can be used to run commands with 
+      changeable parameters. To set the parameter values, use the View | Parameters 
+      command to view the modeless Parameters dialog which shows the current values 
+      of these parameters and allows setting new values. The accelerator keys for the main 
+      window remain active while this dialog is displayed, so it can be used to rapidly run 
+      a command several times with different parameters. Alternatively, a command can be 
+      made to display the modal Parameters dialog when executed by starting the
+      command with a '*' which is otherwise ignored. If the modeless Parameters dialog is 
+      already visible, then the '*' is ignored.
     </p>
     <h3>
        Defined variables in properties files
@@ -1439,7 +1462,10 @@ NameError: mistake
 	by using ShellExecute, 3 for running in an internal extension, 4 for running HtmlHelp
 	on Windows, and 5 for running WinHelp on Windows.
 	When using subsystem 4 or 5, the command has two parts separated by ! with the first
-	part being the topic to search for and the second the name of the help file.
+	part being the topic to search for and the second the name of the help file.<br />
+	If the text of a command starts with '*' then the Parameters dialog is displayed to 
+	prompt for parameters before executing the command. The initial '*' is not included
+	in the command that is executed.
         </td>
       </tr>
       <tr>
@@ -1816,6 +1842,14 @@ NameError: mistake
     <p> 
 	To generate an API file for Python modules, there is a 
 	<a href="http://stud4.tuwien.ac.at/~e9326522/gen_python_api.zip">gen_python script</a>.
+    </p>
+    <h3>
+       Localising SciTE
+    </h3>
+    <p>
+       The menus and dialogs can be translated into another language by modifying the
+       <a href="http://www.scintilla.org/locale.properties">locale.properties</a> file which should be stored
+       in the same directory as the global properties.
     </p>
     <h3>
        Building SciTE
