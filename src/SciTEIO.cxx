@@ -366,6 +366,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	SetFileName(file);
 	overrideExtension = "";
 	ReadProperties();
+	useMonoFont = false;
 	UpdateBuffersCurrent();
 	if (tabVisible)	// Update tab visibility if the hide one mode is on
 		SizeSubWindows();
@@ -668,6 +669,7 @@ bool SciTEBase::Save() {
 				ReadLocalPropFile();
 				ReadAbbrevPropFile();
 				ReadProperties();
+				useMonoFont = false;
 				SetWindowName();
 				BuffersMenu();
 				Redraw();
@@ -692,6 +694,7 @@ bool SciTEBase::SaveAs(char *file) {
 		SetFileName(file);
 		Save();
 		ReadProperties();
+		useMonoFont = false;
 		SendEditor(SCI_CLEARDOCUMENTSTYLE);
 		SendEditor(SCI_COLOURISE, 0, -1);
 		Redraw();

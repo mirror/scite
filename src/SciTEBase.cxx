@@ -341,7 +341,6 @@ void SciTEBase::AssignKey(int key, int mods, int cmd) {
  * those defined in the @c font.monospace property.
  */
 void SciTEBase::SetMonoFont() {
-	useMonoFont = !useMonoFont;
 	if (useMonoFont) {
 		SString sval = props.GetExpanded("font.monospace");
 		StyleDefinition sd(sval.c_str());
@@ -2305,6 +2304,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
+			useMonoFont = false;
 			UpdateStatusBar(true);
 		}
 		break;
@@ -2721,6 +2721,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 
 	case IDM_MONOFONT:
+		useMonoFont = !useMonoFont;
 		SetMonoFont();
 		break;
 

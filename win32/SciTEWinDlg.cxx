@@ -293,6 +293,7 @@ bool SciTEWin::SaveAsDialog() {
 		SetFileName(path.c_str(), false); // don't fix case
 		Save();
 		ReadProperties();
+		useMonoFont = 0;
 		// In case extension was changed
 		SendEditor(SCI_COLOURISE, 0, -1);
 		wEditor.InvalidateAll();
@@ -828,12 +829,17 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	}
 
 	if (cmd == IDOK) {
-		FindNext(reverseFind);
+		FindNext(reverseFind);	// Find next
 	} else if (cmd == IDREPLACE) {
 		if (havefound) {
 			ReplaceOnce();
 		} else {
+			CharacterRange crange = GetSelection();
+			SetSelection(crange.cpMin, crange.cpMin);
 			FindNext(reverseFind);
+			if (havefound) {
+				ReplaceOnce();
+			}
 		}
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		ReplaceAll(cmd == IDREPLACEINSEL);
@@ -873,6 +879,10 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->unSlash)
 			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
+		if (*(sci->findWhat) != '\0') {
+			::SetFocus(wReplaceWith);
+			return FALSE;
+		}
 		return TRUE;
 
 	case WM_CLOSE:
