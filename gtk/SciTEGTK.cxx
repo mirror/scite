@@ -26,6 +26,7 @@
 #include "KeyWords.h"
 #include "Scintilla.h"
 #include "SciTEBase.h"
+#include "pixmapsGNOME.h"
 
 #define MB_ABOUTBOX	0x100000L
 
@@ -42,10 +43,7 @@ protected:
 	Point ptOld;
 	GdkGC *xor_gc;
 
-	bool sbVisible;
-	Window wStatusBar;
 	guint sbContextID;
-	SString sbValue;
 
 	// Control of sub process
 	int icmd;
@@ -55,7 +53,6 @@ protected:
 	char resultsFile[MAX_PATH];
 	int inputHandle;
 
-	Window content;
 	bool savingHTML;
 	Window fileSelector;
 	Window findInFilesDialog;
@@ -73,6 +70,8 @@ protected:
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
 
+	virtual void SizeSubWindows();
+	
 	virtual void SetMenuItem(int menuNumber, int position, int itemID, 
 		const char *text, const char *mnemonic=0);
 	virtual void DestroyMenuItem(int menuNumber, int itemID);
@@ -100,11 +99,14 @@ protected:
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
 
-	virtual PRectangle GetClientRectangle();
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
 
+	virtual void SetStatusBarText(const char *s);
+	
 	virtual void Notify(SCNotification *notification);
+	virtual void ShowToolBar();
+	virtual void ShowStatusBar();
 	void Command(WPARAM wParam, LPARAM lParam = 0);
 	void ContinueExecute();
 
@@ -302,6 +304,11 @@ bool SciTEGTK::GetUserPropertiesFileName(char *pathDefaultProps, unsigned int le
 	return true;
 }
 
+void SciTEGTK::SetStatusBarText(const char *s) {
+	gtk_statusbar_pop(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID);
+	gtk_statusbar_push(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID, s);
+}
+
 void SciTEGTK::Notify(SCNotification *notification) {
 	switch (notification->nmhdr.code) {
 	case SCN_KEY: {
@@ -324,33 +331,26 @@ void SciTEGTK::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_UPDATEUI:
-		BraceMatch(notification->nmhdr.idFrom == IDM_SRCWIN);
-		if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-			if (sbVisible) {
-				SString msg;
-				int caretPos = SendEditor(SCI_GETCURRENTPOS);
-				int caretLine = SendEditor(EM_LINEFROMCHAR, caretPos);
-				int caretLineStart = SendEditor(EM_LINEINDEX, caretLine);
-				msg = "Column=";
-				msg += SString(caretPos - caretLineStart + 1).c_str();
-				msg += "    Line=";
-				msg += SString(caretLine + 1).c_str();
-				if (!(sbValue == msg)) {
-					gtk_statusbar_pop(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID);
-					gtk_statusbar_push(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID, msg.c_str());
-					sbValue = msg;
-				}
-			} else {
-				sbValue = "";
-			}
-		}
-		break;
-
 	default:
 		SciTEBase::Notify(notification);
 		break;
 
+	}
+}
+
+void SciTEGTK::ShowToolBar() {
+	if (tbVisible) {
+		//gtk_widget_show(GTK_WIDGET(wStatusBar.GetID()));
+	} else {
+		//gtk_widget_hide(GTK_WIDGET(wStatusBar.GetID()));
+	}
+}
+
+void SciTEGTK::ShowStatusBar() {
+	if (sbVisible) {
+		gtk_widget_show(GTK_WIDGET(wStatusBar.GetID()));
+	} else {
+		gtk_widget_hide(GTK_WIDGET(wStatusBar.GetID()));
 	}
 }
 
@@ -381,7 +381,6 @@ void SciTEGTK::Command(WPARAM wParam, LPARAM) {
 
 void SciTEGTK::ReadPropertiesInitial() {
 	SciTEBase::ReadPropertiesInitial();
-	sbVisible = props.GetInt("statusbar.visible");
 	if (sbVisible)
 		gtk_widget_show(GTK_WIDGET(wStatusBar.GetID()));
 	else
@@ -392,6 +391,26 @@ void SciTEGTK::ReadProperties() {
 	SciTEBase::ReadProperties();
 
 	CheckMenus();
+}
+
+void SciTEGTK::SizeContentWindows() {
+	PRectangle rcClient = GetClientRectangle();
+	int w = rcClient.right - rcClient.left;
+	int h = rcClient.bottom - rcClient.top;
+	heightOutput = NormaliseSplit(heightOutput);
+	if (splitVertical) {
+		wEditor.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
+		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar, 0, w - heightOutput, h));
+		wOutput.SetPosition(PRectangle(w - heightOutput, 0, w, h));
+	} else {
+		wEditor.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
+		wDivider.SetPosition(PRectangle(0, h - heightOutput - heightBar, w, h - heightOutput));
+		wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
+	}
+}
+
+void SciTEGTK::SizeSubWindows() {
+    SizeContentWindows();
 }
 
 void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *) {
@@ -1020,10 +1039,6 @@ void SciTEGTK::QuitProgram() {
 	}
 }
 
-PRectangle SciTEGTK::GetClientRectangle() {
-	return content.GetClientPosition();
-}
-
 gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation * /*allocation*/, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("SciTEGTK move resize %d %d\n", allocation->width, allocation->height);
 	scitew->SizeSubWindows();
@@ -1327,16 +1342,16 @@ void SciTEGTK::Run(const char *cmdLine) {
 	                   handle_box,
 	                   FALSE, FALSE, 0);
 
-	content = gtk_fixed_new();
-	GTK_WIDGET_UNSET_FLAGS(content.GetID(), GTK_CAN_FOCUS);
-	gtk_box_pack_start(GTK_BOX(boxMain), content.GetID(), TRUE, TRUE, 0);
+	wContent = gtk_fixed_new();
+	GTK_WIDGET_UNSET_FLAGS(wContent.GetID(), GTK_CAN_FOCUS);
+	gtk_box_pack_start(GTK_BOX(boxMain), wContent.GetID(), TRUE, TRUE, 0);
 
-	gtk_signal_connect(GTK_OBJECT(content.GetID()), "size_allocate",
+	gtk_signal_connect(GTK_OBJECT(wContent.GetID()), "size_allocate",
 	                   GTK_SIGNAL_FUNC(MoveResize), gthis);
 
 	wEditor = scintilla_new();
 	scintilla_set_id(SCINTILLA(wEditor.GetID()), IDM_SRCWIN);
-	gtk_fixed_put(GTK_FIXED(content.GetID()), wEditor.GetID(), 0, 0);
+	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wEditor.GetID(), 0, 0);
 	gtk_widget_set_usize(wEditor.GetID(), 600, 600);
 	gtk_signal_connect(GTK_OBJECT(wEditor.GetID()), "command",
 	                   GtkSignalFunc(CommandSignal), this);
@@ -1361,11 +1376,11 @@ void SciTEGTK::Run(const char *cmdLine) {
 	                      | GDK_POINTER_MOTION_HINT_MASK
 	                     );
 	gtk_drawing_area_size(GTK_DRAWING_AREA(wDivider.GetID()), width, 10);
-	gtk_fixed_put(GTK_FIXED(content.GetID()), wDivider.GetID(), 0, 600);
+	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wDivider.GetID(), 0, 600);
 
 	wOutput = scintilla_new();
 	scintilla_set_id(SCINTILLA(wOutput.GetID()), IDM_RUNWIN);
-	gtk_fixed_put(GTK_FIXED(content.GetID()), wOutput.GetID(), 0, width);
+	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wOutput.GetID(), 0, width);
 	gtk_widget_set_usize(wOutput.GetID(), width, 100);
 	gtk_signal_connect(GTK_OBJECT(wOutput.GetID()), "command",
 	                   GtkSignalFunc(CommandSignal), this);
