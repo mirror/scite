@@ -763,18 +763,21 @@ void SciTEBase::StackMenuPrev() {
 
 void SciTEBase::StackMenu(int pos) {
 	//Platform::DebugPrintf("Stack menu %d\n", pos);
-	if (pos >= 0) {
-		if ((pos == 0) && (!recentFileStack[pos].IsSet())) {	// Empty
-			New();
-			SetWindowName();
-			ReadProperties();
-			SetIndentSettings();
-		} else if (recentFileStack[pos].IsSet()) {
-			RecentFile rf = recentFileStack[pos];
-			//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
-			overrideExtension = "";
-			Open(rf.FullPath());
-			DisplayAround(rf);
+	if (SaveIfUnsure() != IDCANCEL) {
+		if (pos >= 0) {
+			if ((pos == 0) && (!recentFileStack[pos].IsSet())) {	// Empty
+				New();
+				SetWindowName();
+				ReadProperties();
+				SetIndentSettings();
+			} else if (recentFileStack[pos].IsSet()) {
+				RecentFile rf = recentFileStack[pos];
+				//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
+				overrideExtension = "";
+				// Already asked user so don't allow Open to ask again.
+				Open(rf.FullPath(), false, false, false);
+				DisplayAround(rf);
+			}
 		}
 	}
 }

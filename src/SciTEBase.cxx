@@ -2716,8 +2716,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			WindowSetFocus(wEditor);
 		} else {
 			// Not using buffers - switch to next file on MRU
-			if (SaveIfUnsure() != IDCANCEL)
-				StackMenuNext();
+			StackMenuNext();
 		}
 		break;
 	case IDM_PREVFILE:
@@ -2726,8 +2725,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			WindowSetFocus(wEditor);
 		} else {
 			// Not using buffers - switch to previous file on MRU
-			if (SaveIfUnsure() != IDCANCEL)
-				StackMenuPrev();
+			StackMenuPrev();
 		}
 		break;
 
