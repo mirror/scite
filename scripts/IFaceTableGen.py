@@ -52,8 +52,7 @@ properties - a sorted list of (name, property), where property is a
 		features = f.features[name]
 		if features["Category"] != "Deprecated":
 			if features["FeatureType"] == "val":
-				if not StartsWith(name, "SCLEX_"):
-					constants.append( (name, features) )
+				constants.append( (name, features) )
 			elif features["FeatureType"] in ["fun","get","set"]:
 				if features["FeatureType"] == "get":
 					propname = string.replace(name, "Get", "", 1)
