@@ -23,10 +23,13 @@
             padding: 1px 5px 1px 5px;
         }
         .windowsonly {
-            background: #E7E7FF;
+            background: #E7FFE7;
         }
         .gtkonly {
             background: #FFFFE7;
+        }
+        h3 {
+            background-color: #CCCCFF;
         }
  </style>
   </head>
@@ -990,7 +993,7 @@ NameError: mistake
           when load.on.activate is used in conjunction with filter commands.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr>
         <td>
            check.if.already.open
         </td>
@@ -2651,6 +2654,17 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        to change other style settings to make this work well:<br /><code>
        style.*.32=$(font.base),back:#000000,fore:#ffffff<br />
        caret.fore=#FFFFFF</code>
+    </p>
+    <h4>
+       How do I change the colours of the output pane?
+    </h4>
+    <p>
+       The output pane often lists error and warning messages and
+       is styled by the "errorlist" lexer. The default errorlist styles are found
+       in others.properties. To change the ouput pane background to black
+       and the default text to white set<br /><code>
+       style.errorlist.32=$(font.small),back:#000000<br />
+       style.errorlist.0=fore:#FFFFFF</code>
     </p>
     <h4>
        How do I make the horizontal scroll bar adjust to the width of text?
