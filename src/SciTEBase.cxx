@@ -1969,10 +1969,10 @@ void SciTEBase::UpdateStatusBar() {
 		SetFileProperties(propsStatus);
 		SetTextProperties(propsStatus);
 		int caretPos = SendEditor(SCI_GETCURRENTPOS);
-		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_LINEFROMPOSITION, caretPos)));
+		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_LINEFROMPOSITION, caretPos)) + 1);
 		propsStatus.Set("LineNumber", tmp);
-		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_GETCOLUMN, caretPos)));
-		propsStatus.Set("ColumnNumber", tmp);
+		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_GETCOLUMN, caretPos)) + 1);
+		propsStatus.Set("ColumnNumber", tmp);		
 		propsStatus.Set("OverType", SendEditor(SCI_GETOVERTYPE) ? "OVR" : "INS");
 
 		char sbKey[32];
