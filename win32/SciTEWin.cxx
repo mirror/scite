@@ -613,52 +613,78 @@ void SciTEWin::ProcessExecute() {
 		bool completed = !worked;
 		DWORD timeDetectedDeath = 0;
 
+		int totalBytesToWrite = jobQueue[icmd].input.search("\x1a");
+		if (totalBytesToWrite < 0) {
+			totalBytesToWrite = jobQueue[icmd].input.length();
+		}
+
 		if (worked) {
 			subProcessGroupId = pi.dwProcessId;
 
-			if (jobQueue[icmd].input.length()) {
-				SString input = jobQueue[icmd].input;
+			if (totalBytesToWrite > 0) {
+				SString input = jobQueue[icmd].input.substr(0, totalBytesToWrite);
+				input.substitute("\n", "\n>> ");
 
-				int eofPosition = input.search("\x1a");
-				if (eofPosition >= 0) {
-					input.remove(eofPosition, 0);
-				}
-
-				if (input.length() > 0) {
-					::Sleep(50L);
-
-					DWORD bytesWrote = 0;
-					::WriteFile(hWriteSubProcess,
-					            const_cast<char *>(input.c_str()),
-					            input.length(), &bytesWrote, NULL);
-
-					input.substitute("\n", "\n>> ");
-
-					OutputAppendStringSynchronised(">> ");
-					OutputAppendStringSynchronised(input.c_str());
-					OutputAppendStringSynchronised("\n");
-
-					::Sleep(100L);
-				}
-
-				if (eofPosition >= 0) {
-					::CloseHandle(hWriteSubProcess);
-					hWriteSubProcess = INVALID_HANDLE_VALUE;
-				}
+				OutputAppendStringSynchronised(">> ");
+				OutputAppendStringSynchronised(input.c_str());
+				OutputAppendStringSynchronised("\n");
 			}
 		}
 
-		while (!completed) {
+		int writingPosition = 0;
 
-			::Sleep(100L);
+		while (!completed) {
+			if (writingPosition >= totalBytesToWrite) {
+				::Sleep(100L);
+			}
 
 			DWORD bytesRead = 0;
 			DWORD bytesAvail = 0;
+
 			if (!::PeekNamedPipe(hPipeRead, buffer,
 			                     sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
 				bytesAvail = 0;
 			}
-			if (bytesAvail > 0) {
+
+			if ((bytesAvail < 1000) && (hWriteSubProcess != INVALID_HANDLE_VALUE) && (writingPosition < totalBytesToWrite)) {
+				// There is input to transmit to the process.  Do it in small blocks, interleaved
+				// with reads, so that our hRead buffer will not be overrun with results.
+
+				int bytesToWrite = jobQueue[icmd].input.search("\n", writingPosition) + 1 - writingPosition;
+				if ((bytesToWrite <= 0) || (writingPosition + bytesToWrite >= totalBytesToWrite)) {
+					bytesToWrite = totalBytesToWrite - writingPosition;
+				}
+				if (bytesToWrite > 250) {
+					bytesToWrite = 250;
+				}
+
+				DWORD bytesWrote = 0;
+
+				int bTest = ::WriteFile(hWriteSubProcess,
+					    const_cast<char *>(jobQueue[icmd].input.c_str() + writingPosition),
+					    bytesToWrite, &bytesWrote, NULL);
+
+				if (bTest) {
+					if ((writingPosition + bytesToWrite) / 1024 > writingPosition / 1024) {
+						// sleep occasionally, even when writing
+						::Sleep(100L);
+					}
+
+					writingPosition += bytesWrote;
+
+					if (writingPosition >= totalBytesToWrite && (jobQueue[icmd].input[totalBytesToWrite] == 0x1a)) {
+						::CloseHandle(hWriteSubProcess);
+						hWriteSubProcess = INVALID_HANDLE_VALUE;
+					}
+
+				} else {
+					// Is this the right thing to do when writing to the pipe fails?
+					::CloseHandle(hWriteSubProcess);
+					hWriteSubProcess = INVALID_HANDLE_VALUE;
+					OutputAppendStringSynchronised("\n>Input pipe closed due to write failure.\n");
+				}
+
+			} else if (bytesAvail > 0) {
 				int bTest = ::ReadFile(hPipeRead, buffer,
 				                       sizeof(buffer), &bytesRead, NULL);
 
