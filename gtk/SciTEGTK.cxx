@@ -33,6 +33,7 @@
 #include "LuaExtension.h"
 #endif
 #include "pixmapsGNOME.h"
+#include "SciIcon.h"
 
 #define MB_ABOUTBOX	0x100000L
 
@@ -325,8 +326,11 @@ static GtkWidget *MakeCommand(const char *text, GtkAccelGroup *accel_group,
 
 static GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
                               int val, GtkAccelGroup *accel_group, bool isDefault = false) {
-	GtkWidget * button = MakeCommand(label, accel_group,
+	GtkWidget *button = MakeCommand(label, accel_group,
 	                                 GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val));
+	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child),label);
+	gtk_widget_add_accelerator(button, "clicked", accel_group,
+	                           key, 0, (GtkAccelFlags)0);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
 	                   button, TRUE, TRUE, 0);
 	if (isDefault) {
@@ -1042,7 +1046,6 @@ void SciTEGTK::FindInFilesKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *
 }
 
 void SciTEGTK::FindInFiles() {
-	guint key;
 	GtkAccelGroup *accel_group;
 	accel_group = gtk_accel_group_new();
 
@@ -1142,7 +1145,7 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_widget_show(table);
 
-	GtkWidget *btnFind = MakeCommand("  _Find  ", accel_group,
+	GtkWidget *btnFind = MakeCommand("  F_ind  ", accel_group,
 	                                 GtkSignalFunc(FindInFilesSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
 	                   btnFind, TRUE, TRUE, 0);
@@ -1317,7 +1320,6 @@ void SciTEGTK::GotoSignal(GtkWidget *, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::GoLineDialog() {
-	guint key;
 	GtkAccelGroup *accel_group;
 	accel_group = gtk_accel_group_new();
 
@@ -1376,7 +1378,6 @@ void SciTEGTK::GoLineDialog() {
 void SciTEGTK::TabSizeDialog() {}
 
 void SciTEGTK::FindReplace(bool replace) {
-	guint key;
 	GtkAccelGroup *accel_group;
 	accel_group = gtk_accel_group_new();
 
@@ -1442,27 +1443,27 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	// Whole Word
-	toggleWord = MakeToggle("Match _whole word only", accel_group, wholeWord);
+	toggleWord = MakeToggle("Match whole word _only", accel_group, wholeWord);
 	gtk_table_attach(GTK_TABLE(table), toggleWord, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Case Sensitive
-	toggleCase = MakeToggle("Match _case", accel_group, matchCase);
+	toggleCase = MakeToggle("_Match case", accel_group, matchCase);
 	gtk_table_attach(GTK_TABLE(table), toggleCase, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Regular Expression
-	toggleRegExp = MakeToggle("Regular _Expression", accel_group, regExp);
+	toggleRegExp = MakeToggle("Regular E_xpression", accel_group, regExp);
 	gtk_table_attach(GTK_TABLE(table), toggleRegExp, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Wrap Around
-	toggleWrap = MakeToggle("Wrap aroun_d", accel_group, wrapFind);
+	toggleWrap = MakeToggle("_Wrap around", accel_group, wrapFind);
 	gtk_table_attach(GTK_TABLE(table), toggleWrap, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Transform backslash expressions
-	toggleUnSlash = MakeToggle("Transform _backslash expressions", accel_group, unSlash);
+	toggleUnSlash = MakeToggle("_Transform backslash expressions", accel_group, unSlash);
 	gtk_table_attach(GTK_TABLE(table), toggleUnSlash, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
@@ -1476,7 +1477,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_box_set_homogeneous(
 	    GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area), false);
 
-	GtkWidget *btnFind = MakeCommand("  _Find  ", accel_group,
+	GtkWidget *btnFind = MakeCommand("  F_ind  ", accel_group,
 	                                 GtkSignalFunc(FRFindSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 	                   btnFind, TRUE, TRUE, 0);
@@ -1815,16 +1816,16 @@ void SciTEGTK::CreateMenu() {
 	    {"/_File", NULL, NULL, 0, "<Branch>"},
 	    {"/_File/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
-	    {"/File/_Open", "<control>O", menuSig, IDM_OPEN, 0},
+	    {"/File/_Open...", "<control>O", menuSig, IDM_OPEN, 0},
 	    {"/File/Open Selected _Filename", "<control><shift>O", menuSig, IDM_OPENSELECTED, 0},
 	    {"/File/_Revert", "<control>R", menuSig, IDM_REVERT, 0},
 	    {"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 	    {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
-	    {"/File/Save _As", NULL, menuSig, IDM_SAVEAS, 0},
+	    {"/File/Save _As...", NULL, menuSig, IDM_SAVEAS, 0},
 	    {"/File/_Export", "", 0, 0, "<Branch>"},
-	    {"/File/Export/As _HTML", NULL, menuSig, IDM_SAVEASHTML, 0},
-	    {"/File/Export/As _RTF", NULL, menuSig, IDM_SAVEASRTF, 0},
-	    {"/File/Export/As _PDF", NULL, menuSig, IDM_SAVEASPDF, 0},
+	    {"/File/Export/As _HTML...", NULL, menuSig, IDM_SAVEASHTML, 0},
+	    {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},
+	    {"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
 	    {"/File/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
 	    {"/File/File1", "", menuSig, fileStackCmdID + 1, 0},
@@ -1837,7 +1838,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/File/File8", "", menuSig, fileStackCmdID + 8, 0},
 	    {"/File/File9", "", menuSig, fileStackCmdID + 9, 0},
 	    {"/File/sep2", NULL, menuSig, IDM_MRU_SEP, "<Separator>"},
-	    {"/File/_Quit", "<control>Q", menuSig, IDM_QUIT, 0},
+	    {"/File/E_xit", "", menuSig, IDM_QUIT, 0},
 
 	    {"/_Edit", NULL, NULL, 0, "<Branch>"},
 	    {"/_Edit/tear", NULL, NULL, 0, "<Tearoff>"},
@@ -1867,10 +1868,10 @@ void SciTEGTK::CreateMenu() {
 	    {"/Search/_Find...", "<control>F", menuSig, IDM_FIND, 0},
 	    {"/Search/Find _Next", "F3", menuSig, IDM_FINDNEXT, 0},
 	    {"/Search/Find Previou_s", "<shift>F3", menuSig, IDM_FINDNEXTBACK, 0},
-	    {"/Search/F_ind in Files...", "<control>J", menuSig, IDM_FINDINFILES, 0},
-	    {"/Search/R_eplace", "<control>H", menuSig, IDM_REPLACE, 0},
+	    {"/Search/F_ind in Files...", "<control><shift>F", menuSig, IDM_FINDINFILES, 0},
+	    {"/Search/R_eplace...", "<control>H", menuSig, IDM_REPLACE, 0},
 	    {"/Search/sep3", NULL, NULL, 0, "<Separator>"},
-	    {"/Search/_Go To", "<control>G", menuSig, IDM_GOTO, 0},
+	    {"/Search/_Go To...", "<control>G", menuSig, IDM_GOTO, 0},
 	    {"/Search/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
 	    {"/Search/Pre_vious Bookmark", "<shift>F2", menuSig, IDM_BOOKMARK_PREV, 0},
 	    {"/Search/Toggle Bookmar_k", "<control>F2", menuSig, IDM_BOOKMARK_TOGGLE, 0},
@@ -2004,7 +2005,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/_Help", NULL, NULL, 0, "<Branch>"},
 	    {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Help/_Help", "F1", menuSig, IDM_HELP, 0},
-	    {"/Help/_About SciTE", "", menuSig, IDM_ABOUT, 0},
+	    {"/Help/_About SciTE...", "", menuSig, IDM_ABOUT, 0},
 	};
 
 	char *gthis = reinterpret_cast<char *>(this);
@@ -2163,6 +2164,7 @@ void SciTEGTK::CreateUI() {
 
 	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
 	gtk_widget_show_all(wSciTE.GetID());
+	SetIcon();
 
 	gtk_widget_hide(GTK_WIDGET(wToolBarBox.GetID()));
 
@@ -2219,8 +2221,6 @@ void SciTEGTK::CreateUI() {
 }
 
 void SciTEGTK::SetIcon() {
-#if WORKING
-#include "Icon.xpm"
 	GtkStyle *style;
 	GdkPixmap *icon_pix;
 	GdkBitmap *mask;
@@ -2228,9 +2228,8 @@ void SciTEGTK::SetIcon() {
 	icon_pix = gdk_pixmap_create_from_xpm_d(wSciTE.GetID()->window,
 	                                        &mask,
 	                                        &style->bg[GTK_STATE_NORMAL],
-	                                        (gchar **)Icon_xpm);
+	                                        (gchar **)SciIcon_xpm);
 	gdk_window_set_icon(wSciTE.GetID()->window, NULL, icon_pix, mask);
-#endif
 }
 
 bool SciTEGTK::CreatePipe(bool forceNew) {
@@ -2407,7 +2406,6 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	CheckMenus();
 	SizeSubWindows();
 	SetFocus(wEditor.GetID());
-	SetIcon();
 
 	gtk_main();
 }
