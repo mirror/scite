@@ -1590,22 +1590,50 @@ gint SciTEGTK::KeyPress(GtkWidget */*widget*/, GdkEventKey *event, SciTEGTK *sci
 	return scitew->Key(event);
 }
 
+// Translate key strokes that are not in a menu into commands
+class KeyToCommand {
+public:
+	int modifiers;
+	unsigned int key;	// For alphabetic keys has to match the shift modifier.
+	int msg;
+};
+
+enum {
+	m__ = 0,
+	mS_ = GDK_SHIFT_MASK,
+	m_C = GDK_CONTROL_MASK,
+	mSC = GDK_SHIFT_MASK | GDK_CONTROL_MASK
+};
+
+static KeyToCommand kmap[] = {
+	{m_C,	GDK_Tab,			IDM_NEXTFILE},
+	{mSC,	GDK_ISO_Left_Tab,	IDM_PREVFILE},
+	{m_C,	GDK_KP_Enter,		IDM_COMPLETEWORD},
+	{m_C,	GDK_F3,			IDM_FINDNEXTSEL},
+	{mSC,	GDK_F3,			IDM_FINDNEXTBACKSEL},
+	{m_C,	'j',				IDM_PREVMATCHPPC},
+	{mSC,	'J',				IDM_SELECTTOPREVMATCHPPC},
+	{m_C,	'k',				IDM_NEXTMATCHPPC},
+	{mSC,	'K',				IDM_SELECTTONEXTMATCHPPC},
+	{0,0,0},
+};
+
 gint SciTEGTK::Key(GdkEventKey *event) {
 	//printf("S-key: %d %x %x %x %x\n",event->keyval, event->state, GDK_SHIFT_MASK, GDK_CONTROL_MASK, GDK_F3);
-	int mods = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK);
-	int key = event->keyval;
-	if ((mods == GDK_CONTROL_MASK) && (key == GDK_Tab)) {
-		Command(IDM_NEXTFILE);
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(wSciTE.GetID()), "key_press_event");
-	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_KP_Enter)) {
-		Command(IDM_COMPLETEWORD);
-	} else if ((mods == (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) && (key == GDK_ISO_Left_Tab)) {
-		Command(IDM_PREVFILE);
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(wSciTE.GetID()), "key_press_event");
-	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_F3)) {
-		Command(IDM_FINDNEXTSEL);
-	} else if ((mods == (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) && (key == GDK_F3)) {
-		Command(IDM_FINDNEXTBACKSEL);
+	int modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK);
+	int commandID = 0;
+	for (int i=0; kmap[i].msg; i++) {
+		if ((event->keyval == kmap[i].key) && (modifiers == kmap[i].modifiers)) {
+			commandID = kmap[i].msg;
+		}
+	}
+	if (commandID) {
+		Command(commandID);
+	}
+	if ((commandID == IDM_NEXTFILE) || (commandID == IDM_PREVFILE)) {
+		// Stop the default key processing from moving the focus
+		gtk_signal_emit_stop_by_name(
+			GTK_OBJECT(wSciTE.GetID()), "key_press_event");
 	}
 	return 0;
 }
