@@ -2593,19 +2593,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));
 		break;
 
-	case IDM_WORDPARTLEFT:
-		SendEditor(SCI_WORDPARTLEFT);
-		break;
-	case IDM_WORDPARTLEFTEXTEND:
-		SendEditor(SCI_WORDPARTLEFTEXTEND);
-		break;
-	case IDM_WORDPARTRIGHT:
-		SendEditor(SCI_WORDPARTRIGHT);
-		break;
-	case IDM_WORDPARTRIGHTEXTEND:
-		SendEditor(SCI_WORDPARTRIGHTEXTEND);
-		break;
-
 	case IDM_VIEWSPACE:
 		ViewWhitespace(!SendEditor(SCI_GETVIEWWS));
 		CheckMenus();
