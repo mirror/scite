@@ -586,6 +586,7 @@ NameError: mistake
                <tr><td>FileName</td><td>base name of the current file</td></tr>
                <tr><td>FileExt</td><td>extension of the current file</td></tr>
                <tr><td>FileNameExt</td><td>$(FileName).$(FileExt)</td></tr>
+               <tr><td>SessionPath</td><td>full path of the current session</td></tr>
                <tr><td>CurrentSelection</td><td>value of the currently selected text</td></tr>
                <tr><td>CurrentWord</td><td>value of word which the caret is within or near</td></tr>
                <tr><td>Replacements</td><td>number of replacements made by last Replace command</td></tr>
@@ -1462,7 +1463,10 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
           horizontal.scroll.width is the document width assumed for scrolling.<br />
           Similarly, output.horizontal.scrollbar and output.horizontal.scroll.width controls the
         horizontal scroll bar of the output pane.<br />
-        To stop the output pane from automatically scrolling, set output.scroll to 0.<br />
+        To stop the output pane from automatically scrolling, set output.scroll to 0.
+        To have the output pane scroll and return back to the line of the executed command,
+        set output.scroll to 1. If you want the output pane to scroll and remain at
+        the bottom after execution, set output.scroll to 2.<br />
         The vertical scroll range is normally set so that maximum scroll position has
         the last line at the bottom of the view. Set end.at.last.line to 0 to allow
         scrolling one page below the last line.
