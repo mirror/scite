@@ -826,7 +826,11 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 			if (grabSize > blockSize)
 				grabSize = blockSize;
 			GetRange(wEditor, i, i + grabSize, data);
-			convert.fwrite(data, grabSize);
+			size_t written = convert.fwrite(data, grabSize);
+			if (written == 0) {
+				convert.fclose();
+				return false;
+			}
 		}
 		convert.fclose();
 		return true;
