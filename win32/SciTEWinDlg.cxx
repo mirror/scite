@@ -775,8 +775,6 @@ void SciTEWin::GoLineDialog() {
 			SendEditor(SCI_GOTOLINE, lineNo[0]-1);
 			//}
 		}
-
-
 	}
 	SetFocus(wEditor.GetID());
 }
@@ -844,6 +842,7 @@ void SciTEWin::TabSizeDialog() {
 	}
 	SetFocus(wEditor.GetID());
 }
+
 void SciTEWin::FindReplace(bool replace) {
 	replacing = replace;
 }
