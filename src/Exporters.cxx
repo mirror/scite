@@ -1220,9 +1220,9 @@ static char* texStyle(int style) {
 }
 
 static void defineTexStyle(TexStyle* style, FILE* fp, int istyle) {
-	int closing_brackets = 0;
+	int closing_brackets = 2;
 	char rgb[200];
-	fprintf(fp, "\\newcommand{\\scite%s}[1]{", texStyle(istyle));
+	fprintf(fp, "\\newcommand{\\scite%s}[1]{\\ttfamily{\\small{", texStyle(istyle));
 	if (style->italics) {
 		fputs("\\textit{", fp);
 		closing_brackets++;
@@ -1271,7 +1271,9 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 
 	FILE *fp = fopen(saveName, "wt");
 	if (fp) {
-		fputs("\\documentclass[a4paper]{book}\n", fp);
+		fputs("\\documentclass[a4paper]{article}\n", fp);
+		fputs("\\usepackage[a4paper,margin=2cm]{geometry}", fp);
+		fputs("\\usepackage[T1]{fontenc}", fp);
 		fputs("\\usepackage{color}\n", fp);
 		fputs("\\usepackage{alltt}\n", fp);
 		fputs("\\usepackage{times}\n", fp);
@@ -1296,11 +1298,13 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 		}
 
 		fputs("\\begin{document}\n\n", fp);
-		fprintf(fp, "Source File: %s\\\n\\noindent\n", titleFullPath?fullPath:fileName);
+		fprintf(fp, "Source File: %s\n\n\\noindent\n", titleFullPath?fullPath:fileName);
 
 		int styleCurrent = acc.StyleAt(0);
 
 		fprintf(fp, "\\scite%s{", texStyle(styleCurrent));
+
+		int lineIdx = 0;
 
 		for (i = 0; i < lengthDoc; i++) { //here process each character of the document
 			char ch = acc[i];
@@ -1312,11 +1316,14 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 			}
 
 			switch ( ch ) { //write out current character.
-			case '\t':
-				fprintf(fp, "\\hskip %dem", tabSize);
+			case '\t':{
+				int ts = tabSize - (lineIdx % tabSize);
+				lineIdx += ts-1;
+				fprintf(fp, "\\hspace*{%dem}", ts);
 				break;
+			}
 			case '\\':
-				fputs("$\\backslash$", fp);
+				fputs("{\\textbackslash}", fp);
 				break;
 			case '{':
 				fputs("$\\{$", fp);
@@ -1356,6 +1363,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 				break;
 			case '\r':
 			case '\n':
+				lineIdx = 0;
 				if (ch == '\r' && acc[i + 1] == '\n')
 					i++;
 				styleCurrent = acc.StyleAt(i + 1);
@@ -1371,6 +1379,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 			default:
 				fputc(ch, fp);
 			}
+			lineIdx++;
 		}
 		fputs("}\n\\end{document}\n", fp); //close last empty style macros and document too
 		fclose(fp);
