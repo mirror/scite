@@ -46,6 +46,8 @@
 
 const char propFileName[] = "SciTE.properties";
 
+#define recentFileName "SciTE.recent"
+
 const char *contributors[] = {
     "Atsuo Ishimoto",
     "Mark Hammond",
@@ -82,6 +84,7 @@ const char *contributors[] = {
     "Jan Dries",
     "Markus Gritsch",
     "Tahir Karaca",
+    "Ahmad Zawawi",
 };
 
 const char *extList[] = {
@@ -391,6 +394,69 @@ void SciTEBase::InitialiseBuffers() {
 #endif      
 		}
 	}
+}
+
+void SciTEBase::LoadRecentMenu() {
+	char recentPathName[MAX_PATH + 1];
+   	char *where = getenv("SciTE_HOME");
+	char *pat;
+	if (!where) {
+		where = getenv("HOME");
+		pat = "%s/.%s";
+	} else
+		pat = "%s/%s";
+	sprintf (	recentPathName, pat,
+				where,
+				recentFileName);
+
+	FILE *recentFile = fopen (recentPathName, "r");
+	if (!recentFile) {
+		DeleteFileStackMenu();
+		return;
+	}
+	char line[MAX_PATH + 1];
+	CharacterRange cr;
+	cr.cpMin = cr.cpMax = 0;
+	for (int i = 0; i < fileStackMax; i++) {
+		if(!fgets (line, sizeof (line), recentFile))
+			break;
+		line[strlen (line) - 1] = '\0';
+		AddFileToStack (line, cr, 0);
+	}
+	fclose (recentFile);
+}
+
+void SciTEBase::SaveRecentStack() {
+	char recentPathName[MAX_PATH + 1];
+   	char *where = getenv("SciTE_HOME");
+	char *pat;
+	if (!where) {
+		where = getenv("HOME");
+		pat = "%s/.%s";
+	} else
+		pat = "%s/%s";
+	sprintf (	recentPathName, pat,
+				where,
+				recentFileName);
+
+	FILE *recentFile = fopen (recentPathName, "w");
+	if (!recentFile)
+		return;
+	int i;
+	const char *line;
+	// save recent files list
+	for (i = fileStackMax - 1; i >= 0; i--) {
+		line = recentFileStack[i].fileName.c_str();
+		if (line[0])
+			fprintf (recentFile, "%s\n", line);
+	}
+	// save buffers list
+	for (i = buffers.length - 1; i >= 0 ; i--) {
+		line = buffers.buffers[i].fileName.c_str();
+		if (line[0])
+			fprintf (recentFile, "%s\n", line);
+	}
+	fclose (recentFile);
 }
 
 void SciTEBase::New() {
@@ -1664,6 +1730,11 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 	ReadProperties();
 	UpdateBuffersCurrent();
 
+	if (initialCmdLine) {
+		if (props.GetInt("save.recent", 0))
+			LoadRecentMenu();
+	}
+	
 	if (fileName[0]) {
 		SendEditor(SCI_CANCEL);
 		SendEditor(SCI_SETUNDOCOLLECTION, 0);
@@ -1777,6 +1848,8 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 				return IDCANCEL;
 		}
 	}
+	if (props.GetInt("save.recent", 0))
+		SaveRecentStack();
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document
 	SendEditor(SCI_SETDOCPOINTER, 0, buffers.buffers[0].doc);

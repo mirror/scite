@@ -279,6 +279,8 @@ protected:
 	void SetFileName(const char *openName, bool fixCase= true);
 	void ClearDocument();
 	void InitialiseBuffers();
+	void LoadRecentMenu();
+	void SaveRecentStack();
 	void New();
 	void Close(bool updateUI= true);
 	bool Exists(const char *dir, const char *path, char *testPath);
