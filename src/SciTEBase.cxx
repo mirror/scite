@@ -245,6 +245,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	matchCase = false;
 	wholeWord = false;
 	reverseFind = false;
+	regExp = false;
 
 	windowName[0] = '\0';
 	fullPath[0] = '\0';
@@ -689,7 +690,9 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	ft.lpstrText = findTarget;
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
-	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
+	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | 
+			(matchCase ? SCFIND_MATCHCASE : 0) |
+			(regExp ? SCFIND_REGEXP : 0);
 	//DWORD dwStart = timeGetTime();
 	int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
 	//DWORD dwEnd = timeGetTime();
@@ -767,7 +770,9 @@ void SciTEBase::ReplaceAll() {
 		UnSlash(replaceTarget);
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
-	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
+	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | 
+			(matchCase ? SCFIND_MATCHCASE : 0) |
+			(regExp ? SCFIND_REGEXP : 0);
 	int posFind = SendEditor(SCI_FINDTEXT, flags,
 	                         reinterpret_cast<long>(&ft));
 	if (posFind != -1) {
@@ -2427,9 +2432,9 @@ char *Slash(const char *s) {
 				*o++ = '\\';
 			} else if (*s < ' ') {
 				*o++ = '\\';
-				*o++ = (*s >> 6) + '0';
-				*o++ = (*s >> 3) + '0';
-				*o++ = (*s & 0x7) + '0';
+				*o++ = static_cast<char>((*s >> 6) + '0');
+				*o++ = static_cast<char>((*s >> 3) + '0');
+				*o++ = static_cast<char>((*s & 0x7) + '0');
 			} else {
 				*o++ = *s;
 			}
@@ -2483,7 +2488,7 @@ unsigned int UnSlash(char *s) {
 						val += *s - '0';
 					}
 				}
-				*o = val;
+				*o = static_cast<char>(val);
 			} else {
 				*o = *s;
 			}

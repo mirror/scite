@@ -87,6 +87,7 @@ protected:
 	GtkWidget *gotoEntry;
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
+	GtkWidget *toggleRegExp;
 	GtkWidget *toggleReverse;
 	GtkWidget *toggleRec;
 	GtkWidget *comboFind;
@@ -254,6 +255,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	gotoEntry = 0;
 	toggleWord = 0;
 	toggleCase = 0;
+	toggleRegExp = 0;
 	toggleReverse = 0;
 	comboFind = 0;
 	comboReplace = 0;
@@ -908,6 +910,7 @@ void SciTEGTK::FindReplaceGrabFields() {
 	}
 	wholeWord = GTK_TOGGLE_BUTTON(toggleWord)->active;
 	matchCase = GTK_TOGGLE_BUTTON(toggleCase)->active;
+	regExp = GTK_TOGGLE_BUTTON(toggleRegExp)->active;
 	reverseFind = GTK_TOGGLE_BUTTON(toggleReverse)->active;
 }
 
@@ -1391,29 +1394,38 @@ void SciTEGTK::FindReplace(bool replace) {
 		comboReplace = 0;
 	}
 
-	// Case Sensitive
-	toggleCase = gtk_check_button_new_with_label("");
-	GTK_WIDGET_UNSET_FLAGS(toggleCase, GTK_CAN_FOCUS);
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleCase)->child), "Case _Sensitive");
-	gtk_widget_add_accelerator(	toggleCase, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
-	gtk_table_attach(GTK_TABLE(table), toggleCase, 0, 2, row, row + 1, opts, opts, 3, 0);
-	gtk_widget_show(toggleCase);
-	row++;
-
 	// Whole Word
 	toggleWord = gtk_check_button_new_with_label("");
 	GTK_WIDGET_UNSET_FLAGS(toggleWord, GTK_CAN_FOCUS);
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleWord)->child), "Whole _Word");
-	gtk_widget_add_accelerator(	toggleWord, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	gtk_widget_add_accelerator(toggleWord, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_table_attach(GTK_TABLE(table), toggleWord, 0, 2, row, row + 1, opts, opts, 3, 0);
 	gtk_widget_show(toggleWord);
 	row++;
 
-	// Whole Word
+	// Case Sensitive
+	toggleCase = gtk_check_button_new_with_label("");
+	GTK_WIDGET_UNSET_FLAGS(toggleCase, GTK_CAN_FOCUS);
+	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleCase)->child), "Case _Sensitive");
+	gtk_widget_add_accelerator(toggleCase, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	gtk_table_attach(GTK_TABLE(table), toggleCase, 0, 2, row, row + 1, opts, opts, 3, 0);
+	gtk_widget_show(toggleCase);
+	row++;
+
+	// Regular Expression
+	toggleRegEx = gtk_check_button_new_with_label("");
+	GTK_WIDGET_UNSET_FLAGS(toggleRegEx, GTK_CAN_FOCUS);
+	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleRegEx)->child), "Regular _Expression");
+	gtk_widget_add_accelerator(toggleRegEx, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	gtk_table_attach(GTK_TABLE(table), toggleRegEx, 0, 2, row, row + 1, opts, opts, 3, 0);
+	gtk_widget_show(toggleRegEx);
+	row++;
+
+	// Reverse
 	toggleReverse = gtk_check_button_new_with_label("");
 	GTK_WIDGET_UNSET_FLAGS(toggleReverse, GTK_CAN_FOCUS);
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleReverse)->child), "_Reverse Direction");
-	gtk_widget_add_accelerator(	toggleReverse, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+	gtk_widget_add_accelerator(toggleReverse, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_table_attach(GTK_TABLE(table), toggleReverse, 0, 2, row, row + 1, opts, opts, 3, 0);
 	gtk_widget_show(toggleReverse);
 

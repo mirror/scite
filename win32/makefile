@@ -103,9 +103,9 @@ $(PROG): $(OBJS)
 OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o SciTEBase.o SciTEBuffers.o \
 	SciTEIO.o Exporters.o SciTEProps.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
 	WindowAccessor.o DocumentAccessor.o KeyWords.o $(LEXOBJS) PropSet.o \
-	ContractionState.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o UniConversion.o \
-	KeyMap.o Indicator.o LineMarker.o Style.o ViewStyle.o AutoComplete.o \
-	DirectorExtension.o
+	ContractionState.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
+	UniConversion.o KeyMap.o Indicator.o LineMarker.o PosRegExp.o Style.o \
+	ViewStyle.o AutoComplete.o DirectorExtension.o
 
 $(PROGSTATIC): $(OBJSSTATIC)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)

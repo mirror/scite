@@ -208,6 +208,7 @@ protected:
 	bool matchCase;
 	bool wholeWord;
 	bool reverseFind;
+	bool regExp;
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 	ComboMemory memFiles;

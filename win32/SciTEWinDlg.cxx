@@ -766,6 +766,7 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
+	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
 	HWND wUp = ::GetDlgItem(hDlg, IDDIRECTIONUP);
 	HWND wDown = ::GetDlgItem(hDlg, IDDIRECTIONDOWN);
 
@@ -779,6 +780,8 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->matchCase)
 			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->regExp)
+			::SendMessage(wRegExp, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->reverseFind) {
 			::SendMessage(wUp, BM_SETCHECK, BST_CHECKED, 0);
 		} else {
@@ -806,6 +809,8 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			                 ::SendMessage(wWholeWord, BM_GETCHECK, 0, 0);
 			sci->matchCase = BST_CHECKED ==
 			                 ::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
+			sci->regExp = BST_CHECKED ==
+			                 ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
 			sci->reverseFind = BST_CHECKED ==
 			                   ::SendMessage(wUp, BM_GETCHECK, 0, 0);
 			sci->wFindReplace = 0;
@@ -823,6 +828,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		return TRUE;
 	HWND wWholeWord = ::GetDlgItem(wFindReplace.GetID(), IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(wFindReplace.GetID(), IDMATCHCASE);
+	HWND wRegExp = ::GetDlgItem(wFindReplace.GetID(), IDREGEXP);
 	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
 		::GetDlgItemText(wFindReplace.GetID(), IDFINDWHAT, findWhat, sizeof(findWhat));
 		props.Set("find.what", findWhat);
@@ -831,6 +837,8 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		            ::SendMessage(wWholeWord, BM_GETCHECK, 0, 0);
 		matchCase = BST_CHECKED ==
 		            ::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
+		regExp = BST_CHECKED ==
+		            ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
 	}
 	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
 		::GetDlgItemText(wFindReplace.GetID(), IDREPLACEWITH, replaceWhat, sizeof(replaceWhat));
@@ -861,6 +869,7 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	HWND wReplaceWith = ::GetDlgItem(hDlg, IDREPLACEWITH);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
+	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
 
 	switch (message) {
 
@@ -874,6 +883,8 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->matchCase)
 			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->regExp)
+			::SendMessage(wRegExp, BM_SETCHECK, BST_CHECKED, 0);
 		return TRUE;
 
 	case WM_CLOSE:
