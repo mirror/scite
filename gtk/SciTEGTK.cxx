@@ -1029,10 +1029,11 @@ void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*
 	//}
 }
 
-bool SciTEGTK::OpenDialog(const char *) {
+bool SciTEGTK::OpenDialog(const char *filter) {
 	chdir(dirName);
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
+#if GTK_MAJOR_VERSION < 2 || GTK_MINOR_VERSION < 4
 		dlgFileSelector = gtk_file_selection_new(LocaliseString("Open File").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(OpenOKSignal), this);
@@ -1045,6 +1046,61 @@ bool SciTEGTK::OpenDialog(const char *) {
 		gtk_window_set_default_size(GTK_WINDOW(PWidget(dlgFileSelector)),
 		                            fileSelectorWidth, fileSelectorHeight);
 		canceled = dlgFileSelector.ShowModal(PWidget(wSciTE));
+#else
+		GtkWidget *dlg = gtk_file_chooser_dialog_new("Open File",
+				      GTK_WINDOW(wSciTE.GetID()),
+				      GTK_FILE_CHOOSER_ACTION_OPEN,
+				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      NULL);
+		SString openFilter;
+		if (filter)
+			openFilter = filter;
+		else
+			openFilter = props.GetExpanded("open.filter");
+		GtkFileFilter *filterAll = gtk_file_filter_new();
+		gtk_file_filter_set_name(filterAll, "All Files");
+		gtk_file_filter_add_pattern(filterAll, "*");
+		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filterAll);
+		GtkFileFilter *filterDefault = 0;
+		if (openFilter.length()) {
+			openFilter.substitute('|', '\0');
+			size_t start = 0;
+			while (start < openFilter.length()) {
+				const char *filterName = openFilter.c_str() + start;
+				SString localised = LocaliseString(filterName, false);
+				if (localised.length()) {
+					openFilter.remove(start, strlen(filterName));
+					openFilter.insert(start, localised.c_str());
+				}
+				GtkFileFilter *filter = gtk_file_filter_new();
+				gtk_file_filter_set_name(filter, openFilter.c_str() + start);
+				start += strlen(openFilter.c_str() + start) + 1;
+				SString oneSet(openFilter.c_str() + start);
+				oneSet.substitute(';', '\0');
+				size_t item = 0;
+				while (item < oneSet.length()) {
+					gtk_file_filter_add_pattern(filter, oneSet.c_str() + item);
+					item += strlen(oneSet.c_str() + item) + 1;
+				}
+				gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filter);
+				start += strlen(openFilter.c_str() + start) + 1;
+				if (!filterDefault)
+					filterDefault = filter;
+			}
+		}
+		if (filterDefault) {
+			gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dlg), filterDefault);
+		}
+
+		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
+			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+			Open(filename);
+			g_free(filename);
+			canceled = false;
+		}
+		gtk_widget_destroy(dlg);
+#endif
 	}
 	return !canceled;
 }
