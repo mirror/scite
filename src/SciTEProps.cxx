@@ -484,6 +484,7 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("fold.html");
 	ForwardPropertyToEditor("styling.within.preprocessor");
 	ForwardPropertyToEditor("tab.timmy.whinge.level");
+	ForwardPropertyToEditor("asp.default.language");
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
 	if (apifilename.length()) {
