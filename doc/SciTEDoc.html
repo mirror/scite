@@ -153,7 +153,9 @@ NameError: mistake
       and 2 is for using the ShellExecute call. ShellExecute is a good way to open HTML files and
       similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an
       internal extension or director extension, 4 is for calling the Windows specific HtmlHelp program
-      and 5 is for calling the Windows specific WinHelp function.
+      and 5 is for calling the Windows specific WinHelp function. On GTK+, the default subsystem 0
+      executes the tool and waits for it to finish, redirecting output to the output pane and 
+      subsystem 2 executes the tool in the background.
     </p>
     <h3>
        Command line arguments
