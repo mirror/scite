@@ -177,13 +177,13 @@
 				RelativePath="..\..\scintilla\src\KeyWords.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAVE.cxx">
-			</File>
-			<File
 				RelativePath="..\..\scintilla\src\LexAda.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexAsm.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\LexAVE.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexBaan.cxx">
@@ -192,16 +192,16 @@
 				RelativePath="..\..\scintilla\src\LexBullant.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCPP.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\src\LexCSS.cxx">
-			</File>
-			<File
 				RelativePath="..\..\scintilla\src\LexConf.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexCPP.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexCrontab.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\LexCSS.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexEiffel.cxx">
@@ -231,6 +231,9 @@
 				RelativePath="..\..\scintilla\src\LexPerl.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexPOV.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexPython.cxx">
 			</File>
 			<File
@@ -242,6 +245,7 @@
 			<File
 				RelativePath="..\..\scintilla\src\LexVB.cxx">
 			</File>
+
 			<File
 				RelativePath="..\..\scintilla\src\LineMarker.cxx">
 			</File>
@@ -313,9 +317,6 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Src\WindowAccessor.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\src\XPM.cxx">
 			</File>
 		</Filter>
 		<Filter
