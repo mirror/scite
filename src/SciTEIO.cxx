@@ -436,17 +436,19 @@ void SciTEBase::DiscoverIndentSetting() {
 		}
 	}
 	// maximum non-zero indent
-	int topIndentSize = -1;
+	int topTabSize = -1;
 	for (int j = 0; j <= 8; j++) {
-		if (tabSizes[j] && (topIndentSize == -1 || tabSizes[j] > tabSizes[topIndentSize])) {
-			topIndentSize = j;
+		if (tabSizes[j] && (topTabSize == -1 || tabSizes[j] > tabSizes[topTabSize])) {
+			topTabSize = j;
 		}
 	}
 	// set indentation
-	if (topIndentSize <= 0)
-		SendEditor(SCI_SETINDENT, 8);
-	else 
-		SendEditor(SCI_SETINDENT, topIndentSize);
+	if (topTabSize == 0) {
+		SendEditor(SCI_SETUSETABS, 1);
+	} else if (topTabSize != -1) {
+		SendEditor(SCI_SETUSETABS, 0);
+		SendEditor(SCI_SETINDENT, topTabSize);
+	}
 }
 
 void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
