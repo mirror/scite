@@ -843,7 +843,7 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 			}
 
 			if (fore.length()) {
-				int red, green, blue;
+				unsigned int red, green, blue;
 				char buffer[20];
 				// decompose it using simple sscanf...
 
