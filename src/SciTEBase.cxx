@@ -231,7 +231,7 @@ const char *contributors[] = {
                                  "Borujoa",
                                  "Michael Owens",
                                  "Franck Marcia",
-                                 "nissl",
+                                 "Massimo Maria Ghisalberti",
                                  "Frank Wunderlich",
                                  "Josepmaria Roca",
                                  "Tobias Engvall",
