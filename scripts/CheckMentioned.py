@@ -29,7 +29,6 @@ incFile.close()
 
 docFile = open(docFileName, "rt")
 for line in docFile.readlines():
-	depunctuated = line.replace
 	for word in depunctuate(line).split():
 		if word in symbols.keys():
 			symbols[word] = 1
