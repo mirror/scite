@@ -1,4 +1,16 @@
-// http://www.cl.cam.ac.uk/~mgk25/unicode.html
+// Utf8_16.h
+// Copyright (C) 2002 Scott Kirkwood
+// 
+// Permission to use, copy, modify, distribute and sell this code
+// and its documentation for any purpose is hereby granted without fee,
+// provided that the above copyright notice appear in all copies or
+// any derived copies.  Scott Kirkwood makes no representations
+// about the suitability of this software for any purpose.
+// It is provided "as is" without express or implied warranty.
+// 
+// Notes: Used the UTF information I found at:
+//   http://www.cl.cam.ac.uk/~mgk25/unicode.html
+////////////////////////////////////////////////////////////////////////////////
 
 #include "stdio.h"
 #include "assert.h"
