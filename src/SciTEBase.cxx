@@ -1311,7 +1311,7 @@ void SciTEBase::Execute() {
 	for (ic = 0; ic < commandMax; ic++) {
 		if (jobQueue[ic].command[0] == '*') {
 			displayParameterDialog = true;
-			jobQueue[ic].command.remove(0);
+			jobQueue[ic].command.remove(0, 1);
 			parameterisedCommand = jobQueue[ic].command;
 		}
 		if (!(jobQueue[ic].directory == "")) {
