@@ -779,7 +779,7 @@ void SciTEBase::ToolsMenu(int item) {
 	SString prefix = "command.";
 	prefix += SString(item);
 	prefix += ".";
-	SString command = props.GetNewExpand(prefix.c_str(), fileName);
+	SString command = props.GetWild(prefix.c_str(), fileName);
 	if (command.length()) {
 		if (SaveIfUnsure() != IDCANCEL) {
 			SString isfilter = "command.is.filter.";

@@ -2748,7 +2748,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 						forceQueue = true;
 					}
 				}
-				AddCommand(props.GetNewExpand("command.go.", fileName), "",
+				AddCommand(props.GetWild("command.go.", fileName), "",
 				           SubsystemType("command.go.subsystem."), forceQueue);
 				if (commandCurrent > 0)
 					Execute();
