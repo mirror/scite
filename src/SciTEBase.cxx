@@ -784,8 +784,7 @@ void SciTEBase::GetCTag(char *sel, int len) {
 					mustStop = 1;	// Found!
 				}
 
-			}
-			else {
+			} else {
 				mustStop = -1;
 			}
 		}
@@ -2279,9 +2278,9 @@ void SciTEBase::AutomaticIndentation(char ch) {
 			}
 		}
 	} else if (!blockEnd.IsSingleChar() && (ch == ' ')) {	// Dedent maybe
-		if (!indentClosing && (GetIndentState(curLine) == isBlockEnd)) {}
+		if (!indentClosing && (GetIndentState(curLine) == isBlockEnd)) {
 	}
-	else if (ch == blockStart.words[0]) {	// Dedent maybe if first on line and previous line was starting keyword
+	} else if (ch == blockStart.words[0]) {	// Dedent maybe if first on line and previous line was starting keyword
 		if (!indentOpening && (GetIndentState(curLine - 1) == isKeyWordStart)) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
 				SetLineIndentation(curLine, indentBlock - indentSize);
@@ -2341,8 +2340,7 @@ void SciTEBase::CharAdded(char ch) {
 				}
 			} else if (HandleXml(ch)) {
 				// Handled in the routine
-			}
-			else {
+			} else {
 				if (ch == '(') {
 					braceCount = 1;
 					StartCallTip();
@@ -2365,10 +2363,8 @@ void SciTEBase::CharAdded(char ch) {
 }
 
 /**
- * This routine will auto complete XML or HTML tags that are still open by
-closing them
- * @parm ch The character we are dealing with, currently only works with
-the '/' character
+ * This routine will auto complete XML or HTML tags that are still open by closing them
+ * @parm ch The characer we are dealing with, currently only works with the '/' character
  * @return True if handled, false otherwise
  * @author Scott Kirkwood
  */
@@ -2426,8 +2422,7 @@ bool SciTEBase::HandleXml(char ch) {
 	return false;
 }
 
-/** Search backward through nSize bytes looking for a '<', then return the
-tag if any
+/** Search backward through nSize bytes looking for a '<', then return the tag if any
  * @return The tag name
  * @author Scott Kirkwood
  */
