@@ -381,10 +381,14 @@ void SciTEBase::InitialiseBuffers() {
 		buffers.Allocate(buffersWanted);
 		// First document is the default from creation of control
 		buffers.buffers[0].doc = SendEditor(SCI_GETDOCPOINTER, 0, 0);
-		SendEditor(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc);	// We own this reference
+		SendEditor(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
 		if (buffersWanted == 1) {
 			DestroyMenuItem(4, IDM_CLOSEALL);
 			DestroyMenuItem(4, 0);
+#if PLAT_WIN
+			// Destroy command "View Tab Bar" in the menu "Options"
+			DestroyMenuItem(3, IDM_VIEWTABBAR);
+#endif      
 		}
 	}
 }
