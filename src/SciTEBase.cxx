@@ -755,7 +755,7 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
     int condEnd2) {		///< Second one
 
 	bool isInside = false;
-	char line[80];	// No need for full line
+	char line[800];	// No need for full line
 	int status, level = 0;
 	int maxLines = SendEditor(SCI_GETLINECOUNT)-1;
 
@@ -792,7 +792,7 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 
 	bool isInside = false;
 	int curLine;
-	char line[80];	// Probably no need to get more characters, even if the line is longer, unless very strange layout...
+	char line[800];	// Probably no need to get more characters, even if the line is longer, unless very strange layout...
 	int status;
 
 	// Get current line
@@ -2090,7 +2090,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 			continue;
 		}
 		// Grab the word and put spaces around it
-		const unsigned int wordMaxSize = 80;
+		const unsigned int wordMaxSize = 800;
 		char wordstart[wordMaxSize];
 		wordstart[0] = ' ';
 		GetRange(wEditor, posFind, Platform::Minimum(posFind + wordMaxSize - 3, doclen), wordstart + 1);
