@@ -10,7 +10,7 @@
 //#include <fcntl.h>
 //#include <stdarg.h>
 //#include <sys/stat.h>
-#include <time.h> 	// For time_t
+#include <time.h>  	// For time_t
 
 #include "Platform.h"
 
@@ -227,7 +227,7 @@ void SciTEBase::LoadRecentMenu() {
 	FILE *recentFile = fopen(recentPathName, "r");
 	if (!recentFile) {
 		DeleteFileStackMenu();
-		return;
+		return ;
 	}
 	char line[MAX_PATH + 1];
 	CharacterRange cr;
@@ -247,7 +247,7 @@ void SciTEBase::SaveRecentStack() {
 
 	FILE *recentFile = fopen(recentPathName, "w");
 	if (!recentFile)
-		return;
+		return ;
 	int i;
 	const char *line;
 	// save recent files list
@@ -498,15 +498,16 @@ void SciTEBase::RemoveFileFromStack(const char *file) {
 
 void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
-		int curScrollPos = SendEditor(SCI_GETFIRSTVISIBLELINE);
-		int curTop = SendEditor(SCI_VISIBLEFROMDOCLINE, curScrollPos);
-		int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
-		SendEditor(SCI_LINESCROLL, 0, lineTop - curTop);
 		int lineStart = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMin);
 		SendEditor(SCI_ENSUREVISIBLE, lineStart);
 		int lineEnd = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMax);
 		SendEditor(SCI_ENSUREVISIBLE, lineEnd);
 		SetSelection(rf.selection.cpMax, rf.selection.cpMin);
+
+		int curScrollPos = SendEditor(SCI_GETFIRSTVISIBLELINE);
+		int curTop = SendEditor(SCI_VISIBLEFROMDOCLINE, curScrollPos);
+		int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
+		SendEditor(SCI_LINESCROLL, 0, lineTop - curTop);
 	}
 }
 
@@ -744,9 +745,7 @@ void SciTEBase::GoMessage(int dir) {
 						bExists = true;
 					}
 					if (bExists) {
-						if (CanMakeRoom()) {
-							Open(messagePath);
-						} else {
+						if (!Open(messagePath)) {
 							delete []cdoc;
 							return ;
 						}

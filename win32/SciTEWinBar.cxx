@@ -22,61 +22,63 @@ void SciTEWin::Notify(SCNotification *notification) {
 
 #if (_WIN32_IE >= 0x0300)
 		// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
-	case TTN_GETDISPINFO: {
-		NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
-		switch (notification->nmhdr.idFrom) {
-		case IDM_NEW:
-			pDispInfo->lpszText = "New";
+	case TTN_GETDISPINFO:
+		{
+			NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
+			switch (notification->nmhdr.idFrom) {
+			case IDM_NEW:
+				pDispInfo->lpszText = "New";
+				break;
+			case IDM_OPEN:
+				pDispInfo->lpszText = "Open";
+				break;
+			case IDM_SAVE:
+				pDispInfo->lpszText = "Save";
+				break;
+			case IDM_PRINT:
+				pDispInfo->lpszText = "Print";
+				break;
+			case IDM_CUT:
+				pDispInfo->lpszText = "Cut";
+				break;
+			case IDM_COPY:
+				pDispInfo->lpszText = "Copy";
+				break;
+			case IDM_PASTE:
+				pDispInfo->lpszText = "Paste";
+				break;
+			case IDM_CLEAR:
+				pDispInfo->lpszText = "Delete";
+				break;
+			case IDM_UNDO:
+				pDispInfo->lpszText = "Undo";
+				break;
+			case IDM_REDO:
+				pDispInfo->lpszText = "Redo";
+				break;
+			case IDM_FIND:
+				pDispInfo->lpszText = "Find";
+				break;
+			case IDM_REPLACE:
+				pDispInfo->lpszText = "Replace";
+				break;
+			default:
+				{ // notification->nmhdr.idFrom appears to be the buffer number for tabbar tooltips
+					Point ptCursor;
+					::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
+					Point ptClient = ptCursor;
+					::ScreenToClient(wTabBar.GetID(), reinterpret_cast<POINT *>(&ptClient));
+					TCHITTESTINFO info;
+					info.pt.x = ptClient.x; info.pt.y = ptClient.y;
+					int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
+					pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].fileName.c_str());
+				}
+				break;
+			}
 			break;
-		case IDM_OPEN:
-			pDispInfo->lpszText = "Open";
-			break;
-		case IDM_SAVE:
-			pDispInfo->lpszText = "Save";
-			break;
-		case IDM_PRINT:
-			pDispInfo->lpszText = "Print";
-			break;
-		case IDM_CUT:
-			pDispInfo->lpszText = "Cut";
-			break;
-		case IDM_COPY:
-			pDispInfo->lpszText = "Copy";
-			break;
-		case IDM_PASTE:
-			pDispInfo->lpszText = "Paste";
-			break;
-		case IDM_CLEAR:
-			pDispInfo->lpszText = "Delete";
-			break;
-		case IDM_UNDO:
-			pDispInfo->lpszText = "Undo";
-			break;
-		case IDM_REDO:
-			pDispInfo->lpszText = "Redo";
-			break;
-		case IDM_FIND:
-			pDispInfo->lpszText = "Find";
-			break;
-		case IDM_REPLACE:
-			pDispInfo->lpszText = "Replace";
-			break;
-		default: { // notification->nmhdr.idFrom appears to be the buffer number for tabbar tooltips
-			Point ptCursor;
-			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
-			Point ptClient = ptCursor;
-			::ScreenToClient(wTabBar.GetID(), reinterpret_cast<POINT *>(&ptClient));
-			TCHITTESTINFO info;
-			info.pt.x = ptClient.x; info.pt.y = ptClient.y;
-			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
-			pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].fileName.c_str());
-		}
-		break;
-		}
-		break;
 		}
 #endif
-	default:  	// Scintilla notification, use default treatment
+	default:   	// Scintilla notification, use default treatment
 
 		SciTEBase::Notify(notification);
 		break;
@@ -247,23 +249,23 @@ struct BarButton {
 };
 
 static BarButton bbs[] = {
-	{ -1, 0 },
-	{ STD_FILENEW, IDM_NEW },
-	{ STD_FILEOPEN, IDM_OPEN },
-	{ STD_FILESAVE, IDM_SAVE },
-	{ -1, 0 },
-	{ STD_PRINT, IDM_PRINT },
-	{ -1, 0 },
-	{ STD_CUT, IDM_CUT },
-	{ STD_COPY, IDM_COPY },
-	{ STD_PASTE, IDM_PASTE },
-	{ STD_DELETE, IDM_CLEAR },
-	{ -1, 0 },
-	{ STD_UNDO, IDM_UNDO },
-	{ STD_REDOW, IDM_REDO },
-	{ -1, 0 },
-	{ STD_FIND, IDM_FIND },
-	{ STD_REPLACE, IDM_REPLACE },
+    { -1, 0 },
+    { STD_FILENEW, IDM_NEW },
+    { STD_FILEOPEN, IDM_OPEN },
+    { STD_FILESAVE, IDM_SAVE },
+    { -1, 0 },
+    { STD_PRINT, IDM_PRINT },
+    { -1, 0 },
+    { STD_CUT, IDM_CUT },
+    { STD_COPY, IDM_COPY },
+    { STD_PASTE, IDM_PASTE },
+    { STD_DELETE, IDM_CLEAR },
+    { -1, 0 },
+    { STD_UNDO, IDM_UNDO },
+    { STD_REDOW, IDM_REDO },
+    { -1, 0 },
+    { STD_FIND, IDM_FIND },
+    { STD_REPLACE, IDM_REPLACE },
 };
 
 void SciTEWin::Creation() {
@@ -298,9 +300,9 @@ void SciTEWin::Creation() {
 	               wEditor.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrEditor = ::SendMessage(wEditor.GetID(), SCI_GETDIRECTPOINTER, 0, 0);
 	wEditor.Show();
-	SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
-	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
-	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
+	//	SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
+	//	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
+	//	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
 	SetFocus(wEditor.GetID());
 
 	wOutput = ::CreateWindowEx(
@@ -323,9 +325,9 @@ void SciTEWin::Creation() {
 	// No selection margin on output window
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
 	//SendOutput(SCI_SETCARETPERIOD, 0);
-	SendOutput(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
-	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
-	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
+	//	SendOutput(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
+	//	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
+	//	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
 	::DragAcceptFiles(wSciTE.GetID(), true);
 
 	wToolBar = ::CreateWindowEx(
@@ -391,7 +393,7 @@ void SciTEWin::Creation() {
 	                         "Ms Sans Serif");
 	::SendMessage(wTabBar.GetID(),
 	              WM_SETFONT,
-	              (WPARAM) fontTabs,   // handle to font
+	              (WPARAM) fontTabs,    // handle to font
 	              (LPARAM) 0);    // redraw option
 
 	wTabBar.Show();

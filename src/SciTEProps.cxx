@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <time.h> 	// For time_t
+#include <time.h>  	// For time_t
 
 #include "Platform.h"
 
@@ -40,13 +40,12 @@
 #include "Extender.h"
 #include "SciTEBase.h"
 
-PropSetFile::PropSetFile() {
-}
+PropSetFile::PropSetFile() {}
 
-PropSetFile::~PropSetFile() {
-}
+PropSetFile::~PropSetFile() {}
 
 // Get a line of input. If end of line escaped with '\\' then continue reading.
+
 static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 	bool continuation = true;
 	s[0] = '\0';
@@ -92,7 +91,7 @@ void PropSetFile::ReadFromMemory(const char *data, int len, const char *director
 			strcpy(importPath, directoryForImports);
 			strcat(importPath, linebuf + strlen("import") + 1);
 			strcat(importPath, ".properties");
-            		Read(importPath,directoryForImports);
+			Read(importPath, directoryForImports);
 		} else if (isalpha(linebuf[0])) {
 			Set(linebuf);
 		} else if (isspace(linebuf[0]) && ifIsTrue) {
@@ -115,6 +114,7 @@ void PropSetFile::Read(const char *filename, const char *directoryForImports) {
 	} else {
 		//printf("Could not open <%s>\n", filename);
 	}
+
 }
 
 const char propFileName[] = "SciTE.properties";
@@ -189,13 +189,13 @@ static Colour ColourFromString(const char *val) {
  * The returned value is NULL if the end of the list is met, else, it points to the next item.
  */
 char *SciTEBase::GetNextPropItem(
-	const char *pStart,	/**< the property string to parse for the first call,
-						 * pointer returned by the previous call for the following. */
-	char *pPropItem,	///< pointer on a buffer receiving the requested prop item
-	int maxLen)			///< size of the above buffer
+    const char *pStart, 	/**< the property string to parse for the first call,
+    						 * pointer returned by the previous call for the following. */
+    char *pPropItem, 	///< pointer on a buffer receiving the requested prop item
+    int maxLen)			///< size of the above buffer
 {
 	char *pNext;
-	int size = maxLen-1;
+	int size = maxLen - 1;
 
 	*pPropItem = '\0';
 	if (pStart == NULL) {
@@ -255,7 +255,7 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 		else
 			opt = 0;
 	}
-		delete []val;
+	delete []val;
 	Platform::SendScintilla(win.GetID(), SCI_STYLESETCHARACTERSET, style, characterSet);
 }
 
@@ -708,25 +708,23 @@ void SciTEBase::ReadPropertiesInitial() {
 }
 
 void SciTEBase::OpenProperties(int propsFile) {
-	if (CanMakeRoom()) {
-		char propfile[MAX_PATH + 20];
-		char propdir[MAX_PATH + 20];
-		if (propsFile == IDM_OPENLOCALPROPERTIES) {
-			getcwd(propfile, sizeof(propfile));
+	char propfile[MAX_PATH + 20];
+	char propdir[MAX_PATH + 20];
+	if (propsFile == IDM_OPENLOCALPROPERTIES) {
+		getcwd(propfile, sizeof(propfile));
 #ifdef __vms
-			strcpy (propfile, VMSToUnixStyle(propfile));
+		strcpy (propfile, VMSToUnixStyle(propfile));
 #endif
-			strcat(propfile, pathSepString);
-			strcat(propfile, propFileName);
+		strcat(propfile, pathSepString);
+		strcat(propfile, propFileName);
+		Open(propfile);
+	} else if (propsFile == IDM_OPENUSERPROPERTIES) {
+		if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 			Open(propfile);
-		} else if (propsFile == IDM_OPENUSERPROPERTIES) {
-			if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-				Open(propfile);
-			}
-		} else {	// IDM_OPENGLOBALPROPERTIES
-			if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-				Open(propfile);
-			}
+		}
+	} else {	// IDM_OPENGLOBALPROPERTIES
+		if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
+			Open(propfile);
 		}
 	}
 }

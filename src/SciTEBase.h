@@ -334,7 +334,7 @@ protected:
 	virtual bool OpenDialog()=0;
 	virtual bool SaveAsDialog()=0;
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
-	void Open(const char *file = 0, bool initialCmdLine = false, bool forceLoad=false);
+	bool Open(const char *file = 0, bool initialCmdLine = false, bool forceLoad=false);
 	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad=false);
 	void OpenSelected();
 	void Revert();

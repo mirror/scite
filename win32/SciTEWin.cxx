@@ -204,9 +204,9 @@ void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 		*path = '\0';
 		path++;	// After the !
 		WinHelp(wSciTE.GetID(),
-			path,
-			HELP_KEY,
-			reinterpret_cast<unsigned long>(topic));
+		        path,
+		        HELP_KEY,
+		        reinterpret_cast<unsigned long>(topic));
 	}
 	if (topic) {
 		free(topic);
@@ -253,7 +253,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				fnHHA(NULL,
 				      //helpFile.c_str(),
 				      path,
-				      0x000d,    	// HH_KEYWORD_LOOKUP
+				      0x000d,      	// HH_KEYWORD_LOOKUP
 				      reinterpret_cast<DWORD>(&ak)
 				     );
 			}
@@ -435,7 +435,6 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 // ProcessExecute runs a command with redirected input and output streams
 // so the output can be put in a window.
 // It is based upon several usenet posts and a knowledge base article.
-
 void SciTEWin::ProcessExecute() {
 	DWORD exitcode = 0;
 
@@ -576,7 +575,6 @@ void SciTEWin::ProcessExecute() {
 									        static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
 										completed = true;    // It's a dead process
 									}
-
 								}
 							}
 						}
@@ -693,11 +691,11 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 
 	DWORD rc = reinterpret_cast<DWORD>(
 	               ShellExecute(
-	                   wSciTE.GetID(),    // parent wnd for msgboxes during app start
-	                   NULL,     // cmd is open
-	                   mycmd,    // file to open
-	                   myparams,    // parameters
-	                   dir.c_str(),    // launch directory
+	                   wSciTE.GetID(),      // parent wnd for msgboxes during app start
+	                   NULL,       // cmd is open
+	                   mycmd,      // file to open
+	                   myparams,      // parameters
+	                   dir.c_str(),      // launch directory
 	                   SW_SHOWNORMAL)); //default show cmd
 
 	if (rc > 32) {
@@ -777,50 +775,51 @@ void SciTEWin::QuitProgram() {
 }
 
 void SciTEWin::Run(const char *cmdLine) {
-
-    // Break up the command line into individual arguments and strip double 
-    // quotes from each argument.  Arguments that start with '-' or '/' are
-    // switches and are stored in the switches string separated by '\n' with 
-    // other arguments being file names that are stored in the files string, each 
-    // /terminated/ by '\n'.
-    // The print switch /p is special cased.
-    bool performPrint = false;
+	// Break up the command line into individual arguments and strip double
+	// quotes from each argument.  Arguments that start with '-' or '/' are
+	// switches and are stored in the switches string separated by '\n' with
+	// other arguments being file names that are stored in the files string, each
+	// /terminated/ by '\n'.
+	// The print switch /p is special cased.
+	bool performPrint = false;
 	SString files;
 	int fileCount = 0;
 	SString switches;
 	const char *startArg = cmdLine;
 	while (*startArg) {
-		while (isspace(*startArg))
+		while (isspace(*startArg)) {
 			startArg++;
-		const char *endArg = startArg;	
-		if (*startArg == '"') {
+		}
+		const char *endArg = startArg;
+		if (*startArg == '"') {	// Opening double-quote
 			startArg++;
 			endArg = startArg;
 			while (*endArg && *endArg != '\"') {
 				endArg++;
 			}
-		} else {
+		} else {	// No double-quote, end of argument on first space
 			while (*endArg && !isspace(*endArg)) {
 				endArg++;
 			}
 		}
 		if ((*startArg == '-') || (*startArg == '/')) {
 			startArg++;
-            if ((*startArg == 'p') && ((endArg-startArg)==1)) {
-                performPrint = true;
-            } else {
-			    if (switches.length())
-				    switches += "\n";
-			    switches += SString(startArg, 0, endArg-startArg);
-            }
-		} else {
+			if ((tolower(*startArg) == 'p') && ((endArg - startArg) == 1)) {
+				performPrint = true;
+			} else {
+				if (switches.length())
+					switches += "\n";
+				switches += SString(startArg, 0, endArg - startArg);
+			}
+		} else {	// Not a switch: it is a file name
 			fileCount++;
-			files += SString(startArg, 0, endArg-startArg);
+			files += SString(startArg, 0, endArg - startArg);
 			files += "\n";
 		}
-		startArg = endArg;
-		if (*startArg)
+		startArg = endArg;	// On a space or a double-quote, or on the end of the command line
+		if (*startArg) {
 			startArg++;
+		}
 	}
 	files.substitute('\n', '\0');	// Make into a set of strings
 	props.ReadFromMemory(switches.c_str(), switches.length(), "");
@@ -831,10 +830,10 @@ void SciTEWin::Run(const char *cmdLine) {
 	// the last one, but they move to the MRU file list
 	OpenMultiple(files.c_str(), true);
 
-    if (performPrint) {
+	if (performPrint) {
 		Print(false);
 		::PostQuitMessage(0);
-    }
+	}
 
 	wSciTE.Show();
 	if (cmdShow)	// assume SW_MAXIMIZE only
@@ -969,7 +968,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			SendEditor(WM_PALETTECHANGED, wParam, lParam);
 			//SendOutput(WM_PALETTECHANGED, wParam, lParam);
 		}
-
 		break;
 
 	case WM_QUERYNEWPALETTE:
@@ -998,12 +996,11 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			int filesDropped = DragQueryFile(hdrop, 0xffffffff, NULL, 0);
 
 			for (int i = 0; i < filesDropped; ++i) {
-				if (CanMakeRoom()) {
-					char pathDropped[MAX_PATH];
-					DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
-					Open(pathDropped);
-				} else
+				char pathDropped[MAX_PATH];
+				DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
+				if (!Open(pathDropped)) {
 					break;
+				}
 			}
 			DragFinish(hdrop);
 		}

@@ -561,11 +561,11 @@ static bool isfilenamecharforsel(char ch) {
 void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch)) {
 	int lengthDoc, selStart, selEnd;
 	Window wCurrent;
+	
 	if (wEditor.HasFocus())
 		wCurrent = wEditor;
 	else
 		wCurrent = wOutput;
-
 	lengthDoc = SendFocused(SCI_GETLENGTH);
 	selStart = SendFocused(SCI_GETSELECTIONSTART);
 	selEnd = SendFocused(SCI_GETSELECTIONEND);
@@ -823,14 +823,13 @@ void SciTEBase::BookmarkNext() {
 void SciTEBase::BookmarkPrev() {
 	// maybe this and BookmarkNext() should be merged
 	int lineno = GetCurrentLineNumber();
+	int linenb = SendEditor(SCI_GETLINECOUNT, 0, 0L);
 	int prevLine = SendEditor(SCI_MARKERPREVIOUS, lineno - 1, 1 << SciTE_MARKER_BOOKMARK);
-	if (prevLine < 0) {
-		int linecount = SendEditor(SCI_GETLINECOUNT);
-		prevLine = SendEditor(SCI_MARKERPREVIOUS, linecount - 1, 1 << SciTE_MARKER_BOOKMARK);
-	}
-	if (prevLine < 0 || prevLine == lineno)
-		; // beep
-	else {
+	if (prevLine < 0)
+		prevLine = SendEditor(SCI_MARKERPREVIOUS, linenb, 1 << SciTE_MARKER_BOOKMARK);
+	if (prevLine < 0 || prevLine == lineno) {	// No bookmark (of the given type) or only one, and already on it
+		WarnUser(warnNoOtherBookmark);
+	} else {
 		GotoLineEnsureVisible(prevLine);
 	}
 }
@@ -1330,7 +1329,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_NEW:
 		// For the New command, the "are you sure" question is always asked as this gives
 		// an opportunity to abandon the edits made to a file when are.you.sure is turned off.
-
 		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
@@ -2066,6 +2064,7 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 		SizeContentWindows();
 		//Redraw();
 	}
+
 	previousHeightOutput = newHeightOutput;
 }
 

@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <time.h>  	// For time_t
+#include <time.h>   	// For time_t
 
 #include "Platform.h"
 
@@ -303,7 +303,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 	Redraw();
 }
 
-void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
+bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	InitialiseBuffers();
 
 	if (!file) {
@@ -321,7 +321,11 @@ void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 		DeleteFileStackMenu();
 		SetFileStackMenu();
 		if (!forceLoad) // Just rotate into view
-			return ;
+			return true;
+	}
+	// See if we can have a buffer for the file to open
+	if (!CanMakeRoom()) {
+		return false;
 	}
 
 	if (buffers.size == buffers.length) {
@@ -357,6 +361,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	SetWindowName();
 	if (extender)
 		extender->OnOpen();
+	return true;
 }
 
 void SciTEBase::OpenMultiple(const char *files, bool initialCmdLine, bool forceLoad) {
@@ -411,13 +416,13 @@ void SciTEBase::OpenSelected() {
 
 #if PLAT_WIN
 		if (strncmp(selectedFilename, "http", 4) == 0 ||
-			strncmp(selectedFilename, "ftp", 3) == 0 ||
-			strncmp(selectedFilename, "mailto", 6) == 0)
-		{
+		        strncmp(selectedFilename, "ftp", 3) == 0 ||
+		        strncmp(selectedFilename, "mailto", 6) == 0) {
 			SString cmd = selectedFilename;
-			AddCommand(cmd, NULL, jobShell, false);
-			return;	// Job is done
+			AddCommand(cmd, 0, jobShell, false);
+			return ;	// Job is done
 		}
+
 #endif
 
 		// Support the ctags format
@@ -434,10 +439,12 @@ void SciTEBase::OpenSelected() {
 		getcwd(path, sizeof(path));
 	}
 	if (Exists(path, selectedFilename, path)) {
-		if (CanMakeRoom()) {
-			Open(path, false);	// TODO: test result?
+		if (Open(path, false)) {
 			if (lineNumber > 0) {
-				GotoLineEnsureVisible(lineNumber);
+				SendEditor(SCI_GOTOLINE, lineNumber);
+			} else if (cTag[0] != '\0') {
+				strcpy(findWhat, cTag);
+				FindNext(false);
 			}
 		}
 	} else {

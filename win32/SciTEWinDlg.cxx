@@ -13,11 +13,11 @@ void FlashThisWindow(HWND hWnd, int duration) {
 	::Sleep(duration);
 	::ShowWindow(hWnd, SW_SHOW);
 
-		// This one is discarded: too discrete
-		//		::FlashWindow(wEditor.GetID(), FALSE);
-		//		::Sleep(100L);
-		//		::FlashWindow(wEditor.GetID(), TRUE);
-	}
+	// This one is discarded: too discrete
+	//		::FlashWindow(wEditor.GetID(), FALSE);
+	//		::Sleep(100L);
+	//		::FlashWindow(wEditor.GetID(), TRUE);
+}
 
 void PlayThisSound(const char *sound, int duration, HMODULE &hMM) {
 	bool bPlayOK = false;
@@ -51,6 +51,7 @@ void PlayThisSound(const char *sound, int duration, HMODULE &hMM) {
 		}
 		::Beep(soundFreq, duration);	// Values are not used on Win9x
 	}
+
 }
 
 void SciTEWin::WarnUser(int warnID) {
@@ -58,26 +59,26 @@ void SciTEWin::WarnUser(int warnID) {
 	char *warn, *next;
 	char flashDuration[10], sound[_MAX_PATH], soundDuration[10];
 
-		switch (warnID) {
-		case warnFindWrapped:
+	switch (warnID) {
+	case warnFindWrapped:
 		warning = props.Get("warning.findwrapped");
 		break;
-		case warnWrongFile:
+	case warnWrongFile:
 		warning = props.Get("warning.wrongfile");
 		break;
-		case warnExecuteOK:
+	case warnExecuteOK:
 		warning = props.Get("warning.executeok");
 		break;
-		case warnExecuteKO:
+	case warnExecuteKO:
 		warning = props.Get("warning.executeko");
 		break;
 	case warnNoOtherBookmark:
 		warning = props.Get("warning.nootherbookmark");
 		break;
-		default:
+	default:
 		warning = "";
 		break;
-		}
+	}
 	warn = StringDup(warning.c_str());
 	next = GetNextPropItem(warn, flashDuration, 10);
 	next = GetNextPropItem(next, sound, _MAX_PATH);
@@ -357,11 +358,11 @@ void SciTEWin::SaveAsPDF() {
  * function.
  */
 static void GetPrintInfo(
-	char infoID,			///< Letter identifying the requested info
-	int pageNum,			///< Page number
-	const char *fileName,	///< Current file name
-	const char *fullPath,	///< Current file path
-	SString &buffer)		///< Result buffer
+    char infoID, 			///< Letter identifying the requested info
+    int pageNum, 			///< Page number
+    const char *fileName, 	///< Current file name
+    const char *fullPath, 	///< Current file path
+    SString &buffer)		///< Result buffer
 {
 	SYSTEMTIME st;
 	FILETIME ft, lft;
@@ -370,23 +371,23 @@ static void GetPrintInfo(
 	char tmp[TMP_LEN];
 
 	switch (infoID) {
-	case 'f':	// Current filename
+	case 'f': 	// Current filename
 		if (fileName[0] == '\0') {
 			buffer += "(Untitled)";
 		} else {
 			buffer += fileName;
 		}
 		break;
-	case 'F':	// Current pathname
+	case 'F': 	// Current pathname
 		if (fileName[0] == '\0') {
 			buffer += "(Untitled)";
 		} else {
 			buffer += fullPath;
 		}
 		break;
-	case 'd':	// File date
+	case 'd': 	// File date
 		if (fileName[0] == '\0') {
-			return;
+			return ;
 		}
 		// We must use Windows functions, not fileModTime, to get format of the data
 		// following the user preferences (locale).
@@ -398,20 +399,20 @@ static void GetPrintInfo(
 			::FileTimeToSystemTime(&lft, &st);
 			::CloseHandle(hf);
 			::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
-				DATE_SHORTDATE, &st,
-				NULL, tmp, TMP_LEN);
+			                DATE_SHORTDATE, &st,
+			                NULL, tmp, TMP_LEN);
 			buffer += tmp;
 		}
 		break;
-	case 'D':	// Current system date
+	case 'D': 	// Current system date
 		::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
-			DATE_SHORTDATE, NULL,	// Current date
-			NULL, tmp, TMP_LEN);
+		                DATE_SHORTDATE, NULL, 	// Current date
+		                NULL, tmp, TMP_LEN);
 		buffer += tmp;
 		break;
-	case 't':	// File time
+	case 't': 	// File time
 		if (fileName[0] == '\0') {
-			return;
+			return ;
 		}
 		// Same as above...
 		hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
@@ -421,26 +422,26 @@ static void GetPrintInfo(
 			::FileTimeToSystemTime(&lft, &st);
 			::CloseHandle(hf);
 			::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
-				0, &st,
-				NULL, tmp, TMP_LEN);
+			                0, &st,
+			                NULL, tmp, TMP_LEN);
 			buffer += tmp;
 		}
 		break;
-	case 'T':	// Current system time
+	case 'T': 	// Current system time
 		::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
-			0, NULL,	// Current time
-			NULL, tmp, TMP_LEN);
+		                0, NULL, 	// Current time
+		                NULL, tmp, TMP_LEN);
 		buffer += tmp;
 		break;
-	case 'p':	// Page number
-	case 'P':	// Total page number. Currently not handled, we don't know its value...
+	case 'p': 	// Page number
+	case 'P': 	// Total page number. Currently not handled, we don't know its value...
 		sprintf(tmp, "%d", pageNum);
 		buffer += tmp;
 		break;
-	case '&':	// && to quote the & character
+	case '&': 	// && to quote the & character
 		buffer += '&';
 		break;
-	default:	// Unknown symbol after the & character, take them literally
+	default: 	// Unknown symbol after the & character, take them literally
 		buffer += '&';
 		buffer += infoID;
 		break;
@@ -452,11 +453,11 @@ static void GetPrintInfo(
  * function.
  */
 static void FormatHeaderOrFooter(
-	const char *format,		///< Format string
-	int pageNum,			///< Page number
-	const char *fileName,	///< Current file name
-	const char *fullPath,	///< Current file path
-	SString &buffer)		///< Result buffer
+    const char *format, 		///< Format string
+    int pageNum, 			///< Page number
+    const char *fileName, 	///< Current file name
+    const char *fullPath, 	///< Current file path
+    SString &buffer)		///< Result buffer
 {
 	const char *pFormat = format;
 	const char *pSeg = format;
@@ -470,9 +471,10 @@ static void FormatHeaderOrFooter(
 			pSeg += segLen + 2;				// Next segment starts after the tag
 			pFormat++;						// Point to the tag id
 			GetPrintInfo(*pFormat,
-				pageNum, fileName, fullPath,
-				buffer);					// Copy the tag info in the buffer
+			             pageNum, fileName, fullPath,
+			             buffer);					// Copy the tag info in the buffer
 		}
+
 		pFormat++;
 	}
 	buffer += pSeg;	// Copy this segment
@@ -536,12 +538,12 @@ void SciTEWin::Print(bool showDialog) {
 	// we take the entire width and height of the paper and
 	// subtract everything else.
 	rectPhysMargins.right = ptPage.x						// total paper width
-	                    - GetDeviceCaps(hdc, HORZRES) // printable width
-	                    - rectPhysMargins.left;				// left unprintable margin
+	                        - GetDeviceCaps(hdc, HORZRES) // printable width
+	                        - rectPhysMargins.left;				// left unprintable margin
 
 	rectPhysMargins.bottom = ptPage.y						// total paper height
-	                     - GetDeviceCaps(hdc, VERTRES)	// printable height
-	                     - rectPhysMargins.top;				// right unprintable margin
+	                         - GetDeviceCaps(hdc, VERTRES)	// printable height
+	                         - rectPhysMargins.top;				// right unprintable margin
 
 	// At this point, rectPhysMargins contains the widths of the
 	// unprintable regions on all four sides of the page in device units.
@@ -560,25 +562,25 @@ void SciTEWin::Print(bool showDialog) {
 		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, localeInfo, 3);
 
 		if (localeInfo[0] == '0') {	// Metric system. '1' is US System
-		rectSetup.left = MulDiv (pagesetupMargin.left, ptDpi.x, 2540);
-		rectSetup.top = MulDiv (pagesetupMargin.top, ptDpi.y, 2540);
-			rectSetup.right		= MulDiv(pagesetupMargin.right, ptDpi.x, 2540);
+			rectSetup.left = MulDiv (pagesetupMargin.left, ptDpi.x, 2540);
+			rectSetup.top = MulDiv (pagesetupMargin.top, ptDpi.y, 2540);
+			rectSetup.right	= MulDiv(pagesetupMargin.right, ptDpi.x, 2540);
 			rectSetup.bottom	= MulDiv(pagesetupMargin.bottom, ptDpi.y, 2540);
 		} else {
-			rectSetup.left		= MulDiv(pagesetupMargin.left, ptDpi.x, 1000);
-			rectSetup.top		= MulDiv(pagesetupMargin.top, ptDpi.y, 1000);
-			rectSetup.right		= MulDiv(pagesetupMargin.right, ptDpi.x, 1000);
+			rectSetup.left	= MulDiv(pagesetupMargin.left, ptDpi.x, 1000);
+			rectSetup.top	= MulDiv(pagesetupMargin.top, ptDpi.y, 1000);
+			rectSetup.right	= MulDiv(pagesetupMargin.right, ptDpi.x, 1000);
 			rectSetup.bottom	= MulDiv(pagesetupMargin.bottom, ptDpi.y, 1000);
 		}
 
 		// Dont reduce margins below the minimum printable area
 		rectMargins.left	= Platform::Maximum(rectPhysMargins.left, rectSetup.left);
-		rectMargins.top		= Platform::Maximum(rectPhysMargins.top, rectSetup.top);
+		rectMargins.top	= Platform::Maximum(rectPhysMargins.top, rectSetup.top);
 		rectMargins.right	= Platform::Maximum(rectPhysMargins.right, rectSetup.right);
 		rectMargins.bottom	= Platform::Maximum(rectPhysMargins.bottom, rectSetup.bottom);
 	} else {
 		rectMargins.left	= rectPhysMargins.left;
-		rectMargins.top		= rectPhysMargins.top;
+		rectMargins.top	= rectPhysMargins.top;
 		rectMargins.right	= rectPhysMargins.right;
 		rectMargins.bottom	= rectPhysMargins.bottom;
 	}
@@ -608,22 +610,25 @@ void SciTEWin::Print(bool showDialog) {
 	if (fntFace[0] == '\0') {
 		strcpy(fntFace, "Arial");	// Default value
 	}
+
 	next = GetNextPropItem(next, fntHeight, 4);
 	if (fntHeight[0] == '\0') {
-		fntHeight[0] = '9'; fntHeight[1] = '\0';	// Default value
+		fntHeight[0] = '9';
+		fntHeight[1] = '\0';	// Default value
 	}
+
 	next = GetNextPropItem(next, fntAttr1, 2);
 	next = GetNextPropItem(next, fntAttr2, 2);
 	delete []style;
 
 	int headerLineHeight = ::MulDiv(atoi(fntHeight), ptDpi.y, 72);
 	HFONT fontHeader = ::CreateFont(headerLineHeight,
-		0, 0, 0,
-		tolower(fntAttr1[0]) == 'b' || tolower(fntAttr2[0]) == 'b' ? FW_BOLD : FW_NORMAL,
-		tolower(fntAttr1[0]) == 'i' || tolower(fntAttr2[0]) == 'i' ,
-		0, 0, 0,
-		0, 0, 0, 0,
-		fntFace);
+	                                0, 0, 0,
+	                                tolower(fntAttr1[0]) == 'b' || tolower(fntAttr2[0]) == 'b' ? FW_BOLD : FW_NORMAL,
+	                                tolower(fntAttr1[0]) == 'i' || tolower(fntAttr2[0]) == 'i' ,
+	                                0, 0, 0,
+	                                0, 0, 0, 0,
+	                                fntFace);
 	::SelectObject(hdc, fontHeader);
 	::GetTextMetrics(hdc, &tm);
 	headerLineHeight = tm.tmHeight + tm.tmExternalLeading;
@@ -634,22 +639,25 @@ void SciTEWin::Print(bool showDialog) {
 	if (fntFace[0] == '\0') {
 		strcpy(fntFace, "Arial");	// Default value
 	}
+
 	next = GetNextPropItem(next, fntHeight, 4);
 	if (fntHeight[0] == '\0') {
-		fntHeight[0] = '9'; fntHeight[1] = '\0';	// Default value
+		fntHeight[0] = '9';
+		fntHeight[1] = '\0';	// Default value
 	}
+
 	next = GetNextPropItem(next, fntAttr1, 2);
 	next = GetNextPropItem(next, fntAttr2, 2);
 	delete []style;
 
 	int footerLineHeight = ::MulDiv(atoi(fntHeight), ptDpi.y, 72);
 	HFONT fontFooter = ::CreateFont(footerLineHeight,
-		0, 0, 0,
-		tolower(fntAttr1[0]) == 'b' || tolower(fntAttr2[0]) == 'b' ? FW_BOLD : FW_NORMAL,
-		tolower(fntAttr1[0]) == 'i' || tolower(fntAttr2[0]) == 'i' ,
-		0, 0, 0,
-		0, 0, 0, 0,
-		fntFace);
+	                                0, 0, 0,
+	                                tolower(fntAttr1[0]) == 'b' || tolower(fntAttr2[0]) == 'b' ? FW_BOLD : FW_NORMAL,
+	                                tolower(fntAttr1[0]) == 'i' || tolower(fntAttr2[0]) == 'i' ,
+	                                0, 0, 0,
+	                                0, 0, 0, 0,
+	                                fntFace);
 	::SelectObject(hdc, fontFooter);
 	::GetTextMetrics(hdc, &tm);
 	footerLineHeight = tm.tmHeight + tm.tmExternalLeading;
@@ -707,7 +715,7 @@ void SciTEWin::Print(bool showDialog) {
 	bool printPage;
 	while (lengthPrinted < lengthDoc) {
 		printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
-		                  (pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage));
+		             (pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage));
 
 		if (printPage) {
 			::StartPage(hdc);
@@ -719,7 +727,7 @@ void SciTEWin::Print(bool showDialog) {
 				::SelectObject(hdc, fontHeader);
 				UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
 				::TextOut(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 2,
-					headerOrFooter.c_str(), headerOrFooter.length());
+				          headerOrFooter.c_str(), headerOrFooter.length());
 				::SetTextAlign(hdc, ta);
 			}
 		}
@@ -739,23 +747,23 @@ void SciTEWin::Print(bool showDialog) {
 				::SelectObject(hdc, fontFooter);
 				UINT ta = ::SetTextAlign(hdc, TA_TOP);
 				::TextOut(hdc, frPrint.rc.left, frPrint.rc.bottom + headerLineHeight / 2,
-					headerOrFooter.c_str(), headerOrFooter.length());
+				          headerOrFooter.c_str(), headerOrFooter.length());
 				::SetTextAlign(hdc, ta);
 			}
 
 #ifdef DEBUG_PRINT
-// Print physical margins
-MoveToEx(hdc, frPrint.rcPage.left, frPrint.rcPage.top, NULL);
-LineTo(hdc, frPrint.rcPage.right, frPrint.rcPage.top);
-LineTo(hdc, frPrint.rcPage.right, frPrint.rcPage.bottom);
-LineTo(hdc, frPrint.rcPage.left, frPrint.rcPage.bottom);
-LineTo(hdc, frPrint.rcPage.left, frPrint.rcPage.top);
-// Print setup margins
-MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top, NULL);
-LineTo(hdc, frPrint.rc.right, frPrint.rc.top);
-LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom);
-LineTo(hdc, frPrint.rc.left, frPrint.rc.bottom);
-LineTo(hdc, frPrint.rc.left, frPrint.rc.top);
+			// Print physical margins
+			MoveToEx(hdc, frPrint.rcPage.left, frPrint.rcPage.top, NULL);
+			LineTo(hdc, frPrint.rcPage.right, frPrint.rcPage.top);
+			LineTo(hdc, frPrint.rcPage.right, frPrint.rcPage.bottom);
+			LineTo(hdc, frPrint.rcPage.left, frPrint.rcPage.bottom);
+			LineTo(hdc, frPrint.rcPage.left, frPrint.rcPage.top);
+			// Print setup margins
+			MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top, NULL);
+			LineTo(hdc, frPrint.rc.right, frPrint.rc.top);
+			LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom);
+			LineTo(hdc, frPrint.rc.left, frPrint.rc.bottom);
+			LineTo(hdc, frPrint.rc.left, frPrint.rc.top);
 #endif
 
 			::EndPage(hdc);
