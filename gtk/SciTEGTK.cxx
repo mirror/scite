@@ -64,12 +64,10 @@ protected:
 	char resultsFile[MAX_PATH];
 	int inputHandle;
 
-#ifdef SINGLE_INSTANCE
 	//Command Pipe variables
 	int inputWatcher;
 	int fdPipe;
 	char pipeName[MAX_PATH];
-#endif
 
 	char findInDir[1024];
 	ComboMemory memDir;
