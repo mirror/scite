@@ -151,9 +151,9 @@ NameError: mistake
       command.subsystem option can be used to define tools that run in GUI mode. The default
       subsystem, 0, is for command line programs, 1 is for programs which create their own windows,
       and 2 is for using the ShellExecute call. ShellExecute is a good way to open HTML files and
-      similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an internal
-      extension, 4 is for calling the Windows specific HtmlHelp program and 5 is for calling the Windows
-      specific WinHelp function.
+      similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an 
+      internal extension or director extension, 4 is for calling the Windows specific HtmlHelp program 
+      and 5 is for calling the Windows specific WinHelp function.
     </p>
     <h3>
        Command line arguments
@@ -569,9 +569,9 @@ NameError: mistake
            position.height
         </td>
         <td>
-          Set the initial window size and position. If these are omitted or set to 0 then the
-          environments defaults are used. If the width or height are -1 then the window
-	is maximised.
+	  Set the initial window size and position. If these are omitted then the
+	  environment's defaults are used. If the width or height are -1 then the window
+	  is maximised.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1222,8 +1222,20 @@ NameError: mistake
           The Find in Files command works in a similar way to the building commands executing a
           command line tool with output redirected to the output pane. If the command produces
           output understood by one of the error output passes, as does grep, then the F4 and
-          Shift+F4 keys can be used to move through all the matches. The $(find.what) and
-          $(find.files) variables can be used to use the values from the Find in Files dialog.
+          Shift+F4 keys can be used to move through all the matches. The $(find.what),
+          $(find.files), and $(find.directory) variables can be used for the values from the 
+	  Find in Files dialog.<br />
+	  There are some scripts that implement this feature in Perl better than grep does 
+	  itself
+	  <a href="http://jenda.krynicky.cz/#SciteFind">here</a> and
+	  <a href="http://www.forusers.com/forme/finder.zip">here</a>.
+	  This command line works with Cygwin on Windows, with modifications to suit 
+	  the Cygwin installation directory:<br />
+	  <code>
+find.command=cmd /c c:\cygwin\bin\find "$(find.directory)"
+-name "$(find.files)" -print0 |
+c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
+	  </code>
         </td>
       </tr>
       <tr>
@@ -1466,7 +1478,7 @@ NameError: mistake
         <td>
           These settings choose which commands to execute when the Compile, Build or Go menu items
           are selected. The subsystem options determine for Windows whether the tools are run as
-          command line(0), windowed(1), or through ShellExecute(2).<br />
+          command line(0), windowed(1), through ShellExecute(2), or through the director interface(3).<br />
 	When source files are in a different directory to that they should be built in, the
 	command.build.directory property can be set to change to a particular directory before performing
 	the build.
@@ -1511,8 +1523,8 @@ NameError: mistake
           load.on.activate is set.<br />
            The subsystem determines how the command is executed on Windows. 0, the default is for
           command line programs, 1 for programs which create their own windows, 2 for running
-	by using ShellExecute, 3 for running in an internal extension, 4 for running HtmlHelp
-	on Windows, and 5 for running WinHelp on Windows.
+	by using ShellExecute, 3 for running in an internal extension or director extension, 
+	4 for running HtmlHelp on Windows, and 5 for running WinHelp on Windows.
 	When using subsystem 4 or 5, the command has two parts separated by ! with the first
 	part being the topic to search for and the second the name of the help file.<br />
 	If the text of a command starts with '*' then the Parameters dialog is displayed to 
