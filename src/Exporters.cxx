@@ -615,8 +615,6 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 
 				fputs("</span>", fp);
 				styleCurrent = acc.StyleAt(i + 1);
-				if (styleCurrent == 5)
-					styleCurrent = 5;
 				if (folding != 0) {
 					line = acc.GetLine(i + 1);
 
