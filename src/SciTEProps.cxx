@@ -601,11 +601,12 @@ void SciTEBase::ReadProperties() {
 	}
 
 	ForwardPropertyToEditor("fold");
-	ForwardPropertyToEditor("fold.compact");
 	ForwardPropertyToEditor("fold.comment");
 	ForwardPropertyToEditor("fold.comment.python");
-	ForwardPropertyToEditor("fold.quotes.python");
+	ForwardPropertyToEditor("fold.compact");
 	ForwardPropertyToEditor("fold.html");
+	ForwardPropertyToEditor("fold.preprocessor");
+	ForwardPropertyToEditor("fold.quotes.python");
 	ForwardPropertyToEditor("styling.within.preprocessor");
 	ForwardPropertyToEditor("tab.timmy.whinge.level");
 	ForwardPropertyToEditor("asp.default.language");
