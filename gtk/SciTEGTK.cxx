@@ -2114,13 +2114,9 @@ void SciTEGTK::CreateUI() {
 	                   handle_box,
 	                   FALSE, FALSE, 0);
 
-	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
-	gtk_widget_show(wSciTE.GetID());
-
 	wToolBarBox = gtk_handle_box_new();
 
 	wToolBar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
-	//wToolBar.Show();
 	tbVisible = false;
 
 	gtk_container_add(GTK_CONTAINER(wToolBarBox.GetID()), wToolBar.GetID());
@@ -2207,11 +2203,6 @@ void SciTEGTK::CreateUI() {
 	                   GtkSignalFunc(NotifySignal), this);
 
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
-	//SendOutput(SCI_SETCARETPERIOD, 0);
-
-	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
-	gtk_widget_show_all(wSciTE.GetID());
-	SetIcon();
 
 	gtk_widget_hide(GTK_WIDGET(wToolBarBox.GetID()));
 
@@ -2263,6 +2254,11 @@ void SciTEGTK::CreateUI() {
 	                         GTK_SIGNAL_FUNC(DragDataReceived), this);
 
 	SetFocus(wOutput.GetID());
+
+	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
+	gtk_widget_show_all(wSciTE.GetID());
+	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
+	SetIcon();
 
 	UIAvailable();
 }
