@@ -122,6 +122,7 @@ const char *contributors[] = {
     "Robert Gustavsson",
     "José Fonseca",
     "Holger Kiemes",
+    "Francis Irving",
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -3256,9 +3257,12 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
 	CheckAMenuItem(IDM_TOGGLEPARAMETERS, wParameters.Created());
 	CheckAMenuItem(IDM_MONOFONT, useMonoFont);
-	EnableAMenuItem(IDM_COMPILE, !executing);
-	EnableAMenuItem(IDM_BUILD, !executing);
-	EnableAMenuItem(IDM_GO, !executing);
+	EnableAMenuItem(IDM_COMPILE, !executing && 
+		props.GetWild("command.compile.", fileName).size() != 0);
+	EnableAMenuItem(IDM_BUILD, !executing && 
+		props.GetWild("command.build.", fileName).size() != 0);
+	EnableAMenuItem(IDM_GO, !executing && 
+		props.GetWild("command.go.", fileName).size() != 0);
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
 		EnableAMenuItem(IDM_TOOLS + toolItem, !executing);
 	EnableAMenuItem(IDM_STOPEXECUTE, executing);
