@@ -57,7 +57,10 @@ protected:
 	HGLOBAL hDevMode;
 	HGLOBAL hDevNames;
 
+	// HTMLHelp module
 	HMODULE hHH;
+	// Multimedia (sound) module
+	HMODULE hMM;
 
 	// Tab Bar
 	TCITEM tie;
@@ -108,13 +111,14 @@ protected:
 
 	virtual void SetStatusBarText(const char *s);
 
-	virtual void WarnUser(const int warnID);
+	virtual void WarnUser(int warnID);
 
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
 	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
 	void ExecuteHelp(const char *cmd);
+	void ExecuteOtherHelp(const char *cmd);
 	void Command(WPARAM wParam, LPARAM lParam);
 
 public:

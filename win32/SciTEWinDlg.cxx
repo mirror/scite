@@ -5,17 +5,13 @@
 
 #include "SciTEWin.h"
 
-void SciTEWin::WarnUser(const int warnID) {
-	int soundWarn = props.GetInt("warning.sound");
-	int flashWarn = props.GetInt("warning.flash");
-
-	if (flashWarn && warnID == warnFindWrapped) {
-		// Flash the window (only the wEditor would be better, but I didn't get it to work...)
-		// to indicate we are starting again on the other side (to avoid infinite loop if we
-		// don't look closely at the scrollbar...).
-		::ShowWindow(wSciTE.GetID(), SW_HIDE);
-		::Sleep(flashWarn);
-		::ShowWindow(wSciTE.GetID(), SW_SHOW);
+void FlashThisWindow(HWND hWnd, int duration) {
+	// Flash the SciTE window
+	// (flashing only the wEditor window would be better, but I didn't get it to work...)
+	// to visually warn the user.
+	::ShowWindow(hWnd, SW_HIDE);
+	::Sleep(duration);
+	::ShowWindow(hWnd, SW_SHOW);
 
 		// This one is discarded: too discrete
 		//		::FlashWindow(wEditor.GetID(), FALSE);
@@ -23,24 +19,76 @@ void SciTEWin::WarnUser(const int warnID) {
 		//		::FlashWindow(wEditor.GetID(), TRUE);
 	}
 
-	if (soundWarn) {
-		switch (warnID) {
-		case warnFindWrapped:
-		case warnWrongFile:
-		case warnExecuteOK:
-		case warnExecuteKO:
-		default:
-			int frequency = 200;
-			if (warnID > 31 && warnID < 32758) {
-				frequency = warnID;
-			}
-			Beep(frequency, soundWarn);	// Values not used on Win9x
+void PlayThisSound(const char *sound, int duration, HMODULE &hMM) {
+	bool bPlayOK = false;
+	int soundFreq;
+	if (*sound == '\0') {
+		soundFreq = -1;	// No sound at all
+	} else {
+		soundFreq = atoi(sound);	// May be a frequency, not a filename
+	}
+
+	if (soundFreq == 0) {	// sound is probably a path
+		if (!hMM) {
+			// Load the DLL only if requested by the user
+			hMM = ::LoadLibrary("WINMM.DLL");
 		}
 
+		if (hMM) {
+			typedef BOOL (WINAPI *MMFn) (LPCSTR, HMODULE, DWORD);
+			MMFn fnMM = (MMFn)::GetProcAddress(hMM, "PlaySoundA");
+			if (fnMM) {
+				bPlayOK = fnMM(sound, NULL, SND_ASYNC | SND_FILENAME);
+			}
+		}
 	}
-	// We can play different sounds, based on settings, like Visual Studio playing various waves
-	// when hitting a breakpoint, finishing compiling with or without errors/warnings, etc.
-	// But I am not sure it is worth linking against winmm just to play some fancy sounds...
+	if (!bPlayOK && soundFreq >= 0) {	// The sound could no be played, or user gave a frequency
+		if (soundFreq < 37 || soundFreq > 32767) {
+			soundFreq = 440;
+		}
+		if (duration < 50) {
+			duration = 50;
+		}
+		::Beep(soundFreq, duration);	// Values are not used on Win9x
+	}
+}
+
+void SciTEWin::WarnUser(int warnID) {
+	SString warning;
+	char *warn, *next;
+	char flashDuration[10], sound[_MAX_PATH], soundDuration[10];
+
+		switch (warnID) {
+		case warnFindWrapped:
+		warning = props.Get("warning.findwrapped");
+		break;
+		case warnWrongFile:
+		warning = props.Get("warning.wrongfile");
+		break;
+		case warnExecuteOK:
+		warning = props.Get("warning.executeok");
+		break;
+		case warnExecuteKO:
+		warning = props.Get("warning.executeko");
+		break;
+	case warnNoOtherBookmark:
+		warning = props.Get("warning.nootherbookmark");
+		break;
+		default:
+		warning = "";
+		break;
+		}
+	warn = StringDup(warning.c_str());
+	next = GetNextPropItem(warn, flashDuration, 10);
+	next = GetNextPropItem(next, sound, _MAX_PATH);
+	next = GetNextPropItem(next, soundDuration, 10);
+	delete []warn;
+
+	int flashLen = atoi(flashDuration);
+	if (flashLen) {
+		FlashThisWindow(wSciTE.GetID(), flashLen);
+	}
+	PlayThisSound(sound, atoi(soundDuration), hMM);
 }
 
 bool SciTEWin::ModelessHandler(MSG *pmsg) {
@@ -304,6 +352,132 @@ void SciTEWin::SaveAsPDF() {
 	}
 }
 
+/** Put in the buffer the information requested by the infoID letter.
+ * We must get some data from the SciTEWin class, since this is a static
+ * function.
+ */
+static void GetPrintInfo(
+	char infoID,			///< Letter identifying the requested info
+	int pageNum,			///< Page number
+	const char *fileName,	///< Current file name
+	const char *fullPath,	///< Current file path
+	SString &buffer)		///< Result buffer
+{
+	SYSTEMTIME st;
+	FILETIME ft, lft;
+	HANDLE hf;
+#define TMP_LEN		32
+	char tmp[TMP_LEN];
+
+	switch (infoID) {
+	case 'f':	// Current filename
+		if (fileName[0] == '\0') {
+			buffer += "(Untitled)";
+		} else {
+			buffer += fileName;
+		}
+		break;
+	case 'F':	// Current pathname
+		if (fileName[0] == '\0') {
+			buffer += "(Untitled)";
+		} else {
+			buffer += fullPath;
+		}
+		break;
+	case 'd':	// File date
+		if (fileName[0] == '\0') {
+			return;
+		}
+		// We must use Windows functions, not fileModTime, to get format of the data
+		// following the user preferences (locale).
+		// Some like the 14/12/00 format, others the 12/14/00 one...
+		hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		if (hf != INVALID_HANDLE_VALUE) {
+			::GetFileTime(hf, NULL, NULL, &ft);
+			::FileTimeToLocalFileTime(&ft, &lft);
+			::FileTimeToSystemTime(&lft, &st);
+			::CloseHandle(hf);
+			::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
+				DATE_SHORTDATE, &st,
+				NULL, tmp, TMP_LEN);
+			buffer += tmp;
+		}
+		break;
+	case 'D':	// Current system date
+		::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
+			DATE_SHORTDATE, NULL,	// Current date
+			NULL, tmp, TMP_LEN);
+		buffer += tmp;
+		break;
+	case 't':	// File time
+		if (fileName[0] == '\0') {
+			return;
+		}
+		// Same as above...
+		hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		if (hf != INVALID_HANDLE_VALUE) {
+			::GetFileTime(hf, NULL, NULL, &ft);
+			::FileTimeToLocalFileTime(&ft, &lft);
+			::FileTimeToSystemTime(&lft, &st);
+			::CloseHandle(hf);
+			::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
+				0, &st,
+				NULL, tmp, TMP_LEN);
+			buffer += tmp;
+		}
+		break;
+	case 'T':	// Current system time
+		::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
+			0, NULL,	// Current time
+			NULL, tmp, TMP_LEN);
+		buffer += tmp;
+		break;
+	case 'p':	// Page number
+	case 'P':	// Total page number. Currently not handled, we don't know its value...
+		sprintf(tmp, "%d", pageNum);
+		buffer += tmp;
+		break;
+	case '&':	// && to quote the & character
+		buffer += '&';
+		break;
+	default:	// Unknown symbol after the & character, take them literally
+		buffer += '&';
+		buffer += infoID;
+		break;
+	}
+}
+
+/** Format in the buffer the header or footer line, using the format string.
+ * We must get some data from the SciTEWin class, since this is a static
+ * function.
+ */
+static void FormatHeaderOrFooter(
+	const char *format,		///< Format string
+	int pageNum,			///< Page number
+	const char *fileName,	///< Current file name
+	const char *fullPath,	///< Current file path
+	SString &buffer)		///< Result buffer
+{
+	const char *pFormat = format;
+	const char *pSeg = format;
+	int segLen;
+	buffer.clear();	// Clear buffer content, keep length
+	buffer = "";
+	while (*pFormat) {
+		if (*pFormat == '&') {
+			segLen = pFormat - pSeg;		// Length of segment to copy, up to the & tag
+			buffer.append(pSeg, segLen);	// Copy this segment
+			pSeg += segLen + 2;				// Next segment starts after the tag
+			pFormat++;						// Point to the tag id
+			GetPrintInfo(*pFormat,
+				pageNum, fileName, fullPath,
+				buffer);					// Copy the tag info in the buffer
+		}
+		pFormat++;
+	}
+	buffer += pSeg;	// Copy this segment
+}
+
 void SciTEWin::Print(bool showDialog) {
 	PRINTDLG pdlg = {
 	    sizeof(PRINTDLG), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -322,13 +496,14 @@ void SciTEWin::Print(bool showDialog) {
 	pdlg.hDevNames = hDevNames;
 
 	// See if a range has been selected
-	int startPos = 0;
-	int endPos = 0;
+	CharacterRange crange = GetSelection();
+	int startPos = crange.cpMin;
+	int endPos = crange.cpMax;
 
-	if (SendEditor(EM_GETSEL,
-	               reinterpret_cast<WPARAM>(&startPos),
-	               reinterpret_cast<LPARAM>(&endPos)) == 0)
+	if (startPos == endPos)
 		pdlg.Flags |= PD_NOSELECTION;
+	else
+		pdlg.Flags |= PD_SELECTION;
 	if (!showDialog)
 		pdlg.Flags |= PD_RETURNDEFAULT;
 	if (!::PrintDlg(&pdlg)) {
@@ -340,66 +515,144 @@ void SciTEWin::Print(bool showDialog) {
 
 	HDC hdc = pdlg.hDC;
 
-	PRectangle rectMargins;
+	PRectangle rectMargins, rectPhysMargins;
 	Point ptPage;
+	Point ptDpi;
 
-	// Start by getting the dimensions of the unprintable
-	// part of the page (in device units).
+	// Get printer resolution
+	ptDpi.x = GetDeviceCaps(hdc, LOGPIXELSX);    // dpi in X direction
+	ptDpi.y = GetDeviceCaps(hdc, LOGPIXELSY);    // dpi in Y direction
 
-	rectMargins.left = GetDeviceCaps(hdc, PHYSICALOFFSETX);
-	rectMargins.top = GetDeviceCaps(hdc, PHYSICALOFFSETY);
-
-	// To get the right and lower unprintable area, we need to take
-	// the entire width and height of the paper and
-	// subtract everything else.
-
-	// Get the physical page size (in device units).
+	// Start by getting the physical page size (in device units).
 	ptPage.x = GetDeviceCaps(hdc, PHYSICALWIDTH);   // device units
 	ptPage.y = GetDeviceCaps(hdc, PHYSICALHEIGHT);  // device units
 
-	rectMargins.right = ptPage.x                       // total paper width
+	// Get the dimensions of the unprintable
+	// part of the page (in device units).
+	rectPhysMargins.left = GetDeviceCaps(hdc, PHYSICALOFFSETX);
+	rectPhysMargins.top = GetDeviceCaps(hdc, PHYSICALOFFSETY);
+
+	// To get the right and lower unprintable area,
+	// we take the entire width and height of the paper and
+	// subtract everything else.
+	rectPhysMargins.right = ptPage.x						// total paper width
 	                    - GetDeviceCaps(hdc, HORZRES) // printable width
-	                    - rectMargins.left;           // left unprtable margin
+	                    - rectPhysMargins.left;				// left unprintable margin
 
-	rectMargins.bottom = ptPage.y                       // total paper height
-	                     - GetDeviceCaps(hdc, VERTRES) // printable ht
-	                     - rectMargins.top;            // rt unprtable margin
+	rectPhysMargins.bottom = ptPage.y						// total paper height
+	                     - GetDeviceCaps(hdc, VERTRES)	// printable height
+	                     - rectPhysMargins.top;				// right unprintable margin
 
-	// At this point, rectMargins contains the widths of the
+	// At this point, rectPhysMargins contains the widths of the
 	// unprintable regions on all four sides of the page in device units.
 
+	// Take in account the page setup given by the user (if one value is not null)
 	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
 	        pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
 		PRectangle rectSetup;
-		Point ptDpi;
 
-		// Convert the HiMetric margin values from the Page Setup dialog
-		// to device units and subtract the unprintable part we just
-		// calculated. (2540 tenths of a mm in an inch)
+		// Convert the hundredths of millimeters (HiMetric) or
+		// thousandths of inches (HiEnglish) margin values
+		// from the Page Setup dialog to device units.
+		// (There are 2540 hundredths of a mm in an inch.)
 
-		ptDpi.x = GetDeviceCaps(hdc, LOGPIXELSX);    // dpi in X direction
-		ptDpi.y = GetDeviceCaps(hdc, LOGPIXELSY);    // dpi in Y direction
+		char localeInfo[3];
+		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, localeInfo, 3);
 
+		if (localeInfo[0] == '0') {	// Metric system. '1' is US System
 		rectSetup.left = MulDiv (pagesetupMargin.left, ptDpi.x, 2540);
 		rectSetup.top = MulDiv (pagesetupMargin.top, ptDpi.y, 2540);
-		rectSetup.right = ptPage.x - MulDiv (pagesetupMargin.right, ptDpi.x, 2540);
-		rectSetup.bottom = ptPage.y - MulDiv (pagesetupMargin.bottom, ptDpi.y, 2540);
+			rectSetup.right		= MulDiv(pagesetupMargin.right, ptDpi.x, 2540);
+			rectSetup.bottom	= MulDiv(pagesetupMargin.bottom, ptDpi.y, 2540);
+		} else {
+			rectSetup.left		= MulDiv(pagesetupMargin.left, ptDpi.x, 1000);
+			rectSetup.top		= MulDiv(pagesetupMargin.top, ptDpi.y, 1000);
+			rectSetup.right		= MulDiv(pagesetupMargin.right, ptDpi.x, 1000);
+			rectSetup.bottom	= MulDiv(pagesetupMargin.bottom, ptDpi.y, 1000);
+		}
 
 		// Dont reduce margins below the minimum printable area
-		rectMargins.left = Platform::Maximum(rectMargins.left, rectSetup.left);
-		rectMargins.top = Platform::Maximum(rectMargins.top, rectSetup.top);
-		rectMargins.right = Platform::Minimum(rectMargins.right, rectSetup.right);
-		rectMargins.bottom = Platform::Minimum(rectMargins.bottom, rectSetup.bottom);
+		rectMargins.left	= Platform::Maximum(rectPhysMargins.left, rectSetup.left);
+		rectMargins.top		= Platform::Maximum(rectPhysMargins.top, rectSetup.top);
+		rectMargins.right	= Platform::Maximum(rectPhysMargins.right, rectSetup.right);
+		rectMargins.bottom	= Platform::Maximum(rectPhysMargins.bottom, rectSetup.bottom);
+	} else {
+		rectMargins.left	= rectPhysMargins.left;
+		rectMargins.top		= rectPhysMargins.top;
+		rectMargins.right	= rectPhysMargins.right;
+		rectMargins.bottom	= rectPhysMargins.bottom;
 	}
 
 	// rectMargins now contains the values used to shrink the printable
 	// area of the page.
 
-	// Convert to logical units
+	// Convert device coordinates into logical coordinates
 	DPtoLP(hdc, (LPPOINT) &rectMargins, 2);
+	DPtoLP(hdc, (LPPOINT)&rectPhysMargins, 2);
 
 	// Convert page size to logical units and we're done!
 	DPtoLP(hdc, (LPPOINT) &ptPage, 1);
+
+	SString headerFormat = props.Get("print.header.format");
+	SString footerFormat = props.Get("print.footer.format");
+
+	TEXTMETRIC tm;
+	char *style, *next;
+	char fntFace[33], fntHeight[4], fntAttr1[2], fntAttr2[2];
+	SString headerOrFooter;
+	headerOrFooter.assign("", MAX_PATH + 100);	// Usually the path, date et page number
+
+	SString headerStyle = props.Get("print.header.style");
+	style = StringDup(headerStyle.c_str());
+	next = GetNextPropItem(style, fntFace, 33);
+	if (fntFace[0] == '\0') {
+		strcpy(fntFace, "Arial");	// Default value
+	}
+	next = GetNextPropItem(next, fntHeight, 4);
+	if (fntHeight[0] == '\0') {
+		fntHeight[0] = '9'; fntHeight[1] = '\0';	// Default value
+	}
+	next = GetNextPropItem(next, fntAttr1, 2);
+	next = GetNextPropItem(next, fntAttr2, 2);
+	delete []style;
+
+	int headerLineHeight = ::MulDiv(atoi(fntHeight), ptDpi.y, 72);
+	HFONT fontHeader = ::CreateFont(headerLineHeight,
+		0, 0, 0,
+		tolower(fntAttr1[0]) == 'b' || tolower(fntAttr2[0]) == 'b' ? FW_BOLD : FW_NORMAL,
+		tolower(fntAttr1[0]) == 'i' || tolower(fntAttr2[0]) == 'i' ,
+		0, 0, 0,
+		0, 0, 0, 0,
+		fntFace);
+	::SelectObject(hdc, fontHeader);
+	::GetTextMetrics(hdc, &tm);
+	headerLineHeight = tm.tmHeight + tm.tmExternalLeading;
+
+	SString footerStyle = props.Get("print.footer.style");
+	style = StringDup(footerStyle.c_str());
+	next = GetNextPropItem(style, fntFace, 33);
+	if (fntFace[0] == '\0') {
+		strcpy(fntFace, "Arial");	// Default value
+	}
+	next = GetNextPropItem(next, fntHeight, 4);
+	if (fntHeight[0] == '\0') {
+		fntHeight[0] = '9'; fntHeight[1] = '\0';	// Default value
+	}
+	next = GetNextPropItem(next, fntAttr1, 2);
+	next = GetNextPropItem(next, fntAttr2, 2);
+	delete []style;
+
+	int footerLineHeight = ::MulDiv(atoi(fntHeight), ptDpi.y, 72);
+	HFONT fontFooter = ::CreateFont(footerLineHeight,
+		0, 0, 0,
+		tolower(fntAttr1[0]) == 'b' || tolower(fntAttr2[0]) == 'b' ? FW_BOLD : FW_NORMAL,
+		tolower(fntAttr1[0]) == 'i' || tolower(fntAttr2[0]) == 'i' ,
+		0, 0, 0,
+		0, 0, 0, 0,
+		fntFace);
+	::SelectObject(hdc, fontFooter);
+	::GetTextMetrics(hdc, &tm);
+	footerLineHeight = tm.tmHeight + tm.tmExternalLeading;
 
 	DOCINFO di = {sizeof(DOCINFO), 0, 0, 0, 0};
 	di.lpszDocName = windowName;
@@ -421,8 +674,8 @@ void SciTEWin::Print(bool showDialog) {
 			lengthPrinted = endPos;
 			lengthDoc = startPos;
 		} else {
-			lengthDoc = startPos;
-			lengthPrinted = endPos;
+			lengthPrinted = startPos;
+			lengthDoc = endPos;
 		}
 
 		if (lengthPrinted < 0)
@@ -431,43 +684,95 @@ void SciTEWin::Print(bool showDialog) {
 			lengthDoc = lengthDocMax;
 	}
 
-	int pageNum = 1;
+	// We must substract the physical margins from the printable area
+	RangeToFormat frPrint;
+	frPrint.hdc = hdc;
+	frPrint.hdcTarget = hdc;
+	frPrint.rc.left = rectMargins.left - rectPhysMargins.left;
+	frPrint.rc.top = rectMargins.top - rectPhysMargins.top;
+	frPrint.rc.right = ptPage.x - rectMargins.right - rectPhysMargins.left;
+	frPrint.rc.bottom = ptPage.y - rectMargins.bottom - rectPhysMargins.top;
+	frPrint.rcPage.left = 0;
+	frPrint.rcPage.top = 0;
+	frPrint.rcPage.right = ptPage.x - rectPhysMargins.left - rectPhysMargins.right - 1;
+	frPrint.rcPage.bottom = ptPage.y - rectPhysMargins.top - rectPhysMargins.bottom - 1;
+	if (headerFormat.size()) {
+		frPrint.rc.top += headerLineHeight + headerLineHeight / 2;
+	}
+	if (footerFormat.size()) {
+		frPrint.rc.bottom -= headerLineHeight + headerLineHeight / 2;
+	}
 	// Print each page
+	int pageNum = 1;
+	bool printPage;
 	while (lengthPrinted < lengthDoc) {
-		bool printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
+		printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
 		                  (pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage));
 
-		if (printPage)
+		if (printPage) {
 			::StartPage(hdc);
 
-		RangeToFormat frPrint;
-		frPrint.hdc = hdc;
-		frPrint.hdcTarget = hdc;
-		frPrint.rc.left = rectMargins.left;
-		frPrint.rc.top = rectMargins.top;
-		frPrint.rc.right = ptPage.x - (rectMargins.right + rectMargins.left);
-		frPrint.rc.bottom = ptPage.y - (rectMargins.bottom + rectMargins.top);
-		frPrint.rcPage.left = 0;
-		frPrint.rcPage.top = 0;
-		frPrint.rcPage.right = ptPage.x;
-		frPrint.rcPage.bottom = ptPage.y;
+			if (headerFormat.size()) {
+				FormatHeaderOrFooter(headerFormat.c_str(), pageNum, fileName, fullPath, headerOrFooter);
+				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, NULL);
+				::LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight / 4);
+				::SelectObject(hdc, fontHeader);
+				UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
+				::TextOut(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 2,
+					headerOrFooter.c_str(), headerOrFooter.length());
+				::SetTextAlign(hdc, ta);
+			}
+		}
+
 		frPrint.chrg.cpMin = lengthPrinted;
 		frPrint.chrg.cpMax = lengthDoc;
 
-		lengthPrinted = SendEditor(EM_FORMATRANGE,
+		lengthPrinted = SendEditor(SCI_FORMATRANGE,
 		                           printPage,
 		                           reinterpret_cast<LPARAM>(&frPrint));
-		if (printPage)
+
+		if (printPage) {
+			if (footerFormat.size()) {
+				FormatHeaderOrFooter(footerFormat.c_str(), pageNum, fileName, fullPath, headerOrFooter);
+				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + headerLineHeight / 4, NULL);
+				::LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom + headerLineHeight / 4);
+				::SelectObject(hdc, fontFooter);
+				UINT ta = ::SetTextAlign(hdc, TA_TOP);
+				::TextOut(hdc, frPrint.rc.left, frPrint.rc.bottom + headerLineHeight / 2,
+					headerOrFooter.c_str(), headerOrFooter.length());
+				::SetTextAlign(hdc, ta);
+			}
+
+#ifdef DEBUG_PRINT
+// Print physical margins
+MoveToEx(hdc, frPrint.rcPage.left, frPrint.rcPage.top, NULL);
+LineTo(hdc, frPrint.rcPage.right, frPrint.rcPage.top);
+LineTo(hdc, frPrint.rcPage.right, frPrint.rcPage.bottom);
+LineTo(hdc, frPrint.rcPage.left, frPrint.rcPage.bottom);
+LineTo(hdc, frPrint.rcPage.left, frPrint.rcPage.top);
+// Print setup margins
+MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top, NULL);
+LineTo(hdc, frPrint.rc.right, frPrint.rc.top);
+LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom);
+LineTo(hdc, frPrint.rc.left, frPrint.rc.bottom);
+LineTo(hdc, frPrint.rc.left, frPrint.rc.top);
+#endif
+
 			::EndPage(hdc);
+		}
+		pageNum++;
 
-		if ((pdlg.Flags & PD_PAGENUMS) && (pageNum++ > pdlg.nToPage))
+		if ((pdlg.Flags & PD_PAGENUMS) && (pageNum > pdlg.nToPage))
 			break;
-	};
+	}
 
-	SendEditor(EM_FORMATRANGE, FALSE, 0);
+	SendEditor(SCI_FORMATRANGE, FALSE, 0);
 
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
+	if (fontHeader) {
+		::DeleteObject(fontHeader);
+	}
 }
 
 void SciTEWin::PrintSetup() {
@@ -591,7 +896,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		FindNext(reverseFind);
 	} else if (cmd == IDREPLACE) {
 		if (havefound) {
-			SendEditorString(EM_REPLACESEL, 0, replaceWhat);
+			SendEditorString(SCI_REPLACESEL, 0, replaceWhat);
 			havefound = false;
 		}
 		FindNext(reverseFind);
@@ -793,8 +1098,8 @@ BOOL CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 
 void SciTEWin::GoLineDialog() {
 	int lineNo[2] = { 0, 0 };
-	lineNo[0] = SendEditor(EM_LINEFROMCHAR, static_cast<WPARAM>( -1), 0L) + 1;
-	lineNo[1] = SendEditor(EM_GETLINECOUNT, 0, 0L);
+	lineNo[0] = SendEditor(SCI_GETSELECTIONSTART) + 1;
+	lineNo[1] = SendEditor(SCI_GETLINECOUNT, 0, 0L);
 	if (DoDialog(hInstance, "GoLine", wSciTE.GetID(),
 	             reinterpret_cast<DLGPROC>(GoLineDlg),
 	             reinterpret_cast<DWORD>(lineNo)) == IDOK) {

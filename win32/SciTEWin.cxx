@@ -74,7 +74,22 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	hDevMode = 0;
 	hDevNames = 0;
 	::ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
+
+	SString pageSetup = props.Get("print.page.setup");
+	char val[32];
+	char *ps = StringDup(pageSetup.c_str());
+	char *next = GetNextPropItem(ps, val, 32);
+	pagesetupMargin.left = atol(val);
+	next = GetNextPropItem(next, val, 32);
+	pagesetupMargin.right = atol(val);
+	next = GetNextPropItem(next, val, 32);
+	pagesetupMargin.top = atol(val);
+	next = GetNextPropItem(next, val, 32);
+	pagesetupMargin.bottom = atol(val);
+	delete []ps;
+
 	hHH = 0;
+	hMM = 0;
 }
 
 SciTEWin::~SciTEWin() {
@@ -84,6 +99,8 @@ SciTEWin::~SciTEWin() {
 		::GlobalFree(hDevNames);
 	if (hHH)
 		::FreeLibrary(hHH);
+	if (hMM)
+		::FreeLibrary(hMM);
 	if (fontTabs)
 		::DeleteObject(fontTabs);
 }
@@ -177,6 +194,23 @@ bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps,
 	strncat(pathUserProps, pathSepString, lenPath);
 	strncat(pathUserProps, propUserFileName, lenPath);
 	return true;
+}
+
+// Help command lines contain topic!path
+void SciTEWin::ExecuteOtherHelp(const char *cmd) {
+	char *topic = strdup(cmd);
+	char *path = strchr(topic, '!');
+	if (topic && path) {
+		*path = '\0';
+		path++;	// After the !
+		WinHelp(wSciTE.GetID(),
+			path,
+			HELP_KEY,
+			reinterpret_cast<unsigned long>(topic));
+	}
+	if (topic) {
+		free(topic);
+	}
 }
 
 // HH_AKLINK not in mingw headers
@@ -426,6 +460,11 @@ void SciTEWin::ProcessExecute() {
 			continue;
 		}
 
+		if (jobQueue[icmd].jobType == jobOtherHelp) {
+			ExecuteOtherHelp(jobQueue[icmd].command.c_str());
+			continue;
+		}
+
 		OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
 		::GetVersionEx(&osv);
 		bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
@@ -574,6 +613,9 @@ void SciTEWin::ProcessExecute() {
 			OutputAppendString(exitmessage);
 			::CloseHandle(pi.hProcess);
 			::CloseHandle(pi.hThread);
+			WarnUser(warnExecuteOK);
+		} else {
+			WarnUser(warnExecuteKO);
 		}
 		::CloseHandle(hPipeRead);
 	}
@@ -937,7 +979,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		return TRUE;
 
 	case WM_ACTIVATEAPP:
-		SendEditor(EM_HIDESELECTION, !wParam);
+		SendEditor(SCI_HIDESELECTION, !wParam);
 		// Do not want to display dialog yet as may be in middle of system mouse capture
 		::PostMessage(wSciTE.GetID(), WM_COMMAND, IDM_ACTIVATE, wParam);
 		break;
@@ -947,6 +989,11 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_DROPFILES: {
+			// If drag'n'drop inside the SciTE window but outside
+			// Scintilla, wParam is null, and an exception is generated!
+			if (wParam == 0) {
+				break;
+			}
 			HDROP hdrop = reinterpret_cast<HDROP>(wParam);
 			int filesDropped = DragQueryFile(hdrop, 0xffffffff, NULL, 0);
 
