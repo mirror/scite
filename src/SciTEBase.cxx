@@ -1186,6 +1186,8 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
 	if (findLen == 0) {
 		SString msg = LocaliseMessage(
+			inSelection ?
+			"Find string must not be empty for 'Replace in Selection' command." :
 			"Find string must not be empty for 'Replace All' command.");
 		FindMessageBox(msg);
 		return;

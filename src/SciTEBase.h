@@ -613,6 +613,8 @@ protected:
 	void StackMenuPrev();
 
 	void RemoveToolsMenu();
+	void SetMenuItemLocalised(int menuNumber, int position, int itemID,
+		const char *text, const char *mnemonic);
 	void SetToolsMenu();
 	JobSubsystem SubsystemType(const char *cmd, int item = -1);
 	void ToolsMenu(int item);

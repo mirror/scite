@@ -713,6 +713,12 @@ void SciTEBase::RemoveToolsMenu() {
 	}
 }
 
+void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
+                           const char *text, const char *mnemonic) {
+	SString localised = LocaliseString(text);
+	SetMenuItem(menuNumber, position, itemID, localised.c_str(), mnemonic);
+}
+
 void SciTEBase::SetToolsMenu() {
 	//command.name.0.*.py=Edit in PythonWin
 	//command.0.*.py="c:\program files\python\pythonwin\pythonwin" /edit c:\coloreditor.py
@@ -741,14 +747,14 @@ void SciTEBase::SetToolsMenu() {
 	menuPos++;
 	if (macrosEnabled) {
 		SetMenuItem(menuTools, menuPos++, IDM_MACRO_SEP, "");
-		SetMenuItem(menuTools, menuPos++, IDM_MACROLIST,
-		            "&List Macros...\tShift+F9");
-		SetMenuItem(menuTools, menuPos++, IDM_MACROPLAY,
-		            "Run Current &Macro\tF9");
-		SetMenuItem(menuTools, menuPos++, IDM_MACRORECORD,
-		            "&Record Macro\tCtrl+F9");
-		SetMenuItem(menuTools, menuPos++, IDM_MACROSTOPRECORD,
-		            "S&top Recording Macro\tCtrl+Shift+F9");
+		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROLIST,
+		            "&List Macros...", "Shift+F9");
+		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROPLAY,
+		            "Run Current &Macro", "F9");
+		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACRORECORD,
+		            "&Record Macro", "Ctrl+F9");
+		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROSTOPRECORD,
+		            "S&top Recording Macro", "Ctrl+Shift+F9");
 	}
 }
 

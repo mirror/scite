@@ -69,56 +69,58 @@ void SciTEWin::Notify(SCNotification *notification) {
 	case TTN_GETDISPINFO:
 		// Ask for tooltip text
 		{
+			static char ttt[MAX_PATH];
+			const char *ttext=0;
 			NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
 			// Toolbar tooltips
 			switch (notification->nmhdr.idFrom) {
 			case IDM_NEW:
-				pDispInfo->lpszText = "New";
+				ttext = "New";
 				break;
 			case IDM_OPEN:
-				pDispInfo->lpszText = "Open";
+				ttext = "Open";
 				break;
 			case IDM_SAVE:
-				pDispInfo->lpszText = "Save";
+				ttext = "Save";
 				break;
 			case IDM_CLOSE:
-				pDispInfo->lpszText = "Close";
+				ttext = "Close";
 				break;
 			case IDM_PRINT:
-				pDispInfo->lpszText = "Print";
+				ttext = "Print";
 				break;
 			case IDM_CUT:
-				pDispInfo->lpszText = "Cut";
+				ttext = "Cut";
 				break;
 			case IDM_COPY:
-				pDispInfo->lpszText = "Copy";
+				ttext = "Copy";
 				break;
 			case IDM_PASTE:
-				pDispInfo->lpszText = "Paste";
+				ttext = "Paste";
 				break;
 			case IDM_CLEAR:
-				pDispInfo->lpszText = "Delete";
+				ttext = "Delete";
 				break;
 			case IDM_UNDO:
-				pDispInfo->lpszText = "Undo";
+				ttext = "Undo";
 				break;
 			case IDM_REDO:
-				pDispInfo->lpszText = "Redo";
+				ttext = "Redo";
 				break;
 			case IDM_FIND:
-				pDispInfo->lpszText = "Find";
+				ttext = "Find";
 				break;
 			case IDM_REPLACE:
-				pDispInfo->lpszText = "Replace";
+				ttext = "Replace";
 				break;
 			case IDM_MACRORECORD:
-				pDispInfo->lpszText = "Record Macro";
+				ttext = "Record Macro";
 				break;
 			case IDM_MACROSTOPRECORD:
-				pDispInfo->lpszText = "Stop Recording";
+				ttext = "Stop Recording";
 				break;
 			case IDM_MACROPLAY:
-				pDispInfo->lpszText = "Run Macro";
+				ttext = "Run Macro";
 				break;
 			default:
 				{
@@ -134,6 +136,11 @@ void SciTEWin::Notify(SCNotification *notification) {
 					pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].FullPath());
 				}
 				break;
+			}
+			if (ttext) {
+				SString localised = LocaliseString(ttext);
+				strcpy(ttt, localised.c_str());
+				pDispInfo->lpszText = ttt;
 			}
 			break;
 		}
