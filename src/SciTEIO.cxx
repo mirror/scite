@@ -667,7 +667,7 @@ void SciTEBase::CheckReload() {
 					entered = false;
 				}
 			} else {
-				Open(fullPathToCheck, of);
+				Open(fullPathToCheck, static_cast<OpenFlags>(of | ofForceLoad));
 				DisplayAround(rf);
 			}
 		}
