@@ -1259,11 +1259,23 @@ void SciTEWin::DestroyFindReplace() {
 BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
-	case WM_INITDIALOG:
-		LocaliseDialog(hDlg);
-		::SendDlgItemMessage(hDlg, IDGOLINE, EM_LIMITTEXT, 10, 1);
-		::SetDlgItemInt(hDlg, IDCURRLINE, GetCurrentLineNumber() + 1, FALSE);
-		::SetDlgItemInt(hDlg, IDLASTLINE, SendEditor(SCI_GETLINECOUNT, 0, 0L), FALSE);
+	case WM_INITDIALOG: {
+			int position = SendEditor(SCI_GETCURRENTPOS);
+			int lineNumber = SendEditor(SCI_LINEFROMPOSITION, position) + 1;
+			int lineStart = SendEditor(SCI_POSITIONFROMLINE, lineNumber - 1);
+			int characterOnLine = 1;
+			while (position > lineStart) {
+				position = SendEditor(SCI_POSITIONBEFORE, position);
+				characterOnLine++;
+			}
+
+			LocaliseDialog(hDlg);
+			::SendDlgItemMessage(hDlg, IDGOLINE, EM_LIMITTEXT, 10, 1);
+			::SendDlgItemMessage(hDlg, IDGOLINECHAR, EM_LIMITTEXT, 10, 1);
+			::SetDlgItemInt(hDlg, IDCURRLINE, lineNumber, FALSE);
+			::SetDlgItemInt(hDlg, IDCURRLINECHAR, characterOnLine, FALSE);
+			::SetDlgItemInt(hDlg, IDLASTLINE, SendEditor(SCI_GETLINECOUNT), FALSE);
+                }
 		return TRUE;
 
 	case WM_CLOSE:
@@ -1275,11 +1287,32 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::EndDialog(hDlg, IDCANCEL);
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
-			BOOL bOK;
+			BOOL bHasLine;
 			int lineNumber = static_cast<int>(
-			                     ::GetDlgItemInt(hDlg, IDGOLINE, &bOK, FALSE));
-			if (bOK) {
-				GotoLineEnsureVisible(lineNumber - 1);
+			                     ::GetDlgItemInt(hDlg, IDGOLINE, &bHasLine, FALSE));
+			BOOL bHasChar;
+			int characterOnLine = static_cast<int>(
+			                     ::GetDlgItemInt(hDlg, IDGOLINECHAR, &bHasChar, FALSE));
+
+			if (bHasLine || bHasChar) {
+				if (!bHasLine)
+					lineNumber = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS)) + 1;
+
+				if (lineNumber <= SendEditor(SCI_GETLINECOUNT)) {
+					// Constrain to the requested line, defaulting to start of line if no character specified.
+					if (!bHasChar || characterOnLine < 1) characterOnLine = 1;
+
+					int lineStart = SendEditor(SCI_POSITIONFROMLINE, lineNumber - 1);
+					int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, lineNumber - 1);
+
+					int position = lineStart;
+					while (--characterOnLine && position < lineEnd)
+						position = SendEditor(SCI_POSITIONAFTER, position);
+
+					SendEditor(SCI_GOTOPOS, position);
+				} else {
+					SendEditor(SCI_GOTOPOS, SendEditor(SCI_GETLENGTH));
+				}
 			}
 			::EndDialog(hDlg, IDOK);
 			return TRUE;

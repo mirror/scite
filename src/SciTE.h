@@ -214,6 +214,9 @@
 #define IDREPLACEINBUF		244
 #define IDMARKALL 			245
 
+#define IDGOLINECHAR		246
+#define IDCURRLINECHAR		247
+
 #define IDPARAMSTART		300
 
 // Dialog IDs
