@@ -320,7 +320,8 @@ protected:
 	Job jobQueue[commandMax];
 	bool jobUsesOutputPane;
 	long cancelFlag;
-
+	bool timeCommands;
+	
 	bool macrosEnabled;
 	char currentmacro[100];
 	bool recording;

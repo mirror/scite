@@ -637,7 +637,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETPRINTCOLOURMODE, props.GetInt("print.colour.mode"));
 
 	clearBeforeExecute = props.GetInt("clear.before.execute");
-
+	timeCommands = props.GetInt("time.commands");
+	
 	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
 	int blankMarginRight = props.GetInt("blank.margin.right", 1);
 	SendEditor(SCI_SETMARGINLEFT, 0, blankMarginLeft);
