@@ -32,7 +32,7 @@ endif
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
 LEXOBJS	= LexAda.o LexAVE.o LexConf.o LexCPP.o LexHTML.o LexLisp.o \
- LexLua.o LexOthers.o LexPascal.o LexPerl.o LexPython.o LexSQL.o LexVB.o
+ LexLua.o LexOthers.o LexPascal.o LexPerl.o LexPython.o LexRuby.o LexSQL.o LexVB.o
 OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o SciTERes.o DirectorExtension.o
@@ -43,15 +43,15 @@ PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
-..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
+..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
 ..\bin\sql.properties ..\bin\vb.properties
 
 LEXPROPS=\
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
-..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
-..\bin\sql.properties ..\bin\vb.properties
+..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties \
+..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties
 
 ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 
@@ -87,6 +87,8 @@ deps:
 	copy $^ $@
 ..\bin\others.properties:	..\src\others.properties
 	copy $^ $@
+..\bin\ruby.properties:	..\src\ruby.properties
+	copy $^ $@	
 ..\bin\pascal.properties:	..\src\pascal.properties
 	copy $^ $@
 ..\bin\perl.properties:	..\src\perl.properties

@@ -113,6 +113,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\LexPascal.obj \
 	..\..\scintilla\win32\LexPerl.obj \
 	..\..\scintilla\win32\LexPython.obj \
+	..\..\scintilla\win32\LexRuby.obj \
 	..\..\scintilla\win32\LexSQL.obj \
 	..\..\scintilla\win32\LexVB.obj \
 	..\..\scintilla\win32\WindowAccessor.obj \
