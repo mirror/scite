@@ -425,6 +425,9 @@ protected:
 	SString autoCompleteFillUpCharacters;
 	SString wordCharacters;
 	int startCalltipWord;
+	int currentCallTip;
+	int maxCallTips;
+	SString currentCallTipWord;
 
 	bool margin;
 	int marginWidth;
@@ -616,7 +619,9 @@ protected:
 	virtual void StopExecute() = 0;
 	void GoMessage(int dir);
 	virtual bool StartCallTip();
+	virtual void FillFunctionDefinition(int pos = -1);
 	void ContinueCallTip();
+	virtual void EliminateDuplicateWords(char *words);
 	virtual bool StartAutoComplete();
 	virtual bool StartAutoCompleteWord(bool onlyOneWord);
 	virtual bool StartExpandAbbreviation();

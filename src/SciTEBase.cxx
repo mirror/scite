@@ -175,6 +175,7 @@ const char *contributors[] = {
                                  "João Paulo F Farias",
                                  "Ron Schofield",
                                  "Stefan Wosnik",
+                                 "Marius Gheorghe",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -267,6 +268,9 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	callTipIgnoreCase = false;
 	autoCCausedByOnlyOne = false;
 	startCalltipWord = 0;
+	currentCallTip = 0;
+	maxCallTips = 1;
+	currentCallTipWord = "";
 
 	margin = false;
 	marginWidth = marginWidthDefault;
@@ -1663,8 +1667,57 @@ void SciTEBase::Redraw() {
 	wOutput.InvalidateAll();
 }
 
+void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
+	static int lastPos = 0;
+	if (pos > 0) {
+		lastPos = pos;
+	}
+	if (apis) {
+		const char *words = apis.GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
+		                                       callTipIgnoreCase);
+		// Counts how many call tips
+		const char *spacePos = strchr(words, ' ');
+		maxCallTips = 1;
+		while (spacePos) {
+			maxCallTips++;
+			spacePos = strchr(spacePos + 1, ' ');
+		}
+
+		// Should get current api definition
+		const char *word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),
+		                                       callTipIgnoreCase, calltipWordCharacters, currentCallTip);
+		if (word) {
+			functionDefinition = word;
+			if (maxCallTips > 1) {
+				functionDefinition.insert(0, "\001");
+			}
+
+			if (calltipEndDefinition != "") {
+				int posEndDef = functionDefinition.search(calltipEndDefinition.c_str());
+				if (maxCallTips > 1) {
+					if ((posEndDef > 1) &&
+								((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
+							functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n\002");
+					} else {
+						functionDefinition.append("\n\002");
+					}
+				} else {
+					if ((posEndDef > 1) &&
+						((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
+						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n");
+					}
+				}
+			}
+			SendEditorString(SCI_CALLTIPSHOW, lastPos - currentCallTipWord.length(), functionDefinition.c_str());
+			ContinueCallTip();
+		}
+	}
+}
+
 bool SciTEBase::StartCallTip() {
 	char linebuf[1000];
+	currentCallTip = 0;
+	currentCallTipWord = "";
 	GetLine(linebuf, sizeof(linebuf));
 	int current = GetCaretInLine();
 	int pos = SendEditor(SCI_GETCURRENTPOS);
@@ -1694,29 +1747,15 @@ bool SciTEBase::StartCallTip() {
 
 	startCalltipWord = current - 1;
 	while (startCalltipWord > 0 &&
-	        calltipWordCharacters.contains(linebuf[startCalltipWord - 1]))
+		calltipWordCharacters.contains(linebuf[startCalltipWord - 1])) {
 		startCalltipWord--;
+	}
 
 	linebuf[current] = '\0';
-	int rootlen = current - startCalltipWord;
+	currentCallTipWord = linebuf + startCalltipWord;
 	functionDefinition = "";
-	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", linebuf + startword, rootlen, pos, pos - rootlen);
-	if (apis) {
-		const char *word = apis.GetNearestWord(linebuf + startCalltipWord, rootlen,
-		                                       callTipIgnoreCase, calltipWordCharacters);
-		if (word) {
-			functionDefinition = word;
-			if (calltipEndDefinition != "") {
-				int posEndDef = functionDefinition.search(calltipEndDefinition.c_str());
-				if ((posEndDef > 1) &&
-				        ((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
-					functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n");
-				}
-			}
-			SendEditorString(SCI_CALLTIPSHOW, pos - rootlen, functionDefinition.c_str());
-			ContinueCallTip();
-		}
-	}
+	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", currentCallTipWord.c_str(), currentCallTipWord.length(), pos, pos - rootlen);
+	FillFunctionDefinition(pos);
 	return true;
 }
 
@@ -1746,19 +1785,51 @@ void SciTEBase::ContinueCallTip() {
 	if (functionDefinition[startHighlight] == '(')
 		startHighlight++;
 	while (functionDefinition[startHighlight] && commas > 0) {
-		if (IsCallTipSeparator(functionDefinition[startHighlight]) || functionDefinition[startHighlight] == ')')
+		if (IsCallTipSeparator(functionDefinition[startHighlight]))
 			commas--;
+		// If it reached the end of the argument list it means that the user typed in more
+		// arguments than the ones listed in the calltip
+		if (functionDefinition[startHighlight] == ')')
+			commas = 0;
+		else
 		startHighlight++;
 	}
-	if (IsCallTipSeparator(functionDefinition[startHighlight]) || functionDefinition[startHighlight] == ')')
+	if (IsCallTipSeparator(functionDefinition[startHighlight]))
 		startHighlight++;
 	int endHighlight = startHighlight;
-	if (functionDefinition[endHighlight])
-		endHighlight++;
 	while (functionDefinition[endHighlight] && !IsCallTipSeparator(functionDefinition[endHighlight]) && functionDefinition[endHighlight] != ')')
 		endHighlight++;
 
 	SendEditor(SCI_CALLTIPSETHLT, startHighlight, endHighlight);
+}
+
+void SciTEBase::EliminateDuplicateWords(char *words) {
+	char *firstWord = words;
+	char *firstSpace = strchr(firstWord, ' ');
+	char *secondWord;
+	char *secondSpace;
+	int firstLen, secondLen;
+
+	while (firstSpace) {
+		firstLen = firstSpace - firstWord;
+		secondWord = firstWord + firstLen + 1;
+		secondSpace = strchr(secondWord, ' ');
+
+		if (secondSpace)
+			secondLen = secondSpace - secondWord;
+		else
+			secondLen = strlen(secondWord);
+
+		if (firstLen == secondLen &&
+			!strncmp(firstWord, secondWord, firstLen)) {
+			strcpy(firstWord, secondWord);
+			firstSpace = strchr(firstWord, ' ');
+		}
+		else {
+			firstWord = secondWord;
+			firstSpace = secondSpace;
+		}
+	}
 }
 
 bool SciTEBase::StartAutoComplete() {
@@ -1779,6 +1850,7 @@ bool SciTEBase::StartAutoComplete() {
 	if (apis) {
 		char *words = apis.GetNearestWords(root, rootlen, autoCompleteIgnoreCase);
 		if (words) {
+			EliminateDuplicateWords(words);
 			SendEditorString(SCI_AUTOCSHOW, rootlen, words);
 			delete []words;
 		}
@@ -3745,6 +3817,17 @@ void SciTEBase::Notify(SCNotification *notification) {
 	case SCN_USERLISTSELECTION: {
 			if (notification->wParam == 2)
 				ContinueMacroList(notification->text);
+		}
+		break;
+
+	case SCN_CALLTIPCLICK: {
+			if (notification->position == 1 && currentCallTip > 0) {
+				currentCallTip--;
+				FillFunctionDefinition();
+			} else if (notification->position == 0 && currentCallTip + 1 < maxCallTips) {
+				currentCallTip++;
+				FillFunctionDefinition();
+			}
 		}
 		break;
 
