@@ -1215,20 +1215,14 @@ NameError: mistake
         </td>
         <td>
 	These settings determine what will be printed if anything as headers and
-	footers. There are a set of variables that can be substituted into the strings.<br />
+	footers. Property settings can be substituted into the values using the $(property)
+	syntax. There are some extra properties set up while printing: 
+	CurrentPage, FileTime, FileDate, CurrentDate, and CurrentTime (at start of 
+	printing). 
+	Common properties to use in headers and footers are FileNameExt and FilePath.<br />
+	A header setting may look like:<br />
 	<code>
-	&amp;&amp; = &amp;<br /> 
-	&amp;p = current page<br />
-	&amp;f = file name<br />
-	&amp;F = full path<br />
-	&amp;d = file date<br />
-	&amp;D = current date<br />
-	&amp;t = file time<br />
-	&amp;T = full time
-	</code><br />
-	So a header setting may look like:<br />
-	<code>
-	print.header.format=&amp;f - Printed on &amp;D, &amp;T - Page &amp;p
+	print.header.format=$(FileNameExt) - Printed on $(CurrentDate),$(CurrentTime) - Page $(CurrentPage)
 	</code><br />
         </td>
       </tr>
@@ -1239,7 +1233,7 @@ NameError: mistake
         </td>
         <td>
 	These settings determine the style of the header and footer using the same
-	format as other styles in SciTE. Only the font, size, and bold and italics 
+	format as other styles in SciTE. Only the font, size, bold, italics, and underlined 
 	attributes are supported.
         </td>
       </tr>
