@@ -1348,7 +1348,7 @@ bool SciTEBase::GetDefaultPropertiesFileName(char *pathDefaultProps,
 
 bool SciTEBase::GetAbbrevPropertiesFileName(char *pathAbbrevProps,
         char *pathDefaultDir, unsigned int lenPath) {
-	if (!GetSciteDefaultHome(pathDefaultDir, lenPath)) {
+	if (!GetSciteUserHome(pathDefaultDir, lenPath)) {
 		return false;
 	}
 	return BuildPath(pathAbbrevProps, pathDefaultDir, propAbbrevFileName, lenPath);
