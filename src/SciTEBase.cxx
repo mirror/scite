@@ -901,13 +901,14 @@ bool SciTEBase::StartCallTip() {
 			current--;
 			pos--;
 		}
-	} while (current > 0 && nonFuncChar(linebuf[current - 1]));
+	} while (current > 0 && !calltipWordCharacters.contains(linebuf[current - 1]));
 	if (current <= 0)
 		return true;
 
 	int startword = current - 1;
-	while (startword > 0 && !nonFuncChar(linebuf[startword - 1]))
+	while (startword > 0 && calltipWordCharacters.contains(linebuf[startword - 1]))
 		startword--;
+
 	linebuf[current] = '\0';
 	int rootlen = current - startword;
 	functionDefinition = "";
@@ -963,8 +964,12 @@ bool SciTEBase::StartAutoComplete() {
 	int current = GetLine(linebuf, sizeof(linebuf));
 
 	int startword = current;
-	while (startword > 0 && !nonFuncChar(linebuf[startword - 1]))
+	
+	while ((startword > 0) && 
+		(wordCharacters.contains(linebuf[startword - 1]) ||
+		autoCompleteStartCharacters.contains(linebuf[startword - 1])))
 		startword--;
+
 	if (startword == current)
 		return true;
 	linebuf[current] = '\0';
@@ -980,12 +985,12 @@ bool SciTEBase::StartAutoComplete() {
 	return true;
 }
 
-bool SciTEBase::StartAutoCompleteWord() {
+bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	char linebuf[1000];
 	int current = GetLine(linebuf, sizeof(linebuf));
 
 	int startword = current;
-	while (startword > 0 && !nonFuncChar(linebuf[startword - 1]))
+	while (startword > 0 && wordCharacters.contains(linebuf[startword - 1]))
 		startword--;
 	if (startword == current)
 		return true;
@@ -1004,6 +1009,7 @@ bool SciTEBase::StartAutoCompleteWord() {
 	//DWORD dwStart = timeGetTime();
 	int length = 0;	// variables for reallocatable array creation
 	int newlength;
+	int nwords = 0;
 #undef WORDCHUNK
 #define WORDCHUNK 100
 	int size = WORDCHUNK;
@@ -1052,6 +1058,11 @@ bool SciTEBase::StartAutoCompleteWord() {
 			memcpy (words + length, wordstart, wordlen);
 			length = newlength;
 			words[length] = '\0';
+			nwords ++;
+			if(onlyOneWord && nwords > 1) {
+				free(words);
+				return true; 
+			}
 		}
 		ft.chrg.cpMin = posFind + wordlen;
 	}
@@ -1070,7 +1081,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	int position = SendEditor(SCI_GETCURRENTPOS); // from the beginning
 	int startword = current;
 	int counter = 0;
-	while (startword > 0 && !nonFuncChar(linebuf[startword - 1])) {
+	while (startword > 0 && wordCharacters.contains(linebuf[startword - 1])) {
 		counter++;
 		startword--;
 	}
@@ -1153,7 +1164,7 @@ bool SciTEBase::StartStreamComment() {
 	SString language = props.GetNewExpand("lexer.", fileName);
 	SString start_base, end_base;
 	SString white_space(" ");
-	if(language == "") {
+	if (language == "") {
 		language = props.Get("default.file.ext");
 		start_base = "comment.stream.start";
 		end_base = "comment.stream.end";
@@ -1176,29 +1187,29 @@ bool SciTEBase::StartStreamComment() {
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
 	// if there is no selection?
-	if(selectionEnd - selectionStart <= 0) {
+	if (selectionEnd - selectionStart <= 0) {
 		int selLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 		int lineIndent = GetLineIndentPosition(selLine);
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, selLine);
-		if(RangeIsAllWhitespace(lineIndent, lineEnd))
+		if (RangeIsAllWhitespace(lineIndent, lineEnd))
 			return true; // we are not dealing with empty lines
 		char linebuf[1000];
 		int current = GetLine(linebuf, sizeof(linebuf));
 		// checking if we are not inside a word
-		if(nonFuncChar(linebuf[current]))
+		if (!wordCharacters.contains(linebuf[current]))
 			return true; // caret is located _between_ words
  		int startword = current;
 		int endword = current;
 		int start_counter = 0;
 		int end_counter = 0;
-		while(startword > 0 && !nonFuncChar(linebuf[startword - 1])) {
+		while(startword > 0 && wordCharacters.contains(linebuf[startword - 1])) {
 			start_counter++;
 			startword--;
 		}
 		// checking _beginning_ of the word
 		if (startword == current)
 			return true; // caret is located _before_ a word
-		while(linebuf[endword + 1] != '\0' && !nonFuncChar(linebuf[endword + 1])) {
+		while (linebuf[endword + 1] != '\0' && wordCharacters.contains(linebuf[endword + 1])) {
 			end_counter++;
 			endword++;
 		}
@@ -1443,6 +1454,10 @@ void SciTEBase::CharAdded(char ch) {
 				} else {
 					if (props.GetInt("indent.automatic"))
 						AutomaticIndentation(ch);
+					if (autoCompleteStartCharacters.contains(ch)) 
+						StartAutoComplete();
+					else if (props.GetInt("autocompleteword.automatic") && wordCharacters.contains(ch)) 
+						StartAutoCompleteWord(true);
 				}
 			}
 		}
@@ -1665,7 +1680,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 
 	case IDM_COMPLETEWORD:
-		StartAutoCompleteWord();
+		StartAutoCompleteWord(false);
 		break;
 
 	case IDM_ABBREV:

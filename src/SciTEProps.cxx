@@ -580,13 +580,25 @@ void SciTEBase::ReadProperties() {
 	char key[200];
 	SString sval;
 
-	sprintf(key, "calltip.%s.ignorecase", "*");
-	sval = props.GetNewExpand(key, "");
+	sval = props.GetNewExpand("calltip.*.ignorecase", "");
 	callTipIgnoreCase = sval == "1";
 	sprintf(key, "calltip.%s.ignorecase", language.c_str());
 	sval = props.GetNewExpand(key, "");
 	if (sval != "")
 		callTipIgnoreCase = sval == "1";
+	
+	sprintf(key, "calltip.%s.word.characters", language.c_str());
+	calltipWordCharacters = props.GetExpanded(key);
+	if (calltipWordCharacters == "")
+		calltipWordCharacters = props.GetExpanded("calltip.*.word.characters");
+	if (calltipWordCharacters == "")
+		calltipWordCharacters = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	sprintf(key, "autocomplete.%s.start.characters", language.c_str());
+	autoCompleteStartCharacters = props.GetExpanded(key);
+	if (autoCompleteStartCharacters == "")
+		autoCompleteStartCharacters = props.GetExpanded("autocomplete.*.start.characters");
+	// "" is a quite reasonable value for this setting
 
 	sprintf(key, "autocomplete.%s.ignorecase", "*");
 	sval = props.GetNewExpand(key, "");
@@ -658,7 +670,7 @@ void SciTEBase::ReadProperties() {
 	bracesCheck = props.GetInt("braces.check");
 	bracesSloppy = props.GetInt("braces.sloppy");
 
-	SString wordCharacters = props.GetNewExpand("word.characters.", fileNameForExtension.c_str());
+	wordCharacters = props.GetNewExpand("word.characters.", fileNameForExtension.c_str());
 	if (wordCharacters.length()) {
 		SendEditorString(SCI_SETWORDCHARS, 0, wordCharacters.c_str());
 	} else {

@@ -276,6 +276,9 @@ protected:
 
 	bool autoCompleteIgnoreCase;
 	bool callTipIgnoreCase;
+	SString calltipWordCharacters;
+	SString autoCompleteStartCharacters;
+	SString wordCharacters;
 
 	bool margin;
 	int marginWidth;
@@ -410,7 +413,7 @@ protected:
 	virtual bool StartCallTip();
 	void ContinueCallTip();
 	virtual bool StartAutoComplete();
-	virtual bool StartAutoCompleteWord();
+	virtual bool StartAutoCompleteWord(bool onlyOneWord);
 	virtual bool StartExpandAbbreviation();
 	virtual bool StartBlockComment();
 	virtual bool StartStreamComment();
