@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W4 /Gm /GX /ZI /Od /I "..\src" /I "..\..\scintilla\include" /I "..\..\scintilla\src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "STATIC_BUILD" /D "SCI_LEXER" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W4 /Gm /GX /ZI /Od /I "..\src" /I "..\..\scintilla\include" /I "..\..\scintilla\src" /I "..\lua\include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "STATIC_BUILD" /D "SCI_LEXER" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -144,6 +144,38 @@ SOURCE=..\..\scintilla\src\KeyMap.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\KeyWords.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lapi.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\lauxlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\lbaselib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lcode.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\ldblib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\ldebug.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\ldo.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\ldump.c
 # End Source File
 # Begin Source File
 
@@ -291,6 +323,10 @@ SOURCE=..\..\scintilla\src\LexScriptol.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexSpecman.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexSQL.cxx
 # End Source File
 # Begin Source File
@@ -311,7 +347,91 @@ SOURCE=..\..\scintilla\src\LexYAML.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\lua\src\lfunc.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lgc.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LineMarker.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\liolib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\llex.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\lmathlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lmem.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\loadlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lobject.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lopcodes.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lparser.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lstate.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lstring.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\lstrlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\ltable.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\ltablib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\ltests.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\ltm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\LuaExtension.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lundump.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lvm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lzio.c
 # End Source File
 # Begin Source File
 

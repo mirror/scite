@@ -55,9 +55,6 @@
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 #include "UniqueInstance.h"
-#ifdef LUA_SCRIPTING
-#include "LuaExtension.h"
-#endif
 
 const int SCITE_TRAY = WM_APP + 0;
 

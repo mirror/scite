@@ -3064,8 +3064,9 @@ void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem 
 		jobQueue[commandCurrent].input = input;
 		jobQueue[commandCurrent].flags = flags;
 		commandCurrent++;
-		if ((jobType == jobCLI) || (jobType == jobExtension))
+		if (jobType == jobCLI)
 			jobUsesOutputPane = true;
+		// For jobExtension, the Trace() method shows output pane on demand.
 	}
 }
 
@@ -4157,8 +4158,16 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 
 void SciTEBase::UIAvailable() {
 	SetImportMenu();
-	if (extender)
+	if (extender) {
+		char homepath[MAX_PATH + 20];
+		if (GetSciteDefaultHome(homepath, sizeof(homepath))) {
+			props.Set("SciteDefaultHome", homepath);
+		}
+		if (GetSciteUserHome(homepath, sizeof(homepath))) {
+			props.Set("SciteUserHome", homepath);
+		}
 		extender->Initialise(this);
+	}
 }
 
 /**
@@ -4619,6 +4628,7 @@ void SciTEBase::Insert(Pane p, int pos, const char *s) {
 }
 
 void SciTEBase::Trace(const char *s) {
+	MakeOutputVisible();
 	OutputAppendString(s);
 }
 

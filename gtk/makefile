@@ -4,7 +4,7 @@
 # This makefile assumes GCC 2.95.2 is used and changes will be needed to use other compilers.
 # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
 
-.SUFFIXES: .cxx .o .h .a
+.SUFFIXES: .cxx .o .h .a .c
 CC = g++
 AR = ar
 
@@ -45,6 +45,8 @@ INSTALL=install -o root -g root
 
 PROG	= ../bin/SciTE
 
+all: $(PROG)
+
 vpath %.h ../src ../../scintilla/include
 vpath %.cxx ../src
 
@@ -53,9 +55,29 @@ INCLUDEDIRS=-I ../../scintilla/include -I ../src
 CXXBASEFLAGS=-W -Wall -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
 
 ifdef DEBUG
-CXXFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
+CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
 else
-CXXFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
+CXXTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
+endif
+
+ifndef NO_LUA
+LUA_CORE_OBJS = lapi.o lcode.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
+		lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o \
+		ltable.o ltests.o ltm.o lundump.o lvm.o lzio.o
+
+LUA_LIB_OBJS =	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o ltablib.o \
+		lstrlib.o loadlib.o
+
+LUA_OBJS = LuaExtension.o IFaceTable.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
+
+INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
+$(LUA_CORE_OBJS): ../lua/src/*.c
+	gcc $(INCLUDEDIRS) $(CXXTFLAGS) -c ../lua/src/*.c
+$(LUA_LIB_OBJS): ../lua/src/lib/*.c
+	gcc $(INCLUDEDIRS) $(CXXTFLAGS) -c ../lua/src/lib/*.c
+CXXFLAGS=$(CXXTFLAGS)
+else
+CXXFLAGS=$(CXXTFLAGS) -DNO_LUA
 endif
 
 ifeq ($(shell uname), Darwin)
@@ -64,8 +86,6 @@ endif
 
 .cxx.o:
 	$(CC) `$(CONFIGFLAGS)` $(CXXFLAGS) -c $< -o $@
-
-all: $(PROG)
 
 clean:
 	rm -f *.o $(PROG)
@@ -77,7 +97,8 @@ deps:
 COMPLIB=../../scintilla/bin/scintilla.a
 
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o \
-MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o $(COMPLIB)
+MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o \
+	$(COMPLIB) $(LUA_OBJS)
 	$(CC) `$(CONFIGLIB)` `glib-config --libs gthread` -DGTK $^ -o $@
 
 # Automatically generate header dependencies with "make deps"

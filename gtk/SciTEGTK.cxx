@@ -37,13 +37,17 @@
 
 #ifndef NO_EXTENSIONS
 #include "MultiplexExtension.h"
-#endif
-#ifdef LUA_SCRIPTING
+
+#ifndef NO_LUA
 #include "LuaExtension.h"
 #endif
+
 #ifndef NO_FILER
 #include "DirectorExtension.h"
 #endif
+
+#endif
+
 #include "pixmapsGNOME.h"
 #include "SciIcon.h"
 
@@ -3096,7 +3100,7 @@ int main(int argc, char *argv[]) {
 	MultiplexExtension multiExtender;
 	Extension *extender = &multiExtender;
 
-#ifdef LUA_SCRIPTING
+#ifndef NO_LUA
 	multiExtender.RegisterExtension(LuaExtension::Instance());
 #endif
 #ifndef NO_FILER

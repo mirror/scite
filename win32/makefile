@@ -23,27 +23,54 @@ vpath %.cxx ../src
 vpath %.o ../../scintilla/win32
 vpath %.a ../../scintilla/win32
 
-LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid
-#CXXFLAGS = -W -Wall
-#CXXFLAGS = -g -pg -pedantic -Os -fno-exceptions -fvtable-thunks -fno-rtti
-INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src
+ifndef NO_LUA
+LUA_CORE_OBJS = lapi.o lcode.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
+		lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o \
+		ltable.o ltests.o ltm.o lundump.o lvm.o lzio.o
+
+LUA_LIB_OBJS =	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o ltablib.o \
+		lstrlib.o loadlib.o
+
+LUA_OBJS = LuaExtension.o IFaceTable.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
+
+vpath %.c ../lua/src ../lua/src/lib
+
+LUA_INCLUDES = -I ../lua/include
+#LUA_SCRIPTS = ..\bin\SciTEExtension.lua ..\bin\SciTEStartup.lua
+else
+LUA_DEFINES = -DNO_LUA
+endif
+
+INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src $(LUA_INCLUDES)
 RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src
-CXXBASEFLAGS = -W -Wall -pedantic $(INCLUDEDIRS) -Os -fno-exceptions $(THUNKFLAGS) -fno-rtti
+
+CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES)
 
 ifdef DEBUG
-CXXFLAGS=-DDEBUG $(CXXBASEFLAGS)
+CFLAGS=-DDEBUG -g $(CBASEFLAGS)
 else
-CXXFLAGS=-DNDEBUG $(CXXBASEFLAGS)
+CFLAGS=-DNDEBUG -Os $(CBASEFLAGS)
+STRIPFLAG="-Wl,-s"
 endif
+
+CXXFLAGS = $(CFLAGS) -pedantic -fno-exceptions $(THUNKFLAGS) -fno-rtti
+
+
+LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS)
 
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
+.c.o:
+	gcc $(CFLAGS) -c $< -o $@
+
+OTHER_OBJS	= SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 UniqueInstance.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
-DirectorExtension.o XPM.o
+DirectorExtension.o XPM.o $(LUA_OBJS)
+
+OBJS = SciTEBase.o $(OTHER_OBJS) 
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
@@ -68,13 +95,13 @@ LEXPROPS=\
 
 PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties $(LEXPROPS)
 
-ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
+ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS) $(LUA_SCRIPTS)
 
 clean:
 	del /q *.exe *.o *.obj *.dll *.res *.map
 
 deps:
-	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx >deps.mak
+	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c >deps.mak
 
 ..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
 	copy ..\..\scintilla\bin\Scintilla.dll $@
@@ -178,7 +205,7 @@ deps:
 	fgrep -G -v -h "^#" $(PROPS) >..\src\Embedded.properties
 
 $(PROG): $(OBJS)
-	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
+	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
 
 OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 	UniqueInstance.o SciTEBase.o SciTEBuffers.o \
@@ -187,10 +214,10 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 	Lexers.a PropSet.o \
 	ContractionState.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
 	UniConversion.o Utf8_16.o KeyMap.o Indicator.o LineMarker.o RESearch.o Style.o \
-	ViewStyle.o AutoComplete.o DirectorExtension.o XPM.o
+	ViewStyle.o AutoComplete.o DirectorExtension.o MultiplexExtension.o XPM.o $(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
-	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
+	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
 
 # Automatically generate dependencies for most files with "make deps"
 include deps.mak
@@ -207,3 +234,6 @@ SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h
 Sc1Res.o:	SciTERes.rc SciTE.h PlatformRes.h
 	windres $(RCINCLUDEDIRS) SciTERes.rc --define STATIC_BUILD $@
 
+# Make sure SciTEBase gets rebuilt (so its about box gets a new
+# date stamp) when any of the other objects are updated.
+SciTEBase.o: $(OTHER_OBJS)

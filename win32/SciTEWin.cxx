@@ -11,10 +11,15 @@
 
 #ifndef NO_EXTENSIONS
 #include "MultiplexExtension.h"
-#endif
 
 #ifndef NO_FILER
 #include "DirectorExtension.h"
+#endif
+
+#ifndef NO_LUA
+#include "LuaExtension.h"
+#endif
+
 #endif
 
 #ifdef STATIC_BUILD
@@ -1366,6 +1371,10 @@ static const int VK_OEM_PLUS=0xbb;
 #endif
 
 static bool KeyMatch(SString sKey, int keyval, int modifiers) {
+	// Alternative implementation:
+	// return SciTEKeys::MatchKeyCode(
+	//	 SciTEKeys::ParseKeyCode(sKey.c_str()), keyval, modifiers));
+	
 	if (keyval == 0x11)
 		return false;
 	if (keyval == 0x10)
@@ -1839,7 +1848,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	MultiplexExtension multiExtender;
 	Extension *extender = &multiExtender;
 
-#ifdef LUA_SCRIPTING
+#ifndef NO_LUA
 	multiExtender.RegisterExtension(LuaExtension::Instance());
 #endif
 
@@ -1923,6 +1932,11 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				int fkeyNum = sKey.value();
 				if (fkeyNum >= 1 && fkeyNum <= 12)
 					keyval = fkeyNum - 1 + VK_F1;
+			} else if ((sKey[0] == 'V') && (isdigit(sKey[1]))) {
+				sKey.remove("V");
+				int vkey = sKey.value();
+				if (vkey > 0 && vkey <= 0x7FFF)
+					keyval = vkey;
 			} else if (sKey.search("Keypad") == 0) {
 				sKey.remove("Keypad");
 				if (isdigit(sKey[0])) {
@@ -1933,8 +1947,13 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 					keyval = VK_ADD;
 				} else if (sKey == "Minus") {
 					keyval = VK_SUBTRACT;
+				} else if (sKey == "Decimal") {
+					keyval = VK_DECIMAL;
+				} else if (sKey == "Divide") {
+					keyval = VK_DIVIDE;
+				} else if (sKey == "Multiply") {
+					keyval = VK_MULTIPLY;
 				}
-				// The other keypad characters? VK_DECIMAL, VK_MULTIPLY, VK_DIVIDE, ...?
 			} else if (sKey == "Left") {
 				keyval = VK_LEFT;
 			} else if (sKey == "Right") {
