@@ -427,6 +427,8 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 
 	case IDM_FINISHEDEXECUTE: {
 			executing = false;
+			if (needReadProperties)
+				ReadProperties();
 			CheckMenus();
 			for (int icmd = 0; icmd < commandMax; icmd++) {
 				jobQueue[icmd].Clear();
@@ -631,6 +633,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			// A Redraw "might" be needed, since Lua and Director
 			// provide enough low-level capabilities to corrupt the
 			// display.
+			// (That might have been due to a race condition, and might now be
+			// corrected by SingleThreadExtension.  Should check it some time.)
 		}
 		return exitcode;
 	}
