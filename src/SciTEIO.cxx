@@ -667,13 +667,20 @@ void SciTEBase::CheckReload() {
 		//Platform::DebugPrintf("Times are %d %d\n", fileModTime, newModTime);
 		if (newModTime > fileModTime) {
 			RecentFile rf = GetFilePosition();
-			if (isDirty) {
+			if (isDirty || props.GetInt("are.you.sure.on.reload") != 0) {
 				static bool entered = false; // Stop reentrancy
 				if (!entered && (0 == dialogsOnScreen) && (newModTime != fileModLastAsk)) {
 					entered = true;
-					SString msg = LocaliseMessage(
-					                  "The file '^0' has been modified. Should it be reloaded?",
-					                  fullPathToCheck);
+					SString msg;
+					if (isDirty) {
+						msg = LocaliseMessage(
+							  "The file '^0' has been modified. Should it be reloaded?",
+							  fullPathToCheck);
+					} else {
+						msg = LocaliseMessage(
+							  "The file '^0' has been modified outside SciTE. Should it be reloaded?",
+							  fileName);
+					}
 					dialogsOnScreen++;
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					dialogsOnScreen--;
