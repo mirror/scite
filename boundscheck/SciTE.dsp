@@ -267,6 +267,10 @@ SOURCE=..\..\scintilla\src\Style.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\StyleContext.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\Src\UniConversion.cxx
 # End Source File
 # Begin Source File

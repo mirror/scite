@@ -56,8 +56,8 @@ SciTEProps.o ../../scintilla/bin/scintilla.a $(LEXEROBJS)
 
 # SciTE-static no longer builds. Kept here in case of later need.
 SciTE-static: SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
-KeyWords.o Document.o Scintilla.o PropSet.o DirectorExtension.o
-	$(CC) -L/usr/X11R6/lib -lXext -lX11 -lm -DGTK -DSCI_LEXER SciTE.o KeyWords.o Document.o Scintilla.o PropSet.o /usr/local/lib/libgtk.a /usr/local/lib/libgdk.a /usr/local/lib/libgmodule.a /usr/local/lib/libglib.a -o SciTE-static
+KeyWords.o StyleContext.o Document.o Scintilla.o PropSet.o DirectorExtension.o
+	$(CC) -L/usr/X11R6/lib -lXext -lX11 -lm -DGTK -DSCI_LEXER SciTE.o KeyWords.o StyeContext.o Document.o Scintilla.o PropSet.o /usr/local/lib/libgtk.a /usr/local/lib/libgdk.a /usr/local/lib/libgmodule.a /usr/local/lib/libglib.a -o SciTE-static
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
