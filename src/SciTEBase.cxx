@@ -338,21 +338,26 @@ void SciTEBase::AssignKey(int key, int mods, int cmd) {
  * those defined in the @c font.monospace property.
  */
 void SciTEBase::SetMonoFont() {
-	SString sval = props.GetExpanded("font.monospace");
-	StyleDefinition sd(sval.c_str());
-	for (int style = 0; style <= STYLE_MAX; style++) {
-		if (style != STYLE_DEFAULT) {
-			if (sd.specified & StyleDefinition::sdSize) {
-				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETSIZE, style, sd.size);
-			}
-			if (sd.specified & StyleDefinition::sdFont) {
-				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(sd.font.c_str()));
+	useMonoFont = !useMonoFont;
+	if (useMonoFont) {
+		SString sval = props.GetExpanded("font.monospace");
+		StyleDefinition sd(sval.c_str());
+		for (int style = 0; style <= STYLE_MAX; style++) {
+			if (style != STYLE_DEFAULT) {
+				if (sd.specified & StyleDefinition::sdSize) {
+					Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETSIZE, style, sd.size);
+				}
+				if (sd.specified & StyleDefinition::sdFont) {
+					Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(sd.font.c_str()));
+				}
 			}
 		}
+	} else {
+		// Set to standard styles by rereading the properties and applying them
+		ReadProperties();
 	}
 	SendEditor(SCI_COLOURISE, 0, -1);
 	Redraw();
-	useMonoFont = true;
 }
 
 /**
@@ -3042,6 +3047,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_SELMARGIN, margin);
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
+	CheckAMenuItem(IDM_MONOFONT, useMonoFont);
 	EnableAMenuItem(IDM_COMPILE, !executing);
 	EnableAMenuItem(IDM_BUILD, !executing);
 	EnableAMenuItem(IDM_GO, !executing);
