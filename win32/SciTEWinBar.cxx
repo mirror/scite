@@ -64,13 +64,13 @@ void SciTEWin::Notify(SCNotification *notification) {
 			case IDM_REPLACE:
 				pDispInfo->lpszText = "Replace";
 				break;
-			case IDM_STARTRECORDMACRO :
+			case IDM_MACRORECORD:
 				pDispInfo->lpszText = "Record Macro";
 				break;
-			case IDM_STOPRECORDMACRO :
+			case IDM_MACROSTOPRECORD:
 				pDispInfo->lpszText = "Stop Recording";
 				break;
-			case IDM_STARTPLAYMACRO :
+			case IDM_MACROPLAY:
 				pDispInfo->lpszText = "Run Macro";
 				break;
 			default:
