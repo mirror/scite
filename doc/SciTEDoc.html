@@ -1369,6 +1369,21 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
         </td>
       </tr>
       <tr>
+        <td>wrap.aware.home.end.keys</td>
+        <td>
+          This property changes the behavior of the home and end keys when dynamic 
+          line wrapping is turned on.  When set to 0 (the default), the Home and End 
+          keys will move the caret to the very beginning / end of the 'logical'
+          line, whether or not the line is wrapped over multiple lines in the display.
+          When this property is set to 1, the caret moves to the end of the current 
+          'display' line if you press End once, or to the very end of the 'logical'
+          line if you press End again.  Likewise, the Home key moves first to the 
+          beginning of the 'display' line, then on to the very beginning of the line.
+          In a pane where dynamic line-wrapping is not enabled, this setting has no
+          effect.
+        </td>
+      </tr>
+      <tr>
         <td>
 	cache.layout<br />
 	output.cache.layout
@@ -2184,7 +2199,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
         	Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like
-	Visual C++ moving the caret to the end of then line indentation unless already
+	Visual C++ moving the caret to the end of the line indentation unless already
 	there, in which case it moves to the start of the line. 0 moves to the start of the line.
         </td>
       </tr>
