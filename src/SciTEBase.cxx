@@ -441,7 +441,6 @@ void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
 #ifdef OLD_CODE
 void SciTEBase::Colourise(int start, int end, bool editor) {
 	// Colourisation is now performed by the SciLexer DLL
-	//DWORD dwStart = timeGetTime();
 	Window &win = editor ? wEditor : wOutput;
 	int lengthDoc = Platform::SendScintilla(win.GetID(), SCI_GETLENGTH, 0, 0);
 	if (end == -1)
@@ -461,8 +460,6 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 		LexerModule::Colourise(start, len, 0, SCLEX_ERRORLIST, 0, styler);
 	}
 	styler.Flush();
-	//DWORD dwEnd = timeGetTime();
-	//Platform::DebugPrintf("end colourise %d\n", dwEnd - dwStart);
 }
 
 #endif
@@ -1116,10 +1113,7 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	SendEditor(SCI_SETTARGETSTART, startPosition);
 	SendEditor(SCI_SETTARGETEND, endPosition);
 	SendEditor(SCI_SETSEARCHFLAGS, flags);
-	//DWORD dwStart = timeGetTime();
 	int posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget.c_str());
-	//DWORD dwEnd = timeGetTime();
-	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
 	if (posFind == -1 && wrapFind) {
 		// Failed to find in indicated direction
 		// so search from the beginning (forward) or from the end (reverse)
@@ -1550,7 +1544,6 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	ft.chrgText.cpMax = 0;
 	int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	int posCurrentWord = SendEditor (SCI_GETCURRENTPOS) - rootlen;
-	//DWORD dwStart = timeGetTime();
 	int minWordLength = 0;
 	int nwords = 0;
 
@@ -1594,8 +1587,6 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		}
 		ft.chrg.cpMin = posFind + wordlen;
 	}
-	//DWORD dwEnd = timeGetTime();
-	//Platform::DebugPrintf("<%s> found %d characters took %d\n", root, length, dwEnd - dwStart);
 	int length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > rootlen))) {
 		WordList wl;

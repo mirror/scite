@@ -535,7 +535,6 @@ void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 }
 
 void SciTEBase::ReadProperties() {
-	//DWORD dwStart = timeGetTime();
 	SString fileNameForExtension = ExtensionFileName();
 
 	language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
@@ -937,8 +936,6 @@ void SciTEBase::ReadProperties() {
 	}
 
 	firstPropertiesRead = false;
-	//DWORD dwEnd = timeGetTime();
-	//Platform::DebugPrintf("Properties read took %d\n", dwEnd - dwStart);
 }
 
 // Properties that are interactively modifiable are only read from the properties file once.
@@ -1027,6 +1024,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
 	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
+	SendEditor(SCI_SETWRAPMODE, wrap ? SC_WRAP_WORD : SC_WRAP_NONE);
 
 	SString menuLanguageProp = props.GetNewExpand("menu.language");
 	languageItems = 0;

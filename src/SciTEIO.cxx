@@ -661,8 +661,6 @@ bool SciTEBase::Save() {
 			unlink(fullPath);
 		}
 
-		//Platform::DebugPrintf("Saving <%s><%s>\n", fileName, fullPath);
-		//DWORD dwStart = timeGetTime();
 		FILE *fp = fopen(fullPath, fileWrite);
 		if (fp) {
 			char data[blockSize + 1];
@@ -681,8 +679,6 @@ bool SciTEBase::Save() {
 
 			//MoveFile(fullPath, fullPath);
 
-			//DWORD dwEnd = timeGetTime();
-			//Platform::DebugPrintf("Saved file=%d\n", dwEnd - dwStart);
 			fileModTime = GetModTime(fullPath);
 			SendEditor(SCI_SETSAVEPOINT);
 			if (IsPropertiesFile(fileName)) {
