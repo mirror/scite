@@ -1373,6 +1373,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
+			UpdateStatusBar();
 		}
 		break;
 	case IDM_OPEN:
