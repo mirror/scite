@@ -142,7 +142,7 @@ void PropSetFile::ReadFromMemory(const char *data, int len, const char *director
 		if (lowerKeys) {
 			for (int i=0; (i<len) && (lineBuffer[i] != '='); i++) {
 				if ((lineBuffer[i] >= 'A') && (lineBuffer[i] <= 'Z')) {
-					lineBuffer[i] = lineBuffer[i] - 'A' + 'a';
+					lineBuffer[i] = static_cast<char>(lineBuffer[i] - 'A' + 'a');
 				}
 			}
 		}
