@@ -230,6 +230,7 @@ const char *contributors[] = {
                                  "Sergey Philippov",
                                  "Borujoa",
                                  "Michael Owens",
+                                 "Franck Marcia",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -470,14 +471,14 @@ static void UTF8FromUCS2(const wchar_t *uptr, unsigned int tlen, char *putf, uns
 
 SString SciTEBase::GetTranslationToAbout(const char * const propname, bool retainIfNotFound){
 #if PLAT_WIN
-	// By code below, all translators can write their name in their own 
+	// By code below, all translators can write their name in their own
 	// language in locale.properties on Windows.
 	SString result = LocaliseString(propname, retainIfNotFound);
-	if (!result.length()) 
+	if (!result.length())
 		return result;
 	int translationCodePage = props.GetInt("code.page", CP_ACP);
 	int bufwSize = ::MultiByteToWideChar(translationCodePage, MB_PRECOMPOSED, result.c_str(), -1, NULL, 0);
-	if (!bufwSize) 
+	if (!bufwSize)
 		return result;
 	wchar_t *bufw = new wchar_t[bufwSize+1];
 	bufwSize = ::MultiByteToWideChar(translationCodePage, MB_PRECOMPOSED, result.c_str(), -1, bufw, bufwSize);
@@ -486,7 +487,7 @@ SString SciTEBase::GetTranslationToAbout(const char * const propname, bool retai
 		return result;
 	}
 	int bufcSize = UTF8Length(bufw, bufwSize);
-	if (!bufcSize) 
+	if (!bufcSize)
 		return result;
 	char *bufc = new char[bufcSize+1];
 	UTF8FromUCS2(bufw, bufwSize, bufc, bufcSize);
@@ -538,7 +539,7 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 			SString fontBase = props.GetExpanded("font.translators");
 			StyleDefinition sd(fontBase.c_str());
 			if (sd.specified & StyleDefinition::sdFont) {
-				Platform::SendScintilla(wsci, SCI_STYLESETFONT, trsSty, 
+				Platform::SendScintilla(wsci, SCI_STYLESETFONT, trsSty,
 							reinterpret_cast<uptr_t>(sd.font.c_str()));
 			}
 			if (sd.specified & StyleDefinition::sdSize) {
@@ -1070,7 +1071,7 @@ SString SciTEBase::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 	GetRange(win, selStart, selEnd, sel.ptr());
 	return SString(sel);
 }
-	
+
 SString SciTEBase::RangeExtendAndGrab(
     Window &wCurrent,
     int &selStart,
@@ -1474,7 +1475,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		havefound = false;
 		if (showWarnings) {
 			WarnUser(warnNotFound);
-			SString msg = LocaliseMessage("Can not find the string '^0'.", 
+			SString msg = LocaliseMessage("Can not find the string '^0'.",
 				findWhat.c_str());
 			if (wFindReplace.Created()) {
 				FindMessageBox(msg);
