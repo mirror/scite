@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <time.h>  	// For time_t
+#include <time.h>   	// For time_t
 
 #include "Platform.h"
 
@@ -83,22 +83,22 @@ int GetHexByte(const char *hexbyte) { // "HH"
 
 int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
 	static int highlights[][3] = {
-	    { 0x00, 0x00, 0x00 },     // highlight1  0;0;0       black
-	    { 0x00, 0x00, 0xFF },     // highlight2  0;0;255     blue
-	    { 0x00, 0xFF, 0xFF },     // highlight3  0;255;255   cyan
-	    { 0x00, 0xFF, 0x00 },     // highlight4  0;255;0     green
-	    { 0xFF, 0x00, 0xFF },     // highlight5  255;0;255   violet
-	    { 0xFF, 0x00, 0x00 },     // highlight6  255;0;0     red
-	    { 0xFF, 0xFF, 0x00 },     // highlight7  255;255;0   yellow
-	    { 0xFF, 0xFF, 0xFF },     // highlight8  255;255;255 white
-	    { 0x00, 0x00, 0x80 },     // highlight9  0;0;128     dark blue
-	    { 0x00, 0x80, 0x80 },     // highlight10 0;128;128   dark cyan
-	    { 0x00, 0x80, 0x00 },     // highlight11 0;128;0     dark green
-	    { 0x80, 0x00, 0x80 },     // highlight12 128;0;128   dark violet
-	    { 0x80, 0x00, 0x00 },     // highlight13 128;0;0     brown
-	    { 0x80, 0x80, 0x00 },     // highlight14 128;128;0   khaki
-	    { 0x80, 0x80, 0x80 },     // highlight15 128;128;128 dark grey
-	    { 0xC0, 0xC0, 0xC0 },     // highlight16 192;192;192 grey
+	    { 0x00, 0x00, 0x00 },      // highlight1  0;0;0       black
+	    { 0x00, 0x00, 0xFF },      // highlight2  0;0;255     blue
+	    { 0x00, 0xFF, 0xFF },      // highlight3  0;255;255   cyan
+	    { 0x00, 0xFF, 0x00 },      // highlight4  0;255;0     green
+	    { 0xFF, 0x00, 0xFF },      // highlight5  255;0;255   violet
+	    { 0xFF, 0x00, 0x00 },      // highlight6  255;0;0     red
+	    { 0xFF, 0xFF, 0x00 },      // highlight7  255;255;0   yellow
+	    { 0xFF, 0xFF, 0xFF },      // highlight8  255;255;255 white
+	    { 0x00, 0x00, 0x80 },      // highlight9  0;0;128     dark blue
+	    { 0x00, 0x80, 0x80 },      // highlight10 0;128;128   dark cyan
+	    { 0x00, 0x80, 0x00 },      // highlight11 0;128;0     dark green
+	    { 0x80, 0x00, 0x80 },      // highlight12 128;0;128   dark violet
+	    { 0x80, 0x00, 0x00 },      // highlight13 128;0;0     brown
+	    { 0x80, 0x80, 0x00 },      // highlight14 128;128;0   khaki
+	    { 0x80, 0x80, 0x80 },      // highlight15 128;128;128 dark grey
+	    { 0xC0, 0xC0, 0xC0 },      // highlight16 192;192;192 grey
 	};
 	int maxdelta = 3 * 255 + 1, delta, index = -1;
 	int r = GetHexByte (rgb + 1), g = GetHexByte (rgb + 3), b = GetHexByte (rgb + 5);
@@ -124,7 +124,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||     // change
+	if (lastOffset != currentOffset ||      // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -145,7 +145,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||     // change
+	if (lastOffset != currentOffset ||      // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -166,7 +166,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||     // change
+	if (lastOffset != currentOffset ||      // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -187,7 +187,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||     // change
+	if (lastOffset != currentOffset ||      // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -430,594 +430,611 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		tabSize = 4;
 	int wysiwyg = props.GetInt("export.html.wysiwyg", 1);
 	int tabs = props.GetInt("export.html.tabs", 0);
+	int folding = props.GetInt("export.html.folding", 0);
+	int foldno = 0;
+	char startfolded[5] = "";
 
-	FILE *fp = fopen(saveName, "wt");
-	if (fp) {
-		int styleCurrent = 0;
-		fputs("<HTML>\n", fp);
-		fputs("<HEAD>\n", fp);
-		fputs("<STYLE>\n", fp);
-		SString colour;
-		for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
-			char key[200];
-			sprintf(key, "style.*.%0d", istyle);
-			char *valdef = StringDup(props.GetExpanded(key).c_str());
-			sprintf(key, "style.%s.%0d", language.c_str(), istyle);
-			char *val = StringDup(props.GetExpanded(key).c_str());
-			SString family;
-			SString fore;
-			SString back;
-			bool italics = false;
-			bool bold = false;
-			int size = 0;
-			if ((valdef && *valdef) || (val && *val)) {
-				if (istyle == STYLE_DEFAULT)
-					fprintf(fp, "SPAN {\n");
-				else
-					fprintf(fp, ".S%0d {\n", istyle);
-				if (valdef && *valdef) {
-					char *opt = valdef;
-					while (opt) {
-						char *cpComma = strchr(opt, ',');
-						if (cpComma)
-							*cpComma = '\0';
-						char *colon = strchr(opt, ':');
-						if (colon)
-							*colon++ = '\0';
-						if (0 == strcmp(opt, "italics"))
-							italics = true;
-						if (0 == strcmp(opt, "notitalics"))
-							italics = false;
-						if (0 == strcmp(opt, "bold"))
-							bold = true;
-						if (0 == strcmp(opt, "notbold"))
-							bold = false;
-						if (0 == strcmp(opt, "font"))
-							family = colon;
-						if (0 == strcmp(opt, "fore"))
-							fore = colon;
-						if (0 == strcmp(opt, "back"))
-							back = colon;
-						if (0 == strcmp(opt, "size"))
-							size = atoi(colon);
-						if (cpComma)
-							opt = cpComma + 1;
-						else
-							opt = 0;
-					}
-				}
-				if (val && *val) {
-					char *opt = val;
-					while (opt) {
-						char *cpComma = strchr(opt, ',');
-						if (cpComma)
-							*cpComma = '\0';
-						char *colon = strchr(opt, ':');
-						if (colon)
-							*colon++ = '\0';
-						if (0 == strcmp(opt, "italics"))
-							italics = true;
-						if (0 == strcmp(opt, "notitalics"))
-							italics = false;
-						if (0 == strcmp(opt, "bold"))
-							bold = true;
-						if (0 == strcmp(opt, "notbold"))
-							bold = false;
-						if (0 == strcmp(opt, "font"))
-							family = colon;
-						if (0 == strcmp(opt, "fore"))
-							fore = colon;
-						if (0 == strcmp(opt, "back"))
-							back = colon;
-						if (0 == strcmp(opt, "size"))
-							size = atoi(colon);
-						if (cpComma)
-							opt = cpComma + 1;
-						else
-							opt = 0;
-					}
-				}
-				if (italics)
-					fprintf(fp, "\tfont-style: italic;\n");
-				if (bold)
-					fprintf(fp, "\tfont-weight: bold;\n");
-				if (wysiwyg && family.length())
-					fprintf(fp, "\tfont-family: %s;\n", family.c_str());
-				if (fore.length())
-					fprintf(fp, "\tcolor: %s;\n", fore.c_str());
-				if (back.length())
-					fprintf(fp, "\tbackground: %s;\n", back.c_str());
-				if (wysiwyg && size)
-					fprintf(fp, "\tfont-size: %0dpt;\n", size);
-				fprintf(fp, "}\n");
-			}
-			if (val)
-				delete []val;
-			if (valdef)
-				delete []valdef;
-		}
-		fputs("</STYLE>\n", fp);
-		fputs("</HEAD>\n", fp);
-		fputs("<BODY>\n", fp);
-		if (wysiwyg)
-			fputs("<SPAN class=S0>", fp);
-		else
-			fputs("<PRE class=S0>", fp);
-		int lengthDoc = LengthDocument();
-		bool prevCR = false;
-		WindowAccessor acc(wEditor.GetID(), props);
-		for (int i = 0; i < lengthDoc; i++) {
-			char ch = acc[i];
-			int style = acc.StyleAt(i);
-			if (style != styleCurrent) {
-				if (wysiwyg || styleCurrent != 0)
-					fputs("</SPAN>", fp);
-				if (wysiwyg || style != 0)
-					fprintf(fp, "<SPAN class=S%0d>", style);
-				styleCurrent = style;
-			}
-			if (ch == ' ') {
-				if (wysiwyg)
-					fputs("&nbsp;", fp);
-				else
-					fputc(' ', fp);
-			} else if (ch == '\t') {
-				if (wysiwyg) {
-					for (int itab = 0; itab < tabSize; itab++)
-						fputs("&nbsp;", fp);
-				} else {
-					if (tabs) {
-						fputc(ch, fp);
-					} else {
-						for (int itab = 0; itab < tabSize; itab++)
-							fputc(' ', fp);
-					}
-				}
-			} else if (ch == '\r') {
-				if (wysiwyg)
-					fputs("<BR>\n", fp);
-				else
-					fputc('\n', fp);
-			} else if (ch == '\n') {
-				if (!prevCR)
-					fputs("<BR>\n", fp);
-			} else if (ch == '<') {
-				fputs("&lt;", fp);
-			} else if (ch == '>') {
-				fputs("&gt;", fp);
-			} else if (ch == '&') {
-				fputs("&amp;", fp);
-			} else {
-				fputc(ch, fp);
-			}
-			prevCR = ch == '\r';
-		}
-		if (wysiwyg)
-			fputs("</SPAN>", fp);
-		else
-			fputs("</PRE>", fp);
-		fputs("</BODY>\n</HTML>\n", fp);
-		fclose(fp);
-	} else {
-		char msg[200];
-		strcpy(msg, "Could not save file \"");
-		strcat(msg, fullPath);
-		strcat(msg, "\".");
-		dialogsOnScreen++;
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
-		dialogsOnScreen--;
-	}
-}
+	if (props.GetInt("export.html.startfolded", 1)) {
+	        strcpy(startfolded, "none");
+        } else {
+	        strcpy(startfolded, "all");
+        }
 
-/*
-	PDF Exporter...
-	Contributed by Ahmad M. Zawawi <zeus_go64@hotmail.com>
-	Status: Alpha
-	Known Problems:
-		doesnt support background colours for now
-		doesnt support most styles
-		output not fully optimized
-		not Object Oriented :-(
-*/
-void SciTEBase::SaveToPDF(const char *saveName) {
+        FILE *fp = fopen(saveName, "wt");
+        if (fp) {
+	        int styleCurrent = 0;
+	        fputs("<HTML>\n", fp);
+		        fputs("<HEAD>\n", fp);
+		        fputs("<STYLE>\n", fp);
+		        SString colour;
+		        for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
+			        char key[200];
+			        sprintf(key, "style.*.%0d", istyle);
+			        char *valdef = StringDup(props.GetExpanded(key).c_str());
+			        sprintf(key, "style.%s.%0d", language.c_str(), istyle);
+			        char *val = StringDup(props.GetExpanded(key).c_str());
+			        SString family;
+			        SString fore;
+			        SString back;
+			        bool italics = false;
+			        bool bold = false;
+			        int size = 0;
+			        if ((valdef && *valdef) || (val && *val)) {
+				        if (istyle == STYLE_DEFAULT)
+					        fprintf(fp, "SPAN {\n");
+				        else
+					        fprintf(fp, ".S%0d {\n", istyle);
+				        if (valdef && *valdef) {
+					        char *opt = valdef;
+					        while (opt) {
+						        char *cpComma = strchr(opt, ',');
+						        if (cpComma)
+							        *cpComma = '\0';
+						        char *colon = strchr(opt, ':');
+						        if (colon)
+							        *colon++ = '\0';
+						        if (0 == strcmp(opt, "italics"))
+							        italics = true;
+						        if (0 == strcmp(opt, "notitalics"))
+							        italics = false;
+						        if (0 == strcmp(opt, "bold"))
+							        bold = true;
+						        if (0 == strcmp(opt, "notbold"))
+							        bold = false;
+						        if (0 == strcmp(opt, "font"))
+							        family = colon;
+						        if (0 == strcmp(opt, "fore"))
+							        fore = colon;
+						        if (0 == strcmp(opt, "back"))
+							        back = colon;
+						        if (0 == strcmp(opt, "size"))
+							        size = atoi(colon);
+						        if (cpComma)
+							        opt = cpComma + 1;
+						        else
+							        opt = 0;
+					        }
+				        }
+				        if (val && *val) {
+					        char *opt = val;
+					        while (opt) {
+						        char *cpComma = strchr(opt, ',');
+						        if (cpComma)
+							        *cpComma = '\0';
+						        char *colon = strchr(opt, ':');
+						        if (colon)
+							        *colon++ = '\0';
+						        if (0 == strcmp(opt, "italics"))
+							        italics = true;
+						        if (0 == strcmp(opt, "notitalics"))
+							        italics = false;
+						        if (0 == strcmp(opt, "bold"))
+							        bold = true;
+						        if (0 == strcmp(opt, "notbold"))
+							        bold = false;
+						        if (0 == strcmp(opt, "font"))
+							        family = colon;
+						        if (0 == strcmp(opt, "fore"))
+							        fore = colon;
+						        if (0 == strcmp(opt, "back"))
+							        back = colon;
+						        if (0 == strcmp(opt, "size"))
+							        size = atoi(colon);
+						        if (cpComma)
+							        opt = cpComma + 1;
+						        else
+							        opt = 0;
+					        }
+				        }
+				        if (italics)
+					        fprintf(fp, "\tfont-style: italic;\n");
+				        if (bold)
+					        fprintf(fp, "\tfont-weight: bold;\n");
+				        if (wysiwyg && family.length())
+					        fprintf(fp, "\tfont-family: %s;\n", family.c_str());
+				        if (fore.length())
+					        fprintf(fp, "\tcolor: %s;\n", fore.c_str());
+				        if (back.length())
+					        fprintf(fp, "\tbackground: %s;\n", back.c_str());
+				        if (wysiwyg && size)
+					        fprintf(fp, "\tfont-size: %0dpt;\n", size);
+				        fprintf(fp, "}\n");
+			        }
+			        if (val)
+				        delete []val;
+			        if (valdef)
+				        delete []valdef;
+		        }
+		        fputs("</STYLE>\n", fp);
+		        fputs("</HEAD>\n", fp);
+		        fputs("<BODY>\n", fp);
+		        if (wysiwyg)
+			        fputs("<SPAN class=S0>", fp);
+		        else
+			        fputs("<PRE class=S0>", fp);
+		        int lengthDoc = LengthDocument();
+		        bool prevCR = false;
+		        WindowAccessor acc(wEditor.GetID(), props);
+		        for (int i = 0; i < lengthDoc; i++) {
+			        char ch = acc[i];
+			        int style = acc.StyleAt(i);
+			        if (style != styleCurrent) {
+				        if (wysiwyg || styleCurrent != 0)
+					        fputs("</SPAN>", fp);
+				        if (wysiwyg || style != 0)
+					        fprintf(fp, "<SPAN class=S%0d>", style);
+				        styleCurrent = style;
+			        }
+			        if (ch == ' ') {
+				        if (wysiwyg)
+					        fputs("&nbsp;", fp);
+				        else
+					        fputc(' ', fp);
+			        } else if (ch == '\t') {
+				        if (wysiwyg) {
+					        for (int itab = 0; itab < tabSize; itab++)
+						        fputs("&nbsp;", fp);
+				        } else {
+					        if (tabs) {
+						        fputc(ch, fp);
+					        } else {
+						        for (int itab = 0; itab < tabSize; itab++)
+							        fputc(' ', fp);
+					        }
+				        }
+			        } else if (ch == '\r') {
+				        if (wysiwyg)
+					        fputs("<BR>\n", fp);
+				        else
+					        fputc('\n', fp);
+			        } else if (ch == '\n') {
+				        if (!prevCR)
+					        fputs("<BR>\n", fp);
+			        } else if (ch == '<') {
+				        fputs("&lt;", fp);
+			        } else if (ch == '>') {
+				        fputs("&gt;", fp);
+			        } else if (ch == '&') {
+				        fputs("&amp;", fp);
+			        } else if (ch == '{' && folding) {
+				        fputc(ch, fp);
+				        fprintf(fp, "<A id=\"fold%0dp\" href=\"javascript:void(0);\"", foldno);
+				        fprintf(fp, "onClick=\"if( fold%0d.style.display ) { fold%0d.style.display = ''; fold%0dp.text = '-'; }", foldno, foldno, foldno);
+				        fprintf(fp, "else { fold%0d.style.display = 'none'; fold%0dp.text = '+'; } return true;\">+</A>&nbsp;", foldno, foldno);
+				        fprintf(fp, "<SPAN id=\"fold%0d\" style=\"show: %s\">{", foldno++, startfolded);
+			        } else if (ch == '}' && folding) {
+				        fputs("}</SPAN>", fp);
+			        } else {
+				        fputc(ch, fp);
+			        }
+			        prevCR = ch == '\r';
+		        }
+		        if (wysiwyg)
+			        fputs("</SPAN>\n", fp);
+		        else
+			        fputs("</PRE>\n", fp);
+		        fputs("</BODY>\n</HTML>\n", fp);
+		        fclose(fp);
+	        } else {
+		        char msg[200];
+		        strcpy(msg, "Could not save file \"");
+		        strcat(msg, fullPath);
+		        strcat(msg, "\".");
+		        dialogsOnScreen++;
+		        MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		        dialogsOnScreen--;
+	        }
+        }
 
-	SendEditor(SCI_COLOURISE, 0, -1);
+        /*
+        	PDF Exporter...
+        	Contributed by Ahmad M. Zawawi <zeus_go64@hotmail.com>
+        	Status: Alpha
+        	Known Problems:
+        		doesnt support background colours for now
+        		doesnt support most styles
+        		output not fully optimized
+        		not Object Oriented :-(
+        */
+        void SciTEBase::SaveToPDF(const char *saveName) {
 
-	// read the tabsize, wsysiwyg and 'expand tabs' flag...
-	// P.S. currently those are not currently used in the code...
-	int tabSize = props.GetInt("tabsize");
-	if (tabSize == 0)	{
-		tabSize = 4;
-	}
-	//int wysiwyg = props.GetInt("export.pdf.wysiwyg", 1);
-	//int tabs = props.GetInt("export.pdf.tabs", 0);
+	        SendEditor(SCI_COLOURISE, 0, -1);
 
-	// check that we have content
-	if (!LengthDocument()) {
-		// no content to export, issue an error message
-		char msg[200];
-		strcpy(msg, "Nothing to export as PDF");
-		dialogsOnScreen++;
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
-		dialogsOnScreen--;
-	}
+	        // read the tabsize, wsysiwyg and 'expand tabs' flag...
+	        // P.S. currently those are not currently used in the code...
+	        int tabSize = props.GetInt("tabsize");
+	        if (tabSize == 0)	{
+		        tabSize = 4;
+	        }
+	        //int wysiwyg = props.GetInt("export.pdf.wysiwyg", 1);
+	        //int tabs = props.GetInt("export.pdf.tabs", 0);
 
-	FILE *fp = fopen(saveName, "wt");
-	if (!fp) {
-		// couldnt open the file for saving, issue an error message
-		char msg[200];
-		strcpy(msg, "Could not save file \"");
-		strcat(msg, fullPath);
-		strcat(msg, "\".");
-		dialogsOnScreen++;
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
-		dialogsOnScreen--;
-	}
+	        // check that we have content
+	        if (!LengthDocument()) {
+		        // no content to export, issue an error message
+		        char msg[200];
+		        strcpy(msg, "Nothing to export as PDF");
+		        dialogsOnScreen++;
+		        MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		        dialogsOnScreen--;
+	        }
 
-	char *PDFColours[STYLE_DEFAULT];
+	        FILE *fp = fopen(saveName, "wt");
+	        if (!fp) {
+		        // couldnt open the file for saving, issue an error message
+		        char msg[200];
+		        strcpy(msg, "Could not save file \"");
+		        strcat(msg, fullPath);
+		        strcat(msg, "\".");
+		        dialogsOnScreen++;
+		        MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		        dialogsOnScreen--;
+	        }
 
-	// initialize that array...
-	for (int j = 0; j < STYLE_DEFAULT; j++) {
-		PDFColours[j] = NULL;
-	}
+	        char *PDFColours[STYLE_DEFAULT];
 
-	// collect all styles available for that 'language'
-	// or the default style if no language is available...
-	for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
-		char key[200];
-		sprintf(key, "style.*.%0d", istyle);
-		char *valdef = StringDup(props.GetExpanded(key).c_str());
-		sprintf(key, "style.%s.%0d", language.c_str(), istyle);
-		char *val = StringDup(props.GetExpanded(key).c_str());
-		SString family;
-		SString fore;
-		SString back;
-		if ((valdef && *valdef) || (val && *val)) {
-			if (valdef && *valdef) {
-				char *opt = valdef;
-				while (opt) {
-					char *cpComma = strchr(opt, ',');
-					if (cpComma)
-						*cpComma = '\0';
-					char *colon = strchr(opt, ':');
-					if (colon)
-						*colon++ = '\0';
-					if (0 == strcmp(opt, "font")) { family = colon; }
-					if (0 == strcmp(opt, "fore")) { fore = colon; }
-					if (0 == strcmp(opt, "back")) { back = colon; }
-					if (cpComma)
-						opt = cpComma + 1;
-					else
-						opt = 0;
-				}
-			}
-			if (val && *val) {
-				char *opt = val;
-				while (opt) {
-					char *cpComma = strchr(opt, ',');
-					if (cpComma)
-						*cpComma = '\0';
-					char *colon = strchr(opt, ':');
-					if (colon)
-						*colon++ = '\0';
-					if (0 == strcmp(opt, "font")) { family = colon; }
-					if (0 == strcmp(opt, "fore")) { fore = colon; }
-					if (0 == strcmp(opt, "back")) { back = colon; }
-					if (cpComma)
-						opt = cpComma + 1;
-					else
-						opt = 0;
-				}
-			}
+	        // initialize that array...
+	        for (int j = 0; j < STYLE_DEFAULT; j++) {
+		        PDFColours[j] = NULL;
+	        }
 
-			if (fore.length()) {
-				int red, green, blue;
-				char buffer[20];
-				// decompose it using simple sscanf...
+	        // collect all styles available for that 'language'
+	        // or the default style if no language is available...
+	        for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
+		        char key[200];
+		        sprintf(key, "style.*.%0d", istyle);
+		        char *valdef = StringDup(props.GetExpanded(key).c_str());
+		        sprintf(key, "style.%s.%0d", language.c_str(), istyle);
+		        char *val = StringDup(props.GetExpanded(key).c_str());
+		        SString family;
+		        SString fore;
+		        SString back;
+		        if ((valdef && *valdef) || (val && *val)) {
+			        if (valdef && *valdef) {
+				        char *opt = valdef;
+				        while (opt) {
+					        char *cpComma = strchr(opt, ',');
+					        if (cpComma)
+						        *cpComma = '\0';
+					        char *colon = strchr(opt, ':');
+					        if (colon)
+						        *colon++ = '\0';
+				        if (0 == strcmp(opt, "font")) { family = colon; }
+					        if (0 == strcmp(opt, "fore")) { fore = colon; }
+					        if (0 == strcmp(opt, "back")) { back = colon; }
+					        if (cpComma)
+						        opt = cpComma + 1;
+					        else
+						        opt = 0;
+				        }
+			        }
+			        if (val && *val) {
+				        char *opt = val;
+				        while (opt) {
+					        char *cpComma = strchr(opt, ',');
+					        if (cpComma)
+						        *cpComma = '\0';
+					        char *colon = strchr(opt, ':');
+					        if (colon)
+						        *colon++ = '\0';
+				        if (0 == strcmp(opt, "font")) { family = colon; }
+					        if (0 == strcmp(opt, "fore")) { fore = colon; }
+					        if (0 == strcmp(opt, "back")) { back = colon; }
+					        if (cpComma)
+						        opt = cpComma + 1;
+					        else
+						        opt = 0;
+				        }
+			        }
 
-				// red component...
-				buffer[0] = fore[1];
-				buffer[1] = fore[2];
-				buffer[2] = '\0';
-				sscanf(buffer, "%x", &red);
+			        if (fore.length()) {
+				        int red, green, blue;
+				        char buffer[20];
+				        // decompose it using simple sscanf...
 
-				// green component...
-				buffer[0] = fore[3];
-				buffer[1] = fore[4];
-				buffer[2] = '\0';
-				sscanf(buffer, "%x", &green);
+				        // red component...
+				        buffer[0] = fore[1];
+				        buffer[1] = fore[2];
+				        buffer[2] = '\0';
+				        sscanf(buffer, "%x", &red);
 
-				// blue component...
-				buffer[0] = fore[5];
-				buffer[1] = fore[6];
-				buffer[2] = '\0';
-				sscanf(buffer, "%x", &blue);
+				        // green component...
+				        buffer[0] = fore[3];
+				        buffer[1] = fore[4];
+				        buffer[2] = '\0';
+				        sscanf(buffer, "%x", &green);
 
-				// at last, we got the PDF colour!!!
-				sprintf(buffer, "%3.2f %3.2f %3.2f", (red / 256.0f), (green / 256.0f), (blue / 256.0f) );
-				PDFColours[istyle] = StringDup(buffer);
-			}
-		}
-		if (val) { delete []val; }
-		if (valdef) { delete []valdef; }
-	}
+				        // blue component...
+				        buffer[0] = fore[5];
+				        buffer[1] = fore[6];
+				        buffer[2] = '\0';
+				        sscanf(buffer, "%x", &blue);
 
-	// the thing that identifies a PDF 1.3 file...
-	fputs("%PDF-1.3\n", fp);
+				        // at last, we got the PDF colour!!!
+				        sprintf(buffer, "%3.2f %3.2f %3.2f", (red / 256.0f), (green / 256.0f), (blue / 256.0f) );
+				        PDFColours[istyle] = StringDup(buffer);
+			        }
+		        }
+		        if (val) { delete []val; }
+		        if (valdef) { delete []valdef; }
+	        }
 
-	int pageObjNumber = 100;	// it starts at object #100, it should fix this one to be more generic
-	const int pageHeight = 60;		// for now this is fixed... i fix it once i have fonts & styles implemented...
+	        // the thing that identifies a PDF 1.3 file...
+	        fputs("%PDF-1.3\n", fp);
 
-	// do here all the writing
-	int lengthDoc = LengthDocument();
-	bool prevCR = false;
-	int numLines = 0;
-	WindowAccessor acc(wEditor.GetID(), props);
+	        int pageObjNumber = 100;	// it starts at object #100, it should fix this one to be more generic
+	        const int pageHeight = 60;		// for now this is fixed... i fix it once i have fonts & styles implemented...
 
-	int eolMode = SendEditor( SCI_GETEOLMODE, 0 );
+	        // do here all the writing
+	        int lengthDoc = LengthDocument();
+	        bool prevCR = false;
+	        int numLines = 0;
+	        WindowAccessor acc(wEditor.GetID(), props);
 
-	//
-	bool firstTime = true;
-	SString textObj = "";
-	SString stream = "";
-	int styleCurrent = 0;
-	for (int i = 0; i < lengthDoc; i++) {
-		char ch = acc[i];
+	        int eolMode = SendEditor( SCI_GETEOLMODE, 0 );
 
-		// a new page is needed whenever the number of lines exceeds that of page height or
-		// the first time it is created...
-		int newPageNeeded = (numLines > pageHeight) || firstTime;
-		if ( newPageNeeded ) {
-			// create a new text object using (pageObjNumber + 1)
-			int textObjNumber = (pageObjNumber + 1);
+	        //
+	        bool firstTime = true;
+	        SString textObj = "";
+	        SString stream = "";
+	        int styleCurrent = 0;
+	        for (int i = 0; i < lengthDoc; i++) {
+		        char ch = acc[i];
 
-			// if not the first text object created, we should close the previous
-			// all of this wouldnt have happened if i used OOP
-			// which im gonna add in the next edition of the Save2PDF feature
-			if ( !firstTime ) {
-				// close the opened text object if there are any...
-				if (!prevCR) {
-					stream += ") Tj\n";
-				} else {
-					stream += ")\n";
-				}
+		        // a new page is needed whenever the number of lines exceeds that of page height or
+		        // the first time it is created...
+		        int newPageNeeded = (numLines > pageHeight) || firstTime;
+		        if ( newPageNeeded ) {
+			        // create a new text object using (pageObjNumber + 1)
+			        int textObjNumber = (pageObjNumber + 1);
 
-				// close last text object
-				stream += "ET\n";
+			        // if not the first text object created, we should close the previous
+			        // all of this wouldnt have happened if i used OOP
+			        // which im gonna add in the next edition of the Save2PDF feature
+			        if ( !firstTime ) {
+				        // close the opened text object if there are any...
+				        if (!prevCR) {
+					        stream += ") Tj\n";
+				        } else {
+					        stream += ")\n";
+				        }
 
-				// patch in the stream size (minus 1 since the newline is not counted... go figure)
-				char *buffer = new char[textObj.size() + 1];
-				sprintf(buffer, textObj.c_str(), stream.size() - 1);
-				textObj = buffer;
-				delete []buffer;
+				        // close last text object
+				        stream += "ET\n";
 
-				// concatenate stream within the text object
-				textObj += stream;
-				textObj += "endstream\n";
-				textObj += "endobj\n";
+				        // patch in the stream size (minus 1 since the newline is not counted... go figure)
+				        char *buffer = new char[textObj.size() + 1];
+				        sprintf(buffer, textObj.c_str(), stream.size() - 1);
+				        textObj = buffer;
+				        delete []buffer;
 
-				// write the actual object to the PDF
-				fputs( textObj.c_str(), fp );
+				        // concatenate stream within the text object
+				        textObj += stream;
+				        textObj += "endstream\n";
+				        textObj += "endobj\n";
 
-			}
-			firstTime = false;
+				        // write the actual object to the PDF
+				        fputs( textObj.c_str(), fp );
 
-			// open a text object
-			char buffer[20];
-			sprintf( buffer, "%d 0 obj\n", textObjNumber);
-			textObj = buffer;
-			textObj += "<< /Length %d >>\n"; // we should patch the length here correctly...
-			textObj += "stream\n";
+			        }
+			        firstTime = false;
 
-			// new stream ;-)
-			stream = "BT\n";
+			        // open a text object
+			        char buffer[20];
+			        sprintf( buffer, "%d 0 obj\n", textObjNumber);
+			        textObj = buffer;
+			        textObj += "<< /Length %d >>\n"; // we should patch the length here correctly...
+			        textObj += "stream\n";
 
-			stream += "%% draw text string using current graphics state\n";
-			stream += "/F1 12 Tf\n";
-			stream += "1 0 0 1 20 750 Tm\n";
+			        // new stream ;-)
+			        stream = "BT\n";
 
-			// a new page should take the previous style information...
-			// this is a glitch in the PDF spec... it is not persisted over multiple pages...
-			// check that everything is okay... just to be 100% safe...
-			int style = acc.StyleAt(i);
-			if ( (style < STYLE_DEFAULT) && PDFColours[style]) {
-				stream += PDFColours[style];
-				stream += " rg\n";
-				stream += PDFColours[style];
-				stream += " RG\n";
-				styleCurrent = style;
-			}
+			        stream += "%% draw text string using current graphics state\n";
+			        stream += "/F1 12 Tf\n";
+			        stream += "1 0 0 1 20 750 Tm\n";
 
-			// start the first text string with that text object..
-			stream += "(";
+			        // a new page should take the previous style information...
+			        // this is a glitch in the PDF spec... it is not persisted over multiple pages...
+			        // check that everything is okay... just to be 100% safe...
+			        int style = acc.StyleAt(i);
+			        if ( (style < STYLE_DEFAULT) && PDFColours[style]) {
+				        stream += PDFColours[style];
+				        stream += " rg\n";
+				        stream += PDFColours[style];
+				        stream += " RG\n";
+				        styleCurrent = style;
+			        }
 
-			// update the page numbers
-			pageObjNumber += 2;	// since (pageObjNumber + 1) is reserved for the textObject for that page...
+			        // start the first text string with that text object..
+			        stream += "(";
 
-			// make numLines equal to zero...
-			numLines = 0;
-		}
+			        // update the page numbers
+			        pageObjNumber += 2;	// since (pageObjNumber + 1) is reserved for the textObject for that page...
 
-		// apply only new styles...
-		int style = acc.StyleAt(i);
-		if ( style != styleCurrent) {
-			// check that everything is okay... just to be 100% safe...
-			if ( (style < STYLE_DEFAULT) && PDFColours[style]) {
-				stream += ") Tj\n";
-				stream += PDFColours[style];
-				stream += " rg\n";
-				stream += PDFColours[style];
-				stream += " RG\n";
-				stream += "(";
-				styleCurrent = style;
-			}
-		}
+			        // make numLines equal to zero...
+			        numLines = 0;
+		        }
 
-		if (ch == '\t') {
-			// expand tabs into equals 'tabsize' spaces...
-			for (int itab = 0; itab < tabSize; itab++) {
-				stream += " ";
-			}
-		} else if (ch == 0x0A) {
-			// close and begin a newline...
-			if (!prevCR) {
-				stream += ") Tj\n";
-				stream += "0 -12 TD\n";
-				stream += "(";
-			}
-			// increment the number of lines if it is CRLF or LF
-			if ( SC_EOL_CR != eolMode ) { numLines++; }
+		        // apply only new styles...
+		        int style = acc.StyleAt(i);
+		        if ( style != styleCurrent) {
+			        // check that everything is okay... just to be 100% safe...
+			        if ( (style < STYLE_DEFAULT) && PDFColours[style]) {
+				        stream += ") Tj\n";
+				        stream += PDFColours[style];
+				        stream += " rg\n";
+				        stream += PDFColours[style];
+				        stream += " RG\n";
+				        stream += "(";
+				        styleCurrent = style;
+			        }
+		        }
 
-		} else if ( ch == 0x0D ) {
-			stream += ") Tj\n";
-			stream += "0 -12 TD\n";
-			stream += "(";
-			// increment the number of lines if it is in CR mode
-			if ( SC_EOL_CR == eolMode ) { numLines++; }
+		        if (ch == '\t') {
+			        // expand tabs into equals 'tabsize' spaces...
+			        for (int itab = 0; itab < tabSize; itab++) {
+				        stream += " ";
+			        }
+		        } else if (ch == 0x0A) {
+			        // close and begin a newline...
+			        if (!prevCR) {
+				        stream += ") Tj\n";
+				        stream += "0 -12 TD\n";
+				        stream += "(";
+			        }
+			        // increment the number of lines if it is CRLF or LF
+			        if ( SC_EOL_CR != eolMode ) { numLines++; }
 
-		} else if ( (ch == ')') || (ch == '(') || (ch == '\\') ) {
-			// you should escape those characters for PDF 1.2+
-			char buffer[10];
-			sprintf(buffer, "\\%c", ch);
-			stream += buffer;
-		} else {
-			// write the character normally...
-			stream += ch;
-		}
-		prevCR = (ch == '\r');
-	}
+		        } else if ( ch == 0x0D ) {
+			        stream += ") Tj\n";
+			        stream += "0 -12 TD\n";
+			        stream += "(";
+			        // increment the number of lines if it is in CR mode
+			        if ( SC_EOL_CR == eolMode ) { numLines++; }
 
-	// close the opened text object if there are any...
-	if (!prevCR) {
-		stream += ") Tj\n";
-	}
+		        } else if ( (ch == ')') || (ch == '(') || (ch == '\\') ) {
+			        // you should escape those characters for PDF 1.2+
+			        char buffer[10];
+			        sprintf(buffer, "\\%c", ch);
+			        stream += buffer;
+		        } else {
+			        // write the character normally...
+			        stream += ch;
+		        }
+		        prevCR = (ch == '\r');
+	        }
 
-	// close last text object if and only if there is one open...
-	if ( lengthDoc > 0) {
-		// close last text object
-		stream += "ET\n";
+	        // close the opened text object if there are any...
+	        if (!prevCR) {
+		        stream += ") Tj\n";
+	        }
 
-		// patch in the stream size (minus 1 since the newline is not counted... go figure)
-		char *buffer = new char[textObj.size() + 1 + 200];  // 200 by Neil as this is quite indeterminate
-		sprintf(buffer, textObj.c_str(), stream.size() - 1);
-		textObj = buffer;
-		delete buffer;
+	        // close last text object if and only if there is one open...
+	        if ( lengthDoc > 0) {
+		        // close last text object
+		        stream += "ET\n";
 
-		// concatenate stream within the text object
-		textObj += stream;
-		textObj += "endstream\n";
-		textObj += "endobj\n";
+		        // patch in the stream size (minus 1 since the newline is not counted... go figure)
+		        char *buffer = new char[textObj.size() + 1 + 200];  // 200 by Neil as this is quite indeterminate
+		        sprintf(buffer, textObj.c_str(), stream.size() - 1);
+		        textObj = buffer;
+		        delete buffer;
 
-		// write the actual object to the PDF
-		fputs( textObj.c_str(), fp );
-	}
+		        // concatenate stream within the text object
+		        textObj += stream;
+		        textObj += "endstream\n";
+		        textObj += "endobj\n";
 
-	// now create all the page objects...
-	SString pageRefs = "";
-	int pageCount = 0;
-	for (int k = 100; k < pageObjNumber; k += 2 ) {
-		//
-		char buffer[20];
-		sprintf( buffer, "%% page number %d\n", (k - 99));
-		fputs(buffer, fp);
+		        // write the actual object to the PDF
+		        fputs( textObj.c_str(), fp );
+	        }
 
-		sprintf( buffer, "%d 0 obj\n", k );
-		fputs(buffer, fp);
-		fputs("<< /Type /Page\n", fp);
-		fputs("/Parent 3 0 R\n", fp);
-		fputs("/MediaBox [ 0 0 612 792 ]\n", fp);
+	        // now create all the page objects...
+	        SString pageRefs = "";
+	        int pageCount = 0;
+	        for (int k = 100; k < pageObjNumber; k += 2 ) {
+		        //
+		        char buffer[20];
+		        sprintf( buffer, "%% page number %d\n", (k - 99));
+		        fputs(buffer, fp);
 
-		// we need to patch in the corresponding page text object!
-		int textObjNumber = (k + 1);
-		sprintf( buffer, "/Contents %d 0 R\n", textObjNumber);
-		fputs(buffer, fp);
+		        sprintf( buffer, "%d 0 obj\n", k );
+		        fputs(buffer, fp);
+		        fputs("<< /Type /Page\n", fp);
+		        fputs("/Parent 3 0 R\n", fp);
+		        fputs("/MediaBox [ 0 0 612 792 ]\n", fp);
 
-		fputs("/Resources << /ProcSet 6 0 R\n", fp);
-		fputs("/Font << /F1 7 0 R >>\n", fp);
-		fputs(">>\n", fp);
-		fputs(">>\n", fp);
-		fputs("endobj\n", fp);
+		        // we need to patch in the corresponding page text object!
+		        int textObjNumber = (k + 1);
+		        sprintf( buffer, "/Contents %d 0 R\n", textObjNumber);
+		        fputs(buffer, fp);
 
-		// add this to the list of page number references...
-		sprintf( buffer, "%d 0 R ", k);
-		pageRefs += buffer;
+		        fputs("/Resources << /ProcSet 6 0 R\n", fp);
+		        fputs("/Font << /F1 7 0 R >>\n", fp);
+		        fputs(">>\n", fp);
+		        fputs(">>\n", fp);
+		        fputs("endobj\n", fp);
 
-		// increment the page count...
-		pageCount++;
-	}
+		        // add this to the list of page number references...
+		        sprintf( buffer, "%d 0 R ", k);
+		        pageRefs += buffer;
 
-	//
-	fputs("3 0 obj\n", fp);
-	fputs("<< /Type /Pages\n", fp);
+		        // increment the page count...
+		        pageCount++;
+	        }
 
-	// new scope...
-	{
-		SString buff = "";
-		buff += "/Kids [";
-		buff += pageRefs;
-		buff += "]\n";
-		fputs(buff.c_str(), fp);		// need to patch in all the page objects
-	}
+	        //
+	        fputs("3 0 obj\n", fp);
+	        fputs("<< /Type /Pages\n", fp);
 
-	{
-		char buffer[20];
-		sprintf(buffer, "/Count %d\n", pageCount);
-		fputs(buffer, fp);		// we need to patch also the number of page objects created
-	}
+	        // new scope...
+	        {
+		        SString buff = "";
+		        buff += "/Kids [";
+		        buff += pageRefs;
+		        buff += "]\n";
+		        fputs(buff.c_str(), fp);		// need to patch in all the page objects
+	        }
 
-	fputs(">>\n", fp);
-	fputs("endobj\n", fp);
+	        {
+		        char buffer[20];
+		        sprintf(buffer, "/Count %d\n", pageCount);
+		        fputs(buffer, fp);		// we need to patch also the number of page objects created
+	        }
 
-	// create catalog object
-	fputs("% catalog object\n", fp);
-	fputs("1 0 obj\n", fp);
-	fputs("<< /Type /Catalog\n", fp);
-	fputs("/Outlines 2 0 R\n", fp);
-	fputs("/Pages 3 0 R\n", fp);
-	fputs(">>\n", fp);
-	fputs("endobj\n", fp);
+	        fputs(">>\n", fp);
+	        fputs("endobj\n", fp);
 
-	// create an empty outline object
-	fputs("2 0 obj\n", fp);
-	fputs("<< /Type /Outlines\n", fp);
-	fputs("/Count 0\n", fp);
-	fputs(">>\n", fp);
-	fputs("endobj\n", fp);
+	        // create catalog object
+	        fputs("% catalog object\n", fp);
+	        fputs("1 0 obj\n", fp);
+	        fputs("<< /Type /Catalog\n", fp);
+	        fputs("/Outlines 2 0 R\n", fp);
+	        fputs("/Pages 3 0 R\n", fp);
+	        fputs(">>\n", fp);
+	        fputs("endobj\n", fp);
 
-	//
-	fputs("6 0 obj\n", fp);
-	fputs("[ /PDF /Text ]\n", fp);
-	fputs("endobj\n", fp);
+	        // create an empty outline object
+	        fputs("2 0 obj\n", fp);
+	        fputs("<< /Type /Outlines\n", fp);
+	        fputs("/Count 0\n", fp);
+	        fputs(">>\n", fp);
+	        fputs("endobj\n", fp);
 
-	//
-	fputs("7 0 obj\n", fp);
-	fputs("<< /Type /Font\n", fp);
-	fputs("/Subtype /Type1\n", fp);
-	fputs("/Name /F1\n", fp);
-	fputs("/BaseFont /Helvetica\n", fp);
-	fputs("/Encoding /MacRomanEncoding\n", fp);
-	fputs(">>\n", fp);
-	fputs("endobj\n", fp);
+	        //
+	        fputs("6 0 obj\n", fp);
+	        fputs("[ /PDF /Text ]\n", fp);
+	        fputs("endobj\n", fp);
 
-	// end the file, with the trailer
-	fputs("xref\n", fp);
-	fputs("0 8\n", fp);
-	fputs("0000000000 65535 f\n", fp);
-	fputs("0000000009 00000 n\n", fp);
-	fputs("0000000074 00000 n\n", fp);
-	fputs("0000000120 00000 n\n", fp);
-	fputs("0000000179 00000 n\n", fp);
-	fputs("0000000364 00000 n\n", fp);
-	fputs("0000000466 00000 n\n", fp);
-	fputs("0000000496 00000 n\n", fp);
-	fputs("trailer\n", fp);
-	fputs("<< /Size 8\n", fp);
-	fputs("/Root 1 0 R\n", fp);
-	fputs(">>\n", fp);
-	fputs("startxref\n", fp);
-	fputs("0\n", fp);
-	fputs("%%EOF\n", fp);
+	        //
+	        fputs("7 0 obj\n", fp);
+	        fputs("<< /Type /Font\n", fp);
+	        fputs("/Subtype /Type1\n", fp);
+	        fputs("/Name /F1\n", fp);
+	        fputs("/BaseFont /Helvetica\n", fp);
+	        fputs("/Encoding /MacRomanEncoding\n", fp);
+	        fputs(">>\n", fp);
+	        fputs("endobj\n", fp);
 
-	// and close the PDF file
-	fclose(fp);
-}
+	        // end the file, with the trailer
+	        fputs("xref\n", fp);
+	        fputs("0 8\n", fp);
+	        fputs("0000000000 65535 f\n", fp);
+	        fputs("0000000009 00000 n\n", fp);
+	        fputs("0000000074 00000 n\n", fp);
+	        fputs("0000000120 00000 n\n", fp);
+	        fputs("0000000179 00000 n\n", fp);
+	        fputs("0000000364 00000 n\n", fp);
+	        fputs("0000000466 00000 n\n", fp);
+	        fputs("0000000496 00000 n\n", fp);
+	        fputs("trailer\n", fp);
+	        fputs("<< /Size 8\n", fp);
+	        fputs("/Root 1 0 R\n", fp);
+	        fputs(">>\n", fp);
+	        fputs("startxref\n", fp);
+	        fputs("0\n", fp);
+	        fputs("%%EOF\n", fp);
+
+	        // and close the PDF file
+	        fclose(fp);
+        }
