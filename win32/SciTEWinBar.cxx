@@ -24,7 +24,7 @@ struct NMMOUSE {
 	// Other fields
 };
 #endif
-#if defined(__MINGW_H)
+#if defined(__MINGW_H) && !defined(TTN_GETDISPINFO)
 // Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO, either
 #define TTN_GETDISPINFO TTN_FIRST
 struct NMTTDISPINFO {
