@@ -204,7 +204,7 @@ protected:
 
 	virtual void OpenUriList(const char *list);
 	virtual void AbsolutePath(char *absPath, const char *relativePath, int size);
-	virtual bool OpenDialog();
+	virtual bool OpenDialog(const char *filter);
 	void HandleSaveAs(const char *savePath);
 	bool SaveAsXXX(FileFormat fmt, const char *title);
 	virtual bool SaveAsDialog();
@@ -850,7 +850,7 @@ void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*
 	//}
 }
 
-bool SciTEGTK::OpenDialog() {
+bool SciTEGTK::OpenDialog(const char *) {
 	chdir(dirName);
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
@@ -2962,7 +2962,7 @@ int main(int argc, char *argv[]) {
 #else
 	MultiplexExtension multiExtender;
 	Extension *extender = &multiExtender;
-    
+
 #ifdef LUA_SCRIPTING
 	multiExtender.RegisterExtension(LuaExtension::Instance());
 #endif

@@ -188,6 +188,7 @@ const char *contributors[] = {
                                  "Peter-Henry Mander",
                                  "Robert Boucher",
                                  "Christoph Dalitz",
+                                 "April White",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -4508,7 +4509,8 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 			else
 				evaluate = true;
 			LoadMRUAndSession(false);
-			Open(arg, ofQuiet);
+			if (!PreOpenCheck(arg))
+				Open(arg, ofQuiet);
 		}
 	}
 	if (phase == 1) {

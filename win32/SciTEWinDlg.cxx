@@ -165,7 +165,7 @@ int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC 
 	return result;
 }
 
-bool SciTEWin::OpenDialog() {
+bool SciTEWin::OpenDialog(const char *filter) {
 
 	char openName[2048]; // maximum common dialog buffer size (says mfc..)
 	*openName = '\0';
@@ -177,7 +177,11 @@ bool SciTEWin::OpenDialog() {
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
-	SString openFilter = props.GetExpanded("open.filter");
+	SString openFilter;
+	if (filter)
+		openFilter = filter;
+	else
+		openFilter = props.GetExpanded("open.filter");
 	if (openFilter.length()) {
 		openFilter.substitute('|', '\0');
 		size_t start = 0;

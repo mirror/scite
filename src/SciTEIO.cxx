@@ -449,6 +449,10 @@ void SciTEBase::OpenFile(bool suppressMessage) {
 	Redraw();
 }
 
+bool SciTEBase::PreOpenCheck(const char *) {
+	return false;
+}
+
 bool SciTEBase::Open(const char *file, OpenFlags of) {
 	InitialiseBuffers();
 

@@ -672,7 +672,7 @@ protected:
 	virtual void OpenUriList(const char *) {};
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size) = 0;
 	virtual void FixFilePath();
-	virtual bool OpenDialog() = 0;
+	virtual bool OpenDialog(const char *filter=NULL) = 0;
 	virtual bool SaveAsDialog() = 0;
 	virtual void LoadSessionDialog() { };
 	virtual void SaveSessionDialog() { };
@@ -684,6 +684,7 @@ protected:
 		ofPreserveUndo=4,	// Do not delete undo history
 		ofQuiet=8		// Avoid "Could not open file" message
 	};
+	virtual bool PreOpenCheck(const char *file);
 	bool Open(const char *file, OpenFlags of=ofNone);
 	bool OpenSelected();
 	void Revert();

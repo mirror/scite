@@ -120,7 +120,7 @@ protected:
 	virtual void FixFilePath();
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size);
 	int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc);
-	virtual bool OpenDialog();
+	virtual bool OpenDialog(const char *filter=NULL);
 	SString ChooseSaveName(const char *title, const char *filter=0, const char *ext=0);
 	virtual bool SaveAsDialog();
 	virtual void SaveACopy();
@@ -131,6 +131,7 @@ protected:
 	virtual void SaveAsXML();
 	virtual void LoadSessionDialog();
 	virtual void SaveSessionDialog();
+	virtual bool PreOpenCheck(const char *file);
 
 	/// Print the current buffer.
 	virtual void Print(bool showDialog);

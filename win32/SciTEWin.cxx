@@ -905,7 +905,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	if (rc > 32) {
 		// it worked!
 		delete []mycmdcopy;
-		return ;
+		return;
 	}
 
 	const int numErrcodes = 15;
@@ -992,7 +992,7 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 				pCmd.remove(0);
 				parameterisedCommand = pCmd;
 				if (!ParametersDialog(true)) {
-					return ;
+					return;
 				}
 			} else {
 				ParamGrab();
@@ -1217,6 +1217,90 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 		}
 		::SetForegroundWindow(MainHWND());
 	}
+}
+
+/* Handle simple wild-card file patterns & and directory requests */
+bool SciTEWin::PreOpenCheck(const char *arg) {
+	bool isHandled = false;
+	HANDLE hFFile;
+	WIN32_FIND_DATA ffile;
+	DWORD fileattributes = ::GetFileAttributes(arg);
+	char filename[MAX_PATH];
+	int nbuffers = props.GetInt("buffers");
+
+	if (fileattributes != (DWORD) -1) {
+		/* if the command line argument is a directory, use OpenDialog() */
+		if ((fileattributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
+			strcpy(dirName, arg);
+			OpenDialog();
+			isHandled = true;
+		} else /* it is a file */
+			isHandled = false;
+	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(arg, &ffile)) != INVALID_HANDLE_VALUE) {
+		isHandled = true;
+		strcpy(filename, arg);
+		char *lastslash;
+		if (NULL == (lastslash = strrchr(filename, '\\')))
+			lastslash = &filename[0];
+		else
+			lastslash++;
+		do {
+			if ((ffile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY) {
+				strcpy(lastslash, ffile.cFileName);
+				Open(filename);
+				--nbuffers;
+			}
+		} while (nbuffers > 0 && ::FindNextFile(hFFile, &ffile));
+		::FindClose(hFFile);
+	} else {
+		const char *lastslash = strrchr(arg, '\\');
+		const char *lastdot = strrchr(arg, '.');
+
+		/* if the filename is only an extension, open the dialog box with it as the extension filter */
+		if (lastslash && lastdot && lastslash == (lastdot - 1) || !lastslash && lastdot == arg) {
+			isHandled = true;
+
+			if (lastslash) { /* the arg contains a path, so copy that part to dirName */
+				strncpy(dirName, arg, lastslash - arg + 1);
+				dirName[lastslash - arg + 1] = '\0';
+			} else
+				strcpy(dirName, ".\\");
+
+			strcpy(filename, "*");
+			strcat(filename, lastdot);
+			strcat(filename, "|");
+			strcat(filename, "*");
+			strcat(filename, lastdot);
+			OpenDialog(&filename[0]);
+		} else if (!lastdot || lastslash && lastdot < lastslash) {
+			/* if the filename has no extension, try to match a file with list of standard extensions */
+			SString extensions = props.GetExpanded("source.default.extensions");
+			if (extensions.length()) {
+				strcpy(filename, arg);
+				char *endfilename = filename + strlen(filename);
+				extensions.substitute('|', '\0');
+				size_t start = 0;
+				while (start < extensions.length()) {
+					const char *filterName = extensions.c_str() + start;
+					strcpy(endfilename, filterName);
+					if (::GetFileAttributes(filename) != (DWORD) -1) {
+						isHandled = true;
+						Open(filename);
+						break;
+					} else {
+						start += strlen(extensions.c_str() + start) + 1;
+					}
+				}
+				if (!(start < extensions.length())) {
+					isHandled = false;
+				}
+			} else
+				isHandled = false;
+		} else
+			isHandled = false;
+	}
+
+	return isHandled;
 }
 
 void SciTEWin::MinimizeToTray() {
@@ -1691,11 +1775,11 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 #else
 	MultiplexExtension multiExtender;
 	Extension *extender = &multiExtender;
-	
+
 #ifdef LUA_SCRIPTING
 	multiExtender.RegisterExtension(LuaExtension::Instance());
 #endif
-	
+
 #ifndef NO_FILER
 	multiExtender.RegisterExtension(DirectorExtension::Instance());
 #endif
