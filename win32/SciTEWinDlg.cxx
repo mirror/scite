@@ -941,17 +941,20 @@ void SciTEWin::Find() {
 BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	HWND hFindWhat;
 	HWND hFiles;
+	HWND hDirectory;
 
 	switch (message) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
 		::SetDlgItemText(hDlg, IDFINDWHAT, props.Get("find.what").c_str());
-		hFindWhat = GetDlgItem(hDlg, IDFINDWHAT);
+		hFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 		FillComboFromMemory(hFindWhat, memFinds);
-		hFiles = GetDlgItem(hDlg, IDFILES);
+		hFiles = ::GetDlgItem(hDlg, IDFILES);
 		FillComboFromMemory(hFiles, memFiles, true);
-		//SetDlgItemText(hDlg, IDDIRECTORY, props->Get("find.directory"));
+		::SetDlgItemText(hDlg, IDDIRECTORY, props.Get("find.directory").c_str());
+		hDirectory = ::GetDlgItem(hDlg, IDDIRECTORY);
+		FillComboFromMemory(hDirectory, memDirectory);
 		return TRUE;
 
 	case WM_CLOSE:
@@ -966,12 +969,15 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			findWhat = GetItemText(hDlg, IDFINDWHAT);
 			props.Set("find.what", findWhat.c_str());
 			memFinds.Insert(findWhat.c_str());
-			char s[200];
-			::GetDlgItemText(hDlg, IDFILES, s, sizeof(s));
-			props.Set("find.files", s);
-			memFiles.Insert(s);
-			//::GetDlgItemText(hDlg, IDDIRECTORY, s, sizeof(s));
-			//props->Set("find.directory", s);
+
+			SString files = GetItemText(hDlg, IDFILES);
+			props.Set("find.files", files.c_str());
+			memFiles.Insert(files.c_str());
+
+			SString directory = GetItemText(hDlg, IDDIRECTORY);
+			props.Set("find.directory", directory.c_str());
+			memDirectory.Insert(directory.c_str());
+
 			::EndDialog(hDlg, IDOK);
 			return TRUE;
 		}
@@ -987,11 +993,15 @@ BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) 
 void SciTEWin::FindInFiles() {
 	SelectionIntoFind();
 	props.Set("find.what", findWhat.c_str());
-	props.Set("find.directory", ".");
+	char findInDir[1024];
+	getcwd(findInDir, sizeof(findInDir));
+	props.Set("find.directory", findInDir);
 	if (DoDialog(hInstance, "Grep", MainHWND(), reinterpret_cast<DLGPROC>(GrepDlg)) == IDOK) {
 		//Platform::DebugPrintf("asked to find %s %s %s\n", props.Get("find.what"), props.Get("find.files"), props.Get("find.directory"));
 		SelectionIntoProperties();
-		AddCommand(props.GetNewExpand("find.command", ""), "", jobCLI);
+		AddCommand(props.GetNewExpand("find.command"), 
+			props.GetNewExpand("find.directory"), 
+			jobCLI);
 		if (commandCurrent > 0)
 			Execute();
 	}
