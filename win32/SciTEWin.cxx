@@ -16,6 +16,7 @@
 #include <io.h>
 #include <process.h>
 #include <mmsystem.h>
+#include <commctrl.h>
 #ifdef _MSC_VER
 #include <direct.h>
 #endif
@@ -42,6 +43,7 @@ protected:
 
 	static HINSTANCE hInstance;
 	static char *className;
+	static char *classNameInternal;
 	FINDREPLACE fr;
 	char openWhat[200];
 	int filterDefault;
@@ -50,6 +52,9 @@ protected:
 	HGLOBAL     hDevMode;
 	HGLOBAL     hDevNames;
 
+	virtual void SizeContentWindows();
+	virtual void SizeSubWindows();
+	
 	virtual void SetMenuItem(int menuNumber, int position, int itemID, 
 		const char *text, const char *mnemonic=0);
 	virtual void DestroyMenuItem(int menuNumber, int itemID);
@@ -78,11 +83,14 @@ protected:
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
 
-	virtual PRectangle GetClientRectangle();
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
 
+	virtual void SetStatusBarText(const char *s);
+
 	virtual void Notify(SCNotification *notification);
+	virtual void ShowToolBar();
+	virtual void ShowStatusBar();
 	void Command(WPARAM wParam, LPARAM lParam);
 
 public:
@@ -99,7 +107,9 @@ public:
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue = false);
 
 	void Paint(Surface *surfaceWindow, PRectangle rcPaint);
+	void Creation();
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	LRESULT WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -107,13 +117,18 @@ public:
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
 		    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+	static LRESULT PASCAL IWndProc(
+		    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 	void ShellExec(const SString &cmd, const SString &dir);
 };
 
-char *SciTEWin::className = NULL;
 HINSTANCE SciTEWin::hInstance = 0;
+char *SciTEWin::className = NULL;
+char *SciTEWin::classNameInternal = NULL;
 
 SciTEWin::SciTEWin() {
+	heightBar = 7;
+	
 	memset(&fr, 0, sizeof(fr));
 	strcpy(openWhat, "Custom Filter");
 	openWhat[strlen(openWhat) + 1] = '\0';
@@ -145,7 +160,7 @@ SciTEWin::SciTEWin() {
 	int width = props.GetInt("position.width", CW_USEDEFAULT);
 	int height = props.GetInt("position.height", CW_USEDEFAULT);
 	wSciTE = ::CreateWindowEx(
-	             WS_EX_CLIENTEDGE,
+	             0,
 	             className,
 	             windowName,
 	             WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
@@ -236,12 +251,12 @@ int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc,
 void SciTEWin::Register(HINSTANCE hInstance_) {
 	const char resourceName[] = "SciTE";
 
-	WNDCLASS wndclass;      // Structure used to register Windows class.
-
-	className = "SciTEWindow";
 	hInstance = hInstance_;
-
-	wndclass.style = CS_HREDRAW | CS_VREDRAW;
+	
+	WNDCLASS wndclass;
+	
+	className = "SciTEWindow";
+	wndclass.style = 0;
 	wndclass.lpfnWndProc = SciTEWin::TWndProc;
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = sizeof(SciTEWin*);
@@ -250,10 +265,14 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.hCursor = NULL;
 	wndclass.hbrBackground = NULL;
 	wndclass.lpszMenuName = resourceName;
-//	wndclass.lpszMenuName = L"SciTE";
 	wndclass.lpszClassName = className;
-//	wndclass.lpszClassName = L"SciTEWindow";
+	if (!::RegisterClass(&wndclass))
+		::exit(FALSE);
 
+	classNameInternal = "SciTEWindowContent";
+	wndclass.lpfnWndProc = SciTEWin::IWndProc;
+	wndclass.lpszMenuName = 0;
+	wndclass.lpszClassName = classNameInternal;
 	if (!::RegisterClass(&wndclass))
 		::exit(FALSE);
 }
@@ -280,8 +299,20 @@ bool SciTEWin::GetUserPropertiesFileName(char *pathDefaultProps, unsigned int le
 	}
 }
 
+void SciTEWin::SetStatusBarText(const char *s) {
+	::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 1, reinterpret_cast<LPARAM>(s)); 
+}
+
 void SciTEWin::Notify(SCNotification *notification) {
 	SciTEBase::Notify(notification);
+}
+
+void SciTEWin::ShowToolBar() {
+	SizeSubWindows();
+}
+
+void SciTEWin::ShowStatusBar() {
+	SizeSubWindows();
 }
 
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
@@ -306,6 +337,63 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	default:
 		SciTEBase::MenuCommand(cmdID);
 	}
+}
+
+void SciTEWin::SizeContentWindows() {
+	PRectangle rcInternal = wContent.GetClientPosition();
+	
+	int w = rcInternal.Width();
+	int h = rcInternal.Height();
+	heightOutput = NormaliseSplit(heightOutput);
+
+	if (splitVertical) {
+		wEditor.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
+		wOutput.SetPosition(PRectangle(w - heightOutput, 0, w, h));
+	} else {
+		wEditor.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
+		wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
+	}
+	wContent.InvalidateAll();
+}
+
+void SciTEWin::SizeSubWindows() {
+	PRectangle rcClient = wSciTE.GetClientPosition();
+
+	visHeightTools = tbVisible ? heightTools : 0;
+	visHeightStatus = sbVisible ? heightStatus : 0;
+	visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus;
+	if (visHeightEditor < 1) {
+		visHeightTools = 1;
+		visHeightStatus = 1;
+		visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus;
+	}
+	if (tbVisible) {
+		wToolBar.Show(true);
+		wToolBar.SetPosition(PRectangle(
+			rcClient.left, rcClient.top, rcClient.Width(), visHeightTools));
+	} else {
+		wToolBar.Show(false);
+		wToolBar.SetPosition(PRectangle(
+			rcClient.left, rcClient.top-2, rcClient.Width(), 1));
+	}
+	if (sbVisible) {
+		wStatusBar.Show(true);
+		int startLineNum = rcClient.Width() - statusPosWidth;
+		if (startLineNum < 0)
+			startLineNum = 0;
+		int widths[] = {startLineNum, rcClient.Width()};
+		::SendMessage(wStatusBar.GetID(), SB_SETPARTS, 2, reinterpret_cast<LPARAM>(widths)); 
+		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 0|SBT_NOBORDERS, reinterpret_cast<LPARAM>("")); 
+		wStatusBar.SetPosition(PRectangle(rcClient.left, 
+			rcClient.top+visHeightTools+visHeightEditor, rcClient.Width(), visHeightStatus));
+	} else {
+		wStatusBar.Show(false);
+		wStatusBar.SetPosition(PRectangle(
+			rcClient.left, rcClient.top-2, rcClient.Width(), 1));
+	}
+
+	wContent.SetPosition(PRectangle(0, visHeightTools, rcClient.Width(), visHeightTools + visHeightEditor));
+    SizeContentWindows();
 }
 
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID, 
@@ -342,11 +430,17 @@ void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 		CheckMenuItem(GetMenu(wSciTE.GetID()), wIDCheckItem, MF_UNCHECKED | MF_BYCOMMAND);
 }
 
+void EnableButton(HWND wTools, int id, bool enable) {
+	::SendMessage(wTools, TB_ENABLEBUTTON, id, 
+		MAKELONG(enable?TRUE:FALSE, 0));
+}
+
 void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 	if (val)
 		EnableMenuItem(GetMenu(wSciTE.GetID()), wIDCheckItem, MF_ENABLED | MF_BYCOMMAND);
 	else
 		EnableMenuItem(GetMenu(wSciTE.GetID()), wIDCheckItem, MF_DISABLED | MF_GRAYED | MF_BYCOMMAND);
+	::EnableButton(wToolBar.GetID(), wIDCheckItem, val);
 }
 
 void SciTEWin::CheckMenus() {
@@ -1325,47 +1419,171 @@ void SciTEWin::QuitProgram() {
 	}
 }
 
-PRectangle SciTEWin::GetClientRectangle() {
-	return wSciTE.GetClientPosition();
-}
-
 void SciTEWin::Run(const char *cmdLine) {
 	Open(cmdLine, true);
 	wSciTE.Show();
 }
 
 void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
-	PRectangle rcClient = GetClientRectangle();
-	int heightClient = rcClient.bottom - rcClient.top;
-	int widthClient = rcClient.right - rcClient.left;
+	PRectangle rcInternal = GetClientRectangle();
+	//surfaceWindow->FillRectangle(rcInternal, Colour(0xff,0x80,0x80));
 
-	surfaceWindow->FillRectangle(rcClient, GetSysColor(COLOR_3DFACE));
+	int heightClient = rcInternal.Height();
+	int widthClient = rcInternal.Width();
 
-	if (splitVertical) {
-		surfaceWindow->PenColour(GetSysColor(COLOR_3DHILIGHT));
-		surfaceWindow->MoveTo(widthClient - (heightOutput + heightBar - 1), 0);
-		surfaceWindow->LineTo(widthClient - (heightOutput + heightBar - 1), heightClient);
-
-		surfaceWindow->PenColour(GetSysColor(COLOR_3DSHADOW));
-		surfaceWindow->MoveTo(widthClient - (heightOutput + 2), 0);
-		surfaceWindow->LineTo(widthClient - (heightOutput + 2), heightClient);
-
-		surfaceWindow->PenColour(GetSysColor(COLOR_3DDKSHADOW));
-		surfaceWindow->MoveTo(widthClient - (heightOutput + 1), 0);
-		surfaceWindow->LineTo(widthClient - (heightOutput + 1), heightClient);
-	} else {
-		surfaceWindow->PenColour(GetSysColor(COLOR_3DHILIGHT));
-		surfaceWindow->MoveTo(0, heightClient - (heightOutput + heightBar - 1));
-		surfaceWindow->LineTo(widthClient, heightClient - (heightOutput + heightBar - 1));
-
-		surfaceWindow->PenColour(GetSysColor(COLOR_3DSHADOW));
-		surfaceWindow->MoveTo(0, heightClient - (heightOutput + 2));
-		surfaceWindow->LineTo(widthClient, heightClient - (heightOutput + 2));
-
-		surfaceWindow->PenColour(GetSysColor(COLOR_3DDKSHADOW));
-		surfaceWindow->MoveTo(0, heightClient - (heightOutput + 1));
-		surfaceWindow->LineTo(widthClient, heightClient - (heightOutput + 1));
+	int heightEditor = heightClient - heightOutput - heightBar;
+	int yBorder = heightEditor;
+	int xBorder = widthClient - heightOutput - heightBar;
+	for (int i=0; i<heightBar; i++) {
+        if (i == 1)
+    	    surfaceWindow->PenColour(GetSysColor(COLOR_3DHIGHLIGHT));
+        else if (i == heightBar - 2)
+    	    surfaceWindow->PenColour(GetSysColor(COLOR_3DSHADOW));
+        else if (i == heightBar - 1)
+    	    surfaceWindow->PenColour(GetSysColor(COLOR_3DDKSHADOW));
+        else
+    	    surfaceWindow->PenColour(GetSysColor(COLOR_3DFACE));
+		if (splitVertical) {
+			surfaceWindow->MoveTo(xBorder + i, 0);
+			surfaceWindow->LineTo(xBorder + i, heightClient);
+		} else {
+			surfaceWindow->MoveTo(0, yBorder + i);
+			surfaceWindow->LineTo(widthClient, yBorder + i);
+		}
 	}
+}
+
+// Mingw headers do not have this:
+#ifndef TBSTYLE_FLAT
+#define TBSTYLE_FLAT 0x0800
+#endif
+#ifndef TB_LOADIMAGES
+#define TB_LOADIMAGES (WM_USER + 50)
+#endif
+
+#define ELEMENTS(a)	(sizeof(a) / sizeof(a[0]))
+
+struct BarButton {
+	int id;
+	int cmd;
+};
+
+static BarButton bbs[] = {
+	{ -1, 0 },
+	{ STD_FILENEW, IDM_NEW },
+	{ STD_FILEOPEN, IDM_OPEN },
+	{ STD_FILESAVE, IDM_SAVE },
+	{ -1, 0 },
+	{ STD_CUT, IDM_CUT },
+	{ STD_COPY, IDM_COPY },
+	{ STD_PASTE, IDM_PASTE },
+	{ STD_DELETE, IDM_CLEAR },
+	{ -1, 0 },
+	{ STD_UNDO, IDM_UNDO },
+	{ STD_REDOW, IDM_REDO },
+};
+
+void SciTEWin::Creation() {
+
+	wContent = ::CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		classNameInternal,
+		"Source",
+		WS_CHILD | WS_CLIPCHILDREN,
+		0, 0,
+		100, 100,
+		wSciTE.GetID(),
+		reinterpret_cast<HMENU>(2000),
+		hInstance,
+		reinterpret_cast<LPSTR>(this));
+	wContent.Show();
+
+	wEditor = ::CreateWindowEx(
+		0,
+		"Scintilla",
+		"Source",
+		WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
+		0, 0,
+		100, 100,
+		wContent.GetID(),
+		reinterpret_cast<HMENU>(IDM_SRCWIN),
+		hInstance,
+		0);
+	if (!wEditor.Created())
+		exit(FALSE);
+	wEditor.Show();
+	SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
+	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
+	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SHIFT_PRESSED << 16), SCI_BACKTAB);
+	SetFocus(wEditor.GetID());
+
+	wOutput = ::CreateWindowEx(
+		0,
+		"Scintilla",
+		"Run",
+		WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
+		0, 0,
+		100, 100,
+		wContent.GetID(),
+		reinterpret_cast<HMENU>(IDM_RUNWIN),
+		hInstance,
+		0);
+	if (!wOutput.Created())
+		exit(FALSE);
+	wOutput.Show();
+	// No selection margin on output window
+	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
+	//SendOutput(SCI_SETCARETPERIOD, 0);
+	SendOutput(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
+	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
+	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB | (SHIFT_PRESSED << 16), SCI_BACKTAB);
+	::DragAcceptFiles(wSciTE.GetID(), true);
+
+	wToolBar = ::CreateWindowEx(
+		0,
+		TOOLBARCLASSNAME,
+		"",
+		WS_CHILD | TBSTYLE_FLAT | CCS_ADJUSTABLE,
+		0, 0, 
+		100, heightTools,
+		wSciTE.GetID(),
+		reinterpret_cast<HMENU>(IDM_TOOLWIN),
+		hInstance,
+		0);
+	::SendMessage(wToolBar.GetID(), TB_AUTOSIZE, 0, 0); 
+	::SendMessage(wToolBar.GetID(), TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0); 
+	::SendMessage(wToolBar.GetID(), TB_LOADIMAGES, IDB_STD_SMALL_COLOR, 
+		reinterpret_cast<LPARAM>(HINST_COMMCTRL));
+
+	TBBUTTON tbb[ELEMENTS(bbs)];
+	for (unsigned int i=0;i<ELEMENTS(bbs);i++) {
+		tbb[i].iBitmap = bbs[i].id;
+		tbb[i].idCommand = bbs[i].cmd;
+		tbb[i].fsState = TBSTATE_ENABLED;
+		if (-1 == bbs[i].id)
+			tbb[i].fsStyle = TBSTYLE_SEP;
+		else
+			tbb[i].fsStyle = TBSTYLE_BUTTON;
+		tbb[i].dwData = 0;
+		tbb[i].iString = 0;
+	}
+	
+	::SendMessage(wToolBar.GetID(), TB_ADDBUTTONS, ELEMENTS(bbs), reinterpret_cast<LPARAM>(tbb));
+
+	wToolBar.Show(); 
+
+	wStatusBar = ::CreateWindowEx(
+		0,
+		STATUSCLASSNAME,
+		"",
+		WS_CHILD,
+		0, 0, 
+		100, heightStatus,
+		wSciTE.GetID(),
+		reinterpret_cast<HMENU>(IDM_STATUSWIN),
+		hInstance,
+		0);
+	wStatusBar.Show(); 
 }
 
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
@@ -1373,46 +1591,9 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	switch (iMessage) {
 
 	case WM_CREATE:
-		wEditor = ::CreateWindow(
-		              "Scintilla",
-		              "Source",
-		              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
-		              0, 0,
-		              100, 100,
-		              wSciTE.GetID(),
-		              reinterpret_cast<HMENU>(IDM_SRCWIN),
-		              hInstance,
-		              0);
-		if (!wEditor.Created())
-			exit(FALSE);
-		wEditor.Show();
-		SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
-		SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
-		SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SHIFT_PRESSED << 16), SCI_BACKTAB);
-		SetFocus(wEditor.GetID());
-
-		wOutput = ::CreateWindow(
-		              "Scintilla",
-		              "Run",
-		              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
-		              0, 0,
-		              100, 100,
-		              wSciTE.GetID(),
-		              reinterpret_cast<HMENU>(IDM_RUNWIN),
-		              hInstance,
-		              0);
-		if (!wOutput.Created())
-			exit(FALSE);
-		wOutput.Show();
-		// No selection margin on output window
-		SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
-		//SendOutput(SCI_SETCARETPERIOD, 0);
-		SendOutput(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
-		SendOutput(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
-		SendOutput(SCI_ASSIGNCMDKEY, VK_TAB | (SHIFT_PRESSED << 16), SCI_BACKTAB);
-		::DragAcceptFiles(wSciTE.GetID(), true);
+		Creation();
 		break;
-
+#if 0
 	case WM_PAINT: {
 			PAINTSTRUCT ps;
 			::BeginPaint(wSciTE.GetID(), &ps);
@@ -1424,7 +1605,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			::EndPaint(wSciTE.GetID(), &ps);
 			return 0;
 		}
-
+#endif
 	case WM_COMMAND:
 		Command(wParam, lParam);
 		break;
@@ -1448,41 +1629,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_GETMINMAXINFO:
-		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
-
-	case WM_LBUTTONDOWN:
-		ptStartDrag = Point::FromLong(lParam);
-		capturedMouse = true;
-		heightOutputStartDrag = heightOutput;
-		::SetCapture(wSciTE.GetID());
-		//Platform::DebugPrintf("Click %x %x\n", wParam, lParam);
-		break;
-
-	case WM_MOUSEMOVE:
-		if (capturedMouse) {
-			MoveSplit(Point::FromLong(lParam));
-		}
-		break;
-
-	case WM_LBUTTONUP:
-		if (capturedMouse) {
-			MoveSplit(Point::FromLong(lParam));
-			capturedMouse = false;
-			::ReleaseCapture();
-		}
-		break;
-
-	case WM_SETCURSOR:
-		if (ControlIDOfCommand(lParam) == HTCLIENT) {
-			Point ptCursor;
-			GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
-			PRectangle rcScintilla = wEditor.GetPosition();
-			PRectangle rcOutput = wOutput.GetPosition();
-			if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
-				wSciTE.SetCursor(splitVertical ? Window::cursorHoriz : Window::cursorVert);
-				return TRUE;
-			}
-		}
 		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
 
 	case WM_INITMENU:
@@ -1576,6 +1722,97 @@ LRESULT PASCAL SciTEWin::TWndProc(
 			return DefWindowProc(hWnd, iMessage, wParam, lParam);
 	} else
 		return scite->WndProc(iMessage, wParam, lParam);
+}
+
+LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	switch (iMessage) {
+
+	case WM_COMMAND:
+		Command(wParam, lParam);
+		break;
+
+	case WM_NOTIFY:
+		Notify(reinterpret_cast<SCNotification *>(lParam));
+		break;
+
+
+	case WM_PAINT: {
+			PAINTSTRUCT ps;
+			::BeginPaint(wContent.GetID(), &ps);
+			Surface surfaceWindow;
+			surfaceWindow.Init(ps.hdc);
+			PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+			Paint(&surfaceWindow, rcPaint);
+			surfaceWindow.Release();
+			::EndPaint(wContent.GetID(), &ps);
+			return 0;
+		}
+
+	case WM_LBUTTONDOWN:
+		ptStartDrag = Point::FromLong(lParam);
+		capturedMouse = true;
+		heightOutputStartDrag = heightOutput;
+		::SetCapture(wContent.GetID());
+		//Platform::DebugPrintf("Click %x %x\n", wParam, lParam);
+		break;
+
+	case WM_MOUSEMOVE:
+		if (capturedMouse) {
+			MoveSplit(Point::FromLong(lParam));
+		}
+		break;
+
+	case WM_LBUTTONUP:
+		if (capturedMouse) {
+			MoveSplit(Point::FromLong(lParam));
+			capturedMouse = false;
+			::ReleaseCapture();
+		}
+		break;
+
+	case WM_SETCURSOR:
+		if (ControlIDOfCommand(lParam) == HTCLIENT) {
+			Point ptCursor;
+			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
+			Point ptClient = ptCursor;
+			::ScreenToClient(wSciTE.GetID(), reinterpret_cast<POINT *>(&ptClient));
+			if ((ptClient.y > visHeightTools) && (ptClient.y < visHeightTools + visHeightEditor)) {
+				PRectangle rcScintilla = wEditor.GetPosition();
+				PRectangle rcOutput = wOutput.GetPosition();
+				if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
+					wSciTE.SetCursor(splitVertical ? Window::cursorHoriz : Window::cursorVert);
+					return TRUE;
+				}
+			}
+		}
+		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
+
+	default:
+		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
+		return ::DefWindowProc(wContent.GetID(), iMessage, wParam, lParam);
+	}
+	//Platform::DebugPrintf("end wnd proc\n");
+	return 0l;
+}
+
+LRESULT PASCAL SciTEWin::IWndProc(
+    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
+
+	// Find C++ object associated with window.
+	SciTEWin *scite = reinterpret_cast<SciTEWin *>(GetWindowLong(hWnd, 0));
+	// scite will be zero if WM_CREATE not seen yet
+	if (scite == 0) {
+		if (iMessage == WM_CREATE) {
+			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
+			scite = reinterpret_cast<SciTEWin *>(cs->lpCreateParams);
+			scite->wContent = hWnd;
+			SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(scite));
+			return scite->WndProcI(iMessage, wParam, lParam);
+		} else
+			return DefWindowProc(hWnd, iMessage, wParam, lParam);
+	} else
+		return scite->WndProcI(iMessage, wParam, lParam);
 }
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {

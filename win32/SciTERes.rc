@@ -73,6 +73,8 @@ BEGIN
 	MENUITEM "View &Margin",          IDM_SELMARGIN
 	MENUITEM "View Line &Numbers",          IDM_LINENUMBERMARGIN
 	MENUITEM "&View End of Line",          IDM_VIEWEOL
+	MENUITEM "View Toolbar",          IDM_VIEWTOOLBAR
+	MENUITEM "View Status Bar",          IDM_VIEWSTATUSBAR
 	MENUITEM "",                            2
     POPUP "&Line End Characters"
     BEGIN
