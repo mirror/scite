@@ -1086,6 +1086,46 @@ LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
 	return TRUE;
 }
 
+static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
+	if (!*menuKey) 
+		return false;
+	int modsInKey = 0;
+	if (0 == strncmp(menuKey, "Ctrl+", strlen("Ctrl+"))) {
+		modsInKey |= SCMOD_CTRL;
+		menuKey += strlen("Ctrl+");
+	}
+	if (0 == strncmp(menuKey, "Shift+", strlen("Shift+"))) {
+		modsInKey |= SCMOD_SHIFT;
+		menuKey += strlen("Shift+");
+	}
+	if (0 == strncmp(menuKey, "Alt+", strlen("Alt+"))) {
+		modsInKey |= SCMOD_ALT;
+		menuKey += strlen("Alt+");
+	}
+	if (modifiers != modsInKey)
+		return false;
+	if (*menuKey == 'F') {
+		int keyNum = atoi(menuKey+1);
+		if (keyNum == (keyval - VK_F1 + 1))
+			return true;
+	}
+	return false;
+}
+
+LRESULT SciTEWin::KeyDown(WPARAM wParam) {
+	// Look through lexer menu
+	int modifiers =
+		Platform::IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0 |
+		Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0 |
+		Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0;
+	for (int j=0; j<lexItems; j++) {
+		if (KeyMatch(lexMenu[j].menuKey.c_str(), wParam, modifiers)) {
+			SciTEBase::MenuCommand(IDM_LEXER + j);
+		}
+	}
+	return 0l;
+}
+
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
 	switch (iMessage) {
@@ -1118,8 +1158,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_KEYDOWN:
-		//Platform::DebugPrintf("keydown %d %x %x\n",iMessage, wParam, lParam);
-		break;
+		return KeyDown(wParam);
 
 	case WM_KEYUP:
 		//Platform::DebugPrintf("keyup %d %x %x\n",iMessage, wParam, lParam);

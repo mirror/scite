@@ -167,6 +167,7 @@ public:
 
 	void Paint(Surface *surfaceWindow, PRectangle rcPaint);
 	void Creation();
+	LRESULT KeyDown(WPARAM wParam);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);

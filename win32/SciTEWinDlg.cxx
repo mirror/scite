@@ -119,6 +119,9 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		if (::IsDialogMessage(wFindReplace.GetID(), pmsg))
 			return true;
 	}
+	if (pmsg->message == WM_KEYDOWN) {
+			KeyDown(pmsg->wParam);
+	}
 	return false;
 }
 

@@ -640,19 +640,47 @@ void SciTEGTK::SizeSubWindows() {
 }
 
 void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *) {
+	DestroyMenuItem(0, itemID);
+
 	// On GTK+ the menuNumber and position are ignored as the menu item already exists and is in the right
 	// place so only needs to be shown and have its text set.
+	
+	// Remove accelerator as does not work.
+	char *itemText = StringDup(text);
+	char *itemChanged = itemText;
+	for (char *s=itemText; *s; s++) {
+		*itemChanged = *s;
+		if (*s != '&')
+			itemChanged++;
+	}
+	*itemChanged = '\0';
+	char *shift = strstr(itemText, "Shift+");
+	if (shift)	// Drop the 'i' for compatibuilty with other menus
+		strcpy(shift+2, shift+3);
+	char *ctrl = strstr(itemText, "Ctrl+");
+	if (ctrl)	// Drop the 'r' for compatibuilty with other menus
+		strcpy(ctrl+2, ctrl+3);
+	char *ctlshft = strstr(itemText, "Ctl+Shft+");
+	if (ctlshft)	// Reorder shift and crl indicators for compatibuilty with other menus
+		strncpy(ctlshft, "Shft+Ctl+", strlen("Ctl+Shft+"));
+	
 	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
 	if (item) {
 		GList *al = gtk_container_children(GTK_CONTAINER(item));
 		for (unsigned int ii = 0; ii < g_list_length(al); ii++) {
 			gpointer d = g_list_nth(al, ii);
 			GtkWidget **w = (GtkWidget **)d;
-			gtk_label_set_text(GTK_LABEL(*w), text);
+			gtk_label_set_text(GTK_LABEL(*w), itemText);
+			// Have not managed to make accelerator work
+			//guint key = gtk_label_parse_uline(GTK_LABEL(*w), itemText);
+			//gtk_widget_add_accelerator(*w, "clicked", accelGroup,
+	                //           key, 0, (GtkAccelFlags)0);
 		}
 		g_list_free(al);
 		gtk_widget_show(item);
 	}
+
+	delete []itemText;
 }
 
 void SciTEGTK::DestroyMenuItem(int, int itemID) {
@@ -1635,6 +1663,28 @@ static KeyToCommand kmap[] = {
 	{0,0,0},
 };
 
+static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
+	if (!*menuKey) 
+		return false;
+	int modsInKey = 0;
+	if (0 == strncmp(menuKey, "Ctrl+", strlen("Ctrl+"))) {
+		modsInKey |= GDK_CONTROL_MASK;
+		menuKey += strlen("Ctrl+");
+	}
+	if (0 == strncmp(menuKey, "Shift+", strlen("Shift+"))) {
+		modsInKey |= GDK_SHIFT_MASK;
+		menuKey += strlen("Shift+");
+	}
+	if (modifiers != modsInKey)
+		return false;
+	if (*menuKey == 'F') {
+		int keyNum = atoi(menuKey+1);
+		if (keyNum == (keyval - GDK_F1 + 1))
+			return true;
+	}
+	return false;
+}
+
 gint SciTEGTK::Key(GdkEventKey *event) {
 	//printf("S-key: %d %x %x %x %x\n",event->keyval, event->state, GDK_SHIFT_MASK, GDK_CONTROL_MASK, GDK_F3);
 	int modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK);
@@ -1642,6 +1692,14 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	for (int i=0; kmap[i].msg; i++) {
 		if ((event->keyval == kmap[i].key) && (modifiers == kmap[i].modifiers)) {
 			commandID = kmap[i].msg;
+		}
+	}
+	if (!commandID) {
+		// Look through lexer menu
+		for (int j=0; j<lexItems; j++) {
+			if (KeyMatch(lexMenu[j].menuKey.c_str(), event->keyval, modifiers)) {
+				commandID = IDM_LEXER + j;
+			}
 		}
 	}
 	if (commandID) {
@@ -2001,38 +2059,6 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Line End Characters/_LF", "", menuSig, IDM_EOL_LF, "/Options/Line End Characters/CR + LF"},
 	    {"/Options/_Convert Line End Characters", "", menuSig, IDM_EOL_CONVERT, 0},
 	    {"/Options/sep2", NULL, NULL, 0, "<Separator>"},
-	    {"/Options/Use le_xer", "", 0, 0, "<Branch>"},
-	    {"/Options/Use lexer/none", "<shift>F11", menuSig, IDM_LEXER_NONE, 0},
-	    {"/Options/Use lexer/Ada", "", menuSig, IDM_LEXER_ADA, 0},
-	    {"/Options/Use lexer/Apache Config", "", menuSig, IDM_LEXER_CONF, 0},
-	    {"/Options/Use lexer/Avenue", "", menuSig, IDM_LEXER_AVE, 0},
-	    {"/Options/Use lexer/_Batch", "", menuSig, IDM_LEXER_BATCH, 0},
-	    {"/Options/Use lexer/Bullant", "", menuSig, IDM_LEXER_BULLANT, 0},
-	    {"/Options/Use lexer/_C, C++", "", menuSig, IDM_LEXER_CPP, 0},
-	    {"/Options/Use lexer/C_#", "", menuSig, IDM_LEXER_CS, 0},
-	    {"/Options/Use lexer/_Difference", "", menuSig, IDM_LEXER_DIFF, 0},
-	    {"/Options/Use lexer/_Errorlist", "", menuSig, IDM_LEXER_ERRORL, 0},
-	    {"/Options/Use lexer/H_ypertext", "F12", menuSig, IDM_LEXER_HTML, 0},
-	    {"/Options/Use lexer/_Java", "", menuSig, IDM_LEXER_JAVA, 0},
-	    {"/Options/Use lexer/Java_Script", "", menuSig, IDM_LEXER_JS, 0},
-	    {"/Options/Use lexer/La_TeX", "", menuSig, IDM_LEXER_LATEX, 0},
-	    {"/Options/Use lexer/Lisp", "", menuSig, IDM_LEXER_LISP, 0},
-	    {"/Options/Use lexer/Lu_a", "", menuSig, IDM_LEXER_LUA, 0},
-	    {"/Options/Use lexer/_Makefile", "<control><shift>F11", menuSig, IDM_LEXER_MAKE, 0},
-	    {"/Options/Use lexer/_nnCron crontab", "", menuSig, IDM_LEXER_NNCRONTAB, 0},
-	    {"/Options/Use lexer/Pascal", "", menuSig, IDM_LEXER_PASCAL, 0},
-	    {"/Options/Use lexer/Pe_rl", "", menuSig, IDM_LEXER_PERL, 0},
-	    {"/Options/Use lexer/P_HP", "", menuSig, IDM_LEXER_PHP, 0},
-	    {"/Options/Use lexer/P_LSQL", "", menuSig, IDM_LEXER_PLSQL, 0},
-	    {"/Options/Use lexer/_Properties", "", menuSig, IDM_LEXER_PROPS, 0},
-	    {"/Options/Use lexer/Pytho_n", "", menuSig, IDM_LEXER_PYTHON, 0},
-	    {"/Options/Use lexer/Reso_urce", "", menuSig, IDM_LEXER_RC, 0},
-	    {"/Options/Use lexer/Ruby", "", menuSig, IDM_LEXER_RUBY, 0},
-	    {"/Options/Use lexer/S_QL", "", menuSig, IDM_LEXER_SQL, 0},
-	    {"/Options/Use lexer/_TCL", "", menuSig, IDM_LEXER_TCL, 0},
-	    {"/Options/Use lexer/_VB", "", menuSig, IDM_LEXER_VB, 0},
-	    {"/Options/Use lexer/VBScr_ipt", "", menuSig, IDM_LEXER_WSCRIPT, 0},
-	    {"/Options/Use lexer/_XML", "<shift>F12", menuSig, IDM_LEXER_XML, 0},
 	    {"/Options/Use _Monospaced Font", "<control>F11", menuSig, IDM_MONOFONT, "<CheckItem>"},
 	    {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Open Local _Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
@@ -2061,8 +2087,51 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Edit Props/Props17", "", menuSig, IDM_IMPORT + 17, 0},
 	    {"/Options/Edit Props/Props18", "", menuSig, IDM_IMPORT + 18, 0},
 	    {"/Options/Edit Props/Props19", "", menuSig, IDM_IMPORT + 19, 0},
-	};
 
+	    {"/_Lexer", NULL, NULL, 0, "<Branch>"},
+	    {"/_Lexer/tear", NULL, NULL, 0, "<Tearoff>"},
+	    {"/Lexer/Lexer00", "", menuSig, IDM_LEXER + 0, 0},
+	    {"/Lexer/Lexer01", "", menuSig, IDM_LEXER + 1, 0},
+	    {"/Lexer/Lexer02", "", menuSig, IDM_LEXER + 2, 0},
+	    {"/Lexer/Lexer03", "", menuSig, IDM_LEXER + 3, 0},
+	    {"/Lexer/Lexer04", "", menuSig, IDM_LEXER + 4, 0},
+	    {"/Lexer/Lexer05", "", menuSig, IDM_LEXER + 5, 0},
+	    {"/Lexer/Lexer06", "", menuSig, IDM_LEXER + 6, 0},
+	    {"/Lexer/Lexer07", "", menuSig, IDM_LEXER + 7, 0},
+	    {"/Lexer/Lexer08", "", menuSig, IDM_LEXER + 8, 0},
+	    {"/Lexer/Lexer09", "", menuSig, IDM_LEXER + 9, 0},
+	    {"/Lexer/Lexer10", "", menuSig, IDM_LEXER + 10, 0},
+	    {"/Lexer/Lexer11", "", menuSig, IDM_LEXER + 11, 0},
+	    {"/Lexer/Lexer12", "", menuSig, IDM_LEXER + 12, 0},
+	    {"/Lexer/Lexer13", "", menuSig, IDM_LEXER + 13, 0},
+	    {"/Lexer/Lexer14", "", menuSig, IDM_LEXER + 14, 0},
+	    {"/Lexer/Lexer15", "", menuSig, IDM_LEXER + 15, 0},
+	    {"/Lexer/Lexer16", "", menuSig, IDM_LEXER + 16, 0},
+	    {"/Lexer/Lexer17", "", menuSig, IDM_LEXER + 17, 0},
+	    {"/Lexer/Lexer18", "", menuSig, IDM_LEXER + 18, 0},
+	    {"/Lexer/Lexer19", "", menuSig, IDM_LEXER + 19, 0},
+	    {"/Lexer/Lexer20", "", menuSig, IDM_LEXER + 20, 0},
+	    {"/Lexer/Lexer21", "", menuSig, IDM_LEXER + 21, 0},
+	    {"/Lexer/Lexer22", "", menuSig, IDM_LEXER + 22, 0},
+	    {"/Lexer/Lexer23", "", menuSig, IDM_LEXER + 23, 0},
+	    {"/Lexer/Lexer24", "", menuSig, IDM_LEXER + 24, 0},
+	    {"/Lexer/Lexer25", "", menuSig, IDM_LEXER + 25, 0},
+	    {"/Lexer/Lexer26", "", menuSig, IDM_LEXER + 26, 0},
+	    {"/Lexer/Lexer27", "", menuSig, IDM_LEXER + 27, 0},
+	    {"/Lexer/Lexer28", "", menuSig, IDM_LEXER + 28, 0},
+	    {"/Lexer/Lexer29", "", menuSig, IDM_LEXER + 29, 0},
+	    {"/Lexer/Lexer30", "", menuSig, IDM_LEXER + 30, 0},
+	    {"/Lexer/Lexer31", "", menuSig, IDM_LEXER + 31, 0},
+	    {"/Lexer/Lexer32", "", menuSig, IDM_LEXER + 32, 0},
+	    {"/Lexer/Lexer33", "", menuSig, IDM_LEXER + 33, 0},
+	    {"/Lexer/Lexer34", "", menuSig, IDM_LEXER + 34, 0},
+	    {"/Lexer/Lexer35", "", menuSig, IDM_LEXER + 35, 0},
+	    {"/Lexer/Lexer36", "", menuSig, IDM_LEXER + 36, 0},
+	    {"/Lexer/Lexer37", "", menuSig, IDM_LEXER + 37, 0},
+	    {"/Lexer/Lexer38", "", menuSig, IDM_LEXER + 38, 0},
+	    {"/Lexer/Lexer39", "", menuSig, IDM_LEXER + 39, 0},
+	};
+	
 	GtkItemFactoryEntry menuItemsBuffer[] = {
 	    {"/_Buffers", NULL, NULL, 0, "<Branch>"},
 	    {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},

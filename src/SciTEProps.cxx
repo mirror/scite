@@ -176,6 +176,10 @@ void SciTEBase::SetLexerMenu() {
 		char entry[MAX_PATH + 20];
 		entry[0] = '\0';
 		strcat(entry, lexMenu[item].menuItem.c_str());
+		if (lexMenu[item].menuKey.length()) {
+			strcat(entry, "\t");
+			strcat(entry, lexMenu[item].menuKey.c_str());
+		}
 		SetMenuItem(menuLexer, item, itemID, entry);
 	}
 }
