@@ -626,7 +626,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			}
 			if (ch == ' ') {
 				if (wysiwyg) {
-					if (acc[i + 1] != ' ') {
+					if (acc[i + 1] != ' ' || i + 1 >= lengthDoc) {
 						// Single space, kept as is
 						fputc(' ', fp);
 					} else {
