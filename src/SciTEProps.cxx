@@ -483,7 +483,7 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCARETPOLICY, caretStrict | caretSlop, caretLines);
 
 	int visibleStrict = props.GetInt("visible.policy.strict") ? VISIBLE_STRICT : 0;
-	int visibleSlop = props.GetInt("visible.policy.slop") ? VISIBLE_SLOP : 0;
+	int visibleSlop = props.GetInt("visible.policy.slop", 1) ? VISIBLE_SLOP : 0;
 	int visibleLines = props.GetInt("visible.policy.lines");
 	SendEditor(SCI_SETVISIBLEPOLICY, visibleStrict | visibleSlop, visibleLines);
 
