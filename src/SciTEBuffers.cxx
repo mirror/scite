@@ -420,7 +420,7 @@ void SciTEBase::DeleteFileStackMenu() {
 }
 
 void SciTEBase::SetFileStackMenu() {
-	int menuStart = 7;
+	int menuStart = 8;
 	if (recentFileStack[0].fileName[0]) {
 		SetMenuItem(0, menuStart, IDM_MRU_SEP, "");
 		for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
