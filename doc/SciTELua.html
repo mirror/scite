@@ -22,116 +22,114 @@
       </tr>
     </table>
 <h3>Lua Scripting Extension Notes</h3>
-<pre>
-<tt>
 The SciTE Lua Scripting Extension uses a verbatim copy of Lua 5.0.2 as
 its scripting engine.  Currently, all of the standard libraries are
 included, although this list may be trimmed in a future revision.
-
+<p>
 Lua is Copyright (C) 2003 TeCGraf, PUC-Rio.  The complete Lua license
-is included in luaCOPYRIGHT in the SciTE installation directory.  To
+is included in <tt>luaCOPYRIGHT</tt> in the SciTE installation directory.  To
 find more information about Lua, including documentation for the
 language itself, visit <a href="http://www.lua.org">www.lua.org</a>.
-
+</p><p>
 For more ideas about what Lua can do, you may also want to check out
 the community portal, <a href="http://lua-users.org/">lua-users.org</a>.
-
-<b>SciTE Properties and Lua Event / Command Handlers</b>
-
+</p>
+<h4>SciTE Properties and Lua Event / Command Handlers</h4>
+<p>
 The properties ext.lua.startup.script and extension.<i>filepattern</i>
 can be used to define commands and event handlers that will be called
 by the SciTE.  Other properties beginning with ext.lua may also
 influence how Lua behaves.  See the <a href="SciTEDoc.html">SciTE Documentation</a>
 for more details on this.
-
+</p><p>
 By defining functions in the startup script or the active extension
 script, you can tailor SciTE to your needs, adding new behavior and
 functionality that is tightly integrated.
-
+</p><p>
 To begin, you can handle any many of the events exposed by the
 <a href="SciTEExtension.html">SciTE Extension Interface</a>.  You do
 this simply by defining functions with the same name as the event.
-Currently, OnOpen, OnSwitchFile, OnSave, OnBeforeSave, OnChar,
-OnSavePointReached, OnSavePointLeft, OnDoubleClick, and OnMarginClick
-are supported.
-
+Currently, <tt>OnOpen</tt>, <tt>OnSwitchFile</tt>, <tt>OnSave</tt>, <tt>OnBeforeSave</tt>, <tt>OnChar</tt>,
+<tt>OnSavePointReached</tt>, <tt>OnSavePointLeft</tt>, <tt>OnDoubleClick</tt>, <tt>OnMarginClick</tt>,
+and <tt>OnUserListSelection</tt> are supported.
+</p><p>
 For some of these events, SciTE will pass one or more arguments to
-the event handler function: OnOpen, OnSwitchFile, OnSave, and
-OnBeforeSave will receive the filename of the affected buffer as
-their first argument.  OnChar can expect a single-character string
-argument. The other event handlers will not be passed any arguments.
-
+the event handler function: <tt>OnOpen</tt>, <tt>OnSwitchFile</tt>, <tt>OnSave</tt>, and
+<tt>OnBeforeSave</tt> will receive the filename of the affected buffer as
+their first argument.  An <tt>OnChar</tt> handler should expect a single-character
+string argument. <tt>OnUserListSelection</tt> receives two arguments: a number
+indicating the list type, and a string indicating the selected
+item text.  The other event handlers will not be passed any arguments.
+</p><p>
 Event handlers return a boolean value to indicate whether SciTE should
 continue processing the event.  Return a true value to indicate that
 the event has been fully handled, and that no further handlers should
 be called.  Return a false value to give other extensions a chance to
 process the same event.  In many but not all cases, a well behaved
 event handler will return false.  Remember that, in Lua, the only
-non-true values are false and nil.  Unlike in C++, Python and many
-other languages, 0 evaluates to true.
-
+non-true values are <tt>false</tt> and <tt>nil</tt>.  Unlike in C++, Python and many
+other languages, 0 evaluates to <tt>true</tt>.
+</p><p>
 In addition to event handlers, you can also use define new commands
 that are available through the Tools menu or through keyboard shortcuts.
 To specify that a command that will be handled by Lua, specify
 subsystem 3 for the command.  Then, to implement the command using Lua,
 just define a global function.  The command name is the function name.
-
-You can also use predefined functions like dofile and dostring as tool
+</p><p>
+You can also use predefined functions like <tt>dofile</tt> and <tt>dostring</tt> as tool
 commands.
-
+</p><p>
 Anything specified after the command name is passed to the Lua function
 as a single string argument.  An example of a command, using the
 built-in dofile command, is shown below.
-
-  command.name.1.*=Run My Script
+</p>
+<pre><tt>  command.name.1.*=Run My Script
   command.subsystem.1.*=3
   command.1.*=dofile $(SciteDefaultHome)/My Script.lua
-
+</tt></pre>
+<p>
 Note that the command line is &quot;not&quot; evaluated directly
 as a Lua script.
-
+</p><p>
 If there is no function matching the command name, no error will be
 displayed.  This is because Lua assumes in this case that the command
 is meant for some other extension, such as the <a href="SciTEDirector.html">SciTE Director
 Extension</a>.  However, if the command function is found, but fails
 to execute, an error is reported.
-
--
-
-<b>Predefined Lua Functions and Objects:</b>
-
+</p>
+<hr noshade="noshade" width="80%" align="left" />
+<h4>Predefined Lua Functions and Objects:</h4>
+<p>
 Within Lua scripts you can use the following functions / objects:
-
-  trace(s) - writes s to the output pane (no prefix, no newlines)
+</p><pre><tt>  trace(s) - writes s to the output pane (no prefix, no newlines)
   dostring(s) - executes s as a Lua string, like Lua 4&#39;s dostring
   editor - the editor pane
   output - the output pane
   props - a pseudo-table representing the SciTE properties
-
+</tt></pre><p>
 In addition, all constants defined in Scintilla.iface are exposed as
 Lua globals variables. Function names are exposed as their block 
 capital equivalents, with the SCI_ prefix.
-
+</p><p>
 All functions and objects defined in the Lua standard library are also
 available.  Although dostring was deprecated in Lua 5, it is restored
 since some have said it would be useful in tool commands.
-
-A function _ALERT() is also defined to be an alias for the built-in
-print(), which prints the alert message (plus a newline) to the window.
+</p><p>
+A function <tt>_ALERT()</tt> is also defined to be an alias for the built-in
+<tt>print()</tt>, which prints the alert message (plus a newline) to the window.
 This provides a reasonable way for Lua to present error messages to
-the user.  You are free to override _ALERT with a different definition
+the user.  You are free to override <tt>_ALERT</tt> with a different definition
 if you prefer.
-
+</p><p>
 The props pseudo-table allows you to read or write properties by name
-using normal Lua table-access semantics, e.g. props["property.name"].
-
+using normal Lua table-access semantics, e.g. <tt>props["property.name"]</tt>.
+</p><p>
 The editor and output panes support the following properties and
 methods:
-
-  textrange(startPos, endPos) - gets the text in the specified range
+</p><pre><tt>  textrange(startPos, endPos) - gets the text in the specified range
 
   findtext(text, [flags], [startPos, [endPos]])
-    - returns the start and end of the first match, or (-1, nil)
+    - returns the start and end of the first match, or nil if no match
     - flags can be 0 (the default), or a combination of <a href="http://scintilla.sourceforge.net/ScintillaDoc.html#searchFlags">SCFIND constants</a>
       such as SCFIND_WHOLEWORD, SCFIND_MATCHCASE, and SCFIND_REGEXP
 
@@ -151,47 +149,47 @@ methods:
   append(text) - appends text to the end of the document
   insert(pos, text) - inserts text at the specified position
   remove(startPos, endPos) - removes the text in the range
-
+</tt></pre><p>
 Most of the functions defined in Scintilla.iface are also be exposed
 as pane methods. Those functions having simple parameters (string,
 boolean, and numeric types) are fully supported. For example,
-editor:InsertText(pos, text) does practically the same thing as 
-editor:insert(pos, texT). Functions having a stringresult parameter
+<tt>editor:InsertText(pos, text)</tt> does practically the same thing as 
+<tt>editor:insert(pos, text)</tt>. Functions having a stringresult parameter
 will include a string in the return value.  For both strings and
 stringresults, if the function is documented as expecting a length
 as its first parameter, you do not pass the length from Lua. Instead,
 it is inferred from the context.
-
+</p><p>
 The keymod parameter type has partial support. When an iface function
 is declared as taking a keymod, the Lua equivalent expects two
-numbers: first the key code (e.g. SCK_LEFT or string.byte("'"), and
-second the modifiers (e.g. SCMOD_CTRL).
-
+numbers: first the key code (e.g. <tt>SCK_LEFT</tt> or <tt>string.byte("'")</tt>, and
+second the modifiers (e.g. <tt>SCMOD_CTRL</tt>).
+</p><p>
 Functions that have more complex parameters are not supported.
-
+</p><p>
 Functions that are declared to return a numeric type have the result
 added to their return value.  If the function also has a stringresult,
 that comes first, followed by the numeric return value.
-
+</p><p>
 Some functions are declared as 'get' or 'set' rather than 'fun' in
 the iface file.  These are generally exposed to Lua as properties,
-e.g. editor.TabSize = 8.  Some of the getters and setters also have
+e.g. <tt>editor.TabSize = 8</tt>.  Some of the getters and setters also have
 a parameter.  Where possible, these are exposed to Lua as indexed
-properties, e.g. editor.StyleBold[SCE_PROPS_DEFAULT] = true.
-However, if the functions can't be handled as properties, they 
-are exposed as functions instead.
-
+properties, e.g. <tt>editor.StyleBold[SCE_PROPS_DEFAULT] = true</tt>.
+However, if an iface function is declared as get / set but cannot be
+mapped to a Lua property, it is exposed as a Lua function instead.
+</p><p>
 It is intended that a complete guide to the iface functions and
 properties should be added to the documentation, so you don't have
 to look at the iface file and do the mental text manipulation.
 This is not done yet, but would be a good project for someone.
 <a href="http://scintilla.sourceforge.net/ScintillaDoc.html">ScintillaDoc</a> would be a good template to follow.  An api file
 would also be a good addition.
+</p>
+<hr noshade="noshade" width="80%" align="left" />
 
--
-
-<b>Disabling Lua</b>
-
+<h4>Disabling Lua</h4>
+<p>
 Lua is currently loaded just-in-time, before it is first used.  The 
 ways that Lua can become are through the ext.lua.startup.script
 property, by naming a lua file named in the extension.<i>filepattern</i>
@@ -199,12 +197,11 @@ property, or by using the extension mechanism to define tool commands
 (i.e. subsystem 3).  If you do not do any of these things, the Lua 
 scripting engine is not loaded, and for all practical purposes, SciTE
 should behave as it did before Lua was added.
-
+</p><p>
 Nevertheless, it is still possible to build SciTE without the Lua
-support. To do this, simply define the variable NO_LUA when you build
-it, e.g. for MSVC, nmake -f scite.mak -DNO_LUA; or with GNU tools,
-make NO_LUA=1.
-</tt>
-</pre>
+support. To do this, simply define the variable <tt>NO_LUA</tt> when you build
+it, e.g. for MSVC, <tt>nmake -f scite.mak -DNO_LUA</tt>; or with GNU tools,
+<tt>make NO_LUA=1</tt>.
+</p>
 </body>
 </html>
