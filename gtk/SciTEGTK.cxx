@@ -1505,6 +1505,7 @@ void SciTEGTK::CreateMenu() {
 		{"/Options/Use le_xer", "", 0, 0, "<Branch>"},
 		{"/Options/Use lexer/none", "", menuSig, IDM_LEXER_NONE, "<RadioItem>"},
 		{"/Options/Use lexer/_C, C++", "", menuSig, IDM_LEXER_CPP, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/C_#", "", menuSig, IDM_LEXER_CS, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/_VB", "", menuSig, IDM_LEXER_VB, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/Reso_urce", "", menuSig, IDM_LEXER_RC, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/H_ypertext", "", menuSig, IDM_LEXER_HTML, "/Options/Use lexer/none"},
