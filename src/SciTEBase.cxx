@@ -2656,6 +2656,13 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SendOutput(SCI_CLEARALL);
 		break;
 
+	case IDM_SWITCHPANE:
+		if (wEditor.HasFocus())
+			SetFocus(wOutput.GetID());
+		else
+			SetFocus(wEditor.GetID());
+		break;
+
 	case IDM_EOL_CRLF:
 		SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
 		CheckMenus();

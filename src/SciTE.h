@@ -115,6 +115,7 @@
 #define IDM_VIEWSTATUSBAR	411
 
 #define IDM_CLEAROUTPUT		420
+#define IDM_SWITCHPANE			421
 
 #define IDM_EOL_CRLF			430
 #define IDM_EOL_CR			431

@@ -1954,6 +1954,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Tools/_Next Message", "F4", menuSig, IDM_NEXTMSG, 0},
 	    {"/Tools/_Previous Message", "<shift>F4", menuSig, IDM_PREVMSG, 0},
 	    {"/Tools/Clear _Output", "<shift>F5", menuSig, IDM_CLEAROUTPUT, 0},
+	    {"/Tools/_Switch Pane", "<control>F6", menuSig, IDM_SWITCHPANE, 0},
 
 	    {"/_Options", NULL, NULL, 0, "<Branch>"},
 	    {"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
