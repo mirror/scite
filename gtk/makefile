@@ -25,10 +25,12 @@ endif
 ifdef GTK2
 CONFIGFLAGS=pkg-config --cflags gtk+-2.0
 CONFIGLIB=pkg-config --libs gtk+-2.0 gthread-2.0
+CONFIGTHREADS=
 gnomeprefix:=$(shell pkg-config --variable=prefix gtk+-2.0 2>/dev/null)
 else
 CONFIGFLAGS=gtk-config --cflags
 CONFIGLIB=gtk-config --libs
+CONFIGTHREADS=glib-config --libs gthread
 gnomeprefix:=$(shell gnome-config --prefix 2>/dev/null)
 endif
 ifdef gnomeprefix
@@ -99,7 +101,7 @@ COMPLIB=../../scintilla/bin/scintilla.a
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o \
 MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o \
 	$(COMPLIB) $(LUA_OBJS)
-	$(CC) `$(CONFIGLIB)` `glib-config --libs gthread` -DGTK $^ -o $@
+	$(CC) `$(CONFIGLIB)` `$(CONFIGTHREADS)` -DGTK $^ -o $@
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
