@@ -577,7 +577,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 					if (bold)
 						fprintf(fp, "\tfont-weight: bold;\n");
 					if (wysiwyg && family.length())
-						fprintf(fp, "\tfont-family: %s;\n", family.c_str());
+						fprintf(fp, "\tfont-family: %s;\n", useMonoFont ? "monospace" : family.c_str());
 					if (fore.length())
 						fprintf(fp, "\tcolor: %s;\n", fore.c_str());
 					if (back.length())
