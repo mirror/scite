@@ -3819,7 +3819,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 					if (endStyled > 0)
 						styleStart = styler.StyleAt(endStyled - 1);
 					styler.SetCodePage(codePage);
-					handled = extender->OnStyle(endStyled, notification->position - endStyled, 
+					extender->OnStyle(endStyled, notification->position - endStyled, 
 					styleStart, &styler);
 					styler.Flush();
 				}
