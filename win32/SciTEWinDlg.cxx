@@ -253,49 +253,18 @@ bool SciTEWin::OpenDialog() {
 	return true;
 }
 
-bool SciTEWin::SaveAsDialog() {
-	bool choseOK = false;
+SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const char *ext) {
+	SString path;
 	if (0 == dialogsOnScreen) {
-		char openName[MAX_PATH] = "\0";
-		strcpy(openName, fileName);
-		OPENFILENAME ofn = {
-		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		};
-		ofn.hwndOwner = wSciTE.GetID();
-		ofn.hInstance = hInstance;
-		ofn.lpstrFile = openName;
-		ofn.nMaxFile = sizeof(openName);
-		ofn.lpstrTitle = "Save File";
-		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-		ofn.lpstrInitialDir = dirName;
-
-		dialogsOnScreen++;
-		choseOK = ::GetSaveFileName(&ofn);
-		if (choseOK) {
-			//Platform::DebugPrintf("Save: <%s>\n", openName);
-			SetFileName(openName, false); // don't fix case
-			Save();
-			ReadProperties();
-			// In case extension was changed
-			SendEditor(SCI_COLOURISE, 0, -1);
-			wEditor.InvalidateAll();
-			if (extender)
-				extender->OnSave(fullPath);
-		}
-		dialogsOnScreen--;
-	}
-	return choseOK;
-}
-
-void SciTEWin::SaveAsHTML() {
-	if (0 == dialogsOnScreen) {
-		char saveName[MAX_PATH] = "\0";
+		char saveName[MAX_PATH] = "";
 		strcpy(saveName, fileName);
-		char *cpDot = strchr(saveName, '.');
-		if (cpDot != NULL)
-			strcpy(cpDot, ".html");
-		else
-			strcat(saveName, ".html");
+		if (ext) {
+			char *cpDot = strrchr(saveName, '.');
+			if (cpDot != NULL)
+				strcpy(cpDot, ext);
+			else
+				strcat(saveName, ext);
+		}
 		OPENFILENAME ofn = {
 		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
@@ -303,77 +272,58 @@ void SciTEWin::SaveAsHTML() {
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
 		ofn.nMaxFile = sizeof(saveName);
-		ofn.lpstrTitle = "Save File As HTML";
-		ofn.Flags = OFN_HIDEREADONLY;
-
-		ofn.lpstrFilter = "Web (.html;.htm)\0*.html;*.htm\0";
+		ofn.lpstrTitle = title;
+		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+		ofn.lpstrFilter = filter;
+		ofn.lpstrInitialDir = dirName;
 
 		dialogsOnScreen++;
 		if (::GetSaveFileName(&ofn)) {
-			//Platform::DebugPrintf("Save As HTML: <%s>\n", saveName);
-			SaveToHTML(saveName);
+			path = saveName;
 		}
 		dialogsOnScreen--;
+	} 
+	return path;
+}
+
+bool SciTEWin::SaveAsDialog() {
+	SString path = ChooseSaveName("Save File");
+	if (path.length()) {
+		//Platform::DebugPrintf("Save: <%s>\n", openName);
+		SetFileName(path.c_str(), false); // don't fix case
+		Save();
+		ReadProperties();
+		// In case extension was changed
+		SendEditor(SCI_COLOURISE, 0, -1);
+		wEditor.InvalidateAll();
+		if (extender)
+			extender->OnSave(fullPath);
+		return true;
+	}
+	return false;
+}
+
+void SciTEWin::SaveAsHTML() {
+	SString path = ChooseSaveName("Save File As HTML", 
+		"Web (.html;.htm)\0*.html;*.htm\0", ".html");
+	if (path.length()) {
+		SaveToHTML(path.c_str());
 	}
 }
 
 void SciTEWin::SaveAsRTF() {
-	if (0 == dialogsOnScreen) {
-		char saveName[MAX_PATH] = "\0";
-		strcpy(saveName, fileName);
-		char *cpDot = strrchr(saveName, '.');
-		if (cpDot != NULL)
-			strcpy(cpDot, ".rtf");
-		else
-			strcat(saveName, ".rtf");
-		OPENFILENAME ofn = {
-		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		};
-		ofn.hwndOwner = wSciTE.GetID();
-		ofn.hInstance = hInstance;
-		ofn.lpstrFile = saveName;
-		ofn.nMaxFile = sizeof(saveName);
-		ofn.lpstrTitle = "Save File As RTF";
-		ofn.Flags = OFN_HIDEREADONLY;
-
-		ofn.lpstrFilter = "RTF (.rtf)\0*.rtf\0";
-
-		dialogsOnScreen++;
-		if (::GetSaveFileName(&ofn)) {
-			//Platform::DebugPrintf("Save As RTF: <%s>\n", saveName);
-			SaveToRTF(saveName);
-		}
-		dialogsOnScreen--;
+	SString path = ChooseSaveName("Save File As RTF", 
+		"RTF (.rtf)\0*.rtf\0", ".rtf");
+	if (path.length()) {
+		SaveToRTF(path.c_str());
 	}
 }
 
 void SciTEWin::SaveAsPDF() {
-	if (0 == dialogsOnScreen) {
-		char saveName[MAX_PATH] = "\0";
-		strcpy(saveName, fileName);
-		char *cpDot = strchr(saveName, '.');
-		if (cpDot != NULL)
-			strcpy(cpDot, ".pdf");
-		else
-			strcat(saveName, ".pdf");
-		OPENFILENAME ofn = {
-		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		};
-		ofn.hwndOwner = wSciTE.GetID();
-		ofn.hInstance = hInstance;
-		ofn.lpstrFile = saveName;
-		ofn.nMaxFile = sizeof(saveName);
-		ofn.lpstrTitle = "Save File As PDF";
-		ofn.Flags = OFN_HIDEREADONLY;
-
-		ofn.lpstrFilter = "PDF (.pdf)\0*.pdf\0";
-
-		dialogsOnScreen++;
-		if (::GetSaveFileName(&ofn)) {
-			Platform::DebugPrintf("Save As PDF: <%s>\n", saveName);
-			SaveToPDF(saveName);
-		}
-		dialogsOnScreen--;
+	SString path = ChooseSaveName("Save File As PDF", 
+		"PDF (.pdf)\0*.pdf\0", ".pdf");
+	if (path.length()) {
+		SaveToPDF(path.c_str());
 	}
 }
 
