@@ -2055,7 +2055,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 		}
 	}
 	files.substitute('\n', '\0');	// Make into a set of strings
-	props.ReadFromMemory(switches.c_str(), switches.length());
+	props.ReadFromMemory(switches.c_str(), switches.length(), "");
 
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	//GTK_WIDGET_UNSET_FLAGS(wSciTE.GetID(), GTK_CAN_FOCUS);

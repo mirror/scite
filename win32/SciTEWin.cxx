@@ -781,7 +781,7 @@ void SciTEWin::Run(const char *cmdLine) {
 			startArg++;
 	}
 	files.substitute('\n', '\0');	// Make into a set of strings
-	props.ReadFromMemory(switches.c_str(), switches.length());
+	props.ReadFromMemory(switches.c_str(), switches.length(), "");
 
 	// Open all files given on command line.
 	// The filenames containing spaces must be enquoted.
