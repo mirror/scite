@@ -3871,7 +3871,7 @@ int SciTEBase::NormaliseSplit(int splitPos) {
 	int w = rcClient.Width();
 	int h = rcClient.Height();
 	if (splitPos < 20)
-		splitPos = heightBar - heightBar;
+		splitPos = 0;
 	if (splitVertical) {
 		if (splitPos > w - heightBar - 20)
 			splitPos = w - heightBar;
