@@ -57,9 +57,6 @@ void SciTEWin::Notify(SCNotification *notification) {
 				}
 				UpdateStatusBar(true);
 				break;
-			case 2:		/* Refresh button */
-				UpdateStatusBar(true);
-				break;
 			default:
 				break;
 			}
@@ -253,22 +250,18 @@ void SciTEWin::SizeSubWindows() {
 		if (spw <= 0) {
 			spw = statusPosWidth;
 		}
-		int refreshWidth = 70;
-		int startLineNum = rcClient.Width() - spw - refreshWidth;
+		int startLineNum = rcClient.Width() - spw;
 		if (startLineNum < 0)
 			startLineNum = 0;
-		int widths[] = { startLineNum, rcClient.Width() - refreshWidth, rcClient.Width() };
+		int widths[] = { startLineNum, rcClient.Width() };
 		// Perhaps we can define a syntax to create more parts,
 		// but it is probably an overkill for a marginal feature
 		::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
-		              SB_SETPARTS, 3,
+		              SB_SETPARTS, 2,
 		              reinterpret_cast<LPARAM>(widths));
 		::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
 		              SB_SETTEXT, 0 | SBT_NOBORDERS,
 		              reinterpret_cast<LPARAM>(""));
-		::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
-		              SB_SETTEXT, 2 | SBT_POPOUT,
-		              reinterpret_cast<LPARAM>("Refresh"));
 		wStatusBar.SetPosition(PRectangle(rcClient.left,
 		                                  rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
 		                                  rcClient.Width(), visHeightStatus));
