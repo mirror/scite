@@ -96,7 +96,7 @@
 	void ShutDown();<br />
 	void Perform(const char *actions);<br />
     	</code>
-	<p>An extension can call back into Scite using this interface which is a simplified
+	<p>An extension can call back into SciTE using this interface which is a simplified
 	way to access the functionality of SciTE.</p>
 	<p>As well as the normal editor pane and output pane, this interface allows for
 	a future feature where a third pane may be used for the output of search
@@ -106,7 +106,7 @@
 	Remove and Insert are used to remove and insert text in a pane.</p>
 	<p>Trace displays a string at the end of the output pane.</p>
 	<p>SciTE's properties can be read and written with Property and
-	SetProperty. The resukt from Property should be deleted with delete[].</p>
+	SetProperty. The result from Property should be deleted with delete[].</p>
 	<p>GetInstance is Windows specific and returns the HINSTANCE of
 	the application which is needed when accessing platform facilities.</p>
 	<p>ShutDown is equivalent to the user choosing the Quit menu item.
@@ -130,7 +130,7 @@ Extension *extender = &director;<br />
 //...<br />
 SciTEWin MainWind(extender);
 </code>
-	<p>It would be better to move to an implicit attachment mehanism similar to the
+	<p>It would be better to move to an implicit attachment mechanism similar to the
 	way lexers are attached to Scintilla, determining which extensions are used
 	by simply linking their object files into SciTE. It would also be good to
 	allow run-time attachment of extensions housed in DLLs or shared object libraries.</p>
