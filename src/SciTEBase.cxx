@@ -3217,6 +3217,10 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		FindNext(reverseFind);
 		break;
 
+	case IDM_ENTERSELECTION:
+		SelectionIntoFind();
+		break;
+
 	case IDM_FINDNEXTBACKSEL:
 		SelectionIntoFind();
 		FindNext(!reverseFind);

@@ -89,6 +89,7 @@
 #define IDC_INCFINDTEXT     253
 #define IDC_INCFINDBTNOK	254
 #define IDD_FIND2           255
+#define IDM_ENTERSELECTION  256
 #define IDC_EDIT1           1000
 #define IDC_STATIC          -1
 
