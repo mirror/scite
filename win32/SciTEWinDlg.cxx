@@ -1156,6 +1156,7 @@ void SciTEWin::ParamGrab() {
 			SString paramText(param+1);
 			props.Set(paramText.c_str(), paramVal);
 		}
+		UpdateStatusBar(true);
 	}
 }
 

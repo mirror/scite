@@ -1363,6 +1363,7 @@ void SciTEGTK::ParamGrab() {
 			char *paramVal = gtk_entry_get_text(GTK_ENTRY(entryParam[param]));
 			props.Set(paramText.c_str(), paramVal);
 		}
+		UpdateStatusBar(true);
 	}
 }
 
