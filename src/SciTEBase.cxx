@@ -478,17 +478,17 @@ void SciTEBase::ReadGlobalPropFile() {
 	char propdir[MAX_PATH + 20];
     propsBase.Clear();
 #if PLAT_GTK
-    propsBase.Set("PLAT_GTK", "1");
+	propsBase.Set("PLAT_GTK", "1");
 #else
-    propsBase.Set("PLAT_WIN", "1");
+	propsBase.Set("PLAT_WIN", "1");
 #endif
 	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-    	strcat(propdir, pathSepString);
+    		strcat(propdir, pathSepString);
 		propsBase.Read(propfile, propdir);
 	}
-    propsUser.Clear();
+	propsUser.Clear();
 	if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-    	strcat(propdir, pathSepString);
+		strcat(propdir, pathSepString);
 		propsUser.Read(propfile, propdir);
 	}
 }
@@ -500,11 +500,11 @@ void SciTEBase::ReadLocalPropFile() {
 	else
 		getcwd(propdir, sizeof(propdir));
 	char propfile[MAX_PATH + 20];
-    strcpy(propfile, propdir);
+	strcpy(propfile, propdir);
 	strcat(propdir, pathSepString);
 	strcat(propfile, pathSepString);
 	strcat(propfile, propFileName);
-    props.Clear();
+	props.Clear();
 	props.Read(propfile, propdir);
 	//Platform::DebugPrintf("Reading local properties from %s\n", propfile);
 
@@ -1594,9 +1594,13 @@ bool SciTEBase::Save() {
 			//Platform::DebugPrintf("Saved file=%d\n", dwEnd - dwStart);
 			fileModTime = GetModTime(fullPath);
 			SendEditor(SCI_SETSAVEPOINT);
-			if ((EqualCaseInsensitive(fileName, propFileName)) ||
-			        (EqualCaseInsensitive(fileName, propGlobalFileName)) ||
-			        (EqualCaseInsensitive(fileName, propUserFileName))) {
+			char fileNameLowered[MAX_PATH];
+			strcpy(fileNameLowered, fileName);
+			lowerCaseString(fileNameLowered);
+			if (0 != strstr(fileNameLowered, ".properties")) {
+				//{(EqualCaseInsensitive(fileName, propFileName)) ||
+			        //(EqualCaseInsensitive(fileName, propGlobalFileName)) ||
+			        //(EqualCaseInsensitive(fileName, propUserFileName))) {
 				ReadGlobalPropFile();
 				ReadLocalPropFile();
 				ReadProperties();
@@ -1870,14 +1874,14 @@ void SciTEBase::SelectionIntoFind() {
 	}
 }
 
-void SciTEBase::FindNext() {
+void SciTEBase::FindNext(bool reverseDirection) {
 	if (!findWhat[0]) {
 		Find();
 		return;
 	}
 	FINDTEXTEX ft = {{0, 0}, 0, {0, 0}};
 	CHARRANGE crange = GetSelection();
-	if (reverseFind) {
+	if (reverseDirection) {
 		ft.chrg.cpMin = crange.cpMin - 1;
 		ft.chrg.cpMax = 0;
 	} else {
@@ -1894,7 +1898,7 @@ void SciTEBase::FindNext() {
 	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
 	if (posFind == -1) {
 		// Failed to find in indicated direction so search on other side
-		if (reverseFind) {
+		if (reverseDirection) {
 			ft.chrg.cpMin = LengthDocument();
 			ft.chrg.cpMax = 0;
 		} else {
@@ -1932,7 +1936,7 @@ void SciTEBase::ReplaceOnce() {
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
 
-	FindNext();
+	FindNext(reverseFind);
 }
 
 void SciTEBase::ReplaceAll() {
@@ -2691,7 +2695,21 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 
 	case IDM_FINDNEXT:
-		FindNext();
+		FindNext(reverseFind);
+		break;
+
+	case IDM_FINDNEXTBACK:
+		FindNext(!reverseFind);
+		break;
+
+	case IDM_FINDNEXTSEL:
+		SelectionIntoFind();
+		FindNext(reverseFind);
+		break;
+
+	case IDM_FINDNEXTBACKSEL:
+		SelectionIntoFind();
+		FindNext(!reverseFind);
 		break;
 
 	case IDM_FINDINFILES:

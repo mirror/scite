@@ -255,7 +255,7 @@ protected:
 	void SelectionIntoProperties();
 	void SelectionIntoFind();
 	virtual void Find()=0;
-	void FindNext();
+	void FindNext(bool reverseDirection);
 	virtual void FindInFiles()=0;
 	virtual void Replace()=0;
 	void ReplaceOnce();

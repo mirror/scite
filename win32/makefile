@@ -31,7 +31,11 @@ OBJS	= SciTEBase.o SciTEWin.o WindowAccessor.o PropSet.o PlatWin.o UniConversion
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
-ALL:	$(PROG) $(PROGSTATIC) $(DLLS) ..\bin\SciTEGlobal.properties
+PROPS=..\bin\SciTEGlobal.properties ..\bin\cpp.properties ..\bin\html.properties \
+..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
+..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties
+
+ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 
 clean:
 	del /q *.exe *.o *.obj *.dll *.res *.map
@@ -43,7 +47,25 @@ clean:
 	copy ..\..\scintilla\bin\SciLexer.dll $@
 	
 ..\bin\SciTEGlobal.properties:	..\src\SciTEGlobal.properties
-	copy ..\src\SciTEGlobal.properties $@
+	copy $^ $@
+..\bin\cpp.properties:	..\src\cpp.properties
+	copy $^ $@
+..\bin\html.properties:	..\src\html.properties
+	copy $^ $@
+..\bin\latex.properties:	..\src\latex.properties
+	copy $^ $@
+..\bin\lua.properties:	..\src\lua.properties
+	copy $^ $@
+..\bin\others.properties:	..\src\others.properties
+	copy $^ $@
+..\bin\perl.properties:	..\src\perl.properties
+	copy $^ $@
+..\bin\python.properties:	..\src\python.properties
+	copy $^ $@
+..\bin\sql.properties:	..\src\sql.properties
+	copy $^ $@
+..\bin\vb.properties:	..\src\vb.properties
+	copy $^ $@
 
 $(PROG): $(OBJS)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)

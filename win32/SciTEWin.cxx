@@ -635,7 +635,7 @@ bool SciTEWin::OpenDialog() {
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
 	char *filter = 0;
-	SString openFilter = props.Get("open.filter");
+	SString openFilter = props.GetExpanded("open.filter");
 	if (openFilter.length()) {
 		filter = StringDup(openFilter.c_str());
 		for (int fc = 0; filter[fc]; fc++)
@@ -982,7 +982,7 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 				::SendMessage(wUp, BM_GETCHECK, 0, 0);
 			sci->wFindReplace = 0;
 			EndDialog(hDlg, IDOK);
-			sci->FindNext();
+			sci->FindNext(sci->reverseFind);
 			return TRUE;
 		}
 	}
@@ -1008,13 +1008,13 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	}
 		
 	if (cmd == IDOK) {
-		FindNext();
+		FindNext(reverseFind);
 	} else if (cmd == IDREPLACE) {
 		if (havefound) {
 			SendEditorString(EM_REPLACESEL, 0, replaceWhat);
 			havefound = false;
 		}
-		FindNext();
+		FindNext(reverseFind);
 	} else if (cmd == IDREPLACEALL) {
 		ReplaceAll();
 	}

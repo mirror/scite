@@ -619,7 +619,7 @@ void SciTEGTK::FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 void SciTEGTK::FRFindSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->FindReplaceGrabFields();
 	if (scitew->findWhat[0]) {
-		scitew->FindNext();
+		scitew->FindNext(scitew->reverseFind);
 	}
 }
 
