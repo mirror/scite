@@ -69,7 +69,7 @@ void UniqueInstance::ToggleOpenFilesHere() {
 	if (!AcceptToOpenFiles(!stw->openFilesHere)) {
 		// Cannot set the mutex, search the previous instance holding it
 		HWND hOtherWindow = NULL;
-		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(this));
+		::EnumWindows(reinterpret_cast<WNDENUMPROC>(SearchOtherInstance), reinterpret_cast<LPARAM>(this));
 		if (hOtherWindow != NULL) {
 			// Found, we indicate it to yield the acceptation of files
 			::SendMessage(hOtherWindow, identityMessage, 0,
@@ -162,7 +162,7 @@ void UniqueInstance::CheckOtherInstance() {
  */
 bool UniqueInstance::FindOtherInstance() {
 	if (bAlreadyRunning && identityMessage != 0) {
-		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(this));
+		::EnumWindows(reinterpret_cast<WNDENUMPROC>(SearchOtherInstance), reinterpret_cast<LPARAM>(this));
 		if (hOtherWindow) {
 			return true;
 		}
