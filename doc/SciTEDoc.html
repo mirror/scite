@@ -427,7 +427,8 @@ NameError: mistake
         <td>
           Set the initial window size and position. If these are omitted or set to 0 then the
           environments defaults are used. Currently, the GTK+ version uses hard coded sizes rather
-          than these.
+          than these. If the width or height are -1 then the default size is used on Windows and the
+	maximum allowed size on GTK+.
         </td>
       </tr>
       <tr>
@@ -674,6 +675,38 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          autocomplete.choose.single
+        </td>
+        <td>
+          When set to 1 and an autocompletion list is invoked and there is only one element 
+	in that list then that element is automatically chosen. This means that the matched
+	element is inserted and the list is not displayed.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          autocomplete.<i>lexer</i>.ignorecase<br />
+          autocomplete.*.ignorecase
+        </td>
+        <td>
+          When set to 1 the api file is searched in a case insensitive way to find elements
+	for autocompletion lists. Otherwise matches only occur if case also matches.
+	The * form is used if there is no lexer specific setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          calltip.<i>lexer</i>.ignorecase<br />
+          calltip.*.ignorecase
+        </td>
+        <td>
+          When set to 1 the api file is searched in a case insensitive way to find the function
+	which will have its signature displayed as a calltip. The * form is use if there
+	is no lexer specific setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
           calltip.back
         </td>
         <td>
@@ -704,11 +737,14 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          split.vertical
+          split.vertical<br />
+	output.horizontal.size<br />
+	output.vertical.size
         </td>
         <td>
-          If set to 1 then the output pane is to the left of the editing pane, if set to 0 then the
-          output pane is below the editing pane.
+          If split.vertical is set to 1 then the output pane is to the left of the editing pane, 
+	if set to 0 then the output pane is below the editing pane. 
+	The output.*.size settings determine the initial size of the output pane.
         </td>
       </tr>
       <tr>
@@ -722,7 +758,7 @@ NameError: mistake
       <tr>
         <td>
           horizontal.scrollbar<br />
-	  output.horizontal.scrollbar
+	output.horizontal.scrollbar
         </td>
         <td>
           If horizontal.scrollbar set to 0 then the edit pane's horizontal scrollbar is not displayed.<br />
@@ -783,11 +819,23 @@ NameError: mistake
           that double byte characters are always treated as a unit so the caret is never located
           between the two bytes of a double byte character. This option has no effect on GTK+ where
           SciTE only supports single byte character sets.<br />
-	  On Windows, setting code.page to 65001 starts Unicode mode and the document is treated as 
-	  a sequence of characters expressed as UTF-8. Display is performed by converting to UCS-2
-	  first so characters from any language will be displayed. Correct glyphs will only be displayed 
-	  if fonts are chosen that contain the appropriate glyphs. Tahoma is a good choice on Windows 
-	  2000.
+	On Windows, setting code.page to 65001 starts Unicode mode and the document is treated as 
+	a sequence of characters expressed as UTF-8. Display is performed by converting to UCS-2
+	first so characters from any language will be displayed. Correct glyphs will only be displayed 
+	if fonts are chosen that contain the appropriate glyphs. Tahoma is a good choice on Windows 
+	2000.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          character.set
+        </td>
+        <td>
+          This setting allows changing the character set that is asked for when setting up fonts.
+	Works on Windows but not on GTK+. To use Russian Cyrillic characters, set character.set to
+	204. Other values that may work include Chinese (134 or 136), Korean (129), Greek (161),
+	Turkish (162), Hebrew (177), Arabic (178), Thai(222), or Japanese(128). Please send email
+	if you use one of these settings and it works or doesn't.
         </td>
       </tr>
       <tr>
@@ -805,8 +853,11 @@ NameError: mistake
       <tr>
         <td>
           keywords.<i>filepattern</i><br />
-           keywords2.<i>filepattern</i><br />
-           keywordclass.<i>lexer</i>
+          keywords2.<i>filepattern</i><br />
+          keywords3.<i>filepattern</i><br />
+          keywords4.<i>filepattern</i><br />
+          keywords5.<i>filepattern</i><br />
+          keywordclass.<i>lexer</i>
         </td>
         <td>
           Most of the lexers differentiate between names and keywords and use the keywords
@@ -849,7 +900,8 @@ NameError: mistake
           each lexer.<br />
            The value of each setting is a set of ',' separated fields, some of which have a
           subvalue after a ':'. The fields are font, size, fore, back, italics, notitalics, bold,
-          notbold, eolfilled, and noteolfilled. The font field has a subvalue which is the name of
+          notbold, eolfilled, noteolfilled, underlined, and notunderlined. 
+	The font field has a subvalue which is the name of
           the font, the fore and back have colour subvalues, the size field has a numeric size
           subvalue, and the bold, italics and eolfilled fields have no subvalue. The value
           "fore:#FF0000,font:Courier,size:14" represents 14 point, red Courier text.<br />
@@ -987,6 +1039,38 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+	export.html.wysiwyg<br />
+	export.html.tabs
+        </td>
+        <td>
+	When export.html.wysiwyg is set to 0 then exporting to a HTML file produces a smaller
+	file but which is less completely specified so may look more different to the on screen display.
+	When export.html.tabs is set to 1 and export.html.wysiwyg is set to 0 then tab characters in 
+	the file are exported as tab characters rather than a sequence of space characters.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	export.rtf.wysiwyg<br />
+	export.rtf.tabs<br />
+	export.rtf.font.face<br />
+	export.rtf.font.size<br />
+	export.rtf.tabsize
+        </td>
+        <td>
+	When export.rtf.wysiwyg is set to 0 then exporting to a RTF file produces a smaller
+	file but which is less completely specified so may look more different to the on screen display.
+	When export.rtf.tabs is set to 1 and export.rtf.wysiwyg is set to 0 then tab characters in 
+	the file are exported as tab characters rather than a sequence of space characters.
+        </td>
+        <td>
+	export.rtf.font.face and export.rtf.font.size can be used to select a particular font and size
+	for the exported RTf file. export.rtf.tabsize can be set to use a different tab size than that 
+	defined by the tabsize setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
           fold<br />
           fold.margin.width<br />
           fold.use.plus<br />
@@ -1112,7 +1196,7 @@ NameError: mistake
        Building SciTE
     </h3>
     <p>
-       The procedure for building and installing ScITE is described in the README file in the scintilla 
+       The procedure for building and installing ScITE is described in the README file in the scite 
        directory.
     </p>
   </body>
