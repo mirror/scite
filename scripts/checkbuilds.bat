@@ -29,7 +29,7 @@ nmake -f scite.mak
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem 
-rem Target 5: Borland C++ build
+rem Target 3: Borland C++ build
 call scite\scripts\clearboth
 cd scintilla\win32
 set SAVE_PATH=%path%
