@@ -1052,11 +1052,11 @@ void SciTEBase::ReadProperties() {
 		ReadPropertiesInitial();
 	}
 
-	usePalette = props.GetInt("use.palette");
-	SendEditor(SCI_SETUSEPALETTE, usePalette);
+	SendEditor(SCI_SETUSEPALETTE, props.GetInt("use.palette"));
+	SendEditor(SCI_SETPRINTMAGNIFICATION, props.GetInt("print.magnification"));
+	SendEditor(SCI_SETPRINTINVERTLIGHT, props.GetInt("print.invert.light"));
 
 	clearBeforeExecute = props.GetInt("clear.before.execute");
-	SendEditor(SCI_SETUSEPALETTE, usePalette);
 
 	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
 	int blankMarginRight = props.GetInt("blank.margin.right", 1);
