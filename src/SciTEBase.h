@@ -443,6 +443,8 @@ protected:
 	bool regExp;
 	bool wrapFind;
 	bool unSlash;
+	bool findInStyle;
+	int findStyle;
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 	ComboMemory memFiles;
@@ -731,6 +733,7 @@ protected:
 	virtual void Find() = 0;
 	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
 	void FindMessageBox(const SString &msg);
+	int FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition);
 	int FindNext(bool reverseDirection, bool showWarnings = true);
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();

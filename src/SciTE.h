@@ -220,6 +220,8 @@
 #define IDREPLDONE			248
 
 #define IDDOTDOT			249
+#define IDFINDINSTYLE		250
+#define IDFINDSTYLE			251
 
 #define IDPARAMSTART		300
 
@@ -227,6 +229,8 @@
 #define IDD_FIND			400
 #define IDD_REPLACE			401
 #define IDD_BUFFERS			402
+#define IDD_FIND_ADV		403
+#define IDD_REPLACE_ADV		404
 
 // Resource IDs
 #define IDR_CLOSEFILE 100

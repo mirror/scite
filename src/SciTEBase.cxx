@@ -335,6 +335,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	regExp = false;
 	wrapFind = true;
 	unSlash = false;
+	findInStyle = false;
+	findStyle = 0;
 
 	languageMenu = 0;
 	languageItems = 0;
@@ -1339,6 +1341,23 @@ int SciTEBase::IncrementSearchMode() {
 	return 0;
 }
 
+int SciTEBase::FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition) {
+	SendEditor(SCI_SETTARGETSTART, startPosition);
+	SendEditor(SCI_SETTARGETEND, endPosition);
+	int posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findWhat);
+	while (findInStyle && posFind != -1 && findStyle != SendEditor(SCI_GETSTYLEAT, posFind)) {
+		if (startPosition < endPosition) {
+			SendEditor(SCI_SETTARGETSTART, posFind+1);
+			SendEditor(SCI_SETTARGETEND, endPosition);
+		} else {
+			SendEditor(SCI_SETTARGETSTART, startPosition);
+			SendEditor(SCI_SETTARGETEND, posFind+1);
+		}
+		posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findWhat);
+	}
+	return posFind;
+}
+
 int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (findWhat.length() == 0) {
 		Find();
@@ -1362,10 +1381,8 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	            (regExp ? SCFIND_REGEXP : 0) |
 	            (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
 
-	SendEditor(SCI_SETTARGETSTART, startPosition);
-	SendEditor(SCI_SETTARGETEND, endPosition);
 	SendEditor(SCI_SETSEARCHFLAGS, flags);
-	int posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget.c_str());
+	int posFind = FindInTarget(findTarget.c_str(), lenFind, startPosition, endPosition);
 	if (posFind == -1 && wrapFind) {
 		// Failed to find in indicated direction
 		// so search from the beginning (forward) or from the end (reverse)
@@ -1377,9 +1394,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 			startPosition = 0;
 			endPosition = LengthDocument();
 		}
-		SendEditor(SCI_SETTARGETSTART, startPosition);
-		SendEditor(SCI_SETTARGETEND, endPosition);
-		posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget.c_str());
+		posFind = FindInTarget(findTarget.c_str(), lenFind, startPosition, endPosition);
 		WarnUser(warnFindWrapped);
 	}
 	if (posFind == -1) {
@@ -1464,10 +1479,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	            (matchCase ? SCFIND_MATCHCASE : 0) |
 	            (regExp ? SCFIND_REGEXP : 0) |
 	            (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
-	SendEditor(SCI_SETTARGETSTART, startPosition);
-	SendEditor(SCI_SETTARGETEND, endPosition);
 	SendEditor(SCI_SETSEARCHFLAGS, flags);
-	int posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
+	int posFind = FindInTarget(findTarget.c_str(), findLen, startPosition, endPosition);
 	if ((findLen == 1) && regExp && (findTarget[0] == '^')) {
 		// Special case for replace all start of line so it hits the first line
 		posFind = startPosition;
@@ -1495,9 +1508,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 						// Run off the end of the document/selection with an empty match
 						posFind = -1;
 					} else {
-						SendEditor(SCI_SETTARGETSTART, lastMatch);
-						SendEditor(SCI_SETTARGETEND, endPosition);
-						posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
+						posFind = FindInTarget(findTarget.c_str(), findLen, lastMatch, endPosition);
 					}
 					continue;	// No replacement
 				}
@@ -1527,9 +1538,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 				// Run off the end of the document/selection with an empty match
 				posFind = -1;
 			} else {
-				SendEditor(SCI_SETTARGETSTART, lastMatch);
-				SendEditor(SCI_SETTARGETEND, endPosition);
-				posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
+				posFind = FindInTarget(findTarget.c_str(), findLen, lastMatch, endPosition);
 			}
 			replacements++;
 		}

@@ -842,6 +842,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
 	HWND wWrap = ::GetDlgItem(hDlg, IDWRAP);
 	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
+	HWND wFindInStyle = ::GetDlgItem(hDlg, IDFINDINSTYLE);
+	HWND wFindStyle = ::GetDlgItem(hDlg, IDFINDSTYLE);
 	HWND wUp = ::GetDlgItem(hDlg, IDDIRECTIONUP);
 	HWND wDown = ::GetDlgItem(hDlg, IDDIRECTIONDOWN);
 
@@ -861,6 +863,12 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
 		if (unSlash)
 			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
+		if (findInStyle)
+			::SendMessage(wFindInStyle, BM_SETCHECK, BST_CHECKED, 0);
+		else
+			::EnableWindow(wFindStyle, false);
+		::SendMessage(wFindStyle, EM_LIMITTEXT, 3, 1);
+		::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
 		if (reverseFind) {
 			::SendMessage(wUp, BM_SETCHECK, BST_CHECKED, 0);
 		} else {
@@ -892,6 +900,9 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			           ::SendMessage(wWrap, BM_GETCHECK, 0, 0);
 			unSlash = BST_CHECKED ==
 			          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
+			findInStyle = BST_CHECKED ==
+			              ::SendMessage(wFindInStyle, BM_GETCHECK, 0, 0);
+			findStyle = atoi(GetDlgItemText2(hDlg, IDFINDSTYLE).c_str());
 			reverseFind = BST_CHECKED ==
 			              ::SendMessage(wUp, BM_GETCHECK, 0, 0);
 			::EndDialog(hDlg, IDOK);
@@ -900,6 +911,9 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				MarkAll();
 			}
 			FindNext(reverseFind);
+			return TRUE;
+		} else if (ControlIDOfCommand(wParam) == IDFINDINSTYLE) {
+			::EnableWindow(wFindStyle, BST_CHECKED == ::SendMessage(wFindInStyle, BM_GETCHECK, 0, 0));
 			return TRUE;
 		}
 	}
@@ -920,6 +934,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	HWND wRegExp = ::GetDlgItem(hwndFR, IDREGEXP);
 	HWND wWrap = ::GetDlgItem(hwndFR, IDWRAP);
 	HWND wUnSlash = ::GetDlgItem(hwndFR, IDUNSLASH);
+	HWND wFindInStyle = ::GetDlgItem(hwndFR, IDFINDINSTYLE);
 
 	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
 		findWhat = GetDlgItemText2(hwndFR, IDFINDWHAT);
@@ -935,6 +950,9 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		           ::SendMessage(wWrap, BM_GETCHECK, 0, 0);
 		unSlash = BST_CHECKED ==
 		          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
+		findInStyle = BST_CHECKED ==
+		              ::SendMessage(wFindInStyle, BM_GETCHECK, 0, 0);
+		findStyle = atoi(GetDlgItemText2(hwndFR, IDFINDSTYLE).c_str());
 	}
 	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
 		replaceWhat = GetDlgItemText2(hwndFR, IDREPLACEWITH);
@@ -978,6 +996,8 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
 	HWND wWrap = ::GetDlgItem(hDlg, IDWRAP);
 	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
+	HWND wFindInStyle = ::GetDlgItem(hDlg, IDFINDINSTYLE);
+	HWND wFindStyle = ::GetDlgItem(hDlg, IDFINDSTYLE);
 
 	switch (message) {
 
@@ -997,6 +1017,11 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
 		if (unSlash)
 			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
+		if (findInStyle)
+			::SendMessage(wFindInStyle, BM_SETCHECK, BST_CHECKED, 0);
+		else
+			::EnableWindow(wFindStyle, false);
+		::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
 		::SetDlgItemText(hDlg, IDREPLDONE, "0");
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(wReplaceWith);
@@ -1015,6 +1040,9 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::EndDialog(hDlg, IDCANCEL);
 			wFindReplace.Destroy();
 			return FALSE;
+		} else if (ControlIDOfCommand(wParam) == IDFINDINSTYLE) {
+			::EnableWindow(wFindStyle, BST_CHECKED == ::SendMessage(wFindInStyle, BM_GETCHECK, 0, 0));
+			return TRUE;
 		} else {
 			return HandleReplaceCommand(ControlIDOfCommand(wParam));
 		}
@@ -1159,16 +1187,17 @@ void SciTEWin::Find() {
 		fr.Flags |= FR_DOWN;
 	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
+	int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_FIND : IDD_FIND_ADV);
 
 	if (IsWindowsNT()) {
 		wFindReplace = ::CreateDialogParamW(hInstance,
-		                                    (LPCWSTR)MAKEINTRESOURCE(IDD_FIND),
+		                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
 		                                    MainHWND(),
 		                                    reinterpret_cast<DLGPROC>(FindDlg),
 		                                    reinterpret_cast<LPARAM>(this));
 	} else {
 		wFindReplace = ::CreateDialogParamA(hInstance,
-		                                    MAKEINTRESOURCE(IDD_FIND),
+		                                    MAKEINTRESOURCE(dialog_id),
 		                                    MainHWND(),
 		                                    reinterpret_cast<DLGPROC>(FindDlg),
 		                                    reinterpret_cast<LPARAM>(this));
@@ -1344,16 +1373,17 @@ void SciTEWin::Replace() {
 	fr.lpstrReplaceWith = const_cast<char *>(replaceWhat.c_str());
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 	fr.wReplaceWithLen = static_cast<WORD>(replaceWhat.length() + 1);
+	int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
 
 	if (IsWindowsNT()) {
 		wFindReplace = ::CreateDialogParamW(hInstance,
-		                                    (LPCWSTR)MAKEINTRESOURCE(IDD_REPLACE),
+		                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
 		                                    MainHWND(),
 		                                    reinterpret_cast<DLGPROC>(ReplaceDlg),
 		                                    reinterpret_cast<sptr_t>(this));
 	} else {
 		wFindReplace = ::CreateDialogParamA(hInstance,
-		                                    MAKEINTRESOURCE(IDD_REPLACE),
+		                                    MAKEINTRESOURCE(dialog_id),
 		                                    MainHWND(),
 		                                    reinterpret_cast<DLGPROC>(ReplaceDlg),
 		                                    reinterpret_cast<sptr_t>(this));
