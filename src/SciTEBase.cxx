@@ -141,6 +141,7 @@ const char *contributors[] = {
 				 "Olivier Dagenais",
 				 "Josh Wingstrom",
 				 "Bruce Dodson",
+				 "Sergey Koshcheyev",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -1320,16 +1321,12 @@ void SciTEBase::OutputAppendString(const char *s, int len, bool startLine) {
 	if (startLine && docLength > 0) {
 		char lastChar = static_cast<char>(SendOutput(SCI_GETCHARAT, docLength - 1));
 		if (lastChar!='\n' && lastChar!='\r') {
-			SendOutput(SCI_SETTARGETSTART, docLength);
-			SendOutput(SCI_SETTARGETEND, docLength);
-			SendOutput(SCI_REPLACETARGET, 1, reinterpret_cast<sptr_t>("\n"));
+			SendOutput(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"));
 			docLength++;
 		}
 	}
 
-	SendOutput(SCI_SETTARGETSTART, docLength);
-	SendOutput(SCI_SETTARGETEND, docLength);
-	SendOutput(SCI_REPLACETARGET, len, reinterpret_cast<sptr_t>(s));
+	SendOutput(SCI_APPENDTEXT, len, reinterpret_cast<sptr_t>(s));
 	if (scrollOutput) {
 		int line = SendOutput(SCI_GETLINECOUNT, 0, 0);
 		int lineStart = SendOutput(SCI_POSITIONFROMLINE, line);
@@ -1345,16 +1342,12 @@ void SciTEBase::OutputAppendStringSynchronised(const char *s, int len, bool star
 	if (startLine && docLength > 0) {
 		char lastChar = static_cast<char>(SendOutputEx(SCI_GETCHARAT, docLength - 1, 0, false));
 		if (lastChar!='\n' && lastChar!='\r') {
-			SendOutputEx(SCI_SETTARGETSTART, docLength, 0, false);
-			SendOutputEx(SCI_SETTARGETEND, docLength, 0, false);
-			SendOutputEx(SCI_REPLACETARGET, 1, reinterpret_cast<sptr_t>("\n"));
+			SendOutputEx(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"), false);
 			docLength++;
 		}
 	}
 
-	SendOutputEx(SCI_SETTARGETSTART, docLength, 0, false);
-	SendOutputEx(SCI_SETTARGETEND, docLength, 0, false);
-	SendOutputEx(SCI_REPLACETARGET, len, reinterpret_cast<sptr_t>(s), false);
+	SendOutputEx(SCI_APPENDTEXT, len, reinterpret_cast<sptr_t>(s), false);
 	if (scrollOutput) {
 		int line = SendOutputEx(SCI_GETLINECOUNT, 0, 0, false);
 		int lineStart = SendOutputEx(SCI_POSITIONFROMLINE, line, 0, false);
@@ -3419,7 +3412,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			EnableAMenuItem(IDM_UNDO, TRUE);
 			EnableAMenuItem(IDM_REDO, FALSE);
 		}
-		
+
 		if (0 != (notification->modificationType & SC_MOD_CHANGEFOLD)) {
 			FoldChanged(notification->line,
 			            notification->foldLevelNow, notification->foldLevelPrev);
