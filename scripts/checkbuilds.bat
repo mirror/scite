@@ -70,6 +70,13 @@ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem 
+rem Target 6a: Visual C++ .NET using scite\boundscheck\SciTE.sln
+call scite\scripts\clearboth
+cd scite\boundscheck
+devenv scite.sln /rebuild release
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
+rem 
 rem Target 7: GTK+ version using Visual C++ on scintilla\gtk\scintilla.mak
 call scite\scripts\clearboth
 cd scintilla\gtk
