@@ -1219,6 +1219,13 @@ NameError: mistake
         </td>
         <td>
           This is the default set of files to search through using the Find in Files command.
+	  The find.files property can contain a list of sets of files separated by '|' like
+	  "*.cxx *.h|*.py *.pyw|*.html" which adds three entries to the history and 
+	  uses the first as the default value.<br />
+	  The evaluation of this setting is a little unusual in that each entry in the value 
+	  from the property files is appended to the end of the history if that entry is 
+	  not already present. This means that opening files from different directories 
+	  will result in any local setting of find.files being added to the list.
         </td>
       </tr>
       <tr class="windowsonly">
