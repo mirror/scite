@@ -29,6 +29,58 @@ void SciTEWin::Notify(SCNotification *notification) {
 		}
 		break;
 
+	case NM_RCLICK:
+		// Right click on a control
+		if (notification->nmhdr.idFrom == IDM_TABWIN) {
+
+			Point ptCursor;
+			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
+			Point ptClient = ptCursor;
+			::ScreenToClient(reinterpret_cast<HWND>(wTabBar.GetID()),
+			                 reinterpret_cast<POINT *>(&ptClient));
+			TCHITTESTINFO info;
+			info.pt.x = ptClient.x;
+			info.pt.y = ptClient.y;
+
+			int tabbarHitLast = TabCtrl_HitTest(reinterpret_cast<HWND> (wTabBar.GetID()), &info);
+
+			if (buffers.Current() != tabbarHitLast) {
+				SetDocumentAt(tabbarHitLast);
+				CheckReload();
+			}
+
+			// Pop up menu here:
+			popup.CreatePopUp();
+			AddToPopUp("Close", IDM_CLOSE, true);
+			AddToPopUp("");
+			AddToPopUp("Save", IDM_SAVE, true);
+			AddToPopUp("Save As", IDM_SAVEAS, true);
+			AddToPopUp("");
+
+			bool bAddSeparator = false;
+			for (int item = 0; item < toolMax; item++) {
+				int itemID = IDM_TOOLS + item;
+				SString prefix = "command.name.";
+				prefix += SString(item);
+				prefix += ".";
+				SString commandName = props.GetNewExpand(prefix.c_str(), fileName);
+				if (commandName.length()) {
+					SString sMenuItem = commandName;
+					SString sMnemonic = "Ctrl+";
+					sMnemonic += SString(item);
+					AddToPopUp(sMenuItem.c_str(), itemID, true);
+					bAddSeparator = true;
+				}
+			}
+
+			if (bAddSeparator)
+				AddToPopUp("");
+
+			AddToPopUp("Print", IDM_PRINT, true);
+			popup.Show(ptCursor, wSciTE);
+		}
+		break;
+
 	case NM_CLICK:
 		// Click on a control
 		if (notification->nmhdr.idFrom == IDM_STATUSWIN) {
@@ -268,7 +320,7 @@ void SciTEWin::SizeSubWindows() {
 
 
 
-// Keymod param is interpreted using the same notation (and much the same 
+// Keymod param is interpreted using the same notation (and much the same
 // code) as KeyMatch uses in SciTEWin.cxx.
 
 
