@@ -14,6 +14,7 @@
 #define IDM_TOOLS			1100
 #define IDM_BUFFER			1200
 #define IDM_IMPORT			1300
+#define IDM_LEXER			1400
 
 // File
 #define IDM_NEW			101

@@ -260,7 +260,10 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	regExp = false;
 	wrapFind = true;
 	unSlash = false;
-
+	
+	lexMenu = 0;
+	lexItems = 0;
+	
 	windowName[0] = '\0';
 	fullPath[0] = '\0';
 	fileName[0] = '\0';
@@ -378,7 +381,9 @@ void SciTEBase::SetOverrideLanguage(int cmdID) {
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
 	useMonoFont = false;
 
-	overrideExtension = extList[cmdID - LEXER_BASE];
+	//overrideExtension = extList[cmdID - LEXER_BASE];
+	overrideExtension = "x.";
+	overrideExtension.append(lexMenu[cmdID].extension.c_str());
 	ReadProperties();
 	SendEditor(SCI_COLOURISE, 0, -1);
 	Redraw();
@@ -2807,7 +2812,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		useMonoFont = !useMonoFont;
 		SetMonoFont();
 		break;
-
+/*
 	case IDM_LEXER_NONE:
 	case IDM_LEXER_CPP:
 	case IDM_LEXER_VB:
@@ -2842,7 +2847,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_BULLANT:
 		SetOverrideLanguage(cmdID);
 		break;
-
+*/
 	case IDM_MACROLIST:
 		AskMacroList();
 		break;
@@ -2884,6 +2889,8 @@ void SciTEBase::MenuCommand(int cmdID) {
 			}
 		} else if (cmdID >= IDM_TOOLS && cmdID < IDM_TOOLS + 10) {
 			ToolsMenu(cmdID - IDM_TOOLS);
+		} else if (cmdID >= IDM_LEXER && cmdID < IDM_LEXER + 100) {
+			SetOverrideLanguage(cmdID - IDM_LEXER);
 		}
 		break;
 	}

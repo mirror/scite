@@ -125,6 +125,7 @@ BEGIN
 	MENUITEM "&Convert Line End Characters",	IDM_EOL_CONVERT
 	MENUITEM SEPARATOR
 	MENUITEM "Change Inden&tation Settings...",	IDM_TABSIZE
+#ifdef OLDER
 	POPUP "Use le&xer"
 	BEGIN
 		MENUITEM "none\tShift+F11",			IDM_LEXER_NONE
@@ -160,6 +161,7 @@ BEGIN
 		MENUITEM "VBScr&ipt",				IDM_LEXER_WSCRIPT
 		MENUITEM "&XML\tShift+F12",			IDM_LEXER_XML
 	END // used: abceghijlmnpqrstuvyx
+#endif
 	MENUITEM "Use &Monospaced Font\tCtrl+F11",	IDM_MONOFONT
 	MENUITEM SEPARATOR
 	MENUITEM "Open Local &Options File",		IDM_OPENLOCALPROPERTIES
@@ -168,6 +170,11 @@ BEGIN
 	MENUITEM "Open A&bbreviations File",		IDM_OPENABBREVPROPERTIES
 	MENUITEM SEPARATOR
 END // used: abcglmopstux
+
+POPUP "&Lexer"
+BEGIN
+	MENUITEM "", IDM_LEXER
+END
 
 POPUP "&Buffers"
 BEGIN

@@ -167,6 +167,19 @@ void SciTEBase::ImportMenu(int pos) {
 	}
 }
 
+void SciTEBase::SetLexerMenu() {
+	for (int i = 0; i < 100; i++) {
+		DestroyMenuItem(menuLexer, lexerCmdID + i);
+	}
+	for (int item = 0; item < lexItems; item++) {
+		int itemID = lexerCmdID + item;
+		char entry[MAX_PATH + 20];
+		entry[0] = '\0';
+		strcat(entry, lexMenu[item].menuItem.c_str());
+		SetMenuItem(menuLexer, item, itemID, entry);
+	}
+}
+
 const char propFileName[] = "SciTE.properties";
 
 void SciTEBase::ReadGlobalPropFile() {
@@ -891,6 +904,27 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
 	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
+	
+	SString menuLexerProp = props.GetNewExpand("menu.lexer", "");
+	lexItems = 0;
+	for (int i=0;i<menuLexerProp.length();i++) {
+		if (menuLexerProp[i] == '|')
+			lexItems++;
+	}
+	lexItems /= 3;
+	lexMenu = new LexerMenuItem[lexItems];
+
+	menuLexerProp.substitute('|', '\0');
+	const char *sMenuLexer = menuLexerProp.c_str();
+	for (int item=0; item < lexItems; item++) {
+		lexMenu[item].menuItem = sMenuLexer;
+		sMenuLexer += strlen(sMenuLexer) + 1;
+		lexMenu[item].extension = sMenuLexer;
+		sMenuLexer += strlen(sMenuLexer) + 1;
+		lexMenu[item].menuKey = sMenuLexer;
+		sMenuLexer += strlen(sMenuLexer) + 1;
+	}
+	SetLexerMenu();
 
 #if PLAT_WIN
 	if (tabMultiLine) {	// Windows specific!

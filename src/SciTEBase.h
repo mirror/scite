@@ -34,7 +34,7 @@ const char *VMSToUnixStyle(const char *fileName);
  * and there is a Help menu at the end.
  */
 enum { menuFile = 0, menuEdit = 1, menuSearch = 2, menuView = 3,
-       menuTools = 4, menuOptions = 5, menuBuffers = 6 };
+       menuTools = 4, menuOptions = 5, menuLexer = 6, menuBuffers = 7 };
 
 /**
  * This is a fixed length list of strings suitable for display in combo boxes
@@ -179,6 +179,13 @@ public:
 	void Clear();
 };
 
+class LexerMenuItem {
+public:
+	SString menuItem;
+	SString menuKey;
+	SString extension;
+};
+
 /// Find the character following a name which is made up of character from
 /// the set [a-zA-Z.]
 char AfterName(const char *s);
@@ -270,6 +277,10 @@ protected:
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 	ComboMemory memFiles;
+
+	enum { lexerCmdID = IDM_LEXER };
+	LexerMenuItem *lexMenu;
+	int lexItems;
 
 	int codePage;
 	int characterSet;
@@ -582,6 +593,7 @@ protected:
 	void ViewWhitespace(bool view);
 	void SetImportMenu();
 	void ImportMenu(int pos);
+	void SetLexerMenu();
 	void SetPropertiesInitial();
 	virtual void ReadPropertiesInitial();
 	void SetMonoFont();
