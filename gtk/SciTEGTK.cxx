@@ -135,6 +135,7 @@ protected:
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
 	virtual void CheckMenus();
+	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true);
 	virtual void ExecuteNext();
 
 	virtual void OpenUriList(const char *list);
@@ -231,6 +232,8 @@ protected:
 	static void NotifySignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
 	static gint KeyPress(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
 	gint Key(GdkEventKey *event);
+	static gint MousePress(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
+	gint Mouse(GdkEventButton *event);
 
 	void DividerXOR(Point pt);
 	static gint DividerExpose(GtkWidget *widget, GdkEventExpose *ose, SciTEGTK *scitew);
@@ -304,7 +307,8 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	instance = this;
 }
 
-SciTEGTK::~SciTEGTK() {}
+SciTEGTK::~SciTEGTK() {
+}
 
 static GtkWidget *PWidget(Window &w) { 
 	return reinterpret_cast<GtkWidget *>(w.GetID()); 
@@ -1785,6 +1789,10 @@ gint SciTEGTK::KeyPress(GtkWidget */*widget*/, GdkEventKey *event, SciTEGTK *sci
 	return scitew->Key(event);
 }
 
+gint SciTEGTK::MousePress(GtkWidget */*widget*/, GdkEventButton *event, SciTEGTK *scitew) {
+	return scitew->Mouse(event);
+}
+	
 // Translate key strokes that are not in a menu into commands
 class KeyToCommand {
 public:
@@ -1868,6 +1876,45 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 			GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
 	}
 	return 0;
+}
+
+void SciTEGTK::AddToPopUp(const char *label, int cmd=0, bool enabled=true) {
+	SString localised = LocaliseString(label);
+	localised.insert(0, "/");
+	GtkItemFactoryEntry itemEntry = {
+	    const_cast<char *>(localised.c_str()), NULL,
+	    GTK_SIGNAL_FUNC(MenuSignal), cmd,
+	    const_cast<gchar *>(label[0] ? "<Item>" : "<Separator>")
+	};
+	gtk_item_factory_create_item(GTK_ITEM_FACTORY(popup.GetID()),
+	                             &itemEntry, this, 1);
+	if (cmd) {
+		GtkWidget *item = gtk_item_factory_get_widget_by_action(
+		                      reinterpret_cast<GtkItemFactory *>(popup.GetID()), cmd);
+		if (item)
+			gtk_widget_set_sensitive(item, enabled);
+	}
+}
+
+gint SciTEGTK::Mouse(GdkEventButton *event) {
+	if (event->button == 3) {
+		// PopUp menu
+		Window w = wEditor;
+		if (PWidget(w)->window != event->window) {
+			if (PWidget(wOutput)->window == event->window) {
+				w = wOutput;
+			} else {
+				return FALSE;
+			}
+		}
+		// Convert to screen
+		int ox = 0;
+		int oy = 0;
+		gdk_window_get_origin(PWidget(w)->window, &ox, &oy);
+		ContextMenu(w, Point(static_cast<int>(event->x) + ox, 
+			static_cast<int>(event->y) + oy), wSciTE);
+	}
+	return FALSE;
 }
 
 void SciTEGTK::DividerXOR(Point pt) {
@@ -2371,6 +2418,9 @@ void SciTEGTK::CreateUI() {
 	gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "key_press_event",
 	                   GtkSignalFunc(KeyPress), gthis);
 
+	gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "button_press_event",
+	                   GtkSignalFunc(MousePress), gthis);
+
 	gtk_window_set_title(GTK_WINDOW(PWidget(wSciTE)), appName);
 	int left = props.GetInt("position.left", 10);
 	int top = props.GetInt("position.top", 30);
@@ -2431,6 +2481,7 @@ void SciTEGTK::CreateUI() {
 	               PWidget(wEditor), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrEditor = Platform::SendScintilla(PWidget(wEditor),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
+	SendEditor(SCI_USEPOPUP, 0);
 #ifdef CLIENT_3D_EFFECT
 	gtk_container_add(GTK_CONTAINER(PWidget(topFrame)), PWidget(wEditor));
 #else
@@ -2476,6 +2527,7 @@ void SciTEGTK::CreateUI() {
 	               PWidget(wOutput), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrOutput = Platform::SendScintilla(PWidget(wOutput),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
+	SendOutput(SCI_USEPOPUP, 0);
 #ifdef CLIENT_3D_EFFECT
 	gtk_container_add(GTK_CONTAINER(PWidget(outputFrame)), wOutput));
 #else

@@ -1239,8 +1239,9 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	return 0l;
 }
 
-void SciTEWin::AddToPopUp(HMENU menu, const char *label, int cmd=0, bool enabled=true) {
+void SciTEWin::AddToPopUp(const char *label, int cmd, bool enabled) {
 	SString localised = LocaliseString(label);
+	HMENU menu = reinterpret_cast<HMENU>(popup.GetID());
 	if (0 == localised.length())
 		::AppendMenu(menu, MF_SEPARATOR, 0, "");
 	else if (enabled)
@@ -1249,14 +1250,7 @@ void SciTEWin::AddToPopUp(HMENU menu, const char *label, int cmd=0, bool enabled
 		::AppendMenu(menu, MF_STRING | MF_DISABLED | MF_GRAYED, cmd, localised.c_str());
 }
 
-sptr_t SciTEWin::SendWindow(Window &w, unsigned int msg, uptr_t wParam, sptr_t lParam) {
-	if (w.GetID() == wOutput.GetID())
-		return SendOutput(msg, wParam, lParam);
-	else
-		return SendEditor(msg, wParam, lParam);
-}
-
-LRESULT SciTEWin::ContextMenu(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	Window w = wEditor;
 	Point pt = Point::FromLong(lParam);
 	if ((pt.x == -1) && (pt.y == -1)) {
@@ -1280,23 +1274,7 @@ LRESULT SciTEWin::ContextMenu(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			}
 		}
 	}
-	int currentPos = SendWindow(w, SCI_GETCURRENTPOS);
-	int anchor = SendWindow(w, SCI_GETANCHOR);
-	HMENU menu = ::CreatePopupMenu();
-	bool writable = !SendWindow(w, SCI_GETREADONLY);
-	AddToPopUp(menu, "Undo", IDM_UNDO, writable && SendWindow(w, SCI_CANUNDO));
-	AddToPopUp(menu, "Redo", IDM_REDO, writable && SendWindow(w, SCI_CANREDO));
-	AddToPopUp(menu, "");
-	AddToPopUp(menu, "Cut", IDM_CUT, writable && currentPos != anchor);
-	AddToPopUp(menu, "Copy", IDM_COPY, currentPos != anchor);
-	AddToPopUp(menu, "Paste", IDM_PASTE, writable && SendWindow(w, SCI_CANPASTE));
-	AddToPopUp(menu, "Delete", IDM_CLEAR, writable && currentPos != anchor);
-	AddToPopUp(menu, "");
-	AddToPopUp(menu, "Select All", IDM_SELECTALL);
-	::TrackPopupMenu(menu, 
-		0, pt.x - 4, pt.y, 0, 
-		MainHWND(), NULL);
-	::DestroyMenu(menu);
+	ContextMenu(w, pt, wSciTE);
 	return 0;
 }
 
@@ -1319,7 +1297,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_CONTEXTMENU:
-		return ContextMenu(iMessage, wParam, lParam);
+		return ContextMenuMessage(iMessage, wParam, lParam);
 
 	case WM_SYSCOMMAND:
 		if ((wParam == SC_MINIMIZE) && props.GetInt("minimize.to.tray")) {

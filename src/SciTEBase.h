@@ -320,6 +320,7 @@ protected:
 	Window wToolBar;
 	Window wStatusBar;
 	Window wTabBar;
+	Menu popup;
 	SciFnDirect fnEditor;
 	long ptrEditor;
 	SciFnDirect fnOutput;
@@ -433,6 +434,7 @@ protected:
 	sptr_t SendEditorString(unsigned int msg, uptr_t wParam, const char *s);
 	sptr_t SendOutput(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
+	sptr_t SendWindow(Window &w, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 	void SendChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendOutputEx(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0, bool direct = true);
 	int LengthDocument();
@@ -584,6 +586,8 @@ protected:
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val) = 0;
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val) = 0;
 	virtual void CheckMenus();
+	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true)=0;
+	void ContextMenu(Window wSource, Point pt, Window wCmd);
 
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();

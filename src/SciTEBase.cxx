@@ -237,6 +237,7 @@ SciTEBase::~SciTEBase() {
 	if (extender)
 		extender->Finalise();
 	delete []languageMenu;
+	popup.Destroy();
 }
 
 sptr_t SciTEBase::SendEditor(unsigned int msg, uptr_t wParam, sptr_t lParam) {
@@ -251,16 +252,23 @@ sptr_t SciTEBase::SendOutput(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	return fnOutput(ptrOutput, msg, wParam, lParam);
 }
 
-void SciTEBase::SendChildren(unsigned int msg, uptr_t wParam, sptr_t lParam) {
-	SendEditor(msg, wParam, lParam);
-	SendOutput(msg, wParam, lParam);
-}
-
 sptr_t SciTEBase::SendFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	if (wOutput.HasFocus())
 		return SendOutput(msg, wParam, lParam);
 	else
 		return SendEditor(msg, wParam, lParam);
+}
+
+sptr_t SciTEBase::SendWindow(Window &w, unsigned int msg, uptr_t wParam, sptr_t lParam) {
+	if (w.GetID() == wOutput.GetID())
+		return SendOutput(msg, wParam, lParam);
+	else
+		return SendEditor(msg, wParam, lParam);
+}
+
+void SciTEBase::SendChildren(unsigned int msg, uptr_t wParam, sptr_t lParam) {
+	SendEditor(msg, wParam, lParam);
+	SendOutput(msg, wParam, lParam);
 }
 
 sptr_t SciTEBase::SendOutputEx(unsigned int msg, uptr_t wParam/*= 0*/, sptr_t lParam /*= 0*/, bool direct /*= true*/) {
@@ -3232,6 +3240,23 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_MACROPLAY, !recording);
 	EnableAMenuItem(IDM_MACRORECORD, !recording);
 	EnableAMenuItem(IDM_MACROSTOPRECORD, recording);
+}
+
+void SciTEBase::ContextMenu(Window wSource, Point pt, Window wCmd) {
+	int currentPos = SendWindow(wSource, SCI_GETCURRENTPOS);
+	int anchor = SendWindow(wSource, SCI_GETANCHOR);
+	popup.CreatePopUp();
+	bool writable = !SendWindow(wSource, SCI_GETREADONLY);
+	AddToPopUp("Undo", IDM_UNDO, writable && SendWindow(wSource, SCI_CANUNDO));
+	AddToPopUp("Redo", IDM_REDO, writable && SendWindow(wSource, SCI_CANREDO));
+	AddToPopUp("");
+	AddToPopUp("Cut", IDM_CUT, writable && currentPos != anchor);
+	AddToPopUp("Copy", IDM_COPY, currentPos != anchor);
+	AddToPopUp("Paste", IDM_PASTE, writable && SendWindow(wSource, SCI_CANPASTE));
+	AddToPopUp("Delete", IDM_CLEAR, writable && currentPos != anchor);
+	AddToPopUp("");
+	AddToPopUp("Select All", IDM_SELECTALL);
+	popup.Show(pt, wCmd);
 }
 
 /**
