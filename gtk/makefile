@@ -68,16 +68,11 @@ deps:
 	$(CC) -MM `$(CONFIGFLAGS)` $(CXXFLAGS) *.cxx ../src/*.cxx >deps.mak
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
-LEXEROBJS=$(wildcard ../../scintilla/gtk/Lex*.o)
+COMPLIB=../../scintilla/bin/scintilla.a
 
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o DirectorExtension.o \
-SciTEProps.o Utf8_16.o $(LEXEROBJS) ../../scintilla/bin/scintilla.a
+SciTEProps.o Utf8_16.o $(COMPLIB)
 	$(CC) `$(CONFIGLIB)` `glib-config --libs gthread` -DGTK $^ -o $@
-
-# SciTE-static no longer builds. Kept here in case of later need.
-SciTE-static: SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
-Utf8_16.o KeyWords.o StyleContext.o Document.o Scintilla.o PropSet.o DirectorExtension.o
-	$(CC) -L/usr/X11R6/lib -lXext -lX11 -lm -DGTK -DSCI_LEXER SciTE.o KeyWords.o StyeContext.o Document.o Scintilla.o PropSet.o /usr/local/lib/libgtk.a /usr/local/lib/libgdk.a /usr/local/lib/libgmodule.a /usr/local/lib/libglib.a -o SciTE-static
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
