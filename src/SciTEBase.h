@@ -558,7 +558,7 @@ void lowerCaseString(char *s);
 void ChopTerminalSlash(char *path);
 int IntFromHexDigit(const char ch);
 Colour ColourFromString(const char *val);
-Colour ColourOfProperty(PropSet &props, const char *key, Colour colourDefault);
+long ColourOfProperty(PropSet &props, const char *key, Colour colourDefault);
 
 #if PLAT_GTK
 // MessageBox

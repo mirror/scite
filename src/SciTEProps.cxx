@@ -252,12 +252,12 @@ Colour ColourFromString(const char *val) {
 	return Colour(r, g, b);
 }
 
-Colour ColourOfProperty(PropSet &props, const char *key, Colour colourDefault) {
+long ColourOfProperty(PropSet &props, const char *key, Colour colourDefault) {
 	SString colour = props.Get(key);
 	if (colour.length()) {
-		return ColourFromString(colour.c_str());
+		return ColourFromString(colour.c_str()).AsLong();
 	} else {
-		return colourDefault;
+		return colourDefault.AsLong();
 	}
 }
 
@@ -538,27 +538,23 @@ void SciTEBase::ReadProperties() {
 
 	characterSet = props.GetInt("character.set");
 
-	SString colour;
-	colour = props.Get("caret.fore");
-	if (colour.length()) {
-		SendEditor(SCI_SETCARETFORE, ColourFromString(colour.c_str()).AsLong());
-	}
+	SendEditor(SCI_SETCARETFORE, 
+		ColourOfProperty(props, "caret.fore", Colour(0, 0, 0)));
 
 	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 
-	colour = props.Get("caret.line.back");
-	if (colour.length()) {
+	SString caretLineBack = props.Get("caret.line.back");
+	if (caretLineBack.length()) {
 		SendEditor(SCI_SETCARETLINEVISIBLE, 1);
-		SendEditor(SCI_SETCARETLINEBACK, ColourFromString(colour.c_str()).AsLong());
+		SendEditor(SCI_SETCARETLINEBACK, 
+			ColourFromString(caretLineBack.c_str()).AsLong());
 	} else {
 		SendEditor(SCI_SETCARETLINEVISIBLE, 0);
 	}
 	
-	colour = props.Get("calltip.back");
-	if (colour.length()) {
-		SendEditor(SCI_CALLTIPSETBACK, ColourFromString(colour.c_str()).AsLong());
-	}
+	SendEditor(SCI_CALLTIPSETBACK, 
+		ColourOfProperty(props, "calltip.back", Colour(0xff, 0xff, 0xff)));
 
 	SString caretPeriod = props.Get("caret.period");
 	if (caretPeriod.length()) {
@@ -579,22 +575,20 @@ void SciTEBase::ReadProperties() {
 
 	SendEditor(SCI_SETEDGECOLUMN, props.GetInt("edge.column", 0));
 	SendEditor(SCI_SETEDGEMODE, props.GetInt("edge.mode", EDGE_NONE));
-	colour = props.Get("edge.colour");
-	if (colour.length()) {
-		SendEditor(SCI_SETEDGECOLOUR, ColourFromString(colour.c_str()).AsLong());
-	}
+	SendEditor(SCI_SETEDGECOLOUR, 
+		ColourOfProperty(props, "edge.colour", Colour(0xff, 0xda, 0xda)));
 
-	SString selfore = props.Get("selection.fore");
-	if (selfore.length()) {
-		SendChildren(SCI_SETSELFORE, 1, ColourFromString(selfore.c_str()).AsLong());
+	SString selFore = props.Get("selection.fore");
+	if (selFore.length()) {
+		SendChildren(SCI_SETSELFORE, 1, ColourFromString(selFore.c_str()).AsLong());
 	} else {
 		SendChildren(SCI_SETSELFORE, 0, 0);
 	}
-	colour = props.Get("selection.back");
-	if (colour.length()) {
-		SendChildren(SCI_SETSELBACK, 1, ColourFromString(colour.c_str()).AsLong());
+	SString selBack = props.Get("selection.back");
+	if (selBack.length()) {
+		SendChildren(SCI_SETSELBACK, 1, ColourFromString(selBack.c_str()).AsLong());
 	} else {
-		if (selfore.length())
+		if (selFore.length())
 			SendChildren(SCI_SETSELBACK, 0, 0);
 		else	// Have to show selection somehow
 			SendChildren(SCI_SETSELBACK, 1, Colour(0xC0, 0xC0, 0xC0).AsLong());

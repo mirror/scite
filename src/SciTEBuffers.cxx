@@ -735,9 +735,9 @@ void SciTEBase::GoMessage(int dir) {
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			SendOutput(SCI_MARKERSETFORE, 0, ColourOfProperty(props, 
-				"error.marker.fore", Colour(0x7f, 0, 0)).AsLong());
+				"error.marker.fore", Colour(0x7f, 0, 0)));
 			SendOutput(SCI_MARKERSETBACK, 0, ColourOfProperty(props, 
-				"error.marker.back", Colour(0xff, 0xff, 0)).AsLong());
+				"error.marker.back", Colour(0xff, 0xff, 0)));
 			SendOutput(SCI_MARKERADD, lookLine, 0);
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
 			char *cdoc = new char[lineLength + 1];
@@ -769,9 +769,9 @@ void SciTEBase::GoMessage(int dir) {
 				SendEditor(SCI_MARKERDELETEALL, 0);
 				SendEditor(SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
 				SendEditor(SCI_MARKERSETFORE, 0, ColourOfProperty(props, 
-					"error.marker.fore", Colour(0x7f, 0, 0)).AsLong());
+					"error.marker.fore", Colour(0x7f, 0, 0)));
 				SendEditor(SCI_MARKERSETBACK, 0, ColourOfProperty(props, 
-					"error.marker.back", Colour(0xff, 0xff, 0)).AsLong());
+					"error.marker.back", Colour(0xff, 0xff, 0)));
 				SendEditor(SCI_MARKERADD, sourceLine, 0);
 				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
 				EnsureRangeVisible(startSourceLine, startSourceLine);
