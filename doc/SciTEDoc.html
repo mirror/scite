@@ -52,12 +52,12 @@
        Standard Editing
     </h3>
     <p>
-	Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
-	feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
-	only one file will be visible. SciTE's initial configuration only allows one file to be in memory
-	at once but this can be modified by changing the value of the buffers property. Rectangular
-	regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
-	key on GTK+ while dragging the mouse over the text.
+        Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
+        feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
+        only one file will be visible. SciTE's initial configuration only allows one file to be in memory
+        at once but this can be modified by changing the value of the buffers property. Rectangular
+        regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
+        key on GTK+ while dragging the mouse over the text.
     </p>
     <p>
        There are two panes in SciTE, the editing pane and the output pane. The output pane is
@@ -85,19 +85,19 @@ print "Hi"
      The document should now appear coloured as SciTE is using the file's extension to decide upon
     the syntax styling to use:
     <blockquote>
-	<code>
-		<b><font color="#000080">print </font></b>
-		<i><font color="#800080">"hi"</font></i>
-	</code>
+        <code>
+                <b><font color="#000080">print </font></b>
+                <i><font color="#800080">"hi"</font></i>
+        </code>
     </blockquote>
     Perform the Tools | Go command.<br />
      The output window will be made visible if it is not already visible and will show:<br />
     <blockquote>
-	<code>
-		<font color="#0000FF">&gt;python -u printhi.py</font><br />
-		hi<br />
-		<font color="#0000FF">&gt;Exit code: 0</font>
-	</code>
+        <code>
+                <font color="#0000FF">&gt;python -u printhi.py</font><br />
+                hi<br />
+                <font color="#0000FF">&gt;Exit code: 0</font>
+        </code>
     </blockquote>
     The first blue line is from SciTE showing the command it will use to run the program. The black
     line is the output from running the Python program. The last blue line is from SciTE showing
@@ -110,11 +110,11 @@ print "Hi"
       the Python file by adding a second line to make the file:
     </p>
     <blockquote>
-	<code>
-	<span style="color:#000080;font-weight:bold;">print </span>
-	<span style="color:#800080;font-style:italic;">"hi"</span><br />
-	mistake
-	</code>
+        <code>
+        <span style="color:#000080;font-weight:bold;">print </span>
+        <span style="color:#800080;font-style:italic;">"hi"</span><br />
+        mistake
+        </code>
     </blockquote>
     <p>
        Perform the Tools | Go command. The results should look like:
@@ -192,35 +192,35 @@ NameError: mistake
        A few commands are currently available although this will expand in the future.
        These commands are available:
        <table cellpadding="0" cellspacing="0" border="1">
-	<thead>
-	<tr><th>Command</th><th>Argument</th></tr>
-	</thead>
-	<tr><td>close:</td><td></td></tr>
-	<tr><td>cwd:</td><td>change working directory</td></tr>
-	<tr><td>find:</td><td>search text</td></tr>
-	<tr><td>goto:</td><td>line number[,column number]</td></tr>
-	<tr><td>open:</td><td>file name</td></tr>
-	<tr><td>quit:</td><td></td></tr>
-	<tr><td>replaceall:</td><td>search text\000replacement text</td></tr>
-	<tr><td>saveas:</td><td>file name</td></tr>
+        <thead>
+        <tr><th>Command</th><th>Argument</th></tr>
+        </thead>
+        <tr><td>close:</td><td></td></tr>
+        <tr><td>cwd:</td><td>change working directory</td></tr>
+        <tr><td>find:</td><td>search text</td></tr>
+        <tr><td>goto:</td><td>line number[,column number]</td></tr>
+        <tr><td>open:</td><td>file name</td></tr>
+        <tr><td>quit:</td><td></td></tr>
+        <tr><td>replaceall:</td><td>search text\000replacement text</td></tr>
+        <tr><td>saveas:</td><td>file name</td></tr>
        </table>
        </p>
        <p>
        Commands use C style escape sequences which include:
        <table cellpadding="0" cellspacing="0" border="1">
-	<thead>
-	<tr><th>Escape Sequence</th><th>Meaning</th></tr>
-	</thead>
-	<tr><td>\\</td><td>backslash</td></tr>
-	<tr><td>\a</td><td>bell</td></tr>
-	<tr><td>\b</td><td>backspace</td></tr>
-	<tr><td>\f</td><td>form feed</td></tr>
-	<tr><td>\n</td><td>new line</td></tr>
-	<tr><td>\r</td><td>carriage return</td></tr>
-	<tr><td>\t</td><td>tab</td></tr>
-	<tr><td>\v</td><td>vertical tab</td></tr>
-	<tr><td>\&lt;ooo&gt;</td><td>octal number specified by 1, 2, or 3 digits</td></tr>
-	<tr><td>\x&lt;hh&gt;</td><td>hexadecimal number specified by 2 digits</td></tr>
+        <thead>
+        <tr><th>Escape Sequence</th><th>Meaning</th></tr>
+        </thead>
+        <tr><td>\\</td><td>backslash</td></tr>
+        <tr><td>\a</td><td>bell</td></tr>
+        <tr><td>\b</td><td>backspace</td></tr>
+        <tr><td>\f</td><td>form feed</td></tr>
+        <tr><td>\n</td><td>new line</td></tr>
+        <tr><td>\r</td><td>carriage return</td></tr>
+        <tr><td>\t</td><td>tab</td></tr>
+        <tr><td>\v</td><td>vertical tab</td></tr>
+        <tr><td>\&lt;ooo&gt;</td><td>octal number specified by 1, 2, or 3 digits</td></tr>
+        <tr><td>\x&lt;hh&gt;</td><td>hexadecimal number specified by 2 digits</td></tr>
        </table>
        The following opens /big/icon.txt:<br />
        <code>
@@ -232,15 +232,15 @@ NameError: mistake
        SciTE "-open:C:\\Program Files\\SciTE\\SciTEDoc.html" -goto:123
        </code><br />
     <p>
-	Command line arguments are evaluated left to right in two phases because
-	opening files requires the user interface to be available and there is also a need
-	to set some user interface properties before the user interface is displayed.
-	The first phase process arguments until just before the first file name would be opened.
-	The second phase processes the remaining arguments.
+        Command line arguments are evaluated left to right in two phases because
+        opening files requires the user interface to be available and there is also a need
+        to set some user interface properties before the user interface is displayed.
+        The first phase process arguments until just before the first file name would be opened.
+        The second phase processes the remaining arguments.
     </p>
     <p>
-	So, if you need to perform e.g. a find: or a goto: command on a file, you must put
-	the command after the filename, to allow SciTE to open the file before performing the command.
+        So, if you need to perform e.g. a find: or a goto: command on a file, you must put
+        the command after the filename, to allow SciTE to open the file before performing the command.
     </p>
     <h3>
        Buffers
@@ -259,34 +259,34 @@ NameError: mistake
        wants the file saved.
     </p>
     <h3>
-	Sessions
+        Sessions
     </h3>
      <p>
-	A session is a list of file names. You can save a complete set of your
-	currently opened buffers as a session for fast batch-loading in the
-	future.
-	Sessions are stored as plain text files with the extension ".ses".
+        A session is a list of file names. You can save a complete set of your
+        currently opened buffers as a session for fast batch-loading in the
+        future.
+        Sessions are stored as plain text files with the extension ".ses".
      </p>
      <p>
-	Use File | Load Session and File | Save Session to load/save sessions.
-	You can turn on/off "last session autoloading" using SciTE properties
-	variable "save.session".
+        Use File | Load Session and File | Save Session to load/save sessions.
+        You can turn on/off "last session autoloading" using SciTE properties
+        variable "save.session".
      </p>
      <p>
-	If "buffers" variable is set to "0" session management is turned off.
+        If "buffers" variable is set to "0" session management is turned off.
      </p>
      <p>
-	Loading previously saved session will close your currently opened
-	buffers. However you will not loose your edits, because you will be
-	asked to save unsaved buffers first.
+        Loading previously saved session will close your currently opened
+        buffers. However you will not loose your edits, because you will be
+        asked to save unsaved buffers first.
      </p>
      <p>
-	Opening a specific file from command line overrides "save.session"
-	variable state. When you start SciTE loading a specific file from
-	command line last session will not restore even if "save.session"
-	variable is set to "1". This makes "save.session" safe to use - you
-	will never open a couple of files when you are trying to open just
-	one, specific file.
+        Opening a specific file from command line overrides "save.session"
+        variable state. When you start SciTE loading a specific file from
+        command line last session will not restore even if "save.session"
+        variable is set to "1". This makes "save.session" safe to use - you
+        will never open a couple of files when you are trying to open just
+        one, specific file.
      </p>
     <h3>
        Languages understood by SciTE
@@ -295,27 +295,27 @@ NameError: mistake
        SciTE currently is able to syntax style these languages:
     </p>
     <ul>
-	<li>Ada</li>
-	<li>Avenue</li>
-	<li>C/C++/C#</li>
-	<li>CSS</li>
-	<li>Eiffel</li>
-	<li>HTML</li>
-	<li>HTML with embedded JavaScript, VBScript, PHP and ASP</li>
-	<li>IDL - both MSIDL and XPIDL</li>
-	<li>INI, properties and similar</li>
-	<li>Java</li>
-	<li>JavaScript</li>
-	<li>Lisp</li>
-	<li>Lua</li>
-	<li>Make</li>
-	<li>Pascal</li>
-	<li>Perl, but not all of the language</li>
-	<li>Python</li>
-	<li>Ruby</li>
-	<li>SQL and PLSQL</li>
-	<li>VB and VBScript</li>
-	<li>XML</li>
+        <li>Ada</li>
+        <li>Avenue</li>
+        <li>C/C++/C#</li>
+        <li>CSS</li>
+        <li>Eiffel</li>
+        <li>HTML</li>
+        <li>HTML with embedded JavaScript, VBScript, PHP and ASP</li>
+        <li>IDL - both MSIDL and XPIDL</li>
+        <li>INI, properties and similar</li>
+        <li>Java</li>
+        <li>JavaScript</li>
+        <li>Lisp</li>
+        <li>Lua</li>
+        <li>Make</li>
+        <li>Pascal</li>
+        <li>Perl, but not all of the language</li>
+        <li>Python</li>
+        <li>Ruby</li>
+        <li>SQL and PLSQL</li>
+        <li>VB and VBScript</li>
+        <li>XML</li>
     </ul>
     <p>
        Running and building commands for some of these languages have been set up but should be
@@ -323,7 +323,7 @@ NameError: mistake
     </p>
     <p>
       Language settings are determined from the file extension but this can be changed
-      by selecting anothr language from the Language menu. The language menu can be
+      by selecting another language from the Language menu. The language menu can be
       changed with the menu.language property.
     </p>
     <h3>
@@ -349,100 +349,129 @@ NameError: mistake
        Keyboard commands
     </h3>
     <p>
-       Keyboard commands in SciTE mostly follow common Windows and GTK+ conventions. Keyboard
-      equivalents of menu commands are listed in the menus. Some less common commands with no menu
-      equivalent are:
+       SciTE uses the default key bindings defined in Scintilla, so
+       keyboard commands in SciTE mostly follow common Windows and GTK+ conventions.
+       All move keys (arrows, page up/down, home and end)
+       allows to extend or reduce the stream selection when holding the Shift key,
+       and the rectangular selection when holding the Shift and Alt keys.
+       Note that Home key behaviour is changed by the vc.home.key option.
+       Keyboard equivalents of menu commands are listed in the menus.
+       Some less common commands with no menu equivalent are:
     </p>
 <table cellpadding="0" cellspacing="0" border="1">
       <tr>
-	<td>Magnify text size.</td><td>Ctrl+Keypad+</td>
+        <td>Magnify text size.</td><td>Ctrl+Keypad+</td>
       </tr>
       <tr>
-	<td>Reduce text size.</td><td>Ctrl+Keypad-</td>
+        <td>Reduce text size.</td><td>Ctrl+Keypad-</td>
       </tr>
       <tr>
-	<td>Restore text size to normal.</td><td>Ctrl+Keypad/</td>
+        <td>Restore text size to normal.</td><td>Ctrl+Keypad/</td>
       </tr>
       <tr>
-	<td>Cycle through recent files.</td><td>Ctrl+Tab</td>
+        <td>Cycle through recent files.</td><td>Ctrl+Tab</td>
       </tr>
       <tr>
-	<td>Indent block.</td><td>Tab</td>
+        <td>Indent block.</td><td>Tab</td>
       </tr>
       <tr>
-	<td>Dedent block.</td><td>Shift+Tab</td>
+        <td>Dedent block.</td><td>Shift+Tab</td>
       </tr>
       <tr>
-	<td>Delete to start of word.</td><td>Ctrl+BackSpace</td>
+        <td>Delete to start of word.</td><td>Ctrl+BackSpace</td>
       </tr>
       <tr>
-	<td>Delete to end of word.</td><td>Ctrl+Delete</td>
+        <td>Delete to end of word.</td><td>Ctrl+Delete</td>
       </tr>
       <tr>
-	<td>Delete to start of line.</td><td>Ctrl+Shift+BackSpace</td>
+        <td>Delete to start of line.</td><td>Ctrl+Shift+BackSpace</td>
       </tr>
       <tr>
-	<td>Delete to end of line.</td><td>Ctrl+Shift+Delete</td>
+        <td>Delete to end of line.</td><td>Ctrl+Shift+Delete</td>
       </tr>
       <tr>
-	<td>Go to start of display line.</td><td>Alt+Home</td>
+        <td>Go to start of document.</td><td>Ctrl+Home</td>
       </tr>
       <tr>
-	<td>Select to start of display line.</td><td>Alt+Shift+Home</td>
+        <td>Extend selection to start of document.</td><td>Ctrl+Shift+Home</td>
       </tr>
       <tr>
-	<td>Go to end of display line.</td><td>Alt+End</td>
+        <td>Go to start of display line.</td><td>Alt+Home</td>
       </tr>
       <tr>
-	<td>Select to end of display line.</td><td>Alt+Shift+End</td>
+        <td>Extend selection to start of display line.</td><td>Alt+Shift+Home</td>
       </tr>
       <tr>
-	<td>Expand or contract a fold point.</td><td>Ctrl+Keypad*</td>
+        <td>Go to end of document.</td><td>Ctrl+End</td>
       </tr>
       <tr>
-	<td>Create or delete a bookmark.</td><td>Ctrl+F2</td>
+        <td>Extend selection to end of document.</td><td>Ctrl+Shift+End</td>
       </tr>
       <tr>
-	<td>Go to next bookmark.</td><td>F2</td>
+        <td>Go to end of display line.</td><td>Alt+End</td>
       </tr>
       <tr>
-	<td>Find selection.</td><td>Ctrl+F3</td>
+        <td>Extend selection to end of display line.</td><td>Alt+Shift+End</td>
       </tr>
       <tr>
-	<td>Find selection backwards.</td><td>Ctrl+Shift+F3</td>
+        <td>Expand or contract a fold point.</td><td>Ctrl+Keypad*</td>
       </tr>
       <tr>
-	<td>Scroll up.</td><td>Ctrl+Up</td>
+        <td>Create or delete a bookmark.</td><td>Ctrl+F2</td>
       </tr>
       <tr>
-	<td>Scroll down.</td><td>Ctrl+Down</td>
+        <td>Go to next bookmark.</td><td>F2</td>
       </tr>
       <tr>
-	<td>Line cut.</td><td>Ctrl+L</td>
+        <td>Find selection.</td><td>Ctrl+F3</td>
       </tr>
       <tr>
-	<td>Line copy.</td><td>Ctrl+Shift+T</td>
+        <td>Find selection backwards.</td><td>Ctrl+Shift+F3</td>
       </tr>
       <tr>
-	<td>Line delete.</td><td>Ctrl+Shift+L</td>
+        <td>Scroll up.</td><td>Ctrl+Up</td>
       </tr>
       <tr>
-	<td>Line transpose with previous.</td><td>Ctrl+T</td>
+        <td>Scroll down.</td><td>Ctrl+Down</td>
       </tr>
       <tr>
-	<td>Line duplicate.</td><td>Ctrl+D</td>
+        <td>Line cut.</td><td>Ctrl+L</td>
       </tr>
       <tr>
-	<td>Find preprocessor conditional.</td><td>Ctrl+K</td>
+        <td>Line copy.</td><td>Ctrl+Shift+T</td>
       </tr>
       <tr>
-	<td>Select to preprocessor conditional.</td><td>Ctrl+Shift+K</td>
+        <td>Line delete.</td><td>Ctrl+Shift+L</td>
       </tr>
       <tr>
-	<td>Find preprocessor conditional backwards.</td><td>Ctrl+J</td>
+        <td>Line transpose with previous.</td><td>Ctrl+T</td>
       </tr>
       <tr>
-	<td>Select to preprocessor conditional backwards.</td><td>Ctrl+Shift+J</td>
+        <td>Line duplicate.</td><td>Ctrl+D</td>
+      </tr>
+      <tr>
+        <td>Find matching preprocessor conditional, skipping nested ones.</td><td>Ctrl+K</td>
+      </tr>
+      <tr>
+        <td>Select to matching preprocessor conditional.</td><td>Ctrl+Shift+K</td>
+      </tr>
+      <tr>
+        <td>Find matching preprocessor conditional backwards, skipping nested ones.</td><td>Ctrl+J</td>
+      </tr>
+      <tr>
+        <td>Select to matching preprocessor conditional backwards.</td><td>Ctrl+Shift+J</td>
+      </tr>
+      <tr>
+        <td>Previous or next paragraph. (Shift extends selection (or not?).)</td><td>Alt+Up or Down</td>
+      </tr>
+      <tr>
+        <td>Previous or next word. (Shift extends selection.)</td><td>Ctrl+Left or Right</td>
+      </tr>
+      <tr>
+        <td>Previous or next word part. (Shift extends selection (or not?).)</td><td>Alt+Ctrl+Left or Right</td>
+      </tr>
+      <tr>
+        <td>Document end. (Shift extends selection.)</td><td>Ctrl+End</td>
       </tr>
     </table>
     <h3>
@@ -456,12 +485,23 @@ NameError: mistake
        add abbreviations.
     </p>
     <p>
-       Each line in the files looks like "abbreviation=expansion".
+       Each line in the files looks like "abbreviation=expansion".<br />
+       The abbreviations names can have any character (except perhaps control chars,
+       surely for CR and LF), including high Ascii chars (accented chars).<br />
+       Names have properties files limits: they cannot start with sharp (#) or space or tab
+       (but can have spaces inside); and they cannot have '=' character inside.<br />
+       Abbreviations names are limited to 32 characters. It is probably enough for
+       <em>abbreviations</em>...<br />
+    </p>
+    <p>
        An expansion may contain new line characters indicated by '\n' and
        a caret position indicated by the '|' character. To include a literal '|'
-       character, use '||'.
-       Some simple examples are included in the distributed Abbreviations
-       file.
+       character, use '||'.<br />
+       Some simple examples are included in the distributed Abbreviations file.<br />
+       When expanding, the names don't need to be separated from the previous text.
+       Ie. if you define 'é' as '&amp;eacute;', you can expand it inside a word.<br />
+       If a name is the ending of another one, only the shorter will ever be expanded.
+       Ie. if you define 'ring' and 'gathering', the later will see only the 'ring' part expanded.
     </p>
     <h3>
        Folding
@@ -526,24 +566,24 @@ NameError: mistake
       some variables set by the environment to access the name of the current file as well:
     </p>
        <table cellpadding="0" cellspacing="0" border="1">
-	<thead>
-	<tr><th>Name</th><th>Meaning</th></tr>
-	</thead>
-	       <tr><td>FilePath</td><td>full path of the current file</td></tr>
-	       <tr><td>FileDir</td><td>directory of the current file without a trailing slash</td></tr>
-	       <tr><td>FileName</td><td>base name of the current file</td></tr>
-	       <tr><td>FileExt</td><td>extension of the current file</td></tr>
-	       <tr><td>FileNameExt</td><td>$(FileName).$(FileExt)</td></tr>
-	       <tr><td>CurrentSelection</td><td>value of the currently selected text</td></tr>
-	       <tr><td>CurrentWord</td><td>value of word which the caret is within or near</td></tr>
-	       <tr><td>Replacements</td><td>number of replacements made by last Replace command</td></tr>
-	       <tr><td>SelectionStartColumn</td><td>column where selection starts</td></tr>
-	       <tr><td>SelectionStartLine</td><td>line where selection starts</td></tr>
-	       <tr><td>SelectionEndColumn</td><td>column where selection ends</td></tr>
-	       <tr><td>SelectionEndLine</td><td>line where selection ends</td></tr>
-	       <tr><td>SciteDefaultHome</td><td>directory in which the Global Options file is found</td></tr>
-	       <tr><td>SciteUserHome</td><td>directory in which the User Options file is found</td></tr>
-	</table>
+        <thead>
+        <tr><th>Name</th><th>Meaning</th></tr>
+        </thead>
+               <tr><td>FilePath</td><td>full path of the current file</td></tr>
+               <tr><td>FileDir</td><td>directory of the current file without a trailing slash</td></tr>
+               <tr><td>FileName</td><td>base name of the current file</td></tr>
+               <tr><td>FileExt</td><td>extension of the current file</td></tr>
+               <tr><td>FileNameExt</td><td>$(FileName).$(FileExt)</td></tr>
+               <tr><td>CurrentSelection</td><td>value of the currently selected text</td></tr>
+               <tr><td>CurrentWord</td><td>value of word which the caret is within or near</td></tr>
+               <tr><td>Replacements</td><td>number of replacements made by last Replace command</td></tr>
+               <tr><td>SelectionStartColumn</td><td>column where selection starts</td></tr>
+               <tr><td>SelectionStartLine</td><td>line where selection starts</td></tr>
+               <tr><td>SelectionEndColumn</td><td>column where selection ends</td></tr>
+               <tr><td>SelectionEndLine</td><td>line where selection ends</td></tr>
+               <tr><td>SciteDefaultHome</td><td>directory in which the Global Options file is found</td></tr>
+               <tr><td>SciteUserHome</td><td>directory in which the User Options file is found</td></tr>
+        </table>
     <p>
        Some features use file name patterns to see which variable to use. For example, the lexer
       variable can be specialised for a particular file, or a group of files based upon wildcard
@@ -610,9 +650,9 @@ NameError: mistake
            position.height
         </td>
         <td>
-	  Set the initial window size and position. If these are omitted then the
-	  environment's defaults are used. If the width or height are -1 then the window
-	  is maximised.
+          Set the initial window size and position. If these are omitted then the
+          environment's defaults are used. If the width or height are -1 then the window
+          is maximised.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -621,10 +661,10 @@ NameError: mistake
         </td>
         <td>
           If there is another copy of SciTE open, set the initial window position to be
-	  with the left side at position.left + position.width so that most of the time
-	  you can see both copies at once without overlap.
-	  Works nicely if position.left set to 0 and position.width set to half of the
-	  screen width.
+          with the left side at position.left + position.width so that most of the time
+          you can see both copies at once without overlap.
+          Works nicely if position.left set to 0 and position.width set to half of the
+          screen width.
         </td>
       </tr>
       <tr>
@@ -633,20 +673,20 @@ NameError: mistake
         </td>
         <td>
           Set to a number between 1 and 100 to configure that many buffers.
-	Values outside this range are clamped to be within the range.
-	The default is 1 which turns off UI features concerned with buffers.<br />
-	This value is read only once, early in the startup process and only from the
-	global properties files. So after changing it, restart SciTE to see the effect.
+        Values outside this range are clamped to be within the range.
+        The default is 1 which turns off UI features concerned with buffers.<br />
+        This value is read only once, early in the startup process and only from the
+        global properties files. So after changing it, restart SciTE to see the effect.
         </td>
       </tr>
       <tr class="windowsonly">
         <td>
-	buffers.zorder.switching
+        buffers.zorder.switching
         </td>
         <td>
           This setting chooses the ordering of buffer switching when Ctrl+Tab pressed.
-	Set to 1, the buffers are selected in the order of their previous selection otherwise
-	they are chosen based on the buffer number.
+        Set to 1, the buffers are selected in the order of their previous selection otherwise
+        they are chosen based on the buffer number.
         </td>
       </tr>
       <tr>
@@ -668,7 +708,7 @@ NameError: mistake
       <tr>
         <td>
           view.whitespace<br />
-	view.indentation.whitespace
+        view.indentation.whitespace
         </td>
         <td>
           Setting view.whitespace to 1 makes SciTE start up with whitespace visible.<br />
@@ -678,23 +718,23 @@ NameError: mistake
       <tr>
         <td>
           whitespace.fore<br />
-	whitespace.back
+        whitespace.back
         </td>
         <td>
-	Sets the colours used for displaying all visible whitespace, overriding any styling
-	applied by the lexer.
+        Sets the colours used for displaying all visible whitespace, overriding any styling
+        applied by the lexer.
         </td>
       </tr>
       <tr>
         <td>
-	  view.indentation.guides
-	  highlight.indentation.guides
+          view.indentation.guides
+          highlight.indentation.guides
         </td>
         <td>
           Setting view.indentation.guides to 1 displays dotted vertical lines within indentation white
-	  space every indent.size columns.<br />
-	  Setting highlight.indentation.guides to 1 highlights the indentation guide associated with a
-	  brace when that brace is highlighted.
+          space every indent.size columns.<br />
+          Setting highlight.indentation.guides to 1 highlights the indentation guide associated with a
+          brace when that brace is highlighted.
         </td>
       </tr>
        <tr>
@@ -728,8 +768,8 @@ NameError: mistake
         </td>
         <td>
           This setting overrides the eol.mode value and chooses the end of
-	  line character sequence based on the current contents of the file
-	  when it is opened. The line ending used the most in the file is chosen.
+          line character sequence based on the current contents of the file
+          when it is opened. The line ending used the most in the file is chosen.
         </td>
       </tr>
       <tr>
@@ -773,9 +813,9 @@ NameError: mistake
           full.screen.hides.menu
         </td>
         <td>
-	Setting this to 1 hides the menu bar when the Full Screen command is used on
-	Windows.
-	On GTK+ the menu is always visible.
+        Setting this to 1 hides the menu bar when the Full Screen command is used on
+        Windows.
+        On GTK+ the menu is always visible.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -783,7 +823,7 @@ NameError: mistake
           minimize.to.tray
         </td>
         <td>
-	Setting this to 1 minimizes SciTE to the system tray rather than to the task bar.
+        Setting this to 1 minimizes SciTE to the system tray rather than to the task bar.
         </td>
       </tr>
       <tr>
@@ -791,27 +831,27 @@ NameError: mistake
           line.numbers
         </td>
         <td>
-	Setting this to a number makes SciTE start up with a column of line numbers displayed to
-	the left of the selection margin. The value is the number of numerals wide the line numbers
-	can be so make it something like 3 or 4, <b>do not make it 1</b>.
-	Setting line.numbers to 1 is the most frequent SciTE support request.
+        Setting this to a number makes SciTE start up with a column of line numbers displayed to
+        the left of the selection margin. The value is the number of numerals wide the line numbers
+        can be so make it something like 3 or 4, <b>do not make it 1</b>.
+        Setting line.numbers to 1 is the most frequent SciTE support request.
         </td>
       </tr>
       <tr>
         <td>
           tabbar.visible<br />
-	tabbar.hide.one
+        tabbar.hide.one
         </td>
         <td>
           Setting tabbar.visible to 1 makes the tab bar visible at start up on Windows.
-	The buffers property must be set to a value greater than 1 for this option to work.
-	Setting tabbar.hide.one to 1 hides the tab bar until there is more than one tab.
-	Works on Windows and GTK+ 2.x but not GTK+ 1.x.
+        The buffers property must be set to a value greater than 1 for this option to work.
+        Setting tabbar.hide.one to 1 hides the tab bar until there is more than one tab.
+        Works on Windows and GTK+ 2.x but not GTK+ 1.x.
         </td>
       </tr>
       <tr class="windowsonly">
         <td>
-	tabbar.multiline
+        tabbar.multiline
         </td>
         <td>
           Setting tabbar.multiline uses multiple lines for the tab bar
@@ -831,7 +871,7 @@ NameError: mistake
         </td>
         <td>
           Setting this to 1 changes the technique used to determine when to enable or disable
-	  tool bar buttons to be less accurate. This may improve performance on slow machines.
+          tool bar buttons to be less accurate. This may improve performance on slow machines.
         </td>
       </tr>
       <tr>
@@ -845,12 +885,12 @@ NameError: mistake
       <tr class="windowsonly">
         <td>
           statusbar.number<br />
-	statusbar.text.<i>number</i>
+        statusbar.text.<i>number</i>
         </td>
         <td>
-	The statusbar.text.1 option defines the information displayed in the status bar
-	by default on all platforms.
-	Property values may be used in this text using the $() syntax.
+        The statusbar.text.1 option defines the information displayed in the status bar
+        by default on all platforms.
+        Property values may be used in this text using the $() syntax.
           Commonly used properties are: ReadOnly, EOLMode, BufferLength,
           NbOfLines (in buffer), SelLength (chars), SelHeight (lines).
           Extra properties defined for the status bar are LineNumber, ColumnNumber, and
@@ -858,9 +898,9 @@ NameError: mistake
           You can also use file properties, which, unlike those above, are not updated
           on each keystroke: FileName or FileNameExt, FileDate and FileTime and
           FileAttr. Plus CurrentDate and CurrentTime.<br />
-	On Windows only, further texts may be set as statusbar.text.2 ... and these may be
+        On Windows only, further texts may be set as statusbar.text.2 ... and these may be
           cycled between by clicking the status bar.<br />
-	The statusbar.number option defines how many texts are to be cycled through.
+        The statusbar.number option defines how many texts are to be cycled through.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -890,16 +930,16 @@ NameError: mistake
           two.phase.draw
         </td>
         <td>
-	Two phase drawing is a better but slower way of drawing text.
-	In single phase drawing each run of characters in one style is drawn along with
-	its background.
-	If a character overhangs the end of a run, such as in "<i>V</i>_" where the
-	"<i>V</i>" is in a different style from the "_", then this can cause the right hand
-	side of the "<i>V</i>" to be overdrawn by the background of the "_" which
-	cuts it off. Two phase drawing
-	fixes this by drawing all the backgrounds first and then drawing the text in
-	transparent mode. Two phase drawing may flicker more than single phase
-	unless buffered drawing is on. The default is for drawing to be two phase.
+        Two phase drawing is a better but slower way of drawing text.
+        In single phase drawing each run of characters in one style is drawn along with
+        its background.
+        If a character overhangs the end of a run, such as in "<i>V</i>_" where the
+        "<i>V</i>" is in a different style from the "_", then this can cause the right hand
+        side of the "<i>V</i>" to be overdrawn by the background of the "_" which
+        cuts it off. Two phase drawing
+        fixes this by drawing all the backgrounds first and then drawing the text in
+        transparent mode. Two phase drawing may flicker more than single phase
+        unless buffered drawing is on. The default is for drawing to be two phase.
         </td>
       </tr>
       <tr>
@@ -932,7 +972,7 @@ NameError: mistake
         </td>
         <td>
           When set to 1, reloading a file does not delete all the undo history. This is useful
-	  when load.on.activate is used in conjunction with filter commands.
+          when load.on.activate is used in conjunction with filter commands.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -940,11 +980,11 @@ NameError: mistake
            check.if.already.open
         </td>
         <td>
-	When this option is set and SciTE is started, it checks to see if
-	there are any other instances of SciTE open. If there is, another
+        When this option is set and SciTE is started, it checks to see if
+        there are any other instances of SciTE open. If there is, another
 	instance is activated and this one exits.
 	An arbitrary instance is chosen and asked to open the
-	command line argument.
+        command line argument.
         </td>
       </tr>
       <tr>
@@ -952,8 +992,8 @@ NameError: mistake
            read.only
         </td>
         <td>
-	When this option is set then opened documents are initially read only.
-	New files are not affected by this setting.
+        When this option is set then opened documents are initially read only.
+        New files are not affected by this setting.
         </td>
       </tr>
       <tr>
@@ -961,7 +1001,7 @@ NameError: mistake
            quit.on.close.last
         </td>
         <td>
-	If this option is set, SciTE will close when its last buffer has been
+        If this option is set, SciTE will close when its last buffer has been
         closed, e.g. with File/Close.  (By default, if this option is not set,
         SciTE will remain open and will create a new blank document when its
         last buffer is closed.)
@@ -1056,11 +1096,11 @@ NameError: mistake
         <td>
           visible.policy.strict<br />
           visible.policy.slop<br />
-	visible.policy.lines
+        visible.policy.lines
         </td>
         <td>
           Determines how the display area is determined after a Go to command or
-	equivalent such as a Find or Next Message. Options are similar to caret.policy.*.
+        equivalent such as a Find or Next Message. Options are similar to caret.policy.*.
         </td>
       </tr>
       <tr>
@@ -1082,7 +1122,7 @@ NameError: mistake
         </td>
         <td>
           Sets the character to use to indicate control characters. If
-	  not set, control characters are shown as mnemonics.
+          not set, control characters are shown as mnemonics.
         </td>
       </tr>
       <tr>
@@ -1092,23 +1132,23 @@ NameError: mistake
         </td>
         <td>
           The colours used to indicate error and warning lines in both the edit and output panes
-	  are set with these two values.
-	  If there is a margin on a pane then a symbol is displayed in the margin to indicate
-	  the error message for the output pane or the line causing the error message for the edit pane.
-	  The error.marker.back is used as the fill colour of the symbol and the error.marker.fore
-	  as the outline colour. If there is no margin then the background to the line is set to the
-	  error.marker.back colour.
+          are set with these two values.
+          If there is a margin on a pane then a symbol is displayed in the margin to indicate
+          the error message for the output pane or the line causing the error message for the edit pane.
+          The error.marker.back is used as the fill colour of the symbol and the error.marker.fore
+          as the outline colour. If there is no margin then the background to the line is set to the
+          error.marker.back colour.
         </td>
        </tr>
        <tr class="windowsonly">
         <td>openpath.<i>filepattern</i></td>
         <td>Defines a path for the Open Selected Filename command in the File
-	menu. The path is searched if the selected filename doesn't contain an
-	absolute path or the file is not found in the document directory. The
-	directories in openpath are separated by ';'.<br />
-	An openpath setting may look like:<br />
-	<code>openpath.*.txt=c:\dos\;f:\;<br />
-	openpath.$(file.patterns.cpp)=$(cpp_includes)</code>
+        menu. The path is searched if the selected filename doesn't contain an
+        absolute path or the file is not found in the document directory. The
+        directories in openpath are separated by ';'.<br />
+        An openpath setting may look like:<br />
+        <code>openpath.*.txt=c:\dos\;f:\;<br />
+        openpath.$(file.patterns.cpp)=$(cpp_includes)</code>
         </td>
        </tr>
        <tr>
@@ -1141,29 +1181,29 @@ NameError: mistake
         </td>
         <td>
           Loads a set of API files for a particular language.
-	  If there is more than one API file then the file names are separated by ';'.
-	  API files contain a sorted list of
+          If there is more than one API file then the file names are separated by ';'.
+          API files contain a sorted list of
           identifiers and function prototypes, one per line. The "Complete Identifier" command
           looks at the characters before the caret and displayed the subset of the API file
           starting with that string. When an opening brace is typed, the file is searched for the
           text preceding the caret and if a function prototype is found then it is displayed as a
           calltip.
           For example, the setting <br /><br />
-	 <code>
-		api.*.c=w.api<br />
-	 </code><br />
-	          could be used with a w.api file containing <br /><br />
-	 <code>
-		fclose(FILE* fileClose)<br />
-		FILE<br />
-		fopen(const char* szFileName, const char* szMode)<br />
-		fpos_t<br />
-		fread(void* buf, size_t size, size_t count, FILE* file)<br />
-		fseek(FILE* file, long lnOffset, int nOrigin)<br />
-	 </code><br />
+         <code>
+                api.*.c=w.api<br />
+         </code><br />
+                  could be used with a w.api file containing <br /><br />
+         <code>
+                fclose(FILE* fileClose)<br />
+                FILE<br />
+                fopen(const char* szFileName, const char* szMode)<br />
+                fpos_t<br />
+                fread(void* buf, size_t size, size_t count, FILE* file)<br />
+                fseek(FILE* file, long lnOffset, int nOrigin)<br />
+         </code><br />
           to provide autocompletion and calltips for some of the C file functions. It is best to
           use the full path to the API file as otherwise the current directory is used.
-	See the Creating API files section for ways to create API files.
+        See the Creating API files section for ways to create API files.
         </td>
       </tr>
       <tr>
@@ -1172,8 +1212,8 @@ NameError: mistake
         </td>
         <td>
           When set to 1 and an autocompletion list is invoked and there is only one element
-	in that list then that element is automatically chosen. This means that the matched
-	element is inserted and the list is not displayed.
+        in that list then that element is automatically chosen. This means that the matched
+        element is inserted and the list is not displayed.
         </td>
       </tr>
       <tr>
@@ -1183,8 +1223,8 @@ NameError: mistake
         </td>
         <td>
           When set to 1 the API file is searched in a case insensitive way to find elements
-	for autocompletion lists. Otherwise matches only occur if case also matches.
-	The * form is used if there is no lexer specific setting.
+        for autocompletion lists. Otherwise matches only occur if case also matches.
+        The * form is used if there is no lexer specific setting.
         </td>
       </tr>
       <tr>
@@ -1193,12 +1233,12 @@ NameError: mistake
           autocomplete.*.start.characters
         </td>
         <td>
-	If this setting is not empty, typing any of the characters will cause
-	autocompletion to start. For example, if
-	autocomplete.python.start.characters=. and the API file for Python
-	contains "string.rjust" and "string.replace" then typing "string." will
-	cause the autocompletion to display both identifiers.
-	The * form is used if there is no lexer specific setting.
+        If this setting is not empty, typing any of the characters will cause
+        autocompletion to start. For example, if
+        autocomplete.python.start.characters=. and the API file for Python
+        contains "string.rjust" and "string.replace" then typing "string." will
+        cause the autocompletion to display both identifiers.
+        The * form is used if there is no lexer specific setting.
         </td>
       </tr>
       <tr>
@@ -1207,13 +1247,13 @@ NameError: mistake
           autocomplete.*.fillups
         </td>
         <td>
-	If this setting is not empty, typing any of the characters will cause
-	autocompletion to complete.
-	For example, if
-	autocomplete.python.fillups=( and the API file for Python
-	contains "string.replace" then typing "string.r(" will
-	cause "string.replace(" to be inserted.
-	The * form is used if there is no lexer specific setting.
+        If this setting is not empty, typing any of the characters will cause
+        autocompletion to complete.
+        For example, if
+        autocomplete.python.fillups=( and the API file for Python
+        contains "string.replace" then typing "string.r(" will
+        cause "string.replace(" to be inserted.
+        The * form is used if there is no lexer specific setting.
         </td>
       </tr>
       <tr>
@@ -1221,9 +1261,9 @@ NameError: mistake
           autocompleteword.automatic
         </td>
         <td>
-	If this setting is 1 then when typing a word, if only one word in the document
-	starts with that string then an autocompletion list is displayed with that word so it
-	can be chosen by pressing Tab.
+        If this setting is 1 then when typing a word, if only one word in the document
+        starts with that string then an autocompletion list is displayed with that word so it
+        can be chosen by pressing Tab.
         </td>
       </tr>
       <tr>
@@ -1233,8 +1273,8 @@ NameError: mistake
         </td>
         <td>
           When set to 1 the API file is searched in a case insensitive way to find the function
-	which will have its signature displayed as a calltip. The * form is use if there
-	is no lexer specific setting.
+        which will have its signature displayed as a calltip. The * form is use if there
+        is no lexer specific setting.
         </td>
       </tr>
       <tr>
@@ -1243,15 +1283,15 @@ NameError: mistake
           calltip.*.word.characters
         </td>
         <td>
-	To determine the identifier to look up for calltips, a search is performed
-	allowing the characters in this set to be included in the identifier.
-	While the same setting can be used as for word.characters, sometimes
-	additional characters may be allowed.
-	For example, in Python, '.' is not normally considered part of a word
-	when selecting text, but it is good to allow "string.replace" to show a
-	calltip so calltip.python.word.characters=._$(chars.alpha) would be a
-	reasonable setting.
-	The * form is used if there is no lexer specific setting.
+        To determine the identifier to look up for calltips, a search is performed
+        allowing the characters in this set to be included in the identifier.
+        While the same setting can be used as for word.characters, sometimes
+        additional characters may be allowed.
+        For example, in Python, '.' is not normally considered part of a word
+        when selecting text, but it is good to allow "string.replace" to show a
+        calltip so calltip.python.word.characters=._$(chars.alpha) would be a
+        reasonable setting.
+        The * form is used if there is no lexer specific setting.
         </td>
       </tr>
       <tr>
@@ -1260,10 +1300,10 @@ NameError: mistake
           calltip.*.end.definition
         </td>
         <td>
-	API files may contain explanatory text after each function definition.
-	To display the explanation on a second line, set this property to the character used at the
-	end of the definition part. For most languages, this is ')'.
-	The * form is used if there is no lexer specific setting.
+        API files may contain explanatory text after each function definition.
+        To display the explanation on a second line, set this property to the character used at the
+        end of the definition part. For most languages, this is ')'.
+        The * form is used if there is no lexer specific setting.
         </td>
       </tr>
       <tr>
@@ -1280,9 +1320,9 @@ NameError: mistake
         </td>
         <td>
           For XML and HTML, setting this property to 1 will automatically insert the
-	corresponding end tag when '&gt;' is typed to end a start tag.
-	Type "&lt;td&gt;" and the result will be "&lt;td&gt;&lt;/td&gt;" with the caret
-	placed between the tags.
+        corresponding end tag when '&gt;' is typed to end a start tag.
+        Type "&lt;td&gt;" and the result will be "&lt;td&gt;&lt;/td&gt;" with the caret
+        placed between the tags.
         </td>
       </tr>
       <tr>
@@ -1291,7 +1331,7 @@ NameError: mistake
         </td>
         <td>
           For XML and HTML, setting this property to 1 will make tags match in a case sensitive
-	  way which is the expected behaviour for XML and XHTML.
+          way which is the expected behaviour for XML and XHTML.
         </td>
       </tr>
       <tr>
@@ -1300,7 +1340,7 @@ NameError: mistake
         </td>
         <td>
           Script in ASP code is initially assumed to be in JavaScript.
-	  To change this to VBScript set asp.default.language to 2. Python is 3.
+          To change this to VBScript set asp.default.language to 2. Python is 3.
         </td>
       </tr>
       <tr>
@@ -1309,7 +1349,7 @@ NameError: mistake
         </td>
         <td>
           For C++ code, determines whether all preprocessor code is styled in the preprocessor
-	style (0, the default) or only from the initial # to the end of the command word(1).
+        style (0, the default) or only from the initial # to the end of the command word(1).
         </td>
       </tr>
       <tr>
@@ -1318,11 +1358,11 @@ NameError: mistake
         </td>
         <td>
           For Python code, checks whether indenting is consistent. The default, 0 turns off
-	indentation checking, 1 checks whether each line is potentially inconsistent  with the
-	previous line, 2 checks whether any space characters occur before a tab character
-	in the indentation, 3 checks whether any spaces are in the indentation, and 4 checks
-	for any tab characters in the indentation. <br />
-	1 is a good level to use.
+        indentation checking, 1 checks whether each line is potentially inconsistent  with the
+        previous line, 2 checks whether any space characters occur before a tab character
+        in the indentation, 3 checks whether any spaces are in the indentation, and 4 checks
+        for any tab characters in the indentation. <br />
+        1 is a good level to use.
         </td>
       </tr>
       <tr>
@@ -1330,45 +1370,45 @@ NameError: mistake
           user.shortcuts
         </td>
         <td>
-	Define keys that perform commands.
-	This is a '|' delimited list of keys and the commands they produce.
-	The commands are either string or numeric IDs.
-	Numeric IDs above 2000 are Scintilla commands and are sent to the focussed pane.
-	Named IDs and numeric IDs below 2000 are SciTE menu commands which can be
-	found in from scite/src/SciTE.h.
-	The modifiers are Ctrl, Shift, and Alt and the named keys are Left,
-	Right, Up, Down, Insert, End, Home, Enter, Space, KeypadPlus, KeypadMinus,
-	Escape, Delete, PageUp, and PageDown.
-	<br/>
-	<code>
+        Define keys that perform commands.
+        This is a '|' delimited list of keys and the commands they produce.
+        The commands are either string or numeric IDs.
+        Numeric IDs above 2000 are Scintilla commands and are sent to the focussed pane.
+        Named IDs and numeric IDs below 2000 are SciTE menu commands which can be
+        found in from scite/src/SciTE.h.
+        The modifiers are Ctrl, Shift, and Alt and the named keys are Left,
+        Right, Up, Down, Insert, End, Home, Enter, Space, KeypadPlus, KeypadMinus,
+        Escape, Delete, PageUp, and PageDown.
+        <br/>
+        <code>
 user.shortcuts=\<br/>
 Ctrl+Shift+I|IDM_OPEN|\<br/>
 Ctrl+Shift+Left|IDM_CLOSE|<br/>
-	</code>
+        </code>
         </td>
       </tr>
       <tr>
         <td>
           magnification<br />
-	output.magnification
+        output.magnification
         </td>
         <td>
           Sets the initial magnification factor of the edit and output panes. This is useful
-	when you want to change the size of text globally, such as after changing the
-	screen resolution without having to touch every style setting. 0 is default,
-	negative values makes the size smaller and positive values make it larger.
+        when you want to change the size of text globally, such as after changing the
+        screen resolution without having to touch every style setting. 0 is default,
+        negative values makes the size smaller and positive values make it larger.
         </td>
       </tr>
       <tr>
         <td>
           split.vertical<br />
-	output.horizontal.size<br />
-	output.vertical.size
+        output.horizontal.size<br />
+        output.vertical.size
         </td>
         <td>
           If split.vertical is set to 1 then the output pane is to the right of the editing pane,
-	if set to 0 then the output pane is below the editing pane.
-	The output.*.size settings determine the initial size of the output pane.
+        if set to 0 then the output pane is below the editing pane.
+        The output.*.size settings determine the initial size of the output pane.
         </td>
       </tr>
       <tr>
@@ -1382,33 +1422,33 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
       <tr>
         <td>
           horizontal.scrollbar<br />
-	horizontal.scroll.width<br />
-	output.horizontal.scrollbar<br />
-	output.horizontal.scroll.width<br />
-	output.scroll<br />
-	end.at.last.line
+        horizontal.scroll.width<br />
+        output.horizontal.scrollbar<br />
+        output.horizontal.scroll.width<br />
+        output.scroll<br />
+        end.at.last.line
         </td>
         <td>
           If horizontal.scrollbar set to 0 then the edit pane's horizontal scrollbar is not displayed.<br />
           horizontal.scroll.width is the document width assumed for scrolling.<br />
           Similarly, output.horizontal.scrollbar and output.horizontal.scroll.width controls the
-	horizontal scroll bar of the output pane.<br />
-	To stop the output pane from automatically scrolling, set output.scroll to 0.<br />
-	The vertical scroll range is normally set so that maximum scroll position has
-	the last line at the bottom of the view. Set end.at.last.line to 0 to allow
-	scrolling one page below the last line.
+        horizontal scroll bar of the output pane.<br />
+        To stop the output pane from automatically scrolling, set output.scroll to 0.<br />
+        The vertical scroll range is normally set so that maximum scroll position has
+        the last line at the bottom of the view. Set end.at.last.line to 0 to allow
+        scrolling one page below the last line.
         </td>
       </tr>
       <tr>
         <td>
           wrap<br />
-	output.wrap
+        output.wrap
         </td>
         <td>
           If wrap set to 1 then the edit pane is dynamically line wrapped.
           If output.wrap set to 1 then the output pane is dynamically line wrapped.
-	These options have a high performance cost which is proportional to the amount of text
-	so should be turned off for large documents on slow machines.
+        These options have a high performance cost which is proportional to the amount of text
+        so should be turned off for large documents on slow machines.
         </td>
       </tr>
       <tr>
@@ -1428,20 +1468,20 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
       </tr>
       <tr>
         <td>
-	cache.layout<br />
-	output.cache.layout
+        cache.layout<br />
+        output.cache.layout
         </td>
         <td>
-	A large proportion of the time spent in the editor is used to lay out text prior
-	to drawing it. This information often stays static between repaints so can
-	be cached with these settings. There are four levels of caching. 0 is no caching,
-	1 caches the line that the caret is on, 2 caches the visible page as well as the caret,
-	and 3 caches the whole document. The more that is cached, the greater the
-	amount of memory used, with 3 using large amounts of memory, 7 times the
-	size of the text in the document. However,
-	level 3 dramatically speeds up dynamic wrapping by around 25 times on large
-	source files so is a very good option to use when wrapping is turned on and
-	memory is plentiful.
+        A large proportion of the time spent in the editor is used to lay out text prior
+        to drawing it. This information often stays static between repaints so can
+        be cached with these settings. There are four levels of caching. 0 is no caching,
+        1 caches the line that the caret is on, 2 caches the visible page as well as the caret,
+        and 3 caches the whole document. The more that is cached, the greater the
+        amount of memory used, with 3 using large amounts of memory, 7 times the
+        size of the text in the document. However,
+        level 3 dramatically speeds up dynamic wrapping by around 25 times on large
+        source files so is a very good option to use when wrapping is turned on and
+        memory is plentiful.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1472,67 +1512,67 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
       <tr>
         <td>
           save.recent<br />
-	  save.session
+          save.session
         </td>
         <td>
           Setting save.recent causes the most recently used files list to be
-	saved on exit and
-	reloaded at start up. This list is kept in a file called "SciTE.recent" on
-	Windows and ".SciTE.recent" on GTK+ and is located in the directory
-	given by the SciTE_HOME environment variable and if that is not
-	set, the value of the HOME environment variable and if that is not
-	set the top level directory on GTK+ and the directory of the SciTE
-	executable on Windows.<br />
-	If you set "save.session=1", current session
-	will be automatically saved to a file "SciTE.ses" on Windows and
-	".SciTE.ses" on GTK+ located at the same
-	place as "SciTE.recent" file. When you start SciTE next time the last
-	session will be automatically loaded.
+        saved on exit and
+        reloaded at start up. This list is kept in a file called "SciTE.recent" on
+        Windows and ".SciTE.recent" on GTK+ and is located in the directory
+        given by the SciTE_HOME environment variable and if that is not
+        set, the value of the HOME environment variable and if that is not
+        set the top level directory on GTK+ and the directory of the SciTE
+        executable on Windows.<br />
+        If you set "save.session=1", current session
+        will be automatically saved to a file "SciTE.ses" on Windows and
+        ".SciTE.ses" on GTK+ located at the same
+        place as "SciTE.recent" file. When you start SciTE next time the last
+        session will be automatically loaded.
         </td>
       </tr>
       <tr class="windowsonly">
         <td>
-	open.dialog.in.file.directory
+        open.dialog.in.file.directory
         </td>
         <td>
           Setting open.dialog.in.file.directory causes the open dialog to initially
-	  display the same directory as the current file. If it is not set then the
-	  system default is used which on Windows 2000 is the last directory
-	  visited by the open dialog in any instance of SciTE. This is hard
-	  to use with multiple instances of SciTE.
+          display the same directory as the current file. If it is not set then the
+          system default is used which on Windows 2000 is the last directory
+          visited by the open dialog in any instance of SciTE. This is hard
+          to use with multiple instances of SciTE.
         </td>
       </tr>
       <tr>
         <td>
-	find.replace.matchcase<br />
-	find.replace.regexp<br />
-	find.replace.wrap<br />
-	find.replace.escapes<br />
-	find.replacewith.focus
+        find.replace.matchcase<br />
+        find.replace.regexp<br />
+        find.replace.wrap<br />
+        find.replace.escapes<br />
+        find.replacewith.focus
         </td>
         <td>
           These properties define the initial conditions for find and replace commands.
-	The find.replace.matchcase property turns of the "Match case" option,
-	find.replace.regexp the "Regular expression" option,
-	find.replace.wrap the "Wrap around" option and
-	find.replace.escapes the "Transform backslash expressions" option.<br />
-	If the find.replacewith.focus property is set, the Replace With input box is focused in Replace dialog if Find What is non-empty.
+        The find.replace.matchcase property turns of the "Match case" option,
+        find.replace.regexp the "Regular expression" option,
+        find.replace.wrap the "Wrap around" option and
+        find.replace.escapes the "Transform backslash expressions" option.<br />
+        If the find.replacewith.focus property is set, the Replace With input box is focused in Replace dialog if Find What is non-empty.
         </td>
       </tr>
       <tr>
         <td>
-	find.replace.regexp.posix
+        find.replace.regexp.posix
         </td>
         <td>
           Change behavior of Regular expression search.
-	If set to 0 (the default), characters '(' and ')' must be escaped by '\' to behave as regexp meta characters.
-	If set to 1, these characters are meta characters itself.
+        If set to 0 (the default), characters '(' and ')' must be escaped by '\' to behave as regexp meta characters.
+        If set to 1, these characters are meta characters itself.
         </td>
       </tr>
       <tr>
         <td>
           find.command<br />
-	  <span class="windowsonly">find.input</span>
+          <span class="windowsonly">find.input</span>
         </td>
         <td>
           The Find in Files command works in a similar way to the building commands executing a
@@ -1540,22 +1580,22 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
           output understood by one of the error output passes, as does grep, then the F4 and
           Shift+F4 keys can be used to move through all the matches. The $(find.what),
           $(find.files), and $(find.directory) variables can be used for the values from the
-	  Find in Files dialog.<br />
-	  There are some scripts that implement this feature in Perl better than grep does
-	  itself
-	  <a href="http://jenda.krynicky.cz/#SciteFind">here</a> and
-	  <a href="http://www.forusers.com/forme/finder.zip">here</a>.
-	  This command line works with Cygwin on Windows, with modifications to suit
-	  the Cygwin installation directory:<br />
-	  <code>
+          Find in Files dialog.<br />
+          There are some scripts that implement this feature in Perl better than grep does
+          itself
+          <a href="http://jenda.krynicky.cz/#SciteFind">here</a> and
+          <a href="http://www.forusers.com/forme/finder.zip">here</a>.
+          This command line works with Cygwin on Windows, with modifications to suit
+          the Cygwin installation directory:<br />
+          <code>
 find.command=cmd /c c:\cygwin\bin\find "$(find.directory)"
 -name "$(find.files)" -print0 |
 c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
-	  </code>
-	  <br />
-	  On Windows, the find string can be given to the find command through
-	  its standard input stream to avoid problems with quote interpretation.
-	  To do this, specify find.input to be the search string, $(find.what).
+          </code>
+          <br />
+          On Windows, the find string can be given to the find command through
+          its standard input stream to avoid problems with quote interpretation.
+          To do this, specify find.input to be the search string, $(find.what).
         </td>
       </tr>
       <tr>
@@ -1564,13 +1604,13 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
           This is the default set of files to search through using the Find in Files command.
-	  The find.files property can contain a list of sets of files separated by '|' like
-	  "*.cxx *.h|*.py *.pyw|*.html" which adds three entries to the history and
-	  uses the first as the default value.<br />
-	  The evaluation of this setting is a little unusual in that each entry in the value
-	  from the property files is appended to the end of the history if that entry is
-	  not already present. This means that opening files from different directories
-	  will result in any local setting of find.files being added to the list.
+          The find.files property can contain a list of sets of files separated by '|' like
+          "*.cxx *.h|*.py *.pyw|*.html" which adds three entries to the history and
+          uses the first as the default value.<br />
+          The evaluation of this setting is a little unusual in that each entry in the value
+          from the property files is appended to the end of the history if that entry is
+          not already present. This means that opening files from different directories
+          will result in any local setting of find.files being added to the list.
         </td>
       </tr>
       <tr>
@@ -1581,24 +1621,24 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           To support a DBCS language such as Japanese, a code page can be set here. This ensures
           that double byte characters are always treated as a unit so the caret is never located
           between the two bytes of a double byte character. This option can only be 0 or 65001 on GTK+
-	where SciTE only supports single byte character sets and Unicode.<br />
-	Setting code.page to 65001 starts Unicode mode and the document is treated as
-	a sequence of characters expressed as UTF-8. Display is performed by converting to the
-	platform's normal Unicode encoding first so characters from any language will be displayed.
-	Correct glyphs will only be displayed if fonts are chosen that contain the appropriate glyphs.
-	Tahoma is a good choice on Windows 2000. <br/>
-	For GTK+, the locale should be set to a Unicode locale by setting the LC_CTYPE
-	property. For an English machine this can be<br />
-	<code>
-	LC_CTYPE=en_US.UTF-8
-	</code><br />
-	Fonts with an "iso10646" registry should be used in a font set.
-	Font sets are a '|' separated list of partial
-	font specifications where each partial font specification can be in the form of
-	foundry-fontface-charsetregistry-encoding *OR*
-	fontface-charsetregistry-encoding *OR*
-	foundry-fontface *OR*
-	fontface. An example is "misc-fixed-iso10646-1|*".
+        where SciTE only supports single byte character sets and Unicode.<br />
+        Setting code.page to 65001 starts Unicode mode and the document is treated as
+        a sequence of characters expressed as UTF-8. Display is performed by converting to the
+        platform's normal Unicode encoding first so characters from any language will be displayed.
+        Correct glyphs will only be displayed if fonts are chosen that contain the appropriate glyphs.
+        Tahoma is a good choice on Windows 2000. <br/>
+        For GTK+, the locale should be set to a Unicode locale by setting the LC_CTYPE
+        property. For an English machine this can be<br />
+        <code>
+        LC_CTYPE=en_US.UTF-8
+        </code><br />
+        Fonts with an "iso10646" registry should be used in a font set.
+        Font sets are a '|' separated list of partial
+        font specifications where each partial font specification can be in the form of
+        foundry-fontface-charsetregistry-encoding *OR*
+        fontface-charsetregistry-encoding *OR*
+        foundry-fontface *OR*
+        fontface. An example is "misc-fixed-iso10646-1|*".
         </td>
       </tr>
       <tr>
@@ -1607,65 +1647,65 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
           This setting allows changing the character set that is asked for when setting up fonts.
-	To use Russian Cyrillic characters, set character.set to
-	204. Other values that may work include Chinese (GB2312=134 or BIG5=136),
-	Korean (129), Greek (161),
-	Eastern European (238), Baltic (186),
-	Turkish (162), Hebrew (177), Arabic (178), Thai (222), or Japanese (128).
-	All of these values may work on Windows, but on GTK+ Baltic, Turkish, Thai and Vietnamese
-	will probably not work.
-	Please send email	if you use one of these settings and it works or doesn't or if you
-	have information on how to support other languages.
+        To use Russian Cyrillic characters, set character.set to
+        204. Other values that may work include Chinese (GB2312=134 or BIG5=136),
+        Korean (129), Greek (161),
+        Eastern European (238), Baltic (186),
+        Turkish (162), Hebrew (177), Arabic (178), Thai (222), or Japanese (128).
+        All of these values may work on Windows, but on GTK+ Baltic, Turkish, Thai and Vietnamese
+        will probably not work.
+        Please send email        if you use one of these settings and it works or doesn't or if you
+        have information on how to support other languages.
         </td>
       </tr>
       <tr>
         <td>
-	comment.block.<i>lexer</i><br />
-	comment.block.at.line.start.<i>lexer</i><br />
-	comment.stream.start.<i>lexer</i><br />
-	comment.stream.end.<i>lexer</i><br />
-	comment.box.start.<i>lexer</i><br />
-	comment.box.middle.<i>lexer</i><br />
-	comment.box.end.<i>lexer</i>
+        comment.block.<i>lexer</i><br />
+        comment.block.at.line.start.<i>lexer</i><br />
+        comment.stream.start.<i>lexer</i><br />
+        comment.stream.end.<i>lexer</i><br />
+        comment.box.start.<i>lexer</i><br />
+        comment.box.middle.<i>lexer</i><br />
+        comment.box.end.<i>lexer</i>
         </td>
         <td>
-	These settings are for the comment commands in the Edit menu and are
-	defined separately for each lexer. Not all languages support
-	both stream and block comments.<br />
-	Block comments are comments that start with a particular string and
-	continue until the end of line.
-	The comment.block property sets the string to be inserted or deleted
-	at the start of the selected lines when the Block Comment or Uncomment
-	command is performed. To make this command perform sensibly over
-	a range of text that already contains comments and other code, the string
-	can be defined to contain a character such as '~' that is not used in real
-	comments.<br />
-	Set comment.block.at.line.start to "1" to place block comment symbols
-	at the start of the lines, instead of just before the first non-blank
-	character of the lines.<br />
-	Stream comments start with a particular string and end with another
-	particular string and may continue over line ends. These are defined
-	with comment.stream.start and comment.stream.end. <br />
-	Box comments are a form of stream comment that takes several lines
-	and uses different strings for the start, end and other lines in the range.
-	These are defined with comment.box.start,
-	comment.box.middle and comment.stream.end.
+        These settings are for the comment commands in the Edit menu and are
+        defined separately for each lexer. Not all languages support
+        both stream and block comments.<br />
+        Block comments are comments that start with a particular string and
+        continue until the end of line.
+        The comment.block property sets the string to be inserted or deleted
+        at the start of the selected lines when the Block Comment or Uncomment
+        command is performed. To make this command perform sensibly over
+        a range of text that already contains comments and other code, the string
+        can be defined to contain a character such as '~' that is not used in real
+        comments.<br />
+        Set comment.block.at.line.start to "1" to place block comment symbols
+        at the start of the lines, instead of just before the first non-blank
+        character of the lines.<br />
+        Stream comments start with a particular string and end with another
+        particular string and may continue over line ends. These are defined
+        with comment.stream.start and comment.stream.end. <br />
+        Box comments are a form of stream comment that takes several lines
+        and uses different strings for the start, end and other lines in the range.
+        These are defined with comment.box.start,
+        comment.box.middle and comment.stream.end.
         </td>
       </tr>
       <tr>
         <td>
-	preprocessor.symbol.<i>filepattern</i><br />
-	preprocessor.start.<i>filepattern</i><br />
-	preprocessor.middle.<i>filepattern</i><br />
-	preprocessor.end.<i>filepattern</i>
+        preprocessor.symbol.<i>filepattern</i><br />
+        preprocessor.start.<i>filepattern</i><br />
+        preprocessor.middle.<i>filepattern</i><br />
+        preprocessor.end.<i>filepattern</i>
         </td>
         <td>
-	These settings make the preprocessor conditional movement and selection commands work.
-	The character that defines preprocessor lines is defined by preprocessor.symbol.
-	The preprocessor keywords that make up the start (if), middle (else), and end (endif)
-	of preprocessor conditionals are defined by the other three properties.
-	There may be multiple values for each of these, as, for example, C uses "if", "ifdef",
-	and "ifndef" to begin preprocessor conditionals.
+        These settings make the preprocessor conditional movement and selection commands work.
+        The character that defines preprocessor lines is defined by preprocessor.symbol.
+        The preprocessor keywords that make up the start (if), middle (else), and end (endif)
+        of preprocessor conditionals are defined by the other three properties.
+        There may be multiple values for each of these, as, for example, C uses "if", "ifdef",
+        and "ifndef" to begin preprocessor conditionals.
         </td>
       </tr>
       <tr>
@@ -1701,8 +1741,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           second set of keywords which will be displayed in a different style to the first set of
           keywords. This is used in the HTML lexer to display JavaScript keywords in a different
           style to HTML tags and attributes.<br />
-	Keywords can be prefix based so ^GTK_ will treat all words that start
-	with GTK_ as keywords.
+        Keywords can be prefix based so ^GTK_ will treat all words that start
+        with GTK_ as keywords.
         </td>
       </tr>
       <tr>
@@ -1737,10 +1777,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
            The value of each setting is a set of ',' separated fields, some of which have a
           subvalue after a ':'. The fields are font, size, fore, back, italics, notitalics, bold,
           notbold, eolfilled, noteolfilled, underlined, notunderlined, and case.
-	The font field has a subvalue which is the name of
+        The font field has a subvalue which is the name of
           the font, the fore and back have colour subvalues, the size field has a numeric size
           subvalue, the case field has a subvalue of 'm', 'u', or 'l' for mixed, upper or lower case,
-	and the bold, italics and eolfilled fields have no subvalue. The value
+        and the bold, italics and eolfilled fields have no subvalue. The value
           "fore:#FF0000,font:Courier,size:14" represents 14 point, red Courier text.<br />
            A global style can be set up using style.*.<i>stylenumber</i>. Any style options set in
           the global style will be inherited by each lexer style unless overridden.
@@ -1771,10 +1811,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
-	use.monospaced
+        use.monospaced
         </td>
         <td>
-	If set to 1, start in Use Monospaced Font mode.
+        If set to 1, start in Use Monospaced Font mode.
         </td>
       </tr>
        <tr>
@@ -1801,12 +1841,12 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
-	font.monospace
+        font.monospace
         </td>
         <td>
-	Defines, with the same syntax as the style properties,
-	the font name and size to be used when the Use monospaced font
-	command is performed.
+        Defines, with the same syntax as the style properties,
+        the font name and size to be used when the Use monospaced font
+        command is performed.
         </td>
       </tr>
       <tr>
@@ -1815,39 +1855,39 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           command.compile.subsystem.<i>filepattern</i><br />
           command.build.<i>filepattern</i><br />
           command.build.subsystem.<i>filepattern</i><br />
-	command.build.directory.<i>filepattern</i><br />
+        command.build.directory.<i>filepattern</i><br />
           command.go.<i>filepattern</i><br />
-	command.go.subsystem.<i>filepattern</i>
+        command.go.subsystem.<i>filepattern</i>
         </td>
         <td>
           These settings choose which commands to execute when the Compile, Build or Go menu items
           are selected. The subsystem options determine for Windows whether the tools are run as
           command line(0), windowed(1), through ShellExecute(2), or through the director interface(3).<br />
-	When source files are in a different directory to that they should be built in, the
-	command.build.directory property can be set to change to a particular directory before performing
-	the build.
+        When source files are in a different directory to that they should be built in, the
+        command.build.directory property can be set to change to a particular directory before performing
+        the build.
         </td>
       </tr>
       <tr>
         <td>
           command.go.needs.<i>filepattern</i><br />
-	  command.go.needs.subsystem.<i>filepattern</i>
+          command.go.needs.subsystem.<i>filepattern</i>
         </td>
         <td>
           Sometimes a file must be compiled or built before it can be run. If this is the case,
           this setting indicates what command needs to be run to perform the compile or build step
           before running the file. When a file is compiled, this is noted and future runs will not
           perform a compile or build. To make a 'compile and go' Go command for .c files:<br /><br />
-	 <code>
-		command.go.*.c=$(FileName)<br />
-		command.go.needs.*.c=g++ $(FileNameExt) -o $(FileName)<br />
-	 </code>
+         <code>
+                command.go.*.c=$(FileName)<br />
+                command.go.needs.*.c=g++ $(FileNameExt) -o $(FileName)<br />
+         </code>
         </td>
       </tr>
       <tr>
         <td>
           command.name.<i>number</i>.<i>filepattern</i><br />
-	command.<i>number</i>.<i>filepattern</i><br />
+        command.<i>number</i>.<i>filepattern</i><br />
           command.is.filter.<i>number</i>.<i>filepattern</i><br />
           command.subsystem.<i>number</i>.<i>filepattern</i><br />
           command.save.before.<i>number</i>.<i>filepattern</i><br />
@@ -1859,11 +1899,11 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           Extra commands can be added to the Tools menu. For example to include the 'astyle'
           indenter, the properties file could contain<br /><br />
 
-	 <code>
-		command.name.0.*.cc=Indent<br />
-		command.0.*.cc=astyle -taO $(FileNameExt)<br />
-		command.is.filter.0.*.cc=1<br />
-	 </code><br />
+         <code>
+                command.name.0.*.cc=Indent<br />
+                command.0.*.cc=astyle -taO $(FileNameExt)<br />
+                command.is.filter.0.*.cc=1<br />
+         </code><br />
           The first line defines the string that will appear in the Tools menu (immediately below
           'Go'. The second line is the command string, similar to those of the compile, build, and
           go commands. The optional command.is.filter property states that the command modifies the
@@ -1871,20 +1911,20 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           load.on.activate is set.<br />
            The subsystem determines how the command is executed on Windows. 0, the default is for
           command line programs, 1 for programs which create their own windows, 2 for running
-	by using ShellExecute, 3 for running in an internal extension or director extension,
-	4 for running HtmlHelp on Windows, and 5 for running WinHelp on Windows.
-	When using subsystem 4 or 5, the command has two parts separated by ! with the first
-	part being the topic to search for and the second the name of the help file.<br />
-	If command.save.before is set to 1, SciTE automatically saves the file before execution.
-	If it is set to 2, SciTE will not save the file, otherwise SciTE asks you.
+        by using ShellExecute, 3 for running in an internal extension or director extension,
+        4 for running HtmlHelp on Windows, and 5 for running WinHelp on Windows.
+        When using subsystem 4 or 5, the command has two parts separated by ! with the first
+        part being the topic to search for and the second the name of the help file.<br />
+        If command.save.before is set to 1, SciTE automatically saves the file before execution.
+        If it is set to 2, SciTE will not save the file, otherwise SciTE asks you.
 
-	On Windows, the optional command.input property specifies text that will be piped
-	to the command.
-	This may reference other properties; for example,
-	<code>command.input.0.*.cc=$(CurrentSelection)</code>
-	would pipe the current selection to the command processes.
-	The command.input property is only supported for subsystem 0
-	(command line programs).<br />
+        On Windows, the optional command.input property specifies text that will be piped
+        to the command.
+        This may reference other properties; for example,
+        <code>command.input.0.*.cc=$(CurrentSelection)</code>
+        would pipe the current selection to the command processes.
+        The command.input property is only supported for subsystem 0
+        (command line programs).<br />
 
         On Windows, the optional command.replace.selection can be used to specify that the
         command output should replace the current selection (or be inserted at the cursor
@@ -1902,9 +1942,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         A value of 1 indicates that the command I/O should not be echoed to the output pane.
         This may be useful in combination with command.input and command.replace.selection.<br />
 
-	If the text of a command starts with '*' then the Parameters dialog is displayed to
-	prompt for parameters before executing the command. The initial '*' is not included
-	in the command that is executed.
+        If the text of a command starts with '*' then the Parameters dialog is displayed to
+        prompt for parameters before executing the command. The initial '*' is not included
+        in the command that is executed.
         </td>
       </tr>
       <tr>
@@ -1913,12 +1953,12 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           command.help.subsystem.<i>filepattern</i>
         </td>
         <td>
-	Defines a command to be executed when the help command is
-	invoked or F1 pressed. On Windows, this often uses subsystem 4 as described above.
-	On Linux, running man or a browser are common ways of displaying help.
-	The word at the cursor is copied to $(CurrentWord) and this is often a good argument
-	to the help application. The subsystem property works in the same way as for other
-	commands.
+        Defines a command to be executed when the help command is
+        invoked or F1 pressed. On Windows, this often uses subsystem 4 as described above.
+        On Linux, running man or a browser are common ways of displaying help.
+        The word at the cursor is copied to $(CurrentWord) and this is often a good argument
+        to the help application. The subsystem property works in the same way as for other
+        commands.
         </td>
       </tr>
       <tr>
@@ -1927,8 +1967,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           command.scite.help.subsystem
         </td>
         <td>
-	Defines a command to be executed for help on the SciTE program itself which normally
-	means displaying this file in a browser.
+        Defines a command to be executed for help on the SciTE program itself which normally
+        means displaying this file in a browser.
         </td>
       </tr>
       <tr class="gtkonly">
@@ -1937,7 +1977,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           command.print.subsystem.<i>filepattern</i>
         </td>
         <td>
-	Defines a command to be executed when print is invoked on GTK+.
+        Defines a command to be executed when print is invoked on GTK+.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1952,7 +1992,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
-	time.commands
+        time.commands
         </td>
         <td>
           When a command is completed, print the time it took in seconds.
@@ -1960,119 +2000,119 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr class="windowsonly">
         <td>
-	print.magnification
+        print.magnification
         </td>
         <td>
           Printing is normally done with the same settings as screen display.
-	To make the printing larger or smaller, the print.magnification
-	setting is added to the size of every font when printed. To get a
-	good miniaturisation of text, set print.magnification to -4.
+        To make the printing larger or smaller, the print.magnification
+        setting is added to the size of every font when printed. To get a
+        good miniaturisation of text, set print.magnification to -4.
         </td>
       </tr>
       <tr class="windowsonly">
         <td>
-	print.colour.mode
+        print.colour.mode
         </td>
         <td>
-	Some people prefer light coloured text on a black background on
-	screen but dark text on white on paper. If print.colour.mode is set
-	to 1 then each colour is inverted for printing. If set to 2 then
-	printing produces black text on white background. 3 forces the
-	background to white and 4 forces the default background to white.
-        </td>
-      </tr>
-      <tr class="windowsonly">
-        <td>
-	print.margins
-        </td>
-        <td>
-	Specify the default margins on the printer on Windows in left right top bottom order.
-	Units depends on your locale, either hundredths of millimetres or thousandths
-	of inches. You can see which units by the units used in the page setup dialog.
-	This property is only read at start up.
+        Some people prefer light coloured text on a black background on
+        screen but dark text on white on paper. If print.colour.mode is set
+        to 1 then each colour is inverted for printing. If set to 2 then
+        printing produces black text on white background. 3 forces the
+        background to white and 4 forces the default background to white.
         </td>
       </tr>
       <tr class="windowsonly">
         <td>
-	print.header.format<br />
-	print.footer.format
+        print.margins
         </td>
         <td>
-	These settings determine what will be printed if anything as headers and
-	footers. Property settings can be substituted into the values using the $(property)
-	syntax. There are some extra properties set up while printing:
-	CurrentPage, FileTime, FileDate, CurrentDate, and CurrentTime (at start of
-	printing).
-	Common properties to use in headers and footers are FileNameExt and FilePath.<br />
-	A header setting may look like:<br />
-	<code>
-	print.header.format=$(FileNameExt) - Printed on $(CurrentDate),$(CurrentTime) - Page $(CurrentPage)
-	</code><br />
+        Specify the default margins on the printer on Windows in left right top bottom order.
+        Units depends on your locale, either hundredths of millimetres or thousandths
+        of inches. You can see which units by the units used in the page setup dialog.
+        This property is only read at start up.
         </td>
       </tr>
       <tr class="windowsonly">
         <td>
-	print.header.style<br />
-	print.footer.style
+        print.header.format<br />
+        print.footer.format
         </td>
         <td>
-	These settings determine the style of the header and footer using the same
-	format as other styles in SciTE. Only the fore, back, font, size, bold, italics,
-	and underlined attributes are supported.
+        These settings determine what will be printed if anything as headers and
+        footers. Property settings can be substituted into the values using the $(property)
+        syntax. There are some extra properties set up while printing:
+        CurrentPage, FileTime, FileDate, CurrentDate, and CurrentTime (at start of
+        printing).
+        Common properties to use in headers and footers are FileNameExt and FilePath.<br />
+        A header setting may look like:<br />
+        <code>
+        print.header.format=$(FileNameExt) - Printed on $(CurrentDate),$(CurrentTime) - Page $(CurrentPage)
+        </code><br />
         </td>
       </tr>
       <tr class="windowsonly">
         <td>
-	export.keep.ext
+        print.header.style<br />
+        print.footer.style
         </td>
         <td>
-	This property determines how the file name
-	(for example, LineMarker.cxx) is transformed when
-	exporting to include the appropriate export format extension -
-	.html for HTML and .rtf for RTF.
-	If export.keep.ext is the default, 0, then the current extension is replaced
-	(LineMarker.html).
-	If it is 1, then the export format extension is added (LineMarker.cxx.html).
-	If it is 2 then the final '.' is replaced by '_' and the
-	export format extension added (LineMarker_cxx.html).
+        These settings determine the style of the header and footer using the same
+        format as other styles in SciTE. Only the fore, back, font, size, bold, italics,
+        and underlined attributes are supported.
+        </td>
+      </tr>
+      <tr class="windowsonly">
+        <td>
+        export.keep.ext
+        </td>
+        <td>
+        This property determines how the file name
+        (for example, LineMarker.cxx) is transformed when
+        exporting to include the appropriate export format extension -
+        .html for HTML and .rtf for RTF.
+        If export.keep.ext is the default, 0, then the current extension is replaced
+        (LineMarker.html).
+        If it is 1, then the export format extension is added (LineMarker.cxx.html).
+        If it is 2 then the final '.' is replaced by '_' and the
+        export format extension added (LineMarker_cxx.html).
         </td>
       </tr>
       <tr>
         <td>
-	export.html.wysiwyg<br />
-	export.html.tabs<br />
-	export.html.folding<br />
-	export.html.styleused<br />
-	export.html.title.fullpath
+        export.html.wysiwyg<br />
+        export.html.tabs<br />
+        export.html.folding<br />
+        export.html.styleused<br />
+        export.html.title.fullpath
         </td>
         <td>
-	When export.html.wysiwyg is set to 0 then exporting to a HTML file produces a smaller
-	file but which is less completely specified so may look more different to the on screen display.
-	When export.html.tabs is set to 1 and export.html.wysiwyg is set to 0 then tab characters in
-	the file are exported as tab characters rather than a sequence of space characters.<br />
-	The exported file can be made to fold in browsers that support CSS well (Mozilla and Internet
-	Explorer) by setting export.html.folding to 1.
-	Only export styles actually used when export.html.styleused set to 1.
-	The full path name of the file is put in the title, instead of just the file name
-	when export.html.title.fullpath set to 1.
+        When export.html.wysiwyg is set to 0 then exporting to a HTML file produces a smaller
+        file but which is less completely specified so may look more different to the on screen display.
+        When export.html.tabs is set to 1 and export.html.wysiwyg is set to 0 then tab characters in
+        the file are exported as tab characters rather than a sequence of space characters.<br />
+        The exported file can be made to fold in browsers that support CSS well (Mozilla and Internet
+        Explorer) by setting export.html.folding to 1.
+        Only export styles actually used when export.html.styleused set to 1.
+        The full path name of the file is put in the title, instead of just the file name
+        when export.html.title.fullpath set to 1.
         </td>
       </tr>
       <tr>
         <td>
-	export.rtf.wysiwyg<br />
-	export.rtf.tabs<br />
-	export.rtf.font.face<br />
-	export.rtf.font.size<br />
-	export.rtf.tabsize
+        export.rtf.wysiwyg<br />
+        export.rtf.tabs<br />
+        export.rtf.font.face<br />
+        export.rtf.font.size<br />
+        export.rtf.tabsize
         </td>
         <td>
-	When export.rtf.wysiwyg is set to 0 then exporting to a RTF file produces a smaller
-	file but which is less completely specified so may look more different to the on screen display.
-	When export.rtf.tabs is set to 1 and export.rtf.wysiwyg is set to 0 then tab characters in
-	the file are exported as tab characters rather than a sequence of space characters. <br />
-	export.rtf.font.face and export.rtf.font.size can be used to select a particular font and size
-	for the exported RTF file. export.rtf.tabsize can be set to use a different tab size than that
-	defined by the tabsize setting.
+        When export.rtf.wysiwyg is set to 0 then exporting to a RTF file produces a smaller
+        file but which is less completely specified so may look more different to the on screen display.
+        When export.rtf.tabs is set to 1 and export.rtf.wysiwyg is set to 0 then tab characters in
+        the file are exported as tab characters rather than a sequence of space characters. <br />
+        export.rtf.font.face and export.rtf.font.size can be used to select a particular font and size
+        for the exported RTF file. export.rtf.tabsize can be set to use a different tab size than that
+        defined by the tabsize setting.
         </td>
       </tr>
       <tr>
@@ -2083,14 +2123,14 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.on.open
         </td>
         <td>
-        	Options to control folding. Folding is turned on be setting fold to 1.
-	The fold.symbols setting chooses between four ways of showing folding.
-	Set to 0 (the default) for MacOS style arrows to indicate contracted
-	(facing right) and expanded (facing down); 1 to display contracted folds
-	with "+" and expanded with "-"; 2 for a flattened tree control with round
-	headers and rounded joins; 3 for a flattened tree control with square headers.
-	To automatically fold files as much as possible when loaded, set
-	fold.on.open to 1.
+                Options to control folding. Folding is turned on be setting fold to 1.
+        The fold.symbols setting chooses between four ways of showing folding.
+        Set to 0 (the default) for MacOS style arrows to indicate contracted
+        (facing right) and expanded (facing down); 1 to display contracted folds
+        with "+" and expanded with "-"; 2 for a flattened tree control with round
+        headers and rounded joins; 3 for a flattened tree control with square headers.
+        To automatically fold files as much as possible when loaded, set
+        fold.on.open to 1.
         </td>
       </tr>
       <tr>
@@ -2098,10 +2138,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.flags
         </td>
         <td>
-        	Not really documented ;) bit flags which may go away.
-	2, 4, 8, and 16 control drawing lines above and below folding lines if
-	expanded or not expanded.
-	Set to 64 to help debug folding by showing hexadecimal fold levels in margin.
+                Not really documented ;) bit flags which may go away.
+        2, 4, 8, and 16 control drawing lines above and below folding lines if
+        expanded or not expanded.
+        Set to 64 to help debug folding by showing hexadecimal fold levels in margin.
         </td>
       </tr>
       <tr>
@@ -2109,8 +2149,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.compact<br />
         </td>
         <td>
-	For HTML, XML, Lua and C++ and similar files, turning this option on leads to blank lines following the
-	end of an element folding with that element. Defaults to on.
+        For HTML, XML, Lua and C++ and similar files, turning this option on leads to blank lines following the
+        end of an element folding with that element. Defaults to on.
         </td>
       </tr>
       <tr>
@@ -2118,8 +2158,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.html
         </td>
         <td>
-	Folding is turned on or off for HTML and XML files with this option.
-	The fold option must also be on for folding to occur.
+        Folding is turned on or off for HTML and XML files with this option.
+        The fold option must also be on for folding to occur.
         </td>
       </tr>
       <tr>
@@ -2127,8 +2167,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.comment
         </td>
         <td>
-	This option enables folding multi-line comments when using the C++
-	lexer.
+        This option enables folding multi-line comments when using the C++
+        lexer.
         </td>
       </tr>
       <tr>
@@ -2136,7 +2176,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.at.else
         </td>
         <td>
-	This option enables C++ folding on a "} else {" line of an if statement.
+        This option enables C++ folding on a "} else {" line of an if statement.
         </td>
       </tr>
       <tr>
@@ -2144,185 +2184,185 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.preprocessor
         </td>
         <td>
-	This option enables folding preprocessor directives when using the C++
-	lexer. Includes C#'s explicit #region and #endregion folding directives.
+        This option enables folding preprocessor directives when using the C++
+        lexer. Includes C#'s explicit #region and #endregion folding directives.
         </td>
       </tr>
       <tr>
         <td>
           fold.comment.python<br />
-	fold.quotes.python
+        fold.quotes.python
         </td>
         <td>
-	These options enable folding multi-line comments or quoted strings when
-	using the Python lexer.
-        </td>
-      </tr>
-      <tr>
-        <td>
-	  title.full.path
-        </td>
-        <td>
-        	Chooses how the file name is displayed in the title bar.
-	When 0 (default) the file name is displayed. When 1 the full path is displayed.
-       	When 2 the window title displays "filename in directory".
+        These options enable folding multi-line comments or quoted strings when
+        using the Python lexer.
         </td>
       </tr>
       <tr>
         <td>
-	  title.show.buffers
+          title.full.path
         </td>
         <td>
-        	When set to 1 shows the current buffer number in the title bar.
+                Chooses how the file name is displayed in the title bar.
+        When 0 (default) the file name is displayed. When 1 the full path is displayed.
+               When 2 the window title displays "filename in directory".
+        </td>
+      </tr>
+      <tr>
+        <td>
+          title.show.buffers
+        </td>
+        <td>
+                When set to 1 shows the current buffer number in the title bar.
         </td>
       </tr>
       <tr>
         <td>
           tabsize<br />
           tab.size.<i>filepattern</i><br />
-	indent.size<br />
-	indent.size.<i>filepattern</i><br />
+        indent.size<br />
+        indent.size.<i>filepattern</i><br />
           use.tabs<br />
           use.tabs.<i>filepattern</i><br />
-	tab.indents<br />
-	backspace.unindents
+        tab.indents<br />
+        backspace.unindents
         </td>
         <td>
           Sets the size of a tab as a multiple of the size of a space character in the style of the
           default style definition. The indent size is the size to use when performing automatic
-	indentation and may be different from the tab size. Many people use a tab size of 8 but
-	4 character indentation. When creating indentation, use.tabs determines whether the
-	indentation is made up purely from space characters or from a mix of tabs and spaces
-	using as many tabs as possible. <br />
-	The global tabsize, indent.size, and use.tabs properties can be overridden for
-	files that match a pattern by using the using the file pattern forms: <br /><code>
-	indent.size.*.pas=3</code><br />
-	If tab.indents is set then pressing tab within indentation whitespace indents by indent.size
-	rather than inserting a tab character. If backspace.unindents then pressing backspace
-	within indentation whitespace unindents by indent.size rather than deleting the character
-	before the caret.
+        indentation and may be different from the tab size. Many people use a tab size of 8 but
+        4 character indentation. When creating indentation, use.tabs determines whether the
+        indentation is made up purely from space characters or from a mix of tabs and spaces
+        using as many tabs as possible. <br />
+        The global tabsize, indent.size, and use.tabs properties can be overridden for
+        files that match a pattern by using the using the file pattern forms: <br /><code>
+        indent.size.*.pas=3</code><br />
+        If tab.indents is set then pressing tab within indentation whitespace indents by indent.size
+        rather than inserting a tab character. If backspace.unindents then pressing backspace
+        within indentation whitespace unindents by indent.size rather than deleting the character
+        before the caret.
         </td>
       </tr>
       <tr>
         <td>
-	indent.automatic<br />
-	indent.opening<br />
-	indent.closing<br />
-	indent.maintain.<i>filepattern</i>
+        indent.automatic<br />
+        indent.opening<br />
+        indent.closing<br />
+        indent.maintain.<i>filepattern</i>
         </td>
         <td>
           Determines the look of automatic indentation. Automatic indentation is turned on with
-	  indent.automatic=1. To indent a brace line after a compound statement start set
-	  indent.opening=1, likewise for the terminating brace. So with both set to 0:<br /><br />
-	 <code>
-		if (c)<br />
-		{<br />
-		&nbsp;&nbsp;&nbsp;&nbsp;s;<br />
-		}<br />
-	 </code><br />
-	 And with both set to 1:<br /><br />
-	 <code>
-		if (c)<br />
-		&nbsp;&nbsp;&nbsp;&nbsp;{<br />
-		&nbsp;&nbsp;&nbsp;&nbsp;s;<br />
-		&nbsp;&nbsp;&nbsp;&nbsp;}<br />
-	 </code><br />
-	 Automatic indentation may be changed to simply repeat the indentation of the
-	 previous line for some files with indent.maintain.<i>filepattern</i>=1 which
-	 overrides the other language specific specific settings.
-	 </td>
+          indent.automatic=1. To indent a brace line after a compound statement start set
+          indent.opening=1, likewise for the terminating brace. So with both set to 0:<br /><br />
+         <code>
+                if (c)<br />
+                {<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;s;<br />
+                }<br />
+         </code><br />
+         And with both set to 1:<br /><br />
+         <code>
+                if (c)<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;{<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;s;<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;}<br />
+         </code><br />
+         Automatic indentation may be changed to simply repeat the indentation of the
+         previous line for some files with indent.maintain.<i>filepattern</i>=1 which
+         overrides the other language specific specific settings.
+         </td>
       </tr>
       <tr>
         <td>
-	statement.indent.<i>filepattern</i><br />
-	statement.end.<i>filepattern</i><br />
-	statement.lookback.<i>filepattern</i><br />
-	block.start.<i>filepattern</i><br />
-	block.end.<i>filepattern</i>
+        statement.indent.<i>filepattern</i><br />
+        statement.end.<i>filepattern</i><br />
+        statement.lookback.<i>filepattern</i><br />
+        block.start.<i>filepattern</i><br />
+        block.end.<i>filepattern</i>
         </td>
         <td>
-	  Each of these settings starts with a style number and then a set of words or characters
-	  that define how to recognise that feature. It there is second space in the setting then
-	  it is a set of words, otherwise a set of characters. The set of keywords used to indicate
-	  the start of a compound statement is defined in statement.indent. For example:<br /><br />
-	 <code>
-		statement.indent.$(file.patterns.cpp)=5 if else while
-	 </code><br /><br />
+          Each of these settings starts with a style number and then a set of words or characters
+          that define how to recognise that feature. It there is second space in the setting then
+          it is a set of words, otherwise a set of characters. The set of keywords used to indicate
+          the start of a compound statement is defined in statement.indent. For example:<br /><br />
+         <code>
+                statement.indent.$(file.patterns.cpp)=5 if else while
+         </code><br /><br />
           says that for C++ the words "if", "else", and "while" in keyword style, 5, start compound
-	  statements which leads to the next line being indented if no other factors affect it. However,
-	  if a statement end is found on the same line then the next line is not indented. For C++ the
-	  statement end is the semicolon in the operator style, so this is defined:<br /><br />
-	 <code>
-		statement.end.$(file.patterns.cpp)=10 ;
-	 </code><br /><br />
-	 The number of lines looked at to determine indentation can be set with statement.lookback.
-	 This can be used either to bound the amount of time spent on this task or to specify
-	 that only the last line be examined for indentation.<br />
-	 The block.start and block.end properties define the language elements used to bracket groups
-	 of statements. In C++ these are '{' and '}'.
+          statements which leads to the next line being indented if no other factors affect it. However,
+          if a statement end is found on the same line then the next line is not indented. For C++ the
+          statement end is the semicolon in the operator style, so this is defined:<br /><br />
+         <code>
+                statement.end.$(file.patterns.cpp)=10 ;
+         </code><br /><br />
+         The number of lines looked at to determine indentation can be set with statement.lookback.
+         This can be used either to bound the amount of time spent on this task or to specify
+         that only the last line be examined for indentation.<br />
+         The block.start and block.end properties define the language elements used to bracket groups
+         of statements. In C++ these are '{' and '}'.
         </td>
       </tr>
       <tr>
         <td>
-	  vc.home.key
+          vc.home.key
         </td>
         <td>
-        	Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like
-	Visual C++ moving the caret to the end of the line indentation unless already
-	there, in which case it moves to the start of the line. 0 moves to the start of the line.
+                Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like
+        Visual C++ moving the caret to the end of the line indentation unless already
+        there, in which case it moves to the start of the line. 0 moves to the start of the line.
         </td>
       </tr>
       <tr class="windowsonly">
         <td>
-	  warning.findwrapped<br />
-	  warning.notfound<br />
-	  warning.wrongfile<br />
-	  warning.executeok<br />
-	  warning.executeko<br />
-	  warning.nootherbookmark
+          warning.findwrapped<br />
+          warning.notfound<br />
+          warning.wrongfile<br />
+          warning.executeok<br />
+          warning.executeko<br />
+          warning.nootherbookmark
         </td>
         <td>
-        	Allows for sounds to be played and the window to be flashed
-	on Windows when particular events occur.
-	The values consist of three items separated by ',': flash duration, sound
-	and sound duration. If sound is a number then it is treated as a pitch and
-	played for the duration in milliseconds.
-	Otherwise it is treated as a path to a sound file
-	that is played. If you do not want a flash, specify 0 for flash duration.
-	For example,<br />
-	<code>
-	warning.wrongfile=0,C:\Windows\Media\SFX\Glass.wav
-	</code><br />
-	will play the glass sound if open selected is given a bad file name.
-	The findwrapped warning occurs when a find operation wraps past
-	either end of the file,
-	notfound when the find or preprocessor conditional move commands
-	fail to find a match,
-	executeok when a command such as build
-	executes successfully, executeko when a command fails, and
-	nootherbookmark when there is no bookmark to find.
+                Allows for sounds to be played and the window to be flashed
+        on Windows when particular events occur.
+        The values consist of three items separated by ',': flash duration, sound
+        and sound duration. If sound is a number then it is treated as a pitch and
+        played for the duration in milliseconds.
+        Otherwise it is treated as a path to a sound file
+        that is played. If you do not want a flash, specify 0 for flash duration.
+        For example,<br />
+        <code>
+        warning.wrongfile=0,C:\Windows\Media\SFX\Glass.wav
+        </code><br />
+        will play the glass sound if open selected is given a bad file name.
+        The findwrapped warning occurs when a find operation wraps past
+        either end of the file,
+        notfound when the find or preprocessor conditional move commands
+        fail to find a match,
+        executeok when a command such as build
+        executes successfully, executeko when a command fails, and
+        nootherbookmark when there is no bookmark to find.
         </td>
       </tr>
       <tr class="gtkonly">
         <td>
-	  fileselector.width<br />
-	  fileselector.height
+          fileselector.width<br />
+          fileselector.height
         </td>
         <td>
-        	For the GTK+ version determines the initial size of the file
-	selector dialog invoked by the Open and Save commands.
-	Setting has no effect on Windows.
+                For the GTK+ version determines the initial size of the file
+        selector dialog invoked by the Open and Save commands.
+        Setting has no effect on Windows.
         </td>
       </tr>
       <tr>
         <td>
-	translation.missing
+        translation.missing
         </td>
         <td>
-        	When using a localised version, if a term is not found in the locale.properties
-	translation file then use the value of translation.missing instead. By setting
-	this to a marker such as "***" it is easier to check where terms have not been
-	provided with translations.
+                When using a localised version, if a term is not found in the locale.properties
+        translation file then use the value of translation.missing instead. By setting
+        this to a marker such as "***" it is easier to check where terms have not been
+        provided with translations.
         </td>
       </tr>
     </table>
@@ -2474,21 +2514,21 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        The .api files can be generated by hand or by using a program.
     </p>
     <p>
-	For C/C++ headers, an API file can be generated using
-	<a href="http://ctags.sourceforge.net/">ctags</a>
-	and then the <a href="tags2api.py">
-	tags2api Python script</a> (which assumes C/C++ source) on the tags file to grab complete
-	multiple line function prototypes.
-	Some common headers surround parameter lists with a __P macro and may have
-	comments. The <a href="cleanapi.cc">cleanapi</a> utility may be used on these files.
+        For C/C++ headers, an API file can be generated using
+        <a href="http://ctags.sourceforge.net/">ctags</a>
+        and then the <a href="tags2api.py">
+        tags2api Python script</a> (which assumes C/C++ source) on the tags file to grab complete
+        multiple line function prototypes.
+        Some common headers surround parameter lists with a __P macro and may have
+        comments. The <a href="cleanapi.cc">cleanapi</a> utility may be used on these files.
     </p>
     <p>
-	To generate an API file for Python modules, there is a
-	<a href="gen_python_api.zip">gen_python script</a>.
+        To generate an API file for Python modules, there is a
+        <a href="gen_python_api.zip">gen_python script</a>.
     </p>
     <p>
-	To generate an API file for Java classes, there is a
-	<a href="ApiBuilder.java">ApiBuilder.java</a> program.
+        To generate an API file for Java classes, there is a
+        <a href="ApiBuilder.java">ApiBuilder.java</a> program.
     </p>
     <h3>
        SciTE in other languages
@@ -2535,37 +2575,38 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        You can use the <code>horizontal.scroll.width</code> property to change the horizontal scroll range.
     </p>
     <h4>
-	How do I enable tabbed window mode in SciTE?
+        How do I enable tabbed window mode in SciTE?
     </h4>
     <p>
-	Tabbed window mode is only available on Windows and GTK+ 2, not on GTK+ 1.
-	Multiple buffers must be allocated by setting <code>buffers=10</code>
-	in your SciTEGlobal.properties. To have the tab bar visible upon starting
-	SciTE, set <code>tabbar.visible=1</code>.
-	You can also set <code>tabbar.hide.one=0</code> to always show tabs,
-	or 1 to hide when only one file is open.
-	<code>tabbar.multiline=1</code> splits tabs across various lines if neccesary.
+        Tabbed window mode is only available on Windows and GTK+ 2, not on GTK+ 1.
+        Multiple buffers must be allocated by setting, for example, <code>buffers=10</code>
+        in your SciTEGlobal.properties. To have the tab bar visible upon starting
+        SciTE, set <code>tabbar.visible=1</code>.
+        You can also set <code>tabbar.hide.one=0</code> to always show tabs,
+        or 1 to hide when only one file is open.
+        <code>tabbar.multiline=1</code> splits tabs across various lines if neccesary.
     </p>
     <h4>
-	How do I enable autocomplete?
+        How do I enable autocomplete?
     </h4>
     <p>
-	Goto Options | Open Global Options File and uncomment<br />
-	<code>autocompleteword.automatic=1</code>
+        Goto Options | Open Global Options File and uncomment<br />
+        <code>autocompleteword.automatic=1</code>
     </p>
     <h4>
-	When I try to compile/build/run my [some language] source files, I get the following error: 'The system cannot find the file specified'.
+        When I try to compile/build/run my [some language] source files, I get the following error:
+        'The system cannot find the file specified'.
     </h4>
     <p>
-	Make sure that the path to your compiler is set correctly on your system.
-	Try to execute from console the same command you get in SciTE and see if it works.
-	You can also search in your [language].properties for the compile
-	commands used. If you have a different compiler or use different arguments,
-	edit the commands to suit your needs.
-	The lines to look for:<code><br />
-	command.compile.filepattern=<br />
-	command.build.filepattern=<br />
-	command.go.filepattern=</code>
+        Make sure that the path to your compiler is set correctly on your system.
+        Try to execute from console the same command you get in SciTE and see if it works.
+        You can also search in your [language].properties for the compile
+        commands used. If you have a different compiler or use different arguments,
+        edit the commands to suit your needs.
+        The lines to look for:<code><br />
+        command.compile.filepattern=<br />
+        command.build.filepattern=<br />
+        command.go.filepattern=</code>
     </p>
     <h4>
        How can I add [some external application] to the tools menu on SciTE?
@@ -2597,10 +2638,10 @@ This is for Windows and defines the subsystem through which the program is calle
 You can set a command for all files using * as a file pattern. Up to 10 commands (0 - 9) can be defined in the Tools Menu at any time. Commands also get executed with Ctrl+number.
     </p>
     <h4>
-	When I switch buffers all of the folds are opened. How do I make them stay as they were?
+        When I switch buffers all of the folds are opened. How do I make them stay as they were?
     </h4>
     <p>
-	SciTE does not have the ability to remember the fold state of other buffers.
+        SciTE does not have the ability to remember the fold state of other buffers.
     </p>
   </body>
 </html>
