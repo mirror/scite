@@ -1122,6 +1122,7 @@ void SciTEBase::ReadProperties() {
 	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
 
 	SendEditor(SCI_SETENDATLASTLINE, props.GetInt("end.at.last.line", 1));
+	SendEditor(SCI_SETCARETSTICKY, props.GetInt("caret.sticky", 0));
 
 	if (extender) {
 		char defaultDir[MAX_PATH];

@@ -1504,7 +1504,7 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
         </td>
         <td>
         Define additional commands for the context menu.
-        This is a '|' delimited list of menu items and the commands they 
+        This is a '|' delimited list of menu items and the commands they
         produce with commands defined as in user.shortcuts. An empty
         item produces a separator.
         <br/>
@@ -1589,7 +1589,7 @@ Prev File|IDM_PREVFILE|<br/>
         </td>
         <td>
           Chooses between word wrapping (1, the default) and character wrapping (2).
-	Character wrapping is a better choice for Asian languages with no spaces 
+	Character wrapping is a better choice for Asian languages with no spaces
 	between words.
         </td>
       </tr>
@@ -1825,8 +1825,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
           To support a DBCS language such as Japanese, a code page can be set here. This ensures
           that double byte characters are always treated as a unit so the caret is never located
-          between the two bytes of a double byte character. On Windows, settings that may work include 
-          932 (Japanese Shift-JIS), 936 (Simplified Chinese GBK), 949 (Korean), and 950 (Traditional Chinese 
+          between the two bytes of a double byte character. On Windows, settings that may work include
+          932 (Japanese Shift-JIS), 936 (Simplified Chinese GBK), 949 (Korean), and 950 (Traditional Chinese
           Big5).<br />
           This option can only be 0 or 65001 on GTK+
         where SciTE only supports single byte character sets and Unicode.<br />
@@ -2758,6 +2758,17 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           property, SciTE looks for the file in the standard property file locations,
           starting with the local directory.  This can be very useful in combination
           with a local SciTE.properties file.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          caret.sticky
+        </td>
+        <td>
+          Controls when the last position of the caret on the line is modified.
+		  When set to 1, the position is not modified when you type a character, a tab,
+		  paste the clipboard content or press backspace. The default is 0 which turns
+		  off this feature.
         </td>
       </tr>
     </table>
