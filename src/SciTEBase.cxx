@@ -930,7 +930,7 @@ char *Slash(const char *s) {
 			} else if (*s == '\\') {
 				*o++ = '\\';
 				*o++ = '\\';
-			} else if (*s < ' ') {
+			} else if (isascii(*s) && (*s < ' ')) {
 				*o++ = '\\';
 				*o++ = static_cast<char>((*s >> 6) + '0');
 				*o++ = static_cast<char>((*s >> 3) + '0');
