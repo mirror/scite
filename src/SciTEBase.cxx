@@ -629,6 +629,15 @@ void SciTEBase::ReadProperties() {
 		}
 	}
 
+	SString eol_mode = props.Get("eol.mode");
+	if (eol_mode=="LF") {
+		SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
+	} else if (eol_mode=="CR") {
+		SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
+	} else if (eol_mode=="CRLF") {
+		SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+	}
+
 	codePage = props.GetInt("code.page");
 	SendEditor(SCI_SETCODEPAGE, codePage);
 
