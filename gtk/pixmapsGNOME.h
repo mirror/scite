@@ -1,3 +1,5 @@
+// Set of images for tool bar buttons
+// Drawn by Dean Jones
 // Modified to have same names as tigert.h
 // Not really anything to do with Gnome - just calling this 
 // file pixmapsGNOME to fit in with previous code.
