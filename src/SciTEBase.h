@@ -429,6 +429,7 @@ protected:
 	virtual bool StartAutoCompleteWord(bool onlyOneWord);
 	virtual bool StartExpandAbbreviation();
 	virtual bool StartBlockComment();
+	virtual bool StartBoxComment();
 	virtual bool StartStreamComment();
 	void GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
 	int SetLineIndentation(int line, int indent);

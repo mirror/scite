@@ -54,6 +54,7 @@ BEGIN
 	MENUITEM "Complete &Word\tCtrl+Enter",		IDM_COMPLETEWORD
 	MENUITEM "&Expand Abbreviation\tCtrl+B",	IDM_ABBREV
 	MENUITEM "Block Co&mment or Uncomment\tCtrl+K",	IDM_COMMENT
+	MENUITEM "Bo&x Comment\tCtrl+Alt+K",		IDM_BOX_COMMENT
 	MENUITEM "Stream Comme&nt\tCtrl+Shift+K",	IDM_STREAM_COMMENT
 	MENUITEM "Make &Selection Uppercase\tCtrl+Shift+U",	IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",IDM_LWRCASE
@@ -297,6 +298,7 @@ BEGIN
 	"I", IDM_COMPLETE, VIRTKEY, CONTROL
 	"K", IDM_COMMENT, VIRTKEY, CONTROL
 	"K", IDM_STREAM_COMMENT, VIRTKEY, CONTROL, SHIFT
+	"K", IDM_BOX_COMMENT, VIRTKEY, CONTROL, ALT
 	VK_RETURN, IDM_COMPLETEWORD, VIRTKEY, CONTROL
 
 	// this does not work and gives RC warning:

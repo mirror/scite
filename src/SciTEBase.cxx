@@ -1139,17 +1139,70 @@ bool SciTEBase::StartExpandAbbreviation() {
 		return true;
 	linebuf[current] = '\0';
 	const char *abbrev = linebuf + startword;
-	SString expanded = propsAbbrev.Get(abbrev);
-	if (expanded.length()) {
-		SendEditor(SCI_SETSEL, position - counter, position);
-		SendEditorString(SCI_REPLACESEL, 0, expanded.c_str());
+	SString data = propsAbbrev.Get(abbrev);
+	int dataLength = data.length();
+	if (dataLength == 0) {
+		return true; // returning if expanded abbreviation is empty
 	}
+	const char *expbuff = data.c_str();
+	SString expanded(""); // parsed expanded abbreviation
+	int j = 0; // temporary variable for caret position counting
+	int caret_pos = -1; // caret position
+	//~ int line = 0; // counting lines in multiline abbreviations
+	char c = '\0'; // current char
+	for (int i = 0; i < dataLength; i++) {
+		switch(c = expbuff[i]) {
+			case '|':
+				if (i < (dataLength - 1) && expbuff[i + 1] == '|') {
+					i++;
+					expanded += c;
+				} else {
+					if (caret_pos != -1) {
+						break;
+					}
+					caret_pos = j; // this is the caret position
+				}
+				break;
+			case '\\':
+				if (i < (dataLength - 1) && expbuff[i + 1] == 'n') {
+					i++;
+					//~ line++;
+					expanded += '\n';
+				} else {
+					expanded += c;
+				}
+				break;
+			//~ case '\n':
+				//~ line++;
+				//~ expanded += (c);
+				//~ break;
+			default:
+				expanded += c;
+				break;
+		}
+		j++;
+	}
+	SendEditor(SCI_SETSEL, position - counter, position);
+	SendEditorString(SCI_REPLACESEL, 0, expanded.c_str());
+	if (caret_pos != -1) {
+		//~ SendEditor(SCI_SETSEL, position - counter + pos,
+									//~ position - counter + pos);
+		SendEditor(SCI_GOTOPOS, position - counter + caret_pos);
+	}
+	//~ if(line > 0) {
+		//~ int currentLineNumber = GetCurrentLineNumber();
+		//~ for(int i = 0; i < line; i++) {
+			//~ int indent = GetLineIndentation(currentLineNumber + i - 1);
+			//~ SetLineIndentation(currentLineNumber + i , indent);
+		//~ }
+	//~ }
 	return true;
 }
 
+
 bool SciTEBase::StartBlockComment() {
 	SString language = props.GetNewExpand("lexer.", fileName);
-	SString base("comment.");
+	SString base("comment.block.");
 	if (language == "") {  // using default lexer
 		language = props.Get("default.file.ext");
 		const char* extension = language.c_str() + 1;
@@ -1170,14 +1223,19 @@ bool SciTEBase::StartBlockComment() {
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
-	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd) + 1;
+	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
+	int lines = selEndLine - selStartLine;
+	// "carret return" is part of the last selected line
+	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine))
+		selEndLine--;
 	SendEditor(SCI_BEGINUNDOACTION);
-	for (int i = selStartLine; i < selEndLine; i++) {
+	for (int i = selStartLine; i <= selEndLine; i++) {
 		int lineIndent = GetLineIndentPosition(i);
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, i);
 		GetRange(wEditor, lineIndent, lineEnd, linebuf);
+		// empty lines are not commented
 		if (strlen(linebuf) < 1)
-			continue; // empty lines are not commented
+			continue;
 		if (memcmp(linebuf, comment.c_str(), comment_length - 1) == 0) {
 			if (memcmp(linebuf, long_comment.c_str(), comment_length) == 0) {
 				// removing comment with space after it
@@ -1202,6 +1260,68 @@ bool SciTEBase::StartBlockComment() {
 		selectionEnd += comment_length; // every iteration
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment.c_str());
 	}
+	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+	SendEditor(SCI_ENDUNDOACTION);
+	return true;
+}
+
+bool SciTEBase::StartBoxComment() {
+	SString language = props.GetNewExpand("lexer.", fileName);
+	SString start_base("comment.box.start.");
+	SString middle_base("comment.box.middle.");
+	SString end_base("comment.box.end.");
+	SString white_space(" ");
+	if (language == "") {
+		language = props.Get("default.file.ext");
+		const char* extension = language.c_str() + 1; // removing dot
+		language = extension;
+	}
+	start_base += language;
+	middle_base += language;
+	end_base += language;
+	SString start_comment = props.Get(start_base.c_str());
+	SString middle_comment = props.Get(middle_base.c_str());
+	SString end_comment = props.Get(end_base.c_str());
+	if (start_comment == "" || middle_comment == "" || end_comment == "") {
+		SString error("Box comment variables \"");
+		error += start_base.c_str();
+		error += "\", \"";
+		error += middle_base.c_str();
+		error += "\"\nand \"";
+		error += end_base.c_str();
+		error += "\" are not ";
+		error += "defined in SciTE *.properties!";
+		MessageBox(wSciTE.GetID(), error.c_str(), "Box Comment Error", MB_OK);
+		return true;
+	}
+	start_comment += white_space;
+	middle_comment +=white_space;
+	end_comment = white_space.append(end_comment.c_str());
+	int start_comment_length = start_comment.length();
+	int middle_comment_length = middle_comment.length();
+	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
+	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
+	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
+	int lines = selEndLine - selStartLine;
+	// "carret return" is part of the last selected line
+	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine))
+		selEndLine--;
+	SendEditor(SCI_BEGINUNDOACTION);
+	// first commented line (start_comment)
+	int lineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
+	SendEditorString(SCI_INSERTTEXT, lineStart, start_comment.c_str());
+	selectionStart += start_comment_length;
+	// lines between first and last commented lines (middle_comment)
+	for (int i = selStartLine + 1; i <= selEndLine; i++) {
+		lineStart = SendEditor(SCI_POSITIONFROMLINE, i);
+		SendEditorString(SCI_INSERTTEXT, lineStart, middle_comment.c_str());
+		selectionEnd += middle_comment_length;
+	}
+	// last commented line (end_comment)
+	int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, selEndLine);
+	SendEditorString(SCI_INSERTTEXT, lineEnd, end_comment.c_str());
+	selectionEnd += (start_comment_length);
 	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
 	SendEditor(SCI_ENDUNDOACTION);
 	return true;
@@ -1236,6 +1356,7 @@ bool SciTEBase::StartStreamComment() {
 	int start_comment_length = start_comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+
 	// if there is no selection?
 	if (selectionEnd - selectionStart <= 0) {
 		int selLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
@@ -1265,7 +1386,12 @@ bool SciTEBase::StartStreamComment() {
 		}
 		selectionStart -= start_counter;
 		selectionEnd += (end_counter + 1);
+		//~ if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, i))
 	}
+/* 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
+	if (selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine)) {
+		selectionEnd -= 2;
+	} */
 	SendEditor(SCI_BEGINUNDOACTION);
 
 	SendEditorString(SCI_INSERTTEXT, selectionStart, start_comment.c_str());
@@ -1742,6 +1868,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_COMMENT:
 		StartBlockComment();
+		break;
+
+	case IDM_BOX_COMMENT:
+		StartBoxComment();
 		break;
 
 	case IDM_STREAM_COMMENT:
