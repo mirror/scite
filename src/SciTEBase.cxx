@@ -1667,6 +1667,7 @@ void SciTEBase::ClearJobQueue() {
 }
 
 void SciTEBase::Execute() {
+	props.Set("CurrentMessage", "");
 	dirNameForExecute = "";
 	bool displayParameterDialog = false;
 	int ic;

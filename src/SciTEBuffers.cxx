@@ -1600,6 +1600,7 @@ void SciTEBase::GoMessage(int dir) {
 			if (!cdoc)
 				return;
 			GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
+			SString message(cdoc);
 			char sourcePath[MAX_PATH];
 			int column;
 			int sourceLine = DecodeMessage(cdoc, sourcePath, style, column);
@@ -1654,8 +1655,10 @@ void SciTEBase::GoMessage(int dir) {
 				SendEditor(SCI_MARKERADD, sourceLine, 0);
 				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
 				int endSourceline= SendEditor(SCI_POSITIONFROMLINE, sourceLine+1, 0);
-				if (column >= 0)
-					startSourceLine += column;
+				if (column >= 0) {
+					// Get the position in line according to current tab setting
+					startSourceLine = SendEditor(SCI_FINDCOLUMN, sourceLine, column); 
+				}
 				EnsureRangeVisible(startSourceLine, startSourceLine);
 				if (props.GetInt("error.select.line")==1) {
 					//select whole source source line from column with error
@@ -1664,6 +1667,9 @@ void SciTEBase::GoMessage(int dir) {
 					//simply move cursor to line, don't do any selection
 					SetSelection(startSourceLine, startSourceLine);
 				}
+				message.substitute('\t', ' ');
+				props.Set("CurrentMessage", message.c_str());
+				UpdateStatusBar(false);
 				WindowSetFocus(wEditor);
 			}
 			delete []cdoc;
