@@ -673,7 +673,11 @@ void SciTEBase::ReadProperties() {
 	characterSet = props.GetInt("character.set");
 
 #ifdef unix
-	setlocale(LC_CTYPE, props.Get("LC_CTYPE").c_str());
+	SString localeCType = props.Get("LC_CTYPE");
+	if (localeCType.length())
+		setlocale(LC_CTYPE, localeCType.c_str());
+	else
+		setlocale(LC_CTYPE, "C");
 #endif
 
 	SendEditor(SCI_SETCARETFORE,
