@@ -17,6 +17,7 @@
 #if PLAT_GTK
 
 #include <unistd.h>
+#include <gtk/gtk.h>
 
 const char menuAccessIndicator[] = "_";
 

@@ -661,20 +661,6 @@ public:
 /// Base size of file I/O operations.
 const int blockSize = 131072;
 
-int ControlIDOfCommand(unsigned long);
-void SetAboutMessage(WindowID wsci, const char *appTitle);
-time_t GetModTime(const char *fullPath);
-bool IsUntitledFileName(const char *name);
-void LowerCaseString(char *s);
-void ChopTerminalSlash(char *path);
-int IntFromHexDigit(const char ch);
-ColourDesired ColourFromString(const char *val);
-long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault);
-char *Slash(const char *s);
-unsigned int UnSlash(char *s);
-int WindowMessageBox(Window &w, const char *m, const char *t = appName, int style = MB_OK);
-void WindowSetFocus(Window &w);
-
 #if PLAT_GTK
 // MessageBox
 #define MB_OK	(0L)
@@ -688,3 +674,17 @@ void WindowSetFocus(Window &w);
 int MessageBox(GtkWidget *wParent, const char *m, const char *t = appName, int style = MB_OK);
 void SetFocus(GtkWidget *hwnd);
 #endif
+
+int ControlIDOfCommand(unsigned long);
+void SetAboutMessage(WindowID wsci, const char *appTitle);
+time_t GetModTime(const char *fullPath);
+bool IsUntitledFileName(const char *name);
+void LowerCaseString(char *s);
+void ChopTerminalSlash(char *path);
+int IntFromHexDigit(const char ch);
+ColourDesired ColourFromString(const char *val);
+long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault);
+char *Slash(const char *s);
+unsigned int UnSlash(char *s);
+int WindowMessageBox(Window &w, const char *m, const char *t = appName, int style = MB_OK);
+void WindowSetFocus(Window &w);

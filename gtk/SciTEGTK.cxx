@@ -12,6 +12,9 @@
 #include <sys/stat.h>
 #include <assert.h>
 
+#include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+
 #include "Platform.h"
 
 #include <unistd.h>
@@ -292,6 +295,10 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 SciTEGTK::~SciTEGTK() {}
 
+static GtkWidget *PWidget(Window &w) { 
+	return reinterpret_cast<GtkWidget *>(w.GetID()); 
+}
+
 static void destroyDialog(GtkWidget *) {}
 
 void SciTEGTK::WarnUser(int) {}
@@ -528,8 +535,8 @@ void SciTEGTK::SetWindowName() {
 }
 
 void SciTEGTK::SetStatusBarText(const char *s) {
-	gtk_statusbar_pop(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID);
-	gtk_statusbar_push(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID, s);
+	gtk_statusbar_pop(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID);
+	gtk_statusbar_push(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID, s);
 }
 
 void SciTEGTK::UpdateStatusBar(bool bUpdateSlowData) {
@@ -542,9 +549,9 @@ void SciTEGTK::Notify(SCNotification *notification) {
 
 void SciTEGTK::ShowToolBar() {
 	if (tbVisible) {
-		gtk_widget_show(GTK_WIDGET(wToolBarBox.GetID()));
+		gtk_widget_show(GTK_WIDGET(PWidget(wToolBarBox)));
 	} else {
-		gtk_widget_hide(GTK_WIDGET(wToolBarBox.GetID()));
+		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
 	}
 }
 
@@ -554,9 +561,9 @@ void SciTEGTK::ShowTabBar() {
 
 void SciTEGTK::ShowStatusBar() {
 	if (sbVisible) {
-		gtk_widget_show(GTK_WIDGET(wStatusBar.GetID()));
+		gtk_widget_show(GTK_WIDGET(PWidget(wStatusBar)));
 	} else {
-		gtk_widget_hide(GTK_WIDGET(wStatusBar.GetID()));
+		gtk_widget_hide(GTK_WIDGET(PWidget(wStatusBar)));
 	}
 }
 
@@ -578,7 +585,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 			int screen_x, screen_y;
 			int scite_x, scite_y;
 			int width, height;
-			GdkWindow* parent_w = wSciTE.GetID()->window;
+			GdkWindow* parent_w = PWidget(wSciTE)->window;
 
 			gdk_window_get_origin(parent_w, &screen_x, &screen_y);
 			gdk_window_get_geometry(parent_w, &scite_x, &scite_y, &width, &height, NULL);
@@ -590,7 +597,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 			gdk_window_move_resize(parent_w, -scite_x, -scite_y, gdk_screen_width() + 1, gdk_screen_height() + 1);
 			SizeSubWindows();
 		} else {
-			GdkWindow* parent_w = wSciTE.GetID()->window;
+			GdkWindow* parent_w = PWidget(wSciTE)->window;
 			gdk_window_move_resize(parent_w, saved_x, saved_y, saved_w, saved_h);
 			SizeSubWindows();
 		}
@@ -768,7 +775,7 @@ void SciTEGTK::OpenUriList(const char *list) {
 					//printf("FILE: <%s>\n", uri);
 					Open(uri);
 				} else {
-					MessageBox(wSciTE.GetID(), uri, "URI not understood", MB_OK);
+					MessageBox(PWidget(wSciTE), uri, "URI not understood", MB_OK);
 					//printf("URI: <%s>\n", uri);
 				}
 
@@ -823,23 +830,23 @@ void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*
 bool SciTEGTK::OpenDialog() {
 	if (!fileSelector.Created()) {
 		fileSelector = gtk_file_selection_new("Open File");
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(OpenOKSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
 		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
 		                   this);
-		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
 		                   "size_allocate", GtkSignalFunc(OpenResizeSignal),
 		                   this);
 		// Other ways to destroy
 		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
-		                              GTK_WINDOW(wSciTE.GetID()));
+		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
+		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
+		                              GTK_WINDOW(PWidget(wSciTE)));
 		// Get a bigger open dialog
-		gtk_window_set_default_size(GTK_WINDOW(fileSelector.GetID()),
+		gtk_window_set_default_size(GTK_WINDOW(PWidget(fileSelector)),
 		                            fileSelectorWidth, fileSelectorHeight);
 		fileSelector.Show();
 		while (fileSelector.Created()) {
@@ -855,20 +862,20 @@ bool SciTEGTK::SaveAsDialog() {
 	savingPDF = false;
 	if (!fileSelector.Created()) {
 		fileSelector = gtk_file_selection_new("Save File As");
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
 		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
 		                   this);
 		// Other ways to destroy
 		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
-		                              GTK_WINDOW(wSciTE.GetID()));
+		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
+		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
+		                              GTK_WINDOW(PWidget(wSciTE)));
 		// Get a bigger save as dialog
-		gtk_window_set_default_size(GTK_WINDOW(fileSelector.GetID()),
+		gtk_window_set_default_size(GTK_WINDOW(PWidget(fileSelector)),
 		                            fileSelectorWidth, fileSelectorHeight);
 		fileSelector.Show();
 		while (fileSelector.Created()) {
@@ -882,18 +889,18 @@ void SciTEGTK::SaveAsHTML() {
 	if (!fileSelector.Created()) {
 		savingHTML = true;
 		fileSelector = gtk_file_selection_new("Save File As HTML");
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
 		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
 		                   this);
 		// Other ways to destroy
 		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
-		                              GTK_WINDOW(wSciTE.GetID()));
+		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
+		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
+		                              GTK_WINDOW(PWidget(wSciTE)));
 		fileSelector.Show();
 		while (fileSelector.Created()) {
 			gtk_main_iteration();
@@ -905,18 +912,18 @@ void SciTEGTK::SaveAsRTF() {
 	if (!fileSelector.Created()) {
 		savingRTF = true;
 		fileSelector = gtk_file_selection_new("Save File As RTF");
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
 		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
 		                   this);
 		// Other ways to destroy
 		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
-		                              GTK_WINDOW(wSciTE.GetID()));
+		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
+		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
+		                              GTK_WINDOW(PWidget(wSciTE)));
 		fileSelector.Show();
 		while (fileSelector.Created()) {
 			gtk_main_iteration();
@@ -928,18 +935,18 @@ void SciTEGTK::SaveAsPDF() {
 	if (!fileSelector.Created()) {
 		savingPDF = true;
 		fileSelector = gtk_file_selection_new("Save File As PDF");
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
 		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
 		                   this);
 		// Other ways to destroy
 		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
-		                              GTK_WINDOW(wSciTE.GetID()));
+		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
+		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
+		                              GTK_WINDOW(PWidget(wSciTE)));
 		fileSelector.Show();
 		while (fileSelector.Created()) {
 			gtk_main_iteration();
@@ -1124,10 +1131,10 @@ void SciTEGTK::FindInFiles() {
 	props.Set("find.dir", findInDir);
 
 	findInFilesDialog = gtk_dialog_new();
-	gtk_window_set_policy(GTK_WINDOW(findInFilesDialog.GetID()), TRUE, TRUE, TRUE);
+	gtk_window_set_policy(GTK_WINDOW(PWidget(findInFilesDialog)), TRUE, TRUE, TRUE);
 	findInFilesDialog.SetTitle("Find In Files");
 
-	gtk_signal_connect(GTK_OBJECT(findInFilesDialog.GetID()),
+	gtk_signal_connect(GTK_OBJECT(PWidget(findInFilesDialog)),
 	                   "destroy", GtkSignalFunc(destroyDialog), 0);
 
 #ifdef RECURSIVE_GREP_WORKING
@@ -1135,7 +1142,7 @@ void SciTEGTK::FindInFiles() {
 #else
 	GtkWidget *table = gtk_table_new(3, 2, FALSE);
 #endif
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->vbox),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(findInFilesDialog))->vbox),
 	                   table, TRUE, TRUE, 0);
 
 	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
@@ -1215,17 +1222,17 @@ void SciTEGTK::FindInFiles() {
 
 	GtkWidget *btnFind = TranslatedCommand("F_ind", accel_group,
 	                                 GtkSignalFunc(FindInFilesSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(findInFilesDialog))->action_area),
 	                   btnFind, TRUE, TRUE, 0);
 	gtk_widget_show(btnFind);
 
 	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
 	                                   GtkSignalFunc(FindInFilesCancelSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(findInFilesDialog))->action_area),
 	                   btnCancel, TRUE, TRUE, 0);
 	gtk_widget_show(btnCancel);
 
-	gtk_signal_connect(GTK_OBJECT(findInFilesDialog.GetID()),
+	gtk_signal_connect(GTK_OBJECT(PWidget(findInFilesDialog)),
 	                   "key_press_event", GtkSignalFunc(FindInFilesKeySignal),
 	                   this);
 
@@ -1233,11 +1240,11 @@ void SciTEGTK::FindInFiles() {
 	gtk_widget_grab_focus(GTK_WIDGET(GTK_COMBO(comboFind)->entry));
 
 	// Mark it as a modal transient dialog
-	gtk_window_set_modal(GTK_WINDOW(findInFilesDialog.GetID()), TRUE);
-	gtk_window_set_transient_for (GTK_WINDOW(findInFilesDialog.GetID()),
-	                              GTK_WINDOW(wSciTE.GetID()));
+	gtk_window_set_modal(GTK_WINDOW(PWidget(findInFilesDialog)), TRUE);
+	gtk_window_set_transient_for (GTK_WINDOW(PWidget(findInFilesDialog)),
+	                              GTK_WINDOW(PWidget(wSciTE)));
 
-	gtk_window_add_accel_group(GTK_WINDOW(findInFilesDialog.GetID()), accel_group);
+	gtk_window_add_accel_group(GTK_WINDOW(PWidget(findInFilesDialog)), accel_group);
 	findInFilesDialog.Show();
 }
 
@@ -1395,14 +1402,14 @@ void SciTEGTK::GoLineDialog() {
 	accel_group = gtk_accel_group_new();
 
 	gotoDialog = gtk_dialog_new();
-	TranslatedSetTitle(GTK_WINDOW(gotoDialog.GetID()), "Go To");
-	gtk_container_border_width(GTK_CONTAINER(gotoDialog.GetID()), 0);
+	TranslatedSetTitle(GTK_WINDOW(PWidget(gotoDialog)), "Go To");
+	gtk_container_border_width(GTK_CONTAINER(PWidget(gotoDialog)), 0);
 
-	gtk_signal_connect(GTK_OBJECT(gotoDialog.GetID()),
+	gtk_signal_connect(GTK_OBJECT(PWidget(gotoDialog)),
 	                   "destroy", GtkSignalFunc(destroyDialog), 0);
 
 	GtkWidget *table = gtk_table_new(2, 1, FALSE);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gotoDialog.GetID())->vbox),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(gotoDialog))->vbox),
 	                   table, TRUE, TRUE, 0);
 
 	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
@@ -1422,27 +1429,27 @@ void SciTEGTK::GoLineDialog() {
 
 	GtkWidget *btnGoTo = TranslatedCommand("_Go To", accel_group,
 	                                 GtkSignalFunc(GotoSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gotoDialog.GetID())->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(gotoDialog))->action_area),
 	                   btnGoTo, TRUE, TRUE, 0);
 	gtk_widget_grab_default(GTK_WIDGET(btnGoTo));
 	gtk_widget_show(btnGoTo);
 
 	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
 	                                   GtkSignalFunc(GotoCancelSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gotoDialog.GetID())->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(gotoDialog))->action_area),
 	                   btnCancel, TRUE, TRUE, 0);
 	gtk_widget_show(btnCancel);
 
-	gtk_signal_connect(GTK_OBJECT(gotoDialog.GetID()),
+	gtk_signal_connect(GTK_OBJECT(PWidget(gotoDialog)),
 	                   "key_press_event", GtkSignalFunc(GotoKeySignal),
 	                   this);
 
 	// Mark it as a modal transient dialog
-	gtk_window_set_modal(GTK_WINDOW(gotoDialog.GetID()), TRUE);
-	gtk_window_set_transient_for (GTK_WINDOW(gotoDialog.GetID()),
-	                              GTK_WINDOW(wSciTE.GetID()));
+	gtk_window_set_modal(GTK_WINDOW(PWidget(gotoDialog)), TRUE);
+	gtk_window_set_transient_for (GTK_WINDOW(PWidget(gotoDialog)),
+	                              GTK_WINDOW(PWidget(wSciTE)));
 
-	gtk_window_add_accel_group(GTK_WINDOW(gotoDialog.GetID()), accel_group);
+	gtk_window_add_accel_group(GTK_WINDOW(PWidget(gotoDialog)), accel_group);
 	gotoDialog.Show();
 }
 
@@ -1454,14 +1461,14 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	replacing = replace;
 	wFindReplace = gtk_dialog_new();
-	gtk_window_set_policy(GTK_WINDOW(wFindReplace.GetID()), TRUE, TRUE, TRUE);
-	TranslatedSetTitle(GTK_WINDOW(wFindReplace.GetID()), replace ? "Replace" : "Find");
+	gtk_window_set_policy(GTK_WINDOW(PWidget(wFindReplace)), TRUE, TRUE, TRUE);
+	TranslatedSetTitle(GTK_WINDOW(PWidget(wFindReplace)), replace ? "Replace" : "Find");
 
-	gtk_signal_connect(GTK_OBJECT(wFindReplace.GetID()),
+	gtk_signal_connect(GTK_OBJECT(PWidget(wFindReplace)),
 	                   "destroy", GtkSignalFunc(destroyDialog), 0);
 
 	GtkWidget *table = gtk_table_new(2, replace ? 4 : 3, FALSE);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->vbox),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->vbox),
 	                   table, TRUE, TRUE, 0);
 
 	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
@@ -1546,49 +1553,49 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_widget_show_all(table);
 
 	gtk_box_set_homogeneous(
-	    GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area), false);
+	    GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area), false);
 
 	GtkWidget *btnFind = TranslatedCommand("F_ind", accel_group,
 	                                 GtkSignalFunc(FRFindSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
 	                   btnFind, TRUE, TRUE, 0);
 
 	if (replace) {
 		GtkWidget *btnReplace = TranslatedCommand("_Replace", accel_group,
 		                                    GtkSignalFunc(FRReplaceSignal), this);
-		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
 		                   btnReplace, TRUE, TRUE, 0);
 
 		GtkWidget *btnReplaceAll = TranslatedCommand("Replace _All", accel_group,
 		                                       GtkSignalFunc(FRReplaceAllSignal), this);
-		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
 		                   btnReplaceAll, TRUE, TRUE, 0);
 
 		GtkWidget *btnReplaceInSelection = TranslatedCommand("Replace in _Selection", accel_group,
 		                                   GtkSignalFunc(FRReplaceInSelectionSignal), this);
-		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
 		                   btnReplaceInSelection, TRUE, TRUE, 0);
 	}
 
 	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
 	                                   GtkSignalFunc(FRCancelSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
 	                   btnCancel, TRUE, TRUE, 0);
 
-	gtk_signal_connect(GTK_OBJECT(wFindReplace.GetID()),
+	gtk_signal_connect(GTK_OBJECT(PWidget(wFindReplace)),
 	                   "key_press_event", GtkSignalFunc(FRKeySignal), this);
 
-	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(wFindReplace.GetID())->action_area));
+	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(PWidget(wFindReplace))->action_area));
 
 	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(btnFind), GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(GTK_WIDGET(btnFind));
 	gtk_widget_grab_focus(GTK_WIDGET(GTK_COMBO(comboFind)->entry));
 
 	// Mark it as a transient dialog
-	gtk_window_set_transient_for (GTK_WINDOW(wFindReplace.GetID()),
-	                              GTK_WINDOW(wSciTE.GetID()));
+	gtk_window_set_transient_for (GTK_WINDOW(PWidget(wFindReplace)),
+	                              GTK_WINDOW(PWidget(wSciTE)));
 
-	gtk_window_add_accel_group(GTK_WINDOW(wFindReplace.GetID()), accel_group);
+	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wFindReplace)), accel_group);
 	wFindReplace.Show();
 }
 
@@ -1597,7 +1604,7 @@ void SciTEGTK::DestroyFindReplace() {
 }
 
 void SciTEGTK::AboutDialog() {
-	MessageBox(wSciTE.GetID(), "SciTE\nby Neil Hodgson neilh@scintilla.org .",
+	MessageBox(PWidget(wSciTE), "SciTE\nby Neil Hodgson neilh@scintilla.org .",
 	           appName, MB_OK | MB_ABOUTBOX);
 }
 
@@ -1749,7 +1756,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	if ((commandID == IDM_NEXTFILE) || (commandID == IDM_PREVFILE)) {
 		// Stop the default key processing from moving the focus
 		gtk_signal_emit_stop_by_name(
-			GTK_OBJECT(wSciTE.GetID()), "key_press_event");
+			GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
 	}
 	return 0;
 }
@@ -1757,25 +1764,25 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 void SciTEGTK::DividerXOR(Point pt) {
 	if (!xor_gc) {
 		GdkGCValues values;
-		values.foreground = wSciTE.GetID()->style->white;
+		values.foreground = PWidget(wSciTE)->style->white;
 		values.function = GDK_XOR;
 		values.subwindow_mode = GDK_INCLUDE_INFERIORS;
-		xor_gc = gdk_gc_new_with_values(wSciTE.GetID()->window,
+		xor_gc = gdk_gc_new_with_values(PWidget(wSciTE)->window,
 		                                &values,
 		                                static_cast<GdkGCValuesMask>(
 		                                    GDK_GC_FOREGROUND | GDK_GC_FUNCTION | GDK_GC_SUBWINDOW));
 	}
 	if (splitVertical) {
-		gdk_draw_line(wSciTE.GetID()->window, xor_gc,
+		gdk_draw_line(PWidget(wSciTE)->window, xor_gc,
 		              pt.x,
 		              0,
 		              pt.x,
-		              wSciTE.GetID()->allocation.height - 1);
+		              PWidget(wSciTE)->allocation.height - 1);
 	} else {
-		gdk_draw_line(wSciTE.GetID()->window, xor_gc,
+		gdk_draw_line(PWidget(wSciTE)->window, xor_gc,
 		              0,
 		              pt.y,
-		              wSciTE.GetID()->allocation.width - 1,
+		              PWidget(wSciTE)->allocation.width - 1,
 		              pt.y);
 	}
 	ptOld = pt;
@@ -1824,7 +1831,7 @@ gint SciTEGTK::DividerMotion(GtkWidget *, GdkEventMotion *event, SciTEGTK *scite
 		int y = 0;
 		GdkModifierType state;
 		if (event->is_hint) {
-			gdk_window_get_pointer(scitew->wSciTE.GetID()->window, &x, &y, &state);
+			gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
 			if (state & GDK_BUTTON1_MASK) {
 				scitew->DividerXOR(scitew->ptOld);
 				scitew->DividerXOR(Point(x, y));
@@ -1838,12 +1845,12 @@ gint SciTEGTK::DividerPress(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 	int x = 0;
 	int y = 0;
 	GdkModifierType state;
-	gdk_window_get_pointer(scitew->wSciTE.GetID()->window, &x, &y, &state);
+	gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
 	scitew->ptStartDrag = Point(x, y);
 	scitew->capturedMouse = true;
 	scitew->heightOutputStartDrag = scitew->heightOutput;
-	gtk_widget_grab_focus(GTK_WIDGET(scitew->wDivider.GetID()));
-	gtk_grab_add(GTK_WIDGET(scitew->wDivider.GetID()));
+	gtk_widget_grab_focus(GTK_WIDGET(PWidget(scitew->wDivider)));
+	gtk_grab_add(GTK_WIDGET(PWidget(scitew->wDivider)));
 	scitew->DividerXOR(scitew->ptStartDrag);
 	return TRUE;
 }
@@ -1851,12 +1858,12 @@ gint SciTEGTK::DividerPress(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 gint SciTEGTK::DividerRelease(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 	if (scitew->capturedMouse) {
 		scitew->capturedMouse = false;
-		gtk_grab_remove(GTK_WIDGET(scitew->wDivider.GetID()));
+		gtk_grab_remove(GTK_WIDGET(PWidget(scitew->wDivider)));
 		scitew->DividerXOR(scitew->ptOld);
 		int x = 0;
 		int y = 0;
 		GdkModifierType state;
-		gdk_window_get_pointer(scitew->wSciTE.GetID()->window, &x, &y, &state);
+		gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
 		scitew->MoveSplit(Point(x, y));
 	}
 	return TRUE;
@@ -1884,7 +1891,7 @@ void SciTEGTK::OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew)
 void SciTEGTK::OpenOKSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->dialogCanceled = false;
 	scitew->Open(gtk_file_selection_get_filename(
-	                 GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
+	                 GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
 	scitew->fileSelector.Destroy();
 }
 
@@ -1898,16 +1905,16 @@ void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->dialogCanceled = false;
 	if (scitew->savingHTML)
 		scitew->SaveToHTML(gtk_file_selection_get_filename(
-		                       GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
+		                       GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
 	else if (scitew->savingRTF)
 		scitew->SaveToRTF(gtk_file_selection_get_filename(
-		                      GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
+		                      GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
 	else if (scitew->savingPDF)
 		scitew->SaveToPDF(gtk_file_selection_get_filename(
-		                      GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
+		                      GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
 	else
 		scitew->SaveAs(gtk_file_selection_get_filename(
-		                   GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
+		                   GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
 	scitew->fileSelector.Destroy();
 }
 
@@ -1935,8 +1942,8 @@ GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
 
 GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, char *icon[]) {
 
-	GtkWidget *toolbar_icon = pixmap_new(wSciTE.GetID(), icon);
-	GtkWidget *button = gtk_toolbar_append_element(GTK_TOOLBAR(wToolBar.GetID()),
+	GtkWidget *toolbar_icon = pixmap_new(PWidget(wSciTE), icon);
+	GtkWidget *button = gtk_toolbar_append_element(GTK_TOOLBAR(PWidget(wToolBar)),
 	                    GTK_TOOLBAR_CHILD_BUTTON,
 	                    NULL,
 	                    NULL,
@@ -1957,25 +1964,25 @@ void SciTEGTK::AddToolBar() {
 	AddToolButton("Save", IDM_SAVE, filesave_xpm);
 	AddToolButton("Close", IDM_CLOSE, close_xpm);
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
 	AddToolButton("Undo", IDM_UNDO, undo_xpm);
 	AddToolButton("Redo", IDM_REDO, redo_xpm);
 	AddToolButton("Cut", IDM_CUT, editcut_xpm);
 	AddToolButton("Copy", IDM_COPY, editcopy_xpm);
 	AddToolButton("Paste", IDM_PASTE, editpaste_xpm);
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
 	AddToolButton("Find in Files", IDM_FINDINFILES, findinfiles_xpm);
 	AddToolButton("Find", IDM_FIND, search_xpm);
 	AddToolButton("Find Next", IDM_FINDNEXT, findnext_xpm);
 	AddToolButton("Replace", IDM_REPLACE, replace_xpm);
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
 	compile_btn = AddToolButton("Compile", IDM_COMPILE, compile_xpm);
 	build_btn = AddToolButton("Build", IDM_BUILD, build_xpm);
 	stop_btn = AddToolButton("Stop", IDM_STOPEXECUTE, stop_xpm);
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
 	AddToolButton("Previous Buffer", IDM_PREVFILE, prev_xpm);
 	AddToolButton("Next Buffer", IDM_NEXTFILE, next_xpm);
 }
@@ -2237,29 +2244,29 @@ void SciTEGTK::CreateMenu() {
 		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer);
 	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
 
-	gtk_accel_group_attach(accelGroup, GTK_OBJECT(wSciTE.GetID()));
+	gtk_accel_group_attach(accelGroup, GTK_OBJECT(PWidget(wSciTE)));
 }
 
 void SciTEGTK::CreateUI() {
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	//GTK_WIDGET_UNSET_FLAGS(wSciTE.GetID(), GTK_CAN_FOCUS);
-	gtk_window_set_policy(GTK_WINDOW(wSciTE.GetID()), TRUE, TRUE, FALSE);
+	//GTK_WIDGET_UNSET_FLAGS(PWidget(wSciTE), GTK_CAN_FOCUS);
+	gtk_window_set_policy(GTK_WINDOW(PWidget(wSciTE)), TRUE, TRUE, FALSE);
 
 	char *gthis = reinterpret_cast<char *>(this);
 
-	gtk_widget_set_events(wSciTE.GetID(),
+	gtk_widget_set_events(PWidget(wSciTE),
 	                      GDK_EXPOSURE_MASK
 	                      | GDK_LEAVE_NOTIFY_MASK
 	                      | GDK_BUTTON_PRESS_MASK
 	                      | GDK_BUTTON_RELEASE_MASK
 	                     );
-	gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "delete_event",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "delete_event",
 	                   GTK_SIGNAL_FUNC(QuitSignal), gthis);
 
-	gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "key_press_event",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "key_press_event",
 	                   GtkSignalFunc(KeyPress), gthis);
 
-	gtk_window_set_title(GTK_WINDOW(wSciTE.GetID()), appName);
+	gtk_window_set_title(GTK_WINDOW(PWidget(wSciTE)), appName);
 	int left = props.GetInt("position.left", 10);
 	int top = props.GetInt("position.top", 30);
 	int width = props.GetInt("position.width", 300);
@@ -2273,7 +2280,7 @@ void SciTEGTK::CreateUI() {
 	fileSelectorHeight = props.GetInt("fileselector.height", fileSelectorHeight);
 
 	GtkWidget *boxMain = gtk_vbox_new(FALSE, 1);
-	gtk_container_add(GTK_CONTAINER(wSciTE.GetID()), boxMain);
+	gtk_container_add(GTK_CONTAINER(PWidget(wSciTE)), boxMain);
 	GTK_WIDGET_UNSET_FLAGS(boxMain, GTK_CAN_FOCUS);
 
 	CreateMenu();
@@ -2292,54 +2299,54 @@ void SciTEGTK::CreateUI() {
 	wToolBar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
 	tbVisible = false;
 
-	gtk_container_add(GTK_CONTAINER(wToolBarBox.GetID()), wToolBar.GetID());
+	gtk_container_add(GTK_CONTAINER(PWidget(wToolBarBox)), PWidget(wToolBar));
 
 	gtk_box_pack_start(GTK_BOX(boxMain),
-	                   wToolBarBox.GetID(),
+	                   PWidget(wToolBarBox),
 	                   FALSE, FALSE, 0);
 
 	wContent = gtk_fixed_new();
-	GTK_WIDGET_UNSET_FLAGS(wContent.GetID(), GTK_CAN_FOCUS);
-	gtk_box_pack_start(GTK_BOX(boxMain), wContent.GetID(), TRUE, TRUE, 0);
+	GTK_WIDGET_UNSET_FLAGS(PWidget(wContent), GTK_CAN_FOCUS);
+	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
 
-	gtk_signal_connect(GTK_OBJECT(wContent.GetID()), "size_allocate",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wContent)), "size_allocate",
 	                   GTK_SIGNAL_FUNC(MoveResize), gthis);
 
 #ifdef CLIENT_3D_EFFECT
 	topFrame = gtk_frame_new(NULL);
-	gtk_widget_show(topFrame.GetID());
-	gtk_frame_set_shadow_type(GTK_FRAME(topFrame.GetID()), GTK_SHADOW_IN);
-	gtk_fixed_put(GTK_FIXED(wContent.GetID()), topFrame.GetID(), 0, 0);
-	gtk_widget_set_usize(topFrame.GetID(), 600, 600);
+	gtk_widget_show(PWidget(topFrame));
+	gtk_frame_set_shadow_type(GTK_FRAME(PWidget(topFrame)), GTK_SHADOW_IN);
+	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(topFrame), 0, 0);
+	gtk_widget_set_usize(PWidget(topFrame), 600, 600);
 #endif
 
 	wEditor = scintilla_new();
-	scintilla_set_id(SCINTILLA(wEditor.GetID()), IDM_SRCWIN);
+	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
 	fnEditor = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
-	               wEditor.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
-	ptrEditor = Platform::SendScintilla(wEditor.GetID(),
+	               PWidget(wEditor), SCI_GETDIRECTFUNCTION, 0, 0));
+	ptrEditor = Platform::SendScintilla(PWidget(wEditor),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
 #ifdef CLIENT_3D_EFFECT
-	gtk_container_add(GTK_CONTAINER(topFrame.GetID()), wEditor.GetID());
+	gtk_container_add(GTK_CONTAINER(PWidget(topFrame)), PWidget(wEditor));
 #else
-	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wEditor.GetID(), 0, 0);
-	gtk_widget_set_usize(wEditor.GetID(), 600, 600);
+	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wEditor), 0, 0);
+	gtk_widget_set_usize(PWidget(wEditor), 600, 600);
 #endif
-	gtk_signal_connect(GTK_OBJECT(wEditor.GetID()), "command",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), "command",
 	                   GtkSignalFunc(CommandSignal), this);
-	gtk_signal_connect(GTK_OBJECT(wEditor.GetID()), "notify",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), "notify",
 	                   GtkSignalFunc(NotifySignal), this);
 
 	wDivider = gtk_drawing_area_new();
-	gtk_signal_connect(GTK_OBJECT(wDivider.GetID()), "expose_event",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wDivider)), "expose_event",
 	                   GtkSignalFunc(DividerExpose), this);
-	gtk_signal_connect(GTK_OBJECT(wDivider.GetID()), "motion_notify_event",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wDivider)), "motion_notify_event",
 	                   GtkSignalFunc(DividerMotion), this);
-	gtk_signal_connect(GTK_OBJECT(wDivider.GetID()), "button_press_event",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wDivider)), "button_press_event",
 	                   GtkSignalFunc(DividerPress), this);
-	gtk_signal_connect(GTK_OBJECT(wDivider.GetID()), "button_release_event",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wDivider)), "button_release_event",
 	                   GtkSignalFunc(DividerRelease), this);
-	gtk_widget_set_events(wDivider.GetID(),
+	gtk_widget_set_events(PWidget(wDivider),
 	                      GDK_EXPOSURE_MASK
 	                      | GDK_LEAVE_NOTIFY_MASK
 	                      | GDK_BUTTON_PRESS_MASK
@@ -2347,64 +2354,64 @@ void SciTEGTK::CreateUI() {
 	                      | GDK_POINTER_MOTION_MASK
 	                      | GDK_POINTER_MOTION_HINT_MASK
 	                     );
-	gtk_drawing_area_size(GTK_DRAWING_AREA(wDivider.GetID()), width, 10);
-	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wDivider.GetID(), 0, 600);
+	gtk_drawing_area_size(GTK_DRAWING_AREA(PWidget(wDivider)), width, 10);
+	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wDivider), 0, 600);
 
 #ifdef CLIENT_3D_EFFECT
 	outputFrame = gtk_frame_new(NULL);
-	gtk_widget_show(outputFrame.GetID());
-	gtk_frame_set_shadow_type (GTK_FRAME(outputFrame.GetID()), GTK_SHADOW_IN);
-	gtk_fixed_put(GTK_FIXED(wContent.GetID()), outputFrame.GetID(), 0, width);
-	gtk_widget_set_usize(outputFrame.GetID(), width, 100);
+	gtk_widget_show(PWidget(outputFrame));
+	gtk_frame_set_shadow_type (GTK_FRAME(PWidget(outputFrame)), GTK_SHADOW_IN);
+	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(outputFrame), 0, width);
+	gtk_widget_set_usize(PWidget(outputFrame), width, 100);
 #endif
 
 	wOutput = scintilla_new();
-	scintilla_set_id(SCINTILLA(wOutput.GetID()), IDM_RUNWIN);
+	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
 	fnOutput = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
-	               wOutput.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
-	ptrOutput = Platform::SendScintilla(wOutput.GetID(),
+	               PWidget(wOutput), SCI_GETDIRECTFUNCTION, 0, 0));
+	ptrOutput = Platform::SendScintilla(PWidget(wOutput),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
 #ifdef CLIENT_3D_EFFECT
-	gtk_container_add(GTK_CONTAINER(outputFrame.GetID()), wOutput.GetID());
+	gtk_container_add(GTK_CONTAINER(PWidget(outputFrame)), wOutput));
 #else
-	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wOutput.GetID(), 0, width);
-	gtk_widget_set_usize(wOutput.GetID(), width, 100);
+	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wOutput), 0, width);
+	gtk_widget_set_usize(PWidget(wOutput), width, 100);
 #endif
-	gtk_signal_connect(GTK_OBJECT(wOutput.GetID()), "command",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), "command",
 	                   GtkSignalFunc(CommandSignal), this);
-	gtk_signal_connect(GTK_OBJECT(wOutput.GetID()), "notify",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), "notify",
 	                   GtkSignalFunc(NotifySignal), this);
 
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
 
-	gtk_widget_hide(GTK_WIDGET(wToolBarBox.GetID()));
+	gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
 
-	gtk_container_set_border_width(GTK_CONTAINER(wToolBar.GetID()), 2);
-	gtk_toolbar_set_space_size(GTK_TOOLBAR(wToolBar.GetID()), 17);
-	gtk_toolbar_set_space_style(GTK_TOOLBAR(wToolBar.GetID()), GTK_TOOLBAR_SPACE_LINE);
-	gtk_toolbar_set_button_relief(GTK_TOOLBAR(wToolBar.GetID()), GTK_RELIEF_NONE);
+	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 2);
+	gtk_toolbar_set_space_size(GTK_TOOLBAR(PWidget(wToolBar)), 17);
+	gtk_toolbar_set_space_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_SPACE_LINE);
+	gtk_toolbar_set_button_relief(GTK_TOOLBAR(PWidget(wToolBar)), GTK_RELIEF_NONE);
 
 	wStatusBar = gtk_statusbar_new();
 	sbContextID = gtk_statusbar_get_context_id(
-	                  GTK_STATUSBAR(wStatusBar.GetID()), "global");
-	gtk_box_pack_start(GTK_BOX(boxMain), wStatusBar.GetID(), FALSE, FALSE, 0);
-	gtk_statusbar_push(GTK_STATUSBAR(wStatusBar.GetID()), sbContextID, "Initial");
+	                  GTK_STATUSBAR(PWidget(wStatusBar)), "global");
+	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wStatusBar), FALSE, FALSE, 0);
+	gtk_statusbar_push(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID, "Initial");
 	sbVisible = false;
 
 	static const GtkTargetEntry dragtypes[] = { { "text/uri-list", 0, 0 } };
 	static const gint n_dragtypes = sizeof(dragtypes) / sizeof(dragtypes[0]);
 
-	gtk_drag_dest_set(wSciTE.GetID(), GTK_DEST_DEFAULT_ALL, dragtypes,
+	gtk_drag_dest_set(PWidget(wSciTE), GTK_DEST_DEFAULT_ALL, dragtypes,
 	                  n_dragtypes, GDK_ACTION_COPY);
-	(void)gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "drag_data_received",
+	(void)gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "drag_data_received",
 	                         GTK_SIGNAL_FUNC(DragDataReceived), this);
 
-	SetFocus(wOutput.GetID());
+	SetFocus(PWidget(wOutput));
 
-	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
-	gtk_widget_set_usize(GTK_WIDGET(wSciTE.GetID()), width, height);
-	gtk_widget_show_all(wSciTE.GetID());
-	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
+	gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
+	gtk_widget_set_usize(GTK_WIDGET(PWidget(wSciTE)), width, height);
+	gtk_widget_show_all(PWidget(wSciTE));
+	gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
 	AddToolBar();
 	SetIcon();
 
@@ -2415,12 +2422,12 @@ void SciTEGTK::SetIcon() {
 	GtkStyle *style;
 	GdkPixmap *icon_pix;
 	GdkBitmap *mask;
-	style = gtk_widget_get_style(wSciTE.GetID());
-	icon_pix = gdk_pixmap_create_from_xpm_d(wSciTE.GetID()->window,
+	style = gtk_widget_get_style(PWidget(wSciTE));
+	icon_pix = gdk_pixmap_create_from_xpm_d(PWidget(wSciTE)->window,
 	                                        &mask,
 	                                        &style->bg[GTK_STATE_NORMAL],
 	                                        (gchar **)SciIcon_xpm);
-	gdk_window_set_icon(wSciTE.GetID()->window, NULL, icon_pix, mask);
+	gdk_window_set_icon(PWidget(wSciTE)->window, NULL, icon_pix, mask);
 }
 
 bool SciTEGTK::CreatePipe(bool forceNew) {
@@ -2654,7 +2661,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 
 	CheckMenus();
 	SizeSubWindows();
-	SetFocus(wEditor.GetID());
+	SetFocus(PWidget(wEditor));
 
 	gtk_main();
 }

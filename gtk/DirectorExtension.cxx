@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <gtk/gtk.h>
+
 #include "Platform.h"
 
 #include "PropSet.h"

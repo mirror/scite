@@ -19,6 +19,7 @@
 #if PLAT_GTK
 
 #include <unistd.h>
+#include <gtk/gtk.h>
 
 #endif
 
@@ -884,7 +885,7 @@ void SciTEBase::SelectionIntoFind() {
 
 int WindowMessageBox(Window &w, const char *m, const char *t, int style) {
 #if PLAT_GTK
-	return ::MessageBox(reinterpret_cast<GtkWidget *>(w.GetID()), msg, appName, MB_OK | MB_ICONWARNING);
+	return ::MessageBox(reinterpret_cast<GtkWidget *>(w.GetID()), m, t, style);
 #else
 	return ::MessageBox(reinterpret_cast<HWND>(w.GetID()), m, t, style);
 #endif
@@ -893,7 +894,7 @@ int WindowMessageBox(Window &w, const char *m, const char *t, int style) {
 void SciTEBase::FindMessageBox(const char *msg) {
 	dialogsOnScreen++;
 #if PLAT_GTK
-	MessageBox(wSciTE.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
+	WindowMessageBox(wSciTE, msg, appName, MB_OK | MB_ICONWARNING);
 #endif
 #if PLAT_WIN
 	WindowMessageBox(wFindReplace, msg, appName, MB_OK | MB_ICONWARNING);
@@ -2398,7 +2399,7 @@ int ControlIDOfCommand(unsigned long wParam) {
 
 void WindowSetFocus(Window &w) {
 #if PLAT_GTK
-	::SetFocus(reinterpret_cast<GtkWidget *>(wEditor.GetID()));
+	::SetFocus(reinterpret_cast<GtkWidget *>(w.GetID()));
 #else
 	::SetFocus(reinterpret_cast<HWND>(w.GetID()));
 #endif

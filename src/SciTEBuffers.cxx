@@ -16,6 +16,7 @@
 #if PLAT_GTK
 
 #include <unistd.h>
+#include <gtk/gtk.h>
 
 #endif
 
