@@ -2976,8 +2976,8 @@ bool SciTEBase::StartAutoCompleteWord() {
 	ft.chrg.cpMin = 0;
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
-	//int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
-	int flags = (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
+	int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
+	//int flags = (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	int posCurrentWord = SendEditor (SCI_GETCURRENTPOS) - rootlen;
 	//DWORD dwStart = timeGetTime();
 	int length = 0;	// variables for reallocatable array creation
@@ -3000,7 +3000,7 @@ bool SciTEBase::StartAutoCompleteWord() {
 		GetRange(wEditor, posFind, posFind + WORDCHUNK - 1, wordstart);
 		char *wordend = wordstart + rootlen;
 		while (iswordcharforsel(*wordend))
-			*wordend++;
+			wordend++;
 		*wordend = '\0';
 		int wordlen = wordend - wordstart;
 		const char *wordbreak = words;
