@@ -537,6 +537,8 @@ protected:
 	virtual void TabSizeDialog() = 0;
 	virtual void ParamGrab() = 0;
 	virtual bool ParametersDialog(bool modal) = 0;
+	bool HandleXml(char ch);
+	SString FindOpenXmlTag(const char sel[], int nSize);
 	void GoMatchingBrace(bool select);
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
