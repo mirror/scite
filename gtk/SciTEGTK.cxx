@@ -252,6 +252,7 @@ public:
 	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
 	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
 	void AddToolBar();
+	SString SciTEGTK::TranslatePath(const char *path);
 	void CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]);
 	void CreateMenu();
 	void CreateUI();
@@ -1536,7 +1537,7 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	int row = 0;
 
-	GtkWidget *labelFind = TranslatedLabel("Find:");
+	GtkWidget *labelFind = TranslatedLabel("Find what:");
 	gtk_table_attach(GTK_TABLE(table), labelFind, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
 	gtk_widget_show(labelFind);
@@ -1556,7 +1557,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	row++;
 
 	if (replace) {
-		GtkWidget *labelReplace = TranslatedLabel("Replace:");
+		GtkWidget *labelReplace = TranslatedLabel("Replace with:");
 		gtk_table_attach(GTK_TABLE(table), labelReplace, 0, 1,
 		                 row, row + 1, opts, opts, 5, 5);
 		gtk_widget_show(labelReplace);
@@ -2149,14 +2150,10 @@ void SciTEGTK::AddToolBar() {
 	AddToolButton("Next Buffer", IDM_NEXTFILE, next_xpm);
 }
 
-void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]) {
-	char *gthis = reinterpret_cast<char *>(this);
-	GtkItemFactoryEntry *translatedItems = new GtkItemFactoryEntry[n];
-	SString *translatedText = new SString[n];
-	for (int i=0; i<n; i++) {
-		translatedItems[i] = items[i];
+SString SciTEGTK::TranslatePath(const char *path) {
+	if (path && path[0] == '/') {
 		SString spathTranslated;
-		SString spath(translatedItems[i].path, 1, strlen(translatedItems[i].path));
+		SString spath(path, 1, strlen(path));
 		spath.append("/");
 		int end = spath.search("/");
 		while (spath.length() > 1) {
@@ -2167,10 +2164,26 @@ void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]) {
 			spath.remove(0, end+1);
 			end = spath.search("/");
 		}
-		translatedText[i] = spathTranslated;
+		return spathTranslated;
+	} else {
+		return path;
+	}
+}
+
+void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]) {
+	char *gthis = reinterpret_cast<char *>(this);
+	GtkItemFactoryEntry *translatedItems = new GtkItemFactoryEntry[n];
+	SString *translatedText = new SString[n];
+	SString *translatedRadios = new SString[n];
+	for (int i=0; i<n; i++) {
+		translatedItems[i] = items[i];
+		translatedText[i] = TranslatePath(translatedItems[i].path);
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
+		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
+		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
 	}
 	gtk_item_factory_create_items(itemFactory, n, translatedItems, gthis);
+	delete []translatedRadios;
 	delete []translatedText;
 	delete []translatedItems;
 }
