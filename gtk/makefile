@@ -33,11 +33,11 @@ gnomeprefix:=$(shell gnome-config --prefix 2>/dev/null)
 endif
 ifdef gnomeprefix
   prefix=$(gnomeprefix)
-  datadir=$(gnomeprefix)/share
-  pixmapdir=$(datadir)/pixmaps
 else
   prefix=/usr
 endif
+datadir=$(prefix)/share
+pixmapdir=$(datadir)/pixmaps
 bindir=$(prefix)/bin
 SYSCONF_PATH=$(prefix)/share/scite
 
