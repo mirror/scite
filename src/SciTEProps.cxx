@@ -215,7 +215,7 @@ char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-size(0), fore(0), back(0), bold(false), italics(false), eolfilled(false), underlined(false) {
+size(0), fore(0), back(RGB(0xff,0xff,0xff)), bold(false), italics(false), eolfilled(false), underlined(false) {
 	specified = sdNone;
 	char *val = StringDup(definition);
 	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);
