@@ -106,6 +106,7 @@ protected:
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
+	virtual void SaveAsTEX();
 	virtual void LoadSessionDialog();
 	virtual void SaveSessionDialog();
 

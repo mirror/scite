@@ -22,7 +22,7 @@
 
 #endif
 
-#if PLAT_WIN 
+#if PLAT_WIN
 
 #define _WIN32_WINNT  0x0400
 #include <windows.h>
@@ -89,22 +89,22 @@ int GetHexByte(const char *hexbyte) { // "HH"
 
 int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
 	static int highlights[][3] = {
-	                                 { 0x00, 0x00, 0x00 },        // highlight1  0;0;0       black
-	                                 { 0x00, 0x00, 0xFF },        // highlight2  0;0;255     blue
-	                                 { 0x00, 0xFF, 0xFF },        // highlight3  0;255;255   cyan
-	                                 { 0x00, 0xFF, 0x00 },        // highlight4  0;255;0     green
-	                                 { 0xFF, 0x00, 0xFF },        // highlight5  255;0;255   violet
-	                                 { 0xFF, 0x00, 0x00 },        // highlight6  255;0;0     red
-	                                 { 0xFF, 0xFF, 0x00 },        // highlight7  255;255;0   yellow
-	                                 { 0xFF, 0xFF, 0xFF },        // highlight8  255;255;255 white
-	                                 { 0x00, 0x00, 0x80 },        // highlight9  0;0;128     dark blue
-	                                 { 0x00, 0x80, 0x80 },        // highlight10 0;128;128   dark cyan
-	                                 { 0x00, 0x80, 0x00 },        // highlight11 0;128;0     dark green
-	                                 { 0x80, 0x00, 0x80 },        // highlight12 128;0;128   dark violet
-	                                 { 0x80, 0x00, 0x00 },        // highlight13 128;0;0     brown
-	                                 { 0x80, 0x80, 0x00 },        // highlight14 128;128;0   khaki
-	                                 { 0x80, 0x80, 0x80 },        // highlight15 128;128;128 dark grey
-	                                 { 0xC0, 0xC0, 0xC0 },        // highlight16 192;192;192 grey
+	                                 { 0x00, 0x00, 0x00 },         // highlight1  0;0;0       black
+	                                 { 0x00, 0x00, 0xFF },         // highlight2  0;0;255     blue
+	                                 { 0x00, 0xFF, 0xFF },         // highlight3  0;255;255   cyan
+	                                 { 0x00, 0xFF, 0x00 },         // highlight4  0;255;0     green
+	                                 { 0xFF, 0x00, 0xFF },         // highlight5  255;0;255   violet
+	                                 { 0xFF, 0x00, 0x00 },         // highlight6  255;0;0     red
+	                                 { 0xFF, 0xFF, 0x00 },         // highlight7  255;255;0   yellow
+	                                 { 0xFF, 0xFF, 0xFF },         // highlight8  255;255;255 white
+	                                 { 0x00, 0x00, 0x80 },         // highlight9  0;0;128     dark blue
+	                                 { 0x00, 0x80, 0x80 },         // highlight10 0;128;128   dark cyan
+	                                 { 0x00, 0x80, 0x00 },         // highlight11 0;128;0     dark green
+	                                 { 0x80, 0x00, 0x80 },         // highlight12 128;0;128   dark violet
+	                                 { 0x80, 0x00, 0x00 },         // highlight13 128;0;0     brown
+	                                 { 0x80, 0x80, 0x00 },         // highlight14 128;128;0   khaki
+	                                 { 0x80, 0x80, 0x80 },         // highlight15 128;128;128 dark grey
+	                                 { 0xC0, 0xC0, 0xC0 },         // highlight16 192;192;192 grey
 	                             };
 	int maxdelta = 3 * 255 + 1, delta, index = -1;
 	int r = GetHexByte (rgb + 1), g = GetHexByte (rgb + 3), b = GetHexByte (rgb + 5);
@@ -130,7 +130,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||        // change
+	if (lastOffset != currentOffset ||         // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -151,7 +151,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||        // change
+	if (lastOffset != currentOffset ||         // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -172,7 +172,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||        // change
+	if (lastOffset != currentOffset ||         // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -193,7 +193,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||        // change
+	if (lastOffset != currentOffset ||         // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -247,7 +247,7 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
 	SString fontFace = props.GetExpanded("export.rtf.font.face");
-	unsigned characterset = props.GetInt("character.set",0);
+	unsigned characterset = props.GetInt("character.set", 0);
 	int fontSize = props.GetInt("export.rtf.font.size", 10 << 1);
 	int tabs = props.GetInt("export.rtf.tabs", 0);
 	if (tabSize == 0)
@@ -437,13 +437,13 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 	int wysiwyg = props.GetInt("export.html.wysiwyg", 1);
 	int tabs = props.GetInt("export.html.tabs", 0);
 	int folding = props.GetInt("export.html.folding", 0);
-	int onlyStylesUsed = props.GetInt("export.html.styleused",0);
-	int titleFullPath = props.GetInt("export.html.title.fullpath",0);
+	int onlyStylesUsed = props.GetInt("export.html.styleused", 0);
+	int titleFullPath = props.GetInt("export.html.title.fullpath", 0);
 
 	int lengthDoc = LengthDocument();
 	WindowAccessor acc(wEditor.GetID(), props);
 
-	bool styleIsUsed[STYLE_MAX+1];
+	bool styleIsUsed[STYLE_MAX + 1];
 	if (onlyStylesUsed) {
 		int i;
 		for (i = 0; i <= STYLE_MAX; i++) {
@@ -475,17 +475,17 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 
 		if (folding) {
 			fputs("<script language=\"JavaScript\" type=\"text/javascript\">\n"
-						"<!--\n"
-						"function toggle(thisid) {\n"
-						"var thislayer=document.getElementById(thisid);\n"
-						"if (thislayer.style.display == 'none') {\n"
-						" thislayer.style.display='block';\n"
-						"} else {\n"
-						" thislayer.style.display='none';\n"
-						"}\n"
-						"}\n"
-						"//-->\n"
-						"</script>\n", fp);
+			      "<!--\n"
+			      "function toggle(thisid) {\n"
+			      "var thislayer=document.getElementById(thisid);\n"
+			      "if (thislayer.style.display == 'none') {\n"
+			      " thislayer.style.display='block';\n"
+			      "} else {\n"
+			      " thislayer.style.display='none';\n"
+			      "}\n"
+			      "}\n"
+			      "//-->\n"
+			      "</script>\n", fp);
 		}
 
 		fputs("<style type=\"text/css\">\n", fp);
@@ -640,7 +640,8 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 						}
 						i--; // the last one will be done by the loop
 					}
-				} else {
+				}
+				else {
 					fputc(' ', fp);
 				}
 			} else if (ch == '\t') {
@@ -656,7 +657,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 					}
 				}
 			} else if ((ch == '\r') || (ch == '\n')) {
-				if (ch == '\r' && acc[i+1] == '\n') {
+				if (ch == '\r' && acc[i + 1] == '\n') {
 					i++;
 				}
 				if (wysiwyg) {
@@ -687,7 +688,8 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 				}
 
 				fprintf(fp, "<span class=\"S%0d\">", styleCurrent); // we know it's the correct next style
-			} else if (ch == '<') {
+			}
+			else if (ch == '<') {
 				fputs("&lt;", fp);
 			} else if (ch == '>') {
 				fputs("&gt;", fp);
@@ -717,7 +719,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		fclose(fp);
 	} else {
 		SString msg = LocaliseMessage(
-			"Could not save file \"^0\".", fullPath);
+		                  "Could not save file \"^0\".", fullPath);
 		dialogsOnScreen++;
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 		dialogsOnScreen--;
@@ -733,7 +735,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		doesnt support most styles
 		output not fully optimized
 		not Object Oriented :-(
-*/
+*/ 
 //void SciTEBase::SaveToPDF(const char *saveName) {
 void SciTEBase::SaveToPDF(const char *) {
 #ifdef CODE_MADE_TO_WORK
@@ -1138,4 +1140,225 @@ void SciTEBase::SaveToPDF(const char *) {
 	// and close the PDF file
 	fclose(fp);
 #endif
+}
+
+struct TexStyle {
+	SString family;
+	SString fore;
+	SString back;
+	bool italics;
+	bool bold;
+	int size;
+};
+
+static void fillTexStyle(TexStyle* style, char* val) {
+	if (val && *val && style) {
+		char *opt = val;
+		while (opt) {
+			char *cpComma = strchr(opt, ',');
+			if (cpComma)
+				*cpComma = '\0';
+			char *colon = strchr(opt, ':');
+			if (colon)
+				*colon++ = '\0';
+			if (0 == strcmp(opt, "italics"))
+				style->italics = true;
+			if (0 == strcmp(opt, "notitalics"))
+				style->italics = false;
+			if (0 == strcmp(opt, "bold"))
+				style->bold = true;
+			if (0 == strcmp(opt, "notbold"))
+				style->bold = false;
+			if (0 == strcmp(opt, "font"))
+				style->family = colon;
+			if (0 == strcmp(opt, "fore"))
+				style->fore = colon;
+			if (0 == strcmp(opt, "back"))
+				style->back = colon;
+			if (0 == strcmp(opt, "size"))
+				style->size = atoi(colon);
+			if (cpComma)
+				opt = cpComma + 1;
+			else
+				opt = 0;
+		}
+	}
+}
+
+static char* getTexRGB(char* texcolor, const char* stylecolor) {
+	//texcolor[rgb]{0,0.5,0}{....}
+	float r = GetHexByte(stylecolor + 1) / 256.0;
+	float g = GetHexByte(stylecolor + 3) / 256.0;
+	float b = GetHexByte(stylecolor + 5) / 256.0;
+	sprintf(texcolor, "%.1f, %.1f, %.1f", r, g, b);
+	return texcolor;
+}
+
+#define CHARZ ('z' - 'b')
+static char* texStyle(int style) {
+	static char buf[10];
+	int i = 0;
+	do {
+		buf[i++] = 'a' + (style % CHARZ);
+		style /= CHARZ;
+	} while ( style > 0 );
+	buf[i] = 0;
+	return buf;
+}
+
+static void defineTexStyle(TexStyle* style, FILE* fp, int istyle) {
+	int closing_brackets = 0;
+	char rgb[200];
+	fprintf(fp, "\\newcommand{\\scite%s}[1]{", texStyle(istyle));
+	if (style->italics) {
+		fputs("\\textit{", fp);
+		closing_brackets++;
+	}
+	if (style->bold) {
+		fputs("\\textbf{", fp);
+		closing_brackets++;
+	}
+	if (style->fore.length()) {
+		fprintf(fp, "\\textcolor[rgb]{%s}{", getTexRGB(rgb, style->fore.c_str()) );
+		closing_brackets++;
+	}
+	if (style->back.length()) {
+		fprintf(fp, "\\colorbox[rgb]{%s}{", getTexRGB( rgb, style->back.c_str()) );
+		closing_brackets++;
+	}
+	fputs("#1", fp);
+	for ( int i = 0; i <= closing_brackets; i++) {
+		fputc( '}', fp );
+	}
+	fputc('\n', fp);
+}
+
+void SciTEBase::SaveToTEX(const char *saveName) {
+	SendEditor(SCI_COLOURISE, 0, -1);
+	int tabSize = props.GetInt("tabsize");
+	if (tabSize == 0)
+		tabSize = 4;
+
+	TexStyle style;
+	char key[200];
+	int lengthDoc = LengthDocument();
+	WindowAccessor acc(wEditor.GetID(), props);
+	bool styleIsUsed[STYLE_MAX + 1];
+
+	//int titleFullPath = props.GetInt("export.html.title.fullpath",0);
+
+	for (int i = 0; i <= STYLE_MAX; i++) {
+		styleIsUsed[i] = false;
+	}
+	for (int i = 0; i < lengthDoc; i++) {	// check the used styles
+		styleIsUsed[acc.StyleAt(i)] = true;
+	}
+	styleIsUsed[STYLE_DEFAULT] = true;
+
+	FILE *fp = fopen(saveName, "wt");
+	if (fp) {
+		fputs("\\documentclass[a4paper]{book}\n", fp);
+		fputs("\\usepackage{color}\n", fp);
+		fputs("\\usepackage{alltt}\n", fp);
+		fputs("\\usepackage{times}\n", fp);
+
+		for (int i = 0; i < STYLE_MAX; i++) {      // get keys
+			// initialize style (don't keep previous one)
+			style.italics = false;
+			style.bold = false;
+			style.size = 0;
+			sprintf(key, "style.*.%0d", i);
+			char *valdef = StringDup(props.GetExpanded(key).c_str());
+			sprintf(key, "style.%s.%0d", language.c_str(), i);
+			char *val = StringDup(props.GetExpanded(key).c_str());
+			fillTexStyle(&style, valdef); //check default properties
+			fillTexStyle(&style, val); //check language properties
+			if ( styleIsUsed[i] )
+				defineTexStyle(&style, fp, i); // writeout style macroses
+			if (val)
+				delete []val;
+			if (valdef)
+				delete []valdef;
+		}
+
+		fputs("\\begin{document}\n\n", fp);
+		fprintf(fp, "Source file: %s\\\\\n", fileName /*fullPath*/);
+
+		int styleCurrent = acc.StyleAt(0);
+
+		fprintf(fp, "\\scite%s{", texStyle(styleCurrent));
+
+		for (int i = 0; i < lengthDoc; i++) { //here process each character of the document
+			char ch = acc[i];
+			int style = acc.StyleAt(i);
+
+			if (style != styleCurrent) { //new style?
+				fprintf(fp, "}\n\\scite%s{", texStyle(style) );
+				styleCurrent = style;
+			}
+
+			switch ( ch ) { //write out current character.
+			case '\t':
+				for (int x = 0; x < tabSize; x++)
+					fputc(' ', fp);
+				break;
+			case '\\':
+				fputs("$\\backslash$", fp);
+				break;
+			case '{':
+				fputs("$\\{$", fp);
+				break;
+			case '}':
+				fputs("$\\}$", fp);
+				break;
+			case '%':
+				fputs("\\%", fp);
+				break;
+			case '&':
+				fputs("\\&", fp);
+				break;
+			case '~':
+				fputs("\\~{}", fp);
+				break;
+			case '$':
+				fputs("\\$", fp);
+				break;
+			case '>':
+				fputs("$>$", fp);
+				break;
+			case '<':
+				fputs("$<$", fp);
+				break;
+			case '@':
+				fputs("$@$", fp);
+				break;
+			case '^':
+				fputs("\\^{}", fp);
+				break;
+			case '_':
+				fputs("\\_{}", fp);
+				break;
+			case '#':
+				fputs("\\#", fp);
+				break;
+			case '\r':
+			case '\n':
+				if (ch == '\r' && acc[i + 1] == '\n')
+					i++;
+				styleCurrent = acc.StyleAt(i + 1);
+				fprintf(fp, "} \\\\\n\\scite%s{", texStyle(styleCurrent) );
+				break;
+			default:
+				fputc(ch, fp);
+			}
+		}
+		fputs("}\n\\end{document}\n", fp); //close last empty style macros and document too
+		fclose(fp);
+	} else {
+		SString msg = LocaliseMessage(
+		                  "Could not save file \"^0\".", fullPath);
+		dialogsOnScreen++;
+		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		dialogsOnScreen--;
+	}
 }

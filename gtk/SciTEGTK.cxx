@@ -131,9 +131,7 @@ protected:
 	int fdPipe;
 	char pipeName[MAX_PATH];
 
-	bool savingHTML;
-	bool savingRTF;
-	bool savingPDF;
+	enum FileFormat { sfSource, sfHTML, sfRTF, sfPDF, sfTEX } saveFormat;
 	Dialog dlgFileSelector;
 	Dialog dlgFindInFiles;
 	GtkWidget *comboFiles;
@@ -191,10 +189,12 @@ protected:
 	virtual void OpenUriList(const char *list);
 	virtual void AbsolutePath(char *absPath, const char *relativePath, int size);
 	virtual bool OpenDialog();
+	void SaveAsXXX(FileFormat fmt, const char *title);
 	virtual bool SaveAsDialog();
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
+	virtual void SaveAsTEX();
 
 	virtual void Print();
 	virtual void PrintSetup();
@@ -323,9 +323,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	ptOld = Point(0, 0);
 	xor_gc = 0;
-	savingHTML = false;
-	savingRTF = false;
-	savingPDF = false;
+	saveType = sfSource;
 	comboFiles = 0;
 	paramDialogCanceled = true;
 	gotoEntry = 0;
@@ -798,7 +796,7 @@ void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*
 bool SciTEGTK::OpenDialog() {
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
-		dlgFileSelector = gtk_file_selection_new("Open File");
+		dlgFileSelector = gtk_file_selection_new(LocaliseString("Open File").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(OpenOKSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
@@ -814,13 +812,11 @@ bool SciTEGTK::OpenDialog() {
 	return !canceled;
 }
 
-bool SciTEGTK::SaveAsDialog() {
+bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
 	bool canceled = true;
-	savingHTML = false;
-	savingRTF = false;
-	savingPDF = false;
+	saveFormat = fmt;
 	if (!dlgFileSelector.Created()) {
-		dlgFileSelector = gtk_file_selection_new(LocaliseString("Save File As").c_str());
+		dlgFileSelector = gtk_file_selection_new(LocaliseString(title).c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
@@ -833,40 +829,24 @@ bool SciTEGTK::SaveAsDialog() {
 	return !canceled;
 }
 
+bool SciTEGTK::SaveAsDialog() {
+	return SaveAsXXX(sfSource, "Save File As");
+}
+
 void SciTEGTK::SaveAsHTML() {
-	if (!dlgFileSelector.Created()) {
-		savingHTML = true;
-		dlgFileSelector = gtk_file_selection_new(LocaliseString("Export File As HTML").c_str());
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
-		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
-		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		dlgFileSelector.ShowModal(PWidget(wSciTE));
-	}
+	SaveAsXXX(sfHTML, "Export File As HTML");
 }
 
 void SciTEGTK::SaveAsRTF() {
-	if (!dlgFileSelector.Created()) {
-		savingRTF = true;
-		dlgFileSelector = gtk_file_selection_new(LocaliseString("Export File As RTF").c_str());
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
-		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
-		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		dlgFileSelector.ShowModal(PWidget(wSciTE));
-	}
+	SaveAsXXX(sfRTF, "Export File As RTF");
 }
 
 void SciTEGTK::SaveAsPDF() {
-	if (!dlgFileSelector.Created()) {
-		savingPDF = true;
-		dlgFileSelector = gtk_file_selection_new("Export File As PDF");
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
-		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
-		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		dlgFileSelector.ShowModal(PWidget(wSciTE));
-	}
+	SaveAsXXX(sfPDF, "Export File As PDF");
+}
+
+void SciTEGTK::SaveAsTEX() {
+	SaveAsXXX(sfTEX, "Export File As TEX");
 }
 
 void SciTEGTK::Print() {
@@ -1974,18 +1954,24 @@ void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK
 
 void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("Do Save As\n");
-	if (scitew->savingHTML)
-		scitew->SaveToHTML(gtk_file_selection_get_filename(
-		                       GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
-	else if (scitew->savingRTF)
-		scitew->SaveToRTF(gtk_file_selection_get_filename(
-		                      GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
-	else if (scitew->savingPDF)
-		scitew->SaveToPDF(gtk_file_selection_get_filename(
-		                      GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
-	else
-		scitew->SaveAs(gtk_file_selection_get_filename(
-		                   GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
+	const char *savePath = gtk_file_selection_get_filename(
+		GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector)))
+	switch (scitew->saveType) {
+		case stHTML:
+			scitew->SaveToHTML(savePath);
+			break;
+		case stRTF:
+			scitew->SaveToRTF(savePath);
+			break;
+		case stPDF:
+			scitew->SaveToPDF(savePath);
+			break;
+		case stTEX:
+			scitew->SaveToPDF(savePath);
+			break;
+		default:
+			scitew->SaveAs(savePath);
+	}
 	scitew->dlgFileSelector.OK();
 }
 
@@ -2115,6 +2101,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/File/Export/As _HTML...", NULL, menuSig, IDM_SAVEASHTML, 0},
 	    {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},
 	    //{"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
+	    {"/File/Export/As _TEX...", NULL, menuSig, IDM_SAVEASTEX, 0},
 	    {"/File/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
 	    {"/File/File1", "", menuSig, fileStackCmdID + 1, 0},

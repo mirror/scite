@@ -2601,6 +2601,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SaveAsPDF();
 		WindowSetFocus(wEditor);
 		break;
+	case IDM_SAVEASTEX:
+		SaveAsTEX();
+		WindowSetFocus(wEditor);
+		break;
 	case IDM_REVERT:
 		if (SaveIfUnsure() != IDCANCEL) {
 			Revert();

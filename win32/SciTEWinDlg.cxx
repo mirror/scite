@@ -326,6 +326,14 @@ void SciTEWin::SaveAsPDF() {
 	}
 }
 
+void SciTEWin::SaveAsTEX() {
+	SString path = ChooseSaveName("Export File As TEX", 
+		"TEX (.tex)\0*.tex\0", ".tex");
+	if (path.length()) {
+		SaveToTEX(path.c_str());
+	}
+}
+
 void SciTEWin::LoadSessionDialog() {
 	char openName[MAX_PATH] = "\0";
 	OPENFILENAME ofn = {
