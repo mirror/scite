@@ -303,7 +303,7 @@ protected:
 	RecentFile recentFileStack[fileStackMax];
 	enum { fileStackCmdID = IDM_MRUFILE, bufferCmdID = IDM_BUFFER };
 
-	enum { importMax = 30 };
+	enum { importMax = 50 };
 	SString importFiles[importMax];
 	enum { importCmdID = IDM_IMPORT };
 
