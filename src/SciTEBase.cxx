@@ -184,6 +184,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	indentOpening = true;
 	indentClosing = true;
 	statementLookback = 10;
+	monofont = false;
 
 	fnEditor = 0;
 	ptrEditor = 0;
@@ -578,8 +579,8 @@ static bool isfilenamecharforsel(char ch) {
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel,   ///< Buffer receiving the result.
-    int len,   ///< Size of the buffer.
+    char *sel,    ///< Buffer receiving the result.
+    int len,    ///< Size of the buffer.
     bool (*ischarforsel)(char ch)) { ///< Function returning @c true if the given char. is part of the selection.
 
 	int lengthDoc, selStart, selEnd;
@@ -619,8 +620,8 @@ void SciTEBase::SelectionExtend(
 	// Change whole line selected but normally end of line characters not wanted.
 	// Remove possible terminating \r, \n, or \r\n.
 	int sellen = strlen(sel);
-	if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] =='\n')) {
-		if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] =='\n')) {
+	if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] == '\n')) {
+		if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] == '\n')) {
 			sel[sellen - 2] = '\0';
 		}
 		sel[sellen - 1] = '\0';
@@ -650,10 +651,10 @@ void SciTEBase::SelectionIntoFind() {
 		char *slashedFind = Slash(findWhat);
 		if (slashedFind) {
 			strncpy(findWhat, slashedFind, sizeof(findWhat));
-			findWhat[sizeof(findWhat)-1] = '\0';
+			findWhat[sizeof(findWhat) - 1] = '\0';
 			delete []slashedFind;
 		}
-	}	
+	}
 }
 
 void SciTEBase::FindMessageBox(const char *msg) {
@@ -1804,6 +1805,12 @@ void SciTEBase::MenuCommand(int cmdID) {
 		CheckMenus();
 		break;
 
+	case IDM_MONOFONT:
+		monofont = !monofont;
+		ReadProperties();
+		CheckMenus();
+		break;
+
 	case IDM_CLEAROUTPUT:
 		SendOutput(SCI_CLEARALL);
 		break;
@@ -2306,6 +2313,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
+	CheckAMenuItem(IDM_MONOFONT, monofont);
 	EnableAMenuItem(IDM_COMPILE, !executing);
 	EnableAMenuItem(IDM_BUILD, !executing);
 	EnableAMenuItem(IDM_GO, !executing);
@@ -2465,11 +2473,11 @@ unsigned int UnSlash(char *s) {
 				*o = '\v';
 			} else if (IsOctalDigit(*s)) {
 				int val = *s - '0';
-				if (IsOctalDigit(*(s+1))) {
+				if (IsOctalDigit(*(s + 1))) {
 					s++;
 					val *= 8;
 					val += *s - '0';
-					if (IsOctalDigit(*(s+1))) {
+					if (IsOctalDigit(*(s + 1))) {
 						s++;
 						val *= 8;
 						val += *s - '0';
@@ -2554,7 +2562,7 @@ void SciTEBase::EnumProperties(const char *propkind) {
 		pf = &propsBase;
 	else if (!strcmp(propkind, "embed"))
 		pf = &propsEmbed;
-	else if (!strcmp(propkind,"abbrev"))
+	else if (!strcmp(propkind, "abbrev"))
 		pf = &propsAbbrev;
 
 	if (pf != NULL) {

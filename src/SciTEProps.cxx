@@ -10,7 +10,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <time.h>   	// For time_t
+#include <time.h>    	// For time_t
 
 #include "Platform.h"
 
@@ -88,7 +88,7 @@ bool PropSetFile::ReadLine(char *lineBuffer, bool ifIsTrue, const char *director
 		strcat(importPath, lineBuffer + strlen("import") + 1);
 		strcat(importPath, ".properties");
 		if (imports) {
-			for (int i=0; i<sizeImports; i++) {
+			for (int i = 0; i < sizeImports; i++) {
 				if (!imports[i].length()) {
 					imports[i] = importPath;
 					break;
@@ -104,8 +104,8 @@ bool PropSetFile::ReadLine(char *lineBuffer, bool ifIsTrue, const char *director
 	return ifIsTrue;
 }
 
-void PropSetFile::ReadFromMemory(const char *data, int len, const char *directoryForImports, 
-	SString imports[], int sizeImports) {
+void PropSetFile::ReadFromMemory(const char *data, int len, const char *directoryForImports,
+                                 SString imports[], int sizeImports) {
 	const char *pd = data;
 	char lineBuffer[60000];
 	bool ifIsTrue = true;
@@ -115,8 +115,8 @@ void PropSetFile::ReadFromMemory(const char *data, int len, const char *director
 	}
 }
 
-void PropSetFile::Read(const char *filename, const char *directoryForImports, 
-	SString imports[], int sizeImports) {
+void PropSetFile::Read(const char *filename, const char *directoryForImports,
+                       SString imports[], int sizeImports) {
 	char propsData[60000];
 #ifdef __vms
 	FILE *rcfile = fopen(filename, "r");
@@ -268,10 +268,10 @@ long ColourOfProperty(PropSet &props, const char *key, Colour colourDefault) {
  * @return NULL if the end of the list is met, else, it points to the next item.
  */
 char *SciTEBase::GetNextPropItem(
-	const char *pStart,  	/**< the property string to parse for the first call,
-							 * pointer returned by the previous call for the following. */
-	char *pPropItem,  	///< pointer on a buffer receiving the requested prop item
-	int maxLen)			///< size of the above buffer
+    const char *pStart,   	/**< the property string to parse for the first call,
+    							 * pointer returned by the previous call for the following. */
+    char *pPropItem,   	///< pointer on a buffer receiving the requested prop item
+    int maxLen)			///< size of the above buffer
 {
 	char *pNext;
 	int size = maxLen - 1;
@@ -294,7 +294,7 @@ char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-size(0), fore(0), back(Colour(0xff,0xff,0xff)), bold(false), italics(false), eolfilled(false), underlined(false) {
+size(0), fore(0), back(Colour(0xff, 0xff, 0xff)), bold(false), italics(false), eolfilled(false), underlined(false) {
 	specified = sdNone;
 	char *val = StringDup(definition);
 	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);
@@ -384,11 +384,15 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 }
 
 void SciTEBase::SetStyleFor(Window &win, const char *lang) {
+	SString mono = ",";
+	mono += props.Get("font.monospace");
 	for (int style = 0; style <= STYLE_MAX; style++) {
 		if (style != STYLE_DEFAULT) {
 			char key[200];
 			sprintf(key, "style.%s.%0d", lang, style);
 			SString sval = props.GetExpanded(key);
+			if (monofont)
+				sval += mono;
 			SetOneStyle(win, style, sval.c_str());
 		}
 	}
@@ -420,7 +424,7 @@ SString SciTEBase::ExtensionFileName() {
 void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	SString value = props.Get(key);
 	SendEditorString(SCI_SETPROPERTY,
-		reinterpret_cast<uptr_t>(key), value.c_str());
+	                 reinterpret_cast<uptr_t>(key), value.c_str());
 }
 
 void SciTEBase::ReadProperties() {
@@ -539,8 +543,8 @@ void SciTEBase::ReadProperties() {
 
 	characterSet = props.GetInt("character.set");
 
-	SendEditor(SCI_SETCARETFORE, 
-		ColourOfProperty(props, "caret.fore", Colour(0, 0, 0)));
+	SendEditor(SCI_SETCARETFORE,
+	           ColourOfProperty(props, "caret.fore", Colour(0, 0, 0)));
 
 	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
@@ -548,14 +552,14 @@ void SciTEBase::ReadProperties() {
 	SString caretLineBack = props.Get("caret.line.back");
 	if (caretLineBack.length()) {
 		SendEditor(SCI_SETCARETLINEVISIBLE, 1);
-		SendEditor(SCI_SETCARETLINEBACK, 
-			ColourFromString(caretLineBack.c_str()).AsLong());
+		SendEditor(SCI_SETCARETLINEBACK,
+		           ColourFromString(caretLineBack.c_str()).AsLong());
 	} else {
 		SendEditor(SCI_SETCARETLINEVISIBLE, 0);
 	}
-	
-	SendEditor(SCI_CALLTIPSETBACK, 
-		ColourOfProperty(props, "calltip.back", Colour(0xff, 0xff, 0xff)));
+
+	SendEditor(SCI_CALLTIPSETBACK,
+	           ColourOfProperty(props, "calltip.back", Colour(0xff, 0xff, 0xff)));
 
 	SString caretPeriod = props.Get("caret.period");
 	if (caretPeriod.length()) {
@@ -576,8 +580,8 @@ void SciTEBase::ReadProperties() {
 
 	SendEditor(SCI_SETEDGECOLUMN, props.GetInt("edge.column", 0));
 	SendEditor(SCI_SETEDGEMODE, props.GetInt("edge.mode", EDGE_NONE));
-	SendEditor(SCI_SETEDGECOLOUR, 
-		ColourOfProperty(props, "edge.colour", Colour(0xff, 0xda, 0xda)));
+	SendEditor(SCI_SETEDGECOLOUR,
+	           ColourOfProperty(props, "edge.colour", Colour(0xff, 0xda, 0xda)));
 
 	SString selFore = props.Get("selection.fore");
 	if (selFore.length()) {
@@ -608,7 +612,7 @@ void SciTEBase::ReadProperties() {
 	sval = props.GetNewExpand(key, "");
 	if (sval != "")
 		callTipIgnoreCase = sval == "1";
-	
+
 	sprintf(key, "calltip.%s.word.characters", language.c_str());
 	calltipWordCharacters = props.GetExpanded(key);
 	if (calltipWordCharacters == "")
@@ -698,13 +702,13 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_SETWORDCHARS, 0, 0);
 	}
 
-	SString useTabs = props.GetNewExpand("use.tab.characters.", 
-		fileNameForExtension.c_str());
+	SString useTabs = props.GetNewExpand("use.tab.characters.",
+	                                     fileNameForExtension.c_str());
 	if (useTabs.length())
 		SendEditor(SCI_SETUSETABS, useTabs.value());
 	else
 		SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
-	
+
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize) {
 		SendEditor(SCI_SETTABWIDTH, tabSize);
@@ -827,10 +831,11 @@ void SciTEBase::SetPropertiesInitial() {
 	foldMargin = foldMarginWidth;
 	if (foldMarginWidth == 0)
 		foldMarginWidth = foldMarginWidthDefault;
+	monofont = props.GetInt("use.fixed.font");
 }
 
 void SciTEBase::ReadPropertiesInitial() {
-    SetPropertiesInitial();    
+	SetPropertiesInitial();
 	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
 	int sizeVertical = props.GetInt("output.vertical.size", 0);
 	if (splitVertical && sizeVertical > 0 && heightOutput < sizeVertical || sizeHorizontal && heightOutput < sizeHorizontal) {

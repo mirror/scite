@@ -229,6 +229,7 @@ protected:
 	StyleAndWords statementEnd;
 	StyleAndWords blockStart;
 	StyleAndWords blockEnd;
+	bool monofont;
 
 	Window wSciTE;  // Contains wToolBar, wTabBar, wContent, and wStatusBar
 	Window wContent;    // Contains wEditor and wOutput

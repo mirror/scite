@@ -207,7 +207,7 @@ protected:
 	static gint DividerPress(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	static gint DividerRelease(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	static void DragDataReceived(GtkWidget *widget, GdkDragContext *context,
-	gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
+	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
 
 public:
 
@@ -241,7 +241,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	inputHandle = 0;
 
 	propsEmbed.Set("PLAT_GTK", "1");
-	
+
 	ReadGlobalPropFile();
 
 	ptOld = Point(0, 0);
@@ -269,8 +269,7 @@ SciTEGTK::~SciTEGTK() {}
 
 static void destroyDialog(GtkWidget *) {}
 
-void SciTEGTK::WarnUser(int) {
-}
+void SciTEGTK::WarnUser(int) {}
 
 static GtkWidget *messageBoxDialog = 0;
 static long messageBoxResult = 0;
@@ -448,11 +447,11 @@ bool SciTEGTK::GetAbbrevPropertiesFileName(char *pathAbbrevProps,
 	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
 		return false;
 	if (strlen(pathAbbrevProps) + 1 + strlen(propAbbrevFileName) < lenPath) {
-                strncpy(pathAbbrevProps, pathDefaultDir, lenPath);
-                strncat(pathAbbrevProps, pathSepString, lenPath);
-                strncat(pathAbbrevProps, propAbbrevFileName, lenPath);
+		strncpy(pathAbbrevProps, pathDefaultDir, lenPath);
+		strncat(pathAbbrevProps, pathSepString, lenPath);
+		strncat(pathAbbrevProps, propAbbrevFileName, lenPath);
 		return true;
-        }
+	}
 	return false;
 }
 
@@ -660,7 +659,7 @@ char *split(char*& s, char c) {
  * Replace any %xx escapes by their single-character equivalent.
  */
 static void unquote(char *s) {
-	char *o=s;
+	char *o = s;
 	while (*s) {
 		if ((*s == '%') && s[1] && s[2]) {
 			*o = IntFromHexDigit(s[1]) * 16 + IntFromHexDigit(s[2]);
@@ -690,6 +689,7 @@ void SciTEGTK::OpenUriList(const char *list) {
 					if (isprefix(uri, "///")) {
 						uri += 2;	// There can be an optional // before the file path that starts with /
 					}
+
 					unquote(uri);
 					//printf("FILE: <%s>\n", uri);
 					Open(uri);
@@ -697,6 +697,7 @@ void SciTEGTK::OpenUriList(const char *list) {
 					MessageBox(wSciTE.GetID(), uri, "URI not understood", MB_OK);
 					//printf("URI: <%s>\n", uri);
 				}
+
 				uri = enduri + 1;
 				if (*uri == '\n')
 					uri++;
@@ -1224,8 +1225,8 @@ void SciTEGTK::Execute() {
 #ifndef __vms
 		if (mkfifo(resultsFile, S_IRUSR | S_IWUSR) < 0) {
 #else           // no mkfifo on OpenVMS!
-                creat (resultsFile, 0777);
-                if (jobQueue[icmd].jobType == jobShell) {   // Always false!
+		creat (resultsFile, 0777);
+		if (jobQueue[icmd].jobType == jobShell) {   // Always false!
 #endif
 			OutputAppendString(">Failed to create FIFO\n");
 			ExecuteNext();
@@ -1549,7 +1550,7 @@ gint SciTEGTK::KeyPress(GtkWidget */*widget*/, GdkEventKey *event, SciTEGTK *sci
 }
 
 gint SciTEGTK::Key(GdkEventKey *event) {
-//printf("S-key: %d %x %x %x %x\n",event->keyval, event->state, GDK_SHIFT_MASK, GDK_CONTROL_MASK, GDK_F3);
+	//printf("S-key: %d %x %x %x %x\n",event->keyval, event->state, GDK_SHIFT_MASK, GDK_CONTROL_MASK, GDK_F3);
 	int mods = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK);
 	int key = event->keyval;
 	if ((mods == GDK_CONTROL_MASK) && (key == GDK_Tab)) {
@@ -1677,7 +1678,7 @@ gint SciTEGTK::DividerRelease(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
-    gint /*x*/, gint /*y*/, GtkSelectionData *seldata, guint /*info*/, guint time, SciTEGTK *scitew) {
+                                gint /*x*/, gint /*y*/, GtkSelectionData *seldata, guint /*info*/, guint time, SciTEGTK *scitew) {
 	scitew->OpenUriList(reinterpret_cast<const char *>(seldata->data));
 	gtk_drag_finish(context, TRUE, FALSE, time);
 }
@@ -1850,6 +1851,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/View/_Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
 	    {"/View/_Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
 	    {"/View/_Output", "F8", menuSig, IDM_TOGGLEOUTPUT, "<CheckItem>"},
+	    {"/View/Fi_xed Font", "", menuSig, IDM_MONOFONT, "<CheckItem>"},
 
 	    {"/_Tools", NULL, NULL, 0, "<Branch>"},
 	    {"/_Tools/tear", NULL, NULL, 0, "<Tearoff>"},
@@ -1990,7 +1992,7 @@ void SciTEGTK::CreateUI() {
 	                   GTK_SIGNAL_FUNC(QuitSignal), gthis);
 
 	gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "key_press_event",
-			GtkSignalFunc(KeyPress), gthis);
+	                   GtkSignalFunc(KeyPress), gthis);
 
 	gtk_window_set_title(GTK_WINDOW(wSciTE.GetID()), appName);
 	int left = props.GetInt("position.left", 10);
@@ -2164,9 +2166,9 @@ void SciTEGTK::CreateUI() {
 	static const gint n_dragtypes = sizeof(dragtypes) / sizeof(dragtypes[0]);
 
 	gtk_drag_dest_set(wSciTE.GetID(), GTK_DEST_DEFAULT_ALL, dragtypes,
-			  n_dragtypes, GDK_ACTION_COPY);
+	                  n_dragtypes, GDK_ACTION_COPY);
 	(void)gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "drag_data_received",
-				 GTK_SIGNAL_FUNC(DragDataReceived), this);
+	                         GTK_SIGNAL_FUNC(DragDataReceived), this);
 
 	SetFocus(wOutput.GetID());
 
@@ -2198,7 +2200,7 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 	//printf("In CreatePipe\n");
 
 	//possible bug here (eventually), can't have more than a 1000 SciTE's open - ajkc 20001112
-	for (int i=0; i<1000; i++) {
+	for (int i = 0; i < 1000; i++) {
 
 		//create the pipe name - we use a number as well just incase multiple people have pipes open
 		//or we are forceing a new instance of scite (even if there is already one)
@@ -2294,12 +2296,13 @@ void SciTEGTK::PipeSignal(void *data, gint fd, GdkInputCondition condition) {
 			}
 			//add other commands here
 		}
+
 	}
 }
 
 void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 	if (!props.GetInt("check.if.already.open"))
-		return;
+		return ;
 
 	// Create a pipe and see if it finds another one already there
 
@@ -2339,7 +2342,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Collect the argv into one string with each argument separated by '\n'
 	SString args;
 	int arg;
-	for (arg=1; arg < argc; arg++) {
+	for (arg = 1; arg < argc; arg++) {
 		args.appendwithseparator(argv[arg], '\n');
 	}
 
@@ -2347,7 +2350,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	ProcessCommandLine(args, 0);
 
 	// If a file name argument, check if already open in another SciTE
-	for (arg=1; arg < argc; arg++) {
+	for (arg = 1; arg < argc; arg++) {
 		if (argv[arg][0] != '-') {
 			CheckAlreadyOpen(argv[arg]);
 		}
@@ -2379,7 +2382,7 @@ int main(int argc, char *argv[]) {
 	strcpy(g_modulePath, argv[0]);
 	char *p = strstr(g_modulePath, "][");
 	if (p != NULL) {
-		strcpy (p, p+ 2);
+		strcpy (p, p + 2);
 	}
 	p = strchr(g_modulePath, ']');
 	if (p == NULL) {

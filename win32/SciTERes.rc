@@ -90,6 +90,7 @@ BEGIN
 	MENUITEM "&Margin",          IDM_SELMARGIN
 	MENUITEM "&Fold Margin",			IDM_FOLDMARGIN
 	MENUITEM "&Output\tF8",		IDM_TOGGLEOUTPUT
+	MENUITEM "Fi&xed Font", 	IDM_MONOFONT
   END
 
   POPUP "&Tools"
