@@ -214,7 +214,7 @@ protected:
 	static void ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	static void ParamCancelSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void ParamSignal(GtkWidget *w, SciTEGTK *scitew);
-	
+
 	static void IOSignal(SciTEGTK *scitew);
 
 	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
@@ -307,8 +307,8 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 SciTEGTK::~SciTEGTK() {
 }
 
-static GtkWidget *PWidget(Window &w) { 
-	return reinterpret_cast<GtkWidget *>(w.GetID()); 
+static GtkWidget *PWidget(Window &w) {
+	return reinterpret_cast<GtkWidget *>(w.GetID());
 }
 
 static void destroyDialog(GtkWidget *) {}
@@ -527,7 +527,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 			Activate(false);
 		}
 		break;
-		
+
 	case IDM_RUNWIN:
 		if (notifyCode == SCEN_SETFOCUS)
 			CheckMenus();
@@ -612,7 +612,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 
 	// On GTK+ the menuNumber and position are ignored as the menu item already exists and is in the right
 	// place so only needs to be shown and have its text set.
-	
+
 	SString itemText(text);
 	// Remove accelerator as does not work.
 	itemText.remove("&");
@@ -622,7 +622,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 	itemText.substitute("Ctrl+", "Ctl+");
 	// Reorder shift and crl indicators for compatibuilty with other menus
 	itemText.substitute("Ctl+Shft+", "Shft+Ctl+");
-	
+
 	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
 	if (item) {
 		GList *al = gtk_container_children(GTK_CONTAINER(item));
@@ -937,7 +937,7 @@ void SciTEGTK::TranslatedSetTitle(GtkWindow *w, const char *original) {
 
 GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
 	SString text = LocaliseString(original);
-	// Don't know how to make an access key on a label transfer focus 
+	// Don't know how to make an access key on a label transfer focus
 	// to the next widget so remove the access key indicator.
 	text.remove("_");
 	return gtk_label_new(text.c_str());
@@ -1050,7 +1050,7 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 	//	scitew->props.Get("find.what"),
 	//	scitew->props.Get("find.files"));
 	scitew->SelectionIntoProperties();
-	scitew->AddCommand(scitew->props.GetNewExpand("find.command"), 
+	scitew->AddCommand(scitew->props.GetNewExpand("find.command"),
 		scitew->props.Get("find.directory"), jobCLI);
 	if (scitew->commandCurrent > 0)
 		scitew->Execute();
@@ -1101,7 +1101,7 @@ void SciTEGTK::FindInFiles() {
 	int row = 0;
 
 	comboFind = gtk_combo_new();
-	
+
 	GtkWidget *labelFind = TranslatedLabel("Find what:");
 	gtk_table_attach(GTK_TABLE(table), labelFind, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
@@ -1454,7 +1454,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 
 	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
 	                            GTK_EXPAND | GTK_SHRINK | GTK_FILL);
-	
+
 	int row = 0;
 	if (modal) {
 		GtkWidget *cmd = gtk_label_new(parameterisedCommand.c_str());
@@ -1462,7 +1462,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		gtk_widget_show(cmd);
 		row++;
 	}
-	
+
 	for (int param=0; param<maxParam; param++) {
 		SString paramText(param+1);
 		SString paramTextVal = props.Get(paramText.c_str());
@@ -1493,7 +1493,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	gtk_widget_grab_default(GTK_WIDGET(btnExecute));
 	gtk_widget_show(btnExecute);
 
-	GtkWidget *btnCancel = TranslatedCommand(modal ? "_Cancel" : "_Close", 
+	GtkWidget *btnCancel = TranslatedCommand(modal ? "_Cancel" : "_Close",
 		accel_group,
 	        GtkSignalFunc(ParamCancelSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wParameters))->action_area),
@@ -1796,7 +1796,7 @@ gint SciTEGTK::KeyPress(GtkWidget */*widget*/, GdkEventKey *event, SciTEGTK *sci
 gint SciTEGTK::MousePress(GtkWidget */*widget*/, GdkEventButton *event, SciTEGTK *scitew) {
 	return scitew->Mouse(event);
 }
-	
+
 // Translate key strokes that are not in a menu into commands
 class KeyToCommand {
 public:
@@ -1826,7 +1826,7 @@ static KeyToCommand kmap[] = {
 };
 
 static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
-	if (!*menuKey) 
+	if (!*menuKey)
 		return false;
 	int modsInKey = 0;
 	SString sKey(menuKey);
@@ -1915,7 +1915,7 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 		int ox = 0;
 		int oy = 0;
 		gdk_window_get_origin(PWidget(w)->window, &ox, &oy);
-		ContextMenu(w, Point(static_cast<int>(event->x) + ox, 
+		ContextMenu(w, Point(static_cast<int>(event->x) + ox,
 			static_cast<int>(event->y) + oy), wSciTE);
 	}
 	return FALSE;
@@ -2199,7 +2199,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/File/_Revert", "<control>R", menuSig, IDM_REVERT, 0},
 	    {"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 	    {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
-	    {"/File/Save _As...", NULL, menuSig, IDM_SAVEAS, 0},
+	    {"/File/Save _As...", "<control><shift>S", menuSig, IDM_SAVEAS, 0},
 	    {"/File/_Export", "", 0, 0, "<Branch>"},
 	    {"/File/Export/As _HTML...", NULL, menuSig, IDM_SAVEASHTML, 0},
 	    {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},
@@ -2380,7 +2380,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Language/Language38", "", menuSig, IDM_LANGUAGE + 38, 0},
 	    {"/Language/Language39", "", menuSig, IDM_LANGUAGE + 39, 0},
 	};
-	
+
 	GtkItemFactoryEntry menuItemsBuffer[] = {
 	    {"/_Buffers", NULL, NULL, 0, "<Branch>"},
 	    {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
@@ -2641,7 +2641,7 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 #endif
 //WB--
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
-			
+
 			fdPipeString = fdPipe;
 			props.Set("ipc.scite.fdpipe",fdPipeString.c_str());
 			tryStandardPipeCreation = false;
@@ -2663,7 +2663,7 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 	{
 		tryStandardPipeCreation = true;
 	}
-	
+
 	if( tryStandardPipeCreation )
 	{
 	//possible bug here (eventually), can't have more than a 1000 SciTE's open - ajkc 20001112
@@ -2716,7 +2716,7 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 	}
 
 	if (fdPipe != -1) {
-		
+
 		//store the inputwatcher so we can remove it.
 		inputWatcher = gdk_input_add(fdPipe, GDK_INPUT_READ, PipeSignal, this);
 		return anotherPipe;
