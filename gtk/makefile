@@ -56,6 +56,10 @@ else
 CXXFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
 endif
 
+ifeq ($(shell uname), Darwin)
+CXXFLAGS:=$(CXXFLAGS) -Dunix
+endif
+
 .cxx.o:
 	$(CC) `$(CONFIGFLAGS)` $(CXXFLAGS) -c $< -o $@
 
