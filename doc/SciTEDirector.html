@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta name="generator" content="SciTE" />
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>
+      SciTE Director Interface
+    </title>
+<style type="text/css">
+        table {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        td {
+            border: 1px solid black;
+            padding: 1px 5px 1px 5px;
+        }
+</style>
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td>
+          <img src="SciTEIco.png" border="3" height="64" width="64" alt="Scintilla icon" />
+        </td>
+        <td>
+          <a href="index.html" style="color:white;text-decoration:none"><font size="5">
+	  SciTE Director Interface</font></a>
+        </td>
+      </tr>
+    </table>
+    <h3>
+       Purpose.
+    </h3>
+	<p>Software development does not occur only at the single file level handled by SciTE.
+	A developer will generally work on a group of related files together in the context of one
+	project. Project manager functionality could be added to SciTE as it has to other editors
+	but this would impose a particular view of how projects are to be managed including the
+	format of project files. Instead, SciTE has an interface that can be used by project
+	managers or similar applications to control SciTE. Any application that controls SciTE is
+	referred to as a "Director".</p>
+	<p>The current Director interface only works on Windows. In the furture, it should be
+	possible to replace the low level interface and so make this interface available on other
+	platforms.</p>
+	<p>There is currently one director application,
+	<a href="http://perso.libertysurf.fr/llt/">Filerx</a>, available.</p>
+	<p>This interface is implemented on top of the
+	<a href="SciTEExtension.html">SciTE Extension Interface</a>, in the
+	file scite\win32\DirectorExtension.cxx.</p>
+    <h3>
+       Low level interface.
+    </h3>
+	<p>The Windows WM_COPYDATA message is used to transfer data between
+	SciTE and a Director. The messages are sent between windows created by the two
+	applications. SciTE uses a window that has no other purpose than to receive these
+	messages.
+	The lpData and cbData fields of the COPYDATASTRUCT
+	are used to transfer a string between the two processes, with cbData holding the length
+	of the string pointed to by lpData. The string does not have to be terminated with '\0'.
+	The dwData should be 0.</p>
+	<p>Before messages can be sent from one application to the other, the window handle
+	of the window to receive the message must be fonud. This is normally transferred when
+	starting the other application as a command line parameter. Either application may
+	start the other. SciTE makes its window handle available in the WindowID
+	property and accepts a director.hwnd property as the window handle to which it
+	sends data.</p>
+	<p>As an example of communicating the window handle, to install Filerx in the Tools
+	menu of SciTE these properties could be used:</p>
+	<code>
+	command.name.0.*=Project Editor<br/>
+	command.0.*="C:\os\scite\bin\filerx.exe" "$(FileDir)" "$(WindowID)"<br/>
+	command.subsystem.0.*=2
+	</code>
+	<p>In the opposite direction, Filerx can start up SciTE with a command line that
+	specifies its window handle as well as the file it wants edited:</p>
+	<code>
+	SciTE -director.hwnd=937846 c:\os\scite\src\SciTEBase.cxx
+	</code>
+	<p>Once one application has the window handle of the other application, it should send
+	its window handle to the other application using an identity message as described later.
+	Then both sides are able to send messages.</p>
+    <h3>
+       High level interface.
+    </h3>
+	<p>The string transmitted by the low level interface contains an action, a ':' character and
+	an optional argument. The argument is often a file path. The ':' must be present even if there
+	is no argument. For example, SciTE understands the message</p>
+	<code>
+	open:c:\os\scintilla\include\Scintilla.iface
+	</code>
+	<p>As a command to open the file "c:\os\scintilla\include\Scintilla.iface" just as if the user
+	had performed this operation.</p>
+	<h4>The actions understood by SciTE are:</h4>
+	<table border="1">
+		<tr>
+			<td>identity:&lt;hwndDirector&gt;</td>
+			<td>Sets the director window handle to which SciTE sends messages.
+			The argument is in decimal.</td>
+		</tr>
+		<tr>
+			<td>closing:</td>
+			<td>Director is closing - SciTE closes if it was started by the director.</td>
+		</tr>
+		<tr>
+			<td>open:&lt;path&gt;</td>
+			<td>Open the indicated file.</td>
+		</tr>
+	</table>
+	<h4>The actions sent by SciTE are:</h4>
+	<table border="1">
+		<tr>
+			<td>identity:&lt;hwndSciTEReceiving&gt;</td>
+			<td>SciTE indicates to the director the window handle to which it should send
+			messages. The argument is in decimal.</td>
+		</tr>
+		<tr>
+			<td>closing:</td>
+			<td>SciTE is closing.</td>
+		</tr>
+		<tr>
+			<td>opened:&lt;path&gt;</td>
+			<td>SciTE has opened the indicated file.</td>
+		</tr>
+		<tr>
+			<td>switched:&lt;path&gt;</td>
+			<td>SciTE has switched buffers to the indicated file.</td>
+		</tr>
+		<tr>
+			<td>saved:&lt;path&gt;</td>
+			<td>SciTE has saved the indicated file.</td>
+		</tr>
+	</table>
+  <p>In the future, more actions will be defined. Applications should ignore any
+  actions that they do not understand.</p>
+  </body>
+</html>
+
