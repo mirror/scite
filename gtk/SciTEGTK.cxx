@@ -1853,6 +1853,12 @@ static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 			return keyval == GDK_Home;
 		} else if (sKey == "Enter") {
 			return keyval == GDK_Return;
+		} else if (sKey == "Space") {
+			return keyval == GDK_space;
+		} else if (sKey == "KeypadPlus") {
+			return keyval == GDK_KP_Add;
+		} else if (sKey == "KeypadMinus") {
+			return keyval == GDK_KP_Subtract;
 		} else if (sKey == "Escape") {
 			return keyval == GDK_Escape;
 		} else if (sKey == "Delete") {

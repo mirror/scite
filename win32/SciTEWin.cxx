@@ -1317,6 +1317,12 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 			return keyval == VK_HOME;
 		} else if (sKey == "Enter") {
 			return keyval == VK_RETURN;
+		} else if (sKey == "Space") {
+			return keyval == VK_SPACE;
+		} else if (sKey == "KeypadPlus") {
+			return keyval == VK_ADD;
+		} else if (sKey == "KeypadMinus") {
+			return keyval == VK_SUBTRACT;
 		} else if (sKey == "Escape") {
 			return keyval == VK_ESCAPE;
 		} else if (sKey == "Delete") {
