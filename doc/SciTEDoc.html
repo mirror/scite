@@ -45,6 +45,9 @@
     <h2>
        SciTE Documentation
     </h2>
+    <p>
+    <a href="#FAQ">Frequently Asked Questions</a>
+    </p>
     <h3>
        Standard Editing
     </h3>
@@ -2279,6 +2282,20 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        is for extending SciTE with code compiled into the SciTE executable and the
        <a href="SciTEDirector.html">SciTE Director Interface</a> is for
        manipulating SciTE on Windows from another application.
+    </p>
+    <a name="FAQ">
+    <h3>
+       Frequently Asked Questions
+    </h3></a>
+    <h4>
+       How do I change SciTE to use black as the background colour?
+    </h4>
+    <p>
+       You need to change the style settings. The main change is in the global
+       options file to the global default style and caret colour but you may have
+       to change other style settings to make this work well:<br><code>
+       style.*.32=$(font.base),back:#000000,fore:#ffffff<br>
+       style.*.32=back:#000000,fore:#ffffff</code>
     </p>
   </body>
 </html>
