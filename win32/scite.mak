@@ -99,6 +99,7 @@ OBJS=\
 #**LEXOBJS=\\\n\(\t..\\..\\scintilla\\win32\\\*.obj \\\n\)
 LEXOBJS=\
 	..\..\scintilla\win32\LexAda.obj \
+	..\..\scintilla\win32\LexAsm.obj \
 	..\..\scintilla\win32\LexAVE.obj \
 	..\..\scintilla\win32\LexBaan.obj \
 	..\..\scintilla\win32\LexBullant.obj \
