@@ -1836,7 +1836,7 @@ static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 
 	// handle "name" keys
 	if (sKey.length() > 1) {
-		if (sKey == "Left" ) {
+		if (sKey == "Left") {
 			return keyval == GDK_Left;
 		} else if (sKey == "Right") {
 			return keyval == GDK_Right;
@@ -1895,9 +1895,13 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	// check user defined keys
 	for (int cut_i = 0; cut_i < shortCutItems; cut_i++) {
 		if (KeyMatch(shortCutItemList[cut_i].menuKey.c_str(), event->keyval, modifiers)) {
-			int commandNum = SciTEBase::GetMenuCommandAsInt( shortCutItemList[cut_i].menuCommand );
-			if ( commandNum != -1 ) {
-				SciTEBase::MenuCommand( commandNum );
+			int commandNum = SciTEBase::GetMenuCommandAsInt(shortCutItemList[cut_i].menuCommand);
+			if (commandNum != -1) {
+				if (commandNum < 2000) {
+					SciTEBase::MenuCommand(commandNum);
+				} else {
+					SciTEBase::SendFocused(commandNum);
+				}
 			}
 		}
 	}
@@ -2788,7 +2792,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Process any initial switches
 	ProcessCommandLine(args, 0);
 
-	if (props.Get("ipc.director.name").size() == 0 ) {
+	if (props.Get("ipc.director.name").size() == 0) {
 		// If a file name argument, check if already open in another SciTE
 		for (arg = 1; arg < argc; arg++) {
 			if (argv[arg][0] != '-') {

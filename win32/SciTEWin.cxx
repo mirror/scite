@@ -1348,9 +1348,15 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// exec it the command defined
 	for (int cut_i = 0; cut_i < shortCutItems; cut_i++) {
 		if (KeyMatch(shortCutItemList[cut_i].menuKey, wParam, modifiers)) {
-			int commandNum = SciTEBase::GetMenuCommandAsInt( shortCutItemList[cut_i].menuCommand );
-			if ( commandNum != -1 ) {
-				SciTEBase::MenuCommand( commandNum );
+			int commandNum = SciTEBase::GetMenuCommandAsInt(shortCutItemList[cut_i].menuCommand);
+			if (commandNum != -1) {
+				// its possible that the command is for scintilla directly
+				// all scintilla commands are larger then 2000
+				if (commandNum < 2000) {
+					SciTEBase::MenuCommand(commandNum);
+				} else {
+					SciTEBase::SendFocused(commandNum);
+				}
 				return 1l;
 			}
 		}
