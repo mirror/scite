@@ -974,6 +974,52 @@ void SciTEWin::AboutDialog() {
 #endif
 }
 
+void SciTEWin::DropFiles(HDROP hdrop) {
+	// If drag'n'drop inside the SciTE window but outside
+	// Scintilla, hdrop is null, and an exception is generated!
+	if (hdrop) {
+		int filesDropped = DragQueryFile(hdrop, 0xffffffff, NULL, 0);
+		for (int i = 0; i < filesDropped; ++i) {
+			char pathDropped[MAX_PATH];
+			DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
+			if (!Open(pathDropped)) {
+				break;
+			}
+		}
+		DragFinish(hdrop);
+	}
+}
+
+void SciTEWin::MinimiseToTray() {
+	char n[64] = "SciTE";
+	NOTIFYICONDATA nid;
+	memset(&nid, 0, sizeof(nid));
+	nid.cbSize = sizeof(nid);
+	nid.hWnd = wSciTE.GetID();
+	nid.uID = 1;
+	nid.uFlags = NIF_MESSAGE|NIF_ICON|NIF_TIP;
+	nid.uCallbackMessage = SCITE_TRAY;
+	nid.hIcon  = static_cast<HICON>(
+		::LoadImage(hInstance, "SCITE", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
+	strcpy(nid.szTip,n);
+	::ShowWindow(wSciTE.GetID(), SW_MINIMIZE);
+	if (::Shell_NotifyIcon(NIM_ADD, &nid)){
+		::ShowWindow(wSciTE.GetID(), SW_HIDE);
+	}
+}
+
+void SciTEWin::RestoreFromTray() {
+	NOTIFYICONDATA nid;
+	memset(&nid, 0, sizeof(nid));
+	nid.cbSize = sizeof(nid);
+	nid.hWnd = wSciTE.GetID();
+	nid.uID = 1;
+	::ShowWindow(wSciTE.GetID(), SW_SHOW);
+	::ShowWindow(wSciTE.GetID(), SW_RESTORE);
+	::Sleep(100);
+	::Shell_NotifyIcon(NIM_DELETE, &nid);
+}
+
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
 	switch (iMessage) {
@@ -986,8 +1032,17 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		Command(wParam, lParam);
 		break;
 
-	case WM_NOTIFY:
-		Notify(reinterpret_cast<SCNotification *>(lParam));
+	case WM_SYSCOMMAND:
+		if ((wParam == SC_MINIMIZE) && props.GetInt("minimise.to.tray")) {
+			MinimiseToTray();
+			return 0;
+		}
+		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
+
+	case SCITE_TRAY:
+		if (lParam == WM_LBUTTONDBLCLK) {
+			RestoreFromTray();
+		}
 		break;
 
 	case WM_KEYDOWN:
@@ -1005,8 +1060,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_GETMINMAXINFO: {
-			//if (lParam)
-			//return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
 			MINMAXINFO *pmmi = reinterpret_cast<MINMAXINFO *>(lParam);
 			if (fullScreen) {
 				// Last constants for both x and y are just fiddles - don't know why they are needed
@@ -1074,24 +1127,8 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		SetFocus(wEditor.GetID());
 		break;
 
-	case WM_DROPFILES: {
-			// If drag'n'drop inside the SciTE window but outside
-			// Scintilla, wParam is null, and an exception is generated!
-			if (wParam == 0) {
-				break;
-			}
-			HDROP hdrop = reinterpret_cast<HDROP>(wParam);
-			int filesDropped = DragQueryFile(hdrop, 0xffffffff, NULL, 0);
-
-			for (int i = 0; i < filesDropped; ++i) {
-				char pathDropped[MAX_PATH];
-				DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
-				if (!Open(pathDropped)) {
-					break;
-				}
-			}
-			DragFinish(hdrop);
-		}
+	case WM_DROPFILES: 
+		DropFiles(reinterpret_cast<HDROP>(wParam));
 		break;
 
 	default:

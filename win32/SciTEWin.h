@@ -41,6 +41,8 @@
 #include "LuaExtension.h"
 #endif
 
+const int SCITE_TRAY = WM_APP + 0;
+
 /// Structure passed back and forth with the Indentation Setting dialog
 typedef struct {
 	unsigned tabSize;
@@ -107,6 +109,9 @@ protected:
 	BOOL HandleReplaceCommand(int cmd);
 
 	virtual void AboutDialog();
+	void DropFiles(HDROP hdrop);
+	void MinimiseToTray();
+	void RestoreFromTray();
 	void AboutDialogWithBuild(int staticBuild);
 	virtual void QuitProgram();
 
