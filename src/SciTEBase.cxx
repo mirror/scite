@@ -1390,9 +1390,13 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 	if (isDirty) {
 		if (props.GetInt("are.you.sure", 1) || forceQuestion) {
 			char msg[MAX_PATH + 100];
-			strcpy(msg, "Save changes to \"");
-			strcat(msg, fullPath);
-			strcat(msg, "\"?");
+			if (fileName[0]) {
+				strcpy(msg, "Save changes to \"");
+				strcat(msg, fullPath);
+				strcat(msg, "\"?");
+			} else {
+				strcpy(msg, "Save changes to (Untitled)?");
+			}
 			dialogsOnScreen++;
 			int decision = MessageBox(wSciTE.GetID(), msg, appName, MB_YESNOCANCEL);
 			dialogsOnScreen--;
