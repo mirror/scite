@@ -66,6 +66,10 @@ size_t iconv_adaptor(size_t(*f_iconv)(iconv_t, T, size_t *, char **, size_t *),
 #endif
 #endif
 
+#if GTK_MAJOR_VERSION >= 2 && GTK_MINOR_VERSION >= 4
+#define USE_FILE_CHOOSER
+#endif
+
 #define MB_ABOUTBOX	0x100000L
 
 const char appName[] = "SciTE";
@@ -1033,7 +1037,7 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 	chdir(dirName);
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
-#if GTK_MAJOR_VERSION < 2 || GTK_MINOR_VERSION < 4
+#ifndef USE_FILE_CHOOSER
 		dlgFileSelector = gtk_file_selection_new(LocaliseString("Open File").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(OpenOKSignal), this);
@@ -1058,11 +1062,6 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 			openFilter = filter;
 		else
 			openFilter = props.GetExpanded("open.filter");
-		GtkFileFilter *filterAll = gtk_file_filter_new();
-		gtk_file_filter_set_name(filterAll, "All Files");
-		gtk_file_filter_add_pattern(filterAll, "*");
-		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filterAll);
-		GtkFileFilter *filterDefault = 0;
 		if (openFilter.length()) {
 			openFilter.substitute('|', '\0');
 			size_t start = 0;
@@ -1085,12 +1084,7 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 				}
 				gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filter);
 				start += strlen(openFilter.c_str() + start) + 1;
-				if (!filterDefault)
-					filterDefault = filter;
 			}
-		}
-		if (filterDefault) {
-			gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dlg), filterDefault);
 		}
 
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
@@ -1180,6 +1174,7 @@ void SciTEGTK::SaveAsXML() {
 void SciTEGTK::LoadSessionDialog() {
 	chdir(dirName);
 	if (!dlgFileSelector.Created()) {
+#ifndef USE_FILE_CHOOSER
 		dlgFileSelector = gtk_file_selection_new(LocaliseString("Load Session").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(OpenSessionOKSignal), this);
@@ -1192,12 +1187,29 @@ void SciTEGTK::LoadSessionDialog() {
 		gtk_window_set_default_size(GTK_WINDOW(PWidget(dlgFileSelector)),
 		                            fileSelectorWidth, fileSelectorHeight);
 		dlgFileSelector.ShowModal(PWidget(wSciTE));
+#else
+		GtkWidget *dlg = gtk_file_chooser_dialog_new("Load Session",
+				      GTK_WINDOW(wSciTE.GetID()),
+				      GTK_FILE_CHOOSER_ACTION_OPEN,
+				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      NULL);
+		
+		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
+			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+			
+			LoadSession(filename);
+			g_free(filename);
+		}
+		gtk_widget_destroy(dlg);
+#endif
 	}
 }
 
 void SciTEGTK::SaveSessionDialog() {
 	chdir(dirName);
 	if (!dlgFileSelector.Created()) {
+#ifndef USE_FILE_CHOOSER
 		dlgFileSelector = gtk_file_selection_new(LocaliseString("Save Session").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveSessionOKSignal), this);
@@ -1210,6 +1222,22 @@ void SciTEGTK::SaveSessionDialog() {
 		gtk_window_set_default_size(GTK_WINDOW(PWidget(dlgFileSelector)),
 		                            fileSelectorWidth, fileSelectorHeight);
 		dlgFileSelector.ShowModal(PWidget(wSciTE));
+#else
+		GtkWidget *dlg = gtk_file_chooser_dialog_new("Save Session",
+				      GTK_WINDOW(wSciTE.GetID()),
+				      GTK_FILE_CHOOSER_ACTION_SAVE,
+				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+				      NULL);
+		
+		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
+			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+			
+			SaveSession(filename);
+			g_free(filename);
+		}
+		gtk_widget_destroy(dlg);
+#endif
 	}
 }
 
