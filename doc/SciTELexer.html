@@ -56,22 +56,15 @@ static void ColouriseConfDoc (unsigned int startPos, int length, int
 initStyle, WordList *[], Accessor &amp;styler) {
 </li>
 <li>
-At the end of the file associate the lexer ID with the function:<br />
-LexerModule lmConf(SCLEX_CONF, ColouriseConfDoc);
+At the end of the file associate the lexer ID and name with the function:<br />
+LexerModule lmConf(SCLEX_CONF, ColouriseConfDoc, "conf");
 </li>
 <li>
 If this is a complex lexer then it may be better off in its own file, in
 which case clone one of the current files and then add the file to all of
 the make files where LexOthers is currently referenced -
 scintilla/win32/makefile, scintilla/win32/scintilla.mak,
-scintilla/gtk/makefile, scite/win32/makefile, scite/win32/scite.mak,
-scite/gtk/makefile.
-</li>
-<li>
-Add a string to lexer ID mapping in scite/src/SciTEProps.cxx. Search for
-SCLEX_DIFF and add:<br />
- } else if (language == "conf") {<br />
-  lexLanguage = SCLEX_CONF;
+scintilla/gtk/makefile, scite/win32/makefile, and scite/win32/scite.mak.
 </li>
 <li>
 To the scite/src/others.properties add an entry to associate the file
