@@ -12,6 +12,10 @@ const char pathSepChar = '/';
 #else
 const char pathSepString[] = "\\";
 const char pathSepChar = '\\';
+#ifdef _MSC_VER
+// Shut up level 4 warning:  warning C4710: function 'void whatever(...)' not inlined
+#pragma warning(disable:4710)
+#endif
 #endif
 
 const char propGlobalFileName[] = "SciTEGlobal.properties";
