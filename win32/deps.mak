@@ -50,6 +50,8 @@ SciTEIO.o: ../src/SciTEIO.cxx ../../scintilla/include/Platform.h \
  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \
  ../../scintilla/include/WindowAccessor.h \
  ../../scintilla/include/Scintilla.h ../src/Extender.h \
+ ../src/Utf8_16.h \
+ c:/gcc/bin/../lib/gcc-lib/mingw32/2.95.3-6/../../../../include/assert.h \
  ../src/SciTEBase.h
 SciTEProps.o: ../src/SciTEProps.cxx ../../scintilla/include/Platform.h \
  ../src/SciTE.h ../../scintilla/include/PropSet.h \
@@ -57,3 +59,6 @@ SciTEProps.o: ../src/SciTEProps.cxx ../../scintilla/include/Platform.h \
  ../../scintilla/include/Scintilla.h \
  ../../scintilla/include/SciLexer.h ../src/Extender.h \
  ../src/SciTEBase.h
+Utf8_16.o: ../src/Utf8_16.cxx ../src/Utf8_16.h \
+ c:/gcc/bin/../lib/gcc-lib/mingw32/2.95.3-6/../../../../include/stdio.h \
+ c:/gcc/bin/../lib/gcc-lib/mingw32/2.95.3-6/../../../../include/assert.h
