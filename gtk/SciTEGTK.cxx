@@ -146,6 +146,12 @@ protected:
 	void FindReplaceGrabFields();
 	void HandleFindReplace();
 	virtual void Find();
+	SString Translated(const char *original);
+	void TranslatedSetTitle(GtkWindow *w, const char *original);
+	GtkWidget *TranslatedLabel(const char *original);
+	GtkWidget *TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
+				      GtkSignalFunc func, gpointer data);
+	GtkWidget *TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active);
 	virtual void FindInFiles();
 	virtual void Replace();
 	virtual void FindReplace(bool replace);
@@ -956,6 +962,43 @@ void SciTEGTK::Find() {
 	FindReplace(false);
 }
 
+SString SciTEGTK::Translated(const char *original) {
+	SString text(original);
+	LocaliseString(text);
+	if (text.length())
+		return text;
+	else
+		return original;
+}
+
+static SString Padded(const SString &s) {
+	SString ret(s);
+	ret.insert(0, "  ");
+	ret += "  ";
+	return ret;
+}
+
+void SciTEGTK::TranslatedSetTitle(GtkWindow *w, const char *original) {
+	gtk_window_set_title(w, Translated(original).c_str());
+}
+
+GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
+	SString text = Translated(original);
+	// Don't know how to make an access key on a label transfer focus 
+	// to the next widget so remove the access key indicator.
+	text.remove("_");
+	return gtk_label_new(text.c_str());
+}
+
+GtkWidget *SciTEGTK::TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
+                              GtkSignalFunc func, gpointer data) {
+	return MakeCommand(Padded(Translated(original)).c_str(), accel_group, func, data);
+}
+
+GtkWidget *SciTEGTK::TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active) {
+	return MakeToggle(Translated(original).c_str(), accel_group, active);
+}
+
 static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool useTop=false) {
 	GtkWidget *list = GTK_COMBO(combo)->list;
 	for (int i = 0; i < mem.Length(); i++) {
@@ -1103,12 +1146,13 @@ void SciTEGTK::FindInFiles() {
 
 	int row = 0;
 
-	GtkWidget *labelFind = gtk_label_new("Find what:");
+	comboFind = gtk_combo_new();
+	
+	GtkWidget *labelFind = TranslatedLabel("Find what:");
 	gtk_table_attach(GTK_TABLE(table), labelFind, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
 	gtk_widget_show(labelFind);
 
-	comboFind = gtk_combo_new();
 	FillComboFromMemory(comboFind, memFinds);
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFind), TRUE);
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFind), TRUE);
@@ -1123,7 +1167,7 @@ void SciTEGTK::FindInFiles() {
 
 	row++;
 
-	GtkWidget *labelFiles = gtk_label_new("Files:");
+	GtkWidget *labelFiles = TranslatedLabel("Files:");
 	gtk_table_attach(GTK_TABLE(table), labelFiles, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
 	gtk_widget_show(labelFiles);
@@ -1141,7 +1185,7 @@ void SciTEGTK::FindInFiles() {
 
 	row++;
 
-	GtkWidget *labelDir = gtk_label_new("Directory:");
+	GtkWidget *labelDir = TranslatedLabel("Directory:");
 
 	gtk_table_attach(GTK_TABLE(table), labelDir, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
@@ -1162,20 +1206,20 @@ void SciTEGTK::FindInFiles() {
 #ifdef RECURSIVE_GREP_WORKING
 	row++;
 
-	toggleRec = MakeToggle("  Re_cursive Directories  ", accel_group, false);
+	toggleRec = TranslatedToggle("  Re_cursive Directories  ", accel_group, false);
 	gtk_table_attach(GTK_TABLE(table), toggleRec, 1, 2, row, row + 1, opts, opts, 3, 0);
 	gtk_widget_show(toggleRec);
 #endif
 
 	gtk_widget_show(table);
 
-	GtkWidget *btnFind = MakeCommand("  F_ind  ", accel_group,
+	GtkWidget *btnFind = TranslatedCommand("F_ind", accel_group,
 	                                 GtkSignalFunc(FindInFilesSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
 	                   btnFind, TRUE, TRUE, 0);
 	gtk_widget_show(btnFind);
 
-	GtkWidget *btnCancel = MakeCommand("  _Cancel  ", accel_group,
+	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
 	                                   GtkSignalFunc(FindInFilesCancelSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
 	                   btnCancel, TRUE, TRUE, 0);
@@ -1351,7 +1395,7 @@ void SciTEGTK::GoLineDialog() {
 	accel_group = gtk_accel_group_new();
 
 	gotoDialog = gtk_dialog_new();
-	gtk_window_set_title(GTK_WINDOW(gotoDialog.GetID()), "Go To");
+	TranslatedSetTitle(GTK_WINDOW(gotoDialog.GetID()), "Go To");
 	gtk_container_border_width(GTK_CONTAINER(gotoDialog.GetID()), 0);
 
 	gtk_signal_connect(GTK_OBJECT(gotoDialog.GetID()),
@@ -1363,7 +1407,7 @@ void SciTEGTK::GoLineDialog() {
 
 	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
 	                            GTK_EXPAND | GTK_SHRINK | GTK_FILL);
-	GtkWidget *label = gtk_label_new("Go to line:");
+	GtkWidget *label = TranslatedLabel("Destination Line Number:");
 	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, opts, opts, 5, 5);
 	gtk_widget_show(label);
 
@@ -1376,14 +1420,14 @@ void SciTEGTK::GoLineDialog() {
 
 	gtk_widget_show(table);
 
-	GtkWidget *btnGoTo = MakeCommand("  _Go To  ", accel_group,
+	GtkWidget *btnGoTo = TranslatedCommand("_Go To", accel_group,
 	                                 GtkSignalFunc(GotoSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gotoDialog.GetID())->action_area),
 	                   btnGoTo, TRUE, TRUE, 0);
 	gtk_widget_grab_default(GTK_WIDGET(btnGoTo));
 	gtk_widget_show(btnGoTo);
 
-	GtkWidget *btnCancel = MakeCommand("  _Cancel  ", accel_group,
+	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
 	                                   GtkSignalFunc(GotoCancelSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gotoDialog.GetID())->action_area),
 	                   btnCancel, TRUE, TRUE, 0);
@@ -1411,7 +1455,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	replacing = replace;
 	wFindReplace = gtk_dialog_new();
 	gtk_window_set_policy(GTK_WINDOW(wFindReplace.GetID()), TRUE, TRUE, TRUE);
-	wFindReplace.SetTitle(replace ? "Replace" : "Find");
+	TranslatedSetTitle(GTK_WINDOW(wFindReplace.GetID()), replace ? "Replace" : "Find");
 
 	gtk_signal_connect(GTK_OBJECT(wFindReplace.GetID()),
 	                   "destroy", GtkSignalFunc(destroyDialog), 0);
@@ -1428,7 +1472,7 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	int row = 0;
 
-	GtkWidget *labelFind = gtk_label_new("Find:");
+	GtkWidget *labelFind = TranslatedLabel("Find:");
 	gtk_table_attach(GTK_TABLE(table), labelFind, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
 	gtk_widget_show(labelFind);
@@ -1448,7 +1492,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	row++;
 
 	if (replace) {
-		GtkWidget *labelReplace = gtk_label_new("Replace:");
+		GtkWidget *labelReplace = TranslatedLabel("Replace:");
 		gtk_table_attach(GTK_TABLE(table), labelReplace, 0, 1,
 		                 row, row + 1, opts, opts, 5, 5);
 		gtk_widget_show(labelReplace);
@@ -1470,32 +1514,32 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	// Whole Word
-	toggleWord = MakeToggle("Match whole word _only", accel_group, wholeWord);
+	toggleWord = TranslatedToggle("Match whole word _only", accel_group, wholeWord);
 	gtk_table_attach(GTK_TABLE(table), toggleWord, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Case Sensitive
-	toggleCase = MakeToggle("_Match case", accel_group, matchCase);
+	toggleCase = TranslatedToggle("_Match case", accel_group, matchCase);
 	gtk_table_attach(GTK_TABLE(table), toggleCase, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Regular Expression
-	toggleRegExp = MakeToggle("Regular E_xpression", accel_group, regExp);
+	toggleRegExp = TranslatedToggle("Regular e_xpression", accel_group, regExp);
 	gtk_table_attach(GTK_TABLE(table), toggleRegExp, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Wrap Around
-	toggleWrap = MakeToggle("_Wrap around", accel_group, wrapFind);
+	toggleWrap = TranslatedToggle("_Wrap around", accel_group, wrapFind);
 	gtk_table_attach(GTK_TABLE(table), toggleWrap, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Transform backslash expressions
-	toggleUnSlash = MakeToggle("_Transform backslash expressions", accel_group, unSlash);
+	toggleUnSlash = TranslatedToggle("_Transform backslash expressions", accel_group, unSlash);
 	gtk_table_attach(GTK_TABLE(table), toggleUnSlash, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Reverse
-	toggleReverse = MakeToggle("Re_verse Direction", accel_group, reverseFind);
+	toggleReverse = TranslatedToggle("Re_verse direction", accel_group, reverseFind);
 	gtk_table_attach(GTK_TABLE(table), toggleReverse, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
@@ -1504,29 +1548,29 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_box_set_homogeneous(
 	    GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area), false);
 
-	GtkWidget *btnFind = MakeCommand("  F_ind  ", accel_group,
+	GtkWidget *btnFind = TranslatedCommand("F_ind", accel_group,
 	                                 GtkSignalFunc(FRFindSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 	                   btnFind, TRUE, TRUE, 0);
 
 	if (replace) {
-		GtkWidget *btnReplace = MakeCommand("  _Replace  ", accel_group,
+		GtkWidget *btnReplace = TranslatedCommand("_Replace", accel_group,
 		                                    GtkSignalFunc(FRReplaceSignal), this);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 		                   btnReplace, TRUE, TRUE, 0);
 
-		GtkWidget *btnReplaceAll = MakeCommand("  Replace _All  ", accel_group,
+		GtkWidget *btnReplaceAll = TranslatedCommand("Replace _All", accel_group,
 		                                       GtkSignalFunc(FRReplaceAllSignal), this);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 		                   btnReplaceAll, TRUE, TRUE, 0);
 
-		GtkWidget *btnReplaceInSelection = MakeCommand("  Replace in _Selection  ", accel_group,
+		GtkWidget *btnReplaceInSelection = TranslatedCommand("Replace in _Selection", accel_group,
 		                                   GtkSignalFunc(FRReplaceInSelectionSignal), this);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 		                   btnReplaceInSelection, TRUE, TRUE, 0);
 	}
 
-	GtkWidget *btnCancel = MakeCommand("  _Cancel  ", accel_group,
+	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
 	                                   GtkSignalFunc(FRCancelSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
 	                   btnCancel, TRUE, TRUE, 0);
@@ -1948,16 +1992,14 @@ void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[]) {
 		int end = spath.search("/");
 		while (spath.length() > 1) {
 			SString segment(spath.c_str(), 0, end);
-			SString segmentNoAccess = segment;
-			segmentNoAccess.remove("_");
-			printf("CTM:<%s> <%s>\n", spath.c_str(), segment.c_str());
+			SString segmentLocalised = segment;
+			LocaliseString(segmentLocalised);
 			spathTranslated.append("/");
-			SString localisedSegment = propsUI.Get(segmentNoAccess.c_str());
-			if (localisedSegment.length()) {
-				printf("Localised CTM:<%s>\n", segment.c_str());
-				spathTranslated.append(localisedSegment.c_str());
-			} else
+			if (segmentLocalised.length()) {
+				spathTranslated.append(segmentLocalised.c_str());
+			} else {
 				spathTranslated.append(segment.c_str());
+			}
 			spath.remove(0, end+1);
 			end = spath.search("/");
 		}

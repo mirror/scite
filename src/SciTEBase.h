@@ -16,6 +16,8 @@ extern const char propAbbrevFileName[];
 extern const char fileRead[];
 extern const char fileWrite[];
 
+extern const char menuAccessIndicator[];
+
 #ifdef unix
 #define MAX_PATH 260
 #endif

@@ -18,6 +18,8 @@
 
 #include <unistd.h>
 
+const char menuAccessIndicator[] = "_";
+
 #endif
 
 #if PLAT_WIN
@@ -28,6 +30,8 @@
 #ifdef __BORLANDC__
 #include <dir.h>
 #endif
+
+const char menuAccessIndicator[] = "&";
 
 #endif
 
@@ -899,16 +903,16 @@ void SciTEBase::SetPropertiesInitial() {
 
 void SciTEBase::LocaliseString(SString &s) {
 	int ellipseIndicator = s.remove("...");
-	int accessKeyPresent = s.remove("&");
+	int accessKeyPresent = s.remove(menuAccessIndicator);
 	s = propsUI.Get(s.c_str());
 	if (s.length()) {
 		if (ellipseIndicator)
 			s += "...";
 		if (0 == accessKeyPresent)
 			s.remove("&");
-#if PLAT_GTK
-		s.substitute("&", "_");
-#endif
+		s.substitute("&", menuAccessIndicator);
+	} else {
+		s = props.Get("translation.missing");
 	}
 }
 
