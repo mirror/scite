@@ -67,7 +67,7 @@ const char *contributors[] = {
 	"Jason Diamond",
 	"Ahmad Baitalmal",
 	"Paul Winwood",
-        "Maxim Baranov",
+	"Maxim Baranov",
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -114,12 +114,12 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff));
-		AddStyledText(wsci, "Version 1.24\n", 1);
+		AddStyledText(wsci, "Version 1.25\n", 1);
 		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff));
-		AddStyledText(wsci, "December 1998-April 2000.\n", 3);
+		AddStyledText(wsci, "December 1998-May 2000.\n", 3);
 		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
@@ -2046,6 +2046,8 @@ void SciTEBase::AutomaticIndentation(char ch) {
 	int indentBlock = indent;
 	int backLine = curLine - 1;
 	int indentState = 0;
+	if (statementIndent.IsEmpty() && blockStart.IsEmpty() && blockEnd.IsEmpty())
+		indentState = 1;	// Don't bother searching backwards
 	while ((backLine >= 0) && (indentState == 0)) {
 		indentState = GetIndentState(backLine);
 		if (indentState != 0) {

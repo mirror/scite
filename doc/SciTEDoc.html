@@ -156,6 +156,9 @@ NameError: mistake
         C/C++
       </li>
       <li>
+        IDL - both MSIDL and XPIDL
+      </li>
+      <li>
         Java
       </li>
       <li>
@@ -198,7 +201,7 @@ NameError: mistake
       equivalents of menu commands are listed in the menus. Some less common commands with no menu
       equivalent are:
     </p>
-    <table cellpadding="0" cellspacing="0" border="1">
+<table cellpadding="0" cellspacing="0" border="1">
       <tr>
         <td>
           Magnify text size
@@ -213,6 +216,14 @@ NameError: mistake
         </td>
         <td>
           Ctrl Keypad-
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Restore text size to normal
+        </td>
+        <td>
+          Ctrl Keypad/
         </td>
       </tr>
       <tr>
@@ -341,15 +352,6 @@ NameError: mistake
        Defined variables in properties files
     </h3>
     <table cellpadding="1" cellspacing="0" border="1">
-      <tr>
-        <td>
-          tabsize
-        </td>
-        <td>
-          Sets the size of a tab as a multiple of the size of a space character in the style of the
-          default style definition.
-        </td>
-      </tr>
       <tr>
         <td>
           position.left<br />
@@ -582,6 +584,14 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          horizontal.scrollbar
+        </td>
+        <td>
+          If set to 0 then the horizontal scrollbar is not displayed.
+        </td>
+      </tr>
+      <tr>
+        <td>
           open.filter
         </td>
         <td>
@@ -623,7 +633,12 @@ NameError: mistake
           To support a DBCS language such as Japanese, a code page can be set here. This ensures
           that double byte characters are always treated as a unit so the caret is never located
           between the two bytes of a double byte character. This option has no effect on GTK+ where
-          SciTE only supports single byte character sets.
+          SciTE only supports single byte character sets.<br />
+	  On Windows, setting code.page to 65001 starts Unicode mode and the document is treated as 
+	  a sequence of characters expressed as UTF-8. Display is performed by converting to UCS-2
+	  first so characters from any language will be displayed. Correct glyphs will only be displayed 
+	  if fonts are chosen that contain the appropriate glyphs. Tahoma is a good choice on Windows 
+	  2000.
         </td>
       </tr>
       <tr>
@@ -824,6 +839,72 @@ NameError: mistake
         </td>
         <td>
         	Changes title of window to use the full path rather than just the file name.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          tabsize<br />
+	  indent.size<br />
+          use.tabs
+        </td>
+        <td>
+          Sets the size of a tab as a multiple of the size of a space character in the style of the
+          default style definition. The indent size is the size to use when performing automatic 
+	  indentation and may be different from the tab size. Many people use a tab size of 8 but
+	  4 character indentation. When creating indentation, use.tabs determines whether the 
+	  indentation is made up purely from space characters or from a mix of tabs and spaces
+	  using as many tabs as possible. 
+        </td>
+      </tr>
+      <tr>
+        <td>
+	indent.automatic<br />
+	indent.opening<br />
+	indent.closing
+        </td>
+        <td>
+          Determines the look of automatic indentation. Automatic indentation is turned on with
+	  indent.automatic=1. To indent a brace line after a compound statement start set
+	  indent.opening=1, likeise for the terminating brace. So with both set to 0:<br /><br />
+	 <code>
+		if (c)<br />
+		{<br />
+		&nbsp;&nbsp;&nbsp;&nbsp;s;<br />
+		}<br />
+	 </code><br />
+	 And with both set to 1:<br /><br />
+	 <code>
+		if (c)<br />
+		&nbsp;&nbsp;&nbsp;&nbsp;{<br />
+		&nbsp;&nbsp;&nbsp;&nbsp;s;<br />
+		&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+	 </code>
+	 </td>
+      </tr>
+      <tr>
+        <td>
+	statement.indent.<i>filepattern</i><br />
+	statement.end.<i>filepattern</i><br />
+	block.start.<i>filepattern</i><br />
+	block.end.<i>filepattern</i>
+        </td>
+        <td>
+	  Each of these settings starts with a style number and then a set of words or characters 
+	  that define how to recognise that feature. It there is second space in the setting then 
+	  it is a set of words, otherwise a set of characters. The set of keywords used to indicate
+	  the start of a compound statement is defined in statement.indent. For example:<br /><br />
+	 <code>
+		statement.indent.$(file.patterns.cpp)=5 if else while
+	 </code><br /><br />
+          says that for C++ the words "if", "else", and "while" in keyword style, 5, start compound 
+	  statements which leads to the next line being indented if no other factors affect it. However,
+	  if a statment end is found on the same line then the next line is not indented. For C++ the 
+	  statement end is the semicolon in the operator style, so this is defined:<br /><br />
+	 <code>
+		statement.end.$(file.patterns.cpp)=10 ;
+	 </code><br /><br />
+	 The block.start and block.end properties define the language elements used to bracket groups
+	 of statements. In C++ these are '{' and '}'.
         </td>
       </tr>
     </table>

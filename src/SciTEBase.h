@@ -51,6 +51,7 @@ enum {
 struct StyleAndWords {
 	int styleNumber;
 	SString words;
+	bool IsEmpty() { return words.length() == 0; }
 };
 		
 class SciTEBase {
