@@ -500,6 +500,8 @@ protected:
 	virtual bool SaveAs(const char *file = 0);
 	virtual void SaveACopy() = 0;
 	void SaveToHTML(const char *saveName);
+	void StripTrailingSpaces();
+	void EnsureFinalNewLine();
 	bool SaveBuffer(const char *saveName);
 	virtual void SaveAsHTML() = 0;
 	void SaveToRTF(const char *saveName, int start = 0, int end = -1);

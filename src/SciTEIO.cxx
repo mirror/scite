@@ -683,39 +683,59 @@ int SciTEBase::SaveIfUnsureForBuilt() {
 	return IDYES;
 }
 
-int StripTrailingSpaces(char *data, int ds, bool lastBlock) {
-	int lastRead = 0;
-	char *w = data;
+void SciTEBase::StripTrailingSpaces() {
+	int maxLines = SendEditor(SCI_GETLINECOUNT);
+	for (int line = 0; line < maxLines; line++) {
+		int lineStart = SendEditor(SCI_POSITIONFROMLINE, line);
+		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, line);
+		int i = lineEnd-1;
+		char ch = static_cast<char>(SendEditor(SCI_GETCHARAT, i));
+		while ((i >= lineStart) && ((ch == ' ') || (ch == '\t'))) {
+			i--;
+			ch = static_cast<char>(SendEditor(SCI_GETCHARAT, i));
+		}
+		if (i < (lineEnd-1)) {
+			SendEditor(SCI_SETTARGETSTART, i + 1);
+			SendEditor(SCI_SETTARGETEND, lineEnd);
+			SendEditorString(SCI_REPLACETARGET, 0, "");
+		}
+	}
+}
 
-	for (int i = 0; i < ds; i++) {
-		char ch = data[i];
-		if ((ch == ' ') || (ch == '\t')) {
-			// Swallow those spaces
-		}
-		else if ((ch == '\r') || (ch == '\n')) {
-			*w++ = ch;
-			lastRead = i + 1;
-		} else {
-			while (lastRead < i) {
-				*w++ = data[lastRead++];
-			}
-			*w++ = ch;
-			lastRead = i + 1;
-		}
+void SciTEBase::EnsureFinalNewLine() {
+	int maxLines = SendEditor(SCI_GETLINECOUNT);
+	bool appendNewLine = maxLines == 1;
+	int endDocument = SendEditor(SCI_POSITIONFROMLINE, maxLines);
+	if (maxLines > 1) {
+		appendNewLine = endDocument > SendEditor(SCI_POSITIONFROMLINE, maxLines-1);
 	}
-	// If a non-final block, then preserve whitespace at end of block as it may be significant.
-	if (!lastBlock) {
-		while (lastRead < ds) {
-			*w++ = data[lastRead++];
+	if (appendNewLine) {
+		const char *eol = "\n";
+		switch (SendEditor(SCI_GETEOLMODE)) {
+			case SC_EOL_CRLF:
+				eol = "\r\n";
+				break;
+			case SC_EOL_CR:
+				eol = "\r";
+				break;
 		}
+		SendEditorString(SCI_INSERTTEXT, endDocument, eol);
 	}
-	return w - data;
 }
 
 // Writes the buffer to the given filename
 bool SciTEBase::SaveBuffer(const char *saveName) {
+	// Perform clean ups on text before saving
+	SendEditor(SCI_BEGINUNDOACTION);
+	if (props.GetInt("strip.trailing.spaces"))
+		StripTrailingSpaces();
+	if (props.GetInt("ensure.final.line.end"))
+		EnsureFinalNewLine();
+	if (props.GetInt("ensure.consistent.line.ends"))
+		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));
+	SendEditor(SCI_ENDUNDOACTION);
+	
 	Utf8_16_Write convert;
-
 	convert.setEncoding(static_cast<Utf8_16::encodingType>(unicodeMode));
 
 	FILE *fp = convert.fopen(saveName, fileWrite);
@@ -727,9 +747,6 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 			if (grabSize > blockSize)
 				grabSize = blockSize;
 			GetRange(wEditor, i, i + grabSize, data);
-			if (props.GetInt("strip.trailing.spaces"))
-				grabSize = StripTrailingSpaces(
-				               data, grabSize, grabSize != blockSize);
 			convert.fwrite(data, grabSize);
 		}
 		convert.fclose();
