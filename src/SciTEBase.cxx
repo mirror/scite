@@ -108,13 +108,6 @@ const char *contributors[] = {
     "Brendon Yenson",
 };
 
-const char *extList[] = {
-    "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
-    "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
-    "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.cs", "x.conf",
-    "x.pas", "x.ave", "x.ads", "x.lisp", "x.rb", "x.e", "x.tcl", "x.tab", "x.ant"
-};
-
 // AddStyledText only called from About so static size buffer is OK
 void AddStyledText(WindowID hwnd, const char *s, int attr) {
 	char buf[1000];
@@ -160,12 +153,12 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "Version 1.40\n", 1);
+		AddStyledText(wsci, "Version 1.41\n", 1);
 		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "December 1998-September 2001.\n", 3);
+		AddStyledText(wsci, "December 1998-November 2001.\n", 3);
 		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
@@ -388,7 +381,6 @@ void SciTEBase::SetOverrideLanguage(int cmdID) {
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
 	useMonoFont = false;
 
-	//overrideExtension = extList[cmdID - LEXER_BASE];
 	overrideExtension = "x.";
 	overrideExtension.append(languageMenu[cmdID].extension.c_str());
 	ReadProperties();
