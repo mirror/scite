@@ -399,7 +399,7 @@ void SciTEBase::GetLine(char *text, int sizeText, int line) {
 	}
 	int lineMax = lineStart + sizeText - 1;
 	if (lineEnd > lineMax)
-		lineEnd = lineMax; 
+		lineEnd = lineMax;
 	GetRange(wEditor, lineStart, lineEnd, text);
 	text[lineEnd - lineStart] = '\0';
 }
@@ -484,9 +484,9 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
  * Also set curLine to the line where one of these conditions is mmet.
  */
 bool SciTEBase::FindMatchingPreprocessorCondition(
-    int &curLine, 		///< Number of the line where to start the search
-    int direction, 		///< Direction of search: 1 = forward, -1 = backward
-    int condEnd1, 		///< First status of line for which the search is OK
+    int &curLine,  		///< Number of the line where to start the search
+    int direction,  		///< Direction of search: 1 = forward, -1 = backward
+    int condEnd1,  		///< First status of line for which the search is OK
     int condEnd2) {		///< Second one
 
 	bool isInside = false;
@@ -521,8 +521,8 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
 #pragma warn -aus
 #endif
 bool SciTEBase::FindMatchingPreprocCondPosition(
-    bool isForward, 		///< @c true if search forward
-    int &mppcAtCaret, 	///< Matching preproc. cond.: current position of caret
+    bool isForward,  		///< @c true if search forward
+    int &mppcAtCaret,  	///< Matching preproc. cond.: current position of caret
     int &mppcMatch) {	///< Matching preproc. cond.: matching position
 
 	bool isInside = false;
@@ -559,7 +559,7 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
 		}
 		break;
-	default: 	// Should be noPPC
+	default:  	// Should be noPPC
 
 		if (isForward) {
 			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
@@ -771,8 +771,8 @@ static bool isfilenamecharforsel(char ch) {
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel, 	///< Buffer receiving the result.
-    int len, 	///< Size of the buffer.
+    char *sel,  	///< Buffer receiving the result.
+    int len,  	///< Size of the buffer.
     bool (*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
 
 	int lengthDoc, selStart, selEnd;
@@ -1461,7 +1461,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		const int wordMaxSize = 80;
 		char wordstart[wordMaxSize];
 		wordstart[0] = ' ';
-		GetRange(wEditor, posFind, Platform::Minimum(posFind + wordMaxSize - 3, doclen), wordstart+1);
+		GetRange(wEditor, posFind, Platform::Minimum(posFind + wordMaxSize - 3, doclen), wordstart + 1);
 		char *wordend = wordstart + 1 + rootlen;
 		while (iswordcharforsel(*wordend))
 			wordend++;
@@ -1472,7 +1472,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 			const char *wordpos;
 			wordpos = strstr(wordsNear.c_str(), wordstart);
 			if (!wordpos) {	// add a new entry
-				wordsNear.append(wordstart+1);
+				wordsNear.append(wordstart + 1);
 				if (minWordLength < wordlen)
 					minWordLength = wordlen;
 
@@ -1489,7 +1489,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	int length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > rootlen))) {
 		char *words = wordsNear.detach();
-		words[length-1] = '\0';
+		words[length - 1] = '\0';
 		SendEditorString(SCI_AUTOCSHOW, rootlen, words + 1);
 		delete []words;
 	} else {
@@ -1631,8 +1631,9 @@ bool SciTEBase::StartBlockComment() {
 	int comment_length = comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
-	/* 	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
-	* 	bool moveCaret = caretPosition < selectionEnd; */
+	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
+	// checking if caret is located in _beginning_ of selected block
+	bool move_caret = caretPosition < selectionEnd;
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
@@ -1671,19 +1672,18 @@ bool SciTEBase::StartBlockComment() {
 			selectionStart += comment_length;
 		selectionEnd += comment_length; // every iteration
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment.c_str());
-		/* 		SendEditor(SCI_SETCURRENTPOS, selectionEnd); // moving caret to the
-		* 		// end of selection: if (moveCaret))  */
 	}
-	/* 	if (moveCaret) {
-	* 		SendEditor(SCI_SETCURRENTPOS, selectionStart);
-	* 		SendEditor(SCI_ENDUNDOACTION);
-	* 		return true;
-	* 	} */
 	// after uncommenting selection may promote itself to the lines
 	// before the first initially selected line
 	if (selectionStart < firstSelLineStart)
 		selectionStart = firstSelLineStart;
-	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+	if (move_caret) {
+		// moving caret to the beginning of selected block
+		SendEditor(SCI_GOTOPOS, selectionEnd);
+		SendEditor(SCI_SETCURRENTPOS, selectionStart);
+	} else {
+		SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+	}
 	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
@@ -1724,6 +1724,9 @@ bool SciTEBase::StartBoxComment() {
 	int middle_comment_length = middle_comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
+	// checking if caret is located in _beginning_ of selected block
+	bool move_caret = caretPosition < selectionEnd;
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
@@ -1754,7 +1757,13 @@ bool SciTEBase::StartBoxComment() {
 		SendEditorString(SCI_INSERTTEXT, lineEnd, end_comment.c_str());
 	}
 	selectionEnd += (start_comment_length);
-	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+	if (move_caret) {
+		// moving caret to the beginning of selected block
+		SendEditor(SCI_GOTOPOS, selectionEnd);
+		SendEditor(SCI_SETCURRENTPOS, selectionStart);
+	} else {
+		SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+	}
 	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
@@ -1788,7 +1797,9 @@ bool SciTEBase::StartStreamComment() {
 	int start_comment_length = start_comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
-
+	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
+	// checking if caret is located in _beginning_ of selected block
+	bool move_caret = caretPosition < selectionEnd;
 	// if there is no selection?
 	if (selectionEnd - selectionStart <= 0) {
 		int selLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
@@ -1819,27 +1830,26 @@ bool SciTEBase::StartStreamComment() {
 		}
 		selectionStart -= start_counter;
 		selectionEnd += (end_counter + 1);
-		//~ if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, i))
 	}
-	/* 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
-		if (selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine)) {
-			selectionEnd -= 2;
-		} */
 	SendEditor(SCI_BEGINUNDOACTION);
-
 	SendEditorString(SCI_INSERTTEXT, selectionStart, start_comment.c_str());
 	selectionEnd += start_comment_length;
 	selectionStart += start_comment_length;
 	SendEditorString(SCI_INSERTTEXT, selectionEnd, end_comment.c_str());
-	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
-
+	if (move_caret) {
+		// moving caret to the beginning of selected block
+		SendEditor(SCI_GOTOPOS, selectionEnd);
+		SendEditor(SCI_SETCURRENTPOS, selectionStart);
+	} else {
+		SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+	}
 	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
 
 int SciTEBase::GetCurrentLineNumber() {
-	return SendEditor(SCI_LINEFROMPOSITION, 
-		SendEditor(SCI_GETCURRENTPOS));
+	return SendEditor(SCI_LINEFROMPOSITION,
+	                  SendEditor(SCI_GETCURRENTPOS));
 }
 
 int SciTEBase::GetCurrentScrollPosition() {
@@ -1890,15 +1900,15 @@ void SciTEBase::SetFileProperties(
 	}
 
 	::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
-	                DATE_SHORTDATE, NULL,  	// Current date
+	                DATE_SHORTDATE, NULL,   	// Current date
 	                NULL, temp, TEMP_LEN);
 	ps.Set("CurrentDate", temp);
 
 	::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
-	                0, NULL,  	// Current time
+	                0, NULL,   	// Current time
 	                NULL, temp, TEMP_LEN);
 	ps.Set("CurrentTime", temp);
-#endif 	// PLAT_WIN
+#endif  	// PLAT_WIN
 #if PLAT_GTK	// Could use Unix standard calls here, someone less lazy than me (PL) should do it.
 	// Or just declare the function in SciTEBase.h and define it in SciTEWin.cxx and SciTEGTK.cxx?
 	temp[0] = '\0';
