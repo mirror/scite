@@ -48,7 +48,7 @@
 
 #define RTF_HEADEROPEN "{\\rtf1\\ansi\\deff0\\deftab720"
 #define RTF_FONTDEFOPEN "{\\fonttbl"
-#define RTF_FONTDEF "{\\f%d\\fnil\\fcharset0 %s;}"
+#define RTF_FONTDEF "{\\f%d\\fnil\\fcharset%u %s;}"
 #define RTF_FONTDEFCLOSE "}"
 #define RTF_COLORDEFOPEN "{\\colortbl"
 #define RTF_COLORDEF "\\red%d\\green%d\\blue%d;"
@@ -247,6 +247,7 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
 	SString fontFace = props.GetExpanded("export.rtf.font.face");
+	unsigned characterset = props.GetInt("character.set",0);
 	int fontSize = props.GetInt("export.rtf.font.size", 10 << 1);
 	int tabs = props.GetInt("export.rtf.tabs", 0);
 	if (tabSize == 0)
@@ -262,7 +263,7 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 		int fontCount = 1, colorCount = 1, i;
 		fputs(RTF_HEADEROPEN RTF_FONTDEFOPEN, fp);
 		strncpy(*fonts, fontFace.c_str(), MAX_FONTDEF);
-		fprintf(fp, RTF_FONTDEF, 0, fontFace.c_str());
+		fprintf(fp, RTF_FONTDEF, 0, characterset, fontFace.c_str());
 		strncpy(*colors, "#000000", MAX_COLORDEF);
 		for (int istyle = 0; istyle <= STYLE_DEFAULT; istyle++) {
 			char key[200];
@@ -345,7 +346,7 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 							break;
 					if (i >= fontCount) {
 						strncpy(fonts[fontCount++], family.c_str(), MAX_FONTDEF);
-						fprintf(fp, RTF_FONTDEF, i, family.c_str());
+						fprintf(fp, RTF_FONTDEF, i, characterset, family.c_str());
 					}
 					sprintf(lastStyle, RTF_SETFONTFACE "%d", i);
 				} else
