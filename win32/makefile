@@ -70,7 +70,7 @@ UniqueInstance.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
 DirectorExtension.o XPM.o $(LUA_OBJS)
 
-OBJS = SciTEBase.o $(OTHER_OBJS) 
+OBJS = SciTEBase.o $(OTHER_OBJS)
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
