@@ -168,7 +168,7 @@ const char *contributors[] = {
                                  "Hrishikesh Desai",
                                  "Sergey Puljajev",
                                  "Mathias Rauen",
-                                 "Angelo Mandato",
+                                 "Angelo Mandato http://www.spaceblue.com",
                                  "Denis Sureau",
                              };
 
