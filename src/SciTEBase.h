@@ -26,8 +26,10 @@ const char *VMSToUnixStyle(const char *fileName);
 #endif
 #ifdef WIN32
 #ifdef _MSC_VER
-// Shut up level 4 warning:  warning C4710: function 'void whatever(...)' not inlined
-#pragma warning(disable: 4710)
+// Shut up level 4 warning:  
+// warning C4710: function 'void whatever(...)' not inlined
+// warning C4800: forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning(disable: 4710 4800)
 #endif
 #endif
 
