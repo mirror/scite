@@ -90,15 +90,16 @@ DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 LEXPROPS=\
 ..\bin\ada.properties ..\bin\asm.properties ..\bin\asn1.properties \
 ..\bin\au3.properties ..\bin\ave.properties ..\bin\baan.properties \
-..\bin\bullant.properties ..\bin\conf.properties ..\bin\cpp.properties \
-..\bin\css.properties ..\bin\eiffel.properties ..\bin\erlang.properties \
-..\bin\escript.properties ..\bin\forth.properties ..\bin\fortran.properties \
-..\bin\html.properties ..\bin\kix.properties ..\bin\latex.properties \
-..\bin\lisp.properties ..\bin\lot.properties ..\bin\lout.properties \
-..\bin\lua.properties ..\bin\matlab.properties ..\bin\metapost.properties \
-..\bin\mmixal.properties ..\bin\nncrontab.properties ..\bin\nsis.properties \
-..\bin\others.properties ..\bin\pascal.properties ..\bin\perl.properties \
-..\bin\pov.properties ..\bin\ps.properties ..\bin\python.properties \
+..\bin\blitzbasic.properties ..\bin\bullant.properties ..\bin\caml.properties \
+..\bin\conf.properties ..\bin\cpp.properties ..\bin\css.properties \
+..\bin\eiffel.properties ..\bin\erlang.properties ..\bin\escript.properties \
+..\bin\forth.properties ..\bin\fortran.properties ..\bin\html.properties \
+..\bin\kix.properties ..\bin\latex.properties ..\bin\lisp.properties \
+..\bin\lot.properties ..\bin\lout.properties ..\bin\lua.properties \
+..\bin\matlab.properties ..\bin\metapost.properties ..\bin\mmixal.properties \
+..\bin\nncrontab.properties ..\bin\nsis.properties ..\bin\others.properties \
+..\bin\pascal.properties ..\bin\perl.properties ..\bin\pov.properties \
+..\bin\ps.properties ..\bin\purebasic.properties ..\bin\python.properties \
 ..\bin\ruby.properties ..\bin\scriptol.properties ..\bin\specman.properties \
 ..\bin\sql.properties ..\bin\tcl.properties ..\bin\tex.properties \
 ..\bin\vb.properties ..\bin\verilog.properties ..\bin\vhdl.properties \
@@ -140,7 +141,11 @@ deps:
 	$(COPY) $^ $@
 ..\bin\baan.properties:	..\src\baan.properties
 	$(COPY) $^ $@
+..\bin\blitzbasic.properties:	..\src\blitzbasic.properties
+	$(COPY) $^ $@
 ..\bin\bullant.properties:	..\src\bullant.properties
+	$(COPY) $^ $@
+..\bin\caml.properties:	..\src\caml.properties
 	$(COPY) $^ $@
 ..\bin\conf.properties:	..\src\conf.properties
 	$(COPY) $^ $@
@@ -191,6 +196,8 @@ deps:
 ..\bin\pov.properties:	..\src\pov.properties
 	$(COPY) $^ $@
 ..\bin\ps.properties:	..\src\ps.properties
+	$(COPY) $^ $@
+..\bin\purebasic.properties:	..\src\purebasic.properties
 	$(COPY) $^ $@
 ..\bin\python.properties:	..\src\python.properties
 	$(COPY) $^ $@
