@@ -2548,7 +2548,7 @@ void SciTEGTK::CreateUI() {
 
 	wEditor = scintilla_new();
 #if GTK_MAJOR_VERSION >= 2
-	//gtk_widget_set_double_buffered(PWidget(wEditor), TRUE);
+	gtk_widget_set_double_buffered(PWidget(wEditor), FALSE);
 #endif
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
 	fnEditor = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
@@ -2601,7 +2601,7 @@ void SciTEGTK::CreateUI() {
 
 	wOutput = scintilla_new();
 #if GTK_MAJOR_VERSION >= 2
-	gtk_widget_set_double_buffered(PWidget(wOutput), TRUE);
+	gtk_widget_set_double_buffered(PWidget(wOutput), FALSE);
 #endif
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
 	fnOutput = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
