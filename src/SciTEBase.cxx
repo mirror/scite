@@ -1625,89 +1625,46 @@ bool SciTEBase::StartExpandAbbreviation() {
 	char expbuf[1000];
 	strcpy(expbuf, data.c_str());
 	UnSlash(expbuf);
-	SString expanded(""); // parsed expanded abbreviation
-	int j = 0; // temporary variable for caret position counting
+	int expbuflen = strlen(expbuf);
 	int caret_pos = -1; // caret position
-	int line = 0; // counting lines in multiline abbreviations
-	int line_before_caret = 0;
-	for (int i = 0; i < dataLength; i++) {
-		char c = expbuf[i];
-		switch (c) {
-		case '|':
-			if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
-				i++;
-				expanded += c;
-			} else {
-				if (caret_pos != -1) {
-					break;
-				}
-				caret_pos = j; // this is the caret position
-			}
-
-			break;
-		case '\n':
-			// we can't use tabs and spaces after '\n'
-			if (expbuf[i + 1] == '\t' || expbuf[i + 1] == ' ') {
-				SString error("Abbreviation \"");
-				error += abbrev;
-				error += "=";
-				error += data.c_str();
-				error += "\".\n";
-				error += "Don't use tabs and spaces after \'\\n\' symbol!";
-				WindowMessageBox(wSciTE, error.c_str(),
-					"Expand Abbreviation Error", MB_OK | MB_ICONWARNING);
-				return true;
-			}
-			line++;
-			expanded += c;
-			// counting newlines before caret position
-			if (caret_pos != -1)
-				break;
-			line_before_caret++;
-			break;
-		default:
-			expanded += c;
-			break;
-		}
-		j++;
-	}
-	// taking indent position from current line - to use with (auto)indent
 	int currentLineNumber = GetCurrentLineNumber();
-	int indent = GetLineIndentation(currentLineNumber);
+	int indent = 0;
+	if (props.GetInt("indent.automatic"))
+		indent=GetLineIndentation(currentLineNumber);
+
 	SendEditor(SCI_BEGINUNDOACTION);
 	SendEditor(SCI_SETSEL, position - counter, position);
-	SendEditorString(SCI_REPLACESEL, 0, expanded.c_str());
-	// indenting expanded abbreviation using previous line indent
-	// if there is empty line in expanded abbreviation it is indented twice!
-	if (line > 0) {
-		for (int i = 1; i <= line; i++) {
-			SetLineIndentation(currentLineNumber + i , indent);
-			int lineIndent = GetLineIndentPosition(currentLineNumber + i);
-			int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, currentLineNumber + i);
-			if (lineIndent == lineEnd) {
-				SetLineIndentation(currentLineNumber + i , indent + indentSize);
-			} else {
-				SetLineIndentation(currentLineNumber + i , indent);
-			}
+
+	//add the abbreviation a character at a time
+	for (int i = 0; i < expbuflen; i++){
+		char c = expbuf[i];
+		SString abbrevText("");
+		switch (c){
+			case '|':
+				//check for c/c++ "OR" which looks like ||
+				if (i < (dataLength - 1) && expbuf[i+1] == '|'){
+					//put || into the line
+					abbrevText += c;
+					abbrevText += c;
+					i++;
+				} else if (caret_pos == -1)
+					caret_pos = SendEditor(SCI_GETCURRENTPOS);
+				break;
+			default:
+				abbrevText += c;
+				break;
 		}
-		// setting caret after expanded abbreviation
-		if (caret_pos == -1) {
-			int curLine = GetCurrentLineNumber();
-			int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, curLine);
-			SendEditor(SCI_GOTOPOS, lineEnd);
+		SendEditorString(SCI_REPLACESEL, 0, abbrevText.c_str());
+		if (c == '\n'){
+			currentLineNumber ++;
+			SetLineIndentation(currentLineNumber, indent);
 		}
 	}
-	if (caret_pos != -1) {
-		// calculating caret position _after_ (auto)indenting
-		int add_indent = 0;
-		for (int i = 1; i <= line_before_caret; i++) {
-			int lineIndent = GetLineIndentPosition(currentLineNumber + i);
-			int lineStart = SendEditor(SCI_POSITIONFROMLINE, currentLineNumber + i);
-			int difference = lineIndent - lineStart;
-			add_indent += difference;
-		}
-		SendEditor(SCI_GOTOPOS, position - counter + caret_pos + add_indent);
-	}
+
+	// set the caret to the desired position
+	if (caret_pos != -1)
+		SendEditor(SCI_GOTOPOS, caret_pos);
+
 	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
