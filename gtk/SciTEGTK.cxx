@@ -865,12 +865,8 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 		// tools, and for other menu entries it is just discarded.
 	}
 
-	// Drop the 'i' for compatibuilty with other menus
-	itemText.substitute("Shift+", "Shft+");
-	// Drop the 'r' for compatibuilty with other menus
-	itemText.substitute("Ctrl+", "Ctl+");
-	// Reorder shift and crl indicators for compatibuilty with other menus
-	itemText.substitute("Ctl+Shft+", "Shft+Ctl+");
+	// Reorder shift and ctrl indicators for compatibility with other menus
+	itemText.substitute("Ctrl+Shift+", "Shift+Ctrl+");
 
 	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
 	if (item) {
