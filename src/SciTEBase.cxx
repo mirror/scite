@@ -2824,7 +2824,9 @@ void SciTEBase::Expand(int &line, bool doExpand, bool force, int visLevels, int 
 					SendEditor(SCI_SETFOLDEXPANDED, line, 0);
 				Expand(line, doExpand, force, visLevels - 1);
 			} else {
-				if (doExpand && SendEditor(SCI_GETFOLDEXPANDED, line)) {
+				if (doExpand) {
+					if (!SendEditor(SCI_GETFOLDEXPANDED, line))
+						SendEditor(SCI_SETFOLDEXPANDED, line, 1);
 					Expand(line, true, force, visLevels - 1);
 				} else {
 					Expand(line, false, force, visLevels - 1);
