@@ -712,6 +712,7 @@ void SciTEBase::BraceMatch(bool editor) {
 		                                     win.GetID(), SCI_GETCHARAT, braceAtCaret, 0));
 		Platform::SendScintilla(win.GetID(), SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
 		int columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceAtCaret, 0);
+		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
 		if (chBrace == ':') {
 			int lineStart = Platform::SendScintilla(win.GetID(), SCI_LINEFROMPOSITION, braceAtCaret);
 			int indentPos = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart, 0);
@@ -722,9 +723,10 @@ void SciTEBase::BraceMatch(bool editor) {
 			if (columnAtCaretNext - indentSize > 1)
 				columnAtCaret = columnAtCaretNext - indentSize;
 			//Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
+			if (columnOpposite == 0)	// If the final line of the structure is empty
+				columnOpposite = columnAtCaret;
 		}
 
-		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
 		if (props.GetInt("highlight.indentation.guides"))
 			Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Platform::Minimum(columnAtCaret, columnOpposite), 0);
 	}
