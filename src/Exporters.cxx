@@ -1199,7 +1199,7 @@ static char* texStyle(int style) {
 	static char buf[10];
 	int i = 0;
 	do {
-		buf[i++] = 'a' + (style % CHARZ);
+		buf[i++] = static_cast<char>('a' + (style % CHARZ));
 		style /= CHARZ;
 	} while ( style > 0 );
 	buf[i] = 0;
@@ -1247,10 +1247,11 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 
 	//int titleFullPath = props.GetInt("export.html.title.fullpath",0);
 
-	for (int i = 0; i <= STYLE_MAX; i++) {
+	int i;
+	for (i = 0; i <= STYLE_MAX; i++) {
 		styleIsUsed[i] = false;
 	}
-	for (int i = 0; i < lengthDoc; i++) {	// check the used styles
+	for (i = 0; i < lengthDoc; i++) {	// check the used styles
 		styleIsUsed[acc.StyleAt(i)] = true;
 	}
 	styleIsUsed[STYLE_DEFAULT] = true;
@@ -1262,7 +1263,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 		fputs("\\usepackage{alltt}\n", fp);
 		fputs("\\usepackage{times}\n", fp);
 
-		for (int i = 0; i < STYLE_MAX; i++) {      // get keys
+		for (i = 0; i < STYLE_MAX; i++) {      // get keys
 			// initialize style (don't keep previous one)
 			style.italics = false;
 			style.bold = false;
@@ -1288,8 +1289,9 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 
 		fprintf(fp, "\\scite%s{", texStyle(styleCurrent));
 
-		for (int i = 0; i < lengthDoc; i++) { //here process each character of the document
+		for (i = 0; i < lengthDoc; i++) { //here process each character of the document
 			char ch = acc[i];
+			int x;
 			int style = acc.StyleAt(i);
 
 			if (style != styleCurrent) { //new style?
@@ -1299,7 +1301,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 
 			switch ( ch ) { //write out current character.
 			case '\t':
-				for (int x = 0; x < tabSize; x++)
+				for (x = 0; x < tabSize; x++)
 					fputc(' ', fp);
 				break;
 			case '\\':
