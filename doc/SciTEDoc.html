@@ -1152,15 +1152,26 @@ NameError: mistake
           error.marker.back colour.
         </td>
        </tr>
-       <tr class="windowsonly">
+       <tr>
         <td>openpath.<i>filepattern</i></td>
         <td>Defines a path for the Open Selected Filename command in the File
         menu. The path is searched if the selected filename doesn't contain an
         absolute path or the file is not found in the document directory. The
-        directories in openpath are separated by ';'.<br />
+        directories in openpath are separated by ';' on Windows and ':' on GTK+.<br />
         An openpath setting may look like:<br />
         <code>openpath.*.txt=c:\dos\;f:\;<br />
         openpath.$(file.patterns.cpp)=$(cpp_includes)</code>
+        </td>
+       </tr>
+       <tr>
+        <td>open.suffix.<i>filepattern</i></td>
+        <td>Defines a suffix to add to the selected file name for the
+        Open Selected Filename command in the File menu.
+	This is used in languages where the suffix is not given when accessing a file.
+	An example is python where "import xlib" will most often mean to import from
+	a file called "xlib.py".<br />
+        An open.suffix setting may look like:<br />
+        <code>opensuffix.*.py=.py</code>
         </td>
        </tr>
        <tr>
