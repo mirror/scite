@@ -125,7 +125,8 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *di
 				}
 			}
 		}
-	} else if (IsAlphabetic(lineBuffer[0]) || (lineBuffer[0] >= '0' && lineBuffer[0] <= '9')) {
+//	} else if (IsAlphabetic(lineBuffer[0]) || (lineBuffer[0] >= '0' && lineBuffer[0] <= '9')) {
+	} else if (lineBuffer[0] != '#' && !isspace(lineBuffer[0])) {
 		Set(lineBuffer);
 	} else if (isspace(lineBuffer[0]) && ifIsTrue) {
 		Set(lineBuffer);
@@ -1149,12 +1150,14 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 	return s;
 }
 
-SString SciTEBase::LocaliseMessage(const char *s, const char *param0, const char *param1) {
+SString SciTEBase::LocaliseMessage(const char *s, const char *param0, const char *param1, const char *param2) {
 	SString translation = LocaliseString(s);
 	if (param0)
 		translation.substitute("^0", param0);
 	if (param1)
 		translation.substitute("^1", param1);
+	if (param2)
+		translation.substitute("^2", param2);
 	return translation;
 }
 
