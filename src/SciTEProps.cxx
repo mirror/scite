@@ -619,7 +619,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
 	int sizeVertical = props.GetInt("output.vertical.size", 0);
 	if (splitVertical && sizeVertical > 0 && heightOutput < sizeVertical || sizeHorizontal && heightOutput < sizeHorizontal) {
-		heightOutput = NormaliseSplit(splitVertical ? sizeVertical : sizeHorizontal);
+		heightOutput = NormaliseSplit(splitVertical ? sizeHorizontal : sizeVertical);
 		SizeSubWindows();
 		Redraw();
 	}
