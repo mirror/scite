@@ -10,8 +10,8 @@
 #include <ctype.h>
 
 int IFaceTable::FindConstant(const char *name) {
-	unsigned lo = 0;
-	unsigned hi = IFaceTable::constantCount - 1;
+	int lo = 0;
+	int hi = IFaceTable::constantCount - 1;
 	do {
 		int idx = (lo+hi)/2;
 		int cmp = strcmp(name, constants[idx].name);
@@ -29,8 +29,8 @@ int IFaceTable::FindConstant(const char *name) {
 }
 
 int IFaceTable::FindFunction(const char *name) {
-	unsigned lo = 0;
-	unsigned hi = IFaceTable::functionCount - 1;
+	int lo = 0;
+	int hi = IFaceTable::functionCount - 1;
 	do {
 		int idx = (lo+hi)/2;
 		int cmp = strcmp(name, functions[idx].name);
@@ -68,8 +68,8 @@ int IFaceTable::FindFunctionByConstantName(const char *name) {
 }
 
 int IFaceTable::FindProperty(const char *name) {
-	unsigned lo = 0;
-	unsigned hi = IFaceTable::propertyCount - 1;
+	int lo = 0;
+	int hi = IFaceTable::propertyCount - 1;
 	do {
 		int idx = (lo+hi)/2;
 		int cmp = strcmp(name, properties[idx].name);
