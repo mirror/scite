@@ -71,7 +71,7 @@ protected:
 	int pidShell;
 	char resultsFile[MAX_PATH];
 	int inputHandle;
-	time_t timeStart;
+	ElapsedTime commandTime;
 
 	// Command Pipe variables
 	int inputWatcher;
@@ -272,7 +272,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	sprintf(resultsFile, "/tmp/SciTE%x.results",
 	        static_cast<int>(getpid()));
 	inputHandle = 0;
-	timeStart = 0;
 
 	propsEmbed.Set("PLAT_GTK", "1");
 
@@ -957,11 +956,11 @@ static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool u
 
 void SciTEGTK::FindReplaceGrabFields() {
 	char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry));
-	strncpy(findWhat, findEntry, sizeof(findWhat));
+	findWhat = findEntry;
 	memFinds.Insert(findWhat);
 	if (comboReplace) {
 		char *replaceEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboReplace)->entry));
-		strncpy(replaceWhat, replaceEntry, sizeof(replaceWhat));
+		replaceWhat = replaceEntry;
 		memReplaces.Insert(replaceWhat);
 	}
 	wholeWord = GTK_TOGGLE_BUTTON(toggleWord)->active;
@@ -1061,7 +1060,7 @@ void SciTEGTK::FindInFiles() {
 	GtkAccelGroup *accel_group = gtk_accel_group_new();
 
 	SelectionIntoFind();
-	props.Set("find.what", findWhat);
+	props.Set("find.what", findWhat.c_str());
 
 	getcwd(findInDir, sizeof(findInDir));
 	props.Set("find.dir", findInDir);
@@ -1103,8 +1102,8 @@ void SciTEGTK::FindInFiles() {
 	gtk_table_attach(GTK_TABLE(table), comboFind, 1, 2,
 	                 row, row + 1, optse, opts, 5, 5);
 	gtk_widget_show(comboFind);
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry), findWhat);
-	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 0, strlen(findWhat));
+	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry), findWhat.c_str());
+	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 0, findWhat.length());
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFind)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
 
@@ -1217,7 +1216,7 @@ void SciTEGTK::ContinueExecute() {
 		sExitMessage.insert(0, ">Exit code: ");
 		if (timeCommands) {
 			sExitMessage += "    Time: ";
-			sExitMessage += SString(time(0) - timeStart);
+			sExitMessage += SString(commandTime.Duration());
 		}
 		sExitMessage.append("\n");
 		OutputAppendString(sExitMessage.c_str());
@@ -1263,7 +1262,7 @@ int xsystem(const char *s, const char *resultsFile) {
 void SciTEGTK::Execute() {
 	SciTEBase::Execute();
 
-	timeStart = time(0);
+	commandTime.Duration(true);
 	if (scrollOutput)
 		SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	originalEnd = SendOutput(SCI_GETCURRENTPOS);
@@ -1538,8 +1537,8 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_table_attach(GTK_TABLE(table), comboFind, 1, 2,
 	                 row, row + 1, optse, opts, 5, 5);
 	gtk_widget_show(comboFind);
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry), findWhat);
-	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 0, strlen(findWhat));
+	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry), findWhat.c_str());
+	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 0, findWhat.length());
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFind)->entry),
 	                   "activate", GtkSignalFunc(FRFindSignal), this);
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFind), TRUE);
