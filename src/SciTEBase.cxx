@@ -1546,15 +1546,15 @@ bool SciTEBase::StartExpandAbbreviation() {
 			break;
 		case '\n':
 			// we can't use tabs and spaces after '\n'
-
 			if (expbuf[i + 1] == '\t' || expbuf[i + 1] == ' ') {
-				SString error("Can't expand abbreviation \"");
+				SString error("Abbreviation \"");
 				error += abbrev;
-				error += "\"!\n";
-				error += "Don't use tabs and spaces after \'\\n\' symbol when defining abbreviations.";
-				MessageBox(wSciTE.GetID(),
-				           error.c_str(),
-				           "Expand Abbreviation Error", MB_OK);
+				error += "=";
+				error += data.c_str();
+				error += "\".\n";
+				error += "Don't use tabs and spaces after \'\\n\' symbol!";
+				MessageBox(wSciTE.GetID(), error.c_str(),
+					"Expand Abbreviation Error", MB_OK | MB_ICONWARNING);
 				return true;
 			}
 			line++;
@@ -1612,13 +1612,9 @@ bool SciTEBase::StartExpandAbbreviation() {
 }
 
 bool SciTEBase::StartBlockComment() {
-	SString language = props.GetNewExpand("lexer.", fileName);
+	SString fileNameForExtension = ExtensionFileName();
+	SString language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString base("comment.block.");
-	if (language == "") {  // using default lexer
-		language = props.Get("default.file.ext");
-		const char* extension = language.c_str() + 1;
-		language = extension;
-	}
 	base += language;
 	SString comment = props.Get(base.c_str());
 	if (comment == "") { // user friendly error message box
@@ -1691,16 +1687,12 @@ bool SciTEBase::StartBlockComment() {
 }
 
 bool SciTEBase::StartBoxComment() {
-	SString language = props.GetNewExpand("lexer.", fileName);
+	SString fileNameForExtension = ExtensionFileName();
+	SString language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString start_base("comment.box.start.");
 	SString middle_base("comment.box.middle.");
 	SString end_base("comment.box.end.");
 	SString white_space(" ");
-	if (language == "") {
-		language = props.Get("default.file.ext");
-		const char* extension = language.c_str() + 1; // removing dot
-		language = extension;
-	}
 	start_base += language;
 	middle_base += language;
 	end_base += language;
@@ -1716,7 +1708,7 @@ bool SciTEBase::StartBoxComment() {
 		error += end_base.c_str();
 		error += "\" are not ";
 		error += "defined in SciTE *.properties!";
-		MessageBox(wSciTE.GetID(), error.c_str(), "Box Comment Error", MB_OK);
+		MessageBox(wSciTE.GetID(), error.c_str(), "Box Comment Error", MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	start_comment += white_space;
@@ -1771,15 +1763,11 @@ bool SciTEBase::StartBoxComment() {
 }
 
 bool SciTEBase::StartStreamComment() {
-	SString language = props.GetNewExpand("lexer.", fileName);
+	SString fileNameForExtension = ExtensionFileName();
+	SString language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString start_base("comment.stream.start.");
 	SString end_base("comment.stream.end.");
 	SString white_space(" ");
-	if (language == "") {
-		language = props.Get("default.file.ext");
-		const char* extension = language.c_str() + 1; // removing dot
-		language = extension;
-	}
 	start_base += language;
 	end_base += language;
 	SString start_comment = props.Get(start_base.c_str());
