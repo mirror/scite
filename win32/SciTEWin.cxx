@@ -722,7 +722,7 @@ void SciTEWin::ProcessExecute() {
 					isBuilt = true;
 			}
 			SString sExitMessage(exitcode);
-			sExitMessage.insert(0, "\n>Exit code: ");
+			sExitMessage.insert(0, ">Exit code: ");
 			if (timeCommands) {
 				sExitMessage += "    Time: ";
 				sExitMessage += SString(commandTime.Duration(), 3);
