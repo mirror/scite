@@ -645,6 +645,7 @@ NameError: mistake
                <tr><td>SelectionStartLine</td><td>line where selection starts</td></tr>
                <tr><td>SelectionEndColumn</td><td>column where selection ends</td></tr>
                <tr><td>SelectionEndLine</td><td>line where selection ends</td></tr>
+               <tr><td>CurrentMessage</td><td>most recently selected output pane message</td></tr>
                <tr><td>SciteDefaultHome</td><td>directory in which the Global Options file is found</td></tr>
                <tr><td>SciteUserHome</td><td>directory in which the User Options file is found</td></tr>
         </table>
@@ -1198,6 +1199,19 @@ NameError: mistake
           The error.marker.back is used as the fill colour of the symbol and the error.marker.fore
           as the outline colour. If there is no margin then the background to the line is set to the
           error.marker.back colour.
+        </td>
+       </tr>
+       <tr>
+        <td>
+          error.select.line
+        </td>
+        <td>
+          When a command execution produces error messages, and you step with F4 key through
+          the matching source lines, this option selects the line where the error occurs.
+          Most useful if the error message contains the column of error too as the selection will
+          start at the column of the error. The error message must contain the column and must be
+          understood by SciTE (currently only supported for HTML Tidy). The tab size assumed by
+          the external tool must match the tab size of your source file for correct column reporting.
         </td>
        </tr>
        <tr>
