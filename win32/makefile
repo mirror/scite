@@ -43,7 +43,7 @@ PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
-..\bin\others.properties \
+..\bin\nncrontab.properties ..\bin\others.properties \
 ..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
 ..\bin\sql.properties ..\bin\tcl.properties ..\bin\vb.properties
 
@@ -51,7 +51,7 @@ LEXPROPS=\
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
-..\bin\others.properties \
+..\bin\nncrontab.properties ..\bin\others.properties \
 ..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties \
 ..\bin\python.properties ..\bin\sql.properties ..\bin\tcl.properties \
 ..\bin\vb.properties
@@ -91,6 +91,8 @@ deps:
 ..\bin\lisp.properties:	..\src\lisp.properties
 	copy $^ $@
 ..\bin\lua.properties:	..\src\lua.properties
+	copy $^ $@
+..\bin\nncrontab.properties:	..\src\nncrontab.properties
 	copy $^ $@
 ..\bin\others.properties:	..\src\others.properties
 	copy $^ $@
