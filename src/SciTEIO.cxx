@@ -488,7 +488,7 @@ void SciTEBase::OpenSelected() {
 	if (Exists(path, selectedFilename, path)) {
 		if (Open(path, false)) {
 			if (lineNumber > 0) {
-				SendEditor(SCI_GOTOLINE, lineNumber);
+				SendEditor(SCI_GOTOLINE, lineNumber - 1);
 			} else if (cTag[0] != '\0') {
 				strcpy(findWhat, cTag);
 				FindNext(false);
