@@ -2,7 +2,7 @@
 /** @file SciTEProps.cxx
  ** Properties management.
  **/
-// Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -682,6 +682,10 @@ static const char *propertiesToForward[] = {
 void SciTEBase::ReadProperties() {
 	SString fileNameForExtension = ExtensionFileName();
 
+	SString modulePath = props.GetNewExpand("lexerpath.",
+	    fileNameForExtension.c_str());
+	if (modulePath.length())
+	    SendEditorString(SCI_LOADLEXERLIBRARY, 0, modulePath.c_str());
 	language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	if (language.length())
 	    SendEditorString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
