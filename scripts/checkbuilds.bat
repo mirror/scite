@@ -8,6 +8,7 @@ rem
 cd ..\..
 set
 set BORLAND_BASE=G:\Borland\bcc55
+set MSDEV_BASE=C:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
 rem 
 rem Target 1: Normal gcc build
 call scite\scripts\clearboth
@@ -49,6 +50,7 @@ rem
 rem Target 4: Visual C++ using scite\vcbuild\scite.dsp
 call scite\scripts\clearboth
 cd scintilla\vcbuild
+path %MSDEV_BASE%;%path%
 msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
@@ -81,4 +83,5 @@ goto CLEANUP
 set SAVE_PATH=
 set SAVE_INCLUDE=
 set BORLAND_BASE=
+set MSDEV_BASE=
 set
