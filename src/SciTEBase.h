@@ -105,6 +105,7 @@ class Buffer : public RecentFile {
 public:
 	int doc;
 	bool isDirty;
+	time_t fileModTime;
 	SString overrideExtension;
 	Buffer() : RecentFile(), doc(0), isDirty(false) { 
 	}
@@ -130,7 +131,7 @@ public:
 };
 
 enum JobSubsystem { 
-	jobCLI=0, jobGUI=1, jobShell=2, jobExtension=3, jobHelp=4};
+	jobCLI=0, jobGUI=1, jobShell=2, jobExtension=3, jobHelp=4, jobOtherHelp=5};
 class Job {
 public:
 	SString command;
@@ -152,10 +153,11 @@ enum {
 
 // warning IDs, here they are also sound frequencies
 enum {
-	warnFindWrapped = 220,
-	warnWrongFile = 110,
-	warnExecuteOK = 440,
-	warnExecuteKO = 330
+	warnFindWrapped = 1,
+	warnNoOtherBookmark,
+	warnWrongFile,
+	warnExecuteOK,
+	warnExecuteKO
 };
 
 struct StyleAndWords {
@@ -315,7 +317,7 @@ protected:
 	bool FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy);
 	void BraceMatch(bool editor);
 
-	virtual void WarnUser(const int warnID)=0;
+	virtual void WarnUser(int warnID)=0;
 	void SetWindowName();
 	void SetFileName(const char *openName, bool fixCase= true);
 	void ClearDocument();
@@ -360,6 +362,7 @@ protected:
 	CharacterRange GetSelection();
 	void SetSelection(int anchor, int currentPos);
 //	void SelectionExtend(char *sel, int len, char *notselchar);
+	void GetCTag(char *sel, int len);
 	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch));
 	void SelectionWord(char *word, int len);
 	void SelectionFilename(char *filename, int len);
@@ -451,6 +454,7 @@ protected:
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);
 	SString ExtensionFileName();
+	char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	virtual void ReadProperties();
 	void SetOneStyle(Window &win, int style, const char *s);
 	void SetStyleFor(Window &win, const char *language);

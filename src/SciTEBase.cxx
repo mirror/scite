@@ -496,6 +496,55 @@ void SciTEBase::SetSelection(int anchor, int currentPos) {
 	SendEditor(SCI_SETSEL, anchor, currentPos);
 }
 
+void SciTEBase::GetCTag(char *sel, int len) {
+	int lengthDoc, selStart, selEnd;
+	int mustStop = 0;
+	char c;
+	Window wCurrent;
+
+	if (wEditor.HasFocus())
+		wCurrent = wEditor;
+	else
+		wCurrent = wOutput;
+	lengthDoc = SendFocused(SCI_GETLENGTH);
+	selStart = selEnd = SendFocused(SCI_GETSELECTIONEND);
+	WindowAccessor acc(wCurrent.GetID(), props);
+	while (!mustStop) {
+		if (selStart < lengthDoc - 1) {
+			selStart++;
+			c = acc[selStart];
+			if (c == '\r' || c == '\n') {
+				mustStop = -1;
+			} else if (c == '\t') {
+				mustStop = 1;
+			}
+		} else {
+			mustStop = -1;
+		}
+	}
+	if (mustStop == 1 && (acc[selStart + 1] == '/' && acc[selStart + 2] == '^')) {	// Found
+		selEnd = selStart += 3;
+		mustStop = 0;
+		while (!mustStop) {
+			if (selEnd < lengthDoc - 1) {
+				selEnd++;
+				c = acc[selEnd];
+				if (c == '\r' || c == '\n') {
+					mustStop = -1;
+				} else if (c == '$' && acc[selEnd + 1] == '/') {
+					mustStop = 1;	// Found!
+				}
+			} else {
+				mustStop = -1;
+			}
+		}
+	}
+	sel[0] = '\0';
+	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
+		GetRange(wCurrent, selStart, selEnd, sel);
+	}
+}
+
 // Should also use word.characters.*, if exists, in the opposite way (in set instead of not in set)
 static bool iswordcharforsel(char ch) {
 	return !strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch);
@@ -506,7 +555,7 @@ static bool iswordcharforsel(char ch) {
 // Accept path separators '/' and '\', extension separator '.', and ':', MS drive unit
 // separator, and also used for separating the line number for grep. Same for '(' and ')' for cl.
 static bool isfilenamecharforsel(char ch) {
-	return !strchr("\t\n\r !\"#$%&'*,;<>?@[]^`{|}", ch);
+	return !strchr("\t\n\r \"#$%'*,;<>?@[]^`{|}", ch);
 }
 
 void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch)) {
@@ -764,8 +813,8 @@ void SciTEBase::BookmarkNext() {
 	int nextLine = SendEditor(SCI_MARKERNEXT, lineno + 1, 1 << SciTE_MARKER_BOOKMARK);
 	if (nextLine < 0)
 		nextLine = SendEditor(SCI_MARKERNEXT, 0, 1 << SciTE_MARKER_BOOKMARK);
-	if (nextLine < 0 || nextLine == lineno)
-		; // how do I beep?
+	if (nextLine < 0 || nextLine == lineno)	// No bookmark (of the given type) or only one, and already on it
+		WarnUser(warnNoOtherBookmark);
 	else {
 		GotoLineEnsureVisible(nextLine);
 	}
