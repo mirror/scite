@@ -313,12 +313,12 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "Version 1.43\n", 1);
+		AddStyledText(wsci, "Version 1.44\n", 1);
 		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "December 1998-January 2002.\n", 3);
+		AddStyledText(wsci, "December 1998-February 2002.\n", 3);
 		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		SString translator = LocaliseString("TranslationCredit", false);
@@ -327,19 +327,19 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 			AddStyledText(wsci, "\n", 1);
 		}
 		AddStyledText(wsci, LocaliseString("Contributors:").c_str(), 1);
-		AddStyledText(wsci, "\n", 1);
+		//AddStyledText(wsci, "\n", 1);
 		srand(static_cast<unsigned>(time(0)));
 		int r = rand() % 256;
 		int g = rand() % 256;
 		int b = rand() % 256;
 		for (unsigned int co = 0;co < (sizeof(contributors) / sizeof(contributors[0]));co++) {
+			AddStyledText(wsci, "\n", 50 + co);
 			HackColour(r);
 			HackColour(g);
 			HackColour(b);
 			SetAboutStyle(wsci, 50 + co, ColourDesired(r, g, b));
 			AddStyledText(wsci, "    ", 50 + co);
 			AddStyledText(wsci, contributors[co], 50 + co);
-			AddStyledText(wsci, "\n", 50 + co);
 		}
 		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
 	}
