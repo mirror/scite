@@ -510,7 +510,7 @@ protected:
 	void MoveSplit(Point ptNewDrag);
 
 	void UIAvailable();
-	void PerformOne(const char *action);
+	void PerformOne(char *action);
 	void StartRecordMacro();
 	void StopRecordMacro();
 	void StartPlayMacro();

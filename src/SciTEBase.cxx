@@ -2356,8 +2356,55 @@ char AfterName(const char *s) {
 	return *s;
 }
 
-void SciTEBase::PerformOne(const char *action) {
-	const char *arg = strchr(action, ':');
+/**
+ * Is the character an octal digit.
+ */
+static bool IsOctalDigit(char ch) {
+	return ch >= '0' && ch <= '7';
+}
+
+/**
+ * Convert C style \nnn, \r, \n, \t into their indicated characters
+ */
+static void UnSlash(char *s) {
+	char *o=s;
+	while (*s) {
+		if (*s == '\\') {
+			s++;
+			if (*s == 'r') {
+				*o = '\r';
+			} else if (*s == 'n') {
+				*o = '\n';
+			} else if (*s == 't') {
+				*o = '\t';
+			} else if (IsOctalDigit(*s)) {
+				int val = *s - '0';
+				if (IsOctalDigit(*(s+1))) {
+					s++;
+					val *= 8;
+					val += *s - '0';
+					if (IsOctalDigit(*(s+1))) {
+						s++;
+						val *= 8;
+						val += *s - '0';
+					}
+				}
+				*o = val;
+			} else {
+				*o = *s;
+			}
+		} else {
+			*o = *s;
+		}
+		o++;
+		s++;
+	}
+	*o = '\0';
+}
+
+void SciTEBase::PerformOne(char *action) {
+	UnSlash(action);
+	char *arg = strchr(action, ':');
 	if (arg) {
 		arg++;
 		if (isprefix(action, "open:")) {
@@ -2380,6 +2427,17 @@ void SciTEBase::PerformOne(const char *action) {
 			ExecuteMacroCommand(arg);
 		} else if (isprefix(action, "askfilename:")) {
 			extender->OnMacro("filename", fullPath);
+		} else if (isprefix(action, "insert:")) {
+			SendEditorString(SCI_REPLACESEL, 0, arg);
+		} else if (isprefix(action, "replaceall:")) {
+			char *tab = strchr(arg, '\t');
+			if (tab) {
+				*tab = '\0';
+				tab++;
+				strcpy(findWhat, arg);
+				strcpy(replaceWhat, tab);
+				ReplaceAll();
+			}
 		}
 	}
 }
@@ -2742,13 +2800,16 @@ void SciTEBase::ShutDown() {
 	QuitProgram();
 }
 
-void SciTEBase::Perform(const char *actions) {
-	const char *nextAct;
+void SciTEBase::Perform(const char *actionList) {
+	char *actionsDup = StringDup(actionList);
+	char *actions = actionsDup;
+	char *nextAct;
 	while ((nextAct = strchr(actions, '\n')) != NULL) {
-		SString command(actions, 0, nextAct - actions);
-		PerformOne(command.c_str());
+		*nextAct = '\0';
+		PerformOne(actions);
 		actions = nextAct + 1;
 	}
 	PerformOne(actions);
+	delete []actionsDup;
 }
 
