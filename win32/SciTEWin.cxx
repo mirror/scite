@@ -1561,6 +1561,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 
 	SciTEWin::Register(hInstance);
 #ifdef STATIC_BUILD
+	Scintilla_LinkLexers();
 	Scintilla_RegisterClasses(hInstance);
 #else
 	HMODULE hmod = ::LoadLibrary("SciLexer.DLL");
