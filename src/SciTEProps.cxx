@@ -538,6 +538,14 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 
+	colour = props.Get("caret.line.back");
+	if (colour.length()) {
+		SendEditor(SCI_SETCARETLINEVISIBLE, 1);
+		SendEditor(SCI_SETCARETLINEBACK, ColourFromString(colour.c_str()).AsLong());
+	} else {
+		SendEditor(SCI_SETCARETLINEVISIBLE, 0);
+	}
+	
 	colour = props.Get("calltip.back");
 	if (colour.length()) {
 		SendEditor(SCI_CALLTIPSETBACK, ColourFromString(colour.c_str()).AsLong());
