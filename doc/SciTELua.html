@@ -70,6 +70,25 @@ event handler will return false.  Remember that, in Lua, the only
 non-true values are <tt>false</tt> and <tt>nil</tt>.  Unlike in C++, Python and many
 other languages, 0 evaluates to <tt>true</tt>.
 </p><p>
+There is one additional event handler, <tt>OnClear</tt>, that is not
+expressly defined in the Extension interface, but is exposed to Lua.
+Whenever SciTE re-reads the properties (which occurs every time you
+switch buffers or open a new file, but can also occur at other times),
+the Lua Extension removes any globals that were created since the last
+time properties were read, and restores any globals that were
+overwritten. Then, if the startup script defines a function
+<tt>OnClear</tt>, that function will be called so that scripts have a
+chance to clean up other changes they might have made outside of the
+Lua global scope (e.g. dynamic properties modified through the props
+object; see below) and/or to tailor the Lua environment according to
+local properties for the current buffer.
+</p><p>
+After this, SciTE reads the properties and ultimately loads the
+extension script, if one is defined.  However, at the time when the
+<tt>OnClear</tt> event fires, the extension script is not yet loaded.
+Thus, <tt>OnClear</tt> can only be defined in the startup script,
+not in an extension script.
+</p><p>
 In addition to event handlers, you can also use define new commands
 that are available through the Tools menu or through keyboard shortcuts.
 To specify that a command that will be handled by Lua, specify
