@@ -143,7 +143,7 @@ protected:
 	static void IOSignal(SciTEGTK *scitew);
 
 	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
-	static void QuitSignal(GtkWidget *w, SciTEGTK *scitew);
+	static gint QuitSignal(GtkWidget *w, GdkEventAny *e, SciTEGTK *scitew);
 	static void ButtonSignal(GtkWidget *widget, gpointer data);
 	static void MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *w);
 	static void CommandSignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
@@ -1075,8 +1075,13 @@ gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation * /*allocation*/, SciTEGTK 
 	return TRUE;
 }
 
-void SciTEGTK::QuitSignal(GtkWidget *, SciTEGTK *scitew) {
-	scitew->Command(IDM_QUIT);
+gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
+	if (scitew->SaveIfUnsureAll() != IDCANCEL) {
+		gtk_exit(0);
+	}
+	// No need to return FALSE for quit as gtk_exit will have been called
+	// if needed.
+	return TRUE;	
 }
 
 void SciTEGTK::ButtonSignal(GtkWidget *, gpointer data) {
@@ -1315,7 +1320,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Edit/_Copy", "<control>C", menuSig, IDM_COPY, 0},
 	    {"/Edit/_Paste", "<control>V", menuSig, IDM_PASTE, 0},
 	    {"/Edit/_Delete", "Del", menuSig, IDM_CLEAR, 0},
-	    {"/Edit/Select _All", "", menuSig, IDM_SELECTALL, 0},
+	    {"/Edit/Select _All", "<control>A", menuSig, IDM_SELECTALL, 0},
 	    {"/Edit/sep2", NULL, NULL, 0, "<Separator>"},
 	    {"/Edit/_Find...", "<control>F", menuSig, IDM_FIND, 0},
 	    {"/Edit/Find _Next", "F3", menuSig, IDM_FINDNEXT, 0},
@@ -1444,7 +1449,7 @@ void SciTEGTK::Run(const char *cmdLine) {
 	                      | GDK_BUTTON_PRESS_MASK
 	                      | GDK_BUTTON_RELEASE_MASK
 	                     );
-	gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "destroy",
+	gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "delete_event",
 	                   GTK_SIGNAL_FUNC(QuitSignal), gthis);
 
 	gtk_window_set_title(GTK_WINDOW(wSciTE.GetID()), appName);
