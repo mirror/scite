@@ -183,6 +183,10 @@ SOURCE=..\..\scintilla\src\LexEiffel.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexFortran.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexHTML.cxx
 # End Source File
 # Begin Source File
