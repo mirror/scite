@@ -41,7 +41,7 @@
 #define IDM_ENCODING_UCS2LE	152
 #define IDM_ENCODING_UTF8	153
 
-#define MRU_START	10
+#define MRU_START	16
 #define IMPORT_START 18
 #define TOOLS_START 3
 
