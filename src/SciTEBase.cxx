@@ -1132,7 +1132,8 @@ bool SciTEBase::SaveAs(char *file) {
 		SetFileName(file);
 		Save();
 		ReadProperties();
-		Colourise();   	// In case extension was changed
+		SendEditor(SCI_COLOURISE, 0, -1);
+		//Colourise();   	// In case extension was changed
 		Redraw();
 		SetWindowName();
 		return true;
@@ -1142,7 +1143,8 @@ bool SciTEBase::SaveAs(char *file) {
 }
 
 void SciTEBase::SaveToHTML(const char *saveName) {
-	Colourise();   	// Ensure whole file styled
+	SendEditor(SCI_COLOURISE, 0, -1);
+	//Colourise();   	// Ensure whole file styled
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;
@@ -2229,7 +2231,8 @@ void SciTEBase::Expand(int &line, bool doExpand, bool force, int visLevels, int 
 }
 
 void SciTEBase::FoldAll() {
-	Colourise();
+	SendEditor(SCI_COLOURISE, 0, -1);
+	//Colourise();
 	int maxLine = SendEditor(EM_GETLINECOUNT);
 	bool expanding= true;
 	for (int lineSeek = 0; lineSeek < maxLine; lineSeek++) {
@@ -2302,12 +2305,12 @@ void SciTEBase::Notify(SCNotification *notification) {
 				int endStyled = SendEditor(SCI_GETENDSTYLED);
 				int lineEndStyled = SendEditor(EM_LINEFROMCHAR, endStyled);
 				endStyled = SendEditor(EM_LINEINDEX, lineEndStyled);
-				Colourise(endStyled, notification->position);
+				//Colourise(endStyled, notification->position);
 			} else {
 				int endStyled = SendOutput(SCI_GETENDSTYLED);
 				int lineEndStyled = SendOutput(EM_LINEFROMCHAR, endStyled);
 				endStyled = SendOutput(EM_LINEINDEX, lineEndStyled);
-				Colourise(endStyled, notification->position, false);
+				//Colourise(endStyled, notification->position, false);
 			}
 		}
 		break;
