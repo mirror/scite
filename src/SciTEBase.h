@@ -24,15 +24,18 @@ const char propUserFileName[] = "SciTEUser.properties";
 class RecentFile {
 public:
 	SString fileName;
-	int lineNumber;
+	CHARRANGE selection;
 	int scrollPosition;
 	RecentFile() {
-		lineNumber = -1;
+		fileName = "";
+		selection.cpMin = INVALID_POSITION;
+		selection.cpMax = INVALID_POSITION;
 		scrollPosition = 0;
 	}
 	void Init() {
 		fileName = "";
-		lineNumber = -1;
+		selection.cpMin = INVALID_POSITION;
+		selection.cpMax = INVALID_POSITION;
 		scrollPosition = 0;
 	}
 };
@@ -81,7 +84,7 @@ typedef EntryMemory<10> ComboMemory;
 enum { 
 	heightTools = 28, 
 	heightStatus = 20, 
-	statusPosWidth = 140
+	statusPosWidth = 160
 };
 
 struct StyleAndWords {
@@ -242,6 +245,7 @@ protected:
 	void OpenProperties(int propsFile);
 	virtual void Print() {};
 	virtual void PrintSetup() {};
+	CHARRANGE GetSelection();
 	void SetSelection(int anchor, int currentPos);
 	void SelectionIntoProperties();
 	void SelectionIntoFind();
@@ -305,9 +309,9 @@ protected:
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	void DropFileStackTop();
-	void AddFileToStack(const char *file, int line = -1, int scrollPos=0);
-    void RemoveFileFromStack(const char *file);
-	void DisplayAround(int scrollPosition, int lineNumber);
+	void AddFileToStack(const char *file, CHARRANGE selection, int scrollPos);
+	void RemoveFileFromStack(const char *file);
+	void DisplayAround(const RecentFile &rf);
 	void StackMenu(int pos);
 	void StackMenuNext();
 	void StackMenuPrev();

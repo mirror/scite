@@ -302,14 +302,14 @@ void SciTEBase::SetDocumentAt(int index) {
 
 	buffers.current = index;
 
-	overrideExtension = buffers.buffers[buffers.current].overrideExtension;
-	isDirty = buffers.buffers[buffers.current].isDirty;
-	SetFileName(buffers.buffers[buffers.current].fileName.c_str());
+	Buffer bufferNext = buffers.buffers[buffers.current];
+	overrideExtension = bufferNext.overrideExtension;
+	isDirty = bufferNext.isDirty;
+	SetFileName(bufferNext.fileName.c_str());
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
 	ReadProperties();
-	DisplayAround(buffers.buffers[buffers.current].scrollPosition,
-	              buffers.buffers[buffers.current].lineNumber);
+	DisplayAround(bufferNext);
 
 	CheckMenus();
 }
@@ -317,7 +317,7 @@ void SciTEBase::SetDocumentAt(int index) {
 void SciTEBase::UpdateBuffersCurrent() {
 	if ((buffers.length > 0) && (buffers.current >= 0)) {
 		buffers.buffers[buffers.current].fileName = fullPath;
-		buffers.buffers[buffers.current].lineNumber = GetCurrentLineNumber();
+		buffers.buffers[buffers.current].selection = GetSelection();
 		buffers.buffers[buffers.current].scrollPosition = GetCurrentScrollPosition();
 		buffers.buffers[buffers.current].isDirty = isDirty;
 		buffers.buffers[buffers.current].overrideExtension = overrideExtension;
@@ -400,8 +400,9 @@ void SciTEBase::Close() {
 		StackMenu(0);
 	} else {
 		if (buffers.current >= 0 && buffers.current < buffers.length) {
-			Buffer *buff = &buffers.buffers[buffers.current];
-			AddFileToStack(buff->fileName.c_str(), buff->lineNumber, buff->scrollPosition);
+			UpdateBuffersCurrent();
+			Buffer buff = buffers.buffers[buffers.current];
+			AddFileToStack(buff.fileName.c_str(), buff.selection, buff.scrollPosition);
 		}
 		bool closingLast = buffers.length == 1;
 		if (closingLast) {
@@ -409,17 +410,17 @@ void SciTEBase::Close() {
 		} else {
 			buffers.RemoveCurrent();
 		}
-		overrideExtension = buffers.buffers[buffers.current].overrideExtension;
-		isDirty = buffers.buffers[buffers.current].isDirty;
-		SetFileName(buffers.buffers[buffers.current].fileName.c_str());
+		Buffer bufferNext = buffers.buffers[buffers.current];
+		overrideExtension = bufferNext.overrideExtension;
+		isDirty = bufferNext.isDirty;
+		SetFileName(bufferNext.fileName.c_str());
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 		if (closingLast) {
 			ClearDocument();
 		}
 		SetWindowName();
 		ReadProperties();
-		DisplayAround(buffers.buffers[buffers.current].scrollPosition,
-			buffers.buffers[buffers.current].lineNumber);
+		DisplayAround(bufferNext);
 	}
 	BuffersMenu();
 }
@@ -559,7 +560,7 @@ void SciTEBase::DropFileStackTop() {
 	SetFileStackMenu();
 }
 
-void SciTEBase::AddFileToStack(const char *file, int line, int scrollPos) {
+void SciTEBase::AddFileToStack(const char *file, CHARRANGE selection, int scrollPos) {
 	if (!file)
 		return;
 	DeleteFileStackMenu();
@@ -573,7 +574,7 @@ void SciTEBase::AddFileToStack(const char *file, int line, int scrollPos) {
 		for (stackPos = eqPos; stackPos > 0; stackPos--)
 			recentFileStack[stackPos] = recentFileStack[stackPos - 1];
 		recentFileStack[0].fileName = file;
-		recentFileStack[0].lineNumber = line;
+		recentFileStack[0].selection = selection;
 		recentFileStack[0].scrollPosition = scrollPos;
 	}
 	SetFileStackMenu();
@@ -595,12 +596,15 @@ void SciTEBase::RemoveFileFromStack(const char *file) {
 	SetFileStackMenu();
 }
 
-void SciTEBase::DisplayAround(int scrollPosition, int lineNumber) {
-	if (lineNumber != -1) {
-		SendEditor(SCI_ENSUREVISIBLE, lineNumber);
-		int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, scrollPosition);
+void SciTEBase::DisplayAround(const RecentFile &rf) {
+	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
+		int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
 		SendEditor(EM_LINESCROLL, 0, lineTop);
-		SendEditor(SCI_GOTOLINE, lineNumber);
+		int lineStart = SendEditor(EM_LINEFROMCHAR, rf.selection.cpMin);
+		SendEditor(SCI_ENSUREVISIBLE, lineStart);
+		int lineEnd = SendEditor(EM_LINEFROMCHAR, rf.selection.cpMax);
+		SendEditor(SCI_ENSUREVISIBLE, lineEnd);
+		SetSelection(rf.selection.cpMax, rf.selection.cpMin);
 	}
 }
 
@@ -639,17 +643,17 @@ void SciTEBase::StackMenuPrev() {
 void SciTEBase::StackMenu(int pos) {
 	//Platform::DebugPrintf("Stack menu %d\n", pos);
 	if (pos >= 0) {
-        if ((pos == 0) && (recentFileStack[pos].fileName[0] == '\0')) {	// Empty
-    		New();
-        	SetWindowName();
-	    	ReadProperties();
+		if ((pos == 0) && (recentFileStack[pos].fileName[0] == '\0')) {	// Empty
+			New();
+			SetWindowName();
+			ReadProperties();
 		} else if (recentFileStack[pos].fileName[0] != '\0') {
-			int line = recentFileStack[pos].lineNumber;
-			int scrollPosition = recentFileStack[pos].scrollPosition;
+			RecentFile rf = recentFileStack[pos];
 			//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
-			SString fileNameCopy = recentFileStack[pos].fileName;
-			Open(fileNameCopy.c_str());
-			DisplayAround(scrollPosition, line);
+			overrideExtension = "";
+			isDirty = false;
+			Open(rf.fileName.c_str());
+			DisplayAround(rf);
 		}
 	}
 }
@@ -1332,8 +1336,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 	}
 	
 	if (buffers.size == buffers.length) {
-		AddFileToStack(fullPath,GetCurrentLineNumber(),
-			GetCurrentScrollPosition());
+		AddFileToStack(fullPath, GetSelection(), GetCurrentScrollPosition());
 		ClearDocument();
 	} else {
 		New();
@@ -1351,7 +1354,6 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 
 		fileModTime = GetModTime(fullPath);
 
-		//AddFileToStack(fullPath);
 		FILE *fp = fopen(fullPath, "rb");
 		if (fp || initialCmdLine) {
 			if (fp) {
@@ -1482,8 +1484,6 @@ bool SciTEBase::Save() {
 		FILE *fp = fopen(fullPath, "wb");
 		if (fp) {
 			char data[blockSize + 1];
-			//AddFileToStack(fullPath, GetCurrentLineNumber(),
-			//               GetCurrentScrollPosition());
 			int lengthDoc = LengthDocument();
 			for (int i = 0; i < lengthDoc; i += blockSize) {
 				int grabSize = lengthDoc - i;
@@ -1721,6 +1721,12 @@ void SciTEBase::OpenProperties(int propsFile) {
 	}
 }
 
+CHARRANGE SciTEBase::GetSelection() {
+	CHARRANGE crange;
+	SendEditor(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+	return crange;
+}
+
 void SciTEBase::SetSelection(int anchor, int currentPos) {
 	CHARRANGE crange;
 	crange.cpMin = anchor;
@@ -1733,23 +1739,19 @@ static bool iswordcharforsel(char ch) {
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	int selStart = 0;
-	int selEnd = 0;
-	SendEditor(EM_GETSEL, reinterpret_cast<WPARAM>(&selStart),
-	           reinterpret_cast<LPARAM>(&selEnd));
+	CHARRANGE cr = GetSelection();
 	char currentSelection[1000];
-	if ((selStart < selEnd) && ((selEnd - selStart + 1) < static_cast<int>(sizeof(currentSelection)))) {
-		GetRange(wEditor, selStart, selEnd, currentSelection);
+	if ((cr.cpMin < cr.cpMax) && ((cr.cpMax - cr.cpMin + 1) < static_cast<int>(sizeof(currentSelection)))) {
+		GetRange(wEditor, cr.cpMin, cr.cpMax, currentSelection);
 		props.Set("CurrentSelection", currentSelection);
 	}
 }
 
 void SciTEBase::SelectionIntoFind() {
-	int selStart = 0;
-	int selEnd = 0;
 	int lengthDoc = LengthDocument();
-	SendEditor(EM_GETSEL, reinterpret_cast<WPARAM>(&selStart),
-	           reinterpret_cast<LPARAM>(&selEnd));
+	CHARRANGE cr = GetSelection();
+	int selStart = cr.cpMin;
+	int selEnd = cr.cpMax;
 	if (selStart == selEnd) {
 		WindowAccessor acc(wEditor.GetID(), props);
 		// Try and find a word at the caret
@@ -1774,8 +1776,7 @@ void SciTEBase::FindNext() {
 		return;
 	}
 	FINDTEXTEX ft = {{0, 0}, 0, {0, 0}};
-	CHARRANGE crange;
-	SendEditor(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+	CHARRANGE crange = GetSelection();
 	if (reverseFind) {
 		ft.chrg.cpMin = crange.cpMin - 1;
 		ft.chrg.cpMax = 0;
@@ -2224,8 +2225,7 @@ void SciTEBase::StartAutoComplete() {
 }
 
 int SciTEBase::GetCurrentLineNumber() {
-	CHARRANGE crange;
-	SendEditor(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+	CHARRANGE crange = GetSelection();
 	int selStart = crange.cpMin;
 	return SendEditor(EM_LINEFROMCHAR, selStart);
 }
@@ -2240,9 +2240,9 @@ void SciTEBase::UpdateStatusBar() {
 		SString msg;
 		int caretPos = SendEditor(SCI_GETCURRENTPOS);
 		int caretLine = SendEditor(EM_LINEFROMCHAR, caretPos);
-		int caretLineStart = SendEditor(EM_LINEINDEX, caretLine);
+		int caretColumn = SendEditor(SCI_GETCOLUMN, caretPos);
 		msg = "Column=";
-		msg += SString(caretPos - caretLineStart + 1).c_str();
+		msg += SString(caretColumn + 1).c_str();
 		msg += "    Line=";
 		msg += SString(caretLine + 1).c_str();
 		if (!(sbValue == msg)) {
@@ -2357,8 +2357,7 @@ int SciTEBase::GetIndentState(int line) {
 }
 
 void SciTEBase::AutomaticIndentation(char ch) {
-	CHARRANGE crange;
-	SendEditor(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+	CHARRANGE crange = GetSelection();
 	int selStart = crange.cpMin;
 	int curLine = GetCurrentLineNumber();
 	int thisLineStart = SendEditor(EM_LINEINDEX, curLine);
@@ -2415,8 +2414,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 // Upon a character being added, SciTE may decide to perform some action
 // such as displaying a completion list.
 void SciTEBase::CharAdded(char ch) {
-	CHARRANGE crange;
-	SendEditor(EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&crange));
+	CHARRANGE crange = GetSelection();
 	int selStart = crange.cpMin;
 	int selEnd = crange.cpMax;
 	if ((selEnd == selStart) && (selStart > 0)) {
