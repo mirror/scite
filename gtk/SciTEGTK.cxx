@@ -1073,6 +1073,7 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 				      NULL);
 		g_object_set(dlg, "show-hidden", TRUE, NULL);
 		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dlg), TRUE);
+		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
 		SString openFilter;
 		if (filter)
 			openFilter = filter;
