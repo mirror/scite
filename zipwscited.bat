@@ -7,6 +7,7 @@ copy scite\bin\SciTE.pdb wscite
 copy scite\bin\SciLexer.dll wscite
 copy scite\bin\SciLexer.pdb wscite
 copy scite\src\*.properties wscite
+copy scite\lua\COPYRIGHT wscite\luaCOPYRIGHT
 del/q wscite\Embedded.properties
 copy scite\doc\*.html wscite
 copy scite\doc\*.png wscite
