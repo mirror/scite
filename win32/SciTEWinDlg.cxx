@@ -849,10 +849,10 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		FindNext(reverseFind);
 	} else if (cmd == IDREPLACE) {
 		if (havefound) {
-			SendEditorString(SCI_REPLACESEL, 0, replaceWhat);
-			havefound = false;
+			ReplaceOnce();
+		} else {
+			FindNext(reverseFind);
 		}
-		FindNext(reverseFind);
 	} else if (cmd == IDREPLACEALL) {
 		ReplaceAll();
 	}

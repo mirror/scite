@@ -742,7 +742,11 @@ void SciTEBase::ReplaceOnce() {
 		strcpy(replaceTarget, replaceWhat);
 		if (!regExp && props.GetInt("escapes.in.find.replace"))
 			UnSlash(replaceTarget);
-		SendEditorString(SCI_REPLACESEL, 0, replaceTarget);
+		CharacterRange cr = GetSelection();
+		SendEditor(SCI_SETTARGETSTART, cr.cpMin);
+		SendEditor(SCI_SETTARGETEND, cr.cpMax);
+		int lenReplace = SendEditorString(SCI_REPLACETARGET, regExp, replaceTarget);
+		SetSelection(cr.cpMin + lenReplace, cr.cpMin);
 		havefound = false;
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
@@ -781,10 +785,8 @@ void SciTEBase::ReplaceAll() {
 		while (posFind != -1) {
 			SendEditor(SCI_SETTARGETSTART, ft.chrgText.cpMin);
 			SendEditor(SCI_SETTARGETEND, ft.chrgText.cpMax);
-			SendEditorString(SCI_REPLACETARGET, 0, replaceTarget);
-			endPosition = posFind + strlen(replaceTarget);
-			//SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
-			//SendEditorString(SCI_REPLACESEL, 0, replaceTarget);
+			int lenReplace = SendEditorString(SCI_REPLACETARGET, regExp, replaceTarget);
+			endPosition = posFind + lenReplace;
 			ft.chrg.cpMin = posFind + strlen(replaceTarget);
 			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(SCI_FINDTEXT, flags,
@@ -792,7 +794,7 @@ void SciTEBase::ReplaceAll() {
 		}
 		SetSelection(endPosition, endPosition);
 		SendEditor(SCI_ENDUNDOACTION);
-		FindMessageBox("bow");
+		//FindMessageBox("bow");
 	} else {
 		if (strlen(findWhat) >= 200)
 			findWhat[200-1] = '\0';
