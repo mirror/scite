@@ -400,6 +400,8 @@ BEGIN
 	VK_CANCEL, IDM_STOPEXECUTE,  VIRTKEY, CONTROL
 END
 
+IDR_CLOSEFILE BITMAP "closefile.bmp"
+
 //The embedded properties file is to allow a one file distribution of Sc1.EXE
 #ifdef STATIC_BUILD
 Embedded Properties Embedded.properties

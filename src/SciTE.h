@@ -208,4 +208,6 @@
 #define IDD_FIND			400
 #define IDD_REPLACE			401
 
+// Resource IDs
+#define IDR_CLOSEFILE 100
 #endif

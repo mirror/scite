@@ -81,6 +81,9 @@ void SciTEWin::Notify(SCNotification *notification) {
 			case IDM_SAVE:
 				pDispInfo->lpszText = "Save";
 				break;
+			case IDM_CLOSE:
+				pDispInfo->lpszText = "Close";
+				break;
 			case IDM_PRINT:
 				pDispInfo->lpszText = "Print";
 				break;
@@ -335,6 +338,7 @@ static BarButton bbs[] = {
     { STD_FILENEW, IDM_NEW },
     { STD_FILEOPEN, IDM_OPEN },
     { STD_FILESAVE, IDM_SAVE },
+    { 0, IDM_CLOSE },
     { -1, 0 },
     { STD_PRINT, IDM_PRINT },
     { -1, 0 },
@@ -432,9 +436,15 @@ void SciTEWin::Creation() {
 	::SendMessage(wToolBar.GetID(), TB_LOADIMAGES, IDB_STD_SMALL_COLOR,
 	              reinterpret_cast<LPARAM>(HINST_COMMCTRL));
 
+	TBADDBITMAP addbmp= { hInstance, IDR_CLOSEFILE };
+	::SendMessage(wToolBar.GetID(), TB_ADDBITMAP, 1, (LPARAM)&addbmp);
+
 	TBBUTTON tbb[ELEMENTS(bbs)];
 	for (unsigned int i = 0;i < ELEMENTS(bbs);i++) {
-		tbb[i].iBitmap = bbs[i].id;
+		if (bbs[i].cmd == IDM_CLOSE)
+			tbb[i].iBitmap = STD_PRINT + 1;
+		else
+			tbb[i].iBitmap = bbs[i].id;
 		tbb[i].idCommand = bbs[i].cmd;
 		tbb[i].fsState = TBSTATE_ENABLED;
 		if ( -1 == bbs[i].id)

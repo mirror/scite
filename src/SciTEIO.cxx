@@ -367,6 +367,8 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	overrideExtension = "";
 	ReadProperties();
 	UpdateBuffersCurrent();
+	if (tabVisible)	// Update tab visibility if the hide one mode is on
+		SizeSubWindows();
 
 	if (initialCmdLine) {
 		if (props.GetInt("save.recent", 0))

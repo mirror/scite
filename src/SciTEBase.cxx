@@ -194,6 +194,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	tbVisible = false;
 	sbVisible = false;
 	tabVisible = false;
+	tabHideOne = false;
 	tabMultiLine = false;
 	sbNum = 1;
 	visHeightTools = 0;

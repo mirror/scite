@@ -42,14 +42,16 @@ DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
-..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
+..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
+..\bin\others.properties \
 ..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
 ..\bin\sql.properties ..\bin\vb.properties
 
 LEXPROPS=\
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
-..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
+..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
+..\bin\others.properties \
 ..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties \
 ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties
 
@@ -84,6 +86,8 @@ deps:
 ..\bin\html.properties:	..\src\html.properties
 	copy $^ $@
 ..\bin\latex.properties:	..\src\latex.properties
+	copy $^ $@
+..\bin\lisp.properties:	..\src\lisp.properties
 	copy $^ $@
 ..\bin\lua.properties:	..\src\lua.properties
 	copy $^ $@
