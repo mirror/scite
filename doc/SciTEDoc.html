@@ -1564,7 +1564,9 @@ NameError: mistake
           tabsize<br />
 	  indent.size<br />
           use.tabs<br />
-	  use.tab.for.<i>filepattern</i>
+	  use.tab.for.<i>filepattern</i><br />
+	  tab.indents<br />
+	  backspace.unindents
         </td>
         <td>
           Sets the size of a tab as a multiple of the size of a space character in the style of the
@@ -1574,6 +1576,10 @@ NameError: mistake
 	  indentation is made up purely from space characters or from a mix of tabs and spaces
 	  using as many tabs as possible. The default use.tabs property can be overridden for
 	  files that match a pattern by a use.tab.characters.<i>filepattern</i> property.
+	  If tab.indents set then pressing tab within indentation whitespace indents by indent.size
+	  rather than inserting a tab character. If backspace.unindents then pressing backspace 
+	  within indentation whitespace unindents by indent.size rather than deleting the character 
+	  before the caret.
         </td>
       </tr>
       <tr>
