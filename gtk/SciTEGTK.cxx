@@ -1427,7 +1427,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	// Reverse
 	toggleReverse = gtk_check_button_new_with_label("");
 	GTK_WIDGET_UNSET_FLAGS(toggleReverse, GTK_CAN_FOCUS);
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleReverse)->child), "_Reverse Direction");
+	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleReverse)->child), "Re_verse Direction");
 	gtk_widget_add_accelerator(toggleReverse, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_table_attach(GTK_TABLE(table), toggleReverse, 0, 2, row, row + 1, opts, opts, 3, 0);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleReverse), reverseFind);

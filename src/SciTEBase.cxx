@@ -776,16 +776,23 @@ void SciTEBase::ReplaceAll() {
 	int posFind = SendEditor(SCI_FINDTEXT, flags,
 	                         reinterpret_cast<long>(&ft));
 	if (posFind != -1) {
+		int endPosition = ft.chrg.cpMin;
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
-			SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
-			SendEditorString(SCI_REPLACESEL, 0, replaceTarget);
+			SendEditor(SCI_SETTARGETSTART, ft.chrgText.cpMin);
+			SendEditor(SCI_SETTARGETEND, ft.chrgText.cpMax);
+			SendEditorString(SCI_REPLACETARGET, 0, replaceTarget);
+			endPosition = posFind + strlen(replaceTarget);
+			//SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
+			//SendEditorString(SCI_REPLACESEL, 0, replaceTarget);
 			ft.chrg.cpMin = posFind + strlen(replaceTarget);
 			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(SCI_FINDTEXT, flags,
 			                     reinterpret_cast<long>(&ft));
 		}
+		SetSelection(endPosition, endPosition);
 		SendEditor(SCI_ENDUNDOACTION);
+		FindMessageBox("bow");
 	} else {
 		if (strlen(findWhat) >= 200)
 			findWhat[200-1] = '\0';
