@@ -1273,7 +1273,6 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	free(words);
 	return true;
 }
-
 bool SciTEBase::StartExpandAbbreviation() {
 	char linebuf[1000];
 	int current = GetLine(linebuf, sizeof(linebuf));
@@ -1289,64 +1288,96 @@ bool SciTEBase::StartExpandAbbreviation() {
 	linebuf[current] = '\0';
 	const char *abbrev = linebuf + startword;
 	SString data = propsAbbrev.Get(abbrev);
-	int dataLength = data.length();
+		int dataLength = data.length();
 	if (dataLength == 0) {
 		return true; // returning if expanded abbreviation is empty
 	}
-
-	const char *expbuff = data.c_str();
+	char expbuf[1000];
+	strcpy(expbuf, data.c_str());
+	UnSlash(expbuf);
 	SString expanded(""); // parsed expanded abbreviation
 	int j = 0; // temporary variable for caret position counting
 	int caret_pos = -1; // caret position
-	//~ int line = 0; // counting lines in multiline abbreviations
+	int line = 0; // counting lines in multiline abbreviations
+	int line_before_caret = 0;
 	char c = '\0'; // current char
 	for (int i = 0; i < dataLength; i++) {
-		switch (c = expbuff[i]) {
-		case '|':
-			if (i < (dataLength - 1) && expbuff[i + 1] == '|') {
-				i++;
-				expanded += c;
-			} else {
-				if (caret_pos != -1) {
-					break;
+		switch(c = expbuf[i]) {
+			case '|':
+				if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
+					i++;
+					expanded += c;
+				} else {
+					if (caret_pos != -1) {
+						break;
+					}
+					caret_pos = j; // this is the caret position
 				}
-				caret_pos = j; // this is the caret position
-			}
-
-			break;
-		case '\\':
-			if (i < (dataLength - 1) && expbuff[i + 1] == 'n') {
-				i++;
-				//~ line++;
-				expanded += '\n';
-			} else {
+				break;
+			case '\n':
+				// we can't use tabs and spaces after '\n'
+				if (expbuf[i + 1] == '\t' || expbuf[i + 1] == ' ') {
+					SString error("Can't expand abbreviation \"");
+					error += abbrev;
+					error += "\"!\n";
+					error += "Don't use tabs and spaces after \'\\n\' symbol when defining abbreviations.";
+					MessageBox(wSciTE.GetID(),
+					error.c_str(),
+					"Expand Abbreviation Error", MB_OK | MB_ICONINFORMATION);
+					return true;
+				}
+				line++;
 				expanded += c;
-			}
-			break;
-			//~ case '\n':
-			//~ line++;
-			//~ expanded += (c);
-			//~ break;
-		default:
-			expanded += c;
-			break;
+				// counting newlines before caret position
+				if (caret_pos != -1)
+					break;
+				line_before_caret++;
+				break;
+			default:
+				expanded += c;
+				break;
 		}
 		j++;
 	}
+	// taking indent position from current line - to use with (auto)indent
+	int currentLineNumber = GetCurrentLineNumber();
+	int indent = GetLineIndentation(currentLineNumber);
+	SendEditor(SCI_BEGINUNDOACTION);
 	SendEditor(SCI_SETSEL, position - counter, position);
 	SendEditorString(SCI_REPLACESEL, 0, expanded.c_str());
-	if (caret_pos != -1) {
-		//~ SendEditor(SCI_SETSEL, position - counter + pos,
-		//~ position - counter + pos);
-		SendEditor(SCI_GOTOPOS, position - counter + caret_pos);
+	// indenting expanded abbreviation using previous line indent
+	// if there is empty line in expanded abbreviation it is indented twice!
+	if (line > 0) {
+		for(int i = 1; i <= line; i++) {
+			SetLineIndentation(currentLineNumber + i , indent);
+			int lineIndent = GetLineIndentPosition(currentLineNumber + i);
+			int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, currentLineNumber + i);
+			if (lineIndent == lineEnd) {
+				SetLineIndentation(currentLineNumber + i , indent + indentSize);
+			} else {
+				SetLineIndentation(currentLineNumber + i , indent);
+			}
+		}
+		// setting cursor after expanded abbreviation
+		if (caret_pos == -1) {
+		int curLine = GetCurrentLineNumber();
+		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, curLine);
+		SendEditor(SCI_GOTOPOS, lineEnd);
+		}
 	}
-	//~ if(line > 0) {
-	//~ int currentLineNumber = GetCurrentLineNumber();
-	//~ for(int i = 0; i < line; i++) {
-	//~ int indent = GetLineIndentation(currentLineNumber + i - 1);
-	//~ SetLineIndentation(currentLineNumber + i , indent);
-	//~ }
-	//~ }
+ 	if (caret_pos != -1) {
+ 		// calculating caret position _after_ (auto)indenting
+ 		int add_indent = 0;
+ 		int lineIndent = 0;
+ 		for(int i = 1; i <= line_before_caret; i++) {
+ 			lineIndent = GetLineIndentPosition(currentLineNumber + i);
+ 			int lineStart = SendEditor(SCI_POSITIONFROMLINE, currentLineNumber + i);
+			int difference = lineIndent - lineStart;
+ 			add_indent += difference;
+ 		}
+ 		SendEditor(SCI_GOTOPOS, position - counter + caret_pos + add_indent);
+ 	}
+	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
 
@@ -1372,9 +1403,12 @@ bool SciTEBase::StartBlockComment() {
 	int comment_length = comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+/* 	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
+* 	bool moveCaret = caretPosition < selectionEnd; */
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
+	int firstSelLineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
 	// "carret return" is part of the last selected line
 	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine))
 		selEndLine--;
@@ -1409,7 +1443,18 @@ bool SciTEBase::StartBlockComment() {
 			selectionStart += comment_length;
 		selectionEnd += comment_length; // every iteration
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment.c_str());
+/* 		SendEditor(SCI_SETCURRENTPOS, selectionEnd); // moving caret to the
+* 		// end of selection: if (moveCaret))  */
 	}
+/* 	if (moveCaret) {
+* 		SendEditor(SCI_SETCURRENTPOS, selectionStart);
+* 		SendEditor(SCI_ENDUNDOACTION);
+* 		return true;
+* 	} */
+	// after uncommenting selection may promote itself to the lines
+	// before the first initially selected line
+	if (selectionStart < firstSelLineStart)
+		selectionStart = firstSelLineStart;
 	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
 	SendEditor(SCI_ENDUNDOACTION);
 	return true;
@@ -1455,8 +1500,12 @@ bool SciTEBase::StartBoxComment() {
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
 	// "carret return" is part of the last selected line
-	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine))
+	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine)) {
 		selEndLine--;
+		lines--;
+		// get rid of CRLF problems
+		selectionEnd = SendEditor(SCI_GETLINEENDPOSITION, selEndLine);
+	}
 	SendEditor(SCI_BEGINUNDOACTION);
 	// first commented line (start_comment)
 	int lineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
@@ -1470,7 +1519,12 @@ bool SciTEBase::StartBoxComment() {
 	}
 	// last commented line (end_comment)
 	int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, selEndLine);
-	SendEditorString(SCI_INSERTTEXT, lineEnd, end_comment.c_str());
+	if (lines > 0) {
+		SendEditorString(SCI_INSERTTEXT, lineEnd, "\n");
+		SendEditorString(SCI_INSERTTEXT, lineEnd + 1, (end_comment.c_str() + 1));
+	} else {
+		SendEditorString(SCI_INSERTTEXT, lineEnd, end_comment.c_str());
+	}
 	selectionEnd += (start_comment_length);
 	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
 	SendEditor(SCI_ENDUNDOACTION);
