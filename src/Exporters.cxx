@@ -1245,7 +1245,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 	WindowAccessor acc(wEditor.GetID(), props);
 	bool styleIsUsed[STYLE_MAX + 1];
 
-	//int titleFullPath = props.GetInt("export.html.title.fullpath",0);
+	int titleFullPath = props.GetInt("export.tex.title.fullpath",0);
 
 	int i;
 	for (i = 0; i <= STYLE_MAX; i++) {
@@ -1283,7 +1283,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 		}
 
 		fputs("\\begin{document}\n\n", fp);
-		fprintf(fp, "Source file: %s\\\\\n", fileName /*fullPath*/);
+		fprintf(fp, "Source File: %s\\\n\\noindent\n", titleFullPath?fullPath:fileName);
 
 		int styleCurrent = acc.StyleAt(0);
 
@@ -1291,7 +1291,6 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 
 		for (i = 0; i < lengthDoc; i++) { //here process each character of the document
 			char ch = acc[i];
-			int x;
 			int style = acc.StyleAt(i);
 
 			if (style != styleCurrent) { //new style?
@@ -1301,8 +1300,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 
 			switch ( ch ) { //write out current character.
 			case '\t':
-				for (x = 0; x < tabSize; x++)
-					fputc(' ', fp);
+				fprintf(fp, "\\hskip %dem", tabSize);
 				break;
 			case '\\':
 				fputs("$\\backslash$", fp);
@@ -1349,6 +1347,13 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 					i++;
 				styleCurrent = acc.StyleAt(i + 1);
 				fprintf(fp, "} \\\\\n\\scite%s{", texStyle(styleCurrent) );
+				break;
+			case ' ':
+				if( acc[i+1] == ' ') {
+					fputs("\\hskip 1em", fp);
+				} else {
+					fputc(' ', fp);
+				}
 				break;
 			default:
 				fputc(ch, fp);
