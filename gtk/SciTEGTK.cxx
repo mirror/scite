@@ -1,6 +1,6 @@
 // SciTE - Scintilla based Text Editor
 // SciTEGTK.cxx - main code for the GTK+ version of the editor
-// Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h> 
@@ -606,8 +606,8 @@ void SciTEGTK::CheckAMenuItem(int wIDCheckItem, bool val) {
 	allowMenuActions = false;
 	if (item)
 		gtk_check_menu_item_set_state(GTK_CHECK_MENU_ITEM(item), val ? TRUE : FALSE);
-	else
-		Platform::DebugPrintf("Could not find %x\n", wIDCheckItem);
+	//else
+	//	Platform::DebugPrintf("Could not find %x\n", wIDCheckItem);
 	allowMenuActions = true;
 }
 
