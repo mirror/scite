@@ -484,10 +484,6 @@ void SciTEBase::SetWindowName() {
 	strcat(windowName, appName);
 	wSciTE.SetTitle(windowName);
 	//Platform::DebugPrintf("SetWindowname %s\n", windowName);
-#ifndef NO_FILER
-	if (fileName[0] != '\0') 
-		SendFiler(0,fullPath);	//ShowPath 
-#endif
 }
 
 CharacterRange SciTEBase::GetSelection() {
@@ -2120,4 +2116,8 @@ char *SciTEBase::Property(const char *key) {
 	if (retval)
 		strcpy(retval, value.c_str());
 	return retval;
+}
+
+bool SciTEBase::OpenFromExtension(const char *path) {
+	return Open(path);
 }

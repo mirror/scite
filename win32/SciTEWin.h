@@ -87,10 +87,6 @@ protected:
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
-#ifndef NO_FILER
-	virtual void SendFiler(int typ,char * path=0);
-	void HandleFiler(COPYDATASTRUCT *pcds);
-#endif
 
 	virtual void Print(bool showDialog);
 	virtual void PrintSetup();

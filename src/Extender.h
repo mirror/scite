@@ -12,6 +12,7 @@ public:
 	virtual void Insert(Pane p, int pos, const char *s)=0;
 	virtual void Trace(const char *s)=0;
 	virtual char *Property(const char *key)=0;
+	virtual bool OpenFromExtension(const char *path)=0;
 };
 
 // Methods in extensions return true if they have completely handled and event and
@@ -23,7 +24,8 @@ public:
 	virtual bool Clear()=0;
 	virtual bool Load(const char *filename)=0;
 	
-	virtual bool OnOpen()=0;
+	virtual bool OnOpen(const char *path)=0;
+	virtual bool OnSave(const char *) { return true; };
 	virtual bool OnChar(char ch)=0;
 	virtual bool OnExecute(const char *s)=0;
 	virtual bool OnSavePointReached()=0;

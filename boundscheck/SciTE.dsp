@@ -111,6 +111,10 @@ SOURCE=..\..\scintilla\src\ContractionState.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\win32\DirectorExtension.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\Document.cxx
 # End Source File
 # Begin Source File

@@ -338,8 +338,8 @@ protected:
 	virtual bool OpenDialog()=0;
 	virtual bool SaveAsDialog()=0;
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
-	bool Open(const char *file = 0, bool initialCmdLine = false, bool forceLoad=false);
-	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad=false);
+	bool Open(const char *file=0, bool initialCmdLine=false, bool forceLoad=false);
+	void OpenMultiple(const char *files=0, bool initialCmdLine=false, bool forceLoad=false);
 	void OpenSelected();
 	void Revert();
 	int SaveIfUnsure(bool forceQuestion = false);
@@ -353,9 +353,6 @@ protected:
 	virtual void SaveAsRTF()=0;
 	void SaveToPDF(const char *saveName);
 	virtual void SaveAsPDF()=0;
-#ifndef NO_FILER
-	virtual void SendFiler(int,char * =0) {};
-#endif		
 	virtual void GetDefaultDirectory(char *directory, size_t size)=0;
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath)=0;
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath)=0;
@@ -481,6 +478,7 @@ protected:
 	void Insert(Pane p, int pos, const char *s);
 	void Trace(const char *s);
 	char *Property(const char *key);
+	bool OpenFromExtension(const char *path);
 
 public:
 

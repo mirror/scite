@@ -258,7 +258,8 @@ bool SciTEWin::SaveAsDialog() {
 			// In case extension was changed
 			SendEditor(SCI_COLOURISE, 0, -1);
 			wEditor.InvalidateAll();
-			SendFiler(2, ofn.lpstrFile);	//Refresh
+			if (extender)
+				extender->OnSave(fullPath);
 		}
 		dialogsOnScreen--;
 	}
