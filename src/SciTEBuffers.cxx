@@ -716,8 +716,7 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 
 		// Folding can mess up next scrolling, so will be better without scrolling
 		if (!foldOnOpen) {
-			int curScrollPos = SendEditor(SCI_GETFIRSTVISIBLELINE);
-			int curTop = SendEditor(SCI_VISIBLEFROMDOCLINE, curScrollPos);
+			int curTop = SendEditor(SCI_GETFIRSTVISIBLELINE);
 			int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
 			SendEditor(SCI_LINESCROLL, 0, lineTop - curTop);
 		}
