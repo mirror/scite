@@ -492,9 +492,6 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 	overrideExtension = "";
 	ReadProperties();
 	SetIndentSettings();
-	if (useMonoFont) {
-		SetMonoFont();
-	}
 	UpdateBuffersCurrent();
 	if (tabVisible)	// Update tab visibility if the hide one mode is on
 		SizeSubWindows();
@@ -826,22 +823,19 @@ bool SciTEBase::Save() {
 		}
 
 		if (SaveBuffer(fullPath)) {
-
-			//MoveFile(fullPath, fullPath);
-
 			fileModTime = GetModTime(fullPath);
 			SendEditor(SCI_SETSAVEPOINT);
 			if (IsPropertiesFile(fileName)) {
-				bool currentUseMonoFont = useMonoFont;
+				//bool currentUseMonoFont = useMonoFont;
 				ReadGlobalPropFile();
 				SetImportMenu();
 				ReadLocalPropFile();
 				ReadAbbrevPropFile();
 				ReadProperties();
-				useMonoFont = currentUseMonoFont;
-				if (useMonoFont) {
-					SetMonoFont();
-				}
+				//useMonoFont = currentUseMonoFont;
+				//if (useMonoFont) {
+				//	SetMonoFont();
+				//}
 				SetWindowName();
 				BuffersMenu();
 				Redraw();
@@ -861,14 +855,9 @@ bool SciTEBase::Save() {
 
 bool SciTEBase::SaveAs(const char *file) {
 	if (file && *file) {
-		bool currentUseMonoFont = useMonoFont;
 		SetFileName(file);
 		Save();
 		ReadProperties();
-		useMonoFont = currentUseMonoFont;
-		if (useMonoFont) {
-			SetMonoFont();
-		}
 		SendEditor(SCI_CLEARDOCUMENTSTYLE);
 		SendEditor(SCI_COLOURISE, 0, -1);
 		Redraw();

@@ -175,9 +175,6 @@ void SciTEBase::SetDocumentAt(int index) {
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
 	ReadProperties();
-	if (useMonoFont) {
-		SetMonoFont();
-	}
 	if (unicodeMode != uni8Bit) {
 		// Override the code page if Unicode
 		codePage = SC_CP_UTF8;
@@ -479,9 +476,6 @@ void SciTEBase::Close(bool updateUI) {
 		if (updateUI) {
 			SetWindowName();
 			ReadProperties();
-			if (useMonoFont) {
-				SetMonoFont();
-			}
 			if (unicodeMode != uni8Bit) {
 				// Override the code page if Unicode
 				codePage = SC_CP_UTF8;

@@ -838,6 +838,10 @@ void SciTEBase::ReadProperties() {
 		ReadPropertiesInitial();
 	}
 
+	if (useMonoFont) {
+		SetMonoFont();
+	}
+
 	SendEditor(SCI_SETUSEPALETTE, props.GetInt("use.palette"));
 	SendEditor(SCI_SETPRINTMAGNIFICATION, props.GetInt("print.magnification"));
 	SendEditor(SCI_SETPRINTCOLOURMODE, props.GetInt("print.colour.mode"));
@@ -1041,6 +1045,9 @@ void SciTEBase::ReadProperties() {
 			}
 		}
 	}
+
+
+
 
 	firstPropertiesRead = false;
 }
