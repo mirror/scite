@@ -316,21 +316,26 @@ void SciTEBase::ReadLocalPropFile() {
 }
 
 int IntFromHexDigit(const char ch) {
-	if (isdigit(ch))
+	if (isdigit(ch)) {
 		return ch - '0';
-	else if (ch >= 'A' && ch <= 'F')
+	} else if (ch >= 'A' && ch <= 'F') {
 		return ch - 'A' + 10;
-	else if (ch >= 'a' && ch <= 'f')
+	} else if (ch >= 'a' && ch <= 'f') {
 		return ch - 'a' + 10;
-	else
+	} else {
 		return 0;
+}
+}
+
+int IntFromHexByte(const char *hexByte) {
+	return IntFromHexDigit(hexByte[0]) * 16 + IntFromHexDigit(hexByte[1]);
 }
 
 ColourDesired ColourFromString(const char *val) {
 	if (val) {
-		int r = IntFromHexDigit(val[1]) * 16 + IntFromHexDigit(val[2]);
-		int g = IntFromHexDigit(val[3]) * 16 + IntFromHexDigit(val[4]);
-		int b = IntFromHexDigit(val[5]) * 16 + IntFromHexDigit(val[6]);
+		int r = IntFromHexByte(val + 1);
+		int g = IntFromHexByte(val + 3);
+		int b = IntFromHexByte(val + 5);
 		return ColourDesired(r, g, b);
 	} else {
 		return ColourDesired();
@@ -376,19 +381,34 @@ const char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-		size(0), fore(0), back(ColourDesired(0xff, 0xff, 0xff)), bold(false), italics(false),
-eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED), visible(true) {
+		size(0), fore(0), rawFore("#000000"),
+		back(ColourDesired(0xFF, 0xFF, 0xFF)), rawBack("#FFFFFF"),
+		bold(false), italics(false), eolfilled(false), underlined(false),
+		caseForce(SC_CASE_MIXED), visible(true) {
 	specified = sdNone;
+	ParseStyleDefinition(definition);
+}
+
+bool StyleDefinition::ParseStyleDefinition(const char *definition) {
+	if (definition == 0 || *definition == '\0') {
+		return false;
+	}
 	char *val = StringDup(definition);
 	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);
 	char *opt = val;
 	while (opt) {
+		// Find attribute separator
 		char *cpComma = strchr(opt, ',');
-		if (cpComma)
+		if (cpComma) {
+			// If found, we terminate the current attribute (opt) string
 			*cpComma = '\0';
+		}
+		// Find attribute name/value separator
 		char *colon = strchr(opt, ':');
-		if (colon)
+		if (colon) {
+			// If found, we terminate the current attribute name and point on the value
 			*colon++ = '\0';
+		}
 		if (0 == strcmp(opt, "italics")) {
 			specified = static_cast<flags>(specified | sdItalics);
 			italics = true;
@@ -412,10 +432,12 @@ eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED), visible(true) {
 		}
 		if (0 == strcmp(opt, "fore")) {
 			specified = static_cast<flags>(specified | sdFore);
+			rawFore = colon;
 			fore = ColourFromString(colon);
 		}
 		if (0 == strcmp(opt, "back")) {
 			specified = static_cast<flags>(specified | sdBack);
+			rawBack = colon;
 			back = ColourFromString(colon);
 		}
 		if (0 == strcmp(opt, "size")) {
@@ -470,6 +492,7 @@ eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED), visible(true) {
 			opt = 0;
 	}
 	delete []val;
+	return true;
 }
 
 void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {

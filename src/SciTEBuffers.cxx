@@ -89,7 +89,9 @@ const char *FilePath::FullPath() const {
 	return fileName.c_str();
 }
 
-BufferList::BufferList() : ctrltabStarted(false), current(0), buffers(0), size(0), length(0) {}
+BufferList::BufferList() :
+bufferListTop(0), bufferListTopPrev(0), bufferListBottom(0),
+ctrltabStarted(false), current(0), buffers(0), size(0), length(0) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
