@@ -27,7 +27,7 @@ cl
 nmake -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..\scite\win32
-nmake -f scite.mak
+nmake -f scite.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem 
@@ -39,10 +39,10 @@ set SAVE_INCLUDE=%INCLUDE%
 path %BORLAND_BASE%\Bin;%path%
 set libpath=%BORLAND_BASE%\lib
 set INCLUDE=%BORLAND_BASE%\include
-make -f scintilla.mak
+make -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..\scite\win32
-make -f scite.mak
+make -f scite.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 path %SAVE_PATH%
