@@ -2351,8 +2351,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
     <p>
        You need to change the style settings. The main change is in the global
        options file to the global default style and caret colour but you may have
-       to change other style settings to make this work well:<br><code>
-       style.*.32=$(font.base),back:#000000,fore:#ffffff<br>
+       to change other style settings to make this work well:<br /><code>
+       style.*.32=$(font.base),back:#000000,fore:#ffffff<br />
        caret.fore=#FFFFFF</code>
     </p>
     <h4>
@@ -2360,7 +2360,65 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
     </h4>
     <p>
        To avoid slow performance the horizontal scroll bar does not automatically adjust.
-       You can use the horizontal.scroll.width property to change the horizontal scroll range.
+       You can use the <code>horizontal.scroll.width</code> property to change the horizontal scroll range.
+    </p>
+    <h4>
+	How do I enable tabbed window mode in SciTE?
+    </h4>
+    <p>
+Set <code>tabbar.visible=1</code> in your SciTEGlobal.properties but beware that tabs are only avaliable on Windows.
+You can also set <code>tabbar.hide.one=0</code> to always show tabs, or 1 to hide when only one file is open.
+<code>tabbar.multiline=1</code> splits tabs across various lines if neccesary.
+    </p>
+    <h4>
+	How do I enable autocomplete?
+    </h4>
+    <p>
+	Goto Options | Open Global Options File and uncomment<br />
+	<code>autocompleteword.automatic=1</code>
+    </p>
+    <h4>
+	When I try to compile/build/run my [some language] source files, I get the following error: 'The system cannot find the file specified'.
+    </h4>
+    <p>
+	Make sure that the path to your compiler is set correctly on your system.
+	Try to execute from console the same command you get in SciTE and see if it works.
+	You can also search in your [language].properties for the compile
+	commands used. If you have a different compiler or use different arguments,
+	edit the commands to suit your needs.
+	The lines to look for:<code><br />
+	command.compile.filepattern=<br />
+	command.build.filepattern=<br />
+	command.go.filepattern=</code>
+    </p>
+    <h4>
+       How can I add [some external application] to the tools menu on SciTE?
+    </h4>
+    <p>
+In your properties file, you'll need to add some lines:
+    </p>
+    <p>
+<code>command.name.number.filepattern</code><br />
+(e.g.: <code>command.name.1.$(file.patterns.web)=HTML Tidy</code>)<br />
+This defines the Text that will appear on the Tools Menu.
+    </p>
+    <p>
+<code>command.number.filepattern</code><br />
+(e.g.: <code>command.1.$(file.patterns.web)=tidy -i -wrap 0 -m $(FilePath)</code> )<br />
+This is the actual command that SciTE executes. You should provide the appropiate paths, options and parameters as you would from a command line. See SciTEDoc.html for more information on parameters and how to make SciTE prompt a Parameters Dialog.
+    </p>
+    <p>
+<code>command.is.filter.number.filepattern</code><br />
+(e.g.: <code>command.is.filter.1.$(file.patterns.web)=1</code>)<br />
+The external application may have modified your file, so setting this to true makes SciTE reload the file after execution of the command.
+    </p>
+    <p>
+<code>command.subsystem.number.filepattern</code><br />
+(e.g.: <code>command.subsystem.1.$(file.patterns.web)=2</code>)<br />
+This is for Windows and defines the subsystem through which the program is called. See SciTEDoc.html for more information on this.
+    </p>
+    <p>
+You can set a command for all files using * as a file pattern. Up to 10 commands (0 - 9) can be defined in the Tools Menu at any time. Commands also get executed with Ctrl+number.
     </p>
   </body>
 </html>
