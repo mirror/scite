@@ -1208,6 +1208,28 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          user.shortcuts
+        </td>
+        <td>
+	Define keys that perform commands.
+	This is a '|' delimited list of keys and the commands they produce.
+	The commands are either string or numeric IDs.
+	Numeric IDs above 2000 are Scintilla commands and are sent to the focussed pane.
+	Named IDs and numeric IDs below 2000 are SciTE menu commands which can be
+	found in from scite/src/SciTE.h.
+	The modifiers are Ctrl, Shift, and Alt and the named keys are Left,
+	Right, Up, Down, Insert, End, Home, Enter, Escape, Delete, PageUp, and
+	PageDown.
+	<br/>
+	<code>
+user.shortcuts=\<br/>
+Ctrl+Shift+I|IDM_OPEN|\<br/>
+Ctrl+Shift+Left|IDM_CLOSE|<br/>
+	</code>
+        </td>
+      </tr>
+      <tr>
+        <td>
           magnification<br />
 	output.magnification
         </td>
@@ -1405,20 +1427,32 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  will result in any local setting of find.files being added to the list.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr>
         <td>
           code.page
         </td>
         <td>
           To support a DBCS language such as Japanese, a code page can be set here. This ensures
           that double byte characters are always treated as a unit so the caret is never located
-          between the two bytes of a double byte character. This option has no effect on GTK+ where
-          SciTE only supports single byte character sets.<br />
-	On Windows, setting code.page to 65001 starts Unicode mode and the document is treated as
-	a sequence of characters expressed as UTF-8. Display is performed by converting to UCS-2
-	first so characters from any language will be displayed. Correct glyphs will only be displayed
-	if fonts are chosen that contain the appropriate glyphs. Tahoma is a good choice on Windows
-	2000.
+          between the two bytes of a double byte character. This option can only be 0 or 65001 on GTK+
+	where SciTE only supports single byte character sets and Unicode.<br />
+	Setting code.page to 65001 starts Unicode mode and the document is treated as
+	a sequence of characters expressed as UTF-8. Display is performed by converting to the
+	platform's normal Unicode encoding first so characters from any language will be displayed.
+	Correct glyphs will only be displayed if fonts are chosen that contain the appropriate glyphs.
+	Tahoma is a good choice on Windows 2000. <br/>
+	For GTK+, the locale should be set to a Unicode locale by setting the LC_CTYPE
+	property. For an English machine this can be<br />
+	<code>
+	LC_CTYPE=en_US.UTF-8
+	</code><br />
+	Fonts with an "iso10646" registry should be used in a font set.
+	Font sets are a '|' separated list of partial
+	font specifications where each partial font specification can be in the form of
+	foundry-fontface-charsetregistry-encoding *OR*
+	fontface-charsetregistry-encoding *OR*
+	foundry-fontface *OR*
+	fontface. An example is "misc-fixed-iso10646-1|*".
         </td>
       </tr>
       <tr>
