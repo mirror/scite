@@ -73,9 +73,9 @@ class PropSetFile : public PropSet {
 public:
 	PropSetFile();
 	~PropSetFile();
-	bool ReadLine(char *data, bool ifIsTrue, const char *directoryForImports=0);
-	void ReadFromMemory(const char *data, int len, const char *directoryForImports=0);
-	void Read(const char *filename, const char *directoryForImports);
+	bool ReadLine(char *data, bool ifIsTrue, const char *directoryForImports, SString imports[]=0, int sizeImports=0);
+	void ReadFromMemory(const char *data, int len, const char *directoryForImports, SString imports[]=0, int sizeImports=0);
+	void Read(const char *filename, const char *directoryForImports, SString imports[]=0, int sizeImports=0);
 };
 
 class RecentFile {
@@ -194,6 +194,10 @@ protected:
 	enum { fileStackMax = 10 };
 	RecentFile recentFileStack[fileStackMax];
 	enum { fileStackCmdID = IDM_MRUFILE, bufferCmdID = IDM_BUFFER };
+	
+	enum { importMax = 20 };
+	SString importFiles[importMax];
+	enum { importCmdID = IDM_IMPORT };
 
 	char findWhat[200];
 	char replaceWhat[200];
@@ -470,7 +474,9 @@ protected:
 
 	void AssignKey(int key, int mods, int cmd);
 	void ViewWhitespace(bool view);
-    void SetPropertiesInitial();
+	void SetImportMenu();
+	void ImportMenu(int pos);
+	void SetPropertiesInitial();
 	virtual void ReadPropertiesInitial();
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);

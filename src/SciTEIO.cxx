@@ -648,6 +648,7 @@ bool SciTEBase::Save() {
 			SendEditor(SCI_SETSAVEPOINT);
 			if (IsPropertiesFile(fileName)) {
 				ReadGlobalPropFile();
+				SetImportMenu();
 				ReadLocalPropFile();
 				ReadProperties();
 				SetWindowName();

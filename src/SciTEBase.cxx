@@ -1868,6 +1868,11 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (CanMakeRoom()) {
 				StackMenu(cmdID - fileStackCmdID);
 			}
+		} else if (cmdID >= importCmdID && 
+			(cmdID < importCmdID + importMax)) {
+			if (CanMakeRoom()) {
+				ImportMenu(cmdID - importCmdID);
+			}
 		} else if (cmdID >= IDM_TOOLS && cmdID < IDM_TOOLS + 10) {
 			ToolsMenu(cmdID - IDM_TOOLS);
 		}
@@ -2191,6 +2196,7 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 }
 
 void SciTEBase::UIAvailable() {
+	SetImportMenu();
 	if (extender)
 		extender->Initialise(this);
 }

@@ -75,7 +75,7 @@ static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 	return false;
 }
 
-bool PropSetFile::ReadLine(char *linebuf, bool ifIsTrue, const char *directoryForImports) {
+bool PropSetFile::ReadLine(char *linebuf, bool ifIsTrue, const char *directoryForImports, SString imports[], int sizeImports) {
 	if (isalpha(linebuf[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
 	if (isprefix(linebuf, "if ")) {
@@ -86,7 +86,15 @@ bool PropSetFile::ReadLine(char *linebuf, bool ifIsTrue, const char *directoryFo
 		strcpy(importPath, directoryForImports);
 		strcat(importPath, linebuf + strlen("import") + 1);
 		strcat(importPath, ".properties");
-		Read(importPath, directoryForImports);
+		if (imports) {
+			for (int i=0; i<sizeImports; i++) {
+				if (!imports[i].length()) {
+					imports[i] = importPath;
+					break;
+				}
+			}
+		}
+		Read(importPath, directoryForImports, imports, sizeImports);
 	} else if (isalpha(linebuf[0])) {
 		Set(linebuf);
 	} else if (isspace(linebuf[0]) && ifIsTrue) {
@@ -95,17 +103,19 @@ bool PropSetFile::ReadLine(char *linebuf, bool ifIsTrue, const char *directoryFo
 	return ifIsTrue;
 }
 
-void PropSetFile::ReadFromMemory(const char *data, int len, const char *directoryForImports) {
+void PropSetFile::ReadFromMemory(const char *data, int len, const char *directoryForImports, 
+	SString imports[], int sizeImports) {
 	const char *pd = data;
 	char linebuf[60000];
 	bool ifIsTrue = true;
 	while (len > 0) {
 		GetFullLine(pd, len, linebuf, sizeof(linebuf));
-		ifIsTrue = ReadLine(linebuf, ifIsTrue, directoryForImports);
+		ifIsTrue = ReadLine(linebuf, ifIsTrue, directoryForImports, imports, sizeImports);
 	}
 }
 
-void PropSetFile::Read(const char *filename, const char *directoryForImports) {
+void PropSetFile::Read(const char *filename, const char *directoryForImports, 
+	SString imports[], int sizeImports) {
 	char propsData[60000];
 #ifdef __vms
 	FILE *rcfile = fopen(filename, "r");
@@ -115,27 +125,63 @@ void PropSetFile::Read(const char *filename, const char *directoryForImports) {
 	if (rcfile) {
 		int lenFile = fread(propsData, 1, sizeof(propsData), rcfile);
 		fclose(rcfile);
-		ReadFromMemory(propsData, lenFile, directoryForImports);
+		ReadFromMemory(propsData, lenFile, directoryForImports, imports, sizeImports);
 	} else {
 		//printf("Could not open <%s>\n", filename);
 	}
 
 }
 
+void SciTEBase::SetImportMenu() {
+	for (int i = 0; i < importMax; i++) {
+		DestroyMenuItem(menuOptions, importCmdID + i);
+	}
+	if (importFiles[0][0]) {
+		for (int stackPos = 0; stackPos < importMax; stackPos++) {
+			int itemID = importCmdID + stackPos;
+			if (importFiles[stackPos][0]) {
+				char entry[MAX_PATH + 20];
+				strcpy(entry, "Open ");
+				char *cpDirEnd = strrchr(importFiles[stackPos].c_str(), pathSepChar);
+				if (cpDirEnd) {
+					strcat(entry, cpDirEnd + 1);
+				} else {
+					strcat(entry, importFiles[stackPos].c_str());
+				}
+				SetMenuItem(menuOptions, IMPORT_START + stackPos + 1, itemID, entry);
+			}
+		}
+	}
+}
+
+void SciTEBase::ImportMenu(int pos) {
+	//Platform::DebugPrintf("Stack menu %d\n", pos);
+	if (pos >= 0) {
+		if (importFiles[pos][0] != '\0') {
+			overrideExtension = "";
+			isDirty = false;
+			Open(importFiles[pos].c_str());
+		}
+	}
+}
+
 const char propFileName[] = "SciTE.properties";
 
 void SciTEBase::ReadGlobalPropFile() {
+	for (int stackPos = 0; stackPos < importMax; stackPos++) {
+		importFiles[stackPos] = "";
+	}
 	char propfile[MAX_PATH + 20];
 	char propdir[MAX_PATH + 20];
 	propsBase.Clear();
 	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 		strcat(propdir, pathSepString);
-		propsBase.Read(propfile, propdir);
+		propsBase.Read(propfile, propdir, importFiles, importMax);
 	}
 	propsUser.Clear();
 	if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 		strcat(propdir, pathSepString);
-		propsUser.Read(propfile, propdir);
+		propsUser.Read(propfile, propdir, importFiles, importMax);
 	}
 }
 

@@ -8,10 +8,12 @@
 #ifndef SCITE_H
 #define SCITE_H
 
-// Menu IDs
-#define IDM_MRUFILE			50
-#define IDM_TOOLS			60
-#define IDM_BUFFER			70
+// Menu IDs. 
+// These are located 100 apart. No one will want more than 100 in each menu ;)
+#define IDM_MRUFILE			1000
+#define IDM_TOOLS			1100
+#define IDM_BUFFER			1200
+#define IDM_IMPORT			1300
 
 // File
 #define IDM_NEW			101
@@ -31,6 +33,7 @@
 #define IDM_QUIT			140
 
 #define MRU_START	8
+#define IMPORT_START	12
 
 // Edit
 #define IDM_UNDO			201
