@@ -645,24 +645,15 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 	// On GTK+ the menuNumber and position are ignored as the menu item already exists and is in the right
 	// place so only needs to be shown and have its text set.
 	
+	SString itemText(text);
 	// Remove accelerator as does not work.
-	char *itemText = StringDup(text);
-	char *itemChanged = itemText;
-	for (char *s=itemText; *s; s++) {
-		*itemChanged = *s;
-		if (*s != '&')
-			itemChanged++;
-	}
-	*itemChanged = '\0';
-	char *shift = strstr(itemText, "Shift+");
-	if (shift)	// Drop the 'i' for compatibuilty with other menus
-		strcpy(shift+2, shift+3);
-	char *ctrl = strstr(itemText, "Ctrl+");
-	if (ctrl)	// Drop the 'r' for compatibuilty with other menus
-		strcpy(ctrl+2, ctrl+3);
-	char *ctlshft = strstr(itemText, "Ctl+Shft+");
-	if (ctlshft)	// Reorder shift and crl indicators for compatibuilty with other menus
-		strncpy(ctlshft, "Shft+Ctl+", strlen("Ctl+Shft+"));
+	itemText.remove("&");
+	// Drop the 'i' for compatibuilty with other menus
+	itemText.substitute("Shift+", "Shft+");
+	// Drop the 'r' for compatibuilty with other menus
+	itemText.substitute("Ctrl+", "Ctl+");
+	// Reorder shift and crl indicators for compatibuilty with other menus
+	itemText.substitute("Ctl+Shft+", "Shft+Ctl+");
 	
 	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
 	if (item) {
@@ -670,7 +661,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 		for (unsigned int ii = 0; ii < g_list_length(al); ii++) {
 			gpointer d = g_list_nth(al, ii);
 			GtkWidget **w = (GtkWidget **)d;
-			gtk_label_set_text(GTK_LABEL(*w), itemText);
+			gtk_label_set_text(GTK_LABEL(*w), itemText.c_str());
 			// Have not managed to make accelerator work
 			//guint key = gtk_label_parse_uline(GTK_LABEL(*w), itemText);
 			//gtk_widget_add_accelerator(*w, "clicked", accelGroup,
@@ -679,8 +670,6 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 		g_list_free(al);
 		gtk_widget_show(item);
 	}
-
-	delete []itemText;
 }
 
 void SciTEGTK::DestroyMenuItem(int, int itemID) {
@@ -1667,20 +1656,27 @@ static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 	if (!*menuKey) 
 		return false;
 	int modsInKey = 0;
-	if (0 == strncmp(menuKey, "Ctrl+", strlen("Ctrl+"))) {
+	SString sKey(menuKey);
+	if (sKey.contains("Ctrl+")) {
 		modsInKey |= GDK_CONTROL_MASK;
-		menuKey += strlen("Ctrl+");
+		sKey.remove("Ctrl+");
 	}
-	if (0 == strncmp(menuKey, "Shift+", strlen("Shift+"))) {
+	if (sKey.contains("Shift+")) {
 		modsInKey |= GDK_SHIFT_MASK;
-		menuKey += strlen("Shift+");
+		sKey.remove("Shift+");
 	}
 	if (modifiers != modsInKey)
 		return false;
-	if (*menuKey == 'F') {
-		int keyNum = atoi(menuKey+1);
+	if ((sKey.length() > 1) && (sKey[0] == 'F') && (isdigit(sKey[1]))) {
+		sKey.remove("F");
+		int keyNum = sKey.value();
 		if (keyNum == (keyval - GDK_F1 + 1))
 			return true;
+	} else if ((sKey.length() == 1) && (modsInKey & GDK_CONTROL_MASK)) {
+		char keySought = sKey[0];
+		if (!(modsInKey & GDK_SHIFT_MASK))
+			keySought = keySought - 'A' + 'a';
+		return keySought == keyval;
 	}
 	return false;
 }
