@@ -42,15 +42,16 @@ endif
 all: $(PROG)
 
 LEXEROBJS=\
+	../../scintilla/gtk/LexConf.o \
 	../../scintilla/gtk/LexCPP.o \
-	../../scintilla/gtk/LexPython.o \
 	../../scintilla/gtk/LexHTML.o \
 	../../scintilla/gtk/LexLua.o \
-	../../scintilla/gtk/LexSQL.o \
 	../../scintilla/gtk/LexOthers.o \
-	../../scintilla/gtk/LexVB.o \
-	../../scintilla/gtk/LexConf.o \
-	../../scintilla/gtk/LexPerl.o
+	../../scintilla/gtk/LexPascal.o \
+	../../scintilla/gtk/LexPerl.o \
+	../../scintilla/gtk/LexPython.o \
+	../../scintilla/gtk/LexSQL.o \
+	../../scintilla/gtk/LexVB.o
 
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o SciTEProps.o ../../scintilla/bin/scintilla.a $(LEXEROBJS)
 	$(CC) `gtk-config --libs` -DGTK $^ -o $@

@@ -222,8 +222,10 @@ void SciTEBase::ReadProperties() {
 		lexLanguage = SCLEX_DIFF;
 	} else if (language == "container") {
 		lexLanguage = SCLEX_CONTAINER;
-	} else if(language == "conf") {
+	} else if (language == "conf") {
 		lexLanguage = SCLEX_CONF;
+	} else if (language == "pascal") {
+		lexLanguage = SCLEX_PASCAL;
 	} else {
 		lexLanguage = SCLEX_NULL;
 	}

@@ -121,6 +121,7 @@ BEGIN
 		MENUITEM "P&HP",					IDM_LEXER_PHP
 		MENUITEM "La&TeX",					IDM_LEXER_LATEX
 		MENUITEM "Apache Confi&g",			IDM_LEXER_CONF
+		MENUITEM "Pascal",					IDM_LEXER_PASCAL
 	  END // used: abceghijlmnpqrstuvyx
 	MENUITEM "",							4
 	MENUITEM "Open Local &Options File",    IDM_OPENLOCALPROPERTIES

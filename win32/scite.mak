@@ -98,15 +98,16 @@ OBJSSTATIC=\
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
 	..\..\scintilla\win32\KeyWords.obj \
+	..\..\scintilla\win32\LexConf.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexHTML.obj \
 	..\..\scintilla\win32\LexLua.obj \
 	..\..\scintilla\win32\LexOthers.obj \
+	..\..\scintilla\win32\LexPascal.obj \
 	..\..\scintilla\win32\LexPerl.obj \
 	..\..\scintilla\win32\LexPython.obj \
 	..\..\scintilla\win32\LexSQL.obj \
 	..\..\scintilla\win32\LexVB.obj \
-	..\..\scintilla\win32\LexConf.obj \
 	..\..\scintilla\win32\WindowAccessor.obj \
 	..\..\scintilla\win32\DocumentAccessor.obj \
 	..\..\scintilla\win32\PropSet.obj \

@@ -32,23 +32,23 @@ endif
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-LEXOBJS	=  LexCPP.o LexHTML.o LexLua.o LexOthers.o LexPerl.o LexPython.o \
-LexSQL.o LexVB.o LexConf.o
+LEXOBJS	=  LexConf.o LexCPP.o LexHTML.o LexLua.o LexOthers.o LexPascal.o \
+LexPerl.o LexPython.o LexSQL.o LexVB.o
 OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o SciTERes.o
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
-PROPS=..\bin\SciTEGlobal.properties ..\bin\cpp.properties ..\bin\html.properties \
+PROPS=..\bin\conf.properties ..\bin\SciTEGlobal.properties ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
-..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties \
-..\bin\conf.properties
+..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
+..\bin\sql.properties ..\bin\vb.properties
 
-LEXPROPS=..\bin\cpp.properties ..\bin\html.properties \
+LEXPROPS=..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
-..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties \
-..\bin\conf.properties
+..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
+..\bin\sql.properties ..\bin\vb.properties
 
 ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 
@@ -63,6 +63,8 @@ clean:
 	
 ..\bin\SciTEGlobal.properties:	..\src\SciTEGlobal.properties
 	copy $^ $@
+..\bin\conf.properties:	..\src\conf.properties
+	copy $^ $@
 ..\bin\cpp.properties:	..\src\cpp.properties
 	copy $^ $@
 ..\bin\html.properties:	..\src\html.properties
@@ -73,6 +75,8 @@ clean:
 	copy $^ $@
 ..\bin\others.properties:	..\src\others.properties
 	copy $^ $@
+..\bin\pascal.properties:	..\src\pascal.properties
+	copy $^ $@
 ..\bin\perl.properties:	..\src\perl.properties
 	copy $^ $@
 ..\bin\python.properties:	..\src\python.properties
@@ -80,8 +84,6 @@ clean:
 ..\bin\sql.properties:	..\src\sql.properties
 	copy $^ $@
 ..\bin\vb.properties:	..\src\vb.properties
-	copy $^ $@
-..\bin\conf.properties:	..\src\conf.properties
 	copy $^ $@
 
 # Normally distributed rather than built as may not have grep on all machines

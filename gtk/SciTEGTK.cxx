@@ -1732,6 +1732,7 @@ void SciTEGTK::CreateMenu() {
 		{"/Options/Use lexer/P_HP", "", menuSig, IDM_LEXER_PHP, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/La_TeX", "", menuSig, IDM_LEXER_LATEX, "/Options/Use lexer/none"},
 		{"/Options/Use lexer/Apache Config", "", menuSig, IDM_LEXER_CONF, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/Pascal", "", menuSig, IDM_LEXER_PASCAL, "/Options/Use lexer/none"},
 		{"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 		{"/Options/Open _Local Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
 		{"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
