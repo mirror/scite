@@ -221,6 +221,7 @@ protected:
 	virtual void FindReplace(bool replace);
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
+	virtual bool AbbrevDialog();
 	virtual void TabSizeDialog();
 	virtual bool ParametersDialog(bool modal);
 
@@ -1377,6 +1378,7 @@ void SciTEGTK::GoLineDialog() {
 	dlgGoto.ShowModal(PWidget(wSciTE));
 }
 
+bool SciTEGTK::AbbrevDialog() { return false; }
 void SciTEGTK::TabSizeDialog() {}
 
 void SciTEGTK::ParamGrab() {
