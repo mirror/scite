@@ -755,7 +755,7 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 	return false;
 }
 
-// Returns false only if cancelled
+// Returns false if cancelled or failed to save
 bool SciTEBase::Save() {
 	if (fileName[0]) {
 		if (props.GetInt("save.deletes.first")) {
@@ -784,6 +784,7 @@ bool SciTEBase::Save() {
 			dialogsOnScreen++;
 			WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 			dialogsOnScreen--;
+			return false;
 		}
 		return true;
 	} else {
