@@ -371,7 +371,7 @@ void SciTEBase::OpenMultiple(const char *files, bool initialCmdLine, bool forceL
 }
 
 void SciTEBase::OpenSelected() {
-	char selectedFilename[MAX_PATH];
+	char selectedFilename[MAX_PATH], cTag[200];
 	unsigned long lineNumber = 0;
 
 	SelectionFilename(selectedFilename, sizeof(selectedFilename));
@@ -385,6 +385,7 @@ void SciTEBase::OpenSelected() {
 		return ;	// Do not open if it is the current file!
 	}
 
+	cTag[0] = '\0';
 	if (IsPropertiesFile(fileName) &&
 	        strlen(fileName) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
 		// We are in a properties file, we append the correct extension
@@ -394,32 +395,35 @@ void SciTEBase::OpenSelected() {
 		// Check if we have a line number (error message or grep result)
 		// A bit of duplicate work with DecodeMessage, but we don't know
 		// here the format of the line, so we do guess work.
+		// Can't do much for space separated line numbers anyway...
 		char *endPath = strchr(selectedFilename, '(');
-		if (endPath) {	// Visual Studio error: F:\scite\src\SciTEBase.h(312):	bool Exists(
+		if (endPath) {	// Visual Studio error message: F:\scite\src\SciTEBase.h(312):	bool Exists(
 			lineNumber = atol(endPath + 1);
-			*(endPath - 1) = '\0';
 		} else {
 			char *endPath = strchr(selectedFilename + 2, ':');	// Skip Windows' drive separator
 			if (endPath) {	// grep -n line, perhaps gcc too: F:\scite\src\SciTEBase.h:312:	bool Exists(
 				lineNumber = atol(endPath + 1);
-				*(endPath - 1) = '\0';
 			}
 		}
-		// Can't do much for space separated line numbers...
-
-		//		if (strncmp(selectedFilename, "http", 4) == 0) {
-		//			SString cmd = selectedFilename;
-		//			ShellExec(cmd, NULL);
-		//		}
-		// Currently don't work (have to declare virtual function in SciTEBase.h,
-		// or to do another way), no much time to work on it.
-		// It would be nice to make it work though.
-
-		// Try to implement the ctags format...
-		if (lineNumber == 0) {
-			// To be done...
+		if (lineNumber > 0) {
+			*endPath = '\0';
 		}
 
+#if PLAT_WIN
+		if (strncmp(selectedFilename, "http", 4) == 0 ||
+			strncmp(selectedFilename, "ftp", 3) == 0 ||
+			strncmp(selectedFilename, "mailto", 6) == 0)
+		{
+			SString cmd = selectedFilename;
+			AddCommand(cmd, NULL, jobShell, false);
+			return;	// Job is done
+		}
+#endif
+
+		// Support the ctags format
+		if (lineNumber == 0) {
+			GetCTag(cTag, 200);
+		}
 	}
 
 	char path[MAX_PATH];
