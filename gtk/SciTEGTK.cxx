@@ -213,6 +213,7 @@ public:
 	SciTEGTK(Extension *ext = 0);
 	~SciTEGTK();
 
+	void WarnUser(int warnID);
 	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
 	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
 	void CreateMenu();
@@ -261,6 +262,8 @@ SciTEGTK::~SciTEGTK() {}
 
 static void destroyDialog(GtkWidget *) {}
 
+void SciTEGTK::WarnUser(int) {
+}
 
 static GtkWidget *messageBoxDialog = 0;
 static int messageBoxResult = 0;
@@ -1706,6 +1709,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/_File/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
 	    {"/File/_Open", "<control>O", menuSig, IDM_OPEN, 0},
+	    {"/File/_Open Selected Filename", "<control><shift>O", menuSig, IDM_OPENSELECTED, 0},
 	    {"/File/_Revert", "<control>R", menuSig, IDM_REVERT, 0},
 	    {"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 	    {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
@@ -1775,17 +1779,16 @@ void SciTEGTK::CreateMenu() {
 	    {"/Tools/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/Tools/_Next Message", "F4", menuSig, IDM_NEXTMSG, 0},
 	    {"/Tools/_Previous Message", "<shift>F4", menuSig, IDM_PREVMSG, 0},
-
 	    {"/_Options", NULL, NULL, 0, "<Branch>"},
 	    {"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
 	    {"/Options/sep1", NULL, NULL, 0, "<Separator>"},
-	    {"/Options/View _Whitespace", "<control><shift>W", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
+	    {"/Options/View _Whitespace", "<control><shift>A", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
+	    {"/Options/_View End of Line", "<control><shift>B", menuSig, IDM_VIEWEOL, "<CheckItem>"},
 	    {"/Options/View _Indentation Guides", NULL, menuSig, IDM_VIEWGUIDES, "<CheckItem>"},
-	    {"/Options/View _Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
 	    {"/Options/View _Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
+	    {"/Options/View _Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
 	    {"/Options/View Line _Numbers", "", menuSig, IDM_LINENUMBERMARGIN, "<CheckItem>"},
-	    {"/Options/_View End of Line", "<control><shift>O", menuSig, IDM_VIEWEOL, "<CheckItem>"},
 	    {"/Options/View _Toolbar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
 	    {"/Options/View Status _Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
 	    {"/Options/sep2", NULL, NULL, 0, "<Separator>"},
@@ -1795,13 +1798,13 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Line End Characters/_LF", "", menuSig, IDM_EOL_LF, "/Options/Line End Characters/CR + LF"},
 	    {"/Options/_Convert Line End Characters", "", menuSig, IDM_EOL_CONVERT, 0},
 	    {"/Options/Use le_xer", "", 0, 0, "<Branch>"},
-	    {"/Options/Use lexer/none", "", menuSig, IDM_LEXER_NONE, "<RadioItem>"},
+	    {"/Options/Use lexer/none", "F11", menuSig, IDM_LEXER_NONE, "<RadioItem>"},
 	    {"/Options/Use lexer/_C, C++", "", menuSig, IDM_LEXER_CPP, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/C_#", "", menuSig, IDM_LEXER_CS, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/_VB", "", menuSig, IDM_LEXER_VB, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/Reso_urce", "", menuSig, IDM_LEXER_RC, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/H_ypertext", "", menuSig, IDM_LEXER_HTML, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_XML", "", menuSig, IDM_LEXER_XML, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/H_ypertext", "F12", menuSig, IDM_LEXER_HTML, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_XML", "<shift>F12", menuSig, IDM_LEXER_XML, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/Java_Script", "", menuSig, IDM_LEXER_JS, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/VBScr_ipt", "", menuSig, IDM_LEXER_WSCRIPT, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/_Properties", "", menuSig, IDM_LEXER_PROPS, "/Options/Use lexer/none"},
