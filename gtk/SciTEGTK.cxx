@@ -424,7 +424,10 @@ protected:
 	// This is used to create the pixmaps used in the interface.
 	GdkPixbuf *CreatePixbuf(const char *filename);
 #endif
-
+#ifdef USE_FILE_CHOOSER
+	// Callback function to show hidden files in filechooser
+	static void toggle_hidden_cb(GtkToggleButton *toggle, gpointer data);
+#endif	
 public:
 
 	// TODO: get rid of this - use callback argument to find SciTEGTK
@@ -1065,15 +1068,24 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 		                            fileSelectorWidth, fileSelectorHeight);
 		canceled = dlgFileSelector.ShowModal(PWidget(wSciTE));
 #else
-		GtkWidget *dlg = gtk_file_chooser_dialog_new("Open File",
+		GtkWidget *dlg = gtk_file_chooser_dialog_new(
+					LocaliseString("Open File").c_str(),
 				      GTK_WINDOW(wSciTE.GetID()),
 				      GTK_FILE_CHOOSER_ACTION_OPEN,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
-		g_object_set(dlg, "show-hidden", TRUE, NULL);
 		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dlg), TRUE);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
+
+		// Add a show hidden files toggle
+		GtkWidget *toggle = gtk_check_button_new_with_label(
+			LocaliseString("Show hidden files").c_str());
+		gtk_widget_show(toggle);
+		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(dlg), toggle);
+		g_signal_connect(toggle, "toggled",
+			G_CALLBACK(toggle_hidden_cb), GTK_DIALOG(dlg));
+		
 		SString openFilter;
 		if (filter)
 			openFilter = filter;
@@ -1121,6 +1133,18 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 	}
 	return !canceled;
 }
+
+#ifdef USE_FILE_CHOOSER
+// Callback function to show hidden files in filechooser
+void SciTEGTK::toggle_hidden_cb(GtkToggleButton *toggle, gpointer data) {
+	GtkWidget *file_chooser = GTK_WIDGET(data);
+	
+	if (gtk_toggle_button_get_active(toggle))
+		g_object_set(GTK_FILE_CHOOSER(file_chooser), "show-hidden", TRUE, NULL);
+	else
+		g_object_set(GTK_FILE_CHOOSER(file_chooser), "show-hidden", FALSE, NULL);
+}
+#endif
 
 void SciTEGTK::HandleSaveAs(const char *savePath) {
 	switch (saveFormat) {
