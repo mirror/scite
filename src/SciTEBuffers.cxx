@@ -475,7 +475,7 @@ void SciTEBase::New() {
 }
 
 void SciTEBase::Close(bool updateUI, bool loadingSession) {
-	bool closingLast;
+	bool closingLast = false;
 
 	if (buffers.size == 1) {
 		// With no buffer list, Close means close from MRU
@@ -486,7 +486,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 		fullPath[0] = '\0';
 		ClearDocument(); //avoid double are-you-sure
 		StackMenu(0);
-	} else {
+	} else if (buffers.size > 1) {
 		if (buffers.current >= 0 && buffers.current < buffers.length) {
 			UpdateBuffersCurrent();
 			Buffer buff = buffers.buffers[buffers.current];
