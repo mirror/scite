@@ -21,6 +21,7 @@ public:
 	virtual void Trace(const char *s)=0;
 	virtual char *Property(const char *key)=0;
 	virtual void SetProperty(const char *key, const char *val)=0;
+	virtual void UnsetProperty(const char *key)=0;
 	virtual uptr_t GetInstance()=0;
 	virtual void ShutDown()=0;
 	virtual void Perform(const char *actions)=0;

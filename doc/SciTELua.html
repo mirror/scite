@@ -123,6 +123,13 @@ if you prefer.
 </p><p>
 The props pseudo-table allows you to read or write properties by name
 using normal Lua table-access semantics, e.g. <tt>props["property.name"]</tt>.
+As with Lua tables, you can also un-set a property by assigning nil to its key.
+</p><p>
+When you assign a value to a property from Lua, this overrides any values
+specified in the configuration files for that setting.  The underlying file
+properties are not changed.  If you later assign nil to the same property
+from Lua, this removes the run-time setting, allowing any file-based
+property setting to show through once again.
 </p><p>
 The editor and output panes support the following properties and
 methods:

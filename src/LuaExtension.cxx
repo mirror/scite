@@ -526,12 +526,18 @@ static int cf_props_metatable_newindex(lua_State *L) {
 	int selfArg = lua_isuserdata(L, 1) ? 1 : 0;
 
 	const char *key = lua_isstring(L, selfArg + 1) ? lua_tostring(L, selfArg + 1) : 0;
-	const char *val = luaL_checkstring(L, selfArg + 2);
+	const char *val = lua_tostring(L, selfArg + 2);
 
-	if (key && *key && val) {
-		host->SetProperty(key, val);
+	if (key && *key) {
+		if (val) {
+			host->SetProperty(key, val);
+		} else if (lua_isnil(L, selfArg + 2)) {
+			host->UnsetProperty(key);
+		} else {
+			raise_error(L, "Expected string or nil for property assignment.");
+		}
 	} else {
-		raise_error(L, "Property name and value must be strings");
+		raise_error(L, "Property name must be a non-empty string.");
 	}
 	return 0;
 }

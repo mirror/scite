@@ -349,6 +349,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	props.superPS = &propsLocal;
 
 	propsStatus.superPS = &props;
+
+	needReadProperties = false;
 }
 
 SciTEBase::~SciTEBase() {
@@ -4700,6 +4702,12 @@ char *SciTEBase::Property(const char *key) {
 
 void SciTEBase::SetProperty(const char *key, const char *val) {
 	props.Set(key, val);
+	needReadProperties = true;
+}
+
+void SciTEBase::UnsetProperty(const char *key) {
+	props.Unset(key);
+	needReadProperties = true;
 }
 
 uptr_t SciTEBase::GetInstance() {

@@ -523,6 +523,7 @@ protected:
 	bool fullScreen;
 	enum { toolMax = 50 };
 	Extension *extender;
+	bool needReadProperties;
 
 	int heightOutput;
 	int heightOutputStartDrag;
@@ -902,6 +903,7 @@ protected:
 	void Trace(const char *s);
 	char *Property(const char *key);
 	void SetProperty(const char *key, const char *val);
+	void UnsetProperty(const char *key);
 	uptr_t GetInstance();
 	void ShutDown();
 	void Perform(const char *actions);

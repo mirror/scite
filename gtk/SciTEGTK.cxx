@@ -1600,6 +1600,8 @@ void SciTEGTK::ExecuteNext() {
 	} else {
 		icmd = 0;
 		executing = false;
+		if (needReadProperties)
+			ReadProperties();
 		CheckReload();
 		CheckMenus();
 		ClearJobQueue();

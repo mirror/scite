@@ -1173,8 +1173,8 @@ void SciTEBase::ReadProperties() {
 			}
 		}
 	}
-
 	firstPropertiesRead = false;
+	needReadProperties = false;
 }
 
 // Properties that are interactively modifiable are only read from the properties file once.
