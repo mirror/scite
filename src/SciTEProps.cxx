@@ -674,6 +674,7 @@ void SciTEBase::ReadProperties() {
 		codePage = SC_CP_UTF8;
 	}
 	SendEditor(SCI_SETCODEPAGE, codePage);
+	SendOutput(SCI_SETCODEPAGE, codePage);
 
 	characterSet = props.GetInt("character.set");
 
