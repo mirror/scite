@@ -150,7 +150,7 @@ void SciTEBase::SetImportMenu() {
 				} else {
 					strcat(entry, importFiles[stackPos].c_str());
 				}
-				SetMenuItem(menuOptions, IMPORT_START + stackPos + 4, itemID, entry);
+				SetMenuItem(menuOptions, IMPORT_START + stackPos, itemID, entry);
 			}
 		}
 	}

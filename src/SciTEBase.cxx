@@ -1619,7 +1619,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 				SetLineIndentation(currentLineNumber + i , indent);
 			}
 		}
-		// setting cursor after expanded abbreviation
+		// setting caret after expanded abbreviation
 		if (caret_pos == -1) {
 			int curLine = GetCurrentLineNumber();
 			int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, curLine);
@@ -2364,7 +2364,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
-			useMonoFont = false;
 			UpdateStatusBar(true);
 		}
 		break;

@@ -161,12 +161,14 @@ const char *VMSToUnixStyle(const char *fileName) {
 
 void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 	if (openName[0] == '\"') {
+		// openName is surrounded by double quotes
 		char pathCopy[MAX_PATH + 1];
 		pathCopy[0] = '\0';
 		strncpy(pathCopy, openName + 1, MAX_PATH);
 		pathCopy[MAX_PATH] = '\0';
-		if (pathCopy[strlen(pathCopy) - 1] == '\"')
+		if (pathCopy[strlen(pathCopy) - 1] == '\"') {
 			pathCopy[strlen(pathCopy) - 1] = '\0';
+		}
 		AbsolutePath(fullPath, pathCopy, MAX_PATH);
 	} else if (openName[0]) {
 		AbsolutePath(fullPath, openName, MAX_PATH);
@@ -183,9 +185,8 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 		strcpy(dirName, fullPath);
 		dirName[cpDirEnd - fullPath] = '\0';
 		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
-	}
-	else {
-		// Relative path
+	} else {
+		// Relative path. Since we ran AbsolutePath, we probably are here because fullPath is empty.
 		GetDocumentDirectory(dirName, sizeof(dirName));
 		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
 		if (cpDirEnd) {
@@ -206,8 +207,10 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 	strcat(fullPath, fileName);
 	//Platform::DebugPrintf("Path: <%s>\n", fullPath);
 
-	if (fixCase)
+	if (fixCase) {
 		FixFilePath();
+	}
+
 	char fileBase[MAX_PATH];
 	strcpy(fileBase, fileName);
 	char *extension = strrchr(fileBase, '.');
@@ -458,7 +461,9 @@ void SciTEBase::OpenSelected() {
 
 #if PLAT_WIN
 		if (strncmp(selectedFilename, "http:", 5) == 0 ||
+		        strncmp(selectedFilename, "https:", 6) == 0 ||
 		        strncmp(selectedFilename, "ftp:", 4) == 0 ||
+		        strncmp(selectedFilename, "ftps:", 5) == 0 ||
 		        strncmp(selectedFilename, "news:", 5) == 0 ||
 		        strncmp(selectedFilename, "mailto:", 7) == 0) {
 			SString cmd = selectedFilename;
