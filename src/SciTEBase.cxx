@@ -1930,6 +1930,14 @@ bool SciTEBase::StartStreamComment() {
 	return true;
 }
 
+/**
+ * Return the length of the given line, not counting the EOL.
+ */
+int SciTEBase::GetLineLength(int line) {
+	return SendEditor(SCI_GETLINEENDPOSITION, line) -
+		SendEditor(SCI_POSITIONFROMLINE, line);
+}
+
 int SciTEBase::GetCurrentLineNumber() {
 	return SendEditor(SCI_LINEFROMPOSITION,
 	                  SendEditor(SCI_GETCURRENTPOS));
@@ -2222,21 +2230,25 @@ int SciTEBase::IndentOfBlock(int line) {
 }
 
 void SciTEBase::MaintainIndentation(char ch) {
-	int curLine = GetCurrentLineNumber();
-	int lastLine = curLine - 1;
-	int indentAmount = 0;
 	int eolMode = SendEditor(SCI_GETEOLMODE);
-
-	if (((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') || (eolMode == SC_EOL_CR && ch == '\r')) {
-		if (props.GetInt("indent.automatic"))
-			while (indentAmount == 0 && lastLine > 0)
-				indentAmount = GetLineIndentation(lastLine--);
-		else
-			if (curLine > 0)
-				indentAmount = GetLineIndentation(lastLine);
-
-		if (indentAmount > 0)
+	int curLine = GetCurrentLineNumber();
+	int lastLine = curLine;
+	int lineLen = 0;
+	int indentAmount = 0;
+	
+	if (((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') ||
+		(eolMode == SC_EOL_CR && ch == '\r')) {
+		if (lastLine >= 1 && props.GetInt("indent.automatic")) {
+			do {
+				lineLen = GetLineLength(--lastLine);
+			} while (lineLen == 0 && lastLine > 0);
+		}
+		if (lastLine >= 0) {
+			indentAmount = GetLineIndentation(lastLine);
+		}
+		if (indentAmount > 0) {
 			SetLineIndentation(curLine, indentAmount);
+		}
 	}
 }
 

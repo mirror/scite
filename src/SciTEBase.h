@@ -567,6 +567,7 @@ protected:
 	void SetTextProperties(PropSet &ps);
 	void SetFileProperties(PropSet &ps);
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
+	int GetLineLength(int line);
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue = false);
