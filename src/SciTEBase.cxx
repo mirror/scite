@@ -2049,6 +2049,8 @@ bool SciTEBase::StartBlockComment() {
 		int lineStart = SendEditor(SCI_POSITIONFROMLINE, i);
 		int lineIndent = lineStart;
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, i);
+		if ((lineEnd - lineIndent) >= sizeof(linebuf))	// Avoid buffer size problems
+			continue;
 		if (props.GetInt(comment_at_line_start.c_str())) {
 			GetRange(wEditor, lineIndent, lineEnd, linebuf);
 		} else {
