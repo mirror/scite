@@ -131,7 +131,7 @@ SOURCE=..\src\Exporters.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\win32\ExternalLexer.cxx
+SOURCE=..\..\scintilla\src\ExternalLexer.cxx
 # End Source File
 # Begin Source File
 
