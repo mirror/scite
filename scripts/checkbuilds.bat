@@ -10,28 +10,7 @@ set
 set BORLAND_BASE=G:\Borland\bcc55
 set MSDEV_BASE=C:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
 rem
-rem Target 1: Normal gcc build
-call scite\scripts\clearboth
-cd scintilla\win32
-make
-if ERRORLEVEL 2 goto ERROR
-cd ..\..\scite\win32
-make
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-rem
-rem Target 2: Microsoft VC++ build
-call scite\scripts\clearboth
-cd scintilla\win32
-cl
-nmake -f scintilla.mak QUIET=1
-if ERRORLEVEL 2 goto ERROR
-cd ..\..\scite\win32
-nmake -f scite.mak QUIET=1
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-rem
-rem Target 3: Borland C++ build
+rem Target 1: Borland C++ build
 call scite\scripts\clearboth
 cd scintilla\win32
 set SAVE_PATH=%path%
@@ -47,6 +26,27 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 path %SAVE_PATH%
 set INCLUDE=%SAVE_INCLUDE%
+rem
+rem Target 2: Normal gcc build
+call scite\scripts\clearboth
+cd scintilla\win32
+make
+if ERRORLEVEL 2 goto ERROR
+cd ..\..\scite\win32
+make
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
+rem
+rem Target 3: Microsoft VC++ build
+call scite\scripts\clearboth
+cd scintilla\win32
+cl
+nmake -f scintilla.mak QUIET=1
+if ERRORLEVEL 2 goto ERROR
+cd ..\..\scite\win32
+nmake -f scite.mak QUIET=1
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 rem
 rem Set path for VC 6
 path %MSDEV_BASE%;%path%
