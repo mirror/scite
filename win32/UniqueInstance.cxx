@@ -7,20 +7,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-//#include <ctype.h>
-//#include <stdio.h>
-//#include <sys/stat.h>
-
-//#include <windows.h>
 
 #include "Platform.h"
 #include "SciTEWin.h"
 
-UniqueInstance *UniqueInstance::ui = NULL;
-UINT UniqueInstance::identityMessage = 0;
-
 UniqueInstance::UniqueInstance() {
-	ui = this;
 	stw = 0;
 	identityMessage = ::RegisterWindowMessage("SciTEInstanceIdentifier");
 	mutex = 0;
@@ -47,8 +38,7 @@ bool UniqueInstance::AcceptToOpenFiles(bool bAccept) {
 	bool bError = false;
 
 	stw->openFilesHere = bAccept;
-	if (bAccept)
-	{
+	if (bAccept) {
 		// We create a mutex because it is an atomic operation.
 		// An operation like EnumWindows is long, so if we use it only, we can fall in a race condition.
 		// Note from MSDN: "The system closes the handle automatically when the process terminates.
@@ -61,9 +51,7 @@ bool UniqueInstance::AcceptToOpenFiles(bool bAccept) {
 		// NULL for the SECURITY_ATTRIBUTES on mutex creation
 		bError = (::GetLastError() == ERROR_ALREADY_EXISTS ||
 		          ::GetLastError() == ERROR_ACCESS_DENIED);
-	}
-	else
-	{
+	} else {
 		::CloseHandle(mutex);
 	}
 	return !bError;
@@ -81,12 +69,11 @@ void UniqueInstance::ToggleOpenFilesHere() {
 	if (!AcceptToOpenFiles(!stw->openFilesHere)) {
 		// Cannot set the mutex, search the previous instance holding it
 		HWND hOtherWindow = NULL;
-		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(&hOtherWindow));
-		if (hOtherWindow != NULL)
-		{
+		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(this));
+		if (hOtherWindow != NULL) {
 			// Found, we indicate it to yield the acceptation of files
 			::SendMessage(hOtherWindow, identityMessage, 0,
-						  static_cast<LPARAM>(1));
+			              static_cast<LPARAM>(1));
 		}
 	}
 	stw->CheckMenus();
@@ -123,8 +110,7 @@ LRESULT UniqueInstance::CheckMessage(UINT message, WPARAM wParam, LPARAM lParam)
 			// We answer only if the menu item is checked to accept files,
 			// or if the caller force answering by setting wParam to non null
 			// which can be used to find all instances (not used yet).
-			if (stw->openFilesHere && lParam != 0)
-			{
+			if (stw->openFilesHere && lParam != 0) {
 				// An instance indicates it takes control of the Open Files Here
 				// feature, so this one no longer accept them.
 				AcceptToOpenFiles(false);
@@ -176,7 +162,7 @@ void UniqueInstance::CheckOtherInstance() {
  */
 bool UniqueInstance::FindOtherInstance() {
 	if (bAlreadyRunning && identityMessage != 0) {
-		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(&hOtherWindow));
+		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(this));
 		if (hOtherWindow) {
 			return true;
 		}
@@ -220,41 +206,40 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
 	cds.cbData = static_cast<DWORD>(strlen(cwdCmd) + 1);
 	cds.lpData = static_cast<void *>(cwdCmd);
 	::SendMessage(hOtherWindow, WM_COPYDATA, 0,
-				  reinterpret_cast<LPARAM>(&cds));
+	              reinterpret_cast<LPARAM>(&cds));
 	// Now the command line itself.
 	cds.cbData = static_cast<DWORD>(strlen(cmdLine) + 1);
 	cds.lpData = static_cast<void *>(const_cast<char *>(cmdLine));
 	::SendMessage(hOtherWindow, WM_COPYDATA, 0,
-				  reinterpret_cast<LPARAM>(&cds));
+	              reinterpret_cast<LPARAM>(&cds));
 }
 
 /**
  * Function called by EnumWindows.
  * @a hWnd is the handle to the currently enumerated window.
- * @a lParam is seen as a pointer to a HWND, it receives
- * the handle to the found other SciTE window, if any.
+ * @a lParam is seen as a pointer to the current UniqueInstance
+ * so it can be used to access all members.
  * @return FALSE if found, to stop EnumWindows.
  */
 BOOL CALLBACK UniqueInstance::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 	BOOL bResult = TRUE;
 	DWORD result;
 
+	UniqueInstance *ui = reinterpret_cast<UniqueInstance *>(lParam);
+
 	// First, avoid to send a message to ourself
-	if (hWnd != reinterpret_cast<HWND>(ui->stw->MainHWND()))
-	{
+	if (hWnd != reinterpret_cast<HWND>(ui->stw->MainHWND())) {
 		// Send a message to the given window, to see if it will answer with
 		// the same message. If it does, it is a Gui window with
 		// openFilesHere set.
 		// We use a timeout to avoid being blocked by hung processes.
 		LRESULT found = ::SendMessageTimeout(hWnd,
-			identityMessage, 0, 0,
-			SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
-		if (found != 0 && result == static_cast<DWORD>(identityMessage))
-		{
+		                                     ui->identityMessage, 0, 0,
+		                                     SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
+		if (found != 0 && result == static_cast<DWORD>(ui->identityMessage)) {
 			// Another Gui window found!
-			// We return in lParam the window handle of the found Gui
-			HWND *target = reinterpret_cast<HWND *>(lParam);
-			*target = hWnd;
+			// We memorise its window handle
+			ui->hOtherWindow = hWnd;
 			// We stop the EnumWindows
 			bResult = FALSE;
 		}

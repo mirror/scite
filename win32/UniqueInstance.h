@@ -12,9 +12,8 @@ class SciTEWin;
 class UniqueInstance {
 
 private:
-	static UniqueInstance *ui;	///< Access to class interface for static methods
 	SciTEWin *stw;	///< Access to SciTEWin interface
-	static UINT identityMessage;	///< Registered message to identity SciTE instances
+	UINT identityMessage;	///< Registered message to identify SciTE instances
 	HANDLE mutex;	///< Mutex to avoid concurrent running
 	SString mutexName;	///< Name of the above
 	bool bAlreadyRunning;	///< true if another instance accepting files is found
