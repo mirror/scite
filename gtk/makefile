@@ -10,13 +10,20 @@ AR = ar
 
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
 # "h@h@" is printed here when gnome-config unavailable. Seems harmless.
+ifdef GTK2
+CONFIGFLAGS=pkg-config --cflags gtk+-2.0
+CONFIGLIB=pkg-config --libs gtk+-2.0 gthread-2.0
+else
+CONFIGFLAGS=gtk-config --cflags
+CONFIGLIB=gtk-config --libs
 gnomeprefix:=$(shell gnome-config --prefix 2>/dev/null)
+endif
 ifdef gnomeprefix
   prefix=$(gnomeprefix)
   datadir=$(gnomeprefix)/share
   pixmapdir=$(datadir)/pixmaps
 else
-  prefix=/usr/local
+  prefix=/usr
 endif
 bindir=$(prefix)/bin
 SYSCONF_PATH=$(prefix)/share/scite
@@ -37,7 +44,7 @@ CXXFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
 endif
 
 .cxx.o:
-	$(CC) `gtk-config --cflags` $(CXXFLAGS) -c $< -o $@
+	$(CC) `$(CONFIGFLAGS)` $(CXXFLAGS) -c $< -o $@
 
 all: $(PROG)
 
@@ -45,14 +52,14 @@ clean:
 	rm -f *.o $(PROG)
 
 deps:
-	$(CC) -MM `gtk-config --cflags` $(CXXFLAGS) *.cxx ../src/*.cxx >deps.mak
+	$(CC) -MM `$(CONFIGFLAGS)` $(CXXFLAGS) *.cxx ../src/*.cxx >deps.mak
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 LEXEROBJS=$(wildcard ../../scintilla/gtk/Lex*.o)
 
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o DirectorExtension.o \
 SciTEProps.o Utf8_16.o $(LEXEROBJS) ../../scintilla/bin/scintilla.a
-	$(CC) `gtk-config --libs` `glib-config --libs gthread` -DGTK $^ -o $@
+	$(CC) `$(CONFIGLIB)` `glib-config --libs gthread` -DGTK $^ -o $@
 
 # SciTE-static no longer builds. Kept here in case of later need.
 SciTE-static: SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \

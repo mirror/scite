@@ -106,6 +106,15 @@ private:
 	}
 };
 
+// Field added to GTK+ 1.x ItemFactoryEntry for 2.x  so have a struct that is the same as 1.x
+struct SciTEItemFactoryEntry {
+	char *path;
+	char *accelerator;
+	GtkItemFactoryCallback callback;
+	unsigned int callback_action;
+	char *item_type;
+};
+
 class SciTEGTK : public SciTEBase {
 
 protected:
@@ -302,7 +311,7 @@ public:
 	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
 	void AddToolBar();
 	SString SciTEGTK::TranslatePath(const char *path);
-	void CreateTranslatedMenu(int n, GtkItemFactoryEntry items[],
+	void CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 	                          int nRepeats = 0, const char *prefix = 0, int startNum = 0,
 	                          int startID = 0, const char *radioStart = 0);
 	void CreateMenu();
@@ -411,7 +420,7 @@ static GtkWidget *MakeCommand(const char *text, GtkAccelGroup *accel_group,
 	GTK_WIDGET_SET_FLAGS(command, GTK_CAN_DEFAULT);
 	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(command)->child), text);
 	gtk_widget_add_accelerator(command, "clicked", accel_group,
-	                           key, accelMask, (GtkAccelFlags)0);
+	                           key, GdkModifierType(accelMask), (GtkAccelFlags)0);
 	gtk_signal_connect(GTK_OBJECT(command), "clicked", func, data);
 	return command;
 }
@@ -969,11 +978,11 @@ static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool u
 }
 
 void SciTEGTK::FindReplaceGrabFields() {
-	char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry));
+	const char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry));
 	findWhat = findEntry;
 	memFinds.Insert(findWhat);
 	if (comboReplace) {
-		char *replaceEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboReplace)->entry));
+		const char *replaceEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboReplace)->entry));
 		replaceWhat = replaceEntry;
 		memReplaces.Insert(replaceWhat);
 	}
@@ -1029,11 +1038,11 @@ void SciTEGTK::FRReplaceInSelectionSignal(GtkWidget *, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
-	char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFind)->entry));
+	const char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFind)->entry));
 	scitew->props.Set("find.what", findEntry);
 	scitew->memFinds.Insert(findEntry);
 
-	char *dirEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboDir)->entry));
+	const char *dirEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboDir)->entry));
 	scitew->props.Set("find.directory", dirEntry);
 	scitew->memDirectory.Insert(dirEntry);
 
@@ -1045,7 +1054,7 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 		scitew->props.Set("find.recursive", scitew->props.Get("find.recursive.not").c_str());
 #endif
 
-	char *filesEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFiles)->entry));
+	const char *filesEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFiles)->entry));
 	scitew->props.Set("find.files", filesEntry);
 	scitew->memFiles.Insert(filesEntry);
 
@@ -1327,7 +1336,7 @@ void SciTEGTK::StopExecute() {
 }
 
 void SciTEGTK::GotoSignal(GtkWidget *, SciTEGTK *scitew) {
-	char *lineEntry = gtk_entry_get_text(GTK_ENTRY(scitew->gotoEntry));
+	const char *lineEntry = gtk_entry_get_text(GTK_ENTRY(scitew->gotoEntry));
 	int lineNo = atoi(lineEntry);
 
 	scitew->GotoLineEnsureVisible(lineNo - 1);
@@ -1385,7 +1394,7 @@ void SciTEGTK::ParamGrab() {
 	if (wParameters.Created()) {
 		for (int param = 0; param < maxParam; param++) {
 			SString paramText(param + 1);
-			char *paramVal = gtk_entry_get_text(GTK_ENTRY(entryParam[param]));
+			const char *paramVal = gtk_entry_get_text(GTK_ENTRY(entryParam[param]));
 			props.Set(paramText.c_str(), paramVal);
 		}
 		UpdateStatusBar(true);
@@ -1923,10 +1932,13 @@ void SciTEGTK::AddToPopUp(const char *label, int cmd, bool enabled) {
 	SString localised = LocaliseString(label);
 	localised.insert(0, "/");
 	GtkItemFactoryEntry itemEntry = {
-	                                    const_cast<char *>(localised.c_str()), NULL,
-	                                    GTK_SIGNAL_FUNC(MenuSignal), cmd,
-	                                    const_cast<gchar *>(label[0] ? "<Item>" : "<Separator>")
-	                                };
+		const_cast<char *>(localised.c_str()), NULL,
+		GTK_SIGNAL_FUNC(MenuSignal), cmd,
+		const_cast<gchar *>(label[0] ? "<Item>" : "<Separator>")
+#if GTK_MAJOR_VERSION >= 2
+		,0
+#endif
+	};
 	gtk_item_factory_create_item(GTK_ITEM_FACTORY(popup.GetID()),
 	                             &itemEntry, this, 1);
 	if (cmd) {
@@ -2189,7 +2201,7 @@ SString SciTEGTK::TranslatePath(const char *path) {
 	}
 }
 
-void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[],
+void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
                                     int nRepeats, const char *prefix, int startNum,
                                     int startID, const char *radioStart) {
 
@@ -2200,7 +2212,14 @@ void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[],
 	SString *translatedRadios = new SString[dim];
 	int i = 0;
 	for (; i < n; i++) {
-		translatedItems[i] = items[i];
+		translatedItems[i].path = items[i].path;
+		translatedItems[i].accelerator = items[i].accelerator;
+		translatedItems[i].callback = items[i].callback;
+		translatedItems[i].callback_action = items[i].callback_action;
+		translatedItems[i].item_type = items[i].item_type;
+#if GTK_MAJOR_VERSION >= 2
+		translatedItems[i].extra_data = 0;
+#endif
 		translatedText[i] = TranslatePath(translatedItems[i].path);
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
 		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
@@ -2230,7 +2249,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[],
 void SciTEGTK::CreateMenu() {
 
 	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
-	GtkItemFactoryEntry menuItems[] = {
+	SciTEItemFactoryEntry menuItems[] = {
 	                                      {"/_File", NULL, NULL, 0, "<Branch>"},
 	                                      {"/_File/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                      {"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
@@ -2348,7 +2367,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Tools/_Switch Pane", "<control>F6", menuSig, IDM_SWITCHPANE, 0},
 	                                  };
 
-	GtkItemFactoryEntry menuItemsOptions[] = {
+	SciTEItemFactoryEntry menuItemsOptions[] = {
 	            {"/_Options", NULL, NULL, 0, "<Branch>"},
 	            {"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
 	            {"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
@@ -2372,12 +2391,12 @@ void SciTEGTK::CreateMenu() {
 	            {"/Options/Edit Properties", "", 0, 0, "<Branch>"},
 	        };
 
-	GtkItemFactoryEntry menuItemsLanguage[] = {
+	SciTEItemFactoryEntry menuItemsLanguage[] = {
 	            {"/_Language", NULL, NULL, 0, "<Branch>"},
 	            {"/_Language/tear", NULL, NULL, 0, "<Tearoff>"},
 	        };
 
-	GtkItemFactoryEntry menuItemsBuffer[] = {
+	SciTEItemFactoryEntry menuItemsBuffer[] = {
 	                                            {"/_Buffers", NULL, NULL, 0, "<Branch>"},
 	                                            {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                            {"/Buffers/_Previous", "<shift>F6", menuSig, IDM_PREVFILE, 0},
@@ -2397,7 +2416,7 @@ void SciTEGTK::CreateMenu() {
 	                                            {"/Buffers/Buffer9", "<alt>0", menuSig, bufferCmdID + 9, "/Buffers/Buffer0"},
 	                                        };
 
-	GtkItemFactoryEntry menuItemsHelp[] = {
+	SciTEItemFactoryEntry menuItemsHelp[] = {
 	                                          {"/_Help", NULL, NULL, 0, "<Branch>"},
 	                                          {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                          {"/Help/_Help", "F1", menuSig, IDM_HELP, 0},
@@ -2416,8 +2435,9 @@ void SciTEGTK::CreateMenu() {
 		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer,
 		                     30, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
 	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
-
+#if GTK_MAJOR_VERSION < 2
 	gtk_accel_group_attach(accelGroup, GTK_OBJECT(PWidget(wSciTE)));
+#endif
 }
 
 void SciTEGTK::CreateUI() {
@@ -2473,7 +2493,11 @@ void SciTEGTK::CreateUI() {
 
 	wToolBarBox = gtk_handle_box_new();
 
+#if GTK_MAJOR_VERSION < 2
 	wToolBar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
+#else
+	wToolBar = gtk_toolbar_new();
+#endif
 	tbVisible = false;
 
 	gtk_container_add(GTK_CONTAINER(PWidget(wToolBarBox)), PWidget(wToolBar));
@@ -2572,9 +2596,11 @@ void SciTEGTK::CreateUI() {
 	gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
 
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 2);
+#if GTK_MAJOR_VERSION < 2
 	gtk_toolbar_set_space_size(GTK_TOOLBAR(PWidget(wToolBar)), 17);
 	gtk_toolbar_set_space_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_SPACE_LINE);
 	gtk_toolbar_set_button_relief(GTK_TOOLBAR(PWidget(wToolBar)), GTK_RELIEF_NONE);
+#endif
 
 	wStatusBar = gtk_statusbar_new();
 	sbContextID = gtk_statusbar_get_context_id(
