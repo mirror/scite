@@ -59,11 +59,11 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
 rem Target 5: Visual C++ using scite\vcbuild\SciTE.dsp
-REM ~ call scite\scripts\clearboth
-REM ~ cd scite\vcbuild
-REM ~ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
+call scite\scripts\clearboth
+cd scite\vcbuild
+msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 rem
 rem Target 6: Visual C++ using scite\boundscheck\SciTE.dsp
 call scite\scripts\clearboth
