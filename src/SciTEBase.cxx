@@ -906,7 +906,6 @@ SString SciTEBase::SelectionFilename() {
 	return SString(selection);
 }
 
-// Avoid the ugly casting for turning results from Scintilla API calls into strings
 void SciTEBase::SelectionIntoProperties() {
 	char currentSelection[1000];
 	SelectionExtend(currentSelection, sizeof(currentSelection), 0);
