@@ -63,6 +63,7 @@ const char fileRead[]="rb";
 const char fileWrite[]="wb";
 #endif
 const char propGlobalFileName[] = "SciTEGlobal.properties";
+const char propAbbrevFileName[] = "abbrev.properties";
 
 #define PROPERTIES_EXTENSION	".properties"
 
@@ -650,6 +651,7 @@ bool SciTEBase::Save() {
 				ReadGlobalPropFile();
 				SetImportMenu();
 				ReadLocalPropFile();
+				ReadAbbrevPropFile();
 				ReadProperties();
 				SetWindowName();
 				BuffersMenu();

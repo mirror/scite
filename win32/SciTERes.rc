@@ -53,7 +53,7 @@ BEGIN
 	MENUITEM "Complete S&ymbol\tCtrl+I",		IDM_COMPLETE
 	MENUITEM "Complete &Word\tCtrl+Enter",		IDM_COMPLETEWORD
 	MENUITEM "&Expand Abbreviation\tCtrl+B",	IDM_ABBREV
-	MENUITEM "Co&mment or Uncomment Selection\tCtrl+K",	IDM_COMMENT
+	MENUITEM "Block Co&mment or Uncomment\tCtrl+K",	IDM_COMMENT
 	MENUITEM "Stream Comme&nt\tCtrl+Shift+K",	IDM_STREAM_COMMENT
 	MENUITEM "Make &Selection Uppercase\tCtrl+Shift+U",	IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",IDM_LWRCASE
@@ -150,6 +150,8 @@ BEGIN
 	MENUITEM "Open Local &Options File",    IDM_OPENLOCALPROPERTIES
 	MENUITEM "Open &User Options File",   IDM_OPENUSERPROPERTIES
 	MENUITEM "Open &Global Options File",   IDM_OPENGLOBALPROPERTIES
+	MENUITEM "Open &Abbreviations File",	IDM_OPENABBREVPROPERTIES
+	MENUITEM SEPARATOR
   END
 
   POPUP "&Buffers"

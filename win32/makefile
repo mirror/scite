@@ -40,7 +40,7 @@ PropSet.o PlatWin.o UniConversion.o SciTERes.o DirectorExtension.o
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
-PROPS=..\bin\SciTEGlobal.properties \
+PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
 ..\bin\ave.properties ..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
 ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
@@ -64,6 +64,8 @@ clean:
 	copy ..\..\scintilla\bin\SciLexer.dll $@
 
 ..\bin\SciTEGlobal.properties:	..\src\SciTEGlobal.properties
+	copy $^ $@
+..\bin\abbrev.properties:	..\src\abbrev.properties
 	copy $^ $@
 ..\bin\ave.properties:	..\src\ave.properties
 	copy $^ $@

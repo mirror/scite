@@ -1089,10 +1089,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 		return true;
 	linebuf[current] = '\0';
 	const char *abbrev = linebuf + startword;
-	SString expanded = props.Get(abbrev);
-	// SString language = props.GetNewExpand("lexer.", fileName);
-	// const char* expanded = props.GetNewExpand(abbrev, fileName).c_str();
-	// MessageBox(NULL, language.c_str(), "language", MB_OK);
+	SString expanded = propsAbbrev.Get(abbrev);
 	if (expanded.length()) {
 		SendEditor(SCI_SETSEL, position - counter, position);
 		SendEditorString(SCI_REPLACESEL, 0, expanded.c_str());
@@ -1102,19 +1099,19 @@ bool SciTEBase::StartExpandAbbreviation() {
 
 bool SciTEBase::StartBlockComment() {
 	SString language = props.GetNewExpand("lexer.", fileName);
-	SString base;
+	SString base("comment.");
 	if(language == "") {  // using default lexer
 		language = props.Get("default.file.ext");
-		base = "comment";
-	} else {
-		base = "comment.";
+		const char* extension = language.c_str() + 1;
+		language = extension;
 	}
-	SString comment = props.Get((base += language).c_str());
+	base += language;
+	SString comment = props.Get(base.c_str());
 	if(comment == "") { // user friendly error message box
-		SString error("Define comment characters for ");
-		error += language;
-		error += " lexer in SciTE *.properties!";
-		MessageBox(wSciTE.GetID(), error.c_str(), "Error", MB_OK | MB_ICONWARNING);
+		SString error("Block comment variable \"");
+		error += base.c_str();
+		error += "\" is not defined in SciTE *.properties!";
+		MessageBox(wSciTE.GetID(), error.c_str(), "Block Comment Error", MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	SString long_comment = comment.append(" ");
@@ -1162,23 +1159,26 @@ bool SciTEBase::StartBlockComment() {
 
 bool SciTEBase::StartStreamComment() {
 	SString language = props.GetNewExpand("lexer.", fileName);
-	SString start_base, end_base;
+	SString start_base("comment.stream.start.");
+	SString end_base("comment.stream.end.");
 	SString white_space(" ");
-	if (language == "") {
+	if(language == "") {
 		language = props.Get("default.file.ext");
-		start_base = "comment.stream.start";
-		end_base = "comment.stream.end";
-	} else {
-		start_base = "comment.stream.start.";
-		end_base = "comment.stream.end.";
+		const char* extension = language.c_str() + 1; // removing dot
+		language = extension;
 	}
-	SString start_comment = props.Get((start_base += language).c_str());
-	SString end_comment = props.Get((end_base += language).c_str());
+	start_base += language;
+	end_base += language;
+	SString start_comment = props.Get(start_base.c_str());
+	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || end_comment == "") {
-		SString error("Define stream comment characters for ");
-		error += language;
-		error += " lexer in SciTE *.properties!";
-		MessageBox(wSciTE.GetID(), error.c_str(), "Error", MB_OK | MB_ICONWARNING);
+		SString error("Stream comment variables \"");
+		error += start_base.c_str();
+		error += "\" and \n\"";
+		error += end_base.c_str();
+		error += "\" are not ";
+		error += "defined in SciTE *.properties!";
+		MessageBox(wSciTE.GetID(), error.c_str(), "Stream Comment Error", MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	start_comment += white_space;
@@ -1888,6 +1888,11 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SetFocus(wEditor.GetID());
 		break;
 
+	case IDM_OPENABBREVPROPERTIES:
+		OpenProperties(IDM_OPENABBREVPROPERTIES);
+		SetFocus(wEditor.GetID());
+		break;
+
 	case IDM_SRCWIN:
 		break;
 
@@ -1963,7 +1968,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (CanMakeRoom()) {
 				StackMenu(cmdID - fileStackCmdID);
 			}
-		} else if (cmdID >= importCmdID && 
+		} else if (cmdID >= importCmdID &&
 			(cmdID < importCmdID + importMax)) {
 			if (CanMakeRoom()) {
 				ImportMenu(cmdID - importCmdID);

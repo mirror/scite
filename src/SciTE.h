@@ -8,7 +8,7 @@
 #ifndef SCITE_H
 #define SCITE_H
 
-// Menu IDs. 
+// Menu IDs.
 // These are located 100 apart. No one will want more than 100 in each menu ;)
 #define IDM_MRUFILE			1000
 #define IDM_TOOLS			1100
@@ -118,6 +118,7 @@
 #define IDM_OPENLOCALPROPERTIES	460
 #define IDM_OPENUSERPROPERTIES	461
 #define IDM_OPENGLOBALPROPERTIES	462
+#define IDM_OPENABBREVPROPERTIES	463
 
 //#define IDM_SELECTIONMARGIN	490
 //#define IDM_BUFFEREDDRAW	491

@@ -438,6 +438,19 @@ bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps,
 	return false;
 }
 
+bool SciTEGTK::GetAbbrevPropertiesFileName(char *pathAbbrevProps,
+        char *pathDefaultDir, unsigned int lenPath) {
+	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
+		return false;
+	if (strlen(pathAbbrevProps) + 1 + strlen(propAbbrevFileName) < lenPath) {
+                strncpy(pathAbbrevProps, pathDefaultDir, lenPath);
+                strncat(pathAbbrevProps, pathSepString, lenPath);
+                strncat(pathAbbrevProps, propAbbrevFileName, lenPath);
+		return true;
+        }
+	return false;
+}
+
 bool SciTEGTK::GetSciteUserHome(char *path, unsigned int lenPath) {
 	char *where = getenv("SciTE_HOME");
 	if (!where) {
@@ -1842,6 +1855,8 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Open Local _Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
 	    {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
 	    {"/Options/Open _Global Options File", "", menuSig, IDM_OPENGLOBALPROPERTIES, 0},
+	    {"/Options/Open _Abbreviations Options File", "", menuSig, IDM_OPENABBREVPROPERTIES, 0},
+	    {"/Options/sep4", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Props0", "", menuSig, IDM_IMPORT + 0, 0},
 	    {"/Options/Props1", "", menuSig, IDM_IMPORT + 1, 0},
 	    {"/Options/Props2", "", menuSig, IDM_IMPORT + 2, 0},

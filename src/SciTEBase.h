@@ -11,6 +11,7 @@ extern const char pathSepString[];
 extern const char pathSepChar;
 extern const char propUserFileName[];
 extern const char propGlobalFileName[];
+extern const char propAbbrevFileName[];
 extern const char fileRead[];
 extern const char fileWrite[];
 
@@ -194,7 +195,7 @@ protected:
 	enum { fileStackMax = 10 };
 	RecentFile recentFileStack[fileStackMax];
 	enum { fileStackCmdID = IDM_MRUFILE, bufferCmdID = IDM_BUFFER };
-	
+
 	enum { importMax = 20 };
 	SString importFiles[importMax];
 	enum { importCmdID = IDM_IMPORT };
@@ -308,6 +309,7 @@ protected:
 	PropSetFile propsEmbed;
 	PropSetFile propsBase;
 	PropSetFile propsUser;
+	PropSetFile propsAbbrev;
 	PropSetFile propsLocal;
 	PropSetFile props;
 
@@ -327,6 +329,7 @@ protected:
 
 	void ReadGlobalPropFile();
 	void GetDocumentDirectory(char *docDir, int len);
+	void ReadAbbrevPropFile();
 	void ReadLocalPropFile();
 
 	sptr_t SendEditor(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
@@ -380,6 +383,8 @@ protected:
 		char *pathDefaultDir, unsigned int lenPath)=0;
 	virtual bool GetUserPropertiesFileName(char *pathUserProps,
 		char *pathUserDir, unsigned int lenPath)=0;
+	virtual bool GetAbbrevPropertiesFileName(char *pathAbbrevProps,
+		char *pathDefaultDir, unsigned int lenPath)=0;
 	void OpenProperties(int propsFile);
 	virtual void Print(bool) {};
 	virtual void PrintSetup() {};

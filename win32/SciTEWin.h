@@ -115,6 +115,8 @@ protected:
 	        char *pathDefaultDir, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathUserProps,
 	                                       char *pathUserDir, unsigned int lenPath);
+	virtual bool GetAbbrevPropertiesFileName(char *pathAbbrevProps,
+	        char *pathDefaultDir, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
 

@@ -148,7 +148,7 @@ void SciTEBase::SetImportMenu() {
 				} else {
 					strcat(entry, importFiles[stackPos].c_str());
 				}
-				SetMenuItem(menuOptions, IMPORT_START + stackPos + 1, itemID, entry);
+				SetMenuItem(menuOptions, IMPORT_START + stackPos + 3, itemID, entry);
 			}
 		}
 	}
@@ -182,6 +182,16 @@ void SciTEBase::ReadGlobalPropFile() {
 	if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 		strcat(propdir, pathSepString);
 		propsUser.Read(propfile, propdir, importFiles, importMax);
+	}
+}
+
+void SciTEBase::ReadAbbrevPropFile() {
+	char propfile[MAX_PATH + 20];
+	char propdir[MAX_PATH + 20];
+	propsAbbrev.Clear();
+	if (GetAbbrevPropertiesFileName(propfile, propdir, sizeof(propfile))) {
+		strcat(propdir, pathSepString);
+		propsAbbrev.Read(propfile, propdir, importFiles, importMax);
 	}
 }
 
@@ -844,6 +854,10 @@ void SciTEBase::OpenProperties(int propsFile) {
 		Open(propfile);
 	} else if (propsFile == IDM_OPENUSERPROPERTIES) {
 		if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
+			Open(propfile);
+		}
+	} else if (propsFile == IDM_OPENABBREVPROPERTIES) {
+		if (GetAbbrevPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 			Open(propfile);
 		}
 	} else {	// IDM_OPENGLOBALPROPERTIES

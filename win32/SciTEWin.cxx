@@ -51,8 +51,9 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	}
 
 	ReadGlobalPropFile();
-    /// Need to copy properties to variables before setting up Window
-    SetPropertiesInitial();    
+	/// Need to copy properties to variables before setting up Window
+	SetPropertiesInitial();
+	ReadAbbrevPropFile();
 
 	hDevMode = 0;
 	hDevNames = 0;
@@ -154,6 +155,16 @@ bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps,
 	return true;
 }
 
+bool SciTEWin::GetAbbrevPropertiesFileName(char *pathAbbrevProps,
+        char *pathDefaultDir, unsigned int lenPath) {
+	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
+		return false;
+	strncpy(pathAbbrevProps, pathDefaultDir, lenPath);
+	strncat(pathAbbrevProps, pathSepString, lenPath);
+	strncat(pathAbbrevProps, propAbbrevFileName, lenPath);
+	return true;
+}
+
 bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps,
         char *pathUserDir, unsigned int lenPath) {
 	if (!GetSciteUserHome(pathUserDir, lenPath))
@@ -221,7 +232,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				fnHHA(NULL,
 				      //helpFile.c_str(),
 				      path,
-				      0x000d,      	// HH_KEYWORD_LOOKUP
+				      0x000d,       	// HH_KEYWORD_LOOKUP
 				      reinterpret_cast<DWORD>(&ak)
 				     );
 			}
@@ -280,7 +291,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 
 	case IDM_ONTOP:
 		topMost = (topMost ? false : true);
-		SetWindowPos(wSciTE.GetID(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0,0,0,0, SWP_NOMOVE + SWP_NOSIZE);
+		SetWindowPos(wSciTE.GetID(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0, 0, 0, 0, SWP_NOMOVE + SWP_NOSIZE);
 		CheckAMenuItem(IDM_ONTOP, topMost);
 		break;
 
@@ -522,11 +533,11 @@ void SciTEWin::ProcessExecute() {
 		si.hStdOutput = hPipeWrite;
 		si.hStdError = hPipeWrite;
 
-    	char startDirectory[_MAX_PATH];
-        startDirectory[0] = '\0';
-        AbsolutePath(startDirectory, jobQueue[icmd].directory.c_str(), _MAX_PATH);
+		char startDirectory[_MAX_PATH];
+		startDirectory[0] = '\0';
+		AbsolutePath(startDirectory, jobQueue[icmd].directory.c_str(), _MAX_PATH);
 
-        PROCESS_INFORMATION pi = {0, 0, 0, 0};
+		PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
 		bool worked = ::CreateProcess(
 		                  NULL,
@@ -534,7 +545,7 @@ void SciTEWin::ProcessExecute() {
 		                  NULL, NULL,
 		                  TRUE, 0,
 		                  NULL,
-                          startDirectory[0] ? startDirectory : NULL,
+		                  startDirectory[0] ? startDirectory : NULL,
 		                  &si, &pi);
 
 		if (!worked) {
@@ -580,6 +591,7 @@ void SciTEWin::ProcessExecute() {
 									        static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
 										completed = true;    // It's a dead process
 									}
+
 								}
 							}
 						}
@@ -700,11 +712,11 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 
 	DWORD rc = reinterpret_cast<DWORD>(
 	               ShellExecute(
-	                   wSciTE.GetID(),      // parent wnd for msgboxes during app start
-	                   NULL,       // cmd is open
-	                   mycmd,      // file to open
-	                   myparams,      // parameters
-	                   dir.c_str(),      // launch directory
+	                   wSciTE.GetID(),       // parent wnd for msgboxes during app start
+	                   NULL,        // cmd is open
+	                   mycmd,       // file to open
+	                   myparams,       // parameters
+	                   dir.c_str(),       // launch directory
 	                   SW_SHOWNORMAL)); //default show cmd
 
 	if (rc > 32) {
@@ -974,6 +986,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			SendEditor(WM_PALETTECHANGED, wParam, lParam);
 			//SendOutput(WM_PALETTECHANGED, wParam, lParam);
 		}
+
 		break;
 
 	case WM_QUERYNEWPALETTE:
