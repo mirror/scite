@@ -18,6 +18,10 @@
             border: 1px solid black;
             padding: 1px 5px 1px 5px;
         }
+        th {
+            border: 1px solid black;
+            padding: 1px 5px 1px 5px;
+        }
         .windowsonly {
             background: #E7E7FF;
         }
@@ -173,11 +177,37 @@ NameError: mistake
        <code>
        SciTE "-import c:\os\web_work" SciTEDoc.html
        </code><br />
-       The only command currently available is "open:" although this will expand in the
-       future. The following opens /big/icon.txt:<br />
+       A few commands are currently available although this will expand in the
+       future. Commands use C style escape sequences which include:
+       <table cellpadding="0" cellspacing="0" border="1">
+	<thead>
+	<tr><th>Escape Sequence</th><th>Meaning</th></tr>
+	</thead>
+	<tr><td>\\</td><td>backslash</td></tr>
+	<tr><td>\a</td><td>bell</td></tr>
+	<tr><td>\b</td><td>backspace</td></tr>
+	<tr><td>\f</td><td>form feed</td></tr>
+	<tr><td>\n</td><td>new line</td></tr>
+	<tr><td>\r</td><td>carriage return</td></tr>
+	<tr><td>\t</td><td>tab</td></tr>
+	<tr><td>\v</td><td>vertical tab</td></tr>
+	<tr><td>\&lt;ooo&gt;</td><td>octal number specified by 1, 2, or 3 digits</td></tr>
+	<tr><td>\x&lt;hh&gt;</td><td>hexidecimal number specified by 2 digits</td></tr>
+       </table>
+       The following opens /big/icon.txt:<br />
        <code>
        SciTE -open:/big/icon.txt
        </code><br />
+       These commands are available:
+       <table cellpadding="0" cellspacing="0" border="1">
+	<thead>
+	<tr><th>Command</th><th>Argument</th></tr>
+	</thead>
+	<tr><td>find:</td><td>search text</td></tr>
+	<tr><td>goto:</td><td>line number</td></tr>
+	<tr><td>open:</td><td>file name</td></tr>
+	<tr><td>replaceall:</td><td>search text\000replacement text</td></tr>
+       </table>
     </p>
     <p>
 	Command line arguments are evaluated left to right in two phases because
@@ -207,55 +237,45 @@ NameError: mistake
        SciTE currently is able to syntax style these languages:
     </p>
     <ul>
-      <li>
-        Python
-      </li>
-      <li>
-        C/C++
-      </li>
-      <li>
-        IDL - both MSIDL and XPIDL
-      </li>
-      <li>
-        Java
-      </li>
-      <li>
-        JavaScript
-      </li>
-      <li>
-        HTML
-      </li>
-      <li>
-        HTML with embedded JavaScript, VBScript, PHP and ASP
-      </li>
-      <li>
-        XML
-      </li>
-      <li>
-        INI, properties and similar
-      </li>
-      <li>
-        VB and VBScript
-      </li>
-      <li>
-        A subset of Perl
-      </li>
-      <li>
-        SQL
-      </li>
-      <li>
-        Lua
-      </li>
-      <li>
-        Pascal
-      </li>
-      <li>
-        Avenue - a language used in the ESRI ArcView GIS.
-      </li>
+	<li>Python</li>
+	<li>C/C++</li>
+	<li>IDL - both MSIDL and XPIDL</li>
+	<li>Java</li>
+	<li>JavaScript</li>
+	<li>HTML</li>
+	<li>HTML with embedded JavaScript, VBScript, PHP and ASP</li>
+	<li>XML</li>
+	<li>INI, properties and similar</li>
+	<li>VB and VBScript</li>
+	<li>A subset of Perl</li>
+	<li>SQL</li>
+	<li>Lua</li>
+	<li>Pascal</li>
+	<li>Avenue - a language used in the ESRI ArcView GIS</li>
+	<li>Ada</li>
     </ul>
     <p>
        Running and building commands for some of these languages have been set up but should be
       checked as they will have to be modified to work for many people.
+    </p>
+    <h3>
+       Find and Replace
+    </h3>
+    <p>
+       SciTE has options to allow searching for words, regular expressions, 
+       matching case, in the reverse direction, wrapping around the end of the 
+       document. 
+       C style backslash escapes which are listed in the command line 
+       arguments section, may be used to search and replace control 
+       characters.
+       Replacements can be made individually, over the current selection or 
+       over the whole file. When regular expressions are used tagged 
+       subexpressions can be used in the replacement text.
+    </p>
+    <p>
+       SciTE supports
+       <a href="SciTERegEx.html">basic regular expressions</a>
+       with tagging.
     </p>
     <h3>
        Keyboard commands
@@ -267,188 +287,73 @@ NameError: mistake
     </p>
 <table cellpadding="0" cellspacing="0" border="1">
       <tr>
-        <td>
-          Magnify text size
-        </td>
-        <td>
-          Ctrl+Keypad+
-        </td>
+	<td>Magnify text size</td><td>Ctrl+Keypad+</td>
       </tr>
       <tr>
-        <td>
-          Reduce text size
-        </td>
-        <td>
-          Ctrl+Keypad-
-        </td>
+	<td>Reduce text size</td><td>Ctrl+Keypad-</td>
       </tr>
       <tr>
-        <td>
-          Restore text size to normal
-        </td>
-        <td>
-          Ctrl+Keypad/
-        </td>
+	<td>Restore text size to normal</td><td>Ctrl+Keypad/</td>
       </tr>
       <tr>
-        <td>
-          Cycle through recent files
-        </td>
-        <td>
-          Ctrl+Tab
-        </td>
+	<td>Cycle through recent files</td><td>Ctrl+Tab</td>
       </tr>
       <tr>
-        <td>
-          Indent block
-        </td>
-        <td>
-          Tab
-        </td>
+	<td>Indent block</td><td>Tab</td>
       </tr>
       <tr>
-        <td>
-          Dedent block
-        </td>
-        <td>
-          Shift+Tab
-        </td>
+	<td>Dedent block</td><td>Shift+Tab</td>
       </tr>
       <tr>
-        <td>
-          Delete to start of word
-        </td>
-        <td>
-          Ctrl+BackSpace
-        </td>
+	<td>Delete to start of word</td><td>Ctrl+BackSpace</td>
       </tr>
       <tr>
-        <td>
-          Delete to end of word
-        </td>
-        <td>
-          Ctrl+Delete
-        </td>
+	<td>Delete to end of word</td><td>Ctrl+Delete</td>
       </tr>
       <tr>
-        <td>
-          Delete to start of line
-        </td>
-        <td>
-          Ctrl+Shift+BackSpace
-        </td>
+	<td>Delete to start of line</td><td>Ctrl+Shift+BackSpace</td>
       </tr>
       <tr>
-        <td>
-          Delete to end of line
-        </td>
-        <td>
-          Ctrl+Shift+Delete
-        </td>
+	<td>Delete to end of line</td><td>Ctrl+Shift+Delete</td>
       </tr>
       <tr>
-        <td>
-          Expand or contract a fold point.
-        </td>
-        <td>
-          Ctrl+Keypad*
-        </td>
+	<td>Expand or contract a fold point.</td><td>Ctrl+Keypad*</td>
       </tr>
       <tr>
-        <td>
-          Create or delete a bookmark.
-        </td>
-        <td>
-          Ctrl+F2
-        </td>
+	<td>Create or delete a bookmark.</td><td>Ctrl+F2</td>
       </tr>
       <tr>
-        <td>
-          Go to next bookmark.
-        </td>
-        <td>
-          F2
-        </td>
+	<td>Go to next bookmark.</td><td>F2</td>
       </tr>
       <tr>
-        <td>
-          Find selection.
-        </td>
-        <td>
-          Ctrl+F3
-        </td>
+	<td>Find selection.</td><td>Ctrl+F3</td>
       </tr>
       <tr>
-        <td>
-          Find selection backwards.
-        </td>
-        <td>
-          Ctrl+Shift+F3
-        </td>
+	<td>Find selection backwards.</td><td>Ctrl+Shift+F3</td>
       </tr>
       <tr>
-        <td>
-          Scroll up.
-        </td>
-        <td>
-          Ctrl+Up
-        </td>
+	<td>Scroll up.</td><td>Ctrl+Up</td>
       </tr>
       <tr>
-        <td>
-          Scroll down.
-        </td>
-        <td>
-          Ctrl+Down
-        </td>
+	<td>Scroll down.</td><td>Ctrl+Down</td>
       </tr>
       <tr>
-        <td>
-          Line cut.
-        </td>
-        <td>
-          Ctrl+L
-        </td>
+	<td>Line cut.</td><td>Ctrl+L</td>
       </tr>
       <tr>
-        <td>
-          Line transpose with previous.
-        </td>
-        <td>
-          Ctrl+T
-        </td>
+	<td>Line transpose with previous.</td><td>Ctrl+T</td>
       </tr>
       <tr>
-        <td>
-          Find preprocessor conditional.
-        </td>
-        <td>
-          Ctrl+K
-        </td>
+	<td>Find preprocessor conditional.</td><td>Ctrl+K</td>
       </tr>
       <tr>
-        <td>
-          Select to preprocessor conditional.
-        </td>
-        <td>
-          Ctrl+Shift+K
-        </td>
+	<td>Select to preprocessor conditional.</td><td>Ctrl+Shift+K</td>
       </tr>
       <tr>
-        <td>
-          Find preprocessor conditional backwards.
-        </td>
-        <td>
-          Ctrl+J
-        </td>
+	<td>Find preprocessor conditional backwards.</td><td>Ctrl+J</td>
       </tr>
       <tr>
-        <td>
-          Select to preprocessor conditional backwards.
-        </td>
-        <td>
-          Ctrl+Shift+J
-        </td>
+	<td>Select to preprocessor conditional backwards.</td><td>Ctrl+Shift+J</td>
       </tr>
     </table>
     <h3>

@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta name="generator" content="SciTE" />
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>
+      SciTE Regular Expressions
+    </title>
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td>
+          <img src="SciTEIco.png" border="3" height="64" width="64" alt="Scintilla icon" />
+        </td>
+        <td>
+          <a href="index.html" style="color:white;text-decoration:none"><font size="5">
+          Regular Expressions</font></a>
+        </td>
+      </tr>
+    </table>
+    <h2>
+       Regular Expressions in SciTE
+    </h2>
+    <h3>Purpose</h3>
+    <p>
+      Regular expressions can be used for searching for patterns 
+      rather than literals. For example, it is possible to 
+      search for variables in SciTE property files, 
+      which look like $(name) with the regular expression:<br />
+      \$([a-z.]+)
+    </p>
+    <p>
+      Replacement with regular expressions allows complex 
+      transformations with the use of tagged expressions.
+      For example, pairs of numbers sparated by a ',' could
+      be reordered by replacing the regular expression:<br />
+      \([0-9]+\),\([0-9]+\)<br />
+      with:<br />
+      \2,\1
+    </p>
+    <h3>Syntax</h3>
+    <p>
+    <ol>
+	<li>
+	char    matches itself, unless it is a special character 
+	(metachar): . \ [ ] * + ^ $
+	</li><li>
+	.       matches any character.
+	</li><li>
+     \       matches the character following it, except
+	when followed by a left or right round bracket,
+	a digit 1 to 9 or a left or right angle bracket. 
+	(see [7], [8] and [9])
+	It is used as an escape character for all 
+	other meta-characters, and itself. When used
+	in a set ([4]), it is treated as an ordinary
+	character.
+	</li><li>
+	[set]   matches one of the characters in the set.
+	If the first character in the set is "^",
+	it matches a character NOT in the set, i.e. 
+	complements the set. A shorthand S-E is 
+	used to specify a set of characters S upto 
+	E, inclusive. The special characters "]" and 
+	"-" have no special meaning if they appear 
+	as the first chars in the set.
+                examples:        match:
+
+                        [a-z]    any lowercase alpha
+
+                        [^]-]    any char except ] and -
+
+                        [^A-Z]   any char except uppercase
+                                 alpha
+
+                        [a-zA-Z] any alpha
+	</li><li>
+	*       any regular expression form [1] to [4], followed by
+	closure char (*) matches zero or more matches of
+	that form.
+	</li><li>
+	+       same as [5], except it matches one or more.
+	</li><li>
+	a regular expression in the form [1] to [10], enclosed
+	as \(form\) matches what form matches. The enclosure
+	creates a set of tags, used for [8] and for
+	pattern substution. The tagged forms are numbered
+	starting from 1.
+	</li><li>
+	a \ followed by a digit 1 to 9 matches whatever a
+	previously tagged regular expression ([7]) matched.
+	</li><li>
+	\&lt;	a regular expression starting with a \&lt; construct
+	\&gt;	and/or ending with a \&gt; construct, restricts the
+	pattern matching to the beginning of a word, and/or
+	the end of a word. A word is defined to be a character
+	string beginning and/or ending with the characters
+	A-Z a-z 0-9 and _. It must also be preceded and/or
+	followed by any character outside those mentioned.
+	</li><li>
+	a composite regular expression xy where x and y
+	are in the form [1] to [10] matches the longest
+	match of x followed by a match for y.
+	</li><li>
+^	a regular expression starting with a ^ character
+$	and/or ending with a $ character, restricts the
+                pattern matching to the beginning of the line,
+                or the end of line. [anchors] Elsewhere in the
+	pattern, ^ and $ are treated as ordinary characters.
+	</li>
+      </ol>
+    </p>
+    <h3>Acknowledgements</h3>
+    <p>
+    Most of this documentation was originally written by Ozan S. Yigit.<br />
+    Additions by Neil Hodgson.<br />
+    All of this document is in the public domain.
+    </p>
+    </p>
+  </body>
+</html>
+
