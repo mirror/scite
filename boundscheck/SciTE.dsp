@@ -223,6 +223,10 @@ SOURCE=..\..\scintilla\src\LexMMIXAL.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexMPT.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexNsis.cxx
 # End Source File
 # Begin Source File
@@ -264,6 +268,10 @@ SOURCE=..\..\scintilla\src\LexSQL.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\LexVB.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexYAML.cxx
 # End Source File
 # Begin Source File
 
