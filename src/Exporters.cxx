@@ -674,9 +674,6 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		SString family;
 		SString fore;
 		SString back;
-		bool italics = false;
-		bool bold = false;
-		int size = 0;
 		if ((valdef && *valdef) || (val && *val)) {
 			if (valdef && *valdef) {
 				char *opt = valdef;
@@ -687,14 +684,9 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 					char *colon = strchr(opt, ':');
 					if (colon)
 						*colon++ = '\0';
-				if (0 == strcmp(opt, "italics")) { italics = true; }
-					if (0 == strcmp(opt, "notitalics")) { italics = false; }
-					if (0 == strcmp(opt, "bold")) { bold = true; }
-					if (0 == strcmp(opt, "notbold")) { bold = false; }
 					if (0 == strcmp(opt, "font")) { family = colon; }
 					if (0 == strcmp(opt, "fore")) { fore = colon; }
 					if (0 == strcmp(opt, "back")) { back = colon; }
-					if (0 == strcmp(opt, "size")) { size = atoi(colon); }
 					if (cpComma)
 						opt = cpComma + 1;
 					else
@@ -710,14 +702,9 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 					char *colon = strchr(opt, ':');
 					if (colon)
 						*colon++ = '\0';
-				if (0 == strcmp(opt, "italics")) { italics = true; }
-					if (0 == strcmp(opt, "notitalics")) { italics = false; }
-					if (0 == strcmp(opt, "bold")) { bold = true; }
-					if (0 == strcmp(opt, "notbold")) { bold = false; }
 					if (0 == strcmp(opt, "font")) { family = colon; }
 					if (0 == strcmp(opt, "fore")) { fore = colon; }
 					if (0 == strcmp(opt, "back")) { back = colon; }
-					if (0 == strcmp(opt, "size")) { size = atoi(colon); }
 					if (cpComma)
 						opt = cpComma + 1;
 					else

@@ -84,7 +84,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	pagesetupMargin.right = atol(val);
 	next = GetNextPropItem(next, val, 32);
 	pagesetupMargin.top = atol(val);
-	next = GetNextPropItem(next, val, 32);
+	GetNextPropItem(next, val, 32);
 	pagesetupMargin.bottom = atol(val);
 	delete []ps;
 

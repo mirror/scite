@@ -83,7 +83,7 @@ void SciTEWin::WarnUser(int warnID) {
 	warn = StringDup(warning.c_str());
 	next = GetNextPropItem(warn, flashDuration, 10);
 	next = GetNextPropItem(next, sound, _MAX_PATH);
-	next = GetNextPropItem(next, soundDuration, 10);
+	GetNextPropItem(next, soundDuration, 10);
 	delete []warn;
 
 	int flashLen = atoi(flashDuration);
@@ -593,7 +593,7 @@ void SciTEWin::Print(bool showDialog) {
 		frPrint.rc.top += headerLineHeight + headerLineHeight / 2;
 	}
 	if (footerFormat.size()) {
-		frPrint.rc.bottom -= headerLineHeight + headerLineHeight / 2;
+		frPrint.rc.bottom -= footerLineHeight + footerLineHeight / 2;
 	}
 	// Print each page
 	int pageNum = 1;
