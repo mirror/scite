@@ -728,7 +728,7 @@ static void FillComboFromMemory(HWND combo, const ComboMemory &mem, bool useTop=
 static SString GetItemText(HWND hDlg, int id) {
 	char s[10000];
 	::GetDlgItemText(hDlg, id, s, sizeof(s));
-	return s;
+	return SString(s);
 }
 
 BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
@@ -926,7 +926,7 @@ void SciTEWin::Find() {
 	if (!reverseFind)
 		fr.Flags |= FR_DOWN;
 	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
-	fr.wFindWhatLen = findWhat.length() + 1;
+	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 
 	wFindReplace = ::CreateDialogParam(hInstance,
 	                                   MAKEINTRESOURCE(IDD_FIND),
@@ -1009,8 +1009,8 @@ void SciTEWin::Replace() {
 	fr.Flags = FR_REPLACE;
 	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
 	fr.lpstrReplaceWith = const_cast<char *>(replaceWhat.c_str());
-	fr.wFindWhatLen = findWhat.length() + 1;
-	fr.wReplaceWithLen = replaceWhat.length() + 1;
+	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
+	fr.wReplaceWithLen = static_cast<WORD>(replaceWhat.length() + 1);
 
 	wFindReplace = ::CreateDialogParam(hInstance,
 	                                   MAKEINTRESOURCE(IDD_REPLACE),

@@ -851,13 +851,13 @@ void SciTEBase::SelectionExtend(
 SString SciTEBase::SelectionWord() {
 	char selection[1000];
 	SelectionExtend(selection, sizeof(selection), iswordcharforsel);
-	return selection;
+	return SString(selection);
 }
 
 SString SciTEBase::SelectionFilename() {
 	char selection[1000];
 	SelectionExtend(selection, sizeof(selection), isfilenamecharforsel);
-	return selection;
+	return SString(selection);
 }
 
 void SciTEBase::SelectionIntoProperties() {
@@ -1055,7 +1055,7 @@ unsigned int UnSlashLowOctal(char *s) {
 
 static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 	char *sUnslashed = StringDup(s.c_str());
-	int len = 0;
+	int len;
 	if (escapes) {
 		if (regularExpression) {
 			// For regular expressions only escape sequences allowed start with \0
