@@ -9,14 +9,28 @@ extern const char appName[];
 const char pathSepString[] = "/";
 const char pathSepChar = '/';
 const char propUserFileName[] = ".SciTEUser.properties";
+const char fileRead[]="rb";
+const char fileWrite[]="wb";
 #define MAX_PATH 260
 #else
+#ifdef __vms
+const char pathSepString[] = "/";
+const char pathSepChar = '/';
+const char propUserFileName[] = "SciTEUser.properties";
+const char *VMSToUnixStyle(const char *fileName);
+const char fileRead[]="r";
+const char fileWrite[]="w";
+#else
+// Windows
 const char pathSepString[] = "\\";
 const char pathSepChar = '\\';
 const char propUserFileName[] = "SciTEUser.properties";
+const char fileRead[]="rb";
+const char fileWrite[]="wb";
 #ifdef _MSC_VER
 // Shut up level 4 warning:  warning C4710: function 'void whatever(...)' not inlined
 #pragma warning(disable:4710)
+#endif
 #endif
 #endif
 

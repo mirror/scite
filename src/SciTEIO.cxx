@@ -8,7 +8,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fcntl.h>
-//#include <stdarg.h>
 #include <sys/stat.h>
 #include <time.h>	// For time_t
 
@@ -140,7 +139,7 @@ bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 	if(path[0] == '/')// absolute path
 		strcpy(copyPath, path);
 #endif
-	FILE *fp = fopen(copyPath, "rb");
+	FILE *fp = fopen(copyPath, fileRead);
 	if (!fp)
 		return false;
 	fclose(fp);
@@ -180,8 +179,72 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 	}
 }
 
+#ifdef __vms
+const char *VMSToUnixStyle(const char *fileName) {
+
+	// possible formats:
+	// o disk:[dir.dir]file.type
+	// o logical:file.type
+	// o [dir.dir]file.type
+	// o file.type
+	// o /disk//dir/dir/file.type
+	// o /disk/dir/dir/file.type
+
+	static char unixStyleFileName[MAX_PATH + 20];
+
+	if (strchr(fileName, ':') == NULL && strchr(fileName, '[') == NULL) {
+		// o file.type
+		// o /disk//dir/dir/file.type
+		// o /disk/dir/dir/file.type
+		if (strstr (fileName, "//") == NULL) {
+			return fileName;
+		}
+		strcpy (unixStyleFileName, fileName);
+		char *p;
+		while ((p = strstr (unixStyleFileName, "//")) != NULL) {
+			strcpy (p, p + 1);
+		}
+		return unixStyleFileName;
+	}
+
+	// o disk:[dir.dir]file.type
+	// o logical:file.type
+	// o [dir.dir]file.type
+
+	if (fileName [0] == '/') {
+		strcpy (unixStyleFileName, fileName);
+	} else {
+		unixStyleFileName [0] = '/';
+		strcpy (unixStyleFileName + 1, fileName);
+		char *p = strstr(unixStyleFileName, ":[");
+		if (p == NULL) {
+			// o logical:file.type
+			p = strchr(unixStyleFileName, ':');
+			*p = '/';
+		} else {
+			*p = '/';
+			strcpy (p + 1, p + 2);
+			char *end = strchr(unixStyleFileName, ']');
+			if (*end != NULL) {
+				*end = '/';
+			}
+			while (p = strchr (unixStyleFileName, '.'), p != NULL && p < end) {
+				*p = '/';
+			}
+		}
+	}
+	return unixStyleFileName;
+} // VMSToUnixStyle
+#endif
+
 void SciTEBase::Open(const char *file, bool initialCmdLine) {
 
+#ifdef __vms
+	static char fixedFileName [MAX_PATH];
+	strcpy(fixedFileName, VMSToUnixStyle(file));
+	file = fixedFileName;
+#endif
+	
 	InitialiseBuffers();
 
 	if (!file) {
@@ -220,7 +283,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 
 		fileModTime = GetModTime(fullPath);
 
-		FILE *fp = fopen(fullPath, "rb");
+		FILE *fp = fopen(fullPath, fileRead);
 		if (fp || initialCmdLine) {
 			if (fp) {
 				char data[blockSize];
@@ -272,7 +335,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 }
 
 void SciTEBase::Revert() {
-	FILE *fp = fopen(fullPath, "rb");
+	FILE *fp = fopen(fullPath, fileRead);
 
 	if (fp) {
 		SendEditor(SCI_CANCEL);
@@ -401,7 +464,7 @@ bool SciTEBase::Save() {
 
 		//Platform::DebugPrintf("Saving <%s><%s>\n", fileName, fullPath);
 		//DWORD dwStart = timeGetTime();
-		FILE *fp = fopen(fullPath, "wb");
+		FILE *fp = fopen(fullPath, fileWrite);
 		if (fp) {
 			char data[blockSize + 1];
 			int lengthDoc = LengthDocument();

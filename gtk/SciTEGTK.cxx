@@ -42,6 +42,10 @@ const char appName[] = "Sc1";
 const char appName[] = "SciTE";
 #endif 
 
+#ifdef __vms
+char g_modulePath[MAX_PATH];
+#endif
+
 class SciTEGTK : public SciTEBase {
 
 protected:
@@ -381,12 +385,21 @@ void SciTEGTK::GetDefaultDirectory(char *directory, size_t size) {
 	}
 #endif 
 	if (where)
+#ifdef __vms
+		strncpy(directory, VMSToUnixStyle(where), size);
+#else
 		strncpy(directory, where, size);
+#endif
 	directory[size - 1] = '\0';
 }
 
 bool SciTEGTK::GetSciteDefaultHome(char *path, unsigned int lenPath) {
 	char *where = getenv("SciTE_HOME");
+#ifdef __vms
+	if (where == NULL) {
+		where = g_modulePath;
+	}
+#endif
 #ifdef SYSCONF_PATH
 	if (!where) {
 		where = SYSCONF_PATH;
@@ -397,7 +410,11 @@ bool SciTEGTK::GetSciteDefaultHome(char *path, unsigned int lenPath) {
 	}
 #endif 
 	if (where) {
+#ifdef __vms
+		strncpy(path, VMSToUnixStyle(where), lenPath);
+#else
 		strncpy(path, where, lenPath);
+#endif
 		return true;
 	}
 	return false;
@@ -1161,8 +1178,12 @@ void SciTEGTK::Execute() {
 		if (extender)
 			extender->OnExecute(jobQueue[icmd].command.c_str());
 	} else {
-
+#ifndef __vms
 		if (mkfifo(resultsFile, S_IRUSR | S_IWUSR) < 0) {
+#else           // no mkfifo on OpenVMS!
+                creat (resultsFile, 0777);
+                if (jobQueue[icmd].jobType == jobShell) {   // Always false!
+#endif
 			OutputAppendString(">Failed to create FIFO\n");
 			ExecuteNext();
 			return ;
@@ -2200,6 +2221,28 @@ int main(int argc, char *argv[]) {
 #else
 	Extension *extender = 0;
 #endif 
+
+#ifdef __vms
+	// Store the path part of the module name
+	strcpy(g_modulePath, argv[0]);
+	char *p = strstr(g_modulePath, "][");
+	if (p != NULL) {
+		strcpy (p, p+ 2);
+	}
+	p = strchr(g_modulePath, ']');
+	if (p == NULL) {
+		p = strchr(g_modulePath, '>');
+	}
+	if (p == NULL) {
+		p = strchr(g_modulePath, ':');
+	}
+	if (p != NULL) {
+		*(p + 1) = '\0';
+	}
+	strcpy(g_modulePath, VMSToUnixStyle(g_modulePath));
+	g_modulePath[strlen(g_modulePath) - 1] = '\0';  // remove trailing "/"
+#endif
+	
 	gtk_init(&argc, &argv);
 	SciTEGTK scite(extender);
 	if (argc > 1) {

@@ -8,8 +8,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fcntl.h>
-//#include <stdarg.h>
-//#include <sys/stat.h>
 #include <time.h>	// For time_t
 
 #include "Platform.h"
@@ -77,8 +75,10 @@ void SciTEBase::ReadLocalPropFile() {
 	GetDocumentDirectory(propdir, sizeof(propdir));
 	char propfile[MAX_PATH + 20];
 	strcpy(propfile, propdir);
+#ifndef __vms
 	strcat(propdir, pathSepString);
 	strcat(propfile, pathSepString);
+#endif
 	strcat(propfile, propFileName);
 	props.Clear();
 	props.Read(propfile, propdir);
@@ -271,7 +271,7 @@ void SciTEBase::ReadProperties() {
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
 	if (apifilename.length()) {
-		FILE *fp = fopen(apifilename.c_str(), "rb");
+		FILE *fp = fopen(apifilename.c_str(), fileRead);
 		if (fp) {
 			fseek(fp, 0, SEEK_END);
 			int len = ftell(fp);
@@ -594,6 +594,9 @@ void SciTEBase::OpenProperties(int propsFile) {
 		char propdir[MAX_PATH + 20];
 		if (propsFile == IDM_OPENLOCALPROPERTIES) {
 			getcwd(propfile, sizeof(propfile));
+#ifdef __vms
+			strcpy (propfile, VMSToUnixStyle(propfile));
+#endif
 			strcat(propfile, pathSepString);
 			strcat(propfile, propFileName);
 			Open(propfile);
