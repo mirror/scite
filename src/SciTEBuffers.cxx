@@ -768,7 +768,9 @@ void SciTEBase::GoMessage(int dir) {
 		int lineLength = SendOutput(SCI_LINELENGTH, lookLine, 0);
 		//Platform::DebugPrintf("GOMessage %d %d %d of %d linestart = %d\n", selStart, curLine, lookLine, maxLine, startPosLine);
 		char style = acc.StyleAt(startPosLine);
-		if (style != 0 && style != 4) {
+		if (style != SCE_ERR_DEFAULT && 
+			style != SCE_ERR_CMD && 
+			style < SCE_ERR_DIFF_CHANGED) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
