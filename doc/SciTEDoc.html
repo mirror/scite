@@ -1117,16 +1117,20 @@ NameError: mistake
       <tr>
         <td>
           command.compile.<i>filepattern</i><br />
-           command.compile.subsystem.<i>filepattern</i><br />
-           command.build.<i>filepattern</i><br />
-           command.build.subsystem.<i>filepattern</i><br />
-           command.go.<i>filepattern</i><br />
-	   command.go.subsystem.<i>filepattern</i>
+          command.compile.subsystem.<i>filepattern</i><br />
+          command.build.<i>filepattern</i><br />
+          command.build.subsystem.<i>filepattern</i><br />
+	command.build.directory.<i>filepattern</i><br />
+          command.go.<i>filepattern</i><br />
+	command.go.subsystem.<i>filepattern</i>
         </td>
         <td>
           These settings choose which commands to execute when the Compile, Build or Go menu items
           are selected. The subsystem options determine for Windows whether the tools are run as
-          command line(0), windowed(1), or through ShellExecute(2).
+          command line(0), windowed(1), or through ShellExecute(2).<br />
+	When source files are in a different directory to that they should be built in, the
+	command.build.directory property can be set to change to a particular diretory before performing
+	the build.
         </td>
       </tr>
       <tr>
@@ -1257,8 +1261,8 @@ NameError: mistake
         </td>
         <td>
 	These settings determine the style of the header and footer using the same
-	format as other styles in SciTE. Only the font, size, bold, italics, and underlined
-	attributes are supported.
+	format as other styles in SciTE. Only the fore, back, font, size, bold, italics,
+	and underlined attributes are supported.
         </td>
       </tr>
       <tr>
