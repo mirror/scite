@@ -224,6 +224,7 @@ void Job::Clear() {
 
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext)  {
 	codePage = 0;
+	characterSet = 0;
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	functionDefinition = 0;
@@ -858,6 +859,7 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 	}
 	if (val)
 		delete []val;
+	Platform::SendScintilla(win.GetID(), SCI_STYLESETCHARACTERSET, style, characterSet);
 }
 
 void SciTEBase::SetStyleFor(Window &win, const char *lang) {
@@ -1077,6 +1079,8 @@ void SciTEBase::ReadProperties() {
 	codePage = props.GetInt("code.page");
 	SendEditor(SCI_SETCODEPAGE, codePage);
 
+	characterSet = props.GetInt("character.set");
+	
 	SString colour;
 	colour = props.Get("caret.fore");
 	if (colour.length()) {

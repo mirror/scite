@@ -154,6 +154,7 @@ protected:
 	ComboMemory memFiles;
 
 	int codePage;
+	int characterSet;
 	SString language;
 	int lexLanguage;
 	SString overrideExtension;	// User has chosen to use a particular language
