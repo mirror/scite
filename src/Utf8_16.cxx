@@ -230,7 +230,7 @@ void Utf8_Iter::operator++() {
 		toStart();
 		break;
 	case e3Bytes_Byte2:
-		m_nCur |= static_cast<utf8>((0x3F & *m_pRead) << 6);
+		m_nCur |= static_cast<utf16>((0x3F & *m_pRead) << 6);
 		m_eState = e3Bytes_Byte3;
 		break;
 	case e3Bytes_Byte3:
