@@ -1106,6 +1106,7 @@ bool SciTEBase::StartBlockComment() {
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd) + 1;
+	SendEditor(SCI_BEGINUNDOACTION);
 	for (int i = selStartLine; i < selEndLine; i++) {
 		int lineIndent = GetLineIndentPosition(i);
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, i);
@@ -1114,20 +1115,30 @@ bool SciTEBase::StartBlockComment() {
 			continue; // empty lines are not commented
 		if(memcmp(linebuf, comment, comment_length - 1) == 0) {
 			if(memcmp(linebuf, long_comment, comment_length) == 0) {
+				// removing comment with space after it
 				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length);
 				SendEditorString(SCI_REPLACESEL, 0, "");
-				SendEditor(SCI_GOTOPOS, selectionEnd - comment_length);
-				continue; // removing comment with space after it
+				if(i == selStartLine) // is this the first selected line?
+					selectionStart -= comment_length;
+				selectionEnd -= comment_length; // every iteration
+				continue;
 			} else {
+				// removing comment _without_ space
 				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length - 1);
 				SendEditorString(SCI_REPLACESEL, 0, "");
-				SendEditor(SCI_GOTOPOS, selectionEnd - comment_length + 1);
-				continue; // remowing comment _without_ space
+				if(i == selStartLine) // is this the first selected line?
+					selectionStart -= (comment_length - 1);
+				selectionEnd -= (comment_length - 1); // every iteration
+				continue;
 			}
 		}
+		if(i == selStartLine) // is this the first selected line?
+			selectionStart += comment_length;
+		selectionEnd += comment_length; // every iteration
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment);
-		SendEditor(SCI_GOTOPOS, selectionEnd + comment_length);
 	}
+	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
 
