@@ -303,7 +303,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 	Redraw();
 	}
 
-void SciTEBase::Open(const char *file, bool initialCmdLine) {
+void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	InitialiseBuffers();
 
 	if (!file) {
@@ -320,7 +320,8 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 		SetDocumentAt(index);
 		DeleteFileStackMenu();
 		SetFileStackMenu();
-		return ;
+        if (!forceLoad) // Just rotate into view
+		    return;
 	}
 
 	if (buffers.size == buffers.length) {
@@ -448,12 +449,12 @@ void SciTEBase::CheckReload() {
 					int decision = MessageBox(wSciTE.GetID(), msg, appName, MB_YESNO);
 					dialogsOnScreen--;
 					if (decision == IDYES) {
-						Open(fullPathToCheck);
+						Open(fullPathToCheck, false, true);
 					}
 					entered = false;
 		}
 	} else {
-				Open(fullPathToCheck);
+				Open(fullPathToCheck, false, true);
 			}
 		}
 	}
