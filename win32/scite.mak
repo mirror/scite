@@ -109,6 +109,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexCrontab.obj \
 	..\..\scintilla\win32\LexCSS.obj \
 	..\..\scintilla\win32\LexEiffel.obj \
+	..\..\scintilla\win32\LexEScript.obj \
 	..\..\scintilla\win32\LexFortran.obj \
 	..\..\scintilla\win32\LexHTML.obj \
 	..\..\scintilla\win32\LexLisp.obj \
