@@ -101,6 +101,8 @@ protected:
 	/// Preserve focus during deactivation
 	HWND wFocus;
 
+	Window wFindInFiles;
+
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
 
@@ -174,6 +176,8 @@ protected:
 	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	void PerformGrep();
+	void FillCombos(HWND hDlg);
 	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam);

@@ -168,14 +168,23 @@ void SciTEWin::WarnUser(int warnID) {
 	PlayThisSound(sound, atoi(soundDuration), hMM);
 }
 
-bool SciTEWin::ModelessHandler(MSG *pmsg) {
-	if (wFindReplace.GetID()) {
-		if (::IsDialogMessage(reinterpret_cast<HWND>(wFindReplace.GetID()), pmsg))
+bool DialogHandled(WindowID id, MSG *pmsg) {
+	if (id) {
+		if (::IsDialogMessage(reinterpret_cast<HWND>(id), pmsg))
 			return true;
 	}
-	if (wFindIncrement.GetID()) {
-		if (::IsDialogMessage(reinterpret_cast<HWND>(wFindIncrement.GetID()), pmsg))
-			return true;
+	return false;
+}
+
+bool SciTEWin::ModelessHandler(MSG *pmsg) {
+	if (DialogHandled(wFindReplace.GetID(), pmsg)) {
+		return true;
+	}
+	if (DialogHandled(wFindIncrement.GetID(), pmsg)) {
+		return true;
+	}
+	if (DialogHandled(wFindInFiles.GetID(), pmsg)) {
+		return true;
 	}
 	if (wParameters.GetID()) {
 		bool menuKey = (pmsg->message == WM_KEYDOWN) &&
@@ -780,6 +789,7 @@ void SciTEWin::PrintSetup() {
 extern bool IsWindowsNT();
 
 static void FillComboFromMemory(HWND combo, const ComboMemory &mem, bool useTop = false) {
+	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
 	if (::IsWindowUnicode(combo)) {
 		for (int i = 0; i < mem.Length(); i++) {
 			//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
@@ -839,8 +849,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
-		SetDlgItemText2(hDlg, IDFINDWHAT, findWhat.c_str());
 		FillComboFromMemory(wFindWhat, memFinds);
+		SetDlgItemText2(hDlg, IDFINDWHAT, findWhat.c_str());
 		if (wholeWord)
 			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
 		if (matchCase)
@@ -866,7 +876,6 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
 			::EndDialog(hDlg, IDCANCEL);
 			wFindReplace.Destroy();
-			wFindReplace = 0;
 			return FALSE;
 		} else if ( (ControlIDOfCommand(wParam) == IDOK) ||
 		            (ControlIDOfCommand(wParam) == IDMARKALL) ) {
@@ -887,7 +896,6 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			              ::SendMessage(wUp, BM_GETCHECK, 0, 0);
 			::EndDialog(hDlg, IDOK);
 			wFindReplace.Destroy();
-			wFindReplace = 0;
 			if (ControlIDOfCommand(wParam) == IDMARKALL){
 				MarkAll();
 			}
@@ -975,10 +983,10 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
-		SetDlgItemText2(hDlg, IDFINDWHAT, findWhat.c_str());
 		FillComboFromMemory(wFindWhat, memFinds);
-		SetDlgItemText2(hDlg, IDREPLACEWITH, replaceWhat.c_str());
+		SetDlgItemText2(hDlg, IDFINDWHAT, findWhat.c_str());
 		FillComboFromMemory(wReplaceWith, memReplaces);
+		SetDlgItemText2(hDlg, IDREPLACEWITH, replaceWhat.c_str());
 		if (wholeWord)
 			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
 		if (matchCase)
@@ -1006,7 +1014,6 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			UpdateStatusBar(false);
 			::EndDialog(hDlg, IDCANCEL);
 			wFindReplace.Destroy();
-			wFindReplace = 0;
 			return FALSE;
 		} else {
 			return HandleReplaceCommand(ControlIDOfCommand(wParam));
@@ -1071,7 +1078,6 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			UpdateStatusBar(false);
 			::EndDialog(hDlg, IDCANCEL);
 			wFindIncrement.Destroy();
-			wFindIncrement = 0;
 			return FALSE;
 		} else if (((ControlIDOfCommand(wParam) == IDC_INCFINDTEXT) && ((wParam >> 16) == 0x0300))
 			|| (ControlIDOfCommand(wParam) == IDC_INCFINDBTNOK)) {
@@ -1182,23 +1188,38 @@ static int __stdcall BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM, LPARAM pDa
 	return 0;
 }
 
-BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
-	HWND hFindWhat;
-	HWND hFiles;
-	HWND hDirectory;
+void SciTEWin::PerformGrep() {
+	SelectionIntoProperties();
 
+	SString findInput;
+	long flags = 0;
+	if (props.Get("find.input").length()) {
+		findInput = props.GetNewExpand("find.input");
+		flags += jobHasInput;
+	}
+
+	AddCommand(props.GetNewExpand("find.command"),
+		   props.Get("find.directory"),
+		   jobCLI, findInput, flags);
+	if (commandCurrent > 0) {
+		Execute();
+	}
+}
+
+void SciTEWin::FillCombos(HWND hDlg) {
+	FillComboFromMemory(::GetDlgItem(hDlg, IDFINDWHAT), memFinds, true);
+	FillComboFromMemory(::GetDlgItem(hDlg, IDFILES), memFiles, true);
+	FillComboFromMemory(::GetDlgItem(hDlg, IDDIRECTORY), memDirectory, true);
+}
+
+BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
+		FillCombos(hDlg);
 		::SetDlgItemText(hDlg, IDFINDWHAT, props.Get("find.what").c_str());
-		hFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
-		FillComboFromMemory(hFindWhat, memFinds);
-		hFiles = ::GetDlgItem(hDlg, IDFILES);
-		FillComboFromMemory(hFiles, memFiles, true);
 		::SetDlgItemText(hDlg, IDDIRECTORY, props.Get("find.directory").c_str());
-		hDirectory = ::GetDlgItem(hDlg, IDDIRECTORY);
-		FillComboFromMemory(hDirectory, memDirectory);
 		return TRUE;
 
 	case WM_CLOSE:
@@ -1208,6 +1229,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_COMMAND:
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
 			::EndDialog(hDlg, IDCANCEL);
+			wFindInFiles.Destroy();
 			return FALSE;
 
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
@@ -1223,8 +1245,24 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			props.Set("find.directory", directory.c_str());
 			memDirectory.Insert(directory.c_str());
 
-			::EndDialog(hDlg, IDOK);
-			return TRUE;
+			FillCombos(hDlg);
+
+			PerformGrep();
+			if (props.GetInt("find.in.files.close.on.find", 1)) {
+				::EndDialog(hDlg, IDOK);
+				wFindInFiles.Destroy();
+				return TRUE;
+			} else {
+				return FALSE;
+			}
+		} else if (ControlIDOfCommand(wParam) == IDDOTDOT) {
+
+			SString directory = GetItemText(hDlg, IDDIRECTORY);
+			char *lastSlash = strrchr(directory.c_str(), pathSepChar);
+			if (lastSlash) {
+				directory.remove(lastSlash - directory.c_str(), 0);
+				::SetDlgItemText(hDlg, IDDIRECTORY, directory.c_str());
+			}
 
 		} else if (ControlIDOfCommand(wParam) == IDBROWSE) {
 
@@ -1280,28 +1318,16 @@ BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 }
 
 void SciTEWin::FindInFiles() {
+	if (wFindInFiles.Created())
+		return;
 	SelectionIntoFind();
 	props.Set("find.what", findWhat.c_str());
 	char findInDir[1024];
 	GetDocumentDirectory(findInDir, sizeof(findInDir));
 	props.Set("find.directory", findInDir);
-	if (DoDialog(hInstance, "Grep", MainHWND(), reinterpret_cast<DLGPROC>(GrepDlg)) == IDOK) {
-		//Platform::DebugPrintf("asked to find %s %s %s\n", props.Get("find.what"), props.Get("find.files"), props.Get("find.directory"));
-		SelectionIntoProperties();
-
-		SString findInput;
-		long flags = 0;
-		if (props.Get("find.input").length()) {
-			findInput = props.GetNewExpand("find.input");
-			flags += jobHasInput;
-		}
-
-		AddCommand(props.GetNewExpand("find.command"),
-		           props.Get("find.directory"),
-		           jobCLI, findInput, flags);
-		if (commandCurrent > 0)
-			Execute();
-	}
+	wFindInFiles = ::CreateDialogParam(hInstance, "Grep", MainHWND(), 
+		reinterpret_cast<DLGPROC>(GrepDlg), reinterpret_cast<sptr_t>(this));
+	wFindInFiles.Show();
 }
 
 void SciTEWin::Replace() {
@@ -1346,7 +1372,6 @@ void SciTEWin::DestroyFindReplace() {
 	if (wFindReplace.Created()) {
 		::EndDialog(reinterpret_cast<HWND>(wFindReplace.GetID()), IDCANCEL);
 		wFindReplace.Destroy();
-		wFindReplace = 0;
 	}
 }
 
