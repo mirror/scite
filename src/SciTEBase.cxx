@@ -3827,7 +3827,8 @@ void SciTEBase::CheckMenus() {
 		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)buffers.current, (LPARAM)0);
 #endif
 #if PLAT_GTK
-		gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()),buffers.current);
+		if (wTabBar.GetID())
+			gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()),buffers.current);
 #endif
 
 		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {

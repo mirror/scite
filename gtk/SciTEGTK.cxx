@@ -550,11 +550,13 @@ void SciTEGTK::ShowToolBar() {
 }
 
 void SciTEGTK::ShowTabBar() {
+#if GTK_MAJOR_VERSION >= 2
 	if (tabVisible && (!tabHideOne || buffers.length > 1) && buffers.size>1) {
 		gtk_widget_show(GTK_WIDGET(PWidget(wTabBar)));
 	} else {
 		gtk_widget_hide(GTK_WIDGET(PWidget(wTabBar)));
 	}
+#endif
 }
 
 void SciTEGTK::ShowStatusBar() {
@@ -2359,7 +2361,9 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Search/Find Previou_s", "<shift>F3", menuSig, IDM_FINDNEXTBACK, 0},
 	                                      {"/Search/F_ind in Files...", "<control><shift>F", menuSig, IDM_FINDINFILES, 0},
 	                                      {"/Search/R_eplace...", "<control>H", menuSig, IDM_REPLACE, 0},
+#ifdef INCREMENTAL_SEARCH
 	                                      {"/Search/Incrementa&l Search", "<control><alt>I", menuSig, IDM_INCSEARCH, 0},
+#endif
 	                                      {"/Search/sep3", NULL, NULL, 0, "<Separator>"},
 	                                      {"/Search/_Go To...", "<control>G", menuSig, IDM_GOTO, 0},
 	                                      {"/Search/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
@@ -2374,7 +2378,9 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/View/sep1", NULL, NULL, 0, "<Separator>"},
 	                                      {"/View/Full Scree_n", "F11", menuSig, IDM_FULLSCREEN, "<CheckItem>"},
 	                                      {"/View/_Tool Bar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
+#if GTK_MAJOR_VERSION >= 2
 	                                      {"/View/Tab _Bar", "", menuSig, IDM_VIEWTABBAR, "<CheckItem>"},
+#endif
 	                                      {"/View/_Status Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
 	                                      {"/View/sep2", NULL, NULL, 0, "<Separator>"},
 	                                      {"/View/_Whitespace", "<control><shift>A", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
@@ -2555,11 +2561,13 @@ void SciTEGTK::CreateUI() {
 	//'factory default' setting
 	tabVisible = false;
 
+#if GTK_MAJOR_VERSION >= 2
 	wTabBar=gtk_notebook_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
 	gtk_signal_connect_after(GTK_OBJECT(PWidget(wTabBar)),
 		"button-release-event",GTK_SIGNAL_FUNC(GtkTabBarSwitch),NULL);
+#endif
 
 	wContent = gtk_fixed_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wContent), GTK_CAN_FOCUS);
@@ -2616,6 +2624,7 @@ void SciTEGTK::CreateUI() {
 	                   GtkSignalFunc(NotifySignal), this);
 
 
+#ifdef INCREMENTAL_SEARCH
 	GtkWidget *table = gtk_table_new(1, 2, FALSE);
 	wIncrementPanel = table;
 	gtk_box_pack_start(GTK_BOX(boxMain), table, FALSE, FALSE, 0);
@@ -2632,8 +2641,8 @@ void SciTEGTK::CreateUI() {
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"changed", GtkSignalFunc(FindIncrementSignal), this);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"focus-out-event", GtkSignalFunc(FindIncrementCompleteSignal), this);
 
-
 	gtk_widget_show(IncSearchEntry);
+#endif
 
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
 
@@ -2675,7 +2684,9 @@ void SciTEGTK::CreateUI() {
 	SetIcon();
 
 	UIAvailable();
+#ifdef INCREMENTAL_SEARCH
 	gtk_widget_hide(wIncrementPanel);
+#endif
 }
 
 void SciTEGTK::FindIncrementSignal(GtkWidget *entry, SciTEGTK *scitew) {
