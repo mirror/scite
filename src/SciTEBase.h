@@ -34,7 +34,8 @@ const char *VMSToUnixStyle(const char *fileName);
  * and there is a Help menu at the end.
  */
 enum { menuFile = 0, menuEdit = 1, menuSearch = 2, menuView = 3,
-       menuTools = 4, menuOptions = 5, menuLanguage = 6, menuBuffers = 7 };
+       menuTools = 4, menuOptions = 5, menuLanguage = 6, menuBuffers = 7,
+       menuHelp = 8};
 
 /**
  * This is a fixed length list of strings suitable for display in combo boxes
@@ -399,6 +400,8 @@ protected:
 
 	PropSetFile propsAbbrev;
 	
+	PropSetFile propsUI;
+
 	PropSet propsStatus;
 
 	enum { bufferMax = 10 };
@@ -595,6 +598,8 @@ protected:
 	void ImportMenu(int pos);
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
+	void ReadLocalisation();
+	virtual void LocaliseMenus()=0;
 	virtual void ReadPropertiesInitial();
 	void SetMonoFont();
 	void SetOverrideLanguage(int cmdID);

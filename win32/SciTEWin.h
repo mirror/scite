@@ -89,6 +89,8 @@ protected:
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
 	virtual void CheckMenus();
+	void LocaliseAMenu(HMENU hmenu);
+	virtual void LocaliseMenus();
 
 	virtual void FixFilePath();
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size);
@@ -119,6 +121,7 @@ protected:
 
 	virtual void Find();
 	virtual void FindInFiles();
+	
 	virtual void Replace();
 	virtual void FindReplace(bool replace);
 	virtual void DestroyFindReplace();

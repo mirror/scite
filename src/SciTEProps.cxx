@@ -78,7 +78,7 @@ static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *directoryForImports, 
 		SString imports[], int sizeImports) {
 	//UnSlash(lineBuffer);
-	if (IsAlphabetic(lineBuffer[0]))    // If clause ends with first non-indented line
+	if (lineBuffer[0] == '#' || lineBuffer[0] == ' ' || lineBuffer[0] == '\t')    // If clause ends with first non-indented line
 		ifIsTrue = true;
 	if (isprefix(lineBuffer, "if ")) {
 		const char *expr = lineBuffer + strlen("if") + 1;
@@ -97,7 +97,7 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *di
 			}
 		}
 		Read(importPath, directoryForImports, imports, sizeImports);
-	} else if (IsAlphabetic(lineBuffer[0])) {
+	} else if (IsAlphabetic(lineBuffer[0]) || (lineBuffer[0] == '&')) {
 		Set(lineBuffer);
 	} else if (isspace(lineBuffer[0]) && ifIsTrue) {
 		Set(lineBuffer);
@@ -894,7 +894,21 @@ void SciTEBase::SetPropertiesInitial() {
 		foldMarginWidth = foldMarginWidthDefault;
 }
 
+void SciTEBase::ReadLocalisation() {
+	char propfile[MAX_PATH + 20];
+	char propdir[MAX_PATH + 20];
+	propsUI.Clear();
+	if (GetAbbrevPropertiesFileName(propfile, propdir, sizeof(propfile))) {
+		SString spf(propfile);
+		spf.substitute(propAbbrevFileName, "locale.properties");
+		strcat(propdir, pathSepString);
+		propsUI.Read(spf.c_str(), propdir, importFiles, importMax);
+		LocaliseMenus();
+	}
+}
+
 void SciTEBase::ReadPropertiesInitial() {
+	ReadLocalisation();
 	SetPropertiesInitial();
 	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
 	int sizeVertical = props.GetInt("output.vertical.size", 0);

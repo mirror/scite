@@ -288,6 +288,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 SciTEBase::~SciTEBase() {
 	if (extender)
 		extender->Finalise();
+	delete []languageMenu;
 }
 
 sptr_t SciTEBase::SendEditor(unsigned int msg, uptr_t wParam, sptr_t lParam) {

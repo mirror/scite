@@ -306,9 +306,9 @@ void EnableButton(HWND wTools, int id, bool enable) {
 
 void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 	if (val)
-		EnableMenuItem(GetMenu(wSciTE.GetID()), wIDCheckItem, MF_ENABLED | MF_BYCOMMAND);
+		EnableMenuItem(::GetMenu(wSciTE.GetID()), wIDCheckItem, MF_ENABLED | MF_BYCOMMAND);
 	else
-		EnableMenuItem(GetMenu(wSciTE.GetID()), wIDCheckItem, MF_DISABLED | MF_GRAYED | MF_BYCOMMAND);
+		EnableMenuItem(::GetMenu(wSciTE.GetID()), wIDCheckItem, MF_DISABLED | MF_GRAYED | MF_BYCOMMAND);
 	::EnableButton(wToolBar.GetID(), wIDCheckItem, val);
 }
 
@@ -316,6 +316,50 @@ void SciTEWin::CheckMenus() {
 	SciTEBase::CheckMenus();
 	CheckMenuRadioItem(GetMenu(wSciTE.GetID()), IDM_EOL_CRLF, IDM_EOL_LF,
 	                   SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
+}
+
+void SciTEWin::LocaliseAMenu(HMENU hmenu) {
+	for (int i=0; i<=::GetMenuItemCount(hmenu); i++) {
+		char buff[200];
+		MENUITEMINFO mii;
+		memset(&mii, 0, sizeof(mii));
+		mii.cbSize = sizeof(mii);
+		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID | 
+			MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
+		mii.dwTypeData = buff;
+		mii.cch = sizeof(buff)-1;
+		if (::GetMenuItemInfo(hmenu, i, TRUE, &mii)) {
+			if (mii.hSubMenu) {
+				LocaliseAMenu(mii.hSubMenu);
+			}
+			if (mii.fType == MFT_STRING) {
+				if (mii.dwTypeData) {
+					SString text(mii.dwTypeData);
+					SString accel(mii.dwTypeData);
+					int len = text.length();
+					int tab = text.search("\t");
+					if (tab != -1) {
+						text.remove(tab, len - tab);
+						accel.remove(0, tab + 1);
+					} else {
+						accel = "";
+					}
+					SString localisedItem = propsUI.Get(text.c_str());
+					if (localisedItem.length()) {
+						localisedItem.append("\t");
+						localisedItem.append(accel.c_str());
+						mii.dwTypeData = const_cast<char *>(localisedItem.c_str());
+						::SetMenuItemInfo(hmenu, i, TRUE, &mii);
+					}
+				}
+			}
+		}
+	}
+}
+
+void SciTEWin::LocaliseMenus() {
+	LocaliseAMenu(::GetMenu(wSciTE.GetID()));
+	::DrawMenuBar(wSciTE.GetID());
 }
 
 // Mingw headers do not have this:
