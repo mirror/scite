@@ -2221,11 +2221,11 @@ void SciTEGTK::CreateMenu() {
 	    {"/Edit/sep2", NULL, NULL, 0, "<Separator>"},
 	    {"/Edit/Match _Brace", "<control>E", menuSig, IDM_MATCHBRACE, 0},
 	    {"/Edit/Select t_o Brace", "<control><shift>E", menuSig, IDM_SELECTTOBRACE, 0},
-	    {"/Edit/S_how CallTip", "<control><shift>space", menuSig, IDM_SHOWCALLTIP, 0},
+	    {"/Edit/S_how Calltip", "<control><shift>space", menuSig, IDM_SHOWCALLTIP, 0},
 	    {"/Edit/Complete S_ymbol", "<control>I", menuSig, IDM_COMPLETE, 0},
 	    {"/Edit/Complete _Word", "<control>Return", menuSig, IDM_COMPLETEWORD, 0},
 	    {"/Edit/_Expand Abbreviation", "<control>B", menuSig, IDM_ABBREV, 0},
-	    {"/Edit/Co_mment or Uncomment Selection", "<control>Q", menuSig, IDM_BLOCK_COMMENT, 0},
+	    {"/Edit/Block Co_mment or Uncomment", "<control>Q", menuSig, IDM_BLOCK_COMMENT, 0},
 	    {"/Edit/Bo_x Comment", "<control><shift>B", menuSig, IDM_BOX_COMMENT, 0},
 	    {"/Edit/Stream Comme_nt", "<control><shift>Q", menuSig, IDM_STREAM_COMMENT, 0},
 	    {"/Edit/Make _Selection Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
@@ -2373,8 +2373,8 @@ void SciTEGTK::CreateMenu() {
 	GtkItemFactoryEntry menuItemsBuffer[] = {
 	    {"/_Buffers", NULL, NULL, 0, "<Branch>"},
 	    {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREVFILE, 0},
-	    {"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXTFILE, 0},
+	    {"/Buffers/_Previous", "<shift>F6", menuSig, IDM_PREVFILE, 0},
+	    {"/Buffers/_Next", "F6", menuSig, IDM_NEXTFILE, 0},
 	    {"/Buffers/_Close All", "", menuSig, IDM_CLOSEALL, 0},
 	    {"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
 	    {"/Buffers/Buffer0", "<alt>1", menuSig, bufferCmdID + 0, "<RadioItem>"},
@@ -2393,7 +2393,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/_Help", NULL, NULL, 0, "<Branch>"},
 	    {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Help/_Help", "F1", menuSig, IDM_HELP, 0},
-	    {"/Help/Help _for SciTE", "", menuSig, IDM_HELP_SCITE, 0},
+	    {"/Help/_SciTE Help", "", menuSig, IDM_HELP_SCITE, 0},
 	    {"/Help/_About SciTE", "", menuSig, IDM_ABOUT, 0},
 	};
 
