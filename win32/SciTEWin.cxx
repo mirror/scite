@@ -369,10 +369,10 @@ void SciTEWin::FullScreenToggle() {
 
 		winPlace.length = sizeof(winPlace);
 		::GetWindowPlacement(MainHWND(), &winPlace);
-		int topStuff = ::GetSystemMetrics(SM_CYMENU) +
+		int topStuff = ::GetSystemMetrics(SM_CYCAPTION) +
 		               ::GetSystemMetrics(SM_CYEDGE);
 		if (props.GetInt("full.screen.hides.menu"))
-			topStuff += ::GetSystemMetrics(SM_CYCAPTION);
+			topStuff += ::GetSystemMetrics(SM_CYMENU);
 		::SetWindowPos(MainHWND(), HWND_TOP,
 		               -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
 		               -topStuff - 2,
