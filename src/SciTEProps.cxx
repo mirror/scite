@@ -186,14 +186,12 @@ void SciTEBase::SetLanguageMenu() {
 	}
 	for (int item = 0; item < languageItems; item++) {
 		int itemID = languageCmdID + item;
-		char entry[MAX_PATH + 20];
-		entry[0] = '\0';
-		strcat(entry, languageMenu[item].menuItem.c_str());
+		SString entry = LocaliseString(languageMenu[item].menuItem.c_str());
 		if (languageMenu[item].menuKey.length()) {
-			strcat(entry, "\t");
-			strcat(entry, languageMenu[item].menuKey.c_str());
+			entry += "\t";
+			entry += languageMenu[item].menuKey;
 		}
-		SetMenuItem(menuLanguage, item, itemID, entry);
+		SetMenuItem(menuLanguage, item, itemID, entry.c_str());
 	}
 }
 

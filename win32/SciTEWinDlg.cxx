@@ -163,15 +163,22 @@ bool SciTEWin::OpenDialog() {
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
-	char *filter = 0;
 	SString openFilter = props.GetExpanded("open.filter");
 	if (openFilter.length()) {
-		filter = StringDup(openFilter.c_str());
-		for (int fc = 0; filter[fc]; fc++)
-			if (filter[fc] == '|')
-				filter[fc] = '\0';
+		openFilter.substitute('|', '\0');
+		int start=0;
+		while (start < openFilter.length()) {
+			const char *filterName = openFilter.c_str() + start;
+			SString localised = LocaliseString(filterName, false);
+			if (localised.length()) {
+				openFilter.remove(start, strlen(filterName));
+				openFilter.insert(start, localised.c_str());
+			}
+			start += strlen(openFilter.c_str() + start) + 1;
+			start += strlen(openFilter.c_str() + start) + 1;
+		}
 	}
-	ofn.lpstrFilter = filter;
+	ofn.lpstrFilter = openFilter.c_str();
 	if (!openWhat[0]) {
 		strcpy(openWhat, LocaliseString("Custom Filter").c_str());
 		openWhat[strlen(openWhat) + 1] = '\0';
@@ -196,7 +203,6 @@ bool SciTEWin::OpenDialog() {
 #endif
 	if (::GetOpenFileName(&ofn)) {
 		filterDefault = ofn.nFilterIndex;
-		delete []filter;
 		//Platform::DebugPrintf("Open: <%s>\n", openName);
 #ifdef MULTISELECTOPEN
 		// find char pos after first Delimiter
@@ -227,7 +233,6 @@ bool SciTEWin::OpenDialog() {
 		Open(openName);
 #endif
 	} else {
-		delete []filter;
 		return false;
 	}
 	return true;
