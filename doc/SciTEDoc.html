@@ -763,10 +763,12 @@ NameError: mistake
         </td>
         <td>
 	The statusbar.text.1 option defines the information displayed in the status bar 
-	by default.
+	by default on all platforms.
 	Property values may be used in this text using the $() syntax. 
-	Extra properties defined for the status bar are LineNumber, ColumnNumber, and 
-	OverType which is either "OVR" or "INS" depending on the overtype status.
+	Extra properties defined for the status bar are LineNumber, ColumnNumber, 
+	SelHeight (the number of selected lines), ReadOnly 
+	(set to "READ" (localised) when in Read-Only mode), 
+	and OverType which is either "OVR" or "INS" depending on the overtype status.
 	On Windows only, further texts may be set as statusbar.text.2 ... and these may be 
 	cycled between by clicking the status bar. 
 	The statusbar.number option defines how many texts are to be cycled through.
