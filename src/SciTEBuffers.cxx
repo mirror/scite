@@ -348,7 +348,7 @@ void SciTEBase::SaveSession(const char *sessionName) {
 	if (!sessionFile)
 		return;
 	for (int i = buffers.length - 1; i >= 0; i--) {
-		if (buffers.buffers[i].IsSet())
+		if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled())
 			fprintf(sessionFile, "%s\n", buffers.buffers[i].FullPath());
 	}
 	fclose(sessionFile);
