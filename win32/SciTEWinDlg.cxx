@@ -12,7 +12,7 @@
 /**
  * Flash the given window for the asked @a duration to visually warn the user.
  */
-void FlashThisWindow(
+static void FlashThisWindow(
     HWND hWnd,    		///< Window to flash handle.
     int duration) {	///< Duration of the flash state.
 
@@ -30,14 +30,14 @@ void FlashThisWindow(
 /**
  * Play the given sound, loading if needed the corresponding DLL function.
  */
-void PlayThisSound(
+static void PlayThisSound(
     const char *sound,    	///< Path to a .wav file or string with a frequency value.
     int duration,    		///< If @a sound is a frequency, gives the duration of the sound.
     HMODULE &hMM) {		///< Multimedia DLL handle.
 
 	bool bPlayOK = false;
 	int soundFreq;
-	if (*sound == '\0') {
+	if (!sound || *sound == '\0') {
 		soundFreq = -1;	// No sound at all
 	} else {
 		soundFreq = atoi(sound);	// May be a frequency, not a filename
@@ -45,7 +45,7 @@ void PlayThisSound(
 
 	if (soundFreq == 0) {	// sound is probably a path
 		if (!hMM) {
-			// Load the DLL only if requested by the user
+			// Load the DLL only if needed (may be slow on some systems)
 			hMM = ::LoadLibrary("WINMM.DLL");
 		}
 
@@ -65,11 +65,14 @@ void PlayThisSound(
 		if (duration < 50) {
 			duration = 50;
 		}
-		// soundFreq and duration are not used on Win9x
-		// On those systems, PC will either use the default sound event or emit a standard speaker sound
+		if (duration > 5000) {	// Don't play too long...
+			duration = 5000;
+		}
+		// soundFreq and duration are not used on Win9x.
+		// On those systems, PC will either use the default sound event or
+		// emit a standard speaker sound.
 		::Beep(soundFreq, duration);
 	}
-
 }
 
 static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
