@@ -246,8 +246,6 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 		fileExt[0] = '\0';
 	}
 
-	chdir(dirName);
-
 	ReadLocalPropFile();
 
 	props.Set("FilePath", fullPath);
