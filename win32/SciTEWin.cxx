@@ -833,6 +833,7 @@ void SciTEWin::Run(const char *cmdLine) {
 		::PostQuitMessage(0);
 	}
 
+	SizeSubWindows();
 	wSciTE.Show();
 	if (cmdShow)	// assume SW_MAXIMIZE only
 		ShowWindow(wSciTE.GetID(), cmdShow);
@@ -842,7 +843,6 @@ void SciTEWin::Run(const char *cmdLine) {
 	// In case of not using buffers they get closed immediately except
 	// the last one, but they move to the MRU file list
 	ProcessCommandLine(args, 1);
-	SizeSubWindows();
 	Redraw();
 }
 
