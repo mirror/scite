@@ -284,6 +284,7 @@ protected:
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 	ComboMemory memFiles;
+	ComboMemory memDirectory;
 	enum { maxParam = 4 };
 	Window wParameters;
 	SString parameterisedCommand;
