@@ -686,8 +686,11 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	int lengthDoc = Platform::SendScintilla(win.GetID(), SCI_GETLENGTH, 0, 0);
 	WindowAccessor acc(win.GetID(), props);
 	if ((lengthDoc > 0) && (caretPos > 0)) {
-		charBefore = acc[caretPos - 1];
-		styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
+		// Check to ensure not matching brace that is part of a multibyte character
+		if (Platform::SendScintilla(win.GetID(), SCI_POSITIONBEFORE, caretPos) == (caretPos-1)) {
+			charBefore = acc[caretPos - 1];
+			styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
+		}
 	}
 	// Priority goes to character before caret
 	if (charBefore && IsBrace(charBefore) &&
@@ -703,16 +706,19 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	bool isAfter = true;
 	if (lengthDoc > 0 && sloppy && (braceAtCaret < 0) && (caretPos < lengthDoc)) {
 		// No brace found so check other side
-		char charAfter = acc[caretPos];
-		char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
-		if (charAfter && IsBrace(charAfter) && (styleAfter == bracesStyleCheck)) {
-			braceAtCaret = caretPos;
-			isAfter = false;
-		}
-		if ((lexLanguage == SCLEX_PYTHON) &&
-			(':' == charAfter) && (SCE_P_OPERATOR == styleAfter)) {
-			braceAtCaret = caretPos;
-			colonMode = true;
+		// Check to ensure not matching brace that is part of a multibyte character
+		if (Platform::SendScintilla(win.GetID(), SCI_POSITIONAFTER, caretPos) == (caretPos+1)) {
+			char charAfter = acc[caretPos];
+			char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
+			if (charAfter && IsBrace(charAfter) && (styleAfter == bracesStyleCheck)) {
+				braceAtCaret = caretPos;
+				isAfter = false;
+			}
+			if ((lexLanguage == SCLEX_PYTHON) &&
+				(':' == charAfter) && (SCE_P_OPERATOR == styleAfter)) {
+				braceAtCaret = caretPos;
+				colonMode = true;
+			}
 		}
 	}
 	if (braceAtCaret >= 0) {
