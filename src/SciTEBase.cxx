@@ -1642,7 +1642,9 @@ bool SciTEBase::StartBlockComment() {
 	SString fileNameForExtension = ExtensionFileName();
 	SString language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString base("comment.block.");
+	SString comment_at_line_start("comment.block.at.line.start.");
 	base += language;
+	comment_at_line_start += language;
 	SString comment = props.Get(base.c_str());
 	if (comment == "") { // user friendly error message box
 		SString error("Block comment variable \"");
@@ -1668,9 +1670,15 @@ bool SciTEBase::StartBlockComment() {
 		selEndLine--;
 	SendEditor(SCI_BEGINUNDOACTION);
 	for (int i = selStartLine; i <= selEndLine; i++) {
-		int lineIndent = GetLineIndentPosition(i);
+		int lineStart = SendEditor(SCI_POSITIONFROMLINE, i);
+		int lineIndent = lineStart;
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, i);
-		GetRange(wEditor, lineIndent, lineEnd, linebuf);
+		if (props.GetInt(comment_at_line_start.c_str())) {
+			GetRange(wEditor, lineIndent, lineEnd, linebuf);
+		} else {
+			lineIndent = GetLineIndentPosition(i);
+			GetRange(wEditor, lineIndent, lineEnd, linebuf);
+		}
 		// empty lines are not commented
 		if (strlen(linebuf) < 1)
 			continue;
@@ -1699,9 +1707,13 @@ bool SciTEBase::StartBlockComment() {
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment.c_str());
 	}
 	// after uncommenting selection may promote itself to the lines
-	// before the first initially selected line
-	if (selectionStart < firstSelLineStart)
+	// before the first initially selected line;
+	// another problem - if only comment symbol was selected;
+	if (selectionStart < firstSelLineStart) {
+		if (selectionStart >= selectionEnd - (comment_length - 1))
+			selectionEnd = firstSelLineStart;
 		selectionStart = firstSelLineStart;
+	}
 	if (move_caret) {
 		// moving caret to the beginning of selected block
 		SendEditor(SCI_GOTOPOS, selectionEnd);
