@@ -215,6 +215,10 @@ SOURCE=..\..\scintilla\src\LexMatlab.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexMMIXAL.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexNsis.cxx
 # End Source File
 # Begin Source File

@@ -116,6 +116,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexLout.obj \
 	..\..\scintilla\win32\LexLua.obj \
 	..\..\scintilla\win32\LexMatlab.obj \
+	..\..\scintilla\win32\LexMMIXAL.obj \
 	..\..\scintilla\win32\LexNsis.obj \
 	..\..\scintilla\win32\LexOthers.obj \
 	..\..\scintilla\win32\LexPascal.obj \
@@ -175,10 +176,10 @@ $(DIR_BIN)\eiffel.properties $(DIR_BIN)\escript.properties \
 $(DIR_BIN)\fortran.properties $(DIR_BIN)\html.properties \
 $(DIR_BIN)\latex.properties $(DIR_BIN)\lisp.properties \
 $(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
-$(DIR_BIN)\matlab.properties $(DIR_BIN)\nncrontab.properties \
-$(DIR_BIN)\nsis.properties $(DIR_BIN)\others.properties \
-$(DIR_BIN)\pascal.properties $(DIR_BIN)\perl.properties \
-$(DIR_BIN)\pov.properties $(DIR_BIN)\ps.properties \
+$(DIR_BIN)\matlab.properties $(DIR_BIN)\mmixal.properties \
+$(DIR_BIN)\nncrontab.properties $(DIR_BIN)\nsis.properties \
+$(DIR_BIN)\others.properties $(DIR_BIN)\pascal.properties \
+$(DIR_BIN)\perl.properties $(DIR_BIN)\pov.properties $(DIR_BIN)\ps.properties \
 $(DIR_BIN)\python.properties $(DIR_BIN)\ruby.properties \
 $(DIR_BIN)\scriptol.properties $(DIR_BIN)\sql.properties \
 $(DIR_BIN)\tcl.properties $(DIR_BIN)\vb.properties 
@@ -239,6 +240,8 @@ $(DIR_BIN)\lua.properties:	..\src\lua.properties
 	copy ..\src\lua.properties $@
 $(DIR_BIN)\matlab.properties:	..\src\matlab.properties
 	copy ..\src\matlab.properties $@
+$(DIR_BIN)\mmixal.properties:	..\src\mmixal.properties
+	copy ..\src\mmixal.properties $@
 $(DIR_BIN)\nncrontab.properties:	..\src\nncrontab.properties
 	copy ..\src\nncrontab.properties $@
 $(DIR_BIN)\nsis.properties:	..\src\nsis.properties
