@@ -89,12 +89,60 @@ const char *FilePath::FullPath() const {
 	return fileName.c_str();
 }
 
-BufferList::BufferList() :
-bufferListTop(0), bufferListTopPrev(0), bufferListBottom(0),
-ctrltabStarted(false), current(0), buffers(0), size(0), length(0) {}
+LinkedList::LinkedList() {
+	next=prev=this;
+	data=0;
+}
+
+void LinkedList::DisconnectNext() {
+	if ((next!=this) && (next!=NULL))
+		next->DisconnectNext();
+	next=NULL;
+}
+
+void LinkedList::DisconnectPrev() {
+	if ((prev!=this) && (prev!=NULL))
+		prev->DisconnectPrev();
+	prev=NULL;
+}
+
+void LinkedList::DestroyAll() {
+	if ((next!=this) && (next!=NULL)) {
+		next->DestroyAll();
+		delete next;
+		next=NULL;
+	}
+	if ((prev!=this) && (prev!=NULL)) {
+		prev->DestroyAll();
+		delete prev;
+		prev=NULL;
+	}
+
+	// parent node will delete me
+}
+
+BufferList::BufferList() : ctrltabStarted(false), current(0), buffers(0), size(0), length(0) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
+
+	// if there is more than one node then manipulate the list
+	//   to make it easy to delete it
+	if (bufferListTop->prev!=bufferListTop) {
+		LinkedList *llp=bufferListTop->prev;
+
+		// break the chain
+		bufferListTop->prev->next=NULL;
+		bufferListTop->prev=NULL;
+
+		// disconnect the whole 'prev' path
+		llp->DisconnectPrev();
+	}
+
+	// let the list destroy itself
+	bufferListTop->DestroyAll();
+
+	// delete the last remaining node
 	delete bufferListTop;
 }
 

@@ -186,7 +186,10 @@ public:
 	LinkedList* next;
 	LinkedList* prev;
 
-	LinkedList() {next=prev=this;data=0;}
+	LinkedList();
+	void DisconnectNext();
+	void DisconnectPrev();
+	void DestroyAll();
 };
 
 class BufferList {
