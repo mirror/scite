@@ -831,7 +831,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	HWND wWrap = ::GetDlgItem(hwndFR, IDWRAP);
 	HWND wUnSlash = ::GetDlgItem(hwndFR, IDUNSLASH);
 
-	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
+	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
 		findWhat = GetItemText(hwndFR, IDFINDWHAT);
 		props.Set("find.what", findWhat.c_str());
 		memFinds.Insert(findWhat.c_str());
@@ -846,7 +846,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		unSlash = BST_CHECKED ==
 		          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
 	}
-	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
+	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
 		replaceWhat = GetItemText(hwndFR, IDREPLACEWITH);
 		memReplaces.Insert(replaceWhat.c_str());
 	}
@@ -866,6 +866,8 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		}
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		ReplaceAll(cmd == IDREPLACEINSEL);
+	} else if (cmd == IDREPLACEINBUF) {
+		ReplaceInBuffers();
 	}
 
 	return TRUE;
@@ -902,7 +904,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
 		if (unSlash)
 			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
-		if (findWhat.length() != 0) {
+		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(wReplaceWith);
 			return FALSE;
 		}
@@ -1093,7 +1095,7 @@ void SciTEWin::FindInFiles() {
 void SciTEWin::Replace() {
 	if (wFindReplace.Created())
 		return;
-	SelectionIntoFind();
+	SelectionIntoFind(false); // don't strip EOL at end of selection
 
 	memset(&fr, 0, sizeof(fr));
 	fr.lStructSize = sizeof(fr);
