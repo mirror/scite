@@ -3848,6 +3848,10 @@ void SciTEBase::PerformOne(char *action) {
 			}
 		} else if (isprefix(action, "saveas:")) {
 			SaveAs(arg);
+ 		} else if (isprefix(action, "loadsession:")) {
+			if (*arg) {
+				LoadSession(arg);
+			}
 		}
 	}
 }
@@ -4126,7 +4130,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 				performPrint = true;
 			} else {
 				if (AfterName(arg) == ':') {
-					if (isprefix(arg, "open:")) {
+					if (isprefix(arg, "open:") || isprefix(arg, "loadsession:")) {
 						if (phase == 0)
 							return performPrint;
 						else
