@@ -99,10 +99,10 @@ public:
 	void Allocate(int maxSize);
 	int Add();
 	int GetDocumentByName(const char *filename);
-    void RemoveCurrent();
+	void RemoveCurrent();
 };
-		
-enum JobSubsystem { jobCLI = 0, jobGUI = 1, jobShell = 2};
+
+enum JobSubsystem { jobCLI=0, jobGUI=1, jobShell=2, jobExtension=3};
 class Job {
 public:
 	SString command;
@@ -127,7 +127,7 @@ struct StyleAndWords {
 	bool IsEmpty() { return words.length() == 0; }
 };
 
-class SciTEBase {
+class SciTEBase : public ExtensionAPI {
 protected:
 	char windowName[MAX_PATH + 20];
 	char fullPath[MAX_PATH];
@@ -169,7 +169,7 @@ protected:
 	StyleAndWords statementEnd;
 	StyleAndWords blockStart;
 	StyleAndWords blockEnd;
-	
+
 	Window wSciTE;  // Contains wToolBar, wContent, and wStatusBar
 	Window wContent;    // Contains wEditor and wOutput
 	Window wEditor;
@@ -189,6 +189,7 @@ protected:
 	int heightBar;
 	int dialogsOnScreen;
 	enum { toolMax = 10 };
+	Extension *extender;
 
 	int heightOutput;
 	int heightOutputStartDrag;
@@ -204,7 +205,7 @@ protected:
 	SString sbValue;
 
 	bool indentationWSVisible;
-	
+
 	bool margin;
 	int marginWidth;
 	enum { marginWidthDefault = 20};
@@ -212,7 +213,7 @@ protected:
 	bool foldMargin;
 	int foldMarginWidth;
 	enum { foldMarginWidthDefault = 14};
-	
+
 	bool lineNumbers;
 	int lineNumbersWidth;
 	enum { lineNumbersWidthDefault = 40};
@@ -248,8 +249,9 @@ protected:
 	void Prev();
 
 	void ReadGlobalPropFile();
+	void GetDocumentDirectory(char *docDir, int len);
 	void ReadLocalPropFile();
-	
+
 	long SendEditor(unsigned int msg, unsigned long wParam=0, long lParam=0);
 	long SendEditorString(unsigned int msg, unsigned long wParam, const char *s);
 	long SendOutput(unsigned int msg, unsigned long wParam= 0, long lParam = 0);
@@ -280,10 +282,11 @@ protected:
 	virtual bool SaveAs(char *file = 0);
 	void SaveToHTML(const char *saveName);
 	virtual void SaveAsHTML()=0;
+	virtual void GetDefaultDirectory(char *directory, size_t size)=0;
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
-        char *pathDefaultDir, unsigned int lenPath)=0;
+		char *pathDefaultDir, unsigned int lenPath)=0;
 	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
-        char *pathUserDir, unsigned int lenPath)=0;
+		char *pathUserDir, unsigned int lenPath)=0;
 	void OpenProperties(int propsFile);
 	virtual void Print(bool) {};
 	virtual void PrintSetup() {};
@@ -349,7 +352,7 @@ protected:
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val)=0;
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val)=0;
 	virtual void CheckMenus();
-		
+
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	void DropFileStackTop();
@@ -382,9 +385,17 @@ protected:
 	int NormaliseSplit(int splitPos);
 	void MoveSplit(Point ptNewDrag);
 
+	// ExtensionAPI
+	int Send(Pane p, unsigned int msg, unsigned long wParam=0, long lParam=0);
+	char *Range(Pane p, int start, int end);
+	void Remove(Pane p, int start, int end);
+	void Insert(Pane p, int pos, const char *s);
+	void Trace(const char *s);
+	char *Property(const char *key);
+
 public:
 
-	SciTEBase();
+	SciTEBase(Extension *ext=0);
 	virtual ~SciTEBase();
 
 	void ProcessExecute();
