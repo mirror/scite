@@ -661,17 +661,35 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		Find();
 		return ;
 	}
+	TextToFind ft = {{0, 0}, 0, {0, 0}};
+	CharacterRange crange = GetSelection();
+	if (reverseDirection) {
+		ft.chrg.cpMin = crange.cpMin - 1;
+		ft.chrg.cpMax = 0;
+	} else {
+		ft.chrg.cpMin = crange.cpMax;
+		ft.chrg.cpMax = LengthDocument();
+	}
+	ft.lpstrText = findWhat;
+	ft.chrgText.cpMin = 0;
+	ft.chrgText.cpMax = 0;
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
-
 	//DWORD dwStart = timeGetTime();
-	int posFind = SendEditor((reverseDirection ? SCI_SEARCHPREV : SCI_SEARCHNEXT), flags, reinterpret_cast<long>(findWhat));
+	int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
 	if (posFind == -1) {
 		// Failed to find in indicated direction so search on other side
-		posFind = SendEditor((reverseDirection ? SCI_SEARCHNEXT : SCI_SEARCHPREV), flags, reinterpret_cast<long>(findWhat));
-	}	
-
+		if (reverseDirection) {
+			ft.chrg.cpMin = LengthDocument();
+			ft.chrg.cpMax = 0;
+		} else {
+			ft.chrg.cpMin = 0;
+			ft.chrg.cpMax = LengthDocument();
+		}
+		posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
+		WarnUser(warnFindWrapped);
+	}
 	if (posFind == -1) {
 		havefound = false;
 		if (showWarnings) {
@@ -691,8 +709,8 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		}
 	} else {
 		havefound = true;
-		EnsureRangeVisible(SendEditor(SCI_GETSELECTIONSTART),SendEditor(SCI_GETSELECTIONEND));
-		SendEditor(SCI_SCROLLCARET);
+		EnsureRangeVisible(ft.chrgText.cpMin, ft.chrgText.cpMax);
+		SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
 		if (!replacing) {
 			DestroyFindReplace();
 		}
@@ -714,15 +732,25 @@ void SciTEBase::ReplaceAll() {
 		FindMessageBox("Find string for Replace All must not be empty.");
 		return ;
 	}
-	int actpos=SendEditor(SCI_GETCURRENTPOS);
-	SendEditor(SCI_GOTOPOS,0);
+
+	TextToFind ft;
+	ft.chrg.cpMin = 0;
+	ft.chrg.cpMax = LengthDocument();
+	ft.lpstrText = findWhat;
+	ft.chrgText.cpMin = 0;
+	ft.chrgText.cpMax = 0;
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
-	int posFind = SendEditor(SCI_SEARCHNEXT, flags, reinterpret_cast<long>(findWhat));
+	int posFind = SendEditor(SCI_FINDTEXT, flags,
+	                         reinterpret_cast<long>(&ft));
 	if (posFind != -1) {
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
+			SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
 			SendEditorString(SCI_REPLACESEL, 0, replaceWhat);
-			posFind = SendEditor(SCI_SEARCHNEXT, flags, reinterpret_cast<long>(findWhat));
+			ft.chrg.cpMin = posFind + strlen(replaceWhat);
+			ft.chrg.cpMax = LengthDocument();
+			posFind = SendEditor(SCI_FINDTEXT, flags,
+			                     reinterpret_cast<long>(&ft));
 		}
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
@@ -734,7 +762,6 @@ void SciTEBase::ReplaceAll() {
 		strcat(msg, "\" was not present.");
 		FindMessageBox(msg);
 	}
-	SendEditor(SCI_GOTOPOS, actpos);
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
 
@@ -979,6 +1006,11 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	const char *root = linebuf + startword;
 	int rootlen = current - startword;
 	int doclen = LengthDocument();
+	TextToFind ft = {{0, 0}, 0, {0, 0}};
+	ft.lpstrText = const_cast<char*>(root);
+	ft.chrg.cpMin = 0;
+	ft.chrgText.cpMin = 0;
+	ft.chrgText.cpMax = 0;
 	int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	//int flags = (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	int posCurrentWord = SendEditor (SCI_GETCURRENTPOS) - rootlen;
@@ -991,15 +1023,15 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	int size = WORDCHUNK;
 	char *words = (char*) malloc(size);
 	*words = '\0';
-	SendEditor(SCI_GOTOPOS,0);
 	for (;;) {	// search all the document
-		int posFind = SendEditor(SCI_SEARCHNEXT, flags, reinterpret_cast<long>(root));
-
+		ft.chrg.cpMax = doclen;
+		int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
 		if (posFind == -1 || posFind >= doclen)
 			break;
-		if (posFind == posCurrentWord) 
+		if (posFind == posCurrentWord) {
+			ft.chrg.cpMin = posFind + rootlen;
 			continue;
-		
+		}
 		char wordstart[WORDCHUNK];
 		GetRange(wEditor, posFind, Platform::Minimum(posFind + WORDCHUNK - 1, doclen), wordstart);
 		char *wordend = wordstart + rootlen;
@@ -1040,10 +1072,10 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				return true; 
 			}
 		}
+		ft.chrg.cpMin = posFind + wordlen;
 	}
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found %d characters took %d\n", root, length, dwEnd - dwStart);
-	SendEditor(SCI_GOTOPOS,posCurrentWord+rootlen);
 	if (length) {
 		SendEditorString(SCI_AUTOCSHOW, rootlen, words);
 	}
