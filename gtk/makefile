@@ -80,10 +80,10 @@ install:
 	install ../doc/*.html $(SYSCONF_PATH)
 	install ../doc/SciTEIco.png $(SYSCONF_PATH)
 	install ../doc/PrintHi.png $(SYSCONF_PATH)
+ifdef gnomeprefix
 ifndef GTK2
 	install SciTE.desktop $(datadir)/gnome/apps/Applications
 endif
-ifdef gnomeprefix
 	install Sci48M.png $(pixmapdir)
 endif
 
