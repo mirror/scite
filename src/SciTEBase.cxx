@@ -3184,9 +3184,9 @@ void SciTEBase::PerformOne(char *action) {
 			EnumProperties(arg);
 		} else if (isprefix(action, "property:")) {
 			PropertyFromDirector(arg);
-		} else if (isprefix(action, "goto:")) {
+		} else if (isprefix(action, "goto:") && fnEditor) {
 			GotoLineEnsureVisible(atoi(arg) - 1);
-		} else if (isprefix(action, "find:")) {
+		} else if (isprefix(action, "find:") && fnEditor) {
 			strncpy(findWhat, arg, sizeof(findWhat));
 			findWhat[sizeof(findWhat) - 1] = '\0';
 			FindNext(false, false);
@@ -3201,9 +3201,9 @@ void SciTEBase::PerformOne(char *action) {
 			ExecuteMacroCommand(arg);
 		} else if (isprefix(action, "askfilename:")) {
 			extender->OnMacro("filename", fullPath);
-		} else if (isprefix(action, "insert:")) {
+		} else if (isprefix(action, "insert:") && fnEditor) {
 			SendEditorString(SCI_REPLACESEL, 0, arg);
-		} else if (isprefix(action, "replaceall:")) {
+		} else if (isprefix(action, "replaceall:") && fnEditor) {
 			if (len > strlen(action)) {
 				char *arg2 = arg + strlen(arg) + 1;
 				strcpy(findWhat, arg);
