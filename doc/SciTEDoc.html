@@ -870,7 +870,11 @@ NameError: mistake
         </td>
         <td>
           Causes the most recently used files list to be saved on exit and 
-	reloaded at start up.
+	reloaded at start up. This list is kept in a file called SciTE.recent on 
+	Windows and .SciTE.recent on GTK+ and is located in the directory
+	given by the SciTE_HOME environment variable and if that is not
+	set, the value of the HOME environment variable and if that is not 
+	set the top level directory.
         </td>
       </tr>
       <tr>
