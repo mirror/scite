@@ -743,7 +743,7 @@ void SciTEBase::SetWindowName() {
 		windowName += ")";
 	} else if (props.GetInt("title.full.path") == 2) {
 		windowName = fileName;
-		windowName += " @ ";
+		windowName += " in ";
 		windowName += dirName;
 	} else if (props.GetInt("title.full.path") == 1) {
 		windowName = fullPath;
