@@ -1076,7 +1076,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 		return true;
 	linebuf[current] = '\0';
 	const char *abbrev = linebuf + startword;
-	SString expanded = props.Get(abbrev).c_str();
+	SString expanded = props.Get(abbrev);
 	// SString language = props.GetNewExpand("lexer.", fileName);
 	// const char* expanded = props.GetNewExpand(abbrev, fileName).c_str();
 	// MessageBox(NULL, language.c_str(), "language", MB_OK);
