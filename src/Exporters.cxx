@@ -1426,7 +1426,7 @@ void SciTEBase::SaveToXML(const char *saveName) {
 
 		fputs("<text>\n", fp) ;
 
-		int styleCurrent = acc.StyleAt(0) ;
+		int styleCurrent = -1 ; // acc.StyleAt(0) ;
         int lineNumber = 1 ;
 		int lineIndex = 0 ;
         bool styleDone = false ;
@@ -1470,7 +1470,7 @@ void SciTEBase::SaveToXML(const char *saveName) {
                 if (ch == '\r' && acc[i + 1] == '\n') {
                     i++ ;
                 }
-                styleCurrent = acc.StyleAt(i + 1) ;
+                styleCurrent = -1 ; // acc.StyleAt(i + 1) ;
             } else {
                 if (collapseLines && (emptyLines > 0)) {
                     fputs("<line/>\n", fp) ;

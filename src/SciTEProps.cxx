@@ -658,8 +658,13 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("ps.level");
 	ForwardPropertyToEditor("ps.tokenize");
 
+	ForwardPropertyToEditor("lexer.tex.interface.default") ;
 	ForwardPropertyToEditor("lexer.tex.comment.process") ;
+	ForwardPropertyToEditor("lexer.metapost.interface.default") ;
 	ForwardPropertyToEditor("lexer.metapost.comment.process") ;
+
+	ForwardPropertyToEditor("export.xml.collapse.spaces") ;
+	ForwardPropertyToEditor("export.xml.collapse.lines") ;
 
 	if (apisFileNames != props.GetNewExpand("api.",	fileNameForExtension.c_str())) {
 		apis.Clear();
