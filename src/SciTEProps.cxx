@@ -501,11 +501,11 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 	return true;
 }
 
-long StyleDefinition::ForeAsLong() {
+long StyleDefinition::ForeAsLong() const {
 	return ColourFromString(fore);
 }
 
-long StyleDefinition::BackAsLong() {
+long StyleDefinition::BackAsLong() const {
 	return ColourFromString(back);
 }
 
@@ -681,6 +681,9 @@ static const char *propertiesToForward[] = {
 };
 
 void SciTEBase::ReadProperties() {
+	if (extender)
+		extender->Clear();
+
 	SString fileNameForExtension = ExtensionFileName();
 
 	SString modulePath = props.GetNewExpand("lexerpath.",
@@ -1149,8 +1152,6 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETENDATLASTLINE, props.GetInt("end.at.last.line", 1));
 
 	if (extender) {
-		extender->Clear();
-
 		char defaultDir[MAX_PATH];
 		GetDefaultDirectory(defaultDir, sizeof(defaultDir));
 		char scriptPath[MAX_PATH];

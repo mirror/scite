@@ -397,8 +397,8 @@ public:
 	              sdCaseForce = 0x100, sdVisible = 0x200, sdChangeable = 0x400} specified;
 	StyleDefinition(const char *definition);
 	bool ParseStyleDefinition(const char *definition);
-	long ForeAsLong();
-	long BackAsLong();
+	long ForeAsLong() const;
+	long BackAsLong() const;
 };
 
 struct StyleAndWords {
