@@ -401,6 +401,22 @@ sptr_t SciTEBase::SendOutputEx(unsigned int msg, uptr_t wParam /*= 0*/, sptr_t l
 	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
 }
 
+static char *UTF8FromLatin1(const char *s, int len) {
+	char *utfForm = new char[len*2+1];
+	size_t lenU = 0;
+	for (int i=0;i<len;i++) {
+		unsigned int uch = static_cast<unsigned char>(s[i]);
+		if (uch < 0x80) {
+			utfForm[lenU++] = uch;
+		} else {
+			utfForm[lenU++] = static_cast<char>(0xC0 | (uch >> 6));
+			utfForm[lenU++] = static_cast<char>(0x80 | (uch & 0x3f));
+		}
+	}
+	utfForm[lenU] = '\0';
+	return utfForm;
+}
+
 void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 	if (wsci) {
 		Platform::SendScintilla(wsci, SCI_SETSTYLEBITS, 7, 0);
@@ -411,6 +427,9 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
 		                        reinterpret_cast<uptr_t>("new century schoolbook"));
 		fontSize = 14;
+#if GTK_MAJOR_VERSION >= 2
+		Platform::SendScintilla(wsci, SCI_SETCODEPAGE, SC_CP_UTF8, 0);
+#endif
 #endif
 
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
@@ -452,7 +471,13 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 			HackColour(b);
 			SetAboutStyle(wsci, colourIndex, ColourDesired(r, g, b));
 			AddStyledText(wsci, "    ", colourIndex);
+#if PLAT_GTK && GTK_MAJOR_VERSION >= 2
+			char *uContributor = UTF8FromLatin1(contributors[co], strlen(contributors[co]));
+			AddStyledText(wsci, uContributor, colourIndex);
+			delete []uContributor;
+#else
 			AddStyledText(wsci, contributors[co], colourIndex);
+#endif
 		}
 		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
 	}
