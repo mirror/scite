@@ -158,6 +158,7 @@ const char *contributors[] = {
                                  "Steve Schoettler",
                                  "Mauritius Thinnes",
                                  "Darren Schroeder",
+				 "Pedro Guerreiro",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -1594,7 +1595,7 @@ void SciTEBase::Redraw() {
 bool SciTEBase::StartCallTip() {
 	//Platform::DebugPrintf("StartCallTip\n");
 	SendEditor(SCI_CALLTIPCANCEL);
-	
+
 	char linebuf[1000];
 	GetLine(linebuf, sizeof(linebuf));
 	int current = GetCaretInLine();
