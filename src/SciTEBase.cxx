@@ -1972,7 +1972,7 @@ void SciTEBase::UpdateStatusBar() {
 		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_LINEFROMPOSITION, caretPos)) + 1);
 		propsStatus.Set("LineNumber", tmp);
 		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_GETCOLUMN, caretPos)) + 1);
-		propsStatus.Set("ColumnNumber", tmp);		
+		propsStatus.Set("ColumnNumber", tmp);
 		propsStatus.Set("OverType", SendEditor(SCI_GETOVERTYPE) ? "OVR" : "INS");
 
 		char sbKey[32];
@@ -3358,7 +3358,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	if (*(params + 1) == 'R') {
 		// in one function wParam is a string  : void SetProperty(string key,string name)
 		const char *s1 = nextarg;
-		while (*nextarg != ';') 
+		while (*nextarg != ';')
 			nextarg++;
 		int lstring1 = nextarg - s1;
 		string1 = new char[lstring1 + 1];
@@ -3386,14 +3386,14 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 
 	if (*params == 'S') {
 		// string answer
-		if (message == SCI_GETSELTEXT || message == EM_GETSELTEXT) {
+		if (message == SCI_GETSELTEXT) {
 			l = SendEditor(SCI_GETSELECTIONEND) - SendEditor(SCI_GETSELECTIONSTART);
 			wParam = 0;
 		} else if (message == SCI_GETCURLINE) {
 			int line = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
 			l = SendEditor(SCI_LINELENGTH, line);
 			wParam = l;
-		} else if (message == SCI_GETTEXT || message == WM_GETTEXT)
+		} else if (message == SCI_GETTEXT)
 			l = wParam;
 		else if (message == SCI_GETLINE)
 			l = SendEditor(SCI_LINELENGTH, wParam);
@@ -3417,7 +3417,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	if (l > 0)
 		rep = SendEditor(message, wParam, lParam);
 	if (*params == 'I')
-		itoa(rep, tbuff + alen, 10);
+		sprintf(tbuff + alen, "%0d", rep);
 	extender->OnMacro("macro", tbuff);
 	delete []tbuff;
 }
