@@ -188,7 +188,7 @@ public:
 
 	LinkedList() {next=prev=this;data=0;}
 };
-  
+
 class BufferList {
 protected:
 	LinkedList *bufferListTop;
@@ -285,10 +285,8 @@ class StyleDefinition {
 public:
 	SString font;
 	int size;
-	ColourDesired fore;
-	SString rawFore;
-	ColourDesired back;
-	SString rawBack;
+	SString fore;
+	SString back;
 	bool bold;
 	bool italics;
 	bool eolfilled;
@@ -301,6 +299,8 @@ public:
 	              sdCaseForce = 0x100, sdVisible = 0x200, sdChangeable = 0x400} specified;
 	StyleDefinition(const char *definition);
 	bool ParseStyleDefinition(const char *definition);
+	long ForeAsLong();
+	long BackAsLong();
 };
 
 struct StyleAndWords {
@@ -841,7 +841,6 @@ bool IsUntitledFileName(const char *name);
 void LowerCaseString(char *s);
 void ChopTerminalSlash(char *path);
 int IntFromHexDigit(const char ch);
-ColourDesired ColourFromString(const char *val);
 long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault);
 char *Slash(const char *s);
 unsigned int UnSlash(char *s);

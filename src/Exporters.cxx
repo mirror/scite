@@ -293,8 +293,8 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 		fputs(RTF_HEADEROPEN RTF_FONTDEFOPEN, fp);
 		strncpy(fonts[0], defaultStyle.font.c_str(), MAX_FONTDEF);
 		fprintf(fp, RTF_FONTDEF, 0, characterset, defaultStyle.font.c_str());
-		strncpy(colors[0], defaultStyle.rawFore.c_str(), MAX_COLORDEF);
-		strncpy(colors[1], defaultStyle.rawBack.c_str(), MAX_COLORDEF);
+		strncpy(colors[0], defaultStyle.fore.c_str(), MAX_COLORDEF);
+		strncpy(colors[1], defaultStyle.back.c_str(), MAX_COLORDEF);
 
 		for (int istyle = 0; istyle < STYLE_DEFAULT; istyle++) {
 			sprintf(key, "style.*.%0d", istyle);
@@ -324,10 +324,10 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 
 				if (sd.specified & StyleDefinition::sdFore) {
 					for (i = 0; i < colorCount; i++)
-						if (EqualCaseInsensitive(sd.rawFore.c_str(), colors[i]))
+						if (EqualCaseInsensitive(sd.fore.c_str(), colors[i]))
 							break;
 					if (i >= colorCount)
-						strncpy(colors[colorCount++], sd.rawFore.c_str(), MAX_COLORDEF);
+						strncpy(colors[colorCount++], sd.fore.c_str(), MAX_COLORDEF);
 					sprintf(lastStyle + strlen(lastStyle), RTF_SETCOLOR "%d", i);
 				} else {
 					strcat(lastStyle, RTF_SETCOLOR "0");	// Default fore
@@ -336,13 +336,13 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 				// PL: highlights doesn't seems to follow a distinct table, at least with WordPad and Word 97
 				// Perhaps it is different for Word 6?
 //				sprintf(lastStyle + strlen(lastStyle), RTF_SETBACKGROUND "%d",
-//				        sd.rawBack.length() ? GetRTFHighlight(sd.rawBack.c_str()) : 0);
+//				        sd.back.length() ? GetRTFHighlight(sd.back.c_str()) : 0);
 				if (sd.specified & StyleDefinition::sdBack) {
 					for (i = 0; i < colorCount; i++)
-						if (EqualCaseInsensitive(sd.rawBack.c_str(), colors[i]))
+						if (EqualCaseInsensitive(sd.back.c_str(), colors[i]))
 							break;
 					if (i >= colorCount)
-						strncpy(colors[colorCount++], sd.rawBack.c_str(), MAX_COLORDEF);
+						strncpy(colors[colorCount++], sd.back.c_str(), MAX_COLORDEF);
 					sprintf(lastStyle + strlen(lastStyle), RTF_SETBACKGROUND "%d", i);
 				} else {
 					strcat(lastStyle, RTF_SETBACKGROUND "1");	// Default back
@@ -524,15 +524,15 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 					if (wysiwyg && sd.font.length()) {
 						fprintf(fp, "\tfont-family: '%s';\n", useMonoFont ? "monospace" : sd.font.c_str());
 					}
-					if (sd.rawFore.length()) {
-						fprintf(fp, "\tcolor: %s;\n", sd.rawFore.c_str());
+					if (sd.fore.length()) {
+						fprintf(fp, "\tcolor: %s;\n", sd.fore.c_str());
 					} else if (istyle == STYLE_DEFAULT) {
 						fprintf(fp, "\tcolor: #000000;\n");
 					}
-					if (sd.rawBack.length()) {
-						fprintf(fp, "\tbackground: %s;\n", sd.rawBack.c_str());
+					if (sd.back.length()) {
+						fprintf(fp, "\tbackground: %s;\n", sd.back.c_str());
 						if (istyle == STYLE_DEFAULT)
-							bgColour = sd.rawBack;
+							bgColour = sd.back;
 					}
 					if (wysiwyg && sd.size) {
 						fprintf(fp, "\tfont-size: %0dpt;\n", sd.size);
@@ -798,13 +798,13 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		sd.ParseStyleDefinition(val);
 
 		if (sd.specified != StyleDefinition::sdNone) {
-			if (sd.rawFore.length()) {
+			if (sd.fore.length()) {
 				int red, green, blue;
 				char buffer[30];
 
-				red = IntFromHexByte(sd.rawFore.c_str() + 1);
-				green = IntFromHexByte(sd.rawFore.c_str() + 3);
-				blue = IntFromHexByte(sd.rawFore.c_str() + 5);
+				red = IntFromHexByte(sd.fore.c_str() + 1);
+				green = IntFromHexByte(sd.fore.c_str() + 3);
+				blue = IntFromHexByte(sd.fore.c_str() + 5);
 
 				// at last, we got the PDF colour!!!
 				sprintf(buffer, "%3.2f %3.2f %3.2f", (red / 256.0f), (green / 256.0f), (blue / 256.0f) );
@@ -1152,12 +1152,12 @@ static void defineTexStyle(StyleDefinition &style, FILE* fp, int istyle) {
 		fputs("\\textbf{", fp);
 		closing_brackets++;
 	}
-	if (style.rawFore.length()) {
-		fprintf(fp, "\\textcolor[rgb]{%s}{", getTexRGB(rgb, style.rawFore.c_str()) );
+	if (style.fore.length()) {
+		fprintf(fp, "\\textcolor[rgb]{%s}{", getTexRGB(rgb, style.fore.c_str()) );
 		closing_brackets++;
 	}
-	if (style.rawBack.length()) {
-		fprintf(fp, "\\colorbox[rgb]{%s}{", getTexRGB( rgb, style.rawBack.c_str()) );
+	if (style.back.length()) {
+		fprintf(fp, "\\colorbox[rgb]{%s}{", getTexRGB( rgb, style.back.c_str()) );
 		closing_brackets++;
 	}
 	fputs("#1", fp);

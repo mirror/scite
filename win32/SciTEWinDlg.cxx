@@ -626,8 +626,8 @@ void SciTEWin::Print(
 
 			if (headerFormat.size()) {
 				SString sHeader = propsPrint.GetExpanded("print.header.format");
-				::SetTextColor(hdc, sdHeader.fore.AsLong());
-				::SetBkColor(hdc, sdHeader.back.AsLong());
+				::SetTextColor(hdc, sdHeader.ForeAsLong());
+				::SetBkColor(hdc, sdHeader.BackAsLong());
 				::SelectObject(hdc, fontHeader);
 				UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
 				RECT rcw = {frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight / 2,
@@ -637,7 +637,7 @@ void SciTEWin::Print(
 				             ETO_OPAQUE, &rcw, sHeader.c_str(),
 				             static_cast<int>(sHeader.length()), NULL);
 				::SetTextAlign(hdc, ta);
-				HPEN pen = ::CreatePen(0, 1, sdHeader.fore.AsLong());
+				HPEN pen = ::CreatePen(0, 1, sdHeader.ForeAsLong());
 				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
 				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, NULL);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight / 4);
@@ -656,8 +656,8 @@ void SciTEWin::Print(
 		if (printPage) {
 			if (footerFormat.size()) {
 				SString sFooter = propsPrint.GetExpanded("print.footer.format");
-				::SetTextColor(hdc, sdFooter.fore.AsLong());
-				::SetBkColor(hdc, sdFooter.back.AsLong());
+				::SetTextColor(hdc, sdFooter.ForeAsLong());
+				::SetBkColor(hdc, sdFooter.BackAsLong());
 				::SelectObject(hdc, fontFooter);
 				UINT ta = ::SetTextAlign(hdc, TA_TOP);
 				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2,
@@ -666,9 +666,9 @@ void SciTEWin::Print(
 				             ETO_OPAQUE, &rcw, sFooter.c_str(),
 				             static_cast<int>(sFooter.length()), NULL);
 				::SetTextAlign(hdc, ta);
-				HPEN pen = ::CreatePen(0, 1, sdFooter.fore.AsLong());
+				HPEN pen = ::CreatePen(0, 1, sdFooter.ForeAsLong());
 				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
-				::SetBkColor(hdc, sdFooter.fore.AsLong());
+				::SetBkColor(hdc, sdFooter.ForeAsLong());
 				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 4, NULL);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom + footerLineHeight / 4);
 				::SelectObject(hdc, penOld);

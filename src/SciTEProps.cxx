@@ -331,21 +331,21 @@ int IntFromHexByte(const char *hexByte) {
 	return IntFromHexDigit(hexByte[0]) * 16 + IntFromHexDigit(hexByte[1]);
 }
 
-ColourDesired ColourFromString(const char *val) {
-	if (val) {
-		int r = IntFromHexByte(val + 1);
-		int g = IntFromHexByte(val + 3);
-		int b = IntFromHexByte(val + 5);
-		return ColourDesired(r, g, b);
+static long ColourFromString(const SString &s) {
+	if (s.length()) {
+		int r = IntFromHexByte(s.c_str() + 1);
+		int g = IntFromHexByte(s.c_str() + 3);
+		int b = IntFromHexByte(s.c_str() + 5);
+		return ColourDesired(r, g, b).AsLong();
 	} else {
-		return ColourDesired();
+		return ColourDesired().AsLong();
 	}
 }
 
 long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault) {
 	SString colour = props.Get(key);
 	if (colour.length()) {
-		return ColourFromString(colour.c_str()).AsLong();
+		return ColourFromString(colour);
 	}
 	return colourDefault.AsLong();
 }
@@ -381,8 +381,7 @@ const char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-		size(0), fore(0), rawFore("#000000"),
-		back(ColourDesired(0xFF, 0xFF, 0xFF)), rawBack("#FFFFFF"),
+		size(0), fore("#000000"), back("#FFFFFF"),
 		bold(false), italics(false), eolfilled(false), underlined(false),
 		caseForce(SC_CASE_MIXED), visible(true) {
 	specified = sdNone;
@@ -432,13 +431,11 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 		}
 		if (0 == strcmp(opt, "fore")) {
 			specified = static_cast<flags>(specified | sdFore);
-			rawFore = colon;
-			fore = ColourFromString(colon);
+			fore = colon;
 		}
 		if (0 == strcmp(opt, "back")) {
 			specified = static_cast<flags>(specified | sdBack);
-			rawBack = colon;
-			back = ColourFromString(colon);
+			back = colon;
 		}
 		if (0 == strcmp(opt, "size")) {
 			specified = static_cast<flags>(specified | sdSize);
@@ -495,6 +492,14 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 	return true;
 }
 
+long StyleDefinition::ForeAsLong() {
+	return ColourFromString(fore);
+}
+
+long StyleDefinition::BackAsLong() {
+	return ColourFromString(back);
+}
+
 void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 	StyleDefinition sd(s);
 	if (sd.specified & StyleDefinition::sdItalics)
@@ -505,9 +510,9 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 		Platform::SendScintillaPointer(win.GetID(), SCI_STYLESETFONT, style,
 			const_cast<char *>(sd.font.c_str()));
 	if (sd.specified & StyleDefinition::sdFore)
-		Platform::SendScintilla(win.GetID(), SCI_STYLESETFORE, style, sd.fore.AsLong());
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETFORE, style, sd.ForeAsLong());
 	if (sd.specified & StyleDefinition::sdBack)
-		Platform::SendScintilla(win.GetID(), SCI_STYLESETBACK, style, sd.back.AsLong());
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETBACK, style, sd.BackAsLong());
 	if (sd.specified & StyleDefinition::sdSize)
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETSIZE, style, sd.size);
 	if (sd.specified & StyleDefinition::sdEOLFilled)
@@ -740,8 +745,7 @@ void SciTEBase::ReadProperties() {
 	SString caretLineBack = props.Get("caret.line.back");
 	if (caretLineBack.length()) {
 		SendEditor(SCI_SETCARETLINEVISIBLE, 1);
-		SendEditor(SCI_SETCARETLINEBACK,
-		           ColourFromString(caretLineBack.c_str()).AsLong());
+		SendEditor(SCI_SETCARETLINEBACK, ColourFromString(caretLineBack));
 	} else {
 		SendEditor(SCI_SETCARETLINEVISIBLE, 0);
 	}
@@ -788,13 +792,13 @@ void SciTEBase::ReadProperties() {
 
 	SString selFore = props.Get("selection.fore");
 	if (selFore.length()) {
-		SendChildren(SCI_SETSELFORE, 1, ColourFromString(selFore.c_str()).AsLong());
+		SendChildren(SCI_SETSELFORE, 1, ColourFromString(selFore));
 	} else {
 		SendChildren(SCI_SETSELFORE, 0, 0);
 	}
 	SString selBack = props.Get("selection.back");
 	if (selBack.length()) {
-		SendChildren(SCI_SETSELBACK, 1, ColourFromString(selBack.c_str()).AsLong());
+		SendChildren(SCI_SETSELBACK, 1, ColourFromString(selBack));
 	} else {
 		if (selFore.length())
 			SendChildren(SCI_SETSELBACK, 0, 0);
@@ -804,26 +808,26 @@ void SciTEBase::ReadProperties() {
 
 	SString foldColour = props.Get("fold.margin.colour");
 	if (foldColour.length()) {
-		SendChildren(SCI_SETFOLDMARGINCOLOUR, 1, ColourFromString(foldColour.c_str()).AsLong());
+		SendChildren(SCI_SETFOLDMARGINCOLOUR, 1, ColourFromString(foldColour));
 	} else {
 		SendChildren(SCI_SETFOLDMARGINCOLOUR, 0, 0);
 	}
 	SString foldHiliteColour = props.Get("fold.margin.highlight.colour");
 	if (foldHiliteColour.length()) {
-		SendChildren(SCI_SETFOLDMARGINHICOLOUR, 1, ColourFromString(foldHiliteColour.c_str()).AsLong());
+		SendChildren(SCI_SETFOLDMARGINHICOLOUR, 1, ColourFromString(foldHiliteColour));
 	} else {
 		SendChildren(SCI_SETFOLDMARGINHICOLOUR, 0, 0);
 	}
 
 	SString whitespaceFore = props.Get("whitespace.fore");
 	if (whitespaceFore.length()) {
-		SendChildren(SCI_SETWHITESPACEFORE, 1, ColourFromString(whitespaceFore.c_str()).AsLong());
+		SendChildren(SCI_SETWHITESPACEFORE, 1, ColourFromString(whitespaceFore));
 	} else {
 		SendChildren(SCI_SETWHITESPACEFORE, 0, 0);
 	}
 	SString whitespaceBack = props.Get("whitespace.back");
 	if (whitespaceBack.length()) {
-		SendChildren(SCI_SETWHITESPACEBACK, 1, ColourFromString(whitespaceBack.c_str()).AsLong());
+		SendChildren(SCI_SETWHITESPACEBACK, 1, ColourFromString(whitespaceBack));
 	} else {
 		SendChildren(SCI_SETWHITESPACEBACK, 0, 0);
 	}
