@@ -1304,11 +1304,14 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		{
 			PAINTSTRUCT ps;
 			::BeginPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
-			Surface surfaceWindow;
-			surfaceWindow.Init(ps.hdc);
-			PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
-			Paint(&surfaceWindow, rcPaint);
-			surfaceWindow.Release();
+			Surface *surfaceWindow = Surface::Allocate();
+			if (surfaceWindow) {
+				surfaceWindow->Init(ps.hdc);
+				PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+				Paint(surfaceWindow, rcPaint);
+				surfaceWindow->Release();
+				delete surfaceWindow;
+			}
 			::EndPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
 			return 0;
 		}
