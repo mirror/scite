@@ -564,7 +564,19 @@ static bool isfilenamecharforsel(char ch) {
 	return !strchr("\t\n\r \"#$%'*,;<>?@[]^`{|}", ch);
 }
 
-void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch)) {
+/**
+ * If there is selected text, either in the editor or the output pane,
+ * put the selection in the @a sel buffer, up to @a len characters.
+ * Otherwise, try and select characters around the caret, as long as they are OK
+ * for the @a ischarforsel function.
+ * Remove the last two character controls from the result, as they are likely
+ * to be CR and/or LF.
+ */
+void SciTEBase::SelectionExtend(
+    char *sel,  ///< Buffer receiving the result.
+    int len,  ///< Size of the buffer.
+    bool (*ischarforsel)(char ch)) { ///< Function returning @c true if the given char. is part of the selection.
+
 	int lengthDoc, selStart, selEnd;
 	Window wCurrent;
 
@@ -576,7 +588,7 @@ void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch
 	lengthDoc = SendFocused(SCI_GETLENGTH);
 	selStart = SendFocused(SCI_GETSELECTIONSTART);
 	selEnd = SendFocused(SCI_GETSELECTIONEND);
-	if (selStart == selEnd) {
+	if (selStart == selEnd && ischarforsel) {
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
 		if (ischarforsel(acc[selStart])) {
@@ -587,13 +599,24 @@ void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch
 				selEnd++;
 			}
 			if (selStart < selEnd) {
-				selEnd++;   	// Because normal selections end one past
+				selEnd++;   // Because normal selections end one past
 			}
 		}
 	}
 	sel[0] = '\0';
-	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
+	if (selEnd - selStart + 1 > len - 1) {
+		selEnd = selStart + len - 1;
+	}
+	if (selStart < selEnd) {
 		GetRange(wCurrent, selStart, selEnd, sel);
+	}
+	// Remove last two control characters, likely to be CR and/or LF
+	int sellen = strlen(sel);
+	if (sellen >= 1 && iscntrl(sel[sellen - 1])) {
+		sel[sellen - 1] = '\0';
+	}
+	if (sellen >= 2 && iscntrl(sel[sellen - 2])) {
+		sel[sellen - 2] = '\0';
 	}
 }
 
@@ -606,17 +629,9 @@ void SciTEBase::SelectionFilename(char *filename, int len) {
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	CharacterRange cr = GetSelection();
 	char currentSelection[1000];
-	if ((cr.cpMin < cr.cpMax) && ((cr.cpMax - cr.cpMin + 1) < static_cast<int>(sizeof(currentSelection)))) {
-		GetRange(wEditor, cr.cpMin, cr.cpMax, currentSelection);
-		int len = strlen(currentSelection);
-		if (len > 2 && iscntrl(currentSelection[len - 1]))
-			currentSelection[len - 1] = '\0';
-		if (len > 2 && iscntrl(currentSelection[len - 2]))
-			currentSelection[len - 2] = '\0';
-		props.Set("CurrentSelection", currentSelection);
-	}
+	SelectionExtend(currentSelection, sizeof(currentSelection), 0);
+	props.Set("CurrentSelection", currentSelection);
 	char word[200];
 	SelectionWord(word, sizeof(word));
 	props.Set("CurrentWord", word);
