@@ -15,25 +15,6 @@ void SciTEWin::SetStatusBarText(const char *s) {
 	              SB_SETTEXT, 0, reinterpret_cast<LPARAM>(s));
 }
 
-#if defined(__MINGW_H) || (defined(_MSC_VER) && _MSC_VER <= 1100)
-// Mingw headers do not have NMMOUSE
-// & apparently, neither do MSVC's (at least not for VC 5.0)
-struct NMMOUSE {
-	NMHDR hdr;
-	DWORD dwItemSpec;
-	// Other fields
-};
-#endif
-#if defined(__MINGW_H) && !defined(TTN_GETDISPINFO)
-// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO, either
-#define TTN_GETDISPINFO TTN_FIRST
-struct NMTTDISPINFO {
-	NMHDR hdr;
-	LPSTR lpszText;
-	// Other fields
-};
-#endif
-
 /**
  * Manage Windows specific notifications.
  */
