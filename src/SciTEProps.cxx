@@ -391,8 +391,9 @@ const char *SciTEBase::GetNextPropItem(
 StyleDefinition::StyleDefinition(const char *definition) :
 		size(0), fore("#000000"), back("#FFFFFF"),
 		bold(false), italics(false), eolfilled(false), underlined(false),
-		caseForce(SC_CASE_MIXED), visible(true) {
-	specified = sdNone;
+		caseForce(SC_CASE_MIXED),
+		visible(true), changeable(true),
+		specified(sdNone) {
 	ParseStyleDefinition(definition);
 }
 
@@ -682,7 +683,11 @@ void SciTEBase::ReadProperties() {
 	SString fileNameForExtension = ExtensionFileName();
 
 	language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
-	SendEditorString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
+	if (language.length())
+	    SendEditorString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
+	else
+	    SendEditorString(SCI_SETLEXER, 0, SCLEX_CONTAINER);
+
 	lexLanguage = SendEditor(SCI_GETLEXER);
 
 	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML) ||
