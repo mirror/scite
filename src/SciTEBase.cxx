@@ -1733,7 +1733,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 	}
 	if (apis) {
 		const char *words = apis.GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
-		                    callTipIgnoreCase);
+		                    callTipIgnoreCase, '\0', true);
 		if (!words)
 			return;
 		// Counts how many call tips
@@ -4531,7 +4531,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 			LoadMRUAndSession(true);
 		}
 		// No open file after session load so create empty document.
-		if (IsUntitledFileName(fullPath)) {
+		if (IsUntitledFileName(fullPath) && buffers.length == 1 && !buffers.buffers[0].isDirty) {
 			Open("");
 		}
 	}
