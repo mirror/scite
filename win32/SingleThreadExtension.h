@@ -36,6 +36,7 @@ public:
 	virtual bool OnUpdateUI();
 	virtual bool OnMarginClick();
 	virtual bool OnMacro(const char *, const char *);
+	virtual bool OnUserListSelection(int, const char *);
 	virtual bool SendProperty(const char *);
 
 protected:

@@ -191,6 +191,14 @@ bool MultiplexExtension::OnMacro(const char *p, const char *q) {
 	return handled;
 }
 
+bool MultiplexExtension::OnUserListSelection(int listType, const char *selection) {
+	bool handled = false;
+	for (int i=0; i<extensionCount && !handled; ++i)
+		if (extensions[i]->OnUserListSelection(listType, selection))
+			handled = true;
+	return handled;
+}
+
 bool MultiplexExtension::SendProperty(const char *prop) {
 	for (int i=0; i<extensionCount; ++i)
 		extensions[i]->SendProperty(prop);

@@ -668,6 +668,18 @@ static bool CallNamedFunction(const char *name, const char *arg) {
 	return handled;
 }
 
+static bool CallNamedFunction(const char *name, int numberArg, const char *stringArg) {
+	bool handled = false;
+	if (luaState) {
+		lua_pushstring(luaState, name);
+		if (safe_getglobal(luaState) && lua_isfunction(luaState, -1)) {
+			lua_pushnumber(luaState, numberArg);
+			lua_pushstring(luaState, stringArg);
+			handled = call_function(luaState, 2);
+		}
+	}
+	return handled;
+}
 
 inline bool IFaceTypeIsScriptable(IFaceType t, int index) {
 	return t < iface_stringresult || (index==1 && t == iface_stringresult);
@@ -1385,6 +1397,10 @@ bool LuaExtension::OnDoubleClick() {
 
 bool LuaExtension::OnMarginClick() {
 	return CallNamedFunction("OnMarginClick");
+}
+
+bool LuaExtension::OnUserListSelection(int listType, const char *selection) {
+	return CallNamedFunction("OnUserListSelection", listType, selection);
 }
 
 

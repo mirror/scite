@@ -4095,6 +4095,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 	case SCN_USERLISTSELECTION: {
 			if (notification->wParam == 2)
 				ContinueMacroList(notification->text);
+			else if (extender && notification->wParam > 2)
+				extender->OnUserListSelection(notification->wParam, notification->text);
 		}
 		break;
 

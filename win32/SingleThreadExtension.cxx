@@ -128,6 +128,10 @@ bool SingleThreadExtension::OnMacro(const char *p, const char *q) {
 	return ext->OnMacro(p,q);
 }
 
+bool SingleThreadExtension::OnUserListSelection(int listType, const char *selection) {
+	return ext->OnUserListSelection(listType, selection);
+}
+
 bool SingleThreadExtension::SendProperty(const char *prop) {
 	return ext->SendProperty(prop);
 }
