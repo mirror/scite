@@ -899,8 +899,8 @@ void SciTEBase::RangeExtendAndGrab(
     Window &wCurrent,
     char *sel,   	///< Buffer receiving the result.
     int len,   	///< Size of the buffer.
-    int selStart,
-    int selEnd,
+    int &selStart,
+    int &selEnd,
     int lengthDoc,
     bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
 	bool stripEol /*=true*/) {
@@ -958,6 +958,24 @@ void SciTEBase::SelectionExtend(
 	int selStart = SendFocused(SCI_GETSELECTIONSTART);
 	int selEnd = SendFocused(SCI_GETSELECTIONEND);
 	RangeExtendAndGrab(wCurrent, sel, len, selStart, selEnd, lengthDoc, ischarforsel, stripEol);
+}
+
+bool SciTEBase::SelectWordAtCaret() {
+	char selection[1000];
+	Window wCurrent;
+
+	if (wOutput.HasFocus()) {
+		wCurrent = wOutput;
+	} else {
+		wCurrent = wEditor;
+	}
+	int lengthDoc = SendFocused(SCI_GETLENGTH);
+	int selStart = SendFocused(SCI_GETSELECTIONSTART);
+	int selEnd = SendFocused(SCI_GETSELECTIONEND);
+	RangeExtendAndGrab(wCurrent, selection, sizeof(selection), 
+		selStart, selEnd, lengthDoc, iswordcharforsel, false);
+	SetSelection(selStart, selEnd);
+	return selStart != selEnd;
 }
 
 SString SciTEBase::SelectionWord(bool stripEol /*=true*/) {
@@ -2966,10 +2984,20 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_CUT:
-		SendPane(source, SCI_CUT);
+		if (SendPane(source, SCI_GETSELECTIONSTART) != SendPane(source, SCI_GETSELECTIONEND)) {
+			SendPane(source, SCI_CUT);
+		} else if (SelectWordAtCaret()) {
+			SendPane(source, SCI_CUT);
+		}
 		break;
 	case IDM_COPY:
-		SendPane(source, SCI_COPY);
+		if (SendPane(source, SCI_GETSELECTIONSTART) != SendPane(source, SCI_GETSELECTIONEND)) {
+			//fprintf(stderr, "Copy from %d\n", source);
+			SendPane(source, SCI_COPY);
+		} else if (SelectWordAtCaret()) {
+			//fprintf(stderr, "Sel word at caret %d\n", source);
+			SendPane(source, SCI_COPY);
+		}
 		// does not trigger SCN_UPDATEUI, so do CheckMenusClipboard() here
 		CheckMenusClipboard();
 		break;
@@ -3722,8 +3750,10 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 void SciTEBase::CheckMenusClipboard() {
 	bool hasSelection = SendFocused(SCI_GETSELECTIONSTART) != SendFocused(SCI_GETSELECTIONEND);
-	EnableAMenuItem(IDM_CUT, hasSelection);
-	EnableAMenuItem(IDM_COPY, hasSelection);
+	//EnableAMenuItem(IDM_CUT, hasSelection);
+	EnableAMenuItem(IDM_CUT, true);
+	//EnableAMenuItem(IDM_COPY, hasSelection);
+	EnableAMenuItem(IDM_COPY, true);
 	EnableAMenuItem(IDM_CLEAR, hasSelection);
 	EnableAMenuItem(IDM_PASTE, SendFocused(SCI_CANPASTE));
 }

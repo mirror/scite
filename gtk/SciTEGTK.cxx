@@ -125,6 +125,7 @@ protected:
 
 	guint sbContextID;
 	Window wToolBarBox;
+	int menuSource;
 
 	// Control of sub process
 	int icmd;
@@ -323,6 +324,7 @@ public:
 SciTEGTK *SciTEGTK::instance;
 
 SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
+	menuSource = 0;
 	// Control of sub process
 	icmd = 0;
 	originalEnd = 0;
@@ -595,7 +597,8 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		break;
 
 	default:
-		SciTEBase::MenuCommand(cmdID);
+		SciTEBase::MenuCommand(cmdID, menuSource);
+		menuSource = 0;
 	}
 	UpdateStatusBar(true);
 }
@@ -901,7 +904,7 @@ void SciTEGTK::SaveAsPDF() {
 }
 
 void SciTEGTK::SaveAsTEX() {
-	SaveAsXXX(sfTEX, "Export File As TeX");
+	SaveAsXXX(sfTEX, "Export File As LaTeX");
 }
 
 void SciTEGTK::Print(bool) {
@@ -1956,10 +1959,14 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 	if (event->button == 3) {
 		// PopUp menu
 		Window w = wEditor;
+		menuSource = IDM_SRCWIN;
 		if (PWidget(w)->window != event->window) {
 			if (PWidget(wOutput)->window == event->window) {
+				menuSource = IDM_RUNWIN;
 				w = wOutput;
 			} else {
+				menuSource = 0;
+				//fprintf(stderr, "Menu source focus\n");
 				return FALSE;
 			}
 		}
@@ -1969,7 +1976,13 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 		gdk_window_get_origin(PWidget(w)->window, &ox, &oy);
 		ContextMenu(w, Point(static_cast<int>(event->x) + ox,
 		                     static_cast<int>(event->y) + oy), wSciTE);
+		//fprintf(stderr, "Menu source %s\n",
+		//	(menuSource == IDM_SRCWIN) ? "IDM_SRCWIN" : "IDM_RUNWIN");
+	} else {
+		menuSource = 0;
+		//fprintf(stderr, "Menu source focus\n");
 	}
+
 	return FALSE;
 }
 

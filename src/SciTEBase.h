@@ -568,8 +568,9 @@ protected:
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
 	void RangeExtendAndGrab(Window &wCurrent, char *sel, int len,
-	    int selStart, int selEnd, int lengthDoc, bool (*ischarforsel)(char ch), bool stripEol = true);
+	    int &selStart, int &selEnd, int lengthDoc, bool (*ischarforsel)(char ch), bool stripEol = true);
 	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch), bool stripEol = true);
+	bool SelectWordAtCaret();
 	SString SelectionWord(bool stripEol = true);
 	SString SelectionFilename();
 	void SelectionIntoProperties();
