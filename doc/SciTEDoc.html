@@ -1597,7 +1597,21 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
           items out, one per line. These file types appear in the "Files of type:" pull down. The
           first item is the default, so you may wish to change the first item to include the file
           types you commonly open.<br />
-	On GTK+, this option only works for GTK+ 2.4 or later.
+          On GTK+, this option only works for GTK+ 2.4 or later.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          max.file.size
+        </td>
+        <td>
+        To avoid to load accidently huge files on slow media, or just to ensure SciTE is used 
+        only to edit human readable code, user can set the max.file.size property to specify 
+        a limit to file loading.
+        If unset or set to 0, there is no limits.
+        If set to a given byte size and if a file to load exceeds this limit, user is asked 
+        if the file has to be loaded. If accepted, the file is read as usual. If rejected, no 
+        action is taken (no file loaded, no buffer created).
         </td>
       </tr>
       <tr>
