@@ -47,7 +47,14 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	// that they have a sensible default configuration even if the properties
 	// files are missing. Also allows a one file distribution of Sc1.EXE.
 	propsEmbed.Clear();
+	// System type properties are also stored in the embedded properties.
 	propsEmbed.Set("PLAT_WIN", "1");
+	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
+	::GetVersionEx(&osv);
+	if (osv.dwPlatformId == VER_PLATFORM_WIN32_NT)
+		propsEmbed.Set("PLAT_WINNT", "1");
+	else if (osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
+		propsEmbed.Set("PLAT_WIN95", "1");
 	HRSRC handProps = ::FindResource(hInstance, "Embedded", "Properties");
 	if (handProps) {
 		DWORD size = ::SizeofResource(hInstance, handProps);
