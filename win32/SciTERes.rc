@@ -17,7 +17,7 @@ BEGIN
   BEGIN
 	MENUITEM "&New\tCtrl+N",  				IDM_NEW
 	MENUITEM "&Open...\tCtrl+O",			IDM_OPEN
-	MENUITEM "&Open Selected Filename\tCtrl+Shift+O",	IDM_OPENSELECTED
+	MENUITEM "Open Selected &Filename\tCtrl+Shift+O",	IDM_OPENSELECTED
 	MENUITEM "&Revert\tCtrl+R",			IDM_REVERT
 	MENUITEM "&Close\tCtrl+W",			IDM_CLOSE
 	MENUITEM "&Save\tCtrl+S",  				IDM_SAVE
