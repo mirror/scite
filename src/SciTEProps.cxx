@@ -845,6 +845,8 @@ void SciTEBase::ReadPropertiesInitial() {
 	ViewWhitespace(props.GetInt("view.whitespace"));
 	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides"));
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
+	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
+	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
 
 #if PLAT_WIN
 	if (tabMultiLine) {	// Windows specific!
