@@ -359,6 +359,17 @@ void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 		extender->OnOpen();
 }
 
+void SciTEBase::OpenMultiple(const char *files, bool initialCmdLine, bool forceLoad) {
+	if (*files) {
+		while (*files) {
+			Open(files, initialCmdLine, forceLoad);
+			files = files + strlen(files) + 1;
+		}
+	} else {
+		Open("", initialCmdLine, forceLoad);
+	}
+}
+
 void SciTEBase::OpenSelected() {
 	char selectedFilename[MAX_PATH];
 	unsigned long lineNumber = 0;

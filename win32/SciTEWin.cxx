@@ -735,50 +735,65 @@ void SciTEWin::QuitProgram() {
 }
 
 void SciTEWin::Run(const char *cmdLine) {
-	if (0 == strncmp(cmdLine, "/p ", 3)) {
-		Open(cmdLine + 3, true);
-		Print(false);
-		::PostQuitMessage(0);
-#ifdef MULTIOPEN
-	} else if (0 == strncmp(cmdLine, "/m ", 3)) {
-		// Open all files given on command line, separated by spaces.
-		// The filenames containing spaces must be enquoted.
-		// In case of not using buffers they get closed immediately except
-		// the last one, but they move to the MRU file list
-		bool fileopened = false;
-		char *val = StringDup(cmdLine + 3);
-		char* p = val;
 
-		while (*p != '\0') {
-			if (isspace(*p)) {
-				++p;
-			} else {
-				char* f = p;
-				if (*p == '\"') {
-					++f;
-					++p;
-					while ((*p != '\0') && (*p != '\"'))
-						++p;
-				} else {
-					while ((*p != '\0') && !isspace(*p))
-						++p;
-				}
-				if (*p != '\0') {
-					*p = '\0';
-					++p;
-				}
-				Open(f, true);
-				fileopened = true;
+    // Break up the command line into individual arguments and strip double 
+    // quotes from each argument.  Arguments that start with '-' or '/' are
+    // switches and are stored in the switches string separated by '\n' with 
+    // other arguments being file names that are stored in the files string, each 
+    // /terminated/ by '\n'.
+    // The print switch /p is special cased.
+    bool performPrint = false;
+	SString files;
+	int fileCount = 0;
+	SString switches;
+	const char *startArg = cmdLine;
+	while (*startArg) {
+		while (isspace(*startArg))
+			startArg++;
+		const char *endArg = startArg;	
+		if (*startArg == '"') {
+			startArg++;
+			endArg = startArg;
+			while (*endArg && *endArg != '\"') {
+				endArg++;
+			}
+		} else {
+			while (*endArg && !isspace(*endArg)) {
+				endArg++;
 			}
 		}
-		delete[] val;
-
-		if (!fileopened)
-			Open("", true);
-#endif
-	} else {
-		Open(cmdLine, true);
+		if ((*startArg == '-') || (*startArg == '/')) {
+			startArg++;
+            if ((*startArg == 'p') && ((endArg-startArg)==1)) {
+                performPrint = true;
+            } else {
+			    if (switches.length())
+				    switches += "\n";
+			    switches += SString(startArg, 0, endArg-startArg);
+            }
+		} else {
+			fileCount++;
+			files += SString(startArg, 0, endArg-startArg);
+			files += "\n";
+		}
+		startArg = endArg;
+		if (*startArg)
+			startArg++;
 	}
+	files.substitute('\n', '\0');	// Make into a set of strings
+	props.ReadFromMemory(switches.c_str(), switches.length());
+
+	// Open all files given on command line.
+	// The filenames containing spaces must be enquoted.
+	// In case of not using buffers they get closed immediately except
+	// the last one, but they move to the MRU file list
+	OpenMultiple(files.c_str(), true);
+
+    if (performPrint) {
+		Print(false);
+		::PostQuitMessage(0);
+    }
+
 	wSciTE.Show();
 	if (cmdShow)	// assume SW_MAXIMIZE only
 		ShowWindow(wSciTE.GetID(), cmdShow);

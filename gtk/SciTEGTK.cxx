@@ -219,7 +219,7 @@ public:
 	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
 	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
 	void CreateMenu();
-	void Run(const char *cmdLine);
+	void Run(int argc, char *argv[]);
 	void ProcessExecute();
 	virtual void Execute();
 	virtual void StopExecute();
@@ -1999,10 +1999,9 @@ void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition
 			}
 			//add other commands here
 		}
-
-
 	}
 }
+
 void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 	// Create a pipe and see if it finds another one already there
 
@@ -2040,7 +2039,23 @@ void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 
 #endif 
 
-void SciTEGTK::Run(const char *cmdLine) {
+void SciTEGTK::Run(int argc, char *argv[]) {
+	SString files;
+	int fileCount = 0;
+	SString switches;
+	for (int arg=1; arg < argc; arg++) {
+		if (argv[arg][0] == '-') {
+			if (switches.length())
+				switches += "\n";
+			switches += (argv[arg] + 1);
+		} else {
+			fileCount++;
+			files += argv[arg];
+			files += "\n";
+		}
+	}
+	files.substitute('\n', '\0');	// Make into a set of strings
+	props.ReadFromMemory(switches.c_str(), switches.length());
 
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	//GTK_WIDGET_UNSET_FLAGS(wSciTE.GetID(), GTK_CAN_FOCUS);
@@ -2050,7 +2065,8 @@ void SciTEGTK::Run(const char *cmdLine) {
 
 #ifdef SINGLE_INSTANCE
 	if (props.GetInt("check.if.already.open")) {
-		CheckAlreadyOpen(cmdLine);
+		if (fileCount == 1) 
+			CheckAlreadyOpen(files.c_str());
 	}
 #endif 
 
@@ -2074,6 +2090,9 @@ void SciTEGTK::Run(const char *cmdLine) {
 	}
 	gtk_widget_set_usize(GTK_WIDGET(wSciTE.GetID()), width, height);
 
+	fileSelectorWidth = props.GetInt("fileselector.width", fileSelectorWidth);
+	fileSelectorHeight = props.GetInt("fileselector.height", fileSelectorHeight);
+	
 	GtkWidget *boxMain = gtk_vbox_new(FALSE, 1);
 	gtk_container_add(GTK_CONTAINER(wSciTE.GetID()), boxMain);
 	GTK_WIDGET_UNSET_FLAGS(boxMain, GTK_CAN_FOCUS);
@@ -2230,7 +2249,7 @@ void SciTEGTK::Run(const char *cmdLine) {
 
 	SetFocus(wOutput.GetID());
 
-	Open(cmdLine, true);
+	OpenMultiple(files.c_str(), true);
 	CheckMenus();
 	SizeSubWindows();
 	SetFocus(wEditor.GetID());
@@ -2271,12 +2290,7 @@ int main(int argc, char *argv[]) {
 	
 	gtk_init(&argc, &argv);
 	SciTEGTK scite(extender);
-	if (argc > 1) {
-		//Platform::DebugPrintf("args: %d %s\n", argc, argv[1]);
-		scite.Run(argv[1]);
-	} else {
-		scite.Run("");
-	}
+	scite.Run(argc, argv);
 
 	return 0;
 }

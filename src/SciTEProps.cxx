@@ -158,8 +158,8 @@ void SciTEBase::ReadLocalPropFile() {
 	strcat(propfile, pathSepString);
 #endif
 	strcat(propfile, propFileName);
-	props.Clear();
-	props.Read(propfile, propdir);
+	propsLocal.Clear();
+	propsLocal.Read(propfile, propdir);
 	//Platform::DebugPrintf("Reading local properties from %s\n", propfile);
 
 	// TODO: Grab these from Platform and update when environment says to

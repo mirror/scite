@@ -277,6 +277,7 @@ protected:
 	PropSetFile propsEmbed;
 	PropSetFile propsBase;
 	PropSetFile propsUser;
+	PropSetFile propsLocal;
 	PropSetFile props;
 
 	enum { bufferMax = 10 };
@@ -327,6 +328,7 @@ protected:
 	virtual bool SaveAsDialog()=0;
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
 	void Open(const char *file = 0, bool initialCmdLine = false, bool forceLoad=false);
+	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad=false);
 	void OpenSelected();
 	void Revert();
 	int SaveIfUnsure(bool forceQuestion = false);

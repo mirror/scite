@@ -248,7 +248,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 
 	propsBase.superPS = &propsEmbed;
 	propsUser.superPS = &propsBase;
-	props.superPS = &propsUser;
+	propsLocal.superPS = &propsUser;
+	props.superPS = &propsLocal;
 
 	if (extender)
 		extender->Initialise(this);
