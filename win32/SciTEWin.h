@@ -177,6 +177,10 @@ protected:
 	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void GoLineDialog();
 
+	BOOL AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual bool AbbrevDialog();
+
 	BOOL TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void TabSizeDialog();

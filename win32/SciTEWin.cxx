@@ -700,7 +700,7 @@ void SciTEWin::ProcessExecute() {
 					// don't answer to a normal termination command.
 					// This function is dangerous: dependant DLLs don't know the process
 					// is terminated, and memory isn't released.
-					OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...");
+					OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...\n");
 					::TerminateProcess(pi.hProcess, 1);
 				}
 				completed = true;

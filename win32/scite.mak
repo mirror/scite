@@ -106,6 +106,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexConf.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexCrontab.obj \
+	..\..\scintilla\win32\LexCSS.obj \
 	..\..\scintilla\win32\LexEiffel.obj \
 	..\..\scintilla\win32\LexFortran.obj \
 	..\..\scintilla\win32\LexHTML.obj \
@@ -161,7 +162,7 @@ OBJSSTATIC=\
 LEXPROPS=\
 $(DIR_BIN)\ada.properties $(DIR_BIN)\asm.properties $(DIR_BIN)\ave.properties \
 $(DIR_BIN)\baan.properties $(DIR_BIN)\bullant.properties \
-$(DIR_BIN)\conf.properties $(DIR_BIN)\cpp.properties \
+$(DIR_BIN)\conf.properties $(DIR_BIN)\cpp.properties $(DIR_BIN)\css.properties \
 $(DIR_BIN)\eiffel.properties $(DIR_BIN)\fortran.properties \
 $(DIR_BIN)\html.properties $(DIR_BIN)\latex.properties \
 $(DIR_BIN)\lisp.properties $(DIR_BIN)\lua.properties \
@@ -207,6 +208,8 @@ $(DIR_BIN)\conf.properties:	..\src\conf.properties
 	copy ..\src\conf.properties $@
 $(DIR_BIN)\cpp.properties:	..\src\cpp.properties
 	copy ..\src\cpp.properties $@
+$(DIR_BIN)\css.properties:	..\src\css.properties
+	copy ..\src\css.properties $@
 $(DIR_BIN)\eiffel.properties:	..\src\eiffel.properties
 	copy ..\src\eiffel.properties $@
 $(DIR_BIN)\fortran.properties:	..\src\fortran.properties

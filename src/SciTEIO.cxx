@@ -423,12 +423,13 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 				int linesCR;
 				int linesLF;
 				int linesCRLF;
+				SetEol();
 				CountLineEnds(linesCR, linesLF, linesCRLF);
-				if ((linesLF > linesCR) && (linesLF > linesCRLF))
+				if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
 					SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
-				if ((linesCR > linesLF) && (linesCR > linesCRLF))
+				else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
 					SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
-				if ((linesCRLF > linesLF) && (linesCRLF > linesCR))
+				else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
 					SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
 			}
 		}
@@ -536,7 +537,8 @@ void SciTEBase::OpenMultiple(const char *files, bool initialCmdLine, bool forceL
 	}
 }
 
-void SciTEBase::OpenSelected() {
+// Returns true if editor should get the focus
+bool SciTEBase::OpenSelected() {
 	char selectedFilename[MAX_PATH];
 	char cTag[200];
 	unsigned long lineNumber = 0;
@@ -546,12 +548,12 @@ void SciTEBase::OpenSelected() {
 	selectedFilename[MAX_PATH - 1] = '\0';
 	if (selectedFilename[0] == '\0') {
 		WarnUser(warnWrongFile);
-		return;	// No selection
+		return false;	// No selection
 	}
 
-	if (EqualCaseInsensitive(selectedFilename, fileName)) {
+	if (EqualCaseInsensitive(selectedFilename, fileName) || EqualCaseInsensitive(selectedFilename, fullPath)) {
 		WarnUser(warnWrongFile);
-		return;	// Do not open if it is the current file!
+		return true;	// Do not open if it is the current file!
 	}
 
 	cTag[0] = '\0';
@@ -587,14 +589,14 @@ void SciTEBase::OpenSelected() {
 		        strncmp(selectedFilename, "mailto:", 7) == 0) {
 			SString cmd = selectedFilename;
 			AddCommand(cmd, "", jobShell);
-			return;	// Job is done
+			return false;	// Job is done
 		}
 #endif
 
 		// Support the ctags format
 
 		if (lineNumber == 0) {
-			GetCTag(cTag, 200);
+			GetCTag(cTag, sizeof(cTag));
 		}
 	}
 
@@ -617,10 +619,12 @@ void SciTEBase::OpenSelected() {
 					FindNext(false);
 				}
 			}
+			return true;
 		}
 	} else {
 		WarnUser(warnWrongFile);
 	}
+	return false;
 }
 
 void SciTEBase::Revert() {

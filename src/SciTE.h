@@ -81,6 +81,7 @@
 #define IDM_STREAM_COMMENT	244
 #define IDM_COPYASRTF		245
 #define IDM_BOX_COMMENT		246
+#define IDM_INS_ABBREV		247
 
 #define IDM_PREVMATCHPPC	260
 #define IDM_SELECTTOPREVMATCHPPC	261
@@ -194,6 +195,8 @@
 
 // id for the browse button in the grep dialog
 #define IDBROWSE 243
+
+#define IDABBREV			244
 
 #define IDPARAMSTART		300
 

@@ -650,14 +650,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	if (!props.GetInt("eol.auto")) {
-		SString eol_mode = props.Get("eol.mode");
-		if (eol_mode == "LF") {
-			SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
-		} else if (eol_mode == "CR") {
-			SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
-		} else if (eol_mode == "CRLF") {
-			SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
-		}
+		SetEol();
 	}
 
 	codePage = props.GetInt("code.page");
@@ -1324,6 +1317,7 @@ int SciTEBase::GetMenuCommandAsInt(SString commandName) {
 	if (commandName == "IDM_UPRCASE") return IDM_UPRCASE;
 	if (commandName == "IDM_LWRCASE") return IDM_LWRCASE;
 	if (commandName == "IDM_ABBREV") return IDM_ABBREV;
+	if (commandName == "IDM_INS_ABBREV") return IDM_INS_ABBREV;
 	if (commandName == "IDM_BLOCK_COMMENT") return IDM_BLOCK_COMMENT;
 	if (commandName == "IDM_STREAM_COMMENT") return IDM_STREAM_COMMENT;
 	if (commandName == "IDM_COPYASRTF") return IDM_COPYASRTF;

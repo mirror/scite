@@ -860,17 +860,11 @@ void SciTEBase::RangeExtendAndGrab(
 	if (selStart == selEnd && ischarforsel) {
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
-		if (ischarforsel(acc[selStart])) {
-			while ((selStart > 0) && (ischarforsel(acc[selStart - 1]))) {
-				selStart--;
-			}
-			while ((selEnd < lengthDoc - 1) && (ischarforsel(acc[selEnd + 1]))) {
-				selEnd++;
-			}
-			if (selStart < selEnd) {
-				selEnd++;   	// Because normal selections end one past
-			}
-
+		while ((selStart > 0) && (ischarforsel(acc[selStart - 1]))) {
+			selStart--;
+		}
+		while ((selEnd < lengthDoc) && (ischarforsel(acc[selEnd]))) {
+			selEnd++;
 		}
 	}
 	sel[0] = '\0';
@@ -883,10 +877,9 @@ void SciTEBase::RangeExtendAndGrab(
 	// Change whole line selected but normally end of line characters not wanted.
 	// Remove possible terminating \r, \n, or \r\n.
 	size_t sellen = strlen(sel);
-	if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] == '\n')) {
-		if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] == '\n')) {
-			sel[sellen - 2] = '\0';
-		}
+	if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] == '\n')) {
+		sel[sellen - 2] = '\0';
+	} else if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] == '\n')) {
 		sel[sellen - 1] = '\0';
 	}
 }
@@ -1243,12 +1236,14 @@ void SciTEBase::ReplaceOnce() {
 
 void SciTEBase::ReplaceAll(bool inSelection) {
 	SString findTarget = findWhat;
+	props.SetInteger("Replacements", 0);
 	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
 	if (findLen == 0) {
 		SString msg = LocaliseMessage(
 			inSelection ?
 			"Find string must not be empty for 'Replace in Selection' command." :
 			"Find string must not be empty for 'Replace All' command.");
+		UpdateStatusBar(false);
 		FindMessageBox(msg);
 		return;
 	}
@@ -1260,6 +1255,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		if (startPosition == endPosition) {
 			SString msg = LocaliseMessage(
 				"Selection must not be empty for 'Replace in Selection' command.");
+			UpdateStatusBar(false);
 			FindMessageBox(msg);
 			return;
 		}
@@ -1289,6 +1285,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	}
 	if ((posFind != -1) && (posFind <= endPosition)) {
 		int lastMatch = posFind;
+		int replacements = 0;
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
 			int lenTarget = SendEditor(SCI_GETTARGETEND) - SendEditor(SCI_GETTARGETSTART);
@@ -1307,15 +1304,19 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			SendEditor(SCI_SETTARGETSTART, lastMatch);
 			SendEditor(SCI_SETTARGETEND, endPosition);
 			posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
+			replacements++;
 		}
 		if (inSelection)
 			SetSelection(startPosition, endPosition);
 		else
 			SetSelection(lastMatch, lastMatch);
+		props.SetInteger("Replacements", replacements);
+		UpdateStatusBar(false);
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
 		SString msg = LocaliseMessage(
 			"No replacements because string '^0' was not present.", findWhat.c_str());
+		UpdateStatusBar(false);
 		FindMessageBox(msg);
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
@@ -1683,6 +1684,73 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	} else {
 		SendEditor(SCI_AUTOCCANCEL);
 	}
+	return true;
+}
+
+bool SciTEBase::StartInsertAbbreviation() {
+	if (!AbbrevDialog())
+		return true;
+
+	SString data = propsAbbrev.Get(abbrevInsert);
+	size_t dataLength = data.length();
+	if (dataLength == 0) {
+		return true; // returning if expanded abbreviation is empty
+	}
+
+	char expbuf[1000];
+	strcpy(expbuf, data.c_str());
+	UnSlash(expbuf);
+	size_t expbuflen = strlen(expbuf);
+	int caret_pos = SendEditor(SCI_GETSELECTIONEND);
+	int sel_start = SendEditor(SCI_GETSELECTIONSTART);
+	int sel_length = caret_pos - sel_start;
+	bool at_start = false;
+	int currentLineNumber = GetCurrentLineNumber();
+	int indent = 0;
+	if (props.GetInt("indent.automatic"))
+		indent = GetLineIndentation(currentLineNumber);
+
+	SendEditor(SCI_BEGINUNDOACTION);
+
+	// add the abbreviation a character at a time
+	for (size_t i = expbuflen; i--; ) {
+		// go from end - selected text will be at last '|', caret will be at first '|'
+		char c = expbuf[i];
+		SString abbrevText("");
+		switch (c) {
+		case '|':
+			// user may want to insert '|' instead of caret
+			if (i > 0 && expbuf[i - 1] == '|') {
+				// put '|' into the line
+				abbrevText += c;
+				expbuflen--;
+				i--;
+			} else if (!at_start) {
+				caret_pos -= sel_length;
+				at_start = true;
+			} else {
+				sel_start = caret_pos;
+				sel_length = 0;
+			}
+			break;
+		default:
+			abbrevText += c;
+			break;
+		}
+		SendEditorString(SCI_INSERTTEXT, caret_pos, abbrevText.c_str());
+		if (at_start)
+			sel_start += abbrevText.length();
+		if (c == '\n') {
+			SetLineIndentation(currentLineNumber+1, indent);
+		}
+	}
+
+	// set the caret to the desired position
+	if (!at_start && sel_length == 0)
+		sel_start += expbuflen;
+	SendEditor(SCI_SETSEL, sel_start, sel_start + sel_length);
+
+	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
 
@@ -2623,6 +2691,8 @@ void SciTEBase::MenuCommand(int cmdID) {
 			New();
 			ReadProperties();
 			SetIndentSettings();
+			if (props.GetInt("eol.auto"))
+				SetEol();
 			UpdateStatusBar(true);
 			WindowSetFocus(wEditor);
 		}
@@ -2636,8 +2706,8 @@ void SciTEBase::MenuCommand(int cmdID) {
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_OPENSELECTED:
-		OpenSelected();
-		WindowSetFocus(wEditor);
+		if (OpenSelected())
+			WindowSetFocus(wEditor);
 		break;
 	case IDM_CLOSE:
 		if (SaveIfUnsure() != IDCANCEL) {
@@ -2852,6 +2922,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		StartExpandAbbreviation();
 		break;
 
+	case IDM_INS_ABBREV:
+		StartInsertAbbreviation();
+		break;
+
 	case IDM_BLOCK_COMMENT:
 		StartBlockComment();
 		break;
@@ -2973,15 +3047,18 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_EOL_CRLF:
 		SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
 		CheckMenus();
+		UpdateStatusBar(false);
 		break;
 
 	case IDM_EOL_CR:
 		SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
 		CheckMenus();
+		UpdateStatusBar(false);
 		break;
 	case IDM_EOL_LF:
 		SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
 		CheckMenus();
+		UpdateStatusBar(false);
 		break;
 	case IDM_EOL_CONVERT:
 		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));

@@ -201,6 +201,9 @@
 				RelativePath="..\..\scintilla\src\LexCrontab.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexCSS.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexEiffel.cxx">
 			</File>
 			<File

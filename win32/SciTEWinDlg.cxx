@@ -721,6 +721,17 @@ static void FillComboFromMemory(HWND combo, const ComboMemory &mem, bool useTop 
 	}
 }
 
+static void FillComboFromProps(HWND combo, PropSet &props) {
+	char *key;
+	char *val;
+	if (props.GetFirst(&key, &val)) {
+		::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(key));
+		while (props.GetNext(&key, &val)) {
+			::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(key));
+		}
+	}
+}
+
 static SString GetItemText(HWND hDlg, int id) {
 	char s[10000];
 	::GetDlgItemText(hDlg, id, s, sizeof(s));
@@ -897,6 +908,8 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_COMMAND:
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
 			wFindReplace = 0;
+			props.Set("Replacements", "");
+			UpdateStatusBar(false);
 			::EndDialog(hDlg, IDCANCEL);
 			return FALSE;
 		} else {
@@ -1144,6 +1157,44 @@ BOOL CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 void SciTEWin::GoLineDialog() {
 	DoDialog(hInstance, "GoLine", MainHWND(), reinterpret_cast<DLGPROC>(GoLineDlg));
 	WindowSetFocus(wEditor);
+}
+
+BOOL SciTEWin::AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam) {
+	HWND hAbbrev = ::GetDlgItem(hDlg, IDABBREV);
+	switch (message) {
+
+	case WM_INITDIALOG:
+		LocaliseDialog(hDlg);
+		FillComboFromProps(hAbbrev, propsAbbrev);
+		return TRUE;
+
+	case WM_CLOSE:
+		::SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
+		break;
+
+	case WM_COMMAND:
+		if (ControlIDOfCommand(wParam) == IDCANCEL) {
+			::EndDialog(hDlg, IDCANCEL);
+			return FALSE;
+		} else if (ControlIDOfCommand(wParam) == IDOK) {
+			::GetDlgItemText(hDlg, IDABBREV, abbrevInsert, sizeof(abbrevInsert));
+			::EndDialog(hDlg, IDOK);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+BOOL CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
+	return app->AbbrevMessage(hDlg, message, wParam);
+}
+
+bool SciTEWin::AbbrevDialog() {
+	bool success = false;
+	success = (DoDialog(hInstance, "InsAbbrev", MainHWND(), reinterpret_cast<DLGPROC>(AbbrevDlg)) == IDOK);
+	WindowSetFocus(wEditor);
+	return success;
 }
 
 BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {

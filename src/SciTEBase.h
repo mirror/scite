@@ -312,6 +312,7 @@ protected:
 	enum { maxParam = 4 };
 	Window wParameters;
 	SString parameterisedCommand;
+	char abbrevInsert[200];
 
 	enum { languageCmdID = IDM_LANGUAGE };
 	LanguageMenuItem *languageMenu;
@@ -500,6 +501,7 @@ protected:
 	void LoadSession(const char *sessionName);
 	void SaveSession(const char *sessionName);
 	void SetIndentSettings();
+	void SetEol();
 	void New();
 	void Close(bool updateUI = true);
 	bool IsAbsolutePath(const char *path);
@@ -516,7 +518,7 @@ protected:
 	bool Open(const char *file = 0, bool initialCmdLine = false,
 		bool forceLoad = false, bool maySaveIfDirty=true);
 	void OpenMultiple(const char *files = 0, bool initialCmdLine = false, bool forceLoad = false);
-	void OpenSelected();
+	bool OpenSelected();
 	void Revert();
 	int SaveIfUnsure(bool forceQuestion = false);
 	int SaveIfUnsureAll(bool forceQuestion = false);
@@ -569,6 +571,7 @@ protected:
 	void ReplaceAll(bool inSelection);
 	virtual void DestroyFindReplace() = 0;
 	virtual void GoLineDialog() = 0;
+	virtual bool AbbrevDialog() = 0;
 	virtual void TabSizeDialog() = 0;
 	virtual void ParamGrab() = 0;
 	virtual bool ParametersDialog(bool modal) = 0;
@@ -589,6 +592,7 @@ protected:
 	virtual bool StartAutoComplete();
 	virtual bool StartAutoCompleteWord(bool onlyOneWord);
 	virtual bool StartExpandAbbreviation();
+	virtual bool StartInsertAbbreviation();
 	virtual bool StartBlockComment();
 	virtual bool StartBoxComment();
 	virtual bool StartStreamComment();
