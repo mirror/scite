@@ -106,6 +106,11 @@ static bool IsSpaceOrTab(char ch) {
 	return (ch == ' ') || (ch == '\t');
 }
 
+static bool IsCommentLine(const char *line) {
+	while (IsSpaceOrTab(*line)) ++line;
+	return (*line == '#');
+}
+
 bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *directoryForImports,
                            SString imports[], int sizeImports) {
 	//UnSlash(lineBuffer);
@@ -129,9 +134,7 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *di
 				}
 			}
 		}
-	} else if (lineBuffer[0] != '#' && !IsSpaceOrTab(lineBuffer[0])) {
-		Set(lineBuffer);
-	} else if (IsSpaceOrTab(lineBuffer[0]) && ifIsTrue) {
+	} else if (ifIsTrue && !IsCommentLine(lineBuffer)) {
 		Set(lineBuffer);
 	}
 	return ifIsTrue;
