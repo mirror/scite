@@ -3598,6 +3598,8 @@ void SciTEBase::PerformOne(char *action) {
 		arg++;
 		if (isprefix(action, "askfilename:")) {
 			extender->OnMacro("filename", fullPath);
+		} else if (isprefix(action, "askproperty:")) {
+			PropertyToDirector(arg);
 		} else if (isprefix(action, "close:")) {
 			Close();
 			WindowSetFocus(wEditor);
@@ -3682,9 +3684,10 @@ void SciTEBase::EnumProperties(const char *propkind) {
 
 	if (!extender)
 		return;
-	if (!strcmp(propkind, "dyn"))
+	if (!strcmp(propkind, "dyn")) {
+		SelectionIntoProperties(); // Refresh properties ...
 		pf = &props;
-	else if (!strcmp(propkind, "local"))
+	} else if (!strcmp(propkind, "local"))
 		pf = &propsLocal;
 	else if (!strcmp(propkind, "user"))
 		pf = &propsUser;
@@ -3720,6 +3723,14 @@ void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *v
 
 void SciTEBase::PropertyFromDirector(const char *arg) {
 	props.Set(arg);
+}
+
+void SciTEBase::PropertyToDirector(const char *arg) {
+	if (!extender)
+		return;
+	SelectionIntoProperties();
+	SString gotprop=props.Get(arg);
+	extender->OnMacro("macro:stringinfo",gotprop.c_str());
 }
 
 /**
