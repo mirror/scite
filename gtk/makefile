@@ -13,6 +13,7 @@ AR = ar
 ifdef GTK2
 CONFIGFLAGS=pkg-config --cflags gtk+-2.0
 CONFIGLIB=pkg-config --libs gtk+-2.0 gthread-2.0
+gnomeprefix:=$(shell pkg-config --variable=prefix gtk+-2.0 2>/dev/null)
 else
 CONFIGFLAGS=gtk-config --cflags
 CONFIGLIB=gtk-config --libs
