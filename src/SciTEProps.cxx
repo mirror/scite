@@ -916,6 +916,17 @@ void SciTEBase::ReadProperties() {
 	//SendEditor(SCI_SETMARGINMASKN, 0, SC_MASK_FOLDERS);
 
 	SendEditor(SCI_SETMODEVENTMASK, SC_MOD_CHANGEFOLD);
+	
+	if (0==props.GetInt("undo.redo.lazy")) {
+		// Trap for insert/delete notifications (also fired by undo
+		// and redo) so that the buttons can be enabled if needed.
+		SendEditor(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT
+			| SC_LASTSTEPINUNDOREDO | SendEditor(SCI_GETMODEVENTMASK, 0));
+
+		//SC_LASTSTEPINUNDOREDO is probably not needed in the mask; it
+		//doesn't seem to fire as an event of its own; just modifies the
+		//insert and delete events.
+	}
 
 	// Create a margin column for the folding symbols
 	SendEditor(SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);

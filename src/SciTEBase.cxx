@@ -3409,6 +3409,17 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_MODIFIED:
+		if (notification->modificationType & SC_LASTSTEPINUNDOREDO) {
+			//when the user hits undo or redo, several normal insert/delete
+			//notifications may fire, but we will end up here in the end
+			EnableAMenuItem(IDM_UNDO, SendFocused(SCI_CANUNDO));
+			EnableAMenuItem(IDM_REDO, SendFocused(SCI_CANREDO));
+		} else if (notification->modificationType & (SC_MOD_INSERTTEXT|SC_MOD_DELETETEXT)) {
+			//this will be called a lot, and usually means "typing".
+			EnableAMenuItem(IDM_UNDO, TRUE);
+			EnableAMenuItem(IDM_REDO, FALSE);
+		}
+		
 		if (0 != (notification->modificationType & SC_MOD_CHANGEFOLD)) {
 			FoldChanged(notification->line,
 			            notification->foldLevelNow, notification->foldLevelPrev);

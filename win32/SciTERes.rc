@@ -458,6 +458,11 @@ BEGIN
 	VK_BACK, IDM_UNDO,  VIRTKEY, ALT
 	VK_BACK, IDM_REDO,  VIRTKEY, ALT, SHIFT
 	VK_CANCEL, IDM_STOPEXECUTE,  VIRTKEY, CONTROL
+	
+	// Workaround for the most common case where SciTE undo and 
+	// redo buttons don't enable/disable when you expect.
+	"Z", IDM_UNDO,  VIRTKEY, CONTROL
+	"Y", IDM_REDO,  VIRTKEY, CONTROL
 END
 
 IDR_CLOSEFILE BITMAP "closefile.bmp"
