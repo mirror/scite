@@ -1091,19 +1091,24 @@ bool SciTEBase::StartExpandAbbreviation() {
 
 bool SciTEBase::StartBlockComment() {
 	SString language = props.GetNewExpand("lexer.", fileName);
-	SString s_comment = props.GetNewExpand("comment.", language.c_str());
-	s_comment += ""; // attempt to solve W'2000 SString problems
-	if (s_comment == "") {
-		MessageBox(wSciTE.GetID(),
-			"Define comment characters for this lexer in your *.properties!",
-			"Error", MB_OK | MB_ICONWARNING);
+	SString base;
+	if(language == "") {  // using default lexer
+		language = props.Get("default.file.ext");
+		base = "comment";
+	} else {
+		base = "comment.";
+	}
+	SString comment = props.Get((base += language).c_str());
+	if(comment == "") { // user friendly error message box
+		SString error("Define comment characters for ");
+		error += language;
+		error += " lexer in SciTE *.properties!";
+		MessageBox(wSciTE.GetID(), error.c_str(), "Error", MB_OK | MB_ICONWARNING);
 		return true;
 	}
-	const char *comment = s_comment.begin(); // .begin() - for W'2000
-	s_comment += " "; // adding space between comment and source
-	const char *long_comment = s_comment.begin(); // .begin() - for W'2000
+	SString long_comment = comment.append(" ");
 	char linebuf[1000];
-	int comment_length = strlen(comment);
+	int comment_length = comment.length();
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
@@ -1115,8 +1120,8 @@ bool SciTEBase::StartBlockComment() {
 		GetRange(wEditor, lineIndent, lineEnd, linebuf);
 		if(strlen(linebuf) < 1)
 			continue; // empty lines are not commented
-		if(memcmp(linebuf, comment, comment_length - 1) == 0) {
-			if(memcmp(linebuf, long_comment, comment_length) == 0) {
+		if(memcmp(linebuf, comment.c_str(), comment_length - 1) == 0) {
+			if(memcmp(linebuf, long_comment.c_str(), comment_length) == 0) {
 				// removing comment with space after it
 				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length);
 				SendEditorString(SCI_REPLACESEL, 0, "");
@@ -1134,12 +1139,80 @@ bool SciTEBase::StartBlockComment() {
 				continue;
 			}
 		}
-		if (i == selStartLine) // is this the first selected line?
+		if(i == selStartLine) // is this the first selected line?
 			selectionStart += comment_length;
 		selectionEnd += comment_length; // every iteration
-		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment);
+		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment.c_str());
 	}
 	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+	SendEditor(SCI_ENDUNDOACTION);
+	return true;
+}
+
+bool SciTEBase::StartStreamComment() {
+	SString language = props.GetNewExpand("lexer.", fileName);
+	SString start_base, end_base;
+	SString white_space(" ");
+	if(language == "") {
+		language = props.Get("default.file.ext");
+		start_base = "comment.stream.start";
+		end_base = "comment.stream.end";
+	} else {
+		start_base = "comment.stream.start.";
+		end_base = "comment.stream.end.";
+	}
+	SString start_comment = props.Get((start_base += language).c_str());
+	SString end_comment = props.Get((end_base += language).c_str());
+	if (start_comment == "" || end_comment == "") {
+		SString error("Define stream comment characters for ");
+		error += language;
+		error += " lexer in SciTE *.properties!";
+		MessageBox(wSciTE.GetID(), error.c_str(), "Error", MB_OK | MB_ICONWARNING);
+		return true;
+	}
+	start_comment += white_space;
+	end_comment = white_space.append(end_comment.c_str());
+	int start_comment_length = start_comment.length();
+	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
+	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+	// if there is no selection?
+	if(selectionEnd - selectionStart <= 0) {
+		int selLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
+		int lineIndent = GetLineIndentPosition(selLine);
+		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, selLine);
+		if(RangeIsAllWhitespace(lineIndent, lineEnd))
+			return true; // we are not dealing with empty lines
+		char linebuf[1000];
+		int current = GetLine(linebuf, sizeof(linebuf));
+		// checking if we are not inside a word
+		if(nonFuncChar(linebuf[current]))
+			return true; // caret is located _between_ words
+ 		int startword = current;
+		int endword = current;
+		int start_counter = 0;
+		int end_counter = 0;
+		while(startword > 0 && !nonFuncChar(linebuf[startword - 1])) {
+			start_counter++;
+			startword--;
+		}
+		// checking _beginning_ of the word
+		if (startword == current)
+			return true; // caret is located _before_ a word
+		while(linebuf[endword + 1] != '\0' && !nonFuncChar(linebuf[endword + 1])) {
+			end_counter++;
+			endword++;
+		}
+		selectionStart -= start_counter;
+		selectionEnd += (end_counter + 1);
+	}
+	SendEditor(SCI_BEGINUNDOACTION);
+
+	SendEditorString(SCI_INSERTTEXT, selectionStart, start_comment.c_str());
+	selectionEnd += start_comment_length;
+	selectionStart += start_comment_length;
+	SendEditorString(SCI_INSERTTEXT, selectionEnd, end_comment.c_str());
+	SendEditor(SCI_SETSEL, selectionStart, selectionEnd);
+
 	SendEditor(SCI_ENDUNDOACTION);
 	return true;
 }
@@ -1598,6 +1671,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_COMMENT:
 		StartBlockComment();
+		break;
+
+	case IDM_STREAM_COMMENT:
+		StartStreamComment();
 		break;
 
 	case IDM_TOGGLE_FOLDALL:
