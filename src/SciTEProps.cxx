@@ -359,7 +359,7 @@ SString SciTEBase::ExtensionFileName() {
 
 void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	SString value = props.Get(key);
-	SendEditorString(SCI_SETPROPERTY, 
+	SendEditorString(SCI_SETPROPERTY,
 		reinterpret_cast<uptr_t>(key), value.c_str());
 }
 
@@ -441,6 +441,7 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("fold");
 	ForwardPropertyToEditor("fold.compact");
 	ForwardPropertyToEditor("fold.comment");
+	ForwardPropertyToEditor("fold.html");
 	ForwardPropertyToEditor("styling.within.preprocessor");
 	ForwardPropertyToEditor("tab.timmy.whinge.level");
 

@@ -69,7 +69,7 @@ print "Hi"
     </p>
     Save the document as printhi.py. <br />
      The document should now appear coloured as SciTE is using the file's extension to decide upon
-    the syntax styling to use: 
+    the syntax styling to use:
     <blockquote>
 	<code>
 		<b><font color="#000080">print </font></b>
@@ -89,7 +89,7 @@ print "Hi"
     line is the output from running the Python program. The last blue line is from SciTE showing
     that the program has finished and displaying its exit code. An exit code of zero indicates a
     successful run. <br />
-     
+
     <p>
        SciTE partially understands the error messages produced by Python, GCC, Visual C++, Borland
       C++ and other tools which use the same format as one of these. To see this, add a mistake to
@@ -124,7 +124,7 @@ NameError: mistake
       The caret is moved to this line and the pane is scrolled if needed to show the line. SciTE
       now looks like this:
     </p>
-    <img src="PrintHi.png" alt="SciTE after running Python interpreter" /> 
+    <img src="PrintHi.png" alt="SciTE after running Python interpreter" />
     <p>
        SciTE understands both the file name and line number parts of error messages in most cases
       so can open another file (such as a header file) if errors were caused by that file. This
@@ -140,16 +140,16 @@ NameError: mistake
       command.subsystem option can be used to define tools that run in GUI mode. The default
       subsystem, 0, is for command line programs, 1 is for programs which create their own windows,
       and 2 is for using the ShellExecute call. ShellExecute is a good way to open HTML files and
-      similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an internal 
-      extension, 4 is for calling the Windows specific HtmlHelp program and 5 is for calling the Windows 
+      similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an internal
+      extension, 4 is for calling the Windows specific HtmlHelp program and 5 is for calling the Windows
       specific WinHelp function.
     </p>
     <h3>
        Command line arguments
     </h3>
     <p>
-       Command line arguments to SciTE include file names and properties. Properties 
-       are preceded by "-" use the syntax used in property set files and override any 
+       Command line arguments to SciTE include file names and properties. Properties
+       are preceded by "-" use the syntax used in property set files and override any
        properties set in property files. If there is no value given for a property, it is set to 1.
        Double quotes
        may be placed around arguments that contain spaces. On Linux, the standard shell
@@ -158,9 +158,9 @@ NameError: mistake
        <code>
        SciTE "-font.base=font:MS Gothic,size:11" -save.recent ScintillaGTK.cxx
        </code><br />
-       starts SciTE, opens ScintillaGTK.cxx, loads the recent file list, and uses 
+       starts SciTE, opens ScintillaGTK.cxx, loads the recent file list, and uses
        11 point MS Gothic as the base font.<br />
-       A group of properties can be saved as a property set file (with the extension 
+       A group of properties can be saved as a property set file (with the extension
        ".properties") and the import command used on the command line:<br />
        <code>
        SciTE "-import c:\os\web_work" SciTEDoc.html
@@ -171,14 +171,14 @@ NameError: mistake
        Buffers
     </h3>
     <p>
-       SciTE may be configured to use between 1 and 10 buffers each containing a 
+       SciTE may be configured to use between 1 and 10 buffers each containing a
        file. The default is 1 and this effectively turns off buffers. With more than one buffer,
-       the Buffers menu can be used to switch between buffers, either by selecting the 
-       file name or using the Previous (F6) and Next (Shift+F6) commands. 
+       the Buffers menu can be used to switch between buffers, either by selecting the
+       file name or using the Previous (F6) and Next (Shift+F6) commands.
      </p>
      <p>
        When all the buffers contain files, then opening a new file causes a buffer to be reused
-       which may require a file to be saved. In this case an alert is displayed to ensure the user 
+       which may require a file to be saved. In this case an alert is displayed to ensure the user
        wants the file saved.
     </p>
     <h3>
@@ -382,9 +382,9 @@ NameError: mistake
        Folding
     </h3>
     <p>
-       SciTE supports folding for Python and C++/C/Java/JavaScript. 
-       Fold points are based upon indentation for Python and on counting braces 
-       for the other languages. The fold point markers can be clicked to 
+       SciTE supports folding for Python and C++/C/Java/JavaScript.
+       Fold points are based upon indentation for Python and on counting braces
+       for the other languages. The fold point markers can be clicked to
        expand and contract folds. Ctrl+Shift+Click in the fold margin
        will expand or contract all the top level folds. Ctrl+Click on a fold
        point to toggle it and perform the same operation on all children.
@@ -397,21 +397,21 @@ NameError: mistake
        Much of SciTE's behaviour can be changed by editing the properties files.
     </p>
     <p>
-       There are three properties files used, a global properties file called "SciTEGlobal.properties", 
-      a per user file called "SciTEUser.properties" 
-      (with a dot for the GTK+ version: ".SciTEUser.properties") 
-      and a local one called 
-      "SciTE.properties" which may be present in the same directory as the file being edited. 
+       There are three properties files used, a global properties file called "SciTEGlobal.properties",
+      a per user file called "SciTEUser.properties"
+      (with a dot for the GTK+ version: ".SciTEUser.properties")
+      and a local one called
+      "SciTE.properties" which may be present in the same directory as the file being edited.
       On Windows, both the global and user properties files are in the directory of the executable.
       For GTK+ the user properties file is found in the user's home directory and the global
-      properties in a directory set at build time - normally /usr/share/scite. 
+      properties in a directory set at build time - normally /usr/share/scite.
       If the "SciTE_HOME" environment variable is set on either Windows or GTK+ then it is where
       both the global and user properties files are found.
       Settings in the local properties file override those in the user properties file which override those
-      in the global properties files. 
+      in the global properties files.
     </p>
     <p>
-      The user properties file is intended for customisation by the user, 
+      The user properties file is intended for customisation by the user,
       leaving the global properties file to contain the default options distributed with SciTE.
       The main use of the local properties files is to change the effects of the
       Compile, Build and Go commands for the files in a directory. For example, I use the javac
@@ -466,8 +466,8 @@ NameError: mistake
        The 'import' statement includes a properties file as if the text were
        inline at that point. The imported properties file
        must be in the same directory as the current file and a .properties
-       extension is assumed. Therefore a "import Lua" statement in 
-       c:\os\scite\bin\SciTEGlobal.properties will import 
+       extension is assumed. Therefore a "import Lua" statement in
+       c:\os\scite\bin\SciTEGlobal.properties will import
        c:\os\scite\bin\Lua.properties.
     </p>
     <p>
@@ -494,7 +494,7 @@ NameError: mistake
         </td>
         <td>
           Set the initial window size and position. If these are omitted or set to 0 then the
-          environments defaults are used. If the width or height are -1 then the window 
+          environments defaults are used. If the width or height are -1 then the window
 	is maximised.
         </td>
       </tr>
@@ -503,7 +503,7 @@ NameError: mistake
           buffers
         </td>
         <td>
-          Set to a number between 1 and 10 to configure that many buffers. 
+          Set to a number between 1 and 10 to configure that many buffers.
 	Values outside this range are clamped to be within the range.
 	The default is 1 which turns off UI features concerned with buffers.<br />
 	This value is read only once, early in the startup process and only from the
@@ -544,7 +544,7 @@ NameError: mistake
         <td>
           Setting view.indentation.guides to 1 displays dotted vertical lines within indentation white
 	  space every indent.size columns.<br />
-	  Setting highlight.indentation.guides to 1 highlights the indentation guide associated with a 
+	  Setting highlight.indentation.guides to 1 highlights the indentation guide associated with a
 	  brace when that brace is highlighted.
         </td>
       </tr>
@@ -578,7 +578,7 @@ NameError: mistake
           eol.auto
         </td>
         <td>
-          This setting overrides the eol.mode value and chooses the end of 
+          This setting overrides the eol.mode value and chooses the end of
 	  line character sequence based on the current contents of the file
 	  when it is opened. The line ending used the most in the file is chosen.
         </td>
@@ -687,11 +687,11 @@ NameError: mistake
            check.if.already.open
         </td>
         <td>
-	Only available for GTK+. 
+	Only available for GTK+.
 	When this option is set and SciTE is given a file name to open
 	as a command line argument, it checks to see if there are any
-	other instances of SciTE open with this file. If there is, that 
-	instance is activated and this one exits. 
+	other instances of SciTE open with this file. If there is, that
+	instance is activated and this one exits.
         </td>
       </tr>
       <tr>
@@ -729,7 +729,7 @@ NameError: mistake
           caret.width
         </td>
         <td>
-          Sets the width of the caret in pixels. Only values of 1, 2, or 3 work. 
+          Sets the width of the caret in pixels. Only values of 1, 2, or 3 work.
         </td>
       </tr>
       <tr>
@@ -739,17 +739,17 @@ NameError: mistake
 	caret.policy.lines
         </td>
         <td>
-          Determines how the display area follows the caret. 
-	If strict is set, then caret policy is rechecked even if the caret is completely visible. 
+          Determines how the display area follows the caret.
+	If strict is set, then caret policy is rechecked even if the caret is completely visible.
 	If slop is set then the value of caret.policy.lines
-	is used to determine the number of lines at the top and bottom of the display area 
+	is used to determine the number of lines at the top and bottom of the display area
 	that make up the "unwanted zone" where the caret should not appear if possible.
-	When strict is set then the caret is not allowed to move into the 
-	unwanted zone. When strict is not set then the caret is allowed into this zone 
-	but when it does go out of the display area, then the display area is repositioned so 
-	the caret is not in the unwanted zone. 
-	If slop is not set then the area is centred around the caret, with strict 
-	determining if this centring is maintained at all times or if it is performed 
+	When strict is set then the caret is not allowed to move into the
+	unwanted zone. When strict is not set then the caret is allowed into this zone
+	but when it does go out of the display area, then the display area is repositioned so
+	the caret is not in the unwanted zone.
+	If slop is not set then the area is centred around the caret, with strict
+	determining if this centring is maintained at all times or if it is performed
 	only when the caret is not completely visible.
         </td>
       </tr>
@@ -760,7 +760,7 @@ NameError: mistake
 	visible.policy.lines
         </td>
         <td>
-          Determines how the display area is determined after a Go to command or 
+          Determines how the display area is determined after a Go to command or
 	equivalent such as a Find or Next Message. Options are similar to caret.policy.*.
         </td>
       </tr>
@@ -813,9 +813,9 @@ NameError: mistake
 	 </code><br />
           to provide autocompletion and calltips for some of the C file functions. It is best to
           use the full path to the API file as otherwise the current directory is used.<br />
-          Some common headers surround parameter lists with a __P macro and may have 
-	  comments. The <a href="cleanapi.cc">cleanapi</a> utility may be used on these 
-          files. 
+          Some common headers surround parameter lists with a __P macro and may have
+	  comments. The <a href="cleanapi.cc">cleanapi</a> utility may be used on these
+          files.
         </td>
       </tr>
       <tr>
@@ -823,7 +823,7 @@ NameError: mistake
           autocomplete.choose.single
         </td>
         <td>
-          When set to 1 and an autocompletion list is invoked and there is only one element 
+          When set to 1 and an autocompletion list is invoked and there is only one element
 	in that list then that element is automatically chosen. This means that the matched
 	element is inserted and the list is not displayed.
         </td>
@@ -863,7 +863,7 @@ NameError: mistake
           styling.within.preprocessor
         </td>
         <td>
-          For C++ code, determines whether all preprocessor code is styled in the preprocessor 
+          For C++ code, determines whether all preprocessor code is styled in the preprocessor
 	style (0, the default) or only from the initial # to the end of the command word(1).
         </td>
       </tr>
@@ -872,10 +872,10 @@ NameError: mistake
           tab.timmy.whinge.level
         </td>
         <td>
-          For Python code, checks whether indenting is consistent. The default, 0 turns off 
+          For Python code, checks whether indenting is consistent. The default, 0 turns off
 	indentation checking, 1 checks whether each line is potentially inconsistent  with the
 	previous line, 2 checks whether any space characters occur before a tab character
-	in the indentation, 3 checks whether any spaces are in the indentation, and 4 checks 
+	in the indentation, 3 checks whether any spaces are in the indentation, and 4 checks
 	for any tab characters in the indentation. <br />
 	1 is a good level to use.
         </td>
@@ -887,8 +887,8 @@ NameError: mistake
 	output.vertical.size
         </td>
         <td>
-          If split.vertical is set to 1 then the output pane is to the right of the editing pane, 
-	if set to 0 then the output pane is below the editing pane. 
+          If split.vertical is set to 1 then the output pane is to the right of the editing pane,
+	if set to 0 then the output pane is below the editing pane.
 	The output.*.size settings determine the initial size of the output pane.
         </td>
       </tr>
@@ -931,7 +931,7 @@ NameError: mistake
         </td>
         <td>
           Causes files to be deleted before being opened for saving. Can be used on Windows
-          to ensure saving under a different capitalisation changes the files capitalisation rather 
+          to ensure saving under a different capitalisation changes the files capitalisation rather
           than silently using the old capitalisation.
         </td>
       </tr>
@@ -940,11 +940,11 @@ NameError: mistake
           save.recent
         </td>
         <td>
-          Causes the most recently used files list to be saved on exit and 
-	reloaded at start up. This list is kept in a file called SciTE.recent on 
+          Causes the most recently used files list to be saved on exit and
+	reloaded at start up. This list is kept in a file called SciTE.recent on
 	Windows and .SciTE.recent on GTK+ and is located in the directory
 	given by the SciTE_HOME environment variable and if that is not
-	set, the value of the HOME environment variable and if that is not 
+	set, the value of the HOME environment variable and if that is not
 	set the top level directory.
         </td>
       </tr>
@@ -977,10 +977,10 @@ NameError: mistake
           that double byte characters are always treated as a unit so the caret is never located
           between the two bytes of a double byte character. This option has no effect on GTK+ where
           SciTE only supports single byte character sets.<br />
-	On Windows, setting code.page to 65001 starts Unicode mode and the document is treated as 
+	On Windows, setting code.page to 65001 starts Unicode mode and the document is treated as
 	a sequence of characters expressed as UTF-8. Display is performed by converting to UCS-2
-	first so characters from any language will be displayed. Correct glyphs will only be displayed 
-	if fonts are chosen that contain the appropriate glyphs. Tahoma is a good choice on Windows 
+	first so characters from any language will be displayed. Correct glyphs will only be displayed
+	if fonts are chosen that contain the appropriate glyphs. Tahoma is a good choice on Windows
 	2000.
         </td>
       </tr>
@@ -1058,7 +1058,7 @@ NameError: mistake
           each lexer.<br />
            The value of each setting is a set of ',' separated fields, some of which have a
           subvalue after a ':'. The fields are font, size, fore, back, italics, notitalics, bold,
-          notbold, eolfilled, noteolfilled, underlined, and notunderlined. 
+          notbold, eolfilled, noteolfilled, underlined, and notunderlined.
 	The font field has a subvalue which is the name of
           the font, the fore and back have colour subvalues, the size field has a numeric size
           subvalue, and the bold, italics and eolfilled fields have no subvalue. The value
@@ -1153,7 +1153,7 @@ NameError: mistake
         <td>
           Extra commands can be added to the tools menu. For example to include the 'astyle'
           indenter, the properties file could contain<br /><br />
-           
+
 	 <code>
 		command.name.0.*.cc=Indent<br />
 		command.0.*.cc=astyle -taO $(FileNameExt)<br />
@@ -1166,9 +1166,9 @@ NameError: mistake
           load.on.activate is set.<br />
            The subsystem determines how the command is executed on Windows. 0, the default is for
           command line programs, 1 for programs which create their own windows, 2 for running
-	by using ShellExecute, 3 for running in an internal extension, 4 for running HtmlHelp 
-	on Windows, and 5 for running WinHelp on Windows. 
-	When using subsystem 4 or 5, the command has two parts separated by ! with the first 
+	by using ShellExecute, 3 for running in an internal extension, 4 for running HtmlHelp
+	on Windows, and 5 for running WinHelp on Windows.
+	When using subsystem 4 or 5, the command has two parts separated by ! with the first
 	part being the topic to search for and the second the name of the help file.
         </td>
       </tr>
@@ -1178,7 +1178,7 @@ NameError: mistake
           command.help.subsystem.<i>filepattern</i>
         </td>
         <td>
-	Defines a command to be executed when the help command is 
+	Defines a command to be executed when the help command is
 	invoked or F1 pressed. On Windows, this often uses subsystem 4 as described above.
 	On Linux, running man or a browser are common ways of displaying help.
 	The word at the cursor is copied to $(CurrentWord) and this is often a good argument
@@ -1203,7 +1203,7 @@ NameError: mistake
         <td>
           Printing is normally done with the same settings as screen display.
 	To make the printing larger or smaller, the print.magnification
-	setting is added to the size of every font when printed. To get a 
+	setting is added to the size of every font when printed. To get a
 	good miniaturisation of text, set print.magnification to -4.
         </td>
       </tr>
@@ -1214,8 +1214,8 @@ NameError: mistake
         <td>
 	Some people prefer light coloured text on a black background on
 	screen but dark text on white on paper. If print.colour.mode is set
-	to 1 then each colour is inverted for printing. If set to 2 then 
-	printing produces black text on white background. 3 forces the 
+	to 1 then each colour is inverted for printing. If set to 2 then
+	printing produces black text on white background. 3 forces the
 	background to white and 4 forces the default background to white.
         </td>
       </tr>
@@ -1238,9 +1238,9 @@ NameError: mistake
         <td>
 	These settings determine what will be printed if anything as headers and
 	footers. Property settings can be substituted into the values using the $(property)
-	syntax. There are some extra properties set up while printing: 
-	CurrentPage, FileTime, FileDate, CurrentDate, and CurrentTime (at start of 
-	printing). 
+	syntax. There are some extra properties set up while printing:
+	CurrentPage, FileTime, FileDate, CurrentDate, and CurrentTime (at start of
+	printing).
 	Common properties to use in headers and footers are FileNameExt and FilePath.<br />
 	A header setting may look like:<br />
 	<code>
@@ -1255,7 +1255,7 @@ NameError: mistake
         </td>
         <td>
 	These settings determine the style of the header and footer using the same
-	format as other styles in SciTE. Only the font, size, bold, italics, and underlined 
+	format as other styles in SciTE. Only the font, size, bold, italics, and underlined
 	attributes are supported.
         </td>
       </tr>
@@ -1267,7 +1267,7 @@ NameError: mistake
         <td>
 	When export.html.wysiwyg is set to 0 then exporting to a HTML file produces a smaller
 	file but which is less completely specified so may look more different to the on screen display.
-	When export.html.tabs is set to 1 and export.html.wysiwyg is set to 0 then tab characters in 
+	When export.html.tabs is set to 1 and export.html.wysiwyg is set to 0 then tab characters in
 	the file are exported as tab characters rather than a sequence of space characters.
         </td>
       </tr>
@@ -1282,10 +1282,10 @@ NameError: mistake
         <td>
 	When export.rtf.wysiwyg is set to 0 then exporting to a RTF file produces a smaller
 	file but which is less completely specified so may look more different to the on screen display.
-	When export.rtf.tabs is set to 1 and export.rtf.wysiwyg is set to 0 then tab characters in 
+	When export.rtf.tabs is set to 1 and export.rtf.wysiwyg is set to 0 then tab characters in
 	the file are exported as tab characters rather than a sequence of space characters. <br />
 	export.rtf.font.face and export.rtf.font.size can be used to select a particular font and size
-	for the exported RTF file. export.rtf.tabsize can be set to use a different tab size than that 
+	for the exported RTF file. export.rtf.tabsize can be set to use a different tab size than that
 	defined by the tabsize setting.
         </td>
       </tr>
@@ -1299,8 +1299,8 @@ NameError: mistake
         <td>
         	Options to control folding. Folding is turned on be setting fold to 1.
         	Arrows pointing down or to the right are used to indicate expanded
-        	and contracted folds unless fold.use.plus is set to one and then 
-        	plus and minus signs are used instead. 
+        	and contracted folds unless fold.use.plus is set to one and then
+        	plus and minus signs are used instead.
 		To automatically fold files as much as possible when loaded, set
 		fold.on.open to 1.
         </td>
@@ -1310,8 +1310,17 @@ NameError: mistake
           fold.compact<br />
         </td>
         <td>
-	For HTML and XML files, turning this option on leads to blank lines following the 
+	For HTML and XML files, turning this option on leads to blank lines following the
 	end of an element folding with that element. Defaults to on.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          fold.html<br />
+        </td>
+        <td>
+	Folding is turned on or off for HTML and XML files with this option.
+	The fold option must also be on for folding to occur.
         </td>
       </tr>
       <tr>
@@ -1339,11 +1348,11 @@ NameError: mistake
         </td>
         <td>
           Sets the size of a tab as a multiple of the size of a space character in the style of the
-          default style definition. The indent size is the size to use when performing automatic 
+          default style definition. The indent size is the size to use when performing automatic
 	  indentation and may be different from the tab size. Many people use a tab size of 8 but
-	  4 character indentation. When creating indentation, use.tabs determines whether the 
+	  4 character indentation. When creating indentation, use.tabs determines whether the
 	  indentation is made up purely from space characters or from a mix of tabs and spaces
-	  using as many tabs as possible. 
+	  using as many tabs as possible.
         </td>
       </tr>
       <tr>
@@ -1380,22 +1389,22 @@ NameError: mistake
 	block.end.<i>filepattern</i>
         </td>
         <td>
-	  Each of these settings starts with a style number and then a set of words or characters 
-	  that define how to recognise that feature. It there is second space in the setting then 
+	  Each of these settings starts with a style number and then a set of words or characters
+	  that define how to recognise that feature. It there is second space in the setting then
 	  it is a set of words, otherwise a set of characters. The set of keywords used to indicate
 	  the start of a compound statement is defined in statement.indent. For example:<br /><br />
 	 <code>
 		statement.indent.$(file.patterns.cpp)=5 if else while
 	 </code><br /><br />
-          says that for C++ the words "if", "else", and "while" in keyword style, 5, start compound 
+          says that for C++ the words "if", "else", and "while" in keyword style, 5, start compound
 	  statements which leads to the next line being indented if no other factors affect it. However,
-	  if a statement end is found on the same line then the next line is not indented. For C++ the 
+	  if a statement end is found on the same line then the next line is not indented. For C++ the
 	  statement end is the semicolon in the operator style, so this is defined:<br /><br />
 	 <code>
 		statement.end.$(file.patterns.cpp)=10 ;
 	 </code><br /><br />
 	 The number of lines looked at to determine indentation can be set with statement.lookback.
-	 This can be used either to bound the amount of time spent on this task or to specify 
+	 This can be used either to bound the amount of time spent on this task or to specify
 	 that only the last line be examined for indentation.<br />
 	 The block.start and block.end properties define the language elements used to bracket groups
 	 of statements. In C++ these are '{' and '}'.
@@ -1406,8 +1415,8 @@ NameError: mistake
 	  vc.home.key
         </td>
         <td>
-        	Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like 
-	Visual C++ moving the caret to the end of then line indentation unless already 
+        	Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like
+	Visual C++ moving the caret to the end of then line indentation unless already
 	there, in which case it moves to the start of the line. 0 moves to the start of the line.
         </td>
       </tr>
@@ -1421,20 +1430,20 @@ NameError: mistake
         </td>
         <td>
         	Allows for sounds to be played and the window to be flashed
-	on Windows when particular events occur. 
-	The values consist of three items separated by ',': flash duration, sound 
-	and sound duration. If sound is a number then it is treated as a pitch and 
-	played for the duration in milliseconds. 
-	Otherwise it is treated as a path to a sound file 
+	on Windows when particular events occur.
+	The values consist of three items separated by ',': flash duration, sound
+	and sound duration. If sound is a number then it is treated as a pitch and
+	played for the duration in milliseconds.
+	Otherwise it is treated as a path to a sound file
 	that is played. If you do not want a flash, specify 0 for flash duration.
 	For example,<br />
 	<code>
 	warning.wrongfile=0,C:\Windows\Media\SFX\Glass.wav
 	</code><br />
 	will play the glass sound if open selected is given a bad file name.
-	The findwrapped warning occurs when a find operation wraps past 
-	either end of the file, executeok when a command such as build 
-	executes successfully, executeko when a command fails, and 
+	The findwrapped warning occurs when a find operation wraps past
+	either end of the file, executeok when a command such as build
+	executes successfully, executeko when a command fails, and
 	nootherbookmark when there is no bookmark to find.
         </td>
       </tr>
@@ -1475,7 +1484,7 @@ NameError: mistake
        Building SciTE
     </h3>
     <p>
-       The procedure for building and installing ScITE is described in the README file in the scite 
+       The procedure for building and installing ScITE is described in the README file in the scite
        directory.
     </p>
   </body>
