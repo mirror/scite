@@ -1454,6 +1454,7 @@ void SciTEBase::ReplaceAll() {
 	int posFind = SendEditor(EM_FINDTEXTEX, flags,
 	                         reinterpret_cast<LPARAM>(&ft));
 	if (posFind != -1) {
+		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
 			SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
 			SendEditorString(EM_REPLACESEL, 0, replaceWhat);
@@ -1462,6 +1463,7 @@ void SciTEBase::ReplaceAll() {
 			posFind = SendEditor(EM_FINDTEXTEX, flags,
 			                     reinterpret_cast<LPARAM>(&ft));
 		}
+		SendEditor(SCI_ENDUNDOACTION);
 	} else {
 		char msg[200];
 		strcpy(msg, "No replacements because string \"");
