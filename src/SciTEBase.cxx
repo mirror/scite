@@ -645,6 +645,13 @@ void SciTEBase::SelectionIntoProperties() {
 
 void SciTEBase::SelectionIntoFind() {
 	SelectionWord(findWhat, sizeof(findWhat));
+	char *slashedFind = Slash(findWhat);
+	if (slashedFind) {
+		strncpy(findWhat, slashedFind, sizeof(findWhat));
+		findWhat[sizeof(findWhat)-1] = '\0';
+		delete []slashedFind;
+	}
+	
 }
 
 void SciTEBase::FindMessageBox(const char *msg) {

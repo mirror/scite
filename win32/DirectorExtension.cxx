@@ -28,12 +28,23 @@ static HWND wReceiver = 0;
 static bool startedByDirector = false;
 unsigned int SDI = 0;
 
-static void SendDirectorMessage(const char *message) {
+static void SendDirector(const char *verb, const char *arg=0) {
 	if ((wDirector != 0) || (wCorrespondent != 0)) {
 		HWND wDestination = wCorrespondent;
-		if (!wDestination)
+		SString addressedMessage;
+		if (wDestination) {
+			addressedMessage += ":";
+			SString address(reinterpret_cast<int>(wDestination));
+			addressedMessage += address;
+			addressedMessage += ":";
+		} else {
 			wDestination = wDirector;
-		char *slashedMessage = Slash(message);
+		}
+		addressedMessage += verb;
+		addressedMessage += ":";
+		if (arg)
+			addressedMessage += arg;
+		char *slashedMessage = Slash(addressedMessage.c_str());
 		if (slashedMessage) {
 			COPYDATASTRUCT cds;
 			cds.dwData = 0;
@@ -46,14 +57,6 @@ static void SendDirectorMessage(const char *message) {
 			delete []slashedMessage;
 		}
 	}
-}
-
-static void SendDirector(const char *verb, const char *arg=0) {
-	SString message(verb);
-	message += ":";
-	if (arg)
-		message += arg;
-	::SendDirectorMessage(message.c_str());
 }
 
 static void SendDirector(const char *verb, sptr_t arg) {
