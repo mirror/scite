@@ -102,10 +102,14 @@ static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 	return false;
 }
 
+static bool IsSpaceOrTab(char ch) {
+	return (ch == ' ') || (ch == '\t');
+}
+
 bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *directoryForImports,
                            SString imports[], int sizeImports) {
 	//UnSlash(lineBuffer);
-	if (isalnum(lineBuffer[0]))    // If clause ends with first non-indented line
+	if (!IsSpaceOrTab(lineBuffer[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
 	if (isprefix(lineBuffer, "if ")) {
 		const char *expr = lineBuffer + strlen("if") + 1;
@@ -125,10 +129,9 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *di
 				}
 			}
 		}
-//	} else if (IsAlphabetic(lineBuffer[0]) || (lineBuffer[0] >= '0' && lineBuffer[0] <= '9')) {
-	} else if (lineBuffer[0] != '#' && !isspace(lineBuffer[0])) {
+	} else if (lineBuffer[0] != '#' && !IsSpaceOrTab(lineBuffer[0])) {
 		Set(lineBuffer);
-	} else if (isspace(lineBuffer[0]) && ifIsTrue) {
+	} else if (IsSpaceOrTab(lineBuffer[0]) && ifIsTrue) {
 		Set(lineBuffer);
 	}
 	return ifIsTrue;
