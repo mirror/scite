@@ -564,7 +564,7 @@ protected:
 	virtual void Find() = 0;
 	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
 	void FindMessageBox(const SString &msg);
-	void FindNext(bool reverseDirection, bool showWarnings = true);
+	int FindNext(bool reverseDirection, bool showWarnings = true);
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
 	void ReplaceOnce();
@@ -637,9 +637,12 @@ protected:
 	virtual void ShowTabBar() = 0;
 	virtual void ShowStatusBar() = 0;
 
-	void BookmarkToggle( int lineno = -1 );
-	void BookmarkNext();
-	void BookmarkPrev();
+	int MarkAll();
+	void BookmarkAdd(int lineno = -1);
+	void BookmarkDelete(int lineno = -1);
+	bool BookmarkPresent(int lineno = -1);
+	void BookmarkToggle(int lineno = -1);
+	void BookmarkNext(bool forwardScan = true);
 	void ToggleOutputVisible();
 	virtual void SizeContentWindows() = 0;
 	virtual void SizeSubWindows() = 0;

@@ -780,7 +780,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			wFindReplace = 0;
 			::EndDialog(hDlg, IDCANCEL);
 			return FALSE;
-		} else if (ControlIDOfCommand(wParam) == IDOK) {
+		} else if ( (ControlIDOfCommand(wParam) == IDOK) ||
+					   (ControlIDOfCommand(wParam) == IDMARKALL) ){
 			findWhat = GetItemText(hDlg, IDFINDWHAT);
 			props.Set("find.what", findWhat.c_str());
 			memFinds.Insert(findWhat.c_str());
@@ -798,6 +799,9 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			              ::SendMessage(wUp, BM_GETCHECK, 0, 0);
 			wFindReplace = 0;
 			::EndDialog(hDlg, IDOK);
+			if (ControlIDOfCommand(wParam) == IDMARKALL){
+				MarkAll();
+			}
 			FindNext(reverseFind);
 			return TRUE;
 		}

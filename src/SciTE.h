@@ -198,6 +198,8 @@
 
 #define IDABBREV			244
 
+#define IDMARKALL 			245
+
 #define IDPARAMSTART		300
 
 // Dialog IDs
