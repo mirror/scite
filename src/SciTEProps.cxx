@@ -335,6 +335,12 @@ SString SciTEBase::ExtensionFileName() {
 		return props.Get("default.file.ext");
 }
 
+void SciTEBase::ForwardPropertyToEditor(const char *key) {
+	SString value = props.Get(key);
+	SendEditorString(SCI_SETPROPERTY, 
+		reinterpret_cast<uptr_t>(key), value.c_str());
+}
+
 void SciTEBase::ReadProperties() {
 	//DWORD dwStart = timeGetTime();
 	SString fileNameForExtension = ExtensionFileName();
@@ -410,18 +416,11 @@ void SciTEBase::ReadProperties() {
 		props.Set("SciteUserHome", homepath);
 	}
 
-	SString fold = props.Get("fold");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<uptr_t>("fold"),
-	                 fold.c_str());
-	SString foldCompact = props.Get("fold.compact");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("fold.compact"),
-	                 foldCompact.c_str());
-	SString stylingWithinPreprocessor = props.Get("styling.within.preprocessor");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<uptr_t>("styling.within.preprocessor"),
-	                 stylingWithinPreprocessor.c_str());
-	SString ttwl = props.Get("tab.timmy.whinge.level");
-	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<uptr_t>("tab.timmy.whinge.level"),
-	                 ttwl.c_str());
+	ForwardPropertyToEditor("fold");
+	ForwardPropertyToEditor("fold.compact");
+	ForwardPropertyToEditor("fold.comment");
+	ForwardPropertyToEditor("styling.within.preprocessor");
+	ForwardPropertyToEditor("tab.timmy.whinge.level");
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
 	if (apifilename.length()) {
