@@ -690,6 +690,12 @@ void SciTEWin::ProcessExecute() {
 					writingPosition += bytesWrote;
 
 					if (writingPosition >= totalBytesToWrite) {
+						if (windows95) {
+							// Write a Ctrl+Z to output to mark the end of the text
+							char stop[] = "\032";
+							::WriteFile(hWriteSubProcess,
+								stop, strlen(stop), &bytesWrote, NULL);
+						}
 						::CloseHandle(hWriteSubProcess);
 						hWriteSubProcess = INVALID_HANDLE_VALUE;
 					}
