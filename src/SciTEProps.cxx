@@ -476,12 +476,14 @@ void SciTEBase::ReadProperties() {
 	}
 
 	int caretStrict = props.GetInt("caret.policy.strict") ? CARET_STRICT : 0;
-	int caretSloppy = props.GetInt("caret.policy.slop");
-	SendEditor(SCI_SETCARETPOLICY, CARET_SLOP | caretStrict, caretSloppy);
+	int caretSlop = props.GetInt("caret.policy.slop") ? CARET_SLOP : 0;
+	int caretLines = props.GetInt("caret.policy.lines");
+	SendEditor(SCI_SETCARETPOLICY, caretStrict | caretSlop, caretLines);
 
 	int visibleStrict = props.GetInt("visible.policy.strict") ? VISIBLE_STRICT : 0;
-	int visibleSloppy = props.GetInt("visible.policy.slop");
-	SendEditor(SCI_SETVISIBLEPOLICY, VISIBLE_SLOP | visibleStrict, visibleSloppy);
+	int visibleSlop = props.GetInt("visible.policy.slop") ? VISIBLE_SLOP : 0;
+	int visibleLines = props.GetInt("visible.policy.lines");
+	SendEditor(SCI_SETVISIBLEPOLICY, visibleStrict | visibleSlop, visibleLines);
 
 	SendEditor(SCI_SETEDGECOLUMN, props.GetInt("edge.column", 0));
 	SendEditor(SCI_SETEDGEMODE, props.GetInt("edge.mode", EDGE_NONE));
