@@ -134,6 +134,9 @@ protected:
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
 	virtual void TabSizeDialog();
+	void ParamGrab();
+	LRESULT ParametersMessage(UINT message, WPARAM wParam, LPARAM lParam);
+	virtual bool ParametersDialog(bool modal);
 
 	virtual void GetDefaultDirectory(char *directory, size_t size);
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
@@ -186,6 +189,7 @@ public:
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static BOOL CALLBACK ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	uptr_t GetInstance();
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(

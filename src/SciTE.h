@@ -114,6 +114,7 @@
 #define IDM_TOGGLEOUTPUT		409
 #define IDM_VIEWTABBAR		410
 #define IDM_VIEWSTATUSBAR	411
+#define IDM_TOGGLEPARAMETERS	412
 
 #define IDM_CLEAROUTPUT		420
 #define IDM_SWITCHPANE			421
@@ -173,7 +174,11 @@
 #define IDREPLACEINSEL		238
 #define IDREGEXP			239
 #define IDWRAP			240
+
 #define IDUNSLASH			241
+#define IDCMD			242
+
+#define IDPARAMSTART		300
 
 // Dialog IDs
 #define IDD_FIND			400

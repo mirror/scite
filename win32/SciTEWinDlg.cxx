@@ -119,6 +119,12 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		if (::IsDialogMessage(reinterpret_cast<HWND>(wFindReplace.GetID()), pmsg))
 			return true;
 	}
+	if (wParameters.GetID()) {
+		bool menuKey = (pmsg->message == WM_KEYDOWN) &&
+			(Platform::IsKeyDown(VK_CONTROL) || !Platform::IsKeyDown(VK_MENU));
+		if (!menuKey && ::IsDialogMessage(reinterpret_cast<HWND>(wParameters.GetID()), pmsg))
+			return true;
+	}
 	if (pmsg->message == WM_KEYDOWN) {
 			if (KeyDown(pmsg->wParam))
 				return true;
@@ -926,7 +932,7 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 
 void SciTEWin::Find() {
 	if (wFindReplace.Created())
-		return ;
+		return;
 	SelectionIntoFind();
 
 	memset(&fr, 0, sizeof(fr));
@@ -1157,6 +1163,95 @@ void SciTEWin::TabSizeDialog() {
 		SendEditor(SCI_SETUSETABS, settings.useTabs);
 	}
 	WindowSetFocus(wEditor);
+}
+
+void SciTEWin::ParamGrab() {
+	if (wParameters.Created()) {
+		HWND hDlg = reinterpret_cast<HWND>(wParameters.GetID());
+		for (int param=0; param<maxParam; param++) {
+			char paramVal[200];
+			::GetDlgItemText(hDlg, IDPARAMSTART+param, paramVal, sizeof(paramVal));
+			SString paramText(param+1);
+			props.Set(paramText.c_str(), paramVal);
+		}
+	}
+}
+
+LRESULT SciTEWin::ParametersMessage(UINT message, WPARAM wParam, LPARAM) {
+	HWND hDlg = reinterpret_cast<HWND>(wParameters.GetID());
+	switch (message) {
+
+	case WM_INITDIALOG:
+		{
+			HWND wCmd = ::GetDlgItem(hDlg, IDCMD);
+			if (wCmd)
+				::SetWindowText(wCmd, parameterisedCommand.c_str());
+			for (int param=0; param<maxParam; param++) {
+				SString paramText(param+1);
+				SString paramTextVal = props.Get(paramText.c_str());
+				::SetDlgItemText(hDlg, IDPARAMSTART+param, paramTextVal.c_str());
+			}
+		}
+		return TRUE;
+
+	case WM_CLOSE:
+		SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
+		break;
+
+	case WM_COMMAND:
+		if (ControlIDOfCommand(wParam) == IDCANCEL) {
+			wParameters = 0;
+			EndDialog(hDlg, IDCANCEL);
+			return FALSE;
+		} else if (ControlIDOfCommand(wParam) == IDOK) {
+			ParamGrab();
+			wParameters = 0;
+			EndDialog(hDlg, IDOK);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+BOOL CALLBACK SciTEWin::ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	static SciTEWin *sci;
+	// Avoid getting dialog items before set up or during tear down.
+	if (WM_SETFONT == message || WM_NCDESTROY == message)
+		return FALSE;
+	if (message == WM_INITDIALOG) {
+		sci = reinterpret_cast<SciTEWin *>(lParam);
+		sci->wParameters = hDlg;
+	}
+	return sci->ParametersMessage(message, wParam, lParam);
+}
+
+bool SciTEWin::ParametersDialog(bool modal) {
+	if (wParameters.Created()) {
+		ParamGrab();
+		if (!modal) {
+			wParameters.Destroy();
+		}
+		return true;
+	}
+	bool success = false;
+	if (modal) {
+		success = DoDialog(hInstance, 
+			"PARAMETERS", 
+			MainHWND(),
+			reinterpret_cast<DLGPROC>(ParametersDlg),
+			reinterpret_cast<DWORD>(this)) == IDOK;
+		WindowSetFocus(wEditor);
+	} else {
+		::CreateDialogParam(hInstance,
+			"PARAMETERSNONMODAL",
+			MainHWND(),
+			reinterpret_cast<DLGPROC>(ParametersDlg),
+			reinterpret_cast<long>(this));
+		wParameters.Show();
+	}
+
+	return success;
 }
 
 void SciTEWin::FindReplace(bool replace) {

@@ -102,6 +102,7 @@ protected:
 	GtkWidget *comboFind;
 	GtkWidget *comboDir;
 	GtkWidget *comboReplace;
+	GtkWidget *entryParam[maxParam];
 	GtkWidget *compile_btn;
 	GtkWidget *build_btn;
 	GtkWidget *stop_btn;
@@ -161,6 +162,7 @@ protected:
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
 	virtual void TabSizeDialog();
+	virtual bool ParametersDialog(bool modal);
 
 	virtual void GetDefaultDirectory(char *directory, size_t size);
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
@@ -210,6 +212,11 @@ protected:
 	static void FRReplaceAllSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FRReplaceInSelectionSignal(GtkWidget *w, SciTEGTK *scitew);
 
+	virtual void ParamGrab();
+	static void ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
+	static void ParamCancelSignal(GtkWidget *w, SciTEGTK *scitew);
+	static void ParamSignal(GtkWidget *w, SciTEGTK *scitew);
+	
 	static void IOSignal(SciTEGTK *scitew);
 
 	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
@@ -792,9 +799,9 @@ void SciTEGTK::OpenUriList(const char *list) {
 void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*/) {
 	char path[MAX_PATH + 1], *cur, *last, *part, *tmp;
 	if (!absPath)
-		return ;
+		return;
 	if (!relativePath)
-		return ;
+		return;
 	strcpy(path, relativePath);
 	cur = absPath;
 	*cur = '\0';
@@ -1121,8 +1128,7 @@ void SciTEGTK::FindInFilesKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *
 }
 
 void SciTEGTK::FindInFiles() {
-	GtkAccelGroup *accel_group;
-	accel_group = gtk_accel_group_new();
+	GtkAccelGroup *accel_group = gtk_accel_group_new();
 
 	SelectionIntoFind();
 	props.Set("find.what", findWhat);
@@ -1262,12 +1268,8 @@ void SciTEGTK::ExecuteNext() {
 		executing = false;
 		CheckReload();
 		CheckMenus();
-		for (int ic = 0; ic < commandMax; ic++) {
-			jobQueue[ic].Clear();
-		}
-		commandCurrent = 0;
+		ClearJobQueue();
 	}
-	return ;
 }
 
 void SciTEGTK::ContinueExecute() {
@@ -1276,7 +1278,7 @@ void SciTEGTK::ContinueExecute() {
 	count = read(fdFIFO, buf, sizeof(buf) - 1);
 	if (count < 0) {
 		OutputAppendString(">End Bad\n");
-		return ;
+		return;
 	}
 	if (count == 0) {
 		int status;
@@ -1300,7 +1302,6 @@ void SciTEGTK::ContinueExecute() {
 		OutputAppendString(buf);
 		if (count < 0) {
 			OutputAppendString(">Continue no data\n");
-			return ;
 		}
 	}
 }
@@ -1358,14 +1359,14 @@ void SciTEGTK::Execute() {
 #endif
 			OutputAppendString(">Failed to create FIFO\n");
 			ExecuteNext();
-			return ;
+			return;
 		}
 
 		pidShell = xsystem(jobQueue[icmd].command.c_str(), resultsFile);
 		fdFIFO = open(resultsFile, O_RDONLY | O_NONBLOCK);
 		if (fdFIFO < 0) {
 			OutputAppendString(">Failed to open\n");
-			return ;
+			return;
 		}
 		inputHandle = gdk_input_add(fdFIFO, GDK_INPUT_READ,
 		                            (GdkInputFunction) IOSignal, this);
@@ -1398,8 +1399,7 @@ void SciTEGTK::GotoSignal(GtkWidget *, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::GoLineDialog() {
-	GtkAccelGroup *accel_group;
-	accel_group = gtk_accel_group_new();
+	GtkAccelGroup *accel_group = gtk_accel_group_new();
 
 	gotoDialog = gtk_dialog_new();
 	TranslatedSetTitle(GTK_WINDOW(PWidget(gotoDialog)), "Go To");
@@ -1455,9 +1455,122 @@ void SciTEGTK::GoLineDialog() {
 
 void SciTEGTK::TabSizeDialog() {}
 
+void SciTEGTK::ParamGrab() {
+	if (wParameters.Created()) {
+		for (int param=0; param<maxParam; param++) {
+			SString paramText(param+1);
+			char *paramVal = gtk_entry_get_text(GTK_ENTRY(entryParam[param]));
+			props.Set(paramText.c_str(), paramVal);
+		}
+	}
+}
+
+void SciTEGTK::ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
+	if (event->keyval == GDK_Escape) {
+		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
+		scitew->dialogCanceled = true;
+		scitew->wParameters.Destroy();
+	}
+}
+
+void SciTEGTK::ParamCancelSignal(GtkWidget *, SciTEGTK *scitew) {
+	scitew->dialogCanceled = true;
+	scitew->wParameters.Destroy();
+}
+
+void SciTEGTK::ParamSignal(GtkWidget *, SciTEGTK *scitew) {
+	scitew->dialogCanceled = false;
+	scitew->ParamGrab();
+	scitew->wParameters.Destroy();
+}
+
+bool SciTEGTK::ParametersDialog(bool modal) {
+	if (wParameters.Created()) {
+		ParamGrab();
+		if (!modal) {
+			wParameters.Destroy();
+		}
+		return true;
+	}
+	GtkAccelGroup *accel_group = gtk_accel_group_new();
+	wParameters = gtk_dialog_new();
+	TranslatedSetTitle(GTK_WINDOW(PWidget(wParameters)), "Parameters");
+	gtk_container_border_width(GTK_CONTAINER(PWidget(wParameters)), 0);
+
+	gtk_signal_connect(GTK_OBJECT(PWidget(wParameters)),
+	                   "destroy", GtkSignalFunc(destroyDialog), 0);
+
+	GtkWidget *table = gtk_table_new(2, modal ? 10 : 9, FALSE);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wParameters))->vbox),
+	                   table, TRUE, TRUE, 0);
+
+	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
+	                            GTK_EXPAND | GTK_SHRINK | GTK_FILL);
+	
+	int row = 0;
+	if (modal) {
+		GtkWidget *cmd = gtk_label_new(parameterisedCommand.c_str());
+		gtk_table_attach(GTK_TABLE(table), label, 0, 2, row, row+1, opts, opts, 5, 5);
+		gtk_widget_show(label);
+		row++;
+	}
+	
+	for (int param=0; param<maxParam; param++) {
+		SString paramText(param+1);
+		SString paramTextVal = props.Get(paramText.c_str());
+		paramText.append(":");
+		GtkWidget *label = gtk_label_new(paramText.c_str());
+		gtk_table_attach(GTK_TABLE(table), label, 0, 1, row, row+1, opts, opts, 5, 5);
+		gtk_widget_show(label);
+
+		entryParam[param] = gtk_entry_new();
+		gtk_entry_set_text(GTK_ENTRY(entryParam[param]), paramTextVal.c_str());
+		if (param == 0)
+			gtk_entry_select_region(GTK_ENTRY(entryParam[param]), 0, paramTextVal.length());
+		gtk_table_attach(GTK_TABLE(table), entryParam[param], 1, 2, param, param+1, opts, opts, 5, 5);
+		gtk_signal_connect(GTK_OBJECT(entryParam[param]),
+				   "activate", GtkSignalFunc(ParamSignal), this);
+		gtk_widget_show(entryParam[param]);
+
+		row++;
+	}
+
+	gtk_widget_grab_focus(GTK_WIDGET(entryParam[0]));
+	gtk_widget_show(table);
+
+	if (modal) {
+		GtkWidget *btnExecute = TranslatedCommand("_Execute", accel_group,
+						 GtkSignalFunc(ParamSignal), this);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wParameters))->action_area),
+				   btnExecute, TRUE, TRUE, 0);
+		gtk_widget_grab_default(GTK_WIDGET(btnExecute));
+		gtk_widget_show(btnExecute);
+	}
+
+	GtkWidget *btnCancel = TranslatedCommand(modal ? "_Cancel" : "_Close", 
+		accel_group,
+	        GtkSignalFunc(ParamCancelSignal), this);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wParameters))->action_area),
+	                   btnCancel, TRUE, TRUE, 0);
+	gtk_widget_show(btnCancel);
+
+	// Mark it as a modal transient dialog
+	gtk_window_set_modal(GTK_WINDOW(PWidget(wParameters)), modal);
+	gtk_window_set_transient_for (GTK_WINDOW(PWidget(wParameters)),
+	                              GTK_WINDOW(PWidget(wSciTE)));
+
+	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wParameters)), accelGroup);
+	wParameters.Show();
+	if (modal) {
+		while (wParameters.Created()) {
+			gtk_main_iteration();
+		}
+	}
+	return !dialogCanceled;
+}
+
 void SciTEGTK::FindReplace(bool replace) {
-	GtkAccelGroup *accel_group;
-	accel_group = gtk_accel_group_new();
+	GtkAccelGroup *accel_group = gtk_accel_group_new();
 
 	replacing = replace;
 	wFindReplace = gtk_dialog_new();
@@ -2105,6 +2218,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/View/_Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
 	    {"/View/_Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
 	    {"/View/_Output", "F8", menuSig, IDM_TOGGLEOUTPUT, "<CheckItem>"},
+	    {"/View/_Parameters", NULL, menuSig, IDM_TOGGLEPARAMETERS, "<CheckItem>"},
 
 	    {"/_Tools", NULL, NULL, 0, "<Branch>"},
 	    {"/_Tools/tear", NULL, NULL, 0, "<Tearoff>"},
@@ -2597,7 +2711,7 @@ void SciTEGTK::PipeSignal(void *data, gint fd, GdkInputCondition condition) {
 
 void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 	if (!props.GetInt("check.if.already.open"))
-		return ;
+		return;
 
 	// Create a pipe and see if it finds another one already there
 

@@ -843,10 +843,10 @@ void SciTEBase::SelectionExtend(
 
 	Window wCurrent;
 
-	if (wEditor.HasFocus()) {
-		wCurrent = wEditor;
-	} else {
+	if (wOutput.HasFocus()) {
 		wCurrent = wOutput;
+	} else {
+		wCurrent = wEditor;
 	}
 	int lengthDoc = SendFocused(SCI_GETLENGTH);
 	int selStart = SendFocused(SCI_GETSELECTIONSTART);
@@ -1295,7 +1295,36 @@ void SciTEBase::MakeOutputVisible() {
 	}
 }
 
+void SciTEBase::ClearJobQueue() {
+	for (int ic = 0; ic < commandMax; ic++) {
+		jobQueue[ic].Clear();
+	}
+	commandCurrent = 0;
+}
+
 void SciTEBase::Execute() {
+	bool displayParameterDialog = false;
+	int ic;
+	parameterisedCommand = "";
+	for (ic = 0; ic < commandMax; ic++) {
+		if (jobQueue[ic].command[0] == '*') {
+			displayParameterDialog = true;
+			jobQueue[ic].command.remove(0);
+			parameterisedCommand = jobQueue[ic].command;
+		}
+	}
+	if (displayParameterDialog) {
+		if (!ParametersDialog(true)) {
+			ClearJobQueue();
+			return;
+		}
+	} else {
+		ParamGrab();
+	}
+	for (ic = 0; ic < commandMax; ic++) {
+		jobQueue[ic].command = props.Expand(jobQueue[ic].command.c_str());
+	}
+	
 	if (clearBeforeExecute) {
 		SendOutput(SCI_CLEARALL);
 	}
@@ -2679,6 +2708,11 @@ void SciTEBase::MenuCommand(int cmdID) {
 		CheckMenus();
 		break;
 
+	case IDM_TOGGLEPARAMETERS:
+		ParametersDialog(false);
+		CheckMenus();
+		break;
+
 	case IDM_VIEWTABBAR:
 		tabVisible = !tabVisible;
 		ShowTabBar();
@@ -2737,7 +2771,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_COMPILE: {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
-				AddCommand(props.GetNewExpand("command.compile.", fileName), "",
+				AddCommand(props.GetWild("command.compile.", fileName), "",
 				           SubsystemType("command.compile.subsystem."));
 				if (commandCurrent > 0)
 					Execute();
@@ -2749,7 +2783,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(
-				    props.GetNewExpand("command.build.", fileName),
+				    props.GetWild("command.build.", fileName),
 				    props.GetNewExpand("command.build.directory.", fileName),
 				    SubsystemType("command.build.subsystem."));
 				if (commandCurrent > 0) {
@@ -2891,7 +2925,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_HELP: {
 			SelectionIntoProperties();
-			AddCommand(props.GetNewExpand("command.help.", fileName), "",
+			AddCommand(props.GetWild("command.help.", fileName), "",
 			           SubsystemType("command.help.subsystem."));
 			if (commandCurrent > 0) {
 				isBuilding = true;
@@ -3252,6 +3286,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_SELMARGIN, margin);
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
+	CheckAMenuItem(IDM_TOGGLEPARAMETERS, wParameters.Created());
 	CheckAMenuItem(IDM_MONOFONT, useMonoFont);
 	EnableAMenuItem(IDM_COMPILE, !executing);
 	EnableAMenuItem(IDM_BUILD, !executing);

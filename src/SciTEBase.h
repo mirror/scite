@@ -280,6 +280,9 @@ protected:
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 	ComboMemory memFiles;
+	enum { maxParam = 4 };
+	Window wParameters;
+	SString parameterisedCommand;
 
 	enum { languageCmdID = IDM_LANGUAGE };
 	LanguageMenuItem *languageMenu;
@@ -512,12 +515,15 @@ protected:
 	virtual void DestroyFindReplace() = 0;
 	virtual void GoLineDialog() = 0;
 	virtual void TabSizeDialog() = 0;
+	virtual void ParamGrab() = 0;
+	virtual bool ParametersDialog(bool modal) = 0;
 	void GoMatchingBrace(bool select);
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
 	void OutputAppendString(const char *s, int len = -1);
 	void OutputAppendStringSynchronised(const char *s, int len = -1);
 	void MakeOutputVisible();
+	void ClearJobQueue();
 	virtual void Execute();
 	virtual void StopExecute() = 0;
 	void GoMessage(int dir);
