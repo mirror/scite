@@ -103,7 +103,7 @@ protected:
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
 	virtual void ShowStatusBar();
-	void HelpOnTopic(char *topic);
+	void ExecuteHelp(const char *cmd);
 	void Command(WPARAM wParam, LPARAM lParam);
 
 public:
@@ -384,7 +384,7 @@ void SciTEWin::ShowStatusBar() {
 struct XHH_AKLINK {
 	long cbStruct;
 	BOOL fReserved;
-	char *pszKeywords;
+	const char *pszKeywords;
 	char *pszUrl;
 	char *pszMsgText;
 	char *pszMsgTitle;
@@ -392,29 +392,39 @@ struct XHH_AKLINK {
 	BOOL fIndexOnFail;
 };
 
-void SciTEWin::HelpOnTopic(char *topic) {
+// Help command lines contain topic!path
+void SciTEWin::ExecuteHelp(const char *cmd) {
 	HMODULE hhh = ::LoadLibrary("HHCTRL.OCX");
 	if (hhh) {
-		typedef HWND (WINAPI *HelpFn) (HWND, const char *, UINT, DWORD);
-		HelpFn fnHHA = (HelpFn)::GetProcAddress(hhh, "HtmlHelpA");
-		if (fnHHA) {
-			XHH_AKLINK ak;
-			ak.cbStruct = sizeof(ak);
-			ak.fReserved = FALSE;
-			ak.pszKeywords = topic;
-			ak.pszUrl = NULL;
-			ak.pszMsgText = NULL;
-			ak.pszMsgTitle = NULL;
-			ak.pszWindow = NULL;
-			ak.fIndexOnFail = TRUE;
-			SString fileNameForExtension = ExtensionFileName();
-			SString helpFile = props.GetNewExpand("help.file.", fileNameForExtension.c_str());
-			fnHHA(NULL, 
-				helpFile.c_str(),
-				0x000d, 	// HH_KEYWORD_LOOKUP
-				reinterpret_cast<DWORD>(&ak)
-			);
+		char *topic=strdup(cmd);
+		char *path=strchr(topic,'!');
+		if (topic && path) { 
+			*path = '\0';
+			path++;	// After the !
+			typedef HWND (WINAPI *HelpFn) (HWND, const char *, UINT, DWORD);
+			HelpFn fnHHA = (HelpFn)::GetProcAddress(hhh, "HtmlHelpA");
+			if (fnHHA) {
+				XHH_AKLINK ak;
+				ak.cbStruct = sizeof(ak);
+				ak.fReserved = FALSE;
+				ak.pszKeywords = topic;
+				ak.pszUrl = NULL;
+				ak.pszMsgText = NULL;
+				ak.pszMsgTitle = NULL;
+				ak.pszWindow = NULL;
+				ak.fIndexOnFail = TRUE;
+				//SString fileNameForExtension = ExtensionFileName();
+				//SString helpFile = props.GetNewExpand("help.file.", fileNameForExtension.c_str());
+				fnHHA(NULL, 
+					//helpFile.c_str(),
+					path,
+					0x000d, 	// HH_KEYWORD_LOOKUP
+					reinterpret_cast<DWORD>(&ak)
+				);
+			}
 		}
+		if (topic) 
+			free(topic);
 		::FreeLibrary(hhh);
 	}
 }
@@ -438,11 +448,6 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 		
-	case IDM_HELP:
-		SelectionIntoFind();
-		HelpOnTopic(findWhat);
-		break;
-
 	default:
 		SciTEBase::MenuCommand(cmdID);
 	}
@@ -1307,6 +1312,11 @@ void SciTEWin::ProcessExecute() {
 		if (jobQueue[icmd].jobType == jobExtension) {
 			if (extender)
 				extender->OnExecute(jobQueue[icmd].command.c_str());
+			continue;
+		}
+
+		if (jobQueue[icmd].jobType == jobHelp) {
+			ExecuteHelp(jobQueue[icmd].command.c_str());
 			continue;
 		}
 

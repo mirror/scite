@@ -250,6 +250,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext)  {
 	isBuilt = false;
 	executing = false;
 	commandCurrent = 0;
+	jobUsesOutputPane = false;
 	cancelFlag = 0L;
 
 	ptStartDrag.x = 0;
@@ -768,6 +769,8 @@ JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 		jobType = jobShell;
 	else if (subsystem[0] == '3')
 		jobType = jobExtension;
+	else if (subsystem[0] == '4')
+		jobType = jobHelp;
 	return jobType;
 }
 
@@ -2431,21 +2434,7 @@ static bool iswordcharforsel(char ch) {
 	return !strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch);
 }
 
-void SciTEBase::SelectionIntoProperties() {
-	CharacterRange cr = GetSelection();
-	char currentSelection[1000];
-	if ((cr.cpMin < cr.cpMax) && ((cr.cpMax - cr.cpMin + 1) < static_cast<int>(sizeof(currentSelection)))) {
-		GetRange(wEditor, cr.cpMin, cr.cpMax, currentSelection);
-		int len = strlen(currentSelection);
-		if (len > 2 && iscntrl(currentSelection[len-1]))
-			currentSelection[len-1] = '\0';
-		if (len > 2 && iscntrl(currentSelection[len-2]))
-			currentSelection[len-2] = '\0';
-		props.Set("CurrentSelection", currentSelection);
-	}
-}
-
-void SciTEBase::SelectionIntoFind() {
+void SciTEBase::SelectionWord(char *word, int len) {
 	int lengthDoc = LengthDocument();
 	CharacterRange cr = GetSelection();
 	int selStart = cr.cpMin;
@@ -2463,9 +2452,31 @@ void SciTEBase::SelectionIntoFind() {
 		}
 
 	}
-	if ((selStart < selEnd) && ((selEnd - selStart + 1) < static_cast<int>(sizeof(findWhat)))) {
-		GetRange(wEditor, selStart, selEnd, findWhat);
+	word[0] = '\0';
+	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
+		GetRange(wEditor, selStart, selEnd, word);
 	}
+}
+
+void SciTEBase::SelectionIntoProperties() {
+	CharacterRange cr = GetSelection();
+	char currentSelection[1000];
+	if ((cr.cpMin < cr.cpMax) && ((cr.cpMax - cr.cpMin + 1) < static_cast<int>(sizeof(currentSelection)))) {
+		GetRange(wEditor, cr.cpMin, cr.cpMax, currentSelection);
+		int len = strlen(currentSelection);
+		if (len > 2 && iscntrl(currentSelection[len-1]))
+			currentSelection[len-1] = '\0';
+		if (len > 2 && iscntrl(currentSelection[len-2]))
+			currentSelection[len-2] = '\0';
+		props.Set("CurrentSelection", currentSelection);
+	}
+	char word[200];
+	SelectionWord(word, sizeof(word));
+	props.Set("CurrentWord", word);
+}
+
+void SciTEBase::SelectionIntoFind() {
+	SelectionWord(findWhat, sizeof(findWhat));
 }
 
 void SciTEBase::FindMessageBox(const char *msg) {
@@ -2608,7 +2619,7 @@ void SciTEBase::Execute() {
 	SendOutput(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
 	SendEditor(SCI_MARKERDELETEALL, 0);
 	// Ensure the output pane is visible
-	if (heightOutput < 20) {
+	if (jobUsesOutputPane && heightOutput < 20) {
 		if (splitVertical)
 			heightOutput = NormaliseSplit(300);
 		else
@@ -3308,11 +3319,15 @@ void SciTEBase::GoMatchingBrace(bool select) {
 }
 
 void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool) {
+	if (commandCurrent == 0)
+		jobUsesOutputPane = false;
 	if (cmd.length()) {
 		jobQueue[commandCurrent].command = cmd;
 		jobQueue[commandCurrent].directory = dir;
 		jobQueue[commandCurrent].jobType = jobType;
 		commandCurrent++;
+		if ((jobType == jobCLI) || (jobType == jobExtension))
+			jobUsesOutputPane = true;
 	}
 }
 
@@ -3675,6 +3690,17 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_LATEX:
 	case IDM_LEXER_DIFF:
 		SetOverrideLanguage(cmdID);
+		break;
+
+	case IDM_HELP: {
+			SelectionIntoProperties();
+			AddCommand(props.GetNewExpand("command.help.", fileName), "",
+				SubsystemType("command.help.subsystem."));
+			if (commandCurrent > 0) {
+				isBuilding = true;
+				Execute();
+			}
+		}
 		break;
 
 	default:

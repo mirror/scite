@@ -102,7 +102,8 @@ public:
 	void RemoveCurrent();
 };
 
-enum JobSubsystem { jobCLI=0, jobGUI=1, jobShell=2, jobExtension=3};
+enum JobSubsystem { 
+	jobCLI=0, jobGUI=1, jobShell=2, jobExtension=3, jobHelp=4};
 class Job {
 public:
 	SString command;
@@ -232,6 +233,7 @@ protected:
 	enum { commandMax = 2 };
 	int commandCurrent;
 	Job jobQueue[commandMax];
+	bool jobUsesOutputPane;
 	long cancelFlag;
 
 	PropSet propsEmbed;
@@ -302,6 +304,7 @@ protected:
 	virtual void PrintSetup() {};
 	CharacterRange GetSelection();
 	void SetSelection(int anchor, int currentPos);
+	void SelectionWord(char *word, int len);
 	void SelectionIntoProperties();
 	void SelectionIntoFind();
 	virtual void Find()=0;
