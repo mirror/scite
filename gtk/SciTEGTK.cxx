@@ -848,6 +848,7 @@ void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*
 }
 
 bool SciTEGTK::OpenDialog() {
+	chdir(dirName);
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
 		dlgFileSelector = gtk_file_selection_new(LocaliseString("Open File").c_str());
@@ -890,6 +891,7 @@ void SciTEGTK::HandleSaveAs(const char *savePath) {
 }
 
 bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
+	chdir(dirName);
 	bool canceled = true;
 	saveFormat = fmt;
 	if (!dlgFileSelector.Created()) {
