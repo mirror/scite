@@ -615,13 +615,22 @@ void SciTEWin::Print(bool showDialog) {
 
 			if (headerFormat.size()) {
 				SString sHeader=propsPrint.GetExpanded("print.header.format");
-				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, NULL);
-				::LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight / 4);
+				::SetTextColor(hdc, sdHeader.fore.AsLong());
+				::SetBkColor(hdc, sdHeader.back.AsLong());
 				::SelectObject(hdc, fontHeader);
 				UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
-				::TextOut(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 2,
-				          sHeader.c_str(), sHeader.length());
+				RECT rcw = {frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight / 2, 
+					frPrint.rc.right, frPrint.rc.top - headerLineHeight / 2};
+				rcw.bottom = rcw.top + headerLineHeight;
+				::ExtTextOut(hdc, frPrint.rc.left+5, frPrint.rc.top - headerLineHeight / 2, 
+					ETO_OPAQUE, &rcw, sHeader.c_str(), sHeader.length(), NULL);
 				::SetTextAlign(hdc, ta);
+				HPEN pen = ::CreatePen(0,1,sdHeader.fore.AsLong());
+				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
+				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, NULL);
+				::LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight / 4);
+				::SelectObject(hdc, penOld);
+				::DeleteObject(pen);
 			}
 		}
 
@@ -635,13 +644,22 @@ void SciTEWin::Print(bool showDialog) {
 		if (printPage) {
 			if (footerFormat.size()) {
 				SString sFooter=propsPrint.GetExpanded("print.footer.format");
-				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + headerLineHeight / 4, NULL);
-				::LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom + headerLineHeight / 4);
+				::SetTextColor(hdc, sdFooter.fore.AsLong());
+				::SetBkColor(hdc, sdFooter.back.AsLong());
 				::SelectObject(hdc, fontFooter);
 				UINT ta = ::SetTextAlign(hdc, TA_TOP);
-				::TextOut(hdc, frPrint.rc.left, frPrint.rc.bottom + headerLineHeight / 2,
-				          sFooter.c_str(), sFooter.length());
+				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2, 
+					frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2};
+				::ExtTextOut(hdc, frPrint.rc.left+5, frPrint.rc.bottom + footerLineHeight / 2, 
+					ETO_OPAQUE, &rcw, sFooter.c_str(), sFooter.length(), NULL);
 				::SetTextAlign(hdc, ta);
+				HPEN pen = ::CreatePen(0,1,sdFooter.fore.AsLong());
+				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
+				::SetBkColor(hdc, sdFooter.fore.AsLong());
+				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 4, NULL);
+				::LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom + footerLineHeight / 4);
+				::SelectObject(hdc, penOld);
+				::DeleteObject(pen);
 			}
 
 #ifdef DEBUG_PRINT
