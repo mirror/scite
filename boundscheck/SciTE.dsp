@@ -243,6 +243,10 @@ SOURCE=..\..\scintilla\src\LexPascal.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexPB.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexPerl.cxx
 # End Source File
 # Begin Source File
