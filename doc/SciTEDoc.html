@@ -1014,6 +1014,17 @@ NameError: mistake
 	  error.marker.back colour.
         </td>
        </tr>
+       <tr class="windowsonly">
+        <td>openpath.<i>filepattern</i></td>
+        <td>Defines a path for the Open Selected Filename command in the File
+	menu. The path is searched if the selected filename doesn't contain an
+	absolute path or the file is not found in the document directory. The
+	directories in openpath are separated by ';'.<br />
+	An openpath setting may look like:<br />
+	<code>openpath.*.txt=c:\dos\;f:\;<br />
+	openpath.$(file.patterns.cpp)=$(cpp_includes)</code>
+        </td>
+       </tr>
        <tr>
         <td>
           strip.trailing.spaces
