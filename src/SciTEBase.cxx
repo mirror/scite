@@ -86,6 +86,7 @@ const char *contributors[] = {
     "Ashley Cambrell",
     "Garrett Serack",
     "Holger Schmidt",
+    "ActiveState http://www.activestate.com",
 };
 
 const char *extList[] = {
