@@ -135,7 +135,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 #if PLAT_GTK
 		// On GTK+, new century schoolbook looks better in large sizes than default font
 		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
-		                        reinterpret_cast<unsigned int>("new century schoolbook"));
+		                        reinterpret_cast<uptr_t>("new century schoolbook"));
 		fontSize = 14;
 #endif
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
