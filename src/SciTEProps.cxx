@@ -624,16 +624,14 @@ void SciTEBase::ReadProperties() {
 
 	SString kw0 = props.GetNewExpand("keywords.", fileNameForExtension.c_str());
 	SendEditorString(SCI_SETKEYWORDS, 0, kw0.c_str());
-	SString kw1 = props.GetNewExpand("keywords2.", fileNameForExtension.c_str());
-	SendEditorString(SCI_SETKEYWORDS, 1, kw1.c_str());
-	SString kw2 = props.GetNewExpand("keywords3.", fileNameForExtension.c_str());
-	SendEditorString(SCI_SETKEYWORDS, 2, kw2.c_str());
-	SString kw3 = props.GetNewExpand("keywords4.", fileNameForExtension.c_str());
-	SendEditorString(SCI_SETKEYWORDS, 3, kw3.c_str());
-	SString kw4 = props.GetNewExpand("keywords5.", fileNameForExtension.c_str());
-	SendEditorString(SCI_SETKEYWORDS, 4, kw4.c_str());
-	SString kw5 = props.GetNewExpand("keywords6.", fileNameForExtension.c_str());
-	SendEditorString(SCI_SETKEYWORDS, 5, kw5.c_str());
+
+	for (int wl = 1; wl <= KEYWORDSET_MAX; wl++) {
+		SString kwk(wl + 1);
+		kwk += '.';
+		kwk.insert(0, "keywords");
+		SString kw = props.GetNewExpand(kwk.c_str(), fileNameForExtension.c_str());
+		SendEditorString(SCI_SETKEYWORDS, wl, kw.c_str());
+	}
 
 	char homepath[MAX_PATH + 20];
 	if (GetSciteDefaultHome(homepath, sizeof(homepath))) {
