@@ -240,6 +240,9 @@
 				RelativePath="..\..\scintilla\src\LexPOV.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexPS.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexPython.cxx">
 			</File>
 			<File

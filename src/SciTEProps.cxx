@@ -657,6 +657,8 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("tab.timmy.whinge.level");
 	ForwardPropertyToEditor("asp.default.language");
 	ForwardPropertyToEditor("html.tags.case.sensitive");
+	ForwardPropertyToEditor("ps.level");
+	ForwardPropertyToEditor("ps.tokenize");
 
 	if (apisFileNames != props.GetNewExpand("api.",	fileNameForExtension.c_str())) {
 		apis.Clear();
