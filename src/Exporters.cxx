@@ -233,7 +233,10 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	}
 }
 
-void SciTEBase::SaveToRTF(const char *saveName) {
+void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
+	int lengthDoc = LengthDocument();
+	if (end < 0)
+		end = lengthDoc;
 	SendEditor(SCI_COLOURISE, 0, -1);
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
@@ -376,11 +379,10 @@ void SciTEBase::SaveToRTF(const char *saveName) {
 		sprintf(lastStyle, RTF_SETFONTFACE "0" RTF_SETFONTSIZE "%d"
 		        RTF_SETCOLOR "0" RTF_SETBACKGROUND "0"
 		        RTF_BOLD_OFF RTF_ITALIC_OFF, fontSize);
-		int lengthDoc = LengthDocument();
 		bool prevCR = false;
 		int styleCurrent = -1;
 		WindowAccessor acc(wEditor.GetID(), props);
-		for (i = 0; i < lengthDoc; i++) {
+		for (i = start; i < end; i++) {
 			char ch = acc[i];
 			int style = acc.StyleAt(i);
 			if (style != styleCurrent) {

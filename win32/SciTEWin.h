@@ -127,6 +127,7 @@ protected:
 	virtual void ShowStatusBar();
 	void ExecuteHelp(const char *cmd);
 	void ExecuteOtherHelp(const char *cmd);
+	void CopyAsRTF();
 	void Command(WPARAM wParam, LPARAM lParam);
 
 public:

@@ -366,7 +366,7 @@ protected:
 	virtual bool SaveAs(char *file = 0);
 	void SaveToHTML(const char *saveName);
 	virtual void SaveAsHTML()=0;
-	void SaveToRTF(const char *saveName);
+	void SaveToRTF(const char *saveName, int start=0, int end=-1);
 	virtual void SaveAsRTF()=0;
 	void SaveToPDF(const char *saveName);
 	virtual void SaveAsPDF()=0;
@@ -429,6 +429,7 @@ protected:
 	virtual void AboutDialog()=0;
 	virtual void QuitProgram()=0;
 	void CloseAllBuffers();
+	virtual void CopyAsRTF() {};
 	void MenuCommand(int cmdID);
 	void FoldChanged(int line, int levelNow, int levelPrev);
 	void FoldChanged(int position);

@@ -1610,6 +1610,9 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_SELECTALL:
 		SendFocused(SCI_SELECTALL);
 		break;
+	case IDM_COPYASRTF:
+		CopyAsRTF();
+		break;
 
 	case IDM_FIND:
 		Find();

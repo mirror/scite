@@ -231,6 +231,33 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 	}
 }
 
+void SciTEWin::CopyAsRTF() {
+	CharacterRange cr = GetSelection();
+	char *fileNameTemp = tmpnam(0);
+	if (fileNameTemp) {
+		SaveToRTF(fileNameTemp, cr.cpMin, cr.cpMax);
+		FILE *fp = fopen(fileNameTemp, fileRead);
+		if (fp) {
+			fseek(fp, 0, SEEK_END);
+			int len = ftell(fp);
+			fseek(fp, 0, SEEK_SET);
+			HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, len + 1);
+			if (hand) {
+				::OpenClipboard(wSciTE.GetID());
+				::EmptyClipboard();
+				char *ptr = static_cast<char *>(::GlobalLock(hand));
+				fread(ptr, 1, len, fp);
+				ptr[len] = '\0';
+				::GlobalUnlock(hand);
+				::SetClipboardData(::RegisterClipboardFormat(CF_RTF), hand);
+				::CloseClipboard();
+			}
+			fclose(fp);
+		}
+		unlink(fileNameTemp);
+	}
+}
+
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	int cmdID = ControlIDOfCommand(wParam);
 	switch (cmdID) {
