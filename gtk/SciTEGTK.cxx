@@ -519,15 +519,22 @@ void SciTEGTK::ShowStatusBar() {
 
 void SciTEGTK::Command(unsigned long wParam, long) {
 	int cmdID = ControlIDOfCommand(wParam);
+	int notifyCode = wParam >> 16;
 	switch (cmdID) {
 
-#ifdef EN_SETFOCUS
 	case IDM_SRCWIN:
+		if (notifyCode == SCEN_SETFOCUS) {
+			Activate(true);
+			CheckMenus();
+		} else if (notifyCode == SCEN_KILLFOCUS) {
+			Activate(false);
+		}
+		break;
+		
 	case IDM_RUNWIN:
-		if ((wParam >> 16) == EN_SETFOCUS)
+		if (notifyCode == SCEN_SETFOCUS)
 			CheckMenus();
 		break;
-#endif
 
 	case IDM_FULLSCREEN:
 		fullScreen = !fullScreen;
