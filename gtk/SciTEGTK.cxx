@@ -1215,7 +1215,9 @@ void SciTEGTK::ContinueExecute() {
 		OutputAppendString(exitmessage);
 		// Move selection back to beginning of this run so that F4 will go
 		// to first error of this run.
-		SendOutput(SCI_GOTOPOS, originalEnd);
+		if (scrollOutput && returnOutputToCommand)
+			SendOutput(SCI_GOTOPOS, originalEnd);
+		returnOutputToCommand = true;
 		gdk_input_remove(inputHandle);
 		close(fdFIFO);
 		unlink(resultsFile);

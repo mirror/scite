@@ -216,6 +216,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	isBuilding = false;
 	isBuilt = false;
 	executing = false;
+	scrollOutput = true;
+	returnOutputToCommand = true;
 	commandCurrent = 0;
 	jobUsesOutputPane = false;
 	cancelFlag = 0L;
@@ -1215,7 +1217,6 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		else
 			SetSelection(lastMatch, lastMatch);
 		SendEditor(SCI_ENDUNDOACTION);
-		//FindMessageBox("bow");
 	} else {
 		if (strlen(findWhat) > findReplaceMaxLen)
 			findWhat[findReplaceMaxLen] = '\0';
@@ -1247,9 +1248,11 @@ void SciTEBase::OutputAppendStringSynchronised(const char *s, int len /*= -1*/) 
 	SendOutputEx(SCI_SETTARGETSTART, docLength, 0, false);
 	SendOutputEx(SCI_SETTARGETEND, docLength, 0, false);
 	SendOutputEx(SCI_REPLACETARGET, len, reinterpret_cast<sptr_t>(s), false);
-	int line = SendOutputEx(SCI_GETLINECOUNT, 0, 0, false);
-	int lineStart = SendOutputEx(SCI_POSITIONFROMLINE, line, 0, false);
-	SendOutputEx(SCI_GOTOPOS, lineStart, 0, false);
+	if (scrollOutput) {
+		int line = SendOutputEx(SCI_GETLINECOUNT, 0, 0, false);
+		int lineStart = SendOutputEx(SCI_POSITIONFROMLINE, line, 0, false);
+		SendOutputEx(SCI_GOTOPOS, lineStart, 0, false);
+	}
 }
 
 void SciTEBase::MakeOutputVisible() {
@@ -3007,6 +3010,28 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 	return true;
 }
 
+void SciTEBase::NewLineInOutput() {
+	if (executing)
+		return;
+	char cmd[200];
+	int line = SendOutput(SCI_LINEFROMPOSITION,
+	                  SendOutput(SCI_GETCURRENTPOS)) - 1;
+	int lineStart = SendOutput(SCI_POSITIONFROMLINE, line);
+	int lineEnd = SendOutput(SCI_GETLINEENDPOSITION, line);
+	if ((lineStart < 0) || (lineEnd < 0)) {
+		cmd[0] = '\0';
+	}
+	int lineMax = lineStart + sizeof(cmd) - 1;
+	if (lineEnd > lineMax)
+		lineEnd = lineMax;
+	GetRange(wOutput, lineStart, lineEnd, cmd);
+	cmd[lineEnd - lineStart] = '\0';
+	// TODO: put a '>' at beginning of line
+	returnOutputToCommand = false;
+	AddCommand(cmd, ".", jobCLI);
+	Execute();
+}
+
 void SciTEBase::Notify(SCNotification *notification) {
 	bool handled = false;
 	//Platform::DebugPrintf("Notify %d\n", notification->nmhdr.code);
@@ -3053,8 +3078,13 @@ void SciTEBase::Notify(SCNotification *notification) {
 	case SCN_CHARADDED:
 		if (extender)
 			handled = extender->OnChar(static_cast<char>(notification->ch));
-		if (!handled)
-			CharAdded(static_cast<char>(notification->ch));
+		if (!handled) {
+			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
+				CharAdded(static_cast<char>(notification->ch));
+			} else if (notification->ch == '\n') {
+				NewLineInOutput();
+			}
+		}
 		break;
 
 	case SCN_SAVEPOINTREACHED:

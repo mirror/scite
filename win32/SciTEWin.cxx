@@ -491,7 +491,8 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
  */
 void SciTEWin::ProcessExecute() {
 	DWORD exitcode = 0;
-	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
+	if (scrollOutput)
+		SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
 	bool seenOutput = false;
 
@@ -691,7 +692,9 @@ void SciTEWin::ProcessExecute() {
 
 	// Move selection back to beginning of this run so that F4 will go
 	// to first error of this run.
-	SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
+	if (scrollOutput && returnOutputToCommand)
+		SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
+	returnOutputToCommand = true;
 	::SendMessage(wSciTE.GetID(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
 }
 

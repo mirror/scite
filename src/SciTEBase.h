@@ -345,6 +345,8 @@ protected:
 	bool isBuilding;
 	bool isBuilt;
 	bool executing;
+	bool scrollOutput;
+	bool returnOutputToCommand;
 	enum { commandMax = 2 };
 	int commandCurrent;
 	Job jobQueue[commandMax];
@@ -516,6 +518,7 @@ protected:
 	void EnsureRangeVisible(int posStart, int posEnd, bool enforcePolicy=true);
 	void GotoLineEnsureVisible(int line);
 	bool MarginClick(int position, int modifiers);
+	void NewLineInOutput();
 	virtual void SetStatusBarText(const char *s) = 0;
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar() = 0;
