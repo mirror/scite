@@ -263,10 +263,19 @@ SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const ch
 		strcpy(saveName, fileName);
 		if (ext) {
 			char *cpDot = strrchr(saveName, '.');
-			if (cpDot != NULL)
-				strcpy(cpDot, ext);
-			else
+			int keepExt = props.GetInt("export.keep.ext", 0);
+			if (cpDot != NULL) {
+				if (keepExt == 0) {
+					strcpy(cpDot, ext);
+				} else if (keepExt == 1) {
+					strcat(saveName, ext);
+				} else if (keepExt == 2) {
+					*cpDot = '_';
+					strcat(saveName, ext);
+				}
+			} else {
 				strcat(saveName, ext);
+			}
 		}
 		OPENFILENAME ofn = {
 		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
