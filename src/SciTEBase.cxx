@@ -770,6 +770,7 @@ void SciTEBase::ReadProperties() {
 	}
 	SendEditor(SCI_SETINDENT, props.GetInt("indent.size"));
 	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
+	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 
 	SetToolsMenu();
 
@@ -1961,7 +1962,7 @@ void SciTEBase::GoMatchingBrace() {
 	int braceOpposite = -1;
 	FindMatchingBracePosition(true, braceAtCaret, braceOpposite);
 	if (braceOpposite >= 0) {
-		SendEditor(SCI_GETCHARAT, braceOpposite);
+		//SendEditor(SCI_GETCHARAT, braceOpposite);
 		braceOpposite++;
 		EnsureRangeVisible(braceOpposite, braceOpposite);
 		SetSelection(braceOpposite, braceOpposite);

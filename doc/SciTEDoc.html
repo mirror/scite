@@ -165,7 +165,7 @@ NameError: mistake
         HTML
       </li>
       <li>
-        HTML with embedded JavaScript
+        HTML with embedded JavaScript, VBScript and ASP
       </li>
       <li>
         XML
@@ -279,11 +279,13 @@ NameError: mistake
        Much of SciTE's behaviour can be changed by editing the properties files.
     </p>
     <p>
-       There are three properties files used, two global properties file found in the directory of the
-      executable (for Linux, in the user's home directory) called "SciTEGlobal.properties" and 
-      "SciTEUser.properties" and a
-      local one which may be present in the same directory as the file being edited called
-      "SciTE.properties". Settings in the local properties file override those in the global 
+       There are three properties files used, two global properties files called "SciTEGlobal.properties" 
+      and "SciTEUser.properties" found in the properties directory and a local one called 
+      "SciTE.properties" which may be present in the same directory as the file being edited. 
+      The properties directory is the directory of the executable on Windows
+      and for GTK+ it is the directory defined by the "SciTE_HOME" environment variable
+      or the user's home directory if "SciTE_HOME" is not defined.
+      Settings in the local properties file override those in the global 
       properties files. The SciTEUser.properties file is intended for customisation by the user, 
       leaving the SciTEGlobal.properties file to contain the default options distributed with SciTE.
       The main use of the local properties files is to change the effects of the

@@ -250,7 +250,9 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.hCursor = NULL;
 	wndclass.hbrBackground = NULL;
 	wndclass.lpszMenuName = resourceName;
+//	wndclass.lpszMenuName = L"SciTE";
 	wndclass.lpszClassName = className;
+//	wndclass.lpszClassName = L"SciTEWindow";
 
 	if (!::RegisterClass(&wndclass))
 		::exit(FALSE);
@@ -427,7 +429,7 @@ bool SciTEWin::SaveAsDialog() {
 		ofn.lpstrFile = openName;
 		ofn.nMaxFile = sizeof(openName);
 		ofn.lpstrTitle = "Save File";
-		ofn.Flags = OFN_HIDEREADONLY;
+		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 
 		dialogsOnScreen++;
 		choseOK = ::GetSaveFileName(&ofn);
