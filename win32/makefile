@@ -21,7 +21,13 @@ LDFLAGS = -lkernel32 -lgdi32 -luser32 -lcomdlg32 -lcomctl32 -limm32 -lole32 -luu
 #CXXFLAGS = -g -pg -pedantic -Os -fno-exceptions -fvtable-thunks -fno-rtti
 INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src 
 RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src 
-CXXFLAGS = -W -Wall -pedantic $(INCLUDEDIRS) -Os -fno-exceptions -fvtable-thunks -fno-rtti
+CXXBASEFLAGS = -W -Wall -pedantic $(INCLUDEDIRS) -Os -fno-exceptions -fvtable-thunks -fno-rtti
+
+ifdef DEBUG
+CXXFLAGS=-DDEBUG $(CXXBASEFLAGS)
+else
+CXXFLAGS=-DNDEBUG $(CXXBASEFLAGS)
+endif
 
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
