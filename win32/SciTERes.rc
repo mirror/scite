@@ -45,6 +45,8 @@ BEGIN
 	MENUITEM "R&eplace...\tCtrl+H",			IDM_REPLACE
 	MENUITEM SEPARATOR
 	MENUITEM "&Go to...\tCtrl+G",			IDM_GOTO
+	MENUITEM "Next Book&mark\tF2",			IDM_BOOKMARK_NEXT
+	MENUITEM "Toggle Bookmar&k\tCtrl+F2",			IDM_BOOKMARK_TOGGLE
 	MENUITEM "Match &Brace\tCtrl+B",			IDM_MATCHBRACE
 	MENUITEM "C&omplete Identifier\tCtrl+I",		IDM_COMPLETE
 	MENUITEM "Make Selection &Uppercase\tCtrl+Shift+U",		IDM_UPRCASE
