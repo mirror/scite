@@ -437,7 +437,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 				if (mii.dwTypeData) {
 					SString text(mii.dwTypeData);
 					SString accel(mii.dwTypeData);
-					int len = text.length();
+					size_t len = text.length();
 					int tab = text.search("\t");
 					if (tab != -1) {
 						text.remove(tab, len - tab);
@@ -446,12 +446,14 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 						accel = "";
 					}
 					text = LocaliseString(text.c_str(), true);
+#ifdef LOCALISED_ACCEL_WORKED
 					if (text.length()) {
 						text += "\t";
 						text += LocaliseAccelerator(accel.c_str(), mii.wID);
 						mii.dwTypeData = const_cast<char *>(text.c_str());
 						::SetMenuItemInfo(hmenu, i, TRUE, &mii);
 					}
+#endif
 				}
 			}
 		}
