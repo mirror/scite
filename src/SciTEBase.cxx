@@ -365,6 +365,7 @@ void SciTEBase::SetMonoFont() {
  * Mostly used to set a language on a file of unknown extension.
  */
 void SciTEBase::SetOverrideLanguage(int cmdID) {
+	RecentFile rf = GetFilePosition();
 	EnsureRangeVisible(0, SendEditor(SCI_GETLENGTH));
 	// Zero all the style bytes
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
@@ -374,20 +375,33 @@ void SciTEBase::SetOverrideLanguage(int cmdID) {
 	ReadProperties();
 	SendEditor(SCI_COLOURISE, 0, -1);
 	Redraw();
+	DisplayAround(rf);
 }
 
 int SciTEBase::LengthDocument() {
 	return SendEditor(SCI_GETLENGTH);
 }
 
-int SciTEBase::GetLine(char *text, int sizeText, int line) {
-	if (line == -1) {
-		return SendEditor(SCI_GETCURLINE, sizeText, reinterpret_cast<long>(text));
-	} else {
-		short buflen = static_cast<short>(sizeText);
-		memcpy(text, &buflen, sizeof(buflen));
-		return SendEditor(SCI_GETLINE, line, reinterpret_cast<long>(text));
+int SciTEBase::GetCaretInLine() {
+	int caret = SendEditor(SCI_GETCURRENTPOS);
+	int line = SendEditor(SCI_LINEFROMPOSITION, caret);
+	int lineStart = SendEditor(SCI_POSITIONFROMLINE, line);
+	return caret - lineStart;
+}
+
+void SciTEBase::GetLine(char *text, int sizeText, int line) {
+	if (line < 0)
+		line = GetCurrentLineNumber();
+	int lineStart = SendEditor(SCI_POSITIONFROMLINE, line);
+	int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, line);
+	if ((lineStart < 0) || (lineEnd < 0)) {
+		text[0] = '\0';
 	}
+	int lineMax = lineStart + sizeText - 1;
+	if (lineEnd > lineMax)
+		lineEnd = lineMax; 
+	GetRange(wEditor, lineStart, lineEnd, text);
+	text[lineEnd - lineStart] = '\0';
 }
 
 void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
@@ -442,7 +456,7 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
 	while (isspacechar(*currChar) && *currChar) {
 		currChar++;
 	}
-	if (*currChar == preprocessorSymbol) {
+	if (preprocessorSymbol && (*currChar == preprocessorSymbol)) {
 		currChar++;
 		while (isspacechar(*currChar) && *currChar) {
 			currChar++;
@@ -1294,7 +1308,8 @@ void SciTEBase::Redraw() {
 bool SciTEBase::StartCallTip() {
 	//Platform::DebugPrintf("StartCallTip\n");
 	char linebuf[1000];
-	int current = GetLine(linebuf, sizeof(linebuf));
+	GetLine(linebuf, sizeof(linebuf));
+	int current = GetCaretInLine();
 	int pos = SendEditor(SCI_GETCURRENTPOS);
 	int braces;
 	do {
@@ -1345,7 +1360,8 @@ static bool IsCallTipSeparator(char ch) {
 
 void SciTEBase::ContinueCallTip() {
 	char linebuf[1000];
-	int current = GetLine(linebuf, sizeof(linebuf));
+	GetLine(linebuf, sizeof(linebuf));
+	int current = GetCaretInLine();
 
 	int commas = 0;
 	for (int i = 0; i < current; i++) {
@@ -1376,7 +1392,8 @@ void SciTEBase::ContinueCallTip() {
 
 bool SciTEBase::StartAutoComplete() {
 	char linebuf[1000];
-	int current = GetLine(linebuf, sizeof(linebuf));
+	GetLine(linebuf, sizeof(linebuf));
+	int current = GetCaretInLine();
 
 	int startword = current;
 
@@ -1402,7 +1419,8 @@ bool SciTEBase::StartAutoComplete() {
 
 bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	char linebuf[1000];
-	int current = GetLine(linebuf, sizeof(linebuf));
+	GetLine(linebuf, sizeof(linebuf));
+	int current = GetCaretInLine();
 
 	int startword = current;
 	while (startword > 0 && wordCharacters.contains(linebuf[startword - 1]))
@@ -1419,18 +1437,17 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
 	int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
-	//int flags = (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	int posCurrentWord = SendEditor (SCI_GETCURRENTPOS) - rootlen;
 	//DWORD dwStart = timeGetTime();
-	int length = 0;	// variables for reallocatable array creation
-	int newlength;
 	int minWordLength = 0;
 	int nwords = 0;
-#undef WORDCHUNK
-#define WORDCHUNK 100
-	int size = WORDCHUNK;
-	char *words = (char*) malloc(size);
-	*words = '\0';
+
+	// wordsNear contains a list of words separated by single spaces and with a space
+	// at the start and end. this makes it easy to search for words.
+	SString wordsNear;
+	wordsNear.setsizegrowth(1000);
+	wordsNear.append(" ");
+
 	for (;;) {	// search all the document
 		ft.chrg.cpMax = doclen;
 		int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
@@ -1440,65 +1457,51 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 			ft.chrg.cpMin = posFind + rootlen;
 			continue;
 		}
-		char wordstart[WORDCHUNK];
-		GetRange(wEditor, posFind, Platform::Minimum(posFind + WORDCHUNK - 1, doclen), wordstart);
-		char *wordend = wordstart + rootlen;
+		// Grab the word and put spaces around it
+		const int wordMaxSize = 80;
+		char wordstart[wordMaxSize];
+		wordstart[0] = ' ';
+		GetRange(wEditor, posFind, Platform::Minimum(posFind + wordMaxSize - 3, doclen), wordstart+1);
+		char *wordend = wordstart + 1 + rootlen;
 		while (iswordcharforsel(*wordend))
 			wordend++;
+		*wordend++ = ' ';
 		*wordend = '\0';
-		int wordlen = wordend - wordstart;
-		const char *wordbreak = words;
-		const char *wordpos;
-		for (;;) {	// searches the found word in the storage
-			wordpos = strstr (wordbreak, wordstart);
-			if (!wordpos)
-				break;
-			if (wordpos > words && wordpos[ -1] != ' ' ||
-			        wordpos[wordlen] && wordpos[wordlen] != ' ')
-				wordbreak = wordpos + wordlen;
-			else
-				break;
-		}
-		if (!wordpos) {	// add a new entry
-			newlength = length + wordlen;
-			if (length)
-				newlength++;
-			if (newlength >= size) {
-				do
-					size += WORDCHUNK;
-				while (size <= newlength);
-				words = (char*) realloc (words, size);
-			}
-			if (length)
-				words[length++] = ' ';
-			memcpy(words + length, wordstart, wordlen);
-			if (minWordLength < wordlen)
-				minWordLength = wordlen;
+		int wordlen = wordend - wordstart - 2;
+		if (wordlen > rootlen) {
+			const char *wordpos;
+			wordpos = strstr(wordsNear.c_str(), wordstart);
+			if (!wordpos) {	// add a new entry
+				wordsNear.append(wordstart+1);
+				if (minWordLength < wordlen)
+					minWordLength = wordlen;
 
-			length = newlength;
-			words[length] = '\0';
-			nwords ++;
-			if (onlyOneWord && nwords > 1) {
-				free(words);
-				return true;
+				nwords++;
+				if (onlyOneWord && nwords > 1) {
+					return true;
+				}
 			}
 		}
 		ft.chrg.cpMin = posFind + wordlen;
 	}
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found %d characters took %d\n", root, length, dwEnd - dwStart);
-	if (length && (!onlyOneWord || (minWordLength > rootlen))) {
-		SendEditorString(SCI_AUTOCSHOW, rootlen, words);
+	int length = wordsNear.length();
+	if ((length > 2) && (!onlyOneWord || (minWordLength > rootlen))) {
+		char *words = wordsNear.detach();
+		words[length-1] = '\0';
+		SendEditorString(SCI_AUTOCSHOW, rootlen, words + 1);
+		delete []words;
 	} else {
 		SendEditor(SCI_AUTOCCANCEL);
 	}
-	free(words);
 	return true;
 }
 
 bool SciTEBase::StartExpandAbbreviation() {
 	char linebuf[1000];
-	int current = GetLine(linebuf, sizeof(linebuf));
+	GetLine(linebuf, sizeof(linebuf));
+	int current = GetCaretInLine();
 	int position = SendEditor(SCI_GETCURRENTPOS); // from the beginning
 	int startword = current;
 	int counter = 0;
@@ -1794,7 +1797,8 @@ bool SciTEBase::StartStreamComment() {
 		if (RangeIsAllWhitespace(lineIndent, lineEnd))
 			return true; // we are not dealing with empty lines
 		char linebuf[1000];
-		int current = GetLine(linebuf, sizeof(linebuf));
+		GetLine(linebuf, sizeof(linebuf));
+		int current = GetCaretInLine();
 		// checking if we are not inside a word
 		if (!wordCharacters.contains(linebuf[current]))
 			return true; // caret is located _between_ words
@@ -1834,9 +1838,8 @@ bool SciTEBase::StartStreamComment() {
 }
 
 int SciTEBase::GetCurrentLineNumber() {
-	CharacterRange crange = GetSelection();
-	int selStart = crange.cpMin;
-	return SendEditor(SCI_LINEFROMPOSITION, selStart);
+	return SendEditor(SCI_LINEFROMPOSITION, 
+		SendEditor(SCI_GETCURRENTPOS));
 }
 
 int SciTEBase::GetCurrentScrollPosition() {

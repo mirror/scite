@@ -511,6 +511,13 @@ void SciTEBase::RemoveFileFromStack(const char *file) {
 	SetFileStackMenu();
 }
 
+RecentFile SciTEBase::GetFilePosition() {
+	RecentFile rf;
+	rf.selection = GetSelection();
+	rf.scrollPosition = GetCurrentScrollPosition();
+	return rf;
+}
+
 void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
 		// This can produce better file state restoring

@@ -105,7 +105,7 @@ public:
 	bool useMonoFont;
 	time_t fileModTime;
 	SString overrideExtension;
-Buffer() : RecentFile(), doc(0), isDirty(false) {}
+	Buffer() : RecentFile(), doc(0), isDirty(false) {}
 
 	void Init() {
 		RecentFile::Init();
@@ -360,7 +360,8 @@ protected:
 	void SendChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendOutputEx(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0, bool direct = true);
 	int LengthDocument();
-	int GetLine(char *text, int sizeText, int line = -1);
+	int GetCaretInLine();
+	void GetLine(char *text, int sizeText, int line=-1);
 	void GetRange(Window &win, int start, int end, char *text);
 	int IsLinePreprocessorCondition(char *line);
 	bool FindMatchingPreprocessorCondition(int &curLine, int direction, int condEnd1, int condEnd2);
@@ -501,6 +502,7 @@ protected:
 	void DropFileStackTop();
 	void AddFileToStack(const char *file, CharacterRange selection, int scrollPos);
 	void RemoveFileFromStack(const char *file);
+	RecentFile GetFilePosition();
 	void DisplayAround(const RecentFile &rf);
 	void StackMenu(int pos);
 	void StackMenuNext();

@@ -478,7 +478,9 @@ void SciTEBase::OpenSelected() {
 }
 
 void SciTEBase::Revert() {
+	RecentFile rf = GetFilePosition();
 	OpenFile(false);
+	DisplayAround(rf);
 }
 
 void SciTEBase::CheckReload() {
@@ -489,8 +491,9 @@ void SciTEBase::CheckReload() {
 		time_t newModTime = GetModTime(fullPathToCheck);
 		//Platform::DebugPrintf("Times are %d %d\n", fileModTime, newModTime);
 		if (newModTime > fileModTime) {
+			RecentFile rf = GetFilePosition();
 			if (isDirty) {
-				static bool entered = false;		// Stop reentrancy
+				static bool entered = false; // Stop reentrancy
 				if (!entered && (0 == dialogsOnScreen)) {
 					entered = true;
 					char msg[MAX_PATH + 100];
@@ -502,11 +505,13 @@ void SciTEBase::CheckReload() {
 					dialogsOnScreen--;
 					if (decision == IDYES) {
 						Open(fullPathToCheck, false, true);
+						DisplayAround(rf);
 					}
 					entered = false;
 				}
 			} else {
 				Open(fullPathToCheck, false, true);
+				DisplayAround(rf);
 			}
 		}
 	}
