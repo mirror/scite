@@ -811,7 +811,7 @@ protected:
 	void BookmarkDelete(int lineno = -1);
 	bool BookmarkPresent(int lineno = -1);
 	void BookmarkToggle(int lineno = -1);
-	void BookmarkNext(bool forwardScan = true);
+	void BookmarkNext(bool forwardScan = true, bool select = false);
 	void ToggleOutputVisible();
 	virtual void SizeContentWindows() = 0;
 	virtual void SizeSubWindows() = 0;

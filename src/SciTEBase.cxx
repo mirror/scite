@@ -1761,11 +1761,12 @@ void SciTEBase::BookmarkToggle(int lineno) {
 	}
 }
 
-void SciTEBase::BookmarkNext(bool forwardScan) {
+void SciTEBase::BookmarkNext(bool forwardScan, bool select) {
 	int lineno = GetCurrentLineNumber();
 	int sci_marker = SCI_MARKERNEXT;
 	int lineStart = lineno + 1;	//Scan starting from next line
 	int lineRetry = 0;				//If not found, try from the beginning
+	int anchor = SendEditor(SCI_GETANCHOR);
 	if (!forwardScan) {
 		lineStart = lineno - 1;		//Scan starting from previous line
 		lineRetry = SendEditor(SCI_GETLINECOUNT, 0, 0L);	//If not found, try from the end
@@ -1778,6 +1779,9 @@ void SciTEBase::BookmarkNext(bool forwardScan) {
 		WarnUser(warnNoOtherBookmark);
 	else {
 		GotoLineEnsureVisible(nextLine);
+		if (select) {
+			SendEditor(SCI_SETANCHOR, anchor);
+		}
 	}
 }
 
@@ -3683,6 +3687,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_BOOKMARK_PREV:
 		BookmarkNext(false);
+		break;
+
+	case IDM_BOOKMARK_NEXT_SELECT:
+		BookmarkNext(true, true);
+		break;
+
+	case IDM_BOOKMARK_PREV_SELECT:
+		BookmarkNext(false, true);
 		break;
 
 	case IDM_BOOKMARK_CLEARALL:
