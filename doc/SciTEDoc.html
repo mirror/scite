@@ -1103,6 +1103,36 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+	comment.block.<i>lexer</i><br />
+	comment.stream.start.<i>lexer</i><br />
+	comment.stream.end.<i>lexer</i><br />
+	comment.box.start.<i>lexer</i><br />
+	comment.box.middle.<i>lexer</i><br />
+	comment.box.end.<i>lexer</i>
+        </td>
+        <td>
+	These settings are for the comment commands in the Edit menu and are 
+	defined separately for each lexer. Not all languages support
+	both stream and block comments.<br />
+	Block comments are comments that start with a particular string and 
+	continue until the end of line.
+	The comment.block property sets the string to be inserted or deleted
+	at the start of the selected lines when the Block Comment or Uncomment
+	command is performed. To make this command perform sensibly over
+	a range of text that already contains comments and other code, the string 
+	can be defined to contain a character such as '~' that is not used in real 
+	comments.<br />
+	Stream comments start with a particular string and end with another 
+	particular string and may continue over line ends. These are defined 
+	with comment.stream.start and comment.stream.end. <br />
+	Box comments are a form of stream comment that takes several lines 
+	and uses different strings for the start, end and other lines in the range.
+	These are defined with comment.box.start, 
+	comment.box.middle and comment.stream.end.
+        </td>
+      </tr>
+      <tr>
+        <td>
 	preprocessor.symbol.<i>filepattern</i><br />
 	preprocessor.start.<i>filepattern</i><br />
 	preprocessor.middle.<i>filepattern</i><br />
@@ -1286,7 +1316,7 @@ NameError: mistake
           command.subsystem.<i>number</i>.<i>filepattern</i>
         </td>
         <td>
-          Extra commands can be added to the tools menu. For example to include the 'astyle'
+          Extra commands can be added to the Tools menu. For example to include the 'astyle'
           indenter, the properties file could contain<br /><br />
 
 	 <code>
@@ -1294,7 +1324,7 @@ NameError: mistake
 		command.0.*.cc=astyle -taO $(FileNameExt)<br />
 		command.is.filter.0.*.cc=1<br />
 	 </code><br />
-          The first line defines the string that will appear in the tools menu (immediately below
+          The first line defines the string that will appear in the Tools menu (immediately below
           'Go'. The second line is the command string, similar to those of the compile, build, and
           go commands. The optional command.is.filter property states that the command modifies the
           current file so it may need to be read in after performing the command if
