@@ -98,6 +98,7 @@ const char *contributors[] = {
     "Simon Steele",
     "Serge A. Baranov",
     "Xavier Nodet",
+    "Willy Devaux",
 };
 
 const char *extList[] = {
