@@ -953,7 +953,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		SetWindowLong(hDlg, GWL_STYLE, WS_TABSTOP || GetWindowLong(hDlg, GWL_STYLE));
 		::SetDlgItemText(hDlg, IDC_INCFINDTEXT, ""); //findWhat.c_str()
 		SetFocus(hDlg);
-		
+
 		PRectangle aRect = wFindIncrement.GetPosition();
 		PRectangle aTBRect = wStatusBar.GetPosition();
 		PRectangle aNewRect = aTBRect;
@@ -964,7 +964,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 		wFindIncrement.SetPosition(aNewRect);
 
-		
+
 		return TRUE;
 	}
 
@@ -972,9 +972,9 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		return 0;
 
 	case WM_HOTKEY:
-		if (wParam == 1) 
+		if (wParam == 1)
 			FindNext(false,false);
-		if (wParam == 2) 
+		if (wParam == 2)
 			FindNext(true,false);
 		break;
 
@@ -992,13 +992,13 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			wFindIncrement.Destroy();
 			wFindIncrement = 0;
 			return FALSE;
-		} else 
+		} else
 		if (((ControlIDOfCommand(wParam) == IDC_INCFINDTEXT) && ((wParam >> 16) == 0x0300))
 			|| (ControlIDOfCommand(wParam) == IDC_INCFINDBTNOK)){
 			SString ffLastWhat;
 			ffLastWhat = findWhat;
 			findWhat =  GetItemText(hDlg, IDC_INCFINDTEXT);
-			
+
 			if (ControlIDOfCommand(wParam) != IDC_INCFINDBTNOK){
 				CharacterRange cr = GetSelection();
 				if (ffLastWhat.length()){
@@ -1007,7 +1007,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			}
 			wholeWord = false;
 			FindNext(false,false);
-			if ((!havefound)&&(ffLastWhat.length() == findWhat.length()-1) && 
+			if ((!havefound)&&(ffLastWhat.length() == findWhat.length()-1) &&
 				strncmp(findWhat.c_str(),ffLastWhat.c_str(), ffLastWhat.length()) == 0 ){
 				findWhat = ffLastWhat;
 				::SetDlgItemText(hDlg, IDC_INCFINDTEXT, findWhat.c_str());
@@ -1045,7 +1045,7 @@ void SciTEWin::FindIncrement() {
 		   MainHWND(),
 		   reinterpret_cast<DLGPROC>(FindIncrementDlg));
 	WindowSetFocus(wEditor);
-}  
+}
 
 void SciTEWin::Find() {
 	if (wFindIncrement.Created())
@@ -1470,7 +1470,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 }
 
 int SciTEWin::WindowMessageBox(Window &w, const SString &msg, int style) {
-	return ::MessageBox(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style);
+	return ::MessageBox(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
 }
 
 BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
