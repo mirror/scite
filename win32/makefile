@@ -52,10 +52,10 @@ LEXPROPS=\
 ..\bin\ada.properties ..\bin\asm.properties ..\bin\ave.properties \
 ..\bin\baan.properties ..\bin\bullant.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\css.properties ..\bin\eiffel.properties \
-..\bin\escript.properties ..\bin\fortran.properties ..\bin\html.properties \
-..\bin\latex.properties ..\bin\lisp.properties ..\bin\lot.properties \
-..\bin\lout.properties ..\bin\lua.properties ..\bin\matlab.properties \
-..\bin\metapost.properties ..\bin\mmixal.properties \
+..\bin\escript.properties ..\bin\forth.properties ..\bin\fortran.properties \
+..\bin\html.properties ..\bin\latex.properties ..\bin\lisp.properties \
+..\bin\lot.properties ..\bin\lout.properties ..\bin\lua.properties \
+..\bin\matlab.properties ..\bin\metapost.properties ..\bin\mmixal.properties \
 ..\bin\nncrontab.properties ..\bin\nsis.properties ..\bin\others.properties \
 ..\bin\pascal.properties ..\bin\perl.properties ..\bin\pov.properties \
 ..\bin\ps.properties ..\bin\python.properties ..\bin\ruby.properties \
@@ -105,6 +105,8 @@ deps:
 ..\bin\eiffel.properties:	..\src\eiffel.properties
 	copy $^ $@
 ..\bin\escript.properties:	..\src\escript.properties
+	copy $^ $@
+..\bin\forth.properties:	..\src\forth.properties
 	copy $^ $@
 ..\bin\fortran.properties:	..\src\fortran.properties
 	copy $^ $@

@@ -93,6 +93,7 @@ BufferList::BufferList() : ctrltabStarted(false), current(0), buffers(0), size(0
 
 BufferList::~BufferList() {
 	delete []buffers;
+	delete bufferListTop;
 }
 
 void BufferList::Allocate(int maxSize) {
