@@ -804,7 +804,7 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 				char *buffer = new char[textObj.size() + 1];
 				sprintf(buffer, textObj.c_str(), stream.size() - 1);
 				textObj = buffer;
-				delete buffer;
+				delete []buffer;
 
 				// concatenate stream within the text object
 				textObj += stream;
@@ -913,7 +913,7 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 		stream += "ET\n";
 
 		// patch in the stream size (minus 1 since the newline is not counted... go figure)
-		char *buffer = new char[textObj.size() + 1];
+		char *buffer = new char[textObj.size() + 1 + 200];  // 200 by Neil as this is quite indeterminate
 		sprintf(buffer, textObj.c_str(), stream.size() - 1);
 		textObj = buffer;
 		delete buffer;
