@@ -17,7 +17,6 @@ vpath %.o ../../scintilla/win32
 
 LDFLAGS = -lkernel32 -lgdi32 -luser32 -lcomdlg32 -lcomctl32 -limm32 -lole32 -luuid
 #CXXFLAGS = -W -Wall
-# Add -MMD to get dependencies
 #CXXFLAGS = -g -pg -pedantic -Os -fno-exceptions -fvtable-thunks -fno-rtti
 INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src
 RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src
@@ -59,8 +58,8 @@ ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 clean:
 	del /q *.exe *.o *.obj *.dll *.res *.map
 
-depend: *.cxx ../src/*.cxx 
-	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx >depend
+deps:
+	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx >deps.mak
 
 ..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
 	copy ..\..\scintilla\bin\Scintilla.dll $@
@@ -117,8 +116,8 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o SciTEBase.o SciTEBuffers.o \
 $(PROGSTATIC): $(OBJSSTATIC)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
 
-# Automatically generate dependencies for most files with "make depend"
-include depend
+# Automatically generate dependencies for most files with "make deps"
+include deps.mak
 
 Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h \
  SString.h Scintilla.h Extender.h SciTEBase.h
