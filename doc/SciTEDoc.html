@@ -140,7 +140,8 @@ NameError: mistake
       command.subsystem option can be used to define tools that run in GUI mode. The default
       subsystem, 0, is for command line programs, 1 is for programs which create their own windows,
       and 2 is for using the ShellExecute call. ShellExecute is a good way to open HTML files and
-      similar as it handles this similarly to a user opening the file from the shell.
+      similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an internal 
+      extension and 4 is for calling the Windows specific HtmlHelp program.
     </p>
     <h3>
        Command line arguments
@@ -395,6 +396,7 @@ NameError: mistake
        <b>FileNameExt</b> is $(FileName).$(FileExt).<br />
        <b>CurrentSelection</b> is the value of the currently selected text but not if selection is
       more than 1000 characters.<br />
+       <b>CurrentWord</b> is the value of word which the caret is within or near.<br />
     </p>
     <p>
        Some features use file name patterns to see which variable to use. For example, the lexer
@@ -645,6 +647,14 @@ NameError: mistake
           Sets the rate at which the caret blinks. The value is the time in milliseconds that the
           caret is visible before it is switched to invisible. It then stays invisible for the same
           period before appearing again. A value of 0 stops the caret from blinking.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          caret.width
+        </td>
+        <td>
+          Sets the width of the caret in pixels. Only values of 1, 2, or 3 work. 
         </td>
       </tr>
       <tr>
@@ -1025,7 +1035,7 @@ NameError: mistake
       <tr>
         <td>
           command.name.<i>number</i>.<i>filepattern</i><br />
-	  command.<i>number</i>.<i>filepattern</i><br />
+	command.<i>number</i>.<i>filepattern</i><br />
           command.is.filter.<i>number</i>.<i>filepattern</i><br />
           command.subsystem.<i>number</i>.<i>filepattern</i>
         </td>
@@ -1044,8 +1054,24 @@ NameError: mistake
           current file so it may need to be read in after performing the command if
           load.on.activate is set.<br />
            The subsystem determines how the command is executed on Windows. 0, the default is for
-          command line programs, 1 for programs which create their own windows, and 2 for running
-	by using ShellExecute.
+          command line programs, 1 for programs which create their own windows, 2 for running
+	by using ShellExecute, 3 for running in an internal extension, and 4 for running HtmlHelp 
+	on Windows. When using subsystem 4, the command has two parts separeted by ! with the first 
+	part being the topic to search for and the second the name of the help file.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          command.help.<i>filepattern</i><br />
+        </td>
+      </tr>
+      <tr>
+        <td>
+	Defines a command to be executed when the help command is 
+	invoked or F1 pressed. On Windows, this often uses subsystem 4 as described above.
+	On Linux, running man or a browser are common ways of displaying help.
+	The word at the cursor is copied to $(CurrentWord) and this is often a good argument
+	to the help application.
         </td>
       </tr>
       <tr>
