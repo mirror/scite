@@ -96,6 +96,7 @@ const char *contributors[] = {
     "Smári McCarthy",
     "Clemens Wyss",
     "Simon Steele",
+    "Serge A. Baranov",
 };
 
 const char *extList[] = {
