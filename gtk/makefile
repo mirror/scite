@@ -51,7 +51,7 @@ deps:
 LEXEROBJS=$(wildcard ../../scintilla/gtk/Lex*.o)
 
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o DirectorExtension.o \
-SciTEProps.o ../../scintilla/bin/scintilla.a $(LEXEROBJS)
+SciTEProps.o $(LEXEROBJS) ../../scintilla/bin/scintilla.a
 	$(CC) `gtk-config --libs` -DGTK $^ -o $@
 
 # SciTE-static no longer builds. Kept here in case of later need.
