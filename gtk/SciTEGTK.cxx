@@ -18,7 +18,6 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-//#include "WinDefs.h"
 
 #include "SciTE.h"
 #include "PropSet.h"
@@ -349,11 +348,11 @@ void SciTEGTK::Notify(SCNotification *notification) {
 	switch (notification->nmhdr.code) {
 	case SCN_KEY: {
 			int mods = 0;
-			if (notification->modifiers & SHIFT_PRESSED)
+			if (notification->modifiers & SCMOD_SHIFT)
 				mods |= GDK_SHIFT_MASK;
-			if (notification->modifiers & LEFT_CTRL_PRESSED)
+			if (notification->modifiers & SCMOD_CTRL)
 				mods |= GDK_CONTROL_MASK;
-			if (notification->modifiers & LEFT_ALT_PRESSED)
+			if (notification->modifiers & SCMOD_ALT)
 				mods |= GDK_MOD1_MASK;
 			//Platform::DebugPrintf("SCN_KEY: %d %d\n", notification->ch, mods);
 			if ((mods == GDK_CONTROL_MASK) && (notification->ch == SCK_TAB)) {
@@ -1522,6 +1521,10 @@ void SciTEGTK::Run(const char *cmdLine) {
 
 	wEditor = scintilla_new();
 	scintilla_set_id(SCINTILLA(wEditor.GetID()), IDM_SRCWIN);
+	fnEditor = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
+		wEditor.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
+	ptrEditor = Platform::SendScintilla(wEditor.GetID(), 
+		SCI_GETDIRECTPOINTER, 0, 0);
 	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wEditor.GetID(), 0, 0);
 	gtk_widget_set_usize(wEditor.GetID(), 600, 600);
 	gtk_signal_connect(GTK_OBJECT(wEditor.GetID()), "command",
@@ -1551,6 +1554,10 @@ void SciTEGTK::Run(const char *cmdLine) {
 
 	wOutput = scintilla_new();
 	scintilla_set_id(SCINTILLA(wOutput.GetID()), IDM_RUNWIN);
+	fnOutput = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
+		wOutput.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
+	ptrOutput = Platform::SendScintilla(wOutput.GetID(), 
+		SCI_GETDIRECTPOINTER, 0, 0);
 	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wOutput.GetID(), 0, width);
 	gtk_widget_set_usize(wOutput.GetID(), width, 100);
 	gtk_signal_connect(GTK_OBJECT(wOutput.GetID()), "command",

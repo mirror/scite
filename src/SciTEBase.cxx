@@ -17,8 +17,6 @@
 #if PLAT_GTK
 
 #include <unistd.h> 
-#define MAKELONG(a, b) ((a) | ((b) << 16))
-//#include "WinDefs.h"
 
 #endif 
 
@@ -226,6 +224,10 @@ SciTEBase::SciTEBase() : apis(true) {
 	indentClosing = true;
 	statementLookback = 10;
 
+	fnEditor = 0;
+	ptrEditor = 0;
+	fnOutput = 0;
+	ptrOutput = 0;
 	tbVisible = false;
 	sbVisible = false;
 	visHeightTools = 0;
@@ -890,7 +892,9 @@ SString SciTEBase::ExtensionFileName() {
 }
 
 void SciTEBase::AssignKey(int key, int mods, int cmd) {
-	SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(key, mods), cmd);
+	SendEditor(SCI_ASSIGNCMDKEY, 
+		Platform::LongFromTwoShorts(static_cast<short>(key), 
+			static_cast<short>(mods)), cmd);
 }
 
 void SciTEBase::ReadProperties() {
@@ -1080,7 +1084,7 @@ void SciTEBase::ReadProperties() {
 
 	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
 	int blankMarginRight = props.GetInt("blank.margin.right", 1);
-	//long marginCombined = MAKELONG(blankMarginLeft, blankMarginRight);
+	//long marginCombined = Platform::LongFromTwoShorts(blankMarginLeft, blankMarginRight);
 	SendEditor(SCI_SETMARGINLEFT, 0, blankMarginLeft);
 	SendEditor(SCI_SETMARGINRIGHT, 0, blankMarginRight);
 	SendOutput(SCI_SETMARGINLEFT, 0, blankMarginLeft);
@@ -1122,10 +1126,10 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
 	if (props.GetInt("vc.home.key", 1)) {
 		AssignKey(SCK_HOME, 0, SCI_VCHOME);
-		AssignKey(SCK_HOME, SHIFT_PRESSED, SCI_VCHOMEEXTEND);
+		AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_VCHOMEEXTEND);
 	} else {
 		AssignKey(SCK_HOME, 0, SCI_HOME);
-		AssignKey(SCK_HOME, SHIFT_PRESSED, SCI_HOMEEXTEND);
+		AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_HOMEEXTEND);
 	}
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
@@ -1298,7 +1302,8 @@ void SciTEBase::BraceMatch(bool editor) {
 		Platform::SendScintilla(win.GetID(), SCI_BRACEBADLIGHT, braceAtCaret, 0);
 		SendEditor(SCI_SETHIGHLIGHTGUIDE, 0);
 	} else {
-		char chBrace = Platform::SendScintilla(win.GetID(), SCI_GETCHARAT, braceAtCaret, 0);
+		char chBrace = static_cast<char>(Platform::SendScintilla(
+			win.GetID(), SCI_GETCHARAT, braceAtCaret, 0));
 		Platform::SendScintilla(win.GetID(), SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
 		int columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceAtCaret, 0);
 		if (chBrace == ':') {
@@ -3058,13 +3063,13 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 	int lineClick = SendEditor(SCI_LINEFROMPOSITION, position);
 	//Platform::DebugPrintf("Margin click %d %d %x\n", position, lineClick,
 	//	SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG);
-	if ((modifiers & SHIFT_PRESSED) && (modifiers & LEFT_CTRL_PRESSED)) {
+	if ((modifiers & SCMOD_SHIFT) && (modifiers & SCMOD_CTRL)) {
 		FoldAll();
 	} else if (SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG) {
-		if (modifiers & SHIFT_PRESSED) {
+		if (modifiers & SCMOD_SHIFT) {
 			SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
 			Expand(lineClick, true, true, 1);
-		} else if (modifiers & LEFT_CTRL_PRESSED) {
+		} else if (modifiers & SCMOD_CTRL) {
 			if (SendEditor(SCI_GETFOLDEXPANDED, lineClick)) {
 				SendEditor(SCI_SETFOLDEXPANDED, lineClick, 0);
 				Expand(lineClick, false, true, 0);
@@ -3221,5 +3226,4 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 		SizeContentWindows();
 		//Redraw();
 	}
-
 }

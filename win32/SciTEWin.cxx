@@ -467,7 +467,7 @@ void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 
 void EnableButton(HWND wTools, int id, bool enable) {
 	::SendMessage(wTools, TB_ENABLEBUTTON, id, 
-		MAKELONG(enable?TRUE:FALSE, 0));
+		Platform::LongFromTwoShorts(static_cast<short>(enable?TRUE:FALSE), 0));
 }
 
 void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
@@ -860,7 +860,7 @@ void SciTEWin::Print(bool showDialog) {
 		if (printPage)
 			::StartPage(hdc);
 
-		RangeToFormat frPrint   = {0,0,PRectangle(0,0,0,0),PRectangle(0,0,0,0),{0,0}};
+		RangeToFormat frPrint;
 		frPrint.hdc           = hdc;
 		frPrint.hdcTarget     = hdc;
 		frPrint.rc.left       = rectMargins.left;
@@ -1722,13 +1722,13 @@ void SciTEWin::Creation() {
 		0);
 	if (!wEditor.Created())
 		exit(FALSE);
-	fnEditor = reinterpret_cast<FnDirect>(::SendMessage(
+	fnEditor = reinterpret_cast<SciFnDirect>(::SendMessage(
 		wEditor.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrEditor = ::SendMessage(wEditor.GetID(), SCI_GETDIRECTPOINTER, 0, 0);
 	wEditor.Show();
 	SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
 	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
-	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SHIFT_PRESSED << 16), SCI_BACKTAB);
+	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
 	SetFocus(wEditor.GetID());
 
 	wOutput = ::CreateWindowEx(
@@ -1744,7 +1744,7 @@ void SciTEWin::Creation() {
 		0);
 	if (!wOutput.Created())
 		exit(FALSE);
-	fnOutput = reinterpret_cast<FnDirect>(::SendMessage(
+	fnOutput = reinterpret_cast<SciFnDirect>(::SendMessage(
 	wOutput.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrOutput = ::SendMessage(wOutput.GetID(), SCI_GETDIRECTPOINTER, 0, 0);
 	wOutput.Show();
@@ -1753,7 +1753,7 @@ void SciTEWin::Creation() {
 	//SendOutput(SCI_SETCARETPERIOD, 0);
 	SendOutput(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
 	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
-	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB | (SHIFT_PRESSED << 16), SCI_BACKTAB);
+	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
 	::DragAcceptFiles(wSciTE.GetID(), true);
 
 	wToolBar = ::CreateWindowEx(

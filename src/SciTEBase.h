@@ -127,8 +127,6 @@ struct StyleAndWords {
 	bool IsEmpty() { return words.length() == 0; }
 };
 
-typedef long (*FnDirect)(long ptr, unsigned int iMessage, unsigned long wParam, long lParam);
-
 class SciTEBase {
 protected:
 	char windowName[MAX_PATH + 20];
@@ -179,9 +177,9 @@ protected:
 	Window wDivider;	// Not used on Windows
 	Window wToolBar;
 	Window wStatusBar;
-	FnDirect fnEditor;
+	SciFnDirect fnEditor;
 	long ptrEditor;
-	FnDirect fnOutput;
+	SciFnDirect fnOutput;
 	long ptrOutput;
 	bool tbVisible;
 	bool sbVisible;
