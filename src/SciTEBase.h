@@ -294,26 +294,8 @@ public:
 	}
 };
 
-class LinkedList {
-public:
-	int data;
-	LinkedList *next;
-	LinkedList *prev;
-
-	LinkedList();
-	~LinkedList() {
-		data = -1;
-		next = 0;
-		prev = 0;
-	}
-};
-
 class BufferList {
 protected:
-	LinkedList *bufferListTop;
-	LinkedList *bufferListTopPrev;
-	LinkedList *bufferListBottom;
-	bool ctrltabStarted;
 	int current;
 public:
 	Buffer *buffers;
@@ -324,13 +306,9 @@ public:
 	void Allocate(int maxSize);
 	int Add();
 	int GetDocumentByName(const char *filename);
-	void RemoveCurrent(bool zorder);
+	void RemoveCurrent();
 	int Current();
 	void SetCurrent(int index);
-	void InControlTab();
-	void ControlTabEnd();
-	int NextZOrder();
-	int PrevZOrder();
 };
 
 enum JobSubsystem {
@@ -624,7 +602,6 @@ protected:
 
 	enum { bufferMax = 100 };
 	BufferList buffers;
-	bool ctrltabStarted;
 
 	// Handle buffers
 	sptr_t GetDocumentAt(int index);
@@ -636,9 +613,6 @@ protected:
 	void BuffersMenu();
 	void Next();
 	void Prev();
-	void NextZOrder();
-	void PrevZOrder();
-	void ControlTabEnd();
 
 	void ReadGlobalPropFile();
 	void GetDocumentDirectory(char *docDir, int len);

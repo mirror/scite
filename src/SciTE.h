@@ -167,8 +167,6 @@
 #define IDM_CLOSEALL			503
 #define IDM_SAVEALL			504
 #define IDM_BUFFERSEP		505
-#define IDM_PREVFILE_ZORDER	506
-#define IDM_NEXTFILE_ZORDER	507
 
 // Help
 #define IDM_HELP			901

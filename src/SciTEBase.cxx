@@ -340,8 +340,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	props.superPS = &propsLocal;
 
 	propsStatus.superPS = &props;
-
-	ctrltabStarted=false;
 }
 
 SciTEBase::~SciTEBase() {
@@ -3231,26 +3229,6 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_PREVFILE:
 		if (buffers.size > 1) {
 			Prev(); // Use Prev to tabs move right-to-left
-			WindowSetFocus(wEditor);
-		} else {
-			// Not using buffers - switch to previous file on MRU
-			StackMenuPrev();
-		}
-		break;
-	case IDM_NEXTFILE_ZORDER:
-		if (buffers.size > 1) {
-			ctrltabStarted=true;
-			NextZOrder(); // Use Next to tabs move left-to-right
-			WindowSetFocus(wEditor);
-		} else {
-			// Not using buffers - switch to next file on MRU
-			StackMenuNext();
-		}
-		break;
-	case IDM_PREVFILE_ZORDER:
-		if (buffers.size > 1) {
-			ctrltabStarted=true;
-			PrevZOrder(); // Use Prev to tabs move right-to-left
 			WindowSetFocus(wEditor);
 		} else {
 			// Not using buffers - switch to previous file on MRU

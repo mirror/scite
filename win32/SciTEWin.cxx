@@ -1463,9 +1463,6 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	    (Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
 	    (Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
 
-	if((!Platform::IsKeyDown(VK_CONTROL)) && (SciTEBase::ctrltabStarted))
-		SciTEBase::ControlTabEnd();	// if Control was depressed but we are still in ControlTab mode, then exit from this mode
-
 	for (int j = 0; j < languageItems; j++) {
 		if (KeyMatch(languageMenu[j].menuKey, wParam, modifiers)) {
 			SciTEBase::MenuCommand(IDM_LANGUAGE + j);
@@ -1495,8 +1492,6 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 }
 
 LRESULT SciTEWin::KeyUp(WPARAM) {
-	if((!Platform::IsKeyDown(VK_CONTROL)) && (SciTEBase::ctrltabStarted))
-		SciTEBase::ControlTabEnd();	// if Control was depressed but we are still in ControlTab mode, then exit from this mode
 	return 0l;
 }
 

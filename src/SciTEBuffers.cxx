@@ -92,30 +92,10 @@ const char *FilePath::FullPath() const {
 	return fileName.c_str();
 }
 
-LinkedList::LinkedList() {
-	next = prev = this;
-	data = 0;
-}
-
-BufferList::BufferList() : bufferListTop(0), bufferListTopPrev(0),
-		bufferListBottom(0), ctrltabStarted(false),
-		current(0), buffers(0), size(0), length(0) {}
+BufferList::BufferList() : current(0), buffers(0), size(0), length(0) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
-
-	if (bufferListTop) {
-		if (bufferListTop == bufferListTop->next) {
-			delete bufferListTop;
-		} else {
-			bufferListTop->prev->next = 0;
-			while (bufferListTop) {
-				LinkedList *next = bufferListTop->next;
-				delete bufferListTop;
-				bufferListTop = next;
-			}
-		}
-	}
 }
 
 void BufferList::Allocate(int maxSize) {
@@ -123,11 +103,6 @@ void BufferList::Allocate(int maxSize) {
 	current = 0;
 	size = maxSize;
 	buffers = new Buffer[size];
-
-	LinkedList *tmpll = new LinkedList;	// allocate a single list item. everything else will be allocated when needed
-
-	bufferListTop = tmpll;				// assign top
-	bufferListBottom = tmpll;			// assign bottom
 }
 
 int BufferList::Add() {
@@ -135,21 +110,6 @@ int BufferList::Add() {
 		length++;
 	}
 	buffers[length - 1].Init();
-
-	// the new buffer will be placed at the bottom of the z-order
-	LinkedList *newt;
-	newt = new LinkedList;				// allocate a new list item
-	newt->data = length - 1;				// and set it with newer document number
-
-	newt->next = bufferListTop;			// new's next is the previous bottom
-	newt->prev = bufferListBottom;		// new's previous is the top
-
-	bufferListBottom->next = newt;		// bottom's next is the new bottom
-
-	if (length == 2)
-		bufferListBottom->prev = bufferListBottom->next; // if only 2 documents then bottom's previous is same with bottom's next
-
-	bufferListBottom = newt;				// assign new bottom
 
 	return length - 1;
 }
@@ -166,7 +126,7 @@ int BufferList::GetDocumentByName(const char *filename) {
 	return -1;
 }
 
-void BufferList::RemoveCurrent(bool zorder) {
+void BufferList::RemoveCurrent() {
 	// Delete and move up to fill gap but ensure doc pointer is saved.
 	int currentDoc = buffers[current].doc;
 	for (int i = current;i < length - 1;i++) {
@@ -174,43 +134,18 @@ void BufferList::RemoveCurrent(bool zorder) {
 	}
 	buffers[length - 1].doc = currentDoc;
 
-	bufferListTop->next->prev = bufferListTop->prev;		// \ connect adjacent
-	bufferListTop->prev->next = bufferListTop->next;		// /
-	LinkedList *tmpll = bufferListTop->next;				// hold the next in MRU list
-	delete bufferListTop;								// delete current top
-	bufferListTop = tmpll;								// assign new top
-
-	// reduce every link item with higher document number then the deleted
-	tmpll = bufferListTop;
-	for (int j = 0;j < length - 1;j++) {
-		if (tmpll->data > current)
-			tmpll->data--;
-		tmpll = tmpll->next;
-	}
-
 	if (length > 1) {
 		length--;
 
-		if (zorder) {
-			current = bufferListTop->data;
-		} else {
-			buffers[length].Init();
-			if (current >= length) {
-				SetCurrent(length - 1);
-			}
-			if (current < 0) {
-				SetCurrent(0);
-			}
+		buffers[length].Init();
+		if (current >= length) {
+			SetCurrent(length - 1);
+		}
+		if (current < 0) {
+			SetCurrent(0);
 		}
 	} else {
 		buffers[current].Init();
-	}
-}
-
-void BufferList::InControlTab() {
-	if (!ctrltabStarted) {
-		bufferListTopPrev = bufferListTop;	// \ Ctrl+Tab swithing has started
-		ctrltabStarted = true;				// /
 	}
 }
 
@@ -220,57 +155,6 @@ int BufferList::Current() {
 
 void BufferList::SetCurrent(int index) {
 	current = index;
-
-	LinkedList *newt;
-	int i;
-	for (newt = bufferListTop, i = 0;(newt->data != current) && (i < length);newt = newt->next, i++)
-		;	// find the item associated with requested document
-
-	if (!ctrltabStarted) {
-		// simulate a Ctrl+Tab stop
-		bufferListTopPrev = bufferListTop;
-		bufferListTop = newt;
-		ControlTabEnd();
-	} else
-		bufferListTop = newt;		// if still in Ctrl+Tab then just assign the requested as top
-}
-
-void BufferList::ControlTabEnd() {
-	LinkedList *oldt, *newt;
-	oldt = bufferListTopPrev;
-	newt = bufferListTop;
-
-	if (newt != oldt) {
-		if (newt == bufferListBottom) {
-			bufferListBottom = bufferListBottom->prev;
-			bufferListBottom->next = newt;	// bottom's next is the new top
-			oldt->prev = newt;				// old top's previous is the new item
-			newt->next = oldt;				// new's next is the one that was top when Ctrl+Tab started
-			newt->prev = bufferListBottom;	// new previous is the list's bottom
-		} else
-			if (length > 2) {
-				newt->next->prev = newt->prev;	// \ removing list item from it's position, so connect adjacent
-				newt->prev->next = newt->next;	// /
-
-				newt->next = oldt;				// new next is the one that was top when Ctrl+Tab started
-				newt->prev = bufferListBottom;	// new previous is the list's bottom
-				oldt->prev = newt;				// next's previous is new item
-
-				bufferListBottom->next = newt;	// bottom's next is the new top
-			}
-		//		else
-		//			bufferListBottom=newt->next;
-	}
-
-	ctrltabStarted = false;
-}
-
-int BufferList::NextZOrder() {
-	return bufferListTop->next->data;
-}
-
-int BufferList::PrevZOrder() {
-	return bufferListTop->prev->data;
 }
 
 sptr_t SciTEBase::GetDocumentAt(int index) {
@@ -283,11 +167,6 @@ sptr_t SciTEBase::GetDocumentAt(int index) {
 		buffers.buffers[index].doc = SendEditor(SCI_CREATEDOCUMENT, 0, 0);
 	}
 	return buffers.buffers[index].doc;
-}
-
-void SciTEBase::ControlTabEnd() {
-	buffers.ControlTabEnd();
-	ctrltabStarted = false;
 }
 
 void SciTEBase::SetDocumentAt(int index) {
@@ -703,10 +582,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 			buffers.buffers[0].Init();
 			buffers.buffers[0].useMonoFont = useMonoFont;
 		} else {
-			if (props.GetInt("buffers.zorder.switching") == 1)
-				buffers.RemoveCurrent(true);
-			else
-				buffers.RemoveCurrent(false);
+			buffers.RemoveCurrent();
 		}
 		Buffer bufferNext = buffers.buffers[buffers.Current()];
 		isDirty = bufferNext.isDirty;
@@ -813,34 +689,6 @@ void SciTEBase::Prev() {
 	int prev = buffers.Current();
 	if (--prev < 0)
 		prev = buffers.length - 1;
-
-	SetDocumentAt(prev);
-	CheckReload();
-}
-
-void SciTEBase::NextZOrder() {
-	buffers.InControlTab();
-
-	if (props.GetInt("buffers.zorder.switching") != 1) {
-		Next();	// if MRU list switching is not enabled then jump to regular serial switching
-		return;
-	}
-
-	int next = buffers.NextZOrder();
-
-	SetDocumentAt(next);
-	CheckReload();
-}
-
-void SciTEBase::PrevZOrder() {
-	buffers.InControlTab();
-
-	if (props.GetInt("buffers.zorder.switching") != 1) {
-		Prev();	// if MRU list switching is not enabled then jump to regular serial switching
-		return;
-	}
-
-	int prev = buffers.PrevZOrder();
 
 	SetDocumentAt(prev);
 	CheckReload();
@@ -1222,14 +1070,14 @@ void SciTEBase::ToolsMenu(int item) {
 
 	SString itemSuffix = item;
 	itemSuffix += '.';
-	
+
 	SString propName = "command.";
 	propName += itemSuffix;
-	
+
 	SString command = props.GetWild(propName.c_str(), fileName);
 	if (command.length()) {
 		int saveBefore = 0;
-		
+
 		JobSubsystem jobType = jobCLI;
 		bool filter = false;
 		bool quiet = false;
@@ -1241,7 +1089,7 @@ void SciTEBase::ToolsMenu(int item) {
 		modeVal.remove(" ");
 		if (modeVal.length()) {
 			char *modeTags = modeVal.detach();
-			
+
 			// copy/paste from style selectors.
 			char *opt = modeTags;
 			while (opt) {
@@ -1319,7 +1167,7 @@ void SciTEBase::ToolsMenu(int item) {
 		propName += itemSuffix;
 		if (props.GetWild(propName.c_str(), fileName).length())
 			saveBefore = props.GetNewExpand(propName.c_str(), fileName).value();
-		
+
 		if (saveBefore == 2 || (saveBefore == 1 && Save()) || SaveIfUnsure() != IDCANCEL) {
 			int flags = 0;
 
