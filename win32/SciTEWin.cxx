@@ -549,7 +549,7 @@ void SciTEWin::HandleFindReplace() {
 		FindNext();
 	} else if (fr.Flags & FR_REPLACE) {
 		if (havefound) {
-			SendEditor(EM_REPLACESEL, 0, reinterpret_cast<LPARAM>(fr.lpstrReplaceWith));
+			SendEditorString(EM_REPLACESEL, 0, fr.lpstrReplaceWith);
 			havefound = false;
 			//Platform::DebugPrintf("Replace <%s> -> <%s>\n", fr.lpstrFindWhat, fr.lpstrReplaceWith);
 		}
@@ -568,7 +568,7 @@ void SciTEWin::HandleFindReplace() {
 			SendEditor(SCI_BEGINUNDOACTION);
 			while (posFind != -1) {
 				SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
-				SendEditor(EM_REPLACESEL, 0, reinterpret_cast<LPARAM>(fr.lpstrReplaceWith));
+				SendEditorString(EM_REPLACESEL, 0, fr.lpstrReplaceWith);
 				if (fr.Flags & FR_DOWN) {
 					ft.chrg.cpMin = posFind + strlen(fr.lpstrReplaceWith) + 1;
 					ft.chrg.cpMax = LengthDocument();

@@ -235,6 +235,10 @@ LRESULT SciTEBase::SendEditor(UINT msg, WPARAM wParam, LPARAM lParam) {
 	return Platform::SendScintilla(wEditor.GetID(), msg, wParam, lParam);
 }
 
+LRESULT SciTEBase::SendEditorString(UINT msg, WPARAM wParam, const char *s) {
+	return SendEditor(msg, wParam, reinterpret_cast<LPARAM>(s));
+}
+
 LRESULT SciTEBase::SendOutput(UINT msg, WPARAM wParam, LPARAM lParam) {
 	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
 }
@@ -593,13 +597,20 @@ void SciTEBase::ReadProperties() {
 	apis.Clear();
 
 	SString kw0 = props.GetNewExpand("keywords.", fileNameForExtension.c_str());
-	SendEditor(SCI_SETKEYWORDS, 0, reinterpret_cast<LPARAM>(kw0.c_str()));
+	SendEditorString(SCI_SETKEYWORDS, 0, kw0.c_str());
 	SString kw1 = props.GetNewExpand("keywords2.", fileNameForExtension.c_str());
-	SendEditor(SCI_SETKEYWORDS, 1, reinterpret_cast<LPARAM>(kw1.c_str()));
+	SendEditorString(SCI_SETKEYWORDS, 1, kw1.c_str());
 	SString kw2 = props.GetNewExpand("keywords3.", fileNameForExtension.c_str());
-	SendEditor(SCI_SETKEYWORDS, 2, reinterpret_cast<LPARAM>(kw2.c_str()));
+	SendEditorString(SCI_SETKEYWORDS, 2, kw2.c_str());
 	SString kw3 = props.GetNewExpand("keywords4.", fileNameForExtension.c_str());
-	SendEditor(SCI_SETKEYWORDS, 3, reinterpret_cast<LPARAM>(kw3.c_str()));
+	SendEditorString(SCI_SETKEYWORDS, 3, kw3.c_str());
+
+	SString fold = props.Get("fold");
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"), 
+		fold.c_str());
+	SString ttwl = props.Get("tab.timmy.whinge.level");
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("tab.timmy.whinge.level"), 
+		ttwl.c_str());
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
 	if (apifilename.length()) {
@@ -726,7 +737,7 @@ void SciTEBase::ReadProperties() {
 
 	SString wordCharacters = props.GetNewExpand("word.characters.", fileNameForExtension.c_str());
 	if (wordCharacters.length()) {
-		SendEditor(SCI_SETWORDCHARS, 0, reinterpret_cast<LPARAM>(wordCharacters.c_str()));
+		SendEditorString(SCI_SETWORDCHARS, 0, wordCharacters.c_str());
 	} else {
 		SendEditor(SCI_SETWORDCHARS, 0, 0);
 	}
@@ -776,6 +787,16 @@ void SciTEBase::ReadProperties() {
 
 int SciTEBase::LengthDocument() {
 	return SendEditor(SCI_GETLENGTH);
+}
+
+int SciTEBase::GetLine(char *text, int sizeText, int line) {
+	if (line == -1) {
+		return SendEditor(SCI_GETCURLINE, sizeText, reinterpret_cast<LPARAM>(text));
+	} else {
+		WORD buflen = sizeText;
+		memcpy(text, &buflen, sizeof(buflen));
+		return SendEditor(EM_GETLINE, line, reinterpret_cast<LPARAM>(text));
+	}
 }
 
 void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
@@ -990,8 +1011,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 					char data[blockSize];
 					int lenFile = fread(data, 1, sizeof(data), fp);
 					while (lenFile > 0) {
-						SendEditor(SCI_ADDTEXT, lenFile,
-						           reinterpret_cast<LPARAM>(static_cast<char *>(data)));
+						SendEditorString(SCI_ADDTEXT, lenFile, data);
 						lenFile = fread(data, 1, sizeof(data), fp);
 					}
 					fclose(fp);
@@ -1402,8 +1422,7 @@ void SciTEBase::FindNext() {
 
 void SciTEBase::ReplaceOnce() {
 	if (havefound) {
-		SendEditor(EM_REPLACESEL, 0,
-		           reinterpret_cast<LPARAM>(static_cast<char *>(replaceWhat)));
+		SendEditorString(EM_REPLACESEL, 0, replaceWhat);
 		havefound = false;
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
@@ -1423,8 +1442,7 @@ void SciTEBase::ReplaceAll() {
 	if (posFind != -1) {
 		while (posFind != -1) {
 			SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
-			SendEditor(EM_REPLACESEL, 0,
-			           reinterpret_cast<LPARAM>(static_cast<char *>(replaceWhat)));
+			SendEditorString(EM_REPLACESEL, 0, replaceWhat);
 			ft.chrg.cpMin = posFind + strlen(replaceWhat) + 1;
 			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(EM_FINDTEXTEX, flags,
@@ -1689,8 +1707,7 @@ inline bool nonFuncChar(char ch) {
 void SciTEBase::StartCallTip() {
 	//Platform::DebugPrintf("StartCallTip\n");
 	char linebuf[1000];
-	int current = SendEditor(SCI_GETCURLINE, sizeof(linebuf),
-	                         reinterpret_cast<LPARAM>(static_cast<char *>(linebuf)));
+	int current = GetLine(linebuf, sizeof(linebuf));
 	int pos = SendEditor(SCI_GETCURRENTPOS);
 
 	int startword = current - 1;
@@ -1705,7 +1722,7 @@ void SciTEBase::StartCallTip() {
 		for (i = 0; apis[i][0]; i++) {
 			if (0 == strncmp(linebuf + startword, apis[i], rootlen)) {
 				functionDefinition = apis[i];
-				SendEditor(SCI_CALLTIPSHOW, pos - rootlen, reinterpret_cast<LPARAM>(apis[i]));
+				SendEditorString(SCI_CALLTIPSHOW, pos - rootlen, apis[i]);
 				ContinueCallTip();
 			}
 		}
@@ -1714,8 +1731,7 @@ void SciTEBase::StartCallTip() {
 
 void SciTEBase::ContinueCallTip() {
 	char linebuf[1000];
-	int current = SendEditor(SCI_GETCURLINE, sizeof(linebuf),
-	                         reinterpret_cast<LPARAM>(static_cast<char *>(linebuf)));
+	int current = GetLine(linebuf, sizeof(linebuf));
 
 	int commas = 0;
 	for (int i = 0; i < current; i++) {
@@ -1746,8 +1762,7 @@ void SciTEBase::ContinueCallTip() {
 
 void SciTEBase::StartAutoComplete() {
 	char linebuf[1000];
-	int current = SendEditor(SCI_GETCURLINE, sizeof(linebuf),
-	                         reinterpret_cast<LPARAM>(static_cast<char *>(linebuf)));
+	int current = GetLine(linebuf, sizeof(linebuf));
 
 	int startword = current;
 	while (startword > 0 && !nonFuncChar(linebuf[startword - 1]))
@@ -1785,7 +1800,7 @@ void SciTEBase::StartAutoComplete() {
 					}
 					*endchoice = '\0';
 				}
-				SendEditor(SCI_AUTOCSHOW, rootlen, reinterpret_cast<LPARAM>(choices));
+				SendEditorString(SCI_AUTOCSHOW, rootlen, choices);
 				delete []choices;
 			}
 		}
@@ -1846,16 +1861,13 @@ void SciTEBase::CharAdded(char ch) {
 					if (curLine > 0 && lineLength <= 2) {
 						unsigned int prevLineLength = SendEditor(SCI_LINELENGTH, curLine - 1);
 						if (prevLineLength < sizeof(linebuf)) {
-							WORD buflen = sizeof(linebuf);
-							memcpy(linebuf, &buflen, sizeof(buflen));
-							SendEditor(EM_GETLINE, curLine - 1,
-							           reinterpret_cast<LPARAM>(static_cast<char *>(linebuf)));
+							GetLine(linebuf, sizeof(linebuf), curLine - 1);
 							linebuf[prevLineLength] = '\0';
 							for (int pos = 0; linebuf[pos]; pos++) {
 								if (linebuf[pos] != ' ' && linebuf[pos] != '\t')
 									linebuf[pos] = '\0';
 							}
-							SendEditor(EM_REPLACESEL, 0, reinterpret_cast<LPARAM>(static_cast<char *>(linebuf)));
+							SendEditorString(EM_REPLACESEL, 0, linebuf);
 						}
 					}
 				}
