@@ -993,7 +993,7 @@ void SciTEWin::FindInFiles() {
 		SelectionIntoProperties();
 		AddCommand(props.GetNewExpand("find.command"), 
 			props.Get("find.directory"), 
-			jobCLI);
+			jobCLI, props.GetNewExpand("find.input"));
 		if (commandCurrent > 0)
 			Execute();
 	}

@@ -185,6 +185,7 @@ class Job {
 public:
 	SString command;
 	SString directory;
+	SString input;
 	JobSubsystem jobType;
 
 	Job();
@@ -585,7 +586,9 @@ protected:
 	int GetLineLength(int line);
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
-	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue = false);
+	virtual void AddCommand(const SString &cmd, const SString &dir, 
+		JobSubsystem jobType, const SString &input = "", 
+		bool forceQueue = false);
 	virtual void AboutDialog() = 0;
 	virtual void QuitProgram() = 0;
 	void CloseAllBuffers();

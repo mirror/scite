@@ -525,6 +525,11 @@ void SciTEWin::ProcessExecute() {
 		//Platform::DebugPrintf("Execute <%s>\n", command);
 		OutputAppendStringSynchronised(">");
 		OutputAppendStringSynchronised(jobQueue[icmd].command.c_str());
+		if (jobQueue[icmd].input.length()) {
+			OutputAppendStringSynchronised(" <<EOF\n");
+			OutputAppendStringSynchronised(jobQueue[icmd].input.c_str());
+			OutputAppendStringSynchronised("\n>EOF");
+		}
 		OutputAppendStringSynchronised("\n");
 
 		sa.bInheritHandle = TRUE;
@@ -552,6 +557,7 @@ void SciTEWin::ProcessExecute() {
 		// you should not set the handles to an invalid handle.
 
 		hWriteSubProcess = NULL;
+		subProcessGroupId = 0;
 		HANDLE hRead2 = NULL;
 		// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
 		::CreatePipe(&hRead2, &hWriteSubProcess, &sa, 0);
@@ -584,7 +590,7 @@ void SciTEWin::ProcessExecute() {
 		                  NULL,
 		                  const_cast<char *>(jobQueue[icmd].command.c_str()),
 		                  NULL, NULL,
-		                  TRUE, 0,
+		                  TRUE, CREATE_NEW_PROCESS_GROUP,
 		                  NULL,
 		                  startDirectory[0] ? startDirectory : NULL,
 		                  &si, &pi);
@@ -606,10 +612,30 @@ void SciTEWin::ProcessExecute() {
 			OutputAppendStringSynchronised(">");
 			OutputAppendStringSynchronised(reinterpret_cast<LPCTSTR>(lpMsgBuf));
 			::LocalFree(lpMsgBuf);
+			
 		}
 
 		bool completed = !worked;
 		DWORD timeDetectedDeath = 0;
+		
+		if (worked) {
+			subProcessGroupId = pi.dwProcessId;
+			
+			if (jobQueue[icmd].input.length()) {
+				::Sleep(50L);
+				DWORD bytesWrote = 0;
+				::WriteFile(
+					hWriteSubProcess, 
+					const_cast<char *>(jobQueue[icmd].input.c_str()),
+					jobQueue[icmd].input.length(), &bytesWrote, NULL);
+
+				::Sleep(100L);
+				
+				::CloseHandle(hWriteSubProcess);
+				hWriteSubProcess = INVALID_HANDLE_VALUE;
+			}
+		}
+							
 		while (!completed) {
 
 			::Sleep(100L);
@@ -657,18 +683,24 @@ void SciTEWin::ProcessExecute() {
 				}
 			}
 
-			if (cancelFlag) {
-				// We should use it only if the GUI process is stuck and
-				// don't answer to a normal termination command.
-				// This function is dangerous: dependant DLLs don't know the process
-				// is terminated, and memory isn't released.
-				::TerminateProcess(pi.hProcess, 1);
+			if (::InterlockedExchange(&cancelFlag, 0)) {
+				if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 500)) {
+					// We should use it only if the GUI process is stuck and
+					// don't answer to a normal termination command.
+					// This function is dangerous: dependant DLLs don't know the process
+					// is terminated, and memory isn't released.
+					OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...");
+					::TerminateProcess(pi.hProcess, 1);
+				}
 				completed = true;
 			}
 		}
 
 		if (worked) {
-			::WaitForSingleObject(pi.hProcess, INFINITE);
+			if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 1000)) {
+				OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...");				
+				::TerminateProcess(pi.hProcess,2);
+			}
 			::GetExitCodeProcess(pi.hProcess, &exitcode);
 			if (isBuilding) {
 				// The build command is first command in a sequence so it is only built if
@@ -678,7 +710,7 @@ void SciTEWin::ProcessExecute() {
 					isBuilt = true;
 			}
 			SString sExitMessage(exitcode);
-			sExitMessage.insert(0, ">Exit code: ");
+			sExitMessage.insert(0, "\n>Exit code: ");
 			if (timeCommands) {
 				sExitMessage += "    Time: ";
 				sExitMessage += SString(commandTime.Duration(), 3);
@@ -697,6 +729,7 @@ void SciTEWin::ProcessExecute() {
 		::CloseHandle(hRead2);
 		::CloseHandle(hWriteSubProcess);
 		hWriteSubProcess = NULL;
+		subProcessGroupId = 0;
 	}
 
 	// Move selection back to beginning of this run so that F4 will go
@@ -837,17 +870,32 @@ void SciTEWin::Execute() {
 }
 
 void SciTEWin::StopExecute() {
-	if (hWriteSubProcess) {
-		char chToWrite = '\026';
+	if (hWriteSubProcess && (hWriteSubProcess!=INVALID_HANDLE_VALUE)) {
+		char stop[] = "\032";
 		DWORD bytesWrote = 0;
-		::WriteFile(hWriteSubProcess, &chToWrite,
-		            1, &bytesWrote, NULL);
+		::WriteFile(hWriteSubProcess, stop, strlen(stop), &bytesWrote, NULL);
 		Sleep(500L);
 	}
+
+#ifdef USE_CONSOLE_EVENT
+	if (subProcessGroupId) {
+		// this also doesn't work
+		OutputAppendStringSynchronised("\n>Attempting to cancel process...");
+		
+		if (!GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, subProcessGroupId)) {
+			LONG errCode = GetLastError();
+			OutputAppendStringSynchronised("\n>BREAK Failed ");
+			OutputAppendStringSynchronised(SString(errCode).c_str());
+			OutputAppendStringSynchronised("\n");
+		}
+		Sleep(100L);
+	}
+#endif
+	
 	::InterlockedExchange(&cancelFlag, 1L);
 }
 
-void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue) {
+void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, bool forceQueue) {
 	if (cmd.length()) {
 		if ((jobType == jobShell) && !forceQueue) {
 			SString pCmd = cmd;
@@ -864,7 +912,7 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 			pCmd = props.Expand(pCmd.c_str());
 			ShellExec(pCmd, dir);
 		} else {
-			SciTEBase::AddCommand(cmd, dir, jobType, forceQueue);
+			SciTEBase::AddCommand(cmd, dir, jobType, input, forceQueue);
 		}
 	}
 }

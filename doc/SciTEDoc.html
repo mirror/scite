@@ -1335,7 +1335,8 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          find.command
+          find.command<br />
+	  find.input
         </td>
         <td>
           The Find in Files command works in a similar way to the building commands executing a
@@ -1355,6 +1356,10 @@ find.command=cmd /c c:\cygwin\bin\find "$(find.directory)"
 -name "$(find.files)" -print0 |
 c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  </code>
+	  <br />
+	  On Windows, the find string can be given to the find command through
+	  its standard input stream to avoid problems with quote interpretation. 
+	  To do this, specify find.input to be the search string, $(find.what).
         </td>
       </tr>
       <tr>

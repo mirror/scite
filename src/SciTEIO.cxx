@@ -524,7 +524,7 @@ void SciTEBase::OpenSelected() {
 		        strncmp(selectedFilename, "news:", 5) == 0 ||
 		        strncmp(selectedFilename, "mailto:", 7) == 0) {
 			SString cmd = selectedFilename;
-			AddCommand(cmd, "", jobShell, false);
+			AddCommand(cmd, "", jobShell);
 			return;	// Job is done
 		}
 #endif

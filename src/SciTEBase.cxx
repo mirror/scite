@@ -140,6 +140,7 @@ const char *contributors[] = {
 				 "Gerhard Kalab",
 				 "Olivier Dagenais",
 				 "Josh Wingstrom",
+				 "Bruce Dodson",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -2556,13 +2557,14 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 	}
 }
 
-void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool) {
+void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, bool) {
 	if (commandCurrent == 0)
 		jobUsesOutputPane = false;
 	if (cmd.length()) {
 		jobQueue[commandCurrent].command = cmd;
 		jobQueue[commandCurrent].directory = dir;
 		jobQueue[commandCurrent].jobType = jobType;
+		jobQueue[commandCurrent].input = input;
 		commandCurrent++;
 		if ((jobType == jobCLI) || (jobType == jobExtension))
 			jobUsesOutputPane = true;
@@ -3005,7 +3007,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 					}
 				}
 				AddCommand(props.GetWild("command.go.", fileName), "",
-				           SubsystemType("command.go.subsystem."), forceQueue);
+				           SubsystemType("command.go.subsystem."), "", forceQueue);
 				if (commandCurrent > 0)
 					Execute();
 			}
