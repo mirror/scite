@@ -261,14 +261,21 @@ static void EnsureEndsWithPathSeparator(char *path) {
 
 static void RecentFilePath(char *path, const char *name) {
 	char *where = getenv("SciTE_HOME");
-	if (!where) {
+	if (!where)
 		where = getenv("HOME");
-		if (!where) {
-			where = "";
-		}
+	if (!where) {
+#if PLAT_WIN
+		::GetModuleFileName(0, path, MAX_PATH);
+		char *lastSlash = strrchr(path, pathSepChar);
+		if (lastSlash)
+			*(lastSlash+1) = '\0';
+#else
+		*path='\0';
+#endif
+	} else {
+		strcpy(path, where);
+		EnsureEndsWithPathSeparator(path);
 	}
-	strcpy(path, where);
-	EnsureEndsWithPathSeparator(path);
 	strcat(path, configFileVisibilityString);
 	strcat(path, name);
 }
