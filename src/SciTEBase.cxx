@@ -88,7 +88,7 @@ const char *contributors[] = {
     "Holger Schmidt",
     "ActiveState http://www.activestate.com",
     "James Larcombe",
-    "Alexey",
+    "Alexey Yutkin",
     "Jan Hercek",
     "Richard Pecl",
     "Edward K. Ream",
@@ -100,7 +100,7 @@ const char *extList[] = {
     "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
     "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
     "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.cs", "x.conf",
-    "x.pas", "x.ave", "x.ads",
+    "x.pas", "x.ave", "x.ads", "x.lisp"
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -2737,6 +2737,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_PASCAL:
 	case IDM_LEXER_AVE:
 	case IDM_LEXER_ADA:
+	case IDM_LEXER_LISP:
 		SetOverrideLanguage(cmdID);
 		break;
 
