@@ -903,6 +903,16 @@ NameError: mistake
           check the appearance of the page in a browser.
         </td>
       </tr>
+       <tr>
+         <td>
+          are.you.sure.on.reload
+        </td>
+        <td>
+          When both this and load.on.activate are set to 1, SciTE will ask if you really want to
+          reload the modified file, giving you the chance to keep the file as it is. By default this
+          property is disabled, causing SciTE to reload the file without bothering you.
+        </td>
+      </tr>
       <tr>
         <td>
           reload.preserves.undo
@@ -941,7 +951,7 @@ NameError: mistake
         <td>
 	If this option is set, SciTE will close when its last buffer has been
         closed, e.g. with File/Close.  (By default, if this option is not set,
-        SciTE will remain open and will create a new blank document when its 
+        SciTE will remain open and will create a new blank document when its
         last buffer is closed.)
         </td>
       </tr>
@@ -1383,13 +1393,13 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
       <tr>
         <td>wrap.aware.home.end.keys</td>
         <td>
-          This property changes the behavior of the home and end keys when dynamic 
-          line wrapping is turned on.  When set to 0 (the default), the Home and End 
+          This property changes the behavior of the home and end keys when dynamic
+          line wrapping is turned on.  When set to 0 (the default), the Home and End
           keys will move the caret to the very beginning / end of the 'logical'
           line, whether or not the line is wrapped over multiple lines in the display.
-          When this property is set to 1, the caret moves to the end of the current 
+          When this property is set to 1, the caret moves to the end of the current
           'display' line if you press End once, or to the very end of the 'logical'
-          line if you press End again.  Likewise, the Home key moves first to the 
+          line if you press End again.  Likewise, the Home key moves first to the
           beginning of the 'display' line, then on to the very beginning of the line.
           In a pane where dynamic line-wrapping is not enabled, this setting has no
           effect.
