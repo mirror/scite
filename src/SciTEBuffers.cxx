@@ -390,7 +390,6 @@ void SciTEBase::New() {
 	isDirty = false;
 	isBuilding = false;
 	isBuilt = false;
-	useMonoFont = false;
 	ClearDocument();
 	DeleteFileStackMenu();
 	SetFileStackMenu();
