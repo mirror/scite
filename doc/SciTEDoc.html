@@ -2008,7 +2008,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           <span class="windowsonly">command.input.<i>number</i>.<i>filepattern</i></span><br />
           <span class="windowsonly">command.replace.selection.<i>number</i>.<i>filepattern</i></span><br />
           <span class="windowsonly">command.quiet.<i>number</i>.<i>filepattern</i></span><br />
-          command.mode.<i>number</i>.<i>filepattern</i>
+          command.mode.<i>number</i>.<i>filepattern</i><br />
+          command.shortcut.<i>number</i>.<i>filepattern</i>
         </td>
         <td>
           Extra commands can be added to the Tools menu. For example to include the 'astyle'
@@ -2074,8 +2075,14 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         similar names, and so are not described separately here.  The groupundo setting
         works with subsystem 3 (lua / director), and indicates that SciTE should treat any
         changes made by the command as a single undo action.  A command that uses the
-        groupundo setting should not change which buffer is active in the editor.
-        <br />
+        groupundo setting should not change which buffer is active in the editor.<br />
+
+        The command.shortcut property allows you to specify a keyboard shortcut for the
+        command.  By default, commands 0 to 9 have keyboard shortcuts Ctrl+0 to Ctrl+9
+        respectively, but this can be overridden.  For commands numbered higher than 9,
+        there is no default keyboard shortcut.  The notation used to specify keyboard
+        shortcuts is the same as for the user.shortcuts property, described elsewhere
+        in this document.<br />
 
         If the text of a command starts with '*' then the Parameters dialog is displayed to
         prompt for parameters before executing the command. The initial '*' is not included
