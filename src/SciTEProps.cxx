@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEProps.cxx
  ** Properties management.
- **/ 
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -599,6 +599,13 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_SETCARETLINEVISIBLE, 0);
 	}
 
+	SString controlCharSymbol = props.Get("control.char.symbol");
+	if (controlCharSymbol.length()) {
+		SendEditor(SCI_SETCONTROLCHARSYMBOL, static_cast<unsigned char>(controlCharSymbol[0]));
+	} else {
+		SendEditor(SCI_SETCONTROLCHARSYMBOL, 0);
+	}
+
 	SendEditor(SCI_CALLTIPSETBACK,
 	           ColourOfProperty(props, "calltip.back", ColourDesired(0xff, 0xff, 0xff)));
 
@@ -1002,7 +1009,7 @@ void SciTEBase::ReadPropertiesInitial() {
 
 	SString menuLanguageProp = props.GetNewExpand("menu.language");
 	languageItems = 0;
-	for (int i = 0; i < menuLanguageProp.length(); i++) {
+	for (unsigned int i = 0; i < menuLanguageProp.length(); i++) {
 		if (menuLanguageProp[i] == '|')
 			languageItems++;
 	}
