@@ -959,8 +959,8 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		PRectangle aNewRect = aTBRect;
 		aNewRect.top = aNewRect.bottom - (aRect.bottom - aRect.top);
 		aNewRect.right = aNewRect.left + aRect.right - aRect.left;
-		RegisterHotKey(hDlg,1,0,VK_F3);
-		RegisterHotKey(hDlg,2,MOD_SHIFT,VK_F3);
+		//~ RegisterHotKey(hDlg,1,0,VK_F3);
+		//~ RegisterHotKey(hDlg,2,MOD_SHIFT,VK_F3);
 
 		wFindIncrement.SetPosition(aNewRect);
 
@@ -979,8 +979,8 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		break;
 
 	case WM_CLOSE:
-		UnregisterHotKey(hDlg,1);
-		UnregisterHotKey(hDlg,2);
+		//~ UnregisterHotKey(hDlg,1);
+		//~ UnregisterHotKey(hDlg,2);
 		::SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
 		break;
 
