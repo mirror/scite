@@ -320,6 +320,12 @@ void SciTEBase::New() {
 	InitialiseBuffers();
 	UpdateBuffersCurrent();
 
+	if ((buffers.size == 1) && (!IsUntitledFileName(buffers.buffers[0].fileName.c_str()))) {
+		AddFileToStack(buffers.buffers[0].fileName.c_str(), 
+			buffers.buffers[0].selection, 
+			buffers.buffers[0].scrollPosition);
+	}
+
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
 	// otherwise add a new buffer.
 	if ((buffers.length > 1) ||
@@ -607,19 +613,35 @@ void SciTEBase::StackMenuNext() {
 
 void SciTEBase::StackMenuPrev() {
 	if (recentFileStack[0].fileName[0] != '\0') {
-		StackMenu(0);
-		// And rotate the one we just closed to the end.
-		DeleteFileStackMenu();
-		RecentFile temp = recentFileStack[0];
-		int stackPos = 1;
-		for (; stackPos < fileStackMax - 1; stackPos++) {
-			if (recentFileStack[stackPos].fileName[0] == '\0') {
-				stackPos--;
-				break;
+		// May need to restore last entry if removed by StackMenu
+		RecentFile rfLast = recentFileStack[fileStackMax - 1];
+		StackMenu(0);	// Swap current with top of stack
+		for (int checkPos = 0; checkPos < fileStackMax; checkPos++) {
+			if (rfLast.fileName == recentFileStack[checkPos].fileName) {
+				rfLast.fileName = "";
 			}
-			recentFileStack[stackPos - 1] = recentFileStack[stackPos];
 		}
-		recentFileStack[stackPos] = temp;
+		// And rotate the MRU
+		RecentFile rfCurrent = recentFileStack[0];
+		// Move them up
+		for (int stackPos = 0; stackPos < fileStackMax - 1; stackPos++) {
+			recentFileStack[stackPos] = recentFileStack[stackPos + 1];
+		}
+		recentFileStack[fileStackMax - 1].Init();
+		// Copy current file into first empty
+		for (int emptyPos = 0; emptyPos < fileStackMax; emptyPos++) {
+			if (recentFileStack[emptyPos].fileName.length() == 0) {
+				if (rfLast.fileName.length()) {
+					recentFileStack[emptyPos] = rfLast;
+					rfLast.fileName = "";
+				} else {
+					recentFileStack[emptyPos] = rfCurrent;
+					break;
+				}
+			}
+		}
+
+		DeleteFileStackMenu();
 		SetFileStackMenu();
 	}
 }
