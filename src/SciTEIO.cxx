@@ -518,6 +518,8 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 	if (buffers.size == buffers.length) {
 		AddFileToStack(fullPath, GetSelection(), GetCurrentScrollPosition());
 		ClearDocument();
+		if (extender)
+			extender->InitBuffer(buffers.Current());
 	} else {
 		if (index < 0 || !(of & ofForceLoad)) { // No new buffer, already opened
 			New();

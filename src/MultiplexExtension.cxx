@@ -87,6 +87,24 @@ bool MultiplexExtension::Load(const char *filename) {
 	return handled;
 }
 
+bool MultiplexExtension::InitBuffer(int index) {
+	for (int i=0; i<extensionCount; ++i)
+		extensions[i]->InitBuffer(index);
+	return false;
+}
+
+bool MultiplexExtension::ActivateBuffer(int index) {
+	for (int i=0; i<extensionCount; ++i)
+		extensions[i]->ActivateBuffer(index);
+	return false;
+}
+
+bool MultiplexExtension::RemoveBuffer(int index) {
+	for (int i=0; i<extensionCount; ++i)
+		extensions[i]->RemoveBuffer(index);
+	return false;
+}
+
 bool MultiplexExtension::OnOpen(const char *filename) {
 	bool handled = false;
 	for (int i=0; i<extensionCount && !handled; ++i)

@@ -19,6 +19,10 @@ public:
     virtual bool Clear();
     virtual bool Load(const char *filename);
 
+    virtual bool InitBuffer(int);
+    virtual bool ActivateBuffer(int);
+    virtual bool RemoveBuffer(int);
+
     virtual bool OnOpen(const char *filename);
     virtual bool OnSwitchFile(const char *filename);
     virtual bool OnBeforeSave(const char *filename);
@@ -33,4 +37,3 @@ public:
     virtual bool OnMarginClick();
     virtual bool OnUserListSelection(int listType, const char *selection);
 };
-

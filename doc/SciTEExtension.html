@@ -44,6 +44,9 @@
 	bool Finalise();<br />
 	bool Clear();<br />
 	bool Load(const char *filename);<br />
+	bool InitBuffer(int index);<br />
+	bool ActivateBuffer(int index);<br />
+	bool RemoveBuffer(int index);<br />
 	bool OnOpen(const char *path);<br />
 	bool OnSwitchFile(const char *path);<br />
 	bool OnSave(const char *path);<br />
@@ -75,9 +78,18 @@
 	the previous file through Clear. Then SciTE checks for a property called
 	"extension" which matches the file name, so for x.cpp, looks for extension.*.cpp.
 	A file with this name is searched for in standard property file locations and if found
-	Load is called with the path as an argument. There is also a check for a "SciTEGlobal.lua"
-	file but this is from when the Extension interface was only for Lua scripting and
-	it will go away.</p>
+	Load is called with the path as an argument.</p>
+	<p>The InitBuffer, ActivateBuffer, and RemoveBuffer methods provide the necessary hooks
+	so that extensions have a mechanism to associate data with a specific buffer, similar
+	to the way SciTE itself remembers the monospace setting of each buffer.  InitBuffer is
+	called whenever a new document is opened in a given buffer.  The buffer might be a newly
+	allocated one, or it might be recycled if the maximum number of buffers has been reached.
+	Once the buffer has been initialized, it will be the active buffer.  Thereafter,
+	ActivateBuffer is called whenever the user switches to another loaded buffer.
+	RemoveBuffer is called when an existing buffer is closed.  Thereafter, the indexes of
+	the buffers that come after the removed buffer are shifted down by one.  After
+	RemoveBuffer, the extension will receive an InitBuffer or ActivateBuffer to establish
+	the new active buffer.</p>
 	<p>OnExecute is called only when an extension command is executed. These are
 	indicated in properties as subsystem 3.</p>
 	<p>Other methods are called upon events occurring in SciTE allowing an extension
@@ -139,10 +151,20 @@ SciTEWin MainWind(extender);
     <h3>
        Multiplexing.
     </h3>
-	<p>SciTE supports multiple extensions at a time. A multiplexer extension 
+	<p>SciTE supports multiple extensions at a time. A multiplexer extension
 	maintains a list of extensions and calls each in turn for each method. Once an extension
 	returns true indicating processing should stop, the multiplexer returns without traversing
-	any remaining list members.</p>
+	any remaining list members. However, for some methods such as Initialise and Finalise,
+	the remaining extensions are traversed regardless of the return value of the previous
+	extension.</p>
+    <h3>
+       Thread safety.
+    </h3>
+	<p>In general, SciTE is a single threaded application.  However, on Windows, command
+	tools call OnExecute from a separate worker thread.  The SingleThreadExtension adapter
+	class can be used to wrap an extension so that OnExecute calls are marshalled to the
+	main thread.  Of course, this is not necessary if your extension is thread safe, or
+	if it does not implement OnExecute, or if it is a GTK-specific extension.
   </body>
 </html>
 

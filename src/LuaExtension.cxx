@@ -70,6 +70,8 @@ static SString extensionScript;
 
 static bool tracebackEnabled = true;
 
+static int maxBufferIndex = -1;
+static int curBufferIndex = -1;
 
 static int GetPropertyInt(const char *propName) {
 	int propVal = 0;
@@ -83,7 +85,6 @@ static int GetPropertyInt(const char *propName) {
 	return propVal;
 }
 
-
 LuaExtension::LuaExtension() {}
 
 LuaExtension::~LuaExtension() {}
@@ -91,6 +92,29 @@ LuaExtension::~LuaExtension() {}
 LuaExtension &LuaExtension::Instance() {
 	static LuaExtension singleton;
 	return singleton;
+}
+
+// Forward declarations
+static ExtensionAPI::Pane check_pane_object(lua_State *L, int index);
+static void push_pane_object(lua_State *L, ExtensionAPI::Pane p);
+static int iface_function_helper(lua_State *L, const IFaceFunction &func);
+
+inline bool IFaceTypeIsScriptable(IFaceType t, int index) {
+	return t < iface_stringresult || (index==1 && t == iface_stringresult);
+}
+
+inline bool IFaceTypeIsNumeric(IFaceType t) {
+	return (t > iface_void && t < iface_bool);
+}
+
+inline bool IFaceFunctionIsScriptable(const IFaceFunction &f) {
+	return IFaceTypeIsScriptable(f.paramType[0], 0) && IFaceTypeIsScriptable(f.paramType[1], 1);
+}
+
+inline bool IFacePropertyIsScriptable(const IFaceProperty &p) {
+	return (((p.valueType > iface_void) && (p.valueType <= iface_string) && (p.valueType != iface_keymod)) &&
+		((p.paramType < iface_colour) || (p.paramType == iface_string) ||
+		(p.paramType == iface_bool)) && (p.getter || p.setter));
 }
 
 static int cf_getglobal_wrapper(lua_State *L) {
@@ -200,18 +224,75 @@ static bool rawget_library_object(lua_State *L, const char *basename, const char
 	lua_pop(L,1);
 	return false;
 }
-/*
+
+static int cf_scite_send(lua_State *L) {
+	// This is reinstated as a replacement for the old <pane>:send, which was removed
+	// due to safety concerns.  Is now exposed as scite.SendEditor / scite.SendOutput.
+	// It is rewritten to be typesafe, checking the arguments against the metadata in
+	// IFaceTable in the same way that the object interface does.
+
+	int paneIndex = lua_upvalueindex(1);
+	check_pane_object(L, paneIndex);
+	int message = luaL_checkint(L, 1);
+
+	lua_pushvalue(L, paneIndex);
+	lua_replace(L, 1);
+
+	IFaceFunction func = { "", 0, iface_void, {iface_void, iface_void} };
+	for (int funcIdx = 0; funcIdx < IFaceTable::functionCount; ++funcIdx) {
+		if (IFaceTable::functions[funcIdx].value == message) {
+			func = IFaceTable::functions[funcIdx];
+			break;
+		}
+	}
+
+	if (func.value == 0) {
+		for (int propIdx = 0; propIdx < IFaceTable::propertyCount; ++propIdx) {
+			if (IFaceTable::properties[propIdx].getter == message) {
+				func = IFaceTable::properties[propIdx].GetterFunction();
+				break;
+			} else if (IFaceTable::properties[propIdx].setter == message) {
+				func = IFaceTable::properties[propIdx].SetterFunction();
+				break;
+			}
+		}
+	}
+
+	if (func.value != 0) {
+		if (IFaceFunctionIsScriptable(func)) {
+			return iface_function_helper(L, func);
+		} else {
+			raise_error(L, "Cannot call send for this function: not scriptable.");
+			return 0;
+		}
+	} else {
+		raise_error(L, "Message number does not match any published Scintilla function or property");
+		return 0;
+	}
+}
+
+static int cf_scite_constname(lua_State *L) {
+	char constName[100] = "";
+	int message = luaL_checkint(L, 1);
+	if (IFaceTable::GetConstantName(message, constName, 100) > 0) {
+		lua_pushstring(L, constName);
+		return 1;
+	} else {
+		raise_error(L, "Argument does not match any Scintilla / SciTE constant");
+		return 0;
+	}
+}
+
 static int cf_scite_open(lua_State *L) {
 	const char *s = luaL_checkstring(L, 1);
 	if (s) {
 		SString cmd = "open:";
 		cmd += s;
+		cmd.substitute("\\", "\\\\");
 		host->Perform(cmd.c_str());
 	}
 	return 0;
 }
-*/
-static void push_pane_object(lua_State *L, ExtensionAPI::Pane p);
 
 
 static ExtensionAPI::Pane check_pane_object(lua_State *L, int index) {
@@ -225,11 +306,17 @@ static ExtensionAPI::Pane check_pane_object(lua_State *L, int index) {
 		pPane = reinterpret_cast<ExtensionAPI::Pane*>(luaL_checkudata(L, -1, "SciTE_MT_Pane"));
 	}
 
-	if (pPane)
+	if (pPane) {
+		if ((*pPane == ExtensionAPI::paneEditor) && (curBufferIndex < 0))
+			raise_error(L, "Editor pane is not accessible at this time.");
+
 		return *pPane;
+	}
 
 	if (index == 1)
 		lua_pushliteral(L, "Self object is missing in pane method or property access.");
+	else if (index == lua_upvalueindex(1))
+		lua_pushliteral(L, "Internal error: pane object expected in closure.");
 	else
 		lua_pushliteral(L, "Pane object expected.");
 
@@ -570,6 +657,20 @@ static int cf_props_metatable_newindex(lua_State *L) {
 	return 0;
 }
 
+/*
+static int cf_os_execute(lua_State *L) {
+	// The SciTE version of os.execute would pipe its stdout and stderr
+	// to the output pane.  This can be implemented in terms of popen
+	// on GTK and in terms of CreateProcess on Windows.  Either way,
+	// stdin should be null, and the Lua script should wait for the
+	// subprocess to finish before continuing.  (What if it takes
+	// a very long time?  Timeout?)
+
+	raise_error(L, "Not implemented.");
+	return 0;
+}
+*/
+
 static int cf_global_print(lua_State *L) {
 	int nargs = lua_gettop(L);
 
@@ -634,28 +735,22 @@ static int cf_global_alert(lua_State *L) {
 
 
 static int cf_global_dostring(lua_State *L) {
-	if (host) {
-		if (rawget_library_object(L, "loadstring")) {
-			lua_insert(L, 1);
-			lua_call(L, lua_gettop(L)-1, 2);
-			if (lua_isnil(L, -1)) {
-				lua_pop(L, 1);
-				lua_call(L, 0, 0);
-			} else {
-				lua_remove(L, -2);
-				raise_error(L);
-				// lua_error(L);
-			}
-		} else {
-			raise_error(L, "Internal error - missing required library function loadstring");
-		}
+	int nargs = lua_gettop(L);
+	const char *code = luaL_checkstring(L, 1);
+	const char *name = luaL_optstring(L, 2, code);
+	if (0 == luaL_loadbuffer(L, code, lua_strlen(L, 1), name)) {
+		lua_call(L, 0, LUA_MULTRET);
+		return lua_gettop(L) - nargs;
+	} else {
+		raise_error(L);
 	}
 	return 0;
 }
 
 static void call_alert(lua_State *L, const char *s = NULL) {
 	lua_pushliteral(L, "_ALERT");
-	if (!safe_getglobal(L) || !lua_isfunction(L, -1)) {
+	lua_rawget(L, LUA_GLOBALSINDEX);
+	if (!lua_isfunction(L, -1)) {
 		lua_pop(L, 1);
 		lua_pushcfunction(L, cf_global_print);
 	}
@@ -747,25 +842,6 @@ static bool CallNamedFunction(const char *name, int numberArg, const char *strin
 	}
 	return handled;
 }
-
-inline bool IFaceTypeIsScriptable(IFaceType t, int index) {
-	return t < iface_stringresult || (index==1 && t == iface_stringresult);
-}
-
-inline bool IFaceTypeIsNumeric(IFaceType t) {
-	return (t > iface_void && t < iface_bool);
-}
-
-inline bool IFaceFunctionIsScriptable(const IFaceFunction &f) {
-	return IFaceTypeIsScriptable(f.paramType[0], 0) && IFaceTypeIsScriptable(f.paramType[1], 1);
-}
-
-inline bool IFacePropertyIsScriptable(const IFaceProperty &p) {
-	return (((p.valueType > iface_void) && (p.valueType <= iface_string) && (p.valueType != iface_keymod)) &&
-		((p.paramType < iface_colour) || (p.paramType == iface_string) ||
-		(p.paramType == iface_bool)) && (p.getter || p.setter));
-}
-
 
 static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	ExtensionAPI::Pane p = check_pane_object(L, 1);
@@ -908,10 +984,9 @@ static int cf_ifaceprop_metatable_newindex(lua_State *L) {
 
 static int cf_pane_iface_function(lua_State *L) {
 	int funcidx = lua_upvalueindex(1);
-
-	if (lua_islightuserdata(L, funcidx)) {
-		const IFaceFunction &func = *reinterpret_cast<IFaceFunction *>(lua_touserdata(L, funcidx));
-		return iface_function_helper(L, func);
+	const IFaceFunction *func = reinterpret_cast<IFaceFunction *>(lua_touserdata(L, funcidx));
+	if (func) {
+		return iface_function_helper(L, *func);
 	} else {
 		raise_error(L, "Internal error - bad upvalue in iface function closure");
 		return 0;
@@ -924,6 +999,12 @@ static int push_iface_function(lua_State *L, const char *name) {
 		if (IFaceFunctionIsScriptable(IFaceTable::functions[i])) {
 			lua_pushlightuserdata(L, const_cast<IFaceFunction*>(IFaceTable::functions+i));
 			lua_pushcclosure(L, cf_pane_iface_function, 1);
+
+			// Since Lua experts say it is inefficient to create closures / cfunctions
+			// in an inner loop, I tried caching the closures in the metatable, and looking
+			// for them there first.  However, it made very little difference and did not
+			// seem worth the added complexity. - WBD
+
 			return 1;
 		}
 	}
@@ -991,24 +1072,6 @@ static int push_iface_propval(lua_State *L, const char *name) {
 
 	return -1; // signal to try next pane index handler
 }
-
-
-/*
-static int push_named_function(lua_State *L, NamedFunction *namedFunctions, const char *name, int closureStackIndex=0) {
-	for (int i=0; namedFunctions[i].name; ++i) {
-		if (0==strcmp(name, namedFunctions[i].name)) {
-			if (closureStackIndex && lua_type(L, closureStackIndex) != LUA_TNONE) {
-				lua_pushvalue(L, closureStackIndex);
-				lua_pushcclosure(L, namedFunctions[i].func, 1);
-			} else {
-				lua_pushcfunction(L, namedFunctions[i].func);
-			}
-			return 1;
-		}
-	}
-	return -1;
-}
-*/
 
 static int cf_pane_metatable_index(lua_State *L) {
 	if (lua_isstring(L, 2)) {
@@ -1129,6 +1192,14 @@ static int cf_global_metatable_index(lua_State *L) {
 			i = IFaceTable::FindFunctionByConstantName(name);
 			if (i >= 0) {
 				lua_pushnumber(L, IFaceTable::functions[i].value);
+
+				// FindFunctionByConstantName is slow, so cache the result into the
+				// global table.  My tests show this gives an order of magnitude
+				// improvement.
+				lua_pushvalue(L, 2);
+				lua_pushvalue(L, -2);
+				lua_rawset(L, 1);
+
 				return 1;
 			}
 		}
@@ -1173,7 +1244,54 @@ static char *CheckStartupScript() {
 	return startupScript;
 }
 
+void IsolateGlobalReqLoadedTable() {
+	// The require built-in uses a global _LOADED to remember which
+	// files have been loaded.  Since we're resetting the global
+	// scope in Extension::Clear, the _LOADED table should be reset
+	// to its original value.  To accomplish this, while still
+	// remembering any files that were loaded in startup, a deep
+	// copy of the _LOADED table is needed.
 
+	lua_pushliteral(luaState, "_LOADED");
+	lua_rawget(luaState, LUA_GLOBALSINDEX);
+	if (!lua_isnil(luaState, -1)) {
+		lua_pushliteral(luaState, "_LOADED");
+		clone_table(luaState, -2);
+		lua_rawset(luaState, LUA_GLOBALSINDEX);
+	}
+	lua_pop(luaState, 1);
+}
+
+void PublishGlobalBufferData() {
+	lua_pushliteral(luaState, "buffer");
+	if (curBufferIndex >= 0) {
+		lua_pushliteral(luaState, "SciTE_BufferData_Array");
+		lua_rawget(luaState, LUA_REGISTRYINDEX);
+		if (!lua_istable(luaState, -1)) {
+			lua_pop(luaState, 1);
+
+			lua_newtable(luaState);
+			lua_pushliteral(luaState, "SciTE_BufferData_Array");
+			lua_pushvalue(luaState, -2);
+			lua_rawset(luaState, LUA_REGISTRYINDEX);
+		}
+		lua_rawgeti(luaState, -1, curBufferIndex);
+		if (!lua_istable(luaState, -1)) {
+			// create new buffer-data
+			lua_pop(luaState, 1);
+			lua_newtable(luaState);
+			// remember it
+			lua_pushvalue(luaState, -1);
+			lua_rawseti(luaState, -3, curBufferIndex);
+		}
+		// Replace SciTE_BufferData_Array in the stack, leaving (buffer=-1, 'buffer'=-2)
+		lua_replace(luaState, -2);
+	} else {
+		// for example, during startup, before any InitBuffer / ActivateBuffer
+		lua_pushnil(luaState);
+	}
+	lua_rawset(luaState, LUA_GLOBALSINDEX);
+}
 
 static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	bool reload = forceReload;
@@ -1181,11 +1299,6 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		int resetMode = GetPropertyInt("ext.lua.reset");
 		if (resetMode >= 1) {
 			reload = true;
-		}
-
-		if (luaState && resetMode == 2) {
-			lua_close(luaState);
-			luaState = 0;
 		}
 	}
 
@@ -1204,6 +1317,10 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 				clear_table(luaState, LUA_GLOBALSINDEX, true);
 				merge_table(luaState, LUA_GLOBALSINDEX, -1, true);
 				lua_pop(luaState, 1);
+
+				IsolateGlobalReqLoadedTable();
+				PublishGlobalBufferData();
+
 				return true;
 			} else {
 				lua_pop(luaState, 1);
@@ -1214,6 +1331,12 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		// either way, we're going to need a "new" initial state.
 
 		lua_pushliteral(luaState, "SciTE_InitialState");
+		lua_pushnil(luaState);
+		lua_rawset(luaState, LUA_REGISTRYINDEX);
+
+		// Also reset buffer data, since scripts might depend on this to know
+		// whether they need to re-initialize something.
+		lua_pushliteral(luaState, "SciTE_BufferData_Array");
 		lua_pushnil(luaState);
 		lua_rawset(luaState, LUA_REGISTRYINDEX);
 
@@ -1283,6 +1406,30 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	push_pane_object(luaState, ExtensionAPI::paneOutput);
 	lua_rawset(luaState, LUA_GLOBALSINDEX);
 
+	lua_pushliteral(luaState, "scite");
+	lua_newtable(luaState);
+	
+	lua_pushliteral(luaState, "SendEditor");
+	lua_pushliteral(luaState, "editor");
+	lua_rawget(luaState, LUA_GLOBALSINDEX);
+	lua_pushcclosure(luaState, cf_scite_send, 1);
+	lua_rawset(luaState, -3);
+
+	lua_pushliteral(luaState, "SendOutput");
+	lua_pushliteral(luaState, "output");
+	lua_rawget(luaState, LUA_GLOBALSINDEX);
+	lua_pushcclosure(luaState, cf_scite_send, 1);
+	lua_rawset(luaState, -3);
+
+	lua_pushliteral(luaState, "ConstantName");
+	lua_pushcfunction(luaState, cf_scite_constname);
+	lua_rawset(luaState, -3);
+
+	lua_pushliteral(luaState, "Open");
+	lua_pushcfunction(luaState, cf_scite_open);
+	lua_rawset(luaState, -3);
+
+	lua_rawset(luaState, LUA_GLOBALSINDEX);
 
 	// Metatable for global namespace, to publish iface constants
 	if (luaL_newmetatable(luaState, "SciTE_MT_GlobalScope")) {
@@ -1297,6 +1444,12 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	}
 
 	if (startupScript) {
+		// TODO: Should buffer be deactivated temporarily, so editor iface
+		// functions won't be available during a reset, just as they are not
+		// available during a normal startup?  Are there any other functions
+		// that should be blocked during startup, e.g. the ones that allow
+		// you to add or switch buffers?
+
 		luaL_loadfile(luaState, startupScript);
 		if (!call_function(luaState, 0, true)) {
 			host->Trace(">Lua: error occurred while loading startup script\n");
@@ -1310,6 +1463,9 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	lua_pushliteral(luaState, "SciTE_InitialState");
 	clone_table(luaState, LUA_GLOBALSINDEX, true);
 	lua_rawset(luaState, LUA_REGISTRYINDEX);
+	
+	IsolateGlobalReqLoadedTable();
+	PublishGlobalBufferData();
 
 	return true;
 }
@@ -1372,6 +1528,85 @@ bool LuaExtension::Load(const char *filename) {
 		}
 	}
 	return loaded;
+}
+
+
+bool LuaExtension::InitBuffer(int index) {
+	//char msg[100];
+	//sprintf(msg, "InitBuffer(%d)\n", index);
+	//host->Trace(msg);
+
+	if (index > maxBufferIndex)
+		maxBufferIndex = index;
+
+	if (luaState) {
+		// This buffer might be recycled.  Clear the data associated
+		// with the old file.
+
+		lua_pushliteral(luaState, "SciTE_BufferData_Array");
+		lua_rawget(luaState, LUA_REGISTRYINDEX);
+		if (lua_istable(luaState, -1)) {
+			lua_pushnil(luaState);
+			lua_rawseti(luaState, -2, index);
+		}
+		// We also need to handle cases where Lua initialization is
+		// delayed (e.g. no startup script).  For that we'll just
+		// explicitly call InitBuffer(curBufferIndex)
+	}
+
+	curBufferIndex = index;
+
+	return false;
+}
+
+bool LuaExtension::ActivateBuffer(int index) {
+	//char msg[100];
+	//sprintf(msg, "ActivateBuffer(%d)\n", index);
+	//host->Trace(msg);
+
+	// Probably don't need to do anything with Lua here.  Setting
+	// curBufferIndex is important so that InitGlobalScope knows
+	// which buffer is active, in order to populate the 'buffer'
+	// global with the right data.
+
+	curBufferIndex = index;
+
+	return false;
+}
+
+bool LuaExtension::RemoveBuffer(int index) {
+	//char msg[100];
+	//sprintf(msg, "RemoveBuffer(%d)\n", index);
+	//host->Trace(msg);
+
+	if (luaState) {
+		// Remove the bufferdata element at index, and move
+		// the other elements down.  The element at the
+		// current maxBufferIndex can be discarded after
+		// it gets copied to maxBufferIndex-1.
+
+		lua_pushliteral(luaState, "SciTE_BufferData_Array");
+		lua_rawget(luaState, LUA_REGISTRYINDEX);
+		if (lua_istable(luaState, -1)) {
+			for (int i = index; i < maxBufferIndex; ++i) {
+				lua_rawgeti(luaState, -1, i+1);
+				lua_rawseti(luaState, -2, i);
+			}
+
+			lua_pushnil(luaState);
+			lua_rawseti(luaState, -2, maxBufferIndex);
+			
+			lua_pop(luaState, 1); // the bufferdata table
+		}
+	}
+
+	if (maxBufferIndex > 0)
+		maxBufferIndex--;
+
+	// Invalidate current buffer index; Activate or Init will follow.
+	curBufferIndex = -1;
+
+	return false;
 }
 
 bool LuaExtension::OnExecute(const char *s) {

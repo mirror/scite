@@ -20,20 +20,41 @@ def Contains(s,sub):
 def StartsWith(s, prefix):
 	return string.find(s, prefix) == 0
 
-def printIFaceTableCXXFile(f,out):
-	constants = []
-	functions = {}
-	properties = {}
+def GetScriptableInterface(f):
+	"""Returns a tuple of (constants, functions, properties)
+constants - a sorted list of (name, features) tuples, including all
+	constants except for SCLEX_ constants which are presumed not used by
+	scripts.  The SCI_ constants for functions are omitted, since they
+	can be derived, but the SCI_ constants for properties are included
+	since they cannot be derived from the property names.
+functions - a sorted list of (name, features) tuples, for the features
+	that should be exposed to script as functions.  This includes all
+	'fun' functions; it is up to the program to decide if a given
+	function cannot be scripted.  It is also up to the caller to
+	export the SCI_ constants for functions.
+properties - a sorted list of (name, property), where property is a 
+	dictionary containing these keys: "GetterValue", "SetterValue",
+	"PropertyType", "IndexParamType", "IndexParamName", "GetterName",
+	"SetterName", "GetterComment", "SetterComment", and "Category".
+	If the property is read-only, SetterValue will be 0, and the other
+	Setter attribtes will be None.  Likewise for write-only properties,
+	GetterValue will be 0 etc.  If the getter and/or setter are not
+	compatible with one another, or with our interpretation of how
+	properties work, then the functions are instead added to the
+	functions list.  It is still up to the language binding to decide
+	whether the property can / should be exposed to script."""
+
+	constants = [] # returned as a sorted list
+	functions = {} # returned as a sorted list of items
+	properties = {} # returned as a sorted list of items
 
 	for name in f.order:
 		features = f.features[name]
 		if features["Category"] != "Deprecated":
 			if features["FeatureType"] == "val":
 				if not StartsWith(name, "SCLEX_"):
-					constants.append( (name, features["Value"]) )
+					constants.append( (name, features) )
 			elif features["FeatureType"] in ["fun","get","set"]:
-				functions[name] = features
-
 				if features["FeatureType"] == "get":
 					propname = string.replace(name, "Get", "", 1)
 					properties[propname] = (name, properties.get(propname,(None,None))[1])
@@ -42,9 +63,12 @@ def printIFaceTableCXXFile(f,out):
 					propname = string.replace(name, "Set", "", 1)
 					properties[propname] = (properties.get(propname,(None,None))[0], name)
 
+				else:
+					functions[name] = features
+
 	for propname, (getterName, setterName) in properties.items():
-		getter = getterName and functions[getterName]
-		setter = setterName and functions[setterName]
+		getter = getterName and f.features[getterName]
+		setter = setterName and f.features[setterName]
 
 		getterValue, getterIndex, getterIndexName, getterType = 0, None, None, None
 		setterValue, setterIndex, setterIndexName, setterType = 0, None, None, None
@@ -104,29 +128,57 @@ def printIFaceTableCXXFile(f,out):
 
 
 		if isok:
-			properties[propname] = (getterValue, setterValue, propType, propIndex)
+			properties[propname] = {
+				"GetterValue"    : getterValue,
+				"SetterValue"    : setterValue,
+				"PropertyType"   : propType,
+				"IndexParamType" : propIndex,
+				"IndexParamName" : propIndexName,
+				# The rest of this metadata is added to help generate documentation
+				"Category"       : (getter or setter)["Category"],
+				"GetterName"     : getterName,
+				"SetterName"     : setterName,
+				"GetterComment"  : getter and getter["Comment"],
+				"SetterComment"  : setter and setter["Comment"]
+			}
 
-			# If it is exposed as a property, it should not be exposed as a function.
+			# If it is exposed as a property, the constant name is not picked up implicitly
+			# (because the name is different) but its constant should still be exposed.
 			if getter:
-				constants.append( ("SCI_" + string.upper(getterName), getterValue) )
-				del(functions[getterName])
+				constants.append( ("SCI_" + string.upper(getterName), getter))
 			if setter:
-				constants.append( ("SCI_" + string.upper(setterName), setterValue) )
-				del(functions[setterName])
+				constants.append( ("SCI_" + string.upper(setterName), setter))
 		else:
+			# Cannot parse as scriptable property (e.g. not symmetrical), so export as functions
 			del(properties[propname])
+			if getter:
+				functions[getterName] = getter
+			if setter:
+				functions[setterName] = setter
+	
+	funclist = functions.items()
+	funclist.sort()
+
+	proplist = properties.items()
+	proplist.sort()
+
+	constants.sort()
+
+	return (constants, funclist, proplist)
+
+
+def printIFaceTableCXXFile(f, out):
+	(constants, functions, properties) = GetScriptableInterface(f)
 
 	out.write("\nstatic IFaceConstant ifaceConstants[] = {")
 
 	if constants:
-		constants.sort()
-
 		first = 1
-		for name, value in constants:
+		for name, features in constants:
 			if first: first = 0
 			else: out.write(",")
 
-			out.write('\n\t{"%s",%s}' % (name, value))
+			out.write('\n\t{"%s",%s}' % (name, features["Value"]))
 
 		out.write("\n};\n")
 	else:
@@ -137,11 +189,8 @@ def printIFaceTableCXXFile(f,out):
 
 	out.write("\nstatic IFaceFunction ifaceFunctions[] = {")
 	if functions:
-		funclist = functions.items()
-		funclist.sort()
-
 		first = 1
-		for name, features in funclist:
+		for name, features in functions:
 			if first: first = 0
 			else: out.write(",")
 
@@ -165,26 +214,26 @@ def printIFaceTableCXXFile(f,out):
 
 		out.write("\n};\n")
 	else:
-		out.write('{""}};\n')
+		out.write('{"",0,iface_void,{iface_void,iface_void}} };\n')
 
 
 	out.write("\nstatic IFaceProperty ifaceProperties[] = {")
 	if properties:
-		proplist = properties.items()
-		proplist.sort()
-
 		first = 1
-		for propname, (getter, setter, valueType, paramType) in proplist:
+		for propname, property in properties:
 			if first: first = 0
 			else: out.write(",")
 
 			out.write('\n\t{"%s", %s, %s, iface_%s, iface_%s}' % (
-				propname, getter, setter, valueType, paramType
+				propname,
+				property["GetterValue"],
+				property["SetterValue"],
+				property["PropertyType"], property["IndexParamType"]
 			))
 
 		out.write("\n};\n")
 	else:
-		out.write('{""}};\n')
+		out.write('{"", 0, iface_void, iface_void} };\n')
 
 	out.write("\nenum {\n")
 	out.write("\tifaceFunctionCount = %d,\n" % len(functions))
@@ -198,10 +247,10 @@ def CopyWithInsertion(input, output, genfn, definition):
 	for line in input.readlines():
 		if copying:
 			output.write(line)
-		if Contains(line, "//++Autogenerated"):
+		if Contains(line, "//++Autogenerated") or Contains(line, "<!-- <Autogenerated> -->"):
 			copying = 0
 			genfn(definition, output)
-		if Contains(line, "//--Autogenerated"):
+		if Contains(line, "//--Autogenerated") or Contains(line, "<!-- </Autogenerated> -->"):
 			copying = 1
 			output.write(line)
 

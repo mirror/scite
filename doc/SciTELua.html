@@ -106,6 +106,8 @@ Within Lua scripts you can use the following functions / objects:
   editor - the editor pane
   output - the output pane
   props - a pseudo-table representing the SciTE properties
+  buffer - a table associated with the current buffer or document
+  scite - a namespace for functions which control SciTE.
 </tt></pre><p>
 In addition, all constants defined in Scintilla.iface are exposed as
 Lua globals variables. Function names are exposed as their block 
@@ -193,6 +195,43 @@ This is not done yet, but would be a good project for someone.
 <a href="http://scintilla.sourceforge.net/ScintillaDoc.html">ScintillaDoc</a> would be a good template to follow.  An api file
 would also be a good addition.
 </p>
+The <tt>scite</tt> namespace includes the following functions:
+</p><pre><tt>  scite.Open(filename)
+    - opens a file in a new buffer
+    - activates the file's buffer if it is already opened.
+
+  scite.SendEditor(SCI_constant, ...)
+    - sends a message to the editor pane
+    - equivalent to the corresponding iface function or property
+
+  scite.SendOutput(SCI_constant, ...)
+    - sends a message to the output pane
+    
+  scite.ConstantName(number)
+    - returns the symbolic name of a Scintilla / SciTE constant
+</tt></pre><p>
+<tt>Open</tt> requires special care.  When the buffer changes in SciTE, the
+Lua global namespace is reset to its initial state, and any extension
+script associated with the new buffer is loaded.  Thus, when you call
+Open, this may change the environment in which your current script is
+running.  When possible, you can avoid confusion by simply returning
+after scite.Open, but when that is not possible, just bear in mind
+that there are side effects.  Local variables, unlike globals, will
+be retained after the buffer change until your script returns.
+</p><p>
+The <tt>SendEditor</tt> and <tt>SendOuput</tt> functions duplicate the
+functionality of the editor and output objects, providing access to these
+through an interface that is more familiar to Scintilla C++ developers.
+This may be useful for prototyping C++ code using Lua.  Internally,
+<tt>SendEditor</tt> and <tt>SendOutput</tt> are translated to the
+corresponding iface function or property, so their arguments and
+return types are identical.  (Although the calling convention for
+properties is obviously different.)
+</p><p>
+The ConstantName function may be useful when generating debug messages,
+or if extending the SciTE LuaExtension to support macro recording.
+</p>
+
 <hr noshade="noshade" width="80%" align="left" />
 
 <h4>Disabling Lua</h4>

@@ -72,6 +72,18 @@ bool SingleThreadExtension::Load(const char *filename) {
 	return ext->Load(filename);
 }
 
+bool SingleThreadExtension::InitBuffer(int index) {
+	return ext->InitBuffer(index);
+}
+
+bool SingleThreadExtension::ActivateBuffer(int index) {
+	return ext->ActivateBuffer(index);
+}
+
+bool SingleThreadExtension::RemoveBuffer(int index) {
+	return ext->RemoveBuffer(index);
+}
+
 bool SingleThreadExtension::OnOpen(const char *filename) {
 	return ext->OnOpen(filename);
 }

@@ -78,6 +78,8 @@ public:
 	static int FindFunction(const char *name);
 	static int FindFunctionByConstantName(const char *name);
 	static int FindProperty(const char *name);
+
+	static int GetConstantName(int value, char *nameOut, unsigned nameBufferLen);
 };
 
 #endif

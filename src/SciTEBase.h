@@ -653,7 +653,7 @@ protected:
 	void SetIndentSettings();
 	void SetEol();
 	void New();
-	void Close(bool updateUI = true, bool loadingSession = false);
+	void Close(bool updateUI = true, bool loadingSession = false, bool makingRoomForNew = false);
 	bool IsAbsolutePath(const char *path);
 	bool Exists(const char *dir, const char *path, char *testPath);
 	void OpenFile(int fileSize, bool suppressMessage);

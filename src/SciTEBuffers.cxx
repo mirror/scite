@@ -183,6 +183,13 @@ void SciTEBase::SetDocumentAt(int index) {
 
 	buffers.SetCurrent(index);
 
+	if (extender) {
+		if (buffers.size > 1)
+			extender->ActivateBuffer(index);
+		else
+			extender->InitBuffer(0);
+	}
+
 	Buffer bufferNext = buffers.buffers[buffers.Current()];
 	isDirty = bufferNext.isDirty;
 	useMonoFont = bufferNext.useMonoFont;
@@ -235,8 +242,9 @@ void SciTEBase::SetDocumentAt(int index) {
 	CheckMenus();
 	UpdateStatusBar(true);
 
-	if (extender)
+	if (extender) {
 		extender->OnSwitchFile(fullPath);
+	}
 }
 
 void SciTEBase::UpdateBuffersCurrent() {
@@ -540,7 +548,7 @@ void SciTEBase::New() {
 	        (buffers.buffers[0].isDirty) ||
 			(!buffers.buffers[0].IsUntitled())) {
 			if (buffers.size == buffers.length) {
-				Close(false, false);
+				Close(false, false, true);
 			}
 			buffers.SetCurrent(buffers.Add());
 	}
@@ -561,20 +569,22 @@ void SciTEBase::New() {
 	ClearDocument();
 	DeleteFileStackMenu();
 	SetFileStackMenu();
+	if (extender)
+		extender->InitBuffer(buffers.Current());
 }
 
-void SciTEBase::Close(bool updateUI, bool loadingSession) {
+void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew) {
 	bool closingLast = false;
 
 	if (buffers.size == 1) {
 		// With no buffer list, Close means close from MRU
 		closingLast = !(recentFileStack[0].IsSet());
-
 		buffers.buffers[0].Init();
 		buffers.buffers[0].useMonoFont = useMonoFont;
 		fullPath[0] = '\0';
 		ClearDocument(); //avoid double are-you-sure
-		StackMenu(0);
+		if (!makingRoomForNew)
+			StackMenu(0); // calls New, or Open, which calls InitBuffer
 	} else if (buffers.size > 1) {
 		if (buffers.Current() >= 0 && buffers.Current() < buffers.length) {
 			UpdateBuffersCurrent();
@@ -585,8 +595,13 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 		if (closingLast) {
 			buffers.buffers[0].Init();
 			buffers.buffers[0].useMonoFont = useMonoFont;
+			if (extender)
+				extender->InitBuffer(0);
 		} else {
+			extender->RemoveBuffer(buffers.Current());
 			buffers.RemoveCurrent();
+			if (extender && !makingRoomForNew)
+				extender->ActivateBuffer(buffers.Current());
 		}
 		Buffer bufferNext = buffers.buffers[buffers.Current()];
 		isDirty = bufferNext.isDirty;
@@ -630,6 +645,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 			DisplayAround(bufferNext);
 		}
 	}
+
 	if (updateUI) {
 		BuffersMenu();
 		UpdateStatusBar(true);

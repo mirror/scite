@@ -40,6 +40,10 @@ public:
 	virtual bool Clear()=0;
 	virtual bool Load(const char *filename)=0;
 
+	virtual bool InitBuffer(int) { return false; }
+	virtual bool ActivateBuffer(int) { return false; }
+	virtual bool RemoveBuffer(int) { return false; }
+
 	virtual bool OnOpen(const char *) { return false; }
 	virtual bool OnSwitchFile(const char *) { return false; }
 	virtual bool OnBeforeSave(const char *) { return false; }
