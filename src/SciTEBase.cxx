@@ -2996,22 +2996,12 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_CUT:
 		if (SendPane(source, SCI_GETSELECTIONSTART) != SendPane(source, SCI_GETSELECTIONEND)) {
 			SendPane(source, SCI_CUT);
-		} else if (SelectWordAtCaret()) {
-			SendPane(source, SCI_CUT);
 		}
 		break;
 	case IDM_COPY:
 		if (SendPane(source, SCI_GETSELECTIONSTART) != SendPane(source, SCI_GETSELECTIONEND)) {
 			//fprintf(stderr, "Copy from %d\n", source);
 			SendPane(source, SCI_COPY);
-		} else {
-			int selStart = 0;
-			int selEnd = 0;
-			FindWordAtCaret(selStart, selEnd);
-			if (selStart != selEnd) {
-				//fprintf(stderr, "Sel word at caret %d\n", source);
-				SendPane(source, SCI_COPYRANGE, selStart, selEnd);
-			}
 		}
 		// does not trigger SCN_UPDATEUI, so do CheckMenusClipboard() here
 		CheckMenusClipboard();
@@ -3765,10 +3755,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 void SciTEBase::CheckMenusClipboard() {
 	bool hasSelection = SendFocused(SCI_GETSELECTIONSTART) != SendFocused(SCI_GETSELECTIONEND);
-	//EnableAMenuItem(IDM_CUT, hasSelection);
-	EnableAMenuItem(IDM_CUT, true);
-	//EnableAMenuItem(IDM_COPY, hasSelection);
-	EnableAMenuItem(IDM_COPY, true);
+	EnableAMenuItem(IDM_CUT, hasSelection);
+	EnableAMenuItem(IDM_COPY, hasSelection);
 	EnableAMenuItem(IDM_CLEAR, hasSelection);
 	EnableAMenuItem(IDM_PASTE, SendFocused(SCI_CANPASTE));
 }
