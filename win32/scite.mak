@@ -117,7 +117,6 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexAVE.obj \
 	..\..\scintilla\win32\LexBaan.obj \
 	..\..\scintilla\win32\LexBash.obj \
-	..\..\scintilla\win32\LexBB.obj \
 	..\..\scintilla\win32\LexBullant.obj \
 	..\..\scintilla\win32\LexCLW.obj \
 	..\..\scintilla\win32\LexConf.obj \
@@ -202,8 +201,8 @@ OBJSSTATIC=\
 LEXPROPS=\
 $(DIR_BIN)\ada.properties $(DIR_BIN)\asm.properties $(DIR_BIN)\asn1.properties \
 $(DIR_BIN)\au3.properties $(DIR_BIN)\ave.properties $(DIR_BIN)\baan.properties \
-$(DIR_BIN)\bb.properties $(DIR_BIN)\bullant.properties \
-$(DIR_BIN)\conf.properties $(DIR_BIN)\cpp.properties $(DIR_BIN)\css.properties \
+$(DIR_BIN)\bullant.properties $(DIR_BIN)\conf.properties \
+$(DIR_BIN)\cpp.properties $(DIR_BIN)\css.properties \
 $(DIR_BIN)\eiffel.properties $(DIR_BIN)\erlang.properties \
 $(DIR_BIN)\escript.properties $(DIR_BIN)\forth.properties \
 $(DIR_BIN)\fortran.properties $(DIR_BIN)\html.properties \
@@ -276,8 +275,6 @@ $(DIR_BIN)\ave.properties:	..\src\ave.properties
 	copy ..\src\ave.properties $@
 $(DIR_BIN)\baan.properties:	..\src\baan.properties
 	copy ..\src\baan.properties $@
-$(DIR_BIN)\bb.properties:	..\src\bb.properties
-	copy ..\src\bb.properties $@
 $(DIR_BIN)\bullant.properties:	..\src\bullant.properties
 	copy ..\src\bullant.properties $@
 $(DIR_BIN)\conf.properties:	..\src\conf.properties
