@@ -126,6 +126,7 @@ protected:
 	
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
+	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute();
@@ -442,6 +443,10 @@ void SciTEGTK::ShowToolBar() {
 	} else {
 		gtk_widget_hide(GTK_WIDGET(wToolBarBox.GetID()));
 	}
+}
+
+void SciTEGTK::ShowTabBar() {
+	SizeSubWindows();
 }
 
 void SciTEGTK::ShowStatusBar() {
