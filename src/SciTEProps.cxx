@@ -156,6 +156,12 @@ bool PropSetFile::Read(const char *filename, const char *directoryForImports,
 	return false;
 }
 
+void PropSetFile::SetInteger(const char *key, sptr_t i) {
+	char tmp[32];
+	sprintf(tmp, "%d", static_cast<int>(i));
+	Set(key, tmp);
+}
+
 void SciTEBase::SetImportMenu() {
 	for (int i = 0; i < importMax; i++) {
 		DestroyMenuItem(menuOptions, importCmdID + i);

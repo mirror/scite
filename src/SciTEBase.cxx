@@ -906,12 +906,20 @@ SString SciTEBase::SelectionFilename() {
 	return SString(selection);
 }
 
+// Avoid the ugly casting for turning results from Scintilla API calls into strings
 void SciTEBase::SelectionIntoProperties() {
 	char currentSelection[1000];
 	SelectionExtend(currentSelection, sizeof(currentSelection), 0);
 	props.Set("CurrentSelection", currentSelection);
 	SString word = SelectionWord();
 	props.Set("CurrentWord", word.c_str());
+	
+	int selStart = SendFocused(SCI_GETSELECTIONSTART);
+	props.SetInteger("SelectionStartLine", SendFocused(SCI_LINEFROMPOSITION, selStart) + 1);
+	props.SetInteger("SelectionStartColumn", SendFocused(SCI_GETCOLUMN, selStart) + 1);
+	int selEnd = SendFocused(SCI_GETSELECTIONEND);
+	props.SetInteger("SelectionEndLine", SendFocused(SCI_LINEFROMPOSITION, selEnd) + 1);
+	props.SetInteger("SelectionEndColumn", SendFocused(SCI_GETCOLUMN, selEnd) + 1);
 }
 
 void SciTEBase::SelectionIntoFind() {
@@ -2043,7 +2051,7 @@ void SciTEBase::SetFileProperties(
  * Set up properties for ReadOnly, EOLMode, BufferLength, NbOfLines, SelLength, SelHeight.
  */
 void SciTEBase::SetTextProperties(
-    PropSet &ps) {			///< Property set to update.
+    PropSetFile &ps) {			///< Property set to update.
 
 	const int TEMP_LEN = 100;
 	char temp[TEMP_LEN];
@@ -2057,8 +2065,7 @@ void SciTEBase::SetTextProperties(
 	sprintf(temp, "%d", LengthDocument());
 	ps.Set("BufferLength", temp);
 
-	sprintf(temp, "%d", static_cast<int>(SendEditor(SCI_GETLINECOUNT)));
-	ps.Set("NbOfLines", temp);
+	ps.SetInteger("NbOfLines", SendEditor(SCI_GETLINECOUNT));
 
 	CharacterRange crange = GetSelection();
 	sprintf(temp, "%ld", crange.cpMax - crange.cpMin);
@@ -2071,16 +2078,15 @@ void SciTEBase::SetTextProperties(
 
 void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 	if (sbVisible) {
-		char tmp[32];
 		if (bUpdateSlowData) {
 			SetFileProperties(propsStatus);
 		}
 		SetTextProperties(propsStatus);
 		int caretPos = SendEditor(SCI_GETCURRENTPOS);
-		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_LINEFROMPOSITION, caretPos)) + 1);
-		propsStatus.Set("LineNumber", tmp);
-		sprintf(tmp, "%d", static_cast<int>(SendEditor(SCI_GETCOLUMN, caretPos)) + 1);
-		propsStatus.Set("ColumnNumber", tmp);
+		propsStatus.SetInteger("LineNumber", 
+			SendEditor(SCI_LINEFROMPOSITION, caretPos) + 1);
+		propsStatus.SetInteger("ColumnNumber", 
+			SendEditor(SCI_GETCOLUMN, caretPos) + 1);
 		propsStatus.Set("OverType", SendEditor(SCI_GETOVERTYPE) ? "OVR" : "INS");
 
 		char sbKey[32];

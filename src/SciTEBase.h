@@ -105,6 +105,7 @@ public:
 	bool ReadLine(const char *data, bool ifIsTrue, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 	void ReadFromMemory(const char *data, int len, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 	bool Read(const char *filename, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
+	void SetInteger(const char *key, sptr_t i);
 };
 
 class FilePath {
@@ -427,7 +428,7 @@ protected:
 
 	PropSetFile propsUI;
 
-	PropSet propsStatus;
+	PropSetFile propsStatus;	// Not attached to a file but need SetInteger method.
 
 	enum { bufferMax = 100 };
 	BufferList buffers;
@@ -576,7 +577,7 @@ protected:
 	void MaintainIndentation(char ch);
 	void AutomaticIndentation(char ch);
 	void CharAdded(char ch);
-	void SetTextProperties(PropSet &ps);
+	void SetTextProperties(PropSetFile &ps);
 	void SetFileProperties(PropSet &ps);
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
 	int GetLineLength(int line);
