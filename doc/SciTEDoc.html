@@ -1199,6 +1199,7 @@ NameError: mistake
       <tr>
         <td>
 	comment.block.<i>lexer</i><br />
+	comment.block.at.line.start.<i>lexer</i><br />
 	comment.stream.start.<i>lexer</i><br />
 	comment.stream.end.<i>lexer</i><br />
 	comment.box.start.<i>lexer</i><br />
@@ -1217,6 +1218,9 @@ NameError: mistake
 	a range of text that already contains comments and other code, the string 
 	can be defined to contain a character such as '~' that is not used in real 
 	comments.<br />
+	Set comment.block.at.line.start to "1" to place block comment symbols 
+	at the start of the lines, instead of just before the first non-blank 
+	character of the lines.<br />
 	Stream comments start with a particular string and end with another 
 	particular string and may continue over line ends. These are defined 
 	with comment.stream.start and comment.stream.end. <br />
