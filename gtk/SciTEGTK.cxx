@@ -44,11 +44,7 @@
 
 #define MB_ABOUTBOX	0x100000L
 
-#ifdef STATIC_BUILD
-const char appName[] = "Sc1";
-#else
 const char appName[] = "SciTE";
-#endif
 
 #ifdef __vms
 char g_modulePath[MAX_PATH];
@@ -1696,11 +1692,7 @@ int SciTEGTK::WindowMessageBox(Window &w, const SString &msg, int style) {
 			                   explanation, TRUE, TRUE, 0);
 			gtk_widget_set_usize(GTK_WIDGET(explanation), 480, 380);
 			gtk_widget_show_all(explanation);
-#ifdef STATIC_BUILD
-			SetAboutMessage(explanation, "Sc1  ");
-#else
 			SetAboutMessage(explanation, "SciTE");
-#endif
 		} else {
 			GtkWidget *label = gtk_label_new(msg.c_str());
 			gtk_misc_set_padding(GTK_MISC(label), 10, 10);
