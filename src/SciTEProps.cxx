@@ -670,6 +670,9 @@ void SciTEBase::ReadProperties() {
 	else
 		SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
 
+	SendEditor(SCI_SETTABINDENTS, props.GetInt("tab.indents", 1));
+	SendEditor(SCI_SETBACKSPACEUNINDENTS, props.GetInt("backspace.unindents", 1));
+
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize) {
 		SendEditor(SCI_SETTABWIDTH, tabSize);
