@@ -84,6 +84,10 @@ bool SciTEBase::IsAbsolutePath(const char *path) {
 	if (path[0] == '/')
 		return true;
 #endif
+#ifdef __vms
+	if (path[0] == '/')
+		return true;
+#endif
 #ifdef WIN32
 	if (path[0] == '\\' || path[1] == ':')	// UNC path or drive separator
 		return true;

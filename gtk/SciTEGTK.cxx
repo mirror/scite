@@ -1646,7 +1646,7 @@ void SciTEGTK::DividerXOR(Point pt) {
 		values.subwindow_mode = GDK_INCLUDE_INFERIORS;
 		xor_gc = gdk_gc_new_with_values(wSciTE.GetID()->window,
 		                                &values,
-		                                static_cast<enum GdkGCValuesMask>(
+		                                static_cast<GdkGCValuesMask>(
 		                                    GDK_GC_FOREGROUND | GDK_GC_FUNCTION | GDK_GC_SUBWINDOW));
 	}
 	if (splitVertical) {
@@ -2291,7 +2291,13 @@ bool SciTEGTK::CreatePipe(bool forceNew) {
 		//there isn't one - so create one
 		else if (fdPipe == -1) {
 			//printf("Non found - making\n");
+//WB++
+#ifndef __vms
 			mkfifo(pipeName, 0777);
+#else           // no mkfifo on OpenVMS!
+			creat(pipeName, 0777);
+#endif
+//WB--
 			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
 			break;
 		}
