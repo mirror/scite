@@ -121,6 +121,7 @@ const char *contributors[] = {
     "Martin Alderson",
     "Robert Gustavsson",
     "José Fonseca",
+    "Holger Kiemes",
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -3382,7 +3383,20 @@ void SciTEBase::PerformOne(char *action) {
 			findWhat = arg;
 			FindNext(false, false);
 		} else if (isprefix(action, "goto:") && fnEditor) {
-			GotoLineEnsureVisible(atoi(arg) - 1);
+			int line = atoi(arg) - 1;
+			GotoLineEnsureVisible(line);
+			// jump to column if given and greater than 0
+			char *colstr = strchr(arg, ',');
+			if (colstr != NULL) { 
+				int col = atoi(colstr+1);
+				if (col > 0) {
+					int pos =SendEditor(SCI_GETCURRENTPOS) + col;
+					// select the word you have found there
+					int wordStart = SendEditor(SCI_WORDSTARTPOSITION, pos, true);
+					int wordEnd = SendEditor(SCI_WORDENDPOSITION, pos, true);
+					SendEditor(SCI_SETSEL, wordStart, wordEnd);     
+				}
+			}
 		} else if (isprefix(action, "insert:") && fnEditor) {
 			SendEditorString(SCI_REPLACESEL, 0, arg);
 		} else if (isprefix(action, "macrocommand:")) {
