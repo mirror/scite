@@ -2366,8 +2366,9 @@ static bool IsOctalDigit(char ch) {
 /**
  * Convert C style \nnn, \r, \n, \t into their indicated characters
  */
-static void UnSlash(char *s) {
-	char *o=s;
+static unsigned int UnSlash(char *s) {
+	char *sStart = s;
+	char *o = s;
 	while (*s) {
 		if (*s == '\\') {
 			s++;
@@ -2400,10 +2401,11 @@ static void UnSlash(char *s) {
 		s++;
 	}
 	*o = '\0';
+	return o - sStart;
 }
 
 void SciTEBase::PerformOne(char *action) {
-	UnSlash(action);
+	unsigned int len = UnSlash(action);
 	char *arg = strchr(action, ':');
 	if (arg) {
 		arg++;
@@ -2430,12 +2432,10 @@ void SciTEBase::PerformOne(char *action) {
 		} else if (isprefix(action, "insert:")) {
 			SendEditorString(SCI_REPLACESEL, 0, arg);
 		} else if (isprefix(action, "replaceall:")) {
-			char *tab = strchr(arg, '\t');
-			if (tab) {
-				*tab = '\0';
-				tab++;
+			if (len > strlen(action)) {
+				char *arg2 = arg + strlen(arg) + 1;
 				strcpy(findWhat, arg);
-				strcpy(replaceWhat, tab);
+				strcpy(replaceWhat, arg2);
 				ReplaceAll();
 			}
 		}
