@@ -1921,6 +1921,9 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 				} else {
 					SciTEBase::SendFocused(commandNum);
 				}
+				gtk_signal_emit_stop_by_name(
+				    GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
+				return 1;
 			}
 		}
 	}
