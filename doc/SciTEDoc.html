@@ -354,6 +354,9 @@ NameError: mistake
        All move keys (arrows, page up/down, home and end)
        allows to extend or reduce the stream selection when holding the Shift key,
        and the rectangular selection when holding the Shift and Alt keys.
+       Some keys may not be available with some national keyboards or because
+       they are taken by the system such as by a window manager on GTK+.
+       The user.shortcuts setting may be used to assign a key to a function.
        Note that Home key behaviour is changed by the vc.home.key option.
        Keyboard equivalents of menu commands are listed in the menus.
        Some less common commands with no menu equivalent are:
@@ -462,16 +465,25 @@ NameError: mistake
         <td>Select to matching preprocessor conditional backwards.</td><td>Ctrl+Shift+J</td>
       </tr>
       <tr>
-        <td>Previous or next paragraph. (Shift extends selection (or not?).)</td><td>Alt+Up or Down</td>
+        <td>Previous paragraph. Shift extends selection.</td><td>Ctrl+[</td>
       </tr>
       <tr>
-        <td>Previous or next word. (Shift extends selection.)</td><td>Ctrl+Left or Right</td>
+        <td>Next paragraph. Shift extends selection.</td><td>Ctrl+]</td>
       </tr>
       <tr>
-        <td>Previous or next word part. (Shift extends selection (or not?).)</td><td>Alt+Ctrl+Left or Right</td>
+        <td>Previous word. Shift extends selection.</td><td>Ctrl+Left</td>
       </tr>
       <tr>
-        <td>Document end. (Shift extends selection.)</td><td>Ctrl+End</td>
+        <td>Next word. Shift extends selection.</td><td>Ctrl+Right</td>
+      </tr>
+      <tr>
+        <td>Previous word part. Shift extends selection</td><td>Ctrl+/</td>
+      </tr>
+      <tr>
+        <td>Next word part. Shift extends selection.</td><td>Ctrl+\</td>
+      </tr>
+      <tr>
+        <td>Document end. Shift extends selection.</td><td>Ctrl+End</td>
       </tr>
     </table>
     <h3>
