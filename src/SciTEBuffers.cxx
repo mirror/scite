@@ -1128,6 +1128,54 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			break;
 		}
 
+	case SCE_ERR_ELF: {
+			// Essential Lahey Fortran error look like: Line 11, file c:\fortran90\codigo\demo.f90
+			char *line = strchr(cdoc, ' ');
+			if (line) {
+				while(isspace(*line)) {
+					line++;
+				}
+				char *file = strchr(line, ' ');
+				if (file) {
+					while(isspace(*file)) {
+						file++;
+					}
+					while(*file && !isspace(*file)) {
+						file++;
+					}
+					size_t length = strlen(file);
+					strncpy(sourcePath, file, length);
+					sourcePath[length] = '\0';
+					return atoi(line)-1;
+				}
+			}
+			break;
+		}
+
+	case SCE_ERR_IFC: {
+			/* Intel Fortran Compiler error/warnings look like:
+			 * Error 71 at (17:teste.f90) : The program unit has no name
+			 * Warning 4 at (9:modteste.f90) : Tab characters are an extension to standard Fortran 95
+			 *
+			 * Depending on the option, the error/warning messages can also appear on the form:
+			 * modteste.f90(9): Warning 4 : Tab characters are an extension to standard Fortran 95
+			 *
+			 * These are trapped by the MS handler, and are identified OK, so no problem...
+			 */
+			char *line = strchr(cdoc, '(');
+			char *file = strchr(line, ':');
+			if (line && file) {
+				file++;
+				char *endfile = strchr(file, ')');
+				size_t length = endfile - file;
+				strncpy(sourcePath, file, length);
+				sourcePath[length] = '\0';
+				line++;
+				return atoi(line) - 1;
+			}
+			break;
+		}
+
 	}	// switch
 	return - 1;
 }
