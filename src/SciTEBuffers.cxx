@@ -538,8 +538,12 @@ void SciTEBase::New() {
 	if ((buffers.length > 1) ||
 	        (buffers.Current() != 0) ||
 	        (buffers.buffers[0].isDirty) ||
-	        (!buffers.buffers[0].IsUntitled()))
-		buffers.SetCurrent(buffers.Add());
+			(!buffers.buffers[0].IsUntitled())) {
+			if (buffers.size == buffers.length) {
+				Close(false, false);
+			}
+			buffers.SetCurrent(buffers.Add());
+	}
 
 	sptr_t doc = GetDocumentAt(buffers.Current());
 	SendEditor(SCI_SETDOCPOINTER, 0, doc);
