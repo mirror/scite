@@ -562,6 +562,12 @@ void SciTEBase::LoadSession(const char *sessionName) {
 		AddFileToBuffer(file, pos - 1);
 	}
 	fclose(sessionFile);
+
+	if (!IsAbsolutePath(sessionPathName))
+		AbsolutePath(sessionPathName, sessionPathName, MAX_PATH);
+	// add/update SessionPath environment variable
+	props.Set("SessionPath", sessionPathName);
+
 	if (curr != -1)
 		SetDocumentAt(curr);
 }
@@ -588,6 +594,12 @@ void SciTEBase::SaveSession(const char *sessionName) {
 		}
 	}
 	fclose(sessionFile);
+
+	if (!IsAbsolutePath(sessionPathName))
+		AbsolutePath(sessionPathName, sessionPathName, MAX_PATH);
+	// add/update SessionPath environment variable
+	props.Set("SessionPath", sessionPathName);
+
 	SetDocumentAt(curr);
 }
 
