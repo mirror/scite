@@ -897,6 +897,9 @@ void SciTEWin::CreateUI() {
 		width = CW_USEDEFAULT;
 		height = CW_USEDEFAULT;
 	}
+	if (props.GetInt("position.tile") && ::FindWindow("SciTEWindow", NULL)) {
+		left += width;
+	}
 	wSciTE = ::CreateWindowEx(
 	             0,
 	             className,
