@@ -675,8 +675,9 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	braceOpposite = -1;
 	char charBefore = '\0';
 	char styleBefore = '\0';
+	int lengthDoc = Platform::SendScintilla(win.GetID(), SCI_GETLENGTH, 0, 0);
 	WindowAccessor acc(win.GetID(), props);
-	if (caretPos > 0) {
+	if ((lengthDoc > 0) && (caretPos > 0)) {
 		charBefore = acc[caretPos - 1];
 		styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
 	}
@@ -691,7 +692,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		colonMode = true;
 	}
 	bool isAfter = true;
-	if (sloppy && (braceAtCaret < 0)) {
+	if (lengthDoc > 0 && sloppy && (braceAtCaret < 0)) {
 		// No brace found so check other side
 		char charAfter = acc[caretPos];
 		char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
