@@ -1811,24 +1811,28 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       <tr>
         <td>
           tabsize<br />
-	  indent.size<br />
+          tabsize.<i>filepattern</i><br />
+	indent.size<br />
+	indent.size.<i>filepattern</i><br />
           use.tabs<br />
-	  use.tab.for.<i>filepattern</i><br />
-	  tab.indents<br />
-	  backspace.unindents
+          use.tabs.<i>filepattern</i><br />
+	tab.indents<br />
+	backspace.unindents
         </td>
         <td>
           Sets the size of a tab as a multiple of the size of a space character in the style of the
           default style definition. The indent size is the size to use when performing automatic
-	  indentation and may be different from the tab size. Many people use a tab size of 8 but
-	  4 character indentation. When creating indentation, use.tabs determines whether the
-	  indentation is made up purely from space characters or from a mix of tabs and spaces
-	  using as many tabs as possible. The default use.tabs property can be overridden for
-	  files that match a pattern by a use.tab.characters.<i>filepattern</i> property.
-	  If tab.indents set then pressing tab within indentation whitespace indents by indent.size
-	  rather than inserting a tab character. If backspace.unindents then pressing backspace 
-	  within indentation whitespace unindents by indent.size rather than deleting the character 
-	  before the caret.
+	indentation and may be different from the tab size. Many people use a tab size of 8 but
+	4 character indentation. When creating indentation, use.tabs determines whether the
+	indentation is made up purely from space characters or from a mix of tabs and spaces
+	using as many tabs as possible. <br />
+	The global tabsize, indent.size, and use.tabs properties can be overridden for
+	files that match a pattern by using the using the file pattern forms: <br /><code>
+	indent.size.*.pas=3</code><br />
+	If tab.indents is set then pressing tab within indentation whitespace indents by indent.size
+	rather than inserting a tab character. If backspace.unindents then pressing backspace 
+	within indentation whitespace unindents by indent.size rather than deleting the character 
+	before the caret.
         </td>
       </tr>
       <tr>

@@ -169,6 +169,7 @@ void SciTEBase::SetDocumentAt(int index) {
 	if (useMonoFont) {
 		SetMonoFont();
 	}
+	isReadOnly = SendEditor(SCI_GETREADONLY);
 
 #if PLAT_WIN
 	// Tab Bar
@@ -361,6 +362,36 @@ void SciTEBase::SaveSession(const char *sessionName) {
 	fclose(sessionFile);
 }
 
+void SciTEBase::SetIndentSettings() {
+	// Get default values
+	int useTabs = props.GetInt("use.tabs", 1);
+	int tabSize = props.GetInt("tabsize");
+	int indentSize = props.GetInt("indent.size");
+	// Either set the settings related to the extension or the default ones
+	SString fileNameForExtension = ExtensionFileName();
+	SString useTabsChars = props.GetNewExpand("use.tabs.",
+	                                          fileNameForExtension.c_str());
+	if (useTabsChars.length() != 0) {
+		SendEditor(SCI_SETUSETABS, useTabsChars.value());
+	} else {
+		SendEditor(SCI_SETUSETABS, useTabs);
+	}
+	SString tabSizeForExt = props.GetNewExpand("tab.size.",
+	                                           fileNameForExtension.c_str());
+	if (tabSizeForExt.length() != 0) {
+		SendEditor(SCI_SETTABWIDTH, tabSizeForExt.value());
+	} else if (tabSize != 0) {
+		SendEditor(SCI_SETTABWIDTH, tabSize);
+	}
+	SString indentSizeForExt = props.GetNewExpand("indent.size.",
+	                                              fileNameForExtension.c_str());
+	if (indentSizeForExt.length() != 0) {
+		SendEditor(SCI_SETINDENT, indentSizeForExt.value());
+	} else {
+		SendEditor(SCI_SETINDENT, indentSize);
+	}
+}
+
 void SciTEBase::New() {
 	InitialiseBuffers();
 	UpdateBuffersCurrent();
@@ -390,6 +421,8 @@ void SciTEBase::New() {
 	isDirty = false;
 	isBuilding = false;
 	isBuilt = false;
+	isReadOnly = false;	// No sense to create an empty, read-only buffer...
+
 	ClearDocument();
 	DeleteFileStackMenu();
 	SetFileStackMenu();
@@ -430,6 +463,7 @@ void SciTEBase::Close(bool updateUI) {
 			if (useMonoFont) {
 				SetMonoFont();
 			}
+			isReadOnly = SendEditor(SCI_GETREADONLY);
 			DisplayAround(bufferNext);
 		}
 	}
@@ -699,6 +733,7 @@ void SciTEBase::StackMenu(int pos) {
 			New();
 			SetWindowName();
 			ReadProperties();
+			SetIndentSettings();
 		} else if (recentFileStack[pos].IsSet()) {
 			RecentFile rf = recentFileStack[pos];
 			//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);

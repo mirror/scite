@@ -403,6 +403,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 	SetFileName(absPath);
 	overrideExtension = "";
 	ReadProperties();
+	SetIndentSettings();
 	if (useMonoFont) {
 		SetMonoFont();
 	}
@@ -425,6 +426,8 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 		OpenFile(initialCmdLine);
 
 		SendEditor(SCI_EMPTYUNDOBUFFER);
+		isReadOnly = props.GetInt("read.only");
+		SendEditor(SCI_SETREADONLY, isReadOnly);
 	}
 	RemoveFileFromStack(fullPath);
 	DeleteFileStackMenu();

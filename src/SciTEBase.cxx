@@ -155,7 +155,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	functionDefinition = 0;
-	indentSize = 8;
 	indentOpening = true;
 	indentClosing = true;
 	statementLookback = 10;
@@ -178,6 +177,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	topMost = false;
 	wrap = false;
 	wrapOutput = false;
+	isReadOnly = false;
 	checkIfOpen = false;
 	fullScreen = false;
 
@@ -414,6 +414,7 @@ void SciTEBase::SetOverrideLanguage(int cmdID) {
 	overrideExtension = "x.";
 	overrideExtension += languageMenu[cmdID].extension;
 	ReadProperties();
+	SetIndentSettings();
 	SendEditor(SCI_COLOURISE, 0, -1);
 	Redraw();
 	DisplayAround(rf);
@@ -435,9 +436,6 @@ void SciTEBase::GetLine(char *text, int sizeText, int line) {
 		line = GetCurrentLineNumber();
 	int lineStart = SendEditor(SCI_POSITIONFROMLINE, line);
 	int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, line);
-	if ((lineStart < 0) || (lineEnd < 0)) {
-		text[0] = '\0';
-	}
 	int lineMax = lineStart + sizeText - 1;
 	if (lineEnd > lineMax)
 		lineEnd = lineMax;
@@ -551,7 +549,7 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
 
 /**
  * Find if there is a preprocessor condition after or before the caret position,
- * @return true if inside a preprocessor condition.
+ * @return @c true if inside a preprocessor condition.
  */
 #ifdef __BORLANDC__
 // Borland warns that isInside is assigned a value that is never used in this method.
@@ -619,7 +617,7 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 /**
  * Find if there is a brace next to the caret, checking before caret first, then
  * after caret. If brace found also find its matching brace.
- * @return true if inside a bracket pair.
+ * @return @c true if inside a bracket pair.
  */
 bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy) {
 	bool isInside = false;
@@ -697,7 +695,7 @@ void SciTEBase::BraceMatch(bool editor) {
 			int indentPosNext = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart + 1, 0);
 			columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, indentPos, 0);
 			int columnAtCaretNext = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, indentPosNext, 0);
-			indentSize = props.GetInt("indent.size");
+			int indentSize = Platform::SendScintilla(win.GetID(), SCI_GETINDENT);
 			if (columnAtCaretNext - indentSize > 1)
 				columnAtCaret = columnAtCaretNext - indentSize;
 			//Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
@@ -1717,7 +1715,7 @@ bool SciTEBase::StartBlockComment() {
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
 	int firstSelLineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
-	// "carret return" is part of the last selected line
+	// "caret return" is part of the last selected line
 	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine))
 		selEndLine--;
 	SendEditor(SCI_BEGINUNDOACTION);
@@ -1816,7 +1814,7 @@ bool SciTEBase::StartBoxComment() {
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
-	// "carret return" is part of the last selected line
+	// "caret return" is part of the last selected line
 	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine)) {
 		selEndLine--;
 		lines--;
@@ -1934,8 +1932,7 @@ bool SciTEBase::StartStreamComment() {
  * Return the length of the given line, not counting the EOL.
  */
 int SciTEBase::GetLineLength(int line) {
-	return SendEditor(SCI_GETLINEENDPOSITION, line) -
-		SendEditor(SCI_POSITIONFROMLINE, line);
+	return SendEditor(SCI_GETLINEENDPOSITION, line) - SendEditor(SCI_POSITIONFROMLINE, line);
 }
 
 int SciTEBase::GetCurrentLineNumber() {
@@ -1976,7 +1973,7 @@ void SciTEBase::SetFileProperties(
 		                NULL, temp, TEMP_LEN);
 		ps.Set("FileDate", temp);
 
-		DWORD attr = GetFileAttributes(fullPath);
+		DWORD attr = ::GetFileAttributes(fullPath);
 		SString fa;
 		if (attr & FILE_ATTRIBUTE_READONLY) {
 			fa += "R";
@@ -2015,13 +2012,16 @@ void SciTEBase::SetFileProperties(
 }
 
 /**
- * Set up properties for EOLMode, BufferLength, NbOfLines, SelLength.
+ * Set up properties for ReadOnly, EOLMode, BufferLength, NbOfLines, SelLength, SelHeight.
  */
 void SciTEBase::SetTextProperties(
     PropSet &ps) {			///< Property set to update.
 
 	const int TEMP_LEN = 100;
 	char temp[TEMP_LEN];
+
+	SString ro = LocaliseString("READ");
+	ps.Set("ReadOnly", isReadOnly ? ro.c_str() : "");
 
 	int eolMode = SendEditor(SCI_GETEOLMODE);
 	ps.Set("EOLMode", eolMode == SC_EOL_CRLF ? "CR+LF" : (eolMode == SC_EOL_LF ? "LF" : "CR"));
@@ -2035,6 +2035,10 @@ void SciTEBase::SetTextProperties(
 	CharacterRange crange = GetSelection();
 	sprintf(temp, "%ld", crange.cpMax - crange.cpMin);
 	ps.Set("SelLength", temp);
+	int selFirstLine = SendEditor(SCI_LINEFROMPOSITION, crange.cpMin);
+	int selLastLine = SendEditor(SCI_LINEFROMPOSITION, crange.cpMax);
+	sprintf(temp, "%d", selLastLine - selFirstLine + 1);
+	ps.Set("SelHeight", temp);
 }
 
 void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
@@ -2198,6 +2202,7 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 int SciTEBase::IndentOfBlock(int line) {
 	if (line < 0)
 		return 0;
+	int indentSize = SendEditor(SCI_GETINDENT);
 	int indentBlock = GetLineIndentation(line);
 	int backLine = line;
 	IndentationStatus indentState = isNone;
@@ -2257,6 +2262,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 	int selStart = crange.cpMin;
 	int curLine = GetCurrentLineNumber();
 	int thisLineStart = SendEditor(SCI_POSITIONFROMLINE, curLine);
+	int indentSize = SendEditor(SCI_GETINDENT);
 	int indentBlock = IndentOfBlock(curLine - 1);
 
 	if (blockEnd.IsSingleChar() && ch == blockEnd.words[0]) {	// Dedent maybe
@@ -2293,7 +2299,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 
 /**
  * Upon a character being added, SciTE may decide to perform some action
- * such as displaying a completion list.
+ * such as displaying a completion list or auto-indentation.
  */
 void SciTEBase::CharAdded(char ch) {
 	if (recording)
@@ -2433,10 +2439,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_NEW:
 		// For the New command, the "are you sure" question is always asked as this gives
 		// an opportunity to abandon the edits made to a file when are.you.sure is turned off.
-
 		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
+			SetIndentSettings();
 			UpdateStatusBar(true);
 		}
 		break;
@@ -2716,6 +2722,13 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_WRAPOUTPUT:
 		wrapOutput = !wrapOutput;
 		SendOutput(SCI_SETWRAPMODE, wrapOutput ? SC_WRAP_WORD : SC_WRAP_NONE);
+		CheckMenus();
+		break;
+
+	case IDM_READONLY:
+		isReadOnly = !isReadOnly;
+		SendEditor(SCI_SETREADONLY, isReadOnly);
+		UpdateStatusBar(true);
 		CheckMenus();
 		break;
 
@@ -3071,9 +3084,6 @@ void SciTEBase::NewLineInOutput() {
 	                  SendOutput(SCI_GETCURRENTPOS)) - 1;
 	int lineStart = SendOutput(SCI_POSITIONFROMLINE, line);
 	int lineEnd = SendOutput(SCI_GETLINEENDPOSITION, line);
-	if ((lineStart < 0) || (lineEnd < 0)) {
-		cmd[0] = '\0';
-	}
 	int lineMax = lineStart + sizeof(cmd) - 1;
 	if (lineEnd > lineMax)
 		lineEnd = lineMax;
@@ -3256,6 +3266,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_CHECKIFOPEN, checkIfOpen);
 	CheckAMenuItem(IDM_WRAP, wrap);
 	CheckAMenuItem(IDM_WRAPOUTPUT, wrapOutput);
+	CheckAMenuItem(IDM_READONLY, isReadOnly);
 	CheckAMenuItem(IDM_FULLSCREEN, fullScreen);
 	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);

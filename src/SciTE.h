@@ -36,7 +36,7 @@
 #define IDM_QUIT			140
 
 #define MRU_START	8
-#define IMPORT_START 17
+#define IMPORT_START 18
 #define TOOLS_START 3
 
 // Edit
@@ -118,6 +118,7 @@
 #define IDM_CHECKIFOPEN		413
 #define IDM_WRAP			414
 #define IDM_WRAPOUTPUT		415
+#define IDM_READONLY			416
 
 #define IDM_CLEAROUTPUT		420
 #define IDM_SWITCHPANE			421
@@ -187,6 +188,7 @@
 // Dialog IDs
 #define IDD_FIND			400
 #define IDD_REPLACE			401
+#define IDD_BUFFERS			402
 
 // Resource IDs
 #define IDR_CLOSEFILE 100

@@ -307,7 +307,6 @@ protected:
 	WordList apis;
 	SString functionDefinition;
 
-	int indentSize;
 	bool indentOpening;
 	bool indentClosing;
 	bool indentMaintain;
@@ -353,6 +352,7 @@ protected:
 	bool topMost;
 	bool wrap;
 	bool wrapOutput;
+	bool isReadOnly;
 	bool checkIfOpen;
 	bool fullScreen;
 	enum { toolMax = 10 };
@@ -471,6 +471,7 @@ protected:
 	void SaveRecentStack();
 	void LoadSession(const char *sessionName);
 	void SaveSession(const char *sessionName);
+	void SetIndentSettings();
 	void New();
 	void Close(bool updateUI = true);
 	bool IsAbsolutePath(const char *path);

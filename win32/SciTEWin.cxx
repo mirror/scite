@@ -165,18 +165,18 @@ bool SciTEWin::GetSciteUserHome(char *path, unsigned int lenPath) {
 // Help command lines contain topic!path
 void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 	char *topic = StringDup(cmd);
-	char *path = strchr(topic, '!');
-	if (topic && path) {
-		*path = '\0';
-		path++;	// After the !
-		::WinHelp(MainHWND(),
-		        path,
-		        HELP_KEY,
-		        reinterpret_cast<unsigned long>(topic));
-	}
 	if (topic) {
-		delete []topic;
+		char *path = strchr(topic, '!');
+		if (path) {
+			*path = '\0';
+			path++;	// After the !
+			::WinHelp(MainHWND(),
+				path,
+				HELP_KEY,
+				reinterpret_cast<unsigned long>(topic));
+		}
 	}
+	delete []topic;
 }
 
 // HH_AKLINK not in mingw headers
@@ -492,7 +492,6 @@ void SciTEWin::ProcessExecute() {
 	bool seenOutput = false;
 
 	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
-
 		ElapsedTime commandTime;
 
 		if (jobQueue[icmd].jobType == jobShell) {
@@ -642,6 +641,10 @@ void SciTEWin::ProcessExecute() {
 			}
 
 			if (cancelFlag) {
+				// We should use it only if the GUI process is stuck and
+				// don't answer to a normal termination command.
+				// This function is dangerous: dependant DLLs don't know the process
+				// is terminated, and memory isn't released.
 				::TerminateProcess(pi.hProcess, 1);
 				completed = true;
 			}
@@ -665,6 +668,7 @@ void SciTEWin::ProcessExecute() {
 			}
 			sExitMessage += "\n";
 			OutputAppendStringSynchronised(sExitMessage.c_str());
+
 			::CloseHandle(pi.hProcess);
 			::CloseHandle(pi.hThread);
 			WarnUser(warnExecuteOK);
@@ -1002,12 +1006,21 @@ void SciTEWin::Run(const char *cmdLine) {
 
 	SString args = ProcessArgs(cmdLine);
 
+	// Check if the user just want to print the file
 	bool performPrint = ProcessCommandLine(args, 0);
 
 	// We create the window, so it can be found by EnumWidows below.
 	// We don't show it yet, so if it is destroyed (duplicate instance), it will
 	// not flash on the taskbar or on the display.
 	CreateUI();
+
+	if (performPrint) {
+		ProcessCommandLine(args, 1);
+		Print(false);
+		::PostQuitMessage(0);
+		wSciTE.Destroy();
+		return;
+	}
 
 	if (bAlreadyRunning) {
 		HWND hOtherWindow = NULL;
@@ -1054,25 +1067,18 @@ void SciTEWin::Run(const char *cmdLine) {
 		}
 	}
 
-	if (performPrint) {
-		ProcessCommandLine(args, 1);
-		Print(false);
-		::PostQuitMessage(0);
-		wSciTE.Destroy();
-	} else {
-		SizeSubWindows();
-		wSciTE.Show();
-		if (cmdShow) {	// assume SW_MAXIMIZE only
-			::ShowWindow(MainHWND(), cmdShow);
-		}
-
-		// Open all files given on command line.
-		// The filenames containing spaces must be enquoted.
-		// In case of not using buffers they get closed immediately except
-		// the last one, but they move to the MRU file list
-		ProcessCommandLine(args, 1);
-		Redraw();
+	SizeSubWindows();
+	wSciTE.Show();
+	if (cmdShow) {	// assume SW_MAXIMIZE only
+		::ShowWindow(MainHWND(), cmdShow);
 	}
+
+	// Open all files given on command line.
+	// The filenames containing spaces must be enquoted.
+	// In case of not using buffers they get closed immediately except
+	// the last one, but they move to the MRU file list
+	ProcessCommandLine(args, 1);
+	Redraw();
 }
 
 void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {

@@ -792,22 +792,9 @@ void SciTEBase::ReadProperties() {
 		wordCharacters = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	}
 
-	SString useTabs = props.GetNewExpand("use.tab.characters.",
-	                                     fileNameForExtension.c_str());
-	if (useTabs.length())
-		SendEditor(SCI_SETUSETABS, useTabs.value());
-	else
-		SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
-
 	SendEditor(SCI_SETTABINDENTS, props.GetInt("tab.indents", 1));
 	SendEditor(SCI_SETBACKSPACEUNINDENTS, props.GetInt("backspace.unindents", 1));
 
-	int tabSize = props.GetInt("tabsize");
-	if (tabSize) {
-		SendEditor(SCI_SETTABWIDTH, tabSize);
-	}
-	indentSize = props.GetInt("indent.size");
-	SendEditor(SCI_SETINDENT, indentSize);
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
 	indentMaintain = props.GetNewExpand("indent.maintain.", fileNameForExtension.c_str()).value();
@@ -1100,15 +1087,17 @@ bool SciTEBase::GetDefaultPropertiesFileName(char *pathDefaultProps,
 
 bool SciTEBase::GetAbbrevPropertiesFileName(char *pathAbbrevProps,
         char *pathDefaultDir, unsigned int lenPath) {
-	if (!GetSciteDefaultHome(pathDefaultDir, lenPath))
+	if (!GetSciteDefaultHome(pathDefaultDir, lenPath)) {
 		return false;
+	}
 	return BuildPath(pathAbbrevProps, pathDefaultDir, propAbbrevFileName, lenPath);
 }
 
 bool SciTEBase::GetUserPropertiesFileName(char *pathUserProps,
         char *pathUserDir, unsigned int lenPath) {
-	if (!GetSciteUserHome(pathUserDir, lenPath))
+	if (!GetSciteUserHome(pathUserDir, lenPath)) {
 		return false;
+	}
 	return BuildPath(pathUserProps, pathUserDir, propUserFileName, lenPath);
 }
 
