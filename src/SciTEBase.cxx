@@ -87,7 +87,7 @@ const char *contributors[] = {
 const char *extList[] = {
     "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
     "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
-    "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.cs"
+    "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.cs", "x.conf"
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -1052,6 +1052,8 @@ void SciTEBase::ReadProperties() {
 		lexLanguage = SCLEX_DIFF;
 	} else if (language == "container") {
 		lexLanguage = SCLEX_CONTAINER;
+	} else if(language == "conf") {
+		lexLanguage = SCLEX_CONF;
 	} else {
 		lexLanguage = SCLEX_NULL;
 	}
@@ -1611,6 +1613,10 @@ bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
 	} else {
 		strcpy(copyPath, path);
 	}
+#if PLAT_GTK
+	if(path[0] == '/')// absolute path
+		strcpy(copyPath, path);
+#endif
 	FILE *fp = fopen(copyPath, "rb");
 	if (!fp)
 		return false;
@@ -3781,6 +3787,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_LATEX:
 	case IDM_LEXER_DIFF:
 	case IDM_LEXER_CS:
+	case IDM_LEXER_CONF:
 		SetOverrideLanguage(cmdID);
 		break;
 

@@ -341,7 +341,7 @@ protected:
 	int GetIndentState(int line);
 	void AutomaticIndentation(char ch);
 	void CharAdded(char ch);
-	void UpdateStatusBar();
+	virtual void UpdateStatusBar();
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue = false);
