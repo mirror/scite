@@ -185,6 +185,7 @@ const char *contributors[] = {
                                  "Brian Mosher",
                                  "Nicholas Nemtsev",
                                  "Roy Wood",
+                                 "Peter-Henry Mander",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -3000,7 +3001,7 @@ void WindowSetFocus(Window &w) {
 void SciTEBase::SetLineNumberWidth() {
 	if (lineNumbers) {
 		int lineNumWidth = lineNumbersWidth;
-		
+
 		if (lineNumbersExpand) {
 			// The margin size will be expanded if the current buffer's maximum
 			// line number would overflow the margin.
