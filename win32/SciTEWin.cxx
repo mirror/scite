@@ -617,21 +617,19 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	HWND wReplaceWith = ::GetDlgItem(wFindReplace.GetID(), IDREPLACEWITH);
 	HWND wWholeWord = ::GetDlgItem(wFindReplace.GetID(), IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(wFindReplace.GetID(), IDMATCHCASE);
-
-	char s[200];
-	::GetDlgItemText(wFindReplace.GetID(), IDFINDWHAT, s, sizeof(s));
-	props.Set("find.what", s);
-	strcpy(findWhat, s);
-	memFinds.Insert(s);
-	::GetDlgItemText(wFindReplace.GetID(), IDREPLACEWITH, s, sizeof(s));
-	//sci->props.Set("find.what", s);
-	strcpy(replaceWhat, s);
-	memReplaces.Insert(s);
-	wholeWord = BST_CHECKED == 
-		::SendMessage(wWholeWord, BM_GETCHECK, 0, 0);
-	matchCase = BST_CHECKED == 
-		::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
-	reverseFind = false;
+	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
+		::GetDlgItemText(wFindReplace.GetID(), IDFINDWHAT, findWhat, sizeof(findWhat));
+		props.Set("find.what", findWhat);
+		memFinds.Insert(findWhat);
+		wholeWord = BST_CHECKED == 
+			::SendMessage(wWholeWord, BM_GETCHECK, 0, 0);
+		matchCase = BST_CHECKED == 
+			::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
+	}
+	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
+		::GetDlgItemText(wFindReplace.GetID(), IDREPLACEWITH, replaceWhat, sizeof(replaceWhat));
+		memReplaces.Insert(replaceWhat);
+	}
 		
 	if (cmd == IDOK) {
 		FindNext();
@@ -642,51 +640,9 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		}
 		FindNext();
 	} else if (cmd == IDREPLACEALL) {
-		//DWORD dwStart = timeGetTime();
-		FINDTEXTEX ft = {{0,0},0,{0,0}};
-		ft.chrg.cpMin = 0;
-		ft.chrg.cpMax = LengthDocument();
-		ft.lpstrText = findWhat;
-		ft.chrgText.cpMin = 0;
-		ft.chrgText.cpMax = 0;
-		int flags = 0;
-		if (wholeWord)
-			flags |= FR_WHOLEWORD;
-		if (matchCase)
-			flags |= FR_MATCHCASE;
-		int posFind = SendEditor(EM_FINDTEXTEX, flags,
-		                         reinterpret_cast<LPARAM>(&ft));
-		if (posFind != -1) {
-			SendEditor(SCI_BEGINUNDOACTION);
-			while (posFind != -1) {
-				SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
-				SendEditorString(EM_REPLACESEL, 0, replaceWhat);
-				if (!reverseFind) {
-					ft.chrg.cpMin = posFind + strlen(replaceWhat) + 1;
-					ft.chrg.cpMax = LengthDocument();
-				} else {
-					ft.chrg.cpMin = 0;
-					ft.chrg.cpMax = posFind;
-				}
-				posFind = SendEditor(EM_FINDTEXTEX, flags,
-				                     reinterpret_cast<LPARAM>(&ft));
-			}
-			SendEditor(SCI_ENDUNDOACTION);
-			//DWORD dwEnd = timeGetTime();
-			//Platform::DebugPrintf("<%s> replacing at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
-		} else {
-			char msg[200];
-			strcpy(msg, "No replacements because string \"");
-			strncat(msg, findWhat, sizeof(msg) / 2);
-			strcat(msg, "\" was not present.");
-			MessageBox(wFindReplace.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
-		}
+		ReplaceAll();
 	}
 	
-	if (cmd == IDREPLACEALL) {
-		wFindReplace = 0;
-		::EndDialog(wFindReplace.GetID(), IDOK);
-	}
 	return TRUE;
 }
 
