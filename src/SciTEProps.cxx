@@ -757,8 +757,9 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
 	SendEditor(SCI_SETMARGINSENSITIVEN, 2, 1);
 
-	switch (props.GetInt("fold.use.plus")) {
+	switch (props.GetInt("fold.symbols")) {
 		case 0:
+			// Arrow pointing right for contracted folders, arrow pointing down for expanded
 			DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN, Colour(0, 0, 0), Colour(0, 0, 0));
 			DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_ARROW, Colour(0, 0, 0), Colour(0, 0, 0));
 			DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY, Colour(0, 0, 0), Colour(0, 0, 0));
@@ -768,6 +769,7 @@ void SciTEBase::ReadProperties() {
 			DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0));
 			break;
 		case 1:
+			// Plus for contracted folders, minus for expanded
 			DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_MINUS, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0));
 			DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_PLUS, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0));
 			DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0));
@@ -777,6 +779,7 @@ void SciTEBase::ReadProperties() {
 			DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0));
 			break;
 		case 2:
+			// Like a flattened tree control using circular headers and curved joins
 			DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS, Colour(0xff, 0xff, 0xff), Colour(0x40, 0x40, 0x40));
 			DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS, Colour(0xff, 0xff, 0xff), Colour(0x40, 0x40, 0x40));
 			DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, Colour(0xff, 0xff, 0xff), Colour(0x40, 0x40, 0x40));
@@ -786,6 +789,7 @@ void SciTEBase::ReadProperties() {
 			DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE, Colour(0xff, 0xff, 0xff), Colour(0x40, 0x40, 0x40));
 			break;
 		case 3:
+			// Like a flattened tree control using square headers
 			DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS, Colour(0xff, 0xff, 0xff), Colour(0x80, 0x80, 0x80));
 			DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS, Colour(0xff, 0xff, 0xff), Colour(0x80, 0x80, 0x80));
 			DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, Colour(0xff, 0xff, 0xff), Colour(0x80, 0x80, 0x80));

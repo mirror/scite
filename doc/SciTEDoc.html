@@ -1557,16 +1557,18 @@ NameError: mistake
         <td>
           fold<br />
           fold.margin.width<br />
-          fold.use.plus<br />
+          fold.symbols<br />
           fold.on.open
         </td>
         <td>
         	Options to control folding. Folding is turned on be setting fold to 1.
-        	Arrows pointing down or to the right are used to indicate expanded
-        	and contracted folds unless fold.use.plus is set to one and then
-        	plus and minus signs are used instead.
-		To automatically fold files as much as possible when loaded, set
-		fold.on.open to 1.
+	The fold.symbols setting chooses between four ways of showing folding.
+	Set to 0 (the default) for MacOS style arrows to indicate contracted 
+	(facing right) and expanded (facing down); 1 to display contracted folds
+	with "+" and expanded with "-"; 2 for a flattened tree control with round
+	headers and rounded joins; 3 for a flattened tree control with square headers.
+	To automatically fold files as much as possible when loaded, set
+	fold.on.open to 1.
         </td>
       </tr>
       <tr>
