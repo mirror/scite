@@ -2015,11 +2015,11 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 
 void SciTEBase::SaveToRTF(const char *saveName) {
 	SendEditor(SCI_COLOURISE, 0, -1);
-	int tabSize = props.GetInt("saveas.rtf.tabsize", props.GetInt("tabsize"));;
-	int wysiwyg = props.GetInt("saveas.rtf.wysiwyg", 1);
-	SString fontFace = props.GetExpanded("saveas.rtf.font.face");
-	int fontSize = props.GetInt("saveas.rtf.font.size", 10 << 1);
-	int tabs = props.GetInt("saveas.rtf.tabs", 0);
+	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
+	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
+	SString fontFace = props.GetExpanded("export.rtf.font.face");
+	int fontSize = props.GetInt("export.rtf.font.size", 10 << 1);
+	int tabs = props.GetInt("export.rtf.tabs", 0);
 	if (tabSize == 0)
 		tabSize = 4;
 	if (!fontFace.length())
@@ -2209,8 +2209,8 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;
-	int wysiwyg = props.GetInt("saveas.html.wysiwyg", 1);
-	int tabs = props.GetInt("saveas.html.tabs", 0);
+	int wysiwyg = props.GetInt("export.html.wysiwyg", 1);
+	int tabs = props.GetInt("export.html.tabs", 0);
 	FILE *fp = fopen(saveName, "wt");
 	if (fp) {
 		int styleCurrent = 0;
