@@ -8,6 +8,18 @@
 CC = g++
 AR = ar
 
+# If explicit setting of GTK1 or GTK2 then use that else look for
+# pkg-config which is an OK indication that GTK2 is available
+ifndef GTK1
+ifndef GTK2
+ifneq (,$(findstring /,$(shell whereis -b pkg-config)))
+GTK2=1
+else
+GTK1=1
+endif
+endif
+endif
+
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
 # "h@h@" is printed here when gnome-config unavailable. Seems harmless.
 ifdef GTK2
