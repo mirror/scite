@@ -130,16 +130,21 @@ inline int absolute_index(lua_State *L, int index) {
 		? (lua_gettop(L) + index + 1) : index;
 }
 
-static int merge_table(lua_State *L, int destTableIdx, int srcTableIdx) {
+static int merge_table(lua_State *L, int destTableIdx, int srcTableIdx, bool copyMetatable = false) {
 	int count = 0;
 	if (lua_istable(L, destTableIdx) && lua_istable(L, srcTableIdx)) {
 		srcTableIdx = absolute_index(L, srcTableIdx);
 		destTableIdx = absolute_index(L, destTableIdx);
+		if (copyMetatable) {
+			lua_getmetatable(L, srcTableIdx);
+			lua_setmetatable(L, destTableIdx);
+		}
 
-		lua_pushnil(L); /* first key */
+		lua_pushnil(L); // first key
 		while (lua_next(L, srcTableIdx) != 0) {
-			/* ‘key’ is at index -2 and ‘value’ at index -1 */
-			lua_pushvalue(L, -2);
+			// ‘key’ is at index -2 and ‘value’ at index -1
+			lua_pushvalue(L, -2); // the key
+			lua_insert(L, -2); // leaving value (-1), key (-2), key (-3)
 			lua_rawset(L, destTableIdx);
 			++count;
 		}
@@ -151,15 +156,29 @@ static bool clone_table(lua_State *L, int srcTableIdx, bool copyMetatable = fals
 	if (lua_istable(L, srcTableIdx)) {
 		srcTableIdx = absolute_index(L, srcTableIdx);
 		lua_newtable(L);
-		if (copyMetatable) {
-			lua_getmetatable(L, srcTableIdx);
-			lua_setmetatable(L, -2);
-		}
-		merge_table(L, -1, srcTableIdx);
+		merge_table(L, -1, srcTableIdx, copyMetatable);
 		return true;
 	} else {
 		lua_pushnil(L);
 		return false;
+	}
+}
+
+static void clear_table(lua_State *L, int tableIdx, bool clearMetatable = true) {
+	if (lua_istable(L, tableIdx)) {
+		tableIdx = absolute_index(L, tableIdx);
+	if (clearMetatable) {
+		lua_pushnil(L);
+		lua_setmetatable(L, tableIdx);
+	}
+		lua_pushnil(L); // first key
+		while (lua_next(L, tableIdx) != 0) {
+			// ‘key’ is at index -2 and ‘value’ at index -1
+			lua_pop(L, 1); // discard value
+			lua_pushnil(L); 
+			lua_rawset(L, tableIdx); // table[key] = nil
+			lua_pushnil(L); // get 'new' first key
+		}
 	}
 }
 
@@ -181,8 +200,17 @@ static bool rawget_library_object(lua_State *L, const char *basename, const char
 	lua_pop(L,1);
 	return false;
 }
-
-
+/*
+static int cf_scite_open(lua_State *L) {
+	const char *s = luaL_checkstring(L, 1);
+	if (s) {
+		SString cmd = "open:";
+		cmd += s;
+		host->Perform(cmd.c_str());
+	}
+	return 0;
+}
+*/
 static void push_pane_object(lua_State *L, ExtensionAPI::Pane p);
 
 
@@ -1173,9 +1201,12 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 			lua_pushliteral(luaState, "SciTE_InitialState");
 			lua_rawget(luaState, LUA_REGISTRYINDEX);
 			if (lua_istable(luaState, -1)) {
-				clone_table(luaState, -1, true);
-				lua_replace(luaState, LUA_GLOBALSINDEX);
+				clear_table(luaState, LUA_GLOBALSINDEX, true);
+				merge_table(luaState, LUA_GLOBALSINDEX, -1, true);
+				lua_pop(luaState, 1);
 				return true;
+			} else {
+				lua_pop(luaState, 1);
 			}
 		}
 
@@ -1186,8 +1217,9 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		lua_pushnil(luaState);
 		lua_rawset(luaState, LUA_REGISTRYINDEX);
 
-		lua_newtable(luaState);
-		lua_replace(luaState, LUA_GLOBALSINDEX);
+		// Don't replace global scope using new_table, because then startup script is
+		// bound to a different copy of the globals than the extension script.
+		clear_table(luaState, LUA_GLOBALSINDEX, true);
 	} else if (!luaDisabled) {
 		luaState = lua_open();
 		if (!luaState) {
@@ -1199,6 +1231,8 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	} else {
 		return false;
 	}
+
+	int stackBase = lua_gettop(luaState);
 
 	// ...register standard libraries
 	luaopen_base(luaState);
@@ -1223,6 +1257,9 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	// override a library function whose default impl uses stdout
 	lua_register(luaState, "print", cf_global_print);
 
+	// the above calls all leave something on the stack: the library table, the function, etc.
+	lua_settop(luaState, stackBase);
+
 	// props object - provides access to Property and SetProperty
 	lua_pushliteral(luaState, "props");
 	lua_newuserdata(luaState, 1); // the value doesn't matter.
@@ -1238,13 +1275,14 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	lua_rawset(luaState, LUA_GLOBALSINDEX);
 
 	// pane objects
-	lua_pushstring(luaState, "editor");
+	lua_pushliteral(luaState, "editor");
 	push_pane_object(luaState, ExtensionAPI::paneEditor);
-	lua_settable(luaState, LUA_GLOBALSINDEX);
+	lua_rawset(luaState, LUA_GLOBALSINDEX);
 
-	lua_pushstring(luaState, "output");
+	lua_pushliteral(luaState, "output");
 	push_pane_object(luaState, ExtensionAPI::paneOutput);
-	lua_settable(luaState, LUA_GLOBALSINDEX);
+	lua_rawset(luaState, LUA_GLOBALSINDEX);
+
 
 	// Metatable for global namespace, to publish iface constants
 	if (luaL_newmetatable(luaState, "SciTE_MT_GlobalScope")) {
