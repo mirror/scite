@@ -533,6 +533,9 @@ bool SciTEBase::OpenSelected() {
 		WarnUser(warnWrongFile);
 		return false;	// No selection
 	}
+	SString fileNameForExtension = ExtensionFileName();
+	SString openSuffix = props.GetNewExpand("open.suffix.", fileNameForExtension.c_str());
+	strcat(selectedFilename, openSuffix.c_str());
 
 	if (EqualCaseInsensitive(selectedFilename, fileName) || EqualCaseInsensitive(selectedFilename, fullPath)) {
 		WarnUser(warnWrongFile);
@@ -589,11 +592,11 @@ bool SciTEBase::OpenSelected() {
 	// filename is an absolute pathname
 	if (!IsAbsolutePath(selectedFilename)) {
 		GetDocumentDirectory(path, sizeof(path));
-#if PLAT_WIN
 		// If not there, look in openpath
 		if (!Exists(path, selectedFilename, NULL)) {
-			SString fn = ExtensionFileName();
-			SString openPath = props.GetNewExpand("openpath.", fn.c_str());
+			SString openPath = props.GetNewExpand(
+				"openpath.", fileNameForExtension.c_str());
+#if PLAT_WIN
 			//Platform::DebugPrintf("openPath=%s", openPath.c_str());
 			if (openPath.length()) {
 				LPTSTR lp;
@@ -603,8 +606,25 @@ bool SciTEBase::OpenSelected() {
 					*lp = '\0';
 				}
 			}
-		}
 #endif
+#if PLAT_GTK
+			while (openPath.length()) {
+				SString tempPath(openPath);
+				int colonIndex = tempPath.search(":");
+				if (colonIndex > 0) {
+					tempPath.remove(colonIndex, 0);
+					openPath.remove(0,colonIndex+1);
+				} else {
+					openPath.clear();
+				}
+				if (Exists(tempPath.c_str(), selectedFilename, NULL)) {
+					strncpy(path, tempPath.c_str(), sizeof(path)-1);
+					path[sizeof(path)-1] = '\0';
+					break;
+				}
+			}
+#endif
+		}
 	}
 	if (Exists(path, selectedFilename, path)) {
 		if (Open(path)) {
