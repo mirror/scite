@@ -185,6 +185,7 @@ public:
 
 	void CreateUI();
 	/// Management of the command line parameters.
+	static BOOL CALLBACK SearchOtherInstance(HWND hWnd, LPARAM lParam);
 	void Run(const char *cmdLine);
 	void ProcessExecute();
 	void ShellExec(const SString &cmd, const SString &dir);

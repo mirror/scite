@@ -128,23 +128,15 @@ void PropSetFile::ReadFromMemory(const char *data, int len, const char *director
 
 void PropSetFile::Read(const char *filename, const char *directoryForImports,
                        SString imports[], int sizeImports) {
-	char propsData[60000];
-#ifdef __vms
-
-	FILE *rcfile = fopen(filename, "r");
-#else
-
-	FILE *rcfile = fopen(filename, "rb");
-#endif
-
+	FILE *rcfile = fopen(filename, fileRead);
 	if (rcfile) {
+		char propsData[60000];
 		int lenFile = fread(propsData, 1, sizeof(propsData), rcfile);
 		fclose(rcfile);
 		ReadFromMemory(propsData, lenFile, directoryForImports, imports, sizeImports);
 	} else {
 		//printf("Could not open <%s>\n", filename);
 	}
-
 }
 
 void SciTEBase::SetImportMenu() {
@@ -326,7 +318,7 @@ const char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-size(0), fore(0), back(ColourDesired(0xff, 0xff, 0xff)), bold(false), italics(false),
+		size(0), fore(0), back(ColourDesired(0xff, 0xff, 0xff)), bold(false), italics(false),
 eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED) {
 	specified = sdNone;
 	char *val = StringDup(definition);
@@ -482,7 +474,7 @@ static int FileLength(const char *path) {
 	}
 	return len;
 }
-	
+
 void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 	SString apisFileNames = props.GetNewExpand("api.",
 	                        fileNameForExtension.c_str());
@@ -532,8 +524,8 @@ void SciTEBase::ReadProperties() {
 	SendEditorString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
 	lexLanguage = SendEditor(SCI_GETLEXER);
 
-	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML) || 
-		(lexLanguage == SCLEX_ASP) || (lexLanguage == SCLEX_PHP))
+	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML) ||
+	        (lexLanguage == SCLEX_ASP) || (lexLanguage == SCLEX_PHP))
 		SendEditor(SCI_SETSTYLEBITS, 7);
 	else
 		SendEditor(SCI_SETSTYLEBITS, 5);
@@ -594,8 +586,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", ColourDesired(0, 0, 0)));
 
-	SendEditor(SCI_SETMOUSEDWELLTIME, 
-		props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
+	SendEditor(SCI_SETMOUSEDWELLTIME,
+	           props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
 
 	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
@@ -925,10 +917,9 @@ void SciTEBase::ReadProperties() {
 }
 
 // Properties that are interactively modifiable are only read from the properties file once.
-
-
 void SciTEBase::SetPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
+	checkIfOpen = props.GetInt("check.if.already.open");
 	indentationWSVisible = props.GetInt("view.indentation.whitespace", 1);
 	sbVisible = props.GetInt("statusbar.visible");
 	tbVisible = props.GetInt("toolbar.visible");
@@ -1023,7 +1014,7 @@ void SciTEBase::ReadPropertiesInitial() {
 
 	menuLanguageProp.substitute('|', '\0');
 	const char *sMenuLanguage = menuLanguageProp.c_str();
-	for (int item=0; item < languageItems; item++) {
+	for (int item = 0; item < languageItems; item++) {
 		languageMenu[item].menuItem = sMenuLanguage;
 		sMenuLanguage += strlen(sMenuLanguage) + 1;
 		languageMenu[item].extension = sMenuLanguage;

@@ -338,6 +338,7 @@ protected:
 	int heightBar;
 	int dialogsOnScreen;
 	bool topMost;
+	bool checkIfOpen;
 	bool fullScreen;
 	enum { toolMax = 10 };
 	Extension *extender;

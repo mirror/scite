@@ -159,6 +159,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	heightBar = 7;
 	dialogsOnScreen = 0;
 	topMost = false;
+	checkIfOpen = false;
 	fullScreen = false;
 
 	heightOutput = 0;
@@ -1991,21 +1992,6 @@ void SciTEBase::SetTextProperties(
 
 void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 	if (sbVisible) {
-#ifdef OLD
-		SString msg;
-		int caretPos = SendEditor(SCI_GETCURRENTPOS);
-		int caretLine = SendEditor(SCI_LINEFROMPOSITION, caretPos);
-		int caretColumn = SendEditor(SCI_GETCOLUMN, caretPos);
-		msg = "Column=";
-		msg += SString(caretColumn + 1).c_str();
-		msg += "    Line=";
-		msg += SString(caretLine + 1).c_str();
-		msg += SendEditor(SCI_GETOVERTYPE) ? "    OVR" : "    INS";
-		if (sbValue != msg) {
-			SetStatusBarText(msg.c_str());
-			sbValue = msg;
-		}
-#else
 		char tmp[32];
 		if (bUpdateSlowData) {
 			SetFileProperties(propsStatus);
@@ -2025,7 +2011,6 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 			SetStatusBarText(msg.c_str());
 			sbValue = msg;
 		}
-#endif
 	} else {
 		sbValue = "";
 	}
@@ -3211,6 +3196,7 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);
+	CheckAMenuItem(IDM_CHECKIFOPEN, checkIfOpen);
 	CheckAMenuItem(IDM_FULLSCREEN, fullScreen);
 	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
@@ -3615,7 +3601,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 	bool evaluate = phase == 0;
 	WordList wlArgs(true);
 	wlArgs.Set(args.c_str());
-	for (int i = 0;i < wlArgs.len;i++) {
+	for (int i = 0; i < wlArgs.len; i++) {
 		char *arg = wlArgs[i];
 		if (IsSwitchCharacter(arg[0])) {
 			arg++;

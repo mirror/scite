@@ -103,7 +103,7 @@ POPUP "&Tools"
 BEGIN
 	MENUITEM "&Compile\tCtrl+F7",		IDM_COMPILE
 	MENUITEM "&Build\tF7",				IDM_BUILD
-	MENUITEM "&Go\tF5",				IDM_GO
+	MENUITEM "&Go\tF5",					IDM_GO
 	MENUITEM "&Stop Executing\tCtrl+Break",IDM_STOPEXECUTE
 	MENUITEM SEPARATOR
 	MENUITEM "&Next Message\tF4",		IDM_NEXTMSG
@@ -114,8 +114,9 @@ END
 
 POPUP "&Options"
 BEGIN
-	MENUITEM "&Always On Top",	IDM_ONTOP
-	MENUITEM "Vertical &Split",	IDM_SPLITVERTICAL
+	MENUITEM "&Always On Top",			IDM_ONTOP
+	MENUITEM "C&heck if already open",	IDM_CHECKIFOPEN
+	MENUITEM "Vertical &Split",			IDM_SPLITVERTICAL
 	MENUITEM SEPARATOR
 	POPUP "&Line End Characters"
 	BEGIN
@@ -133,7 +134,7 @@ BEGIN
 	MENUITEM "Open &Global Options File",		IDM_OPENGLOBALPROPERTIES
 	MENUITEM "Open A&bbreviations File",		IDM_OPENABBREVPROPERTIES
 	MENUITEM SEPARATOR
-END // used: abcglmopstux
+END // used: abcghlmopstux
 
 POPUP "&Language"
 BEGIN

@@ -19,6 +19,8 @@ const char appName[] = "Sc1";
 const char appName[] = "SciTE";
 #endif
 
+static UINT identityMessage;	///< Registred message to identify SciTE instances
+
 HINSTANCE SciTEWin::hInstance = 0;
 char *SciTEWin::className = NULL;
 char *SciTEWin::classNameInternal = NULL;
@@ -115,6 +117,8 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.lpszClassName = classNameInternal;
 	if (!::RegisterClass(&wndclass))
 		exit(FALSE);
+
+	identityMessage = ::RegisterWindowMessage("SciTEInstanceIdentifier");
 }
 
 static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
@@ -339,6 +343,11 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		topMost = (topMost ? false : true);
 		::SetWindowPos(MainHWND(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0, 0, 0, 0, SWP_NOMOVE + SWP_NOSIZE);
 		CheckAMenuItem(IDM_ONTOP, topMost);
+		break;
+
+	case IDM_CHECKIFOPEN:
+		checkIfOpen = (checkIfOpen ? false : true);
+		CheckMenus();
 		break;
 
 	case IDM_FULLSCREEN:
@@ -771,13 +780,13 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	}
 
 	DWORD rc = reinterpret_cast<DWORD>(
-	               ::ShellExecute(
-	                   MainHWND(),        // parent wnd for msgboxes during app start
-	                   NULL,         // cmd is open
-	                   mycmd,        // file to open
-	                   myparams,        // parameters
-	                   dir.c_str(),        // launch directory
-	                   SW_SHOWNORMAL)); //default show cmd
+		::ShellExecute(
+			MainHWND(),        // parent wnd for msgboxes during app start
+			NULL,         // cmd is open
+			mycmd,        // file to open
+			myparams,        // parameters
+			dir.c_str(),        // launch directory
+			SW_SHOWNORMAL)); //default show cmd
 
 	if (rc > 32) {
 		// it worked!
@@ -932,44 +941,124 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
 	return args;
 }
 
-void SciTEWin::Run(const char *cmdLine) {
-	if (props.GetInt("check.if.already.open")) {
-		HWND hAnother = ::FindWindow("SciTEWindow", NULL);
-		if (hAnother) {
-			::SetForegroundWindow(hAnother);
-			COPYDATASTRUCT cds;
-			cds.dwData = 0;
-			// Send 2 messages - first the CWD, then the real 
-			// command-line. (restoring the cwd could be  done, 
-			// but keeping it to the last file opened can also 
-			// be useful)
-			TCHAR cwdCmd[MAX_PATH+7]; // 7 for "-cwd:" and 2x'"'
-			strcpy(cwdCmd, "\"-cwd:");
-			getcwd(cwdCmd+strlen(cwdCmd), MAX_PATH);
-			strcat(cwdCmd, "\"");
-			// defeat the "\" mangling - convert "\" to "/"
-			for (char *temp=cwdCmd;*temp;temp++)
-				if (*temp=='\\')
-					*temp = '/';
-			cds.cbData = strlen(cwdCmd)+1;
-			cds.lpData = static_cast<void *>(cwdCmd);
-			::SendMessage(hAnother, WM_COPYDATA, 0,
-				reinterpret_cast<LPARAM>(&cds));
-			// now the commandline itself.
-			cds.cbData = strlen(cmdLine)+1;
-			cds.lpData = static_cast<void *>(
-				const_cast<char *>(cmdLine));
-			::SendMessage(hAnother, WM_COPYDATA, 0,
-				reinterpret_cast<LPARAM>(&cds));
-			exit(0);
+/**
+ * Function called by EnumWindows.
+ * @a hWnd is the handle to the currently enumerated window.
+ * @a lParam is seen as a pointer to a HWND, it receives
+ * the handle to the found other SciTE window, if any.
+ * @return FALSE if found, to stop EnumWindows.
+ */
+BOOL CALLBACK SciTEWin::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
+	BOOL bResult = TRUE;
+	DWORD result;
+	// Send a message to the given window, to see if it will answer with
+	// the same message. If it does, it is a SciTE window with
+	// checkIfOpen set.
+	// We use a timeout to avoid being blocked by hung processes.
+	LRESULT found = ::SendMessageTimeout(hWnd,
+		identityMessage, 0, 0, SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
+	if (found != 0 && result == static_cast<DWORD>(identityMessage)) {
+		// Found? Is it ourself?
+		if (hWnd != reinterpret_cast<HWND>(app->GetID())) {
+			// Not ourself! Another SciTE window found!
+			// We return in lParam the window handle of the found SciTE
+			HWND *target = reinterpret_cast<HWND *>(lParam);
+			*target = hWnd;
+			bResult = FALSE;
 		}
+	}
+	return bResult;
+}
+
+void SciTEWin::Run(const char *cmdLine) {
+	bool bAlreadyRunning = false;
+	if (checkIfOpen && identityMessage) {
+		// Use the method explained by Joseph M. Newcomer to avoid multiple instances of an application:
+		// http://www.codeproject.com/cpp/avoidmultinstance.asp
+		// I limit instances by desktop, it seems to make sense with a GUI application...
+		SString mutexName = "SciTE-UniqueInstanceMutex-";	// I doubt I really need a GUID here...
+		HDESK desktop = ::GetThreadDesktop(::GetCurrentThreadId());
+		DWORD len = 0;
+		// Query the needed size for the buffer
+		BOOL result = ::GetUserObjectInformation(desktop, UOI_NAME, NULL, 0, &len);
+		if (result == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+			// WinNT / Win2000
+			char *info = new char[len];
+			::GetUserObjectInformation(desktop, UOI_NAME, info, len, &len);
+			mutexName += reinterpret_cast<char *>(info);
+			delete []info;
+		} else {
+			// Win9x: no multiple desktop, GetUserObjectInformation can be called
+			// but is bogus...
+			mutexName += "Win9x";
+		}
+		// We create a mutex because it is an atomic operation.
+		// An operation like EnumWindows is long, so if we use it only, we can fall in a race condition.
+		// Note from MSDN: "The system closes the handle automatically when the process terminates.
+		// The mutex object is destroyed when its last handle has been closed."
+		// If the mutex already exists, the new process get a handle on it, so even if the first
+		// process exits, the mutex isn't destroyed, until all SciTE instances exit.
+		::CreateMutex(NULL, FALSE, mutexName.c_str());
+		// The call fails with ERROR_ACCESS_DENIED if the mutex was 
+		// created in a different user session because of passing
+		// NULL for the SECURITY_ATTRIBUTES on mutex creation);
+		bAlreadyRunning = (::GetLastError() == ERROR_ALREADY_EXISTS ||
+							    ::GetLastError() == ERROR_ACCESS_DENIED);
 	}
 
 	SString args = ProcessArgs(cmdLine);
 
 	bool performPrint = ProcessCommandLine(args, 0);
 
+	// We create the window, so it can be found by EnumWidows below.
+	// We don't show it yet, so if it is destroyed (duplicate instance), it will
+	// not flash on the taskbar or on the display.
 	CreateUI();
+
+	if (bAlreadyRunning) {
+		HWND hOtherWindow = NULL;
+		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(&hOtherWindow));
+		if (hOtherWindow) {
+			// On Win2k, windows can't get focus by themselves,
+			// so it is the responsability of the new process to bring the window
+			// to foreground.
+			// Put the other SciTE uniconized and to forefront.
+			if (::IsIconic(hOtherWindow)) {
+				::ShowWindow(hOtherWindow, SW_RESTORE);
+			}
+			::SetForegroundWindow(hOtherWindow);
+
+			COPYDATASTRUCT cds;
+			cds.dwData = 0;
+			// Send 2 messages - first the CWD, then the real
+			// command-line. (Restoring the cwd could be done,
+			// but keeping it to the last file opened can also
+			// be useful)
+			TCHAR cwdCmd[MAX_PATH+7]; // 7 for "-cwd:" and 2x'"'
+			strcpy(cwdCmd, "\"-cwd:");
+			getcwd(cwdCmd + strlen(cwdCmd), MAX_PATH);
+			strcat(cwdCmd, "\"");
+			// defeat the "\" mangling - convert "\" to "/"
+			for (char *temp = cwdCmd; *temp; temp++) {
+				if (*temp=='\\') {
+					*temp = '/';
+				}
+			}
+			cds.cbData = strlen(cwdCmd) + 1;
+			cds.lpData = static_cast<void *>(cwdCmd);
+			::SendMessage(hOtherWindow, WM_COPYDATA, 0,
+				reinterpret_cast<LPARAM>(&cds));
+			// now the commandline itself.
+			cds.cbData = strlen(cmdLine) + 1;
+			cds.lpData = static_cast<void *>(const_cast<char *>(cmdLine));
+			::SendMessage(hOtherWindow, WM_COPYDATA, 0,
+				reinterpret_cast<LPARAM>(&cds));
+
+			// Kill itself, leaving room to the previous instance
+			::PostQuitMessage(0);
+			return;	/* Don't do anything else */
+		}
+	}
 
 	if (performPrint) {
 		Print(false);
@@ -1148,6 +1237,12 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, MainHWND());
+	if (iMessage == identityMessage) {
+		if (checkIfOpen || wParam != 0) {
+			return identityMessage;
+		}
+	}
+
 	switch (iMessage) {
 
 	case WM_CREATE:
@@ -1361,7 +1456,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	default:
 		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
-		return ::DefWindowProc(reinterpret_cast<HWND>(wContent.GetID()), 
+		return ::DefWindowProc(reinterpret_cast<HWND>(wContent.GetID()),
 			iMessage, wParam, lParam);
 	}
 	//Platform::DebugPrintf("end wnd proc\n");
