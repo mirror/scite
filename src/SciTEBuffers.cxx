@@ -121,7 +121,15 @@ void LinkedList::DestroyAll() {
 	// parent node will delete me
 }
 
-BufferList::BufferList() : ctrltabStarted(false), current(0), buffers(0), size(0), length(0) {}
+BufferList::BufferList() :
+	bufferListTop(0), bufferListTopPrev(0), bufferListBottom(0),
+	ctrltabStarted(false), current(0), buffers(0), size(0), length(1) {
+
+	LinkedList *tmpll = new LinkedList;	// alocate a single list item. everyting else will be allocated when needed
+
+	bufferListTop = tmpll;				// assign top
+	bufferListBottom = tmpll;				// assign bottom
+}
 
 BufferList::~BufferList() {
 	delete []buffers;
@@ -149,13 +157,6 @@ BufferList::~BufferList() {
 void BufferList::Allocate(int maxSize) {
 	size = maxSize;
 	buffers = new Buffer[size];
-	length = 1;
-	current = 0;
-
-	LinkedList *tmpll = new LinkedList;	// alocate a single list item. everyting else will be allocated when needed
-
-	bufferListTop = tmpll;				// assign top
-	bufferListBottom = tmpll;				// assign bottom
 }
 
 int BufferList::Add() {
@@ -354,8 +355,8 @@ void SciTEBase::SetDocumentAt(int index) {
 	bufferNext.foldState.BeginIteration();
 	// Platform::DebugPrintf("Restoring fold state... (%d states)", count);
 
-	int line;
-	bool folded;
+	int line = 0;
+	bool folded = false;
 	while (bufferNext.foldState.GetState(&line, &folded)) {
 		bool expanded = SendEditor(SCI_GETFOLDEXPANDED, line);
 		// set line to state folded
@@ -751,8 +752,8 @@ void SciTEBase::Close(bool updateUI, bool loadingSession) {
 			// check to see whether there is saved fold state, restore
 			bufferNext.foldState.BeginIteration();
 
-			int line;
-			bool folded;
+			int line = 0;
+			bool folded = false;
 			while (bufferNext.foldState.GetState(&line, &folded)) {
 				bool expanded = SendEditor(SCI_GETFOLDEXPANDED, line);
 				// set line to state folded
