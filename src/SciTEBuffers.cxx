@@ -922,7 +922,17 @@ void SciTEBase::ToolsMenu(int item) {
 
 			JobSubsystem jobType = SubsystemType("command.subsystem.", item);
 
-			AddCommand(command, "", jobType);
+			SString inputProp = "command.input.";
+			inputProp += SString(item);
+			inputProp += ".";
+
+			SString input;
+			if (props.GetWild(inputProp.c_str(), fileName).length()) {
+				input += props.GetNewExpand(inputProp.c_str(), fileName);
+				input += '\x1a';
+			}
+
+			AddCommand(command, "", jobType, input);
 			if (commandCurrent > 0)
 				Execute();
 		}
