@@ -770,7 +770,7 @@ void SciTEWin::CreateUI() {
 	             windowName,
 	             WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
 	             WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
-	             WS_MAXIMIZE | WS_CLIPCHILDREN,
+	             WS_CLIPCHILDREN,
 	             left, top, width, height,
 	             NULL,
 	             NULL,
@@ -791,12 +791,12 @@ void SciTEWin::CreateUI() {
 	GetNextPropItem(next, val, 32);
 	pagesetupMargin.bottom = atol(val);
 	delete []ps;
-	
+
 	UIAvailable();
 }
 
 void SciTEWin::Run(const char *cmdLine) {
-	// Break up the command line into individual arguments and strip double quotes 
+	// Break up the command line into individual arguments and strip double quotes
 	// from each argument creatng a string with each argument separated by '\n'
 	SString args;
 	const char *startArg = cmdLine;
@@ -824,9 +824,9 @@ void SciTEWin::Run(const char *cmdLine) {
 		}
 	}
 	bool performPrint = ProcessCommandLine(args, 0);
-	
+
 	CreateUI();
-	
+
 	if (performPrint) {
 		Print(false);
 		::PostQuitMessage(0);

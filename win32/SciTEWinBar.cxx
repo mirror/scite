@@ -120,7 +120,7 @@ void SciTEWin::SizeSubWindows() {
 	PRectangle rcClient = wSciTE.GetClientPosition();
 	bool showTab = false;
 
-	//SendMessage(wSciTE.GetID(), WM_SETREDRAW, false, 0); // suppress flashing
+	//::SendMessage(wSciTE.GetID(), WM_SETREDRAW, false, 0); // suppress flashing
 	visHeightTools = tbVisible ?  heightTools : 0;
 
 	if (tabVisible) {	// ? hide one tab only
@@ -182,11 +182,11 @@ void SciTEWin::SizeSubWindows() {
 		                           rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
 	}
 
-	wContent.SetPosition(PRectangle(0, visHeightTools + visHeightTab, rcClient.Width(),
+	wContent.SetPosition(PRectangle(rcClient.left, visHeightTools + visHeightTab, rcClient.Width(),
 	                                visHeightTools + visHeightTab + visHeightEditor));
 	SizeContentWindows();
-	//SendMessage(wSciTE.GetID(), WM_SETREDRAW, true, 0);
-	RedrawWindow(wSciTE.GetID(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
+	//::SendMessage(wSciTE.GetID(), WM_SETREDRAW, true, 0);
+	//::RedrawWindow(wSciTE.GetID(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
@@ -287,7 +287,7 @@ void SciTEWin::Creation() {
 	               WS_EX_CLIENTEDGE,
 	               classNameInternal,
 	               "Source",
-	               WS_CHILD | WS_CLIPCHILDREN,
+	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	               0, 0,
 	               100, 100,
 	               wSciTE.GetID(),
@@ -300,7 +300,7 @@ void SciTEWin::Creation() {
 	              0,
 	              "Scintilla",
 	              "Source",
-	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
+	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	              0, 0,
 	              100, 100,
 	              wContent.GetID(),
@@ -322,7 +322,7 @@ void SciTEWin::Creation() {
 	              0,
 	              "Scintilla",
 	              "Run",
-	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
+	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	              0, 0,
 	              100, 100,
 	              wContent.GetID(),
@@ -356,7 +356,6 @@ void SciTEWin::Creation() {
 	               reinterpret_cast<HMENU>(IDM_TOOLWIN),
 	               hInstance,
 	               0);
-	::SendMessage(wToolBar.GetID(), TB_AUTOSIZE, 0, 0);
 	::SendMessage(wToolBar.GetID(), TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
 	::SendMessage(wToolBar.GetID(), TB_LOADIMAGES, IDB_STD_SMALL_COLOR,
 	              reinterpret_cast<LPARAM>(HINST_COMMCTRL));
@@ -375,10 +374,10 @@ void SciTEWin::Creation() {
 	}
 
 	::SendMessage(wToolBar.GetID(), TB_ADDBUTTONS, ELEMENTS(bbs), reinterpret_cast<LPARAM>(tbb));
+	::SendMessage(wToolBar.GetID(), TB_AUTOSIZE, 0, 0);
 
 	wToolBar.Show();
 
-	//	InitCommonControls();
 	INITCOMMONCONTROLSEX icce;
 	icce.dwSize = sizeof(icce);
 	icce.dwICC = ICC_TAB_CLASSES;
@@ -415,7 +414,7 @@ void SciTEWin::Creation() {
 	                 0,
 	                 STATUSCLASSNAME,
 	                 "",
-	                 WS_CHILD,
+	                 WS_CHILD | WS_CLIPSIBLINGS,
 	                 0, 0,
 	                 100, heightStatus,
 	                 wSciTE.GetID(),
