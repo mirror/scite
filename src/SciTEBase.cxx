@@ -2218,7 +2218,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_MACRORECORD:
-		handled = RecordMacroCommand(notification);
+		RecordMacroCommand(notification);
 		break;
 	}
 }
