@@ -308,7 +308,7 @@ int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
 		GtkWidget *button;
 		guint Key;
 		GtkAccelGroup *accel_group;
-		accel_group = gtk_accel_group_new ();
+		accel_group = gtk_accel_group_new();
 
 		messageBoxResult = -1;
 		messageBoxDialog = gtk_dialog_new();
@@ -958,7 +958,7 @@ void SciTEGTK::FindInFilesKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *
 
 void SciTEGTK::FindInFiles() {
 	GtkAccelGroup *accel_group;
-	accel_group = gtk_accel_group_new ();
+	accel_group = gtk_accel_group_new();
 
 	SelectionIntoFind();
 	props.Set("find.what", findWhat);
@@ -1296,7 +1296,7 @@ void SciTEGTK::TabSizeDialog() {}
 void SciTEGTK::FindReplace(bool replace) {
 	guint Key;
 	GtkAccelGroup *accel_group;
-	accel_group = gtk_accel_group_new ();
+	accel_group = gtk_accel_group_new();
 
 	replacing = replace;
 	wFindReplace = gtk_dialog_new();
