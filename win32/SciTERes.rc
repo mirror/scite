@@ -75,7 +75,6 @@ BEGIN
 	MENUITEM SEPARATOR
 	MENUITEM "&Next Message\tF4",			IDM_NEXTMSG
 	MENUITEM "&Previous Message\tShift+F4",			IDM_PREVMSG
-	MENUITEM "&Toggle Output Visible\tF8",		IDM_TOGGLEOUTPUT
   END
 
   POPUP "&Options"
@@ -90,6 +89,7 @@ BEGIN
 	MENUITEM "View Line &Numbers",          IDM_LINENUMBERMARGIN
 	MENUITEM "View Toolbar",          IDM_VIEWTOOLBAR
 	MENUITEM "View Tab Bar",          IDM_VIEWTABBAR
+	MENUITEM "View &Output\tF8",		IDM_TOGGLEOUTPUT
 	MENUITEM "View Status Bar",          IDM_VIEWSTATUSBAR
 	MENUITEM SEPARATOR
 	POPUP "&Line End Characters"

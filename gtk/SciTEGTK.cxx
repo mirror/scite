@@ -1790,7 +1790,6 @@ void SciTEGTK::CreateMenu() {
 	    {"/Tools/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/Tools/_Next Message", "F4", menuSig, IDM_NEXTMSG, 0},
 	    {"/Tools/_Previous Message", "<shift>F4", menuSig, IDM_PREVMSG, 0},
-	    {"/Tools/_Toggle output visible", "F8", menuSig, IDM_TOGGLEOUTPUT, 0},
 
 	    {"/_Options", NULL, NULL, 0, "<Branch>"},
 	    {"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
@@ -1803,6 +1802,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/View _Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
 	    {"/Options/View Line _Numbers", "", menuSig, IDM_LINENUMBERMARGIN, "<CheckItem>"},
 	    {"/Options/View _Toolbar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
+	    {"/Options/View _Output", "F8", menuSig, IDM_TOGGLEOUTPUT, "<CheckItem>"},
 	    {"/Options/View Status _Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
 	    {"/Options/sep2", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Line End C_haracters", "", 0, 0, "<Branch>"},

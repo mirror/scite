@@ -1613,6 +1613,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_TOGGLEOUTPUT:
 		ToggleOutputVisible();
+		CheckMenus();
 		break;
 
 	case IDM_OPENLOCALPROPERTIES:
@@ -1962,6 +1963,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_VIEWEOL, SendEditor(SCI_GETVIEWEOL));
 	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
+	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 	EnableAMenuItem(IDM_COMPILE, !executing);
 	EnableAMenuItem(IDM_BUILD, !executing);
