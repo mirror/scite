@@ -1068,7 +1068,7 @@ void SciTEBase::ReadProperties() {
 
 	SendEditor(SCI_SETUSEPALETTE, props.GetInt("use.palette"));
 	SendEditor(SCI_SETPRINTMAGNIFICATION, props.GetInt("print.magnification"));
-	SendEditor(SCI_SETPRINTINVERTLIGHT, props.GetInt("print.invert.light"));
+	SendEditor(SCI_SETPRINTCOLOURMODE, props.GetInt("print.colour.mode"));
 
 	clearBeforeExecute = props.GetInt("clear.before.execute");
 
@@ -2641,7 +2641,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_REVERT:
 		break;
 	case IDM_PRINT:
-		Print();
+		Print(true);
 		break;
 	case IDM_PRINTSETUP:
 		PrintSetup();

@@ -62,9 +62,10 @@ clean:
 	
 # The two last install commands will fail if Gnome is not installed or is not at $(prefix).
 # This is OK - just means no SciTE in the Gnome Applications menu
+# Dead:	install -D SciTEGTK.properties $(SYSCONF_PATH)/SciTEGlobal.properties
 install:
 	install -s $(PROG) $(bindir)
-	install -D SciTEGTK.properties $(SYSCONF_PATH)/SciTEGlobal.properties
+	install -D ../src/SciTEGlobal.properties $(SYSCONF_PATH)/SciTEGlobal.properties
 ifdef gnomeprefix
 	install SciTE.desktop $(datadir)/gnome/apps/Applications
 	install Sci48M.png $(pixmapdir)

@@ -48,7 +48,6 @@ protected:
 	char openWhat[200];
 	int filterDefault;
 	
-	bool startedToPrintOnly;
 	PRectangle  pagesetupMargin;
 	HGLOBAL     hDevMode;
 	HGLOBAL     hDevNames;
@@ -69,7 +68,7 @@ protected:
 	virtual bool SaveAsDialog();
 	virtual void SaveAsHTML();
 
-	virtual void Print();
+	virtual void Print(bool showDialog);
 	virtual void PrintSetup();
 
 	BOOL HandleReplaceCommand(int cmd);
@@ -180,7 +179,6 @@ SciTEWin::SciTEWin() {
 	if (!wSciTE.Created())
 		exit(FALSE);
 
-	startedToPrintOnly = false;
 	hDevMode  = 0;
 	hDevNames = 0;
 	ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
@@ -725,7 +723,7 @@ void SciTEWin::SaveAsHTML() {
 	}
 }
 
-void SciTEWin::Print() {
+void SciTEWin::Print(bool showDialog) {
 
 	PRINTDLG pdlg = {
 		sizeof(PRINTDLG),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -751,7 +749,7 @@ void SciTEWin::Print() {
 		reinterpret_cast<WPARAM>(&startPos),
 		reinterpret_cast<LPARAM>(&endPos)) == 0)
 	pdlg.Flags |= PD_NOSELECTION;
-	if (startedToPrintOnly)
+	if (!showDialog)
 	    pdlg.Flags |= PD_RETURNDEFAULT;
 	if (!::PrintDlg(&pdlg)) {
 		return;
@@ -890,8 +888,6 @@ void SciTEWin::Print() {
 	
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
-	if (startedToPrintOnly)
-		::PostQuitMessage(0);
 }
 
 void SciTEWin::PrintSetup() {
@@ -1626,9 +1622,9 @@ void SciTEWin::QuitProgram() {
 
 void SciTEWin::Run(const char *cmdLine) {
 	if (0 == strncmp(cmdLine, "/p ", 3)) {
-		startedToPrintOnly = true;
 		Open(cmdLine + 3, true);
-		Print();
+		Print(false);
+		::PostQuitMessage(0);
 	} else {
 		Open(cmdLine, true);
 	}

@@ -248,7 +248,7 @@ protected:
 	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
         char *pathUserDir, unsigned int lenPath)=0;
 	void OpenProperties(int propsFile);
-	virtual void Print() {};
+	virtual void Print(bool) {};
 	virtual void PrintSetup() {};
 	CHARRANGE GetSelection();
 	void SetSelection(int anchor, int currentPos);
