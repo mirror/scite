@@ -38,7 +38,7 @@ INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src
 CXXFLAGS=/TP /W4
 # For something scary:/Wp64
 CXXDEBUG=/Zi /Od /MDd -DDEBUG
-CXXNDEBUG=/Ox /MD -DNDEBUG
+CXXNDEBUG=/Og /Os /Oy /MD -DNDEBUG
 NAMEFLAG=-Fo
 LDFLAGS=/opt:nowin98 /NODEFAULTLIB:LIBC
 LDDEBUG=/DEBUG
