@@ -40,12 +40,14 @@ PropSet.o PlatWin.o UniConversion.o SciTERes.o
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
-PROPS=..\bin\conf.properties ..\bin\SciTEGlobal.properties ..\bin\cpp.properties ..\bin\html.properties \
+PROPS=..\bin\SciTEGlobal.properties \
+..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
 ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
 ..\bin\sql.properties ..\bin\vb.properties
 
-LEXPROPS=..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
+LEXPROPS=\
+..\bin\conf.properties ..\bin\cpp.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
 ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
 ..\bin\sql.properties ..\bin\vb.properties
@@ -88,8 +90,8 @@ clean:
 
 # Normally distributed rather than built as may not have grep on all machines
 # Copy all non-comment lines from all the properties files into one combined file
-..\src\Embedded.properties: $(LEXPROPS)
-	fgrep -G -v -h "^#" $(LEXPROPS) >..\src\Embedded.properties
+..\src\Embedded.properties: $(PROPS)
+	fgrep -G -v -h "^#" $(PROPS) >..\src\Embedded.properties
 
 $(PROG): $(OBJS)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
