@@ -696,8 +696,6 @@ void SciTEGTK::CheckMenus() {
 	CheckAMenuItem(IDM_ENCODING_UCS2BE, unicodeMode == 1);
 	CheckAMenuItem(IDM_ENCODING_UCS2LE, unicodeMode == 2);
 	CheckAMenuItem(IDM_ENCODING_UTF8, unicodeMode == 3);
-	CheckMenuRadioItem(GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UTF8,
-	                   unicodeMode + IDM_ENCODING_DEFAULT, 0);
 			   
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 
@@ -2136,7 +2134,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
 	    {"/File/Save _As...", "<control><shift>S", menuSig, IDM_SAVEAS, 0},
 	    {"/File/Save A Co_py...", "<control><shift>P", menuSig, IDM_SAVEACOPY, 0},
-	    {"/File/Encodin_g", NULL, menuSig, 0, "<Branch>"},
+	    {"/File/Encodin_g", NULL, NULL, 0, "<Branch>"},
 	    {"/File/Encoding/Default", NULL, menuSig, IDM_ENCODING_DEFAULT, "<RadioItem>"},
 	    {"/File/Encoding/UCS2BE", NULL, menuSig, IDM_ENCODING_UCS2BE, "/File/Encoding/Default"},
 	    {"/File/Encoding/UCS2LE", NULL, menuSig, IDM_ENCODING_UCS2LE, "/File/Encoding/Default"},
