@@ -639,8 +639,10 @@ void SciTEBase::DropFileStackTop() {
 
 void SciTEBase::AddFileToBuffer(const char *file /*TODO:, CharacterRange selection, int scrollPos */) {
 	FILE *fp = fopen(file, fileRead);  // file existence test
-	if (fp)                       // for missing files Open() gives an empty buffer - do not want this
+	if (fp) {                      // for missing files Open() gives an empty buffer - do not want this
+		fclose(fp);
 		Open(file, false, file);
+	}
 }
 
 void SciTEBase::AddFileToStack(const char *file, CharacterRange selection, int scrollPos) {
