@@ -1819,7 +1819,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	return 0;
 }
 
-void SciTEGTK::AddToPopUp(const char *label, int cmd=0, bool enabled=true) {
+void SciTEGTK::AddToPopUp(const char *label, int cmd, bool enabled) {
 	SString localised = LocaliseString(label);
 	localised.insert(0, "/");
 	GtkItemFactoryEntry itemEntry = {
