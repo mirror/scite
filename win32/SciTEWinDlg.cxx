@@ -1298,10 +1298,10 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				if (!bHasLine)
 					lineNumber = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS)) + 1;
 
-				if (lineNumber <= SendEditor(SCI_GETLINECOUNT)) {
-					// Constrain to the requested line, defaulting to start of line if no character specified.
-					if (!bHasChar || characterOnLine < 1) characterOnLine = 1;
+				GotoLineEnsureVisible(lineNumber - 1);
 
+				if (bHasChar && characterOnLine > 1 && lineNumber <= SendEditor(SCI_GETLINECOUNT)) {
+					// Constrain to the requested line
 					int lineStart = SendEditor(SCI_POSITIONFROMLINE, lineNumber - 1);
 					int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, lineNumber - 1);
 
@@ -1310,8 +1310,6 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 						position = SendEditor(SCI_POSITIONAFTER, position);
 
 					SendEditor(SCI_GOTOPOS, position);
-				} else {
-					SendEditor(SCI_GOTOPOS, SendEditor(SCI_GETLENGTH));
 				}
 			}
 			::EndDialog(hDlg, IDOK);
