@@ -849,7 +849,10 @@ NameError: mistake
           The line.margin.width property controls how much space is reserved for the line
           numbers, in terms of the number of digits that can be displayed.  To specify that
           the margin should expand if needed to accomodate larger line numbers, add a '+'
-          after the number of digits, e.g. <code>line.margin.width=3+</code>.
+          after the number of digits, e.g. <code>line.margin.width=3+</code>.<br />
+	  These properties replace the old <code>line.numbers</code> property, which
+	  was overloaded to perform both of the actions described above.  The
+	  <code>line.numbers</code> property is no longer available.
         </td>
       </tr>
       <tr>
@@ -2635,6 +2638,13 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
     <h3>
        Frequently Asked Questions
     </h3></a>
+    <h4>
+       Why doesn't my <code>line.numbers</code> setting work?
+    </h4>
+    <p>
+       <code>line.numbers</code> has been replace with two properties: <code>line.margin.visible</code>
+       and <code>line.margin.width</code> which are explained earlier in this document.
+    </p>
     <h4>
        How do I change SciTE to use black as the background colour?
     </h4>
