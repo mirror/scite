@@ -120,7 +120,8 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 			return true;
 	}
 	if (pmsg->message == WM_KEYDOWN) {
-			KeyDown(pmsg->wParam);
+			if (KeyDown(pmsg->wParam))
+				return true;
 	}
 	return false;
 }

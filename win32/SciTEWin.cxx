@@ -1086,26 +1086,35 @@ LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
 	return TRUE;
 }
 
-static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
-	if (!*menuKey) 
+static bool KeyMatch(SString sKey, int keyval, int modifiers) {
+	if (keyval == 0x11)
+		return false;
+	if (keyval == 0x10)
+		return false;
+	if (0 == sKey.length()) 
 		return false;
 	int modsInKey = 0;
-	if (0 == strncmp(menuKey, "Ctrl+", strlen("Ctrl+"))) {
+	if (sKey.contains("Ctrl+")) {
 		modsInKey |= SCMOD_CTRL;
-		menuKey += strlen("Ctrl+");
+		sKey.remove("Ctrl+");
 	}
-	if (0 == strncmp(menuKey, "Shift+", strlen("Shift+"))) {
+	if (sKey.contains("Shift+")) {
 		modsInKey |= SCMOD_SHIFT;
-		menuKey += strlen("Shift+");
+		sKey.remove("Shift+");
 	}
-	if (0 == strncmp(menuKey, "Alt+", strlen("Alt+"))) {
+	if (sKey.contains("Alt+")) {
 		modsInKey |= SCMOD_ALT;
-		menuKey += strlen("Alt+");
+		sKey.remove("Alt+");
 	}
 	if (modifiers != modsInKey)
 		return false;
-	if (*menuKey == 'F') {
-		int keyNum = atoi(menuKey+1);
+	if ((sKey.length() == 1) && (modsInKey & SCMOD_CTRL)) {
+		char keySought = sKey[0];
+		return keySought == keyval;
+	}
+	if ((sKey.length() > 1) && (sKey[0] == 'F') && (isdigit(sKey[1]))) {
+		sKey.remove("F");
+		int keyNum = sKey.value();
 		if (keyNum == (keyval - VK_F1 + 1))
 			return true;
 	}
@@ -1115,12 +1124,13 @@ static bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// Look through lexer menu
 	int modifiers =
-		Platform::IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0 |
-		Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0 |
-		Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0;
+		(Platform::IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
+		(Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
+		(Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
 	for (int j=0; j<lexItems; j++) {
-		if (KeyMatch(lexMenu[j].menuKey.c_str(), wParam, modifiers)) {
+		if (KeyMatch(lexMenu[j].menuKey, wParam, modifiers)) {
 			SciTEBase::MenuCommand(IDM_LEXER + j);
+			return 1l;
 		}
 	}
 	return 0l;
