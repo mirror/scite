@@ -1483,7 +1483,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 		SendEditor(SCI_SETUNDOCOLLECTION, 0);
 
 		fileModTime = GetModTime(fullPath);
-
+                
 		FILE *fp = fopen(fullPath, "rb");
 		if (fp || initialCmdLine) {
 			if (fp) {
@@ -1612,6 +1612,11 @@ int StripTrailingSpaces(char *data, int ds, bool lastBlock) {
 // Returns false only if cancelled
 bool SciTEBase::Save() {
 	if (fileName[0]) {
+
+                if (props.GetInt("save.deletes.first")) {
+                        unlink(fullPath);
+                }
+
 		//Platform::DebugPrintf("Saving <%s><%s>\n", fileName, fullPath);
 		//DWORD dwStart = timeGetTime();
 		FILE *fp = fopen(fullPath, "wb");
