@@ -428,15 +428,19 @@ void SciTEBase::SetMonoFont() {
  * Mostly used to set a language on a file of unknown extension.
  */
 void SciTEBase::SetOverrideLanguage(int cmdID) {
+	bool currentUseMonoFont = useMonoFont;
 	RecentFile rf = GetFilePosition();
 	EnsureRangeVisible(0, SendEditor(SCI_GETLENGTH), false);
 	// Zero all the style bytes
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
-	useMonoFont = false;
 
 	overrideExtension = "x.";
 	overrideExtension += languageMenu[cmdID].extension;
 	ReadProperties();
+	useMonoFont = currentUseMonoFont;
+	if (useMonoFont) {
+		SetMonoFont();
+	}
 	SetIndentSettings();
 	SendEditor(SCI_COLOURISE, 0, -1);
 	Redraw();

@@ -275,11 +275,14 @@ SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const ch
 bool SciTEWin::SaveAsDialog() {
 	SString path = ChooseSaveName("Save File");
 	if (path.length()) {
+		bool currentUseMonoFont = useMonoFont;
 		//Platform::DebugPrintf("Save: <%s>\n", openName);
 		SetFileName(path.c_str(), false); // don't fix case
 		Save();
 		ReadProperties();
-		useMonoFont = 0;
+		useMonoFont = currentUseMonoFont;
+		SetMonoFont();
+
 		// In case extension was changed
 		SendEditor(SCI_COLOURISE, 0, -1);
 		wEditor.InvalidateAll();

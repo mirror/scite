@@ -769,12 +769,16 @@ bool SciTEBase::Save() {
 			fileModTime = GetModTime(fullPath);
 			SendEditor(SCI_SETSAVEPOINT);
 			if (IsPropertiesFile(fileName)) {
+				bool currentUseMonoFont = useMonoFont;
 				ReadGlobalPropFile();
 				SetImportMenu();
 				ReadLocalPropFile();
 				ReadAbbrevPropFile();
 				ReadProperties();
-				useMonoFont = false;
+				useMonoFont = currentUseMonoFont;
+				if (useMonoFont) {
+					SetMonoFont();
+				}
 				SetWindowName();
 				BuffersMenu();
 				Redraw();
@@ -794,10 +798,14 @@ bool SciTEBase::Save() {
 
 bool SciTEBase::SaveAs(const char *file) {
 	if (file && *file) {
+		bool currentUseMonoFont = useMonoFont;
 		SetFileName(file);
 		Save();
 		ReadProperties();
-		useMonoFont = false;
+		useMonoFont = currentUseMonoFont;
+		if (useMonoFont) {
+			SetMonoFont();
+		}
 		//unicodeMode = 0; // Not sure about this
 		SendEditor(SCI_CLEARDOCUMENTSTYLE);
 		SendEditor(SCI_COLOURISE, 0, -1);
