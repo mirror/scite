@@ -723,6 +723,14 @@ void SciTEBase::ReadProperties() {
 		autoCompleteStartCharacters = props.GetExpanded("autocomplete.*.start.characters");
 	// "" is a quite reasonable value for this setting
 
+	sprintf(key, "autocomplete.%s.fillups", language.c_str());
+	autoCompleteFillUpCharacters = props.GetExpanded(key);
+	if (autoCompleteFillUpCharacters == "")
+		autoCompleteFillUpCharacters =
+			props.GetExpanded("autocomplete.*.fillups");
+	SendEditorString(SCI_AUTOCSETFILLUPS, 0,
+		autoCompleteFillUpCharacters.c_str());
+
 	sprintf(key, "autocomplete.%s.ignorecase", "*");
 	sval = props.GetNewExpand(key);
 	autoCompleteIgnoreCase = sval == "1";

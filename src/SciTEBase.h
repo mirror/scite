@@ -384,6 +384,7 @@ protected:
 	SString calltipWordCharacters;
 	SString calltipEndDefinition;
 	SString autoCompleteStartCharacters;
+	SString autoCompleteFillUpCharacters;
 	SString wordCharacters;
 
 	bool margin;
