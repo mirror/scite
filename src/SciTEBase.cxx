@@ -219,7 +219,7 @@ const char *contributors[] = {
                                  "Phil Reid",
                                  "Iago Rubio",
                                  "Régis Vaquette",
-                                 "Massimo Corà",
+                                 "Massimo Cor\340",
                                  "Elias Pschernig",
                                  "Chris Jones",
                                  "Josiah Reynolds",
