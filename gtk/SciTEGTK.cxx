@@ -50,6 +50,63 @@ const char appName[] = "SciTE";
 char g_modulePath[MAX_PATH];
 #endif
 
+static GtkWidget *PWidget(Window &w) {
+	return reinterpret_cast<GtkWidget *>(w.GetID());
+}
+
+class Dialog : public Window {
+public:
+	Dialog() : dialogCanceled(true) {
+	}
+	Dialog &operator=(WindowID id_) {
+		id = id_;
+		return *this;
+	}
+	bool ShowModal(GtkWidget *parent=0) {
+		GtkWidget *widgetThis = reinterpret_cast<GtkWidget *>(GetID());
+		// Mark it as a modal transient dialog
+		gtk_window_set_modal(GTK_WINDOW(widgetThis), TRUE);
+		if (parent) {
+			gtk_window_set_transient_for(GTK_WINDOW(widgetThis), GTK_WINDOW(parent));
+		}
+		gtk_signal_connect(GTK_OBJECT(widgetThis), "key_press_event", 
+			GtkSignalFunc(SignalKey), this);
+		gtk_signal_connect(GTK_OBJECT(widgetThis), "destroy", 
+			GtkSignalFunc(SignalDestroy), this);
+		Show();
+		while (Created()) {
+			gtk_main_iteration();
+		}
+		return dialogCanceled;
+	}
+	void OK() {
+		dialogCanceled = false;
+		Destroy();
+	}
+	void Cancel() {
+		dialogCanceled = true;
+		Destroy();
+	}
+	static void SignalCancel(GtkWidget *, Dialog *d) {
+		if (d) {
+			d->Cancel();
+		}
+	}
+private:
+	bool dialogCanceled;
+	static void SignalDestroy(GtkWidget *, Dialog *d) {
+		if (d) {
+			d->id = 0;
+		}
+	}
+	static void SignalKey(GtkWidget *w, GdkEventKey *event, Dialog *d) {
+		if (event->keyval == GDK_Escape) {
+			gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
+			d->Cancel();
+		}
+	}
+};
+
 class SciTEGTK : public SciTEBase {
 
 protected:
@@ -77,11 +134,11 @@ protected:
 	bool savingHTML;
 	bool savingRTF;
 	bool savingPDF;
-	bool dialogCanceled;
-	Window fileSelector;
-	Window findInFilesDialog;
+	Dialog dlgFileSelector;
+	Dialog dlgFindInFiles;
 	GtkWidget *comboFiles;
-	Window gotoDialog;
+	Dialog dlgGoto;
+	bool paramDialogCanceled;
 #ifdef CLIENT_3D_EFFECT
 	Window topFrame;
 	Window outputFrame;
@@ -190,11 +247,7 @@ protected:
 	static void SaveAsSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	static void FindInFilesSignal(GtkWidget *w, SciTEGTK *scitew);
-	static void FindInFilesCancelSignal(GtkWidget *w, SciTEGTK *scitew);
-	static void FindInFilesKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 
-	static void GotoCancelSignal(GtkWidget *w, SciTEGTK *scitew);
-	static void GotoKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	static void GotoSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	static void FRCancelSignal(GtkWidget *w, SciTEGTK *scitew);
@@ -273,8 +326,8 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	savingHTML = false;
 	savingRTF = false;
 	savingPDF = false;
-	dialogCanceled = false;
 	comboFiles = 0;
+	paramDialogCanceled = true;
 	gotoEntry = 0;
 	toggleWord = 0;
 	toggleCase = 0;
@@ -301,11 +354,12 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 SciTEGTK::~SciTEGTK() {
 }
 
-static GtkWidget *PWidget(Window &w) {
-	return reinterpret_cast<GtkWidget *>(w.GetID());
+static void destroyDialog(GtkWidget *, gpointer *window) {
+	if (window) {
+		Window *pwin = reinterpret_cast<Window *>(window);
+		*(pwin) = 0;
+	}
 }
-
-static void destroyDialog(GtkWidget *) {}
 
 void SciTEGTK::WarnUser(int) {}
 
@@ -320,6 +374,10 @@ static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
 		messageBoxResult = reinterpret_cast<long>(p);
 	}
 	return 0;
+}
+
+static void messageBoxDestroy(GtkWidget *, gpointer *) {
+	messageBoxDialog = 0;
 }
 
 static void messageBoxOK(GtkWidget *, gpointer p) {
@@ -738,129 +796,76 @@ void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*
 }
 
 bool SciTEGTK::OpenDialog() {
-	if (!fileSelector.Created()) {
-		fileSelector = gtk_file_selection_new("Open File");
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
+	bool canceled = true;
+	if (!dlgFileSelector.Created()) {
+		dlgFileSelector = gtk_file_selection_new("Open File");
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(OpenOKSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
-		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
-		                   this);
-		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
+		gtk_signal_connect(GTK_OBJECT(PWidget(dlgFileSelector)),
 		                   "size_allocate", GtkSignalFunc(OpenResizeSignal),
 		                   this);
-		// Other ways to destroy
-		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
-		                              GTK_WINDOW(PWidget(wSciTE)));
 		// Get a bigger open dialog
-		gtk_window_set_default_size(GTK_WINDOW(PWidget(fileSelector)),
+		gtk_window_set_default_size(GTK_WINDOW(PWidget(dlgFileSelector)),
 		                            fileSelectorWidth, fileSelectorHeight);
-		fileSelector.Show();
-		while (fileSelector.Created()) {
-			gtk_main_iteration();
-		}
+		canceled = dlgFileSelector.ShowModal(PWidget(wSciTE));
 	}
-	return !dialogCanceled;
+	return !canceled;
 }
 
 bool SciTEGTK::SaveAsDialog() {
+	bool canceled = true;
 	savingHTML = false;
 	savingRTF = false;
 	savingPDF = false;
-	if (!fileSelector.Created()) {
-		fileSelector = gtk_file_selection_new(LocaliseString("Save File As").c_str());
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
+	if (!dlgFileSelector.Created()) {
+		dlgFileSelector = gtk_file_selection_new(LocaliseString("Save File As").c_str());
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
-		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
-		                   this);
-		// Other ways to destroy
-		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
-		                              GTK_WINDOW(PWidget(wSciTE)));
 		// Get a bigger save as dialog
-		gtk_window_set_default_size(GTK_WINDOW(PWidget(fileSelector)),
+		gtk_window_set_default_size(GTK_WINDOW(PWidget(dlgFileSelector)),
 		                            fileSelectorWidth, fileSelectorHeight);
-		fileSelector.Show();
-		while (fileSelector.Created()) {
-			gtk_main_iteration();
-		}
+		canceled = dlgFileSelector.ShowModal(PWidget(wSciTE));
 	}
-	return !dialogCanceled;
+	return !canceled;
 }
 
 void SciTEGTK::SaveAsHTML() {
-	if (!fileSelector.Created()) {
+	if (!dlgFileSelector.Created()) {
 		savingHTML = true;
-		fileSelector = gtk_file_selection_new(LocaliseString("Export File As HTML").c_str());
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
+		dlgFileSelector = gtk_file_selection_new(LocaliseString("Export File As HTML").c_str());
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
-		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
-		                   this);
-		// Other ways to destroy
-		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
-		                              GTK_WINDOW(PWidget(wSciTE)));
-		fileSelector.Show();
-		while (fileSelector.Created()) {
-			gtk_main_iteration();
-		}
+		dlgFileSelector.ShowModal(PWidget(wSciTE));
 	}
 }
 
 void SciTEGTK::SaveAsRTF() {
-	if (!fileSelector.Created()) {
+	if (!dlgFileSelector.Created()) {
 		savingRTF = true;
-		fileSelector = gtk_file_selection_new(LocaliseString("Export File As RTF").c_str());
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
+		dlgFileSelector = gtk_file_selection_new(LocaliseString("Export File As RTF").c_str());
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
-		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
-		                   this);
-		// Other ways to destroy
-		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
-		                              GTK_WINDOW(PWidget(wSciTE)));
-		fileSelector.Show();
-		while (fileSelector.Created()) {
-			gtk_main_iteration();
-		}
+		dlgFileSelector.ShowModal(PWidget(wSciTE));
 	}
 }
 
 void SciTEGTK::SaveAsPDF() {
-	if (!fileSelector.Created()) {
+	if (!dlgFileSelector.Created()) {
 		savingPDF = true;
-		fileSelector = gtk_file_selection_new("Export File As PDF");
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->ok_button),
+		dlgFileSelector = gtk_file_selection_new("Export File As PDF");
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(fileSelector))->cancel_button),
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->cancel_button),
 		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
-		gtk_signal_connect(GTK_OBJECT(PWidget(fileSelector)),
-		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
-		                   this);
-		// Other ways to destroy
-		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(PWidget(fileSelector)), TRUE);
-		gtk_window_set_transient_for (GTK_WINDOW(PWidget(fileSelector)),
-		                              GTK_WINDOW(PWidget(wSciTE)));
-		fileSelector.Show();
-		while (fileSelector.Created()) {
-			gtk_main_iteration();
-		}
+		dlgFileSelector.ShowModal(PWidget(wSciTE));
 	}
 }
 
@@ -999,7 +1004,7 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->props.Set("find.files", filesEntry);
 	scitew->memFiles.Insert(filesEntry);
 
-	scitew->findInFilesDialog.Destroy();
+	scitew->dlgFindInFiles.Destroy();
 
 	//printf("Grepping for <%s> in <%s>\n",
 	//	scitew->props.Get("find.what"),
@@ -1009,17 +1014,6 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 		scitew->props.Get("find.directory"), jobCLI);
 	if (scitew->commandCurrent > 0)
 		scitew->Execute();
-}
-
-void SciTEGTK::FindInFilesCancelSignal(GtkWidget *, SciTEGTK *scitew) {
-	scitew->findInFilesDialog.Destroy();
-}
-
-void SciTEGTK::FindInFilesKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
-	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
-		scitew->findInFilesDialog.Destroy();
-	}
 }
 
 void SciTEGTK::FindInFiles() {
@@ -1032,19 +1026,16 @@ void SciTEGTK::FindInFiles() {
 	getcwd(findInDir, sizeof(findInDir));
 	props.Set("find.directory", findInDir);
 
-	findInFilesDialog = gtk_dialog_new();
-	gtk_window_set_policy(GTK_WINDOW(PWidget(findInFilesDialog)), TRUE, TRUE, TRUE);
-	findInFilesDialog.SetTitle("Find In Files");
-
-	gtk_signal_connect(GTK_OBJECT(PWidget(findInFilesDialog)),
-	                   "destroy", GtkSignalFunc(destroyDialog), 0);
+	dlgFindInFiles = gtk_dialog_new();
+	gtk_window_set_policy(GTK_WINDOW(PWidget(dlgFindInFiles)), TRUE, TRUE, TRUE);
+	TranslatedSetTitle(GTK_WINDOW(PWidget(dlgFindInFiles)), "Find in Files");
 
 #ifdef RECURSIVE_GREP_WORKING
 	GtkWidget *table = gtk_table_new(4, 2, FALSE);
 #else
 	GtkWidget *table = gtk_table_new(3, 2, FALSE);
 #endif
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(findInFilesDialog))->vbox),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox),
 	                   table, TRUE, TRUE, 0);
 
 	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
@@ -1124,30 +1115,22 @@ void SciTEGTK::FindInFiles() {
 
 	GtkWidget *btnFind = TranslatedCommand("F_ind", accel_group,
 	                                 GtkSignalFunc(FindInFilesSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(findInFilesDialog))->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->action_area),
 	                   btnFind, TRUE, TRUE, 0);
 	gtk_widget_show(btnFind);
 
 	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
-	                                   GtkSignalFunc(FindInFilesCancelSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(findInFilesDialog))->action_area),
+			GtkSignalFunc(Dialog::SignalCancel), &dlgFindInFiles);
+
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->action_area),
 	                   btnCancel, TRUE, TRUE, 0);
 	gtk_widget_show(btnCancel);
-
-	gtk_signal_connect(GTK_OBJECT(PWidget(findInFilesDialog)),
-	                   "key_press_event", GtkSignalFunc(FindInFilesKeySignal),
-	                   this);
 
 	gtk_widget_grab_default(GTK_WIDGET(btnFind));
 	gtk_widget_grab_focus(GTK_WIDGET(GTK_COMBO(comboFind)->entry));
 
-	// Mark it as a modal transient dialog
-	gtk_window_set_modal(GTK_WINDOW(PWidget(findInFilesDialog)), TRUE);
-	gtk_window_set_transient_for (GTK_WINDOW(PWidget(findInFilesDialog)),
-	                              GTK_WINDOW(PWidget(wSciTE)));
-
-	gtk_window_add_accel_group(GTK_WINDOW(PWidget(findInFilesDialog)), accel_group);
-	findInFilesDialog.Show();
+	gtk_window_add_accel_group(GTK_WINDOW(PWidget(dlgFindInFiles)), accel_group);
+	dlgFindInFiles.ShowModal(PWidget(wSciTE));
 }
 
 void SciTEGTK::Replace() {
@@ -1278,39 +1261,24 @@ void SciTEGTK::StopExecute() {
 	kill(pidShell, SIGKILL);
 }
 
-void SciTEGTK::GotoCancelSignal(GtkWidget *, SciTEGTK *scitew) {
-	scitew->gotoDialog.Destroy();
-}
-
-void SciTEGTK::GotoKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
-	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
-		gtk_widget_destroy(GTK_WIDGET(w));
-		scitew->gotoDialog = 0;
-	}
-}
-
 void SciTEGTK::GotoSignal(GtkWidget *, SciTEGTK *scitew) {
 	char *lineEntry = gtk_entry_get_text(GTK_ENTRY(scitew->gotoEntry));
 	int lineNo = atoi(lineEntry);
 
 	scitew->GotoLineEnsureVisible(lineNo - 1);
 
-	scitew->gotoDialog.Destroy();
+	scitew->dlgGoto.Destroy();
 }
 
 void SciTEGTK::GoLineDialog() {
 	GtkAccelGroup *accel_group = gtk_accel_group_new();
 
-	gotoDialog = gtk_dialog_new();
-	TranslatedSetTitle(GTK_WINDOW(PWidget(gotoDialog)), "Go To");
-	gtk_container_border_width(GTK_CONTAINER(PWidget(gotoDialog)), 0);
-
-	gtk_signal_connect(GTK_OBJECT(PWidget(gotoDialog)),
-	                   "destroy", GtkSignalFunc(destroyDialog), 0);
+	dlgGoto = gtk_dialog_new();
+	TranslatedSetTitle(GTK_WINDOW(PWidget(dlgGoto)), "Go To");
+	gtk_container_border_width(GTK_CONTAINER(PWidget(dlgGoto)), 0);
 
 	GtkWidget *table = gtk_table_new(2, 1, FALSE);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(gotoDialog))->vbox),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgGoto))->vbox),
 	                   table, TRUE, TRUE, 0);
 
 	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
@@ -1330,28 +1298,19 @@ void SciTEGTK::GoLineDialog() {
 
 	GtkWidget *btnGoTo = TranslatedCommand("_Go To", accel_group,
 	                                 GtkSignalFunc(GotoSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(gotoDialog))->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgGoto))->action_area),
 	                   btnGoTo, TRUE, TRUE, 0);
 	gtk_widget_grab_default(GTK_WIDGET(btnGoTo));
 	gtk_widget_show(btnGoTo);
 
 	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
-	                                   GtkSignalFunc(GotoCancelSignal), this);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(gotoDialog))->action_area),
+			GtkSignalFunc(Dialog::SignalCancel), &dlgGoto);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgGoto))->action_area),
 	                   btnCancel, TRUE, TRUE, 0);
 	gtk_widget_show(btnCancel);
 
-	gtk_signal_connect(GTK_OBJECT(PWidget(gotoDialog)),
-	                   "key_press_event", GtkSignalFunc(GotoKeySignal),
-	                   this);
-
-	// Mark it as a modal transient dialog
-	gtk_window_set_modal(GTK_WINDOW(PWidget(gotoDialog)), TRUE);
-	gtk_window_set_transient_for (GTK_WINDOW(PWidget(gotoDialog)),
-	                              GTK_WINDOW(PWidget(wSciTE)));
-
-	gtk_window_add_accel_group(GTK_WINDOW(PWidget(gotoDialog)), accel_group);
-	gotoDialog.Show();
+	gtk_window_add_accel_group(GTK_WINDOW(PWidget(dlgGoto)), accel_group);
+	dlgGoto.ShowModal(PWidget(wSciTE));
 }
 
 void SciTEGTK::TabSizeDialog() {}
@@ -1370,19 +1329,17 @@ void SciTEGTK::ParamGrab() {
 void SciTEGTK::ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
-		scitew->dialogCanceled = true;
 		scitew->wParameters.Destroy();
 	}
 }
 
 void SciTEGTK::ParamCancelSignal(GtkWidget *, SciTEGTK *scitew) {
-	scitew->dialogCanceled = true;
 	scitew->wParameters.Destroy();
 	scitew->CheckMenus();
 }
 
 void SciTEGTK::ParamSignal(GtkWidget *, SciTEGTK *scitew) {
-	scitew->dialogCanceled = false;
+	scitew->paramDialogCanceled = false;
 	scitew->ParamGrab();
 	scitew->wParameters.Destroy();
 	scitew->CheckMenus();
@@ -1396,13 +1353,14 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		}
 		return true;
 	}
+	paramDialogCanceled = true;
 	GtkAccelGroup *accel_group = gtk_accel_group_new();
 	wParameters = gtk_dialog_new();
 	TranslatedSetTitle(GTK_WINDOW(PWidget(wParameters)), "Parameters");
 	gtk_container_border_width(GTK_CONTAINER(PWidget(wParameters)), 0);
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(wParameters)),
-	                   "destroy", GtkSignalFunc(destroyDialog), 0);
+	                   "destroy", GtkSignalFunc(destroyDialog), &wParameters);
 
 	GtkWidget *table = gtk_table_new(2, modal ? 10 : 9, FALSE);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wParameters))->vbox),
@@ -1468,7 +1426,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 			gtk_main_iteration();
 		}
 	}
-	return !dialogCanceled;
+	return !paramDialogCanceled;
 }
 
 void SciTEGTK::FindReplace(bool replace) {
@@ -1480,7 +1438,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	TranslatedSetTitle(GTK_WINDOW(PWidget(wFindReplace)), replace ? "Replace" : "Find");
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(wFindReplace)),
-	                   "destroy", GtkSignalFunc(destroyDialog), 0);
+	                   "destroy", GtkSignalFunc(destroyDialog), &wFindReplace);
 
 	GtkWidget *table = gtk_table_new(2, replace ? 4 : 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->vbox),
@@ -1628,7 +1586,7 @@ int SciTEGTK::WindowMessageBox(Window &w, const SString &msg, int style) {
 		gtk_container_border_width(GTK_CONTAINER(messageBoxDialog), 0);
 
 		gtk_signal_connect(GTK_OBJECT(messageBoxDialog),
-		                   "destroy", GtkSignalFunc(destroyDialog), 0);
+		                   "destroy", GtkSignalFunc(messageBoxDestroy), &messageBoxDialog);
 
 		int escapeResult = IDOK;
 		if ((style & 0xf) == MB_OK) {
@@ -1736,6 +1694,7 @@ void SciTEGTK::MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *) {
 }
 
 void SciTEGTK::CommandSignal(GtkWidget *, gint wParam, gpointer lParam, SciTEGTK *scitew) {
+
 	//Platform::DebugPrintf("Command: %x %x %x\n", w, wParam, lParam);
 	scitew->Command(wParam, reinterpret_cast<long>(lParam));
 }
@@ -1992,23 +1951,20 @@ void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
 }
 
 void SciTEGTK::OpenCancelSignal(GtkWidget *, SciTEGTK *scitew) {
-	scitew->dialogCanceled = true;
-	scitew->fileSelector.Destroy();
+	scitew->dlgFileSelector.Cancel();
 }
 
 void SciTEGTK::OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
-		scitew->dialogCanceled = true;
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
-		scitew->fileSelector.Destroy();
+		scitew->dlgFileSelector.Cancel();
 	}
 }
 
 void SciTEGTK::OpenOKSignal(GtkWidget *, SciTEGTK *scitew) {
-	scitew->dialogCanceled = false;
 	scitew->Open(gtk_file_selection_get_filename(
-	                 GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
-	scitew->fileSelector.Destroy();
+	                 GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
+	scitew->dlgFileSelector.OK();
 }
 
 void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK *scitew) {
@@ -2018,20 +1974,19 @@ void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK
 
 void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("Do Save As\n");
-	scitew->dialogCanceled = false;
 	if (scitew->savingHTML)
 		scitew->SaveToHTML(gtk_file_selection_get_filename(
-		                       GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
+		                       GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
 	else if (scitew->savingRTF)
 		scitew->SaveToRTF(gtk_file_selection_get_filename(
-		                      GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
+		                      GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
 	else if (scitew->savingPDF)
 		scitew->SaveToPDF(gtk_file_selection_get_filename(
-		                      GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
+		                      GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
 	else
 		scitew->SaveAs(gtk_file_selection_get_filename(
-		                   GTK_FILE_SELECTION(PWidget(scitew->fileSelector))));
-	scitew->fileSelector.Destroy();
+		                   GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
+	scitew->dlgFileSelector.OK();
 }
 
 void SetFocus(GtkWidget *hwnd) {
@@ -2177,6 +2132,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/_Edit", NULL, NULL, 0, "<Branch>"},
 	    {"/_Edit/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Edit/_Undo", "<control>Z", menuSig, IDM_UNDO, 0},
+
 	    {"/Edit/_Redo", "<control>Y", menuSig, IDM_REDO, 0},
 	    {"/Edit/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/Edit/Cu_t", "<control>X", menuSig, IDM_CUT, 0},
@@ -2753,6 +2709,7 @@ void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 	if ((strlen(cmdLine) > 0) && (CreatePipe() == true)) {
 		char currentPath[MAX_PATH];
 		getcwd(currentPath, MAX_PATH);
+
 
 		//create the command to send thru the pipe
 		char pipeCommand[CHAR_MAX];
