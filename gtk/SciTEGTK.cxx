@@ -229,8 +229,9 @@ public:
 	~SciTEGTK();
 
 	void WarnUser(int warnID);
-	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
 	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
+	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
+	void AddToolBar();
 	void CreateMenu();
 	void CreateUI();
 	void Run(int argc, char *argv[]);
@@ -1813,6 +1814,24 @@ void SetFocus(GtkWidget *hwnd) {
 	Platform::SendScintilla(hwnd, SCI_GRABFOCUS, 0, 0);
 }
 
+GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
+	GdkBitmap *mask = 0;
+
+	/* now for the pixmap from gdk */
+	GtkStyle *style = gtk_widget_get_style(window);
+	GdkPixmap *pixmap = gdk_pixmap_create_from_xpm_d(
+	                        window->window,
+	                        &mask,
+	                        &style->bg[GTK_STATE_NORMAL],
+	                        xpm);
+
+	/* a pixmap widget to contain the pixmap */
+	GtkWidget *pixmapwid = gtk_pixmap_new(pixmap, mask);
+	gtk_widget_show(pixmapwid);
+
+	return pixmapwid;
+}
+
 GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, char *icon[]) {
 
 	GtkWidget *toolbar_icon = pixmap_new(wSciTE.GetID(), icon);
@@ -1831,22 +1850,33 @@ GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, char *icon[]) {
 	return button;
 }
 
-GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
-	GdkBitmap *mask = 0;
+void SciTEGTK::AddToolBar() {
+	AddToolButton("New", IDM_NEW, filenew_xpm);
+	AddToolButton("Open", IDM_OPEN, fileopen_xpm);
+	AddToolButton("Save", IDM_SAVE, filesave_xpm);
+	AddToolButton("Close", IDM_CLOSE, close_xpm);
 
-	/* now for the pixmap from gdk */
-	GtkStyle *style = gtk_widget_get_style(window);
-	GdkPixmap *pixmap = gdk_pixmap_create_from_xpm_d(
-	                        window->window,
-	                        &mask,
-	                        &style->bg[GTK_STATE_NORMAL],
-	                        xpm);
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Undo", IDM_UNDO, undo_xpm);
+	AddToolButton("Redo", IDM_REDO, redo_xpm);
+	AddToolButton("Cut", IDM_CUT, editcut_xpm);
+	AddToolButton("Copy", IDM_COPY, editcopy_xpm);
+	AddToolButton("Paste", IDM_PASTE, editpaste_xpm);
 
-	/* a pixmap widget to contain the pixmap */
-	GtkWidget *pixmapwid = gtk_pixmap_new(pixmap, mask);
-	gtk_widget_show(pixmapwid);
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Find in Files", IDM_FINDINFILES, findinfiles_xpm);
+	AddToolButton("Find", IDM_FIND, search_xpm);
+	AddToolButton("Find Next", IDM_FINDNEXT, findnext_xpm);
+	AddToolButton("Replace", IDM_REPLACE, replace_xpm);
 
-	return pixmapwid;
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	compile_btn = AddToolButton("Compile", IDM_COMPILE, compile_xpm);
+	build_btn = AddToolButton("Build", IDM_BUILD, build_xpm);
+	stop_btn = AddToolButton("Stop", IDM_STOPEXECUTE, stop_xpm);
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
+	AddToolButton("Previous Buffer", IDM_PREVFILE, prev_xpm);
+	AddToolButton("Next Buffer", IDM_NEXTFILE, next_xpm);
 }
 
 #define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
@@ -2094,7 +2124,6 @@ void SciTEGTK::CreateUI() {
 		width = gdk_screen_width() - left - 10;
 		height = gdk_screen_height() - top - 30;
 	}
-	gtk_widget_set_usize(GTK_WIDGET(wSciTE.GetID()), width, height);
 
 	fileSelectorWidth = props.GetInt("fileselector.width", fileSelectorWidth);
 	fileSelectorHeight = props.GetInt("fileselector.height", fileSelectorHeight);
@@ -2211,33 +2240,6 @@ void SciTEGTK::CreateUI() {
 	gtk_toolbar_set_space_style(GTK_TOOLBAR(wToolBar.GetID()), GTK_TOOLBAR_SPACE_LINE);
 	gtk_toolbar_set_button_relief(GTK_TOOLBAR(wToolBar.GetID()), GTK_RELIEF_NONE);
 
-	AddToolButton("New", IDM_NEW, filenew_xpm);
-	AddToolButton("Open", IDM_OPEN, fileopen_xpm);
-	AddToolButton("Save", IDM_SAVE, filesave_xpm);
-	AddToolButton("Close", IDM_CLOSE, close_xpm);
-
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
-	AddToolButton("Undo", IDM_UNDO, undo_xpm);
-	AddToolButton("Redo", IDM_REDO, redo_xpm);
-	AddToolButton("Cut", IDM_CUT, editcut_xpm);
-	AddToolButton("Copy", IDM_COPY, editcopy_xpm);
-	AddToolButton("Paste", IDM_PASTE, editpaste_xpm);
-
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
-	AddToolButton("Find in Files", IDM_FINDINFILES, findinfiles_xpm);
-	AddToolButton("Find", IDM_FIND, search_xpm);
-	AddToolButton("Find Next", IDM_FINDNEXT, findnext_xpm);
-	AddToolButton("Replace", IDM_REPLACE, replace_xpm);
-
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
-	compile_btn = AddToolButton("Compile", IDM_COMPILE, compile_xpm);
-	build_btn = AddToolButton("Build", IDM_BUILD, build_xpm);
-	stop_btn = AddToolButton("Stop", IDM_STOPEXECUTE, stop_xpm);
-
-	gtk_toolbar_append_space(GTK_TOOLBAR(wToolBar.GetID()));
-	AddToolButton("Previous Buffer", IDM_PREVFILE, prev_xpm);
-	AddToolButton("Next Buffer", IDM_NEXTFILE, next_xpm);
-
 	wStatusBar = gtk_statusbar_new();
 	sbContextID = gtk_statusbar_get_context_id(
 	                  GTK_STATUSBAR(wStatusBar.GetID()), "global");
@@ -2256,8 +2258,10 @@ void SciTEGTK::CreateUI() {
 	SetFocus(wOutput.GetID());
 
 	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
+	gtk_widget_set_usize(GTK_WIDGET(wSciTE.GetID()), width, height);
 	gtk_widget_show_all(wSciTE.GetID());
 	gtk_widget_set_uposition(GTK_WIDGET(wSciTE.GetID()), left, top);
+	AddToolBar();
 	SetIcon();
 
 	UIAvailable();
