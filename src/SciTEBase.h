@@ -582,8 +582,6 @@ protected:
 	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
 	void FindMessageBox(const SString &msg);
 	int FindNext(bool reverseDirection, bool showWarnings = true);
-	int FindNextWordInstance();
-	int FindPrevWordInstance();
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();
 	virtual void FindInFiles() = 0;
