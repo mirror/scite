@@ -1,6 +1,8 @@
 // SciTE - Scintilla based Text Editor
-// DirectorExtension.cxx - Extension for communicating with a director program.
-// Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
+/** @file DirectorExtension.cxx
+ ** Extension for communicating with a director program.
+ **/
+// Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -120,7 +122,7 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 		host->GetInstance());
 	DirectorExtension_Register(hInstance);
 	wReceiver = ::CreateWindow(
-		DirectorExtension_ClassName, 
+		DirectorExtension_ClassName,
 		DirectorExtension_ClassName,
 		0,
 		0,0,0,0,
@@ -158,12 +160,12 @@ bool DirectorExtension::OnOpen(const char *path) {
 	return true;
 }
 
-bool DirectorExtension::OnSwitchFile(const char *path) { 
+bool DirectorExtension::OnSwitchFile(const char *path) {
 	CheckEnvironment(host);
 	if (*path) {
 		::SendDirector("switched", path);
 	}
-	return true; 
+	return true;
 };
 
 bool DirectorExtension::OnSave(const char *path) {
@@ -226,4 +228,4 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 #ifdef _MSC_VER
 // Unreferenced inline functions are OK
 #pragma warning(disable: 4514)
-#endif 
+#endif

@@ -1,15 +1,18 @@
 // SciTE - Scintilla based Text Editor
-// SciTEWinDlg.cxx - dialog code for the Windows version of the editor
+/** @file SciTEWinDlg.cxx
+ ** Dialog code for the Windows version of the editor.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
-/** @file **/
 
 #include "SciTEWin.h"
 
+/**
+ * Flash the SciTE window to visually warn the user.
+ * Flashing only the wEditor window would be better,
+ * but I didn't get it to work...
+ */
 void FlashThisWindow(HWND hWnd, int duration) {
-	// Flash the SciTE window
-	// (flashing only the wEditor window would be better, but I didn't get it to work...)
-	// to visually warn the user.
 	::ShowWindow(hWnd, SW_HIDE);
 	::Sleep(duration);
 	::ShowWindow(hWnd, SW_SHOW);
@@ -20,6 +23,9 @@ void FlashThisWindow(HWND hWnd, int duration) {
 	//		::FlashWindow(wEditor.GetID(), TRUE);
 }
 
+/**
+ * Play the given sound, loading if needed the corresponding DLL function.
+ */
 void PlayThisSound(const char *sound, int duration, HMODULE &hMM) {
 	bool bPlayOK = false;
 	int soundFreq;
@@ -356,9 +362,13 @@ void SciTEWin::SaveAsPDF() {
 	}
 }
 
-/**  Set up properties for FileTime, FileDate, CurrentTime, CurrentDate
+/**
+ * Set up properties for FileTime, FileDate, CurrentTime, CurrentDate.
  */
-static void SetPrintProperties(PropSet &ps, const char *fullPath) {
+static void SetPrintProperties(
+		PropSet &ps,			///< Property set to update.
+		const char *fullPath) {	///< Full path of the file opened in the current buffer.
+
     const int TEMP_LEN=100;
 	char temp[TEMP_LEN];
 	HANDLE hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
@@ -389,9 +399,14 @@ static void SetPrintProperties(PropSet &ps, const char *fullPath) {
 	ps.Set("CurrentTime", temp);
 }
 
-/** Print the current buffer.
- **/
-void SciTEWin::Print(bool showDialog) {
+/**
+ * Display the Print dialog (if @a showDialog asks it),
+ * allowing it to choose what to print on which printer.
+ * If OK, print the user choice, with optionally defined header and footer.
+ */
+void SciTEWin::Print(
+		bool showDialog) {	///< false if must print silently (using default settings).
+
 	PRINTDLG pdlg = {
 	    sizeof(PRINTDLG), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
@@ -413,12 +428,15 @@ void SciTEWin::Print(bool showDialog) {
 	int startPos = crange.cpMin;
 	int endPos = crange.cpMax;
 
-	if (startPos == endPos)
+	if (startPos == endPos) {
 		pdlg.Flags |= PD_NOSELECTION;
-	else
+	} else {
 		pdlg.Flags |= PD_SELECTION;
-	if (!showDialog)
+	}
+	if (!showDialog) {
+		// Don't display dialog box, just use the default printer and options
 		pdlg.Flags |= PD_RETURNDEFAULT;
+	}
 	if (!::PrintDlg(&pdlg)) {
 		return ;
 	}
@@ -515,9 +533,9 @@ void SciTEWin::Print(bool showDialog) {
 
 	SString headerStyle = props.Get("print.header.style");
 	StyleDefinition sdHeader(headerStyle.c_str());
-	
+
 	int headerLineHeight = ::MulDiv(
-		(sdHeader.specified & StyleDefinition::sdSize) ? sdHeader.size : 9, 
+		(sdHeader.specified & StyleDefinition::sdSize) ? sdHeader.size : 9,
 		ptDpi.y, 72);
 	HFONT fontHeader = ::CreateFont(headerLineHeight,
 	                                0, 0, 0,
@@ -535,7 +553,7 @@ void SciTEWin::Print(bool showDialog) {
 	StyleDefinition sdFooter(footerStyle.c_str());
 
 	int footerLineHeight = ::MulDiv(
-		(sdFooter.specified & StyleDefinition::sdSize) ? sdFooter.size : 9, 
+		(sdFooter.specified & StyleDefinition::sdSize) ? sdFooter.size : 9,
 		ptDpi.y, 72);
 	HFONT fontFooter = ::CreateFont(footerLineHeight,
 	                                0, 0, 0,
@@ -621,10 +639,10 @@ void SciTEWin::Print(bool showDialog) {
 				::SetBkColor(hdc, sdHeader.back.AsLong());
 				::SelectObject(hdc, fontHeader);
 				UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
-				RECT rcw = {frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight / 2, 
+				RECT rcw = {frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight / 2,
 					frPrint.rc.right, frPrint.rc.top - headerLineHeight / 2};
 				rcw.bottom = rcw.top + headerLineHeight;
-				::ExtTextOut(hdc, frPrint.rc.left+5, frPrint.rc.top - headerLineHeight / 2, 
+				::ExtTextOut(hdc, frPrint.rc.left+5, frPrint.rc.top - headerLineHeight / 2,
 					ETO_OPAQUE, &rcw, sHeader.c_str(), sHeader.length(), NULL);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0,1,sdHeader.fore.AsLong());
@@ -650,9 +668,9 @@ void SciTEWin::Print(bool showDialog) {
 				::SetBkColor(hdc, sdFooter.back.AsLong());
 				::SelectObject(hdc, fontFooter);
 				UINT ta = ::SetTextAlign(hdc, TA_TOP);
-				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2, 
+				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2,
 					frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2};
-				::ExtTextOut(hdc, frPrint.rc.left+5, frPrint.rc.bottom + footerLineHeight / 2, 
+				::ExtTextOut(hdc, frPrint.rc.left+5, frPrint.rc.bottom + footerLineHeight / 2,
 					ETO_OPAQUE, &rcw, sFooter.c_str(), sFooter.length(), NULL);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0,1,sdFooter.fore.AsLong());

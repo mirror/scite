@@ -1,5 +1,7 @@
 // SciTE - Scintilla based Text Editor
-// SciTEIO.cxx - manage input and output with the system
+/** @file SciTEIO.cxx
+ ** Manage input and output with the system.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -20,7 +22,7 @@
 #endif
 
 #if PLAT_WIN
-// For getcwd and chdir
+// For chdir
 #ifdef _MSC_VER
 #include <direct.h>
 #endif
@@ -165,6 +167,7 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 	}
 
 	// Break fullPath into directory and file name using working directory for relative paths
+	dirName[0] = '\0';
 	char *cpDirEnd = strrchr(fullPath, pathSepChar);
 	if (IsAbsolutePath(fullPath)) {
 		// Absolute path
@@ -175,12 +178,8 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 	}
 	else {
 		// Relative path
-		getcwd(dirName, sizeof(dirName));
+		GetDocumentDirectory(dirName, sizeof(dirName));
 		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
-		int ldn = strlen(dirName) - 1;
-		if (dirName[ldn] == pathSepChar) {
-			dirName[ldn] = '\0'; // Remove trailing path separator
-		}
 		if (cpDirEnd) {
 			// directories and file name
 			strcpy(fileName, cpDirEnd + 1);
@@ -440,14 +439,14 @@ void SciTEBase::OpenSelected() {
 		}
 
 #if PLAT_WIN
-		if (strncmp(selectedFilename, "http", 4) == 0 ||
-		        strncmp(selectedFilename, "ftp", 3) == 0 ||
-		        strncmp(selectedFilename, "mailto", 6) == 0) {
+		if (strncmp(selectedFilename, "http:", 5) == 0 ||
+		        strncmp(selectedFilename, "ftp:", 4) == 0 ||
+		        strncmp(selectedFilename, "news:", 5) == 0 ||
+		        strncmp(selectedFilename, "mailto:", 7) == 0) {
 			SString cmd = selectedFilename;
 			AddCommand(cmd, 0, jobShell, false);
 			return;	// Job is done
 		}
-
 #endif
 
 		// Support the ctags format
@@ -461,7 +460,7 @@ void SciTEBase::OpenSelected() {
 	// Don't load the path of the current file if the selected
 	// filename is an absolute pathname
 	if (!IsAbsolutePath(selectedFilename)) {
-		getcwd(path, sizeof(path));
+		GetDocumentDirectory(path, sizeof(path));
 	}
 	if (Exists(path, selectedFilename, path)) {
 		if (Open(path, false)) {

@@ -1,6 +1,8 @@
 // SciTE - Scintilla based Text Editor
-// DirectorExtension.h - Extension for communicating with a director program.
-// Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
+/** @file DirectorExtension.h
+ ** Extension for communicating with a director program.
+ **/
+// Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 class DirectorExtension : public Extension {
@@ -13,7 +15,7 @@ public:
 	virtual bool Finalise();
 	virtual bool Clear();
 	virtual bool Load(const char *filename);
-	
+
 	virtual bool OnOpen(const char *path);
 	virtual bool OnSwitchFile(const char *path);
 	virtual bool OnSave(const char *path);

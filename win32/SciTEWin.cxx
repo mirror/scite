@@ -1,5 +1,7 @@
 // SciTE - Scintilla based Text Editor
-// SciTEWin.cxx - main code for the Windows version of the editor
+/** @file SciTEWin.cxx
+ ** Main code for the Windows version of the editor.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -52,7 +54,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	hDevMode = 0;
 	hDevNames = 0;
 	::ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
-	
+
 	hHH = 0;
 	hMM = 0;
 }
@@ -101,12 +103,6 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.lpszClassName = classNameInternal;
 	if (!::RegisterClass(&wndclass))
 		::exit(FALSE);
-}
-
-static void ChopTerminalSlash(char *path) {	// Could be in SciTEBase?
-	int endOfPath = strlen(path) - 1;
-	if (path[endOfPath] == pathSepChar)
-		path[endOfPath] = '\0';
 }
 
 static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
@@ -263,19 +259,15 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	}
 }
 
-/*#*************************************************************************
- * Function: MakeLongPath
- *
- * Purpose:
- *
- * Makes a long path from a given, possibly short path/file
+/**
+ * Makes a long path from a given, possibly short path/file.
  *
  * The short path/file must exist, and if it is a file it must be fully specified
- * elsewhere the function fails
+ * otherwise the function fails.
  *
- * sizeof longPath buffer must be a least _MAX_PATH
- * returns true on success, and the long path in longPath buffer
- * returns false on failure, and copies the shortPath arg to the longPath buffer
+ * sizeof @a longPath buffer must be a least _MAX_PATH
+ * @returns true on success, and the long path in @a longPath buffer,
+ * false on failure, and copies the @a shortPath arg to the @a longPath buffer.
  */
 bool MakeLongPath(const char* shortPath, char* longPath) {
 	// when we have pfnGetLong, we assume it never changes as kernel32 is always loaded
@@ -378,7 +370,7 @@ void SciTEWin::FixFilePath() {
 			dirName[cpDirEnd - fullPath] = '\0';
 		}
 	} else {
-		// On windows file comparison is done case insensitively so the user can
+		// On Windows file comparison is done case insensitively so the user can
 		// enter scite.cxx and still open this file, SciTE.cxx. To ensure that the file
 		// is saved with correct capitalisation FindFirstFile is used to find out the
 		// real name of the file.
@@ -407,16 +399,18 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 	//Platform::DebugPrintf("AbsolutePath: <%s> -> <%s>\n", relativePath, absPath);
 }
 
-// ProcessExecute runs a command with redirected input and output streams
-// so the output can be put in a window.
-// It is based upon several usenet posts and a knowledge base article.
+/**
+ * ProcessExecute runs a command with redirected input and output streams
+ * so the output can be put in a window.
+ * It is based upon several usenet posts and a knowledge base article.
+ */
 void SciTEWin::ProcessExecute() {
 	DWORD exitcode = 0;
 
 	SendOutput(SCI_GOTOPOS, SendOutput(WM_GETTEXTLENGTH));
 	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
 	bool seenOutput = false;
-	
+
 	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
 
 		if (jobQueue[icmd].jobType == jobShell) {
@@ -509,7 +503,7 @@ void SciTEWin::ProcessExecute() {
 		                  const_cast<char *>(jobQueue[icmd].command.c_str()),
 		                  NULL, NULL,
 		                  TRUE, 0,
-		                  NULL, 
+		                  NULL,
                           startDirectory[0] ? startDirectory : NULL,
 		                  &si, &pi);
 

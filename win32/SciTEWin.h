@@ -1,29 +1,30 @@
 // SciTE - Scintilla based Text Editor
-// SciTEWin.h - header of main code for the Windows version of the editor
+/** @file SciTEWin.h
+ ** Header of main code for the Windows version of the editor.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
-/** @file **/
 
-#include <stdlib.h> 
-#include <string.h> 
-#include <ctype.h> 
-#include <stdio.h> 
-#include <fcntl.h> 
-#include <stdarg.h> 
-#include <sys/stat.h> 
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <sys/stat.h>
 
 #include "Platform.h"
 
-#include <io.h> 
-#include <process.h> 
+#include <io.h>
+#include <process.h>
 #include <mmsystem.h>
-#include <commctrl.h> 
+#include <commctrl.h>
 #ifdef _MSC_VER
-#include <direct.h> 
-#endif 
+#include <direct.h>
+#endif
 #ifdef __BORLANDC__
-#include <dir.h> 
-#endif 
+#include <dir.h>
+#endif
 
 #include "SciTE.h"
 #include "PropSet.h"
@@ -34,7 +35,7 @@
 #include "SciTEBase.h"
 #ifdef LUA_SCRIPTING
 #include "LuaExtension.h"
-#endif 
+#endif
 
 /// Structure passed back and forth with the Indentation Setting dialog
 typedef struct {
@@ -88,7 +89,9 @@ protected:
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
 
+	/// Print the current buffer.
 	virtual void Print(bool showDialog);
+	/// Handle default print setup values and ask the user its preferences.
 	virtual void PrintSetup();
 
 	BOOL HandleReplaceCommand(int cmd);
@@ -115,6 +118,7 @@ protected:
 
 	virtual void SetStatusBarText(const char *s);
 
+	/// Warn the user, by means defined in its properties.
 	virtual void WarnUser(int warnID);
 
 	virtual void Notify(SCNotification *notification);

@@ -1,5 +1,7 @@
 // SciTE - Scintilla based Text Editor
-// SciTEBase.cxx - platform independent base class of editor
+/** @file SciTEBase.cxx
+ ** Platform independent base class of editor.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -378,9 +380,11 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 
 #endif
 
-// Find if there is a brace next to the caret, checking before caret first, then
-// after caret. If brace found also find its matching brace.
-// Returns true if inside a bracket pair.
+/**
+ * Find if there is a brace next to the caret, checking before caret first, then
+ * after caret. If brace found also find its matching brace.
+ * @return true if inside a bracket pair.
+ */
 bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy) {
 	bool isInside = false;
 	Window &win = editor ? wEditor : wOutput;
@@ -562,10 +566,11 @@ void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch
 	int lengthDoc, selStart, selEnd;
 	Window wCurrent;
 
-	if (wEditor.HasFocus())
+	if (wEditor.HasFocus()) {
 		wCurrent = wEditor;
-	else
+	} else {
 		wCurrent = wOutput;
+	}
 	lengthDoc = SendFocused(SCI_GETLENGTH);
 	selStart = SendFocused(SCI_GETSELECTIONSTART);
 	selEnd = SendFocused(SCI_GETSELECTIONEND);
@@ -573,14 +578,16 @@ void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
 		if (ischarforsel(acc[selStart])) {
-			while ((selStart > 0) && (ischarforsel(acc[selStart - 1])))
+			while ((selStart > 0) && (ischarforsel(acc[selStart - 1]))) {
 				selStart--;
-			while ((selEnd < lengthDoc - 1) && (ischarforsel(acc[selEnd + 1])))
+			}
+			while ((selEnd < lengthDoc - 1) && (ischarforsel(acc[selEnd + 1]))) {
 				selEnd++;
-			if (selStart < selEnd)
+			}
+			if (selStart < selEnd) {
 				selEnd++;   	// Because normal selections end one past
+			}
 		}
-
 	}
 	sel[0] = '\0';
 	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
@@ -1226,8 +1233,10 @@ void SciTEBase::AutomaticIndentation(char ch) {
 	}
 }
 
-// Upon a character being added, SciTE may decide to perform some action
-// such as displaying a completion list.
+/**
+ * Upon a character being added, SciTE may decide to perform some action
+ * such as displaying a completion list.
+ */
 void SciTEBase::CharAdded(char ch) {
 	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
@@ -1617,8 +1626,8 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(
-					props.GetNewExpand("command.build.", fileName), 
-					props.GetNewExpand("command.build.directory.", fileName), 
+					props.GetNewExpand("command.build.", fileName),
+					props.GetNewExpand("command.build.directory.", fileName),
 					SubsystemType("command.build.subsystem."));
 				if (commandCurrent > 0) {
 					isBuilding = true;
@@ -2040,7 +2049,9 @@ void SciTEBase::CheckMenus() {
 	}
 }
 
-// Ensure that a splitter bar position is inside the main window
+/**
+ * Ensure that a splitter bar position is inside the main window.
+ */
 int SciTEBase::NormaliseSplit(int splitPos) {
 	PRectangle rcClient = GetClientRectangle();
 	int w = rcClient.Width();
@@ -2076,10 +2087,12 @@ void SciTEBase::UIAvailable() {
 		extender->Initialise(this);
 }
 
-/// Find the character following a name which is made up of character from 
-/// the set [a-zA-Z.]
+/**
+ * Find the character following a name which is made up of character from
+ * the set [a-zA-Z.]
+ */
 char AfterName(const char *s) {
-	while (*s && ((*s == '.') || 
+	while (*s && ((*s == '.') ||
 		(*s >= 'a' && *s <= 'z') ||
 		(*s >= 'A' && *s <= 'A')))
 		s++;
@@ -2131,7 +2144,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 					if (isprefix(arg, "open:")) {
 						if (phase == 0)
 							return performPrint;
-						else 
+						else
 							evaluate = true;
 						performedOpen = true;
 					}
@@ -2145,7 +2158,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 		} else {	// Not a switch: it is a file name
 			if (phase == 0)
 				return performPrint;
-			else 
+			else
 				evaluate = true;
 			Open(arg, true);
 			performedOpen = true;

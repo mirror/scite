@@ -1,5 +1,7 @@
 // SciTE - Scintilla based Text Editor
-// SciTEProps.cxx - properties management
+/** @file SciTEProps.cxx
+ ** Properties management.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -41,8 +43,9 @@ PropSetFile::PropSetFile() {}
 
 PropSetFile::~PropSetFile() {}
 
-// Get a line of input. If end of line escaped with '\\' then continue reading.
-
+/**
+ * Get a line of input. If end of line escaped with '\\' then continue reading.
+ */
 static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 	bool continuation = true;
 	s[0] = '\0';
@@ -142,12 +145,24 @@ void SciTEBase::ReadGlobalPropFile() {
 	}
 }
 
+void ChopTerminalSlash(char *path) {
+	int endOfPath = strlen(path) - 1;
+	if (path[endOfPath] == pathSepChar) {
+		path[endOfPath] = '\0';
+	}
+}
+
 void SciTEBase::GetDocumentDirectory(char *docDir, int len) {
-	if (dirName[0])
+	if (dirName[0]) {
 		strncpy(docDir, dirName, len);
-	else
+		docDir[len - 1] = '\0';
+	} else {
 		getcwd(docDir, len);
-	docDir[len - 1] = '\0';
+		docDir[len - 1] = '\0';
+		// In Windows, getcwd returns a trailing backslash
+		// when the CWD is at the root of a disk, so remove it
+		ChopTerminalSlash(docDir);
+	}
 }
 
 void SciTEBase::ReadLocalPropFile() {
@@ -187,8 +202,10 @@ static Colour ColourFromString(const char *val) {
 	return Colour(r, g, b);
 }
 
-/** Put the next property item from the given property string into the buffer pointed by pPropItem.
- * The returned value is NULL if the end of the list is met, else, it points to the next item.
+/**
+ * Put the next property item from the given property string
+ * into the buffer pointed by @a pPropItem.
+ * @return NULL if the end of the list is met, else, it points to the next item.
  */
 char *SciTEBase::GetNextPropItem(
 	const char *pStart,  	/**< the property string to parse for the first call,
@@ -761,9 +778,9 @@ void SciTEBase::OpenProperties(int propsFile) {
 	char propfile[MAX_PATH + 20];
 	char propdir[MAX_PATH + 20];
 	if (propsFile == IDM_OPENLOCALPROPERTIES) {
-		getcwd(propfile, sizeof(propfile));
+		GetDocumentDirectory(propfile, sizeof(propfile));
 #ifdef __vms
-		strcpy (propfile, VMSToUnixStyle(propfile));
+		strcpy(propfile, VMSToUnixStyle(propfile));
 #endif
 		strcat(propfile, pathSepString);
 		strcat(propfile, propFileName);

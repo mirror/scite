@@ -1,5 +1,7 @@
 // SciTE - Scintilla based Text Editor
-// Exporters.cxx - manage input and output with the system
+/** @file Exporters.cxx
+ ** Manage input and output with the system.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -20,7 +22,7 @@
 #endif
 
 #if PLAT_WIN
-// For getcwd and chdir
+// For chdir
 #ifdef _MSC_VER
 #include <direct.h>
 #endif

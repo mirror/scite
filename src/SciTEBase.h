@@ -1,5 +1,7 @@
 // SciTE - Scintilla based Text Editor
-// SciTEBase.h - definition of platform independent base class of editor
+/** @file SciTEBase.h
+ ** Definition of platform independent base class of editor.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -25,13 +27,17 @@ const char *VMSToUnixStyle(const char *fileName);
 #endif
 #endif
 
-// The order of menus on Windows - the Buffers menu may not be present
-// and there is a Help menu at the end.
-enum { menuFile=0, menuEdit=1, menuSearch=2, menuView=3, 
-	menuTools=4, menuOptions=5, menuBuffers=6 };
+/**
+ * The order of menus on Windows - the Buffers menu may not be present
+ * and there is a Help menu at the end.
+ */
+enum { menuFile=0, menuEdit=1, menuSearch=2, menuTools=3, 
+	menuOptions=4, menuBuffers=5 };
 
-// This is a fixed length list of strings suitable for display  in combo boxes
-// as a memory of user entries
+/**
+ * This is a fixed length list of strings suitable for display in combo boxes
+ * as a memory of user entries.
+ */
 template<int sz>
 class EntryMemory {
 	SString entries[sz];
@@ -145,7 +151,7 @@ enum {
 	statusPosWidth = 256
 };
 
-// warning IDs, here they are also sound frequencies
+/// Warning IDs.
 enum {
 	warnFindWrapped = 1,
 	warnNoOtherBookmark,
@@ -481,7 +487,7 @@ protected:
 	void UIAvailable();
 	void PerformOne(const char *action);
 	bool ProcessCommandLine(SString &args, int phase);
-	
+
 	// ExtensionAPI
 	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 	char *Range(Pane p, int start, int end);
@@ -504,13 +510,16 @@ public:
 	WindowID GetID() { return wSciTE.GetID(); }
 };
 
+/// Base size of file I/O operations.
+const int blockSize = 131072;
+
 const char *strcasestr(const char *str, const char *pattn);
 int ControlIDOfCommand(unsigned long);
 void SetAboutMessage(WindowID wsci, const char *appTitle);
 time_t GetModTime(const char *fullPath);
-const int blockSize = 131072;
 bool IsUntitledFileName(const char *name);
 void lowerCaseString(char *s);
+void ChopTerminalSlash(char *path);
 
 #if PLAT_GTK
 // MessageBox
