@@ -602,7 +602,6 @@ public:
 /// Base size of file I/O operations.
 const int blockSize = 131072;
 
-const char *strcasestr(const char *str, const char *pattn);
 int ControlIDOfCommand(unsigned long);
 void SetAboutMessage(WindowID wsci, const char *appTitle);
 time_t GetModTime(const char *fullPath);
