@@ -479,6 +479,7 @@ protected:
 	void Trace(const char *s);
 	char *Property(const char *key);
 	bool OpenFromExtension(const char *path);
+	void SetProperty(const char *key, const char *val);
 
 public:
 

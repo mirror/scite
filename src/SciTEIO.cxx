@@ -220,8 +220,6 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 	props.Set("FileName", fileBase);
 	props.Set("FileExt", fileExt);
 	props.Set("FileNameExt", fileName);
-	SString windowID(reinterpret_cast<int>(wSciTE.GetID()));
-	props.Set("WindowID", windowID.c_str());
 
 	SetWindowName();
 	if (buffers.buffers)
