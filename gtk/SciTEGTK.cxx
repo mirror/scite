@@ -2478,7 +2478,7 @@ void SciTEGTK::CreateMenu() {
 	CreateTranslatedMenu(ELEMENTS(menuItemsOptions), menuItemsOptions,
 	                     30, "/Options/Edit Properties/Props", 0, IDM_IMPORT, 0);
 	CreateTranslatedMenu(ELEMENTS(menuItemsLanguage), menuItemsLanguage,
-	                     40, "/Language/Language", 0, IDM_LANGUAGE, 0);
+	                     50, "/Language/Language", 0, IDM_LANGUAGE, 0);
 	if (props.GetInt("buffers") > 1)
 		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer,
 		                     30, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
