@@ -366,7 +366,9 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	SetFileName(file);
 	overrideExtension = "";
 	ReadProperties();
-	useMonoFont = false;
+	if (useMonoFont) {
+		SetMonoFont();
+	}
 	UpdateBuffersCurrent();
 	if (tabVisible)	// Update tab visibility if the hide one mode is on
 		SizeSubWindows();
