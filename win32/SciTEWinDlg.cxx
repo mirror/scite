@@ -2,7 +2,7 @@
 /** @file SciTEWinDlg.cxx
  ** Dialog code for the Windows version of the editor.
  **/
-// Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include "SciTEWin.h"

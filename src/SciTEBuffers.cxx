@@ -2,7 +2,7 @@
 /** @file SciTEBuffers.cxx
  ** Buffers and jobs management.
  **/
-// Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -941,7 +941,7 @@ void SciTEBase::ToolsMenu(int item) {
 			int quiet = props.GetNewExpand(quietProp.c_str(), fileName).value();
 			if (quiet == 1)
 				flags |= jobQuiet;
-	
+
 			SString repSelProp = "command.replace.selection.";
 			repSelProp += SString(item);
 			repSelProp += ".";
@@ -950,7 +950,7 @@ void SciTEBase::ToolsMenu(int item) {
 				flags |= jobRepSelYes;
 			else if (repSel == 2)
 				flags |= jobRepSelAuto;
-	
+
 			AddCommand(command, "", jobType, input, flags);
 			if (commandCurrent > 0)
 				Execute();
