@@ -910,6 +910,9 @@ void SciTEBase::ReadProperties() {
 	           ColourOfProperty(props, "bookmark.back", ColourDesired(0x80, 0xff, 0xff)));
 	SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
 
+	SendEditor(SCI_SETSCROLLWIDTH, props.GetInt("horizontal.scroll.width", 2000));
+	SendOutput(SCI_SETSCROLLWIDTH, props.GetInt("output.horizontal.scroll.width", 2000));
+
 	// Do these last as they force a style refresh
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
