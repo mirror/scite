@@ -1056,9 +1056,15 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 }
 
 BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
+	// Prevent reentrance when setting text
+	static bool entered = false;	
+	if (entered)
+		return FALSE;
+
 	// Avoid getting dialog items before set up or during tear down.
 	if (WM_SETFONT == message || WM_NCDESTROY == message)
 		return FALSE;
+
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDC_INCFINDTEXT);
 
 	switch (message) {
@@ -1123,9 +1129,12 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			FindNext(false, false);
  			if ((!havefound) &&
 				strncmp(findWhat.c_str(), ffLastWhat.c_str(), ffLastWhat.length()) == 0) {
+				// Could not find string with added character so revert to previous value.
 				findWhat = ffLastWhat;
+				entered = true;
 				SetDlgItemText2(hDlg, IDC_INCFINDTEXT, findWhat.c_str());
 				SendMessage(wFindWhat, EM_SETSEL, ffLastWhat.length(), ffLastWhat.length());
+				entered = false;
 			}
 			return FALSE;
 		}
