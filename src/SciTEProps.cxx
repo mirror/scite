@@ -707,6 +707,7 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_AUTOCSETCHOOSESINGLE, autoCChooseSingle),
 
 	SendEditor(SCI_AUTOCSETCANCELATSTART, 0),
+	SendEditor(SCI_AUTOCSETDROPRESTOFWORD, 0),
 
 	// Set styles
 	// For each window set the global default style, then the language default style, then the other global styles, then the other language styles

@@ -1510,8 +1510,6 @@ bool SciTEBase::StartAutoComplete() {
 	         autoCompleteStartCharacters.contains(linebuf[startword - 1])))
 		startword--;
 
-	if (startword == current)
-		return true;
 	linebuf[current] = '\0';
 	const char *root = linebuf + startword;
 	int rootlen = current - startword;
