@@ -773,7 +773,7 @@ void SciTEBase::ReadProperties() {
 	SendOutput(SCI_SETMARGINRIGHT, 0, blankMarginRight);
 
 	SendEditor(SCI_SETMARGINWIDTHN, 1, margin ? marginWidth : 0);
-	SendEditor(SCI_SETMARGINWIDTHN, 0, lineNumbers ? lineNumbersWidth : 0);
+	SetLineNumberWidth();
 
 	bufferedDraw = props.GetInt("buffered.draw", 1);
 	SendEditor(SCI_SETBUFFEREDDRAW, bufferedDraw);

@@ -2544,6 +2544,12 @@ void WindowSetFocus(Window &w) {
 	Platform::SendScintilla(w.GetID(), SCI_GRABFOCUS, 0, 0);
 }
 
+void SciTEBase::SetLineNumberWidth() {
+	// The 4 here allows for spacing: 1 poxel on left and 3 on right.
+	int pixelWidth = 4 + lineNumbersWidth * SendEditorString(SCI_TEXTWIDTH, STYLE_LINENUMBER, "9");
+	SendEditor(SCI_SETMARGINWIDTHN, 0, lineNumbers ? pixelWidth : 0);
+}
+
 void SciTEBase::MenuCommand(int cmdID) {
 	switch (cmdID) {
 	case IDM_NEW:
@@ -2786,7 +2792,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_LINENUMBERMARGIN:
 		lineNumbers = !lineNumbers;
-		SendEditor(SCI_SETMARGINWIDTHN, 0, lineNumbers ? lineNumbersWidth : 0);
+		SetLineNumberWidth();
 		CheckMenus();
 		break;
 
@@ -3361,6 +3367,10 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 	case SCN_DWELLEND:
 		SendEditorString(SCI_CALLTIPCANCEL, 0, 0);
+		break;
+
+	case SCN_ZOOM:
+		SetLineNumberWidth();
 		break;
 	}
 }

@@ -392,7 +392,7 @@ protected:
 
 	bool lineNumbers;
 	int lineNumbersWidth;
-	enum { lineNumbersWidthDefault = 40};
+	enum { lineNumbersWidthDefault = 4};
 
 	bool usePalette;
 	bool clearBeforeExecute;
@@ -578,6 +578,7 @@ protected:
 	virtual void QuitProgram() = 0;
 	void CloseAllBuffers();
 	virtual void CopyAsRTF() {};
+	void SetLineNumberWidth();
 	void MenuCommand(int cmdID);
 	void FoldChanged(int line, int levelNow, int levelPrev);
 	void FoldChanged(int position);
