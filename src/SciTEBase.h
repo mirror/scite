@@ -67,6 +67,7 @@ class PropSetFile : public PropSet {
 public:
 	PropSetFile();
 	~PropSetFile();
+	bool ReadLine(char *data, bool ifIsTrue, const char *directoryForImports=0);
 	void ReadFromMemory(const char *data, int len, const char *directoryForImports=0);
 	void Read(const char *filename, const char *directoryForImports);
 };
@@ -477,7 +478,9 @@ protected:
 	int NormaliseSplit(int splitPos);
 	void MoveSplit(Point ptNewDrag);
 
+	void UIAvailable();
 	void PerformOne(const char *action);
+	bool ProcessCommandLine(SString &args, int phase);
 	
 	// ExtensionAPI
 	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);

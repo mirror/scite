@@ -28,8 +28,6 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	openWhat[strlen(openWhat) + 1] = '\0';
 	filterDefault = 1;
 
-	ReadGlobalPropFile();
-
 	// Read properties resource into propsEmbed
 	// The embedded properties file is to allow distributions to be sure
 	// that they have a sensible default configuration even if the properties
@@ -49,48 +47,12 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 		::FreeResource(handProps);
 	}
 
-	// Pass 'this' pointer in lpParam of CreateWindow().
-	int left = props.GetInt("position.left", CW_USEDEFAULT);
-	int top = props.GetInt("position.top", CW_USEDEFAULT);
-	int width = props.GetInt("position.width", CW_USEDEFAULT);
-	int height = props.GetInt("position.height", CW_USEDEFAULT);
-	if (width == -1 || height == -1) {
-		cmdShow = SW_MAXIMIZE;
-		width = CW_USEDEFAULT;
-		height = CW_USEDEFAULT;
-	}
-	wSciTE = ::CreateWindowEx(
-	             0,
-	             className,
-	             windowName,
-	             WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
-	             WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
-	             WS_MAXIMIZE | WS_CLIPCHILDREN,
-	             left, top, width, height,
-	             NULL,
-	             NULL,
-	             hInstance,
-	             reinterpret_cast<LPSTR>(this));
-	if (!wSciTE.Created())
-		exit(FALSE);
+	ReadGlobalPropFile();
 
 	hDevMode = 0;
 	hDevNames = 0;
 	::ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
-
-	SString pageSetup = props.Get("print.margins");
-	char val[32];
-	char *ps = StringDup(pageSetup.c_str());
-	char *next = GetNextPropItem(ps, val, 32);
-	pagesetupMargin.left = atol(val);
-	next = GetNextPropItem(next, val, 32);
-	pagesetupMargin.right = atol(val);
-	next = GetNextPropItem(next, val, 32);
-	pagesetupMargin.top = atol(val);
-	GetNextPropItem(next, val, 32);
-	pagesetupMargin.bottom = atol(val);
-	delete []ps;
-
+	
 	hHH = 0;
 	hMM = 0;
 }
@@ -797,17 +759,52 @@ void SciTEWin::QuitProgram() {
 	}
 }
 
+void SciTEWin::CreateUI() {
+	// Pass 'this' pointer in lpParam of CreateWindow().
+	int left = props.GetInt("position.left", CW_USEDEFAULT);
+	int top = props.GetInt("position.top", CW_USEDEFAULT);
+	int width = props.GetInt("position.width", CW_USEDEFAULT);
+	int height = props.GetInt("position.height", CW_USEDEFAULT);
+	if (width == -1 || height == -1) {
+		cmdShow = SW_MAXIMIZE;
+		width = CW_USEDEFAULT;
+		height = CW_USEDEFAULT;
+	}
+	wSciTE = ::CreateWindowEx(
+	             0,
+	             className,
+	             windowName,
+	             WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
+	             WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
+	             WS_MAXIMIZE | WS_CLIPCHILDREN,
+	             left, top, width, height,
+	             NULL,
+	             NULL,
+	             hInstance,
+	             reinterpret_cast<LPSTR>(this));
+	if (!wSciTE.Created())
+		exit(FALSE);
+
+	SString pageSetup = props.Get("print.margins");
+	char val[32];
+	char *ps = StringDup(pageSetup.c_str());
+	char *next = GetNextPropItem(ps, val, 32);
+	pagesetupMargin.left = atol(val);
+	next = GetNextPropItem(next, val, 32);
+	pagesetupMargin.right = atol(val);
+	next = GetNextPropItem(next, val, 32);
+	pagesetupMargin.top = atol(val);
+	GetNextPropItem(next, val, 32);
+	pagesetupMargin.bottom = atol(val);
+	delete []ps;
+	
+	UIAvailable();
+}
+
 void SciTEWin::Run(const char *cmdLine) {
-	// Break up the command line into individual arguments and strip double
-	// quotes from each argument.  Arguments that start with '-' or '/' are
-	// switches and are stored in the switches string separated by '\n' with
-	// other arguments being file names that are stored in the files string, each
-	// /terminated/ by '\n'.
-	// The print switch /p is special cased.
-	bool performPrint = false;
-	SString files;
-	SString switches;
-	SString commands;
+	// Break up the command line into individual arguments and strip double quotes 
+	// from each argument creatng a string with each argument separated by '\n'
+	SString args;
 	const char *startArg = cmdLine;
 	while (*startArg) {
 		while (isspace(*startArg)) {
@@ -825,38 +822,17 @@ void SciTEWin::Run(const char *cmdLine) {
 				endArg++;
 			}
 		}
-		if ((*startArg == '-') || (*startArg == '/')) {
-			startArg++;
-			if ((tolower(*startArg) == 'p') && ((endArg - startArg) == 1)) {
-				performPrint = true;
-			} else {
-				SString arg(startArg, 0, endArg - startArg);
-				if (AfterName(arg.c_str()) == ':') {
-					commands.appendwithseparator(arg.c_str(), '\n');
-				} else {
-					switches.appendwithseparator(arg.c_str(), '\n');
-				}
-			}
-		} else {	// Not a switch: it is a file name
-			files += SString(startArg, 0, endArg - startArg);
-			files += "\n";
-		}
+		SString arg(startArg, 0, endArg - startArg);
+		args.appendwithseparator(arg.c_str(), '\n');
 		startArg = endArg;	// On a space or a double-quote, or on the end of the command line
 		if (*startArg) {
 			startArg++;
 		}
 	}
-	files.substitute('\n', '\0');	// Make into a set of strings
-	props.ReadFromMemory(switches.c_str(), switches.length(), "");
-
-	// Open all files given on command line.
-	// The filenames containing spaces must be enquoted.
-	// In case of not using buffers they get closed immediately except
-	// the last one, but they move to the MRU file list
-	OpenMultiple(files.c_str(), true);
+	bool performPrint = ProcessCommandLine(args, 0);
 	
-	Perform(commands.c_str());
-
+	CreateUI();
+	
 	if (performPrint) {
 		Print(false);
 		::PostQuitMessage(0);
@@ -865,6 +841,14 @@ void SciTEWin::Run(const char *cmdLine) {
 	wSciTE.Show();
 	if (cmdShow)	// assume SW_MAXIMIZE only
 		ShowWindow(wSciTE.GetID(), cmdShow);
+
+	// Open all files given on command line.
+	// The filenames containing spaces must be enquoted.
+	// In case of not using buffers they get closed immediately except
+	// the last one, but they move to the MRU file list
+	ProcessCommandLine(args, 1);
+	SizeSubWindows();
+	Redraw();
 }
 
 void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
@@ -904,43 +888,14 @@ void SciTEWin::AboutDialog() {
 #endif
 }
 
-int testPaints = 1;
-
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
 	switch (iMessage) {
 
 	case WM_CREATE:
 		Creation();
-		//::SetTimer(wSciTE.GetID(), 5, 500, NULL);
 		break;
 
-	case WM_TIMER:
-#if 0
-		if (testPaints && wParam == 5) {
-			if (testPaints < 30) {
-				testPaints++;
-				::InvalidateRect(wEditor.GetID(), NULL, TRUE);
-			} else {
-				::PostQuitMessage(0);
-			}
-		}
-#endif
-		break;
-
-#if 0
-	case WM_PAINT: {
-			PAINTSTRUCT ps;
-			::BeginPaint(wSciTE.GetID(), &ps);
-			Surface surfaceWindow;
-			surfaceWindow.Init(ps.hdc);
-			PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
-			Paint(&surfaceWindow, rcPaint);
-			surfaceWindow.Release();
-			::EndPaint(wSciTE.GetID(), &ps);
-			return 0;
-		}
-#endif
 	case WM_COMMAND:
 		Command(wParam, lParam);
 		break;

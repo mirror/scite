@@ -132,6 +132,7 @@ public:
 
 	bool ModelessHandler(MSG *pmsg);
 
+	void CreateUI();
 	/// Management of the command line parameters.
 	void Run(const char *cmdLine);
 	void ProcessExecute();

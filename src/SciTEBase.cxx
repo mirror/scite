@@ -253,9 +253,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	propsUser.superPS = &propsBase;
 	propsLocal.superPS = &propsUser;
 	props.superPS = &propsLocal;
-
-	if (extender)
-		extender->Initialise(this);
 }
 
 SciTEBase::~SciTEBase() {
@@ -2074,6 +2071,11 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 	previousHeightOutput = newHeightOutput;
 }
 
+void SciTEBase::UIAvailable() {
+	if (extender)
+		extender->Initialise(this);
+}
+
 /// Find the character following a name which is made up of character from 
 /// the set [a-zA-Z.]
 char AfterName(const char *s) {
@@ -2092,6 +2094,67 @@ void SciTEBase::PerformOne(const char *action) {
 			Open(arg);
 		}
 	}
+}
+
+static bool IsSwitchCharacter(char ch) {
+#ifdef unix
+	return ch == '-';
+#else
+	return (ch == '-') || (ch == '/');
+#endif
+}
+
+/**
+ * Process all the command line arguments.
+ * Arguments that start with '-' (also '/' on Windows) are switches or commands with
+ * other arguments being file names which are opened. Commands are distinguished
+ * from switches by containing a ':' after the command name.
+ * The print switch /p is special cased.
+ * Processing occurs in two phases to allow switches that occur before any file opens
+ * to be evaluated before creating the UI.
+ * Call twice, first with phase=0, then with phase=1 after creating UI.
+ */
+bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
+	bool performPrint = false;
+	bool performedOpen = false;
+	bool evaluate = phase == 0;
+	WordList wlArgs(true);
+	wlArgs.Set(args.c_str());
+	for (int i=0;i<wlArgs.len;i++) {
+		char *arg = wlArgs[i];
+		if (IsSwitchCharacter(arg[0])) {
+			arg++;
+			if ((tolower(arg[0]) == 'p') && (strlen(arg) == 1)) {
+				performPrint = true;
+			} else {
+				if (AfterName(arg) == ':') {
+					if (isprefix(arg, "open:")) {
+						if (phase == 0)
+							return performPrint;
+						else 
+							evaluate = true;
+						performedOpen = true;
+					}
+					if (evaluate)
+						PerformOne(arg);
+				} else {
+					if (evaluate)
+						props.ReadLine(arg, true, "");
+				}
+			}
+		} else {	// Not a switch: it is a file name
+			if (phase == 0)
+				return performPrint;
+			else 
+				evaluate = true;
+			Open(arg, true);
+			performedOpen = true;
+		}
+	}
+	if ((phase == 1) && !performedOpen) {
+		Open("", true);
+	}
+	return performPrint;
 }
 
 // Implement ExtensionAPI methods
