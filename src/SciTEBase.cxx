@@ -961,6 +961,7 @@ void SciTEBase::New() {
 	isDirty = false;
 	isBuilding = false;
 	isBuilt = false;
+	SendEditor(EM_EMPTYUNDOBUFFER);
 	SendEditor(SCI_SETSAVEPOINT);
 }
 
@@ -2013,6 +2014,14 @@ void SciTEBase::MenuCommand(int cmdID) {
 		StartAutoComplete();
 		break;
 
+	case IDM_UPRCASE:
+		SendFocused(SCI_UPPERCASE);
+		break;
+
+	case IDM_LWRCASE:
+		SendFocused(SCI_LOWERCASE);
+		break;
+
 	case IDM_EXPAND:
 		SendEditor(SCI_TOGGLEFOLD, GetCurrentLineNumber());
 		break;
@@ -2065,12 +2074,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));
 		break;
 
-	case IDM_UPRCASE:
-		//Platform::DebugPrintf("IDM_UPRCASE\n");
-		break;
-	case IDM_LWRCASE:
-		//Platform::DebugPrintf("IDM_LWRCASE\n");
-		break;
 	case IDM_VIEWSPACE: {
 			int viewWS = SendEditor(SCI_GETVIEWWS, 0, 0);
 			SendEditor(SCI_SETVIEWWS, !viewWS);
