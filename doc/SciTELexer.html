@@ -31,7 +31,7 @@ Apache CONF files to SciTE. There is more information on writing the
 lexer code (steps 4 and 5, here) in the documentation for Scintilla.</p>
 <p>
 Don't bother about steps which are for configurations you don't
-use like all 6 makefiles - I'll patch them up later if you want to
+use all 6 makefiles - I'll patch them up later if you want to
 contribute the lexer.</p>
     <ol>
 <li>
@@ -82,11 +82,6 @@ style.conf.0=fore:#FF0000,bold<br />
 style.conf.1=fore:#007F7F,$(font.comment)<br />
 </li>
 <li>
-A short sigh of relief is allowed here ;) If you build SciTE and open a
-conf file, it should now be coloured correctly. But more is required for a
-good job.
-</li>
-<li>
 If on Windows (someday this may work on GTK+ too), a filter should be
 added for conf files in scite/src/others.properties:
 filter.conf=Configuration (.conf)|*.conf|
@@ -96,42 +91,15 @@ In scite/src/SciTEGlobal.properties add $(filter.conf) to the definition
 of open.filter.
 </li>
 <li>
-Enable setting this lexer by command. Near the end of scite/src/SciTE.h
-add: <br />
-#define IDM_LEXER_CONF  LEXER_BASE+21
+To add this language to the Language menu of SciTE, add an entry to the menu.language 
+property including the name of the language and the file extension used most commonly 
+for it.
 </li>
 <li>
-In scite/src/SciTEBase.cxx add this command ID after the only occurrance
-of IDM_LEXER_DIFF<br />
-case IDM_LEXER_CONF:
-</li>
-<li>
-In scite/src/SciTEBase.cxx add the most common extension for this file
-to the extList variable. This must match the ordering in SciTE.h:<br />
-    "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.conf"
-</li>
-<li>
-Add a menu item for Windows. In scite/win32/SciTERes.rc search for
-IDM_LEXER_DIFF and wherever seems most appropriate in the list add (changing
-the string if desired):<br />
-  MENUITEM "Conf",    IDM_LEXER_CONF
-</li>
-<li>
-Add a menu item for GTK+. In scite/gtk/SciTEGTK.cxx search for
-IDM_LEXER_DIFF and wherever seems most appropriate in the list add (maybe
-changing the Conf part of the string but not changing the menu path):<br />
-  {"/Options/Use lexer/Conf", "", menuSig, IDM_LEXER_CONF, "/Options/Use
-lexer/none"},
-</li>
-<li>
-Build everything
+Build both Scintilla and SciTE.
 </li>
 <li>
 Share and enjoy
-</li>
-<li>
-Write an irate mail to Neil asking why this can't be achieved more
-simply.
 </li>
   </body>
 </html>
