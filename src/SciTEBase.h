@@ -360,6 +360,7 @@ protected:
 	bool IsAbsolutePath(const char *path);
 	bool Exists(const char *dir, const char *path, char *testPath);
 	void OpenFile(bool initialCmdLine);
+	virtual void OpenUriList(const char *) {};
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size)=0;
 	virtual void FixFilePath();
 	virtual bool OpenDialog()=0;

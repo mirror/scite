@@ -119,7 +119,7 @@ protected:
 	virtual void CheckMenus();
 	virtual void ExecuteNext();
 
-	void OpenUriList(const char *list);
+	virtual void OpenUriList(const char *list);
 	virtual void AbsolutePath(char *absPath, const char *relativePath, int size);
 	virtual bool OpenDialog();
 	virtual bool SaveAsDialog();
