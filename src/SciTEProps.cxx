@@ -209,7 +209,11 @@ void SciTEBase::SetLanguageMenu() {
 		int itemID = languageCmdID + item;
 		SString entry = LocaliseString(languageMenu[item].menuItem.c_str());
 		if (languageMenu[item].menuKey.length()) {
+#if PLAT_GTK
+			entry += " ";
+#else
 			entry += "\t";
+#endif
 			entry += languageMenu[item].menuKey;
 		}
 		SetMenuItem(menuLanguage, item, itemID, entry.c_str());

@@ -2177,6 +2177,7 @@ SString SciTEGTK::TranslatePath(const char *path) {
 		while (spath.length() > 1) {
 			SString segment(spath.c_str(), 0, end);
 			SString segmentLocalised = LocaliseString(segment.c_str());
+			segmentLocalised.substitute("/", "|");
 			spathTranslated.append("/");
 			spathTranslated.append(segmentLocalised.c_str());
 			spath.remove(0, end + 1);
