@@ -49,6 +49,7 @@ LEXEROBJS=\
 	../../scintilla/gtk/LexSQL.o \
 	../../scintilla/gtk/LexOthers.o \
 	../../scintilla/gtk/LexVB.o \
+	../../scintilla/gtk/LexConf.o \
 	../../scintilla/gtk/LexPerl.o
 
 $(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o SciTEProps.o ../../scintilla/bin/scintilla.a $(LEXEROBJS)
