@@ -218,6 +218,7 @@ const char *contributors[] = {
                                  "Carsten Sperber",
                                  "Phil Reid",
                                  "Iago Rubio",
+                                 "Régis Vaquette",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
