@@ -632,7 +632,7 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
 	bool isInside = false;
 	char line[80];
 	int status, level = 0;
-	int maxLines = SendEditor(SCI_GETLINECOUNT);
+	int maxLines = SendEditor(SCI_GETLINECOUNT)-1;
 
 	while (curLine < maxLines && curLine > 0 && !isInside) {
 		curLine += direction;	// Increment or decrement
