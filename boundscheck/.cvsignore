@@ -3,5 +3,8 @@ SciTE.plg
 SciTE.opt
 SciTE.ncb
 SciTE.dsw
+SciTE.sln
+SciTE.suo
+SciTE.vcproj
 Release
 Debug
