@@ -509,8 +509,7 @@ long StyleDefinition::BackAsLong() const {
 	return ColourFromString(back);
 }
 
-void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
-	StyleDefinition sd(s);
+void SciTEBase::SetOneStyle(Window &win, int style, const StyleDefinition &sd) {
 	if (sd.specified & StyleDefinition::sdItalics)
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETITALIC, style, sd.italics ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdBold)
@@ -904,44 +903,11 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_AUTOCSETCANCELATSTART, 0);
 	SendEditor(SCI_AUTOCSETDROPRESTOFWORD, 0);
 
-	// Set styles
-	// For each window set the global default style, then the language default style, then the other global styles, then the other language styles
-
-	SendEditor(SCI_STYLERESETDEFAULT, 0, 0);
-	SendOutput(SCI_STYLERESETDEFAULT, 0, 0);
-
-	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
-	sval = props.GetNewExpand(key);
-	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
-	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
-
-	sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
-	sval = props.GetNewExpand(key);
-	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
-
-	SendEditor(SCI_STYLECLEARALL, 0, 0);
-
-	SetStyleFor(wEditor, "*");
-	SetStyleFor(wEditor, language.c_str());
-
-	SendOutput(SCI_STYLECLEARALL, 0, 0);
-
-	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
-	sval = props.GetNewExpand(key);
-	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
-
-	SendOutput(SCI_STYLECLEARALL, 0, 0);
-
-	SetStyleFor(wOutput, "*");
-	SetStyleFor(wOutput, "errorlist");
-
 	if (firstPropertiesRead) {
 		ReadPropertiesInitial();
 	}
 
-	if (useMonoFont) {
-		SetMonoFont();
-	}
+	ReadFontProperties();
 
 	SendEditor(SCI_SETUSEPALETTE, props.GetInt("use.palette"));
 	SendEditor(SCI_SETPRINTMAGNIFICATION, props.GetInt("print.magnification"));
@@ -1180,6 +1146,57 @@ void SciTEBase::ReadProperties() {
 	}
 	firstPropertiesRead = false;
 	needReadProperties = false;
+}
+
+void SciTEBase::ReadFontProperties() {
+	char key[200];
+	SString sval;
+
+	// Set styles
+	// For each window set the global default style, then the language default style, then the other global styles, then the other language styles
+
+	SendEditor(SCI_STYLERESETDEFAULT, 0, 0);
+	SendOutput(SCI_STYLERESETDEFAULT, 0, 0);
+
+	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
+	sval = props.GetNewExpand(key);
+	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
+	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
+
+	sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
+	sval = props.GetNewExpand(key);
+	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
+
+	SendEditor(SCI_STYLECLEARALL, 0, 0);
+
+	SetStyleFor(wEditor, "*");
+	SetStyleFor(wEditor, language.c_str());
+
+	SendOutput(SCI_STYLECLEARALL, 0, 0);
+
+	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
+	sval = props.GetNewExpand(key);
+	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
+
+	SendOutput(SCI_STYLECLEARALL, 0, 0);
+
+	SetStyleFor(wOutput, "*");
+	SetStyleFor(wOutput, "errorlist");
+
+	if (useMonoFont) {
+		sval = props.GetExpanded("font.monospace");
+		StyleDefinition sd(sval.c_str());
+		for (int style = 0; style <= STYLE_MAX; style++) {
+			if (style != STYLE_LINENUMBER) {
+				if (sd.specified & StyleDefinition::sdFont) {
+					SendEditorString(SCI_STYLESETFONT, style, sd.font.c_str());
+				}
+				if (sd.specified & StyleDefinition::sdSize) {
+					SendEditor(SCI_STYLESETSIZE, style, sd.size);
+				}
+			}
+		}
+	}
 }
 
 // Properties that are interactively modifiable are only read from the properties file once.

@@ -863,7 +863,7 @@ protected:
 		const char *param1=0, const char *param2=0);
 	virtual void ReadLocalisation();
 	virtual void ReadPropertiesInitial();
-	void SetMonoFont();
+	void ReadFontProperties();
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);
 	SString ExtensionFileName();
@@ -873,7 +873,7 @@ protected:
 	void ReadAPI(const SString &fileNameForExtension);
 	SString FindLanguageProperty(const char *pattern, const char *defaultValue="");
 	virtual void ReadProperties();
-	void SetOneStyle(Window &win, int style, const char *s);
+	void SetOneStyle(Window &win, int style, const StyleDefinition &sd);
 	void SetStyleFor(Window &win, const char *language);
 
 	void CheckReload();

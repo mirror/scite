@@ -529,32 +529,6 @@ void SciTEBase::AssignKey(int key, int mods, int cmd) {
 }
 
 /**
- * Keep the colors and other attributes, set the size and font to
- * those defined in the @c font.monospace property.
- */
-void SciTEBase::SetMonoFont() {
-	if (useMonoFont) {
-		SString sval = props.GetExpanded("font.monospace");
-		StyleDefinition sd(sval.c_str());
-		for (int style = 0; style <= STYLE_MAX; style++) {
-			if (style == STYLE_LINENUMBER)
-				continue;
-			if (sd.specified & StyleDefinition::sdSize) {
-				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETSIZE, style, sd.size);
-			}
-			if (sd.specified & StyleDefinition::sdFont) {
-				Platform::SendScintillaPointer(wEditor.GetID(), SCI_STYLESETFONT, style,
-				                               const_cast<char *>(sd.font.c_str()));
-			}
-		}
-	} else {
-		// Set to standard styles by rereading the properties and applying them
-		ReadProperties();
-	}
-	Redraw();
-}
-
-/**
  * Override the language of the current file with the one indicated by @a cmdID.
  * Mostly used to set a language on a file of unknown extension.
  */
@@ -3720,7 +3694,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_MONOFONT:
 		useMonoFont = !useMonoFont;
-		SetMonoFont();
+		ReadFontProperties();
+		Redraw();
 		break;
 
 	case IDM_MACROLIST:
