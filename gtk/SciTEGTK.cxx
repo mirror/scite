@@ -2881,6 +2881,7 @@ int main(int argc, char *argv[]) {
 	g_modulePath[strlen(g_modulePath) - 1] = '\0';  // remove trailing "/"
 #endif
 
+	gtk_set_locale();
 	gtk_init(&argc, &argv);
 	SciTEGTK scite(extender);
 	scite.Run(argc, argv);
