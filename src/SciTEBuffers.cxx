@@ -827,7 +827,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 		// perl
 		char *at = strstr(cdoc, " at ");
 		char *line = strstr(cdoc, " line ");
-		if (at && line) {
+		if (at && line && (line > at)) {
 			strncpy(sourcePath, at + 4, line - (at + 4));
 			sourcePath[line - (at + 4)] = 0;
 			line += 6;
