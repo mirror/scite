@@ -64,6 +64,15 @@ void SciTEWin::Notify(SCNotification *notification) {
 			case IDM_REPLACE:
 				pDispInfo->lpszText = "Replace";
 				break;
+			case IDM_STARTRECORDMACRO :
+				pDispInfo->lpszText = "Record Macro";
+				break;
+			case IDM_STOPRECORDMACRO :
+				pDispInfo->lpszText = "Stop Recording";
+				break;
+			case IDM_STARTPLAYMACRO :
+				pDispInfo->lpszText = "Run Macro";
+				break;
 			default:
 				{ // notification->nmhdr.idFrom appears to be the buffer number for tabbar tooltips
 					Point ptCursor;
