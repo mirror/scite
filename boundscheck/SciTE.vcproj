@@ -177,10 +177,10 @@
 				RelativePath="..\..\scintilla\src\KeyWords.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAVE.cxx">
+				RelativePath="..\..\scintilla\src\LexAda.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAda.cxx">
+				RelativePath="..\..\scintilla\src\LexAVE.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexBaan.cxx">
@@ -189,10 +189,10 @@
 				RelativePath="..\..\scintilla\src\LexBullant.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCPP.cxx">
+				RelativePath="..\..\scintilla\src\LexConf.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexConf.cxx">
+				RelativePath="..\..\scintilla\src\LexCPP.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexCrontab.cxx">
@@ -233,6 +233,7 @@
 			<File
 				RelativePath="..\..\scintilla\src\LexVB.cxx">
 			</File>
+
 			<File
 				RelativePath="..\..\scintilla\src\LineMarker.cxx">
 			</File>
