@@ -1148,7 +1148,6 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			int lenReplace = SendEditorString(SCI_REPLACETARGET, regExp, replaceTarget);
 			endPosition = posFind + lenReplace;
 			ft.chrg.cpMin = endPosition;
-			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(SCI_FINDTEXT, flags,
 			                     reinterpret_cast<long>(&ft));
 		}
