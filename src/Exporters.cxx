@@ -1224,7 +1224,7 @@ static char* texStyle(int style) {
 static void defineTexStyle(TexStyle* style, FILE* fp, int istyle) {
 	int closing_brackets = 2;
 	char rgb[200];
-	fprintf(fp, "\\newcommand{\\scite%s}[1]{\\ttfamily{\\small{", texStyle(istyle));
+	fprintf(fp, "\\newcommand{\\scite%s}[1]{\\noindent{\\ttfamily{", texStyle(istyle));
 	if (style->italics) {
 		fputs("\\textit{", fp);
 		closing_brackets++;
@@ -1274,8 +1274,8 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 	FILE *fp = fopen(saveName, "wt");
 	if (fp) {
 		fputs("\\documentclass[a4paper]{article}\n", fp);
-		fputs("\\usepackage[a4paper,margin=2cm]{geometry}", fp);
-		fputs("\\usepackage[T1]{fontenc}", fp);
+		fputs("\\usepackage[a4paper,margin=2cm]{geometry}\n", fp);
+		fputs("\\usepackage[T1]{fontenc}\n", fp);
 		fputs("\\usepackage{color}\n", fp);
 		fputs("\\usepackage{alltt}\n", fp);
 		fputs("\\usepackage{times}\n", fp);
@@ -1300,7 +1300,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 		}
 
 		fputs("\\begin{document}\n\n", fp);
-		fprintf(fp, "Source File: %s\n\n\\noindent\n", titleFullPath?fullPath:fileName);
+		fprintf(fp, "Source File: %s\n\n\\noindent\n\\tiny{\n", titleFullPath?fullPath:fileName);
 
 		int styleCurrent = acc.StyleAt(0);
 
@@ -1327,42 +1327,22 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 			case '\\':
 				fputs("{\\textbackslash}", fp);
 				break;
-			case '{':
-				fputs("$\\{$", fp);
-				break;
-			case '}':
-				fputs("$\\}$", fp);
-				break;
-			case '%':
-				fputs("\\%", fp);
-				break;
-			case '&':
-				fputs("\\&", fp);
-				break;
-			case '~':
-				fputs("\\~{}", fp);
-				break;
-			case '$':
-				fputs("\\$", fp);
-				break;
 			case '>':
-				fputs("$>$", fp);
-				break;
 			case '<':
-				fputs("$<$", fp);
-				break;
 			case '@':
-				fputs("$@$", fp);
+				fprintf(fp, "$%c$", ch);
 				break;
+			case '{':
+			case '}':
 			case '^':
-				fputs("\\^{}", fp);
-				break;
 			case '_':
-				fputs("\\_{}", fp);
-				break;
+			case '&':
+			case '$':
 			case '#':
-				fputs("\\#", fp);
-				break;
+			case '%':
+			case '~':
+				fprintf(fp, "\\%c", ch);
+ 				break;
 			case '\r':
 			case '\n':
 				lineIdx = 0;
@@ -1372,8 +1352,8 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 				fprintf(fp, "} \\\\\n\\scite%s{", texStyle(styleCurrent) );
 				break;
 			case ' ':
-				if( acc[i+1] == ' ') {
-					fputs("\\hskip 1em", fp);
+				if (acc[i+1] == ' ') {
+					fputs("{\\hspace*{1em}}", fp);
 				} else {
 					fputc(' ', fp);
 				}
@@ -1383,7 +1363,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 			}
 			lineIdx++;
 		}
-		fputs("}\n\\end{document}\n", fp); //close last empty style macros and document too
+		fputs("}\n} %end tiny\n\n\\end{document}\n", fp); //close last empty style macros and document too
 		fclose(fp);
 	} else {
 		SString msg = LocaliseMessage(
