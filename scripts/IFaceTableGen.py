@@ -17,16 +17,19 @@ import Face
 def Contains(s,sub):
 	return string.find(s, sub) != -1
 
+def StartsWith(s, prefix):
+	return string.find(s, prefix) == 0
+
 def printIFaceTableCXXFile(f,out):
 	constants = []
 	functions = {}
 	properties = {}
-	
+
 	for name in f.order:
 		features = f.features[name]
 		if features["Category"] != "Deprecated":
 			if features["FeatureType"] == "val":
-				if not (Contains(name, "SCE_") or Contains(name, "SCLEX_")):
+				if not StartsWith(name, "SCLEX_"):
 					constants.append( (name, features["Value"]) )
 			elif features["FeatureType"] in ["fun","get","set"]:
 				functions[name] = features
@@ -39,22 +42,21 @@ def printIFaceTableCXXFile(f,out):
 					propname = string.replace(name, "Set", "", 1)
 					properties[propname] = (properties.get(propname,(None,None))[0], name)
 
-
-
 	for propname, (getterName, setterName) in properties.items():
 		getter = getterName and functions[getterName]
 		setter = setterName and functions[setterName]
-		
-		getterValue, getterIndex, getterType = 0, None, None
-		setterValue, setterIndex, setterType = 0, None, None
-		propType, propIndex = None, None
+
+		getterValue, getterIndex, getterIndexName, getterType = 0, None, None, None
+		setterValue, setterIndex, setterIndexName, setterType = 0, None, None, None
+		propType, propIndex, propIndexName = None, None, None
 
 		isok = (getterName or setterName) and not (getter is setter)
-		
+
 		if isok and getter:
 			getterValue = getter['Value']
 			getterType = getter['ReturnType']
 			getterIndex = getter['Param1Type'] or 'void'
+			getterIndexName = getter['Param1Name']
 
 			isok = ((getter['Param2Type'] or 'void') == 'void')
 
@@ -64,6 +66,7 @@ def printIFaceTableCXXFile(f,out):
 			setterIndex = 'void'
 			if (setter['Param2Type'] or 'void') <> 'void':
 				setterIndex = setterType
+				setterIndexName = setter['Param1Name']
 				setterType = setter['Param2Type']
 
 			isok = (setter['ReturnType'] == 'void')
@@ -73,34 +76,32 @@ def printIFaceTableCXXFile(f,out):
 
 		propType = getterType or setterType
 		propIndex = getterIndex or setterIndex
+		propIndexName = getterIndexName or setterIndexName
 
 		if isok:
 			# do the types appear to be useable?  THIS IS OVERRIDDEN BELOW
-			isok = (propType in ('int', 'position', 'colour', 'bool')
+			isok = (propType in ('int', 'position', 'colour', 'bool', 'string')
 				and propIndex in ('void','int','position','string','bool'))
 
-			# indexers not supported yet
-			isok = (isok and propIndex in ('bool', 'void'))
-
-			# If there were string properties (which there are not), they would 
-			# have to follow a different protocol, and would not have matched
-			# the signature established above.  I suggest this is the signature
-			# for a string getter and setter:
+			# If there were getters on string properties (which there are not),
+			# they would have to follow a different protocol, and would not have
+			# matched the signature above.  I suggest this is the signature for
+			# a string getter and setter:
 			#   get int funcname(void,stringresult)
 			#   set void funcname(void,string)
 			#
-			# for an indexed string getter and setter, the indexer goes in
+			# For an indexed string getter and setter, the indexer goes in
 			# wparam and must not be called 'int length', since 'int length'
 			# has special meaning.
 
 			# A bool indexer has a special meaning.  It means "if the script
-			# assigns the language's nil value to the property, call the 
+			# assigns the language's nil value to the property, call the
 			# setter with args (0,0); otherwise call it with (1, value)."
 			#
 			# Although there are no getters indexed by bool, I suggest the
 			# following protocol:  If getter(1,0) returns 0, return nil to
 			# the script.  Otherwise return getter(0,0).
-			
+
 
 		if isok:
 			properties[propname] = (getterValue, setterValue, propType, propIndex)
@@ -116,17 +117,17 @@ def printIFaceTableCXXFile(f,out):
 			del(properties[propname])
 
 	out.write("\nstatic IFaceConstant ifaceConstants[] = {")
-	
+
 	if constants:
 		constants.sort()
-		
+
 		first = 1
 		for name, value in constants:
 			if first: first = 0
 			else: out.write(",")
-			
+
 			out.write('\n\t{"%s",%s}' % (name, value))
-		
+
 		out.write("\n};\n")
 	else:
 		out.write('{"",0}};\n')
@@ -138,19 +139,19 @@ def printIFaceTableCXXFile(f,out):
 	if functions:
 		funclist = functions.items()
 		funclist.sort()
-	
+
 		first = 1
 		for name, features in funclist:
 			if first: first = 0
 			else: out.write(",")
-			
+
 			paramTypes = [
 				features["Param1Type"] or "void",
 				features["Param2Type"] or "void"
 			]
-			
+
 			returnType = features["ReturnType"]
-			
+
 			# Fix-up: if a param is an int named length, change to iface_type_length.
 			if features["Param1Type"] == "int" and features["Param1Name"] == "length":
 				paramTypes[0] = "length"
@@ -158,14 +159,14 @@ def printIFaceTableCXXFile(f,out):
 			if features["Param2Type"] == "int" and features["Param2Name"] == "length":
 				paramTypes[1] = "length"
 
-
 			out.write('\n\t{"%s", %s, iface_%s, {iface_%s, iface_%s}}' % (
 				name, features["Value"], returnType, paramTypes[0], paramTypes[1]
 			))
-	
+
 		out.write("\n};\n")
 	else:
 		out.write('{""}};\n')
+
 
 	out.write("\nstatic IFaceProperty ifaceProperties[] = {")
 	if properties:
@@ -176,7 +177,7 @@ def printIFaceTableCXXFile(f,out):
 		for propname, (getter, setter, valueType, paramType) in proplist:
 			if first: first = 0
 			else: out.write(",")
-	
+
 			out.write('\n\t{"%s", %s, %s, iface_%s, iface_%s}' % (
 				propname, getter, setter, valueType, paramType
 			))
@@ -184,7 +185,7 @@ def printIFaceTableCXXFile(f,out):
 		out.write("\n};\n")
 	else:
 		out.write('{""}};\n')
-	
+
 	out.write("\nenum {\n")
 	out.write("\tifaceFunctionCount = %d,\n" % len(functions))
 	out.write("\tifaceConstantCount = %d,\n" % len(constants))
