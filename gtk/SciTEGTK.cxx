@@ -98,11 +98,12 @@ private:
 			d->id = 0;
 		}
 	}
-	static void SignalKey(GtkWidget *w, GdkEventKey *event, Dialog *d) {
+	static gint SignalKey(GtkWidget *w, GdkEventKey *event, Dialog *d) {
 		if (event->keyval == GDK_Escape) {
 			gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
 			d->Cancel();
 		}
+		return FALSE;
 	}
 };
 
@@ -223,7 +224,7 @@ protected:
 	void TranslatedSetTitle(GtkWindow *w, const char *original);
 	GtkWidget *TranslatedLabel(const char *original);
 	GtkWidget *TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
-	                             GtkSignalFunc func, gpointer data, int accelMask = GDK_MOD1_MASK);
+		GtkSignalFunc func, gpointer data, GdkModifierType accelMask=GDK_MOD1_MASK);
 	GtkWidget *TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active);
 	virtual void FindInFiles();
 	virtual void Replace();
@@ -256,7 +257,7 @@ protected:
 	// GTK+ Signal Handlers
 
 	static void OpenCancelSignal(GtkWidget *w, SciTEGTK *scitew);
-	static void OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
+	static gint OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	static void OpenOKSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void OpenResizeSignal(GtkWidget *w, GtkAllocation *allocation, SciTEGTK *scitew);
 	static void SaveAsSignal(GtkWidget *w, SciTEGTK *scitew);
@@ -266,14 +267,14 @@ protected:
 	static void GotoSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	static void FRCancelSignal(GtkWidget *w, SciTEGTK *scitew);
-	static void FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
+	static gint FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	static void FRFindSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FRReplaceSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FRReplaceAllSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FRReplaceInSelectionSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	virtual void ParamGrab();
-	static void ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
+	static gint ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	static void ParamCancelSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void ParamSignal(GtkWidget *w, SciTEGTK *scitew);
 
@@ -392,7 +393,7 @@ static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
 		messageBoxDialog = 0;
 		messageBoxResult = reinterpret_cast<long>(p);
 	}
-	return 0;
+	return FALSE;
 }
 
 static void messageBoxDestroy(GtkWidget *, gpointer *) {
@@ -415,12 +416,12 @@ static GtkWidget *MakeToggle(const char *text, GtkAccelGroup *accel_group, bool 
 }
 
 static GtkWidget *MakeCommand(const char *text, GtkAccelGroup *accel_group,
-                              GtkSignalFunc func, gpointer data, int accelMask) {
+		GtkSignalFunc func, gpointer data, GdkModifierType accelMask) {
 	GtkWidget *command = gtk_button_new_with_label("");
 	GTK_WIDGET_SET_FLAGS(command, GTK_CAN_DEFAULT);
 	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(command)->child), text);
 	gtk_widget_add_accelerator(command, "clicked", accel_group,
-	                           key, GdkModifierType(accelMask), (GtkAccelFlags)0);
+	                           key, accelMask, (GtkAccelFlags)0);
 	gtk_signal_connect(GTK_OBJECT(command), "clicked", func, data);
 	return command;
 }
@@ -428,7 +429,8 @@ static GtkWidget *MakeCommand(const char *text, GtkAccelGroup *accel_group,
 GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
                                  int val, GtkAccelGroup *accel_group, bool isDefault) {
 	GtkWidget *button = TranslatedCommand(label, accel_group,
-	                                      GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val), 0);
+		GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val), 
+		GdkModifierType(0));
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
 	                   button, TRUE, TRUE, 0);
 	if (isDefault) {
@@ -616,33 +618,36 @@ void SciTEGTK::ReadProperties() {
 
 void SciTEGTK::SizeContentWindows() {
 	PRectangle rcClient = GetClientRectangle();
+#if GTK_MAJOR_VERSION < 2
+	int left = 0;
+	int top = 0;
+#else
+	int left = rcClient.left;
+	int top = rcClient.top;
+#endif
 	int w = rcClient.right - rcClient.left;
 	int h = rcClient.bottom - rcClient.top;
 	heightOutput = NormaliseSplit(heightOutput);
 	if (splitVertical) {
 #ifdef CLIENT_3D_EFFECT
-		topFrame.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
-		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar, 0, w - heightOutput, h));
-		outputFrame.SetPosition(PRectangle(w - heightOutput, 0, w, h));
+		topFrame.SetPosition(PRectangle(left, top, w - heightOutput - heightBar + left, h + top));
+		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar + left, top, w - heightOutput + left, h + top));
+		outputFrame.SetPosition(PRectangle(w - heightOutput + left, top, w + left, h + top));
 #else
-
-		wEditor.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
-		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar, 0, w - heightOutput, h));
-		wOutput.SetPosition(PRectangle(w - heightOutput, 0, w, h));
+		wEditor.SetPosition(PRectangle(left, top, w - heightOutput - heightBar + left, h + top));
+		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar + left, top, w - heightOutput + left, h + top));
+		wOutput.SetPosition(PRectangle(w - heightOutput + left, top, w + left, h + top));
 #endif
-
 	} else {
 #ifdef CLIENT_3D_EFFECT
-		topFrame.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
-		wDivider.SetPosition(PRectangle(0, h - heightOutput - heightBar, w, h - heightOutput));
-		outputFrame.SetPosition(PRectangle(0, h - heightOutput, w, h));
+		topFrame.SetPosition(PRectangle(left, top, w + left, h - heightOutput - heightBar + top));
+		wDivider.SetPosition(PRectangle(left, h - heightOutput - heightBar + top, w + left, h - heightOutput + top));
+		outputFrame.SetPosition(PRectangle(left, h - heightOutput + top, w + left, h + top));
 #else
-
-		wEditor.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
-		wDivider.SetPosition(PRectangle(0, h - heightOutput - heightBar, w, h - heightOutput));
-		wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
+		wEditor.SetPosition(PRectangle(left, top, w + left, h - heightOutput - heightBar + top));
+		wDivider.SetPosition(PRectangle(left, h - heightOutput - heightBar + top, w + left, h - heightOutput + top));
+		wOutput.SetPosition(PRectangle(left, h - heightOutput + top, w + left, h + top));
 #endif
-
 	}
 }
 
@@ -957,7 +962,7 @@ GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
 }
 
 GtkWidget *SciTEGTK::TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
-                                       GtkSignalFunc func, gpointer data, int accelMask) {
+                              GtkSignalFunc func, gpointer data, GdkModifierType accelMask) {
 	return MakeCommand(Padded(LocaliseString(original)).c_str(), accel_group, func, data, accelMask);
 }
 
@@ -998,11 +1003,12 @@ void SciTEGTK::FRCancelSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->wFindReplace.Destroy();
 }
 
-void SciTEGTK::FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
+gint SciTEGTK::FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
 		scitew->wFindReplace.Destroy();
 	}
+	return FALSE;
 }
 
 void SciTEGTK::FRFindSignal(GtkWidget *, SciTEGTK *scitew) {
@@ -1081,7 +1087,7 @@ void SciTEGTK::FindInFiles() {
 	props.Set("find.directory", findInDir);
 
 	dlgFindInFiles = gtk_dialog_new();
-	gtk_window_set_policy(GTK_WINDOW(PWidget(dlgFindInFiles)), TRUE, TRUE, TRUE);
+	gtk_window_set_policy(GTK_WINDOW(PWidget(dlgFindInFiles)), FALSE, TRUE, FALSE);
 	TranslatedSetTitle(GTK_WINDOW(PWidget(dlgFindInFiles)), "Find in Files");
 
 #ifdef RECURSIVE_GREP_WORKING
@@ -1121,6 +1127,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 0, findWhat.length());
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFind)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
+	gtk_combo_disable_activate(GTK_COMBO(comboFind));
 
 	row++;
 
@@ -1139,6 +1146,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_widget_show(comboFiles);
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFiles)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
+	gtk_combo_disable_activate(GTK_COMBO(comboFiles));
 
 	row++;
 
@@ -1159,6 +1167,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry), findInDir);
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboDir)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
+	gtk_combo_disable_activate(GTK_COMBO(comboDir));
 
 #ifdef RECURSIVE_GREP_WORKING
 
@@ -1401,11 +1410,12 @@ void SciTEGTK::ParamGrab() {
 	}
 }
 
-void SciTEGTK::ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
+gint SciTEGTK::ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
 		scitew->wParameters.Destroy();
 	}
+	return FALSE;
 }
 
 void SciTEGTK::ParamCancelSignal(GtkWidget *, SciTEGTK *scitew) {
@@ -1509,7 +1519,7 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	replacing = replace;
 	wFindReplace = gtk_dialog_new();
-	gtk_window_set_policy(GTK_WINDOW(PWidget(wFindReplace)), TRUE, TRUE, TRUE);
+	gtk_window_set_policy(GTK_WINDOW(PWidget(wFindReplace)), TRUE, TRUE, FALSE);
 	TranslatedSetTitle(GTK_WINDOW(PWidget(wFindReplace)), replace ? "Replace" : "Find");
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(wFindReplace)),
@@ -1542,6 +1552,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 0, findWhat.length());
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFind)->entry),
 	                   "activate", GtkSignalFunc(FRFindSignal), this);
+	gtk_combo_disable_activate(GTK_COMBO(comboFind));
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFind), TRUE);
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFind), TRUE);
 	row++;
@@ -1560,6 +1571,7 @@ void SciTEGTK::FindReplace(bool replace) {
 		gtk_widget_show(comboReplace);
 		gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboReplace)->entry),
 		                   "activate", GtkSignalFunc(FRFindSignal), this);
+		gtk_combo_disable_activate(GTK_COMBO(comboReplace));
 		gtk_combo_set_case_sensitive(GTK_COMBO(comboReplace), TRUE);
 		gtk_combo_set_use_arrows_always(GTK_COMBO(comboReplace), TRUE);
 
@@ -1618,9 +1630,14 @@ void SciTEGTK::FindReplace(bool replace) {
 		                           GtkSignalFunc(FRReplaceAllSignal), this);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
 		                   btnReplaceAll, TRUE, TRUE, 0);
-
+#if GTK_MAJOR_VERSION < 2
 		GtkWidget *btnReplaceInSelection = TranslatedCommand("Replace in _Selection", accel_group,
 		                                   GtkSignalFunc(FRReplaceInSelectionSignal), this);
+#else
+		// GTK+ 2 uses more space so use shorter button text
+		GtkWidget *btnReplaceInSelection = TranslatedCommand("In _Selection", accel_group,
+		                                   GtkSignalFunc(FRReplaceInSelectionSignal), this);
+#endif
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
 		                   btnReplaceInSelection, TRUE, TRUE, 0);
 		if (SendEditor(SCI_SELECTIONISRECTANGLE)) {
@@ -2088,11 +2105,12 @@ void SciTEGTK::OpenCancelSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->dlgFileSelector.Cancel();
 }
 
-void SciTEGTK::OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
+gint SciTEGTK::OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
 		scitew->dlgFileSelector.Cancel();
 	}
+	return FALSE;
 }
 
 void SciTEGTK::OpenOKSignal(GtkWidget *, SciTEGTK *scitew) {
@@ -2437,6 +2455,8 @@ void SciTEGTK::CreateMenu() {
 	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
 #if GTK_MAJOR_VERSION < 2
 	gtk_accel_group_attach(accelGroup, GTK_OBJECT(PWidget(wSciTE)));
+#else
+	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wSciTE)), accelGroup);
 #endif
 }
 
@@ -2497,6 +2517,7 @@ void SciTEGTK::CreateUI() {
 	wToolBar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
 #else
 	wToolBar = gtk_toolbar_new();
+	gtk_toolbar_set_orientation(GTK_TOOLBAR(PWidget(wToolBar)), GTK_ORIENTATION_HORIZONTAL);
 #endif
 	tbVisible = false;
 
@@ -2523,6 +2544,9 @@ void SciTEGTK::CreateUI() {
 #endif
 
 	wEditor = scintilla_new();
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_set_double_buffered(PWidget(wEditor), FALSE);
+#endif
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
 	fnEditor = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
 	               PWidget(wEditor), SCI_GETDIRECTFUNCTION, 0, 0));
@@ -2535,7 +2559,7 @@ void SciTEGTK::CreateUI() {
 #else
 
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wEditor), 0, 0);
-	gtk_widget_set_usize(PWidget(wEditor), 600, 600);
+	//gtk_widget_set_usize(PWidget(wEditor), 600, 600);
 #endif
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), "command",
@@ -2569,10 +2593,13 @@ void SciTEGTK::CreateUI() {
 	gtk_widget_show(PWidget(outputFrame));
 	gtk_frame_set_shadow_type (GTK_FRAME(PWidget(outputFrame)), GTK_SHADOW_IN);
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(outputFrame), 0, width);
-	gtk_widget_set_usize(PWidget(outputFrame), width, 100);
+	//gtk_widget_set_usize(PWidget(outputFrame), width, 100);
 #endif
 
 	wOutput = scintilla_new();
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_set_double_buffered(PWidget(wOutput), FALSE);
+#endif
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
 	fnOutput = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
 	               PWidget(wOutput), SCI_GETDIRECTFUNCTION, 0, 0));
@@ -2584,7 +2611,7 @@ void SciTEGTK::CreateUI() {
 	gtk_container_add(GTK_CONTAINER(PWidget(outputFrame)), wOutput));
 #else
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wOutput), 0, width);
-	gtk_widget_set_usize(PWidget(wOutput), width, 100);
+	//gtk_widget_set_usize(PWidget(wOutput), width, 100);
 #endif
 	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), "command",
 	                   GtkSignalFunc(CommandSignal), this);
@@ -2619,21 +2646,19 @@ void SciTEGTK::CreateUI() {
 
 	SetFocus(PWidget(wOutput));
 
-	if ((left != useDefault)
-		        && (top != useDefault))
+	if ((left != useDefault) && (top != useDefault))
 		gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
-		if ((width != useDefault)
-			        && (height != useDefault))
-			gtk_widget_set_usize(GTK_WIDGET(PWidget(wSciTE)), width, height);
-			gtk_widget_show_all(PWidget(wSciTE));
-			if ((left != useDefault)
-				        && (top != useDefault))
-				gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
-				AddToolBar();
-				SetIcon();
+	//if ((width != useDefault) && (height != useDefault))
+		//gtk_widget_set_usize(GTK_WIDGET(PWidget(wSciTE)), width, height);
+	gtk_window_set_default_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
+	gtk_widget_show_all(PWidget(wSciTE));
+	//if ((left != useDefault) && (top != useDefault))
+	//	gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
+	AddToolBar();
+	SetIcon();
 
-				UIAvailable();
-			}
+	UIAvailable();
+}
 
 void SciTEGTK::SetIcon() {
 	GtkStyle *style;
@@ -2848,7 +2873,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	CheckMenus();
 	SizeSubWindows();
 	SetFocus(PWidget(wEditor));
-
+	gtk_widget_grab_focus(GTK_WIDGET(PWidget(wSciTE)));
 	gtk_main();
 }
 
