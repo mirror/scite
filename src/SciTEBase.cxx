@@ -447,9 +447,14 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		Platform::SendScintilla(wsci, SCI_STYLERESETDEFAULT, 0, 0);
 		int fontSize = 15;
 #if PLAT_GTK
-		// On GTK+, new century schoolbook looks better in large sizes than default font
+#if GTK_MAJOR_VERSION == 1
+		// On GTK+ 1.x, new century schoolbook looks better in large sizes than default font
 		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
 		                        reinterpret_cast<uptr_t>("new century schoolbook"));
+#else
+		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
+		                        reinterpret_cast<uptr_t>("!Serif"));
+#endif
 		fontSize = 14;
 #if GTK_MAJOR_VERSION >= 2
 		Platform::SendScintilla(wsci, SCI_SETCODEPAGE, SC_CP_UTF8, 0);
