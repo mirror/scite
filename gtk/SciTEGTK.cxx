@@ -1195,14 +1195,12 @@ void SciTEGTK::ExecuteNext() {
 
 void SciTEGTK::ContinueExecute() {
 	char buf[8192];
-	int count = 0;
-	count = read(fdFIFO, buf, sizeof(buf) - 1);
-	if (count < 0) {
-		OutputAppendString(">End Bad\n");
-		return;
-	}
-	if (count == 0) {
-		int exitcode;
+	int count = read(fdFIFO, buf, sizeof(buf) - 1);
+	if (count > 0) {
+		buf[count] = '\0';
+		OutputAppendString(buf);
+	} else if (count == 0) {
+		int exitcode = 0;
 		wait(&exitcode);
 		SString sExitMessage(exitcode);
 		sExitMessage.insert(0, ">Exit code: ");
@@ -1218,16 +1216,13 @@ void SciTEGTK::ContinueExecute() {
 			SendOutput(SCI_GOTOPOS, originalEnd);
 		returnOutputToCommand = true;
 		gdk_input_remove(inputHandle);
+		inputHandle = 0;
 		close(fdFIFO);
+		fdFIFO = 0;
 		unlink(resultsFile);
 		ExecuteNext();
-	}
-	if (count > 0) {
-		buf[count] = '\0';
-		OutputAppendString(buf);
-		if (count < 0) {
-			OutputAppendString(">Continue no data\n");
-		}
+	} else { // count < 0
+		OutputAppendString(">End Bad\n");
 	}
 }
 
