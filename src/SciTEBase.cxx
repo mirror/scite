@@ -943,6 +943,8 @@ void SciTEBase::ReadProperties() {
 	SendEditorString(SCI_SETKEYWORDS, 2, kw2.c_str());
 	SString kw3 = props.GetNewExpand("keywords4.", fileNameForExtension.c_str());
 	SendEditorString(SCI_SETKEYWORDS, 3, kw3.c_str());
+	SString kw4 = props.GetNewExpand("keywords5.", fileNameForExtension.c_str());
+	SendEditorString(SCI_SETKEYWORDS, 4, kw4.c_str());
 
 	SString fold = props.Get("fold");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"),
