@@ -328,6 +328,16 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 	}
 }
 
+static bool isEncodingChar(char ch) {
+	return (ch == '_') || (ch == '-') || (ch == '.') ||
+		(ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+		(ch >= '0' && ch <= '9');
+}
+
+static bool isSpaceChar(char ch) {
+	return (ch == ' ') || (ch == '\t');
+}
+
 void SciTEBase::OpenFile(bool initialCmdLine) {
 	Utf8_16_Read convert;
 
@@ -341,6 +351,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 			SendEditor(SCI_CLEARALL);
 			char data[blockSize];
 			size_t lenFile = fread(data, 1, sizeof(data), fp);
+			SString startText(data, 0, 200);
 			while (lenFile > 0) {
 				lenFile = convert.convert(data, lenFile);
 				SendEditorString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
@@ -348,6 +359,28 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 			}
 			fclose(fp);
 			unicodeMode = convert.getEncoding();
+			if (unicodeMode == 0) {
+				const char codingCookie[] = "coding";
+				if (startText.contains(codingCookie)) {
+					size_t posCoding = startText.search(codingCookie);
+					posCoding += strlen(codingCookie);
+					if ((startText[posCoding] == ':') || (startText[posCoding] == '=')) {
+						posCoding++;
+						while ((posCoding < startText.length()) && (isSpaceChar(startText[posCoding]))) {
+							posCoding++;
+						}
+						size_t endCoding = posCoding;
+						while ((endCoding < startText.length()) && (isEncodingChar(startText[endCoding]))) {
+							endCoding++;
+						}
+						SString code(startText.c_str(), posCoding, endCoding);
+						code.lowercase();
+						if (code == "utf-8") {
+							unicodeMode = Utf8_16::eUtf8;
+						}
+					}
+				}
+			}
 			if (unicodeMode != 0) {
 				// Override the code page if Unicode
 				codePage = SC_CP_UTF8;
