@@ -31,7 +31,7 @@ endif
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-LEXOBJS	= LexAda.o LexAVE.o LexConf.o LexCPP.o LexEiffel.o LexHTML.o LexLisp.o \
+LEXOBJS	= LexAda.o LexAVE.o LexConf.o LexCPP.o LexCrontab.o LexEiffel.o LexHTML.o LexLisp.o \
  LexLua.o LexOthers.o LexPascal.o LexPerl.o LexPython.o LexRuby.o LexSQL.o LexVB.o
 OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o WindowAccessor.o \

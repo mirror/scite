@@ -2016,6 +2016,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Use lexer/Lisp", "", menuSig, IDM_LEXER_LISP, 0},
 	    {"/Options/Use lexer/Lu_a", "", menuSig, IDM_LEXER_LUA, 0},
 	    {"/Options/Use lexer/_Makefile", "<control><shift>F11", menuSig, IDM_LEXER_MAKE, 0},
+	    {"/Options/Use lexer/_nnCron crontab", "", menuSig, IDM_LEXER_NNCRONTAB, 0},
 	    {"/Options/Use lexer/Pascal", "", menuSig, IDM_LEXER_PASCAL, 0},
 	    {"/Options/Use lexer/Pe_rl", "", menuSig, IDM_LEXER_PERL, 0},
 	    {"/Options/Use lexer/P_HP", "", menuSig, IDM_LEXER_PHP, 0},
