@@ -117,6 +117,8 @@
 #define IDM_BOOKMARK_TOGGLE 302
 #define IDM_BOOKMARK_NEXT 303
 
+#define IDM_HELP 320
+
 // Dialog IDs
 #define IDD_FIND 400
 #define IDD_REPLACE 401
