@@ -1328,7 +1328,7 @@ bool SciTEBase::StartCallTip() {
 		const char *word = apis.GetNearestWord (linebuf + startword, rootlen, callTipIgnoreCase);
 		if (word) {
 			functionDefinition = word;
-			SendEditorString(SCI_CALLTIPSHOW, pos - rootlen + 1, word);
+			SendEditorString(SCI_CALLTIPSHOW, pos - rootlen, word);
 			ContinueCallTip();
 		}
 	}
