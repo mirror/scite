@@ -29,7 +29,11 @@
 #include "Accessor.h"
 #include "KeyWords.h"
 #include "Scintilla.h"
+#include "Extender.h"
 #include "SciTEBase.h"
+#ifdef LUA_SCRIPTING
+#include "LuaExtension.h"
+#endif
 
 #ifdef STATIC_BUILD
 const char appName[] = "Sc1";
@@ -49,8 +53,8 @@ protected:
 	int filterDefault;
 	
 	PRectangle  pagesetupMargin;
-	HGLOBAL     hDevMode;
-	HGLOBAL     hDevNames;
+	HGLOBAL hDevMode;
+	HGLOBAL hDevNames;
 
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
@@ -72,7 +76,7 @@ protected:
 	virtual void PrintSetup();
 
 	BOOL HandleReplaceCommand(int cmd);
-	
+
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
@@ -84,10 +88,11 @@ protected:
 	virtual void GoLineDialog();
 	virtual void TabSizeDialog();
 
+	virtual void GetDefaultDirectory(char *directory, size_t size);
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
-        char *pathDefaultDir, unsigned int lenPath);
+	char *pathDefaultDir, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
-        char *pathUserDir, unsigned int lenPath);
+		char *pathUserDir, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
 
@@ -98,11 +103,11 @@ protected:
 
 public:
 
-	SciTEWin();
+	SciTEWin(Extension *ext=0);
 	~SciTEWin();
 
 	bool ModelessHandler(MSG *pmsg);
-	
+
 	void Run(const char *cmdLine);
 	void ProcessExecute();
 	virtual void Execute();
@@ -120,9 +125,9 @@ public:
 	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
-		    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+			HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 	static LRESULT PASCAL IWndProc(
-		    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+			HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 	void ShellExec(const SString &cmd, const SString &dir);
 };
 
@@ -130,9 +135,9 @@ HINSTANCE SciTEWin::hInstance = 0;
 char *SciTEWin::className = NULL;
 char *SciTEWin::classNameInternal = NULL;
 
-SciTEWin::SciTEWin() {
+SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	heightBar = 7;
-	
+
 	memset(&fr, 0, sizeof(fr));
 	strcpy(openWhat, "Custom Filter");
 	openWhat[strlen(openWhat) + 1] = '\0';
@@ -153,7 +158,7 @@ SciTEWin::SciTEWin() {
 			const void *pv = ::LockResource(hmem);
 			if (pv) {
 				propsEmbed.ReadFromMemory(
-				    reinterpret_cast<const char *>(pv), size);
+					reinterpret_cast<const char *>(pv), size);
 			}
 		}
 		::FreeResource(handProps);
@@ -165,17 +170,17 @@ SciTEWin::SciTEWin() {
 	int width = props.GetInt("position.width", CW_USEDEFAULT);
 	int height = props.GetInt("position.height", CW_USEDEFAULT);
 	wSciTE = ::CreateWindowEx(
-	             0,
-	             className,
-	             windowName,
-	             WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
-	             WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
-	             WS_MAXIMIZE | WS_CLIPCHILDREN,
-	             left, top, width, height,
-	             NULL,
-	             NULL,
-	             hInstance,
-	             reinterpret_cast<LPSTR>(this));
+		0,
+		className,
+		windowName,
+		WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
+		WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
+		WS_MAXIMIZE | WS_CLIPCHILDREN,
+		left, top, width, height,
+		NULL,
+		NULL,
+		hInstance,
+		reinterpret_cast<LPSTR>(this));
 	if (!wSciTE.Created())
 		exit(FALSE);
 
@@ -232,7 +237,7 @@ int PASCAL DefaultDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
 }
 
 int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc,
-             DWORD dwInitParam) {
+		DWORD dwInitParam) {
 	if (lpProc == NULL)
 		lpProc = reinterpret_cast<DLGPROC>(DefaultDlg);
 
@@ -282,11 +287,27 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		::exit(FALSE);
 }
 
+void SciTEWin::GetDefaultDirectory(char *directory, size_t size) {
+	directory[0] = '\0';
+	char *home = getenv("SciTE_HOME");
+	if (home) {
+		strncpy(directory, home, size);
+	} else {
+		char modulePath[MAX_PATH];
+		::GetModuleFileName(0, modulePath, MAX_PATH);
+		char *lastSlash = strrchr(modulePath, pathSepChar);
+		if (lastSlash)
+			*lastSlash = '\0';
+		strncpy(directory, modulePath, size);
+	}
+	directory[size-1] = '\0';
+}
+
 bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps, 
-                                  char *pathDefaultDir, unsigned int lenPath) {
-    *pathDefaultDir = '\0';
-   	char *home = getenv("SciTE_HOME");
-        if (home) {
+			char *pathDefaultDir, unsigned int lenPath) {
+	*pathDefaultDir = '\0';
+	char *home = getenv("SciTE_HOME");
+	if (home) {
 		strncpy(pathDefaultDir, home, lenPath);
 		strncpy(pathDefaultProps, home, lenPath);
 		strncat(pathDefaultProps, pathSepString, lenPath);
@@ -307,7 +328,7 @@ bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps,
 }
 
 bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps, 
-                               char *pathUserDir, unsigned int lenPath) {
+				char *pathUserDir, unsigned int lenPath) {
 	*pathUserDir = '\0';
 	char *home = getenv("SciTE_HOME");
 	if (home) {
@@ -413,8 +434,10 @@ void SciTEWin::SizeSubWindows() {
 		if (startLineNum < 0)
 			startLineNum = 0;
 		int widths[] = {startLineNum, rcClient.Width()};
-		::SendMessage(wStatusBar.GetID(), SB_SETPARTS, 2, reinterpret_cast<LPARAM>(widths)); 
-		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 0|SBT_NOBORDERS, reinterpret_cast<LPARAM>("")); 
+		::SendMessage(wStatusBar.GetID(), SB_SETPARTS, 2, 
+			reinterpret_cast<LPARAM>(widths)); 
+		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 0|SBT_NOBORDERS, 
+			reinterpret_cast<LPARAM>("")); 
 		wStatusBar.SetPosition(PRectangle(rcClient.left, 
 			rcClient.top+visHeightTools+visHeightEditor, rcClient.Width(), visHeightStatus));
 	} else {
@@ -423,8 +446,9 @@ void SciTEWin::SizeSubWindows() {
 			rcClient.left, rcClient.top-2, rcClient.Width(), 1));
 	}
 
-	wContent.SetPosition(PRectangle(0, visHeightTools, rcClient.Width(), visHeightTools + visHeightEditor));
-    SizeContentWindows();
+	wContent.SetPosition(PRectangle(0, visHeightTools, rcClient.Width(), 
+		visHeightTools + visHeightEditor));
+	SizeContentWindows();
 }
 
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID, 
@@ -450,12 +474,12 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 void SciTEWin::DestroyMenuItem(int menuNumber, int itemID) {
 	// On Windows menu items are destroyed as they can not be hidden and they can be recreated in any position
 	HMENU hmenuBar = ::GetMenu(wSciTE.GetID());
-    if (itemID) {
-    	HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
-        ::DeleteMenu(hmenu, itemID, MF_BYCOMMAND);
-    } else {
-        ::DeleteMenu(hmenuBar, menuNumber, MF_BYPOSITION);
-    }
+	if (itemID) {
+		HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
+		::DeleteMenu(hmenu, itemID, MF_BYCOMMAND);
+	} else {
+		::DeleteMenu(hmenuBar, menuNumber, MF_BYPOSITION);
+	}
 }
 
 void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
@@ -481,7 +505,7 @@ void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 void SciTEWin::CheckMenus() {
 	SciTEBase::CheckMenus();
 	CheckMenuRadioItem(GetMenu(wSciTE.GetID()), IDM_EOL_CRLF, IDM_EOL_LF,
-	                   SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
+		SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
 }
 
 /***************************************************************************
@@ -750,18 +774,18 @@ void SciTEWin::Print(bool showDialog) {
 		reinterpret_cast<LPARAM>(&endPos)) == 0)
 	pdlg.Flags |= PD_NOSELECTION;
 	if (!showDialog)
-	    pdlg.Flags |= PD_RETURNDEFAULT;
+		pdlg.Flags |= PD_RETURNDEFAULT;
 	if (!::PrintDlg(&pdlg)) {
 		return;
 	}
 	
 	hDevMode   = pdlg.hDevMode;
 	hDevNames  = pdlg.hDevNames;
-    
+
 	HDC hdc = pdlg.hDC;
 
 	PRectangle rectMargins;
-	Point      ptPage;
+	Point ptPage;
 	
 	// Start by getting the dimensions of the unprintable
 	// part of the page (in device units).
@@ -805,19 +829,19 @@ void SciTEWin::Print(bool showDialog) {
 		rectSetup.right  = ptPage.x - MulDiv (pagesetupMargin.right,ptDpi.x, 2540);
 		rectSetup.bottom = ptPage.y - MulDiv (pagesetupMargin.bottom,ptDpi.y, 2540);
 
-        	// Dont reduce margins below the minimum printable area
-	        rectMargins.left   = Platform::Maximum(rectMargins.left, rectSetup.left);
-	        rectMargins.top    = Platform::Maximum(rectMargins.top, rectSetup.top);
-	        rectMargins.right  = Platform::Minimum(rectMargins.right, rectSetup.right);
-	        rectMargins.bottom = Platform::Minimum(rectMargins.bottom, rectSetup.bottom);
+		// Dont reduce margins below the minimum printable area
+		rectMargins.left   = Platform::Maximum(rectMargins.left, rectSetup.left);
+		rectMargins.top    = Platform::Maximum(rectMargins.top, rectSetup.top);
+		rectMargins.right  = Platform::Minimum(rectMargins.right, rectSetup.right);
+		rectMargins.bottom = Platform::Minimum(rectMargins.bottom, rectSetup.bottom);
 	}
-	
+
 	// rectMargins now contains the values used to shrink the printable
 	// area of the page.
-	
+
 	// Convert to logical units
 	DPtoLP(hdc, (LPPOINT) &rectMargins, 2);
-	
+
 	// Convert page size to logical units and we're done!
 	DPtoLP(hdc, (LPPOINT) &ptPage, 1);
 
@@ -861,19 +885,19 @@ void SciTEWin::Print(bool showDialog) {
 			::StartPage(hdc);
 
 		RangeToFormat frPrint;
-		frPrint.hdc           = hdc;
-		frPrint.hdcTarget     = hdc;
-		frPrint.rc.left       = rectMargins.left;
-		frPrint.rc.top        = rectMargins.top;
-		frPrint.rc.right      = ptPage.x - (rectMargins.right  + rectMargins.left);
-		frPrint.rc.bottom     = ptPage.y - (rectMargins.bottom + rectMargins.top);
-		frPrint.rcPage.left   = 0;
-		frPrint.rcPage.top    = 0;
-		frPrint.rcPage.right  = ptPage.x;
+		frPrint.hdc = hdc;
+		frPrint.hdcTarget = hdc;
+		frPrint.rc.left = rectMargins.left;
+		frPrint.rc.top = rectMargins.top;
+		frPrint.rc.right = ptPage.x - (rectMargins.right  + rectMargins.left);
+		frPrint.rc.bottom = ptPage.y - (rectMargins.bottom + rectMargins.top);
+		frPrint.rcPage.left = 0;
+		frPrint.rcPage.top = 0;
+		frPrint.rcPage.right = ptPage.x;
 		frPrint.rcPage.bottom = ptPage.y;
-		frPrint.chrg.cpMin    = lengthPrinted;
-		frPrint.chrg.cpMax    = lengthDoc;
-		
+		frPrint.chrg.cpMin = lengthPrinted;
+		frPrint.chrg.cpMax = lengthDoc;
+
 		lengthPrinted = SendEditor(EM_FORMATRANGE,
 		                           printPage,
 		                           reinterpret_cast<LPARAM>(&frPrint));
@@ -882,10 +906,10 @@ void SciTEWin::Print(bool showDialog) {
 
 		if ((pdlg.Flags & PD_PAGENUMS) && (pageNum++ > pdlg.nToPage))
 			break;
-    	};
+	};
 
 	SendEditor(EM_FORMATRANGE, FALSE, 0);
-	
+
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
 }
@@ -894,29 +918,29 @@ void SciTEWin::PrintSetup() {
 	PAGESETUPDLG pdlg = {
 		sizeof(PAGESETUPDLG),0,0,0,0,{0,0},{0,0,0,0},{0,0,0,0},0,0,0,0,0,0
 	};
-	
+
 	pdlg.hwndOwner = wSciTE.GetID();
 	pdlg.hInstance = hInstance;
-	
+
 	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
 		pagesetupMargin.top  != 0 || pagesetupMargin.bottom != 0) {
 		pdlg.Flags = PSD_MARGINS;
-		
-		pdlg.rtMargin.left   = pagesetupMargin.left;
-		pdlg.rtMargin.top    = pagesetupMargin.top;
-		pdlg.rtMargin.right  = pagesetupMargin.right;
+
+		pdlg.rtMargin.left = pagesetupMargin.left;
+		pdlg.rtMargin.top = pagesetupMargin.top;
+		pdlg.rtMargin.right = pagesetupMargin.right;
 		pdlg.rtMargin.bottom = pagesetupMargin.bottom;
 	}
-	
+
 	pdlg.hDevMode  = hDevMode;
 	pdlg.hDevNames = hDevNames;
-	
+
 	if (!PageSetupDlg(&pdlg))
 		return;
-	
-	pagesetupMargin.left   = pdlg.rtMargin.left;
-	pagesetupMargin.top    = pdlg.rtMargin.top;
-	pagesetupMargin.right  = pdlg.rtMargin.right;
+
+	pagesetupMargin.left = pdlg.rtMargin.left;
+	pagesetupMargin.top = pdlg.rtMargin.top;
+	pagesetupMargin.right = pdlg.rtMargin.right;
 	pagesetupMargin.bottom = pdlg.rtMargin.bottom;
 	
 	hDevMode  = pdlg.hDevMode;
@@ -933,8 +957,8 @@ static void FillComboFromMemory(HWND combo, const ComboMemory &mem) {
 
 BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static SciTEWin *sci;
-    if (WM_SETFONT == message)  // Avoid getting dialog items before set up
-        return FALSE;
+	if (WM_SETFONT == message)  // Avoid getting dialog items before set up
+		return FALSE;
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
@@ -1024,8 +1048,8 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 
 BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static SciTEWin *sci;
-    if (WM_SETFONT == message)  // Avoid getting dialog items before set up
-        return FALSE;
+	if (WM_SETFONT == message)  // Avoid getting dialog items before set up
+		return FALSE;
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wReplaceWith = ::GetDlgItem(hDlg, IDREPLACEWITH);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
@@ -1139,8 +1163,8 @@ void SciTEWin::FindInFiles() {
 	props.Set("find.what", findWhat);
 	props.Set("find.directory", ".");
 	if (DoDialog(hInstance, "Grep", wSciTE.GetID(),
-	             reinterpret_cast<DLGPROC>(GrepDlg),
-	             reinterpret_cast<DWORD>(this)) == IDOK) {
+		reinterpret_cast<DLGPROC>(GrepDlg),
+		reinterpret_cast<DWORD>(this)) == IDOK) {
 		//Platform::DebugPrintf("asked to find %s %s %s\n", props.Get("find.what"), props.Get("find.files"), props.Get("find.directory"));
 		SelectionIntoProperties();
 		AddCommand(props.GetNewExpand("find.command", ""), "", jobCLI);
@@ -1190,6 +1214,12 @@ void SciTEWin::ProcessExecute() {
 
 		if (jobQueue[icmd].jobType == jobShell) {
 			ShellExec(jobQueue[icmd].command, jobQueue[icmd].directory);
+			continue;
+		}
+
+		if (jobQueue[icmd].jobType == jobExtension) {
+			if (extender)
+				extender->OnExecute(jobQueue[icmd].command.c_str());
 			continue;
 		}
 
@@ -1254,12 +1284,12 @@ void SciTEWin::ProcessExecute() {
 		PROCESS_INFORMATION pi = {0,0,0,0};
 
 		bool worked = ::CreateProcess(
-		                  NULL,
-		                  const_cast<char *>(jobQueue[icmd].command.c_str()),
-		                  NULL, NULL,
-		                  TRUE, 0,
-		                  NULL, NULL,
-		                  &si, &pi);
+			NULL,
+			const_cast<char *>(jobQueue[icmd].command.c_str()),
+			NULL, NULL,
+			TRUE, 0,
+			NULL, NULL,
+			&si, &pi);
 
 		if (!worked) {
 			OutputAppendString(">Failed to CreateProcess\n");
@@ -1268,7 +1298,7 @@ void SciTEWin::ProcessExecute() {
 		// Now that this has been inherited, close it to be safe.
 		::CloseHandle(hPipeWrite);
 
-	        // These are no longer needed
+		// These are no longer needed
 		::CloseHandle(hWrite2);
 		::CloseHandle(hRead2);
 
@@ -1535,8 +1565,8 @@ void SciTEWin::GoLineDialog() {
 	lineNo[0] = SendEditor(EM_LINEFROMCHAR, static_cast<WPARAM>(-1), 0L) + 1;
 	lineNo[1] = SendEditor(EM_GETLINECOUNT, 0, 0L);
 	if (DoDialog(hInstance, "GoLine", wSciTE.GetID(),
-	             reinterpret_cast<DLGPROC>(GoLineDlg),
-	             reinterpret_cast<DWORD>(lineNo)) == IDOK) {
+		reinterpret_cast<DLGPROC>(GoLineDlg),
+		reinterpret_cast<DWORD>(lineNo)) == IDOK) {
 		//Platform::DebugPrintf("asked to go to %d\n", lineNo);
 		if (lineNo[0] != -1) {
 			//if (lineNo[1] == TRUE) {
@@ -1646,14 +1676,14 @@ void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
 	int yBorder = heightEditor;
 	int xBorder = widthClient - heightOutput - heightBar;
 	for (int i=0; i<heightBar; i++) {
-        if (i == 1)
-    	    surfaceWindow->PenColour(GetSysColor(COLOR_3DHIGHLIGHT));
-        else if (i == heightBar - 2)
-    	    surfaceWindow->PenColour(GetSysColor(COLOR_3DSHADOW));
-        else if (i == heightBar - 1)
-    	    surfaceWindow->PenColour(GetSysColor(COLOR_3DDKSHADOW));
-        else
-    	    surfaceWindow->PenColour(GetSysColor(COLOR_3DFACE));
+		if (i == 1)
+			surfaceWindow->PenColour(GetSysColor(COLOR_3DHIGHLIGHT));
+		else if (i == heightBar - 2)
+			surfaceWindow->PenColour(GetSysColor(COLOR_3DSHADOW));
+		else if (i == heightBar - 1)
+			surfaceWindow->PenColour(GetSysColor(COLOR_3DDKSHADOW));
+		else
+			surfaceWindow->PenColour(GetSysColor(COLOR_3DFACE));
 		if (splitVertical) {
 			surfaceWindow->MoveTo(xBorder + i, 0);
 			surfaceWindow->LineTo(xBorder + i, heightClient);
@@ -1940,7 +1970,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 }
 
 LRESULT PASCAL SciTEWin::TWndProc(
-    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
 
 	// Find C++ object associated with window.
@@ -2031,7 +2061,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 }
 
 LRESULT PASCAL SciTEWin::IWndProc(
-    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
 
 	// Find C++ object associated with window.
@@ -2052,6 +2082,12 @@ LRESULT PASCAL SciTEWin::IWndProc(
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 
+#ifdef LUA_SCRIPTING
+	LuaExtension luaExtender;
+	Extension *extender = &luaExtender;
+#else
+	Extension *extender = 0;
+#endif
 	//Platform::DebugPrintf("Command line is \n%s\n<<", lpszCmdLine);
 
 	HACCEL hAccTable = LoadAccelerators(hInstance, "ACCELS");
@@ -2068,7 +2104,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	MSG msg;
 	msg.wParam = 0;
 	{
-		SciTEWin MainWind;
+		SciTEWin MainWind(extender);
 		MainWind.Run(lpszCmdLine);
 		bool going = true;
 		while (going) {
