@@ -24,7 +24,8 @@ CXXFLAGS= -DGTK -DSCI_LEXER
 
 all: $(PROG)
 
-$(PROG): SciTEGTK.o SciTEBase.o ../../scintilla/bin/scintilla.a
+$(PROG): SciTEGTK.o SciTEBase.o ../../scintilla/bin/scintilla.a \
+	../../scintilla/gtk/Lex*.o
 	$(CC) `gtk-config --libs` -DGTK $^ -o $@
 
 # SciTE-static no longer builds. Kept here in case of later need.
