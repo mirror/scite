@@ -526,9 +526,9 @@ void SciTEWin::ProcessExecute() {
 		SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
 		char buffer[16384];
 		//Platform::DebugPrintf("Execute <%s>\n", command);
-		OutputAppendString(">");
-		OutputAppendString(jobQueue[icmd].command.c_str());
-		OutputAppendString("\n");
+		OutputAppendStringSynchronised(">");
+		OutputAppendStringSynchronised(jobQueue[icmd].command.c_str());
+		OutputAppendStringSynchronised("\n");
 
 		sa.bInheritHandle = TRUE;
 		sa.lpSecurityDescriptor = NULL;
@@ -593,7 +593,7 @@ void SciTEWin::ProcessExecute() {
 		                  &si, &pi);
 
 		if (!worked) {
-			OutputAppendString(">Failed to CreateProcess\n");
+			OutputAppendStringSynchronised(">Failed to CreateProcess\n");
 		}
 
 		// Now that this has been inherited, close it to be safe.
@@ -653,7 +653,7 @@ void SciTEWin::ProcessExecute() {
 						seenOutput = true;
 					}
 					// Display the data
-					OutputAppendString(buffer, bytesRead);
+					OutputAppendStringSynchronised(buffer, bytesRead);
 					::UpdateWindow(wSciTE.GetID());
 				} else {
 					completed = true;
@@ -678,7 +678,7 @@ void SciTEWin::ProcessExecute() {
 				sprintf(exitmessage, ">Exit code: %0ld\n", exitcode);
 			}
 			
-			OutputAppendString(exitmessage);
+			OutputAppendStringSynchronised(exitmessage);
 			::CloseHandle(pi.hProcess);
 			::CloseHandle(pi.hThread);
 			WarnUser(warnExecuteOK);
@@ -690,8 +690,8 @@ void SciTEWin::ProcessExecute() {
 
 	// Move selection back to beginning of this run so that F4 will go
 	// to first error of this run.
-	SendOutput(SCI_GOTOPOS, originalEnd);
-	SendMessage(wSciTE.GetID(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
+	SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
+	::SendMessage(wSciTE.GetID(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
 }
 
 void ExecThread(void *ptw) {

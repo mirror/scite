@@ -440,7 +440,7 @@ protected:
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
 	void OutputAppendString(const char *s, int len = -1);
-	void OutputAppendStringEx(const char *s, int len = -1, bool direct = true);
+	void OutputAppendStringSynchronised(const char *s, int len = -1);
 	void MakeOutputVisible();
 	virtual void Execute();
 	virtual void StopExecute() = 0;

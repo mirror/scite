@@ -1040,29 +1040,31 @@ static int UnSlashAsNeeded(char *s, bool escapes, bool regularExpression) {
 void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (!findWhat[0]) {
 		Find();
-		return ;
-	}
-	TextToFind ft = {{0, 0}, 0, {0, 0}};
-	CharacterRange crange = GetSelection();
-	if (reverseDirection) {
-		ft.chrg.cpMin = crange.cpMin - 1;
-		ft.chrg.cpMax = 0;
-	} else {
-		ft.chrg.cpMin = crange.cpMax;
-		ft.chrg.cpMax = LengthDocument();
+		return;
 	}
 	char findTarget[findReplaceMaxLen + 1];
 	strcpy(findTarget, findWhat);
-	UnSlashAsNeeded(findTarget, unSlash, regExp);
+	int lenFind = UnSlashAsNeeded(findTarget, unSlash, regExp);
+	if (lenFind == 0)
+		return;
 
-	ft.lpstrText = findTarget;
-	ft.chrgText.cpMin = 0;
-	ft.chrgText.cpMax = 0;
+	CharacterRange cr = GetSelection();
+	int startPosition = cr.cpMax;
+	int endPosition = LengthDocument();
+	if (reverseDirection) {
+		startPosition = cr.cpMin - 1;
+		endPosition = 0;
+	}
+
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	            (matchCase ? SCFIND_MATCHCASE : 0) |
 	            (regExp ? SCFIND_REGEXP : 0);
+	
+	SendEditor(SCI_SETTARGETSTART, startPosition);
+	SendEditor(SCI_SETTARGETEND, endPosition);
+	SendEditor(SCI_SETSEARCHFLAGS, flags);
 	//DWORD dwStart = timeGetTime();
-	int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
+	int posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget);
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
 	if (posFind == -1 && wrapFind) {
@@ -1070,13 +1072,15 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		// so search from the beginning (forward) or from the end (reverse)
 		// unless wrapFind is false
 		if (reverseDirection) {
-			ft.chrg.cpMin = LengthDocument();
-			ft.chrg.cpMax = 0;
+			startPosition = LengthDocument();
+			endPosition = 0;
 		} else {
-			ft.chrg.cpMin = 0;
-			ft.chrg.cpMax = LengthDocument();
+			startPosition = 0;
+			endPosition = LengthDocument();
 		}
-		posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
+		SendEditor(SCI_SETTARGETSTART, startPosition);
+		SendEditor(SCI_SETTARGETEND, endPosition);
+		posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget);
 		WarnUser(warnFindWrapped);
 	}
 	if (posFind == -1) {
@@ -1099,8 +1103,10 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		}
 	} else {
 		havefound = true;
-		EnsureRangeVisible(ft.chrgText.cpMin, ft.chrgText.cpMax);
-		SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
+		int start = SendEditor(SCI_GETTARGETSTART);
+		int end = SendEditor(SCI_GETTARGETEND);
+		EnsureRangeVisible(start, end);
+		SetSelection(start, end);
 		if (!replacing) {
 			DestroyFindReplace();
 		}
@@ -1111,12 +1117,16 @@ void SciTEBase::ReplaceOnce() {
 	if (havefound) {
 		char replaceTarget[findReplaceMaxLen + 1];
 		strcpy(replaceTarget, replaceWhat);
-		UnSlashAsNeeded(replaceTarget, unSlash, regExp);
+		int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 		CharacterRange cr = GetSelection();
 		SendEditor(SCI_SETTARGETSTART, cr.cpMin);
 		SendEditor(SCI_SETTARGETEND, cr.cpMax);
-		int lenReplace = SendEditorString(SCI_REPLACETARGET, regExp, replaceTarget);
-		SetSelection(cr.cpMin + lenReplace, cr.cpMin);
+		int lenReplaced = replaceLen;
+		if (regExp) 
+			lenReplaced = SendEditorString(SCI_REPLACETARGETRECOUNTED, replaceLen, replaceTarget);
+		else	// Allow \0 in replacement
+			SendEditorString(SCI_REPLACETARGETCOUNTED, replaceLen, replaceTarget);
+		SetSelection(cr.cpMin + lenReplaced, cr.cpMin);
 		havefound = false;
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
@@ -1125,72 +1135,69 @@ void SciTEBase::ReplaceOnce() {
 }
 
 void SciTEBase::ReplaceAll(bool inSelection) {
-	if (findWhat[0] == '\0') {
-		FindMessageBox("Find string for \"Replace All\" must not be empty.");
-		return ;
-	}
-
-	TextToFind ft;
-	ft.chrg = GetSelection();
-	int startSelection = ft.chrg.cpMin;
-	if (inSelection) {
-		if (ft.chrg.cpMin == ft.chrg.cpMax) {
-			FindMessageBox("Selection for \"Replace in Selection\" must not be empty.");
-			return ;
-		}
-	} else {
-		ft.chrg.cpMax = LengthDocument();
-		if (wrapFind) {
-			// Whole document
-			ft.chrg.cpMin = 0;
-		}
-		// If not wrapFind, replace all only from caret to end of document
-	}
-
 	char findTarget[findReplaceMaxLen + 1];
 	strcpy(findTarget, findWhat);
 	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
-	if ((findLen == 0) || (findTarget[0] == '\0')) {
+	if (findLen == 0) {
 		FindMessageBox("Find string for \"Replace All\" must not be empty.");
 		return;
 	}
 	
-	ft.lpstrText = findTarget;
+	CharacterRange cr = GetSelection();
+	int startPosition = cr.cpMin;
+	int endPosition = cr.cpMax;
+	if (inSelection) {
+		if (startPosition == endPosition) {
+			FindMessageBox("Selection for \"Replace in Selection\" must not be empty.");
+			return;
+		}
+	} else {
+		endPosition = LengthDocument();
+		if (wrapFind) {
+			// Whole document
+			startPosition = 0;
+		}
+		// If not wrapFind, replace all only from caret to end of document
+	}
+
 	char replaceTarget[findReplaceMaxLen + 1];
 	strcpy(replaceTarget, replaceWhat);
-	UnSlashAsNeeded(replaceTarget, unSlash, regExp);
-	ft.chrgText.cpMin = 0;
-	ft.chrgText.cpMax = 0;
+	int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	            (matchCase ? SCFIND_MATCHCASE : 0) |
 	            (regExp ? SCFIND_REGEXP : 0);
-	int posFind = SendEditor(SCI_FINDTEXT, flags,
-	                         reinterpret_cast<long>(&ft));
+	SendEditor(SCI_SETTARGETSTART, startPosition);
+	SendEditor(SCI_SETTARGETEND, endPosition);
+	SendEditor(SCI_SETSEARCHFLAGS, flags);
+	int posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget);
 	if (posFind != -1) {
-		int endPosition = ft.chrg.cpMin;
+		int lastMatch = posFind;
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
-			SendEditor(SCI_SETTARGETSTART, ft.chrgText.cpMin);
-			SendEditor(SCI_SETTARGETEND, ft.chrgText.cpMax);
-			int lenReplace = SendEditorString(SCI_REPLACETARGET, regExp, replaceTarget);
-			endPosition = posFind + lenReplace;
-			int lenDifference = lenReplace - (ft.chrgText.cpMax - ft.chrgText.cpMin);
-			ft.chrg.cpMin = endPosition;
-			if (inSelection) 	// Modify for change caused by replacement
-				ft.chrg.cpMax += lenDifference;
+			int lenTarget = SendEditor(SCI_GETTARGETEND) - SendEditor(SCI_GETTARGETSTART);
+			int lenReplaced = replaceLen;
+			if (regExp) 
+				lenReplaced = SendEditorString(SCI_REPLACETARGETRECOUNTED, replaceLen, replaceTarget);
 			else
-				ft.chrg.cpMax = LengthDocument();
-			posFind = SendEditor(SCI_FINDTEXT, flags,
-			                     reinterpret_cast<long>(&ft));
+				SendEditorString(SCI_REPLACETARGETCOUNTED, replaceLen, replaceTarget);
+			// Modify for change caused by replacement
+			endPosition += lenReplaced - lenTarget;
+			lastMatch = posFind + lenReplaced;
+			// For the special cases of start of line and end of line
+			// Something better could be done but there are too many special cases
+			if (lenTarget <= 0)	
+				break;
+			SendEditor(SCI_SETTARGETSTART, lastMatch);
+			SendEditor(SCI_SETTARGETEND, endPosition);
+			posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget);
 		}
 		if (inSelection)
-			SetSelection(startSelection, ft.chrg.cpMax);
+			SetSelection(startPosition, endPosition);
 		else
-			SetSelection(endPosition, endPosition);
+			SetSelection(lastMatch, lastMatch);
 		SendEditor(SCI_ENDUNDOACTION);
 		//FindMessageBox("bow");
-	}
-	else {
+	} else {
 		if (strlen(findWhat) > findReplaceMaxLen)
 			findWhat[findReplaceMaxLen] = '\0';
 		char msg[findReplaceMaxLen + 50];
@@ -1205,21 +1212,25 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 void SciTEBase::OutputAppendString(const char *s, int len) {
 	if (len == -1)
 		len = strlen(s);
-	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
-	SendOutput(SCI_ADDTEXT, len, reinterpret_cast<long>(s));
-	SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
+	int docLength = SendOutput(SCI_GETTEXTLENGTH);
+	SendOutput(SCI_SETTARGETSTART, docLength);
+	SendOutput(SCI_SETTARGETEND, docLength);
+	SendOutput(SCI_REPLACETARGETCOUNTED, len, reinterpret_cast<sptr_t>(s));
+	int line = SendOutput(SCI_GETLINECOUNT, 0, 0);
+	int lineStart = SendOutput(SCI_POSITIONFROMLINE, line);
+	SendOutput(SCI_GOTOPOS, lineStart);
 }
 
-void SciTEBase::OutputAppendStringEx(const char *s, int len /*= -1*/, bool direct /*= true*/) {
-	if (direct)
-		OutputAppendString(s, len);
-	else {
-		if (len == -1)
-			len = strlen(s);
-		SendOutputEx(SCI_GOTOPOS, SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false));
-		SendOutputEx(SCI_ADDTEXT, len, reinterpret_cast<long>(s), false);
-		SendOutputEx(SCI_GOTOPOS, SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false), false);
-	}
+void SciTEBase::OutputAppendStringSynchronised(const char *s, int len /*= -1*/) {
+	if (len == -1)
+		len = strlen(s);
+	int docLength = SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false);
+	SendOutputEx(SCI_SETTARGETSTART, docLength, 0, false);
+	SendOutputEx(SCI_SETTARGETEND, docLength, 0, false);
+	SendOutputEx(SCI_REPLACETARGETCOUNTED, len, reinterpret_cast<sptr_t>(s), false);
+	int line = SendOutputEx(SCI_GETLINECOUNT, 0, 0, false);
+	int lineStart = SendOutputEx(SCI_POSITIONFROMLINE, line, 0, false);
+	SendOutputEx(SCI_GOTOPOS, lineStart, 0, false);
 }
 
 void SciTEBase::MakeOutputVisible() {
