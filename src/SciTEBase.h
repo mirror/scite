@@ -5,29 +5,20 @@
 
 extern const char appName[];
 
+extern const char pathSepString[];
+extern const char pathSepChar;
+extern const char propUserFileName[];
+extern const char propGlobalFileName[];
+extern const char fileRead[];
+extern const char fileWrite[];
+
 #ifdef unix
-const char pathSepString[] = "/";
-const char pathSepChar = '/';
-const char propUserFileName[] = ".SciTEUser.properties";
-const char fileRead[]="rb";
-const char fileWrite[]="wb";
 #define MAX_PATH 260
 #endif
 #ifdef __vms
-const char pathSepString[] = "/";
-const char pathSepChar = '/';
-const char propUserFileName[] = "SciTEUser.properties";
 const char *VMSToUnixStyle(const char *fileName);
-const char fileRead[]="r";
-const char fileWrite[]="w";
 #endif
 #ifdef WIN32
-// Windows
-const char pathSepString[] = "\\";
-const char pathSepChar = '\\';
-const char propUserFileName[] = "SciTEUser.properties";
-const char fileRead[]="rb";
-const char fileWrite[]="wb";
 #ifdef _MSC_VER
 // Shut up level 4 warning:  warning C4710: function 'void whatever(...)' not inlined
 #pragma warning(disable:4710)
@@ -38,8 +29,6 @@ const char fileWrite[]="wb";
 // and there is a Help menu at the end.
 enum { menuFile=0, menuEdit=1, menuSearch=2, menuTools=3, 
 	menuOptions=4, menuBuffers=5 };
-
-const char propGlobalFileName[] = "SciTEGlobal.properties";
 
 // This is a fixed length list of strings suitable for display  in combo boxes
 // as a memory of user entries

@@ -41,6 +41,30 @@
 #include "Extender.h"
 #include "SciTEBase.h"
 
+#ifdef unix
+const char pathSepString[] = "/";
+const char pathSepChar = '/';
+const char propUserFileName[] = ".SciTEUser.properties";
+const char fileRead[]="rb";
+const char fileWrite[]="wb";
+#endif
+#ifdef __vms
+const char pathSepString[] = "/";
+const char pathSepChar = '/';
+const char propUserFileName[] = "SciTEUser.properties";
+const char fileRead[]="r";
+const char fileWrite[]="w";
+#endif
+#ifdef WIN32
+// Windows
+const char pathSepString[] = "\\";
+const char pathSepChar = '\\';
+const char propUserFileName[] = "SciTEUser.properties";
+const char fileRead[]="rb";
+const char fileWrite[]="wb";
+#endif
+const char propGlobalFileName[] = "SciTEGlobal.properties";
+
 #define PROPERTIES_EXTENSION	".properties"
 
 static bool IsPropertiesFile(char *filename) {

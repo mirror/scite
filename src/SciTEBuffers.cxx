@@ -681,7 +681,9 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 				space++;
 			char *space2 = strchr(space, ' ');
 			if (space2) {
-				strncpy(sourcePath, space, space2 - space);
+                unsigned int len = space2 - space;
+				strncpy(sourcePath, space, len);
+                sourcePath[len] = '\0';
 				return atoi(space2) - 1;
 			}
 		}
