@@ -1331,9 +1331,11 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_UNDO:
 		SendFocused(SCI_UNDO);
+		CheckMenus();
 		break;
 	case IDM_REDO:
 		SendFocused(SCI_REDO);
+		CheckMenus();
 		break;
 
 	case IDM_CUT:

@@ -22,10 +22,46 @@ void SciTEWin::Notify(SCNotification *notification) {
 
 #if (_WIN32_IE >= 0x0300)
 		// Mingw headers do not have TTN_GETDISPINFO or NMTTDISPINFO
-	case TTN_GETDISPINFO:
-		//		if (notification->nmhdr.idFrom == IDM_TABWIN)
-		{
-			//			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_GETCURFOCUS, (WPARAM)0, (LPARAM)0);
+	case TTN_GETDISPINFO: {
+		NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
+		switch (notification->nmhdr.idFrom) {
+		case IDM_NEW:
+			pDispInfo->lpszText = "New";
+			break;
+		case IDM_OPEN:
+			pDispInfo->lpszText = "Open";
+			break;
+		case IDM_SAVE:
+			pDispInfo->lpszText = "Save";
+			break;
+		case IDM_PRINT:
+			pDispInfo->lpszText = "Print";
+			break;
+		case IDM_CUT:
+			pDispInfo->lpszText = "Cut";
+			break;
+		case IDM_COPY:
+			pDispInfo->lpszText = "Copy";
+			break;
+		case IDM_PASTE:
+			pDispInfo->lpszText = "Paste";
+			break;
+		case IDM_CLEAR:
+			pDispInfo->lpszText = "Delete";
+			break;
+		case IDM_UNDO:
+			pDispInfo->lpszText = "Undo";
+			break;
+		case IDM_REDO:
+			pDispInfo->lpszText = "Redo";
+			break;
+		case IDM_FIND:
+			pDispInfo->lpszText = "Find";
+			break;
+		case IDM_REPLACE:
+			pDispInfo->lpszText = "Replace";
+			break;
+		default: { // notification->nmhdr.idFrom appears to be the buffer number for tabbar tooltips
 			Point ptCursor;
 			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
 			Point ptClient = ptCursor;
@@ -33,12 +69,13 @@ void SciTEWin::Notify(SCNotification *notification) {
 			TCHITTESTINFO info;
 			info.pt.x = ptClient.x; info.pt.y = ptClient.y;
 			int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
-			NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
 			pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].fileName.c_str());
 		}
 		break;
+		}
+		break;
+		}
 #endif
-
 	default:  	// Scintilla notification, use default treatment
 
 		SciTEBase::Notify(notification);
@@ -297,7 +334,7 @@ void SciTEWin::Creation() {
 	               "",
 	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 	               CCS_ADJUSTABLE |
-	               TBSTYLE_FLAT,
+	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS,
 	               0, 0,
 	               100, heightTools,
 	               wSciTE.GetID(),
