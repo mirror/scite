@@ -456,7 +456,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		}
 		// check the used styles
 		for (i = 0; i < lengthDoc; i++) {
-			styleIsUsed[acc.StyleAt(i)] = true;
+			styleIsUsed[acc.StyleAt(i) & 0x7F] = true;
 		}
 	} else {
 		for (int i = 0; i <= STYLE_MAX; i++) {
@@ -1304,7 +1304,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 		styleIsUsed[i] = false;
 	}
 	for (i = 0; i < lengthDoc; i++) {	// check the used styles
-		styleIsUsed[acc.StyleAt(i)] = true;
+		styleIsUsed[acc.StyleAt(i) & 0X7f] = true;
 	}
 	styleIsUsed[STYLE_DEFAULT] = true;
 
