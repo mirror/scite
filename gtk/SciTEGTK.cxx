@@ -1759,6 +1759,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Search/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
 	    {"/Search/Pre_vious Bookmark", "<shift>F2", menuSig, IDM_BOOKMARK_PREV, 0},
 	    {"/Search/Toggle Bookmar_k", "<control>F2", menuSig, IDM_BOOKMARK_TOGGLE, 0},
+	    {"/Search/_Clear All Bookmarks", "", menuSig, IDM_BOOKMARK_CLEARALL, 0},
 
 	    {"/_View", NULL, NULL, 0, "<Branch>"},
 	    {"/_View/tear", NULL, NULL, 0, "<Tearoff>"},
