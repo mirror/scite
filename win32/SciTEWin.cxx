@@ -231,10 +231,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				ak.pszMsgTitle = NULL;
 				ak.pszWindow = NULL;
 				ak.fIndexOnFail = TRUE;
-				//SString fileNameForExtension = ExtensionFileName();
-				//SString helpFile = props.GetNewExpand("help.file.", fileNameForExtension.c_str());
 				fnHHA(NULL,
-				      //helpFile.c_str(),
 				      path,
 				      0x000d,        	// HH_KEYWORD_LOOKUP
 				      reinterpret_cast<DWORD>(&ak)
