@@ -178,6 +178,7 @@ const char *contributors[] = {
                                  "Marius Gheorghe",
                                  "Naba Kumar",
                                  "Sean O'Dell",
+                                 "Stefanos Togoulidis",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -316,7 +317,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	props.superPS = &propsLocal;
 
 	propsStatus.superPS = &props;
-	
+
 	ctrltabStarted=false;
 }
 
