@@ -2,6 +2,7 @@
 // SciTEWin.h - header of main code for the Windows version of the editor
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
+/** @file **/
 
 #include <stdlib.h> 
 #include <string.h> 
@@ -35,12 +36,15 @@
 #include "LuaExtension.h"
 #endif 
 
+/// Structure passed back and forth with the Indentation Setting dialog
 typedef struct {
     unsigned tabSize;
     unsigned indentSize;
     bool useTabs;
 } IndentationSettings;
 
+/** Windows specific stuff.
+ **/
 class SciTEWin : public SciTEBase {
 
 protected:
@@ -57,9 +61,9 @@ protected:
 	HGLOBAL hDevMode;
 	HGLOBAL hDevNames;
 
-	// HTMLHelp module
+	/// HTMLHelp module
 	HMODULE hHH;
-	// Multimedia (sound) module
+	/// Multimedia (sound) module
 	HMODULE hMM;
 
 	// Tab Bar
@@ -128,6 +132,7 @@ public:
 
 	bool ModelessHandler(MSG *pmsg);
 
+	/// Management of the command line parameters.
 	void Run(const char *cmdLine);
 	void ProcessExecute();
 	virtual void Execute();

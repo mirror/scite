@@ -600,6 +600,12 @@ void SciTEBase::ReadProperties() {
 
 	//SendEditor(SCI_MARKERDELETEALL, static_cast<unsigned long>(-1));
 
+	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
+	int tabSize = props.GetInt("tabsize");
+	if (tabSize) {
+		SendEditor(SCI_SETTABWIDTH, tabSize);
+	}
+	indentSize = props.GetInt("indent.size");
 	SendEditor(SCI_SETINDENT, indentSize);
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
@@ -609,13 +615,6 @@ void SciTEBase::ReadProperties() {
 	statementEnd = GetStyleAndWords("statement.end.");
 	blockStart = GetStyleAndWords("block.start.");
 	blockEnd = GetStyleAndWords("block.end.");
-
-	int tabSize = props.GetInt("tabsize");
-	if (tabSize) {
-		SendEditor(SCI_SETTABWIDTH, tabSize);
-	}
-	indentSize = props.GetInt("indent.size");
-	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
 
 	if (props.GetInt("vc.home.key", 1)) {
 		AssignKey(SCK_HOME, 0, SCI_VCHOME);

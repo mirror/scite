@@ -118,7 +118,7 @@ BEGIN
 		MENUITEM "VBScr&ipt",				IDM_LEXER_WSCRIPT
 		MENUITEM "&Properties",				IDM_LEXER_PROPS
 		MENUITEM "&Batch",					IDM_LEXER_BATCH
-		MENUITEM "&Makefile\tsHIFT+F11",	IDM_LEXER_MAKE
+		MENUITEM "&Makefile\tShift+F11",	IDM_LEXER_MAKE
 		MENUITEM "&Errorlist",				IDM_LEXER_ERRORL
 		MENUITEM "&Difference",				IDM_LEXER_DIFF
 		MENUITEM "&Java",					IDM_LEXER_JAVA
@@ -383,7 +383,7 @@ BEGIN
 			VALUE	"FileDescription",	"SciTE - a Scintilla based Text Editor\0"
 			VALUE	"FileVersion",	"1.34\0"
 			VALUE	"InternalName",	"SciTE\0"
-			VALUE	"LegalCopyright",	"Copyright 1998-2000 by Neil Hodgson\0"
+			VALUE	"LegalCopyright",	"Copyright 1998-2001 by Neil Hodgson\0"
 			VALUE	"OriginalFilename",	"SciTE.EXE\0"
 			VALUE	"ProductName",	"SciTE\0"
 			VALUE	"ProductVersion",	"1.34\0"

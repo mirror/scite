@@ -2,6 +2,7 @@
 // SciTEWinDlg.cxx - dialog code for the Windows version of the editor
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
+/** @file **/
 
 #include "SciTEWin.h"
 
@@ -480,6 +481,8 @@ static void FormatHeaderOrFooter(
 	buffer += pSeg;	// Copy this segment
 }
 
+/** Print the current buffer.
+ **/
 void SciTEWin::Print(bool showDialog) {
 	PRINTDLG pdlg = {
 	    sizeof(PRINTDLG), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -612,8 +615,9 @@ void SciTEWin::Print(bool showDialog) {
 	                                0, 0, 0,
 	                                sdHeader.bold ? FW_BOLD : FW_NORMAL,
 	                                sdHeader.italics,
+	                                sdHeader.underlined,
 	                                0, 0, 0,
-	                                0, 0, 0, 0,
+	                                0, 0, 0,
 	                                (sdHeader.specified & StyleDefinition::sdFont) ? sdHeader.font.c_str() : "Arial");
 	::SelectObject(hdc, fontHeader);
 	::GetTextMetrics(hdc, &tm);
@@ -627,10 +631,11 @@ void SciTEWin::Print(bool showDialog) {
 		ptDpi.y, 72);
 	HFONT fontFooter = ::CreateFont(footerLineHeight,
 	                                0, 0, 0,
-	                                sdFooter.bold ? FW_BOLD : FW_NORMAL,
-	                                sdFooter.italics,
+	                                sdHeader.bold ? FW_BOLD : FW_NORMAL,
+	                                sdHeader.italics,
+	                                sdHeader.underlined,
 	                                0, 0, 0,
-	                                0, 0, 0, 0,
+	                                0, 0, 0,
 	                                (sdFooter.specified & StyleDefinition::sdFont) ? sdFooter.font.c_str() : "Arial");
 	::SelectObject(hdc, fontFooter);
 	::GetTextMetrics(hdc, &tm);
