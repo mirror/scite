@@ -93,30 +93,31 @@ to execute, an error is reported.
 
 Within Lua scripts you can use the following functions / objects:
 
-  alert(s) - writes s to the output pane with &quot;&gt;&quot; prefix
   trace(s) - writes s to the output pane (no prefix, no newlines)
   dostring(s) - executes s as a Lua string, like Lua 4&#39;s dostring
   editor - the editor pane
   output - the output pane
   props - a pseudo-table representing the SciTE properties
 
-In addition, all constants defined in Scintilla.iface are exposed as Lua
-globals.  Function names are exposed as their block capital equivalents,
-with the SCI_ prefix.
+In addition, all constants defined in Scintilla.iface are exposed as
+Lua globals variables. Function names are exposed as their block 
+capital equivalents, with the SCI_ prefix.
 
 All functions and objects defined in the Lua standard library are also
 available.  Although dostring was deprecated in Lua 5, it is restored
 since some have said it would be useful in tool commands.
 
-A function _ALERT() is also defined to be an alias for alert().  This
-provides a reasonable way for Lua to present error messages to the
-user.  You are free to override _ALERT with a different definition if
-you prefer.
+A function _ALERT() is also defined to be an alias for the built-in
+print(), which prints the alert message (plus a newline) to the window.
+This provides a reasonable way for Lua to present error messages to
+the user.  You are free to override _ALERT with a different definition
+if you prefer.
 
 The props pseudo-table allows you to read or write properties by name
 using normal Lua table-access semantics, e.g. props["property.name"].
 
-The editor and output panes support the following properties / methods:
+The editor and output panes support the following properties and
+methods:
 
   textrange(startPos, endPos) - gets the text in the specified range
 
@@ -125,21 +126,37 @@ The editor and output panes support the following properties / methods:
     - flags can be 0 (the default), or a combination of <a href="http://scintilla.sourceforge.net/ScintillaDoc.html#searchFlags">SCFIND constants</a>
       such as SCFIND_WHOLEWORD, SCFIND_MATCHCASE, and SCFIND_REGEXP
 
-  insert(pos, text) - inserts text at the specified position *
-  remove(startPos, endPos) - removes the text in the range *
+  match(text, [flags], [startPos])
+    - returns a generator that allows you to loop over the matches
+      i.e. for m in editor:match(text, flags) do ... end
+    - the match object (i.e. the loop counter m in the above
+      example) supports read-only properties pos, len, and text;
+      and also supports a function replace(replaceText) to
+      support search and replace.
+    - while looping through matches, if the document is modified
+      by any method other than the loop counter's replace method,
+      this may cause the match generator to lose its place.
+    - also, do not attempt to store the match object for later
+      access outside the loop; it will not be useable.
 
-Most of the functions defined in Scintilla.iface are also be exposed as
-pane methods.  Those functions having simple parameters (strings and
-numeric types) are fully supported, e.g. editor:SetTabWidth(8).  Functions
-having a stringresult parameter will include a string in the return value.
-For both strings and stringresults, if the function is documented as
-expecting a length as its first parameter, you do not pass the length
-from Lua.  Instead, it is inferred from the context.
+  append(text) - appends text to the end of the document
+  insert(pos, text) - inserts text at the specified position
+  remove(startPos, endPos) - removes the text in the range
 
-The keymod parameter type has partial support.  When an iface function is
-declared as taking a keymod, the Lua equivalent expects two numbers: first
-the key code (e.g. SCK_LEFT or string.byte("'"), and second the modifiers
-(e.g. SCMOD_CTRL).
+Most of the functions defined in Scintilla.iface are also be exposed
+as pane methods. Those functions having simple parameters (string,
+boolean, and numeric types) are fully supported. For example,
+editor:InsertText(pos, text) does practically the same thing as 
+editor:insert(pos, texT). Functions having a stringresult parameter
+will include a string in the return value.  For both strings and
+stringresults, if the function is documented as expecting a length
+as its first parameter, you do not pass the length from Lua. Instead,
+it is inferred from the context.
+
+The keymod parameter type has partial support. When an iface function
+is declared as taking a keymod, the Lua equivalent expects two
+numbers: first the key code (e.g. SCK_LEFT or string.byte("'"), and
+second the modifiers (e.g. SCMOD_CTRL).
 
 Functions that have more complex parameters are not supported.
 
@@ -147,30 +164,38 @@ Functions that are declared to return a numeric type have the result
 added to their return value.  If the function also has a stringresult,
 that comes first, followed by the numeric return value.
 
-* Since insert is practically the same as the iface function InsertText,
-and remove can easily be done as a SetSel followed by Clear, these two
-methods may have a very short life.  The textrange and findtext methods,
-on the other hand, will be around for a while since they do not have
-simple exquivalents.
+Some functions are declared as 'get' or 'set' rather than 'fun' in
+the iface file.  These are generally exposed to Lua as properties,
+e.g. editor.TabSize = 8.  Some of the getters and setters also have
+a parameter.  Where possible, these are exposed to Lua as indexed
+properties, e.g. editor.StyleBold[SCE_PROPS_DEFAULT] = true.
+However, if the functions can't be handled as properties, they 
+are exposed as functions instead.
+
+It is intended that a complete guide to the iface functions and
+properties should be added to the documentation, so you don't have
+to look at the iface file and do the mental text manipulation.
+This is not done yet, but would be a good project for someone.
+<a href="http://scintilla.sourceforge.net/ScintillaDoc.html">ScintillaDoc</a> would be a good template to follow.  An api file
+would also be a good addition.
 
 -
 
 <b>Disabling Lua</b>
 
-Lua is currently loaded just-in-time, before it is first used.  Thus, if
-you do not use Lua, it will not be enabled.  The ways that Lua can be
-enabled are through the ext.lua.startup.script property, by naming a
-lua file named in the extension.<i>filepattern</i> property, or by using
-the extension  mechanism to define tool commands (i.e. subsystem 3).  If
-you do not do any of these things, the Lua scripting engine is not
-loaded, and for all practical purposes, SciTE should behave as it did
-before Lua was added.
+Lua is currently loaded just-in-time, before it is first used.  The 
+ways that Lua can become are through the ext.lua.startup.script
+property, by naming a lua file named in the extension.<i>filepattern</i>
+property, or by using the extension mechanism to define tool commands
+(i.e. subsystem 3).  If you do not do any of these things, the Lua 
+scripting engine is not loaded, and for all practical purposes, SciTE
+should behave as it did before Lua was added.
 
-Nevertheless, it is still possible to build SciTE without the Lua support.
-To do this, simply define the variable NO_LUA when you build it, e.g. for
-MSVC, nmake -f scite.mak -DNO_LUA; or with GNU tools, make NO_LUA=1.
+Nevertheless, it is still possible to build SciTE without the Lua
+support. To do this, simply define the variable NO_LUA when you build
+it, e.g. for MSVC, nmake -f scite.mak -DNO_LUA; or with GNU tools,
+make NO_LUA=1.
 </tt>
 </pre>
 </body>
 </html>
-
