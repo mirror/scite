@@ -784,6 +784,7 @@ const int blockSize = 131072;
 #define MB_YESNO	(0x4L)
 #define MB_YESNOCANCEL	(0x3L)
 #define MB_ICONWARNING	(0x30L)
+#define MB_ICONQUESTION (0x20L)
 #define IDOK	(1)
 #define IDCANCEL	(2)
 #define IDYES	(6)
