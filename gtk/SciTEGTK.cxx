@@ -252,7 +252,7 @@ int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
 			scintilla_set_id(SCINTILLA(explanation), 0);
 			gtk_box_pack_start(GTK_BOX(GTK_DIALOG(messageBoxDialog)->vbox),
 			                   explanation, TRUE, TRUE, 0);
-			gtk_widget_set_usize(GTK_WIDGET(explanation), 320, 180);
+			gtk_widget_set_usize(GTK_WIDGET(explanation), 480, 380);
 			gtk_widget_show_all(explanation);
 #ifdef STATIC_BUILD
 			SetAboutMessage(explanation, "Sc1  ");

@@ -75,10 +75,8 @@ void AddStyledText(WindowID hwnd, const char *s, int attr) {
 	            reinterpret_cast<LPARAM>(static_cast<char *>(buf)));
 }
 
-void SetAboutStyle(WindowID wsci, int style, Colour fore, Colour back, int size) {
+void SetAboutStyle(WindowID wsci, int style, Colour fore) {
 	Platform::SendScintilla(wsci, SCI_STYLESETFORE, style, fore.AsLong());
-	Platform::SendScintilla(wsci, SCI_STYLESETBACK, style, back.AsLong());
-	Platform::SendScintilla(wsci, SCI_STYLESETSIZE, style, size);
 }
 
 static void HackColour(int &n) {
@@ -92,19 +90,30 @@ static void HackColour(int &n) {
 void SetAboutMessage(WindowID wsci, const char *appTitle) {
 	if (wsci) {
 		Platform::SendScintilla(wsci, SCI_STYLERESETDEFAULT, 0, 0);
+		int fontSize = 15;
+#if PLAT_GTK
+		// On GTK+, new century schoolbook looks better in large sizes than default font
+		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT, 
+			reinterpret_cast<unsigned int>("new century schoolbook"));
+		fontSize = 16;
+#endif
+		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
 		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, Colour(0, 0, 0).AsLong());
 		Platform::SendScintilla(wsci, SCI_STYLECLEARALL, 0, 0);
-		SetAboutStyle(wsci, 0, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0x80), 24);
+		
+		SetAboutStyle(wsci, 0, Colour(0xff, 0xff, 0xff));
+		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, 0, 24);
+		Platform::SendScintilla(wsci, SCI_STYLESETBACK, 0, Colour(0, 0, 0x80).AsLong());
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
-		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0), 15);
+		SetAboutStyle(wsci, 1, Colour(0xff, 0xff, 0xff));
 		AddStyledText(wsci, "Version 1.23\n", 1);
-		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0), 15);
+		SetAboutStyle(wsci, 2, Colour(0xff, 0xff, 0xff));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
-		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff), Colour(0, 0, 0), 15);
+		SetAboutStyle(wsci, 3, Colour(0xff, 0xff, 0xff));
 		AddStyledText(wsci, "December 1998-March 2000.\n", 3);
-		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff), Colour(0, 0, 0), 15);
+		SetAboutStyle(wsci, 4, Colour(0, 0xff, 0xff));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
 		srand(static_cast<unsigned>(time(0)));
@@ -115,12 +124,12 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 			HackColour(r);
 			HackColour(g);
 			HackColour(b);
-			SetAboutStyle(wsci, 5+co, Colour(r, g, b), Colour(0, 0, 0), 15);
+			SetAboutStyle(wsci, 5+co, Colour(r, g, b));
 			AddStyledText(wsci, "    ", 5+co);
 			AddStyledText(wsci, contributors[co], 5+co);
 			AddStyledText(wsci, "\n", 5+co);
 		}
-		Platform::SendScintilla(wsci, EM_SETREADONLY, 0, 0);
+		Platform::SendScintilla(wsci, EM_SETREADONLY, 1, 0);
 	}
 }
 
