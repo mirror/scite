@@ -244,6 +244,9 @@
 				RelativePath="..\..\scintilla\src\LexBash.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexBB.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexBullant.cxx">
 			</File>
 			<File
