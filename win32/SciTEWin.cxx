@@ -1564,7 +1564,9 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 		}
 	}
 
-#ifndef STATIC_BUILD
+#ifdef STATIC_BUILD
+	Scintilla_ReleaseResources();
+#else
 	::FreeLibrary(hmod);
 #endif
 
