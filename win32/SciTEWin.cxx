@@ -740,12 +740,14 @@ void SciTEWin::Run(const char *cmdLine) {
 		Open(cmdLine + 3, true);
 		Print(false);
 		::PostQuitMessage(0);
-	} else {
-		// open all files given on cmdline, seperated by space or enquoted
-		// In case of not using buffers they get closed immediately expect
+#ifdef MULTIOPEN
+	} else if (0 == strncmp(cmdLine, "/m ", 3)) {
+		// Open all files given on command line, separated by spaces.
+		// The filenames containing spaces must be enquoted.
+		// In case of not using buffers they get closed immediately except
 		// the last one, but they move to the MRU file list
 		bool fileopened = false;
-		char *val = StringDup(cmdLine);
+		char *val = StringDup(cmdLine + 3);
 		char* p = val;
 
 		while (*p != '\0') {
@@ -774,6 +776,9 @@ void SciTEWin::Run(const char *cmdLine) {
 
 		if (!fileopened)
 			Open("", true);
+#endif
+	} else {
+		Open(cmdLine, true);
 	}
 	wSciTE.Show();
 	if (cmdShow)	// assume SW_MAXIMIZE only
