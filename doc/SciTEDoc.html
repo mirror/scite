@@ -1793,6 +1793,17 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
+          whitespace.characters.<i>filepattern</i>
+        </td>
+        <td>
+          Defines which characters are considered whitespace. The default value is that initially set up
+		  by Scintilla, which is space and all chars less than 0x20.  Setting this property allows you to
+		  force Scintilla to consider other characters as whitespace (e.g. punctuation) during such activities
+		  as cursor navigation (ctrl+left/right).
+        </td>
+      </tr>
+      <tr>
+        <td>
           style.*.<i>stylenumber</i><br />
            style.<i>lexer</i>.<i>stylenumber</i>
         </td>

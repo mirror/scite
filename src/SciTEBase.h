@@ -451,6 +451,7 @@ protected:
 	SString autoCompleteStartCharacters;
 	SString autoCompleteFillUpCharacters;
 	SString wordCharacters;
+	SString whitespaceCharacters;
 	int startCalltipWord;
 	int currentCallTip;
 	int maxCallTips;

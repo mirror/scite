@@ -955,6 +955,11 @@ void SciTEBase::ReadProperties() {
 		wordCharacters = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	}
 
+	whitespaceCharacters = props.GetNewExpand("whitespace.characters.", fileNameForExtension.c_str());
+	if (whitespaceCharacters.length()) {
+		SendEditorString(SCI_SETWHITESPACECHARS, 0, whitespaceCharacters.c_str());
+	}
+
 	SendEditor(SCI_SETTABINDENTS, props.GetInt("tab.indents", 1));
 	SendEditor(SCI_SETBACKSPACEUNINDENTS, props.GetInt("backspace.unindents", 1));
 
