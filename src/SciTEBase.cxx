@@ -1766,7 +1766,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 		lastPosCallTip = pos;
 	}
 	if (apis) {
-		const char *words = apis.GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
+		char *words = apis.GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
 		                    callTipIgnoreCase, '\0', true);
 		if (!words)
 			return;
@@ -1777,6 +1777,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 			maxCallTips++;
 			spacePos = strchr(spacePos + 1, ' ');
 		}
+		delete []words;
 
 		// Should get current api definition
 		const char *word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),
