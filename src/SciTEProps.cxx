@@ -1,5 +1,5 @@
 // SciTE - Scintilla based Text Editor
-// SciTEBuffers.cxx - properties management
+// SciTEProps.cxx - properties management
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -185,6 +185,36 @@ static Colour ColourFromString(const char *val) {
 	return Colour(r, g, b);
 }
 
+/** Put the next property item from the given property string into the buffer pointed by pPropItem.
+ * The returned value is NULL if the end of the list is met, else, it points to the next item.
+ */
+char *SciTEBase::GetNextPropItem(
+	const char *pStart,	/**< the property string to parse for the first call,
+						 * pointer returned by the previous call for the following. */
+	char *pPropItem,	///< pointer on a buffer receiving the requested prop item
+	int maxLen)			///< size of the above buffer
+{
+	char *pNext;
+	int size = maxLen-1;
+
+	*pPropItem = '\0';
+	if (pStart == NULL) {
+		return NULL;
+	}
+	pNext = strchr(pStart, ',');
+	if (pNext)	// Separator is found
+	{
+		if (size > pNext - pStart) {
+			// Found string fits in buffer
+			size = pNext - pStart;
+		}
+		pNext++;
+	}
+	strncpy(pPropItem, pStart, size);
+	pPropItem[size] = '\0';
+	return pNext;
+}
+
 void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 	char *val = StringDup(s);
 	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);
@@ -225,7 +255,6 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 		else
 			opt = 0;
 	}
-	if (val)
 		delete []val;
 	Platform::SendScintilla(win.GetID(), SCI_STYLESETCHARACTERSET, style, characterSet);
 }
@@ -550,6 +579,7 @@ void SciTEBase::ReadProperties() {
 		AssignKey(SCK_HOME, 0, SCI_HOME);
 		AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_HOMEEXTEND);
 	}
+	AssignKey('L', SCMOD_SHIFT | SCMOD_CTRL, SCI_LINEDELETE);
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
 
