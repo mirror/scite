@@ -2256,6 +2256,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
 	    {"/Options/_Wrap", "", menuSig, IDM_WRAP, "<CheckItem>"},
 	    {"/Options/Wrap Out_put", "", menuSig, IDM_WRAPOUTPUT, "<CheckItem>"},
+	    {"/Options/_Read-Only", "", menuSig, IDM_READONLY, "<CheckItem>"},
 	    {"/Options/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/_Line End Characters", "", 0, 0, "<Branch>"},
 	    {"/Options/Line End Characters/CR _+ LF", "", menuSig, IDM_EOL_CRLF, "<RadioItem>"},
