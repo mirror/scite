@@ -307,15 +307,22 @@ NameError: mistake
        Much of SciTE's behaviour can be changed by editing the properties files.
     </p>
     <p>
-       There are three properties files used, two global properties files called "SciTEGlobal.properties" 
-      and "SciTEUser.properties" found in the properties directory and a local one called 
+       There are three properties files used, a global properties file called "SciTEGlobal.properties", 
+      a per user file called "SciTEUser.properties" 
+      (with a dot for the GTK+ version: ".SciTEUser.properties") 
+      and a local one called 
       "SciTE.properties" which may be present in the same directory as the file being edited. 
-      The properties directory is the directory of the executable on Windows
-      and for GTK+ it is the directory defined by the "SciTE_HOME" environment variable
-      or the user's home directory if "SciTE_HOME" is not defined.
-      Settings in the local properties file override those in the global 
-      properties files. The SciTEUser.properties file is intended for customisation by the user, 
-      leaving the SciTEGlobal.properties file to contain the default options distributed with SciTE.
+      On Windows, both the global and user properties files are in the directory of the executable.
+      For GTK+ the user properties file is found in the user's home directory and the global
+      properties in a directory set at build time - normally /usr/share/scite. 
+      If the "SciTE_HOME" environment variable is set on either Windows or GTK+ then it is where
+      both the global and user properties files are found.
+      Settings in the local properties file override those in the user properties file which override those
+      in the global properties files. 
+    </p>
+    <p>
+      The user properties file is intended for customisation by the user, 
+      leaving the global properties file to contain the default options distributed with SciTE.
       The main use of the local properties files is to change the effects of the
       Compile, Build and Go commands for the files in a directory. For example, I use the javac
       compiler from the Java Development Kit for most work, so SciTEGlobal.properties sets the
@@ -328,7 +335,7 @@ NameError: mistake
        contents into one of your properties files.
     </p>
     <p>
-       There are commands in the Tools menu for opening the global and local properties files.
+       There are commands in the Tools menu for opening each of the properties files.
     </p>
     <p>
        The files are in approximately the same format as Java properties files which have a simple
@@ -1033,6 +1040,13 @@ NameError: mistake
        The open.filter should be modified to include the file extensions used for the new language
       and entries added for command.compile, command.build, command.go and command.go.needs for the
       language.
+    </p>
+    <h3>
+       Building SciTE
+    </h3>
+    <p>
+       The procedure for building and installing ScITE is described in the README file in the scintilla 
+       directory.
     </p>
   </body>
 </html>
