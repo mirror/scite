@@ -917,6 +917,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
 
+	SendEditor(SCI_SETENDATLASTLINE, props.GetInt("end.at.last.line", 1));
+
 	if (extender) {
 		extender->Clear();
 
