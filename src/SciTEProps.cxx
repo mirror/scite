@@ -750,6 +750,19 @@ void SciTEBase::ReadProperties() {
 			SendChildren(SCI_SETSELBACK, 1, ColourDesired(0xC0, 0xC0, 0xC0).AsLong());
 	}
 
+	SString foldColour = props.Get("fold.margin.colour");
+	if (foldColour.length()) {
+		SendChildren(SCI_SETFOLDMARGINCOLOUR, 1, ColourFromString(foldColour.c_str()).AsLong());
+	} else {
+		SendChildren(SCI_SETFOLDMARGINCOLOUR, 0, 0);
+	}
+	SString foldHiliteColour = props.Get("fold.margin.highlight.colour");
+	if (foldHiliteColour.length()) {
+		SendChildren(SCI_SETFOLDMARGINHICOLOUR, 1, ColourFromString(foldHiliteColour.c_str()).AsLong());
+	} else {
+		SendChildren(SCI_SETFOLDMARGINHICOLOUR, 0, 0);
+	}
+
 	SString whitespaceFore = props.Get("whitespace.fore");
 	if (whitespaceFore.length()) {
 		SendChildren(SCI_SETWHITESPACEFORE, 1, ColourFromString(whitespaceFore.c_str()).AsLong());
