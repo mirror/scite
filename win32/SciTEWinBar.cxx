@@ -318,7 +318,7 @@ void SciTEWin::CheckMenus() {
 	                   SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
 }
 
-void SciTEWin::LocaliseAMenu(HMENU hmenu) {
+void SciTEWin::LocaliseMenu(HMENU hmenu) {
 	for (int i=0; i<=::GetMenuItemCount(hmenu); i++) {
 		char buff[200];
 		MENUITEMINFO mii;
@@ -330,7 +330,7 @@ void SciTEWin::LocaliseAMenu(HMENU hmenu) {
 		mii.cch = sizeof(buff)-1;
 		if (::GetMenuItemInfo(hmenu, i, TRUE, &mii)) {
 			if (mii.hSubMenu) {
-				LocaliseAMenu(mii.hSubMenu);
+				LocaliseMenu(mii.hSubMenu);
 			}
 			if (mii.fType == MFT_STRING) {
 				if (mii.dwTypeData) {
@@ -344,12 +344,11 @@ void SciTEWin::LocaliseAMenu(HMENU hmenu) {
 					} else {
 						accel = "";
 					}
-					text.remove("&");
-					SString localisedItem = propsUI.Get(text.c_str());
-					if (localisedItem.length()) {
-						localisedItem.append("\t");
-						localisedItem.append(accel.c_str());
-						mii.dwTypeData = const_cast<char *>(localisedItem.c_str());
+					LocaliseString(text);
+					if (text.length()) {
+						text.append("\t");
+						text.append(accel.c_str());
+						mii.dwTypeData = const_cast<char *>(text.c_str());
 						::SetMenuItemInfo(hmenu, i, TRUE, &mii);
 					}
 				}
@@ -359,8 +358,27 @@ void SciTEWin::LocaliseAMenu(HMENU hmenu) {
 }
 
 void SciTEWin::LocaliseMenus() {
-	LocaliseAMenu(::GetMenu(wSciTE.GetID()));
+	LocaliseMenu(::GetMenu(wSciTE.GetID()));
 	::DrawMenuBar(wSciTE.GetID());
+}
+
+void SciTEWin::LocaliseControl(HWND w) {
+	char wtext[200];
+	if (::GetWindowText(w, wtext, sizeof(wtext))) {
+		SString text(wtext);
+		LocaliseString(text);
+		if (text.length())
+			::SetWindowText(w, text.c_str());
+	}
+}
+
+void SciTEWin::LocaliseDialog(HWND wDialog) {
+	LocaliseControl(wDialog);
+	HWND wChild = ::GetWindow(wDialog, GW_CHILD);
+	while (wChild) {
+		LocaliseControl(wChild);
+		wChild = GetWindow(wChild, GW_HWNDNEXT);
+	}
 }
 
 // Mingw headers do not have this:

@@ -897,6 +897,21 @@ void SciTEBase::SetPropertiesInitial() {
 		foldMarginWidth = foldMarginWidthDefault;
 }
 
+void SciTEBase::LocaliseString(SString &s) {
+	int ellipseIndicator = s.remove("...");
+	int accessKeyPresent = s.remove("&");
+	s = propsUI.Get(s.c_str());
+	if (s.length()) {
+		if (ellipseIndicator)
+			s += "...";
+		if (0 == accessKeyPresent)
+			s.remove("&");
+#if PLAT_GTK
+		s.substitute("&", "_");
+#endif
+	}
+}
+
 void SciTEBase::ReadLocalisation() {
 	char propfile[MAX_PATH + 20];
 	char propdir[MAX_PATH + 20];

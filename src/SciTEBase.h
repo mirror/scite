@@ -599,6 +599,7 @@ protected:
 	void ImportMenu(int pos);
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
+	void LocaliseString(SString &s);
 	void ReadLocalisation();
 	virtual void ReadPropertiesInitial();
 	void SetMonoFont();

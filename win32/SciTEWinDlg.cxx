@@ -761,6 +761,7 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
 	case WM_INITDIALOG:
 		sci = reinterpret_cast<SciTEWin *>(lParam);
+		sci->LocaliseDialog(hDlg);
 		::SetDlgItemText(hDlg, IDFINDWHAT, sci->findWhat);
 		FillComboFromMemory(wFindWhat, sci->memFinds);
 		if (sci->wholeWord)
@@ -884,6 +885,7 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 
 	case WM_INITDIALOG:
 		sci = reinterpret_cast<SciTEWin *>(lParam);
+		sci->LocaliseDialog(hDlg);
 		::SetDlgItemText(hDlg, IDFINDWHAT, sci->findWhat);
 		FillComboFromMemory(wFindWhat, sci->memFinds);
 		::SetDlgItemText(hDlg, IDREPLACEWITH, sci->replaceWhat);
@@ -956,6 +958,7 @@ BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
 	case WM_INITDIALOG:
 		sci = reinterpret_cast<SciTEWin *>(lParam);
+		sci->LocaliseDialog(hDlg);
 		SetDlgItemText(hDlg, IDFINDWHAT, sci->props.Get("find.what").c_str());
 		hFindWhat = GetDlgItem(hDlg, IDFINDWHAT);
 		FillComboFromMemory(hFindWhat, sci->memFinds);
