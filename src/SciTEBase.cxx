@@ -616,13 +616,14 @@ void SciTEBase::SelectionExtend(
 	if (selStart < selEnd) {
 		GetRange(wCurrent, selStart, selEnd, sel);
 	}
-	// Remove last two control characters, likely to be CR and/or LF
+	// Change whole line selected but normally end of line characters not wanted.
+	// Remove possible terminating \r, \n, or \r\n.
 	int sellen = strlen(sel);
-	if (sellen >= 1 && iscntrl(sel[sellen - 1])) {
+	if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] =='\n')) {
+		if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] =='\n')) {
+			sel[sellen - 2] = '\0';
+		}
 		sel[sellen - 1] = '\0';
-	}
-	if (sellen >= 2 && iscntrl(sel[sellen - 2])) {
-		sel[sellen - 2] = '\0';
 	}
 }
 
@@ -645,13 +646,14 @@ void SciTEBase::SelectionIntoProperties() {
 
 void SciTEBase::SelectionIntoFind() {
 	SelectionWord(findWhat, sizeof(findWhat));
-	char *slashedFind = Slash(findWhat);
-	if (slashedFind) {
-		strncpy(findWhat, slashedFind, sizeof(findWhat));
-		findWhat[sizeof(findWhat)-1] = '\0';
-		delete []slashedFind;
-	}
-	
+	if (props.GetInt("escapes.in.find.replace")) {
+		char *slashedFind = Slash(findWhat);
+		if (slashedFind) {
+			strncpy(findWhat, slashedFind, sizeof(findWhat));
+			findWhat[sizeof(findWhat)-1] = '\0';
+			delete []slashedFind;
+		}
+	}	
 }
 
 void SciTEBase::FindMessageBox(const char *msg) {
@@ -679,7 +681,11 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		ft.chrg.cpMin = crange.cpMax;
 		ft.chrg.cpMax = LengthDocument();
 	}
-	ft.lpstrText = findWhat;
+	char findTarget[200];
+	strcpy(findTarget, findWhat);
+	if (props.GetInt("escapes.in.find.replace"))
+		UnSlash(findTarget);
+	ft.lpstrText = findTarget;
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
@@ -702,8 +708,8 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (posFind == -1) {
 		havefound = false;
 		if (showWarnings) {
-			if (strlen(findWhat) > 200)
-				findWhat[200] = '\0';
+			if (strlen(findWhat) >= 200)
+				findWhat[200-1] = '\0';
 			char msg[300];
 			strcpy(msg, "Cannot find the string \"");
 			strcat(msg, findWhat);
@@ -728,7 +734,11 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 
 void SciTEBase::ReplaceOnce() {
 	if (havefound) {
-		SendEditorString(SCI_REPLACESEL, 0, replaceWhat);
+		char replaceTarget[200];
+		strcpy(replaceTarget, replaceWhat);
+		if (props.GetInt("escapes.in.find.replace"))
+			UnSlash(replaceTarget);
+		SendEditorString(SCI_REPLACESEL, 0, replaceTarget);
 		havefound = false;
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
@@ -745,7 +755,15 @@ void SciTEBase::ReplaceAll() {
 	TextToFind ft;
 	ft.chrg.cpMin = 0;
 	ft.chrg.cpMax = LengthDocument();
-	ft.lpstrText = findWhat;
+	char findTarget[200];
+	strcpy(findTarget, findWhat);
+	if (props.GetInt("escapes.in.find.replace"))
+		UnSlash(findTarget);
+	ft.lpstrText = findTarget;
+	char replaceTarget[200];
+	strcpy(replaceTarget, replaceWhat);
+	if (props.GetInt("escapes.in.find.replace"))
+		UnSlash(replaceTarget);
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
@@ -755,16 +773,16 @@ void SciTEBase::ReplaceAll() {
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
 			SetSelection(ft.chrgText.cpMin, ft.chrgText.cpMax);
-			SendEditorString(SCI_REPLACESEL, 0, replaceWhat);
-			ft.chrg.cpMin = posFind + strlen(replaceWhat);
+			SendEditorString(SCI_REPLACESEL, 0, replaceTarget);
+			ft.chrg.cpMin = posFind + strlen(replaceTarget);
 			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(SCI_FINDTEXT, flags,
 			                     reinterpret_cast<long>(&ft));
 		}
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
-		if (strlen(findWhat) > 200)
-			findWhat[200] = '\0';
+		if (strlen(findWhat) >= 200)
+			findWhat[200-1] = '\0';
 		char msg[300];
 		strcpy(msg, "No replacements because string \"");
 		strcat(msg, findWhat);

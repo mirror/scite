@@ -760,7 +760,8 @@ static void FillComboFromMemory(HWND combo, const ComboMemory &mem) {
 
 BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static SciTEWin *sci;
-	if (WM_SETFONT == message)  // Avoid getting dialog items before set up
+	// Avoid getting dialog items before set up or during tear down.
+	if (WM_SETFONT == message || WM_NCDESTROY == message)  
 		return FALSE;
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
@@ -798,7 +799,6 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			//Platform::DebugPrintf("Finding\n");
 			char s[200];
 			GetDlgItemText(hDlg, IDFINDWHAT, s, sizeof(s));
-			UnSlash(s);
 			sci->props.Set("find.what", s);
 			strcpy(sci->findWhat, s);
 			sci->memFinds.Insert(s);
@@ -819,11 +819,12 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 }
 
 BOOL SciTEWin::HandleReplaceCommand(int cmd) {
+	if (!wFindReplace.GetID())
+		return TRUE;
 	HWND wWholeWord = ::GetDlgItem(wFindReplace.GetID(), IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(wFindReplace.GetID(), IDMATCHCASE);
 	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
 		::GetDlgItemText(wFindReplace.GetID(), IDFINDWHAT, findWhat, sizeof(findWhat));
-		UnSlash(findWhat);
 		props.Set("find.what", findWhat);
 		memFinds.Insert(findWhat);
 		wholeWord = BST_CHECKED ==
@@ -833,7 +834,6 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	}
 	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
 		::GetDlgItemText(wFindReplace.GetID(), IDREPLACEWITH, replaceWhat, sizeof(replaceWhat));
-		UnSlash(replaceWhat);
 		memReplaces.Insert(replaceWhat);
 	}
 
@@ -854,7 +854,8 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 
 BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static SciTEWin *sci;
-	if (WM_SETFONT == message)  // Avoid getting dialog items before set up
+	// Avoid getting dialog items before set up or during tear down.
+	if (WM_SETFONT == message || WM_NCDESTROY == message)  
 		return FALSE;
 	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
 	HWND wReplaceWith = ::GetDlgItem(hDlg, IDREPLACEWITH);
