@@ -378,6 +378,8 @@ void SciTEBase::ReadProperties() {
 		lexLanguage = SCLEX_CONF;
 	} else if (language == "pascal") {
 		lexLanguage = SCLEX_PASCAL;
+	} else if (language == "ave") {
+		lexLanguage = SCLEX_AVE;
 	} else {
 		lexLanguage = SCLEX_NULL;
 	}
@@ -476,7 +478,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	int caretStrict = props.GetInt("caret.policy.strict") ? CARET_STRICT : 0;
-	int caretSlop = props.GetInt("caret.policy.slop") ? CARET_SLOP : 0;
+	int caretSlop = props.GetInt("caret.policy.slop", 1) ? CARET_SLOP : 0;
 	int caretLines = props.GetInt("caret.policy.lines");
 	SendEditor(SCI_SETCARETPOLICY, caretStrict | caretSlop, caretLines);
 

@@ -29,8 +29,8 @@ vpath %.cxx ../src
 #Comment / Uncomment the next line out if you want GTK single instance support
 SINGLEINSTANCE= -DSINGLE_INSTANCE
 
-#CXXFLAGS= -g -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -Wwrite-strings 
-INCLUDEDIRS=-I ../../scintilla/include -I ../src 
+#CXXFLAGS= -g -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -Wwrite-strings
+INCLUDEDIRS=-I ../../scintilla/include -I ../src
 CXXBASEFLAGS= -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(SINGLEINSTANCE) -W -Wall
 
 ifdef DEBUG
@@ -45,6 +45,7 @@ endif
 all: $(PROG)
 
 LEXEROBJS=\
+	../../scintilla/gtk/LexAVE.o \
 	../../scintilla/gtk/LexConf.o \
 	../../scintilla/gtk/LexCPP.o \
 	../../scintilla/gtk/LexHTML.o \
@@ -78,9 +79,9 @@ SciTEProps.o: SciTEProps.cxx Platform.h WinDefs.h SciTE.h PropSet.h SString.h \
 SciTEGTK.o: SciTEGTK.cxx Platform.h WinDefs.h SciTE.h PropSet.h SString.h \
  Accessor.h WindowAccessor.h KeyWords.h Scintilla.h ScintillaWidget.h SciTEBase.h
 
-clean: 
+clean:
 	rm -f *.o $(PROG)
-	
+
 # The two last install commands will fail if Gnome is not installed or is not at $(prefix).
 # This is OK - just means no SciTE in the Gnome Applications menu
 # Dead:	install -D SciTEGTK.properties $(SYSCONF_PATH)/SciTEGlobal.properties

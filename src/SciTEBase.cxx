@@ -88,13 +88,14 @@ const char *contributors[] = {
     "Holger Schmidt",
     "ActiveState http://www.activestate.com",
     "James Larcombe",
+    "Alexey",
 };
 
 const char *extList[] = {
     "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
     "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
     "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff", "x.cs", "x.conf",
-    "x.pas",
+    "x.pas", "x.ave"
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -561,7 +562,7 @@ static bool isfilenamecharforsel(char ch) {
 void SciTEBase::SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch)) {
 	int lengthDoc, selStart, selEnd;
 	Window wCurrent;
-	
+
 	if (wEditor.HasFocus())
 		wCurrent = wEditor;
 	else
@@ -1341,7 +1342,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		}
 		break;
 	case IDM_OPEN:
-        // No need to see if can make room as that will occur 
+        // No need to see if can make room as that will occur
         // when doing the opening. Must be done there as user
         // may decide to open multiple files so do not know yet
         // how much room needed.
@@ -1623,8 +1624,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_BUILD: {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
-				AddCommand(props.GetNewExpand("command.build.", fileName), "",
-				           SubsystemType("command.build.subsystem."));
+				AddCommand(
+					props.GetNewExpand("command.build.", fileName), 
+					props.GetNewExpand("command.build.directory.", fileName), 
+					SubsystemType("command.build.subsystem."));
 				if (commandCurrent > 0) {
 					isBuilding = true;
 					Execute();
@@ -1732,6 +1735,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_CS:
 	case IDM_LEXER_CONF:
 	case IDM_LEXER_PASCAL:
+	case IDM_LEXER_AVE:
 		SetOverrideLanguage(cmdID);
 		break;
 

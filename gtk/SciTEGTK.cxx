@@ -3,23 +3,23 @@
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h> 
-#include <string.h> 
-#include <ctype.h> 
-#include <stdio.h> 
-#include <fcntl.h> 
-#include <stdarg.h> 
-#include <sys/stat.h> 
-#include <assert.h> 
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <sys/stat.h>
+#include <assert.h>
 
 #include "Platform.h"
 
-#include <unistd.h> 
-#include <glib.h> 
-#include <signal.h> 
-#include <sys/wait.h> 
-#include <sys/types.h> 
-#include <errno.h> 
+#include <unistd.h>
+#include <glib.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <errno.h>
 
 #include "SciTE.h"
 #include "PropSet.h"
@@ -31,7 +31,7 @@
 #include "SciTEBase.h"
 #ifdef LUA_SCRIPTING
 #include "LuaExtension.h"
-#endif 
+#endif
 #include "pixmapsGNOME.h"
 
 #define MB_ABOUTBOX	0x100000L
@@ -40,7 +40,7 @@
 const char appName[] = "Sc1";
 #else
 const char appName[] = "SciTE";
-#endif 
+#endif
 
 #ifdef __vms
 char g_modulePath[MAX_PATH];
@@ -69,7 +69,7 @@ protected:
 	int inputWatcher;
 	int fdPipe;
 	char pipeName[MAX_PATH];
-#endif 
+#endif
 
 	char findInDir[1024];
 	ComboMemory memDir;
@@ -168,7 +168,7 @@ protected:
 	bool CreatePipe(bool forceNew = false);
 	static void PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition);
 	void CheckAlreadyOpen(const char *cmdLine);
-#endif 
+#endif
 
 	// GTK+ Signal Handlers
 
@@ -356,7 +356,7 @@ int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
 			SetAboutMessage(explanation, "Sc1  ");
 #else
 			SetAboutMessage(explanation, "SciTE");
-#endif 
+#endif
 		} else {
 			GtkWidget *label = gtk_label_new(m);
 			gtk_misc_set_padding(GTK_MISC(label), 10, 10);
@@ -390,7 +390,7 @@ void SciTEGTK::GetDefaultDirectory(char *directory, size_t size) {
 	if (!where) {
 		where = getenv("HOME");
 	}
-#endif 
+#endif
 	if (where)
 #ifdef __vms
 		strncpy(directory, VMSToUnixStyle(where), size);
@@ -415,7 +415,7 @@ bool SciTEGTK::GetSciteDefaultHome(char *path, unsigned int lenPath) {
 	if (!where) {
 		where = getenv("HOME");
 	}
-#endif 
+#endif
 	if (where) {
 #ifdef __vms
 		strncpy(path, VMSToUnixStyle(where), lenPath);
@@ -523,7 +523,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		if ((wParam >> 16) == EN_SETFOCUS)
 			CheckMenus();
 		break;
-#endif 
+#endif
 
 	default:
 		SciTEBase::MenuCommand(cmdID);
@@ -893,7 +893,7 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 		scitew->props.Set("find.recursive", scitew->props.Get("find.recursive.recursive").c_str());
 	else
 		scitew->props.Set("find.recursive", scitew->props.Get("find.recursive.not").c_str());
-#endif 
+#endif
 
 	char *filesEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFiles)->entry));
 	scitew->props.Set("find.files", filesEntry);
@@ -942,7 +942,7 @@ void SciTEGTK::FindInFiles() {
 	GtkWidget *table = gtk_table_new(4, 2, FALSE);
 #else
 	GtkWidget *table = gtk_table_new(3, 2, FALSE);
-#endif 
+#endif
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->vbox),
 	                   table, TRUE, TRUE, 0);
 
@@ -1021,7 +1021,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_widget_add_accelerator(	toggleRec, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_table_attach(GTK_TABLE(table), toggleRec, 1, 2, row, row + 1, opts, opts, 3, 0);
 	gtk_widget_show(toggleRec);
-#endif 
+#endif
 
 	gtk_widget_show(table);
 
@@ -1432,7 +1432,7 @@ void SciTEGTK::QuitProgram() {
 			unlink(pipeName);
 
 		}
-#endif 
+#endif
 		gtk_exit(0);
 	}
 }
@@ -1454,7 +1454,7 @@ gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
 			unlink(scitew->pipeName);
 
 		}
-#endif 
+#endif
 		gtk_exit(0);
 	}
 	// No need to return FALSE for quit as gtk_exit will have been called
@@ -1825,6 +1825,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Use lexer/La_TeX", "", menuSig, IDM_LEXER_LATEX, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/Apache Config", "", menuSig, IDM_LEXER_CONF, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/Pascal", "", menuSig, IDM_LEXER_PASCAL, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/Avenue", "", menuSig, IDM_LEXER_AVE, "/Options/Use lexer/none"},
 	    {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Open _Local Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
 	    {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
@@ -1880,7 +1881,7 @@ void SciTEGTK::SetIcon() {
 	                                        &style->bg[GTK_STATE_NORMAL],
 	                                        (gchar **)Icon_xpm);
 	gdk_window_set_icon(wSciTE.GetID()->window, NULL, icon_pix, mask);
-#endif 
+#endif
 }
 
 #ifdef SINGLE_INSTANCE
@@ -2027,7 +2028,7 @@ void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 	}
 }
 
-#endif 
+#endif
 
 void SciTEGTK::Run(int argc, char *argv[]) {
 	SString files;
@@ -2055,10 +2056,10 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 
 #ifdef SINGLE_INSTANCE
 	if (props.GetInt("check.if.already.open")) {
-		if (fileCount == 1) 
+		if (fileCount == 1)
 			CheckAlreadyOpen(files.c_str());
 	}
-#endif 
+#endif
 
 	gtk_widget_set_events(wSciTE.GetID(),
 	                      GDK_EXPOSURE_MASK
@@ -2071,7 +2072,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 
 	gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "key_press_event",
 			GtkSignalFunc(KeyPress), gthis);
-	
+
 	gtk_window_set_title(GTK_WINDOW(wSciTE.GetID()), appName);
 	int left = props.GetInt("position.left", 10);
 	int top = props.GetInt("position.top", 30);
@@ -2085,7 +2086,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 
 	fileSelectorWidth = props.GetInt("fileselector.width", fileSelectorWidth);
 	fileSelectorHeight = props.GetInt("fileselector.height", fileSelectorHeight);
-	
+
 	GtkWidget *boxMain = gtk_vbox_new(FALSE, 1);
 	gtk_container_add(GTK_CONTAINER(wSciTE.GetID()), boxMain);
 	GTK_WIDGET_UNSET_FLAGS(boxMain, GTK_CAN_FOCUS);
@@ -2258,7 +2259,7 @@ int main(int argc, char *argv[]) {
 	Extension *extender = &luaExtender;
 #else
 	Extension *extender = 0;
-#endif 
+#endif
 
 #ifdef __vms
 	// Store the path part of the module name
@@ -2280,7 +2281,7 @@ int main(int argc, char *argv[]) {
 	strcpy(g_modulePath, VMSToUnixStyle(g_modulePath));
 	g_modulePath[strlen(g_modulePath) - 1] = '\0';  // remove trailing "/"
 #endif
-	
+
 	gtk_init(&argc, &argv);
 	SciTEGTK scite(extender);
 	scite.Run(argc, argv);
