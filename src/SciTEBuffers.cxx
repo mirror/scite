@@ -1105,7 +1105,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			size_t lenFile = strlen(idFile);
 			char *line = strstr(cdoc, idLine);
 			char *file = strstr(cdoc, idFile);
-			if (line && file) {
+			if (line && file && (line > file)) {
 				file += lenFile;
 				size_t length = line - file;
 				strncpy(sourcePath, file, length);
