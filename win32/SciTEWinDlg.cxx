@@ -755,9 +755,13 @@ static void FillComboFromProps(HWND combo, PropSet &props) {
 }
 
 static SString GetItemText(HWND hDlg, int id) {
-	char s[10000];
-	::GetDlgItemText(hDlg, id, s, sizeof(s));
-	return SString(s);
+	HWND wT = ::GetDlgItem(hDlg, id);
+	int len = ::GetWindowTextLength(wT);
+	SBuffer itemText(len);
+	if (len > 0) {
+		::GetDlgItemText(hDlg, id, itemText.ptr(), len + 1);
+	}
+	return SString(itemText);
 }
 
 BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
