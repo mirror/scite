@@ -758,8 +758,6 @@ void SciTEBase::StackMenu(int pos) {
 			RecentFile rf = recentFileStack[pos];
 			//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
 			overrideExtension = "";
-			fileModTime = 0;
-			fileModLastAsk = 0;
 			Open(rf.FullPath());
 			DisplayAround(rf);
 		}
