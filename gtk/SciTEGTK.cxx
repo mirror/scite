@@ -679,9 +679,11 @@ void SciTEGTK::CheckMenus() {
 
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 
-	gtk_widget_set_sensitive(build_btn, !executing);
-	gtk_widget_set_sensitive(compile_btn, !executing);
-	gtk_widget_set_sensitive(stop_btn, executing);
+	if (build_btn) {
+		gtk_widget_set_sensitive(build_btn, !executing);
+		gtk_widget_set_sensitive(compile_btn, !executing);
+		gtk_widget_set_sensitive(stop_btn, executing);
+	}
 }
 
 char *split(char*& s, char c) {
