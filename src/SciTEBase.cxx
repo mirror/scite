@@ -147,7 +147,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, Colour(0, 0, 0));
-		AddStyledText(wsci, "December 1998-February 2001.\n", 3);
+		AddStyledText(wsci, "December 1998-January 2001.\n", 3);
 		SetAboutStyle(wsci, 4, Colour(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
