@@ -1369,7 +1369,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 						space2--;
 					}
 
-					unsigned int length = space2 - space;
+					int length = space2 - space;
 
 					if (length > 0) {
 						strncpy(sourcePath, space, length);
