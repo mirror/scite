@@ -643,6 +643,7 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("fold.comment");
 	ForwardPropertyToEditor("fold.comment.python");
 	ForwardPropertyToEditor("fold.compact");
+	ForwardPropertyToEditor("fold.at.else");
 	ForwardPropertyToEditor("fold.html");
 	ForwardPropertyToEditor("fold.html.preprocessor");
 	ForwardPropertyToEditor("fold.flags");
