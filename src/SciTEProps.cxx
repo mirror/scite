@@ -916,7 +916,7 @@ void SciTEBase::ReadProperties() {
 	//SendEditor(SCI_SETMARGINMASKN, 0, SC_MASK_FOLDERS);
 
 	SendEditor(SCI_SETMODEVENTMASK, SC_MOD_CHANGEFOLD);
-	
+
 	if (0==props.GetInt("undo.redo.lazy")) {
 		// Trap for insert/delete notifications (also fired by undo
 		// and redo) so that the buttons can be enabled if needed.
@@ -989,7 +989,20 @@ void SciTEBase::ReadProperties() {
 	           ColourOfProperty(props, "bookmark.fore", ColourDesired(0, 0, 0x7f)));
 	SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK,
 	           ColourOfProperty(props, "bookmark.back", ColourDesired(0x80, 0xff, 0xff)));
-	SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
+	//SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
+		static char *bm_xpm = "\
+		static char *stop_xpm[] = {\
+\"4 6 3 1\",\
+\"  c None\",\
+\"+ c #0000FF\",\
+\". c #FFFF00\",\
+\"....\",\
+\".++.\",\
+\".++.\",\
+\".++.\",\
+\".++.\",\
+\"....\"};";
+	SendEditorString(SCI_MARKERDEFINEPIXMAP, SciTE_MARKER_BOOKMARK, bm_xpm);
 
 	SendEditor(SCI_SETSCROLLWIDTH, props.GetInt("horizontal.scroll.width", 2000));
 	SendOutput(SCI_SETSCROLLWIDTH, props.GetInt("output.horizontal.scroll.width", 2000));
