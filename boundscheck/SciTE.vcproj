@@ -288,6 +288,9 @@
 				RelativePath="..\..\scintilla\src\LexVB.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexVerilog.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexYAML.cxx">
 			</File>
 

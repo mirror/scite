@@ -658,6 +658,7 @@ static const char *propertiesToForward[] = {
 	"fold.html.preprocessor",
 	"fold.preprocessor",
 	"fold.quotes.python",
+	"fold.verilog.flags",
 	"styling.within.preprocessor",
 	"tab.timmy.whinge.level",
 	"asp.default.language",
