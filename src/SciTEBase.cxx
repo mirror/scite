@@ -3125,10 +3125,12 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_ABBREV:
+		SendEditor(SCI_CANCEL);
 		StartExpandAbbreviation();
 		break;
 
 	case IDM_INS_ABBREV:
+		SendEditor(SCI_CANCEL);
 		StartInsertAbbreviation();
 		break;
 
