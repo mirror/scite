@@ -2709,7 +2709,7 @@ void SciTEBase::Redraw() {
 
 int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 	sourcePath[0] = '\0';
-	if (format == 1) {
+	if (format == SCE_ERR_PYTHON) {
 		// Python
 		char *startPath = strchr(cdoc, '\"') + 1;
 		char *endPath = strchr(startPath, '\"');
@@ -2720,7 +2720,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			endPath++;
 		int sourceNumber = atoi(endPath) - 1;
 		return sourceNumber;
-	} else if (format == 2) {
+	} else if (format == SCE_ERR_GCC) {
 		// GCC - look for number followed by colon to be line number
 		// This will be preceded by file name
 		for (int i = 0; cdoc[i]; i++) {
@@ -2734,14 +2734,14 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 				return sourceNumber;
 			}
 		}
-	} else if (format == 3) {
+	} else if (format == SCE_ERR_MS) {
 		// Visual *
 		char *endPath = strchr(cdoc, '(');
 		strncpy(sourcePath, cdoc, endPath - cdoc);
 		sourcePath[endPath - cdoc] = 0;
 		endPath++;
 		return atoi(endPath) - 1;
-	} else if (format == 5) {
+	} else if (format == SCE_ERR_BORLAND) {
 		// Borland
 		char *space = strchr(cdoc, ' ');
 		if (space) {
@@ -2756,6 +2756,16 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 				strncpy(sourcePath, space, space2 - space);
 				return atoi(space2) - 1;
 			}
+		}
+	} else if (format == SCE_ERR_PERL) {
+		// perl
+		char *at = strstr(cdoc, " at ");
+		char *line = strstr(cdoc, " line ");
+		if (at && line) {
+			strncpy(sourcePath, at+4, line - (at+4));
+			sourcePath[line - (at+4)] = 0;
+			line += 6;
+			return atoi(line) - 1;
 		}
 	}
 	return - 1;
