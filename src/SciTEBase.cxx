@@ -68,6 +68,10 @@ const char *contributors[] = {
 	"Ahmad Baitalmal",
 	"Paul Winwood",
 	"Maxim Baranov",
+#if PLAT_GTK
+	"Icons Copyright(C) 1998 by Dean S. Jones",
+	"    http://jfa.javalobby.org/projects/icons/",
+#endif
 };
 
 // AddStyledText only called from About so static size buffer is OK
