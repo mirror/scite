@@ -183,6 +183,8 @@ protected:
 	void StartCallTip();
 	void ContinueCallTip();
 	void StartAutoComplete();
+	int GetIndentState(int line);
+	void EnterPressed();
 	void CharAdded(char ch);
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
@@ -226,6 +228,7 @@ protected:
 	void ToolsMenu(int item);
 
 	virtual void ReadPropertiesInitial();
+	SString ExtensionFileName();
 	virtual void ReadProperties();
 	void SetOneStyle(Window &win, int style, const char *s);
 	void SetStyleFor(Window &win, const char *language);

@@ -46,27 +46,27 @@
 const char propFileName[] = "SciTE.properties";
 
 const char *contributors[] = {
-        "Atsuo Ishimoto",
-        "Mark Hammond",
-        "Francois Le Coguiec",
-        "Dale Nagata",
-        "Ralf Reinhardt",
-        "Philippe Lhoste",
-        "Andrew McKinlay",
-        "Stephan R. A. Deibel",
-        "Hans Eckardt",
-        "Vassili Bourdo",
-        "Maksim Lin",
-        "Robin Dunn",
-        "John Ehresman",
-        "Steffen Goeldner",
-        "Deepak S.",
-        "DevelopMentor http://www.develop.com",
-        "Yann Gaillard",
-        "Aubin Paul",
-		"Jason Diamond",
-		"Ahmad Baitalmal",
-		"Paul Winwood",
+	"Atsuo Ishimoto",
+	"Mark Hammond",
+	"Francois Le Coguiec",
+	"Dale Nagata",
+	"Ralf Reinhardt",
+	"Philippe Lhoste",
+	"Andrew McKinlay",
+	"Stephan R. A. Deibel",
+	"Hans Eckardt",
+	"Vassili Bourdo",
+	"Maksim Lin",
+	"Robin Dunn",
+	"John Ehresman",
+	"Steffen Goeldner",
+	"Deepak S.",
+	"DevelopMentor http://www.develop.com",
+	"Yann Gaillard",
+	"Aubin Paul",
+	"Jason Diamond",
+	"Ahmad Baitalmal",
+	"Paul Winwood",
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -558,11 +558,16 @@ void SciTEBase::ReadPropertiesInitial() {
 		foldMarginWidth = foldMarginWidthDefault;
 }
 
+SString SciTEBase::ExtensionFileName() {
+	if (fileName[0]) 
+		return fileName;
+	else 
+		return props.Get("default.file.ext");
+}
+
 void SciTEBase::ReadProperties() {
 //DWORD dwStart = timeGetTime();
-	SString fileNameForExtension = fileName;
-	if (!fileNameForExtension.length())
-		fileNameForExtension = props.Get("default.file.ext");
+	SString fileNameForExtension = ExtensionFileName();
 
 	language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	
@@ -1842,6 +1847,73 @@ int SciTEBase::GetCurrentScrollPosition() {
 	return SendEditor(SCI_DOCLINEFROMVISIBLE, lineDisplayTop);
 }
 
+int SciTEBase::GetIndentState(int line) {
+	WindowAccessor acc(wEditor.GetID(), props);
+	int thisLineStart = SendEditor(EM_LINEINDEX, line);
+	int nextLineStart = SendEditor(EM_LINEINDEX, line+1);
+	char lastCodeChar = ' ';
+	for (int j = thisLineStart; j < nextLineStart; j++) {
+		if (acc.StyleAt(j) == SCE_C_OPERATOR)
+			lastCodeChar = acc[j];
+	}
+	if (lastCodeChar == '}')
+		return -1;
+	else if (lastCodeChar == '{')
+		return 1;
+	else
+		return 0;
+}
+
+void SciTEBase::EnterPressed() {
+	WindowAccessor acc(wEditor.GetID(), props);
+	char linebuf[1000];
+	int curLine = GetCurrentLineNumber();
+	int lineLength = SendEditor(SCI_LINELENGTH, curLine);
+	SString indentOpening = props.GetNewExpand("indent.opening.", ExtensionFileName().c_str());
+	if (indentOpening.length()) {
+		int indentPreviousLine = SendEditor(SCI_GETLINEINDENTATION, curLine-1);
+		int indentBlock = indentPreviousLine;
+		int backLine = curLine - 1;
+		int indentState = 0;
+		while ((backLine >= 0) && (indentState == 0)) {
+			indentState = GetIndentState(backLine);
+			if (indentState != 0) {
+				indentBlock = SendEditor(SCI_GETLINEINDENTATION, backLine);
+				if (indentState == 1)
+					indentBlock += props.GetInt("indent.size");
+			}
+			backLine--;
+		}
+		char lastCodeChar = ';';
+		int prevLineStart = SendEditor(EM_LINEINDEX, curLine - 1);
+		int thisLineStart = SendEditor(EM_LINEINDEX, curLine);
+		for (int j = prevLineStart; j < thisLineStart; j++) {
+			if (acc.StyleAt(j) == SCE_C_OPERATOR)
+				lastCodeChar = acc[j];
+		}
+		int indent = indentBlock;
+		if ((lastCodeChar != '{') && (lastCodeChar != '}') && (lastCodeChar != ';'))
+			indent = indentBlock + props.GetInt("indent.size");
+		SendEditor(SCI_SETLINEINDENTATION, curLine, indent);
+		int indentPos = SendEditor(SCI_GETLINEINDENTPOSITION, curLine);
+		SetSelection(indentPos, indentPos);
+	} else {
+		//Platform::DebugPrintf("[CR] %d len = %d\n", curLine, lineLength);
+		if (curLine > 0 && lineLength <= 2) {
+			unsigned int prevLineLength = SendEditor(SCI_LINELENGTH, curLine - 1);
+			if (prevLineLength < sizeof(linebuf)) {
+				GetLine(linebuf, sizeof(linebuf), curLine - 1);
+				linebuf[prevLineLength] = '\0';
+				for (int pos = 0; linebuf[pos]; pos++) {
+					if (linebuf[pos] != ' ' && linebuf[pos] != '\t')
+						linebuf[pos] = '\0';
+				}
+				SendEditorString(EM_REPLACESEL, 0, linebuf);
+			}
+		}
+	}
+}
+
 // Upon a character being added, SciTE may decide to perform some action
 // such as displaying a completion list.
 void SciTEBase::CharAdded(char ch) {
@@ -1877,22 +1949,7 @@ void SciTEBase::CharAdded(char ch) {
 					braceCount = 1;
 					StartCallTip();
 				} else if (ch == '\r' || ch == '\n') {
-					char linebuf[1000];
-					int curLine = GetCurrentLineNumber();
-					int lineLength = SendEditor(SCI_LINELENGTH, curLine);
-					//Platform::DebugPrintf("[CR] %d len = %d\n", curLine, lineLength);
-					if (curLine > 0 && lineLength <= 2) {
-						unsigned int prevLineLength = SendEditor(SCI_LINELENGTH, curLine - 1);
-						if (prevLineLength < sizeof(linebuf)) {
-							GetLine(linebuf, sizeof(linebuf), curLine - 1);
-							linebuf[prevLineLength] = '\0';
-							for (int pos = 0; linebuf[pos]; pos++) {
-								if (linebuf[pos] != ' ' && linebuf[pos] != '\t')
-									linebuf[pos] = '\0';
-							}
-							SendEditorString(EM_REPLACESEL, 0, linebuf);
-						}
-					}
+					EnterPressed();
 				}
 			}
 		}
