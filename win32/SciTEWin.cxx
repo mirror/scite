@@ -1365,6 +1365,13 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 			return true;
 	}
 
+	if ((sKey.length() > 1) && (sKey[0] == 'V') && (isdigit(sKey[1]))) {
+		sKey.remove("V");
+		int keyNum = sKey.value();
+		if (keyNum == keyval)
+			return true;
+	}
+
 	// handle "name" keys
 	if (sKey.length() > 1) {
 		if (sKey == "Left") {
