@@ -1428,6 +1428,7 @@ void SciTEBase::Execute() {
 void SciTEBase::ToggleOutputVisible() {
 	if (heightOutput > 0) {
 		heightOutput = NormaliseSplit(0);
+		WindowSetFocus(wEditor);
 	} else {
 		if (previousHeightOutput < 20) {
 			if (splitVertical)
@@ -2622,6 +2623,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			ReadProperties();
 			SetIndentSettings();
 			UpdateStatusBar(true);
+			WindowSetFocus(wEditor);
 		}
 		break;
 	case IDM_OPEN:
