@@ -123,6 +123,10 @@ SOURCE=..\..\scintilla\src\Editor.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\Exporters.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\Indicator.cxx
 # End Source File
 # Begin Source File
@@ -132,6 +136,10 @@ SOURCE=..\..\scintilla\src\KeyMap.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\KeyWords.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexConf.cxx
 # End Source File
 # Begin Source File
 
@@ -148,6 +156,10 @@ SOURCE=..\..\scintilla\src\LexLua.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\LexOthers.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexPascal.cxx
 # End Source File
 # Begin Source File
 
