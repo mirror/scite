@@ -840,13 +840,16 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          line.numbers
+          line.margin.visible<br />
+          line.margin.width
         </td>
         <td>
-        Setting this to a number makes SciTE start up with a column of line numbers displayed to
-        the left of the selection margin. The value is the number of numerals wide the line numbers
-        can be so make it something like 3 or 4, <b>do not make it 1</b>.
-        Setting line.numbers to 1 is the most frequent SciTE support request.
+          SciTE is able to display a column of line numbers to the left of the selection
+          margin.  Setting line.margin.visible to 1 makes this column visible at startup.
+          The line.margin.width property controls how much space is reserved for the line
+          numbers, in terms of the number of digits that can be displayed.  To specify that
+          the margin should expand if needed to accomodate larger line numbers, add a '+'
+          after the number of digits, e.g. <code>line.margin.width=3+</code>.
         </td>
       </tr>
       <tr>

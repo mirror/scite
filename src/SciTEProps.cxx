@@ -926,6 +926,13 @@ void SciTEBase::ReadProperties() {
 	SendOutput(SCI_SETMARGINRIGHT, 0, blankMarginRight);
 
 	SendEditor(SCI_SETMARGINWIDTHN, 1, margin ? marginWidth : 0);
+
+	SString lineMarginProp = props.Get("line.margin.width");
+	lineNumbersWidth = lineMarginProp.value();
+	if (lineNumbersWidth == 0)
+		lineNumbersWidth = lineNumbersWidthDefault;
+	lineNumbersExpand = lineMarginProp.contains('+');
+
 	SetLineNumberWidth();
 
 	bufferedDraw = props.GetInt("buffered.draw", 1);
@@ -1147,14 +1154,7 @@ void SciTEBase::SetPropertiesInitial() {
 	tbVisible = props.GetInt("toolbar.visible");
 	tabVisible = props.GetInt("tabbar.visible");
 	tabMultiLine = props.GetInt("tabbar.multiline");
-	lineNumbersWidth = 0;
-	SString linenums = props.Get("line.numbers");
-	if (linenums.length())
-		lineNumbersWidth = linenums.value();
-	lineNumbers = lineNumbersWidth;
-	if (lineNumbersWidth == 0)
-		lineNumbersWidth = lineNumbersWidthDefault;
-	lineNumbersExpand = linenums.contains('+');
+	lineNumbers = props.GetInt("line.margin.visible");
 	marginWidth = 0;
 	SString margwidth = props.Get("margin.width");
 	if (margwidth.length())
