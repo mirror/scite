@@ -2972,7 +2972,7 @@ void SciTEGTK::CreateUI() {
 	fileSelectorWidth = props.GetInt("fileselector.width", fileSelectorWidth);
 	fileSelectorHeight = props.GetInt("fileselector.height", fileSelectorHeight);
 
-	GtkWidget *boxMain = gtk_vbox_new(FALSE, 1);
+	GtkWidget *boxMain = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(PWidget(wSciTE)), boxMain);
 	GTK_WIDGET_UNSET_FLAGS(boxMain, GTK_CAN_FOCUS);
 
@@ -3092,7 +3092,7 @@ void SciTEGTK::CreateUI() {
 
 	gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
 
-	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 2);
+	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 0);
 #if GTK_MAJOR_VERSION < 2
 	gtk_toolbar_set_space_size(GTK_TOOLBAR(PWidget(wToolBar)), 17);
 	gtk_toolbar_set_space_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_SPACE_LINE);
