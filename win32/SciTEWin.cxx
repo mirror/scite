@@ -568,6 +568,18 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 }
 
 void SciTEWin::FixFilePath() {
+
+	char longPath[_MAX_PATH];
+	// first try MakeLongPath which corrects the path and the case of filename too
+	if (MakeLongPath(fullPath, longPath)) {
+		strcpy(fullPath, longPath);
+		char *cpDirEnd = strrchr(fullPath, pathSepChar);
+		if (cpDirEnd) {
+			strcpy(fileName, cpDirEnd+1);
+			strcpy(dirName, fullPath);
+			dirName[cpDirEnd - fullPath] = '\0';
+		}
+	} else {
 	// On windows file comparison is done case insensitively so the user can
 	// enter scite.cxx and still open this file, SciTE.cxx. To ensure that the file
 	// is saved with correct capitalisation FindFirstFile is used to find out the
@@ -586,6 +598,7 @@ void SciTEWin::FixFilePath() {
 		}
 		FindClose(hFind);
 	}
+}
 }
 
 void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
@@ -642,6 +655,7 @@ bool SciTEWin::SaveAsDialog() {
 		ofn.nMaxFile = sizeof(openName);
 		ofn.lpstrTitle = "Save File";
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+		ofn.lpstrInitialDir = dirName;
 
 		dialogsOnScreen++;
 		choseOK = ::GetSaveFileName(&ofn);
