@@ -1013,6 +1013,10 @@ void SciTEBase::ReadProperties() {
 
 	memFiles.AppendList(props.GetNewExpand("find.files"));
 
+	SendEditor(SCI_SETWRAPVISUALFLAGS, props.GetInt("wrap.visual.flags"));
+	SendEditor(SCI_SETWRAPVISUALFLAGSLOCATION, props.GetInt("wrap.visual.flags.location"));
+ 	SendEditor(SCI_SETWRAPSTARTINDENT, props.GetInt("wrap.visual.startindent"));
+
 	if (props.GetInt("wrap.aware.home.end.keys",0)) {
 		if (props.GetInt("vc.home.key", 1)) {
 			AssignKey(SCK_HOME, 0, SCI_VCHOMEWRAP);

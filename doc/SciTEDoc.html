@@ -34,7 +34,7 @@
  </style>
   </head>
   <body bgcolor="#FFFFFF" text="#000000">
-    <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0"  summary="banner">
       <tr>
         <td>
           <img src="SciTEIco.png" border="3" height="64" width="64" alt="Scintilla icon" />
@@ -191,10 +191,10 @@ NameError: mistake
        SciTE "-import c:\os\web_work" SciTEDoc.html
        </code><br />
        </p>
-       <p>
        A few commands are currently available although this will expand in the future.
        These commands are available:
-       <table cellpadding="0" cellspacing="0" border="1">
+       <br />
+       <table cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
         <thead>
         <tr><th>Command</th><th>Argument</th></tr>
         </thead>
@@ -207,10 +207,9 @@ NameError: mistake
         <tr><td>replaceall:</td><td>search text\000replacement text</td></tr>
         <tr><td>saveas:</td><td>file name</td></tr>
        </table>
-       </p>
-       <p>
+       <br />
        Commands use C style escape sequences which include:
-       <table cellpadding="0" cellspacing="0" border="1">
+       <table cellpadding="0" cellspacing="0" border="1"  summary="Command line escape sequences">
         <thead>
         <tr><th>Escape Sequence</th><th>Meaning</th></tr>
         </thead>
@@ -403,7 +402,7 @@ NameError: mistake
        Keyboard equivalents of menu commands are listed in the menus.
        Some less common commands with no menu equivalent are:
     </p>
-<table cellpadding="0" cellspacing="0" border="1">
+<table cellpadding="0" cellspacing="0" border="1" summary="Keyboard commands">
       <tr>
         <td>Magnify text size.</td><td>Ctrl+Keypad+</td>
       </tr>
@@ -616,7 +615,7 @@ NameError: mistake
       Values may include the values of other variables by using $(variablename). There are
       some variables set by the environment to access the name of the current file as well:
     </p>
-       <table cellpadding="0" cellspacing="0" border="1">
+       <table cellpadding="0" cellspacing="0" border="1" summary="Variables set by the environment for use in property files">
         <thead>
         <tr><th>Name</th><th>Meaning</th></tr>
         </thead>
@@ -693,7 +692,7 @@ NameError: mistake
       <span class="windowsonly">Windows</span> or
       <span class="gtkonly">GTK+</span>.
     </p>
-    <table cellpadding="1" cellspacing="0" border="1">
+    <table cellpadding="1" cellspacing="0" border="1" summary="Defined variables in property files">
       <tr>
         <td>
           position.left<br />
@@ -1514,6 +1513,38 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
         </td>
       </tr>
       <tr>
+        <td>
+          wrap.visual.flags
+        </td>
+        <td>
+          Flags to display markers at end and begin of wrapped lines for visual identify them.
+          Set to 0 to not display markers (default). Set to 1 to display markers at end of
+          wrapped lines, to 2 to display markers at begin of wrapped lines and to 3 to
+          display markers at begin and end.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          wrap.visual.flags.location
+        </td>
+        <td>
+          Flags to set the location of the display markers (if enabled) near to text or near to border.
+          Set to 0 to have begin and end markers near to border (default). Set to 1 to
+          have end markers near text, to 2 to have begin markers near text and
+          to 3 to have all markers near text.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          wrap.visual.startindent
+        </td>
+        <td>
+          Sets the indention of continued wrapped lines to better visual identify the wrapping.
+          Default is 0 (no indention). Note if wrap.visual.flags is 2 or 3 (begin marker displayed)
+          the line is indented at least 1, even if wrap.visual.startindent is still 0.
+        </td>
+      </tr>
+      <tr>
         <td>wrap.aware.home.end.keys</td>
         <td>
           This property changes the behavior of the home and end keys when dynamic
@@ -2031,7 +2062,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         an argument, this works the same as "setting:yes".  If a setting is included in
         the command.mode but also appears as a separate command property, the mode property
         will be overridden.  Similarly, if a single setting appears more than once with
-        different arguments, the last valid argument takes priority.  The supported 
+        different arguments, the last valid argument takes priority.  The supported
         command.mode settings are:<pre>
   filter - accepts keyword arguments yes and no
   quiet - accepts keyword arguments yes and no
@@ -2042,7 +2073,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         Currently, all of these except groupundo are based on individual properties with
         similar names, and so are not described separately here.  The groupundo setting
         works with subsystem 3 (lua / director), and indicates that SciTE should treat any
-        changes made by the command as a single undo action.  A command that uses the 
+        changes made by the command as a single undo action.  A command that uses the
         groupundo setting should not change which buffer is active in the editor.
         <br />
 
@@ -2558,8 +2589,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
-          ext.lua.startup.script<br>
-          ext.lua.reset<br>
+          ext.lua.startup.script<br />
+          ext.lua.reset<br />
           extension.<i>filepattern</i>
         </td>
         <td>
@@ -2601,7 +2632,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
     <p>
     caret.policy.{x|y}&lt;param&gt; interaction:
     </p>
-    <table cellpadding="1" cellspacing="0" border="1">
+    <table cellpadding="1" cellspacing="0" border="1" summary="Caret policy">
      <tr>
       <th>slop</th>
       <th>strict</th>
@@ -2731,12 +2762,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        For languages that can not be lexed with the existing lexers, a new lexer can be coded in
       C++.&nbsp; These can either be built into Scintilla, or put into an
 		external module and loaded when SciTE runs (See lexerpath).</p>
-    <p>
        <a href="SciTELexer.html">Installing a lexer into SciTE</a>
-    <br>
+    <br />
 		<a href="SciTEExternalLexer.html">Creating and installing an external
-		lexer</a></p>
-    </p>
+		lexer</a><br />
     <p>
        The open.filter should be modified to include the file extensions used for the new language
       and entries added for command.compile, command.build, command.go and command.go.needs for the
@@ -2788,10 +2817,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        <a href="SciTEDirector.html">SciTE Director Interface</a> is for
        manipulating SciTE on Windows from another application.
     </p>
-    <a name="FAQ">
+    <a name="FAQ"></a>
     <h3>
        Frequently Asked Questions
-    </h3></a>
+    </h3>
     <h4>
        Why doesn't my <code>line.numbers</code> setting work?
     </h4>
