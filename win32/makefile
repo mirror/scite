@@ -31,7 +31,7 @@ endif
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-LEXOBJS	= LexAda.o LexAVE.o LexConf.o LexCPP.o LexHTML.o LexLisp.o \
+LEXOBJS	= LexAda.o LexAVE.o LexConf.o LexCPP.o LexEiffel.o LexHTML.o LexLisp.o \
  LexLua.o LexOthers.o LexPascal.o LexPerl.o LexPython.o LexRuby.o LexSQL.o LexVB.o
 OBJS	= SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o WindowAccessor.o \
@@ -41,14 +41,14 @@ DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
 PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
-..\bin\cpp.properties ..\bin\html.properties \
+..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
 ..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties ..\bin\python.properties \
 ..\bin\sql.properties ..\bin\vb.properties
 
 LEXPROPS=\
 ..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
-..\bin\cpp.properties ..\bin\html.properties \
+..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
 ..\bin\ruby.properties ..\bin\pascal.properties ..\bin\perl.properties \
 ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties
@@ -78,6 +78,8 @@ deps:
 ..\bin\conf.properties:	..\src\conf.properties
 	copy $^ $@
 ..\bin\cpp.properties:	..\src\cpp.properties
+	copy $^ $@
+..\bin\eiffel.properties:	..\src\eiffel.properties
 	copy $^ $@
 ..\bin\html.properties:	..\src\html.properties
 	copy $^ $@
