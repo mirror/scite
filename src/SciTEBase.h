@@ -209,6 +209,7 @@ struct StyleAndWords {
 	int styleNumber;
 	SString words;
 	bool IsEmpty() { return words.length() == 0; }
+	bool IsSingleChar() { return words.length() == 1; }
 };
 
 #define SciTE_MARKER_BOOKMARK 1
@@ -485,12 +486,13 @@ protected:
 	virtual bool StartBlockComment();
 	virtual bool StartBoxComment();
 	virtual bool StartStreamComment();
-	void GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
-	int SetLineIndentation(int line, int indent);
+	unsigned int GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
+	void SetLineIndentation(int line, int indent);
 	int GetLineIndentation(int line);
 	int GetLineIndentPosition(int line);
 	bool RangeIsAllWhitespace(int start, int end);
 	IndentationStatus GetIndentState(int line);
+	int IndentOfBlock(int line);
 	void AutomaticIndentation(char ch);
 	void CharAdded(char ch);
 	void SetTextProperties(PropSet &ps);

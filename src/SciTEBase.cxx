@@ -2020,11 +2020,38 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 	}
 }
 
-int SciTEBase::SetLineIndentation(int line, int indent) {
+void SciTEBase::SetLineIndentation(int line, int indent) {
+	if (indent < 0)
+		return;
+	CharacterRange crange = GetSelection();
+	int posBefore = GetLineIndentPosition(line);
 	SendEditor(SCI_SETLINEINDENTATION, line, indent);
-	int pos = GetLineIndentPosition(line);
-	SetSelection(pos, pos);
-	return pos;
+	int posAfter = GetLineIndentPosition(line);
+	int posDifference =  posAfter - posBefore;
+	if (posAfter > posBefore) {
+		// Move selection on
+		if (crange.cpMin >= posBefore) {
+			crange.cpMin += posDifference; 
+		}
+		if (crange.cpMax >= posBefore) {
+			crange.cpMax += posDifference; 
+		}
+	} else if (posAfter < posBefore) {
+		// Move selection back
+		if (crange.cpMin >= posAfter) {
+			if (crange.cpMin >= posBefore)
+				crange.cpMin += posDifference; 
+			else 
+				crange.cpMin = posAfter; 
+		}
+		if (crange.cpMax >= posAfter) {
+			if (crange.cpMax >= posBefore)
+				crange.cpMax += posDifference; 
+			else 
+				crange.cpMax = posAfter; 
+		}
+	}
+	SetSelection(crange.cpMin, crange.cpMax);
 }
 
 int SciTEBase::GetLineIndentation(int line) {
@@ -2044,7 +2071,7 @@ bool SciTEBase::RangeIsAllWhitespace(int start, int end) {
 	return true;
 }
 
-void SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len) {
+unsigned int SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len) {
 	for (int i = 0; i < len; i++)
 		sv[i] = "";
 	WindowAccessor acc(wEditor.GetID(), props);
@@ -2066,14 +2093,15 @@ void SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, SString sv
 		}
 	}
 	if ((s.length() > 0) && (part < len)) {
-		sv[part] = s;
+		sv[part++] = s;
 	}
+	return part;
 }
 
 static bool includes(const StyleAndWords &symbols, const SString value) {
 	if (symbols.words.length() == 0) {
 		return false;
-	} else if (strchr(symbols.words.c_str(), ' ')) {
+	} else if (IsAlphabetic(symbols.words[0])) {
 		// Set of symbols separated by spaces
 		int lenVal = value.length();
 		const char *symbol = symbols.words.c_str();
@@ -2105,15 +2133,17 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 	// C like language indentation defined by braces and keywords
 	IndentationStatus indentState = isNone;
 	SString controlWords[20];
-	GetLinePartsInStyle(line, SCE_C_WORD, -1, controlWords, ELEMENTS(controlWords));
-	for (unsigned int i = 0; i < ELEMENTS(controlWords); i++) {
+	unsigned int parts = GetLinePartsInStyle(line, statementIndent.styleNumber, 
+		-1, controlWords, ELEMENTS(controlWords));
+	for (unsigned int i = 0; i < parts; i++) {
 		if (includes(statementIndent, controlWords[i]))
 			indentState = isKeyWordStart;
 	}
 	// Braces override keywords
 	SString controlStrings[20];
-	GetLinePartsInStyle(line, SCE_C_OPERATOR, -1, controlStrings, ELEMENTS(controlStrings));
-	for (unsigned int j = 0; j < ELEMENTS(controlStrings); j++) {
+	parts = GetLinePartsInStyle(line, blockEnd.styleNumber, 
+		-1, controlStrings, ELEMENTS(controlStrings));
+	for (unsigned int j = 0; j < parts; j++) {
 		if (includes(blockEnd, controlStrings[j]))
 			indentState = isBlockEnd;
 		if (includes(blockStart, controlStrings[j]))
@@ -2122,19 +2152,16 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 	return indentState;
 }
 
-void SciTEBase::AutomaticIndentation(char ch) {
-	CharacterRange crange = GetSelection();
-	int selStart = crange.cpMin;
-	int curLine = GetCurrentLineNumber();
-	int thisLineStart = SendEditor(SCI_POSITIONFROMLINE, curLine);
-	int indent = GetLineIndentation(curLine - 1);
-	int indentBlock = indent;
-	int backLine = curLine - 1;
+int SciTEBase::IndentOfBlock(int line) {
+	if (line < 0)
+		return 0;
+	int indentBlock = GetLineIndentation(line);
+	int backLine = line;
 	IndentationStatus indentState = isNone;
 	if (statementIndent.IsEmpty() && blockStart.IsEmpty() && blockEnd.IsEmpty())
 		indentState = isBlockStart;	// Don't bother searching backwards
 
-	int lineLimit = curLine - statementLookback;
+	int lineLimit = line - statementLookback;
 	if (lineLimit < 0)
 		lineLimit = 0;
 	while ((backLine >= lineLimit) && (indentState == 0)) {
@@ -2151,28 +2178,48 @@ void SciTEBase::AutomaticIndentation(char ch) {
 				if (indentBlock < 0)
 					indentBlock = 0;
 			}
-			if ((indentState == isKeyWordStart) && (backLine == (curLine - 1)))
+			if ((indentState == isKeyWordStart) && (backLine == line))
 				indentBlock += indentSize;
 		}
 		backLine--;
 	}
-	if (ch == blockEnd.words[0]) {	// Dedent maybe
+	return indentBlock;
+}
+
+void SciTEBase::AutomaticIndentation(char ch) {
+	CharacterRange crange = GetSelection();
+	int selStart = crange.cpMin;
+	int curLine = GetCurrentLineNumber();
+	int thisLineStart = SendEditor(SCI_POSITIONFROMLINE, curLine);
+	int indentBlock = IndentOfBlock(curLine - 1);
+	if (blockEnd.IsSingleChar() && ch == blockEnd.words[0]) {	// Dedent maybe
 		if (!indentClosing) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
-				int pos = SetLineIndentation(curLine, indentBlock - indentSize);
-				// Move caret after '}'
-				SetSelection(pos + 1, pos + 1);
+				SetLineIndentation(curLine, indentBlock - indentSize);
 			}
+		}
+	} else if (!blockEnd.IsSingleChar() && (ch == ' ')) {	// Dedent maybe
+		if (!indentClosing && (GetIndentState(curLine) == isBlockEnd)) {
 		}
 	} else if (ch == blockStart.words[0]) {	// Dedent maybe if first on line and previous line was starting keyword
 		if (!indentOpening && (GetIndentState(curLine - 1) == isKeyWordStart)) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
-				int pos = SetLineIndentation(curLine, indentBlock - indentSize);
-				// Move caret after '{'
-				SetSelection(pos + 1, pos + 1);
+				SetLineIndentation(curLine, indentBlock - indentSize);
 			}
 		}
 	} else if ((ch == '\r' || ch == '\n') && (selStart == thisLineStart)) {
+		if (!indentClosing && !blockEnd.IsSingleChar()) {	// Dedent previous line maybe
+			SString controlWords[1];
+			if (GetLinePartsInStyle(curLine-1, blockEnd.styleNumber, 
+				-1, controlWords, ELEMENTS(controlWords))) {
+				if (includes(blockEnd, controlWords[0])) {
+					// Check if first keyword on line is an ender
+					SetLineIndentation(curLine-1, IndentOfBlock(curLine-2) - indentSize);
+					// Recalculate as may have changed previous line
+					indentBlock = IndentOfBlock(curLine - 1);
+				}
+			}
+		}
 		SetLineIndentation(curLine, indentBlock);
 	}
 }
