@@ -880,6 +880,11 @@ void SciTEBase::SelectionIntoProperties() {
 
 void SciTEBase::SelectionIntoFind() {
 	findWhat = SelectionWord();
+	if (findWhat.contains('\r') || findWhat.contains('\n')) {
+		// The selection includes at least a new line, it is unlikely to be
+		// the expression to search...
+		findWhat.clear();
+	}
 	if (unSlash) {
 		char *slashedFind = Slash(findWhat.c_str());
 		if (slashedFind) {
@@ -1672,7 +1677,7 @@ bool SciTEBase::StartBlockComment() {
 	SString comment = props.Get(base.c_str());
 	if (comment == "") { // user friendly error message box
 		SString error("Block comment variable \"");
-		error += base.c_str();
+		error += base;
 		error += "\" is not defined in SciTE *.properties!";
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
@@ -1764,11 +1769,11 @@ bool SciTEBase::StartBoxComment() {
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || middle_comment == "" || end_comment == "") {
 		SString error("Box comment variables \"");
-		error += start_base.c_str();
+		error += start_base;
 		error += "\", \"";
-		error += middle_base.c_str();
+		error += middle_base;
 		error += "\"\nand \"";
-		error += end_base.c_str();
+		error += end_base;
 		error += "\" are not ";
 		error += "defined in SciTE *.properties!";
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
@@ -1837,9 +1842,9 @@ bool SciTEBase::StartStreamComment() {
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || end_comment == "") {
 		SString error("Stream comment variables \"");
-		error += start_base.c_str();
+		error += start_base;
 		error += "\" and \n\"";
-		error += end_base.c_str();
+		error += end_base;
 		error += "\" are not ";
 		error += "defined in SciTE *.properties!";
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
