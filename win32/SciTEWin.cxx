@@ -51,6 +51,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	}
 
 	ReadGlobalPropFile();
+    /// Need to copy properties to variables before setting up Window
+    SetPropertiesInitial();    
 
 	hDevMode = 0;
 	hDevNames = 0;

@@ -468,6 +468,7 @@ protected:
 
 	void AssignKey(int key, int mods, int cmd);
 	void ViewWhitespace(bool view);
+    void SetPropertiesInitial();
 	virtual void ReadPropertiesInitial();
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);

@@ -716,31 +716,13 @@ void SciTEBase::ReadProperties() {
 
 // Properties that are interactively modifiable are only read from the properties file once.
 
-void SciTEBase::ReadPropertiesInitial() {
+void SciTEBase::SetPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
-	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
-	int sizeVertical = props.GetInt("output.vertical.size", 0);
-	if (splitVertical && sizeVertical > 0 && heightOutput < sizeVertical || sizeHorizontal && heightOutput < sizeHorizontal) {
-		heightOutput = NormaliseSplit(splitVertical ? sizeHorizontal : sizeVertical);
-		SizeSubWindows();
-		Redraw();
-	}
 	indentationWSVisible = props.GetInt("view.indentation.whitespace", 1);
-	ViewWhitespace(props.GetInt("view.whitespace"));
-	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides"));
-	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
-
 	sbVisible = props.GetInt("statusbar.visible");
 	tbVisible = props.GetInt("toolbar.visible");
 	tabVisible = props.GetInt("tabbar.visible");
 	tabMultiLine = props.GetInt("tabbar.multiline");
-#if PLAT_WIN
-	if (tabMultiLine) {	// Windows specific!
-		long wl = ::GetWindowLong(wTabBar.GetID(), GWL_STYLE);
-		::SetWindowLong(wTabBar.GetID(), GWL_STYLE, wl | TCS_MULTILINE);
-	}
-#endif
-
 	lineNumbersWidth = 0;
 	SString linenums = props.Get("line.numbers");
 	if (linenums.length())
@@ -748,7 +730,6 @@ void SciTEBase::ReadPropertiesInitial() {
 	lineNumbers = lineNumbersWidth;
 	if (lineNumbersWidth == 0)
 		lineNumbersWidth = lineNumbersWidthDefault;
-
 	marginWidth = 0;
 	SString margwidth = props.Get("margin.width");
 	if (margwidth.length())
@@ -756,11 +737,31 @@ void SciTEBase::ReadPropertiesInitial() {
 	margin = marginWidth;
 	if (marginWidth == 0)
 		marginWidth = marginWidthDefault;
-
 	foldMarginWidth = props.GetInt("fold.margin.width", foldMarginWidthDefault);
 	foldMargin = foldMarginWidth;
 	if (foldMarginWidth == 0)
 		foldMarginWidth = foldMarginWidthDefault;
+}
+
+void SciTEBase::ReadPropertiesInitial() {
+    SetPropertiesInitial();    
+	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
+	int sizeVertical = props.GetInt("output.vertical.size", 0);
+	if (splitVertical && sizeVertical > 0 && heightOutput < sizeVertical || sizeHorizontal && heightOutput < sizeHorizontal) {
+		heightOutput = NormaliseSplit(splitVertical ? sizeHorizontal : sizeVertical);
+		SizeSubWindows();
+		Redraw();
+	}
+	ViewWhitespace(props.GetInt("view.whitespace"));
+	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides"));
+	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
+
+#if PLAT_WIN
+	if (tabMultiLine) {	// Windows specific!
+		long wl = ::GetWindowLong(wTabBar.GetID(), GWL_STYLE);
+		::SetWindowLong(wTabBar.GetID(), GWL_STYLE, wl | TCS_MULTILINE);
+	}
+#endif
 
 	char homepath[MAX_PATH + 20];
 	if (GetSciteDefaultHome(homepath, sizeof(homepath))) {
