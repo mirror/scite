@@ -85,6 +85,7 @@ OBJS=\
 	SciTEWin.obj \
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
+	DirectorExtension.obj \
 	..\..\scintilla\win32\WindowAccessor.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\PlatWin.obj \
@@ -99,6 +100,7 @@ OBJSSTATIC=\
 	Sc1.obj \
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
+	DirectorExtension.obj \
 	..\..\scintilla\win32\KeyWords.obj \
 	..\..\scintilla\win32\LexAVE.obj \
 	..\..\scintilla\win32\LexConf.obj \
@@ -194,6 +196,8 @@ SciTEWinBar.obj: SciTEWinBar.cxx SciTEWin.h
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ SciTEWinBar.cxx
 SciTEWinDlg.obj: SciTEWinDlg.cxx SciTEWin.h
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ SciTEWinDlg.cxx
+DirectorExtension.obj: DirectorExtension.cxx DirectorExtension.h
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ DirectorExtension.cxx
 
 Sc1.obj: SciTEWin.cxx
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAMEFLAG)$@ SciTEWin.cxx
@@ -297,6 +301,19 @@ SciTEWinDlg.obj:\
 	SciTEWin.h \
 	..\src\SciTEBase.h \
 	..\src\SciTE.h \
+	..\src\Extender.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\SString.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+
+DirectorExtension.obj:\
+	DirectorExtension.cxx \
+	DirectorExtension.h \
+	SciTEDirector.h \
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \
