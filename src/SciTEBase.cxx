@@ -622,20 +622,22 @@ void SciTEBase::StackMenuNext() {
 }
 
 void SciTEBase::StackMenuPrev() {
-	StackMenu(0);
-	// And rotate the one we just closed to the end.
-	DeleteFileStackMenu();
-	RecentFile temp = recentFileStack[0];
-	int stackPos = 1;
-	for (; stackPos < fileStackMax - 1; stackPos++) {
-		if (recentFileStack[stackPos].fileName[0] == '\0') {
-			stackPos--;
-			break;
+	if (recentFileStack[0].fileName[0] != '\0') {
+		StackMenu(0);
+		// And rotate the one we just closed to the end.
+		DeleteFileStackMenu();
+		RecentFile temp = recentFileStack[0];
+		int stackPos = 1;
+		for (; stackPos < fileStackMax - 1; stackPos++) {
+			if (recentFileStack[stackPos].fileName[0] == '\0') {
+				stackPos--;
+				break;
+			}
+			recentFileStack[stackPos - 1] = recentFileStack[stackPos];
 		}
-		recentFileStack[stackPos - 1] = recentFileStack[stackPos];
+		recentFileStack[stackPos] = temp;
+		SetFileStackMenu();
 	}
-	recentFileStack[stackPos] = temp;
-	SetFileStackMenu();
 }
 
 void SciTEBase::StackMenu(int pos) {
