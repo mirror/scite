@@ -547,8 +547,9 @@ void SciTEBase::ReadProperties() {
 	int caretStrict = props.GetInt("caret.policy.strict") ? CARET_STRICT : 0;
 	int caretSlop = props.GetInt("caret.policy.slop", 1) ? CARET_SLOP : 0;
 	int caretLines = props.GetInt("caret.policy.lines");
-	int caretXEven = props.GetInt("caret.policy.xeven") ? 0 : CARET_XEVEN;
-	SendEditor(SCI_SETCARETPOLICY, caretStrict | caretSlop | caretXEven, caretLines);
+	int caretXEven = props.GetInt("caret.policy.xeven") ? CARET_XEVEN : 0;
+	int caretXJumps = props.GetInt("caret.policy.xjumps") ? CARET_XJUMPS : 0;
+	SendEditor(SCI_SETCARETPOLICY, caretStrict | caretSlop | caretXEven | caretXJumps, caretLines);
 
 	int visibleStrict = props.GetInt("visible.policy.strict") ? VISIBLE_STRICT : 0;
 	int visibleSlop = props.GetInt("visible.policy.slop", 1) ? VISIBLE_SLOP : 0;
