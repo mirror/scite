@@ -584,7 +584,7 @@ void SciTEBase::SetToolsMenu() {
 	//command.name.0.*.py=Edit in PythonWin
 	//command.0.*.py="c:\program files\python\pythonwin\pythonwin" /edit c:\coloreditor.py
 	RemoveToolsMenu();
-	const int menuPos = 3;
+	int menuPos = TOOLS_START;
 	for (int item = 0; item < toolMax; item++) {
 		int itemID = IDM_TOOLS + item;
 		SString prefix = "command.name.";
@@ -595,7 +595,8 @@ void SciTEBase::SetToolsMenu() {
 			SString sMenuItem = commandName;
 			SString sMnemonic = "Ctrl+";
 			sMnemonic += SString(item).c_str();
-			SetMenuItem(menuTools, menuPos + item, itemID, sMenuItem.c_str(), sMnemonic.c_str());
+			SetMenuItem(menuTools, menuPos, itemID, sMenuItem.c_str(), sMnemonic.c_str());
+			menuPos++;
 		}
 	}
 }

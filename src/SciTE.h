@@ -32,8 +32,9 @@
 #define IDM_PRINT			131
 #define IDM_QUIT			140
 
-#define MRU_START	8
-#define IMPORT_START	11
+#define MRU_START 8
+#define IMPORT_START 11
+#define TOOLS_START 3
 
 // Edit
 #define IDM_UNDO			201
