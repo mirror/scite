@@ -428,55 +428,14 @@ void SciTEBase::ReadProperties() {
 	SString fileNameForExtension = ExtensionFileName();
 
 	language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
-
-	if (language == "python") {
-		lexLanguage = SCLEX_PYTHON;
-	} else if (language == "cpp") {
-		lexLanguage = SCLEX_CPP;
-	} else if (language == "hypertext") {
-		lexLanguage = SCLEX_HTML;
-	} else if (language == "xml") {
-		lexLanguage = SCLEX_XML;
-	} else if (language == "perl") {
-		lexLanguage = SCLEX_PERL;
-	} else if (language == "sql") {
-		lexLanguage = SCLEX_SQL;
-	} else if (language == "vb") {
-		lexLanguage = SCLEX_VB;
-	} else if (language == "props") {
-		lexLanguage = SCLEX_PROPERTIES;
-	} else if (language == "errorlist") {
-		lexLanguage = SCLEX_ERRORLIST;
-	} else if (language == "makefile") {
-		lexLanguage = SCLEX_MAKEFILE;
-	} else if (language == "batch") {
-		lexLanguage = SCLEX_BATCH;
-	} else if (language == "latex") {
-		lexLanguage = SCLEX_LATEX;
-	} else if (language == "lua") {
-		lexLanguage = SCLEX_LUA;
-	} else if (language == "diff") {
-		lexLanguage = SCLEX_DIFF;
-	} else if (language == "container") {
-		lexLanguage = SCLEX_CONTAINER;
-	} else if (language == "conf") {
-		lexLanguage = SCLEX_CONF;
-	} else if (language == "pascal") {
-		lexLanguage = SCLEX_PASCAL;
-	} else if (language == "ave") {
-		lexLanguage = SCLEX_AVE;
-	} else if (language == "ada") {
-		lexLanguage = SCLEX_ADA;
-	} else {
-		lexLanguage = SCLEX_NULL;
-	}
+	SendEditorString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
+	lexLanguage = SendEditor(SCI_GETLEXER);
 
 	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML))
 		SendEditor(SCI_SETSTYLEBITS, 7);
 	else
 		SendEditor(SCI_SETSTYLEBITS, 5);
 
-	SendEditor(SCI_SETLEXER, lexLanguage);
 	SendOutput(SCI_SETLEXER, SCLEX_ERRORLIST);
 
 	apis.Clear();
