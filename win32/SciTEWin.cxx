@@ -314,35 +314,26 @@ static void ChopTerminalSlash(char *path) {
 		path[endOfPath] = '\0';
 }
 
-void SciTEWin::GetDefaultDirectory(char *directory, size_t size) {
-	directory[0] = '\0';
-	char *home = getenv("SciTE_HOME");
+static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
+	*path = '\0';
 	if (home) {
-		strncpy(directory, home, size);
-		ChopTerminalSlash(directory);
+		strncpy(path, home, lenPath);
 	} else {
-		char modulePath[MAX_PATH];
-		::GetModuleFileName(0, modulePath, MAX_PATH);
-		char *lastSlash = strrchr(modulePath, pathSepChar);
-		if (lastSlash)
-			*lastSlash = '\0';
-		strncpy(directory, modulePath, size);
+		::GetModuleFileName(0, path, lenPath);
 	}
-	directory[size - 1] = '\0';
+	path[lenPath - 1] = '\0';
+	ChopTerminalSlash(path);
+}
+
+void SciTEWin::GetDefaultDirectory(char *directory, size_t size) {
+	char *home = getenv("SciTE_HOME");
+	GetSciTEPath(directory, size, home);
 }
 
 bool SciTEWin::GetSciteDefaultHome(char *path, unsigned int lenPath) {
 	*path = '\0';
 	char *home = getenv("SciTE_HOME");
-	if (home) {
-		strncpy(path, home, lenPath);
-		ChopTerminalSlash(path);
-	} else {
-		::GetModuleFileName(0, path, lenPath);
-		char *lastSlash = strrchr(path, pathSepChar);
-		if (lastSlash)
-			*lastSlash = '\0';
-	}
+	GetSciTEPath(path, lenPath, home);
 	return true;
 }
 
@@ -351,15 +342,7 @@ bool SciTEWin::GetSciteUserHome(char *path, unsigned int lenPath) {
 	char *home = getenv("SciTE_HOME");
 	if (!home)
 		home = getenv("USERPROFILE");
-	if (home) {
-		strncpy(path, home, lenPath);
-		ChopTerminalSlash(path);
-	} else {
-		::GetModuleFileName(0, path, lenPath);
-		char *lastSlash = strrchr(path, pathSepChar);
-		if (lastSlash)
-			*lastSlash = '\0';
-	}
+	GetSciTEPath(path, lenPath, home);
 	return true;
 }
 

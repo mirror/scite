@@ -541,7 +541,7 @@ void SciTEBase::BuffersMenu() {
 
 			tie.pszText = titleTab;
 			::SendMessage(wTabBar.GetID(), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
-			::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
+			//::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
 #endif
 		}
 	}
@@ -939,11 +939,13 @@ void SciTEBase::ReadPropertiesInitial() {
 	tbVisible = props.GetInt("toolbar.visible");
 	tabVisible = props.GetInt("tabbar.visible");
 	tabMultiLine = props.GetInt("tabbar.multiline");
+#if PLAT_WIN
 	if (tabMultiLine) {	// Windows specific!
 		long wl = ::GetWindowLong(wTabBar.GetID(), GWL_STYLE);
 		::SetWindowLong(wTabBar.GetID(), GWL_STYLE, wl | TCS_MULTILINE);
 	}
-
+#endif
+	
 	lineNumbersWidth = 0;
 	SString linenums = props.Get("line.numbers");
 	if (linenums.length())
