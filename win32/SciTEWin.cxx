@@ -900,6 +900,7 @@ void SciTEWin::Run(const char *cmdLine) {
 				const_cast<char *>(cmdLine));
 			::SendMessage(hAnother, WM_COPYDATA, 0,
 				reinterpret_cast<LPARAM>(&cds));
+			exit(0);
 		}
 	}
 
