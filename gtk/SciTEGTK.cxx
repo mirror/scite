@@ -1972,7 +1972,7 @@ bool SciTEGTK::SendPipeCommand(const char *pipeCommand) {
 void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition) {
 	int readLength;
 	char pipeData[8192];
-	PropSet pipeProps;
+	PropSetFile pipeProps;
 
 	//printf("Pipe read signal\n");
 
