@@ -87,18 +87,20 @@ BEGIN
 
   POPUP "&Options"
   BEGIN
-	MENUITEM "Vertical &Split",              IDM_SPLITVERTICAL
+	MENUITEM "Vertical &Split", IDM_SPLITVERTICAL
 	MENUITEM SEPARATOR
 	MENUITEM "View &Whitespace\tCtrl+Shift+8", IDM_VIEWSPACE
-	MENUITEM "&View End of Line\tCtrl+Shift+9", IDM_VIEWEOL
+	MENUITEM "View &End of Line\tCtrl+Shift+9", IDM_VIEWEOL
 	MENUITEM "View &Indentation Guides", IDM_VIEWGUIDES
-	MENUITEM "View &Margin",          IDM_SELMARGIN
-	MENUITEM "View &Fold Margin",			IDM_FOLDMARGIN
-	MENUITEM "View Line &Numbers",          IDM_LINENUMBERMARGIN
-	MENUITEM "View Toolbar",          IDM_VIEWTOOLBAR
-	MENUITEM "View Tab Bar",          IDM_VIEWTABBAR
-	MENUITEM "View &Output\tF8",		IDM_TOGGLEOUTPUT
-	MENUITEM "View Status Bar",          IDM_VIEWSTATUSBAR
+	MENUITEM "View &Margin", IDM_SELMARGIN
+	MENUITEM "View &Fold Margin", IDM_FOLDMARGIN
+	MENUITEM "View Line &Numbers", IDM_LINENUMBERMARGIN
+	MENUITEM "View Toolba&r", IDM_VIEWTOOLBAR
+	MENUITEM "View T&ab Bar", IDM_VIEWTABBAR
+	MENUITEM "&View Output\tF8", IDM_TOGGLEOUTPUT
+	MENUITEM "View Status &Bar", IDM_VIEWSTATUSBAR
+	MENUITEM SEPARATOR
+	MENUITEM "Clear Out&put", IDM_CLEAROUTPUT
 	MENUITEM SEPARATOR
 	POPUP "&Line End Characters"
 	BEGIN

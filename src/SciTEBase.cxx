@@ -1550,6 +1550,11 @@ void SciTEBase::MenuCommand(int cmdID) {
 		CheckMenus();
 		break;
 
+	case IDM_TOGGLEOUTPUT:
+		ToggleOutputVisible();
+		CheckMenus();
+		break;
+
 	case IDM_VIEWTABBAR:
 		tabVisible = !tabVisible;
 		ShowTabBar();
@@ -1561,6 +1566,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		ShowStatusBar();
 		UpdateStatusBar();
 		CheckMenus();
+		break;
+
+	case IDM_CLEAROUTPUT:
+		SendOutput(SCI_CLEARALL);
 		break;
 
 	case IDM_EOL_CRLF:
@@ -1664,11 +1673,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_PREVMSG:
 		GoMessage( -1);
-		break;
-
-	case IDM_TOGGLEOUTPUT:
-		ToggleOutputVisible();
-		CheckMenus();
 		break;
 
 	case IDM_OPENLOCALPROPERTIES:
