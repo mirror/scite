@@ -189,7 +189,8 @@ protected:
 	virtual void OpenUriList(const char *list);
 	virtual void AbsolutePath(char *absPath, const char *relativePath, int size);
 	virtual bool OpenDialog();
-	void SaveAsXXX(FileFormat fmt, const char *title);
+	void HandleSaveAs(const char *savePath);
+	bool SaveAsXXX(FileFormat fmt, const char *title);
 	virtual bool SaveAsDialog();
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
@@ -323,7 +324,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	ptOld = Point(0, 0);
 	xor_gc = 0;
-	saveType = sfSource;
+	saveFormat = sfSource;
 	comboFiles = 0;
 	paramDialogCanceled = true;
 	gotoEntry = 0;
@@ -810,6 +811,26 @@ bool SciTEGTK::OpenDialog() {
 		canceled = dlgFileSelector.ShowModal(PWidget(wSciTE));
 	}
 	return !canceled;
+}
+
+void SciTEGTK::HandleSaveAs(const char *savePath) {
+	switch (saveFormat) {
+		case sfHTML:
+			SaveToHTML(savePath);
+			break;
+		case sfRTF:
+			SaveToRTF(savePath);
+			break;
+		case sfPDF:
+			SaveToPDF(savePath);
+			break;
+		case sfTEX:
+			SaveToTEX(savePath);
+			break;
+		default:
+			SaveAs(savePath);
+	}
+	dlgFileSelector.OK();
 }
 
 bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
@@ -1953,26 +1974,8 @@ void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK
 }
 
 void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
-	//Platform::DebugPrintf("Do Save As\n");
-	const char *savePath = gtk_file_selection_get_filename(
-		GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector)))
-	switch (scitew->saveType) {
-		case stHTML:
-			scitew->SaveToHTML(savePath);
-			break;
-		case stRTF:
-			scitew->SaveToRTF(savePath);
-			break;
-		case stPDF:
-			scitew->SaveToPDF(savePath);
-			break;
-		case stTEX:
-			scitew->SaveToPDF(savePath);
-			break;
-		default:
-			scitew->SaveAs(savePath);
-	}
-	scitew->dlgFileSelector.OK();
+	scitew->HandleSaveAs(gtk_file_selection_get_filename(
+		GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
 }
 
 void SetFocus(GtkWidget *hwnd) {
