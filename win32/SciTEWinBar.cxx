@@ -433,9 +433,13 @@ SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int) {
 void SciTEWin::LocaliseMenu(HMENU hmenu) {
 	for (int i = 0; i <= ::GetMenuItemCount(hmenu); i++) {
 		char buff[200];
+		buff[0] = '\0';
 		MENUITEMINFO mii;
 		memset(&mii, 0, sizeof(mii));
-		mii.cbSize = sizeof(mii);
+		// Explicitly use the struct size for NT 4 as otherwise 
+		// GetMenuItemInfo will fail on NT 4.
+		//mii.cbSize = sizeof(mii);
+		mii.cbSize = 44;
 		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID |
 		            MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
 		mii.dwTypeData = buff;
