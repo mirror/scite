@@ -211,7 +211,11 @@ void SciTEBase::SetFileStackMenu() {
 			int itemID = fileStackCmdID + stackPos;
 			if (recentFileStack[stackPos].fileName[0]) {
 				char entry[MAX_PATH + 20];
-				sprintf(entry, "&%d %s", stackPos, recentFileStack[stackPos].fileName);
+				entry[0] = '\0';
+#if PLAT_WIN
+				sprintf(entry, "&%d ", stackPos);
+#endif
+				strcat(entry, recentFileStack[stackPos].fileName);
 				SetMenuItem(0, menuStart + stackPos, itemID, entry);
 			}
 		}
