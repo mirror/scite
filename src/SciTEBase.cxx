@@ -4091,9 +4091,10 @@ void SciTEBase::Notify(SCNotification *notification) {
 				char message[200];
 				sprintf(message, "%0d (%0d,%0d)", notification->position, notification->x, notification->y);
 			} else {
+				int endWord = notification->position;
 				SString message =
 					RangeExtendAndGrab(wEditor,
-									   notification->position, notification->position, iswordcharforsel);
+									   notification->position, endWord, iswordcharforsel);
 				if (message.length()) {
 					SendEditorString(SCI_CALLTIPSHOW, notification->position, message.c_str());
 				}
