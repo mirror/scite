@@ -458,6 +458,8 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, "December 1998-February 2004.\n", 3);
 		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
+		AddStyledText(wsci, "Lua scripting language by TeCGraf, PUC-Rio\n", 3);
+		AddStyledText(wsci, "    http://www.lua.org\n", 4);
 		SString translator = LocaliseString("TranslationCredit", false);
 		if (translator.length()) {
 			AddStyledText(wsci, translator.c_str(), 1);
