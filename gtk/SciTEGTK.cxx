@@ -69,6 +69,8 @@ protected:
 	Window findInFilesDialog;
 	GtkWidget *comboFiles;
 	Window gotoDialog;
+	Window topFrame;
+	Window outputFrame;
 	GtkWidget *gotoEntry;
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
@@ -539,13 +541,17 @@ void SciTEGTK::SizeContentWindows() {
 	int h = rcClient.bottom - rcClient.top;
 	heightOutput = NormaliseSplit(heightOutput);
 	if (splitVertical) {
-		wEditor.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
+		topFrame.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
+		///wEditor.SetPosition(PRectangle(0, 0, w - heightOutput - heightBar, h));
 		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar, 0, w - heightOutput, h));
-		wOutput.SetPosition(PRectangle(w - heightOutput, 0, w, h));
+		outputFrame.SetPosition(PRectangle(w - heightOutput, 0, w, h));
+		///wOutput.SetPosition(PRectangle(w - heightOutput, 0, w, h));
 	} else {
-		wEditor.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
+		topFrame.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
+		///wEditor.SetPosition(PRectangle(0, 0, w, h - heightOutput - heightBar));
 		wDivider.SetPosition(PRectangle(0, h - heightOutput - heightBar, w, h - heightOutput));
-		wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
+		outputFrame.SetPosition(PRectangle(0, h - heightOutput, w, h));
+		///wOutput.SetPosition(PRectangle(0, h - heightOutput, w, h));
 	}
 }
 
@@ -1259,6 +1265,8 @@ void SciTEGTK::FindReplace(bool replace) {
 		gtk_widget_show(comboReplace);
 		gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboReplace)->entry),
 		                   "activate", GtkSignalFunc(FRFindSignal), this);
+		gtk_combo_set_case_sensitive(GTK_COMBO(comboReplace), TRUE);
+		gtk_combo_set_use_arrows_always(GTK_COMBO(comboReplace), TRUE);
 
 		row++;
 	} else {
@@ -1636,7 +1644,7 @@ void SciTEGTK::CreateMenu() {
 		{"/Edit/sep2", NULL, NULL, 0, "<Separator>"},
 		{"/Edit/_Find...", "<control>F", menuSig, IDM_FIND, 0},
 		{"/Edit/Find _Next", "F3", menuSig, IDM_FINDNEXT, 0},
-		{"/Edit/F_ind in Files...", "", menuSig, IDM_FINDINFILES, 0},
+		{"/Edit/F_ind in Files...", "<control>J", menuSig, IDM_FINDINFILES, 0},
 		{"/Edit/R_eplace", "<control>H", menuSig, IDM_REPLACE, 0},
 		{"/Edit/sep3", NULL, NULL, 0, "<Separator>"},
 		{"/Edit/_Go To", "<control>G", menuSig, IDM_GOTO, 0},
@@ -1836,14 +1844,21 @@ void SciTEGTK::Run(const char *cmdLine) {
 	gtk_signal_connect(GTK_OBJECT(wContent.GetID()), "size_allocate",
 	                   GTK_SIGNAL_FUNC(MoveResize), gthis);
 
+	topFrame = gtk_frame_new(NULL);
+	gtk_widget_show(topFrame.GetID());
+	gtk_frame_set_shadow_type(GTK_FRAME(topFrame.GetID()), GTK_SHADOW_IN);
+	gtk_fixed_put(GTK_FIXED(wContent.GetID()), topFrame.GetID(), 0, 0);
+	gtk_widget_set_usize(topFrame.GetID(), 600, 600);
+	
 	wEditor = scintilla_new();
 	scintilla_set_id(SCINTILLA(wEditor.GetID()), IDM_SRCWIN);
 	fnEditor = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
 		wEditor.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrEditor = Platform::SendScintilla(wEditor.GetID(), 
 		SCI_GETDIRECTPOINTER, 0, 0);
-	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wEditor.GetID(), 0, 0);
-	gtk_widget_set_usize(wEditor.GetID(), 600, 600);
+	//gtk_fixed_put(GTK_FIXED(wContent.GetID()), wEditor.GetID(), 0, 0);
+	gtk_container_add(GTK_CONTAINER(topFrame.GetID()), wEditor.GetID());
+	///gtk_widget_set_usize(wEditor.GetID(), 600, 600);
 	gtk_signal_connect(GTK_OBJECT(wEditor.GetID()), "command",
 	                   GtkSignalFunc(CommandSignal), this);
 	gtk_signal_connect(GTK_OBJECT(wEditor.GetID()), "notify",
@@ -1869,14 +1884,21 @@ void SciTEGTK::Run(const char *cmdLine) {
 	gtk_drawing_area_size(GTK_DRAWING_AREA(wDivider.GetID()), width, 10);
 	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wDivider.GetID(), 0, 600);
 
+	outputFrame = gtk_frame_new(NULL);
+	gtk_widget_show(outputFrame.GetID());
+	gtk_frame_set_shadow_type (GTK_FRAME(outputFrame.GetID()), GTK_SHADOW_IN);
+	gtk_fixed_put(GTK_FIXED(wContent.GetID()), outputFrame.GetID(), 0, width);
+	gtk_widget_set_usize(outputFrame.GetID(), width, 100);
+
 	wOutput = scintilla_new();
 	scintilla_set_id(SCINTILLA(wOutput.GetID()), IDM_RUNWIN);
 	fnOutput = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
 		wOutput.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrOutput = Platform::SendScintilla(wOutput.GetID(), 
 		SCI_GETDIRECTPOINTER, 0, 0);
-	gtk_fixed_put(GTK_FIXED(wContent.GetID()), wOutput.GetID(), 0, width);
-	gtk_widget_set_usize(wOutput.GetID(), width, 100);
+	gtk_container_add(GTK_CONTAINER(outputFrame.GetID()), wOutput.GetID());	
+	///gtk_fixed_put(GTK_FIXED(wContent.GetID()), wOutput.GetID(), 0, width);
+	//gtk_widget_set_usize(wOutput.GetID(), width, 100);
 	gtk_signal_connect(GTK_OBJECT(wOutput.GetID()), "command",
 	                   GtkSignalFunc(CommandSignal), this);
 	gtk_signal_connect(GTK_OBJECT(wOutput.GetID()), "notify",
