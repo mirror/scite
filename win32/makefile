@@ -15,7 +15,7 @@ vpath %.h ../src ../../scintilla/include ../../scintilla/win32
 vpath %.cxx ../src
 vpath %.o ../../scintilla/win32
 
-LDFLAGS = -lkernel32 -lgdi32 -luser32 -lwinmm -lcomdlg32 -lcomctl32 -limm32 -lole32 -luuid
+LDFLAGS = -lkernel32 -lgdi32 -luser32 -lcomdlg32 -lcomctl32 -limm32 -lole32 -luuid
 #CXXFLAGS = -W -Wall
 # Add -MMD to get dependencies
 #CXXFLAGS = -g -pg -pedantic -Os -fno-exceptions -fvtable-thunks -fno-rtti

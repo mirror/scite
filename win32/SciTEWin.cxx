@@ -1280,9 +1280,9 @@ void SciTEWin::ProcessExecute() {
 							if (STILL_ACTIVE != dwExitCode) {
 								// Process is dead, but wait a second in case there is some output in transit
 								if (timeDetectedDeath == 0) {
-									timeDetectedDeath = ::timeGetTime();
+									timeDetectedDeath = ::GetTickCount();
 								} else {
-									if ((::timeGetTime() - timeDetectedDeath) > 
+									if ((::GetTickCount() - timeDetectedDeath) > 
 										static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
 										completed = true;    // It's a dead process
 									}
