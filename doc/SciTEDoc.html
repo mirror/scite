@@ -1157,6 +1157,24 @@ NameError: mistake
 	so should be turned off for large documents on slow machines.
         </td>
       </tr>
+      <tr>
+        <td>
+	cache.layout<br />
+	output.cache.layout
+        </td>
+        <td>
+	A large proportion of the time spent in the editor is used to lay out text prior
+	to drawing it. This information often stays static between repaints so can 
+	be cached with these settings. There are four levels of caching. 0 is no caching,
+	1 caches the line that the caret is on, 2 caches the visible page as well as the caret, 
+	and 3 caches the whole document. The more that is cached, the greater the 
+	amount of memory used, with 3 using large amounts of memory, 7 times the 
+	size of the text in the document. However,
+	level 3 dramatically speeds up dynamic wrapping by around 25 times on large 
+	source files so is a very good option to use when wrapping is turned on and 
+	memory is plentiful.
+        </td>
+      </tr>
       <tr class="windowsonly">
         <td>
           open.filter
