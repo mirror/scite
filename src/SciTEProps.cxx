@@ -827,10 +827,6 @@ void SciTEBase::ReadProperties() {
 	preprocCondEnd.Clear();
 	preprocCondEnd.Set(list.c_str());
 
-	matchCase = props.GetInt("find.replace.matchcase");
-	regExp = props.GetInt("find.replace.regexp");
-	unSlash = props.GetInt("find.replace.escapes");
-	wrapFind = props.GetInt("find.replace.wrap", 1);
 	memFiles.AppendList(props.GetNewExpand("find.files"));
 
 	if (props.GetInt("vc.home.key", 1)) {
@@ -989,6 +985,11 @@ void SciTEBase::SetPropertiesInitial() {
 	foldMargin = foldMarginWidth;
 	if (foldMarginWidth == 0)
 		foldMarginWidth = foldMarginWidthDefault;
+
+	matchCase = props.GetInt("find.replace.matchcase");
+	regExp = props.GetInt("find.replace.regexp");
+	unSlash = props.GetInt("find.replace.escapes");
+	wrapFind = props.GetInt("find.replace.wrap", 1);
 }
 
 SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
