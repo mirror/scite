@@ -125,7 +125,7 @@ SciTEWinBar.o: SciTEWinBar.cxx SciTEWin.h Platform.h SciTE.h PropSet.h SString.h
 SciTEWinDlg.o: SciTEWinDlg.cxx SciTEWin.h Platform.h SciTE.h PropSet.h SString.h Accessor.h \
  WindowAccessor.h KeyWords.h Scintilla.h SciTEBase.h Extender.h
 DirectorExtension.o: Platform.h PropSet.h SString.h Accessor.h Scintilla.h Extender.h \
- DirectorExtension.h SciTEDirector.h
+ DirectorExtension.h
 
 #	$(CC) -Xlinker --subsystem -Xlinker windows -o $(PROGSTATIC) $(OBJSSTATIC) $(LDFLAGS)
 

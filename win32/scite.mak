@@ -313,7 +313,6 @@ SciTEWinDlg.obj:\
 DirectorExtension.obj:\
 	DirectorExtension.cxx \
 	DirectorExtension.h \
-	SciTEDirector.h \
 	..\src\Extender.h \
 	..\..\scintilla\include\Platform.h \
 	..\..\scintilla\include\PropSet.h \

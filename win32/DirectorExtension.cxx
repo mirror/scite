@@ -14,15 +14,12 @@
 #include "Accessor.h"
 #include "Extender.h"
 #include "DirectorExtension.h"
-#include "SciTEDirector.h"
 
 static ExtensionAPI *host = 0;
 static DirectorExtension *pde = 0;
 static HWND wDirector = 0;
 static HWND wReceiver = 0;
 static bool startedByDirector = false;
-
-//#define INT_BASED_VERBS
 
 static void SendDirector(int typ, const char *path) {
 	if (wDirector != 0) {
@@ -37,7 +34,6 @@ static void SendDirector(int typ, const char *path) {
 	}
 }
 
-#ifndef INT_BASED_VERBS
 static void SendDirector(const char *verb, const char *arg=0) {
 	SString message(verb);
 	message += ":";
@@ -50,7 +46,6 @@ static void SendDirector(const char *verb, sptr_t arg) {
 	SString s(arg);
 	::SendDirector(verb, s.c_str());
 }
-#endif
 
 static void CheckEnvironment(ExtensionAPI *host) {
 	if (!host)
@@ -61,11 +56,7 @@ static void CheckEnvironment(ExtensionAPI *host) {
 			startedByDirector = true;
 			wDirector = reinterpret_cast<HWND>(atoi(director));
 			// Director is just seen so identify this to it
-#ifdef INT_BASED_VERBS
-			::SendDirector(SCD_IDENTIFY, "SciTE");
-#else
 			::SendDirector("identity", reinterpret_cast<sptr_t>(wReceiver));
-#endif
 		}
 		delete []director;
 	}
@@ -76,10 +67,25 @@ static void CheckEnvironment(ExtensionAPI *host) {
 
 static char DirectorExtension_ClassName[] = "DirectorExtension";
 
+static LRESULT HandleCopyData(LPARAM lParam) {
+	COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
+	// Copy into an temporary buffer to ensure \0 terminated
+	if (pde && pcds->lpData) {
+		char *dataCopy = new char[pcds->cbData + 1];
+		if (dataCopy) {
+			strncpy(dataCopy, reinterpret_cast<char *>(pcds->lpData), pcds->cbData);
+			dataCopy[pcds->cbData] = '\0';
+			pde->HandleStringMessage(dataCopy);
+			delete []dataCopy;
+		}
+	}
+	return 0;
+}
+
 LRESULT PASCAL DirectorExtension_WndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	if (pde && (iMessage == WM_COPYDATA)) {
-		return pde->HandleMessage(wParam, lParam);
+	if (iMessage == WM_COPYDATA) {
+		return HandleCopyData(lParam);
 	}
 	return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
@@ -101,11 +107,11 @@ static void DirectorExtension_Register(HINSTANCE hInstance) {
 }
 
 DirectorExtension::DirectorExtension() {
-    pde = this;
+	pde = this;
 }
 
 DirectorExtension::~DirectorExtension() {
-    pde = 0;
+	pde = 0;
 }
 
 bool DirectorExtension::Initialise(ExtensionAPI *host_) {
@@ -129,11 +135,7 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 }
 
 bool DirectorExtension::Finalise() {
-#ifdef INT_BASED_VERBS
-	::SendDirector(SCD_CLOSING, "");
-#else
 	::SendDirector("closing");
-#endif
 	if (wReceiver)
 		::DestroyWindow(wReceiver);
 	wReceiver = 0;
@@ -151,11 +153,7 @@ bool DirectorExtension::Load(const char *) {
 bool DirectorExtension::OnOpen(const char *path) {
 	CheckEnvironment(host);
 	if (*path) {
-#ifdef INT_BASED_VERBS
-		::SendDirector(SCD_OPENED, path);
-#else
 		::SendDirector("opened", path);
-#endif
 	}
 	return true;
 }
@@ -163,11 +161,7 @@ bool DirectorExtension::OnOpen(const char *path) {
 bool DirectorExtension::OnSwitchFile(const char *path) { 
 	CheckEnvironment(host);
 	if (*path) {
-#ifdef INT_BASED_VERBS
-		::SendDirector(SCD_SWITCHED, path);
-#else
 		::SendDirector("switched", path);
-#endif
 	}
 	return true; 
 };
@@ -175,11 +169,7 @@ bool DirectorExtension::OnSwitchFile(const char *path) {
 bool DirectorExtension::OnSave(const char *path) {
 	CheckEnvironment(host);
 	if (*path) {
-#ifdef INT_BASED_VERBS
-		::SendDirector(SCD_SAVED, path);
-#else
 		::SendDirector("saved", path);
-#endif
 	}
 	return true;
 }
@@ -231,33 +221,6 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 	} else if (host) {
 		host->Perform(message);
 	}
-}
-
-LRESULT DirectorExtension::HandleMessage(WPARAM wParam, LPARAM lParam) {
-	COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
-	char path[MAX_PATH];
-	unsigned int nCopy = ((MAX_PATH-1) < pcds->cbData) ? (MAX_PATH-1) : pcds->cbData;
-	if (pcds->lpData)
-		strncpy(path, reinterpret_cast<char *>(pcds->lpData), nCopy);
-	path[nCopy] = '\0';
-	switch (pcds->dwData) {
-		case SCD_IDENTIFY:
-			wDirector = reinterpret_cast<HWND>(wParam);
-			//caller's Window Name is in path ...
-			break;
-		case SCD_OPEN:
-			host->OpenFromExtension(path);
-			break;
-		case SCD_CLOSING:
-			wDirector = 0;
-			if (startedByDirector)
-				host->ShutDown();
-			break;
-		case 0:
-			HandleStringMessage(path);
-			break;
-	}
-	return 0;
 }
 
 #ifdef _MSC_VER
