@@ -1176,16 +1176,11 @@ void SciTEWin::ProcessExecute() {
 		}
 
 		OSVERSIONINFO osv = {sizeof(OSVERSIONINFO),0,0,0,0,""};
-		GetVersionEx(&osv);
+		::GetVersionEx(&osv);
 		bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
 
 		SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES),0,0};
-		PROCESS_INFORMATION pi = {0,0,0,0};
-		HANDLE hPipeWrite = NULL;
-		HANDLE hPipeRead = NULL;
-		HANDLE hWrite2 = NULL;
-		HANDLE hRead2 = NULL;
-		char buffer[8192];
+		char buffer[16384];
 		//Platform::DebugPrintf("Execute <%s>\n", command);
 		OutputAppendString(">");
 		OutputAppendString(jobQueue[icmd].command.c_str());
@@ -1197,18 +1192,17 @@ void SciTEWin::ProcessExecute() {
 		SECURITY_DESCRIPTOR sd;
 		// If NT make a real security thing to allow inheriting handles
 		if (!windows95) {
-			InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-			SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
+			::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
+			::SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
 			sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 			sa.lpSecurityDescriptor = &sd;
 		}
 
+		HANDLE hPipeWrite = NULL;
+		HANDLE hPipeRead = NULL;
 		// Create pipe for output redirection
-		CreatePipe(&hPipeRead,     // read handle
-		           &hPipeWrite,    // write handle
-		           &sa,         // security attributes
-		           0      // number of bytes reserved for pipe - 0 default
-		          );
+		// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
+		::CreatePipe(&hPipeRead, &hPipeWrite, &sa, 0);
 
 		//Platform::DebugPrintf("2Execute <%s>\n");
 		// Create pipe for input redirection. In this code, you do not
@@ -1216,11 +1210,14 @@ void SciTEWin::ProcessExecute() {
 		// to set the hStdInput field in the STARTUP_INFO struct. For safety,
 		// you should not set the handles to an invalid handle.
 
-		CreatePipe(&hRead2,      // read handle
-		           &hWrite2,       // write handle
-		           &sa,         // security attributes
-		           0      // number of bytes reserved for pipe - 0 default
-		          );
+		HANDLE hWrite2 = NULL;
+		HANDLE hRead2 = NULL;
+		// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
+		::CreatePipe(&hRead2, &hWrite2, &sa, 0);
+		::CloseHandle(hRead2);
+
+		::SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
+		::SetHandleInformation(hRead2, HANDLE_FLAG_INHERIT, 0);
 
 		//Platform::DebugPrintf("3Execute <%s>\n");
 		// Make child process use hPipeWrite as standard out, and make
@@ -1237,7 +1234,9 @@ void SciTEWin::ProcessExecute() {
 		si.hStdOutput = hPipeWrite;
 		si.hStdError = hPipeWrite;
 
-		bool worked = CreateProcess(
+		PROCESS_INFORMATION pi = {0,0,0,0};
+
+		bool worked = ::CreateProcess(
 		                  NULL,
 		                  const_cast<char *>(jobQueue[icmd].command.c_str()),
 		                  NULL, NULL,
@@ -1249,11 +1248,12 @@ void SciTEWin::ProcessExecute() {
 			OutputAppendString(">Failed to CreateProcess\n");
 		}
 
-		/* now that this has been inherited, close it to be safe.
-		You don't want to write to it accidentally */
-		CloseHandle(hPipeWrite);
-		CloseHandle(hRead2);
-		CloseHandle(hWrite2);
+		// Now that this has been inherited, close it to be safe.
+		::CloseHandle(hPipeWrite);
+
+        // These are no longer needed
+		::CloseHandle(hWrite2);
+		::CloseHandle(hRead2);
 
 		bool completed = !worked;
 		DWORD timeDetectedDeath = 0;
@@ -1262,7 +1262,7 @@ void SciTEWin::ProcessExecute() {
 			Sleep(100L);
 
 			if (cancelFlag) {
-				TerminateProcess(pi.hProcess, 1);
+				::TerminateProcess(pi.hProcess, 1);
 				break;
 			}
 
@@ -1272,17 +1272,18 @@ void SciTEWin::ProcessExecute() {
 
 			if (windows95) {
 				DWORD bytesAvail = 0;
-				if (PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+				if (::PeekNamedPipe(hPipeRead, buffer, 
+					sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
 					if (0 == bytesAvail) {
 						NTOrData = false;
 						DWORD dwExitCode = STILL_ACTIVE;
-						if (GetExitCodeProcess(pi.hProcess, &dwExitCode)) {
+						if (::GetExitCodeProcess(pi.hProcess, &dwExitCode)) {
 							if (STILL_ACTIVE != dwExitCode) {
 								// Process is dead, but wait a second in case there is some output in transit
 								if (timeDetectedDeath == 0) {
-									timeDetectedDeath = timeGetTime();
+									timeDetectedDeath = ::timeGetTime();
 								} else {
-									if ((timeGetTime() - timeDetectedDeath) > 
+									if ((::timeGetTime() - timeDetectedDeath) > 
 										static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
 										completed = true;    // It's a dead process
 									}
@@ -1294,18 +1295,13 @@ void SciTEWin::ProcessExecute() {
 			}
 
 			if (!completed && NTOrData) {
-				int bTest = ReadFile(
-				                hPipeRead,
-				                buffer,
-				                sizeof(buffer),            // number of bytes to read
-				                &bytesRead,
-				                NULL         // non-overlapped.
-				            );
+				int bTest = ::ReadFile(hPipeRead, buffer, 
+					sizeof(buffer), &bytesRead, NULL);
 
 				if (bTest && bytesRead) {
 					// Display the data
 					OutputAppendString(buffer, bytesRead);
-					UpdateWindow(wSciTE.GetID());
+					::UpdateWindow(wSciTE.GetID());
 				} else {
 					completed = true;
 				}
@@ -1313,8 +1309,8 @@ void SciTEWin::ProcessExecute() {
 		}
 
 		if (worked) {
-			WaitForSingleObject(pi.hProcess, INFINITE);
-			GetExitCodeProcess(pi.hProcess, &exitcode);
+			::WaitForSingleObject(pi.hProcess, INFINITE);
+			::GetExitCodeProcess(pi.hProcess, &exitcode);
 			char exitmessage[80];
 			if (isBuilding) {
 				// The build command is first command in a sequence so it is only built if
@@ -1325,10 +1321,10 @@ void SciTEWin::ProcessExecute() {
 			}
 			sprintf(exitmessage, ">Exit code: %ld\n", exitcode);
 			OutputAppendString(exitmessage);
-			CloseHandle(pi.hProcess);
-			CloseHandle(pi.hThread);
+			::CloseHandle(pi.hProcess);
+			::CloseHandle(pi.hThread);
 		}
-		CloseHandle(hPipeRead);
+		::CloseHandle(hPipeRead);
 	}
 
 	// Move selection back to beginning of this run so that F4 will go
