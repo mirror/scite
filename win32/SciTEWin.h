@@ -71,6 +71,7 @@ protected:
 	RECT rcWorkArea;
 	FINDREPLACE fr;
 	char openWhat[200];
+	bool modalParameters;
 	int filterDefault;
 	bool staticBuild;
 

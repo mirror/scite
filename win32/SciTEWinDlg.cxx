@@ -1287,9 +1287,9 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_INITDIALOG: {
 			LocaliseDialog(hDlg);
 			wParameters = hDlg;
-			HWND wCmd = ::GetDlgItem(hDlg, IDCMD);
-			if (wCmd)
-				::SetWindowText(wCmd, parameterisedCommand.c_str());
+			if (modalParameters) {
+				::SetDlgItemText(hDlg, IDCMD, parameterisedCommand.c_str());
+			}
 			for (int param = 0; param < maxParam; param++) {
 				SString paramText(param + 1);
 				SString paramTextVal = props.Get(paramText.c_str());
@@ -1305,10 +1305,16 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_COMMAND:
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
 			::EndDialog(hDlg, IDCANCEL);
+			if (!modalParameters) {
+				wParameters.Destroy();
+			}
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
 			ParamGrab();
 			::EndDialog(hDlg, IDOK);
+			if (!modalParameters) {
+				wParameters.Destroy();
+			}
 			return TRUE;
 		}
 	}
@@ -1329,6 +1335,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 		return true;
 	}
 	bool success = false;
+	modalParameters = modal;
 	if (modal) {
 		success = DoDialog(hInstance,
 		                   "PARAMETERS",
