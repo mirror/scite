@@ -196,6 +196,9 @@ public:
 	void Paint(Surface *surfaceWindow, PRectangle rcPaint);
 	void Creation();
 	LRESULT KeyDown(WPARAM wParam);
+	void AddToPopUp(HMENU menu, const char *label, int cmd, bool enabled);
+	sptr_t SendWindow(Window &w, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
+	LRESULT ContextMenu(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam);
 

@@ -456,9 +456,7 @@ void SciTEWin::Creation() {
 	ptrEditor = ::SendMessage(reinterpret_cast<HWND>(wEditor.GetID()), 
 		SCI_GETDIRECTPOINTER, 0, 0);
 	wEditor.Show();
-	//	SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
-	//	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
-	//	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
+	SendEditor(SCI_USEPOPUP, 0);
 	WindowSetFocus(wEditor);
 
 	wOutput = ::CreateWindowEx(
@@ -482,9 +480,7 @@ void SciTEWin::Creation() {
 	// No selection margin on output window
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
 	//SendOutput(SCI_SETCARETPERIOD, 0);
-	//	SendOutput(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
-	//	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
-	//	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
+	SendOutput(SCI_USEPOPUP, 0);
 	::DragAcceptFiles(MainHWND(), true);
 
 	HWND hwndToolBar = ::CreateWindowEx(

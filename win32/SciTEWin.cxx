@@ -1235,6 +1235,67 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	return 0l;
 }
 
+void SciTEWin::AddToPopUp(HMENU menu, const char *label, int cmd=0, bool enabled=true) {
+	SString localised = LocaliseString(label);
+	if (0 == localised.length())
+		::AppendMenu(menu, MF_SEPARATOR, 0, "");
+	else if (enabled)
+		::AppendMenu(menu, MF_STRING, cmd, localised.c_str());
+	else
+		::AppendMenu(menu, MF_STRING | MF_DISABLED | MF_GRAYED, cmd, localised.c_str());
+}
+
+sptr_t SciTEWin::SendWindow(Window &w, unsigned int msg, uptr_t wParam, sptr_t lParam) {
+	if (w.GetID() == wOutput.GetID())
+		return SendOutput(msg, wParam, lParam);
+	else
+		return SendEditor(msg, wParam, lParam);
+}
+
+LRESULT SciTEWin::ContextMenu(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	Window w = wEditor;
+	Point pt = Point::FromLong(lParam);
+	if ((pt.x == -1) && (pt.y == -1)) {
+		// Caused by keyboard so display menu near caret
+		if (wOutput.HasFocus())
+			w = wOutput;
+		int position = SendFocused(SCI_GETCURRENTPOS);
+		pt.x = SendFocused(SCI_POINTXFROMPOSITION, 0, position);
+		pt.y = SendFocused(SCI_POINTYFROMPOSITION, 0, position);
+		POINT spt = {pt.x, pt.y};
+		::ClientToScreen(static_cast<HWND>(w.GetID()), &spt);
+		pt = Point(spt.x, spt.y);
+	} else {
+		PRectangle rcEditor = wEditor.GetPosition();
+		if (!rcEditor.Contains(pt)) {
+			PRectangle rcOutput = wOutput.GetPosition();
+			if (rcOutput.Contains(pt)) {
+				w = wOutput;
+			} else {	// In frame so use default.
+				return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
+			}
+		}
+	}
+	int currentPos = SendWindow(w, SCI_GETCURRENTPOS);
+	int anchor = SendWindow(w, SCI_GETANCHOR);
+	HMENU menu = ::CreatePopupMenu();
+	bool writable = !SendWindow(w, SCI_GETREADONLY);
+	AddToPopUp(menu, "Undo", IDM_UNDO, writable && SendWindow(w, SCI_CANUNDO));
+	AddToPopUp(menu, "Redo", IDM_REDO, writable && SendWindow(w, SCI_CANREDO));
+	AddToPopUp(menu, "");
+	AddToPopUp(menu, "Cut", IDM_CUT, writable && currentPos != anchor);
+	AddToPopUp(menu, "Copy", IDM_COPY, currentPos != anchor);
+	AddToPopUp(menu, "Paste", IDM_PASTE, writable && SendWindow(w, SCI_CANPASTE));
+	AddToPopUp(menu, "Delete", IDM_CLEAR, writable && currentPos != anchor);
+	AddToPopUp(menu, "");
+	AddToPopUp(menu, "Select All", IDM_SELECTALL);
+	::TrackPopupMenu(menu, 
+		0, pt.x - 4, pt.y, 0, 
+		MainHWND(), NULL);
+	::DestroyMenu(menu);
+	return 0;
+}
+
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, MainHWND());
 	if (iMessage == identityMessage) {
@@ -1252,6 +1313,9 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_COMMAND:
 		Command(wParam, lParam);
 		break;
+
+	case WM_CONTEXTMENU:
+		return ContextMenu(iMessage, wParam, lParam);
 
 	case WM_SYSCOMMAND:
 		if ((wParam == SC_MINIMIZE) && props.GetInt("minimize.to.tray")) {
