@@ -1079,16 +1079,18 @@ void SciTEWin::RestoreFromTray() {
 }
 
 LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
-	char *text = static_cast<char *>(pcds->lpData);
-	if (props.GetInt("minimize.to.tray")) {
-		RestoreFromTray();
+	if (pcds) {
+		if (props.GetInt("minimize.to.tray")) {
+			RestoreFromTray();
+		}
+		const char *text = static_cast<char *>(pcds->lpData);
+		if (text && (strlen(text) > 0)) {
+			SString args = ProcessArgs(text);
+			ProcessCommandLine(args, 0);
+			ProcessCommandLine(args, 1);
+		}
+		::FlashWindow(MainHWND(), FALSE);
 	}
-	if (strlen(text) > 0) {
-		SString args = ProcessArgs(text);
-		ProcessCommandLine(args, 0);
-		ProcessCommandLine(args, 1);
-	}
-	::FlashWindow(MainHWND(), FALSE);
 	return TRUE;
 }
 
