@@ -187,6 +187,7 @@ const char *contributors[] = {
                                  "Roy Wood",
                                  "Peter-Henry Mander",
                                  "Robert Boucher",
+                                 "Christoph Dalitz",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -1459,7 +1460,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			// For the special cases of start of line and end of line
 			// something better could be done but there are too many special cases
 			lastMatch = posFind + lenReplaced + movepastEOL;
-			if (lenReplaced == 0 && lenTarget == 0) {
+			if (lenTarget == 0) {
 				lastMatch++;
 			}
 			if (lastMatch >= endPosition) {
