@@ -3073,7 +3073,7 @@ void SciTEGTK::CreateUI() {
 	                      | GDK_POINTER_MOTION_MASK
 	                      | GDK_POINTER_MOTION_HINT_MASK
 	                     );
-	gtk_drawing_area_size(GTK_DRAWING_AREA(PWidget(wDivider)), width, 10);
+	gtk_drawing_area_size(GTK_DRAWING_AREA(PWidget(wDivider)), (width == useDefault) ? 100 : width, 10);
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wDivider), 0, 600);
 
 	wOutput = scintilla_new();
@@ -3083,7 +3083,7 @@ void SciTEGTK::CreateUI() {
 	ptrOutput = Platform::SendScintilla(PWidget(wOutput),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
 	SendOutput(SCI_USEPOPUP, 0);
-	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wOutput), 0, width);
+	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wOutput), (width == useDefault) ? 100 : width, 0);
 	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), "command",
 	                   GtkSignalFunc(CommandSignal), this);
 	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
@@ -3141,7 +3141,8 @@ void SciTEGTK::CreateUI() {
 		gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
 	//if ((width != useDefault) && (height != useDefault))
 		//gtk_widget_set_usize(GTK_WIDGET(PWidget(wSciTE)), width, height);
-	gtk_window_set_default_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
+	if ((width != useDefault) && (height != useDefault))
+		gtk_window_set_default_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
 	gtk_widget_show_all(PWidget(wSciTE));
 	//if ((left != useDefault) && (top != useDefault))
 	//	gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
