@@ -1408,7 +1408,7 @@ void SciTEBase::Execute() {
 	}
 
 	if (clearBeforeExecute) {
-		SendOutput(SCI_CLEARALL);
+		SendOutputEx(SCI_CLEARALL, 0, 0, false);
 	}
 
 	SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
@@ -2953,7 +2953,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 
 	case IDM_CLEAROUTPUT:
-		SendOutput(SCI_CLEARALL);
+		SendOutputEx(SCI_CLEARALL, 0, 0, false);
 		break;
 
 	case IDM_SWITCHPANE:
