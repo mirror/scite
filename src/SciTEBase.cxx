@@ -1460,10 +1460,17 @@ bool SciTEBase::StartCallTip() {
 	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", linebuf + startword, rootlen, pos, pos - rootlen);
 	if (apis) {
 		const char *word = apis.GetNearestWord(linebuf + startword, rootlen, 
-			callTipIgnoreCase, wordCharacters);
+			callTipIgnoreCase, calltipWordCharacters);
 		if (word) {
 			functionDefinition = word;
-			SendEditorString(SCI_CALLTIPSHOW, pos - rootlen, word);
+			if (calltipEndDefinition != "") {
+				int posEndDef = functionDefinition.search(calltipEndDefinition.c_str());
+				if ((posEndDef > 1) && 
+					((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
+						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n");
+				}
+			}
+			SendEditorString(SCI_CALLTIPSHOW, pos - rootlen, functionDefinition.c_str());
 			ContinueCallTip();
 		}
 	}

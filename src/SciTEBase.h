@@ -377,6 +377,7 @@ protected:
 	bool callTipIgnoreCase;
 	bool autoCCausedByOnlyOne;
 	SString calltipWordCharacters;
+	SString calltipEndDefinition;
 	SString autoCompleteStartCharacters;
 	SString wordCharacters;
 
@@ -642,6 +643,7 @@ protected:
 	void ForwardPropertyToEditor(const char *key);
 	void DefineMarker(int marker, int markerType, ColourDesired fore, ColourDesired back);
 	void ReadAPI(const SString &fileNameForExtension);
+	SString FindLanguageProperty(const char *pattern, const char *defaultValue="");
 	virtual void ReadProperties();
 	void SetOneStyle(Window &win, int style, const char *s);
 	void SetStyleFor(Window &win, const char *language);

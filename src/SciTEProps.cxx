@@ -542,6 +542,17 @@ void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 	}
 }
 
+SString SciTEBase::FindLanguageProperty(const char *pattern, const char *defaultValue) {
+	SString key = pattern;
+	key.substitute("*", language.c_str());
+	SString ret = props.GetExpanded(key.c_str());
+	if (ret == "")
+		ret = props.GetExpanded(pattern);
+	if (ret == "")
+		ret = defaultValue;
+	return ret;
+}
+
 void SciTEBase::ReadProperties() {
 	SString fileNameForExtension = ExtensionFileName();
 
@@ -682,19 +693,13 @@ void SciTEBase::ReadProperties() {
 	char key[200];
 	SString sval;
 
-	sval = props.GetNewExpand("calltip.*.ignorecase");
+	sval = FindLanguageProperty("calltip.*.ignorecase");
 	callTipIgnoreCase = sval == "1";
-	sprintf(key, "calltip.%s.ignorecase", language.c_str());
-	sval = props.GetNewExpand(key);
-	if (sval != "")
-		callTipIgnoreCase = sval == "1";
 
-	sprintf(key, "calltip.%s.word.characters", language.c_str());
-	calltipWordCharacters = props.GetExpanded(key);
-	if (calltipWordCharacters == "")
-		calltipWordCharacters = props.GetExpanded("calltip.*.word.characters");
-	if (calltipWordCharacters == "")
-		calltipWordCharacters = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	calltipWordCharacters = FindLanguageProperty("calltip.*.word.characters",
+		"_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+	calltipEndDefinition = FindLanguageProperty("calltip.*.end.definition");
 
 	sprintf(key, "autocomplete.%s.start.characters", language.c_str());
 	autoCompleteStartCharacters = props.GetExpanded(key);
