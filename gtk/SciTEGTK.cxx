@@ -797,9 +797,9 @@ void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*
 	}
 
 	// Remove trailing backslash(es)
-	while (absPath < cur - 1 && *(cur - 1) == pathSepChar && *(cur - 2) != ':') {
-		*--cur = '\0';
-	}
+	//while (absPath < cur - 1 && *(cur - 1) == pathSepChar && *(cur - 2) != ':') {
+	//	*--cur = '\0';
+	//}
 }
 
 bool SciTEGTK::OpenDialog() {
