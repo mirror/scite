@@ -585,8 +585,11 @@ bool SciTEGTK::OpenDialog() {
 		gtk_window_set_default_size(GTK_WINDOW(fileSelector.GetID()), 
 			fileSelectorWidth, fileSelectorHeight);
 		fileSelector.Show();
+		while (fileSelector.Created()) {
+			gtk_main_iteration();
+		}
 	}
-	return true;
+	return !dialogCanceled;
 }
 
 bool SciTEGTK::SaveAsDialog() {
@@ -607,8 +610,11 @@ bool SciTEGTK::SaveAsDialog() {
 		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
 		                              GTK_WINDOW(wSciTE.GetID()));
 		fileSelector.Show();
+		while (fileSelector.Created()) {
+			gtk_main_iteration();
+		}
 	}
-	return true;
+	return !dialogCanceled;
 }
 
 void SciTEGTK::SaveAsHTML() {
@@ -628,6 +634,9 @@ void SciTEGTK::SaveAsHTML() {
 		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
 		                              GTK_WINDOW(wSciTE.GetID()));
 		fileSelector.Show();
+		while (fileSelector.Created()) {
+			gtk_main_iteration();
+		}
 	}
 }
 
@@ -648,6 +657,9 @@ void SciTEGTK::SaveAsRTF() {
 		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
 		                              GTK_WINDOW(wSciTE.GetID()));
 		fileSelector.Show();
+		while (fileSelector.Created()) {
+			gtk_main_iteration();
+		}
 	}
 }
 
@@ -1315,17 +1327,20 @@ gint SciTEGTK::DividerRelease(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::OpenCancelSignal(GtkWidget *, SciTEGTK *scitew) {
+	scitew->dialogCanceled = true;
 	scitew->fileSelector.Destroy();
 }
 
 void SciTEGTK::OpenKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
+		scitew->dialogCanceled = true;
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
 		scitew->fileSelector.Destroy();
 	}
 }
 
 void SciTEGTK::OpenOKSignal(GtkWidget *, SciTEGTK *scitew) {
+	scitew->dialogCanceled = false;
 	scitew->Open(gtk_file_selection_get_filename(
 	                 GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
 	scitew->fileSelector.Destroy();
@@ -1338,6 +1353,7 @@ void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK
 
 void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("Do Save As\n");
+	scitew->dialogCanceled = false;
 	if (scitew->savingHTML)
 		scitew->SaveToHTML(gtk_file_selection_get_filename(
 		                       GTK_FILE_SELECTION(scitew->fileSelector.GetID())));
