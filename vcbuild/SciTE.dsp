@@ -153,6 +153,10 @@ SOURCE=..\src\Utf8_16.cxx
 
 SOURCE=..\..\scintilla\Src\WindowAccessor.cxx
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\XPM.cxx
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
