@@ -187,6 +187,7 @@ protected:
 	long ptrOutput;
 	bool tbVisible;
 	bool tabVisible;
+	bool tabMultiLine;
 	bool sbVisible;
 	int visHeightTools;
 	int visHeightTab;

@@ -220,6 +220,7 @@ void Job::Clear() {
 }
 
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
+
 	codePage = 0;
 	characterSet = 0;
 	language = "java";
@@ -237,6 +238,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	tbVisible = false;
 	sbVisible = false;
 	tabVisible = false;
+	tabMultiLine = false;
 	visHeightTools = 0;
 	visHeightStatus = 0;
 	visHeightEditor = 1;
@@ -544,6 +546,8 @@ void SciTEBase::BuffersMenu() {
 		}
 	}
 	CheckMenus();
+	if (tabVisible)
+		SizeSubWindows();
 }
 
 SciTEBase::~SciTEBase() {
@@ -934,6 +938,11 @@ void SciTEBase::ReadPropertiesInitial() {
 	sbVisible = props.GetInt("statusbar.visible");
 	tbVisible = props.GetInt("toolbar.visible");
 	tabVisible = props.GetInt("tabbar.visible");
+	tabMultiLine = props.GetInt("tabbar.multiline");
+	if (tabMultiLine) {	// Windows specific!
+		long wl = ::GetWindowLong(wTabBar.GetID(), GWL_STYLE);
+		::SetWindowLong(wTabBar.GetID(), GWL_STYLE, wl | TCS_MULTILINE);
+	}
 
 	lineNumbersWidth = 0;
 	SString linenums = props.Get("line.numbers");
