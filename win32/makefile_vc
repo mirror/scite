@@ -36,13 +36,13 @@ clean:
 	del /q *.exe *.o *.obj *.dll *.res *.map
 
 ..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
-	copy ..\..\scintilla\bin\Scintilla.dll ..\bin
+	copy ..\..\scintilla\bin\Scintilla.dll $@
 
 ..\bin\SciLexer.dll:	..\..\scintilla\bin\SciLexer.dll
-	copy ..\..\scintilla\bin\SciLexer.dll ..\bin
+	copy ..\..\scintilla\bin\SciLexer.dll $@
 	
 ..\bin\SciTEGlobal.properties:	..\src\SciTEGlobal.properties
-	copy ..\src\SciTEGlobal.properties ..\bin
+	copy ..\src\SciTEGlobal.properties $@
 
 OBJS = SciTEBase.obj SciTEWin.obj \
 	..\..\scintilla\win32\WindowAccessor.obj \
@@ -51,7 +51,7 @@ OBJS = SciTEBase.obj SciTEWin.obj \
 	..\..\scintilla\win32\UniConversion.obj
 
 $(PROG): $(OBJS) SciTERes.res
-	$(LD) /OUT:$(PROG) $(OBJS) SciTERes.res $(LDFLAGS)
+	$(LD) /OUT:$@ $(OBJS) SciTERes.res $(LDFLAGS)
 	
 OBJSSTATIC = Sc1.obj SciTEBase.obj \
 	..\..\scintilla\win32\KeyWords.obj \
@@ -104,7 +104,7 @@ Sc1.obj: SciTEWin.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
 	..\..\scintilla\include\Accessor.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h
-	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) /D STATIC_BUILD /c SciTEWin.cxx /FoSc1.obj
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) /D STATIC_BUILD /c SciTEWin.cxx /Fo$@
 
 # A custom rule for .obj files built by scintilla:
 ..\..\scintilla\win32\PlatWin.obj: 	..\..\scintilla\win32\PlatWin.cxx
@@ -113,4 +113,4 @@ Sc1.obj: SciTEWin.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
 	
 
 $(PROGSTATIC): $(OBJSSTATIC) SciTERes.res
-	$(LD) /OUT:$(PROGSTATIC) $(OBJSSTATIC) SciTERes.res $(LDFLAGS)
+	$(LD) /OUT:$@ $(OBJSSTATIC) SciTERes.res $(LDFLAGS)
