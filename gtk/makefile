@@ -33,10 +33,12 @@ CONFIGLIB=gtk-config --libs
 CONFIGTHREADS=glib-config --libs gthread
 gnomeprefix:=$(shell gnome-config --prefix 2>/dev/null)
 endif
+ifndef prefix
 ifdef gnomeprefix
   prefix=$(gnomeprefix)
 else
   prefix=/usr
+endif
 endif
 datadir=$(prefix)/share
 pixmapdir=$(datadir)/pixmaps
@@ -112,7 +114,7 @@ include deps.mak
 install:
 	$(INSTALL) -m 755 -d $(DESTDIR)$(bindir) $(DESTDIR)$(SYSCONF_PATH)
 
-	$(INSTALL) -m 755 -s $(PROG) $(DESTDIR)$(bindir)
+	$(INSTALL) -m 755 $(PROG) $(DESTDIR)$(bindir)
 
 	for files in ../src/*.properties ../doc/*.html ../doc/SciTEIco.png ../doc/PrintHi.png; \
 	do \
