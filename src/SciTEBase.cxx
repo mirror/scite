@@ -345,13 +345,11 @@ void SciTEBase::SetMonoFont() {
 		SString sval = props.GetExpanded("font.monospace");
 		StyleDefinition sd(sval.c_str());
 		for (int style = 0; style <= STYLE_MAX; style++) {
-			if (style != STYLE_DEFAULT) {
-				if (sd.specified & StyleDefinition::sdSize) {
-					Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETSIZE, style, sd.size);
-				}
-				if (sd.specified & StyleDefinition::sdFont) {
-					Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(sd.font.c_str()));
-				}
+			if (sd.specified & StyleDefinition::sdSize) {
+				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETSIZE, style, sd.size);
+			}
+			if (sd.specified & StyleDefinition::sdFont) {
+				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(sd.font.c_str()));
 			}
 		}
 	} else {
