@@ -1134,7 +1134,7 @@ bool SciTEBase::StartBlockComment() {
 				continue;
 			}
 		}
-		if(i == selStartLine) // is this the first selected line?
+		if (i == selStartLine) // is this the first selected line?
 			selectionStart += comment_length;
 		selectionEnd += comment_length; // every iteration
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment);
