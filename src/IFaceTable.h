@@ -25,19 +25,19 @@ enum IFaceType {
 };	
 
 struct IFaceConstant {
-	char *name;
+	const char *name;
 	int value;
 };
 
 struct IFaceFunction {
-	char *name;
+	const char *name;
 	int value;
 	IFaceType returnType;
 	IFaceType paramType[2];
 };
 
 struct IFaceProperty {
-	char *name;
+	const char *name;
 	int getter;
 	int setter;
 	IFaceType valueType;
@@ -56,6 +56,12 @@ struct IFaceProperty {
 		}
 		return result;
 	}
+};
+
+struct IFaceObject {
+	const char *name;
+	const char *prefix;
+	IFaceType indexType;
 };
 
 class IFaceTable {
