@@ -1672,7 +1672,9 @@ void SciTEBase::Revert() {
 
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 	if (isDirty) {
-		if (props.GetInt("are.you.sure", 1) || forceQuestion) {
+		if (props.GetInt("are.you.sure", 1) ||
+			IsUntitledFileName(fullPath) ||
+			forceQuestion) {
 			char msg[MAX_PATH + 100];
 			if (fileName[0]) {
 				strcpy(msg, "Save changes to \"");
