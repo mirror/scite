@@ -346,7 +346,7 @@ void SciTEWin::LoadSessionDialog() {
 void SciTEWin::SaveSessionDialog() {
 	if (0 == dialogsOnScreen) {
 		char saveName[MAX_PATH] = "\0";
-		strcpy(saveName, "current.ses");
+		strcpy(saveName, "SciTE.ses");
 		OPENFILENAME ofn = {
 		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
