@@ -886,7 +886,13 @@ void SciTEGTK::SaveAsTEX() {
 }
 
 void SciTEGTK::Print() {
-	// Printing not yet supported on GTK+
+	SelectionIntoProperties();
+	AddCommand(props.GetWild("command.print.", fileName), "",
+		   SubsystemType("command.print.subsystem."));
+	if (commandCurrent > 0) {
+		isBuilding = true;
+		Execute();
+	}
 }
 
 void SciTEGTK::PrintSetup() {
@@ -2144,6 +2150,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},
 	    //{"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
 	    {"/File/Export/As _LaTeX...", NULL, menuSig, IDM_SAVEASTEX, 0},
+	    {"/File/_Print", "<control>P", menuSig, IDM_PRINT, 0},
 	    {"/File/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
 	    {"/File/File1", "", menuSig, fileStackCmdID + 1, 0},
