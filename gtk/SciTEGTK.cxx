@@ -324,6 +324,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	propsEmbed.Set("PLAT_GTK", "1");
 
 	ReadGlobalPropFile();
+	ReadAbbrevPropFile();
 
 	ptOld = Point(0, 0);
 	xor_gc = 0;
