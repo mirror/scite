@@ -1991,6 +1991,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Use lexer/Reso_urce", "", menuSig, IDM_LEXER_RC, 0},
 	    {"/Options/Use lexer/Ruby", "", menuSig, IDM_LEXER_RUBY, 0},
 	    {"/Options/Use lexer/S_QL", "", menuSig, IDM_LEXER_SQL, 0},
+	    {"/Options/Use lexer/_TCL", "", menuSig, IDM_LEXER_TCL, 0},
 	    {"/Options/Use lexer/_VB", "", menuSig, IDM_LEXER_VB, 0},
 	    {"/Options/Use lexer/VBScr_ipt", "", menuSig, IDM_LEXER_WSCRIPT, 0},
 	    {"/Options/Use lexer/_XML", "<shift>F12", menuSig, IDM_LEXER_XML, 0},
