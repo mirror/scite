@@ -440,7 +440,8 @@ void SciTEWin::ProcessExecute() {
 
 	SendOutput(SCI_GOTOPOS, SendOutput(WM_GETTEXTLENGTH));
 	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
-
+	bool seenOutput = false;
+	
 	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
 
 		if (jobQueue[icmd].jobType == jobShell) {
@@ -471,7 +472,6 @@ void SciTEWin::ProcessExecute() {
 		SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
 		char buffer[16384];
 		//Platform::DebugPrintf("Execute <%s>\n", command);
-		MakeOutputVisible();
 		OutputAppendString(">");
 		OutputAppendString(jobQueue[icmd].command.c_str());
 		OutputAppendString("\n");
@@ -588,6 +588,10 @@ void SciTEWin::ProcessExecute() {
 				                       sizeof(buffer), &bytesRead, NULL);
 
 				if (bTest && bytesRead) {
+					if (!seenOutput) {
+						MakeOutputVisible();
+						seenOutput = true;
+					}
 					// Display the data
 					OutputAppendString(buffer, bytesRead);
 					::UpdateWindow(wSciTE.GetID());
