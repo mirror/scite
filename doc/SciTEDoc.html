@@ -50,8 +50,9 @@
     </h3>
     <p>
        Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
-      feature of automatic syntax styling. SciTE will only edit one file at a time, but does list
-      recently opened files on the File menu making it easier to open recent files. Rectangular
+      feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
+      only one file will be visible. SciTE's initial configuration only allows one file to be in memory 
+      at once but this can be modified by changing the value of the buffers property. Rectangular
       regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
       key on GTK+ while dragging the mouse over the text.
     </p>
@@ -1166,7 +1167,8 @@ NameError: mistake
 	Windows and ".SciTE.recent" on GTK+ and is located in the directory
 	given by the SciTE_HOME environment variable and if that is not
 	set, the value of the HOME environment variable and if that is not
-	set the top level directory.<br />
+	set the top level directory on GTK+ and the directory of the SciTE 
+	executable on Windows.<br />
 	If you set "save.session=1", current session
 	will be automatically saved to a file "SciTE.ses" on Windows and 
 	".SciTE.ses" on GTK+ located at the same
