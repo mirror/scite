@@ -37,6 +37,8 @@ def nameOKSrc(src):
 		return False
 	if "IFaceTable" in srcPath:
 		return False
+	if "Exporters" in srcPath:
+		return False
 	return True
 
 def grabQuoted(s):
@@ -46,6 +48,11 @@ def grabQuoted(s):
 			return s[:s.find('"')]
 	return ""
 
+def stripComment(s):
+	if "//" in s:
+		return s[:s.find("//")]
+	return s
+
 propertyNames = {}
 literalStrings = set()
 dontLook = False	# ignore contributor names as they don't get localised
@@ -53,7 +60,7 @@ dontLook = False	# ignore contributor names as they don't get localised
 for srcPath in srcPaths:
 	srcFile = open(srcPath)
 	for srcLine in srcFile.readlines():
-		srcLine = srcLine.strip()
+		srcLine = stripComment(srcLine).strip()
 		if srcLine.count("props") and srcLine.count("Get"):
 			propsPos = srcLine.find("props")
 			getPos = srcLine.find("Get")
@@ -68,7 +75,10 @@ for srcPath in srcPaths:
 		if '"' in srcLine and nameOKSrc(srcPath):
 			if "Atsuo" in srcLine or '{"IDM_' in srcLine or dontLook:
 				dontLook = ";" not in srcLine
-			elif not srcLine.startswith("#"):
+			elif not srcLine.startswith("#") and \
+				not srcLine.startswith("//") and \
+				"SendDirector" not in srcLine and \
+				"gtk_signal_connect" not in srcLine:
 				srcLine = grabQuoted(srcLine)
 				if srcLine:
 					if srcLine[:1] not in ["<"]:
@@ -83,8 +93,7 @@ for docLine in docFile.readlines():
 docFile.close()
 
 print "# Not mentioned in", docFileName
-identifiersSorted = propertyNames.keys()
-identifiersSorted.sort()
+identifiersSorted = sorted(propertyNames.keys())
 for identifier in identifiersSorted:
 	if not propertyNames[identifier]:
 		print identifier
@@ -183,7 +192,16 @@ for l in sorted(resourceSet):
 	if l.lower() not in localeSet:
 		print l
 
-#~ literalStrings = literalStrings.difference(propertiesSet)
+def present(l, n):
+	low = n.lower()
+	if low in localeSet:
+		return True
+	return low.replace("_","").replace("&","") in localeSet
+
+literalStrings = literalStrings.difference(identifiersSorted)
+literalStrings = [l for l in list(literalStrings) if not present(localeSet, l)]
 #~ print "# Literals", len(literalStrings)
-#~ lits = sorted(list(literalStrings))
-#~ print "\n".join(lits)
+#~ print "\n".join(sorted(literalStrings))
+
+#~ print "##"
+#~ print "\n".join(sorted(identifiersSorted))
