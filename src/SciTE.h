@@ -148,6 +148,7 @@
 // Help
 #define IDM_HELP			901
 #define IDM_ABOUT			902
+#define IDM_HELP_SCITE		903
 
 // Windows specific windowing options
 #define IDM_ONTOP			960

@@ -2888,6 +2888,17 @@ void SciTEBase::MenuCommand(int cmdID) {
 		}
 		break;
 
+	case IDM_HELP_SCITE: {
+			SelectionIntoProperties();
+			AddCommand(props.Get("command.scite.help"), "",
+			           SubsystemType(props.Get("command.scite.help.subsystem")[0]));
+			if (commandCurrent > 0) {
+				isBuilding = true;
+				Execute();
+			}
+		}
+		break;
+
 	default:
 		if ((cmdID >= bufferCmdID) &&
 		        (cmdID < bufferCmdID + buffers.size)) {

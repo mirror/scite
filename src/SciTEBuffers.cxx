@@ -758,25 +758,28 @@ void SciTEBase::SetToolsMenu() {
 	}
 }
 
+JobSubsystem SciTEBase::SubsystemType(char c) {
+	if (c == '1')
+		return jobGUI;
+	else if (c == '2')
+		return jobShell;
+	else if (c == '3')
+		return jobExtension;
+	else if (c == '4')
+		return jobHelp;
+	else if (c == '5')
+		return jobOtherHelp;
+	return jobCLI;
+}
+
 JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
-	JobSubsystem jobType = jobCLI;
 	SString subsysprefix = cmd;
 	if (item >= 0) {
 		subsysprefix += SString(item);
 		subsysprefix += ".";
 	}
 	SString subsystem = props.GetNewExpand(subsysprefix.c_str(), fileName);
-	if (subsystem[0] == '1')
-		jobType = jobGUI;
-	else if (subsystem[0] == '2')
-		jobType = jobShell;
-	else if (subsystem[0] == '3')
-		jobType = jobExtension;
-	else if (subsystem[0] == '4')
-		jobType = jobHelp;
-	else if (subsystem[0] == '5')
-		jobType = jobOtherHelp;
-	return jobType;
+	return SubsystemType(subsystem[0]);
 }
 
 void SciTEBase::ToolsMenu(int item) {

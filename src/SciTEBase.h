@@ -616,6 +616,7 @@ protected:
 	void SetMenuItemLocalised(int menuNumber, int position, int itemID,
 		const char *text, const char *mnemonic);
 	void SetToolsMenu();
+	JobSubsystem SubsystemType(char c);
 	JobSubsystem SubsystemType(const char *cmd, int item = -1);
 	void ToolsMenu(int item);
 

@@ -2393,7 +2393,8 @@ void SciTEGTK::CreateMenu() {
 	    {"/_Help", NULL, NULL, 0, "<Branch>"},
 	    {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Help/_Help", "F1", menuSig, IDM_HELP, 0},
-	    {"/Help/_About SciTE...", "", menuSig, IDM_ABOUT, 0},
+	    {"/Help/Help _for SciTE", "", menuSig, IDM_ABOUT, 0},
+	    {"/Help/_About SciTE", "", menuSig, IDM_ABOUT, 0},
 	};
 
 	accelGroup = gtk_accel_group_new();

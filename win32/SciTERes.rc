@@ -153,9 +153,11 @@ POPUP "&Help"
 BEGIN
 	MENUITEM "&Help\tF1", 				IDM_HELP
 #ifdef STATIC_BUILD
-	MENUITEM "&About Sc1...",			IDM_ABOUT
+	MENUITEM "Help for Sc1",			IDM_HELP_SCITE
+	MENUITEM "&About Sc1",				IDM_ABOUT
 #else
-	MENUITEM "&About SciTE...",			IDM_ABOUT
+	MENUITEM "Help &for SciTE",			IDM_HELP_SCITE
+	MENUITEM "&About SciTE",			IDM_ABOUT
 #endif
 END
 
