@@ -1705,7 +1705,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/_File/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
 	    {"/File/_Open", "<control>O", menuSig, IDM_OPEN, 0},
-	    {"/File/_Open Selected Filename", "<control><shift>O", menuSig, IDM_OPENSELECTED, 0},
+	    {"/File/Open Selected _Filename", "<control><shift>O", menuSig, IDM_OPENSELECTED, 0},
 	    {"/File/_Revert", "<control>R", menuSig, IDM_REVERT, 0},
 	    {"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 	    {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
