@@ -663,6 +663,10 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 #pragma warn .aus
 #endif
 
+static bool IsBrace(char ch) {
+	return ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '{' || ch == '}';
+}
+
 /**
  * Find if there is a brace next to the caret, checking before caret first, then
  * after caret. If brace found also find its matching brace.
@@ -684,25 +688,27 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
 	}
 	// Priority goes to character before caret
-	if (charBefore && strchr("[](){}", charBefore) &&
+	if (charBefore && IsBrace(charBefore) &&
 	        ((styleBefore == bracesStyleCheck) || (!bracesStyle))) {
 		braceAtCaret = caretPos - 1;
 	}
 	bool colonMode = false;
-	if (lexLanguage == SCLEX_PYTHON && ':' == charBefore) {
+	if ((lexLanguage == SCLEX_PYTHON) &&
+		(':' == charBefore) && (SCE_P_OPERATOR == styleBefore)) {
 		braceAtCaret = caretPos - 1;
 		colonMode = true;
 	}
 	bool isAfter = true;
-	if (lengthDoc > 0 && sloppy && (braceAtCaret < 0)) {
+	if (lengthDoc > 0 && sloppy && (braceAtCaret < 0) && (caretPos < lengthDoc)) {
 		// No brace found so check other side
 		char charAfter = acc[caretPos];
 		char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
-		if (charAfter && strchr("[](){}", charAfter) && (styleAfter == bracesStyleCheck)) {
+		if (charAfter && IsBrace(charAfter) && (styleAfter == bracesStyleCheck)) {
 			braceAtCaret = caretPos;
 			isAfter = false;
 		}
-		if (lexLanguage == SCLEX_PYTHON && ':' == charAfter) {
+		if ((lexLanguage == SCLEX_PYTHON) &&
+			(':' == charAfter) && (SCE_P_OPERATOR == styleAfter)) {
 			braceAtCaret = caretPos;
 			colonMode = true;
 		}
@@ -1594,9 +1600,6 @@ void SciTEBase::Redraw() {
 }
 
 bool SciTEBase::StartCallTip() {
-	//Platform::DebugPrintf("StartCallTip\n");
-	SendEditor(SCI_CALLTIPCANCEL);
-
 	char linebuf[1000];
 	GetLine(linebuf, sizeof(linebuf));
 	int current = GetCaretInLine();
