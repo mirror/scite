@@ -149,13 +149,13 @@ $(DIR_BIN)\SciTEGlobal.properties: ..\src\SciTEGlobal.properties
 !IF "$(VENDOR)"=="MICROSOFT"
 
 $(PROG): $(OBJS) SciTERes.res
-	$(LD) $(LDFLAGS) /OUT:$@ $(OBJS) filer.lib SciTERes.res $(LIBS)
+	$(LD) $(LDFLAGS) /OUT:$@ $(OBJS) SciTERes.res $(LIBS)
 
 SciTERes.res: SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
 	$(RC) $(INCLUDEDIRS) -fo$@ SciTERes.rc
 
 $(PROGSTATIC): $(OBJSSTATIC) Sc1Res.res
-	$(LD) $(LDFLAGS) /OUT:$@ $(OBJSSTATIC) filer.lib Sc1Res.res $(LIBS)
+	$(LD) $(LDFLAGS) /OUT:$@ $(OBJSSTATIC) Sc1Res.res $(LIBS)
 
 Sc1Res.res: SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
 	$(RC) $(INCLUDEDIRS) -dSTATIC_BUILD -fo$@ SciTERes.rc
