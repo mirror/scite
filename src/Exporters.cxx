@@ -560,7 +560,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			        int style = acc.StyleAt(i);
 			        if (style != styleCurrent) {
 				        if (wysiwyg || styleCurrent != 0)
-					        fputs("</SPAN>\n", fp);
+					        fputs("</SPAN>", fp);
 				        if (wysiwyg || style != 0)
 					        fprintf(fp, "<SPAN class=S%0d>", style);
 				        styleCurrent = style;
