@@ -2427,6 +2427,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         indent.size.<i>filepattern</i><br />
           use.tabs<br />
           use.tabs.<i>filepattern</i><br />
+        indent.auto<br />
         tab.indents<br />
         backspace.unindents
         </td>
@@ -2440,6 +2441,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         The global tabsize, indent.size, and use.tabs properties can be overridden for
         files that match a pattern by using the using the file pattern forms: <br /><code>
         indent.size.*.pas=3</code><br />
+        If indent.auto is set then indent.size is set according to the contents
+        of opened document.<br />
         If tab.indents is set then pressing tab within indentation whitespace indents by indent.size
         rather than inserting a tab character. If backspace.unindents then pressing backspace
         within indentation whitespace unindents by indent.size rather than deleting the character

@@ -384,6 +384,74 @@ static UniMode CookieValue(const SString &s) {
 	return uni8Bit;
 }
 
+void SciTEBase::DiscoverEOLSetting() {
+	int linesCR;
+	int linesLF;
+	int linesCRLF;
+	SetEol();
+	CountLineEnds(linesCR, linesLF, linesCRLF);
+	if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
+		SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
+	else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
+		SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
+	else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
+		SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+}
+
+void SciTEBase::DiscoverIndentSetting() {
+	int lengthDoc = LengthDocument();
+	WindowAccessor acc(wEditor.GetID(), props);
+	bool newline = true;
+	int indent = 0; // current line indentation
+	int tabSizes[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // number of lines with corresponding indentation (index 0 - tab)
+	int prevIndent = 0; // previous line indentation
+	int prevTabSize = -1; // previous line tab size
+	for (int i = 0; i < lengthDoc; i++) {
+		char ch = acc[i];
+		if (ch == '\r' || ch == '\n') {
+			indent = 0;
+			newline = true;
+		} else if (newline && ch == ' ') {
+			indent++;
+		} else if (newline) {
+			if (indent) {
+				if (indent == prevIndent && prevTabSize != -1) {
+					tabSizes[prevTabSize]++;
+				} else if (indent > prevIndent && prevIndent != -1) {
+					if (indent - prevIndent <= 8) {
+						prevTabSize = indent - prevIndent;
+						tabSizes[prevTabSize]++;
+					} else {
+						prevTabSize = -1;
+					}
+				}
+				prevIndent = indent;
+			} else if (ch == '\t') {
+				tabSizes[0]++;
+				prevIndent = -1;
+			} else {
+				prevIndent = 0;
+			}
+			newline = false;
+		}
+	}
+	// maximum non-zero indent
+	int topTabSize = -1;
+	for (int j = 0; j <= 8; j++) {
+		if (tabSizes[j] && (topTabSize == -1 || tabSizes[j] > tabSizes[topTabSize])) {
+			topTabSize = j;
+		}
+	}
+	// set indentation
+	if (topTabSize == 0) {
+		SendEditor(SCI_SETUSETABS, 1);
+	} else if (topTabSize != -1) {
+		SendEditor(SCI_SETUSETABS, 0);
+		SendEditor(SCI_SETTABWIDTH, topTabSize);
+		SendEditor(SCI_SETINDENT, topTabSize);
+	}
+}
+
 void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 	Utf8_16_Read convert;
 
@@ -421,18 +489,13 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 		SendEditor(SCI_SETCODEPAGE, codePage);
 
 		if (props.GetInt("eol.auto")) {
-			int linesCR;
-			int linesLF;
-			int linesCRLF;
-			SetEol();
-			CountLineEnds(linesCR, linesLF, linesCRLF);
-			if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
-				SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
-			else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
-				SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
-			else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
-				SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+			DiscoverEOLSetting();
 		}
+
+		if (props.GetInt("indent.auto")) {
+			DiscoverIndentSetting();
+		}
+
 	} else if (!suppressMessage) {
 		SString msg = LocaliseMessage("Could not open file '^0'.", fullPath);
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);

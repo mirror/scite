@@ -656,6 +656,8 @@ protected:
 	void Close(bool updateUI = true, bool loadingSession = false, bool makingRoomForNew = false);
 	bool IsAbsolutePath(const char *path);
 	bool Exists(const char *dir, const char *path, char *testPath);
+	void DiscoverEOLSetting();
+	void DiscoverIndentSetting();
 	void OpenFile(int fileSize, bool suppressMessage);
 	virtual void OpenUriList(const char *) {};
 	virtual void AbsolutePath(char *fullPath, const char *basePath, int size) = 0;
