@@ -148,11 +148,6 @@ protected:
 	GtkWidget *comboFiles;
 	Dialog dlgGoto;
 	bool paramDialogCanceled;
-#ifdef CLIENT_3D_EFFECT
-
-	Window topFrame;
-	Window outputFrame;
-#endif
 
 	GtkWidget *gotoEntry;
 	GtkWidget *toggleWord;
@@ -629,25 +624,13 @@ void SciTEGTK::SizeContentWindows() {
 	int h = rcClient.bottom - rcClient.top;
 	heightOutput = NormaliseSplit(heightOutput);
 	if (splitVertical) {
-#ifdef CLIENT_3D_EFFECT
-		topFrame.SetPosition(PRectangle(left, top, w - heightOutput - heightBar + left, h + top));
-		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar + left, top, w - heightOutput + left, h + top));
-		outputFrame.SetPosition(PRectangle(w - heightOutput + left, top, w + left, h + top));
-#else
 		wEditor.SetPosition(PRectangle(left, top, w - heightOutput - heightBar + left, h + top));
 		wDivider.SetPosition(PRectangle(w - heightOutput - heightBar + left, top, w - heightOutput + left, h + top));
 		wOutput.SetPosition(PRectangle(w - heightOutput + left, top, w + left, h + top));
-#endif
 	} else {
-#ifdef CLIENT_3D_EFFECT
-		topFrame.SetPosition(PRectangle(left, top, w + left, h - heightOutput - heightBar + top));
-		wDivider.SetPosition(PRectangle(left, h - heightOutput - heightBar + top, w + left, h - heightOutput + top));
-		outputFrame.SetPosition(PRectangle(left, h - heightOutput + top, w + left, h + top));
-#else
 		wEditor.SetPosition(PRectangle(left, top, w + left, h - heightOutput - heightBar + top));
 		wDivider.SetPosition(PRectangle(left, h - heightOutput - heightBar + top, w + left, h - heightOutput + top));
 		wOutput.SetPosition(PRectangle(left, h - heightOutput + top, w + left, h + top));
-#endif
 	}
 }
 
@@ -2537,33 +2520,14 @@ void SciTEGTK::CreateUI() {
 	gtk_signal_connect(GTK_OBJECT(PWidget(wContent)), "size_allocate",
 	                   GTK_SIGNAL_FUNC(MoveResize), gthis);
 
-#ifdef CLIENT_3D_EFFECT
-
-	topFrame = gtk_frame_new(NULL);
-	gtk_widget_show(PWidget(topFrame));
-	gtk_frame_set_shadow_type(GTK_FRAME(PWidget(topFrame)), GTK_SHADOW_IN);
-	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(topFrame), 0, 0);
-	gtk_widget_set_usize(PWidget(topFrame), 600, 600);
-#endif
-
 	wEditor = scintilla_new();
-#if GTK_MAJOR_VERSION >= 2
-	gtk_widget_set_double_buffered(PWidget(wEditor), FALSE);
-#endif
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
 	fnEditor = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
 	               PWidget(wEditor), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrEditor = Platform::SendScintilla(PWidget(wEditor),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
 	SendEditor(SCI_USEPOPUP, 0);
-#ifdef CLIENT_3D_EFFECT
-
-	gtk_container_add(GTK_CONTAINER(PWidget(topFrame)), PWidget(wEditor));
-#else
-
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wEditor), 0, 0);
-	//gtk_widget_set_usize(PWidget(wEditor), 600, 600);
-#endif
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), "command",
 	                   GtkSignalFunc(CommandSignal), this);
@@ -2590,32 +2554,14 @@ void SciTEGTK::CreateUI() {
 	gtk_drawing_area_size(GTK_DRAWING_AREA(PWidget(wDivider)), width, 10);
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wDivider), 0, 600);
 
-#ifdef CLIENT_3D_EFFECT
-
-	outputFrame = gtk_frame_new(NULL);
-	gtk_widget_show(PWidget(outputFrame));
-	gtk_frame_set_shadow_type (GTK_FRAME(PWidget(outputFrame)), GTK_SHADOW_IN);
-	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(outputFrame), 0, width);
-	//gtk_widget_set_usize(PWidget(outputFrame), width, 100);
-#endif
-
 	wOutput = scintilla_new();
-#if GTK_MAJOR_VERSION >= 2
-	gtk_widget_set_double_buffered(PWidget(wOutput), FALSE);
-#endif
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
 	fnOutput = reinterpret_cast<SciFnDirect>(Platform::SendScintilla(
 	               PWidget(wOutput), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrOutput = Platform::SendScintilla(PWidget(wOutput),
 	                                    SCI_GETDIRECTPOINTER, 0, 0);
 	SendOutput(SCI_USEPOPUP, 0);
-#ifdef CLIENT_3D_EFFECT
-
-	gtk_container_add(GTK_CONTAINER(PWidget(outputFrame)), wOutput));
-#else
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wOutput), 0, width);
-	//gtk_widget_set_usize(PWidget(wOutput), width, 100);
-#endif
 	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), "command",
 	                   GtkSignalFunc(CommandSignal), this);
 	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
