@@ -305,6 +305,11 @@ HWND SciTEWin::MainHWND() {
 
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	int cmdID = ControlIDOfCommand(wParam);
+	if (wParam & 0x10000) {
+		// From accelerator -> goes to focused pane.
+		menuSource = 0;
+	}
+
 	switch (cmdID) {
 
 	case IDM_SRCWIN:
