@@ -64,6 +64,7 @@
 #ifdef unix
 const char pathSepString[] = "/";
 const char pathSepChar = '/';
+const char listSepString[] = ":";
 const char configFileVisibilityString[] = ".";
 const char propUserFileName[] = ".SciTEUser.properties";
 const char fileRead[] = "rb";
@@ -72,6 +73,7 @@ const char fileWrite[] = "wb";
 #ifdef __vms
 const char pathSepString[] = "/";
 const char pathSepChar = '/';
+const char listSepString[] = ":";
 const char configFileVisibilityString[] = "";
 const char propUserFileName[] = "SciTEUser.properties";
 const char fileRead[] = "r";
@@ -81,6 +83,7 @@ const char fileWrite[] = "w";
 // Windows
 const char pathSepString[] = "\\";
 const char pathSepChar = '\\';
+const char listSepString[] = ";";
 const char configFileVisibilityString[] = "";
 const char propUserFileName[] = "SciTEUser.properties";
 const char fileRead[] = "rb";
@@ -596,34 +599,21 @@ bool SciTEBase::OpenSelected() {
 		if (!Exists(path, selectedFilename, NULL)) {
 			SString openPath = props.GetNewExpand(
 				"openpath.", fileNameForExtension.c_str());
-#if PLAT_WIN
-			//Platform::DebugPrintf("openPath=%s", openPath.c_str());
-			if (openPath.length()) {
-				LPTSTR lp;
-				if (::SearchPath(openPath.c_str(), selectedFilename,
-					NULL, sizeof(path), path, &lp)) {
-					lp--;
-					*lp = '\0';
-				}
-			}
-#endif
-#if PLAT_GTK
 			while (openPath.length()) {
-				SString tempPath(openPath);
-				int colonIndex = tempPath.search(":");
-				if (colonIndex > 0) {
-					tempPath.remove(colonIndex, 0);
-					openPath.remove(0,colonIndex+1);
+				SString tryPath(openPath);
+				int sepIndex = tryPath.search(listSepString);
+				if (sepIndex > 0) {
+					tryPath.remove(sepIndex, 0);
+					openPath.remove(0,sepIndex+1);
 				} else {
 					openPath.clear();
 				}
-				if (Exists(tempPath.c_str(), selectedFilename, NULL)) {
-					strncpy(path, tempPath.c_str(), sizeof(path)-1);
+				if (Exists(tryPath.c_str(), selectedFilename, NULL)) {
+					strncpy(path, tryPath.c_str(), sizeof(path)-1);
 					path[sizeof(path)-1] = '\0';
 					break;
 				}
 			}
-#endif
 		}
 	}
 	if (Exists(path, selectedFilename, path)) {
