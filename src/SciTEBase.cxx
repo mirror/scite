@@ -413,6 +413,7 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
 		AddStyledText(wsci, LocaliseString("Version").c_str(), 1);
 		AddStyledText(wsci, " 1.57\n", 1);
+		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
 		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, LocaliseString("by").c_str(), 2);
