@@ -1311,10 +1311,21 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
 
-void SciTEBase::OutputAppendString(const char *s, int len) {
+void SciTEBase::OutputAppendString(const char *s, int len, bool startLine) {
 	if (len == -1)
 		len = static_cast<int>(strlen(s));
 	int docLength = SendOutput(SCI_GETTEXTLENGTH);
+	
+	if (startLine && docLength > 0) {
+		char lastChar = static_cast<char>(SendOutput(SCI_GETCHARAT, docLength - 1));
+		if (lastChar!='\n' && lastChar!='\r') {
+			SendOutput(SCI_SETTARGETSTART, docLength);
+			SendOutput(SCI_SETTARGETEND, docLength);
+			SendOutput(SCI_REPLACETARGET, 1, reinterpret_cast<sptr_t>("\n"));
+			docLength++;
+		}
+	}
+	
 	SendOutput(SCI_SETTARGETSTART, docLength);
 	SendOutput(SCI_SETTARGETEND, docLength);
 	SendOutput(SCI_REPLACETARGET, len, reinterpret_cast<sptr_t>(s));
@@ -1325,10 +1336,21 @@ void SciTEBase::OutputAppendString(const char *s, int len) {
 	}
 }
 
-void SciTEBase::OutputAppendStringSynchronised(const char *s, int len /*= -1*/) {
+void SciTEBase::OutputAppendStringSynchronised(const char *s, int len, bool startLine) {
 	if (len == -1)
 		len = static_cast<int>(strlen(s));
 	int docLength = SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false);
+
+	if (startLine && docLength > 0) {
+		char lastChar = static_cast<char>(SendOutputEx(SCI_GETCHARAT, docLength - 1, 0, false));
+		if (lastChar!='\n' && lastChar!='\r') {
+			SendOutputEx(SCI_SETTARGETSTART, docLength, 0, false);
+			SendOutputEx(SCI_SETTARGETEND, docLength, 0, false);
+			SendOutputEx(SCI_REPLACETARGET, 1, reinterpret_cast<sptr_t>("\n"));
+			docLength++;
+		}
+	}
+	
 	SendOutputEx(SCI_SETTARGETSTART, docLength, 0, false);
 	SendOutputEx(SCI_SETTARGETEND, docLength, 0, false);
 	SendOutputEx(SCI_REPLACETARGET, len, reinterpret_cast<sptr_t>(s), false);

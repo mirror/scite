@@ -555,8 +555,8 @@ protected:
 	void GoMatchingBrace(bool select);
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
-	void OutputAppendString(const char *s, int len = -1);
-	void OutputAppendStringSynchronised(const char *s, int len = -1);
+	void OutputAppendString(const char *s, int len = -1, bool startLine = false);
+	void OutputAppendStringSynchronised(const char *s, int len = -1, bool startLine = false);
 	void MakeOutputVisible();
 	void ClearJobQueue();
 	virtual void Execute();
