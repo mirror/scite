@@ -1339,6 +1339,17 @@ void SciTEWin::RestoreFromTray() {
 	::Shell_NotifyIcon(NIM_DELETE, &nid);
 }
 
+#ifndef VK_OEM_2
+static const int VK_OEM_2=0xbf;
+static const int VK_OEM_3=0xc0;
+static const int VK_OEM_4=0xdb;
+static const int VK_OEM_5=0xdc;
+static const int VK_OEM_6=0xdd;
+#endif
+#ifndef VK_OEM_PLUS
+static const int VK_OEM_PLUS=0xbb;
+#endif
+
 static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 	if (keyval == 0x11)
 		return false;
@@ -1361,9 +1372,16 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 	}
 	if (modifiers != modsInKey)
 		return false;
-	if ((sKey.length() == 1) && (modsInKey & SCMOD_CTRL)) {
+	if ((sKey.length() == 1) && (modsInKey & (SCMOD_CTRL | SCMOD_ALT))) {
 		char keySought = sKey[0];
-		return keySought == keyval;
+		switch (keyval) {
+			case VK_OEM_2: return keySought == '/';
+			case VK_OEM_3: return keySought == '`';
+			case VK_OEM_4: return keySought == '[';
+			case VK_OEM_5: return keySought == '\\';
+			case VK_OEM_6: return keySought == ']';
+			default: return keySought == keyval;
+		}
 	}
 	if ((sKey.length() > 1) && (sKey[0] == 'F') && (isdigit(sKey[1]))) {
 		sKey.remove("F");
@@ -1411,6 +1429,12 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 			return keyval == VK_PRIOR;
 		} else if (sKey == "PageDown") {
 			return keyval == VK_NEXT;
+		} else if (sKey == "Slash") {
+			return keyval == VK_OEM_2;
+		} else if (sKey == "Question") {
+			return keyval == VK_OEM_2;
+		} else if (sKey == "Equal") {
+			return keyval == VK_OEM_PLUS;
 		}
 	}
 
