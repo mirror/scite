@@ -85,18 +85,17 @@ SString GetDlgItemText2(HWND hDlg, int idItem) {
 	WCHAR wsz[CTL_TEXT_BUF];
 	char	msz[CTL_TEXT_BUF];
 
-	if (IsWindowUnicode(GetDlgItem(hDlg, idItem))) {
-		if (GetDlgItemTextW(hDlg, idItem, wsz, CTL_TEXT_BUF)) {
-			if (WideCharToMultiByte(CP_UTF8, 0, wsz, -1, msz, CTL_TEXT_BUF, NULL, NULL))
+	if (::IsWindowUnicode(GetDlgItem(hDlg, idItem))) {
+		if (::GetDlgItemTextW(hDlg, idItem, wsz, CTL_TEXT_BUF)) {
+			if (::WideCharToMultiByte(CP_UTF8, 0, wsz, -1, msz, CTL_TEXT_BUF, NULL, NULL))
 				result = msz;
 		}
-	}
-	else {
-		if (GetDlgItemTextA(hDlg, idItem, msz, CTL_TEXT_BUF))
+	} else {
+		if (::GetDlgItemTextA(hDlg, idItem, msz, CTL_TEXT_BUF))
 			result = msz;
 	}
 
-	//MessageBox(GetFocus(),result.c_str(),"GetDlgItemText2():out",0);
+	//::MessageBox(GetFocus(),result.c_str(),"GetDlgItemText2():out",0);
 
 	return result;
 }
@@ -106,17 +105,16 @@ BOOL SetDlgItemText2(HWND hDlg, int idItem, LPCSTR pmsz) {
 	WCHAR wsz[CTL_TEXT_BUF];
 
 	if (!pmsz || *pmsz == 0)
-		return SetDlgItemTextA(hDlg, idItem, "");
+		return ::SetDlgItemTextA(hDlg, idItem, "");
 
-	//MessageBox(GetFocus(),pmsz,"SetDlgItemText2():in",0);
+	//::MessageBox(GetFocus(),pmsz,"SetDlgItemText2():in",0);
 
-	if (IsWindowUnicode(GetDlgItem(hDlg, idItem))) {
-		if (MultiByteToWideChar(CP_UTF8, 0, pmsz, -1, wsz, CTL_TEXT_BUF)) {
-			bSuccess = SetDlgItemTextW(hDlg, idItem, wsz);
+	if (::IsWindowUnicode(GetDlgItem(hDlg, idItem))) {
+		if (::MultiByteToWideChar(CP_UTF8, 0, pmsz, -1, wsz, CTL_TEXT_BUF)) {
+			bSuccess = ::SetDlgItemTextW(hDlg, idItem, wsz);
 		}
-	}
-	else {
-		bSuccess = SetDlgItemTextA(hDlg, idItem, pmsz);
+	} else {
+		bSuccess = ::SetDlgItemTextA(hDlg, idItem, pmsz);
 	}
 
 	return bSuccess;
@@ -206,7 +204,7 @@ int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC 
 	if (result == -1) {
 		SString errorNum(::GetLastError());
 		SString msg = LocaliseMessage("Failed to create dialog box: ^0.", errorNum.c_str());
-		MessageBox(hWnd, msg.c_str(), appName, MB_OK | MB_SETFOREGROUND);
+		::MessageBox(hWnd, msg.c_str(), appName, MB_OK | MB_SETFOREGROUND);
 	}
 
 	return result;
@@ -779,15 +777,14 @@ void SciTEWin::PrintSetup() {
 	hDevNames = pdlg.hDevNames;
 }
 
-// IsWindowsNT() introduced because IsNT() did not work
 extern bool IsWindowsNT();
 
 static void FillComboFromMemory(HWND combo, const ComboMemory &mem, bool useTop = false) {
-	if (IsWindowUnicode(combo)) {
+	if (::IsWindowUnicode(combo)) {
 		for (int i = 0; i < mem.Length(); i++) {
 			//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
 			WCHAR wszBuf[CTL_TEXT_BUF];
-			MultiByteToWideChar(CP_UTF8, 0, mem.At(i).c_str(), -1, wszBuf,
+			::MultiByteToWideChar(CP_UTF8, 0, mem.At(i).c_str(), -1, wszBuf,
 			                    CTL_TEXT_BUF);
 			::SendMessageW(combo, CB_ADDSTRING, 0,
 			               reinterpret_cast<LPARAM>(wszBuf));
@@ -1090,7 +1087,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			}
 			wholeWord = false;
 			FindNext(false, false);
-			if ((!havefound) && (ffLastWhat.length() == findWhat.length()-1) &&
+ 			if ((!havefound) &&
 				strncmp(findWhat.c_str(), ffLastWhat.c_str(), ffLastWhat.length()) == 0) {
 				findWhat = ffLastWhat;
 				SetDlgItemText2(hDlg, IDC_INCFINDTEXT, findWhat.c_str());
@@ -1129,11 +1126,11 @@ void SciTEWin::FindIncrement() {
 	//		 MainHWND(),
 	//		 reinterpret_cast<DLGPROC>(FindIncrementDlg));
 	if (IsWindowsNT()) {
-		DialogBoxParamW(hInstance, (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
+		::DialogBoxParamW(hInstance, (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
 		                MainHWND(), reinterpret_cast<DLGPROC>(FindIncrementDlg),
 		                reinterpret_cast<LPARAM>(this));
 	} else {
-		DialogBoxParamA(hInstance, MAKEINTRESOURCE(IDD_FIND2),
+		::DialogBoxParamA(hInstance, MAKEINTRESOURCE(IDD_FIND2),
 		                MainHWND(), reinterpret_cast<DLGPROC>(FindIncrementDlg),
 		                reinterpret_cast<LPARAM>(this));
 	}

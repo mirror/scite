@@ -1878,7 +1878,7 @@ static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 		cp = documentCodePage;
 
 	CPINFO cpi;
-	if (!IsValidCodePage(cp) && !GetCPInfo(cp, &cpi))
+	if (!::IsValidCodePage(cp) && !::GetCPInfo(cp, &cpi))
 		cp = CP_ACP;
 
 	return cp;
@@ -1886,7 +1886,7 @@ static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 
 // On NT, convert String from UTF-8 to doc encoding
 SString SciTEWin::EncodeString(const SString &s) {
-	//MessageBox(GetFocus(),SString(s).c_str(),"EncodeString:in",0);
+	//::MessageBox(GetFocus(),SString(s).c_str(),"EncodeString:in",0);
 
 	if (IsWindowsNT()) {
 		UINT codePage = SendEditor(SCI_GETCODEPAGE);
@@ -1895,13 +1895,13 @@ SString SciTEWin::EncodeString(const SString &s) {
 			DWORD charSet = props.GetInt("character.set", DEFAULT_CHARSET);
 			codePage = CodePageFromCharSet(charSet, codePage);
 
-			int cchWide = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0);
+			int cchWide = ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0);
 			wchar_t *pszWide = new wchar_t[cchWide + 1];
-			MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
+			::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
 
-			int cchMulti = WideCharToMultiByte(codePage, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
+			int cchMulti = ::WideCharToMultiByte(codePage, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
 			char *pszMulti = new char[cchMulti + 1];
-			WideCharToMultiByte(codePage, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
+			::WideCharToMultiByte(codePage, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
 			pszMulti[cchMulti] = 0;
 
 			SString result(pszMulti);
@@ -1909,7 +1909,7 @@ SString SciTEWin::EncodeString(const SString &s) {
 			delete []pszWide;
 			delete []pszMulti;
 
-			//MessageBox(GetFocus(),result.c_str(),"EncodeString:out",0);
+			//::MessageBox(GetFocus(),result.c_str(),"EncodeString:out",0);
 			return result;
 		}
 	}
@@ -1920,7 +1920,7 @@ SString SciTEWin::EncodeString(const SString &s) {
 SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 	SString s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
-	//MessageBox(GetFocus(),s.c_str(),"GetRangeInUIEncoding:in",0);
+	//::MessageBox(GetFocus(),s.c_str(),"GetRangeInUIEncoding:in",0);
 
 	if (IsWindowsNT()) {
 		UINT codePage = SendEditor(SCI_GETCODEPAGE);
@@ -1929,13 +1929,13 @@ SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 			DWORD charSet = props.GetInt("character.set", DEFAULT_CHARSET);
 			codePage = CodePageFromCharSet(charSet, codePage);
 
-			int cchWide = MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), NULL, 0);
+			int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), NULL, 0);
 			wchar_t *pszWide = new wchar_t[cchWide + 1];
-			MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
+			::MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
 
-			int cchMulti = WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
+			int cchMulti = ::WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
 			char *pszMulti = new char[cchMulti + 1];
-			WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
+			::WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
 			pszMulti[cchMulti] = 0;
 
 			SString result(pszMulti);
@@ -1943,7 +1943,7 @@ SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 			delete []pszWide;
 			delete []pszMulti;
 
-			//MessageBox(GetFocus(),result.c_str(),"GetRangeInUIEncoding:out",0);
+			//::MessageBox(GetFocus(),result.c_str(),"GetRangeInUIEncoding:out",0);
 			return result;
 		}
 	}
