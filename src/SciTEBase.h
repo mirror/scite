@@ -8,10 +8,12 @@ extern const char appName[];
 #ifdef unix
 const char pathSepString[] = "/";
 const char pathSepChar = '/';
+const char propUserFileName[] = ".SciTEUser.properties";
 #define MAX_PATH 260
 #else
 const char pathSepString[] = "\\";
 const char pathSepChar = '\\';
+const char propUserFileName[] = "SciTEUser.properties";
 #ifdef _MSC_VER
 // Shut up level 4 warning:  warning C4710: function 'void whatever(...)' not inlined
 #pragma warning(disable:4710)
@@ -19,7 +21,6 @@ const char pathSepChar = '\\';
 #endif
 
 const char propGlobalFileName[] = "SciTEGlobal.properties";
-const char propUserFileName[] = "SciTEUser.properties";
 
 class RecentFile {
 public:

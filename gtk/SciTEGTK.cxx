@@ -307,10 +307,16 @@ int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
 }
 
 bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath) {
-   	char *where = getenv("SciTE_HOME");
+	char *where = getenv("SciTE_HOME");
+#ifdef SYSCONF_PATH
+        if (!where) {
+		where = SYSCONF_PATH;
+	}
+#else
         if (!where) {
 		where = getenv("HOME");
 	}
+#endif
 	strncpy(pathDefaultProps, where, lenPath);
 	strncat(pathDefaultProps, pathSepString, lenPath);
 	strncat(pathDefaultProps, propGlobalFileName, lenPath);
@@ -318,7 +324,7 @@ bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int
 }
 
 bool SciTEGTK::GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath) {
-   	char *where = getenv("SciTE_HOME");
+	char *where = getenv("SciTE_HOME");
         if (!where) {
 		where = getenv("HOME");
 	}
