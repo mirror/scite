@@ -57,6 +57,7 @@ OBJSSTATIC = Sc1.obj SciTEBase.obj \
 	..\..\scintilla\win32\KeyWords.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexHTML.obj \
+	..\..\scintilla\win32\LexLua.obj \
 	..\..\scintilla\win32\LexOthers.obj \
 	..\..\scintilla\win32\LexPerl.obj \
 	..\..\scintilla\win32\LexPython.obj \
@@ -111,6 +112,8 @@ Sc1.obj: SciTEWin.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
 	echo You must run the Scintilla makefile to build $*.obj
 	fail_the_build # Is there an official way to do this?
 	
-
-$(PROGSTATIC): $(OBJSSTATIC) SciTERes.res
-	$(LD) /OUT:$@ $(OBJSSTATIC) SciTERes.res $(LDFLAGS)
+Sc1Res.res:	SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
+	$(RC) $(INCLUDEDIRS) -dSTATIC_BUILD -fo$@ SciTERes.rc
+	
+$(PROGSTATIC): $(OBJSSTATIC) Sc1Res.res
+	$(LD) /OUT:$@ $(OBJSSTATIC) Sc1Res.res $(LDFLAGS)

@@ -28,6 +28,7 @@ LEXEROBJS=\
 	../../scintilla/gtk/LexCPP.o \
 	../../scintilla/gtk/LexPython.o \
 	../../scintilla/gtk/LexHTML.o \
+	../../scintilla/gtk/LexLua.o \
 	../../scintilla/gtk/LexSQL.o \
 	../../scintilla/gtk/LexOthers.o \
 	../../scintilla/gtk/LexVB.o \

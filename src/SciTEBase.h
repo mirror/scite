@@ -321,6 +321,7 @@ protected:
 	JobSubsystem SubsystemType(const char *cmd, int item = -1);
 	void ToolsMenu(int item);
 
+	void AssignKey(int key, int mods, int cmd);
 	virtual void ReadPropertiesInitial();
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);

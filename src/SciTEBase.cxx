@@ -80,7 +80,7 @@ const char *contributors[] = {
 
 const char *extList[] = {
     "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
-    "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.py",
+    "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
     "x.pl", "x.sql", "x.spec", "x.php3", "x.tex"
 };
 
@@ -331,7 +331,7 @@ bool SciTEBase::IsBufferAvailable() {
 }
 
 static bool IsUntitledFileName(const char *name) {
-	char *dirEnd = strrchr(name, pathSepChar);
+	const char *dirEnd = strrchr(name, pathSepChar);
 	return !dirEnd || !dirEnd[1];
 }
 
@@ -840,6 +840,10 @@ SString SciTEBase::ExtensionFileName() {
 		return props.Get("default.file.ext");
 }
 
+void SciTEBase::AssignKey(int key, int mods, int cmd) {
+	SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(key, mods), cmd);
+}
+
 void SciTEBase::ReadProperties() {
 	//DWORD dwStart = timeGetTime();
 	SString fileNameForExtension = ExtensionFileName();
@@ -872,6 +876,8 @@ void SciTEBase::ReadProperties() {
 		lexLanguage = SCLEX_BATCH;
 	} else if (language == "latex") {
 		lexLanguage = SCLEX_LATEX;
+	} else if (language == "lua") {
+		lexLanguage = SCLEX_LUA;
 	} else {
 		lexLanguage = SCLEX_NULL;
 	}
@@ -1064,11 +1070,11 @@ void SciTEBase::ReadProperties() {
 
 	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
 	if (props.GetInt("vc.home.key", 1)) {
-		SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(VK_HOME, 0), SCI_VCHOME);
-		SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(VK_HOME, SHIFT_PRESSED), SCI_VCHOMEEXTEND);
+		AssignKey(VK_HOME, 0, SCI_VCHOME);
+		AssignKey(VK_HOME, SHIFT_PRESSED, SCI_VCHOMEEXTEND);
 	} else {
-		SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(VK_HOME, 0), SCI_HOME);
-		SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(VK_HOME, SHIFT_PRESSED), SCI_HOMEEXTEND);
+		AssignKey(VK_HOME, 0, SCI_HOME);
+		AssignKey(VK_HOME, SHIFT_PRESSED, SCI_HOMEEXTEND);
 	}
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 
@@ -2811,6 +2817,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_MAKE:
 	case IDM_LEXER_ERRORL:
 	case IDM_LEXER_JAVA:
+	case IDM_LEXER_LUA:
 	case IDM_LEXER_PYTHON:
 	case IDM_LEXER_PERL:
 	case IDM_LEXER_SQL:
@@ -2818,15 +2825,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_LEXER_PHP:
 	case IDM_LEXER_LATEX:
 		SetOverrideLanguage(cmdID);
-#ifdef PL
-		char oldFileName[MAX_PATH];	// Bad hack, perhaps should change ReadProperties to accept a parameter instead...
-		strcpy(oldFileName, fileName);
-		strcpy(fileName, extList[cmdID - LEXER_BASE]);
-		ReadProperties();
-		strcpy(fileName, oldFileName);	// Restore real name
-		SendEditor(SCI_COLOURISE, 0, -1);
-		Redraw();
-#endif 
 		break;
 
 	default:

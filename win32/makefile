@@ -26,7 +26,7 @@ CXXFLAGS = -W -Wall -pedantic $(INCLUDEDIRS) -Os -fno-exceptions -fvtable-thunks
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-LEXOBJS	=  LexCPP.o LexHTML.o LexOthers.o LexPerl.o LexPython.o LexSQL.o LexVB.o
+LEXOBJS	=  LexCPP.o LexHTML.o LexLua.o LexOthers.o LexPerl.o LexPython.o LexSQL.o LexVB.o
 OBJS	= SciTEBase.o SciTEWin.o WindowAccessor.o PropSet.o PlatWin.o UniConversion.o SciTERes.o
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll

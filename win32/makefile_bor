@@ -51,6 +51,7 @@ OBJSSTATIC = Sc1.obj SciTEBase.obj \
 	..\..\scintilla\win32\KeyWords.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexHTML.obj \
+	..\..\scintilla\win32\LexLua.obj \
 	..\..\scintilla\win32\LexOthers.obj \
 	..\..\scintilla\win32\LexPerl.obj \
 	..\..\scintilla\win32\LexPython.obj \
@@ -99,6 +100,9 @@ Sc1.obj: SciTEWin.cxx ..\src\SciTEBase.h ..\src\SciTE.h \
 	..\..\scintilla\include\KeyWords.h \
 	..\..\scintilla\include\Scintilla.h
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -o$@ /DSTATIC_BUILD /c SciTEWin.cxx
+
+Sc1Res.res:	SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
+	$(RC) $(INCLUDEDIRS) -dSTATIC_BUILD -fo$@ SciTERes.rc
 	
-$(PROGSTATIC): $(OBJSSTATIC) SciTERes.res
-	$(LD) -Tpe -aa /c c0w32 $(OBJSSTATIC), $(PROGSTATIC), ,$(LDFLAGS), , SciTERes.res
+$(PROGSTATIC): $(OBJSSTATIC) Sc1Res.res
+	$(LD) -Tpe -aa /c c0w32 $(OBJSSTATIC), $(PROGSTATIC), ,$(LDFLAGS), , Sc1Res.res

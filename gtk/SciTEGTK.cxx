@@ -1380,6 +1380,7 @@ void SciTEGTK::Run(const char *cmdLine) {
 	    {"/Options/Use lexer/_Makefile", "", menuSig, IDM_LEXER_MAKE, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/_Errorlist", "", menuSig, IDM_LEXER_ERRORL, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/_Java", "", menuSig, IDM_LEXER_JAVA, "/Options/Use lexer/none"},
+	    {"/Options/Use lexer/_Lua", "", menuSig, IDM_LEXER_LUA, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/Pytho_n", "", menuSig, IDM_LEXER_PYTHON, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/Pe_rl", "", menuSig, IDM_LEXER_PERL, "/Options/Use lexer/none"},
 	    {"/Options/Use lexer/S_QL", "", menuSig, IDM_LEXER_SQL, "/Options/Use lexer/none"},
