@@ -1191,8 +1191,7 @@ BOOL CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 }
 
 bool SciTEWin::AbbrevDialog() {
-	bool success = false;
-	success = (DoDialog(hInstance, "InsAbbrev", MainHWND(), reinterpret_cast<DLGPROC>(AbbrevDlg)) == IDOK);
+	bool success = (DoDialog(hInstance, "InsAbbrev", MainHWND(), reinterpret_cast<DLGPROC>(AbbrevDlg)) == IDOK);
 	WindowSetFocus(wEditor);
 	return success;
 }
