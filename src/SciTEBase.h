@@ -880,6 +880,7 @@ protected:
 	virtual void ReadProperties();
 	void SetOneStyle(Window &win, int style, const StyleDefinition &sd);
 	void SetStyleFor(Window &win, const char *language);
+	void ReloadProperties();
 
 	void CheckReload();
 	void Activate(bool activeApp);

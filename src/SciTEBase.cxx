@@ -232,6 +232,7 @@ const char *contributors[] = {
                                  "Michael Owens",
                                  "Franck Marcia",
                                  "nissl",
+                                 "Frank Wunderlich",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -4408,6 +4409,8 @@ void SciTEBase::PerformOne(char *action) {
 			SendOutput(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(arg));
 		} else if (isprefix(action, "property:")) {
 			PropertyFromDirector(arg);
+		} else if (isprefix(action, "reloadproperties:")) {
+			ReloadProperties();
 		} else if (isprefix(action, "quit:")) {
 			QuitProgram();
 		} else if (isprefix(action, "replaceall:") && fnEditor) {

@@ -954,6 +954,17 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 	return retVal;
 }
 
+void SciTEBase::ReloadProperties() {
+	ReadGlobalPropFile();
+	SetImportMenu();
+	ReadLocalPropFile();
+	ReadAbbrevPropFile();
+	ReadProperties();
+	SetWindowName();
+	BuffersMenu();
+	Redraw();
+}
+
 // Returns false if cancelled or failed to save
 bool SciTEBase::Save() {
 	if (fileName[0]) {
@@ -965,14 +976,7 @@ bool SciTEBase::Save() {
 			fileModTime = GetModTime(fullPath);
 			SendEditor(SCI_SETSAVEPOINT);
 			if (IsPropertiesFile(fileName)) {
-				ReadGlobalPropFile();
-				SetImportMenu();
-				ReadLocalPropFile();
-				ReadAbbrevPropFile();
-				ReadProperties();
-				SetWindowName();
-				BuffersMenu();
-				Redraw();
+				ReloadProperties();
 			}
 		} else {
 			SString msg = LocaliseMessage(
