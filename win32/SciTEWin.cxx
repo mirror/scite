@@ -888,6 +888,22 @@ void SciTEWin::CreateUI() {
 }
 
 void SciTEWin::Run(const char *cmdLine) {
+	if (props.GetInt("check.if.already.open")) {
+		HWND hAnother = ::FindWindow("SciTEWindow", NULL);
+		if (hAnother) {
+			if (strlen(cmdLine) > 0) {
+				COPYDATASTRUCT cds;
+				cds.dwData = 0;
+				cds.cbData = strlen(cmdLine)+1;
+				cds.lpData = static_cast<void *>(
+					const_cast<char *>(cmdLine));
+				::SendMessage(hAnother, WM_COPYDATA, 0,
+					reinterpret_cast<LPARAM>(&cds));
+			}
+			exit(0);
+		}
+	}
+
 	// Break up the command line into individual arguments and strip double quotes
 	// from each argument creatng a string with each argument separated by '\n'
 	SString args;
@@ -1020,6 +1036,19 @@ void SciTEWin::RestoreFromTray() {
 	::Shell_NotifyIcon(NIM_DELETE, &nid);
 }
 
+LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
+	char *text = static_cast<char *>(pcds->lpData);
+	::ShowWindow(wSciTE.GetID(), SW_SHOW);
+	NOTIFYICONDATA nid;
+	memset(&nid, 0, sizeof(nid));
+	nid.cbSize = sizeof(nid);
+	nid.hWnd = wSciTE.GetID();
+	nid.uID = 1;
+	::Shell_NotifyIcon(NIM_DELETE, &nid);
+	Open(text);
+	return TRUE;
+}
+
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
 	switch (iMessage) {
@@ -1130,6 +1159,9 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_DROPFILES: 
 		DropFiles(reinterpret_cast<HDROP>(wParam));
 		break;
+
+	case WM_COPYDATA:
+		return CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
 
 	default:
 		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);

@@ -112,6 +112,7 @@ protected:
 	void DropFiles(HDROP hdrop);
 	void MinimiseToTray();
 	void RestoreFromTray();
+	LRESULT CopyData(COPYDATASTRUCT *pcds);
 	void AboutDialogWithBuild(int staticBuild);
 	virtual void QuitProgram();
 
