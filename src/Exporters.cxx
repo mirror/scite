@@ -487,6 +487,8 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		fputs("<style type=\"text/css\">\n", fp);
 		SString colour;
 		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
+			if ((istyle > STYLE_DEFAULT) && (istyle <= STYLE_LASTPREDEFINED))
+				continue;
 			if (styleIsUsed[istyle]) {
 				char key[200];
 				sprintf(key, "style.*.%0d", istyle);
@@ -624,14 +626,14 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 			}
 			if (ch == ' ') {
 				if (wysiwyg) {
-					if (acc[i+1] != ' ') {
-						// Single space, kept as is
+					if (acc[i+1] != ' ' || i+1 >= lengthDoc) {
 						fputc(' ', fp);
 					} else {
-						while (i < lengthDoc && acc[i] == ' ') {
+						while (acc[i] == ' ') {
 							fputs("&nbsp;", fp);
 							i++;
 						}
+						i--; // the last one will be done by the loop
 					}
 				} else {
 					fputc(' ', fp);
