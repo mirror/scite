@@ -989,20 +989,13 @@ void SciTEBase::ReadProperties() {
 	           ColourOfProperty(props, "bookmark.fore", ColourDesired(0, 0, 0x7f)));
 	SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK,
 	           ColourOfProperty(props, "bookmark.back", ColourDesired(0x80, 0xff, 0xff)));
-	//SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
-		static char *bm_xpm = "\
-		static char *stop_xpm[] = {\
-\"4 6 3 1\",\
-\"  c None\",\
-\"+ c #0000FF\",\
-\". c #FFFF00\",\
-\"....\",\
-\".++.\",\
-\".++.\",\
-\".++.\",\
-\".++.\",\
-\"....\"};";
-	SendEditorString(SCI_MARKERDEFINEPIXMAP, SciTE_MARKER_BOOKMARK, bm_xpm);
+	SString bookMarkXPM = props.Get("bookmark.pixmap");
+	if (bookMarkXPM.length()) {
+		SendEditorString(SCI_MARKERDEFINEPIXMAP, SciTE_MARKER_BOOKMARK,
+			bookMarkXPM.c_str());
+	} else {
+		SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
+	}
 
 	SendEditor(SCI_SETSCROLLWIDTH, props.GetInt("horizontal.scroll.width", 2000));
 	SendOutput(SCI_SETSCROLLWIDTH, props.GetInt("output.horizontal.scroll.width", 2000));
