@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <time.h>
+#include <locale.h>
 
 #include "Platform.h"
 
@@ -395,6 +396,7 @@ eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED), visible(true) {
 		if (0 == strcmp(opt, "font")) {
 			specified = static_cast<flags>(specified | sdFont);
 			font = colon;
+			font.substitute('|', ',');
 		}
 		if (0 == strcmp(opt, "fore")) {
 			specified = static_cast<flags>(specified | sdFore);
@@ -665,6 +667,10 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCODEPAGE, codePage);
 
 	characterSet = props.GetInt("character.set");
+
+#ifdef unix
+	setlocale(LC_CTYPE, props.Get("LC_CTYPE").c_str());
+#endif
 
 	SendEditor(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", ColourDesired(0, 0, 0)));
