@@ -328,7 +328,9 @@ void SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 		AddFileToStack(fullPath, GetSelection(), GetCurrentScrollPosition());
 		ClearDocument();
 	} else {
-		New();
+		if (index < 0 || !forceLoad) { // No new buffer, already opened
+			New();
+		}
 	}
 
 	//Platform::DebugPrintf("Opening %s\n", file);
