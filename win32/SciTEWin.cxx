@@ -1722,6 +1722,9 @@ void SciTEWin::Creation() {
 		0);
 	if (!wEditor.Created())
 		exit(FALSE);
+	fnEditor = reinterpret_cast<FnDirect>(::SendMessage(
+		wEditor.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
+	ptrEditor = ::SendMessage(wEditor.GetID(), SCI_GETDIRECTPOINTER, 0, 0);
 	wEditor.Show();
 	SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
 	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
@@ -1741,6 +1744,9 @@ void SciTEWin::Creation() {
 		0);
 	if (!wOutput.Created())
 		exit(FALSE);
+	fnOutput = reinterpret_cast<FnDirect>(::SendMessage(
+	wOutput.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
+	ptrOutput = ::SendMessage(wOutput.GetID(), SCI_GETDIRECTPOINTER, 0, 0);
 	wOutput.Show();
 	// No selection margin on output window
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);

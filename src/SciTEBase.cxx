@@ -518,7 +518,7 @@ void SciTEBase::ReadLocalPropFile() {
 }
 
 long SciTEBase::SendEditor(unsigned int msg, unsigned long wParam, long lParam) {
-	return Platform::SendScintilla(wEditor.GetID(), msg, wParam, lParam);
+	return fnEditor(ptrEditor, msg, wParam, lParam);
 }
 
 long SciTEBase::SendEditorString(unsigned int msg, unsigned long wParam, const char *s) {
@@ -526,7 +526,7 @@ long SciTEBase::SendEditorString(unsigned int msg, unsigned long wParam, const c
 }
 
 long SciTEBase::SendOutput(unsigned int msg, unsigned long wParam, long lParam) {
-	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
+	return fnOutput(ptrOutput, msg, wParam, lParam);
 }
 
 void SciTEBase::SendChildren(unsigned int msg, unsigned long wParam, long lParam) {
