@@ -1490,10 +1490,12 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	int key = event->keyval;
 	if ((mods == GDK_CONTROL_MASK) && (key == GDK_Tab)) {
 		Command(IDM_NEXTFILE);
+		gtk_signal_emit_stop_by_name(GTK_OBJECT(wSciTE.GetID()), "key_press_event");
 	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_KP_Enter)) {
 		Command(IDM_COMPLETEWORD);
 	} else if ((mods == (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) && (key == GDK_ISO_Left_Tab)) {
 		Command(IDM_PREVFILE);
+		gtk_signal_emit_stop_by_name(GTK_OBJECT(wSciTE.GetID()), "key_press_event");
 	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_F3)) {
 		Command(IDM_FINDNEXTSEL);
 	} else if ((mods == (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) && (key == GDK_F3)) {
