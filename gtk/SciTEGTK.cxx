@@ -78,9 +78,6 @@ protected:
 	int fdPipe;
 	char pipeName[MAX_PATH];
 
-	char findInDir[1024];
-	ComboMemory memDir;
-
 	bool savingHTML;
 	bool savingRTF;
 	bool savingPDF;
@@ -1031,8 +1028,8 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->memFinds.Insert(findEntry);
 
 	char *dirEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboDir)->entry));
-	scitew->props.Set("find.dir", dirEntry);
-	scitew->memDir.Insert(dirEntry);
+	scitew->props.Set("find.directory", dirEntry);
+	scitew->memDirectory.Insert(dirEntry);
 
 #ifdef RECURSIVE_GREP_WORKING
 	if (GTK_TOGGLE_BUTTON(scitew->toggleRec)->active)
@@ -1073,8 +1070,9 @@ void SciTEGTK::FindInFiles() {
 	SelectionIntoFind();
 	props.Set("find.what", findWhat.c_str());
 
+	char findInDir[1024];
 	getcwd(findInDir, sizeof(findInDir));
-	props.Set("find.dir", findInDir);
+	props.Set("find.directory", findInDir);
 
 	findInFilesDialog = gtk_dialog_new();
 	gtk_window_set_policy(GTK_WINDOW(PWidget(findInFilesDialog)), TRUE, TRUE, TRUE);
@@ -1145,7 +1143,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_widget_show(labelDir);
 
 	comboDir = gtk_combo_new();
-	FillComboFromMemory(comboDir, memDir);
+	FillComboFromMemory(comboDir, memDirectory);
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboDir), TRUE);
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboDir), TRUE);
 
@@ -1159,7 +1157,7 @@ void SciTEGTK::FindInFiles() {
 #ifdef RECURSIVE_GREP_WORKING
 	row++;
 
-	toggleRec = TranslatedToggle("  Re_cursive Directories  ", accel_group, false);
+	toggleRec = TranslatedToggle("Re_cursive Directories", accel_group, false);
 	gtk_table_attach(GTK_TABLE(table), toggleRec, 1, 2, row, row + 1, opts, opts, 3, 0);
 	gtk_widget_show(toggleRec);
 #endif
