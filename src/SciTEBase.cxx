@@ -82,7 +82,10 @@ const char *contributors[] = {
     "Tahir Karaca",
     "Ahmad Zawawi",
     "Laurent le Tynevez",
+    "Walter Braeu",
+    "Ashley Cambrell",
     "Garrett Serack",
+    "Holger Schmidt",
 };
 
 const char *extList[] = {
@@ -137,7 +140,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, Colour(0, 0, 0));
-		AddStyledText(wsci, "Version 1.33\n", 1);
+		AddStyledText(wsci, "Version 1.34\n", 1);
 		SetAboutStyle(wsci, 2, Colour(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
