@@ -162,7 +162,7 @@ const char *contributors[] = {
                                  "Steven te Brinke",
                                  "Dan Petitt",
                                  "Biswapesh Chattopadhyay",
-				 "Kein-Hong Man",
+                                 "Kein-Hong Man",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -379,10 +379,12 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "Version 1.52\n", 1);
+		AddStyledText(wsci, LocaliseString("Version").c_str(), 1);
+		AddStyledText(wsci, " 1.52\n", 1);
 		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
-		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
+		AddStyledText(wsci, LocaliseString("by").c_str(), 2);
+		AddStyledText(wsci, " Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
 		AddStyledText(wsci, "December 1998-April 2003.\n", 3);
 		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
