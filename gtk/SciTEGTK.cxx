@@ -25,7 +25,11 @@
 #include "KeyWords.h"
 #include "ScintillaWidget.h"
 #include "Scintilla.h"
+#include "Extender.h"
 #include "SciTEBase.h"
+#ifdef LUA_SCRIPTING
+#include "LuaExtension.h"
+#endif
 #include "pixmapsGNOME.h"
 
 #define MB_ABOUTBOX	0x100000L
@@ -106,10 +110,11 @@ protected:
 	virtual void GoLineDialog();
 	virtual void TabSizeDialog();
 
+	virtual void GetDefaultDirectory(char *directory, size_t size);
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
-        char *pathDefaultDir, unsigned int lenPath);
+		char *pathDefaultDir, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
-        char *pathUserDir, unsigned int lenPath);
+		char *pathUserDir, unsigned int lenPath);
 
 	virtual void SetStatusBarText(const char *s);
 	
@@ -161,7 +166,7 @@ public:
 	// TODO: get rid of this - use callback argument to find SciTEGTK
 	static SciTEGTK *instance;
 
-	SciTEGTK();
+	SciTEGTK(Extension *ext=0);
 	~SciTEGTK();
 
 	void AddToolButton(const char *text, int cmd, char *icon[]);
@@ -175,7 +180,7 @@ public:
 
 SciTEGTK *SciTEGTK::instance;
 
-SciTEGTK::SciTEGTK() {
+SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	// Control of sub process
 	icmd = 0;
 	originalEnd = 0;
@@ -307,15 +312,32 @@ int MessageBox(GtkWidget *wParent, const char *m, const char *t, int style) {
 	return messageBoxResult;
 }
 
+void SciTEGTK::GetDefaultDirectory(char *directory, size_t size) {
+	directory[0] = '\0';
+	char *where = getenv("SciTE_HOME");
+#ifdef SYSCONF_PATH
+	if (!where) {
+		where = SYSCONF_PATH;
+	}
+#else
+	if (!where) {
+		where = getenv("HOME");
+	}
+#endif
+	if (where)
+		strncpy(directory, where, size);
+	directory[size-1] = '\0';
+}
+
 bool SciTEGTK::GetDefaultPropertiesFileName(char *pathDefaultProps, 
                                             char *pathDefaultDir, unsigned int lenPath) {
 	char *where = getenv("SciTE_HOME");
 #ifdef SYSCONF_PATH
-        if (!where) {
+	if (!where) {
 		where = SYSCONF_PATH;
 	}
 #else
-        if (!where) {
+	if (!where) {
 		where = getenv("HOME");
 	}
 #endif
@@ -441,7 +463,7 @@ void SciTEGTK::SizeContentWindows() {
 }
 
 void SciTEGTK::SizeSubWindows() {
-    SizeContentWindows();
+	SizeContentWindows();
 }
 
 void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *) {
@@ -847,7 +869,15 @@ void SciTEGTK::Execute() {
 
 	unlink(resultsFile);
 
-	if (jobQueue[icmd].jobType != jobShell) {
+	if (jobQueue[icmd].jobType == jobShell) {
+		if (fork()==0) 
+			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(), 0);
+		else 
+			ExecuteNext();
+	} else if (jobQueue[icmd].jobType == jobExtension) {
+	if (extender)
+		extender->OnExecute(jobQueue[icmd].command.c_str());
+	} else {
 	
 		if (mkfifo(resultsFile, S_IRUSR | S_IWUSR) < 0) {
 			OutputAppendString(">Failed to create FIFO\n");
@@ -863,11 +893,6 @@ void SciTEGTK::Execute() {
 		}
 		inputHandle = gdk_input_add(fdFIFO, GDK_INPUT_READ,
 					    (GdkInputFunction) IOSignal, this);
-	} else {
-		if (fork()==0) 
-			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(), 0);
-		else 
-			ExecuteNext();
 	}
 }
 
@@ -1311,141 +1336,141 @@ void SciTEGTK::CreateMenu() {
 
 	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
 	GtkItemFactoryEntry menuItems[] = {
-	    {"/_File", NULL, NULL, 0, "<Branch>"},
-	    {"/_File/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
-	    {"/File/_Open", "<control>O", menuSig, IDM_OPEN, 0},
-	    {"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
-	    {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
-	    {"/File/Save _As", NULL, menuSig, IDM_SAVEAS, 0},
-	    {"/File/Save As _HTML", NULL, menuSig, IDM_SAVEASHTML, 0},
-	    {"/File/sep1", NULL, NULL, 0, "<Separator>"},
-	    {"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
-	    {"/File/File1", "", menuSig, fileStackCmdID + 1, 0},
-	    {"/File/File2", "", menuSig, fileStackCmdID + 2, 0},
-	    {"/File/File3", "", menuSig, fileStackCmdID + 3, 0},
-	    {"/File/File4", "", menuSig, fileStackCmdID + 4, 0},
-	    {"/File/File5", "", menuSig, fileStackCmdID + 5, 0},
-	    {"/File/File6", "", menuSig, fileStackCmdID + 6, 0},
-	    {"/File/File7", "", menuSig, fileStackCmdID + 7, 0},
-	    {"/File/File8", "", menuSig, fileStackCmdID + 8, 0},
-	    {"/File/File9", "", menuSig, fileStackCmdID + 9, 0},
-	    {"/File/sep2", NULL, menuSig, IDM_MRU_SEP, "<Separator>"},
-	    {"/File/_Quit", "<control>Q", menuSig, IDM_QUIT, 0},
-
-	    {"/_Edit", NULL, NULL, 0, "<Branch>"},
-	    {"/_Edit/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/Edit/_Undo", "<control>Z", menuSig, IDM_UNDO, 0},
-	    {"/Edit/_Redo", "<control>Y", menuSig, IDM_REDO, 0},
-	    {"/Edit/sep1", NULL, NULL, 0, "<Separator>"},
-	    {"/Edit/Cu_t", "<control>X", menuSig, IDM_CUT, 0},
-	    {"/Edit/_Copy", "<control>C", menuSig, IDM_COPY, 0},
-	    {"/Edit/_Paste", "<control>V", menuSig, IDM_PASTE, 0},
-	    {"/Edit/_Delete", "Del", menuSig, IDM_CLEAR, 0},
-	    {"/Edit/Select _All", "<control>A", menuSig, IDM_SELECTALL, 0},
-	    {"/Edit/sep2", NULL, NULL, 0, "<Separator>"},
-	    {"/Edit/_Find...", "<control>F", menuSig, IDM_FIND, 0},
-	    {"/Edit/Find _Next", "F3", menuSig, IDM_FINDNEXT, 0},
-	    {"/Edit/F_ind in Files...", "", menuSig, IDM_FINDINFILES, 0},
-	    {"/Edit/R_eplace", "<control>H", menuSig, IDM_REPLACE, 0},
-	    {"/Edit/sep3", NULL, NULL, 0, "<Separator>"},
-	    {"/Edit/_Go To", "<control>G", menuSig, IDM_GOTO, 0},
-	    {"/Edit/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
-	    {"/Edit/Toggle Bookmar_k", "<control>F2", menuSig, IDM_BOOKMARK_TOGGLE, 0},
-	    {"/Edit/Match Brac_e", "<control>E", menuSig, IDM_MATCHBRACE, 0},
-	    {"/Edit/Select _to Brace", "<control><shift>E", menuSig, IDM_SELECTTOBRACE, 0},
-	    {"/Edit/C_omplete Identifier", "<control>I", menuSig, IDM_COMPLETE, 0},
-	    {"/Edit/Make Selection _Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
-	    {"/Edit/Make Selection _Lowercase", "<control>U", menuSig, IDM_LWRCASE, 0},
-
-	    {"/_Tools", NULL, NULL, 0, "<Branch>"},
-	    {"/_Tools/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/Tools/_Compile", "<control>F7", menuSig, IDM_COMPILE, 0},
-	    {"/Tools/_Build", "F7", menuSig, IDM_BUILD, 0},
-	    {"/Tools/_Go", "F5", menuSig, IDM_GO, 0},
-	    {"/Tools/Tool0", "<control>0", menuSig, IDM_TOOLS + 0, 0},
-	    {"/Tools/Tool1", "<control>1", menuSig, IDM_TOOLS + 1, 0},
-	    {"/Tools/Tool2", "<control>2", menuSig, IDM_TOOLS + 2, 0},
-	    {"/Tools/Tool3", "<control>3", menuSig, IDM_TOOLS + 3, 0},
-	    {"/Tools/Tool4", "<control>4", menuSig, IDM_TOOLS + 4, 0},
-	    {"/Tools/Tool5", "<control>5", menuSig, IDM_TOOLS + 5, 0},
-	    {"/Tools/Tool6", "<control>6", menuSig, IDM_TOOLS + 6, 0},
-	    {"/Tools/Tool7", "<control>7", menuSig, IDM_TOOLS + 7, 0},
-	    {"/Tools/Tool8", "<control>8", menuSig, IDM_TOOLS + 8, 0},
-	    {"/Tools/Tool9", "<control>9", menuSig, IDM_TOOLS + 9, 0},
-	    {"/Tools/_Stop Executing", "<control>.", menuSig, IDM_STOPEXECUTE, NULL},
-	    {"/Tools/sep1", NULL, NULL, 0, "<Separator>"},
-	    {"/Tools/_Next Message", "F4", menuSig, IDM_NEXTMSG, 0},
-	    {"/Tools/_Previous Message", "<shift>F4", menuSig, IDM_PREVMSG, 0},
-
-	    {"/_Options", NULL, NULL, 0, "<Branch>"},
-	    {"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
-	    {"/Options/sep1", NULL, NULL, 0, "<Separator>"},
-	    {"/Options/View _Whitespace", "<control><shift>W", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
-	    {"/Options/View _Indentation Guides", NULL, menuSig, IDM_VIEWGUIDES, "<CheckItem>"},
-	    {"/Options/View _Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
-	    {"/Options/View _Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
-	    {"/Options/View Line _Numbers", "", menuSig, IDM_LINENUMBERMARGIN, "<CheckItem>"},
-	    {"/Options/_View End of Line", "<control><shift>O", menuSig, IDM_VIEWEOL, "<CheckItem>"},
-	    {"/Options/View _Toolbar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
-	    {"/Options/View Status _Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
-	    {"/Options/sep2", NULL, NULL, 0, "<Separator>"},
-	    {"/Options/Line End C_haracters", "", 0, 0, "<Branch>"},
-	    {"/Options/Line End Characters/CR _+ LF", "", menuSig, IDM_EOL_CRLF, "<RadioItem>"},
-	    {"/Options/Line End Characters/_CR", "", menuSig, IDM_EOL_CR, "/Options/Line End Characters/CR + LF"},
-	    {"/Options/Line End Characters/_LF", "", menuSig, IDM_EOL_LF, "/Options/Line End Characters/CR + LF"},
-	    {"/Options/_Convert Line End Characters", "", menuSig, IDM_EOL_CONVERT, 0},
-	    {"/Options/_Use lexer", "", 0, 0, "<Branch>"},
-	    {"/Options/Use lexer/none", "", menuSig, IDM_LEXER_NONE, "<RadioItem>"},
-	    {"/Options/Use lexer/_C, C++", "", menuSig, IDM_LEXER_CPP, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_VB", "", menuSig, IDM_LEXER_VB, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/Reso_urce", "", menuSig, IDM_LEXER_RC, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/H_ypertext", "", menuSig, IDM_LEXER_HTML, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_XML", "", menuSig, IDM_LEXER_XML, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/Java_Script", "", menuSig, IDM_LEXER_JS, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/VBScr_ipt", "", menuSig, IDM_LEXER_WSCRIPT, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_Properties", "", menuSig, IDM_LEXER_PROPS, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_Batch", "", menuSig, IDM_LEXER_BATCH, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_Makefile", "", menuSig, IDM_LEXER_MAKE, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_Errorlist", "", menuSig, IDM_LEXER_ERRORL, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_Java", "", menuSig, IDM_LEXER_JAVA, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/_Lua", "", menuSig, IDM_LEXER_LUA, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/Pytho_n", "", menuSig, IDM_LEXER_PYTHON, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/Pe_rl", "", menuSig, IDM_LEXER_PERL, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/S_QL", "", menuSig, IDM_LEXER_SQL, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/P_LSQ", "", menuSig, IDM_LEXER_PLSQL, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/P_HP", "", menuSig, IDM_LEXER_PHP, "/Options/Use lexer/none"},
-	    {"/Options/Use lexer/La_TeX", "", menuSig, IDM_LEXER_LATEX, "/Options/Use lexer/none"},
-	    {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
-	    {"/Options/Open _Local Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
-	    {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
-	    {"/Options/Open _Global Options File", "", menuSig, IDM_OPENGLOBALPROPERTIES, 0},
+		{"/_File", NULL, NULL, 0, "<Branch>"},
+		{"/_File/tear", NULL, NULL, 0, "<Tearoff>"},
+		{"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
+		{"/File/_Open", "<control>O", menuSig, IDM_OPEN, 0},
+		{"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
+		{"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
+		{"/File/Save _As", NULL, menuSig, IDM_SAVEAS, 0},
+		{"/File/Save As _HTML", NULL, menuSig, IDM_SAVEASHTML, 0},
+		{"/File/sep1", NULL, NULL, 0, "<Separator>"},
+		{"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
+		{"/File/File1", "", menuSig, fileStackCmdID + 1, 0},
+		{"/File/File2", "", menuSig, fileStackCmdID + 2, 0},
+		{"/File/File3", "", menuSig, fileStackCmdID + 3, 0},
+		{"/File/File4", "", menuSig, fileStackCmdID + 4, 0},
+		{"/File/File5", "", menuSig, fileStackCmdID + 5, 0},
+		{"/File/File6", "", menuSig, fileStackCmdID + 6, 0},
+		{"/File/File7", "", menuSig, fileStackCmdID + 7, 0},
+		{"/File/File8", "", menuSig, fileStackCmdID + 8, 0},
+		{"/File/File9", "", menuSig, fileStackCmdID + 9, 0},
+		{"/File/sep2", NULL, menuSig, IDM_MRU_SEP, "<Separator>"},
+		{"/File/_Quit", "<control>Q", menuSig, IDM_QUIT, 0},
+		
+		{"/_Edit", NULL, NULL, 0, "<Branch>"},
+		{"/_Edit/tear", NULL, NULL, 0, "<Tearoff>"},
+		{"/Edit/_Undo", "<control>Z", menuSig, IDM_UNDO, 0},
+		{"/Edit/_Redo", "<control>Y", menuSig, IDM_REDO, 0},
+		{"/Edit/sep1", NULL, NULL, 0, "<Separator>"},
+		{"/Edit/Cu_t", "<control>X", menuSig, IDM_CUT, 0},
+		{"/Edit/_Copy", "<control>C", menuSig, IDM_COPY, 0},
+		{"/Edit/_Paste", "<control>V", menuSig, IDM_PASTE, 0},
+		{"/Edit/_Delete", "Del", menuSig, IDM_CLEAR, 0},
+		{"/Edit/Select _All", "<control>A", menuSig, IDM_SELECTALL, 0},
+		{"/Edit/sep2", NULL, NULL, 0, "<Separator>"},
+		{"/Edit/_Find...", "<control>F", menuSig, IDM_FIND, 0},
+		{"/Edit/Find _Next", "F3", menuSig, IDM_FINDNEXT, 0},
+		{"/Edit/F_ind in Files...", "", menuSig, IDM_FINDINFILES, 0},
+		{"/Edit/R_eplace", "<control>H", menuSig, IDM_REPLACE, 0},
+		{"/Edit/sep3", NULL, NULL, 0, "<Separator>"},
+		{"/Edit/_Go To", "<control>G", menuSig, IDM_GOTO, 0},
+		{"/Edit/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
+		{"/Edit/Toggle Bookmar_k", "<control>F2", menuSig, IDM_BOOKMARK_TOGGLE, 0},
+		{"/Edit/Match Brac_e", "<control>E", menuSig, IDM_MATCHBRACE, 0},
+		{"/Edit/Select _to Brace", "<control><shift>E", menuSig, IDM_SELECTTOBRACE, 0},
+		{"/Edit/C_omplete Identifier", "<control>I", menuSig, IDM_COMPLETE, 0},
+		{"/Edit/Make Selection _Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
+		{"/Edit/Make Selection _Lowercase", "<control>U", menuSig, IDM_LWRCASE, 0},
+		
+		{"/_Tools", NULL, NULL, 0, "<Branch>"},
+		{"/_Tools/tear", NULL, NULL, 0, "<Tearoff>"},
+		{"/Tools/_Compile", "<control>F7", menuSig, IDM_COMPILE, 0},
+		{"/Tools/_Build", "F7", menuSig, IDM_BUILD, 0},
+		{"/Tools/_Go", "F5", menuSig, IDM_GO, 0},
+		{"/Tools/Tool0", "<control>0", menuSig, IDM_TOOLS + 0, 0},
+		{"/Tools/Tool1", "<control>1", menuSig, IDM_TOOLS + 1, 0},
+		{"/Tools/Tool2", "<control>2", menuSig, IDM_TOOLS + 2, 0},
+		{"/Tools/Tool3", "<control>3", menuSig, IDM_TOOLS + 3, 0},
+		{"/Tools/Tool4", "<control>4", menuSig, IDM_TOOLS + 4, 0},
+		{"/Tools/Tool5", "<control>5", menuSig, IDM_TOOLS + 5, 0},
+		{"/Tools/Tool6", "<control>6", menuSig, IDM_TOOLS + 6, 0},
+		{"/Tools/Tool7", "<control>7", menuSig, IDM_TOOLS + 7, 0},
+		{"/Tools/Tool8", "<control>8", menuSig, IDM_TOOLS + 8, 0},
+		{"/Tools/Tool9", "<control>9", menuSig, IDM_TOOLS + 9, 0},
+		{"/Tools/_Stop Executing", "<control>.", menuSig, IDM_STOPEXECUTE, NULL},
+		{"/Tools/sep1", NULL, NULL, 0, "<Separator>"},
+		{"/Tools/_Next Message", "F4", menuSig, IDM_NEXTMSG, 0},
+		{"/Tools/_Previous Message", "<shift>F4", menuSig, IDM_PREVMSG, 0},
+		
+		{"/_Options", NULL, NULL, 0, "<Branch>"},
+		{"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
+		{"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
+		{"/Options/sep1", NULL, NULL, 0, "<Separator>"},
+		{"/Options/View _Whitespace", "<control><shift>W", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
+		{"/Options/View _Indentation Guides", NULL, menuSig, IDM_VIEWGUIDES, "<CheckItem>"},
+		{"/Options/View _Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
+		{"/Options/View _Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
+		{"/Options/View Line _Numbers", "", menuSig, IDM_LINENUMBERMARGIN, "<CheckItem>"},
+		{"/Options/_View End of Line", "<control><shift>O", menuSig, IDM_VIEWEOL, "<CheckItem>"},
+		{"/Options/View _Toolbar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
+		{"/Options/View Status _Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
+		{"/Options/sep2", NULL, NULL, 0, "<Separator>"},
+		{"/Options/Line End C_haracters", "", 0, 0, "<Branch>"},
+		{"/Options/Line End Characters/CR _+ LF", "", menuSig, IDM_EOL_CRLF, "<RadioItem>"},
+		{"/Options/Line End Characters/_CR", "", menuSig, IDM_EOL_CR, "/Options/Line End Characters/CR + LF"},
+		{"/Options/Line End Characters/_LF", "", menuSig, IDM_EOL_LF, "/Options/Line End Characters/CR + LF"},
+		{"/Options/_Convert Line End Characters", "", menuSig, IDM_EOL_CONVERT, 0},
+		{"/Options/_Use lexer", "", 0, 0, "<Branch>"},
+		{"/Options/Use lexer/none", "", menuSig, IDM_LEXER_NONE, "<RadioItem>"},
+		{"/Options/Use lexer/_C, C++", "", menuSig, IDM_LEXER_CPP, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_VB", "", menuSig, IDM_LEXER_VB, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/Reso_urce", "", menuSig, IDM_LEXER_RC, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/H_ypertext", "", menuSig, IDM_LEXER_HTML, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_XML", "", menuSig, IDM_LEXER_XML, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/Java_Script", "", menuSig, IDM_LEXER_JS, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/VBScr_ipt", "", menuSig, IDM_LEXER_WSCRIPT, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_Properties", "", menuSig, IDM_LEXER_PROPS, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_Batch", "", menuSig, IDM_LEXER_BATCH, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_Makefile", "", menuSig, IDM_LEXER_MAKE, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_Errorlist", "", menuSig, IDM_LEXER_ERRORL, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_Java", "", menuSig, IDM_LEXER_JAVA, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/_Lua", "", menuSig, IDM_LEXER_LUA, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/Pytho_n", "", menuSig, IDM_LEXER_PYTHON, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/Pe_rl", "", menuSig, IDM_LEXER_PERL, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/S_QL", "", menuSig, IDM_LEXER_SQL, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/P_LSQ", "", menuSig, IDM_LEXER_PLSQL, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/P_HP", "", menuSig, IDM_LEXER_PHP, "/Options/Use lexer/none"},
+		{"/Options/Use lexer/La_TeX", "", menuSig, IDM_LEXER_LATEX, "/Options/Use lexer/none"},
+		{"/Options/sep3", NULL, NULL, 0, "<Separator>"},
+		{"/Options/Open _Local Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
+		{"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
+		{"/Options/Open _Global Options File", "", menuSig, IDM_OPENGLOBALPROPERTIES, 0},
 	};
 
 	GtkItemFactoryEntry menuItemsBuffer[] = {
-	    {"/_Buffers", NULL, NULL, 0, "<Branch>"},
-	    {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREV, 0},
-	    {"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXT, 0},
-	    {"/Buffers/_Close All", "", menuSig, IDM_CLOSEALL, 0},
-	    {"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
-	    {"/Buffers/Buffer0", "<alt>1", menuSig, bufferCmdID + 0, "<RadioItem>"},
-	    {"/Buffers/Buffer1", "<alt>2", menuSig, bufferCmdID + 1, "/Buffers/Buffer0"},
-	    {"/Buffers/Buffer2", "<alt>3", menuSig, bufferCmdID + 2, "/Buffers/Buffer0"},
-	    {"/Buffers/Buffer3", "<alt>4", menuSig, bufferCmdID + 3, "/Buffers/Buffer0"},
-	    {"/Buffers/Buffer4", "<alt>5", menuSig, bufferCmdID + 4, "/Buffers/Buffer0"},
-	    {"/Buffers/Buffer5", "<alt>6", menuSig, bufferCmdID + 5, "/Buffers/Buffer0"},
-	    {"/Buffers/Buffer6", "<alt>7", menuSig, bufferCmdID + 6, "/Buffers/Buffer0"},
-	    {"/Buffers/Buffer7", "<alt>8", menuSig, bufferCmdID + 7, "/Buffers/Buffer0"},
-	    {"/Buffers/Buffer8", "<alt>9", menuSig, bufferCmdID + 8, "/Buffers/Buffer0"},
-	    {"/Buffers/Buffer9", "<alt>0", menuSig, bufferCmdID + 9, "/Buffers/Buffer0"},
+		{"/_Buffers", NULL, NULL, 0, "<Branch>"},
+		{"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
+		{"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREV, 0},
+		{"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXT, 0},
+		{"/Buffers/_Close All", "", menuSig, IDM_CLOSEALL, 0},
+		{"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
+		{"/Buffers/Buffer0", "<alt>1", menuSig, bufferCmdID + 0, "<RadioItem>"},
+		{"/Buffers/Buffer1", "<alt>2", menuSig, bufferCmdID + 1, "/Buffers/Buffer0"},
+		{"/Buffers/Buffer2", "<alt>3", menuSig, bufferCmdID + 2, "/Buffers/Buffer0"},
+		{"/Buffers/Buffer3", "<alt>4", menuSig, bufferCmdID + 3, "/Buffers/Buffer0"},
+		{"/Buffers/Buffer4", "<alt>5", menuSig, bufferCmdID + 4, "/Buffers/Buffer0"},
+		{"/Buffers/Buffer5", "<alt>6", menuSig, bufferCmdID + 5, "/Buffers/Buffer0"},
+		{"/Buffers/Buffer6", "<alt>7", menuSig, bufferCmdID + 6, "/Buffers/Buffer0"},
+		{"/Buffers/Buffer7", "<alt>8", menuSig, bufferCmdID + 7, "/Buffers/Buffer0"},
+		{"/Buffers/Buffer8", "<alt>9", menuSig, bufferCmdID + 8, "/Buffers/Buffer0"},
+		{"/Buffers/Buffer9", "<alt>0", menuSig, bufferCmdID + 9, "/Buffers/Buffer0"},
 	};
 	   
 	GtkItemFactoryEntry menuItemsHelp[] = {
-	    {"/_Help", NULL, NULL, 0, "<Branch>"},
-	    {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/Help/About SciTE", "", menuSig, IDM_ABOUT, 0},
+		{"/_Help", NULL, NULL, 0, "<Branch>"},
+		{"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
+		{"/Help/About SciTE", "", menuSig, IDM_ABOUT, 0},
 	};
 	
 	char *gthis = reinterpret_cast<char *>(this);
@@ -1623,8 +1648,14 @@ void SciTEGTK::Run(const char *cmdLine) {
 }
 
 int main(int argc, char *argv[]) {
+#ifdef LUA_SCRIPTING
+	LuaExtension luaExtender;
+	Extension *extender = &luaExtender;
+#else
+	Extension *extender = 0;
+#endif
 	gtk_init(&argc, &argv);
-	SciTEGTK scite;
+	SciTEGTK scite(extender);
 	if (argc > 1) {
 		//Platform::DebugPrintf("args: %d %s\n", argc, argv[1]);
 		scite.Run(argv[1]);
