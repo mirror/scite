@@ -9,7 +9,7 @@ SciTEWin.o: SciTEWin.cxx SciTEWin.h ../../scintilla/include/Platform.h \
   ../../scintilla/include/KeyWords.h ../../scintilla/include/Scintilla.h \
   ../src/Extender.h ../src/SciTEBase.h ../src/SciTEKeys.h \
   UniqueInstance.h ../src/MultiplexExtension.h DirectorExtension.h \
-  ../src/LuaExtension.h
+  SingleThreadExtension.h ../src/LuaExtension.h
 SciTEWinBar.o: SciTEWinBar.cxx SciTEWin.h \
  ../../scintilla/include/Platform.h ../src/SciTE.h \
  ../../scintilla/include/PropSet.h ../../scintilla/include/SString.h \
@@ -22,6 +22,9 @@ SciTEWinDlg.o: SciTEWinDlg.cxx SciTEWin.h \
  ../../scintilla/include/Accessor.h ../../scintilla/include/KeyWords.h \
  ../../scintilla/include/Scintilla.h ../src/Extender.h \
   ../src/SciTEBase.h ../src/SciTEKeys.h UniqueInstance.h
+SingleThreadExtension.o: SingleThreadExtension.cxx \
+  SingleThreadExtension.h ../src/Extender.h \
+  ../../scintilla/include/Scintilla.h
 UniqueInstance.o: UniqueInstance.cxx ../../scintilla/include/Platform.h \
   SciTEWin.h ../src/SciTE.h ../../scintilla/include/PropSet.h \
   ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \

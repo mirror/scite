@@ -1088,6 +1088,7 @@ void SciTEBase::ToolsMenu(int item) {
 		bool filter = false;
 		bool quiet = false;
 		int repSel = 0;
+		bool groupUndo = false;
 
 		propName = "command.mode.";
 		propName += itemSuffix;
@@ -1158,6 +1159,14 @@ void SciTEBase::ToolsMenu(int item) {
 					else if (0==strcmp(colon, "auto"))
 						repSel = 2;
 				}
+
+				if (0 == strcmp(opt, "groupundo")) {
+					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+						groupUndo = true;
+					else if (colon[0] == '0' || 0==strcmp(colon, "no"))
+						groupUndo = false;
+				}
+
 				opt = cpComma ? cpComma + 1 : 0;
 			}
 			delete []modeTags;
@@ -1215,6 +1224,9 @@ void SciTEBase::ToolsMenu(int item) {
 				flags |= jobRepSelYes;
 			else if (repSel == 2)
 				flags |= jobRepSelAuto;
+
+			if (groupUndo)
+				flags |= jobGroupUndo;
 
 			AddCommand(command, "", jobType, input, flags);
 			if (commandCurrent > 0)

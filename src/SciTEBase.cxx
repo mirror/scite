@@ -4297,6 +4297,8 @@ void SciTEBase::PerformOne(char *action) {
 			if (*arg) {
 				LoadSession(arg);
 			}
+		} else if (isprefix(action, "extender:")) {
+			extender->OnExecute(arg);
 		}
 	}
 }

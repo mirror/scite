@@ -17,6 +17,7 @@
 #endif
 
 #ifndef NO_LUA
+#include "SingleThreadExtension.h"
 #include "LuaExtension.h"
 #endif
 
@@ -615,7 +616,17 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 	if (jobToRun.jobType == jobExtension) {
 		if (extender) {
+			// Problem: we are in the wrong thread!  That is the cause of the cursed PC.
+			// It could also lead to other problems.
+
+			if (jobToRun.flags & jobGroupUndo)
+				SendEditor(SCI_BEGINUNDOACTION);
+			
 			extender->OnExecute(jobToRun.command.c_str());
+
+			if (jobToRun.flags & jobGroupUndo)
+				SendEditor(SCI_ENDUNDOACTION);
+
 			Redraw();
 			// A Redraw "might" be needed, since Lua and Director
 			// provide enough low-level capabilities to corrupt the
@@ -1851,7 +1862,8 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	Extension *extender = &multiExtender;
 
 #ifndef NO_LUA
-	multiExtender.RegisterExtension(LuaExtension::Instance());
+	SingleThreadExtension luaAdapter(LuaExtension::Instance());
+	multiExtender.RegisterExtension(luaAdapter);
 #endif
 
 #ifndef NO_FILER
