@@ -1316,6 +1316,12 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
 			int lenTarget = SendEditor(SCI_GETTARGETEND) - SendEditor(SCI_GETTARGETSTART);
+			int movepastEOL = 0;
+			if (lenTarget <= 0) {
+				char chNext = static_cast<char>(SendEditor(SCI_GETCHARAT, SendEditor(SCI_GETTARGETEND)));
+				if (chNext == '\r' || chNext == '\n')
+					movepastEOL = 1;
+			}
 			int lenReplaced = replaceLen;
 			if (regExp)
 				lenReplaced = SendEditorString(SCI_REPLACETARGETRE, replaceLen, replaceTarget.c_str());
@@ -1323,14 +1329,17 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 				SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget.c_str());
 			// Modify for change caused by replacement
 			endPosition += lenReplaced - lenTarget;
-			lastMatch = posFind + lenReplaced;
 			// For the special cases of start of line and end of line
 			// Something better could be done but there are too many special cases
-			if (lenTarget <= 0)
-				lastMatch++;
-			SendEditor(SCI_SETTARGETSTART, lastMatch);
-			SendEditor(SCI_SETTARGETEND, endPosition);
-			posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
+			lastMatch = posFind + lenReplaced + movepastEOL;
+			if (lastMatch >= endPosition) {
+				// Run off the end of the document with an empty match
+				posFind = -1;
+			} else {
+				SendEditor(SCI_SETTARGETSTART, lastMatch);
+				SendEditor(SCI_SETTARGETEND, endPosition);
+				posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
+			}
 			replacements++;
 		}
 		if (inSelection)
