@@ -78,7 +78,6 @@ const char *contributors[] = {
 
 #ifdef OLD /* PL 2000/05/18 */
 #else  /* OLD PL 2000/05/18 */
-#if PLAT_WIN
 
 const char *extList[] = {
 	"x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
@@ -86,7 +85,6 @@ const char *extList[] = {
 	"x.pl", "x.sql", "x.spec", "x.php3", "x.tex"
 };
 
-#endif
 #endif  /* OLD PL 2000/05/18 */
 
 // AddStyledText only called from About so static size buffer is OK
