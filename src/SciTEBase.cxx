@@ -35,6 +35,7 @@
 #include "SciTE.h"
 #include "PropSet.h"
 #include "Accessor.h"
+#include "WindowAccessor.h"
 #include "KeyWords.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
@@ -852,7 +853,7 @@ void SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	braceOpposite = -1;
 	char charBefore = '\0';
 	char styleBefore = '\0';
-	Accessor acc(win.GetID(), props);
+	WindowAccessor acc(win.GetID(), props);
 	if (caretPos > 0) {
 		charBefore = acc[caretPos - 1];
 		styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
@@ -1268,7 +1269,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		fputs("<SPAN class=\'S0\'>", fp);
 		int lengthDoc = LengthDocument();
 		bool prevCR = false;
-		Accessor acc(wEditor.GetID(), props);
+		WindowAccessor acc(wEditor.GetID(), props);
 		for (int i = 0; i < lengthDoc; i++) {
 			char ch = acc[i];
 			int style = acc.StyleAt(i);
@@ -1362,7 +1363,7 @@ void SciTEBase::SelectionIntoFind() {
 	SendEditor(EM_GETSEL, reinterpret_cast<WPARAM>(&selStart),
 	           reinterpret_cast<LPARAM>(&selEnd));
 	if (selStart == selEnd) {
-		Accessor acc(wEditor.GetID(), props);
+		WindowAccessor acc(wEditor.GetID(), props);
 		// Try and find a word at the caret
 		if (iswordcharforsel(acc[selStart])) {
 			while ((selStart > 0) && (iswordcharforsel(acc[selStart - 1])))
@@ -1652,7 +1653,7 @@ void SciTEBase::GoMessage(int dir) {
 		lookLine = maxLine - 1;
 	else if (lookLine >= maxLine)
 		lookLine = 0;
-	Accessor acc(wOutput.GetID(), props);
+	WindowAccessor acc(wOutput.GetID(), props);
 	while ((dir == 0) || (lookLine != curLine)) {
 		int startPosLine = SendOutput(EM_LINEINDEX, lookLine, 0);
 		int lineLength = SendOutput(SCI_LINELENGTH, lookLine, 0);

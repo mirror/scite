@@ -39,7 +39,7 @@ clean:
 	copy ..\src\SciTEGlobal.properties ..\bin
 
 OBJS = SciTEBase.obj SciTEWin.obj \
-	..\..\scintilla\win32\Accessor.obj \
+	..\..\scintilla\win32\WindowAccessor.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\PlatWin.obj
 
@@ -55,7 +55,8 @@ OBJSSTATIC = Sc1.obj SciTEBase.obj \
 	..\..\scintilla\win32\LexPython.obj \
 	..\..\scintilla\win32\LexSQL.obj \
 	..\..\scintilla\win32\LexVB.obj \
-	..\..\scintilla\win32\Accessor.obj \
+	..\..\scintilla\win32\WindowAccessor.obj \
+	..\..\scintilla\win32\DocumentAccessor.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\ScintillaWinL.obj \
 	..\..\scintilla\win32\ScintillaBaseL.obj \

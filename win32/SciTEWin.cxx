@@ -208,9 +208,9 @@ int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc,
 		lpProc = reinterpret_cast<DLGPROC>(DefaultDlg);
 
 	if (!dwInitParam)
-		result = DialogBox(hInst, resName, hWnd, lpProc);
+		result = ::DialogBox(hInst, resName, hWnd, lpProc);
 	else
-		result = DialogBoxParam(hInst, resName, hWnd, lpProc, dwInitParam);
+		result = ::DialogBoxParam(hInst, resName, hWnd, lpProc, dwInitParam);
 
 	if (result == -1) {
 		DWORD dwError = GetLastError();
@@ -613,8 +613,6 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 }
 
 BOOL SciTEWin::HandleReplaceCommand(int cmd) {
-	HWND wFindWhat = ::GetDlgItem(wFindReplace.GetID(), IDFINDWHAT);
-	HWND wReplaceWith = ::GetDlgItem(wFindReplace.GetID(), IDREPLACEWITH);
 	HWND wWholeWord = ::GetDlgItem(wFindReplace.GetID(), IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(wFindReplace.GetID(), IDMATCHCASE);
 	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL)) {
@@ -701,7 +699,9 @@ void SciTEWin::Find() {
 	
 	wFindReplace = ::CreateDialogParam(hInstance,
 		MAKEINTRESOURCE(IDD_FIND),
-		wSciTE.GetID(),FindDlg,reinterpret_cast<long>(this));
+		wSciTE.GetID(),
+		reinterpret_cast<DLGPROC>(FindDlg),
+		reinterpret_cast<long>(this));
 	wFindReplace.Show();
 			
 	//wFindReplace = ::FindText(&fr);
@@ -787,7 +787,9 @@ void SciTEWin::Replace() {
 	
 	wFindReplace = ::CreateDialogParam(hInstance,
 		MAKEINTRESOURCE(IDD_REPLACE),
-		wSciTE.GetID(),ReplaceDlg,reinterpret_cast<long>(this));
+		wSciTE.GetID(),
+		reinterpret_cast<DLGPROC>(ReplaceDlg),
+		reinterpret_cast<long>(this));
 	wFindReplace.Show();
 	
 	replacing = true;

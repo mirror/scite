@@ -27,7 +27,7 @@ CXXFLAGS = -pedantic $(INCLUDEDIRS) -Os -fno-exceptions -fvtable-thunks -fno-rtt
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
 LEXOBJS	=  LexCPP.o LexHTML.o LexOthers.o LexPerl.o LexPython.o LexSQL.o LexVB.o
-OBJS	= SciTEBase.o SciTEWin.o Accessor.o PropSet.o PlatWin.o SciTERes.o
+OBJS	= SciTEBase.o SciTEWin.o WindowAccessor.o PropSet.o PlatWin.o SciTERes.o
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
@@ -48,22 +48,22 @@ clean:
 $(PROG): $(OBJS)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $(PROG) $^ $(LDFLAGS)
 
-OBJSSTATIC = Sc1.o SciTEBase.o ScintillaWinL.o ScintillaBaseL.o Editor.o Accessor.o \
-	KeyWords.o $(LEXOBJS) PropSet.o \
+OBJSSTATIC = Sc1.o SciTEBase.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
+	WindowAccessor.o DocumentAccessor.o KeyWords.o $(LEXOBJS) PropSet.o \
 	ContractionState.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
 	KeyMap.o Indicator.o LineMarker.o Style.o ViewStyle.o AutoComplete.o
 
 $(PROGSTATIC): $(OBJSSTATIC)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o $(PROGSTATIC) $^ $(LDFLAGS)
 
-SciTEBase.o: SciTEBase.cxx Platform.h SciTE.h PropSet.h Accessor.h \
+SciTEBase.o: SciTEBase.cxx Platform.h SciTE.h PropSet.h Accessor.h WindowAccessor.h \
  KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
-SciTEWin.o: SciTEWin.cxx Platform.h SciTE.h PropSet.h Accessor.h \
+SciTEWin.o: SciTEWin.cxx Platform.h SciTE.h PropSet.h Accessor.h WindowAccessor.h \
  KeyWords.h Scintilla.h SciTEBase.h
 
 #	$(CC) -Xlinker --subsystem -Xlinker windows -o $(PROGSTATIC) $(OBJSSTATIC) $(LDFLAGS)
 
-Sc1.o: SciTEWin.cxx SciTE.h Accessor.h KeyWords.h PropSet.h Scintilla.h
+Sc1.o: SciTEWin.cxx SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h Scintilla.h
 	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o Sc1.o
 
 SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h

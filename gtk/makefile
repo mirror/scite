@@ -41,9 +41,9 @@ SciTE-static: SciTEGTK.o SciTEBase.o KeyWords.o Document.o Scintilla.o PropSet.o
 	$(CC) -L/usr/X11R6/lib -lXext -lX11 -lm -DGTK -DSCI_LEXER SciTE.o KeyWords.o Document.o Scintilla.o PropSet.o /usr/local/lib/libgtk.a /usr/local/lib/libgdk.a /usr/local/lib/libgmodule.a /usr/local/lib/libglib.a -o SciTE-static
 
 SciTEBase.o: SciTEBase.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
- Accessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
+ Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
 SciTEGTK.o: SciTEGTK.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
- Accessor.h KeyWords.h Scintilla.h SciTEBase.h
+ Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciTEBase.h
 
 clean: 
 	rm -f *.o $(PROG)
