@@ -1185,7 +1185,7 @@ void SciTEWin::ProcessExecute() {
 		HANDLE hPipeRead = NULL;
 		HANDLE hWrite2 = NULL;
 		HANDLE hRead2 = NULL;
-		char buffer[256];
+		char buffer[8192];
 		//Platform::DebugPrintf("Execute <%s>\n", command);
 		OutputAppendString(">");
 		OutputAppendString(jobQueue[icmd].command.c_str());
