@@ -142,7 +142,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 		if ((notification->nmhdr.idFrom == IDM_RUNWIN) &&
 			executing &&
 			hWriteSubProcess) {
-			char chToWrite = notification->ch;
+			char chToWrite = static_cast<char>(notification->ch);
 			if (chToWrite != '\r') {
 				DWORD bytesWrote = 0;
 				::WriteFile(hWriteSubProcess, &chToWrite,
