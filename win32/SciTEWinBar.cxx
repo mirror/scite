@@ -1,6 +1,6 @@
 // SciTE - Scintilla based Text Editor
 // SciTEWinBar.cxx - bar and menu code for the Windows version of the editor
-// Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include "SciTEWin.h"

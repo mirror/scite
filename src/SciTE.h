@@ -1,6 +1,6 @@
 // SciTE - small text editor to debug Scintilla
 // SciTE.h - define command IDs used within SciTE
-// Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #ifndef SCITE_H
