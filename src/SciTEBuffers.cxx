@@ -7,9 +7,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
-//#include <fcntl.h>
-//#include <stdarg.h>
-//#include <sys/stat.h>
 #include <time.h>  	// For time_t
 
 #include "Platform.h"
@@ -35,8 +32,6 @@
 #include "PropSet.h"
 #include "Accessor.h"
 #include "WindowAccessor.h"
-//#include "KeyWords.h"
-//#include "ScintillaWidget.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "Extender.h"

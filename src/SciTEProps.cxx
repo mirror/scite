@@ -32,9 +32,6 @@
 #include "SciTE.h"
 #include "PropSet.h"
 #include "Accessor.h"
-//#include "WindowAccessor.h"
-//#include "KeyWords.h"
-//#include "ScintillaWidget.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "Extender.h"
@@ -215,7 +212,7 @@ char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-size(0), fore(0), back(RGB(0xff,0xff,0xff)), bold(false), italics(false), eolfilled(false), underlined(false) {
+size(0), fore(0), back(Colour(0xff,0xff,0xff)), bold(false), italics(false), eolfilled(false), underlined(false) {
 	specified = sdNone;
 	char *val = StringDup(definition);
 	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);

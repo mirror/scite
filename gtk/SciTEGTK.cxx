@@ -25,8 +25,8 @@
 #include "PropSet.h"
 #include "Accessor.h"
 #include "KeyWords.h"
-#include "ScintillaWidget.h"
 #include "Scintilla.h"
+#include "ScintillaWidget.h"
 #include "Extender.h"
 #include "SciTEBase.h"
 #ifdef LUA_SCRIPTING

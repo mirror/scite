@@ -34,10 +34,7 @@
 #include "PropSet.h"
 #include "Accessor.h"
 #include "WindowAccessor.h"
-//#include "KeyWords.h"
-//#include "ScintillaWidget.h"
 #include "Scintilla.h"
-//#include "SciLexer.h"
 #include "Extender.h"
 #include "SciTEBase.h"
 
