@@ -285,7 +285,7 @@ void SciTEWin::FullScreenToggle() {
 			topStuff += ::GetSystemMetrics(SM_CYCAPTION);
 		::SetWindowPos(wSciTE.GetID(), HWND_TOP,
 			       -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
-			       -topStuff - 1,
+			       -topStuff - 2,
 			       ::GetSystemMetrics(SM_CXSCREEN) +
 			       2 * ::GetSystemMetrics(SM_CXSIZEFRAME) + 2,
 			       ::GetSystemMetrics(SM_CYSCREEN) + topStuff +
@@ -838,6 +838,8 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 
 void SciTEWin::QuitProgram() {
 	if (SaveIfUnsureAll() != IDCANCEL) {
+		if (fullScreen)	// Ensure tray visible on exit
+			FullScreenToggle();
 		::PostQuitMessage(0);
 		wSciTE.Destroy();
 	}
