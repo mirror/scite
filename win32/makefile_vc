@@ -13,7 +13,7 @@ PROGSTATIC = ../bin/Sc1.exe
 
 LDFLAGS = /NODEFAULTLIB:LIBC KERNEL32.lib USER32.lib GDI32.lib COMDLG32.lib WINMM.lib COMCTL32.lib ADVAPI32.lib IMM32.lib SHELL32.LIB OLE32.LIB
 INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src 
-CXXFLAGS = /TP /Ox 
+CXXFLAGS = /TP /Ox /W4
 
 !IFDEF DEBUG
 CXXFLAGS=$(CXXFLAGS) /MDd /Zi 

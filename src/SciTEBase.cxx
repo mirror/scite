@@ -121,7 +121,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		int r=rand()%256;
 		int g=rand()%256;
 		int b=rand()%256;
-		for (int co=0;co<(sizeof(contributors)/sizeof(contributors[0]));co++) {
+		for (unsigned int co=0;co<(sizeof(contributors)/sizeof(contributors[0]));co++) {
 			HackColour(r);
 			HackColour(g);
 			HackColour(b);
@@ -752,7 +752,7 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_SETWORDCHARS, 0, 0);
 	}
 
-	SendEditor(SCI_MARKERDELETEALL, -1);
+	SendEditor(SCI_MARKERDELETEALL, static_cast<WPARAM>(-1));
 
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize) {
@@ -817,9 +817,9 @@ void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
 	Platform::SendScintilla(win.GetID(), EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
 }
 
+#ifdef OLD_CODE
 void SciTEBase::Colourise(int start, int end, bool editor) {
 // Colourisation is now performed by the SciLexer DLL
-#ifdef OLD_CODE
 	//DWORD dwStart = timeGetTime();
 	Window &win = editor ? wEditor : wOutput;
 	int lengthDoc = Platform::SendScintilla(win.GetID(), SCI_GETLENGTH, 0, 0);
@@ -842,8 +842,8 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 	styler.Flush();
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("end colourise %d\n", dwEnd - dwStart);
-#endif
 }
+#endif
 
 void SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite) {
 	Window &win = editor ? wEditor : wOutput;
@@ -1143,7 +1143,6 @@ bool SciTEBase::SaveAs(char *file) {
 		Save();
 		ReadProperties();
 		SendEditor(SCI_COLOURISE, 0, -1);
-		//Colourise();   	// In case extension was changed
 		Redraw();
 		SetWindowName();
 		return true;
@@ -1494,7 +1493,7 @@ void SciTEBase::Execute() {
 		SendOutput(SCI_CLEARALL);
 	}
 
-	SendOutput(SCI_MARKERDELETEALL, -1);
+	SendOutput(SCI_MARKERDELETEALL, static_cast<WPARAM>(-1));
 	SendEditor(SCI_MARKERDELETEALL, 0);
 	// Ensure the output pane is visible
 	if (heightOutput < 20) {
@@ -1661,7 +1660,7 @@ void SciTEBase::GoMessage(int dir) {
 		char style = acc.StyleAt(startPosLine);
 		if (style != 0 && style != 4) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
-			SendOutput(SCI_MARKERDELETEALL, -1);
+			SendOutput(SCI_MARKERDELETEALL, static_cast<WPARAM>(-1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			SendOutput(SCI_MARKERSETFORE, 0, Colour(0x7f, 0, 0).AsLong());
 			SendOutput(SCI_MARKERSETBACK, 0, Colour(0xff, 0xff, 0).AsLong());

@@ -141,7 +141,6 @@ protected:
 	int LengthDocument();
 	int GetLine(char *text, int sizeText, int line=-1);
 	void GetRange(Window &win, int start, int end, char *text);
-	void Colourise(int start = 0, int end = -1, bool editor = true);
 	void FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite);
 	void BraceMatch(bool editor);
 

@@ -134,7 +134,6 @@ SciTEWin::SciTEWin() {
 			if (pv) {
 				propsEmbed.ReadFromMemory(
 				    reinterpret_cast<const char *>(pv), size);
-				UnlockResource(hmem);
 			}
 		}
 		::FreeResource(handProps);
@@ -214,11 +213,10 @@ int PASCAL DefaultDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
 
 int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc,
              DWORD dwInitParam) {
-	int result = -1;
-
 	if (lpProc == NULL)
 		lpProc = reinterpret_cast<DLGPROC>(DefaultDlg);
 
+	int result;
 	if (!dwInitParam)
 		result = ::DialogBox(hInst, resName, hWnd, lpProc);
 	else
@@ -382,7 +380,9 @@ void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
 
 bool SciTEWin::OpenDialog() {
 	char openName[MAX_PATH] = "\0";
-	OPENFILENAME ofn = {sizeof(OPENFILENAME)};
+	OPENFILENAME ofn = {
+		sizeof(OPENFILENAME),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	};
 	ofn.hwndOwner = wSciTE.GetID();
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
@@ -419,7 +419,9 @@ bool SciTEWin::SaveAsDialog() {
 	if (0 == dialogsOnScreen) {
 		char openName[MAX_PATH] = "\0";
 		strcpy(openName, fileName);
-		OPENFILENAME ofn = {sizeof(ofn)};
+		OPENFILENAME ofn = {
+			sizeof(OPENFILENAME),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+		};
 		ofn.hwndOwner = wSciTE.GetID();
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = openName;
@@ -434,7 +436,8 @@ bool SciTEWin::SaveAsDialog() {
 			SetFileName(openName);
 			Save();
 			ReadProperties();
-			Colourise();   	// In case extension was changed
+		   	// In case extension was changed
+			SendEditor(SCI_COLOURISE, 0, -1);
 			wEditor.InvalidateAll();
 		}
 		dialogsOnScreen--;
@@ -451,7 +454,9 @@ void SciTEWin::SaveAsHTML() {
 			strcpy(cpDot, ".html");
 		else
 			strcat(saveName, ".html");
-		OPENFILENAME ofn = {sizeof(ofn)};
+		OPENFILENAME ofn = {
+			sizeof(OPENFILENAME),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+		};
 		ofn.hwndOwner = wSciTE.GetID();
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
@@ -472,7 +477,9 @@ void SciTEWin::SaveAsHTML() {
 
 void SciTEWin::Print() {
 
-	PRINTDLG pdlg = {sizeof(PRINTDLG)};
+	PRINTDLG pdlg = {
+		sizeof(PRINTDLG),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	};
 	pdlg.hwndOwner = wSciTE.GetID();
 	pdlg.hInstance = hInstance;
 	pdlg.Flags = PD_USEDEVMODECOPIES | PD_ALLPAGES | PD_RETURNDC;
@@ -565,7 +572,7 @@ void SciTEWin::Print() {
 	// Convert page size to logical units and we're done!
 	DPtoLP(hdc, (LPPOINT) &ptPage, 1);
 
-	DOCINFO di = {sizeof(DOCINFO)};
+	DOCINFO di = {sizeof(DOCINFO),0,0,0,0};
 	di.lpszDocName = windowName;
 	di.lpszOutput = 0;
 	di.lpszDatatype = 0;
@@ -604,7 +611,7 @@ void SciTEWin::Print() {
 		if (printPage)
 			::StartPage(hdc);
 
-		FORMATRANGE frPrint   = {0};
+		FORMATRANGE frPrint   = {0,0,{0,0,0,0},{0,0,0,0},{0,0}};
 		frPrint.hdc           = hdc;
 		frPrint.hdcTarget     = hdc;
 		frPrint.rc.left       = rectMargins.left;
@@ -635,7 +642,9 @@ void SciTEWin::Print() {
 }
 
 void SciTEWin::PrintSetup() {
-	PAGESETUPDLG pdlg = {sizeof(PAGESETUPDLG)};
+	PAGESETUPDLG pdlg = {
+		sizeof(PAGESETUPDLG),0,0,0,0,{0,0},{0,0,0,0},{0,0,0,0},0,0,0,0,0,0
+	};
 	
 	pdlg.hwndOwner = wSciTE.GetID();
 	pdlg.hInstance = hInstance;
@@ -931,12 +940,12 @@ void SciTEWin::ProcessExecute() {
 			continue;
 		}
 
-		OSVERSIONINFO osv = {sizeof(OSVERSIONINFO)};
+		OSVERSIONINFO osv = {sizeof(OSVERSIONINFO),0,0,0,0,""};
 		GetVersionEx(&osv);
 		bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
 
-		SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES)};
-		PROCESS_INFORMATION pi = {0};
+		SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES),0,0};
+		PROCESS_INFORMATION pi = {0,0,0,0};
 		HANDLE hPipeWrite = NULL;
 		HANDLE hPipeRead = NULL;
 		HANDLE hWrite2 = NULL;
@@ -981,7 +990,9 @@ void SciTEWin::ProcessExecute() {
 		//Platform::DebugPrintf("3Execute <%s>\n");
 		// Make child process use hPipeWrite as standard out, and make
 		// sure it does not show on screen.
-		STARTUPINFO si = {sizeof(STARTUPINFO)};
+		STARTUPINFO si = {
+			sizeof(STARTUPINFO),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+		};
 		si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 		if (jobQueue[icmd].jobType == jobCLI)
 			si.wShowWindow = SW_HIDE;
