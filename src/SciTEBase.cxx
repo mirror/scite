@@ -3188,6 +3188,13 @@ void SciTEBase::PerformOne(char *action) {
 				strcpy(replaceWhat, arg2);
 				ReplaceAll(false);
 			}
+		} else if (isprefix(action, "saveas:")) {
+			SaveAs(arg);
+		} else if (isprefix(action, "close:")) {
+			Close();
+			SetFocus(wEditor.GetID());
+		} else if (isprefix(action, "quit:")) {
+			QuitProgram();
 		}
 	}
 }
