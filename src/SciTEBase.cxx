@@ -80,6 +80,7 @@ const char *contributors[] = {
 	"Steve Lhomme",
 	"Ferdinand Prantl",
 	"Jan Dries",
+	"Markus Gritsch",
 };
 
 const char *extList[] = {
