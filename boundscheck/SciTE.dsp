@@ -131,6 +131,10 @@ SOURCE=..\src\Exporters.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\ExternalLexer.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\Indicator.cxx
 # End Source File
 # Begin Source File

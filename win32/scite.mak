@@ -102,6 +102,7 @@ OBJSSTATIC=\
 	SciTEWinDlg.obj \
 	DirectorExtension.obj \
 	..\..\scintilla\win32\KeyWords.obj \
+	..\..\scintilla\win32\ExternalLexer.obj \
 	..\..\scintilla\win32\LexAda.obj \
 	..\..\scintilla\win32\LexAVE.obj \
 	..\..\scintilla\win32\LexConf.obj \
