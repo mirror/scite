@@ -577,7 +577,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		}
 		CheckMenus();
 		break;
-		
+
 	default:
 		SciTEBase::MenuCommand(cmdID);
 	}
@@ -1141,14 +1141,14 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_widget_show(table);
 
-	GtkWidget *buttonFind = gtk_button_new_with_label("Find");
+	GtkWidget *buttonFind = gtk_button_new_with_label("  Find  ");
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
 	                   buttonFind, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT(buttonFind),
 	                   "clicked", GtkSignalFunc(FindInFilesSignal), this);
 	gtk_widget_show(buttonFind);
 
-	GtkWidget *buttonCancel = gtk_button_new_with_label("Cancel");
+	GtkWidget *buttonCancel = gtk_button_new_with_label("  Cancel  ");
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->action_area),
 	                   buttonCancel, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT(buttonCancel),
@@ -1345,7 +1345,7 @@ void SciTEGTK::GoLineDialog() {
 
 	gtk_widget_show(table);
 
-	GtkWidget *buttonGoTo = gtk_button_new_with_label("Go To");
+	GtkWidget *buttonGoTo = gtk_button_new_with_label("  Go To  ");
 	gtk_signal_connect(GTK_OBJECT(buttonGoTo),
 	                   "clicked", GtkSignalFunc(GotoSignal), this);
 	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(buttonGoTo), GTK_CAN_DEFAULT);
@@ -1354,7 +1354,7 @@ void SciTEGTK::GoLineDialog() {
 	gtk_widget_grab_default(GTK_WIDGET(buttonGoTo));
 	gtk_widget_show(buttonGoTo);
 
-	GtkWidget *buttonCancel = gtk_button_new_with_label("Cancel");
+	GtkWidget *buttonCancel = gtk_button_new_with_label("  Cancel  ");
 	gtk_signal_connect(GTK_OBJECT(buttonCancel),
 	                   "clicked", GtkSignalFunc(GotoCancelSignal), this);
 	gtk_signal_connect(GTK_OBJECT(gotoDialog.GetID()),
@@ -1481,8 +1481,10 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	gtk_widget_show_all(table);
 
+	gtk_box_set_homogeneous(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area), false);
+
 	GtkWidget *buttonFind = gtk_button_new_with_label("");
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonFind)->child), "F_ind");
+	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonFind)->child), "  F_ind  ");
 	GTK_WIDGET_SET_FLAGS(buttonFind, GTK_CAN_DEFAULT);
 	gtk_widget_add_accelerator(buttonFind, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_signal_connect(GTK_OBJECT(buttonFind),
@@ -1492,7 +1494,7 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	if (replace) {
 		GtkWidget *buttonReplace = gtk_button_new_with_label("");
-		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplace)->child), "_Replace");
+		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplace)->child), "  _Replace  ");
 		gtk_widget_add_accelerator(	buttonReplace, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 		GTK_WIDGET_SET_FLAGS (buttonReplace, GTK_CAN_DEFAULT);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
@@ -1501,7 +1503,7 @@ void SciTEGTK::FindReplace(bool replace) {
 		                   "clicked", GtkSignalFunc(FRReplaceSignal), this);
 
 		GtkWidget *buttonReplaceAll = gtk_button_new_with_label("");
-		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplaceAll)->child), "Replace _All");
+		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplaceAll)->child), "  Replace _All  ");
 		gtk_widget_add_accelerator(buttonReplaceAll, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 		GTK_WIDGET_SET_FLAGS (buttonReplaceAll, GTK_CAN_DEFAULT);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
@@ -1510,7 +1512,7 @@ void SciTEGTK::FindReplace(bool replace) {
 		                   "clicked", GtkSignalFunc(FRReplaceAllSignal), this);
 
 		GtkWidget *buttonReplaceInSelection = gtk_button_new_with_label("");
-		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplaceInSelection)->child), "Replace in _Selection");
+		Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonReplaceInSelection)->child), "  Replace in _Selection  ");
 		gtk_widget_add_accelerator(buttonReplaceInSelection, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 		GTK_WIDGET_SET_FLAGS (buttonReplaceInSelection, GTK_CAN_DEFAULT);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
@@ -1520,7 +1522,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	GtkWidget *buttonCancel = gtk_button_new_with_label("");
-	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonCancel)->child), "_Cancel");
+	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(buttonCancel)->child), "  _Cancel  ");
 	gtk_widget_add_accelerator(	buttonCancel, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	GTK_WIDGET_SET_FLAGS (buttonCancel, GTK_CAN_DEFAULT);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(wFindReplace.GetID())->action_area),
