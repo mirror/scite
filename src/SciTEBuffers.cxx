@@ -987,8 +987,10 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 						j--;
 					}
 					int sourceNumber = atoi(cdoc + j) - 1;
-					strncpy(sourcePath, cdoc, j - 1);
-					sourcePath[j - 1] = 0;
+					if (j > 0) {
+						strncpy(sourcePath, cdoc, j - 1);
+						sourcePath[j - 1] = 0;
+					}
 					return sourceNumber;
 				}
 			}
