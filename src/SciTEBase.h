@@ -165,6 +165,8 @@ protected:
 	int braceCount;
 	SString sbValue;
 
+	bool indentationWSVisible;
+	
 	bool margin;
 	int marginWidth;
 	enum { marginWidthDefault = 20};
@@ -223,7 +225,7 @@ protected:
 
 	void SetWindowName();
 	void SetFileName(const char *openName);
-    void ClearDocument();
+	void ClearDocument();
 	void InitialiseBuffers();
 	void New();
 	void Close();
@@ -322,6 +324,7 @@ protected:
 	void ToolsMenu(int item);
 
 	void AssignKey(int key, int mods, int cmd);
+	void ViewWhitespace(bool view);
 	virtual void ReadPropertiesInitial();
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);

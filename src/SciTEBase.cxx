@@ -251,6 +251,8 @@ SciTEBase::SciTEBase() : apis(true) {
 	bracesStyle = 0;
 	braceCount = 0;
 
+	indentationWSVisible = true;
+	
 	margin = false;
 	marginWidth = marginWidthDefault;
 	foldMargin = true;
@@ -793,10 +795,20 @@ void SciTEBase::SetStyleFor(Window &win, const char *lang) {
 	}
 }
 
+void SciTEBase::ViewWhitespace(bool view) {
+	if (view && indentationWSVisible)
+		SendEditor(SCI_SETVIEWWS, SCWS_VISIBLEALWAYS);
+	else if (view)
+		SendEditor(SCI_SETVIEWWS, SCWS_VISIBLEAFTERINDENT);
+	else
+		SendEditor(SCI_SETVIEWWS, SCWS_INVISIBLE);
+}
+
 // Properties that are interactively modifiable are only read from the properties file once.
 void SciTEBase::ReadPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
-	SendEditor(SCI_SETVIEWWS, props.GetInt("view.whitespace"));
+	indentationWSVisible = props.GetInt("view.indentation.whitespace",1);
+	ViewWhitespace(props.GetInt("view.whitespace"));
 	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides"));
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
 
@@ -1094,6 +1106,7 @@ void SciTEBase::ReadProperties() {
 		AssignKey(VK_HOME, SHIFT_PRESSED, SCI_HOMEEXTEND);
 	}
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
+	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
 
 	SetToolsMenu();
 
@@ -1275,7 +1288,8 @@ void SciTEBase::BraceMatch(bool editor) {
 			Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
 		}
 		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
-		Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Platform::Minimum(columnAtCaret, columnOpposite), 0);
+		if (props.GetInt("highlight.indentation.guides"))
+			Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Platform::Minimum(columnAtCaret, columnOpposite), 0);
 	}
 }
 
@@ -2762,12 +2776,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));
 		break;
 
-	case IDM_VIEWSPACE: {
-			int viewWS = SendEditor(SCI_GETVIEWWS, 0, 0);
-			SendEditor(SCI_SETVIEWWS, !viewWS);
-			CheckMenus();
-			Redraw();
-		}
+	case IDM_VIEWSPACE:
+		ViewWhitespace(!SendEditor(SCI_GETVIEWWS));
+		CheckMenus();
+		Redraw();
 		break;
 
 	case IDM_VIEWGUIDES: {
