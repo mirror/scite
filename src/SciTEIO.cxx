@@ -688,7 +688,7 @@ void SciTEBase::Activate(bool activeApp) {
 }
 
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
-	if (isDirty) {
+	if ((isDirty) && (LengthDocument() || fileName[0] || forceQuestion)) {
 		if (props.GetInt("are.you.sure", 1) ||
 		        IsUntitledFileName(fullPath) ||
 		        forceQuestion) {
@@ -699,7 +699,7 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 				msg = LocaliseMessage("Save changes to (Untitled)?");
 			}
 			dialogsOnScreen++;
-			int decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL);
+			int decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL | MB_ICONQUESTION);
 			dialogsOnScreen--;
 			if (decision == IDYES) {
 				if (!Save())
