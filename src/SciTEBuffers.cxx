@@ -526,8 +526,10 @@ void SciTEBase::BuffersMenu() {
 			char titleTab[MAX_PATH + 20];
 			titleTab[0] = '\0';
 #if PLAT_WIN
-			sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
-			sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
+			if (pos < 10) {
+				sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
+				sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
+			}
 #endif
 			if (buffers.buffers[pos].IsUntitled()) {
 				SString untitled = LocaliseString("Untitled");
