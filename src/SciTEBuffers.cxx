@@ -1477,6 +1477,54 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			break;
 		}
 
+	case SCE_ERR_ABSF: {
+			// Absoft Pro Fortran 90/95 v8.2 errors look like: cf90-113 f90fe: ERROR SHF3D, File = shf.f90, Line = 1101, Column = 19
+			char *idFile = " File = ";
+			char *idLine = ", Line = ";
+			char *idColumn = ", Column = ";
+			size_t lenFile = strlen(idFile);
+			size_t lenLine = strlen(idLine);
+			char *file = strstr(cdoc, idFile);
+			char *line = strstr(cdoc, idLine);
+			char *column = strstr(cdoc, idColumn);
+			if (line && file && (line > file)) {
+				file += lenFile;
+				size_t length = line - file;
+				strncpy(sourcePath, file, length);
+				sourcePath[length] = '\0';
+				line += lenLine;
+				length = column - line;
+				strncpy(line, line, length);
+				return atoi(line) - 1;
+			}
+			break;
+		}
+
+	case SCE_ERR_IFORT: {
+			/* Intel Fortran Compiler v8.0 error/warnings look like:
+			 * fortcom: Error: shf.f90, line 5602: This name does not have ...
+				 */
+			char *idFile = ": Error: ";
+			char *idLine = ", line ";
+			size_t lenFile = strlen(idFile);
+			size_t lenLine = strlen(idLine);
+			char *file = strstr(cdoc, idFile);
+			char *line = strstr(cdoc, idLine);
+			char *lineend = strrchr(cdoc, ':');
+			if (line && file && (line > file)) {
+				file += lenFile;
+				size_t length = line - file;
+				strncpy(sourcePath, file, length);
+				sourcePath[length] = '\0';
+				line += lenLine;
+				if ((lineend > line)) {
+					length = lineend - line;
+					strncpy(line, line, length);
+					return atoi(line) - 1;
+				}
+			}
+			break;
+		}
 	}	// switch
 	return - 1;
 }
