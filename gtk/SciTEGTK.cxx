@@ -231,7 +231,7 @@ protected:
 	GdkGC *xor_gc;
 
 	guint sbContextID;
-	Window wToolBarBox;
+	//Window wToolBarBox;
 	int menuSource;
 
 	// Control of sub process
@@ -697,9 +697,9 @@ void SciTEGTK::Notify(SCNotification *notification) {
 
 void SciTEGTK::ShowToolBar() {
 	if (tbVisible) {
-		gtk_widget_show(GTK_WIDGET(PWidget(wToolBarBox)));
+		gtk_widget_show(GTK_WIDGET(PWidget(wToolBar)));
 	} else {
-		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
+		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
 	}
 }
 
@@ -2700,7 +2700,6 @@ void SciTEGTK::CreateMenu() {
 	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
 	SciTEItemFactoryEntry menuItems[] = {
 	                                      {"/_File", NULL, NULL, 0, "<Branch>"},
-	                                      {"/_File/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                      {"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
 	                                      {"/File/_Open...", "<control>O", menuSig, IDM_OPEN, 0},
 	                                      {"/File/Open Selected _Filename", "<control><shift>O", menuSig, IDM_OPENSELECTED, 0},
@@ -2740,7 +2739,6 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/E_xit", "", menuSig, IDM_QUIT, 0},
 
 	                                      {"/_Edit", NULL, NULL, 0, "<Branch>"},
-	                                      {"/_Edit/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                      {"/Edit/_Undo", "<control>Z", menuSig, IDM_UNDO, 0},
 
 	                                      {"/Edit/_Redo", "<control>Y", menuSig, IDM_REDO, 0},
@@ -2768,7 +2766,6 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Edit/Para_graph/_Split", NULL, menuSig, IDM_SPLIT, 0},
 
 	                                      {"/_Search", NULL, NULL, 0, "<Branch>"},
-	                                      {"/_Search/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                      {"/Search/_Find...", "<control>F", menuSig, IDM_FIND, 0},
 	                                      {"/Search/Find _Next", "F3", menuSig, IDM_FINDNEXT, 0},
 	                                      {"/Search/Find Previou_s", "<shift>F3", menuSig, IDM_FINDNEXTBACK, 0},
@@ -2785,7 +2782,6 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Search/_Clear All Bookmarks", "", menuSig, IDM_BOOKMARK_CLEARALL, 0},
 
 	                                      {"/_View", NULL, NULL, 0, "<Branch>"},
-	                                      {"/_View/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                      {"/View/Toggle _current fold", "", menuSig, IDM_EXPAND, 0},
 	                                      {"/View/Toggle _all folds", "", menuSig, IDM_TOGGLE_FOLDALL, 0},
 	                                      {"/View/sep1", NULL, NULL, 0, "<Separator>"},
@@ -2806,7 +2802,6 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/View/_Parameters", NULL, menuSig, IDM_TOGGLEPARAMETERS, "<CheckItem>"},
 
 	                                      {"/_Tools", NULL, NULL, 0, "<Branch>"},
-	                                      {"/_Tools/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                      {"/Tools/_Compile", "<control>F7", menuSig, IDM_COMPILE, 0},
 	                                      {"/Tools/_Build", "F7", menuSig, IDM_BUILD, 0},
 	                                      {"/Tools/_Go", "F5", menuSig, IDM_GO, 0},
@@ -2877,7 +2872,6 @@ void SciTEGTK::CreateMenu() {
 
 	SciTEItemFactoryEntry menuItemsOptions[] = {
 	            {"/_Options", NULL, NULL, 0, "<Branch>"},
-	            {"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
 	            {"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
 	            {"/Options/_Wrap", "", menuSig, IDM_WRAP, "<CheckItem>"},
 	            {"/Options/Wrap Out_put", "", menuSig, IDM_WRAPOUTPUT, "<CheckItem>"},
@@ -2902,12 +2896,10 @@ void SciTEGTK::CreateMenu() {
 
 	SciTEItemFactoryEntry menuItemsLanguage[] = {
 	            {"/_Language", NULL, NULL, 0, "<Branch>"},
-	            {"/_Language/tear", NULL, NULL, 0, "<Tearoff>"},
 	        };
 
 	SciTEItemFactoryEntry menuItemsBuffer[] = {
 	                                            {"/_Buffers", NULL, NULL, 0, "<Branch>"},
-	                                            {"/_Buffers/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                            {"/Buffers/_Previous", "<shift>F6", menuSig, IDM_PREVFILE, 0},
 	                                            {"/Buffers/_Next", "F6", menuSig, IDM_NEXTFILE, 0},
 	                                            {"/Buffers/_Close All", "", menuSig, IDM_CLOSEALL, 0},
@@ -2927,7 +2919,6 @@ void SciTEGTK::CreateMenu() {
 
 	SciTEItemFactoryEntry menuItemsHelp[] = {
 	                                          {"/_Help", NULL, NULL, 0, "<Branch>"},
-	                                          {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},
 	                                          {"/Help/_Help", "F1", menuSig, IDM_HELP, 0},
 	                                          {"/Help/_SciTE Help", "", menuSig, IDM_HELP_SCITE, 0},
 	                                          {"/Help/_About SciTE", "", menuSig, IDM_ABOUT, 0},
@@ -2995,16 +2986,19 @@ void SciTEGTK::CreateUI() {
 
 	CreateMenu();
 
-	GtkWidget *handle_box = gtk_handle_box_new();
+	//GtkWidget *handle_box = gtk_handle_box_new();
 
-	gtk_container_add(GTK_CONTAINER(handle_box),
-	                  gtk_item_factory_get_widget(itemFactory, "<main>"));
+	//gtk_container_add(GTK_CONTAINER(handle_box),
+	//                  gtk_item_factory_get_widget(itemFactory, "<main>"));
 
+	//gtk_box_pack_start(GTK_BOX(boxMain),
+	//                   handle_box,
+	//                   FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(boxMain),
-	                   handle_box,
+	                   gtk_item_factory_get_widget(itemFactory, "<main>"),
 	                   FALSE, FALSE, 0);
 
-	wToolBarBox = gtk_handle_box_new();
+	//wToolBarBox = gtk_handle_box_new();
 
 #if GTK_MAJOR_VERSION < 2
 	wToolBar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
@@ -3014,10 +3008,13 @@ void SciTEGTK::CreateUI() {
 #endif
 	tbVisible = false;
 
-	gtk_container_add(GTK_CONTAINER(PWidget(wToolBarBox)), PWidget(wToolBar));
+	//gtk_container_add(GTK_CONTAINER(PWidget(wToolBarBox)), PWidget(wToolBar));
 
+	//gtk_box_pack_start(GTK_BOX(boxMain),
+	//                   PWidget(wToolBarBox),
+	//                   FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(boxMain),
-	                   PWidget(wToolBarBox),
+	                   PWidget(wToolBar),
 	                   FALSE, FALSE, 0);
 
 	//'factory default' setting
@@ -3107,7 +3104,7 @@ void SciTEGTK::CreateUI() {
 
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
 
-	gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
+	gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
 
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 0);
 #if GTK_MAJOR_VERSION < 2
