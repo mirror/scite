@@ -67,6 +67,7 @@ protected:
 	bool staticBuild;
 
 	HANDLE hWriteSubProcess;
+	HACCEL hAccTable;
 
 	PRectangle pagesetupMargin;
 	HGLOBAL hDevMode;
@@ -92,6 +93,9 @@ protected:
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
 	virtual void CheckMenus();
+  
+	void LocaliseAccelerators();
+	SString LocaliseAccelerator(const char *Accelerator, int cmd);
 	void LocaliseMenu(HMENU hmenu);
 	void LocaliseMenus();
 	void LocaliseControl(HWND w);
@@ -175,6 +179,8 @@ protected:
 	static BOOL CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	void AboutDialogWithBuild(int staticBuild);
 	
+	void MakeAccelerator(SString sKey, ACCEL &Accel);
+
 public:
 
 	SciTEWin(Extension *ext = 0);
@@ -199,6 +205,10 @@ public:
 	LRESULT ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam);
+
+	HACCEL GetAcceleratorTable() {
+		return hAccTable;
+	}
 
 	uptr_t GetInstance();
 	static void Register(HINSTANCE hInstance_);

@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEWinBar.cxx
  ** Bar and menu code for the Windows version of the editor.
- **/
+ **/ 
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -11,23 +11,25 @@
  * Update the status bar text.
  */
 void SciTEWin::SetStatusBarText(const char *s) {
-	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
-		SB_SETTEXT, 0, reinterpret_cast<LPARAM>(s));
+	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()),
+	              SB_SETTEXT, 0, reinterpret_cast<LPARAM>(s));
 }
 
-#ifdef __MINGW_H	
+#ifdef __MINGW_H 
 // Mingw headers do not have NMMOUSE, TTN_GETDISPINFO or NMTTDISPINFO
 struct NMMOUSE {
 	NMHDR hdr;
 	DWORD dwItemSpec;
 	// Other fields
-};
+}
+;
 #define TTN_GETDISPINFO TTN_FIRST
 struct NMTTDISPINFO {
 	NMHDR hdr;
 	LPSTR lpszText;
 	// Other fields
-};
+}
+;
 #endif
 
 /**
@@ -51,7 +53,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 			// Click on the status bar
 			NMMOUSE *pNMMouse = (NMMOUSE *)notification;
 			switch (pNMMouse->dwItemSpec) {
-			case 0:		/* Display of status */
+			case 0: 		/* Display of status */
 				sbNum++;
 				if (sbNum > props.GetInt("statusbar.number")) {
 					sbNum = 1;
@@ -68,7 +70,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 		// Ask for tooltip text
 		{
 			static char ttt[MAX_PATH];
-			const char *ttext=0;
+			const char *ttext = 0;
 			NMTTDISPINFO *pDispInfo = (NMTTDISPINFO *)notification;
 			// Toolbar tooltips
 			switch (notification->nmhdr.idFrom) {
@@ -120,16 +122,16 @@ void SciTEWin::Notify(SCNotification *notification) {
 			case IDM_MACROPLAY:
 				ttext = "Run Macro";
 				break;
-			default:
-				{
+			default: {
 					// notification->nmhdr.idFrom appears to be the buffer number for tabbar tooltips
 					Point ptCursor;
 					::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
 					Point ptClient = ptCursor;
-					::ScreenToClient(reinterpret_cast<HWND>(wTabBar.GetID()), 
-						reinterpret_cast<POINT *>(&ptClient));
+					::ScreenToClient(reinterpret_cast<HWND>(wTabBar.GetID()),
+					                 reinterpret_cast<POINT *>(&ptClient));
 					TCHITTESTINFO info;
-					info.pt.x = ptClient.x; info.pt.y = ptClient.y;
+					info.pt.x = ptClient.x;
+					info.pt.y = ptClient.y;
 					int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
 					if (index >= 0) {
 						pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].FullPath());
@@ -147,20 +149,20 @@ void SciTEWin::Notify(SCNotification *notification) {
 
 	case SCN_CHARADDED:
 		if ((notification->nmhdr.idFrom == IDM_RUNWIN) &&
-			executing &&
-			hWriteSubProcess) {
+		        executing &&
+		        hWriteSubProcess) {
 			char chToWrite = static_cast<char>(notification->ch);
 			if (chToWrite != '\r') {
 				DWORD bytesWrote = 0;
 				::WriteFile(hWriteSubProcess, &chToWrite,
-									   1, &bytesWrote, NULL);
+				            1, &bytesWrote, NULL);
 			}
 		} else {
 			SciTEBase::Notify(notification);
 		}
 		break;
-	
-	default:    	// Scintilla notification, use default treatment
+
+	default:     	// Scintilla notification, use default treatment
 		SciTEBase::Notify(notification);
 		break;
 	}
@@ -216,7 +218,7 @@ void SciTEWin::SizeSubWindows() {
 
 	if (showTab) {
 		int tabNb = ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_GETROWCOUNT, 0, 0);
-		visHeightTab = ((tabNb-1) * (heightTab-6)) + heightTab;
+		visHeightTab = ((tabNb - 1) * (heightTab - 6)) + heightTab;
 	} else {
 		visHeightTab = 0;
 	}
@@ -230,17 +232,17 @@ void SciTEWin::SizeSubWindows() {
 	}
 	if (tbVisible) {
 		wToolBar.SetPosition(PRectangle(
-			 rcClient.left, rcClient.top, rcClient.right, visHeightTools));
+		                         rcClient.left, rcClient.top, rcClient.right, visHeightTools));
 		wToolBar.Show(true);
 	} else {
 		wToolBar.Show(false);
 		wToolBar.SetPosition(PRectangle(
-			 rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
+		                         rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
 	}
 	if (showTab) {
 		wTabBar.SetPosition(PRectangle(
-			rcClient.left, rcClient.top + visHeightTools,
-			rcClient.right, rcClient.top + visHeightTab + visHeightTools));
+		                        rcClient.left, rcClient.top + visHeightTools,
+		                        rcClient.right, rcClient.top + visHeightTab + visHeightTools));
 		wTabBar.Show(true);
 	} else {
 		wTabBar.Show(false);
@@ -250,9 +252,9 @@ void SciTEWin::SizeSubWindows() {
 	}
 	if (sbVisible) {
 		wStatusBar.SetPosition(PRectangle(
-			rcClient.left, rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
-			rcClient.right, 
-			rcClient.top + visHeightTools + visHeightTab + visHeightEditor + visHeightStatus));
+		                           rcClient.left, rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
+		                           rcClient.right,
+		                           rcClient.top + visHeightTools + visHeightTab + visHeightEditor + visHeightStatus));
 		wStatusBar.Show(true);
 	} else {
 		wStatusBar.Show(false);
@@ -261,9 +263,9 @@ void SciTEWin::SizeSubWindows() {
 	}
 
 	wContent.SetPosition(PRectangle(
-		rcClient.left, rcClient.top + visHeightTab + visHeightTools, 
-		rcClient.right,
-	        rcClient.top + visHeightTab + visHeightTools + visHeightEditor));
+	                         rcClient.left, rcClient.top + visHeightTab + visHeightTools,
+	                         rcClient.right,
+	                         rcClient.top + visHeightTab + visHeightTools + visHeightEditor));
 	SizeContentWindows();
 	//::SendMessage(MainHWND(), WM_SETREDRAW, true, 0);
 	//::RedrawWindow(MainHWND(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
@@ -277,7 +279,7 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 	SString sTextMnemonic = text;
 	if (mnemonic) {
 		sTextMnemonic += "\t";
-		sTextMnemonic += mnemonic;
+		sTextMnemonic += LocaliseAccelerator(mnemonic, itemID);
 	}
 	if (::GetMenuState(hmenu, itemID, MF_BYCOMMAND) == 0xffffffff) {
 		if (text[0])
@@ -326,16 +328,105 @@ void SciTEWin::CheckMenus() {
 	                   SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
 }
 
+void SciTEWin::MakeAccelerator(SString sAccelerator, ACCEL &Accel) {
+	SString s = sAccelerator;
+
+	if (s.contains("null")) {
+		Accel.key = 0;
+		return ;
+	}
+
+	if (s.contains("Ctrl+")) {
+		Accel.fVirt |= FCONTROL;
+		s.remove("Ctrl+");
+	}
+	if (s.contains("Shift+")) {
+		Accel.fVirt |= FSHIFT;
+		s.remove("Shift+");
+	}
+	if (s.contains("Alt+")) {
+		Accel.fVirt |= FALT;
+		s.remove("Alt+");
+	}
+	if (s.length() == 1) {
+		Accel.key = s[0];
+		Accel.fVirt |= FVIRTKEY;
+	} else if ((s.length() > 1) && (s[0] == 'F') && (isdigit(s[1]))) {
+		s.remove("F");
+		int keyNum = s.value();
+		Accel.key = static_cast<WORD>(keyNum + VK_F1 - 1);
+		Accel.fVirt |= FVIRTKEY;
+	} else if (s.contains("Del")) {
+		Accel.key = VK_DELETE;
+		Accel.fVirt |= FVIRTKEY;
+	} else if (s.contains("Space")) {
+		Accel.key = VK_SPACE;
+		Accel.fVirt |= FVIRTKEY;
+	} else if (s.contains("Enter")) {
+		Accel.key = VK_RETURN;
+		Accel.fVirt |= FVIRTKEY;
+	} else if (s.contains("Back")) {
+		Accel.key = VK_BACK;
+		Accel.fVirt |= FVIRTKEY;
+	} else if (s.contains("Tab")) {
+		Accel.key = VK_TAB;
+		Accel.fVirt |= FVIRTKEY;
+	} else if (s.contains("Num")) {
+		Accel.fVirt |= FVIRTKEY;
+		s.remove("Num");
+		if (isdigit(s[0])) {
+			int keyNum = s.value();
+			Accel.key = static_cast<WORD>(keyNum + VK_NUMPAD0);
+		} else
+			switch (s[0]) {
+			case '*':
+				Accel.key = VK_MULTIPLY;
+				break;
+			case '+':
+				Accel.key = VK_ADD;
+				break;
+			case '-':
+				Accel.key = VK_SUBTRACT;
+				break;
+			case '/':
+				Accel.key = VK_DIVIDE;
+				break;
+			default:
+				Accel.key = 0;
+				break;
+			}
+	}
+}
+
+SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int cmd) {
+	SString translation = LocaliseString(pAccelerator, true);
+	int AccelCount = CopyAcceleratorTable(hAccTable, NULL, 0);
+	ACCEL *AccelTable = new ACCEL[AccelCount];
+	CopyAcceleratorTable(hAccTable, AccelTable, AccelCount);
+	for (int i = 0; i < AccelCount; i++)
+		if (AccelTable[i].cmd == cmd)
+			MakeAccelerator(translation, AccelTable[i]);
+
+	DestroyAcceleratorTable(hAccTable);
+	hAccTable = CreateAcceleratorTable(AccelTable, AccelCount);
+	delete []AccelTable;
+
+	if (translation.contains("null"))
+		translation.clear();
+
+	return translation;
+}
+
 void SciTEWin::LocaliseMenu(HMENU hmenu) {
-	for (int i=0; i<=::GetMenuItemCount(hmenu); i++) {
+	for (int i = 0; i <= ::GetMenuItemCount(hmenu); i++) {
 		char buff[200];
 		MENUITEMINFO mii;
 		memset(&mii, 0, sizeof(mii));
 		mii.cbSize = sizeof(mii);
-		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID | 
-			MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
+		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID |
+		            MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
 		mii.dwTypeData = buff;
-		mii.cch = sizeof(buff)-1;
+		mii.cch = sizeof(buff) - 1;
 		if (::GetMenuItemInfo(hmenu, i, TRUE, &mii)) {
 			if (mii.hSubMenu) {
 				LocaliseMenu(mii.hSubMenu);
@@ -352,10 +443,10 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 					} else {
 						accel = "";
 					}
-					text = LocaliseString(text.c_str(), false);
+					text = LocaliseString(text.c_str(), true);
 					if (text.length()) {
 						text += "\t";
-						text += accel;
+						text += LocaliseAccelerator(accel.c_str(), mii.wID);
 						mii.dwTypeData = const_cast<char *>(text.c_str());
 						::SetMenuItemInfo(hmenu, i, TRUE, &mii);
 					}
@@ -368,6 +459,22 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 void SciTEWin::LocaliseMenus() {
 	LocaliseMenu(::GetMenu(MainHWND()));
 	::DrawMenuBar(MainHWND());
+}
+
+void SciTEWin::LocaliseAccelerators() {
+	LocaliseAccelerator("Alt+1", IDM_BUFFER + 0);
+	LocaliseAccelerator("Alt+2", IDM_BUFFER + 1);
+	LocaliseAccelerator("Alt+3", IDM_BUFFER + 2);
+	LocaliseAccelerator("Alt+4", IDM_BUFFER + 3);
+	LocaliseAccelerator("Alt+5", IDM_BUFFER + 4);
+	LocaliseAccelerator("Alt+6", IDM_BUFFER + 5);
+	LocaliseAccelerator("Alt+7", IDM_BUFFER + 6);
+	LocaliseAccelerator("Alt+8", IDM_BUFFER + 7);
+	LocaliseAccelerator("Alt+9", IDM_BUFFER + 8);
+	LocaliseAccelerator("Alt+0", IDM_BUFFER + 9);
+
+	// todo read keymap from cfg
+	// AssignKey('Y', SCMOD_CTRL, SCI_LINECUT);
 }
 
 void SciTEWin::LocaliseControl(HWND w) {
@@ -404,25 +511,25 @@ struct BarButton {
 };
 
 static BarButton bbs[] = {
-    { -1, 0 },
-    { STD_FILENEW, IDM_NEW },
-    { STD_FILEOPEN, IDM_OPEN },
-    { STD_FILESAVE, IDM_SAVE },
-    { 0, IDM_CLOSE },
-    { -1, 0 },
-    { STD_PRINT, IDM_PRINT },
-    { -1, 0 },
-    { STD_CUT, IDM_CUT },
-    { STD_COPY, IDM_COPY },
-    { STD_PASTE, IDM_PASTE },
-    { STD_DELETE, IDM_CLEAR },
-    { -1, 0 },
-    { STD_UNDO, IDM_UNDO },
-    { STD_REDOW, IDM_REDO },
-    { -1, 0 },
-    { STD_FIND, IDM_FIND },
-    { STD_REPLACE, IDM_REPLACE },
-};
+                             { -1, 0 },
+                             { STD_FILENEW, IDM_NEW },
+                             { STD_FILEOPEN, IDM_OPEN },
+                             { STD_FILESAVE, IDM_SAVE },
+                             { 0, IDM_CLOSE },
+                             { -1, 0 },
+                             { STD_PRINT, IDM_PRINT },
+                             { -1, 0 },
+                             { STD_CUT, IDM_CUT },
+                             { STD_COPY, IDM_COPY },
+                             { STD_PASTE, IDM_PASTE },
+                             { STD_DELETE, IDM_CLEAR },
+                             { -1, 0 },
+                             { STD_UNDO, IDM_UNDO },
+                             { STD_REDOW, IDM_REDO },
+                             { -1, 0 },
+                             { STD_FIND, IDM_FIND },
+                             { STD_REPLACE, IDM_REPLACE },
+                         };
 
 /**
  * Create all the needed windows.
@@ -457,8 +564,8 @@ void SciTEWin::Creation() {
 		exit(FALSE);
 	fnEditor = reinterpret_cast<SciFnDirect>(::SendMessage(
 	               reinterpret_cast<HWND>(wEditor.GetID()), SCI_GETDIRECTFUNCTION, 0, 0));
-	ptrEditor = ::SendMessage(reinterpret_cast<HWND>(wEditor.GetID()), 
-		SCI_GETDIRECTPOINTER, 0, 0);
+	ptrEditor = ::SendMessage(reinterpret_cast<HWND>(wEditor.GetID()),
+	                          SCI_GETDIRECTPOINTER, 0, 0);
 	wEditor.Show();
 	SendEditor(SCI_USEPOPUP, 0);
 	WindowSetFocus(wEditor);
@@ -478,8 +585,8 @@ void SciTEWin::Creation() {
 		exit(FALSE);
 	fnOutput = reinterpret_cast<SciFnDirect>(::SendMessage(
 	               reinterpret_cast<HWND>(wOutput.GetID()), SCI_GETDIRECTFUNCTION, 0, 0));
-	ptrOutput = ::SendMessage(reinterpret_cast<HWND>(wOutput.GetID()), 
-		SCI_GETDIRECTPOINTER, 0, 0);
+	ptrOutput = ::SendMessage(reinterpret_cast<HWND>(wOutput.GetID()),
+	                          SCI_GETDIRECTPOINTER, 0, 0);
 	wOutput.Show();
 	// No selection margin on output window
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
@@ -488,24 +595,24 @@ void SciTEWin::Creation() {
 	::DragAcceptFiles(MainHWND(), true);
 
 	HWND hwndToolBar = ::CreateWindowEx(
-	               0,
-	               TOOLBARCLASSNAME,
-	               "",
-	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS,
-	               0, 0,
-	               100, heightTools,
-	               MainHWND(),
-	               reinterpret_cast<HMENU>(IDM_TOOLWIN),
-	               hInstance,
-	               0);
+	                       0,
+	                       TOOLBARCLASSNAME,
+	                       "",
+	                       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+	                       TBSTYLE_FLAT | TBSTYLE_TOOLTIPS,
+	                       0, 0,
+	                       100, heightTools,
+	                       MainHWND(),
+	                       reinterpret_cast<HMENU>(IDM_TOOLWIN),
+	                       hInstance,
+	                       0);
 	wToolBar = hwndToolBar;
-	
+
 	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
 	::SendMessage(hwndToolBar, TB_LOADIMAGES, IDB_STD_SMALL_COLOR,
 	              reinterpret_cast<LPARAM>(HINST_COMMCTRL));
 
-	TBADDBITMAP addbmp= { hInstance, IDR_CLOSEFILE };
+	TBADDBITMAP addbmp = { hInstance, IDR_CLOSEFILE };
 	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, (LPARAM)&addbmp);
 
 	TBBUTTON tbb[ELEMENTS(bbs)];
@@ -555,7 +662,7 @@ void SciTEWin::Creation() {
 	                         "Ms Sans Serif");
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()),
 	              WM_SETFONT,
-	              reinterpret_cast<WPARAM>(fontTabs),     // handle to font
+	              reinterpret_cast<WPARAM>(fontTabs),      // handle to font
 	              0);    // redraw option
 
 	wTabBar.Show();
@@ -575,8 +682,8 @@ void SciTEWin::Creation() {
 	int widths[] = { 4000 };
 	// Perhaps we can define a syntax to create more parts,
 	// but it is probably an overkill for a marginal feature
-	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
-		      SB_SETPARTS, 1,
-		      reinterpret_cast<LPARAM>(widths));
+	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()),
+	              SB_SETPARTS, 1,
+	              reinterpret_cast<LPARAM>(widths));
 }
 

@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEWin.cxx
  ** Main code for the Windows version of the editor.
- **/
+ **/ 
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -67,11 +67,13 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	hDevMode = 0;
 	hDevNames = 0;
 	::ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
-	
+
 	mutex = 0;
 
 	hHH = 0;
 	hMM = 0;
+
+	hAccTable = ::LoadAccelerators(hInstance, "ACCELS"); // md
 }
 
 SciTEWin::~SciTEWin() {
@@ -171,9 +173,9 @@ void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 			*path = '\0';
 			path++;	// After the !
 			::WinHelp(MainHWND(),
-				path,
-				HELP_KEY,
-				reinterpret_cast<unsigned long>(topic));
+			          path,
+			          HELP_KEY,
+			          reinterpret_cast<unsigned long>(topic));
 		}
 	}
 	delete []topic;
@@ -216,7 +218,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				ak.fIndexOnFail = TRUE;
 				fnHHA(NULL,
 				      path,
-				      0x000d,        	// HH_KEYWORD_LOOKUP
+				      0x000d,         	// HH_KEYWORD_LOOKUP
 				      reinterpret_cast<DWORD>(&ak)
 				     );
 			}
@@ -263,17 +265,17 @@ void SciTEWin::FullScreenToggle() {
 		winPlace.length = sizeof(winPlace);
 		::GetWindowPlacement(MainHWND(), &winPlace);
 		int topStuff = ::GetSystemMetrics(SM_CYMENU) +
-			       ::GetSystemMetrics(SM_CYEDGE);
+		               ::GetSystemMetrics(SM_CYEDGE);
 		if (props.GetInt("full.screen.hides.menu"))
 			topStuff += ::GetSystemMetrics(SM_CYCAPTION);
 		::SetWindowPos(MainHWND(), HWND_TOP,
-			       -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
-			       -topStuff - 2,
-			       ::GetSystemMetrics(SM_CXSCREEN) +
-			       2 * ::GetSystemMetrics(SM_CXSIZEFRAME) + 2,
-			       ::GetSystemMetrics(SM_CYSCREEN) + topStuff +
-			       ::GetSystemMetrics(SM_CYSIZEFRAME) + 3,
-			       0);
+		               -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
+		               -topStuff - 2,
+		               ::GetSystemMetrics(SM_CXSCREEN) +
+		               2 * ::GetSystemMetrics(SM_CXSIZEFRAME) + 2,
+		               ::GetSystemMetrics(SM_CYSCREEN) + topStuff +
+		               ::GetSystemMetrics(SM_CYSIZEFRAME) + 3,
+		               0);
 	} else {
 		::ShowWindow(wTaskBar, SW_SHOW);
 		if (winPlace.length) {
@@ -302,8 +304,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		Activate(lParam);
 		break;
 
-	case IDM_FINISHEDEXECUTE:
-		{
+	case IDM_FINISHEDEXECUTE: {
 			executing = false;
 			CheckMenus();
 			for (int icmd = 0; icmd < commandMax; icmd++) {
@@ -562,8 +563,8 @@ void SciTEWin::ProcessExecute() {
 		// Make child process use hPipeWrite as standard out, and make
 		// sure it does not show on screen.
 		STARTUPINFO si = {
-		    sizeof(STARTUPINFO), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		};
+		                     sizeof(STARTUPINFO), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		                 };
 		si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 		if (jobQueue[icmd].jobType == jobCLI)
 			si.wShowWindow = SW_HIDE;
@@ -592,15 +593,15 @@ void SciTEWin::ProcessExecute() {
 			DWORD nRet = ::GetLastError();
 			LPVOID lpMsgBuf = NULL;
 			::FormatMessage(
-				FORMAT_MESSAGE_ALLOCATE_BUFFER |
-				FORMAT_MESSAGE_FROM_SYSTEM |
-				FORMAT_MESSAGE_IGNORE_INSERTS,
-				NULL,
-				nRet,
-				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				reinterpret_cast<LPTSTR>(&lpMsgBuf),
-				0,
-				NULL
+			    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			    FORMAT_MESSAGE_FROM_SYSTEM |
+			    FORMAT_MESSAGE_IGNORE_INSERTS,
+			    NULL,
+			    nRet,
+			    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),  // Default language
+			    reinterpret_cast<LPTSTR>(&lpMsgBuf),
+			    0,
+			    NULL
 			);
 			OutputAppendStringSynchronised(">");
 			OutputAppendStringSynchronised(reinterpret_cast<LPCTSTR>(lpMsgBuf));
@@ -616,7 +617,7 @@ void SciTEWin::ProcessExecute() {
 			DWORD bytesRead = 0;
 			DWORD bytesAvail = 0;
 			if (!::PeekNamedPipe(hPipeRead, buffer,
-				                sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+			                     sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
 				bytesAvail = 0;
 			}
 			if (bytesAvail > 0) {
@@ -644,11 +645,12 @@ void SciTEWin::ProcessExecute() {
 								timeDetectedDeath = ::GetTickCount();
 							} else {
 								if ((::GetTickCount() - timeDetectedDeath) >
-										static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
+								        static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
 									completed = true;    // It's a dead process
 								}
 							}
-						} else {	// NT, so dead already
+						}
+						else {	// NT, so dead already
 							completed = true;
 						}
 					}
@@ -771,13 +773,13 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	}
 
 	DWORD rc = reinterpret_cast<DWORD>(
-		::ShellExecute(
-			MainHWND(),        // parent wnd for msgboxes during app start
-			NULL,         // cmd is open
-			mycmd,        // file to open
-			myparams,        // parameters
-			dir.c_str(),        // launch directory
-			SW_SHOWNORMAL)); //default show cmd
+	               ::ShellExecute(
+	                   MainHWND(),         // parent wnd for msgboxes during app start
+	                   NULL,          // cmd is open
+	                   mycmd,         // file to open
+	                   myparams,         // parameters
+	                   dir.c_str(),         // launch directory
+	                   SW_SHOWNORMAL)); //default show cmd
 
 	if (rc > 32) {
 		// it worked!
@@ -787,22 +789,22 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 
 	const int numErrcodes = 15;
 	static const ShellErr field[numErrcodes] = {
-	    { 0, "The operating system is out of memory or resources." },
-	    { ERROR_FILE_NOT_FOUND, "The specified file was not found." },
-	    { ERROR_PATH_NOT_FOUND, "The specified path was not found." },
-	    { ERROR_BAD_FORMAT, "The .exe file is invalid (non-Win32\256 .exe or error in .exe image)." },
-	    { SE_ERR_ACCESSDENIED, "The operating system denied access to the specified file." },
-	    { SE_ERR_ASSOCINCOMPLETE, "The file name association is incomplete or invalid." },
-	    { SE_ERR_DDEBUSY, "The DDE transaction could not be completed because other DDE transactions were being processed." },
-	    { SE_ERR_DDEFAIL, "The DDE transaction failed." },
-	    { SE_ERR_DDETIMEOUT, "The DDE transaction could not be completed because the request timed out." },
-	    { SE_ERR_DLLNOTFOUND, "The specified dynamic-link library was not found." },
-	    { SE_ERR_FNF, "The specified file was not found." },
-	    { SE_ERR_NOASSOC, "There is no application associated with the given file name extension." },
-	    { SE_ERR_OOM, "There was not enough memory to complete the operation." },
-	    { SE_ERR_PNF, "The specified path was not found." },
-	    { SE_ERR_SHARE, "A sharing violation occurred." },
-	};
+	            { 0, "The operating system is out of memory or resources." },
+	            { ERROR_FILE_NOT_FOUND, "The specified file was not found." },
+	            { ERROR_PATH_NOT_FOUND, "The specified path was not found." },
+	            { ERROR_BAD_FORMAT, "The .exe file is invalid (non-Win32\256 .exe or error in .exe image)." },
+	            { SE_ERR_ACCESSDENIED, "The operating system denied access to the specified file." },
+	            { SE_ERR_ASSOCINCOMPLETE, "The file name association is incomplete or invalid." },
+	            { SE_ERR_DDEBUSY, "The DDE transaction could not be completed because other DDE transactions were being processed." },
+	            { SE_ERR_DDEFAIL, "The DDE transaction failed." },
+	            { SE_ERR_DDETIMEOUT, "The DDE transaction could not be completed because the request timed out." },
+	            { SE_ERR_DLLNOTFOUND, "The specified dynamic-link library was not found." },
+	            { SE_ERR_FNF, "The specified file was not found." },
+	            { SE_ERR_NOASSOC, "There is no application associated with the given file name extension." },
+	            { SE_ERR_OOM, "There was not enough memory to complete the operation." },
+	            { SE_ERR_PNF, "The specified path was not found." },
+	            { SE_ERR_SHARE, "A sharing violation occurred." },
+	        };
 
 	int i;
 	for (i = 0; i < numErrcodes; ++i) {
@@ -839,7 +841,7 @@ void SciTEWin::StopExecute() {
 		char chToWrite = '\026';
 		DWORD bytesWrote = 0;
 		::WriteFile(hWriteSubProcess, &chToWrite,
-					   1, &bytesWrote, NULL);
+		            1, &bytesWrote, NULL);
 		Sleep(500L);
 	}
 	::InterlockedExchange(&cancelFlag, 1L);
@@ -854,7 +856,7 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 				pCmd.remove(0);
 				parameterisedCommand = pCmd;
 				if (!ParametersDialog(true)) {
-					return;
+					return ;
 				}
 			} else {
 				ParamGrab();
@@ -906,6 +908,7 @@ void SciTEWin::CreateUI() {
 		exit(FALSE);
 
 	LocaliseMenus();
+	LocaliseAccelerators();
 	SString pageSetup = props.Get("print.margins");
 	char val[32];
 	char *ps = StringDup(pageSetup.c_str());
@@ -918,7 +921,7 @@ void SciTEWin::CreateUI() {
 	GetNextPropItem(next, val, 32);
 	pagesetupMargin.bottom = atol(val);
 	delete []ps;
-	
+
 	UIAvailable();
 }
 
@@ -969,7 +972,7 @@ BOOL CALLBACK SciTEWin::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 	// checkIfOpen set.
 	// We use a timeout to avoid being blocked by hung processes.
 	LRESULT found = ::SendMessageTimeout(hWnd,
-		identityMessage, 0, 0, SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
+	                                     identityMessage, 0, 0, SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
 	if (found != 0 && result == static_cast<DWORD>(identityMessage)) {
 		// Found? Is it ourself?
 		if (hWnd != reinterpret_cast<HWND>(app->GetID())) {
@@ -1012,11 +1015,11 @@ void SciTEWin::Run(const char *cmdLine) {
 		// If the mutex already exists, the new process get a handle on it, so even if the first
 		// process exits, the mutex isn't destroyed, until all SciTE instances exit.
 		mutex = ::CreateMutex(NULL, FALSE, mutexName.c_str());
-		// The call fails with ERROR_ACCESS_DENIED if the mutex was 
+		// The call fails with ERROR_ACCESS_DENIED if the mutex was
 		// created in a different user session because of passing
 		// NULL for the SECURITY_ATTRIBUTES on mutex creation);
 		bAlreadyRunning = (::GetLastError() == ERROR_ALREADY_EXISTS ||
-							    ::GetLastError() == ERROR_ACCESS_DENIED);
+		                   ::GetLastError() == ERROR_ACCESS_DENIED);
 	}
 
 	SString args = ProcessArgs(cmdLine);
@@ -1034,7 +1037,7 @@ void SciTEWin::Run(const char *cmdLine) {
 		Print(false);
 		::PostQuitMessage(0);
 		wSciTE.Destroy();
-		return;
+		return ;
 	}
 
 	if (bAlreadyRunning) {
@@ -1056,29 +1059,29 @@ void SciTEWin::Run(const char *cmdLine) {
 			// command-line. (Restoring the cwd could be done,
 			// but keeping it to the last file opened can also
 			// be useful)
-			TCHAR cwdCmd[MAX_PATH+7]; // 7 for "-cwd:" and 2x'"'
+			TCHAR cwdCmd[MAX_PATH + 7]; // 7 for "-cwd:" and 2x'"'
 			strcpy(cwdCmd, "\"-cwd:");
 			getcwd(cwdCmd + strlen(cwdCmd), MAX_PATH);
 			strcat(cwdCmd, "\"");
 			// defeat the "\" mangling - convert "\" to "/"
 			for (char *temp = cwdCmd; *temp; temp++) {
-				if (*temp=='\\') {
+				if (*temp == '\\') {
 					*temp = '/';
 				}
 			}
 			cds.cbData = strlen(cwdCmd) + 1;
 			cds.lpData = static_cast<void *>(cwdCmd);
 			::SendMessage(hOtherWindow, WM_COPYDATA, 0,
-				reinterpret_cast<LPARAM>(&cds));
+			              reinterpret_cast<LPARAM>(&cds));
 			// now the commandline itself.
 			cds.cbData = strlen(cmdLine) + 1;
 			cds.lpData = static_cast<void *>(const_cast<char *>(cmdLine));
 			::SendMessage(hOtherWindow, WM_COPYDATA, 0,
-				reinterpret_cast<LPARAM>(&cds));
+			              reinterpret_cast<LPARAM>(&cds));
 
 			// Kill itself, leaving room to the previous instance
 			::PostQuitMessage(0);
-			return;	/* Don't do anything else */
+			return ;	/* Don't do anything else */
 		}
 	}
 
@@ -1129,6 +1132,7 @@ void SciTEWin::AboutDialog() {
 #ifdef STATIC_BUILD
 	AboutDialogWithBuild(1);
 #else
+
 	AboutDialogWithBuild(0);
 #endif
 }
@@ -1164,13 +1168,13 @@ void SciTEWin::MinimizeToTray() {
 	nid.cbSize = sizeof(nid);
 	nid.hWnd = MainHWND();
 	nid.uID = 1;
-	nid.uFlags = NIF_MESSAGE|NIF_ICON|NIF_TIP;
+	nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
 	nid.uCallbackMessage = SCITE_TRAY;
-	nid.hIcon  = static_cast<HICON>(
-		::LoadImage(hInstance, "SCITE", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
+	nid.hIcon = static_cast<HICON>(
+	                ::LoadImage(hInstance, "SCITE", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
 	strcpy(nid.szTip, n);
 	::ShowWindow(MainHWND(), SW_MINIMIZE);
-	if (::Shell_NotifyIcon(NIM_ADD, &nid)){
+	if (::Shell_NotifyIcon(NIM_ADD, &nid)) {
 		::ShowWindow(MainHWND(), SW_HIDE);
 	}
 }
@@ -1240,10 +1244,10 @@ static bool KeyMatch(SString sKey, int keyval, int modifiers) {
 LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// Look through lexer menu
 	int modifiers =
-		(Platform::IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
-		(Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
-		(Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
-	for (int j=0; j<languageItems; j++) {
+	    (Platform::IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
+	    (Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
+	    (Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
+	for (int j = 0; j < languageItems; j++) {
 		if (KeyMatch(languageMenu[j].menuKey, wParam, modifiers)) {
 			SciTEBase::MenuCommand(IDM_LANGUAGE + j);
 			return 1l;
@@ -1458,8 +1462,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		Notify(reinterpret_cast<SCNotification *>(lParam));
 		break;
 
-	case WM_PAINT:
-		{
+	case WM_PAINT: {
 			PAINTSTRUCT ps;
 			::BeginPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
 			Surface *surfaceWindow = Surface::Allocate();
@@ -1516,7 +1519,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	default:
 		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
 		return ::DefWindowProc(reinterpret_cast<HWND>(wContent.GetID()),
-			iMessage, wParam, lParam);
+		                       iMessage, wParam, lParam);
 	}
 	//Platform::DebugPrintf("end wnd proc\n");
 	return 0l;
@@ -1549,28 +1552,31 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	Extension *extender = &luaExtender;
 #else
 #ifndef NO_FILER
+
 	DirectorExtension director;
 	Extension *extender = &director;
 #else
+
 	Extension *extender = 0;
 #endif
 #endif
 	//Platform::DebugPrintf("Command line is \n%s\n<<", lpszCmdLine);
 
-	HACCEL hAccTable = ::LoadAccelerators(hInstance, "ACCELS");
-
 	SciTEWin::Register(hInstance);
 #ifdef STATIC_BUILD
+
 	Scintilla_LinkLexers();
 	Scintilla_RegisterClasses(hInstance);
 #else
+
 	HMODULE hmod = ::LoadLibrary("SciLexer.DLL");
 	if (hmod == NULL)
 		::MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
 #endif
 
 	MSG msg;
-	msg.wParam = 0; {
+	msg.wParam = 0;
+	{
 		SciTEWin MainWind(extender);
 		MainWind.Run(lpszCmdLine);
 		bool going = true;
@@ -1578,7 +1584,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 			going = ::GetMessage(&msg, NULL, 0, 0);
 			if (going) {
 				if (!MainWind.ModelessHandler(&msg)) {
-					if (::TranslateAccelerator(reinterpret_cast<HWND>(MainWind.GetID()), hAccTable, &msg) == 0) {
+					if (::TranslateAccelerator(reinterpret_cast<HWND>(MainWind.GetID()), MainWind.GetAcceleratorTable(), &msg) == 0) {
 						::TranslateMessage(&msg);
 						::DispatchMessage(&msg);
 					}
@@ -1590,6 +1596,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 #ifdef STATIC_BUILD
 	Scintilla_ReleaseResources();
 #else
+
 	::FreeLibrary(hmod);
 #endif
 
