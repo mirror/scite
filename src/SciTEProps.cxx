@@ -677,7 +677,6 @@ void SciTEBase::ReadProperties() {
 
 	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
 	int blankMarginRight = props.GetInt("blank.margin.right", 1);
-	//long marginCombined = Platform::LongFromTwoShorts(blankMarginLeft, blankMarginRight);
 	SendEditor(SCI_SETMARGINLEFT, 0, blankMarginLeft);
 	SendEditor(SCI_SETMARGINRIGHT, 0, blankMarginRight);
 	SendOutput(SCI_SETMARGINLEFT, 0, blankMarginLeft);
@@ -699,7 +698,13 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_SETWORDCHARS, 0, 0);
 	}
 
-	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
+	SString useTabs = props.GetNewExpand("use.tab.characters.", 
+		fileNameForExtension.c_str());
+	if (useTabs.length())
+		SendEditor(SCI_SETUSETABS, useTabs.value());
+	else
+		SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
+	
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize) {
 		SendEditor(SCI_SETTABWIDTH, tabSize);

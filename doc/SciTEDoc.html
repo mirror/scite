@@ -1456,7 +1456,8 @@ NameError: mistake
         <td>
           tabsize<br />
 	  indent.size<br />
-          use.tabs
+          use.tabs<br />
+	  use.tab.for.<i>filepattern</i>
         </td>
         <td>
           Sets the size of a tab as a multiple of the size of a space character in the style of the
@@ -1464,7 +1465,8 @@ NameError: mistake
 	  indentation and may be different from the tab size. Many people use a tab size of 8 but
 	  4 character indentation. When creating indentation, use.tabs determines whether the
 	  indentation is made up purely from space characters or from a mix of tabs and spaces
-	  using as many tabs as possible.
+	  using as many tabs as possible. The default use.tabs property can be overridden for
+	  files that match a pattern by a use.tab.characters.<i>filepattern</i> property.
         </td>
       </tr>
       <tr>
