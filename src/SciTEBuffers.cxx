@@ -203,23 +203,30 @@ void SciTEBase::InitialiseBuffers() {
 	}
 }
 
-void SciTEBase::LoadRecentMenu() {
-	char recentPathName[MAX_PATH + 1];
+static void RecentFilePath(char *path) {
 	char *where = getenv("SciTE_HOME");
-	char *pat;
 	if (!where) {
 		where = getenv("HOME");
-		pat = "%s/.%s";
-	} else
-		pat = "%s/%s";
-	sprintf (	recentPathName, pat,
-	          where,
-	          recentFileName);
+		if (!where) {
+			where = "";
+		}
+	}
+	strcpy(path, where);
+	strcat(path, pathSepString);
+#if PLAT_GTK
+	strcat(path, ".");
+#endif
+	strcat(path, recentFileName);
+}
 
-	FILE *recentFile = fopen (recentPathName, "r");
+void SciTEBase::LoadRecentMenu() {
+	char recentPathName[MAX_PATH + 1];
+	RecentFilePath(recentPathName);
+
+	FILE *recentFile = fopen(recentPathName, "r");
 	if (!recentFile) {
 		DeleteFileStackMenu();
-		return ;
+		return;
 	}
 	char line[MAX_PATH + 1];
 	CharacterRange cr;
@@ -228,42 +235,33 @@ void SciTEBase::LoadRecentMenu() {
 		if (!fgets (line, sizeof (line), recentFile))
 			break;
 		line[strlen (line) - 1] = '\0';
-		AddFileToStack (line, cr, 0);
+		AddFileToStack(line, cr, 0);
 	}
-	fclose (recentFile);
+	fclose(recentFile);
 }
 
 void SciTEBase::SaveRecentStack() {
 	char recentPathName[MAX_PATH + 1];
-	char *where = getenv("SciTE_HOME");
-	char *pat;
-	if (!where) {
-		where = getenv("HOME");
-		pat = "%s/.%s";
-	} else
-		pat = "%s/%s";
-	sprintf (	recentPathName, pat,
-	          where,
-	          recentFileName);
+	RecentFilePath(recentPathName);
 
-	FILE *recentFile = fopen (recentPathName, "w");
+	FILE *recentFile = fopen(recentPathName, "w");
 	if (!recentFile)
-		return ;
+		return;
 	int i;
 	const char *line;
 	// save recent files list
 	for (i = fileStackMax - 1; i >= 0; i--) {
 		line = recentFileStack[i].fileName.c_str();
 		if (line[0])
-			fprintf (recentFile, "%s\n", line);
+			fprintf(recentFile, "%s\n", line);
 	}
 	// save buffers list
 	for (i = buffers.length - 1; i >= 0 ; i--) {
 		line = buffers.buffers[i].fileName.c_str();
 		if (line[0])
-			fprintf (recentFile, "%s\n", line);
+			fprintf(recentFile, "%s\n", line);
 	}
-	fclose (recentFile);
+	fclose(recentFile);
 }
 
 void SciTEBase::New() {
