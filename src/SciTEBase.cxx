@@ -221,6 +221,8 @@ const char *contributors[] = {
                                  "Régis Vaquette",
                                  "Massimo Corà",
                                  "Elias Pschernig",
+                                 "Chris Jones",
+                                 "Josiah Reynolds",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -1378,7 +1380,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	int startPosition = cr.cpMax;
 	int endPosition = LengthDocument();
 	if (reverseDirection) {
-		startPosition = cr.cpMin - 1;
+		startPosition = cr.cpMin;
 		endPosition = 0;
 	}
 
