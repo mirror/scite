@@ -140,6 +140,85 @@ struct SciTEItemFactoryEntry {
 	char *item_type;
 };
 
+long SciTEKeys::ParseKeyCode(const char *mnemonic) {
+	int modsInKey = 0;
+	int keyval = -1;
+	
+	if (mnemonic && *mnemonic) {
+		SString sKey = mnemonic;
+	
+		if (sKey.contains("Ctrl+")) {
+			modsInKey |= GDK_CONTROL_MASK;
+			sKey.remove("Ctrl+");
+		}
+		if (sKey.contains("Shift+")) {
+			modsInKey |= GDK_SHIFT_MASK;
+			sKey.remove("Shift+");
+		}
+		if (sKey.contains("Alt+")) {
+			modsInKey |= GDK_MOD1_MASK;
+			sKey.remove("Alt+");
+		}
+	
+		if (sKey.length() == 1) {
+			if (modsInKey & GDK_CONTROL_MASK && !(modsInKey & GDK_SHIFT_MASK))
+				sKey.lowercase();
+			keyval = sKey[0];
+		} else if ((sKey.length() > 1)) {
+			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
+				sKey.remove("F");
+				int fkeyNum = sKey.value();
+				if (fkeyNum >= 1 && fkeyNum <= 12)
+					keyval = fkeyNum - 1 + GDK_F1;
+			} else {
+				if (sKey == "Left") {
+					keyval = GDK_Left;
+				} else if (sKey == "Right") {
+					keyval = GDK_Right;
+				} else if (sKey == "Up") {
+					keyval = GDK_Up;
+				} else if (sKey == "Down") {
+					keyval = GDK_Down;
+				} else if (sKey == "Insert") {
+					keyval = GDK_Escape;
+				} else if (sKey == "End") {
+					keyval = GDK_End;
+				} else if (sKey == "Home") {
+					keyval = GDK_Home;
+				} else if (sKey == "Enter") {
+					keyval = GDK_Return;
+				} else if (sKey == "Space") {
+					keyval = GDK_space;
+				} else if (sKey == "KeypadPlus") {
+					keyval = GDK_KP_Add;
+				} else if (sKey == "KeypadMinus") {
+					keyval = GDK_KP_Subtract;
+				} else if (sKey == "Escape") {
+					keyval = GDK_Escape;
+				} else if (sKey == "Delete") {
+					keyval = GDK_Delete;
+				} else if (sKey == "PageUp") {
+					keyval = GDK_Page_Up;
+				} else if (sKey == "PageDown") {
+					keyval = GDK_Page_Down;
+				} else if (sKey == "Slash") {
+					keyval = GDK_slash;
+				} else if (sKey == "Question") {
+					keyval = GDK_question;
+				} else if (sKey == "Equal") {
+					keyval = GDK_equal;
+				}
+			}
+		}
+	}
+
+	return (keyval > 0) ? (keyval | (modsInKey<<16)) : 0;
+}
+
+bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
+	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
+}
+
 class SciTEGTK : public SciTEBase {
 
 protected:
@@ -1415,6 +1494,7 @@ void SciTEGTK::Execute() {
 	} else if (jobQueue[icmd].jobType == jobExtension) {
 		if (extender)
 			extender->OnExecute(jobQueue[icmd].command.c_str());
+		ExecuteNext();
 	} else {
 		if (!MakePipe(resultsFile)) {
 			OutputAppendString(">Failed to create FIFO\n");
@@ -2240,6 +2320,11 @@ void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
                                 gint /*x*/, gint /*y*/, GtkSelectionData *seldata, guint /*info*/, guint time, SciTEGTK *scitew) {
 	scitew->OpenUriList(reinterpret_cast<const char *>(seldata->data));
 	gtk_drag_finish(context, TRUE, FALSE, time);
+}
+
+void SciTEGTK::GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event) {
+	if(event->button == 1)
+		ButtonSignal(NULL,(gpointer)(bufferCmdID+gtk_notebook_get_current_page(notebook)));
 }
 
 void SciTEGTK::OpenCancelSignal(GtkWidget *, SciTEGTK *scitew) {
@@ -3137,89 +3222,4 @@ int main(int argc, char *argv[]) {
 	scite.Run(argc, argv);
 
 	return 0;
-}
-
-void SciTEGTK::GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event) {
-	if(event->button == 1)
-		ButtonSignal(NULL,(gpointer)(bufferCmdID+gtk_notebook_get_current_page(notebook)));
-}
-
-
-long SciTEKeys::ParseKeyCode(const char *mnemonic) {
-	int modsInKey = 0;
-	int keyval = -1;
-	
-	if (mnemonic && *mnemonic) {
-		SString sKey = mnemonic;
-	
-		if (sKey.contains("Ctrl+")) {
-			modsInKey |= GDK_CONTROL_MASK;
-			sKey.remove("Ctrl+");
-		}
-		if (sKey.contains("Shift+")) {
-			modsInKey |= GDK_SHIFT_MASK;
-			sKey.remove("Shift+");
-		}
-		if (sKey.contains("Alt+")) {
-			modsInKey |= GDK_MOD1_MASK;
-			sKey.remove("Alt+");
-		}
-	
-		if (sKey.length() == 1) {
-			if (modsInKey & GDK_CONTROL_MASK && !(modsInKey & GDK_SHIFT_MASK))
-				sKey.lowercase();
-			keyval = sKey[0];
-		} else if ((sKey.length() > 1)) {
-			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
-				sKey.remove("F");
-				int fkeyNum = sKey.value();
-				if (fkeyNum >= 1 && fkeyNum <= 12)
-					keyval = fkeyNum - 1 + GDK_F1;
-			} else {
-				if (sKey == "Left") {
-					keyval = GDK_Left;
-				} else if (sKey == "Right") {
-					keyval = GDK_Right;
-				} else if (sKey == "Up") {
-					keyval = GDK_Up;
-				} else if (sKey == "Down") {
-					keyval = GDK_Down;
-				} else if (sKey == "Insert") {
-					keyval = GDK_Escape;
-				} else if (sKey == "End") {
-					keyval = GDK_End;
-				} else if (sKey == "Home") {
-					keyval = GDK_Home;
-				} else if (sKey == "Enter") {
-					keyval = GDK_Return;
-				} else if (sKey == "Space") {
-					keyval = GDK_space;
-				} else if (sKey == "KeypadPlus") {
-					keyval = GDK_KP_Add;
-				} else if (sKey == "KeypadMinus") {
-					keyval = GDK_KP_Subtract;
-				} else if (sKey == "Escape") {
-					keyval = GDK_Escape;
-				} else if (sKey == "Delete") {
-					keyval = GDK_Delete;
-				} else if (sKey == "PageUp") {
-					keyval = GDK_Page_Up;
-				} else if (sKey == "PageDown") {
-					keyval = GDK_Page_Down;
-				} else if (sKey == "Slash") {
-					keyval = GDK_slash;
-				} else if (sKey == "Question") {
-					keyval = GDK_question;
-				} else if (sKey == "Equal") {
-					keyval = GDK_equal;
-				}
-			}
-		}
-	}
-
-	return (keyval > 0) ? (keyval | (modsInKey<<16)) : 0;
-}
-
-bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
-	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
 }
