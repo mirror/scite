@@ -104,7 +104,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 					TCHITTESTINFO info;
 					info.pt.x = ptClient.x; info.pt.y = ptClient.y;
 					int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
-					pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].fileName.c_str());
+					pDispInfo->lpszText = const_cast<char *>(buffers.buffers[index].FullPath());
 				}
 				break;
 			}

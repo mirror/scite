@@ -223,7 +223,7 @@ void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 
 	SetWindowName();
 	if (buffers.buffers)
-		buffers.buffers[buffers.current].fileName = fullPath;
+		buffers.buffers[buffers.current].Set(fullPath);
 	BuffersMenu();
 }
 

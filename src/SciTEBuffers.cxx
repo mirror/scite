@@ -52,6 +52,27 @@ void Job::Clear() {
 	jobType = jobCLI;
 }
 
+bool FilePath::SameNameAs(const char *other) const {
+#ifdef xWIN32
+	return EqualCaseInsensitive(fileName.c_str(), other);
+#else
+	return fileName == other;
+#endif
+}
+
+bool FilePath::SameNameAs(const FilePath &other) const {
+	return SameNameAs(other.fileName.c_str());
+}
+
+bool FilePath::IsUntitled() const {
+	const char *dirEnd = strrchr(fileName.c_str(), pathSepChar);
+	return !dirEnd || !dirEnd[1];
+}
+
+const char *FilePath::FullPath() const {
+	return fileName.c_str();
+}
+
 BufferList::BufferList() : buffers(0), size(0), length(0), current(0) {}
 
 BufferList::~BufferList() {
@@ -72,11 +93,11 @@ int BufferList::Add() {
 	return length - 1;
 }
 
-int BufferList::GetDocumentByName(const char *filename) {
-	if (!filename || !filename[0])
+int BufferList::GetDocumentByName(const char *fileName) {
+	if (!fileName || !fileName[0])
 		return -1;
 	for (int i = 0;i < length;i++)
-		if (buffers[i].fileName == filename)
+		if (buffers[i].SameNameAs(fileName))
 			return i;
 	return -1;
 }
@@ -127,7 +148,7 @@ void SciTEBase::SetDocumentAt(int index) {
 	isDirty = bufferNext.isDirty;
 	useMonoFont = bufferNext.useMonoFont;
 	fileModTime = bufferNext.fileModTime;
-	SetFileName(bufferNext.fileName.c_str());
+	SetFileName(bufferNext.FullPath());
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
 	ReadProperties();
@@ -151,7 +172,7 @@ void SciTEBase::SetDocumentAt(int index) {
 
 void SciTEBase::UpdateBuffersCurrent() {
 	if ((buffers.length > 0) && (buffers.current >= 0)) {
-		buffers.buffers[buffers.current].fileName = fullPath;
+		buffers.buffers[buffers.current].Set(fullPath);
 		buffers.buffers[buffers.current].selection = GetSelection();
 		buffers.buffers[buffers.current].scrollPosition = GetCurrentScrollPosition();
 		buffers.buffers[buffers.current].isDirty = isDirty;
@@ -256,18 +277,15 @@ void SciTEBase::SaveRecentStack() {
 	if (!recentFile)
 		return;
 	int i;
-	const char *line;
 	// save recent files list
 	for (i = fileStackMax - 1; i >= 0; i--) {
-		line = recentFileStack[i].fileName.c_str();
-		if (line[0])
-			fprintf(recentFile, "%s\n", line);
+		if (recentFileStack[i].IsSet())
+			fprintf(recentFile, "%s\n", recentFileStack[i].FullPath());
 	}
 	// save buffers list
 	for (i = buffers.length - 1; i >= 0; i--) {
-		line = buffers.buffers[i].fileName.c_str();
-		if (line[0])
-			fprintf(recentFile, "%s\n", line);
+		if (buffers.buffers[i].IsSet())
+			fprintf(recentFile, "%s\n", buffers.buffers[i].FullPath());
 	}
 	fclose(recentFile);
 }
@@ -304,14 +322,12 @@ void SciTEBase::SaveSession(const char *sessionName) {
 		strcpy(sessionPathName, sessionName);
 	}
 	int i = 0;
-	const char *line;
 	FILE *sessionFile = fopen(sessionPathName, "w");
 	if (!sessionFile)
 		return;
 	for (i = buffers.length - 1; i >= 0; i--) {
-	line = buffers.buffers[i].fileName.c_str();
-	if (line[0])
-		fprintf(sessionFile, "%s\n", line);
+		if (buffers.buffers[i].IsSet())
+			fprintf(sessionFile, "%s\n", buffers.buffers[i].FullPath());
 	}
 	fclose(sessionFile);
 }
@@ -320,8 +336,8 @@ void SciTEBase::New() {
 	InitialiseBuffers();
 	UpdateBuffersCurrent();
 
-	if ((buffers.size == 1) && (!IsUntitledFileName(buffers.buffers[0].fileName.c_str()))) {
-		AddFileToStack(buffers.buffers[0].fileName.c_str(), 
+	if ((buffers.size == 1) && (!buffers.buffers[0].IsUntitled())) {
+		AddFileToStack(buffers.buffers[0].FullPath(), 
 			buffers.buffers[0].selection, 
 			buffers.buffers[0].scrollPosition);
 	}
@@ -331,7 +347,7 @@ void SciTEBase::New() {
 	if ((buffers.length > 1) ||
 	        (buffers.current != 0) ||
 	        (buffers.buffers[0].isDirty) ||
-	        (!IsUntitledFileName(buffers.buffers[0].fileName.c_str())))
+	        (!buffers.buffers[0].IsUntitled()))
 		buffers.current = buffers.Add();
 
 	int doc = GetDocumentAt(buffers.current);
@@ -360,7 +376,7 @@ void SciTEBase::Close(bool updateUI) {
 		if (buffers.current >= 0 && buffers.current < buffers.length) {
 			UpdateBuffersCurrent();
 			Buffer buff = buffers.buffers[buffers.current];
-			AddFileToStack(buff.fileName.c_str(), buff.selection, buff.scrollPosition);
+			AddFileToStack(buff.FullPath(), buff.selection, buff.scrollPosition);
 		}
 		bool closingLast = buffers.length == 1;
 		if (closingLast) {
@@ -374,7 +390,7 @@ void SciTEBase::Close(bool updateUI) {
 		useMonoFont = bufferNext.useMonoFont;
 		fileModTime = bufferNext.fileModTime;
 		if (updateUI)
-			SetFileName(bufferNext.fileName.c_str());
+			SetFileName(bufferNext.FullPath());
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 		if (closingLast) {
 			ClearDocument();
@@ -450,11 +466,11 @@ void SciTEBase::BuffersMenu() {
 			sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
 			sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
 #endif
-			if (IsUntitledFileName(buffers.buffers[pos].fileName.c_str())) {
+			if (buffers.buffers[pos].IsUntitled()) {
 				strcat(entry, "Untitled");
 				strcat(titleTab, "Untitled");
 			} else {
-				strcat(entry, buffers.buffers[pos].fileName.c_str());
+				strcat(entry, buffers.buffers[pos].FullPath());
 
 				char *cpDirEnd = strrchr(entry, pathSepChar);
 				if (cpDirEnd) {
@@ -498,18 +514,18 @@ void SciTEBase::DeleteFileStackMenu() {
 }
 
 void SciTEBase::SetFileStackMenu() {
-	if (recentFileStack[0].fileName[0]) {
+	if (recentFileStack[0].IsSet()) {
 		SetMenuItem(menuFile, MRU_START, IDM_MRU_SEP, "");
 		for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
 			//Platform::DebugPrintf("Setfile %d %s\n", stackPos, recentFileStack[stackPos].fileName.c_str());
 			int itemID = fileStackCmdID + stackPos;
-			if (recentFileStack[stackPos].fileName[0]) {
+			if (recentFileStack[stackPos].IsSet()) {
 				char entry[MAX_PATH + 20];
 				entry[0] = '\0';
 #if PLAT_WIN
 				sprintf(entry, "&%d ", (stackPos + 1) % 10);
 #endif
-				strcat(entry, recentFileStack[stackPos].fileName.c_str());
+				strcat(entry, recentFileStack[stackPos].FullPath());
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, entry);
 			}
 		}
@@ -539,11 +555,11 @@ void SciTEBase::AddFileToStack(const char *file, CharacterRange selection, int s
 		int stackPos;
 		int eqPos = fileStackMax - 1;
 		for (stackPos = 0; stackPos < fileStackMax; stackPos++)
-			if (recentFileStack[stackPos].fileName == file)
+			if (recentFileStack[stackPos].SameNameAs(file))
 				eqPos = stackPos;
 		for (stackPos = eqPos; stackPos > 0; stackPos--)
 			recentFileStack[stackPos] = recentFileStack[stackPos - 1];
-		recentFileStack[0].fileName = file;
+		recentFileStack[0].Set(file);
 		recentFileStack[0].selection = selection;
 		recentFileStack[0].scrollPosition = scrollPos;
 	}
@@ -556,7 +572,7 @@ void SciTEBase::RemoveFileFromStack(const char *file) {
 	DeleteFileStackMenu();
 	int stackPos;
 	for (stackPos = 0; stackPos < fileStackMax; stackPos++) {
-		if (recentFileStack[stackPos].fileName == file) {
+		if (recentFileStack[stackPos].SameNameAs(file)) {
 			for (int movePos = stackPos; movePos < fileStackMax - 1; movePos++)
 				recentFileStack[movePos] = recentFileStack[movePos + 1];
 			recentFileStack[fileStackMax - 1].Init();
@@ -602,7 +618,7 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 void SciTEBase::StackMenuNext() {
 	DeleteFileStackMenu();
 	for (int stackPos = fileStackMax - 1; stackPos >= 0;stackPos--) {
-		if (recentFileStack[stackPos].fileName[0] != '\0') {
+		if (recentFileStack[stackPos].IsSet()) {
 			SetFileStackMenu();
 			StackMenu(stackPos);
 			return;
@@ -612,13 +628,13 @@ void SciTEBase::StackMenuNext() {
 }
 
 void SciTEBase::StackMenuPrev() {
-	if (recentFileStack[0].fileName[0] != '\0') {
+	if (recentFileStack[0].IsSet()) {
 		// May need to restore last entry if removed by StackMenu
 		RecentFile rfLast = recentFileStack[fileStackMax - 1];
 		StackMenu(0);	// Swap current with top of stack
 		for (int checkPos = 0; checkPos < fileStackMax; checkPos++) {
-			if (rfLast.fileName == recentFileStack[checkPos].fileName) {
-				rfLast.fileName = "";
+			if (rfLast.SameNameAs(recentFileStack[checkPos])) {
+				rfLast.Init();
 			}
 		}
 		// And rotate the MRU
@@ -630,10 +646,10 @@ void SciTEBase::StackMenuPrev() {
 		recentFileStack[fileStackMax - 1].Init();
 		// Copy current file into first empty
 		for (int emptyPos = 0; emptyPos < fileStackMax; emptyPos++) {
-			if (recentFileStack[emptyPos].fileName.length() == 0) {
-				if (rfLast.fileName.length()) {
+			if (!recentFileStack[emptyPos].IsSet()) {
+				if (rfLast.IsSet()) {
 					recentFileStack[emptyPos] = rfLast;
-					rfLast.fileName = "";
+					rfLast.Init();
 				} else {
 					recentFileStack[emptyPos] = rfCurrent;
 					break;
@@ -649,16 +665,16 @@ void SciTEBase::StackMenuPrev() {
 void SciTEBase::StackMenu(int pos) {
 	//Platform::DebugPrintf("Stack menu %d\n", pos);
 	if (pos >= 0) {
-		if ((pos == 0) && (recentFileStack[pos].fileName[0] == '\0')) {	// Empty
+		if ((pos == 0) && (!recentFileStack[pos].IsSet())) {	// Empty
 			New();
 			SetWindowName();
 			ReadProperties();
-		} else if (recentFileStack[pos].fileName[0] != '\0') {
+		} else if (recentFileStack[pos].IsSet()) {
 			RecentFile rf = recentFileStack[pos];
 			//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
 			overrideExtension = "";
 			isDirty = false;
-			Open(rf.fileName.c_str());
+			Open(rf.FullPath());
 			DisplayAround(rf);
 		}
 	}

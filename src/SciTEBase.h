@@ -79,19 +79,35 @@ public:
 	void Read(const char *filename, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
 };
 
-class RecentFile {
-public:
+class FilePath {
 	SString fileName;
+public:
+	FilePath() : fileName("") {
+	}
+	void Set(const char *fileName_) {
+		fileName = fileName_;
+	}
+	void Init() {
+		fileName = "";
+	}
+	bool SameNameAs(const char *other) const;
+	bool SameNameAs(const FilePath &other) const;
+	bool IsSet() const { return fileName.length() > 0; }
+	bool IsUntitled() const;
+	const char *FullPath() const;
+};
+
+class RecentFile : public FilePath {
+public:
 	CharacterRange selection;
 	int scrollPosition;
 	RecentFile() {
-		fileName = "";
 		selection.cpMin = INVALID_POSITION;
 		selection.cpMax = INVALID_POSITION;
 		scrollPosition = 0;
 	}
 	void Init() {
-		fileName = "";
+		FilePath::Init();
 		selection.cpMin = INVALID_POSITION;
 		selection.cpMax = INVALID_POSITION;
 		scrollPosition = 0;
