@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <time.h>  	// For time_t
+#include <time.h>   	// For time_t
 
 #include "Platform.h"
 
@@ -189,10 +189,10 @@ static Colour ColourFromString(const char *val) {
  * The returned value is NULL if the end of the list is met, else, it points to the next item.
  */
 char *SciTEBase::GetNextPropItem(
-    const char *pStart, 	/**< the property string to parse for the first call,
-    						 * pointer returned by the previous call for the following. */
-    char *pPropItem, 	///< pointer on a buffer receiving the requested prop item
-    int maxLen)			///< size of the above buffer
+	const char *pStart,  	/**< the property string to parse for the first call,
+							 * pointer returned by the previous call for the following. */
+	char *pPropItem,  	///< pointer on a buffer receiving the requested prop item
+	int maxLen)			///< size of the above buffer
 {
 	char *pNext;
 	int size = maxLen - 1;
@@ -201,9 +201,8 @@ char *SciTEBase::GetNextPropItem(
 	if (pStart == NULL) {
 		return NULL;
 	}
-	pNext = strchr(pStart, ',');
-	if (pNext)	// Separator is found
-	{
+	pNext = const_cast<char *>(strchr(pStart, ','));
+	if (pNext) {	// Separator is found
 		if (size > pNext - pStart) {
 			// Found string fits in buffer
 			size = pNext - pStart;
@@ -215,8 +214,10 @@ char *SciTEBase::GetNextPropItem(
 	return pNext;
 }
 
-void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
-	char *val = StringDup(s);
+StyleDefinition::StyleDefinition(const char *definition) :
+size(0), fore(0), back(0), bold(false), italics(false), eolfilled(false), underlined(false) {
+	specified = sdNone;
+	char *val = StringDup(definition);
 	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);
 	char *opt = val;
 	while (opt) {
@@ -226,36 +227,80 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 		char *colon = strchr(opt, ':');
 		if (colon)
 			*colon++ = '\0';
-		if (0 == strcmp(opt, "italics"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETITALIC, style, 1);
-		if (0 == strcmp(opt, "notitalics"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETITALIC, style, 0);
-		if (0 == strcmp(opt, "bold"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETBOLD, style, 1);
-		if (0 == strcmp(opt, "notbold"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETBOLD, style, 0);
-		if (0 == strcmp(opt, "font"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(colon));
-		if (0 == strcmp(opt, "fore"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETFORE, style, ColourFromString(colon).AsLong());
-		if (0 == strcmp(opt, "back"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETBACK, style, ColourFromString(colon).AsLong());
-		if (0 == strcmp(opt, "size"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETSIZE, style, atoi(colon));
-		if (0 == strcmp(opt, "eolfilled"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETEOLFILLED, style, 1);
-		if (0 == strcmp(opt, "noteolfilled"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETEOLFILLED, style, 0);
-		if (0 == strcmp(opt, "underlined"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETUNDERLINE, style, 1);
-		if (0 == strcmp(opt, "notunderlined"))
-			Platform::SendScintilla(win.GetID(), SCI_STYLESETUNDERLINE, style, 0);
+		if (0 == strcmp(opt, "italics")) {
+			specified = static_cast<flags>(specified | sdItalics);
+			italics = true;
+		}
+		if (0 == strcmp(opt, "notitalics")) {
+			specified = static_cast<flags>(specified | sdItalics);
+			italics = false;
+		}
+		if (0 == strcmp(opt, "bold")) {
+			specified = static_cast<flags>(specified | sdBold);
+			bold = true;
+		}
+		if (0 == strcmp(opt, "notbold")) {
+			specified = static_cast<flags>(specified | sdBold);
+			bold = false;
+		}
+		if (0 == strcmp(opt, "font")) {
+			specified = static_cast<flags>(specified | sdFont);
+			font.assign(colon);
+		}
+		if (0 == strcmp(opt, "fore")) {
+			specified = static_cast<flags>(specified | sdFore);
+			fore = ColourFromString(colon);
+		}
+		if (0 == strcmp(opt, "back")) {
+			specified = static_cast<flags>(specified | sdBack);
+			back = ColourFromString(colon);
+		}
+		if (0 == strcmp(opt, "size")) {
+			specified = static_cast<flags>(specified | sdSize);
+			size = atoi(colon);
+		}
+		if (0 == strcmp(opt, "eolfilled")) {
+			specified = static_cast<flags>(specified | sdEOLFilled);
+			eolfilled = true;
+		}
+		if (0 == strcmp(opt, "noteolfilled")) {
+			specified = static_cast<flags>(specified | sdEOLFilled);
+			eolfilled = false;
+		}
+		if (0 == strcmp(opt, "underlined")) {
+			specified = static_cast<flags>(specified | sdUnderlined);
+			underlined = true;
+		}
+		if (0 == strcmp(opt, "notunderlined")) {
+			specified = static_cast<flags>(specified | sdUnderlined);
+			underlined = false;
+		}
 		if (cpComma)
 			opt = cpComma + 1;
 		else
 			opt = 0;
 	}
 	delete []val;
+}
+
+void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
+	StyleDefinition sd(s);
+	if (sd.specified & StyleDefinition::sdItalics)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETITALIC, style, sd.italics ? 1 : 0);
+	if (sd.specified & StyleDefinition::sdBold)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETBOLD, style, sd.bold ? 1 : 0);
+	if (sd.specified & StyleDefinition::sdFont)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(sd.font.c_str()));
+	if (sd.specified & StyleDefinition::sdFore)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETFORE, style, sd.fore.AsLong());
+	if (sd.specified & StyleDefinition::sdBack)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETBACK, style, sd.back.AsLong());
+	if (sd.specified & StyleDefinition::sdSize)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETSIZE, style, sd.size);
+	if (sd.specified & StyleDefinition::sdEOLFilled)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETEOLFILLED, style, sd.eolfilled ? 1 : 0);
+	if (sd.specified & StyleDefinition::sdUnderlined)
+		Platform::SendScintilla(win.GetID(), SCI_STYLESETUNDERLINE, style, sd.underlined ? 1 : 0);
 	Platform::SendScintilla(win.GetID(), SCI_STYLESETCHARACTERSET, style, characterSet);
 }
 

@@ -160,6 +160,21 @@ enum {
 	warnExecuteKO
 };
 
+class StyleDefinition {
+public:
+	SString font;
+	int size;
+	Colour fore;
+	Colour back;
+	bool bold;
+	bool italics;
+	bool eolfilled;
+	bool underlined;
+	enum flags { sdNone = 0, sdFont = 0x1, sdSize = 0x2, sdFore = 0x4, sdBack = 0x8,
+	       sdBold = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined=0x80 } specified;
+	StyleDefinition(const char *definition);
+};
+
 struct StyleAndWords {
 	int styleNumber;
 	SString words;
