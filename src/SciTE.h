@@ -142,8 +142,9 @@
 #define IDM_HELP			901
 #define IDM_ABOUT			902
 
-// Top
+// Windows specific windowing options
 #define IDM_ONTOP			960
+#define IDM_FULLSCREEN		961
 
 #define LEXER_BASE			800
 

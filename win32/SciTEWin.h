@@ -54,6 +54,8 @@ protected:
 	static HINSTANCE hInstance;
 	static char *className;
 	static char *classNameInternal;
+	bool fullScreen;
+	WINDOWPLACEMENT winPlace;
 	FINDREPLACE fr;
 	char openWhat[200];
 	int filterDefault;

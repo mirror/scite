@@ -25,6 +25,9 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	heightBar = 7;
 	fontTabs = 0;
 
+	fullScreen = false;
+	winPlace.length = 0;
+	
 	memset(&fr, 0, sizeof(fr));
 	strcpy(openWhat, "Custom Filter");
 	openWhat[strlen(openWhat) + 1] = '\0';
@@ -295,6 +298,32 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		CheckAMenuItem(IDM_ONTOP, topMost);
 		break;
 
+	case IDM_FULLSCREEN:
+		fullScreen = !fullScreen;
+		CheckAMenuItem(IDM_FULLSCREEN, fullScreen);
+		if (fullScreen) {
+			winPlace.length = sizeof(winPlace);
+			::GetWindowPlacement(wSciTE.GetID(), &winPlace);
+			int topStuff = ::GetSystemMetrics(SM_CYMENU) +
+				::GetSystemMetrics(SM_CYEDGE);
+			if (props.GetInt("full.screen.hides.menu"))
+				topStuff += ::GetSystemMetrics(SM_CYCAPTION);
+			//HWND wTopmost = ::GetWindow(wSciTE.GetID(), GW_HWNDFIRST);
+			::SetForegroundWindow(wSciTE.GetID());
+			::SetWindowPos(wSciTE.GetID(), HWND_TOP,
+				-::GetSystemMetrics(SM_CXSIZEFRAME) - 1, 
+				-topStuff - 1, 
+				::GetSystemMetrics(SM_CXSCREEN) + 
+					2 * ::GetSystemMetrics(SM_CXSIZEFRAME) + 2, 
+				::GetSystemMetrics(SM_CYSCREEN) + topStuff + 
+					::GetSystemMetrics(SM_CYSIZEFRAME) + 3, 
+				0);
+		} else {
+			if (winPlace.length)
+				SetWindowPlacement(wSciTE.GetID(), &winPlace);
+		}
+		break;
+	
 	default:
 		SciTEBase::MenuCommand(cmdID);
 	}
@@ -954,8 +983,25 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			SizeSubWindows();
 		break;
 
-	case WM_GETMINMAXINFO:
-		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
+	case WM_GETMINMAXINFO: {
+			//if (lParam)
+			//return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
+			MINMAXINFO *pmmi = reinterpret_cast<MINMAXINFO *>(lParam);
+			if (fullScreen) {
+				// Last constants for both x and y are just fiddles - don't know why they are needed
+				pmmi->ptMaxSize.x = ::GetSystemMetrics(SM_CXSCREEN) + 
+					2 * ::GetSystemMetrics(SM_CXSIZEFRAME) + 
+					2;
+				pmmi->ptMaxSize.y = ::GetSystemMetrics(SM_CYSCREEN) +
+					::GetSystemMetrics(SM_CYCAPTION) +
+					::GetSystemMetrics(SM_CYMENU) + 
+					2 * ::GetSystemMetrics(SM_CYSIZEFRAME) + 
+					3;
+				pmmi->ptMaxTrackSize.x = pmmi->ptMaxSize.x;
+				pmmi->ptMaxTrackSize.y = pmmi->ptMaxSize.y;
+			}
+			return 0;
+		}
 
 	case WM_INITMENU:
 		CheckMenus();
@@ -1115,7 +1161,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			}
 		}
 		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
-
+		
 	default:
 		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
 		return ::DefWindowProc(wContent.GetID(), iMessage, wParam, lParam);
