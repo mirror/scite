@@ -144,7 +144,7 @@ public:
 
 class Buffer : public RecentFile {
 public:
-	int doc;
+	sptr_t doc;
 	bool isDirty;
 	bool useMonoFont;
 	time_t fileModTime;
@@ -427,7 +427,7 @@ protected:
 	BufferList buffers;
 
 	// Handle buffers
-	int GetDocumentAt(int index);
+	sptr_t GetDocumentAt(int index);
 	int AddBuffer();
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable();

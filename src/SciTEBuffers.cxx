@@ -133,7 +133,7 @@ void BufferList::RemoveCurrent() {
 	}
 }
 
-int SciTEBase::GetDocumentAt(int index) {
+sptr_t SciTEBase::GetDocumentAt(int index) {
 	if (index < 0 || index >= buffers.size) {
 		//Platform::DebugPrintf("SciTEBase::GetDocumentAt: Index out of range.\n");
 		return 0;
@@ -379,7 +379,7 @@ void SciTEBase::New() {
 	        (!buffers.buffers[0].IsUntitled()))
 		buffers.current = buffers.Add();
 
-	int doc = GetDocumentAt(buffers.current);
+	sptr_t doc = GetDocumentAt(buffers.current);
 	SendEditor(SCI_SETDOCPOINTER, 0, doc);
 
 	fullPath[0] = '\0';
