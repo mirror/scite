@@ -95,7 +95,7 @@
 				BrowseInformation="2"
 				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
+				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="4"
 				CompileAs="0"/>
 			<Tool
@@ -177,13 +177,13 @@
 				RelativePath="..\..\scintilla\src\KeyWords.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAVE.cxx">
-			</File>
-			<File
 				RelativePath="..\..\scintilla\src\LexAda.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexAsm.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\LexAVE.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexBaan.cxx">
@@ -192,22 +192,22 @@
 				RelativePath="..\..\scintilla\src\LexBullant.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCPP.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\src\LexCSS.cxx">
-			</File>
-			<File
 				RelativePath="..\..\scintilla\src\LexConf.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\LexCPP.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexCrontab.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexEScript.cxx">
+				RelativePath="..\..\scintilla\src\LexCSS.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexEiffel.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\LexEScript.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexFortran.cxx">
@@ -231,16 +231,16 @@
 				RelativePath="..\..\scintilla\src\LexOthers.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPOV.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\src\LexPS.cxx">
-			</File>
-			<File
 				RelativePath="..\..\scintilla\src\LexPascal.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexPerl.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\LexPOV.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\LexPS.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexPython.cxx">
@@ -254,6 +254,7 @@
 			<File
 				RelativePath="..\..\scintilla\src\LexVB.cxx">
 			</File>
+
 			<File
 				RelativePath="..\..\scintilla\src\LineMarker.cxx">
 			</File>
