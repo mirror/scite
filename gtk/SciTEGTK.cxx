@@ -1318,7 +1318,7 @@ void SciTEGTK::Execute() {
 		inputHandle = gdk_input_add(fdFIFO, GDK_INPUT_READ,
 		                            (GdkInputFunction) IOSignal, this);
 		// Also add a background task in case there is no output from the tool
-		pollID = gtk_timeout_add(200, (GtkFunction) SciTEGTK::PollTool, this);
+		pollID = gtk_timeout_add(200, (gint (*)(void *)) SciTEGTK::PollTool, this);
 	}
 }
 
