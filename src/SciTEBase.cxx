@@ -2013,54 +2013,96 @@ bool SciTEBase::StartInsertAbbreviation() {
 	strcpy(expbuf, data.c_str());
 	UnSlash(expbuf);
 	size_t expbuflen = strlen(expbuf);
-	int caret_pos = SendEditor(SCI_GETSELECTIONEND);
-	int sel_start = SendEditor(SCI_GETSELECTIONSTART);
-	int sel_length = caret_pos - sel_start;
-	bool at_start = false;
-	int currentLineNumber = GetCurrentLineNumber();
+	int caret_pos = SendEditor(SCI_GETSELECTIONSTART);
+	int sel_start = caret_pos;
+	int sel_length = SendEditor(SCI_GETSELECTIONEND) - sel_start;
+	bool at_start = true;
+	bool double_pipe = false;
+	size_t last_pipe = expbuflen;
+	int currentLineNumber = SendEditor(SCI_LINEFROMPOSITION, caret_pos);
 	int indent = 0;
+	int indentSize = SendEditor(SCI_GETINDENT);
+	int indentChars = (SendEditor(SCI_GETUSETABS) && SendEditor(SCI_GETTABWIDTH) ? SendEditor(SCI_GETTABWIDTH) : 1);
+	int indentExtra = 0;
+	bool isIndent = true;
+	int eolMode = SendEditor(SCI_GETEOLMODE);
 	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
+	}
+
+	// find last |, can't be strrchr(exbuf, '|') because of ||
+	for (size_t i = expbuflen; i--; ) {
+		if (expbuf[i] == '|' && (i == 0 || expbuf[i-1] != '|')) {
+			last_pipe = i;
+			break;
+		}
 	}
 
 	SendEditor(SCI_BEGINUNDOACTION);
 
 	// add the abbreviation one character at a time
-	for (size_t i = expbuflen; i--; ) {
-		// go from end - selected text will be at last '|', caret will be at first '|'
+	for (size_t i = 0; i < expbuflen; i++) {
 		char c = expbuf[i];
 		SString abbrevText("");
-		switch (c) {
-		case '|':
-			// user may want to insert '|' instead of caret
-			if (i > 0 && expbuf[i - 1] == '|') {
-				// put '|' into the line
+		if (isIndent && c == '\t') {
+			indentExtra++;
+			SetLineIndentation(currentLineNumber, indent + indentSize * indentExtra);
+			caret_pos += indentSize / indentChars;
+		} else {
+			switch (c) {
+			case '|':
+				// user may want to insert '|' instead of caret
+				if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
+					// put '|' into the line
+					abbrevText += c;
+					i++;
+				} else if (i != last_pipe) {
+					double_pipe = true;
+				} else {
+					// indent on multiple lines
+					int j = currentLineNumber + 1; // first line indented as others
+					currentLineNumber = SendEditor(SCI_LINEFROMPOSITION, caret_pos + sel_length);
+					for (; j <= currentLineNumber; j++) {
+						SetLineIndentation(j, indent + indentSize * indentExtra);
+						caret_pos += indentSize / indentChars;
+					}
+
+					at_start = false;
+					caret_pos += sel_length;
+				}
+				break;
+			case '\n':
+				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_CR) {
+					abbrevText += '\r';
+				}
+				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) {
+					abbrevText += '\n';
+				}
+				break;
+			default:
 				abbrevText += c;
-				expbuflen--;
-				i--;
-			} else if (!at_start) {
-				caret_pos -= sel_length;
-				at_start = true;
-			} else {
-				sel_start = caret_pos;
-				sel_length = 0;
+				break;
 			}
-			break;
-		default:
-			abbrevText += c;
-			break;
-		}
-		SendEditorString(SCI_INSERTTEXT, caret_pos, abbrevText.c_str());
-		if (at_start) {
-			sel_start += static_cast<int>(abbrevText.length());
-		}
-		if (c == '\n') {
-			SetLineIndentation(currentLineNumber + 1, indent);
+			SendEditorString(SCI_INSERTTEXT, caret_pos, abbrevText.c_str());
+			if (!double_pipe && at_start) {
+				sel_start += static_cast<int>(abbrevText.length());
+			}
+			caret_pos += static_cast<int>(abbrevText.length());
+			if (c == '\n') {
+				isIndent = true;
+				indentExtra = 0;
+				currentLineNumber++;
+				SetLineIndentation(currentLineNumber, indent);
+			} else {
+				isIndent = false;
+			}
 		}
 	}
 
 	// set the caret to the desired position
-	if (!at_start && sel_length == 0) {
+	if (double_pipe) {
+		sel_length = 0;
+	} else if (!at_start && sel_length == 0) {
 		sel_start += static_cast<int>(expbuflen);
 	}
 	SendEditor(SCI_SETSEL, sel_start, sel_start + sel_length);
@@ -2076,24 +2118,24 @@ bool SciTEBase::StartExpandAbbreviation() {
 	char *linebuf = new char[currentPos + 2];
 	GetLine(linebuf, currentPos + 2);	// Just get text to the left of the caret
 	linebuf[currentPos] = '\0';
-	int abbrevPos = currentPos - 1;
+	int abbrevPos = (currentPos > 32 ? currentPos - 32 : 0);
 	const char *abbrev = linebuf + abbrevPos;
 	SString data;
 	size_t dataLength = 0;
-	int abbrevLength = 1;
-	// Try each potential abbreviation from the first letter to the left of the caret
-	// and expanding to the left.
+	int abbrevLength = currentPos - abbrevPos;
+	// Try each potential abbreviation from the first letter on a line
+	// and expanding to the right.
 	// We arbitrarily limits the length of an abbreviation (seems a reasonable value..),
-	// and of course stop on the start of the line.
-	while (abbrevPos >= 0 && abbrevLength <= 32) {
+	// and of course stop on the caret.
+	while (abbrevLength > 0) {
 		data = propsAbbrev.Get(abbrev);
 		dataLength = data.length();
 		if (dataLength > 0) {
 			break;	/* Found */
 		}
-		abbrevPos--;
-		abbrev--;	// One more letter to the left
-		abbrevLength++;
+		abbrevPos++;
+		abbrev++;	// One more letter to the right
+		abbrevLength--;
 	}
 
 	if (dataLength == 0) {
@@ -2108,6 +2150,9 @@ bool SciTEBase::StartExpandAbbreviation() {
 	int caret_pos = -1; // caret position
 	int currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
+	int indentExtra = 0;
+	bool isIndent = true;
+	int eolMode = SendEditor(SCI_GETEOLMODE);
 	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
 	}
@@ -2119,30 +2164,47 @@ bool SciTEBase::StartExpandAbbreviation() {
 	for (size_t i = 0; i < expbuflen; i++) {
 		char c = expbuf[i];
 		SString abbrevText("");
-		switch (c) {
-		case '|':
-			// user may want to insert '|' instead of caret
-			if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
-				// put '|' into the line
-				abbrevText += c;
-				i++;
-			} else if (caret_pos == -1) {
-				if (i == 0) {
-					// when caret is set at the first place in abbreviation
-					caret_pos = SendEditor(SCI_GETCURRENTPOS) - abbrevLength;
-				} else {
-					caret_pos = SendEditor(SCI_GETCURRENTPOS);
+		if (isIndent && c == '\t') {
+			indentExtra++;
+			SetLineIndentation(currentLineNumber, indent + SendEditor(SCI_GETINDENT) * indentExtra);
+		} else {
+			switch (c) {
+			case '|':
+				// user may want to insert '|' instead of caret
+				if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
+					// put '|' into the line
+					abbrevText += c;
+					i++;
+				} else if (caret_pos == -1) {
+					if (i == 0) {
+						// when caret is set at the first place in abbreviation
+						caret_pos = SendEditor(SCI_GETCURRENTPOS) - abbrevLength;
+					} else {
+						caret_pos = SendEditor(SCI_GETCURRENTPOS);
+					}
 				}
+				break;
+			case '\n':
+				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_CR) {
+					abbrevText += '\r';
+				}
+				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) {
+					abbrevText += '\n';
+				}
+				break;
+			default:
+				abbrevText += c;
+				break;
 			}
-			break;
-		default:
-			abbrevText += c;
-			break;
-		}
-		SendEditorString(SCI_REPLACESEL, 0, abbrevText.c_str());
-		if (c == '\n') {
-			currentLineNumber++;
-			SetLineIndentation(currentLineNumber, indent);
+			SendEditorString(SCI_REPLACESEL, 0, abbrevText.c_str());
+			if (c == '\n') {
+				isIndent = true;
+				indentExtra = 0;
+				currentLineNumber++;
+				SetLineIndentation(currentLineNumber, indent);
+			} else {
+				isIndent = false;
+			}
 		}
 	}
 
