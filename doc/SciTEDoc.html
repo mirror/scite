@@ -177,8 +177,25 @@ NameError: mistake
        <code>
        SciTE "-import c:\os\web_work" SciTEDoc.html
        </code><br />
-       A few commands are currently available although this will expand in the
-       future. Commands use C style escape sequences which include:
+       </p>
+       <p>
+       A few commands are currently available although this will expand in the future.
+       These commands are available:
+       <table cellpadding="0" cellspacing="0" border="1">
+	<thead>
+	<tr><th>Command</th><th>Argument</th></tr>
+	</thead>
+	<tr><td>close:</td><td></td></tr>
+	<tr><td>find:</td><td>search text</td></tr>
+	<tr><td>goto:</td><td>line number</td></tr>
+	<tr><td>open:</td><td>file name</td></tr>
+	<tr><td>quit:</td><td></td></tr>
+	<tr><td>replaceall:</td><td>search text\000replacement text</td></tr>
+	<tr><td>saveas:</td><td>file name</td></tr>
+       </table>
+       </p>
+       <p>
+       Commands use C style escape sequences which include:
        <table cellpadding="0" cellspacing="0" border="1">
 	<thead>
 	<tr><th>Escape Sequence</th><th>Meaning</th></tr>
@@ -198,26 +215,21 @@ NameError: mistake
        <code>
        SciTE -open:/big/icon.txt
        </code><br />
-       These commands are available:
-       <table cellpadding="0" cellspacing="0" border="1">
-	<thead>
-	<tr><th>Command</th><th>Argument</th></tr>
-	</thead>
-	<tr><td>close:</td><td></td></tr>
-	<tr><td>find:</td><td>search text</td></tr>
-	<tr><td>goto:</td><td>line number</td></tr>
-	<tr><td>open:</td><td>file name</td></tr>
-	<tr><td>quit:</td><td></td></tr>
-	<tr><td>replaceall:</td><td>search text\000replacement text</td></tr>
-	<tr><td>saveas:</td><td>file name</td></tr>
-       </table>
-    </p>
+       On Windows, the following opens C:\Program Files\SciTE\SciTEDoc.html
+       and goes to the 123th line:<br />
+       <code>
+       SciTE -open:"C:\\Program Files\\SciTE\\SciTEDoc.html" -goto:123
+       </code><br />
     <p>
 	Command line arguments are evaluated left to right in two phases because
 	opening files requires the user interface to be available and there is also a need
 	to set some user interface properties before the user interface is displayed.
 	The first phase process arguments until just before the first file name would be opened.
 	The second phase processes the remaining arguments.
+    </p>
+    <p>
+	So, if you need to perform e.g. a find: or a goto: command on a file, you must put
+	the command after the filename, to allow SciTE to open the file before performing the command.
     </p>
     <h3>
        Buffers
@@ -827,24 +839,32 @@ NameError: mistake
         <td>
           caret.policy.strict<br />
           caret.policy.slop<br />
+          caret.policy.lines<br />
           caret.policy.xeven<br />
-	caret.policy.lines
+          caret.policy.xjumps
         </td>
         <td>
-          Determines how the display area follows the caret.
-	If strict is set, then caret policy is rechecked even if the caret is completely visible.
+          Determines how the display area follows the caret.<br />
 	If slop is set then the value of caret.policy.lines
 	is used to determine the number of lines at the top and bottom of the display area
 	that make up the "unwanted zone" where the caret should not appear if possible.
+	There is also an horizontal unwanted zone of 50 pixels at the left and right of the 
+	display area.<br />
 	When strict is set then the caret is not allowed to move into the
-	unwanted zone. When strict is not set then the caret is allowed into this zone
+	unwanted zone. Caret policy is then rechecked even if the caret is completely visible.<br />
+	When strict is not set then the caret is allowed into this zone
 	but when it does go out of the display area, then the display area is repositioned so
-	the caret is not in the unwanted zone.
+	the caret is not in the unwanted zone.<br />
 	If slop is not set then the area is centred around the caret, with strict
 	determining if this centring is maintained at all times or if it is performed
-	only when the caret is not completely visible.
+	only when the caret is not completely visible.<br />
 	If caret.policy.xeven is set then both the left and right margins are treated
-	equally whereas if it is not set then displaying text to the left is preferred.
+	equally whereas if it is not set then displaying text to the left is preferred.<br />
+	If caret.policy.xjumps is set then the display is not horizontally repositioned until
+	the caret reaches themargin at which time the display jumps to ensure the 
+	caret is not within the unwanted area. f caret.policy.xjumps is not set then the 
+	caret stays out of the unwanted area causing more but smaller movements.<br />
+	Default: caret.policy.slop=1, all others = 0.
         </td>
       </tr>
       <tr>
