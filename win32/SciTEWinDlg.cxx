@@ -120,7 +120,10 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 			return true;
 	}
 	if (wParameters.GetID()) {
-		bool menuKey = (pmsg->message == WM_KEYDOWN) && (pmsg->wParam != VK_TAB) &&
+		bool menuKey = (pmsg->message == WM_KEYDOWN) && 
+			(pmsg->wParam != VK_TAB) &&
+			(pmsg->wParam != VK_ESCAPE) &&
+			(pmsg->wParam != VK_RETURN) &&
 			(Platform::IsKeyDown(VK_CONTROL) || !Platform::IsKeyDown(VK_MENU));
 		if (!menuKey && ::IsDialogMessage(reinterpret_cast<HWND>(wParameters.GetID()), pmsg))
 			return true;
