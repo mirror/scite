@@ -235,6 +235,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	autoCompleteIgnoreCase = false;
 	callTipIgnoreCase = false;
 	autoCCausedByOnlyOne = false;
+	startCalltipWord = 0;
 
 	margin = false;
 	marginWidth = marginWidthDefault;
@@ -1515,16 +1516,17 @@ bool SciTEBase::StartCallTip() {
 	if (current <= 0)
 		return true;
 
-	int startword = current - 1;
-	while (startword > 0 && calltipWordCharacters.contains(linebuf[startword - 1]))
-		startword--;
+	startCalltipWord = current - 1;
+	while (startCalltipWord > 0 &&
+			calltipWordCharacters.contains(linebuf[startCalltipWord - 1]))
+		startCalltipWord--;
 
 	linebuf[current] = '\0';
-	int rootlen = current - startword;
+	int rootlen = current - startCalltipWord;
 	functionDefinition = "";
 	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", linebuf + startword, rootlen, pos, pos - rootlen);
 	if (apis) {
-		const char *word = apis.GetNearestWord(linebuf + startword, rootlen,
+		const char *word = apis.GetNearestWord(linebuf + startCalltipWord, rootlen,
 			callTipIgnoreCase, calltipWordCharacters);
 		if (word) {
 			functionDefinition = word;
@@ -1552,7 +1554,7 @@ void SciTEBase::ContinueCallTip() {
 	int current = GetCaretInLine();
 
 	int commas = 0;
-	for (int i = 0; i < current; i++) {
+	for (int i = startCalltipWord; i < current; i++) {
 		if (IsCallTipSeparator(linebuf[i]))
 			commas++;
 	}

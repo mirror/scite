@@ -389,6 +389,7 @@ protected:
 	SString autoCompleteStartCharacters;
 	SString autoCompleteFillUpCharacters;
 	SString wordCharacters;
+	int startCalltipWord;
 
 	bool margin;
 	int marginWidth;
