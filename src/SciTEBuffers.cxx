@@ -94,33 +94,6 @@ LinkedList::LinkedList() {
 	data = 0;
 }
 
-void LinkedList::DisconnectNext() {
-	if ((next!=this) && (next!=0))
-		next->DisconnectNext();
-	next=0;
-}
-
-void LinkedList::DisconnectPrev() {
-	if ((prev!=this) && (prev!=0))
-		prev->DisconnectPrev();
-	prev=0;
-}
-
-void LinkedList::DestroyAll() {
-	if ((next!=this) && (next!=0)) {
-		next->DestroyAll();
-		delete next;
-		next=0;
-	}
-	if ((prev!=this) && (prev!=0)) {
-		prev->DestroyAll();
-		delete prev;
-		prev=0;
-	}
-
-	// parent node will delete me
-}
-
 BufferList::BufferList() : bufferListTop(0), bufferListTopPrev(0),
 		bufferListBottom(0), ctrltabStarted(false),
 		current(0), buffers(0), size(0), length(0) {}
@@ -128,25 +101,17 @@ BufferList::BufferList() : bufferListTop(0), bufferListTopPrev(0),
 BufferList::~BufferList() {
 	delete []buffers;
 
-	if (bufferListTop != 0) {
-		// if there is more than one node then manipulate the list
-		//   to make it easy to delete it
-		if (bufferListTop->prev != bufferListTop) {
-			LinkedList *llp = bufferListTop->prev;
-
-			// break the chain
+	if (bufferListTop) {
+		if (bufferListTop == bufferListTop->next) {
+			delete bufferListTop;
+		} else {
 			bufferListTop->prev->next = 0;
-			bufferListTop->prev = 0;
-
-			// disconnect the whole 'prev' path
-			llp->DisconnectPrev();
+			while (bufferListTop) {
+				LinkedList *next = bufferListTop->next;
+				delete bufferListTop;
+				bufferListTop = next;
+			}
 		}
-
-		// let the list destroy itself
-		bufferListTop->DestroyAll();
-
-		// delete the last remaining node
-		delete bufferListTop;
 	}
 }
 
@@ -839,12 +804,13 @@ void SciTEBase::Prev() {
 }
 
 void SciTEBase::NextZOrder() {
+	buffers.InControlTab();
+
 	if (props.GetInt("buffers.zorder.switching") != 1) {
 		Next();	// if MRU list switching is not enabled then jump to regular serial switching
 		return;
 	}
 
-	buffers.InControlTab();
 	int next = buffers.NextZOrder();
 
 	SetDocumentAt(next);
@@ -852,12 +818,13 @@ void SciTEBase::NextZOrder() {
 }
 
 void SciTEBase::PrevZOrder() {
+	buffers.InControlTab();
+
 	if (props.GetInt("buffers.zorder.switching") != 1) {
 		Prev();	// if MRU list switching is not enabled then jump to regular serial switching
 		return;
 	}
 
-	buffers.InControlTab();
 	int prev = buffers.PrevZOrder();
 
 	SetDocumentAt(prev);

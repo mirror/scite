@@ -214,10 +214,10 @@ public:
 
 	void Clear() {
 
-		if (size > 0) {
-			delete[] lines;
-			delete[] folded;
-		}
+		delete[] lines;
+		lines = 0;
+		delete[] folded;
+		folded = 0;
 
 		size = 0;
 		fill = 0;
@@ -290,14 +290,11 @@ public:
 
 class LinkedList {
 public:
-	int   data;
-	LinkedList* next;
-	LinkedList* prev;
+	int data;
+	LinkedList *next;
+	LinkedList *prev;
 
 	LinkedList();
-	void DisconnectNext();
-	void DisconnectPrev();
-	void DestroyAll();
 };
 
 class BufferList {
