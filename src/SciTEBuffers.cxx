@@ -90,73 +90,76 @@ const char *FilePath::FullPath() const {
 }
 
 LinkedList::LinkedList() {
-	next=prev=this;
-	data=0;
+	next = prev = this;
+	data = 0;
 }
 
 void LinkedList::DisconnectNext() {
-	if ((next!=this) && (next!=NULL))
+	if ((next!=this) && (next!=0))
 		next->DisconnectNext();
-	next=NULL;
+	next=0;
 }
 
 void LinkedList::DisconnectPrev() {
-	if ((prev!=this) && (prev!=NULL))
+	if ((prev!=this) && (prev!=0))
 		prev->DisconnectPrev();
-	prev=NULL;
+	prev=0;
 }
 
 void LinkedList::DestroyAll() {
-	if ((next!=this) && (next!=NULL)) {
+	if ((next!=this) && (next!=0)) {
 		next->DestroyAll();
 		delete next;
-		next=NULL;
+		next=0;
 	}
-	if ((prev!=this) && (prev!=NULL)) {
+	if ((prev!=this) && (prev!=0)) {
 		prev->DestroyAll();
 		delete prev;
-		prev=NULL;
+		prev=0;
 	}
 
 	// parent node will delete me
 }
 
-BufferList::BufferList() :
-	bufferListTop(0), bufferListTopPrev(0), bufferListBottom(0),
-	ctrltabStarted(false), current(0), buffers(0), size(0), length(1) {
-
-	LinkedList *tmpll = new LinkedList;	// alocate a single list item. everyting else will be allocated when needed
-
-	bufferListTop = tmpll;				// assign top
-	bufferListBottom = tmpll;				// assign bottom
-}
+BufferList::BufferList() : bufferListTop(0), bufferListTopPrev(0),
+		bufferListBottom(0), ctrltabStarted(false),
+		current(0), buffers(0), size(0), length(0) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
 
-	// if there is more than one node then manipulate the list
-	//   to make it easy to delete it
-	if (bufferListTop->prev!=bufferListTop) {
-		LinkedList *llp=bufferListTop->prev;
+	if (bufferListTop != 0) {
+		// if there is more than one node then manipulate the list
+		//   to make it easy to delete it
+		if (bufferListTop->prev != bufferListTop) {
+			LinkedList *llp = bufferListTop->prev;
 
-		// break the chain
-		bufferListTop->prev->next=NULL;
-		bufferListTop->prev=NULL;
+			// break the chain
+			bufferListTop->prev->next = 0;
+			bufferListTop->prev = 0;
 
-		// disconnect the whole 'prev' path
-		llp->DisconnectPrev();
+			// disconnect the whole 'prev' path
+			llp->DisconnectPrev();
+		}
+
+		// let the list destroy itself
+		bufferListTop->DestroyAll();
+
+		// delete the last remaining node
+		delete bufferListTop;
 	}
-
-	// let the list destroy itself
-	bufferListTop->DestroyAll();
-
-	// delete the last remaining node
-	delete bufferListTop;
 }
 
 void BufferList::Allocate(int maxSize) {
+	length = 1;
+	current = 0;
 	size = maxSize;
 	buffers = new Buffer[size];
+
+	LinkedList *tmpll = new LinkedList;	// allocate a single list item. everything else will be allocated when needed
+
+	bufferListTop = tmpll;				// assign top
+	bufferListBottom = tmpll;			// assign bottom
 }
 
 int BufferList::Add() {
@@ -351,7 +354,6 @@ void SciTEBase::SetDocumentAt(int index) {
 	isReadOnly = SendEditor(SCI_GETREADONLY);
 
 	// check to see whether there is saved fold state, restore
-
 	bufferNext.foldState.BeginIteration();
 	// Platform::DebugPrintf("Restoring fold state... (%d states)", count);
 

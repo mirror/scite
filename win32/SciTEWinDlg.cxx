@@ -867,6 +867,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		memReplaces.Insert(replaceWhat.c_str());
 	}
 
+	int replacements = 0;
 	if (cmd == IDOK) {
 		FindNext(reverseFind);	// Find next
 	} else if (cmd == IDREPLACE) {
@@ -881,10 +882,13 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 			}
 		}
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
-		ReplaceAll(cmd == IDREPLACEINSEL);
+		replacements = ReplaceAll(cmd == IDREPLACEINSEL);
 	} else if (cmd == IDREPLACEINBUF) {
-		ReplaceInBuffers();
+		replacements = ReplaceInBuffers();
 	}
+	char replDone[10];
+	sprintf(replDone, "%d", replacements);
+	::SetDlgItemText(hwndFR, IDREPLDONE, replDone);
 
 	return TRUE;
 }
@@ -920,6 +924,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
 		if (unSlash)
 			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
+		::SetDlgItemText(hDlg, IDREPLDONE, "0");
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(wReplaceWith);
 			return FALSE;

@@ -216,6 +216,8 @@
 
 #define IDGOLINECHAR		246
 #define IDCURRLINECHAR		247
+#define IDREPLDONE			248
+
 
 #define IDPARAMSTART		300
 

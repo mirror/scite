@@ -1483,7 +1483,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
 
-void SciTEBase::ReplaceAll(bool inSelection) {
+int SciTEBase::ReplaceAll(bool inSelection) {
 	int replacements = DoReplaceAll(inSelection);
 	props.SetInteger("Replacements", (replacements > 0 ? replacements : 0));
 	UpdateStatusBar(false);
@@ -1502,9 +1502,10 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		                  "No replacements because string '^0' was not present.", findWhat.c_str());
 		FindMessageBox(msg);
 	}
+	return replacements;
 }
 
-void SciTEBase::ReplaceInBuffers() {
+int SciTEBase::ReplaceInBuffers() {
 	int currentBuffer = buffers.Current();
 	int replacements = 0;
 	for (int i = 0; i < buffers.length; i++) {
@@ -1525,6 +1526,7 @@ void SciTEBase::ReplaceInBuffers() {
 		                  "No replacements because string '^0' was not present.", findWhat.c_str());
 		FindMessageBox(msg);
 	}
+	return replacements;
 }
 
 void SciTEBase::OutputAppendString(const char *s, int len, bool startLine) {

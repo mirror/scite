@@ -745,8 +745,8 @@ protected:
 	virtual void Replace() = 0;
 	void ReplaceOnce();
 	int DoReplaceAll(bool inSelection); // returns number of replacements or negative value if error
-	void ReplaceAll(bool inSelection);
-	void ReplaceInBuffers();
+	int ReplaceAll(bool inSelection);
+	int ReplaceInBuffers();
 	virtual void DestroyFindReplace() = 0;
 	virtual void GoLineDialog() = 0;
 	virtual bool AbbrevDialog() = 0;
