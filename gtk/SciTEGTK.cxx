@@ -1488,7 +1488,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 //printf("S-key: %d %x %x %x %x\n",event->keyval, event->state, GDK_SHIFT_MASK, GDK_CONTROL_MASK, GDK_F3);
 	int mods = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK);
 	int key = event->keyval;
-	if ((mods == GDK_CONTROL_MASK) && (key == GDK_ISO_Left_Tab)) {
+	if ((mods == GDK_CONTROL_MASK) && (key == GDK_Tab)) {
 		Command(IDM_NEXTFILE);
 	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_KP_Enter)) {
 		Command(IDM_COMPLETEWORD);
