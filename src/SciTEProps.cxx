@@ -142,7 +142,7 @@ void SciTEBase::SetImportMenu() {
 			if (importFiles[stackPos][0]) {
 				char entry[MAX_PATH + 20];
 				strcpy(entry, "Open ");
-				char *cpDirEnd = strrchr(importFiles[stackPos].c_str(), pathSepChar);
+				const char *cpDirEnd = strrchr(importFiles[stackPos].c_str(), pathSepChar);
 				if (cpDirEnd) {
 					strcat(entry, cpDirEnd + 1);
 				} else {

@@ -2325,7 +2325,6 @@ static bool IsSwitchCharacter(char ch) {
 void SciTEBase::EnumProperties(const char *propkind) {
 	char *key = NULL;
 	char *val = NULL;
-	bool b = false;
 	PropSetFile *pf = NULL;
 	
 	if (!extender) 
@@ -2342,7 +2341,7 @@ void SciTEBase::EnumProperties(const char *propkind) {
 		pf = &propsEmbed;
 
 	if (pf != NULL){
-		b = pf->GetFirst(&key,&val);	
+		bool b = pf->GetFirst(&key,&val);	
 		while (b) {
 			SendOneProperty(propkind,key,val);
 			b = pf->GetNext(&key,&val);
