@@ -285,19 +285,20 @@ void SciTEBase::SetDocumentAt(int index) {
 		buffers.current < 0 ||
 		buffers.current >= buffers.length)
 			return;
-	bool readProperties = false;
-    UpdateBuffersCurrent();
+	// Properties are always read because this test did not handle all possibilities:
+	//bool readProperties = false;
+    	UpdateBuffersCurrent();
 
 	buffers.current = index;
 
-	if (buffers.buffers[buffers.current]->lexLanguage != lexLanguage)
-		readProperties = true;
+	//if (buffers.buffers[buffers.current]->lexLanguage != lexLanguage)
+	//	readProperties = true;
 	SetFileName(buffers.buffers[buffers.current]->fileName);
 	isDirty = buffers.buffers[buffers.current]->isDirty;
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
-	if (readProperties)
-		ReadProperties();
+	//if (readProperties)
+	ReadProperties();
 	DisplayAround(buffers.buffers[buffers.current]->scrollPosition,
 					buffers.buffers[buffers.current]->lineNumber);
 
@@ -487,6 +488,7 @@ void SciTEBase::BuffersMenu() {
 		    SetMenuItem(4, menuStart + pos + 1, itemID, entry);
 	    }
     }
+	CheckMenus();
 }
 
 SciTEBase::~SciTEBase() {
@@ -919,6 +921,9 @@ void SciTEBase::ReadProperties() {
 	SString fold = props.Get("fold");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"), 
 		fold.c_str());
+	SString stylingWithinPreprocessor = props.Get("styling.within.preprocessor");
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("styling.within.preprocessor"), 
+		stylingWithinPreprocessor.c_str());
 	SString ttwl = props.Get("tab.timmy.whinge.level");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("tab.timmy.whinge.level"), 
 		ttwl.c_str());
