@@ -126,7 +126,7 @@ bool DirectorExtension::OnUpdateUI() {
 }
 
 bool DirectorExtension::OnMarginClick() {
-	return true;
+	return false;
 }
 
 void DirectorExtension::HandleMessage(WPARAM wParam, LPARAM lParam) {
