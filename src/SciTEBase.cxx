@@ -2584,6 +2584,9 @@ void SciTEBase::CharAdded(char ch) {
 					braceCount--;
 				} else if (!wordCharacters.contains(ch)) {
 					SendEditor(SCI_AUTOCCANCEL);
+					if (autoCompleteStartCharacters.contains(ch)) {
+						StartAutoComplete();
+					}
 				} else if (autoCCausedByOnlyOne) {
 					StartAutoCompleteWord(true);
 				}
