@@ -120,22 +120,18 @@ void SciTEWin::SizeSubWindows() {
 	PRectangle rcClient = wSciTE.GetClientPosition();
 	bool showTab = false;
 
-	visHeightTools = tbVisible ? heightTools : 0;
-	if (tabVisible) {
-		SendMessage(wSciTE.GetID(), WM_SETREDRAW, false, 0); // suppress flashing
+	//SendMessage(wSciTE.GetID(), WM_SETREDRAW, false, 0); // suppress flashing
+	visHeightTools = tbVisible ?  heightTools : 0;
 
-		visHeightTools = tbVisible ?  heightTools : 0;
+	if (tabVisible) {	// ? hide one tab only
+		showTab = tabHideOne ?
+			::SendMessage(wTabBar.GetID(), TCM_GETITEMCOUNT, 0, 0) > 1 :
+			true;
+	}
 
-		if (tabVisible) {	// ? hide one tab only
-			showTab = tabHideOne ?
-				::SendMessage(wTabBar.GetID(), TCM_GETITEMCOUNT, 0, 0) > 1 :
-				true;
-		}
-
-		if (showTab) {
-			int tabNb = ::SendMessage(wTabBar.GetID(), TCM_GETROWCOUNT, 0, 0);
-			visHeightTab = tabNb * heightTab;
-		}
+	if (showTab) {
+		int tabNb = ::SendMessage(wTabBar.GetID(), TCM_GETROWCOUNT, 0, 0);
+		visHeightTab = tabNb * heightTab;
 	} else {
 		visHeightTab = 0;
 	}
@@ -189,7 +185,7 @@ void SciTEWin::SizeSubWindows() {
 	wContent.SetPosition(PRectangle(0, visHeightTools + visHeightTab, rcClient.Width(),
 	                                visHeightTools + visHeightTab + visHeightEditor));
 	SizeContentWindows();
-	SendMessage(wSciTE.GetID(), WM_SETREDRAW, true, 0);
+	//SendMessage(wSciTE.GetID(), WM_SETREDRAW, true, 0);
 	RedrawWindow(wSciTE.GetID(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
