@@ -303,6 +303,7 @@ protected:
 	SString findWhat;
 	SString replaceWhat;
 	Window wFindReplace;
+	Window wFindIncrement;
 	bool replacing;
 	bool havefound;
 	bool matchCase;
@@ -357,6 +358,7 @@ protected:
 	Window wContent;    ///< Contains wEditor and wOutput
 	Window wEditor;
 	Window wOutput;
+	Window wIncrement;
 #if PLAT_GTK
 	Window wDivider;	// Not used on Windows
 #endif
@@ -580,6 +582,10 @@ protected:
 	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
 	void FindMessageBox(const SString &msg);
 	int FindNext(bool reverseDirection, bool showWarnings = true);
+	int FindNextWordInstance();
+	int FindPrevWordInstance();
+	virtual void FindIncrement() = 0;
+	int IncrementSearchMode();
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
 	void ReplaceOnce();

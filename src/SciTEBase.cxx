@@ -166,6 +166,7 @@ const char *contributors[] = {
                                  "Patrizio Bekerle",
                                  "Nigel Hathaway",
                                  "Hrishikesh Desai",
+                                 "Sergey Puljajev",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -1247,6 +1248,23 @@ int SciTEBase::MarkAll() {
 	} while( posFound != posFirstFound );
 	SendEditor(SCI_SETCURRENTPOS, posCurrent);
 	return marked;
+}
+
+int SciTEBase::FindNextWordInstance() {
+	SelectionIntoFind();
+	wholeWord = true;
+	return FindNext(false, true);
+}
+
+int SciTEBase::FindPrevWordInstance() {
+	SelectionIntoFind();
+	wholeWord = true;
+	return FindNext(true, true);
+}
+
+int SciTEBase::IncrementSearchMode(){
+	FindIncrement();
+	return 0;
 }
 
 int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
@@ -3031,6 +3049,18 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_FIND:
 		Find();
+		break;
+
+	case IDM_FINDNEXTWORDINSTANCE:
+		FindNextWordInstance();
+		break;
+
+	case IDM_FINDPREVWORDINSTANCE:
+		FindPrevWordInstance();
+		break;
+
+	case IDM_INCSEARCH:
+		IncrementSearchMode();
 		break;
 
 	case IDM_FINDNEXT:

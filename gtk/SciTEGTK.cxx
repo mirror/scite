@@ -149,6 +149,9 @@ protected:
 	GtkWidget *comboFiles;
 	Dialog dlgGoto;
 	bool paramDialogCanceled;
+	GtkWidget *wIncrementPanel;
+	Dialog dlgFindIncrement;
+	GtkWidget *IncSearchEntry;
 
 	GtkWidget *gotoEntry;
 	GtkWidget *toggleWord;
@@ -222,6 +225,7 @@ protected:
 	GtkWidget *TranslatedCommand(const char *original, GtkAccelGroup *accel_group,
 		GtkSignalFunc func, gpointer data, GdkModifierType accelMask=GDK_MOD1_MASK);
 	GtkWidget *TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active);
+	virtual void FindIncrement();
 	virtual void FindInFiles();
 	virtual void Replace();
 	virtual void FindReplace(bool replace);
@@ -261,6 +265,9 @@ protected:
 	static void FindInFilesSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	static void GotoSignal(GtkWidget *w, SciTEGTK *scitew);
+	static void FindIncrementSignal(GtkWidget *, SciTEGTK *scitew);
+	static void FindIncrementCompleteSignal(GtkWidget *, SciTEGTK *scitew);
+	static void FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 
 	static void FRCancelSignal(GtkWidget *w, SciTEGTK *scitew);
 	static gint FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
@@ -348,6 +355,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	comboFiles = 0;
 	paramDialogCanceled = true;
 	gotoEntry = 0;
+	IncSearchEntry = 0;
 	toggleWord = 0;
 	toggleCase = 0;
 	toggleRegExp = 0;
@@ -2343,6 +2351,9 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Search/Find Previou_s", "<shift>F3", menuSig, IDM_FINDNEXTBACK, 0},
 	                                      {"/Search/F_ind in Files...", "<control><shift>F", menuSig, IDM_FINDINFILES, 0},
 	                                      {"/Search/R_eplace...", "<control>H", menuSig, IDM_REPLACE, 0},
+	                                      {"/Search/Incrementa&l Search", "<control><alt>I", menuSig, IDM_INCSEARCH, 0},
+	                                      {"/Search/Search next word", "<control>Up", menuSig, IDM_FINDNEXTWORDINSTANCE, 0},
+	                                      {"/Search/Search prev word", "<control>Down", menuSig, IDM_FINDPREVWORDINSTANCE, 0},
 	                                      {"/Search/sep3", NULL, NULL, 0, "<Separator>"},
 	                                      {"/Search/_Go To...", "<control>G", menuSig, IDM_GOTO, 0},
 	                                      {"/Search/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
@@ -2593,6 +2604,26 @@ void SciTEGTK::CreateUI() {
 	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   GtkSignalFunc(NotifySignal), this);
 
+
+	GtkWidget *table = gtk_table_new(1, 2, FALSE);
+	wIncrementPanel = table;
+	gtk_box_pack_start(GTK_BOX(boxMain), table, FALSE, FALSE, 0);
+	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
+	                            GTK_EXPAND | GTK_SHRINK | GTK_FILL);
+	GtkWidget *label = TranslatedLabel("Search for:");
+	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, opts, opts, 5, 5);
+	gtk_widget_show(label);
+
+	IncSearchEntry = gtk_entry_new();
+	gtk_table_attach(GTK_TABLE(table), IncSearchEntry, 1, 2, 0, 1, opts, opts, 5, 5);
+	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"activate", GtkSignalFunc(FindIncrementCompleteSignal), this);
+	gtk_signal_connect(GTK_OBJECT(IncSearchEntry), "key_press_event", GtkSignalFunc(FindIncrementEscapeSignal), this);
+	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"changed", GtkSignalFunc(FindIncrementSignal), this);
+	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"focus-out-event", GtkSignalFunc(FindIncrementCompleteSignal), this);
+
+
+	gtk_widget_show(IncSearchEntry);
+
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
 
 	gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
@@ -2633,6 +2664,44 @@ void SciTEGTK::CreateUI() {
 	SetIcon();
 
 	UIAvailable();
+	gtk_widget_hide(wIncrementPanel);
+}
+
+void SciTEGTK::FindIncrementSignal(GtkWidget *entry, SciTEGTK *scitew) {
+	const char *lineEntry = gtk_entry_get_text(GTK_ENTRY(entry));
+	Platform::DebugPrintf("Output in console");
+
+	SString ffLastWhat;
+	ffLastWhat = scitew->findWhat;
+	scitew->findWhat = lineEntry;
+	scitew->wholeWord = false;
+	if (scitew->findWhat != ""){
+		scitew->FindNext(false,false);
+		if ((!scitew->havefound)&&(ffLastWhat.length() == scitew->findWhat.length()-1)){
+			scitew->findWhat = ffLastWhat;
+			gtk_entry_set_text(GTK_ENTRY(scitew->IncSearchEntry), scitew->findWhat.c_str());
+			gtk_editable_set_position(GTK_EDITABLE(scitew->IncSearchEntry), scitew->findWhat.length());
+		}
+	}
+}
+
+void SciTEGTK::FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
+	if (event->keyval == GDK_Escape) {
+		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
+		gtk_widget_hide(scitew->wIncrementPanel);
+		SetFocus(PWidget(scitew->wEditor));
+	}
+}
+
+void SciTEGTK::FindIncrementCompleteSignal(GtkWidget *, SciTEGTK *scitew) {
+	gtk_widget_hide(scitew->wIncrementPanel);
+	SetFocus(PWidget(scitew->wEditor));
+}
+
+void SciTEGTK::FindIncrement(){
+	gtk_widget_show(wIncrementPanel);
+	gtk_widget_grab_focus(GTK_WIDGET(IncSearchEntry));
+	gtk_entry_set_text(GTK_ENTRY(IncSearchEntry), "");
 }
 
 void SciTEGTK::SetIcon() {

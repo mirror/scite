@@ -125,6 +125,10 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		if (::IsDialogMessage(reinterpret_cast<HWND>(wFindReplace.GetID()), pmsg))
 			return true;
 	}
+	if (wFindIncrement.GetID()) {
+		if (::IsDialogMessage(reinterpret_cast<HWND>(wFindIncrement.GetID()), pmsg))
+			return true;
+	}
 	if (wParameters.GetID()) {
 		bool menuKey = (pmsg->message == WM_KEYDOWN) &&
 		               (pmsg->wParam != VK_TAB) &&
@@ -935,7 +939,117 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	return Caller(hDlg, message, lParam)->ReplaceMessage(hDlg, message, wParam);
 }
 
+BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
+	// Avoid getting dialog items before set up or during tear down.
+	if (WM_SETFONT == message || WM_NCDESTROY == message)
+		return FALSE;
+	HWND wFindWhat = ::GetDlgItem(hDlg, IDC_INCFINDTEXT);
+
+	switch (message) {
+
+	case WM_INITDIALOG:{
+		wFindIncrement = hDlg;
+		LocaliseDialog(hDlg);
+		SetWindowLong(hDlg, GWL_STYLE, WS_TABSTOP || GetWindowLong(hDlg, GWL_STYLE));
+		::SetDlgItemText(hDlg, IDC_INCFINDTEXT, ""); //findWhat.c_str()
+		SetFocus(hDlg);
+		
+		PRectangle aRect = wFindIncrement.GetPosition();
+		PRectangle aTBRect = wStatusBar.GetPosition();
+		PRectangle aNewRect = aTBRect;
+		aNewRect.top = aNewRect.bottom - (aRect.bottom - aRect.top);
+		aNewRect.right = aNewRect.left + aRect.right - aRect.left;
+		RegisterHotKey(hDlg,1,0,VK_F3);
+		RegisterHotKey(hDlg,2,MOD_SHIFT,VK_F3);
+
+		wFindIncrement.SetPosition(aNewRect);
+
+		
+		return TRUE;
+	}
+
+	case WM_SETFOCUS:
+		return 0;
+
+	case WM_HOTKEY:
+		if (wParam == 1) 
+			FindNext(false,false);
+		if (wParam == 2) 
+			FindNext(true,false);
+		break;
+
+	case WM_CLOSE:
+		UnregisterHotKey(hDlg,1);
+		UnregisterHotKey(hDlg,2);
+		::SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
+		break;
+
+	case WM_COMMAND:
+		if (ControlIDOfCommand(wParam) == IDCANCEL) {
+			props.Set("Replacements", "");
+			UpdateStatusBar(false);
+			::EndDialog(hDlg, IDCANCEL);
+			wFindIncrement.Destroy();
+			wFindIncrement = 0;
+			return FALSE;
+		} else 
+		if (((ControlIDOfCommand(wParam) == IDC_INCFINDTEXT) && ((wParam >> 16) == 0x0300))
+			|| (ControlIDOfCommand(wParam) == IDC_INCFINDBTNOK)){
+			SString ffLastWhat;
+			ffLastWhat = findWhat;
+			findWhat =  GetItemText(hDlg, IDC_INCFINDTEXT);
+			
+			if (ControlIDOfCommand(wParam) != IDC_INCFINDBTNOK){
+				CharacterRange cr = GetSelection();
+				if (ffLastWhat.length()){
+					SetSelection(cr.cpMin - ffLastWhat.length(),cr.cpMin - ffLastWhat.length());
+				}
+			}
+			wholeWord = false;
+			FindNext(false,false);
+			if ((!havefound)&&(ffLastWhat.length() == findWhat.length()-1) && 
+				strncmp(findWhat.c_str(),ffLastWhat.c_str(), ffLastWhat.length()) == 0 ){
+				findWhat = ffLastWhat;
+				::SetDlgItemText(hDlg, IDC_INCFINDTEXT, findWhat.c_str());
+				SendMessage(wFindWhat, EM_SETSEL, ffLastWhat.length(), ffLastWhat.length());
+			}
+			return FALSE;
+		}
+	}
+
+	return FALSE;
+}
+
+
+BOOL CALLBACK SciTEWin::FindIncrementDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	return Caller(hDlg, message, lParam)->IncrementFindMessage(hDlg, message, wParam);
+}
+
+void SciTEWin::FindIncrement() {
+	if (wFindIncrement.Created())
+		return;
+
+	memset(&fr, 0, sizeof(fr));
+	fr.lStructSize = sizeof(fr);
+	fr.hwndOwner = MainHWND();
+	fr.hInstance = hInstance;
+	fr.Flags = 0;
+	if (!reverseFind)
+		fr.Flags |= FR_DOWN;
+	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
+	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
+
+	replacing = false;
+	DoDialog(hInstance,
+		   MAKEINTRESOURCE(IDD_FIND2),
+		   MainHWND(),
+		   reinterpret_cast<DLGPROC>(FindIncrementDlg));
+	WindowSetFocus(wEditor);
+}  
+
 void SciTEWin::Find() {
+	if (wFindIncrement.Created())
+		return;
 	if (wFindReplace.Created())
 		return;
 	SelectionIntoFind();

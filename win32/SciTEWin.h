@@ -172,6 +172,9 @@ protected:
 	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	BOOL IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam);
+	static BOOL CALLBACK FindIncrementDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual void FindIncrement();
 	virtual void Find();
 	virtual void FindInFiles();
 	virtual void Replace();
