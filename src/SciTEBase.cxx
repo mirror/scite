@@ -940,7 +940,7 @@ SString SciTEBase::SelectionFilename() {
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	char currentSelection[1000];
+	char currentSelection[20000];
 	SelectionExtend(currentSelection, sizeof(currentSelection), 0);
 	props.Set("CurrentSelection", currentSelection);
 	SString word = SelectionWord();
@@ -3170,7 +3170,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				long flags = 0;
-				
+
 				if (!isBuilt) {
 					SString buildcmd = props.GetNewExpand("command.go.needs.", fileName);
 					AddCommand(buildcmd, "",
