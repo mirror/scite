@@ -1806,7 +1806,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 	}
 	if (apis) {
 		char *words = apis.GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
-		                    callTipIgnoreCase, '\0', true);
+		                    callTipIgnoreCase, calltipParametersStart[0], true);
 		if (!words)
 			return;
 		// Counts how many call tips
@@ -1858,10 +1858,10 @@ bool SciTEBase::StartCallTip() {
 	int braces;
 	do {
 		braces = 0;
-		while (current > 0 && (braces || line[current - 1] != '(')) {
-			if (line[current - 1] == '(')
+		while (current > 0 && (braces || !calltipParametersStart.contains(line[current - 1]))) {
+			if (calltipParametersStart.contains(line[current - 1]))
 				braces--;
-			else if (line[current - 1] == ')')
+			else if (calltipParametersEnd.contains(line[current - 1]))
 				braces++;
 			current--;
 			pos--;
@@ -1893,10 +1893,6 @@ bool SciTEBase::StartCallTip() {
 	return true;
 }
 
-static bool IsCallTipSeparator(char ch) {
-	return (ch == ',') || (ch == ';');
-}
-
 void SciTEBase::ContinueCallTip() {
 	SString line = GetLine();
 	int current = GetCaretInLine();
@@ -1904,33 +1900,33 @@ void SciTEBase::ContinueCallTip() {
 	int braces = 0;
 	int commas = 0;
 	for (int i = startCalltipWord; i < current; i++) {
-		if (line[i] == '(')
+		if (calltipParametersStart.contains(line[i]))
 			braces++;
-		else if (line[i] == ')' && braces > 0)
+		else if (calltipParametersEnd.contains(line[i]) && braces > 0)
 			braces--;
-		else if (braces == 1 && IsCallTipSeparator(line[i]))
+		else if (braces == 1 && calltipParametersSeparators.contains(line[i]))
 			commas++;
 	}
 
 	int startHighlight = 0;
-	while (functionDefinition[startHighlight] && functionDefinition[startHighlight] != '(')
+	while (functionDefinition[startHighlight] && !calltipParametersStart.contains(functionDefinition[startHighlight]))
 		startHighlight++;
-	if (functionDefinition[startHighlight] == '(')
+	if (calltipParametersStart.contains(functionDefinition[startHighlight]))
 		startHighlight++;
 	while (functionDefinition[startHighlight] && commas > 0) {
-		if (IsCallTipSeparator(functionDefinition[startHighlight]))
+		if (calltipParametersSeparators.contains(functionDefinition[startHighlight]))
 			commas--;
 		// If it reached the end of the argument list it means that the user typed in more
 		// arguments than the ones listed in the calltip
-		if (functionDefinition[startHighlight] == ')')
+		if (calltipParametersEnd.contains(functionDefinition[startHighlight]))
 			commas = 0;
 		else
 			startHighlight++;
 	}
-	if (IsCallTipSeparator(functionDefinition[startHighlight]))
+	if (calltipParametersSeparators.contains(functionDefinition[startHighlight]))
 		startHighlight++;
 	int endHighlight = startHighlight;
-	while (functionDefinition[endHighlight] && !IsCallTipSeparator(functionDefinition[endHighlight]) && functionDefinition[endHighlight] != ')')
+	while (functionDefinition[endHighlight] && !calltipParametersSeparators.contains(functionDefinition[endHighlight]) && !calltipParametersEnd.contains(functionDefinition[endHighlight]))
 		endHighlight++;
 
 	SendEditor(SCI_CALLTIPSETHLT, startHighlight, endHighlight);
@@ -1971,7 +1967,7 @@ bool SciTEBase::StartAutoComplete() {
 	int startword = current;
 
 	while ((startword > 0) &&
-	        (wordCharacters.contains(line[startword - 1]) ||
+	        (calltipWordCharacters.contains(line[startword - 1]) ||
 	         autoCompleteStartCharacters.contains(line[startword - 1]))) {
 		startword--;
 	}
@@ -1979,7 +1975,7 @@ bool SciTEBase::StartAutoComplete() {
 	SString root = line.substr(startword, current - startword);
 	if (apis) {
 		char *words = apis.GetNearestWords(root.c_str(), root.length(),
-											autoCompleteIgnoreCase);
+											autoCompleteIgnoreCase, calltipParametersStart[0]);
 		if (words) {
 			EliminateDuplicateWords(words);
 			SendEditorString(SCI_AUTOCSHOW, root.length(), words);
@@ -2920,23 +2916,23 @@ void SciTEBase::CharAdded(char ch) {
 		//Platform::DebugPrintf("Char added %d style = %d %d\n", ch, style, braceCount);
 		if (style != 1) {
 			if (SendEditor(SCI_CALLTIPACTIVE)) {
-				if (ch == ')') {
+				if (calltipParametersEnd.contains(ch)) {
 					braceCount--;
 					if (braceCount < 1)
 						SendEditor(SCI_CALLTIPCANCEL);
 					else
 						StartCallTip();
-				} else if (ch == '(') {
+				} else if (calltipParametersStart.contains(ch)) {
 					braceCount++;
 					StartCallTip();
 				} else {
 					ContinueCallTip();
 				}
 			} else if (SendEditor(SCI_AUTOCACTIVE)) {
-				if (ch == '(') {
+				if (calltipParametersStart.contains(ch)) {
 					braceCount++;
 					StartCallTip();
-				} else if (ch == ')') {
+				} else if (calltipParametersEnd.contains(ch)) {
 					braceCount--;
 				} else if (!wordCharacters.contains(ch)) {
 					SendEditor(SCI_AUTOCCANCEL);
@@ -2949,7 +2945,7 @@ void SciTEBase::CharAdded(char ch) {
 			} else if (HandleXml(ch)) {
 				// Handled in the routine
 			} else {
-				if (ch == '(') {
+				if (calltipParametersStart.contains(ch)) {
 					braceCount = 1;
 					StartCallTip();
 				} else {

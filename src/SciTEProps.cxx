@@ -869,6 +869,10 @@ void SciTEBase::ReadProperties() {
 	calltipWordCharacters = FindLanguageProperty("calltip.*.word.characters",
 		"_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
+	calltipParametersStart = FindLanguageProperty("calltip.*.parameters.start", "(");
+	calltipParametersEnd = FindLanguageProperty("calltip.*.parameters.end", ")");
+	calltipParametersSeparators = FindLanguageProperty("calltip.*.parameters.separators", ",;");
+
 	calltipEndDefinition = FindLanguageProperty("calltip.*.end.definition");
 
 	sprintf(key, "autocomplete.%s.start.characters", language.c_str());

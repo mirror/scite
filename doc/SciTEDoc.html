@@ -1381,6 +1381,24 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          calltip.<i>lexer</i>.parameters.start<br />
+          calltip.<i>lexer</i>.parameters.end<br />
+          calltip.<i>lexer</i>.parameters.separators<br />
+          calltip.*.parameters.start<br />
+          calltip.*.parameters.end<br />
+          calltip.*.parameters.separators
+        </td>
+        <td>
+          Allows you to specify characters which start, end and separate
+          parameters. For most common languages, it's usually left brace for
+          start, right brace for end and comma or semicolon for separator.
+          E.g. CSS has colon for start, space for separator and nothing for
+          end. You can specify more characters for each property.
+          The * form is used if there is no lexer specific setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
           calltip.<i>lexer</i>.end.definition<br />
           calltip.*.end.definition
         </td>

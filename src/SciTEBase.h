@@ -546,6 +546,9 @@ protected:
 	bool callTipIgnoreCase;
 	bool autoCCausedByOnlyOne;
 	SString calltipWordCharacters;
+	SString calltipParametersStart;
+	SString calltipParametersEnd;
+	SString calltipParametersSeparators;
 	SString calltipEndDefinition;
 	SString autoCompleteStartCharacters;
 	SString autoCompleteFillUpCharacters;
