@@ -1130,6 +1130,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 
 	TextToFind ft;
 	ft.chrg = GetSelection();
+	int startSelection = ft.chrg.cpMin;
 	if (inSelection) {
 		if (ft.chrg.cpMin == ft.chrg.cpMax) {
 			FindMessageBox("Selection for \"Replace in Selection\" must not be empty.");
@@ -1166,11 +1167,17 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			SendEditor(SCI_SETTARGETEND, ft.chrgText.cpMax);
 			int lenReplace = SendEditorString(SCI_REPLACETARGET, regExp, replaceTarget);
 			endPosition = posFind + lenReplace;
+			int lenDifference = lenReplace - (ft.chrgText.cpMax - ft.chrgText.cpMin);
 			ft.chrg.cpMin = endPosition;
+			if (inSelection) 	// Modify for change caused by replacement
+				ft.chrg.cpMax += lenDifference;
 			posFind = SendEditor(SCI_FINDTEXT, flags,
 			                     reinterpret_cast<long>(&ft));
 		}
-		SetSelection(endPosition, endPosition);
+		if (inSelection)
+			SetSelection(startSelection, ft.chrg.cpMax);
+		else
+			SetSelection(endPosition, endPosition);
 		SendEditor(SCI_ENDUNDOACTION);
 		//FindMessageBox("bow");
 	}
