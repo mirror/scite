@@ -42,6 +42,7 @@ public:
 	virtual bool OnOpen(const char *) { return false; }
 	virtual bool OnSwitchFile(const char *) { return false; }
 	virtual bool OnSave(const char *) { return false; }
+    virtual bool OnBeforeSave(const char *) { return false; }
 	virtual bool OnChar(char) { return false; }
 	virtual bool OnExecute(const char *) { return false; }
 	virtual bool OnSavePointReached() { return false; }

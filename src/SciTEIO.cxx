@@ -809,6 +809,10 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 		EnsureFinalNewLine();
 	if (props.GetInt("ensure.consistent.line.ends"))
 		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));
+
+	if (extender)
+		extender->OnBeforeSave(saveName);
+
 	SendEditor(SCI_ENDUNDOACTION);
 
 	Utf8_16_Write convert;
@@ -834,6 +838,10 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 			}
 		}
 		convert.fclose();
+
+		if (extender)
+			extender->OnSave(saveName);
+
 		return true;
 	}
 	return false;
