@@ -2028,8 +2028,9 @@ bool SciTEBase::StartInsertAbbreviation() {
 		indent = GetLineIndentation(currentLineNumber);
 	}
 
+	size_t i;
 	// find last |, can't be strrchr(exbuf, '|') because of ||
-	for (size_t i = expbuflen; i--; ) {
+	for (i = expbuflen; i--; ) {
 		if (expbuf[i] == '|' && (i == 0 || expbuf[i-1] != '|')) {
 			last_pipe = i;
 			break;
@@ -2039,7 +2040,7 @@ bool SciTEBase::StartInsertAbbreviation() {
 	SendEditor(SCI_BEGINUNDOACTION);
 
 	// add the abbreviation one character at a time
-	for (size_t i = 0; i < expbuflen; i++) {
+	for (i = 0; i < expbuflen; i++) {
 		char c = expbuf[i];
 		SString abbrevText("");
 		if (isIndent && c == '\t') {
