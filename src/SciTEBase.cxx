@@ -3186,6 +3186,8 @@ void SciTEBase::PerformOne(char *action) {
 			SaveToRTF(arg);
 		} else if (isprefix(action, "exportaspdf:")) {
 			SaveToPDF(arg);
+		} else if (isprefix(action, "menucommand:")) {
+			MenuCommand(atoi(arg));
 		}
 	}
 }
