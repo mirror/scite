@@ -951,11 +951,11 @@ void SciTEBase::ReadProperties() {
 	bracesCheck = props.GetInt("braces.check");
 	bracesSloppy = props.GetInt("braces.sloppy");
 
+	SendEditor(SCI_SETCHARSDEFAULT);
 	wordCharacters = props.GetNewExpand("word.characters.", fileNameForExtension.c_str());
 	if (wordCharacters.length()) {
 		SendEditorString(SCI_SETWORDCHARS, 0, wordCharacters.c_str());
 	} else {
-		SendEditor(SCI_SETWORDCHARS, 0, 0);
 		wordCharacters = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	}
 
