@@ -3761,9 +3761,10 @@ void SciTEBase::Expand(int &line, bool doExpand, bool force, int visLevels, int 
 			if (doExpand)
 				SendEditor(SCI_SHOWLINES, line, line);
 		}
-		if (level == -1)
-			level = SendEditor(SCI_GETFOLDLEVEL, line);
-		if (level & SC_FOLDLEVELHEADERFLAG) {
+		int levelLine = level;
+		if (levelLine == -1)
+			levelLine = SendEditor(SCI_GETFOLDLEVEL, line);
+		if (levelLine & SC_FOLDLEVELHEADERFLAG) {
 			if (force) {
 				if (visLevels > 1)
 					SendEditor(SCI_SETFOLDEXPANDED, line, 1);
@@ -3827,17 +3828,21 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 		FoldAll();
 	} else if (SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG) {
 		if (modifiers & SCMOD_SHIFT) {
+			// Ensure all children visible
 			SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
-			Expand(lineClick, true, true, 1);
+			Expand(lineClick, true, true, 100);
 		} else if (modifiers & SCMOD_CTRL) {
 			if (SendEditor(SCI_GETFOLDEXPANDED, lineClick)) {
+				// Contract this line and all children
 				SendEditor(SCI_SETFOLDEXPANDED, lineClick, 0);
 				Expand(lineClick, false, true, 0);
 			} else {
+				// Expand this line and all children
 				SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
 				Expand(lineClick, true, true, 100);
 			}
 		} else {
+			// Toggle this line
 			SendEditor(SCI_TOGGLEFOLD, lineClick);
 		}
 	}
