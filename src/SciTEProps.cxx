@@ -128,12 +128,6 @@ void SciTEBase::ReadGlobalPropFile() {
 	char propfile[MAX_PATH + 20];
 	char propdir[MAX_PATH + 20];
 	propsBase.Clear();
-#if PLAT_GTK
-	propsBase.Set("PLAT_GTK", "1");
-#endif
-#if PLAT_WIN
-	propsBase.Set("PLAT_WIN", "1");
-#endif
 	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 		strcat(propdir, pathSepString);
 		propsBase.Read(propfile, propdir);

@@ -35,6 +35,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	// that they have a sensible default configuration even if the properties
 	// files are missing. Also allows a one file distribution of Sc1.EXE.
 	propsEmbed.Clear();
+	propsEmbed.Set("PLAT_WIN", "1");
 	HRSRC handProps = ::FindResource(hInstance, "Embedded", "Properties");
 	if (handProps) {
 		DWORD size = ::SizeofResource(hInstance, handProps);

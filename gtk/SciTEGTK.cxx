@@ -256,6 +256,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	fileSelectorHeight = 480;
 
 	instance = this;
+	propsEmbed.Set("PLAT_GTK", "1");
 }
 
 SciTEGTK::~SciTEGTK() {}
@@ -1773,7 +1774,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/View/_Margin", NULL, menuSig, IDM_SELMARGIN, "<CheckItem>"},
 	    {"/View/_Fold Margin", NULL, menuSig, IDM_FOLDMARGIN, "<CheckItem>"},
 	    {"/View/_Output", "F8", menuSig, IDM_TOGGLEOUTPUT, "<CheckItem>"},
-	    
+
 	    {"/_Tools", NULL, NULL, 0, "<Branch>"},
 	    {"/_Tools/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Tools/_Compile", "<control>F7", menuSig, IDM_COMPILE, 0},
@@ -2192,7 +2193,7 @@ void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition
 void SciTEGTK::CheckAlreadyOpen(const char *cmdLine) {
 	if (!props.GetInt("check.if.already.open"))
 		return;
-		
+
 	// Create a pipe and see if it finds another one already there
 
 	// If we are not given a command line filename, assume that we just want to load ourselves.
@@ -2237,19 +2238,19 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 
 	// Process any initial switches
 	ProcessCommandLine(args, 0);
-	
+
 	// If a file name argument, check if already open in another SciTE
 	for (arg=1; arg < argc; arg++) {
 		if (argv[arg][0] != '-') {
 			CheckAlreadyOpen(argv[arg]);
 		}
 	}
-	
+
 	CreateUI();
-	
+
 	// Process remaining switches and files
 	ProcessCommandLine(args, 1);
-	
+
 	CheckMenus();
 	SizeSubWindows();
 	SetFocus(wEditor.GetID());
