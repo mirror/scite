@@ -553,7 +553,7 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_SETWORDCHARS, 0, 0);
 	}
 
-	SendEditor(SCI_MARKERDELETEALL, static_cast<unsigned long>( -1));
+	//SendEditor(SCI_MARKERDELETEALL, static_cast<unsigned long>(-1));
 
 	SendEditor(SCI_SETINDENT, indentSize);
 	indentOpening = props.GetInt("indent.opening");
