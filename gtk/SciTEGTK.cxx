@@ -2503,7 +2503,7 @@ void SciTEGTK::CreateUI() {
 #endif
 	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), "command",
 	                   GtkSignalFunc(CommandSignal), this);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), "notify",
+	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   GtkSignalFunc(NotifySignal), this);
 
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
