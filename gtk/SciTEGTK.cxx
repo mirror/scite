@@ -1430,6 +1430,16 @@ void SciTEGTK::AboutDialog() {
 
 void SciTEGTK::QuitProgram() {
 	if (SaveIfUnsureAll() != IDCANCEL) {
+#ifdef SINGLE_INSTANCE
+		//clean up any pipes that are ours
+		if( fdPipe != -1 && inputWatcher != -1 )
+		{
+			printf("Cleaning up pipe\n");
+			close(fdPipe);
+			unlink(pipeName);
+
+		}
+#endif
 		gtk_exit(0);
 	}
 }
@@ -1960,11 +1970,11 @@ void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition
 			//if there is a file name, open it.
 			if ( fileName.size() > 0 )
 			{
-				printf("opening %s from pipecommand\n", fileName.c_str());
+				printf("opening >%s< from pipecommand\n", fileName.c_str());
 				scitew->Open(fileName.c_str());
 
 				//grab the focus back to us.  (may not work) - any ideas?
-				//gtk_widget_grab_focus(GTK_WIDGET(scitew.GetID()));
+				gtk_widget_grab_focus(GTK_WIDGET(scitew->GetID()));
 			}
 			//add other commands here
 		}
@@ -1992,9 +2002,11 @@ void SciTEGTK::Run(const char *cmdLine) {
 	{
 		char pipeCommand[CHAR_MAX];
 		bool piperet = false;
+		char currentPath[MAX_PATH];
 
+		getcwd(currentPath, MAX_PATH);
 		//create the command to send thru the pipe
-		sprintf(pipeCommand,"open=%s",cmdLine);
+		sprintf(pipeCommand,"open=%s/%s", currentPath, cmdLine);
 		printf("Sending %s through pipe\n", pipeCommand);
 		//send it
 		piperet = SendPipeCommand(pipeCommand);
@@ -2008,8 +2020,10 @@ void SciTEGTK::Run(const char *cmdLine) {
 		}
 	}
 	//create our own pipe.
-	else
+	else if( fdPipe == -1 && inputWatcher == -1 )
+	{
 		CreatePipe(true);
+	}
 #endif
 
 	gtk_widget_set_events(wSciTE.GetID(),
