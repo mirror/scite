@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file Exporters.cxx
  ** Manage input and output with the system.
- **/ 
+ **/
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -97,22 +97,22 @@ int GetHexByte(const char *hexbyte) { // "HH"
 
 int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
 	static int highlights[][3] = {
-	                                 { 0x00, 0x00, 0x00 },         // highlight1  0;0;0       black
-	                                 { 0x00, 0x00, 0xFF },         // highlight2  0;0;255     blue
-	                                 { 0x00, 0xFF, 0xFF },         // highlight3  0;255;255   cyan
-	                                 { 0x00, 0xFF, 0x00 },         // highlight4  0;255;0     green
-	                                 { 0xFF, 0x00, 0xFF },         // highlight5  255;0;255   violet
-	                                 { 0xFF, 0x00, 0x00 },         // highlight6  255;0;0     red
-	                                 { 0xFF, 0xFF, 0x00 },         // highlight7  255;255;0   yellow
-	                                 { 0xFF, 0xFF, 0xFF },         // highlight8  255;255;255 white
-	                                 { 0x00, 0x00, 0x80 },         // highlight9  0;0;128     dark blue
-	                                 { 0x00, 0x80, 0x80 },         // highlight10 0;128;128   dark cyan
-	                                 { 0x00, 0x80, 0x00 },         // highlight11 0;128;0     dark green
-	                                 { 0x80, 0x00, 0x80 },         // highlight12 128;0;128   dark violet
-	                                 { 0x80, 0x00, 0x00 },         // highlight13 128;0;0     brown
-	                                 { 0x80, 0x80, 0x00 },         // highlight14 128;128;0   khaki
-	                                 { 0x80, 0x80, 0x80 },         // highlight15 128;128;128 dark grey
-	                                 { 0xC0, 0xC0, 0xC0 },         // highlight16 192;192;192 grey
+	                                 { 0x00, 0x00, 0x00 },          // highlight1  0;0;0       black
+	                                 { 0x00, 0x00, 0xFF },          // highlight2  0;0;255     blue
+	                                 { 0x00, 0xFF, 0xFF },          // highlight3  0;255;255   cyan
+	                                 { 0x00, 0xFF, 0x00 },          // highlight4  0;255;0     green
+	                                 { 0xFF, 0x00, 0xFF },          // highlight5  255;0;255   violet
+	                                 { 0xFF, 0x00, 0x00 },          // highlight6  255;0;0     red
+	                                 { 0xFF, 0xFF, 0x00 },          // highlight7  255;255;0   yellow
+	                                 { 0xFF, 0xFF, 0xFF },          // highlight8  255;255;255 white
+	                                 { 0x00, 0x00, 0x80 },          // highlight9  0;0;128     dark blue
+	                                 { 0x00, 0x80, 0x80 },          // highlight10 0;128;128   dark cyan
+	                                 { 0x00, 0x80, 0x00 },          // highlight11 0;128;0     dark green
+	                                 { 0x80, 0x00, 0x80 },          // highlight12 128;0;128   dark violet
+	                                 { 0x80, 0x00, 0x00 },          // highlight13 128;0;0     brown
+	                                 { 0x80, 0x80, 0x00 },          // highlight14 128;128;0   khaki
+	                                 { 0x80, 0x80, 0x80 },          // highlight15 128;128;128 dark grey
+	                                 { 0xC0, 0xC0, 0xC0 },          // highlight16 192;192;192 grey
 	                             };
 	int maxdelta = 3 * 255 + 1, delta, index = -1;
 	int r = GetHexByte (rgb + 1), g = GetHexByte (rgb + 3), b = GetHexByte (rgb + 5);
@@ -138,7 +138,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||         // change
+	if (lastOffset != currentOffset ||          // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -159,7 +159,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||         // change
+	if (lastOffset != currentOffset ||          // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -180,7 +180,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||         // change
+	if (lastOffset != currentOffset ||          // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -201,7 +201,7 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset ||         // change
+	if (lastOffset != currentOffset ||          // change
 	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
@@ -744,17 +744,15 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 /*
 	PDF Exporter...
 	Contributed by Ahmad M. Zawawi <zeus_go64@hotmail.com>
+	Modifications by Darren Schroeder Feb 22, 2003
 	Status: Alpha
 	Known Problems:
 		doesnt support background colours for now
 		doesnt support most styles
 		output not fully optimized
 		not Object Oriented :-(
-*/ 
-//void SciTEBase::SaveToPDF(const char *saveName) {
-void SciTEBase::SaveToPDF(const char *) {
-#ifdef CODE_MADE_TO_WORK
-
+*/
+void SciTEBase::SaveToPDF(const char *saveName) {
 	SendEditor(SCI_COLOURISE, 0, -1);
 
 	// read the tabsize, wsysiwyg and 'expand tabs' flag...
@@ -772,7 +770,7 @@ void SciTEBase::SaveToPDF(const char *) {
 		char msg[200];
 		strcpy(msg, "Nothing to export as PDF");
 		dialogsOnScreen++;
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, MB_OK);
 		dialogsOnScreen--;
 	}
 
@@ -784,7 +782,7 @@ void SciTEBase::SaveToPDF(const char *) {
 		strcat(msg, fullPath);
 		strcat(msg, "\".");
 		dialogsOnScreen++;
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, MB_OK);
 		dialogsOnScreen--;
 	}
 
@@ -920,10 +918,10 @@ void SciTEBase::SaveToPDF(const char *) {
 				stream += "ET\n";
 
 				// patch in the stream size (minus 1 since the newline is not counted... go figure)
-				char *buffer = new char[textObj.size() + 1];
-				sprintf(buffer, textObj.c_str(), stream.size() - 1);
+				char *buffer = new char[textObj.size() + 1 + 200]; // Copied Neil's [2/22/2003 21:04]
+				sprintf(buffer, textObj.c_str(), stream.length() - 1); // Length instead of size [2/22/2003 21:08]
 				textObj = buffer;
-				delete []buffer;
+				delete [] buffer;
 
 				// concatenate stream within the text object
 				textObj += stream;
@@ -933,6 +931,8 @@ void SciTEBase::SaveToPDF(const char *) {
 				// write the actual object to the PDF
 				fputs( textObj.c_str(), fp );
 
+				// reinitialize the stream [2/22/2003 20:39]
+				stream.clear();
 			}
 			firstTime = false;
 
@@ -1033,9 +1033,9 @@ void SciTEBase::SaveToPDF(const char *) {
 
 		// patch in the stream size (minus 1 since the newline is not counted... go figure)
 		char *buffer = new char[textObj.size() + 1 + 200];  // 200 by Neil as this is quite indeterminate
-		sprintf(buffer, textObj.c_str(), stream.size() - 1);
+		sprintf(buffer, textObj.c_str(), stream.length() - 1);  // Length instead of size [2/22/2003 21:08]
 		textObj = buffer;
-		delete buffer;
+		delete [] buffer;
 
 		// concatenate stream within the text object
 		textObj += stream;
@@ -1044,6 +1044,9 @@ void SciTEBase::SaveToPDF(const char *) {
 
 		// write the actual object to the PDF
 		fputs( textObj.c_str(), fp );
+
+		// empty the stream [2/22/2003 20:56]
+		stream.clear();
 	}
 
 	// now create all the page objects...
@@ -1154,7 +1157,6 @@ void SciTEBase::SaveToPDF(const char *) {
 
 	// and close the PDF file
 	fclose(fp);
-#endif
 }
 
 struct TexStyle {
@@ -1260,7 +1262,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 	WindowAccessor acc(wEditor.GetID(), props);
 	bool styleIsUsed[STYLE_MAX + 1];
 
-	int titleFullPath = props.GetInt("export.tex.title.fullpath",0);
+	int titleFullPath = props.GetInt("export.tex.title.fullpath", 0);
 
 	int i;
 	for (i = 0; i <= STYLE_MAX; i++) {
@@ -1300,7 +1302,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 		}
 
 		fputs("\\begin{document}\n\n", fp);
-		fprintf(fp, "Source File: %s\n\n\\noindent\n\\tiny{\n", titleFullPath?fullPath:fileName);
+		fprintf(fp, "Source File: %s\n\n\\noindent\n\\tiny{\n", titleFullPath ? fullPath : fileName);
 
 		int styleCurrent = acc.StyleAt(0);
 
@@ -1318,12 +1320,12 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 			}
 
 			switch ( ch ) { //write out current character.
-			case '\t':{
-				int ts = tabSize - (lineIdx % tabSize);
-				lineIdx += ts-1;
-				fprintf(fp, "\\hspace*{%dem}", ts);
-				break;
-			}
+			case '\t': {
+					int ts = tabSize - (lineIdx % tabSize);
+					lineIdx += ts - 1;
+					fprintf(fp, "\\hspace*{%dem}", ts);
+					break;
+				}
 			case '\\':
 				fputs("{\\textbackslash}", fp);
 				break;
@@ -1342,7 +1344,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 			case '%':
 			case '~':
 				fprintf(fp, "\\%c", ch);
- 				break;
+				break;
 			case '\r':
 			case '\n':
 				lineIdx = 0;
@@ -1352,7 +1354,7 @@ void SciTEBase::SaveToTEX(const char *saveName) {
 				fprintf(fp, "} \\\\\n\\scite%s{", texStyle(styleCurrent) );
 				break;
 			case ' ':
-				if (acc[i+1] == ' ') {
+				if (acc[i + 1] == ' ') {
 					fputs("{\\hspace*{1em}}", fp);
 				} else {
 					fputc(' ', fp);

@@ -2270,7 +2270,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/_Export", "", 0, 0, "<Branch>"},
 	                                      {"/File/Export/As _HTML...", NULL, menuSig, IDM_SAVEASHTML, 0},
 	                                      {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},
-	                                      //{"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
+	                                      {"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
 	                                      {"/File/Export/As _LaTeX...", NULL, menuSig, IDM_SAVEASTEX, 0},
 	                                      {"/File/_Print", "<control>P", menuSig, IDM_PRINT, 0},
 	                                      {"/File/sep1", NULL, NULL, 0, "<Separator>"},
