@@ -118,6 +118,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexLua.obj \
 	..\..\scintilla\win32\LexMatlab.obj \
 	..\..\scintilla\win32\LexMMIXAL.obj \
+	..\..\scintilla\win32\LexMPT.obj \
 	..\..\scintilla\win32\LexNsis.obj \
 	..\..\scintilla\win32\LexOthers.obj \
 	..\..\scintilla\win32\LexPascal.obj \
