@@ -1038,6 +1038,7 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
 #ifndef USE_FILE_CHOOSER
+		filter=filter;	// Ignore unused argument
 		dlgFileSelector = gtk_file_selection_new(LocaliseString("Open File").c_str());
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(PWidget(dlgFileSelector))->ok_button),
 		                   "clicked", GtkSignalFunc(OpenOKSignal), this);
