@@ -167,20 +167,20 @@ void SciTEBase::ImportMenu(int pos) {
 	}
 }
 
-void SciTEBase::SetLexerMenu() {
+void SciTEBase::SetLanguageMenu() {
 	for (int i = 0; i < 100; i++) {
-		DestroyMenuItem(menuLexer, lexerCmdID + i);
+		DestroyMenuItem(menuLanguage, languageCmdID + i);
 	}
-	for (int item = 0; item < lexItems; item++) {
-		int itemID = lexerCmdID + item;
+	for (int item = 0; item < languageItems; item++) {
+		int itemID = languageCmdID + item;
 		char entry[MAX_PATH + 20];
 		entry[0] = '\0';
-		strcat(entry, lexMenu[item].menuItem.c_str());
-		if (lexMenu[item].menuKey.length()) {
+		strcat(entry, languageMenu[item].menuItem.c_str());
+		if (languageMenu[item].menuKey.length()) {
 			strcat(entry, "\t");
-			strcat(entry, lexMenu[item].menuKey.c_str());
+			strcat(entry, languageMenu[item].menuKey.c_str());
 		}
-		SetMenuItem(menuLexer, item, itemID, entry);
+		SetMenuItem(menuLanguage, item, itemID, entry);
 	}
 }
 
@@ -909,26 +909,26 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
 	
-	SString menuLexerProp = props.GetNewExpand("menu.lexer", "");
-	lexItems = 0;
-	for (int i=0;i<menuLexerProp.length();i++) {
-		if (menuLexerProp[i] == '|')
-			lexItems++;
+	SString menuLanguageProp = props.GetNewExpand("menu.language", "");
+	languageItems = 0;
+	for (int i=0;i<menuLanguageProp.length();i++) {
+		if (menuLanguageProp[i] == '|')
+			languageItems++;
 	}
-	lexItems /= 3;
-	lexMenu = new LexerMenuItem[lexItems];
+	languageItems /= 3;
+	languageMenu = new LanguageMenuItem[languageItems];
 
-	menuLexerProp.substitute('|', '\0');
-	const char *sMenuLexer = menuLexerProp.c_str();
-	for (int item=0; item < lexItems; item++) {
-		lexMenu[item].menuItem = sMenuLexer;
-		sMenuLexer += strlen(sMenuLexer) + 1;
-		lexMenu[item].extension = sMenuLexer;
-		sMenuLexer += strlen(sMenuLexer) + 1;
-		lexMenu[item].menuKey = sMenuLexer;
-		sMenuLexer += strlen(sMenuLexer) + 1;
+	menuLanguageProp.substitute('|', '\0');
+	const char *sMenuLanguage = menuLanguageProp.c_str();
+	for (int item=0; item < languageItems; item++) {
+		languageMenu[item].menuItem = sMenuLanguage;
+		sMenuLanguage += strlen(sMenuLanguage) + 1;
+		languageMenu[item].extension = sMenuLanguage;
+		sMenuLanguage += strlen(sMenuLanguage) + 1;
+		languageMenu[item].menuKey = sMenuLanguage;
+		sMenuLanguage += strlen(sMenuLanguage) + 1;
 	}
-	SetLexerMenu();
+	SetLanguageMenu();
 
 #if PLAT_WIN
 	if (tabMultiLine) {	// Windows specific!

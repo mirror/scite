@@ -261,8 +261,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	wrapFind = true;
 	unSlash = false;
 	
-	lexMenu = 0;
-	lexItems = 0;
+	languageMenu = 0;
+	languageItems = 0;
 	
 	windowName[0] = '\0';
 	fullPath[0] = '\0';
@@ -383,7 +383,7 @@ void SciTEBase::SetOverrideLanguage(int cmdID) {
 
 	//overrideExtension = extList[cmdID - LEXER_BASE];
 	overrideExtension = "x.";
-	overrideExtension.append(lexMenu[cmdID].extension.c_str());
+	overrideExtension.append(languageMenu[cmdID].extension.c_str());
 	ReadProperties();
 	SendEditor(SCI_COLOURISE, 0, -1);
 	Redraw();
@@ -2889,8 +2889,8 @@ void SciTEBase::MenuCommand(int cmdID) {
 			}
 		} else if (cmdID >= IDM_TOOLS && cmdID < IDM_TOOLS + 10) {
 			ToolsMenu(cmdID - IDM_TOOLS);
-		} else if (cmdID >= IDM_LEXER && cmdID < IDM_LEXER + 100) {
-			SetOverrideLanguage(cmdID - IDM_LEXER);
+		} else if (cmdID >= IDM_LANGUAGE && cmdID < IDM_LANGUAGE + 100) {
+			SetOverrideLanguage(cmdID - IDM_LANGUAGE);
 		}
 		break;
 	}

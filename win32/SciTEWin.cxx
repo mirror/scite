@@ -1127,9 +1127,9 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 		(Platform::IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
 		(Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
 		(Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
-	for (int j=0; j<lexItems; j++) {
-		if (KeyMatch(lexMenu[j].menuKey, wParam, modifiers)) {
-			SciTEBase::MenuCommand(IDM_LEXER + j);
+	for (int j=0; j<languageItems; j++) {
+		if (KeyMatch(languageMenu[j].menuKey, wParam, modifiers)) {
+			SciTEBase::MenuCommand(IDM_LANGUAGE + j);
 			return 1l;
 		}
 	}

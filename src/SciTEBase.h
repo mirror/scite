@@ -34,7 +34,7 @@ const char *VMSToUnixStyle(const char *fileName);
  * and there is a Help menu at the end.
  */
 enum { menuFile = 0, menuEdit = 1, menuSearch = 2, menuView = 3,
-       menuTools = 4, menuOptions = 5, menuLexer = 6, menuBuffers = 7 };
+       menuTools = 4, menuOptions = 5, menuLanguage = 6, menuBuffers = 7 };
 
 /**
  * This is a fixed length list of strings suitable for display in combo boxes
@@ -179,7 +179,7 @@ public:
 	void Clear();
 };
 
-class LexerMenuItem {
+class LanguageMenuItem {
 public:
 	SString menuItem;
 	SString menuKey;
@@ -278,9 +278,9 @@ protected:
 	ComboMemory memReplaces;
 	ComboMemory memFiles;
 
-	enum { lexerCmdID = IDM_LEXER };
-	LexerMenuItem *lexMenu;
-	int lexItems;
+	enum { languageCmdID = IDM_LANGUAGE };
+	LanguageMenuItem *languageMenu;
+	int languageItems;
 
 	int codePage;
 	int characterSet;
@@ -593,7 +593,7 @@ protected:
 	void ViewWhitespace(bool view);
 	void SetImportMenu();
 	void ImportMenu(int pos);
-	void SetLexerMenu();
+	void SetLanguageMenu();
 	void SetPropertiesInitial();
 	virtual void ReadPropertiesInitial();
 	void SetMonoFont();

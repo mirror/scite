@@ -171,9 +171,9 @@ BEGIN
 	MENUITEM SEPARATOR
 END // used: abcglmopstux
 
-POPUP "&Lexer"
+POPUP "&Language"
 BEGIN
-	MENUITEM "", IDM_LEXER
+	MENUITEM "", IDM_LANGUAGE
 END
 
 POPUP "&Buffers"
