@@ -382,12 +382,12 @@ void SciTEBase::OpenSelected() {
 	SelectionFilename(selectedFilename, sizeof(selectedFilename));
 	if (selectedFilename[0] == '\0') {
 		WarnUser(warnWrongFile);
-		return ;	// No selection
+		return;	// No selection
 	}
 
 	if (strcasecmp(selectedFilename, fileName) == 0) {
 		WarnUser(warnWrongFile);
-		return ;	// Do not open if it is the current file!
+		return;	// Do not open if it is the current file!
 	}
 
 	cTag[0] = '\0';
@@ -420,7 +420,7 @@ void SciTEBase::OpenSelected() {
 		        strncmp(selectedFilename, "mailto", 6) == 0) {
 			SString cmd = selectedFilename;
 			AddCommand(cmd, 0, jobShell, false);
-			return ;	// Job is done
+			return;	// Job is done
 		}
 
 #endif
