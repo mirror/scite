@@ -153,6 +153,7 @@ const char *contributors[] = {
                                  "Thomas Lauer",
                                  "Mike Lansdaal",
                                  "Yukihiro Nakai",
+                                 "Jochen Tucht",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -2862,6 +2863,8 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 	case IDM_COPY:
 		SendFocused(SCI_COPY);
+		// does not trigger SCN_UPDATEUI, so do CheckMenusClipboard() here
+		CheckMenusClipboard();
 		break;
 	case IDM_PASTE:
 		SendFocused(SCI_PASTE);
@@ -3524,6 +3527,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
 				UpdateStatusBar(false);
 			}
+			CheckMenusClipboard();
 		}
 		break;
 
@@ -3599,11 +3603,19 @@ void SciTEBase::Notify(SCNotification *notification) {
 	}
 }
 
+void SciTEBase::CheckMenusClipboard() {
+	bool hasSelection = SendFocused(SCI_GETSELECTIONSTART) != SendFocused(SCI_GETSELECTIONEND);
+	EnableAMenuItem(IDM_CUT, hasSelection);
+	EnableAMenuItem(IDM_COPY, hasSelection);
+	EnableAMenuItem(IDM_CLEAR, hasSelection);
+	EnableAMenuItem(IDM_PASTE, SendFocused(SCI_CANPASTE));
+}
+
 void SciTEBase::CheckMenus() {
+	CheckMenusClipboard();
 	EnableAMenuItem(IDM_SAVE, isDirty);
 	EnableAMenuItem(IDM_UNDO, SendFocused(SCI_CANUNDO));
 	EnableAMenuItem(IDM_REDO, SendFocused(SCI_CANREDO));
-	EnableAMenuItem(IDM_PASTE, SendFocused(SCI_CANPASTE));
 	EnableAMenuItem(IDM_FINDINFILES, !executing);
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);

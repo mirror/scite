@@ -652,6 +652,7 @@ protected:
 	virtual void DestroyMenuItem(int menuNumber, int itemID) = 0;
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val) = 0;
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val) = 0;
+	virtual void CheckMenusClipboard();
 	virtual void CheckMenus();
 	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true)=0;
 	void ContextMenu(Window wSource, Point pt, Window wCmd);
@@ -659,7 +660,7 @@ protected:
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	void DropFileStackTop();
-  void AddFileToBuffer(const char *file, int pos);
+	void AddFileToBuffer(const char *file, int pos);
 	void AddFileToStack(const char *file, CharacterRange selection, int scrollPos);
 	void RemoveFileFromStack(const char *file);
 	RecentFile GetFilePosition();
