@@ -75,7 +75,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	hDevNames = 0;
 	::ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
 
-	SString pageSetup = props.Get("print.page.setup");
+	SString pageSetup = props.Get("print.margins");
 	char val[32];
 	char *ps = StringDup(pageSetup.c_str());
 	char *next = GetNextPropItem(ps, val, 32);
