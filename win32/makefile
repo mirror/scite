@@ -40,7 +40,7 @@ PropSet.o PlatWin.o UniConversion.o SciTERes.o DirectorExtension.o
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
 PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
-..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
+..\bin\ada.properties ..\bin\ave.properties ..\bin\bullant.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
 ..\bin\nncrontab.properties ..\bin\others.properties \
@@ -48,7 +48,7 @@ PROPS=..\bin\SciTEGlobal.properties ..\bin\abbrev.properties \
 ..\bin\sql.properties ..\bin\tcl.properties ..\bin\vb.properties
 
 LEXPROPS=\
-..\bin\ada.properties ..\bin\ave.properties ..\bin\conf.properties \
+..\bin\ada.properties ..\bin\ave.properties ..\bin\bullant.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\eiffel.properties ..\bin\html.properties \
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lua.properties \
 ..\bin\nncrontab.properties ..\bin\others.properties \
@@ -77,6 +77,8 @@ deps:
 ..\bin\ada.properties:	..\src\ada.properties
 	copy $^ $@
 ..\bin\ave.properties:	..\src\ave.properties
+	copy $^ $@
+..\bin\bullant.properties:	..\src\bullant.properties
 	copy $^ $@
 ..\bin\conf.properties:	..\src\conf.properties
 	copy $^ $@
