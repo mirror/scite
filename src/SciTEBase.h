@@ -271,7 +271,7 @@ public:
 	UniMode unicodeMode;
 	time_t fileModTime;
 	SString overrideExtension;
-    FoldState foldState;
+	FoldState foldState;
 	Buffer() :
 		RecentFile(), doc(0), isDirty(false), useMonoFont(false),
 		unicodeMode(uni8Bit), fileModTime(0), foldState() {
@@ -284,7 +284,7 @@ public:
 		unicodeMode = uni8Bit;
 		fileModTime = 0;
 		overrideExtension = "";
-        foldState.Clear();
+		foldState.Clear();
 	}
 };
 
