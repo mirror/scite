@@ -802,7 +802,7 @@ NameError: mistake
           flickers less but is slower.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr>
         <td>
           load.on.activate<br />
            save.on.deactivate
@@ -968,7 +968,9 @@ NameError: mistake
           api.<i>filepattern</i>
         </td>
         <td>
-          Loads an API file for a particular language. API files contain a sorted list of
+          Loads a set of API files for a particular language. 
+	  If there is more than one API file then the file names are separated by ';'.
+	  API files contain a sorted list of
           identifiers and function prototypes, one per line. The "Complete Identifier" command
           looks at the characters before the caret and displayed the subset of the API file
           starting with that string. When an opening brace is typed, the file is searched for the
