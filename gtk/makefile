@@ -9,10 +9,16 @@ CC = g++
 AR = ar
 
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
-prefix=/usr/local
+# "h@h@" is printed here when gnome-config unavailable. Seems harmless.
+gnomeprefix:=$(shell gnome-config --prefix 2>/dev/null)
+ifdef gnomeprefix
+  prefix=$(gnomeprefix)
+  datadir=$(gnomeprefix)/share
+  pixmapdir=$(datadir)/pixmaps
+else
+  prefix=/usr/local
+endif
 bindir=$(prefix)/bin
-datadir=$(prefix)/share
-pixmapdir=$(datadir)/pixmaps
 SYSCONF_PATH=$(prefix)/share/scite
 
 PROG	= ../bin/SciTE
@@ -59,11 +65,15 @@ clean:
 install:
 	install -s $(PROG) $(bindir)
 	install -D SciTEGTK.properties $(SYSCONF_PATH)/SciTEGlobal.properties
+ifdef gnomeprefix
 	install SciTE.desktop $(datadir)/gnome/apps/Applications
 	install Sci48M.png $(pixmapdir)
+endif
 
 uninstall:
 	rm -f $(bindir)/SciTE
 	rm -rf $(SYSCONF_PATH)
+ifdef gnomeprefix
 	rm -f $(datadir)/gnome/apps/Applications/SciTE.desktop
 	rm -f $(pixmapdir)/Sci48M.png
+endif
