@@ -617,6 +617,7 @@ protected:
 	const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
 	void DefineMarker(int marker, int markerType, ColourDesired fore, ColourDesired back);
+	void ReadAPI(const SString &fileNameForExtension);
 	virtual void ReadProperties();
 	void SetOneStyle(Window &win, int style, const char *s);
 	void SetStyleFor(Window &win, const char *language);

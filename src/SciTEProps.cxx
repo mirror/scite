@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEProps.cxx
  ** Properties management.
- **/
+ **/ 
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -85,8 +85,8 @@ static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 	return false;
 }
 
-bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *directoryForImports, 
-		SString imports[], int sizeImports) {
+bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *directoryForImports,
+                           SString imports[], int sizeImports) {
 	//UnSlash(lineBuffer);
 	if (isalnum(lineBuffer[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
@@ -130,10 +130,13 @@ void PropSetFile::Read(const char *filename, const char *directoryForImports,
                        SString imports[], int sizeImports) {
 	char propsData[60000];
 #ifdef __vms
+
 	FILE *rcfile = fopen(filename, "r");
 #else
+
 	FILE *rcfile = fopen(filename, "rb");
 #endif
+
 	if (rcfile) {
 		int lenFile = fread(propsData, 1, sizeof(propsData), rcfile);
 		fclose(rcfile);
@@ -253,9 +256,11 @@ void SciTEBase::ReadLocalPropFile() {
 	char propfile[MAX_PATH + 20];
 	strcpy(propfile, propdir);
 #ifndef __vms
+
 	strcat(propdir, pathSepString);
 	strcat(propfile, pathSepString);
 #endif
+
 	strcat(propfile, propFileName);
 	propsLocal.Clear();
 	propsLocal.Read(propfile, propdir);
@@ -298,9 +303,9 @@ long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefau
  * @return NULL if the end of the list is met, else, it points to the next item.
  */
 const char *SciTEBase::GetNextPropItem(
-    const char *pStart,   	/**< the property string to parse for the first call,
-    							 * pointer returned by the previous call for the following. */
-    char *pPropItem,   	///< pointer on a buffer receiving the requested prop item
+    const char *pStart,    	/**< the property string to parse for the first call,
+        							 * pointer returned by the previous call for the following. */
+    char *pPropItem,    	///< pointer on a buffer receiving the requested prop item
     int maxLen)			///< size of the above buffer
 {
 	int size = maxLen - 1;
@@ -323,7 +328,7 @@ const char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-size(0), fore(0), back(ColourDesired(0xff, 0xff, 0xff)), bold(false), italics(false),
+		size(0), fore(0), back(ColourDesired(0xff, 0xff, 0xff)), bold(false), italics(false),
 eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED) {
 	specified = sdNone;
 	char *val = StringDup(definition);
@@ -469,6 +474,58 @@ void SciTEBase::DefineMarker(int marker, int markerType, ColourDesired fore, Col
 	SendEditor(SCI_MARKERSETBACK, marker, back.AsLong());
 }
 
+static int FileLength(const char *path) {
+	int len = 0;
+	FILE *fp = fopen(path, fileRead);
+	if (fp) {
+		fseek(fp, 0, SEEK_END);
+		len = ftell(fp);
+		fclose(fp);
+	}
+	return len;
+}
+	
+void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
+	SString apisFileNames = props.GetNewExpand("api.",
+	                        fileNameForExtension.c_str());
+	int nameLength = apisFileNames.length();
+	if (nameLength) {
+		apisFileNames.substitute(';', '\0');
+		const char *apiFileName = apisFileNames.c_str();
+		const char *nameEnd = apiFileName + nameLength;
+
+		int tlen = 0;    // total api length
+
+		// Calculate total length
+		while (apiFileName < nameEnd) {
+			tlen += FileLength(apiFileName);
+			apiFileName += strlen(apiFileName) + 1;
+		}
+
+		// Load files
+		if (tlen > 0) {
+			char *buffer = apis.Allocate(tlen);
+			if (buffer) {
+				apiFileName = apisFileNames.c_str();
+				tlen = 0;
+				while (apiFileName < nameEnd) {
+					FILE *fp = fopen(apiFileName, fileRead);
+					if (fp) {
+						fseek(fp, 0, SEEK_END);
+						int len = ftell(fp);
+						fseek(fp, 0, SEEK_SET);
+						fread(buffer + tlen, 1, len, fp);
+						tlen += len;
+						fclose(fp);
+					}
+					apiFileName += strlen(apiFileName) + 1;
+				}
+				apis.SetFromAllocated();
+			}
+		}
+	}
+}
+
 void SciTEBase::ReadProperties() {
 	//DWORD dwStart = timeGetTime();
 	SString fileNameForExtension = ExtensionFileName();
@@ -477,8 +534,8 @@ void SciTEBase::ReadProperties() {
 	SendEditorString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
 	lexLanguage = SendEditor(SCI_GETLEXER);
 
-	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML) || 
-		(lexLanguage == SCLEX_ASP) || (lexLanguage == SCLEX_PHP))
+	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML) ||
+	        (lexLanguage == SCLEX_ASP) || (lexLanguage == SCLEX_PHP))
 		SendEditor(SCI_SETSTYLEBITS, 7);
 	else
 		SendEditor(SCI_SETSTYLEBITS, 5);
@@ -518,23 +575,7 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("tab.timmy.whinge.level");
 	ForwardPropertyToEditor("asp.default.language");
 
-	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
-	if (apifilename.length()) {
-		FILE *fp = fopen(apifilename.c_str(), fileRead);
-		if (fp) {
-			fseek(fp, 0, SEEK_END);
-			int len = ftell(fp);
-			char *buffer = apis.Allocate(len);
-			if (buffer) {
-				fseek(fp, 0, SEEK_SET);
-				fread(buffer, 1, len, fp);
-				apis.SetFromAllocated();
-			}
-			fclose(fp);
-			//Platform::DebugPrintf("Finished api file %d\n", len);
-		}
-
-	}
+	ReadAPI(fileNameForExtension);
 
 	if (!props.GetInt("eol.auto")) {
 		SString eol_mode = props.Get("eol.mode");
@@ -555,8 +596,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", ColourDesired(0, 0, 0)));
 
-	SendEditor(SCI_SETMOUSEDWELLTIME, 
-		props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
+	SendEditor(SCI_SETMOUSEDWELLTIME,
+	           props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
 
 	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
@@ -694,7 +735,7 @@ void SciTEBase::ReadProperties() {
 
 	clearBeforeExecute = props.GetInt("clear.before.execute");
 	timeCommands = props.GetInt("time.commands");
-	
+
 	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
 	int blankMarginRight = props.GetInt("blank.margin.right", 1);
 	SendEditor(SCI_SETMARGINLEFT, 0, blankMarginLeft);
@@ -796,60 +837,60 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETMARGINSENSITIVEN, 2, 1);
 
 	switch (props.GetInt("fold.symbols")) {
-		case 0:
-			// Arrow pointing right for contracted folders, arrow pointing down for expanded
-			DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN, 
-				ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_ARROW, 
-				ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY, 
-				ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY, 
-				ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY, 
-				ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY, 
-				ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			break;
-		case 1:
-			// Plus for contracted folders, minus for expanded
-			DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_MINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_PLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-			break;
-		case 2:
-			// Like a flattened tree control using circular headers and curved joins
-			DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-			DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-			DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-			DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNERCURVE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-			DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_CIRCLEPLUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-			DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-			DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-			break;
-		case 3:
-			// Like a flattened tree control using square headers
-			DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-			DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-			DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-			DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-			DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-			DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-			DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-			break;
+	case 0:
+		// Arrow pointing right for contracted folders, arrow pointing down for expanded
+		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN,
+		             ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_ARROW,
+		             ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY,
+		             ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY,
+		             ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY,
+		             ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY,
+		             ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		break;
+	case 1:
+		// Plus for contracted folders, minus for expanded
+		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_MINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_PLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		break;
+	case 2:
+		// Like a flattened tree control using circular headers and curved joins
+		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNERCURVE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_CIRCLEPLUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
+		break;
+	case 3:
+		// Like a flattened tree control using square headers
+		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
+		break;
 	}
-	
+
 	SendEditor(SCI_MARKERSETFORE, SciTE_MARKER_BOOKMARK,
 	           ColourOfProperty(props, "bookmark.fore", ColourDesired(0, 0, 0x7f)));
 	SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK,
 	           ColourOfProperty(props, "bookmark.back", ColourDesired(0x80, 0xff, 0xff)));
 	SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
-	
+
 	if (extender) {
 		extender->Clear();
 
@@ -886,6 +927,7 @@ void SciTEBase::ReadProperties() {
 }
 
 // Properties that are interactively modifiable are only read from the properties file once.
+
 
 void SciTEBase::SetPropertiesInitial() {
 	splitVertical = props.GetInt("split.vertical");
@@ -956,10 +998,10 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
 	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
-	
+
 	SString menuLanguageProp = props.GetNewExpand("menu.language", "");
 	languageItems = 0;
-	for (int i=0;i<menuLanguageProp.length();i++) {
+	for (int i = 0;i < menuLanguageProp.length();i++) {
 		if (menuLanguageProp[i] == '|')
 			languageItems++;
 	}
@@ -968,7 +1010,7 @@ void SciTEBase::ReadPropertiesInitial() {
 
 	menuLanguageProp.substitute('|', '\0');
 	const char *sMenuLanguage = menuLanguageProp.c_str();
-	for (int item=0; item < languageItems; item++) {
+	for (int item = 0; item < languageItems; item++) {
 		languageMenu[item].menuItem = sMenuLanguage;
 		sMenuLanguage += strlen(sMenuLanguage) + 1;
 		languageMenu[item].extension = sMenuLanguage;
@@ -979,6 +1021,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	SetLanguageMenu();
 
 #if PLAT_WIN
+
 	if (tabMultiLine) {	// Windows specific!
 		long wl = ::GetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE);
 		::SetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE, wl | TCS_MULTILINE);
@@ -1000,8 +1043,10 @@ void SciTEBase::OpenProperties(int propsFile) {
 	if (propsFile == IDM_OPENLOCALPROPERTIES) {
 		GetDocumentDirectory(propfile, sizeof(propfile));
 #ifdef __vms
+
 		strcpy(propfile, VMSToUnixStyle(propfile));
 #endif
+
 		strcat(propfile, pathSepString);
 		strcat(propfile, propFileName);
 		Open(propfile);
