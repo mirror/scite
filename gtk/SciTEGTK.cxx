@@ -2110,7 +2110,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[],
 	for (; i<dim; i++) {
 		int suffix = i-n + startNum;
 		SString ssnum(suffix);
-		translatedText[i] = prefix;
+		translatedText[i] = TranslatePath(prefix);
 		translatedText[i] += ssnum;
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
 		translatedItems[i].accelerator = NULL;
