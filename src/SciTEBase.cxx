@@ -2651,7 +2651,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 	case IDM_NEXTFILE:
 		if (buffers.size > 1) {
-			Prev(); // Use Prev to tabs move left-to-right
+			Next(); // Use Next to tabs move left-to-right
 			WindowSetFocus(wEditor);
 		} else {
 			// Not using buffers - switch to next file on MRU
@@ -2661,7 +2661,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 	case IDM_PREVFILE:
 		if (buffers.size > 1) {
-			Next(); // Use Next to tabs move right-to-left
+			Prev(); // Use Prev to tabs move right-to-left
 			WindowSetFocus(wEditor);
 		} else {
 			// Not using buffers - switch to previous file on MRU

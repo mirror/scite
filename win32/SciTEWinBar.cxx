@@ -446,14 +446,12 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 						accel = "";
 					}
 					text = LocaliseString(text.c_str(), true);
-#ifdef LOCALISED_ACCEL_WORKED
 					if (text.length()) {
 						text += "\t";
 						text += LocaliseAccelerator(accel.c_str(), mii.wID);
 						mii.dwTypeData = const_cast<char *>(text.c_str());
 						::SetMenuItemInfo(hmenu, i, TRUE, &mii);
 					}
-#endif
 				}
 			}
 		}
