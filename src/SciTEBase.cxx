@@ -936,12 +936,13 @@ void SciTEBase::SelectionIntoProperties() {
 }
 
 void SciTEBase::SelectionIntoFind() {
-	findWhat = SelectionWord();
-	if (findWhat.contains('\r') || findWhat.contains('\n')) {
-		// The selection includes at least a new line, it is unlikely to be
+	SString sel = SelectionWord();
+	if (sel.length() && !sel.contains('\r') && !sel.contains('\n')) {
+		// The selection does not include a new line, so is likely to be
 		// the expression to search...
-		findWhat.clear();
+		findWhat = sel;
 	}
+	// else findWhat remains the same as last time.
 	if (unSlash) {
 		char *slashedFind = Slash(findWhat.c_str());
 		if (slashedFind) {
