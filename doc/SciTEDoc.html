@@ -141,7 +141,8 @@ NameError: mistake
       subsystem, 0, is for command line programs, 1 is for programs which create their own windows,
       and 2 is for using the ShellExecute call. ShellExecute is a good way to open HTML files and
       similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an internal 
-      extension and 4 is for calling the Windows specific HtmlHelp program.
+      extension, 4 is for calling the Windows specific HtmlHelp program and 5 is for calling the Windows 
+      specific WinHelp function.
     </p>
     <h3>
        Command line arguments
@@ -327,6 +328,38 @@ NameError: mistake
         </td>
         <td>
           Ctrl+Shift+F3
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Scroll Up.
+        </td>
+        <td>
+          Ctrl+Up
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Scroll Down.
+        </td>
+        <td>
+          Ctrl+Down
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Line Cut.
+        </td>
+        <td>
+          Ctrl+L
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Line Transpose with Previous.
+        </td>
+        <td>
+          Ctrl+T
         </td>
       </tr>
     </table>
@@ -1111,21 +1144,24 @@ NameError: mistake
           load.on.activate is set.<br />
            The subsystem determines how the command is executed on Windows. 0, the default is for
           command line programs, 1 for programs which create their own windows, 2 for running
-	by using ShellExecute, 3 for running in an internal extension, and 4 for running HtmlHelp 
-	on Windows. When using subsystem 4, the command has two parts separeted by ! with the first 
+	by using ShellExecute, 3 for running in an internal extension, 4 for running HtmlHelp 
+	on Windows, and 5 for running WinHelp on Windows. 
+	When using subsystem 4 or 5, the command has two parts separated by ! with the first 
 	part being the topic to search for and the second the name of the help file.
         </td>
       </tr>
       <tr>
         <td>
           command.help.<i>filepattern</i><br />
+          command.help.subsystem.<i>filepattern</i>
         </td>
         <td>
 	Defines a command to be executed when the help command is 
 	invoked or F1 pressed. On Windows, this often uses subsystem 4 as described above.
 	On Linux, running man or a browser are common ways of displaying help.
 	The word at the cursor is copied to $(CurrentWord) and this is often a good argument
-	to the help application.
+	to the help application. The subsystem property works in the same way as for other
+	commands.
         </td>
       </tr>
       <tr>
