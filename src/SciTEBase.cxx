@@ -1770,6 +1770,11 @@ void SciTEBase::SelectionIntoProperties() {
 	char currentSelection[1000];
 	if ((cr.cpMin < cr.cpMax) && ((cr.cpMax - cr.cpMin + 1) < static_cast<int>(sizeof(currentSelection)))) {
 		GetRange(wEditor, cr.cpMin, cr.cpMax, currentSelection);
+		int len = strlen(currentSelection);
+		if (len > 2 && iscntrl(currentSelection[len-1]))
+			currentSelection[len-1] = '\0';
+		if (len > 2 && iscntrl(currentSelection[len-2]))
+			currentSelection[len-2] = '\0';
 		props.Set("CurrentSelection", currentSelection);
 	}
 }
