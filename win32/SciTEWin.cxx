@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEWin.cxx
  ** Main code for the Windows version of the editor.
- **/ 
+ **/
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -607,7 +607,7 @@ void SciTEWin::ProcessExecute() {
 			OutputAppendStringSynchronised(">");
 			OutputAppendStringSynchronised(reinterpret_cast<LPCTSTR>(lpMsgBuf));
 			::LocalFree(lpMsgBuf);
-			
+
 		}
 
 		bool completed = !worked;
@@ -628,7 +628,7 @@ void SciTEWin::ProcessExecute() {
 					::Sleep(50L);
 
 					DWORD bytesWrote = 0;
-					::WriteFile(hWriteSubProcess, 
+					::WriteFile(hWriteSubProcess,
 						const_cast<char *>(input.c_str()),
 						input.length(), &bytesWrote, NULL);
 
@@ -710,7 +710,7 @@ void SciTEWin::ProcessExecute() {
 
 		if (worked) {
 			if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 1000)) {
-				OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...");				
+				OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...");
 				::TerminateProcess(pi.hProcess,2);
 			}
 			::GetExitCodeProcess(pi.hProcess, &exitcode);
@@ -829,7 +829,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	if (rc > 32) {
 		// it worked!
 		delete []mycmdcopy;
-		return ;
+		return;
 	}
 
 	const int numErrcodes = 15;
@@ -893,7 +893,7 @@ void SciTEWin::StopExecute() {
 	if (subProcessGroupId) {
 		// this also doesn't work
 		OutputAppendStringSynchronised("\n>Attempting to cancel process...");
-		
+
 		if (!GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, subProcessGroupId)) {
 			LONG errCode = GetLastError();
 			OutputAppendStringSynchronised("\n>BREAK Failed ");
@@ -903,7 +903,7 @@ void SciTEWin::StopExecute() {
 		Sleep(100L);
 	}
 #endif
-	
+
 	::InterlockedExchange(&cancelFlag, 1L);
 }
 
@@ -916,7 +916,7 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 				pCmd.remove(0);
 				parameterisedCommand = pCmd;
 				if (!ParametersDialog(true)) {
-					return ;
+					return;
 				}
 			} else {
 				ParamGrab();
@@ -1098,10 +1098,10 @@ void SciTEWin::Run(const char *cmdLine) {
 		Print(false);
 		::PostQuitMessage(0);
 		wSciTE.Destroy();
-		return ;
+		return;
 	}
 
-	if (bAlreadyRunning) {
+	if (bAlreadyRunning && props.GetInt("check.if.already.open")) {
 		HWND hOtherWindow = NULL;
 		::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(&hOtherWindow));
 		if (hOtherWindow) {
@@ -1142,7 +1142,7 @@ void SciTEWin::Run(const char *cmdLine) {
 
 			// Kill itself, leaving room to the previous instance
 			::PostQuitMessage(0);
-			return ;	/* Don't do anything else */
+			return;	/* Don't do anything else */
 		}
 	}
 
