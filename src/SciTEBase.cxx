@@ -256,7 +256,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	currentmacro[0] = '\0';
 	recording = false;
 	playing = false;
-        
+
 	propsBase.superPS = &propsEmbed;
 	propsUser.superPS = &propsBase;
 	propsLocal.superPS = &propsUser;
@@ -544,6 +544,7 @@ void SciTEBase::GetCTag(char *sel, int len) {
 				} else if (c == '$' && acc[selEnd + 1] == '/') {
 					mustStop = 1;	// Found!
 				}
+
 			} else {
 				mustStop = -1;
 			}
@@ -577,8 +578,8 @@ static bool isfilenamecharforsel(char ch) {
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel,  ///< Buffer receiving the result.
-    int len,  ///< Size of the buffer.
+    char *sel,   ///< Buffer receiving the result.
+    int len,   ///< Size of the buffer.
     bool (*ischarforsel)(char ch)) { ///< Function returning @c true if the given char. is part of the selection.
 
 	int lengthDoc, selStart, selEnd;
@@ -605,6 +606,7 @@ void SciTEBase::SelectionExtend(
 			if (selStart < selEnd) {
 				selEnd++;   // Because normal selections end one past
 			}
+
 		}
 	}
 	sel[0] = '\0';
@@ -693,7 +695,7 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (posFind == -1) {
 		havefound = false;
 		if (showWarnings) {
-			if (strlen(findWhat) > 200) 
+			if (strlen(findWhat) > 200)
 				findWhat[200] = '\0';
 			char msg[300];
 			strcpy(msg, "Cannot find the string \"");
@@ -754,7 +756,7 @@ void SciTEBase::ReplaceAll() {
 		}
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
-		if (strlen(findWhat) > 200) 
+		if (strlen(findWhat) > 200)
 			findWhat[200] = '\0';
 		char msg[300];
 		strcpy(msg, "No replacements because string \"");
@@ -972,10 +974,10 @@ bool SciTEBase::StartAutoComplete() {
 	int current = GetLine(linebuf, sizeof(linebuf));
 
 	int startword = current;
-	
-	while ((startword > 0) && 
-		(wordCharacters.contains(linebuf[startword - 1]) ||
-		autoCompleteStartCharacters.contains(linebuf[startword - 1])))
+
+	while ((startword > 0) &&
+	        (wordCharacters.contains(linebuf[startword - 1]) ||
+	         autoCompleteStartCharacters.contains(linebuf[startword - 1])))
 		startword--;
 
 	if (startword == current)
@@ -1067,9 +1069,9 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 			length = newlength;
 			words[length] = '\0';
 			nwords ++;
-			if(onlyOneWord && nwords > 1) {
+			if (onlyOneWord && nwords > 1) {
 				free(words);
-				return true; 
+				return true;
 			}
 		}
 		ft.chrg.cpMin = posFind + wordlen;
@@ -1108,14 +1110,14 @@ bool SciTEBase::StartExpandAbbreviation() {
 bool SciTEBase::StartBlockComment() {
 	SString language = props.GetNewExpand("lexer.", fileName);
 	SString base("comment.");
-	if(language == "") {  // using default lexer
+	if (language == "") {  // using default lexer
 		language = props.Get("default.file.ext");
 		const char* extension = language.c_str() + 1;
 		language = extension;
 	}
 	base += language;
 	SString comment = props.Get(base.c_str());
-	if(comment == "") { // user friendly error message box
+	if (comment == "") { // user friendly error message box
 		SString error("Block comment variable \"");
 		error += base.c_str();
 		error += "\" is not defined in SciTE *.properties!";
@@ -1134,14 +1136,14 @@ bool SciTEBase::StartBlockComment() {
 		int lineIndent = GetLineIndentPosition(i);
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, i);
 		GetRange(wEditor, lineIndent, lineEnd, linebuf);
-		if(strlen(linebuf) < 1)
+		if (strlen(linebuf) < 1)
 			continue; // empty lines are not commented
-		if(memcmp(linebuf, comment.c_str(), comment_length - 1) == 0) {
-			if(memcmp(linebuf, long_comment.c_str(), comment_length) == 0) {
+		if (memcmp(linebuf, comment.c_str(), comment_length - 1) == 0) {
+			if (memcmp(linebuf, long_comment.c_str(), comment_length) == 0) {
 				// removing comment with space after it
 				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length);
 				SendEditorString(SCI_REPLACESEL, 0, "");
-				if(i == selStartLine) // is this the first selected line?
+				if (i == selStartLine) // is this the first selected line?
 					selectionStart -= comment_length;
 				selectionEnd -= comment_length; // every iteration
 				continue;
@@ -1149,13 +1151,13 @@ bool SciTEBase::StartBlockComment() {
 				// removing comment _without_ space
 				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length - 1);
 				SendEditorString(SCI_REPLACESEL, 0, "");
-				if(i == selStartLine) // is this the first selected line?
+				if (i == selStartLine) // is this the first selected line?
 					selectionStart -= (comment_length - 1);
 				selectionEnd -= (comment_length - 1); // every iteration
 				continue;
 			}
 		}
-		if(i == selStartLine) // is this the first selected line?
+		if (i == selStartLine) // is this the first selected line?
 			selectionStart += comment_length;
 		selectionEnd += comment_length; // every iteration
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment.c_str());
@@ -1170,7 +1172,7 @@ bool SciTEBase::StartStreamComment() {
 	SString start_base("comment.stream.start.");
 	SString end_base("comment.stream.end.");
 	SString white_space(" ");
-	if(language == "") {
+	if (language == "") {
 		language = props.Get("default.file.ext");
 		const char* extension = language.c_str() + 1; // removing dot
 		language = extension;
@@ -1206,11 +1208,11 @@ bool SciTEBase::StartStreamComment() {
 		// checking if we are not inside a word
 		if (!wordCharacters.contains(linebuf[current]))
 			return true; // caret is located _between_ words
- 		int startword = current;
+		int startword = current;
 		int endword = current;
 		int start_counter = 0;
 		int end_counter = 0;
-		while(startword > 0 && wordCharacters.contains(linebuf[startword - 1])) {
+		while (startword > 0 && wordCharacters.contains(linebuf[startword - 1])) {
 			start_counter++;
 			startword--;
 		}
@@ -1429,8 +1431,8 @@ void SciTEBase::AutomaticIndentation(char ch) {
  * such as displaying a completion list.
  */
 void SciTEBase::CharAdded(char ch) {
-	if (recording || playing) 
-                return;
+	if (recording || playing)
+		return ;
 	CharacterRange crange = GetSelection();
 	int selStart = crange.cpMin;
 	int selEnd = crange.cpMax;
@@ -1464,9 +1466,9 @@ void SciTEBase::CharAdded(char ch) {
 				} else {
 					if (props.GetInt("indent.automatic"))
 						AutomaticIndentation(ch);
-					if (autoCompleteStartCharacters.contains(ch)) 
+					if (autoCompleteStartCharacters.contains(ch))
 						StartAutoComplete();
-					else if (props.GetInt("autocompleteword.automatic") && wordCharacters.contains(ch)) 
+					else if (props.GetInt("autocompleteword.automatic") && wordCharacters.contains(ch))
 						StartAutoCompleteWord(true);
 				}
 			}
@@ -1525,6 +1527,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_NEW:
 		// For the New command, the "are you sure" question is always asked as this gives
 		// an opportunity to abandon the edits made to a file when are.you.sure is turned off.
+
 		if (CanMakeRoom()) {
 			New();
 			ReadProperties();
@@ -1532,10 +1535,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		}
 		break;
 	case IDM_OPEN:
-        // No need to see if can make room as that will occur
-        // when doing the opening. Must be done there as user
-        // may decide to open multiple files so do not know yet
-        // how much room needed.
+		// No need to see if can make room as that will occur
+		// when doing the opening. Must be done there as user
+		// may decide to open multiple files so do not know yet
+		// how much room needed.
 		OpenDialog();
 		SetFocus(wEditor.GetID());
 		break;
@@ -1839,9 +1842,9 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(
-					props.GetNewExpand("command.build.", fileName),
-					props.GetNewExpand("command.build.directory.", fileName),
-					SubsystemType("command.build.subsystem."));
+				    props.GetNewExpand("command.build.", fileName),
+				    props.GetNewExpand("command.build.directory.", fileName),
+				    SubsystemType("command.build.subsystem."));
 				if (commandCurrent > 0) {
 					isBuilding = true;
 					Execute();
@@ -1959,17 +1962,17 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_STARTRECORDMACRO:
 		StartRecordMacro();
-                break;
+		break;
 	case IDM_STOPRECORDMACRO:
 		StopRecordMacro();
-                break;
+		break;
 	case IDM_STARTPLAYMACRO:
 		StartPlayMacro();
-                break;
+		break;
 	case IDM_STARTMACROLIST:
 		AskMacroList();
-                break;
-        
+		break;
+
 	case IDM_HELP: {
 			SelectionIntoProperties();
 			AddCommand(props.GetNewExpand("command.help.", fileName), "",
@@ -1992,7 +1995,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 				StackMenu(cmdID - fileStackCmdID);
 			}
 		} else if (cmdID >= importCmdID &&
-			(cmdID < importCmdID + importMax)) {
+		           (cmdID < importCmdID + importMax)) {
 			if (CanMakeRoom()) {
 				ImportMenu(cmdID - importCmdID);
 			}
@@ -2242,9 +2245,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 			EnsureRangeVisible(notification->position, notification->position + notification->length);
 		}
 		break;
-                
+
 	case SCN_USERLISTSELECTION: {
-			if (notification->wParam==2)
+			if (notification->wParam == 2)
 				ContinueMacroList((char *)(notification->text));
 		}
 		break;
@@ -2252,7 +2255,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 	case SCN_MACRORECORD:
 		RecordMacroCommand(notification);
 		break;
-	
+
 	case SCN_URISDROPPED:
 		OpenUriList(notification->text);
 		break;
@@ -2347,14 +2350,14 @@ void SciTEBase::UIAvailable() {
  */
 char AfterName(const char *s) {
 	while (*s && ((*s == '.') ||
-		(*s >= 'a' && *s <= 'z') ||
-		(*s >= 'A' && *s <= 'A')))
+	              (*s >= 'a' && *s <= 'z') ||
+	              (*s >= 'A' && *s <= 'A')))
 		s++;
 	return *s;
 }
 
 void SciTEBase::PerformOne(const char *action) {
-	const char *arg=strchr(action, ':');
+	const char *arg = strchr(action, ':');
 	if (arg) {
 		arg++;
 		if (isprefix(action, "open:")) {
@@ -2364,10 +2367,10 @@ void SciTEBase::PerformOne(const char *action) {
 		} else if (isprefix(action, "property:")) {
 			PropertyFromDirector(arg);
 		} else if (isprefix(action, "goto:")) {
-			GotoLineEnsureVisible(atoi(arg)-1);
+			GotoLineEnsureVisible(atoi(arg) - 1);
 		} else if (isprefix(action, "find:")) {
 			strncpy(findWhat, arg, sizeof(findWhat));
-			findWhat[sizeof(findWhat)-1] = '\0';
+			findWhat[sizeof(findWhat) - 1] = '\0';
 			FindNext(false, false);
 		} else if (isprefix(action, "macrolist:")) {
 			StartMacroList((char *)arg);
@@ -2392,31 +2395,31 @@ void SciTEBase::EnumProperties(const char *propkind) {
 	char *key = NULL;
 	char *val = NULL;
 	PropSetFile *pf = NULL;
-	
-	if (!extender) 
-		return;
-	if (!strcmp(propkind,"dyn"))
+
+	if (!extender)
+		return ;
+	if (!strcmp(propkind, "dyn"))
 		pf = &props;
-	else if (!strcmp(propkind,"local"))
+	else if (!strcmp(propkind, "local"))
 		pf = &propsLocal;
-	else if (!strcmp(propkind,"user"))
+	else if (!strcmp(propkind, "user"))
 		pf = &propsUser;
-	else if (!strcmp(propkind,"base"))
+	else if (!strcmp(propkind, "base"))
 		pf = &propsBase;
-	else if (!strcmp(propkind,"embed"))
+	else if (!strcmp(propkind, "embed"))
 		pf = &propsEmbed;
 
 	if (pf != NULL) {
-		bool b = pf->GetFirst(&key,&val);	
+		bool b = pf->GetFirst(&key, &val);
 		while (b) {
-			SendOneProperty(propkind,key,val);
-			b = pf->GetNext(&key,&val);
+			SendOneProperty(propkind, key, val);
+			b = pf->GetNext(&key, &val);
 		}
 	}
 }
 
 void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *val) {
-	int keysize = strlen(kind)+1+strlen(key)+1+strlen(val)+1;
+	int keysize = strlen(kind) + 1 + strlen(key) + 1 + strlen(val) + 1;
 	char *m = new char[keysize];
 	if (m) {
 		strcpy(m, kind);
@@ -2432,9 +2435,9 @@ void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *v
 void SciTEBase::PropertyFromDirector(const char *arg) {
 	char *prop = StringDup(arg);
 	if (prop) {
-		char *equal = strchr(prop,'=');
+		char *equal = strchr(prop, '=');
 		*equal = '\0';
-		SetProperty(prop, equal+1);
+		SetProperty(prop, equal + 1);
 		delete []prop;
 	}
 }
@@ -2459,14 +2462,14 @@ bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
 		t = (char*)(notification->lParam);
 		if (t != NULL) {
 			//format : "<message>;<wParam>;1;<text>"
-			szMessage = new char[50+strlen(t)+4];
-			sprintf(szMessage,"%d;%ld;1;%s",notification->message,notification->wParam,t);
-		}else{
+			szMessage = new char[50 + strlen(t) + 4];
+			sprintf(szMessage, "%d;%ld;1;%s", notification->message, notification->wParam, t);
+		} else {
 			//format : "<message>;<wParam>;0;"
 			szMessage = new char[50];
-			sprintf(szMessage,"%d;%ld;0;",notification->message,notification->wParam);
+			sprintf(szMessage, "%d;%ld;0;", notification->message, notification->wParam);
 		}
-		handled = extender->OnMacro("macro:record",szMessage);
+		handled = extender->OnMacro("macro:record", szMessage);
 		delete []szMessage;
 		return handled;
 	}
@@ -2479,18 +2482,18 @@ bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
 void SciTEBase::StopRecordMacro() {
 	SendEditor(SCI_STOPRECORD);
 	if (extender)
-		extender->OnMacro("macro:stoprecord","");
-	recording=FALSE;
+		extender->OnMacro("macro:stoprecord", "");
+	recording = FALSE;
 	CheckMenus();
 }
 
 /*
-Menu/Toolbar command "Play macro..."  : tell director to build list of Macro names 
+Menu/Toolbar command "Play macro..."  : tell director to build list of Macro names
 Through this call, user has access to all macros in Filerx
 */
 void SciTEBase::AskMacroList() {
-	if (extender) 
-		extender->OnMacro("macro:getlist","");
+	if (extender)
+		extender->OnMacro("macro:getlist", "");
 }
 
 /*
@@ -2500,6 +2503,7 @@ bool SciTEBase::StartMacroList(char *words) {
 	if (words) {
 		SendEditorString(SCI_USERLISTSHOW, 2, words);//listtype=2
 	}
+
 	return true;
 
 }
@@ -2509,7 +2513,7 @@ User has chosen a macro in the list. Ask director to execute it
 */
 void SciTEBase::ContinueMacroList(char * stext) {
 	if ((extender) && (*stext != '\0')) {
-		strcpy(currentmacro,stext);
+		strcpy(currentmacro, stext);
 		StartPlayMacro();
 	}
 }
@@ -2518,8 +2522,8 @@ void SciTEBase::ContinueMacroList(char * stext) {
 Menu/Toolbar command "Play current macro" (or called from ContinueMacroList)
 */
 void SciTEBase::StartPlayMacro() {
-	if (extender) 
-		extender->OnMacro("macro:run",currentmacro);
+	if (extender)
+		extender->OnMacro("macro:run", currentmacro);
 }
 
 /*
@@ -2528,11 +2532,11 @@ If command needs answer (SCI_GETTEXTLENGTH ...) : give answer to director
 */
 
 static uptr_t readnum(char **t) {
-	char *argend = strchr(*t,';');	// find ';' 
+	char *argend = strchr(*t, ';');	// find ';'
 	*argend = '\0';					// replace by null
 	uptr_t v = atoi(*t);				// read value
-	*t = argend+1;					// update pointer
-	return(v);						// return value
+	*t = argend + 1;					// update pointer
+	return (v);						// return value
 }
 
 void SciTEBase::ExecuteMacroCommand(const char * command) {
@@ -2541,7 +2545,7 @@ void SciTEBase::ExecuteMacroCommand(const char * command) {
 	uptr_t wParam;
 	int rep = 0;				//Scintilla's answer
 	char response[100];
-	char *answercmd=NULL;
+	char *answercmd = NULL;
 	int alen = 0;
 	int l;
 	char *tbuff = NULL;
@@ -2549,66 +2553,73 @@ void SciTEBase::ExecuteMacroCommand(const char * command) {
 
 	// replace \v (vertical tabs) by \n .... Trick to transmit \n's in strings
 	char * p = (char *)command;
-	while ((p = strchr(p,'\v')) != NULL) 
-                *p = '\n';
+	while ((p = strchr(p, '\v')) != NULL)
+		* p = '\n';
 
 	//extract message,wParam : same format as in RecordMacroCommand
-	
+
 	message = readnum(&nextarg);
 	wParam = readnum(&nextarg);
 	lParamTyp = readnum(&nextarg);
 	//prepare for eventual answers
 
 	switch (message) {
-		case SCI_GETLENGTH:
-			answercmd = "sci_length"; break;
-		case SCI_GETLINECOUNT:
-			answercmd = "sci_linecount"; break;
-		case SCI_GETCURRENTPOS:
-			answercmd = "sci_currentpos"; break;
-		case SCI_GETSELECTIONSTART:
-			answercmd = "sci_selectionstart"; break;
-		case SCI_GETSELECTIONEND:
-			answercmd = "sci_selectionend"; break;
-		case SCI_GETCHARAT:
-			answercmd = "sci_charat"; break;
-		case SCI_GETSELTEXT:
-			answercmd = "sci_seltext:"; break;
-		case SCI_GETCURLINE:
-			answercmd = "sci_curline:"; break;
+	case SCI_GETLENGTH:
+		answercmd = "sci_length";
+		break;
+	case SCI_GETLINECOUNT:
+		answercmd = "sci_linecount";
+		break;
+	case SCI_GETCURRENTPOS:
+		answercmd = "sci_currentpos";
+		break;
+	case SCI_GETSELECTIONSTART:
+		answercmd = "sci_selectionstart";
+		break;
+	case SCI_GETSELECTIONEND:
+		answercmd = "sci_selectionend";
+		break;
+	case SCI_GETCHARAT:
+		answercmd = "sci_charat";
+		break;
+	case SCI_GETSELTEXT:
+		answercmd = "sci_seltext:";
+		break;
+	case SCI_GETCURLINE:
+		answercmd = "sci_curline:";
+		break;
 	}
 	if (answercmd != NULL)
 		alen = strlen(answercmd);
 
-
 	//Send Messages to Scintilla
-	if (message==SCI_GETSELTEXT) {
-		l = SendEditor(SCI_GETSELECTIONEND)-SendEditor(SCI_GETSELECTIONSTART);
-		tbuff = new char[l+alen+1];
-		strcpy(tbuff,answercmd);
+	if (message == SCI_GETSELTEXT) {
+		l = SendEditor(SCI_GETSELECTIONEND) - SendEditor(SCI_GETSELECTIONSTART);
+		tbuff = new char[l + alen + 1];
+		strcpy(tbuff, answercmd);
 		if (l != 0)
-			rep = SendEditor(SCI_GETSELTEXT,0,(long)(tbuff+alen));
+			rep = SendEditor(SCI_GETSELTEXT, 0, (long)(tbuff + alen));
 	} else if (message == SCI_GETCURLINE) {
-		int line = SendEditor(SCI_LINEFROMPOSITION,SendEditor(SCI_GETCURRENTPOS));
-		l = SendEditor(SCI_LINELENGTH,line);
-		tbuff = new char[l+alen+1];
+		int line = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
+		l = SendEditor(SCI_LINELENGTH, line);
+		tbuff = new char[l + alen + 1];
 		if (l != 0)
-			rep = SendEditor(SCI_GETCURLINE,l,(long)(tbuff+alen));
-	} else if (lParamTyp==1)		//lParam flag
-		rep = SendEditor(message,wParam,(long)readnum(&nextarg));  
-	else if (lParamTyp==2)		//lParam flag
-		rep = SendEditor(message,wParam,(long)nextarg);  
+			rep = SendEditor(SCI_GETCURLINE, l, (long)(tbuff + alen));
+	} else if (lParamTyp == 1)		//lParam flag
+		rep = SendEditor(message, wParam, (long)readnum(&nextarg));
+	else if (lParamTyp == 2)		//lParam flag
+		rep = SendEditor(message, wParam, (long)nextarg);
 	else
-		rep = SendEditor(message,wParam,0);
+		rep = SendEditor(message, wParam, 0);
 
 	// Prepare and send answers to director
 
 	if (answercmd != NULL) {
 		if (tbuff == NULL) {
-			sprintf(response,"%s:%i",answercmd,rep);
-			extender->OnMacro("macro:info",response);
+			sprintf(response, "%s:%i", answercmd, rep);
+			extender->OnMacro("macro:info", response);
 		} else {
-			extender->OnMacro("macro:info",tbuff);
+			extender->OnMacro("macro:info", tbuff);
 			delete []tbuff;
 		}
 	}
@@ -2630,7 +2641,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 	bool evaluate = phase == 0;
 	WordList wlArgs(true);
 	wlArgs.Set(args.c_str());
-	for (int i=0;i<wlArgs.len;i++) {
+	for (int i = 0;i < wlArgs.len;i++) {
 		char *arg = wlArgs[i];
 		if (IsSwitchCharacter(arg[0])) {
 			arg++;
@@ -2732,11 +2743,10 @@ void SciTEBase::ShutDown() {
 void SciTEBase::Perform(const char *actions) {
 	const char *nextAct;
 	while ((nextAct = strchr(actions, '\n')) != NULL) {
-		SString command(actions, 0, nextAct-actions);
+		SString command(actions, 0, nextAct - actions);
 		PerformOne(command.c_str());
 		actions = nextAct + 1;
 	}
 	PerformOne(actions);
 }
-
 
