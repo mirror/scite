@@ -82,8 +82,7 @@ bool FilePath::SameNameAs(const FilePath &other) const {
 }
 
 bool FilePath::IsUntitled() const {
-	const char *dirEnd = strrchr(fileName.c_str(), pathSepChar);
-	return !dirEnd || !dirEnd[1];
+	return IsUntitledFileName(fileName.c_str());
 }
 
 const char *FilePath::FullPath() const {
@@ -565,6 +564,18 @@ int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
 	}
 	SetDocumentAt(currentBuffer);
 	return choice;
+}
+
+void SciTEBase::SaveTitledBuffers() {
+	UpdateBuffersCurrent(); // Ensure isDirty copied
+	int currentBuffer = buffers.current;
+	for (int i = 0; i < buffers.length; i++) {
+		if (buffers.buffers[i].isDirty && !buffers.buffers[i].IsUntitled()) {
+			SetDocumentAt(i);
+			Save();
+		}
+	}
+	SetDocumentAt(currentBuffer);
 }
 
 void SciTEBase::Next() {

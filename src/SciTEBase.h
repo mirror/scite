@@ -647,6 +647,7 @@ protected:
 	virtual void QuitProgram() = 0;
 	void CloseAllBuffers(bool loadingSession = false);
 	int SaveAllBuffers(bool forceQuestion, bool alwaysYes=false);
+	void SaveTitledBuffers();
 	virtual void CopyAsRTF() {};
 	void SetLineNumberWidth();
 	void MenuCommand(int cmdID, int source=0);

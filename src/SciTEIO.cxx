@@ -678,11 +678,8 @@ void SciTEBase::Activate(bool activeApp) {
 	if (activeApp) {
 		CheckReload();
 	} else {
-		if (isDirty) {
-			if (props.GetInt("save.on.deactivate") && fileName[0]) {
-				// Trying to save at deactivation when no file name -> dialogs
-				Save();
-			}
+		if (props.GetInt("save.on.deactivate")) {
+			SaveTitledBuffers();
 		}
 	}
 }
