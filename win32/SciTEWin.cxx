@@ -531,6 +531,8 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 			}
 			strcat(longPath, tok);
 
+			bool isDir= false;
+
 			for(;;) {
 				WIN32_FIND_DATA fd;
 				HANDLE hfind;
@@ -543,20 +545,25 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 				strcat(longPath, "\\");
 				tokend= longPath + strlen(longPath);
 
-				// temporaray add short componenet
+				// temporary add short component
 				strcpy(tokend, tok);
 
 				hfind= FindFirstFile(longPath, &fd);
 				if (hfind == INVALID_HANDLE_VALUE)
 					break;
 
+				isDir= (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
 				// finally add long component we got
 				strcpy(tokend, fd.cFileName);
 
 				FindClose(hfind);
 			}
-
 			ok= tok == NULL;
+
+			if (ok && isDir)
+				strcat(longPath, "\\");
+
 			break;
 		}
 	}
