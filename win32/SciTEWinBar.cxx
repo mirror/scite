@@ -11,7 +11,8 @@
  * Update the status bar text.
  */
 void SciTEWin::SetStatusBarText(const char *s) {
-	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), SB_SETTEXT, 1, reinterpret_cast<LPARAM>(s));
+	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
+		SB_SETTEXT, 0, reinterpret_cast<LPARAM>(s));
 }
 
 #ifdef __MINGW_H	
@@ -50,7 +51,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 			// Click on the status bar
 			NMMOUSE *pNMMouse = (NMMOUSE *)notification;
 			switch (pNMMouse->dwItemSpec) {
-			case 1:		/* Display of status */
+			case 0:		/* Display of status */
 				sbNum++;
 				if (sbNum > props.GetInt("statusbar.number")) {
 					sbNum = 1;
@@ -213,7 +214,7 @@ void SciTEWin::SizeSubWindows() {
 
 	if (showTab) {
 		int tabNb = ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_GETROWCOUNT, 0, 0);
-		visHeightTab = tabNb * heightTab;
+		visHeightTab = ((tabNb-1) * (heightTab-6)) + heightTab;
 	} else {
 		visHeightTab = 0;
 	}
@@ -227,17 +228,17 @@ void SciTEWin::SizeSubWindows() {
 	}
 	if (tbVisible) {
 		wToolBar.SetPosition(PRectangle(
-		                         rcClient.left, rcClient.top, rcClient.Width(), visHeightTools));
+			 rcClient.left, rcClient.top, rcClient.right, visHeightTools));
 		wToolBar.Show(true);
 	} else {
 		wToolBar.Show(false);
 		wToolBar.SetPosition(PRectangle(
-		                         rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
+			 rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
 	}
 	if (showTab) {
 		wTabBar.SetPosition(PRectangle(
-		                        rcClient.left, rcClient.top + visHeightTools,
-		                        rcClient.Width(), visHeightTab + visHeightTools));
+			rcClient.left, rcClient.top + visHeightTools,
+			rcClient.right, rcClient.top + visHeightTab + visHeightTools));
 		wTabBar.Show(true);
 	} else {
 		wTabBar.Show(false);
@@ -246,25 +247,10 @@ void SciTEWin::SizeSubWindows() {
 		                        rcClient.Width(), 1));
 	}
 	if (sbVisible) {
-		int spw = props.GetInt("statusbar.size");
-		if (spw <= 0) {
-			spw = statusPosWidth;
-		}
-		int startLineNum = rcClient.Width() - spw;
-		if (startLineNum < 0)
-			startLineNum = 0;
-		int widths[] = { startLineNum, rcClient.Width() };
-		// Perhaps we can define a syntax to create more parts,
-		// but it is probably an overkill for a marginal feature
-		::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
-		              SB_SETPARTS, 2,
-		              reinterpret_cast<LPARAM>(widths));
-		::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
-		              SB_SETTEXT, 0 | SBT_NOBORDERS,
-		              reinterpret_cast<LPARAM>(""));
-		wStatusBar.SetPosition(PRectangle(rcClient.left,
-		                                  rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
-		                                  rcClient.Width(), visHeightStatus));
+		wStatusBar.SetPosition(PRectangle(
+			rcClient.left, rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
+			rcClient.right, 
+			rcClient.top + visHeightTools + visHeightTab + visHeightEditor + visHeightStatus));
 		wStatusBar.Show(true);
 	} else {
 		wStatusBar.Show(false);
@@ -272,8 +258,10 @@ void SciTEWin::SizeSubWindows() {
 		                           rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
 	}
 
-	wContent.SetPosition(PRectangle(rcClient.left, visHeightTools + visHeightTab, rcClient.Width(),
-	                                visHeightTools + visHeightTab + visHeightEditor));
+	wContent.SetPosition(PRectangle(
+		rcClient.left, rcClient.top + visHeightTab + visHeightTools, 
+		rcClient.right,
+	        rcClient.top + visHeightTab + visHeightTools + visHeightEditor));
 	SizeContentWindows();
 	//::SendMessage(MainHWND(), WM_SETREDRAW, true, 0);
 	//::RedrawWindow(MainHWND(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
@@ -535,7 +523,6 @@ void SciTEWin::Creation() {
 	}
 
 	::SendMessage(hwndToolBar, TB_ADDBUTTONS, ELEMENTS(bbs), reinterpret_cast<LPARAM>(tbb));
-	::SendMessage(hwndToolBar, TB_AUTOSIZE, 0, 0);
 
 	wToolBar.Show();
 
@@ -575,7 +562,7 @@ void SciTEWin::Creation() {
 	                 0,
 	                 STATUSCLASSNAME,
 	                 "",
-	                 WS_CHILD | WS_CLIPSIBLINGS,
+	                 WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPSIBLINGS,
 	                 0, 0,
 	                 100, heightStatus,
 	                 MainHWND(),
@@ -583,5 +570,11 @@ void SciTEWin::Creation() {
 	                 hInstance,
 	                 0);
 	wStatusBar.Show();
+	int widths[] = { 4000 };
+	// Perhaps we can define a syntax to create more parts,
+	// but it is probably an overkill for a marginal feature
+	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
+		      SB_SETPARTS, 1,
+		      reinterpret_cast<LPARAM>(widths));
 }
 
