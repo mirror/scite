@@ -91,8 +91,8 @@ const char propAbbrevFileName[] = "abbrev.properties";
 #define PROPERTIES_EXTENSION	".properties"
 
 static bool IsPropertiesFile(char *filename) {
-	int nameLen = strlen(filename);
-	int propLen = strlen(PROPERTIES_EXTENSION);
+	size_t nameLen = strlen(filename);
+	size_t propLen = strlen(PROPERTIES_EXTENSION);
 	if (nameLen <= propLen)
 		return false;
 	if (EqualCaseInsensitive(filename + nameLen - propLen, PROPERTIES_EXTENSION))
@@ -337,7 +337,7 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 			fileModLastAsk = fileModTime;
 			SendEditor(SCI_CLEARALL);
 			char data[blockSize];
-			int lenFile = fread(data, 1, sizeof(data), fp);
+			size_t lenFile = fread(data, 1, sizeof(data), fp);
 			while (lenFile > 0) {
 				SendEditorString(SCI_ADDTEXT, lenFile, data);
 				lenFile = fread(data, 1, sizeof(data), fp);

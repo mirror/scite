@@ -141,8 +141,8 @@ const char *contributors[] = {
 // AddStyledText only called from About so static size buffer is OK
 void AddStyledText(WindowID hwnd, const char *s, int attr) {
 	char buf[1000];
-	int len = strlen(s);
-	for (int i = 0; i < len; i++) {
+	size_t len = strlen(s);
+	for (size_t i = 0; i < len; i++) {
 		buf[i*2] = s[i];
 		buf[i*2 + 1] = static_cast<char>(attr);
 	}
@@ -858,7 +858,7 @@ void SciTEBase::RangeExtendAndGrab(
 	}
 	// Change whole line selected but normally end of line characters not wanted.
 	// Remove possible terminating \r, \n, or \r\n.
-	int sellen = strlen(sel);
+	size_t sellen = strlen(sel);
 	if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] == '\n')) {
 		if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] == '\n')) {
 			sel[sellen - 2] = '\0';
@@ -1108,7 +1108,7 @@ unsigned int UnSlashLowOctal(char *s) {
 
 static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 	char *sUnslashed = StringDup(s.c_str());
-	int len;
+	size_t len;
 	if (escapes) {
 		if (regularExpression) {
 			// For regular expressions only escape sequences allowed start with \0
@@ -1630,7 +1630,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		}
 		ft.chrg.cpMin = posFind + wordlen;
 	}
-	int length = wordsNear.length();
+	size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > rootlen))) {
 		WordList wl;
 		wl.Set(wordsNear.c_str());
@@ -1659,7 +1659,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	linebuf[current] = '\0';
 	const char *abbrev = linebuf + startword;
 	SString data = propsAbbrev.Get(abbrev);
-	int dataLength = data.length();
+	size_t dataLength = data.length();
 	if (dataLength == 0) {
 		return true; // returning if expanded abbreviation is empty
 	}
@@ -1667,7 +1667,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	char expbuf[1000];
 	strcpy(expbuf, data.c_str());
 	UnSlash(expbuf);
-	int expbuflen = strlen(expbuf);
+	size_t expbuflen = strlen(expbuf);
 	int caret_pos = -1; // caret position
 	int currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
@@ -1678,7 +1678,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	SendEditor(SCI_SETSEL, position - counter, position);
 
 	//add the abbreviation a character at a time
-	for (int i = 0; i < expbuflen; i++) {
+	for (size_t i = 0; i < expbuflen; i++) {
 		char c = expbuf[i];
 		SString abbrevText("");
 		switch (c) {
@@ -1729,18 +1729,19 @@ bool SciTEBase::StartBlockComment() {
 	comment += " ";
 	SString long_comment = comment;
 	char linebuf[1000];
-	int comment_length = comment.length();
-	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
-	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
-	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
+	size_t comment_length = comment.length();
+	size_t selectionStart = SendEditor(SCI_GETSELECTIONSTART);
+	size_t selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+	size_t caretPosition = SendEditor(SCI_GETCURRENTPOS);
 	// checking if caret is located in _beginning_ of selected block
 	bool move_caret = caretPosition < selectionEnd;
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
-	int firstSelLineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
+	size_t firstSelLineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
 	// "caret return" is part of the last selected line
-	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine))
+	if ((lines > 0) && 
+		(selectionEnd == static_cast<size_t>(SendEditor(SCI_POSITIONFROMLINE, selEndLine))))
 		selEndLine--;
 	SendEditor(SCI_BEGINUNDOACTION);
 	for (int i = selStartLine; i <= selEndLine; i++) {
@@ -1828,18 +1829,19 @@ bool SciTEBase::StartBoxComment() {
 	middle_comment += white_space;
 	white_space += end_comment;
 	end_comment = white_space;
-	int start_comment_length = start_comment.length();
-	int middle_comment_length = middle_comment.length();
-	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
-	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
-	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
+	size_t start_comment_length = start_comment.length();
+	size_t middle_comment_length = middle_comment.length();
+	size_t selectionStart = SendEditor(SCI_GETSELECTIONSTART);
+	size_t selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+	size_t caretPosition = SendEditor(SCI_GETCURRENTPOS);
 	// checking if caret is located in _beginning_ of selected block
 	bool move_caret = caretPosition < selectionEnd;
-	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
-	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
-	int lines = selEndLine - selStartLine;
+	size_t selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
+	size_t selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
+	size_t lines = selEndLine - selStartLine;
 	// "caret return" is part of the last selected line
-	if (lines > 0 && selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine)) {
+	if ((lines > 0) && (
+		selectionEnd == static_cast<size_t>(SendEditor(SCI_POSITIONFROMLINE, selEndLine)))) {
 		selEndLine--;
 		lines--;
 		// get rid of CRLF problems
@@ -1851,7 +1853,7 @@ bool SciTEBase::StartBoxComment() {
 	SendEditorString(SCI_INSERTTEXT, lineStart, start_comment.c_str());
 	selectionStart += start_comment_length;
 	// lines between first and last commented lines (middle_comment)
-	for (int i = selStartLine + 1; i <= selEndLine; i++) {
+	for (size_t i = selStartLine + 1; i <= selEndLine; i++) {
 		lineStart = SendEditor(SCI_POSITIONFROMLINE, i);
 		SendEditorString(SCI_INSERTTEXT, lineStart, middle_comment.c_str());
 		selectionEnd += middle_comment_length;
@@ -1899,10 +1901,10 @@ bool SciTEBase::StartStreamComment() {
 	start_comment += white_space;
 	white_space += end_comment;
 	end_comment = white_space;
-	int start_comment_length = start_comment.length();
-	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
-	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
-	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
+	size_t start_comment_length = start_comment.length();
+	size_t selectionStart = SendEditor(SCI_GETSELECTIONSTART);
+	size_t selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+	size_t caretPosition = SendEditor(SCI_GETCURRENTPOS);
 	// checking if caret is located in _beginning_ of selected block
 	bool move_caret = caretPosition < selectionEnd;
 	// if there is no selection?
@@ -2175,11 +2177,11 @@ static bool includes(const StyleAndWords &symbols, const SString value) {
 		return false;
 	} else if (IsAlphabetic(symbols.words[0])) {
 		// Set of symbols separated by spaces
-		int lenVal = value.length();
+		size_t lenVal = value.length();
 		const char *symbol = symbols.words.c_str();
 		while (symbol) {
 			const char *symbolEnd = strchr(symbol, ' ');
-			int lenSymbol = strlen(symbol);
+			size_t lenSymbol = strlen(symbol);
 			if (symbolEnd)
 				lenSymbol = symbolEnd - symbol;
 			if (lenSymbol == lenVal) {
@@ -3636,7 +3638,7 @@ void SciTEBase::EnumProperties(const char *propkind) {
 }
 
 void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *val) {
-	int keysize = strlen(kind) + 1 + strlen(key) + 1 + strlen(val) + 1;
+	size_t keysize = strlen(kind) + 1 + strlen(key) + 1 + strlen(val) + 1;
 	char *m = new char[keysize];
 	if (m) {
 		strcpy(m, kind);
@@ -3824,7 +3826,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 		l = 30;
 	}
 
-	int alen = strlen(answercmd);
+	size_t alen = strlen(answercmd);
 	char *tbuff = new char[l + alen + 1];
 	strcpy(tbuff, answercmd);
 	if (*params == 'S')

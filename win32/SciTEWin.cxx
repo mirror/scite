@@ -772,7 +772,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 			myparams = mycmd_end;
 	}
 
-	DWORD rc = reinterpret_cast<DWORD>(
+	uptr_t rc = reinterpret_cast<uptr_t>(
 	               ::ShellExecute(
 	                   MainHWND(),         // parent wnd for msgboxes during app start
 	                   NULL,          // cmd is open
@@ -890,7 +890,7 @@ void SciTEWin::CreateUI() {
 		height = CW_USEDEFAULT;
 	}
 	if (props.GetInt("position.tile") && ::FindWindow("SciTEWindow", NULL) &&
-		left != CW_USEDEFAULT) {
+		(left != static_cast<int>(CW_USEDEFAULT))) {
 		left += width;
 	}
 	wSciTE = ::CreateWindowEx(
@@ -1070,12 +1070,12 @@ void SciTEWin::Run(const char *cmdLine) {
 					*temp = '/';
 				}
 			}
-			cds.cbData = strlen(cwdCmd) + 1;
+			cds.cbData = static_cast<DWORD>(strlen(cwdCmd) + 1);
 			cds.lpData = static_cast<void *>(cwdCmd);
 			::SendMessage(hOtherWindow, WM_COPYDATA, 0,
 			              reinterpret_cast<LPARAM>(&cds));
 			// now the commandline itself.
-			cds.cbData = strlen(cmdLine) + 1;
+			cds.cbData = static_cast<DWORD>(strlen(cmdLine) + 1);
 			cds.lpData = static_cast<void *>(const_cast<char *>(cmdLine));
 			::SendMessage(hOtherWindow, WM_COPYDATA, 0,
 			              reinterpret_cast<LPARAM>(&cds));
@@ -1437,7 +1437,7 @@ LRESULT PASCAL SciTEWin::TWndProc(
 	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
 
 	// Find C++ object associated with window.
-	SciTEWin *scite = reinterpret_cast<SciTEWin *>(GetWindowLong(hWnd, 0));
+	SciTEWin *scite = reinterpret_cast<SciTEWin *>(::GetWindowLong(hWnd, 0));
 	// scite will be zero if WM_CREATE not seen yet
 	if (scite == 0) {
 		if (iMessage == WM_CREATE) {
@@ -1531,7 +1531,7 @@ LRESULT PASCAL SciTEWin::IWndProc(
 	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
 
 	// Find C++ object associated with window.
-	SciTEWin *scite = reinterpret_cast<SciTEWin *>(GetWindowLong(hWnd, 0));
+	SciTEWin *scite = reinterpret_cast<SciTEWin *>(::GetWindowLong(hWnd, 0));
 	// scite will be zero if WM_CREATE not seen yet
 	if (scite == 0) {
 		if (iMessage == WM_CREATE) {

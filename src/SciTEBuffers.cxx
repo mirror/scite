@@ -264,7 +264,7 @@ void SciTEBase::InitialiseBuffers() {
 }
 
 static void EnsureEndsWithPathSeparator(char *path) {
-	int pathLen = strlen(path);
+	size_t pathLen = strlen(path);
 	if ((pathLen > 0) && path[pathLen - 1] != pathSepChar) {
 		strcat(path, pathSepString);
 	}
@@ -965,12 +965,13 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			// Lua error look like: last token read: `result' at line 40 in file `Test.lua'
 			char *idLine = "at line ";
 			char *idFile = "file ";
-			int lenLine = strlen(idLine), lenFile = strlen(idFile);
+			size_t lenLine = strlen(idLine);
+			size_t lenFile = strlen(idFile);
 			char *line = strstr(cdoc, idLine);
 			char *file = strstr(cdoc, idFile);
 			if (line && file) {
 				char *quote = strstr(file, "'");
-				int length = quote - (file + lenFile + 1);
+				size_t length = quote - (file + lenFile + 1);
 				if (quote && length > 0) {
 					strncpy(sourcePath, file + lenFile + 1, length);
 					sourcePath[length] = '\0';

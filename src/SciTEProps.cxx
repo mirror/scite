@@ -236,7 +236,7 @@ void SciTEBase::ReadAbbrevPropFile() {
 }
 
 void ChopTerminalSlash(char *path) {
-	int endOfPath = strlen(path) - 1;
+	size_t endOfPath = strlen(path) - 1;
 	if (path[endOfPath] == pathSepChar) {
 		path[endOfPath] = '\0';
 	}
@@ -513,7 +513,7 @@ static int FileLength(const char *path) {
 void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 	SString apisFileNames = props.GetNewExpand("api.",
 	                        fileNameForExtension.c_str());
-	int nameLength = apisFileNames.length();
+	size_t nameLength = apisFileNames.length();
 	if (nameLength) {
 		apisFileNames.substitute(';', '\0');
 		const char *apiFileName = apisFileNames.c_str();
