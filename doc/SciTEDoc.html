@@ -367,7 +367,7 @@ NameError: mistake
        Folding
     </h3>
     <p>
-       SciTE supports folding for Python and C++/C/Java/Javascript. 
+       SciTE supports folding for Python and C++/C/Java/JavaScript. 
        Fold points are based upon indentation for Python and on counting braces 
        for the other languages. The fold point markers can be clicked to 
        expand and contract folds. Ctrl+Shift+Click in the fold margin
@@ -1199,6 +1199,52 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+	print.margins
+        </td>
+        <td>
+	Specify the default margins on the printer on Windows in left right top bottom order.
+	Units depends on your locale, either hundredths of millimeters or thousandths
+	of inches. You can see which units by the units used in the page setup dialog.
+	This property is only read at start up.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	print.header.format<br />
+	print.footer.format
+        </td>
+        <td>
+	These settings determine what will be printed if anything as headers and
+	footers. There are a set of variables that can be substituted into the strings.<br />
+	<code>
+	&amp;&amp; = &amp;<br /> 
+	&amp;p = current page<br />
+	&amp;f = file name<br />
+	&amp;F = full path<br />
+	&amp;d = file date<br />
+	&amp;D = current date<br />
+	&amp;t = file time<br />
+	&amp;T = full time
+	</code><br />
+	So a header setting may look like:<br />
+	<code>
+	print.header.format=&amp;f - Printed on &amp;D, &amp;T - Page &amp;p
+	</code><br />
+        </td>
+      </tr>
+      <tr>
+        <td>
+	print.header.style<br />
+	print.footer.style
+        </td>
+        <td>
+	These settings determine the style of the header and footer using the same
+	format as other styles in SciTE. Only the font, size, and bold and italics 
+	attributes are supported.
+        </td>
+      </tr>
+      <tr>
+        <td>
 	export.html.wysiwyg<br />
 	export.html.tabs
         </td>
@@ -1333,18 +1379,29 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-	  warning.sound<br />
-	  warning.flash
+	  warning.findwrapped<br />
+	  warning.wrongfile<br />
+	  warning.executeok<br />
+	  warning.executeko<br />
+	  warning.nootherbookmark
         </td>
         <td>
         	Allows for sounds to be played and the window to be flashed
-	on Windows when particular events occur. The warning.sound
-	value is the length in milliseconds for warning sounds to play. 
-	The warning.flash value is the duration to hide the window 
-	when a warning occurs.
-		Chooses the behaviour of the Home and Shift+Home keys. 1, the default is like 
-	Visual C++ moving the caret to the end of then line indentation unless already 
-	there, in which case it moves to the start of the line. 0 moves to the start of the line.
+	on Windows when particular events occur. 
+	The values consist of three items separated by ',': flash duration, sound 
+	and sound duration. If sound is a number then it is treated as a pitch and 
+	played for the duration in milliseconds. 
+	Otherwise it is treated as a path to a sound file 
+	that is played. If you do not want a flash, specify 0 for flash duration.
+	For example,<br />
+	<code>
+	warning.wrongfile=0,C:\Windows\Media\SFX\Glass.wav
+	</code><br />
+	will play the glass sound if open selected is given a bad file name.
+	The findwrapped warning occurs when a find operation wraps past 
+	either end of the file, executeok when a command such as build 
+	executes successfully, executeko when a command fails, and 
+	nootherbookmark when there is no bookmark to find.
         </td>
       </tr>
       <tr>
