@@ -1410,7 +1410,7 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
       <tr>
         <td>
           find.command<br />
-	  find.input
+	  <span class="windowsonly">find.input</span>
         </td>
         <td>
           The Find in Files command works in a similar way to the building commands executing a
@@ -1725,7 +1725,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	command.<i>number</i>.<i>filepattern</i><br />
           command.is.filter.<i>number</i>.<i>filepattern</i><br />
           command.subsystem.<i>number</i>.<i>filepattern</i><br />
-          command.input.<i>number</i>.<i>filepattern</i>
+          <span class="windowsonly">command.input.<i>number</i>.<i>filepattern</i></span>
         </td>
         <td>
           Extra commands can be added to the Tools menu. For example to include the 'astyle'
@@ -1747,12 +1747,15 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	4 for running HtmlHelp on Windows, and 5 for running WinHelp on Windows.
 	When using subsystem 4 or 5, the command has two parts separated by ! with the first
 	part being the topic to search for and the second the name of the help file.<br />
-        
-	The optional command.input property specifies text that will be piped to the command.
-	This may reference other properties; for example, <code>command.input.0.*.cc=$(CurrentSelection)</code>
-	would pipe the current selection to to the command processes.  The command.input property is
-	only supported for subsystem 0 (command line programs).<br />
-        
+
+	On Windows, the optional command.input property specifies text that will be piped
+	to the command.
+	This may reference other properties; for example,
+	<code>command.input.0.*.cc=$(CurrentSelection)</code>
+	would pipe the current selection to the command processes.
+	The command.input property is only supported for subsystem 0
+	(command line programs).<br />
+
 	If the text of a command starts with '*' then the Parameters dialog is displayed to
 	prompt for parameters before executing the command. The initial '*' is not included
 	in the command that is executed.
