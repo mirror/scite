@@ -200,6 +200,8 @@ protected:
 	static void MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *w);
 	static void CommandSignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
 	static void NotifySignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
+	static gint KeyPress(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
+	gint Key(GdkEventKey *event);
 
 	void DividerXOR(Point pt);
 	static gint DividerExpose(GtkWidget *widget, GdkEventExpose *ose, SciTEGTK *scitew);
@@ -488,44 +490,7 @@ void SciTEGTK::UpdateStatusBar() {
 }
 
 void SciTEGTK::Notify(SCNotification *notification) {
-	switch (notification->nmhdr.code) {
-	case SCN_KEY:
-		{
-#ifdef DIRECTKEYNOTIFICATIONS
-			int mods = 0;
-			if (notification->modifiers & SCMOD_SHIFT)
-				mods |= GDK_SHIFT_MASK;
-			if (notification->modifiers & SCMOD_CTRL)
-				mods |= GDK_CONTROL_MASK;
-			if (notification->modifiers & SCMOD_ALT)
-				mods |= GDK_MOD1_MASK;
-			//Platform::DebugPrintf("SCN_KEY: %d %d\n", notification->ch, mods);
-			// Some accelerators can not work through the normal mechanism
-			if ((mods == GDK_CONTROL_MASK) && (notification->ch == SCK_TAB)) {
-				Command(IDM_NEXTFILE);
-			} else if ((mods == GDK_CONTROL_MASK) && (notification->ch == SCK_RETURN)) {
-				Command(IDM_COMPLETEWORD);
-			} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK) && (notification->ch == SCK_TAB)) {
-				Command(IDM_PREVFILE);
-			} else if ((mods == GDK_SHIFT_MASK) && (notification->ch == GDK_F3)) {
-				Command(IDM_FINDNEXTBACK);
-			} else if ((mods == GDK_CONTROL_MASK) && (notification->ch == GDK_F3)) {
-				Command(IDM_FINDNEXTSEL);
-			} else if ((mods == (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) && (notification->ch == GDK_F3)) {
-				Command(IDM_FINDNEXTBACKSEL);
-			} else {
-				gtk_accel_group_activate(accelGroup, notification->ch,
-				                         static_cast<GdkModifierType>(mods));
-			}
-#endif 
-		}
-		break;
-
-	default:
-		SciTEBase::Notify(notification);
-		break;
-
-	}
+	SciTEBase::Notify(notification);
 }
 
 void SciTEGTK::ShowToolBar() {
@@ -1517,6 +1482,28 @@ void SciTEGTK::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciTE
 	scitew->Notify(reinterpret_cast<SCNotification *>(lParam));
 }
 
+gint SciTEGTK::KeyPress(GtkWidget */*widget*/, GdkEventKey *event, SciTEGTK *scitew) {
+	return scitew->Key(event);
+}
+
+gint SciTEGTK::Key(GdkEventKey *event) {
+//printf("S-key: %d %x %x %x %x\n",event->keyval, event->state, GDK_SHIFT_MASK, GDK_CONTROL_MASK, GDK_F3);
+	int mods = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK);
+	int key = event->keyval;
+	if ((mods == GDK_CONTROL_MASK) && (key == GDK_ISO_Left_Tab)) {
+		Command(IDM_NEXTFILE);
+	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_KP_Enter)) {
+		Command(IDM_COMPLETEWORD);
+	} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK) && (key == GDK_ISO_Left_Tab)) {
+		Command(IDM_PREVFILE);
+	} else if ((mods == GDK_CONTROL_MASK) && (key == GDK_F3)) {
+		Command(IDM_FINDNEXTSEL);
+	} else if ((mods == (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) && (key == GDK_F3)) {
+		Command(IDM_FINDNEXTBACKSEL);
+	}
+	return 0;
+}
+
 void SciTEGTK::DividerXOR(Point pt) {
 	if (!xor_gc) {
 		GdkGCValues values;
@@ -2082,6 +2069,9 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "delete_event",
 	                   GTK_SIGNAL_FUNC(QuitSignal), gthis);
 
+	gtk_signal_connect(GTK_OBJECT(wSciTE.GetID()), "key_press_event",
+			GtkSignalFunc(KeyPress), gthis);
+	
 	gtk_window_set_title(GTK_WINDOW(wSciTE.GetID()), appName);
 	int left = props.GetInt("position.left", 10);
 	int top = props.GetInt("position.top", 30);
