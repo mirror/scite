@@ -355,7 +355,7 @@ void SciTEBase::LoadSession(const char *sessionName) {
 		return;
 	// comment next line if you don't want to close all buffers before loading session
 	CloseAllBuffers();
-	for (int i = 0; i < fileStackMax; i++) {
+	for (int i = 0; i < bufferMax; i++) {
 		if (!fgets (line, sizeof (line), sessionFile))
 			break;
 		line[strlen (line) - 1] = '\0';
