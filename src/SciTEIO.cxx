@@ -494,18 +494,17 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine,
 	ReadProperties();
 	SetIndentSettings();
 	UpdateBuffersCurrent();
-	if (tabVisible)	// Update tab visibility if the hide one mode is on
-		SizeSubWindows();
+	SizeSubWindows();
 
 	if (initialCmdLine) {
 		if (props.GetInt("save.recent", 0))
 			LoadRecentMenu();
 	}
 	if (initialCmdLine && props.GetInt("buffers") && !fileName[0]) {
-    if (props.GetInt("save.session", 0)) {
+		if (props.GetInt("save.session", 0)) {
 			LoadSession("");
-      return TRUE;
-    }
+			return TRUE;
+		}
 	}
 	if (fileName[0]) {
 		SendEditor(SCI_SETREADONLY, 0);
