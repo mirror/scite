@@ -729,7 +729,6 @@ void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
 	Platform::SendScintilla(win.GetID(), EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
 }
 
-
 void SciTEBase::Colourise(int start, int end, bool editor) {
 	//DWORD dwStart = timeGetTime();
 	Window &win = editor ? wEditor : wOutput;
@@ -743,11 +742,12 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 	int styleStart = 0;
 	if (start > 0)
 		styleStart = styler.StyleAt(start - 1);
-
+	styler.SetCodePage(codePage);
+	
 	if (editor) {
-		ColouriseDoc(codePage, start, len, styleStart, lexLanguage, keyWordLists, styler);
+		LexerModule::Colourise(start, len, styleStart, lexLanguage, keyWordLists, styler);
 	} else {
-		ColouriseDoc(codePage, start, len, 0, SCLEX_ERRORLIST, 0, styler);
+		LexerModule::Colourise(start, len, 0, SCLEX_ERRORLIST, 0, styler);
 	}
 	styler.Flush();
 	//DWORD dwEnd = timeGetTime();
@@ -1247,7 +1247,7 @@ void SciTEBase::SetSelection(int anchor, int currentPos) {
 	SendEditor(EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&crange));
 }
 
-static bool iswordchar(char ch) {
+static bool iswordcharforsel(char ch) {
 	return isalnum(ch) || ch == '_';
 }
 
@@ -1272,10 +1272,10 @@ void SciTEBase::SelectionIntoFind() {
 	if (selStart == selEnd) {
 		Accessor acc(wEditor.GetID(), props);
 		// Try and find a word at the caret
-		if (iswordchar(acc[selStart])) {
-			while ((selStart > 0) && (iswordchar(acc[selStart - 1])))
+		if (iswordcharforsel(acc[selStart])) {
+			while ((selStart > 0) && (iswordcharforsel(acc[selStart - 1])))
 				selStart--;
-			while ((selEnd < lengthDoc - 1) && (iswordchar(acc[selEnd + 1])))
+			while ((selEnd < lengthDoc - 1) && (iswordcharforsel(acc[selEnd + 1])))
 				selEnd++;
 			if (selStart < selEnd)
 				selEnd++;   	// Because normal selections end one past
@@ -2197,10 +2197,6 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 	if ((modifiers & SHIFT_PRESSED) && (modifiers & LEFT_CTRL_PRESSED)) {
 		FoldAll();
 	} else if (SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG) {
-		// Colourise the whole document so will be able to find all descendents
-		// TODO: minimise colourisation to just those lines needed for margin click
-		Colourise();
-		
 		if (modifiers & SHIFT_PRESSED) {
 			SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
 			Expand(lineClick, true, true, 1);
