@@ -165,7 +165,7 @@
 				RelativePath="..\src\Exporters.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\win32\ExternalLexer.cxx">
+				RelativePath="..\..\scintilla\src\ExternalLexer.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\Indicator.cxx">
