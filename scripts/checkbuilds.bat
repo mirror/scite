@@ -73,6 +73,7 @@ cd scintilla\gtk
 nmake -f scintilla.mak
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
+call scite\scripts\clearboth
 goto CLEANUP
 :ERROR
 @echo checkbuilds.bat:1: Failed %ERRORLEVEL%
