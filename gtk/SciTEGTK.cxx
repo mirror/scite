@@ -867,7 +867,7 @@ void SciTEGTK::SaveAsPDF() {
 }
 
 void SciTEGTK::SaveAsTEX() {
-	SaveAsXXX(sfTEX, "Export File As TEX");
+	SaveAsXXX(sfTEX, "Export File As TeX");
 }
 
 void SciTEGTK::Print() {
@@ -2104,7 +2104,7 @@ void SciTEGTK::CreateMenu() {
 	    {"/File/Export/As _HTML...", NULL, menuSig, IDM_SAVEASHTML, 0},
 	    {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},
 	    //{"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
-	    {"/File/Export/As _TEX...", NULL, menuSig, IDM_SAVEASTEX, 0},
+	    {"/File/Export/As _TeX...", NULL, menuSig, IDM_SAVEASTEX, 0},
 	    {"/File/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
 	    {"/File/File1", "", menuSig, fileStackCmdID + 1, 0},

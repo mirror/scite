@@ -327,8 +327,8 @@ void SciTEWin::SaveAsPDF() {
 }
 
 void SciTEWin::SaveAsTEX() {
-	SString path = ChooseSaveName("Export File As TEX", 
-		"TEX (.tex)\0*.tex\0", ".tex");
+	SString path = ChooseSaveName("Export File As TeX", 
+		"TeX (.tex)\0*.tex\0", ".tex");
 	if (path.length()) {
 		SaveToTEX(path.c_str());
 	}
