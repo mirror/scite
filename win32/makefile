@@ -27,7 +27,7 @@ CXXFLAGS = -W -Wall -pedantic $(INCLUDEDIRS) -Os -fno-exceptions -fvtable-thunks
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
 LEXOBJS	=  LexCPP.o LexHTML.o LexOthers.o LexPerl.o LexPython.o LexSQL.o LexVB.o
-OBJS	= SciTEBase.o SciTEWin.o WindowAccessor.o PropSet.o PlatWin.o SciTERes.o
+OBJS	= SciTEBase.o SciTEWin.o WindowAccessor.o PropSet.o PlatWin.o UniConversion.o SciTERes.o
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
@@ -50,7 +50,7 @@ $(PROG): $(OBJS)
 
 OBJSSTATIC = Sc1.o SciTEBase.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
 	WindowAccessor.o DocumentAccessor.o KeyWords.o $(LEXOBJS) PropSet.o \
-	ContractionState.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
+	ContractionState.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o UniConversion.o \
 	KeyMap.o Indicator.o LineMarker.o Style.o ViewStyle.o AutoComplete.o
 
 $(PROGSTATIC): $(OBJSSTATIC)

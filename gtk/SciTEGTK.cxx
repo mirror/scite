@@ -1017,7 +1017,7 @@ PRectangle SciTEGTK::GetClientRectangle() {
 	return content.GetClientPosition();
 }
 
-gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation *allocation, SciTEGTK *scitew) {
+gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation * /*allocation*/, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("SciTEGTK move resize %d %d\n", allocation->width, allocation->height);
 	scitew->SizeSubWindows();
 	return TRUE;
@@ -1038,7 +1038,7 @@ void SciTEGTK::CommandSignal(GtkWidget *, gint wParam, gpointer lParam, SciTEGTK
 	scitew->Command(wParam, reinterpret_cast<LPARAM>(lParam));
 }
 
-void SciTEGTK::NotifySignal(GtkWidget *, gint wParam, gpointer lParam, SciTEGTK *scitew) {
+void SciTEGTK::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciTEGTK *scitew) {
 	//Platform::DebugPrintf("Notify: %x %x %x\n", w, wParam, lParam);
 	scitew->Notify(reinterpret_cast<SCNotification *>(lParam));
 }

@@ -43,6 +43,8 @@
 
 #define SciTE_MARKER_BOOKMARK 1
 
+const char propFileName[] = "SciTE.properties";
+
 const char *contributors[] = {
         "Atsuo Ishimoto",
         "Mark Hammond",
@@ -62,6 +64,9 @@ const char *contributors[] = {
         "DevelopMentor http://www.develop.com",
         "Yann Gaillard",
         "Aubin Paul",
+		"Jason Diamond",
+		"Ahmad Baitalmal",
+		"Paul Winwood",
 };
 
 // AddStyledText only called from About so static size buffer is OK

@@ -16,7 +16,6 @@ const char pathSepChar = '\\';
 
 const char propGlobalFileName[] = "SciTEGlobal.properties";
 const char propUserFileName[] = "SciTEUser.properties";
-const char propFileName[] = "SciTE.properties";
 
 class RecentFile {
 public:

@@ -47,7 +47,8 @@ clean:
 OBJS = SciTEBase.obj SciTEWin.obj \
 	..\..\scintilla\win32\WindowAccessor.obj \
 	..\..\scintilla\win32\PropSet.obj \
-	..\..\scintilla\win32\PlatWin.obj
+	..\..\scintilla\win32\PlatWin.obj \
+	..\..\scintilla\win32\UniConversion.obj
 
 $(PROG): $(OBJS) SciTERes.res
 	$(LD) /OUT:$(PROG) $(OBJS) SciTERes.res $(LDFLAGS)
@@ -72,6 +73,7 @@ OBJSSTATIC = Sc1.obj SciTEBase.obj \
 	..\..\scintilla\win32\ContractionState.obj \
 	..\..\scintilla\win32\CallTip.obj \
 	..\..\scintilla\win32\PlatWin.obj \
+	..\..\scintilla\win32\UniConversion.obj \
 	..\..\scintilla\win32\KeyMap.obj \
 	..\..\scintilla\win32\Indicator.obj \
 	..\..\scintilla\win32\LineMarker.obj \
