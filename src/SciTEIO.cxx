@@ -497,17 +497,21 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 		return false;
 	}
 
-	int size = GetFileLength(absPath);
-	int maxSize = props.GetInt("max.file.size");
-	if (maxSize > 0 && size > maxSize) {
-		SString sSize(size), sMaxSize(maxSize);
-		SString msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
-			"larger than the ^2 bytes limit set in the properties.\n"
-			"Do you still want to open it?",
-			fullPath, sSize.c_str(), sMaxSize.c_str());
-		int answer = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
-		if (answer != IDYES) {
-			return false;
+	int size = 0;
+	if (absPath[0] != '\0') {
+		// Real file, not empty buffer
+		size = GetFileLength(absPath);
+		int maxSize = props.GetInt("max.file.size");
+		if (maxSize > 0 && size > maxSize) {
+			SString sSize(size), sMaxSize(maxSize);
+			SString msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
+						      "larger than the ^2 bytes limit set in the properties.\n"
+						      "Do you still want to open it?",
+						      absPath, sSize.c_str(), sMaxSize.c_str());
+			int answer = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+			if (answer != IDYES) {
+				return false;
+			}
 		}
 	}
 
