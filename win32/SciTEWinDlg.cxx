@@ -109,7 +109,7 @@ BOOL SetDlgItemText2(HWND hDlg, int idItem, LPCSTR pmsz) {
 
 	//::MessageBox(GetFocus(),pmsz,"SetDlgItemText2():in",0);
 
-	if (::IsWindowUnicode(GetDlgItem(hDlg, idItem))) {
+	if (::IsWindowUnicode(::GetDlgItem(hDlg, idItem))) {
 		if (::MultiByteToWideChar(CP_UTF8, 0, pmsz, -1, wsz, CTL_TEXT_BUF)) {
 			bSuccess = ::SetDlgItemTextW(hDlg, idItem, wsz);
 		}
