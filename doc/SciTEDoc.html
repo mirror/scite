@@ -516,7 +516,9 @@ NameError: mistake
     </p>
     <p>
        For long values, a '\' character at the end of the line continues that value on the next
-      line. Values may include the values of other variables by using $(variablename). There are
+      line. Space characters are significant so <code>x&nbsp;=1</code> defines a variable called
+      "x&nbsp;".
+      Values may include the values of other variables by using $(variablename). There are
       some variables set by the environment to access the name of the current file as well:
     </p>
        <table cellpadding="0" cellspacing="0" border="1">
@@ -1777,15 +1779,15 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	(command line programs).<br />
 
         On Windows, the optional command.replace.selection can be used to specify that the
-        command output should replace the current selection (or be inserted at the cursor 
-        location, if there is no selection).  This property has three available settings: 
-        0, the default, means do not replace the selection.  1 means replace the selection 
-        when the command finishes.  2 means replace the selection only if the command 
-        finishes with an exit code of 0.  If the user cancels the command via "Tools / Stop 
+        command output should replace the current selection (or be inserted at the cursor
+        location, if there is no selection).  This property has three available settings:
+        0, the default, means do not replace the selection.  1 means replace the selection
+        when the command finishes.  2 means replace the selection only if the command
+        finishes with an exit code of 0.  If the user cancels the command via "Tools / Stop
         Executing", the selection will not be replaced even in mode 1.  Note, commands run
-        asynchronously, so you are not prevented from modifying the document or even 
-        switching buffers while a command is running.  However, please bear in mind that 
-        command.replace.selection will send the output to whatever window is active <i>when 
+        asynchronously, so you are not prevented from modifying the document or even
+        switching buffers while a command is running.  However, please bear in mind that
+        command.replace.selection will send the output to whatever window is active <i>when
         the command completes</i>.<br />
 
         A final command property that is currently supported only on windows is command.quiet.
