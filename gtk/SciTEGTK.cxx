@@ -1807,6 +1807,7 @@ static KeyToCommand kmap[] = {
                                  {mSC, 'J', IDM_SELECTTOPREVMATCHPPC},
                                  {m_C, 'k', IDM_NEXTMATCHPPC},
                                  {mSC, 'K', IDM_SELECTTONEXTMATCHPPC},
+                                 {m_C, GDK_KP_Multiply, IDM_EXPAND},
                                  {0, 0, 0},
                              };
 
