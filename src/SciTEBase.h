@@ -300,6 +300,8 @@ protected:
 	virtual void SaveAsHTML()=0;
 	void SaveToRTF(const char *saveName);
 	virtual void SaveAsRTF()=0;
+	void SaveToPDF(const char *saveName);
+	virtual void SaveAsPDF()=0;
 	virtual void GetDefaultDirectory(char *directory, size_t size)=0;
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath)=0;
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath)=0;

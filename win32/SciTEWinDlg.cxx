@@ -239,6 +239,36 @@ void SciTEWin::SaveAsRTF() {
 	}
 }
 
+void SciTEWin::SaveAsPDF() {
+	if (0 == dialogsOnScreen) {
+		char saveName[MAX_PATH] = "\0";
+		strcpy(saveName, fileName);
+		char *cpDot = strchr(saveName, '.');
+		if (cpDot != NULL)
+			strcpy(cpDot, ".pdf");
+		else
+			strcat(saveName, ".pdf");
+		OPENFILENAME ofn = {
+		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		};
+		ofn.hwndOwner = wSciTE.GetID();
+		ofn.hInstance = hInstance;
+		ofn.lpstrFile = saveName;
+		ofn.nMaxFile = sizeof(saveName);
+		ofn.lpstrTitle = "Save File As PDF";
+		ofn.Flags = OFN_HIDEREADONLY;
+
+		ofn.lpstrFilter = "PDF (.pdf)\0*.pdf\0";
+
+		dialogsOnScreen++;
+		if (::GetSaveFileName(&ofn)) {
+			Platform::DebugPrintf("Save As PDF: <%s>\n", saveName);
+			SaveToPDF(saveName);
+		}
+		dialogsOnScreen--;
+	}
+}
+
 void SciTEWin::Print(bool showDialog) {
 
 	PRINTDLG pdlg = {

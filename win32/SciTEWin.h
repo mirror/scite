@@ -78,6 +78,7 @@ protected:
 	virtual bool SaveAsDialog();
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
+	virtual void SaveAsPDF();
 
 	virtual void Print(bool showDialog);
 	virtual void PrintSetup();

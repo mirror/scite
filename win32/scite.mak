@@ -80,6 +80,7 @@ OBJS=\
 	SciTEBase.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
+	Exporters.obj \
 	SciTEProps.obj \
 	SciTEWin.obj \
 	SciTEWinBar.obj \
@@ -93,6 +94,7 @@ OBJSSTATIC=\
 	SciTEBase.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
+	Exporters.obj \
 	SciTEProps.obj \
 	Sc1.obj \
 	SciTEWinBar.obj \
@@ -180,6 +182,8 @@ SciTEBuffers.obj: ..\src\SciTEBuffers.cxx
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ ..\src\SciTEBuffers.cxx
 SciTEIO.obj: ..\src\SciTEIO.cxx
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ ..\src\SciTEIO.cxx
+Exporters.obj: ..\src\Exporters.cxx
+	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ ..\src\Exporters.cxx
 SciTEProps.obj: ..\src\SciTEProps.cxx
 	$(CC) $(INCLUDEDIRS) $(CXXFLAGS) -c $(NAMEFLAG)$@ ..\src\SciTEProps.cxx
 
@@ -220,6 +224,18 @@ SciTEBuffers.obj: \
 
 SciTEIO.obj: \
 	..\src\SciTEIO.cxx \
+	..\src\SciTEBase.h \
+	..\src\SciTE.h \
+	..\src\Extender.h \
+	..\..\scintilla\include\Platform.h \
+	..\..\scintilla\include\PropSet.h \
+	..\..\scintilla\include\Accessor.h \
+	..\..\scintilla\include\KeyWords.h \
+	..\..\scintilla\include\Scintilla.h \
+	..\..\scintilla\include\SciLexer.h
+
+Exporters.obj: \
+	..\src\Exporters.cxx \
 	..\src\SciTEBase.h \
 	..\src\SciTE.h \
 	..\src\Extender.h \

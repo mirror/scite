@@ -53,11 +53,12 @@ LEXEROBJS=\
 	../../scintilla/gtk/LexSQL.o \
 	../../scintilla/gtk/LexVB.o
 
-$(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o SciTEProps.o ../../scintilla/bin/scintilla.a $(LEXEROBJS)
+$(PROG): SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o \
+SciTEProps.o ../../scintilla/bin/scintilla.a $(LEXEROBJS)
 	$(CC) `gtk-config --libs` -DGTK $^ -o $@
 
 # SciTE-static no longer builds. Kept here in case of later need.
-SciTE-static: SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o SciTEProps.o \
+SciTE-static: SciTEGTK.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
 KeyWords.o Document.o Scintilla.o PropSet.o
 	$(CC) -L/usr/X11R6/lib -lXext -lX11 -lm -DGTK -DSCI_LEXER SciTE.o KeyWords.o Document.o Scintilla.o PropSet.o /usr/local/lib/libgtk.a /usr/local/lib/libgdk.a /usr/local/lib/libgmodule.a /usr/local/lib/libglib.a -o SciTE-static
 
@@ -66,6 +67,8 @@ SciTEBase.o: SciTEBase.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
 SciTEBuffers.o: SciTEBuffers.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
  Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
 SciTEIO.o: SciTEIO.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
+ Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
+Exporters.o: Exporters.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
  Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h
 SciTEProps.o: SciTEProps.cxx Platform.h WinDefs.h SciTE.h PropSet.h \
  Accessor.h WindowAccessor.h KeyWords.h Scintilla.h SciLexer.h SciTEBase.h

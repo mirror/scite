@@ -111,6 +111,7 @@ protected:
 	virtual bool SaveAsDialog();
 	virtual void SaveAsHTML();
 	virtual void SaveAsRTF();
+	virtual void SaveAsPDF();
 
 	virtual void Print();
 	virtual void PrintSetup();
@@ -749,6 +750,29 @@ void SciTEGTK::SaveAsRTF() {
 	if (!fileSelector.Created()) {
 		savingRTF = true;
 		fileSelector = gtk_file_selection_new("Save File As RTF");
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
+		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
+		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),
+		                   "clicked", GtkSignalFunc(OpenCancelSignal), this);
+		gtk_signal_connect(GTK_OBJECT(fileSelector.GetID()),
+		                   "key_press_event", GtkSignalFunc(OpenKeySignal),
+		                   this);
+		// Other ways to destroy
+		// Mark it as a modal transient dialog
+		gtk_window_set_modal(GTK_WINDOW(fileSelector.GetID()), TRUE);
+		gtk_window_set_transient_for (GTK_WINDOW(fileSelector.GetID()),
+		                              GTK_WINDOW(wSciTE.GetID()));
+		fileSelector.Show();
+		while (fileSelector.Created()) {
+			gtk_main_iteration();
+		}
+	}
+}
+
+void SciTEGTK::SaveAsPDF() {
+	if (!fileSelector.Created()) {
+		savingRTF = true;
+		fileSelector = gtk_file_selection_new("Save File As PDF");
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->ok_button),
 		                   "clicked", GtkSignalFunc(SaveAsSignal), this);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fileSelector.GetID())->cancel_button),

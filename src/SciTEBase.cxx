@@ -1309,6 +1309,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SaveAsRTF();
 		SetFocus(wEditor.GetID());
 		break;
+	case IDM_SAVEASPDF:
+		SaveAsPDF();
+		SetFocus(wEditor.GetID());
+		break;
 	case IDM_REVERT:
 		if (SaveIfUnsure() != IDCANCEL) {
 			Revert();
