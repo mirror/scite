@@ -244,7 +244,11 @@ void SciTEBase::LoadRecentMenu() {
 		if (!fgets (line, sizeof (line), recentFile))
 			break;
 		line[strlen (line) - 1] = '\0';
-		AddFileToStack(line, cr, 0);
+		if (!props.GetInt("buffers")) {
+			AddFileToStack(line, cr, 0);
+		} else {
+			AddFileToBuffer(line /*TODO, cr, 0*/);
+		}	
 	}
 	fclose(recentFile);
 }
@@ -311,7 +315,13 @@ void SciTEBase::Close(bool updateUI) {
 		if (buffers.current >= 0 && buffers.current < buffers.length) {
 			UpdateBuffersCurrent();
 			Buffer buff = buffers.buffers[buffers.current];
-			AddFileToStack(buff.fileName.c_str(), buff.selection, buff.scrollPosition);
+			// AddFileToStack(buff.fileName.c_str(), buff.selection, buff.scrollPosition);
+			
+			// SciTE.recent currently doesn't make difference between buffered and stacked files
+			// so when buffers are enabled all listed files load at startup into buffers
+			// ==> we can't have a recent file stack together with buffers :(
+			// TODO: add a 'buffer' flag (+ recent file pos + recent bookmarks + recent selection)
+			// into SciTE.recent
 		}
 		bool closingLast = buffers.length == 1;
 		if (closingLast) {
@@ -473,6 +483,12 @@ void SciTEBase::DropFileStackTop() {
 		recentFileStack[stackPos] = recentFileStack[stackPos + 1];
 	recentFileStack[fileStackMax - 1].Init();
 	SetFileStackMenu();
+}
+
+void SciTEBase::AddFileToBuffer(const char *file /*TODO:, CharacterRange selection, int scrollPos */) {
+	FILE *fp = fopen(file, "r");  // file existence test 
+	if (fp)                       // for missing files Open() gives an empty buffer - do not want this
+		Open(file, false, file);
 }
 
 void SciTEBase::AddFileToStack(const char *file, CharacterRange selection, int scrollPos) {

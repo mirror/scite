@@ -503,6 +503,7 @@ protected:
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	void DropFileStackTop();
+	void AddFileToBuffer(const char *file /*TODO:, CharacterRange selection, int scrollPos */);
 	void AddFileToStack(const char *file, CharacterRange selection, int scrollPos);
 	void RemoveFileFromStack(const char *file);
 	RecentFile GetFilePosition();
