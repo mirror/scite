@@ -1,15 +1,15 @@
-rem Script to build SciTE for Windows with all the different 
+rem Script to build SciTE for Windows with all the different
 rem compilers and exercise all the projects and makefiles.
 rem Current directory must be scite\scripts before running.
-rem Contains references to local install directories on Neil's 
+rem Contains references to local install directories on Neil's
 rem machine so must be modified for other installations.
 rem Assumes environment set up so gcc and MSVC can be called.
-rem 
+rem
 cd ..\..
 set
 set BORLAND_BASE=G:\Borland\bcc55
 set MSDEV_BASE=C:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
-rem 
+rem
 rem Target 1: Normal gcc build
 call scite\scripts\clearboth
 cd scintilla\win32
@@ -19,7 +19,7 @@ cd ..\..\scite\win32
 make
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
-rem 
+rem
 rem Target 2: Microsoft VC++ build
 call scite\scripts\clearboth
 cd scintilla\win32
@@ -30,7 +30,7 @@ cd ..\..\scite\win32
 nmake -f scite.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
-rem 
+rem
 rem Target 3: Borland C++ build
 call scite\scripts\clearboth
 cd scintilla\win32
@@ -47,7 +47,7 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 path %SAVE_PATH%
 set INCLUDE=%SAVE_INCLUDE%
-rem 
+rem
 rem Target 4: Visual C++ using scite\vcbuild\scite.dsp
 call scite\scripts\clearboth
 cd scintilla\vcbuild
@@ -55,28 +55,28 @@ path %MSDEV_BASE%;%path%
 msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
-rem 
+rem
 rem Target 5: Visual C++ using scintilla\vcbuild\SciTE.dsp
-call scite\scripts\clearboth
-cd scite\vcbuild
-msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-rem 
+rem call scite\scripts\clearboth
+rem cd scite\vcbuild
+rem msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+rem if ERRORLEVEL 2 goto ERROR
+rem cd ..\..
+rem
 rem Target 6: Visual C++ using scite\boundscheck\SciTE.dsp
-call scite\scripts\clearboth
-cd scite\boundscheck
-msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-rem 
+rem call scite\scripts\clearboth
+rem cd scite\boundscheck
+rem msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+rem if ERRORLEVEL 2 goto ERROR
+rem cd ..\..
+rem
 rem Target 6a: Visual C++ .NET using scite\boundscheck\SciTE.sln
 call scite\scripts\clearboth
 cd scite\boundscheck
 devenv scite.sln /rebuild release
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
-rem 
+rem
 rem Target 7: GTK+ version using Visual C++ on scintilla\gtk\scintilla.mak
 call scite\scripts\clearboth
 cd scintilla\gtk
