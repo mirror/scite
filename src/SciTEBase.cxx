@@ -39,6 +39,7 @@
 #include "ScintillaWidget.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
+#include "Extender.h"
 #include "SciTEBase.h"
 
 #define SciTE_MARKER_BOOKMARK 1
@@ -46,43 +47,43 @@
 const char propFileName[] = "SciTE.properties";
 
 const char *contributors[] = {
-    "Atsuo Ishimoto",
-    "Mark Hammond",
-    "Francois Le Coguiec",
-    "Dale Nagata",
-    "Ralf Reinhardt",
-    "Philippe Lhoste",
-    "Andrew McKinlay",
-    "Stephan R. A. Deibel",
-    "Hans Eckardt",
-    "Vassili Bourdo",
-    "Maksim Lin",
-    "Robin Dunn",
-    "John Ehresman",
-    "Steffen Goeldner",
-    "Deepak S.",
-    "DevelopMentor http://www.develop.com",
-    "Yann Gaillard",
-    "Aubin Paul",
-    "Jason Diamond",
-    "Ahmad Baitalmal",
-    "Paul Winwood",
-    "Maxim Baranov",
+	"Atsuo Ishimoto",
+	"Mark Hammond",
+	"Francois Le Coguiec",
+	"Dale Nagata",
+	"Ralf Reinhardt",
+	"Philippe Lhoste",
+	"Andrew McKinlay",
+	"Stephan R. A. Deibel",
+	"Hans Eckardt",
+	"Vassili Bourdo",
+	"Maksim Lin",
+	"Robin Dunn",
+	"John Ehresman",
+	"Steffen Goeldner",
+	"Deepak S.",
+	"DevelopMentor http://www.develop.com",
+	"Yann Gaillard",
+	"Aubin Paul",
+	"Jason Diamond",
+	"Ahmad Baitalmal",
+	"Paul Winwood",
+	"Maxim Baranov",
 #if PLAT_GTK
-    "Icons Copyright(C) 1998 by Dean S. Jones",
-    "    http://jfa.javalobby.org/projects/icons/",
+	"Icons Copyright(C) 1998 by Dean S. Jones",
+	"    http://jfa.javalobby.org/projects/icons/",
 #endif 
-    "Ragnar Højland",
-    "Christian Obrecht",
-    "Andreas Neukoetter",
-    "Adam Gates",
-    "Steve Lhomme",
+	"Ragnar Højland",
+	"Christian Obrecht",
+	"Andreas Neukoetter",
+	"Adam Gates",
+	"Steve Lhomme",
 };
 
 const char *extList[] = {
-    "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
-    "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
-    "x.pl", "x.sql", "x.spec", "x.php3", "x.tex"
+	"x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
+	"x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
+	"x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff"
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -94,7 +95,7 @@ void AddStyledText(WindowID hwnd, const char *s, int attr) {
 		buf[i*2 + 1] = static_cast<char>(attr);
 	}
 	Platform::SendScintilla(hwnd, SCI_ADDSTYLEDTEXT, len*2,
-	                        reinterpret_cast<long>(static_cast < char * > (buf)));
+			reinterpret_cast<long>(static_cast < char * > (buf)));
 }
 
 void SetAboutStyle(WindowID wsci, int style, Colour fore) {
@@ -117,7 +118,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 #if PLAT_GTK
 		// On GTK+, new century schoolbook looks better in large sizes than default font
 		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
-		                        reinterpret_cast<unsigned int>("new century schoolbook"));
+				reinterpret_cast<unsigned int>("new century schoolbook"));
 		fontSize = 14;
 #endif 
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
@@ -214,7 +215,7 @@ void Job::Clear() {
 	jobType = jobCLI;
 }
 
-SciTEBase::SciTEBase() : apis(true) {
+SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext)  {
 	codePage = 0;
 	language = "java";
 	lexLanguage = SCLEX_CPP;
@@ -287,6 +288,9 @@ SciTEBase::SciTEBase() : apis(true) {
 	propsBase.superPS = &propsEmbed;
 	propsUser.superPS = &propsBase;
 	props.superPS = &propsUser;
+
+	if (extender)
+		extender->Initialise(this);
 }
 
 int SciTEBase::GetDocumentAt(int index) {
@@ -303,10 +307,10 @@ int SciTEBase::GetDocumentAt(int index) {
 
 void SciTEBase::SetDocumentAt(int index) {
 	if (	index < 0 ||
-	        index >= buffers.length ||
-	        index == buffers.current ||
-	        buffers.current < 0 ||
-	        buffers.current >= buffers.length)
+		index >= buffers.length ||
+		index == buffers.current ||
+		buffers.current < 0 ||
+		buffers.current >= buffers.length)
 		return;
 	UpdateBuffersCurrent();
 
@@ -376,9 +380,9 @@ void SciTEBase::New() {
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
 	// otherwise add a new buffer.
 	if ((buffers.length > 1) ||
-	        (buffers.current != 0) ||
-	        (buffers.buffers[0].isDirty) ||
-	        (!IsUntitledFileName(buffers.buffers[0].fileName.c_str())))
+		(buffers.current != 0) ||
+		(buffers.buffers[0].isDirty) ||
+		(!IsUntitledFileName(buffers.buffers[0].fileName.c_str())))
 		buffers.current = buffers.Add();
 
 	int doc = GetDocumentAt(buffers.current);
@@ -499,19 +503,22 @@ void SciTEBase::BuffersMenu() {
 	CheckMenus();
 }
 
-SciTEBase::~SciTEBase() {}
+SciTEBase::~SciTEBase() {
+	if (extender)
+		extender->Finalise();
+}
 
 void SciTEBase::ReadGlobalPropFile() {
 	char propfile[MAX_PATH + 20];
 	char propdir[MAX_PATH + 20];
-    propsBase.Clear();
+	propsBase.Clear();
 #if PLAT_GTK
 	propsBase.Set("PLAT_GTK", "1");
 #else
 	propsBase.Set("PLAT_WIN", "1");
 #endif
 	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-    		strcat(propdir, pathSepString);
+		strcat(propdir, pathSepString);
 		propsBase.Read(propfile, propdir);
 	}
 	propsUser.Clear();
@@ -521,12 +528,17 @@ void SciTEBase::ReadGlobalPropFile() {
 	}
 }
 
+void SciTEBase::GetDocumentDirectory(char *docDir, int len) {
+	if (dirName[0])
+		strncpy(docDir, dirName, len);
+	else
+		getcwd(docDir, len);
+	docDir[len-1] = '\0';
+}
+
 void SciTEBase::ReadLocalPropFile() {
 	char propdir[MAX_PATH + 20];
-	if (dirName[0])
-		strcpy(propdir, dirName);
-	else
-		getcwd(propdir, sizeof(propdir));
+	GetDocumentDirectory(propdir, sizeof(propdir));
 	char propfile[MAX_PATH + 20];
 	strcpy(propfile, propdir);
 	strcat(propdir, pathSepString);
@@ -740,6 +752,8 @@ JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 		jobType = jobGUI;
 	else if (subsystem[0] == '2')
 		jobType = jobShell;
+	else if (subsystem[0] == '3')
+		jobType = jobExtension;
 	return jobType;
 }
 
@@ -817,6 +831,10 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 			Platform::SendScintilla(win.GetID(), SCI_STYLESETEOLFILLED, style, 1);
 		if (0 == strcmp(opt, "noteolfilled"))
 			Platform::SendScintilla(win.GetID(), SCI_STYLESETEOLFILLED, style, 0);
+		if (0 == strcmp(opt, "underlined"))
+			Platform::SendScintilla(win.GetID(), SCI_STYLESETUNDERLINE, style, 1);
+		if (0 == strcmp(opt, "notunderlined"))
+			Platform::SendScintilla(win.GetID(), SCI_STYLESETUNDERLINE, style, 0);
 		if (cpComma)
 			opt = cpComma + 1;
 		else
@@ -951,6 +969,10 @@ void SciTEBase::ReadProperties() {
 		lexLanguage = SCLEX_LATEX;
 	} else if (language == "lua") {
 		lexLanguage = SCLEX_LUA;
+	} else if (language == "diff") {
+		lexLanguage = SCLEX_DIFF;
+	} else if (language == "container") {
+		lexLanguage = SCLEX_CONTAINER;
 	} else {
 		lexLanguage = SCLEX_NULL;
 	}
@@ -978,13 +1000,13 @@ void SciTEBase::ReadProperties() {
 
 	SString fold = props.Get("fold");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("fold"),
-	                 fold.c_str());
+			fold.c_str());
 	SString stylingWithinPreprocessor = props.Get("styling.within.preprocessor");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("styling.within.preprocessor"),
-	                 stylingWithinPreprocessor.c_str());
+			stylingWithinPreprocessor.c_str());
 	SString ttwl = props.Get("tab.timmy.whinge.level");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("tab.timmy.whinge.level"),
-	                 ttwl.c_str());
+			ttwl.c_str());
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
 	if (apifilename.length()) {
@@ -1188,6 +1210,35 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_MARKERSETFORE, SC_MARKNUM_FOLDER, Colour(0, 0, 0).AsLong());
 		SendEditor(SCI_MARKERSETBACK, SC_MARKNUM_FOLDER, Colour(0, 0, 0).AsLong());
 	}
+	if (extender) {
+		extender->Clear();
+
+		char defaultDir[MAX_PATH];
+		GetDefaultDirectory(defaultDir, sizeof(defaultDir));
+		char scriptPath[MAX_PATH];
+		if (Exists(defaultDir, "SciTEGlobal.lua", scriptPath)) {
+			// Found fglobal file in global directory
+			extender->Load(scriptPath);
+		}
+
+		// Check for an extension script
+		SString extensionFile = props.GetNewExpand("extension.", fileNameForExtension.c_str());
+		if (extensionFile.length()) {
+			// find file in local directory
+			char docDir[MAX_PATH];
+			GetDocumentDirectory(docDir, sizeof(docDir));
+			if (Exists(docDir, extensionFile.c_str(), scriptPath)) {
+				// Found file in document directory
+				extender->Load(scriptPath);
+			} else if (Exists(defaultDir, extensionFile.c_str(), scriptPath)) {
+				// Found file in global directory
+				extender->Load(scriptPath);
+			} else if (Exists("", extensionFile.c_str(), scriptPath)) {
+				// Found as completely specified file name
+				extender->Load(scriptPath);
+			}
+		}
+	}
 
 	firstPropertiesRead = false;
 	//DWORD dwEnd = timeGetTime();
@@ -1359,7 +1410,7 @@ void SciTEBase::SetWindowName() {
 		strcat(windowName, " - ");
 	strcat(windowName, appName);
 	wSciTE.SetTitle(windowName);
-    Platform::DebugPrintf("SetWindowname %s\n", windowName);
+	//Platform::DebugPrintf("SetWindowname %s\n", windowName);
 }
 
 void SciTEBase::FixFilePath() {
@@ -1483,7 +1534,7 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 		SendEditor(SCI_SETUNDOCOLLECTION, 0);
 
 		fileModTime = GetModTime(fullPath);
-                
+
 		FILE *fp = fopen(fullPath, "rb");
 		if (fp || initialCmdLine) {
 			if (fp) {
@@ -1516,10 +1567,12 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 		SendEditor(SCI_GOTOPOS, 0);
 	}
 	Redraw();
-    RemoveFileFromStack(fullPath);
+	RemoveFileFromStack(fullPath);
 	DeleteFileStackMenu();
 	SetFileStackMenu();
 	SetWindowName();
+	if (extender)
+		extender->OnOpen();
 }
 
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
@@ -1613,9 +1666,9 @@ int StripTrailingSpaces(char *data, int ds, bool lastBlock) {
 bool SciTEBase::Save() {
 	if (fileName[0]) {
 
-                if (props.GetInt("save.deletes.first")) {
-                        unlink(fullPath);
-                }
+	if (props.GetInt("save.deletes.first")) {
+		unlink(fullPath);
+	}
 
 		//Platform::DebugPrintf("Saving <%s><%s>\n", fileName, fullPath);
 		//DWORD dwStart = timeGetTime();
@@ -1642,9 +1695,6 @@ bool SciTEBase::Save() {
 			strcpy(fileNameLowered, fileName);
 			lowerCaseString(fileNameLowered);
 			if (0 != strstr(fileNameLowered, ".properties")) {
-				//{(EqualCaseInsensitive(fileName, propFileName)) ||
-			        //(EqualCaseInsensitive(fileName, propGlobalFileName)) ||
-			        //(EqualCaseInsensitive(fileName, propUserFileName))) {
 				ReadGlobalPropFile();
 				ReadLocalPropFile();
 				ReadProperties();
@@ -2006,7 +2056,7 @@ void SciTEBase::ReplaceAll() {
 	ft.chrgText.cpMax = 0;
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
 	int posFind = SendEditor(SCI_FINDTEXT, flags,
-	                         reinterpret_cast<long>(&ft));
+		reinterpret_cast<long>(&ft));
 	if (posFind != -1) {
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
@@ -2015,7 +2065,7 @@ void SciTEBase::ReplaceAll() {
 			ft.chrg.cpMin = posFind + strlen(replaceWhat);
 			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(SCI_FINDTEXT, flags,
-			                     reinterpret_cast<long>(&ft));
+				reinterpret_cast<long>(&ft));
 		}
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
@@ -2657,7 +2707,6 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_NEW:
 		// For the New command, the are you sure question is always asked as this gives
 		// an opportunity to abandon the edits made to a file when are.you.sure is turned off.
-
 		if (IsBufferAvailable() || (SaveIfUnsure(true) != IDCANCEL)) {
 			New();
 			ReadProperties();
@@ -2883,7 +2932,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(props.GetNewExpand("command.compile.", fileName), "",
-				           SubsystemType("command.compile.subsystem."));
+					SubsystemType("command.compile.subsystem."));
 				if (commandCurrent > 0)
 					Execute();
 			}
@@ -2894,7 +2943,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(props.GetNewExpand("command.build.", fileName), "",
-				           SubsystemType("command.build.subsystem."));
+					SubsystemType("command.build.subsystem."));
 				if (commandCurrent > 0) {
 					isBuilding = true;
 					Execute();
@@ -2910,7 +2959,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 				if (!isBuilt) {
 					SString buildcmd = props.GetNewExpand("command.go.needs.", fileName);
 					AddCommand(buildcmd, "",
-					           SubsystemType("command.go.needs.subsystem."));
+						SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
 						isBuilding = true;
 						forceQueue = true;
@@ -3116,6 +3165,7 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 }
 
 void SciTEBase::Notify(SCNotification *notification) {
+	bool handled = false;
 	//Platform::DebugPrintf("Notify %d\n", notification->nmhdr.code);
 	switch (notification->nmhdr.code) {
 	case SCEN_SETFOCUS:
@@ -3124,7 +3174,23 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_STYLENEEDED: {
-			// Colourisation is now performed by the SciLexer DLL
+			if (extender) {
+				// Colourisation may be performed by script
+				if ((notification->nmhdr.idFrom == IDM_SRCWIN) && (lexLanguage == SCLEX_CONTAINER)) {
+					int endStyled = SendEditor(SCI_GETENDSTYLED);
+					int lineEndStyled = SendEditor(SCI_LINEFROMPOSITION, endStyled);
+					endStyled = SendEditor(SCI_POSITIONFROMLINE, lineEndStyled);
+					WindowAccessor styler(wEditor.GetID(), props);
+					int styleStart = 0;
+					if (endStyled > 0)
+						styleStart = styler.StyleAt(endStyled - 1);
+					styler.SetCodePage(codePage);
+					handled = extender->OnStyle(endStyled, notification->position - endStyled, 
+					styleStart, &styler);
+					styler.Flush();
+				}
+			}
+			// Colourisation is now normally performed by the SciLexer DLL
 #ifdef OLD_CODE
 			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
 				int endStyled = SendEditor(SCI_GETENDSTYLED);
@@ -3142,39 +3208,56 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_CHARADDED:
-		CharAdded(static_cast<char>(notification->ch));
+		if (extender)
+			handled = extender->OnChar(static_cast<char>(notification->ch));
+		if (!handled)
+			CharAdded(static_cast<char>(notification->ch));
 		break;
 
 	case SCN_SAVEPOINTREACHED:
 		if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-			isDirty = false;
-			CheckMenus();
-			SetWindowName();
-			BuffersMenu();
+			if (extender)
+				handled = extender->OnSavePointReached();
+			if (!handled) {
+				isDirty = false;
+				CheckMenus();
+				SetWindowName();
+				BuffersMenu();
+			}
 		}
 		break;
 
 	case SCN_SAVEPOINTLEFT:
 		if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-			isDirty = true;
-			isBuilt = false;
-			CheckMenus();
-			SetWindowName();
-			BuffersMenu();
+			if (extender)
+				handled = extender->OnSavePointLeft();
+			if (!handled) {
+				isDirty = true;
+				isBuilt = false;
+				CheckMenus();
+				SetWindowName();
+				BuffersMenu();
+			}
 		}
 		break;
 
 	case SCN_DOUBLECLICK:
-		if (notification->nmhdr.idFrom == IDM_RUNWIN) {
+		if (extender)
+			handled = extender->OnDoubleClick();
+		if (!handled && notification->nmhdr.idFrom == IDM_RUNWIN) {
 			//Platform::DebugPrintf("Double click 0\n");
 			GoMessage(0);
 		}
 		break;
 
 	case SCN_UPDATEUI:
-		BraceMatch(notification->nmhdr.idFrom == IDM_SRCWIN);
-		if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-			UpdateStatusBar();
+		if (extender)
+			handled = extender->OnUpdateUI();
+		if (!handled) {
+			BraceMatch(notification->nmhdr.idFrom == IDM_SRCWIN);
+			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
+				UpdateStatusBar();
+			}
 		}
 		break;
 
@@ -3186,8 +3269,12 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_MARGINCLICK: {
-			if (notification->margin == 2) {
-				MarginClick(notification->position, notification->modifiers);
+			if (extender)
+				handled = extender->OnMarginClick();
+			if (!handled) {
+				if (notification->margin == 2) {
+					MarginClick(notification->position, notification->modifiers);
+				}
 			}
 		}
 		break;
@@ -3257,4 +3344,54 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 		SizeContentWindows();
 		//Redraw();
 	}
+}
+
+// Implement ExtensionAPI methods
+int SciTEBase::Send(Pane p, unsigned int msg, unsigned long wParam, long lParam) {
+	if (p == paneEditor)
+		return SendEditor(msg, wParam, lParam);
+	else 
+		return SendOutput(msg, wParam, lParam);
+}
+
+char *SciTEBase::Range(Pane p, int start, int end) {
+	int len = end - start;
+	char *s = new char[len+1];
+	if (s) {
+	if (p == paneEditor)
+		GetRange(wEditor, start, end, s);
+	else 
+		GetRange(wOutput, start, end, s);
+	}
+	return s;
+}
+
+void SciTEBase::Remove(Pane p, int start, int end) {
+	// Should have a scintilla call for this
+	if (p == paneEditor) {
+		SendEditor(SCI_SETSEL, start, end);
+		SendEditor(SCI_CLEAR);
+	} else {
+		SendOutput(SCI_SETSEL, start, end);
+		SendOutput(SCI_CLEAR);
+	}
+}
+
+void SciTEBase::Insert(Pane p, int pos, const char *s) {
+	if (p == paneEditor)
+		SendEditorString(SCI_INSERTTEXT, pos, s);
+	else
+		SendOutput(SCI_INSERTTEXT, pos, reinterpret_cast<long>(s));
+}
+
+void SciTEBase::Trace(const char *s) {
+	OutputAppendString(s);
+}
+
+char *SciTEBase::Property(const char *key) {
+	SString value = props.GetExpanded(key);
+	char *retval = new char[value.length()+1];
+	if (retval)
+		strcpy(retval, value.c_str());
+	return retval;
 }
