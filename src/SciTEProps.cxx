@@ -648,10 +648,10 @@ void SciTEBase::ReadProperties() {
 	char key[200];
 	SString sval;
 
-	sval = props.GetNewExpand("calltip.*.ignorecase", "");
+	sval = props.GetNewExpand("calltip.*.ignorecase");
 	callTipIgnoreCase = sval == "1";
 	sprintf(key, "calltip.%s.ignorecase", language.c_str());
-	sval = props.GetNewExpand(key, "");
+	sval = props.GetNewExpand(key);
 	if (sval != "")
 		callTipIgnoreCase = sval == "1";
 
@@ -669,10 +669,10 @@ void SciTEBase::ReadProperties() {
 	// "" is a quite reasonable value for this setting
 
 	sprintf(key, "autocomplete.%s.ignorecase", "*");
-	sval = props.GetNewExpand(key, "");
+	sval = props.GetNewExpand(key);
 	autoCompleteIgnoreCase = sval == "1";
 	sprintf(key, "autocomplete.%s.ignorecase", language.c_str());
-	sval = props.GetNewExpand(key, "");
+	sval = props.GetNewExpand(key);
 	if (sval != "")
 		autoCompleteIgnoreCase = sval == "1";
 	SendEditor(SCI_AUTOCSETIGNORECASE, autoCompleteIgnoreCase ? 1 : 0);
@@ -689,12 +689,12 @@ void SciTEBase::ReadProperties() {
 	SendOutput(SCI_STYLERESETDEFAULT, 0, 0);
 
 	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
-	sval = props.GetNewExpand(key, "");
+	sval = props.GetNewExpand(key);
 	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
 	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
 
 	sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
-	sval = props.GetNewExpand(key, "");
+	sval = props.GetNewExpand(key);
 	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
 
 	SendEditor(SCI_STYLECLEARALL, 0, 0);
@@ -705,7 +705,7 @@ void SciTEBase::ReadProperties() {
 	SendOutput(SCI_STYLECLEARALL, 0, 0);
 
 	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
-	sval = props.GetNewExpand(key, "");
+	sval = props.GetNewExpand(key);
 	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
 
 	SendOutput(SCI_STYLECLEARALL, 0, 0);
@@ -790,7 +790,7 @@ void SciTEBase::ReadProperties() {
 	regExp = props.GetInt("find.replace.regexp");
 	unSlash = props.GetInt("find.replace.escapes");
 	wrapFind = props.GetInt("find.replace.wrap", 1);
-	memFiles.AppendList(props.GetNewExpand("find.files", ""));
+	memFiles.AppendList(props.GetNewExpand("find.files"));
 
 	if (props.GetInt("vc.home.key", 1)) {
 		AssignKey(SCK_HOME, 0, SCI_VCHOME);
@@ -1000,7 +1000,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
 
-	SString menuLanguageProp = props.GetNewExpand("menu.language", "");
+	SString menuLanguageProp = props.GetNewExpand("menu.language");
 	languageItems = 0;
 	for (int i = 0; i < menuLanguageProp.length(); i++) {
 		if (menuLanguageProp[i] == '|')
