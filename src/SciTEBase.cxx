@@ -1167,6 +1167,9 @@ void SciTEBase::ReadProperties() {
 
 
 void SciTEBase::SetOverrideLanguage(int cmdID) {
+    // Zero all the style bytes
+	SendEditor(SCI_CLEARDOCUMENTSTYLE);
+
 	overrideExtension = extList[cmdID - LEXER_BASE];
 	ReadProperties();
 	SendEditor(SCI_COLOURISE, 0, -1);
