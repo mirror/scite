@@ -938,12 +938,15 @@ void SciTEGTK::Find() {
 	FindReplace(false);
 }
 
-static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem) {
+static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool useTop=false) {
 	GtkWidget *list = GTK_COMBO(combo)->list;
 	for (int i = 0; i < mem.Length(); i++) {
 		GtkWidget *item = gtk_list_item_new_with_label(mem.At(i).c_str());
 		gtk_container_add(GTK_CONTAINER(list), item);
 		gtk_widget_show(item);
+	}
+	if (useTop) {
+		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(combo)->entry), mem.At(0).c_str());
 	}
 }
 
@@ -1108,14 +1111,13 @@ void SciTEGTK::FindInFiles() {
 	gtk_widget_show(labelFiles);
 
 	comboFiles = gtk_combo_new();
-	FillComboFromMemory(comboFiles, memFiles);
+	FillComboFromMemory(comboFiles, memFiles, true);
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFiles), TRUE);
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFiles), TRUE);
 
 	gtk_table_attach(GTK_TABLE(table), comboFiles, 1, 2,
 	                 row, row + 1, optse, opts, 5, 5);
 	gtk_widget_show(comboFiles);
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFiles)->entry), props.Get("find.files").c_str());
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFiles)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
 
