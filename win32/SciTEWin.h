@@ -113,6 +113,7 @@ protected:
 	void MinimizeToTray();
 	void RestoreFromTray();
 	LRESULT CopyData(COPYDATASTRUCT *pcds);
+	SString ProcessArgs(const char *cmdLine);
 	void AboutDialogWithBuild(int staticBuild);
 	virtual void QuitProgram();
 

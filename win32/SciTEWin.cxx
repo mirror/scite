@@ -278,7 +278,7 @@ void SciTEWin::FullScreenToggle() {
 		::SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
 		::SystemParametersInfo(SPI_SETWORKAREA, 0, 0, SPIF_SENDCHANGE);
 		::ShowWindow(wTaskBar, SW_HIDE);
-  		
+
 		winPlace.length = sizeof(winPlace);
 		::GetWindowPlacement(wSciTE.GetID(), &winPlace);
 		int topStuff = ::GetSystemMetrics(SM_CYMENU) +
@@ -678,7 +678,7 @@ void SciTEWin::ProcessExecute() {
 			} else {
 				sprintf(exitmessage, ">Exit code: %0ld\n", exitcode);
 			}
-			
+
 			OutputAppendStringSynchronised(exitmessage);
 			::CloseHandle(pi.hProcess);
 			::CloseHandle(pi.hThread);
@@ -889,21 +889,7 @@ void SciTEWin::CreateUI() {
 	UIAvailable();
 }
 
-void SciTEWin::Run(const char *cmdLine) {
-	if (props.GetInt("check.if.already.open")) {
-		HWND hAnother = ::FindWindow("SciTEWindow", NULL);
-		if (hAnother) {
-			COPYDATASTRUCT cds;
-			cds.dwData = 0;
-			cds.cbData = strlen(cmdLine)+1;
-			cds.lpData = static_cast<void *>(
-				const_cast<char *>(cmdLine));
-			::SendMessage(hAnother, WM_COPYDATA, 0,
-				reinterpret_cast<LPARAM>(&cds));
-			exit(0);
-		}
-	}
-
+SString SciTEWin::ProcessArgs(const char *cmdLine) {
 	// Break up the command line into individual arguments and strip double quotes
 	// from each argument creatng a string with each argument separated by '\n'
 	SString args;
@@ -931,6 +917,28 @@ void SciTEWin::Run(const char *cmdLine) {
 			startArg++;
 		}
 	}
+
+	return args;
+}
+
+
+void SciTEWin::Run(const char *cmdLine) {
+	if (props.GetInt("check.if.already.open")) {
+		HWND hAnother = ::FindWindow("SciTEWindow", NULL);
+		if (hAnother) {
+			COPYDATASTRUCT cds;
+			cds.dwData = 0;
+			cds.cbData = strlen(cmdLine)+1;
+			cds.lpData = static_cast<void *>(
+				const_cast<char *>(cmdLine));
+			::SendMessage(hAnother, WM_COPYDATA, 0,
+				reinterpret_cast<LPARAM>(&cds));
+			exit(0);
+		}
+	}
+
+	SString args = ProcessArgs(cmdLine);
+
 	bool performPrint = ProcessCommandLine(args, 0);
 
 	CreateUI();
@@ -1041,7 +1049,9 @@ LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
 		RestoreFromTray();
 	}
 	if (strlen(text) > 0) {
-		Open(text);
+		SString args = ProcessArgs(text);
+		ProcessCommandLine(args, 1);
+		//Open(text);
 	}
 	::FlashWindow(wSciTE.GetID(), FALSE);
 	return TRUE;
@@ -1160,7 +1170,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		SetFocus(wEditor.GetID());
 		break;
 
-	case WM_DROPFILES: 
+	case WM_DROPFILES:
 		DropFiles(reinterpret_cast<HDROP>(wParam));
 		break;
 
