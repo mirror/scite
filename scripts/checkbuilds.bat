@@ -51,46 +51,46 @@ rem
 rem Set path for VC 6
 path %MSDEV_BASE%;%path%
 rem
-rem Target 4: Visual C++ using scintilla\vcbuild\SciLexer.dsp
-call scite\scripts\clearboth
-cd scintilla\vcbuild
-msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-rem
-rem Target 5: Visual C++ using scite\vcbuild\SciTE.dsp
-call scite\scripts\clearboth
-cd scite\vcbuild
-msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-rem
-rem Target 6: Visual C++ using scite\boundscheck\SciTE.dsp
-call scite\scripts\clearboth
-cd scite\boundscheck
-msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-rem
-rem Target 6a: Visual C++ .NET using scite\boundscheck\SciTE.sln
+rem Target 4: Visual C++ .NET using scite\boundscheck\SciTE.sln
 call scite\scripts\clearboth
 cd scite\boundscheck
 devenv scite.sln /rebuild release
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
-rem Target 7: GTK+ version using Visual C++ on scintilla\gtk\scintilla.mak
+rem Target 5: GTK+ version using Visual C++ on scintilla\gtk\scintilla.mak
 call scite\scripts\clearboth
 cd scintilla\gtk
 nmake -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
-rem Target 8: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
+rem Target 6: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
 call scite\scripts\clearboth
 cd scintilla\win32
 call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
 nmake -f scintilla_vc6.mak QUIET=1
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
+rem
+rem Target 7: Visual C++ using scintilla\vcbuild\SciLexer.dsp
+call scite\scripts\clearboth
+cd scintilla\vcbuild
+msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
+rem
+rem Target 8: Visual C++ using scite\vcbuild\SciTE.dsp
+call scite\scripts\clearboth
+cd scite\vcbuild
+msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
+rem
+rem Target 9: Visual C++ using scite\boundscheck\SciTE.dsp
+call scite\scripts\clearboth
+cd scite\boundscheck
+msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 call scite\scripts\clearboth
