@@ -336,8 +336,8 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 		keycode = SciTEKeys::ParseKeyCode(mnemonic);
 		if (keycode) {
 			sTextMnemonic += "\t";
-		sTextMnemonic += LocaliseAccelerator(mnemonic, itemID);
-	}
+			sTextMnemonic += LocaliseAccelerator(mnemonic, itemID);
+		}
 		// the keycode could be used to make a custom accelerator table
 		// but for now, the menu's item data is used instead for command
 		// tools, and for other menu entries it is just discarded.

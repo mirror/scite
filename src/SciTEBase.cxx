@@ -3164,6 +3164,8 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 }
 
 void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, int flags) {
+	if (commandCurrent >= commandMax)
+		return;
 	if (commandCurrent == 0)
 		jobUsesOutputPane = false;
 	if (cmd.length()) {

@@ -345,7 +345,10 @@ LUA_API int lua_gethookmask (lua_State *L);
 LUA_API int lua_gethookcount (lua_State *L);
 
 
-#define LUA_IDSIZE	60
+#define LUA_IDSIZE	200
+/* Increased from default of 60 to reduce chance of '...' prefix in error
+ and traceback messages.  (It's good in command-line Lua, but not so good
+ in SciTE, where we want those messages to be double-clickable.) */
 
 struct lua_Debug {
   int event;

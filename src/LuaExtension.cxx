@@ -66,6 +66,7 @@ static lua_State *luaState = 0;
 static bool luaDisabled = false;
 
 static char *startupScript = NULL;
+static SString extensionScript;
 
 static bool tracebackEnabled = true;
 
@@ -1138,17 +1139,20 @@ static char *CheckStartupScript() {
 	return startupScript;
 }
 
-static inline int CheckResetMode() {
-	return GetPropertyInt("ext.lua.reset");
-}
 
 
-static bool InitGlobalScope(bool checkProperties) {
-	int resetMode = checkProperties ? CheckResetMode() : 0;
+static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
+	bool reload = forceReload;
+	if (checkProperties) {
+		int resetMode = GetPropertyInt("ext.lua.reset");
+		if (resetMode >= 1) {
+			reload = true;
+		}
 
-	if (luaState && resetMode==2) {
-		lua_close(luaState);
-		luaState = 0;
+		if (luaState && resetMode == 2) {
+			lua_close(luaState);
+			luaState = 0;
+		}
 	}
 
 	tracebackEnabled = (GetPropertyInt("ext.lua.debug.traceback") == 1);
@@ -1159,7 +1163,7 @@ static bool InitGlobalScope(bool checkProperties) {
 		// rawget to access functions in the global scope.  So the new method makes a shallow
 		// copy of the initialized global environment, and uses that to re-init the scope.
 
-		if (resetMode==0) {
+		if (!reload) {
 			lua_pushliteral(luaState, "SciTE_InitialState");
 			lua_rawget(luaState, LUA_REGISTRYINDEX);
 			if (lua_istable(luaState, -1)) {
@@ -1169,7 +1173,7 @@ static bool InitGlobalScope(bool checkProperties) {
 			}
 		}
 
-		// ext.lua.reset is enabled, or else the inital state has been broken.
+		// reload mode is enabled, or else the inital state has been broken.
 		// either way, we're going to need a "new" initial state.
 
 		lua_pushliteral(luaState, "SciTE_InitialState");
@@ -1244,7 +1248,7 @@ static bool InitGlobalScope(bool checkProperties) {
 	}
 	lua_setmetatable(luaState, LUA_GLOBALSINDEX);
 
-	if (checkProperties && resetMode != 0) {
+	if (checkProperties && reload) {
 		CheckStartupScript();
 	}
 
@@ -1300,10 +1304,10 @@ bool LuaExtension::Finalise() {
 bool LuaExtension::Clear() {
 	if (luaState) {
 		InitGlobalScope(true);
-	} else if (CheckResetMode() && CheckStartupScript()) {
+		extensionScript.clear();
+	} else if ((GetPropertyInt("ext.lua.reset") >= 1) && CheckStartupScript()) {
 		InitGlobalScope(false);
 	}
-
 	return false;
 }
 
@@ -1314,6 +1318,7 @@ bool LuaExtension::Load(const char *filename) {
 		int sl = strlen(filename);
 		if (sl >= 4 && strcmp(filename+sl-4, ".lua")==0) {
 			if (luaState || InitGlobalScope(false)) {
+				extensionScript = filename;
 				luaL_loadfile(luaState, filename);
 				if (!call_function(luaState, 0, true)) {
 					host->Trace(">Lua: error occurred while loading extension script\n");
@@ -1385,12 +1390,16 @@ bool LuaExtension::OnSave(const char *filename) {
 	// should this be case insensitive on windows?  check for different
 	// ways of spelling a filename, e.g. short vs. long?
 	if (startupScript && 0 == strcmp(filename, startupScript)) {
-		int autoReload = GetPropertyInt("ext.lua.auto.reload");
-		if (autoReload == 1) {
-			luaL_loadfile(luaState, startupScript);
-			if (!call_function(luaState, 0, true)) {
-				host->Trace(">Lua: error occurred while reloading startup script\n");
+		if (GetPropertyInt("ext.lua.auto.reload") > 0) {
+			InitGlobalScope(false, true);
+			if (extensionScript.length()) {
+				Load(extensionScript.c_str());
 			}
+		}
+	} else if (extensionScript.length() && 0 == strcmp(filename, extensionScript.c_str())) {
+		if (GetPropertyInt("ext.lua.auto.reload") > 0) {
+			InitGlobalScope(false, false);
+			Load(extensionScript.c_str());
 		}
 	}
 

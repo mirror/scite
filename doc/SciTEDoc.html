@@ -2605,6 +2605,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       <tr>
         <td>
           ext.lua.startup.script<br />
+          ext.lua.auto.reload<br />
           ext.lua.reset<br />
           extension.<i>filepattern</i>
         </td>
@@ -2620,13 +2621,27 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           $(SciteDefaultHome) or $(SciteUserHome) properties.  Global event handlers,
           command functions, as well as other functions and objects can be defined here.
           <br />
-          The ext.lua.reset property is primarily for debugging and modifying the startup
-          script.  If ext.lua.reset is 0 (the default), the startup script property is
-          checked only once - when SciTE starts.  If ext.lua.reset is changed to 1, the
-          startup script property will be re-evaluated each time you switch buffers, so
-          that you can see the results of your changes without having to exit and restart
-          SciTE.  When you are not modifying the startup script, you should leave the
-          ext.lua.reset property as 0 or comment out the property.
+          The ext.lua.auto.reload property determines what happens if you save the
+          startup script, or the active extension script, from within SciTE.  If it
+          is set to 0 (the default), the startup script only applied at startup time
+          or when you switch buffers (depending on ext.lua.reset), and changes to the
+          extension script are only applied when you switch buffers.  If
+          ext.lua.auto.reload is set to 1, SciTE will re-initialize the global scope
+          immediately when either script is saved from within SciTE.  <i>Even
+          when ext.lua.auto.reload is enabled, SciTE will not notice if the files
+          are changed from outside the current SciTE instance.  For that, see
+          ext.lua.reset below.</i>
+          <br />
+          The ext.lua.reset property is primarily for debugging.  If ext.lua.reset
+          is 0 (the default), the startup script property is checked only once -
+          when SciTE starts.  If ext.lua.reset is changed to 1, SciTE will check
+          the startup script property, and reload the new startup script, each
+          time you switch buffers.  As such, it has a different (larger) set of
+          side effects than ext.lua.auto.reload.  In some situations it will make
+          sense for both auto.reload and reset to be enabled, but usually
+          ext.lua.auto.reload alone will suffice.  <i>The ext.lua.reset
+          property may go away in an upcoming version if SciTE, perhaps to be
+          replaced with a new setting for ext.lua.auto.reload=2.</i>
           <br />
           Aside from ext.lua.startup.script, the extension.<i>filepattern</i> property
           provides a way to load additional functions and event handlers that may be
