@@ -14,6 +14,14 @@
 
 #include "Platform.h"
 
+#if PLAT_FOX
+
+#include <unistd.h>
+
+const char menuAccessIndicator[] = "&";
+
+#endif
+
 #if PLAT_GTK
 
 #include <unistd.h>

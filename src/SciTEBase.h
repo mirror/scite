@@ -691,7 +691,7 @@ public:
 /// Base size of file I/O operations.
 const int blockSize = 131072;
 
-#if PLAT_GTK
+#if PLAT_GTK || PLAT_FOX
 // MessageBox
 #define MB_OK	(0L)
 #define MB_YESNO	(0x4L)

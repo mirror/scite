@@ -16,6 +16,12 @@
 
 #include "Platform.h"
 
+#if PLAT_FOX
+
+#include <unistd.h>
+
+#endif
+
 #if PLAT_GTK
 
 #include <unistd.h>
@@ -899,7 +905,7 @@ void SciTEBase::SelectionIntoFind() {
 
 void SciTEBase::FindMessageBox(const SString &msg) {
 	dialogsOnScreen++;
-#if PLAT_GTK
+#if PLAT_GTK || PLAT_FOX
 	WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 #endif
 #if PLAT_WIN
