@@ -632,6 +632,7 @@ protected:
 	int LengthDocument();
 	int GetCaretInLine();
 	void GetLine(char *text, int sizeText, int line=-1);
+	SString GetLine(int line=-1);
 	void GetRange(Window &win, int start, int end, char *text);
 	int IsLinePreprocessorCondition(char *line);
 	bool FindMatchingPreprocessorCondition(int &curLine, int direction, int condEnd1, int condEnd2);
@@ -710,9 +711,9 @@ protected:
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
-	void RangeExtendAndGrab(Window &wCurrent, char *sel, int len,
-	    int &selStart, int &selEnd, int lengthDoc, bool (*ischarforsel)(char ch), bool stripEol = true);
-	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch), bool stripEol = true);
+	SString RangeExtendAndGrab(Window &wCurrent, int &selStart, int &selEnd,
+		bool (*ischarforsel)(char ch), bool stripEol = true);
+	SString SelectionExtend(bool (*ischarforsel)(char ch), bool stripEol = true);
 	void FindWordAtCaret(int &start, int &end);
 	bool SelectWordAtCaret();
 	SString SelectionWord(bool stripEol = true);

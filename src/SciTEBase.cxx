@@ -585,6 +585,29 @@ void SciTEBase::GetLine(char *text, int sizeText, int line) {
 	text[lineEnd - lineStart] = '\0';
 }
 
+SString SciTEBase::GetLine(int line) {
+	int len;
+	// Get needed buffer size
+	if (line < 0) {
+		len = Platform::SendScintilla(wEditor.GetID(),
+			SCI_GETCURLINE, 0, 0);
+	} else {
+		len = Platform::SendScintilla(wEditor.GetID(),
+			SCI_GETLINE, line, 0);
+	}
+	// Allocate buffer
+	SBuffer text(len);
+	// And get the line
+	if (line < 0) {
+		Platform::SendScintillaPointer(wEditor.GetID(),
+			SCI_GETCURLINE, len, text.ptr());
+	} else {
+		Platform::SendScintillaPointer(wEditor.GetID(),
+			SCI_GETLINE, line, text.ptr());
+	}
+	return SString(text);
+}
+
 void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
 	TextRange tr;
 	tr.chrg.cpMin = start;
@@ -668,7 +691,7 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
     int condEnd2) {		///< Second one
 
 	bool isInside = false;
-	char line[80];
+	char line[80];	// No need for full line
 	int status, level = 0;
 	int maxLines = SendEditor(SCI_GETLINECOUNT)-1;
 
@@ -977,42 +1000,45 @@ static bool isfilenamecharforsel(char ch) {
 	return !strchr("\t\n\r \"$%'*,;<>?[]^`{|}", ch);
 }
 
-void SciTEBase::RangeExtendAndGrab(
+SString SciTEBase::RangeExtendAndGrab(
     Window &wCurrent,
-    char *sel,  ///< Buffer receiving the result.
-    int len,  	///< Size of the buffer.
     int &selStart,
     int &selEnd,
-    int lengthDoc,
     bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
 	bool stripEol /*=true*/) {
+
 	if (selStart == selEnd && ischarforsel) {
+		// Empty range and have a function to extend it
+		int lengthDoc = SendWindow(wCurrent, SCI_GETLENGTH);
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
+		// On the left...
 		while ((selStart > 0) && (ischarforsel(acc[selStart - 1]))) {
 			selStart--;
 		}
+		// and on the right
 		while ((selEnd < lengthDoc) && (ischarforsel(acc[selEnd]))) {
 			selEnd++;
 		}
 	}
-	sel[0] = '\0';
-	if (selEnd - selStart + 1 > len - 1) {
-		selEnd = selStart + len - 1;
-	}
-	if (selStart < selEnd) {
-		GetRange(wCurrent, selStart, selEnd, sel);
+	int len = selEnd - selStart;
+	SString selected;
+	if (len > 0) {
+		SBuffer sel(len);
+		GetRange(wCurrent, selStart, selEnd, sel.ptr());
+		selected = sel;
 	}
 	if (stripEol) {
 		// Change whole line selected but normally end of line characters not wanted.
 		// Remove possible terminating \r, \n, or \r\n.
-		size_t sellen = strlen(sel);
-		if (sellen >= 2 && (sel[sellen - 2] == '\r' && sel[sellen - 1] == '\n')) {
-			sel[sellen - 2] = '\0';
-		} else if (sellen >= 1 && (sel[sellen - 1] == '\r' || sel[sellen - 1] == '\n')) {
-			sel[sellen - 1] = '\0';
+		size_t sellen = selected.length();
+		if (sellen >= 2 && (selected[sellen - 2] == '\r' && selected[sellen - 1] == '\n')) {
+			selected.remove(sellen - 2, 0);
+		} else if (sellen >= 1 && (selected[sellen - 1] == '\r' || selected[sellen - 1] == '\n')) {
+			selected.remove(sellen - 1, 0);
 		}
 	}
+	return selected;
 }
 
 /**
@@ -1023,9 +1049,7 @@ void SciTEBase::RangeExtendAndGrab(
  * Remove the last two character controls from the result, as they are likely
  * to be CR and/or LF.
  */
-void SciTEBase::SelectionExtend(
-    char *sel,  	///< Buffer receiving the result.
-    int len,  	///< Size of the buffer.
+SString SciTEBase::SelectionExtend(
     bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
 	bool stripEol /*=true*/) {
 
@@ -1036,14 +1060,12 @@ void SciTEBase::SelectionExtend(
 	} else {
 		wCurrent = wEditor;
 	}
-	int lengthDoc = SendFocused(SCI_GETLENGTH);
 	int selStart = SendFocused(SCI_GETSELECTIONSTART);
 	int selEnd = SendFocused(SCI_GETSELECTIONEND);
-	RangeExtendAndGrab(wCurrent, sel, len, selStart, selEnd, lengthDoc, ischarforsel, stripEol);
+	return RangeExtendAndGrab(wCurrent, selStart, selEnd, ischarforsel, stripEol);
 }
 
 void SciTEBase::FindWordAtCaret(int &start, int &end) {
-	char selection[1000];
 	Window wCurrent;
 
 	if (wOutput.HasFocus()) {
@@ -1051,11 +1073,10 @@ void SciTEBase::FindWordAtCaret(int &start, int &end) {
 	} else {
 		wCurrent = wEditor;
 	}
-	int lengthDoc = SendFocused(SCI_GETLENGTH);
 	start = SendFocused(SCI_GETSELECTIONSTART);
 	end = SendFocused(SCI_GETSELECTIONEND);
-	RangeExtendAndGrab(wCurrent, selection, sizeof(selection),
-		start, end, lengthDoc, iswordcharforsel, false);
+	// Call just to update start & end
+	RangeExtendAndGrab(wCurrent, start, end, iswordcharforsel, false);
 }
 
 bool SciTEBase::SelectWordAtCaret() {
@@ -1067,28 +1088,22 @@ bool SciTEBase::SelectWordAtCaret() {
 }
 
 SString SciTEBase::SelectionWord(bool stripEol /*=true*/) {
-	char selection[1000];
-	SelectionExtend(selection, sizeof(selection), iswordcharforsel, stripEol);
-	return SString(selection);
+	return SelectionExtend(iswordcharforsel, stripEol);
 }
 
 SString SciTEBase::SelectionFilename() {
-	char selection[1000];
-	SelectionExtend(selection, sizeof(selection), isfilenamecharforsel);
-	return SString(selection);
+	return SelectionExtend(isfilenamecharforsel);
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	int selStart = SendFocused(SCI_GETSELECTIONSTART);
-	int selEnd = SendFocused(SCI_GETSELECTIONEND);
-	char *currentSelection = new char[selEnd - selStart + 1];
-	SelectionExtend(currentSelection, selEnd - selStart + 1, 0, 0);
-	props.Set("CurrentSelection", currentSelection);
-	delete []currentSelection;
+	SString currentSelection = SelectionExtend(0, false);
+	props.Set("CurrentSelection", currentSelection.c_str());
 
 	SString word = SelectionWord();
 	props.Set("CurrentWord", word.c_str());
 
+	int selStart = SendFocused(SCI_GETSELECTIONSTART);
+	int selEnd = SendFocused(SCI_GETSELECTIONEND);
 	props.SetInteger("SelectionStartLine", SendFocused(SCI_LINEFROMPOSITION, selStart) + 1);
 	props.SetInteger("SelectionStartColumn", SendFocused(SCI_GETCOLUMN, selStart) + 1);
 	props.SetInteger("SelectionEndLine", SendFocused(SCI_LINEFROMPOSITION, selEnd) + 1);
@@ -1811,19 +1826,18 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 }
 
 bool SciTEBase::StartCallTip() {
-	char linebuf[1000];
 	currentCallTip = 0;
 	currentCallTipWord = "";
-	GetLine(linebuf, sizeof(linebuf));
+	SString line = GetLine();
 	int current = GetCaretInLine();
 	int pos = SendEditor(SCI_GETCURRENTPOS);
 	int braces;
 	do {
 		braces = 0;
-		while (current > 0 && (braces || linebuf[current - 1] != '(')) {
-			if (linebuf[current - 1] == '(')
+		while (current > 0 && (braces || line[current - 1] != '(')) {
+			if (line[current - 1] == '(')
 				braces--;
-			else if (linebuf[current - 1] == ')')
+			else if (line[current - 1] == ')')
 				braces++;
 			current--;
 			pos--;
@@ -1833,22 +1847,22 @@ bool SciTEBase::StartCallTip() {
 			pos--;
 		} else
 			break;
-		while (current > 0 && isspace(linebuf[current - 1])) {
+		while (current > 0 && isspace(line[current - 1])) {
 			current--;
 			pos--;
 		}
-	} while (current > 0 && !calltipWordCharacters.contains(linebuf[current - 1]));
+	} while (current > 0 && !calltipWordCharacters.contains(line[current - 1]));
 	if (current <= 0)
 		return true;
 
 	startCalltipWord = current - 1;
 	while (startCalltipWord > 0 &&
-	        calltipWordCharacters.contains(linebuf[startCalltipWord - 1])) {
+	        calltipWordCharacters.contains(line[startCalltipWord - 1])) {
 		startCalltipWord--;
 	}
 
-	linebuf[current] = '\0';
-	currentCallTipWord = linebuf + startCalltipWord;
+	line.change(current, '\0');
+	currentCallTipWord = line.c_str() + startCalltipWord;
 	functionDefinition = "";
 	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", currentCallTipWord.c_str(), currentCallTipWord.length(), pos, pos - rootlen);
 	FillFunctionDefinition(pos);
@@ -1860,18 +1874,17 @@ static bool IsCallTipSeparator(char ch) {
 }
 
 void SciTEBase::ContinueCallTip() {
-	char linebuf[1000];
-	GetLine(linebuf, sizeof(linebuf));
+	SString line = GetLine();
 	int current = GetCaretInLine();
 
 	int braces = 0;
 	int commas = 0;
 	for (int i = startCalltipWord; i < current; i++) {
-		if (linebuf[i] == '(')
+		if (line[i] == '(')
 			braces++;
-		else if (linebuf[i] == ')' && braces > 0)
+		else if (line[i] == ')' && braces > 0)
 			braces--;
-		else if (braces == 1 && IsCallTipSeparator(linebuf[i]))
+		else if (braces == 1 && IsCallTipSeparator(line[i]))
 			commas++;
 	}
 
@@ -1928,25 +1941,24 @@ void SciTEBase::EliminateDuplicateWords(char *words) {
 }
 
 bool SciTEBase::StartAutoComplete() {
-	char linebuf[1000];
-	GetLine(linebuf, sizeof(linebuf));
+	SString line = GetLine();
 	int current = GetCaretInLine();
 
 	int startword = current;
 
 	while ((startword > 0) &&
-	        (wordCharacters.contains(linebuf[startword - 1]) ||
-	         autoCompleteStartCharacters.contains(linebuf[startword - 1])))
+	        (wordCharacters.contains(line[startword - 1]) ||
+	         autoCompleteStartCharacters.contains(line[startword - 1]))) {
 		startword--;
+	}
 
-	linebuf[current] = '\0';
-	const char *root = linebuf + startword;
-	int rootlen = current - startword;
+	SString root = line.substr(startword, current - startword);
 	if (apis) {
-		char *words = apis.GetNearestWords(root, rootlen, autoCompleteIgnoreCase);
+		char *words = apis.GetNearestWords(root.c_str(), root.length(),
+											autoCompleteIgnoreCase);
 		if (words) {
 			EliminateDuplicateWords(words);
-			SendEditorString(SCI_AUTOCSHOW, rootlen, words);
+			SendEditorString(SCI_AUTOCSHOW, root.length(), words);
 			delete []words;
 		}
 	}
@@ -1954,33 +1966,36 @@ bool SciTEBase::StartAutoComplete() {
 }
 
 bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
-	char linebuf[1000];
-	GetLine(linebuf, sizeof(linebuf));
+	SString line = GetLine();
 	int current = GetCaretInLine();
-	if (current >= static_cast<int>(sizeof(linebuf)))
-		return false;
+//~ 	if (current >= line.size())
+//~ 		return false;
 
 	int startword = current;
-	while (startword > 0 && wordCharacters.contains(linebuf[startword - 1]))
+	// Autocompletion of pure numbers is mostly an annoyance
+	bool allNumber = true;
+	while (startword > 0 && wordCharacters.contains(line[startword - 1])) {
 		startword--;
-	if (startword == current)
+		if (line[startword] < '0' || line[startword] > '9') {
+			allNumber = false;
+		}
+	}
+	if (startword == current || allNumber)
 		return true;
-	linebuf[current] = '\0';
-	const char *root = linebuf + startword;
-	int rootlen = current - startword;
+	SString root = line.substr(startword, current - startword);
 	int doclen = LengthDocument();
 	TextToFind ft = {{0, 0}, 0, {0, 0}};
-	ft.lpstrText = const_cast<char*>(root);
+	ft.lpstrText = const_cast<char*>(root.c_str());
 	ft.chrg.cpMin = 0;
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
 	int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
-	int posCurrentWord = SendEditor (SCI_GETCURRENTPOS) - rootlen;
-	int minWordLength = 0;
-	int nwords = 0;
+	int posCurrentWord = SendEditor(SCI_GETCURRENTPOS) - root.length();
+	unsigned int minWordLength = 0;
+	unsigned int nwords = 0;
 
 	// wordsNear contains a list of words separated by single spaces and with a space
-	// at the start and end. this makes it easy to search for words.
+	// at the start and end. This makes it easy to search for words.
 	SString wordsNear;
 	wordsNear.setsizegrowth(1000);
 	wordsNear += " ";
@@ -1991,21 +2006,21 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		if (posFind == -1 || posFind >= doclen)
 			break;
 		if (posFind == posCurrentWord) {
-			ft.chrg.cpMin = posFind + rootlen;
+			ft.chrg.cpMin = posFind + root.length();
 			continue;
 		}
 		// Grab the word and put spaces around it
-		const int wordMaxSize = 80;
+		const unsigned int wordMaxSize = 80;
 		char wordstart[wordMaxSize];
 		wordstart[0] = ' ';
 		GetRange(wEditor, posFind, Platform::Minimum(posFind + wordMaxSize - 3, doclen), wordstart + 1);
-		char *wordend = wordstart + 1 + rootlen;
+		char *wordend = wordstart + 1 + root.length();
 		while (iswordcharforsel(*wordend))
 			wordend++;
 		*wordend++ = ' ';
 		*wordend = '\0';
-		int wordlen = wordend - wordstart - 2;
-		if (wordlen > rootlen) {
+		unsigned int wordlen = wordend - wordstart - 2;
+		if (wordlen > root.length()) {
 			if (!wordsNear.contains(wordstart)) {	// add a new entry
 				wordsNear += wordstart + 1;
 				if (minWordLength < wordlen)
@@ -2020,11 +2035,11 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		ft.chrg.cpMin = posFind + wordlen;
 	}
 	size_t length = wordsNear.length();
-	if ((length > 2) && (!onlyOneWord || (minWordLength > rootlen))) {
+	if ((length > 2) && (!onlyOneWord || (minWordLength > root.length()))) {
 		WordList wl;
 		wl.Set(wordsNear.c_str());
 		char *words = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
-		SendEditorString(SCI_AUTOCSHOW, rootlen, words);
+		SendEditorString(SCI_AUTOCSHOW, root.length(), words);
 		delete []words;
 	} else {
 		SendEditor(SCI_AUTOCCANCEL);
@@ -4044,15 +4059,16 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_DWELLSTART: {
-			char message[200];
 			if (INVALID_POSITION == notification->position) {
+				char message[200];
 				sprintf(message, "%0d (%0d,%0d)", notification->position, notification->x, notification->y);
 			} else {
-				int lengthDoc = SendEditor(SCI_GETLENGTH);
-				RangeExtendAndGrab(wEditor, message, sizeof(message),
-				                   notification->position, notification->position, lengthDoc, iswordcharforsel);
-				if (message[0])
-					SendEditorString(SCI_CALLTIPSHOW, notification->position, message);
+				SString message =
+					RangeExtendAndGrab(wEditor,
+									   notification->position, notification->position, iswordcharforsel);
+				if (message.length()) {
+					SendEditorString(SCI_CALLTIPSHOW, notification->position, message.c_str());
+				}
 			}
 		}
 		break;
