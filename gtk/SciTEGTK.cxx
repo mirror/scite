@@ -147,10 +147,10 @@ struct SciTEItemFactoryEntry {
 long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 	int modsInKey = 0;
 	int keyval = -1;
-	
+
 	if (mnemonic && *mnemonic) {
 		SString sKey = mnemonic;
-	
+
 		if (sKey.contains("Ctrl+")) {
 			modsInKey |= GDK_CONTROL_MASK;
 			sKey.remove("Ctrl+");
@@ -163,7 +163,7 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 			modsInKey |= GDK_MOD1_MASK;
 			sKey.remove("Alt+");
 		}
-	
+
 		if (sKey.length() == 1) {
 			if (modsInKey & GDK_CONTROL_MASK && !(modsInKey & GDK_SHIFT_MASK))
 				sKey.lowercase();
@@ -231,7 +231,8 @@ protected:
 	GdkGC *xor_gc;
 
 	guint sbContextID;
-	//Window wToolBarBox;
+	Window wToolBarBox;
+	int toolbarDetachable;
 	int menuSource;
 
 	// Control of sub process
@@ -427,7 +428,7 @@ protected:
 #ifdef USE_FILE_CHOOSER
 	// Callback function to show hidden files in filechooser
 	static void toggle_hidden_cb(GtkToggleButton *toggle, gpointer data);
-#endif	
+#endif
 public:
 
 	// TODO: get rid of this - use callback argument to find SciTEGTK
@@ -438,7 +439,7 @@ public:
 
 	void WarnUser(int warnID);
 	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
-	GtkWidget *AddToolButton(const char *text, int cmd, char *icon[]);
+	GtkWidget *AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon);
 	void AddToolBar();
 	SString SciTEGTK::TranslatePath(const char *path);
 	void CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
@@ -696,10 +697,22 @@ void SciTEGTK::Notify(SCNotification *notification) {
 }
 
 void SciTEGTK::ShowToolBar() {
+	if (GTK_TOOLBAR(PWidget(wToolBar))->num_children < 1) {
+		AddToolBar();
+	}
+
 	if (tbVisible) {
-		gtk_widget_show(GTK_WIDGET(PWidget(wToolBar)));
+		if (toolbarDetachable == 1) {
+			gtk_widget_show(GTK_WIDGET(PWidget(wToolBarBox)));
+		} else {
+			gtk_widget_show(GTK_WIDGET(PWidget(wToolBar)));
+		}
 	} else {
-		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
+		if (toolbarDetachable == 1) {
+			gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
+		} else {
+			gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
+		}
 	}
 }
 
@@ -852,7 +865,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 	SString itemText(text);
 	// Remove accelerator as does not work.
 	itemText.remove("&");
-	
+
 	long keycode = 0;
 	if (mnemonic && *mnemonic) {
 		keycode = SciTEKeys::ParseKeyCode(mnemonic);
@@ -882,7 +895,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 		}
 		g_list_free(al);
 		gtk_widget_show(item);
-		
+
 		if (itemID >= IDM_TOOLS && itemID < IDM_TOOLS + toolMax) {
 			// Stow the keycode for later retrieval.
 			// Do this even if 0, in case the menu already existed (e.g. ModifyMenu)
@@ -1076,7 +1089,7 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(dlg), toggle);
 		g_signal_connect(toggle, "toggled",
 			G_CALLBACK(toggle_hidden_cb), GTK_DIALOG(dlg));
-		
+
 		SString openFilter;
 		if (filter)
 			openFilter = filter;
@@ -1129,7 +1142,7 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 // Callback function to show hidden files in filechooser
 void SciTEGTK::toggle_hidden_cb(GtkToggleButton *toggle, gpointer data) {
 	GtkWidget *file_chooser = GTK_WIDGET(data);
-	
+
 	if (gtk_toggle_button_get_active(toggle))
 		g_object_set(GTK_FILE_CHOOSER(file_chooser), "show-hidden", TRUE, NULL);
 	else
@@ -1186,7 +1199,7 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
-		
+
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
 			HandleSaveAs(filename);
@@ -1249,10 +1262,10 @@ void SciTEGTK::LoadSessionDialog() {
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
-		
+
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-			
+
 			LoadSession(filename);
 			g_free(filename);
 		}
@@ -1284,10 +1297,10 @@ void SciTEGTK::SaveSessionDialog() {
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
-		
+
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-			
+
 			SaveSession(filename);
 			g_free(filename);
 		}
@@ -1373,10 +1386,10 @@ static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool u
 
 SString SciTEGTK::EncodeString(const SString &s) {
 	Platform::SendScintilla(PWidget(wEditor), SCI_SETLENGTHFORENCODE, s.length(), 0);
-	int len = Platform::SendScintillaPointer(PWidget(wEditor), SCI_ENCODEDFROMUTF8, 
+	int len = Platform::SendScintillaPointer(PWidget(wEditor), SCI_ENCODEDFROMUTF8,
 		reinterpret_cast<uptr_t>(s.c_str()), 0);
 	SBuffer ret(len);
-	Platform::SendScintillaPointer(PWidget(wEditor), SCI_ENCODEDFROMUTF8, 
+	Platform::SendScintillaPointer(PWidget(wEditor), SCI_ENCODEDFROMUTF8,
 		reinterpret_cast<uptr_t>(s.c_str()), ret.ptr());
 	return SString(ret);
 }
@@ -2482,7 +2495,7 @@ void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
 }
 
 void SciTEGTK::GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event) {
-	if(event->button == 1)
+	if (event->button == 1)
 		ButtonSignal(NULL,(gpointer)(bufferCmdID+gtk_notebook_get_current_page(notebook)));
 }
 
@@ -2548,17 +2561,14 @@ GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
 	return pixmapwid;
 }
 
-GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, char *icon[]) {
+GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon) {
 
-	GtkWidget *toolbar_icon = pixmap_new(PWidget(wSciTE), icon);
 	GtkWidget *button = gtk_toolbar_append_element(GTK_TOOLBAR(PWidget(wToolBar)),
 	                    GTK_TOOLBAR_CHILD_BUTTON,
 	                    NULL,
 	                    NULL,
 	                    text, NULL,
 	                    toolbar_icon, NULL, NULL);
-
-	//gtk_container_set_border_width(GTK_CONTAINER(button), 2);
 
 	gtk_signal_connect(GTK_OBJECT(button), "clicked",
 	                   GTK_SIGNAL_FUNC (ButtonSignal),
@@ -2567,32 +2577,65 @@ GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, char *icon[]) {
 }
 
 void SciTEGTK::AddToolBar() {
-	AddToolButton("New", IDM_NEW, filenew_xpm);
-	AddToolButton("Open", IDM_OPEN, fileopen_xpm);
-	AddToolButton("Save", IDM_SAVE, filesave_xpm);
-	AddToolButton("Close", IDM_CLOSE, close_xpm);
+	if (props.GetInt("toolbar.usestockicons") == 1) {
+		AddToolButton("New", IDM_NEW, gtk_image_new_from_stock("gtk-new", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Open", IDM_OPEN, gtk_image_new_from_stock("gtk-open", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Save", IDM_SAVE, gtk_image_new_from_stock("gtk-save", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Close", IDM_CLOSE, gtk_image_new_from_stock("gtk-close", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Undo", IDM_UNDO, undo_xpm);
-	AddToolButton("Redo", IDM_REDO, redo_xpm);
-	AddToolButton("Cut", IDM_CUT, editcut_xpm);
-	AddToolButton("Copy", IDM_COPY, editcopy_xpm);
-	AddToolButton("Paste", IDM_PASTE, editpaste_xpm);
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolButton("Undo", IDM_UNDO, gtk_image_new_from_stock("gtk-undo", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Redo", IDM_REDO, gtk_image_new_from_stock("gtk-redo", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Find in Files", IDM_FINDINFILES, findinfiles_xpm);
-	AddToolButton("Find", IDM_FIND, search_xpm);
-	AddToolButton("Find Next", IDM_FINDNEXT, findnext_xpm);
-	AddToolButton("Replace", IDM_REPLACE, replace_xpm);
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolButton("Cut", IDM_CUT, gtk_image_new_from_stock("gtk-cut", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Copy", IDM_COPY, gtk_image_new_from_stock("gtk-copy", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Paste", IDM_PASTE, gtk_image_new_from_stock("gtk-paste", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	btnCompile = AddToolButton("Compile", IDM_COMPILE, compile_xpm);
-	btnBuild = AddToolButton("Build", IDM_BUILD, build_xpm);
-	btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, stop_xpm);
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolButton("Find in Files", IDM_FINDINFILES, gtk_image_new_from_stock("gtk-find", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Find", IDM_FIND, gtk_image_new_from_stock("gtk-zoom-fit", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Find Next", IDM_FINDNEXT, gtk_image_new_from_stock("gtk-jump-to", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Replace", IDM_REPLACE, gtk_image_new_from_stock("gtk-find-and-replace", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Previous Buffer", IDM_PREVFILE, prev_xpm);
-	AddToolButton("Next Buffer", IDM_NEXTFILE, next_xpm);
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		btnCompile = AddToolButton("Compile", IDM_COMPILE, gtk_image_new_from_stock("gtk-execute", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		btnBuild = AddToolButton("Build", IDM_BUILD, gtk_image_new_from_stock("gtk-convert", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, gtk_image_new_from_stock("gtk-stop", GTK_ICON_SIZE_LARGE_TOOLBAR));
+
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolButton("Previous", IDM_PREVFILE, gtk_image_new_from_stock("gtk-go-back", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_stock("gtk-go-forward", GTK_ICON_SIZE_LARGE_TOOLBAR));
+	} else {
+		AddToolButton("New", IDM_NEW, pixmap_new(PWidget(wSciTE), filenew_xpm));
+		AddToolButton("Open", IDM_OPEN, pixmap_new(PWidget(wSciTE), fileopen_xpm));
+		AddToolButton("Save", IDM_SAVE, pixmap_new(PWidget(wSciTE), filesave_xpm));
+		AddToolButton("Close", IDM_CLOSE, pixmap_new(PWidget(wSciTE), close_xpm));
+
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolButton("Undo", IDM_UNDO, pixmap_new(PWidget(wSciTE), undo_xpm));
+		AddToolButton("Redo", IDM_REDO, pixmap_new(PWidget(wSciTE), redo_xpm));
+
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolButton("Cut", IDM_CUT, pixmap_new(PWidget(wSciTE), editcut_xpm));
+		AddToolButton("Copy", IDM_COPY, pixmap_new(PWidget(wSciTE), editcopy_xpm));
+		AddToolButton("Paste", IDM_PASTE, pixmap_new(PWidget(wSciTE), editpaste_xpm));
+
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new(PWidget(wSciTE), findinfiles_xpm));
+		AddToolButton("Find", IDM_FIND, pixmap_new(PWidget(wSciTE), search_xpm));
+		AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new(PWidget(wSciTE), findnext_xpm));
+		AddToolButton("Replace", IDM_REPLACE, pixmap_new(PWidget(wSciTE), replace_xpm));
+
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new(PWidget(wSciTE), compile_xpm));
+		btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new(PWidget(wSciTE), build_xpm));
+		btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new(PWidget(wSciTE), stop_xpm));
+
+		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolButton("Previous", IDM_PREVFILE, pixmap_new(PWidget(wSciTE), prev_xpm));
+		AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new(PWidget(wSciTE), next_xpm));
+	}
 }
 
 SString SciTEGTK::TranslatePath(const char *path) {
@@ -2805,7 +2848,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Tools/_Compile", "<control>F7", menuSig, IDM_COMPILE, 0},
 	                                      {"/Tools/_Build", "F7", menuSig, IDM_BUILD, 0},
 	                                      {"/Tools/_Go", "F5", menuSig, IDM_GO, 0},
-                                              
+
 	                                      {"/Tools/Tool0", NULL, menuSig, IDM_TOOLS + 0, 0},
 	                                      {"/Tools/Tool1", NULL, menuSig, IDM_TOOLS + 1, 0},
 	                                      {"/Tools/Tool2", NULL, menuSig, IDM_TOOLS + 2, 0},
@@ -2861,7 +2904,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Tools/Tool48", NULL, menuSig, IDM_TOOLS + 48, 0},
 	                                      {"/Tools/Tool49", NULL, menuSig, IDM_TOOLS + 49, 0},
 
-										  
+
 	                                      {"/Tools/_Stop Executing", "<control>.", menuSig, IDM_STOPEXECUTE, NULL},
 	                                      {"/Tools/sep1", NULL, NULL, 0, "<Separator>"},
 	                                      {"/Tools/_Next Message", "F4", menuSig, IDM_NEXTMSG, 0},
@@ -2984,49 +3027,55 @@ void SciTEGTK::CreateUI() {
 	gtk_container_add(GTK_CONTAINER(PWidget(wSciTE)), boxMain);
 	GTK_WIDGET_UNSET_FLAGS(boxMain, GTK_CAN_FOCUS);
 
+ 	// The Menubar
 	CreateMenu();
+	if (props.GetInt("menubar.detachable") == 1) {
+		GtkWidget *handle_box = gtk_handle_box_new();
+		gtk_container_add(GTK_CONTAINER(handle_box),
+			gtk_item_factory_get_widget(itemFactory, "<main>"));
+		gtk_box_pack_start(GTK_BOX(boxMain),
+			handle_box,
+			FALSE, FALSE, 0);
+	} else {
+		gtk_box_pack_start(GTK_BOX(boxMain),
+			gtk_item_factory_get_widget(itemFactory, "<main>"),
+			FALSE, FALSE, 0);
+	}
 
-	//GtkWidget *handle_box = gtk_handle_box_new();
-
-	//gtk_container_add(GTK_CONTAINER(handle_box),
-	//                  gtk_item_factory_get_widget(itemFactory, "<main>"));
-
-	//gtk_box_pack_start(GTK_BOX(boxMain),
-	//                   handle_box,
-	//                   FALSE, FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(boxMain),
-	                   gtk_item_factory_get_widget(itemFactory, "<main>"),
-	                   FALSE, FALSE, 0);
-
-	//wToolBarBox = gtk_handle_box_new();
-
+	// The Toolbar
 #if GTK_MAJOR_VERSION < 2
 	wToolBar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
 #else
 	wToolBar = gtk_toolbar_new();
 	gtk_toolbar_set_orientation(GTK_TOOLBAR(PWidget(wToolBar)), GTK_ORIENTATION_HORIZONTAL);
 #endif
+	toolbarDetachable = props.GetInt("toolbar.detachable");
+	if (toolbarDetachable == 1) {
+		wToolBarBox = gtk_handle_box_new();
+		gtk_container_add(GTK_CONTAINER(PWidget(wToolBarBox)), PWidget(wToolBar));
+		gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wToolBarBox), FALSE, FALSE, 0);
+		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
+	} else {
+		gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wToolBar), FALSE, FALSE, 0);
+		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
+	}
+	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 0);
+#if GTK_MAJOR_VERSION < 2
+	gtk_toolbar_set_space_size(GTK_TOOLBAR(PWidget(wToolBar)), 17);
+	gtk_toolbar_set_space_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_SPACE_LINE);
+	gtk_toolbar_set_button_relief(GTK_TOOLBAR(PWidget(wToolBar)), GTK_RELIEF_NONE);
+#endif
 	tbVisible = false;
 
-	//gtk_container_add(GTK_CONTAINER(PWidget(wToolBarBox)), PWidget(wToolBar));
-
-	//gtk_box_pack_start(GTK_BOX(boxMain),
-	//                   PWidget(wToolBarBox),
-	//                   FALSE, FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(boxMain),
-	                   PWidget(wToolBar),
-	                   FALSE, FALSE, 0);
-
-	//'factory default' setting
-	tabVisible = false;
-
+	// The Notebook (GTK2)
 #if GTK_MAJOR_VERSION >= 2
-	wTabBar=gtk_notebook_new();
+	wTabBar = gtk_notebook_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
 	gtk_signal_connect_after(GTK_OBJECT(PWidget(wTabBar)),
 		"button-release-event",GTK_SIGNAL_FUNC(GtkTabBarSwitch),NULL);
 #endif
+	tabVisible = false;
 
 	wContent = gtk_fixed_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wContent), GTK_CAN_FOCUS);
@@ -3104,15 +3153,6 @@ void SciTEGTK::CreateUI() {
 
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
 
-	gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
-
-	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 0);
-#if GTK_MAJOR_VERSION < 2
-	gtk_toolbar_set_space_size(GTK_TOOLBAR(PWidget(wToolBar)), 17);
-	gtk_toolbar_set_space_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_SPACE_LINE);
-	gtk_toolbar_set_button_relief(GTK_TOOLBAR(PWidget(wToolBar)), GTK_RELIEF_NONE);
-#endif
-
 	wStatusBar = gtk_statusbar_new();
 	sbContextID = gtk_statusbar_get_context_id(
 	                  GTK_STATUSBAR(PWidget(wStatusBar)), "global");
@@ -3132,14 +3172,9 @@ void SciTEGTK::CreateUI() {
 
 	if ((left != useDefault) && (top != useDefault))
 		gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
-	//if ((width != useDefault) && (height != useDefault))
-		//gtk_widget_set_usize(GTK_WIDGET(PWidget(wSciTE)), width, height);
 	if ((width != useDefault) && (height != useDefault))
 		gtk_window_set_default_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
 	gtk_widget_show_all(PWidget(wSciTE));
-	//if ((left != useDefault) && (top != useDefault))
-	//	gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
-	AddToolBar();
 	SetIcon();
 
 #if GTK_MAJOR_VERSION >= 2
@@ -3161,9 +3196,9 @@ void SciTEGTK::FindIncrementSignal(GtkWidget *entry, SciTEGTK *scitew) {
 	ffLastWhat = scitew->findWhat;
 	scitew->findWhat = lineEntry;
 	scitew->wholeWord = false;
-	if (scitew->findWhat != ""){
-		scitew->FindNext(false,false);
-		if ((!scitew->havefound)&&(ffLastWhat.length() == scitew->findWhat.length()-1)){
+	if (scitew->findWhat != "") {
+		scitew->FindNext(false, false);
+		if ((!scitew->havefound) && (ffLastWhat.length() == scitew->findWhat.length()-1)) {
 			scitew->findWhat = ffLastWhat;
 			gtk_entry_set_text(GTK_ENTRY(scitew->IncSearchEntry), scitew->findWhat.c_str());
 			gtk_editable_set_position(GTK_EDITABLE(scitew->IncSearchEntry), scitew->findWhat.length());
@@ -3184,7 +3219,7 @@ void SciTEGTK::FindIncrementCompleteSignal(GtkWidget *, SciTEGTK *scitew) {
 	SetFocus(PWidget(scitew->wEditor));
 }
 
-void SciTEGTK::FindIncrement(){
+void SciTEGTK::FindIncrement() {
 	gtk_widget_show(wIncrementPanel);
 	gtk_widget_grab_focus(GTK_WIDGET(IncSearchEntry));
 	gtk_entry_set_text(GTK_ENTRY(IncSearchEntry), "");
