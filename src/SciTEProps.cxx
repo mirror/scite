@@ -257,9 +257,8 @@ long ColourOfProperty(PropSet &props, const char *key, Colour colourDefault) {
 	SString colour = props.Get(key);
 	if (colour.length()) {
 		return ColourFromString(colour.c_str()).AsLong();
-	} else {
-		return colourDefault.AsLong();
 	}
+	return colourDefault.AsLong();
 }
 
 /**
