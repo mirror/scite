@@ -1066,10 +1066,6 @@ void SciTEBase::ReadProperties() {
 		char defaultDir[MAX_PATH];
 		GetDefaultDirectory(defaultDir, sizeof(defaultDir));
 		char scriptPath[MAX_PATH];
-		if (Exists(defaultDir, "SciTEGlobal.lua", scriptPath)) {
-			// Found fglobal file in global directory
-			extender->Load(scriptPath);
-		}
 
 		// Check for an extension script
 		SString extensionFile = props.GetNewExpand("extension.", fileNameForExtension.c_str());
