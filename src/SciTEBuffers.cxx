@@ -953,7 +953,7 @@ void SciTEBase::GoMessage(int dir) {
 				if (0 != strcmp(sourcePath, fileName)) {
 					char messagePath[MAX_PATH];
 					bool bExists = false;
-					if (Exists(dirNameAtExecute, sourcePath, messagePath)) {
+					if (Exists(dirNameAtExecute.c_str(), sourcePath, messagePath)) {
 						bExists = true;
 					} else if (Exists(dirName, sourcePath, messagePath)) {
 						bExists = true;

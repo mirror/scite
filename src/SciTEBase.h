@@ -47,7 +47,7 @@ template < int sz >
 class EntryMemory {
 	SString entries[sz];
 public:
-	void Insert(SString s) {
+	void Insert(const SString &s) {
 		for (int i = 0;i < sz;i++) {
 			if (entries[i] == s) {
 				for (int j = i;j > 0;j--) {
@@ -62,7 +62,7 @@ public:
 		}
 		entries[0] = s;
 	}
-	void AppendIfNotPresent(SString s) {
+	void AppendIfNotPresent(const SString &s) {
 		for (int i = 0;i < sz;i++) {
 			if (entries[i] == s) {
 				return;
@@ -73,7 +73,7 @@ public:
 			}
 		}
 	}
-	void AppendList(SString s, char sep='|') {
+	void AppendList(const SString &s, char sep='|') {
 		int start = 0;
 		int end = 0;
 		while (s[end] != '\0') {
@@ -196,20 +196,20 @@ char AfterName(const char *s);
 typedef EntryMemory < 10 > ComboMemory;
 
 enum {
-    heightTools = 24,
-    heightTab = 24,
-    heightStatus = 20,
-    statusPosWidth = 256
+	heightTools = 24,
+	heightTab = 24,
+	heightStatus = 20,
+	statusPosWidth = 256
 };
 
 /// Warning IDs.
 enum {
-    warnFindWrapped = 1,
-    warnNotFound,
-    warnNoOtherBookmark,
-    warnWrongFile,
-    warnExecuteOK,
-    warnExecuteKO
+	warnFindWrapped = 1,
+	warnNotFound,
+	warnNoOtherBookmark,
+	warnWrongFile,
+	warnExecuteOK,
+	warnExecuteKO
 };
 
 /// Codes representing the effect a line has on indentation.
@@ -248,12 +248,12 @@ struct StyleAndWords {
 
 class SciTEBase : public ExtensionAPI {
 protected:
-	char windowName[MAX_PATH + 20];
+	SString windowName;
 	char fullPath[MAX_PATH];
 	char fileName[MAX_PATH];
 	char fileExt[MAX_PATH];
 	char dirName[MAX_PATH];
-	char dirNameAtExecute[MAX_PATH];
+	SString dirNameAtExecute;
 	bool useMonoFont;
 	time_t fileModTime;
 
@@ -265,9 +265,8 @@ protected:
 	SString importFiles[importMax];
 	enum { importCmdID = IDM_IMPORT };
 
-	enum { findReplaceMaxLen = 200 };
-	char findWhat[findReplaceMaxLen + 1];
-	char replaceWhat[findReplaceMaxLen + 1];
+	SString findWhat;
+	SString replaceWhat;
 	Window wFindReplace;
 	bool replacing;
 	bool havefound;
@@ -395,7 +394,7 @@ protected:
 	bool timeCommands;
 
 	bool macrosEnabled;
-	char currentmacro[100];
+	SString currentMacro;
 	bool recording;
 
 	PropSetFile propsEmbed;
@@ -501,8 +500,8 @@ protected:
 	void RangeExtendAndGrab(Window &wCurrent, char *sel, int len,
 	    int selStart, int selEnd, int lengthDoc, bool (*ischarforsel)(char ch));
 	void SelectionExtend(char *sel, int len, bool (*ischarforsel)(char ch));
-	void SelectionWord(char *word, int len);
-	void SelectionFilename(char *filename, int len);
+	SString SelectionWord();
+	SString SelectionFilename();
 	void SelectionIntoProperties();
 	void SelectionIntoFind();
 	virtual void Find() = 0;
@@ -681,8 +680,6 @@ const int blockSize = 131072;
 #define IDCANCEL	(2)
 #define IDYES	(6)
 #define IDNO	(7)
-//int MessageBox(GtkWidget *wParent, const char *m, const char *t = appName, int style = MB_OK);
-void SetFocus(GtkWidget *hwnd);
 #endif
 
 int ControlIDOfCommand(unsigned long);

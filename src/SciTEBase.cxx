@@ -202,8 +202,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	usePalette = false;
 
 	clearBeforeExecute = false;
-	findWhat[0] = '\0';
-	replaceWhat[0] = '\0';
 	replacing = false;
 	havefound = false;
 	matchCase = false;
@@ -216,17 +214,14 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	languageMenu = 0;
 	languageItems = 0;
 	
-	windowName[0] = '\0';
 	fullPath[0] = '\0';
 	fileName[0] = '\0';
 	fileExt[0] = '\0';
 	dirName[0] = '\0';
-	dirNameAtExecute[0] = '\0';
 	useMonoFont = false;
 	fileModTime = 0;
 
 	macrosEnabled = false;
-	currentmacro[0] = '\0';
 	recording = false;
 
 	propsBase.superPS = &propsEmbed;
@@ -690,26 +685,24 @@ void SciTEBase::BraceMatch(bool editor) {
 
 void SciTEBase::SetWindowName() {
 	if (fileName[0] == '\0') {
-		SString untitled = LocaliseString("Untitled");
-		untitled.insert(0, "(");
-		untitled.append(")");
-		strcpy(windowName, untitled.c_str());
+		windowName = LocaliseString("Untitled");
+		windowName.insert(0, "(");
+		windowName += ")";
 	} else if (props.GetInt("title.full.path") == 2) {
-		strcpy(windowName, fileName);
-		strcat(windowName, " @ ");
-		strcat(windowName, dirName);
+		windowName = fileName;
+		windowName += " @ ";
+		windowName += dirName;
 	} else if (props.GetInt("title.full.path") == 1) {
-		strcpy(windowName, fullPath);
+		windowName = fullPath;
 	} else {
-		strcpy(windowName, fileName);
+		windowName = fileName;
 	}
 	if (isDirty)
-		strcat(windowName, " * ");
+		windowName += " * ";
 	else
-		strcat(windowName, " - ");
-	strcat(windowName, appName);
-	wSciTE.SetTitle(windowName);
-	//Platform::DebugPrintf("SetWindowname %s\n", windowName);
+		windowName += " - ";
+	windowName += appName;
+	wSciTE.SetTitle(windowName.c_str());
 }
 
 CharacterRange SciTEBase::GetSelection() {
@@ -855,30 +848,32 @@ void SciTEBase::SelectionExtend(
 	RangeExtendAndGrab(wCurrent, sel, len, selStart, selEnd, lengthDoc, ischarforsel);
 }
 
-void SciTEBase::SelectionWord(char *word, int len) {
-	SelectionExtend(word, len, iswordcharforsel);
+SString SciTEBase::SelectionWord() {
+	char selection[1000];
+	SelectionExtend(selection, sizeof(selection), iswordcharforsel);
+	return selection;
 }
 
-void SciTEBase::SelectionFilename(char *filename, int len) {
-	SelectionExtend(filename, len, isfilenamecharforsel);
+SString SciTEBase::SelectionFilename() {
+	char selection[1000];
+	SelectionExtend(selection, sizeof(selection), isfilenamecharforsel);
+	return selection;
 }
 
 void SciTEBase::SelectionIntoProperties() {
 	char currentSelection[1000];
 	SelectionExtend(currentSelection, sizeof(currentSelection), 0);
 	props.Set("CurrentSelection", currentSelection);
-	char word[200];
-	SelectionWord(word, sizeof(word));
-	props.Set("CurrentWord", word);
+	SString word = SelectionWord();
+	props.Set("CurrentWord", word.c_str());
 }
 
 void SciTEBase::SelectionIntoFind() {
-	SelectionWord(findWhat, sizeof(findWhat));
+	findWhat = SelectionWord();
 	if (unSlash) {
-		char *slashedFind = Slash(findWhat);
+		char *slashedFind = Slash(findWhat.c_str());
 		if (slashedFind) {
-			strncpy(findWhat, slashedFind, sizeof(findWhat));
-			findWhat[sizeof(findWhat) - 1] = '\0';
+			findWhat = slashedFind;
 			delete []slashedFind;
 		}
 	}
@@ -1058,18 +1053,23 @@ unsigned int UnSlashLowOctal(char *s) {
 	return o - sStart;
 }
 
-static int UnSlashAsNeeded(char *s, bool escapes, bool regularExpression) {
+static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
+	char *sUnslashed = StringDup(s.c_str());
+	int len = 0;
 	if (escapes) {
 		if (regularExpression) {
 			// For regular expressions only escape sequences allowed start with \0
-			return UnSlashLowOctal(s);
+			len = UnSlashLowOctal(sUnslashed);
 		} else {
 			// C style escapes allowed
-			return UnSlash(s);
+			len = UnSlash(sUnslashed);
 		}
 	} else {
-		return strlen(s);
+		len = strlen(sUnslashed);
 	}
+	s = sUnslashed;
+	delete []sUnslashed;
+	return len;
 }
 
 void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
@@ -1077,8 +1077,7 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		Find();
 		return;
 	}
-	char findTarget[findReplaceMaxLen + 1];
-	strcpy(findTarget, findWhat);
+	SString findTarget = findWhat;
 	int lenFind = UnSlashAsNeeded(findTarget, unSlash, regExp);
 	if (lenFind == 0)
 		return;
@@ -1099,7 +1098,7 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	SendEditor(SCI_SETTARGETEND, endPosition);
 	SendEditor(SCI_SETSEARCHFLAGS, flags);
 	//DWORD dwStart = timeGetTime();
-	int posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget);
+	int posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget.c_str());
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
 	if (posFind == -1 && wrapFind) {
@@ -1115,14 +1114,14 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		}
 		SendEditor(SCI_SETTARGETSTART, startPosition);
 		SendEditor(SCI_SETTARGETEND, endPosition);
-		posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget);
+		posFind = SendEditorString(SCI_SEARCHINTARGET, lenFind, findTarget.c_str());
 		WarnUser(warnFindWrapped);
 	}
 	if (posFind == -1) {
 		havefound = false;
 		if (showWarnings) {
 			WarnUser(warnNotFound);
-			SString msg = LocaliseMessage("Can not find the string '^0'.", findWhat);
+			SString msg = LocaliseMessage("Can not find the string '^0'.", findWhat.c_str());
 			if (wFindReplace.Created()) {
 				FindMessageBox(msg);
 			} else {
@@ -1145,17 +1144,16 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 
 void SciTEBase::ReplaceOnce() {
 	if (havefound) {
-		char replaceTarget[findReplaceMaxLen + 1];
-		strcpy(replaceTarget, replaceWhat);
+		SString replaceTarget = replaceWhat;
 		int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 		CharacterRange cr = GetSelection();
 		SendEditor(SCI_SETTARGETSTART, cr.cpMin);
 		SendEditor(SCI_SETTARGETEND, cr.cpMax);
 		int lenReplaced = replaceLen;
 		if (regExp)
-			lenReplaced = SendEditorString(SCI_REPLACETARGETRE, replaceLen, replaceTarget);
+			lenReplaced = SendEditorString(SCI_REPLACETARGETRE, replaceLen, replaceTarget.c_str());
 		else	// Allow \0 in replacement
-			SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget);
+			SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget.c_str());
 		SetSelection(cr.cpMin + lenReplaced, cr.cpMin);
 		havefound = false;
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
@@ -1165,8 +1163,7 @@ void SciTEBase::ReplaceOnce() {
 }
 
 void SciTEBase::ReplaceAll(bool inSelection) {
-	char findTarget[findReplaceMaxLen + 1];
-	strcpy(findTarget, findWhat);
+	SString findTarget = findWhat;
 	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
 	if (findLen == 0) {
 		SString msg = LocaliseMessage(
@@ -1194,8 +1191,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		// If not wrapFind, replace all only from caret to end of document
 	}
 
-	char replaceTarget[findReplaceMaxLen + 1];
-	strcpy(replaceTarget, replaceWhat);
+	SString replaceTarget = replaceWhat;
 	int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	            (matchCase ? SCFIND_MATCHCASE : 0) |
@@ -1203,7 +1199,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 	SendEditor(SCI_SETTARGETSTART, startPosition);
 	SendEditor(SCI_SETTARGETEND, endPosition);
 	SendEditor(SCI_SETSEARCHFLAGS, flags);
-	int posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget);
+	int posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
 	if ((findLen == 1) && regExp && (findTarget[0] == '^')) {
 		// Special case for replace all start of line so it hits the first line
 		posFind = startPosition;
@@ -1217,9 +1213,9 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 			int lenTarget = SendEditor(SCI_GETTARGETEND) - SendEditor(SCI_GETTARGETSTART);
 			int lenReplaced = replaceLen;
 			if (regExp)
-				lenReplaced = SendEditorString(SCI_REPLACETARGETRE, replaceLen, replaceTarget);
+				lenReplaced = SendEditorString(SCI_REPLACETARGETRE, replaceLen, replaceTarget.c_str());
 			else
-				SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget);
+				SendEditorString(SCI_REPLACETARGET, replaceLen, replaceTarget.c_str());
 			// Modify for change caused by replacement
 			endPosition += lenReplaced - lenTarget;
 			lastMatch = posFind + lenReplaced;
@@ -1229,7 +1225,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 				lastMatch++;
 			SendEditor(SCI_SETTARGETSTART, lastMatch);
 			SendEditor(SCI_SETTARGETEND, endPosition);
-			posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget);
+			posFind = SendEditorString(SCI_SEARCHINTARGET, findLen, findTarget.c_str());
 		}
 		if (inSelection)
 			SetSelection(startPosition, endPosition);
@@ -1238,7 +1234,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
 		SString msg = LocaliseMessage(
-			"No replacements because string '^0' was not present.", findWhat);
+			"No replacements because string '^0' was not present.", findWhat.c_str());
 		FindMessageBox(msg);
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
@@ -1328,7 +1324,7 @@ void SciTEBase::Execute() {
 	executing = true;
 	CheckMenus();
 	chdir(dirName);
-	strcpy(dirNameAtExecute, dirName);
+	dirNameAtExecute = dirName;
 }
 
 void SciTEBase::ToggleOutputVisible() {
@@ -1560,9 +1556,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		*wordend = '\0';
 		int wordlen = wordend - wordstart - 2;
 		if (wordlen > rootlen) {
-			const char *wordpos;
-			wordpos = strstr(wordsNear.c_str(), wordstart);
-			if (!wordpos) {	// add a new entry
+			if (!wordsNear.contains(wordstart)) {	// add a new entry
 				wordsNear.append(wordstart + 1);
 				if (minWordLength < wordlen)
 					minWordLength = wordlen;
@@ -1579,9 +1573,10 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	//Platform::DebugPrintf("<%s> found %d characters took %d\n", root, length, dwEnd - dwStart);
 	int length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > rootlen))) {
-		char *words = wordsNear.detach();
-		words[length - 1] = '\0';
-		SendEditorString(SCI_AUTOCSHOW, rootlen, words + 1);
+		WordList wl;
+		wl.Set(wordsNear.c_str());
+		char *words = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
+		SendEditorString(SCI_AUTOCSHOW, rootlen, words);
 		delete []words;
 	} else {
 		SendEditor(SCI_AUTOCCANCEL);
@@ -2372,11 +2367,7 @@ int ControlIDOfCommand(unsigned long wParam) {
 }
 
 void WindowSetFocus(Window &w) {
-#if PLAT_GTK
-	::SetFocus(reinterpret_cast<GtkWidget *>(w.GetID()));
-#else
-	::SetFocus(reinterpret_cast<HWND>(w.GetID()));
-#endif
+	Platform::SendScintilla(w.GetID(), SCI_GRABFOCUS, 0, 0);
 }
 
 void SciTEBase::MenuCommand(int cmdID) {
@@ -3322,8 +3313,7 @@ void SciTEBase::PerformOne(char *action) {
 		} else if (isprefix(action, "goto:") && fnEditor) {
 			GotoLineEnsureVisible(atoi(arg) - 1);
 		} else if (isprefix(action, "find:") && fnEditor) {
-			strncpy(findWhat, arg, sizeof(findWhat));
-			findWhat[sizeof(findWhat) - 1] = '\0';
+			findWhat = arg;
 			FindNext(false, false);
 		} else if (isprefix(action, "macroenable:")) {
 			macrosEnabled = atoi(arg);
@@ -3331,7 +3321,7 @@ void SciTEBase::PerformOne(char *action) {
 		} else if (isprefix(action, "macrolist:")) {
 			StartMacroList(arg);
 		} else if (isprefix(action, "currentmacro:")) {
-			strcpy(currentmacro, arg);
+			currentMacro = arg;
 		} else if (isprefix(action, "macrocommand:")) {
 			ExecuteMacroCommand(arg);
 		} else if (isprefix(action, "askfilename:")) {
@@ -3341,8 +3331,8 @@ void SciTEBase::PerformOne(char *action) {
 		} else if (isprefix(action, "replaceall:") && fnEditor) {
 			if (len > strlen(action)) {
 				char *arg2 = arg + strlen(arg) + 1;
-				strcpy(findWhat, arg);
-				strcpy(replaceWhat, arg2);
+				findWhat = arg;
+				replaceWhat = arg2;
 				ReplaceAll(false);
 			}
 		} else if (isprefix(action, "saveas:")) {
@@ -3495,7 +3485,7 @@ bool SciTEBase::StartMacroList(const char *words) {
  */
 void SciTEBase::ContinueMacroList(const char *stext) {
 	if ((extender) && (*stext != '\0')) {
-		strcpy(currentmacro, stext);
+		currentMacro = stext;
 		StartPlayMacro();
 	}
 }
@@ -3505,7 +3495,7 @@ void SciTEBase::ContinueMacroList(const char *stext) {
  */
 void SciTEBase::StartPlayMacro() {
 	if (extender)
-		extender->OnMacro("macro:run", currentmacro);
+		extender->OnMacro("macro:run", currentMacro.c_str());
 }
 
 /*

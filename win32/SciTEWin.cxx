@@ -871,7 +871,7 @@ void SciTEWin::CreateUI() {
 	wSciTE = ::CreateWindowEx(
 	             0,
 	             className,
-	             windowName,
+	             windowName.c_str(),
 	             WS_CAPTION | WS_SYSMENU | WS_THICKFRAME |
 	             WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
 	             WS_CLIPCHILDREN,

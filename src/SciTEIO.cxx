@@ -427,10 +427,13 @@ void SciTEBase::OpenMultiple(const char *files, bool initialCmdLine, bool forceL
 }
 
 void SciTEBase::OpenSelected() {
-	char selectedFilename[MAX_PATH], cTag[200];
+	char selectedFilename[MAX_PATH];
+	char cTag[200];
 	unsigned long lineNumber = 0;
 
-	SelectionFilename(selectedFilename, sizeof(selectedFilename));
+	SString selName = SelectionFilename();
+	strncpy(selectedFilename, selName.c_str(), MAX_PATH);
+	selectedFilename[MAX_PATH-1] = '\0';
 	if (selectedFilename[0] == '\0') {
 		WarnUser(warnWrongFile);
 		return;	// No selection
@@ -496,7 +499,7 @@ void SciTEBase::OpenSelected() {
 			if (lineNumber > 0) {
 				SendEditor(SCI_GOTOLINE, lineNumber - 1);
 			} else if (cTag[0] != '\0') {
-				strcpy(findWhat, cTag);
+				findWhat = cTag;
 				FindNext(false);
 			}
 		}
