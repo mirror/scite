@@ -1323,7 +1323,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 					error += "Don't use tabs and spaces after \'\\n\' symbol when defining abbreviations.";
 					MessageBox(wSciTE.GetID(),
 					error.c_str(),
-					"Expand Abbreviation Error", MB_OK | MB_ICONINFORMATION);
+					"Expand Abbreviation Error", MB_OK);
 					return true;
 				}
 				line++;
