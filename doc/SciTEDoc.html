@@ -18,7 +18,13 @@
             border: 1px solid black;
             padding: 1px 5px 1px 5px;
         }
-</style>
+        .windowsonly {
+            background: #E7E7FF;
+        }
+        .gtkonly {
+            background: #FFFFE7;
+        }
+ </style>
   </head>
   <body bgcolor="#FFFFFF" text="#000000">
     <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -382,7 +388,7 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          Scroll Up.
+          Scroll up.
         </td>
         <td>
           Ctrl+Up
@@ -390,7 +396,7 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          Scroll Down.
+          Scroll down.
         </td>
         <td>
           Ctrl+Down
@@ -398,7 +404,7 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          Line Cut.
+          Line cut.
         </td>
         <td>
           Ctrl+L
@@ -406,10 +412,42 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          Line Transpose with Previous.
+          Line transpose with previous.
         </td>
         <td>
           Ctrl+T
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Find preprocessor conditional.
+        </td>
+        <td>
+          Ctrl+K
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Select to preprocessor conditional.
+        </td>
+        <td>
+          Ctrl+Shift+K
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Find preprocessor conditional backwards.
+        </td>
+        <td>
+          Ctrl+J
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Select to preprocessor conditional backwards.
+        </td>
+        <td>
+          Ctrl+Shift+J
         </td>
       </tr>
     </table>
@@ -522,6 +560,11 @@ NameError: mistake
     <h3>
        Defined variables in properties files
     </h3>
+    <p>
+      Some properties are only available on 
+      <span class="windowsonly">Windows</span> or
+      <span class="gtkonly">GTK+</span>.
+    </p>
     <table cellpadding="1" cellspacing="0" border="1">
       <tr>
         <td>
@@ -642,6 +685,16 @@ NameError: mistake
           displayed in the selection margin area.
         </td>
       </tr>
+      <tr class="windowsonly">
+        <td>
+          full.screen.hides.menu
+        </td>
+        <td>
+	Setting this to 1 hides the menu bar when the Full Screen command is used on 
+	Windows.
+	On GTK+ the menu is always visible.
+        </td>
+      </tr>
       <tr>
         <td>
           line.numbers
@@ -653,7 +706,7 @@ NameError: mistake
 	Setting line.numbers to 1 is the most frequent SciTE support request.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
           tabbar.visible<br />
 	tabbar.hide.one
@@ -663,7 +716,7 @@ NameError: mistake
 	Setting tabbar.hide.one to 1 hides the tab bar until there is more than one tab.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
 	tabbar.multiline
         </td>
@@ -687,7 +740,31 @@ NameError: mistake
           Setting this to 1 makes the status bar visible at start up.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
+        <td>
+          statusbar.number<br />
+	statusbar.text.<i>number</i>
+        </td>
+        <td>
+	The statusbar.text.1 option defines the information displayed in the the status bar 
+	by default.
+	Property values may be used in this text using the $() syntax. 
+	Extra properties defined for the status bar are LineNumber, ColumnNumber, and 
+	OverType which is either "OVR" or "INS" depending on the overtype status.
+	On Windows only, further texts may be set as statusbar.text.2 ... and these may be 
+	cycled between by clicking the status bar. 
+	The statusbar.number option defines how many texts are to be cycled through.
+        </td>
+      </tr>
+      <tr class="windowsonly">
+        <td>
+          statusbar.size
+        </td>
+        <td>
+          On Windows only, sets the width in pixels of the status bar text.
+        </td>
+      </tr>
+      <tr class="windowsonly">
         <td>
           use.palette
         </td>
@@ -709,7 +786,7 @@ NameError: mistake
           flickers less but is slower.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
           load.on.activate<br />
            save.on.deactivate
@@ -723,7 +800,7 @@ NameError: mistake
           check the appearance of the page in a browser.
         </td>
       </tr>
-      <tr>
+      <tr class="gtkonly">
         <td>
            check.if.already.open
         </td>
@@ -1018,7 +1095,7 @@ NameError: mistake
           Similarly, output.horizontal.scrollbar controls the scroll bar of the output pane.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
           open.filter
         </td>
@@ -1058,6 +1135,21 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+	find.replace.matchcase<br />
+	find.replace.regexp<br />
+	find.replace.wrap<br />
+	find.replace.escapes
+        </td>
+        <td>
+          These properties define the initial conditions for find and replace commands.
+	The find.replace.matchcase property turns of the "Match case" option,
+	find.replace.regexp the "Regular expression" option,
+	find.replace.wrap the "Wrap around" option and 
+	find.replace.escapes the "Transform backslash expressions" option.
+        </td>
+      </tr>
+      <tr>
+        <td>
           find.command
         </td>
         <td>
@@ -1076,7 +1168,7 @@ NameError: mistake
           This is the default set of files to search through using the Find in Files command.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
           code.page
         </td>
@@ -1102,6 +1194,22 @@ NameError: mistake
 	204. Other values that may work include Chinese (134 or 136), Korean (129), Greek (161),
 	Turkish (162), Hebrew (177), Arabic (178), Thai(222), or Japanese(128). Please send email
 	if you use one of these settings and it works or doesn't.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	preprocessor.symbol.<i>filepattern</i><br />
+	preprocessor.start.<i>filepattern</i><br />
+	preprocessor.middle.<i>filepattern</i><br />
+	preprocessor.end.<i>filepattern</i>
+        </td>
+        <td>
+	These settings make the preprocessor conditional movement and selection commands work.
+	The character that defines preprocessor lines is defined by preprocessor.symbol.
+	The preproceesor keywords that make up the start (if), middle (else), and end (endif)
+	of preprocessor conditionals are defined by the other three properties.
+	There may be multiple values for each of these, as, for example, C uses "if", "ifdef", 
+	and "ifndef" to begin preprocessor conditionals.
         </td>
       </tr>
       <tr>
@@ -1222,6 +1330,16 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+	font.monospace
+        </td>
+        <td>
+	Defines, with the same syntax as the style properties,
+	the font name and size to be used when the Use monospaced font
+	command is performed.
+        </td>
+      </tr>
+      <tr>
+        <td>
           command.compile.<i>filepattern</i><br />
           command.compile.subsystem.<i>filepattern</i><br />
           command.build.<i>filepattern</i><br />
@@ -1298,7 +1416,7 @@ NameError: mistake
 	commands.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
           win95.death.delay
         </td>
@@ -1308,7 +1426,7 @@ NameError: mistake
           the output. Defaults to 500 but may need to be higher for slower machines.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
 	print.magnification
         </td>
@@ -1319,7 +1437,7 @@ NameError: mistake
 	good miniaturisation of text, set print.magnification to -4.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
 	print.colour.mode
         </td>
@@ -1331,7 +1449,7 @@ NameError: mistake
 	background to white and 4 forces the default background to white.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
 	print.margins
         </td>
@@ -1342,7 +1460,7 @@ NameError: mistake
 	This property is only read at start up.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
 	print.header.format<br />
 	print.footer.format
@@ -1360,7 +1478,7 @@ NameError: mistake
 	</code><br />
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
 	print.header.style<br />
 	print.footer.style
@@ -1534,9 +1652,10 @@ NameError: mistake
 	there, in which case it moves to the start of the line. 0 moves to the start of the line.
         </td>
       </tr>
-      <tr>
+      <tr class="windowsonly">
         <td>
 	  warning.findwrapped<br />
+	  warning.notfound<br />
 	  warning.wrongfile<br />
 	  warning.executeok<br />
 	  warning.executeko<br />
@@ -1556,12 +1675,15 @@ NameError: mistake
 	</code><br />
 	will play the glass sound if open selected is given a bad file name.
 	The findwrapped warning occurs when a find operation wraps past
-	either end of the file, executeok when a command such as build
+	either end of the file, 
+	notfound when the find or preprocessor conditional move commands 
+	fail to find a match,
+	executeok when a command such as build
 	executes successfully, executeko when a command fails, and
 	nootherbookmark when there is no bookmark to find.
         </td>
       </tr>
-      <tr>
+      <tr class="gtkonly">
         <td>
 	  fileselector.width<br />
 	  fileselector.height
