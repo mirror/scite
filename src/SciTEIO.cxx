@@ -848,8 +848,6 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 
 		if (extender)
 			extender->OnSave(saveName);
-
-		retVal = true;
 	}
 	UpdateStatusBar(true);
 	return retVal;
