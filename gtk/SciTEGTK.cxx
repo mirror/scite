@@ -290,6 +290,9 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	toggleReverse = 0;
 	comboFind = 0;
 	comboReplace = 0;
+	compile_btn = 0;
+	build_btn = 0;
+	stop_btn = 0;
 	itemFactory = 0;
 
 	fileSelectorWidth = 580;
