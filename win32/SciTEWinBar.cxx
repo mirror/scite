@@ -400,7 +400,9 @@ void SciTEWin::MakeAccelerator(SString sAccelerator, ACCEL &Accel) {
 	}
 }
 
-SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int cmd) {
+//SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int cmd) {
+SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int) {
+#ifdef LOCALISE_ACCELERATORS_WORKED
 	SString translation = LocaliseString(pAccelerator, true);
 	int AccelCount = CopyAcceleratorTable(hAccTable, NULL, 0);
 	ACCEL *AccelTable = new ACCEL[AccelCount];
@@ -417,6 +419,9 @@ SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int cmd) {
 		translation.clear();
 
 	return translation;
+#else
+	return pAccelerator;
+#endif
 }
 
 void SciTEWin::LocaliseMenu(HMENU hmenu) {
