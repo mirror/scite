@@ -708,6 +708,7 @@ void SciTEBase::ReadProperties() {
 		SendEditorString(SCI_SETWORDCHARS, 0, wordCharacters.c_str());
 	} else {
 		SendEditor(SCI_SETWORDCHARS, 0, 0);
+		wordCharacters = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	}
 
 	SString useTabs = props.GetNewExpand("use.tab.characters.",
