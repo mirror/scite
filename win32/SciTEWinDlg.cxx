@@ -148,15 +148,9 @@ int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC 
 	return result;
 }
 
-#define MULTISELECTOPEN
-
 bool SciTEWin::OpenDialog() {
 
-#ifdef MULTISELECTOPEN
 	char openName[2048]; // maximum common dialog buffer size (says mfc..)
-#else
-	char openName[MAX_PATH];
-#endif
 	*openName = '\0';
 
 	OPENFILENAME ofn = {
@@ -169,7 +163,7 @@ bool SciTEWin::OpenDialog() {
 	SString openFilter = props.GetExpanded("open.filter");
 	if (openFilter.length()) {
 		openFilter.substitute('|', '\0');
-		unsigned int start=0;
+		size_t start=0;
 		while (start < openFilter.length()) {
 			const char *filterName = openFilter.c_str() + start;
 			SString localised = LocaliseString(filterName, false);
@@ -196,18 +190,15 @@ bool SciTEWin::OpenDialog() {
 	}
 	ofn.Flags = OFN_HIDEREADONLY;
 
-#ifdef MULTISELECTOPEN
 	if (buffers.size > 1) {
 		ofn.Flags |=
 		    OFN_EXPLORER |
 		    OFN_PATHMUSTEXIST |
 		    OFN_ALLOWMULTISELECT;
 	}
-#endif
 	if (::GetOpenFileName(&ofn)) {
 		filterDefault = ofn.nFilterIndex;
 		//Platform::DebugPrintf("Open: <%s>\n", openName);
-#ifdef MULTISELECTOPEN
 		// find char pos after first Delimiter
 		char* p = openName;
 		while (*p != '\0')
@@ -218,7 +209,7 @@ bool SciTEWin::OpenDialog() {
 			Open(openName);
 		} else {
 			SString path(openName);
-			int len = path.length();
+			size_t len = path.length();
 			if ((len > 0) && (path[len - 1] != '\\'))
 				path += "\\";
 			while (*p != '\0') {
@@ -232,9 +223,6 @@ bool SciTEWin::OpenDialog() {
 				++p;
 			}
 		}
-#else
-		Open(openName);
-#endif
 	} else {
 		return false;
 	}
@@ -663,21 +651,6 @@ void SciTEWin::Print(
 				::DeleteObject(pen);
 			}
 
-#ifdef DEBUG_PRINT
-			// Print physical margins
-			MoveToEx(hdc, frPrint.rcPage.left, frPrint.rcPage.top, NULL);
-			LineTo(hdc, frPrint.rcPage.right, frPrint.rcPage.top);
-			LineTo(hdc, frPrint.rcPage.right, frPrint.rcPage.bottom);
-			LineTo(hdc, frPrint.rcPage.left, frPrint.rcPage.bottom);
-			LineTo(hdc, frPrint.rcPage.left, frPrint.rcPage.top);
-			// Print setup margins
-			MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top, NULL);
-			LineTo(hdc, frPrint.rc.right, frPrint.rc.top);
-			LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom);
-			LineTo(hdc, frPrint.rc.left, frPrint.rc.bottom);
-			LineTo(hdc, frPrint.rc.left, frPrint.rc.top);
-#endif
-
 			::EndPage(hdc);
 		}
 		pageNum++;
@@ -1043,7 +1016,7 @@ void SciTEWin::Replace() {
 	                                   MAKEINTRESOURCE(IDD_REPLACE),
 	                                   MainHWND(),
 	                                   reinterpret_cast<DLGPROC>(ReplaceDlg),
-	                                   reinterpret_cast<long>(this));
+	                                   reinterpret_cast<sptr_t>(this));
 	wFindReplace.Show();
 
 	replacing = true;
