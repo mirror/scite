@@ -932,6 +932,23 @@ void SciTEWin::Run(const char *cmdLine) {
 			SetForegroundWindow(hAnother);
 			COPYDATASTRUCT cds;
 			cds.dwData = 0;
+			// Send 2 messages - first the CWD, then the real 
+			// command-line. (restoring the cwd could be  done, 
+			// but keeping it to the last file opened can also 
+			// be useful)
+			TCHAR cwdCmd[MAX_PATH+7]; // 7 for "-cwd:" and 2x'"'
+			strcpy(cwdCmd, "\"-cwd:");
+			getcwd(cwdCmd+strlen(cwdCmd), MAX_PATH);
+			strcat(cwdCmd, "\"");
+			// defeat the "\" mangling - convert "\" to "/"
+			for (char *temp=cwdCmd;*temp;temp++)
+				if (*temp=='\\')
+					*temp = '/';
+			cds.cbData = strlen(cwdCmd)+1;
+			cds.lpData = static_cast<void *>(cwdCmd);
+			::SendMessage(hAnother, WM_COPYDATA, 0,
+				reinterpret_cast<LPARAM>(&cds));
+			// now the commandline itself.
 			cds.cbData = strlen(cmdLine)+1;
 			cds.lpData = static_cast<void *>(
 				const_cast<char *>(cmdLine));
@@ -1054,8 +1071,8 @@ LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
 	}
 	if (strlen(text) > 0) {
 		SString args = ProcessArgs(text);
+		ProcessCommandLine(args, 0);
 		ProcessCommandLine(args, 1);
-		//Open(text);
 	}
 	::FlashWindow(wSciTE.GetID(), FALSE);
 	return TRUE;
