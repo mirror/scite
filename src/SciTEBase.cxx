@@ -502,7 +502,7 @@ void SciTEBase::SetMonoFont() {
 		// Set to standard styles by rereading the properties and applying them
 		ReadProperties();
 	}
-	SendEditor(SCI_COLOURISE, 0, -1);
+	//~ SendEditor(SCI_COLOURISE, 0, -1);
 	Redraw();
 }
 
