@@ -1,4 +1,4 @@
-sci_base=/eff/os
+sci_base=/dee/os
 cd $sci_base/scintilla/gtk
 make $*
 cd $sci_base/scite/gtk
