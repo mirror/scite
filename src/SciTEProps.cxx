@@ -658,6 +658,9 @@ void SciTEBase::ReadProperties() {
 	ForwardPropertyToEditor("ps.level");
 	ForwardPropertyToEditor("ps.tokenize");
 
+	ForwardPropertyToEditor("lexer.tex.comment.process") ;
+	ForwardPropertyToEditor("lexer.metapost.comment.process") ;
+
 	if (apisFileNames != props.GetNewExpand("api.",	fileNameForExtension.c_str())) {
 		apis.Clear();
 		ReadAPI(fileNameForExtension);
@@ -1336,6 +1339,7 @@ int SciTEBase::GetMenuCommandAsInt(SString commandName) {
 		{"IDM_FILER",	IDM_FILER},
 		{"IDM_SAVEASTEX",	IDM_SAVEASTEX},
 		{"IDM_SAVEACOPY",	IDM_SAVEACOPY},
+		{"IDM_SAVEASXML",	IDM_SAVEASXML},
 		{"IDM_MRU_SEP",	IDM_MRU_SEP},
 		{"IDM_PRINTSETUP",	IDM_PRINTSETUP},
 		{"IDM_PRINT",	IDM_PRINT},

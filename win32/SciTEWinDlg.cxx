@@ -346,6 +346,14 @@ void SciTEWin::SaveAsTEX() {
 	}
 }
 
+void SciTEWin::SaveAsXML() {
+	SString path = ChooseSaveName("Export File As XML",
+	                              "TeX (.xml)\0*.xml\0", ".xml");
+	if (path.length()) {
+		SaveToXML(path.c_str());
+	}
+}
+
 void SciTEWin::LoadSessionDialog() {
 	char openName[MAX_PATH] = "\0";
 	OPENFILENAME ofn = {

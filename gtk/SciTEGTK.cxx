@@ -143,7 +143,7 @@ protected:
 	int fdPipe;
 	char pipeName[MAX_PATH];
 
-	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX } saveFormat;
+	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX, sfXML } saveFormat;
 	Dialog dlgFileSelector;
 	Dialog dlgFindInFiles;
 	GtkWidget *comboFiles;
@@ -209,6 +209,7 @@ protected:
 	virtual void SaveAsRTF();
 	virtual void SaveAsPDF();
 	virtual void SaveAsTEX();
+	virtual void SaveAsXML();
 
 	virtual void Print(bool);
 	virtual void PrintSetup();
@@ -884,6 +885,9 @@ void SciTEGTK::HandleSaveAs(const char *savePath) {
 	case sfTEX:
 		SaveToTEX(savePath);
 		break;
+	case sfXML:
+		SaveToXML(savePath);
+		break;
 	default:
 		SaveAs(savePath);
 	}
@@ -930,6 +934,10 @@ void SciTEGTK::SaveAsPDF() {
 
 void SciTEGTK::SaveAsTEX() {
 	SaveAsXXX(sfTEX, "Export File As LaTeX");
+}
+
+void SciTEGTK::SaveAsXML() {
+	SaveAsXXX(sfXML, "Export File As XML");
 }
 
 void SciTEGTK::Print(bool) {
@@ -2315,6 +2323,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},
 	                                      {"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
 	                                      {"/File/Export/As _LaTeX...", NULL, menuSig, IDM_SAVEASTEX, 0},
+	                                      {"/File/Export/As _XML...", NULL, menuSig, IDM_SAVEASXML, 0},
 	                                      {"/File/_Print", "<control>P", menuSig, IDM_PRINT, 0},
 	                                      {"/File/sep1", NULL, NULL, 0, "<Separator>"},
 	                                      {"/File/File0", "", menuSig, fileStackCmdID + 0, 0},

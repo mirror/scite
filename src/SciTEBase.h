@@ -588,6 +588,8 @@ protected:
 	virtual void SaveAsPDF() = 0;
 	void SaveToTEX(const char *saveName);
 	virtual void SaveAsTEX() = 0;
+	void SaveToXML(const char *saveName);
+	virtual void SaveAsXML() = 0;
 	virtual void GetDefaultDirectory(char *directory, size_t size) = 0;
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath) = 0;
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath) = 0;

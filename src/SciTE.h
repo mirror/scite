@@ -30,6 +30,7 @@
 #define IDM_FILER			114
 #define IDM_SAVEASTEX		115
 #define IDM_SAVEACOPY		116
+#define IDM_SAVEASXML		117
 #define IDM_MRU_SEP			120
 #define IDM_PRINTSETUP		130
 #define IDM_PRINT			131

@@ -179,6 +179,7 @@ const char *contributors[] = {
                                  "Naba Kumar",
                                  "Sean O'Dell",
                                  "Stefanos Togoulidis",
+                                 "Hans Hagen",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -3016,6 +3017,10 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		SaveAsTEX();
 		WindowSetFocus(wEditor);
 		break;
+	case IDM_SAVEASXML:
+		SaveAsXML();
+		WindowSetFocus(wEditor);
+		break;
 	case IDM_REVERT:
 		if (SaveIfUnsure() != IDCANCEL) {
 			Revert();
@@ -4050,6 +4055,10 @@ void SciTEBase::PerformOne(char *action) {
 			SaveToRTF(arg);
 		} else if (isprefix(action, "exportaspdf:")) {
 			SaveToPDF(arg);
+		} else if (isprefix(action, "exportaslatex:")) {
+			SaveToTEX(arg);
+		} else if (isprefix(action, "exportasxml:")) {
+			SaveToXML(arg);
 		} else if (isprefix(action, "find:") && fnEditor) {
 			findWhat = arg;
 			FindNext(false, false);
