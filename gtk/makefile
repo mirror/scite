@@ -26,9 +26,12 @@ PROG	= ../bin/SciTE
 vpath %.h ../src ../../scintilla/include
 vpath %.cxx ../src
 
+#Comment / Uncomment the next line out if you want GTK single instance support
+SINGLEINSTANCE= -DSINGLE_INSTANCE
+
 #CXXFLAGS= -g -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -Wwrite-strings 
 INCLUDEDIRS=-I ../../scintilla/include -I ../src 
-CXXBASEFLAGS= -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -W -Wall
+CXXBASEFLAGS= -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(SINGLEINSTANCE) -W -Wall
 
 ifdef DEBUG
 CXXFLAGS=-DDEBUG $(CXXBASEFLAGS)

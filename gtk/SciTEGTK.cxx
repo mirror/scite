@@ -19,6 +19,9 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 #include "SciTE.h"
 #include "PropSet.h"
@@ -58,6 +61,13 @@ protected:
 	int pidShell;
 	char resultsFile[MAX_PATH];
 	int inputHandle;
+
+#ifdef SINGLE_INSTANCE
+	//Command Pipe variables
+	int inputWatcher;
+	int fdPipe;
+	char pipeName[MAX_PATH];
+#endif
 
 	char findInDir[1024];
 	ComboMemory memDir;
@@ -147,6 +157,13 @@ protected:
 	virtual void ShowStatusBar();
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute();
+
+#ifdef SINGLE_INSTANCE
+	//ajkc
+	bool SendPipeCommand(const char *pipeCommand);
+	bool CreatePipe(bool forceNew = false);
+	static void PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition );
+#endif
 
 	// GTK+ Signal Handlers
 
@@ -1425,6 +1442,17 @@ gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation * /*allocation*/, SciTEGTK 
 
 gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
 	if (scitew->SaveIfUnsureAll() != IDCANCEL) {
+
+#ifdef SINGLE_INSTANCE
+		//clean up any pipes that are ours
+		if( scitew->fdPipe != -1 && scitew->inputWatcher != -1 )
+		{
+			printf("Cleaning up pipe\n");
+			close(scitew->fdPipe);
+			unlink(scitew->pipeName);
+
+		}
+#endif
 		gtk_exit(0);
 	}
 	// No need to return FALSE for quit as gtk_exit will have been called
@@ -1823,6 +1851,126 @@ void SciTEGTK::SetIcon() {
 	gdk_window_set_icon(wSciTE.GetID()->window, NULL, icon_pix, mask);
 #endif
 }
+
+#ifdef SINGLE_INSTANCE
+bool SciTEGTK::CreatePipe( bool forceNew ){
+
+	bool anotherPipe = false;
+
+	fdPipe = -1;
+	inputWatcher = -1;
+
+	printf("In CreatePipe\n");
+
+	//possible bug here (eventually), can't have more than a 1000 SciTE's open - ajkc 20001112
+	for( int i = 0 ; i < 1000 ; i++ )
+	{
+
+		//create the pipe name - we use a number as well just incase multiple people have pipes open
+		//or we are forceing a new instance of scite (even if there is already one)
+		sprintf(pipeName, "/tmp/.SciTE.%d.ipc", i);
+
+		printf("Trying pipe %s\n", pipeName);
+		//check to see if there is already one
+		fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
+
+		//there is one but it isn't ours
+		if ( fdPipe == -1 && errno == EACCES )
+		{
+			printf("No access\n");
+			continue;
+		}
+		//there isn't one - so create one
+		else if ( fdPipe == -1 )
+		{
+			printf("Non found - making\n");
+			mkfifo(pipeName, 0777);
+			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
+			break;
+		}
+		//there is so just open it (and we don't want out own)
+		else if ( forceNew == false )
+			printf("Another one there - opening\n");
+
+			fdPipe = open(pipeName, O_RDWR | O_NONBLOCK);
+
+			//there is already another pipe so set it to true for the return value
+			anotherPipe = true;
+			//I don;t think it is a good idea to be able to listen to our own pipes (yet) so just return
+			//break;
+			return anotherPipe;
+
+		}
+
+		//we must want another one
+	}
+
+	if( fdPipe != -1 )
+	{
+		//store the inputwatcher so we can remove it.
+		inputWatcher = gdk_input_add(fdPipe, GDK_INPUT_READ, PipeSignal, this);
+		//store the file descriptor of the pipe so we can write to it again.
+
+		return anotherPipe;
+	}
+
+	//we must have failed or something so there definately isn't "another pipe"
+	return false;
+}
+
+//use to send a command through a pipe.  (there is no checking to see whos's pipe it is. Probably not a good
+//idea to send commands to  our selves.
+bool SciTEGTK::SendPipeCommand(const char *pipeCommand ){
+	//check that there is actually a pipe
+	int size = 0;
+
+	if( fdPipe != -1 )
+	{
+		size = write(fdPipe, pipeCommand, strlen(pipeCommand) + 1);
+		printf("dd: Send pipecommand: %s %d bytes\n", pipeCommand, size);
+		if ( size != -1)
+			return true;
+	}
+	return false;
+}
+
+//signal handler for gdk_input_add for the pipe listener.
+void SciTEGTK::PipeSignal(SciTEGTK *scitew, gint fd, GdkInputCondition condition ){
+	int readLength;
+	char pipeData[8192];
+	PropSet pipeProps;
+
+	printf("Pipe read signal\n");
+
+	if( condition == GDK_INPUT_READ )
+	{
+		//use a propset so we don't have to fuss (it's already done!)
+		while( ( readLength = read(fd, pipeData, sizeof(pipeData)) ) > 0 )
+		{
+			printf("Read: >%s< from pipedata\n", pipeData);
+			//fill the propset with the data from the pipe
+			pipeProps.ReadFromMemory(pipeData, readLength);
+
+			//get filename from open command
+			SString fileName = pipeProps.Get("open");
+
+			printf("filename from pipe: %s\n", fileName.c_str());
+
+			//is filename zero length if propset.get fails?
+			//if there is a file name, open it.
+			if ( fileName.size() > 0 )
+			{
+				printf("opening %s from pipecommand\n", fileName.c_str());
+				scitew->Open(fileName.c_str());
+
+				//grab the focus back to us.  (may not work) - any ideas?
+				//gtk_widget_grab_focus(GTK_WIDGET(scitew.GetID()));
+			}
+			//add other commands here
+		}
+	}
+}
+#endif
 
 void SciTEGTK::Run(const char *cmdLine) {
 	
