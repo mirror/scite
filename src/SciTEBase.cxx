@@ -772,6 +772,15 @@ void SciTEBase::SetWindowName() {
 	else
 		windowName += " - ";
 	windowName += appName;
+
+	if (buffers.length > 1 && props.GetInt("title.show.buffers")) {
+		windowName += " [";
+		windowName += SString(buffers.current + 1);
+		windowName += " of ";
+		windowName += SString(buffers.length);
+		windowName += "]";
+	}
+
 	wSciTE.SetTitle(windowName.c_str());
 }
 
