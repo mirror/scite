@@ -1888,11 +1888,11 @@ void SciTEGTK::CreateMenu() {
 	    {"/Tools/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/Tools/_Next Message", "F4", menuSig, IDM_NEXTMSG, 0},
 	    {"/Tools/_Previous Message", "<shift>F4", menuSig, IDM_PREVMSG, 0},
+	    {"/Tools/Clear Out_put", "", menuSig, IDM_CLEAROUTPUT, 0},
 
 	    {"/_Options", NULL, NULL, 0, "<Branch>"},
 	    {"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
-	    {"/Options/Clear Out_put", "", menuSig, IDM_CLEAROUTPUT, 0},
 	    {"/Options/sep1", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/_Line End Characters", "", 0, 0, "<Branch>"},
 	    {"/Options/Line End Characters/CR _+ LF", "", menuSig, IDM_EOL_CRLF, "<RadioItem>"},
