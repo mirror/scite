@@ -23,7 +23,8 @@ rem
 rem Target 2: Microsoft VC++ build
 call scite\scripts\clearboth
 cd scintilla\win32
-nmake -f scintilla.mak
+cl
+nmake -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..\scite\win32
 nmake -f scite.mak
@@ -72,7 +73,7 @@ rem
 rem Target 7: GTK+ version using Visual C++ on scintilla\gtk\scintilla.mak
 call scite\scripts\clearboth
 cd scintilla\gtk
-nmake -f scintilla.mak
+nmake -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 call scite\scripts\clearboth
