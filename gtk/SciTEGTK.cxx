@@ -56,13 +56,14 @@ static GtkWidget *PWidget(Window &w) {
 
 class Dialog : public Window {
 public:
-	Dialog() : dialogCanceled(true) {}
+	Dialog() : dialogCanceled(true) {
+	}
 	Dialog &operator=(WindowID id_) {
 		id = id_;
 		return *this;
 	}
 	bool ShowModal(GtkWidget *parent=0) {
-		GtkWidget * widgetThis = reinterpret_cast<GtkWidget *>(GetID());
+		GtkWidget *widgetThis = reinterpret_cast<GtkWidget *>(GetID());
 		// Mark it as a modal transient dialog
 		gtk_window_set_modal(GTK_WINDOW(widgetThis), TRUE);
 		if (parent) {
