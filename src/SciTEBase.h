@@ -489,6 +489,9 @@ protected:
 	void UIAvailable();
 	void PerformOne(const char *action);
 	bool ProcessCommandLine(SString &args, int phase);
+	void EnumProperties(const char *action);
+	void SendOneProperty(const char *kind, const char *key, const char *val);
+	void PropertyFromDirector(const char *arg);
 
 	// ExtensionAPI
 	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);

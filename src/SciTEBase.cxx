@@ -1791,15 +1791,15 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 	} else if (levelPrev & SC_FOLDLEVELHEADERFLAG) {
 		//Platform::DebugPrintf("Fold removed %d-%d\n", line, SendEditor(SCI_GETLASTCHILD, line));
 		if (!SendEditor(SCI_GETFOLDEXPANDED, line)) {
-			// Removing the fold from one that has been contracted so dhould expand
-			// otherwise lines are left invisibe with no war to make them visible
+			// Removing the fold from one that has been contracted so should expand
+			// otherwise lines are left invisible with no way to make them visible
 			Expand(line, true, false, 0, levelPrev);
 		}
 	}
 }
 
 void SciTEBase::Expand(int &line, bool doExpand, bool force, int visLevels, int level) {
-	int lineMaxSubord = SendEditor(SCI_GETLASTCHILD, line, level);
+	int lineMaxSubord = SendEditor(SCI_GETLASTCHILD, line, level & SC_FOLDLEVELNUMBERMASK);
 	line++;
 	while (line <= lineMaxSubord) {
 		if (force) {
@@ -2122,6 +2122,10 @@ void SciTEBase::PerformOne(const char *action) {
 		arg++;
 		if (isprefix(action, "open:")) {
 			Open(arg);
+		} else if (isprefix(action, "enumproperties:")) {
+			EnumProperties(arg);
+		} else if (isprefix(action, "property:")) {
+			PropertyFromDirector(arg);
 		}
 	}
 }
@@ -2132,6 +2136,59 @@ static bool IsSwitchCharacter(char ch) {
 #else
 	return (ch == '-') || (ch == '/');
 #endif
+}
+
+// Called by SciTEBase::PerformOne when action="enumproperties:"
+void SciTEBase::EnumProperties(const char *propkind) {
+	char *key = NULL;
+	char *val = NULL;
+	bool b = false;
+	PropSetFile *pf = NULL;
+	
+	if (!extender) 
+		return;
+	if (!strcmp(propkind,"dyn"))
+		pf = &props;
+	else if (!strcmp(propkind,"local"))
+		pf = &propsLocal;
+	else if (!strcmp(propkind,"user"))
+		pf = &propsUser;
+	else if (!strcmp(propkind,"base"))
+		pf = &propsBase;
+	else if (!strcmp(propkind,"embed"))
+		pf = &propsEmbed;
+
+	if (pf != NULL){
+		b = pf->GetFirst(&key,&val);	
+		while (b) {
+			SendOneProperty(propkind,key,val);
+			b = pf->GetNext(&key,&val);
+		}
+	}
+}
+
+void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *val) {
+	int keysize = strlen(kind)+1+strlen(key)+1+strlen(val)+1;
+	char *m = new char[keysize];
+	if (m) {
+		strcpy(m, kind);
+		strcat(m, ":");
+		strcat(m, key);
+		strcat(m, "=");
+		strcat(m, val);
+		extender->SendProperty(m);
+		delete []m;
+	}
+}
+
+void SciTEBase::PropertyFromDirector(const char *arg) {
+	char *prop = StringDup(arg);
+	if (prop) {
+		char *equal = strchr(prop,'=');
+		*equal = '\0';
+		SetProperty(prop, equal+1);
+		delete []prop;
+	}
 }
 
 /**

@@ -44,5 +44,7 @@ public:
 	virtual bool OnDoubleClick() { return false; };
 	virtual bool OnUpdateUI() { return false; };
 	virtual bool OnMarginClick() { return false; };
+	
+	virtual bool SendProperty(const char *) { return false; };
 };
 

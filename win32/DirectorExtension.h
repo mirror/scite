@@ -27,6 +27,8 @@ public:
 	virtual bool OnDoubleClick();
 	virtual bool OnUpdateUI();
 	virtual bool OnMarginClick();
+	
+	virtual bool SendProperty(const char *prop);
 
 	// Allow messages through to extension
 	void HandleStringMessage(const char *message);

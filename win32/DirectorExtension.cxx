@@ -210,6 +210,14 @@ bool DirectorExtension::OnMarginClick() {
 	return false;
 }
 
+bool DirectorExtension::SendProperty(const char *prop) {
+	CheckEnvironment(host);
+	if (*prop) {
+		::SendDirector("property", prop);
+	}
+	return true;
+}
+
 void DirectorExtension::HandleStringMessage(const char *message) {
 	const char *arg = strchr(message, ':');
 	if (arg)
