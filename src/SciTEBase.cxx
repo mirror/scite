@@ -685,7 +685,7 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	}
 	char findTarget[200];
 	strcpy(findTarget, findWhat);
-	if (props.GetInt("escapes.in.find.replace"))
+	if (!regExp && props.GetInt("escapes.in.find.replace"))
 		UnSlash(findTarget);
 	ft.lpstrText = findTarget;
 	ft.chrgText.cpMin = 0;
@@ -740,7 +740,7 @@ void SciTEBase::ReplaceOnce() {
 	if (havefound) {
 		char replaceTarget[200];
 		strcpy(replaceTarget, replaceWhat);
-		if (props.GetInt("escapes.in.find.replace"))
+		if (!regExp && props.GetInt("escapes.in.find.replace"))
 			UnSlash(replaceTarget);
 		SendEditorString(SCI_REPLACESEL, 0, replaceTarget);
 		havefound = false;
@@ -761,12 +761,12 @@ void SciTEBase::ReplaceAll() {
 	ft.chrg.cpMax = LengthDocument();
 	char findTarget[200];
 	strcpy(findTarget, findWhat);
-	if (props.GetInt("escapes.in.find.replace"))
+	if (!regExp && props.GetInt("escapes.in.find.replace"))
 		UnSlash(findTarget);
 	ft.lpstrText = findTarget;
 	char replaceTarget[200];
 	strcpy(replaceTarget, replaceWhat);
-	if (props.GetInt("escapes.in.find.replace"))
+	if (!regExp && props.GetInt("escapes.in.find.replace"))
 		UnSlash(replaceTarget);
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
