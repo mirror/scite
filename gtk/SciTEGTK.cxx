@@ -851,11 +851,13 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->props.Set("find.dir", dirEntry);
 	scitew->memDir.Insert(dirEntry);
 	
+#ifdef RECURSIVE_GREP_WORKING
 	if(GTK_TOGGLE_BUTTON(scitew->toggleRec)->active)
-		scitew->props.Set("find.rec", "-R");
+		scitew->props.Set("find.recursive", scitew->props.Get("find.recursive.recursive").c_str());
 	else
-		scitew->props.Set("find.rec", "-N");
-
+		scitew->props.Set("find.recursive", scitew->props.Get("find.recursive.not").c_str());
+#endif
+	
 	char *filesEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFiles)->entry));
 	scitew->props.Set("find.files", filesEntry);
 	scitew->memFiles.Insert(filesEntry);
@@ -866,7 +868,7 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 	//	scitew->props.Get("find.what"),
 	//	scitew->props.Get("find.files"));
 	scitew->SelectionIntoProperties();
-	scitew->AddCommand(scitew->props.GetNewExpand("find.command", ""), "", jobCLI);
+	scitew->AddCommand(scitew->props.GetNewExpand("find.command", ""), dirEntry, jobCLI);
 	if (scitew->commandCurrent > 0)
 		scitew->Execute();
 }
@@ -883,7 +885,6 @@ void SciTEGTK::FindInFilesKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *
 }
 
 void SciTEGTK::FindInFiles() {
-	guint Key;
 	GtkAccelGroup *accel_group;
 	accel_group = gtk_accel_group_new ();
 
@@ -900,7 +901,11 @@ void SciTEGTK::FindInFiles() {
 	gtk_signal_connect(GTK_OBJECT(findInFilesDialog.GetID()),
 	                   "destroy", GtkSignalFunc(destroyDialog), 0);
 
+#ifdef RECURSIVE_GREP_WORKING
 	GtkWidget *table = gtk_table_new(4, 2, FALSE);
+#else
+	GtkWidget *table = gtk_table_new(3, 2, FALSE);
+#endif
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(findInFilesDialog.GetID())->vbox),
 	                   table, TRUE, TRUE, 0);
 
@@ -969,14 +974,17 @@ void SciTEGTK::FindInFiles() {
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboDir)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
 
+#ifdef RECURSIVE_GREP_WORKING
 	row++;
 	
 	toggleRec = gtk_check_button_new_with_label("");
 	GTK_WIDGET_UNSET_FLAGS(toggleRec, GTK_CAN_FOCUS);
+	guint Key;
 	Key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggleRec)->child), "Re_cursive Directories");
 	gtk_widget_add_accelerator(	toggleRec, "clicked", accel_group, Key, GDK_MOD1_MASK, (GtkAccelFlags)0);
 	gtk_table_attach(GTK_TABLE(table), toggleRec, 1, 2, row, row + 1, opts, opts, 3, 0);
 	gtk_widget_show(toggleRec);
+#endif
 
 	gtk_widget_show(table);
 
@@ -1097,6 +1105,9 @@ void SciTEGTK::Execute() {
 	OutputAppendString("\n");
 
 	unlink(resultsFile);
+	if (jobQueue[icmd].directory != "") {
+		chdir(jobQueue[icmd].directory.c_str());
+	}
 
 	if (jobQueue[icmd].jobType == jobShell) {
 		if (fork()==0) 
