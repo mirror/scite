@@ -142,6 +142,7 @@ const char *contributors[] = {
 				 "Josh Wingstrom",
 				 "Bruce Dodson",
 				 "Sergey Koshcheyev",
+				 "Chuan-jian Shen",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -1322,7 +1323,6 @@ void SciTEBase::OutputAppendString(const char *s, int len, bool startLine) {
 		char lastChar = static_cast<char>(SendOutput(SCI_GETCHARAT, docLength - 1));
 		if (lastChar!='\n' && lastChar!='\r') {
 			SendOutput(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"));
-			docLength++;
 		}
 	}
 
@@ -1343,7 +1343,6 @@ void SciTEBase::OutputAppendStringSynchronised(const char *s, int len, bool star
 		char lastChar = static_cast<char>(SendOutputEx(SCI_GETCHARAT, docLength - 1, 0, false));
 		if (lastChar!='\n' && lastChar!='\r') {
 			SendOutputEx(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"), false);
-			docLength++;
 		}
 	}
 

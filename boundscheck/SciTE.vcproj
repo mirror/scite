@@ -204,6 +204,9 @@
 				RelativePath="..\..\scintilla\src\LexEiffel.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexFortran.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexHTML.cxx">
 			</File>
 			<File
