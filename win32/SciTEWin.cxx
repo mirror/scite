@@ -1214,7 +1214,6 @@ void SciTEWin::ProcessExecute() {
 		HANDLE hRead2 = NULL;
 		// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
 		::CreatePipe(&hRead2, &hWrite2, &sa, 0);
-		::CloseHandle(hRead2);
 
 		::SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
 		::SetHandleInformation(hRead2, HANDLE_FLAG_INHERIT, 0);
@@ -1251,7 +1250,7 @@ void SciTEWin::ProcessExecute() {
 		// Now that this has been inherited, close it to be safe.
 		::CloseHandle(hPipeWrite);
 
-        // These are no longer needed
+	        // These are no longer needed
 		::CloseHandle(hWrite2);
 		::CloseHandle(hRead2);
 
@@ -1311,7 +1310,6 @@ void SciTEWin::ProcessExecute() {
 		if (worked) {
 			::WaitForSingleObject(pi.hProcess, INFINITE);
 			::GetExitCodeProcess(pi.hProcess, &exitcode);
-			char exitmessage[80];
 			if (isBuilding) {
 				// The build command is first command in a sequence so it is only built if
 				// that command succeeds not if a second returns after document is modified.
@@ -1319,6 +1317,7 @@ void SciTEWin::ProcessExecute() {
 				if (exitcode == 0)
 					isBuilt = true;
 			}
+			char exitmessage[80];
 			sprintf(exitmessage, ">Exit code: %ld\n", exitcode);
 			OutputAppendString(exitmessage);
 			::CloseHandle(pi.hProcess);
