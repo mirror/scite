@@ -144,7 +144,7 @@ SciTEWin::SciTEWin() {
 	// The embedded properties file is to allow distributions to be sure
 	// that they have a sensible default configuration even if the properties
 	// files are missing. Also allows a one file distribution of Sc1.EXE.
-    propsEmbed.Clear();
+	propsEmbed.Clear();
 	HRSRC handProps = ::FindResource(hInstance, "Embedded", "Properties");
 	if (handProps) {
 		DWORD size = ::SizeofResource(hInstance, handProps);
@@ -296,8 +296,8 @@ bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps,
 		::GetModuleFileName(0, pathDefaultProps, lenPath);
 		char *lastSlash = strrchr(pathDefaultProps, pathSepChar);
 		if (lastSlash && ((lastSlash + 1 - pathDefaultProps + strlen(propGlobalFileName)) < lenPath)) {
-    		strcpy(pathDefaultDir, pathDefaultProps);
-            pathDefaultDir[lastSlash-pathDefaultProps] = '\0';
+		strcpy(pathDefaultDir, pathDefaultProps);
+		pathDefaultDir[lastSlash-pathDefaultProps] = '\0';
 			strcpy(lastSlash + 1, propGlobalFileName);
 			return true;
 		} else {
@@ -308,9 +308,9 @@ bool SciTEWin::GetDefaultPropertiesFileName(char *pathDefaultProps,
 
 bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps, 
                                char *pathUserDir, unsigned int lenPath) {
-    *pathUserDir = '\0';
-   	char *home = getenv("SciTE_HOME");
-        if (home) {
+	*pathUserDir = '\0';
+	char *home = getenv("SciTE_HOME");
+	if (home) {
 		strncpy(pathUserDir, home, lenPath);
 		strncpy(pathUserProps, home, lenPath);
 		strncat(pathUserProps, pathSepString, lenPath);
@@ -320,8 +320,8 @@ bool SciTEWin::GetUserPropertiesFileName(char *pathUserProps,
 		GetModuleFileName(0, pathUserProps, lenPath);
 		char *lastSlash = strrchr(pathUserProps, pathSepChar);
 		if (lastSlash && ((lastSlash + 1 - pathUserProps + strlen(propUserFileName)) < lenPath)) {
-    		strcpy(pathUserDir, pathUserProps);
-            pathUserDir[lastSlash-pathUserProps] = '\0';
+		strcpy(pathUserDir, pathUserProps);
+		pathUserDir[lastSlash-pathUserProps] = '\0';
 			strcpy(lastSlash + 1, propUserFileName);
 			return true;
 		} else {
@@ -1866,7 +1866,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_CLOSE:
-        QuitProgram();
+		QuitProgram();
 		return 0;
 		
 	case WM_DESTROY:

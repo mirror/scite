@@ -364,7 +364,7 @@ void SciTEGTK::Notify(SCNotification *notification) {
 				Command(IDM_FINDNEXTBACK);
 			} else if ((mods == GDK_CONTROL_MASK) && (notification->ch == GDK_F3)) {
 				Command(IDM_FINDNEXTSEL);
-			} else if ((mods == GDK_CONTROL_MASK | GDK_SHIFT_MASK ) && (notification->ch == GDK_F3)) {
+			} else if ((mods == (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) && (notification->ch == GDK_F3)) {
 				Command(IDM_FINDNEXTBACKSEL);
 			} else {
 				gtk_accel_group_activate(accelGroup, notification->ch,
