@@ -38,11 +38,25 @@ public:
 	int doc;
 	bool isDirty;
 	int lexLanguage;
-	Buffer() : RecentFile(), doc(0) { 
-		isDirty = false; lexLanguage = 0; 
+	int generation;
+	Buffer() : RecentFile(), doc(0), isDirty(false), lexLanguage(0), generation(0) { 
 	}
 };
 
+class BufferList {
+public:
+	Buffer **buffers;
+	int size;
+	int length;
+	int current;
+	int generation;
+	BufferList();
+	~BufferList();
+	void Allocate(int maxSize);
+	int Add();
+	int GetDocumentByName(const char *filename);
+};
+		
 enum JobSubsystem { jobCLI = 0, jobGUI = 1, jobShell = 2};
 class Job {
 public:
@@ -67,7 +81,7 @@ struct StyleAndWords {
 	SString words;
 	bool IsEmpty() { return words.length() == 0; }
 };
-		
+
 class SciTEBase {
 protected:
 	char windowName[MAX_PATH + 20];
@@ -168,17 +182,16 @@ protected:
 	PropSet propsUser;
 	PropSet props;
 
-	// Multiple buffers
-	enum { buffersMax = 10 };
-	Buffer *buffer[buffersMax];
-	int numOfBuffers;
-	int currentBuffer;
+	enum { bufferMax = 10 };
+    BufferList buffers;
 
 	// Handle buffers
 	int GetDocumentAt(int index);
-	int GetDocumentByName(const char *filename);
 	int AddBuffer();
+    void UpdateBuffersCurrent();
+	bool CloseBuffer(int bufferIndex);
 	int CloseCurrentBuffer();
+    bool EnsureRoomForNew();
 	void SetDocumentAt(int index);
 	void BuffersMenu();
 	void Next();

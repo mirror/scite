@@ -146,6 +146,36 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 	}
 }
 
+BufferList::BufferList() : buffers(0), size(0), length(0), current(0), generation(0) {
+}
+
+BufferList::~BufferList() {
+    delete []buffers;
+}
+
+void BufferList::Allocate(int maxSize) {
+	size = maxSize;
+    	buffers = new Buffer*[size];
+	for (int i=0; i<size; i++)
+		buffers[i] = NULL;
+	length = 0;
+	current = -1;
+}
+
+int BufferList::Add() {
+	buffers[length++] = new Buffer;
+	return length - 1;
+}
+
+int BufferList::GetDocumentByName(const char *filename) {
+	if (!filename || !filename[0])
+		return -1;
+	for (int i=0;i<length;i++)
+		if (strcmp(buffers[i]->fileName,filename) == 0)
+			return i;
+	return -1;
+}
+
 Job::Job() {
 	Clear();
 }
@@ -223,106 +253,143 @@ SciTEBase::SciTEBase() : apis(true) {
 	propsBase.superPS = &propsEmbed;
 	propsUser.superPS = &propsBase;
 	props.superPS = &propsUser;
-	
-	//buffer = new Buffer*[buffersMax];
-	for(int i=0;i<buffersMax;i++)
-		buffer[i] = NULL;
-
-	numOfBuffers = 0;
-	currentBuffer = -1;
 }
 
 int SciTEBase::GetDocumentAt(int index) {
-	if (index < 0 || index >= numOfBuffers) {
+	if (index < 0 || index >= buffers.length) {
 		Platform::DebugPrintf("SciTEBase::GetDocumentAt: Index out of range.\n");
 		return 0;
 	}
-    if (buffer[index]->doc == 0) {
-    	SendEditor(SCI_SETDOCPOINTER, 0, 0);    // Create a new buffer
-        buffer[index]->doc = SendEditor(SCI_GETDOCPOINTER, 0, 0);
-    }
-	return buffer[index]->doc;
-}
-
-int SciTEBase::GetDocumentByName (const char *filename) {
-	if (!filename || !filename[0])
-		return -1;
-	for (int i=0;i<numOfBuffers;i++)
-		if (strcmp (buffer[i]->fileName,filename) == 0)
-			return i;
-	return -1;
-}
-
-int SciTEBase::AddBuffer() {
-	if(numOfBuffers >= buffersMax - 1)
-	{
-		printf("SciTEBase::AddBuffer: Cannot allocate more buffers.\n");
-		return -1;
+	if (buffers.buffers[index]->doc == 0) {
+		SendEditor(SCI_SETDOCPOINTER, 0, 0);    // Create a new buffer
+		buffers.buffers[index]->doc = SendEditor(SCI_GETDOCPOINTER, 0, 0);
 	}
-	Buffer *NewBuffer = new Buffer;
-	buffer[numOfBuffers++] = NewBuffer;
-	int _currentBuffer = numOfBuffers - 1;
-
-	return _currentBuffer;
+	return buffers.buffers[index]->doc;
 }
 
-void SciTEBase::SetDocumentAt (int index) {
+void SciTEBase::SetDocumentAt(int index) {
 	if(	index < 0 ||
-		index >= numOfBuffers ||
-		index == currentBuffer ||
-		currentBuffer < 0 ||
-		currentBuffer >= numOfBuffers)
+		index >= buffers.length ||
+		index == buffers.current ||
+		buffers.current < 0 ||
+		buffers.current >= buffers.length)
 			return;
 	bool readProperties = false;
-	strncpy(buffer[currentBuffer]->fileName,fullPath,MAX_PATH);
-	buffer[currentBuffer]->lineNumber = GetCurrentLineNumber();
-	buffer[currentBuffer]->scrollPosition = GetCurrentScrollPosition();
-	buffer[currentBuffer]->isDirty = isDirty;
-	buffer[currentBuffer]->lexLanguage = lexLanguage;
+    UpdateBuffersCurrent();
 
-	currentBuffer = index;
+	buffers.current = index;
 
-	SetFileName(buffer[currentBuffer]->fileName);
-	isDirty = buffer[currentBuffer]->isDirty;
-	if (buffer[currentBuffer]->lexLanguage != lexLanguage)
+	if (buffers.buffers[buffers.current]->lexLanguage != lexLanguage)
 		readProperties = true;
-
-	int doc = GetDocumentAt(currentBuffer);
-	SendEditor(SCI_SETDOCPOINTER, 0, doc);
+	SetFileName(buffers.buffers[buffers.current]->fileName);
+	isDirty = buffers.buffers[buffers.current]->isDirty;
+	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 	SetWindowName();
 	if (readProperties)
 		ReadProperties();
-	DisplayAround(buffer[currentBuffer]->scrollPosition,
-					buffer[currentBuffer]->lineNumber);
+	DisplayAround(buffers.buffers[buffers.current]->scrollPosition,
+					buffers.buffers[buffers.current]->lineNumber);
+
+	CheckMenus();
+}
+
+void SciTEBase::UpdateBuffersCurrent() {
+	if ((buffers.length > 0) && (buffers.current >= 0)) {
+        strncpy(buffers.buffers[buffers.current]->fileName,fullPath,MAX_PATH);
+        buffers.buffers[buffers.current]->lineNumber = GetCurrentLineNumber();
+        buffers.buffers[buffers.current]->scrollPosition = GetCurrentScrollPosition();
+        buffers.buffers[buffers.current]->isDirty = isDirty;
+        buffers.buffers[buffers.current]->lexLanguage = lexLanguage;
+        buffers.buffers[buffers.current]->generation = ++buffers.generation;
+    }
+}
+
+bool SciTEBase::CloseBuffer(int bufferIndex) {
+	if (bufferIndex < 0 || bufferIndex >= buffers.length)
+		return false;
+    Buffer *buffCurrent = buffers.buffers[buffers.current];
+    Buffer *buff = buffers.buffers[bufferIndex];
+	if (buff->isDirty) {
+		SetDocumentAt(bufferIndex);
+		if (SaveIfUnsure() == IDCANCEL)
+			return false;
+	}
+
+	AddFileToStack(buff->fileName, buff->lineNumber, buff->scrollPosition);
+	delete buff;
+	for (int i=bufferIndex;i<buffers.length-1;i++)
+		buffers.buffers[i] = buffers.buffers[i+1];
+	buffers.length--;
+	buffers.buffers[buffers.length] = 0;
+    buffers.current = 0;
+    // Redisplay document current at beginning of function
+    for (int j=0;j<buffers.length-1;j++) {
+        if (buffCurrent == buffers.buffers[j]) {
+    		SetDocumentAt(j);
+            buffCurrent = 0;
+        }
+    }
+    if (buffCurrent && (buffers.length > 0)) {
+        // Failed to find original document so must have closed so show document 0
+   		SetDocumentAt(0);
+    }
+
+    	return true;
 }
 
 int SciTEBase::CloseCurrentBuffer() {
-	if(currentBuffer < 0 || currentBuffer >= numOfBuffers)
-		return -1;
-	delete buffer[currentBuffer];
-	int i;
-	for(i=currentBuffer;i<numOfBuffers-1;i++)
-		buffer[i] = buffer[i+1];
+	CloseBuffer(buffers.current);
 
-	numOfBuffers--;
-
-	int _currentBuffer = currentBuffer;
-	if(_currentBuffer == numOfBuffers)
+	int _currentBuffer = buffers.current;
+	if (_currentBuffer == buffers.length)
 		_currentBuffer--;
 	return _currentBuffer;
 }
 
-void SciTEBase::New() {
-	if (numOfBuffers > 0) {
-		strncpy(buffer[currentBuffer]->fileName,fullPath,MAX_PATH);
-		buffer[currentBuffer]->lineNumber = GetCurrentLineNumber();
-		buffer[currentBuffer]->scrollPosition = GetCurrentScrollPosition();
-		buffer[currentBuffer]->isDirty = isDirty;
-		buffer[currentBuffer]->lexLanguage = lexLanguage;
+bool SciTEBase::EnsureRoomForNew() {
+    UpdateBuffersCurrent();
+	if ((buffers.length > 0) && (buffers.length >= buffers.size)) {
+		int oldBuffer = 0;
+		for (int i=1; i<buffers.size;i++) {
+			if (buffers.buffers[i]->generation < buffers.buffers[oldBuffer]->generation)
+				oldBuffer = i;
+		}
+		return CloseBuffer(oldBuffer);
 	}
-	currentBuffer = AddBuffer();
+    return true;
+}
+
+static bool IsUntitledFileName(const char *name) {
+	char *dirEnd = strrchr(name, pathSepChar);
+	return !dirEnd || !dirEnd[1];
+}
+
+void SciTEBase::New() {
+    if (buffers.size == 0) {
+        int buffersWanted = props.GetInt("buffers");
+        if ((buffersWanted < 1) || (buffersWanted > 20))
+            buffersWanted = 1;
+        buffers.Allocate(buffersWanted);
+        if (buffersWanted == 1) {
+    		DestroyMenuItem(4, IDM_PREV);
+    		DestroyMenuItem(4, IDM_NEXT);
+    		DestroyMenuItem(4, 0);
+        }
+    }
+
+    if (!EnsureRoomForNew())
+        return;
+
+    // If the current buffer is the initial untitled, clean buffer then overwrite it, 
+    // otherwise add a new buffer.
+    if ((buffers.length > 1) || 
+		(buffers.current != 0) || 
+		(buffers.buffers[0] == 0) || 
+		(buffers.buffers[0]->isDirty) ||
+        (!IsUntitledFileName(buffers.buffers[0]->fileName)))
+	    buffers.current = buffers.Add();
 	
-	int doc = GetDocumentAt(currentBuffer);
+	int doc = GetDocumentAt(buffers.current);
 	SendEditor(SCI_ADDREFDOC, 0, doc);
 	SendEditor(SCI_SETDOCPOINTER, 0, doc);
 
@@ -338,71 +405,80 @@ void SciTEBase::New() {
 	isBuilt = false;
 	SendEditor(EM_EMPTYUNDOBUFFER);
 	SendEditor(SCI_SETSAVEPOINT);
+	DeleteFileStackMenu();
+	SetFileStackMenu();
 }
 
 void SciTEBase::Close() {
-	AddFileToStack(fullPath);
-	currentBuffer = CloseCurrentBuffer();
+	buffers.current = CloseCurrentBuffer();
 
-	if(numOfBuffers == 0)
+	if (buffers.length == 0) {
 		New();
-	else {
+	} else {
 		bool readProperties = false;
-		SetFileName(buffer[currentBuffer]->fileName);
-		isDirty = buffer[currentBuffer]->isDirty;
-		if(buffer[currentBuffer]->lexLanguage != lexLanguage)
+		SetFileName(buffers.buffers[buffers.current]->fileName);
+		isDirty = buffers.buffers[buffers.current]->isDirty;
+		if (buffers.buffers[buffers.current]->lexLanguage != lexLanguage)
 			readProperties = true;
 
-		int doc = GetDocumentAt(currentBuffer);
-		SendEditor(SCI_SETDOCPOINTER, 0, doc);
+		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 		SetWindowName();
 		if (readProperties)
 			ReadProperties();
-		DisplayAround(buffer[currentBuffer]->scrollPosition,
-			buffer[currentBuffer]->lineNumber);
+		DisplayAround(buffers.buffers[buffers.current]->scrollPosition,
+			buffers.buffers[buffers.current]->lineNumber);
 	}
-	BuffersMenu ();
+	BuffersMenu();
 }
 
 void SciTEBase::Next() {
-	int next = currentBuffer;
-	if (++next >= numOfBuffers)
-		next--;
+	int next = buffers.current;
+	if (++next >= buffers.length)
+		next = 0;
 	SetDocumentAt(next);
 }
 
 void SciTEBase::Prev() {
-	int prev = currentBuffer;
-	if (--prev <0 )
-		prev++;
+	int prev = buffers.current;
+	if (--prev < 0 )
+        prev = buffers.length - 1;
 	SetDocumentAt(prev);
 }
 
-void SciTEBase::BuffersMenu () {
-	int pos;
-	for (pos = 0; pos < buffersMax; pos++) {
+void SciTEBase::BuffersMenu() {
+    UpdateBuffersCurrent();
+    int pos;
+	DestroyMenuItem(4, IDM_BUFFERSEP);
+	for (pos = 0; pos < bufferMax; pos++) {
 		DestroyMenuItem(4, IDM_BUFFER + pos);
 	}
-	int menuStart = 3;
-	for (pos = 0; pos < numOfBuffers; pos++) {
-		int itemID = bufferCmdID + pos;
-		char entry[MAX_PATH + 20];
-		entry[0] = '\0';
-		strcpy(entry, buffer[pos]->fileName);
+    if (buffers.size > 1) {
+	    int menuStart = 3;
+		SetMenuItem(4, menuStart, IDM_BUFFERSEP, "");
+	    for (pos = 0; pos < buffers.length; pos++) {
+		    int itemID = bufferCmdID + pos;
+		    char entry[MAX_PATH + 20];
+		    entry[0] = '\0';
+#if PLAT_WIN
+			sprintf(entry, "&%d ", pos);
+#endif
+            if (IsUntitledFileName(buffers.buffers[pos]->fileName))
+			    strcat(entry, "Untitled");
+		    else
+    		    strcat(entry, buffers.buffers[pos]->fileName);
+            // For short file names:
+		    //char *cpDirEnd = strrchr(buffers.buffers[pos]->fileName, pathSepChar);
+			//strcat(entry, cpDirEnd + 1);
 
-		char *cpDirEnd = strrchr(buffer[pos]->fileName, pathSepChar);
-		if (!cpDirEnd || !cpDirEnd[1])
-			strcpy(entry, "Untitled");
-		else
-			strcpy (entry, cpDirEnd + 1);
+		    if (buffers.buffers[pos]->isDirty)
+			    strcat(entry, " *");
 
-		SetMenuItem(4, menuStart + pos, itemID, entry);
-	}
+		    SetMenuItem(4, menuStart + pos + 1, itemID, entry);
+	    }
+    }
 }
 
 SciTEBase::~SciTEBase() {
-	for (int i=0; i<numOfBuffers; i++)
-		delete buffer[i];
 }
 
 void SciTEBase::ReadGlobalPropFile() {
@@ -456,7 +532,7 @@ LRESULT SciTEBase::SendFocused(UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 void SciTEBase::DeleteFileStackMenu() {
-	for (int stackPos = 1; stackPos < fileStackMax; stackPos++) {
+	for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
 		DestroyMenuItem(0, fileStackCmdID + stackPos);
 	}
 	DestroyMenuItem(0, IDM_MRU_SEP);
@@ -464,9 +540,9 @@ void SciTEBase::DeleteFileStackMenu() {
 
 void SciTEBase::SetFileStackMenu() {
 	int menuStart = 6;
-	if (recentFileStack[1].fileName[0]) {
+	if (recentFileStack[0].fileName[0]) {
 		SetMenuItem(0, menuStart, IDM_MRU_SEP, "");
-		for (int stackPos = 1; stackPos < fileStackMax; stackPos++) {
+		for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
 			int itemID = fileStackCmdID + stackPos;
 			if (recentFileStack[stackPos].fileName[0]) {
 				char entry[MAX_PATH + 20];
@@ -475,7 +551,7 @@ void SciTEBase::SetFileStackMenu() {
 				sprintf(entry, "&%d ", stackPos);
 #endif
 				strcat(entry, recentFileStack[stackPos].fileName);
-				SetMenuItem(0, menuStart + stackPos, itemID, entry);
+				SetMenuItem(0, menuStart + stackPos + 1, itemID, entry);
 			}
 		}
 	}
@@ -993,6 +1069,13 @@ void SciTEBase::ReadProperties() {
 	blockEnd = GetStyleAndWords("block.end.");
 	
 	SendEditor(SCI_SETUSETABS, props.GetInt("use.tabs", 1));
+	if (props.GetInt("vc.home.key", 1)) {
+		SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(VK_HOME, 0), SCI_VCHOME);
+		SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(VK_HOME, SHIFT_PRESSED), SCI_VCHOMEEXTEND);
+	} else {
+		SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(VK_HOME, 0), SCI_HOME);
+		SendEditor(SCI_ASSIGNCMDKEY, MAKELONG(VK_HOME, SHIFT_PRESSED), SCI_HOMEEXTEND);
+	}
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 
 	SetToolsMenu();
@@ -1028,7 +1111,7 @@ void SciTEBase::ReadProperties() {
 	
 	firstPropertiesRead = false;
 //DWORD dwEnd = timeGetTime();
-//Platform::DebugPrintf("Properrties read took %d\n", dwEnd - dwStart);
+//Platform::DebugPrintf("Properties read took %d\n", dwEnd - dwStart);
 }
 
 int SciTEBase::LengthDocument() {
@@ -1195,7 +1278,8 @@ void SciTEBase::SetFileName(const char *openName) {
 	props.Set("FileNameExt", fileName);
 
 	SetWindowName();
-	strcpy (buffer[currentBuffer]->fileName, fullPath);
+    if (buffers.buffers)
+	    strcpy(buffers.buffers[buffers.current]->fileName, fullPath);
 	BuffersMenu();
 }
 
@@ -1229,17 +1313,16 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 //		GetCurrentScrollPosition());
 
 	if (file) {
-		int index = GetDocumentByName (file);
+		int index = buffers.GetDocumentByName(file);
 		if (index >= 0) {
-			SetDocumentAt (index);
+			SetDocumentAt(index);
 			return;
 		}
 		New();
 		//Platform::DebugPrintf("Opening %s\n", file);
 		SetFileName(file);
 		ReadProperties();
-		strncpy(buffer[currentBuffer]->fileName,fullPath,MAX_PATH);
-		buffer[currentBuffer]->lexLanguage = lexLanguage;
+        UpdateBuffersCurrent();
 
 		if (fileName[0]) {
 			SendEditor(SCI_CANCEL);
@@ -1285,7 +1368,8 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 			return;
 		}
 	}
-//	AddFileToStack(fullPath);
+	DeleteFileStackMenu();
+	SetFileStackMenu();
 	SetWindowName();
 }
 
@@ -1313,7 +1397,7 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 }
 
 int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
-	for (int i = 0; i < numOfBuffers; i++) {
+	for (int i = 0; i < buffers.length; i++) {
 		SetDocumentAt(i);
 		if (SaveIfUnsure(forceQuestion) == IDCANCEL)
 			return IDCANCEL;
@@ -1367,8 +1451,8 @@ bool SciTEBase::Save() {
 		FILE *fp = fopen(fullPath, "wb");
 		if (fp) {
 			char data[blockSize + 1];
-			AddFileToStack(fullPath, GetCurrentLineNumber(), 
-				GetCurrentScrollPosition());
+			//AddFileToStack(fullPath, GetCurrentLineNumber(), 
+			//	GetCurrentScrollPosition());
 			int lengthDoc = LengthDocument();
 			for (int i = 0; i < lengthDoc; i += blockSize) {
 				int grabSize = lengthDoc - i;
@@ -1392,6 +1476,7 @@ bool SciTEBase::Save() {
 				ReadLocalPropFile();
 				ReadProperties();
 				SetWindowName();
+            	BuffersMenu();
 				Redraw();
 			}
 		} else {
@@ -1417,6 +1502,7 @@ bool SciTEBase::SaveAs(char *file) {
 		SendEditor(SCI_COLOURISE, 0, -1);
 		Redraw();
 		SetWindowName();
+       	BuffersMenu();
 		return true;
 	} else {
 		return SaveAsDialog();
@@ -2647,7 +2733,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	default:
 		if ((cmdID >= bufferCmdID) &&
-				(cmdID < bufferCmdID + buffersMax)) {
+				(cmdID < bufferCmdID + buffers.size)) {
 				SetDocumentAt(cmdID - bufferCmdID);
 		} else if ((cmdID >= fileStackCmdID) &&
 		        (cmdID < fileStackCmdID + fileStackMax)) {
@@ -2806,6 +2892,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			isDirty = false;
 			CheckMenus();
 			SetWindowName();
+           	BuffersMenu();
 		}
 		break;
 
@@ -2815,6 +2902,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			isBuilt = false;
 			CheckMenus();
 			SetWindowName();
+           	BuffersMenu();
 		}
 		break;
 
@@ -2875,6 +2963,11 @@ void SciTEBase::CheckMenus() {
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
 		EnableAMenuItem(IDM_TOOLS + toolItem, !executing);
 	EnableAMenuItem(IDM_STOPEXECUTE, executing);
+    if (buffers.length > 0) {
+        for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
+    	    CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.current);
+        }
+    }
 }
 
 

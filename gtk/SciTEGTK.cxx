@@ -80,6 +80,7 @@ protected:
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
 	virtual void CheckMenus();
+ 	virtual void ExecuteNext();
 
 	virtual void AbsolutePath(char *absPath, const char *relativePath, int size);
 	virtual bool OpenDialog();
@@ -311,6 +312,7 @@ bool SciTEGTK::GetUserPropertiesFileName(char *pathDefaultProps, unsigned int le
         if (!where) {
 		where = getenv("HOME");
 	}
+	strncpy(pathDefaultProps, where, lenPath);
 	strncat(pathDefaultProps, pathSepString, lenPath);
 	strncat(pathDefaultProps, propUserFileName, lenPath);
 	return true;
@@ -432,10 +434,12 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 void SciTEGTK::DestroyMenuItem(int, int itemID) {
 	// On GTK+ menu items are just hidden rather than destroyed as they can not be recreated in the middle of a menu
 	// The menuNumber is ignored as all menu items in GTK+ can be found from the root of the menu tree
-	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
-	if (item) {
-		//Platform::DebugPrintf("Destroying[%0d]\n", itemID);
-		gtk_widget_hide(item);
+	if (itemID) {
+		GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
+		if (item) {
+			Platform::DebugPrintf("Destroying[%0d]\n", itemID);
+			gtk_widget_hide(item);
+		}
 	}
 }
 
@@ -727,6 +731,22 @@ void SciTEGTK::Replace() {
 	FindReplace(true);
 }
 
+void SciTEGTK::ExecuteNext() {
+	icmd++;
+	if (icmd < commandCurrent && icmd < commandMax) {	
+		Execute();	
+	} else {	
+		icmd = 0;	
+		executing = false;	
+		CheckMenus();	
+		for (int ic = 0; ic < commandMax; ic++) {	
+			jobQueue[ic].Clear();	
+		}	
+		commandCurrent = 0;	
+	}	
+	return;	
+}	
+
 void SciTEGTK::ContinueExecute() {
 	char buf[256];
 	int count = 0;
@@ -748,19 +768,7 @@ void SciTEGTK::ContinueExecute() {
 		gdk_input_remove(inputHandle);
 		close(fdFIFO);
 		unlink(resultsFile);
-		icmd++;
-		if (icmd < commandCurrent && icmd < commandMax) {
-			Execute();
-		} else {
-			icmd = 0;
-			executing = false;
-			CheckMenus();
-			for (int ic = 0; ic < commandMax; ic++) {
-				jobQueue[ic].Clear();
-			}
-			commandCurrent = 0;
-		}
-		return;
+		ExecuteNext();
 	}
 	if (count > 0) {
 		buf[count] = '\0';
@@ -804,23 +812,28 @@ void SciTEGTK::Execute() {
 
 	unlink(resultsFile);
 
-	int fdp = mkfifo(resultsFile, S_IRUSR | S_IWUSR);
-	if (fdp < 0) {
-		OutputAppendString(">Failed to create FIFO\n");
-		return;
+	if (jobQueue[icmd].jobType != jobShell) {
+	
+		int fdp = mkfifo(resultsFile, S_IRUSR | S_IWUSR);
+		if (fdp < 0) {
+			OutputAppendString(">Failed to create FIFO\n");
+			return;
+		}
+		close(fdp);
+		pidShell = xsystem(jobQueue[icmd].command.c_str(), resultsFile);
+		fdFIFO = open(resultsFile, O_RDONLY | O_NONBLOCK);
+		if (fdFIFO < 0) {
+			OutputAppendString(">Failed to open\n");
+			return;
+		}
+		inputHandle = gdk_input_add(fdFIFO, GDK_INPUT_READ,
+					    (GdkInputFunction) IOSignal, this);
+	} else {
+		if (fork()==0) 
+			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(), 0);
+		else 
+			ExecuteNext();
 	}
-	close(fdp);
-
-	SString commandPlus = jobQueue[icmd].command;
-	pidShell = xsystem(commandPlus.c_str(), resultsFile);
-	fdFIFO = open(resultsFile, O_RDONLY);
-	if (fdFIFO < 0) {
-		OutputAppendString(">Failed to open\n");
-		return;
-	}
-
-	inputHandle = gdk_input_add(fdFIFO, GDK_INPUT_READ,
-	                            (GdkInputFunction) IOSignal, this);
 }
 
 void SciTEGTK::StopExecute() {
@@ -1257,6 +1270,7 @@ void SciTEGTK::Run(const char *cmdLine) {
 	    {"/File/Save _As", NULL, menuSig, IDM_SAVEAS, 0},
 	    {"/File/Save As _HTML", NULL, menuSig, IDM_SAVEASHTML, 0},
 	    {"/File/sep1", NULL, NULL, 0, "<Separator>"},
+	    {"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
 	    {"/File/File1", "", menuSig, fileStackCmdID + 1, 0},
 	    {"/File/File2", "", menuSig, fileStackCmdID + 2, 0},
 	    {"/File/File3", "", menuSig, fileStackCmdID + 3, 0},
@@ -1340,16 +1354,16 @@ void SciTEGTK::Run(const char *cmdLine) {
 		{"/Buffers/_Previous Buffer", "<shift>F6", menuSig, IDM_PREV, 0},
 		{"/Buffers/_Next Buffer", "F6", menuSig, IDM_NEXT, 0},
 	    {"/Buffers/sep2", NULL, NULL, 0, "<Separator>"},
-	    {"/Buffers/Buffer0", "", menuSig, bufferCmdID + 0, 0},
-	    {"/Buffers/Buffer1", "", menuSig, bufferCmdID + 1, 0},
-	    {"/Buffers/Buffer2", "", menuSig, bufferCmdID + 2, 0},
-	    {"/Buffers/Buffer3", "", menuSig, bufferCmdID + 3, 0},
-	    {"/Buffers/Buffer4", "", menuSig, bufferCmdID + 4, 0},
-	    {"/Buffers/Buffer5", "", menuSig, bufferCmdID + 5, 0},
-	    {"/Buffers/Buffer6", "", menuSig, bufferCmdID + 6, 0},
-	    {"/Buffers/Buffer7", "", menuSig, bufferCmdID + 7, 0},
-	    {"/Buffers/Buffer8", "", menuSig, bufferCmdID + 8, 0},
-	    {"/Buffers/Buffer9", "", menuSig, bufferCmdID + 9, 0},
+	    {"/Buffers/Buffer0", "", menuSig, bufferCmdID + 0, "<CheckItem>"},
+	    {"/Buffers/Buffer1", "", menuSig, bufferCmdID + 1, "<CheckItem>"},
+	    {"/Buffers/Buffer2", "", menuSig, bufferCmdID + 2, "<CheckItem>"},
+	    {"/Buffers/Buffer3", "", menuSig, bufferCmdID + 3, "<CheckItem>"},
+	    {"/Buffers/Buffer4", "", menuSig, bufferCmdID + 4, "<CheckItem>"},
+	    {"/Buffers/Buffer5", "", menuSig, bufferCmdID + 5, "<CheckItem>"},
+	    {"/Buffers/Buffer6", "", menuSig, bufferCmdID + 6, "<CheckItem>"},
+	    {"/Buffers/Buffer7", "", menuSig, bufferCmdID + 7, "<CheckItem>"},
+	    {"/Buffers/Buffer8", "", menuSig, bufferCmdID + 8, "<CheckItem>"},
+	    {"/Buffers/Buffer9", "", menuSig, bufferCmdID + 9, "<CheckItem>"},
 
 	    {"/_Help", NULL, NULL, 0, "<Branch>"},
 	    {"/_Help/tear", NULL, NULL, 0, "<Tearoff>"},

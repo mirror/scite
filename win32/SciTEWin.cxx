@@ -419,8 +419,12 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 void SciTEWin::DestroyMenuItem(int menuNumber, int itemID) {
 	// On Windows menu items are destroyed as they can not be hidden and they can be recreated in any position
 	HMENU hmenuBar = ::GetMenu(wSciTE.GetID());
-	HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
-	DeleteMenu(hmenu, itemID, MF_BYCOMMAND);
+    if (itemID) {
+    	HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
+        ::DeleteMenu(hmenu, itemID, MF_BYCOMMAND);
+    } else {
+        ::DeleteMenu(hmenuBar, menuNumber, MF_BYPOSITION);
+    }
 }
 
 void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
