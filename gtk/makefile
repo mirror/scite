@@ -85,7 +85,7 @@ include deps.mak
 # This is OK - just means no SciTE in the Gnome Applications menu
 # Dead:	install -D SciTEGTK.properties $(SYSCONF_PATH)/SciTEGlobal.properties
 install:
-	install -s $(PROG) $(bindir)
+	install $(PROG) $(bindir)
 	install -d $(SYSCONF_PATH)
 	install ../src/*.properties $(SYSCONF_PATH)
 	install ../doc/*.html $(SYSCONF_PATH)
