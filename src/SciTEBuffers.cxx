@@ -384,7 +384,8 @@ void SciTEBase::BuffersMenu() {
 			char titleTab[MAX_PATH + 20];
 			titleTab[0] = '\0';
 #if PLAT_WIN
-			sprintf(entry, "&%d ", pos);
+			sprintf(entry, "&%d ", (pos+1) % 10 ); // hotkey 1..0
+			sprintf(titleTab, "&%d ", (pos+1) % 10); // add hotkey to the tabbar
 #endif
 			if (IsUntitledFileName(buffers.buffers[pos].fileName.c_str())) {
 				strcat(entry, "Untitled");
@@ -394,9 +395,9 @@ void SciTEBase::BuffersMenu() {
 
 				char *cpDirEnd = strrchr(entry, pathSepChar);
 				if (cpDirEnd) {
-					strcpy(titleTab, cpDirEnd + 1);
+					strcat(titleTab, cpDirEnd + 1);
 				} else {
-					strcpy(titleTab, entry);
+					strcat(titleTab, entry);
 				}
 			}
 			// For short file names:
@@ -443,7 +444,7 @@ void SciTEBase::SetFileStackMenu() {
 				char entry[MAX_PATH + 20];
 				entry[0] = '\0';
 #if PLAT_WIN
-				sprintf(entry, "&%d ", stackPos);
+				sprintf(entry, "&%d ", (stackPos+1) % 10);
 #endif
 				strcat(entry, recentFileStack[stackPos].fileName.c_str());
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, entry);
@@ -499,8 +500,8 @@ void SciTEBase::RemoveFileFromStack(const char *file) {
 void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
 		// This can produce better file state restoring
-		bool foldOnOpen = props.GetInt("fold.on.open");		
-		if (foldOnOpen) 
+		bool foldOnOpen = props.GetInt("fold.on.open");
+		if (foldOnOpen)
 			FoldAll();
 
 		int lineStart = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMin);

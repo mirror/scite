@@ -118,11 +118,24 @@ void SciTEWin::SizeContentWindows() {
 
 void SciTEWin::SizeSubWindows() {
 	PRectangle rcClient = wSciTE.GetClientPosition();
+	bool showTab = false;
 
 	visHeightTools = tbVisible ? heightTools : 0;
 	if (tabVisible) {
-		int tabNb = ::SendMessage(wTabBar.GetID(), TCM_GETROWCOUNT, 0, 0);
-		visHeightTab = tabNb * heightTab;
+		SendMessage(wSciTE.GetID(), WM_SETREDRAW, false, 0); // suppress flashing
+
+		visHeightTools = tbVisible ?  heightTools : 0;
+
+		if (tabVisible) {	// ? hide one tab only
+			showTab = tabHideOne ?
+				::SendMessage(wTabBar.GetID(), TCM_GETITEMCOUNT, 0, 0) > 1 :
+				true;
+		}
+
+		if (showTab) {
+			int tabNb = ::SendMessage(wTabBar.GetID(), TCM_GETROWCOUNT, 0, 0);
+			visHeightTab = tabNb * heightTab;
+		}
 	} else {
 		visHeightTab = 0;
 	}
@@ -135,19 +148,19 @@ void SciTEWin::SizeSubWindows() {
 		visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus - visHeightTab;
 	}
 	if (tbVisible) {
-		wToolBar.Show(true);
 		wToolBar.SetPosition(PRectangle(
 		                         rcClient.left, rcClient.top, rcClient.Width(), visHeightTools));
+		wToolBar.Show(true);
 	} else {
 		wToolBar.Show(false);
 		wToolBar.SetPosition(PRectangle(
 		                         rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
 	}
-	if (tabVisible) {
-		wTabBar.Show(true);
+	if (showTab) {
 		wTabBar.SetPosition(PRectangle(
 		                        rcClient.left, rcClient.top + visHeightTools,
 		                        rcClient.Width(), visHeightTab + visHeightTools));
+		wTabBar.Show(true);
 	} else {
 		wTabBar.Show(false);
 		wTabBar.SetPosition(PRectangle(
@@ -155,7 +168,6 @@ void SciTEWin::SizeSubWindows() {
 		                        rcClient.Width(), 1));
 	}
 	if (sbVisible) {
-		wStatusBar.Show(true);
 		int startLineNum = rcClient.Width() - statusPosWidth;
 		if (startLineNum < 0)
 			startLineNum = 0;
@@ -167,6 +179,7 @@ void SciTEWin::SizeSubWindows() {
 		wStatusBar.SetPosition(PRectangle(rcClient.left,
 		                                  rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
 		                                  rcClient.Width(), visHeightStatus));
+		wStatusBar.Show(true);
 	} else {
 		wStatusBar.Show(false);
 		wStatusBar.SetPosition(PRectangle(
@@ -176,6 +189,8 @@ void SciTEWin::SizeSubWindows() {
 	wContent.SetPosition(PRectangle(0, visHeightTools + visHeightTab, rcClient.Width(),
 	                                visHeightTools + visHeightTab + visHeightEditor));
 	SizeContentWindows();
+	SendMessage(wSciTE.GetID(), WM_SETREDRAW, true, 0);
+	RedrawWindow(wSciTE.GetID(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,

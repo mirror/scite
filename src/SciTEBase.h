@@ -31,8 +31,8 @@ const char *VMSToUnixStyle(const char *fileName);
  * The order of menus on Windows - the Buffers menu may not be present
  * and there is a Help menu at the end.
  */
-enum { menuFile=0, menuEdit=1, menuSearch=2, menuTools=3, 
-	menuOptions=4, menuBuffers=5 };
+enum { menuFile=0, menuEdit=1, menuSearch=2, menuView=3,
+	menuTools=4, menuOptions=5, menuBuffers=6 };
 
 /**
  * This is a fixed length list of strings suitable for display in combo boxes
@@ -103,7 +103,7 @@ public:
 	bool isDirty;
 	time_t fileModTime;
 	SString overrideExtension;
-	Buffer() : RecentFile(), doc(0), isDirty(false) { 
+	Buffer() : RecentFile(), doc(0), isDirty(false) {
 	}
 	void Init() {
 		RecentFile::Init();
@@ -126,7 +126,7 @@ public:
 	void RemoveCurrent();
 };
 
-enum JobSubsystem { 
+enum JobSubsystem {
 	jobCLI=0, jobGUI=1, jobShell=2, jobExtension=3, jobHelp=4, jobOtherHelp=5};
 class Job {
 public:
@@ -138,16 +138,16 @@ public:
 	void Clear();
 };
 
-/// Find the character following a name which is made up of character from 
+/// Find the character following a name which is made up of character from
 /// the set [a-zA-Z.]
 char AfterName(const char *s);
 
 typedef EntryMemory<10> ComboMemory;
 
-enum { 
-	heightTools = 24, 
-	heightTab = 24, 
-	heightStatus = 20, 
+enum {
+	heightTools = 24,
+	heightTab = 24,
+	heightStatus = 20,
 	statusPosWidth = 256
 };
 
@@ -241,6 +241,7 @@ protected:
 	long ptrOutput;
 	bool tbVisible;
 	bool tabVisible;
+	bool tabHideOne; // Hide tab bar if one buffer is opened only
 	bool tabMultiLine;
 	bool sbVisible;
 	int visHeightTools;
@@ -271,7 +272,7 @@ protected:
 
 	bool autoCompleteIgnoreCase;
 	bool callTipIgnoreCase;
-	
+
 	bool margin;
 	int marginWidth;
 	enum { marginWidthDefault = 20};
@@ -368,9 +369,9 @@ protected:
 	virtual void GetDefaultDirectory(char *directory, size_t size)=0;
 	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath)=0;
 	virtual bool GetSciteUserHome(char *path, unsigned int lenPath)=0;
-	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, 
+	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps,
 		char *pathDefaultDir, unsigned int lenPath)=0;
-	virtual bool GetUserPropertiesFileName(char *pathUserProps, 
+	virtual bool GetUserPropertiesFileName(char *pathUserProps,
 		char *pathUserDir, unsigned int lenPath)=0;
 	void OpenProperties(int propsFile);
 	virtual void Print(bool) {};
@@ -424,7 +425,7 @@ protected:
 	void MenuCommand(int cmdID);
 	void FoldChanged(int line, int levelNow, int levelPrev);
 	void FoldChanged(int position);
-	void Expand(int &line, bool doExpand, bool force=false, 
+	void Expand(int &line, bool doExpand, bool force=false,
 		int visLevels=0, int level=-1);
 	void FoldAll();
 	void EnsureRangeVisible(int posStart, int posEnd);
@@ -443,7 +444,7 @@ protected:
 	virtual void SizeContentWindows()=0;
 	virtual void SizeSubWindows()=0;
 
-	virtual void SetMenuItem(int menuNumber, int position, int itemID, 
+	virtual void SetMenuItem(int menuNumber, int position, int itemID,
 		const char *text, const char *mnemonic=0)=0;
 	virtual void DestroyMenuItem(int menuNumber, int itemID)=0;
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val)=0;

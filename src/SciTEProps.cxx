@@ -651,6 +651,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
 	SendOutput(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
 
+	tabHideOne = props.GetInt("tabbar.hide.one");
+
 	SetToolsMenu();
 
 	SendEditor(SCI_SETFOLDFLAGS, props.GetInt("fold.flags"));
