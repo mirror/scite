@@ -3,30 +3,30 @@
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h> 
-#include <string.h> 
-#include <ctype.h> 
-#include <stdio.h> 
-#include <fcntl.h> 
-#include <stdarg.h> 
-#include <sys/stat.h> 
-#include <time.h> 
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <sys/stat.h>
+#include <time.h>
 
 #include "Platform.h"
 
 #if PLAT_GTK
 
-#include <unistd.h> 
+#include <unistd.h>
 
 #endif 
 
 #if PLAT_WIN
 
 #ifdef _MSC_VER
-#include <direct.h> 
+#include <direct.h>
 #endif 
 #ifdef __BORLANDC__
-#include <dir.h> 
+#include <dir.h>
 #endif 
 
 #endif 
@@ -47,47 +47,47 @@
 const char propFileName[] = "SciTE.properties";
 
 const char *contributors[] = {
-	"Atsuo Ishimoto",
-	"Mark Hammond",
-	"Francois Le Coguiec",
-	"Dale Nagata",
-	"Ralf Reinhardt",
-	"Philippe Lhoste",
-	"Andrew McKinlay",
-	"Stephan R. A. Deibel",
-	"Hans Eckardt",
-	"Vassili Bourdo",
-	"Maksim Lin",
-	"Robin Dunn",
-	"John Ehresman",
-	"Steffen Goeldner",
-	"Deepak S.",
-	"DevelopMentor http://www.develop.com",
-	"Yann Gaillard",
-	"Aubin Paul",
-	"Jason Diamond",
-	"Ahmad Baitalmal",
-	"Paul Winwood",
-	"Maxim Baranov",
+    "Atsuo Ishimoto",
+    "Mark Hammond",
+    "Francois Le Coguiec",
+    "Dale Nagata",
+    "Ralf Reinhardt",
+    "Philippe Lhoste",
+    "Andrew McKinlay",
+    "Stephan R. A. Deibel",
+    "Hans Eckardt",
+    "Vassili Bourdo",
+    "Maksim Lin",
+    "Robin Dunn",
+    "John Ehresman",
+    "Steffen Goeldner",
+    "Deepak S.",
+    "DevelopMentor http://www.develop.com",
+    "Yann Gaillard",
+    "Aubin Paul",
+    "Jason Diamond",
+    "Ahmad Baitalmal",
+    "Paul Winwood",
+    "Maxim Baranov",
 #if PLAT_GTK
-	"Icons Copyright(C) 1998 by Dean S. Jones",
-	"    http://jfa.javalobby.org/projects/icons/",
+    "Icons Copyright(C) 1998 by Dean S. Jones",
+    "    http://jfa.javalobby.org/projects/icons/",
 #endif 
-	"Ragnar Højland",
-	"Christian Obrecht",
-	"Andreas Neukoetter",
-	"Adam Gates",
-	"Steve Lhomme",
-	"Ferdinand Prantl",
-	"Jan Dries",
-	"Markus Gritsch",
-	"Tahir Karaca",
+    "Ragnar Højland",
+    "Christian Obrecht",
+    "Andreas Neukoetter",
+    "Adam Gates",
+    "Steve Lhomme",
+    "Ferdinand Prantl",
+    "Jan Dries",
+    "Markus Gritsch",
+    "Tahir Karaca",
 };
 
 const char *extList[] = {
-	"x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
-	"x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
-	"x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff"
+    "x", "x.cpp", "x.bas", "x.rc", "x.html", "x.xml", "x.js", "x.vbs",
+    "x.properties", "x.bat", "x.mak", "x.err", "x.java", "x.lua", "x.py",
+    "x.pl", "x.sql", "x.spec", "x.php3", "x.tex", "x.diff"
 };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -99,7 +99,7 @@ void AddStyledText(WindowID hwnd, const char *s, int attr) {
 		buf[i*2 + 1] = static_cast<char>(attr);
 	}
 	Platform::SendScintilla(hwnd, SCI_ADDSTYLEDTEXT, len*2,
-			reinterpret_cast<long>(static_cast < char * > (buf)));
+	                        reinterpret_cast<long>(static_cast < char * > (buf)));
 }
 
 void SetAboutStyle(WindowID wsci, int style, Colour fore) {
@@ -122,7 +122,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 #if PLAT_GTK
 		// On GTK+, new century schoolbook looks better in large sizes than default font
 		Platform::SendScintilla(wsci, SCI_STYLESETFONT, STYLE_DEFAULT,
-				reinterpret_cast<unsigned int>("new century schoolbook"));
+		                        reinterpret_cast<unsigned int>("new century schoolbook"));
 		fontSize = 14;
 #endif 
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
@@ -196,12 +196,12 @@ void BufferList::RemoveCurrent() {
 	int currentDoc = buffers[current].doc;
 	for (int i = current;i < length - 1;i++)
 		buffers[i] = buffers[i + 1];
-	buffers[length-1].doc = currentDoc;
+	buffers[length - 1].doc = currentDoc;
 	if (length > 1) {
 		length--;
 		buffers[length].Init();
 		if (current >= length)
-			current = length-1;
+			current = length - 1;
 		if (current < 0)
 			current = 0;
 	} else {
@@ -219,7 +219,7 @@ void Job::Clear() {
 	jobType = jobCLI;
 }
 
-SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext)  {
+SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	codePage = 0;
 	characterSet = 0;
 	language = "java";
@@ -265,10 +265,10 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext)  {
 	braceCount = 0;
 
 	indentationWSVisible = true;
-	
+
 	autoCompleteIgnoreCase = false;
 	callTipIgnoreCase = false;
-	
+
 	margin = false;
 	marginWidth = marginWidthDefault;
 	foldMargin = true;
@@ -316,11 +316,11 @@ int SciTEBase::GetDocumentAt(int index) {
 
 void SciTEBase::SetDocumentAt(int index) {
 	if (	index < 0 ||
-		index >= buffers.length ||
-		index == buffers.current ||
-		buffers.current < 0 ||
-		buffers.current >= buffers.length)
-		return;
+	        index >= buffers.length ||
+	        index == buffers.current ||
+	        buffers.current < 0 ||
+	        buffers.current >= buffers.length)
+		return ;
 	UpdateBuffersCurrent();
 
 	buffers.current = index;
@@ -385,13 +385,13 @@ void SciTEBase::InitialiseBuffers() {
 void SciTEBase::New() {
 	InitialiseBuffers();
 	UpdateBuffersCurrent();
-	
+
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
 	// otherwise add a new buffer.
 	if ((buffers.length > 1) ||
-		(buffers.current != 0) ||
-		(buffers.buffers[0].isDirty) ||
-		(!IsUntitledFileName(buffers.buffers[0].fileName.c_str())))
+	        (buffers.current != 0) ||
+	        (buffers.buffers[0].isDirty) ||
+	        (!IsUntitledFileName(buffers.buffers[0].fileName.c_str())))
 		buffers.current = buffers.Add();
 
 	int doc = GetDocumentAt(buffers.current);
@@ -432,19 +432,19 @@ void SciTEBase::Close(bool updateUI) {
 		overrideExtension = bufferNext.overrideExtension;
 		isDirty = bufferNext.isDirty;
 		if (updateUI)
-		SetFileName(bufferNext.fileName.c_str());
+			SetFileName(bufferNext.fileName.c_str());
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
 		if (closingLast) {
 			ClearDocument();
 		}
 		if (updateUI) {
-		SetWindowName();
-		ReadProperties();
-		DisplayAround(bufferNext);
-	}
+			SetWindowName();
+			ReadProperties();
+			DisplayAround(bufferNext);
+		}
 	}
 	if (updateUI)
-	BuffersMenu();
+		BuffersMenu();
 }
 
 void SciTEBase::CloseAllBuffers() {
@@ -454,7 +454,7 @@ void SciTEBase::CloseAllBuffers() {
 		if (buffers.buffers[i].isDirty) {
 			SetDocumentAt(i);
 			if (SaveIfUnsure() == IDCANCEL)
-				return;
+				return ;
 		}
 	}
 
@@ -525,7 +525,7 @@ void SciTEBase::ReadGlobalPropFile() {
 	propsBase.Set("PLAT_GTK", "1");
 #else
 	propsBase.Set("PLAT_WIN", "1");
-#endif
+#endif 
 	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
 		strcat(propdir, pathSepString);
 		propsBase.Read(propfile, propdir);
@@ -542,7 +542,7 @@ void SciTEBase::GetDocumentDirectory(char *docDir, int len) {
 		strncpy(docDir, dirName, len);
 	else
 		getcwd(docDir, len);
-	docDir[len-1] = '\0';
+	docDir[len - 1] = '\0';
 }
 
 void SciTEBase::ReadLocalPropFile() {
@@ -629,7 +629,7 @@ void SciTEBase::DropFileStackTop() {
 
 void SciTEBase::AddFileToStack(const char *file, CharacterRange selection, int scrollPos) {
 	if (!file)
-		return;
+		return ;
 	DeleteFileStackMenu();
 	// Only stack non-empty names
 	if ((file[0]) && (file[strlen(file) - 1] != pathSepChar)) {
@@ -649,7 +649,7 @@ void SciTEBase::AddFileToStack(const char *file, CharacterRange selection, int s
 
 void SciTEBase::RemoveFileFromStack(const char *file) {
 	if (!file || !file[0])
-		return;
+		return ;
 	DeleteFileStackMenu();
 	int stackPos;
 	for (stackPos = 0; stackPos < fileStackMax; stackPos++) {
@@ -686,7 +686,7 @@ void SciTEBase::StackMenuNext() {
 		if (recentFileStack[stackPos].fileName[0] != '\0') {
 			SetFileStackMenu();
 			StackMenu(stackPos);
-			return;
+			return ;
 		}
 	}
 	SetFileStackMenu();
@@ -892,7 +892,7 @@ void SciTEBase::ReadPropertiesInitial() {
 		SizeSubWindows();
 		Redraw();
 	}
-	indentationWSVisible = props.GetInt("view.indentation.whitespace",1);
+	indentationWSVisible = props.GetInt("view.indentation.whitespace", 1);
 	ViewWhitespace(props.GetInt("view.whitespace"));
 	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides"));
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
@@ -965,9 +965,9 @@ SString SciTEBase::ExtensionFileName() {
 }
 
 void SciTEBase::AssignKey(int key, int mods, int cmd) {
-	SendEditor(SCI_ASSIGNCMDKEY, 
-		Platform::LongFromTwoShorts(static_cast<short>(key), 
-			static_cast<short>(mods)), cmd);
+	SendEditor(SCI_ASSIGNCMDKEY,
+	           Platform::LongFromTwoShorts(static_cast<short>(key),
+	                                       static_cast<short>(mods)), cmd);
 }
 
 void SciTEBase::ReadProperties() {
@@ -1041,13 +1041,13 @@ void SciTEBase::ReadProperties() {
 
 	SString fold = props.Get("fold");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("fold"),
-			fold.c_str());
+	                 fold.c_str());
 	SString stylingWithinPreprocessor = props.Get("styling.within.preprocessor");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("styling.within.preprocessor"),
-			stylingWithinPreprocessor.c_str());
+	                 stylingWithinPreprocessor.c_str());
 	SString ttwl = props.Get("tab.timmy.whinge.level");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("tab.timmy.whinge.level"),
-			ttwl.c_str());
+	                 ttwl.c_str());
 
 	SString apifilename = props.GetNewExpand("api.", fileNameForExtension.c_str());
 	if (apifilename.length()) {
@@ -1065,6 +1065,7 @@ void SciTEBase::ReadProperties() {
 			//Platform::DebugPrintf("Finished api file %d\n", len);
 		}
 
+
 	}
 
 	SString eol_mode = props.Get("eol.mode");
@@ -1080,15 +1081,15 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCODEPAGE, codePage);
 
 	characterSet = props.GetInt("character.set");
-	
+
 	SString colour;
 	colour = props.Get("caret.fore");
 	if (colour.length()) {
 		SendEditor(SCI_SETCARETFORE, ColourFromString(colour.c_str()).AsLong());
 	}
 
-	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width",1));
-	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width",1));
+	SendEditor(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
+	SendOutput(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 
 	colour = props.Get("calltip.back");
 	if (colour.length()) {
@@ -1147,7 +1148,7 @@ void SciTEBase::ReadProperties() {
 	if (sval != "")
 		autoCompleteIgnoreCase = sval == "1";
 	SendEditor(SCI_AUTOCSETIGNORECASE, autoCompleteIgnoreCase ? 1 : 0);
-	
+
 	int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
 	SendEditor(SCI_AUTOCSETCHOOSESINGLE, autoCChooseSingle),
 
@@ -1312,6 +1313,7 @@ void SciTEBase::ReadProperties() {
 }
 
 
+
 void SciTEBase::SetOverrideLanguage(int cmdID) {
 	// Zero all the style bytes
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
@@ -1371,10 +1373,11 @@ void SciTEBase::Colourise(int start, int end, bool editor) {
 	//Platform::DebugPrintf("end colourise %d\n", dwEnd - dwStart);
 }
 
+
 #endif 
 
-// Find if there is a brace next to the caret, checking before caret first, then 
-// after caret. If brace found also find its matching brace. 
+// Find if there is a brace next to the caret, checking before caret first, then
+// after caret. If brace found also find its matching brace.
 // Returns true if inside a bracket pair.
 bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy) {
 	bool isInside = false;
@@ -1391,8 +1394,8 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
 	}
 	// Priority goes to character before caret
-	if (charBefore && strchr("[](){}", charBefore) && 
-		((styleBefore == bracesStyleCheck) || (!bracesStyle))) {
+	if (charBefore && strchr("[](){}", charBefore) &&
+	        ((styleBefore == bracesStyleCheck) || (!bracesStyle))) {
 		braceAtCaret = caretPos - 1;
 	}
 	bool colonMode = false;
@@ -1433,7 +1436,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 
 void SciTEBase::BraceMatch(bool editor) {
 	if (!bracesCheck)
-		return;
+		return ;
 	int braceAtCaret = -1;
 	int braceOpposite = -1;
 	FindMatchingBracePosition(editor, braceAtCaret, braceOpposite, bracesSloppy);
@@ -1443,20 +1446,21 @@ void SciTEBase::BraceMatch(bool editor) {
 		SendEditor(SCI_SETHIGHLIGHTGUIDE, 0);
 	} else {
 		char chBrace = static_cast<char>(Platform::SendScintilla(
-			win.GetID(), SCI_GETCHARAT, braceAtCaret, 0));
+		                                         win.GetID(), SCI_GETCHARAT, braceAtCaret, 0));
 		Platform::SendScintilla(win.GetID(), SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
 		int columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceAtCaret, 0);
 		if (chBrace == ':') {
 			int lineStart = Platform::SendScintilla(win.GetID(), SCI_LINEFROMPOSITION, braceAtCaret);
 			int indentPos = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart, 0);
-			int indentPosNext = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart+1, 0);
+			int indentPosNext = Platform::SendScintilla(win.GetID(), SCI_GETLINEINDENTPOSITION, lineStart + 1, 0);
 			columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, indentPos, 0);
 			int columnAtCaretNext = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, indentPosNext, 0);
 			indentSize = props.GetInt("indent.size");
 			if (columnAtCaretNext - indentSize > 1)
-				columnAtCaret = columnAtCaretNext - indentSize; 
+				columnAtCaret = columnAtCaretNext - indentSize;
 			//Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
 		}
+
 		int columnOpposite = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceOpposite, 0);
 		if (props.GetInt("highlight.indentation.guides"))
 			Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Platform::Minimum(columnAtCaret, columnOpposite), 0);
@@ -1479,14 +1483,16 @@ void SciTEBase::SetWindowName() {
 	//Platform::DebugPrintf("SetWindowname %s\n", windowName);
 }
 
+
 void SciTEBase::FixFilePath() {
 	// Only used on Windows to fix the case of file names
 }
 
-void SciTEBase::SetFileName(const char *openName) {
+
+void SciTEBase::SetFileName(const char *openName, bool fixCase) {
 	if (openName[0] == '\"') {
-	    char pathCopy[MAX_PATH + 1];
-	    pathCopy[0] = '\0';
+		char pathCopy[MAX_PATH + 1];
+		pathCopy[0] = '\0';
 		strncpy(pathCopy, openName + 1, MAX_PATH);
 		pathCopy[MAX_PATH] = '\0';
 		if (pathCopy[strlen(pathCopy) - 1] == '\"')
@@ -1504,7 +1510,8 @@ void SciTEBase::SetFileName(const char *openName) {
 		strcpy(dirName, fullPath);
 		dirName[cpDirEnd - fullPath] = '\0';
 		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
-	} else {
+	}
+	else {
 		strcpy(fileName, fullPath);
 		getcwd(dirName, sizeof(dirName));
 		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
@@ -1512,7 +1519,8 @@ void SciTEBase::SetFileName(const char *openName) {
 		strcat(fullPath, pathSepString);
 		strcat(fullPath, fileName);
 	}
-	FixFilePath();
+	if (fixCase)
+		FixFilePath();
 	char fileBase[MAX_PATH];
 	strcpy(fileBase, fileName);
 	char *extension = strrchr(fileBase, '.');
@@ -1573,15 +1581,15 @@ void SciTEBase::Open(const char *file, bool initialCmdLine) {
 	if (!file) {
 		MessageBox(wSciTE.GetID(), "Bad file", appName, MB_OK);
 	}
-	
+
 	int index = buffers.GetDocumentByName(file);
 	if (index >= 0) {
 		SetDocumentAt(index);
 		DeleteFileStackMenu();
 		SetFileStackMenu();
-		return;
+		return ;
 	}
-	
+
 	if (buffers.size == buffers.length) {
 		AddFileToStack(fullPath, GetSelection(), GetCurrentScrollPosition());
 		ClearDocument();
@@ -1673,8 +1681,8 @@ void SciTEBase::Revert() {
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 	if (isDirty) {
 		if (props.GetInt("are.you.sure", 1) ||
-			IsUntitledFileName(fullPath) ||
-			forceQuestion) {
+		        IsUntitledFileName(fullPath) ||
+		        forceQuestion) {
 			char msg[MAX_PATH + 100];
 			if (fileName[0]) {
 				strcpy(msg, "Save changes to \"");
@@ -1784,6 +1792,9 @@ bool SciTEBase::Save() {
 				fwrite(data, grabSize, 1, fp);
 			}
 			fclose(fp);
+
+			//MoveFile(fullPath, fullPath);
+
 			//DWORD dwEnd = timeGetTime();
 			//Platform::DebugPrintf("Saved file=%d\n", dwEnd - dwStart);
 			fileModTime = GetModTime(fullPath);
@@ -1873,29 +1884,29 @@ int GetHexByte(const char *hexbyte) { // "HH"
 
 int GetRTFHighlight(const char *rgb) { // "#RRGGBB"
 	static int highlights[][3] = {
-		{ 0x00, 0x00, 0x00 }, // highlight1  0;0;0       black
-		{ 0x00, 0x00, 0xFF }, // highlight2  0;0;255     blue
-		{ 0x00, 0xFF, 0xFF }, // highlight3  0;255;255   cyan
-		{ 0x00, 0xFF, 0x00 }, // highlight4  0;255;0     green
-		{ 0xFF, 0x00, 0xFF }, // highlight5  255;0;255   violet
-		{ 0xFF, 0x00, 0x00 }, // highlight6  255;0;0     red
-		{ 0xFF, 0xFF, 0x00 }, // highlight7  255;255;0   yellow
-		{ 0xFF, 0xFF, 0xFF }, // highlight8  255;255;255 white
-		{ 0x00, 0x00, 0x80 }, // highlight9  0;0;128     dark blue
-		{ 0x00, 0x80, 0x80 }, // highlight10 0;128;128   dark cyan
-		{ 0x00, 0x80, 0x00 }, // highlight11 0;128;0     dark green
-		{ 0x80, 0x00, 0x80 }, // highlight12 128;0;128   dark violet
-		{ 0x80, 0x00, 0x00 }, // highlight13 128;0;0     brown
-		{ 0x80, 0x80, 0x00 }, // highlight14 128;128;0   khaki
-		{ 0x80, 0x80, 0x80 }, // highlight15 128;128;128 dark grey
-		{ 0xC0, 0xC0, 0xC0 }, // highlight16 192;192;192 grey
+	    { 0x00, 0x00, 0x00 },  // highlight1  0;0;0       black
+	    { 0x00, 0x00, 0xFF },  // highlight2  0;0;255     blue
+	    { 0x00, 0xFF, 0xFF },  // highlight3  0;255;255   cyan
+	    { 0x00, 0xFF, 0x00 },  // highlight4  0;255;0     green
+	    { 0xFF, 0x00, 0xFF },  // highlight5  255;0;255   violet
+	    { 0xFF, 0x00, 0x00 },  // highlight6  255;0;0     red
+	    { 0xFF, 0xFF, 0x00 },  // highlight7  255;255;0   yellow
+	    { 0xFF, 0xFF, 0xFF },  // highlight8  255;255;255 white
+	    { 0x00, 0x00, 0x80 },  // highlight9  0;0;128     dark blue
+	    { 0x00, 0x80, 0x80 },  // highlight10 0;128;128   dark cyan
+	    { 0x00, 0x80, 0x00 },  // highlight11 0;128;0     dark green
+	    { 0x80, 0x00, 0x80 },  // highlight12 128;0;128   dark violet
+	    { 0x80, 0x00, 0x00 },  // highlight13 128;0;0     brown
+	    { 0x80, 0x80, 0x00 },  // highlight14 128;128;0   khaki
+	    { 0x80, 0x80, 0x80 },  // highlight15 128;128;128 dark grey
+	    { 0xC0, 0xC0, 0xC0 },  // highlight16 192;192;192 grey
 	};
 	int maxdelta = 3 * 255 + 1, delta, index = -1;
 	int r = GetHexByte (rgb + 1), g = GetHexByte (rgb + 3), b = GetHexByte (rgb + 5);
-	for (unsigned int i = 0; i < sizeof(highlights)/sizeof(*highlights); i++) {
+	for (unsigned int i = 0; i < sizeof(highlights) / sizeof(*highlights); i++) {
 		delta = abs (r - *highlights[i]) +
-			abs (g - highlights[i][1]) +
-			abs (b - highlights[i][2]);
+		        abs (g - highlights[i][1]) +
+		        abs (b - highlights[i][2]);
 		if (delta < maxdelta) {
 			maxdelta = delta;
 			index = i;
@@ -1914,8 +1925,8 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset || // change
-		strncmp(last + offset, current + offset, lastOffset - offset)) {
+	if (lastOffset != currentOffset ||  // change
+	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
 			lastLen += currentOffset - lastOffset;
@@ -1935,8 +1946,8 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset || // change
-		strncmp(last + offset, current + offset, lastOffset - offset)) {
+	if (lastOffset != currentOffset ||  // change
+	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
 			lastLen += currentOffset - lastOffset;
@@ -1956,8 +1967,8 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset || // change
-		strncmp(last + offset, current + offset, lastOffset - offset)) {
+	if (lastOffset != currentOffset ||  // change
+	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
 			lastLen += currentOffset - lastOffset;
@@ -1977,8 +1988,8 @@ void GetRTFStyleChange(char *delta, char *last, const char *current) { // \f0\fs
 	currentOffset = offset + 1;
 	while (current[currentOffset] != '\\')
 		currentOffset++;
-	if (lastOffset != currentOffset || // change
-		strncmp(last + offset, current + offset, lastOffset - offset)) {
+	if (lastOffset != currentOffset ||  // change
+	        strncmp(last + offset, current + offset, lastOffset - offset)) {
 		if (lastOffset != currentOffset) {
 			memmove (last + currentOffset, last + lastOffset, lastLen - lastOffset + 1);
 			lastLen += currentOffset - lastOffset;
@@ -2132,7 +2143,7 @@ void SciTEBase::SaveToRTF(const char *saveName) {
 				} else
 					strcpy(lastStyle, RTF_SETFONTFACE "0");
 				sprintf(lastStyle + strlen(lastStyle), RTF_SETFONTSIZE "%d",
-					wysiwyg && size ? size << 1 : fontSize);
+				        wysiwyg && size ? size << 1 : fontSize);
 				if (fore.length()) {
 					for (i = 0; i < colorCount; i++)
 						if (!strcasecmp(fore.c_str(), colors[i]))
@@ -2143,14 +2154,14 @@ void SciTEBase::SaveToRTF(const char *saveName) {
 				} else
 					strcat(lastStyle, RTF_SETCOLOR "0");
 				sprintf(lastStyle + strlen(lastStyle), RTF_SETBACKGROUND "%d",
-					back.length() ? GetRTFHighlight(back.c_str()) : 0);
+				        back.length() ? GetRTFHighlight(back.c_str()) : 0);
 				strcat(lastStyle, bold ? RTF_BOLD_ON : RTF_BOLD_OFF);
 				strcat(lastStyle, italics ? RTF_ITALIC_ON : RTF_ITALIC_OFF);
 				strncpy(styles[istyle], lastStyle, MAX_STYLEDEF);
 			} else
 				sprintf(styles[istyle], RTF_SETFONTFACE "0" RTF_SETFONTSIZE "%d"
-					RTF_SETCOLOR "0" RTF_SETBACKGROUND "0"
-					RTF_BOLD_OFF RTF_ITALIC_OFF, fontSize);
+				        RTF_SETCOLOR "0" RTF_SETBACKGROUND "0"
+				        RTF_BOLD_OFF RTF_ITALIC_OFF, fontSize);
 			if (val)
 				delete []val;
 			if (valdef)
@@ -2159,13 +2170,13 @@ void SciTEBase::SaveToRTF(const char *saveName) {
 		fputs(RTF_FONTDEFCLOSE RTF_COLORDEFOPEN, fp);
 		for (i = 0; i < colorCount; i++) {
 			fprintf(fp, RTF_COLORDEF, GetHexByte(colors[i] + 1),
-				GetHexByte(colors[i] + 3), GetHexByte(colors[i] + 5));
+			        GetHexByte(colors[i] + 3), GetHexByte(colors[i] + 5));
 		}
 		fprintf(fp, RTF_COLORDEFCLOSE RTF_HEADERCLOSE RTF_BODYOPEN RTF_SETFONTFACE "0"
-			RTF_SETFONTSIZE "%d" RTF_SETCOLOR "0 ", fontSize);
+		        RTF_SETFONTSIZE "%d" RTF_SETCOLOR "0 ", fontSize);
 		sprintf(lastStyle, RTF_SETFONTFACE "0" RTF_SETFONTSIZE "%d"
-			RTF_SETCOLOR "0" RTF_SETBACKGROUND "0"
-			RTF_BOLD_OFF RTF_ITALIC_OFF, fontSize);
+		        RTF_SETCOLOR "0" RTF_SETBACKGROUND "0"
+		        RTF_BOLD_OFF RTF_ITALIC_OFF, fontSize);
 		int lengthDoc = LengthDocument();
 		bool prevCR = false;
 		int styleCurrent = -1;
@@ -2453,6 +2464,7 @@ void SciTEBase::SelectionWord(char *word, int len) {
 				selEnd++;   	// Because normal selections end one past
 		}
 
+
 	}
 	word[0] = '\0';
 	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
@@ -2466,10 +2478,10 @@ void SciTEBase::SelectionIntoProperties() {
 	if ((cr.cpMin < cr.cpMax) && ((cr.cpMax - cr.cpMin + 1) < static_cast<int>(sizeof(currentSelection)))) {
 		GetRange(wEditor, cr.cpMin, cr.cpMax, currentSelection);
 		int len = strlen(currentSelection);
-		if (len > 2 && iscntrl(currentSelection[len-1]))
-			currentSelection[len-1] = '\0';
-		if (len > 2 && iscntrl(currentSelection[len-2]))
-			currentSelection[len-2] = '\0';
+		if (len > 2 && iscntrl(currentSelection[len - 1]))
+			currentSelection[len - 1] = '\0';
+		if (len > 2 && iscntrl(currentSelection[len - 2]))
+			currentSelection[len - 2] = '\0';
 		props.Set("CurrentSelection", currentSelection);
 	}
 	char word[200];
@@ -2494,7 +2506,7 @@ void SciTEBase::FindMessageBox(const char *msg) {
 void SciTEBase::FindNext(bool reverseDirection) {
 	if (!findWhat[0]) {
 		Find();
-		return;
+		return ;
 	}
 	TextToFind ft = {{0, 0}, 0, {0, 0}};
 	CharacterRange crange = GetSelection();
@@ -2554,15 +2566,16 @@ void SciTEBase::ReplaceOnce() {
 		//Platform::DebugPrintf("Replace <%s> -> <%s>\n", findWhat, replaceWhat);
 	}
 
+
 	FindNext(reverseFind);
 }
 
 void SciTEBase::ReplaceAll() {
 	if (findWhat[0] == '\0') {
 		FindMessageBox("Find string for Replace All must not be empty.");
-		return;
+		return ;
 	}
-	
+
 	TextToFind ft;
 	ft.chrg.cpMin = 0;
 	ft.chrg.cpMax = LengthDocument();
@@ -2571,7 +2584,7 @@ void SciTEBase::ReplaceAll() {
 	ft.chrgText.cpMax = 0;
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) | (matchCase ? SCFIND_MATCHCASE : 0);
 	int posFind = SendEditor(SCI_FINDTEXT, flags,
-		reinterpret_cast<long>(&ft));
+	                         reinterpret_cast<long>(&ft));
 	if (posFind != -1) {
 		SendEditor(SCI_BEGINUNDOACTION);
 		while (posFind != -1) {
@@ -2580,7 +2593,7 @@ void SciTEBase::ReplaceAll() {
 			ft.chrg.cpMin = posFind + strlen(replaceWhat);
 			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(SCI_FINDTEXT, flags,
-				reinterpret_cast<long>(&ft));
+			                     reinterpret_cast<long>(&ft));
 		}
 		SendEditor(SCI_ENDUNDOACTION);
 	} else {
@@ -2592,6 +2605,7 @@ void SciTEBase::ReplaceAll() {
 	}
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
+
 
 void SciTEBase::OutputAppendString(const char *s, int len) {
 	if (len == -1)
@@ -2775,8 +2789,8 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 		char *at = strstr(cdoc, " at ");
 		char *line = strstr(cdoc, " line ");
 		if (at && line) {
-			strncpy(sourcePath, at+4, line - (at+4));
-			sourcePath[line - (at+4)] = 0;
+			strncpy(sourcePath, at + 4, line - (at + 4));
+			sourcePath[line - (at + 4)] = 0;
 			line += 6;
 			return atoi(line) - 1;
 		}
@@ -2812,7 +2826,7 @@ void SciTEBase::GoMessage(int dir) {
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
 			char *cdoc = new char[lineLength + 1];
 			if (!cdoc)
-				return;
+				return ;
 			GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
 			char sourcePath[MAX_PATH];
 			int sourceLine = DecodeMessage(cdoc, sourcePath, style);
@@ -2826,14 +2840,14 @@ void SciTEBase::GoMessage(int dir) {
 							Open(messagePath);
 						} else {
 							delete []cdoc;
-							return;
+							return ;
 						}
 					} else if (Exists(dirName, sourcePath, messagePath)) {
 						if (IsBufferAvailable() || (SaveIfUnsure() != IDCANCEL)) {
 							Open(messagePath);
 						} else {
 							delete []cdoc;
-							return;
+							return ;
 						}
 					}
 				}
@@ -2848,7 +2862,7 @@ void SciTEBase::GoMessage(int dir) {
 				SetFocus(wEditor.GetID());
 			}
 			delete []cdoc;
-			return;
+			return ;
 		}
 		if (dir == 0)
 			dir = 1;
@@ -3000,8 +3014,8 @@ bool SciTEBase::StartAutoCompleteWord() {
 	//DWORD dwStart = timeGetTime();
 	int length = 0;	// variables for reallocatable array creation
 	int newlength;
-	#undef WORDCHUNK
-	#define WORDCHUNK 100
+#undef WORDCHUNK
+#define WORDCHUNK 100
 	int size = WORDCHUNK;
 	char *words = (char*) malloc(size);
 	*words = '\0';
@@ -3015,7 +3029,7 @@ bool SciTEBase::StartAutoCompleteWord() {
 			continue;
 		}
 		char wordstart[WORDCHUNK];
-        GetRange(wEditor, posFind, Platform::Minimum(posFind + WORDCHUNK - 1, doclen), wordstart);
+		GetRange(wEditor, posFind, Platform::Minimum(posFind + WORDCHUNK - 1, doclen), wordstart);
 		char *wordend = wordstart + rootlen;
 		while (iswordcharforsel(*wordend))
 			wordend++;
@@ -3027,8 +3041,8 @@ bool SciTEBase::StartAutoCompleteWord() {
 			wordpos = strstr (wordbreak, wordstart);
 			if (!wordpos)
 				break;
-			if (wordpos > words && wordpos[-1] != ' ' ||
-				wordpos[wordlen] && wordpos[wordlen] != ' ')
+			if (wordpos > words && wordpos[ -1] != ' ' ||
+			        wordpos[wordlen] && wordpos[wordlen] != ' ')
 				wordbreak = wordpos + wordlen;
 			else
 				break;
@@ -3037,8 +3051,7 @@ bool SciTEBase::StartAutoCompleteWord() {
 			newlength = length + wordlen;
 			if (length)
 				newlength++;
-			if (newlength >= size)
-			{
+			if (newlength >= size) {
 				do
 					size += WORDCHUNK;
 				while (size <= newlength);
@@ -3082,7 +3095,7 @@ void SciTEBase::UpdateStatusBar() {
 		msg += SString(caretColumn + 1).c_str();
 		msg += "    Line=";
 		msg += SString(caretLine + 1).c_str();
-		msg += SendEditor(SCI_GETOVERTYPE) ? "    OVR" :  "    INS";
+		msg += SendEditor(SCI_GETOVERTYPE) ? "    OVR" : "    INS";
 		if (sbValue != msg) {
 			SetStatusBarText(msg.c_str());
 			sbValue = msg;
@@ -3342,6 +3355,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_NEW:
 		// For the New command, the are you sure question is always asked as this gives
 		// an opportunity to abandon the edits made to a file when are.you.sure is turned off.
+
 		if (IsBufferAvailable() || (SaveIfUnsure(true) != IDCANCEL)) {
 			New();
 			ReadProperties();
@@ -3384,8 +3398,8 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 	case IDM_SAVEASRTF:
 		SaveAsRTF();
- 		SetFocus(wEditor.GetID());
- 		break;
+		SetFocus(wEditor.GetID());
+		break;
 	case IDM_REVERT:
 		if (SaveIfUnsure() != IDCANCEL) {
 			Revert();
@@ -3483,7 +3497,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_SHOWCALLTIP:
 		StartCallTip();
 		break;
-	
+
 	case IDM_COMPLETE:
 		StartAutoComplete();
 		break;
@@ -3587,7 +3601,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(props.GetNewExpand("command.compile.", fileName), "",
-					SubsystemType("command.compile.subsystem."));
+				           SubsystemType("command.compile.subsystem."));
 				if (commandCurrent > 0)
 					Execute();
 			}
@@ -3598,7 +3612,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(props.GetNewExpand("command.build.", fileName), "",
-					SubsystemType("command.build.subsystem."));
+				           SubsystemType("command.build.subsystem."));
 				if (commandCurrent > 0) {
 					isBuilding = true;
 					Execute();
@@ -3614,7 +3628,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 				if (!isBuilt) {
 					SString buildcmd = props.GetNewExpand("command.go.needs.", fileName);
 					AddCommand(buildcmd, "",
-						SubsystemType("command.go.needs.subsystem."));
+					           SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
 						isBuilding = true;
 						forceQueue = true;
@@ -3697,7 +3711,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_HELP: {
 			SelectionIntoProperties();
 			AddCommand(props.GetNewExpand("command.help.", fileName), "",
-				SubsystemType("command.help.subsystem."));
+			           SubsystemType("command.help.subsystem."));
 			if (commandCurrent > 0) {
 				isBuilding = true;
 				Execute();
@@ -3852,8 +3866,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 					if (endStyled > 0)
 						styleStart = styler.StyleAt(endStyled - 1);
 					styler.SetCodePage(codePage);
-					extender->OnStyle(endStyled, notification->position - endStyled, 
-					styleStart, &styler);
+					extender->OnStyle(endStyled, notification->position - endStyled,
+					                  styleStart, &styler);
 					styler.Flush();
 				}
 			}
@@ -4012,24 +4026,25 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 		SizeContentWindows();
 		//Redraw();
 	}
+
 }
 
 // Implement ExtensionAPI methods
 int SciTEBase::Send(Pane p, unsigned int msg, unsigned long wParam, long lParam) {
 	if (p == paneEditor)
 		return SendEditor(msg, wParam, lParam);
-	else 
+	else
 		return SendOutput(msg, wParam, lParam);
 }
 
 char *SciTEBase::Range(Pane p, int start, int end) {
 	int len = end - start;
-	char *s = new char[len+1];
+	char *s = new char[len + 1];
 	if (s) {
-	if (p == paneEditor)
-		GetRange(wEditor, start, end, s);
-	else 
-		GetRange(wOutput, start, end, s);
+		if (p == paneEditor)
+			GetRange(wEditor, start, end, s);
+		else
+			GetRange(wOutput, start, end, s);
 	}
 	return s;
 }
@@ -4058,7 +4073,7 @@ void SciTEBase::Trace(const char *s) {
 
 char *SciTEBase::Property(const char *key) {
 	SString value = props.GetExpanded(key);
-	char *retval = new char[value.length()+1];
+	char *retval = new char[value.length() + 1];
 	if (retval)
 		strcpy(retval, value.c_str());
 	return retval;

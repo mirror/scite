@@ -271,7 +271,7 @@ protected:
 	void BraceMatch(bool editor);
 
 	void SetWindowName();
-	void SetFileName(const char *openName);
+	void SetFileName(const char *openName, bool fixCase= true);
 	void ClearDocument();
 	void InitialiseBuffers();
 	void New();
