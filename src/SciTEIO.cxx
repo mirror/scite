@@ -443,13 +443,7 @@ void SciTEBase::DiscoverIndentSetting() {
 		}
 	}
 	// set indentation
-	if (topTabSize == 0) {
-		SendEditor(SCI_SETUSETABS, 1);
-	} else if (topTabSize != -1) {
-		SendEditor(SCI_SETUSETABS, 0);
-		SendEditor(SCI_SETTABWIDTH, topTabSize);
-		SendEditor(SCI_SETINDENT, topTabSize);
-	}
+	SendEditor(SCI_SETINDENT, topTabSize);
 }
 
 void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
