@@ -692,6 +692,13 @@ void SciTEGTK::CheckMenus() {
 	CheckAMenuItem(IDM_EOL_CR, SendEditor(SCI_GETEOLMODE) == SC_EOL_CR);
 	CheckAMenuItem(IDM_EOL_LF, SendEditor(SCI_GETEOLMODE) == SC_EOL_LF);
 
+	CheckAMenuItem(IDM_ENCODING_DEFAULT, unicodeMode == 0);
+	CheckAMenuItem(IDM_ENCODING_UCS2BE, unicodeMode == 1);
+	CheckAMenuItem(IDM_ENCODING_UCS2LE, unicodeMode == 2);
+	CheckAMenuItem(IDM_ENCODING_UTF8, unicodeMode == 3);
+	CheckMenuRadioItem(GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UTF8,
+	                   unicodeMode + IDM_ENCODING_DEFAULT, 0);
+			   
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 
 	if (build_btn) {
@@ -2129,6 +2136,11 @@ void SciTEGTK::CreateMenu() {
 	    {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
 	    {"/File/Save _As...", "<control><shift>S", menuSig, IDM_SAVEAS, 0},
 	    {"/File/Save A Co_py...", "<control><shift>P", menuSig, IDM_SAVEACOPY, 0},
+	    {"/File/Encodin_g", NULL, menuSig, 0, "<Branch>"},
+	    {"/File/Encoding/Default", NULL, menuSig, IDM_ENCODING_DEFAULT, "<RadioItem>"},
+	    {"/File/Encoding/UCS2BE", NULL, menuSig, IDM_ENCODING_UCS2BE, "/File/Encoding/Default"},
+	    {"/File/Encoding/UCS2LE", NULL, menuSig, IDM_ENCODING_UCS2LE, "/File/Encoding/Default"},
+	    {"/File/Encoding/UTF8", NULL, menuSig, IDM_ENCODING_UTF8, "/File/Encoding/Default"},
 	    {"/File/_Export", "", 0, 0, "<Branch>"},
 	    {"/File/Export/As _HTML...", NULL, menuSig, IDM_SAVEASHTML, 0},
 	    {"/File/Export/As _RTF...", NULL, menuSig, IDM_SAVEASRTF, 0},

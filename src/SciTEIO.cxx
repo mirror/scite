@@ -780,7 +780,7 @@ bool SciTEBase::SaveAs(const char *file) {
 		Save();
 		ReadProperties();
 		useMonoFont = false;
-		unicodeMode = 0; // Not sure about this
+		//unicodeMode = 0; // Not sure about this
 		SendEditor(SCI_CLEARDOCUMENTSTYLE);
 		SendEditor(SCI_COLOURISE, 0, -1);
 		Redraw();

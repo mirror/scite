@@ -2650,6 +2650,18 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_QUIT:
 		QuitProgram();
 		break;
+	case IDM_ENCODING_DEFAULT:
+	case IDM_ENCODING_UCS2BE:
+	case IDM_ENCODING_UCS2LE:
+	case IDM_ENCODING_UTF8:
+		unicodeMode = cmdID - IDM_ENCODING_DEFAULT;
+		if (unicodeMode != 0) {
+			// Override the code page if Unicode
+			codePage = SC_CP_UTF8;
+			SendEditor(SCI_SETCODEPAGE, codePage);
+		}
+		break;
+		
 	case IDM_NEXTFILE:
 		if (buffers.size > 1) {
 			Next(); // Use Next to tabs move left-to-right
