@@ -3311,10 +3311,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_REVERT:
-		if (SaveIfUnsure() != IDCANCEL) {
-			Revert();
-			WindowSetFocus(wEditor);
-		}
+		Revert();
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_PRINT:
 		Print(true);

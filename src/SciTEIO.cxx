@@ -461,6 +461,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 	if (fp) {
 		fileModTime = GetModTime(fullPath);
 		fileModLastAsk = fileModTime;
+		SendEditor(SCI_BEGINUNDOACTION);	// Group together clear and insert
 		SendEditor(SCI_CLEARALL);
 		char data[blockSize];
 		size_t lenFile = fread(data, 1, sizeof(data), fp);
@@ -473,6 +474,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 			lenFile = fread(data, 1, sizeof(data), fp);
 		}
 		fclose(fp);
+		SendEditor(SCI_ENDUNDOACTION);
 		unicodeMode = static_cast<UniMode>(
 			static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies
