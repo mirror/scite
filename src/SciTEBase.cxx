@@ -831,13 +831,17 @@ bool SciTEBase::StartCallTip() {
 	return true;
 }
 
+static bool IsCallTipSeparator(char ch) {
+	return (ch == ',') || (ch == ';');
+}
+
 void SciTEBase::ContinueCallTip() {
 	char linebuf[1000];
 	int current = GetLine(linebuf, sizeof(linebuf));
 
 	int commas = 0;
 	for (int i = 0; i < current; i++) {
-		if (linebuf[i] == ',')
+		if (IsCallTipSeparator(linebuf[i]))
 			commas++;
 	}
 
@@ -847,16 +851,16 @@ void SciTEBase::ContinueCallTip() {
 	if (functionDefinition[startHighlight] == '(')
 		startHighlight++;
 	while (functionDefinition[startHighlight] && commas > 0) {
-		if (functionDefinition[startHighlight] == ',' || functionDefinition[startHighlight] == ')')
+		if (IsCallTipSeparator(functionDefinition[startHighlight]) || functionDefinition[startHighlight] == ')')
 			commas--;
 		startHighlight++;
 	}
-	if (functionDefinition[startHighlight] == ',' || functionDefinition[startHighlight] == ')')
+	if (IsCallTipSeparator(functionDefinition[startHighlight]) || functionDefinition[startHighlight] == ')')
 		startHighlight++;
 	int endHighlight = startHighlight;
 	if (functionDefinition[endHighlight])
 		endHighlight++;
-	while (functionDefinition[endHighlight] && functionDefinition[endHighlight] != ',' && functionDefinition[endHighlight] != ')')
+	while (functionDefinition[endHighlight] && !IsCallTipSeparator(functionDefinition[endHighlight]) && functionDefinition[endHighlight] != ')')
 		endHighlight++;
 
 	SendEditor(SCI_CALLTIPSETHLT, startHighlight, endHighlight);
