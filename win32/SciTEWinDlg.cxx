@@ -1,6 +1,6 @@
 // SciTE - Scintilla based Text Editor
 // SciTEWinDlg.cxx - dialog code for the Windows version of the editor
-// Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 /** @file **/
 
@@ -354,131 +354,37 @@ void SciTEWin::SaveAsPDF() {
 	}
 }
 
-/** Put in the buffer the information requested by the infoID letter.
- * We must get some data from the SciTEWin class, since this is a static
- * function.
+/**  Set up properties for FileTime, FileDate, CurrentTime, CurrentDate
  */
-static void GetPrintInfo(
-    char infoID, 			///< Letter identifying the requested info
-    int pageNum, 			///< Page number
-    const char *fileName, 	///< Current file name
-    const char *fullPath, 	///< Current file path
-    SString &buffer)		///< Result buffer
-{
-	SYSTEMTIME st;
-	FILETIME ft, lft;
-	HANDLE hf;
-#define TMP_LEN		32
-	char tmp[TMP_LEN];
-
-	switch (infoID) {
-	case 'f': 	// Current filename
-		if (fileName[0] == '\0') {
-			buffer += "(Untitled)";
-		} else {
-			buffer += fileName;
-		}
-		break;
-	case 'F': 	// Current pathname
-		if (fileName[0] == '\0') {
-			buffer += "(Untitled)";
-		} else {
-			buffer += fullPath;
-		}
-		break;
-	case 'd': 	// File date
-		if (fileName[0] == '\0') {
-			return ;
-		}
-		// We must use Windows functions, not fileModTime, to get format of the data
-		// following the user preferences (locale).
-		// Some like the 14/12/00 format, others the 12/14/00 one...
-		hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-		if (hf != INVALID_HANDLE_VALUE) {
-			::GetFileTime(hf, NULL, NULL, &ft);
-			::FileTimeToLocalFileTime(&ft, &lft);
-			::FileTimeToSystemTime(&lft, &st);
-			::CloseHandle(hf);
-			::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
-			                DATE_SHORTDATE, &st,
-			                NULL, tmp, TMP_LEN);
-			buffer += tmp;
-		}
-		break;
-	case 'D': 	// Current system date
-		::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
-		                DATE_SHORTDATE, NULL, 	// Current date
-		                NULL, tmp, TMP_LEN);
-		buffer += tmp;
-		break;
-	case 't': 	// File time
-		if (fileName[0] == '\0') {
-			return ;
-		}
-		// Same as above...
-		hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-		if (hf != INVALID_HANDLE_VALUE) {
-			::GetFileTime(hf, NULL, NULL, &ft);
-			::FileTimeToLocalFileTime(&ft, &lft);
-			::FileTimeToSystemTime(&lft, &st);
-			::CloseHandle(hf);
-			::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
-			                0, &st,
-			                NULL, tmp, TMP_LEN);
-			buffer += tmp;
-		}
-		break;
-	case 'T': 	// Current system time
+static void SetPrintProperties(PropSet &ps, const char *fullPath) {
+    const int TEMP_LEN=100;
+	char temp[TEMP_LEN];
+	HANDLE hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (hf != INVALID_HANDLE_VALUE) {
+		FILETIME ft;
+		::GetFileTime(hf, NULL, NULL, &ft);
+		FILETIME lft;
+		::FileTimeToLocalFileTime(&ft, &lft);
+		SYSTEMTIME st;
+		::FileTimeToSystemTime(&lft, &st);
+		::CloseHandle(hf);
 		::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
-		                0, NULL, 	// Current time
-		                NULL, tmp, TMP_LEN);
-		buffer += tmp;
-		break;
-	case 'p': 	// Page number
-	case 'P': 	// Total page number. Currently not handled, we don't know its value...
-		sprintf(tmp, "%d", pageNum);
-		buffer += tmp;
-		break;
-	case '&': 	// && to quote the & character
-		buffer += '&';
-		break;
-	default: 	// Unknown symbol after the & character, take them literally
-		buffer += '&';
-		buffer += infoID;
-		break;
+			0, &st,
+			NULL, temp, TEMP_LEN);
+		ps.Set("FileTime", temp);
+		::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
+			DATE_SHORTDATE, &st,
+			NULL, temp, TEMP_LEN);
+		ps.Set("FileDate", temp);
 	}
-}
-
-/** Format in the buffer the header or footer line, using the format string.
- * We must get some data from the SciTEWin class, since this is a static
- * function.
- */
-static void FormatHeaderOrFooter(
-    const char *format, 		///< Format string
-    int pageNum, 			///< Page number
-    const char *fileName, 	///< Current file name
-    const char *fullPath, 	///< Current file path
-    SString &buffer)		///< Result buffer
-{
-	const char *pFormat = format;
-	const char *pSeg = format;
-	int segLen;
-	buffer.clear();	// Clear buffer content, keep length
-	buffer = "";
-	while (*pFormat) {
-		if (*pFormat == '&') {
-			segLen = pFormat - pSeg;		// Length of segment to copy, up to the & tag
-			buffer.append(pSeg, segLen);	// Copy this segment
-			pSeg += segLen + 2;				// Next segment starts after the tag
-			pFormat++;						// Point to the tag id
-			GetPrintInfo(*pFormat,
-			             pageNum, fileName, fullPath,
-			             buffer);					// Copy the tag info in the buffer
-		}
-
-		pFormat++;
-	}
-	buffer += pSeg;	// Copy this segment
+	::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
+		DATE_SHORTDATE, NULL, 	// Current date
+		NULL, temp, TEMP_LEN);
+	ps.Set("CurrentDate", temp);
+	::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
+		0, NULL, 	// Current time
+		NULL, temp, TEMP_LEN);
+	ps.Set("CurrentTime", temp);
 }
 
 /** Print the current buffer.
@@ -631,9 +537,9 @@ void SciTEWin::Print(bool showDialog) {
 		ptDpi.y, 72);
 	HFONT fontFooter = ::CreateFont(footerLineHeight,
 	                                0, 0, 0,
-	                                sdHeader.bold ? FW_BOLD : FW_NORMAL,
-	                                sdHeader.italics,
-	                                sdHeader.underlined,
+	                                sdFooter.bold ? FW_BOLD : FW_NORMAL,
+	                                sdFooter.italics,
+	                                sdFooter.underlined,
 	                                0, 0, 0,
 	                                0, 0, 0,
 	                                (sdFooter.specified & StyleDefinition::sdFont) ? sdFooter.font.c_str() : "Arial");
@@ -692,21 +598,29 @@ void SciTEWin::Print(bool showDialog) {
 	// Print each page
 	int pageNum = 1;
 	bool printPage;
+	PropSet propsPrint;
+	propsPrint.superPS = &props;
+	SetPrintProperties(propsPrint, fullPath);
+
 	while (lengthPrinted < lengthDoc) {
 		printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
 		             (pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage));
+
+		char pageString[32];
+		sprintf(pageString, "%0d", pageNum);
+		propsPrint.Set("CurrentPage", pageString);
 
 		if (printPage) {
 			::StartPage(hdc);
 
 			if (headerFormat.size()) {
-				FormatHeaderOrFooter(headerFormat.c_str(), pageNum, fileName, fullPath, headerOrFooter);
+				SString sHeader=propsPrint.GetExpanded("print.header.format");
 				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, NULL);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight / 4);
 				::SelectObject(hdc, fontHeader);
 				UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
 				::TextOut(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 2,
-				          headerOrFooter.c_str(), headerOrFooter.length());
+				          sHeader.c_str(), sHeader.length());
 				::SetTextAlign(hdc, ta);
 			}
 		}
@@ -720,13 +634,13 @@ void SciTEWin::Print(bool showDialog) {
 
 		if (printPage) {
 			if (footerFormat.size()) {
-				FormatHeaderOrFooter(footerFormat.c_str(), pageNum, fileName, fullPath, headerOrFooter);
+				SString sFooter=propsPrint.GetExpanded("print.footer.format");
 				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + headerLineHeight / 4, NULL);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom + headerLineHeight / 4);
 				::SelectObject(hdc, fontFooter);
 				UINT ta = ::SetTextAlign(hdc, TA_TOP);
 				::TextOut(hdc, frPrint.rc.left, frPrint.rc.bottom + headerLineHeight / 2,
-				          headerOrFooter.c_str(), headerOrFooter.length());
+				          sFooter.c_str(), sFooter.length());
 				::SetTextAlign(hdc, ta);
 			}
 
@@ -759,6 +673,9 @@ void SciTEWin::Print(bool showDialog) {
 	::DeleteDC(hdc);
 	if (fontHeader) {
 		::DeleteObject(fontHeader);
+	}
+	if (fontFooter) {
+		::DeleteObject(fontFooter);
 	}
 }
 
