@@ -271,6 +271,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	currentCallTip = 0;
 	maxCallTips = 1;
 	currentCallTipWord = "";
+	lastPosCallTip = 0;
 
 	margin = false;
 	marginWidth = marginWidthDefault;
@@ -599,9 +600,9 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
  * Also set curLine to the line where one of these conditions is mmet.
  */
 bool SciTEBase::FindMatchingPreprocessorCondition(
-    int &curLine,   		///< Number of the line where to start the search
-    int direction,   		///< Direction of search: 1 = forward, -1 = backward
-    int condEnd1,   		///< First status of line for which the search is OK
+    int &curLine,    		///< Number of the line where to start the search
+    int direction,    		///< Direction of search: 1 = forward, -1 = backward
+    int condEnd1,    		///< First status of line for which the search is OK
     int condEnd2) {		///< Second one
 
 	bool isInside = false;
@@ -636,8 +637,8 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
 #pragma warn -aus
 #endif
 bool SciTEBase::FindMatchingPreprocCondPosition(
-    bool isForward,   		///< @c true if search forward
-    int &mppcAtCaret,   	///< Matching preproc. cond.: current position of caret
+    bool isForward,    		///< @c true if search forward
+    int &mppcAtCaret,    	///< Matching preproc. cond.: current position of caret
     int &mppcMatch) {	///< Matching preproc. cond.: matching position
 
 	bool isInside = false;
@@ -674,7 +675,7 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
 		}
 		break;
-	default:   	// Should be noPPC
+	default:    	// Should be noPPC
 
 		if (isForward) {
 			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
@@ -715,7 +716,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	WindowAccessor acc(win.GetID(), props);
 	if ((lengthDoc > 0) && (caretPos > 0)) {
 		// Check to ensure not matching brace that is part of a multibyte character
-		if (Platform::SendScintilla(win.GetID(), SCI_POSITIONBEFORE, caretPos) == (caretPos-1)) {
+		if (Platform::SendScintilla(win.GetID(), SCI_POSITIONBEFORE, caretPos) == (caretPos - 1)) {
 			charBefore = acc[caretPos - 1];
 			styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
 		}
@@ -727,7 +728,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	}
 	bool colonMode = false;
 	if ((lexLanguage == SCLEX_PYTHON) &&
-		(':' == charBefore) && (SCE_P_OPERATOR == styleBefore)) {
+	        (':' == charBefore) && (SCE_P_OPERATOR == styleBefore)) {
 		braceAtCaret = caretPos - 1;
 		colonMode = true;
 	}
@@ -735,7 +736,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	if (lengthDoc > 0 && sloppy && (braceAtCaret < 0) && (caretPos < lengthDoc)) {
 		// No brace found so check other side
 		// Check to ensure not matching brace that is part of a multibyte character
-		if (Platform::SendScintilla(win.GetID(), SCI_POSITIONAFTER, caretPos) == (caretPos+1)) {
+		if (Platform::SendScintilla(win.GetID(), SCI_POSITIONAFTER, caretPos) == (caretPos + 1)) {
 			char charAfter = acc[caretPos];
 			char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
 			if (charAfter && IsBrace(charAfter) && (styleAfter == bracesStyleCheck)) {
@@ -743,7 +744,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 				isAfter = false;
 			}
 			if ((lexLanguage == SCLEX_PYTHON) &&
-				(':' == charAfter) && (SCE_P_OPERATOR == styleAfter)) {
+			        (':' == charAfter) && (SCE_P_OPERATOR == styleAfter)) {
 				braceAtCaret = caretPos;
 				colonMode = true;
 			}
@@ -863,7 +864,7 @@ void SciTEBase::GetCTag(char *sel, int len) {
 			c = acc[selStart];
 			if (c == '\r' || c == '\n') {
 				mustStop = -1;
-			} else if (c == '\t' && ( (acc[selStart + 1] == '/' && acc[selStart + 2] == '^') || isdigit(acc[selStart + 1]))) {
+			} else if (c == '\t' && ((acc[selStart + 1] == '/' && acc[selStart + 2] == '^') || isdigit(acc[selStart + 1]))) {
 				mustStop = 1;
 			}
 		} else {
@@ -916,13 +917,13 @@ static bool isfilenamecharforsel(char ch) {
 
 void SciTEBase::RangeExtendAndGrab(
     Window &wCurrent,
-    char *sel,   	///< Buffer receiving the result.
-    int len,   	///< Size of the buffer.
+    char *sel,    	///< Buffer receiving the result.
+    int len,    	///< Size of the buffer.
     int &selStart,
     int &selEnd,
     int lengthDoc,
-    bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
-	bool stripEol /*=true*/) {
+    bool (*ischarforsel)(char ch), 	///< Function returning @c true if the given char. is part of the selection.
+    bool stripEol /*=true*/) {
 	if (selStart == selEnd && ischarforsel) {
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
@@ -961,10 +962,10 @@ void SciTEBase::RangeExtendAndGrab(
  * to be CR and/or LF.
  */
 void SciTEBase::SelectionExtend(
-    char *sel,   	///< Buffer receiving the result.
-    int len,   	///< Size of the buffer.
-    bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
-	bool stripEol /*=true*/) {
+    char *sel,    	///< Buffer receiving the result.
+    int len,    	///< Size of the buffer.
+    bool (*ischarforsel)(char ch), 	///< Function returning @c true if the given char. is part of the selection.
+    bool stripEol /*=true*/) {
 
 	Window wCurrent;
 
@@ -992,7 +993,7 @@ void SciTEBase::FindWordAtCaret(int &start, int &end) {
 	start = SendFocused(SCI_GETSELECTIONSTART);
 	end = SendFocused(SCI_GETSELECTIONEND);
 	RangeExtendAndGrab(wCurrent, selection, sizeof(selection),
-		start, end, lengthDoc, iswordcharforsel, false);
+	                   start, end, lengthDoc, iswordcharforsel, false);
 }
 
 bool SciTEBase::SelectWordAtCaret() {
@@ -1248,21 +1249,21 @@ static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 int SciTEBase::MarkAll() {
 	int posCurrent = SendEditor(SCI_GETCURRENTPOS);
 	int marked = 0;
-	int posFirstFound = FindNext( false, false );
-	if( posFirstFound == -1 )
-		return 0;
-	int posFound = posFirstFound;
-	do{
-		marked++;
-		int line = SendEditor(SCI_LINEFROMPOSITION, posFound);
-		BookmarkAdd( line );
-		posFound = FindNext( false, false );
-	} while( posFound != posFirstFound );
+	int posFirstFound = FindNext(false, false);
+	if (posFirstFound != -1) {
+		int posFound = posFirstFound;
+		do {
+			marked++;
+			int line = SendEditor(SCI_LINEFROMPOSITION, posFound);
+			BookmarkAdd(line);
+			posFound = FindNext(false, false);
+		} while ((posFound != -1) && (posFound != posFirstFound));
+	}
 	SendEditor(SCI_SETCURRENTPOS, posCurrent);
 	return marked;
 }
 
-int SciTEBase::IncrementSearchMode(){
+int SciTEBase::IncrementSearchMode() {
 	FindIncrement();
 	return 0;
 }
@@ -1452,7 +1453,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		FindMessageBox(msg);
 	} else if (replacements == -2) {
 		SString msg = LocaliseMessage(
-						  "Selection must not be empty for 'Replace in Selection' command.");
+		                  "Selection must not be empty for 'Replace in Selection' command.");
 		FindMessageBox(msg);
 	} else if (replacements == 0) {
 		SString msg = LocaliseMessage(
@@ -1469,7 +1470,7 @@ void SciTEBase::ReplaceInBuffers() {
 		replacements += DoReplaceAll(false);
 		if (i == 0 && replacements < 0) {
 			SString msg = LocaliseMessage(
-							  "Find string must not be empty for 'Replace in Buffers' command.");
+			                  "Find string must not be empty for 'Replace in Buffers' command.");
 			FindMessageBox(msg);
 			break;
 		}
@@ -1573,7 +1574,7 @@ void SciTEBase::Execute() {
 		SendOutputEx(SCI_CLEARALL, 0, 0, false);
 	}
 
-	SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
+	SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
 	SendEditor(SCI_MARKERDELETEALL, 0);
 	// Ensure the output pane is visible
 	if (jobUsesOutputPane) {
@@ -1616,7 +1617,7 @@ void SciTEBase::BookmarkAdd(int lineno) {
 void SciTEBase::BookmarkDelete(int lineno) {
 	if (lineno == -1)
 		lineno = GetCurrentLineNumber();
-	if ( BookmarkPresent(lineno))
+	if (BookmarkPresent(lineno))
 		SendEditor(SCI_MARKERDELETE, lineno, SciTE_MARKER_BOOKMARK);
 }
 
@@ -1668,13 +1669,14 @@ void SciTEBase::Redraw() {
 }
 
 void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
-	static int lastPos = 0;
 	if (pos > 0) {
-		lastPos = pos;
+		lastPosCallTip = pos;
 	}
 	if (apis) {
 		const char *words = apis.GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
-		                                       callTipIgnoreCase);
+		                    callTipIgnoreCase);
+		if (!words)
+			return;
 		// Counts how many call tips
 		const char *spacePos = strchr(words, ' ');
 		maxCallTips = 1;
@@ -1696,19 +1698,19 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 				int posEndDef = functionDefinition.search(calltipEndDefinition.c_str());
 				if (maxCallTips > 1) {
 					if ((posEndDef > 1) &&
-								((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
-							functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n\002");
+					        ((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
+						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n\002");
 					} else {
 						functionDefinition.append("\n\002");
 					}
 				} else {
 					if ((posEndDef > 1) &&
-						((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
+					        ((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
 						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n");
 					}
 				}
 			}
-			SendEditorString(SCI_CALLTIPSHOW, lastPos - currentCallTipWord.length(), functionDefinition.c_str());
+			SendEditorString(SCI_CALLTIPSHOW, lastPosCallTip - currentCallTipWord.length(), functionDefinition.c_str());
 			ContinueCallTip();
 		}
 	}
@@ -1747,7 +1749,7 @@ bool SciTEBase::StartCallTip() {
 
 	startCalltipWord = current - 1;
 	while (startCalltipWord > 0 &&
-		calltipWordCharacters.contains(linebuf[startCalltipWord - 1])) {
+	        calltipWordCharacters.contains(linebuf[startCalltipWord - 1])) {
 		startCalltipWord--;
 	}
 
@@ -1792,7 +1794,7 @@ void SciTEBase::ContinueCallTip() {
 		if (functionDefinition[startHighlight] == ')')
 			commas = 0;
 		else
-		startHighlight++;
+			startHighlight++;
 	}
 	if (IsCallTipSeparator(functionDefinition[startHighlight]))
 		startHighlight++;
@@ -1821,11 +1823,10 @@ void SciTEBase::EliminateDuplicateWords(char *words) {
 			secondLen = strlen(secondWord);
 
 		if (firstLen == secondLen &&
-			!strncmp(firstWord, secondWord, firstLen)) {
+		        !strncmp(firstWord, secondWord, firstLen)) {
 			strcpy(firstWord, secondWord);
 			firstSpace = strchr(firstWord, ' ');
-		}
-		else {
+		} else {
 			firstWord = secondWord;
 			firstSpace = secondSpace;
 		}
@@ -1994,7 +1995,7 @@ bool SciTEBase::StartInsertAbbreviation() {
 			sel_start += static_cast<int>(abbrevText.length());
 		}
 		if (c == '\n') {
-			SetLineIndentation(currentLineNumber+1, indent);
+			SetLineIndentation(currentLineNumber + 1, indent);
 		}
 	}
 
@@ -2106,7 +2107,7 @@ bool SciTEBase::StartBlockComment() {
 	SString comment = props.Get(base.c_str());
 	if (comment == "") { // user friendly error message box
 		SString error = LocaliseMessage(
-			"Block comment variable '^0' is not defined in SciTE *.properties!", base.c_str());
+		                    "Block comment variable '^0' is not defined in SciTE *.properties!", base.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -2201,8 +2202,8 @@ bool SciTEBase::StartBoxComment() {
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || middle_comment == "" || end_comment == "") {
 		SString error = LocaliseMessage(
-			"Box comment variables '^0', '^1' and '^2' are not defined in SciTE *.properties!",
-			start_base.c_str(), middle_base.c_str(), end_base.c_str());
+		                    "Box comment variables '^0', '^1' and '^2' are not defined in SciTE *.properties!",
+		                    start_base.c_str(), middle_base.c_str(), end_base.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -2271,8 +2272,8 @@ bool SciTEBase::StartStreamComment() {
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || end_comment == "") {
 		SString error = LocaliseMessage(
-			"Stream comment variables '^0' and '^1' are not defined in SciTE *.properties!",
-			start_base.c_str(), end_base.c_str());
+		                    "Stream comment variables '^0' and '^1' are not defined in SciTE *.properties!",
+		                    start_base.c_str(), end_base.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -2398,12 +2399,12 @@ void SciTEBase::SetFileProperties(
 	}
 
 	::GetDateFormat(LOCALE_SYSTEM_DEFAULT,
-	                DATE_SHORTDATE, NULL,    	// Current date
+	                DATE_SHORTDATE, NULL,     	// Current date
 	                NULL, temp, TEMP_LEN);
 	ps.Set("CurrentDate", temp);
 
 	::GetTimeFormat(LOCALE_SYSTEM_DEFAULT,
-	                0, NULL,    	// Current time
+	                0, NULL,     	// Current time
 	                NULL, temp, TEMP_LEN);
 	ps.Set("CurrentTime", temp);
 #endif  	// PLAT_WIN
@@ -3425,7 +3426,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_PREVMSG:
-		GoMessage( -1);
+		GoMessage(-1);
 		break;
 
 	case IDM_OPENLOCALPROPERTIES:
@@ -3916,8 +3917,9 @@ void SciTEBase::CheckMenus() {
 		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)buffers.current, (LPARAM)0);
 #endif
 #if PLAT_GTK
+
 		if (wTabBar.GetID())
-			gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()),buffers.current);
+			gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), buffers.current);
 #endif
 
 		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
@@ -4076,7 +4078,7 @@ void SciTEBase::PerformOne(char *action) {
 			}
 		} else if (isprefix(action, "saveas:")) {
 			SaveAs(arg);
- 		} else if (isprefix(action, "loadsession:")) {
+		} else if (isprefix(action, "loadsession:")) {
 			if (*arg) {
 				LoadSession(arg);
 			}
@@ -4341,7 +4343,7 @@ void SciTEBase::LoadMRUAndSession(bool allowLoadSession) {
 		LoadRecentMenu();
 	}
 	if (allowLoadSession && props.GetInt("buffers") &&
-		props.GetInt("save.session")) {
+	        props.GetInt("save.session")) {
 		LoadSession("");
 	}
 }

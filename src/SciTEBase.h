@@ -428,6 +428,7 @@ protected:
 	int currentCallTip;
 	int maxCallTips;
 	SString currentCallTipWord;
+	int lastPosCallTip;
 
 	bool margin;
 	int marginWidth;
