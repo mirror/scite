@@ -134,6 +134,7 @@ BEGIN
 
   POPUP "&Help"
   BEGIN
+	MENUITEM "&Help\tF1", 				IDM_HELP
 #ifdef STATIC_BUILD
 	MENUITEM "&About Sc1...",			IDM_ABOUT
 #else
@@ -315,6 +316,8 @@ BEGIN
 	
 	VK_F2, IDM_BOOKMARK_NEXT, VIRTKEY
 	VK_F2, IDM_BOOKMARK_TOGGLE, VIRTKEY, CONTROL
+	
+	VK_F1, IDM_HELP, VIRTKEY
 END
 
 //The embedded properties file is to allow a one file distribution of Sc1.EXE

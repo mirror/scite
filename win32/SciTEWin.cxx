@@ -103,6 +103,7 @@ protected:
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar();
 	virtual void ShowStatusBar();
+	void HelpOnTopic(char *topic);
 	void Command(WPARAM wParam, LPARAM lParam);
 
 public:
@@ -379,6 +380,45 @@ void SciTEWin::ShowStatusBar() {
 	SizeSubWindows();
 }
 
+// HH_AKLINK not in mingw headers
+struct XHH_AKLINK {
+	long cbStruct;
+	BOOL fReserved;
+	char *pszKeywords;
+	char *pszUrl;
+	char *pszMsgText;
+	char *pszMsgTitle;
+	char *pszWindow;
+	BOOL fIndexOnFail;
+};
+
+void SciTEWin::HelpOnTopic(char *topic) {
+	HMODULE hhh = ::LoadLibrary("HHCTRL.OCX");
+	if (hhh) {
+		typedef HWND (WINAPI *HelpFn) (HWND, const char *, UINT, DWORD);
+		HelpFn fnHHA = (HelpFn)::GetProcAddress(hhh, "HtmlHelpA");
+		if (fnHHA) {
+			XHH_AKLINK ak;
+			ak.cbStruct = sizeof(ak);
+			ak.fReserved = FALSE;
+			ak.pszKeywords = topic;
+			ak.pszUrl = NULL;
+			ak.pszMsgText = NULL;
+			ak.pszMsgTitle = NULL;
+			ak.pszWindow = NULL;
+			ak.fIndexOnFail = TRUE;
+			SString fileNameForExtension = ExtensionFileName();
+			SString helpFile = props.GetNewExpand("help.file.", fileNameForExtension.c_str());
+			fnHHA(NULL, 
+				helpFile.c_str(),
+				0x000d, 	// HH_KEYWORD_LOOKUP
+				reinterpret_cast<DWORD>(&ak)
+			);
+		}
+		::FreeLibrary(hhh);
+	}
+}
+
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	int cmdID = ControlIDOfCommand(wParam);
 	switch (cmdID) {
@@ -396,6 +436,11 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 			commandCurrent = 0;
 			CheckReload();
 		}
+		break;
+		
+	case IDM_HELP:
+		SelectionIntoFind();
+		HelpOnTopic(findWhat);
 		break;
 
 	default:
