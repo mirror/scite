@@ -2164,7 +2164,7 @@ void SciTEGTK::CreateMenu() {
 		{"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 		{"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
 		{"/File/Save _As...", "<control><shift>S", menuSig, IDM_SAVEAS, 0},
-		{"/File/Save A Co_py...", "<control><shift>P", menuSig, IDM_SAVEACOPY, 0},
+		{"/File/Save a Co_py...", "<control><shift>P", menuSig, IDM_SAVEACOPY, 0},
 		{"/File/Encodin_g", NULL, NULL, 0, "<Branch>"},
 		{"/File/Encoding/_8 Bit", NULL, menuSig, IDM_ENCODING_DEFAULT, "<RadioItem>"},
 		{"/File/Encoding/UCS-2 _Big Endian", NULL, menuSig, IDM_ENCODING_UCS2BE, "/File/Encoding/8 Bit"},
