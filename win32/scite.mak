@@ -34,8 +34,13 @@ CC=cl
 RC=rc
 LD=link
 
+!IFDEF QUIET
+CC=@$(CC)
+LOGO=/nologo
+!ENDIF
+
 INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src
-CXXFLAGS=/TP /W4
+CXXFLAGS=/TP /W4 $(LOGO)
 # For something scary:/Wp64
 CXXDEBUG=/Zi /Od /MDd -DDEBUG
 #CXXNDEBUG=/Og /Os /Oy /MD -DNDEBUG
@@ -43,15 +48,8 @@ CXXNDEBUG=/Zi /O1 /GL /MT -DNDEBUG
 NAMEFLAG=-Fo
 #LDFLAGS=/opt:nowin98 /NODEFAULTLIB:LIBC
 LDFLAGS=/opt:nowin98 /opt:ref /LTCG /DEBUG
-LDDEBUG=/DEBUG
+LDDEBUG=/DEBUG $(LOGO)
 LIBS=KERNEL32.lib USER32.lib GDI32.lib COMDLG32.lib COMCTL32.lib ADVAPI32.lib IMM32.lib SHELL32.LIB OLE32.LIB
-
-!IFDEF QUIET
-CC=@$(CC)
-CXXDEBUG=$(CXXDEBUG) /nologo
-CXXNDEBUG=$(CXXNDEBUG) /nologo
-LDFLAGS=$(LDFLAGS) /nologo
-!ENDIF
 
 !ELSE
 # BORLAND
@@ -60,14 +58,18 @@ CC=bcc32
 RC=brcc32 -r
 LD=ilink32
 
+!IFDEF QUIET
+CC=@$(CC)
+LOGO=-q
+!ENDIF
+
 INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src
-CXXFLAGS =-v
-CXXFLAGS=-P -tWM -w -w-prc -w-inl -RT- -x-
+CXXFLAGS=-P -tWM -w -w-prc -w-inl -RT- -x- $(LOGO)
 # Above turns off warnings for clarfying parentheses and inlines with for not expanded
 CXXDEBUG=-v -DDEBUG
 CXXNDEBUG=-O1 -DNDEBUG
 NAMEFLAG=-o
-LDFLAGS=
+LDFLAGS=$(LOGO)
 LDDEBUG=-v
 LIBS=import32 cw32mt
 
@@ -191,33 +193,27 @@ $(DIR_BIN)\SciTEGlobal.properties: ..\src\SciTEGlobal.properties
 	echo You must run the Scintilla makefile to build $*.obj
 	fail_the_build # Is there an official way to do this?
 
-!IF "$(VENDOR)"=="MICROSOFT"
-
-$(PROG): $(OBJS) SciTERes.res
-	$(LD) $(LDFLAGS) /OUT:$@ $(OBJS) SciTERes.res $(LIBS)
-
 SciTERes.res: SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
 	$(RC) $(INCLUDEDIRS) -fo$@ SciTERes.rc
 
-$(PROGSTATIC): $(OBJSSTATIC) Sc1Res.res
-	$(LD) $(LDFLAGS) /OUT:$@ $(OBJSSTATIC) Sc1Res.res $(LIBS)
-
 Sc1Res.res: SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
 	$(RC) $(INCLUDEDIRS) -dSTATIC_BUILD -fo$@ SciTERes.rc
+
+!IF "$(VENDOR)"=="MICROSOFT"
+
+$(PROG): $(OBJS) SciTERes.res
+	$(LD) $(LDFLAGS) /OUT:$@ $** $(LIBS)
+
+$(PROGSTATIC): $(OBJSSTATIC) Sc1Res.res
+	$(LD) $(LDFLAGS) /OUT:$@ $** $(LIBS)
 
 !ELSE
 
 $(PROG): $(OBJS) SciTERes.res
 	$(LD) $(LDFLAGS) -Tpe -aa -Gn -x c0w32 $(OBJS), $@, ,$(LIBS), , SciTERes.res
 
-SciTERes.res: SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
-	$(RC) $(INCLUDEDIRS) -fo$@ SciTERes.rc
-
 $(PROGSTATIC): $(OBJSSTATIC) Sc1Res.res
 	$(LD) $(LDFLAGS) -Tpe -aa -Gn -x c0w32 $(OBJSSTATIC), $@, ,$(LIBS), , Sc1Res.res
-
-Sc1Res.res: SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
-	$(RC) $(INCLUDEDIRS) -dSTATIC_BUILD -fo$@ SciTERes.rc
 
 !ENDIF
 
