@@ -2221,10 +2221,6 @@ char *SciTEBase::Property(const char *key) {
 	return retval;
 }
 
-bool SciTEBase::OpenFromExtension(const char *path) {
-	return Open(path);
-}
-
 void SciTEBase::SetProperty(const char *key, const char *val) {
 	props.Set(key, val);
 }
