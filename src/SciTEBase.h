@@ -453,6 +453,7 @@ protected:
 	sptr_t SendEditor(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendEditorString(unsigned int msg, uptr_t wParam, const char *s);
 	sptr_t SendOutput(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
+	sptr_t SendOutputString(unsigned int msg, uptr_t wParam, const char *s);
 	sptr_t SendFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendWindow(Window &w, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 	void SendChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);

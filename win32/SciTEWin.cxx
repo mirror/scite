@@ -145,7 +145,7 @@ static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
 
 void SciTEWin::GetDefaultDirectory(char *directory, size_t size) {
 	char *home = getenv("SciTE_HOME");
-	GetSciTEPath(directory, size, home);
+	GetSciTEPath(directory, static_cast<unsigned int>(size), home);
 }
 
 bool SciTEWin::GetSciteDefaultHome(char *path, unsigned int lenPath) {
@@ -1432,19 +1432,36 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	return 0l;
 }
 
+// Take care of 32/64 bit pointers
+#ifdef GetWindowLongPtr
+static void *PointerFromWindow(HWND hWnd) {
+	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, 0));
+}
+static void SetWindowPointer(HWND hWnd, void *ptr) {
+	::SetWindowLongPtr(hWnd, 0, reinterpret_cast<LONG_PTR>(ptr));
+}
+#else
+static void *PointerFromWindow(HWND hWnd) {
+	return reinterpret_cast<void *>(::GetWindowLong(hWnd, 0));
+}
+static void SetWindowPointer(HWND hWnd, void *ptr) {
+	::SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(ptr));
+}
+#endif
+
 LRESULT PASCAL SciTEWin::TWndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
 
 	// Find C++ object associated with window.
-	SciTEWin *scite = reinterpret_cast<SciTEWin *>(::GetWindowLong(hWnd, 0));
+	SciTEWin *scite = reinterpret_cast<SciTEWin *>(PointerFromWindow(hWnd));
 	// scite will be zero if WM_CREATE not seen yet
 	if (scite == 0) {
 		if (iMessage == WM_CREATE) {
 			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			scite = reinterpret_cast<SciTEWin *>(cs->lpCreateParams);
 			scite->wSciTE = hWnd;
-			::SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(scite));
+			SetWindowPointer(hWnd, scite);
 			return scite->WndProc(iMessage, wParam, lParam);
 		} else
 			return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
@@ -1531,14 +1548,14 @@ LRESULT PASCAL SciTEWin::IWndProc(
 	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
 
 	// Find C++ object associated with window.
-	SciTEWin *scite = reinterpret_cast<SciTEWin *>(::GetWindowLong(hWnd, 0));
+	SciTEWin *scite = reinterpret_cast<SciTEWin *>(::PointerFromWindow(hWnd));
 	// scite will be zero if WM_CREATE not seen yet
 	if (scite == 0) {
 		if (iMessage == WM_CREATE) {
 			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			scite = reinterpret_cast<SciTEWin *>(cs->lpCreateParams);
 			scite->wContent = hWnd;
-			::SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(scite));
+			SetWindowPointer(hWnd, scite);
 			return scite->WndProcI(iMessage, wParam, lParam);
 		} else
 			return ::DefWindowProc(hWnd, iMessage, wParam, lParam);

@@ -104,7 +104,7 @@ public:
 	Utf8_16_Read();
 	~Utf8_16_Read();
 
-	int convert(char* buf, int len);
+	size_t convert(char* buf, size_t len);
 	char* getNewBuf() { return reinterpret_cast<char*>(m_pNewBuf); }
 
 	encodingType getEncoding() const { return m_eEncoding; }
@@ -116,7 +116,7 @@ private:
 	ubyte* m_pNewBuf;
 	size_t m_nBufSize;
 	bool m_bFirstRead;
-	int m_nLen;
+	size_t m_nLen;
 	Utf16_Iter m_Iter16;
 };
 

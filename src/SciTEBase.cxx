@@ -149,8 +149,8 @@ void AddStyledText(WindowID hwnd, const char *s, int attr) {
 		buf[i*2] = s[i];
 		buf[i*2 + 1] = static_cast<char>(attr);
 	}
-	Platform::SendScintilla(hwnd, SCI_ADDSTYLEDTEXT, len*2,
-	                        reinterpret_cast<long>(static_cast < char * > (buf)));
+	Platform::SendScintillaPointer(hwnd, SCI_ADDSTYLEDTEXT, 
+		static_cast<int>(len*2), const_cast<char *>(buf));
 }
 
 void SetAboutStyle(WindowID wsci, int style, ColourDesired fore) {
@@ -289,6 +289,10 @@ sptr_t SciTEBase::SendOutput(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	return fnOutput(ptrOutput, msg, wParam, lParam);
 }
 
+sptr_t SciTEBase::SendOutputString(unsigned int msg, uptr_t wParam, const char *s) {
+	return SendOutput(msg, wParam, reinterpret_cast<sptr_t>(s));
+}
+
 sptr_t SciTEBase::SendFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	if (wOutput.HasFocus())
 		return SendOutput(msg, wParam, lParam);
@@ -406,7 +410,8 @@ void SciTEBase::SetMonoFont() {
 				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETSIZE, style, sd.size);
 			}
 			if (sd.specified & StyleDefinition::sdFont) {
-				Platform::SendScintilla(wEditor.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(sd.font.c_str()));
+				Platform::SendScintillaPointer(wEditor.GetID(), SCI_STYLESETFONT, style, 
+					const_cast<char *>(sd.font.c_str()));
 			}
 		}
 	} else {
@@ -465,7 +470,7 @@ void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
 	tr.chrg.cpMin = start;
 	tr.chrg.cpMax = end;
 	tr.lpstrText = text;
-	Platform::SendScintilla(win.GetID(), SCI_GETTEXTRANGE, 0, reinterpret_cast<long>(&tr));
+	Platform::SendScintillaPointer(win.GetID(), SCI_GETTEXTRANGE, 0, &tr);
 }
 
 #ifdef OLD_CODE
@@ -1132,7 +1137,7 @@ static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 	}
 	s = sUnslashed;
 	delete []sUnslashed;
-	return len;
+	return static_cast<int>(len);
 }
 
 void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
@@ -1304,7 +1309,7 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 
 void SciTEBase::OutputAppendString(const char *s, int len) {
 	if (len == -1)
-		len = strlen(s);
+		len = static_cast<int>(strlen(s));
 	int docLength = SendOutput(SCI_GETTEXTLENGTH);
 	SendOutput(SCI_SETTARGETSTART, docLength);
 	SendOutput(SCI_SETTARGETEND, docLength);
@@ -1318,7 +1323,7 @@ void SciTEBase::OutputAppendString(const char *s, int len) {
 
 void SciTEBase::OutputAppendStringSynchronised(const char *s, int len /*= -1*/) {
 	if (len == -1)
-		len = strlen(s);
+		len = static_cast<int>(strlen(s));
 	int docLength = SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false);
 	SendOutputEx(SCI_SETTARGETSTART, docLength, 0, false);
 	SendOutputEx(SCI_SETTARGETEND, docLength, 0, false);
@@ -1608,7 +1613,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 
 	for (;;) {	// search all the document
 		ft.chrg.cpMax = doclen;
-		int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
+		int posFind = SendEditorString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
 		if (posFind == -1 || posFind >= doclen)
 			break;
 		if (posFind == posCurrentWord) {
@@ -3789,7 +3794,7 @@ static uptr_t ReadNum(const char *&t) {
 void SciTEBase::ExecuteMacroCommand(const char *command) {
 	const char *nextarg = command;
 	uptr_t wParam;
-	long lParam = 0;
+	sptr_t lParam = 0;
 	int rep = 0;				//Scintilla's answer
 	char *answercmd;
 	int l;
@@ -3823,7 +3828,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	}
 
 	if (*(params + 2) == 'S')
-		lParam = reinterpret_cast<long>(nextarg);
+		lParam = reinterpret_cast<sptr_t>(nextarg);
 	else if (*(params + 2) == 'I')
 		lParam = atoi(nextarg);
 
@@ -3864,7 +3869,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	char *tbuff = new char[l + alen + 1];
 	strcpy(tbuff, answercmd);
 	if (*params == 'S')
-		lParam = reinterpret_cast<long>(tbuff + alen);
+		lParam = reinterpret_cast<sptr_t>(tbuff + alen);
 
 	if (l > 0)
 		rep = SendEditor(message, wParam, lParam);
@@ -3961,7 +3966,7 @@ void SciTEBase::Insert(Pane p, int pos, const char *s) {
 	if (p == paneEditor)
 		SendEditorString(SCI_INSERTTEXT, pos, s);
 	else
-		SendOutput(SCI_INSERTTEXT, pos, reinterpret_cast<long>(s));
+		SendOutputString(SCI_INSERTTEXT, pos, s);
 }
 
 void SciTEBase::Trace(const char *s) {

@@ -148,7 +148,7 @@ bool PropSetFile::Read(const char *filename, const char *directoryForImports,
 	FILE *rcfile = fopen(filename, fileRead);
 	if (rcfile) {
 		char propsData[60000];
-		int lenFile = fread(propsData, 1, sizeof(propsData), rcfile);
+		int lenFile = static_cast<int>(fread(propsData, 1, sizeof(propsData), rcfile));
 		fclose(rcfile);
 		ReadFromMemory(propsData, lenFile, directoryForImports, imports, sizeImports);
 		return true;
@@ -439,7 +439,8 @@ void SciTEBase::SetOneStyle(Window &win, int style, const char *s) {
 	if (sd.specified & StyleDefinition::sdBold)
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETBOLD, style, sd.bold ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdFont)
-		Platform::SendScintilla(win.GetID(), SCI_STYLESETFONT, style, reinterpret_cast<long>(sd.font.c_str()));
+		Platform::SendScintillaPointer(win.GetID(), SCI_STYLESETFONT, style, 
+			const_cast<char *>(sd.font.c_str()));
 	if (sd.specified & StyleDefinition::sdFore)
 		Platform::SendScintilla(win.GetID(), SCI_STYLESETFORE, style, sd.fore.AsLong());
 	if (sd.specified & StyleDefinition::sdBack)

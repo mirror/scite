@@ -612,7 +612,8 @@ void SciTEWin::Print(
 				            frPrint.rc.right, frPrint.rc.top - headerLineHeight / 2};
 				rcw.bottom = rcw.top + headerLineHeight;
 				::ExtTextOut(hdc, frPrint.rc.left + 5, frPrint.rc.top - headerLineHeight / 2,
-				             ETO_OPAQUE, &rcw, sHeader.c_str(), sHeader.length(), NULL);
+				             ETO_OPAQUE, &rcw, sHeader.c_str(), 
+					     static_cast<int>(sHeader.length()), NULL);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0, 1, sdHeader.fore.AsLong());
 				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
@@ -640,7 +641,8 @@ void SciTEWin::Print(
 				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2,
 				            frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2};
 				::ExtTextOut(hdc, frPrint.rc.left + 5, frPrint.rc.bottom + footerLineHeight / 2,
-				             ETO_OPAQUE, &rcw, sFooter.c_str(), sFooter.length(), NULL);
+				             ETO_OPAQUE, &rcw, sFooter.c_str(), 
+					     static_cast<int>(sFooter.length()), NULL);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0, 1, sdFooter.fore.AsLong());
 				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));

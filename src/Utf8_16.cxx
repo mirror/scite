@@ -35,7 +35,7 @@ Utf8_16_Read::~Utf8_16_Read() {
 	}
 }
 
-int Utf8_16_Read::convert(char* buf, int len) {
+size_t Utf8_16_Read::convert(char* buf, size_t len) {
 	m_pBuf = reinterpret_cast<ubyte*>(buf);
 	m_nLen = len;
 
