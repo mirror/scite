@@ -31,6 +31,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	cmdShow = 0;
 	heightBar = 7;
 	fontTabs = 0;
+	wFocus = 0;
 
 	winPlace.length = 0;
 
@@ -299,6 +300,14 @@ HWND SciTEWin::MainHWND() {
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	int cmdID = ControlIDOfCommand(wParam);
 	switch (cmdID) {
+
+	case IDM_SRCWIN:
+	case IDM_RUNWIN:
+		if (HIWORD(wParam) == SCEN_SETFOCUS) {
+			wFocus = reinterpret_cast<HWND>(lParam);
+		}
+		CheckMenus();
+		break;
 
 	case IDM_ACTIVATE:
 		Activate(lParam);
@@ -1584,7 +1593,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_ACTIVATE:
-		::SetFocus(reinterpret_cast<HWND>(wEditor.GetID()));
+		//Platform::DebugPrintf("Focus: w:%x l:%x %x e=%x o=%x\n", wParam, lParam, ::GetFocus(), wEditor.GetID(), wOutput.GetID());
+		if (wParam != WA_INACTIVE) {
+			::SetFocus(wFocus);
+		}
 		break;
 
 	case WM_DROPFILES:

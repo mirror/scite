@@ -94,6 +94,9 @@ protected:
 	TCITEM tie;
 	HFONT fontTabs;
 
+	/// Preserve focus during deactivation
+	HWND wFocus; 
+
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
 

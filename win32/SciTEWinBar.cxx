@@ -227,7 +227,11 @@ void SciTEWin::SizeSubWindows() {
 	}
 
 	if (showTab) {
-		int tabNb = ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_GETROWCOUNT, 0, 0);
+		wTabBar.SetPosition(PRectangle(
+			rcClient.left, rcClient.top + visHeightTools,
+			rcClient.right, rcClient.top + heightTab + visHeightTools));
+		int tabNb = ::SendMessage(reinterpret_cast<HWND>(
+			wTabBar.GetID()), TCM_GETROWCOUNT, 0, 0);
 		visHeightTab = ((tabNb - 1) * (heightTab - 6)) + heightTab;
 	} else {
 		visHeightTab = 0;
