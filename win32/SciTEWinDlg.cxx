@@ -1258,7 +1258,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		} else if (ControlIDOfCommand(wParam) == IDDOTDOT) {
 
 			SString directory = GetItemText(hDlg, IDDIRECTORY);
-			char *lastSlash = strrchr(directory.c_str(), pathSepChar);
+			const char *lastSlash = strrchr(directory.c_str(), pathSepChar);
 			if (lastSlash) {
 				directory.remove(lastSlash - directory.c_str(), 0);
 				::SetDlgItemText(hDlg, IDDIRECTORY, directory.c_str());
