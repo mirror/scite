@@ -20,17 +20,22 @@
 static ExtensionAPI *host = 0;
 static DirectorExtension *pde = 0;
 static HWND wDirector = 0;
+static HWND wCorrespondent = 0;
 static HWND wReceiver = 0;
 static bool startedByDirector = false;
+unsigned int SDI = 0;
 
 static void SendDirector(int typ, const char *path) {
-	if (wDirector != 0) {
+	if ((wDirector != 0) || (wCorrespondent != 0)) {
+		HWND wDestination = wCorrespondent;
+		if (!wDestination)
+			wDestination = wDirector;
 		COPYDATASTRUCT cds;
 		cds.dwData = typ;
 		cds.cbData = strlen(path);
 		cds.lpData = reinterpret_cast<void *>(
 			const_cast<char *>(path));
-		::SendMessage(wDirector, WM_COPYDATA,
+		::SendMessage(wDestination, WM_COPYDATA,
 			reinterpret_cast<WPARAM>(wReceiver),
 			reinterpret_cast<LPARAM>(&cds));
 	}
@@ -88,6 +93,8 @@ LRESULT PASCAL DirectorExtension_WndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	if (iMessage == WM_COPYDATA) {
 		return HandleCopyData(lParam);
+	} else if (iMessage == SDI) {
+		return SDI;
 	}
 	return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
@@ -118,6 +125,7 @@ DirectorExtension::~DirectorExtension() {
 
 bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	host = host_;
+	SDI = ::RegisterWindowMessage("SciTEDirectorInterface");
 	HINSTANCE hInstance = reinterpret_cast<HINSTANCE>(
 		host->GetInstance());
 	DirectorExtension_Register(hInstance);
@@ -224,17 +232,35 @@ bool DirectorExtension::SendProperty(const char *prop) {
 }
 
 void DirectorExtension::HandleStringMessage(const char *message) {
-	const char *arg = strchr(message, ':');
-	if (arg)
-		arg++;
-	if (isprefix(message, "identity:")) {
-		wDirector = reinterpret_cast<HWND>(atoi(arg));
-	} else if (isprefix(message, "closing:")) {
-		wDirector = 0;
-		if (startedByDirector)
-			host->ShutDown();
-	} else if (host) {
-		host->Perform(message);
+	// Message may contain multiple commands separated by '\n'
+	// Reentrance trouble - if this function is reentered, the wCorrespondent may
+	// be set to zero before time.
+	WordList wlMessage(true);
+	wlMessage.Set(message);
+	for (int i = 0; i < wlMessage.len; i++) {
+		// Message format is [:return address:]command:argument
+		char *cmd = wlMessage[i];
+		if (*cmd == ':') {
+			// There is a return address
+			char *colon = strchr(cmd+1, ':');
+			if (colon) {
+				*colon = '\0';
+				wCorrespondent = reinterpret_cast<HWND>(atoi(cmd+1));
+				cmd = colon+1;
+			}
+		}
+		if (isprefix(cmd, "identity:")) {
+			char *arg = strchr(cmd, ':');
+			if (arg)
+				wDirector = reinterpret_cast<HWND>(atoi(arg+1));
+		} else if (isprefix(cmd, "closing:")) {
+			wDirector = 0;
+			if (startedByDirector)
+				host->ShutDown();
+		} else if (host) {
+			host->Perform(cmd);
+		}
+		wCorrespondent = 0;
 	}
 }
 

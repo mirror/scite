@@ -2378,6 +2378,8 @@ void SciTEBase::PerformOne(const char *action) {
 			strcpy(currentmacro, arg);
 		} else if (isprefix(action, "macrocommand:")) {
 			ExecuteMacroCommand(arg);
+		} else if (isprefix(action, "askfilename:")) {
+			extender->OnMacro("filename", fullPath);
 		}
 	}
 }
