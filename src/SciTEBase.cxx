@@ -2115,9 +2115,11 @@ bool SciTEBase::StartInsertAbbreviation() {
 		char c = expbuf[i];
 		SString abbrevText("");
 		if (isIndent && c == '\t') {
-			indentExtra++;
-			SetLineIndentation(currentLineNumber, indent + indentSize * indentExtra);
-			caret_pos += indentSize / indentChars;
+			if (props.GetInt("indent.automatic")) {
+				indentExtra++;
+				SetLineIndentation(currentLineNumber, indent + indentSize * indentExtra);
+				caret_pos += indentSize / indentChars;
+			}
 		} else {
 			switch (c) {
 			case '|':
@@ -2133,13 +2135,16 @@ bool SciTEBase::StartInsertAbbreviation() {
 					int j = currentLineNumber + 1; // first line indented as others
 					currentLineNumber = SendEditor(SCI_LINEFROMPOSITION, caret_pos + sel_length);
 					for (; j <= currentLineNumber; j++) {
-						SetLineIndentation(j, indent + indentSize * indentExtra);
-						caret_pos += indentSize / indentChars;
+						SetLineIndentation(j, GetLineIndentation(j) + indentSize * indentExtra);
+						caret_pos += indentExtra * indentSize / indentChars;
 					}
 
 					at_start = false;
 					caret_pos += sel_length;
 				}
+				break;
+			case '\r':
+				// backward compatibility
 				break;
 			case '\n':
 				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_CR) {
@@ -2153,6 +2158,9 @@ bool SciTEBase::StartInsertAbbreviation() {
 				abbrevText += c;
 				break;
 			}
+			if (caret_pos > SendEditor(SCI_GETLENGTH)) {
+				caret_pos = SendEditor(SCI_GETLENGTH);
+			}
 			SendEditorString(SCI_INSERTTEXT, caret_pos, abbrevText.c_str());
 			if (!double_pipe && at_start) {
 				sel_start += static_cast<int>(abbrevText.length());
@@ -2163,6 +2171,10 @@ bool SciTEBase::StartInsertAbbreviation() {
 				indentExtra = 0;
 				currentLineNumber++;
 				SetLineIndentation(currentLineNumber, indent);
+				caret_pos += indent / indentChars;
+				if (!double_pipe && at_start) {
+					sel_start += indent / indentChars;
+				}
 			} else {
 				isIndent = false;
 			}
