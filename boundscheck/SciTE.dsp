@@ -195,6 +195,10 @@ SOURCE=..\..\scintilla\src\LexEScript.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexForth.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexFortran.cxx
 # End Source File
 # Begin Source File
