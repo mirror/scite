@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <time.h>   	// For time_t
+#include <time.h>
 
 #include "Platform.h"
 

@@ -679,14 +679,14 @@ void SciTEWin::ProcessExecute() {
 				if (exitcode == 0)
 					isBuilt = true;
 			}
-			char exitmessage[80];
+			SString sExitMessage(exitcode);
+			sExitMessage.insert(0, ">Exit code: ");
 			if (timeCommands) {
-				sprintf(exitmessage, ">Exit code: %0ld    Time: %0ld\n", exitcode, time(0) - timeStart);
-			} else {
-				sprintf(exitmessage, "\n>Exit code: %0ld\n", exitcode);
+				sExitMessage += "    Time: ";
+				sExitMessage += SString(time(0) - timeStart);
 			}
-
-			OutputAppendStringSynchronised(exitmessage);
+			sExitMessage.append("\n");
+			OutputAppendStringSynchronised(sExitMessage.c_str());
 			::CloseHandle(pi.hProcess);
 			::CloseHandle(pi.hThread);
 			WarnUser(warnExecuteOK);

@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
-#include <time.h>   	// For time_t
+#include <time.h>
 
 #include "Platform.h"
 

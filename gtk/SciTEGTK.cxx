@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <sys/stat.h>
 #include <assert.h>
+#include <time.h>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -1285,13 +1286,14 @@ void SciTEGTK::ContinueExecute() {
 	if (count == 0) {
 		int exitcode;
 		wait(&exitcode);
-		char exitmessage[80];
+		SString sExitMessage(exitcode);
+		sExitMessage.insert(0, ">Exit code: ");
 		if (timeCommands) {
-			sprintf(exitmessage, ">Exit code: %0ld    Time: %0d\n", exitcode, time(0) - timeStart);
-		} else {
-			sprintf(exitmessage, "\n>Exit code: %0d\n", exitcode);
+			sExitMessage += "    Time: ";
+			sExitMessage += SString(time(0) - timeStart);
 		}
-		OutputAppendString(exitmessage);
+		sExitMessage.append("\n");
+		OutputAppendString(sExitMessage.c_str());
 		// Move selection back to beginning of this run so that F4 will go
 		// to first error of this run.
 		if (scrollOutput && returnOutputToCommand)
