@@ -803,7 +803,7 @@ int SciTEBase::GetLine(char *text, int sizeText, int line) {
 	if (line == -1) {
 		return SendEditor(SCI_GETCURLINE, sizeText, reinterpret_cast<LPARAM>(text));
 	} else {
-		WORD buflen = sizeText;
+		WORD buflen = static_cast<WORD>(sizeText);
 		memcpy(text, &buflen, sizeof(buflen));
 		return SendEditor(EM_GETLINE, line, reinterpret_cast<LPARAM>(text));
 	}
@@ -2209,7 +2209,6 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 }
 
 void SciTEBase::Expand(int &line, bool doExpand, bool force, int visLevels, int level) {
-	int maxLine = SendEditor(EM_GETLINECOUNT);
 	int lineMaxSubord = SendEditor(SCI_GETLASTCHILD, line, level);
 	line++;
 	while (line<=lineMaxSubord) {
@@ -2285,7 +2284,6 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 	int lineClick = SendEditor(EM_LINEFROMCHAR, position);
 	//Platform::DebugPrintf("Margin click %d %d %x\n", position, lineClick, 
 	//	SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG);
-	int maxLine = SendEditor(EM_GETLINECOUNT);
 	if ((modifiers & SHIFT_PRESSED) && (modifiers & LEFT_CTRL_PRESSED)) {
 		FoldAll();
 	} else if (SendEditor(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG) {
@@ -2315,17 +2313,20 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 		
 	case SCN_STYLENEEDED: {
+// Colourisation is now performed by the SciLexer DLL
+#ifdef OLD_CODE	
 			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
 				int endStyled = SendEditor(SCI_GETENDSTYLED);
 				int lineEndStyled = SendEditor(EM_LINEFROMCHAR, endStyled);
 				endStyled = SendEditor(EM_LINEINDEX, lineEndStyled);
-				//Colourise(endStyled, notification->position);
+				Colourise(endStyled, notification->position);
 			} else {
 				int endStyled = SendOutput(SCI_GETENDSTYLED);
 				int lineEndStyled = SendOutput(EM_LINEFROMCHAR, endStyled);
 				endStyled = SendOutput(EM_LINEINDEX, lineEndStyled);
-				//Colourise(endStyled, notification->position, false);
+				Colourise(endStyled, notification->position, false);
 			}
+#endif
 		}
 		break;
 

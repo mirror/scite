@@ -1462,24 +1462,28 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 		MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
 #endif
 
-	SciTEWin MainWind;
-
-	MainWind.Run(lpszCmdLine);
-
-	bool going = true;
 	MSG msg;
 	msg.wParam = 0;
-	while (going) {
-		going = ::GetMessage(&msg, NULL, 0, 0);
-		if (going) {
-			if (!MainWind.ModelessHandler(&msg)) {
-				if (::TranslateAccelerator(MainWind.GetID(), hAccTable, &msg) == 0) {
-					::TranslateMessage(&msg);
-					::DispatchMessage(&msg);
+	{
+		SciTEWin MainWind;
+		MainWind.Run(lpszCmdLine);
+		bool going = true;
+		while (going) {
+			going = ::GetMessage(&msg, NULL, 0, 0);
+			if (going) {
+				if (!MainWind.ModelessHandler(&msg)) {
+					if (::TranslateAccelerator(MainWind.GetID(), hAccTable, &msg) == 0) {
+						::TranslateMessage(&msg);
+						::DispatchMessage(&msg);
+					}
 				}
 			}
 		}
 	}
+
+#ifndef STATIC_BUILD
+	::FreeLibrary(hmod);
+#endif
 
 	return msg.wParam;
 }
