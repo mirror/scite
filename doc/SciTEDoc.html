@@ -1528,11 +1528,29 @@ NameError: mistake
 	and underlined attributes are supported.
         </td>
       </tr>
+      <tr class="windowsonly">
+        <td>
+	export.keep.ext
+        </td>
+        <td>
+	This property determines how the file name 
+	(for example, LineMarker.cxx) is transformed when 
+	exporting to include the appropriate export format extension - 
+	.html for HTML and .rtf for RTF. 
+	If export.keep.ext is the default, 0, then the current extension is replaced
+	(LineMarker.html). 
+	If it is 1, then the export format extension is added (LineMarker.cxx.html).
+	If it is 2 then the final '.' is replaced by '_' and the 
+	export format extension added (LineMarker_cxx.html).
+        </td>
+      </tr>
       <tr>
         <td>
 	export.html.wysiwyg<br />
 	export.html.tabs<br />
-	export.html.folding
+	export.html.folding<br />
+	export.html.styleused<br />
+	export.html.title.fullpath
         </td>
         <td>
 	When export.html.wysiwyg is set to 0 then exporting to a HTML file produces a smaller
@@ -1541,6 +1559,9 @@ NameError: mistake
 	the file are exported as tab characters rather than a sequence of space characters.<br />
 	The exported file can be made to fold in browsers that support CSS well (Mozilla and Internet 
 	Explorer) by setting export.html.folding to 1.
+	Only export styles actually used when export.html.styleused set to 1.
+	The full path name of the file is put in the title, instead of just the file name 
+	when export.html.title.fullpath set to 1.
         </td>
       </tr>
       <tr>
