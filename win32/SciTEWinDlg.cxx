@@ -152,7 +152,7 @@ int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC 
 	if (result == -1) {
 		SString errorNum(::GetLastError());
 		SString msg = LocaliseMessage("Failed to create dialog box: ^0.", errorNum.c_str());
-		MessageBox(hWnd, msg.c_str(), appName, MB_OK);
+		MessageBox(hWnd, msg.c_str(), appName, MB_OK | MB_SETFOREGROUND);
 	}
 
 	return result;
@@ -552,7 +552,7 @@ void SciTEWin::Print(
 	di.fwType = 0;
 	if (::StartDoc(hdc, &di) < 0) {
 		SString msg = LocaliseMessage("Can not start printer document.");
-		MessageBox(MainHWND(), msg.c_str(), 0, MB_OK);
+		WindowMessageBox(wSciTE, msg, MB_OK);
 		return;
 	}
 

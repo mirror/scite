@@ -943,7 +943,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 		errormsg += "Unknown error code: ";
 		errormsg += SString(rc);
 	}
-	::MessageBox(MainHWND(), errormsg.c_str(), appName, MB_OK);
+	WindowMessageBox(wSciTE, errormsg, MB_OK);
 
 	delete []mycmdcopy;
 }
