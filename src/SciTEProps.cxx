@@ -413,6 +413,9 @@ void SciTEBase::ReadProperties() {
 	SString fold = props.Get("fold");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<uptr_t>("fold"),
 	                 fold.c_str());
+	SString foldCompact = props.Get("fold.compact");
+	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<unsigned long>("fold.compact"),
+	                 foldCompact.c_str());
 	SString stylingWithinPreprocessor = props.Get("styling.within.preprocessor");
 	SendEditorString(SCI_SETPROPERTY, reinterpret_cast<uptr_t>("styling.within.preprocessor"),
 	                 stylingWithinPreprocessor.c_str());
