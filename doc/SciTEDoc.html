@@ -1063,6 +1063,21 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          autocomplete.<i>lexer</i>.fillups<br />
+          autocomplete.*.fillups
+        </td>
+        <td>
+	If this setting is not empty, typing any of the characters will cause 
+	autocompletion to complete.
+	For example, if 
+	autocomplete.python.fillups=( and the API file for Python 
+	contains "string.replace" then typing "string.r(" will 
+	cause "string.replace(" to be inserted.
+	The * form is used if there is no lexer specific setting.
+        </td>
+      </tr>
+      <tr>
+        <td>
           autocompleteword.automatic
         </td>
         <td>
