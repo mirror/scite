@@ -925,13 +925,28 @@ void SciTEBase::ReadProperties() {
 
 	memFiles.AppendList(props.GetNewExpand("find.files"));
 
-	if (props.GetInt("vc.home.key", 1)) {
-		AssignKey(SCK_HOME, 0, SCI_VCHOME);
-		AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_VCHOMEEXTEND);
+	if (props.GetInt("wrap.aware.home.end.keys",0)) {
+		if (props.GetInt("vc.home.key", 1)) {
+			AssignKey(SCK_HOME, 0, SCI_VCHOMEWRAP);
+			AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_VCHOMEWRAPEXTEND);
+		} else {
+			AssignKey(SCK_HOME, 0, SCI_HOMEWRAP);
+			AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_HOMEWRAPEXTEND);
+		}
+		AssignKey(SCK_END, 0, SCI_LINEENDWRAP);
+		AssignKey(SCK_END, SCMOD_SHIFT, SCI_LINEENDWRAPEXTEND);
 	} else {
-		AssignKey(SCK_HOME, 0, SCI_HOME);
-		AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_HOMEEXTEND);
+		if (props.GetInt("vc.home.key", 1)) {
+			AssignKey(SCK_HOME, 0, SCI_VCHOME);
+			AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_VCHOMEEXTEND);
+		} else {
+			AssignKey(SCK_HOME, 0, SCI_HOME);
+			AssignKey(SCK_HOME, SCMOD_SHIFT, SCI_HOMEEXTEND);
+		}
+		AssignKey(SCK_END, 0, SCI_LINEEND);
+		AssignKey(SCK_END, SCMOD_SHIFT, SCI_LINEENDEXTEND);
 	}
+
 	AssignKey('L', SCMOD_SHIFT | SCMOD_CTRL, SCI_LINEDELETE);
 
 	scrollOutput = props.GetInt("output.scroll", 1);
