@@ -1092,7 +1092,7 @@ void SciTEGTK::FindInFiles() {
 	props.Set("find.what", findWhat.c_str());
 
 	char findInDir[1024];
-	getcwd(findInDir, sizeof(findInDir));
+	GetDocumentDirectory(findInDir, sizeof(findInDir));
 	props.Set("find.directory", findInDir);
 
 	dlgFindInFiles = gtk_dialog_new();
