@@ -788,67 +788,88 @@ void SciTEBase::ToolsMenu(int item) {
 
 int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 	sourcePath[0] = '\0';
-	if (format == SCE_ERR_PYTHON) {
+	switch (format) {
+	case SCE_ERR_PYTHON: {
 		// Python
 		char *startPath = strchr(cdoc, '\"') + 1;
 		char *endPath = strchr(startPath, '\"');
-		strncpy(sourcePath, startPath, endPath - startPath);
-		sourcePath[endPath - startPath] = 0;
+		int length = endPath - startPath;
+		if (length > 0) {
+			strncpy(sourcePath, startPath, length);
+			sourcePath[length] = 0;
+		}
 		endPath++;
-		while (*endPath && !isdigit(*endPath))
+		while (*endPath && !isdigit(*endPath)) {
 			endPath++;
+		}
 		int sourceNumber = atoi(endPath) - 1;
 		return sourceNumber;
-	} else if (format == SCE_ERR_GCC) {
+	}
+	case SCE_ERR_GCC: {
 		// GCC - look for number followed by colon to be line number
 		// This will be preceded by file name
 		for (int i = 0; cdoc[i]; i++) {
 			if (isdigit(cdoc[i]) && cdoc[i + 1] == ':') {
 				int j = i;
-				while (j > 0 && isdigit(cdoc[j - 1]))
+				while (j > 0 && isdigit(cdoc[j - 1])) {
 					j--;
+				}
 				int sourceNumber = atoi(cdoc + j) - 1;
 				strncpy(sourcePath, cdoc, j - 1);
 				sourcePath[j - 1] = 0;
 				return sourceNumber;
 			}
 		}
-	} else if (format == SCE_ERR_MS) {
+		break;
+	}
+	case SCE_ERR_MS: {
 		// Visual *
 		char *endPath = strchr(cdoc, '(');
-		strncpy(sourcePath, cdoc, endPath - cdoc);
-		sourcePath[endPath - cdoc] = 0;
+		int length = endPath - cdoc;
+		if (length > 0) {
+			strncpy(sourcePath, cdoc, length);
+			sourcePath[length] = 0;
+		}
 		endPath++;
 		return atoi(endPath) - 1;
-	} else if (format == SCE_ERR_BORLAND) {
+	}
+	case SCE_ERR_BORLAND: {
 		// Borland
 		char *space = strchr(cdoc, ' ');
 		if (space) {
-			while (isspace(*space))
+			while (isspace(*space)) {
 				space++;
-			while (*space && !isspace(*space))
+			}
+			while (*space && !isspace(*space)) {
 				space++;
-			while (isspace(*space))
+			}
+			while (isspace(*space)) {
 				space++;
+			}
 			char *space2 = strchr(space, ' ');
 			if (space2) {
-				unsigned int len = space2 - space;
-				strncpy(sourcePath, space, len);
-				sourcePath[len] = '\0';
+				unsigned int length = space2 - space;
+				strncpy(sourcePath, space, length);
+				sourcePath[length] = '\0';
 				return atoi(space2) - 1;
 			}
 		}
-	} else if (format == SCE_ERR_PERL) {
+		break;
+	}
+	case SCE_ERR_PERL: {
 		// perl
 		char *at = strstr(cdoc, " at ");
 		char *line = strstr(cdoc, " line ");
-		if (at && line && (line > at)) {
-			strncpy(sourcePath, at + 4, line - (at + 4));
-			sourcePath[line - (at + 4)] = 0;
+		int length = line - (at + 4);
+		if (at && line && length > 0) {
+			strncpy(sourcePath, at + 4, length);
+			sourcePath[length] = 0;
 			line += 6;
 			return atoi(line) - 1;
 		}
-	} else if (format == SCE_ERR_NET) {
+		break;
+	}
+	case SCE_ERR_NET: {
 		// .NET traceback
 		char *in = strstr(cdoc, " in ");
 		char *line = strstr(cdoc, ":line ");
@@ -860,6 +881,26 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format) {
 			return atoi(line) - 1;
 		}
 	}
+	case SCE_ERR_LUA: {
+		// Lua error look like: last token read: `result' at line 40 in file `Test.lua'
+		char *idLine = "at line ";
+		char *idFile = "file ";
+		int lenLine = strlen(idLine), lenFile = strlen(idFile);
+		char *line = strstr(cdoc, idLine);
+		char *file = strstr(cdoc, idFile);
+		if (line && file) {
+			char *quote = strstr(file, "'");
+			int length = quote - (file + lenFile + 1);
+			if (quote && length > 0) {
+				strncpy(sourcePath, file + lenFile + 1, length);
+				sourcePath[length] = '\0';
+			}
+			line += lenLine;
+			return atoi(line) - 1;
+		}
+		break;
+	}
+	}	// switch
 	return - 1;
 }
 
