@@ -1026,6 +1026,8 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
 	SendEditor(SCI_SETWRAPMODE, wrap ? SC_WRAP_WORD : SC_WRAP_NONE);
 
+	useMonoFont = props.GetInt("use.monospaced");
+
 	SString menuLanguageProp = props.GetNewExpand("menu.language");
 	languageItems = 0;
 	for (unsigned int i = 0; i < menuLanguageProp.length(); i++) {
