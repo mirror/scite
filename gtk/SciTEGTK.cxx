@@ -2094,9 +2094,16 @@ void SciTEGTK::CreateTranslatedMenu(int n, GtkItemFactoryEntry items[],
 		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
 		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
 	}
+	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
 	for (; i<dim; i++) {
-		translatedText[i] = prefix + SString(i-n + startNum);
+		int suffix = i-n + startNum;
+		SString ssnum(suffix);
+		translatedText[i] = prefix;
+		translatedText[i] += ssnum;
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
+		translatedItems[i].accelerator = NULL;
+		translatedItems[i].callback = menuSig;
+		translatedItems[i].callback_action = startID + suffix;
 		translatedRadios[i] = TranslatePath(radioStart);
 		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
 	}
@@ -2219,7 +2226,9 @@ void SciTEGTK::CreateMenu() {
 	    {"/Tools/_Previous Message", "<shift>F4", menuSig, IDM_PREVMSG, 0},
 	    {"/Tools/Clear _Output", "<shift>F5", menuSig, IDM_CLEAROUTPUT, 0},
 	    {"/Tools/_Switch Pane", "<control>F6", menuSig, IDM_SWITCHPANE, 0},
+	};
 
+	GtkItemFactoryEntry menuItemsOptions[] = {
 	    {"/_Options", NULL, NULL, 0, "<Branch>"},
 	    {"/_Options/tear", NULL, NULL, 0, "<Tearoff>"},
 	    {"/Options/Vertical _Split", "", menuSig, IDM_SPLITVERTICAL, "<CheckItem>"},
@@ -2241,79 +2250,11 @@ void SciTEGTK::CreateMenu() {
 	    {"/Options/Open A_bbreviations File", "", menuSig, IDM_OPENABBREVPROPERTIES, 0},
 	    {"/Options/sep4", NULL, NULL, 0, "<Separator>"},
 	    {"/Options/Edit Properties", "", 0, 0, "<Branch>"},
-	    {"/Options/Edit Properties/Props0", "", menuSig, IDM_IMPORT + 0, 0},
-	    {"/Options/Edit Properties/Props1", "", menuSig, IDM_IMPORT + 1, 0},
-	    {"/Options/Edit Properties/Props2", "", menuSig, IDM_IMPORT + 2, 0},
-	    {"/Options/Edit Properties/Props3", "", menuSig, IDM_IMPORT + 3, 0},
-	    {"/Options/Edit Properties/Props4", "", menuSig, IDM_IMPORT + 4, 0},
-	    {"/Options/Edit Properties/Props5", "", menuSig, IDM_IMPORT + 5, 0},
-	    {"/Options/Edit Properties/Props6", "", menuSig, IDM_IMPORT + 6, 0},
-	    {"/Options/Edit Properties/Props7", "", menuSig, IDM_IMPORT + 7, 0},
-	    {"/Options/Edit Properties/Props8", "", menuSig, IDM_IMPORT + 8, 0},
-	    {"/Options/Edit Properties/Props9", "", menuSig, IDM_IMPORT + 9, 0},
-	    {"/Options/Edit Properties/Props10", "", menuSig, IDM_IMPORT + 10, 0},
-	    {"/Options/Edit Properties/Props11", "", menuSig, IDM_IMPORT + 11, 0},
-	    {"/Options/Edit Properties/Props12", "", menuSig, IDM_IMPORT + 12, 0},
-	    {"/Options/Edit Properties/Props13", "", menuSig, IDM_IMPORT + 13, 0},
-	    {"/Options/Edit Properties/Props14", "", menuSig, IDM_IMPORT + 14, 0},
-	    {"/Options/Edit Properties/Props15", "", menuSig, IDM_IMPORT + 15, 0},
-	    {"/Options/Edit Properties/Props16", "", menuSig, IDM_IMPORT + 16, 0},
-	    {"/Options/Edit Properties/Props17", "", menuSig, IDM_IMPORT + 17, 0},
-	    {"/Options/Edit Properties/Props18", "", menuSig, IDM_IMPORT + 18, 0},
-	    {"/Options/Edit Properties/Props19", "", menuSig, IDM_IMPORT + 19, 0},
-	    {"/Options/Edit Properties/Props20", "", menuSig, IDM_IMPORT + 20, 0},
-	    {"/Options/Edit Properties/Props21", "", menuSig, IDM_IMPORT + 21, 0},
-	    {"/Options/Edit Properties/Props22", "", menuSig, IDM_IMPORT + 22, 0},
-	    {"/Options/Edit Properties/Props23", "", menuSig, IDM_IMPORT + 23, 0},
-	    {"/Options/Edit Properties/Props24", "", menuSig, IDM_IMPORT + 24, 0},
-	    {"/Options/Edit Properties/Props25", "", menuSig, IDM_IMPORT + 25, 0},
-	    {"/Options/Edit Properties/Props26", "", menuSig, IDM_IMPORT + 26, 0},
-	    {"/Options/Edit Properties/Props27", "", menuSig, IDM_IMPORT + 27, 0},
-	    {"/Options/Edit Properties/Props28", "", menuSig, IDM_IMPORT + 28, 0},
-	    {"/Options/Edit Properties/Props29", "", menuSig, IDM_IMPORT + 29, 0},
+	};
 
+	GtkItemFactoryEntry menuItemsLanguage[] = {
 	    {"/_Language", NULL, NULL, 0, "<Branch>"},
 	    {"/_Language/tear", NULL, NULL, 0, "<Tearoff>"},
-	    {"/Language/Language00", "", menuSig, IDM_LANGUAGE + 0, 0},
-	    {"/Language/Language01", "", menuSig, IDM_LANGUAGE + 1, 0},
-	    {"/Language/Language02", "", menuSig, IDM_LANGUAGE + 2, 0},
-	    {"/Language/Language03", "", menuSig, IDM_LANGUAGE + 3, 0},
-	    {"/Language/Language04", "", menuSig, IDM_LANGUAGE + 4, 0},
-	    {"/Language/Language05", "", menuSig, IDM_LANGUAGE + 5, 0},
-	    {"/Language/Language06", "", menuSig, IDM_LANGUAGE + 6, 0},
-	    {"/Language/Language07", "", menuSig, IDM_LANGUAGE + 7, 0},
-	    {"/Language/Language08", "", menuSig, IDM_LANGUAGE + 8, 0},
-	    {"/Language/Language09", "", menuSig, IDM_LANGUAGE + 9, 0},
-	    {"/Language/Language10", "", menuSig, IDM_LANGUAGE + 10, 0},
-	    {"/Language/Language11", "", menuSig, IDM_LANGUAGE + 11, 0},
-	    {"/Language/Language12", "", menuSig, IDM_LANGUAGE + 12, 0},
-	    {"/Language/Language13", "", menuSig, IDM_LANGUAGE + 13, 0},
-	    {"/Language/Language14", "", menuSig, IDM_LANGUAGE + 14, 0},
-	    {"/Language/Language15", "", menuSig, IDM_LANGUAGE + 15, 0},
-	    {"/Language/Language16", "", menuSig, IDM_LANGUAGE + 16, 0},
-	    {"/Language/Language17", "", menuSig, IDM_LANGUAGE + 17, 0},
-	    {"/Language/Language18", "", menuSig, IDM_LANGUAGE + 18, 0},
-	    {"/Language/Language19", "", menuSig, IDM_LANGUAGE + 19, 0},
-	    {"/Language/Language20", "", menuSig, IDM_LANGUAGE + 20, 0},
-	    {"/Language/Language21", "", menuSig, IDM_LANGUAGE + 21, 0},
-	    {"/Language/Language22", "", menuSig, IDM_LANGUAGE + 22, 0},
-	    {"/Language/Language23", "", menuSig, IDM_LANGUAGE + 23, 0},
-	    {"/Language/Language24", "", menuSig, IDM_LANGUAGE + 24, 0},
-	    {"/Language/Language25", "", menuSig, IDM_LANGUAGE + 25, 0},
-	    {"/Language/Language26", "", menuSig, IDM_LANGUAGE + 26, 0},
-	    {"/Language/Language27", "", menuSig, IDM_LANGUAGE + 27, 0},
-	    {"/Language/Language28", "", menuSig, IDM_LANGUAGE + 28, 0},
-	    {"/Language/Language29", "", menuSig, IDM_LANGUAGE + 29, 0},
-	    {"/Language/Language30", "", menuSig, IDM_LANGUAGE + 30, 0},
-	    {"/Language/Language31", "", menuSig, IDM_LANGUAGE + 31, 0},
-	    {"/Language/Language32", "", menuSig, IDM_LANGUAGE + 32, 0},
-	    {"/Language/Language33", "", menuSig, IDM_LANGUAGE + 33, 0},
-	    {"/Language/Language34", "", menuSig, IDM_LANGUAGE + 34, 0},
-	    {"/Language/Language35", "", menuSig, IDM_LANGUAGE + 35, 0},
-	    {"/Language/Language36", "", menuSig, IDM_LANGUAGE + 36, 0},
-	    {"/Language/Language37", "", menuSig, IDM_LANGUAGE + 37, 0},
-	    {"/Language/Language38", "", menuSig, IDM_LANGUAGE + 38, 0},
-	    {"/Language/Language39", "", menuSig, IDM_LANGUAGE + 39, 0},
 	};
 
 	GtkItemFactoryEntry menuItemsBuffer[] = {
@@ -2346,9 +2287,13 @@ void SciTEGTK::CreateMenu() {
 	accelGroup = gtk_accel_group_new();
 	itemFactory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", accelGroup);
 	CreateTranslatedMenu(ELEMENTS(menuItems), menuItems);
+	CreateTranslatedMenu(ELEMENTS(menuItemsOptions), menuItemsOptions,
+		30, "/Options/Edit Properties/Props", 0, IDM_IMPORT, 0);
+	CreateTranslatedMenu(ELEMENTS(menuItemsLanguage), menuItemsLanguage,
+		40, "/Language/Language", 0, IDM_LANGUAGE, 0);
 	if (props.GetInt("buffers") > 1)
 		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer,
-		10, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
+		30, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
 	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
 
 	gtk_accel_group_attach(accelGroup, GTK_OBJECT(PWidget(wSciTE)));
