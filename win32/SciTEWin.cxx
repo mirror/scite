@@ -82,10 +82,7 @@ protected:
 	virtual void FindReplace(bool replace);
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
-#ifdef OLD /* FW000402 PL 2000/05/18 */
-#else  /* OLD FW000402 PL 2000/05/18 */
 	virtual void TabSizeDialog();
-#endif /* OLD FW000402 PL 2000/05/18 */
 
 	virtual bool GetDefaultPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
 	virtual bool GetUserPropertiesFileName(char *pathDefaultProps, unsigned int lenPath);
@@ -118,10 +115,7 @@ public:
 	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-#ifdef OLD /* FW000402 PL 2000/05/19 */
-#else  /* OLD FW000402 PL 2000/05/19 */
 	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-#endif /* OLD FW000402 PL 2000/05/19 */
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
 		    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
@@ -1521,8 +1515,6 @@ void SciTEWin::GoLineDialog() {
 	SetFocus(wEditor.GetID());
 }
 
-#ifdef OLD /* PL 2000/05/18 */
-#else  /* OLD PL 2000/05/18 */
 BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	static int *pTabSize;
 
@@ -1571,7 +1563,6 @@ void SciTEWin::TabSizeDialog() {
 	}
 	SetFocus(wEditor.GetID());
 }
-#endif /* OLD PL 2000/05/18 */
 
 void SciTEWin::FindReplace(bool replace) {
 	replacing = replace;
