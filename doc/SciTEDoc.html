@@ -389,7 +389,9 @@ NameError: mistake
         <td>
           Set to a number between 1 and 10 to configure that many buffers. 
 	Values outside this range are clamped to be within the range.
-	The default is 1 which turns off UI features concerned with buffers.
+	The default is 1 which turns off UI features concerned with buffers.<br />
+	This value is read only once, early in the startup process and only from the
+	global properties files. So after changing it, restart SciTE to see the effect.
         </td>
       </tr>
       <tr>
@@ -836,7 +838,7 @@ NameError: mistake
         <td>
           These settings choose which commands to execute when the Compile, Build or Go menu items
           are selected. The subsystem options determine for Windows whether the tools are run as
-          command line or windowed applications.
+          command line(0), windowed(1), or through ShellExecute(2).
         </td>
       </tr>
       <tr>
@@ -877,7 +879,8 @@ NameError: mistake
           current file so it may need to be read in after performing the command if
           load.on.activate is set.<br />
            The subsystem determines how the command is executed on Windows. 0, the default is for
-          command line programs and 1 for programs which create their own windows.
+          command line programs, 1 for programs which create their own windows, and 2 for running
+	by using ShellExecute.
         </td>
       </tr>
       <tr>
