@@ -47,9 +47,10 @@ BEGIN
 	MENUITEM "&Go to...\tCtrl+G",			IDM_GOTO
 	MENUITEM "Next Book&mark\tF2",			IDM_BOOKMARK_NEXT
 	MENUITEM "Toggle Bookmar&k\tCtrl+F2",			IDM_BOOKMARK_TOGGLE
-	MENUITEM "Match Brac&e\tCtrl+E",			IDM_MATCHBRACE
-	MENUITEM "C&omplete Identifier\tCtrl+I",		IDM_COMPLETE
-	MENUITEM "Make Selection &Uppercase\tCtrl+Shift+U",		IDM_UPRCASE
+	MENUITEM "Match &Brace\tCtrl+E",			IDM_MATCHBRACE
+	MENUITEM "Select t&o Brace\tCtrl+Shift+E",			IDM_SELECTTOBRACE
+	MENUITEM "Complete S&ymbol\tCtrl+I",		IDM_COMPLETE
+	MENUITEM "Make &Selection Uppercase\tCtrl+Shift+U",		IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",		IDM_LWRCASE
   END
 
@@ -86,7 +87,7 @@ BEGIN
 	MENUITEM "&Convert Line End Characters",          IDM_EOL_CONVERT
 	MENUITEM "",                            3
 	MENUITEM "Change &Tab Size...",			IDM_TABSIZE
-	POPUP "&Use lexer"
+	POPUP "Use le&xer"
 	  BEGIN
 		MENUITEM "none",					IDM_LEXER_NONE
 		MENUITEM "&C / C++",				IDM_LEXER_CPP
@@ -101,14 +102,14 @@ BEGIN
 		MENUITEM "&Makefile",				IDM_LEXER_MAKE
 		MENUITEM "&Errorlist",				IDM_LEXER_ERRORL
 		MENUITEM "&Java",					IDM_LEXER_JAVA
-		MENUITEM "&Lua",					IDM_LEXER_LUA
+		MENUITEM "Lu&a",					IDM_LEXER_LUA
 		MENUITEM "Pytho&n",					IDM_LEXER_PYTHON
 		MENUITEM "Pe&rl",					IDM_LEXER_PERL
 		MENUITEM "S&QL",					IDM_LEXER_SQL
 		MENUITEM "P&LSQL",					IDM_LEXER_PLSQL
 		MENUITEM "P&HP",					IDM_LEXER_PHP
 		MENUITEM "La&TeX",					IDM_LEXER_LATEX
-	  END // used: bcehijlmnpqrstuvyx
+	  END // used: abcehijlmnpqrstuvyx
 	MENUITEM "",							4
 	MENUITEM "Open Local &Options File",    IDM_OPENLOCALPROPERTIES
 	MENUITEM "Open &User Options File",   IDM_OPENUSERPROPERTIES
