@@ -3321,103 +3321,105 @@ void SciTEBase::StartPlayMacro() {
 		extender->OnMacro("macro:run", currentmacro);
 }
 
-/**
- * SciTE received a macro command from director: execute it.
- * If command needs answer (SCI_GETTEXTLENGTH...): give answer to director.
+/*
+SciTE received a macro command from director : execute it.
+If command needs answer (SCI_GETTEXTLENGTH ...) : give answer to director
 */
 
-static uptr_t readnum(char **t) {
-	char *argend = strchr(*t, ';');	// find ';'
-	*argend = '\0';					// replace by null
-	uptr_t v = atoi(*t);				// read value
-	*t = argend + 1;					// update pointer
-	return (v);						// return value
+static uptr_t ReadNum(const char *&t) {
+	const char *argend = strchr(t, ';');	// find ';'
+	uptr_t v = 0;
+	if (*t)
+		v = atoi(t);					// read value
+	t = argend + 1;					// update pointer
+	return v;						// return value
 }
 
-void SciTEBase::ExecuteMacroCommand(const char * command) {
-	char *nextarg = (char *)command;
-	uptr_t message;
+void SciTEBase::ExecuteMacroCommand(const char *command) {
+	const char *nextarg = command;
 	uptr_t wParam;
-	int rep = 0;				// Scintilla's answer
-	char response[100];
-	char *answercmd = NULL;
-	int alen = 0;
+	long lParam = 0;
+	int rep = 0;				//Scintilla's answer
+	char *answercmd;
 	int l;
-	char *tbuff = NULL;
-	int lParamTyp;
+	char *string1 = NULL;
+	char params[4];
+	//params describe types of return values and of arguments
+	//0 : void or no param
+	//I : integer
+	//S : string
+	//R : return string (for lParam only)
 
-	// replace \v (vertical tabs) by \n... Trick to transmit \n's in strings
-	char * p = (char *)command;
-	while ((p = strchr(p, '\v')) != NULL)
-		* p = '\n';
+	//extract message,wParam ,lParam
 
-	// extract message,wParam: same format as in RecordMacroCommand
-
-	message = readnum(&nextarg);
-	wParam = readnum(&nextarg);
-	lParamTyp = readnum(&nextarg);
-	//prepare for eventual answers
-
-	switch (message) {
-	case SCI_GETLENGTH:
-		answercmd = "sci_length";
-		break;
-	case SCI_GETLINECOUNT:
-		answercmd = "sci_linecount";
-		break;
-	case SCI_GETCURRENTPOS:
-		answercmd = "sci_currentpos";
-		break;
-	case SCI_GETSELECTIONSTART:
-		answercmd = "sci_selectionstart";
-		break;
-	case SCI_GETSELECTIONEND:
-		answercmd = "sci_selectionend";
-		break;
-	case SCI_GETCHARAT:
-		answercmd = "sci_charat";
-		break;
-	case SCI_GETSELTEXT:
-		answercmd = "sci_seltext:";
-		break;
-	case SCI_GETCURLINE:
-		answercmd = "sci_curline:";
-		break;
+	uptr_t message = ReadNum(nextarg);
+	strncpy(params, nextarg, 3);
+	nextarg += 4;
+	if (*(params + 1) == 'R') {
+		// in one function wParam is a string  : void SetProperty(string key,string name)
+		const char *s1 = nextarg;
+		while (*nextarg != ';') 
+			nextarg++;
+		int lstring1 = nextarg - s1;
+		string1 = new char[lstring1 + 1];
+		if (lstring1 > 0)
+			strncpy(string1, s1, lstring1);
+		*(string1 + lstring1) = '\0';
+		wParam = reinterpret_cast<uptr_t>(string1);
+		nextarg++;
+	} else {
+		wParam = ReadNum(nextarg);
 	}
-	if (answercmd != NULL)
-		alen = strlen(answercmd);
 
-	// Send Messages to Scintilla
-	if (message == SCI_GETSELTEXT) {
-		l = SendEditor(SCI_GETSELECTIONEND) - SendEditor(SCI_GETSELECTIONSTART);
-		tbuff = new char[l + alen + 1];
-		strcpy(tbuff, answercmd);
-		if (l != 0)
-			rep = SendEditor(SCI_GETSELTEXT, 0, (long)(tbuff + alen));
-	} else if (message == SCI_GETCURLINE) {
-		int line = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
-		l = SendEditor(SCI_LINELENGTH, line);
-		tbuff = new char[l + alen + 1];
-		if (l != 0)
-			rep = SendEditor(SCI_GETCURLINE, l, (long)(tbuff + alen));
-	} else if (lParamTyp == 1)		//lParam flag
-		rep = SendEditor(message, wParam, (long)readnum(&nextarg));
-	else if (lParamTyp == 2)		//lParam flag
-		rep = SendEditor(message, wParam, (long)nextarg);
-	else
-		rep = SendEditor(message, wParam, 0);
+	if (*(params + 2) == 'S')
+		lParam = reinterpret_cast<long>(nextarg);
+	else if (*(params + 2) == 'I')
+		lParam = atoi(nextarg);
 
-	// Prepare and send answers to director
-
-	if (answercmd != NULL) {
-		if (tbuff == NULL) {
-			sprintf(response, "%s:%i", answercmd, rep);
-			extender->OnMacro("macro:info", response);
-		} else {
-			extender->OnMacro("macro:info", tbuff);
-			delete []tbuff;
-		}
+	if (*params == '0') {
+		// no answer ...
+		SendEditor(message, wParam, lParam);
+		if (string1 != NULL)
+			delete []string1;
+		return;
 	}
+
+	if (*params == 'S') {
+		// string answer
+		if (message == SCI_GETSELTEXT || message == EM_GETSELTEXT) {
+			l = SendEditor(SCI_GETSELECTIONEND) - SendEditor(SCI_GETSELECTIONSTART);
+			wParam = 0;
+		} else if (message == SCI_GETCURLINE) {
+			int line = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
+			l = SendEditor(SCI_LINELENGTH, line);
+			wParam = l;
+		} else if (message == SCI_GETTEXT || message == WM_GETTEXT)
+			l = wParam;
+		else if (message == SCI_GETLINE)
+			l = SendEditor(SCI_LINELENGTH, wParam);
+		else
+			l = 0; //unsupported calls EM
+
+		answercmd = "stringinfo:";
+
+	} else {
+		//int answer
+		answercmd = "intinfo:";
+		l = 30;
+	}
+
+	int alen = strlen(answercmd);
+	char *tbuff = new char[l + alen + 1];
+	strcpy(tbuff, answercmd);
+	if (*params == 'S')
+		lParam = (long)(tbuff + alen);
+
+	if (l > 0)
+		rep = SendEditor(message, wParam, lParam);
+	if (*params == 'I')
+		itoa(rep, tbuff + alen, 10);
+	extender->OnMacro("macro", tbuff);
+	delete []tbuff;
 }
 
 /**
