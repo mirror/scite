@@ -180,6 +180,14 @@ enum {
     warnExecuteKO
 };
 
+/// Codes representing the effect a line has on indentation.
+enum IndentationStatus {
+	isNone,		// no effect on indentation
+	isBlockStart,	// indentation block begin such as "{" or VB "function"
+	isBlockEnd,	// indentation end indicator such as "}" or VB "end"
+	isKeyWordStart	// Keywords that cause indentation
+};
+
 class StyleDefinition {
 public:
 	SString font;
@@ -482,7 +490,7 @@ protected:
 	int GetLineIndentation(int line);
 	int GetLineIndentPosition(int line);
 	bool RangeIsAllWhitespace(int start, int end);
-	int GetIndentState(int line);
+	IndentationStatus GetIndentState(int line);
 	void AutomaticIndentation(char ch);
 	void CharAdded(char ch);
 	void SetTextProperties(PropSet &ps);

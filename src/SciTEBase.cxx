@@ -2101,23 +2101,23 @@ static bool includes(const StyleAndWords &symbols, const SString value) {
 
 #define ELEMENTS(a)	(sizeof(a) / sizeof(a[0]))
 
-int SciTEBase::GetIndentState(int line) {
+IndentationStatus SciTEBase::GetIndentState(int line) {
 	// C like language indentation defined by braces and keywords
-	int indentState = 0;
-	SString controlWords[10];
+	IndentationStatus indentState = isNone;
+	SString controlWords[20];
 	GetLinePartsInStyle(line, SCE_C_WORD, -1, controlWords, ELEMENTS(controlWords));
 	for (unsigned int i = 0; i < ELEMENTS(controlWords); i++) {
 		if (includes(statementIndent, controlWords[i]))
-			indentState = 2;
+			indentState = isKeyWordStart;
 	}
 	// Braces override keywords
-	SString controlStrings[10];
+	SString controlStrings[20];
 	GetLinePartsInStyle(line, SCE_C_OPERATOR, -1, controlStrings, ELEMENTS(controlStrings));
 	for (unsigned int j = 0; j < ELEMENTS(controlStrings); j++) {
 		if (includes(blockEnd, controlStrings[j]))
-			indentState = -1;
+			indentState = isBlockEnd;
 		if (includes(blockStart, controlStrings[j]))
-			indentState = 1;
+			indentState = isBlockStart;
 	}
 	return indentState;
 }
@@ -2130,9 +2130,9 @@ void SciTEBase::AutomaticIndentation(char ch) {
 	int indent = GetLineIndentation(curLine - 1);
 	int indentBlock = indent;
 	int backLine = curLine - 1;
-	int indentState = 0;
+	IndentationStatus indentState = isNone;
 	if (statementIndent.IsEmpty() && blockStart.IsEmpty() && blockEnd.IsEmpty())
-		indentState = 1;	// Don't bother searching backwards
+		indentState = isBlockStart;	// Don't bother searching backwards
 
 	int lineLimit = curLine - statementLookback;
 	if (lineLimit < 0)
@@ -2141,17 +2141,17 @@ void SciTEBase::AutomaticIndentation(char ch) {
 		indentState = GetIndentState(backLine);
 		if (indentState != 0) {
 			indentBlock = GetLineIndentation(backLine);
-			if (indentState == 1) {
+			if (indentState == isBlockStart) {
 				if (!indentOpening)
 					indentBlock += indentSize;
 			}
-			if (indentState == -1) {
+			if (indentState == isBlockEnd) {
 				if (indentClosing)
 					indentBlock -= indentSize;
 				if (indentBlock < 0)
 					indentBlock = 0;
 			}
-			if ((indentState == 2) && (backLine == (curLine - 1)))
+			if ((indentState == isKeyWordStart) && (backLine == (curLine - 1)))
 				indentBlock += indentSize;
 		}
 		backLine--;
@@ -2164,8 +2164,8 @@ void SciTEBase::AutomaticIndentation(char ch) {
 				SetSelection(pos + 1, pos + 1);
 			}
 		}
-	} else if (ch == blockStart.words[0]) {	// Dedent maybe if first on line
-		if (!indentOpening) {
+	} else if (ch == blockStart.words[0]) {	// Dedent maybe if first on line and previous line was starting keyword
+		if (!indentOpening && (GetIndentState(curLine - 1) == isKeyWordStart)) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
 				int pos = SetLineIndentation(curLine, indentBlock - indentSize);
 				// Move caret after '{'
