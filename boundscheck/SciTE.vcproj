@@ -26,7 +26,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="TRUE"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\src,..\..\scintilla\include,..\..\scintilla\src"
+				AdditionalIncludeDirectories="..\src;..\lua\include;..\..\scintilla\include;..\..\scintilla\src"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;STATIC_BUILD;SCI_LEXER;LINK_LEXERS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="FALSE"
@@ -37,7 +37,8 @@
 				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+				DisableSpecificWarnings="4702"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -90,7 +91,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\src,..\..\scintilla\include,..\..\scintilla\src"
+				AdditionalIncludeDirectories="..\src;..\lua\include;..\..\scintilla\include;..\..\scintilla\src"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;STATIC_BUILD;SCI_LEXER;LINK_LEXERS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -103,7 +104,8 @@
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="4"
-				CompileAs="0"/>
+				CompileAs="0"
+				DisableSpecificWarnings="4702"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -182,6 +184,9 @@
 				RelativePath="..\..\scintilla\src\ExternalLexer.cxx">
 			</File>
 			<File
+				RelativePath="..\src\IFaceTable.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\Indicator.cxx">
 			</File>
 			<File
@@ -189,6 +194,30 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\KeyWords.cxx">
+			</File>
+			<File
+				RelativePath="..\lua\src\lapi.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\lauxlib.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\lbaselib.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lcode.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\ldblib.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\ldebug.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\ldo.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\ldump.c">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexAda.cxx">
@@ -327,7 +356,70 @@
 			</File>
 
 			<File
+				RelativePath="..\lua\src\lfunc.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lgc.c">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LineMarker.cxx">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\liolib.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\llex.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\lmathlib.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lmem.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\loadlib.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lobject.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lopcodes.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lparser.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lstate.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lstring.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\lstrlib.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\ltable.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\ltablib.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\ltests.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\ltm.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lundump.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lvm.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lzio.c">
+			</File>
+			<File
+				RelativePath="..\src\MultiplexExtension.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Win32\PlatWin.cxx">
@@ -337,6 +429,12 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\RESearch.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\ScintillaBase.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\win32\ScintillaWin.cxx">
 			</File>
 			<File
 				RelativePath="..\Src\SciTEBase.cxx">
@@ -375,16 +473,7 @@
 				RelativePath="..\win32\SciTEWinDlg.cxx">
 			</File>
 			<File
-				RelativePath="..\src\MultiplexExtension.cxx">
-			</File>
-			<File
-				RelativePath="..\win32\UniqueInstance.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\src\ScintillaBase.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\win32\ScintillaWin.cxx">
+				RelativePath="..\win32\SingleThreadExtension.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\Style.cxx">
@@ -394,6 +483,9 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Src\UniConversion.cxx">
+			</File>
+			<File
+				RelativePath="..\win32\UniqueInstance.cxx">
 			</File>
 			<File
 				RelativePath="..\src\Utf8_16.cxx">
@@ -418,6 +510,9 @@
 				RelativePath="..\..\scintilla\Include\KeyWords.h">
 			</File>
 			<File
+				RelativePath="..\src\LuaExtension.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\Include\Platform.h">
 			</File>
 			<File
@@ -430,13 +525,13 @@
 				RelativePath="..\..\scintilla\Include\SciLexer.h">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\Include\Scintilla.h">
+			</File>
+			<File
 				RelativePath="..\Src\SciTE.h">
 			</File>
 			<File
 				RelativePath="..\Src\SciTEBase.h">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\Include\Scintilla.h">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Include\WinDefs.h">
