@@ -288,10 +288,10 @@ void SciTEBase::SendChildren(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 }
 
 sptr_t SciTEBase::SendFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
-	if (wEditor.HasFocus())
-		return SendEditor(msg, wParam, lParam);
-	else
+	if (wOutput.HasFocus())
 		return SendOutput(msg, wParam, lParam);
+	else
+		return SendEditor(msg, wParam, lParam);
 }
 
 sptr_t SciTEBase::SendOutputEx(unsigned int msg, uptr_t wParam/*= 0*/, sptr_t lParam /*= 0*/, bool direct /*= true*/) {
@@ -787,7 +787,7 @@ void SciTEBase::ReplaceAll() {
 			SendEditor(SCI_SETTARGETEND, ft.chrgText.cpMax);
 			int lenReplace = SendEditorString(SCI_REPLACETARGET, regExp, replaceTarget);
 			endPosition = posFind + lenReplace;
-			ft.chrg.cpMin = posFind + strlen(replaceTarget);
+			ft.chrg.cpMin = endPosition;
 			ft.chrg.cpMax = LengthDocument();
 			posFind = SendEditor(SCI_FINDTEXT, flags,
 			                     reinterpret_cast<long>(&ft));
@@ -2228,11 +2228,11 @@ void SciTEBase::Notify(SCNotification *notification) {
 				handled = extender->OnSavePointReached();
 			if (!handled) {
 				isDirty = false;
-				CheckMenus();
-				SetWindowName();
-				BuffersMenu();
 			}
 		}
+		CheckMenus();
+		SetWindowName();
+		BuffersMenu();
 		break;
 
 	case SCN_SAVEPOINTLEFT:
@@ -2242,11 +2242,11 @@ void SciTEBase::Notify(SCNotification *notification) {
 			if (!handled) {
 				isDirty = true;
 				isBuilt = false;
-				CheckMenus();
-				SetWindowName();
-				BuffersMenu();
 			}
 		}
+		CheckMenus();
+		SetWindowName();
+		BuffersMenu();
 		break;
 
 	case SCN_DOUBLECLICK:
