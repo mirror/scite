@@ -441,10 +441,12 @@ eolfilled(false), underlined(false), caseForce(SC_CASE_MIXED), visible(true) {
 		if (0 == strcmp(opt, "case")) {
 			specified = static_cast<flags>(specified | sdCaseForce);
 			caseForce = SC_CASE_MIXED;
-			if (*colon == 'u')
-				caseForce = SC_CASE_UPPER;
-			else if (*colon == 'l')
-				caseForce = SC_CASE_LOWER;
+			if (colon) {
+				if (*colon == 'u')
+					caseForce = SC_CASE_UPPER;
+				else if (*colon == 'l')
+					caseForce = SC_CASE_LOWER;
+			}
 		}
 		if (0 == strcmp(opt, "visible")) {
 			specified = static_cast<flags>(specified | sdVisible);
