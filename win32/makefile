@@ -41,6 +41,10 @@ PROPS=..\bin\SciTEGlobal.properties ..\bin\cpp.properties ..\bin\html.properties
 ..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
 ..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties
 
+LEXPROPS=..\bin\cpp.properties ..\bin\html.properties \
+..\bin\latex.properties ..\bin\lua.properties ..\bin\others.properties \
+..\bin\perl.properties ..\bin\python.properties ..\bin\sql.properties ..\bin\vb.properties
+
 ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 
 clean:
@@ -73,6 +77,11 @@ clean:
 ..\bin\vb.properties:	..\src\vb.properties
 	copy $^ $@
 
+# Normally distributed rather than built as may not have grep on all machines
+# Copy all non-comment lines from all the properties files into one combined file
+..\src\Embedded.properties: $(LEXPROPS)
+	fgrep -G -v -h "^#" $(LEXPROPS) >..\src\Embedded.properties
+
 $(PROG): $(OBJS)
 	$(CC) "-Wl,-s" -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
 
@@ -97,5 +106,8 @@ Sc1.o: SciTEWin.cxx SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h Sci
 SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h
 	windres $(RCINCLUDEDIRS) SciTERes.rc $@
 
+# Also depends on ../src/Embedded.properties but may not want to build everywhere
+# so must explicitly ask to build it.
 Sc1Res.o:	SciTERes.rc SciTE.h PlatformRes.h
 	windres $(RCINCLUDEDIRS) SciTERes.rc --define STATIC_BUILD $@
+	
