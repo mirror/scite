@@ -44,11 +44,6 @@
 
 #define SciTE_MARKER_BOOKMARK 1
 
-#ifdef WIN32
-# define strcasecmp  stricmp
-# define strncasecmp strnicmp
-#endif /* WIN32 */
-
 const char propFileName[] = "SciTE.properties";
 
 const char *contributors[] = {
@@ -2847,10 +2842,6 @@ void SciTEBase::GoMessage(int dir) {
 	}
 }
 
-inline bool nonFuncChar(char ch) {
-	return strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch) != NULL;
-}
-
 bool SciTEBase::StartCallTip() {
 	//Platform::DebugPrintf("StartCallTip\n");
 	char linebuf[1000];
@@ -2888,44 +2879,11 @@ bool SciTEBase::StartCallTip() {
 	functionDefinition = "";
 	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", linebuf + startword, rootlen, pos, pos - rootlen);
 	if (apis) {
-		int start = 0;	// variables for binary searching
-		int end = apis.len - 1;
-		int pivot;
-		int cond;
-		const char *word;	// variables for browsing api entries
-		const char *needle = linebuf + startword;
-		if (callTipIgnoreCase) {
-			while (start <= end) {	// binary searching loop
-				pivot = (start + end) >> 1;
-				word = apis[pivot];
-				cond = strncasecmp(needle, word, rootlen);
-				if (!cond && nonFuncChar(word[rootlen])) {
-					functionDefinition = word;
-					SendEditorString(SCI_CALLTIPSHOW, pos - rootlen + 1, word);
-					ContinueCallTip();
-					break;
-				}
-				if (cond < 0)
-					end = pivot - 1;
-				else if (cond > 0)
-					start = pivot + 1;
-			}
-		} else {
-			while (start <= end) {	// binary searching loop
-				pivot = (start + end) >> 1;
-				word = apis[pivot];
-				cond = strncmp(needle, word, rootlen);
-				if (!cond && nonFuncChar(word[rootlen])) {
-					functionDefinition = word;
-					SendEditorString(SCI_CALLTIPSHOW, pos - rootlen + 1, word);
-					ContinueCallTip();
-					break;
-				}
-				if (cond >= 0)
-					start = pivot + 1;
-				else if (cond < 0)
-					end = pivot - 1;
-			}
+		const char *word = apis.GetNearestWord (linebuf + startword, rootlen, callTipIgnoreCase);
+		if (word) {
+			functionDefinition = word;
+			SendEditorString(SCI_CALLTIPSHOW, pos - rootlen + 1, word);
+			ContinueCallTip();
 		}
 	}
 	return true;
@@ -2975,159 +2933,11 @@ bool SciTEBase::StartAutoComplete() {
 	const char *root = linebuf + startword;
 	int rootlen = current - startword;
 	if (apis) {
-		int wordlen;	// variables for reallocatable array creation
-		int length = 0;
-		int newlength;
-		#undef WORDCHUNK
-		#define WORDCHUNK 100
-		int size = WORDCHUNK;
-		char *words = (char*) malloc(size);
-		int start = 0;	// variables for binary searching
-		int end = apis.len - 1;
-		int pivot;
-		int oldpivot;
-		int cond;
-		const char *word;	// variables for browsing api entries
-		const char *brace;
-		*words = '\0';
-		if (callTipIgnoreCase) {
-			while (start <= end) {	// binary searching loop
-				pivot = (start + end) >> 1;
-				word = apis[pivot];
-				cond = strncasecmp(root, word, rootlen);
-				if (!cond) {
-					oldpivot = pivot;
-					do {	// browse sequentially the rest after the hit
-						brace = strchr(word, '(');
-						if (brace)
-							wordlen = brace - word;
-						else
-							wordlen = strlen(word);
-						newlength = length + wordlen; // stretch the buffer
-						if (length)
-							newlength++;
-						if (newlength >= size)
-						{
-							do
-								size += WORDCHUNK;
-							while (size <= newlength);
-							words = (char*) realloc (words, size);
-						}
-						if (length)	// append a new entry
-							words[length++] = ' ';
-						memcpy (words + length, word, wordlen);
-						length = newlength;
-						words[length] = '\0';
-						if (++pivot >= end)
-							break;
-						word = apis[pivot];
-					} while (!strncasecmp(root, word, rootlen));
-					pivot = oldpivot;
-					for (;;) {	// browse sequentially the rest before the hit
-						if (--pivot < start)
-							break;
-						word = apis[pivot];
-						if (strncasecmp(root, word, rootlen))
-							break;                 
-						brace = strchr(word, '(');
-						if (brace)
-							wordlen = brace - word;
-						else
-							wordlen = strlen(word);
-						newlength = length + wordlen; // stretch the buffer
-						if (length)
-							newlength++;
-						if (newlength >= size)
-						{
-							do
-								size += WORDCHUNK;
-							while (size <= newlength);
-							words = (char*) realloc (words, size);
-						}
-						if (length)	// append a new entry
-							words[length++] = ' ';
-						memcpy (words + length, word, wordlen);
-						length = newlength;
-						words[length] = '\0';
-					}
-					SendEditorString(SCI_AUTOCSHOW, rootlen, words);
-					break;
-				}
-				if (cond < 0)
-					end = pivot - 1;
-				else if (cond > 0)
-					start = pivot + 1;
-			}
-		} else {
-			while (start <= end) {	// binary searching loop
-				pivot = (start + end) >> 1;
-				word = apis[pivot];
-				cond = strncmp(root, word, rootlen);
-				if (!cond) {
-					oldpivot = pivot;
-					do {	// browse sequentially the rest after the hit
-						brace = strchr(word, '(');
-						if (brace)
-							wordlen = brace - word;
-						else
-							wordlen = strlen(word);
-						newlength = length + wordlen; // stretch the buffer
-						if (length)
-							newlength++;
-						if (newlength >= size)
-						{
-							do
-								size += WORDCHUNK;
-							while (size <= newlength);
-							words = (char*) realloc (words, size);
-						}
-						if (length)	// append a new entry
-							words[length++] = ' ';
-						memcpy (words + length, word, wordlen);
-						length = newlength;
-						words[length] = '\0';
-						if (++pivot >= end)
-							break;
-						word = apis[pivot];
-					} while (!strncmp(root, word, rootlen));
-					pivot = oldpivot;
-					for (;;) {	// browse sequentially the rest before the hit
-						if (--pivot < start)
-							break;
-						word = apis[pivot];
-						if (strncmp(root, word, rootlen))
-							break;
-						brace = strchr(word, '(');
-						if (brace)
-							wordlen = brace - word;
-						else
-							wordlen = strlen(word);
-						newlength = length + wordlen; // stretch the buffer
-						if (length)
-							newlength++;
-						if (newlength >= size)
-						{
-							do
-								size += WORDCHUNK;
-							while (size <= newlength);
-							words = (char*) realloc (words, size);
-						}
-						if (length)	// append a new entry
-							words[length++] = ' ';
-						memcpy (words + length, word, wordlen);
-						length = newlength;
-						words[length] = '\0';
-					}
-					SendEditorString(SCI_AUTOCSHOW, rootlen, words);
-					break;
-				}
-				if (cond < 0)
-					end = pivot - 1;
-				else if (cond > 0)
-					start = pivot + 1;
-			}
+		char *words = apis.GetNearestWords(root, rootlen, autoCompleteIgnoreCase);
+		if (words) {
+			SendEditorString(SCI_AUTOCSHOW, rootlen, words);
+			free(words);
 		}
-		free(words);
 	}
 	return true;
 }
