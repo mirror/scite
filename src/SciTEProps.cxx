@@ -211,7 +211,13 @@ void SciTEBase::SetLanguageMenu() {
 const char propFileName[] = "SciTE.properties";
 
 void SciTEBase::ReadGlobalPropFile() {
-	for (char **e=_environ; *e; e++) {
+#ifdef unix
+	extern char **environ;
+	char **e=environ;
+#else
+	char **e=_environ;
+#endif
+	for (; *e; e++) {
 		char key[1024];
 		char *k=*e;
 		char *v=strchr(k,'=');
