@@ -94,6 +94,7 @@ protected:
 	int indentSize;
 	bool indentOpening;
 	bool indentClosing;
+	int statementLookback;
 	StyleAndWords statementIndent;
 	StyleAndWords statementEnd;
 	StyleAndWords blockStart;

@@ -158,7 +158,8 @@ SciTEBase::SciTEBase() : apis(true) {
 	indentSize = 8;
 	indentOpening = true;
 	indentClosing = true;
-
+	statementLookback = 10;
+	
 	tbVisible = false;
 	sbVisible = false;
 	visHeightTools = 0;
@@ -796,6 +797,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETINDENT, indentSize);
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
+	SString lookback = props.GetNewExpand("statement.lookback.", fileNameForExtension.c_str());
+	statementLookback = lookback.value();
 	statementIndent = GetStyleAndWords("statement.indent.");
 	statementEnd = GetStyleAndWords("statement.end.");
 	blockStart = GetStyleAndWords("block.start.");
@@ -2048,7 +2051,11 @@ void SciTEBase::AutomaticIndentation(char ch) {
 	int indentState = 0;
 	if (statementIndent.IsEmpty() && blockStart.IsEmpty() && blockEnd.IsEmpty())
 		indentState = 1;	// Don't bother searching backwards
-	while ((backLine >= 0) && (indentState == 0)) {
+	
+	int lineLimit = curLine - statementLookback;
+	if (lineLimit < 0)
+		lineLimit = 0;
+	while ((backLine >= lineLimit) && (indentState == 0)) {
 		indentState = GetIndentState(backLine);
 		if (indentState != 0) {
 			indentBlock = GetLineIndentation(backLine);
