@@ -627,7 +627,7 @@ NameError: mistake
     <p>
        The 'import' statement includes a properties file as if the text were
        inline at that point. The imported properties file
-       must be in the same directory as the current file and a .properties
+       must be in the same directory as the current file and a properties
        extension is assumed. Therefore a "import Lua" statement in
        c:\os\scite\bin\SciTEGlobal.properties will import
        c:\os\scite\bin\Lua.properties.
@@ -918,7 +918,7 @@ NameError: mistake
           You can also use file properties, which, unlike those above, are not updated
           on each keystroke: FileName or FileNameExt, FileDate and FileTime and
           FileAttr. Plus CurrentDate and CurrentTime.<br />
-        On Windows only, further texts may be set as statusbar.text.2 ... and these may be
+        On Windows only, further texts may be set as statusbar.text.2 .. and these may be
           cycled between by clicking the status bar.<br />
         The statusbar.number option defines how many texts are to be cycled through.
         </td>
@@ -2471,6 +2471,47 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           <br />
           If the property contains an entry such as Bar.cxx|.cxx and you attempt to open win32\SciTEWin, it will open
           ScTEWinBar.cxx since that is the first match.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          ext.lua.startup.script<br>
+          ext.lua.reset<br>
+          extension.<i>filepattern</i>
+        </td>
+        <td>
+          The ext.lua properties are specific to the <a href="SciTELua.html">
+          SciTE Lua Scripting Extension</a>.  The extension.<i>filepatten</i> property
+          is part of the generic <a href="SciTEExtension.html">SciTE Extension 
+          Interface</a> but is currently only used by the Lua Scripting Extension.
+          <br />
+          The ext.lua.startup.script property defines the filename of a Lua script that 
+          will be loaded when SciTE starts to set up the global state for Lua.  You
+          should use an absolute path for this property, but can reference the 
+          $(SciteDefaultHome) or $(SciteUserHome) properties.  Global event handlers,
+          command functions, as well as other functions and objects can be defined here.
+          <br />
+          The ext.lua.reset property is primarily for debugging and modifying the startup 
+          script.  If ext.lua.reset is 0 (the default), the startup script property is 
+          checked only once - when SciTE starts.  If ext.lua.reset is changed to 1, the
+          startup script property will be re-evaluated each time you switch buffers, so
+          that you can see the results of your changes without having to exit and restart
+          SciTE.  When you are not modifying the startup script, you should leave the 
+          ext.lua.reset property as 0 or comment out the property.
+          <br />
+          Aside from ext.lua.startup.script, the extension.<i>filepattern</i> property
+          provides a way to load additional functions and event handlers that may be 
+          specific to a given file type.  If the extension property value ends in .lua
+          and names a file that exists, the Lua extension evaluates the script so that event
+          handlers and commands defined in the script are available while that buffer
+          is active.  Functions and objects defined through ext.lua.startup.script are
+          still accessible, unless they are overridden.
+          <br />
+          The extension property can also define behavior that is specific to a given
+          directory.  If a bare filename (no path) is specified in the extension 
+          property, SciTE looks for the file in the standard property file locations,
+          starting with the local directory.  This can be very useful in combination
+          with a local SciTE.properties file.
         </td>
       </tr>
     </table>
