@@ -154,7 +154,7 @@ NameError: mistake
       similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an
       internal extension or director extension, 4 is for calling the Windows specific HtmlHelp program
       and 5 is for calling the Windows specific WinHelp function. On GTK+, the default subsystem 0
-      executes the tool and waits for it to finish, redirecting output to the output pane and 
+      executes the tool and waits for it to finish, redirecting output to the output pane and
       subsystem 2 executes the tool in the background.
     </p>
     <h3>
@@ -1383,7 +1383,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  </code>
 	  <br />
 	  On Windows, the find string can be given to the find command through
-	  its standard input stream to avoid problems with quote interpretation. 
+	  its standard input stream to avoid problems with quote interpretation.
 	  To do this, specify find.input to be the search string, $(find.what).
         </td>
       </tr>
@@ -1714,6 +1714,15 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	means displaying this file in a browser.
         </td>
       </tr>
+      <tr class="gtkonly">
+        <td>
+          command.print.<i>filepattern</i><br />
+          command.print.subsystem.<i>filepattern</i>
+        </td>
+        <td>
+	Defines a command to be executed when print is invoked on GTK+.
+        </td>
+      </tr>
       <tr class="windowsonly">
         <td>
           win95.death.delay
@@ -1929,7 +1938,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  title.full.path
         </td>
         <td>
-        	Chooses how the file name is displayed in the title bar. 
+        	Chooses how the file name is displayed in the title bar.
 	When 0 (default) the file name is displayed. When 1 the full path is displayed.
        	When 2 the window title displays "filename in directory".
         </td>
@@ -1937,7 +1946,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       <tr>
         <td>
           tabsize<br />
-          tabsize.<i>filepattern</i><br />
+          tab.size.<i>filepattern</i><br />
 	indent.size<br />
 	indent.size.<i>filepattern</i><br />
           use.tabs<br />
