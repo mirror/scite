@@ -73,7 +73,12 @@ BEGIN
 	MENUITEM "Stream Comme&nt\tCtrl+Shift+Q",	IDM_STREAM_COMMENT
 	MENUITEM "Make &Selection Uppercase\tCtrl+Shift+U",	IDM_UPRCASE
 	MENUITEM "Make Selection &Lowercase\tCtrl+U",	IDM_LWRCASE
-END // used: abcdefhlmnoprstuwxy
+	POPUP "Para&graph"
+	BEGIN
+		MENUITEM "&Join",						IDM_JOIN
+		MENUITEM "&Split",						IDM_SPLIT
+	END
+END // used: abcdefghlmnoprstuwxy
 
 POPUP "&Search"
 BEGIN

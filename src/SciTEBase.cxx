@@ -3014,6 +3014,16 @@ void SciTEBase::MenuCommand(int cmdID) {
 		SendFocused(SCI_LOWERCASE);
 		break;
 
+	case IDM_JOIN:
+		SendFocused(SCI_TARGETFROMSELECTION);
+		SendFocused(SCI_LINESJOIN);
+		break;
+
+	case IDM_SPLIT:
+		SendFocused(SCI_TARGETFROMSELECTION);
+		SendFocused(SCI_LINESSPLIT);
+		break;
+
 	case IDM_EXPAND:
 		SendEditor(SCI_TOGGLEFOLD, GetCurrentLineNumber());
 		break;
