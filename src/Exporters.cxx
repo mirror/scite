@@ -490,6 +490,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 
 		fputs("<style type=\"text/css\">\n", fp);
 		SString colour;
+		SString bgColour;
 		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 			if ((istyle > STYLE_DEFAULT) && (istyle <= STYLE_LASTPREDEFINED))
 				continue;
@@ -580,8 +581,11 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 						fprintf(fp, "\tfont-family: %s;\n", useMonoFont ? "monospace" : family.c_str());
 					if (fore.length())
 						fprintf(fp, "\tcolor: %s;\n", fore.c_str());
-					if (back.length())
+					if (back.length()) {
 						fprintf(fp, "\tbackground: %s;\n", back.c_str());
+						if (istyle == STYLE_DEFAULT)
+							bgColour = back;
+					}
 					if (wysiwyg && size)
 						fprintf(fp, "\tfont-size: %0dpt;\n", size);
 					fprintf(fp, "}\n");
@@ -594,7 +598,10 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		}
 		fputs("</style>\n", fp);
 		fputs("</head>\n", fp);
-		fputs("<body>\n", fp);
+		if (bgColour.length() > 0)
+			fprintf(fp, "<body bgcolor=\"%s\">\n", bgColour.c_str());
+		else
+			fputs("<body>\n", fp);
 
 		int line = acc.GetLine(0);
 		int level = (acc.LevelAt(line) & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
@@ -640,8 +647,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 						}
 						i--; // the last one will be done by the loop
 					}
-				}
-				else {
+				} else {
 					fputc(' ', fp);
 				}
 			} else if (ch == '\t') {
@@ -688,8 +694,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 				}
 
 				fprintf(fp, "<span class=\"S%0d\">", styleCurrent); // we know it's the correct next style
-			}
-			else if (ch == '<') {
+			} else if (ch == '<') {
 				fputs("&lt;", fp);
 			} else if (ch == '>') {
 				fputs("&gt;", fp);
