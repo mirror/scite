@@ -11,7 +11,7 @@
  * Update the status bar text.
  */
 void SciTEWin::SetStatusBarText(const char *s) {
-	::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 1, reinterpret_cast<LPARAM>(s));
+	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), SB_SETTEXT, 1, reinterpret_cast<LPARAM>(s));
 }
 
 #ifdef __MINGW_H	
@@ -126,7 +126,8 @@ void SciTEWin::Notify(SCNotification *notification) {
 					Point ptCursor;
 					::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
 					Point ptClient = ptCursor;
-					::ScreenToClient(wTabBar.GetID(), reinterpret_cast<POINT *>(&ptClient));
+					::ScreenToClient(reinterpret_cast<HWND>(wTabBar.GetID()), 
+						reinterpret_cast<POINT *>(&ptClient));
 					TCHITTESTINFO info;
 					info.pt.x = ptClient.x; info.pt.y = ptClient.y;
 					int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
@@ -183,17 +184,17 @@ void SciTEWin::SizeSubWindows() {
 	PRectangle rcClient = wSciTE.GetClientPosition();
 	bool showTab = false;
 
-	//::SendMessage(wSciTE.GetID(), WM_SETREDRAW, false, 0); // suppress flashing
+	//::SendMessage(MainHWND(), WM_SETREDRAW, false, 0); // suppress flashing
 	visHeightTools = tbVisible ? heightTools : 0;
 
 	if (tabVisible) {	// ? hide one tab only
 		showTab = tabHideOne ?
-		          ::SendMessage(wTabBar.GetID(), TCM_GETITEMCOUNT, 0, 0) > 1 :
+		          ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_GETITEMCOUNT, 0, 0) > 1 :
 		          true;
 	}
 
 	if (showTab) {
-		int tabNb = ::SendMessage(wTabBar.GetID(), TCM_GETROWCOUNT, 0, 0);
+		int tabNb = ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_GETROWCOUNT, 0, 0);
 		visHeightTab = tabNb * heightTab;
 	} else {
 		visHeightTab = 0;
@@ -238,11 +239,14 @@ void SciTEWin::SizeSubWindows() {
 		int widths[] = { startLineNum, rcClient.Width() - refreshWidth, rcClient.Width() };
 		// Perhaps we can define a syntax to create more parts,
 		// but it is probably an overkill for a marginal feature
-		::SendMessage(wStatusBar.GetID(), SB_SETPARTS, 3,
+		::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
+		              SB_SETPARTS, 3,
 		              reinterpret_cast<LPARAM>(widths));
-		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 0 | SBT_NOBORDERS,
+		::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
+		              SB_SETTEXT, 0 | SBT_NOBORDERS,
 		              reinterpret_cast<LPARAM>(""));
-		::SendMessage(wStatusBar.GetID(), SB_SETTEXT, 2 | SBT_POPOUT,
+		::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()), 
+		              SB_SETTEXT, 2 | SBT_POPOUT,
 		              reinterpret_cast<LPARAM>("Refresh"));
 		wStatusBar.SetPosition(PRectangle(rcClient.left,
 		                                  rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
@@ -257,14 +261,14 @@ void SciTEWin::SizeSubWindows() {
 	wContent.SetPosition(PRectangle(rcClient.left, visHeightTools + visHeightTab, rcClient.Width(),
 	                                visHeightTools + visHeightTab + visHeightEditor));
 	SizeContentWindows();
-	//::SendMessage(wSciTE.GetID(), WM_SETREDRAW, true, 0);
-	//::RedrawWindow(wSciTE.GetID(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
+	//::SendMessage(MainHWND(), WM_SETREDRAW, true, 0);
+	//::RedrawWindow(MainHWND(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
                            const char *text, const char *mnemonic) {
 	// On Windows the menu items are modified if they already exist or are created
-	HMENU hmenuBar = ::GetMenu(wSciTE.GetID());
+	HMENU hmenuBar = ::GetMenu(MainHWND());
 	HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
 	SString sTextMnemonic = text;
 	if (mnemonic) {
@@ -283,7 +287,7 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 
 void SciTEWin::DestroyMenuItem(int menuNumber, int itemID) {
 	// On Windows menu items are destroyed as they can not be hidden and they can be recreated in any position
-	HMENU hmenuBar = ::GetMenu(wSciTE.GetID());
+	HMENU hmenuBar = ::GetMenu(MainHWND());
 	if (itemID) {
 		HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
 		::DeleteMenu(hmenu, itemID, MF_BYCOMMAND);
@@ -294,9 +298,9 @@ void SciTEWin::DestroyMenuItem(int menuNumber, int itemID) {
 
 void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 	if (val)
-		CheckMenuItem(GetMenu(wSciTE.GetID()), wIDCheckItem, MF_CHECKED | MF_BYCOMMAND);
+		CheckMenuItem(GetMenu(MainHWND()), wIDCheckItem, MF_CHECKED | MF_BYCOMMAND);
 	else
-		CheckMenuItem(GetMenu(wSciTE.GetID()), wIDCheckItem, MF_UNCHECKED | MF_BYCOMMAND);
+		CheckMenuItem(GetMenu(MainHWND()), wIDCheckItem, MF_UNCHECKED | MF_BYCOMMAND);
 }
 
 void EnableButton(HWND wTools, int id, bool enable) {
@@ -306,15 +310,15 @@ void EnableButton(HWND wTools, int id, bool enable) {
 
 void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 	if (val)
-		EnableMenuItem(::GetMenu(wSciTE.GetID()), wIDCheckItem, MF_ENABLED | MF_BYCOMMAND);
+		EnableMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_ENABLED | MF_BYCOMMAND);
 	else
-		EnableMenuItem(::GetMenu(wSciTE.GetID()), wIDCheckItem, MF_DISABLED | MF_GRAYED | MF_BYCOMMAND);
-	::EnableButton(wToolBar.GetID(), wIDCheckItem, val);
+		EnableMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_DISABLED | MF_GRAYED | MF_BYCOMMAND);
+	::EnableButton(reinterpret_cast<HWND>(wToolBar.GetID()), wIDCheckItem, val);
 }
 
 void SciTEWin::CheckMenus() {
 	SciTEBase::CheckMenus();
-	CheckMenuRadioItem(GetMenu(wSciTE.GetID()), IDM_EOL_CRLF, IDM_EOL_LF,
+	CheckMenuRadioItem(GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
 	                   SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
 }
 
@@ -358,8 +362,8 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 }
 
 void SciTEWin::LocaliseMenus() {
-	LocaliseMenu(::GetMenu(wSciTE.GetID()));
-	::DrawMenuBar(wSciTE.GetID());
+	LocaliseMenu(::GetMenu(MainHWND()));
+	::DrawMenuBar(MainHWND());
 }
 
 void SciTEWin::LocaliseControl(HWND w) {
@@ -429,7 +433,7 @@ void SciTEWin::Creation() {
 	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	               0, 0,
 	               100, 100,
-	               wSciTE.GetID(),
+	               MainHWND(),
 	               reinterpret_cast<HMENU>(2000),
 	               hInstance,
 	               reinterpret_cast<LPSTR>(this));
@@ -442,20 +446,21 @@ void SciTEWin::Creation() {
 	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	              0, 0,
 	              100, 100,
-	              wContent.GetID(),
+	              reinterpret_cast<HWND>(wContent.GetID()),
 	              reinterpret_cast<HMENU>(IDM_SRCWIN),
 	              hInstance,
 	              0);
 	if (!wEditor.Created())
 		exit(FALSE);
 	fnEditor = reinterpret_cast<SciFnDirect>(::SendMessage(
-	               wEditor.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
-	ptrEditor = ::SendMessage(wEditor.GetID(), SCI_GETDIRECTPOINTER, 0, 0);
+	               reinterpret_cast<HWND>(wEditor.GetID()), SCI_GETDIRECTFUNCTION, 0, 0));
+	ptrEditor = ::SendMessage(reinterpret_cast<HWND>(wEditor.GetID()), 
+		SCI_GETDIRECTPOINTER, 0, 0);
 	wEditor.Show();
 	//	SendEditor(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
 	//	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
 	//	SendEditor(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
-	::SetFocus(wEditor.GetID());
+	WindowSetFocus(wEditor);
 
 	wOutput = ::CreateWindowEx(
 	              0,
@@ -464,15 +469,16 @@ void SciTEWin::Creation() {
 	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	              0, 0,
 	              100, 100,
-	              wContent.GetID(),
+	              reinterpret_cast<HWND>(wContent.GetID()),
 	              reinterpret_cast<HMENU>(IDM_RUNWIN),
 	              hInstance,
 	              0);
 	if (!wOutput.Created())
 		exit(FALSE);
 	fnOutput = reinterpret_cast<SciFnDirect>(::SendMessage(
-	               wOutput.GetID(), SCI_GETDIRECTFUNCTION, 0, 0));
-	ptrOutput = ::SendMessage(wOutput.GetID(), SCI_GETDIRECTPOINTER, 0, 0);
+	               reinterpret_cast<HWND>(wOutput.GetID()), SCI_GETDIRECTFUNCTION, 0, 0));
+	ptrOutput = ::SendMessage(reinterpret_cast<HWND>(wOutput.GetID()), 
+		SCI_GETDIRECTPOINTER, 0, 0);
 	wOutput.Show();
 	// No selection margin on output window
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
@@ -480,9 +486,9 @@ void SciTEWin::Creation() {
 	//	SendOutput(SCI_ASSIGNCMDKEY, VK_RETURN, SCI_NEWLINE);
 	//	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB, SCI_TAB);
 	//	SendOutput(SCI_ASSIGNCMDKEY, VK_TAB | (SCMOD_SHIFT << 16), SCI_BACKTAB);
-	::DragAcceptFiles(wSciTE.GetID(), true);
+	::DragAcceptFiles(MainHWND(), true);
 
-	wToolBar = ::CreateWindowEx(
+	HWND hwndToolBar = ::CreateWindowEx(
 	               0,
 	               TOOLBARCLASSNAME,
 	               "",
@@ -491,16 +497,18 @@ void SciTEWin::Creation() {
 	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS,
 	               0, 0,
 	               100, heightTools,
-	               wSciTE.GetID(),
+	               MainHWND(),
 	               reinterpret_cast<HMENU>(IDM_TOOLWIN),
 	               hInstance,
 	               0);
-	::SendMessage(wToolBar.GetID(), TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
-	::SendMessage(wToolBar.GetID(), TB_LOADIMAGES, IDB_STD_SMALL_COLOR,
+	wToolBar = hwndToolBar;
+	
+	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
+	::SendMessage(hwndToolBar, TB_LOADIMAGES, IDB_STD_SMALL_COLOR,
 	              reinterpret_cast<LPARAM>(HINST_COMMCTRL));
 
 	TBADDBITMAP addbmp= { hInstance, IDR_CLOSEFILE };
-	::SendMessage(wToolBar.GetID(), TB_ADDBITMAP, 1, (LPARAM)&addbmp);
+	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, (LPARAM)&addbmp);
 
 	TBBUTTON tbb[ELEMENTS(bbs)];
 	for (unsigned int i = 0;i < ELEMENTS(bbs);i++) {
@@ -518,8 +526,8 @@ void SciTEWin::Creation() {
 		tbb[i].iString = 0;
 	}
 
-	::SendMessage(wToolBar.GetID(), TB_ADDBUTTONS, ELEMENTS(bbs), reinterpret_cast<LPARAM>(tbb));
-	::SendMessage(wToolBar.GetID(), TB_AUTOSIZE, 0, 0);
+	::SendMessage(hwndToolBar, TB_ADDBUTTONS, ELEMENTS(bbs), reinterpret_cast<LPARAM>(tbb));
+	::SendMessage(hwndToolBar, TB_AUTOSIZE, 0, 0);
 
 	wToolBar.Show();
 
@@ -535,7 +543,7 @@ void SciTEWin::Creation() {
 	              TCS_FOCUSNEVER | TCS_TOOLTIPS,
 	              0, 0,
 	              100, heightTab,
-	              wSciTE.GetID(),
+	              MainHWND(),
 	              reinterpret_cast<HMENU>(IDM_TABWIN),
 	              hInstance,
 	              0 );
@@ -548,10 +556,10 @@ void SciTEWin::Creation() {
 	                         0, 0, 0, 0,
 	                         0, 0, 0, 0,
 	                         "Ms Sans Serif");
-	::SendMessage(wTabBar.GetID(),
+	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()),
 	              WM_SETFONT,
-	              (WPARAM) fontTabs,     // handle to font
-	              (LPARAM) 0);    // redraw option
+	              reinterpret_cast<WPARAM>(fontTabs),     // handle to font
+	              0);    // redraw option
 
 	wTabBar.Show();
 
@@ -562,7 +570,7 @@ void SciTEWin::Creation() {
 	                 WS_CHILD | WS_CLIPSIBLINGS,
 	                 0, 0,
 	                 100, heightStatus,
-	                 wSciTE.GetID(),
+	                 MainHWND(),
 	                 reinterpret_cast<HMENU>(IDM_STATUSWIN),
 	                 hInstance,
 	                 0);

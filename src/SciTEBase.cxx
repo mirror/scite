@@ -24,6 +24,10 @@
 
 #if PLAT_WIN
 
+#define _WIN32_WINNT  0x0400
+#include <windows.h>
+#include <commctrl.h>
+
 #ifdef _MSC_VER
 #include <direct.h>
 #endif
@@ -122,7 +126,7 @@ void AddStyledText(WindowID hwnd, const char *s, int attr) {
 	                        reinterpret_cast<long>(static_cast < char * > (buf)));
 }
 
-void SetAboutStyle(WindowID wsci, int style, Colour fore) {
+void SetAboutStyle(WindowID wsci, int style, ColourDesired fore) {
 	Platform::SendScintilla(wsci, SCI_STYLESETFORE, style, fore.AsLong());
 }
 
@@ -146,22 +150,22 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 		fontSize = 14;
 #endif
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
-		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, Colour(0xff, 0xff, 0xff).AsLong());
+		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, ColourDesired(0xff, 0xff, 0xff).AsLong());
 		Platform::SendScintilla(wsci, SCI_STYLECLEARALL, 0, 0);
 
-		SetAboutStyle(wsci, 0, Colour(0xff, 0xff, 0xff));
+		SetAboutStyle(wsci, 0, ColourDesired(0xff, 0xff, 0xff));
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, 0, fontSize);
-		Platform::SendScintilla(wsci, SCI_STYLESETBACK, 0, Colour(0, 0, 0x80).AsLong());
+		Platform::SendScintilla(wsci, SCI_STYLESETBACK, 0, ColourDesired(0, 0, 0x80).AsLong());
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
-		SetAboutStyle(wsci, 1, Colour(0, 0, 0));
+		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
 		AddStyledText(wsci, "Version 1.40\n", 1);
-		SetAboutStyle(wsci, 2, Colour(0, 0, 0));
+		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, "by Neil Hodgson.\n", 2);
-		SetAboutStyle(wsci, 3, Colour(0, 0, 0));
+		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
 		AddStyledText(wsci, "December 1998-September 2001.\n", 3);
-		SetAboutStyle(wsci, 4, Colour(0, 0x7f, 0x7f));
+		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Contributors:\n", 1);
 		srand(static_cast<unsigned>(time(0)));
@@ -172,7 +176,7 @@ void SetAboutMessage(WindowID wsci, const char *appTitle) {
 			HackColour(r);
 			HackColour(g);
 			HackColour(b);
-			SetAboutStyle(wsci, 50 + co, Colour(r, g, b));
+			SetAboutStyle(wsci, 50 + co, ColourDesired(r, g, b));
 			AddStyledText(wsci, "    ", 50 + co);
 			AddStyledText(wsci, contributors[co], 50 + co);
 			AddStyledText(wsci, "\n", 50 + co);
@@ -878,13 +882,21 @@ void SciTEBase::SelectionIntoFind() {
 	}
 }
 
+int WindowMessageBox(Window &w, const char *m, const char *t, int style) {
+#if PLAT_GTK
+	return ::MessageBox(reinterpret_cast<GtkWidget *>(w.GetID()), msg, appName, MB_OK | MB_ICONWARNING);
+#else
+	return ::MessageBox(reinterpret_cast<HWND>(w.GetID()), m, t, style);
+#endif
+}
+
 void SciTEBase::FindMessageBox(const char *msg) {
 	dialogsOnScreen++;
 #if PLAT_GTK
 	MessageBox(wSciTE.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
 #endif
 #if PLAT_WIN
-	MessageBox(wFindReplace.GetID(), msg, appName, MB_OK | MB_ICONWARNING);
+	WindowMessageBox(wFindReplace, msg, appName, MB_OK | MB_ICONWARNING);
 #endif
 	dialogsOnScreen--;
 }
@@ -1126,7 +1138,7 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 				FindMessageBox(msg);
 			} else {
 				dialogsOnScreen++;
-				MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+				WindowMessageBox(wSciTE, msg, appName, MB_OK);
 				dialogsOnScreen--;
 			}
 		}
@@ -1612,7 +1624,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 				error += data.c_str();
 				error += "\".\n";
 				error += "Don't use tabs and spaces after \'\\n\' symbol!";
-				MessageBox(wSciTE.GetID(), error.c_str(),
+				WindowMessageBox(wSciTE, error.c_str(),
 					"Expand Abbreviation Error", MB_OK | MB_ICONWARNING);
 				return true;
 			}
@@ -1682,7 +1694,7 @@ bool SciTEBase::StartBlockComment() {
 		SString error("Block comment variable \"");
 		error += base.c_str();
 		error += "\" is not defined in SciTE *.properties!";
-		MessageBox(wSciTE.GetID(), error.c_str(), "Block Comment Error", MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error.c_str(), "Block Comment Error", MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	SString long_comment = comment.append(" ");
@@ -1779,7 +1791,7 @@ bool SciTEBase::StartBoxComment() {
 		error += end_base.c_str();
 		error += "\" are not ";
 		error += "defined in SciTE *.properties!";
-		MessageBox(wSciTE.GetID(), error.c_str(), "Box Comment Error", MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error.c_str(), "Box Comment Error", MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	start_comment += white_space;
@@ -1850,7 +1862,7 @@ bool SciTEBase::StartStreamComment() {
 		error += end_base.c_str();
 		error += "\" are not ";
 		error += "defined in SciTE *.properties!";
-		MessageBox(wSciTE.GetID(), error.c_str(), "Stream Comment Error", MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error.c_str(), "Stream Comment Error", MB_OK | MB_ICONWARNING);
 		return true;
 	}
 	start_comment += white_space;
@@ -2384,6 +2396,14 @@ int ControlIDOfCommand(unsigned long wParam) {
 	return wParam & 0xffff;
 }
 
+void WindowSetFocus(Window &w) {
+#if PLAT_GTK
+	::SetFocus(reinterpret_cast<GtkWidget *>(wEditor.GetID()));
+#else
+	::SetFocus(reinterpret_cast<HWND>(w.GetID()));
+#endif
+}
+
 void SciTEBase::MenuCommand(int cmdID) {
 	switch (cmdID) {
 	case IDM_NEW:
@@ -2402,16 +2422,16 @@ void SciTEBase::MenuCommand(int cmdID) {
 		// may decide to open multiple files so do not know yet
 		// how much room needed.
 		OpenDialog();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_OPENSELECTED:
 		OpenSelected();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_CLOSE:
 		if (SaveIfUnsure() != IDCANCEL) {
 			Close();
-			SetFocus(wEditor.GetID());
+			WindowSetFocus(wEditor);
 		}
 		break;
 	case IDM_CLOSEALL:
@@ -2419,28 +2439,28 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 	case IDM_SAVE:
 		Save();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_SAVEAS:
 		SaveAs();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_SAVEASHTML:
 		SaveAsHTML();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_SAVEASRTF:
 		SaveAsRTF();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_SAVEASPDF:
 		SaveAsPDF();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_REVERT:
 		if (SaveIfUnsure() != IDCANCEL) {
 			Revert();
-			SetFocus(wEditor.GetID());
+			WindowSetFocus(wEditor);
 		}
 		break;
 	case IDM_PRINT:
@@ -2451,11 +2471,11 @@ void SciTEBase::MenuCommand(int cmdID) {
 		break;
 	case IDM_LOADSESSION:
 		LoadSessionDialog();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_SAVESESSION:
 		SaveSessionDialog();
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 	case IDM_ABOUT:
 		AboutDialog();
@@ -2466,7 +2486,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_NEXTFILE:
 		if (buffers.size > 1) {
 			Prev(); // Use Prev to tabs move left-to-right
-			SetFocus(wEditor.GetID());
+			WindowSetFocus(wEditor);
 		} else {
 			// Not using buffers - switch to next file on MRU
 			if (SaveIfUnsure() != IDCANCEL)
@@ -2476,7 +2496,7 @@ void SciTEBase::MenuCommand(int cmdID) {
 	case IDM_PREVFILE:
 		if (buffers.size > 1) {
 			Next(); // Use Next to tabs move right-to-left
-			SetFocus(wEditor.GetID());
+			WindowSetFocus(wEditor);
 		} else {
 			// Not using buffers - switch to previous file on MRU
 			if (SaveIfUnsure() != IDCANCEL)
@@ -2677,9 +2697,9 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_SWITCHPANE:
 		if (wEditor.HasFocus())
-			SetFocus(wOutput.GetID());
+			WindowSetFocus(wOutput);
 		else
-			SetFocus(wEditor.GetID());
+			WindowSetFocus(wEditor);
 		break;
 
 	case IDM_EOL_CRLF:
@@ -2774,22 +2794,22 @@ void SciTEBase::MenuCommand(int cmdID) {
 
 	case IDM_OPENLOCALPROPERTIES:
 		OpenProperties(IDM_OPENLOCALPROPERTIES);
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 
 	case IDM_OPENUSERPROPERTIES:
 		OpenProperties(IDM_OPENUSERPROPERTIES);
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 
 	case IDM_OPENGLOBALPROPERTIES:
 		OpenProperties(IDM_OPENGLOBALPROPERTIES);
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 
 	case IDM_OPENABBREVPROPERTIES:
 		OpenProperties(IDM_OPENABBREVPROPERTIES);
-		SetFocus(wEditor.GetID());
+		WindowSetFocus(wEditor);
 		break;
 
 	case IDM_SRCWIN:
@@ -3244,8 +3264,8 @@ void SciTEBase::CheckMenus() {
 #ifndef TCM_DESELECTALL
 #define TCM_DESELECTALL TCM_FIRST+50
 #endif
-		::SendMessage(wTabBar.GetID(), TCM_DESELECTALL, (WPARAM)0, (LPARAM)0);
-		::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)buffers.current, (LPARAM)0);
+		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DESELECTALL, (WPARAM)0, (LPARAM)0);
+		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)buffers.current, (LPARAM)0);
 #endif
 		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
 			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.current);
@@ -3348,7 +3368,7 @@ void SciTEBase::PerformOne(char *action) {
 			SaveAs(arg);
 		} else if (isprefix(action, "close:")) {
 			Close();
-			SetFocus(wEditor.GetID());
+			WindowSetFocus(wEditor);
 		} else if (isprefix(action, "quit:")) {
 			QuitProgram();
 		} else if (isprefix(action, "exportashtml:")) {
@@ -3361,7 +3381,7 @@ void SciTEBase::PerformOne(char *action) {
 			MenuCommand(atoi(arg));
 		} else if (isprefix(action, "cwd:")) {
 			if (chdir(arg) != 0) {
-				MessageBox(wSciTE.GetID(), arg,
+				WindowMessageBox(wSciTE, arg,
 					"Invalid directory", MB_OK | MB_ICONWARNING);
 			}
 		}
@@ -3428,7 +3448,7 @@ void SciTEBase::PropertyFromDirector(const char *arg) {
  * Menu/Toolbar command "Record".
  */
 void SciTEBase::StartRecordMacro() {
-	recording = TRUE;
+	recording = true;
 	CheckMenus();
 	SendEditor(SCI_STARTRECORD);
 }
@@ -3465,7 +3485,7 @@ void SciTEBase::StopRecordMacro() {
 	SendEditor(SCI_STOPRECORD);
 	if (extender)
 		extender->OnMacro("macro:stoprecord", "");
-	recording = FALSE;
+	recording = false;
 	CheckMenus();
 }
 

@@ -22,6 +22,11 @@
 #endif
 
 #if PLAT_WIN 
+
+#define _WIN32_WINNT  0x0400
+#include <windows.h>
+#include <commctrl.h>
+
 // For chdir
 #ifdef _MSC_VER
 #include <direct.h>
@@ -420,7 +425,7 @@ void SciTEBase::SaveToRTF(const char *saveName, int start, int end) {
 		strcat(msg, fullPath);
 		strcat(msg, "\".");
 		dialogsOnScreen++;
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, appName, MB_OK);
 		dialogsOnScreen--;
 	}
 }
@@ -717,7 +722,7 @@ void SciTEBase::SaveToHTML(const char *saveName) {
 		strcat(msg, fullPath);
 		strcat(msg, "\".");
 		dialogsOnScreen++;
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, appName, MB_OK);
 		dialogsOnScreen--;
 	}
 }

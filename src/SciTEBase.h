@@ -224,8 +224,8 @@ class StyleDefinition {
 public:
 	SString font;
 	int size;
-	Colour fore;
-	Colour back;
+	ColourDesired fore;
+	ColourDesired back;
 	bool bold;
 	bool italics;
 	bool eolfilled;
@@ -610,7 +610,7 @@ protected:
 	SString ExtensionFileName();
 	const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
-	void DefineMarker(int marker, int markerType, Colour fore, Colour back);
+	void DefineMarker(int marker, int markerType, ColourDesired fore, ColourDesired back);
 	virtual void ReadProperties();
 	void SetOneStyle(Window &win, int style, const char *s);
 	void SetStyleFor(Window &win, const char *language);
@@ -668,10 +668,12 @@ bool IsUntitledFileName(const char *name);
 void LowerCaseString(char *s);
 void ChopTerminalSlash(char *path);
 int IntFromHexDigit(const char ch);
-Colour ColourFromString(const char *val);
-long ColourOfProperty(PropSet &props, const char *key, Colour colourDefault);
+ColourDesired ColourFromString(const char *val);
+long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault);
 char *Slash(const char *s);
 unsigned int UnSlash(char *s);
+int WindowMessageBox(Window &w, const char *m, const char *t = appName, int style = MB_OK);
+void WindowSetFocus(Window &w);
 
 #if PLAT_GTK
 // MessageBox

@@ -109,14 +109,14 @@ void SciTEWin::WarnUser(int warnID) {
 
 	int flashLen = atoi(flashDuration);
 	if (flashLen) {
-		FlashThisWindow(wEditor.GetID(), flashLen);
+		FlashThisWindow(reinterpret_cast<HWND>(wEditor.GetID()), flashLen);
 	}
 	PlayThisSound(sound, atoi(soundDuration), hMM);
 }
 
 bool SciTEWin::ModelessHandler(MSG *pmsg) {
 	if (wFindReplace.GetID()) {
-		if (::IsDialogMessage(wFindReplace.GetID(), pmsg))
+		if (::IsDialogMessage(reinterpret_cast<HWND>(wFindReplace.GetID()), pmsg))
 			return true;
 	}
 	if (pmsg->message == WM_KEYDOWN) {
@@ -191,7 +191,7 @@ bool SciTEWin::OpenDialog() {
 	OPENFILENAME ofn = {
 	    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
-	ofn.hwndOwner = wSciTE.GetID();
+	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
@@ -284,7 +284,7 @@ SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const ch
 		OPENFILENAME ofn = {
 		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
-		ofn.hwndOwner = wSciTE.GetID();
+		ofn.hwndOwner = MainHWND();
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
 		ofn.nMaxFile = sizeof(saveName);
@@ -349,7 +349,7 @@ void SciTEWin::LoadSessionDialog() {
 	OPENFILENAME ofn = {
 	    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
-	ofn.hwndOwner = wSciTE.GetID();
+	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
@@ -367,7 +367,7 @@ void SciTEWin::SaveSessionDialog() {
 		OPENFILENAME ofn = {
 		    sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
-		ofn.hwndOwner = wSciTE.GetID();
+		ofn.hwndOwner = MainHWND();
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
 		ofn.nMaxFile = sizeof(saveName);
@@ -392,7 +392,7 @@ void SciTEWin::Print(
 	PRINTDLG pdlg = {
 	    sizeof(PRINTDLG), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
-	pdlg.hwndOwner = wSciTE.GetID();
+	pdlg.hwndOwner = MainHWND();
 	pdlg.hInstance = hInstance;
 	pdlg.Flags = PD_USEDEVMODECOPIES | PD_ALLPAGES | PD_RETURNDC;
 	pdlg.nFromPage = 1;
@@ -555,7 +555,7 @@ void SciTEWin::Print(
 	di.lpszDatatype = 0;
 	di.fwType = 0;
 	if (::StartDoc(hdc, &di) < 0) {
-		MessageBox(wSciTE.GetID(), "Can not start printer document.", 0, MB_OK);
+		MessageBox(MainHWND(), "Can not start printer document.", 0, MB_OK);
 		return ;
 	}
 
@@ -704,7 +704,7 @@ void SciTEWin::PrintSetup() {
 	    sizeof(PAGESETUPDLG), 0, 0, 0, 0, {0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 0, 0, 0, 0, 0, 0
 	};
 
-	pdlg.hwndOwner = wSciTE.GetID();
+	pdlg.hwndOwner = MainHWND();
 	pdlg.hInstance = hInstance;
 
 	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
@@ -822,14 +822,15 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	if (!wFindReplace.GetID())
 		return TRUE;
-	HWND wWholeWord = ::GetDlgItem(wFindReplace.GetID(), IDWHOLEWORD);
-	HWND wMatchCase = ::GetDlgItem(wFindReplace.GetID(), IDMATCHCASE);
-	HWND wRegExp = ::GetDlgItem(wFindReplace.GetID(), IDREGEXP);
-	HWND wWrap = ::GetDlgItem(wFindReplace.GetID(), IDWRAP);
-	HWND wUnSlash = ::GetDlgItem(wFindReplace.GetID(), IDUNSLASH);
+	HWND hwndFR = reinterpret_cast<HWND>(wFindReplace.GetID());
+	HWND wWholeWord = ::GetDlgItem(hwndFR, IDWHOLEWORD);
+	HWND wMatchCase = ::GetDlgItem(hwndFR, IDMATCHCASE);
+	HWND wRegExp = ::GetDlgItem(hwndFR, IDREGEXP);
+	HWND wWrap = ::GetDlgItem(hwndFR, IDWRAP);
+	HWND wUnSlash = ::GetDlgItem(hwndFR, IDUNSLASH);
 
 	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
-		::GetDlgItemText(wFindReplace.GetID(), IDFINDWHAT, findWhat, sizeof(findWhat));
+		::GetDlgItemText(hwndFR, IDFINDWHAT, findWhat, sizeof(findWhat));
 		props.Set("find.what", findWhat);
 		memFinds.Insert(findWhat);
 		wholeWord = BST_CHECKED ==
@@ -844,7 +845,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
 	}
 	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
-		::GetDlgItemText(wFindReplace.GetID(), IDREPLACEWITH, replaceWhat, sizeof(replaceWhat));
+		::GetDlgItemText(hwndFR, IDREPLACEWITH, replaceWhat, sizeof(replaceWhat));
 		memReplaces.Insert(replaceWhat);
 	}
 
@@ -930,7 +931,7 @@ void SciTEWin::Find() {
 
 	memset(&fr, 0, sizeof(fr));
 	fr.lStructSize = sizeof(fr);
-	fr.hwndOwner = wSciTE.GetID();
+	fr.hwndOwner = MainHWND();
 	fr.hInstance = hInstance;
 	fr.Flags = 0;
 	if (!reverseFind)
@@ -940,7 +941,7 @@ void SciTEWin::Find() {
 
 	wFindReplace = ::CreateDialogParam(hInstance,
 	                                   MAKEINTRESOURCE(IDD_FIND),
-	                                   wSciTE.GetID(),
+	                                   MainHWND(),
 	                                   reinterpret_cast<DLGPROC>(FindDlg),
 	                                   reinterpret_cast<long>(this));
 	wFindReplace.Show();
@@ -998,7 +999,7 @@ void SciTEWin::FindInFiles() {
 	SelectionIntoFind();
 	props.Set("find.what", findWhat);
 	props.Set("find.directory", ".");
-	if (DoDialog(hInstance, "Grep", wSciTE.GetID(),
+	if (DoDialog(hInstance, "Grep", MainHWND(),
 	             reinterpret_cast<DLGPROC>(GrepDlg),
 	             reinterpret_cast<DWORD>(this)) == IDOK) {
 		//Platform::DebugPrintf("asked to find %s %s %s\n", props.Get("find.what"), props.Get("find.files"), props.Get("find.directory"));
@@ -1016,7 +1017,7 @@ void SciTEWin::Replace() {
 
 	memset(&fr, 0, sizeof(fr));
 	fr.lStructSize = sizeof(fr);
-	fr.hwndOwner = wSciTE.GetID();
+	fr.hwndOwner = MainHWND();
 	fr.hInstance = hInstance;
 	fr.Flags = FR_REPLACE;
 	fr.lpstrFindWhat = findWhat;
@@ -1027,7 +1028,7 @@ void SciTEWin::Replace() {
 
 	wFindReplace = ::CreateDialogParam(hInstance,
 	                                   MAKEINTRESOURCE(IDD_REPLACE),
-	                                   wSciTE.GetID(),
+	                                   MainHWND(),
 	                                   reinterpret_cast<DLGPROC>(ReplaceDlg),
 	                                   reinterpret_cast<long>(this));
 	wFindReplace.Show();
@@ -1075,7 +1076,7 @@ void SciTEWin::GoLineDialog() {
 	int lineNo[2] = { 0, 0 };
 	lineNo[0] = GetCurrentLineNumber() + 1;
 	lineNo[1] = SendEditor(SCI_GETLINECOUNT, 0, 0L);
-	if (DoDialog(hInstance, "GoLine", wSciTE.GetID(),
+	if (DoDialog(hInstance, "GoLine", MainHWND(),
 	             reinterpret_cast<DLGPROC>(GoLineDlg),
 	             reinterpret_cast<DWORD>(lineNo)) == IDOK) {
 		//Platform::DebugPrintf("asked to go to %d\n", lineNo);
@@ -1091,7 +1092,7 @@ void SciTEWin::GoLineDialog() {
 		}
 
 	}
-	SetFocus(wEditor.GetID());
+	WindowSetFocus(wEditor);
 }
 
 BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -1146,7 +1147,7 @@ void SciTEWin::TabSizeDialog() {
 	settings.tabSize = SendEditor(SCI_GETTABWIDTH);
 	settings.indentSize = SendEditor(SCI_GETINDENT);
 	settings.useTabs = SendEditor(SCI_GETUSETABS);
-	if (DoDialog(hInstance, "TabSize", wSciTE.GetID(),
+	if (DoDialog(hInstance, "TabSize", MainHWND(),
 	             reinterpret_cast<DLGPROC>(TabSizeDlg),
 	             reinterpret_cast<DWORD>(&settings)) == IDOK) {
 		if (settings.tabSize > 0)
@@ -1155,7 +1156,7 @@ void SciTEWin::TabSizeDialog() {
 			SendEditor(SCI_SETINDENT, settings.indentSize);
 		SendEditor(SCI_SETUSETABS, settings.useTabs);
 	}
-	SetFocus(wEditor.GetID());
+	WindowSetFocus(wEditor);
 }
 
 void SciTEWin::FindReplace(bool replace) {
@@ -1164,13 +1165,13 @@ void SciTEWin::FindReplace(bool replace) {
 
 void SciTEWin::DestroyFindReplace() {
 	if (wFindReplace.Created()) {
-		::EndDialog(wFindReplace.GetID(), IDCANCEL);
+		::EndDialog(reinterpret_cast<HWND>(wFindReplace.GetID()), IDCANCEL);
 		wFindReplace = 0;
 	}
 }
 
 void SciTEWin::AboutDialogWithBuild(int staticBuild) {
-	DoDialog(hInstance, "About", wSciTE.GetID(), NULL, staticBuild);
-	::SetFocus(wEditor.GetID());
+	DoDialog(hInstance, "About", MainHWND(), NULL, staticBuild);
+	WindowSetFocus(wEditor);
 }
 

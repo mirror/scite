@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "SciTEWin.h"
+
 #ifndef NO_FILER
 #include "DirectorExtension.h"
 #endif
@@ -188,7 +189,7 @@ void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 	if (topic && path) {
 		*path = '\0';
 		path++;	// After the !
-		::WinHelp(wSciTE.GetID(),
+		::WinHelp(MainHWND(),
 		        path,
 		        HELP_KEY,
 		        reinterpret_cast<unsigned long>(topic));
@@ -256,7 +257,7 @@ void SciTEWin::CopyAsRTF() {
 			fseek(fp, 0, SEEK_SET);
 			HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, len + 1);
 			if (hand) {
-				::OpenClipboard(wSciTE.GetID());
+				::OpenClipboard(MainHWND());
 				::EmptyClipboard();
 				char *ptr = static_cast<char *>(::GlobalLock(hand));
 				fread(ptr, 1, len, fp);
@@ -280,12 +281,12 @@ void SciTEWin::FullScreenToggle() {
 		::ShowWindow(wTaskBar, SW_HIDE);
 
 		winPlace.length = sizeof(winPlace);
-		::GetWindowPlacement(wSciTE.GetID(), &winPlace);
+		::GetWindowPlacement(MainHWND(), &winPlace);
 		int topStuff = ::GetSystemMetrics(SM_CYMENU) +
 			       ::GetSystemMetrics(SM_CYEDGE);
 		if (props.GetInt("full.screen.hides.menu"))
 			topStuff += ::GetSystemMetrics(SM_CYCAPTION);
-		::SetWindowPos(wSciTE.GetID(), HWND_TOP,
+		::SetWindowPos(MainHWND(), HWND_TOP,
 			       -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
 			       -topStuff - 2,
 			       ::GetSystemMetrics(SM_CXSCREEN) +
@@ -298,15 +299,19 @@ void SciTEWin::FullScreenToggle() {
 		if (winPlace.length) {
 			::SystemParametersInfo(SPI_SETWORKAREA, 0, &rcWorkArea, 0);
 			if (winPlace.showCmd == SW_SHOWMAXIMIZED) {
-				::ShowWindow(wSciTE.GetID(), SW_RESTORE);
-				::ShowWindow(wSciTE.GetID(), SW_SHOWMAXIMIZED);
+				::ShowWindow(MainHWND(), SW_RESTORE);
+				::ShowWindow(MainHWND(), SW_SHOWMAXIMIZED);
 			} else {
-				::SetWindowPlacement(wSciTE.GetID(), &winPlace);
+				::SetWindowPlacement(MainHWND(), &winPlace);
 			}
 		}
 	}
-	::SetForegroundWindow(wSciTE.GetID());
+	::SetForegroundWindow(MainHWND());
 	CheckMenus();
+}
+
+HWND SciTEWin::MainHWND() {
+	return reinterpret_cast<HWND>(wSciTE.GetID());
 }
 
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
@@ -331,7 +336,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 
 	case IDM_ONTOP:
 		topMost = (topMost ? false : true);
-		::SetWindowPos(wSciTE.GetID(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0, 0, 0, 0, SWP_NOMOVE + SWP_NOSIZE);
+		::SetWindowPos(MainHWND(), (topMost ? HWND_TOPMOST : HWND_NOTOPMOST ), 0, 0, 0, 0, SWP_NOMOVE + SWP_NOSIZE);
 		CheckAMenuItem(IDM_ONTOP, topMost);
 		break;
 
@@ -633,7 +638,7 @@ void SciTEWin::ProcessExecute() {
 					}
 					// Display the data
 					OutputAppendStringSynchronised(buffer, bytesRead);
-					::UpdateWindow(wSciTE.GetID());
+					::UpdateWindow(MainHWND());
 				} else {
 					completed = true;
 				}
@@ -696,7 +701,7 @@ void SciTEWin::ProcessExecute() {
 	if (scrollOutput && returnOutputToCommand)
 		SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
 	returnOutputToCommand = true;
-	::SendMessage(wSciTE.GetID(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
+	::SendMessage(MainHWND(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
 }
 
 void ExecThread(void *ptw) {
@@ -766,7 +771,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 
 	DWORD rc = reinterpret_cast<DWORD>(
 	               ::ShellExecute(
-	                   wSciTE.GetID(),        // parent wnd for msgboxes during app start
+	                   MainHWND(),        // parent wnd for msgboxes during app start
 	                   NULL,         // cmd is open
 	                   mycmd,        // file to open
 	                   myparams,        // parameters
@@ -817,7 +822,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 		errormsg += "Unknown error code:";
 		errormsg += SString(rc).c_str();
 	}
-	::MessageBox(wSciTE.GetID(), errormsg.c_str(), appName, MB_OK);
+	::MessageBox(MainHWND(), errormsg.c_str(), appName, MB_OK);
 
 	delete []mycmdcopy;
 }
@@ -973,7 +978,7 @@ void SciTEWin::Run(const char *cmdLine) {
 	SizeSubWindows();
 	wSciTE.Show();
 	if (cmdShow)	// assume SW_MAXIMIZE only
-		::ShowWindow(wSciTE.GetID(), cmdShow);
+		::ShowWindow(MainHWND(), cmdShow);
 
 	// Open all files given on command line.
 	// The filenames containing spaces must be enquoted.
@@ -1037,10 +1042,10 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 		// May not work for Win2k, but OK for lower versions
 		// Note: how to drop a file to an iconic window?
 		// Actually, it is the Send To command that generates a drop.
-		if (::IsIconic(wSciTE.GetID())) {
-			::ShowWindow(wSciTE.GetID(), SW_RESTORE);
+		if (::IsIconic(MainHWND())) {
+			::ShowWindow(MainHWND(), SW_RESTORE);
 		}
-		::SetForegroundWindow(wSciTE.GetID());
+		::SetForegroundWindow(MainHWND());
 	}
 }
 
@@ -1049,16 +1054,16 @@ void SciTEWin::MinimizeToTray() {
 	NOTIFYICONDATA nid;
 	memset(&nid, 0, sizeof(nid));
 	nid.cbSize = sizeof(nid);
-	nid.hWnd = wSciTE.GetID();
+	nid.hWnd = MainHWND();
 	nid.uID = 1;
 	nid.uFlags = NIF_MESSAGE|NIF_ICON|NIF_TIP;
 	nid.uCallbackMessage = SCITE_TRAY;
 	nid.hIcon  = static_cast<HICON>(
 		::LoadImage(hInstance, "SCITE", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
 	strcpy(nid.szTip,n);
-	::ShowWindow(wSciTE.GetID(), SW_MINIMIZE);
+	::ShowWindow(MainHWND(), SW_MINIMIZE);
 	if (::Shell_NotifyIcon(NIM_ADD, &nid)){
-		::ShowWindow(wSciTE.GetID(), SW_HIDE);
+		::ShowWindow(MainHWND(), SW_HIDE);
 	}
 }
 
@@ -1066,9 +1071,9 @@ void SciTEWin::RestoreFromTray() {
 	NOTIFYICONDATA nid;
 	memset(&nid, 0, sizeof(nid));
 	nid.cbSize = sizeof(nid);
-	nid.hWnd = wSciTE.GetID();
+	nid.hWnd = MainHWND();
 	nid.uID = 1;
-	::ShowWindow(wSciTE.GetID(), SW_SHOW);
+	::ShowWindow(MainHWND(), SW_SHOW);
 	::Sleep(100);
 	::Shell_NotifyIcon(NIM_DELETE, &nid);
 }
@@ -1083,7 +1088,7 @@ LRESULT SciTEWin::CopyData(COPYDATASTRUCT *pcds) {
 		ProcessCommandLine(args, 0);
 		ProcessCommandLine(args, 1);
 	}
-	::FlashWindow(wSciTE.GetID(), FALSE);
+	::FlashWindow(MainHWND(), FALSE);
 	return TRUE;
 }
 
@@ -1138,7 +1143,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 }
 
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, wSciTE.GetID());
+	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, MainHWND());
 	switch (iMessage) {
 
 	case WM_CREATE:
@@ -1154,13 +1159,13 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			MinimizeToTray();
 			return 0;
 		}
-		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
+		return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 
 	case SCITE_TRAY:
 		if (lParam == WM_LBUTTONDBLCLK) {
 			RestoreFromTray();
-			::ShowWindow(wSciTE.GetID(), SW_RESTORE);
-			::FlashWindow(wSciTE.GetID(), FALSE);
+			::ShowWindow(MainHWND(), SW_RESTORE);
+			::FlashWindow(MainHWND(), FALSE);
 		}
 		break;
 
@@ -1197,7 +1202,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				pmmi->ptMaxTrackSize.y = pmmi->ptMaxSize.y;
 				return 0;
 			} else {
-				return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
+				return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 			}
 		}
 
@@ -1226,7 +1231,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_PALETTECHANGED:
 		//Platform::DebugPrintf("** Palette Changed\n");
-		if (wParam != reinterpret_cast<WPARAM>(wSciTE.GetID())) {
+		if (wParam != reinterpret_cast<WPARAM>(MainHWND())) {
 			SendEditor(WM_PALETTECHANGED, wParam, lParam);
 			//SendOutput(WM_PALETTECHANGED, wParam, lParam);
 		}
@@ -1242,11 +1247,11 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_ACTIVATEAPP:
 		SendEditor(SCI_HIDESELECTION, !wParam);
 		// Do not want to display dialog yet as may be in middle of system mouse capture
-		::PostMessage(wSciTE.GetID(), WM_COMMAND, IDM_ACTIVATE, wParam);
+		::PostMessage(MainHWND(), WM_COMMAND, IDM_ACTIVATE, wParam);
 		break;
 
 	case WM_ACTIVATE:
-		::SetFocus(wEditor.GetID());
+		::SetFocus(reinterpret_cast<HWND>(wEditor.GetID()));
 		break;
 
 	case WM_DROPFILES:
@@ -1258,7 +1263,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	default:
 		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
-		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
+		return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 	}
 	//Platform::DebugPrintf("end wnd proc\n");
 	return 0l;
@@ -1298,13 +1303,13 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-			::BeginPaint(wContent.GetID(), &ps);
+			::BeginPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
 			Surface surfaceWindow;
 			surfaceWindow.Init(ps.hdc);
 			PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 			Paint(&surfaceWindow, rcPaint);
 			surfaceWindow.Release();
-			::EndPaint(wContent.GetID(), &ps);
+			::EndPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
 			return 0;
 		}
 
@@ -1312,7 +1317,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		ptStartDrag = Point::FromLong(lParam);
 		capturedMouse = true;
 		heightOutputStartDrag = heightOutput;
-		::SetCapture(wContent.GetID());
+		::SetCapture(reinterpret_cast<HWND>(wContent.GetID()));
 		//Platform::DebugPrintf("Click %x %x\n", wParam, lParam);
 		break;
 
@@ -1335,7 +1340,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			Point ptCursor;
 			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
 			Point ptClient = ptCursor;
-			::ScreenToClient(wSciTE.GetID(), reinterpret_cast<POINT *>(&ptClient));
+			::ScreenToClient(MainHWND(), reinterpret_cast<POINT *>(&ptClient));
 			if ((ptClient.y > (visHeightTools + visHeightTab)) && (ptClient.y < visHeightTools + visHeightTab + visHeightEditor)) {
 				PRectangle rcScintilla = wEditor.GetPosition();
 				PRectangle rcOutput = wOutput.GetPosition();
@@ -1345,11 +1350,12 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				}
 			}
 		}
-		return ::DefWindowProc(wSciTE.GetID(), iMessage, wParam, lParam);
+		return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 
 	default:
 		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
-		return ::DefWindowProc(wContent.GetID(), iMessage, wParam, lParam);
+		return ::DefWindowProc(reinterpret_cast<HWND>(wContent.GetID()), 
+			iMessage, wParam, lParam);
 	}
 	//Platform::DebugPrintf("end wnd proc\n");
 	return 0l;
@@ -1410,7 +1416,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 			going = ::GetMessage(&msg, NULL, 0, 0);
 			if (going) {
 				if (!MainWind.ModelessHandler(&msg)) {
-					if (::TranslateAccelerator(MainWind.GetID(), hAccTable, &msg) == 0) {
+					if (::TranslateAccelerator(reinterpret_cast<HWND>(MainWind.GetID()), hAccTable, &msg) == 0) {
 						::TranslateMessage(&msg);
 						::DispatchMessage(&msg);
 					}

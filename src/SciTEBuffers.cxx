@@ -20,6 +20,11 @@
 #endif
 
 #if PLAT_WIN
+
+#define _WIN32_WINNT  0x0400
+#include <windows.h>
+#include <commctrl.h>
+
 // For chdir
 #ifdef _MSC_VER
 #include <direct.h>
@@ -166,7 +171,7 @@ void SciTEBase::SetDocumentAt(int index) {
 
 #if PLAT_WIN
 	// Tab Bar
-	::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
+	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
 #endif
 
 	DisplayAround(bufferNext);
@@ -236,7 +241,7 @@ void SciTEBase::InitialiseBuffers() {
 			DestroyMenuItem(menuBuffers, 0);
 #if PLAT_WIN
 			// Make previous change visible.
-			::DrawMenuBar(wSciTE.GetID());
+			::DrawMenuBar(reinterpret_cast<HWND>(wSciTE.GetID()));
 			// Destroy command "View Tab Bar" in the menu "View"
 			DestroyMenuItem(menuView, IDM_VIEWTABBAR);
 #endif
@@ -461,7 +466,7 @@ void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
 	DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
 #if PLAT_WIN
-	::SendMessage(wTabBar.GetID(), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
+	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
 #endif
 
 	int pos;
@@ -511,7 +516,7 @@ void SciTEBase::BuffersMenu() {
 			tie.iImage = -1;
 
 			tie.pszText = titleTab;
-			::SendMessage(wTabBar.GetID(), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
+			::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
 			//::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
 #endif
 		}
@@ -929,9 +934,9 @@ void SciTEBase::GoMessage(int dir) {
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>( -1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			SendOutput(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
-			           "error.marker.fore", Colour(0x7f, 0, 0)));
+			           "error.marker.fore", ColourDesired(0x7f, 0, 0)));
 			SendOutput(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
-			           "error.marker.back", Colour(0xff, 0xff, 0)));
+			           "error.marker.back", ColourDesired(0xff, 0xff, 0)));
 			SendOutput(SCI_MARKERADD, lookLine, 0);
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
 			char *cdoc = new char[lineLength + 1];
@@ -963,14 +968,14 @@ void SciTEBase::GoMessage(int dir) {
 				SendEditor(SCI_MARKERDELETEALL, 0);
 				SendEditor(SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
 				SendEditor(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
-				           "error.marker.fore", Colour(0x7f, 0, 0)));
+				           "error.marker.fore", ColourDesired(0x7f, 0, 0)));
 				SendEditor(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
-				           "error.marker.back", Colour(0xff, 0xff, 0)));
+				           "error.marker.back", ColourDesired(0xff, 0xff, 0)));
 				SendEditor(SCI_MARKERADD, sourceLine, 0);
 				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
 				EnsureRangeVisible(startSourceLine, startSourceLine);
 				SetSelection(startSourceLine, startSourceLine);
-				SetFocus(wEditor.GetID());
+				WindowSetFocus(wEditor);
 			}
 			delete []cdoc;
 			return;

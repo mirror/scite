@@ -17,6 +17,11 @@
 #define _WIN32_IE	0x0400
 #endif
 
+#define _WIN32_WINNT  0x0400
+#include <windows.h>
+#include <commctrl.h>
+#include <richedit.h>
+
 #include "Platform.h"
 
 #include <io.h>
@@ -154,6 +159,7 @@ protected:
 	void CopyAsRTF();
 	void FullScreenToggle();
 	void Command(WPARAM wParam, LPARAM lParam);
+	HWND MainHWND();
 
 public:
 

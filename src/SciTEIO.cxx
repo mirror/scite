@@ -22,6 +22,11 @@
 #endif
 
 #if PLAT_WIN
+
+#define _WIN32_WINNT  0x0400
+#include <windows.h>
+#include <commctrl.h>
+
 // For chdir
 #ifdef _MSC_VER
 #include <direct.h>
@@ -325,13 +330,13 @@ void SciTEBase::OpenFile(bool initialCmdLine) {
 		strcpy(msg, "Could not open file \"");
 		strcat(msg, fullPath);
 		strcat(msg, "\".");
-		MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+		WindowMessageBox(wSciTE, msg, appName, MB_OK);
 	}
 	SendEditor(SCI_SETUNDOCOLLECTION, 1);
 	// Flick focus to the output window and back to
 	// ensure palette realised correctly.
-	SetFocus(wOutput.GetID());
-	SetFocus(wEditor.GetID());
+	WindowSetFocus(wOutput);
+	WindowSetFocus(wEditor);
 	SendEditor(SCI_SETSAVEPOINT);
 	if (props.GetInt("fold.on.open") > 0) {
 		FoldAll();
@@ -344,7 +349,7 @@ bool SciTEBase::Open(const char *file, bool initialCmdLine, bool forceLoad) {
 	InitialiseBuffers();
 
 	if (!file) {
-		MessageBox(wSciTE.GetID(), "Bad file", appName, MB_OK);
+		WindowMessageBox(wSciTE, "Bad file", appName, MB_OK);
 	}
 #ifdef __vms
 	static char fixedFileName [MAX_PATH];
@@ -525,7 +530,7 @@ void SciTEBase::CheckReload() {
 					strcat(msg, fullPathToCheck);
 					strcat(msg, "\" has been modified. Should it be reloaded?");
 					dialogsOnScreen++;
-					int decision = MessageBox(wSciTE.GetID(), msg, appName, MB_YESNO);
+					int decision = WindowMessageBox(wSciTE, msg, appName, MB_YESNO);
 					dialogsOnScreen--;
 					if (decision == IDYES) {
 						Open(fullPathToCheck, false, true);
@@ -568,7 +573,7 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 				strcpy(msg, "Save changes to (Untitled)?");
 			}
 			dialogsOnScreen++;
-			int decision = MessageBox(wSciTE.GetID(), msg, appName, MB_YESNOCANCEL);
+			int decision = WindowMessageBox(wSciTE, msg, appName, MB_YESNOCANCEL);
 			dialogsOnScreen--;
 			if (decision == IDYES) {
 				if (!Save())
@@ -696,7 +701,7 @@ bool SciTEBase::Save() {
 			strcat(msg, fullPath);
 			strcat(msg, "\".");
 			dialogsOnScreen++;
-			MessageBox(wSciTE.GetID(), msg, appName, MB_OK);
+			WindowMessageBox(wSciTE, msg, appName, MB_OK);
 			dialogsOnScreen--;
 		}
 		return true;
