@@ -2942,14 +2942,10 @@ void SciTEBase::MenuCommand(int cmdID) {
 			CheckReload();
 		} else if ((cmdID >= fileStackCmdID) &&
 		           (cmdID < fileStackCmdID + fileStackMax)) {
-			if (CanMakeRoom()) {
-				StackMenu(cmdID - fileStackCmdID);
-			}
+			StackMenu(cmdID - fileStackCmdID);
 		} else if (cmdID >= importCmdID &&
 		           (cmdID < importCmdID + importMax)) {
-			if (CanMakeRoom()) {
-				ImportMenu(cmdID - importCmdID);
-			}
+			ImportMenu(cmdID - importCmdID);
 		} else if (cmdID >= IDM_TOOLS && cmdID < IDM_TOOLS + 10) {
 			ToolsMenu(cmdID - IDM_TOOLS);
 		} else if (cmdID >= IDM_LANGUAGE && cmdID < IDM_LANGUAGE + 100) {
