@@ -866,7 +866,7 @@ protected:
 	SString LocaliseString(const char *s, bool retainIfNotFound=true);
 	SString LocaliseMessage(const char *s, const char *param0=0,
 		const char *param1=0, const char *param2=0);
-	void ReadLocalisation();
+	virtual void ReadLocalisation();
 	virtual void ReadPropertiesInitial();
 	void SetMonoFont();
 	void SetOverrideLanguage(int cmdID);

@@ -46,6 +46,21 @@
 #include "pixmapsGNOME.h"
 #include "SciIcon.h"
 
+#if GTK_MAJOR_VERSION >= 2
+#if !PLAT_GTK_WIN32
+#define ENCODE_TRANSLATION
+#include <iconv.h>
+// Since various versions of iconv can not agree on whether the src argument
+// is char ** or const char ** provide a templatised adaptor.
+template<typename T>
+size_t iconv_adaptor(size_t(*f_iconv)(iconv_t, T, size_t *, char **, size_t *),
+		iconv_t cd, char** src, size_t *srcleft,
+		char **dst, size_t *dstleft) {
+	return f_iconv(cd, (T)src, srcleft, dst, dstleft);
+}
+#endif
+#endif
+
 #define MB_ABOUTBOX	0x100000L
 
 const char appName[] = "SciTE";
@@ -187,6 +202,7 @@ protected:
 	void ShowFileInStatus();
 	void SetIcon();
 
+	virtual void ReadLocalisation();
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
 
@@ -620,6 +636,35 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		menuSource = 0;
 	}
 	UpdateStatusBar(true);
+}
+
+void SciTEGTK::ReadLocalisation() {
+	SciTEBase::ReadLocalisation();
+#ifdef ENCODE_TRANSLATION
+	SString encoding = propsUI.Get("translation.encoding");
+	if (encoding.length()) {
+		iconv_t iconvh = iconv_open("UTF-8", encoding.c_str());
+		char *key = NULL;
+		char *val = NULL;
+		// Get encoding
+		bool more = propsUI.GetFirst(&key, &val);
+		while (more) {
+			char converted[1000];
+			converted[0] = '\0';
+			char *pin = val;
+			size_t inLeft = strlen(val);
+			char *pout = converted;
+			size_t outLeft = sizeof(converted);
+			size_t conversions = iconv_adaptor(iconv, iconvh, &pin, &inLeft, &pout, &outLeft);
+			if (conversions != ((size_t)(-1))) {
+				*pout = '\0';
+				propsUI.Set(key, converted);
+			}
+			more = propsUI.GetNext(&key, &val);
+		}
+		iconv_close(iconvh);
+	}
+#endif
 }
 
 void SciTEGTK::ReadPropertiesInitial() {
