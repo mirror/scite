@@ -1159,6 +1159,18 @@ NameError: mistake
 	session will be automatically loaded.
         </td>
       </tr>
+      <tr class="windowsonly">
+        <td>
+	open.dialog.in.file.directory
+        </td>
+        <td>
+          Setting open.dialog.in.file.directory causes the open dialog to initially 
+	  display the same directory as the current file. If it is not set then the 
+	  system default is used which on Windows 2000 is the last directory 
+	  visited by the open dialog in any instance of SciTE. This is hard
+	  to use with multiple instances of SciTE.
+        </td>
+      </tr>
       <tr>
         <td>
 	find.replace.matchcase<br />
@@ -1291,6 +1303,7 @@ NameError: mistake
           keywords3.<i>filepattern</i><br />
           keywords4.<i>filepattern</i><br />
           keywords5.<i>filepattern</i><br />
+          keywords6.<i>filepattern</i><br />
           keywordclass.<i>lexer</i>
         </td>
         <td>
@@ -1490,6 +1503,14 @@ NameError: mistake
           On Windows 95, there can be a delay between a process completing and all of its piped
           output being available. By waiting this number of milliseconds, we can be sure to see all
           the output. Defaults to 500 but may need to be higher for slower machines.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	time.commands      
+        </td>
+        <td>
+          When a command is completed, print the time it took in seconds.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1800,6 +1821,17 @@ NameError: mistake
         	For the GTK+ version determines the initial size of the file
 	selector dialog invoked by the Open and Save commands.
 	Setting has no effect on Windows.
+        </td>
+      </tr>
+      <tr>
+        <td>
+	translation.missing
+        </td>
+        <td>
+        	When using a localised version, if a term is not found in the locale.properties
+	translation file then use the value of translation.missing instead. By setting
+	this to a marker such as "***" it is easier to check where terms have not been
+	provided with translations.
         </td>
       </tr>
     </table>
