@@ -40,7 +40,8 @@ CCFLAGS=-TC -W3
 
 # For something scary:-Wp64
 CXXDEBUG=-Od -MTd -DDEBUG
-CXXNDEBUG=-O1 -MT -DNDEBUG -GL
+# Don't use "-MD", even with "-D_STATIC_CPPLIB" because it links to MSVCR71.DLL
+CXXNDEBUG=-O1 -Oi -MT -DNDEBUG -GL
 NAME=-Fo
 LDFLAGS=-OPT:NOWIN98 -OPT:REF -LTCG -DEBUG
 LDDEBUG=
@@ -412,6 +413,10 @@ MultiplexExtension.obj: \
 	../src/MultiplexExtension.h \
 	../src/Extender.h \
 	../../scintilla/include/Scintilla.h
+SingleThreadExtension.obj: \
+	SingleThreadExtension.cxx \
+	SingleThreadExtension.h \
+	../src/Extender.h
 UniqueInstance.obj: \
 	UniqueInstance.cxx \
 	UniqueInstance.h \
