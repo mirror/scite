@@ -1461,7 +1461,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			// something better could be done but there are too many special cases
 			lastMatch = posFind + lenReplaced + movepastEOL;
 			if (lenTarget == 0) {
-				lastMatch++;
+				lastMatch = SendEditor(SCI_POSITIONAFTER, lastMatch);
 			}
 			if (lastMatch >= endPosition) {
 				// Run off the end of the document/selection with an empty match
