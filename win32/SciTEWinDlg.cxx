@@ -204,6 +204,9 @@ bool SciTEWin::OpenDialog() {
 	ofn.nMaxCustFilter = sizeof(openWhat);
 	ofn.nFilterIndex = filterDefault;
 	ofn.lpstrTitle = "Open File";
+	if (props.GetInt("open.dialog.in.file.directory")) {
+		ofn.lpstrInitialDir = dirName;
+	}
 	ofn.Flags = OFN_HIDEREADONLY;
 
 #ifdef MULTISELECTOPEN
