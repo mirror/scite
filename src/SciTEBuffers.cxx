@@ -1668,6 +1668,7 @@ void SciTEBase::GoMessage(int dir) {
 					SetSelection(startSourceLine, startSourceLine);
 				}
 				message.substitute('\t', ' ');
+				message.remove("\n");
 				props.Set("CurrentMessage", message.c_str());
 				UpdateStatusBar(false);
 				WindowSetFocus(wEditor);
