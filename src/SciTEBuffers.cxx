@@ -1066,6 +1066,7 @@ void SciTEBase::GoMessage(int dir) {
 							delete []cdoc;
 							return;
 						}
+						CheckReload();
 					}
 				}
 
