@@ -7,3 +7,4 @@ rmdir /S /Q scripts\CVS
 rmdir /S /Q src\CVS
 rmdir /S /Q vcbuild\CVS
 rmdir /S /Q win32\CVS
+del /S /Q .cvsignore
