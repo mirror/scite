@@ -3806,6 +3806,9 @@ void SciTEBase::CheckMenus() {
 		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DESELECTALL, (WPARAM)0, (LPARAM)0);
 		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)buffers.current, (LPARAM)0);
 #endif
+#if PLAT_GTK
+		gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()),buffers.current);
+#endif
 
 		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
 			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.current);

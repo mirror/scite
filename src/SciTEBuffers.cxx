@@ -189,6 +189,9 @@ void SciTEBase::SetDocumentAt(int index) {
 	// Tab Bar
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
 #endif
+#if PLAT_GTK
+	gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()),index);
+#endif
 
 	DisplayAround(bufferNext);
 
@@ -587,6 +590,12 @@ void SciTEBase::BuffersMenu() {
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
 #endif
 
+#if PLAT_GTK
+	GtkWidget *tab;
+
+	while((tab=gtk_notebook_get_nth_page(GTK_NOTEBOOK(wTabBar.GetID()),0)))
+		gtk_notebook_remove_page(GTK_NOTEBOOK(wTabBar.GetID()),0);
+#endif
 	int pos;
 	for (pos = 0; pos < bufferMax; pos++) {
 		DestroyMenuItem(menuBuffers, IDM_BUFFER + pos);
@@ -651,6 +660,21 @@ void SciTEBase::BuffersMenu() {
 			tie.pszText = titleTab;
 			::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
 			//::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
+#endif
+#if PLAT_GTK
+			GtkWidget *tablabel,*tabcontent;
+
+			tablabel=gtk_label_new(titleTab);
+
+			if(buffers.buffers[pos].IsUntitled())
+				tabcontent=gtk_label_new(LocaliseString("Untitled").c_str());
+			else
+				tabcontent=gtk_label_new(buffers.buffers[pos].FullPath());
+
+			gtk_widget_show(tablabel);
+			gtk_widget_show(tabcontent);
+
+			gtk_notebook_append_page(GTK_NOTEBOOK(wTabBar.GetID()),tabcontent,tablabel);
 #endif
 
 		}

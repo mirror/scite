@@ -294,6 +294,7 @@ protected:
 	static gint DividerRelease(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	static void DragDataReceived(GtkWidget *widget, GdkDragContext *context,
 	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
+	static void GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event);
 
 public:
 
@@ -541,7 +542,11 @@ void SciTEGTK::ShowToolBar() {
 }
 
 void SciTEGTK::ShowTabBar() {
-	SizeSubWindows();
+	if (tabVisible) {
+		gtk_widget_show(GTK_WIDGET(PWidget(wTabBar)));
+	} else {
+		gtk_widget_hide(GTK_WIDGET(PWidget(wTabBar)));
+	}
 }
 
 void SciTEGTK::ShowStatusBar() {
@@ -2352,7 +2357,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/View/sep1", NULL, NULL, 0, "<Separator>"},
 	                                      {"/View/Full Scree_n", "F11", menuSig, IDM_FULLSCREEN, "<CheckItem>"},
 	                                      {"/View/_Tool Bar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
-	                                      //{"/View/Tab _Bar", "", menuSig, IDM_VIEWTABBAR, "<CheckItem>"},
+	                                      {"/View/Tab _Bar", "", menuSig, IDM_VIEWTABBAR, "<CheckItem>"},
 	                                      {"/View/_Status Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
 	                                      {"/View/sep2", NULL, NULL, 0, "<Separator>"},
 	                                      {"/View/_Whitespace", "<control><shift>A", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
@@ -2528,6 +2533,11 @@ void SciTEGTK::CreateUI() {
 	gtk_box_pack_start(GTK_BOX(boxMain),
 	                   PWidget(wToolBarBox),
 	                   FALSE, FALSE, 0);
+
+	wTabBar=gtk_notebook_new();
+	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
+	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
+	gtk_signal_connect_after(GTK_OBJECT(PWidget(wTabBar)),"button-press-event",GTK_SIGNAL_FUNC(GtkTabBarSwitch),NULL);
 
 	wContent = gtk_fixed_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wContent), GTK_CAN_FOCUS);
@@ -2904,4 +2914,9 @@ int main(int argc, char *argv[]) {
 	scite.Run(argc, argv);
 
 	return 0;
+}
+
+void SciTEGTK::GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event) {
+	if(event->button == 1)
+		ButtonSignal(NULL,(gpointer)(bufferCmdID+gtk_notebook_get_current_page(notebook)));
 }
