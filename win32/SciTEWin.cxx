@@ -270,21 +270,19 @@ void SciTEWin::CopyAsRTF() {
 }
 
 void SciTEWin::FullScreenToggle() {
+	HWND wTaskBar = FindWindow("Shell_TrayWnd", "");
 	fullScreen = !fullScreen;
 	if (fullScreen) {
 		::SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
-		RECT rcFullScreen = { 0,0, ::GetSystemMetrics(SM_CXSCREEN),
-			::GetSystemMetrics(SM_CYSCREEN)};
-		::SystemParametersInfo(SPI_SETWORKAREA, 0, &rcFullScreen, 0);
-		
+		::SystemParametersInfo(SPI_SETWORKAREA, 0, 0, SPIF_SENDCHANGE);
+		::ShowWindow(wTaskBar, SW_HIDE);
+  		
 		winPlace.length = sizeof(winPlace);
 		::GetWindowPlacement(wSciTE.GetID(), &winPlace);
 		int topStuff = ::GetSystemMetrics(SM_CYMENU) +
 			       ::GetSystemMetrics(SM_CYEDGE);
 		if (props.GetInt("full.screen.hides.menu"))
 			topStuff += ::GetSystemMetrics(SM_CYCAPTION);
-		//HWND wTopmost = ::GetWindow(wSciTE.GetID(), GW_HWNDFIRST);
-		::SetForegroundWindow(wSciTE.GetID());
 		::SetWindowPos(wSciTE.GetID(), HWND_TOP,
 			       -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
 			       -topStuff - 1,
@@ -294,6 +292,7 @@ void SciTEWin::FullScreenToggle() {
 			       ::GetSystemMetrics(SM_CYSIZEFRAME) + 3,
 			       0);
 	} else {
+		::ShowWindow(wTaskBar, SW_SHOW);
 		if (winPlace.length) {
 			::SystemParametersInfo(SPI_SETWORKAREA, 0, &rcWorkArea, 0);
 			if (winPlace.showCmd == SW_SHOWMAXIMIZED) {
@@ -304,6 +303,7 @@ void SciTEWin::FullScreenToggle() {
 			}
 		}
 	}
+	::SetForegroundWindow(wSciTE.GetID());
 	CheckMenus();
 }
 
