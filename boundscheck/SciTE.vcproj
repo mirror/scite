@@ -225,6 +225,9 @@
 				RelativePath="..\..\scintilla\src\LexHTML.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexKix.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexLisp.cxx">
 			</File>
 			<File

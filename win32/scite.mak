@@ -117,6 +117,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexForth.obj \
 	..\..\scintilla\win32\LexFortran.obj \
 	..\..\scintilla\win32\LexHTML.obj \
+	..\..\scintilla\win32\LexKix.obj \
 	..\..\scintilla\win32\LexLisp.obj \
 	..\..\scintilla\win32\LexLout.obj \
 	..\..\scintilla\win32\LexLua.obj \
@@ -189,8 +190,9 @@ $(DIR_BIN)\conf.properties $(DIR_BIN)\cpp.properties $(DIR_BIN)\css.properties \
 $(DIR_BIN)\eiffel.properties $(DIR_BIN)\erlang.properties \
 $(DIR_BIN)\escript.properties $(DIR_BIN)\forth.properties \
 $(DIR_BIN)\fortran.properties $(DIR_BIN)\html.properties \
-$(DIR_BIN)\latex.properties $(DIR_BIN)\lisp.properties \
-$(DIR_BIN)\lot.properties $(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
+$(DIR_BIN)\kix.properties $(DIR_BIN)\latex.properties \
+$(DIR_BIN)\lisp.properties $(DIR_BIN)\lot.properties \
+$(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
 $(DIR_BIN)\matlab.properties $(DIR_BIN)\metapost.properties \
 $(DIR_BIN)\mmixal.properties $(DIR_BIN)\nncrontab.properties \
 $(DIR_BIN)\nsis.properties $(DIR_BIN)\others.properties \
@@ -251,6 +253,8 @@ $(DIR_BIN)\fortran.properties:	..\src\fortran.properties
 	copy ..\src\fortran.properties $@
 $(DIR_BIN)\html.properties:	..\src\html.properties
 	copy ..\src\html.properties $@
+$(DIR_BIN)\kix.properties:	..\src\kix.properties
+	copy ..\src\kix.properties $@
 $(DIR_BIN)\latex.properties:	..\src\latex.properties
 	copy ..\src\latex.properties $@
 $(DIR_BIN)\lisp.properties:	..\src\lisp.properties
