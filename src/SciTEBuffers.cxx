@@ -350,7 +350,7 @@ void SciTEBase::LoadSession(const char *sessionName) {
 	if (!sessionFile)
 		return;
 	// comment next line if you don't want to close all buffers before loading session
-	CloseAllBuffers();
+	CloseAllBuffers(true);
 	int curr = -1, pos = 0;
 	char *file, line[MAX_PATH + 128];
 	for (int i = 0; i < bufferMax; i++) {
@@ -474,7 +474,7 @@ void SciTEBase::New() {
 	SetFileStackMenu();
 }
 
-void SciTEBase::Close(bool updateUI) {
+void SciTEBase::Close(bool updateUI, bool loadingSession) {
 	bool closingLast;
 
 	if (buffers.size == 1) {
@@ -505,7 +505,7 @@ void SciTEBase::Close(bool updateUI) {
 		unicodeMode = bufferNext.unicodeMode;
 		fileModTime = bufferNext.fileModTime;
 		overrideExtension = bufferNext.overrideExtension;
-		
+
 		if (updateUI)
 			SetFileName(bufferNext.FullPath());
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.current));
@@ -529,17 +529,17 @@ void SciTEBase::Close(bool updateUI) {
 		UpdateStatusBar(true);
 	}
 
-	if (closingLast && props.GetInt("quit.on.close.last")) {
+	if (closingLast && props.GetInt("quit.on.close.last") && !loadingSession) {
 		QuitProgram();
 	}
 }
 
-void SciTEBase::CloseAllBuffers() {
+void SciTEBase::CloseAllBuffers(bool loadingSession) {
 	if (SaveAllBuffers(false) != IDCANCEL) {
 		while (buffers.length > 1)
-			Close(false);
+			Close(false, loadingSession);
 
-		Close();
+		Close(true, loadingSession);
 	}
 }
 

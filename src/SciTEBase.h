@@ -510,7 +510,7 @@ protected:
 	void SetIndentSettings();
 	void SetEol();
 	void New();
-	void Close(bool updateUI = true);
+	void Close(bool updateUI = true, bool loadingSession = false);
 	bool IsAbsolutePath(const char *path);
 	bool Exists(const char *dir, const char *path, char *testPath);
 	void OpenFile(bool initialCmdLine);
@@ -626,7 +626,7 @@ protected:
 		int flags = 0);
 	virtual void AboutDialog() = 0;
 	virtual void QuitProgram() = 0;
-	void CloseAllBuffers();
+	void CloseAllBuffers(bool loadingSession = false);
 	int SaveAllBuffers(bool forceQuestion, bool alwaysYes=false);
 	virtual void CopyAsRTF() {};
 	void SetLineNumberWidth();
