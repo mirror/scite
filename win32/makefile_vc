@@ -51,7 +51,7 @@ OBJS = SciTEBase.obj SciTEWin.obj \
 	..\..\scintilla\win32\UniConversion.obj
 
 $(PROG): $(OBJS) SciTERes.res
-	$(LD) /OUT:$@ $(OBJS) SciTERes.res $(LDFLAGS)
+	$(LD) /opt:nowin98 /OUT:$@ $(OBJS) SciTERes.res $(LDFLAGS)
 	
 OBJSSTATIC = Sc1.obj SciTEBase.obj \
 	..\..\scintilla\win32\KeyWords.obj \
@@ -116,4 +116,4 @@ Sc1Res.res:	SciTERes.rc ..\src\SciTE.h ..\..\scintilla\win32\PlatformRes.h
 	$(RC) $(INCLUDEDIRS) -dSTATIC_BUILD -fo$@ SciTERes.rc
 	
 $(PROGSTATIC): $(OBJSSTATIC) Sc1Res.res
-	$(LD) /OUT:$@ $(OBJSSTATIC) Sc1Res.res $(LDFLAGS)
+	$(LD) /opt:nowin98 /OUT:$@ $(OBJSSTATIC) Sc1Res.res $(LDFLAGS)
