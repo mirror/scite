@@ -76,6 +76,8 @@ const char *contributors[] = {
     "Ragnar Højland",
     "Christian Obrecht",
     "Andreas Neukoetter",
+    "Adam Gates",
+    "Steve Lhomme",
 };
 
 const char *extList[] = {
