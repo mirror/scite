@@ -1459,6 +1459,14 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
+	use.monospaced
+        </td>
+        <td>
+	If set to 1, start in Use Monospaced Font mode.
+        </td>
+      </tr>
+       <tr>
+        <td>
           braces.check<br />
            braces.sloppy<br />
            style.<i>lexer</i>.34<br />
@@ -1568,6 +1576,16 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	The word at the cursor is copied to $(CurrentWord) and this is often a good argument
 	to the help application. The subsystem property works in the same way as for other
 	commands.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          command.scite.help<br />
+          command.scite.help.subsystem
+        </td>
+        <td>
+	Defines a command to be executed for help on the SciTE program itself which normally 
+	means displaying this file in a browser.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1721,6 +1739,17 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	headers and rounded joins; 3 for a flattened tree control with square headers.
 	To automatically fold files as much as possible when loaded, set
 	fold.on.open to 1.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          fold.flags
+        </td>
+        <td>
+        	Not really documented ;) bit flags which may go away.
+	2, 4, 8, and 16 control drawing lines above and below folding lines if 
+	expanded or not expanded.
+	Set to 64 to help debug folding by showing hexadecimal fold levels in margin.
         </td>
       </tr>
       <tr>
