@@ -198,7 +198,7 @@ protected:
 	virtual void SaveAsPDF();
 	virtual void SaveAsTEX();
 
-	virtual void Print();
+	virtual void Print(bool);
 	virtual void PrintSetup();
 
 	virtual int WindowMessageBox(Window &w, const SString &msg, int style);
@@ -885,7 +885,7 @@ void SciTEGTK::SaveAsTEX() {
 	SaveAsXXX(sfTEX, "Export File As TeX");
 }
 
-void SciTEGTK::Print() {
+void SciTEGTK::Print(bool) {
 	SelectionIntoProperties();
 	AddCommand(props.GetWild("command.print.", fileName), "",
 		   SubsystemType("command.print.subsystem."));
