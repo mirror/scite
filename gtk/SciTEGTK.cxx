@@ -694,8 +694,8 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 void SciTEGTK::DestroyMenuItem(int, int itemID) {
 	// On GTK+ menu items are just hidden rather than destroyed as they can not be recreated in the middle of a menu
 	// The menuNumber is ignored as all menu items in GTK+ can be found from the root of the menu tree
-	
-	
+
+
 	if (itemID) {
 		GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
 
@@ -2558,9 +2558,9 @@ void SciTEGTK::CreateUI() {
 	wTabBar=gtk_notebook_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
-	gtk_signal_connect_after(GTK_OBJECT(PWidget(wTabBar)),"button-press-event",GTK_SIGNAL_FUNC(GtkTabBarSwitch),NULL);
+	gtk_signal_connect_after(GTK_OBJECT(PWidget(wTabBar)),
+		"button-release-event",GTK_SIGNAL_FUNC(GtkTabBarSwitch),NULL);
 
-	
 	wContent = gtk_fixed_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wContent), GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
