@@ -497,18 +497,25 @@ NameError: mistake
       line. Values may include the values of other variables by using $(variablename). There are
       some variables set by the environment to access the name of the current file as well:
     </p>
-    <p>
-       <b>FilePath</b> is the full path of the current file.<br />
-       <b>FileDir</b> is the directory of the current file without a trailing slash.<br />
-       <b>FileName</b> is the base name of the current file.<br />
-       <b>FileExt</b> is the extension of the current file.<br />
-       <b>FileNameExt</b> is $(FileName).$(FileExt).<br />
-       <b>CurrentSelection</b> is the value of the currently selected text but not if selection is
-      more than 1000 characters.<br />
-       <b>CurrentWord</b> is the value of word which the caret is within or near.<br />
-       <b>SciteDefaultHome</b> is the directory in which the Global Options file is found.<br />
-       <b>SciteUserHome</b> is the directory in which the User Options file is found.<br />
-    </p>
+       <table cellpadding="0" cellspacing="0" border="1">
+	<thead>
+	<tr><th>Name</th><th>Meaning</th></tr>
+	</thead>
+	       <tr><td>FilePath</td><td>full path of the current file</td></tr>
+	       <tr><td>FileDir</td><td>directory of the current file without a trailing slash</td></tr>
+	       <tr><td>FileName</td><td>base name of the current file</td></tr>
+	       <tr><td>FileExt</td><td>extension of the current file</td></tr>
+	       <tr><td>FileNameExt</td><td>$(FileName).$(FileExt)</td></tr>
+	       <tr><td>CurrentSelection</td><td>value of the currently selected text but not if selection is
+	      more than 1000 characters</td></tr>
+	       <tr><td>CurrentWord</td><td>value of word which the caret is within or near</td></tr>
+	       <tr><td>SelectionStartColumn</td><td>column where selection starts</td></tr>
+	       <tr><td>SelectionStartLine</td><td>line where selection starts</td></tr>
+	       <tr><td>SelectionEndColumn</td><td>column where selection ends</td></tr>
+	       <tr><td>SelectionEndLine</td><td>line where selection ends</td></tr>
+	       <tr><td>SciteDefaultHome</td><td>directory in which the Global Options file is found</td></tr>
+	       <tr><td>SciteUserHome</td><td>directory in which the User Options file is found</td></tr>
+	</table>
     <p>
        Some features use file name patterns to see which variable to use. For example, the lexer
       variable can be specialised for a particular file, or a group of files based upon wildcard
