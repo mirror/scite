@@ -1490,7 +1490,6 @@ void SciTEGTK::AboutDialog() {
 
 void SciTEGTK::QuitProgram() {
 	if (SaveIfUnsureAll() != IDCANCEL) {
-#ifdef SINGLE_INSTANCE
 		//clean up any pipes that are ours
 		if (fdPipe != -1 && inputWatcher != -1) {
 			//printf("Cleaning up pipe\n");
@@ -1498,7 +1497,6 @@ void SciTEGTK::QuitProgram() {
 			unlink(pipeName);
 
 		}
-#endif
 		gtk_exit(0);
 	}
 }
@@ -1512,7 +1510,6 @@ gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation * /*allocation*/, SciTEGTK 
 gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
 	if (scitew->SaveIfUnsureAll() != IDCANCEL) {
 
-#ifdef SINGLE_INSTANCE
 		//clean up any pipes that are ours
 		if (scitew->fdPipe != -1 && scitew->inputWatcher != -1) {
 			//printf("Cleaning up pipe\n");
@@ -1520,7 +1517,6 @@ gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
 			unlink(scitew->pipeName);
 
 		}
-#endif
 		gtk_exit(0);
 	}
 	// No need to return FALSE for quit as gtk_exit will have been called
