@@ -1332,7 +1332,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 		                   "PARAMETERS",
 		                   MainHWND(),
 		                   reinterpret_cast<DLGPROC>(ParametersDlg)) == IDOK;
-		wParameters.Destroy();
+		wParameters = 0;
 		WindowSetFocus(wEditor);
 	} else {
 		::CreateDialogParam(hInstance,

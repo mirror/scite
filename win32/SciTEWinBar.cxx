@@ -324,8 +324,10 @@ void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 }
 
 void EnableButton(HWND wTools, int id, bool enable) {
-	::SendMessage(wTools, TB_ENABLEBUTTON, id,
+	if (wTools) {
+		::SendMessage(wTools, TB_ENABLEBUTTON, id,
 	              Platform::LongFromTwoShorts(static_cast<short>(enable ? TRUE : FALSE), 0));
+	}
 }
 
 void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
