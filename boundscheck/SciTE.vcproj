@@ -228,6 +228,9 @@
 				RelativePath="..\..\scintilla\src\LexMatlab.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexNsis.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexOthers.cxx">
 			</File>
 			<File
