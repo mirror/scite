@@ -639,6 +639,16 @@ NameError: mistake
 	global properties files. So after changing it, restart SciTE to see the effect.
         </td>
       </tr>
+      <tr class="windowsonly">
+        <td>
+	buffers.zorder.switching
+        </td>
+        <td>
+          This setting chooses the ordering of buffer switching when Ctrl+Tab pressed.
+	Set to 1, the buffers are selected in the order of their previous selection otherwise
+	they are chosen based on the buffer number.
+        </td>
+      </tr>
       <tr>
         <td>
           are.you.sure<br />
@@ -787,7 +797,7 @@ NameError: mistake
 	Setting line.numbers to 1 is the most frequent SciTE support request.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr>
         <td>
           tabbar.visible<br />
 	tabbar.hide.one
@@ -796,6 +806,7 @@ NameError: mistake
           Setting tabbar.visible to 1 makes the tab bar visible at start up on Windows.
 	The buffers property must be set to a value greater than 1 for this option to work.
 	Setting tabbar.hide.one to 1 hides the tab bar until there is more than one tab.
+	Works on Windows and GTK+ 2.x but not GTK+ 1.x.
         </td>
       </tr>
       <tr class="windowsonly">
