@@ -9,6 +9,7 @@ call zipsrc
 cd win32
 nmake -f scintilla.mak
 cd ..
+del/q bin\*.pdb
 cd ..
 cd scite
 del/q bin\*.properties
