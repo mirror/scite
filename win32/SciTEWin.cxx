@@ -1727,6 +1727,10 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 
+	case WM_CAPTURECHANGED:
+		capturedMouse = false;
+		break;
+
 	case WM_SETCURSOR:
 		if (ControlIDOfCommand(lParam) == HTCLIENT) {
 			Point ptCursor;
