@@ -959,9 +959,8 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 	}
 	if ((translation.length() > 0) || !retainIfNotFound) {
 		return translation;
-	} else {
-		return s;
 	}
+	return s;
 }
 
 SString SciTEBase::LocaliseMessage(const char *s, const char *param0, const char *param1) {
