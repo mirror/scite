@@ -949,7 +949,7 @@ bool SciTEBase::StartAutoComplete() {
 		char *words = apis.GetNearestWords(root, rootlen, autoCompleteIgnoreCase);
 		if (words) {
 			SendEditorString(SCI_AUTOCSHOW, rootlen, words);
-			free(words);
+			delete []words;
 		}
 	}
 	return true;
