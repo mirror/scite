@@ -249,7 +249,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	wholeWord = false;
 	reverseFind = false;
 	regExp = false;
-	noWrap = false;
+	wrapFind = true;
 	unSlash = false;
 
 	windowName[0] = '\0';
@@ -1049,10 +1049,10 @@ void SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	int posFind = SendEditor(SCI_FINDTEXT, flags, reinterpret_cast<long>(&ft));
 	//DWORD dwEnd = timeGetTime();
 	//Platform::DebugPrintf("<%s> found at %d took %d\n", findWhat, posFind, dwEnd - dwStart);
-	if (posFind == -1 && !noWrap) {
+	if (posFind == -1 && wrapFind) {
 		// Failed to find in indicated direction
 		// so search from the beginning (forward) or from the end (reverse)
-		// unless noWrap is true
+		// unless wrapFind is false
 		if (reverseDirection) {
 			ft.chrg.cpMin = LengthDocument();
 			ft.chrg.cpMax = 0;
@@ -1123,11 +1123,11 @@ void SciTEBase::ReplaceAll(bool inSelection) {
 		}
 	} else {
 		ft.chrg.cpMax = LengthDocument();
-		if (!noWrap) {
+		if (wrapFind) {
 			// Whole document
 			ft.chrg.cpMin = 0;
 		}
-		// If noWrap, replace all only from caret to end of document
+		// If not wrapFind, replace all only from caret to end of document
 	}
 
 	char findTarget[findReplaceMaxLen + 1];

@@ -745,7 +745,7 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
 	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
-	HWND wNoWrap = ::GetDlgItem(hDlg, IDNOWRAP);
+	HWND wWrap = ::GetDlgItem(hDlg, IDWRAP);
 	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
 	HWND wUp = ::GetDlgItem(hDlg, IDDIRECTIONUP);
 	HWND wDown = ::GetDlgItem(hDlg, IDDIRECTIONDOWN);
@@ -762,8 +762,8 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->regExp)
 			::SendMessage(wRegExp, BM_SETCHECK, BST_CHECKED, 0);
-		if (sci->noWrap)
-			::SendMessage(wNoWrap, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->wrapFind)
+			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->unSlash)
 			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->reverseFind) {
@@ -795,8 +795,8 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			                 ::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
 			sci->regExp = BST_CHECKED ==
 			              ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
-			sci->noWrap = BST_CHECKED ==
-			              ::SendMessage(wNoWrap, BM_GETCHECK, 0, 0);
+			sci->wrapFind = BST_CHECKED ==
+			              ::SendMessage(wWrap, BM_GETCHECK, 0, 0);
 			sci->unSlash = BST_CHECKED ==
 			               ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
 			sci->reverseFind = BST_CHECKED ==
@@ -817,7 +817,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	HWND wWholeWord = ::GetDlgItem(wFindReplace.GetID(), IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(wFindReplace.GetID(), IDMATCHCASE);
 	HWND wRegExp = ::GetDlgItem(wFindReplace.GetID(), IDREGEXP);
-	HWND wNoWrap = ::GetDlgItem(wFindReplace.GetID(), IDNOWRAP);
+	HWND wWrap = ::GetDlgItem(wFindReplace.GetID(), IDWRAP);
 	HWND wUnSlash = ::GetDlgItem(wFindReplace.GetID(), IDUNSLASH);
 
 	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
@@ -830,8 +830,8 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		            ::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
 		regExp = BST_CHECKED ==
 		         ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
-		noWrap = BST_CHECKED ==
-		         ::SendMessage(wNoWrap, BM_GETCHECK, 0, 0);
+		wrapFind = BST_CHECKED ==
+		         ::SendMessage(wWrap, BM_GETCHECK, 0, 0);
 		unSlash = BST_CHECKED ==
 		          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
 	}
@@ -865,7 +865,7 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
 	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
 	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
-	HWND wNoWrap = ::GetDlgItem(hDlg, IDNOWRAP);
+	HWND wWrap = ::GetDlgItem(hDlg, IDWRAP);
 	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
 
 	switch (message) {
@@ -882,8 +882,8 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->regExp)
 			::SendMessage(wRegExp, BM_SETCHECK, BST_CHECKED, 0);
-		if (sci->noWrap)
-			::SendMessage(wNoWrap, BM_SETCHECK, BST_CHECKED, 0);
+		if (sci->wrapFind)
+			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
 		if (sci->unSlash)
 			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
 		return TRUE;

@@ -741,7 +741,7 @@ void SciTEBase::ReadProperties() {
 	matchCase = props.GetInt("find.replace.matchcase");
 	regExp = props.GetInt("find.replace.regexp");
 	unSlash = props.GetInt("find.replace.escapes");
-	noWrap = props.GetInt("find.replace.nowrap");
+	wrapFind = props.GetInt("find.replace.wrap", 1);
 
 	if (props.GetInt("vc.home.key", 1)) {
 		AssignKey(SCK_HOME, 0, SCI_VCHOME);

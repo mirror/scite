@@ -202,7 +202,7 @@
 #define IDREPLACEALL		237
 #define IDREPLACEINSEL		238
 #define IDREGEXP			239
-#define IDNOWRAP			240
+#define IDWRAP			240
 #define IDUNSLASH			241
 
 // Dialog IDs

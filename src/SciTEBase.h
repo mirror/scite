@@ -213,7 +213,7 @@ protected:
 	bool wholeWord;
 	bool reverseFind;
 	bool regExp;
-	bool noWrap;
+	bool wrapFind;
 	bool unSlash;
 	ComboMemory memFinds;
 	ComboMemory memReplaces;

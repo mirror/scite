@@ -88,7 +88,7 @@ protected:
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
 	GtkWidget *toggleRegExp;
-	GtkWidget *toggleNoWrap;
+	GtkWidget *toggleWrap;
 	GtkWidget *toggleUnSlash;
 	GtkWidget *toggleReverse;
 	GtkWidget *toggleRec;
@@ -262,7 +262,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	toggleWord = 0;
 	toggleCase = 0;
 	toggleRegExp = 0;
-	toggleNoWrap = 0;
+	toggleWrap = 0;
 	toggleUnSlash = 0;
 	toggleReverse = 0;
 	comboFind = 0;
@@ -947,7 +947,7 @@ void SciTEGTK::FindReplaceGrabFields() {
 	wholeWord = GTK_TOGGLE_BUTTON(toggleWord)->active;
 	matchCase = GTK_TOGGLE_BUTTON(toggleCase)->active;
 	regExp = GTK_TOGGLE_BUTTON(toggleRegExp)->active;
-	noWrap = GTK_TOGGLE_BUTTON(toggleNoWrap)->active;
+	wrapFind = GTK_TOGGLE_BUTTON(toggleWrap)->active;
 	unSlash = GTK_TOGGLE_BUTTON(toggleUnSlash)->active;
 	reverseFind = GTK_TOGGLE_BUTTON(toggleReverse)->active;
 }
@@ -1464,9 +1464,9 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_table_attach(GTK_TABLE(table), toggleRegExp, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
-	// No Wrap Around
-	toggleNoWrap = MakeToggle("N_o wrap around", accel_group, noWrap);
-	gtk_table_attach(GTK_TABLE(table), toggleNoWrap, 0, 2, row, row + 1, opts, opts, 3, 0);
+	// Wrap Around
+	toggleWrap = MakeToggle("Wrap aroun_d", accel_group, wrapFind);
+	gtk_table_attach(GTK_TABLE(table), toggleWrap, 0, 2, row, row + 1, opts, opts, 3, 0);
 	row++;
 
 	// Transform backslash expressions
