@@ -1225,6 +1225,8 @@ void SciTEGTK::Run(const char *cmdLine) {
 	    {"/Edit/R_eplace", "<control>H", menuSig, IDM_REPLACE, 0},
 	    {"/Edit/sep3", NULL, NULL, 0, "<Separator>"},
 	    {"/Edit/_Go To", "<control>G", menuSig, IDM_GOTO, 0},
+	    {"/Edit/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
+	    {"/Edit/Toggle Bookmar_k", "<control>F2", menuSig, IDM_BOOKMARK_TOGGLE, 0},
 	    {"/Edit/Match _Brace", "<control>B", menuSig, IDM_MATCHBRACE, 0},
 	    {"/Edit/C_omplete Identifier", "<control>I", menuSig, IDM_COMPLETE, 0},
 	    {"/Edit/Make Selection _Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
