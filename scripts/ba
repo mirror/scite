@@ -1,8 +1,8 @@
 sci_base=/eff/os
 cd $sci_base/scintilla/gtk
-make
+make $*
 cd $sci_base/scite/gtk
-make
+make $*
 make install
 cd $sci_base/scintilla
 . tgzsrc
