@@ -141,7 +141,7 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		if (!menuKey && ::IsDialogMessage(reinterpret_cast<HWND>(wParameters.GetID()), pmsg))
 			return true;
 	}
-	if (pmsg->message == WM_KEYDOWN) {
+	if (pmsg->message == WM_KEYDOWN || pmsg->message == WM_SYSKEYDOWN) {
 		if (KeyDown(pmsg->wParam))
 			return true;
 	} else if (pmsg->message == WM_KEYUP) {
