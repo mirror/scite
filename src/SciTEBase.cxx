@@ -1427,9 +1427,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			SetSelection(lastMatch, lastMatch);
 		SendEditor(SCI_ENDUNDOACTION);
 		return replacements;
-	} else {
-		return 0;
 	}
+	return 0;
 	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
 
