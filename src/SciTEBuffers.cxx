@@ -1015,9 +1015,15 @@ void SciTEBase::SetToolsMenu() {
 		SString commandName = props.GetNewExpand(prefix.c_str(), fileName);
 		if (commandName.length()) {
 			SString sMenuItem = commandName;
-			SString sMnemonic = "Ctrl+";
-			sMnemonic += SString(item);
-			SetMenuItem(menuTools, menuPos, itemID, sMenuItem.c_str(), sMnemonic.c_str());
+			prefix = "command.shortcut.";
+			prefix += SString(item);
+			prefix += ".";
+			SString sMnemonic = props.GetNewExpand(prefix.c_str(), fileName);
+			if (item < 10 && sMnemonic.length() == 0) {
+				sMnemonic += "Ctrl+";
+				sMnemonic += SString(item);
+			}
+			SetMenuItem(menuTools, menuPos, itemID, sMenuItem.c_str(), sMnemonic[0] ? sMnemonic.c_str() : NULL);
 			menuPos++;
 		}
 	}

@@ -266,16 +266,33 @@ void SciTEWin::SizeSubWindows() {
 	//::RedrawWindow(MainHWND(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
+
+
+// Keymod param is interpreted using the same notation (and much the same 
+// code) as KeyMatch uses in SciTEWin.cxx.
+
+
+
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
                            const char *text, const char *mnemonic) {
 	// On Windows the menu items are modified if they already exist or are created
 	HMENU hmenuBar = ::GetMenu(MainHWND());
 	HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
 	SString sTextMnemonic = text;
-	if (mnemonic) {
-		sTextMnemonic += "\t";
+	long keycode;
+	if (mnemonic && *mnemonic) {
+		keycode = SciTEKeys::ParseKeyCode(mnemonic);
+		if (keycode) {
+			sTextMnemonic += "\t";
 		sTextMnemonic += LocaliseAccelerator(mnemonic, itemID);
 	}
+		// the keycode could be used to make a custom accelerator table
+		// but for now, the menu's item data is used instead for command
+		// tools, and for other menu entries it is just discarded.
+	} else {
+		keycode = 0; //I don't think this is needed in ANSI C++.
+	}
+
 	if (::GetMenuState(hmenu, itemID, MF_BYCOMMAND) == 0xffffffff) {
 		if (text[0])
 			::InsertMenu(hmenu, position, MF_BYPOSITION, itemID, sTextMnemonic.c_str());
@@ -283,6 +300,16 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 			::InsertMenu(hmenu, position, MF_BYPOSITION | MF_SEPARATOR, itemID, sTextMnemonic.c_str());
 	} else {
 		::ModifyMenu(hmenu, position, MF_BYCOMMAND, itemID, sTextMnemonic.c_str());
+	}
+
+	if (itemID >= IDM_TOOLS && itemID < IDM_TOOLS + toolMax) {
+		// Stow the keycode for later retrieval.
+		// Do this even if 0, in case the menu already existed (e.g. ModifyMenu)
+		MENUITEMINFO mii;
+		mii.cbSize = sizeof(MENUITEMINFO);
+		mii.fMask = MIIM_DATA;
+		//mii.dwItemData = *reinterpret_cast<ULONG_PTR*>(&keycode);
+		::SetMenuItemInfo(hmenu, itemID, FALSE, &mii);
 	}
 }
 

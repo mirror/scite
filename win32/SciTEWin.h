@@ -53,6 +53,7 @@
 #include "Scintilla.h"
 #include "Extender.h"
 #include "SciTEBase.h"
+#include "SciTEKeys.h"
 #include "UniqueInstance.h"
 #ifdef LUA_SCRIPTING
 #include "LuaExtension.h"

@@ -3687,7 +3687,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		} else if (cmdID >= importCmdID &&
 		           (cmdID < importCmdID + importMax)) {
 			ImportMenu(cmdID - importCmdID);
-		} else if (cmdID >= IDM_TOOLS && cmdID < IDM_TOOLS + 10) {
+		} else if (cmdID >= IDM_TOOLS && cmdID < IDM_TOOLS + toolMax) {
 			ToolsMenu(cmdID - IDM_TOOLS);
 		} else if (cmdID >= IDM_LANGUAGE && cmdID < IDM_LANGUAGE + 100) {
 			SetOverrideLanguage(cmdID - IDM_LANGUAGE);

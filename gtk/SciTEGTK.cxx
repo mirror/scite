@@ -33,6 +33,7 @@
 #include "ScintillaWidget.h"
 #include "Extender.h"
 #include "SciTEBase.h"
+#include "SciTEKeys.h"
 
 #ifndef NO_EXTENSIONS
 #include "MultiplexExtension.h"
@@ -709,7 +710,7 @@ void SciTEGTK::SizeSubWindows() {
 	SizeContentWindows();
 }
 
-void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *) {
+void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *mnemonic) {
 	DestroyMenuItem(0, itemID);
 
 	// On GTK+ the menuNumber and position are ignored as the menu item already exists and is in the right
@@ -718,6 +719,19 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 	SString itemText(text);
 	// Remove accelerator as does not work.
 	itemText.remove("&");
+	
+	long keycode = 0;
+	if (mnemonic && *mnemonic) {
+		keycode = SciTEKeys::ParseKeyCode(mnemonic);
+		if (keycode) {
+			itemText += " ";
+			itemText += mnemonic;
+		}
+		// the keycode could be used to make a custom accelerator table
+		// but for now, the menu's item data is used instead for command
+		// tools, and for other menu entries it is just discarded.
+	}
+
 	// Drop the 'i' for compatibuilty with other menus
 	itemText.substitute("Shift+", "Shft+");
 	// Drop the 'r' for compatibuilty with other menus
@@ -739,6 +753,12 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *)
 		}
 		g_list_free(al);
 		gtk_widget_show(item);
+		
+		if (itemID >= IDM_TOOLS && itemID < IDM_TOOLS + toolMax) {
+			// Stow the keycode for later retrieval.
+			// Do this even if 0, in case the menu already existed (e.g. ModifyMenu)
+			gtk_object_set_user_data(GTK_OBJECT(item), reinterpret_cast<gpointer>(keycode));
+		}
 	}
 }
 
@@ -751,6 +771,7 @@ void SciTEGTK::DestroyMenuItem(int, int itemID) {
 
 		if (item) {
 			gtk_widget_hide(item);
+			gtk_object_set_user_data(GTK_OBJECT(item), 0);
 		}
 	}
 }
@@ -2018,6 +2039,19 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 		    GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
 	}
 
+	// check tools menu command shortcuts
+	// TODO: test this on GTK+ 1 and 2.
+	for (int tool_i = 0; tool_i < toolMax; ++tool_i) {
+		GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, IDM_TOOLS + tool_i);
+		if (item) {
+			long keycode = reinterpret_cast<long>(gtk_object_get_user_data(GTK_OBJECT(item)));
+			if (keycode && SciTEKeys::MatchKeyCode(keycode, event->keyval, modifiers)) {
+				SciTEBase::MenuCommand(IDM_TOOLS + tool_i);
+				return 1;
+			}
+		}
+	}
+
 	// check user defined keys
 	for (int cut_i = 0; cut_i < shortCutItems; cut_i++) {
 		if (KeyMatch(shortCutItemList[cut_i].menuKey.c_str(), event->keyval, modifiers)) {
@@ -2513,16 +2547,63 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Tools/_Compile", "<control>F7", menuSig, IDM_COMPILE, 0},
 	                                      {"/Tools/_Build", "F7", menuSig, IDM_BUILD, 0},
 	                                      {"/Tools/_Go", "F5", menuSig, IDM_GO, 0},
-	                                      {"/Tools/Tool0", "<control>0", menuSig, IDM_TOOLS + 0, 0},
-	                                      {"/Tools/Tool1", "<control>1", menuSig, IDM_TOOLS + 1, 0},
-	                                      {"/Tools/Tool2", "<control>2", menuSig, IDM_TOOLS + 2, 0},
-	                                      {"/Tools/Tool3", "<control>3", menuSig, IDM_TOOLS + 3, 0},
-	                                      {"/Tools/Tool4", "<control>4", menuSig, IDM_TOOLS + 4, 0},
-	                                      {"/Tools/Tool5", "<control>5", menuSig, IDM_TOOLS + 5, 0},
-	                                      {"/Tools/Tool6", "<control>6", menuSig, IDM_TOOLS + 6, 0},
-	                                      {"/Tools/Tool7", "<control>7", menuSig, IDM_TOOLS + 7, 0},
-	                                      {"/Tools/Tool8", "<control>8", menuSig, IDM_TOOLS + 8, 0},
-	                                      {"/Tools/Tool9", "<control>9", menuSig, IDM_TOOLS + 9, 0},
+                                              
+	                                      {"/Tools/Tool0", NULL, menuSig, IDM_TOOLS + 0, 0},
+	                                      {"/Tools/Tool1", NULL, menuSig, IDM_TOOLS + 1, 0},
+	                                      {"/Tools/Tool2", NULL, menuSig, IDM_TOOLS + 2, 0},
+	                                      {"/Tools/Tool3", NULL, menuSig, IDM_TOOLS + 3, 0},
+	                                      {"/Tools/Tool4", NULL, menuSig, IDM_TOOLS + 4, 0},
+	                                      {"/Tools/Tool5", NULL, menuSig, IDM_TOOLS + 5, 0},
+	                                      {"/Tools/Tool6", NULL, menuSig, IDM_TOOLS + 6, 0},
+	                                      {"/Tools/Tool7", NULL, menuSig, IDM_TOOLS + 7, 0},
+	                                      {"/Tools/Tool8", NULL, menuSig, IDM_TOOLS + 8, 0},
+	                                      {"/Tools/Tool9", NULL, menuSig, IDM_TOOLS + 9, 0},
+
+	                                      {"/Tools/Tool10", NULL, menuSig, IDM_TOOLS + 10, 0},
+	                                      {"/Tools/Tool11", NULL, menuSig, IDM_TOOLS + 11, 0},
+	                                      {"/Tools/Tool12", NULL, menuSig, IDM_TOOLS + 12, 0},
+	                                      {"/Tools/Tool13", NULL, menuSig, IDM_TOOLS + 13, 0},
+	                                      {"/Tools/Tool14", NULL, menuSig, IDM_TOOLS + 14, 0},
+	                                      {"/Tools/Tool15", NULL, menuSig, IDM_TOOLS + 15, 0},
+	                                      {"/Tools/Tool16", NULL, menuSig, IDM_TOOLS + 16, 0},
+	                                      {"/Tools/Tool17", NULL, menuSig, IDM_TOOLS + 17, 0},
+	                                      {"/Tools/Tool18", NULL, menuSig, IDM_TOOLS + 18, 0},
+	                                      {"/Tools/Tool19", NULL, menuSig, IDM_TOOLS + 19, 0},
+
+	                                      {"/Tools/Tool20", NULL, menuSig, IDM_TOOLS + 20, 0},
+	                                      {"/Tools/Tool21", NULL, menuSig, IDM_TOOLS + 21, 0},
+	                                      {"/Tools/Tool22", NULL, menuSig, IDM_TOOLS + 22, 0},
+	                                      {"/Tools/Tool23", NULL, menuSig, IDM_TOOLS + 23, 0},
+	                                      {"/Tools/Tool24", NULL, menuSig, IDM_TOOLS + 24, 0},
+	                                      {"/Tools/Tool25", NULL, menuSig, IDM_TOOLS + 25, 0},
+	                                      {"/Tools/Tool26", NULL, menuSig, IDM_TOOLS + 26, 0},
+	                                      {"/Tools/Tool27", NULL, menuSig, IDM_TOOLS + 27, 0},
+	                                      {"/Tools/Tool28", NULL, menuSig, IDM_TOOLS + 28, 0},
+	                                      {"/Tools/Tool29", NULL, menuSig, IDM_TOOLS + 29, 0},
+
+	                                      {"/Tools/Tool30", NULL, menuSig, IDM_TOOLS + 30, 0},
+	                                      {"/Tools/Tool31", NULL, menuSig, IDM_TOOLS + 31, 0},
+	                                      {"/Tools/Tool32", NULL, menuSig, IDM_TOOLS + 32, 0},
+	                                      {"/Tools/Tool33", NULL, menuSig, IDM_TOOLS + 33, 0},
+	                                      {"/Tools/Tool34", NULL, menuSig, IDM_TOOLS + 34, 0},
+	                                      {"/Tools/Tool35", NULL, menuSig, IDM_TOOLS + 35, 0},
+	                                      {"/Tools/Tool36", NULL, menuSig, IDM_TOOLS + 36, 0},
+	                                      {"/Tools/Tool37", NULL, menuSig, IDM_TOOLS + 37, 0},
+	                                      {"/Tools/Tool38", NULL, menuSig, IDM_TOOLS + 38, 0},
+	                                      {"/Tools/Tool39", NULL, menuSig, IDM_TOOLS + 39, 0},
+
+	                                      {"/Tools/Tool40", NULL, menuSig, IDM_TOOLS + 40, 0},
+	                                      {"/Tools/Tool41", NULL, menuSig, IDM_TOOLS + 41, 0},
+	                                      {"/Tools/Tool42", NULL, menuSig, IDM_TOOLS + 42, 0},
+	                                      {"/Tools/Tool43", NULL, menuSig, IDM_TOOLS + 43, 0},
+	                                      {"/Tools/Tool44", NULL, menuSig, IDM_TOOLS + 44, 0},
+	                                      {"/Tools/Tool45", NULL, menuSig, IDM_TOOLS + 45, 0},
+	                                      {"/Tools/Tool46", NULL, menuSig, IDM_TOOLS + 46, 0},
+	                                      {"/Tools/Tool47", NULL, menuSig, IDM_TOOLS + 47, 0},
+	                                      {"/Tools/Tool48", NULL, menuSig, IDM_TOOLS + 48, 0},
+	                                      {"/Tools/Tool49", NULL, menuSig, IDM_TOOLS + 49, 0},
+
+										  
 	                                      {"/Tools/_Stop Executing", "<control>.", menuSig, IDM_STOPEXECUTE, NULL},
 	                                      {"/Tools/sep1", NULL, NULL, 0, "<Separator>"},
 	                                      {"/Tools/_Next Message", "F4", menuSig, IDM_NEXTMSG, 0},
@@ -3057,4 +3138,84 @@ int main(int argc, char *argv[]) {
 void SciTEGTK::GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event) {
 	if(event->button == 1)
 		ButtonSignal(NULL,(gpointer)(bufferCmdID+gtk_notebook_get_current_page(notebook)));
+}
+
+
+long SciTEKeys::ParseKeyCode(const char *mnemonic) {
+	int modsInKey = 0;
+	int keyval = -1;
+	
+	if (mnemonic && *mnemonic) {
+		SString sKey = mnemonic;
+	
+		if (sKey.contains("Ctrl+")) {
+			modsInKey |= GDK_CONTROL_MASK;
+			sKey.remove("Ctrl+");
+		}
+		if (sKey.contains("Shift+")) {
+			modsInKey |= GDK_SHIFT_MASK;
+			sKey.remove("Shift+");
+		}
+		if (sKey.contains("Alt+")) {
+			modsInKey |= GDK_MOD1_MASK;
+			sKey.remove("Alt+");
+		}
+	
+		if (sKey.length() == 1) {
+			if (modsInKey & GDK_CONTROL_MASK && !(modsInKey & GDK_SHIFT_MASK))
+				sKey.lowercase();
+			keyval = sKey[0];
+		} else if ((sKey.length() > 1)) {
+			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
+				sKey.remove("F");
+				int fkeyNum = sKey.value();
+				if (fkeyNum >= 1 && fkeyNum <= 12)
+					keyval = fkeyNum - 1 + GDK_F1;
+			} else {
+				if (sKey == "Left") {
+					keyval = GDK_Left;
+				} else if (sKey == "Right") {
+					keyval = GDK_Right;
+				} else if (sKey == "Up") {
+					keyval = GDK_Up;
+				} else if (sKey == "Down") {
+					keyval = GDK_Down;
+				} else if (sKey == "Insert") {
+					keyval = GDK_Escape;
+				} else if (sKey == "End") {
+					keyval = GDK_End;
+				} else if (sKey == "Home") {
+					keyval = GDK_Home;
+				} else if (sKey == "Enter") {
+					keyval = GDK_Return;
+				} else if (sKey == "Space") {
+					keyval = GDK_space;
+				} else if (sKey == "KeypadPlus") {
+					keyval = GDK_KP_Add;
+				} else if (sKey == "KeypadMinus") {
+					keyval = GDK_KP_Subtract;
+				} else if (sKey == "Escape") {
+					keyval = GDK_Escape;
+				} else if (sKey == "Delete") {
+					keyval = GDK_Delete;
+				} else if (sKey == "PageUp") {
+					keyval = GDK_Page_Up;
+				} else if (sKey == "PageDown") {
+					keyval = GDK_Page_Down;
+				} else if (sKey == "Slash") {
+					keyval = GDK_slash;
+				} else if (sKey == "Question") {
+					keyval = GDK_question;
+				} else if (sKey == "Equal") {
+					keyval = GDK_equal;
+				}
+			}
+		}
+	}
+
+	return (keyval > 0) ? (keyval | (modsInKey<<16)) : 0;
+}
+
+bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
+	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
 }
