@@ -448,6 +448,7 @@ void SciTEBase::Close(bool updateUI) {
 	if (buffers.size == 1) {
 		// With no buffer list, Close means close from MRU
 		buffers.buffers[0].Init();
+		buffers.buffers[0].useMonoFont = useMonoFont;
 		fullPath[0] = '\0';
 		StackMenu(0);
 	} else {
@@ -459,6 +460,7 @@ void SciTEBase::Close(bool updateUI) {
 		bool closingLast = buffers.length == 1;
 		if (closingLast) {
 			buffers.buffers[0].Init();
+			buffers.buffers[0].useMonoFont = useMonoFont;
 		} else {
 			buffers.RemoveCurrent();
 		}
