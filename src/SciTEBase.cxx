@@ -2651,6 +2651,9 @@ void SciTEBase::MenuCommand(int cmdID) {
 		Save();
 		WindowSetFocus(wEditor);
 		break;
+	case IDM_SAVEALL:
+		SaveAllBuffers(false, true);
+		break;
 	case IDM_SAVEAS:
 		SaveAs();
 		WindowSetFocus(wEditor);

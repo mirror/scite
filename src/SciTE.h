@@ -152,7 +152,8 @@
 #define IDM_PREVFILE			501
 #define IDM_NEXTFILE			502
 #define IDM_CLOSEALL			503
-#define IDM_BUFFERSEP		504
+#define IDM_SAVEALL			504
+#define IDM_BUFFERSEP		505
 
 // Help
 #define IDM_HELP			901

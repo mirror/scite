@@ -587,12 +587,13 @@ protected:
 	int GetLineLength(int line);
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
-	virtual void AddCommand(const SString &cmd, const SString &dir, 
-		JobSubsystem jobType, const SString &input = "", 
+	virtual void AddCommand(const SString &cmd, const SString &dir,
+		JobSubsystem jobType, const SString &input = "",
 		bool forceQueue = false);
 	virtual void AboutDialog() = 0;
 	virtual void QuitProgram() = 0;
 	void CloseAllBuffers();
+	int SaveAllBuffers(bool forceQuestion, bool alwaysYes=false);
 	virtual void CopyAsRTF() {};
 	void SetLineNumberWidth();
 	void MenuCommand(int cmdID);
@@ -731,7 +732,7 @@ const int blockSize = 131072;
 #endif
 
 int ControlIDOfCommand(unsigned long);
-bool BuildPath(char *path, const char *dir, const char *fileName, 
+bool BuildPath(char *path, const char *dir, const char *fileName,
 	unsigned int lenPath);
 time_t GetModTime(const char *fullPath);
 bool IsUntitledFileName(const char *name);

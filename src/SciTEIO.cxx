@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEIO.cxx
  ** Manage input and output with the system.
- **/ 
+ **/
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -77,7 +77,7 @@ const char propUserFileName[] = "SciTEUser.properties";
 const char fileRead[] = "r";
 const char fileWrite[] = "w";
 #endif
-#ifdef WIN32 
+#ifdef WIN32
 // Windows
 const char pathSepString[] = "\\";
 const char pathSepChar = '\\';
@@ -644,13 +644,8 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 }
 
 int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
-	UpdateBuffersCurrent();	// Ensure isDirty copied
-	for (int i = 0; i < buffers.length; i++) {
-		if (buffers.buffers[i].isDirty) {
-			SetDocumentAt(i);
-			if (SaveIfUnsure(forceQuestion) == IDCANCEL)
-				return IDCANCEL;
-		}
+	if (SaveAllBuffers(forceQuestion) == IDCANCEL) {
+		return IDCANCEL;
 	}
 	if (props.GetInt("save.recent", 0)) {
 		for (int i = 0; i < buffers.length; ++i) {
@@ -736,7 +731,7 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 	if (props.GetInt("ensure.consistent.line.ends"))
 		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));
 	SendEditor(SCI_ENDUNDOACTION);
-	
+
 	Utf8_16_Write convert;
 	convert.setEncoding(static_cast<Utf8_16::encodingType>(unicodeMode));
 

@@ -157,7 +157,8 @@ POPUP "&Buffers"
 BEGIN
 	MENUITEM "&Previous\tShift+F6",			IDM_PREVFILE
 	MENUITEM "&Next\tF6",			IDM_NEXTFILE
-	MENUITEM "&Close all",				IDM_CLOSEALL
+	MENUITEM "&Close All",				IDM_CLOSEALL
+	MENUITEM "&Save All",				IDM_SAVEALL
 END
 
 POPUP "&Help"

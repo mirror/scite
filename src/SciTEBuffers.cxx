@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file SciTEBuffers.cxx
  ** Buffers and jobs management.
- **/ 
+ **/
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -499,19 +499,32 @@ void SciTEBase::Close(bool updateUI) {
 }
 
 void SciTEBase::CloseAllBuffers() {
+	if (SaveAllBuffers(false) != IDCANCEL) {
+		while (buffers.length > 1)
+			Close(false);
+
+		Close();
+	}
+}
+
+int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
+	int choice = IDYES;
 	UpdateBuffersCurrent();	// Ensure isDirty copied
-	for (int i = 0; i < buffers.length; i++) {
+	int currentBuffer = buffers.current;
+	for (int i = 0; (i < buffers.length) && (choice != IDCANCEL); i++) {
 		if (buffers.buffers[i].isDirty) {
 			SetDocumentAt(i);
-			if (SaveIfUnsure() == IDCANCEL)
-				return;
+			if (alwaysYes) {
+				if (!Save()) {
+					choice = IDCANCEL;
+				}
+			} else {
+				choice = SaveIfUnsure(forceQuestion);
+			}
 		}
 	}
-
-	while (buffers.length > 1)
-		Close(false);
-
-	Close();
+	SetDocumentAt(currentBuffer);
+	return choice;
 }
 
 void SciTEBase::Next() {
@@ -543,7 +556,7 @@ void SciTEBase::BuffersMenu() {
 		DestroyMenuItem(menuBuffers, IDM_BUFFER + pos);
 	}
 	if (buffers.size > 1) {
-		int menuStart = 4;
+		int menuStart = 5;
 		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, "");
 		for (pos = 0; pos < buffers.length; pos++) {
 			int itemID = bufferCmdID + pos;
