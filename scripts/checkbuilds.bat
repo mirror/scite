@@ -48,20 +48,22 @@ cd ..\..
 path %SAVE_PATH%
 set INCLUDE=%SAVE_INCLUDE%
 rem
-rem Target 4: Visual C++ using scite\vcbuild\scite.dsp
-call scite\scripts\clearboth
-cd scintilla\vcbuild
+rem Set path for VC 6
 path %MSDEV_BASE%;%path%
-msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
 rem
-rem Target 5: Visual C++ using scintilla\vcbuild\SciTE.dsp
+rem Target 4: Visual C++ using scintilla\vcbuild\scite.dsp
 rem call scite\scripts\clearboth
-rem cd scite\vcbuild
-rem msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+rem cd scintilla\vcbuild
+rem msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
 rem if ERRORLEVEL 2 goto ERROR
 rem cd ..\..
+rem
+rem Target 5: Visual C++ using scintilla\vcbuild\SciTE.dsp
+call scite\scripts\clearboth
+cd scite\vcbuild
+msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 rem
 rem Target 6: Visual C++ using scite\boundscheck\SciTE.dsp
 rem call scite\scripts\clearboth
