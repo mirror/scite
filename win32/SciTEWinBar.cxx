@@ -138,8 +138,22 @@ void SciTEWin::Notify(SCNotification *notification) {
 			break;
 		}
 
+	case SCN_CHARADDED:
+		if ((notification->nmhdr.idFrom == IDM_RUNWIN) &&
+			executing &&
+			hWriteSubProcess) {
+			char chToWrite = notification->ch;
+			if (chToWrite != '\r') {
+				DWORD bytesWrote = 0;
+				::WriteFile(hWriteSubProcess, &chToWrite,
+									   1, &bytesWrote, NULL);
+			}
+		} else {
+			SciTEBase::Notify(notification);
+		}
+		break;
+	
 	default:    	// Scintilla notification, use default treatment
-
 		SciTEBase::Notify(notification);
 		break;
 	}

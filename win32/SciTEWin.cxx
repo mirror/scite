@@ -37,6 +37,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	openWhat[0] = '\0';
 	memset(&fr, 0, sizeof(fr));
 	filterDefault = 1;
+	hWriteSubProcess = NULL;
 
 	// Read properties resource into propsEmbed
 	// The embedded properties file is to allow distributions to be sure
@@ -579,13 +580,13 @@ void SciTEWin::ProcessExecute() {
 		// to set the hStdInput field in the STARTUP_INFO struct. For safety,
 		// you should not set the handles to an invalid handle.
 
-		HANDLE hWrite2 = NULL;
+		hWriteSubProcess = NULL;
 		HANDLE hRead2 = NULL;
 		// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
-		::CreatePipe(&hRead2, &hWrite2, &sa, 0);
+		::CreatePipe(&hRead2, &hWriteSubProcess, &sa, 0);
 
 		::SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
-		::SetHandleInformation(hRead2, HANDLE_FLAG_INHERIT, 0);
+		::SetHandleInformation(hWriteSubProcess, HANDLE_FLAG_INHERIT, 0);
 
 		//Platform::DebugPrintf("3Execute <%s>\n");
 		// Make child process use hPipeWrite as standard out, and make
@@ -598,7 +599,7 @@ void SciTEWin::ProcessExecute() {
 			si.wShowWindow = SW_HIDE;
 		else
 			si.wShowWindow = SW_SHOW;
-		si.hStdInput = hWrite2;
+		si.hStdInput = hRead2;
 		si.hStdOutput = hPipeWrite;
 		si.hStdError = hPipeWrite;
 
@@ -621,13 +622,6 @@ void SciTEWin::ProcessExecute() {
 			OutputAppendStringSynchronised(">Failed to CreateProcess\n");
 		}
 
-		// Now that this has been inherited, close it to be safe.
-		::CloseHandle(hPipeWrite);
-
-		// These are no longer needed
-		::CloseHandle(hWrite2);
-		::CloseHandle(hRead2);
-
 		bool completed = !worked;
 		DWORD timeDetectedDeath = 0;
 		while (!completed) {
@@ -640,7 +634,6 @@ void SciTEWin::ProcessExecute() {
 				                sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
 				bytesAvail = 0;
 			}
-
 			if (bytesAvail > 0) {
 				int bTest = ::ReadFile(hPipeRead, buffer,
 				                       sizeof(buffer), &bytesRead, NULL);
@@ -708,6 +701,10 @@ void SciTEWin::ProcessExecute() {
 			WarnUser(warnExecuteKO);
 		}
 		::CloseHandle(hPipeRead);
+		::CloseHandle(hPipeWrite);
+		::CloseHandle(hRead2);
+		::CloseHandle(hWriteSubProcess);
+		hWriteSubProcess = NULL;
 	}
 
 	// Move selection back to beginning of this run so that F4 will go
@@ -848,13 +845,32 @@ void SciTEWin::Execute() {
 }
 
 void SciTEWin::StopExecute() {
+	if (hWriteSubProcess) {
+		char chToWrite = '\026';
+		DWORD bytesWrote = 0;
+		::WriteFile(hWriteSubProcess, &chToWrite,
+					   1, &bytesWrote, NULL);
+		Sleep(500L);
+	}
 	::InterlockedExchange(&cancelFlag, 1L);
 }
 
 void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, bool forceQueue) {
 	if (cmd.length()) {
 		if ((jobType == jobShell) && !forceQueue) {
-			ShellExec(cmd, dir);
+			SString pCmd = cmd;
+			parameterisedCommand = "";
+			if (pCmd[0] == '*') {
+				pCmd.remove(0);
+				parameterisedCommand = pCmd;
+				if (!ParametersDialog(true)) {
+					return;
+				}
+			} else {
+				ParamGrab();
+			}
+			pCmd = props.Expand(pCmd.c_str());
+			ShellExec(pCmd, dir);
 		} else {
 			SciTEBase::AddCommand(cmd, dir, jobType, forceQueue);
 		}
@@ -989,7 +1005,7 @@ void SciTEWin::Run(const char *cmdLine) {
 			// WinNT / Win2000
 			char *info = new char[len];
 			::GetUserObjectInformation(desktop, UOI_NAME, info, len, &len);
-			mutexName += reinterpret_cast<char *>(info);
+			mutexName += info;
 			delete []info;
 		} else {
 			// Win9x: no multiple desktop, GetUserObjectInformation can be called

@@ -66,6 +66,8 @@ protected:
 	int filterDefault;
 	bool staticBuild;
 
+	HANDLE hWriteSubProcess;
+
 	PRectangle pagesetupMargin;
 	HGLOBAL hDevMode;
 	HGLOBAL hDevNames;
