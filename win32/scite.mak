@@ -154,6 +154,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexScriptol.obj \
 	..\..\scintilla\win32\LexSpecman.obj \
 	..\..\scintilla\win32\LexSQL.obj \
+	..\..\scintilla\win32\LexTADS3.obj \
 	..\..\scintilla\win32\LexTeX.obj \
 	..\..\scintilla\win32\LexVB.obj \
 	..\..\scintilla\win32\LexVerilog.obj \
