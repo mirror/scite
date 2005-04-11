@@ -64,6 +64,10 @@
         'The system cannot find the file specified'.</a></li>
     <li><a class="toc" href="#ToolsMenu">
     	How can I add [some external application] to the tools menu on SciTE?</a></li>
+    <li><a class="toc" href="#ReplaceInFiles">
+    	Is there a command to replace a string in multiple files together?</a></li>
+    <li><a class="toc" href="#SpeedUpGTK">
+    	How do I make SciTE run faster on GTK+?</a></li>
     </ul>
     <h4 id="FixedWidth">
        How do I use a fixed width font for all text?
@@ -93,7 +97,8 @@
     </h4>
     <p>
        <code>line.numbers</code> has been replaced with two properties: <code>line.margin.visible</code>
-       and <code>line.margin.width</code> which are explained earlier in this document.
+       and <code>line.margin.width</code> which are explained earlier in <a href="SciTEDoc.html">
+       the main SciTE document</a>.
     </p>
     <h4 id="BlackBackground">
        How do I change SciTE to use black as the background colour?
@@ -171,7 +176,7 @@ This defines the Text that will appear on the Tools Menu.
     <p>
 <code>command.number.filepattern</code><br />
 (e.g.: <code>command.1.$(file.patterns.web)=tidy -i -wrap 0 -m $(FilePath)</code> )<br />
-This is the actual command that SciTE executes. You should provide the appropiate paths, options and parameters as you would from a command line. See SciTEDoc.html for more information on parameters and how to make SciTE prompt a Parameters Dialog.
+This is the actual command that SciTE executes. You should provide the appropriate paths, options and parameters as you would from a command line. See SciTEDoc.html for more information on parameters and how to make SciTE prompt a Parameters Dialog.
     </p>
     <p>
 <code>command.is.filter.number.filepattern</code><br />
@@ -185,6 +190,37 @@ This is for Windows and defines the subsystem through which the program is calle
     </p>
     <p>
 You can set a command for all files using * as a file pattern. Up to 10 commands (0 - 9) can be defined in the Tools Menu at any time. Commands also get executed with Ctrl+number.
+    </p>
+    <h4 id="ReplaceInFiles">
+       Is there a command to replace a string in multiple files together?
+    </h4>
+    <p>
+     It is possible to replace a string in all opened buffers with the Replace in Buffers 
+     button in the Replace dialog.
+     However this button is hidden by default, it can be displayed with 
+     <code>find.replace.advanced=1</code>.
+    </p>
+    <h4 id="SpeedUpGTK">
+       How do I make SciTE run faster on GTK+?
+    </h4>
+    <p>
+     The default settings for SciTE were changed in version 1.63 to use the Pango font 
+     system and antialiased fonts. You can return to using X core fonts which are faster 
+     with these settings:<br /><code>
+	font.base=font:lucidatypewriter,size:12<br />
+	font.small=font:lucidatypewriter,size:10<br />
+	font.comment=font:new century schoolbook,size:12<br />
+	font.code.comment.box=$(font.comment)<br />
+	font.code.comment.line=$(font.comment)<br />
+	font.code.comment.doc=$(font.comment)<br />
+	font.text=font:times,size:14<br />
+	font.text.comment=font:lucidatypewriter,size:10<br />
+	font.embedded.base=font:lucidatypewriter,size:12<br />
+	font.embedded.comment=font:lucidatypewriter,size:12<br />
+	font.monospace=font:courier,size:12<br />
+	font.vbs=font:new century schoolbook,size:12<br />
+     </code><br />
+     Line wrapping also slows SciTE down and this can be turned off with <code>wrap=0</code>.
     </p>
   </body>
 </html>
