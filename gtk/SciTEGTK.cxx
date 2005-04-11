@@ -2124,7 +2124,7 @@ int SciTEGTK::WindowMessageBox(Window &w, const SString &msg, int style) {
 			AddMBButton(messageBoxDialog, "_Yes", IDYES, accel_group, true);
 			AddMBButton(messageBoxDialog, "_No", IDNO, accel_group);
 			escapeResult = IDNO;
-			if (style == MB_YESNOCANCEL) {
+			if ((style & 0xf) == MB_YESNOCANCEL) {
 				AddMBButton(messageBoxDialog, "_Cancel", IDCANCEL, accel_group);
 				escapeResult = IDCANCEL;
 			}
