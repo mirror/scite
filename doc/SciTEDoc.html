@@ -2235,7 +2235,14 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 
         If the text of a command starts with '*' then the Parameters dialog is displayed to
         prompt for parameters before executing the command. The initial '*' is not included
-        in the command that is executed.
+        in the command that is executed.<br />
+	
+        The command number can be in the range of 0 to 99. Command numbers 0 to 9 are
+        assigned Ctrl+Number shortcuts. Internally these commands use IDs starting from
+        1100 (IDM_TOOLS) which can be used in user.shortcuts and user.context.menu as:<br /><br />
+         <code>
+                user.context.menu=Indent|1100|
+         </code><br />
         </td>
       </tr>
       <tr>
