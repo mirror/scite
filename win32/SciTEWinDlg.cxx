@@ -1326,6 +1326,9 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				info.ulFlags = 0;
 				info.lpfn = BrowseCallbackProc;
 				SString directory = GetItemText(hDlg, IDDIRECTORY);
+				if (!directory.endswith(pathSepString)) {
+					directory += pathSepString;
+				}
 				info.lParam = reinterpret_cast<LPARAM>(directory.c_str());
 
 				// Execute the browsing dialog.
