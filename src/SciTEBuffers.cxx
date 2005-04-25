@@ -1474,7 +1474,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 
 	case SCE_ERR_ABSF: {
-			// Absoft Pro Fortran 90/95 v8.2 errors look like: cf90-113 f90fe: ERROR SHF3D, File = shf.f90, Line = 1101, Column = 19
+			// Absoft Pro Fortran 90/95 v8.x, v9.x  errors look like: cf90-113 f90fe: ERROR SHF3D, File = shf.f90, Line = 1101, Column = 19
 			char *idFile = " File = ";
 			char *idLine = ", Line = ";
 			char *idColumn = ", Column = ";
@@ -1497,7 +1497,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 
 	case SCE_ERR_IFORT: {
-			/* Intel Fortran Compiler v8.0 error/warnings look like:
+			/* Intel Fortran Compiler v8.x error/warnings look like:
 			 * fortcom: Error: shf.f90, line 5602: This name does not have ...
 				 */
 			char *idFile = ": Error: ";
