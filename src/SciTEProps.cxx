@@ -656,6 +656,8 @@ static const char *propertiesToForward[] = {
 	"fold.at.else",
 	"fold.html",
 	"fold.html.preprocessor",
+	"fold.perl.package",
+	"fold.perl.pod",
 	"fold.preprocessor",
 	"fold.quotes.python",
 	"fold.verilog.flags",
