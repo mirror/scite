@@ -1709,6 +1709,10 @@ bool LuaExtension::OnDoubleClick() {
 	return CallNamedFunction("OnDoubleClick");
 }
 
+bool LuaExtension::OnUpdateUI() {
+	return CallNamedFunction("OnUpdateUI");
+}
+
 bool LuaExtension::OnMarginClick() {
 	return CallNamedFunction("OnMarginClick");
 }
