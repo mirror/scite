@@ -352,6 +352,9 @@
 				RelativePath="..\..\scintilla\src\LexScriptol.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexSmalltalk.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexSpecman.cxx">
 			</File>
 			<File
