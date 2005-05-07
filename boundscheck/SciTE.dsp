@@ -347,6 +347,10 @@ SOURCE=..\..\scintilla\src\LexPython.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexRebol.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexRuby.cxx
 # End Source File
 # Begin Source File
@@ -355,11 +359,19 @@ SOURCE=..\..\scintilla\src\LexScriptol.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexSmalltalk.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexSpecman.cxx
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\LexSQL.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexTADS3.cxx
 # End Source File
 # Begin Source File
 
