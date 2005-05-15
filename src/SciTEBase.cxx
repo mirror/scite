@@ -2948,8 +2948,9 @@ void SciTEBase::AutomaticIndentation(char ch) {
 			}
 		}
 	} else if (!blockEnd.IsSingleChar() && (ch == ' ')) {	// Dedent maybe
-		if (!indentClosing && (GetIndentState(curLine) == isBlockEnd)) {}}
-	else if (ch == blockStart.words[0]) {	// Dedent maybe if first on line and previous line was starting keyword
+		if (!indentClosing && (GetIndentState(curLine) == isBlockEnd)) {}
+	} else if (blockStart.IsSingleChar() && (ch == blockStart.words[0])) {
+		// Dedent maybe if first on line and previous line was starting keyword
 		if (!indentOpening && (GetIndentState(curLine - 1) == isKeyWordStart)) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
 				SetLineIndentation(curLine, indentBlock - indentSize);
