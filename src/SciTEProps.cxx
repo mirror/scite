@@ -748,7 +748,7 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCODEPAGE, codePage);
 	SendOutput(SCI_SETCODEPAGE, codePage);
 
-	characterSet = props.GetInt("character.set");
+	characterSet = props.GetInt("character.set", SC_CHARSET_DEFAULT);
 
 #ifdef unix
 	SString localeCType = props.Get("LC_CTYPE");
