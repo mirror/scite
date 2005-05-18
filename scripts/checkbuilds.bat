@@ -7,7 +7,7 @@ rem Assumes environment set up so gcc and MSVC can be called.
 rem
 cd ..\..
 set
-set BORLAND_BASE=G:\Borland\bcc55
+set BORLAND_BASE=C:\Borland\bcc55
 set MSDEV_BASE=C:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
 rem
 rem Target 1: Borland C++ build
