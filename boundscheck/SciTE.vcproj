@@ -277,6 +277,9 @@
 				RelativePath="..\..\scintilla\src\LexEScript.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexFlagShip.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexForth.cxx">
 			</File>
 			<File
