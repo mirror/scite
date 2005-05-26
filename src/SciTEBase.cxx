@@ -1943,7 +1943,7 @@ bool SciTEBase::StartCallTip() {
 			pos--;
 		} else
 			break;
-		while (current > 0 && isspace(line[current - 1])) {
+		while (current > 0 && isspacechar(line[current - 1])) {
 			current--;
 			pos--;
 		}

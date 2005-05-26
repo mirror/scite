@@ -376,7 +376,7 @@ enum IndentationStatus {
 	isKeyWordStart	// Keywords that cause indentation
 };
 
-int IntFromHexDigit(const char ch);
+int IntFromHexDigit(int ch);
 int IntFromHexByte(const char *hexByte);
 
 class StyleDefinition {
@@ -956,7 +956,6 @@ time_t GetModTime(const char *fullPath);
 bool IsUntitledFileName(const char *name);
 void LowerCaseString(char *s);
 void ChopTerminalSlash(char *path);
-int IntFromHexDigit(const char ch);
 long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault);
 char *Slash(const char *s);
 unsigned int UnSlash(char *s);

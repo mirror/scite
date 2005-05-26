@@ -323,8 +323,8 @@ void SciTEBase::ReadLocalPropFile() {
 	props.Set("ChromeHighlight", "#FFFFFF");
 }
 
-int IntFromHexDigit(const char ch) {
-	if (isdigit(ch)) {
+int IntFromHexDigit(int ch) {
+	if ((ch >= '0') && (ch <= '9')) {
 		return ch - '0';
 	} else if (ch >= 'A' && ch <= 'F') {
 		return ch - 'A' + 10;
@@ -549,7 +549,9 @@ void SciTEBase::SetStyleFor(Window &win, const char *lang) {
 
 void LowerCaseString(char *s) {
 	while (*s) {
-		*s = static_cast<char>(tolower(*s));
+		if ((*s >= 'A') && (*s <= 'Z')) {
+			*s = static_cast<char>(*s - 'A' + 'a');
+		}
 		s++;
 	}
 }

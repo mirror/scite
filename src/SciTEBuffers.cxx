@@ -51,6 +51,7 @@
 #include "PropSet.h"
 #include "Accessor.h"
 #include "WindowAccessor.h"
+#include "KeyWords.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "Extender.h"
@@ -1254,6 +1255,10 @@ void SciTEBase::ToolsMenu(int item) {
 	}
 }
 
+inline bool isdigitchar(int ch) {
+    return (ch >= '0') && (ch <= '9');
+}
+
 int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 	sourcePath[0] = '\0';
 	column= -1; // default to not detected
@@ -1268,7 +1273,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 				sourcePath[length] = 0;
 			}
 			endPath++;
-			while (*endPath && !isdigit(*endPath)) {
+			while (*endPath && !isdigitchar(*endPath)) {
 				endPath++;
 			}
 			int sourceNumber = atoi(endPath) - 1;
@@ -1281,7 +1286,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			if (cdoc[0] == '\t')
 				++cdoc;
 			for (int i = 0; cdoc[i]; i++) {
-				if (cdoc[i] == ':' && isdigit(cdoc[i + 1])) {
+				if (cdoc[i] == ':' && isdigitchar(cdoc[i + 1])) {
 					int sourceNumber = atoi(cdoc + i + 1) - 1;
 					if (i > 0) {
 						strncpy(sourcePath, cdoc, i);
@@ -1307,13 +1312,13 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			// Borland
 			char *space = strchr(cdoc, ' ');
 			if (space) {
-				while (isspace(*space)) {
+				while (isspacechar(*space)) {
 					space++;
 				}
-				while (*space && !isspace(*space)) {
+				while (*space && !isspacechar(*space)) {
 					space++;
 				}
-				while (isspace(*space)) {
+				while (isspacechar(*space)) {
 					space++;
 				}
 
@@ -1324,11 +1329,11 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 				}
 
 				if (space2) {
-					while (!isspace(*space2)) {
+					while (!isspacechar(*space2)) {
 						space2--;
 					}
 
-					while (isspace(*(space2 - 1))) {
+					while (isspacechar(*(space2 - 1))) {
 						space2--;
 					}
 
@@ -1391,7 +1396,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 
 	case SCE_ERR_CTAG: {
 			for (int i = 0; cdoc[i]; i++) {
-				if ((isdigit(cdoc[i + 1]) || (cdoc[i + 1] == '/' && cdoc[i + 2] == '^')) && cdoc[i] == '\t') {
+				if ((isdigitchar(cdoc[i + 1]) || (cdoc[i + 1] == '/' && cdoc[i + 2] == '^')) && cdoc[i] == '\t') {
 					int j = i - 1;
 					while (j > 0 && ! strchr("\t\n\r \"$%'*,;<>?[]^`{|}", cdoc[j])) {
 						j--;
@@ -1429,15 +1434,15 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			// Essential Lahey Fortran error look like: Line 11, file c:\fortran90\codigo\demo.f90
 			char *line = strchr(cdoc, ' ');
 			if (line) {
-				while (isspace(*line)) {
+				while (isspacechar(*line)) {
 					line++;
 				}
 				char *file = strchr(line, ' ');
 				if (file) {
-					while (isspace(*file)) {
+					while (isspacechar(*file)) {
 						file++;
 					}
-					while (*file && !isspace(*file)) {
+					while (*file && !isspacechar(*file)) {
 						file++;
 					}
 					size_t length = strlen(file);
