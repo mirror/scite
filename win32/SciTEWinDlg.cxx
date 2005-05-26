@@ -241,13 +241,19 @@ bool SciTEWin::OpenDialog(const char *filter) {
 		size_t start = 0;
 		while (start < openFilter.length()) {
 			const char *filterName = openFilter.c_str() + start;
-			SString localised = LocaliseString(filterName, false);
-			if (localised.length()) {
-				openFilter.remove(start, strlen(filterName));
-				openFilter.insert(start, localised.c_str());
+			if (*filterName == '#') {
+				size_t next = start + strlen(openFilter.c_str() + start) + 1;
+				next += strlen(openFilter.c_str() + next) + 1;
+				openFilter.remove(start, next - start);
+			} else {
+				SString localised = LocaliseString(filterName, false);
+				if (localised.length()) {
+					openFilter.remove(start, strlen(filterName));
+					openFilter.insert(start, localised.c_str());
+				}
+				start += strlen(openFilter.c_str() + start) + 1;
+				start += strlen(openFilter.c_str() + start) + 1;
 			}
-			start += strlen(openFilter.c_str() + start) + 1;
-			start += strlen(openFilter.c_str() + start) + 1;
 		}
 	}
 	ofn.lpstrFilter = openFilter.c_str();
