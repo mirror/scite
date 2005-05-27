@@ -265,6 +265,9 @@
 				RelativePath="..\..\scintilla\src\LexCrontab.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexCsound.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexCSS.cxx">
 			</File>
 			<File
@@ -277,7 +280,7 @@
 				RelativePath="..\..\scintilla\src\LexEScript.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexFlagShip.cxx">
+				RelativePath="..\..\scintilla\src\LexFlagship.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexForth.cxx">

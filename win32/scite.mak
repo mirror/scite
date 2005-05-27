@@ -124,11 +124,12 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexConf.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexCrontab.obj \
+	..\..\scintilla\win32\LexCsound.obj \
 	..\..\scintilla\win32\LexCSS.obj \
 	..\..\scintilla\win32\LexEiffel.obj \
 	..\..\scintilla\win32\LexErlang.obj \
 	..\..\scintilla\win32\LexEScript.obj \
-	..\..\scintilla\win32\LexFlagShip.obj \
+	..\..\scintilla\win32\LexFlagship.obj \
 	..\..\scintilla\win32\LexForth.obj \
 	..\..\scintilla\win32\LexFortran.obj \
 	..\..\scintilla\win32\LexGui4Cli.obj \
@@ -210,13 +211,14 @@ $(DIR_BIN)\ada.properties $(DIR_BIN)\asm.properties $(DIR_BIN)\asn1.properties \
 $(DIR_BIN)\au3.properties $(DIR_BIN)\ave.properties $(DIR_BIN)\baan.properties \
 $(DIR_BIN)\blitzbasic.properties $(DIR_BIN)\bullant.properties \
 $(DIR_BIN)\caml.properties $(DIR_BIN)\conf.properties \
-$(DIR_BIN)\cpp.properties $(DIR_BIN)\css.properties \
-$(DIR_BIN)\eiffel.properties $(DIR_BIN)\erlang.properties \
-$(DIR_BIN)\escript.properties $(DIR_BIN)\flagship.properties \
-$(DIR_BIN)\forth.properties $(DIR_BIN)\fortran.properties \
-$(DIR_BIN)\html.properties $(DIR_BIN)\kix.properties \
-$(DIR_BIN)\latex.properties $(DIR_BIN)\lisp.properties \
-$(DIR_BIN)\lot.properties $(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
+$(DIR_BIN)\cpp.properties $(DIR_BIN)\csound.properties \
+$(DIR_BIN)\css.properties $(DIR_BIN)\eiffel.properties \
+$(DIR_BIN)\erlang.properties $(DIR_BIN)\escript.properties \
+$(DIR_BIN)\flagship.properties $(DIR_BIN)\forth.properties \
+$(DIR_BIN)\fortran.properties $(DIR_BIN)\html.properties \
+$(DIR_BIN)\kix.properties $(DIR_BIN)\latex.properties \
+$(DIR_BIN)\lisp.properties $(DIR_BIN)\lot.properties \
+$(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
 $(DIR_BIN)\matlab.properties $(DIR_BIN)\metapost.properties \
 $(DIR_BIN)\mmixal.properties $(DIR_BIN)\nncrontab.properties \
 $(DIR_BIN)\nsis.properties $(DIR_BIN)\others.properties \
@@ -295,6 +297,8 @@ $(DIR_BIN)\conf.properties:	..\src\conf.properties
 	copy ..\src\conf.properties $@
 $(DIR_BIN)\cpp.properties:	..\src\cpp.properties
 	copy ..\src\cpp.properties $@
+$(DIR_BIN)\csound.properties:	..\src\csound.properties
+	copy ..\src\csound.properties $@
 $(DIR_BIN)\css.properties:	..\src\css.properties
 	copy ..\src\css.properties $@
 $(DIR_BIN)\eiffel.properties:	..\src\eiffel.properties
