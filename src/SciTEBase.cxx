@@ -3550,6 +3550,20 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		SendEditor(SCI_TOGGLEFOLD, GetCurrentLineNumber());
 		break;
 
+	case IDM_TOGGLE_FOLDRECURSIVE: {
+			int line = GetCurrentLineNumber();
+			int level = SendEditor(SCI_GETFOLDLEVEL, line);
+			ToggleFoldRecursive(line, level);
+		}
+		break;
+
+	case IDM_EXPAND_ENSURECHILDRENVISIBLE: {
+			int line = GetCurrentLineNumber();
+			int level = SendEditor(SCI_GETFOLDLEVEL, line);
+			EnsureAllChildrenVisible(line, level);
+		}
+		break;
+
 	case IDM_SPLITVERTICAL:
 		splitVertical = !splitVertical;
 		heightOutput = NormaliseSplit(heightOutput);
@@ -3956,19 +3970,9 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 		int levelClick = SendEditor(SCI_GETFOLDLEVEL, lineClick);
 		if (levelClick & SC_FOLDLEVELHEADERFLAG) {
 			if (modifiers & SCMOD_SHIFT) {
-				// Ensure all children visible
-				SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
-				Expand(lineClick, true, true, 100, levelClick);
+				EnsureAllChildrenVisible(lineClick, levelClick);
 			} else if (modifiers & SCMOD_CTRL) {
-				if (SendEditor(SCI_GETFOLDEXPANDED, lineClick)) {
-					// Contract this line and all children
-					SendEditor(SCI_SETFOLDEXPANDED, lineClick, 0);
-					Expand(lineClick, false, true, 0, levelClick);
-				} else {
-					// Expand this line and all children
-					SendEditor(SCI_SETFOLDEXPANDED, lineClick, 1);
-					Expand(lineClick, true, true, 100, levelClick);
-				}
+				ToggleFoldRecursive(lineClick, levelClick);
 			} else {
 				// Toggle this line
 				SendEditor(SCI_TOGGLEFOLD, lineClick);
@@ -3976,6 +3980,24 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 		}
 	}
 	return true;
+}
+
+void SciTEBase::ToggleFoldRecursive(int line, int level) {
+	if (SendEditor(SCI_GETFOLDEXPANDED, line)) {
+		// Contract this line and all children
+		SendEditor(SCI_SETFOLDEXPANDED, line, 0);
+		Expand(line, false, true, 0, level);
+	} else {
+		// Expand this line and all children
+		SendEditor(SCI_SETFOLDEXPANDED, line, 1);
+		Expand(line, true, true, 100, level);
+	}
+}
+
+void SciTEBase::EnsureAllChildrenVisible(int line, int level) {
+	// Ensure all children visible
+	SendEditor(SCI_SETFOLDEXPANDED, line, 1);
+	Expand(line, true, true, 100, level);
 }
 
 void SciTEBase::NewLineInOutput() {
