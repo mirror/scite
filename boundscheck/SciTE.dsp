@@ -243,6 +243,10 @@ SOURCE=..\..\scintilla\src\LexCrontab.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexCsound.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexCSS.cxx
 # End Source File
 # Begin Source File
@@ -256,6 +260,10 @@ SOURCE=..\..\scintilla\src\LexErlang.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\LexEScript.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexFlagship.cxx
 # End Source File
 # Begin Source File
 
