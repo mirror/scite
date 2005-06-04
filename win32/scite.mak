@@ -381,7 +381,7 @@ $(DIR_BIN)\yaml.properties:	..\src\yaml.properties
 # Normally distributed rather than built as may not have grep on all machines
 # Copy all non-comment lines from all the properties files into one combined file
 ..\src\Embedded.properties: $(PROPS)
-	fgrep -G -v -h "^#" $(PROPS) >..\src\Embedded.properties
+	grep -v -h "^[#]" $(PROPS) >..\src\Embedded.properties
 
 # A custom rule for .obj files built by scintilla:
 ..\..\scintilla\win32\PlatWin.obj: 	..\..\scintilla\win32\PlatWin.cxx
