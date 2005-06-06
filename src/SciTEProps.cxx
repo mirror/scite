@@ -653,7 +653,6 @@ SString SciTEBase::FindLanguageProperty(const char *pattern, const char *default
 static const char *propertiesToForward[] = {
 	"fold",
 	"fold.comment",
-	"fold.comment.python",
 	"fold.compact",
 	"fold.at.else",
 	"fold.html",
