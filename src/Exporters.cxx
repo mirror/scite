@@ -943,7 +943,7 @@ void SciTEBase::SaveToPDF(const char *saveName) {
 			// concatenate stream within the text object
 			sprintf(textObj, "<</Length %d>>\nstream\n%s"
 					 "ET\nendstream\n",
-					 pageData.length() - 1 + 3,
+					 static_cast<int>(pageData.length() - 1 + 3),
 					 pageData.c_str());
 			oT->add(textObj);
 			delete []textObj;
