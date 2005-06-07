@@ -4745,7 +4745,15 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 		char *arg = wlArgs[i];
 		if (IsSwitchCharacter(arg[0])) {
 			arg++;
-			if ((tolower(arg[0]) == 'p') && (strlen(arg) == 1)) {
+			if (arg[0] == '\0' || arg[0] == '-') {
+				if (phase == 1) {
+					OpenFromStdin(arg[0] == '-');
+				}
+			} else if (arg[0] == '@') {
+				if (phase == 1) {
+					OpenFilesFromStdin();
+				}
+			} else if ((tolower(arg[0]) == 'p') && (strlen(arg) == 1)) {
 				performPrint = true;
 			} else {
 				if (AfterName(arg) == ':') {

@@ -135,6 +135,7 @@ protected:
 	virtual void LoadSessionDialog();
 	virtual void SaveSessionDialog();
 	virtual bool PreOpenCheck(const char *file);
+	virtual bool IsStdinBlocked();
 
 	/// Print the current buffer.
 	virtual void Print(bool showDialog);

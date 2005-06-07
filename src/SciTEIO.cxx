@@ -387,6 +387,16 @@ static UniMode CookieValue(const SString &s) {
 	return uni8Bit;
 }
 
+static UniMode CodingCookieValue(const char *buf, size_t length) {
+	SString l1 = ExtractLine(buf, length);
+	UniMode unicodeMode = CookieValue(l1);
+	if (unicodeMode == uni8Bit) {
+		SString l2 = ExtractLine(buf+l1.length(), length-l1.length());
+		unicodeMode = CookieValue(l2);
+	}
+	return unicodeMode;
+}
+
 void SciTEBase::DiscoverEOLSetting() {
 	int linesCR;
 	int linesLF;
@@ -465,8 +475,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 		SendEditor(SCI_CLEARALL);
 		char data[blockSize];
 		size_t lenFile = fread(data, 1, sizeof(data), fp);
-		SString l1 = ExtractLine(data, lenFile);
-		SString l2 = ExtractLine(data+l1.length(), lenFile-l1.length());
+		UniMode codingCookie = CodingCookieValue(data, lenFile);
 		SendEditor(SCI_ALLOCATE, fileSize + 1000);
 		while (lenFile > 0) {
 			lenFile = convert.convert(data, lenFile);
@@ -479,10 +488,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 			static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies
 		if (unicodeMode == uni8Bit) {
-			unicodeMode = CookieValue(l1);
-			if (unicodeMode == uni8Bit) {
-				unicodeMode = CookieValue(l2);
-			}
+			unicodeMode = codingCookie;
 		}
 		if (unicodeMode != uni8Bit) {
 			// Override the code page if Unicode
@@ -1007,4 +1013,91 @@ bool SciTEBase::SaveAs(const char *file) {
 	} else {
 		return SaveAsDialog();
 	}
+}
+
+bool SciTEBase::IsStdinBlocked() {
+	return false; /* always default to blocked */
+}
+
+void SciTEBase::OpenFromStdin(bool UseOutputPane) {
+	Utf8_16_Read convert;
+	char data[blockSize];
+
+	/* if stdin is blocked, do not execute this method */
+	if (IsStdinBlocked())
+		return;
+
+	Open("");
+	if (UseOutputPane) {
+		SendOutput(SCI_CLEARALL);
+	} else {
+		SendEditor(SCI_BEGINUNDOACTION);	// Group together clear and insert
+		SendEditor(SCI_CLEARALL);
+	}
+	size_t lenFile = fread(data, 1, sizeof(data), stdin);
+	UniMode codingCookie = CodingCookieValue(data, lenFile);
+	while (lenFile > 0) {
+		lenFile = convert.convert(data, lenFile);
+		if (UseOutputPane) {
+			SendOutputString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
+		} else {
+			SendEditorString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
+		}
+		lenFile = fread(data, 1, sizeof(data), stdin);
+	}
+	if (UseOutputPane) {
+		if (props.GetInt("split.vertical") == 0) {
+			heightOutput = 2000;
+		} else {
+			heightOutput = 500;
+		}
+		SizeSubWindows();
+	} else {
+		SendEditor(SCI_ENDUNDOACTION);
+	}
+	unicodeMode = static_cast<UniMode>(
+		static_cast<int>(convert.getEncoding()));
+	// Check the first two lines for coding cookies
+	if (unicodeMode == uni8Bit) {
+		unicodeMode = codingCookie;
+	}
+	if (unicodeMode != uni8Bit) {
+		// Override the code page if Unicode
+		codePage = SC_CP_UTF8;
+	} else {
+		codePage = props.GetInt("code.page");
+	}
+	if (UseOutputPane) {
+		SendOutput(SCI_SETSEL,0,0);
+	} else {
+		SendEditor(SCI_SETCODEPAGE, codePage);
+
+		// Zero all the style bytes
+		SendEditor(SCI_CLEARDOCUMENTSTYLE);
+
+		overrideExtension = "x.txt";
+		ReadProperties();
+		SetIndentSettings();
+		SendEditor(SCI_COLOURISE, 0, -1);
+		Redraw();
+
+		SendEditor(SCI_SETSEL,0,0);
+	}
+}
+
+void SciTEBase::OpenFilesFromStdin() {
+	char data[blockSize];
+	char *pNL;
+
+	/* if stdin is blocked, do not execute this method */
+	if (IsStdinBlocked())
+		return;
+
+	while (fgets(data, sizeof(data) - 1, stdin)) {
+		if ((pNL = strchr(data,'\n')) != NULL)
+			*pNL = '\0';
+		Open(data, ofQuiet);
+	}
+	if (buffers.length == 0)
+		Open("");
 }

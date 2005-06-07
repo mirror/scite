@@ -903,6 +903,9 @@ protected:
 	void ContinueMacroList(const char *stxt);
 	void LoadMRUAndSession(bool allowLoadSession);
 	bool ProcessCommandLine(SString &args, int phase);
+	virtual bool IsStdinBlocked();
+	void OpenFromStdin(bool UseOutputPane);
+	void OpenFilesFromStdin();
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);

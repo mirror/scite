@@ -179,6 +179,17 @@ NameError: mistake
        The "-p" argument causes SciTE to print the file and then exit.
     </p>
     <p>
+	For <span class="windowsonly">Windows</span>:<br />
+	The command line arguments "-" and "--" (without the quotes) are special in that they read the
+	stdin stream into the last buffer ("-"), or the output pane ("--"))<br />
+	The command line argument "-@" (without the quotes) is special in that file names are read from stdin
+	and opened.<br />
+	<b>Note:</b> when reading stdin into the output pane, when the property split.vertical is 0, the
+	output pane is increased to its maximum height.  When the property split.vertical is 1, the output pane is
+	increased to approximately half of the screen width.<br />
+	<b>Note:</b> If stdin is not redirected, these arguments are effectively ignored.
+    </p>
+    <p>
        For example, <br />
        <code>
        SciTE "-font.base=font:MS Gothic,size:11" -save.recent ScintillaGTK.cxx

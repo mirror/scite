@@ -1437,6 +1437,42 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 	return isHandled;
 }
 
+/* return true if stdin is blocked:
+	- stdin is the console (isatty() == 1)
+	- a valid handle for stdin cannot be generated
+	- the handle appears to be the console - this may be a duplicate of using isatty() == 1
+	- the pipe cannot be peeked, which appears to be from command lines such as "scite <file.txt"
+	otherwise it is unblocked
+*/
+bool SciTEWin::IsStdinBlocked() {
+	DWORD unread_messages;
+	DWORD n;
+	INPUT_RECORD irec[1];
+	char bytebuffer;
+	HANDLE hStdIn = ::GetStdHandle(STD_INPUT_HANDLE);
+	if (hStdIn == INVALID_HANDLE_VALUE) {
+		/* an invalid handle, assume that stdin is blocked by falling to bottomn */;
+	} else if (::PeekConsoleInput(hStdIn, irec, 1, &unread_messages) != 0) {
+		/* it is the console, assume that stdin is blocked by falling to bottomn */;
+	} else if (::GetLastError() == ERROR_INVALID_HANDLE) {
+		for (n = 0; n < 4; n++) {
+			/*	if this fails, it is either
+				- a busy pipe "scite \*.,cxx /s /b | s -@",
+				- another type of pipe "scite - <file", or
+				- a blocked pipe "findstrin nothing | scite -"
+				in any case case, retry in a short bit
+			*/
+			if (::PeekNamedPipe(hStdIn, &bytebuffer, sizeof(bytebuffer), NULL,NULL, &unread_messages) != 0) {
+				if (unread_messages != 0) {
+					return false; /* is a pipe and it is not blocked */
+				}
+			}
+			::Sleep(2500);
+		}
+	}
+	return true;
+}
+
 void SciTEWin::MinimizeToTray() {
 	char n[64] = "SciTE";
 	NOTIFYICONDATA nid;
