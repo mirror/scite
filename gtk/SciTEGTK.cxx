@@ -1208,10 +1208,12 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
 
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+			gtk_widget_destroy(dlg);
 			HandleSaveAs(filename);
 			g_free(filename);
+		} else {
+			gtk_widget_destroy(dlg);
 		}
-		gtk_widget_destroy(dlg);
 #endif
 	}
 	return !canceled;
@@ -1702,7 +1704,7 @@ int xsystem(const char *s, const char *resultsFile) {
 		dup(fh);
 		close(2);
 		dup(fh);
-		execlp("/bin/sh", "sh", "-c", s, NULL);
+		execlp("/bin/sh", "sh", "-c", s, static_cast<char *>(NULL));
 		exit(127);
 	}
 	return pid;
@@ -1741,7 +1743,8 @@ void SciTEGTK::Execute() {
 
 	if (jobQueue[icmd].jobType == jobShell) {
 		if (fork() == 0)
-			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(), NULL);
+			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(), 
+				static_cast<char *>(NULL));
 		else
 			ExecuteNext();
 	} else if (jobQueue[icmd].jobType == jobExtension) {
