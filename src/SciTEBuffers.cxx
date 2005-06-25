@@ -1299,10 +1299,14 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 	case SCE_ERR_MS: {
 			// Visual *
-			char *endPath = strchr(cdoc, '(');
-			int length = endPath - cdoc;
+			char *start = cdoc;
+			while (isspacechar(*start)) {
+				start++;
+			}
+			char *endPath = strchr(start, '(');
+			int length = endPath - start;
 			if ((length > 0) && (length < MAX_PATH)) {
-				strncpy(sourcePath, cdoc, length);
+				strncpy(sourcePath, start, length);
 				sourcePath[length] = 0;
 			}
 			endPath++;
