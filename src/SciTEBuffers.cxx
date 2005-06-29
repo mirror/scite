@@ -1569,9 +1569,24 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 				int sourceNumber = atoi(endPath+1) - 1;
 				return sourceNumber;
 			}
+			break;
+		}
+		
+	case SCE_ERR_DIFF_MESSAGE: {
+			// Diff file header, either +++ <filename>\t or --- <filename>\t
+			// Often followed by a position line @@ <linenumber>
+			char *startPath = cdoc + 4;
+			char *endPath = strchr(startPath, '\t');
+			if (endPath) {
+				int length = endPath - startPath;
+				strncpy(sourcePath, startPath, length);
+				sourcePath[length] = 0;
+				return 0;
+			}
+			break;
 		}
 	}	// switch
-	return - 1;
+	return -1;
 }
 
 void SciTEBase::GoMessage(int dir) {
@@ -1593,8 +1608,10 @@ void SciTEBase::GoMessage(int dir) {
 		//Platform::DebugPrintf("GOMessage %d %d %d of %d linestart = %d\n", selStart, curLine, lookLine, maxLine, startPosLine);
 		char style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
-		        style != SCE_ERR_CMD &&
-		        (style < SCE_ERR_DIFF_CHANGED || style > SCE_ERR_DIFF_MESSAGE)) {
+			style != SCE_ERR_CMD &&
+			style != SCE_ERR_DIFF_ADDITION &&
+			style != SCE_ERR_DIFF_CHANGED &&
+			style != SCE_ERR_DIFF_DELETION) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
