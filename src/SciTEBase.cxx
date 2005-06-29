@@ -3880,6 +3880,7 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 		if (!SendEditor(SCI_GETFOLDEXPANDED, line)) {
 			// Removing the fold from one that has been contracted so should expand
 			// otherwise lines are left invisible with no way to make them visible
+			SendEditor(SCI_SETFOLDEXPANDED, line, 1);
 			Expand(line, true, false, 0, levelPrev);
 		}
 	} else if ((levelPrev & SC_FOLDLEVELNUMBERMASK) > (levelNow & SC_FOLDLEVELNUMBERMASK)) {
