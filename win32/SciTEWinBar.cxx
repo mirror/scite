@@ -805,11 +805,14 @@ void SciTEWin::Creation() {
 	if (!wTabBar.Created())
 		exit(FALSE);
 
-	fontTabs = ::CreateFont( 8, 0, 0, 0,
+	HDC hDC = ::GetDC(MainHWND());
+	fontTabs = ::CreateFont(
+	                         ::MulDiv(10, ::GetDeviceCaps(hDC, LOGPIXELSY), 72), 0, 0, 0,
 	                         FW_NORMAL,
 	                         0, 0, 0, 0,
 	                         0, 0, 0, 0,
-	                         "Ms Sans Serif");
+	                         "MS Shell Dlg");
+	::ReleaseDC(MainHWND(), hDC);
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()),
 	              WM_SETFONT,
 	              reinterpret_cast<WPARAM>(fontTabs),      // handle to font
