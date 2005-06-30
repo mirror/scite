@@ -811,7 +811,8 @@ void SciTEWin::Creation() {
 	                         FW_NORMAL,
 	                         0, 0, 0, 0,
 	                         0, 0, 0, 0,
-	                         "MS Shell Dlg");
+	                         ((DWORD)(LOBYTE(LOWORD(GetVersion()))) < 5) ?
+	                         "MS Shell Dlg" : "MS Shell Dlg 2");
 	::ReleaseDC(MainHWND(), hDC);
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()),
 	              WM_SETFONT,
