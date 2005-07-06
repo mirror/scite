@@ -1882,7 +1882,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
-          code.page
+          code.page<br />
+          output.code.page
         </td>
         <td>
           To support a DBCS language such as Japanese, a code page can be set here. This ensures
@@ -1908,7 +1909,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         foundry-fontface-charsetregistry-encoding *OR*
         fontface-charsetregistry-encoding *OR*
         foundry-fontface *OR*
-        fontface. An example is "misc-fixed-iso10646-1|*".
+        fontface. An example is "misc-fixed-iso10646-1|*".<br />
+	If output.code.page is set then it is used for the output pane which otherwise
+	matches the edit pane.
         </td>
       </tr>
       <tr>
