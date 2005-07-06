@@ -2266,6 +2266,7 @@ static KeyToCommand kmap[] = {
                                  {m_C, GDK_KP_Enter, IDM_COMPLETEWORD},
                                  {m_C, GDK_F3, IDM_FINDNEXTSEL},
                                  {mSC, GDK_F3, IDM_FINDNEXTBACKSEL},
+                                 {m_C, GDK_F4, IDM_CLOSE},
                                  {m_C, 'j', IDM_PREVMATCHPPC},
                                  {mSC, 'J', IDM_SELECTTOPREVMATCHPPC},
                                  {m_C, 'k', IDM_NEXTMATCHPPC},
