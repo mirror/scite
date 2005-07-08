@@ -805,15 +805,10 @@ void SciTEWin::Creation() {
 	if (!wTabBar.Created())
 		exit(FALSE);
 
-	HDC hDC = ::GetDC(MainHWND());
-	fontTabs = ::CreateFont(
-	                         ::MulDiv(10, ::GetDeviceCaps(hDC, LOGPIXELSY), 72), 0, 0, 0,
-	                         FW_NORMAL,
-	                         0, 0, 0, 0,
-	                         0, 0, 0, 0,
-	                         ((DWORD)(LOBYTE(LOWORD(GetVersion()))) < 5) ?
-	                         "MS Shell Dlg" : "MS Shell Dlg 2");
-	::ReleaseDC(MainHWND(), hDC);
+	LOGFONT lfIconTitle;
+	ZeroMemory(&lfIconTitle, sizeof(lfIconTitle));
+	::SystemParametersInfo(SPI_GETICONTITLELOGFONT,sizeof(lfIconTitle),&lfIconTitle,FALSE);
+	fontTabs = ::CreateFontIndirect(&lfIconTitle);
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()),
 	              WM_SETFONT,
 	              reinterpret_cast<WPARAM>(fontTabs),      // handle to font
