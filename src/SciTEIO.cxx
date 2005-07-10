@@ -836,7 +836,7 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 	if (SaveAllBuffers(forceQuestion) == IDCANCEL) {
 		return IDCANCEL;
 	}
-	if (props.GetInt("save.recent", 0)) {
+	if (props.GetInt("save.recent")) {
 		for (int i = 0; i < buffers.length; ++i) {
 			Buffer buff = buffers.buffers[i];
 			AddFileToStack(buff.FullPath(),
@@ -844,7 +844,7 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 		}
 		SaveRecentStack();
 	}
-	if (props.GetInt("buffers") && props.GetInt("save.session", 0))
+	if (props.GetInt("buffers") && props.GetInt("save.session"))
 		SaveSession("");
 
 	// Definitely going to exit now, so delete all documents
@@ -860,8 +860,11 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 }
 
 int SciTEBase::SaveIfUnsureForBuilt() {
+	if (props.GetInt("save.all.for.build")) {
+		return SaveAllBuffers(false, !props.GetInt("are.you.sure.for.build"));
+	}
 	if (isDirty) {
-		if (props.GetInt("are.you.sure.for.build", 0))
+		if (props.GetInt("are.you.sure.for.build"))
 			return SaveIfUnsure(true);
 
 		Save();
