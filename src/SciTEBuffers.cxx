@@ -792,7 +792,7 @@ void SciTEBase::BuffersMenu() {
 				if (buffers.buffers[pos].IsUntitled())
 					tabcontent = gtk_label_new(LocaliseString("Untitled").c_str());
 				else
-					tabcontent = gtk_label_new(buffers.buffers[pos].FullPath());
+					tabcontent = gtk_label_new(buffers.buffers[pos].AsInternal());
 
 				gtk_widget_show(tablabel);
 				gtk_widget_show(tabcontent);
