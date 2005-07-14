@@ -897,3 +897,83 @@ void SciTEBase::OpenFilesFromStdin() {
 	if (buffers.length == 0)
 		Open("");
 }
+
+void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes) {
+	FilePathSet files = baseDir.List(FilePath::listFiles);
+	for (size_t i = 0; i < files.Length(); i ++) {
+		FilePath fPath = files.At(i);
+		if (fPath.Matches(fileTypes)) {
+			//OutputAppendStringSynchronised(i->AsFileSystem());
+			//OutputAppendStringSynchronised("\n");
+			FILE *fp = fPath.Open(fileRead);
+			if (fp) {
+				fseek(fp, 0, SEEK_END);
+				size_t size = ftell(fp);
+				fseek(fp, 0, SEEK_SET);
+				char *buffer=new char[size+1];
+				fread(buffer, size, 1, fp);
+				fclose(fp);
+				buffer[size] = '\0';
+				int lineNum = 1;
+				char *line=buffer;
+				SString os;
+				while (*line) {
+					char *lineEnd = line;
+					while (*lineEnd != '\0' && *lineEnd != '\r' && *lineEnd != '\n') {
+						lineEnd++;
+					}
+					if (*lineEnd) {
+						if (*lineEnd == '\r' && *(lineEnd + 1) == '\n') {
+							*lineEnd = '\0';
+							lineEnd += 2;
+						} else {
+							*lineEnd = '\0';
+							lineEnd++;
+						}
+					}
+					if (strstr(line, searchString)) {
+						os.append(fPath.AsFileSystem());
+						os.append(":");
+						SString lNumber(lineNum);
+						os.append(lNumber.c_str());
+						os.append(":");
+						os.append(line);
+						os.append("\n");
+					}
+					line = lineEnd;
+					lineNum++;
+				}
+				OutputAppendStringSynchronised(os.c_str());
+			}
+		}
+	}
+	FilePathSet directories = baseDir.List(FilePath::listDirectories);
+	for (size_t i = 0; i < directories.Length(); i ++) {
+		FilePath fPath = directories.At(i);
+		GrepRecursive(fPath, searchString, fileTypes);
+	}
+}
+
+void SciTEBase::InternalGrep() {
+	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
+	//Clear();
+	ElapsedTime commandTime;
+	FilePath baseDir(props.Get("find.directory").c_str());
+	SString searchString = props.Get("find.what").c_str();
+	SString fileTypes = props.Get("find.files").c_str();
+	OutputAppendStringSynchronised(">Internal search for \"");
+	OutputAppendStringSynchronised(searchString.c_str());
+	OutputAppendStringSynchronised("\"\n");
+	MakeOutputVisible();
+	GrepRecursive(baseDir, searchString.c_str(), fileTypes.c_str());
+	SString sExitMessage(">");
+	if (timeCommands) {
+		sExitMessage += "    Time: ";
+		sExitMessage += SString(commandTime.Duration(), 3);
+	}
+	sExitMessage += "\n";
+	OutputAppendStringSynchronised(sExitMessage.c_str());
+	//SaveNow("");
+	if (props.GetInt("output.scroll", 1) == 1 && returnOutputToCommand)
+		SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
+}

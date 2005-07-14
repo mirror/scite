@@ -1235,11 +1235,16 @@ void SciTEWin::PerformGrep() {
 		flags += jobHasInput;
 	}
 
-	AddCommand(props.GetNewExpand("find.command"),
-		   props.Get("find.directory"),
-		   jobCLI, findInput, flags);
-	if (commandCurrent > 0) {
-		Execute();
+	SString findCommand = props.GetNewExpand("find.command");
+	if (findCommand == "") {
+		InternalGrep();
+	} else {
+		AddCommand(findCommand,
+			   props.Get("find.directory"),
+			   jobCLI, findInput, flags);
+		if (commandCurrent > 0) {
+			Execute();
+		}
 	}
 }
 

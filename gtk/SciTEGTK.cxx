@@ -1438,10 +1438,14 @@ void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
 	//	scitew->props.Get("find.what"),
 	//	scitew->props.Get("find.files"));
 	scitew->SelectionIntoProperties();
-	scitew->AddCommand(scitew->props.GetNewExpand("find.command"),
-	                   scitew->props.Get("find.directory"), jobCLI);
-	if (scitew->commandCurrent > 0)
-		scitew->Execute();
+	SString findCommand = scitew->props.GetNewExpand("find.command");
+	if (findCommand == "") {
+		scitew->InternalGrep();
+	} else {
+		scitew->AddCommand(findCommand, scitew->props.Get("find.directory"), jobCLI);
+		if (scitew->commandCurrent > 0)
+			scitew->Execute();
+	}
 }
 
 void SciTEGTK::FindInFiles() {
