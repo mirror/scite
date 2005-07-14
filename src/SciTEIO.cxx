@@ -10,16 +10,9 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <time.h>
 
 #include "Platform.h"
-
-#if PLAT_FOX
-
-#include <unistd.h>
-
-#endif
 
 #if PLAT_GTK
 
@@ -59,252 +52,79 @@
 #include "Scintilla.h"
 #include "Extender.h"
 #include "Utf8_16.h"
+#include "FilePath.h"
 #include "SciTEBase.h"
 
 #ifdef unix
-const char pathSepString[] = "/";
-const char pathSepChar = '/';
-const char listSepString[] = ":";
-const char configFileVisibilityString[] = ".";
 const char propUserFileName[] = ".SciTEUser.properties";
-const char fileRead[] = "rb";
-const char fileWrite[] = "wb";
-#endif
-#ifdef __vms
-const char pathSepString[] = "/";
-const char pathSepChar = '/';
-const char listSepString[] = ":";
-const char configFileVisibilityString[] = "";
+#else
+// Windows or VMS
 const char propUserFileName[] = "SciTEUser.properties";
-const char fileRead[] = "r";
-const char fileWrite[] = "w";
-#endif
-#ifdef WIN32
-// Windows
-const char pathSepString[] = "\\";
-const char pathSepChar = '\\';
-const char listSepString[] = ";";
-const char configFileVisibilityString[] = "";
-const char propUserFileName[] = "SciTEUser.properties";
-const char fileRead[] = "rb";
-const char fileWrite[] = "wb";
 #endif
 const char propGlobalFileName[] = "SciTEGlobal.properties";
 const char propAbbrevFileName[] = "abbrev.properties";
 
 #define PROPERTIES_EXTENSION	".properties"
 
-static bool IsPropertiesFile(char *filename) {
-	size_t nameLen = strlen(filename);
-	size_t propLen = strlen(PROPERTIES_EXTENSION);
-	if (nameLen <= propLen)
-		return false;
-	if (EqualCaseInsensitive(filename + nameLen - propLen, PROPERTIES_EXTENSION))
+static bool IsPropertiesFile(const FilePath &filename) {
+	FilePath ext = filename.Extension();
+	if (EqualCaseInsensitive(ext.AsInternal(), PROPERTIES_EXTENSION + 1))
 		return true;
 	return false;
 }
 
-bool SciTEBase::IsAbsolutePath(const char *path) {
-	if (!path || *path == '\0')
-		return false;
-#ifdef unix
-
-	if (path[0] == '/')
-		return true;
-#endif
-#ifdef __vms
-
-	if (path[0] == '/')
-		return true;
-#endif
-#ifdef WIN32
-
-	if (path[0] == '\\' || path[1] == ':')	// UNC path or drive separator
-		return true;
-#endif
-
-	return false;
-}
-
-void SciTEBase::FixFilePath() {
-	// Only used on Windows to fix the case of file names
-}
-
-#ifdef __vms
-const char *VMSToUnixStyle(const char *fileName) {
-	// possible formats:
-	// o disk:[dir.dir]file.type
-	// o logical:file.type
-	// o [dir.dir]file.type
-	// o file.type
-	// o /disk//dir/dir/file.type
-	// o /disk/dir/dir/file.type
-
-	static char unixStyleFileName[MAX_PATH + 20];
-
-	if (strchr(fileName, ':') == NULL && strchr(fileName, '[') == NULL) {
-		// o file.type
-		// o /disk//dir/dir/file.type
-		// o /disk/dir/dir/file.type
-		if (strstr (fileName, "//") == NULL) {
-			return fileName;
-		}
-		strcpy(unixStyleFileName, fileName);
-		char *p;
-		while ((p = strstr (unixStyleFileName, "//")) != NULL) {
-			strcpy (p, p + 1);
-		}
-		return unixStyleFileName;
-	}
-
-	// o disk:[dir.dir]file.type
-	// o logical:file.type
-	// o [dir.dir]file.type
-
-	if (fileName [0] == '/') {
-		strcpy(unixStyleFileName, fileName);
-	} else {
-		unixStyleFileName [0] = '/';
-		strcpy(unixStyleFileName + 1, fileName);
-		char *p = strstr(unixStyleFileName, ":[");
-		if (p == NULL) {
-			// o logical:file.type
-			p = strchr(unixStyleFileName, ':');
-			*p = '/';
-		} else {
-			*p = '/';
-			strcpy(p + 1, p + 2);
-			char *end = strchr(unixStyleFileName, ']');
-			if (*end != NULL) {
-				*end = '/';
-			}
-			while (p = strchr(unixStyleFileName, '.'), p != NULL && p < end) {
-				*p = '/';
-			}
-		}
-	}
-	return unixStyleFileName;
-} // VMSToUnixStyle
-#endif
-
-void SciTEBase::SetFileName(const char *openName, bool fixCase) {
-	if (openName[0] == '\"') {
+void SciTEBase::SetFileName(FilePath openName, bool fixCase) {
+	if (openName.AsInternal()[0] == '\"') {
 		// openName is surrounded by double quotes
 		char pathCopy[MAX_PATH + 1];
-		pathCopy[0] = '\0';
-		strncpy(pathCopy, openName + 1, MAX_PATH);
+		strncpy(pathCopy, openName.AsInternal() + 1, MAX_PATH);
 		pathCopy[MAX_PATH] = '\0';
 		if (pathCopy[strlen(pathCopy) - 1] == '\"') {
 			pathCopy[strlen(pathCopy) - 1] = '\0';
 		}
-		AbsolutePath(fullPath, pathCopy, MAX_PATH);
-	} else if (openName[0]) {
-		AbsolutePath(fullPath, openName, MAX_PATH);
+		filePath.Set(pathCopy);
 	} else {
-		fullPath[0] = '\0';
+		filePath.Set(openName);
 	}
 
 	// Break fullPath into directory and file name using working directory for relative paths
-	dirName[0] = '\0';
-	char *cpDirEnd = strrchr(fullPath, pathSepChar);
-	if (IsAbsolutePath(fullPath)) {
-		// Absolute path
-		strcpy(fileName, cpDirEnd + 1);
-		strcpy(dirName, fullPath);
-		dirName[cpDirEnd - fullPath] = '\0';
-		//Platform::DebugPrintf("SetFileName: <%s> <%s>\n", fileName, dirName);
-	} else {
+	if (!filePath.IsAbsolute()) {
 		// Relative path. Since we ran AbsolutePath, we probably are here because fullPath is empty.
-		GetDocumentDirectory(dirName, sizeof(dirName));
-		//Platform::DebugPrintf("Working directory: <%s>\n", dirName);
-		if (cpDirEnd) {
-			// directories and file name
-			strcpy(fileName, cpDirEnd + 1);
-			*cpDirEnd = '\0';
-			strncat(dirName, pathSepString, sizeof(dirName));
-			strncat(dirName, fullPath, sizeof(dirName));
-		} else {
-			// Just a file name
-			strcpy(fileName, fullPath);
-		}
+		filePath.SetDirectory(filePath.Directory());
 	}
-
-	// Rebuild fullPath from directory and name
-	strcpy(fullPath, dirName);
-	strcat(fullPath, pathSepString);
-	strcat(fullPath, fileName);
-	//Platform::DebugPrintf("Path: <%s>\n", fullPath);
 
 	if (fixCase) {
-		FixFilePath();
-	}
-
-	char fileBase[MAX_PATH];
-	strcpy(fileBase, fileName);
-	char *extension = strrchr(fileBase, '.');
-	if (extension) {
-		*extension = '\0';
-		strcpy(fileExt, extension + 1);
-	} else { // No extension
-		fileExt[0] = '\0';
+		filePath.FixName();
 	}
 
 	ReadLocalPropFile();
 
-	props.Set("FilePath", fullPath);
-	props.Set("FileDir", dirName);
-	props.Set("FileName", fileBase);
-	props.Set("FileExt", fileExt);
-	props.Set("FileNameExt", fileName);
+	props.Set("FilePath", filePath.AsFileSystem());
+	props.Set("FileDir", filePath.Directory().AsFileSystem());
+	props.Set("FileName", filePath.BaseName().AsFileSystem());
+	props.Set("FileExt", filePath.Extension().AsFileSystem());
+	props.Set("FileNameExt", filePath.Name().AsFileSystem());
 
 	SetWindowName();
 	if (buffers.buffers)
-		buffers.buffers[buffers.Current()].Set(fullPath);
+		buffers.buffers[buffers.Current()].Set(filePath);
 	BuffersMenu();
 }
 
-bool SciTEBase::Exists(const char *dir, const char *path, char *testPath) {
-	char copyPath[MAX_PATH];
-	if (IsAbsolutePath(path) || !dir) {
-		strcpy(copyPath, path);
-	} else if (dir) {
-		if ((strlen(dir) + strlen(pathSepString) + strlen(path) + 1) > MAX_PATH)
-			return false;
-		strcpy(copyPath, dir);
-		strcat(copyPath, pathSepString);
-		strcat(copyPath, path);
+// See if path exists.
+// If path is not absolute, it is combined with dir.
+// If resultPath is not NULL, it receives the absolute path if it exists.
+bool SciTEBase::Exists(const char *dir, const char *path, FilePath *resultPath) {
+	FilePath copy(path);
+	if (!copy.IsAbsolute() && dir) {
+		copy.SetDirectory(dir);
 	}
-	if (!copyPath[0])
+	if (!copy.Exists())
 		return false;
-	FILE *fp = fopen(copyPath, fileRead);
-	if (!fp)
-		return false;
-	fclose(fp);
-	if (testPath)
-		AbsolutePath(testPath, copyPath, MAX_PATH);
+	if (resultPath) {
+		resultPath->Set(copy.AbsolutePath());
+	}
 	return true;
-}
-
-bool BuildPath(char *path, const char *dir, const char *fileName,
-               unsigned int lenPath) {
-	*path = '\0';
-	if ((strlen(dir) + strlen(pathSepString) + strlen(fileName)) < lenPath) {
-		strcpy(path, dir);
-		strcat(path, pathSepString);
-		strcat(path, fileName);
-		return true;
-	}
-	return false;
-}
-
-time_t GetModTime(const char *fullPath) {
-	if (IsUntitledFileName(fullPath))
-		return 0;
-	struct stat statusFile;
-	if (stat(fullPath, &statusFile) != -1)
-		return statusFile.st_mtime;
-	else
-		return 0;
 }
 
 void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
@@ -467,9 +287,9 @@ void SciTEBase::DiscoverIndentSetting() {
 void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 	Utf8_16_Read convert;
 
-	FILE *fp = fopen(fullPath, fileRead);
+	FILE *fp = filePath.Open(fileRead);
 	if (fp) {
-		fileModTime = GetModTime(fullPath);
+		fileModTime = filePath.ModifiedTime();
 		fileModLastAsk = fileModTime;
 		SendEditor(SCI_BEGINUNDOACTION);	// Group together clear and insert
 		SendEditor(SCI_CLEARALL);
@@ -507,7 +327,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 		}
 
 	} else if (!suppressMessage) {
-		SString msg = LocaliseMessage("Could not open file '^0'.", fullPath);
+		SString msg = LocaliseMessage("Could not open file '^0'.", filePath.AsFileSystem());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
 	SendEditor(SCI_SETUNDOCOLLECTION, 1);
@@ -527,36 +347,18 @@ bool SciTEBase::PreOpenCheck(const char *) {
 	return false;
 }
 
-static int GetFileLength(const char *filePath) {
-	int size = -1;
-	if (filePath && *filePath) {
-		FILE *fp = fopen(filePath, fileRead);
-		if (fp) {
-			fseek(fp, 0, SEEK_END);
-			size = ftell(fp);
-			fseek(fp, 0, SEEK_SET);
-			fclose(fp);
-		}
-	}
-	return size;
-}
-
-bool SciTEBase::Open(const char *file, OpenFlags of) {
+bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	InitialiseBuffers();
 
-	if (!file) {
-		SString msg = LocaliseMessage("Bad file.");
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-		return false;
-	}
+	//if (!file.IsSet()) {
+	//	SString msg = LocaliseMessage("Bad file.");
+	//	WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+	//	return false;
+	//}
 #ifdef __vms
-	static char fixedFileName[MAX_PATH];
-	strcpy(fixedFileName, VMSToUnixStyle(file));
-	file = fixedFileName;
+	file = file.VMSToUnixStyle();
 #endif
-
-	char absPath[MAX_PATH];
-	AbsolutePath(absPath, file, MAX_PATH);
+	FilePath absPath = file.AbsolutePath();
 	int index = buffers.GetDocumentByName(absPath);
 	if (index >= 0) {
 		SetDocumentAt(index);
@@ -570,17 +372,16 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 		return false;
 	}
 
-	int size = 0;
-	if (absPath[0] != '\0') {
+	int size = absPath.GetFileLength();
+	if (size > 0) {
 		// Real file, not empty buffer
-		size = GetFileLength(absPath);
 		int maxSize = props.GetInt("max.file.size");
 		if (maxSize > 0 && size > maxSize) {
 			SString sSize(size), sMaxSize(maxSize);
 			SString msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
 						      "larger than the ^2 bytes limit set in the properties.\n"
 						      "Do you still want to open it?",
-						      absPath, sSize.c_str(), sMaxSize.c_str());
+						      absPath.AsFileSystem(), sSize.c_str(), sMaxSize.c_str());
 			int answer = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
 			if (answer != IDYES) {
 				return false;
@@ -589,7 +390,7 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 	}
 
 	if (buffers.size == buffers.length) {
-		AddFileToStack(fullPath, GetSelection(), GetCurrentScrollPosition());
+		AddFileToStack(filePath, GetSelection(), GetCurrentScrollPosition());
 		ClearDocument();
 		if (extender)
 			extender->InitBuffer(buffers.Current());
@@ -607,7 +408,7 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 	UpdateBuffersCurrent();
 	SizeSubWindows();
 
-	if (fileName[0]) {
+	if (!filePath.IsUntitled()) {
 		SendEditor(SCI_SETREADONLY, 0);
 		SendEditor(SCI_CANCEL);
 		if (of & ofPreserveUndo) {
@@ -626,7 +427,7 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 		isReadOnly = props.GetInt("read.only");
 		SendEditor(SCI_SETREADONLY, isReadOnly);
 	}
-	RemoveFileFromStack(fullPath);
+	RemoveFileFromStack(filePath);
 	DeleteFileStackMenu();
 	SetFileStackMenu();
 	SetWindowName();
@@ -634,7 +435,7 @@ bool SciTEBase::Open(const char *file, OpenFlags of) {
 		SetLineNumberWidth();
 	UpdateStatusBar(true);
 	if (extender)
-		extender->OnOpen(fullPath);
+		extender->OnOpen(filePath.AsFileSystem());
 	return true;
 }
 
@@ -655,13 +456,13 @@ bool SciTEBase::OpenSelected() {
 	SString openSuffix = props.GetNewExpand("open.suffix.", fileNameForExtension.c_str());
 	strcat(selectedFilename, openSuffix.c_str());
 
-	if (EqualCaseInsensitive(selectedFilename, fileName) || EqualCaseInsensitive(selectedFilename, fullPath)) {
+	if (EqualCaseInsensitive(selectedFilename, filePath.Name().AsInternal()) || EqualCaseInsensitive(selectedFilename, filePath.AsInternal())) {
 		WarnUser(warnWrongFile);
 		return true;	// Do not open if it is the current file!
 	}
 
 	cTag[0] = '\0';
-	if (IsPropertiesFile(fileName) &&
+	if (IsPropertiesFile(filePath) &&
 			strchr(selectedFilename, '.') == 0 &&
 	        strlen(selectedFilename) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
 		// We are in a properties file and try to open a file without extension,
@@ -707,14 +508,13 @@ bool SciTEBase::OpenSelected() {
 		}
 	}
 
-	char path[MAX_PATH];
-	*path = '\0';
+	FilePath path;
 	// Don't load the path of the current file if the selected
 	// filename is an absolute pathname
-	if (!IsAbsolutePath(selectedFilename)) {
-		GetDocumentDirectory(path, sizeof(path));
+	if (!FilePath(selectedFilename).IsAbsolute()) {
+		path = filePath.Directory();
 		// If not there, look in openpath
-		if (!Exists(path, selectedFilename, NULL)) {
+		if (!Exists(path.AsInternal(), selectedFilename, NULL)) {
 			SString openPath = props.GetNewExpand(
 				"openpath.", fileNameForExtension.c_str());
 			while (openPath.length()) {
@@ -727,15 +527,15 @@ bool SciTEBase::OpenSelected() {
 					openPath.clear();
 				}
 				if (Exists(tryPath.c_str(), selectedFilename, NULL)) {
-					strncpy(path, tryPath.c_str(), sizeof(path)-1);
-					path[sizeof(path)-1] = '\0';
+					path.Set(tryPath.c_str());
 					break;
 				}
 			}
 		}
 	}
-	if (Exists(path, selectedFilename, path)) {
-		if (Open(path)) {
+	FilePath pathReturned;
+	if (Exists(path.AsInternal(), selectedFilename, &pathReturned)) {
+		if (Open(pathReturned)) {
 			if (lineNumber > 0) {
 				SendEditor(SCI_GOTOLINE, lineNumber - 1);
 			} else if (cTag[0] != '\0') {
@@ -756,16 +556,14 @@ bool SciTEBase::OpenSelected() {
 
 void SciTEBase::Revert() {
 	RecentFile rf = GetFilePosition();
-	OpenFile(GetFileLength(fullPath), false);
+	OpenFile(filePath.GetFileLength(), false);
 	DisplayAround(rf);
 }
 
 void SciTEBase::CheckReload() {
 	if (props.GetInt("load.on.activate")) {
 		// Make a copy of fullPath as otherwise it gets aliased in Open
-		char fullPathToCheck[MAX_PATH];
-		strcpy(fullPathToCheck, fullPath);
-		time_t newModTime = GetModTime(fullPathToCheck);
+		time_t newModTime = filePath.ModifiedTime();
 		//Platform::DebugPrintf("Times are %d %d\n", fileModTime, newModTime);
 		if (newModTime > fileModTime) {
 			RecentFile rf = GetFilePosition();
@@ -776,21 +574,21 @@ void SciTEBase::CheckReload() {
 					if (isDirty) {
 						msg = LocaliseMessage(
 							  "The file '^0' has been modified. Should it be reloaded?",
-							  fullPathToCheck);
+							  filePath.AsFileSystem());
 					} else {
 						msg = LocaliseMessage(
 							  "The file '^0' has been modified outside SciTE. Should it be reloaded?",
-							  fileName);
+							  filePath.Name().AsFileSystem());
 					}
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					if (decision == IDYES) {
-						Open(fullPathToCheck, static_cast<OpenFlags>(of | ofForceLoad));
+						Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
 						DisplayAround(rf);
 					}
 					fileModLastAsk = newModTime;
 				}
 			} else {
-				Open(fullPathToCheck, static_cast<OpenFlags>(of | ofForceLoad));
+				Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
 				DisplayAround(rf);
 			}
 		}
@@ -808,13 +606,13 @@ void SciTEBase::Activate(bool activeApp) {
 }
 
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
-	if ((isDirty) && (LengthDocument() || fileName[0] || forceQuestion)) {
+	if ((isDirty) && (LengthDocument() || filePath.IsUntitled() || forceQuestion)) {
 		if (props.GetInt("are.you.sure", 1) ||
-		        IsUntitledFileName(fullPath) ||
+		        filePath.IsUntitled() ||
 		        forceQuestion) {
 			SString msg;
-			if (fileName[0]) {
-				msg = LocaliseMessage("Save changes to '^0'?", fullPath);
+			if (filePath.IsUntitled()) {
+				msg = LocaliseMessage("Save changes to '^0'?", filePath.AsFileSystem());
 			} else {
 				msg = LocaliseMessage("Save changes to (Untitled)?");
 			}
@@ -839,8 +637,7 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 	if (props.GetInt("save.recent")) {
 		for (int i = 0; i < buffers.length; ++i) {
 			Buffer buff = buffers.buffers[i];
-			AddFileToStack(buff.FullPath(),
-			               buff.selection, buff.scrollPosition);
+			AddFileToStack(buff, buff.selection, buff.scrollPosition);
 		}
 		SaveRecentStack();
 	}
@@ -915,7 +712,7 @@ void SciTEBase::EnsureFinalNewLine() {
 /**
  * Writes the buffer to the given filename.
  */
-bool SciTEBase::SaveBuffer(const char *saveName) {
+bool SciTEBase::SaveBuffer(FilePath saveName) {
 	bool retVal = false;
 	// Perform clean ups on text before saving
 	SendEditor(SCI_BEGINUNDOACTION);
@@ -927,7 +724,7 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));
 
 	if (extender)
-		extender->OnBeforeSave(saveName);
+		extender->OnBeforeSave(saveName.AsFileSystem());
 
 	SendEditor(SCI_ENDUNDOACTION);
 
@@ -937,8 +734,9 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 			static_cast<int>(unicodeMode)));
 	}
 
-	FILE *fp = convert.fopen(saveName, fileWrite);
+	FILE *fp = saveName.Open(fileWrite);
 	if (fp) {
+		convert.setfile(fp);
 		char data[blockSize + 1];
 		int lengthDoc = LengthDocument();
 		retVal = true;
@@ -957,7 +755,7 @@ bool SciTEBase::SaveBuffer(const char *saveName) {
 		convert.fclose();
 
 		if (extender)
-			extender->OnSave(saveName);
+			extender->OnSave(saveName.AsFileSystem());
 	}
 	UpdateStatusBar(true);
 	return retVal;
@@ -976,46 +774,41 @@ void SciTEBase::ReloadProperties() {
 
 // Returns false if cancelled or failed to save
 bool SciTEBase::Save() {
-	if (fileName[0]) {
+	if (!filePath.IsUntitled()) {
 		if (props.GetInt("save.deletes.first")) {
-			unlink(fullPath);
+			filePath.Remove();
 		}
 
-		if (SaveBuffer(fullPath)) {
-			fileModTime = GetModTime(fullPath);
+		if (SaveBuffer(filePath)) {
+			fileModTime = filePath.ModifiedTime();
 			SendEditor(SCI_SETSAVEPOINT);
-			if (IsPropertiesFile(fileName)) {
+			if (IsPropertiesFile(filePath)) {
 				ReloadProperties();
 			}
 		} else {
 			SString msg = LocaliseMessage(
-				"Could not save file '^0'. Save under a different name?", fullPath);
+				"Could not save file '^0'. Save under a different name?", filePath.AsFileSystem());
 			int decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
 			if (decision == IDYES) {
-				return SaveAs();
+				return SaveAsDialog();
 			}
 			return false;
 		}
 		return true;
 	} else {
-		return SaveAs();
+		return SaveAsDialog();
 	}
 }
 
-bool SciTEBase::SaveAs(const char *file) {
-	if (file && *file) {
-		SetFileName(file);
-		Save();
-		ReadProperties();
-		SendEditor(SCI_CLEARDOCUMENTSTYLE);
-		SendEditor(SCI_COLOURISE, 0, -1);
-		Redraw();
-		SetWindowName();
-		BuffersMenu();
-		return true;
-	} else {
-		return SaveAsDialog();
-	}
+void SciTEBase::SaveAs(const char *file) {
+	SetFileName(file);
+	Save();
+	ReadProperties();
+	SendEditor(SCI_CLEARDOCUMENTSTYLE);
+	SendEditor(SCI_COLOURISE, 0, -1);
+	Redraw();
+	SetWindowName();
+	BuffersMenu();
 }
 
 bool SciTEBase::IsStdinBlocked() {

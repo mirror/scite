@@ -26,8 +26,8 @@
 #include "Extender.h"
 #include "DirectorExtension.h"
 #include "SciTE.h"
+#include "FilePath.h"
 #include "SciTEBase.h"
-
 
 static ExtensionAPI *host = 0;
 static int fdDirector = 0;

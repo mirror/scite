@@ -89,6 +89,7 @@ INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src
 
 OBJS=\
 	SciTEBase.obj \
+	FilePath.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
 	Exporters.obj \
@@ -169,6 +170,7 @@ LEXOBJS=\
 
 OBJSSTATIC=\
 	SciTEBase.obj \
+	FilePath.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
 	Exporters.obj \
@@ -439,6 +441,7 @@ DirectorExtension.obj: \
 	../src/Extender.h \
 	DirectorExtension.h \
 	../src/SciTE.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h
 MultiplexExtension.obj: \
 	../src/MultiplexExtension.cxx \
@@ -465,6 +468,7 @@ SciTEWin.obj: \
 	../../scintilla/include/KeyWords.h \
 	../../scintilla/include/Scintilla.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h \
 	DirectorExtension.h \
 	../src/MultiplexExtension.h \
@@ -481,6 +485,7 @@ Sc1.obj: \
 	../../scintilla/include/KeyWords.h \
 	../../scintilla/include/Scintilla.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h \
 	DirectorExtension.h \
 	../src/MultiplexExtension.h \
@@ -497,6 +502,7 @@ SciTEWinBar.obj: \
 	../../scintilla/include/KeyWords.h \
 	../../scintilla/include/Scintilla.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h
 SciTEWinDlg.obj: \
 	SciTEWinDlg.cxx \
@@ -509,6 +515,7 @@ SciTEWinDlg.obj: \
 	../../scintilla/include/KeyWords.h \
 	../../scintilla/include/Scintilla.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h
 DocumentPath.obj: \
 	../src/DocumentPath.cxx \
@@ -523,6 +530,7 @@ Exporters.obj: \
 	../../scintilla/include/WindowAccessor.h \
 	../../scintilla/include/Scintilla.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h
 SciTEBase.obj: \
 	../src/SciTEBase.cxx \
@@ -537,7 +545,11 @@ SciTEBase.obj: \
 	../../scintilla/include/ScintillaWidget.h \
 	../../scintilla/include/SciLexer.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h
+FilePath.obj : \
+	../../scintilla/include/PropSet.h \
+	../src/FilePath.h
 SciTEBuffers.obj: \
 	../src/SciTEBuffers.cxx \
 	../../scintilla/include/Platform.h \
@@ -549,6 +561,7 @@ SciTEBuffers.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h
 SciTEIO.obj: \
 	../src/SciTEIO.cxx \
@@ -560,6 +573,7 @@ SciTEIO.obj: \
 	../../scintilla/include/WindowAccessor.h \
 	../../scintilla/include/Scintilla.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h \
 	../src/Utf8_16.h
 SciTEProps.obj: \
@@ -572,6 +586,7 @@ SciTEProps.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
 	../src/Extender.h \
+	../src/FilePath.h \
 	../src/SciTEBase.h
 
 !IFNDEF NO_LUA

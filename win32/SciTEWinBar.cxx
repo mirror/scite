@@ -15,7 +15,7 @@ void SciTEWin::SetFileProperties(
 
 	const int TEMP_LEN = 100;
 	char temp[TEMP_LEN];
-	HANDLE hf = ::CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hf = ::CreateFile(filePath.AsFileSystem(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hf != INVALID_HANDLE_VALUE) {
 		FILETIME ft;
 		::GetFileTime(hf, NULL, NULL, &ft);
@@ -34,7 +34,7 @@ void SciTEWin::SetFileProperties(
 		                NULL, temp, TEMP_LEN);
 		ps.Set("FileDate", temp);
 
-		DWORD attr = ::GetFileAttributes(fullPath);
+		DWORD attr = ::GetFileAttributes(filePath.AsFileSystem());
 		SString fa;
 		if (attr & FILE_ATTRIBUTE_READONLY) {
 			fa += "R";
@@ -120,7 +120,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 				SString prefix = "command.name.";
 				prefix += SString(item);
 				prefix += ".";
-				SString commandName = props.GetNewExpand(prefix.c_str(), fileName);
+				SString commandName = props.GetNewExpand(prefix.c_str(), filePath.AsInternal());
 				if (commandName.length()) {
 					SString sMenuItem = commandName;
 					SString sMnemonic = "Ctrl+";
@@ -225,7 +225,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 					info.pt.y = ptClient.y;
 					int index = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM) & info);
 					if (index >= 0) {
-						SString path = buffers.buffers[index].FullPath();
+						SString path = buffers.buffers[index].AsInternal();
 						// Handle '&' characters in path, since they are interpreted in
 						// tooltips.
 						int amp = 0;

@@ -46,17 +46,6 @@ const char menuAccessIndicator[] = "_";
 #endif
 #include <commctrl.h>
 
-// For getcwd
-#ifdef _MSC_VER
-#include <direct.h>
-#endif
-#ifdef __BORLANDC__
-#include <dir.h>
-#endif
-#ifdef __DMC__
-#include <dir.h>
-#endif
-
 const char menuAccessIndicator[] = "&";
 
 #endif
@@ -67,6 +56,7 @@ const char menuAccessIndicator[] = "&";
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "Extender.h"
+#include "FilePath.h"
 #include "SciTEBase.h"
 
 PropSetFile::PropSetFile(bool lowerKeys_) : lowerKeys(lowerKeys_) {}
@@ -114,23 +104,22 @@ static bool IsCommentLine(const char *line) {
 	return (*line == '#');
 }
 
-bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *directoryForImports,
-                           SString imports[], int sizeImports) {
+bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath directoryForImports,
+                           FilePath imports[], int sizeImports) {
 	//UnSlash(lineBuffer);
 	if (!IsSpaceOrTab(lineBuffer[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
 	if (isprefix(lineBuffer, "if ")) {
 		const char *expr = lineBuffer + strlen("if") + 1;
 		ifIsTrue = GetInt(expr);
-	} else if (isprefix(lineBuffer, "import ") && directoryForImports) {
-		char importPath[1024];
-		strcpy(importPath, directoryForImports);
-		strcat(importPath, lineBuffer + strlen("import") + 1);
-		strcat(importPath, ".properties");
+	} else if (isprefix(lineBuffer, "import ") && directoryForImports.IsSet()) {
+		SString importName(lineBuffer + strlen("import") + 1);
+		importName += ".properties";
+		FilePath importPath(directoryForImports, FilePath(importName.c_str()));
 		if (Read(importPath, directoryForImports, imports, sizeImports)) {
 			if (imports) {
 				for (int i = 0; i < sizeImports; i++) {
-					if (!imports[i].length()) {
+					if (!imports[i].IsSet()) {
 						imports[i] = importPath;
 						break;
 					}
@@ -143,8 +132,8 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, const char *di
 	return ifIsTrue;
 }
 
-void PropSetFile::ReadFromMemory(const char *data, int len, const char *directoryForImports,
-                                 SString imports[], int sizeImports) {
+void PropSetFile::ReadFromMemory(const char *data, int len, FilePath directoryForImports,
+                                 FilePath imports[], int sizeImports) {
 	const char *pd = data;
 	char lineBuffer[60000];
 	bool ifIsTrue = true;
@@ -161,9 +150,9 @@ void PropSetFile::ReadFromMemory(const char *data, int len, const char *director
 	}
 }
 
-bool PropSetFile::Read(const char *filename, const char *directoryForImports,
-                       SString imports[], int sizeImports) {
-	FILE *rcfile = fopen(filename, fileRead);
+bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
+                       FilePath imports[], int sizeImports) {
+	FILE *rcfile = filename.Open(fileRead);
 	if (rcfile) {
 		char propsData[60000];
 		int lenFile = static_cast<int>(fread(propsData, 1, sizeof(propsData), rcfile));
@@ -184,18 +173,13 @@ void SciTEBase::SetImportMenu() {
 	for (int i = 0; i < importMax; i++) {
 		DestroyMenuItem(menuOptions, importCmdID + i);
 	}
-	if (importFiles[0][0]) {
+	if (importFiles[0].IsSet()) {
 		for (int stackPos = 0; stackPos < importMax; stackPos++) {
 			int itemID = importCmdID + stackPos;
-			if (importFiles[stackPos][0]) {
+			if (importFiles[stackPos].IsSet()) {
 				SString entry = LocaliseString("Open");
 				entry += " ";
-				const char *cpDirEnd = strrchr(importFiles[stackPos].c_str(), pathSepChar);
-				if (cpDirEnd) {
-					entry += cpDirEnd + 1;
-				} else {
-					entry += importFiles[stackPos];
-				}
+				entry += importFiles[stackPos].Name().AsInternal();
 				SetMenuItem(menuOptions, IMPORT_START + stackPos, itemID, entry.c_str());
 			}
 		}
@@ -205,8 +189,8 @@ void SciTEBase::SetImportMenu() {
 void SciTEBase::ImportMenu(int pos) {
 	//Platform::DebugPrintf("Stack menu %d\n", pos);
 	if (pos >= 0) {
-		if (importFiles[pos][0] != '\0') {
-			Open(importFiles[pos].c_str());
+		if (importFiles[pos].IsSet()) {
+			Open(importFiles[pos]);
 		}
 	}
 }
@@ -255,65 +239,31 @@ void SciTEBase::ReadGlobalPropFile() {
 	for (int stackPos = 0; stackPos < importMax; stackPos++) {
 		importFiles[stackPos] = "";
 	}
-	char propfile[MAX_PATH + 20];
-	char propdir[MAX_PATH + 20];
+
 	propsBase.Clear();
-	if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-		strcat(propdir, pathSepString);
-		propsBase.Read(propfile, propdir, importFiles, importMax);
-	}
+	FilePath propfileBase = GetDefaultPropertiesFileName();
+	propsBase.Read(propfileBase, propfileBase.Directory(), importFiles, importMax);
+
 	propsUser.Clear();
-	if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-		strcat(propdir, pathSepString);
-		propsUser.Read(propfile, propdir, importFiles, importMax);
-	}
+	FilePath propfileUser = GetUserPropertiesFileName();
+	propsUser.Read(propfileUser, propfileBase.Directory(), importFiles, importMax);
+
 	if (!localisationRead) {
 		ReadLocalisation();
 	}
 }
 
 void SciTEBase::ReadAbbrevPropFile() {
-	char propfile[MAX_PATH + 20];
-	char propdir[MAX_PATH + 20];
 	propsAbbrev.Clear();
-	if (GetAbbrevPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-		strcat(propdir, pathSepString);
-		propsAbbrev.Read(propfile, propdir, importFiles, importMax);
-	}
-}
-
-void ChopTerminalSlash(char *path) {
-	size_t endOfPath = strlen(path) - 1;
-	if (path[endOfPath] == pathSepChar) {
-		path[endOfPath] = '\0';
-	}
-}
-
-void SciTEBase::GetDocumentDirectory(char *docDir, int len) {
-	if (dirName[0]) {
-		strncpy(docDir, dirName, len);
-		docDir[len - 1] = '\0';
-	} else {
-		getcwd(docDir, len);
-		docDir[len - 1] = '\0';
-		// In Windows, getcwd returns a trailing backslash
-		// when the CWD is at the root of a disk, so remove it
-		ChopTerminalSlash(docDir);
-	}
+	FilePath propfileAbbrev = GetAbbrevPropertiesFileName();
+	propsAbbrev.Read(propfileAbbrev, propfileAbbrev.Directory(), importFiles, importMax);
 }
 
 void SciTEBase::ReadLocalPropFile() {
-	char propdir[MAX_PATH + 20];
-	GetDocumentDirectory(propdir, sizeof(propdir));
-	char propfile[MAX_PATH + 20];
-	strcpy(propfile, propdir);
-#ifndef __vms
+	FilePath propdir = filePath.Directory();
+	FilePath propfile;
+	propfile.Set(propdir, propFileName);
 
-	strcat(propdir, pathSepString);
-	strcat(propfile, pathSepString);
-#endif
-
-	strcat(propfile, propFileName);
 	propsLocal.Clear();
 	propsLocal.Read(propfile, propdir);
 	//Platform::DebugPrintf("Reading local properties from %s\n", propfile);
@@ -559,17 +509,21 @@ void LowerCaseString(char *s) {
 SString SciTEBase::ExtensionFileName() {
 	if (overrideExtension.length())
 		return overrideExtension;
-	else if (fileName[0]) {
-		// Force extension to lower case
-		char fileNameWithLowerCaseExtension[MAX_PATH];
-		strcpy(fileNameWithLowerCaseExtension, fileName);
-		char *extension = strrchr(fileNameWithLowerCaseExtension, '.');
-		if (extension) {
-			LowerCaseString(extension);
+	else {
+		FilePath name = filePath.Name();
+		if (name.IsSet()) {
+			// Force extension to lower case
+			char fileNameWithLowerCaseExtension[MAX_PATH];
+				strcpy(fileNameWithLowerCaseExtension, name.AsInternal());
+			char *extension = strrchr(fileNameWithLowerCaseExtension, '.');
+			if (extension) {
+				LowerCaseString(extension);
+			}
+			return SString(fileNameWithLowerCaseExtension);
+		} else {
+			return props.Get("default.file.ext");
 		}
-		return SString(fileNameWithLowerCaseExtension);
-	} else
-		return props.Get("default.file.ext");
+	}
 }
 
 void SciTEBase::ForwardPropertyToEditor(const char *key) {
@@ -719,13 +673,10 @@ void SciTEBase::ReadProperties() {
 		SendEditorString(SCI_SETKEYWORDS, wl, kw.c_str());
 	}
 
-	char homepath[MAX_PATH + 20];
-	if (GetSciteDefaultHome(homepath, sizeof(homepath))) {
-		props.Set("SciteDefaultHome", homepath);
-	}
-	if (GetSciteUserHome(homepath, sizeof(homepath))) {
-		props.Set("SciteUserHome", homepath);
-	}
+	FilePath homepath = GetSciteDefaultHome();
+	props.Set("SciteDefaultHome", homepath.AsFileSystem());
+	homepath = GetSciteUserHome();
+	props.Set("SciteUserHome", homepath.AsFileSystem());
 
 	for (size_t i=0; propertiesToForward[i]; i++) {
 		ForwardPropertyToEditor(propertiesToForward[i]);
@@ -1129,25 +1080,23 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETCARETSTICKY, props.GetInt("caret.sticky", 0));
 
 	if (extender) {
-		char defaultDir[MAX_PATH];
-		GetDefaultDirectory(defaultDir, sizeof(defaultDir));
-		char scriptPath[MAX_PATH];
+		FilePath defaultDir = GetDefaultDirectory();
+		FilePath scriptPath;
 
 		// Check for an extension script
 		SString extensionFile = props.GetNewExpand("extension.", fileNameForExtension.c_str());
 		if (extensionFile.length()) {
 			// find file in local directory
-			char docDir[MAX_PATH];
-			GetDocumentDirectory(docDir, sizeof(docDir));
-			if (Exists(docDir, extensionFile.c_str(), scriptPath)) {
+			FilePath docDir = filePath.Directory();
+			if (Exists(docDir.AsInternal(), extensionFile.c_str(), &scriptPath)) {
 				// Found file in document directory
-				extender->Load(scriptPath);
-			} else if (Exists(defaultDir, extensionFile.c_str(), scriptPath)) {
+				extender->Load(scriptPath.AsFileSystem());
+			} else if (Exists(defaultDir.AsInternal(), extensionFile.c_str(), &scriptPath)) {
 				// Found file in global directory
-				extender->Load(scriptPath);
-			} else if (Exists("", extensionFile.c_str(), scriptPath)) {
+				extender->Load(scriptPath.AsFileSystem());
+			} else if (Exists("", extensionFile.c_str(), &scriptPath)) {
 				// Found as completely specified file name
-				extender->Load(scriptPath);
+				extender->Load(scriptPath.AsFileSystem());
 			}
 		}
 	}
@@ -1284,19 +1233,15 @@ SString SciTEBase::LocaliseMessage(const char *s, const char *param0, const char
 }
 
 void SciTEBase::ReadLocalisation() {
-	char propfile[MAX_PATH + 20];
-	char propdir[MAX_PATH + 20];
 	propsUI.Clear();
 	const char *title = "locale.properties";
 	SString localeProps = props.GetExpanded(title);
 	if (localeProps.length()) {
 		title = localeProps.c_str();
 	}
-	if (GetSciteDefaultHome(propdir, sizeof propdir)
-	    && BuildPath(propfile, propdir, title, sizeof propfile)) {
-		strcat(propdir, pathSepString);
-		propsUI.Read(propfile, propdir, importFiles, importMax);
-	}
+	FilePath propdir = GetSciteDefaultHome();
+	FilePath localePath(propdir, title);
+	propsUI.Read(localePath, propdir, importFiles, importMax);
 	localisationRead = true;
 }
 
@@ -1371,64 +1316,39 @@ void SciTEBase::ReadPropertiesInitial() {
 	}
 #endif
 
-	char homepath[MAX_PATH + 20];
-	if (GetSciteDefaultHome(homepath, sizeof(homepath))) {
-		props.Set("SciteDefaultHome", homepath);
-	}
-	if (GetSciteUserHome(homepath, sizeof(homepath))) {
-		props.Set("SciteUserHome", homepath);
-	}
+	FilePath homepath = GetSciteDefaultHome();
+	props.Set("SciteDefaultHome", homepath.AsFileSystem());
+	homepath = GetSciteUserHome();
+	props.Set("SciteUserHome", homepath.AsFileSystem());
 }
 
-bool SciTEBase::GetDefaultPropertiesFileName(char *pathDefaultProps,
-        char *pathDefaultDir, unsigned int lenPath) {
-	if (!GetSciteDefaultHome(pathDefaultDir, lenPath)) {
-		return false;
-	}
-	return BuildPath(pathDefaultProps, pathDefaultDir, propGlobalFileName, lenPath);
+FilePath SciTEBase::GetDefaultPropertiesFileName() {
+	return FilePath(GetSciteDefaultHome(), propGlobalFileName);
 }
 
-bool SciTEBase::GetAbbrevPropertiesFileName(char *pathAbbrevProps,
-        char *pathDefaultDir, unsigned int lenPath) {
-	if (!GetSciteUserHome(pathDefaultDir, lenPath)) {
-		return false;
-	}
-	return BuildPath(pathAbbrevProps, pathDefaultDir, propAbbrevFileName, lenPath);
+FilePath SciTEBase::GetAbbrevPropertiesFileName() {
+	return FilePath(GetSciteUserHome(), propAbbrevFileName);
 }
 
-bool SciTEBase::GetUserPropertiesFileName(char *pathUserProps,
-        char *pathUserDir, unsigned int lenPath) {
-	if (!GetSciteUserHome(pathUserDir, lenPath)) {
-		return false;
-	}
-	return BuildPath(pathUserProps, pathUserDir, propUserFileName, lenPath);
+FilePath SciTEBase::GetUserPropertiesFileName() {
+	return FilePath(GetSciteUserHome(), propUserFileName);
 }
 
 void SciTEBase::OpenProperties(int propsFile) {
-	char propfile[MAX_PATH + 20];
-	char propdir[MAX_PATH + 20];
+	FilePath propfile;
 	if (propsFile == IDM_OPENLOCALPROPERTIES) {
-		GetDocumentDirectory(propfile, sizeof(propfile));
-#ifdef __vms
-
-		strcpy(propfile, VMSToUnixStyle(propfile));
-#endif
-
-		strcat(propfile, pathSepString);
-		strcat(propfile, propFileName);
+		FilePath propdir = filePath.Directory();
+		propfile.Set(propdir, propFileName);
 		Open(propfile, ofQuiet);
 	} else if (propsFile == IDM_OPENUSERPROPERTIES) {
-		if (GetUserPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-			Open(propfile, ofQuiet);
-		}
+		propfile = GetUserPropertiesFileName();
+		Open(propfile, ofQuiet);
 	} else if (propsFile == IDM_OPENABBREVPROPERTIES) {
-		if (GetAbbrevPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-			Open(propfile, ofQuiet);
-		}
+		propfile = GetAbbrevPropertiesFileName();
+		Open(propfile, ofQuiet);
 	} else if (propsFile == IDM_OPENGLOBALPROPERTIES) {
-		if (GetDefaultPropertiesFileName(propfile, propdir, sizeof(propfile))) {
-			Open(propfile, ofQuiet);
-		}
+		propfile = GetDefaultPropertiesFileName();
+		Open(propfile, ofQuiet);
 	} else if (propsFile == IDM_OPENLUAEXTERNALFILE) {
 		SString extlua = props.GetExpanded("ext.lua.startup.script");
 		if (extlua.length()) {

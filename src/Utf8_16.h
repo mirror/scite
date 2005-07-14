@@ -128,7 +128,7 @@ public:
 
 	void setEncoding(encodingType eType);
 
-	FILE * fopen(const char *_name, const char *_type);
+	void setfile(FILE *pFile);
 	size_t fwrite(const void* p, size_t _size);
 	void fclose();
 protected:

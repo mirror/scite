@@ -64,6 +64,7 @@
 #include "ScintillaWidget.h"
 #include "SciLexer.h"
 #include "Extender.h"
+#include "FilePath.h"
 #include "SciTEBase.h"
 
 // Contributor names are in UTF-8
@@ -369,10 +370,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	shortCutItemList = 0;
 	shortCutItems = 0;
 
-	fullPath[0] = '\0';
-	fileName[0] = '\0';
-	fileExt[0] = '\0';
-	dirName[0] = '\0';
 	useMonoFont = false;
 	fileModTime = 0;
 	fileModLastAsk = 0;
@@ -968,18 +965,18 @@ void SciTEBase::BraceMatch(bool editor) {
 }
 
 void SciTEBase::SetWindowName() {
-	if (fileName[0] == '\0') {
+	if (filePath.IsUntitled()) {
 		windowName = LocaliseString("Untitled");
 		windowName.insert(0, "(");
 		windowName += ")";
 	} else if (props.GetInt("title.full.path") == 2) {
-		windowName = fileName;
+		windowName = filePath.Name().AsInternal();
 		windowName += " in ";
-		windowName += dirName;
+		windowName += filePath.Directory().AsInternal();
 	} else if (props.GetInt("title.full.path") == 1) {
-		windowName = fullPath;
+		windowName = filePath.AsInternal();
 	} else {
-		windowName = fileName;
+		windowName = filePath.Name().AsInternal();
 	}
 	if (isDirty)
 		windowName += " * ";
@@ -1748,7 +1745,7 @@ void SciTEBase::ClearJobQueue() {
 
 void SciTEBase::Execute() {
 	props.Set("CurrentMessage", "");
-	dirNameForExecute = "";
+	dirNameForExecute = FilePath();
 	bool displayParameterDialog = false;
 	int ic;
 	parameterisedCommand = "";
@@ -1758,7 +1755,7 @@ void SciTEBase::Execute() {
 			jobQueue[ic].command.remove(0, 1);
 			parameterisedCommand = jobQueue[ic].command;
 		}
-		if (!(jobQueue[ic].directory == "")) {
+		if (jobQueue[ic].directory.IsSet()) {
 			dirNameForExecute = jobQueue[ic].directory;
 		}
 	}
@@ -1788,8 +1785,8 @@ void SciTEBase::Execute() {
 	cancelFlag = 0L;
 	executing = true;
 	CheckMenus();
-	chdir(dirName);
-	dirNameAtExecute = dirName;
+	filePath.Directory().SetWorkingDirectory();
+	dirNameAtExecute = filePath.Directory();
 }
 
 void SciTEBase::ToggleOutputVisible() {
@@ -3204,7 +3201,7 @@ void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem 
 		jobUsesOutputPane = false;
 	if (cmd.length()) {
 		jobQueue[commandCurrent].command = cmd;
-		jobQueue[commandCurrent].directory = dir;
+		jobQueue[commandCurrent].directory.Set(dir.c_str());
 		jobQueue[commandCurrent].jobType = jobType;
 		jobQueue[commandCurrent].input = input;
 		jobQueue[commandCurrent].flags = flags;
@@ -3273,7 +3270,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		// when doing the opening. Must be done there as user
 		// may decide to open multiple files so do not know yet
 		// how much room needed.
-		OpenDialog();
+		OpenDialog(filePath.Directory(), props.GetExpanded("open.filter").c_str());
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_OPENSELECTED:
@@ -3297,7 +3294,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		SaveAllBuffers(false, true);
 		break;
 	case IDM_SAVEAS:
-		SaveAs();
+		SaveAsDialog();
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_SAVEACOPY:
@@ -3694,7 +3691,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_COMPILE: {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
-				AddCommand(props.GetWild("command.compile.", fileName), "",
+				AddCommand(props.GetWild("command.compile.", filePath.AsInternal()), "",
 				           SubsystemType("command.compile.subsystem."));
 				if (commandCurrent > 0)
 					Execute();
@@ -3706,8 +3703,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(
-				    props.GetWild("command.build.", fileName),
-				    props.GetNewExpand("command.build.directory.", fileName),
+				    props.GetWild("command.build.", filePath.AsInternal()),
+				    props.GetNewExpand("command.build.directory.", filePath.AsInternal()),
 				    SubsystemType("command.build.subsystem."));
 				if (commandCurrent > 0) {
 					isBuilding = true;
@@ -3723,7 +3720,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				long flags = 0;
 
 				if (!isBuilt) {
-					SString buildcmd = props.GetNewExpand("command.go.needs.", fileName);
+					SString buildcmd = props.GetNewExpand("command.go.needs.", filePath.AsInternal());
 					AddCommand(buildcmd, "",
 					           SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
@@ -3731,7 +3728,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 						flags |= jobForceQueue;
 					}
 				}
-				AddCommand(props.GetWild("command.go.", fileName), "",
+				AddCommand(props.GetWild("command.go.", filePath.AsInternal()), "",
 				           SubsystemType("command.go.subsystem."), "", flags);
 				if (commandCurrent > 0)
 					Execute();
@@ -3828,7 +3825,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_HELP: {
 			SelectionIntoProperties();
-			AddCommand(props.GetWild("command.help.", fileName), "",
+			AddCommand(props.GetWild("command.help.", filePath.AsInternal()), "",
 			           SubsystemType("command.help.subsystem."));
 			if (commandCurrent > 0) {
 				isBuilding = true;
@@ -4262,11 +4259,11 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_TOGGLEPARAMETERS, wParameters.Created());
 	CheckAMenuItem(IDM_MONOFONT, useMonoFont);
 	EnableAMenuItem(IDM_COMPILE, !executing &&
-	                props.GetWild("command.compile.", fileName).size() != 0);
+	                props.GetWild("command.compile.", filePath.AsInternal()).size() != 0);
 	EnableAMenuItem(IDM_BUILD, !executing &&
-	                props.GetWild("command.build.", fileName).size() != 0);
+	                props.GetWild("command.build.", filePath.AsInternal()).size() != 0);
 	EnableAMenuItem(IDM_GO, !executing &&
-	                props.GetWild("command.go.", fileName).size() != 0);
+	                props.GetWild("command.go.", filePath.AsInternal()).size() != 0);
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
 		EnableAMenuItem(IDM_TOOLS + toolItem, !executing);
 	EnableAMenuItem(IDM_STOPEXECUTE, executing);
@@ -4366,13 +4363,10 @@ void SciTEBase::MoveSplit(Point ptNewDrag) {
 void SciTEBase::UIAvailable() {
 	SetImportMenu();
 	if (extender) {
-		char homepath[MAX_PATH + 20];
-		if (GetSciteDefaultHome(homepath, sizeof(homepath))) {
-			props.Set("SciteDefaultHome", homepath);
-		}
-		if (GetSciteUserHome(homepath, sizeof(homepath))) {
-			props.Set("SciteUserHome", homepath);
-		}
+		FilePath homepath = GetSciteDefaultHome();
+		props.Set("SciteDefaultHome", homepath.AsFileSystem());
+		homepath = GetSciteUserHome();
+		props.Set("SciteUserHome", homepath.AsFileSystem());
 		extender->Initialise(this);
 	}
 }
@@ -4395,7 +4389,7 @@ void SciTEBase::PerformOne(char *action) {
 	if (arg) {
 		arg++;
 		if (isprefix(action, "askfilename:")) {
-			extender->OnMacro("filename", fullPath);
+			extender->OnMacro("filename", filePath.AsFileSystem());
 		} else if (isprefix(action, "askproperty:")) {
 			PropertyToDirector(arg);
 		} else if (isprefix(action, "close:")) {
@@ -4467,7 +4461,11 @@ void SciTEBase::PerformOne(char *action) {
 				ReplaceAll(false);
 			}
 		} else if (isprefix(action, "saveas:")) {
-			SaveAs(arg);
+			if (*arg) {
+				SaveAs(arg);
+			} else {
+				SaveAsDialog();
+			}
 		} else if (isprefix(action, "loadsession:")) {
 			if (*arg) {
 				LoadSession(arg);
@@ -4801,7 +4799,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 			LoadMRUAndSession(true);
 		}
 		// No open file after session load so create empty document.
-		if (IsUntitledFileName(fullPath) && buffers.length == 1 && !buffers.buffers[0].isDirty) {
+		if (filePath.IsUntitled() && buffers.length == 1 && !buffers.buffers[0].isDirty) {
 			Open("");
 		}
 	}

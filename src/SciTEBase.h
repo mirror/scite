@@ -7,29 +7,11 @@
 
 extern const char appName[];
 
-extern const char pathSepString[];
-extern const char pathSepChar;
-extern const char configFileVisibilityString[];
 extern const char propUserFileName[];
 extern const char propGlobalFileName[];
 extern const char propAbbrevFileName[];
-extern const char fileRead[];
-extern const char fileWrite[];
 
 extern const char menuAccessIndicator[];
-
-#ifdef unix
-#include <limits.h>
-#ifdef PATH_MAX
-#define MAX_PATH PATH_MAX
-#else
-#define MAX_PATH 260
-#endif
-#endif
-
-#ifdef __vms
-const char *VMSToUnixStyle(const char *fileName);
-#endif
 
 #ifdef WIN32
 #ifdef _MSC_VER
@@ -113,28 +95,10 @@ class PropSetFile : public PropSet {
 public:
 	PropSetFile(bool lowerKeys_=false);
 	~PropSetFile();
-	bool ReadLine(const char *data, bool ifIsTrue, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
-	void ReadFromMemory(const char *data, int len, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
-	bool Read(const char *filename, const char *directoryForImports, SString imports[] = 0, int sizeImports = 0);
+	bool ReadLine(const char *data, bool ifIsTrue, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
+	void ReadFromMemory(const char *data, int len, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
+	bool Read(FilePath filename, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
 	void SetInteger(const char *key, sptr_t i);
-};
-
-class FilePath {
-	SString fileName;
-public:
-	FilePath() : fileName("") {
-	}
-	void Set(const char *fileName_) {
-		fileName = fileName_;
-	}
-	void Init() {
-		fileName = "";
-	}
-	bool SameNameAs(const char *other) const;
-	bool SameNameAs(const FilePath &other) const;
-	bool IsSet() const { return fileName.length() > 0; }
-	bool IsUntitled() const;
-	const char *FullPath() const;
 };
 
 class RecentFile : public FilePath {
@@ -305,7 +269,7 @@ public:
 	~BufferList();
 	void Allocate(int maxSize);
 	int Add();
-	int GetDocumentByName(const char *filename);
+	int GetDocumentByName(FilePath filename);
 	void RemoveCurrent();
 	int Current();
 	void SetCurrent(int index);
@@ -322,7 +286,7 @@ enum JobFlags {
 class Job {
 public:
 	SString command;
-	SString directory;
+	FilePath directory;
 	SString input;
 	JobSubsystem jobType;
 	int flags;
@@ -413,12 +377,9 @@ struct StyleAndWords {
 class SciTEBase : public ExtensionAPI {
 protected:
 	SString windowName;
-	char fullPath[MAX_PATH];
-	char fileName[MAX_PATH];
-	char fileExt[MAX_PATH];
-	char dirName[MAX_PATH];
-	SString dirNameAtExecute;
-	SString dirNameForExecute;
+	FilePath filePath;
+	FilePath dirNameAtExecute;
+	FilePath dirNameForExecute;
 	bool useMonoFont;
 	time_t fileModTime;
 	time_t fileModLastAsk;
@@ -428,7 +389,7 @@ protected:
 	enum { fileStackCmdID = IDM_MRUFILE, bufferCmdID = IDM_BUFFER };
 
 	enum { importMax = 50 };
-	SString importFiles[importMax];
+	FilePath importFiles[importMax];
 	enum { importCmdID = IDM_IMPORT };
 
 	SString findWhat;
@@ -623,7 +584,6 @@ protected:
 	void Prev();
 
 	void ReadGlobalPropFile();
-	void GetDocumentDirectory(char *docDir, int len);
 	void ReadAbbrevPropFile();
 	void ReadLocalPropFile();
 
@@ -650,7 +610,7 @@ protected:
 
 	virtual void WarnUser(int warnID) = 0;
 	void SetWindowName();
-	void SetFileName(const char *openName, bool fixCase = true);
+	void SetFileName(FilePath openName, bool fixCase = true);
 	void ClearDocument();
 	void InitialiseBuffers();
 	void LoadRecentMenu();
@@ -662,14 +622,12 @@ protected:
 	void New();
 	void Close(bool updateUI = true, bool loadingSession = false, bool makingRoomForNew = false);
 	bool IsAbsolutePath(const char *path);
-	bool Exists(const char *dir, const char *path, char *testPath);
+	bool Exists(const char *dir, const char *path, FilePath *resultPath);
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
 	void OpenFile(int fileSize, bool suppressMessage);
 	virtual void OpenUriList(const char *) {};
-	virtual void AbsolutePath(char *fullPath, const char *basePath, int size) = 0;
-	virtual void FixFilePath();
-	virtual bool OpenDialog(const char *filter=NULL) = 0;
+	virtual bool OpenDialog(FilePath directory, const char *filter) = 0;
 	virtual bool SaveAsDialog() = 0;
 	virtual void LoadSessionDialog() { };
 	virtual void SaveSessionDialog() { };
@@ -682,37 +640,34 @@ protected:
 		ofQuiet=8		// Avoid "Could not open file" message
 	};
 	virtual bool PreOpenCheck(const char *file);
-	bool Open(const char *file, OpenFlags of=ofNone);
+	bool Open(FilePath file, OpenFlags of=ofNone);
 	bool OpenSelected();
 	void Revert();
 	int SaveIfUnsure(bool forceQuestion = false);
 	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();
 	bool Save();
-	virtual bool SaveAs(const char *file = 0);
+	void SaveAs(const char *file);
 	virtual void SaveACopy() = 0;
-	void SaveToHTML(const char *saveName);
+	void SaveToHTML(FilePath saveName);
 	void StripTrailingSpaces();
 	void EnsureFinalNewLine();
-	bool SaveBuffer(const char *saveName);
+	bool SaveBuffer(FilePath saveName);
 	virtual void SaveAsHTML() = 0;
-	void SaveToRTF(const char *saveName, int start = 0, int end = -1);
+	void SaveToRTF(FilePath saveName, int start = 0, int end = -1);
 	virtual void SaveAsRTF() = 0;
-	void SaveToPDF(const char *saveName);
+	void SaveToPDF(FilePath saveName);
 	virtual void SaveAsPDF() = 0;
-	void SaveToTEX(const char *saveName);
+	void SaveToTEX(FilePath saveName);
 	virtual void SaveAsTEX() = 0;
-	void SaveToXML(const char *saveName);
+	void SaveToXML(FilePath saveName);
 	virtual void SaveAsXML() = 0;
-	virtual void GetDefaultDirectory(char *directory, size_t size) = 0;
-	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath) = 0;
-	virtual bool GetSciteUserHome(char *path, unsigned int lenPath) = 0;
-	bool GetDefaultPropertiesFileName(char *pathDefaultProps,
-	        char *pathDefaultDir, unsigned int lenPath);
-	bool GetUserPropertiesFileName(char *pathUserProps,
-		char *pathUserDir, unsigned int lenPath);
-	bool GetAbbrevPropertiesFileName(char *pathAbbrevProps,
-	        char *pathDefaultDir, unsigned int lenPath);
+	virtual FilePath GetDefaultDirectory() = 0;
+	virtual FilePath GetSciteDefaultHome() = 0;
+	virtual FilePath GetSciteUserHome() = 0;
+	FilePath GetDefaultPropertiesFileName();
+	FilePath GetUserPropertiesFileName();
+	FilePath GetAbbrevPropertiesFileName();
 	void OpenProperties(int propsFile);
 	int GetMenuCommandAsInt(SString commandName);
 	virtual void Print(bool) {};
@@ -841,9 +796,9 @@ protected:
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	void DropFileStackTop();
-	void AddFileToBuffer(const char *file, int pos);
-	void AddFileToStack(const char *file, CharacterRange selection, int scrollPos);
-	void RemoveFileFromStack(const char *file);
+	void AddFileToBuffer(FilePath file, int pos);
+	void AddFileToStack(FilePath file, CharacterRange selection, int scrollPos);
+	void RemoveFileFromStack(FilePath file);
 	RecentFile GetFilePosition();
 	void DisplayAround(const RecentFile &rf);
 	void StackMenu(int pos);
@@ -955,12 +910,7 @@ const int blockSize = 131072;
 #endif
 
 int ControlIDOfCommand(unsigned long);
-bool BuildPath(char *path, const char *dir, const char *fileName,
-	unsigned int lenPath);
-time_t GetModTime(const char *fullPath);
-bool IsUntitledFileName(const char *name);
 void LowerCaseString(char *s);
-void ChopTerminalSlash(char *path);
 long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault);
 char *Slash(const char *s);
 unsigned int UnSlash(char *s);

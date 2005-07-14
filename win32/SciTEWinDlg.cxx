@@ -219,23 +219,10 @@ int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC 
 	return result;
 }
 
-bool SciTEWin::OpenDialog(const char *filter) {
+bool SciTEWin::OpenDialog(FilePath directory, const char *filter) {
+	enum {maxBufferSize=2048};
 
-	char openName[2048]; // maximum common dialog buffer size (says mfc..)
-	*openName = '\0';
-
-	OPENFILENAME ofn = {
-	                       sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	                   };
-	ofn.hwndOwner = MainHWND();
-	ofn.hInstance = hInstance;
-	ofn.lpstrFile = openName;
-	ofn.nMaxFile = sizeof(openName);
-	SString openFilter;
-	if (filter)
-		openFilter = filter;
-	else
-		openFilter = props.GetExpanded("open.filter");
+	SString openFilter = filter;
 	if (openFilter.length()) {
 		openFilter.substitute('|', '\0');
 		size_t start = 0;
@@ -256,18 +243,31 @@ bool SciTEWin::OpenDialog(const char *filter) {
 			}
 		}
 	}
-	ofn.lpstrFilter = openFilter.c_str();
+
 	if (!openWhat[0]) {
 		strcpy(openWhat, LocaliseString("Custom Filter").c_str());
 		openWhat[strlen(openWhat) + 1] = '\0';
 	}
+
+	bool succeeded = false;
+	char openName[maxBufferSize]; // maximum common dialog buffer size (says mfc..)
+	openName[0] = '\0';
+	
+	OPENFILENAMEA ofn = {
+	       sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	};
+	ofn.hwndOwner = MainHWND();
+	ofn.hInstance = hInstance;
+	ofn.lpstrFile = openName;
+	ofn.nMaxFile = maxBufferSize;
+	ofn.lpstrFilter = openFilter.c_str();
 	ofn.lpstrCustomFilter = openWhat;
 	ofn.nMaxCustFilter = sizeof(openWhat);
 	ofn.nFilterIndex = filterDefault;
 	SString translatedTitle = LocaliseString("Open File");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	if (props.GetInt("open.dialog.in.file.directory")) {
-		ofn.lpstrInitialDir = dirName;
+		ofn.lpstrInitialDir = directory.AsFileSystem();
 	}
 	ofn.Flags = OFN_HIDEREADONLY;
 
@@ -278,6 +278,7 @@ bool SciTEWin::OpenDialog(const char *filter) {
 		    OFN_ALLOWMULTISELECT;
 	}
 	if (::GetOpenFileName(&ofn)) {
+		succeeded = true;
 		filterDefault = ofn.nFilterIndex;
 		//Platform::DebugPrintf("Open: <%s>\n", openName);
 		// find char pos after first Delimiter
@@ -286,35 +287,27 @@ bool SciTEWin::OpenDialog(const char *filter) {
 			++p;
 		++p;
 		// if single selection then have path+file
-		if ((p - openName) > ofn.nFileOffset) {
+		if (strlen(openName) > static_cast<size_t>(ofn.nFileOffset)) {
 			Open(openName);
 		} else {
-			SString path(openName);
-			size_t len = path.length();
-			if ((len > 0) && (path[len - 1] != '\\'))
-				path += "\\";
-			while (*p != '\0') {
+			FilePath directory(openName);
+			char *p = openName + strlen(openName) + 1;
+			while (*p) {
 				// make path+file, add it to the list
-				SString file = path;
-				file += p;
-				Open(file.c_str());
+				Open(FilePath(directory, FilePath(p)));
 				// goto next char pos after \0
-				while (*p != '\0')
-					++p;
-				++p;
+				p += strlen(p) + 1;
 			}
 		}
-	} else {
-		return false;
 	}
-	return true;
+	return succeeded;
 }
 
-SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const char *ext) {
-	SString path;
+FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const char *filter, const char *ext) {
+	FilePath path;
 	if (0 == dialogsOnScreen) {
 		char saveName[MAX_PATH] = "";
-		strcpy(saveName, fileName);
+		strcpy(saveName, filePath.AsInternal());
 		if (ext) {
 			char *cpDot = strrchr(saveName, '.');
 			int keepExt = props.GetInt("export.keep.ext", 0);
@@ -342,7 +335,7 @@ SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const ch
 		ofn.lpstrTitle = translatedTitle.c_str();
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 		ofn.lpstrFilter = filter;
-		ofn.lpstrInitialDir = dirName;
+		ofn.lpstrInitialDir = directory.AsFileSystem();
 
 		dialogsOnScreen++;
 		if (::GetSaveFileName(&ofn)) {
@@ -354,10 +347,10 @@ SString SciTEWin::ChooseSaveName(const char *title, const char *filter, const ch
 }
 
 bool SciTEWin::SaveAsDialog() {
-	SString path = ChooseSaveName("Save File");
-	if (path.length()) {
+	FilePath path = ChooseSaveName(filePath.Directory(), "Save File");
+	if (path.IsSet()) {
 		//Platform::DebugPrintf("Save: <%s>\n", openName);
-		SetFileName(path.c_str(), false); // don't fix case
+		SetFileName(path, false); // don't fix case
 		Save();
 		ReadProperties();
 
@@ -365,56 +358,56 @@ bool SciTEWin::SaveAsDialog() {
 		SendEditor(SCI_COLOURISE, 0, -1);
 		wEditor.InvalidateAll();
 		if (extender)
-			extender->OnSave(fullPath);
+			extender->OnSave(filePath.AsFileSystem());
 		return true;
 	}
 	return false;
 }
 
 void SciTEWin::SaveACopy() {
-	SString path = ChooseSaveName("Save a Copy");
-	if (path.length()) {
-		SaveBuffer(path.c_str());
+	FilePath path = ChooseSaveName(filePath.Directory(), "Save a Copy");
+	if (path.IsSet()) {
+		SaveBuffer(path);
 	}
 }
 
 void SciTEWin::SaveAsHTML() {
-	SString path = ChooseSaveName("Export File As HTML",
+	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As HTML",
 	                              "Web (.html;.htm)\0*.html;*.htm\0", ".html");
-	if (path.length()) {
-		SaveToHTML(path.c_str());
+	if (path.IsSet()) {
+		SaveToHTML(path);
 	}
 }
 
 void SciTEWin::SaveAsRTF() {
-	SString path = ChooseSaveName("Export File As RTF",
+	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As RTF",
 	                              "RTF (.rtf)\0*.rtf\0", ".rtf");
-	if (path.length()) {
-		SaveToRTF(path.c_str());
+	if (path.IsSet()) {
+		SaveToRTF(path);
 	}
 }
 
 void SciTEWin::SaveAsPDF() {
-	SString path = ChooseSaveName("Export File As PDF",
+	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As PDF",
 	                              "PDF (.pdf)\0*.pdf\0", ".pdf");
-	if (path.length()) {
-		SaveToPDF(path.c_str());
+	if (path.IsSet()) {
+		SaveToPDF(path);
 	}
 }
 
 void SciTEWin::SaveAsTEX() {
-	SString path = ChooseSaveName("Export File As TeX",
+	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As TeX",
 	                              "TeX (.tex)\0*.tex\0", ".tex");
-	if (path.length()) {
-		SaveToTEX(path.c_str());
+	if (path.IsSet()) {
+		SaveToTEX(path);
 	}
 }
 
 void SciTEWin::SaveAsXML() {
-	SString path = ChooseSaveName("Export File As XML",
+	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As XML",
 	                              "TeX (.xml)\0*.xml\0", ".xml");
-	if (path.length()) {
-		SaveToXML(path.c_str());
+	if (path.IsSet()) {
+		SaveToXML(path);
 	}
 }
 
@@ -1369,9 +1362,8 @@ void SciTEWin::FindInFiles() {
 		return;
 	SelectionIntoFind();
 	props.Set("find.what", findWhat.c_str());
-	char findInDir[1024];
-	GetDocumentDirectory(findInDir, sizeof(findInDir));
-	props.Set("find.directory", findInDir);
+	FilePath findInDir = filePath.Directory();
+	props.Set("find.directory", findInDir.AsFileSystem());
 	wFindInFiles = ::CreateDialogParam(hInstance, "Grep", MainHWND(), 
 		reinterpret_cast<DLGPROC>(GrepDlg), reinterpret_cast<sptr_t>(this));
 	wFindInFiles.Show();

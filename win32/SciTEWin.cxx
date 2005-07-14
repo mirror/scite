@@ -163,7 +163,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 			const void *pv = ::LockResource(hmem);
 			if (pv) {
 				propsEmbed.ReadFromMemory(
-				    reinterpret_cast<const char *>(pv), size, 0);
+				    reinterpret_cast<const char *>(pv), size, FilePath());
 			}
 		}
 		::FreeResource(handProps);
@@ -233,40 +233,35 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		exit(FALSE);
 }
 
-static void GetSciTEPath(char *path, unsigned int lenPath, char *home) {
-	*path = '\0';
-	if (home) {
-		strncpy(path, home, lenPath);
+static FilePath GetSciTEPath(FilePath home) {
+	if (home.IsSet()) {
+		return FilePath(home);
 	} else {
-		::GetModuleFileName(0, path, lenPath);
+		char path[MAX_PATH];
+		::GetModuleFileName(0, path, sizeof(path));
 		// Remove the SciTE.exe
 		char *lastSlash = strrchr(path, pathSepChar);
 		if (lastSlash)
 			*lastSlash = '\0';
+		return FilePath(path);
 	}
-	path[lenPath - 1] = '\0';
-	ChopTerminalSlash(path);
 }
 
-void SciTEWin::GetDefaultDirectory(char *directory, size_t size) {
+FilePath SciTEWin::GetDefaultDirectory() {
 	char *home = getenv("SciTE_HOME");
-	GetSciTEPath(directory, static_cast<unsigned int>(size), home);
+	return GetSciTEPath(home);
 }
 
-bool SciTEWin::GetSciteDefaultHome(char *path, unsigned int lenPath) {
-	*path = '\0';
+FilePath SciTEWin::GetSciteDefaultHome() {
 	char *home = getenv("SciTE_HOME");
-	GetSciTEPath(path, lenPath, home);
-	return true;
+	return GetSciTEPath(home);
 }
 
-bool SciTEWin::GetSciteUserHome(char *path, unsigned int lenPath) {
-	*path = '\0';
+FilePath SciTEWin::GetSciteUserHome() {
 	char *home = getenv("SciTE_HOME");
 	if (!home)
 		home = getenv("USERPROFILE");
-	GetSciTEPath(path, lenPath, home);
-	return true;
+	return GetSciTEPath(home);
 }
 
 // Help command lines contain topic!path
@@ -458,151 +453,6 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 }
 
 /**
- * Makes a long path from a given, possibly short path/file.
- *
- * The short path/file must exist, and if it is a file it must be fully specified
- * otherwise the function fails.
- *
- * sizeof @a longPath buffer must be a least _MAX_PATH
- * @returns true on success, and the long path in @a longPath buffer,
- * false on failure, and copies the @a shortPath arg to the @a longPath buffer.
- */
-bool MakeLongPath(const char* shortPath, char* longPath) {
-	// when we have pfnGetLong, we assume it never changes as kernel32 is always loaded
-	static DWORD (STDAPICALLTYPE* pfnGetLong)(const char* lpszShortPath, char* lpszLongPath, DWORD cchBuffer) = NULL;
-	static bool kernelTried = FALSE;
-	bool ok = FALSE;
-
-	if (!kernelTried) {
-		HMODULE hModule;
-		kernelTried = true;
-		hModule = ::GetModuleHandleA("KERNEL32");
-		//assert(hModule != NULL); // must not call FreeLibrary on such handle
-
-		// attempt to get GetLongPathName (implemented in Win98/2000 only!)
-		(FARPROC&)pfnGetLong = ::GetProcAddress(hModule, "GetLongPathNameA");
-	}
-
-	// the kernel GetLongPathName proc is faster and (hopefully) more reliable
-	if (pfnGetLong != NULL) {
-		// call kernel proc
-		ok = (pfnGetLong)(shortPath, longPath, _MAX_PATH) != 0;
-	} else {
-		char short_path[_MAX_PATH];  // copy, so we can modify it
-		char* tok;
-
-		*longPath = '\0';
-
-		lstrcpyn(short_path, shortPath, _MAX_PATH);
-
-		for (;;) {
-			tok = strtok(short_path, "\\");
-			if (tok == NULL)
-				break;
-
-			if ((strlen(shortPath) > 3) &&
-			        (shortPath[0] == '\\') && (shortPath[1] == '\\')) {
-				// UNC, skip first seps
-				strcat(longPath, "\\\\");
-				strcat(longPath, tok);
-				strcat(longPath, "\\");
-
-				tok = strtok(NULL, "\\");
-				if (tok == NULL)
-					break;
-			}
-			strcat(longPath, tok);
-
-			bool isDir = false;
-
-			for (;;) {
-				WIN32_FIND_DATA fd;
-				HANDLE hfind;
-				char* tokend;
-
-				tok = strtok(NULL, "\\");
-				if (tok == NULL)
-					break;
-
-				strcat(longPath, "\\");
-				tokend = longPath + strlen(longPath);
-
-				// temporary add short component
-				strcpy(tokend, tok);
-
-				hfind = ::FindFirstFile(longPath, &fd);
-				if (hfind == INVALID_HANDLE_VALUE)
-					break;
-
-				isDir = (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-
-				// finally add long component we got
-				strcpy(tokend, fd.cFileName);
-
-				::FindClose(hfind);
-			}
-			ok = tok == NULL;
-
-			if (ok && isDir)
-				strcat(longPath, "\\");
-
-			break;
-		}
-	}
-
-	if (!ok) {
-		lstrcpyn(longPath, shortPath, _MAX_PATH);
-	}
-	return ok;
-}
-
-void SciTEWin::FixFilePath() {
-	char longPath[_MAX_PATH];
-	// first try MakeLongPath which corrects the path and the case of filename too
-	if (MakeLongPath(fullPath, longPath)) {
-		strcpy(fullPath, longPath);
-		char *cpDirEnd = strrchr(fullPath, pathSepChar);
-		if (cpDirEnd) {
-			strcpy(fileName, cpDirEnd + 1);
-			strcpy(dirName, fullPath);
-			dirName[cpDirEnd - fullPath] = '\0';
-		}
-	} else {
-		// On Windows file comparison is done case insensitively so the user can
-		// enter scite.cxx and still open this file, SciTE.cxx. To ensure that the file
-		// is saved with correct capitalisation FindFirstFile is used to find out the
-		// real name of the file.
-		WIN32_FIND_DATA FindFileData;
-		HANDLE hFind = ::FindFirstFile(fullPath, &FindFileData);
-		if (hFind != INVALID_HANDLE_VALUE) {	// FindFirstFile found the file
-			char *cpDirEnd = strrchr(fullPath, pathSepChar);
-			if (cpDirEnd) {
-				strcpy(fileName, FindFileData.cFileName);
-				strcpy(dirName, fullPath);
-				dirName[cpDirEnd - fullPath] = '\0';
-				strcpy(fullPath, dirName);
-				strcat(fullPath, pathSepString);
-				strcat(fullPath, fileName);
-			}
-			::FindClose(hFind);
-		}
-	}
-}
-
-/**
- * Take a filename or relative path and put it at the end of the current path.
- * If the path is absolute, return the same path.
- */
-void SciTEWin::AbsolutePath(char *absPath, const char *relativePath, int size) {
-	// The runtime libraries for GCC and Visual C++ give different results for _fullpath
-	// so use the OS.
-	*absPath = '\0';
-	LPTSTR fileBit = 0;
-	::GetFullPathName(relativePath, size, absPath, &fileBit);
-	//Platform::DebugPrintf("AbsolutePath: <%s> -> <%s>\n", relativePath, absPath);
-}
-
-/**
  * Run a command with redirected input and output streams
  * so the output can be put in a window.
  * It is based upon several usenet posts and a knowledge base article.
@@ -612,7 +462,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	ElapsedTime commandTime;
 
 	if (jobToRun.jobType == jobShell) {
-		ShellExec(jobToRun.command, jobToRun.directory);
+		ShellExec(jobToRun.command, jobToRun.directory.AsFileSystem());
 		return exitcode;
 	}
 
@@ -708,9 +558,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	si.hStdOutput = hPipeWrite;
 	si.hStdError = hPipeWrite;
 
-	char startDirectory[_MAX_PATH];
-	startDirectory[0] = '\0';
-	AbsolutePath(startDirectory, jobToRun.directory.c_str(), _MAX_PATH);
+	FilePath startDirectory = jobToRun.directory.AbsolutePath();
 
 	PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
@@ -720,7 +568,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			  NULL, NULL,
 			  TRUE, CREATE_NEW_PROCESS_GROUP,
 			  NULL,
-			  startDirectory[0] ? startDirectory : NULL,
+			  startDirectory.IsSet() ? 
+			  static_cast<const char *>(startDirectory.AsFileSystem()) : NULL,
 			  &si, &pi);
 
 	if (running) {
@@ -962,7 +811,7 @@ struct ShellErr {
 	const char *descr;
 };
 
-void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
+void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 	char *mycmd;
 
 	// guess if cmd is an executable, if this succeeds it can
@@ -1023,7 +872,7 @@ void SciTEWin::ShellExec(const SString &cmd, const SString &dir) {
 	                    NULL,           // cmd is open
 	                    mycmd,          // file to open
 	                    myparams,          // parameters
-	                    dir.c_str(),          // launch directory
+	                    dir,          // launch directory
 	                    SW_SHOWNORMAL)); //default show cmd
 
 	if (rc > 32) {
@@ -1122,7 +971,7 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 				ParamGrab();
 			}
 			pCmd = props.Expand(pCmd.c_str());
-			ShellExec(pCmd, dir);
+			ShellExec(pCmd, dir.c_str());
 		} else {
 			SciTEBase::AddCommand(cmd, dir, jobType, input, flags);
 		}
@@ -1367,8 +1216,7 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 	if (fileattributes != (DWORD) -1) {	// arg is an existing directory or filename
 		// if the command line argument is a directory, use OpenDialog()
 		if (fileattributes & FILE_ATTRIBUTE_DIRECTORY) {
-			strcpy(dirName, arg);
-			OpenDialog();
+			OpenDialog(FilePath(arg), props.GetExpanded("open.filter").c_str());
 			isHandled = true;
 		}
 	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(arg, &ffile)) != INVALID_HANDLE_VALUE) {
@@ -1397,11 +1245,12 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 		if (lastslash && lastdot && lastslash == lastdot - 1 || !lastslash && lastdot == arg) {
 			isHandled = true;
 
+			char dir[MAX_PATH];
 			if (lastslash) { // the arg contains a path, so copy that part to dirName
-				strncpy(dirName, arg, lastslash - arg + 1);
-				dirName[lastslash - arg + 1] = '\0';
+				strncpy(dir, arg, lastslash - arg + 1);
+				dir[lastslash - arg + 1] = '\0';
 			} else {
-				strcpy(dirName, ".\\");
+				strcpy(dir, ".\\");
 			}
 
 			strcpy(filename, "*");
@@ -1409,7 +1258,7 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 			strcat(filename, "|");
 			strcat(filename, "*");
 			strcat(filename, lastdot);
-			OpenDialog(filename);
+			OpenDialog(FilePath(dir), filename);
 		} else if (!lastdot || lastslash && lastdot < lastslash) {
 			// if the filename has no extension, try to match a file with list of standard extensions
 			SString extensions = props.GetExpanded("source.default.extensions");

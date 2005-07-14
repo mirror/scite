@@ -52,6 +52,7 @@
 #include "KeyWords.h"
 #include "Scintilla.h"
 #include "Extender.h"
+#include "FilePath.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 #include "UniqueInstance.h"
@@ -120,11 +121,9 @@ protected:
 	void LocaliseControl(HWND w);
 	void LocaliseDialog(HWND wDialog);
 
-	virtual void FixFilePath();
-	virtual void AbsolutePath(char *fullPath, const char *basePath, int size);
 	int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc);
-	virtual bool OpenDialog(const char *filter=NULL);
-	SString ChooseSaveName(const char *title, const char *filter=0, const char *ext=0);
+	virtual bool OpenDialog(FilePath directory, const char *filter);
+	FilePath ChooseSaveName(FilePath directory, const char *title, const char *filter=0, const char *ext=0);
 	virtual bool SaveAsDialog();
 	virtual void SaveACopy();
 	virtual void SaveAsHTML();
@@ -152,9 +151,9 @@ protected:
 	SString ProcessArgs(const char *cmdLine);
 	virtual void QuitProgram();
 
-	virtual void GetDefaultDirectory(char *directory, size_t size);
-	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
-	virtual bool GetSciteUserHome(char *path, unsigned int lenPath);
+	virtual FilePath GetDefaultDirectory();
+	virtual FilePath GetSciteDefaultHome();
+	virtual FilePath GetSciteUserHome();
 
 	virtual void SetFileProperties(PropSet &ps);
 	virtual void SetStatusBarText(const char *s);
@@ -225,7 +224,7 @@ public:
 	void Run(const char *cmdLine);
 	DWORD ExecuteOne(const Job &jobToRun, bool &seenOutput);
 	void ProcessExecute();
-	void ShellExec(const SString &cmd, const SString &dir);
+	void ShellExec(const SString &cmd, const char *dir);
 	virtual void Execute();
 	virtual void StopExecute();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input = "", int flags=0);

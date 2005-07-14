@@ -118,12 +118,10 @@ Utf8_16_Write::~Utf8_16_Write() {
 	}
 }
 
-FILE * Utf8_16_Write::fopen(const char *_name, const char *_type) {
-	m_pFile = ::fopen(_name, _type);
+void Utf8_16_Write::setfile(FILE *pFile) {
+	m_pFile = pFile;
 
 	m_bFirstWrite = true;
-
-	return m_pFile;
 }
 
 size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {

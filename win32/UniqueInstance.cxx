@@ -195,7 +195,8 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
 	// be useful)
 	TCHAR cwdCmd[MAX_PATH + 7]; // 7 for "-cwd:" and 2x'"'
 	strcpy(cwdCmd, "\"-cwd:");
-	getcwd(cwdCmd + strlen(cwdCmd), MAX_PATH);
+	FilePath cwd = FilePath::GetWorkingDirectory();
+	strncpy(cwdCmd + strlen(cwdCmd), cwd.AsInternal(), MAX_PATH);
 	strcat(cwdCmd, "\"");
 	// Defeat the "\" mangling - convert "\" to "/"
 	for (char *temp = cwdCmd; *temp; temp++) {
