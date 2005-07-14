@@ -626,6 +626,22 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 	}
 }
 
+void SciTEBase::CloseTab(int tab) {
+	int tabCurrent = buffers.Current();
+	if (tab == tabCurrent) {
+		Close();
+	} else {
+		FilePath fpCurrent = buffers.buffers[tabCurrent].AbsolutePath();
+		SetDocumentAt(tab);
+		if (SaveIfUnsure() != IDCANCEL) {
+			Close();
+			WindowSetFocus(wEditor);
+			// Return to the previous buffer
+			SetDocumentAt(buffers.GetDocumentByName(fpCurrent));
+		}
+	}
+}
+
 void SciTEBase::CloseAllBuffers(bool loadingSession) {
 	if (SaveAllBuffers(false) != IDCANCEL) {
 		while (buffers.length > 1)

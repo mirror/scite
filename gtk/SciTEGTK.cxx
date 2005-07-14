@@ -418,7 +418,10 @@ protected:
 	static gint DividerRelease(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	static void DragDataReceived(GtkWidget *widget, GdkDragContext *context,
 	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
-	static void GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event);
+	gint TabBarRelease(GtkNotebook *notebook, GdkEventButton *event);
+	static gint TabBarReleaseSignal(GtkNotebook *notebook, GdkEventButton *event, SciTEGTK *scitew) {
+		return scitew->TabBarRelease(notebook, event);
+	}
 
 #if GTK_MAJOR_VERSION >= 2
 	// This is used to create the pixmaps used in the interface.
@@ -2455,9 +2458,27 @@ void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
 	gtk_drag_finish(context, TRUE, FALSE, time);
 }
 
-void SciTEGTK::GtkTabBarSwitch(GtkNotebook *notebook, GdkEventButton *event) {
-	if (event->button == 1)
-		ButtonSignal(NULL,(gpointer)(bufferCmdID+gtk_notebook_get_current_page(notebook)));
+void SetFocus(GtkWidget *hwnd) {
+	Platform::SendScintilla(hwnd, SCI_GRABFOCUS, 0, 0);
+}
+
+gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
+	if (event->button == 1) {
+		SetDocumentAt(gtk_notebook_current_page(GTK_NOTEBOOK(wTabBar.GetID())));
+		CheckReload();
+	} else if (event->button == 2) {
+		for (int pageNum=0;pageNum<gtk_notebook_get_n_pages(notebook);pageNum++) {
+			GtkWidget *page = gtk_notebook_get_nth_page(notebook, pageNum);
+			if (page) {
+				GtkWidget *label = gtk_notebook_get_tab_label(notebook, page);
+				if (event->x < (label->allocation.x + label->allocation.width)) {
+					CloseTab(pageNum);
+					break;
+				}
+			}
+		}
+	}
+	return FALSE;
 }
 
 void SciTEGTK::OpenCancelSignal(GtkWidget *, SciTEGTK *scitew) {
@@ -2498,10 +2519,6 @@ void SciTEGTK::OpenResizeSignal(GtkWidget *, GtkAllocation *allocation, SciTEGTK
 void SciTEGTK::SaveAsSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->HandleSaveAs(gtk_file_selection_get_filename(
 	                         GTK_FILE_SELECTION(PWidget(scitew->dlgFileSelector))));
-}
-
-void SetFocus(GtkWidget *hwnd) {
-	Platform::SendScintilla(hwnd, SCI_GRABFOCUS, 0, 0);
 }
 
 GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
@@ -3035,7 +3052,8 @@ void SciTEGTK::CreateUI() {
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
 	gtk_signal_connect_after(GTK_OBJECT(PWidget(wTabBar)),
-		"button-release-event",GTK_SIGNAL_FUNC(GtkTabBarSwitch),NULL);
+		"button-release-event", GTK_SIGNAL_FUNC(TabBarReleaseSignal), gthis);
+	//gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
 #endif
 	tabVisible = false;
 

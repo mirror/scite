@@ -1545,6 +1545,19 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		CheckMenus();
 		break;
 
+	case WM_PARENTNOTIFY:
+		if (LOWORD(wParam) == WM_MBUTTONDOWN) {
+			// Check if on tab bar
+			Point pt = Point::FromLong(lParam);
+			TCHITTESTINFO thti;
+			thti.pt.x = pt.x;
+			thti.pt.y = pt.y;
+			thti.flags = 0;
+			int tab = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM)&thti);
+			CloseTab(tab);
+		}
+		break;
+
 	case WM_CLOSE:
 		QuitProgram();
 		return 0;

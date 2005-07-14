@@ -750,6 +750,7 @@ protected:
 		int flags = 0);
 	virtual void AboutDialog() = 0;
 	virtual void QuitProgram() = 0;
+	void CloseTab(int tab);
 	void CloseAllBuffers(bool loadingSession = false);
 	int SaveAllBuffers(bool forceQuestion, bool alwaysYes=false);
 	void SaveTitledBuffers();
