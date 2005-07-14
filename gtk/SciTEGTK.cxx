@@ -32,6 +32,7 @@
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
 #include "Extender.h"
+#include "FilePath.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 
@@ -309,8 +310,7 @@ protected:
 	virtual void ExecuteNext();
 
 	virtual void OpenUriList(const char *list);
-	virtual void AbsolutePath(char *absPath, const char *relativePath, int size);
-	virtual bool OpenDialog(const char *filter);
+	virtual bool OpenDialog(FilePath directory, const char *filter);
 	void HandleSaveAs(const char *savePath);
 	bool SaveAsXXX(FileFormat fmt, const char *title);
 	virtual bool SaveAsDialog();
@@ -351,9 +351,9 @@ protected:
 	virtual void TabSizeDialog();
 	virtual bool ParametersDialog(bool modal);
 
-	virtual void GetDefaultDirectory(char *directory, size_t size);
-	virtual bool GetSciteDefaultHome(char *path, unsigned int lenPath);
-	virtual bool GetSciteUserHome(char *path, unsigned int lenPath);
+	virtual FilePath GetDefaultDirectory();
+	virtual FilePath GetSciteDefaultHome();
+	virtual FilePath GetSciteUserHome();
 
 	virtual void SetStatusBarText(const char *s);
 	virtual void SetFileProperties(PropSet &ps);
@@ -400,7 +400,6 @@ protected:
 	static void ParamSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	static void IOSignal(SciTEGTK *scitew);
-
 	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
 	static gint QuitSignal(GtkWidget *w, GdkEventAny *e, SciTEGTK *scitew);
 	static void ButtonSignal(GtkWidget *widget, gpointer data);
@@ -595,8 +594,7 @@ GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
 }
 #endif
 
-void SciTEGTK::GetDefaultDirectory(char *directory, size_t size) {
-	directory[0] = '\0';
+FilePath SciTEGTK::GetDefaultDirectory() {
 	char *where = getenv("SciTE_HOME");
 #ifdef SYSCONF_PATH
 	if (!where) {
@@ -609,16 +607,16 @@ void SciTEGTK::GetDefaultDirectory(char *directory, size_t size) {
 #endif
 	if (where) {
 #ifdef __vms
-		strncpy(directory, VMSToUnixStyle(where), size);
+		return FilePath(VMSToUnixStyle(where));
 #else
-		strncpy(directory, where, size);
+		return FilePath(where);
 #endif
 	}
 
-	directory[size - 1] = '\0';
+	return FilePath("");
 }
 
-bool SciTEGTK::GetSciteDefaultHome(char *path, unsigned int lenPath) {
+FilePath SciTEGTK::GetSciteDefaultHome() {
 	char *where = getenv("SciTE_HOME");
 #ifdef __vms
 	if (where == NULL) {
@@ -636,36 +634,30 @@ bool SciTEGTK::GetSciteDefaultHome(char *path, unsigned int lenPath) {
 #endif
 	if (where) {
 #ifdef __vms
-		strncpy(path, VMSToUnixStyle(where), lenPath);
+		return FilePath(VMSToUnixStyle(where));
 #else
-
-		strncpy(path, where, lenPath);
+		return FilePath(where);
 #endif
 
-		return true;
 	}
-	return false;
+	return FilePath("");
 }
 
-bool SciTEGTK::GetSciteUserHome(char *path, unsigned int lenPath) {
+FilePath SciTEGTK::GetSciteUserHome() {
 	char *where = getenv("SciTE_HOME");
 	if (!where) {
 		where = getenv("HOME");
 	}
-	if (where) {
-		strncpy(path, where, lenPath);
-		return true;
-	}
-	return false;
+	return FilePath(where);
 }
 
 void SciTEGTK::ShowFileInStatus() {
 	char sbText[1000];
 	sprintf(sbText, " File: ");
-	if (fileName[0] == '\0')
+	if (filePath.IsUntitled())
 		strcat(sbText, "Untitled");
 	else
-		strcat(sbText, fullPath);
+		strcat(sbText, filePath.AsInternal());
 	SetStatusBarText(sbText);
 }
 
@@ -960,13 +952,6 @@ void SciTEGTK::CheckMenus() {
 	}
 }
 
-char *split(char*& s, char c) {
-	char *t = s;
-	if (s && (s = strchr(s, c)))
-		* s++ = '\0';
-	return t;
-}
-
 /**
  * Replace any %xx escapes by their single-character equivalent.
  */
@@ -1018,43 +1003,8 @@ void SciTEGTK::OpenUriList(const char *list) {
 	}
 }
 
-// on Linux return the shortest path equivalent to pathname (remove . and ..)
-void SciTEGTK::AbsolutePath(char *absPath, const char *relativePath, int /*size*/) {
-	char path[MAX_PATH + 1], *cur, *last, *part, *tmp;
-	if (!absPath)
-		return;
-	if (!relativePath)
-		return;
-	strcpy(path, relativePath);
-	cur = absPath;
-	*cur = '\0';
-	tmp = path;
-	last = NULL;
-	if (*tmp == pathSepChar) {
-		*cur++ = pathSepChar;
-		*cur = '\0';
-		tmp++;
-	}
-	while ((part = split(tmp, pathSepChar))) {
-		if (strcmp(part, ".") == 0)
-			;
-		else if (strcmp(part, "..") == 0 && (last = strrchr(absPath, pathSepChar))) {
-			if (last > absPath)
-				cur = last;
-			else
-				cur = last + 1;
-			*cur = '\0';
-		} else {
-			if (cur > absPath && *(cur - 1) != pathSepChar)
-				*cur++ = pathSepChar;
-			strcpy(cur, part);
-			cur += strlen(part);
-		}
-	}
-}
-
-bool SciTEGTK::OpenDialog(const char *filter) {
-	chdir(dirName);
+bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
+	directory.SetWorkingDirectory();
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
 #ifndef USE_FILE_CHOOSER
@@ -1082,7 +1032,8 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dlg), TRUE);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
 		if (props.GetInt("open.dialog.in.file.directory")) {
-			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), dirName);
+			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), 
+				filePath.Directory().AsInternal());
 		}
 
 		// Add a show hidden files toggle
@@ -1095,11 +1046,7 @@ bool SciTEGTK::OpenDialog(const char *filter) {
 		if (props.GetInt("fileselector.show.hidden"))
 			g_object_set(GTK_OBJECT(toggle), "active", TRUE, NULL);
 
-		SString openFilter;
-		if (filter)
-			openFilter = filter;
-		else
-			openFilter = props.GetExpanded("open.filter");
+		SString openFilter = filter;
 		if (openFilter.length()) {
 			openFilter.substitute('|', '\0');
 			size_t start = 0;
@@ -1183,7 +1130,7 @@ void SciTEGTK::HandleSaveAs(const char *savePath) {
 }
 
 bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
-	chdir(dirName);
+	filePath.SetWorkingDirectory();
 	bool canceled = true;
 	saveFormat = fmt;
 	if (!dlgFileSelector.Created()) {
@@ -1248,7 +1195,7 @@ void SciTEGTK::SaveAsXML() {
 }
 
 void SciTEGTK::LoadSessionDialog() {
-	chdir(dirName);
+	filePath.SetWorkingDirectory();
 	if (!dlgFileSelector.Created()) {
 #ifndef USE_FILE_CHOOSER
 		dlgFileSelector = gtk_file_selection_new(LocaliseString("Load Session").c_str());
@@ -1284,7 +1231,7 @@ void SciTEGTK::LoadSessionDialog() {
 }
 
 void SciTEGTK::SaveSessionDialog() {
-	chdir(dirName);
+	filePath.SetWorkingDirectory();
 	if (!dlgFileSelector.Created()) {
 #ifndef USE_FILE_CHOOSER
 		dlgFileSelector = gtk_file_selection_new(LocaliseString("Save Session").c_str());
@@ -1320,7 +1267,7 @@ void SciTEGTK::SaveSessionDialog() {
 
 void SciTEGTK::Print(bool) {
 	SelectionIntoProperties();
-	AddCommand(props.GetWild("command.print.", fileName), "",
+	AddCommand(props.GetWild("command.print.", filePath.AsInternal()), "",
 	           SubsystemType("command.print.subsystem."));
 	if (commandCurrent > 0) {
 		isBuilding = true;
@@ -1503,9 +1450,8 @@ void SciTEGTK::FindInFiles() {
 	SelectionIntoFind();
 	props.Set("find.what", findWhat.c_str());
 
-	char findInDir[1024];
-	GetDocumentDirectory(findInDir, sizeof(findInDir));
-	props.Set("find.directory", findInDir);
+	FilePath findInDir = filePath.Directory().AbsolutePath();
+	props.Set("find.directory", findInDir.AsInternal());
 
 	dlgFindInFiles = gtk_dialog_new();
 	gtk_window_set_policy(GTK_WINDOW(PWidget(dlgFindInFiles)), FALSE, TRUE, FALSE);
@@ -1585,7 +1531,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_table_attach(GTK_TABLE(table), comboDir, 1, 2,
 	                 row, row + 1, optse, opts, 5, 5);
 	gtk_widget_show(comboDir);
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry), findInDir);
+	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry), findInDir.AsInternal());
 	// Make a little wider than would happen automatically to show realistic paths
 #if GTK_MAJOR_VERSION >= 2
 	gtk_entry_set_width_chars(GTK_ENTRY(GTK_COMBO(comboDir)->entry), 40);
@@ -1737,8 +1683,8 @@ void SciTEGTK::Execute() {
 	OutputAppendString("\n");
 
 	unlink(resultsFile);
-	if (jobQueue[icmd].directory != "") {
-		chdir(jobQueue[icmd].directory.c_str());
+	if (jobQueue[icmd].directory.IsSet()) {
+		jobQueue[icmd].directory.SetWorkingDirectory();
 	}
 
 	if (jobQueue[icmd].jobType == jobShell) {
