@@ -1915,6 +1915,8 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n");
 					}
 				}
+			} else {
+				functionDefinition.insert(1, "\002");
 			}
 			SendEditorString(SCI_CALLTIPSHOW, lastPosCallTip - currentCallTipWord.length(), functionDefinition.c_str());
 			ContinueCallTip();
@@ -4182,7 +4184,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			if (notification->position == 1 && currentCallTip > 0) {
 				currentCallTip--;
 				FillFunctionDefinition();
-			} else if (notification->position == 0 && currentCallTip + 1 < maxCallTips) {
+			} else if (notification->position == 2 && currentCallTip + 1 < maxCallTips) {
 				currentCallTip++;
 				FillFunctionDefinition();
 			}
