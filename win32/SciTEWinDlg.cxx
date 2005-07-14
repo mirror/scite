@@ -280,12 +280,6 @@ bool SciTEWin::OpenDialog(FilePath directory, const char *filter) {
 	if (::GetOpenFileName(&ofn)) {
 		succeeded = true;
 		filterDefault = ofn.nFilterIndex;
-		//Platform::DebugPrintf("Open: <%s>\n", openName);
-		// find char pos after first Delimiter
-		char* p = openName;
-		while (*p != '\0')
-			++p;
-		++p;
 		// if single selection then have path+file
 		if (strlen(openName) > static_cast<size_t>(ofn.nFileOffset)) {
 			Open(openName);

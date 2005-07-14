@@ -948,8 +948,8 @@ void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const 
 		}
 	}
 	FilePathSet directories = baseDir.List(FilePath::listDirectories);
-	for (size_t i = 0; i < directories.Length(); i ++) {
-		FilePath fPath = directories.At(i);
+	for (size_t j = 0; j < directories.Length(); j++) {
+		FilePath fPath = directories.At(j);
 		GrepRecursive(fPath, searchString, fileTypes);
 	}
 }
