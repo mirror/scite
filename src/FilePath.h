@@ -21,10 +21,6 @@ extern const char fileWrite[];
 #endif
 #endif
 
-#ifdef __vms
-const char *VMSToUnixStyle(const char *fileName);
-#endif
-
 #ifdef WIN32
 #ifdef _MSC_VER
 // Shut up level 4 warning:
