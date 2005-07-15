@@ -101,6 +101,10 @@ SOURCE=..\src\Exporters.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\FilePath.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\MultiplexExtension.cxx
 # End Source File
 # Begin Source File
@@ -174,6 +178,10 @@ SOURCE=..\..\scintilla\src\XPM.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\Include\Accessor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\FilePath.h
 # End Source File
 # Begin Source File
 
