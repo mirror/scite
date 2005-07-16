@@ -358,8 +358,7 @@ void FilePath::SetWorkingDirectory() const {
 void FilePath::FixCase() {
 }
 
-FilePathSet FilePath::List(listObjects include) {
-	FilePathSet	fps;
+void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 #ifdef WIN32
 	FilePath wildCard(*this, "*.*");
 	bool complete = false;
@@ -368,9 +367,10 @@ FilePathSet FilePath::List(listObjects include) {
 	if (hFind != INVALID_HANDLE_VALUE) {
 		while (!complete) {
 			if ((strcmp(findFileData.cFileName, ".") != 0) && (strcmp(findFileData.cFileName, "..") != 0)) {
-				bool isDirectory = findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
-				if ((isDirectory && (include != listFiles)) || (!isDirectory && (include != listDirectories))) {
-					fps.Append(FilePath(AsInternal(), findFileData.cFileName));
+				if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+					directories.Append(FilePath(AsInternal(), findFileData.cFileName));
+				} else {
+					files.Append(FilePath(AsInternal(), findFileData.cFileName));
 				}
 			}
 			if (!::FindNextFile(hFind, &findFileData)) {
@@ -384,31 +384,24 @@ FilePathSet FilePath::List(listObjects include) {
 	DIR *dp = opendir(AsInternal());
 	if (dp == NULL) {
 		//~ fprintf(stderr, "%s: cannot open for reading: %s\n", AsInternal(), strerror(errno));
-		return fps;
+		return;
 	}
 	struct dirent *ent;
 	while ((ent = readdir(dp)) != NULL) {
 		if ((strcmp(ent->d_name, ".") != 0) && (strcmp(ent->d_name, "..") != 0)) {
 			FilePath pathFull(AsInternal(), ent->d_name);
-			bool isDirectory = pathFull.IsDirectory();
-			if ((isDirectory && (include != listFiles)) || (!isDirectory && (include != listDirectories))) {
-				fps.Append(pathFull);
+			if (pathFull.IsDirectory()) {
+				directories.Append(pathFull);
+			} else {
+				files.Append(pathFull);
 			}
 		}
 	}
 
-	if (errno != 0) {
-		//~ fprintf(stderr, "%s: reading directory entries: %s\n", AsInternal(), strerror(errno));
-		return fps;
+	if (errno == 0) {
+		closedir(dp);
 	}
-
-	if (closedir(dp) != 0) {
-		//~ fprintf(stderr, "%s: closedir: %s\n", AsInternal(), strerror(errno));
-		return fps;
-	}
-	
 #endif
-	return fps;
 }
 
 FILE *FilePath::Open(const char *mode) const {

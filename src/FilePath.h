@@ -67,8 +67,7 @@ public:
 	static FilePath GetWorkingDirectory();
 	void SetWorkingDirectory() const;
 	void FixCase();
-	enum listObjects { listAll, listFiles, listDirectories};
-	FilePathSet List(listObjects include);
+	void List(FilePathSet &directories, FilePathSet &files);
 	FILE *Open(const char *mode) const;
 	void Remove() const;
 	time_t ModifiedTime() const;

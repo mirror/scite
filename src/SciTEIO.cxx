@@ -899,7 +899,9 @@ void SciTEBase::OpenFilesFromStdin() {
 }
 
 void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes) {
-	FilePathSet files = baseDir.List(FilePath::listFiles);
+	FilePathSet directories;
+	FilePathSet files;
+	baseDir.List(directories, files);
 	for (size_t i = 0; i < files.Length(); i ++) {
 		FilePath fPath = files.At(i);
 		if (fPath.Matches(fileTypes)) {
@@ -947,7 +949,6 @@ void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const 
 			}
 		}
 	}
-	FilePathSet directories = baseDir.List(FilePath::listDirectories);
 	for (size_t j = 0; j < directories.Length(); j++) {
 		FilePath fPath = directories.At(j);
 		GrepRecursive(fPath, searchString, fileTypes);
@@ -956,7 +957,6 @@ void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const 
 
 void SciTEBase::InternalGrep() {
 	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
-	//Clear();
 	ElapsedTime commandTime;
 	FilePath baseDir(props.Get("find.directory").c_str());
 	SString searchString = props.Get("find.what").c_str();
@@ -973,7 +973,6 @@ void SciTEBase::InternalGrep() {
 	}
 	sExitMessage += "\n";
 	OutputAppendStringSynchronised(sExitMessage.c_str());
-	//SaveNow("");
 	if (props.GetInt("output.scroll", 1) == 1 && returnOutputToCommand)
 		SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
 }
