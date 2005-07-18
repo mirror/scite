@@ -734,6 +734,27 @@ NameError: mistake
       already visible, then the '*' is ignored.
     </p>
     <h3>
+       Encodings
+    </h3>
+    <p>
+      SciTE will automatically detect the encoding scheme used for Unicode files that 
+      start with a Byte Order Mark (BOM). 
+      The UTF-8 and UCS-2 encodings are recognized including both Little Endian and 
+      Big Endian variants of UCS-2.
+    </p>
+    <p>
+      UTF-8 files will also be recognised when they contain a coding cookie on one of the 
+      first two lines. A coding cookie looks similar to "coding: utf-8" ("coding" followed by ':' 
+      or '=', optional whitespace, optional quote, "utf-8") and is normally contained in 
+      a comment:<br />
+      <code># -*- coding: utf-8 -*-</code><br />
+      For XML there is a declaration:<br />
+      <code>&lt;?xml version='1.0' encoding='utf-8'?&gt;</code>
+    </p>
+    <p>
+      For other encodings set the code.page and character.set properties.
+    </p>
+    <h3>
        Defined variables in properties files
     </h3>
     <p>
