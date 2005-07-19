@@ -611,7 +611,7 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 		        filePath.IsUntitled() ||
 		        forceQuestion) {
 			SString msg;
-			if (filePath.IsUntitled()) {
+			if (!filePath.IsUntitled()) {
 				msg = LocaliseMessage("Save changes to '^0'?", filePath.AsFileSystem());
 			} else {
 				msg = LocaliseMessage("Save changes to (Untitled)?");
