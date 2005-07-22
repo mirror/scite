@@ -1231,7 +1231,7 @@ void SciTEWin::PerformGrep() {
 
 	SString findCommand = props.GetNewExpand("find.command");
 	if (findCommand == "") {
-		InternalGrep();
+		InternalGrep(false);
 	} else {
 		AddCommand(findCommand,
 			   props.Get("find.directory"),
