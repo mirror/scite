@@ -945,6 +945,7 @@ void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const 
 					line = lineEnd;
 					lineNum++;
 				}
+				delete []buffer;
 				if (os.length()) {
 					if (forStdOut) {
 						fwrite(os.c_str(), os.length(), 1, stdout);
