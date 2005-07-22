@@ -94,10 +94,10 @@ LEXPROPS=\
 ..\bin\conf.properties ..\bin\cpp.properties ..\bin\csound.properties \
 ..\bin\css.properties ..\bin\eiffel.properties ..\bin\erlang.properties \
 ..\bin\escript.properties ..\bin\flagship.properties ..\bin\forth.properties \
-..\bin\fortran.properties ..\bin\html.properties ..\bin\kix.properties \
-..\bin\latex.properties ..\bin\lisp.properties ..\bin\lot.properties \
-..\bin\lout.properties ..\bin\lua.properties ..\bin\matlab.properties \
-..\bin\metapost.properties ..\bin\mmixal.properties \
+..\bin\fortran.properties ..\bin\freebasic.properties ..\bin\html.properties \
+..\bin\kix.properties ..\bin\latex.properties ..\bin\lisp.properties \
+..\bin\lot.properties ..\bin\lout.properties ..\bin\lua.properties \
+..\bin\matlab.properties ..\bin\metapost.properties ..\bin\mmixal.properties \
 ..\bin\nncrontab.properties ..\bin\nsis.properties ..\bin\others.properties \
 ..\bin\pascal.properties ..\bin\perl.properties ..\bin\pov.properties \
 ..\bin\ps.properties ..\bin\purebasic.properties ..\bin\python.properties \
@@ -167,6 +167,8 @@ deps:
 ..\bin\forth.properties:	..\src\forth.properties
 	$(COPY) $^ $@
 ..\bin\fortran.properties:	..\src\fortran.properties
+	$(COPY) $^ $@
+..\bin\freebasic.properties:	..\src\freebasic.properties
 	$(COPY) $^ $@
 ..\bin\html.properties:	..\src\html.properties
 	$(COPY) $^ $@
