@@ -237,6 +237,7 @@ protected:
 	int menuSource;
 
 	// Control of sub process
+	FilePath sciteExecutable;
 	int icmd;
 	int originalEnd;
 	int fdFIFO;
@@ -380,7 +381,14 @@ protected:
 	static void OpenResizeSignal(GtkWidget *w, GtkAllocation *allocation, SciTEGTK *scitew);
 	static void SaveAsSignal(GtkWidget *w, SciTEGTK *scitew);
 
-	static void FindInFilesSignal(GtkWidget *w, SciTEGTK *scitew);
+	void FindInFilesCmd();
+	static void FindInFilesSignal(GtkWidget */*w*/, SciTEGTK *scitew) {
+		scitew->FindInFilesCmd();
+	}
+	void FindInFilesDotDot();
+	static void DotDotSignal(GtkWidget */*w*/, SciTEGTK *scitew) {
+		scitew->FindInFilesDotDot();
+	}
 
 	static void GotoSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FindIncrementSignal(GtkWidget *, SciTEGTK *scitew);
@@ -1414,41 +1422,50 @@ void SciTEGTK::FRReplaceInSelectionSignal(GtkWidget *, SciTEGTK *scitew) {
 	}
 }
 
-void SciTEGTK::FindInFilesSignal(GtkWidget *, SciTEGTK *scitew) {
-	const char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFindInFiles)->entry));
-	scitew->props.Set("find.what", findEntry);
-	scitew->memFinds.Insert(findEntry);
+void SciTEGTK::FindInFilesCmd() {
+	const char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry));
+	props.Set("find.what", findEntry);
+	memFinds.Insert(findEntry);
 
-	const char *dirEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboDir)->entry));
-	scitew->props.Set("find.directory", dirEntry);
-	scitew->memDirectory.Insert(dirEntry);
+	const char *dirEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry));
+	props.Set("find.directory", dirEntry);
+	memDirectory.Insert(dirEntry);
 
 #ifdef RECURSIVE_GREP_WORKING
 
-	if (GTK_TOGGLE_BUTTON(scitew->toggleRec)->active)
-		scitew->props.Set("find.recursive", scitew->props.Get("find.recursive.recursive").c_str());
+	if (GTK_TOGGLE_BUTTON(toggleRec)->active)
+		props.Set("find.recursive", props.Get("find.recursive.recursive").c_str());
 	else
-		scitew->props.Set("find.recursive", scitew->props.Get("find.recursive.not").c_str());
+		props.Set("find.recursive", props.Get("find.recursive.not").c_str());
 #endif
 
-	const char *filesEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(scitew->comboFiles)->entry));
-	scitew->props.Set("find.files", filesEntry);
-	scitew->memFiles.Insert(filesEntry);
+	const char *filesEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboFiles)->entry));
+	props.Set("find.files", filesEntry);
+	memFiles.Insert(filesEntry);
 
-	scitew->dlgFindInFiles.Destroy();
+	dlgFindInFiles.Destroy();
 
 	//printf("Grepping for <%s> in <%s>\n",
-	//	scitew->props.Get("find.what"),
-	//	scitew->props.Get("find.files"));
-	scitew->SelectionIntoProperties();
-	SString findCommand = scitew->props.GetNewExpand("find.command");
+	//	props.Get("find.what"),
+	//	props.Get("find.files"));
+	SelectionIntoProperties();
+	SString findCommand = props.GetNewExpand("find.command");
 	if (findCommand == "") {
-		scitew->InternalGrep();
-	} else {
-		scitew->AddCommand(findCommand, scitew->props.Get("find.directory"), jobCLI);
-		if (scitew->commandCurrent > 0)
-			scitew->Execute();
+		findCommand = sciteExecutable.AsInternal();
+		findCommand += " -grep \"";
+		findCommand += props.Get("find.files");
+		findCommand += "\" \"";
+		findCommand += props.Get("find.what");
+		findCommand += "\"";
 	}
+	AddCommand(findCommand, props.Get("find.directory"), jobCLI);
+	if (commandCurrent > 0)
+		Execute();
+}
+
+void SciTEGTK::FindInFilesDotDot() {
+	FilePath findInDir(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry)));
+	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry), findInDir.Directory().AsInternal());
 }
 
 void SciTEGTK::FindInFiles() {
@@ -1466,10 +1483,10 @@ void SciTEGTK::FindInFiles() {
 
 #ifdef RECURSIVE_GREP_WORKING
 
-	GtkWidget *table = gtk_table_new(4, 2, FALSE);
+	GtkWidget *table = gtk_table_new(4, 3, FALSE);
 #else
 
-	GtkWidget *table = gtk_table_new(3, 2, FALSE);
+	GtkWidget *table = gtk_table_new(1, 3, FALSE);
 #endif
 
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox),
@@ -1494,7 +1511,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFindInFiles), TRUE);
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFindInFiles), TRUE);
 
-	gtk_table_attach(GTK_TABLE(table), comboFindInFiles, 1, 2,
+	gtk_table_attach(GTK_TABLE(table), comboFindInFiles, 1, 3,
 	                 row, row + 1, optse, opts, 5, 5);
 	gtk_widget_show(comboFindInFiles);
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), findWhat.c_str());
@@ -1515,7 +1532,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFiles), TRUE);
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFiles), TRUE);
 
-	gtk_table_attach(GTK_TABLE(table), comboFiles, 1, 2,
+	gtk_table_attach(GTK_TABLE(table), comboFiles, 1, 3,
 	                 row, row + 1, optse, opts, 5, 5);
 	gtk_widget_show(comboFiles);
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFiles)->entry),
@@ -1546,6 +1563,13 @@ void SciTEGTK::FindInFiles() {
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboDir)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
 	gtk_combo_disable_activate(GTK_COMBO(comboDir));
+
+	GtkWidget *btnDotDot = TranslatedCommand("_..",
+	                       accel_group,
+	                       GtkSignalFunc(DotDotSignal), this);
+	gtk_table_attach(GTK_TABLE(table), btnDotDot, 2, 3,
+	                 row, row + 1, optse, opts, 5, 5);
+	gtk_widget_show(btnDotDot);
 
 #ifdef RECURSIVE_GREP_WORKING
 
@@ -3326,6 +3350,15 @@ void SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 }
 
 void SciTEGTK::Run(int argc, char *argv[]) {
+	// Find the SciTE executable, first trying to use argv[0] and converting 
+	// to an absolute path and if that fails, searching the path.
+	sciteExecutable = FilePath(argv[0]).AbsolutePath();
+	if (!sciteExecutable.Exists()) {
+		gchar *progPath = g_find_program_in_path(argv[0]);
+		sciteExecutable = FilePath(progPath);
+		g_free(progPath);
+	}
+
 	// Collect the argv into one string with each argument separated by '\n'
 	SString args;
 	int arg;
