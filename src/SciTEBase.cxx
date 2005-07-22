@@ -4770,6 +4770,12 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 				}
 			} else if ((tolower(arg[0]) == 'p') && (strlen(arg) == 1)) {
 				performPrint = true;
+			} else if (strcmp(arg, "grep") == 0) {
+				props.Set("find.directory", FilePath::GetWorkingDirectory().AsInternal());
+				props.Set("find.files", wlArgs[i+1]);
+				props.Set("find.what", wlArgs[i+2]);
+				InternalGrep(true);
+				exit(1);
 			} else {
 				if (AfterName(arg) == ':') {
 					if (isprefix(arg, "open:") || isprefix(arg, "loadsession:")) {

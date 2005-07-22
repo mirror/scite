@@ -862,8 +862,8 @@ protected:
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
-	void GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes);
-	void InternalGrep();
+	void GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes, bool forStdOut);
+	void InternalGrep(bool forStdOut);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);

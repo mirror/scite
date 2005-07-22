@@ -898,7 +898,7 @@ void SciTEBase::OpenFilesFromStdin() {
 		Open("");
 }
 
-void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes) {
+void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes, bool forStdOut) {
 	FilePathSet directories;
 	FilePathSet files;
 	baseDir.List(directories, files);
@@ -945,34 +945,45 @@ void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const 
 					line = lineEnd;
 					lineNum++;
 				}
-				OutputAppendStringSynchronised(os.c_str());
+				if (os.length()) {
+					if (forStdOut) {
+						fwrite(os.c_str(), os.length(), 1, stdout);
+					} else {
+						OutputAppendStringSynchronised(os.c_str());
+					}
+				}
 			}
 		}
 	}
 	for (size_t j = 0; j < directories.Length(); j++) {
 		FilePath fPath = directories.At(j);
-		GrepRecursive(fPath, searchString, fileTypes);
+		GrepRecursive(fPath, searchString, fileTypes, forStdOut);
 	}
 }
 
-void SciTEBase::InternalGrep() {
-	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
+void SciTEBase::InternalGrep(bool forStdOut) {
+	int originalEnd = 0;
 	ElapsedTime commandTime;
 	FilePath baseDir(props.Get("find.directory").c_str());
 	SString searchString = props.Get("find.what").c_str();
 	SString fileTypes = props.Get("find.files").c_str();
-	OutputAppendStringSynchronised(">Internal search for \"");
-	OutputAppendStringSynchronised(searchString.c_str());
-	OutputAppendStringSynchronised("\"\n");
-	MakeOutputVisible();
-	GrepRecursive(baseDir, searchString.c_str(), fileTypes.c_str());
+	if (!forStdOut) {
+		OutputAppendStringSynchronised(">Internal search for \"");
+		OutputAppendStringSynchronised(searchString.c_str());
+		OutputAppendStringSynchronised("\"\n");
+		MakeOutputVisible();
+		originalEnd = SendOutput(SCI_GETCURRENTPOS);
+	}
+	GrepRecursive(baseDir, searchString.c_str(), fileTypes.c_str(), forStdOut);
 	SString sExitMessage(">");
 	if (timeCommands) {
 		sExitMessage += "    Time: ";
 		sExitMessage += SString(commandTime.Duration(), 3);
 	}
 	sExitMessage += "\n";
-	OutputAppendStringSynchronised(sExitMessage.c_str());
-	if (props.GetInt("output.scroll", 1) == 1 && returnOutputToCommand)
-		SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
+	if (!forStdOut) {
+		OutputAppendStringSynchronised(sExitMessage.c_str());
+		if (props.GetInt("output.scroll", 1) == 1 && returnOutputToCommand)
+			SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
+	}
 }
