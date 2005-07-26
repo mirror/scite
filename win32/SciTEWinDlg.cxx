@@ -1231,14 +1231,22 @@ void SciTEWin::PerformGrep() {
 
 	SString findCommand = props.GetNewExpand("find.command");
 	if (findCommand == "") {
-		InternalGrep(false);
+		// Call InternalGrep in a new thread
+		// searchParams is "\0files\0text"
+		// The initial \0 is to avoid an initial '*' triggering the Parameters dialog.
+		SString searchParams;
+		searchParams.append("\0", 1);
+		searchParams.append(props.Get("find.files").c_str());
+		searchParams.append("\0", 1);
+		searchParams.append(props.Get("find.what").c_str());
+		AddCommand(searchParams, props.Get("find.directory"), jobGrep, findInput, flags);
 	} else {
 		AddCommand(findCommand,
 			   props.Get("find.directory"),
 			   jobCLI, findInput, flags);
-		if (commandCurrent > 0) {
-			Execute();
-		}
+	}
+	if (commandCurrent > 0) {
+		Execute();
 	}
 }
 

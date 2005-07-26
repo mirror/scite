@@ -962,27 +962,26 @@ void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const 
 	}
 }
 
-void SciTEBase::InternalGrep(bool forStdOut) {
+void SciTEBase::InternalGrep(bool forStdOut, const char *directory, const char *fileTypes, const char *search) {
 	int originalEnd = 0;
 	ElapsedTime commandTime;
-	FilePath baseDir(props.Get("find.directory").c_str());
-	SString searchString = props.Get("find.what").c_str();
-	SString fileTypes = props.Get("find.files").c_str();
 	if (!forStdOut) {
 		OutputAppendStringSynchronised(">Internal search for \"");
-		OutputAppendStringSynchronised(searchString.c_str());
+		OutputAppendStringSynchronised(search);
+		OutputAppendStringSynchronised("\" in \"");
+		OutputAppendStringSynchronised(fileTypes);
 		OutputAppendStringSynchronised("\"\n");
 		MakeOutputVisible();
 		originalEnd = SendOutput(SCI_GETCURRENTPOS);
 	}
-	GrepRecursive(baseDir, searchString.c_str(), fileTypes.c_str(), forStdOut);
-	SString sExitMessage(">");
-	if (timeCommands) {
-		sExitMessage += "    Time: ";
-		sExitMessage += SString(commandTime.Duration(), 3);
-	}
-	sExitMessage += "\n";
+	GrepRecursive(FilePath(directory), search, fileTypes, forStdOut);
 	if (!forStdOut) {
+		SString sExitMessage(">");
+		if (timeCommands) {
+			sExitMessage += "    Time: ";
+			sExitMessage += SString(commandTime.Duration(), 3);
+		}
+		sExitMessage += "\n";
 		OutputAppendStringSynchronised(sExitMessage.c_str());
 		if (props.GetInt("output.scroll", 1) == 1 && returnOutputToCommand)
 			SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);

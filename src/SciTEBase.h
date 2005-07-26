@@ -276,7 +276,7 @@ public:
 };
 
 enum JobSubsystem {
-    jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5};
+    jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5, jobGrep = 6};
 
 enum JobFlags {
     jobForceQueue=1, jobHasInput=2, jobQuiet=4, // 8 reserved for jobVeryQuiet
@@ -863,7 +863,7 @@ protected:
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
 	void GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes, bool forStdOut);
-	void InternalGrep(bool forStdOut);
+	void InternalGrep(bool forStdOut, const char *directory, const char *files, const char *search);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);

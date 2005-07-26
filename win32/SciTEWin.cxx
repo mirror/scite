@@ -499,6 +499,14 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 		return exitcode;
 	}
 
+	if (jobToRun.jobType == jobGrep) {
+		// jobToRun.command is "\0files\0text"
+		const char *findFiles = jobToRun.command.c_str() + 1;
+		const char *findWhat = findFiles + strlen(findFiles) + 1;
+		InternalGrep(false, jobToRun.directory.AsFileSystem(), findFiles, findWhat);
+		return exitcode;
+	}
+
 	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
 	::GetVersionEx(&osv);
 	bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
