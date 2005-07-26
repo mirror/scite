@@ -184,6 +184,9 @@
 				RelativePath="..\..\scintilla\src\ExternalLexer.cxx">
 			</File>
 			<File
+				RelativePath="..\src\FilePath.cxx">
+			</File>
+			<File
 				RelativePath="..\src\IFaceTable.cxx">
 			</File>
 			<File
