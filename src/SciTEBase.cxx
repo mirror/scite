@@ -560,14 +560,14 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		}
 #endif
 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
-		AddStyledText(wsci, " 1.64\n", 1);
+		AddStyledText(wsci, " 1.65\n", 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
 		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
 		AddStyledText(wsci, " Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
-		AddStyledText(wsci, "December 1998-June 2005.\n", 3);
+		AddStyledText(wsci, "December 1998-August 2005.\n", 3);
 		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Lua scripting language by TeCGraf, PUC-Rio\n", 3);
@@ -1200,7 +1200,7 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 		// the expression to search...
 		findWhat = sel;
 		if (unSlash) {
-			char *slashedFind = Slash(findWhat.c_str());
+			char *slashedFind = Slash(findWhat.c_str(), false);
 			if (slashedFind) {
 				findWhat = slashedFind;
 				delete []slashedFind;
@@ -1230,7 +1230,7 @@ void SciTEBase::FindMessageBox(const SString &msg) {
  * expansion needed when all of the input needs to be output using the octal form.
  * The return value should be deleted with delete[].
  */
-char *Slash(const char *s) {
+char *Slash(const char *s, bool quoteQuotes) {
 	char *oRet = new char[strlen(s) * 4 + 1];
 	if (oRet) {
 		char *o = oRet;
@@ -1259,6 +1259,12 @@ char *Slash(const char *s) {
 			} else if (*s == '\\') {
 				*o++ = '\\';
 				*o++ = '\\';
+			} else if (quoteQuotes && (*s == '\'')) {
+				*o++ = '\\';
+				*o++ = '\'';
+			} else if (quoteQuotes && (*s == '\"')) {
+				*o++ = '\\';
+				*o++ = '\"';
 			} else if (isascii(*s) && (*s < ' ')) {
 				*o++ = '\\';
 				*o++ = static_cast<char>((*s >> 6) + '0');
@@ -4772,7 +4778,11 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 			} else if ((tolower(arg[0]) == 'p') && (strlen(arg) == 1)) {
 				performPrint = true;
 			} else if (strcmp(arg, "grep") == 0) {
-				InternalGrep(true, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+1], wlArgs[i+2]);
+				// wlArgs[i+1] will be options in future
+				char unquoted[1000];
+				strcpy(unquoted, wlArgs[i+3]);
+				UnSlash(unquoted);
+				InternalGrep(true, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2], unquoted);
 				exit(0);
 			} else {
 				if (AfterName(arg) == ':') {

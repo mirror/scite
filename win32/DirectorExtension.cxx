@@ -57,7 +57,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 		addressedMessage += ":";
 		if (arg)
 			addressedMessage += arg;
-		char *slashedMessage = Slash(addressedMessage.c_str());
+		char *slashedMessage = Slash(addressedMessage.c_str(), false);
 		if (slashedMessage) {
 			COPYDATASTRUCT cds;
 			cds.dwData = 0;

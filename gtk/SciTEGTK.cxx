@@ -1452,11 +1452,14 @@ void SciTEGTK::FindInFilesCmd() {
 	SString findCommand = props.GetNewExpand("find.command");
 	if (findCommand == "") {
 		findCommand = sciteExecutable.AsInternal();
-		findCommand += " -grep \"";
+		findCommand += " -grep n \"";
 		findCommand += props.Get("find.files");
 		findCommand += "\" \"";
-		findCommand += props.Get("find.what");
+		char *quotedForm = Slash(props.Get("find.what").c_str(), true);
+		findCommand += quotedForm;
 		findCommand += "\"";
+		delete []quotedForm;
+		//~ fprintf(stderr, "%s\n", findCommand.c_str());
 	}
 	AddCommand(findCommand, props.Get("find.directory"), jobCLI);
 	if (commandCurrent > 0)

@@ -915,6 +915,6 @@ const int blockSize = 131072;
 int ControlIDOfCommand(unsigned long);
 void LowerCaseString(char *s);
 long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault);
-char *Slash(const char *s);
+char *Slash(const char *s, bool quoteQuotes);
 unsigned int UnSlash(char *s);
 void WindowSetFocus(Window &w);
