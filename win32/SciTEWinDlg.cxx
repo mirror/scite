@@ -1300,13 +1300,9 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				return FALSE;
 			}
 		} else if (ControlIDOfCommand(wParam) == IDDOTDOT) {
-
-			SString directory = GetItemText(hDlg, IDDIRECTORY);
-			const char *lastSlash = strrchr(directory.c_str(), pathSepChar);
-			if (lastSlash) {
-				directory.remove(lastSlash - directory.c_str(), 0);
-				::SetDlgItemText(hDlg, IDDIRECTORY, directory.c_str());
-			}
+			FilePath directory(GetItemText(hDlg, IDDIRECTORY).c_str());
+			directory = directory.Directory();
+			::SetDlgItemText(hDlg, IDDIRECTORY, directory.AsInternal());
 
 		} else if (ControlIDOfCommand(wParam) == IDBROWSE) {
 
