@@ -1885,6 +1885,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           On Windows, the find string can be given to the find command through
           its standard input stream to avoid problems with quote interpretation.
           To do this, specify find.input to be the search string, $(find.what).
+          <br />
+          If find.command is empty then SciTE's own search code is used. This only does a 
+	simple case sensitive search and is faster than running an external program.
         </td>
       </tr>
       <tr>
@@ -1950,13 +1953,16 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
           This setting allows changing the character set that is asked for when setting up fonts.
-        To use Russian Cyrillic characters, set character.set to
-        204. Other values that may work include Chinese (GB2312=134 or BIG5=136),
+        To use Japanese characters, set character.set to 128. 
+        Other values that may work include Chinese (GB2312=134 or BIG5=136),
         Korean (129), Greek (161),
         Eastern European (238), Baltic (186),
-        Turkish (162), Hebrew (177), Arabic (178), Thai (222), or Japanese (128).
+        Turkish (162), Hebrew (177), Arabic (178), or Thai (222).
         All of these values may work on Windows, but on GTK+ Baltic, Turkish, Thai and Vietnamese
         will probably not work.
+        To use Cyrillic characters on Windows, set character.set=204 (CP1251 
+        encoding). To use Cyrillic characters on GTK+, set character.set=204 (KOI8-R 
+        encoding) or character.set=1251 (CP1251 encoding).
         Please send email if you use one of these settings and it works or doesn't or if you
         have information on how to support other languages.
         </td>
