@@ -56,6 +56,8 @@ public:
 	bool IsSet() const;
 	bool IsUntitled() const;
 	bool IsAbsolute() const;
+	bool IsRoot() const;
+	static int RootLength();
 	const char *AsInternal() const;
 	FilePath Name() const;
 	FilePath BaseName() const;

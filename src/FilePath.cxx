@@ -160,6 +160,22 @@ bool FilePath::IsAbsolute() const {
 	return false;
 }
 
+bool FilePath::IsRoot() const {
+#ifdef WIN32
+	return (fileName.length() == 3) && (fileName[1] == ':') && (fileName[2] == '\\');
+#else
+	return fileName == "/";
+#endif
+}
+
+int FilePath::RootLength() {
+#ifdef WIN32
+	return 3;
+#else
+	return 1;
+#endif
+}
+
 const char *FilePath::AsInternal() const {
 	return fileName.c_str();
 }
@@ -197,11 +213,20 @@ FilePath FilePath::Extension() const {
 }
 
 FilePath FilePath::Directory() const {
-	const char *dirEnd = strrchr(fileName.c_str(), pathSepChar);
-	if (dirEnd)
-		return FilePath(fileName.substr(0, dirEnd - fileName.c_str()).c_str());
-	else
-		return FilePath();
+	if (IsRoot()) {
+		return FilePath(fileName.c_str());
+	} else {
+		const char *dirEnd = strrchr(fileName.c_str(), pathSepChar);
+		if (dirEnd) {
+			int lenDirectory = dirEnd - fileName.c_str();
+			if (lenDirectory < RootLength()) {
+				lenDirectory = RootLength();
+			}
+			return FilePath(fileName.substr(0, lenDirectory).c_str());
+		} else {
+			return FilePath();
+		}
+	}
 }
 
 static char *split(char*& s, char c) {
