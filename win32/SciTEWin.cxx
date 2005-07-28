@@ -1562,7 +1562,11 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			thti.pt.y = pt.y;
 			thti.flags = 0;
 			int tab = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM)&thti);
-			CloseTab(tab);
+			if (tab >= 0) {
+				CloseTab(tab);
+			}
+		} else if (LOWORD(wParam) == WM_MBUTTONUP) {
+			WindowSetFocus(wEditor);
 		}
 		break;
 
