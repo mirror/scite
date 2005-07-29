@@ -157,7 +157,10 @@ bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
 		char propsData[60000];
 		int lenFile = static_cast<int>(fread(propsData, 1, sizeof(propsData), rcfile));
 		fclose(rcfile);
-		ReadFromMemory(propsData, lenFile, directoryForImports, imports, sizeImports);
+		const char *data = propsData;
+		if (memcmp(data, "\xef\xbb\xbf", 3) == 0)
+			data += 3;
+		ReadFromMemory(data, lenFile, directoryForImports, imports, sizeImports);
 		return true;
 	}
 	return false;
