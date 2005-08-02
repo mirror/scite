@@ -606,7 +606,7 @@ void SciTEBase::Activate(bool activeApp) {
 }
 
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
-	if ((isDirty) && (LengthDocument() || filePath.IsUntitled() || forceQuestion)) {
+	if ((isDirty) && (LengthDocument() || !filePath.IsUntitled() || forceQuestion)) {
 		if (props.GetInt("are.you.sure", 1) ||
 		        filePath.IsUntitled() ||
 		        forceQuestion) {
