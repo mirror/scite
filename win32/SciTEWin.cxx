@@ -1560,8 +1560,9 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			TCHITTESTINFO thti;
 			thti.pt.x = pt.x;
 			thti.pt.y = pt.y;
+			::MapWindowPoints(MainHWND(), reinterpret_cast<HWND>(wTabBar.GetID()), &thti.pt, 1);
 			thti.flags = 0;
-			int tab = Platform::SendScintilla(wTabBar.GetID(), TCM_HITTEST, (WPARAM)0, (LPARAM)&thti);
+			int tab = ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_HITTEST, (WPARAM)0, (LPARAM)&thti);
 			if (tab >= 0) {
 				CloseTab(tab);
 			}
