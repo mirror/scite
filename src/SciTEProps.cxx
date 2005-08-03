@@ -249,7 +249,7 @@ void SciTEBase::ReadGlobalPropFile() {
 
 	propsUser.Clear();
 	FilePath propfileUser = GetUserPropertiesFileName();
-	propsUser.Read(propfileUser, propfileBase.Directory(), importFiles, importMax);
+	propsUser.Read(propfileUser, propfileUser.Directory(), importFiles, importMax);
 
 	if (!localisationRead) {
 		ReadLocalisation();
