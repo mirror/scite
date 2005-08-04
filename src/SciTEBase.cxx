@@ -1923,7 +1923,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n");
 					}
 				}
-			} else {
+			} else if (maxCallTips > 1) {
 				functionDefinition.insert(1, "\002");
 			}
 			SendEditorString(SCI_CALLTIPSHOW, lastPosCallTip - currentCallTipWord.length(), functionDefinition.c_str());
