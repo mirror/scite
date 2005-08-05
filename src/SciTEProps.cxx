@@ -856,6 +856,7 @@ void SciTEBase::ReadProperties() {
 	if (sval != "")
 		autoCompleteIgnoreCase = sval == "1";
 	SendEditor(SCI_AUTOCSETIGNORECASE, autoCompleteIgnoreCase ? 1 : 0);
+	SendOutput(SCI_AUTOCSETIGNORECASE, 1);
 
 	int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
 	SendEditor(SCI_AUTOCSETCHOOSESINGLE, autoCChooseSingle),
