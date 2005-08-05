@@ -1545,7 +1545,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			/* Java runtime stack trace
 				\tat <methodname>(<filename>:<line>)
 				 */
-			char *startPath = strchr(cdoc, '(') + 1;
+			char *startPath = strrchr(cdoc, '(') + 1;
 			char *endPath = strchr(startPath, ':');
 			int length = endPath - startPath;
 			if (length > 0) {
