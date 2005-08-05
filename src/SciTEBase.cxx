@@ -1085,6 +1085,14 @@ SString SciTEBase::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 	return SString(sel);
 }
 
+SString SciTEBase::GetLine(Window &win, int line) {
+	int lineStart = SendWindow(win, SCI_POSITIONFROMLINE, line);
+	int lineEnd = SendWindow(win, SCI_GETLINEENDPOSITION, line);
+	SBuffer sel(lineEnd - lineStart);
+	GetRange(win, lineStart, lineEnd, sel.ptr());
+	return SString(sel);
+}
+
 SString SciTEBase::RangeExtendAndGrab(
     Window &wCurrent,
     int &selStart,
@@ -2989,7 +2997,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
  * Upon a character being added, SciTE may decide to perform some action
  * such as displaying a completion list or auto-indentation.
  */
-void SciTEBase::CharAdded(char ch) {
+void SciTEBase::CharAdded(int ch) {
 	if (recording)
 		return;
 	CharacterRange crange = GetSelection();
@@ -3045,6 +3053,37 @@ void SciTEBase::CharAdded(char ch) {
 						autoCCausedByOnlyOne = SendEditor(SCI_AUTOCACTIVE);
 					}
 				}
+			}
+		}
+	}
+}
+
+/**
+ * Upon a character being added to the output, SciTE may decide to perform some action
+ * such as displaying a completion list or running a shell command.
+ */
+void SciTEBase::CharAddedOutput(int ch) {
+	if (ch == '\n') {
+		NewLineInOutput();
+	} else if (ch == '(') {
+		// Potential autocompletion of symbols when $( typed
+		int selStart = SendOutput(SCI_GETSELECTIONSTART);
+		if ((selStart > 1) && (SendOutput(SCI_GETCHARAT, selStart - 2, 0) == '$')) {
+			SString symbols;
+			char *key = NULL;
+			char *val = NULL;
+			bool b = props.GetFirst(&key, &val);
+			while (b) {
+				symbols.append(key);
+				symbols.append(") ");
+				b = props.GetNext(&key, &val);
+			}
+			WordList symList;
+			symList.Set(symbols.c_str());
+			char *words = symList.GetNearestWords("", 0, true);
+			if (words) {
+				SendOutputString(SCI_AUTOCSHOW, 0, words);
+				delete []words;
 			}
 		}
 	}
@@ -4024,17 +4063,23 @@ void SciTEBase::EnsureAllChildrenVisible(int line, int level) {
 void SciTEBase::NewLineInOutput() {
 	if (executing)
 		return;
-	char cmd[200];
 	int line = SendOutput(SCI_LINEFROMPOSITION,
 	                      SendOutput(SCI_GETCURRENTPOS)) - 1;
-	int lineStart = SendOutput(SCI_POSITIONFROMLINE, line);
-	int lineEnd = SendOutput(SCI_GETLINEENDPOSITION, line);
-	int lineMax = lineStart + sizeof(cmd) - 1;
-	if (lineEnd > lineMax)
-		lineEnd = lineMax;
-	GetRange(wOutput, lineStart, lineEnd, cmd);
-	cmd[lineEnd - lineStart] = '\0';
-	// TODO: put a '>' at beginning of line
+	SString cmd = GetLine(wOutput, line);
+	if (cmd == ">") {
+		// Search output buffer for previous command
+		line--;
+		while (line >= 0) {
+			cmd = GetLine(wOutput, line);
+			if (cmd.startswith(">") && !cmd.startswith(">Exit")) {
+				cmd = cmd.substr(1);
+				break;
+			}
+			line--;
+		}
+	} else if (cmd.startswith(">")) {
+		cmd = cmd.substr(1);
+	}
 	returnOutputToCommand = false;
 	AddCommand(cmd, ".", jobCLI);
 	Execute();
@@ -4089,9 +4134,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 			handled = extender->OnChar(static_cast<char>(notification->ch));
 		if (!handled) {
 			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-				CharAdded(static_cast<char>(notification->ch));
-			} else if (notification->ch == '\n') {
-				NewLineInOutput();
+				CharAdded(notification->ch);
+			} else {
+				CharAddedOutput(notification->ch);
 			}
 		}
 		break;

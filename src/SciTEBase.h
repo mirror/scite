@@ -677,6 +677,7 @@ protected:
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
 	virtual SString GetRangeInUIEncoding(Window &win, int selStart, int selEnd);
+	SString GetLine(Window &win, int line);
 	SString RangeExtendAndGrab(Window &wCurrent, int &selStart, int &selEnd,
 		bool (*ischarforsel)(char ch), bool stripEol = true);
 	SString SelectionExtend(bool (*ischarforsel)(char ch), bool stripEol = true);
@@ -738,7 +739,8 @@ protected:
 	int IndentOfBlock(int line);
 	void MaintainIndentation(char ch);
 	void AutomaticIndentation(char ch);
-	void CharAdded(char ch);
+	void CharAdded(int ch);
+	void CharAddedOutput(int ch);
 	void SetTextProperties(PropSetFile &ps);
 	virtual void SetFileProperties(PropSet &ps) = 0;
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
