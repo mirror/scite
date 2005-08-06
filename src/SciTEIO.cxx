@@ -605,6 +605,27 @@ void SciTEBase::Activate(bool activeApp) {
 	}
 }
 
+FilePath SciTEBase::SaveName(const char *ext) {
+	SString savePath = filePath.AsInternal();
+	if (ext) {
+		int dot = savePath.length()-1;
+		while ((dot >= 0) && (savePath[dot] != '.')) {
+			dot--;
+		}
+		if (dot >= 0) {
+			int keepExt = props.GetInt("export.keep.ext");
+			if (keepExt == 0) {
+				savePath.remove(dot, 0);
+			} else if (keepExt == 2) {
+				savePath.change(dot, '_');
+			}
+		}
+		savePath.append(ext);
+	}
+	//~ fprintf(stderr, "SaveName <%s> <%s> <%s>\n", filePath.AsInternal(), savePath.c_str(), ext);
+	return FilePath(savePath.c_str());
+}
+
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 	if ((isDirty) && (LengthDocument() || !filePath.IsUntitled() || forceQuestion)) {
 		if (props.GetInt("are.you.sure", 1) ||

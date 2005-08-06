@@ -301,23 +301,8 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const c
 	FilePath path;
 	if (0 == dialogsOnScreen) {
 		char saveName[MAX_PATH] = "";
-		strcpy(saveName, filePath.AsInternal());
-		if (ext) {
-			char *cpDot = strrchr(saveName, '.');
-			int keepExt = props.GetInt("export.keep.ext", 0);
-			if (cpDot != NULL) {
-				if (keepExt == 0) {
-					strcpy(cpDot, ext);
-				} else if (keepExt == 1) {
-					strcat(saveName, ext);
-				} else if (keepExt == 2) {
-					*cpDot = '_';
-					strcat(saveName, ext);
-				}
-			} else {
-				strcat(saveName, ext);
-			}
-		}
+		FilePath savePath = SaveName(ext);
+		strcpy(saveName, savePath.AsFileSystem());
 		OPENFILENAME ofn = {
 		                       sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		                   };

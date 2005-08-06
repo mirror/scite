@@ -643,6 +643,7 @@ protected:
 	bool Open(FilePath file, OpenFlags of=ofNone);
 	bool OpenSelected();
 	void Revert();
+	FilePath SaveName(const char *ext);
 	int SaveIfUnsure(bool forceQuestion = false);
 	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();

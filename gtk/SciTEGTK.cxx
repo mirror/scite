@@ -313,7 +313,7 @@ protected:
 	virtual void OpenUriList(const char *list);
 	virtual bool OpenDialog(FilePath directory, const char *filter);
 	void HandleSaveAs(const char *savePath);
-	bool SaveAsXXX(FileFormat fmt, const char *title);
+	bool SaveAsXXX(FileFormat fmt, const char *title, const char *ext=0);
 	virtual bool SaveAsDialog();
 	virtual void SaveACopy();
 	virtual void SaveAsHTML();
@@ -1140,7 +1140,7 @@ void SciTEGTK::HandleSaveAs(const char *savePath) {
 	dlgFileSelector.OK();
 }
 
-bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
+bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title, const char *ext) {
 	filePath.SetWorkingDirectory();
 	bool canceled = true;
 	saveFormat = fmt;
@@ -1163,6 +1163,13 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title) {
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
+		FilePath savePath = SaveName(ext);
+		if (ext) {
+			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), savePath.Directory().AsInternal());
+			gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dlg), savePath.Name().AsInternal());
+		} else {
+			gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dlg), savePath.AsInternal());
+		}
 
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
@@ -1186,23 +1193,23 @@ void SciTEGTK::SaveACopy() {
 }
 
 void SciTEGTK::SaveAsHTML() {
-	SaveAsXXX(sfHTML, "Export File As HTML");
+	SaveAsXXX(sfHTML, "Export File As HTML", ".html");
 }
 
 void SciTEGTK::SaveAsRTF() {
-	SaveAsXXX(sfRTF, "Export File As RTF");
+	SaveAsXXX(sfRTF, "Export File As RTF", ".rtf");
 }
 
 void SciTEGTK::SaveAsPDF() {
-	SaveAsXXX(sfPDF, "Export File As PDF");
+	SaveAsXXX(sfPDF, "Export File As PDF", ".pdf");
 }
 
 void SciTEGTK::SaveAsTEX() {
-	SaveAsXXX(sfTEX, "Export File As LaTeX");
+	SaveAsXXX(sfTEX, "Export File As LaTeX", ".tex");
 }
 
 void SciTEGTK::SaveAsXML() {
-	SaveAsXXX(sfXML, "Export File As XML");
+	SaveAsXXX(sfXML, "Export File As XML", ".xml");
 }
 
 void SciTEGTK::LoadSessionDialog() {
