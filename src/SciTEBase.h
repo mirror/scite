@@ -739,7 +739,7 @@ protected:
 	int IndentOfBlock(int line);
 	void MaintainIndentation(char ch);
 	void AutomaticIndentation(char ch);
-	void CharAdded(int ch);
+	void CharAdded(char ch);
 	void CharAddedOutput(int ch);
 	void SetTextProperties(PropSetFile &ps);
 	virtual void SetFileProperties(PropSet &ps) = 0;

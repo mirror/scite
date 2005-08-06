@@ -2997,7 +2997,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
  * Upon a character being added, SciTE may decide to perform some action
  * such as displaying a completion list or auto-indentation.
  */
-void SciTEBase::CharAdded(int ch) {
+void SciTEBase::CharAdded(char ch) {
 	if (recording)
 		return;
 	CharacterRange crange = GetSelection();
@@ -4134,7 +4134,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			handled = extender->OnChar(static_cast<char>(notification->ch));
 		if (!handled) {
 			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-				CharAdded(notification->ch);
+				CharAdded(static_cast<char>(notification->ch));
 			} else {
 				CharAddedOutput(notification->ch);
 			}
