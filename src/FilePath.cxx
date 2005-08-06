@@ -192,7 +192,7 @@ FilePath FilePath::BaseName() const {
 	const char *dirEnd = strrchr(fileName.c_str(), pathSepChar);
 	const char *extStart = strrchr(fileName.c_str(), '.');
 	if (dirEnd) { 
-		if (extStart) {
+		if (extStart > dirEnd) {
 			return FilePath(SString(dirEnd + 1, 0, extStart - dirEnd - 1).c_str());
 		} else {
 			return FilePath(dirEnd + 1);
@@ -205,8 +205,9 @@ FilePath FilePath::BaseName() const {
 }
 
 FilePath FilePath::Extension() const {
+	const char *dirEnd = strrchr(fileName.c_str(), pathSepChar);
 	const char *extStart = strrchr(fileName.c_str(), '.');
-	if (extStart)
+	if (extStart > dirEnd)
 		return extStart + 1;
 	else
 		return "";
