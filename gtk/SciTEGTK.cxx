@@ -483,6 +483,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	pipeFD = -1;
 
+	PropSet::SetCaseSensitiveFilenames(true);
 	propsEmbed.Set("PLAT_GTK", "1");
 
 	ReadGlobalPropFile();
