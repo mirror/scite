@@ -59,6 +59,8 @@
 
 const int SCITE_TRAY = WM_APP + 0;
 
+class Dialog;
+
 /** Windows specific stuff.
  **/
 class SciTEWin : public SciTEBase {
@@ -177,7 +179,7 @@ protected:
 	BOOL ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	void PerformGrep();
-	void FillCombos(HWND hDlg);
+	void FillCombos(Dialog &dlg);
 	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam);

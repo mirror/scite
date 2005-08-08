@@ -500,10 +500,17 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	}
 
 	if (jobToRun.jobType == jobGrep) {
-		// jobToRun.command is "\0files\0text"
-		const char *findFiles = jobToRun.command.c_str() + 1;
+		// jobToRun.command is "(w|~)(c|~)\0files\0text"
+		const char *grepCmd = jobToRun.command.c_str();
+		GrepFlags gf = grepNone;
+		if (*grepCmd == 'w')
+			gf = static_cast<GrepFlags>(gf | grepWholeWord);
+		grepCmd++;
+		if (*grepCmd == 'c')
+			gf = static_cast<GrepFlags>(gf | grepMatchCase);
+		const char *findFiles = grepCmd + 2;
 		const char *findWhat = findFiles + strlen(findFiles) + 1;
-		InternalGrep(false, jobToRun.directory.AsFileSystem(), findFiles, findWhat);
+		InternalGrep(gf, jobToRun.directory.AsFileSystem(), findFiles, findWhat);
 		return exitcode;
 	}
 

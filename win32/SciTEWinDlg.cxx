@@ -75,51 +75,6 @@ static void PlayThisSound(
 	}
 }
 
-// Handle Unicode controls (assume strings to be UTF-8 on Windows NT)
-
-// This is a reasonable buffer size for dialog box text conversions
-#define CTL_TEXT_BUF 512
-
-SString GetDlgItemText2(HWND hDlg, int idItem) {
-	SString result = "";
-	WCHAR wsz[CTL_TEXT_BUF];
-	char	msz[CTL_TEXT_BUF];
-
-	if (::IsWindowUnicode(GetDlgItem(hDlg, idItem))) {
-		if (::GetDlgItemTextW(hDlg, idItem, wsz, CTL_TEXT_BUF)) {
-			if (::WideCharToMultiByte(CP_UTF8, 0, wsz, -1, msz, CTL_TEXT_BUF, NULL, NULL))
-				result = msz;
-		}
-	} else {
-		if (::GetDlgItemTextA(hDlg, idItem, msz, CTL_TEXT_BUF))
-			result = msz;
-	}
-
-	//::MessageBox(GetFocus(),result.c_str(),"GetDlgItemText2():out",0);
-
-	return result;
-}
-
-BOOL SetDlgItemText2(HWND hDlg, int idItem, LPCSTR pmsz) {
-	BOOL bSuccess = FALSE;
-	WCHAR wsz[CTL_TEXT_BUF];
-
-	if (!pmsz || *pmsz == 0)
-		return ::SetDlgItemTextA(hDlg, idItem, "");
-
-	//::MessageBox(GetFocus(),pmsz,"SetDlgItemText2():in",0);
-
-	if (::IsWindowUnicode(::GetDlgItem(hDlg, idItem))) {
-		if (::MultiByteToWideChar(CP_UTF8, 0, pmsz, -1, wsz, CTL_TEXT_BUF)) {
-			bSuccess = ::SetDlgItemTextW(hDlg, idItem, wsz);
-		}
-	} else {
-		bSuccess = ::SetDlgItemTextA(hDlg, idItem, pmsz);
-	}
-
-	return bSuccess;
-}
-
 static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
 	if (message == WM_INITDIALOG) {
 		SetWindowLong(hDlg, DWL_USER, lParam);
@@ -766,28 +721,110 @@ void SciTEWin::PrintSetup() {
 
 extern bool IsWindowsNT();
 
-static void FillComboFromMemory(HWND combo, const ComboMemory &mem, bool useTop = false) {
-	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
-	if (::IsWindowUnicode(combo)) {
-		for (int i = 0; i < mem.Length(); i++) {
-			//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
-			WCHAR wszBuf[CTL_TEXT_BUF];
-			::MultiByteToWideChar(CP_UTF8, 0, mem.At(i).c_str(), -1, wszBuf,
-			                    CTL_TEXT_BUF);
-			::SendMessageW(combo, CB_ADDSTRING, 0,
-			               reinterpret_cast<LPARAM>(wszBuf));
+// This is a reasonable buffer size for dialog box text conversions
+#define CTL_TEXT_BUF 512
+
+class Dialog {
+	HWND hDlg;
+public:
+
+	Dialog(HWND hDlg_) : hDlg(hDlg_) {
+	}
+
+	HWND Item(int id) {
+		return ::GetDlgItem(hDlg, id);
+	}
+
+	void Enable(int id, bool enable) {
+		::EnableWindow(Item(id), enable);
+	}
+
+	SString ItemText(int id) {
+		HWND wT = Item(id);
+		int len = ::GetWindowTextLength(wT);
+		SBuffer itemText(len);
+		if (len > 0) {
+			::GetDlgItemText(hDlg, id, itemText.ptr(), len + 1);
 		}
-	} else {
-		for (int i = 0; i < mem.Length(); i++) {
-			//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
-			::SendMessage(combo, CB_ADDSTRING, 0,
-			              reinterpret_cast<LPARAM>(mem.At(i).c_str()));
+		return SString(itemText);
+	}
+
+	void SetItemText(int id, const char *s) {
+		::SetDlgItemText(hDlg, id, s);
+	}
+
+	// Handle Unicode controls (assume strings to be UTF-8 on Windows NT)
+	
+	SString ItemTextU(int id) {
+		SString result = "";
+		char	msz[CTL_TEXT_BUF];
+	
+		if (::IsWindowUnicode(Item(id))) {
+			WCHAR wsz[CTL_TEXT_BUF];
+			if (::GetDlgItemTextW(hDlg, id, wsz, CTL_TEXT_BUF)) {
+				if (::WideCharToMultiByte(CP_UTF8, 0, wsz, -1, msz, CTL_TEXT_BUF, NULL, NULL))
+					result = msz;
+			}
+		} else {
+			if (::GetDlgItemTextA(hDlg, id, msz, CTL_TEXT_BUF))
+				result = msz;
+		}
+	
+		return result;
+	}
+	
+	BOOL SetItemTextU(int id, LPCSTR pmsz) {
+		BOOL bSuccess = FALSE;
+		WCHAR wsz[CTL_TEXT_BUF];
+	
+		if (!pmsz || *pmsz == 0)
+			return ::SetDlgItemTextA(hDlg, id, "");
+	
+		if (::IsWindowUnicode(Item(id))) {
+			if (::MultiByteToWideChar(CP_UTF8, 0, pmsz, -1, wsz, CTL_TEXT_BUF)) {
+				bSuccess = ::SetDlgItemTextW(hDlg, id, wsz);
+			}
+		} else {
+			bSuccess = ::SetDlgItemTextA(hDlg, id, pmsz);
+		}
+	
+		return bSuccess;
+	}
+
+	void SetCheck(int id, bool value) {
+		::SendMessage(::GetDlgItem(hDlg, id), BM_SETCHECK, 
+			value ? BST_CHECKED : BST_UNCHECKED, 0);
+	}
+
+	bool Checked(int id) {
+		return BST_CHECKED == ::SendMessage(::GetDlgItem(hDlg, id), BM_GETCHECK, 0, 0);
+	}
+
+	void FillComboFromMemory(int id, const ComboMemory &mem, bool useTop = false) {
+		HWND combo = Item(id);
+		::SendMessage(combo, CB_RESETCONTENT, 0, 0);
+		if (::IsWindowUnicode(combo)) {
+			for (int i = 0; i < mem.Length(); i++) {
+				//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
+				WCHAR wszBuf[CTL_TEXT_BUF];
+				::MultiByteToWideChar(CP_UTF8, 0, mem.At(i).c_str(), -1, wszBuf,
+						    CTL_TEXT_BUF);
+				::SendMessageW(combo, CB_ADDSTRING, 0,
+					       reinterpret_cast<LPARAM>(wszBuf));
+			}
+		} else {
+			for (int i = 0; i < mem.Length(); i++) {
+				//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
+				::SendMessage(combo, CB_ADDSTRING, 0,
+					      reinterpret_cast<LPARAM>(mem.At(i).c_str()));
+			}
+		}
+		if (useTop) {
+			::SendMessage(combo, CB_SETCURSEL, 0, 0);
 		}
 	}
-	if (useTop) {
-		::SendMessage(combo, CB_SETCURSEL, 0, 0);
-	}
-}
+
+};
 
 static void FillComboFromProps(HWND combo, PropSet &props) {
 	char *key;
@@ -800,58 +837,29 @@ static void FillComboFromProps(HWND combo, PropSet &props) {
 	}
 }
 
-static SString GetItemText(HWND hDlg, int id) {
-	HWND wT = ::GetDlgItem(hDlg, id);
-	int len = ::GetWindowTextLength(wT);
-	SBuffer itemText(len);
-	if (len > 0) {
-		::GetDlgItemText(hDlg, id, itemText.ptr(), len + 1);
-	}
-	return SString(itemText);
-}
-
 BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	// Avoid getting dialog items before set up or during tear down.
 	if (WM_SETFONT == message || WM_NCDESTROY == message)
 		return FALSE;
-	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
-	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
-	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
-	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
-	HWND wWrap = ::GetDlgItem(hDlg, IDWRAP);
-	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
-	HWND wFindInStyle = ::GetDlgItem(hDlg, IDFINDINSTYLE);
-	HWND wFindStyle = ::GetDlgItem(hDlg, IDFINDSTYLE);
-	HWND wUp = ::GetDlgItem(hDlg, IDDIRECTIONUP);
-	HWND wDown = ::GetDlgItem(hDlg, IDDIRECTIONDOWN);
+	Dialog dlg(hDlg);
+	HWND wFindStyle = dlg.Item(IDFINDSTYLE);
 
 	switch (message) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
-		FillComboFromMemory(wFindWhat, memFinds);
-		SetDlgItemText2(hDlg, IDFINDWHAT, findWhat.c_str());
-		if (wholeWord)
-			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
-		if (matchCase)
-			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
-		if (regExp)
-			::SendMessage(wRegExp, BM_SETCHECK, BST_CHECKED, 0);
-		if (wrapFind)
-			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
-		if (unSlash)
-			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
-		if (findInStyle)
-			::SendMessage(wFindInStyle, BM_SETCHECK, BST_CHECKED, 0);
-		else
-			::EnableWindow(wFindStyle, false);
+		dlg.FillComboFromMemory(IDFINDWHAT, memFinds);
+		dlg.SetItemTextU(IDFINDWHAT, findWhat.c_str());
+		dlg.SetCheck(IDWHOLEWORD, wholeWord);
+		dlg.SetCheck(IDMATCHCASE, matchCase);
+		dlg.SetCheck(IDREGEXP, regExp);
+		dlg.SetCheck(IDWRAP, wrapFind);
+		dlg.SetCheck(IDUNSLASH, unSlash);
+		dlg.SetCheck(IDFINDSTYLE, findInStyle);
+		dlg.Enable(IDFINDSTYLE, findInStyle);
 		::SendMessage(wFindStyle, EM_LIMITTEXT, 3, 1);
 		::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
-		if (reverseFind) {
-			::SendMessage(wUp, BM_SETCHECK, BST_CHECKED, 0);
-		} else {
-			::SendMessage(wDown, BM_SETCHECK, BST_CHECKED, 0);
-		}
+		dlg.SetCheck(reverseFind ? IDDIRECTIONUP : IDDIRECTIONDOWN, true);
 		return TRUE;
 
 	case WM_CLOSE:
@@ -865,24 +873,17 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			return FALSE;
 		} else if ( (ControlIDOfCommand(wParam) == IDOK) ||
 		            (ControlIDOfCommand(wParam) == IDMARKALL) ) {
-			findWhat = GetDlgItemText2(hDlg, IDFINDWHAT);
+			findWhat = dlg.ItemTextU(IDFINDWHAT);
 			props.Set("find.what", findWhat.c_str());
 			memFinds.Insert(findWhat.c_str());
-			wholeWord = BST_CHECKED ==
-			            ::SendMessage(wWholeWord, BM_GETCHECK, 0, 0);
-			matchCase = BST_CHECKED ==
-			            ::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
-			regExp = BST_CHECKED ==
-			         ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
-			wrapFind = BST_CHECKED ==
-			           ::SendMessage(wWrap, BM_GETCHECK, 0, 0);
-			unSlash = BST_CHECKED ==
-			          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
-			findInStyle = BST_CHECKED ==
-			              ::SendMessage(wFindInStyle, BM_GETCHECK, 0, 0);
-			findStyle = atoi(GetDlgItemText2(hDlg, IDFINDSTYLE).c_str());
-			reverseFind = BST_CHECKED ==
-			              ::SendMessage(wUp, BM_GETCHECK, 0, 0);
+			wholeWord = dlg.Checked(IDWHOLEWORD);
+			matchCase = dlg.Checked(IDMATCHCASE);
+			regExp = dlg.Checked(IDREGEXP);
+			wrapFind = dlg.Checked(IDWRAP);
+			unSlash = dlg.Checked(IDUNSLASH);
+			findInStyle = dlg.Checked(IDFINDINSTYLE);
+			findStyle = atoi(dlg.ItemTextU(IDFINDSTYLE).c_str());
+			reverseFind = dlg.Checked(IDDIRECTIONUP);
 			::EndDialog(hDlg, IDOK);
 			wFindReplace.Destroy();
 			if (ControlIDOfCommand(wParam) == IDMARKALL){
@@ -891,7 +892,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			FindNext(reverseFind);
 			return TRUE;
 		} else if (ControlIDOfCommand(wParam) == IDFINDINSTYLE) {
-			::EnableWindow(wFindStyle, BST_CHECKED == ::SendMessage(wFindInStyle, BM_GETCHECK, 0, 0));
+			findInStyle = dlg.Checked(IDFINDINSTYLE);
+			dlg.Enable(IDFINDSTYLE, findInStyle);
 			return TRUE;
 		}
 	}
@@ -907,33 +909,22 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	if (!wFindReplace.GetID())
 		return TRUE;
 	HWND hwndFR = reinterpret_cast<HWND>(wFindReplace.GetID());
-	HWND wWholeWord = ::GetDlgItem(hwndFR, IDWHOLEWORD);
-	HWND wMatchCase = ::GetDlgItem(hwndFR, IDMATCHCASE);
-	HWND wRegExp = ::GetDlgItem(hwndFR, IDREGEXP);
-	HWND wWrap = ::GetDlgItem(hwndFR, IDWRAP);
-	HWND wUnSlash = ::GetDlgItem(hwndFR, IDUNSLASH);
-	HWND wFindInStyle = ::GetDlgItem(hwndFR, IDFINDINSTYLE);
+	Dialog dlg(hwndFR);
 
 	if ((cmd == IDOK) || (cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
-		findWhat = GetDlgItemText2(hwndFR, IDFINDWHAT);
+		findWhat = dlg.ItemTextU(IDFINDWHAT);
 		props.Set("find.what", findWhat.c_str());
 		memFinds.Insert(findWhat.c_str());
-		wholeWord = BST_CHECKED ==
-		            ::SendMessage(wWholeWord, BM_GETCHECK, 0, 0);
-		matchCase = BST_CHECKED ==
-		            ::SendMessage(wMatchCase, BM_GETCHECK, 0, 0);
-		regExp = BST_CHECKED ==
-		         ::SendMessage(wRegExp, BM_GETCHECK, 0, 0);
-		wrapFind = BST_CHECKED ==
-		           ::SendMessage(wWrap, BM_GETCHECK, 0, 0);
-		unSlash = BST_CHECKED ==
-		          ::SendMessage(wUnSlash, BM_GETCHECK, 0, 0);
-		findInStyle = BST_CHECKED ==
-		              ::SendMessage(wFindInStyle, BM_GETCHECK, 0, 0);
-		findStyle = atoi(GetDlgItemText2(hwndFR, IDFINDSTYLE).c_str());
+		wholeWord = dlg.Checked(IDWHOLEWORD);
+		matchCase = dlg.Checked(IDMATCHCASE);
+		regExp = dlg.Checked(IDREGEXP);
+		wrapFind = dlg.Checked(IDWRAP);
+		unSlash = dlg.Checked(IDUNSLASH);
+		findInStyle = dlg.Checked(IDFINDINSTYLE);
+		findStyle = atoi(dlg.ItemTextU(IDFINDSTYLE).c_str());
 	}
 	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
-		replaceWhat = GetDlgItemText2(hwndFR, IDREPLACEWITH);
+		replaceWhat = dlg.ItemTextU(IDREPLACEWITH);
 		memReplaces.Insert(replaceWhat.c_str());
 	}
 
@@ -958,7 +949,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 	}
 	char replDone[10];
 	sprintf(replDone, "%d", replacements);
-	::SetDlgItemText(hwndFR, IDREPLDONE, replDone);
+	dlg.SetItemText(IDREPLDONE, replDone);
 
 	return TRUE;
 }
@@ -967,40 +958,26 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	// Avoid getting dialog items before set up or during tear down.
 	if (WM_SETFONT == message || WM_NCDESTROY == message)
 		return FALSE;
-	HWND wFindWhat = ::GetDlgItem(hDlg, IDFINDWHAT);
+	Dialog dlg(hDlg);
 	HWND wReplaceWith = ::GetDlgItem(hDlg, IDREPLACEWITH);
-	HWND wWholeWord = ::GetDlgItem(hDlg, IDWHOLEWORD);
-	HWND wMatchCase = ::GetDlgItem(hDlg, IDMATCHCASE);
-	HWND wRegExp = ::GetDlgItem(hDlg, IDREGEXP);
-	HWND wWrap = ::GetDlgItem(hDlg, IDWRAP);
-	HWND wUnSlash = ::GetDlgItem(hDlg, IDUNSLASH);
-	HWND wFindInStyle = ::GetDlgItem(hDlg, IDFINDINSTYLE);
-	HWND wFindStyle = ::GetDlgItem(hDlg, IDFINDSTYLE);
 
 	switch (message) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
-		FillComboFromMemory(wFindWhat, memFinds);
-		SetDlgItemText2(hDlg, IDFINDWHAT, findWhat.c_str());
-		FillComboFromMemory(wReplaceWith, memReplaces);
-		SetDlgItemText2(hDlg, IDREPLACEWITH, replaceWhat.c_str());
-		if (wholeWord)
-			::SendMessage(wWholeWord, BM_SETCHECK, BST_CHECKED, 0);
-		if (matchCase)
-			::SendMessage(wMatchCase, BM_SETCHECK, BST_CHECKED, 0);
-		if (regExp)
-			::SendMessage(wRegExp, BM_SETCHECK, BST_CHECKED, 0);
-		if (wrapFind)
-			::SendMessage(wWrap, BM_SETCHECK, BST_CHECKED, 0);
-		if (unSlash)
-			::SendMessage(wUnSlash, BM_SETCHECK, BST_CHECKED, 0);
-		if (findInStyle)
-			::SendMessage(wFindInStyle, BM_SETCHECK, BST_CHECKED, 0);
-		else
-			::EnableWindow(wFindStyle, false);
+		dlg.FillComboFromMemory(IDFINDWHAT, memFinds);
+		dlg.SetItemTextU(IDFINDWHAT, findWhat.c_str());
+		dlg.FillComboFromMemory(IDREPLACEWITH, memReplaces);
+		dlg.SetItemTextU(IDREPLACEWITH, replaceWhat.c_str());
+		dlg.SetCheck(IDWHOLEWORD, wholeWord);
+		dlg.SetCheck(IDMATCHCASE, matchCase);
+		dlg.SetCheck(IDREGEXP, regExp);
+		dlg.SetCheck(IDWRAP, wrapFind);
+		dlg.SetCheck(IDUNSLASH, unSlash);
+		dlg.SetCheck(IDFINDSTYLE, findInStyle);
+		dlg.Enable(IDFINDSTYLE, findInStyle);
 		::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
-		::SetDlgItemText(hDlg, IDREPLDONE, "0");
+		dlg.SetItemText(IDREPLDONE, "0");
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(wReplaceWith);
 			return FALSE;
@@ -1019,7 +996,8 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			wFindReplace.Destroy();
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDFINDINSTYLE) {
-			::EnableWindow(wFindStyle, BST_CHECKED == ::SendMessage(wFindInStyle, BM_GETCHECK, 0, 0));
+			findInStyle = dlg.Checked(IDFINDINSTYLE);
+			dlg.Enable(IDFINDSTYLE, findInStyle);
 			return TRUE;
 		} else {
 			return HandleReplaceCommand(ControlIDOfCommand(wParam));
@@ -1043,7 +1021,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	if (WM_SETFONT == message || WM_NCDESTROY == message)
 		return FALSE;
 
-	HWND wFindWhat = ::GetDlgItem(hDlg, IDC_INCFINDTEXT);
+	Dialog dlg(hDlg);
 
 	switch (message) {
 
@@ -1051,7 +1029,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		wFindIncrement = hDlg;
 		LocaliseDialog(hDlg);
 		SetWindowLong(hDlg, GWL_STYLE, WS_TABSTOP || GetWindowLong(hDlg, GWL_STYLE));
-		SetDlgItemText2(hDlg, IDC_INCFINDTEXT, ""); //findWhat.c_str()
+		dlg.SetItemTextU(IDC_INCFINDTEXT, ""); //findWhat.c_str()
 		SetFocus(hDlg);
 
 		PRectangle aRect = wFindIncrement.GetPosition();
@@ -1095,7 +1073,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			|| (ControlIDOfCommand(wParam) == IDC_INCFINDBTNOK)) {
 			SString ffLastWhat;
 			ffLastWhat = findWhat;
-			findWhat = GetDlgItemText2(hDlg, IDC_INCFINDTEXT);
+			findWhat = dlg.ItemTextU(IDC_INCFINDTEXT);
 
 			if (ControlIDOfCommand(wParam) != IDC_INCFINDBTNOK) {
 				CharacterRange cr = GetSelection();
@@ -1110,8 +1088,8 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				// Could not find string with added character so revert to previous value.
 				findWhat = ffLastWhat;
 				entered = true;
-				SetDlgItemText2(hDlg, IDC_INCFINDTEXT, findWhat.c_str());
-				SendMessage(wFindWhat, EM_SETSEL, ffLastWhat.length(), ffLastWhat.length());
+				dlg.SetItemTextU(IDC_INCFINDTEXT, findWhat.c_str());
+				SendMessage(dlg.Item(IDC_INCFINDTEXT), EM_SETSEL, ffLastWhat.length(), ffLastWhat.length());
 				entered = false;
 			}
 			return FALSE;
@@ -1217,9 +1195,11 @@ void SciTEWin::PerformGrep() {
 	SString findCommand = props.GetNewExpand("find.command");
 	if (findCommand == "") {
 		// Call InternalGrep in a new thread
-		// searchParams is "\0files\0text"
-		// The initial \0 is to avoid an initial '*' triggering the Parameters dialog.
+		// searchParams is "(w|~)(c|~)\0files\0text"
+		// A "w" indicates whole word and a "c" indicates case sensitive
 		SString searchParams;
+		searchParams.append(wholeWord ? "w" : "~");
+		searchParams.append(matchCase ? "c" : "~");
 		searchParams.append("\0", 1);
 		searchParams.append(props.Get("find.files").c_str());
 		searchParams.append("\0", 1);
@@ -1235,20 +1215,32 @@ void SciTEWin::PerformGrep() {
 	}
 }
 
-void SciTEWin::FillCombos(HWND hDlg) {
-	FillComboFromMemory(::GetDlgItem(hDlg, IDFINDWHAT), memFinds, true);
-	FillComboFromMemory(::GetDlgItem(hDlg, IDFILES), memFiles, true);
-	FillComboFromMemory(::GetDlgItem(hDlg, IDDIRECTORY), memDirectory, true);
+void SciTEWin::FillCombos(Dialog &dlg) {
+	dlg.FillComboFromMemory(IDFINDWHAT, memFinds, true);
+	dlg.FillComboFromMemory(IDFILES, memFiles, true);
+	dlg.FillComboFromMemory(IDDIRECTORY, memDirectory, true);
 }
 
 BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
+	if (WM_SETFONT == message || WM_NCDESTROY == message)
+		return FALSE;
+	Dialog dlg(hDlg);
+
 	switch (message) {
 
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
-		FillCombos(hDlg);
-		::SetDlgItemText(hDlg, IDFINDWHAT, props.Get("find.what").c_str());
-		::SetDlgItemText(hDlg, IDDIRECTORY, props.Get("find.directory").c_str());
+		FillCombos(dlg);
+		dlg.SetItemText(IDFINDWHAT, props.Get("find.what").c_str());
+		dlg.SetItemText(IDDIRECTORY, props.Get("find.directory").c_str());
+		if (props.GetNewExpand("find.command") == "") {
+			// Empty means use internal that can respond to flags 
+			dlg.SetCheck(IDWHOLEWORD, wholeWord);
+			dlg.SetCheck(IDMATCHCASE, matchCase);
+		} else {
+			dlg.Enable(IDWHOLEWORD, false);
+			dlg.Enable(IDMATCHCASE, false);
+		}
 		return TRUE;
 
 	case WM_CLOSE:
@@ -1262,19 +1254,22 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			return FALSE;
 
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
-			findWhat = GetItemText(hDlg, IDFINDWHAT);
+			findWhat = dlg.ItemText(IDFINDWHAT);
 			props.Set("find.what", findWhat.c_str());
 			memFinds.Insert(findWhat.c_str());
 
-			SString files = GetItemText(hDlg, IDFILES);
+			SString files = dlg.ItemText(IDFILES);
 			props.Set("find.files", files.c_str());
 			memFiles.Insert(files.c_str());
 
-			SString directory = GetItemText(hDlg, IDDIRECTORY);
+			SString directory = dlg.ItemText(IDDIRECTORY);
 			props.Set("find.directory", directory.c_str());
 			memDirectory.Insert(directory.c_str());
 
-			FillCombos(hDlg);
+			wholeWord = dlg.Checked(IDWHOLEWORD);
+			matchCase = dlg.Checked(IDMATCHCASE);
+
+			FillCombos(dlg);
 
 			PerformGrep();
 			if (props.GetInt("find.in.files.close.on.find", 1)) {
@@ -1285,9 +1280,9 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				return FALSE;
 			}
 		} else if (ControlIDOfCommand(wParam) == IDDOTDOT) {
-			FilePath directory(GetItemText(hDlg, IDDIRECTORY).c_str());
+			FilePath directory(dlg.ItemText(IDDIRECTORY).c_str());
 			directory = directory.Directory();
-			::SetDlgItemText(hDlg, IDDIRECTORY, directory.AsInternal());
+			dlg.SetItemText(IDDIRECTORY, directory.AsInternal());
 
 		} else if (ControlIDOfCommand(wParam) == IDBROWSE) {
 
@@ -1312,7 +1307,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				info.lpszTitle = title.c_str();
 				info.ulFlags = 0;
 				info.lpfn = BrowseCallbackProc;
-				SString directory = GetItemText(hDlg, IDDIRECTORY);
+				SString directory = dlg.ItemText(IDDIRECTORY);
 				if (!directory.endswith(pathSepString)) {
 					directory += pathSepString;
 				}
@@ -1329,7 +1324,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 					char szDir[MAX_PATH];
 					if (::SHGetPathFromIDList(pidl, szDir)) {
 						// Set edit control to the directory path.
-						::SetDlgItemText(hDlg, IDDIRECTORY, szDir);
+						dlg.SetItemText(IDDIRECTORY, szDir);
 					}
 					pShellMalloc->Free(pidl);
 				}
@@ -1591,13 +1586,14 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_INITDIALOG: {
 			LocaliseDialog(hDlg);
 			wParameters = hDlg;
+			Dialog dlg(hDlg);
 			if (modalParameters) {
-				::SetDlgItemText(hDlg, IDCMD, parameterisedCommand.c_str());
+				dlg.SetItemText(IDCMD, parameterisedCommand.c_str());
 			}
 			for (int param = 0; param < maxParam; param++) {
 				SString paramText(param + 1);
 				SString paramTextVal = props.Get(paramText.c_str());
-				::SetDlgItemText(hDlg, IDPARAMSTART + param, paramTextVal.c_str());
+				dlg.SetItemText(IDPARAMSTART + param, paramTextVal.c_str());
 			}
 		}
 		return TRUE;

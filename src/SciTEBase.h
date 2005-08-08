@@ -713,8 +713,8 @@ protected:
 	void GoMatchingBrace(bool select);
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
-	void OutputAppendString(const char *s, int len = -1, bool startLine = false);
-	void OutputAppendStringSynchronised(const char *s, int len = -1, bool startLine = false);
+	void OutputAppendString(const char *s, int len = -1);
+	void OutputAppendStringSynchronised(const char *s, int len = -1);
 	void MakeOutputVisible();
 	void ClearJobQueue();
 	virtual void Execute();
@@ -865,8 +865,9 @@ protected:
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
-	void GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes, bool forStdOut);
-	void InternalGrep(bool forStdOut, const char *directory, const char *files, const char *search);
+	enum GrepFlags { grepNone=0, grepWholeWord=1, grepMatchCase=2, grepStdOut=4 };
+	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const char *fileTypes);
+	void InternalGrep(GrepFlags gf, const char *directory, const char *files, const char *search);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);

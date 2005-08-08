@@ -1701,18 +1701,9 @@ int SciTEBase::ReplaceInBuffers() {
 	return replacements;
 }
 
-void SciTEBase::OutputAppendString(const char *s, int len, bool startLine) {
+void SciTEBase::OutputAppendString(const char *s, int len) {
 	if (len == -1)
 		len = static_cast<int>(strlen(s));
-	int docLength = SendOutput(SCI_GETTEXTLENGTH);
-
-	if (startLine && docLength > 0) {
-		char lastChar = static_cast<char>(SendOutput(SCI_GETCHARAT, docLength - 1));
-		if (lastChar != '\n' && lastChar != '\r') {
-			SendOutput(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"));
-		}
-	}
-
 	SendOutput(SCI_APPENDTEXT, len, reinterpret_cast<sptr_t>(s));
 	if (scrollOutput) {
 		int line = SendOutput(SCI_GETLINECOUNT, 0, 0);
@@ -1721,18 +1712,9 @@ void SciTEBase::OutputAppendString(const char *s, int len, bool startLine) {
 	}
 }
 
-void SciTEBase::OutputAppendStringSynchronised(const char *s, int len, bool startLine) {
+void SciTEBase::OutputAppendStringSynchronised(const char *s, int len) {
 	if (len == -1)
 		len = static_cast<int>(strlen(s));
-	int docLength = SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false);
-
-	if (startLine && docLength > 0) {
-		char lastChar = static_cast<char>(SendOutputEx(SCI_GETCHARAT, docLength - 1, 0, false));
-		if (lastChar != '\n' && lastChar != '\r') {
-			SendOutputEx(SCI_APPENDTEXT, 1, reinterpret_cast<sptr_t>("\n"), false);
-		}
-	}
-
 	SendOutputEx(SCI_APPENDTEXT, len, reinterpret_cast<sptr_t>(s), false);
 	if (scrollOutput) {
 		int line = SendOutputEx(SCI_GETLINECOUNT, 0, 0, false);
@@ -4824,10 +4806,15 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 				performPrint = true;
 			} else if (strcmp(arg, "grep") == 0) {
 				// wlArgs[i+1] will be options in future
+				GrepFlags gf = grepStdOut;
+				if (wlArgs[i+1][0] == 'w')
+					gf = static_cast<GrepFlags>(gf | grepWholeWord);
+				if (wlArgs[i+1][1] == 'c')
+					gf = static_cast<GrepFlags>(gf | grepMatchCase);
 				char unquoted[1000];
 				strcpy(unquoted, wlArgs[i+3]);
 				UnSlash(unquoted);
-				InternalGrep(true, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2], unquoted);
+				InternalGrep(gf, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2], unquoted);
 				exit(0);
 			} else {
 				if (AfterName(arg) == ':') {

@@ -919,84 +919,182 @@ void SciTEBase::OpenFilesFromStdin() {
 		Open("");
 }
 
-void SciTEBase::GrepRecursive(FilePath baseDir, const char *searchString, const char *fileTypes, bool forStdOut) {
+class BufferedFile {
+	FILE *fp;
+	bool readAll;
+	bool exhausted;
+	enum {bufLen = 64*1024};
+	char buffer[bufLen];
+	size_t pos;
+	size_t valid;
+public:
+	BufferedFile(FilePath fPath) {
+		fp = fPath.Open(fileRead);
+		readAll = false;
+		exhausted = false;
+		pos = 0;
+		valid = 0;
+	}
+	~BufferedFile() {
+		fclose(fp);
+		fp = NULL;
+	}
+	bool Exhausted() {
+		return exhausted;
+	}
+	int NextByte() {
+		if (pos >= valid) {
+			if (readAll) {
+				exhausted = true;
+			} else {
+				valid = fread(buffer, 1, bufLen, fp);
+				if (valid < bufLen) {
+					readAll = true;
+				}
+				pos = 0;
+			}
+			if (pos >= valid) {
+				return 0;
+			}
+		}
+		return buffer[pos++];
+	}
+};
+
+class FileReader {
+	BufferedFile *bf;
+	int lineNum;
+	bool lastWasCR;
+	enum {bufLen = 1000};
+	char lineToCompare[bufLen+1];
+	char lineToShow[bufLen+1];
+	bool caseSensitive;
+public:
+
+	FileReader(FilePath fPath, bool caseSensitive_) {
+		bf = new BufferedFile(fPath);
+		lineNum = 0;
+		lastWasCR = false;
+		caseSensitive = caseSensitive_;
+	}
+	~FileReader() {
+		delete bf;
+		bf = NULL;
+	}
+	char *Next() {
+		if (bf->Exhausted()) {
+			return NULL;
+		}
+		int i = 0;
+		while (!bf->Exhausted()) {
+			int ch = bf->NextByte();
+			if (i < bufLen) {
+				if (i == 0 && lastWasCR && ch == '\n') {
+					lastWasCR = false;
+					ch = 0;
+				} else if (ch == '\r' || ch == '\n') {
+					lastWasCR = ch == '\r';
+					break;
+				} else {
+					lineToShow[i++] = ch;
+				}
+			}
+		}
+		lineToShow[i] = '\0';
+		lineNum++;
+		strcpy(lineToCompare, lineToShow);
+		if (!caseSensitive) {
+			for (int j=0; j<i; j++) {
+				if (lineToCompare[j] >= 'A' && lineToCompare[j] <= 'Z') {
+					lineToCompare[j] = static_cast<char>(lineToCompare[j] - 'A' + 'a');
+				}
+			}
+		}
+		return lineToCompare;
+	}
+	int LineNumber() {
+		return lineNum;
+	}
+	const char *Original() {
+		return lineToShow;
+	}
+};
+
+static bool IsWordCharacter(int ch) {
+	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')  || (ch >= '0' && ch <= '9')  || (ch == '_');
+}
+
+void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const char *fileTypes) {
 	FilePathSet directories;
 	FilePathSet files;
 	baseDir.List(directories, files);
+	size_t searchLength = strlen(searchString);
+	SString os;
 	for (size_t i = 0; i < files.Length(); i ++) {
 		FilePath fPath = files.At(i);
 		if (fPath.Matches(fileTypes)) {
 			//OutputAppendStringSynchronised(i->AsFileSystem());
 			//OutputAppendStringSynchronised("\n");
-			FILE *fp = fPath.Open(fileRead);
-			if (fp) {
-				fseek(fp, 0, SEEK_END);
-				size_t size = ftell(fp);
-				fseek(fp, 0, SEEK_SET);
-				char *buffer=new char[size+1];
-				fread(buffer, size, 1, fp);
-				fclose(fp);
-				buffer[size] = '\0';
-				int lineNum = 1;
-				char *line=buffer;
-				SString os;
-				while (*line) {
-					char *lineEnd = line;
-					while (*lineEnd != '\0' && *lineEnd != '\r' && *lineEnd != '\n') {
-						lineEnd++;
-					}
-					if (*lineEnd) {
-						if (*lineEnd == '\r' && *(lineEnd + 1) == '\n') {
-							*lineEnd = '\0';
-							lineEnd += 2;
-						} else {
-							*lineEnd = '\0';
-							lineEnd++;
+			FileReader fr(fPath, gf & grepMatchCase);
+			while (char *line=fr.Next()) {
+				char *match = strstr(line, searchString);
+				if (match) {
+					if (gf & grepWholeWord) {
+						char *lineEnd = line + strlen(line);
+						while (match) {
+							if (((match == line) || !IsWordCharacter(match[-1])) &&
+								((match+searchLength == (lineEnd)) || !IsWordCharacter(match[searchLength]))) {
+									break;
+							}
+							match = strstr(match+1, searchString);
 						}
 					}
-					if (strstr(line, searchString)) {
+					if (match) {
 						os.append(fPath.AsFileSystem());
 						os.append(":");
-						SString lNumber(lineNum);
+						SString lNumber(fr.LineNumber());
 						os.append(lNumber.c_str());
 						os.append(":");
-						os.append(line);
+						os.append(fr.Original());
 						os.append("\n");
-					}
-					line = lineEnd;
-					lineNum++;
-				}
-				delete []buffer;
-				if (os.length()) {
-					if (forStdOut) {
-						fwrite(os.c_str(), os.length(), 1, stdout);
-					} else {
-						OutputAppendStringSynchronised(os.c_str());
 					}
 				}
 			}
 		}
 	}
+	if (os.length()) {
+		if (gf & grepStdOut) {
+			fwrite(os.c_str(), os.length(), 1, stdout);
+		} else {
+			OutputAppendStringSynchronised(os.c_str());
+		}
+	}
 	for (size_t j = 0; j < directories.Length(); j++) {
 		FilePath fPath = directories.At(j);
-		GrepRecursive(fPath, searchString, fileTypes, forStdOut);
+		GrepRecursive(gf, fPath, searchString, fileTypes);
 	}
 }
 
-void SciTEBase::InternalGrep(bool forStdOut, const char *directory, const char *fileTypes, const char *search) {
+void SciTEBase::InternalGrep(GrepFlags gf, const char *directory, const char *fileTypes, const char *search) {
 	int originalEnd = 0;
 	ElapsedTime commandTime;
-	if (!forStdOut) {
-		OutputAppendStringSynchronised(">Internal search for \"");
-		OutputAppendStringSynchronised(search);
-		OutputAppendStringSynchronised("\" in \"");
-		OutputAppendStringSynchronised(fileTypes);
-		OutputAppendStringSynchronised("\"\n");
+	if (!(gf & grepStdOut)) {
+		SString os;
+		os.append(">Internal search for \"");
+		os.append(search);
+		os.append("\" in \"");
+		os.append(fileTypes);
+		os.append("\"\n");
+		OutputAppendStringSynchronised(os.c_str());
 		MakeOutputVisible();
 		originalEnd = SendOutput(SCI_GETCURRENTPOS);
 	}
-	GrepRecursive(FilePath(directory), search, fileTypes, forStdOut);
-	if (!forStdOut) {
+	SString searchString(search);
+	if (!(gf & grepMatchCase)) {
+ 		searchString.lowercase();
+	}
+	GrepRecursive(gf, FilePath(directory), searchString.c_str(), fileTypes);
+	if (!(gf & grepStdOut)) {
 		SString sExitMessage(">");
 		if (timeCommands) {
 			sExitMessage += "    Time: ";
