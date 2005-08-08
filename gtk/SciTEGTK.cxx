@@ -270,7 +270,6 @@ protected:
 	GtkWidget *toggleWrap;
 	GtkWidget *toggleUnSlash;
 	GtkWidget *toggleReverse;
-	GtkWidget *toggleRec;
 	GtkWidget *comboFind;
 	GtkWidget *comboFindInFiles;
 	GtkWidget *comboDir;
@@ -1439,17 +1438,12 @@ void SciTEGTK::FindInFilesCmd() {
 	props.Set("find.directory", dirEntry);
 	memDirectory.Insert(dirEntry);
 
-#ifdef RECURSIVE_GREP_WORKING
-
-	if (GTK_TOGGLE_BUTTON(toggleRec)->active)
-		props.Set("find.recursive", props.Get("find.recursive.recursive").c_str());
-	else
-		props.Set("find.recursive", props.Get("find.recursive.not").c_str());
-#endif
-
 	const char *filesEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboFiles)->entry));
 	props.Set("find.files", filesEntry);
 	memFiles.Insert(filesEntry);
+
+	wholeWord = GTK_TOGGLE_BUTTON(toggleWord)->active;
+	matchCase = GTK_TOGGLE_BUTTON(toggleCase)->active;
 
 	dlgFindInFiles.Destroy();
 
@@ -1460,7 +1454,10 @@ void SciTEGTK::FindInFilesCmd() {
 	SString findCommand = props.GetNewExpand("find.command");
 	if (findCommand == "") {
 		findCommand = sciteExecutable.AsInternal();
-		findCommand += " -grep n \"";
+		findCommand += " -grep ";
+		findCommand += wholeWord ? "w" : "~";
+		findCommand += matchCase ? "c" : "~";
+		findCommand += " \"";
 		findCommand += props.Get("find.files");
 		findCommand += "\" \"";
 		char *quotedForm = Slash(props.Get("find.what").c_str(), true);
@@ -1492,13 +1489,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_window_set_policy(GTK_WINDOW(PWidget(dlgFindInFiles)), FALSE, TRUE, FALSE);
 	TranslatedSetTitle(GTK_WINDOW(PWidget(dlgFindInFiles)), "Find in Files");
 
-#ifdef RECURSIVE_GREP_WORKING
-
-	GtkWidget *table = gtk_table_new(4, 3, FALSE);
-#else
-
 	GtkWidget *table = gtk_table_new(1, 3, FALSE);
-#endif
 
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox),
 	                   table, TRUE, TRUE, 0);
@@ -1516,7 +1507,6 @@ void SciTEGTK::FindInFiles() {
 	GtkWidget *labelFind = TranslatedLabel("Find what:");
 	gtk_table_attach(GTK_TABLE(table), labelFind, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
-	gtk_widget_show(labelFind);
 
 	FillComboFromMemory(comboFindInFiles, memFinds);
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFindInFiles), TRUE);
@@ -1524,7 +1514,6 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_table_attach(GTK_TABLE(table), comboFindInFiles, 1, 3,
 	                 row, row + 1, optse, opts, 5, 5);
-	gtk_widget_show(comboFindInFiles);
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), findWhat.c_str());
 	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), 0, findWhat.length());
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFindInFiles)->entry),
@@ -1536,7 +1525,6 @@ void SciTEGTK::FindInFiles() {
 	GtkWidget *labelFiles = TranslatedLabel("Files:");
 	gtk_table_attach(GTK_TABLE(table), labelFiles, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
-	gtk_widget_show(labelFiles);
 
 	comboFiles = gtk_combo_new();
 	FillComboFromMemory(comboFiles, memFiles, true);
@@ -1545,7 +1533,6 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_table_attach(GTK_TABLE(table), comboFiles, 1, 3,
 	                 row, row + 1, optse, opts, 5, 5);
-	gtk_widget_show(comboFiles);
 	gtk_signal_connect(GTK_OBJECT(GTK_COMBO(comboFiles)->entry),
 	                   "activate", GtkSignalFunc(FindInFilesSignal), this);
 	gtk_combo_disable_activate(GTK_COMBO(comboFiles));
@@ -1556,7 +1543,6 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_table_attach(GTK_TABLE(table), labelDir, 0, 1,
 	                 row, row + 1, opts, opts, 5, 5);
-	gtk_widget_show(labelDir);
 
 	comboDir = gtk_combo_new();
 	FillComboFromMemory(comboDir, memDirectory);
@@ -1565,7 +1551,6 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_table_attach(GTK_TABLE(table), comboDir, 1, 2,
 	                 row, row + 1, optse, opts, 5, 5);
-	gtk_widget_show(comboDir);
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry), findInDir.AsInternal());
 	// Make a little wider than would happen automatically to show realistic paths
 #if GTK_MAJOR_VERSION >= 2
@@ -1580,18 +1565,25 @@ void SciTEGTK::FindInFiles() {
 	                       GtkSignalFunc(DotDotSignal), this);
 	gtk_table_attach(GTK_TABLE(table), btnDotDot, 2, 3,
 	                 row, row + 1, optse, opts, 5, 5);
-	gtk_widget_show(btnDotDot);
-
-#ifdef RECURSIVE_GREP_WORKING
 
 	row++;
 
-	toggleRec = TranslatedToggle("Re_cursive Directories", accel_group, false);
-	gtk_table_attach(GTK_TABLE(table), toggleRec, 1, 2, row, row + 1, opts, opts, 3, 0);
-	gtk_widget_show(toggleRec);
-#endif
+	GtkWidget *boxToggles = gtk_hbox_new(FALSE, 0);
+	gtk_table_attach(GTK_TABLE(table), boxToggles, 1, 3, row, row + 1, opts, opts, 3, 0);
 
-	gtk_widget_show(table);
+	bool enableToggles = props.GetNewExpand("find.command") == "";
+
+	// Whole Word
+	toggleWord = TranslatedToggle("Match whole word _only", accel_group, wholeWord && enableToggles);
+	gtk_box_pack_start(GTK_BOX(boxToggles), toggleWord, TRUE, TRUE, 0);
+	gtk_widget_set_sensitive(toggleWord, enableToggles);
+
+	// Case Sensitive
+	toggleCase = TranslatedToggle("_Match case", accel_group, matchCase || !enableToggles);
+	gtk_box_pack_start(GTK_BOX(boxToggles), toggleCase, TRUE, TRUE, 0);
+	gtk_widget_set_sensitive(toggleCase, enableToggles);
+
+	gtk_widget_show_all(table);
 
 	GtkWidget *btnFind = TranslatedCommand("F_ind", accel_group,
 	                                       GtkSignalFunc(FindInFilesSignal), this);
