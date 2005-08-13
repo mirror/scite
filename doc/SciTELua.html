@@ -35,7 +35,6 @@ For more ideas about what Lua can do, you may also want to check out
 the community portal, <a href="http://lua-users.org/">lua-users.org</a>,
 and <a href="http://lua-users.org/wiki/SciteScripts">some example scripts</a>.
 </p>
-http://lua-users.org/wiki/SciteScripts</p>
 <h4>SciTE Properties and Lua Event / Command Handlers</h4>
 <p>
 The properties ext.lua.startup.script and extension.<i>filepattern</i>
@@ -117,6 +116,12 @@ displayed.  This is because Lua assumes in this case that the command
 is meant for some other extension, such as the <a href="SciTEDirector.html">SciTE Director
 Extension</a>.  However, if the command function is found, but fails
 to execute, an error is reported.
+</p>
+<h4>Multiple handlers</h4>
+<p>
+<a href="http://lua-users.org/wiki/SciteExtMan">Scite Ext Man</a> can help in 
+more complex applications where you have
+multiple scripts needing to handle an event. 
 </p>
 <hr noshade="noshade" width="80%" align="left" />
 <h4>Predefined Lua Functions and Objects:</h4>
