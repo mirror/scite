@@ -996,7 +996,7 @@ public:
 					lastWasCR = ch == '\r';
 					break;
 				} else {
-					lineToShow[i++] = ch;
+					lineToShow[i++] = static_cast<char>(ch);
 				}
 			}
 		}
