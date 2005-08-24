@@ -629,7 +629,9 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 void SciTEBase::CloseTab(int tab) {
 	int tabCurrent = buffers.Current();
 	if (tab == tabCurrent) {
-		Close();
+		if (SaveIfUnsure() != IDCANCEL) {
+			Close();
+		}
 	} else {
 		FilePath fpCurrent = buffers.buffers[tabCurrent].AbsolutePath();
 		SetDocumentAt(tab);
