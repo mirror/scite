@@ -404,11 +404,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 						fprintf(fp, "\tfont-weight: bold;\n");
 					}
 					if (wysiwyg && sd.font.length()) {
-						if (useMonoFont) {
-							fprintf(fp, "\tfont-family: monospace;\n");
-						} else {
-							fprintf(fp, "\tfont-family: '%s';\n", sd.font.c_str());
-						}
+						fprintf(fp, "\tfont-family: '%s';\n", sd.font.c_str());
 					}
 					if (sd.fore.length()) {
 						fprintf(fp, "\tcolor: %s;\n", sd.fore.c_str());
