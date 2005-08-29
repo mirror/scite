@@ -1224,15 +1224,6 @@ SString SciTEBase::EncodeString(const SString &s) {
 	return SString(s);
 }
 
-void SciTEBase::FindMessageBox(const SString &msg) {
-#if PLAT_GTK || PLAT_FOX
-	WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-#endif
-#if PLAT_WIN
-	WindowMessageBox(wFindReplace, msg, MB_OK | MB_ICONWARNING);
-#endif
-}
-
 /**
  * Convert a string into C string literal form using \a, \b, \f, \n, \r, \t, \v, and \ooo.
  * The return value is a newly allocated character array containing the result.
@@ -1504,13 +1495,8 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		havefound = false;
 		if (showWarnings) {
 			WarnUser(warnNotFound);
-			SString msg = LocaliseMessage("Can not find the string '^0'.",
-				findWhat.c_str());
-			if (wFindReplace.Created()) {
-				FindMessageBox(msg);
-			} else {
-				WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-			}
+			FindMessageBox("Can not find the string '^0'.",
+				&findWhat);
 		}
 	} else {
 		havefound = true;
@@ -1662,19 +1648,16 @@ int SciTEBase::ReplaceAll(bool inSelection) {
 	props.SetInteger("Replacements", (replacements > 0 ? replacements : 0));
 	UpdateStatusBar(false);
 	if (replacements == -1) {
-		SString msg = LocaliseMessage(
+		FindMessageBox(
 		                  inSelection ?
 		                  "Find string must not be empty for 'Replace in Selection' command." :
 		                  "Find string must not be empty for 'Replace All' command.");
-		FindMessageBox(msg);
 	} else if (replacements == -2) {
-		SString msg = LocaliseMessage(
+		FindMessageBox(
 		                  "Selection must not be empty for 'Replace in Selection' command.");
-		FindMessageBox(msg);
 	} else if (replacements == 0) {
-		SString msg = LocaliseMessage(
-		                  "No replacements because string '^0' was not present.", findWhat.c_str());
-		FindMessageBox(msg);
+		FindMessageBox(
+		                  "No replacements because string '^0' was not present.", &findWhat);
 	}
 	return replacements;
 }
@@ -1686,9 +1669,8 @@ int SciTEBase::ReplaceInBuffers() {
 		SetDocumentAt(i);
 		replacements += DoReplaceAll(false);
 		if (i == 0 && replacements < 0) {
-			SString msg = LocaliseMessage(
-			                  "Find string must not be empty for 'Replace in Buffers' command.");
-			FindMessageBox(msg);
+			FindMessageBox(
+			    "Find string must not be empty for 'Replace in Buffers' command.");
 			break;
 		}
 	}
@@ -1696,9 +1678,8 @@ int SciTEBase::ReplaceInBuffers() {
 	props.SetInteger("Replacements", replacements);
 	UpdateStatusBar(false);
 	if (replacements == 0) {
-		SString msg = LocaliseMessage(
-		                  "No replacements because string '^0' was not present.", findWhat.c_str());
-		FindMessageBox(msg);
+		FindMessageBox(
+		    "No replacements because string '^0' was not present.", &findWhat);
 	}
 	return replacements;
 }

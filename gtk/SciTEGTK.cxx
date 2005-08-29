@@ -329,6 +329,7 @@ protected:
 	virtual SString GetRangeInUIEncoding(Window &wCurrent, int selStart, int selEnd);
 
 	virtual int WindowMessageBox(Window &w, const SString &msg, int style);
+	virtual void FindMessageBox(const SStirng &msg, const SString *findItem=0);
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
@@ -2145,6 +2146,16 @@ int SciTEGTK::WindowMessageBox(Window &w, const SString &msg, int style) {
 		dialogsOnScreen--;
 	}
 	return messageBoxResult;
+}
+
+void SciTEGTK::FindMessageBox(const SString &msg, const SString *findItem) {
+	if (findItem == 0) {
+		SString msgBuf = LocaliseMessage(msg.c_str());
+		WindowMessageBox(wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
+	} else {
+		SString msgBuf = LocaliseMessage(msg.c_str(), findItem->c_str());
+		WindowMessageBox(wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
+	}
 }
 
 void SciTEGTK::AboutDialog() {

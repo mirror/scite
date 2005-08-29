@@ -850,6 +850,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		LocaliseDialog(hDlg);
 		dlg.FillComboFromMemory(IDFINDWHAT, memFinds);
 		dlg.SetItemTextU(IDFINDWHAT, findWhat.c_str());
+		::SendDlgItemMessage(hDlg, IDFINDWHAT, CB_LIMITTEXT, CTL_TEXT_BUF - 1, 0);
 		dlg.SetCheck(IDWHOLEWORD, wholeWord);
 		dlg.SetCheck(IDMATCHCASE, matchCase);
 		dlg.SetCheck(IDREGEXP, regExp);
@@ -967,8 +968,10 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		LocaliseDialog(hDlg);
 		dlg.FillComboFromMemory(IDFINDWHAT, memFinds);
 		dlg.SetItemTextU(IDFINDWHAT, findWhat.c_str());
+		::SendDlgItemMessage(hDlg, IDFINDWHAT, CB_LIMITTEXT, CTL_TEXT_BUF - 1, 0);
 		dlg.FillComboFromMemory(IDREPLACEWITH, memReplaces);
 		dlg.SetItemTextU(IDREPLACEWITH, replaceWhat.c_str());
+		::SendDlgItemMessage(hDlg, IDREPLACEWITH, CB_LIMITTEXT, CTL_TEXT_BUF - 1, 0);
 		dlg.SetCheck(IDWHOLEWORD, wholeWord);
 		dlg.SetCheck(IDMATCHCASE, matchCase);
 		dlg.SetCheck(IDREGEXP, regExp);
@@ -1660,6 +1663,45 @@ int SciTEWin::WindowMessageBox(Window &w, const SString &msg, int style) {
 	int ret = ::MessageBox(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
 	dialogsOnScreen--;
 	return ret;
+}
+
+void SciTEWin::FindMessageBox(const SString &msg, const SString *findItem) {
+
+	if (findItem == 0) {
+		SString msgBuf = LocaliseMessage(msg.c_str());
+		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
+	} else {
+		if (IsWindowsNT()) {
+
+			SString sFormat = LocaliseString(msg.c_str());
+			SString sPart1 = sFormat.substr(0, sFormat.search("^0", 0));
+			SString sPart2 = sFormat.substr(sFormat.search("^0", 0));
+			sPart2 = sPart2.substr(2); // skip initial ^0
+
+			WCHAR wszPart1[256];
+			::MultiByteToWideChar(CP_ACP, 0, sPart1.c_str(), -1, wszPart1, 256);
+
+			WCHAR wszPart2[256];
+			::MultiByteToWideChar(CP_ACP, 0, sPart2.c_str(), -1, wszPart2, 256);
+
+			WCHAR wszFindItem[CTL_TEXT_BUF];
+			::MultiByteToWideChar(CP_UTF8, 0, findItem->c_str(), -1, wszFindItem, CTL_TEXT_BUF);
+
+			WCHAR wszAppName[64];
+			::MultiByteToWideChar(CP_ACP, 0, appName, -1, wszAppName, 64);
+
+			WCHAR wszOutput[1024];
+			::lstrcpyW(wszOutput, wszPart1);
+			::lstrcatW(wszOutput, wszFindItem);
+			::lstrcatW(wszOutput, wszPart2);
+			::MessageBoxW(
+			    wFindReplace.Created() ? (HWND)wFindReplace.GetID() : (HWND)wSciTE.GetID(),
+			    wszOutput, wszAppName, MB_OK | MB_ICONWARNING);
+		} else {
+			SString msgBuf = LocaliseMessage(msg.c_str(), findItem->c_str());
+			WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
+		}
+	}
 }
 
 BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {

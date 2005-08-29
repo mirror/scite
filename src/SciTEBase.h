@@ -691,7 +691,7 @@ protected:
 	virtual SString EncodeString(const SString &s);
 	virtual void Find() = 0;
 	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
-	void FindMessageBox(const SString &msg);
+	virtual void FindMessageBox(const SString &msg, const SString *findItem=0)=0;
 	int FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition);
 	int FindNext(bool reverseDirection, bool showWarnings = true);
 	virtual void FindIncrement() = 0;

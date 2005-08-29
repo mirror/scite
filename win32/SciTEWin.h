@@ -146,6 +146,7 @@ protected:
 	BOOL HandleReplaceCommand(int cmd);
 
 	virtual int WindowMessageBox(Window &w, const SString &msg, int style);
+	virtual void FindMessageBox(const SString &msg, const SString *findItem=0);
 	virtual void AboutDialog();
 	void DropFiles(HDROP hdrop);
 	void MinimizeToTray();
