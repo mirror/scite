@@ -657,13 +657,7 @@ void SciTEBase::ReadProperties() {
 
 	lexLanguage = SendEditor(SCI_GETLEXER);
 
-	if ((lexLanguage == SCLEX_HTML) || (lexLanguage == SCLEX_XML) ||
-	        (lexLanguage == SCLEX_ASP) || (lexLanguage == SCLEX_PHP))
-		SendEditor(SCI_SETSTYLEBITS, 7);
-	else if (lexLanguage == SCLEX_RUBY)
-		SendEditor(SCI_SETSTYLEBITS, 6);
-	else
-		SendEditor(SCI_SETSTYLEBITS, 5);
+	SendEditor(SCI_SETSTYLEBITS, SendEditor(SCI_GETSTYLEBITSNEEDED));
 
 	SendOutput(SCI_SETLEXER, SCLEX_ERRORLIST);
 
