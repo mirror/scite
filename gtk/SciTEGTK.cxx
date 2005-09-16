@@ -329,7 +329,7 @@ protected:
 	virtual SString GetRangeInUIEncoding(Window &wCurrent, int selStart, int selEnd);
 
 	virtual int WindowMessageBox(Window &w, const SString &msg, int style);
-	virtual void FindMessageBox(const SStirng &msg, const SString *findItem=0);
+	virtual void FindMessageBox(const SString &msg, const SString *findItem=0);
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
