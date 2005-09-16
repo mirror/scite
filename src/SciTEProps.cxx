@@ -304,7 +304,7 @@ static long ColourFromString(const SString &s) {
 }
 
 long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault) {
-	SString colour = props.Get(key);
+	SString colour = props.GetExpanded(key);
 	if (colour.length()) {
 		return ColourFromString(colour);
 	}
