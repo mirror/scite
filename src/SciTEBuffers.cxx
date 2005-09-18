@@ -529,7 +529,8 @@ void SciTEBase::New() {
 	sptr_t doc = GetDocumentAt(buffers.Current());
 	SendEditor(SCI_SETDOCPOINTER, 0, doc);
 
-	filePath.Set("");
+	FilePath curDirectory(filePath.Directory());
+	filePath.Set(curDirectory, "");
 	SetFileName(filePath);
 	isDirty = false;
 	isBuilding = false;

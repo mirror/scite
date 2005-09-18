@@ -257,7 +257,9 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const c
 	if (0 == dialogsOnScreen) {
 		char saveName[MAX_PATH] = "";
 		FilePath savePath = SaveName(ext);
-		strcpy(saveName, savePath.AsFileSystem());
+		if (!savePath.IsUntitled()) {
+			strcpy(saveName, savePath.AsFileSystem());
+		}
 		OPENFILENAME ofn = {
 		                       sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		                   };
