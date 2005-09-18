@@ -1373,10 +1373,11 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			char *line = strstr(cdoc, idLine);
 			char *file = strstr(cdoc, idFile);
 			if (line && file) {
-				char *quote = strstr(file, "'");
-				size_t length = quote - (file + lenFile + 1);
+				char *fileStart = file + lenFile + 1;
+				char *quote = strstr(fileStart, "'");
+				size_t length = quote - fileStart;
 				if (quote && length > 0) {
-					strncpy(sourcePath, file + lenFile + 1, length);
+					strncpy(sourcePath, fileStart, length);
 					sourcePath[length] = '\0';
 				}
 				line += lenLine;
