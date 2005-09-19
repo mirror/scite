@@ -402,6 +402,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 
 	//Platform::DebugPrintf("Opening %s\n", file);
 	SetFileName(absPath);
+	useMonoFont = false;
 	overrideExtension = "";
 	ReadProperties();
 	SetIndentSettings();
