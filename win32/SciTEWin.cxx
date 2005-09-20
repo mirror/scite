@@ -1003,6 +1003,7 @@ void SciTEWin::QuitProgram() {
 }
 
 void SciTEWin::CreateUI() {
+	CreateBuffers();
 	int left = props.GetInt("position.left", CW_USEDEFAULT);
 	int top = props.GetInt("position.top", CW_USEDEFAULT);
 	int width = props.GetInt("position.width", CW_USEDEFAULT);

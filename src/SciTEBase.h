@@ -240,7 +240,7 @@ public:
 	bool useMonoFont;
 	UniMode unicodeMode;
 	time_t fileModTime;
-	SString overrideExtension;
+	SString overrideExtension;	///< User has chosen to use a particular language
 	FoldState foldState;
 	Buffer() :
 		RecentFile(), doc(0), isDirty(false), useMonoFont(false),
@@ -265,6 +265,7 @@ public:
 	Buffer *buffers;
 	int size;
 	int length;
+	bool initialised;
 	BufferList();
 	~BufferList();
 	void Allocate(int maxSize);
@@ -272,6 +273,7 @@ public:
 	int GetDocumentByName(FilePath filename);
 	void RemoveCurrent();
 	int Current();
+	Buffer *CurrentBuffer();
 	void SetCurrent(int index);
 };
 
@@ -380,8 +382,6 @@ protected:
 	FilePath filePath;
 	FilePath dirNameAtExecute;
 	FilePath dirNameForExecute;
-	bool useMonoFont;
-	time_t fileModTime;
 	time_t fileModLastAsk;
 
 	enum { fileStackMax = 10 };
@@ -425,10 +425,8 @@ protected:
 
 	int codePage;
 	int characterSet;
-	UniMode unicodeMode;
 	SString language;
 	int lexLanguage;
-	SString overrideExtension;	///< User has chosen to use a particular language
 	WordList apis;
 	SString apisFileNames;
 	SString functionDefinition;
@@ -540,7 +538,6 @@ protected:
 	bool usePalette;
 	bool clearBeforeExecute;
 	bool allowMenuActions;
-	bool isDirty;
 	bool isBuilding;
 	bool isBuilt;
 	bool executing;
@@ -579,6 +576,9 @@ protected:
 	bool IsBufferAvailable();
 	bool CanMakeRoom(bool maySaveIfDirty=true);
 	void SetDocumentAt(int index);
+	Buffer *CurrentBuffer() {
+		return buffers.CurrentBuffer();
+	}
 	void BuffersMenu();
 	void Next();
 	void Prev();
@@ -612,6 +612,7 @@ protected:
 	void SetWindowName();
 	void SetFileName(FilePath openName, bool fixCase = true);
 	void ClearDocument();
+	void CreateBuffers();
 	void InitialiseBuffers();
 	void LoadRecentMenu();
 	void SaveRecentStack();

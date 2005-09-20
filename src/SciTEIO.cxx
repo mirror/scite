@@ -289,8 +289,8 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 
 	FILE *fp = filePath.Open(fileRead);
 	if (fp) {
-		fileModTime = filePath.ModifiedTime();
-		fileModLastAsk = fileModTime;
+		CurrentBuffer()->fileModTime = filePath.ModifiedTime();
+		fileModLastAsk = CurrentBuffer()->fileModTime;
 		SendEditor(SCI_BEGINUNDOACTION);	// Group together clear and insert
 		SendEditor(SCI_CLEARALL);
 		char data[blockSize];
@@ -304,13 +304,13 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 		}
 		fclose(fp);
 		SendEditor(SCI_ENDUNDOACTION);
-		unicodeMode = static_cast<UniMode>(
+		CurrentBuffer()->unicodeMode = static_cast<UniMode>(
 			static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies
-		if (unicodeMode == uni8Bit) {
-			unicodeMode = codingCookie;
+		if (CurrentBuffer()->unicodeMode == uni8Bit) {
+			CurrentBuffer()->unicodeMode = codingCookie;
 		}
-		if (unicodeMode != uni8Bit) {
+		if (CurrentBuffer()->unicodeMode != uni8Bit) {
 			// Override the code page if Unicode
 			codePage = SC_CP_UTF8;
 		} else {
@@ -402,8 +402,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 
 	//Platform::DebugPrintf("Opening %s\n", file);
 	SetFileName(absPath);
-	useMonoFont = false;
-	overrideExtension = "";
+	CurrentBuffer()->overrideExtension = "";
 	ReadProperties();
 	SetIndentSettings();
 	UpdateBuffersCurrent();
@@ -565,14 +564,14 @@ void SciTEBase::CheckReload() {
 	if (props.GetInt("load.on.activate")) {
 		// Make a copy of fullPath as otherwise it gets aliased in Open
 		time_t newModTime = filePath.ModifiedTime();
-		//Platform::DebugPrintf("Times are %d %d\n", fileModTime, newModTime);
-		if (newModTime > fileModTime) {
+		//Platform::DebugPrintf("Times are %d %d\n", CurrentBuffer()->fileModTime, newModTime);
+		if (newModTime > CurrentBuffer()->fileModTime) {
 			RecentFile rf = GetFilePosition();
 			OpenFlags of = props.GetInt("reload.preserves.undo") ? ofPreserveUndo : ofNone;
-			if (isDirty || props.GetInt("are.you.sure.on.reload") != 0) {
+			if (CurrentBuffer()->isDirty || props.GetInt("are.you.sure.on.reload") != 0) {
 				if ((0 == dialogsOnScreen) && (newModTime != fileModLastAsk)) {
 					SString msg;
-					if (isDirty) {
+					if (CurrentBuffer()->isDirty) {
 						msg = LocaliseMessage(
 							  "The file '^0' has been modified. Should it be reloaded?",
 							  filePath.AsFileSystem());
@@ -628,7 +627,7 @@ FilePath SciTEBase::SaveName(const char *ext) {
 }
 
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
-	if ((isDirty) && (LengthDocument() || !filePath.IsUntitled() || forceQuestion)) {
+	if ((CurrentBuffer()->isDirty) && (LengthDocument() || !filePath.IsUntitled() || forceQuestion)) {
 		if (props.GetInt("are.you.sure", 1) ||
 		        filePath.IsUntitled() ||
 		        forceQuestion) {
@@ -682,7 +681,7 @@ int SciTEBase::SaveIfUnsureForBuilt() {
 	if (props.GetInt("save.all.for.build")) {
 		return SaveAllBuffers(false, !props.GetInt("are.you.sure.for.build"));
 	}
-	if (isDirty) {
+	if (CurrentBuffer()->isDirty) {
 		if (props.GetInt("are.you.sure.for.build"))
 			return SaveIfUnsure(true);
 
@@ -751,9 +750,9 @@ bool SciTEBase::SaveBuffer(FilePath saveName) {
 	SendEditor(SCI_ENDUNDOACTION);
 
 	Utf8_16_Write convert;
-	if (unicodeMode != uniCookie) {	// Save file with cookie without BOM.
+	if (CurrentBuffer()->unicodeMode != uniCookie) {	// Save file with cookie without BOM.
 		convert.setEncoding(static_cast<Utf8_16::encodingType>(
-			static_cast<int>(unicodeMode)));
+			static_cast<int>(CurrentBuffer()->unicodeMode)));
 	}
 
 	FILE *fp = saveName.Open(fileWrite);
@@ -802,7 +801,7 @@ bool SciTEBase::Save() {
 		}
 
 		if (SaveBuffer(filePath)) {
-			fileModTime = filePath.ModifiedTime();
+			CurrentBuffer()->fileModTime = filePath.ModifiedTime();
 			SendEditor(SCI_SETSAVEPOINT);
 			if (IsPropertiesFile(filePath)) {
 				ReloadProperties();
@@ -873,13 +872,13 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 	} else {
 		SendEditor(SCI_ENDUNDOACTION);
 	}
-	unicodeMode = static_cast<UniMode>(
+	CurrentBuffer()->unicodeMode = static_cast<UniMode>(
 		static_cast<int>(convert.getEncoding()));
 	// Check the first two lines for coding cookies
-	if (unicodeMode == uni8Bit) {
-		unicodeMode = codingCookie;
+	if (CurrentBuffer()->unicodeMode == uni8Bit) {
+		CurrentBuffer()->unicodeMode = codingCookie;
 	}
-	if (unicodeMode != uni8Bit) {
+	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override the code page if Unicode
 		codePage = SC_CP_UTF8;
 	} else {
@@ -893,7 +892,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		// Zero all the style bytes
 		SendEditor(SCI_CLEARDOCUMENTSTYLE);
 
-		overrideExtension = "x.txt";
+		CurrentBuffer()->overrideExtension = "x.txt";
 		ReadProperties();
 		SetIndentSettings();
 		SendEditor(SCI_COLOURISE, 0, -1);

@@ -278,7 +278,6 @@ static void HackColour(int &n) {
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) {
 	codePage = 0;
 	characterSet = 0;
-	unicodeMode = uni8Bit; // Set to 'unknown'
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	functionDefinition = 0;
@@ -313,7 +312,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	previousHeightOutput = 0;
 
 	allowMenuActions = true;
-	isDirty = false;
 	isBuilding = false;
 	isBuilt = false;
 	executing = false;
@@ -374,8 +372,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	shortCutItemList = 0;
 	shortCutItems = 0;
 
-	useMonoFont = false;
-	fileModTime = 0;
 	fileModLastAsk = 0;
 
 	macrosEnabled = false;
@@ -634,8 +630,8 @@ void SciTEBase::SetOverrideLanguage(int cmdID) {
 	// Zero all the style bytes
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
 
-	overrideExtension = "x.";
-	overrideExtension += languageMenu[cmdID].extension;
+	CurrentBuffer()->overrideExtension = "x.";
+	CurrentBuffer()->overrideExtension += languageMenu[cmdID].extension;
 	ReadProperties();
 	SetIndentSettings();
 	SendEditor(SCI_COLOURISE, 0, -1);
@@ -982,7 +978,7 @@ void SciTEBase::SetWindowName() {
 	} else {
 		windowName = filePath.Name().AsInternal();
 	}
-	if (isDirty)
+	if (CurrentBuffer()->isDirty)
 		windowName += " * ";
 	else
 		windowName += " - ";
@@ -3364,8 +3360,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_ENCODING_UCS2LE:
 	case IDM_ENCODING_UTF8:
 	case IDM_ENCODING_UCOOKIE:
-		unicodeMode = static_cast<UniMode>(cmdID - IDM_ENCODING_DEFAULT);
-		if (unicodeMode != uni8Bit) {
+		CurrentBuffer()->unicodeMode = static_cast<UniMode>(cmdID - IDM_ENCODING_DEFAULT);
+		if (CurrentBuffer()->unicodeMode != uni8Bit) {
 			// Override the code page if Unicode
 			codePage = SC_CP_UTF8;
 		} else {
@@ -3819,7 +3815,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_MONOFONT:
-		useMonoFont = !useMonoFont;
+		CurrentBuffer()->useMonoFont = !CurrentBuffer()->useMonoFont;
 		ReadFontProperties();
 		Redraw();
 		break;
@@ -4112,7 +4108,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			if (extender)
 				handled = extender->OnSavePointReached();
 			if (!handled) {
-				isDirty = false;
+				CurrentBuffer()->isDirty = false;
 			}
 		}
 		CheckMenus();
@@ -4125,7 +4121,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			if (extender)
 				handled = extender->OnSavePointLeft();
 			if (!handled) {
-				isDirty = true;
+				CurrentBuffer()->isDirty = true;
 				isBuilt = false;
 			}
 		}
@@ -4254,7 +4250,7 @@ void SciTEBase::CheckMenusClipboard() {
 
 void SciTEBase::CheckMenus() {
 	CheckMenusClipboard();
-	EnableAMenuItem(IDM_SAVE, isDirty);
+	EnableAMenuItem(IDM_SAVE, CurrentBuffer()->isDirty);
 	EnableAMenuItem(IDM_UNDO, SendFocused(SCI_CANUNDO));
 	EnableAMenuItem(IDM_REDO, SendFocused(SCI_CANREDO));
 	EnableAMenuItem(IDM_FINDINFILES, !executing);
@@ -4278,7 +4274,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
 	CheckAMenuItem(IDM_TOGGLEPARAMETERS, wParameters.Created());
-	CheckAMenuItem(IDM_MONOFONT, useMonoFont);
+	CheckAMenuItem(IDM_MONOFONT, CurrentBuffer()->useMonoFont);
 	EnableAMenuItem(IDM_COMPILE, !executing &&
 	                props.GetWild("command.compile.", filePath.AsInternal()).size() != 0);
 	EnableAMenuItem(IDM_BUILD, !executing &&

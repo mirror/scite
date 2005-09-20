@@ -73,7 +73,7 @@ void Job::Clear() {
 	flags = 0;
 }
 
-BufferList::BufferList() : current(0), buffers(0), size(0), length(0) {}
+BufferList::BufferList() : current(0), buffers(0), size(0), length(0), initialised(false) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
@@ -134,6 +134,10 @@ int BufferList::Current() {
 	return current;
 }
 
+Buffer *BufferList::CurrentBuffer() {
+	return &buffers[Current()];
+}
+
 void BufferList::SetCurrent(int index) {
 	current = index;
 }
@@ -172,16 +176,11 @@ void SciTEBase::SetDocumentAt(int index) {
 	}
 
 	Buffer bufferNext = buffers.buffers[buffers.Current()];
-	isDirty = bufferNext.isDirty;
-	useMonoFont = bufferNext.useMonoFont;
-	unicodeMode = bufferNext.unicodeMode;
-	fileModTime = bufferNext.fileModTime;
-	overrideExtension = bufferNext.overrideExtension;
 	SetFileName(bufferNext);
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 	SetWindowName();
 	ReadProperties();
-	if (unicodeMode != uni8Bit) {
+	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override the code page if Unicode
 		codePage = SC_CP_UTF8;
 		SendEditor(SCI_SETCODEPAGE, codePage);
@@ -235,11 +234,6 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[currentbuf].Set(filePath);
 		buffers.buffers[currentbuf].selection = GetSelection();
 		buffers.buffers[currentbuf].scrollPosition = GetCurrentScrollPosition();
-		buffers.buffers[currentbuf].isDirty = isDirty;
-		buffers.buffers[currentbuf].useMonoFont = useMonoFont;
-		buffers.buffers[currentbuf].fileModTime = fileModTime;
-		buffers.buffers[currentbuf].overrideExtension = overrideExtension;
-		buffers.buffers[currentbuf].unicodeMode = unicodeMode;
 
 		// retrieve fold state and store in buffer state info
 		int maxLine = SendEditor(SCI_GETLINECOUNT);
@@ -298,21 +292,25 @@ void SciTEBase::ClearDocument() {
 	SendEditor(SCI_SETSAVEPOINT);
 }
 
+void SciTEBase::CreateBuffers() {
+	int buffersWanted = props.GetInt("buffers");
+	if (buffersWanted > bufferMax) {
+		buffersWanted = bufferMax;
+	}
+	if (buffersWanted < 1) {
+		buffersWanted = 1;
+	}
+	buffers.Allocate(buffersWanted);
+}
+
 void SciTEBase::InitialiseBuffers() {
-	if (buffers.size == 0) {
-		int buffersWanted = props.GetInt("buffers");
-		if (buffersWanted > bufferMax) {
-			buffersWanted = bufferMax;
-		}
-		if (buffersWanted < 1) {
-			buffersWanted = 1;
-		}
-		buffers.Allocate(buffersWanted);
+	if (!buffers.initialised) {
+		buffers.initialised = true;
 		// First document is the default from creation of control
 		buffers.buffers[0].doc = SendEditor(SCI_GETDOCPOINTER, 0, 0);
 		SendEditor(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
-		if (buffersWanted == 1) {
-			// No buffers, delete the Buffers main menu entry
+		if (buffers.size == 1) {
+			// Single buffer mode, delete the Buffers main menu entry
 			DestroyMenuItem(menuBuffers, 0);
 #if PLAT_WIN
 			// Make previous change visible.
@@ -532,7 +530,7 @@ void SciTEBase::New() {
 	FilePath curDirectory(filePath.Directory());
 	filePath.Set(curDirectory, "");
 	SetFileName(filePath);
-	isDirty = false;
+	CurrentBuffer()->isDirty = false;
 	isBuilding = false;
 	isBuilt = false;
 	isReadOnly = false;	// No sense to create an empty, read-only buffer...
@@ -551,7 +549,6 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		// With no buffer list, Close means close from MRU
 		closingLast = !(recentFileStack[0].IsSet());
 		buffers.buffers[0].Init();
-		buffers.buffers[0].useMonoFont = useMonoFont;
 		filePath.Set("");
 		ClearDocument(); //avoid double are-you-sure
 		if (!makingRoomForNew)
@@ -565,7 +562,6 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		closingLast = (buffers.length == 1);
 		if (closingLast) {
 			buffers.buffers[0].Init();
-			buffers.buffers[0].useMonoFont = useMonoFont;
 			if (extender)
 				extender->InitBuffer(0);
 		} else {
@@ -575,11 +571,6 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 				extender->ActivateBuffer(buffers.Current());
 		}
 		Buffer bufferNext = buffers.buffers[buffers.Current()];
-		isDirty = bufferNext.isDirty;
-		useMonoFont = bufferNext.useMonoFont;
-		unicodeMode = bufferNext.unicodeMode;
-		fileModTime = bufferNext.fileModTime;
-		overrideExtension = bufferNext.overrideExtension;
 
 		if (updateUI)
 			SetFileName(bufferNext);
@@ -590,7 +581,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		if (updateUI) {
 			SetWindowName();
 			ReadProperties();
-			if (unicodeMode != uni8Bit) {
+			if (CurrentBuffer()->unicodeMode != uni8Bit) {
 				// Override the code page if Unicode
 				codePage = SC_CP_UTF8;
 				SendEditor(SCI_SETCODEPAGE, codePage);
@@ -656,7 +647,7 @@ void SciTEBase::CloseAllBuffers(bool loadingSession) {
 
 int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
 	int choice = IDYES;
-	UpdateBuffersCurrent();	// Ensure isDirty copied
+	UpdateBuffersCurrent();
 	int currentBuffer = buffers.Current();
 	for (int i = 0; (i < buffers.length) && (choice != IDCANCEL); i++) {
 		if (buffers.buffers[i].isDirty) {
@@ -675,7 +666,7 @@ int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
 }
 
 void SciTEBase::SaveTitledBuffers() {
-	UpdateBuffersCurrent(); // Ensure isDirty copied
+	UpdateBuffersCurrent();
 	int currentBuffer = buffers.Current();
 	for (int i = 0; i < buffers.length; i++) {
 		if (buffers.buffers[i].isDirty && !buffers.buffers[i].IsUntitled()) {
@@ -989,7 +980,7 @@ void SciTEBase::StackMenu(int pos) {
 			} else if (recentFileStack[pos].IsSet()) {
 				RecentFile rf = recentFileStack[pos];
 				//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
-				overrideExtension = "";
+				CurrentBuffer()->overrideExtension = "";
 				// Already asked user so don't allow Open to ask again.
 				Open(rf, ofNoSaveIfDirty);
 				DisplayAround(rf);
@@ -1199,7 +1190,7 @@ void SciTEBase::ToolsMenu(int item) {
 			if (props.GetWild(propName.c_str(), filePath.AsInternal()).length())
 				filter = (props.GetNewExpand(propName.c_str(), filePath.AsInternal())[0]=='1');
 			if (filter)
-				fileModTime -= 1;
+				CurrentBuffer()->fileModTime -= 1;
 
 			propName = "command.subsystem.";
 			propName += itemSuffix;

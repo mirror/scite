@@ -948,11 +948,11 @@ void SciTEGTK::CheckMenus() {
 	CheckAMenuItem(IDM_EOL_CR, SendEditor(SCI_GETEOLMODE) == SC_EOL_CR);
 	CheckAMenuItem(IDM_EOL_LF, SendEditor(SCI_GETEOLMODE) == SC_EOL_LF);
 
-	CheckAMenuItem(IDM_ENCODING_DEFAULT, unicodeMode == uni8Bit);
-	CheckAMenuItem(IDM_ENCODING_UCS2BE, unicodeMode == uni16BE);
-	CheckAMenuItem(IDM_ENCODING_UCS2LE, unicodeMode == uni16LE);
-	CheckAMenuItem(IDM_ENCODING_UTF8, unicodeMode == uniUTF8);
-	CheckAMenuItem(IDM_ENCODING_UCOOKIE, unicodeMode == uniCookie);
+	CheckAMenuItem(IDM_ENCODING_DEFAULT, CurrentBuffer()->unicodeMode == uni8Bit);
+	CheckAMenuItem(IDM_ENCODING_UCS2BE, CurrentBuffer()->unicodeMode == uni16BE);
+	CheckAMenuItem(IDM_ENCODING_UCS2LE, CurrentBuffer()->unicodeMode == uni16LE);
+	CheckAMenuItem(IDM_ENCODING_UTF8, CurrentBuffer()->unicodeMode == uniUTF8);
+	CheckAMenuItem(IDM_ENCODING_UCOOKIE, CurrentBuffer()->unicodeMode == uniCookie);
 
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
@@ -3002,6 +3002,7 @@ void SciTEGTK::CreateMenu() {
 }
 
 void SciTEGTK::CreateUI() {
+	CreateBuffers();
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	//GTK_WIDGET_UNSET_FLAGS(PWidget(wSciTE), GTK_CAN_FOCUS);
 	gtk_window_set_policy(GTK_WINDOW(PWidget(wSciTE)), TRUE, TRUE, FALSE);

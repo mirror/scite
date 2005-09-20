@@ -510,9 +510,9 @@ void LowerCaseString(char *s) {
 }
 
 SString SciTEBase::ExtensionFileName() {
-	if (overrideExtension.length())
-		return overrideExtension;
-	else {
+	if (CurrentBuffer()->overrideExtension.length()) {
+		return CurrentBuffer()->overrideExtension;
+	} else {
 		FilePath name = filePath.Name();
 		if (name.IsSet()) {
 			// Force extension to lower case
@@ -692,7 +692,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	codePage = props.GetInt("code.page");
-	if (unicodeMode != uni8Bit) {
+	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override properties file to ensure Unicode displayed.
 		codePage = SC_CP_UTF8;
 	}
@@ -1139,7 +1139,7 @@ void SciTEBase::ReadFontProperties() {
 	SetStyleFor(wOutput, "*");
 	SetStyleFor(wOutput, "errorlist");
 
-	if (useMonoFont) {
+	if (CurrentBuffer()->useMonoFont) {
 		sval = props.GetExpanded("font.monospace");
 		StyleDefinition sd(sval.c_str());
 		for (int style = 0; style <= STYLE_MAX; style++) {
@@ -1262,8 +1262,6 @@ void SciTEBase::ReadPropertiesInitial() {
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));
 	SendEditor(SCI_SETWRAPMODE, wrap ? wrapStyle : SC_WRAP_NONE);
 	SendOutput(SCI_SETWRAPMODE, wrapOutput ? wrapStyle : SC_WRAP_NONE);
-
-	useMonoFont = false;
 
 	SString menuLanguageProp = props.GetNewExpand("menu.language");
 	languageItems = 0;
