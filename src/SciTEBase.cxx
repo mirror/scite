@@ -4824,7 +4824,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 	if (phase == 1) {
 		// If we have finished with all args and no buffer is open
 		// try to load session.
-		if (buffers.size == 0) {
+		if (!buffers.initialised) {
 			LoadMRUAndSession(true);
 		}
 		// No open file after session load so create empty document.
