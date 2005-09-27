@@ -1011,13 +1011,13 @@ void SciTEBase::SetToolsMenu() {
 		SString prefix = "command.name.";
 		prefix += SString(item);
 		prefix += ".";
-		SString commandName = props.GetNewExpand(prefix.c_str(), filePath.AsInternal());
+		SString commandName = props.GetNewExpand(prefix.c_str(), FileNameExt().AsInternal());
 		if (commandName.length()) {
 			SString sMenuItem = commandName;
 			prefix = "command.shortcut.";
 			prefix += SString(item);
 			prefix += ".";
-			SString sMnemonic = props.GetNewExpand(prefix.c_str(), filePath.AsInternal());
+			SString sMnemonic = props.GetNewExpand(prefix.c_str(), FileNameExt().AsInternal());
 			if (item < 10 && sMnemonic.length() == 0) {
 				sMnemonic += "Ctrl+";
 				sMnemonic += SString(item);
@@ -1066,7 +1066,7 @@ JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 		subsysprefix += SString(item);
 		subsysprefix += ".";
 	}
-	SString subsystem = props.GetNewExpand(subsysprefix.c_str(), filePath.AsInternal());
+	SString subsystem = props.GetNewExpand(subsysprefix.c_str(), FileNameExt().AsInternal());
 	return SubsystemType(subsystem[0]);
 }
 
@@ -1079,7 +1079,7 @@ void SciTEBase::ToolsMenu(int item) {
 	SString propName = "command.";
 	propName += itemSuffix;
 
-	SString command = props.GetWild(propName.c_str(), filePath.AsInternal());
+	SString command = props.GetWild(propName.c_str(), FileNameExt().AsInternal());
 	if (command.length()) {
 		int saveBefore = 0;
 
@@ -1091,7 +1091,7 @@ void SciTEBase::ToolsMenu(int item) {
 
 		propName = "command.mode.";
 		propName += itemSuffix;
-		SString modeVal = props.GetNewExpand(propName.c_str(), filePath.AsInternal());
+		SString modeVal = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal());
 		modeVal.remove(" ");
 		if (modeVal.length()) {
 			char *modeTags = modeVal.detach();
@@ -1179,45 +1179,45 @@ void SciTEBase::ToolsMenu(int item) {
 
 		propName = "command.save.before.";
 		propName += itemSuffix;
-		if (props.GetWild(propName.c_str(), filePath.AsInternal()).length())
-			saveBefore = props.GetNewExpand(propName.c_str(), filePath.AsInternal()).value();
+		if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
+			saveBefore = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value();
 
 		if (saveBefore == 2 || (saveBefore == 1 && Save()) || SaveIfUnsure() != IDCANCEL) {
 			int flags = 0;
 
 			propName = "command.is.filter.";
 			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), filePath.AsInternal()).length())
-				filter = (props.GetNewExpand(propName.c_str(), filePath.AsInternal())[0]=='1');
+			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
+				filter = (props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal())[0]=='1');
 			if (filter)
 				CurrentBuffer()->fileModTime -= 1;
 
 			propName = "command.subsystem.";
 			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), filePath.AsInternal()).length()) {
-				SString subsystemVal = props.GetNewExpand(propName.c_str(), filePath.AsInternal());
+			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length()) {
+				SString subsystemVal = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal());
 				jobType = SubsystemType(subsystemVal[0]);
 			}
 
 			propName = "command.input.";
 			propName += itemSuffix;
 			SString input;
-			if (props.GetWild(propName.c_str(), filePath.AsInternal()).length()) {
-				input = props.GetNewExpand(propName.c_str(), filePath.AsInternal());
+			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length()) {
+				input = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal());
 				flags |= jobHasInput;
 			}
 
 			propName = "command.quiet.";
 			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), filePath.AsInternal()).length())
-				quiet = (props.GetNewExpand(propName.c_str(), filePath.AsInternal()).value()==1);
+			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
+				quiet = (props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value()==1);
 			if (quiet)
 				flags |= jobQuiet;
 
 			propName = "command.replace.selection.";
 			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), filePath.AsInternal()).length())
-				repSel = props.GetNewExpand(propName.c_str(), filePath.AsInternal()).value();
+			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
+				repSel = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value();
 
 			if (repSel == 1)
 				flags |= jobRepSelYes;

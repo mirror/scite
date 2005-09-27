@@ -970,13 +970,13 @@ void SciTEBase::SetWindowName() {
 		windowName.insert(0, "(");
 		windowName += ")";
 	} else if (props.GetInt("title.full.path") == 2) {
-		windowName = filePath.Name().AsInternal();
+		windowName = FileNameExt().AsInternal();
 		windowName += " in ";
 		windowName += filePath.Directory().AsInternal();
 	} else if (props.GetInt("title.full.path") == 1) {
 		windowName = filePath.AsInternal();
 	} else {
-		windowName = filePath.Name().AsInternal();
+		windowName = FileNameExt().AsInternal();
 	}
 	if (CurrentBuffer()->isDirty)
 		windowName += " * ";
@@ -3701,7 +3701,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_COMPILE: {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
-				AddCommand(props.GetWild("command.compile.", filePath.AsInternal()), "",
+				AddCommand(props.GetWild("command.compile.", FileNameExt().AsInternal()), "",
 				           SubsystemType("command.compile.subsystem."));
 				if (commandCurrent > 0)
 					Execute();
@@ -3713,8 +3713,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(
-				    props.GetWild("command.build.", filePath.AsInternal()),
-				    props.GetNewExpand("command.build.directory.", filePath.AsInternal()),
+				    props.GetWild("command.build.", FileNameExt().AsInternal()),
+				    props.GetNewExpand("command.build.directory.", FileNameExt().AsInternal()),
 				    SubsystemType("command.build.subsystem."));
 				if (commandCurrent > 0) {
 					isBuilding = true;
@@ -3730,7 +3730,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				long flags = 0;
 
 				if (!isBuilt) {
-					SString buildcmd = props.GetNewExpand("command.go.needs.", filePath.AsInternal());
+					SString buildcmd = props.GetNewExpand("command.go.needs.", FileNameExt().AsInternal());
 					AddCommand(buildcmd, "",
 					           SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
@@ -3738,7 +3738,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 						flags |= jobForceQueue;
 					}
 				}
-				AddCommand(props.GetWild("command.go.", filePath.AsInternal()), "",
+				AddCommand(props.GetWild("command.go.", FileNameExt().AsInternal()), "",
 				           SubsystemType("command.go.subsystem."), "", flags);
 				if (commandCurrent > 0)
 					Execute();
@@ -3835,7 +3835,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_HELP: {
 			SelectionIntoProperties();
-			AddCommand(props.GetWild("command.help.", filePath.AsInternal()), "",
+			AddCommand(props.GetWild("command.help.", FileNameExt().AsInternal()), "",
 			           SubsystemType("command.help.subsystem."));
 			if (commandCurrent > 0) {
 				isBuilding = true;
@@ -4276,11 +4276,11 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_TOGGLEPARAMETERS, wParameters.Created());
 	CheckAMenuItem(IDM_MONOFONT, CurrentBuffer()->useMonoFont);
 	EnableAMenuItem(IDM_COMPILE, !executing &&
-	                props.GetWild("command.compile.", filePath.AsInternal()).size() != 0);
+	                props.GetWild("command.compile.", FileNameExt().AsInternal()).size() != 0);
 	EnableAMenuItem(IDM_BUILD, !executing &&
-	                props.GetWild("command.build.", filePath.AsInternal()).size() != 0);
+	                props.GetWild("command.build.", FileNameExt().AsInternal()).size() != 0);
 	EnableAMenuItem(IDM_GO, !executing &&
-	                props.GetWild("command.go.", filePath.AsInternal()).size() != 0);
+	                props.GetWild("command.go.", FileNameExt().AsInternal()).size() != 0);
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
 		EnableAMenuItem(IDM_TOOLS + toolItem, !executing);
 	EnableAMenuItem(IDM_STOPEXECUTE, executing);

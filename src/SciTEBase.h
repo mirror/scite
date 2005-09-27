@@ -611,6 +611,9 @@ protected:
 	virtual void WarnUser(int warnID) = 0;
 	void SetWindowName();
 	void SetFileName(FilePath openName, bool fixCase = true);
+	FilePath FileNameExt() const {
+		return filePath.Name();
+	}
 	void ClearDocument();
 	void CreateBuffers();
 	void InitialiseBuffers();

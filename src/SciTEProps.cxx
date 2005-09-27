@@ -513,7 +513,7 @@ SString SciTEBase::ExtensionFileName() {
 	if (CurrentBuffer()->overrideExtension.length()) {
 		return CurrentBuffer()->overrideExtension;
 	} else {
-		FilePath name = filePath.Name();
+		FilePath name = FileNameExt();
 		if (name.IsSet()) {
 			// Force extension to lower case
 			char fileNameWithLowerCaseExtension[MAX_PATH];

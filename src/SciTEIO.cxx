@@ -103,7 +103,7 @@ void SciTEBase::SetFileName(FilePath openName, bool fixCase) {
 	props.Set("FileDir", filePath.Directory().AsFileSystem());
 	props.Set("FileName", filePath.BaseName().AsFileSystem());
 	props.Set("FileExt", filePath.Extension().AsFileSystem());
-	props.Set("FileNameExt", filePath.Name().AsFileSystem());
+	props.Set("FileNameExt", FileNameExt().AsFileSystem());
 
 	SetWindowName();
 	if (buffers.buffers)
@@ -456,7 +456,7 @@ bool SciTEBase::OpenSelected() {
 	SString openSuffix = props.GetNewExpand("open.suffix.", fileNameForExtension.c_str());
 	strcat(selectedFilename, openSuffix.c_str());
 
-	if (EqualCaseInsensitive(selectedFilename, filePath.Name().AsInternal()) || EqualCaseInsensitive(selectedFilename, filePath.AsInternal())) {
+	if (EqualCaseInsensitive(selectedFilename, FileNameExt().AsInternal()) || EqualCaseInsensitive(selectedFilename, filePath.AsInternal())) {
 		WarnUser(warnWrongFile);
 		return true;	// Do not open if it is the current file!
 	}
@@ -578,7 +578,7 @@ void SciTEBase::CheckReload() {
 					} else {
 						msg = LocaliseMessage(
 							  "The file '^0' has been modified outside SciTE. Should it be reloaded?",
-							  filePath.Name().AsFileSystem());
+							  FileNameExt().AsFileSystem());
 					}
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					if (decision == IDYES) {
