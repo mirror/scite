@@ -68,7 +68,6 @@ void UniqueInstance::ToggleOpenFilesHere() {
 	// Else, we set the option and try to set the mutex.
 	if (!AcceptToOpenFiles(!stw->openFilesHere)) {
 		// Cannot set the mutex, search the previous instance holding it
-		HWND hOtherWindow = NULL;
 		::EnumWindows(reinterpret_cast<WNDENUMPROC>(SearchOtherInstance), reinterpret_cast<LPARAM>(this));
 		if (hOtherWindow != NULL) {
 			// Found, we indicate it to yield the acceptation of files
