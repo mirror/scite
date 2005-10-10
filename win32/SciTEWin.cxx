@@ -472,12 +472,12 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			// It could also lead to other problems.
 
 			if (jobToRun.flags & jobGroupUndo)
-				SendEditor(SCI_BEGINUNDOACTION);
+				Platform::SendScintilla(wEditor.GetID(), SCI_BEGINUNDOACTION);
 
 			extender->OnExecute(jobToRun.command.c_str());
 
 			if (jobToRun.flags & jobGroupUndo)
-				SendEditor(SCI_ENDUNDOACTION);
+				Platform::SendScintilla(wEditor.GetID(), SCI_BEGINUNDOACTION);
 
 			Redraw();
 			// A Redraw "might" be needed, since Lua and Director
@@ -751,7 +751,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 				doRepSel = (0 == exitcode);
 
 			if (doRepSel) {
-				SendEditor(SCI_REPLACESEL,0,(sptr_t)(repSelBuf.c_str()));
+				Platform::SendScintilla(wEditor.GetID(),SCI_REPLACESEL,0,(sptr_t)(repSelBuf.c_str()));
 			}
 		}
 
