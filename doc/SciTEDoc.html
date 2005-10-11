@@ -1132,11 +1132,15 @@ NameError: mistake
            check.if.already.open
         </td>
         <td>
-        When this option is set and SciTE is started, it checks to see if
-        there are any other instances of SciTE open. If there is, another
-	instance is activated and this one exits.
-	An arbitrary instance is chosen and asked to open the
-        command line argument.
+	This option allows opening files in an existing instance of SciTE rather than
+	always opening a new instance.
+	When this option is set and SciTE is started, it checks to see if
+	there are any other instances of SciTE open. If there is, another
+	instance is asked to open the file and become active and the new 
+	instance exits.
+	On Windows, the instance with the Options | Open Files Here 
+	menu item checked opens the file.
+	On GTK+, an arbitrary instance opens the file.
         </td>
       </tr>
       <tr>
