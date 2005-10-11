@@ -228,6 +228,7 @@ class SciTEGTK : public SciTEBase {
 
 protected:
 
+	Window wDivider;
 	Point ptOld;
 	GdkGC *xor_gc;
 

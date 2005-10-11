@@ -289,8 +289,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 
 	FILE *fp = filePath.Open(fileRead);
 	if (fp) {
-		CurrentBuffer()->fileModTime = filePath.ModifiedTime();
-		fileModLastAsk = CurrentBuffer()->fileModTime;
+		CurrentBuffer()->SetTimeFromFile();
 		SendEditor(SCI_BEGINUNDOACTION);	// Group together clear and insert
 		SendEditor(SCI_CLEARALL);
 		char data[blockSize];
@@ -569,7 +568,7 @@ void SciTEBase::CheckReload() {
 			RecentFile rf = GetFilePosition();
 			OpenFlags of = props.GetInt("reload.preserves.undo") ? ofPreserveUndo : ofNone;
 			if (CurrentBuffer()->isDirty || props.GetInt("are.you.sure.on.reload") != 0) {
-				if ((0 == dialogsOnScreen) && (newModTime != fileModLastAsk)) {
+				if ((0 == dialogsOnScreen) && (newModTime != CurrentBuffer()->fileModLastAsk)) {
 					SString msg;
 					if (CurrentBuffer()->isDirty) {
 						msg = LocaliseMessage(
@@ -585,7 +584,7 @@ void SciTEBase::CheckReload() {
 						Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
 						DisplayAround(rf);
 					}
-					fileModLastAsk = newModTime;
+					CurrentBuffer()->fileModLastAsk = newModTime;
 				}
 			} else {
 				Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
@@ -801,7 +800,7 @@ bool SciTEBase::Save() {
 		}
 
 		if (SaveBuffer(filePath)) {
-			CurrentBuffer()->fileModTime = filePath.ModifiedTime();
+			CurrentBuffer()->SetTimeFromFile();
 			SendEditor(SCI_SETSAVEPOINT);
 			if (IsPropertiesFile(filePath)) {
 				ReloadProperties();

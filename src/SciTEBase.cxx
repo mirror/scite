@@ -372,8 +372,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	shortCutItemList = 0;
 	shortCutItems = 0;
 
-	fileModLastAsk = 0;
-
 	macrosEnabled = false;
 	recording = false;
 

@@ -240,11 +240,12 @@ public:
 	bool useMonoFont;
 	UniMode unicodeMode;
 	time_t fileModTime;
+	time_t fileModLastAsk;
 	SString overrideExtension;	///< User has chosen to use a particular language
 	FoldState foldState;
 	Buffer() :
 		RecentFile(), doc(0), isDirty(false), useMonoFont(false),
-		unicodeMode(uni8Bit), fileModTime(0), foldState() {
+		unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), foldState() {
 	}
 
 	void Init() {
@@ -253,8 +254,14 @@ public:
 		useMonoFont = false;
 		unicodeMode = uni8Bit;
 		fileModTime = 0;
+		fileModLastAsk = 0;
 		overrideExtension = "";
 		foldState.Clear();
+	}
+
+	void SetTimeFromFile() {
+		fileModTime = ModifiedTime();
+		fileModLastAsk = fileModTime;
 	}
 };
 
@@ -382,7 +389,6 @@ protected:
 	FilePath filePath;
 	FilePath dirNameAtExecute;
 	FilePath dirNameForExecute;
-	time_t fileModLastAsk;
 
 	enum { fileStackMax = 10 };
 	RecentFile recentFileStack[fileStackMax];
@@ -450,9 +456,6 @@ protected:
 	Window wEditor;
 	Window wOutput;
 	Window wIncrement;
-#if PLAT_GTK
-	Window wDivider;	// Not used on Windows
-#endif
 	Window wToolBar;
 	Window wStatusBar;
 	Window wTabBar;
