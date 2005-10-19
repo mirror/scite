@@ -565,7 +565,8 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			if (extender)
 				extender->InitBuffer(0);
 		} else {
-			extender->RemoveBuffer(buffers.Current());
+			if (extender)
+				extender->RemoveBuffer(buffers.Current());
 			buffers.RemoveCurrent();
 			if (extender && !makingRoomForNew)
 				extender->ActivateBuffer(buffers.Current());
