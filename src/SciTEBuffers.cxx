@@ -1607,22 +1607,31 @@ void SciTEBase::GoMessage(int dir) {
 				return;
 			GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
 			SString message(cdoc);
-			char sourcePath[MAX_PATH];
+			char source[MAX_PATH];
 			int column;
-			int sourceLine = DecodeMessage(cdoc, sourcePath, style, column);
-			//Platform::DebugPrintf("<%s> %d %d\n",sourcePath, sourceLine, lookLine);
+			int sourceLine = DecodeMessage(cdoc, source, style, column);
+			//Platform::DebugPrintf("<%s> %d %d\n",source, sourceLine, lookLine);
 			if (sourceLine >= 0) {
-				if (!filePath.Name().SameNameAs(FilePath(sourcePath))) {
+				FilePath sourcePath(source);
+				if (!filePath.Name().SameNameAs(sourcePath)) {
 					FilePath messagePath;
 					bool bExists = false;
-					if (Exists(dirNameAtExecute.AsInternal(), sourcePath, &messagePath)) {
+					if (Exists(dirNameAtExecute.AsInternal(), source, &messagePath)) {
 						bExists = true;
-					} else if (Exists(dirNameForExecute.AsInternal(), sourcePath, &messagePath)) {
+					} else if (Exists(dirNameForExecute.AsInternal(), source, &messagePath)) {
 						bExists = true;
-					} else if (Exists(filePath.Directory().AsInternal(), sourcePath, &messagePath)) {
+					} else if (Exists(filePath.Directory().AsInternal(), source, &messagePath)) {
 						bExists = true;
-					} else if (Exists(NULL, sourcePath, &messagePath)) {
+					} else if (Exists(NULL, source, &messagePath)) {
 						bExists = true;
+					} else {
+						// Look through buffers for name match
+						for (int i = buffers.length - 1; i >= 0; i--) {
+							if (sourcePath.Name().SameNameAs(buffers.buffers[i].Name())) {
+								messagePath = buffers.buffers[i];
+								bExists = true;
+							}
+						}
 					}
 					if (bExists) {
 						if (!Open(messagePath)) {
