@@ -77,9 +77,9 @@ static void PlayThisSound(
 
 static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
 	if (message == WM_INITDIALOG) {
-		SetWindowLong(hDlg, DWL_USER, lParam);
+		SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 	}
-	return reinterpret_cast<SciTEWin*>(GetWindowLong(hDlg, DWL_USER));
+	return reinterpret_cast<SciTEWin*>(GetWindowLongPtr(hDlg, DWLP_USER));
 }
 
 void SciTEWin::WarnUser(int warnID) {

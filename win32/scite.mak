@@ -35,7 +35,7 @@ CC=cl
 RC=rc
 LD=link
 
-CXXFLAGS=-Zi -TP -W4 -Zc:forScope -Zc:wchar_t
+CXXFLAGS=-Zi -TP -W4 -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1
 CCFLAGS=-TC -W3
 
 # For something scary:-Wp64

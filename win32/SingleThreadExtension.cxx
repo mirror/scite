@@ -34,7 +34,7 @@ LRESULT PASCAL SingleThreadExtension::WndProc(HWND hwnd, UINT uMsg, WPARAM wPara
 		return extension->OnExecute(reinterpret_cast<char *>(lParam));
 	}
 
-	WNDPROC lpPrevWndProc = reinterpret_cast<WNDPROC>(GetWindowLong(hwnd, GWL_USERDATA));
+	WNDPROC lpPrevWndProc = reinterpret_cast<WNDPROC>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	if (lpPrevWndProc)
 		return ::CallWindowProc(lpPrevWndProc, hwnd, uMsg, wParam, lParam);
 
@@ -47,8 +47,8 @@ bool SingleThreadExtension::Initialise(ExtensionAPI *host_) {
 		0, 0, 0, 0, 0, 0, 0, GetModuleHandle(NULL), 0
 	);
 
-	LONG subclassedProc = SetWindowLong(hwndDispatcher, GWL_WNDPROC, reinterpret_cast<LONG>(WndProc));
-	SetWindowLong(hwndDispatcher, GWL_USERDATA, subclassedProc);
+	LONG_PTR subclassedProc = SetWindowLongPtr(hwndDispatcher, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WndProc));
+	SetWindowLongPtr(hwndDispatcher, GWLP_USERDATA, subclassedProc);
 
 	return ext->Initialise(host_);
 }

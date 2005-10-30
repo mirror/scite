@@ -223,7 +223,7 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
  */
 BOOL CALLBACK UniqueInstance::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 	BOOL bResult = TRUE;
-	DWORD result;
+	DWORD_PTR result;
 
 	UniqueInstance *ui = reinterpret_cast<UniqueInstance *>(lParam);
 
@@ -236,7 +236,7 @@ BOOL CALLBACK UniqueInstance::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 		LRESULT found = ::SendMessageTimeout(hWnd,
 		                                     ui->identityMessage, 0, 0,
 		                                     SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
-		if (found != 0 && result == static_cast<DWORD>(ui->identityMessage)) {
+		if (found != 0 && result == static_cast<DWORD_PTR>(ui->identityMessage)) {
 			// Another Gui window found!
 			// We memorise its window handle
 			ui->hOtherWindow = hWnd;
