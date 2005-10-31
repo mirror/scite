@@ -540,10 +540,61 @@
 				RelativePath="..\..\scintilla\Include\Accessor.h">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\AutoComplete.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\CallTip.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\CellBuffer.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\ContractionState.h">
+			</File>
+			<File
+				RelativePath="..\win32\DirectorExtension.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\Document.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\DocumentAccessor.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\Editor.h">
+			</File>
+			<File
+				RelativePath="..\src\Extender.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\ExternalLexer.h">
+			</File>
+			<File
+				RelativePath="..\src\FilePath.h">
+			</File>
+			<File
+				RelativePath="..\src\IFaceTable.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\Indicator.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\KeyMap.h">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\Include\KeyWords.h">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LineMarker.h">
+			</File>
+			<File
 				RelativePath="..\src\LuaExtension.cxx">
+			</File>
+			<File
+				RelativePath="..\src\LuaExtension.h">
+			</File>
+			<File
+				RelativePath="..\src\MultiplexExtension.h">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Include\Platform.h">
@@ -555,10 +606,16 @@
 				RelativePath="..\..\scintilla\Include\PropSet.h">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\RESearch.h">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\Include\SciLexer.h">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Include\Scintilla.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\ScintillaBase.h">
 			</File>
 			<File
 				RelativePath="..\Src\SciTE.h">
@@ -567,10 +624,46 @@
 				RelativePath="..\Src\SciTEBase.h">
 			</File>
 			<File
+				RelativePath="..\src\SciTEKeys.h">
+			</File>
+			<File
+				RelativePath="..\win32\SciTEWin.h">
+			</File>
+			<File
+				RelativePath="..\win32\SingleThreadExtension.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\include\SString.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\Style.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\StyleContext.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\SVector.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\UniConversion.h">
+			</File>
+			<File
+				RelativePath="..\win32\UniqueInstance.h">
+			</File>
+			<File
+				RelativePath="..\src\Utf8_16.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\ViewStyle.h">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\Include\WinDefs.h">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Include\WindowAccessor.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\XPM.h">
 			</File>
 		</Filter>
 		<Filter
