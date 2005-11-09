@@ -61,17 +61,14 @@ for srcPath in srcPaths:
 	srcFile = open(srcPath)
 	for srcLine in srcFile.readlines():
 		srcLine = stripComment(srcLine).strip()
-		if srcLine.count("props") and srcLine.count("Get"):
-			propsPos = srcLine.find("props")
-			getPos = srcLine.find("Get")
-			if propsPos < getPos:
-				parts = srcLine[getPos:].split('\"')
-				#print parts
-				if len(parts) > 1:
-					propertyName = parts[1]
-					if propertyName:
-						propertyNames[propertyName] = 0
-						#print propertyName
+		if '"' in srcLine and "props" in srcLine and ("Get" in srcLine or "ColourOfProperty" in srcLine):
+			parts = srcLine.split('\"')
+			#print parts
+			if len(parts) > 1:
+				propertyName = parts[1]
+				if propertyName:
+					propertyNames[propertyName] = 0
+					#print propertyName
 		if '"' in srcLine and nameOKSrc(srcPath):
 			if "Atsuo" in srcLine or '{"IDM_' in srcLine or dontLook:
 				dontLook = ";" not in srcLine
