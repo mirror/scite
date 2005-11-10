@@ -261,7 +261,7 @@ CCFLAGS=$(CCFLAGS) $(INCLUDEDIRS)
 ALL: $(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 
 clean:
-	del /q $(DIR_BIN)\*.exe *.o *.obj $(DIR_BIN)\*.dll *.res *.map
+	del /q $(DIR_BIN)\*.exe *.o *.obj $(DIR_BIN)\*.dll *.res *.map $(DIR_BIN)\*.exp $(DIR_BIN)\*.lib $(DIR_BIN)\*.pdb
 
 $(DIR_BIN)\Scintilla.dll: ..\..\scintilla\bin\Scintilla.dll
 	copy ..\..\scintilla\bin\Scintilla.dll $@
