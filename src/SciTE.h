@@ -89,11 +89,13 @@
 #define IDM_INS_ABBREV		247
 #define IDM_JOIN		248
 #define IDM_SPLIT		249
+#define IDM_DUPLICATE	250
 #define IDM_INCSEARCH 		252
+#define IDM_ENTERSELECTION  256
+
 #define IDC_INCFINDTEXT     253
 #define IDC_INCFINDBTNOK	254
 #define IDD_FIND2           255
-#define IDM_ENTERSELECTION  256
 #define IDC_EDIT1           1000
 #define IDC_STATIC          -1
 

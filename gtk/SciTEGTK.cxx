@@ -2806,6 +2806,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Edit/Cu_t", "<control>X", menuSig, IDM_CUT, 0},
 	                                      {"/Edit/_Copy", "<control>C", menuSig, IDM_COPY, 0},
 	                                      {"/Edit/_Paste", "<control>V", menuSig, IDM_PASTE, 0},
+	                                      {"/Edit/Duplicat&e", "<control>D", menuSig, IDM_DUPLICATE, 0},
 	                                      {"/Edit/_Delete", "Del", menuSig, IDM_CLEAR, 0},
 	                                      {"/Edit/Select _All", "<control>A", menuSig, IDM_SELECTALL, 0},
 	                                      {"/Edit/sep2", NULL, NULL, 0, "<Separator>"},

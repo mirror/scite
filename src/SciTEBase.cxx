@@ -3413,6 +3413,9 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_PASTE:
 		SendPane(source, SCI_PASTE);
 		break;
+	case IDM_DUPLICATE:
+		SendPane(source, SCI_SELECTIONDUPLICATE);
+		break;
 	case IDM_PASTEANDDOWN: {
 			int pos = SendFocused(SCI_GETCURRENTPOS);
 			SendFocused(SCI_PASTE);
@@ -4252,6 +4255,7 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_SAVE, CurrentBuffer()->isDirty);
 	EnableAMenuItem(IDM_UNDO, SendFocused(SCI_CANUNDO));
 	EnableAMenuItem(IDM_REDO, SendFocused(SCI_CANREDO));
+	EnableAMenuItem(IDM_DUPLICATE, !isReadOnly);
 	EnableAMenuItem(IDM_FINDINFILES, !executing);
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);

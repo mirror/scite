@@ -60,6 +60,7 @@ BEGIN
 	MENUITEM "Cu&t\tCtrl+X",				IDM_CUT
 	MENUITEM "&Copy\tCtrl+C",				IDM_COPY
 	MENUITEM "&Paste\tCtrl+V",				IDM_PASTE
+	MENUITEM "Duplicat&e\tCtrl+D",				IDM_DUPLICATE
 	MENUITEM "&Delete\tDel",				IDM_CLEAR
 	MENUITEM "Select &All\tCtrl+A",			IDM_SELECTALL
 	MENUITEM "Copy as RT&F",				IDM_COPYASRTF
@@ -69,7 +70,7 @@ BEGIN
 	MENUITEM "S&how Calltip\tCtrl+Shift+Space",	IDM_SHOWCALLTIP
 	MENUITEM "Complete S&ymbol\tCtrl+I",		IDM_COMPLETE
 	MENUITEM "Complete &Word\tCtrl+Enter",		IDM_COMPLETEWORD
-	MENUITEM "&Expand Abbreviation\tCtrl+B",	IDM_ABBREV
+	MENUITEM "Expand Abbre&viation\tCtrl+B",	IDM_ABBREV
 	MENUITEM "&Insert Abbreviation\tCtrl+Shift+R",	IDM_INS_ABBREV
 	MENUITEM "Block Co&mment or Uncomment\tCtrl+Q",	IDM_BLOCK_COMMENT
 	MENUITEM "Bo&x Comment\tCtrl+Shift+B",	IDM_BOX_COMMENT
@@ -81,7 +82,7 @@ BEGIN
 		MENUITEM "&Join",						IDM_JOIN
 		MENUITEM "&Split",						IDM_SPLIT
 	END
-END // used: abcdefghlmnoprstuwxy
+END // used: abcdefghilmnoprstuvwxy
 
 POPUP "&Search"
 BEGIN
