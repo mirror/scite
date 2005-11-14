@@ -71,14 +71,14 @@ def bracesDiff(s):
 	return diff
 
 fc = FileCache()
-prev=""	# For filtering out some duplicates.
+apis = set()
 for line in fileinput.input():
 	if line[0] != '!':	# Not a comment.
 		(entityName, fileName, lineNo, tagType) = string.split(line, "\t")[:4]
 		curLineNo = string.atoi(lineNo[:-2]) - 1	# -1 because line numbers in tags file start at 1.
 		contents = fc.grabFile(fileName)
-		if not removePrivate or entityName[0] != '_':
-			if tagType[0] == "p":	# Function prototype.
+		if (not removePrivate or entityName[0] != '_') and not entityName.startswith("operator "):
+			if tagType[0] in "pf":	# Function prototype.
 				try:
 					braces = bracesDiff(contents[curLineNo])
 					curDef = contents[curLineNo]
@@ -94,27 +94,40 @@ for line in fileinput.input():
 					curDef = string.replace(string.replace(curDef, " (", '('), "( ", '(')
 					# Remove trailing semicolon.
 					curDef = string.replace(curDef, ";", '')
+					# Remove implementation if present.
+					if "{" in curDef and "}" in curDef:
+						startImpl = curDef.find("{")
+						endImpl = curDef.find("}")
+						curDef = curDef[:startImpl] + curDef[endImpl+1:]
+					else:
+						# Remove trailing brace.
+						curDef = curDef.rstrip("{")
 					# Remove return type.
 					curDef = curDef[string.find(curDef, entityName):]
+					# Remove virtual indicator.
+					if curDef.replace(" ", "").endswith(")=0"):
+						curDef = curDef.rstrip("0 ")
+						curDef = curDef.rstrip("= ")
+					# Remove trailing space.
+					curDef = curDef.rstrip()
 					if winMode:
 						if string.find(curDef, "A(") >= 0:
 							if "A" in include:
-								print string.replace(curDef, "A(", '(')
+								apis.add(string.replace(curDef, "A(", '('))
 						elif string.find(curDef, "W(") >= 0:
 							if "W" in include:
-								print string.replace(curDef, "W(", '(')
+								apis.add(string.replace(curDef, "W(", '('))
 						else:	# A character set independent function.
-							print curDef
+							apis.add(curDef)
 					else:
-						print curDef
+						apis.add(curDef)
 				except IndexError:
 					pass
 			elif tagType[0] == 'd':	# Macro definition.
 				curDef = contents[curLineNo]
 				if (not winMode) or (curDef[-1] not in "AW"):
-					if entityName <> prev:
-						print entityName
-				prev =	entityName
+					apis.add(entityName)
 			else:
-				print entityName
+				apis.add(entityName)
+print "\n".join(sorted(list(apis)))
 
