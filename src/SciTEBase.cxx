@@ -2681,10 +2681,20 @@ void SciTEBase::SetTextProperties(
 	ps.SetInteger("NbOfLines", SendEditor(SCI_GETLINECOUNT));
 
 	CharacterRange crange = GetSelection();
-	sprintf(temp, "%ld", crange.cpMax - crange.cpMin);
-	ps.Set("SelLength", temp);
 	int selFirstLine = SendEditor(SCI_LINEFROMPOSITION, crange.cpMin);
 	int selLastLine = SendEditor(SCI_LINEFROMPOSITION, crange.cpMax);
+	if (SendEditor(SCI_GETSELECTIONMODE) == SC_SEL_RECTANGLE) {
+	       long charCount = 0;
+	       for (int line = selFirstLine; line <= selLastLine; line++) {
+		       int startPos = SendEditor(SCI_GETLINESELSTARTPOSITION, line);
+		       int endPos = SendEditor(SCI_GETLINESELENDPOSITION, line);
+		       charCount += endPos - startPos;
+	       }
+	       sprintf(temp, "%ld", charCount);
+	} else {
+	       sprintf(temp, "%ld", crange.cpMax - crange.cpMin);
+	}
+	ps.Set("SelLength", temp);
 	int caretPos = SendEditor(SCI_GETCURRENTPOS);
 	int selAnchor = SendEditor(SCI_GETANCHOR);
 	if (0 == (crange.cpMax - crange.cpMin)) {
