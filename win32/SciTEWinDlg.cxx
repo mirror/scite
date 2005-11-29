@@ -46,7 +46,7 @@ static void PlayThisSound(
 	if (soundFreq == 0) {	// sound is probably a path
 		if (!hMM) {
 			// Load the DLL only if needed (may be slow on some systems)
-			hMM = ::LoadLibrary("WINMM.DLL");
+			hMM = ::LoadLibrary(TEXT("WINMM.DLL"));
 		}
 
 		if (hMM) {

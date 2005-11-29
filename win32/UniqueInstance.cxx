@@ -13,7 +13,7 @@
 
 UniqueInstance::UniqueInstance() {
 	stw = 0;
-	identityMessage = ::RegisterWindowMessage("SciTEInstanceIdentifier");
+	identityMessage = ::RegisterWindowMessage(TEXT("SciTEInstanceIdentifier"));
 	mutex = 0;
 	bAlreadyRunning = false;
 	hOtherWindow = NULL;
@@ -192,7 +192,7 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
 	// (Restoring the cwd could be done,
 	// but keeping it to the last file opened can also
 	// be useful)
-	TCHAR cwdCmd[MAX_PATH + 7]; // 7 for "-cwd:" and 2x'"'
+	char cwdCmd[MAX_PATH + 7]; // 7 for "-cwd:" and 2x'"'
 	strcpy(cwdCmd, "\"-cwd:");
 	FilePath cwd = FilePath::GetWorkingDirectory();
 	strncpy(cwdCmd + strlen(cwdCmd), cwd.AsInternal(), MAX_PATH);
