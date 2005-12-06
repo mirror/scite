@@ -402,6 +402,7 @@ protected:
 	static void FRReplaceSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FRReplaceAllSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FRReplaceInSelectionSignal(GtkWidget *w, SciTEGTK *scitew);
+	static void FRMarkAllSignal(GtkWidget *w, SciTEGTK *scitew);
 
 	virtual void ParamGrab();
 	static gint ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
@@ -1045,7 +1046,7 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dlg), TRUE);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
 		if (props.GetInt("open.dialog.in.file.directory")) {
-			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), 
+			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg),
 				filePath.Directory().AsInternal());
 		}
 
@@ -1431,6 +1432,12 @@ void SciTEGTK::FRReplaceInSelectionSignal(GtkWidget *, SciTEGTK *scitew) {
 	}
 }
 
+void SciTEGTK::FRMarkAllSignal(GtkWidget *, SciTEGTK *scitew) {
+	scitew->FindReplaceGrabFields();
+	scitew->MarkAll();
+	scitew->FindNext(scitew->reverseFind);
+}
+
 void SciTEGTK::FindInFilesCmd() {
 	const char *findEntry = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry));
 	props.Set("find.what", findEntry);
@@ -1725,7 +1732,7 @@ void SciTEGTK::Execute() {
 
 	if (jobQueue[icmd].jobType == jobShell) {
 		if (fork() == 0)
-			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(), 
+			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(),
 				static_cast<char *>(NULL));
 		else
 			ExecuteNext();
@@ -2035,6 +2042,13 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	gtk_box_set_homogeneous(
 	    GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area), false);
+
+	if (!replace) {
+		GtkWidget *btnMarkAll = TranslatedCommand("_Mark All", accel_group,
+						       GtkSignalFunc(FRMarkAllSignal), this);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(wFindReplace))->action_area),
+				   btnMarkAll, TRUE, TRUE, 0);
+	}
 
 	GtkWidget *btnFind = TranslatedCommand("F_ind", accel_group,
 	                                       GtkSignalFunc(FRFindSignal), this);
@@ -3367,7 +3381,7 @@ void SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 }
 
 void SciTEGTK::Run(int argc, char *argv[]) {
-	// Find the SciTE executable, first trying to use argv[0] and converting 
+	// Find the SciTE executable, first trying to use argv[0] and converting
 	// to an absolute path and if that fails, searching the path.
 	sciteExecutable = FilePath(argv[0]).AbsolutePath();
 	if (!sciteExecutable.Exists()) {
