@@ -250,6 +250,7 @@ const char *contributors[] = {
                                  "Oliver Yeoh",
                                  "Eric Promislow",
                                  "Joseph Galbraith",
+                                 "Jeffrey Ren",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -3903,11 +3904,11 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 			SendEditor(SCI_SETFOLDEXPANDED, line, 1);
 			Expand(line, true, false, 0, levelPrev);
 		}
-	} else if (!(levelNow & SC_FOLDLEVELWHITEFLAG) && 
+	} else if (!(levelNow & SC_FOLDLEVELWHITEFLAG) &&
 		((levelPrev & SC_FOLDLEVELNUMBERMASK) > (levelNow & SC_FOLDLEVELNUMBERMASK))) {
 		// See if should still be hidden
 		int parentLine = SendEditor(SCI_GETFOLDPARENT, line);
-		if (parentLine < 0) { 
+		if (parentLine < 0) {
 			SendEditor(SCI_SHOWLINES, line, line);
 		} else if (SendEditor(SCI_GETFOLDEXPANDED, parentLine) && SendEditor(SCI_GETLINEVISIBLE, parentLine)) {
 			SendEditor(SCI_SHOWLINES, line, line);
