@@ -10,6 +10,7 @@ set
 set BORLAND_BASE=C:\Borland\bcc55
 set MSDEV_BASE=C:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
 rem
+rem ************************************************************
 rem Target 1: Borland C++ build
 call scite\scripts\clearboth
 cd scintilla\win32
@@ -27,6 +28,7 @@ cd ..\..
 path %SAVE_PATH%
 set INCLUDE=%SAVE_INCLUDE%
 rem
+rem ************************************************************
 rem Target 2: Normal gcc build
 call scite\scripts\clearboth
 cd scintilla\win32
@@ -37,6 +39,7 @@ mingw32-make
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
+rem ************************************************************
 rem Target 3: Microsoft VC++ build
 call scite\scripts\clearboth
 cd scintilla\win32
@@ -51,6 +54,7 @@ rem
 rem Set path for VC 6
 path %MSDEV_BASE%;%path%
 rem
+rem ************************************************************
 rem Target 4: Visual C++ .NET using scite\boundscheck\SciTE.sln
 call scite\scripts\clearboth
 cd scite\boundscheck
@@ -58,21 +62,25 @@ devenv scite.sln /rebuild release
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
+rem ************************************************************
 rem Target 5: GTK+ version using Visual C++ on scintilla\gtk\scintilla.mak
 call scite\scripts\clearboth
 cd scintilla\gtk
 nmake -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
-rem
-rem Target 6: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
-call scite\scripts\clearboth
-cd scintilla\win32
+rem Visual C++ builds
 call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
-nmake -f scintilla_vc6.mak QUIET=1
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
 rem
+rem ************************************************************
+rem Target 6: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
+REM ~ call scite\scripts\clearboth
+REM ~ cd scintilla\win32
+REM ~ nmake -f scintilla_vc6.mak QUIET=1
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
+rem
+rem ************************************************************
 rem Target 7: Visual C++ using scintilla\vcbuild\SciLexer.dsp
 call scite\scripts\clearboth
 cd scintilla\vcbuild
@@ -80,20 +88,22 @@ msdev SciLexer.dsp /MAKE "SciLexer - Win32 Release" /REBUILD
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
+rem ************************************************************
 rem Target 8: Visual C++ using scite\vcbuild\SciTE.dsp
-call scite\scripts\clearboth
-cd scite\vcbuild
-msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
+REM ~ call scite\scripts\clearboth
+REM ~ cd scite\vcbuild
+REM ~ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
 rem
+rem ************************************************************
 rem Target 9: Visual C++ using scite\boundscheck\SciTE.dsp
-call scite\scripts\clearboth
-cd scite\boundscheck
-msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-call scite\scripts\clearboth
+REM ~ call scite\scripts\clearboth
+REM ~ cd scite\boundscheck
+REM ~ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
+REM ~ call scite\scripts\clearboth
 goto CLEANUP
 :ERROR
 @echo checkbuilds.bat:1: Failed %ERRORLEVEL%
