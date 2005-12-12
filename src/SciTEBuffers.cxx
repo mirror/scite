@@ -981,7 +981,6 @@ void SciTEBase::StackMenu(int pos) {
 			} else if (recentFileStack[pos].IsSet()) {
 				RecentFile rf = recentFileStack[pos];
 				//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
-				CurrentBuffer()->overrideExtension = "";
 				// Already asked user so don't allow Open to ask again.
 				Open(rf, ofNoSaveIfDirty);
 				DisplayAround(rf);
