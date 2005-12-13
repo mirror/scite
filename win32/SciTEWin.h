@@ -81,8 +81,11 @@ protected:
 	bool staticBuild;
 	int menuSource;
 
+	// Fields also used in tool execution thread
 	HANDLE hWriteSubProcess;
 	DWORD subProcessGroupId;
+	unsigned int win95DeathDelay;
+	int outputScroll;
 
 	HACCEL hAccTable;
 
@@ -105,6 +108,8 @@ protected:
 	HWND wFocus;
 
 	Window wFindInFiles;
+
+	virtual void ReadProperties();
 
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();

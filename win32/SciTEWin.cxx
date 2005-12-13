@@ -140,7 +140,11 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	modalParameters = false;
 	filterDefault = 1;
 	menuSource = 0;
+
 	hWriteSubProcess = NULL;
+	subProcessGroupId = 0;
+	win95DeathDelay = 500;
+	outputScroll = 1;
 
 	// Read properties resource into propsEmbed
 	// The embedded properties file is to allow distributions to be sure
@@ -231,6 +235,13 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.lpszClassName = classNameInternal;
 	if (!::RegisterClass(&wndclass))
 		exit(FALSE);
+}
+
+void SciTEWin::ReadProperties() {
+	SciTEBase::ReadProperties();
+
+	win95DeathDelay = static_cast<unsigned int>(props.GetInt("win95.death.delay", 500));
+	outputScroll = props.GetInt("output.scroll", 1);
 }
 
 static FilePath GetSciTEPath(FilePath home) {
@@ -456,6 +467,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
  * Run a command with redirected input and output streams
  * so the output can be put in a window.
  * It is based upon several usenet posts and a knowledge base article.
+ * This is running in a separate thread to the user interface.
  */
 DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	DWORD exitcode = 0;
@@ -583,7 +595,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			  NULL, NULL,
 			  TRUE, CREATE_NEW_PROCESS_GROUP,
 			  NULL,
-			  startDirectory.IsSet() ? 
+			  startDirectory.IsSet() ?
 			  static_cast<const char *>(startDirectory.AsFileSystem()) : NULL,
 			  &si, &pi);
 
@@ -700,8 +712,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 							if (timeDetectedDeath == 0) {
 								timeDetectedDeath = ::GetTickCount();
 							} else {
-								if ((::GetTickCount() - timeDetectedDeath) >
-									static_cast<unsigned int>(props.GetInt("win95.death.delay", 500))) {
+								if ((::GetTickCount() - timeDetectedDeath) > win95DeathDelay) {
 									running = false;    // It's a dead process
 								}
 							}
@@ -787,12 +798,14 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 /**
  * Run the commands in the job queue, stopping if one fails.
+ * This is running in a separate thread to the user interface so must be
+ * careful when reading and writing shared state.
  */
 void SciTEWin::ProcessExecute() {
 	DWORD exitcode = 0;
 	if (scrollOutput)
-		SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
-	int originalEnd = SendOutput(SCI_GETCURRENTPOS);
+		SendOutputEx(SCI_GOTOPOS, SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false),0, false);
+	int originalEnd = SendOutputEx(SCI_GETCURRENTPOS, 0, 0, false);
 	bool seenOutput = false;
 
 	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
@@ -810,7 +823,7 @@ void SciTEWin::ProcessExecute() {
 	// to first error of this run.
 	// scroll and return only if output.scroll equals
 	// one in the properties file
-	if (props.GetInt("output.scroll", 1) == 1 && returnOutputToCommand)
+	if ((outputScroll == 1) && returnOutputToCommand)
 		SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
 	returnOutputToCommand = true;
 	::SendMessage(MainHWND(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);

@@ -1086,7 +1086,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const char *directory, const char *fi
 		os.append("\"\n");
 		OutputAppendStringSynchronised(os.c_str());
 		MakeOutputVisible();
-		originalEnd = SendOutput(SCI_GETCURRENTPOS);
+		originalEnd = SendOutputEx(SCI_GETCURRENTPOS, 0, 0, false);
 	}
 	SString searchString(search);
 	if (!(gf & grepMatchCase)) {
