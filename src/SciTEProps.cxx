@@ -627,6 +627,7 @@ static const char *propertiesToForward[] = {
 	"fold.quotes.python",
 	"fold.verilog.flags",
 	"html.tags.case.sensitive",
+	"lexer.caml.magic",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
 	"lexer.sql.backticks.identifier",
