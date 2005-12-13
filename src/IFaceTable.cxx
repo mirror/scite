@@ -274,19 +274,20 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_B_PREPROCESSOR",5},
 	{"SCE_B_STRING",4},
 	{"SCE_B_STRINGEOL",9},
-	{"SCE_CAML_CHAR",8},
-	{"SCE_CAML_COMMENT",10},
-	{"SCE_CAML_COMMENT1",11},
-	{"SCE_CAML_COMMENT2",12},
-	{"SCE_CAML_COMMENT3",13},
+	{"SCE_CAML_CHAR",9},
+	{"SCE_CAML_COMMENT",12},
+	{"SCE_CAML_COMMENT1",13},
+	{"SCE_CAML_COMMENT2",14},
+	{"SCE_CAML_COMMENT3",15},
 	{"SCE_CAML_DEFAULT",0},
 	{"SCE_CAML_IDENTIFIER",1},
 	{"SCE_CAML_KEYWORD",3},
 	{"SCE_CAML_KEYWORD2",4},
-	{"SCE_CAML_LINENUM",5},
-	{"SCE_CAML_NUMBER",7},
-	{"SCE_CAML_OPERATOR",6},
-	{"SCE_CAML_STRING",9},
+	{"SCE_CAML_KEYWORD3",5},
+	{"SCE_CAML_LINENUM",6},
+	{"SCE_CAML_NUMBER",8},
+	{"SCE_CAML_OPERATOR",7},
+	{"SCE_CAML_STRING",11},
 	{"SCE_CAML_TAGNAME",2},
 	{"SCE_CLW_ATTRIBUTE",13},
 	{"SCE_CLW_BUILTIN_PROCEDURES_FUNCTION",11},
@@ -1879,7 +1880,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 228,
-	ifaceConstantCount = 1385,
+	ifaceConstantCount = 1386,
 	ifacePropertyCount = 126
 };
 
