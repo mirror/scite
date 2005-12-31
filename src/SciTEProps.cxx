@@ -57,6 +57,7 @@ const char menuAccessIndicator[] = "&";
 #include "SciLexer.h"
 #include "Extender.h"
 #include "FilePath.h"
+#include "PropSetFile.h"
 #include "SciTEBase.h"
 
 PropSetFile::PropSetFile(bool lowerKeys_) : lowerKeys(lowerKeys_) {}

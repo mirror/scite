@@ -53,6 +53,7 @@
 #include "Extender.h"
 #include "Utf8_16.h"
 #include "FilePath.h"
+#include "PropSetFile.h"
 #include "SciTEBase.h"
 
 #ifdef unix

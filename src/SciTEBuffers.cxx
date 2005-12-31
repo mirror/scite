@@ -56,6 +56,7 @@
 #include "SciLexer.h"
 #include "Extender.h"
 #include "FilePath.h"
+#include "PropSetFile.h"
 #include "SciTEBase.h"
 
 const char recentFileName[] = "SciTE.recent";

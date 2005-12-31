@@ -53,6 +53,7 @@
 #include "Scintilla.h"
 #include "Extender.h"
 #include "FilePath.h"
+#include "PropSetFile.h"
 #include "SciTEBase.h"
 
 
@@ -351,10 +352,10 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
 		fputs("<head>\n", fp);
 		if (titleFullPath)
-			fprintf(fp, "<title>%s</title>\n", 
+			fprintf(fp, "<title>%s</title>\n",
 				static_cast<const char *>(filePath.AsFileSystem()));
 		else
-			fprintf(fp, "<title>%s</title>\n", 
+			fprintf(fp, "<title>%s</title>\n",
 				static_cast<const char *>(filePath.Name().AsFileSystem()));
 		// Probably not used by robots, but making a little advertisement for those looking
 		// at the source code doesn't hurt...
@@ -1220,7 +1221,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 		}
 
 		fputs("\\begin{document}\n\n", fp);
-		fprintf(fp, "Source File: %s\n\n\\noindent\n\\tiny{\n", 
+		fprintf(fp, "Source File: %s\n\n\\noindent\n\\tiny{\n",
 			static_cast<const char *>(titleFullPath ? filePath.AsFileSystem() : filePath.Name().AsFileSystem()));
 
 		int styleCurrent = acc.StyleAt(0);

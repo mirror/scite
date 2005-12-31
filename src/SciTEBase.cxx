@@ -65,6 +65,7 @@
 #include "SciLexer.h"
 #include "Extender.h"
 #include "FilePath.h"
+#include "PropSetFile.h"
 #include "SciTEBase.h"
 
 // Contributor names are in UTF-8

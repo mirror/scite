@@ -90,17 +90,6 @@ public:
 	}
 };
 
-class PropSetFile : public PropSet {
-	bool lowerKeys;
-public:
-	PropSetFile(bool lowerKeys_=false);
-	~PropSetFile();
-	bool ReadLine(const char *data, bool ifIsTrue, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
-	void ReadFromMemory(const char *data, int len, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
-	bool Read(FilePath filename, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
-	void SetInteger(const char *key, sptr_t i);
-};
-
 class RecentFile : public FilePath {
 public:
 	CharacterRange selection;

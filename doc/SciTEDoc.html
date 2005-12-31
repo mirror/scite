@@ -390,10 +390,10 @@ NameError: mistake
     </ul>
     <p>
        Running and building commands for some of these languages have been set up but should be
-      checked as they will have to be modified to work for many people. 
+      checked as they will have to be modified to work for many people.
     </p>
     <p>
-      To keep menus to a reasonable length some languages are included but have been commented 
+      To keep menus to a reasonable length some languages are included but have been commented
       out in global options. These should be enabled by removing the comment character '#'.
     </p>
     <p>
@@ -737,15 +737,15 @@ NameError: mistake
        Encodings
     </h3>
     <p>
-      SciTE will automatically detect the encoding scheme used for Unicode files that 
-      start with a Byte Order Mark (BOM). 
-      The UTF-8 and UCS-2 encodings are recognized including both Little Endian and 
+      SciTE will automatically detect the encoding scheme used for Unicode files that
+      start with a Byte Order Mark (BOM).
+      The UTF-8 and UCS-2 encodings are recognized including both Little Endian and
       Big Endian variants of UCS-2.
     </p>
     <p>
-      UTF-8 files will also be recognised when they contain a coding cookie on one of the 
-      first two lines. A coding cookie looks similar to "coding: utf-8" ("coding" followed by ':' 
-      or '=', optional whitespace, optional quote, "utf-8") and is normally contained in 
+      UTF-8 files will also be recognised when they contain a coding cookie on one of the
+      first two lines. A coding cookie looks similar to "coding: utf-8" ("coding" followed by ':'
+      or '=', optional whitespace, optional quote, "utf-8") and is normally contained in
       a comment:<br />
       <code># -*- coding: utf-8 -*-</code><br />
       For XML there is a declaration:<br />
@@ -1136,9 +1136,9 @@ NameError: mistake
 	always opening a new instance.
 	When this option is set and SciTE is started, it checks to see if
 	there are any other instances of SciTE open. If there is, another
-	instance is asked to open the file and become active and the new 
+	instance is asked to open the file and become active and the new
 	instance exits.
-	On Windows, the instance with the Options | Open Files Here 
+	On Windows, the instance with the Options | Open Files Here
 	menu item checked opens the file.
 	On GTK+, an arbitrary instance opens the file.
         </td>
@@ -1302,7 +1302,7 @@ NameError: mistake
           bookmark.back
         </td>
         <td>
-          The colours used to display bookmarks in the margin. If bookmark.fore is not set then 
+          The colours used to display bookmarks in the margin. If bookmark.fore is not set then
 	a blue sphere is used.
         </td>
        </tr>
@@ -1900,7 +1900,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           its standard input stream to avoid problems with quote interpretation.
           To do this, specify find.input to be the search string, $(find.what).
           <br />
-          If find.command is empty then SciTE's own search code is used. This only does a 
+          If find.command is empty then SciTE's own search code is used. This only does a
 	simple case sensitive search and is faster than running an external program.
         </td>
       </tr>
@@ -1967,15 +1967,15 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
           This setting allows changing the character set that is asked for when setting up fonts.
-        To use Japanese characters, set character.set to 128. 
+        To use Japanese characters, set character.set to 128.
         Other values that may work include Chinese (GB2312=134 or BIG5=136),
         Korean (129), Greek (161),
         Eastern European (238), Baltic (186),
         Turkish (162), Hebrew (177), Arabic (178), or Thai (222).
         All of these values may work on Windows, but on GTK+ Baltic, Turkish, Thai and Vietnamese
         will probably not work.
-        To use Cyrillic characters on Windows, set character.set=204 (CP1251 
-        encoding). To use Cyrillic characters on GTK+, set character.set=204 (KOI8-R 
+        To use Cyrillic characters on Windows, set character.set=204 (CP1251
+        encoding). To use Cyrillic characters on GTK+, set character.set=204 (KOI8-R
         encoding) or character.set=1251 (CP1251 encoding).
         Please send email if you use one of these settings and it works or doesn't or if you
         have information on how to support other languages.
@@ -2309,7 +2309,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         If the text of a command starts with '*' then the Parameters dialog is displayed to
         prompt for parameters before executing the command. The initial '*' is not included
         in the command that is executed.<br />
-	
+
         The command number can be in the range of 0 to 99. Command numbers 0 to 9 are
         assigned Ctrl+Number shortcuts. Internally these commands use IDs starting from
         1100 (IDM_TOOLS) which can be used in user.shortcuts and user.context.menu as:<br /><br />
@@ -2776,7 +2776,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fileselector.show.hidden
         </td>
         <td>
-		On GTK+ setting this to 1 makes the file selector dialog 
+		On GTK+ setting this to 1 makes the file selector dialog
 		invoked by the Open command show hidden files automatically.
         </td>
       </tr>

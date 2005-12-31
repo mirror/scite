@@ -207,7 +207,7 @@ bool SciTEWin::OpenDialog(FilePath directory, const char *filter) {
 	bool succeeded = false;
 	char openName[maxBufferSize]; // maximum common dialog buffer size (says mfc..)
 	openName[0] = '\0';
-	
+
 	OPENFILENAMEA ofn = {
 	       sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	};
@@ -756,11 +756,11 @@ public:
 	}
 
 	// Handle Unicode controls (assume strings to be UTF-8 on Windows NT)
-	
+
 	SString ItemTextU(int id) {
 		SString result = "";
 		char	msz[CTL_TEXT_BUF];
-	
+
 		if (::IsWindowUnicode(Item(id))) {
 			WCHAR wsz[CTL_TEXT_BUF];
 			if (::GetDlgItemTextW(hDlg, id, wsz, CTL_TEXT_BUF)) {
@@ -771,17 +771,17 @@ public:
 			if (::GetDlgItemTextA(hDlg, id, msz, CTL_TEXT_BUF))
 				result = msz;
 		}
-	
+
 		return result;
 	}
-	
+
 	BOOL SetItemTextU(int id, LPCSTR pmsz) {
 		BOOL bSuccess = FALSE;
 		WCHAR wsz[CTL_TEXT_BUF];
-	
+
 		if (!pmsz || *pmsz == 0)
 			return ::SetDlgItemTextA(hDlg, id, "");
-	
+
 		if (::IsWindowUnicode(Item(id))) {
 			if (::MultiByteToWideChar(CP_UTF8, 0, pmsz, -1, wsz, CTL_TEXT_BUF)) {
 				bSuccess = ::SetDlgItemTextW(hDlg, id, wsz);
@@ -789,12 +789,12 @@ public:
 		} else {
 			bSuccess = ::SetDlgItemTextA(hDlg, id, pmsz);
 		}
-	
+
 		return bSuccess;
 	}
 
 	void SetCheck(int id, bool value) {
-		::SendMessage(::GetDlgItem(hDlg, id), BM_SETCHECK, 
+		::SendMessage(::GetDlgItem(hDlg, id), BM_SETCHECK,
 			value ? BST_CHECKED : BST_UNCHECKED, 0);
 	}
 
@@ -1018,7 +1018,7 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 
 BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	// Prevent reentrance when setting text
-	static bool entered = false;	
+	static bool entered = false;
 	if (entered)
 		return FALSE;
 
@@ -1239,7 +1239,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		dlg.SetItemText(IDFINDWHAT, props.Get("find.what").c_str());
 		dlg.SetItemText(IDDIRECTORY, props.Get("find.directory").c_str());
 		if (props.GetNewExpand("find.command") == "") {
-			// Empty means use internal that can respond to flags 
+			// Empty means use internal that can respond to flags
 			dlg.SetCheck(IDWHOLEWORD, wholeWord);
 			dlg.SetCheck(IDMATCHCASE, matchCase);
 		} else {
@@ -1352,7 +1352,7 @@ void SciTEWin::FindInFiles() {
 	props.Set("find.what", findWhat.c_str());
 	FilePath findInDir = filePath.Directory();
 	props.Set("find.directory", findInDir.AsFileSystem());
-	wFindInFiles = ::CreateDialogParam(hInstance, "Grep", MainHWND(), 
+	wFindInFiles = ::CreateDialogParam(hInstance, "Grep", MainHWND(),
 		reinterpret_cast<DLGPROC>(GrepDlg), reinterpret_cast<sptr_t>(this));
 	wFindInFiles.Show();
 }
