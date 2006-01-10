@@ -489,7 +489,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			extender->OnExecute(jobToRun.command.c_str());
 
 			if (jobToRun.flags & jobGroupUndo)
-				Platform::SendScintilla(wEditor.GetID(), SCI_BEGINUNDOACTION);
+				Platform::SendScintilla(wEditor.GetID(), SCI_ENDUNDOACTION);
 
 			Redraw();
 			// A Redraw "might" be needed, since Lua and Director
