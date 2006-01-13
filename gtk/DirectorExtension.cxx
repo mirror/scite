@@ -27,6 +27,7 @@
 #include "DirectorExtension.h"
 #include "SciTE.h"
 #include "FilePath.h"
+#include "PropSetFile.h"
 #include "SciTEBase.h"
 
 static ExtensionAPI *host = 0;
@@ -55,7 +56,7 @@ static void RecieverPipeSignal(void *data, gint fd, GdkInputCondition condition)
 	char pipeData[8192];
 	PropSetFile pipeProps;
 	DirectorExtension *ext = reinterpret_cast<DirectorExtension *>(data);
-	
+
 	if (condition == GDK_INPUT_READ) {
 		SString pipeString;
 		while ((readLength = read(fd, pipeData, sizeof(pipeData))) > 0) {
@@ -73,7 +74,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 			fdDestination = fdDirector;
 		else
 			fdDestination = fdCorrespondent;
-		
+
 		SString addressedMessage;
 		addressedMessage += verb;
 		addressedMessage += ":";
@@ -262,7 +263,7 @@ bool DirectorExtension::CreatePipe(bool forceNew) {
 #endif
 //WB--
 			fdReceiver = open(pipeName, O_RDWR | O_NONBLOCK);
-			
+
 			fdReceiverString = fdReceiver;
 			host->SetProperty("ipc.scite.fdpipe",fdReceiverString.c_str());
 			tryStandardPipeCreation = false;
@@ -284,20 +285,20 @@ bool DirectorExtension::CreatePipe(bool forceNew) {
 	{
 		tryStandardPipeCreation = true;
 	}
-	
+
 	if( tryStandardPipeCreation )
 	{
 		//possible bug here (eventually), can't have more than a 1000 SciTE's open - ajkc 20001112
 		for (int i = 0; i < 1000; i++) {
-	
+
 			//create the pipe name - we use a number as well just incase multiple people have pipes open
 			//or we are forceing a new instance of scite (even if there is already one)
 			sprintf(pipeName, "/tmp/.SciTE.%d.ipc", i);
-	
+
 			//fprintf(fdDebug, "Trying pipe %s\n", pipeName);
 			//check to see if there is already one
 			fdReceiver = open(pipeName, O_RDWR | O_NONBLOCK);
-	
+
 			//there is one but it isn't ours
 			if (fdReceiver == -1 && errno == EACCES) {
 				//fprintf(fdDebug, "No access\n");
@@ -323,7 +324,7 @@ bool DirectorExtension::CreatePipe(bool forceNew) {
 			//there is so just open it (and we don't want out own)
 			else if (forceNew == false) {
 				//fprintf(fdDebug, "Another one there - opening\n");
-				
+
 				//there is already another pipe so set it to true for the return value
 				anotherPipe = true;
 				//I don;t think it is a good idea to be able to listen to our own pipes (yet) so just return
@@ -335,7 +336,7 @@ bool DirectorExtension::CreatePipe(bool forceNew) {
 	}
 
 	if (fdReceiver != -1) {
-		
+
 		//store the inputwatcher so we can remove it.
 		inputWatcher = gdk_input_add(fdReceiver, GDK_INPUT_READ, RecieverPipeSignal, this);
 		return anotherPipe;

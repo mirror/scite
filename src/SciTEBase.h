@@ -533,7 +533,7 @@ protected:
 	bool isBuilding;
 	bool isBuilt;
 	bool executing;
-	bool scrollOutput;
+	int scrollOutput;
 	bool returnOutputToCommand;
 	enum { commandMax = 2 };
 	int commandCurrent;

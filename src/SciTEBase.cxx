@@ -319,7 +319,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	isBuilding = false;
 	isBuilt = false;
 	executing = false;
-	scrollOutput = true;
+	scrollOutput = 1;
 	returnOutputToCommand = true;
 	commandCurrent = 0;
 	jobUsesOutputPane = false;

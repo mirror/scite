@@ -33,6 +33,7 @@
 #include "ScintillaWidget.h"
 #include "Extender.h"
 #include "FilePath.h"
+#include "PropSetFile.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 
@@ -1658,7 +1659,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		OutputAppendString(sExitMessage.c_str());
 		// Move selection back to beginning of this run so that F4 will go
 		// to first error of this run.
-		if ((scrollOutput ==1) && returnOutputToCommand)
+		if ((scrollOutput == 1) && returnOutputToCommand)
 			SendOutput(SCI_GOTOPOS, originalEnd);
 		returnOutputToCommand = true;
 		gdk_input_remove(inputHandle);
