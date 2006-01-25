@@ -2977,54 +2977,50 @@ void SciTEBase::CharAdded(char ch) {
 	int selStart = crange.cpMin;
 	int selEnd = crange.cpMax;
 	if ((selEnd == selStart) && (selStart > 0)) {
-		int style = SendEditor(SCI_GETSTYLEAT, selStart - 1, 0);
-		//Platform::DebugPrintf("Char added %d style = %d %d\n", ch, style, braceCount);
-		if (style != 1) {
-			if (SendEditor(SCI_CALLTIPACTIVE)) {
-				if (calltipParametersEnd.contains(ch)) {
-					braceCount--;
-					if (braceCount < 1)
-						SendEditor(SCI_CALLTIPCANCEL);
-					else
-						StartCallTip();
-				} else if (calltipParametersStart.contains(ch)) {
-					braceCount++;
+		if (SendEditor(SCI_CALLTIPACTIVE)) {
+			if (calltipParametersEnd.contains(ch)) {
+				braceCount--;
+				if (braceCount < 1)
+					SendEditor(SCI_CALLTIPCANCEL);
+				else
 					StartCallTip();
-				} else {
-					ContinueCallTip();
-				}
-			} else if (SendEditor(SCI_AUTOCACTIVE)) {
-				if (calltipParametersStart.contains(ch)) {
-					braceCount++;
-					StartCallTip();
-				} else if (calltipParametersEnd.contains(ch)) {
-					braceCount--;
-				} else if (!wordCharacters.contains(ch)) {
-					SendEditor(SCI_AUTOCCANCEL);
-					if (autoCompleteStartCharacters.contains(ch)) {
-						StartAutoComplete();
-					}
-				} else if (autoCCausedByOnlyOne) {
-					StartAutoCompleteWord(true);
-				}
-			} else if (HandleXml(ch)) {
-				// Handled in the routine
+			} else if (calltipParametersStart.contains(ch)) {
+				braceCount++;
+				StartCallTip();
 			} else {
-				if (calltipParametersStart.contains(ch)) {
-					braceCount = 1;
-					StartCallTip();
-				} else {
-					autoCCausedByOnlyOne = false;
-					if (indentMaintain)
-						MaintainIndentation(ch);
-					else if (props.GetInt("indent.automatic"))
-						AutomaticIndentation(ch);
-					if (autoCompleteStartCharacters.contains(ch)) {
-						StartAutoComplete();
-					} else if (props.GetInt("autocompleteword.automatic") && wordCharacters.contains(ch)) {
-						StartAutoCompleteWord(true);
-						autoCCausedByOnlyOne = SendEditor(SCI_AUTOCACTIVE);
-					}
+				ContinueCallTip();
+			}
+		} else if (SendEditor(SCI_AUTOCACTIVE)) {
+			if (calltipParametersStart.contains(ch)) {
+				braceCount++;
+				StartCallTip();
+			} else if (calltipParametersEnd.contains(ch)) {
+				braceCount--;
+			} else if (!wordCharacters.contains(ch)) {
+				SendEditor(SCI_AUTOCCANCEL);
+				if (autoCompleteStartCharacters.contains(ch)) {
+					StartAutoComplete();
+				}
+			} else if (autoCCausedByOnlyOne) {
+				StartAutoCompleteWord(true);
+			}
+		} else if (HandleXml(ch)) {
+			// Handled in the routine
+		} else {
+			if (calltipParametersStart.contains(ch)) {
+				braceCount = 1;
+				StartCallTip();
+			} else {
+				autoCCausedByOnlyOne = false;
+				if (indentMaintain)
+					MaintainIndentation(ch);
+				else if (props.GetInt("indent.automatic"))
+					AutomaticIndentation(ch);
+				if (autoCompleteStartCharacters.contains(ch)) {
+					StartAutoComplete();
+				} else if (props.GetInt("autocompleteword.automatic") && wordCharacters.contains(ch)) {
+					StartAutoCompleteWord(true);
+					autoCCausedByOnlyOne = SendEditor(SCI_AUTOCACTIVE);
 				}
 			}
 		}
