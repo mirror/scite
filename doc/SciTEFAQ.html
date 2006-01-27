@@ -68,6 +68,8 @@
     	Is there a command to replace a string in multiple files together?</a></li>
     <li><a class="toc" href="#SpeedUpGTK">
     	How do I make SciTE run faster on GTK+?</a></li>
+    <li><a class="toc" href="#NewlineInRegEx">
+    	Is it possible to use the newline character (\n) in a regular expression?</a></li>
     </ul>
     <h4 id="FixedWidth">
        How do I use a fixed width font for all text?
@@ -195,17 +197,17 @@ You can set a command for all files using * as a file pattern. Up to 10 commands
        Is there a command to replace a string in multiple files together?
     </h4>
     <p>
-     It is possible to replace a string in all opened buffers with the Replace in Buffers 
+     It is possible to replace a string in all opened buffers with the Replace in Buffers
      button in the Replace dialog.
-     However this button is hidden by default, it can be displayed with 
+     However this button is hidden by default, it can be displayed with
      <code>find.replace.advanced=1</code>.
     </p>
     <h4 id="SpeedUpGTK">
        How do I make SciTE run faster on GTK+?
     </h4>
     <p>
-     The default settings for SciTE were changed in version 1.63 to use the Pango font 
-     system and antialiased fonts. You can return to using X core fonts which are faster 
+     The default settings for SciTE were changed in version 1.63 to use the Pango font
+     system and antialiased fonts. You can return to using X core fonts which are faster
      with these settings:<br /><code>
 	font.base=font:lucidatypewriter,size:12<br />
 	font.small=font:lucidatypewriter,size:10<br />
@@ -221,6 +223,16 @@ You can set a command for all files using * as a file pattern. Up to 10 commands
 	font.vbs=font:new century schoolbook,size:12<br />
      </code><br />
      Line wrapping also slows SciTE down and this can be turned off with <code>wrap=0</code>.
+    </p>
+    <h4 id="NewlineInRegEx">
+       Is it possible to use the newline character (\n) in a regular expression?
+    </h4>
+    <p>
+     No.
+    </p>
+    <p>
+	 The "Transform backslash expressions" option allows using \n and \r but that option does
+	 not work with regular expressions.
     </p>
   </body>
 </html>
