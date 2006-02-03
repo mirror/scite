@@ -147,6 +147,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexMPT.obj \
 	..\..\scintilla\win32\LexMSSQL.obj \
 	..\..\scintilla\win32\LexNsis.obj \
+	..\..\scintilla\win32\LexOpal.obj \
 	..\..\scintilla\win32\LexOthers.obj \
 	..\..\scintilla\win32\LexPascal.obj \
 	..\..\scintilla\win32\LexPB.obj \
@@ -225,9 +226,9 @@ $(DIR_BIN)\lisp.properties $(DIR_BIN)\lot.properties \
 $(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
 $(DIR_BIN)\matlab.properties $(DIR_BIN)\metapost.properties \
 $(DIR_BIN)\mmixal.properties $(DIR_BIN)\nncrontab.properties \
-$(DIR_BIN)\nsis.properties $(DIR_BIN)\others.properties \
-$(DIR_BIN)\pascal.properties $(DIR_BIN)\perl.properties \
-$(DIR_BIN)\pov.properties $(DIR_BIN)\ps.properties \
+$(DIR_BIN)\nsis.properties $(DIR_BIN)\opal.properties \
+$(DIR_BIN)\others.properties $(DIR_BIN)\pascal.properties \
+$(DIR_BIN)\perl.properties $(DIR_BIN)\pov.properties $(DIR_BIN)\ps.properties \
 $(DIR_BIN)\purebasic.properties $(DIR_BIN)\python.properties \
 $(DIR_BIN)\rebol.properties $(DIR_BIN)\ruby.properties \
 $(DIR_BIN)\scriptol.properties $(DIR_BIN)\smalltalk.properties \
@@ -345,6 +346,8 @@ $(DIR_BIN)\nncrontab.properties:	..\src\nncrontab.properties
 	copy ..\src\nncrontab.properties $@
 $(DIR_BIN)\nsis.properties:	..\src\nsis.properties
 	copy ..\src\nsis.properties $@
+$(DIR_BIN)\opal.properties:	..\src\opal.properties
+	copy ..\src\opal.properties $@
 $(DIR_BIN)\others.properties:	..\src\others.properties
 	copy ..\src\others.properties $@
 $(DIR_BIN)\pascal.properties:	..\src\pascal.properties

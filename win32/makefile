@@ -99,10 +99,10 @@ LEXPROPS=\
 ..\bin\lisp.properties ..\bin\lot.properties ..\bin\lout.properties \
 ..\bin\lua.properties ..\bin\matlab.properties ..\bin\metapost.properties \
 ..\bin\mmixal.properties ..\bin\nncrontab.properties ..\bin\nsis.properties \
-..\bin\others.properties ..\bin\pascal.properties ..\bin\perl.properties \
-..\bin\pov.properties ..\bin\ps.properties ..\bin\purebasic.properties \
-..\bin\python.properties ..\bin\rebol.properties ..\bin\ruby.properties \
-..\bin\scriptol.properties ..\bin\smalltalk.properties \
+..\bin\opal.properties ..\bin\others.properties ..\bin\pascal.properties \
+..\bin\perl.properties ..\bin\pov.properties ..\bin\ps.properties \
+..\bin\purebasic.properties ..\bin\python.properties ..\bin\rebol.properties \
+..\bin\ruby.properties ..\bin\scriptol.properties ..\bin\smalltalk.properties \
 ..\bin\specman.properties ..\bin\sql.properties ..\bin\tcl.properties \
 ..\bin\tex.properties ..\bin\vb.properties ..\bin\verilog.properties \
 ..\bin\vhdl.properties ..\bin\yaml.properties
@@ -196,6 +196,8 @@ deps:
 ..\bin\nncrontab.properties:	..\src\nncrontab.properties
 	$(COPY) $^ $@
 ..\bin\nsis.properties:	..\src\nsis.properties
+	$(COPY) $^ $@
+..\bin\opal.properties:	..\src\opal.properties
 	$(COPY) $^ $@
 ..\bin\others.properties:	..\src\others.properties
 	$(COPY) $^ $@
