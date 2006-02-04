@@ -1015,6 +1015,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETTABINDENTS, props.GetInt("tab.indents", 1));
 	SendEditor(SCI_SETBACKSPACEUNINDENTS, props.GetInt("backspace.unindents", 1));
 
+	SendEditor(SCI_CALLTIPUSESTYLE, 32);
+
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
 	indentMaintain = props.GetNewExpand("indent.maintain.", fileNameForExtension.c_str()).value();
