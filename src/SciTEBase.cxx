@@ -4824,8 +4824,9 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 					if (evaluate)
 						PerformOne(arg);
 				} else {
-					if (evaluate)
-						props.ReadLine(arg, true, "");
+					if (evaluate) {
+						props.ReadLine(arg, true, FilePath::GetWorkingDirectory());
+					}
 				}
 			}
 		} else {	// Not a switch: it is a file name
