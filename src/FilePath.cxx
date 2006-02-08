@@ -106,8 +106,12 @@ void FilePath::Set(FilePath const &other) {
 }
 
 void FilePath::Set(FilePath const &directory, FilePath const &name) {
-	fileName = directory.fileName;
-	fileName.appendwithseparator(name.fileName.c_str(), pathSepChar);
+	if (name.IsAbsolute()) {
+		fileName = name.fileName;
+	} else {
+		fileName = directory.fileName;
+		fileName.appendwithseparator(name.fileName.c_str(), pathSepChar);
+	}
 }
 
 void FilePath::SetDirectory(FilePath directory) {
