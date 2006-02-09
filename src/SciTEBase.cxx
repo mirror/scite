@@ -2359,11 +2359,11 @@ bool SciTEBase::StartExpandAbbreviation() {
 
 bool SciTEBase::StartBlockComment() {
 	SString fileNameForExtension = ExtensionFileName();
-	SString language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
+	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString base("comment.block.");
 	SString comment_at_line_start("comment.block.at.line.start.");
-	base += language;
-	comment_at_line_start += language;
+	base += lexerName;
+	comment_at_line_start += lexerName;
 	SString comment = props.Get(base.c_str());
 	if (comment == "") { // user friendly error message box
 		SString error = LocaliseMessage(
@@ -2450,14 +2450,14 @@ bool SciTEBase::StartBlockComment() {
 bool SciTEBase::StartBoxComment() {
 	// Get start/middle/end comment strings from options file(s)
 	SString fileNameForExtension = ExtensionFileName();
-	SString language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
+	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString start_base("comment.box.start.");
 	SString middle_base("comment.box.middle.");
 	SString end_base("comment.box.end.");
 	SString white_space(" ");
-	start_base += language;
-	middle_base += language;
-	end_base += language;
+	start_base += lexerName;
+	middle_base += lexerName;
+	end_base += lexerName;
 	SString start_comment = props.Get(start_base.c_str());
 	SString middle_comment = props.Get(middle_base.c_str());
 	SString end_comment = props.Get(end_base.c_str());
@@ -2578,12 +2578,12 @@ bool SciTEBase::StartBoxComment() {
 
 bool SciTEBase::StartStreamComment() {
 	SString fileNameForExtension = ExtensionFileName();
-	SString language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
+	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString start_base("comment.stream.start.");
 	SString end_base("comment.stream.end.");
 	SString white_space(" ");
-	start_base += language;
-	end_base += language;
+	start_base += lexerName;
+	end_base += lexerName;
 	SString start_comment = props.Get(start_base.c_str());
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || end_comment == "") {
