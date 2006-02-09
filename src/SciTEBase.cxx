@@ -4905,8 +4905,11 @@ char *SciTEBase::Property(const char *key) {
 }
 
 void SciTEBase::SetProperty(const char *key, const char *val) {
-	props.Set(key, val);
-	needReadProperties = true;
+	SString value = props.GetExpanded(key);
+	if (value != val) {
+		props.Set(key, val);
+		needReadProperties = true;
+	}
 }
 
 void SciTEBase::UnsetProperty(const char *key) {
