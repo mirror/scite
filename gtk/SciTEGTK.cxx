@@ -454,7 +454,7 @@ public:
 	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
 	GtkWidget *AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon);
 	void AddToolBar();
-	SString SciTEGTK::TranslatePath(const char *path);
+	SString TranslatePath(const char *path);
 	void CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 	                          int nRepeats = 0, const char *prefix = 0, int startNum = 0,
 	                          int startID = 0, const char *radioStart = 0);

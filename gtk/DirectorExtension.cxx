@@ -148,7 +148,7 @@ bool DirectorExtension::OnSwitchFile(const char *path) {
 		::SendDirector("switched", path);
 	}
 	return false;
-};
+}
 
 bool DirectorExtension::OnSave(const char *path) {
 	CheckEnvironment(host);
