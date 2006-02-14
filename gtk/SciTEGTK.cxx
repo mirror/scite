@@ -2797,8 +2797,8 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/Export/As _XML...", NULL, menuSig, IDM_SAVEASXML, 0},
 	                                      {"/File/_Print", "<control>P", menuSig, IDM_PRINT, 0},
 	                                      {"/File/sep1", NULL, NULL, 0, "<Separator>"},
-	                                      {"/File/Load Session...", "", menuSig, IDM_LOADSESSION, 0},
-	                                      {"/File/Save Session...", "", menuSig, IDM_SAVESESSION, 0},
+	                                      {"/File/_Load Session...", "", menuSig, IDM_LOADSESSION, 0},
+	                                      {"/File/Sa_ve Session...", "", menuSig, IDM_SAVESESSION, 0},
 	                                      {"/File/sep2", NULL, menuSig, IDM_MRU_SEP, "<Separator>"},
 	                                      {"/File/File0", "", menuSig, fileStackCmdID + 0, 0},
 	                                      {"/File/File1", "", menuSig, fileStackCmdID + 1, 0},
@@ -2830,7 +2830,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Edit/S_how Calltip", "<control><shift>space", menuSig, IDM_SHOWCALLTIP, 0},
 	                                      {"/Edit/Complete S_ymbol", "<control>I", menuSig, IDM_COMPLETE, 0},
 	                                      {"/Edit/Complete _Word", "<control>Return", menuSig, IDM_COMPLETEWORD, 0},
-	                                      {"/Edit/_Expand Abbreviation", "<control>B", menuSig, IDM_ABBREV, 0},
+	                                      {"/Edit/Expand Abbre_viation", "<control>B", menuSig, IDM_ABBREV, 0},
 	                                      //{"/Edit/_Insert Abbreviation", "<control>D", menuSig, IDM_INS_ABBREV, 0},
 	                                      {"/Edit/Block Co_mment or Uncomment", "<control>Q", menuSig, IDM_BLOCK_COMMENT, 0},
 	                                      {"/Edit/Bo_x Comment", "<control><shift>B", menuSig, IDM_BOX_COMMENT, 0},
@@ -2967,7 +2967,7 @@ void SciTEGTK::CreateMenu() {
 	            {"/Options/Open A_bbreviations File", "", menuSig, IDM_OPENABBREVPROPERTIES, 0},
 	            {"/Options/Open Lua Startup Scr_ipt", "", menuSig, IDM_OPENLUAEXTERNALFILE, 0},
 	            {"/Options/sep4", NULL, NULL, 0, "<Separator>"},
-	            {"/Options/Edit Properties", "", 0, 0, "<Branch>"},
+	            {"/Options/_Edit Properties", "", 0, 0, "<Branch>"},
 	        };
 
 	SciTEItemFactoryEntry menuItemsLanguage[] = {
