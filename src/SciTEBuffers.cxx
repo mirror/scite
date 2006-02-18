@@ -615,6 +615,10 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		UpdateStatusBar(true);
 	}
 
+	if (extender && !closingLast) {
+		extender->OnSwitchFile(filePath.AsFileSystem());
+	}
+
 	if (closingLast && props.GetInt("quit.on.close.last") && !loadingSession) {
 		QuitProgram();
 	}
@@ -1552,7 +1556,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			}
 			break;
 		}
-		
+
 	case SCE_ERR_DIFF_MESSAGE: {
 			// Diff file header, either +++ <filename>\t or --- <filename>\t
 			// Often followed by a position line @@ <linenumber>
@@ -1672,7 +1676,7 @@ void SciTEBase::GoMessage(int dir) {
 				int endSourceline= SendEditor(SCI_POSITIONFROMLINE, sourceLine+1, 0);
 				if (column >= 0) {
 					// Get the position in line according to current tab setting
-					startSourceLine = SendEditor(SCI_FINDCOLUMN, sourceLine, column); 
+					startSourceLine = SendEditor(SCI_FINDCOLUMN, sourceLine, column);
 				}
 				EnsureRangeVisible(startSourceLine, startSourceLine);
 				if (props.GetInt("error.select.line")==1) {
