@@ -2045,6 +2045,19 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
       </tr>
       <tr>
+        <td>
+          shbang.<i>command</i>
+        </td>
+        <td>
+          On Unix, command files often have no extension and instead specify the interpreter
+		    to use for the file in an initial line that starts with "#!". When the lexer can not be
+			 otherwise determined and the file starts with "#!", the initial line is split up into words and
+			 each word is prepended with "shbang.". If a property with this name exists then it is
+			 treated as the extension of the file. For example, <code>shbang.python=py</code> will be
+			 triggered by an initial line <code>#!/usr/bin/env python</code> so the file will be treated as Python.
+        </td>
+      </tr>
+      <tr>
       	<td>
       	lexerpath.<i>filepattern</i>
       	</td>

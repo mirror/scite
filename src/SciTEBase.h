@@ -621,6 +621,7 @@ protected:
 	bool Exists(const char *dir, const char *path, FilePath *resultPath);
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
+	SString DiscoverLanguage(const char *buf, size_t length);
 	void OpenFile(int fileSize, bool suppressMessage);
 	virtual void OpenUriList(const char *) {};
 	virtual bool OpenDialog(FilePath directory, const char *filter) = 0;

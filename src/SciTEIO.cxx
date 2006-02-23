@@ -232,6 +232,43 @@ void SciTEBase::DiscoverEOLSetting() {
 		SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
 }
 
+// Look inside the first line for a #! clue regarding the language
+SString SciTEBase::DiscoverLanguage(const char *buf, size_t length) {
+	SString languageOverride = "";
+	SString l1 = ExtractLine(buf, length);
+	if (l1.startswith("<?xml")) {
+		languageOverride = "xml";
+	} else if (l1.startswith("#!")) {
+		l1 = l1.substr(2);
+		l1.substitute('\\', ' ');
+		l1.substitute('/', ' ');
+		l1.substitute("\t", " ");
+		l1.substitute("  ", " ");
+		l1.substitute("  ", " ");
+		l1.substitute("  ", " ");
+		l1.remove("\r");
+		l1.remove("\n");
+		if (l1.startswith(" ")) {
+			l1 = l1.substr(1);
+		}
+		l1.substitute(' ', '\0');
+		const char *word = l1.c_str();
+		while (*word) {
+			SString propShBang("shbang.");
+			propShBang.append(word);
+			SString langShBang = props.GetExpanded(propShBang.c_str());
+			if (langShBang.length()) {
+				languageOverride = langShBang;
+			}
+			word += strlen(word) + 1;
+		}
+	}
+	if (languageOverride.length()) {
+		languageOverride.insert(0, "x.");
+	}
+	return languageOverride;
+}
+
 void SciTEBase::DiscoverIndentSetting() {
 	int lengthDoc = LengthDocument();
 	WindowAccessor acc(wEditor.GetID(), props);
@@ -297,13 +334,25 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 		size_t lenFile = fread(data, 1, sizeof(data), fp);
 		UniMode codingCookie = CodingCookieValue(data, lenFile);
 		SendEditor(SCI_ALLOCATE, fileSize + 1000);
+		SString languageOverride;
+		bool firstBlock = true;
 		while (lenFile > 0) {
 			lenFile = convert.convert(data, lenFile);
-			SendEditorString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
+			char *dataBlock = convert.getNewBuf();
+			if ((firstBlock) && (language == "")) {
+				languageOverride = DiscoverLanguage(dataBlock, lenFile);
+			}
+			firstBlock = false;
+			SendEditorString(SCI_ADDTEXT, lenFile, dataBlock);
 			lenFile = fread(data, 1, sizeof(data), fp);
 		}
 		fclose(fp);
 		SendEditor(SCI_ENDUNDOACTION);
+		if (languageOverride.length()) {
+			CurrentBuffer()->overrideExtension = languageOverride;
+			ReadProperties();
+			SetIndentSettings();
+		}
 		CurrentBuffer()->unicodeMode = static_cast<UniMode>(
 			static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies
@@ -931,12 +980,14 @@ public:
 	BufferedFile(FilePath fPath) {
 		fp = fPath.Open(fileRead);
 		readAll = false;
-		exhausted = false;
+		exhausted = fp == NULL;
 		pos = 0;
 		valid = 0;
 	}
 	~BufferedFile() {
-		fclose(fp);
+		if (fp) {
+			fclose(fp);
+		}
 		fp = NULL;
 	}
 	bool Exhausted() {
