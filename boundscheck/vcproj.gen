@@ -163,6 +163,9 @@
 				RelativePath="..\..\scintilla\src\CellBuffer.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\CharClassify.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\ContractionState.cxx">
 			</File>
 			<File

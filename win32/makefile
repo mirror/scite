@@ -253,7 +253,7 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 	SciTEIO.o Exporters.o SciTEProps.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
 	WindowAccessor.o DocumentAccessor.o KeyWords.o ExternalLexer.o StyleContext.o\
 	Lexers.a PropSet.o \
-	ContractionState.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
+	ContractionState.o CharClassify.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
 	UniConversion.o Utf8_16.o KeyMap.o Indicator.o LineMarker.o RESearch.o Style.o \
 	ViewStyle.o AutoComplete.o DirectorExtension.o MultiplexExtension.o XPM.o $(LUA_OBJS)
 
