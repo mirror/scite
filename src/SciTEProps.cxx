@@ -825,6 +825,13 @@ void SciTEBase::ReadProperties() {
 	} else {
 		SendEditor(SCI_SETCARETLINEVISIBLE, 0);
 	}
+	SendEditor(SCI_SETCARETLINEBACKALPHA, props.GetInt("caret.line.back.alpha", SC_ALPHA_NOALPHA));
+
+	SString findMark = props.Get("find.mark");
+	if (findMark.length()) {
+		SendEditor(SCI_INDICSETFORE, 2, ColourFromString(findMark));
+		SendEditor(SCI_INDICSETSTYLE, 2, INDIC_ROUNDBOX);
+	}
 
 	SString controlCharSymbol = props.Get("control.char.symbol");
 	if (controlCharSymbol.length()) {

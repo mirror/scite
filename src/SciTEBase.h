@@ -230,11 +230,12 @@ public:
 	UniMode unicodeMode;
 	time_t fileModTime;
 	time_t fileModLastAsk;
+	enum { fmNone, fmMarked, fmModified} findMarks;
 	SString overrideExtension;	///< User has chosen to use a particular language
 	FoldState foldState;
 	Buffer() :
 		RecentFile(), doc(0), isDirty(false), useMonoFont(false),
-		unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), foldState() {
+		unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), foldState() {
 	}
 
 	void Init() {
@@ -244,6 +245,7 @@ public:
 		unicodeMode = uni8Bit;
 		fileModTime = 0;
 		fileModLastAsk = 0;
+		findMarks = fmNone;
 		overrideExtension = "";
 		foldState.Clear();
 	}
@@ -774,6 +776,7 @@ protected:
 	virtual void ShowTabBar() = 0;
 	virtual void ShowStatusBar() = 0;
 
+	void RemoveFindMarks();
 	int MarkAll();
 	void BookmarkAdd(int lineno = -1);
 	void BookmarkDelete(int lineno = -1);

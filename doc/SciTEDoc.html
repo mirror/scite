@@ -1186,10 +1186,13 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          caret.line.back
+          caret.line.back<br />
+          caret.line.back.alpha
         </td>
         <td>
-          Sets the background colour used for line containing the caret.
+          Sets the background colour and translucency used for line containing the caret.
+		    Translucency ranges from 0 for completely transparent to 255 for opaque with
+			 256 being opaque and not using translucent drawing code which may be slower.
         </td>
       </tr>
       <tr>
@@ -1305,6 +1308,15 @@ NameError: mistake
         <td>
           The colours used to display bookmarks in the margin. If bookmark.fore is not set then
 	a blue sphere is used.
+        </td>
+       </tr>
+      <tr>
+        <td>
+          find.mark
+        </td>
+        <td>
+          If set, then the Mark All command in the Find dialog will draw translucent boxes over
+		    each string found.
         </td>
        </tr>
        <tr>

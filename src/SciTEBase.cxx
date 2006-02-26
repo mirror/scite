@@ -1414,18 +1414,42 @@ static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 	}
 }
 
+void SciTEBase::RemoveFindMarks() {
+	if (CurrentBuffer()->findMarks != Buffer::fmNone) {
+		int endStyled = SendEditor(SCI_GETENDSTYLED);
+		SendEditor(SCI_STARTSTYLING, 0, INDIC2_MASK);
+		SendEditor(SCI_SETSTYLING, LengthDocument(), 0);
+		SendEditor(SCI_STARTSTYLING, endStyled, 31);
+		CurrentBuffer()->findMarks = Buffer::fmNone;
+	}
+}
+
 int SciTEBase::MarkAll() {
 	int posCurrent = SendEditor(SCI_GETCURRENTPOS);
 	int marked = 0;
 	int posFirstFound = FindNext(false, false);
+
+	int endStyled = SendEditor(SCI_GETENDSTYLED);
+	SString findMark = props.Get("find.mark");
+	if (findMark.length()) {
+		RemoveFindMarks();
+		CurrentBuffer()->findMarks = Buffer::fmMarked;
+	}
 	if (posFirstFound != -1) {
 		int posFound = posFirstFound;
 		do {
 			marked++;
 			int line = SendEditor(SCI_LINEFROMPOSITION, posFound);
 			BookmarkAdd(line);
+			if (findMark.length()) {
+				SendEditor(SCI_STARTSTYLING, posFound, INDIC2_MASK);
+				SendEditor(SCI_SETSTYLING, SendEditor(SCI_GETTARGETEND) - posFound, INDIC2_MASK);
+			}
 			posFound = FindNext(false, false);
 		} while ((posFound != -1) && (posFound != posFirstFound));
+	}
+	if (findMark.length()) {
+		SendEditor(SCI_STARTSTYLING, endStyled, 31);
 	}
 	SendEditor(SCI_SETCURRENTPOS, posCurrent);
 	return marked;
@@ -3822,6 +3846,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_BOOKMARK_CLEARALL:
 		SendEditor(SCI_MARKERDELETEALL, SciTE_MARKER_BOOKMARK);
+		RemoveFindMarks();
 		break;
 
 	case IDM_TABSIZE:
@@ -4162,6 +4187,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 			}
 			CheckMenusClipboard();
 		}
+		if (CurrentBuffer()->findMarks == Buffer::fmModified) {
+			RemoveFindMarks();
+		}
 		break;
 
 	case SCN_MODIFIED:
@@ -4174,6 +4202,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 			//this will be called a lot, and usually means "typing".
 			EnableAMenuItem(IDM_UNDO, TRUE);
 			EnableAMenuItem(IDM_REDO, FALSE);
+			if (CurrentBuffer()->findMarks == Buffer::fmMarked) {
+				CurrentBuffer()->findMarks = Buffer::fmModified;
+			}
 		}
 
 		if (notification->linesAdded && lineNumbers && lineNumbersExpand)
