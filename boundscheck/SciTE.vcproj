@@ -382,6 +382,9 @@
 				RelativePath="..\..\scintilla\src\LexTADS3.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexTCL.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexTeX.cxx">
 			</File>
 			<File
