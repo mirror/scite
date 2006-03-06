@@ -933,14 +933,14 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 
 	int replacements = 0;
 	if (cmd == IDOK) {
-		FindNext(reverseFind);	// Find next
+		FindNext(false);
 	} else if (cmd == IDREPLACE) {
 		if (havefound) {
 			ReplaceOnce();
 		} else {
 			CharacterRange crange = GetSelection();
 			SetSelection(crange.cpMin, crange.cpMin);
-			FindNext(reverseFind);
+			FindNext(false);
 			if (havefound) {
 				ReplaceOnce();
 			}

@@ -1553,7 +1553,7 @@ void SciTEBase::ReplaceOnce() {
 		havefound = false;
 	}
 
-	FindNext(reverseFind);
+	FindNext(false);
 }
 
 int SciTEBase::DoReplaceAll(bool inSelection) {
@@ -2723,7 +2723,7 @@ void SciTEBase::SetTextProperties(
 	       }
 	       sprintf(temp, "%ld", charCount);
 	} else {
-	       sprintf(temp, "%ld", crange.cpMax - crange.cpMin);
+		sprintf(temp, "%ld", crange.cpMax - crange.cpMin);
 	}
 	ps.Set("SelLength", temp);
 	int caretPos = SendEditor(SCI_GETCURRENTPOS);

@@ -1403,10 +1403,11 @@ gint SciTEGTK::FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 
 void SciTEGTK::FRFindSignal(GtkWidget *, SciTEGTK *scitew) {
 	scitew->FindReplaceGrabFields();
-	if (!scitew->comboReplace)
+	bool isFindDialog = !scitew->comboReplace;
+	if (isFindDialog)
 		scitew->wFindReplace.Destroy();
 	if (scitew->findWhat[0]) {
-		scitew->FindNext(scitew->reverseFind);
+		scitew->FindNext(isFindDialog && scitew->reverseFind);
 	}
 }
 
