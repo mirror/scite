@@ -232,6 +232,8 @@ protected:
 	Window wDivider;
 	Point ptOld;
 	GdkGC *xor_gc;
+	bool focusEditor;
+	bool focusOutput;
 
 	guint sbContextID;
 	Window wToolBarBox;
@@ -2413,14 +2415,14 @@ void SciTEGTK::DividerXOR(Point pt) {
 	if (splitVertical) {
 		gdk_draw_line(PWidget(wSciTE)->window, xor_gc,
 		              pt.x,
-		              0,
+		              PWidget(wDivider)->allocation.y,
 		              pt.x,
-		              PWidget(wSciTE)->allocation.height - 1);
+		              PWidget(wDivider)->allocation.y + PWidget(wDivider)->allocation.height - 1);
 	} else {
 		gdk_draw_line(PWidget(wSciTE)->window, xor_gc,
-		              0,
+		              PWidget(wDivider)->allocation.x,
 		              pt.y,
-		              PWidget(wSciTE)->allocation.width - 1,
+		              PWidget(wDivider)->allocation.x + PWidget(wDivider)->allocation.width - 1,
 		              pt.y);
 	}
 	ptOld = pt;
@@ -2479,17 +2481,28 @@ gint SciTEGTK::DividerMotion(GtkWidget *, GdkEventMotion *event, SciTEGTK *scite
 	return TRUE;
 }
 
-gint SciTEGTK::DividerPress(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
-	int x = 0;
-	int y = 0;
-	GdkModifierType state;
-	gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
-	scitew->ptStartDrag = Point(x, y);
-	scitew->capturedMouse = true;
-	scitew->heightOutputStartDrag = scitew->heightOutput;
-	gtk_widget_grab_focus(GTK_WIDGET(PWidget(scitew->wDivider)));
-	gtk_grab_add(GTK_WIDGET(PWidget(scitew->wDivider)));
-	scitew->DividerXOR(scitew->ptStartDrag);
+gint SciTEGTK::DividerPress(GtkWidget *, GdkEventButton *event, SciTEGTK *scitew) {
+	if (event->type == GDK_BUTTON_PRESS) {
+		int x = 0;
+		int y = 0;
+		GdkModifierType state;
+		gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
+		scitew->ptStartDrag = Point(x, y);
+		scitew->capturedMouse = true;
+		scitew->heightOutputStartDrag = scitew->heightOutput;
+		scitew->focusEditor = scitew->SendEditor(SCI_GETFOCUS) != 0;
+		if (scitew->focusEditor) {
+			scitew->SendEditor(SCI_SETFOCUS, 0);
+		}
+		scitew->focusOutput = scitew->SendOutput(SCI_GETFOCUS) != 0;
+		if (scitew->focusOutput) {
+			scitew->SendOutput(SCI_SETFOCUS, 0);
+		}
+		gtk_widget_grab_focus(GTK_WIDGET(PWidget(scitew->wDivider)));
+		gtk_grab_add(GTK_WIDGET(PWidget(scitew->wDivider)));
+		gtk_widget_draw(PWidget(scitew->wDivider), NULL);
+		scitew->DividerXOR(scitew->ptStartDrag);
+	}
 	return TRUE;
 }
 
@@ -2503,6 +2516,10 @@ gint SciTEGTK::DividerRelease(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 		GdkModifierType state;
 		gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
 		scitew->MoveSplit(Point(x, y));
+		if (scitew->focusEditor)
+			scitew->SendEditor(SCI_SETFOCUS, 1);
+		if (scitew->focusOutput)
+			scitew->SendOutput(SCI_SETFOCUS, 1);
 	}
 	return TRUE;
 }
