@@ -400,7 +400,7 @@ static int cf_pane_findtext(lua_State *L) {
 		}
 
 		if (!hasError) {
-			int result = host->Send(p, SCI_FINDTEXT, reinterpret_cast<uptr_t&>(flags), reinterpret_cast<sptr_t>(&ft));
+			int result = host->Send(p, SCI_FINDTEXT, static_cast<uptr_t>(flags), reinterpret_cast<sptr_t>(&ft));
 			if (result >= 0) {
 				lua_pushnumber(L, ft.chrgText.cpMin);
 				lua_pushnumber(L, ft.chrgText.cpMax);
@@ -600,7 +600,7 @@ static int cf_pane_match_generator(lua_State *L) {
 	ft.lpstrText = const_cast<char*>(text);
 
 	if (ft.chrg.cpMax > ft.chrg.cpMin) {
-		int result = host->Send(pmo->pane, SCI_FINDTEXT, reinterpret_cast<uptr_t&>(pmo->flags), reinterpret_cast<sptr_t>(&ft));
+		int result = host->Send(pmo->pane, SCI_FINDTEXT, static_cast<uptr_t>(pmo->flags), reinterpret_cast<sptr_t>(&ft));
 		if (result >= 0) {
 			pmo->startPos = ft.chrgText.cpMin;
 			pmo->endPos = pmo->endPosOrig = ft.chrgText.cpMax;
