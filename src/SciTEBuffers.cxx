@@ -74,10 +74,11 @@ void Job::Clear() {
 	flags = 0;
 }
 
-BufferList::BufferList() : current(0), buffers(0), size(0), length(0), initialised(false) {}
+BufferList::BufferList() : current(0), stackcurrent(0), buffers(0), size(0), length(0), initialised(false) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
+	delete []stack;
 }
 
 void BufferList::Allocate(int maxSize) {
@@ -85,6 +86,8 @@ void BufferList::Allocate(int maxSize) {
 	current = 0;
 	size = maxSize;
 	buffers = new Buffer[size];
+	stack = new int[size];
+	stack[0] = 0;
 }
 
 int BufferList::Add() {
@@ -92,6 +95,8 @@ int BufferList::Add() {
 		length++;
 	}
 	buffers[length - 1].Init();
+	stack[length - 1] = length - 1;
+	MoveToStackTop(length - 1);
 
 	return length - 1;
 }
@@ -117,6 +122,8 @@ void BufferList::RemoveCurrent() {
 	buffers[length - 1].doc = currentDoc;
 
 	if (length > 1) {
+		CommitStackSelection();
+		PopStack();
 		length--;
 
 		buffers[length].Init();
@@ -129,6 +136,7 @@ void BufferList::RemoveCurrent() {
 	} else {
 		buffers[current].Init();
 	}
+	MoveToStackTop(current);
 }
 
 int BufferList::Current() {
@@ -143,6 +151,47 @@ void BufferList::SetCurrent(int index) {
 	current = index;
 }
 
+void BufferList::PopStack() {
+	for (int i=0; i<length-1; ++i) {
+		int index = stack[i + 1];
+		// adjust the index for items that will move in buffers[]
+		if (index > current)
+			--index;
+		stack[i] = index;
+	}
+}
+
+int BufferList::StackNext() {
+	if (++stackcurrent >= length)
+		stackcurrent = 0;
+	return stack[stackcurrent];
+}
+
+int BufferList::StackPrev() {
+	if (--stackcurrent < 0)
+		stackcurrent = length - 1;
+	return stack[stackcurrent];
+}
+
+void BufferList::MoveToStackTop(int index) {
+	// shift top chunk of stack down into the slot that index occupies
+	bool move = false;
+	for (int i=length-1; i>0; --i) {
+		if (stack[i] == index)
+			move = true;
+		if (move)
+			stack[i] = stack[i-1];
+	}
+	stack[0] = index;
+}
+
+void BufferList::CommitStackSelection() {
+	// called only when ctrl key is released when ctrl-tabbing
+	// or when a document is closed (in case of Ctrl+F4 during ctrl-tabbing)
+	MoveToStackTop(stack[stackcurrent]);
+	stackcurrent = 0;
+}
+
 sptr_t SciTEBase::GetDocumentAt(int index) {
 	if (index < 0 || index >= buffers.size) {
 		//Platform::DebugPrintf("SciTEBase::GetDocumentAt: Index out of range.\n");
@@ -155,7 +204,7 @@ sptr_t SciTEBase::GetDocumentAt(int index) {
 	return buffers.buffers[index].doc;
 }
 
-void SciTEBase::SetDocumentAt(int index) {
+void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	int currentbuf = buffers.Current();
 
 	if (	index < 0 ||
@@ -168,6 +217,9 @@ void SciTEBase::SetDocumentAt(int index) {
 	UpdateBuffersCurrent();
 
 	buffers.SetCurrent(index);
+	if (updateStack) {
+		buffers.MoveToStackTop(index);
+	}
 
 	if (extender) {
 		if (buffers.size > 1)
@@ -698,6 +750,20 @@ void SciTEBase::Prev() {
 
 	SetDocumentAt(prev);
 	CheckReload();
+}
+
+void SciTEBase::NextInStack() {
+	SetDocumentAt(buffers.StackNext(), false);
+	CheckReload();
+}
+
+void SciTEBase::PrevInStack() {
+	SetDocumentAt(buffers.StackPrev(), false);
+	CheckReload();
+}
+
+void SciTEBase::EndStackedTabbing() {
+	buffers.CommitStackSelection();
 }
 
 void SciTEBase::BuffersMenu() {

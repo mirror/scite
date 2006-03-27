@@ -1446,7 +1446,10 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	return 0l;
 }
 
-LRESULT SciTEWin::KeyUp(WPARAM) {
+LRESULT SciTEWin::KeyUp(WPARAM wParam) {
+	if (wParam == VK_CONTROL) {
+		EndStackedTabbing();
+	}
 	return 0l;
 }
 

@@ -258,6 +258,7 @@ const char *contributors[] = {
                                  "Sebastian Pipping",
                                  "Andre Arpin",
                                  "Stanislav Maslovski",
+                                 "Martin Stone",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -3407,6 +3408,13 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		SendEditor(SCI_SETCODEPAGE, codePage);
 		break;
 
+	case IDM_NEXTFILESTACK:
+		if (buffers.size > 1 && props.GetInt("buffers.zorder.switching")) {
+			NextInStack(); // next most recently selected buffer
+			WindowSetFocus(wEditor);
+			break;
+		}
+		// else fall through and do NEXTFILE behaviour...
 	case IDM_NEXTFILE:
 		if (buffers.size > 1) {
 			Next(); // Use Next to tabs move left-to-right
@@ -3416,6 +3424,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			StackMenuNext();
 		}
 		break;
+
+	case IDM_PREVFILESTACK:
+		if (buffers.size > 1 && props.GetInt("buffers.zorder.switching")) {
+			PrevInStack(); // next least recently selected buffer
+			WindowSetFocus(wEditor);
+			break;
+		}
+		// else fall through and do PREVFILE behaviour...
 	case IDM_PREVFILE:
 		if (buffers.size > 1) {
 			Prev(); // Use Prev to tabs move right-to-left

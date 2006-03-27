@@ -259,6 +259,8 @@ public:
 class BufferList {
 protected:
 	int current;
+	int stackcurrent;
+	int *stack;
 public:
 	Buffer *buffers;
 	int size;
@@ -273,6 +275,12 @@ public:
 	int Current();
 	Buffer *CurrentBuffer();
 	void SetCurrent(int index);
+	int StackNext();
+	int StackPrev();
+	void CommitStackSelection();
+	void MoveToStackTop(int index);
+private:
+	void PopStack();
 };
 
 enum JobSubsystem {
@@ -569,13 +577,16 @@ protected:
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable();
 	bool CanMakeRoom(bool maySaveIfDirty=true);
-	void SetDocumentAt(int index);
+	void SetDocumentAt(int index, bool updateStack=true);
 	Buffer *CurrentBuffer() {
 		return buffers.CurrentBuffer();
 	}
 	void BuffersMenu();
 	void Next();
 	void Prev();
+	void NextInStack();
+	void PrevInStack();
+	void EndStackedTabbing();
 
 	void ReadGlobalPropFile();
 	void ReadAbbrevPropFile();
