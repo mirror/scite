@@ -86,6 +86,10 @@ static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
 			}
 		} else if ((ch == '\\') && (lenData > 0) && ((*fpc == '\r') || (*fpc == '\n'))) {
 			continuation = true;
+			if ((lenData > 1) && ((*fpc == '\r') && (*(fpc+1) == '\r') || (*fpc == '\n') && (*(fpc+1) == '\n')))
+				continuation = false;
+			else if ((lenData > 2) && ((*fpc == '\r') && (*(fpc+1) == '\n') && (*(fpc+2) == '\n' || *(fpc+2) == '\r')))
+				continuation = false;
 		} else {
 			continuation = false;
 			*s++ = ch;
