@@ -376,6 +376,9 @@
 				RelativePath="..\..\scintilla\src\LexSpecman.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexSpice.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexSQL.cxx">
 			</File>
 			<File
