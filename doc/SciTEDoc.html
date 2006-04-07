@@ -2608,8 +2608,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           fold.comment
         </td>
         <td>
-        This option enables folding multi-line comments when using the C++
-        lexer.
+        This option enables folding multi-line comments and explicit fold points when using the C++
+        lexer. Explicit fold points allows adding extra folding by placing a //{ comment at the start and
+        a //} at the end of a section that should fold.
         </td>
       </tr>
       <tr>
