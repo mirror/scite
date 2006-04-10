@@ -463,7 +463,7 @@ void SciTEBase::LoadSession(const char *sessionName) {
 	for (int i = 0; i < bufferMax; i++) {
 		if (!fgets(line, sizeof (line), sessionFile))
 			break;
-		strtok(line, "\r\n");	// Remove \r, \n, or \r\n.
+		line[strcspn(line, "\r\n")] = '\0';	// Remove \r, \n, or \r\n.
 		if (sscanf(line, "<pos=%i>", &pos) != 1)
 			break;
 		file = strchr(line, '>') + 2;
