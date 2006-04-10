@@ -630,6 +630,7 @@ static const char *propertiesToForward[] = {
 	"fold.perl.pod",
 	"fold.preprocessor",
 	"fold.quotes.python",
+	"fold.sql.only.begin",
 	"fold.verilog.flags",
 	"html.tags.case.sensitive",
 	"lexer.caml.magic",
