@@ -399,11 +399,6 @@ bool SciTEBase::PreOpenCheck(const char *) {
 bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	InitialiseBuffers();
 
-	//if (!file.IsSet()) {
-	//	SString msg = LocaliseMessage("Bad file.");
-	//	WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
-	//	return false;
-	//}
 #ifdef __vms
 	file = file.VMSToUnixStyle();
 #endif
