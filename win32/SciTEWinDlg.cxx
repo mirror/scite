@@ -332,7 +332,7 @@ void SciTEWin::SaveAsPDF() {
 }
 
 void SciTEWin::SaveAsTEX() {
-	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As TeX",
+	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As LaTeX",
 	                              "TeX (.tex)\0*.tex\0", ".tex");
 	if (path.IsSet()) {
 		SaveToTEX(path);
