@@ -1253,7 +1253,7 @@ void SciTEBase::ToolsMenu(int item) {
 		if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
 			saveBefore = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value();
 
-		if (saveBefore == 2 || (saveBefore == 1 && Save()) || SaveIfUnsure() != IDCANCEL) {
+		if (saveBefore == 2 || (saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != IDCANCEL) {
 			int flags = 0;
 
 			propName = "command.is.filter.";
