@@ -564,6 +564,8 @@ protected:
 
 	PropSetFile propsAbbrev;
 
+	FilePath pathAbbreviations;
+
 	PropSetFile propsUI;
 
 	PropSetFile propsStatus;	// Not attached to a file but need SetInteger method.

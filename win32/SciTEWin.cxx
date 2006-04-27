@@ -173,6 +173,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 		::FreeResource(handProps);
 	}
 
+	pathAbbreviations = GetAbbrevPropertiesFileName();
+
 	ReadGlobalPropFile();
 	/// Need to copy properties to variables before setting up window
 	SetPropertiesInitial();

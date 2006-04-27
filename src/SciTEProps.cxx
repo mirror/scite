@@ -265,8 +265,7 @@ void SciTEBase::ReadGlobalPropFile() {
 
 void SciTEBase::ReadAbbrevPropFile() {
 	propsAbbrev.Clear();
-	FilePath propfileAbbrev = GetAbbrevPropertiesFileName();
-	propsAbbrev.Read(propfileAbbrev, propfileAbbrev.Directory(), importFiles, importMax);
+	propsAbbrev.Read(pathAbbreviations, pathAbbreviations.Directory(), importFiles, importMax);
 }
 
 void SciTEBase::ReadLocalPropFile() {
@@ -787,6 +786,13 @@ void SciTEBase::ReadProperties() {
 		apis.Clear();
 		ReadAPI(fileNameForExtension);
 		apisFileNames = props.GetNewExpand("api.", fileNameForExtension.c_str());
+	}
+	FilePath fileAbbrev = props.GetNewExpand("abbreviations.", fileNameForExtension.c_str()).c_str();
+	if (!fileAbbrev.IsSet())
+		fileAbbrev = GetAbbrevPropertiesFileName();
+	if (!pathAbbreviations.SameNameAs(fileAbbrev)) {
+		pathAbbreviations = fileAbbrev;
+		ReadAbbrevPropFile();
 	}
 
 	if (!props.GetInt("eol.auto")) {
@@ -1457,7 +1463,7 @@ void SciTEBase::OpenProperties(int propsFile) {
 		propfile = GetUserPropertiesFileName();
 		Open(propfile, ofQuiet);
 	} else if (propsFile == IDM_OPENABBREVPROPERTIES) {
-		propfile = GetAbbrevPropertiesFileName();
+		propfile = pathAbbreviations;
 		Open(propfile, ofQuiet);
 	} else if (propsFile == IDM_OPENGLOBALPROPERTIES) {
 		propfile = GetDefaultPropertiesFileName();

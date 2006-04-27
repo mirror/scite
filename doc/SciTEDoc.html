@@ -571,7 +571,8 @@ NameError: mistake
        command or the Ctrl+B key. The abbreviation is replaced by an
        expansion defined in the Abbreviations file. You can open the
        Abbreviations file with a command in the Options menu and
-       add abbreviations.
+       add abbreviations. There is a default abbreviations file but a different
+	    abbreviations file can be set for particular file extensions.
     </p>
     <p>
        Each line in the files looks like "abbreviation=expansion".<br />
@@ -1386,6 +1387,18 @@ NameError: mistake
         </td>
         <td>
           Ensures all lines end with the current Line End Characters setting when saved.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          abbreviations.<i>filepattern</i>
+        </td>
+        <td>
+          Loads an abbreviations file for a particular language overriding the default abbreviations file.
+          For example,<br />
+         <code>
+                abbreviations.*.c=$(SciteUserHome)/c_abbrev.properties<br />
+         </code><br />
         </td>
       </tr>
       <tr>
