@@ -1736,13 +1736,8 @@ void SciTEBase::OutputAppendStringSynchronised(const char *s, int len) {
 }
 
 void SciTEBase::MakeOutputVisible() {
-	if (heightOutput < 20) {
-		if (splitVertical)
-			heightOutput = NormaliseSplit(300);
-		else
-			heightOutput = NormaliseSplit(100);
-		SizeSubWindows();
-		Redraw();
+	if (heightOutput <= 0) {
+		ToggleOutputVisible();
 	}
 }
 
