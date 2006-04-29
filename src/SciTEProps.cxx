@@ -851,9 +851,6 @@ void SciTEBase::ReadProperties() {
 		SendEditor(SCI_SETCONTROLCHARSYMBOL, 0);
 	}
 
-	SendEditor(SCI_CALLTIPSETBACK,
-	           ColourOfProperty(props, "calltip.back", ColourDesired(0xff, 0xff, 0xff)));
-
 	SString caretPeriod = props.Get("caret.period");
 	if (caretPeriod.length()) {
 		SendEditor(SCI_SETCARETPERIOD, caretPeriod.value());
