@@ -51,7 +51,7 @@ static bool SendPipeCommand(const char *pipeCommand, int fdOutPipe) {
 	return false;
 }
 
-static void RecieverPipeSignal(void *data, gint fd, GdkInputCondition condition){
+static void ReceiverPipeSignal(void *data, gint fd, GdkInputCondition condition){
 	int readLength;
 	char pipeData[8192];
 	PropSetFile pipeProps;
@@ -59,7 +59,8 @@ static void RecieverPipeSignal(void *data, gint fd, GdkInputCondition condition)
 
 	if (condition == GDK_INPUT_READ) {
 		SString pipeString;
-		while ((readLength = read(fd, pipeData, sizeof(pipeData))) > 0) {
+		while ((readLength = read(fd, pipeData, sizeof(pipeData) - 1)) > 0) {
+			pipeData[readLength] = '\0';
 			pipeString.append(pipeData);
 		}
 		ext->HandleStringMessage(pipeString.c_str());
@@ -243,7 +244,7 @@ bool DirectorExtension::CreatePipe(bool forceNew) {
 	//check we have been given a specific pipe name
 	if (pipeFilename.size() > 0)
 	{
-		printf("CreatePipe: if (pipeFilename.size() > 0): %s\n", pipeFilename.c_str());
+		//fprintf(fdDebug, "CreatePipe: if (pipeFilename.size() > 0): %s\n", pipeFilename.c_str());
 		//snprintf(pipeName, CHAR_MAX - 1, "%s", pipeFilename.c_str());
 		pipeName = g_strdup(pipeFilename.c_str());
 		fdReceiver = open(pipeName, O_RDWR | O_NONBLOCK);
@@ -338,7 +339,7 @@ bool DirectorExtension::CreatePipe(bool forceNew) {
 	if (fdReceiver != -1) {
 
 		//store the inputwatcher so we can remove it.
-		inputWatcher = gdk_input_add(fdReceiver, GDK_INPUT_READ, RecieverPipeSignal, this);
+		inputWatcher = gdk_input_add(fdReceiver, GDK_INPUT_READ, ReceiverPipeSignal, this);
 		return anotherPipe;
 	}
 
