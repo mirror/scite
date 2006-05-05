@@ -38,6 +38,8 @@
 #ifdef _MSC_VER
 // okay, that's done, don't allow it in our code
 #pragma warning(default: 4201)
+// Turn off MS dislike of POSIX
+#pragma warning(disable: 4996)
 #endif
 #include <commctrl.h>
 
