@@ -74,11 +74,11 @@ call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
 rem
 rem ************************************************************
 rem Target 6: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
-REM ~ call scite\scripts\clearboth
-REM ~ cd scintilla\win32
-REM ~ nmake -f scintilla_vc6.mak QUIET=1
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
+call scite\scripts\clearboth
+cd scintilla\win32
+nmake -f scintilla_vc6.mak QUIET=1
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 rem
 rem ************************************************************
 rem Target 7: Visual C++ using scintilla\vcbuild\SciLexer.dsp
