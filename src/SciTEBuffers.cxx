@@ -630,6 +630,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			SetFileName(bufferNext);
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 		if (closingLast) {
+			SendEditor(SCI_SETREADONLY, 0);
 			ClearDocument();
 		}
 		if (updateUI) {
