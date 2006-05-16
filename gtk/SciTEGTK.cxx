@@ -605,8 +605,8 @@ GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
 	GError *error = NULL;
 	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(path, &error);
 	if (!pixbuf) {
-		fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",
-			path, error->message);
+		//~ fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",
+			//~ path, error->message);
 		g_error_free(error);
 	}
 	return pixbuf;
