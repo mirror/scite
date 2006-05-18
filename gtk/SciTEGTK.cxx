@@ -2541,6 +2541,7 @@ gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 		SetDocumentAt(gtk_notebook_current_page(GTK_NOTEBOOK(wTabBar.GetID())));
 		CheckReload();
 	} else if (event->button == 2) {
+#if GTK_MAJOR_VERSION >= 2
 		for (int pageNum=0;pageNum<gtk_notebook_get_n_pages(notebook);pageNum++) {
 			GtkWidget *page = gtk_notebook_get_nth_page(notebook, pageNum);
 			if (page) {
@@ -2551,6 +2552,7 @@ gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 				}
 			}
 		}
+#endif
 	}
 	return FALSE;
 }
@@ -2629,6 +2631,7 @@ GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar
 }
 
 void SciTEGTK::AddToolBar() {
+#if GTK_MAJOR_VERSION >= 2
 	if (props.GetInt("toolbar.usestockicons") == 1) {
 		AddToolButton("New", IDM_NEW, gtk_image_new_from_stock("gtk-new", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Open", IDM_OPEN, gtk_image_new_from_stock("gtk-open", GTK_ICON_SIZE_LARGE_TOOLBAR));
@@ -2658,36 +2661,37 @@ void SciTEGTK::AddToolBar() {
 		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
 		AddToolButton("Previous", IDM_PREVFILE, gtk_image_new_from_stock("gtk-go-back", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_stock("gtk-go-forward", GTK_ICON_SIZE_LARGE_TOOLBAR));
-	} else {
-		AddToolButton("New", IDM_NEW, pixmap_new(PWidget(wSciTE), filenew_xpm));
-		AddToolButton("Open", IDM_OPEN, pixmap_new(PWidget(wSciTE), fileopen_xpm));
-		AddToolButton("Save", IDM_SAVE, pixmap_new(PWidget(wSciTE), filesave_xpm));
-		AddToolButton("Close", IDM_CLOSE, pixmap_new(PWidget(wSciTE), close_xpm));
-
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Undo", IDM_UNDO, pixmap_new(PWidget(wSciTE), undo_xpm));
-		AddToolButton("Redo", IDM_REDO, pixmap_new(PWidget(wSciTE), redo_xpm));
-
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Cut", IDM_CUT, pixmap_new(PWidget(wSciTE), editcut_xpm));
-		AddToolButton("Copy", IDM_COPY, pixmap_new(PWidget(wSciTE), editcopy_xpm));
-		AddToolButton("Paste", IDM_PASTE, pixmap_new(PWidget(wSciTE), editpaste_xpm));
-
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new(PWidget(wSciTE), findinfiles_xpm));
-		AddToolButton("Find", IDM_FIND, pixmap_new(PWidget(wSciTE), search_xpm));
-		AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new(PWidget(wSciTE), findnext_xpm));
-		AddToolButton("Replace", IDM_REPLACE, pixmap_new(PWidget(wSciTE), replace_xpm));
-
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-		btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new(PWidget(wSciTE), compile_xpm));
-		btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new(PWidget(wSciTE), build_xpm));
-		btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new(PWidget(wSciTE), stop_xpm));
-
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Previous", IDM_PREVFILE, pixmap_new(PWidget(wSciTE), prev_xpm));
-		AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new(PWidget(wSciTE), next_xpm));
+		return;
 	}
+#endif
+	AddToolButton("New", IDM_NEW, pixmap_new(PWidget(wSciTE), filenew_xpm));
+	AddToolButton("Open", IDM_OPEN, pixmap_new(PWidget(wSciTE), fileopen_xpm));
+	AddToolButton("Save", IDM_SAVE, pixmap_new(PWidget(wSciTE), filesave_xpm));
+	AddToolButton("Close", IDM_CLOSE, pixmap_new(PWidget(wSciTE), close_xpm));
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+	AddToolButton("Undo", IDM_UNDO, pixmap_new(PWidget(wSciTE), undo_xpm));
+	AddToolButton("Redo", IDM_REDO, pixmap_new(PWidget(wSciTE), redo_xpm));
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+	AddToolButton("Cut", IDM_CUT, pixmap_new(PWidget(wSciTE), editcut_xpm));
+	AddToolButton("Copy", IDM_COPY, pixmap_new(PWidget(wSciTE), editcopy_xpm));
+	AddToolButton("Paste", IDM_PASTE, pixmap_new(PWidget(wSciTE), editpaste_xpm));
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+	AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new(PWidget(wSciTE), findinfiles_xpm));
+	AddToolButton("Find", IDM_FIND, pixmap_new(PWidget(wSciTE), search_xpm));
+	AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new(PWidget(wSciTE), findnext_xpm));
+	AddToolButton("Replace", IDM_REPLACE, pixmap_new(PWidget(wSciTE), replace_xpm));
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+	btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new(PWidget(wSciTE), compile_xpm));
+	btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new(PWidget(wSciTE), build_xpm));
+	btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new(PWidget(wSciTE), stop_xpm));
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+	AddToolButton("Previous", IDM_PREVFILE, pixmap_new(PWidget(wSciTE), prev_xpm));
+	AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new(PWidget(wSciTE), next_xpm));
 }
 
 SString SciTEGTK::TranslatePath(const char *path) {
@@ -3405,12 +3409,14 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Find the SciTE executable, first trying to use argv[0] and converting
 	// to an absolute path and if that fails, searching the path.
 	sciteExecutable = FilePath(argv[0]).AbsolutePath();
+#if GTK_MAJOR_VERSION >= 2
 	if (!sciteExecutable.Exists()) {
 		gchar *progPath = g_find_program_in_path(argv[0]);
 		sciteExecutable = FilePath(progPath);
 		g_free(progPath);
 	}
-
+#endif
+	
 	// Collect the argv into one string with each argument separated by '\n'
 	SString args;
 	int arg;
