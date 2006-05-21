@@ -844,7 +844,6 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	if (WM_SETFONT == message || WM_NCDESTROY == message)
 		return FALSE;
 	Dialog dlg(hDlg);
-	HWND wFindStyle = dlg.Item(IDFINDSTYLE);
 
 	switch (message) {
 
@@ -858,11 +857,13 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		dlg.SetCheck(IDREGEXP, regExp);
 		dlg.SetCheck(IDWRAP, wrapFind);
 		dlg.SetCheck(IDUNSLASH, unSlash);
-		dlg.SetCheck(IDFINDSTYLE, findInStyle);
-		dlg.Enable(IDFINDSTYLE, findInStyle);
-		::SendMessage(wFindStyle, EM_LIMITTEXT, 3, 1);
-		::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
 		dlg.SetCheck(reverseFind ? IDDIRECTIONUP : IDDIRECTIONDOWN, true);
+		if (FindReplaceAdvanced()) {
+			dlg.SetCheck(IDFINDSTYLE, findInStyle);
+			dlg.Enable(IDFINDSTYLE, findInStyle);
+			::SendMessage(dlg.Item(IDFINDSTYLE), EM_LIMITTEXT, 3, 1);
+			::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
+		}
 		return TRUE;
 
 	case WM_CLOSE:
@@ -884,8 +885,10 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			regExp = dlg.Checked(IDREGEXP);
 			wrapFind = dlg.Checked(IDWRAP);
 			unSlash = dlg.Checked(IDUNSLASH);
-			findInStyle = dlg.Checked(IDFINDINSTYLE);
-			findStyle = atoi(dlg.ItemTextU(IDFINDSTYLE).c_str());
+			if (FindReplaceAdvanced()) {
+				findInStyle = dlg.Checked(IDFINDINSTYLE);
+				findStyle = atoi(dlg.ItemTextU(IDFINDSTYLE).c_str());
+			}
 			reverseFind = dlg.Checked(IDDIRECTIONUP);
 			::EndDialog(hDlg, IDOK);
 			wFindReplace.Destroy();
@@ -895,8 +898,10 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			FindNext(reverseFind);
 			return TRUE;
 		} else if (ControlIDOfCommand(wParam) == IDFINDINSTYLE) {
-			findInStyle = dlg.Checked(IDFINDINSTYLE);
-			dlg.Enable(IDFINDSTYLE, findInStyle);
+			if (FindReplaceAdvanced()) {
+				findInStyle = dlg.Checked(IDFINDINSTYLE);
+				dlg.Enable(IDFINDSTYLE, findInStyle);
+			}
 			return TRUE;
 		}
 	}
@@ -923,8 +928,10 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		regExp = dlg.Checked(IDREGEXP);
 		wrapFind = dlg.Checked(IDWRAP);
 		unSlash = dlg.Checked(IDUNSLASH);
-		findInStyle = dlg.Checked(IDFINDINSTYLE);
-		findStyle = atoi(dlg.ItemTextU(IDFINDSTYLE).c_str());
+		if (FindReplaceAdvanced()) {
+			findInStyle = dlg.Checked(IDFINDINSTYLE);
+			findStyle = atoi(dlg.ItemTextU(IDFINDSTYLE).c_str());
+		}
 	}
 	if ((cmd == IDREPLACE) || (cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL) || (cmd == IDREPLACEINBUF)) {
 		replaceWhat = dlg.ItemTextU(IDREPLACEWITH);
@@ -979,9 +986,11 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		dlg.SetCheck(IDREGEXP, regExp);
 		dlg.SetCheck(IDWRAP, wrapFind);
 		dlg.SetCheck(IDUNSLASH, unSlash);
-		dlg.SetCheck(IDFINDSTYLE, findInStyle);
-		dlg.Enable(IDFINDSTYLE, findInStyle);
-		::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
+		if (FindReplaceAdvanced()) {
+			dlg.SetCheck(IDFINDSTYLE, findInStyle);
+			dlg.Enable(IDFINDSTYLE, findInStyle);
+			::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
+		}
 		dlg.SetItemText(IDREPLDONE, "0");
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(wReplaceWith);
@@ -1001,8 +1010,10 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			wFindReplace.Destroy();
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDFINDINSTYLE) {
-			findInStyle = dlg.Checked(IDFINDINSTYLE);
-			dlg.Enable(IDFINDSTYLE, findInStyle);
+			if (FindReplaceAdvanced()) {
+				findInStyle = dlg.Checked(IDFINDINSTYLE);
+				dlg.Enable(IDFINDSTYLE, findInStyle);
+			}
 			return TRUE;
 		} else {
 			return HandleReplaceCommand(ControlIDOfCommand(wParam));
@@ -1141,6 +1152,10 @@ void SciTEWin::FindIncrement() {
 	WindowSetFocus(wEditor);
 }
 
+bool SciTEWin::FindReplaceAdvanced() {
+	return props.GetInt("find.replace.advanced");
+}
+
 void SciTEWin::Find() {
 	if (wFindIncrement.Created())
 		return;
@@ -1157,7 +1172,7 @@ void SciTEWin::Find() {
 		fr.Flags |= FR_DOWN;
 	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
-	int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_FIND : IDD_FIND_ADV);
+	int dialog_id = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
 
 	if (IsWindowsNT()) {
 		wFindReplace = ::CreateDialogParamW(hInstance,
