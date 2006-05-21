@@ -1178,13 +1178,14 @@ NameError: mistake
       <tr>
         <td>
           selection.fore<br />
-           selection.back
+           selection.back<br />
+           selection.alpha
         </td>
         <td>
           Sets the colours used for displaying selected text. If one of these is not set then that
           attribute is not changed for the selection. The default is to show the selection by
           changing the background to light grey and leaving the foreground the same as when it was
-          not selected.
+          not selected. The translucency of the selection is set with selection.alpha.
         </td>
       </tr>
       <tr>
@@ -1314,11 +1315,13 @@ NameError: mistake
       <tr>
         <td>
           bookmark.fore<br />
-          bookmark.back
+          bookmark.back<br />
+          bookmark.alpha
         </td>
         <td>
           The colours used to display bookmarks in the margin. If bookmark.fore is not set then
-	a blue sphere is used.
+          a blue sphere is used. When the margin is turned off, bookmarks are shown by a
+          change in the background colour of the line with the translucency set with bookmark.alpha.
         </td>
        </tr>
       <tr>

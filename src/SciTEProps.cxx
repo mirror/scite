@@ -896,6 +896,7 @@ void SciTEBase::ReadProperties() {
 		else	// Have to show selection somehow
 			SendChildren(SCI_SETSELBACK, 1, ColourDesired(0xC0, 0xC0, 0xC0).AsLong());
 	}
+	SendEditor(SCI_SETSELALPHA, props.GetInt("selection.alpha", SC_ALPHA_NOALPHA));
 
 	SString foldColour = props.Get("fold.margin.colour");
 	if (foldColour.length()) {
@@ -1175,6 +1176,7 @@ void SciTEBase::ReadProperties() {
 	           ColourOfProperty(props, "bookmark.fore", ColourDesired(0, 0, 0x7f)));
 	SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK,
 	           ColourOfProperty(props, "bookmark.back", ColourDesired(0x80, 0xff, 0xff)));
+	SendEditor(SCI_MARKERSETALPHA, SciTE_MARKER_BOOKMARK, props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA));
 	SString bookMarkXPM = props.Get("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
 		SendEditorString(SCI_MARKERDEFINEPIXMAP, SciTE_MARKER_BOOKMARK,
