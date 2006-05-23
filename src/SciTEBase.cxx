@@ -4836,7 +4836,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 		char *arg = wlArgs[i];
 		if (IsSwitchCharacter(arg[0])) {
 			arg++;
-			if (arg[0] == '\0' || arg[0] == '-') {
+			if (arg[0] == '\0' || (arg[0] == '-' && arg[1] == '\0')) {
 				if (phase == 1) {
 					OpenFromStdin(arg[0] == '-');
 				}
