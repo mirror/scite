@@ -391,6 +391,7 @@ void SciTEWin::SaveSessionDialog() {
 void SciTEWin::Print(
     bool showDialog) {	///< false if must print silently (using default settings).
 
+	RemoveFindMarks();
 	PRINTDLG pdlg = {
 	                    sizeof(PRINTDLG), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	                };

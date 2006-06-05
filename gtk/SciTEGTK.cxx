@@ -1292,6 +1292,7 @@ void SciTEGTK::SaveSessionDialog() {
 }
 
 void SciTEGTK::Print(bool) {
+	RemoveFindMarks();
 	SelectionIntoProperties();
 	AddCommand(props.GetWild("command.print.", filePath.AsInternal()), "",
 	           SubsystemType("command.print.subsystem."));
@@ -3416,7 +3417,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 		g_free(progPath);
 	}
 #endif
-	
+
 	// Collect the argv into one string with each argument separated by '\n'
 	SString args;
 	int arg;
