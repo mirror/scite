@@ -896,7 +896,7 @@ void SciTEBase::ReadProperties() {
 		else	// Have to show selection somehow
 			SendChildren(SCI_SETSELBACK, 1, ColourDesired(0xC0, 0xC0, 0xC0).AsLong());
 	}
-	SendEditor(SCI_SETSELALPHA, props.GetInt("selection.alpha", SC_ALPHA_NOALPHA));
+	SendChildren(SCI_SETSELALPHA, props.GetInt("selection.alpha", SC_ALPHA_NOALPHA));
 
 	SString foldColour = props.Get("fold.margin.colour");
 	if (foldColour.length()) {
