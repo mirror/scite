@@ -70,6 +70,8 @@
     	How do I make SciTE run faster on GTK+?</a></li>
     <li><a class="toc" href="#NewlineInRegEx">
     	Is it possible to use the newline character (\n) in a regular expression?</a></li>
+    <li><a class="toc" href="#CompilerErrors">
+    	How do I get SciTE to understand the error messages from my compiler?</a></li>
     </ul>
     <h4 id="FixedWidth">
        How do I use a fixed width font for all text?
@@ -233,6 +235,17 @@ You can set a command for all files using * as a file pattern. Up to 10 commands
     <p>
 	 The "Transform backslash expressions" option allows using \n and \r but that option does
 	 not work with regular expressions.
+    </p>
+    <h4 id="CompilerErrors">
+       How do I get SciTE to understand the error messages from my compiler?
+    </h4>
+    <p>
+     The set of error message formats is embedded in the Scintilla and SciTE code.
+     To add support for another compiler, you will need to add a new style to 
+     scintilla/include/Scintilla.iface after the other SCE_ERR_* values, run HFacer.py, 
+     edit RecogniseErrorListLine in scintilla/src/LexOthers.cxx to recognise the error message,
+     and edit DecodeMessage in scite/src/SciTEBuffers.cxx to extract the file name and line 
+     number.
     </p>
   </body>
 </html>
