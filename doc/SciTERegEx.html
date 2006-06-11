@@ -52,7 +52,8 @@
 	</li><li>
      \       matches the character following it, except
 	when followed by a left or right round bracket,
-	a digit 1 to 9 or a left or right angle bracket. 
+	a digit 1 to 9, one of the characters abfnrtv, 
+	or a left or right angle bracket. 
 	(see [7], [8] and [9])
 	It is used as an escape character for all 
 	other meta-characters, and itself. When used
@@ -92,6 +93,9 @@
 	</li><li>
 	a \ followed by a digit 1 to 9 matches whatever a
 	previously tagged regular expression ([7]) matched.
+	</li><li>
+	a \ followed by one of the characters abftv is a control
+	character. \a is BEL, \b is BS, \f is FF, \t is TAB, and \v is VT.
 	</li><li>
 	\&lt;	a regular expression starting with a \&lt; construct
 	\&gt;	and/or ending with a \&gt; construct, restricts the
