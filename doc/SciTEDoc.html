@@ -1970,9 +1970,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
           To support a DBCS language such as Japanese, a code page can be set here. This ensures
           that double byte characters are always treated as a unit so the caret is never located
-          between the two bytes of a double byte character. On Windows, settings that may work include
-          932 (Japanese Shift-JIS), 936 (Simplified Chinese GBK), 949 (Korean), and 950 (Traditional Chinese
-          Big5).<br />
+          between the two bytes of a double byte character. On Windows, 0 (single byte character set) and
+	65001 (UTF-8) will work and settings that may work, depending on how Windows is set up, include
+          932 (Japanese Shift-JIS), 936 (Simplified Chinese GBK), 949 (Korean), 950 (Traditional Chinese
+          Big5), and 1361(Korean Johab).<br />
           This option can only be 0 or 65001 on GTK+
         where SciTE only supports single byte character sets and Unicode.<br />
         Setting code.page to 65001 starts Unicode mode and the document is treated as
@@ -1981,7 +1982,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         Correct glyphs will only be displayed if fonts are chosen that contain the appropriate glyphs.
         Tahoma is a good choice on Windows 2000. <br/>
         This property can <em>not</em> set a single byte character set.<br />
-        For GTK+, the locale should be set to a Unicode locale by setting the LC_CTYPE
+        For GTK+ 1.x, the locale should be set to a Unicode locale by setting the LC_CTYPE
         property. For an English machine this can be<br />
         <code>
         LC_CTYPE=en_US.UTF-8
