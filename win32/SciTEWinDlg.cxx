@@ -341,7 +341,7 @@ void SciTEWin::SaveAsTEX() {
 
 void SciTEWin::SaveAsXML() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As XML",
-	                              "TeX (.xml)\0*.xml\0", ".xml");
+	                              "XML (.xml)\0*.xml\0", ".xml");
 	if (path.IsSet()) {
 		SaveToXML(path);
 	}
