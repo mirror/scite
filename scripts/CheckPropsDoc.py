@@ -7,8 +7,9 @@ import string
 import stat
 
 srcRoot = "../../scite"
-docFileName = srcRoot + "/doc/SciTEDoc.html"
-propsFileName = srcRoot + "/src/SciTEGlobal.properties"
+srcDir = os.path.join(srcRoot, "src")
+docFileName = os.path.join(srcRoot, "doc", "SciTEDoc.html")
+propsFileName = os.path.join(srcDir, "SciTEGlobal.properties")
 identCharacters = "_*." + string.letters + string.digits
 
 # Convert all punctuation characters except '_', '*', and '.' into spaces.
@@ -22,13 +23,20 @@ def depunctuate(s):
 	return d
 
 srcPaths = []
-propertiesPaths = []
 for filename in os.listdir(srcRoot):
-	dirname =  srcRoot + os.sep + filename
+	dirname = os.path.join(srcRoot, filename)
 	if stat.S_ISDIR(os.stat(dirname)[stat.ST_MODE]):
 		for src in os.listdir(dirname):
-			if src.count(".cxx"):
+			if ".cxx" in src:
 				srcPaths.append(dirname + os.sep + src)
+
+propertiesPaths = []
+for src in os.listdir(srcDir):
+	if ".properties" in src and \
+		"Embedded" not in src and \
+		"SciTE.properties" not in src and \
+		".bak" not in src:
+		propertiesPaths.append(os.path.join(srcDir, src))
 
 def nameOKSrc(src):
 	if os.path.splitext(srcPath)[1] not in [".cxx", ".h"]:
@@ -119,6 +127,7 @@ for propLine in propsFile.readlines():
 				propertyNames[key] = 1
 propsFile.close()
 
+print
 print "# Not mentioned in", propsFileName
 for identifier in identifiersSorted:
 	if not propertyNames[identifier]:
@@ -127,6 +136,7 @@ for identifier in identifiersSorted:
 
 # This is a test to see whether properties are defined in more than one file.
 # It doesn't understand the if directive so yields too many false positives to run often.
+print
 print "# Duplicate mentions"
 """
 fileOfProp = {}
@@ -184,6 +194,7 @@ for line in file(resourceFileName):
 #~ print "# Resource"
 #~ print "\n".join(sorted(list(resourceSet)))
 
+print
 print "# Missing localisation of resource"
 for l in sorted(resourceSet):
 	if l.lower() not in localeSet:
@@ -202,3 +213,34 @@ literalStrings = [l for l in list(literalStrings) if not present(localeSet, l)]
 
 #~ print "##"
 #~ print "\n".join(sorted(identifiersSorted))
+
+propsFile = open(propsFileName, "rt")
+for propLine in propsFile.readlines():
+	if propLine:
+		key = keyOfLine(propLine)
+		if key:
+			if key in propertyNames.keys():
+				propertyNames[key] = 1
+propsFile.close()
+
+propToFile = {}
+for propPath in propertiesPaths:
+	base = os.path.basename(propPath)
+	base = propPath
+	propsFile = open(propPath)
+	for propLine in propsFile.readlines():
+		if propLine and not propLine.startswith("#"):
+			key = keyOfLine(propLine)
+			if key:
+				if key not in propToFile:
+					propToFile[key] = []
+				propToFile[key].append(base)
+	propsFile.close()
+
+print
+print "# Duplicate properties"
+for k in sorted(propToFile.keys()):
+	files = propToFile[k] 
+	if len(files) > 1:
+		if files.count(files[0]) < len(files):
+			print k, ", ".join(propToFile[k])
