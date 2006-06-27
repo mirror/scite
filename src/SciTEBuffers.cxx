@@ -376,40 +376,15 @@ void SciTEBase::InitialiseBuffers() {
 	}
 }
 
-static void EnsureEndsWithPathSeparator(char *path) {
-	size_t pathLen = strlen(path);
-	if ((pathLen > 0) && path[pathLen - 1] != pathSepChar) {
-		strcat(path, pathSepString);
-	}
-}
-
-static void RecentFilePath(char *path, const char *name) {
-	char *where = getenv("SciTE_HOME");
-	if (!where)
-		where = getenv("HOME");
-	if (!where) {
-#if PLAT_WIN
-		::GetModuleFileName(0, path, MAX_PATH);
-		char *lastSlash = strrchr(path, pathSepChar);
-		if (lastSlash)
-			*(lastSlash + 1) = '\0';
-#else
-
-		*path = '\0';
-#endif
-
-	} else {
-		strcpy(path, where);
-		EnsureEndsWithPathSeparator(path);
-	}
-	strcat(path, configFileVisibilityString);
-	strcat(path, name);
+FilePath SciTEBase::RecentFilePath(const char *name) {
+	SString nameWithVisibility(configFileVisibilityString);
+	nameWithVisibility.append(name);
+	return FilePath(GetSciteUserHome(), nameWithVisibility.c_str());
 }
 
 void SciTEBase::LoadRecentMenu() {
-	char recentPathName[MAX_PATH + 1];
-	RecentFilePath(recentPathName, recentFileName);
-	FILE *recentFile = fopen(recentPathName, fileRead);
+	FilePath recentPathName = RecentFilePath(recentFileName);
+	FILE *recentFile = recentPathName.Open(fileRead);
 	if (!recentFile) {
 		DeleteFileStackMenu();
 		return;
@@ -427,9 +402,8 @@ void SciTEBase::LoadRecentMenu() {
 }
 
 void SciTEBase::SaveRecentStack() {
-	char recentPathName[MAX_PATH + 1];
-	RecentFilePath(recentPathName, recentFileName);
-	FILE *recentFile = fopen(recentPathName, fileWrite);
+	FilePath recentPathName = RecentFilePath(recentFileName);
+	FILE *recentFile = recentPathName.Open(fileWrite);
 	if (!recentFile)
 		return;
 	int i;
@@ -447,13 +421,13 @@ void SciTEBase::SaveRecentStack() {
 }
 
 void SciTEBase::LoadSession(const char *sessionName) {
-	char sessionPathName[MAX_PATH + 1];
+	FilePath sessionPathName;
 	if (sessionName[0] == '\0') {
-		RecentFilePath(sessionPathName, defaultSessionFileName);
+		sessionPathName = RecentFilePath(defaultSessionFileName);
 	} else {
-		strcpy(sessionPathName, sessionName);
+		sessionPathName.Set(sessionName);
 	}
-	FILE *sessionFile = fopen(sessionPathName, fileRead);
+	FILE *sessionFile = sessionPathName.Open(fileRead);
 	if (!sessionFile)
 		return;
 	// comment next line if you don't want to close all buffers before loading session
@@ -485,13 +459,13 @@ void SciTEBase::LoadSession(const char *sessionName) {
 }
 
 void SciTEBase::SaveSession(const char *sessionName) {
-	char sessionPathName[MAX_PATH + 1];
+	FilePath sessionPathName;
 	if (sessionName[0] == '\0') {
-		RecentFilePath(sessionPathName, defaultSessionFileName);
+		sessionPathName = RecentFilePath(defaultSessionFileName);
 	} else {
-		strcpy(sessionPathName, sessionName);
+		sessionPathName.Set(sessionName);
 	}
-	FILE *sessionFile = fopen(sessionPathName, fileWrite);
+	FILE *sessionFile = sessionPathName.Open(fileWrite);
 	if (!sessionFile)
 		return;
 	int curr = buffers.Current();

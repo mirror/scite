@@ -624,6 +624,7 @@ protected:
 	void ClearDocument();
 	void CreateBuffers();
 	void InitialiseBuffers();
+	FilePath RecentFilePath(const char *name);
 	void LoadRecentMenu();
 	void SaveRecentStack();
 	void LoadSession(const char *sessionName);
