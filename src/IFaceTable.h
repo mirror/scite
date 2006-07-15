@@ -54,6 +54,10 @@ struct IFaceProperty {
 			result.paramType[0] = paramType;
 			result.paramType[1] = valueType;
 		}
+		if ((paramType == iface_void) && (valueType == iface_string)){
+			result.paramType[0] = paramType;
+			result.paramType[1] = valueType;
+		}
 		return result;
 	}
 };
