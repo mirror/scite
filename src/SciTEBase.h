@@ -693,8 +693,8 @@ protected:
 	virtual SString GetRangeInUIEncoding(Window &win, int selStart, int selEnd);
 	SString GetLine(Window &win, int line);
 	SString RangeExtendAndGrab(Window &wCurrent, int &selStart, int &selEnd,
-		bool (*ischarforsel)(char ch), bool stripEol = true);
-	SString SelectionExtend(bool (*ischarforsel)(char ch), bool stripEol = true);
+		bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
+	SString SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	void FindWordAtCaret(int &start, int &end);
 	bool SelectWordAtCaret();
 	SString SelectionWord(bool stripEol = true);
@@ -900,6 +900,10 @@ protected:
 	void ShutDown();
 	void Perform(const char *actions);
 
+	// Valid CurrentWord characters
+	bool iswordcharforsel(char ch);
+	bool isfilenamecharforsel(char ch);
+	bool islexerwordcharforsel(char ch);
 public:
 
 	SciTEBase(Extension *ext = 0);

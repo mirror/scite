@@ -262,6 +262,7 @@ const char *contributors[] = {
                                  "Fabien Proriol",
                                  "mimir",
                                  "Nicola Civran",
+                                 "Valik",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -1075,17 +1076,25 @@ void SciTEBase::GetCTag(char *sel, int len) {
 	}
 }
 
-// Should also use word.characters.*, if exists, in the opposite way (in set instead of not in set)
-static bool iswordcharforsel(char ch) {
+// Default characters that can appear in a word
+bool SciTEBase::iswordcharforsel(char ch) {
 	return !strchr("\t\n\r !\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", ch);
 }
 
-// Accept slighly more characters than for a word
+// Accept slightly more characters than for a word
 // Doesn't accept all valid characters, as they are rarely used in source filenames...
 // Accept path separators '/' and '\', extension separator '.', and ':', MS drive unit
 // separator, and also used for separating the line number for grep. Same for '(' and ')' for cl.
-static bool isfilenamecharforsel(char ch) {
+bool SciTEBase::isfilenamecharforsel(char ch) {
 	return !strchr("\t\n\r \"$%'*,;<>?[]^`{|}", ch);
+}
+
+bool SciTEBase::islexerwordcharforsel(char ch) {
+	// If there are no word.characters defined for the current file, fall back on the original function
+	if (wordCharacters.length())
+		return wordCharacters.contains(ch);
+	else
+		return iswordcharforsel(ch);
 }
 
 SString SciTEBase::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
@@ -1106,8 +1115,8 @@ SString SciTEBase::RangeExtendAndGrab(
     Window &wCurrent,
     int &selStart,
     int &selEnd,
-    bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
-	bool stripEol /*=true*/) {
+    bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
+    bool stripEol /*=true*/) {
 
 	if (selStart == selEnd && ischarforsel) {
 		// Empty range and have a function to extend it
@@ -1115,11 +1124,11 @@ SString SciTEBase::RangeExtendAndGrab(
 		WindowAccessor acc(wCurrent.GetID(), props);
 		// Try and find a word at the caret
 		// On the left...
-		while ((selStart > 0) && (ischarforsel(acc[selStart - 1]))) {
+		while ((selStart > 0) && ((this->*ischarforsel)(acc[selStart - 1]))) {
 			selStart--;
 		}
 		// and on the right
-		while ((selEnd < lengthDoc) && (ischarforsel(acc[selEnd]))) {
+		while ((selEnd < lengthDoc) && ((this->*ischarforsel)(acc[selEnd]))) {
 			selEnd++;
 		}
 	}
@@ -1150,7 +1159,7 @@ SString SciTEBase::RangeExtendAndGrab(
  * to be CR and/or LF.
  */
 SString SciTEBase::SelectionExtend(
-    bool (*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
+	bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
 	bool stripEol /*=true*/) {
 
 	Window wCurrent;
@@ -1176,7 +1185,7 @@ void SciTEBase::FindWordAtCaret(int &start, int &end) {
 	start = SendFocused(SCI_GETSELECTIONSTART);
 	end = SendFocused(SCI_GETSELECTIONEND);
 	// Call just to update start & end
-	RangeExtendAndGrab(wCurrent, start, end, iswordcharforsel, false);
+	RangeExtendAndGrab(wCurrent, start, end, &SciTEBase::iswordcharforsel, false);
 }
 
 bool SciTEBase::SelectWordAtCaret() {
@@ -1188,11 +1197,11 @@ bool SciTEBase::SelectWordAtCaret() {
 }
 
 SString SciTEBase::SelectionWord(bool stripEol /*=true*/) {
-	return SelectionExtend(iswordcharforsel, stripEol);
+	return SelectionExtend(&SciTEBase::islexerwordcharforsel, stripEol);
 }
 
 SString SciTEBase::SelectionFilename() {
-	return SelectionExtend(isfilenamecharforsel);
+	return SelectionExtend(&SciTEBase::isfilenamecharforsel);
 }
 
 void SciTEBase::SelectionIntoProperties() {
@@ -4283,7 +4292,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 				int endWord = notification->position;
 				SString message =
 					RangeExtendAndGrab(wEditor,
-									   notification->position, endWord, iswordcharforsel);
+									   notification->position, endWord, &SciTEBase::iswordcharforsel);
 				if (message.length()) {
 					SendEditorString(SCI_CALLTIPSHOW, notification->position, message.c_str());
 				}
