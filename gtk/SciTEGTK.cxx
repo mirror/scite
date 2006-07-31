@@ -3132,7 +3132,7 @@ void SciTEGTK::CreateUI() {
 	wTabBar = gtk_notebook_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
-	gtk_signal_connect_after(GTK_OBJECT(PWidget(wTabBar)),
+	gtk_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
 		"button-release-event", GTK_SIGNAL_FUNC(TabBarReleaseSignal), gthis);
 	//gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
 #endif
