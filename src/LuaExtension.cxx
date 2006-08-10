@@ -331,11 +331,15 @@ static int cf_pane_textrange(lua_State *L) {
 		int cpMin = static_cast<int>(luaL_checknumber(L, 2));
 		int cpMax = static_cast<int>(luaL_checknumber(L, 3));
 
-		char *range = host->Range(p, cpMin, cpMax);
-		if (range) {
-			lua_pushstring(L, range);
-			delete []range;
-			return 1;
+		if (cpMax >= 0) {
+			char *range = host->Range(p, cpMin, cpMax);
+			if (range) {
+				lua_pushstring(L, range);
+				delete []range;
+				return 1;
+			}
+		} else {
+			raise_error(L, "Invalid argument 2 for <pane>:textrange.  Positive number or zero expected.");
 		}
 	} else {
 		raise_error(L, "Not enough arguments for <pane>:textrange");
