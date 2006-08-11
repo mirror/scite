@@ -186,7 +186,7 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				} else if (sKey == "Down") {
 					keyval = GDK_Down;
 				} else if (sKey == "Insert") {
-					keyval = GDK_Escape;
+					keyval = GDK_Insert;
 				} else if (sKey == "End") {
 					keyval = GDK_End;
 				} else if (sKey == "Home") {
