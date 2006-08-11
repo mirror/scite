@@ -2,7 +2,7 @@
 /** @file Exporters.cxx
  ** Export the current document to various markup languages.
  **/
-// Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2006 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -350,7 +350,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 
 	FILE *fp = saveName.Open("wt");
 	if (fp) {
-		fputs("<!DOCTYPE html  PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"DTD/xhtml1-strict.dtd\">\n", fp);
+		fputs("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n", fp);
 		fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
 		fputs("<head>\n", fp);
 		if (titleFullPath)
@@ -361,7 +361,9 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 				static_cast<const char *>(filePath.Name().AsFileSystem()));
 		// Probably not used by robots, but making a little advertisement for those looking
 		// at the source code doesn't hurt...
-		fputs("<meta name=\"GENERATOR\" content=\"SciTE - www.Scintilla.org\" />\n", fp);
+		fputs("<meta name=\"Generator\" content=\"SciTE - www.Scintilla.org\" />\n", fp);
+                if (codePage == SC_CP_UTF8)
+                        fputs("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n", fp);
 
 		if (folding) {
 			fputs("<script language=\"JavaScript\" type=\"text/javascript\">\n"
