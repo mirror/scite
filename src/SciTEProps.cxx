@@ -633,6 +633,7 @@ static const char *propertiesToForward[] = {
 	"fold.verilog.flags",
 	"html.tags.case.sensitive",
 	"lexer.caml.magic",
+	"lexer.cpp.allow.dollars",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
 	"lexer.sql.backticks.identifier",
