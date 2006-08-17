@@ -1,12 +1,14 @@
 [Desktop Entry]
 Encoding=UTF-8
 Version=1.0
-Name=SciTE
+Name=SciTE Text Editor
+Name[es]=Editor de textos SciTE
+Comment=Programming editor
+Comment[es]=Edita especializado para programación
 GenericName=Text Editor
 Type=Application
-Comment=SciTE Text Editor
-Exec=SciTE
+Exec=SciTE %F
 Icon=Sci48M.png
 Terminal=false
-MultipleArgs=false
-Categories=GNOME;Application;
+StartupNotify=true
+Categories=TextEditor;Development;GTK;Application;
