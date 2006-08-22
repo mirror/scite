@@ -105,6 +105,10 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				keyval = VK_PRIOR;
 			} else if (sKey == "PageDown") {
 				keyval = VK_NEXT;
+			} else if (sKey == "Win") {
+				keyval = VK_LWIN;
+			} else if (sKey == "Menu") {
+				keyval = VK_APPS;
 			}
 		}
 	}

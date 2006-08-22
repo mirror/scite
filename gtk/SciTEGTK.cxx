@@ -213,6 +213,10 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 					keyval = GDK_question;
 				} else if (sKey == "Equal") {
 					keyval = GDK_equal;
+				} else if (sKey == "Win") {
+					keyval = GDK_Super_L;
+				} else if (sKey == "Menu") {
+					keyval = GDK_Menu;
 				}
 			}
 		}
