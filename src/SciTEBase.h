@@ -227,6 +227,7 @@ public:
 	sptr_t doc;
 	bool isDirty;
 	bool useMonoFont;
+	bool allowAutoSave;
 	UniMode unicodeMode;
 	time_t fileModTime;
 	time_t fileModLastAsk;
@@ -242,6 +243,7 @@ public:
 		RecentFile::Init();
 		isDirty = false;
 		useMonoFont = false;
+		allowAutoSave = true;
 		unicodeMode = uni8Bit;
 		fileModTime = 0;
 		fileModLastAsk = 0;
@@ -251,6 +253,7 @@ public:
 	}
 
 	void SetTimeFromFile() {
+		allowAutoSave = true;
 		fileModTime = ModifiedTime();
 		fileModLastAsk = fileModTime;
 	}

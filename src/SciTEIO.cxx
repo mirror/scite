@@ -376,6 +376,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 		}
 
 	} else if (!suppressMessage) {
+		CurrentBuffer()->allowAutoSave = false;
 		SString msg = LocaliseMessage("Could not open file '^0'.", filePath.AsFileSystem());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
@@ -609,7 +610,7 @@ void SciTEBase::CheckReload() {
 		// Make a copy of fullPath as otherwise it gets aliased in Open
 		time_t newModTime = filePath.ModifiedTime();
 		//Platform::DebugPrintf("Times are %d %d\n", CurrentBuffer()->fileModTime, newModTime);
-		if (newModTime > CurrentBuffer()->fileModTime) {
+		if (CurrentBuffer()->allowAutoSave && (newModTime > CurrentBuffer()->fileModTime)) {
 			RecentFile rf = GetFilePosition();
 			OpenFlags of = props.GetInt("reload.preserves.undo") ? ofPreserveUndo : ofNone;
 			if (CurrentBuffer()->isDirty || props.GetInt("are.you.sure.on.reload") != 0) {
