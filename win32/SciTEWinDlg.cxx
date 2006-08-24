@@ -372,6 +372,7 @@ void SciTEWin::SaveSessionDialog() {
 			   };
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
+	ofn.lpstrDefExt = "ses";
 	ofn.lpstrFile = saveName;
 	ofn.nMaxFile = sizeof(saveName);
 	SString translatedTitle = LocaliseString("Save Current Session");
