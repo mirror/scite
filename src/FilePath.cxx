@@ -138,8 +138,8 @@ bool FilePath::SameNameAs(const FilePath &other) const {
 	return SameNameAs(other.fileName.c_str());
 }
 
-bool FilePath::IsSet() const { 
-	return fileName.length() > 0; 
+bool FilePath::IsSet() const {
+	return fileName.length() > 0;
 }
 
 bool FilePath::IsUntitled() const {
@@ -197,7 +197,7 @@ FilePath FilePath::Name() const {
 FilePath FilePath::BaseName() const {
 	const char *dirEnd = strrchr(fileName.c_str(), pathSepChar);
 	const char *extStart = strrchr(fileName.c_str(), '.');
-	if (dirEnd) { 
+	if (dirEnd) {
 		if (extStart > dirEnd) {
 			return FilePath(SString(dirEnd + 1, 0, extStart - dirEnd - 1).c_str());
 		} else {
@@ -444,8 +444,15 @@ void FilePath::Remove() const {
 	unlink(AsFileSystem());
 }
 
+#ifndef R_OK
+// Neither Borland nor Microsoft define the constants used to call access
+#define R_OK 4
+#endif
+
 time_t FilePath::ModifiedTime() const {
 	if (IsUntitled())
+		return 0;
+	if (access(AsFileSystem(), R_OK) == -1)
 		return 0;
 	struct stat statusFile;
 	if (stat(AsFileSystem(), &statusFile) != -1)
