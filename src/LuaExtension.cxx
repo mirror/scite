@@ -199,7 +199,7 @@ static void clear_table(lua_State *L, int tableIdx, bool clearMetatable = true) 
 		while (lua_next(L, tableIdx) != 0) {
 			// ‘key’ is at index -2 and ‘value’ at index -1
 			lua_pop(L, 1); // discard value
-			lua_pushnil(L); 
+			lua_pushnil(L);
 			lua_rawset(L, tableIdx); // table[key] = nil
 			lua_pushnil(L); // get 'new' first key
 		}
@@ -294,6 +294,13 @@ static int cf_scite_open(lua_State *L) {
 	return 0;
 }
 
+static int cf_scite_menu_command(lua_State *L) {
+	int cmdID = luaL_checkint(L, 1);
+	if (cmdID) {
+		host->DoMenuCommand(cmdID);
+	}
+	return 0;
+}
 
 static ExtensionAPI::Pane check_pane_object(lua_State *L, int index) {
 	ExtensionAPI::Pane *pPane = reinterpret_cast<ExtensionAPI::Pane*>(luaL_checkudata(L, index, "SciTE_MT_Pane"));
@@ -1416,7 +1423,7 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 
 	lua_pushliteral(luaState, "scite");
 	lua_newtable(luaState);
-	
+
 	lua_pushliteral(luaState, "SendEditor");
 	lua_pushliteral(luaState, "editor");
 	lua_rawget(luaState, LUA_GLOBALSINDEX);
@@ -1435,6 +1442,10 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 
 	lua_pushliteral(luaState, "Open");
 	lua_pushcfunction(luaState, cf_scite_open);
+	lua_rawset(luaState, -3);
+
+	lua_pushliteral(luaState, "MenuCommand");
+	lua_pushcfunction(luaState, cf_scite_menu_command);
 	lua_rawset(luaState, -3);
 
 	lua_rawset(luaState, LUA_GLOBALSINDEX);
@@ -1471,7 +1482,7 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	lua_pushliteral(luaState, "SciTE_InitialState");
 	clone_table(luaState, LUA_GLOBALSINDEX, true);
 	lua_rawset(luaState, LUA_REGISTRYINDEX);
-	
+
 	IsolateGlobalReqLoadedTable();
 	PublishGlobalBufferData();
 
@@ -1606,7 +1617,7 @@ bool LuaExtension::RemoveBuffer(int index) {
 
 			lua_pushnil(luaState);
 			lua_rawseti(luaState, -2, maxBufferIndex);
-			
+
 			lua_pop(luaState, 1); // the bufferdata table
 		}
 	}

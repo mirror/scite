@@ -899,6 +899,7 @@ protected:
 	uptr_t GetInstance();
 	void ShutDown();
 	void Perform(const char *actions);
+	void DoMenuCommand(int cmdID);
 
 	// Valid CurrentWord characters
 	bool iswordcharforsel(char ch);

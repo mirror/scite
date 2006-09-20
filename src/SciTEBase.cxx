@@ -263,6 +263,7 @@ const char *contributors[] = {
                                  "mimir",
                                  "Nicola Civran",
                                  "Snow",
+                                 "Mitchell Foral",
                              };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -4992,4 +4993,8 @@ void SciTEBase::Perform(const char *actionList) {
 	}
 	PerformOne(actions);
 	delete []actionsDup;
+}
+
+void SciTEBase::DoMenuCommand(int cmdID) {
+	MenuCommand(cmdID, 0);
 }
