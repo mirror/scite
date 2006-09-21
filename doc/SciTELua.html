@@ -120,9 +120,9 @@ to execute, an error is reported.
 </p>
 <h4>Multiple handlers</h4>
 <p>
-<a href="http://lua-users.org/wiki/SciteExtMan">Scite Ext Man</a> can help in 
+<a href="http://lua-users.org/wiki/SciteExtMan">Scite Ext Man</a> can help in
 more complex applications where you have
-multiple scripts needing to handle an event. 
+multiple scripts needing to handle an event.
 </p>
 <hr noshade="noshade" width="80%" align="left" />
 <h4>Predefined Lua Functions and Objects:</h4>
@@ -137,7 +137,7 @@ Within Lua scripts you can use the following functions / objects:
   scite - a namespace for functions which control SciTE.
 </tt></pre><p>
 In addition, all constants defined in Scintilla.iface are exposed as
-Lua globals variables. Function names are exposed as their block 
+Lua globals variables. Function names are exposed as their block
 capital equivalents, with the SCI_ prefix.
 </p><p>
 All functions and objects defined in the Lua standard library are also
@@ -189,7 +189,7 @@ methods:
 Most of the functions defined in Scintilla.iface are also be exposed
 as pane methods. Those functions having simple parameters (string,
 boolean, and numeric types) are fully supported. For example,
-<tt>editor:InsertText(pos, text)</tt> does practically the same thing as 
+<tt>editor:InsertText(pos, text)</tt> does practically the same thing as
 <tt>editor:insert(pos, text)</tt>. Functions having a stringresult parameter
 will include a string in the return value.  For both strings and
 stringresults, if the function is documented as expecting a length
@@ -233,9 +233,12 @@ The <tt>scite</tt> namespace includes the following functions:
 
   scite.SendOutput(SCI_constant, ...)
     - sends a message to the output pane
-    
+
   scite.ConstantName(number)
     - returns the symbolic name of a Scintilla / SciTE constant
+
+  scite.MenuCommand(IDM_constant)
+    - equivalent to the corresponding IDM_ command defined in SciTE.h
 </tt></pre><p>
 <tt>Open</tt> requires special care.  When the buffer changes in SciTE, the
 Lua global namespace is reset to its initial state, and any extension
@@ -255,19 +258,22 @@ corresponding iface function or property, so their arguments and
 return types are identical.  (Although the calling convention for
 properties is obviously different.)
 </p><p>
-The ConstantName function may be useful when generating debug messages,
+The <tt>ConstantName</tt> function may be useful when generating debug messages,
 or if extending the SciTE LuaExtension to support macro recording.
+</p><p>
+The <tt>MenuCommand</tt> function enables usage of SciTE's menu commands
+as defined in SciTE.h.
 </p>
 
 <hr noshade="noshade" width="80%" align="left" />
 
 <h4>Disabling Lua</h4>
 <p>
-Lua is currently loaded just-in-time, before it is first used.  The 
+Lua is currently loaded just-in-time, before it is first used.  The
 ways that Lua can become are through the ext.lua.startup.script
 property, by naming a lua file named in the extension.<i>filepattern</i>
 property, or by using the extension mechanism to define tool commands
-(i.e. subsystem 3).  If you do not do any of these things, the Lua 
+(i.e. subsystem 3).  If you do not do any of these things, the Lua
 scripting engine is not loaded, and for all practical purposes, SciTE
 should behave as it did before Lua was added.
 </p><p>
