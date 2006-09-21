@@ -642,7 +642,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		UpdateStatusBar(true);
 	}
 
-	if (extender && !closingLast) {
+	if (extender && !closingLast && !makingRoomForNew) {
 		extender->OnSwitchFile(filePath.AsFileSystem());
 	}
 
