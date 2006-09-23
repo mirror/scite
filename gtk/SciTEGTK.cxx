@@ -3,6 +3,7 @@
 // Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#define INCREMENTAL_SEARCH 1
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -401,7 +402,8 @@ protected:
 	static void GotoSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FindIncrementSignal(GtkWidget *, SciTEGTK *scitew);
 	static void FindIncrementCompleteSignal(GtkWidget *, SciTEGTK *scitew);
-	static void FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
+	static gboolean FindIncrementFocusOutSignal(GtkWidget *w);
+	static gboolean FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 
 	static void FRCancelSignal(GtkWidget *w, SciTEGTK *scitew);
 	static gint FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
@@ -2877,7 +2879,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Search/F_ind in Files...", "<control><shift>F", menuSig, IDM_FINDINFILES, 0},
 	                                      {"/Search/R_eplace...", "<control>H", menuSig, IDM_REPLACE, 0},
 #ifdef INCREMENTAL_SEARCH
-	                                      {"/Search/Incrementa&l Search", "<control><alt>I", menuSig, IDM_INCSEARCH, 0},
+	                                      {"/Search/Incrementa_l Search", "<control><alt>I", menuSig, IDM_INCSEARCH, 0},
 #endif
 	                                      {"/Search/sep3", NULL, NULL, 0, "<Separator>"},
 	                                      {"/Search/_Go To...", "<control>G", menuSig, IDM_GOTO, 0},
@@ -3209,9 +3211,9 @@ void SciTEGTK::CreateUI() {
 	IncSearchEntry = gtk_entry_new();
 	gtk_table_attach(GTK_TABLE(table), IncSearchEntry, 1, 2, 0, 1, opts, opts, 5, 5);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"activate", GtkSignalFunc(FindIncrementCompleteSignal), this);
-	gtk_signal_connect(GTK_OBJECT(IncSearchEntry), "key_press_event", GtkSignalFunc(FindIncrementEscapeSignal), this);
+	gtk_signal_connect(GTK_OBJECT(IncSearchEntry), "key-press-event", GtkSignalFunc(FindIncrementEscapeSignal), this);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"changed", GtkSignalFunc(FindIncrementSignal), this);
-	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"focus-out-event", GtkSignalFunc(FindIncrementCompleteSignal), this);
+	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"focus-out-event", GtkSignalFunc(FindIncrementFocusOutSignal), NULL);
 
 	gtk_widget_show(IncSearchEntry);
 #endif
@@ -3263,20 +3265,23 @@ void SciTEGTK::FindIncrementSignal(GtkWidget *entry, SciTEGTK *scitew) {
 	scitew->wholeWord = false;
 	if (scitew->findWhat != "") {
 		scitew->FindNext(false, false);
-		if ((!scitew->havefound) && (ffLastWhat.length() == scitew->findWhat.length()-1)) {
-			scitew->findWhat = ffLastWhat;
-			gtk_entry_set_text(GTK_ENTRY(scitew->IncSearchEntry), scitew->findWhat.c_str());
-			gtk_editable_set_position(GTK_EDITABLE(scitew->IncSearchEntry), scitew->findWhat.length());
+		if (!scitew->havefound) {
+			GdkColor red = { 0, 0xFFFF, 0x8888, 0x8888 };
+			gtk_widget_modify_base(GTK_WIDGET(scitew->IncSearchEntry), GTK_STATE_NORMAL, &red);
+		} else {
+			GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
+			gtk_widget_modify_base(GTK_WIDGET(scitew->IncSearchEntry), GTK_STATE_NORMAL, &white);
 		}
 	}
 }
 
-void SciTEGTK::FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
+gboolean SciTEGTK::FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
+		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key-press-event");
 		gtk_widget_hide(scitew->wIncrementPanel);
 		SetFocus(PWidget(scitew->wEditor));
 	}
+	return FALSE;
 }
 
 void SciTEGTK::FindIncrementCompleteSignal(GtkWidget *, SciTEGTK *scitew) {
@@ -3284,7 +3289,14 @@ void SciTEGTK::FindIncrementCompleteSignal(GtkWidget *, SciTEGTK *scitew) {
 	SetFocus(PWidget(scitew->wEditor));
 }
 
+gboolean SciTEGTK::FindIncrementFocusOutSignal(GtkWidget *w) {
+	gtk_widget_hide(w->parent);
+	return FALSE;
+}
+
 void SciTEGTK::FindIncrement() {
+	GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
+	gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &white);
 	gtk_widget_show(wIncrementPanel);
 	gtk_widget_grab_focus(GTK_WIDGET(IncSearchEntry));
 	gtk_entry_set_text(GTK_ENTRY(IncSearchEntry), "");
