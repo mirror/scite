@@ -1479,6 +1479,8 @@ void SciTEGTK::FindInFilesCmd() {
 		findCommand += " -grep ";
 		findCommand += wholeWord ? "w" : "~";
 		findCommand += matchCase ? "c" : "~";
+		findCommand += props.GetInt("find.in.dot") ? "d" : "~";
+		findCommand += props.GetInt("find.in.binary") ? "b" : "~";
 		findCommand += " \"";
 		findCommand += props.Get("find.files");
 		findCommand += "\" \"";

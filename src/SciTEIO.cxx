@@ -971,6 +971,19 @@ class BufferedFile {
 	char buffer[bufLen];
 	size_t pos;
 	size_t valid;
+	void EnsureData() {
+		if (pos >= valid) {
+			if (readAll) {
+				exhausted = true;
+			} else {
+				valid = fread(buffer, 1, bufLen, fp);
+				if (valid < bufLen) {
+					readAll = true;
+				}
+				pos = 0;
+			}
+		}
+	}
 public:
 	BufferedFile(FilePath fPath) {
 		fp = fPath.Open(fileRead);
@@ -989,21 +1002,19 @@ public:
 		return exhausted;
 	}
 	int NextByte() {
+		EnsureData();
 		if (pos >= valid) {
-			if (readAll) {
-				exhausted = true;
-			} else {
-				valid = fread(buffer, 1, bufLen, fp);
-				if (valid < bufLen) {
-					readAll = true;
-				}
-				pos = 0;
-			}
-			if (pos >= valid) {
-				return 0;
-			}
+			return 0;
 		}
 		return buffer[pos++];
+	}
+	bool BufferContainsNull() {
+		EnsureData();
+		for (size_t i=0;i<valid;i++) {
+			if (buffer[i] == '\0')
+				return true;
+		}
+		return false;
 	}
 };
 
@@ -1064,6 +1075,9 @@ public:
 	const char *Original() {
 		return lineToShow;
 	}
+	bool BufferContainsNull() {
+		return bf->BufferContainsNull();
+	}
 };
 
 static bool IsWordCharacter(int ch) {
@@ -1082,27 +1096,29 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 			//OutputAppendStringSynchronised(i->AsFileSystem());
 			//OutputAppendStringSynchronised("\n");
 			FileReader fr(fPath, gf & grepMatchCase);
-			while (char *line=fr.Next()) {
-				char *match = strstr(line, searchString);
-				if (match) {
-					if (gf & grepWholeWord) {
-						char *lineEnd = line + strlen(line);
-						while (match) {
-							if (((match == line) || !IsWordCharacter(match[-1])) &&
-								((match+searchLength == (lineEnd)) || !IsWordCharacter(match[searchLength]))) {
-									break;
-							}
-							match = strstr(match+1, searchString);
-						}
-					}
+			if ((gf & grepBinary) || !fr.BufferContainsNull()) {
+				while (char *line=fr.Next()) {
+					char *match = strstr(line, searchString);
 					if (match) {
-						os.append(fPath.AsFileSystem());
-						os.append(":");
-						SString lNumber(fr.LineNumber());
-						os.append(lNumber.c_str());
-						os.append(":");
-						os.append(fr.Original());
-						os.append("\n");
+						if (gf & grepWholeWord) {
+							char *lineEnd = line + strlen(line);
+							while (match) {
+								if (((match == line) || !IsWordCharacter(match[-1])) &&
+									((match+searchLength == (lineEnd)) || !IsWordCharacter(match[searchLength]))) {
+										break;
+								}
+								match = strstr(match+1, searchString);
+							}
+						}
+						if (match) {
+							os.append(fPath.AsFileSystem());
+							os.append(":");
+							SString lNumber(fr.LineNumber());
+							os.append(lNumber.c_str());
+							os.append(":");
+							os.append(fr.Original());
+							os.append("\n");
+						}
 					}
 				}
 			}
@@ -1117,7 +1133,9 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 	}
 	for (size_t j = 0; j < directories.Length(); j++) {
 		FilePath fPath = directories.At(j);
-		GrepRecursive(gf, fPath, searchString, fileTypes);
+		if ((gf & grepDot) || (fPath.Name().AsInternal()[0] != '.')) {
+			GrepRecursive(gf, fPath, searchString, fileTypes);
+		}
 	}
 }
 

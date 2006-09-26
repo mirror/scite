@@ -4866,6 +4866,10 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 					gf = static_cast<GrepFlags>(gf | grepWholeWord);
 				if (wlArgs[i+1][1] == 'c')
 					gf = static_cast<GrepFlags>(gf | grepMatchCase);
+				if (wlArgs[i+1][2] == 'd')
+					gf = static_cast<GrepFlags>(gf | grepDot);
+				if (wlArgs[i+1][3] == 'b')
+					gf = static_cast<GrepFlags>(gf | grepBinary);
 				char unquoted[1000];
 				strcpy(unquoted, wlArgs[i+3]);
 				UnSlash(unquoted);

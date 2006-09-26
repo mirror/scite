@@ -1966,6 +1966,25 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           will result in any local setting of find.files being added to the list.
         </td>
       </tr>
+      <tr>
+        <td>
+          find.in.dot
+        </td>
+        <td>
+	If find.in.dot is 1 then Find in Files searches in directories that start with '.'.
+	The default behaviour is to prevent SciTE finding matches in the unmodified versions of
+	files kept by Subversion in .svn subdirectories.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          find.in.binary
+        </td>
+        <td>
+	If find.in.binary is 1 then Find in Files displays matches in binary files.
+	For Find in Files, a binary file is a file that contains a NUL byte in the first 64K block read from the file.
+        </td>
+      </tr>
       <tr class="windowsonly">
         <td>
           find.in.files.close.on.find

@@ -879,7 +879,8 @@ protected:
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
-	enum GrepFlags { grepNone=0, grepWholeWord=1, grepMatchCase=2, grepStdOut=4 };
+	enum GrepFlags { grepNone=0, grepWholeWord=1, grepMatchCase=2, grepStdOut=4,
+		grepDot=8, grepBinary=16 };
 	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const char *fileTypes);
 	void InternalGrep(GrepFlags gf, const char *directory, const char *files, const char *search);
 	void EnumProperties(const char *action);
