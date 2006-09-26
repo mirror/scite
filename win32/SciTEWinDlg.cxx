@@ -1217,11 +1217,13 @@ void SciTEWin::PerformGrep() {
 	SString findCommand = props.GetNewExpand("find.command");
 	if (findCommand == "") {
 		// Call InternalGrep in a new thread
-		// searchParams is "(w|~)(c|~)\0files\0text"
-		// A "w" indicates whole word and a "c" indicates case sensitive
+		// searchParams is "(w|~)(c|~)(d|~)(b|~)\0files\0text"
+		// A "w" indicates whole word, "c" case sensitive, "d" dot directories, "b" binary files
 		SString searchParams;
 		searchParams.append(wholeWord ? "w" : "~");
 		searchParams.append(matchCase ? "c" : "~");
+		searchParams.append(props.GetInt("find.in.dot") ? "d" : "~");
+		searchParams.append(props.GetInt("find.in.binary") ? "b" : "~");
 		searchParams.append("\0", 1);
 		searchParams.append(props.Get("find.files").c_str());
 		searchParams.append("\0", 1);

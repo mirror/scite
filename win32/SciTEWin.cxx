@@ -518,7 +518,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	}
 
 	if (jobToRun.jobType == jobGrep) {
-		// jobToRun.command is "(w|~)(c|~)\0files\0text"
+		// jobToRun.command is "(w|~)(c|~)(d|~)(b|~)\0files\0text"
 		const char *grepCmd = jobToRun.command.c_str();
 		GrepFlags gf = grepNone;
 		if (*grepCmd == 'w')
@@ -526,6 +526,12 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 		grepCmd++;
 		if (*grepCmd == 'c')
 			gf = static_cast<GrepFlags>(gf | grepMatchCase);
+		grepCmd++;
+		if (*grepCmd == 'd')
+			gf = static_cast<GrepFlags>(gf | grepDot);
+		grepCmd++;
+		if (*grepCmd == 'b')
+			gf = static_cast<GrepFlags>(gf | grepBinary);
 		const char *findFiles = grepCmd + 2;
 		const char *findWhat = findFiles + strlen(findFiles) + 1;
 		InternalGrep(gf, jobToRun.directory.AsFileSystem(), findFiles, findWhat);
