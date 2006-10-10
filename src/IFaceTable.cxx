@@ -1360,13 +1360,16 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCK_HOME",304},
 	{"SCK_INSERT",309},
 	{"SCK_LEFT",302},
+	{"SCK_MENU",315},
 	{"SCK_NEXT",307},
 	{"SCK_PRIOR",306},
 	{"SCK_RETURN",13},
 	{"SCK_RIGHT",303},
+	{"SCK_RWIN",314},
 	{"SCK_SUBTRACT",311},
 	{"SCK_TAB",9},
 	{"SCK_UP",301},
+	{"SCK_WIN",313},
 	{"SCLEX_ADA",20},
 	{"SCLEX_APDL",61},
 	{"SCLEX_ASM",34},
@@ -1505,6 +1508,8 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_FOLDLEVELUNINDENT",0x20000},
 	{"SC_FOLDLEVELWHITEFLAG",0x1000},
 	{"SC_LASTSTEPINUNDOREDO",0x100},
+	{"SC_MARGIN_BACK",2},
+	{"SC_MARGIN_FORE",3},
 	{"SC_MARGIN_NUMBER",1},
 	{"SC_MARGIN_SYMBOL",0},
 	{"SC_MARKNUM_FOLDER",30},
@@ -1953,7 +1958,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 229,
-	ifaceConstantCount = 1455,
+	ifaceConstantCount = 1460,
 	ifacePropertyCount = 129
 };
 
