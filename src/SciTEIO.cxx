@@ -1045,16 +1045,14 @@ public:
 		int i = 0;
 		while (!bf->Exhausted()) {
 			int ch = bf->NextByte();
-			if (i < bufLen) {
-				if (i == 0 && lastWasCR && ch == '\n') {
-					lastWasCR = false;
-					ch = 0;
-				} else if (ch == '\r' || ch == '\n') {
-					lastWasCR = ch == '\r';
-					break;
-				} else {
-					lineToShow[i++] = static_cast<char>(ch);
-				}
+			if (i == 0 && lastWasCR && ch == '\n') {
+				lastWasCR = false;
+				ch = 0;
+			} else if (ch == '\r' || ch == '\n') {
+				lastWasCR = ch == '\r';
+				break;
+			} else if (i < bufLen) {
+				lineToShow[i++] = static_cast<char>(ch);
 			}
 		}
 		lineToShow[i] = '\0';
