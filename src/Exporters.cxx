@@ -368,12 +368,24 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		if (folding) {
 			fputs("<script language=\"JavaScript\" type=\"text/javascript\">\n"
 			      "<!--\n"
-			      "function toggle(thisid) {\n"
-			      "var thislayer=document.getElementById(thisid);\n"
+			      "function symbol(id, sym) {\n"
+			      " if (id.textContent==undefined) {\n"
+			      " id.innerText=sym; } else {\n"
+			      " id.textContent=sym; }\n"
+			      "}\n"
+			      "function toggle(id) {\n"
+			      "var thislayer=document.getElementById('ln'+id);\n"
+			      "id-=1;\n"
+			      "var togline=document.getElementById('hd'+id);\n"
+			      "var togsym=document.getElementById('bt'+id);\n"
 			      "if (thislayer.style.display == 'none') {\n"
 			      " thislayer.style.display='block';\n"
+			      " togline.style.textDecoration='none';\n"
+			      " symbol(togsym,'- ');\n"
 			      "} else {\n"
 			      " thislayer.style.display='none';\n"
+			      " togline.style.textDecoration='underline';\n"
+			      " symbol(togsym,'+ ');\n"
 			      "}\n"
 			      "}\n"
 			      "//-->\n"
@@ -383,15 +395,32 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		fputs("<style type=\"text/css\">\n", fp);
 
 		SString bgColour;
+		char key[200];
+		sprintf(key, "style.*.%0d", STYLE_DEFAULT);
+		char *valdef = StringDup(props.GetExpanded(key).c_str());
+		sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
+		char *val = StringDup(props.GetExpanded(key).c_str());
+
+		StyleDefinition sddef(valdef);
+		sddef.ParseStyleDefinition(val);
+		if (sddef.back.length()) {
+			bgColour = sddef.back;
+		}
+		if (val) {
+			delete []val;
+		}
+		if (valdef) {
+			delete []valdef;
+		}
+
 		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 			if ((istyle > STYLE_DEFAULT) && (istyle <= STYLE_LASTPREDEFINED))
 				continue;
 			if (styleIsUsed[istyle]) {
-				char key[200];
 				sprintf(key, "style.*.%0d", istyle);
-				char *valdef = StringDup(props.GetExpanded(key).c_str());
+				valdef = StringDup(props.GetExpanded(key).c_str());
 				sprintf(key, "style.%s.%0d", language.c_str(), istyle);
-				char *val = StringDup(props.GetExpanded(key).c_str());
+				val = StringDup(props.GetExpanded(key).c_str());
 
 				StyleDefinition sd(valdef);
 				sd.ParseStyleDefinition(val);
@@ -417,9 +446,10 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 						fprintf(fp, "\tcolor: #000000;\n");
 					}
 					if (sd.back.length()) {
-						fprintf(fp, "\tbackground: %s;\n", sd.back.c_str());
-						if (istyle == STYLE_DEFAULT)
-							bgColour = sd.back;
+						if (istyle != STYLE_DEFAULT && bgColour != sd.back) {
+							fprintf(fp, "\tbackground: %s;\n", sd.back.c_str());
+							fprintf(fp, "\ttext-decoration: inherit;\n");
+						}
 					}
 					if (wysiwyg && sd.size) {
 						fprintf(fp, "\tfont-size: %0dpt;\n", sd.size);
@@ -449,6 +479,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		int newLevel;
 		int styleCurrent = acc.StyleAt(0);
 		bool inStyleSpan = false;
+		bool inFoldSpan = false;
 		// Global span for default attributes
 		if (wysiwyg) {
 			fputs("<span>", fp);
@@ -461,7 +492,9 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 			level = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 
 			if (lvl & SC_FOLDLEVELHEADERFLAG) {
-				fprintf(fp, "<span onclick=\"toggle('ln%d')\">-</span> ", line + 1);
+				fprintf(fp, "<span id=\"hd%d\" onclick=\"toggle('%d')\">", line, line + 1);
+				fprintf(fp, "<span id=\"bt%d\">- </span>", line);
+				inFoldSpan = true;
 			} else {
 				fputs("&nbsp; ", fp);
 			}
@@ -540,6 +573,10 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 					fputs("</span>", fp);
 					inStyleSpan = false;
 				}
+				if (inFoldSpan) {
+					fputs("</span>", fp);
+					inFoldSpan = false;
+				}
 				if (ch == '\r' && acc[i + 1] == '\n') {
 					i++;	// CR+LF line ending, skip the "extra" EOL char
 				}
@@ -561,9 +598,11 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 					if (newLevel > level)
 						fprintf(fp, "<span id=\"ln%d\">", line);
 
-					if (lvl & SC_FOLDLEVELHEADERFLAG)
-						fprintf(fp, "<span onclick=\"toggle('ln%d')\">-</span> ", line + 1);
-					else
+					if (lvl & SC_FOLDLEVELHEADERFLAG) {
+						fprintf(fp, "<span id=\"hd%d\" onclick=\"toggle('%d')\">", line, line + 1);
+						fprintf(fp, "<span id=\"bt%d\">- </span>", line);
+						inFoldSpan = true;
+					} else
 						fputs("&nbsp; ", fp);
 					level = newLevel;
 				} else {
