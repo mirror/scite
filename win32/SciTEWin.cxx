@@ -1611,6 +1611,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		QuitProgram();
 		return 0;
 
+	case WM_QUERYENDSESSION:
+		QuitProgram();
+		return 1;
+
 	case WM_DESTROY:
 		break;
 
