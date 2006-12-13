@@ -748,6 +748,7 @@ protected:
 	void SetLineIndentation(int line, int indent);
 	int GetLineIndentation(int line);
 	int GetLineIndentPosition(int line);
+	void ConvertIndentation(int tabSize, int useTabs);
 	bool RangeIsAllWhitespace(int start, int end);
 	IndentationStatus GetIndentState(int line);
 	int IndentOfBlock(int line);

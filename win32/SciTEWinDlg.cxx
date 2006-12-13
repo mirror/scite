@@ -1564,7 +1564,8 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		if (ControlIDOfCommand(wParam) == IDCANCEL) {
 			::EndDialog(hDlg, IDCANCEL);
 			return FALSE;
-		} else if (ControlIDOfCommand(wParam) == IDOK) {
+		} else if ((ControlIDOfCommand(wParam) == IDCONVERT) ||
+			(ControlIDOfCommand(wParam) == IDOK)) {
 			BOOL bOK;
 			int tabSize = static_cast<int>(::GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
 			if (tabSize > 0)
@@ -1574,7 +1575,10 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				SendEditor(SCI_SETINDENT, indentSize);
 			bool useTabs = static_cast<bool>(::IsDlgButtonChecked(hDlg, IDUSETABS));
 			SendEditor(SCI_SETUSETABS, useTabs);
-			::EndDialog(hDlg, IDOK);
+			if (ControlIDOfCommand(wParam) == IDCONVERT) {
+				ConvertIndentation(tabSize, useTabs);
+			}
+			::EndDialog(hDlg, ControlIDOfCommand(wParam));
 			return TRUE;
 		}
 	}

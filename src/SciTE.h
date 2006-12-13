@@ -228,6 +228,7 @@
 #define IDDOTDOT			249
 #define IDFINDINSTYLE		250
 #define IDFINDSTYLE			251
+#define IDCONVERT			252
 
 #define IDPARAMSTART		300
 

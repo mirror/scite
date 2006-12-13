@@ -267,18 +267,22 @@ protected:
 	Dialog dlgFindInFiles;
 	GtkWidget *comboFiles;
 	Dialog dlgGoto;
+	Dialog dlgTabSize;
 	bool paramDialogCanceled;
 	GtkWidget *wIncrementPanel;
 	Dialog dlgFindIncrement;
 	GtkWidget *IncSearchEntry;
 
-	GtkWidget *gotoEntry;
+	GtkWidget *entryGoto;
+	GtkWidget *entryTabSize;
+	GtkWidget *entryIndentSize;
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
 	GtkWidget *toggleRegExp;
 	GtkWidget *toggleWrap;
 	GtkWidget *toggleUnSlash;
 	GtkWidget *toggleReverse;
+	GtkWidget *toggleUseTabs;
 	GtkWidget *comboFind;
 	GtkWidget *comboFindInFiles;
 	GtkWidget *comboDir;
@@ -400,6 +404,9 @@ protected:
 	}
 
 	static void GotoSignal(GtkWidget *w, SciTEGTK *scitew);
+	void TabSizeSet(int &tabSize, bool &useTabs);
+	static void TabSizeSignal(GtkWidget *w, SciTEGTK *scitew);
+	static void TabSizeConvertSignal(GtkWidget *w, SciTEGTK *scitew);
 	static void FindIncrementSignal(GtkWidget *, SciTEGTK *scitew);
 	static void FindIncrementCompleteSignal(GtkWidget *, SciTEGTK *scitew);
 	static gboolean FindIncrementFocusOutSignal(GtkWidget *w);
@@ -507,7 +514,9 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	saveFormat = sfSource;
 	comboFiles = 0;
 	paramDialogCanceled = true;
-	gotoEntry = 0;
+	entryGoto = 0;
+	entryTabSize = 0;
+	entryIndentSize = 0;
 	IncSearchEntry = 0;
 	toggleWord = 0;
 	toggleCase = 0;
@@ -515,6 +524,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	toggleWrap = 0;
 	toggleUnSlash = 0;
 	toggleReverse = 0;
+	toggleUseTabs = 0;
 	comboFind = 0;
 	comboFindInFiles = 0;
 	comboReplace = 0;
@@ -1784,12 +1794,14 @@ void SciTEGTK::StopExecute() {
 	}
 }
 
+static int EntryValue(GtkWidget *entry) {
+	const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
+	return atoi(text);
+}
+
 void SciTEGTK::GotoSignal(GtkWidget *, SciTEGTK *scitew) {
-	const char *lineEntry = gtk_entry_get_text(GTK_ENTRY(scitew->gotoEntry));
-	int lineNo = atoi(lineEntry);
-
+	int lineNo = EntryValue(scitew->entryGoto);
 	scitew->GotoLineEnsureVisible(lineNo - 1);
-
 	scitew->dlgGoto.Destroy();
 }
 
@@ -1810,12 +1822,12 @@ void SciTEGTK::GoLineDialog() {
 	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, opts, opts, 5, 5);
 	gtk_widget_show(label);
 
-	gotoEntry = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(table), gotoEntry, 1, 2, 0, 1, opts, opts, 5, 5);
-	gtk_signal_connect(GTK_OBJECT(gotoEntry),
+	entryGoto = gtk_entry_new();
+	gtk_table_attach(GTK_TABLE(table), entryGoto, 1, 2, 0, 1, opts, opts, 5, 5);
+	gtk_signal_connect(GTK_OBJECT(entryGoto),
 	                   "activate", GtkSignalFunc(GotoSignal), this);
-	gtk_widget_grab_focus(GTK_WIDGET(gotoEntry));
-	gtk_widget_show(gotoEntry);
+	gtk_widget_grab_focus(GTK_WIDGET(entryGoto));
+	gtk_widget_show(entryGoto);
 
 	gtk_widget_show(table);
 
@@ -1837,7 +1849,94 @@ void SciTEGTK::GoLineDialog() {
 }
 
 bool SciTEGTK::AbbrevDialog() { return false; }
-void SciTEGTK::TabSizeDialog() {}
+
+void SciTEGTK::TabSizeSet(int &tabSize, bool &useTabs) {
+	tabSize = EntryValue(entryTabSize);
+	if (tabSize > 0)
+		SendEditor(SCI_SETTABWIDTH, tabSize);
+	int indentSize = EntryValue(entryIndentSize);
+	if (indentSize > 0)
+		SendEditor(SCI_SETINDENT, indentSize);
+	useTabs = GTK_TOGGLE_BUTTON(toggleUseTabs)->active;
+	SendEditor(SCI_SETUSETABS, useTabs);
+}
+
+void SciTEGTK::TabSizeSignal(GtkWidget *, SciTEGTK *scitew) {
+	int tabSize;
+	bool useTabs;
+	scitew->TabSizeSet(tabSize, useTabs);
+	scitew->dlgTabSize.Destroy();
+}
+
+void SciTEGTK::TabSizeConvertSignal(GtkWidget *, SciTEGTK *scitew) {
+	int tabSize;
+	bool useTabs;
+	scitew->TabSizeSet(tabSize, useTabs);
+	scitew->ConvertIndentation(tabSize, useTabs);
+	scitew->dlgTabSize.Destroy();
+}
+
+void SciTEGTK::TabSizeDialog() {
+	GtkAccelGroup *accel_group = gtk_accel_group_new();
+
+	dlgTabSize = gtk_dialog_new();
+	TranslatedSetTitle(GTK_WINDOW(PWidget(dlgTabSize)), "Indentation Settings");
+	gtk_container_border_width(GTK_CONTAINER(PWidget(dlgTabSize)), 0);
+
+	GtkWidget *table = gtk_table_new(2, 3, FALSE);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->vbox),
+	                   table, TRUE, TRUE, 0);
+
+	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
+	                            GTK_EXPAND | GTK_SHRINK | GTK_FILL);
+
+	GtkWidget *label = TranslatedLabel("_Tab Size:");
+	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, opts, opts, 5, 5);
+	entryTabSize = gtk_entry_new();
+	gtk_table_attach(GTK_TABLE(table), entryTabSize, 1, 2, 0, 1, opts, opts, 5, 5);
+	gtk_signal_connect(GTK_OBJECT(entryTabSize),
+	                   "activate", GtkSignalFunc(TabSizeSignal), this);
+	gtk_widget_grab_focus(GTK_WIDGET(entryTabSize));
+	SString tabSize(SendEditor(SCI_GETTABWIDTH));
+	gtk_entry_set_text(GTK_ENTRY(entryTabSize), tabSize.c_str());
+
+	label = TranslatedLabel("_Indent Size:");
+	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 1, 2, opts, opts, 5, 5);
+	entryIndentSize = gtk_entry_new();
+	gtk_table_attach(GTK_TABLE(table), entryIndentSize, 1, 2, 1, 2, opts, opts, 5, 5);
+	gtk_signal_connect(GTK_OBJECT(entryIndentSize),
+	                   "activate", GtkSignalFunc(TabSizeSignal), this);
+	SString indentSize(SendEditor(SCI_GETINDENT));
+	gtk_entry_set_text(GTK_ENTRY(entryIndentSize), indentSize.c_str());
+
+	bool useTabs = SendEditor(SCI_GETUSETABS);
+	toggleUseTabs = TranslatedToggle("_Use Tabs", accel_group, useTabs);
+	gtk_table_attach(GTK_TABLE(table), toggleUseTabs, 1, 2, 2, 3, opts, opts, 5, 5);
+
+	gtk_widget_show_all(table);
+
+	GtkWidget *btnTabSize = TranslatedCommand("_OK", accel_group,
+	                                       GtkSignalFunc(TabSizeSignal), this);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->action_area),
+	                   btnTabSize, TRUE, TRUE, 0);
+	gtk_widget_grab_default(GTK_WIDGET(btnTabSize));
+	gtk_widget_show(btnTabSize);
+
+	GtkWidget *btnConvert = TranslatedCommand("_Convert", accel_group,
+	                                       GtkSignalFunc(TabSizeConvertSignal), this);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->action_area),
+	                   btnConvert, TRUE, TRUE, 0);
+	gtk_widget_show(btnConvert);
+
+	GtkWidget *btnCancel = TranslatedCommand("_Cancel", accel_group,
+	                       GtkSignalFunc(Dialog::SignalCancel), &dlgTabSize);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->action_area),
+	                   btnCancel, TRUE, TRUE, 0);
+	gtk_widget_show(btnCancel);
+
+	gtk_window_add_accel_group(GTK_WINDOW(PWidget(dlgTabSize)), accel_group);
+	dlgTabSize.ShowModal(PWidget(wSciTE));
+}
 
 void SciTEGTK::ParamGrab() {
 	if (wParameters.Created()) {
@@ -2992,6 +3091,7 @@ void SciTEGTK::CreateMenu() {
 	            {"/Options/Line End Characters/_LF", "", menuSig, IDM_EOL_LF, "/Options/Line End Characters/CR + LF"},
 	            {"/Options/_Convert Line End Characters", "", menuSig, IDM_EOL_CONVERT, 0},
 	            {"/Options/sep2", NULL, NULL, 0, "<Separator>"},
+	            {"/Options/Change Inden_tation Settings", "<control><shift>I", menuSig, IDM_TABSIZE, 0},
 	            {"/Options/Use _Monospaced Font", "<control>F11", menuSig, IDM_MONOFONT, "<CheckItem>"},
 	            {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 	            {"/Options/Open Local _Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
