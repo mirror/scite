@@ -1922,7 +1922,7 @@ void SciTEGTK::TabSizeDialog() {
 	gtk_widget_grab_default(GTK_WIDGET(btnTabSize));
 	gtk_widget_show(btnTabSize);
 
-	GtkWidget *btnConvert = TranslatedCommand("_Convert", accel_group,
+	GtkWidget *btnConvert = TranslatedCommand("Con_vert", accel_group,
 	                                       GtkSignalFunc(TabSizeConvertSignal), this);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->action_area),
 	                   btnConvert, TRUE, TRUE, 0);
