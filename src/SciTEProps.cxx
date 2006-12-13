@@ -634,6 +634,7 @@ static const char *propertiesToForward[] = {
 	"html.tags.case.sensitive",
 	"lexer.caml.magic",
 	"lexer.cpp.allow.dollars",
+	"lexer.d.fold.at.else",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
 	"lexer.sql.backticks.identifier",

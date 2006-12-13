@@ -259,6 +259,10 @@ SOURCE=..\..\scintilla\src\LexCSS.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexD.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexEiffel.cxx
 # End Source File
 # Begin Source File
