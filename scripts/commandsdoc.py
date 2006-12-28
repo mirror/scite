@@ -21,7 +21,9 @@ def faceFeatures(out):
 	for name in face.features:
 		#~ print name
 		f = face.features[name]
-		if f["FeatureType"] == "fun" and not (f["Param1Type"] or f["Param2Type"]):
+		if f["FeatureType"] == "fun" and \
+			f["ReturnType"] == "void" and \
+			not (f["Param1Type"] or f["Param2Type"]):
 			texts.append([name, f["Value"], " ".join(f["Comment"])])
 	texts.sort()
 	for t in texts:
