@@ -288,7 +288,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[currentbuf].selection = GetSelection();
 		buffers.buffers[currentbuf].scrollPosition = GetCurrentScrollPosition();
 
-		// retrieve fold state and store in buffer state info
+		// Retrieve fold state and store in buffer state info
 		int maxLine = SendEditor(SCI_GETLINECOUNT);
 		int foldPoints = 0;
 
