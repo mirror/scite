@@ -956,7 +956,9 @@ void SciTEBase::BraceMatch(bool editor) {
 		Platform::SendScintilla(win.GetID(), SCI_BRACEBADLIGHT, braceAtCaret, 0);
 		SendEditor(SCI_SETHIGHLIGHTGUIDE, 0);
 	} else {
-		char chBrace = static_cast<char>(Platform::SendScintilla(
+		char chBrace = 0;
+		if (braceAtCaret >= 0) 
+			chBrace = static_cast<char>(Platform::SendScintilla(
 		                                     win.GetID(), SCI_GETCHARAT, braceAtCaret, 0));
 		Platform::SendScintilla(win.GetID(), SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
 		int columnAtCaret = Platform::SendScintilla(win.GetID(), SCI_GETCOLUMN, braceAtCaret, 0);
