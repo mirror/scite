@@ -9,6 +9,7 @@ cd ..\..
 set
 set BORLAND_BASE=C:\Borland\bcc55
 set MSDEV_BASE=C:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
+set MSDEV71_BASE=C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
 rem
 rem ************************************************************
 rem Target 1: Borland C++ build
@@ -56,6 +57,7 @@ path %MSDEV_BASE%;%path%
 rem
 rem ************************************************************
 rem Target 4: Visual C++ .NET using scite\boundscheck\SciTE.sln
+call "%MSDEV71_BASE%\vsvars32.bat"
 call scite\scripts\clearboth
 cd scite\boundscheck
 devenv scite.sln /rebuild release
