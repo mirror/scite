@@ -824,6 +824,8 @@ static bool CallNamedFunction(char *name) {
 		lua_pushstring(luaState, name);
 		if (safe_getglobal(luaState) && lua_isfunction(luaState, -1)) {
 			handled = call_function(luaState, 0);
+		} else {
+			lua_pop(luaState, 1);
 		}
 	}
 	return handled;
@@ -836,6 +838,8 @@ static bool CallNamedFunction(const char *name, const char *arg) {
 		if (safe_getglobal(luaState) && lua_isfunction(luaState, -1)) {
 			lua_pushstring(luaState, arg);
 			handled = call_function(luaState, 1);
+		} else {
+			lua_pop(luaState, 1);
 		}
 	}
 	return handled;
@@ -849,6 +853,8 @@ static bool CallNamedFunction(const char *name, int numberArg, const char *strin
 			lua_pushnumber(luaState, numberArg);
 			lua_pushstring(luaState, stringArg);
 			handled = call_function(luaState, 2);
+		} else {
+			lua_pop(luaState, 1);
 		}
 	}
 	return handled;
@@ -1571,6 +1577,7 @@ bool LuaExtension::InitBuffer(int index) {
 			lua_pushnil(luaState);
 			lua_rawseti(luaState, -2, index);
 		}
+		lua_pop(luaState, 1);
 		// We also need to handle cases where Lua initialization is
 		// delayed (e.g. no startup script).  For that we'll just
 		// explicitly call InitBuffer(curBufferIndex)
@@ -1619,6 +1626,8 @@ bool LuaExtension::RemoveBuffer(int index) {
 			lua_rawseti(luaState, -2, maxBufferIndex);
 
 			lua_pop(luaState, 1); // the bufferdata table
+		} else {
+			lua_pop(luaState, 1);
 		}
 	}
 
