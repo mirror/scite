@@ -2415,18 +2415,18 @@ bool SciTEBase::StartBlockComment() {
 	SString long_comment = comment;
 	char linebuf[1000];
 	size_t comment_length = comment.length();
-	size_t selectionStart = SendEditor(SCI_GETSELECTIONSTART);
-	size_t selectionEnd = SendEditor(SCI_GETSELECTIONEND);
-	size_t caretPosition = SendEditor(SCI_GETCURRENTPOS);
+	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
+	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
+	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
 	// checking if caret is located in _beginning_ of selected block
 	bool move_caret = caretPosition < selectionEnd;
 	int selStartLine = SendEditor(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = SendEditor(SCI_LINEFROMPOSITION, selectionEnd);
 	int lines = selEndLine - selStartLine;
-	size_t firstSelLineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
+	int firstSelLineStart = SendEditor(SCI_POSITIONFROMLINE, selStartLine);
 	// "caret return" is part of the last selected line
 	if ((lines > 0) &&
-	        (selectionEnd == static_cast<size_t>(SendEditor(SCI_POSITIONFROMLINE, selEndLine))))
+	        (selectionEnd == SendEditor(SCI_POSITIONFROMLINE, selEndLine)))
 		selEndLine--;
 	SendEditor(SCI_BEGINUNDOACTION);
 	for (int i = selStartLine; i <= selEndLine; i++) {
@@ -2472,7 +2472,7 @@ bool SciTEBase::StartBlockComment() {
 	// before the first initially selected line;
 	// another problem - if only comment symbol was selected;
 	if (selectionStart < firstSelLineStart) {
-		if (selectionStart >= selectionEnd - (comment_length - 1))
+		if (selectionStart >= selectionEnd - (static_cast<int>(comment_length) - 1))
 			selectionEnd = firstSelLineStart;
 		selectionStart = firstSelLineStart;
 	}
