@@ -2963,7 +2963,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Edit/Complete S_ymbol", "<control>I", menuSig, IDM_COMPLETE, 0},
 	                                      {"/Edit/Complete _Word", "<control>Return", menuSig, IDM_COMPLETEWORD, 0},
 	                                      {"/Edit/Expand Abbre_viation", "<control>B", menuSig, IDM_ABBREV, 0},
-	                                      //{"/Edit/_Insert Abbreviation", "<control>D", menuSig, IDM_INS_ABBREV, 0},
+	                                      //~ {"/Edit/_Insert Abbreviation", "<control>D", menuSig, IDM_INS_ABBREV, 0},
 	                                      {"/Edit/Block Co_mment or Uncomment", "<control>Q", menuSig, IDM_BLOCK_COMMENT, 0},
 	                                      {"/Edit/Bo_x Comment", "<control><shift>B", menuSig, IDM_BOX_COMMENT, 0},
 	                                      {"/Edit/Stream Comme_nt", "<control><shift>Q", menuSig, IDM_STREAM_COMMENT, 0},
