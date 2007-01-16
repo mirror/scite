@@ -882,6 +882,7 @@ static bool IsBrace(char ch) {
  * @return @c true if inside a bracket pair.
  */
 bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy) {
+	int maskStyle = (1 << SendEditor(SCI_GETSTYLEBITSNEEDED)) - 1;
 	bool isInside = false;
 	Window &win = editor ? wEditor : wOutput;
 	int bracesStyleCheck = editor ? bracesStyle : 0;
@@ -896,7 +897,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		// Check to ensure not matching brace that is part of a multibyte character
 		if (Platform::SendScintilla(win.GetID(), SCI_POSITIONBEFORE, caretPos) == (caretPos - 1)) {
 			charBefore = acc[caretPos - 1];
-			styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & 31);
+			styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & maskStyle);
 		}
 	}
 	// Priority goes to character before caret
@@ -916,8 +917,8 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		// Check to ensure not matching brace that is part of a multibyte character
 		if (Platform::SendScintilla(win.GetID(), SCI_POSITIONAFTER, caretPos) == (caretPos + 1)) {
 			char charAfter = acc[caretPos];
-			char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & 31);
-			if (charAfter && IsBrace(charAfter) && (styleAfter == bracesStyleCheck)) {
+			char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & maskStyle);
+			if (charAfter && IsBrace(charAfter) && ((styleAfter == bracesStyleCheck) || (!bracesStyle))) {
 				braceAtCaret = caretPos;
 				isAfter = false;
 			}
