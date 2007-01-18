@@ -782,26 +782,14 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 
 	case IDM_FULLSCREEN:
 		fullScreen = !fullScreen;
-		if (fullScreen) {
-			int screen_x, screen_y;
-			int scite_x, scite_y;
-			int width, height;
-			GdkWindow* parent_w = PWidget(wSciTE)->window;
-
-			gdk_window_get_origin(parent_w, &screen_x, &screen_y);
-			gdk_window_get_geometry(parent_w, &scite_x, &scite_y, &width, &height, NULL);
-
-			saved.x = screen_x - scite_x;
-			saved.y = screen_y - scite_y;
-			saved.width = width;
-			saved.height = height;
-			gdk_window_move_resize(parent_w, -scite_x, -scite_y, gdk_screen_width() + 1, gdk_screen_height() + 1);
-			SizeSubWindows();
-		} else {
-			GdkWindow* parent_w = PWidget(wSciTE)->window;
-			gdk_window_move_resize(parent_w, saved.x, saved.y, saved.width, saved.height);
-			SizeSubWindows();
+		{
+			GdkWindow *parent_w = PWidget(wSciTE)->window;
+			if (fullScreen)
+				gdk_window_fullscreen(parent_w);
+			else
+				gdk_window_unfullscreen(parent_w);
 		}
+		SizeSubWindows();
 		CheckMenus();
 		break;
 
