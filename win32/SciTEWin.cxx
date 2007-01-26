@@ -419,6 +419,10 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		// From accelerator -> goes to focused pane.
 		menuSource = 0;
 	}
+	if (reinterpret_cast<HWND>(lParam) == wToolBar.GetID()) {
+		// From toolbar -> goes to focused pane.
+		menuSource = 0;
+	}
 
 	switch (cmdID) {
 
