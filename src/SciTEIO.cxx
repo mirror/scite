@@ -805,11 +805,13 @@ bool SciTEBase::SaveBuffer(FilePath saveName) {
 		char data[blockSize + 1];
 		int lengthDoc = LengthDocument();
 		retVal = true;
-		for (int i = 0; i < lengthDoc; i += blockSize) {
-			int grabSize = lengthDoc - i;
+		int grabSize;
+		for (int i = 0; i < lengthDoc; i += grabSize) {
+			grabSize = lengthDoc - i;
 			if (grabSize > blockSize)
 				grabSize = blockSize;
-			// TODO: This is wrong as it can retrieve partial UTF-8 characters.
+			// Round down so only whole characters retrieved.
+			grabSize = SendEditor(SCI_POSITIONBEFORE, i + grabSize + 1) - i;
 			GetRange(wEditor, i, i + grabSize, data);
 			size_t written = convert.fwrite(data, grabSize);
 			if (written == 0) {

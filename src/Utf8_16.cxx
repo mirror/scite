@@ -284,6 +284,10 @@ void Utf16_Iter::set
 void Utf16_Iter::operator++() {
 	switch (m_eState) {
 	case eStart:
+		if (m_pRead >= m_pEnd) {
+			++m_pRead;
+			break;
+		}
 		if (m_eEncoding == eUtf16LittleEndian) {
 			m_nCur16 = *m_pRead++;
 			m_nCur16 |= static_cast<utf16>(*m_pRead << 8);
