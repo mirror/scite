@@ -3161,6 +3161,22 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <a href="ApiBuilder.java">ApiBuilder.java</a> program.
     </p>
     <h3>
+       Open Selected Filename
+    </h3>
+    <p>
+       This command opens the file for the file name selected in either the edit or output pane. 
+       It uses the current selection or searches around the caret to try to
+       find a file name based on which characters are normally used in a path. 
+       If there is no extension then an extension may be inferred from the current file using the 
+       open.suffix property which defaults to .properties in a .properties file.
+       If the file name is followed by a number (in a format similar to ctags, grep output,
+       or Visual Studio messages) then that line is displayed in the opened file.
+       If the file name is an absolute path then it is opened directly otherwise it is looked for
+       in the current directory and then in the directory specified by the openpath property.
+       On Windows, web, ftp, mail and news URLs are handled by opening their
+       associated application.
+    </p>
+    <h3>
        SciTE in other languages
     </h3>
     <p>
