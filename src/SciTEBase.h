@@ -317,10 +317,6 @@ public:
 	SString extension;
 };
 
-/// Find the character following a name which is made up of character from
-/// the set [a-zA-Z.]
-char AfterName(const char *s);
-
 typedef EntryMemory < 10 > ComboMemory;
 
 enum {

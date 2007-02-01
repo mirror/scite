@@ -4514,10 +4514,10 @@ void SciTEBase::UIAvailable() {
  * Find the character following a name which is made up of characters from
  * the set [a-zA-Z.]
  */
-char AfterName(const char *s) {
+static char AfterName(const char *s) {
 	while (*s && ((*s == '.') ||
 	              (*s >= 'a' && *s <= 'z') ||
-	              (*s >= 'A' && *s <= 'A')))
+	              (*s >= 'A' && *s <= 'Z')))
 		s++;
 	return *s;
 }
