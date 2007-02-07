@@ -4574,6 +4574,10 @@ void SciTEBase::PerformOne(char *action) {
 			}
 		} else if (isprefix(action, "insert:") && fnEditor) {
 			SendEditorString(SCI_REPLACESEL, 0, arg);
+		} else if (isprefix(action, "loadsession:")) {
+			if (*arg) {
+				LoadSession(arg);
+			}
 		} else if (isprefix(action, "macrocommand:")) {
 			ExecuteMacroCommand(arg);
 		} else if (isprefix(action, "macroenable:")) {
@@ -4606,9 +4610,9 @@ void SciTEBase::PerformOne(char *action) {
 			} else {
 				SaveAsDialog();
 			}
-		} else if (isprefix(action, "loadsession:")) {
+		} else if (isprefix(action, "savesession:")) {
 			if (*arg) {
-				LoadSession(arg);
+				SaveSession(arg);
 			}
 		} else if (isprefix(action, "extender:")) {
 			extender->OnExecute(arg);
