@@ -362,8 +362,8 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		// Probably not used by robots, but making a little advertisement for those looking
 		// at the source code doesn't hurt...
 		fputs("<meta name=\"Generator\" content=\"SciTE - www.Scintilla.org\" />\n", fp);
-                if (codePage == SC_CP_UTF8)
-                        fputs("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n", fp);
+		if (codePage == SC_CP_UTF8)
+			fputs("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n", fp);
 
 		if (folding) {
 			fputs("<script language=\"JavaScript\" type=\"text/javascript\">\n"
@@ -1006,7 +1006,9 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 				return;
 			}
 			if (firstLine) {
-				sprintf(buffer, "0 -%.1f TD\n", leading);
+				// avoid breakage due to locale setting
+				int f = (int)(leading * 10 + 0.5);
+				sprintf(buffer, "0 -%d.%d TD\n", f/10, f%10);
 				firstLine = false;
 			} else {
 				sprintf(buffer, "T*\n");
@@ -1167,10 +1169,14 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 
 static char* getTexRGB(char* texcolor, const char* stylecolor) {
 	//texcolor[rgb]{0,0.5,0}{....}
-	float r = IntFromHexByte(stylecolor + 1) / 256.0;
-	float g = IntFromHexByte(stylecolor + 3) / 256.0;
-	float b = IntFromHexByte(stylecolor + 5) / 256.0;
-	sprintf(texcolor, "%.1f, %.1f, %.1f", r, g, b);
+	float rf = IntFromHexByte(stylecolor + 1) / 256.0;
+	float gf = IntFromHexByte(stylecolor + 3) / 256.0;
+	float bf = IntFromHexByte(stylecolor + 5) / 256.0;
+	// avoid breakage due to locale setting
+	int r = (int)(rf * 10 + 0.5);
+	int g = (int)(gf * 10 + 0.5);
+	int b = (int)(bf * 10 + 0.5);
+	sprintf(texcolor, "%d.%d, %d.%d, %d.%d", r/10, r%10, g/10, g%10, b/10, b%10);
 	return texcolor;
 }
 
