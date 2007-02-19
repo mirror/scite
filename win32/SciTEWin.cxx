@@ -1006,7 +1006,7 @@ void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem j
 			SString pCmd = cmd;
 			parameterisedCommand = "";
 			if (pCmd[0] == '*') {
-				pCmd.remove(0);
+				pCmd.remove(0, 1);
 				parameterisedCommand = pCmd;
 				if (!ParametersDialog(true)) {
 					return;
