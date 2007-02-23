@@ -29,9 +29,11 @@ extern const char menuAccessIndicator[];
  * The order of menus on Windows - the Buffers menu may not be present
  * and there is a Help menu at the end.
  */
-enum { menuFile = 0, menuEdit = 1, menuSearch = 2, menuView = 3,
-       menuTools = 4, menuOptions = 5, menuLanguage = 6, menuBuffers = 7,
-       menuHelp = 8};
+enum {
+    menuFile = 0, menuEdit = 1, menuSearch = 2, menuView = 3,
+    menuTools = 4, menuOptions = 5, menuLanguage = 6, menuBuffers = 7,
+    menuHelp = 8
+};
 
 /**
  * This is a fixed length list of strings suitable for display in combo boxes
@@ -67,7 +69,7 @@ public:
 			}
 		}
 	}
-	void AppendList(const SString &s, char sep='|') {
+	void AppendList(const SString &s, char sep = '|') {
 		int start = 0;
 		int end = 0;
 		while (s[end] != '\0') {
@@ -109,8 +111,8 @@ public:
 
 // Related to Utf8_16::encodingType but with additional values at end
 enum UniMode {
-	uni8Bit=0, uni16BE=1, uni16LE=2, uniUTF8=3,
-	uniCookie=4
+    uni8Bit = 0, uni16BE = 1, uni16LE = 2, uniUTF8 = 3,
+    uniCookie = 4
 };
 
 // State of folding in a given document, remembers line/state pairs,
@@ -234,9 +236,8 @@ public:
 	SString overrideExtension;	///< User has chosen to use a particular language
 	FoldState foldState;
 	Buffer() :
-		RecentFile(), doc(0), isDirty(false), useMonoFont(false),
-		unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), foldState() {
-	}
+			RecentFile(), doc(0), isDirty(false), useMonoFont(false),
+			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), foldState() {}
 
 	void Init() {
 		RecentFile::Init();
@@ -287,9 +288,9 @@ enum JobSubsystem {
     jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5, jobGrep = 6};
 
 enum JobFlags {
-    jobForceQueue=1, jobHasInput=2, jobQuiet=4, // 8 reserved for jobVeryQuiet
-    jobRepSelMask=48, jobRepSelYes=16, jobRepSelAuto=32,
-	jobGroupUndo=64};
+    jobForceQueue = 1, jobHasInput = 2, jobQuiet = 4, // 8 reserved for jobVeryQuiet
+    jobRepSelMask = 48, jobRepSelYes = 16, jobRepSelAuto = 32,
+    jobGroupUndo = 64};
 
 class Job {
 public:
@@ -320,28 +321,28 @@ public:
 typedef EntryMemory < 10 > ComboMemory;
 
 enum {
-	heightTools = 24,
-	heightTab = 24,
-	heightStatus = 20,
-	statusPosWidth = 256
+    heightTools = 24,
+    heightTab = 24,
+    heightStatus = 20,
+    statusPosWidth = 256
 };
 
 /// Warning IDs.
 enum {
-	warnFindWrapped = 1,
-	warnNotFound,
-	warnNoOtherBookmark,
-	warnWrongFile,
-	warnExecuteOK,
-	warnExecuteKO
+    warnFindWrapped = 1,
+    warnNotFound,
+    warnNoOtherBookmark,
+    warnWrongFile,
+    warnExecuteOK,
+    warnExecuteKO
 };
 
 /// Codes representing the effect a line has on indentation.
 enum IndentationStatus {
-	isNone,		// no effect on indentation
-	isBlockStart,	// indentation block begin such as "{" or VB "function"
-	isBlockEnd,	// indentation end indicator such as "}" or VB "end"
-	isKeyWordStart	// Keywords that cause indentation
+    isNone,		// no effect on indentation
+    isBlockStart,	// indentation block begin such as "{" or VB "function"
+    isBlockEnd,	// indentation end indicator such as "}" or VB "end"
+    isKeyWordStart	// Keywords that cause indentation
 };
 
 int IntFromHexDigit(int ch);
@@ -361,8 +362,8 @@ public:
 	bool visible;
 	bool changeable;
 	enum flags { sdNone = 0, sdFont = 0x1, sdSize = 0x2, sdFore = 0x4, sdBack = 0x8,
-	             sdBold = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined = 0x80,
-	              sdCaseForce = 0x100, sdVisible = 0x200, sdChangeable = 0x400} specified;
+	        sdBold = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined = 0x80,
+	        sdCaseForce = 0x100, sdVisible = 0x200, sdChangeable = 0x400} specified;
 	StyleDefinition(const char *definition);
 	bool ParseStyleDefinition(const char *definition);
 	long ForeAsLong() const;
@@ -574,8 +575,8 @@ protected:
 	int AddBuffer();
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable();
-	bool CanMakeRoom(bool maySaveIfDirty=true);
-	void SetDocumentAt(int index, bool updateStack=true);
+	bool CanMakeRoom(bool maySaveIfDirty = true);
+	void SetDocumentAt(int index, bool updateStack = true);
 	Buffer *CurrentBuffer() {
 		return buffers.CurrentBuffer();
 	}
@@ -596,14 +597,14 @@ protected:
 	sptr_t SendOutputString(unsigned int msg, uptr_t wParam, const char *s);
 	sptr_t SendFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendPane(int destination, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	sptr_t SendWindow(Window &w, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
+	sptr_t SendWindow(Window &w, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	void SendChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendOutputEx(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0, bool direct = true);
-	SString GetTranslationToAbout(const char * const propname, bool retainIfNotFound=true);
+	SString GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
 	int LengthDocument();
 	int GetCaretInLine();
-	void GetLine(char *text, int sizeText, int line=-1);
-	SString GetLine(int line=-1);
+	void GetLine(char *text, int sizeText, int line = -1);
+	SString GetLine(int line = -1);
 	void GetRange(Window &win, int start, int end, char *text);
 	int IsLinePreprocessorCondition(char *line);
 	bool FindMatchingPreprocessorCondition(int &curLine, int direction, int condEnd1, int condEnd2);
@@ -642,14 +643,14 @@ protected:
 	virtual void SaveSessionDialog() { };
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
 	enum OpenFlags {
-		ofNone=0, 		// Default
-		ofNoSaveIfDirty=1, 	// Suppress check for unsaved changes
-		ofForceLoad=2,	// Reload file even if already in a buffer
-		ofPreserveUndo=4,	// Do not delete undo history
-		ofQuiet=8		// Avoid "Could not open file" message
+	    ofNone = 0, 		// Default
+	    ofNoSaveIfDirty = 1, 	// Suppress check for unsaved changes
+	    ofForceLoad = 2,	// Reload file even if already in a buffer
+	    ofPreserveUndo = 4,	// Do not delete undo history
+	    ofQuiet = 8		// Avoid "Could not open file" message
 	};
 	virtual bool PreOpenCheck(const char *file);
-	bool Open(FilePath file, OpenFlags of=ofNone);
+	bool Open(FilePath file, OpenFlags of = ofNone);
 	bool OpenSelected();
 	void Revert();
 	FilePath SaveName(const char *ext);
@@ -689,7 +690,7 @@ protected:
 	virtual SString GetRangeInUIEncoding(Window &win, int selStart, int selEnd);
 	SString GetLine(Window &win, int line);
 	SString RangeExtendAndGrab(Window &wCurrent, int &selStart, int &selEnd,
-		bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
+	        bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	SString SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	void FindWordAtCaret(int &start, int &end);
 	bool SelectWordAtCaret();
@@ -699,8 +700,8 @@ protected:
 	void SelectionIntoFind(bool stripEol = true);
 	virtual SString EncodeString(const SString &s);
 	virtual void Find() = 0;
-	virtual int WindowMessageBox(Window &w, const SString &m, int style)=0;
-	virtual void FindMessageBox(const SString &msg, const SString *findItem=0)=0;
+	virtual int WindowMessageBox(Window &w, const SString &m, int style) = 0;
+	virtual void FindMessageBox(const SString &msg, const SString *findItem = 0) = 0;
 	int FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition);
 	int FindNext(bool reverseDirection, bool showWarnings = true);
 	virtual void FindIncrement() = 0;
@@ -759,25 +760,25 @@ protected:
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
 	virtual void AddCommand(const SString &cmd, const SString &dir,
-		JobSubsystem jobType, const SString &input = "",
-		int flags = 0);
+	        JobSubsystem jobType, const SString &input = "",
+	        int flags = 0);
 	virtual void AboutDialog() = 0;
 	virtual void QuitProgram() = 0;
 	void CloseTab(int tab);
 	void CloseAllBuffers(bool loadingSession = false);
-	int SaveAllBuffers(bool forceQuestion, bool alwaysYes=false);
+	int SaveAllBuffers(bool forceQuestion, bool alwaysYes = false);
 	void SaveTitledBuffers();
 	virtual void CopyAsRTF() {};
 	void SetLineNumberWidth();
-	void MenuCommand(int cmdID, int source=0);
+	void MenuCommand(int cmdID, int source = 0);
 	void FoldChanged(int line, int levelNow, int levelPrev);
 	void FoldChanged(int position);
 	void Expand(int &line, bool doExpand, bool force = false,
-	            int visLevels = 0, int level = -1);
+	        int visLevels = 0, int level = -1);
 	void FoldAll();
 	void ToggleFoldRecursive(int line, int level);
 	void EnsureAllChildrenVisible(int line, int level);
-	void EnsureRangeVisible(int posStart, int posEnd, bool enforcePolicy=true);
+	void EnsureRangeVisible(int posStart, int posEnd, bool enforcePolicy = true);
 	void GotoLineEnsureVisible(int line);
 	bool MarginClick(int position, int modifiers);
 	void NewLineInOutput();
@@ -799,13 +800,13 @@ protected:
 	virtual void SizeSubWindows() = 0;
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
-	                         const char *text, const char *mnemonic = 0) = 0;
+	        const char *text, const char *mnemonic = 0) = 0;
 	virtual void DestroyMenuItem(int menuNumber, int itemID) = 0;
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val) = 0;
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val) = 0;
 	virtual void CheckMenusClipboard();
 	virtual void CheckMenus();
-	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true)=0;
+	virtual void AddToPopUp(const char *label, int cmd = 0, bool enabled = true) = 0;
 	void ContextMenu(Window wSource, Point pt, Window wCmd);
 
 	void DeleteFileStackMenu();
@@ -822,7 +823,7 @@ protected:
 
 	void RemoveToolsMenu();
 	void SetMenuItemLocalised(int menuNumber, int position, int itemID,
-		const char *text, const char *mnemonic);
+	        const char *text, const char *mnemonic);
 	void SetToolsMenu();
 	JobSubsystem SubsystemType(char c);
 	JobSubsystem SubsystemType(const char *cmd, int item = -1);
@@ -835,9 +836,9 @@ protected:
 	void ImportMenu(int pos);
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
-	SString LocaliseString(const char *s, bool retainIfNotFound=true);
-	SString LocaliseMessage(const char *s, const char *param0=0,
-		const char *param1=0, const char *param2=0);
+	SString LocaliseString(const char *s, bool retainIfNotFound = true);
+	SString LocaliseMessage(const char *s, const char *param0 = 0,
+	        const char *param1 = 0, const char *param2 = 0);
 	virtual void ReadLocalisation();
 	virtual void ReadPropertiesInitial();
 	void ReadFontProperties();
@@ -848,7 +849,7 @@ protected:
 	void ForwardPropertyToEditor(const char *key);
 	void DefineMarker(int marker, int markerType, ColourDesired fore, ColourDesired back);
 	void ReadAPI(const SString &fileNameForExtension);
-	SString FindLanguageProperty(const char *pattern, const char *defaultValue="");
+	SString FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
 	void SetOneStyle(Window &win, int style, const StyleDefinition &sd);
 	void SetStyleFor(Window &win, const char *language);
@@ -876,8 +877,10 @@ protected:
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
-	enum GrepFlags { grepNone=0, grepWholeWord=1, grepMatchCase=2, grepStdOut=4,
-		grepDot=8, grepBinary=16 };
+	enum GrepFlags {
+	    grepNone = 0, grepWholeWord = 1, grepMatchCase = 2, grepStdOut = 4,
+	    grepDot = 8, grepBinary = 16
+	};
 	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const char *fileTypes);
 	void InternalGrep(GrepFlags gf, const char *directory, const char *files, const char *search);
 	void EnumProperties(const char *action);
@@ -939,3 +942,4 @@ long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefau
 char *Slash(const char *s, bool quoteQuotes);
 unsigned int UnSlash(char *s);
 void WindowSetFocus(Window &w);
+
