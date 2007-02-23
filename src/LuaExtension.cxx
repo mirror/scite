@@ -100,7 +100,7 @@ static void push_pane_object(lua_State *L, ExtensionAPI::Pane p);
 static int iface_function_helper(lua_State *L, const IFaceFunction &func);
 
 inline bool IFaceTypeIsScriptable(IFaceType t, int index) {
-	return t < iface_stringresult || (index==1 && t == iface_stringresult);
+	return t < iface_stringresult || (index == 1 && t == iface_stringresult);
 }
 
 inline bool IFaceTypeIsNumeric(IFaceType t) {
@@ -113,8 +113,8 @@ inline bool IFaceFunctionIsScriptable(const IFaceFunction &f) {
 
 inline bool IFacePropertyIsScriptable(const IFaceProperty &p) {
 	return (((p.valueType > iface_void) && (p.valueType <= iface_string) && (p.valueType != iface_keymod)) &&
-		((p.paramType < iface_colour) || (p.paramType == iface_string) ||
-		(p.paramType == iface_bool)) && (p.getter || p.setter));
+	        ((p.paramType < iface_colour) || (p.paramType == iface_string) ||
+	         (p.paramType == iface_bool)) && (p.getter || p.setter));
 }
 
 static int cf_getglobal_wrapper(lua_State *L) {
@@ -125,7 +125,7 @@ static int cf_getglobal_wrapper(lua_State *L) {
 	return 0;
 }
 
-inline void raise_error(lua_State *L, const char *errMsg=NULL) {
+inline void raise_error(lua_State *L, const char *errMsg = NULL) {
 	luaL_where(L, 1);
 	if (errMsg) {
 		lua_pushstring(L, errMsg);
@@ -140,7 +140,7 @@ static bool safe_getglobal(lua_State *L) {
 	// is this still needed?  could just use lua_rawget / rawget_library_object
 	lua_pushcfunction(L, cf_getglobal_wrapper);
 	lua_insert(L, -2);
-	if (0==lua_pcall(L, 1, 1, 0)) {
+	if (0 == lua_pcall(L, 1, 1, 0)) {
 		return true;
 	} else {
 		lua_pop(L, 1); // ignore error message
@@ -151,7 +151,7 @@ static bool safe_getglobal(lua_State *L) {
 
 inline int absolute_index(lua_State *L, int index) {
 	return ((index < 0) && (index != LUA_REGISTRYINDEX) && (index != LUA_GLOBALSINDEX))
-		? (lua_gettop(L) + index + 1) : index;
+	       ? (lua_gettop(L) + index + 1) : index;
 }
 
 static int merge_table(lua_State *L, int destTableIdx, int srcTableIdx, bool copyMetatable = false) {
@@ -191,10 +191,10 @@ static bool clone_table(lua_State *L, int srcTableIdx, bool copyMetatable = fals
 static void clear_table(lua_State *L, int tableIdx, bool clearMetatable = true) {
 	if (lua_istable(L, tableIdx)) {
 		tableIdx = absolute_index(L, tableIdx);
-	if (clearMetatable) {
-		lua_pushnil(L);
-		lua_setmetatable(L, tableIdx);
-	}
+		if (clearMetatable) {
+			lua_pushnil(L);
+			lua_setmetatable(L, tableIdx);
+		}
 		lua_pushnil(L); // first key
 		while (lua_next(L, tableIdx) != 0) {
 			// ‘key’ is at index -2 and ‘value’ at index -1
@@ -221,7 +221,7 @@ static bool rawget_library_object(lua_State *L, const char *basename, const char
 			}
 		}
 	}
-	lua_pop(L,1);
+	lua_pop(L, 1);
 	return false;
 }
 
@@ -396,14 +396,14 @@ static int cf_pane_findtext(lua_State *L) {
 
 		if (!hasError) {
 			if (nArgs > 3) {
-				ft.chrg.cpMin = static_cast<int>(luaL_checkint(L,4));
+				ft.chrg.cpMin = static_cast<int>(luaL_checkint(L, 4));
 				hasError = (lua_gettop(L) > nArgs);
 			}
 		}
 
 		if (!hasError) {
 			if (nArgs > 4) {
-				ft.chrg.cpMax = static_cast<int>(luaL_checkint(L,5));
+				ft.chrg.cpMax = static_cast<int>(luaL_checkint(L, 5));
 				hasError = (lua_gettop(L) > nArgs);
 			} else {
 				ft.chrg.cpMax = host->Send(p, SCI_GETLENGTH, 0, 0);
@@ -605,7 +605,7 @@ static int cf_pane_match_generator(lua_State *L) {
 		searchPos++;
 	}
 
-	TextToFind ft = { {0,0}, 0, {0,0} };
+	TextToFind ft = { {0, 0}, 0, {0, 0} };
 	ft.chrg.cpMin = searchPos;
 	ft.chrg.cpMax = host->Send(pmo->pane, SCI_GETLENGTH, 0, 0);
 	ft.lpstrText = const_cast<char*>(text);
@@ -715,7 +715,7 @@ static int cf_global_print(lua_State *L) {
 
 
 static int cf_global_trace(lua_State *L) {
-	const char *s = lua_tostring(L,1);
+	const char *s = lua_tostring(L, 1);
 	if (s) {
 		host->Trace(s);
 	}
@@ -774,7 +774,7 @@ static void call_alert(lua_State *L, const char *s = NULL) {
 }
 
 
-static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValue=false) {
+static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValue = false) {
 	bool handled = false;
 
 	if (L) {
@@ -865,7 +865,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	int arg = 2;
 
-	long params[2] = {0,0};
+	long params[2] = {0, 0};
 
 	char *stringResult = 0;
 	bool needStringResult = false;
@@ -887,14 +887,14 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		}
 	}
 
-	for (int i=0; i<loopParamCount; ++i) {
+	for (int i = 0; i < loopParamCount; ++i) {
 		if (func.paramType[i] == iface_string) {
 			const char *s = lua_tostring(L, arg++);
 			params[i] = reinterpret_cast<long>(s ? s : "");
 		} else if (func.paramType[i] == iface_keymod) {
 			int keycode = static_cast<int>(luaL_checknumber(L, arg++)) & 0xFFFF;
-			int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) & (SCMOD_SHIFT|SCMOD_CTRL|SCMOD_ALT);
-			params[i] = keycode | (modifiers<<16);
+			int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) & (SCMOD_SHIFT | SCMOD_CTRL | SCMOD_ALT);
+			params[i] = keycode | (modifiers << 16);
 		} else if (func.paramType[i] == iface_bool) {
 			params[i] = lua_toboolean(L, arg++);
 		} else if (IFaceTypeIsNumeric(func.paramType[i])) {
@@ -909,7 +909,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 			// not all string result methods are guaranteed to add a null terminator
 			stringResult = new char[stringResultLen+1];
 			if (stringResult) {
-				stringResult[stringResultLen]='\0';
+				stringResult[stringResultLen] = '\0';
 				params[1] = reinterpret_cast<long>(stringResult);
 			} else {
 				raise_error(L, "String result buffer allocation failed");
@@ -1014,7 +1014,7 @@ static int push_iface_function(lua_State *L, const char *name) {
 	int i = IFaceTable::FindFunction(name);
 	if (i >= 0) {
 		if (IFaceFunctionIsScriptable(IFaceTable::functions[i])) {
-			lua_pushlightuserdata(L, const_cast<IFaceFunction*>(IFaceTable::functions+i));
+			lua_pushlightuserdata(L, const_cast<IFaceFunction*>(IFaceTable::functions + i));
 			lua_pushcclosure(L, cf_pane_iface_function, 1);
 
 			// Since Lua experts say it is inefficient to create closures / cfunctions
@@ -1188,7 +1188,7 @@ void push_pane_object(lua_State *L, ExtensionAPI::Pane p) {
 		lua_pushcclosure(L, cf_pane_match, 1);
 		lua_settable(L, -3);
 	}
-	lua_setmetatable(L,-2);
+	lua_setmetatable(L, -2);
 }
 
 
@@ -1544,7 +1544,7 @@ bool LuaExtension::Load(const char *filename) {
 
 	if (!luaDisabled) {
 		int sl = strlen(filename);
-		if (sl >= 4 && strcmp(filename+sl-4, ".lua")==0) {
+		if (sl >= 4 && strcmp(filename + sl - 4, ".lua") == 0) {
 			if (luaState || InitGlobalScope(false)) {
 				extensionScript = filename;
 				luaL_loadfile(luaState, filename);
@@ -1618,7 +1618,7 @@ bool LuaExtension::RemoveBuffer(int index) {
 		lua_rawget(luaState, LUA_REGISTRYINDEX);
 		if (lua_istable(luaState, -1)) {
 			for (int i = index; i < maxBufferIndex; ++i) {
-				lua_rawgeti(luaState, -1, i+1);
+				lua_rawgeti(luaState, -1, i + 1);
 				lua_rawseti(luaState, -2, i);
 			}
 
@@ -1654,8 +1654,8 @@ bool LuaExtension::OnExecute(const char *s) {
 			lua_pushliteral(luaState, "^%s*([%a_][%a%d_]*)%s*(.-)%s*$");
 
 			int status = lua_pcall(luaState, 2, 4, 0);
-			if (status==0) {
-				lua_insert(luaState, stackBase+1);
+			if (status == 0) {
+				lua_insert(luaState, stackBase + 1);
 
 				if (safe_getglobal(luaState)) {
 					if (lua_isfunction(luaState, -1)) {
@@ -1663,9 +1663,9 @@ bool LuaExtension::OnExecute(const char *s) {
 
 						handled = true;
 
-						lua_insert(luaState, stackBase+1);
+						lua_insert(luaState, stackBase + 1);
 
-						lua_settop(luaState, stackBase+2);
+						lua_settop(luaState, stackBase + 2);
 
 						if (!call_function(luaState, 1, true)) {
 							host->Trace(">Lua: error occurred while processing command\n");
@@ -1750,3 +1750,4 @@ bool LuaExtension::OnUserListSelection(int listType, const char *selection) {
 // Unreferenced inline functions are OK
 #pragma warning(disable: 4514)
 #endif
+
