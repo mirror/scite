@@ -40,7 +40,7 @@ class FilePathSet;
 class FilePath {
 	SString fileName;
 public:
-	FilePath(const char *fileName_="");
+	FilePath(const char *fileName_ = "");
 	FilePath(FilePath const &directory, FilePath const &name);
 	void Set(const char *fileName_);
 	const char *AsFileSystem() const;
@@ -86,10 +86,11 @@ class FilePathSet {
 	// Private so won't be called.
 	FilePathSet &operator=(const FilePathSet &);
 public:
-	FilePathSet(int size_=10);
+	FilePathSet(int size_ = 10);
 	FilePathSet(const FilePathSet &other);
 	~FilePathSet();
 	FilePath At(size_t pos) const;
 	void Append(FilePath fp);
 	size_t Length() const;
 };
+
