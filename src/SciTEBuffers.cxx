@@ -152,7 +152,7 @@ void BufferList::SetCurrent(int index) {
 }
 
 void BufferList::PopStack() {
-	for (int i=0; i<length-1; ++i) {
+	for (int i = 0; i < length - 1; ++i) {
 		int index = stack[i + 1];
 		// adjust the index for items that will move in buffers[]
 		if (index > current)
@@ -176,7 +176,7 @@ int BufferList::StackPrev() {
 void BufferList::MoveToStackTop(int index) {
 	// shift top chunk of stack down into the slot that index occupies
 	bool move = false;
-	for (int i=length-1; i>0; --i) {
+	for (int i = length - 1; i > 0; --i) {
 		if (stack[i] == index)
 			move = true;
 		if (move)
@@ -496,21 +496,21 @@ void SciTEBase::SetIndentSettings() {
 	// Either set the settings related to the extension or the default ones
 	SString fileNameForExtension = ExtensionFileName();
 	SString useTabsChars = props.GetNewExpand("use.tabs.",
-	                       fileNameForExtension.c_str());
+	        fileNameForExtension.c_str());
 	if (useTabsChars.length() != 0) {
 		SendEditor(SCI_SETUSETABS, useTabsChars.value());
 	} else {
 		SendEditor(SCI_SETUSETABS, useTabs);
 	}
 	SString tabSizeForExt = props.GetNewExpand("tab.size.",
-	                        fileNameForExtension.c_str());
+	        fileNameForExtension.c_str());
 	if (tabSizeForExt.length() != 0) {
 		SendEditor(SCI_SETTABWIDTH, tabSizeForExt.value());
 	} else if (tabSize != 0) {
 		SendEditor(SCI_SETTABWIDTH, tabSize);
 	}
 	SString indentSizeForExt = props.GetNewExpand("indent.size.",
-	                           fileNameForExtension.c_str());
+	        fileNameForExtension.c_str());
 	if (indentSizeForExt.length() != 0) {
 		SendEditor(SCI_SETINDENT, indentSizeForExt.value());
 	} else {
@@ -535,8 +535,8 @@ void SciTEBase::New() {
 
 	if ((buffers.size == 1) && (!buffers.buffers[0].IsUntitled())) {
 		AddFileToStack(buffers.buffers[0],
-		               buffers.buffers[0].selection,
-		               buffers.buffers[0].scrollPosition);
+		        buffers.buffers[0].selection,
+		        buffers.buffers[0].scrollPosition);
 	}
 
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
@@ -544,11 +544,11 @@ void SciTEBase::New() {
 	if ((buffers.length > 1) ||
 	        (buffers.Current() != 0) ||
 	        (buffers.buffers[0].isDirty) ||
-			(!buffers.buffers[0].IsUntitled())) {
-			if (buffers.size == buffers.length) {
-				Close(false, false, true);
-			}
-			buffers.SetCurrent(buffers.Add());
+	        (!buffers.buffers[0].IsUntitled())) {
+		if (buffers.size == buffers.length) {
+			Close(false, false, true);
+		}
+		buffers.SetCurrent(buffers.Add());
 	}
 
 	sptr_t doc = GetDocumentAt(buffers.Current());
@@ -948,7 +948,7 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 		// This can produce better file state restoring
 		bool foldOnOpen = props.GetInt("fold.on.open");
 		//~ if (foldOnOpen)
-			//~ FoldAll();
+		//~ FoldAll();
 
 		int lineStart = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMin);
 		SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, lineStart);
@@ -1042,7 +1042,7 @@ void SciTEBase::RemoveToolsMenu() {
 }
 
 void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
-                                     const char *text, const char *mnemonic) {
+        const char *text, const char *mnemonic) {
 	SString localised = LocaliseString(text);
 	SetMenuItem(menuNumber, position, itemID, localised.c_str(), mnemonic);
 }
@@ -1082,13 +1082,13 @@ void SciTEBase::SetToolsMenu() {
 	if (macrosEnabled) {
 		SetMenuItem(menuTools, menuPos++, IDM_MACRO_SEP, "");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROLIST,
-		                     "&List Macros...", "Shift+F9");
+		        "&List Macros...", "Shift+F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROPLAY,
-		                     "Run Current &Macro", "F9");
+		        "Run Current &Macro", "F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACRORECORD,
-		                     "&Record Macro", "Ctrl+F9");
+		        "&Record Macro", "Ctrl+F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROSTOPRECORD,
-		                     "S&top Recording Macro", "Ctrl+Shift+F9");
+		        "S&top Recording Macro", "Ctrl+Shift+F9");
 	}
 }
 
@@ -1159,56 +1159,56 @@ void SciTEBase::ToolsMenu(int item) {
 				}
 
 				if (0 == strcmp(opt, "subsystem") && colon) {
-					if (colon[0] == '0' || 0==strcmp(colon, "console"))
+					if (colon[0] == '0' || 0 == strcmp(colon, "console"))
 						jobType = jobCLI;
-					else if (colon[0] == '1' || 0==strcmp(colon, "windows"))
+					else if (colon[0] == '1' || 0 == strcmp(colon, "windows"))
 						jobType = jobGUI;
-					else if (colon[0] == '2' || 0==strcmp(colon, "shellexec"))
+					else if (colon[0] == '2' || 0 == strcmp(colon, "shellexec"))
 						jobType = jobShell;
-					else if (colon[0] == '3' || 0==strcmp(colon, "lua") || strcmp(colon, "director"))
+					else if (colon[0] == '3' || 0 == strcmp(colon, "lua") || strcmp(colon, "director"))
 						jobType = jobExtension;
-					else if (colon[0] == '4' || 0==strcmp(colon, "winhelp"))
+					else if (colon[0] == '4' || 0 == strcmp(colon, "winhelp"))
 						jobType = jobHelp;
-					else if (colon[0] == '5' || 0==strcmp(colon, "htmlhelp"))
+					else if (colon[0] == '5' || 0 == strcmp(colon, "htmlhelp"))
 						jobType = jobOtherHelp;
 				}
 
 				if (0 == strcmp(opt, "quiet")) {
-					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
 						quiet = true;
-					else if (colon[0] == '0' || 0==strcmp(colon, "no"))
+					else if (colon[0] == '0' || 0 == strcmp(colon, "no"))
 						quiet = false;
 				}
 
 				if (0 == strcmp(opt, "savebefore")) {
-					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
 						saveBefore = 1;
-					else if (colon[0] == '0' || 0==strcmp(colon, "no"))
+					else if (colon[0] == '0' || 0 == strcmp(colon, "no"))
 						saveBefore = 2;
-					else if (0==strcmp(colon, "prompt"))
+					else if (0 == strcmp(colon, "prompt"))
 						saveBefore = 0;
 				}
 
 				if (0 == strcmp(opt, "filter")) {
-					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
 						filter = true;
-					else if (colon[1] == '0' || 0==strcmp(colon, "no"))
+					else if (colon[1] == '0' || 0 == strcmp(colon, "no"))
 						filter = false;
 				}
 
 				if (0 == strcmp(opt, "replaceselection")) {
-					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
 						repSel = 1;
-					else if (colon[0] == '0' || 0==strcmp(colon, "no"))
+					else if (colon[0] == '0' || 0 == strcmp(colon, "no"))
 						repSel = 0;
-					else if (0==strcmp(colon, "auto"))
+					else if (0 == strcmp(colon, "auto"))
 						repSel = 2;
 				}
 
 				if (0 == strcmp(opt, "groupundo")) {
-					if (!colon || colon[0] == '1' || 0==strcmp(colon, "yes"))
+					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
 						groupUndo = true;
-					else if (colon[0] == '0' || 0==strcmp(colon, "no"))
+					else if (colon[0] == '0' || 0 == strcmp(colon, "no"))
 						groupUndo = false;
 				}
 
@@ -1234,7 +1234,7 @@ void SciTEBase::ToolsMenu(int item) {
 			propName = "command.is.filter.";
 			propName += itemSuffix;
 			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
-				filter = (props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal())[0]=='1');
+				filter = (props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal())[0] == '1');
 			if (filter)
 				CurrentBuffer()->fileModTime -= 1;
 
@@ -1256,7 +1256,7 @@ void SciTEBase::ToolsMenu(int item) {
 			propName = "command.quiet.";
 			propName += itemSuffix;
 			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
-				quiet = (props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value()==1);
+				quiet = (props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value() == 1);
 			if (quiet)
 				flags |= jobQuiet;
 
@@ -1281,12 +1281,12 @@ void SciTEBase::ToolsMenu(int item) {
 }
 
 inline bool isdigitchar(int ch) {
-    return (ch >= '0') && (ch <= '9');
+	return (ch >= '0') && (ch <= '9');
 }
 
 int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 	sourcePath[0] = '\0';
-	column= -1; // default to not detected
+	column = -1; // default to not detected
 	switch (format) {
 	case SCE_ERR_PYTHON: {
 			// Python
@@ -1564,16 +1564,16 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			 */
 			char *line = strchr(cdoc, ' ');
 			if (line) {
-				char *col = strchr(line+1, ' ');
+				char *col = strchr(line + 1, ' ');
 				if (col) {
 					*col = '\0';
 					int lnr = atoi(line) - 1;
-					col = strchr(col+1, ' ');
+					col = strchr(col + 1, ' ');
 					if (col) {
-						char *endcol = strchr(col+1, ' ');
+						char *endcol = strchr(col + 1, ' ');
 						if (endcol) {
 							*endcol = '\0';
-							column = atoi(col)-1;
+							column = atoi(col) - 1;
 							return lnr;
 						}
 					}
@@ -1592,7 +1592,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			if (length > 0) {
 				strncpy(sourcePath, startPath, length);
 				sourcePath[length] = 0;
-				int sourceNumber = atoi(endPath+1) - 1;
+				int sourceNumber = atoi(endPath + 1) - 1;
 				return sourceNumber;
 			}
 			break;
@@ -1634,17 +1634,17 @@ void SciTEBase::GoMessage(int dir) {
 		//Platform::DebugPrintf("GOMessage %d %d %d of %d linestart = %d\n", selStart, curLine, lookLine, maxLine, startPosLine);
 		char style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
-			style != SCE_ERR_CMD &&
-			style != SCE_ERR_DIFF_ADDITION &&
-			style != SCE_ERR_DIFF_CHANGED &&
-			style != SCE_ERR_DIFF_DELETION) {
+		        style != SCE_ERR_CMD &&
+		        style != SCE_ERR_DIFF_ADDITION &&
+		        style != SCE_ERR_DIFF_CHANGED &&
+		        style != SCE_ERR_DIFF_DELETION) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			SendOutput(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
-			           "error.marker.fore", ColourDesired(0x7f, 0, 0)));
+			        "error.marker.fore", ColourDesired(0x7f, 0, 0)));
 			SendOutput(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
-			           "error.marker.back", ColourDesired(0xff, 0xff, 0)));
+			        "error.marker.back", ColourDesired(0xff, 0xff, 0)));
 			SendOutput(SCI_MARKERADD, lookLine, 0);
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
 			char *cdoc = new char[lineLength + 1];
@@ -1709,18 +1709,18 @@ void SciTEBase::GoMessage(int dir) {
 				SendEditor(SCI_MARKERDELETEALL, 0);
 				SendEditor(SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
 				SendEditor(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
-				           "error.marker.fore", ColourDesired(0x7f, 0, 0)));
+				        "error.marker.fore", ColourDesired(0x7f, 0, 0)));
 				SendEditor(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
-				           "error.marker.back", ColourDesired(0xff, 0xff, 0)));
+				        "error.marker.back", ColourDesired(0xff, 0xff, 0)));
 				SendEditor(SCI_MARKERADD, sourceLine, 0);
 				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
-				int endSourceline= SendEditor(SCI_POSITIONFROMLINE, sourceLine+1, 0);
+				int endSourceline = SendEditor(SCI_POSITIONFROMLINE, sourceLine + 1, 0);
 				if (column >= 0) {
 					// Get the position in line according to current tab setting
 					startSourceLine = SendEditor(SCI_FINDCOLUMN, sourceLine, column);
 				}
 				EnsureRangeVisible(startSourceLine, startSourceLine);
-				if (props.GetInt("error.select.line")==1) {
+				if (props.GetInt("error.select.line") == 1) {
 					//select whole source source line from column with error
 					SetSelection(endSourceline, startSourceLine);
 				} else {
@@ -1745,3 +1745,4 @@ void SciTEBase::GoMessage(int dir) {
 			return;
 	}
 }
+
