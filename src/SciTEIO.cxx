@@ -154,8 +154,8 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 
 static bool isEncodingChar(char ch) {
 	return (ch == '_') || (ch == '-') || (ch == '.') ||
-		(ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-		(ch >= '0' && ch <= '9');
+	       (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+	       (ch >= '0' && ch <= '9');
 }
 
 static bool isSpaceChar(char ch) {
@@ -168,7 +168,7 @@ static SString ExtractLine(const char *buf, size_t length) {
 		while ((endl < length) && (buf[endl] != '\r') && (buf[endl] != '\n')) {
 			endl++;
 		}
-		if (((endl+1) < length) && (buf[endl] == '\r') && (buf[endl+1] == '\n')) {
+		if (((endl + 1) < length) && (buf[endl] == '\r') && (buf[endl+1] == '\n')) {
 			endl++;
 		}
 		if (endl < length) {
@@ -190,12 +190,12 @@ static UniMode CookieValue(const SString &s) {
 				posCoding++;
 			}
 			while ((posCoding < static_cast<int>(s.length())) &&
-				(isSpaceChar(s[posCoding]))) {
+			        (isSpaceChar(s[posCoding]))) {
 				posCoding++;
 			}
 			size_t endCoding = static_cast<size_t>(posCoding);
 			while ((endCoding < s.length()) &&
-				(isEncodingChar(s[endCoding]))) {
+			        (isEncodingChar(s[endCoding]))) {
 				endCoding++;
 			}
 			SString code(s.c_str(), posCoding, endCoding);
@@ -212,7 +212,7 @@ static UniMode CodingCookieValue(const char *buf, size_t length) {
 	SString l1 = ExtractLine(buf, length);
 	UniMode unicodeMode = CookieValue(l1);
 	if (unicodeMode == uni8Bit) {
-		SString l2 = ExtractLine(buf+l1.length(), length-l1.length());
+		SString l2 = ExtractLine(buf + l1.length(), length - l1.length());
 		unicodeMode = CookieValue(l2);
 	}
 	return unicodeMode;
@@ -354,7 +354,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 			SetIndentSettings();
 		}
 		CurrentBuffer()->unicodeMode = static_cast<UniMode>(
-			static_cast<int>(convert.getEncoding()));
+		            static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies
 		if (CurrentBuffer()->unicodeMode == uni8Bit) {
 			CurrentBuffer()->unicodeMode = codingCookie;
@@ -423,9 +423,9 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		if (maxSize > 0 && size > maxSize) {
 			SString sSize(size), sMaxSize(maxSize);
 			SString msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
-						      "larger than the ^2 bytes limit set in the properties.\n"
-						      "Do you still want to open it?",
-						      absPath.AsFileSystem(), sSize.c_str(), sMaxSize.c_str());
+			        "larger than the ^2 bytes limit set in the properties.\n"
+			        "Do you still want to open it?",
+			        absPath.AsFileSystem(), sSize.c_str(), sMaxSize.c_str());
 			int answer = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
 			if (answer != IDYES) {
 				return false;
@@ -507,7 +507,7 @@ bool SciTEBase::OpenSelected() {
 
 	cTag[0] = '\0';
 	if (IsPropertiesFile(filePath) &&
-			strchr(selectedFilename, '.') == 0 &&
+	        strchr(selectedFilename, '.') == 0 &&
 	        strlen(selectedFilename) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
 		// We are in a properties file and try to open a file without extension,
 		// we suppose we want to open an imported .properties file
@@ -560,13 +560,13 @@ bool SciTEBase::OpenSelected() {
 		// If not there, look in openpath
 		if (!Exists(path.AsInternal(), selectedFilename, NULL)) {
 			SString openPath = props.GetNewExpand(
-				"openpath.", fileNameForExtension.c_str());
+			            "openpath.", fileNameForExtension.c_str());
 			while (openPath.length()) {
 				SString tryPath(openPath);
 				int sepIndex = tryPath.search(listSepString);
 				if (sepIndex > 0) {
 					tryPath.remove(sepIndex, 0);
-					openPath.remove(0,sepIndex+1);
+					openPath.remove(0, sepIndex + 1);
 				} else {
 					openPath.clear();
 				}
@@ -617,12 +617,12 @@ void SciTEBase::CheckReload() {
 					SString msg;
 					if (CurrentBuffer()->isDirty) {
 						msg = LocaliseMessage(
-							  "The file '^0' has been modified. Should it be reloaded?",
-							  filePath.AsFileSystem());
+						          "The file '^0' has been modified. Should it be reloaded?",
+						          filePath.AsFileSystem());
 					} else {
 						msg = LocaliseMessage(
-							  "The file '^0' has been modified outside SciTE. Should it be reloaded?",
-							  FileNameExt().AsFileSystem());
+						          "The file '^0' has been modified outside SciTE. Should it be reloaded?",
+						          FileNameExt().AsFileSystem());
 					}
 					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
 					if (decision == IDYES) {
@@ -652,7 +652,7 @@ void SciTEBase::Activate(bool activeApp) {
 FilePath SciTEBase::SaveName(const char *ext) {
 	SString savePath = filePath.AsInternal();
 	if (ext) {
-		int dot = savePath.length()-1;
+		int dot = savePath.length() - 1;
 		while ((dot >= 0) && (savePath[dot] != '.')) {
 			dot--;
 		}
@@ -739,13 +739,13 @@ void SciTEBase::StripTrailingSpaces() {
 	for (int line = 0; line < maxLines; line++) {
 		int lineStart = SendEditor(SCI_POSITIONFROMLINE, line);
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, line);
-		int i = lineEnd-1;
+		int i = lineEnd - 1;
 		char ch = static_cast<char>(SendEditor(SCI_GETCHARAT, i));
 		while ((i >= lineStart) && ((ch == ' ') || (ch == '\t'))) {
 			i--;
 			ch = static_cast<char>(SendEditor(SCI_GETCHARAT, i));
 		}
-		if (i < (lineEnd-1)) {
+		if (i < (lineEnd - 1)) {
 			SendEditor(SCI_SETTARGETSTART, i + 1);
 			SendEditor(SCI_SETTARGETEND, lineEnd);
 			SendEditorString(SCI_REPLACETARGET, 0, "");
@@ -758,17 +758,17 @@ void SciTEBase::EnsureFinalNewLine() {
 	bool appendNewLine = maxLines == 1;
 	int endDocument = SendEditor(SCI_POSITIONFROMLINE, maxLines);
 	if (maxLines > 1) {
-		appendNewLine = endDocument > SendEditor(SCI_POSITIONFROMLINE, maxLines-1);
+		appendNewLine = endDocument > SendEditor(SCI_POSITIONFROMLINE, maxLines - 1);
 	}
 	if (appendNewLine) {
 		const char *eol = "\n";
 		switch (SendEditor(SCI_GETEOLMODE)) {
-			case SC_EOL_CRLF:
-				eol = "\r\n";
-				break;
-			case SC_EOL_CR:
-				eol = "\r";
-				break;
+		case SC_EOL_CRLF:
+			eol = "\r\n";
+			break;
+		case SC_EOL_CR:
+			eol = "\r";
+			break;
 		}
 		SendEditorString(SCI_INSERTTEXT, endDocument, eol);
 	}
@@ -796,7 +796,7 @@ bool SciTEBase::SaveBuffer(FilePath saveName) {
 	Utf8_16_Write convert;
 	if (CurrentBuffer()->unicodeMode != uniCookie) {	// Save file with cookie without BOM.
 		convert.setEncoding(static_cast<Utf8_16::encodingType>(
-			static_cast<int>(CurrentBuffer()->unicodeMode)));
+		            static_cast<int>(CurrentBuffer()->unicodeMode)));
 	}
 
 	FILE *fp = saveName.Open(fileWrite);
@@ -854,7 +854,7 @@ bool SciTEBase::Save() {
 			}
 		} else {
 			SString msg = LocaliseMessage(
-				"Could not save file '^0'. Save under a different name?", filePath.AsFileSystem());
+			            "Could not save file '^0'. Save under a different name?", filePath.AsFileSystem());
 			int decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
 			if (decision == IDYES) {
 				return SaveAsDialog();
@@ -919,7 +919,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		SendEditor(SCI_ENDUNDOACTION);
 	}
 	CurrentBuffer()->unicodeMode = static_cast<UniMode>(
-		static_cast<int>(convert.getEncoding()));
+	            static_cast<int>(convert.getEncoding()));
 	// Check the first two lines for coding cookies
 	if (CurrentBuffer()->unicodeMode == uni8Bit) {
 		CurrentBuffer()->unicodeMode = codingCookie;
@@ -931,7 +931,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		codePage = props.GetInt("code.page");
 	}
 	if (UseOutputPane) {
-		SendOutput(SCI_SETSEL,0,0);
+		SendOutput(SCI_SETSEL, 0, 0);
 	} else {
 		SendEditor(SCI_SETCODEPAGE, codePage);
 
@@ -944,7 +944,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		SendEditor(SCI_COLOURISE, 0, -1);
 		Redraw();
 
-		SendEditor(SCI_SETSEL,0,0);
+		SendEditor(SCI_SETSEL, 0, 0);
 	}
 }
 
@@ -957,8 +957,8 @@ void SciTEBase::OpenFilesFromStdin() {
 		return;
 
 	while (fgets(data, sizeof(data) - 1, stdin)) {
-		if ((pNL = strchr(data,'\n')) != NULL)
-			*pNL = '\0';
+		if ((pNL = strchr(data, '\n')) != NULL)
+			* pNL = '\0';
 		Open(data, ofQuiet);
 	}
 	if (buffers.length == 0)
@@ -969,7 +969,7 @@ class BufferedFile {
 	FILE *fp;
 	bool readAll;
 	bool exhausted;
-	enum {bufLen = 64*1024};
+	enum {bufLen = 64 * 1024};
 	char buffer[bufLen];
 	size_t pos;
 	size_t valid;
@@ -1012,7 +1012,7 @@ public:
 	}
 	bool BufferContainsNull() {
 		EnsureData();
-		for (size_t i=0;i<valid;i++) {
+		for (size_t i = 0;i < valid;i++) {
 			if (buffer[i] == '\0')
 				return true;
 		}
@@ -1061,7 +1061,7 @@ public:
 		lineNum++;
 		strcpy(lineToCompare, lineToShow);
 		if (!caseSensitive) {
-			for (int j=0; j<i; j++) {
+			for (int j = 0; j < i; j++) {
 				if (lineToCompare[j] >= 'A' && lineToCompare[j] <= 'Z') {
 					lineToCompare[j] = static_cast<char>(lineToCompare[j] - 'A' + 'a');
 				}
@@ -1097,17 +1097,17 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 			//OutputAppendStringSynchronised("\n");
 			FileReader fr(fPath, gf & grepMatchCase);
 			if ((gf & grepBinary) || !fr.BufferContainsNull()) {
-				while (char *line=fr.Next()) {
+				while (char *line = fr.Next()) {
 					char *match = strstr(line, searchString);
 					if (match) {
 						if (gf & grepWholeWord) {
 							char *lineEnd = line + strlen(line);
 							while (match) {
 								if (((match == line) || !IsWordCharacter(match[-1])) &&
-									((match+searchLength == (lineEnd)) || !IsWordCharacter(match[searchLength]))) {
-										break;
+								        ((match + searchLength == (lineEnd)) || !IsWordCharacter(match[searchLength]))) {
+									break;
 								}
-								match = strstr(match+1, searchString);
+								match = strstr(match + 1, searchString);
 							}
 						}
 						if (match) {
@@ -1155,7 +1155,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const char *directory, const char *fi
 	}
 	SString searchString(search);
 	if (!(gf & grepMatchCase)) {
- 		searchString.lowercase();
+		searchString.lowercase();
 	}
 	GrepRecursive(gf, FilePath(directory), searchString.c_str(), fileTypes);
 	if (!(gf & grepStdOut)) {
@@ -1170,3 +1170,4 @@ void SciTEBase::InternalGrep(GrepFlags gf, const char *directory, const char *fi
 			SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
 	}
 }
+
