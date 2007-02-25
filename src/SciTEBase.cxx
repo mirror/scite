@@ -2814,21 +2814,19 @@ int SciTEBase::GetLineIndentPosition(int line) {
 	return SendEditor(SCI_GETLINEINDENTPOSITION, line);
 }
 
-static void CreateIndentation(char *linebuf, int length, int indent, int tabSize, bool insertSpaces) {
-	length--;	// ensure space for \0
+static SString CreateIndentation(int indent, int tabSize, bool insertSpaces) {
+	SString indentation;
 	if (!insertSpaces) {
-		while ((indent >= tabSize) && (length > 0)) {
-			*linebuf++ = '\t';
+		while (indent >= tabSize) {
+			indentation.append("\t", 1);
 			indent -= tabSize;
-			length--;
 		}
 	}
-	while ((indent > 0) && (length > 0)) {
-		*linebuf++ = ' ';
+	while (indent > 0) {
+		indentation.append(" ", 1);
 		indent--;
-		length--;
 	}
-	*linebuf = '\0';
+	return indentation;
 }
 
 void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
@@ -2840,15 +2838,13 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 		int indentPos = GetLineIndentPosition(line);
 		const int maxIndentation = 1000;
 		if (indent < maxIndentation) {
-			char indentationNow[maxIndentation];
-			GetRange(wEditor, lineStart, indentPos, indentationNow);
-			indentationNow[indentPos - lineStart] = '\0';
-			char indentationWanted[maxIndentation];
-			CreateIndentation(indentationWanted, sizeof(indentationWanted), indent, tabSize, !useTabs);
-			if (0 != strcmp(indentationNow, indentationWanted)) {
+			SString indentationNow = GetRange(wEditor, lineStart, indentPos);
+			SString indentationWanted = CreateIndentation(indent, tabSize, !useTabs);
+			if (indentationNow != indentationWanted) {
 				SendEditor(SCI_SETTARGETSTART, lineStart);
 				SendEditor(SCI_SETTARGETEND, indentPos);
-				SendEditorString(SCI_REPLACETARGET, strlen(indentationWanted), indentationWanted);
+				SendEditorString(SCI_REPLACETARGET, indentationWanted.length(), 
+					indentationWanted.c_str());
 			}
 		}
 	}
