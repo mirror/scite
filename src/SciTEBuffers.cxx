@@ -945,23 +945,15 @@ RecentFile SciTEBase::GetFilePosition() {
 
 void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
-		// This can produce better file state restoring
-		bool foldOnOpen = props.GetInt("fold.on.open");
-		//~ if (foldOnOpen)
-		//~ FoldAll();
-
 		int lineStart = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMin);
 		SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, lineStart);
 		int lineEnd = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMax);
 		SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, lineEnd);
 		SetSelection(rf.selection.cpMax, rf.selection.cpMin);
 
-		// Folding can mess up next scrolling, so will be better without scrolling
-		if (!foldOnOpen) {
-			int curTop = SendEditor(SCI_GETFIRSTVISIBLELINE);
-			int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
-			SendEditor(SCI_LINESCROLL, 0, lineTop - curTop);
-		}
+		int curTop = SendEditor(SCI_GETFIRSTVISIBLELINE);
+		int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
+		SendEditor(SCI_LINESCROLL, 0, lineTop - curTop);
 	}
 }
 
