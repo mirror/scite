@@ -1123,9 +1123,7 @@ SString SciTEBase::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 SString SciTEBase::GetLine(Window &win, int line) {
 	int lineStart = SendWindow(win, SCI_POSITIONFROMLINE, line);
 	int lineEnd = SendWindow(win, SCI_GETLINEENDPOSITION, line);
-	SBuffer sel(lineEnd - lineStart);
-	GetRange(win, lineStart, lineEnd, sel.ptr());
-	return SString(sel);
+	return GetRange(win, lineStart, lineEnd);
 }
 
 SString SciTEBase::RangeExtendAndGrab(
@@ -2096,8 +2094,6 @@ bool SciTEBase::StartAutoComplete() {
 bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	SString line = GetLine();
 	int current = GetCaretInLine();
-//~ 	if (current >= line.size())
-//~ 		return false;
 
 	int startword = current;
 	// Autocompletion of pure numbers is mostly an annoyance
@@ -2115,9 +2111,10 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	TextToFind ft = {{0, 0}, 0, {0, 0}};
 	ft.lpstrText = const_cast<char*>(root.c_str());
 	ft.chrg.cpMin = 0;
+	ft.chrg.cpMax = doclen;
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
-	int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
+	const int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	int posCurrentWord = SendEditor(SCI_GETCURRENTPOS) - root.length();
 	unsigned int minWordLength = 0;
 	unsigned int nwords = 0;
@@ -2126,41 +2123,34 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	// at the start and end. This makes it easy to search for words.
 	SString wordsNear;
 	wordsNear.setsizegrowth(1000);
-	wordsNear += " ";
+	wordsNear.append(" ");
 
-	for (;;) {	// search all the document
-		ft.chrg.cpMax = doclen;
-		int posFind = SendEditorString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
-		if (posFind == -1 || posFind >= doclen)
-			break;
-		if (posFind == posCurrentWord) {
-			ft.chrg.cpMin = posFind + root.length();
-			continue;
-		}
-		// Grab the word and put spaces around it
-		const unsigned int wordMaxSize = 800;
-		char wordstart[wordMaxSize];
-		wordstart[0] = ' ';
-		GetRange(wEditor, posFind, Platform::Minimum(posFind + wordMaxSize - 3, doclen), wordstart + 1);
-		char *wordend = wordstart + 1 + root.length();
-		while (iswordcharforsel(*wordend))
-			wordend++;
-		*wordend++ = ' ';
-		*wordend = '\0';
-		unsigned int wordlen = wordend - wordstart - 2;
-		if (wordlen > root.length()) {
-			if (!wordsNear.contains(wordstart)) {	// add a new entry
-				wordsNear += wordstart + 1;
-				if (minWordLength < wordlen)
-					minWordLength = wordlen;
+	int posFind = SendEditorString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
+	WindowAccessor acc(wEditor.GetID(), props);
+	while (posFind >= 0 && posFind < doclen) {	// search all the document
+		int wordEnd = posFind + root.length();
+		if (posFind != posCurrentWord) {
+			while (wordCharacters.contains(acc.SafeGetCharAt(wordEnd)))
+				wordEnd++;
+			size_t wordLength = wordEnd - posFind;
+			if (wordLength > root.length()) {
+				SString word = GetRange(wEditor, posFind, wordEnd);
+				word.insert(0, " ");
+				word.append(" ");
+				if (!wordsNear.contains(word.c_str())) {	// add a new entry
+					wordsNear += word.c_str() + 1;
+					if (minWordLength < wordLength)
+						minWordLength = wordLength;
 
-				nwords++;
-				if (onlyOneWord && nwords > 1) {
-					return true;
+					nwords++;
+					if (onlyOneWord && nwords > 1) {
+						return true;
+					}
 				}
 			}
 		}
-		ft.chrg.cpMin = posFind + wordlen;
+		ft.chrg.cpMin = wordEnd;
+		posFind = SendEditorString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
 	}
 	size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > root.length()))) {
