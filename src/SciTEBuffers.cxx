@@ -1637,16 +1637,10 @@ void SciTEBase::GoMessage(int dir) {
 			        "error.marker.back", ColourDesired(0xff, 0xff, 0)));
 			SendOutput(SCI_MARKERADD, lookLine, 0);
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
-			//-char *cdoc = new char[lineLength + 1];
-			//-if (!cdoc)
-			//-	return;
-			//-GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
-			//-SString xmessage(cdoc);
 			SString message = GetRange(wOutput, startPosLine, startPosLine + lineLength);
 			char source[MAX_PATH];
 			int column;
 			int sourceLine = DecodeMessage(message.c_str(), source, style, column);
-			//Platform::DebugPrintf("<%s> %d %d\n",source, sourceLine, lookLine);
 			if (sourceLine >= 0) {
 				FilePath sourcePath(source);
 				if (!filePath.Name().SameNameAs(sourcePath)) {
