@@ -267,8 +267,9 @@ const char *contributors[] = {
             "Pieter Holtzhausen",
             "Waldemar Augustyn",
             "Jason Haslam",
-            "Sebastian Steinlechner ",
-            "Chris Rickard ",
+            "Sebastian Steinlechner",
+            "Chris Rickard",
+            "Rob McMullen",
         };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -2843,7 +2844,7 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 			if (indentationNow != indentationWanted) {
 				SendEditor(SCI_SETTARGETSTART, lineStart);
 				SendEditor(SCI_SETTARGETEND, indentPos);
-				SendEditorString(SCI_REPLACETARGET, indentationWanted.length(), 
+				SendEditorString(SCI_REPLACETARGET, indentationWanted.length(),
 					indentationWanted.c_str());
 			}
 		}
