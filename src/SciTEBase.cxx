@@ -1106,10 +1106,18 @@ bool SciTEBase::islexerwordcharforsel(char ch) {
 		return iswordcharforsel(ch);
 }
 
-SString SciTEBase::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
+SString SciTEBase::GetRange(Window &win, int selStart, int selEnd) {
 	SBuffer sel(selEnd - selStart);
-	GetRange(win, selStart, selEnd, sel.ptr());
+	TextRange tr;
+	tr.chrg.cpMin = selStart;
+	tr.chrg.cpMax = selEnd;
+	tr.lpstrText = sel.ptr();
+	Platform::SendScintillaPointer(win.GetID(), SCI_GETTEXTRANGE, 0, &tr);
 	return SString(sel);
+}
+
+SString SciTEBase::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
+	return GetRange(win, selStart, selEnd);
 }
 
 SString SciTEBase::GetLine(Window &win, int line) {

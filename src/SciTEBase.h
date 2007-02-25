@@ -687,6 +687,7 @@ protected:
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
+	SString GetRange(Window &win, int selStart, int selEnd);
 	virtual SString GetRangeInUIEncoding(Window &win, int selStart, int selEnd);
 	SString GetLine(Window &win, int line);
 	SString RangeExtendAndGrab(Window &wCurrent, int &selStart, int &selEnd,
