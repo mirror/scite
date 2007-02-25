@@ -2405,6 +2405,8 @@ bool SciTEBase::StartBlockComment() {
 	SString comment_at_line_start("comment.block.at.line.start.");
 	base += lexerName;
 	comment_at_line_start += lexerName;
+	bool placeCommentsAtLineStart = props.GetInt(comment_at_line_start.c_str()) != 0;
+
 	SString comment = props.Get(base.c_str());
 	if (comment == "") { // user friendly error message box
 		SString error = LocaliseMessage(
@@ -2412,10 +2414,8 @@ bool SciTEBase::StartBlockComment() {
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
-	comment += " ";
 	SString long_comment = comment;
-	char linebuf[1000];
-	size_t comment_length = comment.length();
+	long_comment.append(" ");
 	int selectionStart = SendEditor(SCI_GETSELECTIONSTART);
 	int selectionEnd = SendEditor(SCI_GETSELECTIONEND);
 	int caretPosition = SendEditor(SCI_GETCURRENTPOS);
@@ -2434,46 +2434,36 @@ bool SciTEBase::StartBlockComment() {
 		int lineStart = SendEditor(SCI_POSITIONFROMLINE, i);
 		int lineIndent = lineStart;
 		int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, i);
-		if ((lineEnd - lineIndent) >= static_cast<int>(sizeof(linebuf)))	// Avoid buffer size problems
-			continue;
-		if (props.GetInt(comment_at_line_start.c_str())) {
-			GetRange(wEditor, lineIndent, lineEnd, linebuf);
-		} else {
+		if (!placeCommentsAtLineStart) {
 			lineIndent = GetLineIndentPosition(i);
-			GetRange(wEditor, lineIndent, lineEnd, linebuf);
 		}
+		SString linebuf = GetRange(wEditor, lineIndent, lineEnd);
 		// empty lines are not commented
-		if (strlen(linebuf) < 1)
+		if (linebuf.length() < 1)
 			continue;
-		if (memcmp(linebuf, comment.c_str(), comment_length - 1) == 0) {
-			if (memcmp(linebuf, long_comment.c_str(), comment_length) == 0) {
-				// removing comment with space after it
-				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length);
-				SendEditorString(SCI_REPLACESEL, 0, "");
-				if (i == selStartLine) // is this the first selected line?
-					selectionStart -= comment_length;
-				selectionEnd -= comment_length; // every iteration
-				continue;
-			} else {
-				// removing comment _without_ space
-				SendEditor(SCI_SETSEL, lineIndent, lineIndent + comment_length - 1);
-				SendEditorString(SCI_REPLACESEL, 0, "");
-				if (i == selStartLine) // is this the first selected line?
-					selectionStart -= (comment_length - 1);
-				selectionEnd -= (comment_length - 1); // every iteration
-				continue;
+		if (linebuf.startswith(comment.c_str())) {
+			int commentLength = comment.length();
+			if (linebuf.startswith(long_comment.c_str())) {
+				// Removing comment with space after it.
+				commentLength = long_comment.length();
 			}
+			SendEditor(SCI_SETSEL, lineIndent, lineIndent + commentLength);
+			SendEditorString(SCI_REPLACESEL, 0, "");
+			if (i == selStartLine) // is this the first selected line?
+				selectionStart -= commentLength;
+			selectionEnd -= commentLength; // every iteration
+			continue;
 		}
 		if (i == selStartLine) // is this the first selected line?
-			selectionStart += comment_length;
-		selectionEnd += comment_length; // every iteration
+			selectionStart += long_comment.length();
+		selectionEnd += long_comment.length(); // every iteration
 		SendEditorString(SCI_INSERTTEXT, lineIndent, long_comment.c_str());
 	}
 	// after uncommenting selection may promote itself to the lines
 	// before the first initially selected line;
 	// another problem - if only comment symbol was selected;
 	if (selectionStart < firstSelLineStart) {
-		if (selectionStart >= selectionEnd - (static_cast<int>(comment_length) - 1))
+		if (selectionStart >= selectionEnd - (static_cast<int>(long_comment.length()) - 1))
 			selectionEnd = firstSelLineStart;
 		selectionStart = firstSelLineStart;
 	}
