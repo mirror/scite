@@ -1284,14 +1284,14 @@ inline bool isdigitchar(int ch) {
 	return (ch >= '0') && (ch <= '9');
 }
 
-int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
+int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 	sourcePath[0] = '\0';
 	column = -1; // default to not detected
 	switch (format) {
 	case SCE_ERR_PYTHON: {
 			// Python
-			char *startPath = strchr(cdoc, '\"') + 1;
-			char *endPath = strchr(startPath, '\"');
+			const char *startPath = strchr(cdoc, '\"') + 1;
+			const char *endPath = strchr(startPath, '\"');
 			int length = endPath - startPath;
 			if (length > 0) {
 				strncpy(sourcePath, startPath, length);
@@ -1324,11 +1324,11 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 	case SCE_ERR_MS: {
 			// Visual *
-			char *start = cdoc;
+			const char *start = cdoc;
 			while (isspacechar(*start)) {
 				start++;
 			}
-			char *endPath = strchr(start, '(');
+			const char *endPath = strchr(start, '(');
 			int length = endPath - start;
 			if ((length > 0) && (length < MAX_PATH)) {
 				strncpy(sourcePath, start, length);
@@ -1339,7 +1339,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 	case SCE_ERR_BORLAND: {
 			// Borland
-			char *space = strchr(cdoc, ' ');
+			const char *space = strchr(cdoc, ' ');
 			if (space) {
 				while (isspacechar(*space)) {
 					space++;
@@ -1351,7 +1351,7 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 					space++;
 				}
 
-				char *space2 = NULL;
+				const char *space2 = NULL;
 
 				if (strlen(space) > 2) {
 					space2 = strchr(space + 2, ':');
@@ -1379,8 +1379,8 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 	case SCE_ERR_PERL: {
 			// perl
-			char *at = strstr(cdoc, " at ");
-			char *line = strstr(cdoc, " line ");
+			const char *at = strstr(cdoc, " at ");
+			const char *line = strstr(cdoc, " line ");
 			int length = line - (at + 4);
 			if (at && line && length > 0) {
 				strncpy(sourcePath, at + 4, length);
@@ -1392,8 +1392,8 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 	case SCE_ERR_NET: {
 			// .NET traceback
-			char *in = strstr(cdoc, " in ");
-			char *line = strstr(cdoc, ":line ");
+			const char *in = strstr(cdoc, " in ");
+			const char *line = strstr(cdoc, ":line ");
 			if (in && line && (line > in)) {
 				in += 4;
 				strncpy(sourcePath, in, line - in);
@@ -1404,15 +1404,15 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 	case SCE_ERR_LUA: {
 			// Lua error look like: last token read: `result' at line 40 in file `Test.lua'
-			char *idLine = "at line ";
-			char *idFile = "file ";
+			const char *idLine = "at line ";
+			const char *idFile = "file ";
 			size_t lenLine = strlen(idLine);
 			size_t lenFile = strlen(idFile);
-			char *line = strstr(cdoc, idLine);
-			char *file = strstr(cdoc, idFile);
+			const char *line = strstr(cdoc, idLine);
+			const char *file = strstr(cdoc, idFile);
 			if (line && file) {
-				char *fileStart = file + lenFile + 1;
-				char *quote = strstr(fileStart, "'");
+				const char *fileStart = file + lenFile + 1;
+				const char *quote = strstr(fileStart, "'");
 				size_t length = quote - fileStart;
 				if (quote && length > 0) {
 					strncpy(sourcePath, fileStart, length);
@@ -1443,12 +1443,12 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 		}
 	case SCE_ERR_PHP: {
 			// PHP error look like: Fatal error: Call to undefined function:  foo() in example.php on line 11
-			char *idLine = " on line ";
-			char *idFile = " in ";
+			const char *idLine = " on line ";
+			const char *idFile = " in ";
 			size_t lenLine = strlen(idLine);
 			size_t lenFile = strlen(idFile);
-			char *line = strstr(cdoc, idLine);
-			char *file = strstr(cdoc, idFile);
+			const char *line = strstr(cdoc, idLine);
+			const char *file = strstr(cdoc, idFile);
 			if (line && file && (line > file)) {
 				file += lenFile;
 				size_t length = line - file;
@@ -1462,12 +1462,12 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 
 	case SCE_ERR_ELF: {
 			// Essential Lahey Fortran error look like: Line 11, file c:\fortran90\codigo\demo.f90
-			char *line = strchr(cdoc, ' ');
+			const char *line = strchr(cdoc, ' ');
 			if (line) {
 				while (isspacechar(*line)) {
 					line++;
 				}
-				char *file = strchr(line, ' ');
+				const char *file = strchr(line, ' ');
 				if (file) {
 					while (isspacechar(*file)) {
 						file++;
@@ -1494,11 +1494,11 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			 *
 			 * These are trapped by the MS handler, and are identified OK, so no problem...
 			 */
-			char *line = strchr(cdoc, '(');
-			char *file = strchr(line, ':');
+			const char *line = strchr(cdoc, '(');
+			const char *file = strchr(line, ':');
 			if (line && file) {
 				file++;
-				char *endfile = strchr(file, ')');
+				const char *endfile = strchr(file, ')');
 				size_t length = endfile - file;
 				strncpy(sourcePath, file, length);
 				sourcePath[length] = '\0';
@@ -1510,14 +1510,14 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 
 	case SCE_ERR_ABSF: {
 			// Absoft Pro Fortran 90/95 v8.x, v9.x  errors look like: cf90-113 f90fe: ERROR SHF3D, File = shf.f90, Line = 1101, Column = 19
-			char *idFile = " File = ";
-			char *idLine = ", Line = ";
-			char *idColumn = ", Column = ";
+			const char *idFile = " File = ";
+			const char *idLine = ", Line = ";
+			const char *idColumn = ", Column = ";
 			size_t lenFile = strlen(idFile);
 			size_t lenLine = strlen(idLine);
-			char *file = strstr(cdoc, idFile);
-			char *line = strstr(cdoc, idLine);
-			char *column = strstr(cdoc, idColumn);
+			const char *file = strstr(cdoc, idFile);
+			const char *line = strstr(cdoc, idLine);
+			const char *column = strstr(cdoc, idColumn);
 			if (line && file && (line > file)) {
 				file += lenFile;
 				size_t length = line - file;
@@ -1525,7 +1525,6 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 				sourcePath[length] = '\0';
 				line += lenLine;
 				length = column - line;
-				strncpy(line, line, length);
 				return atoi(line) - 1;
 			}
 			break;
@@ -1535,13 +1534,13 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			/* Intel Fortran Compiler v8.x error/warnings look like:
 			 * fortcom: Error: shf.f90, line 5602: This name does not have ...
 				 */
-			char *idFile = ": Error: ";
-			char *idLine = ", line ";
+			const char *idFile = ": Error: ";
+			const char *idLine = ", line ";
 			size_t lenFile = strlen(idFile);
 			size_t lenLine = strlen(idLine);
-			char *file = strstr(cdoc, idFile);
-			char *line = strstr(cdoc, idLine);
-			char *lineend = strrchr(cdoc, ':');
+			const char *file = strstr(cdoc, idFile);
+			const char *line = strstr(cdoc, idLine);
+			const char *lineend = strrchr(cdoc, ':');
 			if (line && file && (line > file)) {
 				file += lenFile;
 				size_t length = line - file;
@@ -1550,7 +1549,6 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 				line += lenLine;
 				if ((lineend > line)) {
 					length = lineend - line;
-					strncpy(line, line, length);
 					return atoi(line) - 1;
 				}
 			}
@@ -1562,17 +1560,17 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			 * line 8 column 1 - Error: unexpected </head> in <meta>
 			 * line 41 column 1 - Warning: <table> lacks "summary" attribute
 			 */
-			char *line = strchr(cdoc, ' ');
+			const char *line = strchr(cdoc, ' ');
 			if (line) {
-				char *col = strchr(line + 1, ' ');
+				const char *col = strchr(line + 1, ' ');
 				if (col) {
-					*col = '\0';
+					//*col = '\0';
 					int lnr = atoi(line) - 1;
 					col = strchr(col + 1, ' ');
 					if (col) {
-						char *endcol = strchr(col + 1, ' ');
+						const char *endcol = strchr(col + 1, ' ');
 						if (endcol) {
-							*endcol = '\0';
+							//*endcol = '\0';
 							column = atoi(col) - 1;
 							return lnr;
 						}
@@ -1586,8 +1584,8 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 			/* Java runtime stack trace
 				\tat <methodname>(<filename>:<line>)
 				 */
-			char *startPath = strrchr(cdoc, '(') + 1;
-			char *endPath = strchr(startPath, ':');
+			const char *startPath = strrchr(cdoc, '(') + 1;
+			const char *endPath = strchr(startPath, ':');
 			int length = endPath - startPath;
 			if (length > 0) {
 				strncpy(sourcePath, startPath, length);
@@ -1601,8 +1599,8 @@ int DecodeMessage(char *cdoc, char *sourcePath, int format, int &column) {
 	case SCE_ERR_DIFF_MESSAGE: {
 			// Diff file header, either +++ <filename>\t or --- <filename>\t
 			// Often followed by a position line @@ <linenumber>
-			char *startPath = cdoc + 4;
-			char *endPath = strchr(startPath, '\t');
+			const char *startPath = cdoc + 4;
+			const char *endPath = strchr(startPath, '\t');
 			if (endPath) {
 				int length = endPath - startPath;
 				strncpy(sourcePath, startPath, length);
@@ -1647,14 +1645,15 @@ void SciTEBase::GoMessage(int dir) {
 			        "error.marker.back", ColourDesired(0xff, 0xff, 0)));
 			SendOutput(SCI_MARKERADD, lookLine, 0);
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
-			char *cdoc = new char[lineLength + 1];
-			if (!cdoc)
-				return;
-			GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
-			SString message(cdoc);
+			//-char *cdoc = new char[lineLength + 1];
+			//-if (!cdoc)
+			//-	return;
+			//-GetRange(wOutput, startPosLine, startPosLine + lineLength, cdoc);
+			//-SString xmessage(cdoc);
+			SString message = GetRange(wOutput, startPosLine, startPosLine + lineLength);
 			char source[MAX_PATH];
 			int column;
-			int sourceLine = DecodeMessage(cdoc, source, style, column);
+			int sourceLine = DecodeMessage(message.c_str(), source, style, column);
 			//Platform::DebugPrintf("<%s> %d %d\n",source, sourceLine, lookLine);
 			if (sourceLine >= 0) {
 				FilePath sourcePath(source);
@@ -1680,7 +1679,6 @@ void SciTEBase::GoMessage(int dir) {
 					}
 					if (bExists) {
 						if (!Open(messagePath)) {
-							delete []cdoc;
 							return;
 						}
 						CheckReload();
@@ -1733,7 +1731,6 @@ void SciTEBase::GoMessage(int dir) {
 				UpdateStatusBar(false);
 				WindowSetFocus(wEditor);
 			}
-			delete []cdoc;
 			return;
 		}
 		lookLine += dir;
