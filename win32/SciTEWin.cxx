@@ -1875,8 +1875,6 @@ SString SciTEWin::EncodeString(const SString &s) {
 SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 	SString s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
-	//::MessageBox(GetFocus(),s.c_str(),"GetRangeInUIEncoding:in",0);
-
 	if (IsWindowsNT()) {
 		UINT codePage = SendEditor(SCI_GETCODEPAGE);
 
@@ -1898,7 +1896,6 @@ SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 			delete []pszWide;
 			delete []pszMulti;
 
-			//::MessageBox(GetFocus(),result.c_str(),"GetRangeInUIEncoding:out",0);
 			return result;
 		}
 	}

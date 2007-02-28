@@ -41,13 +41,13 @@ LUA_CORE_OBJS = lapi.o lcode.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
 		ltable.o ltests.o ltm.o lundump.o lvm.o lzio.o
 
 LUA_LIB_OBJS =	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o ltablib.o \
-		lstrlib.o loadlib.o
+		lstrlib.o loadlib.o loslib.o linit.o lbitlib.o
 
 LUA_OBJS = LuaExtension.o IFaceTable.o SingleThreadExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 vpath %.c ../lua/src ../lua/src/lib
 
-LUA_INCLUDES = -I ../lua/include
+LUA_INCLUDES = -I ../lua/include -I ../lua/src
 #LUA_SCRIPTS = ..\bin\SciTEExtension.lua ..\bin\SciTEStartup.lua
 else
 LUA_DEFINES = -DNO_LUA

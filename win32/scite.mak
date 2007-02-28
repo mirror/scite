@@ -245,18 +245,20 @@ $(DIR_BIN)\vhdl.properties $(DIR_BIN)\yaml.properties
 PROPS=$(DIR_BIN)\SciTEGlobal.properties $(DIR_BIN)\abbrev.properties $(LEXPROPS)
 
 !IFNDEF NO_LUA
-LUA_CORE_OBJS = lapi.obj lcode.obj ldebug.obj ldo.obj ldump.obj lfunc.obj lgc.obj llex.obj \
-                lmem.obj lobject.obj lopcodes.obj lparser.obj lstate.obj lstring.obj \
-		ltable.obj ltests.obj ltm.obj lundump.obj lvm.obj lzio.obj
 
-LUA_LIB_OBJS =	lauxlib.obj lbaselib.obj ldblib.obj liolib.obj lmathlib.obj ltablib.obj \
-                lstrlib.obj loadlib.obj
+LUA_CORE_OBJS = lapi.obj lcode.obj ldebug.obj ldo.obj ldump.obj lfunc.obj lgc.obj llex.obj \
+    lmem.obj lobject.obj lopcodes.obj lparser.obj lstate.obj lstring.obj \
+    ltable.obj ltests.obj ltm.obj lundump.obj lvm.obj lzio.obj
+
+LUA_LIB_OBJS =  lauxlib.obj lbaselib.obj ldblib.obj liolib.obj lmathlib.obj ltablib.obj \
+    lstrlib.obj loadlib.obj loslib.obj linit.obj lbitlib.obj
 
 LUA_OBJS = LuaExtension.obj IFaceTable.obj SingleThreadExtension.obj $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 OBJS = $(OBJS) $(LUA_OBJS)
 OBJSSTATIC = $(OBJSSTATIC) $(LUA_OBJS)
-INCLUDEDIRS = $(INCLUDEDIRS) -I../lua/include
+INCLUDEDIRS = $(INCLUDEDIRS) -I../lua/include -I../lua/src
+
 !ELSE
 CXXFLAGS=$(CXXFLAGS) -DNO_LUA
 !ENDIF
