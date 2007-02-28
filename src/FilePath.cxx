@@ -111,14 +111,14 @@ void FilePath::Set(FilePath const &directory, FilePath const &name) {
 		fileName = name.fileName;
 	} else {
 		fileName = directory.fileName;
-		fileName.appendwithseparator(name.fileName.c_str(), pathSepChar);
+		fileName.appendwithseparator(name.fileName.c_str(),
+			fileName.endswith(pathSepString) ? 0 : pathSepChar);
 	}
 }
 
 void FilePath::SetDirectory(FilePath directory) {
-	SString curName(fileName);
-	fileName = directory.fileName;
-	fileName.appendwithseparator(curName.c_str(), pathSepChar);
+	FilePath curName(*this);
+	Set(directory, curName);
 }
 
 void FilePath::Init() {
