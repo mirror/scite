@@ -201,7 +201,7 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				} else if (sKey == "KeypadMinus") {
 					keyval = GDK_KP_Subtract;
 				} else if (sKey == "KeypadMultiply") {
-					keyval = GDK_KP_Mulitply;
+					keyval = GDK_KP_Multiply;
 				} else if (sKey == "KeypadDivide") {
 					keyval = GDK_KP_Divide;
 				} else if (sKey == "Escape") {
