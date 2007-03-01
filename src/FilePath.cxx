@@ -112,7 +112,7 @@ void FilePath::Set(FilePath const &directory, FilePath const &name) {
 	} else {
 		fileName = directory.fileName;
 		fileName.appendwithseparator(name.fileName.c_str(),
-			fileName.endswith(pathSepString) ? 0 : pathSepChar);
+			fileName.endswith(pathSepString) ? '\0' : pathSepChar);
 	}
 }
 
