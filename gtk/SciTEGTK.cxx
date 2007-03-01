@@ -3,7 +3,6 @@
 // Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#define INCREMENTAL_SEARCH 1
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -2971,9 +2970,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Search/Find Previou_s", "<shift>F3", menuSig, IDM_FINDNEXTBACK, 0},
 	                                      {"/Search/F_ind in Files...", "<control><shift>F", menuSig, IDM_FINDINFILES, 0},
 	                                      {"/Search/R_eplace...", "<control>H", menuSig, IDM_REPLACE, 0},
-#ifdef INCREMENTAL_SEARCH
 	                                      {"/Search/Incrementa_l Search", "<control><alt>I", menuSig, IDM_INCSEARCH, 0},
-#endif
 	                                      {"/Search/sep3", NULL, NULL, 0, "<Separator>"},
 	                                      {"/Search/_Go To...", "<control>G", menuSig, IDM_GOTO, 0},
 	                                      {"/Search/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
@@ -3292,25 +3289,25 @@ void SciTEGTK::CreateUI() {
 	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   GtkSignalFunc(NotifySignal), this);
 
-#ifdef INCREMENTAL_SEARCH
 	GtkWidget *table = gtk_table_new(1, 2, FALSE);
 	wIncrementPanel = table;
 	gtk_box_pack_start(GTK_BOX(boxMain), table, FALSE, FALSE, 0);
 	GtkAttachOptions opts = static_cast<GtkAttachOptions>(
-	                            GTK_EXPAND | GTK_SHRINK | GTK_FILL);
-	GtkWidget *label = TranslatedLabel("Search for:");
-	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, opts, opts, 5, 5);
+	                            GTK_SHRINK | GTK_FILL);
+	GtkAttachOptions optse = static_cast<GtkAttachOptions>(
+	                            GTK_SHRINK | GTK_FILL | GTK_EXPAND);
+	GtkWidget *label = TranslatedLabel("Find:");
+	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, opts, opts, 5, 1);
 	gtk_widget_show(label);
 
 	IncSearchEntry = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(table), IncSearchEntry, 1, 2, 0, 1, opts, opts, 5, 5);
+	gtk_table_attach(GTK_TABLE(table), IncSearchEntry, 1, 2, 0, 1, optse, opts, 5, 1);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"activate", GtkSignalFunc(FindIncrementCompleteSignal), this);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry), "key-press-event", GtkSignalFunc(FindIncrementEscapeSignal), this);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"changed", GtkSignalFunc(FindIncrementSignal), this);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"focus-out-event", GtkSignalFunc(FindIncrementFocusOutSignal), NULL);
 
 	gtk_widget_show(IncSearchEntry);
-#endif
 
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);
 
@@ -3343,10 +3340,9 @@ void SciTEGTK::CreateUI() {
 		gtk_window_maximize(GTK_WINDOW(PWidget(wSciTE)));
 #endif
 
-	UIAvailable();
-#ifdef INCREMENTAL_SEARCH
 	gtk_widget_hide(wIncrementPanel);
-#endif
+
+	UIAvailable();
 }
 
 void SciTEGTK::FindIncrementSignal(GtkWidget *entry, SciTEGTK *scitew) {
