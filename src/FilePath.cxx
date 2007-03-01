@@ -435,7 +435,11 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 }
 
 FILE *FilePath::Open(const char *mode) const {
-	return fopen(fileName.c_str(), mode);
+	if (IsSet()) {
+		return fopen(fileName.c_str(), mode);
+	} else {
+		return NULL;
+	}
 }
 
 void FilePath::Remove() const {
