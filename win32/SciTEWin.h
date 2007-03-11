@@ -109,6 +109,8 @@ protected:
 	HWND wFocus;
 
 	Window wFindInFiles;
+	Window wFindReplace;
+	Window wParameters;
 
 	virtual void ReadProperties();
 
@@ -211,6 +213,7 @@ protected:
 	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void TabSizeDialog();
 
+	virtual bool ParametersOpen();
 	void ParamGrab();
 	virtual bool ParametersDialog(bool modal);
 	BOOL ParametersMessage(HWND hDlg, UINT message, WPARAM wParam);

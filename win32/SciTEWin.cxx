@@ -1470,7 +1470,7 @@ LRESULT SciTEWin::KeyUp(WPARAM wParam) {
 }
 
 void SciTEWin::AddToPopUp(const char *label, int cmd, bool enabled) {
-	SString localised = LocaliseString(label);
+	SString localised = localiser.Text(label);
 	HMENU menu = reinterpret_cast<HMENU>(popup.GetID());
 	if (0 == localised.length())
 		::AppendMenu(menu, MF_SEPARATOR, 0, "");

@@ -296,7 +296,7 @@ static void HackColour(int &n) {
 		n = 0x80;
 }
 
-SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) {
+SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	codePage = 0;
 	characterSet = 0;
 	language = "java";
@@ -346,7 +346,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext), propsUI(true) 
 	ptStartDrag.y = 0;
 	capturedMouse = false;
 	firstPropertiesRead = true;
-	localisationRead = false;
+	localiser.read = false;
 	splitVertical = false;
 	bufferedDraw = true;
 	twoPhaseDraw = true;
@@ -502,7 +502,7 @@ SString SciTEBase::GetTranslationToAbout(const char * const propname, bool retai
 #if PLAT_WIN
 	// By code below, all translators can write their name in their own
 	// language in locale.properties on Windows.
-	SString result = LocaliseString(propname, retainIfNotFound);
+	SString result = localiser.Text(propname, retainIfNotFound);
 	if (!result.length())
 		return result;
 	int translationCodePage = props.GetInt("code.page", CP_ACP);
@@ -525,8 +525,8 @@ SString SciTEBase::GetTranslationToAbout(const char * const propname, bool retai
 	delete []bufc;
 	return result;
 #else
-	// On GTK+, LocaliseString always converts to UTF-8.
-	return LocaliseString(propname, retainIfNotFound);
+	// On GTK+, localiser.Text always converts to UTF-8.
+	return localiser.Text(propname, retainIfNotFound);
 #endif
 }
 
@@ -988,7 +988,7 @@ void SciTEBase::BraceMatch(bool editor) {
 
 void SciTEBase::SetWindowName() {
 	if (filePath.IsUntitled()) {
-		windowName = LocaliseString("Untitled");
+		windowName = localiser.Text("Untitled");
 		windowName.insert(0, "(");
 		windowName += ")";
 	} else if (props.GetInt("title.full.path") == 2) {
@@ -2707,7 +2707,7 @@ void SciTEBase::SetTextProperties(
 	const int TEMP_LEN = 100;
 	char temp[TEMP_LEN];
 
-	SString ro = LocaliseString("READ");
+	SString ro = localiser.Text("READ");
 	ps.Set("ReadOnly", isReadOnly ? ro.c_str() : "");
 
 	int eolMode = SendEditor(SCI_GETEOLMODE);
@@ -4379,7 +4379,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_SELMARGIN, margin);
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
-	CheckAMenuItem(IDM_TOGGLEPARAMETERS, wParameters.Created());
+	CheckAMenuItem(IDM_TOGGLEPARAMETERS, ParametersOpen());
 	CheckAMenuItem(IDM_MONOFONT, CurrentBuffer()->useMonoFont);
 	EnableAMenuItem(IDM_COMPILE, !executing &&
 	        props.GetWild("command.compile.", FileNameExt().AsInternal()).size() != 0);

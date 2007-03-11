@@ -377,6 +377,18 @@ struct StyleAndWords {
 	bool IsSingleChar() { return words.length() == 1; }
 };
 
+class Localisation : public PropSetFile {
+	SString missing;
+public:
+	bool read;
+	Localisation() : PropSetFile(true), read(false) {
+	}
+	SString Text(const char *s, bool retainIfNotFound=true);
+	void SetMissing(const SString &missing_) {
+		missing = missing_;
+	}
+};
+
 #define SciTE_MARKER_BOOKMARK 1
 
 class SciTEBase : public ExtensionAPI {
@@ -396,7 +408,6 @@ protected:
 
 	SString findWhat;
 	SString replaceWhat;
-	Window wFindReplace;
 	Window wFindIncrement;
 	bool replacing;
 	bool havefound;
@@ -413,7 +424,6 @@ protected:
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
 	enum { maxParam = 4 };
-	Window wParameters;
 	SString parameterisedCommand;
 	char abbrevInsert[200];
 
@@ -492,7 +502,6 @@ protected:
 	bool capturedMouse;
 	int previousHeightOutput;
 	bool firstPropertiesRead;
-	bool localisationRead;
 	bool splitVertical;	///< @c true if the split bar between editor and output is vertical.
 	bool bufferedDraw;
 	bool twoPhaseDraw;
@@ -563,7 +572,7 @@ protected:
 
 	FilePath pathAbbreviations;
 
-	PropSetFile propsUI;
+	Localisation localiser;
 
 	PropSetFile propsStatus;	// Not attached to a file but need SetInteger method.
 
@@ -717,6 +726,7 @@ protected:
 	virtual void GoLineDialog() = 0;
 	virtual bool AbbrevDialog() = 0;
 	virtual void TabSizeDialog() = 0;
+	virtual bool ParametersOpen() = 0;
 	virtual void ParamGrab() = 0;
 	virtual bool ParametersDialog(bool modal) = 0;
 	bool HandleXml(char ch);
@@ -837,7 +847,6 @@ protected:
 	void ImportMenu(int pos);
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
-	SString LocaliseString(const char *s, bool retainIfNotFound = true);
 	SString LocaliseMessage(const char *s, const char *param0 = 0,
 	        const char *param1 = 0, const char *param2 = 0);
 	virtual void ReadLocalisation();

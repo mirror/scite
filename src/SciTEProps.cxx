@@ -187,7 +187,7 @@ void SciTEBase::SetImportMenu() {
 		for (int stackPos = 0; stackPos < importMax; stackPos++) {
 			int itemID = importCmdID + stackPos;
 			if (importFiles[stackPos].IsSet()) {
-				SString entry = LocaliseString("Open");
+				SString entry = localiser.Text("Open");
 				entry += " ";
 				entry += importFiles[stackPos].Name().AsInternal();
 				SetMenuItem(menuOptions, IMPORT_START + stackPos, itemID, entry.c_str());
@@ -211,7 +211,7 @@ void SciTEBase::SetLanguageMenu() {
 	}
 	for (int item = 0; item < languageItems; item++) {
 		int itemID = languageCmdID + item;
-		SString entry = LocaliseString(languageMenu[item].menuItem.c_str());
+		SString entry = localiser.Text(languageMenu[item].menuItem.c_str());
 		if (languageMenu[item].menuKey.length()) {
 #if PLAT_GTK
 			entry += " ";
@@ -258,7 +258,7 @@ void SciTEBase::ReadGlobalPropFile() {
 	FilePath propfileUser = GetUserPropertiesFileName();
 	propsUser.Read(propfileUser, propfileUser.Directory(), importFiles, importMax);
 
-	if (!localisationRead) {
+	if (!localiser.read) {
 		ReadLocalisation();
 	}
 }
@@ -1307,13 +1307,13 @@ void SciTEBase::SetPropertiesInitial() {
 	wrapFind = props.GetInt("find.replace.wrap", 1);
 }
 
-SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
+SString Localisation::Text(const char *s, bool retainIfNotFound) {
 	SString translation = s;
 	int ellipseIndicator = translation.remove("...");
 	int accessKeyPresent = translation.remove(menuAccessIndicator);
 	translation.lowercase();
 	translation.substitute("\n", "\\n");
-	translation = propsUI.Get(translation.c_str());
+	translation = Get(translation.c_str());
 	if (translation.length()) {
 		if (ellipseIndicator)
 			translation += "...";
@@ -1335,7 +1335,7 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 		translation.substitute("&", menuAccessIndicator);
 		translation.substitute("\\n", "\n");
 	} else {
-		translation = props.Get("translation.missing");
+		translation = missing;
 	}
 	if ((translation.length() > 0) || !retainIfNotFound) {
 		return translation;
@@ -1344,7 +1344,7 @@ SString SciTEBase::LocaliseString(const char *s, bool retainIfNotFound) {
 }
 
 SString SciTEBase::LocaliseMessage(const char *s, const char *param0, const char *param1, const char *param2) {
-	SString translation = LocaliseString(s);
+	SString translation = localiser.Text(s);
 	if (param0)
 		translation.substitute("^0", param0);
 	if (param1)
@@ -1355,7 +1355,7 @@ SString SciTEBase::LocaliseMessage(const char *s, const char *param0, const char
 }
 
 void SciTEBase::ReadLocalisation() {
-	propsUI.Clear();
+	localiser.Clear();
 	const char *title = "locale.properties";
 	SString localeProps = props.GetExpanded(title);
 	if (localeProps.length()) {
@@ -1363,8 +1363,9 @@ void SciTEBase::ReadLocalisation() {
 	}
 	FilePath propdir = GetSciteDefaultHome();
 	FilePath localePath(propdir, title);
-	propsUI.Read(localePath, propdir, importFiles, importMax);
-	localisationRead = true;
+	localiser.Read(localePath, propdir, importFiles, importMax);
+	localiser.SetMissing(props.Get("translation.missing"));
+	localiser.read = true;
 }
 
 void SciTEBase::ReadPropertiesInitial() {

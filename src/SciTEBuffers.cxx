@@ -780,7 +780,7 @@ void SciTEBase::BuffersMenu() {
 #endif
 
 			if (buffers.buffers[pos].IsUntitled()) {
-				SString untitled = LocaliseString("Untitled");
+				SString untitled = localiser.Text("Untitled");
 				strcat(entry, untitled.c_str());
 				strcat(titleTab, untitled.c_str());
 			} else {
@@ -831,7 +831,7 @@ void SciTEBase::BuffersMenu() {
 				tablabel = gtk_label_new(titleTab);
 
 				if (buffers.buffers[pos].IsUntitled())
-					tabcontent = gtk_label_new(LocaliseString("Untitled").c_str());
+					tabcontent = gtk_label_new(localiser.Text("Untitled").c_str());
 				else
 					tabcontent = gtk_label_new(buffers.buffers[pos].AsInternal());
 
@@ -1035,7 +1035,7 @@ void SciTEBase::RemoveToolsMenu() {
 
 void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
         const char *text, const char *mnemonic) {
-	SString localised = LocaliseString(text);
+	SString localised = localiser.Text(text);
 	SetMenuItem(menuNumber, position, itemID, localised.c_str(), mnemonic);
 }
 

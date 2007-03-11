@@ -240,7 +240,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 				break;
 			}
 			if (ttext) {
-				SString localised = LocaliseString(ttext);
+				SString localised = localiser.Text(ttext);
 				strcpy(ttt, localised.c_str());
 				pDispInfo->lpszText = ttt;
 			}
@@ -537,7 +537,7 @@ void SciTEWin::MakeAccelerator(SString sAccelerator, ACCEL &Accel) {
 //SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int cmd) {
 SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int) {
 #ifdef LOCALISE_ACCELERATORS_WORKED
-	SString translation = LocaliseString(pAccelerator, true);
+	SString translation = localiser.Text(pAccelerator, true);
 	int AccelCount = ::CopyAcceleratorTable(hAccTable, NULL, 0);
 	ACCEL *AccelTable = new ACCEL[AccelCount];
 	::CopyAcceleratorTable(hAccTable, AccelTable, AccelCount);
@@ -591,7 +591,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 					} else {
 						accel = "";
 					}
-					text = LocaliseString(text.c_str(), true);
+					text = localiser.Text(text.c_str(), true);
 					if (text.length()) {
 						if (accel != "") {
 							text += "\t";
@@ -630,7 +630,7 @@ void SciTEWin::LocaliseAccelerators() {
 void SciTEWin::LocaliseControl(HWND w) {
 	char wtext[200];
 	if (::GetWindowText(w, wtext, sizeof(wtext))) {
-		SString text = LocaliseString(wtext, false);
+		SString text = localiser.Text(wtext, false);
 		if (text.length())
 			::SetWindowText(w, text.c_str());
 	}

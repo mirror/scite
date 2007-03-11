@@ -188,7 +188,7 @@ bool SciTEWin::OpenDialog(FilePath directory, const char *filter) {
 				next += strlen(openFilter.c_str() + next) + 1;
 				openFilter.remove(start, next - start);
 			} else {
-				SString localised = LocaliseString(filterName, false);
+				SString localised = localiser.Text(filterName, false);
 				if (localised.length()) {
 					openFilter.remove(start, strlen(filterName));
 					openFilter.insert(start, localised.c_str());
@@ -200,7 +200,7 @@ bool SciTEWin::OpenDialog(FilePath directory, const char *filter) {
 	}
 
 	if (!openWhat[0]) {
-		strcpy(openWhat, LocaliseString("Custom Filter").c_str());
+		strcpy(openWhat, localiser.Text("Custom Filter").c_str());
 		openWhat[strlen(openWhat) + 1] = '\0';
 	}
 
@@ -219,7 +219,7 @@ bool SciTEWin::OpenDialog(FilePath directory, const char *filter) {
 	ofn.lpstrCustomFilter = openWhat;
 	ofn.nMaxCustFilter = sizeof(openWhat);
 	ofn.nFilterIndex = filterDefault;
-	SString translatedTitle = LocaliseString("Open File");
+	SString translatedTitle = localiser.Text("Open File");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	if (props.GetInt("open.dialog.in.file.directory")) {
 		ofn.lpstrInitialDir = directory.AsFileSystem();
@@ -267,7 +267,7 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const c
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
 		ofn.nMaxFile = sizeof(saveName);
-		SString translatedTitle = LocaliseString(title);
+		SString translatedTitle = localiser.Text(title);
 		ofn.lpstrTitle = translatedTitle.c_str();
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 		ofn.lpstrFilter = filter;
@@ -357,7 +357,7 @@ void SciTEWin::LoadSessionDialog() {
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
 	ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
-	SString translatedTitle = LocaliseString("Load Session");
+	SString translatedTitle = localiser.Text("Load Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	ofn.Flags = OFN_HIDEREADONLY;
 	if (::GetOpenFileName(&ofn))
@@ -375,7 +375,7 @@ void SciTEWin::SaveSessionDialog() {
 	ofn.lpstrDefExt = "ses";
 	ofn.lpstrFile = saveName;
 	ofn.nMaxFile = sizeof(saveName);
-	SString translatedTitle = LocaliseString("Save Current Session");
+	SString translatedTitle = localiser.Text("Save Current Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 	ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
@@ -1327,7 +1327,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				info.pidlRoot = NULL;
 				char szDisplayName[MAX_PATH];
 				info.pszDisplayName = szDisplayName;
-				SString title = LocaliseString("Select a folder to search from");
+				SString title = localiser.Text("Select a folder to search from");
 				info.lpszTitle = title.c_str();
 				info.ulFlags = 0;
 				info.lpfn = BrowseCallbackProc;
@@ -1595,6 +1595,10 @@ void SciTEWin::TabSizeDialog() {
 	WindowSetFocus(wEditor);
 }
 
+bool SciTEWin::ParametersOpen() {
+	return wParameters.Created();
+}
+
 void SciTEWin::ParamGrab() {
 	if (wParameters.Created()) {
 		HWND hDlg = reinterpret_cast<HWND>(wParameters.GetID());
@@ -1698,7 +1702,7 @@ void SciTEWin::FindMessageBox(const SString &msg, const SString *findItem) {
 	} else {
 		if (IsWindowsNT()) {
 
-			SString sFormat = LocaliseString(msg.c_str());
+			SString sFormat = localiser.Text(msg.c_str());
 			SString sPart1 = sFormat.substr(0, sFormat.search("^0", 0));
 			SString sPart2 = sFormat.substr(sFormat.search("^0", 0));
 			sPart2 = sPart2.substr(2); // skip initial ^0
