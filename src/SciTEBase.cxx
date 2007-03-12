@@ -270,6 +270,7 @@ const char *contributors[] = {
             "Sebastian Steinlechner",
             "Chris Rickard",
             "Rob McMullen",
+            "Stefan Schwendeler ",
         };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -398,7 +399,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 
 	propsBase.superPS = &propsEmbed;
 	propsUser.superPS = &propsBase;
-	propsLocal.superPS = &propsUser;
+	propsDirectory.superPS = &propsUser;
+	propsLocal.superPS = &propsDirectory;
 	props.superPS = &propsLocal;
 
 	propsStatus.superPS = &props;
@@ -3881,6 +3883,11 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		WindowSetFocus(wEditor);
 		break;
 
+	case IDM_OPENDIRECTORYPROPERTIES:
+		OpenProperties(IDM_OPENDIRECTORYPROPERTIES);
+		WindowSetFocus(wEditor);
+		break;
+
 	case IDM_SRCWIN:
 		break;
 
@@ -4387,6 +4394,7 @@ void SciTEBase::CheckMenus() {
 	        props.GetWild("command.build.", FileNameExt().AsInternal()).size() != 0);
 	EnableAMenuItem(IDM_GO, !executing &&
 	        props.GetWild("command.go.", FileNameExt().AsInternal()).size() != 0);
+	EnableAMenuItem(IDM_OPENDIRECTORYPROPERTIES, props.GetInt("properties.directory.enable") != 0);
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
 		EnableAMenuItem(IDM_TOOLS + toolItem, !executing);
 	EnableAMenuItem(IDM_STOPEXECUTE, executing);
@@ -4627,6 +4635,8 @@ void SciTEBase::EnumProperties(const char *propkind) {
 		pf = &props;
 	} else if (!strcmp(propkind, "local"))
 		pf = &propsLocal;
+	else if (!strcmp(propkind, "directory"))
+		pf = &propsDirectory;
 	else if (!strcmp(propkind, "user"))
 		pf = &propsUser;
 	else if (!strcmp(propkind, "base"))

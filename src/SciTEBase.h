@@ -377,11 +377,11 @@ struct StyleAndWords {
 	bool IsSingleChar() { return words.length() == 1; }
 };
 
-class Localisation : public PropSetFile {
+class Localization : public PropSetFile {
 	SString missing;
 public:
 	bool read;
-	Localisation() : PropSetFile(true), read(false) {
+	Localization() : PropSetFile(true), read(false) {
 	}
 	SString Text(const char *s, bool retainIfNotFound=true);
 	void SetMissing(const SString &missing_) {
@@ -565,6 +565,7 @@ protected:
 	PropSetFile propsEmbed;
 	PropSetFile propsBase;
 	PropSetFile propsUser;
+	PropSetFile propsDirectory;
 	PropSetFile propsLocal;
 	PropSetFile props;
 
@@ -572,7 +573,7 @@ protected:
 
 	FilePath pathAbbreviations;
 
-	Localisation localiser;
+	Localization localiser;
 
 	PropSetFile propsStatus;	// Not attached to a file but need SetInteger method.
 
@@ -599,6 +600,7 @@ protected:
 	void ReadGlobalPropFile();
 	void ReadAbbrevPropFile();
 	void ReadLocalPropFile();
+	void ReadDirectoryPropFile();
 
 	sptr_t SendEditor(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t SendEditorString(unsigned int msg, uptr_t wParam, const char *s);
@@ -687,6 +689,8 @@ protected:
 	virtual FilePath GetSciteUserHome() = 0;
 	FilePath GetDefaultPropertiesFileName();
 	FilePath GetUserPropertiesFileName();
+	FilePath GetDirectoryPropertiesFileName();
+	FilePath GetLocalPropertiesFileName();
 	FilePath GetAbbrevPropertiesFileName();
 	void OpenProperties(int propsFile);
 	int GetMenuCommandAsInt(SString commandName);
@@ -849,7 +853,7 @@ protected:
 	void SetPropertiesInitial();
 	SString LocaliseMessage(const char *s, const char *param0 = 0,
 	        const char *param1 = 0, const char *param2 = 0);
-	virtual void ReadLocalisation();
+	virtual void ReadLocalization();
 	virtual void ReadPropertiesInitial();
 	void ReadFontProperties();
 	void SetOverrideLanguage(int cmdID);

@@ -615,19 +615,30 @@ NameError: mistake
        Much of SciTE's behaviour can be changed by editing the properties files.
     </p>
     <p>
-       There are three properties files used:
+       There are four properties files used:
        <ul>
        <li>Local properties file called "SciTE.properties" which may be
        present in the same directory as the file being edited.</li>
+       <li>Directory properties file called "SciTEDirectory.properties" which may be
+       present in the same or in a parent directory as the file being edited.</li>
        <li>User properties file called "SciTEUser.properties" on Windows
        and ".SciTEUser.properties" on GTK+</li>
        <li>Global properties file called "SciTEGlobal.properties"</li>
        </ul>
     </p>
     <p>
-      Settings in the local properties file override those in the user properties file which override those
+      Settings in the local properties file override those in the directory properties file
+	   which overrides those in the user properties file which override those
       in the global properties files. Environment variables are also available as properties and these
       are overridden by an explicit setting in one of the properties files.
+    </p>
+	<p>
+      The directory properties file can used as project options file where user commands and
+      compile, build commands should work in the same manner in subdirectories of a project. The
+      benefit is that local properties files in subdirectories can be replaced be one properties file
+      which is located at the root of the project.
+      The evalution of the directory properties file is disabled by default and must be enabled by
+      setting the variable properties.directory.enable to 1 in the user or global properties file.
     </p>
     <p>
       The user properties file is intended for customisation by the user,
@@ -687,6 +698,7 @@ NameError: mistake
                <tr><td>CurrentMessage</td><td>most recently selected output pane message</td></tr>
                <tr><td>SciteDefaultHome</td><td>directory in which the Global Options file is found</td></tr>
                <tr><td>SciteUserHome</td><td>directory in which the User Options file is found</td></tr>
+               <tr><td>SciTEDirectoryHome</td><td>directory in which the Directory Options file is found</td></tr>
         </table>
     <p>
        Some features use file name patterns to see which variable to use. For example, the lexer
@@ -1634,7 +1646,7 @@ NameError: mistake
         Named IDs and numeric IDs below 2000 are SciTE menu commands.
         The modifiers are Ctrl, Shift, and Alt and the named keys are Left,
         Right, Up, Down, Insert, End, Home, Enter, Space, KeypadPlus, KeypadMinus,
-        KeypadMultiply, KeypadDivide, Escape, Delete, PageUp, PageDown, Slash, 
+        KeypadMultiply, KeypadDivide, Escape, Delete, PageUp, PageDown, Slash,
         Question, Equal, Win.
         <br/>
         <code>
@@ -2993,6 +3005,16 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 		  off this feature.
         </td>
       </tr>
+	  <tr>
+        <td>
+          properties.directory.enable
+        </td>
+        <td>
+          Enables or disables the evaluation of the directory properties file.
+          The default is 0 which disables the evaluation. Any other value enables
+		   this properties file.
+        </td>
+      </tr>
     </table>
     <p>
     caret.policy.{x|y}&lt;param&gt; interaction:
@@ -3165,10 +3187,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
        Open Selected Filename
     </h3>
     <p>
-       This command opens the file for the file name selected in either the edit or output pane. 
+       This command opens the file for the file name selected in either the edit or output pane.
        It uses the current selection or searches around the caret to try to
-       find a file name based on which characters are normally used in a path. 
-       If there is no extension then an extension may be inferred from the current file using the 
+       find a file name based on which characters are normally used in a path.
+       If there is no extension then an extension may be inferred from the current file using the
        open.suffix property which defaults to .properties in a .properties file.
        If the file name is followed by a number (in a format similar to ctags, grep output,
        or Visual Studio messages) then that line is displayed in the opened file.

@@ -116,7 +116,7 @@ public:
 class Dialog : public Window {
 public:
 	Dialog() : app(0), dialogCanceled(true), accel_group(0), localiser(0) {}
-	void Create(SciTEGTK *app_, const char *title, Localisation *localiser_, bool resizable=true) {
+	void Create(SciTEGTK *app_, const char *title, Localization *localiser_, bool resizable=true) {
 		app = app_;
 		localiser = localiser_;
 		id = gtk_dialog_new();
@@ -166,7 +166,7 @@ public:
 		CreateButton("_Cancel", GtkSignalFunc(SignalCancel), this, false);
 	}
 	GtkWidget *Button(const char *original, SigFunction func) {
-		return MakeCommand(localiser->Text(original).c_str(), accel_group, 
+		return MakeCommand(localiser->Text(original).c_str(), accel_group,
 			GtkSignalFunc(func), app, GDK_MOD1_MASK);
 	}
 	void OnActivate(GtkWidget *w, SigFunction func) {
@@ -177,7 +177,7 @@ private:
 	SciTEGTK *app;
 	bool dialogCanceled;
 	GtkAccelGroup *accel_group;
-	Localisation *localiser;
+	Localization *localiser;
 	GtkWidget *Widget() const {
 		return reinterpret_cast<GtkWidget *>(GetID());
 	}
@@ -194,7 +194,7 @@ private:
 		return FALSE;
 	}
 	GtkWidget *CreateButton(const char *original, GtkSignalFunc func, gpointer data, bool makeDefault) {
-		GtkWidget *btn = MakeCommand(localiser->Text(original).c_str(), accel_group, 
+		GtkWidget *btn = MakeCommand(localiser->Text(original).c_str(), accel_group,
 			func, data, GDK_MOD1_MASK);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(Widget())->action_area), btn, TRUE, TRUE, 0);
 		if (makeDefault) {
@@ -379,7 +379,7 @@ protected:
 	void ShowFileInStatus();
 	void SetIcon();
 
-	virtual void ReadLocalisation();
+	virtual void ReadLocalization();
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
 
@@ -634,8 +634,8 @@ static void messageBoxOK(GtkWidget *, gpointer p) {
 
 GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
                                  int val, GtkAccelGroup *accel_group, bool isDefault) {
-	GtkWidget *button = MakeCommand(localiser.Text(label).c_str(), 
-		accel_group, GtkSignalFunc(messageBoxOK), 
+	GtkWidget *button = MakeCommand(localiser.Text(label).c_str(),
+		accel_group, GtkSignalFunc(messageBoxOK),
 		reinterpret_cast<gpointer>(val), GdkModifierType(0));
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
  	                   button, TRUE, TRUE, 0);
@@ -836,8 +836,8 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 	UpdateStatusBar(true);
 }
 
-void SciTEGTK::ReadLocalisation() {
-	SciTEBase::ReadLocalisation();
+void SciTEGTK::ReadLocalization() {
+	SciTEBase::ReadLocalization();
 #ifdef ENCODE_TRANSLATION
 	SString encoding = localiser.Get("translation.encoding");
 	if (encoding.length()) {
@@ -1469,11 +1469,11 @@ private:
 	int columns;
 	int next;
 public:
-	Table(int rows_, int columns_) : 
+	Table(int rows_, int columns_) :
 		table(0), rows(rows_), columns(columns_), next(0) {
 		table = gtk_table_new(rows, columns, FALSE);
 	}
-	void Add(GtkWidget *child=0, int width=1, bool expand=false, 
+	void Add(GtkWidget *child=0, int width=1, bool expand=false,
 		int xpadding=5, int ypadding=5) {
 		GtkAttachOptions opts = static_cast<GtkAttachOptions>(
 			GTK_SHRINK | GTK_FILL);
@@ -1481,9 +1481,9 @@ public:
 			GTK_SHRINK | GTK_FILL | GTK_EXPAND);
 
 		if (child) {
-			gtk_table_attach(GTK_TABLE(table), child, 
+			gtk_table_attach(GTK_TABLE(table), child,
 				next % columns, next % columns + width,
-				next / columns, (next / columns) + 1, 
+				next / columns, (next / columns) + 1,
 				expand ? optsExpand : opts, opts,
 				xpadding, ypadding);
 		}
@@ -1524,7 +1524,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFindInFiles), TRUE);
 
 	table.Add(comboFindInFiles, 3, true);
-	
+
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), findWhat.c_str());
 	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), 0, findWhat.length());
 	dlgFindInFiles.OnActivate(GTK_COMBO(comboFindInFiles)->entry, sigFind.Function);
@@ -1757,7 +1757,7 @@ void SciTEGTK::GoLineDialog() {
 
 	Table table(1, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgGoto))->vbox));
-	
+
 	table.Label(TranslatedLabel("Destination Line Number:"));
 
 	entryGoto = gtk_entry_new();
@@ -1801,7 +1801,7 @@ void SciTEGTK::TabSizeConvertCmd() {
 }
 
 void SciTEGTK::TabSizeDialog() {
-	
+
 	dlgTabSize.Create(this, "Indentation Settings", &localiser);
 
 	gtk_container_border_width(GTK_CONTAINER(PWidget(dlgTabSize)), 0);
@@ -2857,6 +2857,7 @@ void SciTEGTK::CreateMenu() {
 	            {"/Options/Use _Monospaced Font", "<control>F11", menuSig, IDM_MONOFONT, "<CheckItem>"},
 	            {"/Options/sep3", NULL, NULL, 0, "<Separator>"},
 	            {"/Options/Open Local _Options File", "", menuSig, IDM_OPENLOCALPROPERTIES, 0},
+	            {"/Options/Open _Directory Options File", "", menuSig, IDM_OPENDIRECTORYPROPERTIES, 0},
 	            {"/Options/Open _User Options File", "", menuSig, IDM_OPENUSERPROPERTIES, 0},
 	            {"/Options/Open _Global Options File", "", menuSig, IDM_OPENGLOBALPROPERTIES, 0},
 	            {"/Options/Open A_bbreviations File", "", menuSig, IDM_OPENABBREVPROPERTIES, 0},
