@@ -74,6 +74,8 @@
     	How do I get SciTE to understand the error messages from my compiler?</a></li>
     <li><a class="toc" href="#GCCUTF8">
     	Why do GCC error messages include ugly characters?</a></li>
+    <li><a class="toc" href="#WindowsSpaces">
+    	How do I make Windows open a file associated with SciTE when its path contains spaces?</a></li>
     </ul>
     <h4 id="FixedWidth">
        How do I use a fixed width font for all text?
@@ -243,10 +245,10 @@ You can set a command for all files using * as a file pattern. Up to 10 commands
     </h4>
     <p>
      The set of error message formats is embedded in the Scintilla and SciTE code.
-     To add support for another compiler, you will need to add a new style to 
-     scintilla/include/Scintilla.iface after the other SCE_ERR_* values, run HFacer.py, 
+     To add support for another compiler, you will need to add a new style to
+     scintilla/include/Scintilla.iface after the other SCE_ERR_* values, run HFacer.py,
      edit RecogniseErrorListLine in scintilla/src/LexOthers.cxx to recognise the error message,
-     and edit DecodeMessage in scite/src/SciTEBuffers.cxx to extract the file name and line 
+     and edit DecodeMessage in scite/src/SciTEBuffers.cxx to extract the file name and line
      number.
     </p>
     <h4 id="GCCUTF8">
@@ -258,6 +260,18 @@ You can set a command for all files using * as a file pattern. Up to 10 commands
 	that it can use any Unicode character encoded as UTF-8 so quotes using
 	&lsquo;these&rsquo; rather than ASCII. To see these as intended, set<br /><code>
 	output.code.page=65001</code>
+    </p>
+    <h4 id="WindowsSpaces">
+       How do I make Windows open a file associated with SciTE when its path contains spaces?
+    </h4>
+    <p>
+	On some versions of Windows, associating a particular file type
+	with SciTE does not allow paths containing spaces to work.
+	To fix this, the path variable %1 needs to be surrounded by double quotes.
+	This is done either directly in the registry or through the Explorer in
+	Tools | Folder Options | File Types | (Select type) | Advanced | open | Edit.
+	Change the field to be similar to<br />
+	<code>"C:\bin\SciTE\SciTE.exe" "%1"</code>
     </p>
   </body>
 </html>
