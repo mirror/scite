@@ -1534,9 +1534,13 @@ void SciTEBase::OpenProperties(int propsFile) {
 			}
 			break;
 		}
-	case IDM_OPENDIRECTORYPROPERTIES:
-		propfile = GetDirectoryPropertiesFileName();
-		Open(propfile, ofQuiet);
+	case IDM_OPENDIRECTORYPROPERTIES: {
+			propfile = GetDirectoryPropertiesFileName();
+			bool alreadyExists = propfile.Exists();
+			Open(propfile, ofQuiet);
+			if (!alreadyExists)
+				SaveAsDialog();
+		}
 		break;
 	}
 }
