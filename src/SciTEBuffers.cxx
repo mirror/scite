@@ -561,6 +561,7 @@ void SciTEBase::New() {
 	isBuilding = false;
 	isBuilt = false;
 	isReadOnly = false;	// No sense to create an empty, read-only buffer...
+	SendEditor(SCI_SETREADONLY, isReadOnly);
 
 	ClearDocument();
 	DeleteFileStackMenu();
