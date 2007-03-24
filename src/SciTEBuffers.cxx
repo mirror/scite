@@ -340,9 +340,11 @@ bool SciTEBase::CanMakeRoom(bool maySaveIfDirty) {
 }
 
 void SciTEBase::ClearDocument() {
+	SendEditor(SCI_SETREADONLY, 0);
 	SendEditor(SCI_CLEARALL);
 	SendEditor(SCI_EMPTYUNDOBUFFER);
 	SendEditor(SCI_SETSAVEPOINT);
+	SendEditor(SCI_SETREADONLY, isReadOnly);
 }
 
 void SciTEBase::CreateBuffers() {
@@ -561,7 +563,6 @@ void SciTEBase::New() {
 	isBuilding = false;
 	isBuilt = false;
 	isReadOnly = false;	// No sense to create an empty, read-only buffer...
-	SendEditor(SCI_SETREADONLY, isReadOnly);
 
 	ClearDocument();
 	DeleteFileStackMenu();
@@ -595,6 +596,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		} else {
 			if (extender)
 				extender->RemoveBuffer(buffers.Current());
+			ClearDocument();
 			buffers.RemoveCurrent();
 			if (extender && !makingRoomForNew)
 				extender->ActivateBuffer(buffers.Current());
@@ -605,7 +607,6 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			SetFileName(bufferNext);
 		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 		if (closingLast) {
-			SendEditor(SCI_SETREADONLY, 0);
 			ClearDocument();
 		}
 		if (updateUI) {
