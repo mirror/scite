@@ -1,6 +1,6 @@
 rem ba.bat - download and build all of scintilla and scite
 rd /s/q scintilla scite
-cvs co scintilla scite
+cvs export -D NOW scintilla scite
 cd scintilla
 call delbin
 del/q bin\*.a
