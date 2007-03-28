@@ -263,6 +263,8 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 					keyval = GDK_Return;
 				} else if (sKey == "Space") {
 					keyval = GDK_space;
+				} else if (sKey == "Tab") {
+					keyval = GDK_Tab;
 				} else if (sKey == "KeypadPlus") {
 					keyval = GDK_KP_Add;
 				} else if (sKey == "KeypadMinus") {

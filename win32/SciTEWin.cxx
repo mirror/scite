@@ -97,6 +97,8 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				keyval = VK_RETURN;
 			} else if (sKey == "Space") {
 				keyval = VK_SPACE;
+			} else if (sKey == "Tab") {
+				keyval = VK_TAB;
 			} else if (sKey == "Escape") {
 				keyval = VK_ESCAPE;
 			} else if (sKey == "Delete") {
