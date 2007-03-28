@@ -73,6 +73,7 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem Visual C++ builds
 call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
+echo on
 rem
 rem ************************************************************
 rem Target 6: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
@@ -92,20 +93,20 @@ cd ..\..
 rem
 rem ************************************************************
 rem Target 8: Visual C++ using scite\vcbuild\SciTE.dsp
-REM ~ call scite\scripts\clearboth
-REM ~ cd scite\vcbuild
-REM ~ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
+call scite\scripts\clearboth
+cd scite\vcbuild
+msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
 rem
 rem ************************************************************
 rem Target 9: Visual C++ using scite\boundscheck\SciTE.dsp
-REM ~ call scite\scripts\clearboth
-REM ~ cd scite\boundscheck
-REM ~ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
-REM ~ call scite\scripts\clearboth
+call scite\scripts\clearboth
+cd scite\boundscheck
+msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
+call scite\scripts\clearboth
 goto CLEANUP
 :ERROR
 @echo checkbuilds.bat:1: Failed %ERRORLEVEL%
