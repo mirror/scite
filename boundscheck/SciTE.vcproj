@@ -262,6 +262,9 @@
 				RelativePath="..\..\scintilla\src\LexCLW.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexCmake.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexConf.cxx">
 			</File>
 			<File

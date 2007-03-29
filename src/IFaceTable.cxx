@@ -308,6 +308,21 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_CLW_STRING",3},
 	{"SCE_CLW_STRUCTURE_DATA_TYPE",12},
 	{"SCE_CLW_USER_IDENTIFIER",4},
+	{"SCE_CMAKE_COMMANDS",5},
+	{"SCE_CMAKE_COMMENT",1},
+	{"SCE_CMAKE_DEFAULT",0},
+	{"SCE_CMAKE_FOREACHDEF",10},
+	{"SCE_CMAKE_IFDEFINEDEF",11},
+	{"SCE_CMAKE_MACRODEF",12},
+	{"SCE_CMAKE_NUMBER",14},
+	{"SCE_CMAKE_PARAMETERS",6},
+	{"SCE_CMAKE_STRINGDQ",2},
+	{"SCE_CMAKE_STRINGLQ",3},
+	{"SCE_CMAKE_STRINGRQ",4},
+	{"SCE_CMAKE_STRINGVAR",13},
+	{"SCE_CMAKE_USERDEFINED",8},
+	{"SCE_CMAKE_VARIABLE",7},
+	{"SCE_CMAKE_WHILEDEF",9},
 	{"SCE_CONF_COMMENT",1},
 	{"SCE_CONF_DEFAULT",0},
 	{"SCE_CONF_DIRECTIVE",9},
@@ -1418,6 +1433,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_CAML",65},
 	{"SCLEX_CLW",45},
 	{"SCLEX_CLWNOCASE",46},
+	{"SCLEX_CMAKE",80},
 	{"SCLEX_CONF",17},
 	{"SCLEX_CONTAINER",0},
 	{"SCLEX_CPP",3},
@@ -1997,7 +2013,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 234,
-	ifaceConstantCount = 1495,
+	ifaceConstantCount = 1511,
 	ifacePropertyCount = 128
 };
 
