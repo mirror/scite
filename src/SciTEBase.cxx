@@ -1463,6 +1463,7 @@ int SciTEBase::MarkAll() {
 
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
+		SendEditor(SCI_SETINDICATORCURRENT, INDICATOR_MATCH);
 		RemoveFindMarks();
 		CurrentBuffer()->findMarks = Buffer::fmMarked;
 	}
