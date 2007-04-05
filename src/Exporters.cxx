@@ -1168,9 +1168,9 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 
 static char* getTexRGB(char* texcolor, const char* stylecolor) {
 	//texcolor[rgb]{0,0.5,0}{....}
-	float rf = IntFromHexByte(stylecolor + 1) / 256.0;
-	float gf = IntFromHexByte(stylecolor + 3) / 256.0;
-	float bf = IntFromHexByte(stylecolor + 5) / 256.0;
+	double rf = IntFromHexByte(stylecolor + 1) / 256.0;
+	double gf = IntFromHexByte(stylecolor + 3) / 256.0;
+	double bf = IntFromHexByte(stylecolor + 5) / 256.0;
 	// avoid breakage due to locale setting
 	int r = (int)(rf * 10 + 0.5);
 	int g = (int)(gf * 10 + 0.5);
