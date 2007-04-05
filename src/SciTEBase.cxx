@@ -1450,10 +1450,8 @@ static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 
 void SciTEBase::RemoveFindMarks() {
 	if (CurrentBuffer()->findMarks != Buffer::fmNone) {
-		int endStyled = SendEditor(SCI_GETENDSTYLED);
-		SendEditor(SCI_STARTSTYLING, 0, INDIC2_MASK);
-		SendEditor(SCI_SETSTYLING, LengthDocument(), 0);
-		SendEditor(SCI_STARTSTYLING, endStyled, 31);
+		SendEditor(SCI_SETINDICATORCURRENT, INDICATOR_MATCH);
+		SendEditor(SCI_INDICATORCLEARRANGE, 0, LengthDocument());
 		CurrentBuffer()->findMarks = Buffer::fmNone;
 	}
 }
@@ -1463,7 +1461,6 @@ int SciTEBase::MarkAll() {
 	int marked = 0;
 	int posFirstFound = FindNext(false, false);
 
-	int endStyled = SendEditor(SCI_GETENDSTYLED);
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
 		RemoveFindMarks();
@@ -1476,14 +1473,10 @@ int SciTEBase::MarkAll() {
 			int line = SendEditor(SCI_LINEFROMPOSITION, posFound);
 			BookmarkAdd(line);
 			if (findMark.length()) {
-				SendEditor(SCI_STARTSTYLING, posFound, INDIC2_MASK);
-				SendEditor(SCI_SETSTYLING, SendEditor(SCI_GETTARGETEND) - posFound, INDIC2_MASK);
+				SendEditor(SCI_INDICATORFILLRANGE, posFound, SendEditor(SCI_GETTARGETEND) - posFound);
 			}
 			posFound = FindNext(false, false);
 		} while ((posFound != -1) && (posFound != posFirstFound));
-	}
-	if (findMark.length()) {
-		SendEditor(SCI_STARTSTYLING, endStyled, 31);
 	}
 	SendEditor(SCI_SETCURRENTPOS, posCurrent);
 	return marked;

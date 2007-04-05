@@ -868,8 +868,8 @@ void SciTEBase::ReadProperties() {
 
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
-		SendEditor(SCI_INDICSETFORE, 2, ColourFromString(findMark));
-		SendEditor(SCI_INDICSETSTYLE, 2, INDIC_ROUNDBOX);
+		SendEditor(SCI_INDICSETSTYLE, INDICATOR_MATCH, INDIC_ROUNDBOX);
+		SendEditor(SCI_INDICSETFORE, INDICATOR_MATCH, ColourFromString(findMark));
 	}
 
 	SString controlCharSymbol = props.Get("control.char.symbol");

@@ -304,6 +304,9 @@
 				RelativePath="..\..\scintilla\src\RESearch.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\RunStyles.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\ScintillaBase.cxx">
 			</File>
 			<File

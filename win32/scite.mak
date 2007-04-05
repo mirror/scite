@@ -193,6 +193,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\CellBuffer.obj \
 	..\..\scintilla\win32\ContractionState.obj \
 	..\..\scintilla\win32\CharClassify.obj \
+	..\..\scintilla\win32\Decoration.obj \
 	..\..\scintilla\win32\Document.obj \
 	..\..\scintilla\win32\DocumentAccessor.obj \
 	..\..\scintilla\win32\Editor.obj \
@@ -204,6 +205,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\PlatWin.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\RESearch.obj \
+	..\..\scintilla\win32\RunStyles.obj \
 	..\..\scintilla\win32\ScintillaBaseL.obj \
 	..\..\scintilla\win32\ScintillaWinL.obj \
 	..\..\scintilla\win32\Style.obj \

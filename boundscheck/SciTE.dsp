@@ -115,6 +115,10 @@ SOURCE=..\..\scintilla\src\ContractionState.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\Decoration.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\win32\DirectorExtension.cxx
 # End Source File
 # Begin Source File
@@ -536,6 +540,10 @@ SOURCE=..\..\scintilla\Src\PropSet.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\RESearch.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\RunStyles.cxx
 # End Source File
 # Begin Source File
 

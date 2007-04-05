@@ -390,6 +390,7 @@ public:
 };
 
 #define SciTE_MARKER_BOOKMARK 1
+#define INDICATOR_MATCH 8
 
 class SciTEBase : public ExtensionAPI {
 protected:
