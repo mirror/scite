@@ -579,7 +579,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 			if (mii.hSubMenu) {
 				LocaliseMenu(mii.hSubMenu);
 			}
-			if (mii.fType == MFT_STRING) {
+			if (mii.fType == MFT_STRING || mii.fType == MFT_RADIOCHECK) {
 				if (mii.dwTypeData) {
 					SString text(mii.dwTypeData);
 					SString accel(mii.dwTypeData);
