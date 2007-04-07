@@ -504,9 +504,14 @@ protected:
 	static gint DividerRelease(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	static void DragDataReceived(GtkWidget *widget, GdkDragContext *context,
 	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
+
 	gint TabBarRelease(GtkNotebook *notebook, GdkEventButton *event);
+	gint TabBarScroll(GdkEventScroll *event);
 	static gint TabBarReleaseSignal(GtkNotebook *notebook, GdkEventButton *event, SciTEGTK *scitew) {
 		return scitew->TabBarRelease(notebook, event);
+	}
+	static gint TabBarScrollSignal(GtkNotebook *, GdkEventScroll *event, SciTEGTK *scitew) {
+		return scitew->TabBarScroll(event);
 	}
 
 #if GTK_MAJOR_VERSION >= 2
@@ -2471,6 +2476,23 @@ gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 	return FALSE;
 }
 
+gint SciTEGTK::TabBarScroll(GdkEventScroll *event) {
+	switch (event->direction) {
+		case GDK_SCROLL_RIGHT:
+		case GDK_SCROLL_DOWN:
+			Next();
+			WindowSetFocus(wEditor);
+			break;
+		case GDK_SCROLL_LEFT:
+		case GDK_SCROLL_UP:
+			Prev();
+			WindowSetFocus(wEditor);
+			break;
+	}
+	// Return true because Next() or Prev() already switches the tab
+	return TRUE;
+}
+
 GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
 	GdkBitmap *mask = 0;
 
@@ -3007,6 +3029,8 @@ void SciTEGTK::CreateUI() {
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
 	gtk_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
 		"button-release-event", GTK_SIGNAL_FUNC(TabBarReleaseSignal), gthis);
+	g_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
+		"scroll-event", GTK_SIGNAL_FUNC(TabBarScrollSignal), gthis);
 	//gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
 #endif
 	tabVisible = false;
