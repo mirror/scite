@@ -231,31 +231,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	Buffer bufferNext = buffers.buffers[buffers.Current()];
 	SetFileName(bufferNext);
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
-	SetWindowName();
-	ReadProperties();
-	if (CurrentBuffer()->unicodeMode != uni8Bit) {
-		// Override the code page if Unicode
-		codePage = SC_CP_UTF8;
-		SendEditor(SCI_SETCODEPAGE, codePage);
-	}
-	isReadOnly = SendEditor(SCI_GETREADONLY);
-
-	// check to see whether there is saved fold state, restore
-	bufferNext.foldState.BeginIteration();
-	// Platform::DebugPrintf("Restoring fold state... (%d states)", count);
-
-	int line = 0;
-	bool folded = false;
-	while (bufferNext.foldState.GetState(&line, &folded)) {
-		bool expanded = SendEditor(SCI_GETFOLDEXPANDED, line);
-		// set line to state folded
-		if (folded && !expanded) {
-			SendEditor(SCI_TOGGLEFOLD, line);
-		}
-		if (!folded && expanded) {
-			SendEditor(SCI_TOGGLEFOLD, line);
-		}
-	}
+	RestoreState(bufferNext);
 
 #if PLAT_WIN
 	// Tab Bar
@@ -293,14 +269,13 @@ void SciTEBase::UpdateBuffersCurrent() {
 		int foldPoints = 0;
 
 		for (int line = 0; line < maxLine; line++) {
-			int level = SendEditor(SCI_GETFOLDLEVEL, line);
-			if (level & SC_FOLDLEVELHEADERFLAG) {
-
-				foldPoints ++;
+			if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) && 
+				!SendEditor(SCI_GETFOLDEXPANDED, line)) {
+				foldPoints++;
 			}
 		}
 
-		FoldState* f = &buffers.buffers[currentbuf].foldState;
+		FoldState *f = &buffers.buffers[currentbuf].foldState;
 		f->Clear();
 
 		if (foldPoints > 0) {
@@ -309,11 +284,9 @@ void SciTEBase::UpdateBuffersCurrent() {
 			f->Alloc(foldPoints);
 
 			for (int line = 0; line < maxLine; line++) {
-				int level = SendEditor(SCI_GETFOLDLEVEL, line);
-				if (level & SC_FOLDLEVELHEADERFLAG) {
-
-					bool expanded = SendEditor(SCI_GETFOLDEXPANDED, line);
-					f->PushState(line, expanded);
+				if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) && 
+					!SendEditor(SCI_GETFOLDEXPANDED, line)) {
+					f->Append(line);
 				}
 			}
 		}
@@ -571,6 +544,22 @@ void SciTEBase::New() {
 		extender->InitBuffer(buffers.Current());
 }
 
+void SciTEBase::RestoreState(const Buffer &buffer) {
+	SetWindowName();
+	ReadProperties();
+	if (CurrentBuffer()->unicodeMode != uni8Bit) {
+		// Override the code page if Unicode
+		codePage = SC_CP_UTF8;
+		SendEditor(SCI_SETCODEPAGE, codePage);
+	}
+	isReadOnly = SendEditor(SCI_GETREADONLY);
+
+	// check to see whether there is saved fold state, restore
+	for (int fold = 0; fold < buffer.foldState.Folds(); fold++) {
+		SendEditor(SCI_TOGGLEFOLD, buffer.foldState.Line(fold));
+	}
+}
+
 void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew) {
 	bool closingLast = false;
 
@@ -610,31 +599,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			ClearDocument();
 		}
 		if (updateUI) {
-			SetWindowName();
-			ReadProperties();
-			if (CurrentBuffer()->unicodeMode != uni8Bit) {
-				// Override the code page if Unicode
-				codePage = SC_CP_UTF8;
-				SendEditor(SCI_SETCODEPAGE, codePage);
-			}
-			isReadOnly = SendEditor(SCI_GETREADONLY);
-
-			// check to see whether there is saved fold state, restore
-			bufferNext.foldState.BeginIteration();
-
-			int line = 0;
-			bool folded = false;
-			while (bufferNext.foldState.GetState(&line, &folded)) {
-				bool expanded = SendEditor(SCI_GETFOLDEXPANDED, line);
-				// set line to state folded
-				if (folded && !expanded) {
-					SendEditor(SCI_TOGGLEFOLD, line);
-				}
-				if (!folded && expanded) {
-					SendEditor(SCI_TOGGLEFOLD, line);
-				}
-			}
-
+			RestoreState(bufferNext);
 			DisplayAround(bufferNext);
 		}
 	}

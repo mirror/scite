@@ -115,32 +115,24 @@ enum UniMode {
     uniCookie = 4
 };
 
-// State of folding in a given document, remembers line/state pairs,
-// restore aborts when these pairs mismatch
+// State of folding in a given document, remembers lines folded.
 class FoldState {
 private:
 	int *lines;
-	bool *folded;
 	int size;
 	int fill;
-	int readout;
 
 	void CopyFrom(const FoldState& b) {
 		Alloc(b.size);
 		memcpy(lines, b.lines, size*sizeof(int));
-		memcpy(folded, b.folded, size*sizeof(bool));
 		fill = b.fill;
-
-		readout = 0;
 	}
 
 public:
 	FoldState() {
 		lines = 0;
-		folded = 0;
 		size = 0;
 		fill = 0;
-		readout = -1;
 	}
 
 	FoldState &operator=(const FoldState &b) {
@@ -152,8 +144,6 @@ public:
 
 	FoldState(const FoldState &b) {
 		lines = 0;
-		folded = 0;
-		readout = -1;
 		size = 0;
 		fill = 0;
 
@@ -166,60 +156,40 @@ public:
 
 		delete []lines;
 		lines = new int[s];
-		delete []folded;
-		folded = new bool[s];
 		size = s;
 		fill = 0;
 
-		//assert(lines && folded && size>0);
+		//assert(lines && size>0);
 	}
 
 	void Clear() {
 
 		delete []lines;
 		lines = 0;
-		delete []folded;
-		folded = 0;
 
 		size = 0;
 		fill = 0;
-		readout = -1;
 	}
 
 	virtual ~FoldState() {
 		Clear();
 	}
 
-	void PushState(int line, bool folded_) {
+	void Append(int line) {
 		//assert(fill<size);
 		lines[fill] = line;
-		folded[fill] = folded_;
 		fill++;
 	}
 
-	// returns maximum numbers a readout can succeed
-	int BeginIteration() {
-		// strong assertion
-		//assert(fill==size);
-
-		readout = 0;
-		return fill;
+	int Folds() const {
+		return size;
 	}
 
-	// returns false at end of iteration
-	// no results are written then
-	bool GetState(int *pline, bool *pfold) {
-		//assert(readout>0);
-		if (readout >= fill) {
-			readout = -1;
-			return false;
+	int Line(int fold) const {
+		if (fold >= size) {
+			return 0;
 		} else {
-			if (pline && pfold) {
-				*pline = lines[readout];
-				*pfold = folded[readout];
-			}
-			readout++;
-			return true;
+			return lines[fold];
 		}
 	}
 };
@@ -641,6 +611,7 @@ protected:
 	void SetIndentSettings();
 	void SetEol();
 	void New();
+	void RestoreState(const Buffer &buffer);
 	void Close(bool updateUI = true, bool loadingSession = false, bool makingRoomForNew = false);
 	bool IsAbsolutePath(const char *path);
 	bool Exists(const char *dir, const char *path, FilePath *resultPath);
