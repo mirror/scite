@@ -169,9 +169,6 @@
 				RelativePath="..\..\scintilla\src\ContractionState.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\Decoration.cxx">
-			</File>
-			<File
 				RelativePath="..\win32\DirectorExtension.cxx">
 			</File>
 			<File
@@ -304,6 +301,9 @@
 				RelativePath="..\..\scintilla\src\LexFortran.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexGAP.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexGui4Cli.cxx">
 			</File>
 			<File
@@ -411,6 +411,7 @@
 			<File
 				RelativePath="..\..\scintilla\src\LexYAML.cxx">
 			</File>
+
 			<File
 				RelativePath="..\lua\src\lfunc.c">
 			</File>
