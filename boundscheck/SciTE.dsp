@@ -295,6 +295,10 @@ SOURCE=..\..\scintilla\src\LexFortran.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexGAP.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexGui4Cli.cxx
 # End Source File
 # Begin Source File
