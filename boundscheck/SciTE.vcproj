@@ -169,6 +169,9 @@
 				RelativePath="..\..\scintilla\src\ContractionState.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\Decoration.cxx">
+			</File>
+			<File
 				RelativePath="..\win32\DirectorExtension.cxx">
 			</File>
 			<File
