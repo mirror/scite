@@ -356,7 +356,7 @@ void SciTEWin::LoadSessionDialog() {
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
 	ofn.nMaxFile = sizeof(openName);
-	ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
+	ofn.lpstrFilter = "Session (.session)\0*.session\0";
 	SString translatedTitle = localiser.Text("Load Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	ofn.Flags = OFN_HIDEREADONLY;
@@ -366,19 +366,19 @@ void SciTEWin::LoadSessionDialog() {
 
 void SciTEWin::SaveSessionDialog() {
 	char saveName[MAX_PATH] = "\0";
-	strcpy(saveName, "SciTE.ses");
+	strcpy(saveName, "SciTE.session");
 	OPENFILENAME ofn = {
 			       sizeof(OPENFILENAME), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			   };
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
-	ofn.lpstrDefExt = "ses";
+	ofn.lpstrDefExt = "session";
 	ofn.lpstrFile = saveName;
 	ofn.nMaxFile = sizeof(saveName);
 	SString translatedTitle = localiser.Text("Save Current Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-	ofn.lpstrFilter = "Session (.ses)\0*.ses\0";
+	ofn.lpstrFilter = "Session (.session)\0*.session\0";
 	if (::GetSaveFileName(&ofn)) {
 		SaveSession(saveName);
 	}

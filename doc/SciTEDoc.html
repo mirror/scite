@@ -289,7 +289,7 @@ NameError: mistake
         A session is a list of file names. You can save a complete set of your
         currently opened buffers as a session for fast batch-loading in the
         future.
-        Sessions are stored as plain text files with the extension ".ses".
+        Sessions are stored as properties files with the extension ".session".
      </p>
      <p>
         Use File | Load Session and File | Save Session to load/save sessions.
@@ -1876,10 +1876,22 @@ Prev File|IDM_PREVFILE|<br/>
         set, the value of the USERPROFILE environment variable
         and if that is not set the directory of the SciTE executable.<br />
         If you set "save.session=1", current session
-        will be automatically saved to a file "SciTE.ses" on Windows and
-        ".SciTE.ses" on GTK+ located at the same
+        will be automatically saved to a file "SciTE.session" on Windows and
+        ".SciTE.session" on GTK+ located at the same
         place as "SciTE.recent" file. When you start SciTE next time the last
         session will be automatically loaded.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          session.bookmarks
+          session.folds
+        </td>
+        <td>
+          Setting session.bookmarks causes bookmarks to be saved in session files.
+        If you set session.folds then the folding state will be saved in session
+        files. When loading a session file bookmarks and/or folds are restored.
+        Folding states are not restored if fold.on.open is set.
         </td>
       </tr>
       <tr>
