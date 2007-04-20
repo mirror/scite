@@ -51,7 +51,7 @@ protected:
 	    eStart,
 	    eSecondOf4Bytes,
 	    ePenultimate,
-	    eFinal,
+	    eFinal
 	};
 protected:
 	encodingType m_eEncoding;
@@ -85,7 +85,7 @@ protected:
 	    eStart,
 	    eSecondOf4Bytes,
 	    ePenultimate,
-		eFinal,
+	    eFinal
 	};
 protected:
 	encodingType m_eEncoding;

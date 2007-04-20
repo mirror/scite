@@ -179,11 +179,14 @@ size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {
 			if (codePoint >= SURROGATE_FIRST_VALUE) {
 				codePoint -= SURROGATE_FIRST_VALUE;
 				int lead = (codePoint >> 10) + SURROGATE_LEAD_FIRST;
-				*pCur++ = (m_eEncoding == eUtf16BigEndian) ? swapped(lead) : lead;
+				*pCur++ = static_cast<utf16>((m_eEncoding == eUtf16BigEndian) ?
+					swapped(lead) : lead);
 				int trail = (codePoint & 0x3ff) + SURROGATE_TRAIL_FIRST;
-				*pCur++ = (m_eEncoding == eUtf16BigEndian) ? swapped(trail) : trail;
+				*pCur++ = static_cast<utf16>((m_eEncoding == eUtf16BigEndian) ?
+					swapped(trail) : trail);
 			} else {
-				*pCur++ = (m_eEncoding == eUtf16BigEndian) ? swapped(codePoint) : codePoint;
+				*pCur++ = static_cast<utf16>((m_eEncoding == eUtf16BigEndian) ?
+					swapped(codePoint) : codePoint);
 			}
 		}
 	}
