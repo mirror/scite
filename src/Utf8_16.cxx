@@ -20,6 +20,12 @@ const Utf8_16::utf8 Utf8_16::k_Boms[][3] = {
 	{0xEF, 0xBB, 0xBF}, // UTF8
 };
 
+enum { SURROGATE_LEAD_FIRST = 0xD800 };
+enum { SURROGATE_LEAD_LAST = 0xDBFF };
+enum { SURROGATE_TRAIL_FIRST = 0xDC00 };
+enum { SURROGATE_TRAIL_LAST = 0xDFFF };
+enum { SURROGATE_FIRST_VALUE = 0x10000 };
+
 // ==================================================================
 
 Utf8_16_Read::Utf8_16_Read() {
@@ -124,6 +130,11 @@ void Utf8_16_Write::setfile(FILE *pFile) {
 	m_bFirstWrite = true;
 }
 
+// Swap the two low order bytes of an integer value
+static int swapped(int v) {
+	return ((v & 0xFF) << 8) + (v >> 8);
+}
+
 size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {
 	if (!m_pFile) {
 		return 0; // fail
@@ -164,7 +175,16 @@ size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {
 
 	for (; iter8; ++iter8) {
 		if (iter8.canGet()) {
-			*pCur++ = iter8.get();
+			int codePoint = iter8.get();
+			if (codePoint >= SURROGATE_FIRST_VALUE) {
+				codePoint -= SURROGATE_FIRST_VALUE;
+				int lead = (codePoint >> 10) + SURROGATE_LEAD_FIRST;
+				*pCur++ = (m_eEncoding == eUtf16BigEndian) ? swapped(lead) : lead;
+				int trail = (codePoint & 0x3ff) + SURROGATE_TRAIL_FIRST;
+				*pCur++ = (m_eEncoding == eUtf16BigEndian) ? swapped(trail) : trail;
+			} else {
+				*pCur++ = (m_eEncoding == eUtf16BigEndian) ? swapped(codePoint) : codePoint;
+			}
 		}
 	}
 
@@ -212,26 +232,29 @@ void Utf8_Iter::set
 void Utf8_Iter::operator++() {
 	switch (m_eState) {
 	case eStart:
-		if ((0xE0 & *m_pRead) == 0xE0) {
-			m_nCur = static_cast<utf16>((~0xE0 & *m_pRead) << 12);
-			m_eState = e3Bytes_Byte2;
+		if ((0xF0 & *m_pRead) == 0xF0) {
+			m_nCur = (0x7 & *m_pRead) << 18;
+			m_eState = eSecondOf4Bytes;
+		} else if ((0xE0 & *m_pRead) == 0xE0) {
+			m_nCur = (~0xE0 & *m_pRead) << 12;
+			m_eState = ePenultimate;
 		} else if ((0xC0 & *m_pRead) == 0xC0) {
-			m_nCur = static_cast<utf16>((~0xC0 & *m_pRead) << 6);
-			m_eState = e2Bytes_Byte2;
+			m_nCur = (~0xC0 & *m_pRead) << 6;
+			m_eState = eFinal;
 		} else {
 			m_nCur = *m_pRead;
 			toStart();
 		}
 		break;
-	case e2Bytes_Byte2:
-		m_nCur |= static_cast<utf8>(0x3F & *m_pRead);
-		toStart();
+	case eSecondOf4Bytes:
+		m_nCur |= (0x3F & *m_pRead) << 12;
+		m_eState = ePenultimate;
 		break;
-	case e3Bytes_Byte2:
-		m_nCur |= static_cast<utf16>((0x3F & *m_pRead) << 6);
-		m_eState = e3Bytes_Byte3;
+	case ePenultimate:
+		m_nCur |= (0x3F & *m_pRead) << 6;
+		m_eState = eFinal;
 		break;
-	case e3Bytes_Byte3:
+	case eFinal:
 		m_nCur |= static_cast<utf8>(0x3F & *m_pRead);
 		toStart();
 		break;
@@ -241,16 +264,6 @@ void Utf8_Iter::operator++() {
 
 void Utf8_Iter::toStart() {
 	m_eState = eStart;
-	if (m_eEncoding == eUtf16BigEndian) {
-		swap();
-	}
-}
-
-void Utf8_Iter::swap() {
-	utf8* p = reinterpret_cast<utf8*>(&m_nCur);
-	utf8 swapbyte = *p;
-	*p = *(p + 1);
-	*(p + 1) = swapbyte;
 }
 
 //==================================================
@@ -295,6 +308,18 @@ void Utf16_Iter::operator++() {
 			m_nCur16 = static_cast<utf16>(*m_pRead++ << 8);
 			m_nCur16 |= *m_pRead;
 		}
+		if (m_nCur16 >= SURROGATE_LEAD_FIRST && m_nCur16 <= SURROGATE_LEAD_LAST) {
+			++m_pRead;
+			int trail;
+			if (m_eEncoding == eUtf16LittleEndian) {
+				trail = *m_pRead++;
+				trail |= static_cast<utf16>(*m_pRead << 8);
+			} else {
+				trail = static_cast<utf16>(*m_pRead++ << 8);
+				trail |= *m_pRead;
+			}
+			m_nCur16 = (((m_nCur16 & 0x3ff) << 10) | (trail & 0x3ff)) + SURROGATE_FIRST_VALUE;
+		}
 		++m_pRead;
 
 		if (m_nCur16 < 0x80) {
@@ -302,21 +327,24 @@ void Utf16_Iter::operator++() {
 			m_eState = eStart;
 		} else if (m_nCur16 < 0x800) {
 			m_nCur = static_cast<ubyte>(0xC0 | m_nCur16 >> 6);
-			m_eState = e2Bytes2;
-		} else {
+			m_eState = eFinal;
+		} else if (m_nCur16 < SURROGATE_FIRST_VALUE) {
 			m_nCur = static_cast<ubyte>(0xE0 | m_nCur16 >> 12);
-			m_eState = e3Bytes2;
+			m_eState = ePenultimate;
+		} else {
+			m_nCur = static_cast<ubyte>(0xF0 | m_nCur16 >> 18);
+			m_eState = eSecondOf4Bytes;
 		}
 		break;
-	case e2Bytes2:
-		m_nCur = static_cast<ubyte>(0x80 | m_nCur16 & 0x3F);
-		m_eState = eStart;
+	case eSecondOf4Bytes:
+		m_nCur = static_cast<ubyte>(0x80 | ((m_nCur16 >> 12) & 0x3F));
+		m_eState = ePenultimate;
 		break;
-	case e3Bytes2:
+	case ePenultimate:
 		m_nCur = static_cast<ubyte>(0x80 | ((m_nCur16 >> 6) & 0x3F));
-		m_eState = e3Bytes3;
+		m_eState = eFinal;
 		break;
-	case e3Bytes3:
+	case eFinal:
 		m_nCur = static_cast<ubyte>(0x80 | m_nCur16 & 0x3F);
 		m_eState = eStart;
 		break;

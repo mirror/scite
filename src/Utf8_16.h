@@ -47,18 +47,17 @@ public:
 	operator bool() { return m_pRead <= m_pEnd; }
 
 protected:
-	void toStart(); // Put to start state, swap bytes if necessary
 	enum eState {
 	    eStart,
-	    e2Bytes2,
-	    e3Bytes2,
-	    e3Bytes3
+	    eSecondOf4Bytes,
+	    ePenultimate,
+	    eFinal,
 	};
 protected:
 	encodingType m_eEncoding;
 	eState m_eState;
 	utf8 m_nCur;
-	utf16 m_nCur16;
+	int m_nCur16;
 	const ubyte* m_pBuf;
 	const ubyte* m_pRead;
 	const ubyte* m_pEnd;
@@ -70,7 +69,7 @@ public:
 	Utf8_Iter();
 	void reset();
 	void set(const ubyte* pBuf, size_t nLen, encodingType eEncoding);
-	utf16 get() const {
+	int get() const {
 #ifdef _DEBUG
 		assert(m_eState == eStart);
 #endif
@@ -81,18 +80,17 @@ public:
 	operator bool() { return m_pRead <= m_pEnd; }
 
 protected:
-	void swap();
-	void toStart(); // Put to start state, swap bytes if necessary
+	void toStart(); // Put to start state
 	enum eState {
 	    eStart,
-	    e2Bytes_Byte2,
-	    e3Bytes_Byte2,
-	    e3Bytes_Byte3
+	    eSecondOf4Bytes,
+	    ePenultimate,
+		eFinal,
 	};
 protected:
 	encodingType m_eEncoding;
 	eState m_eState;
-	utf16 m_nCur;
+	int m_nCur;
 	const ubyte* m_pBuf;
 	const ubyte* m_pRead;
 	const ubyte* m_pEnd;
