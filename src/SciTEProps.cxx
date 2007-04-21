@@ -1496,7 +1496,7 @@ FilePath SciTEBase::GetDirectoryPropertiesFileName() {
 		propfile.Set(filePath.Directory(), propDirectoryFileName);
 
 		// if this file does not exist try to find the prop file in a parent directory
-		while (!propfile.Exists() && !propfile.Directory().IsRoot()) {
+		while (!propfile.Directory().IsRoot() && !propfile.Exists()) {
 			propfile.Set(propfile.Directory().Directory(), propDirectoryFileName);
 		}
 

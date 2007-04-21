@@ -158,7 +158,7 @@ bool FilePath::IsAbsolute() const {
 		return true;
 #endif
 #ifdef WIN32
-	if (fileName[0] == '\\' || fileName[1] == ':')	// UNC path or drive separator
+	if (fileName[0] == pathSepChar || fileName[1] == ':')	// UNC path or drive separator
 		return true;
 #endif
 
@@ -167,7 +167,9 @@ bool FilePath::IsAbsolute() const {
 
 bool FilePath::IsRoot() const {
 #ifdef WIN32
-	return (fileName.length() == 3) && (fileName[1] == ':') && (fileName[2] == '\\');
+    if ((fileName[0] == pathSepChar) && (fileName[1] == pathSepChar) && (fileName.search(pathSepString, 2) < 0))
+        return true; // UNC path like \\server
+	return (fileName.length() == 3) && (fileName[1] == ':') && (fileName[2] == pathSepChar);
 #else
 	return fileName == "/";
 #endif
