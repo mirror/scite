@@ -1453,7 +1453,7 @@ static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
 
 void SciTEBase::RemoveFindMarks() {
 	if (CurrentBuffer()->findMarks != Buffer::fmNone) {
-		SendEditor(SCI_SETINDICATORCURRENT, INDICATOR_MATCH);
+		SendEditor(SCI_SETINDICATORCURRENT, indicatorMatch);
 		SendEditor(SCI_INDICATORCLEARRANGE, 0, LengthDocument());
 		CurrentBuffer()->findMarks = Buffer::fmNone;
 	}
@@ -1466,7 +1466,7 @@ int SciTEBase::MarkAll() {
 
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
-		SendEditor(SCI_SETINDICATORCURRENT, INDICATOR_MATCH);
+		SendEditor(SCI_SETINDICATORCURRENT, indicatorMatch);
 		RemoveFindMarks();
 		CurrentBuffer()->findMarks = Buffer::fmMarked;
 	}
@@ -1844,21 +1844,21 @@ void SciTEBase::BookmarkAdd(int lineno) {
 	if (lineno == -1)
 		lineno = GetCurrentLineNumber();
 	if (!BookmarkPresent(lineno))
-		SendEditor(SCI_MARKERADD, lineno, SciTE_MARKER_BOOKMARK);
+		SendEditor(SCI_MARKERADD, lineno, markerBookmark);
 }
 
 void SciTEBase::BookmarkDelete(int lineno) {
 	if (lineno == -1)
 		lineno = GetCurrentLineNumber();
 	if (BookmarkPresent(lineno))
-		SendEditor(SCI_MARKERDELETE, lineno, SciTE_MARKER_BOOKMARK);
+		SendEditor(SCI_MARKERDELETE, lineno, markerBookmark);
 }
 
 bool SciTEBase::BookmarkPresent(int lineno) {
 	if (lineno == -1)
 		lineno = GetCurrentLineNumber();
 	int state = SendEditor(SCI_MARKERGET, lineno);
-	return state & (1 << SciTE_MARKER_BOOKMARK);
+	return state & (1 << markerBookmark);
 }
 
 void SciTEBase::BookmarkToggle(int lineno) {
@@ -1882,9 +1882,9 @@ void SciTEBase::BookmarkNext(bool forwardScan, bool select) {
 		lineRetry = SendEditor(SCI_GETLINECOUNT, 0, 0L);	//If not found, try from the end
 		sci_marker = SCI_MARKERPREVIOUS;
 	}
-	int nextLine = SendEditor(sci_marker, lineStart, 1 << SciTE_MARKER_BOOKMARK);
+	int nextLine = SendEditor(sci_marker, lineStart, 1 << markerBookmark);
 	if (nextLine < 0)
-		nextLine = SendEditor(sci_marker, lineRetry, 1 << SciTE_MARKER_BOOKMARK);
+		nextLine = SendEditor(sci_marker, lineRetry, 1 << markerBookmark);
 	if (nextLine < 0 || nextLine == lineno)	// No bookmark (of the given type) or only one, and already on it
 		WarnUser(warnNoOtherBookmark);
 	else {
@@ -3910,7 +3910,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_BOOKMARK_CLEARALL:
-		SendEditor(SCI_MARKERDELETEALL, SciTE_MARKER_BOOKMARK);
+		SendEditor(SCI_MARKERDELETEALL, markerBookmark);
 		RemoveFindMarks();
 		break;
 

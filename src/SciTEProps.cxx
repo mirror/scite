@@ -868,8 +868,8 @@ void SciTEBase::ReadProperties() {
 
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
-		SendEditor(SCI_INDICSETSTYLE, INDICATOR_MATCH, INDIC_ROUNDBOX);
-		SendEditor(SCI_INDICSETFORE, INDICATOR_MATCH, ColourFromString(findMark));
+		SendEditor(SCI_INDICSETSTYLE, indicatorMatch, INDIC_ROUNDBOX);
+		SendEditor(SCI_INDICSETFORE, indicatorMatch, ColourFromString(findMark));
 	}
 
 	SString controlCharSymbol = props.Get("control.char.symbol");
@@ -1200,20 +1200,20 @@ void SciTEBase::ReadProperties() {
 		break;
 	}
 
-	SendEditor(SCI_MARKERSETFORE, SciTE_MARKER_BOOKMARK,
+	SendEditor(SCI_MARKERSETFORE, markerBookmark,
 	           ColourOfProperty(props, "bookmark.fore", ColourDesired(0, 0, 0x7f)));
-	SendEditor(SCI_MARKERSETBACK, SciTE_MARKER_BOOKMARK,
+	SendEditor(SCI_MARKERSETBACK, markerBookmark,
 	           ColourOfProperty(props, "bookmark.back", ColourDesired(0x80, 0xff, 0xff)));
-	SendEditor(SCI_MARKERSETALPHA, SciTE_MARKER_BOOKMARK, props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA));
+	SendEditor(SCI_MARKERSETALPHA, markerBookmark, props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA));
 	SString bookMarkXPM = props.Get("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
-		SendEditorString(SCI_MARKERDEFINEPIXMAP, SciTE_MARKER_BOOKMARK,
+		SendEditorString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
 			bookMarkXPM.c_str());
 	} else if (props.Get("bookmark.fore").length()) {
-		SendEditor(SCI_MARKERDEFINE, SciTE_MARKER_BOOKMARK, SC_MARK_CIRCLE);
+		SendEditor(SCI_MARKERDEFINE, markerBookmark, SC_MARK_CIRCLE);
 	} else {
 		// No bookmark.fore setting so display default pixmap.
-		SendEditorString(SCI_MARKERDEFINEPIXMAP, SciTE_MARKER_BOOKMARK,
+		SendEditorString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
 			reinterpret_cast<char *>(bookmarkBluegem));
 	}
 

@@ -359,9 +359,6 @@ public:
 	}
 };
 
-#define SciTE_MARKER_BOOKMARK 1
-#define INDICATOR_MATCH 8
-
 class SciTEBase : public ExtensionAPI {
 protected:
 	SString windowName;
@@ -379,6 +376,8 @@ protected:
 
 	SString findWhat;
 	SString replaceWhat;
+	enum { indicatorMatch = INDIC_CONTAINER };
+	enum { markerBookmark = 1 };
 	Window wFindIncrement;
 	bool replacing;
 	bool havefound;

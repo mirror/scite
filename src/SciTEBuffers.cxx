@@ -443,7 +443,7 @@ void SciTEBase::LoadSession(const char *sessionName) {
 				char *p = strtok(buf, ",");
 				while (p != NULL) {
 					int line = atoi(p) - 1;
-					SendEditor(SCI_MARKERADD, line, SciTE_MARKER_BOOKMARK);
+					SendEditor(SCI_MARKERADD, line, markerBookmark);
 					p = strtok(NULL, ",");
 				}
 				delete []buf;
@@ -508,7 +508,7 @@ void SciTEBase::SaveSession(const char *sessionName) {
 			if (props.GetInt("session.bookmarks")) {
 				int line = -1;
 				bool found = false;
-				while ((line = SendEditor(SCI_MARKERNEXT, line + 1, 1 << SciTE_MARKER_BOOKMARK)) >= 0) {
+				while ((line = SendEditor(SCI_MARKERNEXT, line + 1, 1 << markerBookmark)) >= 0) {
 					if (!found) {
 						propKey = SessionPropKey(i, "bookmarks");
 						fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
@@ -525,7 +525,7 @@ void SciTEBase::SaveSession(const char *sessionName) {
 				int maxLine = SendEditor(SCI_GETLINECOUNT);
 				bool found = false;
 				for (int line = 0; line < maxLine; line++) {
-					if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) && 
+					if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
 						!SendEditor(SCI_GETFOLDEXPANDED, line)) {
 						if (!found) {
 							propKey = SessionPropKey(i, "folds");
