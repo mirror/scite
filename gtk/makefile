@@ -23,14 +23,14 @@ endif
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
 # "h@h@" is printed here when gnome-config unavailable. Seems harmless.
 ifdef GTK2
-CONFIGFLAGS=pkg-config --cflags gtk+-2.0
-CONFIGLIB=pkg-config --libs gtk+-2.0 gthread-2.0
+CONFIGFLAGS=$(shell pkg-config --cflags gtk+-2.0)
+CONFIGLIB=$(shell pkg-config --libs gtk+-2.0 gthread-2.0)
 CONFIGTHREADS=
 gnomeprefix:=$(shell pkg-config --variable=prefix gtk+-2.0 2>/dev/null)
 else
-CONFIGFLAGS=gtk-config --cflags
-CONFIGLIB=gtk-config --libs
-CONFIGTHREADS=glib-config --libs gthread
+CONFIGFLAGS=$(shell gtk-config --cflags)
+CONFIGLIB=$(shell gtk-config --libs)
+CONFIGTHREADS=$(shell glib-config --libs gthread)
 gnomeprefix:=$(shell gnome-config --prefix 2>/dev/null)
 endif
 ifndef prefix
@@ -89,13 +89,13 @@ CXXFLAGS:=$(CXXFLAGS) -Dunix
 endif
 
 .cxx.o:
-	$(CC) `$(CONFIGFLAGS)` $(CXXFLAGS) -c $< -o $@
+	$(CC) $(CONFIGFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o $(PROG)
 
 deps:
-	$(CC) -MM `$(CONFIGFLAGS)` $(CXXFLAGS) *.cxx ../src/*.cxx >deps.mak
+	$(CC) -MM $(CONFIGFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx >deps.mak
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=../../scintilla/bin/scintilla.a
@@ -103,7 +103,7 @@ COMPLIB=../../scintilla/bin/scintilla.a
 $(PROG): SciTEGTK.o FilePath.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o \
 MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o \
 	$(COMPLIB) $(LUA_OBJS)
-	$(CC) `$(CONFIGTHREADS)` -DGTK $^ -o $@ `$(CONFIGLIB)`
+	$(CC) `$(CONFIGTHREADS)` -DGTK $^ -o $@ $(CONFIGLIB)
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
