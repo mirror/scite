@@ -1037,8 +1037,8 @@ void SciTEBase::ReadProperties() {
 	twoPhaseDraw = props.GetInt("two.phase.draw", 1);
 	SendEditor(SCI_SETTWOPHASEDRAW, twoPhaseDraw);
 
-	SendEditor(SCI_SETLAYOUTCACHE, props.GetInt("cache.layout"));
-	SendOutput(SCI_SETLAYOUTCACHE, props.GetInt("output.cache.layout"));
+	SendEditor(SCI_SETLAYOUTCACHE, props.GetInt("cache.layout", SC_CACHE_CARET));
+	SendOutput(SCI_SETLAYOUTCACHE, props.GetInt("output.cache.layout", SC_CACHE_CARET));
 
 	bracesCheck = props.GetInt("braces.check");
 	bracesSloppy = props.GetInt("braces.sloppy");
