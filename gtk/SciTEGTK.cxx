@@ -1669,6 +1669,7 @@ int xsystem(const char *s, const char *resultsFile) {
 		dup(fh);
 		close(2);
 		dup(fh);
+		setpgid(0, 0);
 		execlp("/bin/sh", "sh", "-c", s, static_cast<char *>(NULL));
 		exit(127);
 	}
@@ -1740,7 +1741,7 @@ void SciTEGTK::Execute() {
 
 void SciTEGTK::StopExecute() {
 	if (!triedKill && pidShell) {
-		kill(pidShell, SIGKILL);
+		kill(-pidShell, SIGKILL);
 		triedKill = true;
 	}
 }
