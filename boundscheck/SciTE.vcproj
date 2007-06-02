@@ -485,6 +485,9 @@
 				RelativePath="..\..\scintilla\Win32\PlatWin.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\Src\PositionCache.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\Src\PropSet.cxx">
 			</File>
 			<File

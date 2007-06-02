@@ -204,6 +204,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\KeyWords.obj \
 	..\..\scintilla\win32\LineMarker.obj \
 	..\..\scintilla\win32\PlatWin.obj \
+	..\..\scintilla\win32\PositionCache.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\RESearch.obj \
 	..\..\scintilla\win32\RunStyles.obj \
