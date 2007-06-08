@@ -2798,7 +2798,6 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       <tr>
         <td>
         statement.indent.<i>filepattern</i><br />
-        statement.end.<i>filepattern</i><br />
         statement.lookback.<i>filepattern</i><br />
         block.start.<i>filepattern</i><br />
         block.end.<i>filepattern</i>
@@ -2812,12 +2811,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
                 statement.indent.$(file.patterns.cpp)=5 if else while
          </code><br /><br />
           says that for C++ the words "if", "else", and "while" in keyword style, 5, start compound
-          statements which leads to the next line being indented if no other factors affect it. However,
-          if a statement end is found on the same line then the next line is not indented. For C++ the
-          statement end is the semicolon in the operator style, so this is defined:<br /><br />
-         <code>
-                statement.end.$(file.patterns.cpp)=10 ;
-         </code><br /><br />
+          statements which leads to the next line being indented if no other factors affect it. <br />
          The number of lines looked at to determine indentation can be set with statement.lookback.
          This can be used either to bound the amount of time spent on this task or to specify
          that only the last line be examined for indentation.<br />
