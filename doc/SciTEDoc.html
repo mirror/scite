@@ -23,13 +23,26 @@
             padding: 1px 5px 1px 5px;
         }
         .windowsonly {
-            background: #E7EFFF;
+            background: #EBF3FF;
         }
         .gtkonly {
             background: #FFFFE7;
         }
+        .example {
+            color: #008000;
+            font-weight: bold;
+        }
+        DIV.example {
+            background: #F7FCF7;
+            border: 1px solid #C0D7C0;
+            margin: 0.3em 3em;
+            padding: 0.3em 0.6em;
+            font-size: 80%;
+        }
         h3 {
-            background-color: #FFEECC;
+            border: 2px solid #FFCC00;
+            background-color: #FFF7EE;
+            padding: 2px 5px;
         }
  </style>
   </head>
@@ -190,17 +203,17 @@ NameError: mistake
 	<b>Note:</b> If stdin is not redirected, these arguments are effectively ignored.
     </p>
     <p>
-       For example, <br />
-       <code>
+       For example,
+       <div class="example">
        SciTE "-font.base=font:MS Gothic,size:11" -save.recent ScintillaGTK.cxx
-       </code><br />
+       </div>
        starts SciTE, opens ScintillaGTK.cxx, loads the recent file list, and uses
        11 point MS Gothic as the base font.<br />
        A group of properties can be saved as a property set file (with the extension
        ".properties") and the import command used on the command line:<br />
-       <code>
+       <div class="example">
        SciTE "-import c:\os\web_work" SciTEDoc.html
-       </code><br />
+       </div>
        </p>
        A few commands are currently available although this will expand in the future.
        These commands are available:
@@ -236,14 +249,14 @@ NameError: mistake
         <tr><td>\x&lt;hh&gt;</td><td>hexadecimal number specified by 2 digits</td></tr>
        </table>
        The following opens /big/icon.txt:<br />
-       <code>
+       <div class="example">
        SciTE -open:/big/icon.txt
-       </code><br />
+       </div>
        On Windows, the following opens C:\Program Files\SciTE\SciTEDoc.html
-       and goes to the 123th line:<br />
-       <code>
+       and goes to the 123rd line:<br />
+       <div class="example">
        SciTE "-open:C:\\Program Files\\SciTE\\SciTEDoc.html" -goto:123
-       </code><br />
+       </div>
     <p>
         Command line arguments are evaluated left to right in two phases because
         opening files requires the user interface to be available and there is also a need
@@ -673,7 +686,7 @@ NameError: mistake
     </p>
     <p>
        For long values, a '\' character at the end of the line continues that value on the next
-      line. Space characters are significant so <code>x&nbsp;=1</code> defines a variable called
+      line. Space characters are significant so <span class="example">x&nbsp;=1</span> defines a variable called
       "x&nbsp;".
       Values may include the values of other variables by using $(variablename). There are
       some variables set by the environment to access the name of the current file as well:
@@ -763,9 +776,9 @@ NameError: mistake
       first two lines. A coding cookie looks similar to "coding: utf-8" ("coding" followed by ':'
       or '=', optional whitespace, optional quote, "utf-8") and is normally contained in
       a comment:<br />
-      <code># -*- coding: utf-8 -*-</code><br />
+      <div class="example"># -*- coding: utf-8 -*-</div>
       For XML there is a declaration:<br />
-      <code>&lt;?xml version='1.0' encoding='utf-8'?&gt;</code>
+      <div class="example">&lt;?xml version='1.0' encoding='utf-8'?&gt;</div>
     </p>
     <p>
       For other encodings set the code.page and character.set properties.
@@ -901,10 +914,10 @@ NameError: mistake
           The default EOL mode (characters that make up line ends)
           depends on your platform.
           You can overwrite this behaviour by setting the property to
-          <pre>
-  LF   for UNIX format
-  CR   for Macintosh format
-  CRLF for DOS/Windows format</pre>
+          <div class="example">
+  LF   for UNIX format<br />
+  CR   for Macintosh format<br />
+  CRLF for DOS/Windows format</div>
           As you see, Windows combines the best of the other worlds ;-)
         </td>
       </tr>
@@ -949,8 +962,8 @@ NameError: mistake
           margin highlight colour.  If they are not defined (left commented out) the colours for the
           fold margin will default to a reasonable pair of colours.
           On Windows, the system colours are used to make the fold margin appear like the background
-          of scroll bars. As an example, with <code>fold.margin.colour=#FF0000</code> and
-          <code>fold.margin.highlight.colour=#0000FF</code>, the fold margin is a mixture of red
+          of scroll bars. As an example, with <span class="example">fold.margin.colour=#FF0000</span> and
+          <span class="example">fold.margin.highlight.colour=#0000FF</span>, the fold margin is a mixture of red
           and blue.
         </td>
       </tr>
@@ -983,10 +996,10 @@ NameError: mistake
           The line.margin.width property controls how much space is reserved for the line
           numbers, in terms of the number of digits that can be displayed.  To specify that
           the margin should expand if needed to accomodate larger line numbers, add a '+'
-          after the number of digits, e.g. <code>line.margin.width=3+</code>.<br />
-	  These properties replace the old <code>line.numbers</code> property, which
+          after the number of digits, e.g. <span class="example">line.margin.width=3+</span>.<br />
+	  These properties replace the old <span class="example">line.numbers</span> property, which
 	  was overloaded to perform both of the actions described above.  The
-	  <code>line.numbers</code> property is no longer available.
+	  <span class="example">line.numbers</span> property is no longer available.
         </td>
       </tr>
       <tr>
@@ -1366,9 +1379,10 @@ NameError: mistake
         menu. The path is searched if the selected filename doesn't contain an
         absolute path or the file is not found in the document directory. The
         directories in openpath are separated by ';' on Windows and ':' on GTK+.<br />
-        An openpath setting may look like:<br />
-        <code>openpath.*.txt=c:\dos\;f:\;<br />
-        openpath.$(file.patterns.cpp)=$(cpp_includes)</code>
+        An openpath setting may look like:
+        <div class="example">
+        openpath.*.txt=c:\dos\;f:\;<br />
+        openpath.$(file.patterns.cpp)=$(cpp_includes)</div>
         </td>
        </tr>
        <tr>
@@ -1379,7 +1393,7 @@ NameError: mistake
 	An example is python where "import xlib" will most often mean to import from
 	a file called "xlib.py".<br />
         An open.suffix setting may look like:<br />
-        <code>open.suffix.*.py=.py</code>
+        <div class="example">open.suffix.*.py=.py</div>
         </td>
        </tr>
        <tr>
@@ -1412,10 +1426,10 @@ NameError: mistake
         </td>
         <td>
           Loads an abbreviations file for a particular language overriding the default abbreviations file.
-          For example,<br />
-         <code>
+          For example,
+         <div class="example">
                 abbreviations.*.c=$(SciteUserHome)/c_abbrev.properties<br />
-         </code><br />
+         </div>
         </td>
       </tr>
       <tr>
@@ -1431,19 +1445,19 @@ NameError: mistake
           starting with that string. When an opening brace is typed, the file is searched for the
           text preceding the caret and if a function prototype is found then it is displayed as a
           calltip.
-          For example, the setting <br /><br />
-         <code>
+          For example, the setting
+         <div class="example">
                 api.*.c=w.api<br />
-         </code><br />
-                  could be used with a w.api file containing <br /><br />
-         <code>
+         </div>
+                  could be used with a w.api file containing
+         <div class="example">
                 fclose(FILE* fileClose)<br />
                 FILE<br />
                 fopen(const char* szFileName, const char* szMode)<br />
                 fpos_t<br />
                 fread(void* buf, size_t size, size_t count, FILE* file)<br />
                 fseek(FILE* file, long lnOffset, int nOrigin)<br />
-         </code><br />
+         </div>
           to provide autocompletion and calltips for some of the C file functions. It is best to
           use the full path to the API file as otherwise the current directory is used.
         See the Creating API files section for ways to create API files.
@@ -1649,11 +1663,11 @@ NameError: mistake
         KeypadMultiply, KeypadDivide, Escape, Delete, PageUp, PageDown, Slash,
         Question, Equal, Win.
         <br/>
-        <code>
+        <div class="example">
 user.shortcuts=\<br/>
 Ctrl+Shift+I|IDM_OPEN|\<br/>
 Ctrl+Shift+Left|IDM_CLOSE|<br/>
-        </code>
+        </div>
         </td>
       </tr>
       <tr>
@@ -1666,12 +1680,12 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
         produce with commands defined as in user.shortcuts. An empty
         item produces a separator.
         <br/>
-        <code>
+        <div class="example">
 user.context.menu=\<br/>
 ||\<br/>
 Next File|IDM_NEXTFILE|\<br/>
 Prev File|IDM_PREVFILE|<br/>
-        </code>
+        </div>
         </td>
       </tr>
       <tr>
@@ -1961,18 +1975,17 @@ Prev File|IDM_PREVFILE|<br/>
           <a href="http://www.forusers.com/forme/finder.zip">here</a>.
           This command line works with Cygwin on Windows, with modifications to suit
           the Cygwin installation directory:<br />
-          <code>
+        <div class="example">
 find.command=cmd /c c:\cygwin\bin\find "$(find.directory)"
 -name "$(find.files)" -print0 |
 c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
-          </code>
-          <br />
+          </div>
           On Windows, the find string can be given to the find command through
           its standard input stream to avoid problems with quote interpretation.
           To do this, specify find.input to be the search string, $(find.what).
           <br />
           If find.command is empty then SciTE's own search code is used. This only does a
-	simple case sensitive search and is faster than running an external program.
+	simple search without regular expressions and is faster than running an external program.
         </td>
       </tr>
       <tr>
@@ -2039,9 +2052,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         This property can <em>not</em> set a single byte character set.<br />
         For GTK+ 1.x, the locale should be set to a Unicode locale by setting the LC_CTYPE
         property. For an English machine this can be<br />
-        <code>
+        <div class="example">
         LC_CTYPE=en_US.UTF-8
-        </code><br />
+        </div>
         Fonts with an "iso10646" registry should be used in a font set.
         Font sets are a '|' separated list of partial
         font specifications where each partial font specification can be in the form of
@@ -2144,8 +2157,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 		    to use for the file in an initial line that starts with "#!". When the lexer can not be
 			 otherwise determined and the file starts with "#!", the initial line is split up into words and
 			 each word is prepended with "shbang.". If a property with this name exists then it is
-			 treated as the extension of the file. For example, <code>shbang.python=py</code> will be
-			 triggered by an initial line <code>#!/usr/bin/env python</code> so the file will be treated as Python.
+			 treated as the extension of the file. For example, <span class="example">shbang.python=py</span> will be
+			 triggered by an initial line <span class="example">#!/usr/bin/env python</span> so the file will be treated as Python.
         </td>
       </tr>
       <tr>
@@ -2318,11 +2331,11 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           Sometimes a file must be compiled or built before it can be run. If this is the case,
           this setting indicates what command needs to be run to perform the compile or build step
           before running the file. When a file is compiled, this is noted and future runs will not
-          perform a compile or build. To make a 'compile and go' Go command for .c files:<br /><br />
-         <code>
+          perform a compile or build. To make a 'compile and go' Go command for .c files:
+        <div class="example">
                 command.go.*.c=$(FileName)<br />
                 command.go.needs.*.c=g++ $(FileNameExt) -o $(FileName)<br />
-         </code>
+         </div>
         </td>
       </tr>
       <tr>
@@ -2340,15 +2353,12 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
           Extra commands can be added to the Tools menu. For example to include the 'astyle'
-          indenter, the properties file could contain<br /><br />
-
-         <code>
-                command.name.0.*.cc=Indent<br />
+          indenter, the properties file could contain
+         <div class="example">command.name.0.*.cc=Indent<br />
                 command.0.*.cc=astyle -taO $(FileNameExt)<br />
-                command.is.filter.0.*.cc=1<br />
-         </code><br />
+                command.is.filter.0.*.cc=1</div>
           The first line defines the string that will appear in the Tools menu (immediately below
-          'Go'. The second line is the command string, similar to those of the compile, build, and
+          'Go'). The second line is the command string, similar to those of the compile, build, and
           go commands. The optional command.is.filter property states that the command modifies the
           current file so it may need to be read in after performing the command if
           load.on.activate is set.<br />
@@ -2363,10 +2373,11 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 
         On Windows, the optional command.input property specifies text that will be piped
         to the command.  This may reference other properties; for example,
-        <code>command.input.0.*.cc=$(CurrentSelection)</code>
+        <span class="example">command.input.0.*.cc=$(CurrentSelection)</span>
         would pipe the current selection to the command processes.
         The command.input property is only supported for subsystem 0
         (command line programs).<br />
+	<br />
 
         On Windows, the optional command.replace.selection can be used to specify that the
         command output should replace the current selection (or be inserted at the cursor
@@ -2383,6 +2394,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         A final command property that is currently supported only on windows is command.quiet.
         A value of 1 indicates that the command I/O should not be echoed to the output pane.
         This may be useful in combination with command.input and command.replace.selection.<br />
+	<br />
 
         The command.mode property is a comma-separated list of flags / settings.  Each mode
         setting can have an argument, separated from the setting name by a colon.  For
@@ -2391,13 +2403,15 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         the command.mode but also appears as a separate command property, the mode property
         will be overridden.  Similarly, if a single setting appears more than once with
         different arguments, the last valid argument takes priority.  The supported
-        command.mode settings are:<pre>
-  filter - accepts keyword arguments yes and no
-  quiet - accepts keyword arguments yes and no
-  replaceselection - accepts yes, no, and auto
-  savebefore - accepts yes, no, and prompt
-  subsystem - console, windows, shellexec, lua, director, winhelp, htmlhelp
-  groupundo - yes or no</pre>
+        command.mode settings are:
+      <div class="example">
+filter - accepts keyword arguments yes and no<br />
+quiet - accepts keyword arguments yes and no<br />
+replaceselection - accepts yes, no, and auto<br />
+savebefore - accepts yes, no, and prompt<br />
+subsystem - console, windows, shellexec, lua, director, winhelp, htmlhelp<br />
+groupundo - yes or no
+</div>
         Currently, all of these except groupundo are based on individual properties with
         similar names, and so are not described separately here.  The groupundo setting
         works with subsystem 3 (lua / director), and indicates that SciTE should treat any
@@ -2410,17 +2424,19 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         there is no default keyboard shortcut.  The notation used to specify keyboard
         shortcuts is the same as for the user.shortcuts property, described elsewhere
         in this document.<br />
+	<br />
 
         If the text of a command starts with '*' then the Parameters dialog is displayed to
         prompt for parameters before executing the command. The initial '*' is not included
         in the command that is executed.<br />
+	<br />
 
         The command number can be in the range of 0 to 99. Command numbers 0 to 9 are
         assigned Ctrl+Number shortcuts. Internally these commands use IDs starting from
-        1100 (IDM_TOOLS) which can be used in user.shortcuts and user.context.menu as:<br /><br />
-         <code>
-                user.context.menu=Indent|1100|
-         </code><br />
+        1100 (IDM_TOOLS) which can be used in user.shortcuts and user.context.menu as:
+         <div class="example">user.context.menu=Indent|1100|</div>
+	 If command.name is empty then no item is added to the Tools menu. This can be used
+	 for commands that are only in the context menu or user shortcuts.
         </td>
       </tr>
       <tr>
@@ -2521,9 +2537,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         printing).
         Common properties to use in headers and footers are FileNameExt and FilePath.<br />
         A header setting may look like:<br />
-        <code>
+        <div class="example">
         print.header.format=$(FileNameExt) - Printed on $(CurrentDate),$(CurrentTime) - Page $(CurrentPage)
-        </code><br />
+        </div>
         </td>
       </tr>
       <tr class="windowsonly">
@@ -2756,8 +2772,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         indentation is made up purely from space characters or from a mix of tabs and spaces
         using as many tabs as possible. <br />
         The global tabsize, indent.size, and use.tabs properties can be overridden for
-        files that match a pattern by using the file pattern forms: <br /><code>
-        indent.size.*.pas=3</code><br />
+        files that match a pattern by using the file pattern forms: <br />
+        <div class="example">
+        indent.size.*.pas=3</div>
         If indent.auto is set then indent.size and use.tabs are set according to the contents
         of the opened document.<br />
         If tab.indents is set then pressing tab within indentation whitespace indents by indent.size
@@ -2776,20 +2793,20 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
           Determines the look of automatic indentation. Automatic indentation is turned on with
           indent.automatic=1. To indent a brace line after a compound statement start set
-          indent.opening=1, likewise for the terminating brace. So with both set to 0:<br /><br />
-         <code>
+          indent.opening=1, likewise for the terminating brace. So with both set to 0:
+        <div class="example">
                 if (c)<br />
                 {<br />
                 &nbsp;&nbsp;&nbsp;&nbsp;s;<br />
                 }<br />
-         </code><br />
-         And with both set to 1:<br /><br />
-         <code>
+         </div>
+         And with both set to 1:
+        <div class="example">
                 if (c)<br />
                 &nbsp;&nbsp;&nbsp;&nbsp;{<br />
                 &nbsp;&nbsp;&nbsp;&nbsp;s;<br />
                 &nbsp;&nbsp;&nbsp;&nbsp;}<br />
-         </code><br />
+         </div>
          Automatic indentation may be changed to simply repeat the indentation of the
          previous line for some files with indent.maintain.<i>filepattern</i>=1 which
          overrides the other language specific settings.
@@ -2806,10 +2823,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           Each of these settings starts with a style number and then a set of words or characters
           that define how to recognise that feature. If there is a second space in the setting then
           it is a set of words, otherwise a set of characters. The set of keywords used to indicate
-          the start of a compound statement is defined in statement.indent. For example:<br /><br />
-         <code>
+          the start of a compound statement is defined in statement.indent. For example:
+        <div class="example">
                 statement.indent.$(file.patterns.cpp)=5 if else while
-         </code><br /><br />
+         </div>
           says that for C++ the words "if", "else", and "while" in keyword style, 5, start compound
           statements which leads to the next line being indented if no other factors affect it. <br />
          The number of lines looked at to determine indentation can be set with statement.lookback.
@@ -2846,10 +2863,10 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         played for the duration in milliseconds.
         Otherwise it is treated as a path to a sound file
         that is played. If you do not want a flash, specify 0 for flash duration.
-        For example,<br />
-        <code>
+        For example,
+        <div class="example">
         warning.wrongfile=0,C:\Windows\Media\SFX\Glass.wav
-        </code><br />
+        </div>
         will play the glass sound if open selected is given a bad file name.
         The findwrapped warning occurs when a find operation wraps past
         either end of the file,
@@ -2910,17 +2927,13 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         <td>
                 The menukey.* settings allow the user to redefine accelerator keys for menus
 		without having to resort to modifying the SciTE source code.  The syntax for the setting is:
-		<br /><br />
-		<code>
+		<div class="example">
 		menukey.menu_title.menu_name=&lt;modifier&gt;key
-		</code>
-		<br /><br />
+		</div>
 		For example, the File | Exit command accelerator could be specifed as follows:
-		<br /><br />
-		<code>
+		<div class="example">
 		menukey.file.exit=&lt;control&gt;Q
-		</code>
-		<br /><br />
+		</div>
 		Note that spaces in menu titles and names must be converted to underscores,
 		and trailing ellipses removed.  For example, "File | Save As...." is referenced as "menukey.file.save_as".
 		<br /><br />
