@@ -364,7 +364,13 @@
 				RelativePath="..\..\scintilla\src\LexPerl.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexPLM.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexPOV.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\LexProgress.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\LexPS.cxx">

@@ -155,7 +155,9 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexPascal.obj \
 	..\..\scintilla\win32\LexPB.obj \
 	..\..\scintilla\win32\LexPerl.obj \
+	..\..\scintilla\win32\LexPLM.obj \
 	..\..\scintilla\win32\LexPOV.obj \
+	..\..\scintilla\win32\LexProgress.obj \
 	..\..\scintilla\win32\LexPS.obj \
 	..\..\scintilla\win32\LexPython.obj \
 	..\..\scintilla\win32\LexRebol.obj \
