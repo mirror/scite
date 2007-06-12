@@ -385,10 +385,9 @@ void SciTEWin::SizeSubWindows() {
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
                            const char *text, const char *mnemonic) {
 	// On Windows the menu items are modified if they already exist or are created
-	HMENU hmenuBar = ::GetMenu(MainHWND());
-	HMENU hmenu = ::GetSubMenu(hmenuBar, menuNumber);
+	HMENU hmenu = ::GetSubMenu(::GetMenu(MainHWND()), menuNumber);
 	SString sTextMnemonic = text;
-	long keycode;
+	long keycode = 0;
 	if (mnemonic && *mnemonic) {
 		keycode = SciTEKeys::ParseKeyCode(mnemonic);
 		if (keycode) {
@@ -398,8 +397,6 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 		// the keycode could be used to make a custom accelerator table
 		// but for now, the menu's item data is used instead for command
 		// tools, and for other menu entries it is just discarded.
-	} else {
-		keycode = 0; //I don't think this is needed in ANSI C++.
 	}
 
 	if (::GetMenuState(hmenu, itemID, MF_BYCOMMAND) == 0xffffffff) {
@@ -435,9 +432,9 @@ void SciTEWin::DestroyMenuItem(int menuNumber, int itemID) {
 
 void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 	if (val)
-		CheckMenuItem(GetMenu(MainHWND()), wIDCheckItem, MF_CHECKED | MF_BYCOMMAND);
+		CheckMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_CHECKED | MF_BYCOMMAND);
 	else
-		CheckMenuItem(GetMenu(MainHWND()), wIDCheckItem, MF_UNCHECKED | MF_BYCOMMAND);
+		CheckMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_UNCHECKED | MF_BYCOMMAND);
 }
 
 void EnableButton(HWND wTools, int id, bool enable) {
@@ -449,17 +446,17 @@ void EnableButton(HWND wTools, int id, bool enable) {
 
 void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 	if (val)
-		EnableMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_ENABLED | MF_BYCOMMAND);
+		::EnableMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_ENABLED | MF_BYCOMMAND);
 	else
-		EnableMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_DISABLED | MF_GRAYED | MF_BYCOMMAND);
+		::EnableMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_DISABLED | MF_GRAYED | MF_BYCOMMAND);
 	::EnableButton(reinterpret_cast<HWND>(wToolBar.GetID()), wIDCheckItem, val);
 }
 
 void SciTEWin::CheckMenus() {
 	SciTEBase::CheckMenus();
-	CheckMenuRadioItem(GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
+	CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
 	                   SendEditor(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
-	CheckMenuRadioItem(GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UCOOKIE,
+	CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UCOOKIE,
 	                   CurrentBuffer()->unicodeMode + IDM_ENCODING_DEFAULT, 0);
 }
 
