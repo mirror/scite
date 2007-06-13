@@ -302,6 +302,12 @@ static int cf_scite_menu_command(lua_State *L) {
 	return 0;
 }
 
+static int cf_scite_update_status_bar(lua_State *L) {
+	bool bUpdateSlowData = lua_gettop(L) > 0 ? (lua_toboolean(L, 1) != 0) : false;
+	host->UpdateStatusBar(bUpdateSlowData);
+	return 0;
+}
+
 static ExtensionAPI::Pane check_pane_object(lua_State *L, int index) {
 	ExtensionAPI::Pane *pPane = reinterpret_cast<ExtensionAPI::Pane*>(luaL_checkudata(L, index, "SciTE_MT_Pane"));
 
@@ -1381,10 +1387,9 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	luaopen_math(luaState);
 	luaopen_io(luaState);
 	luaopen_debug(luaState);
-#if PLAT_WIN
+
 	// loadlib might also work on Linux and some Unix variants, with some additional defines.
 	luaopen_loadlib(luaState);
-#endif
 
 	lua_register(luaState, "_ALERT", cf_global_print);
 
@@ -1452,6 +1457,10 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 
 	lua_pushliteral(luaState, "MenuCommand");
 	lua_pushcfunction(luaState, cf_scite_menu_command);
+	lua_rawset(luaState, -3);
+
+	lua_pushliteral(luaState, "UpdateStatusBar");
+	lua_pushcfunction(luaState, cf_scite_update_status_bar);
 	lua_rawset(luaState, -3);
 
 	lua_rawset(luaState, LUA_GLOBALSINDEX);
@@ -1745,6 +1754,30 @@ bool LuaExtension::OnUserListSelection(int listType, const char *selection) {
 	return CallNamedFunction("OnUserListSelection", listType, selection);
 }
 
+bool LuaExtension::OnKey(int keyval, int modifiers) {
+	bool handled = false;
+	if (luaState) {
+		lua_pushstring(luaState, "OnKey");
+		if (safe_getglobal(luaState) && lua_isfunction(luaState, -1)) {
+			lua_pushnumber(luaState, keyval);
+			lua_pushboolean(luaState, (SCMOD_SHIFT & modifiers) != 0 ? 1 : 0); // shift/lock
+			lua_pushboolean(luaState, (SCMOD_CTRL  & modifiers) != 0 ? 1 : 0); // control
+			lua_pushboolean(luaState, (SCMOD_ALT   & modifiers) != 0 ? 1 : 0); // alt
+			handled = call_function(luaState, 4);
+		} else {
+			lua_pop(luaState, 1);
+		}
+	}
+	return handled;
+}
+
+bool LuaExtension::OnDwellStart(int pos, const char *word) {
+	return CallNamedFunction("OnDwellStart", pos, word);
+}
+
+bool LuaExtension::OnClose(const char *filename) {
+	return CallNamedFunction("OnClose", filename);
+}
 
 #ifdef _MSC_VER
 // Unreferenced inline functions are OK

@@ -5,35 +5,38 @@
 
 class LuaExtension : public Extension {
 private:
-    LuaExtension(); // Singleton
-    LuaExtension(const LuaExtension &);   // Disable copy ctor
-    void operator=(const LuaExtension &); // Disable operator=
+	LuaExtension(); // Singleton
+	LuaExtension(const LuaExtension &);   // Disable copy ctor
+	void operator=(const LuaExtension &); // Disable operator=
 
 public:
-    static LuaExtension &Instance();
+	static LuaExtension &Instance();
 
-    virtual ~LuaExtension();
+	virtual ~LuaExtension();
 
-    virtual bool Initialise(ExtensionAPI *host_);
-    virtual bool Finalise();
-    virtual bool Clear();
-    virtual bool Load(const char *filename);
+	virtual bool Initialise(ExtensionAPI *host_);
+	virtual bool Finalise();
+	virtual bool Clear();
+	virtual bool Load(const char *filename);
 
-    virtual bool InitBuffer(int);
-    virtual bool ActivateBuffer(int);
-    virtual bool RemoveBuffer(int);
+	virtual bool InitBuffer(int);
+	virtual bool ActivateBuffer(int);
+	virtual bool RemoveBuffer(int);
 
-    virtual bool OnOpen(const char *filename);
-    virtual bool OnSwitchFile(const char *filename);
-    virtual bool OnBeforeSave(const char *filename);
-    virtual bool OnSave(const char *filename);
-    virtual bool OnChar(char ch);
-    virtual bool OnExecute(const char *s);
-    virtual bool OnSavePointReached();
-    virtual bool OnSavePointLeft();
-    //virtual bool OnStyle(unsigned int startPos, int lengthDoc, int initStyle, Accessor *styler);
-    virtual bool OnDoubleClick();
-    virtual bool OnUpdateUI();
-    virtual bool OnMarginClick();
-    virtual bool OnUserListSelection(int listType, const char *selection);
+	virtual bool OnOpen(const char *filename);
+	virtual bool OnSwitchFile(const char *filename);
+	virtual bool OnBeforeSave(const char *filename);
+	virtual bool OnSave(const char *filename);
+	virtual bool OnChar(char ch);
+	virtual bool OnExecute(const char *s);
+	virtual bool OnSavePointReached();
+	virtual bool OnSavePointLeft();
+	//virtual bool OnStyle(unsigned int startPos, int lengthDoc, int initStyle, Accessor *styler);
+	virtual bool OnDoubleClick();
+	virtual bool OnUpdateUI();
+	virtual bool OnMarginClick();
+	virtual bool OnUserListSelection(int listType, const char *selection);
+	virtual bool OnKey(int keyval, int modifiers);
+	virtual bool OnDwellStart(int pos, const char *word);
+	virtual bool OnClose(const char *filename);
 };

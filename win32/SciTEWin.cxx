@@ -1421,6 +1421,9 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	    (Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
 	    (Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
 
+	if (extender && extender->OnKey(wParam, modifiers))
+		return 1l;
+
 	for (int j = 0; j < languageItems; j++) {
 		if (KeyMatch(languageMenu[j].menuKey, wParam, modifiers)) {
 			SciTEBase::MenuCommand(IDM_LANGUAGE + j);

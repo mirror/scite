@@ -650,6 +650,10 @@ void SciTEBase::RestoreState(const Buffer &buffer) {
 void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew) {
 	bool closingLast = false;
 
+	if (extender) {
+		extender->OnClose(filePath.AsFileSystem());
+	}
+
 	if (buffers.size == 1) {
 		// With no buffer list, Close means close from MRU
 		closingLast = !(recentFileStack[0].IsSet());

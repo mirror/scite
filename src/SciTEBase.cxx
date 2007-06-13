@@ -4327,24 +4327,22 @@ void SciTEBase::Notify(SCNotification *notification) {
 		OpenUriList(notification->text);
 		break;
 
-	case SCN_DWELLSTART: {
-			if (INVALID_POSITION == notification->position) {
-				char message[200];
-				sprintf(message, "%0d (%0d,%0d)", notification->position, notification->x, notification->y);
-			} else {
-				int endWord = notification->position;
-				SString message =
-				    RangeExtendAndGrab(wEditor,
-				            notification->position, endWord, &SciTEBase::iswordcharforsel);
-				if (message.length()) {
-					SendEditorString(SCI_CALLTIPSHOW, notification->position, message.c_str());
-				}
+	case SCN_DWELLSTART:
+		if (extender && (INVALID_POSITION != notification->position)) {
+			int endWord = notification->position;
+			SString message =
+				RangeExtendAndGrab(wEditor,
+					notification->position, endWord, &SciTEBase::iswordcharforsel);
+			if (message.length()) {
+				extender->OnDwellStart(notification->position,message.c_str());
 			}
 		}
 		break;
 
 	case SCN_DWELLEND:
-		SendEditorString(SCI_CALLTIPCANCEL, 0, 0);
+		if (extender) {
+			extender->OnDwellStart(0,""); // flags end of calltip
+		}
 		break;
 
 	case SCN_ZOOM:

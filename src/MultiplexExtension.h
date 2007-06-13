@@ -70,6 +70,10 @@ public:
 	
 	virtual bool SendProperty(const char *);
 
+	virtual bool OnKey(int, int);
+	virtual bool OnDwellStart(int, const char *);
+	virtual bool OnClose(const char *);
+
 private:
 	Extension **extensions;
 	int extensionCount;

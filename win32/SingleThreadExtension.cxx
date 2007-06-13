@@ -143,3 +143,15 @@ bool SingleThreadExtension::OnUserListSelection(int listType, const char *select
 bool SingleThreadExtension::SendProperty(const char *prop) {
 	return ext->SendProperty(prop);
 }
+
+bool SingleThreadExtension::OnKey(int keyval, int modifiers) {
+	return ext->OnKey(keyval, modifiers);
+}
+
+bool SingleThreadExtension::OnDwellStart(int pos, const char *word) {
+	return ext->OnDwellStart(pos, word);
+}
+
+bool SingleThreadExtension::OnClose(const char *filename) {
+	return ext->OnClose(filename);
+}

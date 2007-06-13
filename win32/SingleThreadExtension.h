@@ -42,6 +42,9 @@ public:
 	virtual bool OnMacro(const char *, const char *);
 	virtual bool OnUserListSelection(int, const char *);
 	virtual bool SendProperty(const char *);
+	virtual bool OnKey(int, int);
+	virtual bool OnDwellStart(int, const char *);
+	virtual bool OnClose(const char *);
 
 protected:
 	Extension *ext;

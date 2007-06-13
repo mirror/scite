@@ -28,6 +28,7 @@ public:
 	virtual void ShutDown()=0;
 	virtual void Perform(const char *actions)=0;
 	virtual void DoMenuCommand(int cmdID)=0;
+	virtual void UpdateStatusBar(bool bUpdateSlowData)=0;
 };
 
 /**
@@ -65,6 +66,10 @@ public:
 	virtual bool OnUserListSelection(int, const char *) { return false; }
 
 	virtual bool SendProperty(const char *) { return false; }
+
+	virtual bool OnKey(int, int) { return false; }
+	virtual bool OnDwellStart(int, const char *) { return false; }
+	virtual bool OnClose(const char *) { return false; }
 };
 
 #endif

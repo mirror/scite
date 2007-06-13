@@ -223,3 +223,21 @@ bool MultiplexExtension::SendProperty(const char *prop) {
 	return false;
 }
 
+bool MultiplexExtension::OnKey(int keyval, int modifiers) {
+	for (int i = 0; i < extensionCount; ++i)
+		extensions[i]->OnKey(keyval, modifiers);
+	return false;
+}
+
+bool MultiplexExtension::OnDwellStart(int pos, const char *word) {
+	for (int i = 0; i < extensionCount; ++i)
+		extensions[i]->OnDwellStart(pos, word);
+	return false;
+}
+
+bool MultiplexExtension::OnClose(const char *filename) {
+	for (int i = 0; i < extensionCount; ++i)
+		extensions[i]->OnClose(filename);
+	return false;
+}
+

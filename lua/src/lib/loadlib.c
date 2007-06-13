@@ -30,6 +30,9 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#ifndef _WIN32
+#define USE_DLOPEN
+#endif
 
 #undef LOADLIB
 

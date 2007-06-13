@@ -51,15 +51,24 @@ functionality that is tightly integrated.
 To begin, you can handle any many of the events exposed by the
 <a href="SciTEExtension.html">SciTE Extension Interface</a>.  You do
 this simply by defining functions with the same name as the event.
-Currently, <tt>OnOpen</tt>, <tt>OnSwitchFile</tt>, <tt>OnSave</tt>, <tt>OnBeforeSave</tt>, <tt>OnChar</tt>,
-<tt>OnSavePointReached</tt>, <tt>OnSavePointLeft</tt>, <tt>OnDoubleClick</tt>, <tt>OnMarginClick</tt>,
+Currently, <tt>OnOpen</tt>, <tt>OnClose</tt>, <tt>OnSwitchFile</tt>, <tt>OnSave</tt>,
+<tt>OnBeforeSave</tt>, <tt>OnChar</tt>, <tt>OnKey</tt>,
+<tt>OnSavePointReached</tt>, <tt>OnSavePointLeft</tt>, <tt>OnDwellStart</tt>,
+<tt>OnDoubleClick</tt>, <tt>OnMarginClick</tt>,
 and <tt>OnUserListSelection</tt> are supported.
 </p><p>
 For some of these events, SciTE will pass one or more arguments to
-the event handler function: <tt>OnOpen</tt>, <tt>OnSwitchFile</tt>, <tt>OnSave</tt>, and
+the event handler function: <tt>OnOpen</tt>, <tt>OnClose</tt>,
+<tt>OnSwitchFile</tt>, <tt>OnSave</tt>, and
 <tt>OnBeforeSave</tt> will receive the filename of the affected buffer as
-their first argument.  An <tt>OnChar</tt> handler should expect a single-character
-string argument. <tt>OnUserListSelection</tt> receives two arguments: a number
+their first argument.
+An <tt>OnChar</tt> handler should expect a single-character string argument.
+An <tt>OnKey</tt> handler should expect an integer keycode and boolean
+shift, control, and alt arguments. The keycode is currently a platform specific value
+but this may change in future.
+<tt>OnDwellStart</tt> will receive the position of the mouse and the
+word under the mouse as arguments and the word will be empty when the mouse starts moving.
+<tt>OnUserListSelection</tt> receives two arguments: a number
 indicating the list type, and a string indicating the selected
 item text.  The other event handlers will not be passed any arguments.
 </p><p>
