@@ -463,6 +463,10 @@ SOURCE=..\..\scintilla\src\LineMarker.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\lua\src\lib\linit.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\lua\src\lib\liolib.c
 # End Source File
 # Begin Source File
@@ -488,6 +492,10 @@ SOURCE=..\lua\src\lobject.c
 # Begin Source File
 
 SOURCE=..\lua\src\lopcodes.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\lua\src\lib\loslib.c
 # End Source File
 # Begin Source File
 

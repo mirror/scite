@@ -67,18 +67,18 @@ endif
 ifndef NO_LUA
 LUA_CORE_OBJS = lapi.o lcode.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
 		lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o \
-		ltable.o ltests.o ltm.o lundump.o lvm.o lzio.o
+		ltable.o ltm.o lundump.o lvm.o lzio.o
 
 LUA_LIB_OBJS =	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o ltablib.o \
-		lstrlib.o loadlib.o
+		lstrlib.o loadlib.o loslib.o linit.o
 
 LUA_OBJS = LuaExtension.o IFaceTable.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
 $(LUA_CORE_OBJS): ../lua/src/*.c
-	gcc $(INCLUDEDIRS) $(CXXTFLAGS) -c ../lua/src/*.c
+	gcc $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/*.c
 $(LUA_LIB_OBJS): ../lua/src/lib/*.c
-	gcc $(INCLUDEDIRS) $(CXXTFLAGS) -c ../lua/src/lib/*.c
+	gcc $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/lib/*.c
 CXXFLAGS=$(CXXTFLAGS)
 else
 CXXFLAGS=$(CXXTFLAGS) -DNO_LUA
