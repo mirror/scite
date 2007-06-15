@@ -523,10 +523,6 @@ SOURCE=..\lua\src\lib\ltablib.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\lua\src\ltests.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\lua\src\ltm.c
 # End Source File
 # Begin Source File
