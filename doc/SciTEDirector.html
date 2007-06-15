@@ -8,7 +8,7 @@
     <title>
       SciTE Director Interface
     </title>
-<style type="text/css">
+    <style type="text/css">
 	table {
 		border: 1px solid black;
 		border-collapse: collapse;
@@ -85,7 +85,25 @@
 		font-family: Verdana;
 		font-size: 10pt;
 	}
-</style>
+	.example {
+		color: #00A000;
+		font-weight: bold;
+	}
+	DIV.example {
+		background: #F7FCF7;
+		border: 1px solid #C0D7C0;
+		margin: 0.3em 3em;
+		padding: 0.3em 0.6em;
+		font-size: 80%;
+	}
+	DIV.highlighted {
+		background: #F7FCF7;
+		border: 1px solid #C0D7C0;
+		margin: 0.3em 3em;
+		padding: 0.3em 0.6em;
+		font-size: 80%;
+	}
+    </style>
   </head>
   <body bgcolor="#FFFFFF" text="#000000">
     <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -145,16 +163,16 @@
 	sends data.</p>
 	<p>As an example of communicating the window handle, to install Filerx in the Tools
 	menu of SciTE these properties could be used:</p>
-	<code>
+	<div class="example">
 	command.name.0.*=Project Editor<br/>
 	command.0.*="C:\os\scite\bin\filerx.exe" "$(FileDir)" "$(WindowID)"<br/>
 	command.subsystem.0.*=2
-	</code>
+	</div>
 	<p>In the opposite direction, Filerx can start up SciTE with a command line that
 	specifies its window handle as well as the file it wants edited:</p>
-	<code>
+	<div class="example">
 	SciTE -director.hwnd=937846 c:\os\scite\src\SciTEBase.cxx
-	</code>
+	</div>
 	<p>Once one application has the window handle of the other application, it should send
 	its window handle to the other application using an identity message as described later.
 	Then both sides are able to send messages.</p>
@@ -162,6 +180,7 @@
 	interfaces can be found by broadcasting the "SciTEDirectorInterface"
 	message and seeing which windows reply with the same value as that message.
 	Example broadcast code:</p>
+	<div class="highlighted">
 <SPAN class=S0></SPAN><SPAN class=S5>unsigned</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>int</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>SDI</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>::</SPAN><SPAN class=S11>RegisterWindowMessage</SPAN><SPAN class=S10>(</SPAN><SPAN class=S0></SPAN><SPAN class=S6>"SciTEDirectorInterface"</SPAN><SPAN class=S10>);</SPAN><SPAN class=S0><BR>
 </SPAN><SPAN class=S11>HWND</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>w</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>::</SPAN><SPAN class=S11>GetWindow</SPAN><SPAN class=S10>(::</SPAN><SPAN class=S11>GetDesktopWindow</SPAN><SPAN class=S10>(),</SPAN><SPAN class=S0></SPAN><SPAN class=S11>GW_CHILD</SPAN><SPAN class=S10>);</SPAN><SPAN class=S0><BR>
 </SPAN><SPAN class=S5>while</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>w</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>{</SPAN><SPAN class=S0><BR>
@@ -178,7 +197,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>w</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>::</SPAN><SPAN class=S11>GetWindow</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>w</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>GW_HWNDNEXT</SPAN><SPAN class=S10>);</SPAN><SPAN class=S0><BR>
 </SPAN><SPAN class=S10>}</SPAN><SPAN class=S0><BR>
 </SPAN>
+</div>
 <p>To advertise that a top level window supports the Director interface:</p>
+	<div class="highlighted">
 <SPAN class=S0></SPAN><SPAN class=S11>LRESULT</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>PASCAL</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>DirectorExtension_WndProc</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>HWND</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>hWnd</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;<BR>
 &nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>UINT</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>iMessage</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>WPARAM</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>wParam</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>LPARAM</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>lParam</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>{</SPAN><SPAN class=S0><BR>
 &nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>unsigned</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>int</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>SDI</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>::</SPAN><SPAN class=S11>RegisterWindowMessage</SPAN><SPAN class=S10>(</SPAN><SPAN class=S6>"SciTEDirectorInterface"</SPAN><SPAN class=S10>);</SPAN><SPAN class=S0><BR>
@@ -187,6 +208,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S10>}</SPAN><SPAN class=S0><BR>
 &nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>return</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>::</SPAN><SPAN class=S11>DefWindowProc</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>hWnd</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>iMessage</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>wParam</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0></SPAN><SPAN class=S11>lParam</SPAN><SPAN class=S10>);</SPAN><SPAN class=S0><BR>
 </SPAN><SPAN class=S10>}</SPAN><BR>
+</div>
     <h3>
        Low level interface on GTK+.
     </h3>
@@ -207,16 +229,16 @@
 	return address surrounded by ':' characters, an action, a ':' character and
 	an optional argument. The argument is often a file path. The ':' must be present even if there
 	is no argument. For example, SciTE understands the message</p>
-	<code>
+	<div class="example">
 	open:c:\\os\\scintilla\\include\\Scintilla.iface
-	</code>
+	</div>
 	<p>as a command to open the file "c:\os\scintilla\include\Scintilla.iface" just as if the user
 	had performed this operation.</p>
 	<p>If the first character of the message is a ':' then up to the next ':' is a return
 	address, so SciTE will reply to the message</p>
-	<code>
+	<div class="example">
 	:73658:askfilename:
-	</code>
+	</div>
 	<p>by sending the filename being edited to the return address 73658
 	rather than to its director.</p>
 	<h4>The actions understood by SciTE are:</h4>

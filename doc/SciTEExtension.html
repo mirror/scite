@@ -8,6 +8,19 @@
     <title>
       SciTE Extension Interface
     </title>
+    <style type="text/css">
+        .example {
+            color: #00A000;
+            font-weight: bold;
+        }
+        DIV.example {
+            background: #F7FCF7;
+            border: 1px solid #C0D7C0;
+            margin: 0.3em 3em;
+            padding: 0.3em 0.6em;
+            font-size: 80%;
+        }
+    </style>
   </head>
   <body bgcolor="#FFFFFF" text="#000000">
     <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -39,7 +52,7 @@
     <h3>
        Extension Interface.
     </h3>
-    <code>
+    <div class="example">
 	bool Initialise(ExtensionAPI *host_);<br />
 	bool Finalise();<br />
 	bool Clear();<br />
@@ -60,7 +73,10 @@
 	bool OnMarginClick();<br />
 	bool OnMacro(const char *, const char *);<br />
 	bool SendProperty(const char *);<br />
-    </code>
+	bool OnKey(int keyval, int modifiers);<br />
+	bool OnDwellStart(int pos, const char *word);<br />
+	bool OnClose(const char *filename);<br />
+    </div>
 	<p>An extension must implement the Extension interface defined in scite/src/Extender.h
 	Only the first 4 methods must be implemented although an implementation can be as
 	simple as just returning false. The other methods have empty default implementations.
@@ -97,8 +113,8 @@
     <h3>
        ExtensionAPI Interface.
     </h3>
-    	<code>
-    	enum Pane { paneEditor=1, paneOutput=2, paneFindOutput=3 };<br />
+	<div class="example">
+	enum Pane { paneEditor=1, paneOutput=2, paneFindOutput=3 };<br />
 	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);<br />
 	char *Range(Pane p, int start, int end);<br />
 	void Remove(Pane p, int start, int end);<br />
@@ -109,7 +125,9 @@
 	uptr_t GetInstance();<br />
 	void ShutDown();<br />
 	void Perform(const char *actions);<br />
-    	</code>
+	void DoMenuCommand(int cmdID);<br />
+	void UpdateStatusBar(bool bUpdateSlowData);<br />
+    	</div>
 	<p>An extension can call back into SciTE using this interface which is a simplified
 	way to access the functionality of SciTE.</p>
 	<p>As well as the normal editor pane and output pane, this interface allows for
@@ -138,12 +156,12 @@
     	<p>Extensions are currently added explicitly by code in the start up function.
 	On Windows, the DirectorExtension is attached with code similar to this simplified
 	example:</p>
-<code>
+	<div class="example">
 DirectorExtension director;<br />
 Extension *extender = &director;<br />
 //...<br />
 SciTEWin MainWind(extender);
-</code>
+</div>
 	<p>It would be better to move to an implicit attachment mechanism similar to the
 	way lexers are attached to Scintilla, determining which extensions are used
 	by simply linking their object files into SciTE. It would also be good to
