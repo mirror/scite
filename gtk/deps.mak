@@ -28,8 +28,8 @@ LuaExtension.o: ../src/LuaExtension.cxx \
   ../../scintilla/include/Scintilla.h ../../scintilla/include/Accessor.h \
   ../src/Extender.h ../src/LuaExtension.h \
   ../../scintilla/include/SString.h ../src/SciTEKeys.h \
-  ../src/IFaceTable.h ../lua/include/lua.h ../lua/include/lualib.h \
-  ../lua/include/lua.h ../lua/include/lauxlib.h \
+  ../src/IFaceTable.h ../lua/include/lua.h ../lua/include/luaconf.h \
+  ../lua/include/lualib.h ../lua/include/lua.h ../lua/include/lauxlib.h \
   ../../scintilla/include/Platform.h
 MultiplexExtension.o: ../src/MultiplexExtension.cxx \
   ../src/MultiplexExtension.h ../src/Extender.h \
