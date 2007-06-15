@@ -8,6 +8,19 @@
     <title>
       SciTE Lua Scripting Extension
     </title>
+    <style type="text/css">
+        .example {
+            color: #00A000;
+            font-weight: bold;
+        }
+        DIV.example {
+            background: #F7FCF7;
+            border: 1px solid #C0D7C0;
+            margin: 0.3em 3em;
+            padding: 0.3em 0.6em;
+            font-size: 80%;
+        }
+    </style>
   </head>
   <body bgcolor="#FFFFFF" text="#000000">
     <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -22,11 +35,11 @@
       </tr>
     </table>
 <h3>Lua Scripting Extension Notes</h3>
-The SciTE Lua Scripting Extension uses a verbatim copy of Lua 5.0.2 as
+The SciTE Lua Scripting Extension uses a copy of Lua 5.1 as
 its scripting engine.  Currently, all of the standard libraries are
 included, although this list may be trimmed in a future revision.
 <p>
-Lua is Copyright (C) 2003 TeCGraf, PUC-Rio.  The complete Lua license
+Lua is Copyright (C) 1994-2007 Lua.org, PUC-Rio.  The complete Lua license
 is included in <tt>luaCOPYRIGHT</tt> in the SciTE installation directory.  To
 find more information about Lua, including documentation for the
 language itself, visit <a href="http://www.lua.org">www.lua.org</a>.
@@ -113,10 +126,11 @@ Anything specified after the command name is passed to the Lua function
 as a single string argument.  An example of a command, using the
 built-in dofile command, is shown below.
 </p>
-<pre><tt>  command.name.1.*=Run My Script
-  command.subsystem.1.*=3
-  command.1.*=dofile $(SciteDefaultHome)/My Script.lua
-</tt></pre>
+<div class="example">
+  command.name.1.*=Run My Script<br />
+  command.subsystem.1.*=3<br />
+  command.1.*=dofile $(SciteDefaultHome)/My Script.lua<br />
+</div>
 <p>
 Note that the command line is &quot;not&quot; evaluated directly
 as a Lua script.
@@ -273,6 +287,25 @@ or if extending the SciTE LuaExtension to support macro recording.
 The <tt>MenuCommand</tt> function enables usage of SciTE's menu commands
 as defined in SciTE.h.
 </p>
+
+<h4>Lua 5.1</h4>
+<pre>
+Despite some of the big changes in Lua 5.1 dealing with changes
+in the language, most of the compatibility options have been
+turned on.
+Compatibilities:
+- table.getn still works, but the '#' operator should be used
+- Lua 5.0's varargs are still available
+- Lua 5.0's math.mod is still available, as well as 5.1's
+math.fmod
+- Lua 5.0's string.gfind is still available, as well as 5.1's
+string.gmatch
+- [C API] Lua 5.0's luaL_openlib behavior is still available
+Changes:
+- table.setn was deprecated
+- loadlib was moved into the package table (package.loadlib)
+- Lua 5.0's long string nesting throws an error
+</pre>
 
 <hr noshade="noshade" width="80%" align="left" />
 
