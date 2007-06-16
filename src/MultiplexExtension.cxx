@@ -224,9 +224,11 @@ bool MultiplexExtension::SendProperty(const char *prop) {
 }
 
 bool MultiplexExtension::OnKey(int keyval, int modifiers) {
+	bool handled = false;
 	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->OnKey(keyval, modifiers);
-	return false;
+		if (extensions[i]->OnKey(keyval, modifiers))
+			handled = true;
+	return handled;
 }
 
 bool MultiplexExtension::OnDwellStart(int pos, const char *word) {
