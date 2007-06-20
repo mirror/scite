@@ -431,6 +431,9 @@
 				RelativePath="..\..\scintilla\src\LineMarker.cxx">
 			</File>
 			<File
+				RelativePath="..\lua\src\lib\linit.c">
+			</File>
+			<File
 				RelativePath="..\lua\src\lib\liolib.c">
 			</File>
 			<File
@@ -450,6 +453,9 @@
 			</File>
 			<File
 				RelativePath="..\lua\src\lopcodes.c">
+			</File>
+			<File
+				RelativePath="..\lua\src\lib\loslib.c">
 			</File>
 			<File
 				RelativePath="..\lua\src\lparser.c">
