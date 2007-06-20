@@ -3249,7 +3249,7 @@ void SciTEGTK::ReadPipe(gpointer data, gint source, GdkInputCondition condition)
 void SciTEGTK::SendFileName(int sendPipe, const char* filename) {
 
 	// Create the command to send thru the pipe.
-	char pipeData[CHAR_MAX];
+	char pipeData[MAX_PATH];
 
 	// Check to see if path is already absolute.  If it isn't then add the
 	// absolute path to the front of the command to send.
@@ -3260,6 +3260,7 @@ void SciTEGTK::SendFileName(int sendPipe, const char* filename) {
 		snprintf(pipeData, sizeof(pipeData) - 1, "%s/%s", currentPath, filename);
 		g_free(currentPath);
 	}
+	pipeData[sizeof(pipeData) - 1] = '\0';
 
 	// Send it.
 	if (write(sendPipe, pipeData, strlen(pipeData) + 1) == -1)
