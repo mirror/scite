@@ -280,9 +280,6 @@
 				RelativePath="..\lua\src\lib\ltablib.c">
 			</File>
 			<File
-				RelativePath="..\lua\src\ltests.c">
-			</File>
-			<File
 				RelativePath="..\lua\src\ltm.c">
 			</File>
 			<File
