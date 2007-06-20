@@ -848,7 +848,7 @@ void SciTEBase::ReadProperties() {
 
 	wrapStyle = props.GetInt("wrap.style", SC_WRAP_WORD);
 
-	SendEditor(SCI_SETCARETFORE,
+	SendChildren(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", ColourDesired(0, 0, 0)));
 
 	SendEditor(SCI_SETMOUSEDWELLTIME,
