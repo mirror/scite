@@ -21,6 +21,9 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#ifndef _WIN32
+#define LUA_DL_DLOPEN
+#endif
 
 /* prefix for open functions in C libraries */
 #define LUA_POF		"luaopen_"
@@ -502,7 +505,7 @@ static int ll_require (lua_State *L) {
 ** 'module' function
 ** =======================================================
 */
-  
+
 
 static void setfenv (lua_State *L) {
   lua_Debug ar;
@@ -630,7 +633,7 @@ LUALIB_API int luaopen_package (lua_State *L) {
   lua_setfield(L, -2, "__gc");
   /* create `package' table */
   luaL_register(L, LUA_LOADLIBNAME, pk_funcs);
-#if defined(LUA_COMPAT_LOADLIB) 
+#if defined(LUA_COMPAT_LOADLIB)
   lua_getfield(L, -1, "loadlib");
   lua_setfield(L, LUA_GLOBALSINDEX, "loadlib");
 #endif
