@@ -2929,9 +2929,16 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 	SString controlWords[20];
 	unsigned int parts = GetLinePartsInStyle(line, statementIndent.styleNumber,
 	        -1, controlWords, ELEMENTS(controlWords));
-	for (unsigned int i = 0; i < parts; i++) {
+	unsigned int i;
+	for (i = 0; i < parts; i++) {
 		if (includes(statementIndent, controlWords[i]))
 			indentState = isKeyWordStart;
+	}
+	parts = GetLinePartsInStyle(line, statementEnd.styleNumber,
+	        -1, controlWords, ELEMENTS(controlWords));
+	for (i = 0; i < parts; i++) {
+		if (includes(statementEnd, controlWords[i]))
+			indentState = isNone;
 	}
 	// Braces override keywords
 	SString controlStrings[20];

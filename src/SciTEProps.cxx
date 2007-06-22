@@ -1068,6 +1068,7 @@ void SciTEBase::ReadProperties() {
 	SString lookback = props.GetNewExpand("statement.lookback.", fileNameForExtension.c_str());
 	statementLookback = lookback.value();
 	statementIndent = GetStyleAndWords("statement.indent.");
+	statementEnd = GetStyleAndWords("statement.end.");
 	blockStart = GetStyleAndWords("block.start.");
 	blockEnd = GetStyleAndWords("block.end.");
 

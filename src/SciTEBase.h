@@ -418,6 +418,7 @@ protected:
 	bool indentMaintain;
 	int statementLookback;
 	StyleAndWords statementIndent;
+	StyleAndWords statementEnd;
 	StyleAndWords blockStart;
 	StyleAndWords blockEnd;
 	enum { noPPC, ppcStart, ppcMiddle, ppcEnd, ppcDummy };	///< Indicate the kind of preprocessor condition line
