@@ -161,10 +161,12 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	propsEmbed.Set("PLAT_WIN", "1");
 	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
 	::GetVersionEx(&osv);
+	isWindowsNT = osv.dwPlatformId == VER_PLATFORM_WIN32_NT;
 	if (osv.dwPlatformId == VER_PLATFORM_WIN32_NT)
 		propsEmbed.Set("PLAT_WINNT", "1");
 	else if (osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
 		propsEmbed.Set("PLAT_WIN95", "1");
+
 	HRSRC handProps = ::FindResource(hInstance, "Embedded", "Properties");
 	if (handProps) {
 		DWORD size = ::SizeofResource(hInstance, handProps);
@@ -1817,14 +1819,6 @@ LRESULT PASCAL SciTEWin::IWndProc(
 		return scite->WndProcI(iMessage, wParam, lParam);
 }
 
-// IsNT() did not work on my machine... :-(
-// I found that Platform_Initialise() was never called
-bool IsWindowsNT() {
-	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
-	::GetVersionEx(&osv);
-	return (osv.dwPlatformId == VER_PLATFORM_WIN32_NT);
-}
-
 // from ScintillaWin.cxx
 static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
@@ -1848,7 +1842,7 @@ static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 SString SciTEWin::EncodeString(const SString &s) {
 	//::MessageBox(GetFocus(),SString(s).c_str(),"EncodeString:in",0);
 
-	if (IsWindowsNT()) {
+	if (isWindowsNT) {
 		UINT codePage = SendEditor(SCI_GETCODEPAGE);
 
 		if (codePage != SC_CP_UTF8) {
@@ -1880,7 +1874,7 @@ SString SciTEWin::EncodeString(const SString &s) {
 SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 	SString s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
-	if (IsWindowsNT()) {
+	if (isWindowsNT) {
 		UINT codePage = SendEditor(SCI_GETCODEPAGE);
 
 		if (codePage != SC_CP_UTF8) {
@@ -1905,6 +1899,27 @@ SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 		}
 	}
 	return s;
+}
+
+int SciTEWin::EventLoop() {
+	MSG msg;
+	msg.wParam = 0;
+	bool going = true;
+	while (going) {
+		going = isWindowsNT ? ::GetMessageW(&msg, NULL, 0, 0) : ::GetMessageA(&msg, NULL, 0, 0);
+		if (going) {
+			if (!ModelessHandler(&msg)) {
+				if (::TranslateAccelerator(reinterpret_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
+					::TranslateMessage(&msg);
+				if (isWindowsNT)
+					::DispatchMessageW(&msg);
+				else
+					::DispatchMessageA(&msg);
+				}
+			}
+		}
+	}
+	return msg.wParam;
 }
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
@@ -1938,23 +1953,11 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 		::MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
 #endif
 
-	MSG msg;
-	msg.wParam = 0;
+	int result;
 	{
 		SciTEWin MainWind(extender);
 		MainWind.Run(lpszCmdLine);
-		bool going = true;
-		while (going) {
-			going = ::GetMessage(&msg, NULL, 0, 0);
-			if (going) {
-				if (!MainWind.ModelessHandler(&msg)) {
-					if (::TranslateAccelerator(reinterpret_cast<HWND>(MainWind.GetID()), MainWind.GetAcceleratorTable(), &msg) == 0) {
-						::TranslateMessage(&msg);
-						::DispatchMessage(&msg);
-					}
-				}
-			}
-		}
+		result = MainWind.EventLoop();
 	}
 
 #ifdef STATIC_BUILD
@@ -1964,5 +1967,5 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	::FreeLibrary(hmod);
 #endif
 
-	return msg.wParam;
+	return result;
 }

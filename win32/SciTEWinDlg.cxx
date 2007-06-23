@@ -723,8 +723,6 @@ void SciTEWin::PrintSetup() {
 	hDevNames = pdlg.hDevNames;
 }
 
-extern bool IsWindowsNT();
-
 // This is a reasonable buffer size for dialog box text conversions
 #define CTL_TEXT_BUF 512
 
@@ -1142,7 +1140,7 @@ void SciTEWin::FindIncrement() {
 	//		 MAKEINTRESOURCE(IDD_FIND2),
 	//		 MainHWND(),
 	//		 reinterpret_cast<DLGPROC>(FindIncrementDlg));
-	if (IsWindowsNT()) {
+	if (isWindowsNT) {
 		::DialogBoxParamW(hInstance, (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
 		                MainHWND(), reinterpret_cast<DLGPROC>(FindIncrementDlg),
 		                reinterpret_cast<LPARAM>(this));
@@ -1176,7 +1174,7 @@ void SciTEWin::Find() {
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 	int dialog_id = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
 
-	if (IsWindowsNT()) {
+	if (isWindowsNT) {
 		wFindReplace = ::CreateDialogParamW(hInstance,
 		                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
 		                                    MainHWND(),
@@ -1392,7 +1390,7 @@ void SciTEWin::Replace() {
 	fr.wReplaceWithLen = static_cast<WORD>(replaceWhat.length() + 1);
 	int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
 
-	if (IsWindowsNT()) {
+	if (isWindowsNT) {
 		wFindReplace = ::CreateDialogParamW(hInstance,
 		                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
 		                                    MainHWND(),
@@ -1700,7 +1698,7 @@ void SciTEWin::FindMessageBox(const SString &msg, const SString *findItem) {
 		SString msgBuf = LocaliseMessage(msg.c_str());
 		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
 	} else {
-		if (IsWindowsNT()) {
+		if (isWindowsNT) {
 
 			SString sFormat = localiser.Text(msg.c_str());
 			SString sPart1 = sFormat.substr(0, sFormat.search("^0", 0));

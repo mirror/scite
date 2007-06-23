@@ -81,6 +81,7 @@ protected:
 	int filterDefault;
 	bool staticBuild;
 	int menuSource;
+	bool isWindowsNT;
 
 	// Fields also used in tool execution thread
 	HANDLE hWriteSubProcess;
@@ -235,6 +236,7 @@ public:
 	void CreateUI();
 	/// Management of the command line parameters.
 	void Run(const char *cmdLine);
+    int EventLoop();
 	DWORD ExecuteOne(const Job &jobToRun, bool &seenOutput);
 	void ProcessExecute();
 	void ShellExec(const SString &cmd, const char *dir);
