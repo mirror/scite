@@ -527,7 +527,9 @@ void SciTEBase::SetStyleFor(Window &win, const char *lang) {
 			char key[200];
 			sprintf(key, "style.%s.%0d", lang, style);
 			SString sval = props.GetExpanded(key);
-			SetOneStyle(win, style, sval.c_str());
+			if (sval.length()) {
+				SetOneStyle(win, style, sval.c_str());
+			}
 		}
 	}
 }
