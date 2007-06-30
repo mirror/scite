@@ -195,6 +195,10 @@ SOURCE=..\lua\src\ldump.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexAbaqus.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexAda.cxx
 # End Source File
 # Begin Source File
