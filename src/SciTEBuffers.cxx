@@ -74,7 +74,7 @@ void Job::Clear() {
 	flags = 0;
 }
 
-BufferList::BufferList() : current(0), stackcurrent(0), buffers(0), size(0), length(0), initialised(false) {}
+BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), size(0), length(0), initialised(false) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
