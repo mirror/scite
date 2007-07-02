@@ -1220,7 +1220,9 @@ void SciTEBase::ReadProperties() {
 	}
 
 	SendEditor(SCI_SETSCROLLWIDTH, props.GetInt("horizontal.scroll.width", 2000));
+	SendEditor(SCI_SETSCROLLWIDTHTRACKING, props.GetInt("horizontal.scroll.width.tracking", 1));
 	SendOutput(SCI_SETSCROLLWIDTH, props.GetInt("output.horizontal.scroll.width", 2000));
+	SendOutput(SCI_SETSCROLLWIDTHTRACKING, props.GetInt("output.horizontal.scroll.width.tracking", 1));
 
 	// Do these last as they force a style refresh
 	SendEditor(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
