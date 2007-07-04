@@ -455,7 +455,7 @@ protected:
 
 	static void ReadPipe(gpointer data, gint source, GdkInputCondition condition);
 	void SendFileName(int sendPipe, const char* filename);
-	void CheckForRunningInstance(int argc, char* argv[]);
+	bool CheckForRunningInstance(int argc, char* argv[]);
 
 	// GTK+ Signal Handlers
 
@@ -2108,22 +2108,13 @@ void SciTEGTK::AboutDialog() {
 
 void SciTEGTK::QuitProgram() {
 	if (SaveIfUnsureAll() != IDCANCEL) {
-
-#ifndef NO_FILER
-		int fdPipe = props.GetInt("scite.ipc_fdpipe");
-		if (fdPipe != -1) {
-			close(fdPipe);
-			unlink(props.Get("scite.ipc_name").c_str());
-		}
-#else
 		//clean up any pipes that are ours
 		if (pipeFD != -1) {
 			//printf("Cleaning up pipe\n");
 			close(pipeFD);
 			unlink(pipeName);
 		}
-#endif
-		gtk_exit(0);
+		gtk_main_quit();
 	}
 }
 
@@ -2134,19 +2125,7 @@ gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation * /*allocation*/, SciTEGTK 
 }
 
 gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
-	if (scitew->SaveIfUnsureAll() != IDCANCEL) {
-
-		//clean up any pipes that are ours
-		if (scitew->pipeFD != -1) {
-			//printf("Cleaning up pipe\n");
-			close(scitew->pipeFD);
-			unlink(scitew->pipeName);
-
-		}
-		gtk_exit(0);
-	}
-	// No need to return FALSE for quit as gtk_exit will have been called
-	// if needed.
+	scitew->QuitProgram();
 	return TRUE;
 }
 
@@ -3269,7 +3248,7 @@ void SciTEGTK::SendFileName(int sendPipe, const char* filename) {
 		perror("Unable to write to pipe");
 }
 
-void SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
+bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 
 	// Use ipc.scite.name for the pipe name if it exists.
 	const SString pipeFilename = props.Get("ipc.scite.name");
@@ -3291,7 +3270,7 @@ void SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 
 		// Force the SciTE instance to come to the front.
 		SendFileName(sendPipe, "");
-		gtk_exit(0);
+		return true;
 	}
 
 	// If pipe doesn't exist, create it.  If pipe exists without a
@@ -3300,7 +3279,7 @@ void SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 		MakePipe(pipeName);
 	else if (errno != ENXIO) {
 		perror("Unable to open pipe as writer");
-		gtk_exit(0);
+		return true;
 	}
 
 	// Now open it as a reader to receive data.
@@ -3308,11 +3287,12 @@ void SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 	if (pipeFD == -1) {
 		perror("Unable to open pipe as reader");
 		unlink(pipeName);
-		gtk_exit(0);
+		return true;
 	}
 
 	// Handler to read data.
 	gdk_input_add(pipeFD, GDK_INPUT_READ, ReadPipe, this);
+	return false;
 }
 
 void SciTEGTK::Run(int argc, char *argv[]) {
@@ -3337,9 +3317,13 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Process any initial switches
 	ProcessCommandLine(args, 0);
 
-	// Check if SciTE is already running.  This could exit the program.
-	if ((props.Get("ipc.director.name").size() == 0) && props.GetInt ("check.if.already.open"))
-		CheckForRunningInstance (argc, argv);
+	// Check if SciTE is already running.
+	if ((props.Get("ipc.director.name").size() == 0) && props.GetInt ("check.if.already.open")) {
+		if (CheckForRunningInstance (argc, argv)) {
+			// Returning from this function exits the program.
+			return;
+		}
+	}
 
 	CreateUI();
 
