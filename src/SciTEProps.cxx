@@ -567,6 +567,8 @@ void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	SString value = props.Get(key);
 	SendEditorString(SCI_SETPROPERTY,
 	                 reinterpret_cast<uptr_t>(key), value.c_str());
+	SendOutputString(SCI_SETPROPERTY,
+	                 reinterpret_cast<uptr_t>(key), value.c_str());
 }
 
 void SciTEBase::DefineMarker(int marker, int markerType, ColourDesired fore, ColourDesired back) {
@@ -663,6 +665,7 @@ static const char *propertiesToForward[] = {
 	"lexer.caml.magic",
 	"lexer.cpp.allow.dollars",
 	"lexer.d.fold.at.else",
+	"lexer.errorlist.value.separate",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
 	"lexer.sql.backticks.identifier",
