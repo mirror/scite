@@ -120,6 +120,7 @@ protected:
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
 	                         const char *text, const char *mnemonic = 0);
+	virtual void RedrawMenu();
 	virtual void DestroyMenuItem(int menuNumber, int itemID);
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
@@ -169,6 +170,10 @@ protected:
 
 	virtual void SetFileProperties(PropSet &ps);
 	virtual void SetStatusBarText(const char *s);
+
+	virtual void TabInsert(int index, char *title);
+	virtual void TabSelect(int index);
+	virtual void RemoveAllTabs();
 
 	/// Warn the user, by means defined in its properties.
 	virtual void WarnUser(int warnID);

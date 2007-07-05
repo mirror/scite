@@ -250,6 +250,7 @@ public:
 	int StackPrev();
 	void CommitStackSelection();
 	void MoveToStackTop(int index);
+	void ShiftTo(int indexFrom, int indexTo);
 private:
 	void PopStack();
 };
@@ -567,6 +568,13 @@ protected:
 	void PrevInStack();
 	void EndStackedTabbing();
 
+	virtual void TabInsert(int index, char *title) = 0;
+	virtual void TabSelect(int index) = 0;
+	virtual void RemoveAllTabs() = 0;
+	void ShiftTab(int indexFrom, int indexTo);
+	void MoveTabRight();
+	void MoveTabLeft();
+
 	void ReadGlobalPropFile();
 	void ReadAbbrevPropFile();
 	void ReadLocalPropFile();
@@ -787,6 +795,7 @@ protected:
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
 	        const char *text, const char *mnemonic = 0) = 0;
+	virtual void RedrawMenu() {}
 	virtual void DestroyMenuItem(int menuNumber, int itemID) = 0;
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val) = 0;
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val) = 0;

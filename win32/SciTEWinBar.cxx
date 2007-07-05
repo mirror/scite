@@ -72,6 +72,22 @@ void SciTEWin::SetStatusBarText(const char *s) {
 	              SB_SETTEXT, 0, reinterpret_cast<LPARAM>(s));
 }
 
+void SciTEWin::TabInsert(int index, char *title) {
+	TCITEM tie;
+	tie.mask = TCIF_TEXT | TCIF_IMAGE;
+	tie.iImage = -1;
+	tie.pszText = title;
+	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_INSERTITEM, (WPARAM)index, (LPARAM)&tie);
+}
+
+void SciTEWin::TabSelect(int index) {
+	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
+}
+
+void SciTEWin::RemoveAllTabs() {
+	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
+}
+
 /**
  * Manage Windows specific notifications.
  */
@@ -417,6 +433,11 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 		mii.dwItemData = reinterpret_cast<DWORD&>(keycode);
 		::SetMenuItemInfo(hmenu, itemID, FALSE, &mii);
 	}
+}
+
+void SciTEWin::RedrawMenu() {
+	// Make previous change visible.
+	::DrawMenuBar(reinterpret_cast<HWND>(wSciTE.GetID()));
 }
 
 void SciTEWin::DestroyMenuItem(int menuNumber, int itemID) {

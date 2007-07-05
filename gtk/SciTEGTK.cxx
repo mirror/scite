@@ -443,6 +443,9 @@ protected:
 	virtual FilePath GetSciteUserHome();
 
 	virtual void SetStatusBarText(const char *s);
+	virtual void TabInsert(int index, char *title);
+	virtual void TabSelect(int index);
+	virtual void RemoveAllTabs();
 	virtual void SetFileProperties(PropSet &ps);
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
 
@@ -747,6 +750,35 @@ void SciTEGTK::SetWindowName() {
 void SciTEGTK::SetStatusBarText(const char *s) {
 	gtk_statusbar_pop(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID);
 	gtk_statusbar_push(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID, s);
+}
+
+void SciTEGTK::TabInsert(int index, char *title) {
+	if (wTabBar.GetID()) {
+		GtkWidget *tablabel = gtk_label_new(title);
+		GtkWidget *tabcontent;
+		if (buffers.buffers[index].IsUntitled())
+			tabcontent = gtk_label_new(localiser.Text("Untitled").c_str());
+		else
+			tabcontent = gtk_label_new(buffers.buffers[index].AsInternal());
+
+		gtk_widget_show(tablabel);
+		gtk_widget_show(tabcontent);
+
+		gtk_notebook_append_page(GTK_NOTEBOOK(wTabBar.GetID()), tabcontent, tablabel);
+	}
+}
+
+void SciTEGTK::TabSelect(int index) {
+	if (wTabBar.GetID())
+		gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), index);
+}
+
+void SciTEGTK::RemoveAllTabs() {
+	if (wTabBar.GetID()) {
+		GtkWidget *tab;
+		while ((tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(wTabBar.GetID()), 0)))
+			gtk_notebook_remove_page(GTK_NOTEBOOK(wTabBar.GetID()), 0);
+	}
 }
 
 void SciTEGTK::SetFileProperties(PropSet &ps) {

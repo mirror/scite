@@ -3496,6 +3496,15 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		}
 		break;
 
+	case IDM_MOVETABRIGHT:
+		MoveTabRight();
+		WindowSetFocus(wEditor);
+		break;
+	case IDM_MOVETABLEFT:
+		MoveTabLeft();
+		WindowSetFocus(wEditor);
+		break;
+
 	case IDM_UNDO:
 		SendPane(source, SCI_UNDO);
 		CheckMenus();

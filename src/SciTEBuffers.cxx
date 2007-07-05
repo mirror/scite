@@ -192,6 +192,30 @@ void BufferList::CommitStackSelection() {
 	stackcurrent = 0;
 }
 
+void BufferList::ShiftTo(int indexFrom, int indexTo) {
+	// shift buffer to new place in buffers array
+	if (indexFrom == indexTo ||
+		indexFrom < 0 || indexFrom >= length ||
+		indexTo < 0 || indexTo >= length) return;
+	int step = (indexFrom > indexTo) ? -1 : 1;
+	Buffer tmp = buffers[indexFrom];
+	int i;
+	for (i = indexFrom; i != indexTo; i += step) {
+		buffers[i] = buffers[i+step];
+	}
+	buffers[indexTo] = tmp;
+	// update stack indexes
+	for (i = 0; i < length; i++) {
+		if (stack[i] == indexFrom) {
+			stack[i] = indexTo;
+		} else if (step == 1) {
+			if (indexFrom < stack[i] && stack[i] <= indexTo) stack[i] -= step;
+		} else {
+			if (indexFrom > stack[i] && stack[i] >= indexTo) stack[i] -= step;
+		}
+	}
+}
+
 sptr_t SciTEBase::GetDocumentAt(int index) {
 	if (index < 0 || index >= buffers.size) {
 		//Platform::DebugPrintf("SciTEBase::GetDocumentAt: Index out of range.\n");
@@ -233,15 +257,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 	RestoreState(bufferNext);
 
-#if PLAT_WIN
-	// Tab Bar
-	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)index, (LPARAM)0);
-#endif
-#if PLAT_GTK
-
-	if (wTabBar.GetID())
-		gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), index);
-#endif
+	TabSelect(index);
 
 	if (lineNumbers && lineNumbersExpand)
 		SetLineNumberWidth();
@@ -340,13 +356,10 @@ void SciTEBase::InitialiseBuffers() {
 		if (buffers.size == 1) {
 			// Single buffer mode, delete the Buffers main menu entry
 			DestroyMenuItem(menuBuffers, 0);
-#if PLAT_WIN
-			// Make previous change visible.
-			::DrawMenuBar(reinterpret_cast<HWND>(wSciTE.GetID()));
-#endif
 			// Destroy command "View Tab Bar" in the menu "View"
 			DestroyMenuItem(menuView, IDM_VIEWTABBAR);
-
+			// Make previous change visible.
+			RedrawMenu();
 		}
 	}
 }
@@ -785,6 +798,32 @@ void SciTEBase::Prev() {
 	CheckReload();
 }
 
+void SciTEBase::ShiftTab(int indexFrom, int indexTo) {
+	buffers.ShiftTo(indexFrom, indexTo);
+	buffers.SetCurrent(indexTo);
+	BuffersMenu();
+
+	TabSelect(indexTo);
+
+	DisplayAround(buffers.buffers[buffers.Current()]);
+}
+
+void SciTEBase::MoveTabRight() {
+	if (buffers.length < 2) return;
+	int indexFrom = buffers.Current();
+	int indexTo = indexFrom + 1;
+	if (indexTo >= buffers.length) indexTo = 0;
+	ShiftTab(indexFrom, indexTo);
+}
+
+void SciTEBase::MoveTabLeft() {
+	if (buffers.length < 2) return;
+	int indexFrom = buffers.Current();
+	int indexTo = indexFrom - 1;
+	if (indexTo < 0) indexTo = buffers.length - 1;
+	ShiftTab(indexFrom, indexTo);
+}
+
 void SciTEBase::NextInStack() {
 	SetDocumentAt(buffers.StackNext(), false);
 	CheckReload();
@@ -802,20 +841,8 @@ void SciTEBase::EndStackedTabbing() {
 void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
 	DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
-#if PLAT_WIN
+	RemoveAllTabs();
 
-	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DELETEALLITEMS, (WPARAM)0, (LPARAM)0);
-#endif
-
-#if PLAT_GTK
-
-	if (wTabBar.GetID()) {
-		GtkWidget *tab;
-
-		while ((tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(wTabBar.GetID()), 0)))
-			gtk_notebook_remove_page(GTK_NOTEBOOK(wTabBar.GetID()), 0);
-	}
-#endif
 	int pos;
 	for (pos = 0; pos < bufferMax; pos++) {
 		DestroyMenuItem(menuBuffers, IDM_BUFFER + pos);
@@ -871,35 +898,7 @@ void SciTEBase::BuffersMenu() {
 			}
 
 			SetMenuItem(menuBuffers, menuStart + pos + 1, itemID, entry);
-#if PLAT_WIN
-			// Windows specific !
-			TCITEM tie;
-			tie.mask = TCIF_TEXT | TCIF_IMAGE;
-			tie.iImage = -1;
-
-			tie.pszText = titleTab;
-			::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_INSERTITEM, (WPARAM)pos, (LPARAM)&tie);
-			//::SendMessage(wTabBar.GetID(), TCM_SETCURSEL, (WPARAM)pos, (LPARAM)0);
-#endif
-#if PLAT_GTK
-
-			if (wTabBar.GetID()) {
-				GtkWidget *tablabel, *tabcontent;
-
-				tablabel = gtk_label_new(titleTab);
-
-				if (buffers.buffers[pos].IsUntitled())
-					tabcontent = gtk_label_new(localiser.Text("Untitled").c_str());
-				else
-					tabcontent = gtk_label_new(buffers.buffers[pos].AsInternal());
-
-				gtk_widget_show(tablabel);
-				gtk_widget_show(tabcontent);
-
-				gtk_notebook_append_page(GTK_NOTEBOOK(wTabBar.GetID()), tabcontent, tablabel);
-			}
-#endif
-
+			TabInsert(pos, titleTab);
 		}
 	}
 	CheckMenus();
