@@ -1140,17 +1140,21 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 					openFilter.remove(start, strlen(filterName));
 					openFilter.insert(start, localised.c_str());
 				}
-				GtkFileFilter *filter = gtk_file_filter_new();
-				gtk_file_filter_set_name(filter, openFilter.c_str() + start);
-				start += strlen(openFilter.c_str() + start) + 1;
-				SString oneSet(openFilter.c_str() + start);
-				oneSet.substitute(';', '\0');
-				size_t item = 0;
-				while (item < oneSet.length()) {
-					gtk_file_filter_add_pattern(filter, oneSet.c_str() + item);
-					item += strlen(oneSet.c_str() + item) + 1;
+				if (openFilter.c_str()[start] == '#') {
+					start += strlen(openFilter.c_str() + start) + 1;
+				} else {
+					GtkFileFilter *filter = gtk_file_filter_new();
+					gtk_file_filter_set_name(filter, openFilter.c_str() + start);
+					start += strlen(openFilter.c_str() + start) + 1;
+					SString oneSet(openFilter.c_str() + start);
+					oneSet.substitute(';', '\0');
+					size_t item = 0;
+					while (item < oneSet.length()) {
+						gtk_file_filter_add_pattern(filter, oneSet.c_str() + item);
+						item += strlen(oneSet.c_str() + item) + 1;
+					}
+					gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filter);
 				}
-				gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filter);
 				start += strlen(openFilter.c_str() + start) + 1;
 			}
 		}
