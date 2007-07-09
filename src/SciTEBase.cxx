@@ -1912,13 +1912,23 @@ void SciTEBase::Redraw() {
 	wOutput.InvalidateAll();
 }
 
+char *SciTEBase::GetNearestWords(const char *wordStart, int searchLen,
+		const char *separators, bool ignoreCase /*=false*/, bool exactLen /*=false*/) {
+	char *words = 0;
+	while (!words && *separators) {
+		words = apis.GetNearestWords(wordStart, searchLen, ignoreCase, *separators, exactLen);
+		separators++;
+	}
+	return words;
+}
+
 void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 	if (pos > 0) {
 		lastPosCallTip = pos;
 	}
 	if (apis) {
-		char *words = apis.GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
-		        callTipIgnoreCase, calltipParametersStart[0], true);
+		char *words = GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
+			calltipParametersStart.c_str(), callTipIgnoreCase, true);
 		if (!words)
 			return;
 		// Counts how many call tips
@@ -2088,8 +2098,8 @@ bool SciTEBase::StartAutoComplete() {
 
 	SString root = line.substr(startword, current - startword);
 	if (apis) {
-		char *words = apis.GetNearestWords(root.c_str(), root.length(),
-		        autoCompleteIgnoreCase, calltipParametersStart[0]);
+		char *words = GetNearestWords(root.c_str(), root.length(),
+			calltipParametersStart.c_str(), autoCompleteIgnoreCase);
 		if (words) {
 			EliminateDuplicateWords(words);
 			SendEditorString(SCI_AUTOCSHOW, root.length(), words);
