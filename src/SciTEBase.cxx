@@ -370,6 +370,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	braceCount = 0;
 
 	indentationWSVisible = true;
+	indentExamine = SC_IV_LOOKBOTH;
 
 	autoCompleteIgnoreCase = false;
 	callTipIgnoreCase = false;
@@ -3798,8 +3799,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_VIEWGUIDES: {
-			int viewIG = SendEditor(SCI_GETINDENTATIONGUIDES, 0, 0);
-			SendEditor(SCI_SETINDENTATIONGUIDES, !viewIG);
+			bool viewIG = SendEditor(SCI_GETINDENTATIONGUIDES, 0, 0) == 0;
+			SendEditor(SCI_SETINDENTATIONGUIDES, viewIG ? indentExamine : SC_IV_NONE);
 			CheckMenus();
 			Redraw();
 		}

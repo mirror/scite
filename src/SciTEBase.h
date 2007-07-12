@@ -482,6 +482,7 @@ protected:
 	int braceCount;
 
 	bool indentationWSVisible;
+	int indentExamine;
 
 	bool autoCompleteIgnoreCase;
 	bool callTipIgnoreCase;
@@ -836,6 +837,7 @@ protected:
 	SString LocaliseMessage(const char *s, const char *param0 = 0,
 	        const char *param1 = 0, const char *param2 = 0);
 	virtual void ReadLocalization();
+	SString GetFileNameProperty(const char *name);
 	virtual void ReadPropertiesInitial();
 	void ReadFontProperties();
 	void SetOverrideLanguage(int cmdID);

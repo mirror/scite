@@ -937,6 +937,18 @@ static char *bookmarkBluegem[] = {
 "    1GdddG1    "
 };
 
+SString SciTEBase::GetFileNameProperty(const char *name) {
+	SString namePlusDot = name;
+	namePlusDot.append(".");
+	SString valueForFileName = props.GetNewExpand(namePlusDot.c_str(),
+	        ExtensionFileName().c_str());
+	if (valueForFileName.length() != 0) {
+		return valueForFileName;
+	} else {
+		return props.Get(name);
+	}
+}
+
 void SciTEBase::ReadProperties() {
 	if (extender)
 		extender->Clear();
@@ -1224,6 +1236,11 @@ void SciTEBase::ReadProperties() {
 	if (whitespaceCharacters.length()) {
 		SendEditorString(SCI_SETWHITESPACECHARS, 0, whitespaceCharacters.c_str());
 	}
+
+	SString viewIndentExamine = GetFileNameProperty("view.indentation.examine");
+	indentExamine = viewIndentExamine.value();
+	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides") ?
+		indentExamine : SC_IV_NONE);
 
 	SendEditor(SCI_SETTABINDENTS, props.GetInt("tab.indents", 1));
 	SendEditor(SCI_SETBACKSPACEUNINDENTS, props.GetInt("backspace.unindents", 1));
@@ -1580,7 +1597,9 @@ void SciTEBase::ReadPropertiesInitial() {
 		}
 	}
 	ViewWhitespace(props.GetInt("view.whitespace"));
-	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides"));
+	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides") ?
+		indentExamine : SC_IV_NONE);
+
 	SendEditor(SCI_SETVIEWEOL, props.GetInt("view.eol"));
 	SendEditor(SCI_SETZOOM, props.GetInt("magnification"));
 	SendOutput(SCI_SETZOOM, props.GetInt("output.magnification"));

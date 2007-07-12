@@ -894,12 +894,17 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          view.indentation.guides
+          view.indentation.guides<br />
+          view.indentation.examine<br />
+          view.indentation.examine.<i>filepattern</i><br />
           highlight.indentation.guides
         </td>
         <td>
           Setting view.indentation.guides to 1 displays dotted vertical lines within indentation white
           space every indent.size columns.<br />
+          Setting view.indentation.examine to 1 to display guides within real indentation whitespace only,
+	  2 according to the next non-empty line (good for Python) or 3 according to both the next and
+	  previous non-empty lines (good for most languages).<br />
           Setting highlight.indentation.guides to 1 highlights the indentation guide associated with a
           brace when that brace is highlighted.
         </td>
@@ -3023,7 +3028,7 @@ groupundo - yes or no
         </td>
         <td>
           The ext.lua properties are specific to the <a href="SciTELua.html">
-          SciTE Lua Scripting Extension</a>.  The extension.<i>filepatten</i> property
+          SciTE Lua Scripting Extension</a>.  The extension.<i>filepattern</i> property
           is part of the generic <a href="SciTEExtension.html">SciTE Extension
           Interface</a> but is currently only used by the Lua Scripting Extension.
           <br />
