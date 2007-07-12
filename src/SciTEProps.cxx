@@ -52,6 +52,7 @@ const char menuAccessIndicator[] = "&";
 
 #include "SciTE.h"
 #include "PropSet.h"
+#include "StringList.h"
 #include "Accessor.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
@@ -59,6 +60,8 @@ const char menuAccessIndicator[] = "&";
 #include "FilePath.h"
 #include "PropSetFile.h"
 #include "SciTEBase.h"
+
+bool PropSetFile::caseSensitiveFilenames = false;
 
 PropSetFile::PropSetFile(bool lowerKeys_) : lowerKeys(lowerKeys_) {}
 
@@ -177,6 +180,167 @@ void PropSetFile::SetInteger(const char *key, sptr_t i) {
 	char tmp[32];
 	sprintf(tmp, "%d", static_cast<int>(i));
 	Set(key, tmp);
+}
+
+static inline char MakeUpperCase(char ch) {
+	if (ch < 'a' || ch > 'z')
+		return ch;
+	else
+		return static_cast<char>(ch - 'a' + 'A');
+}
+
+static bool IsSuffix(const char *target, const char *suffix, bool caseSensitive) {
+	size_t lentarget = strlen(target);
+	size_t lensuffix = strlen(suffix);
+	if (lensuffix > lentarget)
+		return false;
+	if (caseSensitive) {
+		for (int i = static_cast<int>(lensuffix) - 1; i >= 0; i--) {
+			if (target[i + lentarget - lensuffix] != suffix[i])
+				return false;
+		}
+	} else {
+		for (int i = static_cast<int>(lensuffix) - 1; i >= 0; i--) {
+			if (MakeUpperCase(target[i + lentarget - lensuffix]) !=
+				MakeUpperCase(suffix[i]))
+				return false;
+		}
+	}
+	return true;
+}
+
+SString PropSetFile::GetWild(const char *keybase, const char *filename) {
+	for (int root = 0; root < hashRoots; root++) {
+		for (Property *p = props[root]; p; p = p->next) {
+			if (isprefix(p->key, keybase)) {
+				char * orgkeyfile = p->key + strlen(keybase);
+				char *keyfile = NULL;
+
+				if (strstr(orgkeyfile, "$(") == orgkeyfile) {
+					char *cpendvar = strchr(orgkeyfile, ')');
+					if (cpendvar) {
+						*cpendvar = '\0';
+						SString s = GetExpanded(orgkeyfile + 2);
+						*cpendvar = ')';
+						keyfile = StringDup(s.c_str());
+					}
+				}
+				char *keyptr = keyfile;
+
+				if (keyfile == NULL)
+					keyfile = orgkeyfile;
+
+				for (;;) {
+					char *del = strchr(keyfile, ';');
+					if (del == NULL)
+						del = keyfile + strlen(keyfile);
+					char delchr = *del;
+					*del = '\0';
+					if (*keyfile == '*') {
+						if (IsSuffix(filename, keyfile + 1, caseSensitiveFilenames)) {
+							*del = delchr;
+							delete []keyptr;
+							return p->val;
+						}
+					} else if (0 == strcmp(keyfile, filename)) {
+						*del = delchr;
+						delete []keyptr;
+						return p->val;
+					}
+					if (delchr == '\0')
+						break;
+					*del = delchr;
+					keyfile = del + 1;
+				}
+				delete []keyptr;
+
+				if (0 == strcmp(p->key, keybase)) {
+					return p->val;
+				}
+			}
+		}
+	}
+	if (superPS) {
+		// Failed here, so try in base property set
+		return static_cast<PropSetFile *>(superPS)->GetWild(keybase, filename);
+	} else {
+		return "";
+	}
+}
+
+// GetNewExpand does not use Expand as it has to use GetWild with the filename for each
+// variable reference found.
+SString PropSetFile::GetNewExpand(const char *keybase, const char *filename) {
+	char *base = StringDup(GetWild(keybase, filename).c_str());
+	char *cpvar = strstr(base, "$(");
+	int maxExpands = 1000;	// Avoid infinite expansion of recursive definitions
+	while (cpvar && (maxExpands > 0)) {
+		char *cpendvar = strchr(cpvar, ')');
+		if (cpendvar) {
+			int lenvar = cpendvar - cpvar - 2;  	// Subtract the $()
+			char *var = StringDup(cpvar + 2, lenvar);
+			SString val = GetWild(var, filename);
+			if (0 == strcmp(var, keybase))
+				val.clear(); // Self-references evaluate to empty string
+			size_t newlenbase = strlen(base) + val.length() - lenvar;
+			char *newbase = new char[newlenbase];
+			strncpy(newbase, base, cpvar - base);
+			strcpy(newbase + (cpvar - base), val.c_str());
+			strcpy(newbase + (cpvar - base) + val.length(), cpendvar + 1);
+			delete []var;
+			delete []base;
+			base = newbase;
+		}
+		cpvar = strstr(base, "$(");
+		maxExpands--;
+	}
+	SString sret = base;
+	delete []base;
+	return sret;
+}
+
+/**
+ * Initiate enumeration.
+ */
+bool PropSetFile::GetFirst(char **key, char **val) {
+	for (int i = 0; i < hashRoots; i++) {
+		for (Property *p = props[i]; p; p = p->next) {
+			if (p) {
+				*key = p->key;
+				*val = p->val;
+				enumnext = p->next; // GetNext will begin here ...
+				enumhash = i;		  // ... in this block
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+/**
+ * Continue enumeration.
+ */
+bool PropSetFile::GetNext(char ** key, char ** val) {
+	bool firstloop = true;
+
+	// search begins where we left it : in enumhash block
+	for (int i = enumhash; i < hashRoots; i++) {
+		if (!firstloop)
+			enumnext = props[i]; // Begin with first property in block
+		// else : begin where we left
+		firstloop = false;
+
+		for (Property *p = enumnext; p; p = p->next) {
+			if (p) {
+				*key = p->key;
+				*val = p->val;
+				enumnext = p->next; // for GetNext
+				enumhash = i;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void SciTEBase::SetImportMenu() {

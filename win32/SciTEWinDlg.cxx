@@ -604,7 +604,7 @@ void SciTEWin::Print(
 	// Print each page
 	int pageNum = 1;
 	bool printPage;
-	PropSet propsPrint;
+	PropSetFile propsPrint;
 	propsPrint.superPS = &props;
 	SetFileProperties(propsPrint);
 
@@ -828,7 +828,7 @@ public:
 
 };
 
-static void FillComboFromProps(HWND combo, PropSet &props) {
+static void FillComboFromProps(HWND combo, PropSetFile &props) {
 	char *key;
 	char *val;
 	if (props.GetFirst(&key, &val)) {

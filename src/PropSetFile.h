@@ -7,6 +7,8 @@
 
 class PropSetFile : public PropSet {
 	bool lowerKeys;
+protected:
+	static bool caseSensitiveFilenames;
 public:
 	PropSetFile(bool lowerKeys_=false);
 	~PropSetFile();
@@ -14,4 +16,11 @@ public:
 	void ReadFromMemory(const char *data, int len, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
 	bool Read(FilePath filename, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
 	void SetInteger(const char *key, sptr_t i);
+	SString GetWild(const char *keybase, const char *filename);
+	SString GetNewExpand(const char *keybase, const char *filename="");
+	bool GetFirst(char **key, char **val);
+	bool GetNext(char **key, char **val);
+	static void SetCaseSensitiveFilenames(bool caseSensitiveFilenames_) {
+		caseSensitiveFilenames = caseSensitiveFilenames_;
+	}
 };

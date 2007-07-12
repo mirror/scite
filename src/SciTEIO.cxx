@@ -47,6 +47,7 @@
 
 #include "SciTE.h"
 #include "PropSet.h"
+#include "StringList.h"
 #include "Accessor.h"
 #include "WindowAccessor.h"
 #include "Scintilla.h"

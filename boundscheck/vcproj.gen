@@ -361,6 +361,9 @@
 				RelativePath="..\win32\SingleThreadExtension.cxx">
 			</File>
 			<File
+				RelativePath="..\src\StringList.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\Style.cxx">
 			</File>
 			<File

@@ -57,6 +57,7 @@
 
 #include "SciTE.h"
 #include "PropSet.h"
+#include "StringList.h"
 #include "Accessor.h"
 #include "WindowAccessor.h"
 #include "KeyWords.h"
@@ -725,32 +726,6 @@ void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
 	tr.lpstrText = text;
 	Platform::SendScintillaPointer(win.GetID(), SCI_GETTEXTRANGE, 0, &tr);
 }
-
-#ifdef OLD_CODE
-void SciTEBase::Colourise(int start, int end, bool editor) {
-	// Colourisation is now performed by the SciLexer DLL
-	Window &win = editor ? wEditor : wOutput;
-	int lengthDoc = Platform::SendScintilla(win.GetID(), SCI_GETLENGTH, 0, 0);
-	if (end == -1)
-		end = lengthDoc;
-	int len = end - start;
-
-	StylingContext styler(win.GetID(), props);
-
-	int styleStart = 0;
-	if (start > 0)
-		styleStart = styler.StyleAt(start - 1);
-	styler.SetCodePage(codePage);
-
-	if (editor) {
-		LexerModule::Colourise(start, len, styleStart, lexLanguage, keyWordLists, styler);
-	} else {
-		LexerModule::Colourise(start, len, 0, SCLEX_ERRORLIST, 0, styler);
-	}
-	styler.Flush();
-}
-
-#endif
 
 /**
  * Check if the given line is a preprocessor condition line.
@@ -2173,7 +2148,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	}
 	size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > root.length()))) {
-		WordList wl;
+		StringList wl;
 		wl.Set(wordsNear.c_str());
 		char *words = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
 		SendEditorString(SCI_AUTOCSHOW, root.length(), words);
@@ -3144,7 +3119,7 @@ void SciTEBase::CharAddedOutput(int ch) {
 				symbols.append(") ");
 				b = props.GetNext(&key, &val);
 			}
-			WordList symList;
+			StringList symList;
 			symList.Set(symbols.c_str());
 			char *words = symList.GetNearestWords("", 0, true);
 			if (words) {
@@ -4920,7 +4895,7 @@ void SciTEBase::LoadMRUAndSession(bool allowLoadSession) {
 bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 	bool performPrint = false;
 	bool evaluate = phase == 0;
-	WordList wlArgs(true);
+	StringList wlArgs(true);
 	wlArgs.Set(args.c_str());
 	for (int i = 0; i < wlArgs.len; i++) {
 		char *arg = wlArgs[i];

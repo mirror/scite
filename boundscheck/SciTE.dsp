@@ -615,6 +615,10 @@ SOURCE=..\win32\SingleThreadExtension.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\StringList.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\Style.cxx
 # End Source File
 # Begin Source File

@@ -410,7 +410,7 @@ protected:
 	int characterSet;
 	SString language;
 	int lexLanguage;
-	WordList apis;
+	StringList apis;
 	SString apisFileNames;
 	SString functionDefinition;
 
@@ -424,9 +424,9 @@ protected:
 	StyleAndWords blockEnd;
 	enum { noPPC, ppcStart, ppcMiddle, ppcEnd, ppcDummy };	///< Indicate the kind of preprocessor condition line
 	char preprocessorSymbol;	///< Preprocessor symbol (in C: #)
-	WordList preprocCondStart;	///< List of preprocessor conditional start keywords (in C: if ifdef ifndef)
-	WordList preprocCondMiddle;	///< List of preprocessor conditional middle keywords (in C: else elif)
-	WordList preprocCondEnd;	///< List of preprocessor conditional end keywords (in C: endif)
+	StringList preprocCondStart;	///< List of preprocessor conditional start keywords (in C: if ifdef ifndef)
+	StringList preprocCondMiddle;	///< List of preprocessor conditional middle keywords (in C: else elif)
+	StringList preprocCondEnd;	///< List of preprocessor conditional end keywords (in C: endif)
 
 	Window wSciTE;  ///< Contains wToolBar, wTabBar, wContent, and wStatusBar
 	Window wContent;    ///< Contains wEditor and wOutput
@@ -750,7 +750,7 @@ protected:
 	void CharAdded(char ch);
 	void CharAddedOutput(int ch);
 	void SetTextProperties(PropSetFile &ps);
-	virtual void SetFileProperties(PropSet &ps) = 0;
+	virtual void SetFileProperties(PropSetFile &ps) = 0;
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
 	int GetLineLength(int line);
 	int GetCurrentLineNumber();

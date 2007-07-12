@@ -56,7 +56,7 @@ vpath %.cxx ../src
 
 #CXXFLAGS= -g -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -Wwrite-strings
 INCLUDEDIRS=-I ../../scintilla/include -I ../src
-CXXBASEFLAGS=-W -Wall -pedantic -Os -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
+CXXBASEFLAGS=-W -Wall -Wno-char-subscripts -pedantic -Os -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
 
 ifdef DEBUG
 CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
@@ -100,7 +100,7 @@ deps:
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=../../scintilla/bin/scintilla.a
 
-$(PROG): SciTEGTK.o FilePath.o SciTEBase.o SciTEBuffers.o SciTEIO.o Exporters.o \
+$(PROG): SciTEGTK.o FilePath.o SciTEBase.o SciTEBuffers.o SciTEIO.o StringList.o Exporters.o \
 MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o \
 	$(COMPLIB) $(LUA_OBJS)
 	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--version-script lua.map -DGTK $^ -o $@ $(CONFIGLIB)

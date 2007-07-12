@@ -65,7 +65,7 @@ CFLAGS=-DNDEBUG -Os $(CBASEFLAGS)
 STRIPFLAG="-Wl,-s"
 endif
 
-CXXFLAGS = $(CFLAGS) -pedantic -fno-exceptions $(THUNKFLAGS) -fno-rtti -mno-cygwin
+CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic -fno-exceptions $(THUNKFLAGS) -fno-rtti -mno-cygwin
 
 LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS) -mno-cygwin
 
@@ -75,7 +75,7 @@ LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS) -mno-cygwin
 .c.o:
 	gcc $(CFLAGS) -c $< -o $@
 
-OTHER_OBJS	= FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o SciTEProps.o \
+OTHER_OBJS	= FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o StringList.o SciTEProps.o \
 SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 UniqueInstance.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
@@ -262,7 +262,7 @@ $(PROG): $(OBJS)
 
 OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 	UniqueInstance.o SciTEBase.o FilePath.o SciTEBuffers.o \
-	SciTEIO.o Exporters.o SciTEProps.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
+	SciTEIO.o Exporters.o StringList.o SciTEProps.o ScintillaWinL.o ScintillaBaseL.o Editor.o \
 	WindowAccessor.o DocumentAccessor.o KeyWords.o ExternalLexer.o StyleContext.o\
 	Lexers.a PropSet.o RunStyles.o \
 	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \

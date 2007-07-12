@@ -24,6 +24,7 @@
 #include "Platform.h"
 
 #include "PropSet.h"
+#include "StringList.h"
 
 #include "Scintilla.h"
 #include "Accessor.h"
@@ -261,7 +262,7 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 	// Message may contain multiple commands separated by '\n'
 	// Reentrance trouble - if this function is reentered, the wCorrespondent may
 	// be set to zero before time.
-	WordList wlMessage(true);
+	StringList wlMessage(true);
 	wlMessage.Set(message);
 	for (int i = 0; i < wlMessage.len; i++) {
 		// Message format is [:return address:]command:argument

@@ -54,6 +54,7 @@
 #include "Extender.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
+#include "StringList.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 #include "UniqueInstance.h"
@@ -168,7 +169,7 @@ protected:
 	virtual FilePath GetSciteDefaultHome();
 	virtual FilePath GetSciteUserHome();
 
-	virtual void SetFileProperties(PropSet &ps);
+	virtual void SetFileProperties(PropSetFile &ps);
 	virtual void SetStatusBarText(const char *s);
 
 	virtual void TabInsert(int index, char *title);

@@ -93,6 +93,7 @@ OBJS=\
 	SciTEBuffers.obj \
 	SciTEIO.obj \
 	Exporters.obj \
+	StringList.obj \
 	SciTEProps.obj \
 	Utf8_16.obj \
 	SciTEWin.obj \
@@ -184,6 +185,7 @@ OBJSSTATIC=\
 	SciTEBuffers.obj \
 	SciTEIO.obj \
 	Exporters.obj \
+	StringList.obj \
 	SciTEProps.obj \
 	Utf8_16.obj \
 	Sc1.obj \
@@ -638,6 +640,10 @@ SciTEIO.obj: \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
 	../src/SciTEBase.h
+StringList.obj: \
+	../src/StringList.cxx \
+	../src/StringList.h \
+	../../scintilla/include/SString.h
 SciTEProps.obj: \
 	../src/SciTEProps.cxx \
 	../../scintilla/include/Platform.h \
