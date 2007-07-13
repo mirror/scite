@@ -447,7 +447,7 @@ protected:
 	virtual void TabInsert(int index, char *title);
 	virtual void TabSelect(int index);
 	virtual void RemoveAllTabs();
-	virtual void SetFileProperties(PropSet &ps);
+	virtual void SetFileProperties(PropSetFile &ps);
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
 
 	virtual void Notify(SCNotification *notification);
@@ -568,7 +568,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	pipeFD = -1;
 
-	PropSet::SetCaseSensitiveFilenames(true);
+	PropSetFile::SetCaseSensitiveFilenames(true);
 	propsEmbed.Set("PLAT_GTK", "1");
 
 	pathAbbreviations = GetAbbrevPropertiesFileName();
@@ -782,7 +782,7 @@ void SciTEGTK::RemoveAllTabs() {
 	}
 }
 
-void SciTEGTK::SetFileProperties(PropSet &ps) {
+void SciTEGTK::SetFileProperties(PropSetFile &ps) {
 	// Could use Unix standard calls here, someone less lazy than me (PL) should do it.
 	ps.Set("FileTime", "");
 	ps.Set("FileDate", "");

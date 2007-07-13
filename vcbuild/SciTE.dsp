@@ -117,6 +117,10 @@ SOURCE=..\..\scintilla\Src\PropSet.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\PropSetFile.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\Src\SciTEBase.cxx
 # End Source File
 # Begin Source File

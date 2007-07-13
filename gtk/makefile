@@ -101,7 +101,7 @@ deps:
 COMPLIB=../../scintilla/bin/scintilla.a
 
 $(PROG): SciTEGTK.o FilePath.o SciTEBase.o SciTEBuffers.o SciTEIO.o StringList.o Exporters.o \
-MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o \
+PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o \
 	$(COMPLIB) $(LUA_OBJS)
 	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--version-script lua.map -DGTK $^ -o $@ $(CONFIGLIB)
 

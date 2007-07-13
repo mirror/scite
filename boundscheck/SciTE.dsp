@@ -563,6 +563,10 @@ SOURCE=..\..\scintilla\Src\PropSet.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\Src\PropSetFile.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\RESearch.cxx
 # End Source File
 # Begin Source File

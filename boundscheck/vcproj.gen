@@ -310,6 +310,9 @@
 				RelativePath="..\..\scintilla\Src\PropSet.cxx">
 			</File>
 			<File
+				RelativePath="..\Src\PropSetFile.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\RESearch.cxx">
 			</File>
 			<File
