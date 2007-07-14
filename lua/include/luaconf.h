@@ -161,7 +161,11 @@
 
 #else
 
-#define LUA_API		extern
+#if defined(_WIN32)
+#define LUA_API __declspec(dllexport)
+#else
+#define LUA_API         extern
+#endif
 
 #endif
 
