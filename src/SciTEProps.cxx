@@ -956,8 +956,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	SString viewIndentExamine = GetFileNameProperty("view.indentation.examine");
-	//~ indentExamine = viewIndentExamine.length() ? viewIndentExamine.value() : SC_IV_REAL;
-	indentExamine = viewIndentExamine.value();
+	indentExamine = viewIndentExamine.length() ? viewIndentExamine.value() : SC_IV_REAL;
 	SendEditor(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides") ?
 		indentExamine : SC_IV_NONE);
 
