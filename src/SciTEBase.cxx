@@ -2314,6 +2314,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	}
 
 	if (dataLength == 0) {
+		delete []linebuf;
 		WarnUser(warnNotFound);	// No need for a special warning
 		return true; // returning if expanded abbreviation is empty
 	}
