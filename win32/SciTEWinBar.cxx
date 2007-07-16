@@ -671,8 +671,6 @@ void SciTEWin::LocaliseDialog(HWND wDialog) {
 #define TB_LOADIMAGES (WM_USER + 50)
 #endif
 
-#define ELEMENTS(a)	(sizeof(a) / sizeof(a[0]))
-
 struct BarButton {
 	int id;
 	int cmd;

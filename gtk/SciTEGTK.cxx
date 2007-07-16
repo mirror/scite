@@ -2715,8 +2715,6 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 	delete[] userDefinedAccels;
 }
 
-#define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
-
 void SciTEGTK::CreateMenu() {
 
 	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
@@ -3141,7 +3139,7 @@ void SciTEGTK::CreateUI() {
 	sbVisible = false;
 
 	static const GtkTargetEntry dragtypes[] = { { "text/uri-list", 0, 0 } };
-	static const gint n_dragtypes = sizeof(dragtypes) / sizeof(dragtypes[0]);
+	static const gint n_dragtypes = ELEMENTS(dragtypes);
 
 	gtk_drag_dest_set(PWidget(wSciTE), GTK_DEST_DEFAULT_ALL, dragtypes,
 	                  n_dragtypes, GDK_ACTION_COPY);

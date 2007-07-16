@@ -25,6 +25,8 @@ extern const char menuAccessIndicator[];
 #endif
 #endif
 
+#define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
+
 /**
  * The order of menus on Windows - the Buffers menu may not be present
  * and there is a Help menu at the end.

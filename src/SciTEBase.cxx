@@ -612,7 +612,7 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		}
 		AddStyledText(wsci, GetTranslationToAbout("Contributors:").c_str(), trsSty);
 		srand(static_cast<unsigned>(time(0)));
-		for (unsigned int co = 0;co < (sizeof(contributors) / sizeof(contributors[0]));co++) {
+		for (unsigned int co = 0;co < ELEMENTS(contributors);co++) {
 			int colourIndex = 50 + (co % 78);
 			AddStyledText(wsci, "\n    ", colourIndex);
 			AddStyledText(wsci, contributors[co], colourIndex);
@@ -2912,8 +2912,6 @@ static bool includes(const StyleAndWords &symbols, const SString value) {
 	}
 	return false;
 }
-
-#define ELEMENTS(a)	(sizeof(a) / sizeof(a[0]))
 
 IndentationStatus SciTEBase::GetIndentState(int line) {
 	// C like language indentation defined by braces and keywords
