@@ -164,17 +164,36 @@ NameError: mistake
        If command execution has failed and is taking too long to complete then the Tools | Stop
       Executing command can be used.
     </p>
+    <h3>
+       Command subsystem
+    </h3>
     <p>
-       On Windows, SciTE defaults to executing tools as command line programs. Executing a GUI
-      program in this mode results in that program being run without displaying a window. The
-      command.subsystem option can be used to define tools that run in GUI mode. The default
-      subsystem, 0, is for command line programs, 1 is for programs which create their own windows,
-      and 2 is for using the ShellExecute call. ShellExecute is a good way to open HTML files and
-      similar as it handles this similarly to a user opening the file from the shell. 3 is for calling an
-      internal extension or director extension, 4 is for calling the Windows specific HtmlHelp program
-      and 5 is for calling the Windows specific WinHelp function. On GTK+, the default subsystem 0
-      executes the tool and waits for it to finish, redirecting output to the output pane and
-      subsystem 2 executes the tool in the background.
+    Tools can be executed in various modes by SciTE which are called "subsystems". Different
+    subsystems are supported on Windows and GTK+. The default subsystem is 0.
+    </p>
+    <p>
+    <table class="windowsonly" cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
+    <thead><td colspan="3">Windows</td></thead>
+    <tr><td>0</td><td>console</td><td>Command line programs<br/>Do not use for GUI programs as their windows will not be visible.</td></tr>
+    <tr><td>1</td><td>windows</td><td>Programs that create their own windows</td></tr>
+    <tr><td>2</td><td>shellexec</td><td>Run using ShellExecute<br />
+    A good way to open HTML files and
+      similar as it handles this similarly to a user opening the file from the shell.</td></tr>
+    <tr><td>3</td><td>lua<br />director</td><td>Internal extension or director extension</td></tr>
+    <tr><td>4</td><td>htmlhelp</td><td>Open in HtmlHelp program<br />
+	Two part command separated by ! with the first
+	part being the topic to search for and the second the name of the help file
+    </td></tr>
+    <tr><td>5</td><td>winhelp</td><td>Open with WinHelp function<br />
+    Two part command similar to subsystem 4</td></tr>
+    </table>
+    </p>
+    <p>
+    <table class="gtkonly" cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
+    <thead><td colspan="3">GTK+</td></thead>
+    <tr><td>0</td><td>console</td><td>Execute tool and wait for it to finish</td></tr>
+    <tr><td>2</td><td>shellexec</td><td>Execute in background</td></tr>
+    </table>
     </p>
     <h3>
        Command line arguments
@@ -650,7 +669,7 @@ NameError: mistake
       are overridden by an explicit setting in one of the properties files.
     </p>
 	<p>
-      The directory properties file can used as project options file where user commands and
+      The directory properties file can be used as project options file where user commands and
       compile, build commands should work in the same manner in subdirectories of a project. The
       benefit is that local properties files in subdirectories can be replaced by one properties file
       which is located at the root of the project.
@@ -1009,10 +1028,7 @@ NameError: mistake
           The line.margin.width property controls how much space is reserved for the line
           numbers, in terms of the number of digits that can be displayed.  To specify that
           the margin should expand if needed to accomodate larger line numbers, add a '+'
-          after the number of digits, e.g. <span class="example">line.margin.width=3+</span>.<br />
-	  These properties replace the old <span class="example">line.numbers</span> property, which
-	  was overloaded to perform both of the actions described above.  The
-	  <span class="example">line.numbers</span> property is no longer available.
+          after the number of digits, e.g. <span class="example">line.margin.width=3+</span>.
         </td>
       </tr>
       <tr>
@@ -2409,12 +2425,6 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           go commands. The optional command.is.filter property states that the command modifies the
           current file so it may need to be read in after performing the command if
           load.on.activate is set.<br />
-           The subsystem determines how the command is executed on Windows. 0, the default is for
-          command line programs, 1 for programs which create their own windows, 2 for running
-        by using ShellExecute, 3 for running in an internal extension or director extension,
-        4 for running HtmlHelp on Windows, and 5 for running WinHelp on Windows.
-        When using subsystem 4 or 5, the command has two parts separated by ! with the first
-        part being the topic to search for and the second the name of the help file.<br />
         If command.save.before is set to 1, SciTE automatically saves the file before execution.
         If it is set to 2, SciTE will not save the file, otherwise SciTE asks you.
 
