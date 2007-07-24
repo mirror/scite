@@ -7,6 +7,7 @@
 
 class PropSetFile : public PropSet {
 	bool lowerKeys;
+	SString GetWildUsingStart(const PropSet &psStart, const char *keybase, const char *filename);
 protected:
 	static bool caseSensitiveFilenames;
 public:

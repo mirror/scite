@@ -160,39 +160,54 @@ static inline char MakeUpperCase(char ch) {
 		return static_cast<char>(ch - 'a' + 'A');
 }
 
-static bool IsSuffix(const char *target, const char *suffix, bool caseSensitive) {
-	size_t lentarget = strlen(target);
-	size_t lensuffix = strlen(suffix);
-	if (lensuffix > lentarget)
-		return false;
+static bool StringEqual(const char *a, const char *b, size_t len, bool caseSensitive) {
 	if (caseSensitive) {
-		for (int i = static_cast<int>(lensuffix) - 1; i >= 0; i--) {
-			if (target[i + lentarget - lensuffix] != suffix[i])
+		for (size_t i = 0; i < len; i++) {
+			if (a[i] != b[i])
 				return false;
 		}
 	} else {
-		for (int i = static_cast<int>(lensuffix) - 1; i >= 0; i--) {
-			if (MakeUpperCase(target[i + lentarget - lensuffix]) !=
-				MakeUpperCase(suffix[i]))
+		for (size_t i = 0; i < len; i++) {
+			if (MakeUpperCase(a[i]) != MakeUpperCase(b[i]))
 				return false;
 		}
 	}
 	return true;
 }
 
-SString PropSetFile::GetWild(const char *keybase, const char *filename) {
+// Match file names to patterns allowing for a '*' suffix or prefix.
+static bool MatchWild(const char *pattern, size_t lenPattern, const char *fileName, bool caseSensitive) {
+	size_t lenFileName = strlen(fileName);
+	if (lenFileName == lenPattern) {
+		if (StringEqual(pattern, fileName, lenFileName, caseSensitive)) {
+			return true;
+		}
+	}
+	if (lenFileName >= lenPattern-1) {
+		if (pattern[0] == '*') {
+			// Matching suffixes
+			return StringEqual(pattern+1, fileName + lenFileName - (lenPattern-1), lenPattern-1, caseSensitive);
+		} else if (pattern[lenPattern-1] == '*') {
+			// Matching prefixes
+			return StringEqual(pattern, fileName, lenPattern-1, caseSensitive);
+		}
+	}
+	return false;
+}
+
+SString PropSetFile::GetWildUsingStart(const PropSet &psStart, const char *keybase, const char *filename) {
+
 	for (int root = 0; root < hashRoots; root++) {
 		for (Property *p = props[root]; p; p = p->next) {
 			if (isprefix(p->key, keybase)) {
-				char * orgkeyfile = p->key + strlen(keybase);
+				char *orgkeyfile = p->key + strlen(keybase);
 				char *keyfile = NULL;
 
-				if (strstr(orgkeyfile, "$(") == orgkeyfile) {
-					char *cpendvar = strchr(orgkeyfile, ')');
+				if (strncmp(orgkeyfile, "$(", 2) == 0) {
+					const char *cpendvar = strchr(orgkeyfile, ')');
 					if (cpendvar) {
-						*cpendvar = '\0';
-						SString s = GetExpanded(orgkeyfile + 2);
-						*cpendvar = ')';
+						SString var(orgkeyfile, 2, cpendvar-orgkeyfile);
+						SString s = psStart.GetExpanded(var.c_str());
 						keyfile = StringDup(s.c_str());
 					}
 				}
@@ -205,22 +220,12 @@ SString PropSetFile::GetWild(const char *keybase, const char *filename) {
 					char *del = strchr(keyfile, ';');
 					if (del == NULL)
 						del = keyfile + strlen(keyfile);
-					char delchr = *del;
-					*del = '\0';
-					if (*keyfile == '*') {
-						if (IsSuffix(filename, keyfile + 1, caseSensitiveFilenames)) {
-							*del = delchr;
-							delete []keyptr;
-							return p->val;
-						}
-					} else if (0 == strcmp(keyfile, filename)) {
-						*del = delchr;
+					if (MatchWild(keyfile, del - keyfile, filename, caseSensitiveFilenames)) {
 						delete []keyptr;
 						return p->val;
 					}
-					if (delchr == '\0')
+					if (*del == '\0')
 						break;
-					*del = delchr;
 					keyfile = del + 1;
 				}
 				delete []keyptr;
@@ -232,11 +237,15 @@ SString PropSetFile::GetWild(const char *keybase, const char *filename) {
 		}
 	}
 	if (superPS) {
-		// Failed here, so try in base property set
-		return static_cast<PropSetFile *>(superPS)->GetWild(keybase, filename);
+		// Failed here, so try in super property set
+		return static_cast<PropSetFile *>(superPS)->GetWildUsingStart(psStart, keybase, filename);
 	} else {
 		return "";
 	}
+}
+
+SString PropSetFile::GetWild(const char *keybase, const char *filename) {
+	return GetWildUsingStart(*this, keybase, filename);
 }
 
 // GetNewExpand does not use Expand as it has to use GetWild with the filename for each
@@ -246,7 +255,7 @@ SString PropSetFile::GetNewExpand(const char *keybase, const char *filename) {
 	char *cpvar = strstr(base, "$(");
 	int maxExpands = 1000;	// Avoid infinite expansion of recursive definitions
 	while (cpvar && (maxExpands > 0)) {
-		char *cpendvar = strchr(cpvar, ')');
+		const char *cpendvar = strchr(cpvar, ')');
 		if (cpendvar) {
 			int lenvar = cpendvar - cpvar - 2;  	// Subtract the $()
 			char *var = StringDup(cpvar + 2, lenvar);
