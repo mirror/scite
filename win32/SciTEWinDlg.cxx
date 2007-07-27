@@ -1061,13 +1061,6 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_SETFOCUS:
 		return 0;
 
-	case WM_HOTKEY:
-		if (wParam == 1)
-			FindNext(false,false);
-		if (wParam == 2)
-			FindNext(true,false);
-		break;
-
 	case WM_CLOSE:
 		::SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
 		break;
@@ -1115,8 +1108,10 @@ BOOL CALLBACK SciTEWin::FindIncrementDlg(HWND hDlg, UINT message, WPARAM wParam,
 }
 
 void SciTEWin::FindIncrement() {
-	if (wFindIncrement.Created())
+	if (wFindIncrement.Created()) {
+		wFindIncrement.Destroy();
 		return;
+	}
 
 	memset(&fr, 0, sizeof(fr));
 	fr.lStructSize = sizeof(fr);
@@ -1130,20 +1125,20 @@ void SciTEWin::FindIncrement() {
 	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 
 	replacing = false;
-	//DoDialog(hInstance,
-	//		 MAKEINTRESOURCE(IDD_FIND2),
-	//		 MainHWND(),
-	//		 reinterpret_cast<DLGPROC>(FindIncrementDlg));
 	if (isWindowsNT) {
-		::DialogBoxParamW(hInstance, (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
-		                MainHWND(), reinterpret_cast<DLGPROC>(FindIncrementDlg),
-		                reinterpret_cast<LPARAM>(this));
+		::CreateDialogParamW(hInstance,
+		                                    (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
+		                                    MainHWND(),
+		                                    reinterpret_cast<DLGPROC>(FindIncrementDlg),
+		                                    reinterpret_cast<LPARAM>(this));
 	} else {
-		::DialogBoxParamA(hInstance, MAKEINTRESOURCE(IDD_FIND2),
-		                MainHWND(), reinterpret_cast<DLGPROC>(FindIncrementDlg),
-		                reinterpret_cast<LPARAM>(this));
+		::CreateDialogParamA(hInstance,
+		                                    MAKEINTRESOURCE(IDD_FIND2),
+		                                    MainHWND(),
+		                                    reinterpret_cast<DLGPROC>(FindIncrementDlg),
+		                                    reinterpret_cast<LPARAM>(this));
 	}
-	WindowSetFocus(wEditor);
+	wFindIncrement.Show();
 }
 
 bool SciTEWin::FindReplaceAdvanced() {
