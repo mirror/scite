@@ -134,6 +134,10 @@ uninstall:
 	rm -f $(DESTDIR)$(bindir)/SciTE
 	rm -rf $(DESTDIR)$(SYSCONF_PATH)
 ifdef gnomeprefix
+ifdef GTK2
+       rm -f $(DESTDIR)$(datadir)/applications/SciTE.desktop
+else
 	rm -f $(DESTDIR)$(datadir)/gnome/apps/Applications/SciTE.desktop
+endif
 	rm -f $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
