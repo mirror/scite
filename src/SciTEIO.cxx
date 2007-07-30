@@ -380,7 +380,9 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 		SString msg = LocaliseMessage("Could not open file '^0'.", filePath.AsFileSystem());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
-	SendEditor(SCI_SETUNDOCOLLECTION, 1);
+	if (!SendEditor(SCI_GETUNDOCOLLECTION)) {
+		SendEditor(SCI_SETUNDOCOLLECTION, 1);
+	}
 	// Flick focus to the output window and back to
 	// ensure palette realised correctly.
 	WindowSetFocus(wOutput);
