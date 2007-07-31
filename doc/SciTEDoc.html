@@ -44,26 +44,39 @@
             background-color: #FFF7EE;
             padding: 2px 5px;
         }
+        .header{
+            border: 1px solid #CCCCCC;
+        }
+        .headerlinks {
+            padding: 7px;
+            background-color: #CCCCCC;
+	  border: 0px solid #FF0000;
+            font-size: 120%;
+        }
  </style>
   </head>
   <body bgcolor="#FFFFFF" text="#000000">
-    <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0"  summary="banner">
+    <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" style="border:0px solid #FF0000" border="0"  summary="banner">
       <tr>
         <td>
           <img src="SciTEIco.png" border="3" height="64" width="64" alt="Scintilla icon" />
         </td>
         <td>
           <a href="index.html" style="color:white;text-decoration:none"><font size="5">
-          SciTE</font></a>
+          SciTE Documentation</font></a>
         </td>
       </tr>
     </table>
-    <h2>
-       SciTE Documentation
-    </h2>
-    <p>
-    <a href="SciTEFAQ.html">Frequently Asked Questions</a>
-    </p>
+    <table class="header" width="100%" summary="header">
+      <tr>
+        <td class="headerlinks">
+	  <a href="http://scintilla.sourceforge.net/SciTEFAQ.html">
+          Frequently Asked Questions</a>&nbsp;&nbsp;
+	  <a href="http://scintilla.sourceforge.net/SciTELua.html">
+          Scripting</a>&nbsp;&nbsp;
+        </td>
+      </tr>
+    </table>
     <h3>
        Standard Editing
     </h3>
