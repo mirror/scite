@@ -166,8 +166,11 @@ properties - a sorted list of (name, property), where property is a
 	return (constants, funclist, proplist)
 
 
-def printIFaceTableCXXFile(f, out):
+def printIFaceTableCXXFile(faceAndIDs, out):
+	f, ids = faceAndIDs
 	(constants, functions, properties) = GetScriptableInterface(f)
+	constants.extend(ids)
+	constants.sort()
 
 	out.write("\nstatic IFaceConstant ifaceConstants[] = {")
 
@@ -176,7 +179,6 @@ def printIFaceTableCXXFile(f, out):
 		for name, features in constants:
 			if first: first = 0
 			else: out.write(",")
-
 			out.write('\n\t{"%s",%s}' % (name, features["Value"]))
 
 		out.write("\n};\n")
@@ -274,6 +276,25 @@ def Regenerate(filename, genfn, definition):
 		os.unlink(filename)
 		os.rename(tempname, filename)
 
+def ReadMenuIDs(filename):
+	ids = []
+	f = file(filename)
+	try:
+		for l in f:
+			if l.startswith("#define"):
+				#~ print l
+				try:
+					d, name, number = l.split()
+					if name.startswith("IDM_"):
+						ids.append((name, {"Value":number}))
+				except ValueError:
+					# No value present
+					pass
+	finally:
+		f.close()
+	return ids
+
 f = Face.Face()
 f.ReadFromFile(srcRoot + "/scintilla/include/Scintilla.iface")
-Regenerate(srcRoot + "/scite/src/IFaceTable.cxx", printIFaceTableCXXFile, f)
+menuIDs  = ReadMenuIDs(srcRoot + "/scite/src/SciTE.h")
+Regenerate(srcRoot + "/scite/src/IFaceTable.cxx", printIFaceTableCXXFile, [f, menuIDs])
