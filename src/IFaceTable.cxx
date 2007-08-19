@@ -2275,3 +2275,8 @@ const int IFaceTable::constantCount = ifaceConstantCount;
 
 const IFaceProperty * const IFaceTable::properties = ifaceProperties;
 const int IFaceTable::propertyCount = ifacePropertyCount;
+
+#ifdef _MSC_VER
+// Unreferenced inline functions are OK
+#pragma warning(disable: 4514)
+#endif
