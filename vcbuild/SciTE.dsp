@@ -105,6 +105,10 @@ SOURCE=..\src\FilePath.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\IFaceTable.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\MultiplexExtension.cxx
 # End Source File
 # Begin Source File
