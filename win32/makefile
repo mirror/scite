@@ -4,11 +4,6 @@
 # This makefile assumes the mingw32 version of GCC 3.2 is used and changes will
 # be needed to use other compilers.
 
-ifdef TERM
-# Assume that any defined TERM implies cygwin.
-CYGWIN = 1
-endif
-
 .SUFFIXES: .cxx
 CC = g++
 DLLWRAP = dllwrap
