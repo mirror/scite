@@ -506,7 +506,7 @@ bool FilePath::IsDirectory() const {
 bool FilePath::Matches(const char *pattern) const {
 	SString pat(pattern);
 	pat.substitute(' ', '\0');
-	SString nameCopy(fileName);
+	SString nameCopy(Name().fileName);
 	nameCopy.lowercase();
 	size_t start = 0;
 	while (start < pat.length()) {
