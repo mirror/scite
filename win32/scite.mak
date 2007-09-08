@@ -117,6 +117,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexAPDL.obj \
 	..\..\scintilla\win32\LexAsm.obj \
 	..\..\scintilla\win32\LexAsn1.obj \
+	..\..\scintilla\win32\LexASY.obj \
 	..\..\scintilla\win32\LexAU3.obj \
 	..\..\scintilla\win32\LexAVE.obj \
 	..\..\scintilla\win32\LexBaan.obj \

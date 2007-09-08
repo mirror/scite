@@ -215,6 +215,10 @@ SOURCE=..\..\scintilla\src\LexAsn1.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexASY.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexAU3.cxx
 # End Source File
 # Begin Source File
