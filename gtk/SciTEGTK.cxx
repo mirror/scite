@@ -35,6 +35,8 @@
 #include "Extender.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
+#include "Mutex.h"
+#include "JobQueue.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 
@@ -1045,9 +1047,9 @@ void SciTEGTK::CheckMenus() {
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
 
 	if (btnBuild) {
-		gtk_widget_set_sensitive(btnBuild, !executing);
-		gtk_widget_set_sensitive(btnCompile, !executing);
-		gtk_widget_set_sensitive(btnStop, executing);
+		gtk_widget_set_sensitive(btnBuild, !jobQueue.IsExecuting());
+		gtk_widget_set_sensitive(btnCompile, !jobQueue.IsExecuting());
+		gtk_widget_set_sensitive(btnStop, jobQueue.IsExecuting());
 	}
 }
 
@@ -1322,8 +1324,8 @@ void SciTEGTK::Print(bool) {
 	SelectionIntoProperties();
 	AddCommand(props.GetWild("command.print.", filePath.AsInternal()), "",
 	           SubsystemType("command.print.subsystem."));
-	if (commandCurrent > 0) {
-		isBuilding = true;
+	if (jobQueue.commandCurrent > 0) {
+		jobQueue.isBuilding = true;
 		Execute();
 	}
 }
@@ -1499,7 +1501,7 @@ void SciTEGTK::FindInFilesCmd() {
 		//~ fprintf(stderr, "%s\n", findCommand.c_str());
 	}
 	AddCommand(findCommand, props.Get("find.directory"), jobCLI);
-	if (commandCurrent > 0)
+	if (jobQueue.commandCurrent > 0)
 		Execute();
 }
 
@@ -1638,11 +1640,11 @@ void SciTEGTK::Replace() {
 
 void SciTEGTK::ExecuteNext() {
 	icmd++;
-	if (icmd < commandCurrent && icmd < commandMax) {
+	if (icmd < jobQueue.commandCurrent && icmd < jobQueue.commandMax) {
 		Execute();
 	} else {
 		icmd = 0;
-		executing = false;
+		jobQueue.SetExecuting(false);
 		if (needReadProperties)
 			ReadProperties();
 		CheckReload();
@@ -1665,7 +1667,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 			sSignal.insert(0, " Signal: ");
 			sExitMessage += sSignal;
 		}
-		if (timeCommands) {
+		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";
 			sExitMessage += SString(commandTime.Duration(), 3);
 		}
@@ -1738,23 +1740,23 @@ void SciTEGTK::Execute() {
 	originalEnd = SendOutput(SCI_GETCURRENTPOS);
 
 	OutputAppendString(">");
-	OutputAppendString(jobQueue[icmd].command.c_str());
+	OutputAppendString(jobQueue.jobQueue[icmd].command.c_str());
 	OutputAppendString("\n");
 
 	unlink(resultsFile);
-	if (jobQueue[icmd].directory.IsSet()) {
-		jobQueue[icmd].directory.SetWorkingDirectory();
+	if (jobQueue.jobQueue[icmd].directory.IsSet()) {
+		jobQueue.jobQueue[icmd].directory.SetWorkingDirectory();
 	}
 
-	if (jobQueue[icmd].jobType == jobShell) {
+	if (jobQueue.jobQueue[icmd].jobType == jobShell) {
 		if (fork() == 0)
-			execlp("/bin/sh", "sh", "-c", jobQueue[icmd].command.c_str(),
+			execlp("/bin/sh", "sh", "-c", jobQueue.jobQueue[icmd].command.c_str(),
 				static_cast<char *>(NULL));
 		else
 			ExecuteNext();
-	} else if (jobQueue[icmd].jobType == jobExtension) {
+	} else if (jobQueue.jobQueue[icmd].jobType == jobExtension) {
 		if (extender)
-			extender->OnExecute(jobQueue[icmd].command.c_str());
+			extender->OnExecute(jobQueue.jobQueue[icmd].command.c_str());
 		ExecuteNext();
 	} else {
 		if (!MakePipe(resultsFile)) {
@@ -1763,7 +1765,7 @@ void SciTEGTK::Execute() {
 			return;
 		}
 
-		pidShell = xsystem(jobQueue[icmd].command.c_str(), resultsFile);
+		pidShell = xsystem(jobQueue.jobQueue[icmd].command.c_str(), resultsFile);
 		triedKill = false;
 		fdFIFO = open(resultsFile, O_RDONLY | O_NONBLOCK);
 		if (fdFIFO < 0) {

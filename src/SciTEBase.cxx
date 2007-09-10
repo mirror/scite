@@ -67,6 +67,8 @@
 #include "Extender.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
+#include "Mutex.h"
+#include "JobQueue.h"
 #include "SciTEBase.h"
 
 // Contributor names are in UTF-8
@@ -349,14 +351,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	previousHeightOutput = 0;
 
 	allowMenuActions = true;
-	isBuilding = false;
-	isBuilt = false;
-	executing = false;
 	scrollOutput = 1;
 	returnOutputToCommand = true;
-	commandCurrent = 0;
-	jobUsesOutputPane = false;
-	cancelFlag = 0L;
 
 	ptStartDrag.x = 0;
 	ptStartDrag.y = 0;
@@ -392,7 +388,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	lineNumbersExpand = false;
 	usePalette = false;
 
-	clearBeforeExecute = false;
 	replacing = false;
 	havefound = false;
 	matchCase = false;
@@ -1755,10 +1750,10 @@ void SciTEBase::MakeOutputVisible() {
 }
 
 void SciTEBase::ClearJobQueue() {
-	for (int ic = 0; ic < commandMax; ic++) {
-		jobQueue[ic].Clear();
+	for (int ic = 0; ic < jobQueue.commandMax; ic++) {
+		jobQueue.jobQueue[ic].Clear();
 	}
-	commandCurrent = 0;
+	jobQueue.commandCurrent = 0;
 }
 
 void SciTEBase::Execute() {
@@ -1767,14 +1762,14 @@ void SciTEBase::Execute() {
 	bool displayParameterDialog = false;
 	int ic;
 	parameterisedCommand = "";
-	for (ic = 0; ic < commandMax; ic++) {
-		if (jobQueue[ic].command[0] == '*') {
+	for (ic = 0; ic < jobQueue.commandMax; ic++) {
+		if (jobQueue.jobQueue[ic].command[0] == '*') {
 			displayParameterDialog = true;
-			jobQueue[ic].command.remove(0, 1);
-			parameterisedCommand = jobQueue[ic].command;
+			jobQueue.jobQueue[ic].command.remove(0, 1);
+			parameterisedCommand = jobQueue.jobQueue[ic].command;
 		}
-		if (jobQueue[ic].directory.IsSet()) {
-			dirNameForExecute = jobQueue[ic].directory;
+		if (jobQueue.jobQueue[ic].directory.IsSet()) {
+			dirNameForExecute = jobQueue.jobQueue[ic].directory;
 		}
 	}
 	if (displayParameterDialog) {
@@ -1785,23 +1780,23 @@ void SciTEBase::Execute() {
 	} else {
 		ParamGrab();
 	}
-	for (ic = 0; ic < commandMax; ic++) {
-		jobQueue[ic].command = props.Expand(jobQueue[ic].command.c_str());
+	for (ic = 0; ic < jobQueue.commandMax; ic++) {
+		jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command.c_str());
 	}
 
-	if (clearBeforeExecute) {
+	if (jobQueue.ClearBeforeExecute()) {
 		SendOutputEx(SCI_CLEARALL, 0, 0, false);
 	}
 
 	SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
 	SendEditor(SCI_MARKERDELETEALL, 0);
 	// Ensure the output pane is visible
-	if (jobUsesOutputPane) {
+	if (jobQueue.ShowOutputPane()) {
 		MakeOutputVisible();
 	}
 
-	cancelFlag = 0L;
-	executing = true;
+	jobQueue.cancelFlag = 0L;
+	jobQueue.SetExecuting(true);
 	CheckMenus();
 	filePath.Directory().SetWorkingDirectory();
 	dirNameAtExecute = filePath.Directory();
@@ -3287,19 +3282,19 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 }
 
 void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, int flags) {
-	if (commandCurrent >= commandMax)
+	if (jobQueue.commandCurrent >= jobQueue.commandMax)
 		return;
-	if (commandCurrent == 0)
-		jobUsesOutputPane = false;
+	if (jobQueue.commandCurrent == 0)
+		jobQueue.jobUsesOutputPane = false;
 	if (cmd.length()) {
-		jobQueue[commandCurrent].command = cmd;
-		jobQueue[commandCurrent].directory.Set(dir.c_str());
-		jobQueue[commandCurrent].jobType = jobType;
-		jobQueue[commandCurrent].input = input;
-		jobQueue[commandCurrent].flags = flags;
-		commandCurrent++;
+		jobQueue.jobQueue[jobQueue.commandCurrent].command = cmd;
+		jobQueue.jobQueue[jobQueue.commandCurrent].directory.Set(dir.c_str());
+		jobQueue.jobQueue[jobQueue.commandCurrent].jobType = jobType;
+		jobQueue.jobQueue[jobQueue.commandCurrent].input = input;
+		jobQueue.jobQueue[jobQueue.commandCurrent].flags = flags;
+		jobQueue.commandCurrent++;
 		if (jobType == jobCLI)
-			jobUsesOutputPane = true;
+			jobQueue.jobUsesOutputPane = true;
 		// For jobExtension, the Trace() method shows output pane on demand.
 	}
 }
@@ -3812,7 +3807,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				SelectionIntoProperties();
 				AddCommand(props.GetWild("command.compile.", FileNameExt().AsInternal()), "",
 				        SubsystemType("command.compile.subsystem."));
-				if (commandCurrent > 0)
+				if (jobQueue.commandCurrent > 0)
 					Execute();
 			}
 		}
@@ -3825,8 +3820,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				    props.GetWild("command.build.", FileNameExt().AsInternal()),
 				    props.GetNewExpand("command.build.directory.", FileNameExt().AsInternal()),
 				    SubsystemType("command.build.subsystem."));
-				if (commandCurrent > 0) {
-					isBuilding = true;
+				if (jobQueue.commandCurrent > 0) {
+					jobQueue.isBuilding = true;
 					Execute();
 				}
 			}
@@ -3838,18 +3833,18 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				SelectionIntoProperties();
 				long flags = 0;
 
-				if (!isBuilt) {
+				if (!jobQueue.isBuilt) {
 					SString buildcmd = props.GetNewExpand("command.go.needs.", FileNameExt().AsInternal());
 					AddCommand(buildcmd, "",
 					        SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
-						isBuilding = true;
+						jobQueue.isBuilding = true;
 						flags |= jobForceQueue;
 					}
 				}
 				AddCommand(props.GetWild("command.go.", FileNameExt().AsInternal()), "",
 				        SubsystemType("command.go.subsystem."), "", flags);
-				if (commandCurrent > 0)
+				if (jobQueue.commandCurrent > 0)
 					Execute();
 			}
 		}
@@ -3952,8 +3947,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			SelectionIntoProperties();
 			AddCommand(props.GetWild("command.help.", FileNameExt().AsInternal()), "",
 			        SubsystemType("command.help.subsystem."));
-			if (commandCurrent > 0) {
-				isBuilding = true;
+			if (jobQueue.commandCurrent > 0) {
+				jobQueue.isBuilding = true;
 				Execute();
 			}
 		}
@@ -3963,8 +3958,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			SelectionIntoProperties();
 			AddCommand(props.Get("command.scite.help"), "",
 			        SubsystemType(props.Get("command.scite.help.subsystem")[0]));
-			if (commandCurrent > 0) {
-				isBuilding = true;
+			if (jobQueue.commandCurrent > 0) {
+				jobQueue.isBuilding = true;
 				Execute();
 			}
 		}
@@ -4138,7 +4133,7 @@ void SciTEBase::EnsureAllChildrenVisible(int line, int level) {
 }
 
 void SciTEBase::NewLineInOutput() {
-	if (executing)
+	if (jobQueue.IsExecuting())
 		return;
 	int line = SendOutput(SCI_LINEFROMPOSITION,
 	        SendOutput(SCI_GETCURRENTPOS)) - 1;
@@ -4237,7 +4232,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 				handled = extender->OnSavePointLeft();
 			if (!handled) {
 				CurrentBuffer()->isDirty = true;
-				isBuilt = false;
+				jobQueue.isBuilt = false;
 			}
 		}
 		CheckMenus();
@@ -4373,7 +4368,7 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_UNDO, SendFocused(SCI_CANUNDO));
 	EnableAMenuItem(IDM_REDO, SendFocused(SCI_CANREDO));
 	EnableAMenuItem(IDM_DUPLICATE, !isReadOnly);
-	EnableAMenuItem(IDM_FINDINFILES, !executing);
+	EnableAMenuItem(IDM_FINDINFILES, !jobQueue.IsExecuting());
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);
@@ -4395,16 +4390,16 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_TOGGLEOUTPUT, heightOutput > 0);
 	CheckAMenuItem(IDM_TOGGLEPARAMETERS, ParametersOpen());
 	CheckAMenuItem(IDM_MONOFONT, CurrentBuffer()->useMonoFont);
-	EnableAMenuItem(IDM_COMPILE, !executing &&
+	EnableAMenuItem(IDM_COMPILE, !jobQueue.IsExecuting() &&
 	        props.GetWild("command.compile.", FileNameExt().AsInternal()).size() != 0);
-	EnableAMenuItem(IDM_BUILD, !executing &&
+	EnableAMenuItem(IDM_BUILD, !jobQueue.IsExecuting() &&
 	        props.GetWild("command.build.", FileNameExt().AsInternal()).size() != 0);
-	EnableAMenuItem(IDM_GO, !executing &&
+	EnableAMenuItem(IDM_GO, !jobQueue.IsExecuting() &&
 	        props.GetWild("command.go.", FileNameExt().AsInternal()).size() != 0);
 	EnableAMenuItem(IDM_OPENDIRECTORYPROPERTIES, props.GetInt("properties.directory.enable") != 0);
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
-		EnableAMenuItem(IDM_TOOLS + toolItem, !executing);
-	EnableAMenuItem(IDM_STOPEXECUTE, executing);
+		EnableAMenuItem(IDM_TOOLS + toolItem, !jobQueue.IsExecuting());
+	EnableAMenuItem(IDM_STOPEXECUTE, jobQueue.IsExecuting());
 	if (buffers.size > 0) {
 #if PLAT_WIN
 		// Tab Bar

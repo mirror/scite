@@ -29,6 +29,8 @@
 #include "FilePath.h"
 #include "StringList.h"
 #include "PropSetFile.h"
+#include "Mutex.h"
+#include "JobQueue.h"
 #include "SciTEBase.h"
 
 static ExtensionAPI *host = 0;

@@ -74,7 +74,7 @@ OTHER_OBJS	= FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o PropSetFile.o Strin
 SciTEProps.o SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 UniqueInstance.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
-DirectorExtension.o XPM.o $(LUA_OBJS)
+DirectorExtension.o JobQueue.o WinMutex.o XPM.o $(LUA_OBJS)
 
 OBJS = SciTEBase.o $(OTHER_OBJS)
 
@@ -262,7 +262,8 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 	ExternalLexer.o StyleContext.o Lexers.a PropSet.o RunStyles.o \
 	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
 	PositionCache.o UniConversion.o Utf8_16.o KeyMap.o Indicator.o LineMarker.o RESearch.o Style.o \
-	ViewStyle.o AutoComplete.o DirectorExtension.o MultiplexExtension.o XPM.o $(LUA_OBJS)
+	ViewStyle.o AutoComplete.o DirectorExtension.o MultiplexExtension.o XPM.o \
+	JobQueue.o WinMutex.o $(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
 	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
@@ -271,7 +272,7 @@ $(PROGSTATIC): $(OBJSSTATIC)
 include deps.mak
 
 Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h Accessor.h WindowAccessor.h KeyWords.h PropSet.h \
- SString.h Scintilla.h Extender.h FilePath.h SciTEBase.h
+ SString.h Scintilla.h Extender.h FilePath.h SciTEBase.h JobQueue.h
 	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
 
 SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h

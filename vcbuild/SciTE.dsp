@@ -181,6 +181,10 @@ SOURCE=..\..\scintilla\Src\WindowAccessor.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\win32\WinMutex.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\XPM.cxx
 # End Source File
 # End Group

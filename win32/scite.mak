@@ -103,6 +103,7 @@ OBJS=\
 	DirectorExtension.obj \
 	MultiplexExtension.obj \
 	UniqueInstance.obj \
+	WinMutex.obj \
 	..\..\scintilla\win32\PlatWin.obj \
 	..\..\scintilla\win32\PropSet.obj \
 	..\..\scintilla\win32\UniConversion.obj \
@@ -197,6 +198,7 @@ OBJSSTATIC=\
 	DirectorExtension.obj \
 	MultiplexExtension.obj \
 	UniqueInstance.obj \
+	WinMutex.obj \
 	..\..\scintilla\win32\AutoComplete.obj \
 	..\..\scintilla\win32\CallTip.obj \
 	..\..\scintilla\win32\CellBuffer.obj \
@@ -481,6 +483,8 @@ DirectorExtension.obj: \
 	../src/SciTE.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEBase.h
 MultiplexExtension.obj: \
 	../src/MultiplexExtension.cxx \
@@ -508,6 +512,9 @@ UniqueInstance.obj: \
 	../../scintilla/include/KeyWords.h \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Platform.h
+WinMutex.obj: \
+	WinMutex.cxx \
+	../src/Mutex.h
 SciTEWin.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \
@@ -525,6 +532,8 @@ SciTEWin.obj: \
 	../src/MultiplexExtension.h \
 	../src/LuaExtension.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h \
 	SingleThreadExtension.h
@@ -545,6 +554,8 @@ Sc1.obj: \
 	../src/MultiplexExtension.h \
 	../src/LuaExtension.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEKeys.h \
 	SingleThreadExtension.h
 SciTEWinBar.obj: \
@@ -560,6 +571,8 @@ SciTEWinBar.obj: \
 	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h
@@ -576,6 +589,8 @@ SciTEWinDlg.obj: \
 	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h
@@ -591,6 +606,8 @@ Exporters.obj: \
 	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEBase.h
 PropSetFile.obj: \
 	../src/PropSetFile.cxx \
@@ -611,6 +628,8 @@ SciTEBase.obj: \
 	../../scintilla/include/SciLexer.h \
 	../src/Extender.h \
 	../src/FilePath.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEBase.h
 FilePath.obj: \
 	../src/FilePath.cxx \
@@ -632,6 +651,8 @@ SciTEBuffers.obj: \
 	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEBase.h
 SciTEIO.obj: \
 	../src/SciTEIO.cxx \
@@ -646,6 +667,8 @@ SciTEIO.obj: \
 	../src/Utf8_16.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEBase.h
 StringList.obj: \
 	../src/StringList.cxx \
@@ -663,6 +686,8 @@ SciTEProps.obj: \
 	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
 	../src/SciTEBase.h
 Utf8_16.obj: \
 	../src/Utf8_16.cxx \

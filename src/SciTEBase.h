@@ -257,26 +257,6 @@ private:
 	void PopStack();
 };
 
-enum JobSubsystem {
-    jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5, jobGrep = 6};
-
-enum JobFlags {
-    jobForceQueue = 1, jobHasInput = 2, jobQuiet = 4, // 8 reserved for jobVeryQuiet
-    jobRepSelMask = 48, jobRepSelYes = 16, jobRepSelAuto = 32,
-    jobGroupUndo = 64};
-
-class Job {
-public:
-	SString command;
-	FilePath directory;
-	SString input;
-	JobSubsystem jobType;
-	int flags;
-
-	Job();
-	void Clear();
-};
-
 // class to hold user defined keyboard short cuts
 class ShortcutItem {
 public:
@@ -518,19 +498,10 @@ protected:
 	bool lineNumbersExpand;
 
 	bool usePalette;
-	bool clearBeforeExecute;
 	bool allowMenuActions;
-	bool isBuilding;
-	bool isBuilt;
-	bool executing;
 	int scrollOutput;
 	bool returnOutputToCommand;
-	enum { commandMax = 2 };
-	int commandCurrent;
-	Job jobQueue[commandMax];
-	bool jobUsesOutputPane;
-	long cancelFlag;
-	bool timeCommands;
+	JobQueue jobQueue;
 
 	bool macrosEnabled;
 	SString currentMacro;

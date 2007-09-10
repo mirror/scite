@@ -59,6 +59,8 @@ const char menuAccessIndicator[] = "&";
 #include "Extender.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
+#include "Mutex.h"
+#include "JobQueue.h"
 #include "SciTEBase.h"
 #include "IFaceTable.h"
 
@@ -911,8 +913,8 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETPRINTMAGNIFICATION, props.GetInt("print.magnification"));
 	SendEditor(SCI_SETPRINTCOLOURMODE, props.GetInt("print.colour.mode"));
 
-	clearBeforeExecute = props.GetInt("clear.before.execute");
-	timeCommands = props.GetInt("time.commands");
+	jobQueue.clearBeforeExecute = props.GetInt("clear.before.execute");
+	jobQueue.timeCommands = props.GetInt("time.commands");
 
 	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
 	int blankMarginRight = props.GetInt("blank.margin.right", 1);

@@ -265,7 +265,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 
 	case SCN_CHARADDED:
 		if ((notification->nmhdr.idFrom == IDM_RUNWIN) &&
-		        executing &&
+		        jobQueue.IsExecuting() &&
 		        hWriteSubProcess) {
 			char chToWrite = static_cast<char>(notification->ch);
 			if (chToWrite != '\r') {

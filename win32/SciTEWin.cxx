@@ -446,14 +446,14 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case IDM_FINISHEDEXECUTE: {
-			executing = false;
+			jobQueue.SetExecuting(false);
 			if (needReadProperties)
 				ReadProperties();
 			CheckMenus();
-			for (int icmd = 0; icmd < commandMax; icmd++) {
-				jobQueue[icmd].Clear();
+			for (int icmd = 0; icmd < jobQueue.commandMax; icmd++) {
+				jobQueue.jobQueue[icmd].Clear();
 			}
-			commandCurrent = 0;
+			jobQueue.commandCurrent = 0;
 			CheckReload();
 		}
 		break;
@@ -743,7 +743,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 				}
 			}
 
-			if (::InterlockedExchange(&cancelFlag, 0)) {
+			if (jobQueue.SetCancelFlag(0)) {
 				if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 500)) {
 					// We should use it only if the GUI process is stuck and
 					// don't answer to a normal termination command.
@@ -764,7 +764,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 		::GetExitCodeProcess(pi.hProcess, &exitcode);
 		SString sExitMessage(exitcode);
 		sExitMessage.insert(0, ">Exit code: ");
-		if (timeCommands) {
+		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";
 			sExitMessage += SString(commandTime.Duration(), 3);
 		}
@@ -828,14 +828,14 @@ void SciTEWin::ProcessExecute() {
 	int originalEnd = SendOutputEx(SCI_GETCURRENTPOS, 0, 0, false);
 	bool seenOutput = false;
 
-	for (int icmd = 0; icmd < commandCurrent && icmd < commandMax && exitcode == 0; icmd++) {
-		exitcode = ExecuteOne(jobQueue[icmd], seenOutput);
-		if (isBuilding) {
+	for (int icmd = 0; icmd < jobQueue.commandCurrent && icmd < jobQueue.commandMax && exitcode == 0; icmd++) {
+		exitcode = ExecuteOne(jobQueue.jobQueue[icmd], seenOutput);
+		if (jobQueue.isBuilding) {
 			// The build command is first command in a sequence so it is only built if
 			// that command succeeds not if a second returns after document is modified.
-			isBuilding = false;
+			jobQueue.isBuilding = false;
 			if (exitcode == 0)
-				isBuilt = true;
+				jobQueue.isBuilt = true;
 		}
 	}
 
@@ -1001,7 +1001,7 @@ void SciTEWin::StopExecute() {
 	}
 #endif
 
-	::InterlockedExchange(&cancelFlag, 1L);
+	jobQueue.SetCancelFlag(1);
 }
 
 void SciTEWin::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, int flags) {

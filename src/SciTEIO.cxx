@@ -55,6 +55,8 @@
 #include "Utf8_16.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
+#include "Mutex.h"
+#include "JobQueue.h"
 #include "SciTEBase.h"
 
 #ifdef unix
@@ -1163,7 +1165,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const char *directory, const char *fi
 	GrepRecursive(gf, FilePath(directory), searchString.c_str(), fileTypes);
 	if (!(gf & grepStdOut)) {
 		SString sExitMessage(">");
-		if (timeCommands) {
+		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";
 			sExitMessage += SString(commandTime.Duration(), 3);
 		}

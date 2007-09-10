@@ -58,22 +58,12 @@
 #include "Extender.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
+#include "Mutex.h"
+#include "JobQueue.h"
 #include "SciTEBase.h"
 
 const char recentFileName[] = "SciTE.recent";
 const char defaultSessionFileName[] = "SciTE.session";
-
-Job::Job() {
-	Clear();
-}
-
-void Job::Clear() {
-	command = "";
-	directory.Init();
-	jobType = jobCLI;
-	input = "";
-	flags = 0;
-}
 
 BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), size(0), length(0), initialised(false) {}
 
@@ -634,8 +624,8 @@ void SciTEBase::New() {
 	filePath.Set(curDirectory, "");
 	SetFileName(filePath);
 	CurrentBuffer()->isDirty = false;
-	isBuilding = false;
-	isBuilt = false;
+	jobQueue.isBuilding = false;
+	jobQueue.isBuilt = false;
 	isReadOnly = false;	// No sense to create an empty, read-only buffer...
 
 	ClearDocument();
@@ -1324,7 +1314,7 @@ void SciTEBase::ToolsMenu(int item) {
 				flags |= jobGroupUndo;
 
 			AddCommand(command, "", jobType, input, flags);
-			if (commandCurrent > 0)
+			if (jobQueue.commandCurrent > 0)
 				Execute();
 		}
 	}

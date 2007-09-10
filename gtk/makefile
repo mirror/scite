@@ -102,7 +102,7 @@ COMPLIB=../../scintilla/bin/scintilla.a
 
 $(PROG): SciTEGTK.o FilePath.o SciTEBase.o SciTEBuffers.o SciTEIO.o StringList.o Exporters.o \
 PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o \
-	$(COMPLIB) $(LUA_OBJS)
+	JobQueue.o GTKMutex.o $(COMPLIB) $(LUA_OBJS)
 	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB)
 
 # Automatically generate header dependencies with "make deps"

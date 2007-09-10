@@ -55,6 +55,8 @@
 #include "FilePath.h"
 #include "PropSetFile.h"
 #include "StringList.h"
+#include "Mutex.h"
+#include "JobQueue.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 #include "UniqueInstance.h"
