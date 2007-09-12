@@ -239,6 +239,7 @@ public:
 	SciTEWin(Extension *ext = 0);
 	~SciTEWin();
 
+	bool DialogHandled(WindowID id, MSG *pmsg);
 	bool ModelessHandler(MSG *pmsg);
 
 	void CreateUI();

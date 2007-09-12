@@ -1911,10 +1911,10 @@ int SciTEWin::EventLoop() {
 			if (!ModelessHandler(&msg)) {
 				if (::TranslateAccelerator(reinterpret_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
 					::TranslateMessage(&msg);
-				if (isWindowsNT)
-					::DispatchMessageW(&msg);
-				else
-					::DispatchMessageA(&msg);
+					if (isWindowsNT)
+						::DispatchMessageW(&msg);
+					else
+						::DispatchMessageA(&msg);
 				}
 			}
 		}

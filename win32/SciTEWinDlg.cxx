@@ -123,9 +123,11 @@ void SciTEWin::WarnUser(int warnID) {
 	PlayThisSound(sound, atoi(soundDuration), hMM);
 }
 
-bool DialogHandled(WindowID id, MSG *pmsg) {
+bool SciTEWin::DialogHandled(WindowID id, MSG *pmsg) {
 	if (id) {
-		if (::IsDialogMessage(reinterpret_cast<HWND>(id), pmsg))
+		if (isWindowsNT ?
+			::IsDialogMessageW(reinterpret_cast<HWND>(id), pmsg) :
+			::IsDialogMessageA(reinterpret_cast<HWND>(id), pmsg))
 			return true;
 	}
 	return false;
