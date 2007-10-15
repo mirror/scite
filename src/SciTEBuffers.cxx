@@ -1443,7 +1443,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			}
 		}
 	case SCE_ERR_LUA: {
-			// Lua error look like: last token read: `result' at line 40 in file `Test.lua'
+			// Lua 4 error looks like: last token read: `result' at line 40 in file `Test.lua'
 			const char *idLine = "at line ";
 			const char *idFile = "file ";
 			size_t lenLine = strlen(idLine);
@@ -1460,6 +1460,12 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 				}
 				line += lenLine;
 				return atoi(line) - 1;
+			} else {
+				// Lua 5.1 error looks like: lua.exe: test1.lua:3: syntax error
+				// reuse the GCC error parsing code above!
+				const char* colon = strstr(cdoc,": ");
+				if (cdoc)
+					return DecodeMessage(colon + 2,sourcePath,SCE_ERR_GCC,column);
 			}
 			break;
 		}
