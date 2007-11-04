@@ -385,6 +385,9 @@
 				RelativePath="..\..\scintilla\src\LexPython.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexR.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexRebol.cxx">
 			</File>
 			<File

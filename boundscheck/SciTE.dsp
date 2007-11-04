@@ -403,6 +403,10 @@ SOURCE=..\..\scintilla\src\LexPython.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexR.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexRebol.cxx
 # End Source File
 # Begin Source File

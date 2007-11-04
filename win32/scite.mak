@@ -165,6 +165,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexProgress.obj \
 	..\..\scintilla\win32\LexPS.obj \
 	..\..\scintilla\win32\LexPython.obj \
+	..\..\scintilla\win32\LexR.obj \
 	..\..\scintilla\win32\LexRebol.obj \
 	..\..\scintilla\win32\LexRuby.obj \
 	..\..\scintilla\win32\LexScriptol.obj \
@@ -251,7 +252,7 @@ $(DIR_BIN)\nsis.properties $(DIR_BIN)\opal.properties \
 $(DIR_BIN)\others.properties $(DIR_BIN)\pascal.properties \
 $(DIR_BIN)\perl.properties $(DIR_BIN)\pov.properties $(DIR_BIN)\ps.properties \
 $(DIR_BIN)\purebasic.properties $(DIR_BIN)\python.properties \
-$(DIR_BIN)\rebol.properties $(DIR_BIN)\ruby.properties \
+$(DIR_BIN)\r.properties $(DIR_BIN)\rebol.properties $(DIR_BIN)\ruby.properties \
 $(DIR_BIN)\scriptol.properties $(DIR_BIN)\smalltalk.properties \
 $(DIR_BIN)\specman.properties $(DIR_BIN)\spice.properties \
 $(DIR_BIN)\sql.properties $(DIR_BIN)\tcl.properties $(DIR_BIN)\tex.properties \
@@ -391,6 +392,8 @@ $(DIR_BIN)\purebasic.properties:	..\src\purebasic.properties
 	copy ..\src\purebasic.properties $@
 $(DIR_BIN)\python.properties:	..\src\python.properties
 	copy ..\src\python.properties $@
+$(DIR_BIN)\r.properties:	..\src\r.properties
+	copy ..\src\r.properties $@
 $(DIR_BIN)\rebol.properties:	..\src\rebol.properties
 	copy ..\src\rebol.properties $@
 $(DIR_BIN)\ruby.properties:	..\src\ruby.properties
