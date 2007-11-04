@@ -127,11 +127,17 @@
        How do I change SciTE to use black as the background colour?
     </h4>
     <p>
-       You need to change the style settings. The main change is in the global
+       You need to change the style settings. The main change is in the user
        options file to the global default style and caret colour but you may have
        to change other style settings to make this work well:<div class="example">
-       style.*.32=$(font.base),back:#000000,fore:#ffffff<br />
-       caret.fore=#FFFFFF</div>
+	style.*.32=$(font.base),back:#000000,fore:#ffffff<br />
+	style.*.33=back:#C0C0C0,$(font.base)<br />
+	style.*.37=fore:#939393<br />
+	caret.fore=#FFFFFF<br />
+	selection.alpha=75<br />
+	selection.back=#FFFFFF<br />
+	colour.keyword=fore:#649bff<br />
+	colour.operator=fore:#727272</div>
     </p>
     <h4 id="OutputColour">
        How do I change the colours of the output pane?
