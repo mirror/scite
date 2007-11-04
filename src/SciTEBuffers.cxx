@@ -106,7 +106,7 @@ int BufferList::GetDocumentByName(FilePath filename) {
 
 void BufferList::RemoveCurrent() {
 	// Delete and move up to fill gap but ensure doc pointer is saved.
-	int currentDoc = buffers[current].doc;
+	sptr_t currentDoc = buffers[current].doc;
 	for (int i = current;i < length - 1;i++) {
 		buffers[i] = buffers[i + 1];
 	}
