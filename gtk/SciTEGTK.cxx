@@ -467,6 +467,7 @@ protected:
 
 	void FindInFilesCmd();
 	void FindInFilesDotDot();
+	void FindInFilesBrowse();
 
 	void GotoCmd();
 	void TabSizeSet(int &tabSize, bool &useTabs);
@@ -1221,7 +1222,8 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title, const char *ext) {
 	bool canceled = true;
 	saveFormat = fmt;
 	if (!dlgFileSelector.Created()) {
-		GtkWidget *dlg = gtk_file_chooser_dialog_new(localiser.Text(title).c_str(),
+		GtkWidget *dlg = gtk_file_chooser_dialog_new(
+					localiser.Text(title).c_str(),
 				      GTK_WINDOW(wSciTE.GetID()),
 				      GTK_FILE_CHOOSER_ACTION_SAVE,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -1281,7 +1283,8 @@ void SciTEGTK::SaveAsXML() {
 void SciTEGTK::LoadSessionDialog() {
 	filePath.SetWorkingDirectory();
 	if (!dlgFileSelector.Created()) {
-		GtkWidget *dlg = gtk_file_chooser_dialog_new("Load Session",
+		GtkWidget *dlg = gtk_file_chooser_dialog_new(
+					localiser.Text("Load Session").c_str(),
 				      GTK_WINDOW(wSciTE.GetID()),
 				      GTK_FILE_CHOOSER_ACTION_OPEN,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -1302,7 +1305,8 @@ void SciTEGTK::LoadSessionDialog() {
 void SciTEGTK::SaveSessionDialog() {
 	filePath.SetWorkingDirectory();
 	if (!dlgFileSelector.Created()) {
-		GtkWidget *dlg = gtk_file_chooser_dialog_new("Save Session",
+		GtkWidget *dlg = gtk_file_chooser_dialog_new(
+					localiser.Text("Save Session").c_str(),
 				      GTK_WINDOW(wSciTE.GetID()),
 				      GTK_FILE_CHOOSER_ACTION_SAVE,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -1510,6 +1514,26 @@ void SciTEGTK::FindInFilesDotDot() {
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry), findInDir.Directory().AsInternal());
 }
 
+void SciTEGTK::FindInFilesBrowse() {
+	FilePath findInDir(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry)));
+	GtkWidget *dialog = gtk_file_chooser_dialog_new(
+							localiser.Text("Select a folder to search from").c_str(),
+							GTK_WINDOW(dlgFindInFiles.GetID()), // parent_window,
+							GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+							GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+							GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+							NULL);
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), findInDir.AsInternal());
+
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry), filename);
+		g_free(filename);
+	}
+
+	gtk_widget_destroy(dialog);
+}
+
 class Table {
 private:
 	GtkWidget *table;
@@ -1558,7 +1582,7 @@ void SciTEGTK::FindInFiles() {
 
 	dlgFindInFiles.Create(this, "Find in Files", &localiser);
 
-	Table table(4,4);
+	Table table(4, 5);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox));
 
 	static Signal<&SciTEGTK::FindInFilesCmd> sigFind;
@@ -1571,7 +1595,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFindInFiles), TRUE);
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFindInFiles), TRUE);
 
-	table.Add(comboFindInFiles, 3, true);
+	table.Add(comboFindInFiles, 4, true);
 
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), findWhat.c_str());
 	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFindInFiles)->entry), 0, findWhat.length());
@@ -1585,7 +1609,7 @@ void SciTEGTK::FindInFiles() {
 	gtk_combo_set_case_sensitive(GTK_COMBO(comboFiles), TRUE);
 	gtk_combo_set_use_arrows_always(GTK_COMBO(comboFiles), TRUE);
 
-	table.Add(comboFiles, 3, true);
+	table.Add(comboFiles, 4, true);
 	dlgFindInFiles.OnActivate(GTK_COMBO(comboFiles)->entry, sigFind.Function);
 	gtk_combo_disable_activate(GTK_COMBO(comboFiles));
 
@@ -1608,6 +1632,10 @@ void SciTEGTK::FindInFiles() {
 	static Signal<&SciTEGTK::FindInFilesDotDot> sigDotDot;
 	GtkWidget *btnDotDot = dlgFindInFiles.Button("_..", sigDotDot.Function);
 	table.Add(btnDotDot);
+
+	static Signal<&SciTEGTK::FindInFilesBrowse> sigBrowse;
+	GtkWidget *btnBrowse = dlgFindInFiles.Button("_Browse...", sigBrowse.Function);
+	table.Add(btnBrowse);
 
 	table.Add();	// Space
 
