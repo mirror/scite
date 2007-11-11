@@ -1458,9 +1458,10 @@ void SciTEBase::OpenProperties(int propsFile) {
 
 // return the int value of the command name passed in.
 int SciTEBase::GetMenuCommandAsInt(SString commandName) {
-	int val = IFaceTable::FindConstant(commandName.c_str());
-	if (val != -1)
-		return val;
+	int i = IFaceTable::FindConstant(commandName.c_str());
+	if (i != -1) {
+		return IFaceTable::constants[i].value;
+	}
 	// Otherwise we might have entered a number as command to access a "SCI_" command
 	return commandName.value();
 }
