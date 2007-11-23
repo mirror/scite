@@ -1912,7 +1912,8 @@ int SciTEWin::EventLoop() {
 		going = isWindowsNT ? ::GetMessageW(&msg, NULL, 0, 0) : ::GetMessageA(&msg, NULL, 0, 0);
 		if (going) {
 			if (!ModelessHandler(&msg)) {
-				if (::TranslateAccelerator(reinterpret_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
+				if (!GetID() || 
+					::TranslateAccelerator(reinterpret_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
 					::TranslateMessage(&msg);
 					if (isWindowsNT)
 						::DispatchMessageW(&msg);
