@@ -1703,7 +1703,9 @@ void SciTEWin::FindMessageBox(const SString &msg, const SString *findItem) {
 			::MultiByteToWideChar(CP_ACP, 0, sPart2.c_str(), -1, wszPart2, 256);
 
 			WCHAR wszFindItem[CTL_TEXT_BUF];
-			::MultiByteToWideChar(CP_UTF8, 0, findItem->c_str(), -1, wszFindItem, CTL_TEXT_BUF);
+			if (!::MultiByteToWideChar(CP_UTF8, 0, findItem->c_str(), -1, wszFindItem, CTL_TEXT_BUF)) {
+				wszFindItem[0] = 0;
+			}
 
 			WCHAR wszAppName[64];
 			::MultiByteToWideChar(CP_ACP, 0, appName, -1, wszAppName, 64);
