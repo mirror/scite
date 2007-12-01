@@ -45,7 +45,7 @@ pixmapdir=$(datadir)/pixmaps
 bindir=$(prefix)/bin
 SYSCONF_PATH=$(prefix)/share/scite
 
-INSTALL=install -o root -g root
+INSTALL=install
 
 PROG	= ../bin/SciTE
 
