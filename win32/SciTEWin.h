@@ -185,6 +185,7 @@ protected:
 	virtual void ShowToolBar();
 	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
+	virtual void ActivateWindow(const char *timestamp);
 	void ExecuteHelp(const char *cmd);
 	void ExecuteOtherHelp(const char *cmd);
 	void CopyAsRTF();

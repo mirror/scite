@@ -300,6 +300,13 @@
 			<td>Search for a string, select and show it.</td>
 		</tr>
 		<tr>
+			<td>focus:&lt;timeStamp&gt;</td>
+			<td>On GTK+ bring this SciTE window to the front.
+			The timeStamp is from the window manager and ensures that windows are only
+			activated because of a user command.
+			Has no effect on Windows as applications on Windows can only donate focus, not take focus.</td>
+		</tr>
+		<tr>
 			<td>goto:&lt;lineNumber&gt;[,&lt;columnNumber&gt;]</td>
 			<td>Move caret to a particular line and make it visible.<br>
 			If there is a column number then select the word at that column number
@@ -373,6 +380,10 @@
 	</table>
 	<h4>The actions sent by SciTE are:</h4>
 	<table border="1">
+		<tr>
+			<td>closed:&lt;path&gt;</td>
+			<td>SciTE has closed the indicated file.</td>
+		</tr>
 		<tr>
 			<td>closing:</td>
 			<td>SciTE is closing.</td>

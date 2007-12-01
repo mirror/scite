@@ -4613,6 +4613,8 @@ void SciTEBase::PerformOne(char *action) {
 			}
 		} else if (isprefix(action, "extender:")) {
 			extender->OnExecute(arg);
+		} else if (isprefix(action, "focus:")) {
+			ActivateWindow(arg);
 		}
 	}
 }

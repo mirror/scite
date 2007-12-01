@@ -1,6 +1,34 @@
 // SciTE - Scintilla based Text Editor
 /** @file DirectorExtension.cxx
  ** Extension for communicating with a director program.
+ ** This allows external client programs (and internal extensions) to communicate
+ ** with instances of SciTE. The original scheme required you to define the property
+ ** ipc.scite.name to be a valid (but _not_ created) pipename, which becomes the 
+ ** 'request pipe' for sending commands to SciTE. (The set of available commands
+ ** is defined in SciTEBase::PerformOne()). One also had to specify a property
+ ** ipc.director.name to be an _existing_ pipe which would receive notifications (like
+ ** when a file is opened, buffers switched, etc).
+ **
+ **
+ ** This version supports the old protocol, so existing clients such as ScitePM still
+ ** work as before. But it is no longer necessary to specify these ipc properties.
+ ** If ipc.scite.name is not defined, then a new request pipe is created of the form
+ ** /tmp/SciTE.<pid>.in using the current pid. This pipename is put back into 
+ ** ipc.scite.name (this is useful for internal extensions that want to find _another_
+ ** instance of SciTE). This pipe will be removed when SciTE closes normally,
+ ** so listing all files with the pattern '/tmp/SciTE.*.in' will give the currently
+ ** running SciTE instances.
+ **
+ ** If a client wants to receive notifications, they must ask using
+ ** the register command, i.e. send ':<path to temp file>:register:' to the request
+ ** pipe. SciTE will create a new notify pipe (of the form /tmp/SciTE.<pid>.<k>.out)
+ ** and write it into the temp file, which the client can read and open.
+ **
+ ** This version also supports the 'correspondent' concept used by the Win32
+ ** version; requests of the form ':<my pipe>:<command>:<args>' make any results
+ ** get sent back to the specified, existing pipename <my pipe>. For example,
+ ** ':/tmp/mypipe:askproperty:SciteDefaultHome' will make SciTE write the value of
+ ** the standard property 'SciteDefaultHome' to the pipe /tmp/mypipe.
  **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
@@ -39,19 +67,87 @@ static int fdCorrespondent = 0;
 static int fdReceiver = 0;
 static bool startedByDirector = false;
 static bool shuttingDown = false;
-//static FILE *fdDebug = 0;
 
-static bool SendPipeCommand(const char *pipeCommand, int fdOutPipe) {
-	//check that there is actually a pipe
-	int size = 0;
+// the number of notify connections this SciTE instance will handle.
+const int MAX_PIPES = 20;
 
-	if (fdOutPipe != -1) {
-		size = write(fdOutPipe, pipeCommand, strlen(pipeCommand) + 1);
-		//fprintf(fdDebug, "dd: Send pipecommand: %s %d bytes\n", pipeCommand, size);
-		if (size != -1)
-			return true;
+static char requestPipeName[MAX_PATH];
+
+//#define IF_DEBUG(x) x;
+#define IF_DEBUG(x)
+
+IF_DEBUG(static FILE *fdDebug = 0)
+
+// managing a list of notification pipes
+// this also allows for proper cleanup of any pipes
+// that aren't _directly_ specified by the director.
+struct PipeEntry {
+	int fd;
+	char* name;
+};
+static PipeEntry s_send_pipes[MAX_PIPES];
+static int s_send_cnt = 0;
+
+static bool SendPipeAvailable() {
+	return s_send_cnt < MAX_PIPES-1;
+}
+
+static void AddSendPipe(int fd, const char* name) {
+	PipeEntry entry;
+	entry.fd = fd;
+	if (name)
+		entry.name = strdup(name);
+	else
+		entry.name = NULL;
+	if (SendPipeAvailable()) {
+		s_send_pipes[s_send_cnt++] = entry;
 	}
-	return false;
+}
+
+static void RemoveSendPipes()
+{
+	for (int i = 0; i < s_send_cnt; ++i) {
+		PipeEntry entry = s_send_pipes[i];
+		close(entry.fd);
+		if (entry.name)
+			remove(entry.name);
+	}
+}
+
+static bool MakePipe(const char* pipeName) {
+	int res;
+//WB++
+#ifndef __vms
+	res = mkfifo(pipeName, 0777);
+#else           // no mkfifo on OpenVMS!
+	res = creat(pipeName, 0777);
+#endif
+//WB--
+	return res == 0;
+}
+
+static int OpenPipe(const char* pipeName) {
+	int fd = open(pipeName, O_RDWR | O_NONBLOCK);
+	return fd;
+}
+
+// we now send notifications to _all_ the notification pipes registered!
+static bool SendPipeCommand(const char *pipeCommand) {
+	int size;
+	if (fdCorrespondent) {
+		size = write(fdCorrespondent,pipeCommand,strlen(pipeCommand));
+		write(fdCorrespondent,"\n",1);
+		IF_DEBUG(fprintf(fdDebug, "Send correspondent: %s %d bytes to %d\n", pipeCommand, size,fdCorrespondent))
+	} else
+	for (int i = 0; i < s_send_cnt; ++i) {
+		int fd = s_send_pipes[i].fd;
+		// put a linefeed after the notification!
+		size = write(fd, pipeCommand, strlen(pipeCommand));
+		write(fd,"\n",1);
+		IF_DEBUG(fprintf(fdDebug, "Send pipecommand: %s %d bytes to %d\n", pipeCommand, size,fd))
+	}
+	(void)size; // to keep compiler happy if we aren't debugging...
+	return true;
 }
 
 static void ReceiverPipeSignal(void *data, gint fd, GdkInputCondition condition){
@@ -71,26 +167,23 @@ static void ReceiverPipeSignal(void *data, gint fd, GdkInputCondition condition)
 }
 
 static void SendDirector(const char *verb, const char *arg = 0) {
-	//fprintf(fdDebug, "SendDirector:(%s, %s):  fdDirector = %d fdCorrespondent = %d\n", verb, arg, fdDirector, fdCorrespondent);
-	if ((fdDirector != 0) || (fdCorrespondent != 0)) {
-		int fdDestination = 0;
-		if( fdDirector != 0 )
-			fdDestination = fdDirector;
-		else
-			fdDestination = fdCorrespondent;
-
+	IF_DEBUG(fprintf(fdDebug, "SendDirector:(%s, %s):  fdDirector = %d\n", verb, arg, fdDirector))
+	if (s_send_cnt) {
 		SString addressedMessage;
 		addressedMessage += verb;
 		addressedMessage += ":";
 		if (arg)
 			addressedMessage += arg;
-		//fprintf(fdDebug, "SendDirector: SendPipeCommand: >%s< to %d\n", addressedMessage.c_str(), fdDestination);
-		//send the message through the existing pipe
-		::SendPipeCommand(addressedMessage.c_str(), fdDestination);
+		//send the message through all the registered pipes
+		::SendPipeCommand(addressedMessage.c_str());
 	}
 	else{
-		//fprintf(fdDebug, "SendDirector: fdDirector & fdCorrespondent == 0\n");
+		IF_DEBUG(fprintf(fdDebug, "SendDirector: no notify pipes\n"))
 	}
+}
+
+static bool not_empty(const char* s) {
+	return s && *s;
 }
 
 static void CheckEnvironment(ExtensionAPI *host) {
@@ -98,9 +191,10 @@ static void CheckEnvironment(ExtensionAPI *host) {
 		return ;
 	if (!fdDirector) {
 		char *director = host->Property("ipc.director.name");
-		if (director && *director) {
+		if (not_empty(director)) {
 			startedByDirector = true;
-			fdDirector = open(director, O_RDWR | O_NONBLOCK);
+			fdDirector = OpenPipe(director);
+			AddSendPipe(fdDirector,NULL);  // we won't remove this pipe!
 		}
 		delete []director;
 	}
@@ -113,20 +207,33 @@ DirectorExtension &DirectorExtension::Instance() {
 
 bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	host = host_;
+	IF_DEBUG(fdDebug = fopen("/tmp/SciTE.log", "w"))
 	CheckEnvironment(host);
-	//fdDebug = fopen("/tmp/SciTE.log", "w");
-	if( startedByDirector ){
-		CreatePipe();
-		//fprintf(fdDebug, "Initialise: fdReceiver: %d\n", fdReceiver);
-		if (!fdReceiver)
-			::exit(FALSE);
+	// always try to create the receive (request) pipe, even if not started by
+	// an external director
+	CreatePipe();
+	IF_DEBUG(fprintf(fdDebug, "Initialise: fdReceiver: %d\n", fdReceiver))
+	// but do crash out if we failed and were started by an external director.
+	if (!fdReceiver && startedByDirector) {
+		exit(3);
 	}
 	return true;
 }
 
 bool DirectorExtension::Finalise() {
 	::SendDirector("closing");
-	fdReceiver = 0;
+	// close and remove all the notification pipes (except ipc.director.name)
+	RemoveSendPipes();
+	// close our request pipe
+	if (fdReceiver != 0) {
+		close(fdReceiver);
+	}
+	// and remove it if we generated it automatically (i.e. not ipc.scite.name)
+	if (not_empty(requestPipeName)) {
+		remove(requestPipeName);
+	}
+	IF_DEBUG(fprintf(fdDebug,"finished\n"))
+	IF_DEBUG(fclose(fdDebug))
 	return true;
 }
 
@@ -140,7 +247,7 @@ bool DirectorExtension::Load(const char *) {
 
 bool DirectorExtension::OnOpen(const char *path) {
 	CheckEnvironment(host);
-	if (*path) {
+	if (not_empty(path)) {
 		::SendDirector("opened", path);
 	}
 	return false;
@@ -148,7 +255,7 @@ bool DirectorExtension::OnOpen(const char *path) {
 
 bool DirectorExtension::OnSwitchFile(const char *path) {
 	CheckEnvironment(host);
-	if (*path) {
+	if (not_empty(path)) {
 		::SendDirector("switched", path);
 	}
 	return false;
@@ -156,8 +263,16 @@ bool DirectorExtension::OnSwitchFile(const char *path) {
 
 bool DirectorExtension::OnSave(const char *path) {
 	CheckEnvironment(host);
-	if (*path) {
+	if (not_empty(path)) {
 		::SendDirector("saved", path);
+	}
+	return false;
+}
+
+bool DirectorExtension::OnClose(const char *path) {
+	CheckEnvironment(host);
+	if (not_empty(path)) {
+		::SendDirector("closed", path);
 	}
 	return false;
 }
@@ -205,22 +320,31 @@ bool DirectorExtension::OnMacro(const char *command, const char *params) {
 
 bool DirectorExtension::SendProperty(const char *prop) {
 	CheckEnvironment(host);
-	if (*prop) {
+	if (not_empty(prop)) {
 		::SendDirector("property", prop);
 	}
 	return false;
 }
 
 void DirectorExtension::HandleStringMessage(const char *message) {
+	static int kount = 1;
 	// Message may contain multiple commands separated by '\n'
-	// Reentrance trouble - if this function is reentered, the fdCorrespondent may
-	// be set to zero before time.
-	StringList wlMessage(true);
+	StringList  wlMessage(true);
 	wlMessage.Set(message);
-	//fprintf(fdDebug, "HandleStringMessage: got %s\n", message);
+	IF_DEBUG(fprintf(fdDebug, "HandleStringMessage: got %s\n", message))
 	for (int i = 0; i < wlMessage.len; i++) {
 		// Message format is [:return address:]command:argument
 		char *cmd = wlMessage[i];
+		char *corresp = NULL;
+		if (*cmd == ':') { // see same routine in ../win32/DirectorExtension.cxx!
+			// there is a return address
+			char *colon = strchr(cmd + 1,':');
+			if (colon) {
+				*colon = '\0';
+				corresp = cmd + 1;
+				cmd = colon + 1;
+			}
+		}
 		if (isprefix(cmd, "closing:")) {
 			fdDirector = 0;
 			if (startedByDirector) {
@@ -228,61 +352,98 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 				host->ShutDown();
 				shuttingDown = false;
 			}
+		} else if (isprefix(cmd, "register:")) {
+			// we handle this verb specially - an extension has asked us for a notify
+			// pipe which it can listen to.  We make up a unique name based on our
+			// pid and a sequence count.
+			// There is an (artificial) limit on the number of notify pipes;
+			// if there are no more slots, then the returned pipename is '*'
+			char pipeName[MAX_PATH];
+			if (! SendPipeAvailable()) {
+				strcpy(pipeName,"*");
+			} else {
+				sprintf(pipeName,"%s/SciTE.%d.%d.out", g_get_tmp_dir(), getpid(), kount++);
+			}
+			if (corresp == NULL) {
+                fprintf(stderr,"SciTE Director: bad request\n");
+                return;
+			} else {
+				// the registering client has passed us a path for receiving the notify pipe name.
+				// this has to be a _regular_ file, which may not exist.
+				fdCorrespondent = open(corresp,O_WRONLY | O_CREAT, S_IRWXU);
+				IF_DEBUG(fprintf(fdDebug,"register '%s' %d\n",corresp,fdCorrespondent))
+				if (fdCorrespondent == -1) {
+					fdCorrespondent = 0;
+                    fprintf(stderr,"SciTE Director: cannot open result file '%s'\n",corresp);
+                    return;
+                }
+				if (fdCorrespondent != 0) {
+					write(fdCorrespondent, pipeName, strlen(pipeName));
+					write(fdCorrespondent, "\n", 1);
+				}
+			}
+			if (SendPipeAvailable()) {
+				MakePipe(pipeName);
+				int fd = OpenPipe(pipeName);
+				AddSendPipe(fd, pipeName);
+			}
 		} else if (host) {
+			if (corresp != NULL) {
+				// the client has passed us a pipename to receive the results of this command
+				fdCorrespondent = OpenPipe(corresp);
+				IF_DEBUG(fprintf(fdDebug,"corresp '%s' %d\n",corresp,fdCorrespondent))			
+				if (fdCorrespondent == -1) {
+					fdCorrespondent = 0;		
+                    fprintf(stderr,"SciTE Director: cannot open correspondent pipe '%s'\n",corresp);
+                    return;
+                }
+			}
 			host->Perform(cmd);
 		}
-		fdCorrespondent = 0;
+		if (fdCorrespondent != 0) {
+			close(fdCorrespondent);
+			fdCorrespondent = 0;
+		}
 	}
 }
 
-bool DirectorExtension::CreatePipe(bool forceNew) {
+void DirectorExtension::CreatePipe(bool) {
+	bool tryStandardPipeCreation;
+	char *pipeName = host->Property("ipc.scite.name");
 
-	bool anotherPipe = false;
-	bool tryStandardPipeCreation = false;
-	SString pipeFilename = host->Property("ipc.scite.name");
-	gchar* pipeName = NULL;
 	fdReceiver = -1;
 	inputWatcher = -1;
+	requestPipeName[0] = '\0';
 
-	//check we have been given a specific pipe name
-	if (pipeFilename.size() > 0)
+	// check we have been given a specific pipe name
+	if (not_empty(pipeName))
 	{
-		//fprintf(fdDebug, "CreatePipe: if (pipeFilename.size() > 0): %s\n", pipeFilename.c_str());
-		//snprintf(pipeName, CHAR_MAX - 1, "%s", pipeFilename.c_str());
-		pipeName = g_strdup(pipeFilename.c_str());
-		fdReceiver = open(pipeName, O_RDWR | O_NONBLOCK);
-		if (fdReceiver == -1 && errno == EACCES) {
-			//fprintf(fdDebug, "CreatePipe: No access\n");
-			tryStandardPipeCreation = true;
-		}
-		//there isn't one - so create one
-		else if (fdReceiver == -1) {
-			SString fdReceiverString;
-			//fprintf(fdDebug, "CreatePipe: Non found - making\n");
-//WB++
-#ifndef __vms
-			mkfifo(pipeName, 0777);
-#else           // no mkfifo on OpenVMS!
-			creat(pipeName, 0777);
-#endif
-//WB--
-			fdReceiver = open(pipeName, O_RDWR | O_NONBLOCK);
-
-			fdReceiverString = fdReceiver;
-			host->SetProperty("ipc.scite.fdpipe",fdReceiverString.c_str());
+		IF_DEBUG(fprintf(fdDebug, "CreatePipe: if (not_empty(pipeName)): '%s'\n", pipeName))
+		fdReceiver = OpenPipe(pipeName);
+		// there isn't a pipe - so create one
+		if (fdReceiver == -1 && errno == ENOENT) {
+			IF_DEBUG(fprintf(fdDebug, "CreatePipe: Non found - making\n"))
+			if (MakePipe(pipeName)) {
+				fdReceiver = OpenPipe(pipeName);
+				if (fdReceiver == -1) {
+					perror("CreatePipe: could not open newly created pipe");
+				}
+			} else {
+				perror("CreatePipe: could not create ipc.scite.name");
+			}
+			// We don't need a new pipe, we're supposed to have one
 			tryStandardPipeCreation = false;
+		} else if (fdReceiver == -1) {
+			// there are quite a few errors related to open...
+			// maybe the pipe is already owned by another SciTE instance...
+			// we'll just try creating a new one
+			perror("CreatePipe: opening ipc.scite.name failed");
+			tryStandardPipeCreation = true;
 		}
 		else
 		{
-			//fprintf(fdDebug, "CreatePipe: Another one there - opening\n");
-
-			fdReceiver = open(pipeName, O_RDWR | O_NONBLOCK);
-
-			//there is already another pipe so set it to true for the return value
-			anotherPipe = true;
-			//I don;t think it is a good idea to be able to listen to our own pipes (yet) so just return
-			//break;
-			return anotherPipe;
+			// cool - we can open it
+			tryStandardPipeCreation = false;
 		}
 	}
 	else
@@ -290,64 +451,31 @@ bool DirectorExtension::CreatePipe(bool forceNew) {
 		tryStandardPipeCreation = true;
 	}
 
+	// We were not given a name or we could'nt open it
 	if( tryStandardPipeCreation )
 	{
-		//possible bug here (eventually), can't have more than a 1000 SciTE's open - ajkc 20001112
-		for (int i = 0; i < 1000; i++) {
-
-			//create the pipe name - we use a number as well just incase multiple people have pipes open
-			//or we are forceing a new instance of scite (even if there is already one)
-			sprintf(pipeName, "/tmp/.SciTE.%d.ipc", i);
-
-			//fprintf(fdDebug, "Trying pipe %s\n", pipeName);
-			//check to see if there is already one
-			fdReceiver = open(pipeName, O_RDWR | O_NONBLOCK);
-
-			//there is one but it isn't ours
-			if (fdReceiver == -1 && errno == EACCES) {
-				//fprintf(fdDebug, "No access\n");
-				continue;
-			}
-			//there isn't one - so create one
-			else if (fdReceiver == -1) {
-				SString fdReceiverString;
-				//fprintf(fdDebug, "Non found - making\n");
-//WB++
-#ifndef __vms
-				mkfifo(pipeName, 0777);
-#else           // no mkfifo on OpenVMS!
-				creat(pipeName, 0777);
-#endif
-//WB--
-				fdReceiver = open(pipeName, O_RDWR | O_NONBLOCK);
-				//store the file descriptor of the pipe so we can write to it again. (mainly for the director interface)
-				fdReceiverString = fdReceiver;
-				host->SetProperty("ipc.scite.fdpipe",fdReceiverString.c_str());
-				break;
-			}
-			//there is so just open it (and we don't want out own)
-			else if (forceNew == false) {
-				//fprintf(fdDebug, "Another one there - opening\n");
-
-				//there is already another pipe so set it to true for the return value
-				anotherPipe = true;
-				//I don;t think it is a good idea to be able to listen to our own pipes (yet) so just return
-				//break;
-				return anotherPipe;
-			}
-			//we must want another one
-		}
+		sprintf(requestPipeName,"%s/SciTE.%d.in", g_get_tmp_dir(), getpid());
+		IF_DEBUG(fprintf(fdDebug, "Creating pipe %s\n", requestPipeName))
+		MakePipe(requestPipeName);
+		fdReceiver = OpenPipe(requestPipeName);
 	}
 
+	// If we were able to open a pipe, listen to it
 	if (fdReceiver != -1) {
-
-		//store the inputwatcher so we can remove it.
+		// store the inputwatcher so we can remove it.
 		inputWatcher = gdk_input_add(fdReceiver, GDK_INPUT_READ, ReceiverPipeSignal, this);
-		return anotherPipe;
+		// if we were not supplied with an explicit ipc.scite.name, then set this
+		// property to be the constructed pipe name. 
+		if (! not_empty(pipeName)) {
+			host->SetProperty("ipc.scite.name", requestPipeName);
+		}
+		return;
 	}
 
-	//we must have failed or something so there definately isn't "another pipe"
-	return false;
+	delete[] pipeName;
+
+	// if we arrive here, we must have failed
+	fdReceiver = 0;
 }
 
 #ifdef _MSC_VER

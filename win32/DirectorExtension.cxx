@@ -211,6 +211,14 @@ bool DirectorExtension::OnSave(const char *path) {
 	return false;
 }
 
+bool DirectorExtension::OnClose(const char *path) {
+	CheckEnvironment(host);
+	if (*path) {
+		::SendDirector("closed", path);
+	}
+	return false;
+}
+
 bool DirectorExtension::OnChar(char) {
 	return false;
 }

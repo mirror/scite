@@ -32,13 +32,14 @@ public:
 	virtual bool OnUpdateUI();
 	virtual bool OnMarginClick();
 	virtual bool OnMacro(const char *command, const char *params);
-	
+
 	virtual bool SendProperty(const char *prop);
+	virtual bool OnClose(const char *path);
 
 	// Allow messages through to extension
 	void HandleStringMessage(const char *message);
-	
-	bool CreatePipe(bool forceNew = false);
+
+	void CreatePipe(bool forceNew = false);
 private:
 	int inputWatcher;
 };

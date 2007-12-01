@@ -296,6 +296,10 @@ void SciTEWin::ShowStatusBar() {
 	SizeSubWindows();
 }
 
+void SciTEWin::ActivateWindow(const char *) {
+	// This does nothing as, on Windows, you can no longer activate yourself
+}
+
 /**
  * Resize the content windows, embedding the editor and output windows.
  */

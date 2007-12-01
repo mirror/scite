@@ -334,9 +334,8 @@ protected:
 	int inputHandle;
 	ElapsedTime commandTime;
 
-	// Command Pipe variables
-	int  pipeFD;
-	char pipeName[MAX_PATH];
+	// For single instance
+	guint32 startupTimestamp;
 
 	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX, sfXML } saveFormat;
 	Dialog dlgFileSelector;
@@ -456,10 +455,11 @@ protected:
 	virtual void ShowToolBar();
 	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
+	virtual void ActivateWindow(const char *timestamp);
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute(int fromPoll);
 
-	static void ReadPipe(gpointer data, gint source, GdkInputCondition condition);
+	// Single instance
 	void SendFileName(int sendPipe, const char* filename);
 	bool CheckForRunningInstance(int argc, char* argv[]);
 
@@ -551,6 +551,8 @@ public:
 	virtual void StopExecute();
 	static int PollTool(SciTEGTK *scitew);
 	static void ChildSignal(int);
+	// Single instance
+	void SetStartupTime(const char *timestamp);
 };
 
 SciTEGTK *SciTEGTK::instance;
@@ -569,7 +571,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	        static_cast<int>(getpid()));
 	inputHandle = 0;
 
-	pipeFD = -1;
+	startupTimestamp = 0;
 
 	PropSetFile::SetCaseSensitiveFilenames(true);
 	propsEmbed.Set("PLAT_GTK", "1");
@@ -837,6 +839,18 @@ void SciTEGTK::ShowStatusBar() {
 		gtk_widget_show(GTK_WIDGET(PWidget(wStatusBar)));
 	} else {
 		gtk_widget_hide(GTK_WIDGET(PWidget(wStatusBar)));
+	}
+}
+
+void SciTEGTK::ActivateWindow(const char *timestamp) {
+	char *end;
+	// Reset errno so we can reliably test it
+	errno = 0;
+	gulong ts = strtoul(timestamp, &end, 0);
+	if (end != timestamp && errno == 0) {
+		gtk_window_present_with_time(GTK_WINDOW(PWidget(wSciTE)), ts);
+	} else {
+		gtk_window_present(GTK_WINDOW(PWidget(wSciTE)));
 	}
 }
 
@@ -2175,12 +2189,6 @@ void SciTEGTK::AboutDialog() {
 
 void SciTEGTK::QuitProgram() {
 	if (SaveIfUnsureAll() != IDCANCEL) {
-		//clean up any pipes that are ours
-		if (pipeFD != -1) {
-			//printf("Cleaning up pipe\n");
-			close(pipeFD);
-			unlink(pipeName);
-		}
 		gtk_main_quit();
 	}
 }
@@ -3255,58 +3263,51 @@ void SciTEGTK::SetIcon() {
 	gdk_window_set_icon(PWidget(wSciTE)->window, NULL, icon_pix, mask);
 }
 
-// Callback function that gets called when there is data to be read
-// from the pipe.
-void SciTEGTK::ReadPipe(gpointer data, gint source, GdkInputCondition condition) {
-
-	// Shouldn't happen.  We're just looking for data to read.
-	if (condition != GDK_INPUT_READ)
-		return;
-
-	int readLength;
-	char pipeData[8192];
-	SciTEGTK* scitew = reinterpret_cast<SciTEGTK *>(data);
-
-	// Multiple filenames could be read in one read call.  They will be NULL
-	// separated.  An empty string means the window should be brought forward.
-	while ((readLength = read(source, pipeData, sizeof(pipeData))) > 0) {
-		char *ii = pipeData;
-		char *start = pipeData;
-		char *end = pipeData + readLength;
-
-		while (ii < end) {
-			while ((ii < end) && (*ii != '\0'))
-				++ii;
-
-			if (strlen(start) > 0)
-				scitew->Open(start);
-#if GTK_MAJOR_VERSION >= 2
-			else
-				gtk_window_present(GTK_WINDOW(scitew->GetID()));
-#endif
-			start = ++ii;
+void SciTEGTK::SetStartupTime(const char *timestamp) {
+	if (timestamp != NULL) {
+		char *end;
+		// Reset errno from any previous errors
+		errno = 0;
+		gulong ts = strtoul(timestamp, &end, 0);
+		if (end != timestamp && errno == 0) {
+			startupTimestamp = ts;
 		}
 	}
 }
 
-// Send the filename through the pipe.  Make the path absolute if it is not
-// already.  If filename is empty, one NULL character will be written.
-// This signifies that the existing instance should present itself.
+// Send the filename through the pipe using the director command "open:"
+// Make the path absolute if it is not already.
+// If filename is empty, we send a message to the existing instance to tell
+// it to present itself (ie. the window should come to the front)
 void SciTEGTK::SendFileName(int sendPipe, const char* filename) {
 
-	// Create the command to send thru the pipe.
-	char pipeData[MAX_PATH];
+	SString command;
+	const char *pipeData;
 
-	// Check to see if path is already absolute.  If it isn't then add the
-	// absolute path to the front of the command to send.
-	if (g_path_is_absolute(filename) || (strlen(filename) == 0)) {
-		snprintf(pipeData, sizeof(pipeData) - 1, "%s", filename);
+	if (strlen(filename) != 0) {
+		command = "open:";
+
+		// Check to see if path is already absolute.
+		if (!g_path_is_absolute(filename)) {
+			gchar *currentPath = g_get_current_dir();
+			command += currentPath;
+			command += '/';
+			g_free(currentPath);
+		}
+		command += filename;
+		command += "\n";
+
 	} else {
-		gchar *currentPath = g_get_current_dir();
-		snprintf(pipeData, sizeof(pipeData) - 1, "%s/%s", currentPath, filename);
-		g_free(currentPath);
+		command = "focus:";
+
+		if (startupTimestamp != 0) {
+			char timestamp[14];
+			snprintf(timestamp, 14, "%d", startupTimestamp);
+			command += timestamp;
+		}
+		command += "\n";
 	}
-	pipeData[sizeof(pipeData) - 1] = '\0';
+	pipeData = command.c_str();
 
 	// Send it.
 	if (write(sendPipe, pipeData, strlen(pipeData) + 1) == -1)
@@ -3315,48 +3316,57 @@ void SciTEGTK::SendFileName(int sendPipe, const char* filename) {
 
 bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 
-	// Use ipc.scite.name for the pipe name if it exists.
-	const SString pipeFilename = props.Get("ipc.scite.name");
+	const gchar *tmpdir = g_get_tmp_dir();
+	GDir *dir = g_dir_open(tmpdir, 0, NULL);
+	if (dir == NULL) {
+		return false; // Couldn't open the directory
+	}
 
-	if (pipeFilename.size() > 0)
-		snprintf(pipeName, sizeof(pipeName), "%s", pipeFilename.c_str());
-	else
-		snprintf(pipeName, sizeof(pipeName), "%s/.SciTE.%s.ipc", g_get_tmp_dir (), g_get_user_name());
+	GPatternSpec *pattern = g_pattern_spec_new("SciTE.*.in");
 
-	// Attempt to open the pipe as a writer to send out data.
-	int sendPipe = open(pipeName, O_WRONLY | O_NONBLOCK);
+	char *pipeFileName = NULL;
+	const char *filename;
 
-	// If open succeeded, write filename data.
-	if (sendPipe != -1) {
-		for (int ii = 1; ii < argc; ++ii) {
-			if (argv[ii][0] != '-')
-				SendFileName(sendPipe, argv[ii]);
+	// Find a working pipe in our temporary directory
+	while ((filename = g_dir_read_name(dir))) {
+		if (g_pattern_match_string(pattern, filename)) {
+			pipeFileName = g_build_filename(tmpdir, filename, NULL);
+
+			// Attempt to open the pipe as a writer to send out data.
+			int sendPipe = open(pipeFileName, O_WRONLY | O_NONBLOCK);
+
+			// If open succeeded, write filename data.
+			if (sendPipe != -1) {
+				for (int ii = 1; ii < argc; ++ii) {
+					if (argv[ii][0] != '-')
+						SendFileName(sendPipe, argv[ii]);
+				}
+
+				// Force the SciTE instance to come to the front.
+				SendFileName(sendPipe, "");
+
+				// We're done
+				if (close(sendPipe) == -1)
+					perror("Unable to close pipe");
+				break;
+			} else {
+				// We don't care about the error. Try another pipe.
+				pipeFileName = NULL;
+			}
 		}
+	}
+	g_pattern_spec_free(pattern);
+	g_dir_close(dir);
 
-		// Force the SciTE instance to come to the front.
-		SendFileName(sendPipe, "");
+	if (pipeFileName != NULL) {
+		// We need to call this since we're not displaying a window
+		gdk_notify_startup_complete();
+		g_free(pipeFileName);
 		return true;
 	}
 
-	// If pipe doesn't exist, create it.  If pipe exists without a
-	// reader, do nothing.  Return an error on any other condition.
-	if (errno == ENOENT)
-		MakePipe(pipeName);
-	else if (errno != ENXIO) {
-		perror("Unable to open pipe as writer");
-		return true;
-	}
-
-	// Now open it as a reader to receive data.
-	pipeFD = open(pipeName, O_RDWR | O_NONBLOCK);
-	if (pipeFD == -1) {
-		perror("Unable to open pipe as reader");
-		unlink(pipeName);
-		return true;
-	}
-
-	// Handler to read data.
-	gdk_input_add(pipeFD, GDK_INPUT_READ, ReadPipe, this);
+	// If we arrived here, there is no SciTE instance we could talk to.
+	// We'll start a new one
 	return false;
 }
 
@@ -3459,9 +3469,21 @@ int main(int argc, char *argv[]) {
 	g_modulePath[strlen(g_modulePath) - 1] = '\0';  // remove trailing "/"
 #endif
 
+	// Get this now because gtk_init() clears it
+	const gchar *startup_id = g_getenv("DESKTOP_STARTUP_ID");
+	char *timestamp = NULL;
+	if (startup_id != NULL) {
+		char *pos = g_strrstr(startup_id, "_TIME");
+		if (pos != NULL) {
+			timestamp = pos + 5; // Skip "_TIME"
+		}
+	}
+
 	gtk_set_locale();
 	gtk_init(&argc, &argv);
+
 	SciTEGTK scite(extender);
+	scite.SetStartupTime(timestamp);
 	scite.Run(argc, argv);
 
 	return 0;
