@@ -587,7 +587,7 @@
 				RelativePath="..\..\scintilla\Src\WindowAccessor.cxx">
 			</File>
 			<File
-				RelativePath="..\win32\WindowMutex.cxx">
+				RelativePath="..\win32\WinMutex.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Src\XPM.cxx">
