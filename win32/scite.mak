@@ -149,6 +149,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexLisp.obj \
 	..\..\scintilla\win32\LexLout.obj \
 	..\..\scintilla\win32\LexLua.obj \
+	..\..\scintilla\win32\LexMagik.obj \
 	..\..\scintilla\win32\LexMatlab.obj \
 	..\..\scintilla\win32\LexMetapost.obj \
 	..\..\scintilla\win32\LexMMIXAL.obj \
