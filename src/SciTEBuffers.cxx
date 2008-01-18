@@ -1207,9 +1207,9 @@ void SciTEBase::ToolsMenu(int item) {
 						jobType = jobShell;
 					else if (colon[0] == '3' || 0 == strcmp(colon, "lua") || strcmp(colon, "director"))
 						jobType = jobExtension;
-					else if (colon[0] == '4' || 0 == strcmp(colon, "winhelp"))
+					else if (colon[0] == '4' || 0 == strcmp(colon, "htmlhelp"))
 						jobType = jobHelp;
-					else if (colon[0] == '5' || 0 == strcmp(colon, "htmlhelp"))
+					else if (colon[0] == '5' || 0 == strcmp(colon, "winhelp"))
 						jobType = jobOtherHelp;
 				}
 
