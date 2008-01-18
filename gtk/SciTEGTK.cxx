@@ -1781,9 +1781,11 @@ void SciTEGTK::Execute() {
 		SendOutput(SCI_GOTOPOS, SendOutput(SCI_GETTEXTLENGTH));
 	originalEnd = SendOutput(SCI_GETCURRENTPOS);
 
-	OutputAppendString(">");
-	OutputAppendString(jobQueue.jobQueue[icmd].command.c_str());
-	OutputAppendString("\n");
+	if (jobQueue.jobQueue[icmd].jobType != jobExtension) {
+		OutputAppendString(">");
+		OutputAppendString(jobQueue.jobQueue[icmd].command.c_str());
+		OutputAppendString("\n");
+	}
 
 	unlink(resultsFile);
 	if (jobQueue.jobQueue[icmd].directory.IsSet()) {
