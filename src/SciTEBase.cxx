@@ -422,6 +422,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	propsStatus.superPS = &props;
 
 	needReadProperties = false;
+	allowAlpha = true;
 }
 
 SciTEBase::~SciTEBase() {
