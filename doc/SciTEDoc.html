@@ -74,6 +74,7 @@
           Frequently Asked Questions</a>&nbsp;&nbsp;
 	  <a href="http://scintilla.sourceforge.net/SciTELua.html">
           Scripting</a>&nbsp;&nbsp;
+	  <a href="SciTERegEx.html">Regular Expressions</a>&nbsp;&nbsp;
         </td>
       </tr>
     </table>
@@ -83,8 +84,7 @@
     <p>
         Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
         feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
-        only one file will be visible. SciTE's initial configuration only allows one file to be in memory
-        at once but this can be modified by changing the value of the buffers property. Rectangular
+        only one file will be visible. Rectangular
         regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
         key on GTK+ while dragging the mouse over the text.
     </p>
@@ -1485,7 +1485,9 @@ NameError: mistake
           Loads a set of API files for a particular language.
           If there is more than one API file then the file names are separated by ';'.
           API files contain a sorted list of
-          identifiers and function prototypes, one per line. The "Complete Symbol" command
+          identifiers and function prototypes, one per line. If there are multiple files then each file should
+	end with a line end or the next file's first line will merge with the previous file's last line.
+	The "Complete Symbol" command
           looks at the characters before the caret and displayed the subset of the API file
           starting with that string. When an opening brace is typed, the file is searched for the
           text preceding the caret and if a function prototype is found then it is displayed as a
