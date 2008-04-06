@@ -4007,7 +4007,8 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 			SendEditor(SCI_SETFOLDEXPANDED, line, 1);
 			Expand(line, true, false, 0, levelPrev);
 		}
-	} else if (!(levelNow & SC_FOLDLEVELWHITEFLAG) &&
+	}
+	if (!(levelNow & SC_FOLDLEVELWHITEFLAG) &&
 	        ((levelPrev & SC_FOLDLEVELNUMBERMASK) > (levelNow & SC_FOLDLEVELNUMBERMASK))) {
 		// See if should still be hidden
 		int parentLine = SendEditor(SCI_GETFOLDPARENT, line);
