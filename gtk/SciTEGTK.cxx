@@ -848,7 +848,9 @@ void SciTEGTK::ActivateWindow(const char *timestamp) {
 	errno = 0;
 	gulong ts = strtoul(timestamp, &end, 0);
 	if (end != timestamp && errno == 0) {
+#if GTK_CHECK_VERSION(2,8,0)
 		gtk_window_present_with_time(GTK_WINDOW(PWidget(wSciTE)), ts);
+#endif
 	} else {
 		gtk_window_present(GTK_WINDOW(PWidget(wSciTE)));
 	}
