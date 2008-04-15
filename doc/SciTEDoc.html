@@ -85,7 +85,7 @@
         Text editing in SciTE works similarly to most Macintosh or Windows editors with the added
         feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
         only one file will be visible. Rectangular
-        regions of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
+        blocks of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
         key on GTK+ while dragging the mouse over the text.
     </p>
     <p>
@@ -480,11 +480,10 @@ NameError: mistake
        Keyboard commands
     </h3>
     <p>
-       SciTE uses the default key bindings defined in Scintilla, so
-       keyboard commands in SciTE mostly follow common Windows and GTK+ conventions.
-       All move keys (arrows, page up/down, home and end)
-       allows to extend or reduce the stream selection when holding the Shift key,
-       and the rectangular selection when holding the Shift and Alt keys.
+       Keyboard commands in SciTE mostly follow common Windows and GTK+ conventions.
+       All movement keys (arrows, page up/down, home and end)
+       allow to extend or reduce a stream selection when holding the Shift key,
+       and a rectangular selection when holding the Shift and Alt keys.
        Some keys may not be available with some national keyboards or because
        they are taken by the system such as by a window manager on GTK+.
        The user.shortcuts setting may be used to assign a key to a function.
@@ -615,6 +614,9 @@ NameError: mistake
       </tr>
       <tr>
         <td>Next word part. Shift extends selection.</td><td>Ctrl+\</td>
+      </tr>
+      <tr>
+        <td>Rectangular block selection.</td><td>Alt+Shift+Movement</td>
       </tr>
     </table>
     <h3>
@@ -1257,7 +1259,8 @@ NameError: mistake
           Sets the colours used for displaying selected text. If one of these is not set then that
           attribute is not changed for the selection. The default is to show the selection by
           changing the background to light grey and leaving the foreground the same as when it was
-          not selected. The translucency of the selection is set with selection.alpha.
+          not selected. The translucency of the selection is set with selection.alpha with an alpha
+	of 256 turning translucency off.
         </td>
       </tr>
       <tr>
