@@ -751,7 +751,7 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
 		while (isspacechar(*currChar) && *currChar) {
 			currChar++;
 		}
-		while (!isspacechar(*currChar) && *currChar) {
+		while (!isspacechar(*currChar) && *currChar && (i < (sizeof(word) - 1))) {
 			word[i++] = *currChar++;
 		}
 		word[i] = '\0';
