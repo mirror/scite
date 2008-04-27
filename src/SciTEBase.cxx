@@ -738,7 +738,6 @@ void SciTEBase::GetRange(Window &win, int start, int end, char *text) {
 int SciTEBase::IsLinePreprocessorCondition(char *line) {
 	char *currChar = line;
 	char word[32];
-	int i = 0;
 
 	if (!currChar) {
 		return false;
@@ -751,6 +750,7 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
 		while (isspacechar(*currChar) && *currChar) {
 			currChar++;
 		}
+		size_t i = 0;
 		while (!isspacechar(*currChar) && *currChar && (i < (sizeof(word) - 1))) {
 			word[i++] = *currChar++;
 		}
