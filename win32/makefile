@@ -38,7 +38,7 @@ LUA_CORE_OBJS = lapi.o lcode.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
 LUA_LIB_OBJS =	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o ltablib.o \
 		lstrlib.o loadlib.o loslib.o linit.o
 
-LUA_OBJS = LuaExtension.o IFaceTable.o SingleThreadExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
+LUA_OBJS = LuaExtension.o SingleThreadExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 vpath %.c ../lua/src ../lua/src/lib
 
@@ -74,7 +74,7 @@ OTHER_OBJS	= FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o PropSetFile.o Strin
 SciTEProps.o SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 UniqueInstance.o WindowAccessor.o \
 PropSet.o PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
-DirectorExtension.o JobQueue.o WinMutex.o XPM.o $(LUA_OBJS)
+IFaceTable.o DirectorExtension.o JobQueue.o WinMutex.o XPM.o $(LUA_OBJS)
 
 OBJS = SciTEBase.o $(OTHER_OBJS)
 
@@ -267,7 +267,7 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 	ExternalLexer.o StyleContext.o Lexers.a PropSet.o RunStyles.o \
 	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
 	PositionCache.o UniConversion.o Utf8_16.o KeyMap.o Indicator.o LineMarker.o RESearch.o Style.o \
-	ViewStyle.o AutoComplete.o DirectorExtension.o MultiplexExtension.o XPM.o \
+	ViewStyle.o AutoComplete.o IFaceTable.o DirectorExtension.o MultiplexExtension.o XPM.o \
 	JobQueue.o WinMutex.o $(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
