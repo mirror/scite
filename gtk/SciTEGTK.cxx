@@ -423,6 +423,7 @@ protected:
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
+	bool FindReplaceAdvanced();
 	virtual SString EncodeString(const SString &s);
 	void FindReplaceGrabFields();
 	void HandleFindReplace();
@@ -484,6 +485,7 @@ protected:
 	void FRReplaceCmd();
 	void FRReplaceAllCmd();
 	void FRReplaceInSelectionCmd();
+	void FRReplaceInBuffersCmd();
 	void FRMarkAllCmd();
 
 	virtual bool ParametersOpen();
@@ -1475,6 +1477,14 @@ void SciTEGTK::FRReplaceInSelectionCmd() {
 	}
 }
 
+void SciTEGTK::FRReplaceInBuffersCmd() {
+	FindReplaceGrabFields();
+	if (findWhat[0]) {
+		ReplaceInBuffers();
+		dlgFindReplace.Destroy();
+	}
+}
+
 void SciTEGTK::FRMarkAllCmd() {
 	FindReplaceGrabFields();
 	MarkAll();
@@ -2017,6 +2027,10 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	return !paramDialogCanceled;
 }
 
+bool SciTEGTK::FindReplaceAdvanced() {
+	return props.GetInt("find.replace.advanced");
+}
+
 void SciTEGTK::FindReplace(bool replace) {
 
 	replacing = replace;
@@ -2097,6 +2111,10 @@ void SciTEGTK::FindReplace(bool replace) {
 		dlgFindReplace.CommandButton("Replace _All", sigFRReplaceAll.Function);
 		static Signal<&SciTEGTK::FRReplaceInSelectionCmd> sigFRReplaceInSelection;
 		dlgFindReplace.CommandButton("In _Selection", sigFRReplaceInSelection.Function);
+		if (FindReplaceAdvanced()) {
+			static Signal<&SciTEGTK::FRReplaceInBuffersCmd> sigFRReplaceInBuffers;
+			dlgFindReplace.CommandButton("Replace In _Buffers", sigFRReplaceInBuffers.Function);
+		}
 	}
 
 	static Signal<&SciTEGTK::FRCancelCmd> sigFRCancel;
