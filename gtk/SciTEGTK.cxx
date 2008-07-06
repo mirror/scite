@@ -1229,8 +1229,13 @@ void SciTEGTK::HandleSaveAs(const char *savePath) {
 	case sfXML:
 		SaveToXML(savePath);
 		break;
-	default:
-		SaveAs(savePath);
+	default: {
+		/* Checking that no other buffer refers to the same filename */
+		FilePath destFile(savePath);
+#ifdef __vms
+		destFile = destFile.VMSToUnixStyle();
+#endif
+		SaveIfNotOpen(destFile, true);
 	}
 	dlgFileSelector.OK();
 }

@@ -4609,7 +4609,7 @@ void SciTEBase::PerformOne(char *action) {
 			}
 		} else if (isprefix(action, "saveas:")) {
 			if (*arg) {
-				SaveAs(arg);
+				SaveAs(arg, true);
 			} else {
 				SaveAsDialog();
 			}

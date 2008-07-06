@@ -288,15 +288,7 @@ bool SciTEWin::SaveAsDialog() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Save File");
 	if (path.IsSet()) {
 		//Platform::DebugPrintf("Save: <%s>\n", openName);
-		SetFileName(path, false); // don't fix case
-		Save();
-		ReadProperties();
-
-		// In case extension was changed
-		SendEditor(SCI_COLOURISE, 0, -1);
-		wEditor.InvalidateAll();
-		if (extender)
-			extender->OnSave(filePath.AsFileSystem());
+		SaveIfNotOpen(path, false);
 		return true;
 	}
 	return false;

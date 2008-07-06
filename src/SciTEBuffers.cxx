@@ -92,12 +92,12 @@ int BufferList::Add() {
 	return length - 1;
 }
 
-int BufferList::GetDocumentByName(FilePath filename) {
+int BufferList::GetDocumentByName(FilePath filename, bool excludeCurrent) {
 	if (!filename.IsSet()) {
 		return -1;
 	}
 	for (int i = 0;i < length;i++) {
-		if (buffers[i].SameNameAs(filename)) {
+		if ((!excludeCurrent || i != current) && buffers[i].SameNameAs(filename)) {
 			return i;
 		}
 	}

@@ -243,7 +243,7 @@ public:
 	~BufferList();
 	void Allocate(int maxSize);
 	int Add();
-	int GetDocumentByName(FilePath filename);
+	int GetDocumentByName(FilePath filename, bool excludeCurrent=false);
 	void RemoveCurrent();
 	int Current();
 	Buffer *CurrentBuffer();
@@ -622,8 +622,9 @@ protected:
 	int SaveIfUnsure(bool forceQuestion = false);
 	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();
+	void SaveIfNotOpen(const FilePath &destFile, bool fixCase);
 	bool Save();
-	void SaveAs(const char *file);
+	void SaveAs(const char *file, bool fixCase);
 	virtual void SaveACopy() = 0;
 	void SaveToHTML(FilePath saveName);
 	void StripTrailingSpaces();

@@ -872,8 +872,8 @@ bool SciTEBase::Save() {
 	}
 }
 
-void SciTEBase::SaveAs(const char *file) {
-	SetFileName(file);
+void SciTEBase::SaveAs(const char *file, bool fixCase) {
+	SetFileName(file, fixCase);
 	Save();
 	ReadProperties();
 	SendEditor(SCI_CLEARDOCUMENTSTYLE);
@@ -881,6 +881,20 @@ void SciTEBase::SaveAs(const char *file) {
 	Redraw();
 	SetWindowName();
 	BuffersMenu();
+	if (extender)
+		extender->OnSave(filePath.AsFileSystem());
+}
+
+void SciTEBase::SaveIfNotOpen(const FilePath &destFile, bool fixCase) {
+	FilePath absPath = destFile.AbsolutePath();
+	int index = buffers.GetDocumentByName(absPath, true /* excludeCurrent */);
+	if (index >= 0) {
+		SString msg = LocaliseMessage(
+			    "File '^0' is already open in another buffer.", destFile.AsFileSystem());
+		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+	} else {
+		SaveAs(absPath.AsFileSystem(), fixCase);
+	}
 }
 
 bool SciTEBase::IsStdinBlocked() {
