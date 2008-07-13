@@ -726,9 +726,7 @@ void SciTEBase::ReadProperties() {
 		ReadAbbrevPropFile();
 	}
 
-	if (!props.GetInt("eol.auto")) {
-		SetEol();
-	}
+	DiscoverEOLSetting();
 
 	codePage = props.GetInt("code.page");
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {

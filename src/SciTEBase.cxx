@@ -3353,8 +3353,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			New();
 			ReadProperties();
 			SetIndentSettings();
-			if (props.GetInt("eol.auto"))
-				SetEol();
+			SetEol();
 			UpdateStatusBar(true);
 			WindowSetFocus(wEditor);
 		}

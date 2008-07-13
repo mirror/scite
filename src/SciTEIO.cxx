@@ -226,13 +226,15 @@ void SciTEBase::DiscoverEOLSetting() {
 	int linesLF;
 	int linesCRLF;
 	SetEol();
-	CountLineEnds(linesCR, linesLF, linesCRLF);
-	if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
-		SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
-	else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
-		SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
-	else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
-		SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+	if (props.GetInt("eol.auto")) {
+		CountLineEnds(linesCR, linesLF, linesCRLF);
+		if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
+			SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
+		else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
+			SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
+		else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
+			SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+	}
 }
 
 // Look inside the first line for a #! clue regarding the language
@@ -370,9 +372,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 		}
 		SendEditor(SCI_SETCODEPAGE, codePage);
 
-		if (props.GetInt("eol.auto")) {
-			DiscoverEOLSetting();
-		}
+		DiscoverEOLSetting();
 
 		if (props.GetInt("indent.auto")) {
 			DiscoverIndentSetting();
