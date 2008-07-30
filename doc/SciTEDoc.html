@@ -357,6 +357,11 @@ NameError: mistake
         will never open a couple of files when you are trying to open just
         one, specific file.
      </p>
+     <p>
+        By setting "session.bookmarks" and "session.folds" variables bookmarks
+        and folding states of the currently opened buffers are saved in session
+        files and restored when sessions are loaded.
+     </p>
     <h3>
        Languages understood by SciTE
     </h3>
@@ -842,12 +847,13 @@ NameError: mistake
           position.left<br />
            position.top<br />
            position.width<br />
-           position.height
+           position.height<br />
+           position.maximize
         </td>
         <td>
           Set the initial window size and position. If these are omitted then the
-          environment's defaults are used. If the width or height are -1 then the window
-          is maximised.
+          environment's defaults are used. If the width or height are -1 or the
+          position.maximize property is set then the window is maximised.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1949,30 +1955,30 @@ Prev File|IDM_PREVFILE|<br/>
       </tr>
       <tr>
         <td>
+          save.session<br />
           save.recent<br />
-          save.session
+          save.position
         </td>
         <td>
-          Setting save.recent causes the most recently used files list to be
-        saved on exit in a file and reloaded at start up.
-        For GTK+, the file is called ".SciTE.recent" and is located in the directory
-        given by the SciTE_HOME environment variable and if that is not
-        set, the value of the HOME environment variable
-        and if that is not set the top level directory.
-        For Windows, the file is called SciTE.recent and is located in the directory
-        given by the SciTE_HOME environment variable and if that is not
-        set, the value of the USERPROFILE environment variable
-        and if that is not set the directory of the SciTE executable.<br />
-        If you set "save.session=1", current session
-        will be automatically saved to a file "SciTE.session" on Windows and
-        ".SciTE.session" on GTK+ located at the same
-        place as "SciTE.recent" file. When you start SciTE next time the last
-        session will be automatically loaded.
+        If you set save.session, the list of currently opened buffers will be saved on exit
+        in a session file. When you start SciTE next time (without specifying a file name
+        on the command line) the last session will be restored automatically.<br />
+        For GTK+, the file is called ".SciTE.session" and is located in the directory
+        given by the SciTE_HOME environment variable and if that is not set, the value
+        of the HOME environment variable and if that is not set, the top level directory.
+        For Windows, the file is called "SciTE.session" and is located in the directory
+        given by the SciTE_HOME environment variable and if that is not set, the value
+        of the USERPROFILE environment variable and if that is not set, the directory
+        of the SciTE executable.<br />
+        Setting save.recent causes the most recently used files list to be saved on
+        exit in the session file and read at start up.<br />
+        Setting save.position causes the SciTE window position on the desktop to be
+        saved on exit in the session file and restored at start up.
         </td>
       </tr>
       <tr>
         <td>
-          session.bookmarks
+          session.bookmarks<br />
           session.folds
         </td>
         <td>
@@ -2219,7 +2225,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         Box comments are a form of stream comment that takes several lines
         and uses different strings for the start, end and other lines in the range.
         These are defined with comment.box.start,
-        comment.box.middle and comment.stream.end.
+        comment.box.middle and comment.box.end.
         </td>
       </tr>
       <tr>

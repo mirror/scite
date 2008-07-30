@@ -386,6 +386,7 @@ protected:
 	virtual void ReadLocalization();
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
+	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
 
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
@@ -941,6 +942,12 @@ void SciTEGTK::ReadProperties() {
 	ShowTabBar();
 }
 
+void SciTEGTK::GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) {
+	gtk_window_get_position(GTK_WINDOW(PWidget(wSciTE)), left, top);
+	gtk_window_get_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
+	*maximize = (gdk_window_get_state(PWidget(wSciTE)->window) & GDK_WINDOW_STATE_MAXIMIZED) != 0;
+}
+
 void SciTEGTK::SizeContentWindows() {
 	PRectangle rcClient = GetClientRectangle();
 #if GTK_MAJOR_VERSION < 2
@@ -1318,7 +1325,8 @@ void SciTEGTK::LoadSessionDialog() {
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
 
-			LoadSession(filename);
+			LoadSessionFile(filename);
+			RestoreSession();
 			g_free(filename);
 		}
 		gtk_widget_destroy(dlg);
@@ -1339,7 +1347,7 @@ void SciTEGTK::SaveSessionDialog() {
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
 
-			SaveSession(filename);
+			SaveSessionFile(filename);
 			g_free(filename);
 		}
 		gtk_widget_destroy(dlg);
@@ -3057,11 +3065,19 @@ void SciTEGTK::CreateUI() {
 	int top = props.GetInt("position.top", useDefault);
 	int width = props.GetInt("position.width", useDefault);
 	int height = props.GetInt("position.height", useDefault);
-	bool maximize = false;
+	bool maximize = props.GetInt("position.maximize", 0) ? true : false;
 	if (width == -1 || height == -1) {
 		maximize = true;
 		width = gdk_screen_width() - left - 10;
 		height = gdk_screen_height() - top - 30;
+	}
+
+	if (props.GetInt("save.position")) {
+		left = propsSession.GetInt("position.left", useDefault);
+		top = propsSession.GetInt("position.top", useDefault);
+		width = propsSession.GetInt("position.width", useDefault);
+		height = propsSession.GetInt("position.height", useDefault);
+		maximize = propsSession.GetInt("position.maximize", 0) ? true : false;
 	}
 
 	fileSelectorWidth = props.GetInt("fileselector.width", fileSelectorWidth);
@@ -3398,6 +3414,11 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 }
 
 void SciTEGTK::Run(int argc, char *argv[]) {
+	// Load the default session file
+	if (props.GetInt("save.session") || props.GetInt("save.position") || props.GetInt("save.recent")) {
+		LoadSessionFile("");
+	}
+
 	// Find the SciTE executable, first trying to use argv[0] and converting
 	// to an absolute path and if that fails, searching the path.
 	sciteExecutable = FilePath(argv[0]).AbsolutePath();

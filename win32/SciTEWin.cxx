@@ -248,6 +248,17 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		exit(FALSE);
 }
 
+void SciTEWin::GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) {
+	winPlace.length = sizeof(winPlace);
+	::GetWindowPlacement(MainHWND(), &winPlace);
+
+	*left = winPlace.rcNormalPosition.left;
+	*top = winPlace.rcNormalPosition.top;
+	*width =  winPlace.rcNormalPosition.right - winPlace.rcNormalPosition.left;
+	*height = winPlace.rcNormalPosition.bottom - winPlace.rcNormalPosition.top;
+	*maximize = (winPlace.showCmd == SW_MAXIMIZE) ? 1 : 0;
+}
+
 void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
 
@@ -1039,17 +1050,40 @@ void SciTEWin::QuitProgram() {
 	}
 }
 
+void SciTEWin::RestorePosition() {
+	int left = propsSession.GetInt("position.left", CW_USEDEFAULT);
+	int top = propsSession.GetInt("position.top", CW_USEDEFAULT);
+	int width = propsSession.GetInt("position.width", CW_USEDEFAULT);
+	int height = propsSession.GetInt("position.height", CW_USEDEFAULT);
+	cmdShow = propsSession.GetInt("position.maximize", 0) ? SW_MAXIMIZE : 0;
+
+	if (left != static_cast<int>(CW_USEDEFAULT) &&
+	    top != static_cast<int>(CW_USEDEFAULT) &&
+	    width != static_cast<int>(CW_USEDEFAULT) &&
+	    height != static_cast<int>(CW_USEDEFAULT)) {
+		winPlace.length = sizeof(winPlace);
+		winPlace.rcNormalPosition.left = left;
+		winPlace.rcNormalPosition.right = left + width;
+		winPlace.rcNormalPosition.top = top;
+		winPlace.rcNormalPosition.bottom = top + height;
+		::SetWindowPlacement(MainHWND(), &winPlace);
+	}
+}
+
 void SciTEWin::CreateUI() {
 	CreateBuffers();
+
 	int left = props.GetInt("position.left", CW_USEDEFAULT);
 	int top = props.GetInt("position.top", CW_USEDEFAULT);
 	int width = props.GetInt("position.width", CW_USEDEFAULT);
 	int height = props.GetInt("position.height", CW_USEDEFAULT);
+	cmdShow = props.GetInt("position.maximize", 0) ? SW_MAXIMIZE : 0;
 	if (width == -1 || height == -1) {
 		cmdShow = SW_MAXIMIZE;
 		width = CW_USEDEFAULT;
 		height = CW_USEDEFAULT;
 	}
+
 	if (props.GetInt("position.tile") && ::FindWindow("SciTEWindow", NULL) &&
 	        (left != static_cast<int>(CW_USEDEFAULT))) {
 		left += width;
@@ -1069,6 +1103,9 @@ void SciTEWin::CreateUI() {
 	             reinterpret_cast<LPSTR>(this));
 	if (!wSciTE.Created())
 		exit(FALSE);
+
+	if (props.GetInt("save.position"))
+		RestorePosition();
 
 	LocaliseMenus();
 	LocaliseAccelerators();
@@ -1133,6 +1170,11 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
  * to other instance and exit or just show the window and open files.
  */
 void SciTEWin::Run(const char *cmdLine) {
+	// Load the default session file
+	if (props.GetInt("save.session") || props.GetInt("save.position") || props.GetInt("save.recent")) {
+		LoadSessionFile("");
+	}
+
 	// Break up the command line into individual arguments
 	SString args = ProcessArgs(cmdLine);
 	// Read the command line parameters:

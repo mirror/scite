@@ -116,6 +116,8 @@ protected:
 	Window wFindReplace;
 	Window wParameters;
 
+	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
+
 	virtual void ReadProperties();
 
 	virtual void SizeContentWindows();
@@ -234,6 +236,8 @@ protected:
 	void AboutDialogWithBuild(int staticBuild);
 
 	void MakeAccelerator(SString sKey, ACCEL &Accel);
+
+	void RestorePosition();
 
 public:
 

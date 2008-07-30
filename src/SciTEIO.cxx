@@ -709,10 +709,10 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 			Buffer buff = buffers.buffers[i];
 			AddFileToStack(buff, buff.selection, buff.scrollPosition);
 		}
-		SaveRecentStack();
 	}
-	if (props.GetInt("buffers") && props.GetInt("save.session"))
-		SaveSession("");
+	if (props.GetInt("save.session") || props.GetInt("save.position") || props.GetInt("save.recent")) {
+		SaveSessionFile("");
+	}
 
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document

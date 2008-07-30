@@ -517,6 +517,8 @@ protected:
 
 	PropSetFile propsAbbrev;
 
+	PropSetFile propsSession;
+
 	FilePath pathAbbreviations;
 
 	Localization localiser;
@@ -585,11 +587,12 @@ protected:
 	void ClearDocument();
 	void CreateBuffers();
 	void InitialiseBuffers();
-	FilePath RecentFilePath(const char *name);
-	void LoadRecentMenu();
-	void SaveRecentStack();
-	void LoadSession(const char *sessionName);
-	void SaveSession(const char *sessionName);
+	FilePath UserFilePath(const char *name);
+	void LoadSessionFile(const char *sessionName);
+	void RestoreRecentMenu();
+	void RestoreSession();
+	void SaveSessionFile(const char *sessionName);
+	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) = 0;
 	void SetIndentSettings();
 	void SetEol();
 	void New();
@@ -846,7 +849,6 @@ protected:
 	void AskMacroList();
 	bool StartMacroList(const char *words);
 	void ContinueMacroList(const char *stxt);
-	void LoadMRUAndSession(bool allowLoadSession);
 	bool ProcessCommandLine(SString &args, int phase);
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);

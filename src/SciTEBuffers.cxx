@@ -62,7 +62,6 @@
 #include "JobQueue.h"
 #include "SciTEBase.h"
 
-const char recentFileName[] = "SciTE.recent";
 const char defaultSessionFileName[] = "SciTE.session";
 
 BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), size(0), length(0), initialised(false) {}
@@ -355,91 +354,76 @@ void SciTEBase::InitialiseBuffers() {
 	}
 }
 
-FilePath SciTEBase::RecentFilePath(const char *name) {
+FilePath SciTEBase::UserFilePath(const char *name) {
 	SString nameWithVisibility(configFileVisibilityString);
 	nameWithVisibility.append(name);
 	return FilePath(GetSciteUserHome(), nameWithVisibility.c_str());
 }
 
-void SciTEBase::LoadRecentMenu() {
-	FilePath recentPathName = RecentFilePath(recentFileName);
-	FILE *recentFile = recentPathName.Open(fileRead);
-	if (!recentFile) {
-		DeleteFileStackMenu();
-		return;
-	}
-	char line[MAX_PATH + 1];
-	CharacterRange cr;
-	cr.cpMin = cr.cpMax = 0;
-	for (int i = 0; i < fileStackMax; i++) {
-		if (!fgets (line, sizeof (line), recentFile))
-			break;
-		line[strlen (line) - 1] = '\0';
-		AddFileToStack(line, cr, 0);
-	}
-	fclose(recentFile);
-}
-
-void SciTEBase::SaveRecentStack() {
-	FilePath recentPathName = RecentFilePath(recentFileName);
-	FILE *recentFile = recentPathName.Open(fileWrite);
-	if (!recentFile)
-		return;
-	int i;
-	// save recent files list
-	for (i = fileStackMax - 1; i >= 0; i--) {
-		if (recentFileStack[i].IsSet())
-			fprintf(recentFile, "%s\n", recentFileStack[i].AsInternal());
-	}
-	// save buffers list
-	for (i = buffers.length - 1; i >= 0; i--) {
-		if (buffers.buffers[i].IsSet())
-			fprintf(recentFile, "%s\n", buffers.buffers[i].AsInternal());
-	}
-	fclose(recentFile);
-}
-
-static SString SessionPropKey(int bufIndex, const char *bufKey) {
-	SString pKey = "buffer.";
+static SString IndexPropKey(const char *bufPrefix, int bufIndex, const char *bufAppendix) {
+	SString pKey = bufPrefix;
+	pKey += '.';
 	pKey += SString(bufIndex + 1);
-	pKey += ".";
-	pKey += bufKey;
+	if (bufAppendix != NULL) {
+		pKey += ".";
+		pKey += bufAppendix;
+	}
 	return pKey;
 }
 
-void SciTEBase::LoadSession(const char *sessionName) {
+void SciTEBase::LoadSessionFile(const char *sessionName) {
 	FilePath sessionPathName;
 	if (sessionName[0] == '\0') {
-		sessionPathName = RecentFilePath(defaultSessionFileName);
+		sessionPathName = UserFilePath(defaultSessionFileName);
 	} else {
 		sessionPathName.Set(sessionName);
 	}
 
-	PropSetFile propsSession;
-	if (!propsSession.Read(sessionPathName, sessionPathName.Directory(), NULL, 0))
-		return;
+	propsSession.Clear();
+	propsSession.Read(sessionPathName, sessionPathName.Directory(), NULL, 0);
 
-	// comment next line if you don't want to close all buffers before loading session
+	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
+	// Add/update SessionPath environment variable
+	props.Set("SessionPath", sessionFilePath.AsFileSystem());
+}
+
+void SciTEBase::RestoreRecentMenu() {
+	CharacterRange cr;
+	cr.cpMin = cr.cpMax = 0;
+
+	DeleteFileStackMenu();
+
+	for (int i = 0; i < fileStackMax; i++) {
+		SString propKey = IndexPropKey("mru", i, "path");
+		SString propStr = propsSession.Get(propKey.c_str());
+		if (propStr == "")
+			continue;
+		AddFileToStack(propStr.c_str(), cr, 0);
+	}
+}
+
+void SciTEBase::RestoreSession() {
+	// Comment next line if you don't want to close all buffers before restoring session
 	CloseAllBuffers(true);
 
 	int curr = -1;
 	for (int i = 0; i < bufferMax; i++) {
-		SString propKey = SessionPropKey(i, "path");
+		SString propKey = IndexPropKey("buffer", i, "path");
 		SString propStr = propsSession.Get(propKey.c_str());
 		if (propStr == "")
 			continue;
 
-		propKey = SessionPropKey(i, "position");
+		propKey = IndexPropKey("buffer", i, "position");
 		int pos = propsSession.GetInt(propKey.c_str());
 
 		AddFileToBuffer(propStr.c_str(), pos - 1);
 
-		propKey = SessionPropKey(i, "current");
+		propKey = IndexPropKey("buffer", i, "current");
 		if (propsSession.GetInt(propKey.c_str()))
 			curr = i;
 
 		if (props.GetInt("session.bookmarks")) {
-			propKey = SessionPropKey(i, "bookmarks");
+			propKey = IndexPropKey("buffer", i, "bookmarks");
 			propStr = propsSession.Get(propKey.c_str());
 			if (propStr.length()) {
 				char *buf = new char[propStr.length() + 1];
@@ -456,7 +440,7 @@ void SciTEBase::LoadSession(const char *sessionName) {
 
 		if (props.GetInt("fold") && !props.GetInt("fold.on.open") &&
 			props.GetInt("session.folds")) {
-			propKey = SessionPropKey(i, "folds");
+			propKey = IndexPropKey("buffer", i, "folds");
 			propStr = propsSession.Get(propKey.c_str());
 			if (propStr.length()) {
 				SendEditor(SCI_COLOURISE, 0, -1);
@@ -473,85 +457,114 @@ void SciTEBase::LoadSession(const char *sessionName) {
 		}
 	}
 
-	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
-	// add/update SessionPath environment variable
-	props.Set("SessionPath", sessionFilePath.AsFileSystem());
-
 	if (curr != -1)
 		SetDocumentAt(curr);
 }
 
-void SciTEBase::SaveSession(const char *sessionName) {
+void SciTEBase::SaveSessionFile(const char *sessionName) {
+	bool defaultSession;
 	FilePath sessionPathName;
 	if (sessionName[0] == '\0') {
-		sessionPathName = RecentFilePath(defaultSessionFileName);
+		sessionPathName = UserFilePath(defaultSessionFileName);
+		defaultSession = true;
 	} else {
 		sessionPathName.Set(sessionName);
+		defaultSession = false;
 	}
 	FILE *sessionFile = sessionPathName.Open(fileWrite);
 	if (!sessionFile)
 		return;
 
 	fprintf(sessionFile, "# SciTE session file\n");
-	int curr = buffers.Current();
-	for (int i = 0; i < buffers.length; i++) {
-		if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
-			SString propKey = SessionPropKey(i, "path");
-			fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buffers.buffers[i].AsInternal());
 
-			SetDocumentAt(i);
-			int pos = SendEditor(SCI_GETCURRENTPOS) + 1;
-			propKey = SessionPropKey(i, "position");
-			fprintf(sessionFile, "%s=%d\n", propKey.c_str(), pos);
+	if (defaultSession && props.GetInt("save.position")) {
+		int top, left, width, height, maximize;
+		GetWindowPosition(&left, &top, &width, &height, &maximize);
 
-			if (i == curr) {
-				propKey = SessionPropKey(i, "current");
-				fprintf(sessionFile, "%s=1\n", propKey.c_str());
-			}
+		fprintf(sessionFile, "\n");
+		fprintf(sessionFile, "position.left=%d\n", left);
+		fprintf(sessionFile, "position.top=%d\n", top);
+		fprintf(sessionFile, "position.width=%d\n", width);
+		fprintf(sessionFile, "position.height=%d\n", height);
+		fprintf(sessionFile, "position.maximize=%d\n", maximize);
+	}
 
-			if (props.GetInt("session.bookmarks")) {
-				int line = -1;
-				bool found = false;
-				while ((line = SendEditor(SCI_MARKERNEXT, line + 1, 1 << markerBookmark)) >= 0) {
-					if (!found) {
-						propKey = SessionPropKey(i, "bookmarks");
-						fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
-						found = true;
-					} else {
-						fprintf(sessionFile, ",%d", line + 1);
-					}
-				}
-				if (found)
-					fprintf(sessionFile, "\n");
-			}
+	if (defaultSession && props.GetInt("save.recent")) {
+		SString propKey;
+		int j = 0;
 
-			if (props.GetInt("fold") && props.GetInt("session.folds")) {
-				int maxLine = SendEditor(SCI_GETLINECOUNT);
-				bool found = false;
-				for (int line = 0; line < maxLine; line++) {
-					if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
-						!SendEditor(SCI_GETFOLDEXPANDED, line)) {
-						if (!found) {
-							propKey = SessionPropKey(i, "folds");
-							fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
-						found = true;
-					} else {
-							fprintf(sessionFile, ",%d", line + 1);
-						}
-					}
-				}
-				if (found)
-					fprintf(sessionFile, "\n");
+		fprintf(sessionFile, "\n");
+
+		// Save recent files list
+		for (int i = fileStackMax - 1; i >= 0; i--) {
+			if (recentFileStack[i].IsSet()) {
+				propKey = IndexPropKey("mru", j++, "path");
+				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), recentFileStack[i].AsInternal());
 			}
 		}
 	}
+
+	if (props.GetInt("buffers") && (!defaultSession || props.GetInt("save.session"))) {
+		int curr = buffers.Current();
+		for (int i = 0; i < buffers.length; i++) {
+			if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
+				SString propKey = IndexPropKey("buffer", i, "path");
+				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buffers.buffers[i].AsInternal());
+
+				SetDocumentAt(i);
+				int pos = SendEditor(SCI_GETCURRENTPOS) + 1;
+				propKey = IndexPropKey("buffer", i, "position");
+				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), pos);
+
+				if (i == curr) {
+					propKey = IndexPropKey("buffer", i, "current");
+					fprintf(sessionFile, "%s=1\n", propKey.c_str());
+				}
+
+				if (props.GetInt("session.bookmarks")) {
+					int line = -1;
+					bool found = false;
+					while ((line = SendEditor(SCI_MARKERNEXT, line + 1, 1 << markerBookmark)) >= 0) {
+						if (!found) {
+							propKey = IndexPropKey("buffer", i, "bookmarks");
+							fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
+							found = true;
+						} else {
+							fprintf(sessionFile, ",%d", line + 1);
+						}
+					}
+					if (found)
+						fprintf(sessionFile, "\n");
+				}
+
+				if (props.GetInt("fold") && props.GetInt("session.folds")) {
+					int maxLine = SendEditor(SCI_GETLINECOUNT);
+					bool found = false;
+					for (int line = 0; line < maxLine; line++) {
+						if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
+							!SendEditor(SCI_GETFOLDEXPANDED, line)) {
+							if (!found) {
+								propKey = IndexPropKey("buffer", i, "folds");
+								fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
+								found = true;
+							} else {
+								fprintf(sessionFile, ",%d", line + 1);
+							}
+						}
+					}
+					if (found)
+						fprintf(sessionFile, "\n");
+				}
+			}
+		}
+		SetDocumentAt(curr);
+	}
+
 	fclose(sessionFile);
 
 	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
-	// add/update SessionPath environment variable
+	// Add/update SessionPath environment variable
 	props.Set("SessionPath", sessionFilePath.AsFileSystem());
-
-	SetDocumentAt(curr);
 }
 
 void SciTEBase::SetIndentSettings() {
@@ -1463,9 +1476,9 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			} else {
 				// Lua 5.1 error looks like: lua.exe: test1.lua:3: syntax error
 				// reuse the GCC error parsing code above!
-				const char* colon = strstr(cdoc,": ");
+				const char* colon = strstr(cdoc, ": ");
 				if (cdoc)
-					return DecodeMessage(colon + 2,sourcePath,SCE_ERR_GCC,column);
+					return DecodeMessage(colon + 2, sourcePath, SCE_ERR_GCC, column);
 			}
 			break;
 		}
