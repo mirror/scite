@@ -794,40 +794,43 @@ bool SciTEBase::SaveBuffer(FilePath saveName) {
 		SendEditor(SCI_CONVERTEOLS, SendEditor(SCI_GETEOLMODE));
 
 	if (extender)
-		extender->OnBeforeSave(saveName.AsFileSystem());
+		retVal = extender->OnBeforeSave(saveName.AsFileSystem());
 
 	SendEditor(SCI_ENDUNDOACTION);
 
-	Utf8_16_Write convert;
-	if (CurrentBuffer()->unicodeMode != uniCookie) {	// Save file with cookie without BOM.
-		convert.setEncoding(static_cast<Utf8_16::encodingType>(
-		            static_cast<int>(CurrentBuffer()->unicodeMode)));
+	if (!retVal) {
+		Utf8_16_Write convert;
+		if (CurrentBuffer()->unicodeMode != uniCookie) {	// Save file with cookie without BOM.
+			convert.setEncoding(static_cast<Utf8_16::encodingType>(
+				    static_cast<int>(CurrentBuffer()->unicodeMode)));
+		}
+
+		FILE *fp = saveName.Open(fileWrite);
+		if (fp) {
+			convert.setfile(fp);
+			char data[blockSize + 1];
+			int lengthDoc = LengthDocument();
+			retVal = true;
+			int grabSize;
+			for (int i = 0; i < lengthDoc; i += grabSize) {
+				grabSize = lengthDoc - i;
+				if (grabSize > blockSize)
+					grabSize = blockSize;
+				// Round down so only whole characters retrieved.
+				grabSize = SendEditor(SCI_POSITIONBEFORE, i + grabSize + 1) - i;
+				GetRange(wEditor, i, i + grabSize, data);
+				size_t written = convert.fwrite(data, grabSize);
+				if (written == 0) {
+					retVal = false;
+					break;
+				}
+			}
+			convert.fclose();
+		}
 	}
 
-	FILE *fp = saveName.Open(fileWrite);
-	if (fp) {
-		convert.setfile(fp);
-		char data[blockSize + 1];
-		int lengthDoc = LengthDocument();
-		retVal = true;
-		int grabSize;
-		for (int i = 0; i < lengthDoc; i += grabSize) {
-			grabSize = lengthDoc - i;
-			if (grabSize > blockSize)
-				grabSize = blockSize;
-			// Round down so only whole characters retrieved.
-			grabSize = SendEditor(SCI_POSITIONBEFORE, i + grabSize + 1) - i;
-			GetRange(wEditor, i, i + grabSize, data);
-			size_t written = convert.fwrite(data, grabSize);
-			if (written == 0) {
-				retVal = false;
-				break;
-			}
-		}
-		convert.fclose();
-
-		if (extender)
-			extender->OnSave(saveName.AsFileSystem());
+	if (retVal && extender) {
+		extender->OnSave(saveName.AsFileSystem());
 	}
 	UpdateStatusBar(true);
 	return retVal;
