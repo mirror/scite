@@ -3353,7 +3353,7 @@ void SciTEGTK::SendFileName(int sendPipe, const char* filename) {
 	pipeData = command.c_str();
 
 	// Send it.
-	if (write(sendPipe, pipeData, strlen(pipeData) + 1) == -1)
+	if (write(sendPipe, pipeData, strlen(pipeData)) == -1)
 		perror("Unable to write to pipe");
 }
 
