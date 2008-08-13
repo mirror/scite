@@ -1237,12 +1237,13 @@ void SciTEGTK::HandleSaveAs(const char *savePath) {
 		SaveToXML(savePath);
 		break;
 	default: {
-		/* Checking that no other buffer refers to the same filename */
-		FilePath destFile(savePath);
+			/* Checking that no other buffer refers to the same filename */
+			FilePath destFile(savePath);
 #ifdef __vms
-		destFile = destFile.VMSToUnixStyle();
+			destFile = destFile.VMSToUnixStyle();
 #endif
-		SaveIfNotOpen(destFile, true);
+			SaveIfNotOpen(destFile, true);
+		}
 	}
 	dlgFileSelector.OK();
 }
