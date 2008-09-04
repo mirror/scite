@@ -91,6 +91,8 @@
     	Why do GCC error messages include ugly characters?</a></li>
     <li><a class="toc" href="#WindowsSpaces">
     	How do I make Windows open a file associated with SciTE when its path contains spaces?</a></li>
+    <li><a class="toc" href="#ExplicitFolds">
+    	Why does a //{ comment affect folding?</a></li>
     </ul>
     <h4 id="FixedWidth">
        How do I use a fixed width font for all text?
@@ -306,6 +308,15 @@ Ctrl+Shift+V|1121|<br />
 	Tools | Folder Options | File Types | (Select type) | Advanced | open | Edit.
 	Change the "Application used to perform action" field to be similar to
 	<div class="example">"C:\bin\SciTE\SciTE.exe" "%1"</div>
+    </p>
+    <h4 id="ExplicitFolds">
+       Why does a //{ comment affect folding?
+    </h4>
+    <p>
+	For C++ and similar languages, explicit folds can be added with //{ and //} .
+	This feature can be turned off with
+	<div class="example">
+	fold.comment=0</div>
     </p>
   </body>
 </html>
