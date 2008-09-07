@@ -838,7 +838,7 @@ static BinOpr subexpr (LexState *ls, expdesc *v, unsigned int limit) {
   else simpleexp(ls, v);
   /* expand while operators have priorities higher than `limit' */
   op = getbinopr(ls->t.token);
-  while (op != OPR_NOBINOPR && priority[op].left > (int)limit) {
+  while (op != OPR_NOBINOPR && priority[op].left > limit) {
     expdesc v2;
     BinOpr nextop;
     luaX_next(ls);
@@ -938,6 +938,8 @@ static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
     primaryexp(ls, &nv.v);
     if (nv.v.k == VLOCAL)
       check_conflict(ls, lh, &nv.v);
+    luaY_checklimit(ls->fs, nvars, LUAI_MAXCCALLS - ls->L->nCcalls,
+                    "variables in assignment");
     assignment(ls, &nv, nvars+1);
   }
   else {  /* assignment -> `=' explist1 */

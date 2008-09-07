@@ -444,9 +444,10 @@
 @* can use.
 ** CHANGE it if you need lots of (Lua) stack space for your C
 ** functions. This limit is arbitrary; its only purpose is to stop C
-** functions to consume unlimited stack space.
+** functions to consume unlimited stack space. (must be smaller than
+** -LUA_REGISTRYINDEX)
 */
-#define LUAI_MAXCSTACK	2048
+#define LUAI_MAXCSTACK	8000
 
 
 
@@ -670,7 +671,7 @@ union luai_Cast { double l_d; long l_l; };
 */
 #if defined(LUA_USE_POPEN)
 
-#define lua_popen(L,c,m)	((void)L, popen(c,m))
+#define lua_popen(L,c,m)	((void)L, fflush(NULL), popen(c,m))
 #define lua_pclose(L,file)	((void)L, (pclose(file) != -1))
 
 #elif defined(LUA_WIN)
