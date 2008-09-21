@@ -706,6 +706,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		if (closingLast) {
 			ClearDocument();
 		}
+		CheckReload();
 		if (updateUI) {
 			RestoreState(bufferNext);
 			DisplayAround(bufferNext);
