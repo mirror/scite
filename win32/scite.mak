@@ -129,6 +129,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexCaml.obj \
 	..\..\scintilla\win32\LexCLW.obj \
 	..\..\scintilla\win32\LexCmake.obj \
+	..\..\scintilla\win32\LexCOBOL.obj \
 	..\..\scintilla\win32\LexConf.obj \
 	..\..\scintilla\win32\LexCPP.obj \
 	..\..\scintilla\win32\LexCrontab.obj \
@@ -177,7 +178,9 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexSpecman.obj \
 	..\..\scintilla\win32\LexSpice.obj \
 	..\..\scintilla\win32\LexSQL.obj \
+	..\..\scintilla\win32\LexTACL.obj \
 	..\..\scintilla\win32\LexTADS3.obj \
+	..\..\scintilla\win32\LexTAL.obj \
 	..\..\scintilla\win32\LexTCL.obj \
 	..\..\scintilla\win32\LexTeX.obj \
 	..\..\scintilla\win32\LexVB.obj \

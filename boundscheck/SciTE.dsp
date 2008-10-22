@@ -255,6 +255,10 @@ SOURCE=..\..\scintilla\src\LexCmake.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexCOBOL.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexConf.cxx
 # End Source File
 # Begin Source File
@@ -448,6 +452,14 @@ SOURCE=..\..\scintilla\src\LexSQL.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\LexTADS3.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexTACL.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\src\LexTAL.cxx
 # End Source File
 # Begin Source File
 
