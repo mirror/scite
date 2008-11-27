@@ -555,6 +555,7 @@ static const char *propertiesToForward[] = {
 	"lexer.errorlist.value.separate",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
+	"lexer.pascal.smart.highlighting",
 	"lexer.sql.backticks.identifier",
 	"lexer.tex.auto.if",
 	"lexer.tex.comment.process",

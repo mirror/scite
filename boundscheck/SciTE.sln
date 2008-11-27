@@ -1,22 +1,22 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciTE", "SciTE.vcproj", "{620BEA1D-631C-43F3-9C57-E3855682D13D}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Global
-	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Release = Release
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
 	EndGlobalSection
-	GlobalSection(ProjectConfiguration) = postSolution
-		{620BEA1D-631C-43F3-9C57-E3855682D13D}.Debug.ActiveCfg = Debug|Win32
-		{620BEA1D-631C-43F3-9C57-E3855682D13D}.Debug.Build.0 = Debug|Win32
-		{620BEA1D-631C-43F3-9C57-E3855682D13D}.Release.ActiveCfg = Release|Win32
-		{620BEA1D-631C-43F3-9C57-E3855682D13D}.Release.Build.0 = Release|Win32
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{620BEA1D-631C-43F3-9C57-E3855682D13D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{620BEA1D-631C-43F3-9C57-E3855682D13D}.Debug|Win32.Build.0 = Debug|Win32
+		{620BEA1D-631C-43F3-9C57-E3855682D13D}.Release|Win32.ActiveCfg = Release|Win32
+		{620BEA1D-631C-43F3-9C57-E3855682D13D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		DPBuild = 5
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
 	EndGlobalSection
 EndGlobal
