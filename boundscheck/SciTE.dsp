@@ -439,6 +439,10 @@ SOURCE=..\..\scintilla\src\LexSmalltalk.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexSorcus.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexSpecman.cxx
 # End Source File
 # Begin Source File
