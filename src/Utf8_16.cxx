@@ -348,7 +348,7 @@ void Utf16_Iter::operator++() {
 		m_eState = eFinal;
 		break;
 	case eFinal:
-		m_nCur = static_cast<ubyte>(0x80 | m_nCur16 & 0x3F);
+		m_nCur = static_cast<ubyte>(0x80 | (m_nCur16 & 0x3F));
 		m_eState = eStart;
 		break;
 	}
