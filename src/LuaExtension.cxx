@@ -760,7 +760,7 @@ static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValu
 	return handled;
 }
 
-static bool CallNamedFunction(char *name) {
+static bool CallNamedFunction(const char *name) {
 	bool handled = false;
 	if (luaState) {
 		lua_getglobal(luaState, name);
