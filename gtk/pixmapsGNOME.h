@@ -6,7 +6,7 @@
 // file pixmapsGNOME to fit in with previous code.
 
 /* XPM */
-static char * editcopy_xpm[] = {
+static const char * editcopy_xpm[] = {
 "20 20 13 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -42,7 +42,7 @@ static char * editcopy_xpm[] = {
 "      .+++++++++++..",
 "       ............ "};
 /* XPM */
-static char * editcut_xpm[] = {
+static const char * editcut_xpm[] = {
 "20 20 14 1",
 " 	c None",
 ".	c #7A7A7A",
@@ -79,7 +79,7 @@ static char * editcut_xpm[] = {
 "  .$$$+      +$$$.  ",
 "   +++        +++   "};
 /* XPM */
-static char * close_xpm[] = {
+static const char * close_xpm[] = {
 "20 20 242 2",
 "  	c None",
 ". 	c #000000",
@@ -345,7 +345,7 @@ static char * close_xpm[] = {
 "                                        "};
 #if 0
 /* XPM */
-static char * DocumentIn_xpm[] = {
+static const char * DocumentIn_xpm[] = {
 "20 20 17 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -387,7 +387,7 @@ static char * DocumentIn_xpm[] = {
 #endif
 #if 0
 /* XPM */
-static char * Forward_xpm[] = {
+static const char * Forward_xpm[] = {
 "20 20 22 1",
 " 	c None",
 ".	c #AAAAAA",
@@ -434,7 +434,7 @@ static char * Forward_xpm[] = {
 #endif
 #if 0
 /* XPM */
-static char * Help_xpm[] = {
+static const char * Help_xpm[] = {
 "20 20 20 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -479,7 +479,7 @@ static char * Help_xpm[] = {
 #endif
 #if 0
 /* XPM */
-static char * Left_xpm[] = {
+static const char * Left_xpm[] = {
 "20 20 11 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -514,7 +514,7 @@ static char * Left_xpm[] = {
 "                    "};
 #endif
 /* XPM */
-static char * search_xpm[] = {
+static const char * search_xpm[] = {
 "20 20 21 1",
 " 	c None",
 ".	c #AAAAAA",
@@ -558,7 +558,7 @@ static char * search_xpm[] = {
 "               '%!^'",
 "                '%'#"};
 /* XPM */
-static char * filenew_xpm[] = {
+static const char * filenew_xpm[] = {
 "20 20 16 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -597,7 +597,7 @@ static char * filenew_xpm[] = {
 "  +##############+. ",
 "  .++++++++++++++.  "};
 /* XPM */
-static char * fileopen_xpm[] = {
+static const char * fileopen_xpm[] = {
 "20 20 15 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -635,7 +635,7 @@ static char * fileopen_xpm[] = {
 "  ................. ",
 "                    "};
 /* XPM */
-static char * editpaste_xpm[] = {
+static const char * editpaste_xpm[] = {
 "20 20 18 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -677,7 +677,7 @@ static char * editpaste_xpm[] = {
 "   .....@@@@@@@@@@@."};
 #if 0
 /* XPM */
-static char * Print_xpm[] = {
+static const char * Print_xpm[] = {
 "20 20 25 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -726,7 +726,7 @@ static char * Print_xpm[] = {
 "   .............    "};
 #endif
 /* XPM */
-static char * redo_xpm[] = {
+static const char * redo_xpm[] = {
 "20 20 12 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -761,7 +761,7 @@ static char * redo_xpm[] = {
 "                    ",
 "                    "};
 /* XPM */
-static char * filesave_xpm[] = {
+static const char * filesave_xpm[] = {
 "20 20 16 1",
 " 	c None",
 ".	c #6E6E6E",
@@ -801,7 +801,7 @@ static char * filesave_xpm[] = {
 " =+++++++++++++++++."};
 #if 0
 /* XPM */
-static char * filesave_all_xpm[] = {
+static const char * filesave_all_xpm[] = {
 "20 20 13 1",
 " 	c None",
 ".	c #6E6E6E",
@@ -838,7 +838,7 @@ static char * filesave_all_xpm[] = {
 "  #############     "};
 #endif
 /* XPM */
-static char * undo_xpm[] = {
+static const char * undo_xpm[] = {
 "20 20 16 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -877,7 +877,7 @@ static char * undo_xpm[] = {
 "                    ",
 "                    "};
 /* XPM */
-static char * replace_xpm[] = {
+static const char * replace_xpm[] = {
 "20 20 257 2",
 "  	c None",
 ". 	c #000000",
@@ -1159,7 +1159,7 @@ static char * replace_xpm[] = {
 
 /* XPM */
 /*
-static char * replace_xpm[] = {
+static const char * replace_xpm[] = {
 "20 20 9 1",
 " 	c None",
 ".	c #4A4A4A",
@@ -1193,7 +1193,7 @@ static char * replace_xpm[] = {
 */
 #if 0
 /* XPM */
-static char * World_xpm[] = {
+static const char * World_xpm[] = {
 "20 20 32 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -1249,7 +1249,7 @@ static char * World_xpm[] = {
 "     ..+@##@+..     "};
 #endif
 /* XPM */
-static char * findinfiles_xpm[] = {
+static const char * findinfiles_xpm[] = {
 "20 20 28 1",
 " 	c None",
 ".	c #AAAAAA",
@@ -1300,7 +1300,7 @@ static char * findinfiles_xpm[] = {
 "  @&&&&&&&&&&&&^&_&^",
 "  #@@@@@@@@@@@@@^&^ "};
 /* XPM */
-static char * findnext_xpm[] = {
+static const char * findnext_xpm[] = {
 "20 20 30 1",
 " 	c None",
 ".	c #AAAAAA",
@@ -1353,7 +1353,7 @@ static char * findnext_xpm[] = {
 "      %}%&     '%|1'",
 "      %%(       '%'#"};
 /* XPM */
-static char * next_xpm[] = {
+static const char * next_xpm[] = {
 "20 20 17 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -1393,7 +1393,7 @@ static char * next_xpm[] = {
 "  +@@@@@@@@@@@@@@+. ",
 "  .++++++++++++++.  "};
 /* XPM */
-static char * prev_xpm[] = {
+static const char * prev_xpm[] = {
 "20 20 17 1",
 " 	c None",
 ".	c #B6B6B6",
@@ -1433,7 +1433,7 @@ static char * prev_xpm[] = {
 " .+@@@@@@@@@@@@@@+  ",
 "  .++++++++++++++.  "};
 /* XPM */
-static char * build_xpm[] = {
+static const char * build_xpm[] = {
 "20 20 17 1",
 " 	c None",
 ".	c #626262",
@@ -1474,7 +1474,7 @@ static char * build_xpm[] = {
 "        '+;))!!'    "};
 /* XPM */
 /*
-static char * xbuild_xpm[] = {
+static const char * xbuild_xpm[] = {
 "20 20 17 1",
 " 	c None",
 ".	c #929292",
@@ -1515,7 +1515,7 @@ static char * xbuild_xpm[] = {
 "      @!!##!!@      "};
 */
 /* XPM */
-static char * compile_xpm[] = {
+static const char * compile_xpm[] = {
 "20 20 16 1",
 " 	c None",
 ".	c #929292",
@@ -1555,7 +1555,7 @@ static char * compile_xpm[] = {
 "                    "};
 
 /* XPM */
-static char * stop_xpm[] = {
+static const char * stop_xpm[] = {
 "20 20 13 1",
 " 	c None",
 ".	c #FFD4E3",

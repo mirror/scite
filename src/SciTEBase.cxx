@@ -4803,7 +4803,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	uptr_t wParam;
 	sptr_t lParam = 0;
 	int rep = 0;				//Scintilla's answer
-	char *answercmd;
+	const char *answercmd;
 	int l;
 	char *string1 = NULL;
 	char params[4];

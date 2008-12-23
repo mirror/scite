@@ -1,5 +1,5 @@
 /* XPM */
-static char * SciIcon_xpm[] = {
+static const char * SciIcon_xpm[] = {
 "16 16 17 1",
 " 	c None",
 ".	c #666666",

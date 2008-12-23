@@ -210,11 +210,11 @@ private:
 
 // Field added to GTK+ 1.x ItemFactoryEntry for 2.x  so have a struct that is the same as 1.x
 struct SciTEItemFactoryEntry {
-	char *path;
-	char *accelerator;
+	const char *path;
+	const char *accelerator;
 	GtkItemFactoryCallback callback;
 	unsigned int callback_action;
-	char *item_type;
+	const char *item_type;
 };
 
 long SciTEKeys::ParseKeyCode(const char *mnemonic) {
@@ -685,7 +685,7 @@ GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
 #endif
 
 FilePath SciTEGTK::GetDefaultDirectory() {
-	char *where = getenv("SciTE_HOME");
+	const char *where = getenv("SciTE_HOME");
 #ifdef SYSCONF_PATH
 	if (!where) {
 		where = SYSCONF_PATH;
@@ -707,7 +707,7 @@ FilePath SciTEGTK::GetDefaultDirectory() {
 }
 
 FilePath SciTEGTK::GetSciteDefaultHome() {
-	char *where = getenv("SciTE_HOME");
+	const char *where = getenv("SciTE_HOME");
 #ifdef __vms
 	if (where == NULL) {
 		where = g_modulePath;
@@ -2661,34 +2661,34 @@ void SciTEGTK::AddToolBar() {
 		return;
 	}
 #endif
-	AddToolButton("New", IDM_NEW, pixmap_new(PWidget(wSciTE), filenew_xpm));
-	AddToolButton("Open", IDM_OPEN, pixmap_new(PWidget(wSciTE), fileopen_xpm));
-	AddToolButton("Save", IDM_SAVE, pixmap_new(PWidget(wSciTE), filesave_xpm));
-	AddToolButton("Close", IDM_CLOSE, pixmap_new(PWidget(wSciTE), close_xpm));
+	AddToolButton("New", IDM_NEW, pixmap_new(PWidget(wSciTE), (gchar**)filenew_xpm));
+	AddToolButton("Open", IDM_OPEN, pixmap_new(PWidget(wSciTE), (gchar**)fileopen_xpm));
+	AddToolButton("Save", IDM_SAVE, pixmap_new(PWidget(wSciTE), (gchar**)filesave_xpm));
+	AddToolButton("Close", IDM_CLOSE, pixmap_new(PWidget(wSciTE), (gchar**)close_xpm));
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Undo", IDM_UNDO, pixmap_new(PWidget(wSciTE), undo_xpm));
-	AddToolButton("Redo", IDM_REDO, pixmap_new(PWidget(wSciTE), redo_xpm));
+	AddToolButton("Undo", IDM_UNDO, pixmap_new(PWidget(wSciTE), (gchar**)undo_xpm));
+	AddToolButton("Redo", IDM_REDO, pixmap_new(PWidget(wSciTE), (gchar**)redo_xpm));
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Cut", IDM_CUT, pixmap_new(PWidget(wSciTE), editcut_xpm));
-	AddToolButton("Copy", IDM_COPY, pixmap_new(PWidget(wSciTE), editcopy_xpm));
-	AddToolButton("Paste", IDM_PASTE, pixmap_new(PWidget(wSciTE), editpaste_xpm));
+	AddToolButton("Cut", IDM_CUT, pixmap_new(PWidget(wSciTE), (gchar**)editcut_xpm));
+	AddToolButton("Copy", IDM_COPY, pixmap_new(PWidget(wSciTE), (gchar**)editcopy_xpm));
+	AddToolButton("Paste", IDM_PASTE, pixmap_new(PWidget(wSciTE), (gchar**)editpaste_xpm));
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new(PWidget(wSciTE), findinfiles_xpm));
-	AddToolButton("Find", IDM_FIND, pixmap_new(PWidget(wSciTE), search_xpm));
-	AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new(PWidget(wSciTE), findnext_xpm));
-	AddToolButton("Replace", IDM_REPLACE, pixmap_new(PWidget(wSciTE), replace_xpm));
+	AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new(PWidget(wSciTE), (gchar**)findinfiles_xpm));
+	AddToolButton("Find", IDM_FIND, pixmap_new(PWidget(wSciTE), (gchar**)search_xpm));
+	AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new(PWidget(wSciTE), (gchar**)findnext_xpm));
+	AddToolButton("Replace", IDM_REPLACE, pixmap_new(PWidget(wSciTE), (gchar**)replace_xpm));
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new(PWidget(wSciTE), compile_xpm));
-	btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new(PWidget(wSciTE), build_xpm));
-	btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new(PWidget(wSciTE), stop_xpm));
+	btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new(PWidget(wSciTE), (gchar**)compile_xpm));
+	btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new(PWidget(wSciTE), (gchar**)build_xpm));
+	btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new(PWidget(wSciTE), (gchar**)stop_xpm));
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Previous", IDM_PREVFILE, pixmap_new(PWidget(wSciTE), prev_xpm));
-	AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new(PWidget(wSciTE), next_xpm));
+	AddToolButton("Previous", IDM_PREVFILE, pixmap_new(PWidget(wSciTE), (gchar**)prev_xpm));
+	AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new(PWidget(wSciTE), (gchar**)next_xpm));
 }
 
 SString SciTEGTK::TranslatePath(const char *path) {
@@ -2749,11 +2749,11 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 			userDefinedAccels[i] = NULL;
 		}
 
-		translatedItems[i].path = items[i].path;
-		translatedItems[i].accelerator = items[i].accelerator;
+		translatedItems[i].path = (gchar*) items[i].path;
+		translatedItems[i].accelerator = (gchar*) items[i].accelerator;
 		translatedItems[i].callback = items[i].callback;
 		translatedItems[i].callback_action = items[i].callback_action;
-		translatedItems[i].item_type = items[i].item_type;
+		translatedItems[i].item_type = (gchar*) items[i].item_type;
 #if GTK_MAJOR_VERSION >= 2
 		translatedItems[i].extra_data = 0;
 #endif
@@ -3220,7 +3220,7 @@ void SciTEGTK::CreateUI() {
 	gtk_statusbar_push(GTK_STATUSBAR(PWidget(wStatusBar)), sbContextID, "Initial");
 	sbVisible = false;
 
-	static const GtkTargetEntry dragtypes[] = { { "text/uri-list", 0, 0 } };
+	static const GtkTargetEntry dragtypes[] = { { (gchar*)"text/uri-list", 0, 0 } };
 	static const gint n_dragtypes = ELEMENTS(dragtypes);
 
 	gtk_drag_dest_set(PWidget(wSciTE), GTK_DEST_DEFAULT_ALL, dragtypes,

@@ -576,7 +576,7 @@ static const char *propertiesToForward[] = {
 };
 
 /* XPM */
-static char *bookmarkBluegem[] = {
+static const char *bookmarkBluegem[] = {
 /* width height num_colors chars_per_pixel */
 "    15    15      64            1",
 /* colors */
