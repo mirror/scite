@@ -493,7 +493,8 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
  * Run a command with redirected input and output streams
  * so the output can be put in a window.
  * It is based upon several usenet posts and a knowledge base article.
- * This is running in a separate thread to the user interface.
+ * This is running in a separate thread to the user interface so should always
+ * use Platform::SendScintilla rather than a one of the direct function calls.
  */
 DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	DWORD exitcode = 0;
@@ -797,7 +798,9 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 				doRepSel = (0 == exitcode);
 
 			if (doRepSel) {
+				int cpMin = Platform::SendScintilla(wEditor.GetID(), SCI_GETSELECTIONSTART, 0, 0);
 				Platform::SendScintilla(wEditor.GetID(),SCI_REPLACESEL,0,(sptr_t)(repSelBuf.c_str()));
+				Platform::SendScintilla(wEditor.GetID(), SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
 			}
 		}
 
