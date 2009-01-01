@@ -403,6 +403,10 @@ SOURCE=..\..\scintilla\src\LexPOV.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexPowerPro.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexPowerShell.cxx
 # End Source File
 # Begin Source File

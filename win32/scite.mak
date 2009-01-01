@@ -166,6 +166,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexPerl.obj \
 	..\..\scintilla\win32\LexPLM.obj \
 	..\..\scintilla\win32\LexPOV.obj \
+	..\..\scintilla\win32\LexPowerPro.obj \
 	..\..\scintilla\win32\LexPowerShell.obj \
 	..\..\scintilla\win32\LexProgress.obj \
 	..\..\scintilla\win32\LexPS.obj \
@@ -260,9 +261,10 @@ $(DIR_BIN)\mmixal.properties $(DIR_BIN)\nncrontab.properties \
 $(DIR_BIN)\nsis.properties $(DIR_BIN)\opal.properties \
 $(DIR_BIN)\others.properties $(DIR_BIN)\pascal.properties \
 $(DIR_BIN)\perl.properties $(DIR_BIN)\pov.properties \
-$(DIR_BIN)\powershell.properties $(DIR_BIN)\ps.properties \
-$(DIR_BIN)\purebasic.properties $(DIR_BIN)\python.properties \
-$(DIR_BIN)\r.properties $(DIR_BIN)\rebol.properties $(DIR_BIN)\ruby.properties \
+$(DIR_BIN)\powerpro.properties $(DIR_BIN)\powershell.properties \
+$(DIR_BIN)\ps.properties $(DIR_BIN)\purebasic.properties \
+$(DIR_BIN)\python.properties $(DIR_BIN)\r.properties \
+$(DIR_BIN)\rebol.properties $(DIR_BIN)\ruby.properties \
 $(DIR_BIN)\scriptol.properties $(DIR_BIN)\smalltalk.properties \
 $(DIR_BIN)\sorcins.properties $(DIR_BIN)\specman.properties \
 $(DIR_BIN)\spice.properties $(DIR_BIN)\sql.properties \
@@ -397,6 +399,8 @@ $(DIR_BIN)\perl.properties:	..\src\perl.properties
 	copy ..\src\perl.properties $@
 $(DIR_BIN)\pov.properties:	..\src\pov.properties
 	copy ..\src\pov.properties $@
+$(DIR_BIN)\powerpro.properties:	..\src\powerpro.properties
+	copy ..\src\powerpro.properties $@
 $(DIR_BIN)\powershell.properties:	..\src\powershell.properties
 	copy ..\src\powershell.properties $@
 $(DIR_BIN)\ps.properties:	..\src\ps.properties

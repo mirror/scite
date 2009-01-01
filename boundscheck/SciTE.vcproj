@@ -385,6 +385,9 @@
 				RelativePath="..\..\scintilla\src\LexPOV.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexPowerPro.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexPowerShell.cxx">
 			</File>
 			<File
