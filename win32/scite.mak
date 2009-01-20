@@ -469,10 +469,24 @@ $(PROGSTATIC): $(OBJSSTATIC) $(LEXOBJS) Sc1Res.res
 !ELSE
 
 $(PROG): $(OBJS) SciTERes.res
-	$(LD) $(LDFLAGS) -Tpe -aa c0w32 $(OBJS), $@, ,$(LIBS), , SciTERes.res
+	$(LD) $(LDFLAGS) -Tpe -aa @&&|
+	c0w32 $(OBJS)
+	$@
+	
+	$(LIBS)
+	
+	SciTERes.res
+|
 
 $(PROGSTATIC): $(OBJSSTATIC) $(LEXOBJS) Sc1Res.res
-	$(LD) $(LDFLAGS) -Tpe -aa c0w32 $(OBJSSTATIC) $(LEXOBJS), $@, ,$(LIBS), , Sc1Res.res
+	$(LD) $(LDFLAGS) -Tpe -aa @&&|
+	c0w32 $(OBJSSTATIC) $(LEXOBJS)
+	$@
+	
+	$(LIBS)
+	
+	Sc1Res.res
+|
 
 !ENDIF
 
