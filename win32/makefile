@@ -89,18 +89,17 @@ LEXPROPS=\
 ..\bin\caml.properties ..\bin\cmake.properties ..\bin\conf.properties \
 ..\bin\cpp.properties ..\bin\csound.properties ..\bin\css.properties \
 ..\bin\d.properties ..\bin\eiffel.properties ..\bin\erlang.properties \
-..\bin\escript.properties ..\bin\flagship.properties ..\bin\forth.properties \
-..\bin\fortran.properties ..\bin\freebasic.properties ..\bin\gap.properties \
-..\bin\html.properties ..\bin\inno.properties ..\bin\kix.properties \
-..\bin\latex.properties ..\bin\lisp.properties ..\bin\lot.properties \
-..\bin\lout.properties ..\bin\lua.properties ..\bin\matlab.properties \
-..\bin\metapost.properties ..\bin\mmixal.properties \
-..\bin\nncrontab.properties ..\bin\nsis.properties ..\bin\opal.properties \
-..\bin\others.properties ..\bin\pascal.properties ..\bin\perl.properties \
-..\bin\pov.properties ..\bin\powerpro.properties ..\bin\powershell.properties \
-..\bin\ps.properties ..\bin\purebasic.properties ..\bin\python.properties \
-..\bin\r.properties ..\bin\rebol.properties ..\bin\ruby.properties \
-..\bin\scriptol.properties ..\bin\smalltalk.properties \
+..\bin\flagship.properties ..\bin\forth.properties ..\bin\fortran.properties \
+..\bin\freebasic.properties ..\bin\gap.properties ..\bin\html.properties \
+..\bin\inno.properties ..\bin\kix.properties ..\bin\latex.properties \
+..\bin\lisp.properties ..\bin\lot.properties ..\bin\lout.properties \
+..\bin\lua.properties ..\bin\matlab.properties ..\bin\metapost.properties \
+..\bin\mmixal.properties ..\bin\nncrontab.properties ..\bin\nsis.properties \
+..\bin\opal.properties ..\bin\others.properties ..\bin\pascal.properties \
+..\bin\perl.properties ..\bin\pov.properties ..\bin\powerpro.properties \
+..\bin\powershell.properties ..\bin\ps.properties ..\bin\purebasic.properties \
+..\bin\python.properties ..\bin\r.properties ..\bin\rebol.properties \
+..\bin\ruby.properties ..\bin\scriptol.properties ..\bin\smalltalk.properties \
 ..\bin\sorcins.properties ..\bin\specman.properties ..\bin\spice.properties \
 ..\bin\sql.properties ..\bin\tcl.properties ..\bin\tex.properties \
 ..\bin\vb.properties ..\bin\verilog.properties ..\bin\vhdl.properties \
@@ -165,8 +164,6 @@ deps:
 ..\bin\eiffel.properties:	..\src\eiffel.properties
 	$(COPY) $^ $@
 ..\bin\erlang.properties:	..\src\erlang.properties
-	$(COPY) $^ $@
-..\bin\escript.properties:	..\src\escript.properties
 	$(COPY) $^ $@
 ..\bin\flagship.properties:	..\src\flagship.properties
 	$(COPY) $^ $@
