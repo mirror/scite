@@ -291,6 +291,10 @@ SOURCE=..\..\scintilla\src\LexErlang.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexEScript.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexFlagship.cxx
 # End Source File
 # Begin Source File

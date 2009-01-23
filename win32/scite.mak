@@ -138,6 +138,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexD.obj \
 	..\..\scintilla\win32\LexEiffel.obj \
 	..\..\scintilla\win32\LexErlang.obj \
+	..\..\scintilla\win32\LexEScript.obj \
 	..\..\scintilla\win32\LexFlagship.obj \
 	..\..\scintilla\win32\LexForth.obj \
 	..\..\scintilla\win32\LexFortran.obj \
@@ -248,12 +249,13 @@ $(DIR_BIN)\caml.properties $(DIR_BIN)\cmake.properties \
 $(DIR_BIN)\conf.properties $(DIR_BIN)\cpp.properties \
 $(DIR_BIN)\csound.properties $(DIR_BIN)\css.properties $(DIR_BIN)\d.properties \
 $(DIR_BIN)\eiffel.properties $(DIR_BIN)\erlang.properties \
-$(DIR_BIN)\flagship.properties $(DIR_BIN)\forth.properties \
-$(DIR_BIN)\fortran.properties $(DIR_BIN)\freebasic.properties \
-$(DIR_BIN)\gap.properties $(DIR_BIN)\html.properties \
-$(DIR_BIN)\inno.properties $(DIR_BIN)\kix.properties \
-$(DIR_BIN)\latex.properties $(DIR_BIN)\lisp.properties \
-$(DIR_BIN)\lot.properties $(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
+$(DIR_BIN)\escript.properties $(DIR_BIN)\flagship.properties \
+$(DIR_BIN)\forth.properties $(DIR_BIN)\fortran.properties \
+$(DIR_BIN)\freebasic.properties $(DIR_BIN)\gap.properties \
+$(DIR_BIN)\html.properties $(DIR_BIN)\inno.properties \
+$(DIR_BIN)\kix.properties $(DIR_BIN)\latex.properties \
+$(DIR_BIN)\lisp.properties $(DIR_BIN)\lot.properties \
+$(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
 $(DIR_BIN)\matlab.properties $(DIR_BIN)\metapost.properties \
 $(DIR_BIN)\mmixal.properties $(DIR_BIN)\nncrontab.properties \
 $(DIR_BIN)\nsis.properties $(DIR_BIN)\opal.properties \
@@ -349,6 +351,8 @@ $(DIR_BIN)\eiffel.properties:	..\src\eiffel.properties
 	copy ..\src\eiffel.properties $@
 $(DIR_BIN)\erlang.properties:	..\src\erlang.properties
 	copy ..\src\erlang.properties $@
+$(DIR_BIN)\escript.properties:	..\src\escript.properties
+	copy ..\src\escript.properties $@
 $(DIR_BIN)\flagship.properties:	..\src\flagship.properties
 	copy ..\src\flagship.properties $@
 $(DIR_BIN)\forth.properties:	..\src\forth.properties
