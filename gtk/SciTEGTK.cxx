@@ -175,6 +175,9 @@ public:
 	void OnActivate(GtkWidget *w, SigFunction func) {
 		gtk_signal_connect(GTK_OBJECT(w), "activate", GtkSignalFunc(func), app);
 	}
+	void Present() {
+		gtk_window_present(GTK_WINDOW(Widget()));
+	}
 
 private:
 	SciTEGTK *app;
@@ -1385,8 +1388,10 @@ SString SciTEGTK::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
 void SciTEGTK::HandleFindReplace() {}
 
 void SciTEGTK::Find() {
-	if (dlgFindReplace.Created())
+	if (dlgFindReplace.Created()) {
+		dlgFindReplace.Present();
 		return;
+	}
 	SelectionIntoFind();
 	FindReplace(false);
 }
@@ -1700,8 +1705,10 @@ void SciTEGTK::FindInFiles() {
 }
 
 void SciTEGTK::Replace() {
-	if (dlgFindReplace.Created())
+	if (dlgFindReplace.Created()) {
+		dlgFindReplace.Present();
 		return;
+	}
 	SelectionIntoFind();
 	FindReplace(true);
 }
