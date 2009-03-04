@@ -361,6 +361,9 @@
 				RelativePath="..\..\scintilla\src\LexMySQL.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexNimrod.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexNsis.cxx">
 			</File>
 			<File

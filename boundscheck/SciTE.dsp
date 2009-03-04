@@ -371,6 +371,10 @@ SOURCE=..\..\scintilla\src\LexMySQL.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexNimrod.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexNsis.cxx
 # End Source File
 # Begin Source File

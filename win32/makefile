@@ -94,7 +94,7 @@ LEXPROPS=\
 ..\bin\html.properties ..\bin\inno.properties ..\bin\kix.properties \
 ..\bin\latex.properties ..\bin\lisp.properties ..\bin\lot.properties \
 ..\bin\lout.properties ..\bin\lua.properties ..\bin\matlab.properties \
-..\bin\metapost.properties ..\bin\mmixal.properties \
+..\bin\metapost.properties ..\bin\mmixal.properties ..\bin\nimrod.properties \
 ..\bin\nncrontab.properties ..\bin\nsis.properties ..\bin\opal.properties \
 ..\bin\others.properties ..\bin\pascal.properties ..\bin\perl.properties \
 ..\bin\pov.properties ..\bin\powerpro.properties ..\bin\powershell.properties \
@@ -199,6 +199,8 @@ deps:
 ..\bin\metapost.properties:	..\src\metapost.properties
 	$(COPY) $^ $@
 ..\bin\mmixal.properties:	..\src\mmixal.properties
+	$(COPY) $^ $@
+..\bin\nimrod.properties:	..\src\nimrod.properties
 	$(COPY) $^ $@
 ..\bin\nncrontab.properties:	..\src\nncrontab.properties
 	$(COPY) $^ $@
