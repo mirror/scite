@@ -3473,7 +3473,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 void SciTEGTK::ChildSignal(int) {
 	int status = 0;
 	int pid = wait(&status);
-	if (pid == instance->pidShell) {
+	if (instance && (pid == instance->pidShell)) {
 		// If this child is the currently running tool, save the exit status
 		instance->pidShell = 0;
 		instance->triedKill = false;
