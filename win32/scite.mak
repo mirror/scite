@@ -177,6 +177,7 @@ LEXOBJS=\
 	..\..\scintilla\win32\LexRuby.obj \
 	..\..\scintilla\win32\LexScriptol.obj \
 	..\..\scintilla\win32\LexSmalltalk.obj \
+	..\..\scintilla\win32\LexSML.obj \
 	..\..\scintilla\win32\LexSorcus.obj \
 	..\..\scintilla\win32\LexSpecman.obj \
 	..\..\scintilla\win32\LexSpice.obj \
