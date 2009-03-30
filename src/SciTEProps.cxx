@@ -558,6 +558,7 @@ static const char *propertiesToForward[] = {
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
 	"lexer.pascal.smart.highlighting",
+	"lexer.props.allow.initial.spaces",
 	"lexer.sql.backticks.identifier",
 	"lexer.tex.auto.if",
 	"lexer.tex.comment.process",
