@@ -152,11 +152,11 @@ for filename in os.listdir(srcRoot + os.sep + "src"):
 	if filename.count(".properties") and filename not in notRealProperties:
 		propsFile = open(srcRoot + os.sep + "src" + os.sep + filename, "rt")
 		for line in propsFile.readlines():
-			if line:
+			if line and not line.startswith("#"):
 				key = keyOfLine(line)
 				if key:
-					if fileOfProp.has_key(key):
-						print "Clash for", key, fileOfProp[key], filename
+					if key in fileOfProp:
+						print("Clash for %s %s %s" % (key, fileOfProp[key], filename))
 					else:
 						fileOfProp[key] =filename
 		propsFile.close()
