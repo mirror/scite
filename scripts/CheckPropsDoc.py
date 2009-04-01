@@ -10,7 +10,10 @@ srcRoot = "../../scite"
 srcDir = os.path.join(srcRoot, "src")
 docFileName = os.path.join(srcRoot, "doc", "SciTEDoc.html")
 propsFileName = os.path.join(srcDir, "SciTEGlobal.properties")
-identCharacters = "_*." + string.letters + string.digits
+try:	# Old Python
+	identCharacters = "_*." + string.letters + string.digits
+except AttributeError:	# Python 3.x
+	identCharacters = "_*." + string.ascii_letters + string.digits
 
 # Convert all punctuation characters except '_', '*', and '.' into spaces.
 def depunctuate(s):
@@ -62,11 +65,16 @@ def stripComment(s):
 	return s
 
 propertyNames = {}
-literalStrings = set()
+literalStrings = {}
 dontLook = False	# ignore contributor names as they don't get localised
 #print srcPaths
 for srcPath in srcPaths:
-	srcFile = open(srcPath)
+	try:	# Python 3.0
+		srcFile = open(srcPath, encoding='latin_1')
+	except TypeError:	# Python 2.6
+		srcFile = open(srcPath)
+	except NameError:	# Python 2.3
+		srcFile = open(srcPath)
 	for srcLine in srcFile.readlines():
 		srcLine = stripComment(srcLine).strip()
 		if '"' in srcLine and "props" in srcLine and ("Get" in srcLine or "ColourOfProperty" in srcLine):
@@ -87,7 +95,7 @@ for srcPath in srcPaths:
 				srcLine = grabQuoted(srcLine)
 				if srcLine:
 					if srcLine[:1] not in ["<"]:
-						literalStrings.add(srcLine)
+						literalStrings[srcLine] = 1
 	srcFile.close()
 
 docFile = open(docFileName, "rt")
@@ -97,11 +105,12 @@ for docLine in docFile.readlines():
 			propertyNames[word] = 1
 docFile.close()
 
-print "# Not mentioned in", docFileName
-identifiersSorted = sorted(propertyNames.keys())
+print("# Not mentioned in %s" % docFileName)
+identifiersSorted = list(propertyNames.keys())
+identifiersSorted.sort()
 for identifier in identifiersSorted:
 	if not propertyNames[identifier]:
-		print identifier
+		print(identifier)
 
 # Rest flags for searching properties file
 for identifier in identifiersSorted:
@@ -127,17 +136,15 @@ for propLine in propsFile.readlines():
 				propertyNames[key] = 1
 propsFile.close()
 
-print
-print "# Not mentioned in", propsFileName
+print("\n# Not mentioned in %s" % propsFileName)
 for identifier in identifiersSorted:
 	if not propertyNames[identifier]:
 		if "." != identifier[-1:]:
-			print identifier
+			print(identifier)
 
 # This is a test to see whether properties are defined in more than one file.
 # It doesn't understand the if directive so yields too many false positives to run often.
-print
-print "# Duplicate mentions"
+print("\n# Duplicate mentions")
 """
 fileOfProp = {}
 notRealProperties = ["abbrev.properties", "SciTE.properties", "Embedded.properties"]
@@ -155,23 +162,20 @@ for filename in os.listdir(srcRoot + os.sep + "src"):
 		propsFile.close()
 """
 
-propertiesSet = set(propertyNames.keys())
-#~ print "# Properties"
-#~ print "\n".join(sorted(list(propertiesSet)))
+propertiesSet = {}
+for k in propertyNames.keys():
+	propertiesSet[k] = 1
 
 localeFileName = srcRoot + "/win32/locale.properties"
-localeSet = set()
-for line in file(localeFileName):
+localeSet = {}
+for line in open(localeFileName):
 	if not line.startswith("#"):
 		line = line.strip().strip("=")
-		localeSet.add(line.lower())
+		localeSet[line.lower()] = 1
 		
-#~ print "# Locale"
-#~ print "\n".join(sorted(list(localeSet)))
-
 resourceFileName = srcRoot + "/win32/SciTERes.rc"
-resourceSet = set()
-for line in file(resourceFileName):
+resourceSet = {}
+for line in open(resourceFileName):
 	line = line.strip()
 	if "VIRTKEY" not in line and \
 		"VALUE" not in line and \
@@ -181,7 +185,6 @@ for line in file(resourceFileName):
 		not line.startswith("ICON") and \
 		not line.startswith("ID") and \
 		"#include" not in line:
-		#~ print "::", line
 		line = grabQuoted(line)
 		if line:
 			if '\\t' in line:
@@ -189,16 +192,14 @@ for line in file(resourceFileName):
 			line = line.replace('&','')
 			line = line.replace('...','')
 			if len(line) > 2:
-				resourceSet.add(line)
+				resourceSet[line] = 1
 		
-#~ print "# Resource"
-#~ print "\n".join(sorted(list(resourceSet)))
-
-print
-print "# Missing localisation of resource"
-for l in sorted(resourceSet):
+print("\n# Missing localisation of resource")
+resourceSet = list(resourceSet.keys())
+resourceSet.sort()
+for l in resourceSet:
 	if l.lower() not in localeSet:
-		print l
+		print(l)
 
 def present(l, n):
 	low = n.lower()
@@ -206,13 +207,8 @@ def present(l, n):
 		return True
 	return low.replace("_","").replace("&","") in localeSet
 
-literalStrings = literalStrings.difference(identifiersSorted)
+literalStrings = [l for l in literalStrings.keys() if l not in identifiersSorted]
 literalStrings = [l for l in list(literalStrings) if not present(localeSet, l)]
-#~ print "# Literals", len(literalStrings)
-#~ print "\n".join(sorted(literalStrings))
-
-#~ print "##"
-#~ print "\n".join(sorted(identifiersSorted))
 
 propsFile = open(propsFileName, "rt")
 for propLine in propsFile.readlines():
@@ -237,10 +233,11 @@ for propPath in propertiesPaths:
 				propToFile[key].append(base)
 	propsFile.close()
 
-print
-print "# Duplicate properties"
-for k in sorted(propToFile.keys()):
+print("\n# Duplicate properties")
+propToFileKeys = list(propToFile.keys())
+propToFileKeys.sort()
+for k in propToFileKeys:
 	files = propToFile[k] 
 	if len(files) > 1:
 		if files.count(files[0]) < len(files):
-			print k, ", ".join(propToFile[k])
+			print(k + (", ".join(propToFile[k])))
