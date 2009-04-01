@@ -20,16 +20,16 @@ vPoint = vFull[0] + "." + vFull[1:]
 #1, 3, 9, 0
 vComma = vFull[0] + ", " + vFull[1] + ", " + vFull[2] + ", 0"
 
-print "[", vFull, "|", vPoint, "|", vComma, "]"
+print("[ %s | %s | %s ]" % (vFull, vPoint, vComma))
 
 tgzV = "scite" + vFull + ".tgz"
 tgzFileName = srcRoot + "scite.tgz"
 tgzVFileName = srcRoot + tgzV
 
-print "[", tgzFileName, "|", tgzVFileName, "]"
+print("[ %s | %s ]" % (tgzFileName, tgzVFileName))
 
 if not os.access(tgzFileName, os.F_OK):
-	print "Base file '" + tgzFileName + "' does not exist."
+	print("Base file '" + tgzFileName + "' does not exist.")
 else:
 	shutil.copyfile(tgzFileName, tgzVFileName)
 	os.unlink(tgzFileName)
