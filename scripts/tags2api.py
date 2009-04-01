@@ -7,7 +7,6 @@
 # 	ctags --excmd=number --c-types=pcdgstu <header files>
 
 import fileinput
-import string
 import time
 
 # Definitions that start with _ are often used for infrastructure
@@ -34,7 +33,7 @@ class FileCache:
 		'''Return the contents of a file as a list of strings.
 		New line characters are removed.
 		'''
-		if not self.filecache.has_key(filename):
+		if filename not in self.filecache:
 			contents=[]
 			f = open(filename)
 			for line in f.readlines():
@@ -71,11 +70,11 @@ def bracesDiff(s):
 	return diff
 
 fc = FileCache()
-apis = set()
+apis = {}
 for line in fileinput.input():
 	if line[0] != '!':	# Not a comment.
-		(entityName, fileName, lineNo, tagType) = string.split(line, "\t")[:4]
-		curLineNo = string.atoi(lineNo[:-2]) - 1	# -1 because line numbers in tags file start at 1.
+		(entityName, fileName, lineNo, tagType) = line.split("\t")[:4]
+		curLineNo = int(lineNo[:-2]) - 1	# -1 because line numbers in tags file start at 1.
 		contents = fc.grabFile(fileName)
 		if (not removePrivate or entityName[0] != '_') and not entityName.startswith("operator "):
 			if tagType[0] in "pf":	# Function prototype.
@@ -87,13 +86,13 @@ for line in fileinput.input():
 						braces = braces + bracesDiff(contents[curLineNo])
 						curDef = curDef + contents[curLineNo]
 					# Normalise the appearance of the prototype.
-					curDef = string.strip(curDef)
+					curDef = curDef.strip()
 					# Replace whitespace sequences with a single space character.
-					curDef = string.join(string.split(curDef))
+					curDef = " ".join(curDef.split())
 					# Remove space around the '('.
-					curDef = string.replace(string.replace(curDef, " (", '('), "( ", '(')
+					curDef = curDef.replace(" (", '(').replace("( ", '(')
 					# Remove trailing semicolon.
-					curDef = string.replace(curDef, ";", '')
+					curDef = curDef.replace(";", '')
 					# Remove implementation if present.
 					if "{" in curDef and "}" in curDef:
 						startImpl = curDef.find("{")
@@ -103,7 +102,7 @@ for line in fileinput.input():
 						# Remove trailing brace.
 						curDef = curDef.rstrip("{")
 					# Remove return type.
-					curDef = curDef[string.find(curDef, entityName):]
+					curDef = curDef[curDef.find(entityName):]
 					# Remove virtual indicator.
 					if curDef.replace(" ", "").endswith(")=0"):
 						curDef = curDef.rstrip("0 ")
@@ -111,23 +110,25 @@ for line in fileinput.input():
 					# Remove trailing space.
 					curDef = curDef.rstrip()
 					if winMode:
-						if string.find(curDef, "A(") >= 0:
+						if curDef.find("A(") >= 0:
 							if "A" in include:
-								apis.add(string.replace(curDef, "A(", '('))
-						elif string.find(curDef, "W(") >= 0:
+								apis[curDef.replace("A(", '(')] = 1
+						elif curDef.find("W(") >= 0:
 							if "W" in include:
-								apis.add(string.replace(curDef, "W(", '('))
+								apis[curDef.replace("W(", '(')] = 1
 						else:	# A character set independent function.
-							apis.add(curDef)
+							apis[curDef] = 1
 					else:
-						apis.add(curDef)
+						apis.add[curDef] = 1
 				except IndexError:
 					pass
 			elif tagType[0] == 'd':	# Macro definition.
 				curDef = contents[curLineNo]
 				if (not winMode) or (curDef[-1] not in "AW"):
-					apis.add(entityName)
+					apis[entityName] = 1
 			else:
-				apis.add(entityName)
-print "\n".join(sorted(list(apis)))
+				apis[entityName] = 1
+apisKeys = list(apis.keys())
+apisKeys.sort()
+print("\n".join(apisKeys))
 
