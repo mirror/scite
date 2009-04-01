@@ -6,7 +6,10 @@ import string
 srcRoot = "../.."
 incFileName = srcRoot + "/scintilla/include/Scintilla.h"
 docFileName = srcRoot + "/scintilla/doc/ScintillaDoc.html"
-identCharacters = "_" + string.letters + string.digits
+try:	# Old Python
+	identCharacters = "_" + string.letters + string.digits
+except AttributeError:	# Python 3.x
+	identCharacters = "_" + string.ascii_letters + string.digits
 
 # Convert all punctuation characters except '_' into spaces.
 def depunctuate(s):
@@ -33,8 +36,8 @@ for line in docFile.readlines():
 			symbols[word] = 1
 docFile.close()
 
-identifiersSorted = symbols.keys()
+identifiersSorted = list(symbols.keys())
 identifiersSorted.sort()
 for identifier in identifiersSorted:
 	if not symbols[identifier]:
-		print identifier
+		print(identifier)
