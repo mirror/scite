@@ -301,6 +301,9 @@
 				RelativePath="..\src\MultiplexExtension.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\Src\PerLine.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\Win32\PlatWin.cxx">
 			</File>
 			<File

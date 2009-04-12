@@ -226,6 +226,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\KeyMap.obj \
 	..\..\scintilla\win32\KeyWords.obj \
 	..\..\scintilla\win32\LineMarker.obj \
+	..\..\scintilla\win32\PerLine.obj \
 	..\..\scintilla\win32\PlatWin.obj \
 	..\..\scintilla\win32\PositionCache.obj \
 	..\..\scintilla\win32\PropSet.obj \

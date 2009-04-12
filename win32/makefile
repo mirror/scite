@@ -274,7 +274,7 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 	ExternalLexer.o StyleContext.o Lexers.a PropSet.o RunStyles.o \
 	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
 	PositionCache.o UniConversion.o Utf8_16.o KeyMap.o Indicator.o LineMarker.o RESearch.o Style.o \
-	ViewStyle.o AutoComplete.o IFaceTable.o DirectorExtension.o MultiplexExtension.o XPM.o \
+	ViewStyle.o AutoComplete.o IFaceTable.o DirectorExtension.o MultiplexExtension.o XPM.o PerLine.o \
 	JobQueue.o WinMutex.o $(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
