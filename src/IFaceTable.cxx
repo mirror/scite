@@ -1955,19 +1955,14 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_EOL_CR",1},
 	{"SC_EOL_CRLF",0},
 	{"SC_EOL_LF",2},
-	{"SC_FOLDFLAG_BOX",0x0001},
 	{"SC_FOLDFLAG_LEVELNUMBERS",0x0040},
 	{"SC_FOLDFLAG_LINEAFTER_CONTRACTED",0x0010},
 	{"SC_FOLDFLAG_LINEAFTER_EXPANDED",0x0008},
 	{"SC_FOLDFLAG_LINEBEFORE_CONTRACTED",0x0004},
 	{"SC_FOLDFLAG_LINEBEFORE_EXPANDED",0x0002},
 	{"SC_FOLDLEVELBASE",0x400},
-	{"SC_FOLDLEVELBOXFOOTERFLAG",0x8000},
-	{"SC_FOLDLEVELBOXHEADERFLAG",0x4000},
-	{"SC_FOLDLEVELCONTRACTED",0x10000},
 	{"SC_FOLDLEVELHEADERFLAG",0x2000},
 	{"SC_FOLDLEVELNUMBERMASK",0x0FFF},
-	{"SC_FOLDLEVELUNINDENT",0x20000},
 	{"SC_FOLDLEVELWHITEFLAG",0x1000},
 	{"SC_IV_LOOKBOTH",3},
 	{"SC_IV_LOOKFORWARD",2},
@@ -2064,6 +2059,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"STYLE_LASTPREDEFINED",39},
 	{"STYLE_LINENUMBER",33},
 	{"STYLE_MAX",255},
+	{"UNDO_MAY_COALESCE",1},
 	{"VISIBLE_SLOP",0x01},
 	{"VISIBLE_STRICT",0x04}
 };
@@ -2072,7 +2068,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"AddRefDocument", 2376, iface_void, {iface_void, iface_int}},
 	{"AddStyledText", 2002, iface_void, {iface_length, iface_cells}},
 	{"AddText", 2001, iface_void, {iface_length, iface_string}},
-	{"AddUndoAction", 2560, iface_void, {iface_int, iface_void}},
+	{"AddUndoAction", 2560, iface_void, {iface_int, iface_int}},
 	{"Allocate", 2446, iface_void, {iface_int, iface_void}},
 	{"AnnotationClearAll", 2547, iface_void, {iface_void, iface_void}},
 	{"AnnotationGetStyles", 2545, iface_int, {iface_int, iface_stringresult}},
@@ -2475,7 +2471,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 254,
-	ifaceConstantCount = 1936,
+	ifaceConstantCount = 1932,
 	ifacePropertyCount = 145
 };
 
