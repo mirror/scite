@@ -15,6 +15,8 @@ try:	# Old Python
 except AttributeError:	# Python 3.x
 	identCharacters = "_*." + string.ascii_letters + string.digits
 
+knownOutputProperties = {"find.directory":1, "find.what":1}
+
 # Convert all punctuation characters except '_', '*', and '.' into spaces.
 def depunctuate(s):
 	d = ""
@@ -138,7 +140,7 @@ propsFile.close()
 
 print("\n# Not mentioned in %s" % propsFileName)
 for identifier in identifiersSorted:
-	if not propertyNames[identifier]:
+	if not propertyNames[identifier] and identifier not in knownOutputProperties:
 		if "." != identifier[-1:]:
 			print(identifier)
 
