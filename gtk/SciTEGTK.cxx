@@ -1782,11 +1782,13 @@ int xsystem(const char *s, const char *resultsFile) {
 		close(0);
 		int fh = open(resultsFile, O_WRONLY);
 		close(1);
-		dup(fh);
-		close(2);
-		dup(fh);
-		setpgid(0, 0);
-		execlp("/bin/sh", "sh", "-c", s, static_cast<char *>(NULL));
+		if (dup(fh) >= 0) {
+			close(2);
+			if (dup(fh) >= 0) {
+				setpgid(0, 0);
+				execlp("/bin/sh", "sh", "-c", s, static_cast<char *>(NULL));
+			}
+		}
 		exit(127);
 	}
 	return pid;

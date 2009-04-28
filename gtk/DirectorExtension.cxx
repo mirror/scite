@@ -136,14 +136,14 @@ static bool SendPipeCommand(const char *pipeCommand) {
 	int size;
 	if (fdCorrespondent) {
 		size = write(fdCorrespondent,pipeCommand,strlen(pipeCommand));
-		write(fdCorrespondent,"\n",1);
+		size = write(fdCorrespondent,"\n",1);
 		IF_DEBUG(fprintf(fdDebug, "Send correspondent: %s %d bytes to %d\n", pipeCommand, size,fdCorrespondent))
 	} else
 	for (int i = 0; i < s_send_cnt; ++i) {
 		int fd = s_send_pipes[i].fd;
 		// put a linefeed after the notification!
 		size = write(fd, pipeCommand, strlen(pipeCommand));
-		write(fd,"\n",1);
+		size = write(fd,"\n",1);
 		IF_DEBUG(fprintf(fdDebug, "Send pipecommand: %s %d bytes to %d\n", pipeCommand, size,fd))
 	}
 	(void)size; // to keep compiler happy if we aren't debugging...
@@ -378,8 +378,8 @@ void DirectorExtension::HandleStringMessage(const char *message) {
                     return;
                 }
 				if (fdCorrespondent != 0) {
-					write(fdCorrespondent, pipeName, strlen(pipeName));
-					write(fdCorrespondent, "\n", 1);
+					size_t size = write(fdCorrespondent, pipeName, strlen(pipeName));
+					size = write(fdCorrespondent, "\n", 1);
 				}
 			}
 			if (SendPipeAvailable()) {

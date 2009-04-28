@@ -373,19 +373,21 @@ FilePath FilePath::AbsolutePath() const {
 
 FilePath FilePath::GetWorkingDirectory() {
 	char dir[MAX_PATH + 1];
-	getcwd(dir, MAX_PATH);
-	dir[MAX_PATH] = '\0';
-	// In Windows, getcwd returns a trailing backslash
-	// when the CWD is at the root of a disk, so remove it
-	size_t endOfPath = strlen(dir) - 1;
-	if (dir[endOfPath] == pathSepChar) {
-		dir[endOfPath] = '\0';
+	dir[0] = '\0';
+	if (getcwd(dir, MAX_PATH)) {
+		dir[MAX_PATH] = '\0';
+		// In Windows, getcwd returns a trailing backslash
+		// when the CWD is at the root of a disk, so remove it
+		size_t endOfPath = strlen(dir) - 1;
+		if (dir[endOfPath] == pathSepChar) {
+			dir[endOfPath] = '\0';
+		}
 	}
 	return FilePath(dir);
 }
 
-void FilePath::SetWorkingDirectory() const {
-	chdir(AsFileSystem());
+bool FilePath::SetWorkingDirectory() const {
+	return chdir(AsFileSystem()) == 0;
 }
 
 void FilePath::FixCase() {}
