@@ -3147,7 +3147,7 @@ void SciTEGTK::CreateUI() {
 		"button-release-event", GTK_SIGNAL_FUNC(TabBarReleaseSignal), gthis);
 	g_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
 		"scroll-event", GTK_SIGNAL_FUNC(TabBarScrollSignal), gthis);
-	//gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
+	gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
 #endif
 	tabVisible = false;
 
