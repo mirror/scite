@@ -495,7 +495,8 @@ void SciTEBase::SendChildren(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 sptr_t SciTEBase::SendOutputEx(unsigned int msg, uptr_t wParam /*= 0*/, sptr_t lParam /*= 0*/, bool direct /*= true*/) {
 	if (direct)
 		return SendOutput(msg, wParam, lParam);
-	return Platform::SendScintilla(wOutput.GetID(), msg, wParam, lParam);
+	return Platform::SendScintillaPointer(wOutput.GetID(), msg, wParam,
+		reinterpret_cast<void*>(lParam));
 }
 
 #if PLAT_WIN
