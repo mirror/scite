@@ -35,7 +35,7 @@ CC=cl
 RC=rc
 LD=link
 
-CXXFLAGS=-Zi -TP -W4 -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_DEPRECATE
+CXXFLAGS=-Zi -TP -W4 -EHsc -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_DEPRECATE
 CCFLAGS=-TC -W3 -wd4244 -D_CRT_SECURE_NO_DEPRECATE=1
 
 # For something scary:-Wp64
@@ -55,7 +55,7 @@ CC=bcc32
 RC=brcc32 -r
 LD=ilink32
 
-CXXFLAGS=-P -tWM -w -w-prc -w-inl -RT- -x-
+CXXFLAGS=-P -tWM -w -w-prc -w-inl -RT-
 CCFLAGS=-tWM -w -RT- -x- -v- -w-aus -w-sig
 
 # Above turns off warnings for clarfying parentheses and inlines with for not expanded

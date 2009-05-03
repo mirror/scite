@@ -896,6 +896,12 @@ private:
 	void operator=(const SciTEBase&);
 };
 
+struct ScintillaFailure {
+	int status;
+	ScintillaFailure(int status_) : status(status_) {
+	}
+};
+
 /// Base size of file I/O operations.
 const int blockSize = 131072;
 

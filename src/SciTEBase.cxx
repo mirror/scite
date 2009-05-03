@@ -449,7 +449,11 @@ SciTEBase::~SciTEBase() {
 }
 
 sptr_t SciTEBase::SendEditor(unsigned int msg, uptr_t wParam, sptr_t lParam) {
-	return fnEditor(ptrEditor, msg, wParam, lParam);
+	sptr_t retVal = fnEditor(ptrEditor, msg, wParam, lParam);
+	sptr_t status = fnEditor(ptrEditor, SCI_GETSTATUS, 0, 0);
+	if (status > 0)
+		throw ScintillaFailure(status);
+	return retVal;
 }
 
 sptr_t SciTEBase::SendEditorString(unsigned int msg, uptr_t wParam, const char *s) {
@@ -457,7 +461,11 @@ sptr_t SciTEBase::SendEditorString(unsigned int msg, uptr_t wParam, const char *
 }
 
 sptr_t SciTEBase::SendOutput(unsigned int msg, uptr_t wParam, sptr_t lParam) {
-	return fnOutput(ptrOutput, msg, wParam, lParam);
+	sptr_t retVal = fnOutput(ptrOutput, msg, wParam, lParam);
+	sptr_t status = fnOutput(ptrOutput, SCI_GETSTATUS, 0, 0);
+	if (status > 0)
+		throw ScintillaFailure(status);
+	return retVal;
 }
 
 sptr_t SciTEBase::SendOutputString(unsigned int msg, uptr_t wParam, const char *s) {

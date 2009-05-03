@@ -1566,170 +1566,188 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 }
 
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, MainHWND());
-	LRESULT uim = uniqueInstance.CheckMessage(iMessage, wParam, lParam);
-	if (uim != 0) {
-		return uim;
-	}
-
-	switch (iMessage) {
-
-	case WM_CREATE:
-		Creation();
-		break;
-
-	case WM_COMMAND:
-		Command(wParam, lParam);
-		break;
-
-	case WM_CONTEXTMENU:
-		return ContextMenuMessage(iMessage, wParam, lParam);
-
-	case WM_ENTERMENULOOP:
-		if (!wParam)
-			menuSource = 0;
-		break;
-
-	case WM_SYSCOMMAND:
-		if ((wParam == SC_MINIMIZE) && props.GetInt("minimize.to.tray")) {
-			MinimizeToTray();
-			return 0;
+	int statusFailure = 0;
+	static int boxesVisible = 0;
+	try {
+		//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, MainHWND());
+		LRESULT uim = uniqueInstance.CheckMessage(iMessage, wParam, lParam);
+		if (uim != 0) {
+			return uim;
 		}
-		return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 
-	case SCITE_TRAY:
-		if (lParam == WM_LBUTTONDBLCLK) {
-			RestoreFromTray();
-			::ShowWindow(MainHWND(), SW_RESTORE);
-			::FlashWindow(MainHWND(), FALSE);
-		}
-		break;
+		switch (iMessage) {
 
-	case WM_NOTIFY:
-		Notify(reinterpret_cast<SCNotification *>(lParam));
-		break;
+		case WM_CREATE:
+			Creation();
+			break;
 
-	case WM_KEYDOWN:
-		return KeyDown(wParam);
+		case WM_COMMAND:
+			Command(wParam, lParam);
+			break;
 
-	case WM_KEYUP:
-		return KeyUp(wParam);
+		case WM_CONTEXTMENU:
+			return ContextMenuMessage(iMessage, wParam, lParam);
 
-	case WM_SIZE:
-		//Platform::DebugPrintf("size %d %x %x\n",iMessage, wParam, lParam);
-		if (wParam != 1)
-			SizeSubWindows();
-		break;
+		case WM_ENTERMENULOOP:
+			if (!wParam)
+				menuSource = 0;
+			break;
 
-	case WM_MOVE:
-		SendEditor(SCI_CALLTIPCANCEL);
-		break;
-
-	case WM_GETMINMAXINFO: {
-			MINMAXINFO *pmmi = reinterpret_cast<MINMAXINFO *>(lParam);
-			if (fullScreen) {
-				// Last constants for both x and y are just fiddles - don't know why they are needed
-				pmmi->ptMaxSize.x = ::GetSystemMetrics(SM_CXSCREEN) +
-				                    2 * ::GetSystemMetrics(SM_CXSIZEFRAME) +
-				                    2;
-				pmmi->ptMaxSize.y = ::GetSystemMetrics(SM_CYSCREEN) +
-				                    ::GetSystemMetrics(SM_CYCAPTION) +
-				                    ::GetSystemMetrics(SM_CYMENU) +
-				                    2 * ::GetSystemMetrics(SM_CYSIZEFRAME) +
-				                    3;
-				pmmi->ptMaxTrackSize.x = pmmi->ptMaxSize.x;
-				pmmi->ptMaxTrackSize.y = pmmi->ptMaxSize.y;
+		case WM_SYSCOMMAND:
+			if ((wParam == SC_MINIMIZE) && props.GetInt("minimize.to.tray")) {
+				MinimizeToTray();
 				return 0;
-			} else {
-				return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 			}
-		}
+			return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 
-	case WM_INITMENU:
-		CheckMenus();
-		break;
-
-	case WM_PARENTNOTIFY:
-		if (LOWORD(wParam) == WM_MBUTTONDOWN) {
-			// Check if on tab bar
-			Point pt = Point::FromLong(lParam);
-			TCHITTESTINFO thti;
-			thti.pt.x = pt.x;
-			thti.pt.y = pt.y;
-			::MapWindowPoints(MainHWND(), reinterpret_cast<HWND>(wTabBar.GetID()), &thti.pt, 1);
-			thti.flags = 0;
-			int tab = ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_HITTEST, (WPARAM)0, (LPARAM)&thti);
-			if (tab >= 0) {
-				CloseTab(tab);
+		case SCITE_TRAY:
+			if (lParam == WM_LBUTTONDBLCLK) {
+				RestoreFromTray();
+				::ShowWindow(MainHWND(), SW_RESTORE);
+				::FlashWindow(MainHWND(), FALSE);
 			}
-		} else if (LOWORD(wParam) == WM_MBUTTONUP) {
-			WindowSetFocus(wEditor);
+			break;
+
+		case WM_NOTIFY:
+			Notify(reinterpret_cast<SCNotification *>(lParam));
+			break;
+
+		case WM_KEYDOWN:
+			return KeyDown(wParam);
+
+		case WM_KEYUP:
+			return KeyUp(wParam);
+
+		case WM_SIZE:
+			//Platform::DebugPrintf("size %d %x %x\n",iMessage, wParam, lParam);
+			if (wParam != 1)
+				SizeSubWindows();
+			break;
+
+		case WM_MOVE:
+			SendEditor(SCI_CALLTIPCANCEL);
+			break;
+
+		case WM_GETMINMAXINFO: {
+				MINMAXINFO *pmmi = reinterpret_cast<MINMAXINFO *>(lParam);
+				if (fullScreen) {
+					// Last constants for both x and y are just fiddles - don't know why they are needed
+					pmmi->ptMaxSize.x = ::GetSystemMetrics(SM_CXSCREEN) +
+										2 * ::GetSystemMetrics(SM_CXSIZEFRAME) +
+										2;
+					pmmi->ptMaxSize.y = ::GetSystemMetrics(SM_CYSCREEN) +
+										::GetSystemMetrics(SM_CYCAPTION) +
+										::GetSystemMetrics(SM_CYMENU) +
+										2 * ::GetSystemMetrics(SM_CYSIZEFRAME) +
+										3;
+					pmmi->ptMaxTrackSize.x = pmmi->ptMaxSize.x;
+					pmmi->ptMaxTrackSize.y = pmmi->ptMaxSize.y;
+					return 0;
+				} else {
+					return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
+				}
+			}
+
+		case WM_INITMENU:
+			CheckMenus();
+			break;
+
+		case WM_PARENTNOTIFY:
+			if (LOWORD(wParam) == WM_MBUTTONDOWN) {
+				// Check if on tab bar
+				Point pt = Point::FromLong(lParam);
+				TCHITTESTINFO thti;
+				thti.pt.x = pt.x;
+				thti.pt.y = pt.y;
+				::MapWindowPoints(MainHWND(), reinterpret_cast<HWND>(wTabBar.GetID()), &thti.pt, 1);
+				thti.flags = 0;
+				int tab = ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_HITTEST, (WPARAM)0, (LPARAM)&thti);
+				if (tab >= 0) {
+					CloseTab(tab);
+				}
+			} else if (LOWORD(wParam) == WM_MBUTTONUP) {
+				WindowSetFocus(wEditor);
+			}
+			break;
+
+		case WM_CLOSE:
+			QuitProgram();
+			return 0;
+
+		case WM_QUERYENDSESSION:
+			QuitProgram();
+			return 1;
+
+		case WM_DESTROY:
+			break;
+
+		case WM_SETTINGCHANGE:
+			//Platform::DebugPrintf("** Setting Changed\n");
+			SendEditor(WM_SETTINGCHANGE, wParam, lParam);
+			SendOutput(WM_SETTINGCHANGE, wParam, lParam);
+			break;
+
+		case WM_SYSCOLORCHANGE:
+			//Platform::DebugPrintf("** Color Changed\n");
+			SendEditor(WM_SYSCOLORCHANGE, wParam, lParam);
+			SendOutput(WM_SYSCOLORCHANGE, wParam, lParam);
+			break;
+
+		case WM_PALETTECHANGED:
+			//Platform::DebugPrintf("** Palette Changed\n");
+			if (wParam != reinterpret_cast<WPARAM>(MainHWND())) {
+				SendEditor(WM_PALETTECHANGED, wParam, lParam);
+				//SendOutput(WM_PALETTECHANGED, wParam, lParam);
+			}
+
+			break;
+
+		case WM_QUERYNEWPALETTE:
+			//Platform::DebugPrintf("** Query palette\n");
+			SendEditor(WM_QUERYNEWPALETTE, wParam, lParam);
+			//SendOutput(WM_QUERYNEWPALETTE, wParam, lParam);
+			return TRUE;
+
+		case WM_ACTIVATEAPP:
+			SendEditor(SCI_HIDESELECTION, !wParam);
+			// Do not want to display dialog yet as may be in middle of system mouse capture
+			::PostMessage(MainHWND(), WM_COMMAND, IDM_ACTIVATE, wParam);
+			break;
+
+		case WM_ACTIVATE:
+			//Platform::DebugPrintf("Focus: w:%x l:%x %x e=%x o=%x\n", wParam, lParam, ::GetFocus(), wEditor.GetID(), wOutput.GetID());
+			if (wParam != WA_INACTIVE) {
+				::SetFocus(wFocus);
+			}
+			break;
+
+		case WM_DROPFILES:
+			DropFiles(reinterpret_cast<HDROP>(wParam));
+			break;
+
+		case WM_COPYDATA:
+			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
+
+		default:
+			//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
+			return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 		}
-		break;
-
-	case WM_CLOSE:
-		QuitProgram();
-		return 0;
-
-	case WM_QUERYENDSESSION:
-		QuitProgram();
-		return 1;
-
-	case WM_DESTROY:
-		break;
-
-	case WM_SETTINGCHANGE:
-		//Platform::DebugPrintf("** Setting Changed\n");
-		SendEditor(WM_SETTINGCHANGE, wParam, lParam);
-		SendOutput(WM_SETTINGCHANGE, wParam, lParam);
-		break;
-
-	case WM_SYSCOLORCHANGE:
-		//Platform::DebugPrintf("** Color Changed\n");
-		SendEditor(WM_SYSCOLORCHANGE, wParam, lParam);
-		SendOutput(WM_SYSCOLORCHANGE, wParam, lParam);
-		break;
-
-	case WM_PALETTECHANGED:
-		//Platform::DebugPrintf("** Palette Changed\n");
-		if (wParam != reinterpret_cast<WPARAM>(MainHWND())) {
-			SendEditor(WM_PALETTECHANGED, wParam, lParam);
-			//SendOutput(WM_PALETTECHANGED, wParam, lParam);
-		}
-
-		break;
-
-	case WM_QUERYNEWPALETTE:
-		//Platform::DebugPrintf("** Query palette\n");
-		SendEditor(WM_QUERYNEWPALETTE, wParam, lParam);
-		//SendOutput(WM_QUERYNEWPALETTE, wParam, lParam);
-		return TRUE;
-
-	case WM_ACTIVATEAPP:
-		SendEditor(SCI_HIDESELECTION, !wParam);
-		// Do not want to display dialog yet as may be in middle of system mouse capture
-		::PostMessage(MainHWND(), WM_COMMAND, IDM_ACTIVATE, wParam);
-		break;
-
-	case WM_ACTIVATE:
-		//Platform::DebugPrintf("Focus: w:%x l:%x %x e=%x o=%x\n", wParam, lParam, ::GetFocus(), wEditor.GetID(), wOutput.GetID());
-		if (wParam != WA_INACTIVE) {
-			::SetFocus(wFocus);
-		}
-		break;
-
-	case WM_DROPFILES:
-		DropFiles(reinterpret_cast<HDROP>(wParam));
-		break;
-
-	case WM_COPYDATA:
-		return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
-
-	default:
-		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
-		return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
+		//Platform::DebugPrintf("end wnd proc\n");
+	} catch (ScintillaFailure &sf) {
+		statusFailure = sf.status;
 	}
-	//Platform::DebugPrintf("end wnd proc\n");
+	if ((statusFailure > 0) && (boxesVisible == 0)) {
+		boxesVisible++;
+		char buff[200];
+		if (statusFailure == SC_STATUS_BADALLOC) {
+			strcpy(buff, "Memory exhausted.");
+		} else {
+			sprintf(buff, "Scintilla failed with status %d.", statusFailure);
+		}
+		strcat(buff, " SciTE will now close.");
+		::MessageBox(MainHWND(), buff, "Failure in Scintilla", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+		exit(FALSE);
+	}
 	return 0l;
 }
 
@@ -1771,6 +1789,7 @@ LRESULT PASCAL SciTEWin::TWndProc(
 }
 
 LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	try {
 	switch (iMessage) {
 
 	case WM_COMMAND:
@@ -1845,6 +1864,8 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		                       iMessage, wParam, lParam);
 	}
 	//Platform::DebugPrintf("end wnd proc\n");
+	} catch (...) {
+	}
 	return 0l;
 }
 

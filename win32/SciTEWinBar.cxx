@@ -736,6 +736,8 @@ void SciTEWin::Creation() {
 	               reinterpret_cast<HWND>(wEditor.GetID()), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrEditor = ::SendMessage(reinterpret_cast<HWND>(wEditor.GetID()),
 	                          SCI_GETDIRECTPOINTER, 0, 0);
+	if (!fnEditor || !ptrEditor)
+		exit(FALSE);
 	wEditor.Show();
 	SendEditor(SCI_USEPOPUP, 0);
 	WindowSetFocus(wEditor);
@@ -757,6 +759,8 @@ void SciTEWin::Creation() {
 	               reinterpret_cast<HWND>(wOutput.GetID()), SCI_GETDIRECTFUNCTION, 0, 0));
 	ptrOutput = ::SendMessage(reinterpret_cast<HWND>(wOutput.GetID()),
 	                          SCI_GETDIRECTPOINTER, 0, 0);
+	if (!fnOutput || !ptrOutput)
+		exit(FALSE);
 	wOutput.Show();
 	// No selection margin on output window
 	SendOutput(SCI_SETMARGINWIDTHN, 1, 0);

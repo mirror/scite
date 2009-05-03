@@ -60,7 +60,7 @@ CFLAGS=-DNDEBUG -Os $(CBASEFLAGS)
 STRIPFLAG="-Wl,-s"
 endif
 
-CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic -fno-exceptions $(THUNKFLAGS) -fno-rtti -mno-cygwin
+CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic $(THUNKFLAGS) -fno-rtti -mno-cygwin
 
 LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS) -mno-cygwin
 
