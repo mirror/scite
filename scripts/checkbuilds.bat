@@ -22,6 +22,10 @@ set libpath=%BORLAND_BASE%\lib
 set INCLUDE=%BORLAND_BASE%\include
 make -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
+cd ..\test
+pythonw simpleTests.py
+pythonw lexTests.py
+pythonw performanceTests.py
 cd ..\..\scite\win32
 make -f scite.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
