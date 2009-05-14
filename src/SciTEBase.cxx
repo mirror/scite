@@ -315,7 +315,7 @@ const char *contributors[] = {
 
 // AddStyledText only called from About so static size buffer is OK
 void AddStyledText(WindowID hwnd, const char *s, int attr) {
-	char buf[20000];
+	char buf[1000];
 	size_t len = strlen(s);
 	for (size_t i = 0; i < len; i++) {
 		buf[i*2] = s[i];
