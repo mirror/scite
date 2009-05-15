@@ -905,7 +905,7 @@ struct ScintillaFailure {
 /// Base size of file I/O operations.
 const int blockSize = 131072;
 
-#if PLAT_GTK || PLAT_FOX
+#if PLAT_GTK
 // MessageBox
 #define MB_OK	(0L)
 #define MB_YESNO	(0x4L)

@@ -16,12 +16,6 @@
 
 #include "Platform.h"
 
-#if PLAT_FOX
-
-#include <unistd.h>
-
-#endif
-
 #if PLAT_GTK
 
 #include <unistd.h>
