@@ -3173,8 +3173,7 @@ bool SciTEBase::HandleXml(char ch) {
 	}
 
 	// This may make sense only in certain languages
-	if (lexLanguage != SCLEX_HTML && lexLanguage != SCLEX_XML &&
-	        lexLanguage != SCLEX_ASP && lexLanguage != SCLEX_PHP) {
+	if (lexLanguage != SCLEX_HTML && lexLanguage != SCLEX_XML) {
 		return false;
 	}
 
