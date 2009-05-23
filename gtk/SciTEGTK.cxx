@@ -122,7 +122,7 @@ public:
 	void Create(SciTEGTK *app_, const char *title, Localization *localiser_, bool resizable=true) {
 		app = app_;
 		localiser = localiser_;
-		id = gtk_dialog_new();
+		wid = gtk_dialog_new();
 		gtk_window_set_title(GTK_WINDOW(Widget()), localiser->Text(title).c_str());
 		gtk_window_set_resizable(GTK_WINDOW(Widget()), resizable);
 		accel_group = gtk_accel_group_new();
@@ -189,7 +189,7 @@ private:
 	}
 	static void SignalDestroy(GtkWidget *, Dialog *d) {
 		if (d) {
-			d->id = 0;
+			d->wid = 0;
 		}
 	}
 	static gint SignalKey(GtkWidget *w, GdkEventKey *event, Dialog *d) {
