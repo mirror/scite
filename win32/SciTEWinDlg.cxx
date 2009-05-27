@@ -406,7 +406,7 @@ void SciTEWin::Print(
 	pdlg.hDevNames = hDevNames;
 
 	// See if a range has been selected
-	CharacterRange crange = GetSelection();
+	Sci_CharacterRange crange = GetSelection();
 	int startPos = crange.cpMin;
 	int endPos = crange.cpMax;
 
@@ -580,7 +580,7 @@ void SciTEWin::Print(
 	}
 
 	// We must substract the physical margins from the printable area
-	RangeToFormat frPrint;
+	Sci_RangeToFormat frPrint;
 	frPrint.hdc = hdc;
 	frPrint.hdcTarget = hdc;
 	frPrint.rc.left = rectMargins.left - rectPhysMargins.left;
@@ -941,7 +941,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd) {
 		if (havefound) {
 			ReplaceOnce();
 		} else {
-			CharacterRange crange = GetSelection();
+			Sci_CharacterRange crange = GetSelection();
 			SetSelection(crange.cpMin, crange.cpMin);
 			FindNext(false);
 			if (havefound) {
@@ -1075,7 +1075,7 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			findWhat = dlg.ItemTextU(IDC_INCFINDTEXT);
 
 			if (ControlIDOfCommand(wParam) != IDC_INCFINDBTNOK) {
-				CharacterRange cr = GetSelection();
+				Sci_CharacterRange cr = GetSelection();
 				if (ffLastWhat.length()) {
 					SetSelection(cr.cpMin - ffLastWhat.length(), cr.cpMin - ffLastWhat.length());
 				}

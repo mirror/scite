@@ -370,7 +370,7 @@ static int cf_pane_findtext(lua_State *L) {
 	bool hasError = (!t);
 
 	if (!hasError) {
-		TextToFind ft = {{0, 0}, 0, {0, 0}};
+		Sci_TextToFind ft = {{0, 0}, 0, {0, 0}};
 
 		ft.lpstrText = const_cast<char*>(t);
 
@@ -587,7 +587,7 @@ static int cf_pane_match_generator(lua_State *L) {
 		searchPos++;
 	}
 
-	TextToFind ft = { {0,0}, 0, {0,0} };
+	Sci_TextToFind ft = { {0,0}, 0, {0,0} };
 	ft.chrg.cpMin = searchPos;
 	ft.chrg.cpMax = host->Send(pmo->pane, SCI_GETLENGTH, 0, 0);
 	ft.lpstrText = const_cast<char*>(text);

@@ -96,7 +96,7 @@ public:
 
 class RecentFile : public FilePath {
 public:
-	CharacterRange selection;
+	Sci_CharacterRange selection;
 	int scrollPosition;
 	RecentFile() {
 		selection.cpMin = INVALID_POSITION;
@@ -654,7 +654,7 @@ protected:
 	int GetMenuCommandAsInt(SString commandName);
 	virtual void Print(bool) {};
 	virtual void PrintSetup() {};
-	CharacterRange GetSelection();
+	Sci_CharacterRange GetSelection();
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
@@ -790,7 +790,7 @@ protected:
 	void SetFileStackMenu();
 	void DropFileStackTop();
 	void AddFileToBuffer(FilePath file, int pos);
-	void AddFileToStack(FilePath file, CharacterRange selection, int scrollPos);
+	void AddFileToStack(FilePath file, Sci_CharacterRange selection, int scrollPos);
 	void RemoveFileFromStack(FilePath file);
 	RecentFile GetFilePosition();
 	void DisplayAround(const RecentFile &rf);

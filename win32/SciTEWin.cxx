@@ -361,7 +361,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 }
 
 void SciTEWin::CopyAsRTF() {
-	CharacterRange cr = GetSelection();
+	Sci_CharacterRange cr = GetSelection();
 	char *fileNameTemp = tmpnam(0);
 	if (fileNameTemp) {
 		SaveToRTF(fileNameTemp, cr.cpMin, cr.cpMax);
