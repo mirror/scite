@@ -1123,7 +1123,8 @@ void SciTEBase::SetToolsMenu() {
 				sMnemonic += "Ctrl+";
 				sMnemonic += SString(item);
 			}
-			SetMenuItem(menuTools, menuPos, itemID, sMenuItem.c_str(), sMnemonic[0] ? sMnemonic.c_str() : NULL);
+			SetMenuItemLocalised(menuTools, menuPos, itemID, sMenuItem.c_str(), 
+				sMnemonic[0] ? sMnemonic.c_str() : NULL);
 			menuPos++;
 		}
 	}
