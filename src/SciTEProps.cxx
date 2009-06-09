@@ -999,6 +999,7 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETWRAPVISUALFLAGS, props.GetInt("wrap.visual.flags"));
 	SendEditor(SCI_SETWRAPVISUALFLAGSLOCATION, props.GetInt("wrap.visual.flags.location"));
  	SendEditor(SCI_SETWRAPSTARTINDENT, props.GetInt("wrap.visual.startindent"));
+ 	SendEditor(SCI_SETWRAPINDENTMODE, props.GetInt("wrap.indent.mode"));
 
 	if (props.GetInt("wrap.aware.home.end.keys",0)) {
 		if (props.GetInt("vc.home.key", 1)) {
