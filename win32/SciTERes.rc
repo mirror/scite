@@ -578,6 +578,7 @@ IDR_CLOSEFILE BITMAP "closefile.bmp"
 Embedded Properties Embedded.properties
 IDC_MARGIN         CURSOR  DISCARDABLE     "Margin.cur"
 #endif
+IDC_DRAGDROP       CURSOR  DISCARDABLE     "DragDrop.cur"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION	1, 7, 8, 0

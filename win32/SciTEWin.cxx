@@ -484,6 +484,14 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		FullScreenToggle();
 		break;
 
+	case IDC_TABCLOSE:
+		CloseTab((int)lParam);
+		break;
+
+	case IDC_SHIFTTAB:
+		ShiftTab(LOWORD(lParam), HIWORD(lParam));
+		break;
+
 	default:
 		SciTEBase::MenuCommand(cmdID, menuSource);
 	}
@@ -1650,24 +1658,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 		case WM_INITMENU:
 			CheckMenus();
-			break;
-
-		case WM_PARENTNOTIFY:
-			if (LOWORD(wParam) == WM_MBUTTONDOWN) {
-				// Check if on tab bar
-				Point pt = Point::FromLong(lParam);
-				TCHITTESTINFO thti;
-				thti.pt.x = pt.x;
-				thti.pt.y = pt.y;
-				::MapWindowPoints(MainHWND(), reinterpret_cast<HWND>(wTabBar.GetID()), &thti.pt, 1);
-				thti.flags = 0;
-				int tab = ::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_HITTEST, (WPARAM)0, (LPARAM)&thti);
-				if (tab >= 0) {
-					CloseTab(tab);
-				}
-			} else if (LOWORD(wParam) == WM_MBUTTONUP) {
-				WindowSetFocus(wEditor);
-			}
 			break;
 
 		case WM_CLOSE:
