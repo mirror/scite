@@ -704,17 +704,30 @@ static BarButton bbs[] = {
 static WNDPROC stDefaultTabProc = NULL;
 static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
+	static BOOL st_bDragBegin = FALSE;
+	static int st_iDraggingTab = -1;
+	static int st_iLastClickTab = -1;
+	static HWND st_hwndLastFocus = NULL;
+
+	switch (iMessage) {
+
+	case WM_LBUTTONDOWN: {
+			Point pt = Point::FromLong(lParam);
+			TCHITTESTINFO thti;
+			thti.pt.x = pt.x;
+			thti.pt.y = pt.y;
+			thti.flags = 0;
+			st_iLastClickTab = ::SendMessage(hWnd, TCM_HITTEST, (WPARAM)0, (LPARAM) & thti);
+		}
+		break;
+	}
+
 	LRESULT retResult;
 	if (stDefaultTabProc != NULL) {
 		retResult = CallWindowProc(stDefaultTabProc, hWnd, iMessage, wParam, lParam);
 	} else {
 		retResult = ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 	}
-
-	static BOOL st_bDragBegin = FALSE;
-	static int st_iDraggingTab = -1;
-	static int st_iLastClickTab = -1;
-	static HWND st_hwndLastFocus = NULL;
 
 	switch (iMessage) {
 
@@ -730,16 +743,6 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 			if (tab >= 0) {
 				::SendMessage(::GetParent(hWnd), WM_COMMAND, IDC_TABCLOSE, (LPARAM)tab);
 			}
-		}
-		break;
-
-	case WM_LBUTTONDOWN: {
-			Point pt = Point::FromLong(lParam);
-			TCHITTESTINFO thti;
-			thti.pt.x = pt.x;
-			thti.pt.y = pt.y;
-			thti.flags = 0;
-			st_iLastClickTab = ::SendMessage(hWnd, TCM_HITTEST, (WPARAM)0, (LPARAM) & thti);
 		}
 		break;
 
@@ -1007,7 +1010,7 @@ void SciTEWin::Creation() {
 
 	wTabBar = ::CreateWindowEx(
 	              0,
-	            "SciTeTabCtrl",
+	              "SciTeTabCtrl",
 	              "Tab",
 	              WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 	              TCS_FOCUSNEVER | TCS_TOOLTIPS,
