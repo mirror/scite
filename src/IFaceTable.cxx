@@ -622,9 +622,10 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_D_TYPEDEF",9},
 	{"SCE_D_WORD",6},
 	{"SCE_D_WORD2",7},
-	{"SCE_D_WORD5",8},
-	{"SCE_D_WORD6",20},
-	{"SCE_D_WORD7",21},
+	{"SCE_D_WORD3",8},
+	{"SCE_D_WORD5",20},
+	{"SCE_D_WORD6",21},
+	{"SCE_D_WORD7",22},
 	{"SCE_EIFFEL_CHARACTER",5},
 	{"SCE_EIFFEL_COMMENTLINE",1},
 	{"SCE_EIFFEL_DEFAULT",0},
@@ -2488,7 +2489,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 256,
-	ifaceConstantCount = 1946,
+	ifaceConstantCount = 1947,
 	ifacePropertyCount = 146
 };
 
