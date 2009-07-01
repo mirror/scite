@@ -495,6 +495,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_CAML_OPERATOR",7},
 	{"SCE_CAML_STRING",11},
 	{"SCE_CAML_TAGNAME",2},
+	{"SCE_CAML_WHITE",10},
 	{"SCE_CLW_ATTRIBUTE",13},
 	{"SCE_CLW_BUILTIN_PROCEDURES_FUNCTION",11},
 	{"SCE_CLW_COMMENT",2},
@@ -2489,7 +2490,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 256,
-	ifaceConstantCount = 1947,
+	ifaceConstantCount = 1948,
 	ifacePropertyCount = 146
 };
 
