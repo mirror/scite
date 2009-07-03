@@ -234,6 +234,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\RunStyles.obj \
 	..\..\scintilla\win32\ScintillaBaseL.obj \
 	..\..\scintilla\win32\ScintillaWinL.obj \
+	..\..\scintilla\win32\Selection.obj \
 	..\..\scintilla\win32\Style.obj \
 	..\..\scintilla\win32\StyleContext.obj \
 	..\..\scintilla\win32\UniConversion.obj \

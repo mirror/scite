@@ -364,6 +364,9 @@
 				RelativePath="..\win32\SciTEWinDlg.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\Selection.cxx">
+			</File>
+			<File
 				RelativePath="..\win32\SingleThreadExtension.cxx">
 			</File>
 			<File
