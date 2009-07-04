@@ -755,6 +755,7 @@ void SciTEBase::ReadProperties() {
 
 	SendChildren(SCI_SETMULTILINECARET, props.GetInt("caret.multi.line"));
 	SendChildren(SCI_SETMULTILINECARETBLINKS, props.GetInt("caret.multi.line.blinks", 1));
+	SendChildren(SCI_SETVIRTUALSPACEOPTIONS, props.GetInt("virtual.space"));
 
 	SendEditor(SCI_SETMOUSEDWELLTIME,
 	           props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
