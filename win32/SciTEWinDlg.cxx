@@ -380,6 +380,13 @@ void SciTEWin::SaveSessionDialog() {
 	}
 }
 
+static void DeleteFontObject(HFONT &font) {
+	if (font) {
+		::DeleteObject(font);
+		font = 0;
+	}
+}
+
 /**
  * Display the Print dialog (if @a showDialog asks it),
  * allowing it to choose what to print on which printer.
@@ -554,6 +561,9 @@ void SciTEWin::Print(
 	di.lpszDatatype = 0;
 	di.fwType = 0;
 	if (::StartDoc(hdc, &di) < 0) {
+		::DeleteDC(hdc);
+		DeleteFontObject(fontHeader);
+		DeleteFontObject(fontFooter);
 		SString msg = LocaliseMessage("Can not start printer document.");
 		WindowMessageBox(wSciTE, msg, MB_OK);
 		return;
@@ -678,12 +688,8 @@ void SciTEWin::Print(
 
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
-	if (fontHeader) {
-		::DeleteObject(fontHeader);
-	}
-	if (fontFooter) {
-		::DeleteObject(fontFooter);
-	}
+	DeleteFontObject(fontHeader);
+	DeleteFontObject(fontFooter);
 }
 
 void SciTEWin::PrintSetup() {
