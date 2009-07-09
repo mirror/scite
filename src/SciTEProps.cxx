@@ -834,6 +834,17 @@ void SciTEBase::ReadProperties() {
 	SendChildren(SCI_SETSELALPHA,
 		allowAlpha ? props.GetInt("selection.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA);
 
+	SString selAdditionalFore = props.Get("selection.additional.fore");
+	if (selAdditionalFore.length()) {
+		SendChildren(SCI_SETADDITIONALSELFORE, ColourFromString(selAdditionalFore));
+	}
+	SString selAdditionalBack = props.Get("selection.additional.back");
+	if (selAdditionalBack.length()) {
+		SendChildren(SCI_SETADDITIONALSELBACK, ColourFromString(selAdditionalBack));
+	}
+	SendChildren(SCI_SETADDITIONALSELALPHA,
+		allowAlpha ? props.GetInt("selection.additional.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA);
+
 	SString foldColour = props.Get("fold.margin.colour");
 	if (foldColour.length()) {
 		SendChildren(SCI_SETFOLDMARGINCOLOUR, 1, ColourFromString(foldColour));
