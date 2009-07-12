@@ -1281,51 +1281,49 @@ SString SciTEBase::EncodeString(const SString &s) {
  */
 char *Slash(const char *s, bool quoteQuotes) {
 	char *oRet = new char[strlen(s) * 4 + 1];
-	if (oRet) {
-		char *o = oRet;
-		while (*s) {
-			if (*s == '\a') {
-				*o++ = '\\';
-				*o++ = 'a';
-			} else if (*s == '\b') {
-				*o++ = '\\';
-				*o++ = 'b';
-			} else if (*s == '\f') {
-				*o++ = '\\';
-				*o++ = 'f';
-			} else if (*s == '\n') {
-				*o++ = '\\';
-				*o++ = 'n';
-			} else if (*s == '\r') {
-				*o++ = '\\';
-				*o++ = 'r';
-			} else if (*s == '\t') {
-				*o++ = '\\';
-				*o++ = 't';
-			} else if (*s == '\v') {
-				*o++ = '\\';
-				*o++ = 'v';
-			} else if (*s == '\\') {
-				*o++ = '\\';
-				*o++ = '\\';
-			} else if (quoteQuotes && (*s == '\'')) {
-				*o++ = '\\';
-				*o++ = '\'';
-			} else if (quoteQuotes && (*s == '\"')) {
-				*o++ = '\\';
-				*o++ = '\"';
-			} else if (isascii(*s) && (*s < ' ')) {
-				*o++ = '\\';
-				*o++ = static_cast<char>((*s >> 6) + '0');
-				*o++ = static_cast<char>((*s >> 3) + '0');
-				*o++ = static_cast<char>((*s & 0x7) + '0');
-			} else {
-				*o++ = *s;
-			}
-			s++;
+	char *o = oRet;
+	while (*s) {
+		if (*s == '\a') {
+			*o++ = '\\';
+			*o++ = 'a';
+		} else if (*s == '\b') {
+			*o++ = '\\';
+			*o++ = 'b';
+		} else if (*s == '\f') {
+			*o++ = '\\';
+			*o++ = 'f';
+		} else if (*s == '\n') {
+			*o++ = '\\';
+			*o++ = 'n';
+		} else if (*s == '\r') {
+			*o++ = '\\';
+			*o++ = 'r';
+		} else if (*s == '\t') {
+			*o++ = '\\';
+			*o++ = 't';
+		} else if (*s == '\v') {
+			*o++ = '\\';
+			*o++ = 'v';
+		} else if (*s == '\\') {
+			*o++ = '\\';
+			*o++ = '\\';
+		} else if (quoteQuotes && (*s == '\'')) {
+			*o++ = '\\';
+			*o++ = '\'';
+		} else if (quoteQuotes && (*s == '\"')) {
+			*o++ = '\\';
+			*o++ = '\"';
+		} else if (isascii(*s) && (*s < ' ')) {
+			*o++ = '\\';
+			*o++ = static_cast<char>((*s >> 6) + '0');
+			*o++ = static_cast<char>((*s >> 3) + '0');
+			*o++ = static_cast<char>((*s & 0x7) + '0');
+		} else {
+			*o++ = *s;
 		}
-		*o = '\0';
+		s++;
 	}
+	*o = '\0';
 	return oRet;
 }
 
@@ -4704,15 +4702,13 @@ void SciTEBase::EnumProperties(const char *propkind) {
 void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *val) {
 	size_t keysize = strlen(kind) + 1 + strlen(key) + 1 + strlen(val) + 1;
 	char *m = new char[keysize];
-	if (m) {
-		strcpy(m, kind);
-		strcat(m, ":");
-		strcat(m, key);
-		strcat(m, "=");
-		strcat(m, val);
-		extender->SendProperty(m);
-		delete []m;
-	}
+	strcpy(m, kind);
+	strcat(m, ":");
+	strcat(m, key);
+	strcat(m, "=");
+	strcat(m, val);
+	extender->SendProperty(m);
+	delete []m;
 }
 
 void SciTEBase::PropertyFromDirector(const char *arg) {
@@ -5016,12 +5012,10 @@ sptr_t SciTEBase::Send(Pane p, unsigned int msg, uptr_t wParam, sptr_t lParam) {
 char *SciTEBase::Range(Pane p, int start, int end) {
 	int len = end - start;
 	char *s = new char[len + 1];
-	if (s) {
-		if (p == paneEditor)
-			GetRange(wEditor, start, end, s);
-		else
-			GetRange(wOutput, start, end, s);
-	}
+	if (p == paneEditor)
+		GetRange(wEditor, start, end, s);
+	else
+		GetRange(wOutput, start, end, s);
 	return s;
 }
 
@@ -5051,8 +5045,7 @@ void SciTEBase::Trace(const char *s) {
 char *SciTEBase::Property(const char *key) {
 	SString value = props.GetExpanded(key);
 	char *retval = new char[value.length() + 1];
-	if (retval)
-		strcpy(retval, value.c_str());
+	strcpy(retval, value.c_str());
 	return retval;
 }
 

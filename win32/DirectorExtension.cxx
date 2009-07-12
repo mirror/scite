@@ -106,12 +106,10 @@ static LRESULT HandleCopyData(LPARAM lParam) {
 	// Copy into an temporary buffer to ensure \0 terminated
 	if (pcds->lpData) {
 		char *dataCopy = new char[pcds->cbData + 1];
-		if (dataCopy) {
-			strncpy(dataCopy, reinterpret_cast<char *>(pcds->lpData), pcds->cbData);
-			dataCopy[pcds->cbData] = '\0';
-			DirectorExtension::Instance().HandleStringMessage(dataCopy);
-			delete []dataCopy;
-		}
+		strncpy(dataCopy, reinterpret_cast<char *>(pcds->lpData), pcds->cbData);
+		dataCopy[pcds->cbData] = '\0';
+		DirectorExtension::Instance().HandleStringMessage(dataCopy);
+		delete []dataCopy;
 	}
 	return 0;
 }

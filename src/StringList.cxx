@@ -41,26 +41,22 @@ static char **ArrayFromStringList(char *StringList, int *len, bool onlyLineEnds 
 		prev = curr;
 	}
 	char **keywords = new char *[words + 1];
-	if (keywords) {
-		words = 0;
-		prev = '\0';
-		size_t slen = strlen(StringList);
-		for (size_t k = 0; k < slen; k++) {
-			if (!wordSeparator[static_cast<unsigned char>(StringList[k])]) {
-				if (!prev) {
-					keywords[words] = &StringList[k];
-					words++;
-				}
-			} else {
-				StringList[k] = '\0';
+	words = 0;
+	prev = '\0';
+	size_t slen = strlen(StringList);
+	for (size_t k = 0; k < slen; k++) {
+		if (!wordSeparator[static_cast<unsigned char>(StringList[k])]) {
+			if (!prev) {
+				keywords[words] = &StringList[k];
+				words++;
 			}
-			prev = StringList[k];
+		} else {
+			StringList[k] = '\0';
 		}
-		keywords[words] = &StringList[slen];
-		*len = words;
-	} else {
-		*len = 0;
+		prev = StringList[k];
 	}
+	keywords[words] = &StringList[slen];
+	*len = words;
 	return keywords;
 }
 
