@@ -2500,6 +2500,18 @@ bool SciTEBase::StartBlockComment() {
 	return true;
 }
 
+static const char *LineEndString(int eolMode) {
+	switch (eolMode) {
+		case SC_EOL_CRLF:
+			return "\r\n";
+		case SC_EOL_CR:
+			return "\r";
+		case SC_EOL_LF:
+		default:
+			return "\n";
+	}
+}
+
 bool SciTEBase::StartBoxComment() {
 	// Get start/middle/end comment strings from options file(s)
 	SString fileNameForExtension = ExtensionFileName();
@@ -2508,6 +2520,7 @@ bool SciTEBase::StartBoxComment() {
 	SString middle_base("comment.box.middle.");
 	SString end_base("comment.box.end.");
 	SString white_space(" ");
+	SString eol(LineEndString(SendEditor(SCI_GETEOLMODE)));
 	start_base += lexerName;
 	middle_base += lexerName;
 	end_base += lexerName;
@@ -2608,7 +2621,7 @@ bool SciTEBase::StartBoxComment() {
 			GetRange(wEditor, lineStart, lineStart + (int) end_comment_length, tempString);
 			tempString[end_comment_length] = '\0';
 			if (end_comment != tempString) {
-				end_comment.append("\n");
+				end_comment += eol;
 				SendEditorString(SCI_INSERTTEXT, lineStart, end_comment.c_str());
 			}
 		}
