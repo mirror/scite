@@ -831,8 +831,8 @@ void SciTEBase::ReadProperties() {
 		else	// Have to show selection somehow
 			SendChildren(SCI_SETSELBACK, 1, ColourDesired(0xC0, 0xC0, 0xC0).AsLong());
 	}
-	SendChildren(SCI_SETSELALPHA,
-		allowAlpha ? props.GetInt("selection.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA);
+	int selectionAlpha = allowAlpha ? props.GetInt("selection.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA;
+	SendChildren(SCI_SETSELALPHA, selectionAlpha);
 
 	SString selAdditionalFore = props.Get("selection.additional.fore");
 	if (selAdditionalFore.length()) {
@@ -842,8 +842,8 @@ void SciTEBase::ReadProperties() {
 	if (selAdditionalBack.length()) {
 		SendChildren(SCI_SETADDITIONALSELBACK, ColourFromString(selAdditionalBack));
 	}
-	SendChildren(SCI_SETADDITIONALSELALPHA,
-		allowAlpha ? props.GetInt("selection.additional.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA);
+	int selectionAdditionalAlpha = (selectionAlpha == SC_ALPHA_NOALPHA) ? SC_ALPHA_NOALPHA : selectionAlpha / 2;
+	SendChildren(SCI_SETADDITIONALSELALPHA, props.GetInt("selection.additional.alpha", selectionAdditionalAlpha));
 
 	SString foldColour = props.Get("fold.margin.colour");
 	if (foldColour.length()) {
