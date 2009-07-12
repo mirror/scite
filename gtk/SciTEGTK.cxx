@@ -939,6 +939,10 @@ void SciTEGTK::ReadPropertiesInitial() {
 
 void SciTEGTK::ReadProperties() {
 	SciTEBase::ReadProperties();
+
+	SendChildren(SCI_SETRECTANGULARSELECTIONMODIFIER, 
+		props.GetInt("rectangular.selection.modifier", SCMOD_CTRL));
+
 	CheckMenus();
 
 	// Need this here to handle tabbar.hide.one properly

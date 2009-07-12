@@ -86,7 +86,8 @@
         feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
         only one file will be visible. Rectangular
         blocks of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
-        key on GTK+ while dragging the mouse over the text.
+        key on GTK+ while dragging the mouse over the text. The modifier key used on GTK+
+	can be changed with the rectangular.selection.modifier property.
     </p>
     <p>
        There are two panes in SciTE, the editing pane and the output pane. The output pane is
@@ -263,7 +264,7 @@ NameError: mistake
         <tr><td>replaceall:</td><td>search text\000replacement text</td></tr>
         <tr><td>saveas:</td><td>file name</td></tr>
        </table>
-       <br />
+       <br />	
        Commands use C style escape sequences which include:
        <table cellpadding="0" cellspacing="0" border="1"  summary="Command line escape sequences">
         <thead>
@@ -1255,6 +1256,21 @@ NameError: mistake
         last buffer is closed.)
         </td>
       </tr>
+      <tr class="gtkonly">
+        <td>
+           rectangular.selection.modifier
+        </td>
+        <td>
+        On GTK+, the modifier key used to make rectangular selections can be set with this
+	property. Valid options are 2 (Ctrl), 4 (Alt) or 8 (Super). Super is often assigned to the 
+	Windows/Start key on Windows keyboards or the Command key on Mac keyboards.
+	<br />
+	Since the Alt key is often used by window managers to move windows, this will need to
+	be configured off to use the combination in SciTE. This can be done for Metacity using 
+	gconf-editor to modify the /apps/metacity/general/mouse_button_modifier. A valid value here
+	is &lt;Super&gt;.
+        </td>
+      </tr>
       <tr>
         <td>
           selection.fore<br />
@@ -1275,6 +1291,26 @@ NameError: mistake
         </td>
         <td>
           Sets the colour used for the caret.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          selection.additional.fore<br />
+           selection.additional.back<br />
+           selection.additional.alpha
+        </td>
+        <td>
+          Similar to selection.fore, selection.back, selection.alpha.
+	  Sets the colours used for displaying additional selections when multiple selections are 
+	  enabled or a rectangular selection is made.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          caret.additional.fore
+        </td>
+        <td>
+          Similar to caret.fore but for additional selections.
         </td>
       </tr>
       <tr>
