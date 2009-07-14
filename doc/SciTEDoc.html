@@ -1315,6 +1315,14 @@ NameError: mistake
       </tr>
       <tr>
         <td>
+          caret.additional.blinks
+        </td>
+        <td>
+          Set whether all carets blink. 0 means only the main caret blinks. Default is 1.
+        </td>
+      </tr>
+      <tr>
+        <td>
           caret.line.back<br />
           caret.line.back.alpha
         </td>
@@ -1344,14 +1352,13 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          caret.multi.line<br />
-          caret.multi.line.blinks
+          selection.multiple<br />
+          selection.additional.typing
         </td>
         <td>
-          When a rectangular selection is made, typing and character deletion may either affect all selected lines (multi-line caret mode)
-	or only one line. This is set with caret.multi.line with the default being off. In caret.multi.line mode there may either be a blinking
-	caret on each line or a single vertical line may indicate where the characters will appear. Set with caret.multi.line.blinks with
-	the default being blinking.
+	Set selection.multiple to make multiple selections with the mouse by holding down the Ctrl key.<br />
+	Set selection.additional.typing to 1. to allow typing, backspace and delete to affect all selections including each line
+	of rectangular selections. When set to 0, typing only affectes the main selection.
         </td>
       </tr>
       <tr>

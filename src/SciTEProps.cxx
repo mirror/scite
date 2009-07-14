@@ -753,8 +753,9 @@ void SciTEBase::ReadProperties() {
 	SendChildren(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", ColourDesired(0, 0, 0)));
 
-	SendChildren(SCI_SETMULTILINECARET, props.GetInt("caret.multi.line"));
-	SendChildren(SCI_SETMULTILINECARETBLINKS, props.GetInt("caret.multi.line.blinks", 1));
+	SendChildren(SCI_SETMULTIPLESELECTION, props.GetInt("selection.multiple", 1));
+	SendChildren(SCI_SETADDITIONALSELECTIONTYPING, props.GetInt("selection.additional.typing", 1));
+	SendChildren(SCI_SETADDITIONALCARETSBLINK, props.GetInt("caret.additional.blinks", 1));
 	SendChildren(SCI_SETVIRTUALSPACEOPTIONS, props.GetInt("virtual.space"));
 
 	SendEditor(SCI_SETMOUSEDWELLTIME,
