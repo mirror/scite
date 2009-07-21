@@ -43,20 +43,22 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <string>
+#include <map>
+
 #include <gtk/gtk.h>
 
 #include "Platform.h"
 
 #include "PropSet.h"
-
+#include "SString.h"
+#include "StringList.h"
 #include "Scintilla.h"
 #include "Accessor.h"
 #include "Extender.h"
 #include "DirectorExtension.h"
 #include "SciTE.h"
 #include "FilePath.h"
-#include "SString.h"
-#include "StringList.h"
 #include "PropSetFile.h"
 #include "Mutex.h"
 #include "JobQueue.h"

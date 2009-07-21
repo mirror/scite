@@ -13,6 +13,9 @@
 #include <assert.h>
 #include <time.h>
 
+#include <string>
+#include <map>
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -30,7 +33,6 @@
 #include "SString.h"
 #include "StringList.h"
 #include "Accessor.h"
-#include "KeyWords.h"
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
 #include "Extender.h"
@@ -913,14 +915,15 @@ void SciTEGTK::ReadLocalization() {
 	SString encoding = localiser.Get("translation.encoding");
 	if (encoding.length()) {
 		iconv_t iconvh = iconv_open("UTF-8", encoding.c_str());
-		char *key = NULL;
-		char *val = NULL;
+		const char *key = NULL;
+		const char *val = NULL;
 		// Get encoding
-		bool more = localiser.GetFirst(&key, &val);
+		bool more = localiser.GetFirst(key, val);
 		while (more) {
 			char converted[1000];
 			converted[0] = '\0';
-			char *pin = val;
+			// Cast needed for some versions of iconv not marking input argument as const
+			char *pin = const_cast<char *>(val);
 			size_t inLeft = strlen(val);
 			char *pout = converted;
 			size_t outLeft = sizeof(converted);
@@ -929,7 +932,7 @@ void SciTEGTK::ReadLocalization() {
 				*pout = '\0';
 				localiser.Set(key, converted);
 			}
-			more = localiser.GetNext(&key, &val);
+			more = localiser.GetNext(key, val);
 		}
 		iconv_close(iconvh);
 	}
