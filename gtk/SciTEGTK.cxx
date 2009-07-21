@@ -768,10 +768,15 @@ void SciTEGTK::TabInsert(int index, char *title) {
 	if (wTabBar.GetID()) {
 		GtkWidget *tablabel = gtk_label_new(title);
 		GtkWidget *tabcontent;
-		if (buffers.buffers[index].IsUntitled())
-			tabcontent = gtk_label_new(localiser.Text("Untitled").c_str());
-		else
-			tabcontent = gtk_label_new(buffers.buffers[index].AsInternal());
+		if (props.GetInt("pathbar.visible")) {
+			if (buffers.buffers[index].IsUntitled())
+				tabcontent = gtk_label_new(localiser.Text("Untitled").c_str());
+			else
+				tabcontent = gtk_label_new(buffers.buffers[index].AsInternal());
+		} else {
+			// No path bar
+			tabcontent = gtk_image_new();
+		}
 
 		gtk_widget_show(tablabel);
 		gtk_widget_show(tabcontent);

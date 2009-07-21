@@ -1066,7 +1066,6 @@ NameError: mistake
           Setting tabbar.visible to 1 makes the tab bar visible at start up on Windows.
         The buffers property must be set to a value greater than 1 for this option to work.
         Setting tabbar.hide.one to 1 hides the tab bar until there is more than one tab.
-        Works on Windows and GTK+ 2.x but not GTK+ 1.x.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1101,6 +1100,15 @@ NameError: mistake
           SciTE has a built-in icon set for the toolbar, setting this to 1 makes
 	SciTE more integrated in the GNOME desktop by using the icons
 	provided by the current theme used in GNOME.
+        </td>
+      </tr>
+      <tr class="gtkonly">
+        <td>
+          pathbar.visible
+        </td>
+        <td>
+          The path bar is a line of text under the tab bar showing the full path of the currently selected tab.
+	Setting pathbar.visible to 1 makes the path bar visible on GTK+.
         </td>
       </tr>
       <tr class="gtkonly">
