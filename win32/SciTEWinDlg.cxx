@@ -831,11 +831,11 @@ public:
 };
 
 static void FillComboFromProps(HWND combo, PropSetFile &props) {
-	char *key;
-	char *val;
-	if (props.GetFirst(&key, &val)) {
+	const char *key;
+	const char *val;
+	if (props.GetFirst(key, val)) {
 		::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(key));
-		while (props.GetNext(&key, &val)) {
+		while (props.GetNext(key, val)) {
 			::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(key));
 		}
 	}

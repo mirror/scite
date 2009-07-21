@@ -18,6 +18,7 @@
 #include "PropSet.h"
 
 #include "Scintilla.h"
+#include "SString.h"
 #include "FilePath.h"
 
 #include "Mutex.h"

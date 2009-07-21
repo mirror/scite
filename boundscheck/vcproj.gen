@@ -500,7 +500,7 @@
 				RelativePath="..\win32\SingleThreadExtension.h">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\include\SString.h">
+				RelativePath="..\src\SString.h">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\Style.h">

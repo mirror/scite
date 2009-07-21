@@ -73,7 +73,7 @@ LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS) -mno-cygwin
 OTHER_OBJS	= FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o PropSetFile.o StringList.o \
 SciTEProps.o SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 UniqueInstance.o WindowAccessor.o \
-PropSet.o PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
+PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
 IFaceTable.o DirectorExtension.o JobQueue.o WinMutex.o XPM.o $(LUA_OBJS)
 
 OBJS = SciTEBase.o $(OTHER_OBJS)

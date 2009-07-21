@@ -55,6 +55,7 @@
 #include "DirectorExtension.h"
 #include "SciTE.h"
 #include "FilePath.h"
+#include "SString.h"
 #include "StringList.h"
 #include "PropSetFile.h"
 #include "Mutex.h"

@@ -13,6 +13,9 @@
 #include <time.h>
 #include <locale.h>
 
+#include <string>
+#include <map>
+
 #include "Platform.h"
 
 #if PLAT_GTK
@@ -25,6 +28,13 @@ const char menuAccessIndicator[] = "_";
 #endif
 
 #if PLAT_WIN
+
+#ifdef __BORLANDC__
+// Borland includes Windows.h for STL and defaults to different API number
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+#endif
 
 #define _WIN32_WINNT  0x0400
 #ifdef _MSC_VER
@@ -44,6 +54,7 @@ const char menuAccessIndicator[] = "&";
 
 #include "SciTE.h"
 #include "PropSet.h"
+#include "SString.h"
 #include "StringList.h"
 #include "Accessor.h"
 #include "Scintilla.h"
@@ -212,7 +223,7 @@ static long ColourFromString(const SString &s) {
 	}
 }
 
-long ColourOfProperty(PropSet &props, const char *key, ColourDesired colourDefault) {
+long ColourOfProperty(PropSetFile &props, const char *key, ColourDesired colourDefault) {
 	SString colour = props.GetExpanded(key);
 	if (colour.length()) {
 		return ColourFromString(colour);

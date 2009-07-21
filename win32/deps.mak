@@ -1,12 +1,12 @@
 DirectorExtension.o: DirectorExtension.cxx \
   ../../scintilla/include/Platform.h ../../scintilla/include/PropSet.h \
-  ../../scintilla/include/SString.h ../../scintilla/include/Scintilla.h \
+  ../src/SString.h ../../scintilla/include/Scintilla.h \
   ../../scintilla/include/Accessor.h ../src/Extender.h \
   ../../scintilla/include/Scintilla.h DirectorExtension.h ../src/SciTE.h \
   ../src/FilePath.h ../src/PropSetFile.h ../src/SciTEBase.h
 SciTEWin.o: SciTEWin.cxx SciTEWin.h ../../scintilla/include/Platform.h \
   ../src/SciTE.h ../../scintilla/include/PropSet.h \
-  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \
+  ../src/SString.h ../../scintilla/include/Accessor.h \
   ../../scintilla/include/KeyWords.h ../../scintilla/include/Scintilla.h \
   ../src/Extender.h ../../scintilla/include/Scintilla.h ../src/FilePath.h \
   ../src/PropSetFile.h ../src/SciTEBase.h ../src/SciTEKeys.h \
@@ -14,7 +14,7 @@ SciTEWin.o: SciTEWin.cxx SciTEWin.h ../../scintilla/include/Platform.h \
   DirectorExtension.h SingleThreadExtension.h ../src/LuaExtension.h
 SciTEWinBar.o: SciTEWinBar.cxx SciTEWin.h \
   ../../scintilla/include/Platform.h ../src/SciTE.h \
-  ../../scintilla/include/PropSet.h ../../scintilla/include/SString.h \
+  ../../scintilla/include/PropSet.h ../src/SString.h \
   ../../scintilla/include/Accessor.h ../../scintilla/include/KeyWords.h \
   ../../scintilla/include/Scintilla.h ../src/Extender.h \
   ../../scintilla/include/Scintilla.h ../src/FilePath.h \
@@ -22,7 +22,7 @@ SciTEWinBar.o: SciTEWinBar.cxx SciTEWin.h \
   UniqueInstance.h
 SciTEWinDlg.o: SciTEWinDlg.cxx SciTEWin.h \
   ../../scintilla/include/Platform.h ../src/SciTE.h \
-  ../../scintilla/include/PropSet.h ../../scintilla/include/SString.h \
+  ../../scintilla/include/PropSet.h ../src/SString.h \
   ../../scintilla/include/Accessor.h ../../scintilla/include/KeyWords.h \
   ../../scintilla/include/Scintilla.h ../src/Extender.h \
   ../../scintilla/include/Scintilla.h ../src/FilePath.h \
@@ -33,25 +33,25 @@ SingleThreadExtension.o: SingleThreadExtension.cxx \
   ../../scintilla/include/Scintilla.h
 UniqueInstance.o: UniqueInstance.cxx ../../scintilla/include/Platform.h \
   SciTEWin.h ../src/SciTE.h ../../scintilla/include/PropSet.h \
-  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \
+  ../src/SString.h ../../scintilla/include/Accessor.h \
   ../../scintilla/include/KeyWords.h ../../scintilla/include/Scintilla.h \
   ../src/Extender.h ../../scintilla/include/Scintilla.h ../src/FilePath.h \
   ../src/PropSetFile.h ../src/SciTEBase.h ../src/SciTEKeys.h \
   UniqueInstance.h
 Exporters.o: ../src/Exporters.cxx ../../scintilla/include/Platform.h \
   ../src/SciTE.h ../../scintilla/include/PropSet.h \
-  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \
+  ../src/SString.h ../../scintilla/include/Accessor.h \
   ../../scintilla/include/WindowAccessor.h \
   ../../scintilla/include/Scintilla.h ../src/Extender.h ../src/FilePath.h \
   ../src/PropSetFile.h ../src/SciTEBase.h
 FilePath.o: ../src/FilePath.cxx ../../scintilla/include/Platform.h \
-  ../../scintilla/include/PropSet.h ../../scintilla/include/SString.h \
+  ../../scintilla/include/PropSet.h ../src/SString.h \
   ../src/FilePath.h
 IFaceTable.o: ../src/IFaceTable.cxx ../src/IFaceTable.h
 LuaExtension.o: ../src/LuaExtension.cxx \
   ../../scintilla/include/Scintilla.h ../../scintilla/include/Accessor.h \
   ../src/Extender.h ../src/LuaExtension.h \
-  ../../scintilla/include/SString.h ../src/SciTEKeys.h \
+  ../src/SString.h ../src/SciTEKeys.h \
   ../src/IFaceTable.h ../lua/include/lua.h ../lua/include/lualib.h \
   ../lua/include/lua.h ../lua/include/lauxlib.h \
   ../../scintilla/include/Platform.h
@@ -60,7 +60,7 @@ MultiplexExtension.o: ../src/MultiplexExtension.cxx \
   ../../scintilla/include/Scintilla.h
 SciTEBase.o: ../src/SciTEBase.cxx ../../scintilla/include/Platform.h \
   ../src/SciTE.h ../../scintilla/include/PropSet.h \
-  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \
+  ../src/SString.h ../../scintilla/include/Accessor.h \
   ../../scintilla/include/WindowAccessor.h \
   ../../scintilla/include/KeyWords.h ../../scintilla/include/Scintilla.h \
   ../../scintilla/include/ScintillaWidget.h \
@@ -68,7 +68,7 @@ SciTEBase.o: ../src/SciTEBase.cxx ../../scintilla/include/Platform.h \
   ../src/PropSetFile.h ../src/SciTEBase.h
 SciTEBuffers.o: ../src/SciTEBuffers.cxx \
   ../../scintilla/include/Platform.h ../src/SciTE.h \
-  ../../scintilla/include/PropSet.h ../../scintilla/include/SString.h \
+  ../../scintilla/include/PropSet.h ../src/SString.h \
   ../../scintilla/include/Accessor.h \
   ../../scintilla/include/WindowAccessor.h \
   ../../scintilla/include/KeyWords.h ../../scintilla/include/Scintilla.h \
@@ -76,13 +76,13 @@ SciTEBuffers.o: ../src/SciTEBuffers.cxx \
   ../src/PropSetFile.h ../src/SciTEBase.h
 SciTEIO.o: ../src/SciTEIO.cxx ../../scintilla/include/Platform.h \
   ../src/SciTE.h ../../scintilla/include/PropSet.h \
-  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \
+  ../src/SString.h ../../scintilla/include/Accessor.h \
   ../../scintilla/include/WindowAccessor.h \
   ../../scintilla/include/Scintilla.h ../src/Extender.h ../src/Utf8_16.h \
   ../src/FilePath.h ../src/PropSetFile.h ../src/SciTEBase.h
 SciTEProps.o: ../src/SciTEProps.cxx ../../scintilla/include/Platform.h \
   ../src/SciTE.h ../../scintilla/include/PropSet.h \
-  ../../scintilla/include/SString.h ../../scintilla/include/Accessor.h \
+  ../src/SString.h ../../scintilla/include/Accessor.h \
   ../../scintilla/include/Scintilla.h ../../scintilla/include/SciLexer.h \
   ../src/Extender.h ../src/FilePath.h ../src/PropSetFile.h \
   ../src/SciTEBase.h

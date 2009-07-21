@@ -14,6 +14,9 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#include <string>
+#include <map>
+
 #include "Platform.h"
 
 #if PLAT_GTK
@@ -24,6 +27,13 @@
 #endif
 
 #if PLAT_WIN
+
+#ifdef __BORLANDC__
+// Borland includes Windows.h for STL and defaults to different API number
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+#endif
 
 #define _WIN32_WINNT  0x0400
 #ifdef _MSC_VER
@@ -51,10 +61,10 @@
 
 #include "SciTE.h"
 #include "PropSet.h"
+#include "SString.h"
 #include "StringList.h"
 #include "Accessor.h"
 #include "WindowAccessor.h"
-#include "KeyWords.h"
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
 #include "SciLexer.h"
@@ -2920,6 +2930,10 @@ unsigned int SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, SS
 	return part;
 }
 
+inline bool IsAlphabetic(unsigned int ch) {
+	return ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z'));
+}
+
 static bool includes(const StyleAndWords &symbols, const SString value) {
 	if (symbols.words.length() == 0) {
 		return false;
@@ -3148,13 +3162,13 @@ void SciTEBase::CharAddedOutput(int ch) {
 		int selStart = SendOutput(SCI_GETSELECTIONSTART);
 		if ((selStart > 1) && (SendOutput(SCI_GETCHARAT, selStart - 2, 0) == '$')) {
 			SString symbols;
-			char *key = NULL;
-			char *val = NULL;
-			bool b = props.GetFirst(&key, &val);
+			const char *key = NULL;
+			const char *val = NULL;
+			bool b = props.GetFirst(key, val);
 			while (b) {
 				symbols.append(key);
 				symbols.append(") ");
-				b = props.GetNext(&key, &val);
+				b = props.GetNext(key, val);
 			}
 			StringList symList;
 			symList.Set(symbols.c_str());
@@ -4222,21 +4236,6 @@ void SciTEBase::Notify(SCNotification *notification) {
 					styler.Flush();
 				}
 			}
-			// Colourisation is now normally performed by the SciLexer DLL
-#ifdef OLD_CODE
-			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-				int endStyled = SendEditor(SCI_GETENDSTYLED);
-				int lineEndStyled = SendEditor(SCI_LINEFROMPOSITION, endStyled);
-				endStyled = SendEditor(SCI_POSITIONFROMLINE, lineEndStyled);
-				Colourise(endStyled, notification->position);
-			} else {
-				int endStyled = SendOutput(SCI_GETENDSTYLED);
-				int lineEndStyled = SendOutput(SCI_LINEFROMPOSITION, endStyled);
-				endStyled = SendOutput(SCI_POSITIONFROMLINE, lineEndStyled);
-				Colourise(endStyled, notification->position, false);
-			}
-#endif
-
 		}
 		break;
 
@@ -4668,8 +4667,8 @@ static bool IsSwitchCharacter(char ch) {
 
 // Called by SciTEBase::PerformOne when action="enumproperties:"
 void SciTEBase::EnumProperties(const char *propkind) {
-	char *key = NULL;
-	char *val = NULL;
+	const char *key = NULL;
+	const char *val = NULL;
 	PropSetFile *pf = NULL;
 
 	if (!extender)
@@ -4691,10 +4690,10 @@ void SciTEBase::EnumProperties(const char *propkind) {
 		pf = &propsAbbrev;
 
 	if (pf != NULL) {
-		bool b = pf->GetFirst(&key, &val);
+		bool b = pf->GetFirst(key, val);
 		while (b) {
 			SendOneProperty(propkind, key, val);
-			b = pf->GetNext(&key, &val);
+			b = pf->GetNext(key, val);
 		}
 	}
 }

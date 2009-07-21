@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <string>
+#include <map>
+
 #include "Platform.h"
 
 #if PLAT_GTK
@@ -21,6 +24,13 @@
 #endif
 
 #if PLAT_WIN
+
+#ifdef __BORLANDC__
+// Borland includes Windows.h for STL and defaults to different API number
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+#endif
 
 #define _WIN32_WINNT  0x0400
 #ifdef _MSC_VER
@@ -49,10 +59,10 @@
 
 #include "SciTE.h"
 #include "PropSet.h"
+#include "SString.h"
 #include "StringList.h"
 #include "Accessor.h"
 #include "WindowAccessor.h"
-#include "KeyWords.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "Extender.h"

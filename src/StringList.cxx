@@ -8,11 +8,41 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <string>
+#include <map>
+
 #include "SString.h"
 #include "StringList.h"
+#include "PropSet.h"
 
 static inline bool IsASpace(unsigned int ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
+}
+
+static inline char MakeUpperCase(char ch) {
+	if (ch < 'a' || ch > 'z')
+		return ch;
+	else
+		return static_cast<char>(ch - 'a' + 'A');
+}
+
+static int CompareNCaseInsensitive(const char *a, const char *b, size_t len) {
+	while (*a && *b && len) {
+		if (*a != *b) {
+			char upperA = MakeUpperCase(*a);
+			char upperB = MakeUpperCase(*b);
+			if (upperA != upperB)
+				return upperA - upperB;
+		}
+		a++;
+		b++;
+		len--;
+	}
+	if (len == 0)
+		return 0;
+	else
+		// Either *a or *b is nul
+		return *a - *b;
 }
 
 /**
@@ -104,7 +134,7 @@ extern "C" int slCmpString(const void *a1, const void *a2) {
 
 extern "C" int slCmpStringNoCase(const void *a1, const void *a2) {
 	// Can't work out the correct incantation to use modern casts here
-	return CompareCaseInsensitive(*(char**)(a1), *(char**)(a2));
+	return CompareNoCase(*(char**)(a1), *(char**)(a2));
 }
 
 static void SortStringList(char **words, unsigned int len) {
