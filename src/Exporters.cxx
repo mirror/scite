@@ -1262,7 +1262,8 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 		      "\\usepackage[T1]{fontenc}\n"
 		      "\\usepackage{color}\n"
 		      "\\usepackage{alltt}\n"
-		      "\\usepackage{times}\n", fp);
+ 		      "\\usepackage{times}\n"
+ 		      "\\setlength{\\fboxsep}{0pt}\n", fp);
 
 		for (i = 0; i < STYLE_MAX; i++) {      // get keys
 			if (styleIsUsed[i]) {
@@ -1274,9 +1275,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 				StyleDefinition sd(valdef); //check default properties
 				sd.ParseStyleDefinition(val); //check language properties
 
-				if (sd.specified != StyleDefinition::sdNone) {
-					defineTexStyle(sd, fp, i); // writeout style macroses
-				} // Else we should use STYLE_DEFAULT
+				defineTexStyle(sd, fp, i); // writeout style macroses
 				if (val)
 					delete []val;
 				if (valdef)
@@ -1285,7 +1284,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 		}
 
 		fputs("\\begin{document}\n\n", fp);
-		fprintf(fp, "Source File: %s\n\n\\noindent\n\\tiny{\n",
+		fprintf(fp, "Source File: %s\n\n\\noindent\n\\small{\n",
 		        static_cast<const char *>(titleFullPath ? filePath.AsFileSystem() : filePath.Name().AsFileSystem()));
 
 		int styleCurrent = acc.StyleAt(0);
@@ -1299,7 +1298,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 			int style = acc.StyleAt(i);
 
 			if (style != styleCurrent) { //new style?
-				fprintf(fp, "}\n\\scite%s{", texStyle(style) );
+				fprintf(fp, "}\\scite%s{", texStyle(style) );
 				styleCurrent = style;
 			}
 
@@ -1349,7 +1348,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 			}
 			lineIdx++;
 		}
-		fputs("}\n} %end tiny\n\n\\end{document}\n", fp); //close last empty style macros and document too
+		fputs("}\n} %end small\n\n\\end{document}\n", fp); //close last empty style macros and document too
 		fclose(fp);
 	} else {
 		SString msg = LocaliseMessage(
