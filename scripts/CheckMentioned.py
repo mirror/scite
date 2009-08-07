@@ -3,6 +3,8 @@
 # are mentioned in scintilla/doc/ScintillaDoc.html.
 
 import string
+
+uninteresting = {"SCINTILLA_H", "SCI_START", "SCI_LEXER_START", "SCI_OPTIONAL_START"}
 srcRoot = "../.."
 incFileName = srcRoot + "/scintilla/include/Scintilla.h"
 docFileName = srcRoot + "/scintilla/doc/ScintillaDoc.html"
@@ -39,5 +41,5 @@ docFile.close()
 identifiersSorted = list(symbols.keys())
 identifiersSorted.sort()
 for identifier in identifiersSorted:
-	if not symbols[identifier]:
+	if not symbols[identifier] and identifier not in uninteresting:
 		print(identifier)
