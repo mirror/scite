@@ -23,14 +23,14 @@ endif
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
 # "h@h@" is printed here when gnome-config unavailable. Seems harmless.
 ifdef GTK2
-CONFIGFLAGS=$(shell pkg-config --cflags gtk+-2.0)
-CONFIGLIB=$(shell pkg-config --libs gtk+-2.0 gthread-2.0)
-CONFIGTHREADS=
+CONFIGFLAGS:=$(shell pkg-config --cflags gtk+-2.0)
+CONFIGLIB:=$(shell pkg-config --libs gtk+-2.0 gthread-2.0)
+CONFIGTHREADS:=
 gnomeprefix:=$(shell pkg-config --variable=prefix gtk+-2.0 2>/dev/null)
 else
-CONFIGFLAGS=$(shell gtk-config --cflags)
-CONFIGLIB=$(shell gtk-config --libs)
-CONFIGTHREADS=$(shell glib-config --libs gthread)
+CONFIGFLAGS:=$(shell gtk-config --cflags)
+CONFIGLIB:=$(shell gtk-config --libs)
+CONFIGTHREADS:=$(shell glib-config --libs gthread)
 gnomeprefix:=$(shell gnome-config --prefix 2>/dev/null)
 endif
 ifndef prefix
