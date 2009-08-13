@@ -4876,7 +4876,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	if (*params == 'S') {
 		// string answer
 		if (message == SCI_GETSELTEXT) {
-			l = SendEditor(SCI_GETSELECTIONEND) - SendEditor(SCI_GETSELECTIONSTART);
+			l = SendEditor(SCI_GETSELTEXT, 0, 0);
 			wParam = 0;
 		} else if (message == SCI_GETCURLINE) {
 			int line = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
