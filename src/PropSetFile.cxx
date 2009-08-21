@@ -88,7 +88,8 @@ void PropSetFile::Unset(const char *key, int lenKey) {
 	if (lenKey == -1)
 		lenKey = static_cast<int>(strlen(key));
 	mapss::iterator keyPos = props.find(std::string(key, lenKey));
-	props.erase(keyPos);
+	if (keyPos != props.end())
+		props.erase(keyPos);
 }
 
 void PropSetFile::SetMultiple(const char *s) {
