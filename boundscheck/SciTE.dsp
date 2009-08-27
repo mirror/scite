@@ -347,6 +347,10 @@ SOURCE=..\..\scintilla\src\LexMagik.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\LexMarkdown.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\LexMatlab.cxx
 # End Source File
 # Begin Source File
