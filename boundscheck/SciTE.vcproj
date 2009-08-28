@@ -343,6 +343,9 @@
 				RelativePath="..\..\scintilla\src\LexMagik.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexMarkdown.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LexMatlab.cxx">
 			</File>
 			<File
@@ -729,7 +732,7 @@
 				RelativePath="..\win32\SingleThreadExtension.h">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\include\SString.h">
+				RelativePath="..\src\SString.h">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\Style.h">
