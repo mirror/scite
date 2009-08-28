@@ -734,6 +734,9 @@ void SciTEBase::ReadProperties() {
 		ReadAPI(fileNameForExtension);
 		apisFileNames = props.GetNewExpand("api.", fileNameForExtension.c_str());
 	}
+
+	props.Set("APIPath", apisFileNames.c_str());
+
 	FilePath fileAbbrev = props.GetNewExpand("abbreviations.", fileNameForExtension.c_str()).c_str();
 	if (!fileAbbrev.IsSet())
 		fileAbbrev = GetAbbrevPropertiesFileName();
@@ -743,6 +746,8 @@ void SciTEBase::ReadProperties() {
 	}
 
 	DiscoverEOLSetting();
+
+	props.Set("AbbrevPath", pathAbbreviations.AsFileSystem());
 
 	codePage = props.GetInt("code.page");
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
