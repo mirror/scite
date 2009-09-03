@@ -2236,33 +2236,19 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  <thead><th>Code page</th><th>Value</th></thead>
 	  <tr><td>Default (single byte character set)</td><td align="right">0</td></tr>
 	  <tr><td>UTF-8</td><td align="right">65001</td></tr>
-	  <tr class="windowsonly"><td>Japanese Shift-JIS</td><td align="right">932</td></tr>
-	  <tr class="windowsonly"><td>Simplified Chinese GBK</td><td align="right">936</td></tr>
-	  <tr class="windowsonly"><td>Traditional Chinese Big5</td><td align="right">950</td></tr>
+	  <tr><td>Japanese Shift-JIS</td><td align="right">932</td></tr>
+	  <tr><td>Simplified Chinese GBK</td><td align="right">936</td></tr>
+	  <tr><td>Traditional Chinese Big5</td><td align="right">950</td></tr>
 	  <tr class="windowsonly"><td>Korean</td><td align="right">949</td></tr>
 	  <tr class="windowsonly"><td>Korean Johab</td><td align="right">1361</td></tr>
   	  </table>
-	  All of these may work on Windows.
-	  On GTK+, this option should only be 0 or 65001 where SciTE only supports single
-	  byte character sets and Unicode.<br />
+	  All of these may work on Windows but the Korean code pages are not supported on GTK+.<br />
         Setting code.page to 65001 starts Unicode mode and the document is treated as
         a sequence of characters expressed as UTF-8. Display is performed by converting to the
         platform's normal Unicode encoding first so characters from any language will be displayed.
         Correct glyphs will only be displayed if fonts are chosen that contain the appropriate glyphs.
         Tahoma is a good choice on Windows 2000. <br/>
         This property can <em>not</em> set a single byte character set.<br />
-        For GTK+ 1.x, the locale should be set to a Unicode locale by setting the LC_CTYPE
-        property. For an English machine this can be<br />
-        <div class="example">
-        LC_CTYPE=en_US.UTF-8
-        </div>
-        Fonts with an "iso10646" registry should be used in a font set.
-        Font sets are a '|' separated list of partial
-        font specifications where each partial font specification can be in the form of
-        foundry-fontface-charsetregistry-encoding *OR*
-        fontface-charsetregistry-encoding *OR*
-        foundry-fontface *OR*
-        fontface. An example is "misc-fixed-iso10646-1|*".<br />
 	If output.code.page is set then it is used for the output pane which otherwise
 	matches the edit pane.
         </td>
