@@ -2167,7 +2167,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	// at the start and end. This makes it easy to search for words.
 	SString wordsNear;
 	wordsNear.setsizegrowth(1000);
-	wordsNear.append(" ");
+	wordsNear.append("\n");
 
 	int posFind = SendEditorString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
 	WindowAccessor acc(wEditor.GetID(), props);
@@ -2179,8 +2179,8 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 			size_t wordLength = wordEnd - posFind;
 			if (wordLength > root.length()) {
 				SString word = GetRange(wEditor, posFind, wordEnd);
-				word.insert(0, " ");
-				word.append(" ");
+				word.insert(0, "\n");
+				word.append("\n");
 				if (!wordsNear.contains(word.c_str())) {	// add a new entry
 					wordsNear += word.c_str() + 1;
 					if (minWordLength < wordLength)
@@ -2198,10 +2198,18 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	}
 	size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > root.length()))) {
-		StringList wl;
+		// Protect spaces by temporrily transforming to \001
+		wordsNear.substitute(' ', '\001');
+		StringList wl(true);
 		wl.Set(wordsNear.c_str());
 		char *words = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
-		SendEditorString(SCI_AUTOCSHOW, root.length(), words);
+		SString acText(words);
+		// Use \n as word separator
+		acText.substitute(' ', '\n');
+		// Return spaces from \001
+		acText.substitute('\001', ' ');
+		SendEditor(SCI_AUTOCSETSEPARATOR, '\n');
+		SendEditorString(SCI_AUTOCSHOW, root.length(), acText.c_str());
 		delete []words;
 	} else {
 		SendEditor(SCI_AUTOCCANCEL);
