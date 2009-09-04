@@ -1621,10 +1621,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	int startPosition = cr.cpMin;
 	int endPosition = cr.cpMax;
 	int selType = SC_SEL_STREAM;
+	int countSelections = SendEditor(SCI_GETSELECTIONS);
 	if (inSelection) {
-		if (startPosition == endPosition) {
-			return -2;
-		}
 		selType = SendEditor(SCI_GETSELECTIONMODE);
 		if (selType == SC_SEL_LINES) {
 			// Take care to replace in whole lines
@@ -1632,6 +1630,14 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			startPosition = SendEditor(SCI_POSITIONFROMLINE, startLine);
 			int endLine = SendEditor(SCI_LINEFROMPOSITION, endPosition);
 			endPosition = SendEditor(SCI_POSITIONFROMLINE, endLine + 1);
+		} else {
+			for (int i=0; i<countSelections; i++) {
+				startPosition = Platform::Minimum(startPosition, SendEditor(SCI_GETSELECTIONNSTART, i));
+				endPosition = Platform::Maximum(endPosition, SendEditor(SCI_GETSELECTIONNEND, i));
+			}
+		}
+		if (startPosition == endPosition) {
+			return -2;
 		}
 	} else {
 		endPosition = LengthDocument();
@@ -1663,15 +1669,17 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 		// Replacement loop
 		while (posFind != -1) {
 			int lenTarget = SendEditor(SCI_GETTARGETEND) - SendEditor(SCI_GETTARGETSTART);
-			if (inSelection && selType == SC_SEL_RECTANGLE) {
-				// We must check that the found target is entirely inside the rectangular selection:
-				// it must fit in one line, and inside the selection bounds of this line.
-				int line = SendEditor(SCI_LINEFROMPOSITION, posFind);
-				int startPos = SendEditor(SCI_GETLINESELSTARTPOSITION, line);
-				int endPos = SendEditor(SCI_GETLINESELENDPOSITION, line);
-				if (startPos == INVALID_POSITION ||	// No selection on this line (?)
-				        posFind < startPos || posFind + lenTarget > endPos) {
-					// Found target is totally or partly outside the rectangular selection
+			if (inSelection && countSelections > 1) {
+				// We must check that the found target is entirely inside a selection
+				bool insideASelection = false;
+				for (int i=0; i<countSelections && !insideASelection; i++) {
+					int startPos= SendEditor(SCI_GETSELECTIONNSTART, i);
+					int endPos = SendEditor(SCI_GETSELECTIONNEND, i);
+					if (posFind >= startPos && posFind + lenTarget <= endPos)
+						insideASelection = true;
+				}
+				if (!insideASelection) {
+					// Found target is totally or partly outside the selections
 					lastMatch = posFind + 1;
 					if (lastMatch >= endPosition) {
 						// Run off the end of the document/selection with an empty match
@@ -1712,7 +1720,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			replacements++;
 		}
 		if (inSelection) {
-			SetSelection(startPosition, endPosition);
+			if (countSelections == 1) 
+				SetSelection(startPosition, endPosition);
 		} else {
 			SetSelection(lastMatch, lastMatch);
 		}
