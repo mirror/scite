@@ -1620,10 +1620,9 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	Sci_CharacterRange cr = GetSelection();
 	int startPosition = cr.cpMin;
 	int endPosition = cr.cpMax;
-	int selType = SC_SEL_STREAM;
 	int countSelections = SendEditor(SCI_GETSELECTIONS);
 	if (inSelection) {
-		selType = SendEditor(SCI_GETSELECTIONMODE);
+		int selType = SendEditor(SCI_GETSELECTIONMODE);
 		if (selType == SC_SEL_LINES) {
 			// Take care to replace in whole lines
 			int startLine = SendEditor(SCI_LINEFROMPOSITION, startPosition);
