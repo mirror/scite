@@ -562,6 +562,7 @@ static const char *propertiesToForward[] = {
 	"lexer.cpp.allow.dollars",
 	"lexer.d.fold.at.else",
 	"lexer.errorlist.value.separate",
+	"lexer.html.mako",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
 	"lexer.pascal.smart.highlighting",
