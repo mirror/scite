@@ -731,7 +731,6 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 
 	switch (iMessage) {
 
-	case WM_LBUTTONDBLCLK:
 	case WM_MBUTTONDOWN: {
 			// Check if on tab bar
 			Point pt = Point::FromLong(lParam);
