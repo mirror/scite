@@ -2163,6 +2163,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"AutoCCancel", 2101, iface_void, {iface_void, iface_void}},
 	{"AutoCComplete", 2104, iface_void, {iface_void, iface_void}},
 	{"AutoCGetCurrent", 2445, iface_int, {iface_void, iface_void}},
+	{"AutoCGetCurrentText", 2610, iface_int, {iface_void, iface_stringresult}},
 	{"AutoCPosStart", 2103, iface_position, {iface_void, iface_void}},
 	{"AutoCSelect", 2108, iface_void, {iface_void, iface_string}},
 	{"AutoCShow", 2100, iface_void, {iface_int, iface_string}},
@@ -2585,7 +2586,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 267,
+	ifaceFunctionCount = 268,
 	ifaceConstantCount = 2013,
 	ifacePropertyCount = 166
 };
