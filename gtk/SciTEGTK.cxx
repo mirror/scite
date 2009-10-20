@@ -336,7 +336,6 @@ protected:
 	bool triedKill;
 	int exitStatus;
 	guint pollID;
-	char resultsFile[MAX_PATH];
 	int inputHandle;
 	ElapsedTime commandTime;
 
@@ -576,8 +575,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	triedKill = false;
 	exitStatus = 0;
 	pollID = 0;
-	sprintf(resultsFile, "/tmp/SciTE%x.results",
-	        static_cast<int>(getpid()));
 	inputHandle = 0;
 
 	startupTimestamp = 0;
@@ -1772,7 +1769,6 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		pollID = 0;
 		close(fdFIFO);
 		fdFIFO = 0;
-		unlink(resultsFile);
 		pidShell = 0;
 		triedKill = false;
 		ExecuteNext();
@@ -1788,37 +1784,23 @@ void SciTEGTK::IOSignal(SciTEGTK *scitew) {
 	scitew->ContinueExecute(FALSE);
 }
 
-int xsystem(const char *s, const char *resultsFile) {
+int xsystem(const char *s, int fh) {
 	int pid = 0;
-	//printf("xsystem %s %s\n", s, resultsFile);
 	if ((pid = fork()) == 0) {
-		close(0);
-		int fh = open(resultsFile, O_WRONLY);
-		close(1);
-		if (dup(fh) >= 0) {
-			close(2);
-			if (dup(fh) >= 0) {
-				setpgid(0, 0);
-				execlp("/bin/sh", "sh", "-c", s, static_cast<char *>(NULL));
+		for (int i=getdtablesize();i>=0;--i) if (i != fh) close(i);
+		if (open("/dev/null", O_RDWR) >= 0) { // stdin
+			if (dup(fh) >= 0) { // stdout
+				if (dup(fh) >= 0) { // stderr
+					close(fh);
+					setpgid(0, 0);
+					execlp("/bin/sh", "sh", "-c", s, static_cast<char *>(NULL));
+				}
 			}
 		}
-		exit(127);
+		_exit(127);
 	}
+	close(fh);
 	return pid;
-}
-
-static bool MakePipe(const char *name) {
-	// comment: () isn't implemented in cygwin yet
-#if defined(__vms) || defined(__CYGWIN__)
-	// No mkfifo on OpenVMS or CYGWIN
-	int fd = creat(name, 0777);
-	close(fd);	// Handle must be closed before re-opened
-#else
-
-	int fd = mkfifo(name, S_IRUSR | S_IWUSR);
-#endif
-
-	return fd >= 0;
 }
 
 void SciTEGTK::Execute() {
@@ -1835,7 +1817,6 @@ void SciTEGTK::Execute() {
 		OutputAppendString("\n");
 	}
 
-	unlink(resultsFile);
 	if (jobQueue.jobQueue[icmd].directory.IsSet()) {
 		jobQueue.jobQueue[icmd].directory.SetWorkingDirectory();
 	}
@@ -1851,21 +1832,17 @@ void SciTEGTK::Execute() {
 			extender->OnExecute(jobQueue.jobQueue[icmd].command.c_str());
 		ExecuteNext();
 	} else {
-		if (!MakePipe(resultsFile)) {
+		int pipefds[2];
+		if (pipe(pipefds)) {
 			OutputAppendString(">Failed to create FIFO\n");
 			ExecuteNext();
 			return;
 		}
 
-		pidShell = xsystem(jobQueue.jobQueue[icmd].command.c_str(), resultsFile);
+		pidShell = xsystem(jobQueue.jobQueue[icmd].command.c_str(), pipefds[1]);
 		triedKill = false;
-		fdFIFO = open(resultsFile, O_RDONLY | O_NONBLOCK);
-		if (fdFIFO < 0) {
-			OutputAppendString(">Failed to open\n");
-			fdFIFO = 0;
-			return;
-		}
-		inputHandle = gdk_input_add(fdFIFO, GDK_INPUT_READ,
+		fdFIFO = pipefds[0];
+		inputHandle = gdk_input_add(pipefds[0], GDK_INPUT_READ,
 		                            (GdkInputFunction) IOSignal, this);
 		// Also add a background task in case there is no output from the tool
 		pollID = gtk_timeout_add(200, (gint (*)(void *)) SciTEGTK::PollTool, this);
