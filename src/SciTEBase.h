@@ -789,7 +789,7 @@ protected:
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	void DropFileStackTop();
-	void AddFileToBuffer(FilePath file, int pos);
+	bool AddFileToBuffer(FilePath file, int pos);
 	void AddFileToStack(FilePath file, Sci_CharacterRange selection, int scrollPos);
 	void RemoveFileFromStack(FilePath file);
 	RecentFile GetFilePosition();

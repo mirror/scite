@@ -430,7 +430,8 @@ void SciTEBase::RestoreSession() {
 		propKey = IndexPropKey("buffer", i, "position");
 		int pos = propsSession.GetInt(propKey.c_str());
 
-		AddFileToBuffer(propStr.c_str(), pos - 1);
+		if (!AddFileToBuffer(propStr.c_str(), pos - 1))
+			continue;
 
 		propKey = IndexPropKey("buffer", i, "current");
 		if (propsSession.GetInt(propKey.c_str()))
@@ -469,6 +470,8 @@ void SciTEBase::RestoreSession() {
 				delete [] buf;
 			}
 		}
+
+		SendEditor(SCI_SCROLLCARET);
 	}
 
 	if (curr != -1)
@@ -969,11 +972,13 @@ void SciTEBase::DropFileStackTop() {
 	SetFileStackMenu();
 }
 
-void SciTEBase::AddFileToBuffer(FilePath file, int pos) {
-	// file existence test
-	if (file.Exists()) {                      // for missing files Open() gives an empty buffer - do not want this
-		Open(file, ofForceLoad);
+bool SciTEBase::AddFileToBuffer(FilePath file, int pos) {
+	// Return whether file loads successfully
+	if (file.Exists() && Open(file, ofForceLoad)) {
 		SendEditor(SCI_GOTOPOS, pos);
+		return true;
+	} else {
+		return false;
 	}
 }
 
