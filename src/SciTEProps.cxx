@@ -443,11 +443,13 @@ SString SciTEBase::ExtensionFileName() {
 		if (name.IsSet()) {
 			// Force extension to lower case
 			char fileNameWithLowerCaseExtension[MAX_PATH];
-				strcpy(fileNameWithLowerCaseExtension, name.AsInternal());
+			strcpy(fileNameWithLowerCaseExtension, name.AsInternal());
+#if PLAT_WIN
 			char *extension = strrchr(fileNameWithLowerCaseExtension, '.');
 			if (extension) {
 				LowerCaseString(extension);
 			}
+#endif
 			return SString(fileNameWithLowerCaseExtension);
 		} else {
 			return props.Get("default.file.ext");
