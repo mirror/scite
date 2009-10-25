@@ -921,6 +921,11 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	int maskStyle = (1 << SendEditor(SCI_GETSTYLEBITSNEEDED)) - 1;
 	bool isInside = false;
 	Window &win = editor ? wEditor : wOutput;
+
+	int mainSel = Platform::SendScintilla(win.GetID(), SCI_GETMAINSELECTION, 0, 0);
+	if (Platform::SendScintilla(win.GetID(), SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0) > 0)
+		return false;
+
 	int bracesStyleCheck = editor ? bracesStyle : 0;
 	int caretPos = Platform::SendScintilla(win.GetID(), SCI_GETCURRENTPOS, 0, 0);
 	braceAtCaret = -1;
