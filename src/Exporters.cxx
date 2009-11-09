@@ -462,7 +462,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 					} else if (istyle == STYLE_DEFAULT) {
 						fprintf(fp, "\tcolor: #000000;\n");
 					}
-					if (sd.back.length()) {
+					if ((sd.specified & StyleDefinition::sdBack) && sd.back.length()) {
 						if (istyle != STYLE_DEFAULT && bgColour != sd.back) {
 							fprintf(fp, "\tbackground: %s;\n", sd.back.c_str());
 							fprintf(fp, "\ttext-decoration: inherit;\n");
