@@ -557,6 +557,7 @@ static const char *propertiesToForward[] = {
 	"fold.preprocessor",
 	"fold.quotes.nimrod",
 	"fold.quotes.python",
+	"fold.sql.exists",
 	"fold.sql.only.begin",
 	"fold.verilog.flags",
 	"html.tags.case.sensitive",
