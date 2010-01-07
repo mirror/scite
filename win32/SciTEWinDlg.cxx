@@ -149,7 +149,7 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		               (pmsg->wParam != VK_ESCAPE) &&
 		               (pmsg->wParam != VK_RETURN) &&
 		               (Platform::IsKeyDown(VK_CONTROL) || !Platform::IsKeyDown(VK_MENU));
-		if (!menuKey && ::IsDialogMessage(reinterpret_cast<HWND>(wParameters.GetID()), pmsg))
+		if (!menuKey && DialogHandled(wParameters.GetID(), pmsg))
 			return true;
 	}
 	if (pmsg->message == WM_KEYDOWN || pmsg->message == WM_SYSKEYDOWN) {
