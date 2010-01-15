@@ -293,12 +293,12 @@ Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h Accessor.h WindowAccessor.h KeyWords.h Pr
  SString.h Scintilla.h Extender.h FilePath.h SciTEBase.h JobQueue.h
 	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
 
-SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h
+SciTERes.o:	SciTERes.rc SciTE.h PlatformRes.h SciTE.exe.manifest
 	windres $(RCINCLUDEDIRS) SciTERes.rc $@
 
 # Also depends on ../src/Embedded.properties but may not want to build everywhere
 # so must explicitly ask to build it.
-Sc1Res.o:	SciTERes.rc SciTE.h PlatformRes.h
+Sc1Res.o:	SciTERes.rc SciTE.h PlatformRes.h SciTE.exe.manifest
 	windres $(RCINCLUDEDIRS) SciTERes.rc --define STATIC_BUILD $@
 
 # Make sure SciTEBase gets rebuilt (so its about box gets a new
