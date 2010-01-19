@@ -1401,7 +1401,6 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 */
 bool SciTEWin::IsStdinBlocked() {
 	DWORD unread_messages;
-	DWORD n;
 	INPUT_RECORD irec[1];
 	char bytebuffer;
 	HANDLE hStdIn = ::GetStdHandle(STD_INPUT_HANDLE);
@@ -1410,7 +1409,7 @@ bool SciTEWin::IsStdinBlocked() {
 	} else if (::PeekConsoleInput(hStdIn, irec, 1, &unread_messages) != 0) {
 		/* it is the console, assume that stdin is blocked by falling to bottomn */;
 	} else if (::GetLastError() == ERROR_INVALID_HANDLE) {
-		for (n = 0; n < 4; n++) {
+		for (int n = 0; n < 4; n++) {
 			/*	if this fails, it is either
 				- a busy pipe "scite \*.,cxx /s /b | s -@",
 				- another type of pipe "scite - <file", or

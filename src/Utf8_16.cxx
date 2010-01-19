@@ -31,8 +31,10 @@ enum { SURROGATE_FIRST_VALUE = 0x10000 };
 Utf8_16_Read::Utf8_16_Read() {
 	m_eEncoding = eUnknown;
 	m_nBufSize = 0;
+	m_pBuf = NULL;
 	m_pNewBuf = NULL;
 	m_bFirstRead = true;
+	m_nLen = 0;
 }
 
 Utf8_16_Read::~Utf8_16_Read() {

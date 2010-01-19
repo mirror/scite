@@ -358,7 +358,9 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	functionDefinition = 0;
 	indentOpening = true;
 	indentClosing = true;
+	indentMaintain = false;
 	statementLookback = 10;
+	preprocessorSymbol = '\0';
 
 	fnEditor = 0;
 	ptrEditor = 0;
@@ -371,6 +373,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	tabMultiLine = false;
 	sbNum = 1;
 	visHeightTools = 0;
+	visHeightTab = 0;
 	visHeightStatus = 0;
 	visHeightEditor = 1;
 	heightBar = 7;
@@ -384,6 +387,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	fullScreen = false;
 
 	heightOutput = 0;
+	heightOutputStartDrag = 0;
 	previousHeightOutput = 0;
 
 	allowMenuActions = true;
@@ -3060,7 +3064,6 @@ void SciTEBase::MaintainIndentation(char ch) {
 	int eolMode = SendEditor(SCI_GETEOLMODE);
 	int curLine = GetCurrentLineNumber();
 	int lastLine = curLine - 1;
-	int indentAmount = 0;
 
 	if (((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') ||
 	        (eolMode == SC_EOL_CR && ch == '\r')) {
@@ -3068,6 +3071,7 @@ void SciTEBase::MaintainIndentation(char ch) {
 			while (lastLine >= 0 && GetLineLength(lastLine) == 0)
 				lastLine--;
 		}
+		int indentAmount = 0;
 		if (lastLine >= 0) {
 			indentAmount = GetLineIndentation(lastLine);
 		}
@@ -4891,8 +4895,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	if (*params == '0') {
 		// no answer ...
 		SendEditor(message, wParam, lParam);
-		if (string1 != NULL)
-			delete []string1;
+		delete []string1;
 		return;
 	}
 

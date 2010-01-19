@@ -159,8 +159,8 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 	StyleDefinition defaultStyle(valdef);
 	defaultStyle.ParseStyleDefinition(val);
 
-	if (val) delete []val;
-	if (valdef) delete []valdef;
+	delete []val;
+	delete []valdef;
 
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
@@ -263,10 +263,8 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 				        RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
 				        RTF_BOLD_OFF RTF_ITALIC_OFF, defaultStyle.size);
 			}
-			if (val)
-				delete []val;
-			if (valdef)
-				delete []valdef;
+			delete []val;
+			delete []valdef;
 		}
 		fputs(RTF_FONTDEFCLOSE RTF_COLORDEFOPEN, fp);
 		for (i = 0; i < colorCount; i++) {
@@ -423,12 +421,8 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		if (sddef.back.length()) {
 			bgColour = sddef.back;
 		}
-		if (val) {
-			delete []val;
-		}
-		if (valdef) {
-			delete []valdef;
-		}
+		delete []val;
+		delete []valdef;
 
 		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 			if ((istyle > STYLE_DEFAULT) && (istyle <= STYLE_LASTPREDEFINED))
@@ -476,12 +470,8 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 					styleIsUsed[istyle] = false;	// No definition, it uses default style (32)
 				}
 
-				if (val) {
-					delete []val;
-				}
-				if (valdef) {
-					delete []valdef;
-				}
+				delete []val;
+				delete []valdef;
 			}
 		}
 		fputs("</style>\n", fp);
@@ -834,7 +824,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 			segStyle = new char[100];
 		}
 		~PDFRender() {
-			if (style) { delete []style; }
+			delete []style;
 			delete []buffer;
 			delete []segStyle;
 		}
@@ -1120,8 +1110,8 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 					pr.fontSize = PDF_FONTSIZE_DEFAULT;
 			}
 		}
-		if (val) delete []val;
-		if (valdef) delete []valdef;
+		delete []val;
+		delete []valdef;
 	}
 	// patch in default foregrounds
 	for (int j = 0; j <= STYLE_MAX; j++) {
@@ -1146,11 +1136,11 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	// do here all the writing
 	int lengthDoc = LengthDocument();
 	WindowAccessor acc(wEditor.GetID(), props);
-	int lineIndex = 0;
 
 	if (!lengthDoc) {	// enable zero length docs
 		pr.nextLine();
 	} else {
+		int lineIndex = 0;
 		for (int i = 0; i < lengthDoc; i++) {
 			char ch = acc[i];
 			int style = acc.StyleAt(i);
@@ -1280,10 +1270,8 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 				sd.ParseStyleDefinition(val); //check language properties
 
 				defineTexStyle(sd, fp, i); // writeout style macroses
-				if (val)
-					delete []val;
-				if (valdef)
-					delete []valdef;
+				delete []val;
+				delete []valdef;
 			}
 		}
 

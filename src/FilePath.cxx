@@ -652,11 +652,6 @@ void FilePath::FixName() {
 #endif
 }
 
-FilePathSet &FilePathSet::operator=(const FilePathSet &) {
-	// Private so won't be called.
-	return *this;
-}
-
 FilePathSet::FilePathSet(int size_) {
 	size = size_;
 	body = new FilePath[size];
