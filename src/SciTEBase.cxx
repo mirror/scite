@@ -2139,6 +2139,7 @@ bool SciTEBase::StartAutoComplete() {
 			calltipParametersStart.c_str(), autoCompleteIgnoreCase);
 		if (words) {
 			EliminateDuplicateWords(words);
+			SendEditor(SCI_AUTOCSETSEPARATOR, ' ');
 			SendEditorString(SCI_AUTOCSHOW, root.length(), words);
 			delete []words;
 		}
@@ -3208,6 +3209,7 @@ void SciTEBase::CharAddedOutput(int ch) {
 			symList.Set(symbols.c_str());
 			char *words = symList.GetNearestWords("", 0, true);
 			if (words) {
+				SendEditor(SCI_AUTOCSETSEPARATOR, ' ');
 				SendOutputString(SCI_AUTOCSHOW, 0, words);
 				delete []words;
 			}
