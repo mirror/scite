@@ -439,6 +439,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	findInStyle = false;
 	findStyle = 0;
 
+	abbrevInsert[0] = '\0';
+
 	languageMenu = 0;
 	languageItems = 0;
 
@@ -2966,7 +2968,7 @@ inline bool IsAlphabetic(unsigned int ch) {
 	return ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z'));
 }
 
-static bool includes(const StyleAndWords &symbols, const SString value) {
+static bool includes(const StyleAndWords &symbols, const SString &value) {
 	if (symbols.words.length() == 0) {
 		return false;
 	} else if (IsAlphabetic(symbols.words[0])) {

@@ -7,7 +7,7 @@
 
 class DirectorExtension : public Extension {
 private:
-	DirectorExtension() {} // Singleton
+	DirectorExtension() : inputWatcher(-1) {} // Singleton
 	DirectorExtension(const DirectorExtension &); // Disable copy ctor
 	void operator=(const DirectorExtension &);    // Disable operator=
 
