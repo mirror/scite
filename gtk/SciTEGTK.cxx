@@ -1842,6 +1842,7 @@ void SciTEGTK::Execute() {
 		pidShell = xsystem(jobQueue.jobQueue[icmd].command.c_str(), pipefds[1]);
 		triedKill = false;
 		fdFIFO = pipefds[0];
+		fcntl(fdFIFO, F_SETFL, fcntl(fdFIFO, F_GETFL) | O_NONBLOCK);
 		inputHandle = gdk_input_add(pipefds[0], GDK_INPUT_READ,
 		                            (GdkInputFunction) IOSignal, this);
 		// Also add a background task in case there is no output from the tool
