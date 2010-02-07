@@ -572,6 +572,7 @@ static const char *propertiesToForward[] = {
 	"lexer.props.allow.initial.spaces",
 	"lexer.python.literals.binary",
 	"lexer.python.strings.b",
+	"lexer.python.strings.over.newline",
 	"lexer.python.strings.u",
 	"lexer.sql.backticks.identifier",
 	"lexer.tex.auto.if",
