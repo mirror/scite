@@ -1620,6 +1620,369 @@ bool LuaExtension::OnSavePointLeft() {
 	return CallNamedFunction("OnSavePointLeft");
 }
 
+// Similar to StyleContext class in Scintilla
+struct StylingContext {
+	unsigned int startPos;
+	int lengthDoc;
+	int initStyle;
+	Accessor *styler;
+
+	unsigned int endPos;
+	unsigned int endDoc;
+
+	unsigned int currentPos;
+	bool atLineStart;
+	bool atLineEnd;
+	int state;
+
+	char cursor[3][8];
+	int cursorPos;
+	int codePage;
+	int lenCurrent;
+	int lenNext;
+
+	static StylingContext *Context(lua_State *L) {
+		return reinterpret_cast<StylingContext *>(
+			lua_touserdata(L, lua_upvalueindex(1)));
+	}
+
+	void Colourize() {
+		int end = currentPos - 1;
+		if (end >= static_cast<int>(endDoc))
+			end = static_cast<int>(endDoc)-1;
+		styler->ColourTo(end, state);
+	}
+
+	static int PropertyInt(lua_State *L) {
+		StylingContext *context = Context(L);
+		const char *s = luaL_checkstring(L, 2);
+		lua_pushnumber(L, context->styler->GetPropertyInt(s));
+		return 1;
+	}
+
+	static int Line(lua_State *L) {
+		StylingContext *context = Context(L);
+		int position = luaL_checkint(L, 2);
+		lua_pushnumber(L, context->styler->GetLine(position));
+		return 1;
+	}
+
+	static int CharAt(lua_State *L) {
+		StylingContext *context = Context(L);
+		int position = luaL_checkint(L, 2);
+		lua_pushnumber(L, context->styler->SafeGetCharAt(position));
+		return 1;
+	}
+
+	static int StyleAt(lua_State *L) {
+		StylingContext *context = Context(L);
+		int position = luaL_checkint(L, 2);
+		lua_pushnumber(L, context->styler->StyleAt(position));
+		return 1;
+	}
+
+	static int LevelAt(lua_State *L) {
+		StylingContext *context = Context(L);
+		int line = luaL_checkint(L, 2);
+		lua_pushnumber(L, context->styler->LevelAt(line));
+		return 1;
+	}
+
+	static int SetLevelAt(lua_State *L) {
+		StylingContext *context = Context(L);
+		int line = luaL_checkint(L, 2);
+		int level = luaL_checkint(L, 3);
+		context->styler->SetLevel(line, level);
+		return 0;
+	}
+
+	static int LineState(lua_State *L) {
+		StylingContext *context = Context(L);
+		int line = luaL_checkint(L, 2);
+		lua_pushnumber(L, context->styler->GetLineState(line));
+		return 1;
+	}
+
+	static int SetLineState(lua_State *L) {
+		StylingContext *context = Context(L);
+		int line = luaL_checkint(L, 2);
+		int state = luaL_checkint(L, 3);
+		context->styler->SetLineState(line, state);
+		return 0;
+	}
+
+
+	void GetNextChar() {
+		lenCurrent = lenNext;
+		lenNext = 1;
+		int nextPos = currentPos + lenCurrent;
+		unsigned char byteNext = static_cast<unsigned char>(styler->SafeGetCharAt(nextPos));
+		unsigned int nextSlot = (cursorPos + 1) % 3;
+		memcpy(cursor[nextSlot], "\0\0\0\0\0\0\0\0", 8);
+		cursor[nextSlot][0] = byteNext;
+		if (codePage) {
+			if (codePage == CP_UTF8) {
+				if (byteNext >= 0x80) {
+					cursor[nextSlot][1] = styler->SafeGetCharAt(nextPos+1);
+					lenNext = 2;
+					if (byteNext >= 0x80 + 0x40 + 0x20) {
+						lenNext = 3;
+						cursor[nextSlot][2] = styler->SafeGetCharAt(nextPos+2);
+						if (byteNext >= 0x80 + 0x40 + 0x20 + 0x10) {
+							lenNext = 4;
+							cursor[nextSlot][3] = styler->SafeGetCharAt(nextPos+3);
+						}
+					}
+				}
+			} else {
+				if (styler->IsLeadByte(byteNext)) {
+					lenNext = 2;
+					cursor[nextSlot][1] = styler->SafeGetCharAt(nextPos+1);
+				}
+			}
+		}
+
+		// End of line?
+		// Trigger on CR only (Mac style) or either on LF from CR+LF (Dos/Win)
+		// or on LF alone (Unix). Avoid triggering two times on Dos/Win.
+		char ch = cursor[(cursorPos) % 3][0];
+		atLineEnd = (ch == '\r' && cursor[nextSlot][0] != '\n') ||
+					(ch == '\n') ||
+					(currentPos >= endPos);
+	}
+
+	void StartStyling(unsigned int startPos, unsigned int length, int initStyle) {
+		endDoc = styler->Length();
+		endPos = startPos + length;
+		if (endPos == endDoc)
+			endPos = endDoc + 1;
+		currentPos = startPos;
+		atLineStart = true;
+		atLineEnd = false;
+		state = initStyle;
+		cursorPos = 0;
+		lenCurrent = 0;
+		lenNext = 0;
+		memcpy(cursor[0], "\0\0\0\0\0\0\0\0", 8);
+		memcpy(cursor[1], "\0\0\0\0\0\0\0\0", 8);
+		memcpy(cursor[2], "\0\0\0\0\0\0\0\0", 8);
+		styler->StartAt(startPos, static_cast<char>(0xff));
+		styler->StartSegment(startPos);
+
+		GetNextChar();
+		cursorPos++;
+		GetNextChar();
+	}
+
+	static int EndStyling(lua_State *L) {
+		StylingContext *context = Context(L);
+		context->Colourize();
+		return 0;
+	}
+
+	static int StartStyling(lua_State *L) {
+		StylingContext *context = Context(L);
+		unsigned int startPos = luaL_checkint(L, 2);
+		unsigned int length = luaL_checkint(L, 3);
+        int initStyle = luaL_checkint(L, 4);
+		context->StartStyling(startPos, length, initStyle);
+		return 0;
+	}
+
+	static int More(lua_State *L) {
+		StylingContext *context = Context(L);
+		lua_pushboolean(L, context->currentPos < context->endPos);
+		return 1;
+	}
+
+	void Forward() {
+		if (currentPos < endPos) {
+			atLineStart = atLineEnd;
+			currentPos += lenCurrent;
+			cursorPos++;
+			GetNextChar();
+		} else {
+			atLineStart = false;
+			memcpy(cursor[0], "\0\0\0\0\0\0\0\0", 8);
+			memcpy(cursor[1], "\0\0\0\0\0\0\0\0", 8);
+			memcpy(cursor[2], "\0\0\0\0\0\0\0\0", 8);
+			atLineEnd = true;
+		}
+	}
+
+	static int Forward(lua_State *L) {
+		StylingContext *context = Context(L);
+		context->Forward();
+		return 0;
+	}
+
+	static int Position(lua_State *L) {
+		StylingContext *context = Context(L);
+		lua_pushnumber(L, context->currentPos);
+		return 1;
+	}
+
+	static int AtLineStart(lua_State *L) {
+		StylingContext *context = Context(L);
+		lua_pushboolean(L, context->atLineStart);
+		return 1;
+	}
+
+	static int AtLineEnd(lua_State *L) {
+		StylingContext *context = Context(L);
+		lua_pushboolean(L, context->atLineEnd);
+		return 1;
+	}
+
+	static int State(lua_State *L) {
+		StylingContext *context = Context(L);
+		lua_pushnumber(L, context->state);
+		return 1;
+	}
+
+	static int SetState(lua_State *L) {
+		StylingContext *context = Context(L);
+		context->Colourize();
+		context->state = luaL_checkint(L, 2);
+		return 0;
+	}
+
+	static int ForwardSetState(lua_State *L) {
+		StylingContext *context = Context(L);
+		context->Forward();
+		context->Colourize();
+		context->state = luaL_checkint(L, 2);
+		return 0;
+	}
+
+	static int ChangeState(lua_State *L) {
+		StylingContext *context = Context(L);
+		context->state = luaL_checkint(L, 2);
+		return 0;
+	}
+
+	static int Current(lua_State *L) {
+		StylingContext *context = Context(L);
+		lua_pushstring(L, context->cursor[context->cursorPos % 3]);
+		return 1;
+	}
+
+	static int Next(lua_State *L) {
+		StylingContext *context = Context(L);
+		lua_pushstring(L, context->cursor[(context->cursorPos + 1) % 3]);
+		return 1;
+	}
+
+	static int Previous(lua_State *L) {
+		StylingContext *context = Context(L);
+		lua_pushstring(L, context->cursor[(context->cursorPos + 2) % 3]);
+		return 1;
+	}
+
+	static int Token(lua_State *L) {
+		StylingContext *context = Context(L);
+		int start = context->styler->GetStartSegment();
+		int end = context->currentPos - 1;
+		int len = end - start + 1;
+		if (len <= 0)
+			len = 1;
+		char *sReturn = new char[len];
+		for (int i = 0; i < len; i++) {
+			sReturn[i] = context->styler->SafeGetCharAt(start + i);
+		}
+		sReturn[len] = '\0';
+		lua_pushstring(L, sReturn);
+		return 1;
+	}
+
+	bool Match(const char *s) {
+		for (int n=0; *s; n++) {
+			if (*s != styler->SafeGetCharAt(currentPos+n))
+				return false;
+			s++;
+		}
+		return true;
+	}
+
+	static int Match(lua_State *L) {
+		StylingContext *context = Context(L);
+		const char *s = luaL_checkstring(L, 2);
+		lua_pushboolean(L, context->Match(s));
+		return 1;
+	}
+
+	void PushMethod(lua_State *L, lua_CFunction fn, const char *name) {
+		lua_pushlightuserdata(L, this);
+		lua_pushcclosure(L, fn, 1);
+		lua_setfield(luaState, -2, name);
+	}
+};
+
+bool LuaExtension::OnStyle(unsigned int startPos, int lengthDoc, int initStyle, Accessor *styler) {
+	bool handled = false;
+	if (luaState) {
+		lua_getglobal(luaState, "OnStyle");
+		if (lua_isfunction(luaState, -1)) {
+
+			StylingContext sc;
+			sc.startPos = startPos;
+			sc.lengthDoc = lengthDoc;
+			sc.initStyle = initStyle;
+			sc.styler = styler;
+			sc.codePage = host->Send(ExtensionAPI::paneEditor, SCI_GETCODEPAGE);
+
+			lua_newtable(luaState);
+
+			lua_pushstring(luaState, "startPos");
+			lua_pushinteger(luaState, startPos);
+			lua_settable(luaState, -3);
+
+			lua_pushstring(luaState, "lengthDoc");
+			lua_pushinteger(luaState, lengthDoc);
+			lua_settable(luaState, -3);
+
+			lua_pushstring(luaState, "initStyle");
+			lua_pushinteger(luaState, initStyle);
+			lua_settable(luaState, -3);
+
+			lua_pushstring(luaState, "language");
+			lua_pushstring(luaState, host->Property("Language"));
+			lua_settable(luaState, -3);
+
+			sc.PushMethod(luaState, StylingContext::PropertyInt, "PropertyInt");
+			sc.PushMethod(luaState, StylingContext::Line, "Line");
+			sc.PushMethod(luaState, StylingContext::CharAt, "CharAt");
+			sc.PushMethod(luaState, StylingContext::StyleAt, "StyleAt");
+			sc.PushMethod(luaState, StylingContext::LevelAt, "LevelAt");
+			sc.PushMethod(luaState, StylingContext::SetLevelAt, "SetLevelAt");
+			sc.PushMethod(luaState, StylingContext::LineState, "LineState");
+			sc.PushMethod(luaState, StylingContext::SetLineState, "SetLineState");
+
+			sc.PushMethod(luaState, StylingContext::StartStyling, "StartStyling");
+			sc.PushMethod(luaState, StylingContext::EndStyling, "EndStyling");
+			sc.PushMethod(luaState, StylingContext::More, "More");
+			sc.PushMethod(luaState, StylingContext::Forward, "Forward");
+			sc.PushMethod(luaState, StylingContext::Position, "Position");
+			sc.PushMethod(luaState, StylingContext::AtLineStart, "AtLineStart");
+			sc.PushMethod(luaState, StylingContext::AtLineEnd, "AtLineEnd");
+			sc.PushMethod(luaState, StylingContext::State, "State");
+			sc.PushMethod(luaState, StylingContext::SetState, "SetState");
+			sc.PushMethod(luaState, StylingContext::ForwardSetState, "ForwardSetState");
+			sc.PushMethod(luaState, StylingContext::ChangeState, "ChangeState");
+			sc.PushMethod(luaState, StylingContext::Current, "Current");
+			sc.PushMethod(luaState, StylingContext::Next, "Next");
+			sc.PushMethod(luaState, StylingContext::Previous, "Previous");
+			sc.PushMethod(luaState, StylingContext::Token, "Token");
+			sc.PushMethod(luaState, StylingContext::Match, "Match");
+
+			handled = call_function(luaState, 1);
+		} else {
+			lua_pop(luaState, 1);
+		}
+	}
+	return handled;
+}
+
 bool LuaExtension::OnDoubleClick() {
 	return CallNamedFunction("OnDoubleClick");
 }
