@@ -907,7 +907,6 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_INNO_KEYWORD_USER",9},
 	{"SCE_INNO_PARAMETER",3},
 	{"SCE_INNO_PREPROC",5},
-	{"SCE_INNO_PREPROC_INLINE",6},
 	{"SCE_INNO_SECTION",4},
 	{"SCE_INNO_STRING_DOUBLE",10},
 	{"SCE_INNO_STRING_SINGLE",11},
@@ -2610,7 +2609,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 264,
-	ifaceConstantCount = 2037,
+	ifaceConstantCount = 2036,
 	ifacePropertyCount = 169
 };
 
