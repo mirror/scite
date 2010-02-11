@@ -362,7 +362,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 
 void SciTEWin::CopyAsRTF() {
 	Sci_CharacterRange cr = GetSelection();
-	char *fileNameTemp = tmpnam(0);
+	char *fileNameTemp = _tempnam(NULL, "scite-tmp-");
 	if (fileNameTemp) {
 		SaveToRTF(fileNameTemp, cr.cpMin, cr.cpMax);
 		FILE *fp = fopen(fileNameTemp, fileRead);
@@ -384,6 +384,7 @@ void SciTEWin::CopyAsRTF() {
 			fclose(fp);
 		}
 		unlink(fileNameTemp);
+		free(fileNameTemp);
 	}
 }
 
