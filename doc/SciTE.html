@@ -10,15 +10,22 @@
     <meta name="Description"
     content="www.scintilla.org is the home of the Scintilla editing component and SciTE text editor application." />
     <meta name="Date.Modified" content="20100214" />
-    <script>
+    <script type="text/javascript">
    	function IsRemote() {
 		var loc = '' + window.location;
 		return loc.indexOf('http:') != -1;
    	}
    </script>
     <style type="text/css">
-        .versionlist {
-	color: #FFCC99;
+        #versionlist {
+            margin: 0;
+            padding: .5em;
+            list-style-type: none;
+            color: #FFCC99;
+            background: #000000;
+        }
+        #versionlist li {
+            margin-bottom: .5em;
         }
     </style>
     <title>
@@ -36,8 +43,8 @@
           X</font>
         </td>
         <td width="40%" align="right">
-          <span class="versionlist"> Release version 2.03<br />
-           Site last modified February 14 2010</span>
+          <font color="#FFCC99" size="3"> Release version 2.03<br />
+           Site last modified February 14 2010</font>
         </td>
         <td width="20%">
           &nbsp;
@@ -51,36 +58,16 @@
         </td>
       </tr>
     </table>
-    <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="6" border="0">
-      <tr>
-        <td width="100%">
-          <span class="versionlist">Version 2.03 fixed non-responsive UI while running tools on GTK+ and autocompletion
-		lists appearing as a single line.</span>
-        </td>
-      </tr>
-      <tr>
-        <td width="100%">
-          <span class="versionlist">Version 2.02 fixes some problems with rectangular selection.</span>
-        </td>
-      </tr>
-      <tr>
-        <td width="100%">
-          <span class="versionlist">Version 2.01 fixes some problems with multiple selection.</span>
-        </td>
-      </tr>
-      <tr>
-        <td width="100%">
-          <span class="versionlist">Version 2.0 supports multiple selection and virtual space.</span>
-        </td>
-      </tr>
-      <tr>
-        <td width="100%">
-          <span class="versionlist">Version 1.79 allows wrapped lines to be indented to match the
-	  initial line.<br />The tab bar is improved: on GTK+ it can be scrolled when there are many tabs and on Windows
-	  tabs can be reordered by drag and drop.</span>
-        </td>
-      </tr>
-    </table>
+    <ul id="versionlist">
+      <li>Version 2.03 fixed non-responsive UI while running tools on GTK+ and autocompletion
+          lists appearing as a single line.</li>
+      <li>Version 2.02 fixes some problems with rectangular selection.</li>
+      <li>Version 2.01 fixes some problems with multiple selection.</li>
+      <li>Version 2.0 supports multiple selection and virtual space.</li>
+      <li>Version 1.79 allows wrapped lines to be indented to match the initial line.<br />
+          The tab bar is improved: on GTK+ it can be scrolled when there are many tabs and on Windows
+          tabs can be reordered by drag and drop.</li>
+    </ul>
     <table bgcolor="#CCCCCC" width="100%" cellspacing="0" cellpadding="8" border="0">
       <tr>
         <td>
