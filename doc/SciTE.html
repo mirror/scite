@@ -27,6 +27,18 @@
         #versionlist li {
             margin-bottom: .5em;
         }
+        #menu {
+            margin: 0;
+            padding: .5em 0;
+            list-style-type: none;
+            font-size: larger;
+            background: #CCCCCC;
+        }
+        #menu li {
+            margin: 0;
+            padding: 0 .5em;
+            display: inline;
+        }
     </style>
     <title>
       Scintilla and SciTE
@@ -68,38 +80,21 @@
           The tab bar is improved: on GTK+ it can be scrolled when there are many tabs and on Windows
           tabs can be reordered by drag and drop.</li>
     </ul>
-    <table bgcolor="#CCCCCC" width="100%" cellspacing="0" cellpadding="8" border="0">
-      <tr>
-        <td>
-          <font size="4"> <a href="http://www.scintilla.org/SciTEImage.html">Screenshot</a>&nbsp;&nbsp;
+    <ul id="menu">
+      <li><a href="http://www.scintilla.org/SciTEImage.html">Screenshot</a></li>
+      <li id="remote1"><a href="http://www.scintilla.org/SciTEDownload.html">Download</a></li>
+      <li><a href="http://www.scintilla.org/SciTEDoc.html">Documentation</a></li>
+      <li id="remote2"><a href="http://www.scintilla.org/index.html">Scintilla</a></li>
+      <li><a href="http://groups.google.com/group/scite-interest/web/extras">Extras</a></li>
+      <li><a href="http://groups.google.com/group/scite-interest/web/translations">Translations</a></li>
+      <li><a href="http://www.scintilla.org/SciTEFAQ.html">Frequently Asked Questions</a></li>
+    </ul>
 <script type="text/javascript" language="JavaScript"><!--
-if (IsRemote()) {
-    document.write('<a href="http://www.scintilla.org/SciTEDownload.html">Download</a>&nbsp;&nbsp;');
+if (!IsRemote()) { //if NOT remote...
+    document.getElementById('remote1').style.display='none';
+    document.getElementById('remote2').style.display='none';
 }
 //--></script>
-<noscript>
-<a href="http://www.scintilla.org/SciTEDownload.html">Download</a>&nbsp;&nbsp;
-</noscript>
-	  <a href="http://www.scintilla.org/SciTEDoc.html">
-          Documentation</a>&nbsp;&nbsp;
-<script type="text/javascript" language="JavaScript"><!--
-if (IsRemote()) {
-    document.write('<a href="http://www.scintilla.org/index.html">Scintilla</a>&nbsp;&nbsp; ');
-}
-//--></script>
-<noscript>
-<a href="http://www.scintilla.org/index.html">Scintilla</a>&nbsp;&nbsp;
-</noscript>
-	  <a href="http://groups.google.com/group/scite-interest/web/extras">
-          Extras</a>&nbsp;&nbsp;
-	  <a href="http://groups.google.com/group/scite-interest/web/translations">
-          Translations</a>&nbsp;&nbsp;
-	  <a href="http://www.scintilla.org/SciTEFAQ.html">
-          Frequently Asked Questions</a>&nbsp;&nbsp;
-	  </font>
-        </td>
-      </tr>
-    </table>
     <p>
        <a href="http://www.scintilla.org/SciTEDoc.html">SciTE</a> is a SCIntilla based Text Editor. Originally built to
       demonstrate <a href="http://www.scintilla.org">Scintilla</a>, it has grown to be a generally useful editor with facilities for
