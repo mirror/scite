@@ -1349,7 +1349,7 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 		const char *lastdot = strrchr(arg, '.');
 
 		// if the filename is only an extension, open the dialog box with it as the extension filter
-		if (lastslash && lastdot && lastslash == lastdot - 1 || !lastslash && lastdot == arg) {
+		if ((lastslash && lastdot && lastslash == lastdot - 1) || (!lastslash && lastdot == arg)) {
 			isHandled = true;
 
 			char dir[MAX_PATH];
@@ -1366,7 +1366,7 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 			strcat(filename, "*");
 			strcat(filename, lastdot);
 			OpenDialog(FilePath(dir), filename);
-		} else if (!lastdot || lastslash && lastdot < lastslash) {
+		} else if (!lastdot || (lastslash && lastdot < lastslash)) {
 			// if the filename has no extension, try to match a file with list of standard extensions
 			SString extensions = props.GetExpanded("source.default.extensions");
 			if (extensions.length()) {

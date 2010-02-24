@@ -616,7 +616,7 @@ void SciTEWin::Print(
 
 	while (lengthPrinted < lengthDoc) {
 		printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
-		             (pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage));
+		             ((pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage)));
 
 		char pageString[32];
 		sprintf(pageString, "%0d", pageNum);
