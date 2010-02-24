@@ -128,8 +128,8 @@ bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
 }
 
 HINSTANCE SciTEWin::hInstance = 0;
-char *SciTEWin::className = NULL;
-char *SciTEWin::classNameInternal = NULL;
+const char *SciTEWin::className = NULL;
+const char *SciTEWin::classNameInternal = NULL;
 SciTEWin *SciTEWin::app = NULL;
 
 SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
