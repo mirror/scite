@@ -541,7 +541,8 @@ bool FilePath::Matches(const char *pattern) const {
  */
 bool MakeLongPath(const char* shortPath, char* longPath) {
 	// when we have pfnGetLong, we assume it never changes as kernel32 is always loaded
-	static DWORD (STDAPICALLTYPE* pfnGetLong)(const char* lpszShortPath, char* lpszLongPath, DWORD cchBuffer) = NULL;
+	typedef DWORD (STDAPICALLTYPE* GetLongSig)(const char* lpszShortPath, char* lpszLongPath, DWORD cchBuffer);
+	static GetLongSig pfnGetLong = NULL;
 	static bool kernelTried = FALSE;
 	bool ok = FALSE;
 
@@ -552,7 +553,7 @@ bool MakeLongPath(const char* shortPath, char* longPath) {
 		//assert(hModule != NULL); // must not call FreeLibrary on such handle
 
 		// attempt to get GetLongPathName (implemented in Win98/2000 only!)
-		(FARPROC&)pfnGetLong = ::GetProcAddress(hModule, "GetLongPathNameA");
+		pfnGetLong = (GetLongSig)::GetProcAddress(hModule, "GetLongPathNameA");
 	}
 
 	// the kernel GetLongPathName proc is faster and (hopefully) more reliable
