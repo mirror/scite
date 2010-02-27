@@ -8,8 +8,8 @@ rem
 cd ..\..
 set
 set BORLAND_BASE=C:\Borland\bcc55
-set MSDEV_BASE=C:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
-set MSDEV71_BASE=C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
+set MSDEV_BASE=D:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
+set MSDEV71_BASE=D:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
 rem
 rem ************************************************************
 rem Target 1: Borland C++ build
