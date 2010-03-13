@@ -1028,7 +1028,7 @@ void SciTEBase::BraceMatch(bool editor) {
 		}
 
 		if (props.GetInt("highlight.indentation.guides"))
-			Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Platform::Minimum(columnAtCaret, columnOpposite), 0);
+			Platform::SendScintilla(win.GetID(), SCI_SETHIGHLIGHTGUIDE, Minimum(columnAtCaret, columnOpposite), 0);
 	}
 }
 
@@ -1645,8 +1645,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			endPosition = SendEditor(SCI_POSITIONFROMLINE, endLine + 1);
 		} else {
 			for (int i=0; i<countSelections; i++) {
-				startPosition = Platform::Minimum(startPosition, SendEditor(SCI_GETSELECTIONNSTART, i));
-				endPosition = Platform::Maximum(endPosition, SendEditor(SCI_GETSELECTIONNEND, i));
+				startPosition = Minimum(startPosition, SendEditor(SCI_GETSELECTIONNSTART, i));
+				endPosition = Maximum(endPosition, SendEditor(SCI_GETSELECTIONNEND, i));
 			}
 		}
 		if (startPosition == endPosition) {
@@ -4176,8 +4176,8 @@ void SciTEBase::GotoLineEnsureVisible(int line) {
 }
 
 void SciTEBase::EnsureRangeVisible(int posStart, int posEnd, bool enforcePolicy) {
-	int lineStart = SendEditor(SCI_LINEFROMPOSITION, Platform::Minimum(posStart, posEnd));
-	int lineEnd = SendEditor(SCI_LINEFROMPOSITION, Platform::Maximum(posStart, posEnd));
+	int lineStart = SendEditor(SCI_LINEFROMPOSITION, Minimum(posStart, posEnd));
+	int lineEnd = SendEditor(SCI_LINEFROMPOSITION, Maximum(posStart, posEnd));
 	for (int line = lineStart; line <= lineEnd; line++) {
 		SendEditor(enforcePolicy ? SCI_ENSUREVISIBLEENFORCEPOLICY : SCI_ENSUREVISIBLE, line);
 	}

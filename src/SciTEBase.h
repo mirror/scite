@@ -27,6 +27,14 @@ extern const char menuAccessIndicator[];
 
 #define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
+inline int Minimum(int a, int b) {
+	return (a < b) ? a : b;
+}
+
+inline int Maximum(int a, int b) {
+	return (a > b) ? a : b;
+}
+
 /**
  * The order of menus on Windows - the Buffers menu may not be present
  * and there is a Help menu at the end.
