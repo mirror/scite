@@ -1479,9 +1479,9 @@ inline bool KeyMatch(const SString &sKey, int keyval, int modifiers) {
 LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// Look through lexer menu
 	int modifiers =
-	    (Platform::IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
-	    (Platform::IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
-	    (Platform::IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
+	    (IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
+	    (IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
+	    (IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
 
 	if (extender && extender->OnKey(wParam, modifiers))
 		return 1l;

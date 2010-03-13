@@ -297,3 +297,7 @@ public:
 
 	friend class UniqueInstance;
 };
+
+inline bool IsKeyDown(int key) {
+	return (::GetKeyState(key) & 0x80000000) != 0;
+}
