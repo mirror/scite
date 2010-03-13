@@ -216,23 +216,23 @@ int IntFromHexByte(const char *hexByte) {
 	return IntFromHexDigit(hexByte[0]) * 16 + IntFromHexDigit(hexByte[1]);
 }
 
-static long ColourFromString(const SString &s) {
+static Colour ColourFromString(const SString &s) {
 	if (s.length()) {
 		int r = IntFromHexByte(s.c_str() + 1);
 		int g = IntFromHexByte(s.c_str() + 3);
 		int b = IntFromHexByte(s.c_str() + 5);
-		return ColourDesired(r, g, b).AsLong();
+		return ColourRGB(r, g, b);
 	} else {
-		return ColourDesired().AsLong();
+		return 0;
 	}
 }
 
-long ColourOfProperty(PropSetFile &props, const char *key, ColourDesired colourDefault) {
+Colour ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault) {
 	SString colour = props.GetExpanded(key);
 	if (colour.length()) {
 		return ColourFromString(colour);
 	}
-	return colourDefault.AsLong();
+	return colourDefault;
 }
 
 /**
@@ -465,10 +465,10 @@ void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	                 reinterpret_cast<uptr_t>(key), value.c_str());
 }
 
-void SciTEBase::DefineMarker(int marker, int markerType, ColourDesired fore, ColourDesired back) {
+void SciTEBase::DefineMarker(int marker, int markerType, Colour fore, Colour back) {
 	SendEditor(SCI_MARKERDEFINE, marker, markerType);
-	SendEditor(SCI_MARKERSETFORE, marker, fore.AsLong());
-	SendEditor(SCI_MARKERSETBACK, marker, back.AsLong());
+	SendEditor(SCI_MARKERSETFORE, marker, fore);
+	SendEditor(SCI_MARKERSETBACK, marker, back);
 }
 
 static int FileLength(const char *path) {
@@ -783,7 +783,7 @@ void SciTEBase::ReadProperties() {
 	wrapStyle = props.GetInt("wrap.style", SC_WRAP_WORD);
 
 	SendChildren(SCI_SETCARETFORE,
-	           ColourOfProperty(props, "caret.fore", ColourDesired(0, 0, 0)));
+	           ColourOfProperty(props, "caret.fore", ColourRGB(0, 0, 0)));
 
 	SendChildren(SCI_SETMULTIPLESELECTION, props.GetInt("selection.multiple", 1));
 	SendChildren(SCI_SETADDITIONALSELECTIONTYPING, props.GetInt("selection.additional.typing", 1));
@@ -847,7 +847,7 @@ void SciTEBase::ReadProperties() {
 	SendEditor(SCI_SETEDGECOLUMN, props.GetInt("edge.column", 0));
 	SendEditor(SCI_SETEDGEMODE, props.GetInt("edge.mode", EDGE_NONE));
 	SendEditor(SCI_SETEDGECOLOUR,
-	           ColourOfProperty(props, "edge.colour", ColourDesired(0xff, 0xda, 0xda)));
+	           ColourOfProperty(props, "edge.colour", ColourRGB(0xff, 0xda, 0xda)));
 
 	SString selFore = props.Get("selection.fore");
 	if (selFore.length()) {
@@ -862,7 +862,7 @@ void SciTEBase::ReadProperties() {
 		if (selFore.length())
 			SendChildren(SCI_SETSELBACK, 0, 0);
 		else	// Have to show selection somehow
-			SendChildren(SCI_SETSELBACK, 1, ColourDesired(0xC0, 0xC0, 0xC0).AsLong());
+			SendChildren(SCI_SETSELBACK, 1, ColourRGB(0xC0, 0xC0, 0xC0));
 	}
 	int selectionAlpha = allowAlpha ? props.GetInt("selection.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA;
 	SendChildren(SCI_SETSELALPHA, selectionAlpha);
@@ -1113,55 +1113,55 @@ void SciTEBase::ReadProperties() {
 	case 0:
 		// Arrow pointing right for contracted folders, arrow pointing down for expanded
 		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN,
-		             ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
+		             ColourRGB(0, 0, 0), ColourRGB(0, 0, 0));
 		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_ARROW,
-		             ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
+		             ColourRGB(0, 0, 0), ColourRGB(0, 0, 0));
 		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY,
-		             ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
+		             ColourRGB(0, 0, 0), ColourRGB(0, 0, 0));
 		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY,
-		             ColourDesired(0, 0, 0), ColourDesired(0, 0, 0));
+		             ColourRGB(0, 0, 0), ColourRGB(0, 0, 0));
 		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY,
-		             ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
 		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY,
-		             ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
 		break;
 	case 1:
 		// Plus for contracted folders, minus for expanded
-		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_MINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_PLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
-		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_MINUS, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_PLUS, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
+		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0));
 		break;
 	case 2:
 		// Like a flattened tree control using circular headers and curved joins
-		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNERCURVE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_CIRCLEPLUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
-		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNERCURVE, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_CIRCLEPLUSCONNECTED, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40));
+		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40));
 		break;
 	case 3:
 		// Like a flattened tree control using square headers
-		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
-		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER, ColourDesired(0xff, 0xff, 0xff), ColourDesired(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80));
+		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER, ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80));
 		break;
 	}
 
 	SendEditor(SCI_MARKERSETFORE, markerBookmark,
-	           ColourOfProperty(props, "bookmark.fore", ColourDesired(0, 0, 0x7f)));
+	           ColourOfProperty(props, "bookmark.fore", ColourRGB(0, 0, 0x7f)));
 	SendEditor(SCI_MARKERSETBACK, markerBookmark,
-	           ColourOfProperty(props, "bookmark.back", ColourDesired(0x80, 0xff, 0xff)));
+	           ColourOfProperty(props, "bookmark.back", ColourRGB(0x80, 0xff, 0xff)));
 	SendEditor(SCI_MARKERSETALPHA,
 		allowAlpha ? props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA);
 	SString bookMarkXPM = props.Get("bookmark.pixmap");

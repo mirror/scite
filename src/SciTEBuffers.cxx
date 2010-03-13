@@ -1721,9 +1721,9 @@ void SciTEBase::GoMessage(int dir) {
 			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
 			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			SendOutput(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
-			        "error.marker.fore", ColourDesired(0x7f, 0, 0)));
+			        "error.marker.fore", ColourRGB(0x7f, 0, 0)));
 			SendOutput(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
-			        "error.marker.back", ColourDesired(0xff, 0xff, 0)));
+			        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 			SendOutput(SCI_MARKERADD, lookLine, 0);
 			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
 			SString message = GetRange(wOutput, startPosLine, startPosLine + lineLength);
@@ -1782,9 +1782,9 @@ void SciTEBase::GoMessage(int dir) {
 				SendEditor(SCI_MARKERDELETEALL, 0);
 				SendEditor(SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
 				SendEditor(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
-				        "error.marker.fore", ColourDesired(0x7f, 0, 0)));
+				        "error.marker.fore", ColourRGB(0x7f, 0, 0)));
 				SendEditor(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
-				        "error.marker.back", ColourDesired(0xff, 0xff, 0)));
+				        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 				SendEditor(SCI_MARKERADD, sourceLine, 0);
 				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
 				int endSourceline = SendEditor(SCI_POSITIONFROMLINE, sourceLine + 1, 0);

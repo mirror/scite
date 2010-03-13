@@ -39,6 +39,11 @@ inline long LongFromTwoShorts(short a,short b) {
 	return (a) | ((b) << 16);
 }
 
+typedef long Colour;
+inline Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue) {
+	return red | (green << 8) | (blue << 16);
+}
+
 /**
  * The order of menus on Windows - the Buffers menu may not be present
  * and there is a Help menu at the end.
@@ -836,7 +841,7 @@ protected:
 	SString ExtensionFileName();
 	const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
-	void DefineMarker(int marker, int markerType, ColourDesired fore, ColourDesired back);
+	void DefineMarker(int marker, int markerType, Colour fore, Colour back);
 	void ReadAPI(const SString &fileNameForExtension);
 	SString FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
@@ -932,7 +937,7 @@ const int blockSize = 131072;
 
 int ControlIDOfCommand(unsigned long);
 void LowerCaseString(char *s);
-long ColourOfProperty(PropSetFile &props, const char *key, ColourDesired colourDefault);
+long ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault);
 char *Slash(const char *s, bool quoteQuotes);
 unsigned int UnSlash(char *s);
 void WindowSetFocus(Window &w);

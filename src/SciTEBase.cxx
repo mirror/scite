@@ -340,8 +340,8 @@ void AddStyledText(WindowID hwnd, const char *s, int attr) {
 	        static_cast<int>(len*2), const_cast<char *>(buf));
 }
 
-void SetAboutStyle(WindowID wsci, int style, ColourDesired fore) {
-	Platform::SendScintilla(wsci, SCI_STYLESETFORE, style, fore.AsLong());
+void SetAboutStyle(WindowID wsci, int style, Colour fore) {
+	Platform::SendScintilla(wsci, SCI_STYLESETFORE, style, fore);
 }
 
 static void HackColour(int &n) {
@@ -617,18 +617,18 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		Platform::SendScintilla(wsci, SCI_SETCODEPAGE, SC_CP_UTF8, 0);
 
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
-		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, ColourDesired(0xff, 0xff, 0xff).AsLong());
+		Platform::SendScintilla(wsci, SCI_STYLESETBACK, STYLE_DEFAULT, ColourRGB(0xff, 0xff, 0xff));
 		Platform::SendScintilla(wsci, SCI_STYLECLEARALL, 0, 0);
 
-		SetAboutStyle(wsci, 0, ColourDesired(0xff, 0xff, 0xff));
+		SetAboutStyle(wsci, 0, ColourRGB(0xff, 0xff, 0xff));
 		Platform::SendScintilla(wsci, SCI_STYLESETSIZE, 0, fontSize);
-		Platform::SendScintilla(wsci, SCI_STYLESETBACK, 0, ColourDesired(0, 0, 0x80).AsLong());
+		Platform::SendScintilla(wsci, SCI_STYLESETBACK, 0, ColourRGB(0, 0, 0x80));
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
-		SetAboutStyle(wsci, 1, ColourDesired(0, 0, 0));
+		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
 		int trsSty = 5; // define the stylenumber to assign font for translators.
 		SString translator = GetTranslationToAbout("TranslationCredit", false);
-		SetAboutStyle(wsci, trsSty, ColourDesired(0, 0, 0));
+		SetAboutStyle(wsci, trsSty, ColourRGB(0, 0, 0));
 #if PLAT_WIN
 		// On Windows Me (maybe 9x also), we must assign another font to display translation.
 		if (translator.length()) {
@@ -646,13 +646,13 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
 		AddStyledText(wsci, " 2.03\n", 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
-		SetAboutStyle(wsci, 2, ColourDesired(0, 0, 0));
+		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
 		Platform::SendScintilla(wsci, SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
 		AddStyledText(wsci, " Neil Hodgson.\n", 2);
-		SetAboutStyle(wsci, 3, ColourDesired(0, 0, 0));
+		SetAboutStyle(wsci, 3, ColourRGB(0, 0, 0));
 		AddStyledText(wsci, "December 1998-February 2010.\n", 3);
-		SetAboutStyle(wsci, 4, ColourDesired(0, 0x7f, 0x7f));
+		SetAboutStyle(wsci, 4, ColourRGB(0, 0x7f, 0x7f));
 		AddStyledText(wsci, "http://www.scintilla.org\n", 4);
 		AddStyledText(wsci, "Lua scripting language by TeCGraf, PUC-Rio\n", 3);
 		AddStyledText(wsci, "    http://www.lua.org\n", 4);
@@ -674,7 +674,7 @@ void SciTEBase::SetAboutMessage(WindowID wsci, const char *appTitle) {
 			HackColour(r);
 			HackColour(g);
 			HackColour(b);
-			SetAboutStyle(wsci, sty + 50, ColourDesired(r, g, b));
+			SetAboutStyle(wsci, sty + 50, ColourRGB(r, g, b));
 		}
 		Platform::SendScintilla(wsci, SCI_SETREADONLY, 1, 0);
 	}
