@@ -702,7 +702,7 @@ StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 
 void SciTEBase::AssignKey(int key, int mods, int cmd) {
 	SendEditor(SCI_ASSIGNCMDKEY,
-	        Platform::LongFromTwoShorts(static_cast<short>(key),
+	        LongFromTwoShorts(static_cast<short>(key),
 	                static_cast<short>(mods)), cmd);
 }
 

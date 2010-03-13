@@ -35,6 +35,10 @@ inline int Maximum(int a, int b) {
 	return (a > b) ? a : b;
 }
 
+inline long LongFromTwoShorts(short a,short b) {
+	return (a) | ((b) << 16);
+}
+
 /**
  * The order of menus on Windows - the Buffers menu may not be present
  * and there is a Help menu at the end.
