@@ -1848,7 +1848,7 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				PRectangle rcScintilla = wEditor.GetPosition();
 				PRectangle rcOutput = wOutput.GetPosition();
 				if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
-					wSciTE.SetCursor(splitVertical ? Window::cursorHoriz : Window::cursorVert);
+					::SetCursor(::LoadCursor(NULL, splitVertical ? IDC_SIZEWE : IDC_SIZENS));
 					return TRUE;
 				}
 			}
