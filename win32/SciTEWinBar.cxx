@@ -839,40 +839,42 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 				        TabCtrl_GetItemRect(hWnd, tab, &tabrc)) {
 
 					HDC hDC = ::GetDC(hWnd);
-					Surface *surfaceWindow = Surface::Allocate();
-					if (surfaceWindow) {
-						surfaceWindow->Init(hDC, hWnd);
+					if (hDC) {
 
 						int xLeft = tabrc.left + 8;
 						int yLeft = tabrc.top + (tabrc.bottom - tabrc.top) / 2;
-						Point ptsLeftArrow[] = {
-							Point(xLeft, yLeft - 2),
-							Point(xLeft - 2, yLeft - 2),
-							Point(xLeft - 2, yLeft - 5),
-							Point(xLeft - 7, yLeft),
-							Point(xLeft - 2, yLeft + 5),
-							Point(xLeft - 2, yLeft + 2),
-							Point(xLeft, yLeft + 2)
+						POINT ptsLeftArrow[] = {
+							{xLeft, yLeft - 2},
+							{xLeft - 2, yLeft - 2},
+							{xLeft - 2, yLeft - 5},
+							{xLeft - 7, yLeft},
+							{xLeft - 2, yLeft + 5},
+							{xLeft - 2, yLeft + 2},
+							{xLeft, yLeft + 2}
 						};
 
 						int xRight = tabrc.right - 10;
 						int yRight = tabrc.top + (tabrc.bottom - tabrc.top) / 2;
-						Point ptsRightArrow[] = {
-							Point(xRight, yRight - 2),
-							Point(xRight + 2, yRight - 2),
-							Point(xRight + 2, yRight - 5),
-							Point(xRight + 7, yRight),
-							Point(xRight + 2, yRight + 5),
-							Point(xRight + 2, yRight + 2),
-							Point(xRight, yRight + 2)
+						POINT ptsRightArrow[] = {
+							{xRight, yRight - 2},
+							{xRight + 2, yRight - 2},
+							{xRight + 2, yRight - 5},
+							{xRight + 7, yRight},
+							{xRight + 2, yRight + 5},
+							{xRight + 2, yRight + 2},
+							{xRight, yRight + 2}
 						};
 
-						surfaceWindow->Polygon(tab < st_iDraggingTab ? ptsLeftArrow : ptsRightArrow,
-						        7,
-						        ColourAllocated(RGB(255, 0, 0)),
-						        ColourAllocated(RGB(255, 0, 0)));
-						surfaceWindow->Release();
-						delete surfaceWindow;
+						HPEN pen = ::CreatePen(0,1,RGB(255, 0, 0));
+						HPEN penOld = static_cast<HPEN>(::SelectObject(hDC, pen));
+						COLORREF colourNearest = ::GetNearestColor(hDC, RGB(255, 0, 0));
+						HBRUSH brush = ::CreateSolidBrush(colourNearest);
+						HBRUSH brushOld = static_cast<HBRUSH>(::SelectObject(hDC, brush));
+						::Polygon(hDC, tab < st_iDraggingTab ? ptsLeftArrow : ptsRightArrow, 7);
+						::SelectObject(hDC, brushOld);
+						::DeleteObject(brush);
+						::SelectObject(hDC, penOld);
+						::DeleteObject(pen);
 					}
 					::ReleaseDC(hWnd, hDC);
 				}

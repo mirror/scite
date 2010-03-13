@@ -272,7 +272,7 @@ public:
 	virtual void StopExecute();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input = "", int flags=0);
 
-	void Paint(Surface *surfaceWindow, PRectangle rcPaint);
+	void Paint(HDC hDC, PRectangle rcPaint);
 	void Creation();
 	LRESULT KeyDown(WPARAM wParam);
 	LRESULT KeyUp(WPARAM wParam);

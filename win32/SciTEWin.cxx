@@ -1245,9 +1245,8 @@ void SciTEWin::Run(const char *cmdLine) {
 /**
  * Draw the split bar.
  */
-void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
+void SciTEWin::Paint(HDC hDC, PRectangle) {
 	PRectangle rcInternal = GetClientRectangle();
-	//surfaceWindow->FillRectangle(rcInternal, Colour(0xff,0x80,0x80));
 
 	int heightClient = rcInternal.Height();
 	int widthClient = rcInternal.Width();
@@ -1256,21 +1255,25 @@ void SciTEWin::Paint(Surface *surfaceWindow, PRectangle) {
 	int yBorder = heightEditor;
 	int xBorder = widthClient - heightOutput - heightBar;
 	for (int i = 0; i < heightBar; i++) {
+		HPEN pen;
 		if (i == 1)
-			surfaceWindow->PenColour(GetSysColor(COLOR_3DHIGHLIGHT));
+			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DHIGHLIGHT));
 		else if (i == heightBar - 2)
-			surfaceWindow->PenColour(GetSysColor(COLOR_3DSHADOW));
+			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DSHADOW));
 		else if (i == heightBar - 1)
-			surfaceWindow->PenColour(GetSysColor(COLOR_3DDKSHADOW));
+			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DDKSHADOW));
 		else
-			surfaceWindow->PenColour(GetSysColor(COLOR_3DFACE));
+			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DFACE));
+		HPEN penOld = static_cast<HPEN>(::SelectObject(hDC, pen));
 		if (splitVertical) {
-			surfaceWindow->MoveTo(xBorder + i, 0);
-			surfaceWindow->LineTo(xBorder + i, heightClient);
+			::MoveToEx(hDC, xBorder + i, 0, 0);
+			::LineTo(hDC, xBorder + i, heightClient);
 		} else {
-			surfaceWindow->MoveTo(0, yBorder + i);
-			surfaceWindow->LineTo(widthClient, yBorder + i);
+			::MoveToEx(hDC, 0, yBorder + i, 0);
+			::LineTo(hDC, widthClient, yBorder + i);
 		}
+		::SelectObject(hDC, penOld);
+		::DeleteObject(pen);
 	}
 }
 
@@ -1793,14 +1796,18 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_PAINT: {
 			PAINTSTRUCT ps;
 			::BeginPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
+			PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+			Paint(ps.hdc, rcPaint);
+#ifdef WIN
 			Surface *surfaceWindow = Surface::Allocate();
 			if (surfaceWindow) {
 				surfaceWindow->Init(ps.hdc, wContent.GetID());
 				PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
-				Paint(surfaceWindow, rcPaint);
+				Paint(ps.hdc, rcPaint);
 				surfaceWindow->Release();
 				delete surfaceWindow;
 			}
+#endif
 			::EndPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
 			return 0;
 		}
