@@ -1553,9 +1553,9 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 		// Caused by keyboard so display menu near caret
 		if (wOutput.HasFocus())
 			w = &wOutput;
-		int position = CallFocused(SCI_GETCURRENTPOS);
-		pt.x = CallFocused(SCI_POINTXFROMPOSITION, 0, position);
-		pt.y = CallFocused(SCI_POINTYFROMPOSITION, 0, position);
+		int position = w->Call(SCI_GETCURRENTPOS);
+		pt.x = w->Call(SCI_POINTXFROMPOSITION, 0, position);
+		pt.y = w->Call(SCI_POINTYFROMPOSITION, 0, position);
 		POINT spt = {pt.x, pt.y};
 		::ClientToScreen(static_cast<HWND>(w->GetID()), &spt);
 		pt = GUI::Point(spt.x, spt.y);

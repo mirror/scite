@@ -1021,10 +1021,10 @@ void SciTEBase::GetCTag(char *sel, int len) {
 	int lengthDoc, selStart, selEnd;
 	int mustStop = 0;
 	char c;
-	GUI::ScintillaWindow &wCurrent = wEditor.HasFocus() ? wEditor : wOutput;
+	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
 
-	lengthDoc = CallFocused(SCI_GETLENGTH);
-	selStart = selEnd = CallFocused(SCI_GETSELECTIONEND);
+	lengthDoc = wCurrent.Call(SCI_GETLENGTH);
+	selStart = selEnd = wCurrent.Call(SCI_GETSELECTIONEND);
 	TextReader acc(wCurrent);
 	while (!mustStop) {
 		if (selStart < lengthDoc - 1) {
@@ -1162,19 +1162,19 @@ SString SciTEBase::SelectionExtend(
     bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
     bool stripEol /*=true*/) {
 
-	GUI::ScintillaWindow &wCurrent = wEditor.HasFocus() ? wEditor : wOutput;
+	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
 
-	int selStart = CallFocused(SCI_GETSELECTIONSTART);
-	int selEnd = CallFocused(SCI_GETSELECTIONEND);
+	int selStart = wCurrent.Call(SCI_GETSELECTIONSTART);
+	int selEnd = wCurrent.Call(SCI_GETSELECTIONEND);
 	return RangeExtendAndGrab(wCurrent, selStart, selEnd, ischarforsel, stripEol);
 }
 
 void SciTEBase::FindWordAtCaret(int &start, int &end) {
 
-	GUI::ScintillaWindow &wCurrent = wEditor.HasFocus() ? wEditor : wOutput;
+	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
 
-	start = CallFocused(SCI_GETSELECTIONSTART);
-	end = CallFocused(SCI_GETSELECTIONEND);
+	start = wCurrent.Call(SCI_GETSELECTIONSTART);
+	end = wCurrent.Call(SCI_GETSELECTIONEND);
 	// Call just to update start & end
 	RangeExtendAndGrab(wCurrent, start, end, &SciTEBase::iswordcharforsel, false);
 }
