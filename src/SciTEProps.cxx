@@ -87,7 +87,6 @@ void SciTEBase::SetImportMenu() {
 }
 
 void SciTEBase::ImportMenu(int pos) {
-	//Platform::DebugPrintf("Stack menu %d\n", pos);
 	if (pos >= 0) {
 		if (importFiles[pos].IsSet()) {
 			Open(importFiles[pos]);
@@ -191,9 +190,7 @@ void SciTEBase::ReadLocalPropFile() {
 
 	propsLocal.Clear();
 	propsLocal.Read(propfile, propfile.Directory());
-	//Platform::DebugPrintf("Reading local properties from %s\n", propfile);
 
-	// TODO: Grab these from Platform and update when environment says to
 	props.Set("Chrome", "#C0C0C0");
 	props.Set("ChromeHighlight", "#FFFFFF");
 }
@@ -277,7 +274,6 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 		return false;
 	}
 	char *val = StringDup(definition);
-	//Platform::DebugPrintf("Style %d is [%s]\n", style, val);
 	char *opt = val;
 	while (opt) {
 		// Find attribute separator

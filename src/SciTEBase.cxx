@@ -965,7 +965,6 @@ void SciTEBase::BraceMatch(bool editor) {
 			int indentSize = win.Send(SCI_GETINDENT);
 			if (columnAtCaretNext - indentSize > 1)
 				columnAtCaret = columnAtCaretNext - indentSize;
-			//Platform::DebugPrintf(": %d %d %d\n", lineStart, indentPos, columnAtCaret);
 			if (columnOpposite == 0)	// If the final line of the structure is empty
 				columnOpposite = columnAtCaret;
 		}
@@ -1671,7 +1670,6 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 		return replacements;
 	}
 	return 0;
-	//Platform::DebugPrintf("ReplaceAll <%s> -> <%s>\n", findWhat, replaceWhat);
 }
 
 int SciTEBase::ReplaceAll(bool inSelection) {
@@ -1980,7 +1978,6 @@ bool SciTEBase::StartCallTip() {
 	line.change(current, '\0');
 	currentCallTipWord = line.c_str() + startCalltipWord;
 	functionDefinition = "";
-	//Platform::DebugPrintf("word  is [%s] %d %d %d\n", currentCallTipWord.c_str(), currentCallTipWord.length(), pos, pos - rootlen);
 	FillFunctionDefinition(pos);
 	return true;
 }
@@ -4005,7 +4002,6 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 }
 
 void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
-	//Platform::DebugPrintf("Fold %d %x->%x\n", line, levelPrev, levelNow);
 	if (levelNow & SC_FOLDLEVELHEADERFLAG) {
 		if (!(levelPrev & SC_FOLDLEVELHEADERFLAG)) {
 			// Adding a fold point.
@@ -4013,7 +4009,6 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 			Expand(line, true, false, 0, levelPrev);
 		}
 	} else if (levelPrev & SC_FOLDLEVELHEADERFLAG) {
-		//Platform::DebugPrintf("Fold removed %d-%d\n", line, wEditor.Call(SCI_GETLASTCHILD, line));
 		if (!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
 			// Removing the fold from one that has been contracted so should expand
 			// otherwise lines are left invisible with no way to make them visible
@@ -4114,8 +4109,6 @@ void SciTEBase::EnsureRangeVisible(int posStart, int posEnd, bool enforcePolicy)
 
 bool SciTEBase::MarginClick(int position, int modifiers) {
 	int lineClick = wEditor.Call(SCI_LINEFROMPOSITION, position);
-	//Platform::DebugPrintf("Margin click %d %d %x\n", position, lineClick,
-	//	wEditor.Call(SCI_GETFOLDLEVEL, lineClick) & SC_FOLDLEVELHEADERFLAG);
 	if ((modifiers & SCMOD_SHIFT) && (modifiers & SCMOD_CTRL)) {
 		FoldAll();
 	} else {
@@ -4179,7 +4172,6 @@ void SciTEBase::NewLineInOutput() {
 
 void SciTEBase::Notify(SCNotification *notification) {
 	bool handled = false;
-	//Platform::DebugPrintf("Notify %d\n", notification->nmhdr.code);
 	switch (notification->nmhdr.code) {
 	case SCEN_SETFOCUS:
 	case SCEN_KILLFOCUS:

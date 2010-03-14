@@ -219,7 +219,6 @@ void BufferList::ShiftTo(int indexFrom, int indexTo) {
 
 sptr_t SciTEBase::GetDocumentAt(int index) {
 	if (index < 0 || index >= buffers.size) {
-		//Platform::DebugPrintf("SciTEBase::GetDocumentAt: Index out of range.\n");
 		return 0;
 	}
 	if (buffers.buffers[index].doc == 0) {
@@ -296,7 +295,6 @@ void SciTEBase::UpdateBuffersCurrent() {
 		f->Clear();
 
 		if (foldPoints > 0) {
-			// Platform::DebugPrintf("Retrieving %d fold points and storing them...", foldPoints);
 
 			f->Alloc(foldPoints);
 
@@ -943,7 +941,6 @@ void SciTEBase::SetFileStackMenu() {
 	if (recentFileStack[0].IsSet()) {
 		SetMenuItem(menuFile, MRU_START, IDM_MRU_SEP, "");
 		for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
-			//Platform::DebugPrintf("Setfile %d %s\n", stackPos, recentFileStack[stackPos].fileName.c_str());
 			int itemID = fileStackCmdID + stackPos;
 			if (recentFileStack[stackPos].IsSet()) {
 				char entry[MAX_PATH + 20];
@@ -1086,7 +1083,6 @@ void SciTEBase::StackMenuPrev() {
 }
 
 void SciTEBase::StackMenu(int pos) {
-	//Platform::DebugPrintf("Stack menu %d\n", pos);
 	if (CanMakeRoom(true)) {
 		if (pos >= 0) {
 			if ((pos == 0) && (!recentFileStack[pos].IsSet())) {	// Empty
@@ -1096,7 +1092,6 @@ void SciTEBase::StackMenu(int pos) {
 				SetIndentSettings();
 			} else if (recentFileStack[pos].IsSet()) {
 				RecentFile rf = recentFileStack[pos];
-				//Platform::DebugPrintf("Opening pos %d %s\n",recentFileStack[pos].lineNumber,recentFileStack[pos].fileName);
 				// Already asked user so don't allow Open to ask again.
 				Open(rf, ofNoSaveIfDirty);
 				DisplayAround(rf);
@@ -1706,14 +1701,12 @@ void SciTEBase::GoMessage(int dir) {
 	while ((dir == 0) || (lookLine != curLine)) {
 		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, lookLine, 0);
 		int lineLength = wOutput.Call(SCI_LINELENGTH, lookLine, 0);
-		//Platform::DebugPrintf("GOMessage %d %d %d of %d linestart = %d\n", selStart, curLine, lookLine, maxLine, startPosLine);
 		char style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
 		        style != SCE_ERR_CMD &&
 		        style != SCE_ERR_DIFF_ADDITION &&
 		        style != SCE_ERR_DIFF_CHANGED &&
 		        style != SCE_ERR_DIFF_DELETION) {
-			//Platform::DebugPrintf("Marker to %d\n", lookLine);
 			wOutput.Call(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
 			wOutput.Call(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
 			wOutput.Call(SCI_MARKERSETFORE, 0, ColourOfProperty(props,

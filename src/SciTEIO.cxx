@@ -460,7 +460,6 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		}
 	}
 
-	//Platform::DebugPrintf("Opening %s\n", file);
 	SetFileName(absPath);
 	CurrentBuffer()->overrideExtension = "";
 	ReadProperties();
@@ -624,7 +623,6 @@ void SciTEBase::CheckReload() {
 	if (props.GetInt("load.on.activate")) {
 		// Make a copy of fullPath as otherwise it gets aliased in Open
 		time_t newModTime = filePath.ModifiedTime();
-		//Platform::DebugPrintf("Times are %d %d\n", CurrentBuffer()->fileModTime, newModTime);
 		if ((newModTime != 0) && (newModTime != CurrentBuffer()->fileModTime)) {
 			RecentFile rf = GetFilePosition();
 			OpenFlags of = props.GetInt("reload.preserves.undo") ? ofPreserveUndo : ofNone;

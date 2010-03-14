@@ -573,7 +573,6 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
 	char buffer[16384];
-	//Platform::DebugPrintf("Execute <%s>\n", command);
 	OutputAppendStringSynchronised(">");
 	OutputAppendStringSynchronised(jobToRun.command.c_str());
 	OutputAppendStringSynchronised("\n");
@@ -596,7 +595,6 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
 	::CreatePipe(&hPipeRead, &hPipeWrite, &sa, 0);
 
-	//Platform::DebugPrintf("2Execute <%s>\n");
 	// Create pipe for input redirection. In this code, you do not
 	// redirect the output of the child process, but you need a handle
 	// to set the hStdInput field in the STARTUP_INFO struct. For safety,
@@ -611,7 +609,6 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	::SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
 	::SetHandleInformation(hWriteSubProcess, HANDLE_FLAG_INHERIT, 0);
 
-	//Platform::DebugPrintf("3Execute <%s>\n");
 	// Make child process use hPipeWrite as standard out, and make
 	// sure it does not show on screen.
 	STARTUPINFO si = {
@@ -1579,7 +1576,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	int statusFailure = 0;
 	static int boxesVisible = 0;
 	try {
-		//Platform::DebugPrintf("start wnd proc %x %x\n",iMessage, MainHWND());
 		LRESULT uim = uniqueInstance.CheckMessage(iMessage, wParam, lParam);
 		if (uim != 0) {
 			return uim;
@@ -1629,7 +1625,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return KeyUp(wParam);
 
 		case WM_SIZE:
-			//Platform::DebugPrintf("size %d %x %x\n",iMessage, wParam, lParam);
 			if (wParam != 1)
 				SizeSubWindows();
 			break;
@@ -1674,19 +1669,16 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_SETTINGCHANGE:
-			//Platform::DebugPrintf("** Setting Changed\n");
 			wEditor.Call(WM_SETTINGCHANGE, wParam, lParam);
 			wOutput.Call(WM_SETTINGCHANGE, wParam, lParam);
 			break;
 
 		case WM_SYSCOLORCHANGE:
-			//Platform::DebugPrintf("** Color Changed\n");
 			wEditor.Call(WM_SYSCOLORCHANGE, wParam, lParam);
 			wOutput.Call(WM_SYSCOLORCHANGE, wParam, lParam);
 			break;
 
 		case WM_PALETTECHANGED:
-			//Platform::DebugPrintf("** Palette Changed\n");
 			if (wParam != reinterpret_cast<WPARAM>(MainHWND())) {
 				wEditor.Call(WM_PALETTECHANGED, wParam, lParam);
 				//wOutput.Call(WM_PALETTECHANGED, wParam, lParam);
@@ -1695,7 +1687,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_QUERYNEWPALETTE:
-			//Platform::DebugPrintf("** Query palette\n");
 			wEditor.Call(WM_QUERYNEWPALETTE, wParam, lParam);
 			//wOutput.Call(WM_QUERYNEWPALETTE, wParam, lParam);
 			return TRUE;
@@ -1707,7 +1698,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_ACTIVATE:
-			//Platform::DebugPrintf("Focus: w:%x l:%x %x e=%x o=%x\n", wParam, lParam, ::GetFocus(), wEditor.GetID(), wOutput.GetID());
 			if (wParam != WA_INACTIVE) {
 				::SetFocus(wFocus);
 			}
@@ -1721,10 +1711,8 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
 
 		default:
-			//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
 			return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 		}
-		//Platform::DebugPrintf("end wnd proc\n");
 	} catch (GUI::ScintillaFailure &sf) {
 		statusFailure = sf.status;
 	}
@@ -1762,7 +1750,6 @@ static void SetWindowPointer(HWND hWnd, void *ptr) {
 
 LRESULT PASCAL SciTEWin::TWndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
 
 	// Find C++ object associated with window.
 	SciTEWin *scite = reinterpret_cast<SciTEWin *>(PointerFromWindow(hWnd));
@@ -1806,7 +1793,6 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		capturedMouse = true;
 		heightOutputStartDrag = heightOutput;
 		::SetCapture(reinterpret_cast<HWND>(wContent.GetID()));
-		//Platform::DebugPrintf("Click %x %x\n", wParam, lParam);
 		break;
 
 	case WM_MOUSEMOVE:
@@ -1845,11 +1831,9 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 
 	default:
-		//Platform::DebugPrintf("default wnd proc %x %d %d\n",iMessage, wParam, lParam);
 		return ::DefWindowProc(reinterpret_cast<HWND>(wContent.GetID()),
 		                       iMessage, wParam, lParam);
 	}
-	//Platform::DebugPrintf("end wnd proc\n");
 	} catch (...) {
 	}
 	return 0l;
@@ -1857,8 +1841,6 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 LRESULT PASCAL SciTEWin::IWndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	//Platform::DebugPrintf("W:%x M:%d WP:%x L:%x\n", hWnd, iMessage, wParam, lParam);
-
 	// Find C++ object associated with window.
 	SciTEWin *scite = reinterpret_cast<SciTEWin *>(::PointerFromWindow(hWnd));
 	// scite will be zero if WM_CREATE not seen yet
@@ -1996,7 +1978,6 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	multiExtender.RegisterExtension(DirectorExtension::Instance());
 #endif
 #endif
-	//Platform::DebugPrintf("Command line is \n%s\n<<", lpszCmdLine);
 
 	SciTEWin::Register(hInstance);
 #ifdef STATIC_BUILD

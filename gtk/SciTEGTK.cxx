@@ -1052,15 +1052,12 @@ void SciTEGTK::CheckAMenuItem(int wIDCheckItem, bool val) {
 	allowMenuActions = false;
 	if (item)
 		gtk_check_menu_item_set_state(GTK_CHECK_MENU_ITEM(item), val ? TRUE : FALSE);
-	//else
-	//	Platform::DebugPrintf("Could not find %x\n", wIDCheckItem);
 	allowMenuActions = true;
 }
 
 void SciTEGTK::EnableAMenuItem(int wIDCheckItem, bool val) {
 	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, wIDCheckItem);
 	if (item) {
-		//Platform::DebugPrintf("Set %d to %d\n", wIDCheckItem, val);
 		if (GTK_IS_WIDGET(item))
 			gtk_widget_set_sensitive(item, val);
 	}
@@ -2228,7 +2225,6 @@ void SciTEGTK::QuitProgram() {
 }
 
 gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation * /*allocation*/, SciTEGTK *scitew) {
-	//Platform::DebugPrintf("SciTEGTK move resize %d %d\n", allocation->width, allocation->height);
 	scitew->SizeSubWindows();
 	return TRUE;
 }
@@ -2243,19 +2239,16 @@ void SciTEGTK::ButtonSignal(GtkWidget *, gpointer data) {
 }
 
 void SciTEGTK::MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *) {
-	//Platform::DebugPrintf("action %d %x \n", action, w);
 	if (scitew->allowMenuActions)
 		scitew->Command(action);
 }
 
 void SciTEGTK::CommandSignal(GtkWidget *, gint wParam, gpointer lParam, SciTEGTK *scitew) {
 
-	//Platform::DebugPrintf("Command: %x %x %x\n", w, wParam, lParam);
 	scitew->Command(wParam, reinterpret_cast<long>(lParam));
 }
 
 void SciTEGTK::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciTEGTK *scitew) {
-	//Platform::DebugPrintf("Notify: %x %x %x\n", w, wParam, lParam);
 	scitew->Notify(reinterpret_cast<SCNotification *>(lParam));
 }
 

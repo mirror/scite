@@ -287,7 +287,6 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const c
 bool SciTEWin::SaveAsDialog() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Save File");
 	if (path.IsSet()) {
-		//Platform::DebugPrintf("Save: <%s>\n", openName);
 		SaveIfNotOpen(path, false);
 		return true;
 	}
@@ -809,7 +808,6 @@ public:
 		::SendMessage(combo, CB_RESETCONTENT, 0, 0);
 		if (::IsWindowUnicode(combo)) {
 			for (int i = 0; i < mem.Length(); i++) {
-				//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
 				WCHAR wszBuf[CTL_TEXT_BUF];
 				::MultiByteToWideChar(CP_UTF8, 0, mem.At(i).c_str(), -1, wszBuf,
 						    CTL_TEXT_BUF);
@@ -818,7 +816,6 @@ public:
 			}
 		} else {
 			for (int i = 0; i < mem.Length(); i++) {
-				//Platform::DebugPrintf("Combo[%0d] = %s\n", i, mem.At(i).c_str());
 				::SendMessage(combo, CB_ADDSTRING, 0,
 					      reinterpret_cast<LPARAM>(mem.At(i).c_str()));
 			}
