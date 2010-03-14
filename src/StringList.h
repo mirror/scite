@@ -20,7 +20,7 @@ public:
 		words(0), wordsNoCase(0), list(0), len(0), onlyLineEnds(onlyLineEnds_),
 		sorted(false), sortedNoCase(false) {}
 	~StringList() { Clear(); }
-	operator bool() { return len ? true : false; }
+	operator bool() const { return len ? true : false; }
 	char *operator[](int ind) { return words[ind]; }
 	void Clear();
 	void Set(const char *s);
