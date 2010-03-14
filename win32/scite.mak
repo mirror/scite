@@ -520,7 +520,7 @@ Sc1.obj: SciTEWin.cxx
 	$(CC) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAME)$@ SciTEWin.cxx
 
 # Dependencies
-DirectorExtension.o: \
+DirectorExtension.obj: \
 	DirectorExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
@@ -534,11 +534,11 @@ DirectorExtension.o: \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-GUIWin.o: \
+GUIWin.obj: \
 	GUIWin.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h
-SciTEWin.o: \
+SciTEWin.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -560,7 +560,29 @@ SciTEWin.o: \
 	DirectorExtension.h \
 	SingleThreadExtension.h \
 	../src/LuaExtension.h
-SciTEWinBar.o: \
+Sc1.obj: \
+	SciTEWin.cxx \
+	SciTEWin.h \
+	../../scintilla/include/Scintilla.h \
+	../src/GUI.h \
+	../src/SString.h \
+	../src/StringList.h \
+	../src/FilePath.h \
+	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
+	../src/SciTEBase.h \
+	../src/SciTEKeys.h \
+	UniqueInstance.h \
+	../src/MultiplexExtension.h \
+	../src/Extender.h \
+	DirectorExtension.h \
+	SingleThreadExtension.h \
+	../src/LuaExtension.h
+SciTEWinBar.obj: \
 	SciTEWinBar.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -577,7 +599,7 @@ SciTEWinBar.o: \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h
-SciTEWinDlg.o: \
+SciTEWinDlg.obj: \
 	SciTEWinDlg.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -594,13 +616,13 @@ SciTEWinDlg.o: \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h
-SingleThreadExtension.o: \
+SingleThreadExtension.obj: \
 	SingleThreadExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	SingleThreadExtension.h \
 	../src/Extender.h
-UniqueInstance.o: \
+UniqueInstance.obj: \
 	UniqueInstance.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
@@ -617,10 +639,10 @@ UniqueInstance.o: \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h
-WinMutex.o: \
+WinMutex.obj: \
 	WinMutex.cxx \
 	../src/Mutex.h
-Exporters.o: \
+Exporters.obj: \
 	../src/Exporters.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
@@ -634,13 +656,13 @@ Exporters.o: \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-FilePath.o: \
+FilePath.obj: \
 	../src/FilePath.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/SString.h \
 	../src/FilePath.h
-JobQueue.o: \
+JobQueue.obj: \
 	../src/JobQueue.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/SString.h \
@@ -648,20 +670,20 @@ JobQueue.o: \
 	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h
-MultiplexExtension.o: \
+MultiplexExtension.obj: \
 	../src/MultiplexExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/MultiplexExtension.h \
 	../src/Extender.h
-PropSetFile.o: \
+PropSetFile.obj: \
 	../src/PropSetFile.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/SString.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h
-SciTEBase.o: \
+SciTEBase.obj: \
 	../src/SciTEBase.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
@@ -676,7 +698,7 @@ SciTEBase.o: \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-SciTEBuffers.o: \
+SciTEBuffers.obj: \
 	../src/SciTEBuffers.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
@@ -691,7 +713,7 @@ SciTEBuffers.o: \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-SciTEIO.o: \
+SciTEIO.obj: \
 	../src/SciTEIO.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
@@ -706,7 +728,7 @@ SciTEIO.o: \
 	../src/JobQueue.h \
 	../src/SciTEBase.h \
 	../src/Utf8_16.h
-SciTEProps.o: \
+SciTEProps.obj: \
 	../src/SciTEProps.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
@@ -722,21 +744,21 @@ SciTEProps.o: \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-StringList.o: \
+StringList.obj: \
 	../src/StringList.cxx \
 	../src/SString.h \
 	../src/StringList.h
-StyleWriter.o: \
+StyleWriter.obj: \
 	../src/StyleWriter.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/StyleWriter.h
-Utf8_16.o: \
+Utf8_16.obj: \
 	../src/Utf8_16.cxx \
 	../src/Utf8_16.h
 
 !IFNDEF NO_LUA
-LuaExtension.o: \
+LuaExtension.obj: \
 	../src/LuaExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
