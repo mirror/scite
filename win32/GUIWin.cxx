@@ -97,14 +97,6 @@ void Menu::Show(Point pt, Window &w) {
 	Destroy();
 }
 
-long ScintillaWindow::Send(unsigned int msg, unsigned long wParam, long lParam) {
-	return ::SendMessage(reinterpret_cast<HWND>(GetID()), msg, wParam, lParam);
-}
-
-long ScintillaWindow::SendPointer(unsigned int msg, unsigned long wParam, void *lParam) {
-	return ::SendMessage(reinterpret_cast<HWND>(GetID()), msg, wParam, reinterpret_cast<LPARAM>(lParam));
-}
-
 static bool initialisedET = false;
 static bool usePerformanceCounter = false;
 static LARGE_INTEGER frequency;
@@ -150,6 +142,14 @@ double ElapsedTime::Duration(bool reset) {
 		littleBit = endLittleBit;
 	}
 	return result;
+}
+
+long ScintillaWindow::Send(unsigned int msg, unsigned long wParam, long lParam) {
+	return ::SendMessage(reinterpret_cast<HWND>(GetID()), msg, wParam, lParam);
+}
+
+long ScintillaWindow::SendPointer(unsigned int msg, unsigned long wParam, void *lParam) {
+	return ::SendMessage(reinterpret_cast<HWND>(GetID()), msg, wParam, reinterpret_cast<LPARAM>(lParam));
 }
 
 bool IsDBCSLeadByte(int codePage, char ch) {
