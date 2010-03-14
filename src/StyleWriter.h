@@ -28,10 +28,6 @@ protected:
 	GUI::ScintillaWindow &sw;
 	int lenDoc;
 
-	char styleBuf[bufferSize];
-	int validLen;
-	unsigned int startSeg;
-
 	bool InternalIsLeadByte(char ch) const;
 	void Fill(int position);
 public:
