@@ -7,19 +7,19 @@
 CFG=SciTE - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "SciTE.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "SciTE.mak" CFG="SciTE - Win32 Debug"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "SciTE - Win32 Release" (based on "Win32 (x86) Application")
 !MESSAGE "SciTE - Win32 Debug" (based on "Win32 (x86) Application")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -84,7 +84,7 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib imm32.lib comctl32.lib /nologo /debug /machine:I386
 
-!ENDIF 
+!ENDIF
 
 # Begin Target
 
@@ -144,6 +144,10 @@ SOURCE=..\..\scintilla\src\ExternalLexer.cxx
 # Begin Source File
 
 SOURCE=..\src\FilePath.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\win32\GUIWin.cxx
 # End Source File
 # Begin Source File
 
@@ -471,11 +475,11 @@ SOURCE=..\..\scintilla\src\LexSQL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexTADS3.cxx
+SOURCE=..\..\scintilla\src\LexTACL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexTACL.cxx
+SOURCE=..\..\scintilla\src\LexTADS3.cxx
 # End Source File
 # Begin Source File
 
@@ -691,6 +695,10 @@ SOURCE=..\..\scintilla\src\StyleContext.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\StyleWriter.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\Src\UniConversion.cxx
 # End Source File
 # Begin Source File
@@ -727,6 +735,10 @@ SOURCE=..\..\scintilla\Include\Accessor.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\GUI.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\Include\KeyWords.h
 # End Source File
 # Begin Source File
@@ -756,6 +768,10 @@ SOURCE=..\Src\SciTE.h
 # Begin Source File
 
 SOURCE=..\Src\SciTEBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\StyleWriter.h
 # End Source File
 # Begin Source File
 

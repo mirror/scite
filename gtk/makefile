@@ -100,8 +100,8 @@ deps:
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=../../scintilla/bin/scintilla.a
 
-$(PROG): SciTEGTK.o FilePath.o SciTEBase.o SciTEBuffers.o SciTEIO.o StringList.o Exporters.o \
-PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o Utf8_16.o \
+$(PROG): SciTEGTK.o GUIGTK.o FilePath.o SciTEBase.o SciTEBuffers.o SciTEIO.o StringList.o Exporters.o \
+PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o StyleWriter.o Utf8_16.o \
 	JobQueue.o GTKMutex.o IFaceTable.o $(COMPLIB) $(LUA_OBJS)
 	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB)
 

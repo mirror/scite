@@ -72,9 +72,9 @@ LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS) -mno-cygwin
 
 OTHER_OBJS	= FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o PropSetFile.o StringList.o \
 SciTEProps.o SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
-UniqueInstance.o WindowAccessor.o \
-PlatWin.o UniConversion.o Utf8_16.o SciTERes.o \
-IFaceTable.o DirectorExtension.o JobQueue.o WinMutex.o XPM.o $(LUA_OBJS)
+StyleWriter.o UniqueInstance.o \
+Utf8_16.o SciTERes.o GUIWin.o \
+IFaceTable.o DirectorExtension.o JobQueue.o WinMutex.o $(LUA_OBJS)
 
 OBJS = SciTEBase.o $(OTHER_OBJS)
 
@@ -274,12 +274,12 @@ $(PROG): $(OBJS)
 	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
 
 OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
-	UniqueInstance.o SciTEBase.o FilePath.o SciTEBuffers.o \
+	StyleWriter.o UniqueInstance.o SciTEBase.o FilePath.o SciTEBuffers.o \
 	SciTEIO.o Exporters.o PropSetFile.o StringList.o SciTEProps.o ScintillaWinL.o \
 	ScintillaBaseL.o Editor.o WindowAccessor.o DocumentAccessor.o KeyWords.o \
 	ExternalLexer.o StyleContext.o Lexers.a PropSet.o RunStyles.o \
 	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
-	PositionCache.o UniConversion.o Utf8_16.o KeyMap.o Indicator.o LineMarker.o RESearch.o Selection.o Style.o \
+	PositionCache.o UniConversion.o Utf8_16.o GUIWin.o KeyMap.o Indicator.o LineMarker.o RESearch.o Selection.o Style.o \
 	ViewStyle.o AutoComplete.o IFaceTable.o DirectorExtension.o MultiplexExtension.o XPM.o PerLine.o \
 	JobQueue.o WinMutex.o $(LUA_OBJS)
 

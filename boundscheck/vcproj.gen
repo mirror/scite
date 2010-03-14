@@ -193,6 +193,9 @@
 				RelativePath="..\src\FilePath.cxx">
 			</File>
 			<File
+				RelativePath="..\win32\GUIWin.cxx">
+			</File>
+			<File
 				RelativePath="..\src\IFaceTable.cxx">
 			</File>
 			<File
@@ -377,6 +380,9 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\StyleContext.cxx">
+			</File>
+			<File
+				RelativePath="..\Src\StyleWriter.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Src\UniConversion.cxx">
