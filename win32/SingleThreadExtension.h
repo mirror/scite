@@ -35,7 +35,7 @@ public:
 	virtual bool OnExecute(const char *);
 	virtual bool OnSavePointReached();
 	virtual bool OnSavePointLeft();
-	virtual bool OnStyle(unsigned int, int, int, Accessor *);
+	virtual bool OnStyle(unsigned int, int, int, StyleWriter *);
 	virtual bool OnDoubleClick();
 	virtual bool OnUpdateUI();
 	virtual bool OnMarginClick();

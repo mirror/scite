@@ -20,15 +20,15 @@
 #include <string>
 #include <map>
 
-#include "Platform.h"
-
-#if PLAT_GTK
+#if defined(GTK)
 
 #include <unistd.h>
 
 #endif
 
-#include "PropSet.h"
+#include "Scintilla.h"
+
+#include "GUI.h"
 
 #include "SString.h"
 #include "FilePath.h"

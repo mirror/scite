@@ -378,7 +378,7 @@ protected:
 	SString replaceWhat;
 	enum { indicatorMatch = INDIC_CONTAINER };
 	enum { markerBookmark = 1 };
-	Window wFindIncrement;
+	GUI::Window wFindIncrement;
 	bool replacing;
 	bool havefound;
 	bool matchCase;
@@ -427,19 +427,15 @@ protected:
 	StringList preprocCondMiddle;	///< List of preprocessor conditional middle keywords (in C: else elif)
 	StringList preprocCondEnd;	///< List of preprocessor conditional end keywords (in C: endif)
 
-	Window wSciTE;  ///< Contains wToolBar, wTabBar, wContent, and wStatusBar
-	Window wContent;    ///< Contains wEditor and wOutput
-	Window wEditor;
-	Window wOutput;
-	Window wIncrement;
-	Window wToolBar;
-	Window wStatusBar;
-	Window wTabBar;
-	Menu popup;
-	SciFnDirect fnEditor;
-	long ptrEditor;
-	SciFnDirect fnOutput;
-	long ptrOutput;
+	GUI::Window wSciTE;  ///< Contains wToolBar, wTabBar, wContent, and wStatusBar
+	GUI::Window wContent;    ///< Contains wEditor and wOutput
+	GUI::ScintillaWindow wEditor;
+	GUI::ScintillaWindow wOutput;
+	GUI::Window wIncrement;
+	GUI::Window wToolBar;
+	GUI::Window wStatusBar;
+	GUI::Window wTabBar;
+	GUI::Menu popup;
 	bool tbVisible;
 	bool tabVisible;
 	bool tabHideOne; // Hide tab bar if one buffer is opened only
@@ -469,7 +465,7 @@ protected:
 
 	int heightOutput;
 	int heightOutputStartDrag;
-	Point ptStartDrag;
+	GUI::Point ptStartDrag;
 	bool capturedMouse;
 	int previousHeightOutput;
 	bool firstPropertiesRead;
@@ -574,21 +570,15 @@ protected:
 	void ReadLocalPropFile();
 	void ReadDirectoryPropFile();
 
-	sptr_t SendEditor(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	sptr_t SendEditorString(unsigned int msg, uptr_t wParam, const char *s);
-	sptr_t SendOutput(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	sptr_t SendOutputString(unsigned int msg, uptr_t wParam, const char *s);
-	sptr_t SendFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	sptr_t SendPane(int destination, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	sptr_t SendWindow(Window &w, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	void SendChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	sptr_t SendOutputEx(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0, bool direct = true);
+	sptr_t CallFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
+	sptr_t CallPane(int destination, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
+	void CallChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	SString GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
 	int LengthDocument();
 	int GetCaretInLine();
 	void GetLine(char *text, int sizeText, int line = -1);
 	SString GetLine(int line = -1);
-	void GetRange(Window &win, int start, int end, char *text);
+	void GetRange(GUI::ScintillaWindow &win, int start, int end, char *text);
 	int IsLinePreprocessorCondition(char *line);
 	bool FindMatchingPreprocessorCondition(int &curLine, int direction, int condEnd1, int condEnd2);
 	bool FindMatchingPreprocCondPosition(bool isForward, int &mppcAtCaret, int &mppcMatch);
@@ -675,10 +665,10 @@ protected:
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
-	SString GetRange(Window &win, int selStart, int selEnd);
-	virtual SString GetRangeInUIEncoding(Window &win, int selStart, int selEnd);
-	SString GetLine(Window &win, int line);
-	SString RangeExtendAndGrab(Window &wCurrent, int &selStart, int &selEnd,
+	SString GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd);
+	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
+	SString GetLine(GUI::ScintillaWindow &win, int line);
+	SString RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,
 	        bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	SString SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	void FindWordAtCaret(int &start, int &end);
@@ -689,7 +679,7 @@ protected:
 	void SelectionIntoFind(bool stripEol = true);
 	virtual SString EncodeString(const SString &s);
 	virtual void Find() = 0;
-	virtual int WindowMessageBox(Window &w, const SString &m, int style) = 0;
+	virtual int WindowMessageBox(GUI::Window &w, const SString &m, int style) = 0;
 	virtual void FindMessageBox(const SString &msg, const SString *findItem = 0) = 0;
 	int FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition);
 	int FindNext(bool reverseDirection, bool showWarnings = true);
@@ -801,7 +791,7 @@ protected:
 	virtual void CheckMenusClipboard();
 	virtual void CheckMenus();
 	virtual void AddToPopUp(const char *label, int cmd = 0, bool enabled = true) = 0;
-	void ContextMenu(Window wSource, Point pt, Window wCmd);
+	void ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::Window wCmd);
 
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
@@ -825,7 +815,7 @@ protected:
 
 	void AssignKey(int key, int mods, int cmd);
 	void ViewWhitespace(bool view);
-	void SetAboutMessage(WindowID wsci, const char *appTitle);
+	void SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle);
 	void SetImportMenu();
 	void ImportMenu(int pos);
 	void SetLanguageMenu();
@@ -845,16 +835,16 @@ protected:
 	void ReadAPI(const SString &fileNameForExtension);
 	SString FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
-	void SetOneStyle(Window &win, int style, const StyleDefinition &sd);
-	void SetStyleFor(Window &win, const char *language);
+	void SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd);
+	void SetStyleFor(GUI::ScintillaWindow &win, const char *language);
 	void ReloadProperties();
 
 	void CheckReload();
 	void Activate(bool activeApp);
-	PRectangle GetClientRectangle();
+	GUI::Rectangle GetClientRectangle();
 	void Redraw();
 	int NormaliseSplit(int splitPos);
-	void MoveSplit(Point ptNewDrag);
+	void MoveSplit(GUI::Point ptNewDrag);
 
 	void UIAvailable();
 	void PerformOne(char *action);
@@ -905,7 +895,7 @@ public:
 	virtual ~SciTEBase();
 
 	void ProcessExecute();
-	WindowID GetID() { return wSciTE.GetID(); }
+	GUI::WindowID GetID() { return wSciTE.GetID(); }
 
 private:
 	// un-implemented copy-constructor and assignment operator
@@ -913,16 +903,10 @@ private:
 	void operator=(const SciTEBase&);
 };
 
-struct ScintillaFailure {
-	int status;
-	ScintillaFailure(int status_) : status(status_) {
-	}
-};
-
 /// Base size of file I/O operations.
 const int blockSize = 131072;
 
-#if PLAT_GTK
+#if defined(GTK)
 // MessageBox
 #define MB_OK	(0L)
 #define MB_YESNO	(0x4L)
@@ -940,7 +924,7 @@ void LowerCaseString(char *s);
 long ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault);
 char *Slash(const char *s, bool quoteQuotes);
 unsigned int UnSlash(char *s);
-void WindowSetFocus(Window &w);
+void WindowSetFocus(GUI::ScintillaWindow &w);
 
 inline bool isspacechar(unsigned char ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));

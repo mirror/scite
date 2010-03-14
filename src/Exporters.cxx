@@ -20,16 +20,12 @@
 #include <string>
 #include <map>
 
-#include "Platform.h"
-
-#if PLAT_GTK
+#if defined(GTK)
 
 #include <unistd.h>
 #include <gtk/gtk.h>
 
-#endif
-
-#if PLAT_WIN
+#else
 
 #ifdef __BORLANDC__
 // Borland includes Windows.h for STL and defaults to different API number
@@ -60,16 +56,17 @@
 
 #endif
 
-#include "SciTE.h"
-#include "PropSet.h"
+#include "Scintilla.h"
+
+#include "GUI.h"
+
 #include "SString.h"
 #include "StringList.h"
-#include "Accessor.h"
-#include "WindowAccessor.h"
-#include "Scintilla.h"
-#include "Extender.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
+#include "StyleWriter.h"
+#include "Extender.h"
+#include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
 #include "SciTEBase.h"
@@ -147,7 +144,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 	if (end < 0)
 		end = lengthDoc;
 	RemoveFindMarks();
-	SendEditor(SCI_COLOURISE, 0, -1);
+	wEditor.Call(SCI_COLOURISE, 0, -1);
 
 	// Read the default settings
 	char key[200];
@@ -278,7 +275,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 		        RTF_BOLD_OFF RTF_ITALIC_OFF, defaultStyle.size);
 		bool prevCR = false;
 		int styleCurrent = -1;
-		WindowAccessor acc(wEditor.GetID(), props);
+		TextReader acc(wEditor);
 		int column = 0;
 		for (i = start; i < end; i++) {
 			char ch = acc[i];
@@ -333,7 +330,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 
 void SciTEBase::SaveToHTML(FilePath saveName) {
 	RemoveFindMarks();
-	SendEditor(SCI_COLOURISE, 0, -1);
+	wEditor.Call(SCI_COLOURISE, 0, -1);
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;
@@ -344,7 +341,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 	int titleFullPath = props.GetInt("export.html.title.fullpath", 0);
 
 	int lengthDoc = LengthDocument();
-	WindowAccessor acc(wEditor.GetID(), props);
+	TextReader acc(wEditor);
 
 	bool styleIsUsed[STYLE_MAX + 1];
 	if (onlyStylesUsed) {
@@ -814,7 +811,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		int fontSize;		// properties supplied by user
 		int fontSet;
 		int pageWidth, pageHeight;
-		PRectangle pageMargin;
+		GUI::Rectangle pageMargin;
 		//
 		PDFRender() {
 			pageStarted = false;
@@ -1026,7 +1023,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	PDFRender pr;
 
 	RemoveFindMarks();
-	SendEditor(SCI_COLOURISE, 0, -1);
+	wEditor.Call(SCI_COLOURISE, 0, -1);
 	// read exporter flags
 	int tabSize = props.GetInt("tabsize", PDF_TAB_DEFAULT);
 	if (tabSize < 0) {
@@ -1135,7 +1132,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 
 	// do here all the writing
 	int lengthDoc = LengthDocument();
-	WindowAccessor acc(wEditor.GetID(), props);
+	TextReader acc(wEditor);
 
 	if (!lengthDoc) {	// enable zero length docs
 		pr.nextLine();
@@ -1228,14 +1225,14 @@ static void defineTexStyle(StyleDefinition &style, FILE* fp, int istyle) {
 
 void SciTEBase::SaveToTEX(FilePath saveName) {
 	RemoveFindMarks();
-	SendEditor(SCI_COLOURISE, 0, -1);
+	wEditor.Call(SCI_COLOURISE, 0, -1);
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;
 
 	char key[200];
 	int lengthDoc = LengthDocument();
-	WindowAccessor acc(wEditor.GetID(), props);
+	TextReader acc(wEditor);
 	bool styleIsUsed[STYLE_MAX + 1];
 
 	int titleFullPath = props.GetInt("export.tex.title.fullpath", 0);
@@ -1383,7 +1380,7 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 	// but will eventually use utf-8 (once i know how to get them out).
 
 	RemoveFindMarks();
-	SendEditor(SCI_COLOURISE, 0, -1);
+	wEditor.Call(SCI_COLOURISE, 0, -1);
 
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0) {
@@ -1392,7 +1389,7 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 
 	int lengthDoc = LengthDocument();
 
-	WindowAccessor acc(wEditor.GetID(), props);
+	TextReader acc(wEditor);
 
 	FILE *fp = saveName.Open("wt");
 

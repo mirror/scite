@@ -35,19 +35,16 @@
 #endif
 #include <commctrl.h>
 
-#include "Platform.h"
+#include "Scintilla.h"
 
-#include "PropSet.h"
+#include "GUI.h"
 #include "SString.h"
 #include "StringList.h"
-
-#include "Scintilla.h"
-#include "Accessor.h"
+#include "FilePath.h"
+#include "PropSetFile.h"
 #include "Extender.h"
 #include "DirectorExtension.h"
 #include "SciTE.h"
-#include "FilePath.h"
-#include "PropSetFile.h"
 #include "Mutex.h"
 #include "JobQueue.h"
 #include "SciTEBase.h"
@@ -250,7 +247,7 @@ bool DirectorExtension::OnSavePointLeft() {
 	return false;
 }
 
-bool DirectorExtension::OnStyle(unsigned int, int, int, Accessor *) {
+bool DirectorExtension::OnStyle(unsigned int, int, int, StyleWriter *) {
 	return false;
 }
 

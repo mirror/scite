@@ -14,6 +14,8 @@
 // an #ifdef in LuaExtension.  But I did it this way so that other
 // extensions can leverage it without needing to do anything special.
 
+#include "Scintilla.h"
+#include "GUI.h"
 #include "SingleThreadExtension.h"
 
 // Is it true that only OnExecute needs to be protected / serialized?
@@ -116,7 +118,7 @@ bool SingleThreadExtension::OnSavePointLeft() {
 	return ext->OnSavePointLeft();
 }
 
-bool SingleThreadExtension::OnStyle(unsigned int p, int q, int r, Accessor *s) {
+bool SingleThreadExtension::OnStyle(unsigned int p, int q, int r, StyleWriter *s) {
 	return ext->OnStyle(p,q,r,s);
 }
 

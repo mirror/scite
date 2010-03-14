@@ -11,7 +11,7 @@
 #include "Extender.h"
 
 // MultiplexExtension manages multiple Extension objects, similar to
-// what is proposed in the SciTE Extension documentation.  Each 
+// what is proposed in the SciTE Extension documentation.  Each
 // message is sent to each contained extension object in turn until
 // one indicates that the message has been handled and does not need
 // to be processed further.  Certain messages (Initialise, Finalise
@@ -19,8 +19,8 @@
 // regardless of return code.
 //
 // The Director extension incorrectly returns true for all messages,
-// meaning that other extensions will never see the message if 
-// DirectorExtension comes before them in the list.  This has been 
+// meaning that other extensions will never see the message if
+// DirectorExtension comes before them in the list.  This has been
 // fixed at source.
 //
 // Extensions are added to the multiplexer by calling RegisterExtension.
@@ -31,7 +31,7 @@
 // that can be added as well (later).
 //
 // The multiplexer does not manage the lifetime of the extension objects
-// that are registered with it.  If that functionality later turns out 
+// that are registered with it.  If that functionality later turns out
 // to be needed, it will be added at that time.  (Broken record?  Do the
 // simplest thing...)  However, the option to "not" manage the lifecycle
 // is a valid one, since it often makes sense to implement extensions as
@@ -61,13 +61,13 @@ public:
 	virtual bool OnExecute(const char *);
 	virtual bool OnSavePointReached();
 	virtual bool OnSavePointLeft();
-	virtual bool OnStyle(unsigned int, int, int, Accessor *);
+	virtual bool OnStyle(unsigned int, int, int, StyleWriter *);
 	virtual bool OnDoubleClick();
 	virtual bool OnUpdateUI();
 	virtual bool OnMarginClick();
 	virtual bool OnMacro(const char *, const char *);
 	virtual bool OnUserListSelection(int, const char *);
-	
+
 	virtual bool SendProperty(const char *);
 
 	virtual bool OnKey(int, int);

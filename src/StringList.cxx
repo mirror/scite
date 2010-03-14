@@ -13,7 +13,6 @@
 
 #include "SString.h"
 #include "StringList.h"
-#include "PropSet.h"
 
 static inline bool IsASpace(unsigned int ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));

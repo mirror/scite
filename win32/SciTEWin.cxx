@@ -121,7 +121,6 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
 	// TODO: are the 0x11 and 0x10 special cases needed, or are they
 	// just short-circuits?  If not needed, this test could removed,
-	// and perhaps the function moved to Platform.h as an inline.
 	if (keyval == 0x11 || keyval == 0x10)
 		return false;
 	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
@@ -503,11 +502,11 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
  * so the output can be put in a window.
  * It is based upon several usenet posts and a knowledge base article.
  * This is running in a separate thread to the user interface so should always
- * use Platform::SendScintilla rather than a one of the direct function calls.
+ * use ScintillaWindow::Send rather than a one of the direct function calls.
  */
 DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	DWORD exitcode = 0;
-	ElapsedTime commandTime;
+	GUI::ElapsedTime commandTime;
 
 	if (jobToRun.jobType == jobShell) {
 		ShellExec(jobToRun.command, jobToRun.directory.AsFileSystem());
@@ -520,12 +519,12 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			// It could also lead to other problems.
 
 			if (jobToRun.flags & jobGroupUndo)
-				Platform::SendScintilla(wEditor.GetID(), SCI_BEGINUNDOACTION);
+				wEditor.Send(SCI_BEGINUNDOACTION);
 
 			extender->OnExecute(jobToRun.command.c_str());
 
 			if (jobToRun.flags & jobGroupUndo)
-				Platform::SendScintilla(wEditor.GetID(), SCI_ENDUNDOACTION);
+				wEditor.Send(SCI_ENDUNDOACTION);
 
 			Redraw();
 			// A Redraw "might" be needed, since Lua and Director
@@ -807,9 +806,9 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 				doRepSel = (0 == exitcode);
 
 			if (doRepSel) {
-				int cpMin = Platform::SendScintilla(wEditor.GetID(), SCI_GETSELECTIONSTART, 0, 0);
-				Platform::SendScintilla(wEditor.GetID(),SCI_REPLACESEL,0,(sptr_t)(repSelBuf.c_str()));
-				Platform::SendScintilla(wEditor.GetID(), SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
+				int cpMin = wEditor.Send(SCI_GETSELECTIONSTART, 0, 0);
+				wEditor.Send(SCI_REPLACESEL,0,(sptr_t)(repSelBuf.c_str()));
+				wEditor.Send(SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
 			}
 		}
 
@@ -851,8 +850,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 void SciTEWin::ProcessExecute() {
 	DWORD exitcode = 0;
 	if (scrollOutput)
-		SendOutputEx(SCI_GOTOPOS, SendOutputEx(SCI_GETTEXTLENGTH, 0, 0, false),0, false);
-	int originalEnd = SendOutputEx(SCI_GETCURRENTPOS, 0, 0, false);
+		wOutput.Send(SCI_GOTOPOS, wOutput.Send(SCI_GETTEXTLENGTH));
+	int originalEnd = wOutput.Send(SCI_GETCURRENTPOS);
 	bool seenOutput = false;
 
 	for (int icmd = 0; icmd < jobQueue.commandCurrent && icmd < jobQueue.commandMax && exitcode == 0; icmd++) {
@@ -871,7 +870,7 @@ void SciTEWin::ProcessExecute() {
 	// scroll and return only if output.scroll equals
 	// one in the properties file
 	if ((outputScroll == 1) && returnOutputToCommand)
-		SendOutputEx(SCI_GOTOPOS, originalEnd, 0, false);
+		wOutput.Send(SCI_GOTOPOS, originalEnd, 0);
 	returnOutputToCommand = true;
 	::SendMessage(MainHWND(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
 }
@@ -1245,8 +1244,8 @@ void SciTEWin::Run(const char *cmdLine) {
 /**
  * Draw the split bar.
  */
-void SciTEWin::Paint(HDC hDC, PRectangle) {
-	PRectangle rcInternal = GetClientRectangle();
+void SciTEWin::Paint(HDC hDC, GUI::Rectangle) {
+	GUI::Rectangle rcInternal = GetClientRectangle();
 
 	int heightClient = rcInternal.Height();
 	int widthClient = rcInternal.Width();
@@ -1519,7 +1518,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 				if (commandNum < 2000) {
 					SciTEBase::MenuCommand(commandNum);
 				} else {
-					SciTEBase::SendFocused(commandNum);
+					SciTEBase::CallFocused(commandNum);
 				}
 				return 1l;
 			}
@@ -1548,31 +1547,31 @@ void SciTEWin::AddToPopUp(const char *label, int cmd, bool enabled) {
 }
 
 LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	Window w = wEditor;
-	Point pt = Point::FromLong(lParam);
+	GUI::ScintillaWindow *w = &wEditor;
+	GUI::Point pt = PointFromLong(lParam);
 	if ((pt.x == -1) && (pt.y == -1)) {
 		// Caused by keyboard so display menu near caret
 		if (wOutput.HasFocus())
-			w = wOutput;
-		int position = SendFocused(SCI_GETCURRENTPOS);
-		pt.x = SendFocused(SCI_POINTXFROMPOSITION, 0, position);
-		pt.y = SendFocused(SCI_POINTYFROMPOSITION, 0, position);
+			w = &wOutput;
+		int position = CallFocused(SCI_GETCURRENTPOS);
+		pt.x = CallFocused(SCI_POINTXFROMPOSITION, 0, position);
+		pt.y = CallFocused(SCI_POINTYFROMPOSITION, 0, position);
 		POINT spt = {pt.x, pt.y};
-		::ClientToScreen(static_cast<HWND>(w.GetID()), &spt);
-		pt = Point(spt.x, spt.y);
+		::ClientToScreen(static_cast<HWND>(w->GetID()), &spt);
+		pt = GUI::Point(spt.x, spt.y);
 	} else {
-		PRectangle rcEditor = wEditor.GetPosition();
+		GUI::Rectangle rcEditor = wEditor.GetPosition();
 		if (!rcEditor.Contains(pt)) {
-			PRectangle rcOutput = wOutput.GetPosition();
+			GUI::Rectangle rcOutput = wOutput.GetPosition();
 			if (rcOutput.Contains(pt)) {
-				w = wOutput;
+				w = &wOutput;
 			} else {	// In frame so use default.
 				return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 			}
 		}
 	}
-	menuSource = ::GetDlgCtrlID(reinterpret_cast<HWND>(w.GetID()));
-	ContextMenu(w, pt, wSciTE);
+	menuSource = ::GetDlgCtrlID(reinterpret_cast<HWND>(w->GetID()));
+	ContextMenu(*w, pt, wSciTE);
 	return 0;
 }
 
@@ -1636,7 +1635,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_MOVE:
-			SendEditor(SCI_CALLTIPCANCEL);
+			wEditor.Call(SCI_CALLTIPCANCEL);
 			break;
 
 		case WM_GETMINMAXINFO: {
@@ -1676,33 +1675,33 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 		case WM_SETTINGCHANGE:
 			//Platform::DebugPrintf("** Setting Changed\n");
-			SendEditor(WM_SETTINGCHANGE, wParam, lParam);
-			SendOutput(WM_SETTINGCHANGE, wParam, lParam);
+			wEditor.Call(WM_SETTINGCHANGE, wParam, lParam);
+			wOutput.Call(WM_SETTINGCHANGE, wParam, lParam);
 			break;
 
 		case WM_SYSCOLORCHANGE:
 			//Platform::DebugPrintf("** Color Changed\n");
-			SendEditor(WM_SYSCOLORCHANGE, wParam, lParam);
-			SendOutput(WM_SYSCOLORCHANGE, wParam, lParam);
+			wEditor.Call(WM_SYSCOLORCHANGE, wParam, lParam);
+			wOutput.Call(WM_SYSCOLORCHANGE, wParam, lParam);
 			break;
 
 		case WM_PALETTECHANGED:
 			//Platform::DebugPrintf("** Palette Changed\n");
 			if (wParam != reinterpret_cast<WPARAM>(MainHWND())) {
-				SendEditor(WM_PALETTECHANGED, wParam, lParam);
-				//SendOutput(WM_PALETTECHANGED, wParam, lParam);
+				wEditor.Call(WM_PALETTECHANGED, wParam, lParam);
+				//wOutput.Call(WM_PALETTECHANGED, wParam, lParam);
 			}
 
 			break;
 
 		case WM_QUERYNEWPALETTE:
 			//Platform::DebugPrintf("** Query palette\n");
-			SendEditor(WM_QUERYNEWPALETTE, wParam, lParam);
-			//SendOutput(WM_QUERYNEWPALETTE, wParam, lParam);
+			wEditor.Call(WM_QUERYNEWPALETTE, wParam, lParam);
+			//wOutput.Call(WM_QUERYNEWPALETTE, wParam, lParam);
 			return TRUE;
 
 		case WM_ACTIVATEAPP:
-			SendEditor(SCI_HIDESELECTION, !wParam);
+			wEditor.Call(SCI_HIDESELECTION, !wParam);
 			// Do not want to display dialog yet as may be in middle of system mouse capture
 			::PostMessage(MainHWND(), WM_COMMAND, IDM_ACTIVATE, wParam);
 			break;
@@ -1726,7 +1725,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 		}
 		//Platform::DebugPrintf("end wnd proc\n");
-	} catch (ScintillaFailure &sf) {
+	} catch (GUI::ScintillaFailure &sf) {
 		statusFailure = sf.status;
 	}
 	if ((statusFailure > 0) && (boxesVisible == 0)) {
@@ -1796,24 +1795,14 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_PAINT: {
 			PAINTSTRUCT ps;
 			::BeginPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
-			PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+			GUI::Rectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 			Paint(ps.hdc, rcPaint);
-#ifdef WIN
-			Surface *surfaceWindow = Surface::Allocate();
-			if (surfaceWindow) {
-				surfaceWindow->Init(ps.hdc, wContent.GetID());
-				PRectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
-				Paint(ps.hdc, rcPaint);
-				surfaceWindow->Release();
-				delete surfaceWindow;
-			}
-#endif
 			::EndPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
 			return 0;
 		}
 
 	case WM_LBUTTONDOWN:
-		ptStartDrag = Point::FromLong(lParam);
+		ptStartDrag = PointFromLong(lParam);
 		capturedMouse = true;
 		heightOutputStartDrag = heightOutput;
 		::SetCapture(reinterpret_cast<HWND>(wContent.GetID()));
@@ -1822,13 +1811,13 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_MOUSEMOVE:
 		if (capturedMouse) {
-			MoveSplit(Point::FromLong(lParam));
+			MoveSplit(PointFromLong(lParam));
 		}
 		break;
 
 	case WM_LBUTTONUP:
 		if (capturedMouse) {
-			MoveSplit(Point::FromLong(lParam));
+			MoveSplit(PointFromLong(lParam));
 			capturedMouse = false;
 			::ReleaseCapture();
 		}
@@ -1840,13 +1829,13 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_SETCURSOR:
 		if (ControlIDOfCommand(lParam) == HTCLIENT) {
-			Point ptCursor;
+			GUI::Point ptCursor;
 			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
-			Point ptClient = ptCursor;
+			GUI::Point ptClient = ptCursor;
 			::ScreenToClient(MainHWND(), reinterpret_cast<POINT *>(&ptClient));
 			if ((ptClient.y > (visHeightTools + visHeightTab)) && (ptClient.y < visHeightTools + visHeightTab + visHeightEditor)) {
-				PRectangle rcScintilla = wEditor.GetPosition();
-				PRectangle rcOutput = wOutput.GetPosition();
+				GUI::Rectangle rcScintilla = wEditor.GetPosition();
+				GUI::Rectangle rcOutput = wOutput.GetPosition();
 				if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
 					::SetCursor(::LoadCursor(NULL, splitVertical ? IDC_SIZEWE : IDC_SIZENS));
 					return TRUE;
@@ -1910,7 +1899,7 @@ SString SciTEWin::EncodeString(const SString &s) {
 	//::MessageBox(GetFocus(),SString(s).c_str(),"EncodeString:in",0);
 
 	if (isWindowsNT) {
-		UINT codePage = SendEditor(SCI_GETCODEPAGE);
+		UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
 
 		if (codePage != SC_CP_UTF8) {
 			DWORD charSet = props.GetInt("character.set", DEFAULT_CHARSET);
@@ -1938,11 +1927,11 @@ SString SciTEWin::EncodeString(const SString &s) {
 }
 
 // On NT, convert String from doc encoding to UTF-8
-SString SciTEWin::GetRangeInUIEncoding(Window &win, int selStart, int selEnd) {
+SString SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
 	SString s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
 	if (isWindowsNT) {
-		UINT codePage = SendEditor(SCI_GETCODEPAGE);
+		UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
 
 		if (codePage != SC_CP_UTF8) {
 			DWORD charSet = props.GetInt("character.set", DEFAULT_CHARSET);

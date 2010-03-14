@@ -10,7 +10,7 @@
 
 typedef std::map<std::string, std::string> mapss;
 
-class PropSetFile : public PropertyGet {
+class PropSetFile {
 	bool lowerKeys;
 	SString GetWildUsingStart(const PropSetFile &psStart, const char *keybase, const char *filename);
 	static bool caseSensitiveFilenames;

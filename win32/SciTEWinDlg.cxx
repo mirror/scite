@@ -123,7 +123,7 @@ void SciTEWin::WarnUser(int warnID) {
 	PlayThisSound(sound, atoi(soundDuration), hMM);
 }
 
-bool SciTEWin::DialogHandled(WindowID id, MSG *pmsg) {
+bool SciTEWin::DialogHandled(GUI::WindowID id, MSG *pmsg) {
 	if (id) {
 		if (isWindowsNT ?
 			::IsDialogMessageW(reinterpret_cast<HWND>(id), pmsg) :
@@ -435,9 +435,9 @@ void SciTEWin::Print(
 
 	HDC hdc = pdlg.hDC;
 
-	PRectangle rectMargins, rectPhysMargins;
-	Point ptPage;
-	Point ptDpi;
+	GUI::Rectangle rectMargins, rectPhysMargins;
+	GUI::Point ptPage;
+	GUI::Point ptDpi;
 
 	// Get printer resolution
 	ptDpi.x = GetDeviceCaps(hdc, LOGPIXELSX);    // dpi in X direction
@@ -469,7 +469,7 @@ void SciTEWin::Print(
 	// Take in account the page setup given by the user (if one value is not null)
 	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
 	        pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
-		PRectangle rectSetup;
+		GUI::Rectangle rectSetup;
 
 		// Convert the hundredths of millimeters (HiMetric) or
 		// thousandths of inches (HiEnglish) margin values
@@ -569,7 +569,7 @@ void SciTEWin::Print(
 		return;
 	}
 
-	LONG lengthDoc = SendEditor(SCI_GETLENGTH);
+	LONG lengthDoc = wEditor.Call(SCI_GETLENGTH);
 	LONG lengthDocMax = lengthDoc;
 	LONG lengthPrinted = 0;
 
@@ -650,7 +650,7 @@ void SciTEWin::Print(
 		frPrint.chrg.cpMin = lengthPrinted;
 		frPrint.chrg.cpMax = lengthDoc;
 
-		lengthPrinted = SendEditor(SCI_FORMATRANGE,
+		lengthPrinted = wEditor.Call(SCI_FORMATRANGE,
 		                           printPage,
 		                           reinterpret_cast<LPARAM>(&frPrint));
 
@@ -684,7 +684,7 @@ void SciTEWin::Print(
 			break;
 	}
 
-	SendEditor(SCI_FORMATRANGE, FALSE, 0);
+	wEditor.Call(SCI_FORMATRANGE, FALSE, 0);
 
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
@@ -864,7 +864,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			dlg.SetCheck(IDFINDSTYLE, findInStyle);
 			dlg.Enable(IDFINDSTYLE, findInStyle);
 			::SendMessage(dlg.Item(IDFINDSTYLE), EM_LIMITTEXT, 3, 1);
-			::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
+			::SetDlgItemInt(hDlg, IDFINDSTYLE, wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS)), FALSE);
 		}
 		return TRUE;
 
@@ -991,7 +991,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		if (FindReplaceAdvanced()) {
 			dlg.SetCheck(IDFINDSTYLE, findInStyle);
 			dlg.Enable(IDFINDSTYLE, findInStyle);
-			::SetDlgItemInt(hDlg, IDFINDSTYLE, SendEditor(SCI_GETSTYLEAT, SendEditor(SCI_GETCURRENTPOS)), FALSE);
+			::SetDlgItemInt(hDlg, IDFINDSTYLE, wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS)), FALSE);
 		}
 		dlg.SetItemText(IDREPLDONE, "0");
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
@@ -1050,9 +1050,9 @@ BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		dlg.SetItemTextU(IDC_INCFINDTEXT, ""); //findWhat.c_str()
 		SetFocus(hDlg);
 
-		PRectangle aRect = wFindIncrement.GetPosition();
-		PRectangle aTBRect = wStatusBar.GetPosition();
-		PRectangle aNewRect = aTBRect;
+		GUI::Rectangle aRect = wFindIncrement.GetPosition();
+		GUI::Rectangle aTBRect = wStatusBar.GetPosition();
+		GUI::Rectangle aNewRect = aTBRect;
 		aNewRect.top = aNewRect.bottom - (aRect.bottom - aRect.top);
 		aNewRect.right = aNewRect.left + aRect.right - aRect.left;
 		wFindIncrement.SetPosition(aNewRect);
@@ -1415,12 +1415,12 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
 	case WM_INITDIALOG: {
-			int position = SendEditor(SCI_GETCURRENTPOS);
-			int lineNumber = SendEditor(SCI_LINEFROMPOSITION, position) + 1;
-			int lineStart = SendEditor(SCI_POSITIONFROMLINE, lineNumber - 1);
+			int position = wEditor.Call(SCI_GETCURRENTPOS);
+			int lineNumber = wEditor.Call(SCI_LINEFROMPOSITION, position) + 1;
+			int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
 			int characterOnLine = 1;
 			while (position > lineStart) {
-				position = SendEditor(SCI_POSITIONBEFORE, position);
+				position = wEditor.Call(SCI_POSITIONBEFORE, position);
 				characterOnLine++;
 			}
 
@@ -1429,7 +1429,7 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SendDlgItemMessage(hDlg, IDGOLINECHAR, EM_LIMITTEXT, 10, 1);
 			::SetDlgItemInt(hDlg, IDCURRLINE, lineNumber, FALSE);
 			::SetDlgItemInt(hDlg, IDCURRLINECHAR, characterOnLine, FALSE);
-			::SetDlgItemInt(hDlg, IDLASTLINE, SendEditor(SCI_GETLINECOUNT), FALSE);
+			::SetDlgItemInt(hDlg, IDLASTLINE, wEditor.Call(SCI_GETLINECOUNT), FALSE);
                 }
 		return TRUE;
 
@@ -1451,20 +1451,20 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 			if (bHasLine || bHasChar) {
 				if (!bHasLine)
-					lineNumber = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS)) + 1;
+					lineNumber = wEditor.Call(SCI_LINEFROMPOSITION, wEditor.Call(SCI_GETCURRENTPOS)) + 1;
 
 				GotoLineEnsureVisible(lineNumber - 1);
 
-				if (bHasChar && characterOnLine > 1 && lineNumber <= SendEditor(SCI_GETLINECOUNT)) {
+				if (bHasChar && characterOnLine > 1 && lineNumber <= wEditor.Call(SCI_GETLINECOUNT)) {
 					// Constrain to the requested line
-					int lineStart = SendEditor(SCI_POSITIONFROMLINE, lineNumber - 1);
-					int lineEnd = SendEditor(SCI_GETLINEENDPOSITION, lineNumber - 1);
+					int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
+					int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, lineNumber - 1);
 
 					int position = lineStart;
 					while (--characterOnLine && position < lineEnd)
-						position = SendEditor(SCI_POSITIONAFTER, position);
+						position = wEditor.Call(SCI_POSITIONAFTER, position);
 
-					SendEditor(SCI_GOTOPOS, position);
+					wEditor.Call(SCI_GOTOPOS, position);
 				}
 			}
 			::EndDialog(hDlg, IDOK);
@@ -1527,7 +1527,7 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_INITDIALOG: {
 			LocaliseDialog(hDlg);
 			::SendDlgItemMessage(hDlg, IDTABSIZE, EM_LIMITTEXT, 2, 1);
-			int tabSize = SendEditor(SCI_GETTABWIDTH);
+			int tabSize = wEditor.Call(SCI_GETTABWIDTH);
 			if (tabSize > 99)
 				tabSize = 99;
 			char tmp[3];
@@ -1535,13 +1535,13 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SetDlgItemText(hDlg, IDTABSIZE, tmp);
 
 			::SendDlgItemMessage(hDlg, IDINDENTSIZE, EM_LIMITTEXT, 2, 1);
-			int indentSize = SendEditor(SCI_GETINDENT);
+			int indentSize = wEditor.Call(SCI_GETINDENT);
 			if (indentSize > 99)
 				indentSize = 99;
 			sprintf(tmp, "%d", indentSize);
 			::SetDlgItemText(hDlg, IDINDENTSIZE, tmp);
 
-			::CheckDlgButton(hDlg, IDUSETABS, SendEditor(SCI_GETUSETABS));
+			::CheckDlgButton(hDlg, IDUSETABS, wEditor.Call(SCI_GETUSETABS));
 			return TRUE;
 		}
 
@@ -1558,12 +1558,12 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			BOOL bOK;
 			int tabSize = static_cast<int>(::GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
 			if (tabSize > 0)
-				SendEditor(SCI_SETTABWIDTH, tabSize);
+				wEditor.Call(SCI_SETTABWIDTH, tabSize);
 			int indentSize = static_cast<int>(::GetDlgItemInt(hDlg, IDINDENTSIZE, &bOK, FALSE));
 			if (indentSize > 0)
-				SendEditor(SCI_SETINDENT, indentSize);
+				wEditor.Call(SCI_SETINDENT, indentSize);
 			bool useTabs = static_cast<bool>(::IsDlgButtonChecked(hDlg, IDUSETABS));
-			SendEditor(SCI_SETUSETABS, useTabs);
+			wEditor.Call(SCI_SETUSETABS, useTabs);
 			if (ControlIDOfCommand(wParam) == IDCONVERT) {
 				ConvertIndentation(tabSize, useTabs);
 			}
@@ -1676,7 +1676,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 	return success;
 }
 
-int SciTEWin::WindowMessageBox(Window &w, const SString &msg, int style) {
+int SciTEWin::WindowMessageBox(GUI::Window &w, const SString &msg, int style) {
 	dialogsOnScreen++;
 	int ret = ::MessageBox(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
 	dialogsOnScreen--;
@@ -1727,10 +1727,12 @@ void SciTEWin::FindMessageBox(const SString &msg, const SString *findItem) {
 BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
-	case WM_INITDIALOG:
+	case WM_INITDIALOG: {
 		LocaliseDialog(hDlg);
-		SetAboutMessage(::GetDlgItem(hDlg, IDABOUTSCINTILLA),
-		                staticBuild ? "Sc1  " : "SciTE");
+		GUI::ScintillaWindow ss;
+		ss.SetID(::GetDlgItem(hDlg, IDABOUTSCINTILLA));
+		SetAboutMessage(ss, staticBuild ? "Sc1  " : "SciTE");
+		}
 		return TRUE;
 
 	case WM_CLOSE:

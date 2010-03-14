@@ -13,9 +13,7 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "Platform.h"
-
-#if PLAT_GTK
+#if defined(GTK)
 
 #include <unistd.h>
 #include <gtk/gtk.h>
@@ -23,9 +21,7 @@
 #include <dirent.h>
 #include <errno.h>
 
-#endif
-
-#if PLAT_WIN
+#else
 
 #include <io.h>
 
@@ -59,8 +55,11 @@
 
 #endif
 
+#include "Scintilla.h"
+
+#include "GUI.h"
+
 #include "SString.h"
-#include "PropSet.h"
 #include "FilePath.h"
 
 #ifdef unix

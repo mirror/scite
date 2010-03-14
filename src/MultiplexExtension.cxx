@@ -5,6 +5,8 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#include "Scintilla.h"
+#include "GUI.h"
 #include "MultiplexExtension.h"
 
 MultiplexExtension::MultiplexExtension(): extensions(0), extensionCount(0), host(0) {}
@@ -169,7 +171,7 @@ bool MultiplexExtension::OnSavePointLeft() {
 	return handled;
 }
 
-bool MultiplexExtension::OnStyle(unsigned int p, int q, int r, Accessor *s) {
+bool MultiplexExtension::OnStyle(unsigned int p, int q, int r, StyleWriter *s) {
 	bool handled = false;
 	for (int i = 0; i < extensionCount && !handled; ++i)
 		if (extensions[i]->OnStyle(p, q, r, s))

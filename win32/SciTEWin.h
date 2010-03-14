@@ -44,8 +44,6 @@
 #include <commctrl.h>
 #include <richedit.h>
 
-#include "Platform.h"
-
 #include <io.h>
 #include <process.h>
 #include <mmsystem.h>
@@ -60,15 +58,17 @@
 #include <dir.h>
 #endif
 
-#include "SciTE.h"
-#include "PropSet.h"
-#include "Accessor.h"
 #include "Scintilla.h"
-#include "Extender.h"
+
+#include "GUI.h"
+
 #include "SString.h"
+#include "StringList.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
-#include "StringList.h"
+#include "StyleWriter.h"
+#include "Extender.h"
+#include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
 #include "SciTEBase.h"
@@ -108,7 +108,7 @@ protected:
 
 	HACCEL hAccTable;
 
-	PRectangle pagesetupMargin;
+	GUI::Rectangle pagesetupMargin;
 	HGLOBAL hDevMode;
 	HGLOBAL hDevNames;
 
@@ -126,9 +126,9 @@ protected:
 	/// Preserve focus during deactivation
 	HWND wFocus;
 
-	Window wFindInFiles;
-	Window wFindReplace;
-	Window wParameters;
+	GUI::Window wFindInFiles;
+	GUI::Window wFindReplace;
+	GUI::Window wParameters;
 
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
 
@@ -174,7 +174,7 @@ protected:
 
 	BOOL HandleReplaceCommand(int cmd);
 
-	virtual int WindowMessageBox(Window &w, const SString &msg, int style);
+	virtual int WindowMessageBox(GUI::Window &w, const SString &msg, int style);
 	virtual void FindMessageBox(const SString &msg, const SString *findItem=0);
 	virtual void AboutDialog();
 	void DropFiles(HDROP hdrop);
@@ -258,7 +258,7 @@ public:
 	SciTEWin(Extension *ext = 0);
 	~SciTEWin();
 
-	bool DialogHandled(WindowID id, MSG *pmsg);
+	bool DialogHandled(GUI::WindowID id, MSG *pmsg);
 	bool ModelessHandler(MSG *pmsg);
 
 	void CreateUI();
@@ -272,7 +272,7 @@ public:
 	virtual void StopExecute();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input = "", int flags=0);
 
-	void Paint(HDC hDC, PRectangle rcPaint);
+	void Paint(HDC hDC, GUI::Rectangle rcPaint);
 	void Creation();
 	LRESULT KeyDown(WPARAM wParam);
 	LRESULT KeyUp(WPARAM wParam);
@@ -282,7 +282,7 @@ public:
 	LRESULT WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	virtual SString EncodeString(const SString &s);
-	virtual SString GetRangeInUIEncoding(Window &wCurrent, int selStart, int selEnd);
+	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
 
 	HACCEL GetAcceleratorTable() {
 		return hAccTable;
@@ -300,4 +300,9 @@ public:
 
 inline bool IsKeyDown(int key) {
 	return (::GetKeyState(key) & 0x80000000) != 0;
+}
+
+
+inline GUI::Point PointFromLong(long lPoint) {
+	return GUI::Point(static_cast<short>(LOWORD(lPoint)), static_cast<short>(HIWORD(lPoint)));
 }

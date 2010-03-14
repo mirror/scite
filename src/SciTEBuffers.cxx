@@ -18,16 +18,12 @@
 #include <string>
 #include <map>
 
-#include "Platform.h"
-
-#if PLAT_GTK
+#if defined(GTK)
 
 #include <unistd.h>
 #include <gtk/gtk.h>
 
-#endif
-
-#if PLAT_WIN
+#else
 
 #ifdef __BORLANDC__
 // Borland includes Windows.h for STL and defaults to different API number
@@ -61,17 +57,18 @@
 
 #endif
 
-#include "SciTE.h"
-#include "PropSet.h"
-#include "SString.h"
-#include "StringList.h"
-#include "Accessor.h"
-#include "WindowAccessor.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
-#include "Extender.h"
+
+#include "GUI.h"
+
+#include "SString.h"
+#include "StringList.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
+#include "StyleWriter.h"
+#include "Extender.h"
+#include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
 #include "SciTEBase.h"
@@ -227,7 +224,7 @@ sptr_t SciTEBase::GetDocumentAt(int index) {
 	}
 	if (buffers.buffers[index].doc == 0) {
 		// Create a new document buffer
-		buffers.buffers[index].doc = SendEditor(SCI_CREATEDOCUMENT, 0, 0);
+		buffers.buffers[index].doc = wEditor.Call(SCI_CREATEDOCUMENT, 0, 0);
 	}
 	return buffers.buffers[index].doc;
 }
@@ -258,7 +255,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 
 	Buffer bufferNext = buffers.buffers[buffers.Current()];
 	SetFileName(bufferNext);
-	SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
+	wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 	RestoreState(bufferNext);
 
 	TabSelect(index);
@@ -285,12 +282,12 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[currentbuf].scrollPosition = GetCurrentScrollPosition();
 
 		// Retrieve fold state and store in buffer state info
-		int maxLine = SendEditor(SCI_GETLINECOUNT);
+		int maxLine = wEditor.Call(SCI_GETLINECOUNT);
 		int foldPoints = 0;
 
 		for (int line = 0; line < maxLine; line++) {
-			if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
-				!SendEditor(SCI_GETFOLDEXPANDED, line)) {
+			if ((wEditor.Call(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
+				!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
 				foldPoints++;
 			}
 		}
@@ -304,8 +301,8 @@ void SciTEBase::UpdateBuffersCurrent() {
 			f->Alloc(foldPoints);
 
 			for (int line = 0; line < maxLine; line++) {
-				if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
-					!SendEditor(SCI_GETFOLDEXPANDED, line)) {
+				if ((wEditor.Call(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
+					!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
 					f->Append(line);
 				}
 			}
@@ -333,11 +330,11 @@ bool SciTEBase::CanMakeRoom(bool maySaveIfDirty) {
 }
 
 void SciTEBase::ClearDocument() {
-	SendEditor(SCI_SETREADONLY, 0);
-	SendEditor(SCI_CLEARALL);
-	SendEditor(SCI_EMPTYUNDOBUFFER);
-	SendEditor(SCI_SETSAVEPOINT);
-	SendEditor(SCI_SETREADONLY, isReadOnly);
+	wEditor.Call(SCI_SETREADONLY, 0);
+	wEditor.Call(SCI_CLEARALL);
+	wEditor.Call(SCI_EMPTYUNDOBUFFER);
+	wEditor.Call(SCI_SETSAVEPOINT);
+	wEditor.Call(SCI_SETREADONLY, isReadOnly);
 }
 
 void SciTEBase::CreateBuffers() {
@@ -355,8 +352,8 @@ void SciTEBase::InitialiseBuffers() {
 	if (!buffers.initialised) {
 		buffers.initialised = true;
 		// First document is the default from creation of control
-		buffers.buffers[0].doc = SendEditor(SCI_GETDOCPOINTER, 0, 0);
-		SendEditor(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
+		buffers.buffers[0].doc = wEditor.Call(SCI_GETDOCPOINTER, 0, 0);
+		wEditor.Call(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
 		if (buffers.size == 1) {
 			// Single buffer mode, delete the Buffers main menu entry
 			DestroyMenuItem(menuBuffers, 0);
@@ -446,7 +443,7 @@ void SciTEBase::RestoreSession() {
 				char *p = strtok(buf, ",");
 				while (p != NULL) {
 					int line = atoi(p) - 1;
-					SendEditor(SCI_MARKERADD, line, markerBookmark);
+					wEditor.Call(SCI_MARKERADD, line, markerBookmark);
 					p = strtok(NULL, ",");
 				}
 				delete []buf;
@@ -458,20 +455,20 @@ void SciTEBase::RestoreSession() {
 			propKey = IndexPropKey("buffer", i, "folds");
 			propStr = propsSession.Get(propKey.c_str());
 			if (propStr.length()) {
-				SendEditor(SCI_COLOURISE, 0, -1);
+				wEditor.Call(SCI_COLOURISE, 0, -1);
 				char *buf = new char[propStr.length() + 1];
 				strcpy(buf, propStr.c_str());
 				char *p = strtok(buf, ",");
 				while (p != NULL) {
 					int line = atoi(p) - 1;
-					SendEditor(SCI_TOGGLEFOLD, line);
+					wEditor.Call(SCI_TOGGLEFOLD, line);
 					p = strtok(NULL, ",");
 				}
 				delete [] buf;
 			}
 		}
 
-		SendEditor(SCI_SCROLLCARET);
+		wEditor.Call(SCI_SCROLLCARET);
 	}
 
 	if (curr != -1)
@@ -529,7 +526,7 @@ void SciTEBase::SaveSessionFile(const char *sessionName) {
 				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buffers.buffers[i].AsInternal());
 
 				SetDocumentAt(i);
-				int pos = SendEditor(SCI_GETCURRENTPOS) + 1;
+				int pos = wEditor.Call(SCI_GETCURRENTPOS) + 1;
 				propKey = IndexPropKey("buffer", i, "position");
 				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), pos);
 
@@ -541,7 +538,7 @@ void SciTEBase::SaveSessionFile(const char *sessionName) {
 				if (props.GetInt("session.bookmarks")) {
 					int line = -1;
 					bool found = false;
-					while ((line = SendEditor(SCI_MARKERNEXT, line + 1, 1 << markerBookmark)) >= 0) {
+					while ((line = wEditor.Call(SCI_MARKERNEXT, line + 1, 1 << markerBookmark)) >= 0) {
 						if (!found) {
 							propKey = IndexPropKey("buffer", i, "bookmarks");
 							fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
@@ -555,11 +552,11 @@ void SciTEBase::SaveSessionFile(const char *sessionName) {
 				}
 
 				if (props.GetInt("fold") && props.GetInt("session.folds")) {
-					int maxLine = SendEditor(SCI_GETLINECOUNT);
+					int maxLine = wEditor.Call(SCI_GETLINECOUNT);
 					bool found = false;
 					for (int line = 0; line < maxLine; line++) {
-						if ((SendEditor(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
-							!SendEditor(SCI_GETFOLDEXPANDED, line)) {
+						if ((wEditor.Call(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
+							!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
 							if (!found) {
 								propKey = IndexPropKey("buffer", i, "folds");
 								fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
@@ -594,34 +591,34 @@ void SciTEBase::SetIndentSettings() {
 	SString useTabsChars = props.GetNewExpand("use.tabs.",
 	        fileNameForExtension.c_str());
 	if (useTabsChars.length() != 0) {
-		SendEditor(SCI_SETUSETABS, useTabsChars.value());
+		wEditor.Call(SCI_SETUSETABS, useTabsChars.value());
 	} else {
-		SendEditor(SCI_SETUSETABS, useTabs);
+		wEditor.Call(SCI_SETUSETABS, useTabs);
 	}
 	SString tabSizeForExt = props.GetNewExpand("tab.size.",
 	        fileNameForExtension.c_str());
 	if (tabSizeForExt.length() != 0) {
-		SendEditor(SCI_SETTABWIDTH, tabSizeForExt.value());
+		wEditor.Call(SCI_SETTABWIDTH, tabSizeForExt.value());
 	} else if (tabSize != 0) {
-		SendEditor(SCI_SETTABWIDTH, tabSize);
+		wEditor.Call(SCI_SETTABWIDTH, tabSize);
 	}
 	SString indentSizeForExt = props.GetNewExpand("indent.size.",
 	        fileNameForExtension.c_str());
 	if (indentSizeForExt.length() != 0) {
-		SendEditor(SCI_SETINDENT, indentSizeForExt.value());
+		wEditor.Call(SCI_SETINDENT, indentSizeForExt.value());
 	} else {
-		SendEditor(SCI_SETINDENT, indentSize);
+		wEditor.Call(SCI_SETINDENT, indentSize);
 	}
 }
 
 void SciTEBase::SetEol() {
 	SString eol_mode = props.Get("eol.mode");
 	if (eol_mode == "LF") {
-		SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
+		wEditor.Call(SCI_SETEOLMODE, SC_EOL_LF);
 	} else if (eol_mode == "CR") {
-		SendEditor(SCI_SETEOLMODE, SC_EOL_CR);
+		wEditor.Call(SCI_SETEOLMODE, SC_EOL_CR);
 	} else if (eol_mode == "CRLF") {
-		SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+		wEditor.Call(SCI_SETEOLMODE, SC_EOL_CRLF);
 	}
 }
 
@@ -648,7 +645,7 @@ void SciTEBase::New() {
 	}
 
 	sptr_t doc = GetDocumentAt(buffers.Current());
-	SendEditor(SCI_SETDOCPOINTER, 0, doc);
+	wEditor.Call(SCI_SETDOCPOINTER, 0, doc);
 
 	FilePath curDirectory(filePath.Directory());
 	filePath.Set(curDirectory, "");
@@ -671,13 +668,13 @@ void SciTEBase::RestoreState(const Buffer &buffer) {
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override the code page if Unicode
 		codePage = SC_CP_UTF8;
-		SendEditor(SCI_SETCODEPAGE, codePage);
+		wEditor.Call(SCI_SETCODEPAGE, codePage);
 	}
-	isReadOnly = SendEditor(SCI_GETREADONLY);
+	isReadOnly = wEditor.Call(SCI_GETREADONLY);
 
 	// check to see whether there is saved fold state, restore
 	for (int fold = 0; fold < buffer.foldState.Folds(); fold++) {
-		SendEditor(SCI_TOGGLEFOLD, buffer.foldState.Line(fold));
+		wEditor.Call(SCI_TOGGLEFOLD, buffer.foldState.Line(fold));
 	}
 }
 
@@ -719,7 +716,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 
 		if (updateUI)
 			SetFileName(bufferNext);
-		SendEditor(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
+		wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 		if (closingLast) {
 			ClearDocument();
 		}
@@ -879,7 +876,7 @@ void SciTEBase::BuffersMenu() {
 			entry[0] = '\0';
 			char titleTab[MAX_PATH*2 + 20];
 			titleTab[0] = '\0';
-#if PLAT_WIN
+#if !defined(GTK)
 
 			if (pos < 10) {
 				sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
@@ -893,7 +890,7 @@ void SciTEBase::BuffersMenu() {
 				strcat(titleTab, untitled.c_str());
 			} else {
 				SString path = buffers.buffers[pos].AsInternal();
-#if PLAT_WIN
+#if !defined(GTK)
 				// Handle '&' characters in path, since they are interpreted in
 				// menues and tab names.
 				int amp = 0;
@@ -925,13 +922,12 @@ void SciTEBase::BuffersMenu() {
 		}
 	}
 	CheckMenus();
-#if PLAT_WIN
+#if !defined(GTK)
 
 	if (tabVisible)
 		SizeSubWindows();
 #endif
-#if PLAT_GTK
-
+#if defined(GTK)
 	ShowTabBar();
 #endif
 }
@@ -952,7 +948,7 @@ void SciTEBase::SetFileStackMenu() {
 			if (recentFileStack[stackPos].IsSet()) {
 				char entry[MAX_PATH + 20];
 				entry[0] = '\0';
-#if PLAT_WIN
+#if !defined(GTK)
 
 				sprintf(entry, "&%d ", (stackPos + 1) % 10);
 #endif
@@ -975,7 +971,7 @@ void SciTEBase::DropFileStackTop() {
 bool SciTEBase::AddFileToBuffer(FilePath file, int pos) {
 	// Return whether file loads successfully
 	if (file.Exists() && Open(file, ofForceLoad)) {
-		SendEditor(SCI_GOTOPOS, pos);
+		wEditor.Call(SCI_GOTOPOS, pos);
 		return true;
 	} else {
 		return false;
@@ -1027,15 +1023,15 @@ RecentFile SciTEBase::GetFilePosition() {
 
 void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
-		int lineStart = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMin);
-		SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, lineStart);
-		int lineEnd = SendEditor(SCI_LINEFROMPOSITION, rf.selection.cpMax);
-		SendEditor(SCI_ENSUREVISIBLEENFORCEPOLICY, lineEnd);
+		int lineStart = wEditor.Call(SCI_LINEFROMPOSITION, rf.selection.cpMin);
+		wEditor.Call(SCI_ENSUREVISIBLEENFORCEPOLICY, lineStart);
+		int lineEnd = wEditor.Call(SCI_LINEFROMPOSITION, rf.selection.cpMax);
+		wEditor.Call(SCI_ENSUREVISIBLEENFORCEPOLICY, lineEnd);
 		SetSelection(rf.selection.cpMax, rf.selection.cpMin);
 
-		int curTop = SendEditor(SCI_GETFIRSTVISIBLELINE);
-		int lineTop = SendEditor(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
-		SendEditor(SCI_LINESCROLL, 0, lineTop - curTop);
+		int curTop = wEditor.Call(SCI_GETFIRSTVISIBLELINE);
+		int lineTop = wEditor.Call(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
+		wEditor.Call(SCI_LINESCROLL, 0, lineTop - curTop);
 	}
 }
 
@@ -1142,7 +1138,7 @@ void SciTEBase::SetToolsMenu() {
 				sMnemonic += "Ctrl+";
 				sMnemonic += SString(item);
 			}
-			SetMenuItemLocalised(menuTools, menuPos, itemID, sMenuItem.c_str(), 
+			SetMenuItemLocalised(menuTools, menuPos, itemID, sMenuItem.c_str(),
 				sMnemonic[0] ? sMnemonic.c_str() : NULL);
 			menuPos++;
 		}
@@ -1696,20 +1692,20 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 
 void SciTEBase::GoMessage(int dir) {
 	Sci_CharacterRange crange;
-	crange.cpMin = SendOutput(SCI_GETSELECTIONSTART);
-	crange.cpMax = SendOutput(SCI_GETSELECTIONEND);
+	crange.cpMin = wOutput.Call(SCI_GETSELECTIONSTART);
+	crange.cpMax = wOutput.Call(SCI_GETSELECTIONEND);
 	int selStart = crange.cpMin;
-	int curLine = SendOutput(SCI_LINEFROMPOSITION, selStart);
-	int maxLine = SendOutput(SCI_GETLINECOUNT);
+	int curLine = wOutput.Call(SCI_LINEFROMPOSITION, selStart);
+	int maxLine = wOutput.Call(SCI_GETLINECOUNT);
 	int lookLine = curLine + dir;
 	if (lookLine < 0)
 		lookLine = maxLine - 1;
 	else if (lookLine >= maxLine)
 		lookLine = 0;
-	WindowAccessor acc(wOutput.GetID(), props);
+	TextReader acc(wOutput);
 	while ((dir == 0) || (lookLine != curLine)) {
-		int startPosLine = SendOutput(SCI_POSITIONFROMLINE, lookLine, 0);
-		int lineLength = SendOutput(SCI_LINELENGTH, lookLine, 0);
+		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, lookLine, 0);
+		int lineLength = wOutput.Call(SCI_LINELENGTH, lookLine, 0);
 		//Platform::DebugPrintf("GOMessage %d %d %d of %d linestart = %d\n", selStart, curLine, lookLine, maxLine, startPosLine);
 		char style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
@@ -1718,14 +1714,14 @@ void SciTEBase::GoMessage(int dir) {
 		        style != SCE_ERR_DIFF_CHANGED &&
 		        style != SCE_ERR_DIFF_DELETION) {
 			//Platform::DebugPrintf("Marker to %d\n", lookLine);
-			SendOutput(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
-			SendOutput(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
-			SendOutput(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
+			wOutput.Call(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
+			wOutput.Call(SCI_MARKERDEFINE, 0, SC_MARK_SMALLRECT);
+			wOutput.Call(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
 			        "error.marker.fore", ColourRGB(0x7f, 0, 0)));
-			SendOutput(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
+			wOutput.Call(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
 			        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
-			SendOutput(SCI_MARKERADD, lookLine, 0);
-			SendOutput(SCI_SETSEL, startPosLine, startPosLine);
+			wOutput.Call(SCI_MARKERADD, lookLine, 0);
+			wOutput.Call(SCI_SETSEL, startPosLine, startPosLine);
 			SString message = GetRange(wOutput, startPosLine, startPosLine + lineLength);
 			char source[MAX_PATH];
 			int column;
@@ -1774,23 +1770,23 @@ void SciTEBase::GoMessage(int dir) {
 							findWhat = cTag;
 							FindNext(false);
 							//get linenumber for marker from found position
-							sourceLine = SendEditor(SCI_LINEFROMPOSITION, SendEditor(SCI_GETCURRENTPOS));
+							sourceLine = wEditor.Call(SCI_LINEFROMPOSITION, wEditor.Call(SCI_GETCURRENTPOS));
 						}
 					}
 				}
 
-				SendEditor(SCI_MARKERDELETEALL, 0);
-				SendEditor(SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
-				SendEditor(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
+				wEditor.Call(SCI_MARKERDELETEALL, 0);
+				wEditor.Call(SCI_MARKERDEFINE, 0, SC_MARK_CIRCLE);
+				wEditor.Call(SCI_MARKERSETFORE, 0, ColourOfProperty(props,
 				        "error.marker.fore", ColourRGB(0x7f, 0, 0)));
-				SendEditor(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
+				wEditor.Call(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
 				        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
-				SendEditor(SCI_MARKERADD, sourceLine, 0);
-				int startSourceLine = SendEditor(SCI_POSITIONFROMLINE, sourceLine, 0);
-				int endSourceline = SendEditor(SCI_POSITIONFROMLINE, sourceLine + 1, 0);
+				wEditor.Call(SCI_MARKERADD, sourceLine, 0);
+				int startSourceLine = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine, 0);
+				int endSourceline = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine + 1, 0);
 				if (column >= 0) {
 					// Get the position in line according to current tab setting
-					startSourceLine = SendEditor(SCI_FINDCOLUMN, sourceLine, column);
+					startSourceLine = wEditor.Call(SCI_FINDCOLUMN, sourceLine, column);
 				}
 				EnsureRangeVisible(startSourceLine, startSourceLine);
 				if (props.GetInt("error.select.line") == 1) {

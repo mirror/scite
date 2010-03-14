@@ -9,7 +9,8 @@
 #define EXTENDER_H
 
 #include "Scintilla.h"
-class Accessor;
+
+class StyleWriter;
 
 class ExtensionAPI {
 public:
@@ -56,7 +57,7 @@ public:
 	virtual bool OnExecute(const char *) { return false; }
 	virtual bool OnSavePointReached() { return false; }
 	virtual bool OnSavePointLeft() { return false; }
-	virtual bool OnStyle(unsigned int, int, int, Accessor *) {
+	virtual bool OnStyle(unsigned int, int, int, StyleWriter *) {
 		return false;
 	}
 	virtual bool OnDoubleClick() { return false; }

@@ -520,36 +520,36 @@ Sc1.obj: SciTEWin.cxx
 	$(CC) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAME)$@ SciTEWin.cxx
 
 # Dependencies
-DirectorExtension.obj: \
+DirectorExtension.o: \
 	DirectorExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SciTE.h \
 	../src/SString.h \
 	../src/StringList.h \
-	../src/Extender.h \
-	DirectorExtension.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/Extender.h \
+	DirectorExtension.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-GUIWin.obj: \
+GUIWin.o: \
 	GUIWin.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h
-SciTEWin.obj: \
+SciTEWin.o: \
 	SciTEWin.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SciTE.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
 	../src/SString.h \
+	../src/StringList.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
-	../src/StringList.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h \
@@ -560,192 +560,192 @@ SciTEWin.obj: \
 	DirectorExtension.h \
 	SingleThreadExtension.h \
 	../src/LuaExtension.h
-SciTEWinBar.obj: \
+SciTEWinBar.o: \
 	SciTEWinBar.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SciTE.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
 	../src/SString.h \
+	../src/StringList.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
-	../src/StringList.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h
-SciTEWinDlg.obj: \
+SciTEWinDlg.o: \
 	SciTEWinDlg.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SciTE.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
 	../src/SString.h \
+	../src/StringList.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
-	../src/StringList.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h
-SingleThreadExtension.obj: \
+SingleThreadExtension.o: \
 	SingleThreadExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	SingleThreadExtension.h \
 	../src/Extender.h
-UniqueInstance.obj: \
+UniqueInstance.o: \
 	UniqueInstance.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	SciTEWin.h \
-	../src/SciTE.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
 	../src/SString.h \
+	../src/StringList.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
-	../src/StringList.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h
-WinMutex.obj: \
+WinMutex.o: \
 	WinMutex.cxx \
 	../src/Mutex.h
-Exporters.obj: \
+Exporters.o: \
 	../src/Exporters.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SciTE.h \
 	../src/SString.h \
 	../src/StringList.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-FilePath.obj: \
+FilePath.o: \
 	../src/FilePath.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/SString.h \
 	../src/FilePath.h
-JobQueue.obj: \
+JobQueue.o: \
 	../src/JobQueue.cxx \
 	../../scintilla/include/Scintilla.h \
-	../src/SciTE.h \
 	../src/SString.h \
 	../src/FilePath.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h
-MultiplexExtension.obj: \
+MultiplexExtension.o: \
 	../src/MultiplexExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/MultiplexExtension.h \
 	../src/Extender.h
-PropSetFile.obj: \
+PropSetFile.o: \
 	../src/PropSetFile.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/SString.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h
-SciTEBase.obj: \
+SciTEBase.o: \
 	../src/SciTEBase.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
 	../src/GUI.h \
-	../src/SciTE.h \
 	../src/SString.h \
 	../src/StringList.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-SciTEBuffers.obj: \
+SciTEBuffers.o: \
 	../src/SciTEBuffers.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
 	../src/GUI.h \
-	../src/SciTE.h \
 	../src/SString.h \
 	../src/StringList.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
 	../src/SciTEBase.h
-SciTEIO.obj: \
+SciTEIO.o: \
 	../src/SciTEIO.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SciTE.h \
 	../src/SString.h \
 	../src/StringList.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
-	../src/Utf8_16.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
-	../src/SciTEBase.h
-SciTEProps.obj: \
+	../src/SciTEBase.h \
+	../src/Utf8_16.h
+SciTEProps.o: \
 	../src/SciTEProps.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
 	../src/GUI.h \
-	../src/SciTE.h \
 	../src/SString.h \
 	../src/StringList.h \
-	../src/StyleWriter.h \
-	../src/Extender.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
+	../src/IFaceTable.h \
 	../src/Mutex.h \
 	../src/JobQueue.h \
-	../src/SciTEBase.h \
-	../src/IFaceTable.h
-StringList.obj: \
+	../src/SciTEBase.h
+StringList.o: \
 	../src/StringList.cxx \
 	../src/SString.h \
 	../src/StringList.h
-StyleWriter.obj: \
+StyleWriter.o: \
 	../src/StyleWriter.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/StyleWriter.h
-Utf8_16.obj: \
+Utf8_16.o: \
 	../src/Utf8_16.cxx \
 	../src/Utf8_16.h
 
 !IFNDEF NO_LUA
-LuaExtension.obj: \
+LuaExtension.o: \
 	../src/LuaExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
+	../src/SString.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
 	../src/LuaExtension.h \
-	../src/SString.h \
-	../src/SciTEKeys.h \
-	../src/IFaceTable.h
+	../src/IFaceTable.h \
+	../src/SciTEKeys.h
 
 IFaceTable.obj: \
 	../src/IFaceTable.cxx \

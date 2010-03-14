@@ -8,7 +8,7 @@
 
 // http://www.microsoft.com/msj/0797/win320797.aspx
 
-#include "windows.h"
+#include <windows.h>
 #include "Mutex.h"
 
 class WinMutex : public Mutex {

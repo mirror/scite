@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Platform.h"
+#include "Scintilla.h"
+#include "GUI.h"
 #include "SciTEWin.h"
 
 UniqueInstance::UniqueInstance() {

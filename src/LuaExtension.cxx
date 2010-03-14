@@ -8,13 +8,15 @@
 #include <ctype.h>
 
 #include "Scintilla.h"
-#include "Accessor.h"
+
+#include "GUI.h"
+#include "SString.h"
+#include "StyleWriter.h"
 #include "Extender.h"
 #include "LuaExtension.h"
 
-#include "SString.h"
-#include "SciTEKeys.h"
 #include "IFaceTable.h"
+#include "SciTEKeys.h"
 
 extern "C" {
 #include "lua.h"
@@ -22,9 +24,7 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-#include "Platform.h"
-
-#if PLAT_WIN
+#if !defined(GTK)
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -1625,7 +1625,7 @@ struct StylingContext {
 	unsigned int startPos;
 	int lengthDoc;
 	int initStyle;
-	Accessor *styler;
+	StyleWriter *styler;
 
 	unsigned int endPos;
 	unsigned int endDoc;
@@ -1651,13 +1651,6 @@ struct StylingContext {
 		if (end >= static_cast<int>(endDoc))
 			end = static_cast<int>(endDoc)-1;
 		styler->ColourTo(end, state);
-	}
-
-	static int PropertyInt(lua_State *L) {
-		StylingContext *context = Context(L);
-		const char *s = luaL_checkstring(L, 2);
-		lua_pushnumber(L, context->styler->GetPropertyInt(s));
-		return 1;
 	}
 
 	static int Line(lua_State *L) {
@@ -1766,7 +1759,7 @@ struct StylingContext {
 		memcpy(cursor[0], "\0\0\0\0\0\0\0\0", 8);
 		memcpy(cursor[1], "\0\0\0\0\0\0\0\0", 8);
 		memcpy(cursor[2], "\0\0\0\0\0\0\0\0", 8);
-		styler->StartAt(startPos, static_cast<char>(0xff));
+		styler->StartAt(startPos, static_cast<char>(0xffu));
 		styler->StartSegment(startPos);
 
 		GetNextChar();
@@ -1886,12 +1879,13 @@ struct StylingContext {
 		int len = end - start + 1;
 		if (len <= 0)
 			len = 1;
-		char *sReturn = new char[len];
+		char *sReturn = new char[len+1];
 		for (int i = 0; i < len; i++) {
 			sReturn[i] = context->styler->SafeGetCharAt(start + i);
 		}
 		sReturn[len] = '\0';
 		lua_pushstring(L, sReturn);
+		delete []sReturn;
 		return 1;
 	}
 
@@ -1918,7 +1912,7 @@ struct StylingContext {
 	}
 };
 
-bool LuaExtension::OnStyle(unsigned int startPos, int lengthDoc, int initStyle, Accessor *styler) {
+bool LuaExtension::OnStyle(unsigned int startPos, int lengthDoc, int initStyle, StyleWriter *styler) {
 	bool handled = false;
 	if (luaState) {
 		lua_getglobal(luaState, "OnStyle");
@@ -1946,10 +1940,11 @@ bool LuaExtension::OnStyle(unsigned int startPos, int lengthDoc, int initStyle, 
 			lua_settable(luaState, -3);
 
 			lua_pushstring(luaState, "language");
-			lua_pushstring(luaState, host->Property("Language"));
+			char *lang = host->Property("Language");
+			lua_pushstring(luaState, lang);
+			delete []lang;
 			lua_settable(luaState, -3);
 
-			sc.PushMethod(luaState, StylingContext::PropertyInt, "PropertyInt");
 			sc.PushMethod(luaState, StylingContext::Line, "Line");
 			sc.PushMethod(luaState, StylingContext::CharAt, "CharAt");
 			sc.PushMethod(luaState, StylingContext::StyleAt, "StyleAt");
