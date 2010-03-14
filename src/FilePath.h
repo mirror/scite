@@ -68,7 +68,6 @@ public:
 	FilePath NormalizePath() const;
 	static FilePath GetWorkingDirectory();
 	bool SetWorkingDirectory() const;
-	void FixCase();
 	void List(FilePathSet &directories, FilePathSet &files);
 	FILE *Open(const char *mode) const;
 	void Remove() const;

@@ -390,8 +390,6 @@ bool FilePath::SetWorkingDirectory() const {
 	return chdir(AsFileSystem()) == 0;
 }
 
-void FilePath::FixCase() {}
-
 void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 #ifdef WIN32
 	FilePath wildCard(*this, "*.*");
