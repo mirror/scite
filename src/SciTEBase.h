@@ -2,7 +2,7 @@
 /** @file SciTEBase.h
  ** Definition of platform independent base class of editor.
  **/
-// Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 extern const char appName[];
@@ -262,7 +262,7 @@ public:
 	int Add();
 	int GetDocumentByName(FilePath filename, bool excludeCurrent=false);
 	void RemoveCurrent();
-	int Current();
+	int Current() const;
 	Buffer *CurrentBuffer();
 	void SetCurrent(int index);
 	int StackNext();

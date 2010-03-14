@@ -2,7 +2,7 @@
 /** @file SciTEBuffers.cxx
  ** Buffers and jobs management.
  **/
-// Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -140,7 +140,7 @@ void BufferList::RemoveCurrent() {
 	MoveToStackTop(current);
 }
 
-int BufferList::Current() {
+int BufferList::Current() const {
 	return current;
 }
 

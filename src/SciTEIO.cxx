@@ -2,7 +2,7 @@
 /** @file SciTEIO.cxx
  ** Manage input and output with the system.
  **/
-// Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -1102,7 +1102,7 @@ public:
 		}
 		return lineToCompare;
 	}
-	int LineNumber() {
+	int LineNumber() const {
 		return lineNum;
 	}
 	const char *Original() {
