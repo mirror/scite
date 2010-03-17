@@ -127,8 +127,8 @@ bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
 }
 
 HINSTANCE SciTEWin::hInstance = 0;
-const char *SciTEWin::className = NULL;
-const char *SciTEWin::classNameInternal = NULL;
+const TCHAR *SciTEWin::className = NULL;
+const TCHAR *SciTEWin::classNameInternal = NULL;
 SciTEWin *SciTEWin::app = NULL;
 
 SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
@@ -217,14 +217,14 @@ uptr_t SciTEWin::GetInstance() {
 }
 
 void SciTEWin::Register(HINSTANCE hInstance_) {
-	const char resourceName[] = "SciTE";
+	const TCHAR resourceName[] = TEXT("SciTE");
 
 	hInstance = hInstance_;
 
 	WNDCLASS wndclass;
 
 	// Register the frame window
-	className = "SciTEWindow";
+	className = TEXT("SciTEWindow");
 	wndclass.style = 0;
 	wndclass.lpfnWndProc = SciTEWin::TWndProc;
 	wndclass.cbClsExtra = 0;
@@ -239,7 +239,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		exit(FALSE);
 
 	// Register the window that holds the two Scintilla edit windows and the separator
-	classNameInternal = "SciTEWindowContent";
+	classNameInternal = TEXT("SciTEWindowContent");
 	wndclass.lpfnWndProc = SciTEWin::IWndProc;
 	wndclass.lpszMenuName = 0;
 	wndclass.lpszClassName = classNameInternal;

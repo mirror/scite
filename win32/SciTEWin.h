@@ -87,8 +87,8 @@ protected:
 
 	int cmdShow;
 	static HINSTANCE hInstance;
-	static const char *className;
-	static const char *classNameInternal;
+	static const TCHAR *className;
+	static const TCHAR *classNameInternal;
 	static SciTEWin *app;
 	WINDOWPLACEMENT winPlace;
 	RECT rcWorkArea;
