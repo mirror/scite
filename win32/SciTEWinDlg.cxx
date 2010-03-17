@@ -1112,16 +1112,7 @@ void SciTEWin::FindIncrement() {
 		return;
 	}
 
-	memset(&fr, 0, sizeof(fr));
-	fr.lStructSize = sizeof(fr);
-	fr.hwndOwner = MainHWND();
-	fr.hInstance = hInstance;
-	fr.Flags = 0;
-	if (!reverseFind)
-		fr.Flags |= FR_DOWN;
 	findWhat.clear();
-	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
-	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 
 	replacing = false;
 	if (isWindowsNT) {
@@ -1151,15 +1142,6 @@ void SciTEWin::Find() {
 		return;
 	SelectionIntoFind();
 
-	memset(&fr, 0, sizeof(fr));
-	fr.lStructSize = sizeof(fr);
-	fr.hwndOwner = MainHWND();
-	fr.hInstance = hInstance;
-	fr.Flags = 0;
-	if (!reverseFind)
-		fr.Flags |= FR_DOWN;
-	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
-	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
 	int dialog_id = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
 
 	if (isWindowsNT) {
@@ -1367,15 +1349,6 @@ void SciTEWin::Replace() {
 		return;
 	SelectionIntoFind(false); // don't strip EOL at end of selection
 
-	memset(&fr, 0, sizeof(fr));
-	fr.lStructSize = sizeof(fr);
-	fr.hwndOwner = MainHWND();
-	fr.hInstance = hInstance;
-	fr.Flags = FR_REPLACE;
-	fr.lpstrFindWhat = const_cast<char *>(findWhat.c_str());
-	fr.lpstrReplaceWith = const_cast<char *>(replaceWhat.c_str());
-	fr.wFindWhatLen = static_cast<WORD>(findWhat.length() + 1);
-	fr.wReplaceWithLen = static_cast<WORD>(replaceWhat.length() + 1);
 	int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
 
 	if (isWindowsNT) {

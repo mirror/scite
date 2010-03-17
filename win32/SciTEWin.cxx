@@ -141,7 +141,6 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	winPlace.length = 0;
 
 	openWhat[0] = '\0';
-	memset(&fr, 0, sizeof(fr));
 	modalParameters = false;
 	filterDefault = 1;
 	menuSource = 0;

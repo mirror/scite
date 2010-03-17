@@ -92,7 +92,6 @@ protected:
 	static SciTEWin *app;
 	WINDOWPLACEMENT winPlace;
 	RECT rcWorkArea;
-	FINDREPLACE fr;
 	char openWhat[200];
 	bool modalParameters;
 	int filterDefault;
