@@ -45,7 +45,7 @@ LRESULT PASCAL SingleThreadExtension::WndProc(HWND hwnd, UINT uMsg, WPARAM wPara
 
 bool SingleThreadExtension::Initialise(ExtensionAPI *host_) {
 	hwndDispatcher = CreateWindow(
-		"STATIC", "SciTE_SingleThreadExtension_Dispatcher",
+		TEXT("STATIC"), TEXT("SciTE_SingleThreadExtension_Dispatcher"),
 		0, 0, 0, 0, 0, 0, 0, GetModuleHandle(NULL), 0
 	);
 

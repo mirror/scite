@@ -1357,7 +1357,7 @@ void SciTEWin::FindInFiles() {
 	props.Set("find.what", findWhat.c_str());
 	FilePath findInDir = filePath.Directory();
 	props.Set("find.directory", findInDir.AsFileSystem());
-	wFindInFiles = ::CreateDialogParam(hInstance, "Grep", MainHWND(),
+	wFindInFiles = ::CreateDialogParam(hInstance, TEXT("Grep"), MainHWND(),
 		reinterpret_cast<DLGPROC>(GrepDlg), reinterpret_cast<sptr_t>(this));
 	wFindInFiles.Show();
 }
@@ -1663,7 +1663,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 		WindowSetFocus(wEditor);
 	} else {
 		::CreateDialogParam(hInstance,
-		                    "PARAMETERSNONMODAL",
+		                    TEXT("PARAMETERSNONMODAL"),
 		                    MainHWND(),
 		                    reinterpret_cast<DLGPROC>(ParametersDlg),
 		                    reinterpret_cast<LPARAM>(this));

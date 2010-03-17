@@ -894,7 +894,7 @@ void SciTEWin::Creation() {
 	wContent = ::CreateWindowEx(
 	               WS_EX_CLIENTEDGE,
 	               classNameInternal,
-	               "Source",
+	               TEXT("Source"),
 	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	               0, 0,
 	               100, 100,
@@ -906,8 +906,8 @@ void SciTEWin::Creation() {
 
 	wEditor.SetID(::CreateWindowEx(
 	              0,
-	              "Scintilla",
-	              "Source",
+	              TEXT("Scintilla"),
+	              TEXT("Source"),
 	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	              0, 0,
 	              100, 100,
@@ -923,8 +923,8 @@ void SciTEWin::Creation() {
 
 	wOutput.SetID(::CreateWindowEx(
 	              0,
-	              "Scintilla",
-	              "Run",
+	              TEXT("Scintilla"),
+	              TEXT("Run"),
 	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	              0, 0,
 	              100, 100,
@@ -944,7 +944,7 @@ void SciTEWin::Creation() {
 	HWND hwndToolBar = ::CreateWindowEx(
 	               0,
 	               TOOLBARCLASSNAME,
-	               "",
+	               TEXT(""),
 	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS | CCS_NORESIZE,
 	               0, 0,
@@ -992,15 +992,15 @@ void SciTEWin::Creation() {
 	stDefaultTabProc = wndClass.lpfnWndProc;
 	wndClass.lpfnWndProc = TabWndProc;
 	wndClass.style = wndClass.style | CS_DBLCLKS;
-	wndClass.lpszClassName = "SciTeTabCtrl";
+	wndClass.lpszClassName = TEXT("SciTeTabCtrl");
 	wndClass.hInstance = hInstance;
 	if (RegisterClass(&wndClass) == 0)
 		exit(FALSE);
 
 	wTabBar = ::CreateWindowEx(
 	              0,
-	              "SciTeTabCtrl",
-	              "Tab",
+	              TEXT("SciTeTabCtrl"),
+	              TEXT("Tab"),
 	              WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 	              TCS_FOCUSNEVER | TCS_TOOLTIPS,
 	              0, 0,
@@ -1027,7 +1027,7 @@ void SciTEWin::Creation() {
 	wStatusBar = ::CreateWindowEx(
 	                 0,
 	                 STATUSCLASSNAME,
-	                 "",
+	                 TEXT(""),
 	                 WS_CHILD | WS_CLIPSIBLINGS,
 	                 0, 0,
 	                 100, heightStatus,

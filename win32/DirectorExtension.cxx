@@ -111,7 +111,7 @@ static void CheckEnvironment(ExtensionAPI *host) {
 	}
 }
 
-static char DirectorExtension_ClassName[] = "DirectorExtension";
+static TCHAR DirectorExtension_ClassName[] = TEXT("DirectorExtension");
 
 static LRESULT HandleCopyData(LPARAM lParam) {
 	COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
@@ -159,7 +159,7 @@ DirectorExtension &DirectorExtension::Instance() {
 
 bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	host = host_;
-	SDI = ::RegisterWindowMessage("SciTEDirectorInterface");
+	SDI = ::RegisterWindowMessage(TEXT("SciTEDirectorInterface"));
 	HINSTANCE hInstance = reinterpret_cast<HINSTANCE>(
 	                          host->GetInstance());
 	DirectorExtension_Register(hInstance);

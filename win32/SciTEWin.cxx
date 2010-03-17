@@ -158,7 +158,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	propsEmbed.Clear();
 	// System type properties are also stored in the embedded properties.
 	propsEmbed.Set("PLAT_WIN", "1");
-	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
+	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, TEXT("")};
 	::GetVersionEx(&osv);
 	isWindowsNT = osv.dwPlatformId == VER_PLATFORM_WIN32_NT;
 	allowAlpha = isWindowsNT;
@@ -167,7 +167,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	else if (osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
 		propsEmbed.Set("PLAT_WIN95", "1");
 
-	HRSRC handProps = ::FindResource(hInstance, "Embedded", "Properties");
+	HRSRC handProps = ::FindResource(hInstance, TEXT("Embedded"), TEXT("Properties"));
 	if (handProps) {
 		DWORD size = ::SizeofResource(hInstance, handProps);
 		HGLOBAL hmem = ::LoadResource(hInstance, handProps);
@@ -196,7 +196,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	hMM = 0;
 	uniqueInstance.Init(this);
 
-	hAccTable = ::LoadAccelerators(hInstance, "ACCELS"); // md
+	hAccTable = ::LoadAccelerators(hInstance, TEXT("ACCELS")); // md
 }
 
 SciTEWin::~SciTEWin() {
@@ -328,7 +328,7 @@ struct XHH_AKLINK {
 // Help command lines contain topic!path
 void SciTEWin::ExecuteHelp(const char *cmd) {
 	if (!hHH)
-		hHH = ::LoadLibrary("HHCTRL.OCX");
+		hHH = ::LoadLibrary(TEXT("HHCTRL.OCX"));
 
 	if (hHH) {
 		char *topic = StringDup(cmd);
@@ -388,7 +388,7 @@ void SciTEWin::CopyAsRTF() {
 }
 
 void SciTEWin::FullScreenToggle() {
-	HWND wTaskBar = FindWindow("Shell_TrayWnd", "");
+	HWND wTaskBar = FindWindow(TEXT("Shell_TrayWnd"), TEXT(""));
 	fullScreen = !fullScreen;
 	if (fullScreen) {
 		::SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
@@ -567,7 +567,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 		return exitcode;
 	}
 
-	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, ""};
+	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, TEXT("")};
 	::GetVersionEx(&osv);
 	bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
 
@@ -1437,7 +1437,7 @@ void SciTEWin::MinimizeToTray() {
 	nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
 	nid.uCallbackMessage = SCITE_TRAY;
 	nid.hIcon = static_cast<HICON>(
-	                ::LoadImage(hInstance, "SCITE", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
+	                ::LoadImage(hInstance, TEXT("SCITE"), IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
 	strcpy(nid.szTip, n);
 	::ShowWindow(MainHWND(), SW_MINIMIZE);
 	if (::Shell_NotifyIcon(NIM_ADD, &nid)) {
@@ -1536,7 +1536,7 @@ void SciTEWin::AddToPopUp(const char *label, int cmd, bool enabled) {
 	SString localised = localiser.Text(label);
 	HMENU menu = reinterpret_cast<HMENU>(popup.GetID());
 	if (0 == localised.length())
-		::AppendMenu(menu, MF_SEPARATOR, 0, "");
+		::AppendMenu(menu, MF_SEPARATOR, 0, TEXT(""));
 	else if (enabled)
 		::AppendMenu(menu, MF_STRING, cmd, localised.c_str());
 	else
@@ -1725,7 +1725,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			sprintf(buff, "Scintilla failed with status %d.", statusFailure);
 		}
 		strcat(buff, " SciTE will now close.");
-		::MessageBox(MainHWND(), buff, "Failure in Scintilla", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+		::MessageBox(MainHWND(), buff, TEXT("Failure in Scintilla"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
 		exit(FALSE);
 	}
 	return 0l;
@@ -1986,9 +1986,10 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	Scintilla_RegisterClasses(hInstance);
 #else
 
-	HMODULE hmod = ::LoadLibrary("SciLexer.DLL");
+	HMODULE hmod = ::LoadLibrary(TEXT("SciLexer.DLL"));
 	if (hmod == NULL)
-		::MessageBox(NULL, "The Scintilla DLL could not be loaded.  SciTE will now close", "Error loading Scintilla", MB_OK | MB_ICONERROR);
+		::MessageBox(NULL, TEXT("The Scintilla DLL could not be loaded.  SciTE will now close"),
+			TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);
 #endif
 
 	int result;
