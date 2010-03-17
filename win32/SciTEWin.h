@@ -152,7 +152,7 @@ protected:
 	void LocaliseControl(HWND w);
 	void LocaliseDialog(HWND wDialog);
 
-	int DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc);
+	int DoDialog(HINSTANCE hInst, const TCHAR *resName, HWND hWnd, DLGPROC lpProc);
 	virtual bool OpenDialog(FilePath directory, const char *filter);
 	FilePath ChooseSaveName(FilePath directory, const char *title, const char *filter=0, const char *ext=0);
 	virtual bool SaveAsDialog();

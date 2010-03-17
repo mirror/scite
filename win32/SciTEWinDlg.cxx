@@ -164,7 +164,7 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 }
 
 //  DoDialog is a bit like something in PC Magazine May 28, 1991, page 357
-int SciTEWin::DoDialog(HINSTANCE hInst, const char *resName, HWND hWnd, DLGPROC lpProc) {
+int SciTEWin::DoDialog(HINSTANCE hInst, const TCHAR *resName, HWND hWnd, DLGPROC lpProc) {
 	int result = ::DialogBoxParam(hInst, resName, hWnd, lpProc, reinterpret_cast<LPARAM>(this));
 
 	if (result == -1) {
@@ -1477,7 +1477,7 @@ BOOL CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 }
 
 void SciTEWin::GoLineDialog() {
-	DoDialog(hInstance, "GoLine", MainHWND(), reinterpret_cast<DLGPROC>(GoLineDlg));
+	DoDialog(hInstance, TEXT("GoLine"), MainHWND(), reinterpret_cast<DLGPROC>(GoLineDlg));
 	WindowSetFocus(wEditor);
 }
 
@@ -1513,7 +1513,8 @@ BOOL CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 }
 
 bool SciTEWin::AbbrevDialog() {
-	bool success = (DoDialog(hInstance, "InsAbbrev", MainHWND(), reinterpret_cast<DLGPROC>(AbbrevDlg)) == IDOK);
+	bool success = (DoDialog(hInstance, TEXT("InsAbbrev"), MainHWND(),
+		reinterpret_cast<DLGPROC>(AbbrevDlg)) == IDOK);
 	WindowSetFocus(wEditor);
 	return success;
 }
@@ -1577,7 +1578,7 @@ BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 }
 
 void SciTEWin::TabSizeDialog() {
-	DoDialog(hInstance, "TabSize", MainHWND(), reinterpret_cast<DLGPROC>(TabSizeDlg));
+	DoDialog(hInstance, TEXT("TabSize"), MainHWND(), reinterpret_cast<DLGPROC>(TabSizeDlg));
 	WindowSetFocus(wEditor);
 }
 
@@ -1656,7 +1657,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 	modalParameters = modal;
 	if (modal) {
 		success = DoDialog(hInstance,
-		                   "PARAMETERS",
+		                   TEXT("PARAMETERS"),
 		                   MainHWND(),
 		                   reinterpret_cast<DLGPROC>(ParametersDlg)) == IDOK;
 		wParameters = 0;
@@ -1755,7 +1756,7 @@ BOOL CALLBACK SciTEWin::AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 
 void SciTEWin::AboutDialogWithBuild(int staticBuild_) {
 	staticBuild = staticBuild_;
-	DoDialog(hInstance, "About", MainHWND(),
+	DoDialog(hInstance, TEXT("About"), MainHWND(),
 	         reinterpret_cast<DLGPROC>(AboutDlg));
 	WindowSetFocus(wEditor);
 }
