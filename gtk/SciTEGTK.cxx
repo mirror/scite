@@ -75,10 +75,6 @@ size_t iconv_adaptor(size_t(*f_iconv)(iconv_t, T, size_t *, char **, size_t *),
 
 const char appName[] = "SciTE";
 
-#ifdef __vms
-char g_modulePath[MAX_PATH];
-#endif
-
 static GtkWidget *PWidget(GUI::Window &w) {
 	return reinterpret_cast<GtkWidget *>(w.GetID());
 }
@@ -696,11 +692,7 @@ FilePath SciTEGTK::GetDefaultDirectory() {
 	}
 #endif
 	if (where) {
-#ifdef __vms
-		return FilePath(VMSToUnixStyle(where));
-#else
 		return FilePath(where);
-#endif
 	}
 
 	return FilePath("");
@@ -708,11 +700,6 @@ FilePath SciTEGTK::GetDefaultDirectory() {
 
 FilePath SciTEGTK::GetSciteDefaultHome() {
 	const char *where = getenv("SciTE_HOME");
-#ifdef __vms
-	if (where == NULL) {
-		where = g_modulePath;
-	}
-#endif
 #ifdef SYSCONF_PATH
 	if (!where) {
 		where = SYSCONF_PATH;
@@ -723,11 +710,7 @@ FilePath SciTEGTK::GetSciteDefaultHome() {
 	}
 #endif
 	if (where) {
-#ifdef __vms
-		return FilePath(VMSToUnixStyle(where));
-#else
 		return FilePath(where);
-#endif
 
 	}
 	return FilePath("");
@@ -1246,9 +1229,6 @@ void SciTEGTK::HandleSaveAs(const char *savePath) {
 	default: {
 			/* Checking that no other buffer refers to the same filename */
 			FilePath destFile(savePath);
-#ifdef __vms
-			destFile = destFile.VMSToUnixStyle();
-#endif
 			SaveIfNotOpen(destFile, true);
 		}
 	}
@@ -3479,27 +3459,6 @@ int main(int argc, char *argv[]) {
 #endif
 
 	signal(SIGCHLD, SciTEGTK::ChildSignal);
-
-#ifdef __vms
-	// Store the path part of the module name
-	strcpy(g_modulePath, argv[0]);
-	char *p = strstr(g_modulePath, "][");
-	if (p != NULL) {
-		strcpy (p, p + 2);
-	}
-	p = strchr(g_modulePath, ']');
-	if (p == NULL) {
-		p = strchr(g_modulePath, '>');
-	}
-	if (p == NULL) {
-		p = strchr(g_modulePath, ':');
-	}
-	if (p != NULL) {
-		*(p + 1) = '\0';
-	}
-	strcpy(g_modulePath, VMSToUnixStyle(g_modulePath));
-	g_modulePath[strlen(g_modulePath) - 1] = '\0';  // remove trailing "/"
-#endif
 
 	// Get this now because gtk_init() clears it
 	const gchar *startup_id = g_getenv("DESKTOP_STARTUP_ID");

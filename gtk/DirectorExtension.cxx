@@ -117,13 +117,7 @@ static void RemoveSendPipes()
 
 static bool MakePipe(const char* pipeName) {
 	int res;
-//WB++
-#ifndef __vms
 	res = mkfifo(pipeName, 0777);
-#else           // no mkfifo on OpenVMS!
-	res = creat(pipeName, 0777);
-#endif
-//WB--
 	return res == 0;
 }
 

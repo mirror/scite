@@ -44,9 +44,6 @@ public:
 	FilePath(FilePath const &directory, FilePath const &name);
 	void Set(const char *fileName_);
 	const char *AsFileSystem() const;
-#ifdef __vms
-	FilePath VMSToUnixStyle();
-#endif
 	void Set(FilePath const &other);
 	void Set(FilePath const &directory, FilePath const &name);
 	void SetDirectory(FilePath directory);
