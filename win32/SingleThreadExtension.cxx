@@ -14,6 +14,8 @@
 // an #ifdef in LuaExtension.  But I did it this way so that other
 // extensions can leverage it without needing to do anything special.
 
+#include <string>
+
 #include "Scintilla.h"
 #include "GUI.h"
 #include "SingleThreadExtension.h"

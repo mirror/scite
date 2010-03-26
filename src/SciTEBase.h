@@ -5,13 +5,13 @@
 // Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-extern const char appName[];
+extern const GUI::gui_char appName[];
 
-extern const char propUserFileName[];
-extern const char propGlobalFileName[];
-extern const char propAbbrevFileName[];
+extern const GUI::gui_char propUserFileName[];
+extern const GUI::gui_char propGlobalFileName[];
+extern const GUI::gui_char propAbbrevFileName[];
 
-extern const char menuAccessIndicator[];
+extern const GUI::gui_char menuAccessIndicator[];
 
 #ifdef WIN32
 #ifdef _MSC_VER
@@ -353,7 +353,7 @@ public:
 	bool read;
 	Localization() : PropSetFile(true), read(false) {
 	}
-	SString Text(const char *s, bool retainIfNotFound=true);
+	GUI::gui_string Text(const char *s, bool retainIfNotFound=true);
 	void SetMissing(const SString &missing_) {
 		missing = missing_;
 	}
@@ -361,7 +361,7 @@ public:
 
 class SciTEBase : public ExtensionAPI {
 protected:
-	SString windowName;
+	GUI::gui_string windowName;
 	FilePath filePath;
 	FilePath dirNameAtExecute;
 	FilePath dirNameForExecute;
@@ -558,7 +558,7 @@ protected:
 	void PrevInStack();
 	void EndStackedTabbing();
 
-	virtual void TabInsert(int index, char *title) = 0;
+	virtual void TabInsert(int index, const GUI::gui_char *title) = 0;
 	virtual void TabSelect(int index) = 0;
 	virtual void RemoveAllTabs() = 0;
 	void ShiftTab(int indexFrom, int indexTo);
@@ -594,11 +594,11 @@ protected:
 	void ClearDocument();
 	void CreateBuffers();
 	void InitialiseBuffers();
-	FilePath UserFilePath(const char *name);
-	void LoadSessionFile(const char *sessionName);
+	FilePath UserFilePath(const GUI::gui_char *name);
+	void LoadSessionFile(const GUI::gui_char *sessionName);
 	void RestoreRecentMenu();
 	void RestoreSession();
-	void SaveSessionFile(const char *sessionName);
+	void SaveSessionFile(const GUI::gui_char *sessionName);
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) = 0;
 	void SetIndentSettings();
 	void SetEol();
@@ -606,13 +606,13 @@ protected:
 	void RestoreState(const Buffer &buffer);
 	void Close(bool updateUI = true, bool loadingSession = false, bool makingRoomForNew = false);
 	bool IsAbsolutePath(const char *path);
-	bool Exists(const char *dir, const char *path, FilePath *resultPath);
+	bool Exists(const GUI::gui_char *dir, const GUI::gui_char *path, FilePath *resultPath);
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
 	SString DiscoverLanguage(const char *buf, size_t length);
 	void OpenFile(int fileSize, bool suppressMessage);
 	virtual void OpenUriList(const char *) {};
-	virtual bool OpenDialog(FilePath directory, const char *filter) = 0;
+	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter) = 0;
 	virtual bool SaveAsDialog() = 0;
 	virtual void LoadSessionDialog() { };
 	virtual void SaveSessionDialog() { };
@@ -634,7 +634,7 @@ protected:
 	int SaveIfUnsureForBuilt();
 	void SaveIfNotOpen(const FilePath &destFile, bool fixCase);
 	bool Save();
-	void SaveAs(const char *file, bool fixCase);
+	void SaveAs(const GUI::gui_char *file, bool fixCase);
 	virtual void SaveACopy() = 0;
 	void SaveToHTML(FilePath saveName);
 	void StripTrailingSpaces();
@@ -679,7 +679,7 @@ protected:
 	void SelectionIntoFind(bool stripEol = true);
 	virtual SString EncodeString(const SString &s);
 	virtual void Find() = 0;
-	virtual int WindowMessageBox(GUI::Window &w, const SString &m, int style) = 0;
+	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) = 0;
 	virtual void FindMessageBox(const SString &msg, const SString *findItem = 0) = 0;
 	int FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition);
 	int FindNext(bool reverseDirection, bool showWarnings = true);
@@ -783,7 +783,7 @@ protected:
 	virtual void SizeSubWindows() = 0;
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
-	        const char *text, const char *mnemonic = 0) = 0;
+		const GUI::gui_char *text, const GUI::gui_char *mnemonic = 0) = 0;
 	virtual void RedrawMenu() {}
 	virtual void DestroyMenuItem(int menuNumber, int itemID) = 0;
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val) = 0;
@@ -820,8 +820,8 @@ protected:
 	void ImportMenu(int pos);
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
-	SString LocaliseMessage(const char *s, const char *param0 = 0,
-	        const char *param1 = 0, const char *param2 = 0);
+	GUI::gui_string LocaliseMessage(const char *s,
+		const GUI::gui_char *param0 = 0, const GUI::gui_char *param1 = 0, const GUI::gui_char *param2 = 0);
 	virtual void ReadLocalization();
 	SString GetFileNameProperty(const char *name);
 	virtual void ReadPropertiesInitial();
@@ -865,7 +865,7 @@ protected:
 	    grepDot = 8, grepBinary = 16
 	};
 	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const char *fileTypes);
-	void InternalGrep(GrepFlags gf, const char *directory, const char *files, const char *search);
+	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const char *files, const char *search);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);
@@ -929,3 +929,6 @@ void WindowSetFocus(GUI::ScintillaWindow &w);
 inline bool isspacechar(unsigned char ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
+
+bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
+int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace);

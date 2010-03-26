@@ -39,6 +39,32 @@ public:
 	int Height() const { return bottom - top; }
 };
 
+#if defined(GTK)
+
+// On GTK+ use UTF-8 char strings
+
+typedef char gui_char;
+typedef std::string gui_string;
+
+#define GUI_TEXT(q) q
+
+#else
+
+// On Win32 use UTF-16 wide char strings
+
+typedef wchar_t gui_char;
+typedef std::wstring gui_string;
+
+#define GUI_TEXT(q) L##q
+
+#endif
+
+//typedef std::basic_string<gui_char> gui_string;
+
+gui_string StringFromUTF8(const char *s);
+std::string UTF8FromString(const gui_string &s);
+gui_string StringFromInteger(int i);
+
 typedef void *WindowID;
 class Window {
 protected:
@@ -63,7 +89,7 @@ public:
 	Rectangle GetClientPosition();
 	void Show(bool show=true);
 	void InvalidateAll();
-	void SetTitle(const char *s);
+	void SetTitle(const gui_char *s);
 };
 
 typedef void *MenuID;

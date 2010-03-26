@@ -5,12 +5,12 @@
 // Copyright 1998-2005 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-extern const char pathSepString[];
-extern const char pathSepChar;
-extern const char listSepString[];
-extern const char configFileVisibilityString[];
-extern const char fileRead[];
-extern const char fileWrite[];
+extern const GUI::gui_char pathSepString[];
+extern const GUI::gui_char pathSepChar;
+extern const GUI::gui_char listSepString[];
+extern const GUI::gui_char configFileVisibilityString[];
+extern const GUI::gui_char fileRead[];
+extern const GUI::gui_char fileWrite[];
 
 #ifdef unix
 #include <limits.h>
@@ -38,41 +38,43 @@ class FilePath;
 class FilePathSet;
 
 class FilePath {
-	SString fileName;
+	GUI::gui_string fileName;
 public:
-	FilePath(const char *fileName_ = "");
+	FilePath(const GUI::gui_char *fileName_ = GUI_TEXT(""));
+	FilePath(const GUI::gui_string &fileName_);
 	FilePath(FilePath const &directory, FilePath const &name);
-	void Set(const char *fileName_);
-	const char *AsFileSystem() const;
+	void Set(const GUI::gui_char *fileName_);
 	void Set(FilePath const &other);
 	void Set(FilePath const &directory, FilePath const &name);
 	void SetDirectory(FilePath directory);
 	void Init();
-	bool SameNameAs(const char *other) const;
+	bool SameNameAs(const GUI::gui_char *other) const;
 	bool SameNameAs(const FilePath &other) const;
 	bool IsSet() const;
 	bool IsUntitled() const;
 	bool IsAbsolute() const;
 	bool IsRoot() const;
 	static int RootLength();
-	const char *AsInternal() const;
+	const GUI::gui_char *AsInternal() const;
+	std::string AsUTF8() const;
 	FilePath Name() const;
 	FilePath BaseName() const;
 	FilePath Extension() const;
 	FilePath Directory() const;
 	void FixName();
+	void LowerCaseExtension();
 	FilePath AbsolutePath() const;
 	FilePath NormalizePath() const;
 	static FilePath GetWorkingDirectory();
 	bool SetWorkingDirectory() const;
 	void List(FilePathSet &directories, FilePathSet &files);
-	FILE *Open(const char *mode) const;
+	FILE *Open(const GUI::gui_char *mode) const;
 	void Remove() const;
 	time_t ModifiedTime() const;
 	int GetFileLength() const;
 	bool Exists() const;
 	bool IsDirectory() const;
-	bool Matches(const char *pattern) const;
+	bool Matches(const GUI::gui_char *pattern) const;
 };
 
 class FilePathSet {
@@ -89,4 +91,3 @@ public:
 	void Append(FilePath fp);
 	size_t Length() const;
 };
-

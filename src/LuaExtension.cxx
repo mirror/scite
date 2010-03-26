@@ -7,6 +7,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <string>
+
 #include "Scintilla.h"
 
 #include "GUI.h"

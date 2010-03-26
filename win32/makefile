@@ -17,6 +17,7 @@ endif
 
 PROG	= ../bin/SciTE.exe
 PROGSTATIC = ../bin/Sc1.exe
+WIDEFLAGS=-DUNICODE -D_UNICODE
 
 ifndef NOTHUNKS
 gversion = $(word 1,$(subst ., ,$(shell g++ --version)))
@@ -51,7 +52,7 @@ endif
 INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src $(LUA_INCLUDES)
 RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src
 
-CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) -mno-cygwin
+CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS) -mno-cygwin
 
 ifdef DEBUG
 CFLAGS=-DDEBUG -g $(CBASEFLAGS)

@@ -18,7 +18,9 @@
 #endif
 
 #include <string>
+#include <vector>
 #include <map>
+#include <algorithm>
 
 #ifdef __MINGW_H
 #define _WIN32_IE	0x0400
@@ -92,7 +94,7 @@ protected:
 	static SciTEWin *app;
 	WINDOWPLACEMENT winPlace;
 	RECT rcWorkArea;
-	char openWhat[200];
+	GUI::gui_char openWhat[200];
 	bool modalParameters;
 	int filterDefault;
 	bool staticBuild;
@@ -129,6 +131,7 @@ protected:
 	GUI::Window wFindReplace;
 	GUI::Window wParameters;
 
+	virtual void ReadLocalization();
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
 
 	virtual void ReadProperties();
@@ -137,7 +140,7 @@ protected:
 	virtual void SizeSubWindows();
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
-	                         const char *text, const char *mnemonic = 0);
+	                         const GUI::gui_char *text, const GUI::gui_char *mnemonic = 0);
 	virtual void RedrawMenu();
 	virtual void DestroyMenuItem(int menuNumber, int itemID);
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
@@ -145,15 +148,16 @@ protected:
 	virtual void CheckMenus();
 
 	void LocaliseAccelerators();
-	SString LocaliseAccelerator(const char *Accelerator, int cmd);
+	GUI::gui_string LocaliseAccelerator(const GUI::gui_char *Accelerator, int cmd);
 	void LocaliseMenu(HMENU hmenu);
 	void LocaliseMenus();
 	void LocaliseControl(HWND w);
 	void LocaliseDialog(HWND wDialog);
 
 	int DoDialog(HINSTANCE hInst, const TCHAR *resName, HWND hWnd, DLGPROC lpProc);
-	virtual bool OpenDialog(FilePath directory, const char *filter);
-	FilePath ChooseSaveName(FilePath directory, const char *title, const char *filter=0, const char *ext=0);
+	GUI::gui_string DialogFilterFromProperty(const GUI::gui_char *filterProperty);
+	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter);
+	FilePath ChooseSaveName(FilePath directory, const char *title, const GUI::gui_char *filter=0, const char *ext=0);
 	virtual bool SaveAsDialog();
 	virtual void SaveACopy();
 	virtual void SaveAsHTML();
@@ -173,7 +177,7 @@ protected:
 
 	BOOL HandleReplaceCommand(int cmd);
 
-	virtual int WindowMessageBox(GUI::Window &w, const SString &msg, int style);
+	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style);
 	virtual void FindMessageBox(const SString &msg, const SString *findItem=0);
 	virtual void AboutDialog();
 	void DropFiles(HDROP hdrop);
@@ -189,7 +193,7 @@ protected:
 	virtual void SetFileProperties(PropSetFile &ps);
 	virtual void SetStatusBarText(const char *s);
 
-	virtual void TabInsert(int index, char *title);
+	virtual void TabInsert(int index, const GUI::gui_char *title);
 	virtual void TabSelect(int index);
 	virtual void RemoveAllTabs();
 
@@ -264,6 +268,7 @@ public:
 	/// Management of the command line parameters.
 	void Run(const char *cmdLine);
     int EventLoop();
+	void OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePage);
 	DWORD ExecuteOne(const Job &jobToRun, bool &seenOutput);
 	void ProcessExecute();
 	void ShellExec(const SString &cmd, const char *dir);

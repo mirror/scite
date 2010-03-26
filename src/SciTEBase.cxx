@@ -20,6 +20,7 @@
 
 #include <string>
 #include <map>
+#include <algorithm>
 
 #if defined(GTK)
 
@@ -522,7 +523,7 @@ SString SciTEBase::GetTranslationToAbout(const char * const propname, bool retai
 #if !defined(GTK)
 	// By code below, all translators can write their name in their own
 	// language in locale.properties on Windows.
-	SString result = localiser.Text(propname, retainIfNotFound);
+	SString result = GUI::UTF8FromString(localiser.Text(propname, retainIfNotFound)).c_str();
 	if (!result.length())
 		return result;
 	int translationCodePage = props.GetInt("code.page", CP_ACP);
@@ -546,7 +547,7 @@ SString SciTEBase::GetTranslationToAbout(const char * const propname, bool retai
 	return result;
 #else
 	// On GTK+, localiser.Text always converts to UTF-8.
-	return localiser.Text(propname, retainIfNotFound);
+	return SString(localiser.Text(propname, retainIfNotFound).c_str());
 #endif
 }
 
@@ -977,11 +978,11 @@ void SciTEBase::BraceMatch(bool editor) {
 void SciTEBase::SetWindowName() {
 	if (filePath.IsUntitled()) {
 		windowName = localiser.Text("Untitled");
-		windowName.insert(0, "(");
-		windowName += ")";
+		windowName.insert(0, GUI_TEXT("("));
+		windowName += GUI_TEXT(")");
 	} else if (props.GetInt("title.full.path") == 2) {
 		windowName = FileNameExt().AsInternal();
-		windowName += " in ";
+		windowName += GUI_TEXT(" in ");
 		windowName += filePath.Directory().AsInternal();
 	} else if (props.GetInt("title.full.path") == 1) {
 		windowName = filePath.AsInternal();
@@ -989,17 +990,17 @@ void SciTEBase::SetWindowName() {
 		windowName = FileNameExt().AsInternal();
 	}
 	if (CurrentBuffer()->isDirty)
-		windowName += " * ";
+		windowName += GUI_TEXT(" * ");
 	else
-		windowName += " - ";
+		windowName += GUI_TEXT(" - ");
 	windowName += appName;
 
 	if (buffers.length > 1 && props.GetInt("title.show.buffers")) {
-		windowName += " [";
-		windowName += SString(buffers.Current() + 1);
-		windowName += " of ";
-		windowName += SString(buffers.length);
-		windowName += "]";
+		windowName += GUI_TEXT(" [");
+		windowName += GUI::StringFromInteger(buffers.Current() + 1);
+		windowName += GUI_TEXT(" of ");
+		windowName += GUI::StringFromInteger(buffers.length);
+		windowName += GUI_TEXT("]");
 	}
 
 	wSciTE.SetTitle(windowName.c_str());
@@ -2402,8 +2403,9 @@ bool SciTEBase::StartBlockComment() {
 
 	SString comment = props.Get(base.c_str());
 	if (comment == "") { // user friendly error message box
-		SString error = LocaliseMessage(
-		            "Block comment variable '^0' is not defined in SciTE *.properties!", base.c_str());
+		GUI::gui_string sBase = GUI::StringFromUTF8(base.c_str());
+		GUI::gui_string error = LocaliseMessage(
+		            "Block comment variable '^0' is not defined in SciTE *.properties!", sBase.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -2499,9 +2501,12 @@ bool SciTEBase::StartBoxComment() {
 	SString middle_comment = props.Get(middle_base.c_str());
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || middle_comment == "" || end_comment == "") {
-		SString error = LocaliseMessage(
+		GUI::gui_string sStart = GUI::StringFromUTF8(start_base.c_str());
+		GUI::gui_string sMiddle = GUI::StringFromUTF8(middle_base.c_str());
+		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base.c_str());
+		GUI::gui_string error = LocaliseMessage(
 		            "Box comment variables '^0', '^1' and '^2' are not defined in SciTE *.properties!",
-		            start_base.c_str(), middle_base.c_str(), end_base.c_str());
+		            sStart.c_str(), sMiddle.c_str(), sEnd.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -2624,9 +2629,11 @@ bool SciTEBase::StartStreamComment() {
 	SString start_comment = props.Get(start_base.c_str());
 	SString end_comment = props.Get(end_base.c_str());
 	if (start_comment == "" || end_comment == "") {
-		SString error = LocaliseMessage(
+		GUI::gui_string sStart = GUI::StringFromUTF8(start_base.c_str());
+		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base.c_str());
+		GUI::gui_string error = LocaliseMessage(
 		            "Stream comment variables '^0' and '^1' are not defined in SciTE *.properties!",
-		            start_base.c_str(), end_base.c_str());
+		            sStart.c_str(), sEnd.c_str());
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
@@ -2712,7 +2719,7 @@ void SciTEBase::SetTextProperties(
 	const int TEMP_LEN = 100;
 	char temp[TEMP_LEN];
 
-	SString ro = localiser.Text("READ");
+	std::string ro = GUI::UTF8FromString(localiser.Text("READ"));
 	ps.Set("ReadOnly", isReadOnly ? ro.c_str() : "");
 
 	int eolMode = wEditor.Call(SCI_GETEOLMODE);
@@ -3305,7 +3312,7 @@ void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem 
 		jobQueue.jobUsesOutputPane = false;
 	if (cmd.length()) {
 		jobQueue.jobQueue[jobQueue.commandCurrent].command = cmd;
-		jobQueue.jobQueue[jobQueue.commandCurrent].directory.Set(dir.c_str());
+		jobQueue.jobQueue[jobQueue.commandCurrent].directory.Set(GUI::StringFromUTF8(dir.c_str()));
 		jobQueue.jobQueue[jobQueue.commandCurrent].jobType = jobType;
 		jobQueue.jobQueue[jobQueue.commandCurrent].input = input;
 		jobQueue.jobQueue[jobQueue.commandCurrent].flags = flags;
@@ -3373,7 +3380,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		// when doing the opening. Must be done there as user
 		// may decide to open multiple files so do not know yet
 		// how much room needed.
-		OpenDialog(filePath.Directory(), props.GetExpanded("open.filter").c_str());
+		OpenDialog(filePath.Directory(), GUI::StringFromUTF8(props.GetExpanded("open.filter").c_str()).c_str());
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_OPENSELECTED:
@@ -3821,7 +3828,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_COMPILE: {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
-				AddCommand(props.GetWild("command.compile.", FileNameExt().AsInternal()), "",
+				AddCommand(props.GetWild("command.compile.", FileNameExt().AsUTF8().c_str()), "",
 				        SubsystemType("command.compile.subsystem."));
 				if (jobQueue.commandCurrent > 0)
 					Execute();
@@ -3833,8 +3840,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
 				AddCommand(
-				    props.GetWild("command.build.", FileNameExt().AsInternal()),
-				    props.GetNewExpand("command.build.directory.", FileNameExt().AsInternal()),
+				    props.GetWild("command.build.", FileNameExt().AsUTF8().c_str()),
+				    props.GetNewExpand("command.build.directory.", FileNameExt().AsUTF8().c_str()),
 				    SubsystemType("command.build.subsystem."));
 				if (jobQueue.commandCurrent > 0) {
 					jobQueue.isBuilding = true;
@@ -3850,7 +3857,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				long flags = 0;
 
 				if (!jobQueue.isBuilt) {
-					SString buildcmd = props.GetNewExpand("command.go.needs.", FileNameExt().AsInternal());
+					SString buildcmd = props.GetNewExpand("command.go.needs.", FileNameExt().AsUTF8().c_str());
 					AddCommand(buildcmd, "",
 					        SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
@@ -3858,7 +3865,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 						flags |= jobForceQueue;
 					}
 				}
-				AddCommand(props.GetWild("command.go.", FileNameExt().AsInternal()), "",
+				AddCommand(props.GetWild("command.go.", FileNameExt().AsUTF8().c_str()), "",
 				        SubsystemType("command.go.subsystem."), "", flags);
 				if (jobQueue.commandCurrent > 0)
 					Execute();
@@ -3961,7 +3968,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_HELP: {
 			SelectionIntoProperties();
-			AddCommand(props.GetWild("command.help.", FileNameExt().AsInternal()), "",
+			AddCommand(props.GetWild("command.help.", FileNameExt().AsUTF8().c_str()), "",
 			        SubsystemType("command.help.subsystem."));
 			if (jobQueue.commandCurrent > 0) {
 				jobQueue.isBuilding = true;
@@ -4388,11 +4395,11 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_TOGGLEPARAMETERS, ParametersOpen());
 	CheckAMenuItem(IDM_MONOFONT, CurrentBuffer()->useMonoFont);
 	EnableAMenuItem(IDM_COMPILE, !jobQueue.IsExecuting() &&
-	        props.GetWild("command.compile.", FileNameExt().AsInternal()).size() != 0);
+	        props.GetWild("command.compile.", FileNameExt().AsUTF8().c_str()).size() != 0);
 	EnableAMenuItem(IDM_BUILD, !jobQueue.IsExecuting() &&
-	        props.GetWild("command.build.", FileNameExt().AsInternal()).size() != 0);
+	        props.GetWild("command.build.", FileNameExt().AsUTF8().c_str()).size() != 0);
 	EnableAMenuItem(IDM_GO, !jobQueue.IsExecuting() &&
-	        props.GetWild("command.go.", FileNameExt().AsInternal()).size() != 0);
+	        props.GetWild("command.go.", FileNameExt().AsUTF8().c_str()).size() != 0);
 	EnableAMenuItem(IDM_OPENDIRECTORYPROPERTIES, props.GetInt("properties.directory.enable") != 0);
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
 		EnableAMenuItem(IDM_TOOLS + toolItem, !jobQueue.IsExecuting());
@@ -4496,9 +4503,9 @@ void SciTEBase::UIAvailable() {
 	SetImportMenu();
 	if (extender) {
 		FilePath homepath = GetSciteDefaultHome();
-		props.Set("SciteDefaultHome", homepath.AsFileSystem());
+		props.Set("SciteDefaultHome", homepath.AsUTF8().c_str());
 		homepath = GetSciteUserHome();
-		props.Set("SciteUserHome", homepath.AsFileSystem());
+		props.Set("SciteUserHome", homepath.AsUTF8().c_str());
 		extender->Initialise(this);
 	}
 }
@@ -4521,7 +4528,7 @@ void SciTEBase::PerformOne(char *action) {
 	if (arg) {
 		arg++;
 		if (isprefix(action, "askfilename:")) {
-			extender->OnMacro("filename", filePath.AsFileSystem());
+			extender->OnMacro("filename", filePath.AsUTF8().c_str());
 		} else if (isprefix(action, "askproperty:")) {
 			PropertyToDirector(arg);
 		} else if (isprefix(action, "close:")) {
@@ -4531,21 +4538,22 @@ void SciTEBase::PerformOne(char *action) {
 			currentMacro = arg;
 		} else if (isprefix(action, "cwd:")) {
 			if (chdir(arg) != 0) {
-				SString msg = LocaliseMessage("Invalid directory '^0'.", arg);
+				GUI::gui_string sArg = GUI::StringFromUTF8(arg);
+				GUI::gui_string msg = LocaliseMessage("Invalid directory '^0'.", sArg.c_str());
 				WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 			}
 		} else if (isprefix(action, "enumproperties:")) {
 			EnumProperties(arg);
 		} else if (isprefix(action, "exportashtml:")) {
-			SaveToHTML(arg);
+			SaveToHTML(GUI::StringFromUTF8(arg));
 		} else if (isprefix(action, "exportasrtf:")) {
-			SaveToRTF(arg);
+			SaveToRTF(GUI::StringFromUTF8(arg));
 		} else if (isprefix(action, "exportaspdf:")) {
-			SaveToPDF(arg);
+			SaveToPDF(GUI::StringFromUTF8(arg));
 		} else if (isprefix(action, "exportaslatex:")) {
-			SaveToTEX(arg);
+			SaveToTEX(GUI::StringFromUTF8(arg));
 		} else if (isprefix(action, "exportasxml:")) {
-			SaveToXML(arg);
+			SaveToXML(GUI::StringFromUTF8(arg));
 		} else if (isprefix(action, "find:") && wEditor.Created()) {
 			findWhat = arg;
 			FindNext(false, false);
@@ -4568,7 +4576,7 @@ void SciTEBase::PerformOne(char *action) {
 			wEditor.CallString(SCI_REPLACESEL, 0, arg);
 		} else if (isprefix(action, "loadsession:")) {
 			if (*arg) {
-				LoadSessionFile(arg);
+				LoadSessionFile(GUI::StringFromUTF8(arg).c_str());
 				RestoreSession();
 			}
 		} else if (isprefix(action, "macrocommand:")) {
@@ -4581,7 +4589,7 @@ void SciTEBase::PerformOne(char *action) {
 		} else if (isprefix(action, "menucommand:")) {
 			MenuCommand(atoi(arg));
 		} else if (isprefix(action, "open:")) {
-			Open(arg);
+			Open(GUI::StringFromUTF8(arg));
 		} else if (isprefix(action, "output:") && wOutput.Created()) {
 			wOutput.Call(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(arg));
 		} else if (isprefix(action, "property:")) {
@@ -4599,13 +4607,13 @@ void SciTEBase::PerformOne(char *action) {
 			}
 		} else if (isprefix(action, "saveas:")) {
 			if (*arg) {
-				SaveAs(arg, true);
+				SaveAs(GUI::StringFromUTF8(arg).c_str(), true);
 			} else {
 				SaveAsDialog();
 			}
 		} else if (isprefix(action, "savesession:")) {
 			if (*arg) {
-				SaveSessionFile(arg);
+				SaveSessionFile(GUI::StringFromUTF8(arg).c_str());
 			}
 		} else if (isprefix(action, "extender:")) {
 			extender->OnExecute(arg);
@@ -4937,7 +4945,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 				RestoreRecentMenu();
 
 			if (!PreOpenCheck(arg))
-				Open(arg, ofQuiet);
+				Open(GUI::StringFromUTF8(arg), ofQuiet);
 		}
 	}
 	if (phase == 1) {
@@ -4952,7 +4960,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 		}
 		// No open file after session load so create empty document.
 		if (filePath.IsUntitled() && buffers.length == 1 && !buffers.buffers[0].isDirty) {
-			Open("");
+			Open(GUI_TEXT(""));
 		}
 	}
 	return performPrint;

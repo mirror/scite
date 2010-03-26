@@ -180,7 +180,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 	if (tabSize == 0)
 		tabSize = 4;
 
-	FILE *fp = saveName.Open("wt");
+	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 	if (fp) {
 		char styles[STYLE_DEFAULT + 1][MAX_STYLEDEF];
 		char fonts[STYLE_DEFAULT + 1][MAX_FONTDEF];
@@ -320,7 +320,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 		fputs(RTF_BODYCLOSE, fp);
 		fclose(fp);
 	} else {
-		SString msg = LocaliseMessage("Could not save file '^0'.", filePath.AsFileSystem());
+		GUI::gui_string msg = LocaliseMessage("Could not save file '^0'.", filePath.AsInternal());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
 }
@@ -360,17 +360,17 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 	}
 	styleIsUsed[STYLE_DEFAULT] = true;
 
-	FILE *fp = saveName.Open("wt");
+	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 	if (fp) {
 		fputs("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n", fp);
 		fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
 		fputs("<head>\n", fp);
 		if (titleFullPath)
 			fprintf(fp, "<title>%s</title>\n",
-			        static_cast<const char *>(filePath.AsFileSystem()));
+			        static_cast<const char *>(filePath.AsUTF8().c_str()));
 		else
 			fprintf(fp, "<title>%s</title>\n",
-			        static_cast<const char *>(filePath.Name().AsFileSystem()));
+			        static_cast<const char *>(filePath.Name().AsUTF8().c_str()));
 		// Probably not used by robots, but making a little advertisement for those looking
 		// at the source code doesn't hurt...
 		fputs("<meta name=\"Generator\" content=\"SciTE - www.Scintilla.org\" />\n", fp);
@@ -657,8 +657,8 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		fputs("\n</body>\n</html>\n", fp);
 		fclose(fp);
 	} else {
-		SString msg = LocaliseMessage(
-		            "Could not save file \"^0\".", filePath.AsFileSystem());
+		GUI::gui_string msg = LocaliseMessage(
+		            "Could not save file \"^0\".", filePath.AsInternal());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
 }
@@ -1118,10 +1118,10 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	}
 	delete []buffer;
 
-	FILE *fp = saveName.Open("wb");
+	FILE *fp = saveName.Open(GUI_TEXT("wb"));
 	if (!fp) {
 		// couldn't open the file for saving, issue an error message
-		SString msg = LocaliseMessage("Could not save file '^0'.", filePath.AsFileSystem());
+		GUI::gui_string msg = LocaliseMessage("Could not save file '^0'.", filePath.AsInternal());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 		return;
 	}
@@ -1246,7 +1246,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 	}
 	styleIsUsed[STYLE_DEFAULT] = true;
 
-	FILE *fp = saveName.Open("wt");
+	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 	if (fp) {
 		fputs("\\documentclass[a4paper]{article}\n"
 		      "\\usepackage[a4paper,margin=2cm]{geometry}\n"
@@ -1274,7 +1274,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 
 		fputs("\\begin{document}\n\n", fp);
 		fprintf(fp, "Source File: %s\n\n\\noindent\n\\small{\n",
-		        static_cast<const char *>(titleFullPath ? filePath.AsFileSystem() : filePath.Name().AsFileSystem()));
+		        static_cast<const char *>(titleFullPath ? filePath.AsUTF8().c_str() : filePath.Name().AsUTF8().c_str()));
 
 		int styleCurrent = acc.StyleAt(0);
 
@@ -1340,8 +1340,8 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 		fputs("}\n} %end small\n\n\\end{document}\n", fp); //close last empty style macros and document too
 		fclose(fp);
 	} else {
-		SString msg = LocaliseMessage(
-		            "Could not save file \"^0\".", filePath.AsFileSystem());
+		GUI::gui_string msg = LocaliseMessage(
+		            "Could not save file \"^0\".", filePath.AsInternal());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
 }
@@ -1391,7 +1391,7 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 
 	TextReader acc(wEditor);
 
-	FILE *fp = saveName.Open("wt");
+	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 
 	if (fp) {
 
@@ -1402,7 +1402,7 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 
 		fputs("<document xmlns='http://www.scintila.org/scite.rng'", fp);
 		fprintf(fp, " filename='%s'",
-		        static_cast<const char *>(filePath.Name().AsFileSystem()));
+		        static_cast<const char *>(filePath.Name().AsUTF8().c_str()));
 		fprintf(fp, " type='%s'", "unknown");
 		fprintf(fp, " version='%s'", "1.0");
 		fputs(">\n", fp);
@@ -1520,7 +1520,7 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 
 		fclose(fp);
 	} else {
-		SString msg = LocaliseMessage("Could not save file \"^0\".", filePath.AsFileSystem());
+		GUI::gui_string msg = LocaliseMessage("Could not save file \"^0\".", filePath.AsInternal());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 	}
 }

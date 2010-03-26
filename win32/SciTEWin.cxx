@@ -24,9 +24,9 @@
 #endif
 
 #ifdef STATIC_BUILD
-const char appName[] = "Sc1";
+const GUI::gui_char appName[] = GUI_TEXT("Sc1");
 #else
-const char appName[] = "SciTE";
+const GUI::gui_char appName[] = GUI_TEXT("SciTE");
 #endif
 
 long SciTEKeys::ParseKeyCode(const char *mnemonic) {
@@ -246,6 +246,70 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		exit(FALSE);
 }
 
+static int CodePageFromName(const SString &encodingName) {
+	struct Encoding {
+		const char *name;
+		int codePage;
+	} knownEncodings[] = {
+		{ "ascii", CP_UTF8 },
+		{ "utf-8", CP_UTF8 },
+		{ "latin1", 1252 },
+		{ "latin2", 28592 },
+		{ "big5", 950 },
+		{ "gbk", 936 },
+		{ "shift_jis", 932 },
+		// euc-kr does not work as 949
+		// "euc-kr", 949,
+		// "cyrillic", Possibly means KOI-8
+		{ "iso-8859-5", 28595 },
+		{ "iso8859-11", 874 },
+		{ "1250", 1250 },
+		{ "windows-1251", 1251 },
+		{ 0, 0 },
+	};
+	for (Encoding *enc=knownEncodings; enc->name; enc++) {
+		if (encodingName == enc->name) {
+			return enc->codePage;
+		}
+	}
+	return CP_UTF8;
+}
+
+// Convert to UTF-8
+static std::string ConvertEncoding(const char *original, int codePage) {
+	if (codePage == CP_UTF8) {
+		return original;
+	} else {
+		int cchWide = ::MultiByteToWideChar(codePage, 0, original, -1, NULL, 0);
+		wchar_t *pszWide = new wchar_t[cchWide + 1];
+		::MultiByteToWideChar(codePage, 0, original, -1, pszWide, cchWide + 1);
+		GUI::gui_string sWide(pszWide);
+		std::string ret = GUI::UTF8FromString(sWide);
+		delete []pszWide;
+		return ret;
+	}
+}
+
+void SciTEWin::ReadLocalization() {
+	SciTEBase::ReadLocalization();
+	SString encoding = localiser.Get("translation.encoding");
+	encoding.lowercase();
+	if (encoding.length()) {
+		int codePage = CodePageFromName(encoding);
+		const char *key = NULL;
+		const char *val = NULL;
+		// Get encoding
+		bool more = localiser.GetFirst(key, val);
+		while (more) {
+			std::string converted = ConvertEncoding(val, codePage);
+			if (converted != "") {
+				localiser.Set(key, converted.c_str());
+			}
+			more = localiser.GetNext(key, val);
+		}
+	}
+}
+
 void SciTEWin::GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) {
 	winPlace.length = sizeof(winPlace);
 	::GetWindowPlacement(MainHWND(), &winPlace);
@@ -268,10 +332,10 @@ static FilePath GetSciTEPath(FilePath home) {
 	if (home.IsSet()) {
 		return FilePath(home);
 	} else {
-		char path[MAX_PATH];
-		::GetModuleFileName(0, path, sizeof(path));
+		GUI::gui_char path[MAX_PATH];
+		::GetModuleFileNameW(0, path, ELEMENTS(path));
 		// Remove the SciTE.exe
-		char *lastSlash = strrchr(path, pathSepChar);
+		GUI::gui_char *lastSlash = wcsrchr(path, pathSepChar);
 		if (lastSlash)
 			*lastSlash = '\0';
 		return FilePath(path);
@@ -279,19 +343,19 @@ static FilePath GetSciTEPath(FilePath home) {
 }
 
 FilePath SciTEWin::GetDefaultDirectory() {
-	char *home = getenv("SciTE_HOME");
+	GUI::gui_char *home = _wgetenv(GUI_TEXT("SciTE_HOME"));
 	return GetSciTEPath(home);
 }
 
 FilePath SciTEWin::GetSciteDefaultHome() {
-	char *home = getenv("SciTE_HOME");
+	GUI::gui_char *home = _wgetenv(GUI_TEXT("SciTE_HOME"));
 	return GetSciTEPath(home);
 }
 
 FilePath SciTEWin::GetSciteUserHome() {
-	char *home = getenv("SciTE_HOME");
+	GUI::gui_char *home = _wgetenv(GUI_TEXT("SciTE_HOME"));
 	if (!home)
-		home = getenv("USERPROFILE");
+		home = _wgetenv(GUI_TEXT("USERPROFILE"));
 	return GetSciTEPath(home);
 }
 
@@ -303,7 +367,7 @@ void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 		if (path) {
 			*path = '\0';
 			path++;	// After the !
-			::WinHelp(MainHWND(),
+			::WinHelpA(MainHWND(),
 			          path,
 			          HELP_KEY,
 			          reinterpret_cast<unsigned long>(topic));
@@ -362,8 +426,8 @@ void SciTEWin::CopyAsRTF() {
 	Sci_CharacterRange cr = GetSelection();
 	char *fileNameTemp = _tempnam(NULL, "scite-tmp-");
 	if (fileNameTemp) {
-		SaveToRTF(fileNameTemp, cr.cpMin, cr.cpMax);
-		FILE *fp = fopen(fileNameTemp, fileRead);
+		SaveToRTF(GUI::StringFromUTF8(fileNameTemp), cr.cpMin, cr.cpMax);
+		FILE *fp = fopen(fileNameTemp, "rb");
 		if (fp) {
 			fseek(fp, 0, SEEK_END);
 			int len = ftell(fp);
@@ -496,6 +560,34 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	}
 }
 
+// from ScintillaWin.cxx
+static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
+	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
+	BOOL bci = ::TranslateCharsetInfo((DWORD*)characterSet,
+	                                  &ci, TCI_SRCCHARSET);
+
+	UINT cp;
+	if (bci)
+		cp = ci.ciACP;
+	else
+		cp = documentCodePage;
+
+	CPINFO cpi;
+	if (!::IsValidCodePage(cp) && !::GetCPInfo(cp, &cpi))
+		cp = CP_ACP;
+
+	return cp;
+}
+
+void SciTEWin::OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePage) {
+	int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), s.size(), NULL, 0, NULL, NULL);
+	char *pszMulti = new char[cchMulti + 1];
+	::WideCharToMultiByte(codePage, 0, s.c_str(), s.size(), pszMulti, cchMulti + 1, NULL, NULL);
+	pszMulti[cchMulti] = 0;
+	OutputAppendStringSynchronised(pszMulti);
+	delete []pszMulti;
+}
+
 /**
  * Run a command with redirected input and output streams
  * so the output can be put in a window.
@@ -508,7 +600,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	GUI::ElapsedTime commandTime;
 
 	if (jobToRun.jobType == jobShell) {
-		ShellExec(jobToRun.command, jobToRun.directory.AsFileSystem());
+		ShellExec(jobToRun.command, jobToRun.directory.AsUTF8().c_str());
 		return exitcode;
 	}
 
@@ -562,7 +654,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			gf = static_cast<GrepFlags>(gf | grepBinary);
 		const char *findFiles = grepCmd + 2;
 		const char *findWhat = findFiles + strlen(findFiles) + 1;
-		InternalGrep(gf, jobToRun.directory.AsFileSystem(), findFiles, findWhat);
+		InternalGrep(gf, jobToRun.directory.AsInternal(), findFiles, findWhat);
 		return exitcode;
 	}
 
@@ -570,10 +662,15 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	::GetVersionEx(&osv);
 	bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
 
+	UINT codePage = wOutput.Send(SCI_GETCODEPAGE);
+	if (codePage != SC_CP_UTF8) {
+		codePage = CodePageFromCharSet(characterSet, codePage);
+	}
+
 	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
 	char buffer[16384];
 	OutputAppendStringSynchronised(">");
-	OutputAppendStringSynchronised(jobToRun.command.c_str());
+	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command.c_str()), codePage);
 	OutputAppendStringSynchronised("\n");
 
 	sa.bInheritHandle = TRUE;
@@ -610,7 +707,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 	// Make child process use hPipeWrite as standard out, and make
 	// sure it does not show on screen.
-	STARTUPINFO si = {
+	STARTUPINFOW si = {
 			     sizeof(STARTUPINFO), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			 };
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
@@ -626,14 +723,14 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 	PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
-	bool running = ::CreateProcess(
+	bool running = ::CreateProcessW(
 			  NULL,
-			  const_cast<char *>(jobToRun.command.c_str()),
+			  const_cast<wchar_t *>(GUI::StringFromUTF8(jobToRun.command.c_str()).c_str()),
 			  NULL, NULL,
 			  TRUE, CREATE_NEW_PROCESS_GROUP,
 			  NULL,
 			  startDirectory.IsSet() ?
-			  static_cast<const char *>(startDirectory.AsFileSystem()) : NULL,
+			  startDirectory.AsInternal() : NULL,
 			  &si, &pi);
 
 	if (running) {
@@ -825,7 +922,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 		    NULL
 		);
 		OutputAppendStringSynchronised(">");
-		OutputAppendStringSynchronised(lpMsgBuf);
+		OutputAppendEncodedStringSynchronised(lpMsgBuf, codePage);
 		::LocalFree(lpMsgBuf);
 		WarnUser(warnExecuteKO);
 	}
@@ -936,14 +1033,18 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 			myparams = mycmd_end;
 	}
 
+	GUI::gui_string sMycmd = GUI::StringFromUTF8(mycmd);
+	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
+	GUI::gui_string sDir = GUI::StringFromUTF8(dir);
 	uptr_t rc = reinterpret_cast<uptr_t>(
 	                ::ShellExecute(
 	                    MainHWND(),          // parent wnd for msgboxes during app start
 	                    NULL,           // cmd is open
-	                    mycmd,          // file to open
-	                    myparams,          // parameters
-	                    dir,          // launch directory
+	                    sMycmd.c_str(),          // file to open
+	                    sMyparams.c_str(),          // parameters
+	                    sDir.c_str(),          // launch directory
 	                    SW_SHOWNORMAL)); //default show cmd
+
 
 	if (rc > 32) {
 		// it worked!
@@ -989,7 +1090,8 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 		errormsg += "Unknown error code: ";
 		errormsg += SString(rc);
 	}
-	WindowMessageBox(wSciTE, errormsg, MB_OK);
+	GUI::gui_string sErrorMsg = GUI::StringFromUTF8(errormsg.c_str());
+	WindowMessageBox(wSciTE, sErrorMsg, MB_OK);
 
 	delete []mycmdcopy;
 }
@@ -1091,7 +1193,7 @@ void SciTEWin::CreateUI() {
 		height = CW_USEDEFAULT;
 	}
 
-	if (props.GetInt("position.tile") && ::FindWindow("SciTEWindow", NULL) &&
+	if (props.GetInt("position.tile") && ::FindWindow(TEXT("SciTEWindow"), NULL) &&
 	        (left != static_cast<int>(CW_USEDEFAULT))) {
 		left += width;
 	}
@@ -1179,7 +1281,7 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
 void SciTEWin::Run(const char *cmdLine) {
 	// Load the default session file
 	if (props.GetInt("save.session") || props.GetInt("save.position") || props.GetInt("save.recent")) {
-		LoadSessionFile("");
+		LoadSessionFile(GUI_TEXT(""));
 	}
 
 	// Break up the command line into individual arguments
@@ -1289,8 +1391,8 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 	if (hdrop) {
 		int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, NULL, 0);
 		for (int i = 0; i < filesDropped; ++i) {
-			char pathDropped[MAX_PATH];
-			::DragQueryFile(hdrop, i, pathDropped, sizeof(pathDropped));
+			GUI::gui_char pathDropped[MAX_PATH];
+			::DragQueryFileW(hdrop, i, pathDropped, ELEMENTS(pathDropped));
 			if (!Open(pathDropped)) {
 				break;
 			}
@@ -1311,20 +1413,21 @@ void SciTEWin::DropFiles(HDROP hdrop) {
  * Handle simple wild-card file patterns and directory requests.
  */
 bool SciTEWin::PreOpenCheck(const char *arg) {
+	// TODO: Convert to wide file names
 	bool isHandled = false;
 	HANDLE hFFile;
-	WIN32_FIND_DATA ffile;
-	DWORD fileattributes = ::GetFileAttributes(arg);
+	WIN32_FIND_DATAA ffile;
+	DWORD fileattributes = ::GetFileAttributesA(arg);
 	char filename[MAX_PATH];
 	int nbuffers = props.GetInt("buffers");
 
 	if (fileattributes != (DWORD) -1) {	// arg is an existing directory or filename
 		// if the command line argument is a directory, use OpenDialog()
 		if (fileattributes & FILE_ATTRIBUTE_DIRECTORY) {
-			OpenDialog(FilePath(arg), props.GetExpanded("open.filter").c_str());
+			OpenDialog(FilePath(GUI::StringFromUTF8(arg)), GUI::StringFromUTF8(props.GetExpanded("open.filter").c_str()).c_str());
 			isHandled = true;
 		}
-	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(arg, &ffile)) != INVALID_HANDLE_VALUE) {
+	} else if (nbuffers > 1 && (hFFile = ::FindFirstFileA(arg, &ffile)) != INVALID_HANDLE_VALUE) {
 		// If several buffers is accepted and the arg is a filename pattern matching at least an existing file
 		isHandled = true;
 		strcpy(filename, arg);
@@ -1337,10 +1440,10 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 		do {
 			if (!(ffile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {	// Skip directories
 				strcpy(lastslash, ffile.cFileName);
-				Open(filename);
+				Open(GUI::StringFromUTF8(filename));
 				--nbuffers;
 			}
-		} while (nbuffers > 0 && ::FindNextFile(hFFile, &ffile));
+		} while (nbuffers > 0 && ::FindNextFileA(hFFile, &ffile));
 		::FindClose(hFFile);
 	} else {
 		const char *lastslash = strrchr(arg, '\\');
@@ -1363,7 +1466,7 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 			strcat(filename, "|");
 			strcat(filename, "*");
 			strcat(filename, lastdot);
-			OpenDialog(FilePath(dir), filename);
+			OpenDialog(FilePath(GUI::StringFromUTF8(dir)), GUI::StringFromUTF8(filename).c_str());
 		} else if (!lastdot || (lastslash && lastdot < lastslash)) {
 			// if the filename has no extension, try to match a file with list of standard extensions
 			SString extensions = props.GetExpanded("source.default.extensions");
@@ -1375,9 +1478,9 @@ bool SciTEWin::PreOpenCheck(const char *arg) {
 				while (start < extensions.length()) {
 					const char *filterName = extensions.c_str() + start;
 					strcpy(endfilename, filterName);
-					if (::GetFileAttributes(filename) != (DWORD) -1) {
+					if (::GetFileAttributesA(filename) != (DWORD) -1) {
 						isHandled = true;
-						Open(filename);
+						Open(GUI::StringFromUTF8(filename));
 						break;	// Found!
 					} else {
 						// Next extension
@@ -1427,7 +1530,7 @@ bool SciTEWin::IsStdinBlocked() {
 }
 
 void SciTEWin::MinimizeToTray() {
-	char n[64] = "SciTE";
+	TCHAR n[64] = TEXT("SciTE");
 	NOTIFYICONDATA nid;
 	memset(&nid, 0, sizeof(nid));
 	nid.cbSize = sizeof(nid);
@@ -1437,7 +1540,7 @@ void SciTEWin::MinimizeToTray() {
 	nid.uCallbackMessage = SCITE_TRAY;
 	nid.hIcon = static_cast<HICON>(
 	                ::LoadImage(hInstance, TEXT("SCITE"), IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
-	strcpy(nid.szTip, n);
+	lstrcpy(nid.szTip, n);
 	::ShowWindow(MainHWND(), SW_MINIMIZE);
 	if (::Shell_NotifyIcon(NIM_ADD, &nid)) {
 		::ShowWindow(MainHWND(), SW_HIDE);
@@ -1532,7 +1635,7 @@ LRESULT SciTEWin::KeyUp(WPARAM wParam) {
 }
 
 void SciTEWin::AddToPopUp(const char *label, int cmd, bool enabled) {
-	SString localised = localiser.Text(label);
+	GUI::gui_string localised = localiser.Text(label);
 	HMENU menu = reinterpret_cast<HMENU>(popup.GetID());
 	if (0 == localised.length())
 		::AppendMenu(menu, MF_SEPARATOR, 0, TEXT(""));
@@ -1710,7 +1813,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return uniqueInstance.CopyData(reinterpret_cast<COPYDATASTRUCT *>(lParam));
 
 		default:
-			return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
+			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 		}
 	} catch (GUI::ScintillaFailure &sf) {
 		statusFailure = sf.status;
@@ -1724,7 +1827,8 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			sprintf(buff, "Scintilla failed with status %d.", statusFailure);
 		}
 		strcat(buff, " SciTE will now close.");
-		::MessageBox(MainHWND(), buff, TEXT("Failure in Scintilla"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
+		GUI::gui_string sMessage = GUI::StringFromUTF8(buff);
+		::MessageBox(MainHWND(), sMessage.c_str(), TEXT("Failure in Scintilla"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
 		exit(FALSE);
 	}
 	return 0l;
@@ -1761,7 +1865,7 @@ LRESULT PASCAL SciTEWin::TWndProc(
 			SetWindowPointer(hWnd, scite);
 			return scite->WndProc(iMessage, wParam, lParam);
 		} else
-			return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
+			return ::DefWindowProcW(hWnd, iMessage, wParam, lParam);
 	} else
 		return scite->WndProc(iMessage, wParam, lParam);
 }
@@ -1856,25 +1960,6 @@ LRESULT PASCAL SciTEWin::IWndProc(
 		return scite->WndProcI(iMessage, wParam, lParam);
 }
 
-// from ScintillaWin.cxx
-static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
-	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
-	BOOL bci = ::TranslateCharsetInfo((DWORD*)characterSet,
-	                                  &ci, TCI_SRCCHARSET);
-
-	UINT cp;
-	if (bci)
-		cp = ci.ciACP;
-	else
-		cp = documentCodePage;
-
-	CPINFO cpi;
-	if (!::IsValidCodePage(cp) && !::GetCPInfo(cp, &cpi))
-		cp = CP_ACP;
-
-	return cp;
-}
-
 // On NT, convert String from UTF-8 to doc encoding
 SString SciTEWin::EncodeString(const SString &s) {
 	//::MessageBox(GetFocus(),SString(s).c_str(),"EncodeString:in",0);
@@ -1883,8 +1968,7 @@ SString SciTEWin::EncodeString(const SString &s) {
 		UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
 
 		if (codePage != SC_CP_UTF8) {
-			DWORD charSet = props.GetInt("character.set", DEFAULT_CHARSET);
-			codePage = CodePageFromCharSet(charSet, codePage);
+			codePage = CodePageFromCharSet(characterSet, codePage);
 
 			int cchWide = ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0);
 			wchar_t *pszWide = new wchar_t[cchWide + 1];
@@ -1915,8 +1999,7 @@ SString SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, 
 		UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
 
 		if (codePage != SC_CP_UTF8) {
-			DWORD charSet = props.GetInt("character.set", DEFAULT_CHARSET);
-			codePage = CodePageFromCharSet(charSet, codePage);
+			codePage = CodePageFromCharSet(characterSet, codePage);
 
 			int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), NULL, 0);
 			wchar_t *pszWide = new wchar_t[cchWide + 1];

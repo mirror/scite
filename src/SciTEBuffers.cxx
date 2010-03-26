@@ -73,7 +73,7 @@
 #include "JobQueue.h"
 #include "SciTEBase.h"
 
-const char defaultSessionFileName[] = "SciTE.session";
+const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
 
 BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), size(0), length(0), initialised(false) {}
 
@@ -268,7 +268,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	UpdateStatusBar(true);
 
 	if (extender) {
-		extender->OnSwitchFile(filePath.AsFileSystem());
+		extender->OnSwitchFile(filePath.AsUTF8().c_str());
 	}
 }
 
@@ -363,9 +363,9 @@ void SciTEBase::InitialiseBuffers() {
 	}
 }
 
-FilePath SciTEBase::UserFilePath(const char *name) {
-	SString nameWithVisibility(configFileVisibilityString);
-	nameWithVisibility.append(name);
+FilePath SciTEBase::UserFilePath(const GUI::gui_char *name) {
+	GUI::gui_string nameWithVisibility(configFileVisibilityString);
+	nameWithVisibility += name;
 	return FilePath(GetSciteUserHome(), nameWithVisibility.c_str());
 }
 
@@ -380,7 +380,7 @@ static SString IndexPropKey(const char *bufPrefix, int bufIndex, const char *buf
 	return pKey;
 }
 
-void SciTEBase::LoadSessionFile(const char *sessionName) {
+void SciTEBase::LoadSessionFile(const GUI::gui_char *sessionName) {
 	FilePath sessionPathName;
 	if (sessionName[0] == '\0') {
 		sessionPathName = UserFilePath(defaultSessionFileName);
@@ -393,7 +393,7 @@ void SciTEBase::LoadSessionFile(const char *sessionName) {
 
 	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
 	// Add/update SessionPath environment variable
-	props.Set("SessionPath", sessionFilePath.AsFileSystem());
+	props.Set("SessionPath", sessionFilePath.AsUTF8().c_str());
 }
 
 void SciTEBase::RestoreRecentMenu() {
@@ -407,7 +407,7 @@ void SciTEBase::RestoreRecentMenu() {
 		SString propStr = propsSession.Get(propKey.c_str());
 		if (propStr == "")
 			continue;
-		AddFileToStack(propStr.c_str(), cr, 0);
+		AddFileToStack(GUI::StringFromUTF8(propStr.c_str()), cr, 0);
 	}
 }
 
@@ -425,7 +425,7 @@ void SciTEBase::RestoreSession() {
 		propKey = IndexPropKey("buffer", i, "position");
 		int pos = propsSession.GetInt(propKey.c_str());
 
-		if (!AddFileToBuffer(propStr.c_str(), pos - 1))
+		if (!AddFileToBuffer(GUI::StringFromUTF8(propStr.c_str()), pos - 1))
 			continue;
 
 		propKey = IndexPropKey("buffer", i, "current");
@@ -473,7 +473,7 @@ void SciTEBase::RestoreSession() {
 		SetDocumentAt(curr);
 }
 
-void SciTEBase::SaveSessionFile(const char *sessionName) {
+void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 	bool defaultSession;
 	FilePath sessionPathName;
 	if (sessionName[0] == '\0') {
@@ -511,7 +511,7 @@ void SciTEBase::SaveSessionFile(const char *sessionName) {
 		for (int i = fileStackMax - 1; i >= 0; i--) {
 			if (recentFileStack[i].IsSet()) {
 				propKey = IndexPropKey("mru", j++, "path");
-				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), recentFileStack[i].AsInternal());
+				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), recentFileStack[i].AsUTF8().c_str());
 			}
 		}
 	}
@@ -521,7 +521,7 @@ void SciTEBase::SaveSessionFile(const char *sessionName) {
 		for (int i = 0; i < buffers.length; i++) {
 			if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
 				SString propKey = IndexPropKey("buffer", i, "path");
-				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buffers.buffers[i].AsInternal());
+				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buffers.buffers[i].AsUTF8().c_str());
 
 				SetDocumentAt(i);
 				int pos = wEditor.Call(SCI_GETCURRENTPOS) + 1;
@@ -576,7 +576,7 @@ void SciTEBase::SaveSessionFile(const char *sessionName) {
 
 	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
 	// Add/update SessionPath environment variable
-	props.Set("SessionPath", sessionFilePath.AsFileSystem());
+	props.Set("SessionPath", sessionFilePath.AsUTF8().c_str());
 }
 
 void SciTEBase::SetIndentSettings() {
@@ -646,7 +646,7 @@ void SciTEBase::New() {
 	wEditor.Call(SCI_SETDOCPOINTER, 0, doc);
 
 	FilePath curDirectory(filePath.Directory());
-	filePath.Set(curDirectory, "");
+	filePath.Set(curDirectory, GUI_TEXT(""));
 	SetFileName(filePath);
 	CurrentBuffer()->isDirty = false;
 	jobQueue.isBuilding = false;
@@ -680,14 +680,14 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 	bool closingLast = false;
 
 	if (extender) {
-		extender->OnClose(filePath.AsFileSystem());
+		extender->OnClose(filePath.AsUTF8().c_str());
 	}
 
 	if (buffers.size == 1) {
 		// With no buffer list, Close means close from MRU
 		closingLast = !(recentFileStack[0].IsSet());
 		buffers.buffers[0].Init();
-		filePath.Set("");
+		filePath.Set(GUI_TEXT(""));
 		ClearDocument(); //avoid double are-you-sure
 		if (!makingRoomForNew)
 			StackMenu(0); // calls New, or Open, which calls InitBuffer
@@ -732,7 +732,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 	}
 
 	if (extender && !closingLast && !makingRoomForNew) {
-		extender->OnSwitchFile(filePath.AsFileSystem());
+		extender->OnSwitchFile(filePath.AsUTF8().c_str());
 	}
 
 	if (closingLast && props.GetInt("quit.on.close.last") && !loadingSession) {
@@ -867,43 +867,47 @@ void SciTEBase::BuffersMenu() {
 	}
 	if (buffers.size > 1) {
 		int menuStart = 5;
-		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, "");
+		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, GUI_TEXT(""));
 		for (pos = 0; pos < buffers.length; pos++) {
 			int itemID = bufferCmdID + pos;
-			char entry[MAX_PATH*2 + 20];
-			entry[0] = '\0';
-			char titleTab[MAX_PATH*2 + 20];
-			titleTab[0] = '\0';
+			GUI::gui_string entry;
+			GUI::gui_string titleTab;
 #if !defined(GTK)
 
 			if (pos < 10) {
-				sprintf(entry, "&%d ", (pos + 1) % 10 ); // hotkey 1..0
-				sprintf(titleTab, "&%d ", (pos + 1) % 10); // add hotkey to the tabbar
+				GUI::gui_char stemp[100];
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+				swprintf(stemp, ELEMENTS(stemp), GUI_TEXT("&%d "), (pos + 1) % 10 );
+#else
+				swprintf(stemp, GUI_TEXT("&%d "), (pos + 1) % 10 );
+#endif
+				entry = stemp;	// hotkey 1..0
+				titleTab = stemp; // add hotkey to the tabbar
 			}
 #endif
 
 			if (buffers.buffers[pos].IsUntitled()) {
-				SString untitled = localiser.Text("Untitled");
-				strcat(entry, untitled.c_str());
-				strcat(titleTab, untitled.c_str());
+				GUI::gui_string untitled = localiser.Text("Untitled");
+				entry += untitled;
+				titleTab += untitled;
 			} else {
-				SString path = buffers.buffers[pos].AsInternal();
+				GUI::gui_string path = buffers.buffers[pos].AsInternal();
 #if !defined(GTK)
 				// Handle '&' characters in path, since they are interpreted in
 				// menues and tab names.
-				int amp = 0;
-				while ((amp = path.search("&", amp)) >= 0) {
-					path.insert(amp, "&");
+				size_t amp = 0;
+				while ((amp = path.find(GUI_TEXT("&"), amp)) != GUI::gui_string::npos) {
+					path.insert(amp, GUI_TEXT("&"));
 					amp += 2;
 				}
 #endif
-				strcat(entry, path.c_str());
+				entry += path;
 
-				char *cpDirEnd = strrchr(entry, pathSepChar);
-				if (cpDirEnd) {
-					strcat(titleTab, cpDirEnd + 1);
+				size_t dirEnd = entry.rfind(pathSepChar);
+				if (dirEnd != GUI::gui_string::npos) {
+					titleTab += entry.substr(dirEnd + 1);
 				} else {
-					strcat(titleTab, entry);
+					titleTab += entry;
 				}
 			}
 			// For short file names:
@@ -911,12 +915,12 @@ void SciTEBase::BuffersMenu() {
 			//strcat(entry, cpDirEnd + 1);
 
 			if (buffers.buffers[pos].isDirty) {
-				strcat(entry, " *");
-				strcat(titleTab, " *");
+				entry += GUI_TEXT(" *");
+				titleTab += GUI_TEXT(" *");
 			}
 
-			SetMenuItem(menuBuffers, menuStart + pos + 1, itemID, entry);
-			TabInsert(pos, titleTab);
+			SetMenuItem(menuBuffers, menuStart + pos + 1, itemID, entry.c_str());
+			TabInsert(pos, titleTab.c_str());
 		}
 	}
 	CheckMenus();
@@ -939,19 +943,23 @@ void SciTEBase::DeleteFileStackMenu() {
 
 void SciTEBase::SetFileStackMenu() {
 	if (recentFileStack[0].IsSet()) {
-		SetMenuItem(menuFile, MRU_START, IDM_MRU_SEP, "");
+		SetMenuItem(menuFile, MRU_START, IDM_MRU_SEP, GUI_TEXT(""));
 		for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
 			int itemID = fileStackCmdID + stackPos;
 			if (recentFileStack[stackPos].IsSet()) {
-				char entry[MAX_PATH + 20];
+				GUI::gui_char entry[MAX_PATH + 20];
 				entry[0] = '\0';
 #if !defined(GTK)
 
-				sprintf(entry, "&%d ", (stackPos + 1) % 10);
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+				swprintf(entry, ELEMENTS(entry), GUI_TEXT("&%d "), (stackPos + 1) % 10);
+#else
+				swprintf(entry, GUI_TEXT("&%d "), (stackPos + 1) % 10);
 #endif
-
-				strcat(entry, recentFileStack[stackPos].AsInternal());
-				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, entry);
+#endif
+				GUI::gui_string sEntry(entry);
+				sEntry += recentFileStack[stackPos].AsInternal();
+				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, sEntry.c_str());
 			}
 		}
 	}
@@ -1108,8 +1116,8 @@ void SciTEBase::RemoveToolsMenu() {
 
 void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
         const char *text, const char *mnemonic) {
-	SString localised = localiser.Text(text);
-	SetMenuItem(menuNumber, position, itemID, localised.c_str(), mnemonic);
+	GUI::gui_string localised = localiser.Text(text);
+	SetMenuItem(menuNumber, position, itemID, localised.c_str(), GUI::StringFromUTF8(mnemonic).c_str());
 }
 
 void SciTEBase::SetToolsMenu() {
@@ -1122,13 +1130,13 @@ void SciTEBase::SetToolsMenu() {
 		SString prefix = "command.name.";
 		prefix += SString(item);
 		prefix += ".";
-		SString commandName = props.GetNewExpand(prefix.c_str(), FileNameExt().AsInternal());
+		SString commandName = props.GetNewExpand(prefix.c_str(), FileNameExt().AsUTF8().c_str());
 		if (commandName.length()) {
 			SString sMenuItem = commandName;
 			prefix = "command.shortcut.";
 			prefix += SString(item);
 			prefix += ".";
-			SString sMnemonic = props.GetNewExpand(prefix.c_str(), FileNameExt().AsInternal());
+			SString sMnemonic = props.GetNewExpand(prefix.c_str(), FileNameExt().AsUTF8().c_str());
 			if (item < 10 && sMnemonic.length() == 0) {
 				sMnemonic += "Ctrl+";
 				sMnemonic += SString(item);
@@ -1146,7 +1154,7 @@ void SciTEBase::SetToolsMenu() {
 	DestroyMenuItem(menuTools, IDM_MACROSTOPRECORD);
 	menuPos++;
 	if (macrosEnabled) {
-		SetMenuItem(menuTools, menuPos++, IDM_MACRO_SEP, "");
+		SetMenuItem(menuTools, menuPos++, IDM_MACRO_SEP, GUI_TEXT(""));
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROLIST,
 		        "&List Macros...", "Shift+F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROPLAY,
@@ -1178,7 +1186,7 @@ JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 		subsysprefix += SString(item);
 		subsysprefix += ".";
 	}
-	SString subsystem = props.GetNewExpand(subsysprefix.c_str(), FileNameExt().AsInternal());
+	SString subsystem = props.GetNewExpand(subsysprefix.c_str(), FileNameExt().AsUTF8().c_str());
 	return SubsystemType(subsystem[0]);
 }
 
@@ -1191,7 +1199,7 @@ void SciTEBase::ToolsMenu(int item) {
 	SString propName = "command.";
 	propName += itemSuffix;
 
-	SString command = props.GetWild(propName.c_str(), FileNameExt().AsInternal());
+	SString command = props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str());
 	if (command.length()) {
 		int saveBefore = 0;
 
@@ -1203,7 +1211,7 @@ void SciTEBase::ToolsMenu(int item) {
 
 		propName = "command.mode.";
 		propName += itemSuffix;
-		SString modeVal = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal());
+		SString modeVal = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str());
 		modeVal.remove(" ");
 		if (modeVal.length()) {
 			char *modeTags = modeVal.detach();
@@ -1291,45 +1299,45 @@ void SciTEBase::ToolsMenu(int item) {
 
 		propName = "command.save.before.";
 		propName += itemSuffix;
-		if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
-			saveBefore = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value();
+		if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
+			saveBefore = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str()).value();
 
 		if (saveBefore == 2 || (saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != IDCANCEL) {
 			int flags = 0;
 
 			propName = "command.is.filter.";
 			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
-				filter = (props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal())[0] == '1');
+			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
+				filter = (props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str())[0] == '1');
 			if (filter)
 				CurrentBuffer()->fileModTime -= 1;
 
 			propName = "command.subsystem.";
 			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length()) {
-				SString subsystemVal = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal());
+			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length()) {
+				SString subsystemVal = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str());
 				jobType = SubsystemType(subsystemVal[0]);
 			}
 
 			propName = "command.input.";
 			propName += itemSuffix;
 			SString input;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length()) {
-				input = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal());
+			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length()) {
+				input = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str());
 				flags |= jobHasInput;
 			}
 
 			propName = "command.quiet.";
 			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
-				quiet = (props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value() == 1);
+			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
+				quiet = (props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str()).value() == 1);
 			if (quiet)
 				flags |= jobQuiet;
 
 			propName = "command.replace.selection.";
 			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsInternal()).length())
-				repSel = props.GetNewExpand(propName.c_str(), FileNameExt().AsInternal()).value();
+			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
+				repSel = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str()).value();
 
 			if (repSel == 1)
 				flags |= jobRepSelYes;
@@ -1720,17 +1728,18 @@ void SciTEBase::GoMessage(int dir) {
 			int column;
 			int sourceLine = DecodeMessage(message.c_str(), source, style, column);
 			if (sourceLine >= 0) {
-				FilePath sourcePath(source);
+				GUI::gui_string sourceString = GUI::StringFromUTF8(source);
+				FilePath sourcePath(sourceString);
 				if (!filePath.Name().SameNameAs(sourcePath)) {
 					FilePath messagePath;
 					bool bExists = false;
-					if (Exists(dirNameAtExecute.AsInternal(), source, &messagePath)) {
+					if (Exists(dirNameAtExecute.AsInternal(), sourceString.c_str(), &messagePath)) {
 						bExists = true;
-					} else if (Exists(dirNameForExecute.AsInternal(), source, &messagePath)) {
+					} else if (Exists(dirNameForExecute.AsInternal(), sourceString.c_str(), &messagePath)) {
 						bExists = true;
-					} else if (Exists(filePath.Directory().AsInternal(), source, &messagePath)) {
+					} else if (Exists(filePath.Directory().AsInternal(), sourceString.c_str(), &messagePath)) {
 						bExists = true;
-					} else if (Exists(NULL, source, &messagePath)) {
+					} else if (Exists(NULL, sourceString.c_str(), &messagePath)) {
 						bExists = true;
 					} else {
 						// Look through buffers for name match

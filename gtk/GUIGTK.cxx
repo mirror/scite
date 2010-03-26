@@ -8,6 +8,8 @@
 
 #include <time.h>
 
+#include <string>
+
 #include <gtk/gtk.h>
 
 #include "Scintilla.h"
@@ -16,6 +18,20 @@
 #include "GUI.h"
 
 namespace GUI {
+
+gui_string StringFromUTF8(const char *s) {
+	return gui_string(s);
+}
+
+std::string UTF8FromString(const gui_string &s) {
+	return s;
+}
+
+gui_string StringFromInteger(int i) {
+	char number[32];
+	sprintf(number, "%0d", i);
+	return gui_string(number);
+}
 
 static GtkWidget *PWidget(WindowID wid) {
 	return reinterpret_cast<GtkWidget *>(wid);
