@@ -1364,19 +1364,24 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 	switch (format) {
 	case SCE_ERR_PYTHON: {
 			// Python
-			const char *startPath = strchr(cdoc, '\"') + 1;
-			const char *endPath = strchr(startPath, '\"');
-			int length = endPath - startPath;
-			if (length > 0) {
-				strncpy(sourcePath, startPath, length);
-				sourcePath[length] = 0;
+			const char *startPath = strchr(cdoc, '\"');
+			if (startPath) {
+				startPath++;
+				const char *endPath = strchr(startPath, '\"');
+				if (endPath) {
+					int length = endPath - startPath;
+					if (length > 0) {
+						strncpy(sourcePath, startPath, length);
+						sourcePath[length] = 0;
+					}
+					endPath++;
+					while (*endPath && !isdigitchar(*endPath)) {
+						endPath++;
+					}
+					int sourceNumber = atoi(endPath) - 1;
+					return sourceNumber;
+				}
 			}
-			endPath++;
-			while (*endPath && !isdigitchar(*endPath)) {
-				endPath++;
-			}
-			int sourceNumber = atoi(endPath) - 1;
-			return sourceNumber;
 		}
 	case SCE_ERR_GCC: {
 			// GCC - look for number after colon to be line number
