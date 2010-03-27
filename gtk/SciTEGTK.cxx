@@ -3396,10 +3396,11 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 #endif
 
 	// Collect the argv into one string with each argument separated by '\n'
-	SString args;
-	int arg;
-	for (arg = 1; arg < argc; arg++) {
-		args.appendwithseparator(argv[arg], '\n');
+	GUI::gui_string args;
+	for (int arg = 1; arg < argc; arg++) {
+		if (args.size() > 0)
+			args += '\n';
+		args += argv[arg];
 	}
 
 	// Process any initial switches

@@ -4919,9 +4919,9 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 				if (phase == 1) {
 					OpenFilesFromStdin();
 				}
-			} else if ((tolower(arg[0]) == 'p') && (wcslen(arg) == 1)) {
+			} else if ((tolower(arg[0]) == 'p') && (arg[1] == 0)) {
 				performPrint = true;
-			} else if (wcscmp(arg, GUI_TEXT("grep")) == 0) {
+			} else if (GUI::gui_string(arg) == GUI_TEXT("grep")) {
 				// wlArgs[i+1] will be options in future
 				GrepFlags gf = grepStdOut;
 				if (wlArgs[i+1][0] == 'w')
