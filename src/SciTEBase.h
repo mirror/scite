@@ -624,7 +624,7 @@ protected:
 	    ofPreserveUndo = 4,	// Do not delete undo history
 	    ofQuiet = 8		// Avoid "Could not open file" message
 	};
-	virtual bool PreOpenCheck(const char *file);
+	virtual bool PreOpenCheck(const GUI::gui_char *file);
 	bool Open(FilePath file, OpenFlags of = ofNone);
 	bool OpenSelected();
 	void Revert();
@@ -856,7 +856,7 @@ protected:
 	void AskMacroList();
 	bool StartMacroList(const char *words);
 	void ContinueMacroList(const char *stxt);
-	bool ProcessCommandLine(SString &args, int phase);
+	bool ProcessCommandLine(GUI::gui_string &args, int phase);
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
@@ -864,8 +864,8 @@ protected:
 	    grepNone = 0, grepWholeWord = 1, grepMatchCase = 2, grepStdOut = 4,
 	    grepDot = 8, grepBinary = 16
 	};
-	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const char *fileTypes);
-	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const char *files, const char *search);
+	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const GUI::gui_char *fileTypes);
+	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *files, const char *search);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);
@@ -930,5 +930,6 @@ inline bool isspacechar(unsigned char ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 
+bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace);

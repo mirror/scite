@@ -654,7 +654,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			gf = static_cast<GrepFlags>(gf | grepBinary);
 		const char *findFiles = grepCmd + 2;
 		const char *findWhat = findFiles + strlen(findFiles) + 1;
-		InternalGrep(gf, jobToRun.directory.AsInternal(), findFiles, findWhat);
+		InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findWhat);
 		return exitcode;
 	}
 
@@ -1243,14 +1243,14 @@ static bool IsASpace(int ch) {
  * from each argument.
  * @return A string with each argument separated by '\n'.
  */
-SString SciTEWin::ProcessArgs(const char *cmdLine) {
-	SString args;
-	const char *startArg = cmdLine;
+GUI::gui_string SciTEWin::ProcessArgs(const GUI::gui_char *cmdLine) {
+	GUI::gui_string args;
+	const GUI::gui_char *startArg = cmdLine;
 	while (*startArg) {
 		while (IsASpace(*startArg)) {
 			startArg++;
 		}
-		const char *endArg = startArg;
+		const GUI::gui_char *endArg = startArg;
 		if (*startArg == '"') {	// Opening double-quote
 			startArg++;
 			endArg = startArg;
@@ -1262,8 +1262,10 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
 				endArg++;
 			}
 		}
-		SString arg(startArg, 0, endArg - startArg);
-		args.appendwithseparator(arg.c_str(), '\n');
+		GUI::gui_string arg(startArg, 0, endArg - startArg);
+		if (args.size() > 0)
+			args += GUI_TEXT("\n");
+		args += arg;
 		startArg = endArg;	// On a space or a double-quote, or on the end of the command line
 		if (*startArg) {
 			startArg++;
@@ -1278,14 +1280,14 @@ SString SciTEWin::ProcessArgs(const char *cmdLine) {
  * create the SciTE window, perform batch processing (print) or transmit command line
  * to other instance and exit or just show the window and open files.
  */
-void SciTEWin::Run(const char *cmdLine) {
+void SciTEWin::Run(const GUI::gui_char *cmdLine) {
 	// Load the default session file
 	if (props.GetInt("save.session") || props.GetInt("save.position") || props.GetInt("save.recent")) {
 		LoadSessionFile(GUI_TEXT(""));
 	}
 
 	// Break up the command line into individual arguments
-	SString args = ProcessArgs(cmdLine);
+	GUI::gui_string args = ProcessArgs(cmdLine);
 	// Read the command line parameters:
 	// In case the check.if.already.open property has been set or reset on the command line,
 	// we still get a last chance to force checking or to open a separate instance;
@@ -1316,7 +1318,7 @@ void SciTEWin::Run(const char *cmdLine) {
 	}
 
 	if (props.GetInt("check.if.already.open") != 0 && uniqueInstance.FindOtherInstance()) {
-		uniqueInstance.SendCommands(cmdLine);
+		uniqueInstance.SendCommands(GUI::UTF8FromString(cmdLine).c_str());
 
 		// Kill itself, leaving room to the previous instance
 		::PostQuitMessage(0);
@@ -1412,75 +1414,74 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 /**
  * Handle simple wild-card file patterns and directory requests.
  */
-bool SciTEWin::PreOpenCheck(const char *arg) {
-	// TODO: Convert to wide file names
+bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 	bool isHandled = false;
 	HANDLE hFFile;
-	WIN32_FIND_DATAA ffile;
-	DWORD fileattributes = ::GetFileAttributesA(arg);
-	char filename[MAX_PATH];
+	WIN32_FIND_DATA ffile;
+	DWORD fileattributes = ::GetFileAttributes(arg);
+	GUI::gui_char filename[MAX_PATH];
 	int nbuffers = props.GetInt("buffers");
 
 	if (fileattributes != (DWORD) -1) {	// arg is an existing directory or filename
 		// if the command line argument is a directory, use OpenDialog()
 		if (fileattributes & FILE_ATTRIBUTE_DIRECTORY) {
-			OpenDialog(FilePath(GUI::StringFromUTF8(arg)), GUI::StringFromUTF8(props.GetExpanded("open.filter").c_str()).c_str());
+			OpenDialog(FilePath(arg), GUI::StringFromUTF8(props.GetExpanded("open.filter").c_str()).c_str());
 			isHandled = true;
 		}
-	} else if (nbuffers > 1 && (hFFile = ::FindFirstFileA(arg, &ffile)) != INVALID_HANDLE_VALUE) {
+	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(arg, &ffile)) != INVALID_HANDLE_VALUE) {
 		// If several buffers is accepted and the arg is a filename pattern matching at least an existing file
 		isHandled = true;
-		strcpy(filename, arg);
-		char *lastslash;
-		if (NULL == (lastslash = strrchr(filename, '\\')))
+		wcscpy(filename, arg);
+		GUI::gui_char *lastslash;
+		if (NULL == (lastslash = wcsrchr(filename, GUI_TEXT('\\'))))
 			lastslash = filename;	// No path
 		else
 			lastslash++;
 		// Open files matching the given pattern until no more files or all available buffers are exhausted
 		do {
 			if (!(ffile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {	// Skip directories
-				strcpy(lastslash, ffile.cFileName);
-				Open(GUI::StringFromUTF8(filename));
+				wcscpy(lastslash, ffile.cFileName);
+				Open(filename);
 				--nbuffers;
 			}
-		} while (nbuffers > 0 && ::FindNextFileA(hFFile, &ffile));
+		} while (nbuffers > 0 && ::FindNextFile(hFFile, &ffile));
 		::FindClose(hFFile);
 	} else {
-		const char *lastslash = strrchr(arg, '\\');
-		const char *lastdot = strrchr(arg, '.');
+		const GUI::gui_char *lastslash = wcsrchr(arg, '\\');
+		const GUI::gui_char *lastdot = wcsrchr(arg, '.');
 
 		// if the filename is only an extension, open the dialog box with it as the extension filter
 		if ((lastslash && lastdot && lastslash == lastdot - 1) || (!lastslash && lastdot == arg)) {
 			isHandled = true;
 
-			char dir[MAX_PATH];
+			GUI::gui_char dir[MAX_PATH];
 			if (lastslash) { // the arg contains a path, so copy that part to dirName
-				strncpy(dir, arg, lastslash - arg + 1);
+				wcsncpy(dir, arg, lastslash - arg + 1);
 				dir[lastslash - arg + 1] = '\0';
 			} else {
-				strcpy(dir, ".\\");
+				wcscpy(dir, GUI_TEXT(".\\"));
 			}
 
-			strcpy(filename, "*");
-			strcat(filename, lastdot);
-			strcat(filename, "|");
-			strcat(filename, "*");
-			strcat(filename, lastdot);
-			OpenDialog(FilePath(GUI::StringFromUTF8(dir)), GUI::StringFromUTF8(filename).c_str());
+			wcscpy(filename, GUI_TEXT("*"));
+			wcscat(filename, lastdot);
+			wcscat(filename, GUI_TEXT("|"));
+			wcscat(filename, GUI_TEXT("*"));
+			wcscat(filename, lastdot);
+			OpenDialog(FilePath(dir), filename);
 		} else if (!lastdot || (lastslash && lastdot < lastslash)) {
 			// if the filename has no extension, try to match a file with list of standard extensions
 			SString extensions = props.GetExpanded("source.default.extensions");
 			if (extensions.length()) {
-				strcpy(filename, arg);
-				char *endfilename = filename + strlen(filename);
+				wcscpy(filename, arg);
+				GUI::gui_char *endfilename = filename + wcslen(filename);
 				extensions.substitute('|', '\0');
 				size_t start = 0;
 				while (start < extensions.length()) {
-					const char *filterName = extensions.c_str() + start;
-					strcpy(endfilename, filterName);
-					if (::GetFileAttributesA(filename) != (DWORD) -1) {
+					GUI::gui_string filterName = GUI::StringFromUTF8(extensions.c_str() + start);
+					wcscpy(endfilename, filterName.c_str());
+					if (::GetFileAttributes(filename) != (DWORD) -1) {
 						isHandled = true;
-						Open(GUI::StringFromUTF8(filename));
+						Open(filename);
 						break;	// Found!
 					} else {
 						// Next extension
@@ -2043,7 +2044,7 @@ int SciTEWin::EventLoop() {
 	return msg.wParam;
 }
 
-int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
 #ifdef NO_EXTENSIONS
 	Extension *extender = 0;
@@ -2077,7 +2078,20 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int) {
 	int result;
 	{
 		SciTEWin MainWind(extender);
-		MainWind.Run(lpszCmdLine);
+		LPTSTR lptszCmdLine = GetCommandLine();
+		if (*lptszCmdLine == '\"') {
+			lptszCmdLine++;
+			while (*lptszCmdLine && (*lptszCmdLine != '\"'))
+				lptszCmdLine++;
+			if (*lptszCmdLine == '\"')
+				lptszCmdLine++;
+		} else {
+			while (*lptszCmdLine && (*lptszCmdLine != ' '))
+				lptszCmdLine++;
+		}
+		while (*lptszCmdLine == ' ')
+			lptszCmdLine++;
+		MainWind.Run(lptszCmdLine);
 		result = MainWind.EventLoop();
 	}
 

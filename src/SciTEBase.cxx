@@ -19,6 +19,7 @@
 #endif
 
 #include <string>
+#include <vector>
 #include <map>
 #include <algorithm>
 
@@ -4514,7 +4515,7 @@ void SciTEBase::UIAvailable() {
  * Find the character following a name which is made up of characters from
  * the set [a-zA-Z.]
  */
-static char AfterName(const char *s) {
+static GUI::gui_char AfterName(const GUI::gui_char *s) {
 	while (*s && ((*s == '.') ||
 	        (*s >= 'a' && *s <= 'z') ||
 	        (*s >= 'A' && *s <= 'Z')))
@@ -4623,7 +4624,7 @@ void SciTEBase::PerformOne(char *action) {
 	}
 }
 
-static bool IsSwitchCharacter(char ch) {
+static bool IsSwitchCharacter(GUI::gui_char ch) {
 #ifdef unix
 	return ch == '-';
 #else
@@ -4873,6 +4874,24 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	delete []tbuff;
 }
 
+std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) {
+	// Split on \n
+	std::vector<GUI::gui_string> vs;
+	GUI::gui_string s;
+	for (size_t i=0; i<args.size(); i++) {
+		if (args[i] == '\n') {
+			vs.push_back(s);
+			s = GUI::gui_string();
+		} else {
+			s += args[i];
+		}
+	}
+	if (s.size() > 0) {
+		vs.push_back(s);
+	}
+	return vs;
+}
+
 /**
  * Process all the command line arguments.
  * Arguments that start with '-' (also '/' on Windows) are switches or commands with
@@ -4883,13 +4902,13 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
  * to be evaluated before creating the UI.
  * Call twice, first with phase=0, then with phase=1 after creating UI.
  */
-bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
+bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 	bool performPrint = false;
 	bool evaluate = phase == 0;
-	StringList wlArgs(true);
-	wlArgs.Set(args.c_str());
-	for (int i = 0; i < wlArgs.len; i++) {
-		char *arg = wlArgs[i];
+	std::vector<GUI::gui_string> wlArgs = ListFromString(args);
+	// Convert args to vector
+	for (size_t i = 0; i < wlArgs.size(); i++) {
+		const GUI::gui_char *arg = wlArgs[i].c_str();
 		if (IsSwitchCharacter(arg[0])) {
 			arg++;
 			if (arg[0] == '\0' || (arg[0] == '-' && arg[1] == '\0')) {
@@ -4900,9 +4919,9 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 				if (phase == 1) {
 					OpenFilesFromStdin();
 				}
-			} else if ((tolower(arg[0]) == 'p') && (strlen(arg) == 1)) {
+			} else if ((tolower(arg[0]) == 'p') && (wcslen(arg) == 1)) {
 				performPrint = true;
-			} else if (strcmp(arg, "grep") == 0) {
+			} else if (wcscmp(arg, GUI_TEXT("grep")) == 0) {
 				// wlArgs[i+1] will be options in future
 				GrepFlags gf = grepStdOut;
 				if (wlArgs[i+1][0] == 'w')
@@ -4914,23 +4933,27 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 				if (wlArgs[i+1][3] == 'b')
 					gf = static_cast<GrepFlags>(gf | grepBinary);
 				char unquoted[1000];
-				strcpy(unquoted, wlArgs[i+3]);
+				strcpy(unquoted, GUI::UTF8FromString(wlArgs[i+3].c_str()).c_str());
 				UnSlash(unquoted);
-				InternalGrep(gf, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2], unquoted);
+				InternalGrep(gf, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2].c_str(), unquoted);
 				exit(0);
 			} else {
 				if (AfterName(arg) == ':') {
-					if (isprefix(arg, "open:") || isprefix(arg, "loadsession:")) {
+					if (StartsWith(arg, GUI_TEXT("open:")) || StartsWith(arg, GUI_TEXT("loadsession:"))) {
 						if (phase == 0)
 							return performPrint;
 						else
 							evaluate = true;
 					}
-					if (evaluate)
-						PerformOne(arg);
+					if (evaluate) {
+						const std::string sArg = GUI::UTF8FromString(arg);
+						std::vector<char> vcArg(sArg.size() + 1);
+						std::copy(sArg.begin(), sArg.end(), vcArg.begin());
+						PerformOne(&vcArg[0]);
+					}
 				} else {
 					if (evaluate) {
-						props.ReadLine(arg, true, FilePath::GetWorkingDirectory());
+						props.ReadLine(GUI::UTF8FromString(arg).c_str(), true, FilePath::GetWorkingDirectory());
 					}
 				}
 			}
@@ -4945,7 +4968,7 @@ bool SciTEBase::ProcessCommandLine(SString &args, int phase) {
 				RestoreRecentMenu();
 
 			if (!PreOpenCheck(arg))
-				Open(GUI::StringFromUTF8(arg), ofQuiet);
+				Open(arg, ofQuiet);
 		}
 	}
 	if (phase == 1) {

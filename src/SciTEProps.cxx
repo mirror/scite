@@ -1328,6 +1328,11 @@ GUI::gui_string Localization::Text(const char *s, bool retainIfNotFound) {
 	return GUI::StringFromUTF8(s);
 }
 
+bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &start) {
+	return (s.size() >= start.size()) &&
+		(std::equal(s.begin(), s.begin() + start.size(), start.begin()));
+}
+
 bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end) {
 	return (s.size() >= end.size()) &&
 		(std::equal(s.begin() + s.size() - end.size(), s.end(), end.begin()));

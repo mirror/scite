@@ -167,7 +167,7 @@ protected:
 	virtual void SaveAsXML();
 	virtual void LoadSessionDialog();
 	virtual void SaveSessionDialog();
-	virtual bool PreOpenCheck(const char *file);
+	virtual bool PreOpenCheck(const GUI::gui_char *file);
 	virtual bool IsStdinBlocked();
 
 	/// Print the current buffer.
@@ -183,7 +183,7 @@ protected:
 	void DropFiles(HDROP hdrop);
 	void MinimizeToTray();
 	void RestoreFromTray();
-	SString ProcessArgs(const char *cmdLine);
+	GUI::gui_string ProcessArgs(const GUI::gui_char *cmdLine);
 	virtual void QuitProgram();
 
 	virtual FilePath GetDefaultDirectory();
@@ -266,7 +266,7 @@ public:
 
 	void CreateUI();
 	/// Management of the command line parameters.
-	void Run(const char *cmdLine);
+	void Run(const GUI::gui_char *cmdLine);
     int EventLoop();
 	void OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePage);
 	DWORD ExecuteOne(const Job &jobToRun, bool &seenOutput);

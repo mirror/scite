@@ -404,7 +404,7 @@ void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
 	Redraw();
 }
 
-bool SciTEBase::PreOpenCheck(const char *) {
+bool SciTEBase::PreOpenCheck(const GUI::gui_char *) {
 	return false;
 }
 
@@ -1110,16 +1110,15 @@ static bool IsWordCharacter(int ch) {
 	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')  || (ch >= '0' && ch <= '9')  || (ch == '_');
 }
 
-void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const char *fileTypes) {
+void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const GUI::gui_char *fileTypes) {
 	FilePathSet directories;
 	FilePathSet files;
 	baseDir.List(directories, files);
 	size_t searchLength = strlen(searchString);
 	SString os;
-	GUI::gui_string gFileTypes = GUI::StringFromUTF8(fileTypes);
 	for (size_t i = 0; i < files.Length(); i ++) {
 		FilePath fPath = files.At(i);
-		if (fPath.Matches(gFileTypes.c_str())) {
+		if (fPath.Matches(fileTypes)) {
 			//OutputAppendStringSynchronised(i->AsInternal());
 			//OutputAppendStringSynchronised("\n");
 			FileReader fr(fPath, gf & grepMatchCase);
@@ -1166,7 +1165,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 	}
 }
 
-void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const char *fileTypes, const char *search) {
+void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *fileTypes, const char *search) {
 	int originalEnd = 0;
 	GUI::ElapsedTime commandTime;
 	if (!(gf & grepStdOut)) {
@@ -1174,7 +1173,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 		os.append(">Internal search for \"");
 		os.append(search);
 		os.append("\" in \"");
-		os.append(fileTypes);
+		os.append(GUI::UTF8FromString(fileTypes).c_str());
 		os.append("\"\n");
 		OutputAppendStringSynchronised(os.c_str());
 		MakeOutputVisible();
