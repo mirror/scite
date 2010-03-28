@@ -2267,6 +2267,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"GetPropertyExpanded", 4009, iface_int, {iface_string, iface_stringresult}},
 	{"GetSelText", 2161, iface_int, {iface_void, iface_stringresult}},
 	{"GetStyledText", 2015, iface_int, {iface_void, iface_textrange}},
+	{"GetTag", 2616, iface_int, {iface_int, iface_stringresult}},
 	{"GetText", 2182, iface_int, {iface_length, iface_stringresult}},
 	{"GetTextRange", 2162, iface_int, {iface_void, iface_textrange}},
 	{"GotoLine", 2024, iface_void, {iface_int, iface_void}},
@@ -2613,7 +2614,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 264,
+	ifaceFunctionCount = 265,
 	ifaceConstantCount = 2040,
 	ifacePropertyCount = 170
 };
