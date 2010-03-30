@@ -317,7 +317,6 @@ void SciTEWin::GetWindowPosition(int *left, int *top, int *width, int *height, i
 void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
 
-	win95DeathDelay = static_cast<unsigned int>(props.GetInt("win95.death.delay", 500));
 	outputScroll = props.GetInt("output.scroll", 1);
 }
 
