@@ -99,7 +99,6 @@ protected:
 	int filterDefault;
 	bool staticBuild;
 	int menuSource;
-	bool isWindowsNT;
 
 	// Fields also used in tool execution thread
 	HANDLE hWriteSubProcess;

@@ -125,9 +125,7 @@ void SciTEWin::WarnUser(int warnID) {
 
 bool SciTEWin::DialogHandled(GUI::WindowID id, MSG *pmsg) {
 	if (id) {
-		if (isWindowsNT ?
-			::IsDialogMessageW(reinterpret_cast<HWND>(id), pmsg) :
-			::IsDialogMessageA(reinterpret_cast<HWND>(id), pmsg))
+		if (	::IsDialogMessageW(reinterpret_cast<HWND>(id), pmsg))
 			return true;
 	}
 	return false;
@@ -1091,19 +1089,11 @@ void SciTEWin::FindIncrement() {
 	findWhat.clear();
 
 	replacing = false;
-	if (isWindowsNT) {
-		::CreateDialogParamW(hInstance,
-		                                    (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
-		                                    MainHWND(),
-		                                    reinterpret_cast<DLGPROC>(FindIncrementDlg),
-		                                    reinterpret_cast<LPARAM>(this));
-	} else {
-		::CreateDialogParamA(hInstance,
-		                                    (LPCSTR)MAKEINTRESOURCE(IDD_FIND2),
-		                                    MainHWND(),
-		                                    reinterpret_cast<DLGPROC>(FindIncrementDlg),
-		                                    reinterpret_cast<LPARAM>(this));
-	}
+	::CreateDialogParamW(hInstance,
+	                                    (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
+	                                    MainHWND(),
+	                                    reinterpret_cast<DLGPROC>(FindIncrementDlg),
+	                                    reinterpret_cast<LPARAM>(this));
 	wFindIncrement.Show();
 }
 
@@ -1120,19 +1110,11 @@ void SciTEWin::Find() {
 
 	int dialog_id = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
 
-	if (isWindowsNT) {
-		wFindReplace = ::CreateDialogParamW(hInstance,
-		                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
-		                                    MainHWND(),
-		                                    reinterpret_cast<DLGPROC>(FindDlg),
-		                                    reinterpret_cast<LPARAM>(this));
-	} else {
-		wFindReplace = ::CreateDialogParamA(hInstance,
-		                                    (LPCSTR)MAKEINTRESOURCE(dialog_id),
-		                                    MainHWND(),
-		                                    reinterpret_cast<DLGPROC>(FindDlg),
-		                                    reinterpret_cast<LPARAM>(this));
-	}
+	wFindReplace = ::CreateDialogParamW(hInstance,
+	                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
+	                                    MainHWND(),
+	                                    reinterpret_cast<DLGPROC>(FindDlg),
+	                                    reinterpret_cast<LPARAM>(this));
 	wFindReplace.Show();
 
 	replacing = false;
@@ -1327,19 +1309,11 @@ void SciTEWin::Replace() {
 
 	int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
 
-	if (isWindowsNT) {
-		wFindReplace = ::CreateDialogParamW(hInstance,
-		                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
-		                                    MainHWND(),
-		                                    reinterpret_cast<DLGPROC>(ReplaceDlg),
-		                                    reinterpret_cast<sptr_t>(this));
-	} else {
-		wFindReplace = ::CreateDialogParamA(hInstance,
-		                                    (LPCSTR)MAKEINTRESOURCE(dialog_id),
-		                                    MainHWND(),
-		                                    reinterpret_cast<DLGPROC>(ReplaceDlg),
-		                                    reinterpret_cast<sptr_t>(this));
-	}
+	wFindReplace = ::CreateDialogParamW(hInstance,
+	                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
+	                                    MainHWND(),
+	                                    reinterpret_cast<DLGPROC>(ReplaceDlg),
+	                                    reinterpret_cast<sptr_t>(this));
 	wFindReplace.Show();
 
 	replacing = true;

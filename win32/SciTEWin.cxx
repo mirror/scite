@@ -157,13 +157,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	propsEmbed.Clear();
 	// System type properties are also stored in the embedded properties.
 	propsEmbed.Set("PLAT_WIN", "1");
-	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, TEXT("")};
-	::GetVersionEx(&osv);
-	isWindowsNT = osv.dwPlatformId == VER_PLATFORM_WIN32_NT;
-	if (osv.dwPlatformId == VER_PLATFORM_WIN32_NT)
-		propsEmbed.Set("PLAT_WINNT", "1");
-	else if (osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-		propsEmbed.Set("PLAT_WIN95", "1");
+	propsEmbed.Set("PLAT_WINNT", "1");
 
 	HRSRC handProps = ::FindResource(hInstance, TEXT("Embedded"), TEXT("Properties"));
 	if (handProps) {
@@ -657,10 +651,6 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 		return exitcode;
 	}
 
-	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, TEXT("")};
-	::GetVersionEx(&osv);
-	bool windows95 = osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
-
 	UINT codePage = wOutput.Send(SCI_GETCODEPAGE);
 	if (codePage != SC_CP_UTF8) {
 		codePage = CodePageFromCharSet(characterSet, codePage);
@@ -676,13 +666,11 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	sa.lpSecurityDescriptor = NULL;
 
 	SECURITY_DESCRIPTOR sd;
-	// If NT make a real security thing to allow inheriting handles
-	if (!windows95) {
-		::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-		::SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
-		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-		sa.lpSecurityDescriptor = &sd;
-	}
+	// Make a real security thing to allow inheriting handles
+	::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
+	::SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.lpSecurityDescriptor = &sd;
 
 	HANDLE hPipeWrite = NULL;
 	HANDLE hPipeRead = NULL;
@@ -738,8 +726,6 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 		bool cancelled = false;
 
 		SString repSelBuf;
-
-		DWORD timeDetectedDeath = 0;
 
 		size_t totalBytesToWrite = 0;
 		if (jobToRun.flags & jobHasInput) {
@@ -800,12 +786,6 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 					writingPosition += bytesWrote;
 
 					if (writingPosition >= totalBytesToWrite) {
-						if (windows95) {
-							// Write a Ctrl+Z to output to mark the end of the text
-							char stop[] = "\032";
-							::WriteFile(hWriteSubProcess,
-								stop, static_cast<DWORD>(strlen(stop)), &bytesWrote, NULL);
-						}
 						::CloseHandle(hWriteSubProcess);
 						hWriteSubProcess = INVALID_HANDLE_VALUE;
 					}
@@ -843,18 +823,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			} else {
 				if (::GetExitCodeProcess(pi.hProcess, &exitcode)) {
 					if (STILL_ACTIVE != exitcode) {
-						if (windows95) {
-							// Process is dead, but wait a second in case there is some output in transit
-							if (timeDetectedDeath == 0) {
-								timeDetectedDeath = ::GetTickCount();
-							} else {
-								if ((::GetTickCount() - timeDetectedDeath) > win95DeathDelay) {
-									running = false;    // It's a dead process
-								}
-							}
-						} else {	// NT, so dead already
-							running = false;
-						}
+						// Already dead
+						running = false;
 					}
 				}
 			}
@@ -1960,63 +1930,59 @@ LRESULT PASCAL SciTEWin::IWndProc(
 		return scite->WndProcI(iMessage, wParam, lParam);
 }
 
-// On NT, convert String from UTF-8 to doc encoding
+// Convert String from UTF-8 to doc encoding
 SString SciTEWin::EncodeString(const SString &s) {
 	//::MessageBox(GetFocus(),SString(s).c_str(),"EncodeString:in",0);
 
-	if (isWindowsNT) {
-		UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
+	UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
 
-		if (codePage != SC_CP_UTF8) {
-			codePage = CodePageFromCharSet(characterSet, codePage);
+	if (codePage != SC_CP_UTF8) {
+		codePage = CodePageFromCharSet(characterSet, codePage);
 
-			int cchWide = ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0);
-			wchar_t *pszWide = new wchar_t[cchWide + 1];
-			::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
+		int cchWide = ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0);
+		wchar_t *pszWide = new wchar_t[cchWide + 1];
+		::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
 
-			int cchMulti = ::WideCharToMultiByte(codePage, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
-			char *pszMulti = new char[cchMulti + 1];
-			::WideCharToMultiByte(codePage, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
-			pszMulti[cchMulti] = 0;
+		int cchMulti = ::WideCharToMultiByte(codePage, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
+		char *pszMulti = new char[cchMulti + 1];
+		::WideCharToMultiByte(codePage, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
+		pszMulti[cchMulti] = 0;
 
-			SString result(pszMulti);
+		SString result(pszMulti);
 
-			delete []pszWide;
-			delete []pszMulti;
+		delete []pszWide;
+		delete []pszMulti;
 
-			//::MessageBox(GetFocus(),result.c_str(),"EncodeString:out",0);
-			return result;
-		}
+		//::MessageBox(GetFocus(),result.c_str(),"EncodeString:out",0);
+		return result;
 	}
 	return SciTEBase::EncodeString(s);
 }
 
-// On NT, convert String from doc encoding to UTF-8
+// Convert String from doc encoding to UTF-8
 SString SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
 	SString s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
-	if (isWindowsNT) {
-		UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
+	UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
 
-		if (codePage != SC_CP_UTF8) {
-			codePage = CodePageFromCharSet(characterSet, codePage);
+	if (codePage != SC_CP_UTF8) {
+		codePage = CodePageFromCharSet(characterSet, codePage);
 
-			int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), NULL, 0);
-			wchar_t *pszWide = new wchar_t[cchWide + 1];
-			::MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
+		int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), NULL, 0);
+		wchar_t *pszWide = new wchar_t[cchWide + 1];
+		::MultiByteToWideChar(codePage, 0, s.c_str(), s.length(), pszWide, cchWide + 1);
 
-			int cchMulti = ::WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
-			char *pszMulti = new char[cchMulti + 1];
-			::WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
-			pszMulti[cchMulti] = 0;
+		int cchMulti = ::WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
+		char *pszMulti = new char[cchMulti + 1];
+		::WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
+		pszMulti[cchMulti] = 0;
 
-			SString result(pszMulti);
+		SString result(pszMulti);
 
-			delete []pszWide;
-			delete []pszMulti;
+		delete []pszWide;
+		delete []pszMulti;
 
-			return result;
-		}
+		return result;
 	}
 	return s;
 }
@@ -2026,16 +1992,13 @@ int SciTEWin::EventLoop() {
 	msg.wParam = 0;
 	bool going = true;
 	while (going) {
-		going = isWindowsNT ? ::GetMessageW(&msg, NULL, 0, 0) : ::GetMessageA(&msg, NULL, 0, 0);
+		going = ::GetMessageW(&msg, NULL, 0, 0);
 		if (going) {
 			if (!ModelessHandler(&msg)) {
 				if (!GetID() ||
 					::TranslateAccelerator(reinterpret_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
 					::TranslateMessage(&msg);
-					if (isWindowsNT)
-						::DispatchMessageW(&msg);
-					else
-						::DispatchMessageA(&msg);
+					::DispatchMessageW(&msg);
 				}
 			}
 		}
