@@ -570,89 +570,9 @@ bool FilePath::Matches(const GUI::gui_char *pattern) const {
  * @returns true on success, and the long path in @a longPath buffer,
  * false on failure, and copies the @a shortPath arg to the @a longPath buffer.
  */
-bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_char* longPath) {
-	// when we have pfnGetLong, we assume it never changes as kernel32 is always loaded
-	typedef DWORD (STDAPICALLTYPE* GetLongSig)(const GUI::gui_char* lpszShortPath, GUI::gui_char* lpszLongPath, DWORD cchBuffer);
-	static GetLongSig pfnGetLong = NULL;
-	static bool kernelTried = FALSE;
-	bool ok = FALSE;
+static bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_char* longPath) {
 
-	if (!kernelTried) {
-		HMODULE hModule;
-		kernelTried = true;
-		hModule = ::GetModuleHandleA("KERNEL32");
-		//assert(hModule != NULL); // must not call FreeLibrary on such handle
-
-		// attempt to get GetLongPathName (implemented in Win98/2000 only!)
-		pfnGetLong = (GetLongSig)::GetProcAddress(hModule, "GetLongPathNameW");
-	}
-
-	// the kernel GetLongPathName proc is faster and (hopefully) more reliable
-	if (pfnGetLong != NULL) {
-		// call kernel proc
-		ok = (pfnGetLong)(shortPath, longPath, _MAX_PATH) != 0;
-	} else {
-		GUI::gui_char short_path[_MAX_PATH];  // copy, so we can modify it
-		GUI::gui_char* tok;
-
-		*longPath = '\0';
-
-		wcsncpy(short_path, shortPath, _MAX_PATH);
-
-		for (;;) {
-			tok = strtok(short_path, GUI_TEXT("\\"));
-			if (tok == NULL)
-				break;
-
-			if ((strlen(shortPath) > 3) &&
-			        (shortPath[0] == pathSepChar) && (shortPath[1] == pathSepChar)) {
-				// UNC, skip first seps
-				strcat(longPath, GUI_TEXT("\\\\"));
-				strcat(longPath, tok);
-				strcat(longPath, pathSepString);
-
-				tok = strtok(NULL, pathSepString);
-				if (tok == NULL)
-					break;
-			}
-			strcat(longPath, tok);
-
-			bool isDir = false;
-
-			for (;;) {
-				WIN32_FIND_DATAW fd;
-				HANDLE hfind;
-				GUI::gui_char* tokend;
-
-				tok = strtok(NULL, pathSepString);
-				if (tok == NULL)
-					break;
-
-				strcat(longPath, pathSepString);
-				tokend = longPath + strlen(longPath);
-
-				// temporary add short component
-				strcpy(tokend, tok);
-
-				hfind = ::FindFirstFileW(longPath, &fd);
-				if (hfind == INVALID_HANDLE_VALUE)
-					break;
-
-				isDir = (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-
-				// finally add long component we got
-				strcpy(tokend, fd.cFileName);
-
-				::FindClose(hfind);
-			}
-			ok = tok == NULL;
-
-			if (ok && isDir)
-				strcat(longPath, pathSepString);
-
-			break;
-		}
-	}
+	bool ok = ::GetLongPathNameW(shortPath, longPath, _MAX_PATH) != 0;
 
 	if (!ok) {
 		wcsncpy(longPath, shortPath, _MAX_PATH);
