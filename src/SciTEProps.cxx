@@ -41,7 +41,7 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("_");
 #endif
 #endif
 
-#define _WIN32_WINNT  0x0400
+#define _WIN32_WINNT  0x0500
 #ifdef _MSC_VER
 // windows.h, et al, use a lot of nameless struct/unions - can't fix it, so allow it
 #pragma warning(disable: 4201)
@@ -798,7 +798,7 @@ void SciTEBase::ReadProperties() {
 	} else {
 		wEditor.Call(SCI_SETCARETLINEVISIBLE, 0);
 	}
-	wEditor.Call(SCI_SETCARETLINEBACKALPHA, 
+	wEditor.Call(SCI_SETCARETLINEBACKALPHA,
 		props.GetInt("caret.line.back.alpha", SC_ALPHA_NOALPHA));
 
 	SString findMark = props.Get("find.mark");
