@@ -160,7 +160,6 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO), 0, 0, 0, 0, TEXT("")};
 	::GetVersionEx(&osv);
 	isWindowsNT = osv.dwPlatformId == VER_PLATFORM_WIN32_NT;
-	allowAlpha = isWindowsNT;
 	if (osv.dwPlatformId == VER_PLATFORM_WIN32_NT)
 		propsEmbed.Set("PLAT_WINNT", "1");
 	else if (osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)

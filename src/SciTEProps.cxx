@@ -798,8 +798,8 @@ void SciTEBase::ReadProperties() {
 	} else {
 		wEditor.Call(SCI_SETCARETLINEVISIBLE, 0);
 	}
-	wEditor.Call(SCI_SETCARETLINEBACKALPHA,
-		allowAlpha ? props.GetInt("caret.line.back.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA);
+	wEditor.Call(SCI_SETCARETLINEBACKALPHA, 
+		props.GetInt("caret.line.back.alpha", SC_ALPHA_NOALPHA));
 
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
@@ -859,7 +859,7 @@ void SciTEBase::ReadProperties() {
 		else	// Have to show selection somehow
 			CallChildren(SCI_SETSELBACK, 1, ColourRGB(0xC0, 0xC0, 0xC0));
 	}
-	int selectionAlpha = allowAlpha ? props.GetInt("selection.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA;
+	int selectionAlpha = props.GetInt("selection.alpha", SC_ALPHA_NOALPHA);
 	CallChildren(SCI_SETSELALPHA, selectionAlpha);
 
 	SString selAdditionalFore = props.Get("selection.additional.fore");
@@ -1154,11 +1154,11 @@ void SciTEBase::ReadProperties() {
 	}
 
 	wEditor.Call(SCI_MARKERSETFORE, markerBookmark,
-	           ColourOfProperty(props, "bookmark.fore", ColourRGB(0, 0, 0x7f)));
+		ColourOfProperty(props, "bookmark.fore", ColourRGB(0, 0, 0x7f)));
 	wEditor.Call(SCI_MARKERSETBACK, markerBookmark,
-	           ColourOfProperty(props, "bookmark.back", ColourRGB(0x80, 0xff, 0xff)));
+		ColourOfProperty(props, "bookmark.back", ColourRGB(0x80, 0xff, 0xff)));
 	wEditor.Call(SCI_MARKERSETALPHA,
-		allowAlpha ? props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA) : SC_ALPHA_NOALPHA);
+		props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA));
 	SString bookMarkXPM = props.Get("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
 		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
