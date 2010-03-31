@@ -20,7 +20,10 @@
 namespace GUI {
 
 gui_string StringFromUTF8(const char *s) {
-	return gui_string(s);
+	if (s)
+		return gui_string(s);
+	else
+		return gui_string("");
 }
 
 std::string UTF8FromString(const gui_string &s) {
