@@ -246,10 +246,6 @@ static wchar_t *strcpy(wchar_t *strDestination, const wchar_t *strSource) {
 	return wcscpy(strDestination, strSource);
 }
 
-wchar_t *strcat(wchar_t *strDestination, const wchar_t *strSource) {
-	return wcscat(strDestination, strSource);
-}
-
 static int strcmp(const wchar_t *a, const wchar_t *b) {
 	return wcscmp(a,b);
 }
@@ -260,10 +256,6 @@ static wchar_t *strchr(wchar_t *str, wchar_t c) {
 
 static wchar_t *strrchr(wchar_t *str, wchar_t c) {
 	return wcsrchr(str, c);
-}
-
-wchar_t *strtok(wchar_t *strToken, const wchar_t *strDelimit) {
-	return wcstok(strToken, strDelimit);
 }
 
 static wchar_t *getcwd(wchar_t *buffer, int maxlen) {
