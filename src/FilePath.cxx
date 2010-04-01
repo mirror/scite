@@ -106,7 +106,7 @@ void FilePath::Set(FilePath const &directory, FilePath const &name) {
 		fileName = name.fileName;
 	} else {
 		fileName = directory.fileName;
-		if (fileName.size() && (fileName[fileName.size()] != pathSepChar))
+		if (fileName.size() && (fileName[fileName.size()-1] != pathSepChar))
 			fileName += pathSepString;
 		fileName += name.fileName;
 	}
