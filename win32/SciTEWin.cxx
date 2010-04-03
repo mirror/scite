@@ -251,9 +251,8 @@ static int CodePageFromName(const SString &encodingName) {
 		{ "big5", 950 },
 		{ "gbk", 936 },
 		{ "shift_jis", 932 },
-		// euc-kr does not work as 949
-		// "euc-kr", 949,
-		// "cyrillic", Possibly means KOI-8
+		{ "euc-kr", 949 },
+		{ "cyrillic", 1251 },
 		{ "iso-8859-5", 28595 },
 		{ "iso8859-11", 874 },
 		{ "1250", 1250 },
