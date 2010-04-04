@@ -783,6 +783,15 @@ NameError: mistake
     Wildcard matching only works where the wildcard is at the start of a file specification, so "*.mak" will match "proj.mak" but
     "Makefile*" will not match "Makefile.in".
     </p>
+    <p>
+    Properties files are not treated as having a particular encoding, however individual property values
+    may be treated as having an encoding. For file names, commands, and user interface text, this is
+    UTF-8 so it may be easier to edit properties files as UTF-8 by inserting a coding cookie as explained later.
+    Other properties may be treated as byte sequences (like word.characters.<i>filepattern</i>) or in an implicit
+    encoding (such as keywords.<i>filepattern</i> matching the document encoding) so that it may be better to
+    edit these settings using a non-UTF-8 encoding. Where both UTF-8 and non-UTF-8 values are wanted,
+    two files can be used with different encodings and an import statement to include one in the other.
+    </p>
     <h3>
        Importing properties files and conditional logic
     </h3>
