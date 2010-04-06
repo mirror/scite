@@ -1677,7 +1677,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
 
 		case SCITE_TRAY:
-			if (lParam == WM_LBUTTONDBLCLK) {
+			if (lParam == WM_LBUTTONDOWN) {
 				RestoreFromTray();
 				::ShowWindow(MainHWND(), SW_RESTORE);
 				::FlashWindow(MainHWND(), FALSE);
