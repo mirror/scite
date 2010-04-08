@@ -535,7 +535,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		}
 #endif
 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
-		AddStyledText(wsci, " 2.10\n", 1);
+		AddStyledText(wsci, " 2.11\n", 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
 		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
 		wsci.Send(SCI_STYLESETITALIC, 2, 1);
