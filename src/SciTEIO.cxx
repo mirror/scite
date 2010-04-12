@@ -854,8 +854,22 @@ void SciTEBase::ReloadProperties() {
 // Returns false if cancelled or failed to save
 bool SciTEBase::Save() {
 	if (!filePath.IsUntitled()) {
+		GUI::gui_string msg;
+		int decision;
+
 		if (props.GetInt("save.deletes.first")) {
 			filePath.Remove();
+		} else if (props.GetInt("save.check.modified.time")) {
+			time_t newModTime = filePath.ModifiedTime();
+			if ((newModTime != 0) && (CurrentBuffer()->fileModTime != 0) &&
+				(newModTime != CurrentBuffer()->fileModTime)) {
+				msg = LocaliseMessage("The file '^0' has been modified outside SciTE. Should it be saved?",
+					filePath.AsInternal());
+				decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+				if (decision == IDNO) {
+					return false;
+				}
+			}
 		}
 
 		if (SaveBuffer(filePath)) {
@@ -865,9 +879,9 @@ bool SciTEBase::Save() {
 				ReloadProperties();
 			}
 		} else {
-			GUI::gui_string msg = LocaliseMessage(
+			msg = LocaliseMessage(
 			            "Could not save file '^0'. Save under a different name?", filePath.AsInternal());
-			int decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+			decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
 			if (decision == IDYES) {
 				return SaveAsDialog();
 			}
