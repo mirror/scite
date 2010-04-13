@@ -25,7 +25,7 @@ BEGIN
 	MENUITEM "&Close\tCtrl+W",		IDM_CLOSE
 	MENUITEM "&Save\tCtrl+S",		IDM_SAVE
 	MENUITEM "Save &As...\tCtrl+Shift+S",			IDM_SAVEAS
-	MENUITEM "Save a Co&py...\tCtrl+Shift+P",			IDM_SAVEACOPY
+	MENUITEM "Save a Cop&y...\tCtrl+Shift+P",			IDM_SAVEACOPY
 	POPUP "Encodin&g"
 	BEGIN
 		MENUITEM "&Code Page Property",		IDM_ENCODING_DEFAULT
