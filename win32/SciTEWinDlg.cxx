@@ -1620,13 +1620,27 @@ void SciTEWin::FindMessageBox(const SString &msg, const SString *findItem) {
 	}
 }
 
+LRESULT CALLBACK CreditsWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	if (uMsg == WM_GETDLGCODE)
+		return DLGC_STATIC | DLGC_WANTARROWS | DLGC_WANTCHARS;
+
+	WNDPROC lpPrevWndProc = reinterpret_cast<WNDPROC>(::GetWindowLong(hwnd, GWL_USERDATA));
+	if (lpPrevWndProc)
+		return ::CallWindowProc(lpPrevWndProc, hwnd, uMsg, wParam, lParam);
+
+	return ::DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
 BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
 	case WM_INITDIALOG: {
 		LocaliseDialog(hDlg);
 		GUI::ScintillaWindow ss;
-		ss.SetID(::GetDlgItem(hDlg, IDABOUTSCINTILLA));
+		HWND hwndCredits = ::GetDlgItem(hDlg, IDABOUTSCINTILLA);
+		LONG subclassedProc = ::SetWindowLong(hwndCredits, GWL_WNDPROC, reinterpret_cast<LONG>(CreditsWndProc));
+		::SetWindowLong(hwndCredits, GWL_USERDATA, subclassedProc);
+		ss.SetID(hwndCredits);
 		SetAboutMessage(ss, staticBuild ? "Sc1  " : "SciTE");
 		}
 		return TRUE;
