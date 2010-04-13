@@ -125,7 +125,7 @@ class ScintillaWindow : public Window {
 	ScintillaWindow(const ScintillaWindow &source);
 	ScintillaWindow &operator=(const ScintillaWindow &);
 	SciFnDirect fn;
-	long ptr;
+	sptr_t ptr;
 public:
 	ScintillaWindow() : fn(0), ptr(0) {
 	}
@@ -142,18 +142,18 @@ public:
 	bool CanCall() const {
 		return wid && fn && ptr;
 	}
-	long Call(unsigned int msg, unsigned long wParam=0, long lParam=0) {
+	sptr_t Call(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0) {
 		sptr_t retVal = fn(ptr, msg, wParam, lParam);
 		sptr_t status = fn(ptr, SCI_GETSTATUS, 0, 0);
 		if (status > 0)
 			throw ScintillaFailure(status);
 		return retVal;
 	}
-	long CallString(unsigned int msg, unsigned long wParam, const char *s) {
+	sptr_t CallString(unsigned int msg, uptr_t wParam, const char *s) {
 		return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
 	}
-	long Send(unsigned int msg, unsigned long wParam=0, long lParam=0);
-	long SendPointer(unsigned int msg, unsigned long wParam=0, void *lParam=0);
+	sptr_t Send(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
+	sptr_t SendPointer(unsigned int msg, uptr_t wParam=0, void *lParam=0);
 };
 
 bool IsDBCSLeadByte(int codePage, char ch);

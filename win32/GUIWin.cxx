@@ -285,11 +285,11 @@ double ElapsedTime::Duration(bool reset) {
 	return result;
 }
 
-long ScintillaWindow::Send(unsigned int msg, unsigned long wParam, long lParam) {
+sptr_t ScintillaWindow::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	return ::SendMessage(reinterpret_cast<HWND>(GetID()), msg, wParam, lParam);
 }
 
-long ScintillaWindow::SendPointer(unsigned int msg, unsigned long wParam, void *lParam) {
+sptr_t ScintillaWindow::SendPointer(unsigned int msg, uptr_t wParam, void *lParam) {
 	return ::SendMessage(reinterpret_cast<HWND>(GetID()), msg, wParam, reinterpret_cast<LPARAM>(lParam));
 }
 
