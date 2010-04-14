@@ -1009,7 +1009,7 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
 	GUI::gui_string sDir = GUI::StringFromUTF8(dir);
 
-	SHELLEXECUTEINFO exec= { sizeof (exec) };
+	SHELLEXECUTEINFO exec= { sizeof (exec), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	exec.fMask= SEE_MASK_FLAG_NO_UI; // own msg box on return
 	exec.hwnd= MainHWND();
 	exec.lpVerb= L"open";  // better for executables to use "open" instead of NULL
