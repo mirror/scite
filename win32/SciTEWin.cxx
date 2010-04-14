@@ -29,6 +29,24 @@ const GUI::gui_char appName[] = GUI_TEXT("Sc1");
 const GUI::gui_char appName[] = GUI_TEXT("SciTE");
 #endif
 
+static GUI::gui_string GetErrorMessage(DWORD nRet) {
+	LPWSTR lpMsgBuf = NULL;
+	::FormatMessage(
+	    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+	    FORMAT_MESSAGE_FROM_SYSTEM |
+	    FORMAT_MESSAGE_IGNORE_INSERTS,
+	    NULL,
+	    nRet,
+	    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   // Default language
+	    reinterpret_cast<LPWSTR>(&lpMsgBuf),
+	    0,
+	    NULL
+	);
+	GUI::gui_string s= lpMsgBuf;
+	::LocalFree(lpMsgBuf);
+	return s;
+}
+
 long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 	int modsInKey = 0;
 	int keyval = -1;
@@ -876,21 +894,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 	} else {
 		DWORD nRet = ::GetLastError();
-		LPTSTR lpMsgBuf = NULL;
-		::FormatMessage(
-		    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		    FORMAT_MESSAGE_FROM_SYSTEM |
-		    FORMAT_MESSAGE_IGNORE_INSERTS,
-		    NULL,
-		    nRet,
-		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   // Default language
-		    reinterpret_cast<LPTSTR>(&lpMsgBuf),
-		    0,
-		    NULL
-		);
 		OutputAppendStringSynchronised(">");
-		OutputAppendEncodedStringSynchronised(lpMsgBuf, codePage);
-		::LocalFree(lpMsgBuf);
+		OutputAppendEncodedStringSynchronised(GetErrorMessage(nRet), codePage);
 		WarnUser(warnExecuteKO);
 	}
 	::CloseHandle(hPipeRead);
@@ -1003,46 +1008,22 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 	GUI::gui_string sMycmd = GUI::StringFromUTF8(mycmd);
 	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
 	GUI::gui_string sDir = GUI::StringFromUTF8(dir);
-	uptr_t rc = reinterpret_cast<uptr_t>(
-	                ::ShellExecute(
-	                    MainHWND(),          // parent wnd for msgboxes during app start
-	                    NULL,           // cmd is open
-	                    sMycmd.c_str(),          // file to open
-	                    sMyparams.c_str(),          // parameters
-	                    sDir.c_str(),          // launch directory
-	                    SW_SHOWNORMAL)); //default show cmd
 
+	SHELLEXECUTEINFO exec= { sizeof (exec) };
+	exec.fMask= SEE_MASK_FLAG_NO_UI; // own msg box on return
+	exec.hwnd= MainHWND();
+	exec.lpVerb= L"open";  // better for executables to use "open" instead of NULL
+	exec.lpFile= sMycmd.c_str();   // file to open
+	exec.lpParameters= sMyparams.c_str(); // parameters
+	exec.lpDirectory= sDir.c_str(); // launch directory
+	exec.nShow= SW_SHOWNORMAL; //default show cmd
 
-	if (rc > 32) {
+	if (::ShellExecuteEx(&exec)) {
 		// it worked!
 		delete []mycmdcopy;
 		return;
 	}
-
-	const int numErrcodes = 15;
-	static const ShellErr field[numErrcodes] = {
-	            { 0, "The operating system is out of memory or resources." },
-	            { ERROR_FILE_NOT_FOUND, "The specified file was not found." },
-	            { ERROR_PATH_NOT_FOUND, "The specified path was not found." },
-	            { ERROR_BAD_FORMAT, "The .exe file is invalid (non-Win32\256 .exe or error in .exe image)." },
-	            { SE_ERR_ACCESSDENIED, "The operating system denied access to the specified file." },
-	            { SE_ERR_ASSOCINCOMPLETE, "The file name association is incomplete or invalid." },
-	            { SE_ERR_DDEBUSY, "The DDE transaction could not be completed because other DDE transactions were being processed." },
-	            { SE_ERR_DDEFAIL, "The DDE transaction failed." },
-	            { SE_ERR_DDETIMEOUT, "The DDE transaction could not be completed because the request timed out." },
-	            { SE_ERR_DLLNOTFOUND, "The specified dynamic-link library was not found." },
-	            { SE_ERR_FNF, "The specified file was not found." },
-	            { SE_ERR_NOASSOC, "There is no application associated with the given file name extension." },
-	            { SE_ERR_OOM, "There was not enough memory to complete the operation." },
-	            { SE_ERR_PNF, "The specified path was not found." },
-	            { SE_ERR_SHARE, "A sharing violation occurred." },
-	        };
-
-	int i;
-	for (i = 0; i < numErrcodes; ++i) {
-		if (field[i].code == rc)
-			break;
-	}
+	DWORD rc = GetLastError();
 
 	SString errormsg("Error while launching:\n\"");
 	errormsg += mycmdcopy;
@@ -1051,13 +1032,7 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 		errormsg += myparams;
 	}
 	errormsg += "\"\n";
-	if (i < numErrcodes) {
-		errormsg += field[i].descr;
-	} else {
-		errormsg += "Unknown error code: ";
-		errormsg += SString(rc);
-	}
-	GUI::gui_string sErrorMsg = GUI::StringFromUTF8(errormsg.c_str());
+	GUI::gui_string sErrorMsg = GUI::StringFromUTF8(errormsg.c_str()) + GetErrorMessage(rc);
 	WindowMessageBox(wSciTE, sErrorMsg, MB_OK);
 
 	delete []mycmdcopy;
