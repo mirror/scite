@@ -459,6 +459,23 @@ void SciTEWin::CopyAsRTF() {
 	}
 }
 
+void SciTEWin::CopyPath() {
+	if (filePath.IsUntitled())
+		return;
+
+	GUI::gui_string clipText(filePath.AsInternal());
+	size_t blobSize = sizeof(GUI::gui_char)*(clipText.length()+1);
+	HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, blobSize);
+	if (hand && ::OpenClipboard(MainHWND())) {
+		::EmptyClipboard();
+		GUI::gui_char *ptr = static_cast<GUI::gui_char*>(::GlobalLock(hand));
+		memcpy(ptr, clipText.c_str(), blobSize);
+		::GlobalUnlock(hand);
+		::SetClipboardData(CF_UNICODETEXT, hand);
+		::CloseClipboard();
+	}
+}
+
 void SciTEWin::FullScreenToggle() {
 	HWND wTaskBar = FindWindow(TEXT("Shell_TrayWnd"), TEXT(""));
 	fullScreen = !fullScreen;

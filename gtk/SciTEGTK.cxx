@@ -457,6 +457,7 @@ protected:
 	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
 	virtual void ActivateWindow(const char *timestamp);
+	void CopyPath();
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute(int fromPoll);
 
@@ -846,6 +847,11 @@ void SciTEGTK::ActivateWindow(const char *timestamp) {
 	} else {
 		gtk_window_present(GTK_WINDOW(PWidget(wSciTE)));
 	}
+}
+
+void SciTEGTK::CopyPath() {
+	gtk_clipboard_set_text(gtk_clipboard_get(GDK_SELECTION_CLIPBOARD),
+		filePath.AsInternal(), -1);
 }
 
 void SciTEGTK::Command(unsigned long wParam, long) {
@@ -2774,6 +2780,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
 	                                      {"/File/Save _As...", "<control><shift>S", menuSig, IDM_SAVEAS, 0},
 	                                      {"/File/Save a Co_py...", "<control><shift>P", menuSig, IDM_SAVEACOPY, 0},
+	                                      {"/File/Copy Pat_h", NULL, menuSig, IDM_COPYPATH, 0},
 	                                      {"/File/Encodin_g", NULL, NULL, 0, "<Branch>"},
 	                                      {"/File/Encoding/_Code Page Property", NULL, menuSig, IDM_ENCODING_DEFAULT, "<RadioItem>"},
 	                                      {"/File/Encoding/UTF-16 _Big Endian", NULL, menuSig, IDM_ENCODING_UCS2BE, "/File/Encoding/Code Page Property"},

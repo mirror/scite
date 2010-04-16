@@ -210,6 +210,7 @@ protected:
 	void ExecuteHelp(const char *cmd);
 	void ExecuteOtherHelp(const char *cmd);
 	void CopyAsRTF();
+	void CopyPath();
 	void FullScreenToggle();
 	void Command(WPARAM wParam, LPARAM lParam);
 	HWND MainHWND();

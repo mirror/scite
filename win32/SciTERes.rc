@@ -24,8 +24,9 @@ BEGIN
 	MENUITEM "&Revert\tCtrl+R",		IDM_REVERT
 	MENUITEM "&Close\tCtrl+W",		IDM_CLOSE
 	MENUITEM "&Save\tCtrl+S",		IDM_SAVE
-	MENUITEM "Save &As...\tCtrl+Shift+S",			IDM_SAVEAS
-	MENUITEM "Save a Cop&y...\tCtrl+Shift+P",			IDM_SAVEACOPY
+	MENUITEM "Save &As...\tCtrl+Shift+S",	IDM_SAVEAS
+	MENUITEM "Save a Cop&y...\tCtrl+Shift+P",	IDM_SAVEACOPY
+	MENUITEM "Copy Pat&h",			IDM_COPYPATH
 	POPUP "Encodin&g"
 	BEGIN
 		MENUITEM "&Code Page Property",		IDM_ENCODING_DEFAULT
@@ -44,7 +45,7 @@ BEGIN
 	END
 	MENUITEM SEPARATOR
 	MENUITEM "Page Set&up...",		IDM_PRINTSETUP
-	MENUITEM "&Print...\tCtrl+P",	IDM_PRINT
+	MENUITEM "&Print...\tCtrl+P",		IDM_PRINT
 	MENUITEM SEPARATOR
 	MENUITEM "&Load Session...",		IDM_LOADSESSION
 	MENUITEM "Sa&ve Session...",		IDM_SAVESESSION

@@ -31,6 +31,7 @@
 #define IDM_SAVEASTEX		115
 #define IDM_SAVEACOPY		116
 #define IDM_SAVEASXML		117
+#define IDM_COPYPATH			118
 #define IDM_MRU_SEP			120
 #define IDM_PRINTSETUP		130
 #define IDM_PRINT			131
@@ -43,7 +44,7 @@
 #define IDM_ENCODING_UTF8	153
 #define IDM_ENCODING_UCOOKIE	154
 
-#define MRU_START	16
+#define MRU_START	17
 #define IMPORT_START 20
 #define TOOLS_START 3
 
