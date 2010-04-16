@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <map>
 #include <algorithm>
 
@@ -78,6 +79,7 @@
 #include "UniqueInstance.h"
 
 const int SCITE_TRAY = WM_APP + 0;
+const int SCITE_DROP = WM_APP + 1;
 
 class Dialog;
 
@@ -99,6 +101,7 @@ protected:
 	int filterDefault;
 	bool staticBuild;
 	int menuSource;
+	std::deque<GUI::gui_string> dropFilesQueue;
 
 	// Fields also used in tool execution thread
 	HANDLE hWriteSubProcess;

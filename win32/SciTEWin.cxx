@@ -1334,12 +1334,11 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 	// Scintilla, hdrop is null, and an exception is generated!
 	if (hdrop) {
 		int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, NULL, 0);
+		// Append paths to dropFilesQueue, to finish drag operation soon
 		for (int i = 0; i < filesDropped; ++i) {
 			GUI::gui_char pathDropped[MAX_PATH];
 			::DragQueryFileW(hdrop, i, pathDropped, ELEMENTS(pathDropped));
-			if (!Open(pathDropped)) {
-				break;
-			}
+			dropFilesQueue.push_back(pathDropped);
 		}
 		::DragFinish(hdrop);
 		// Put SciTE to forefront
@@ -1350,6 +1349,11 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 			::ShowWindow(MainHWND(), SW_RESTORE);
 		}
 		::SetForegroundWindow(MainHWND());
+		// Post message to ourself for opening the files so we can finish the drop message and
+		// the drop source will respond when open operation takes long time (opening big files...)
+		if (filesDropped > 0) {
+			::PostMessage(MainHWND(), SCITE_DROP, 0, 0);
+		}
 	}
 }
 
@@ -1656,6 +1660,20 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				RestoreFromTray();
 				::ShowWindow(MainHWND(), SW_RESTORE);
 				::FlashWindow(MainHWND(), FALSE);
+			}
+			break;
+
+		case SCITE_DROP:
+			// Open the files
+			while (!dropFilesQueue.empty()) {
+				FilePath file(dropFilesQueue.front());
+				dropFilesQueue.pop_front();
+				if (file.Exists()) {
+					Open(file.AsInternal());
+				} else {
+					GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", file.AsInternal());
+					WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+				}
 			}
 			break;
 
