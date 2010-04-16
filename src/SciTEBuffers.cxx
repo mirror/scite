@@ -714,6 +714,8 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 
 		if (updateUI)
 			SetFileName(bufferNext);
+		else
+			filePath = bufferNext;
 		wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 		if (closingLast) {
 			ClearDocument();
