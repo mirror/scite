@@ -8,10 +8,6 @@
 #ifndef SSTRING_H
 #define SSTRING_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 // Define another string class.
 // While it would be 'better' to use std::string, that doubles the executable size.
 // An SString may contain embedded nul characters.
@@ -279,9 +275,5 @@ inline char *StringDup(
 bool isprefix(const char *target, const char *prefix);
 int CompareNoCase(const char *a, const char *b);
 bool EqualCaseInsensitive(const char *a, const char *b);
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif
