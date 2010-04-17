@@ -258,11 +258,11 @@ The lexer will automatically be called again to lex more of the document.</p>
 	<td>Style value at argument</td></tr>
 	<tr><td>LevelAt(line) → integer</td>
 	<td>Fold level for a line</td></tr>
-	<tr><td>SetLevelAt(line)</td>
+	<tr><td>SetLevelAt(line, level)</td>
 	<td>Set the fold level for a line</td></tr>
 	<tr><td>LineState(line) → integer</td>
 	<td>State value for a line</td></tr>
-	<tr><td>SetLineState(line)</td>
+	<tr><td>SetLineState(line, state)</td>
 	<td>Set state value for a line. This can be used to store extra information from lexing,
 	such as a current language mode, so that there is no need to look back in the document.</td></tr>
 
