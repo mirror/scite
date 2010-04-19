@@ -1,7 +1,7 @@
 # Make file for SciTE on Windows
-# Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
+# Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 # The License.txt file describes the conditions under which this software may be distributed.
-# This makefile assumes the mingw32 version of GCC 3.2 is used and changes will
+# This makefile assumes the mingw32 version of GCC 3.2 or 4.x is used and changes will
 # be needed to use other compilers.
 
 .SUFFIXES: .cxx
@@ -18,13 +18,6 @@ endif
 PROG	= ../bin/SciTE.exe
 PROGSTATIC = ../bin/Sc1.exe
 WIDEFLAGS=-DUNICODE -D_UNICODE
-
-ifndef NOTHUNKS
-gversion = $(word 1,$(subst ., ,$(shell g++ --version)))
-ifeq ($(gversion),2)
-THUNKFLAGS=-fvtable-thunks
-endif
-endif
 
 vpath %.h ../src ../../scintilla/include ../../scintilla/win32
 vpath %.cxx ../src
@@ -61,7 +54,7 @@ CFLAGS=-DNDEBUG -Os $(CBASEFLAGS)
 STRIPFLAG="-Wl,-s"
 endif
 
-CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic $(THUNKFLAGS) -fno-rtti -mno-cygwin
+CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic -fno-rtti -mno-cygwin
 
 LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS) -mno-cygwin
 
