@@ -575,7 +575,7 @@ bool SciTEBase::OpenSelected() {
 				GUI::gui_string tryPath(openPath);
 				size_t sepIndex = tryPath.find(listSepString);
 				if ((sepIndex != GUI::gui_string::npos) && (sepIndex != 0)) {
-					tryPath.erase(sepIndex, 0);
+					tryPath.erase(sepIndex);
 					openPath.erase(0, sepIndex + 1);
 				} else {
 					openPath.erase();
@@ -668,7 +668,7 @@ FilePath SciTEBase::SaveName(const char *ext) {
 		if (dot >= 0) {
 			int keepExt = props.GetInt("export.keep.ext");
 			if (keepExt == 0) {
-				savePath.erase(dot, 0);
+				savePath.erase(dot);
 			} else if (keepExt == 2) {
 				savePath[dot] = '_';
 			}
