@@ -77,9 +77,9 @@ static void PlayThisSound(
 
 static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
 	if (message == WM_INITDIALOG) {
-		SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+		::SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 	}
-	return reinterpret_cast<SciTEWin*>(GetWindowLongPtr(hDlg, DWLP_USER));
+	return reinterpret_cast<SciTEWin*>(::GetWindowLongPtr(hDlg, DWLP_USER));
 }
 
 void SciTEWin::WarnUser(int warnID) {
@@ -1624,7 +1624,7 @@ LRESULT CALLBACK CreditsWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	if (uMsg == WM_GETDLGCODE)
 		return DLGC_STATIC | DLGC_WANTARROWS | DLGC_WANTCHARS;
 
-	WNDPROC lpPrevWndProc = reinterpret_cast<WNDPROC>(::GetWindowLong(hwnd, GWL_USERDATA));
+	WNDPROC lpPrevWndProc = reinterpret_cast<WNDPROC>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	if (lpPrevWndProc)
 		return ::CallWindowProc(lpPrevWndProc, hwnd, uMsg, wParam, lParam);
 
@@ -1638,8 +1638,8 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		LocaliseDialog(hDlg);
 		GUI::ScintillaWindow ss;
 		HWND hwndCredits = ::GetDlgItem(hDlg, IDABOUTSCINTILLA);
-		LONG subclassedProc = ::SetWindowLong(hwndCredits, GWL_WNDPROC, reinterpret_cast<LONG>(CreditsWndProc));
-		::SetWindowLong(hwndCredits, GWL_USERDATA, subclassedProc);
+		LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
+		::SetWindowLongPtr(hwndCredits, GWLP_USERDATA, subclassedProc);
 		ss.SetID(hwndCredits);
 		SetAboutMessage(ss, staticBuild ? "Sc1  " : "SciTE");
 		}
