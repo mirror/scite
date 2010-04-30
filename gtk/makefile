@@ -5,7 +5,13 @@
 # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
 
 .SUFFIXES: .cxx .o .h .a .c
+ifdef CLANG
+CC = clang
+CCOMP = clang
+else
 CC = g++
+CCOMP = gcc
+endif
 AR = ar
 
 # If explicit setting of GTK1 or GTK2 then use that else look for
@@ -76,9 +82,9 @@ LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
 $(LUA_CORE_OBJS): ../lua/src/*.c
-	gcc $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/*.c
+	$(CCOMP) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/*.c
 $(LUA_LIB_OBJS): ../lua/src/lib/*.c
-	gcc $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/lib/*.c
+	$(CCOMP) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/lib/*.c
 CXXFLAGS=$(CXXTFLAGS)
 else
 CXXFLAGS=$(CXXTFLAGS) -DNO_LUA
@@ -103,7 +109,7 @@ COMPLIB=../../scintilla/bin/scintilla.a
 $(PROG): SciTEGTK.o GUIGTK.o FilePath.o SciTEBase.o SciTEBuffers.o SciTEIO.o StringList.o Exporters.o \
 PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o StyleWriter.o Utf8_16.o \
 	JobQueue.o GTKMutex.o IFaceTable.o $(COMPLIB) $(LUA_OBJS)
-	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB)
+	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB) -lstdc++
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak

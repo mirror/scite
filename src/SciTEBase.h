@@ -11,8 +11,6 @@ extern const GUI::gui_char propUserFileName[];
 extern const GUI::gui_char propGlobalFileName[];
 extern const GUI::gui_char propAbbrevFileName[];
 
-extern const GUI::gui_char menuAccessIndicator[];
-
 #ifdef WIN32
 #ifdef _MSC_VER
 // Shut up level 4 warning:
@@ -610,11 +608,11 @@ protected:
 	void DiscoverIndentSetting();
 	SString DiscoverLanguage(const char *buf, size_t length);
 	void OpenFile(int fileSize, bool suppressMessage);
-	virtual void OpenUriList(const char *) {};
+	virtual void OpenUriList(const char *) {}
 	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter) = 0;
 	virtual bool SaveAsDialog() = 0;
-	virtual void LoadSessionDialog() { };
-	virtual void SaveSessionDialog() { };
+	virtual void LoadSessionDialog() {}
+	virtual void SaveSessionDialog() {}
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
 	enum OpenFlags {
 	    ofNone = 0, 		// Default
@@ -658,8 +656,8 @@ protected:
 	FilePath GetAbbrevPropertiesFileName();
 	void OpenProperties(int propsFile);
 	int GetMenuCommandAsInt(SString commandName);
-	virtual void Print(bool) {};
-	virtual void PrintSetup() {};
+	virtual void Print(bool) {}
+	virtual void PrintSetup() {}
 	Sci_CharacterRange GetSelection();
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
@@ -749,8 +747,8 @@ protected:
 	void CloseAllBuffers(bool loadingSession = false);
 	int SaveAllBuffers(bool forceQuestion, bool alwaysYes = false);
 	void SaveTitledBuffers();
-	virtual void CopyAsRTF() {};
-	virtual void CopyPath() {};
+	virtual void CopyAsRTF() {}
+	virtual void CopyPath() {}
 	void SetLineNumberWidth();
 	void MenuCommand(int cmdID, int source = 0);
 	void FoldChanged(int line, int levelNow, int levelPrev);
