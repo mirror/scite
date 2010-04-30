@@ -631,7 +631,7 @@ void SciTEWin::Print(
 			::StartPage(hdc);
 
 			if (headerFormat.size()) {
-				GUI::gui_string sHeader = GUI::StringFromUTF8(props.GetExpanded("print.header.format").c_str());
+				GUI::gui_string sHeader = GUI::StringFromUTF8(propsPrint.GetExpanded("print.header.format").c_str());
 				::SetTextColor(hdc, sdHeader.ForeAsLong());
 				::SetBkColor(hdc, sdHeader.BackAsLong());
 				::SelectObject(hdc, fontHeader);
@@ -661,7 +661,7 @@ void SciTEWin::Print(
 
 		if (printPage) {
 			if (footerFormat.size()) {
-				GUI::gui_string sFooter = GUI::StringFromUTF8(props.GetExpanded("print.footer.format").c_str());
+				GUI::gui_string sFooter = GUI::StringFromUTF8(propsPrint.GetExpanded("print.footer.format").c_str());
 				::SetTextColor(hdc, sdFooter.ForeAsLong());
 				::SetBkColor(hdc, sdFooter.BackAsLong());
 				::SelectObject(hdc, fontFooter);
