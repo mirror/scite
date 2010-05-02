@@ -912,6 +912,12 @@ void SciTEBase::BraceMatch(bool editor) {
 				columnAtCaret = columnAtCaretNext - indentSize;
 			if (columnOpposite == 0)	// If the final line of the structure is empty
 				columnOpposite = columnAtCaret;
+		} else {
+			if (win.Send(SCI_LINEFROMPOSITION, braceAtCaret) == win.Send(SCI_LINEFROMPOSITION, braceOpposite)) {
+				// Avoid attempting to draw a highlight guide
+				columnAtCaret = 0;
+				columnOpposite = 0;
+			}
 		}
 
 		if (props.GetInt("highlight.indentation.guides"))
