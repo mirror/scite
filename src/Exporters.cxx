@@ -421,6 +421,9 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		delete []val;
 		delete []valdef;
 
+		SString sval = props.GetExpanded("font.monospace");
+		StyleDefinition sdmono(sval.c_str());
+
 		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 			if ((istyle > STYLE_DEFAULT) && (istyle <= STYLE_LASTPREDEFINED))
 				continue;
@@ -432,6 +435,13 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 
 				StyleDefinition sd(valdef);
 				sd.ParseStyleDefinition(val);
+
+				if (CurrentBuffer()->useMonoFont && sd.font.length() && sdmono.font.length()) {
+					sd.font = sdmono.font;
+					sd.size = sdmono.size;
+					sd.italics = sdmono.italics;
+					sd.bold = sdmono.bold;
+				}
 
 				if (sd.specified != StyleDefinition::sdNone) {
 					if (istyle == STYLE_DEFAULT) {
@@ -1398,7 +1408,7 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 		bool collapseSpaces = (props.GetInt("export.xml.collapse.spaces", 1) == 1);
 		bool collapseLines  = (props.GetInt("export.xml.collapse.lines", 1) == 1);
 
-		fputs("<?xml version='1.0' encoding='ascii'?>\n", fp);
+		fprintf(fp, "<?xml version='1.0' encoding='%s'?>\n", (codePage == SC_CP_UTF8) ? "utf-8" : "ascii");
 
 		fputs("<document xmlns='http://www.scintila.org/scite.rng'", fp);
 		fprintf(fp, " filename='%s'",

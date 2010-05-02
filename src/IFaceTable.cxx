@@ -568,6 +568,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_CSS_IDENTIFIER2",15},
 	{"SCE_CSS_IDENTIFIER3",17},
 	{"SCE_CSS_IMPORTANT",11},
+	{"SCE_CSS_MEDIA",22},
 	{"SCE_CSS_OPERATOR",5},
 	{"SCE_CSS_PSEUDOCLASS",3},
 	{"SCE_CSS_PSEUDOELEMENT",18},
@@ -2615,7 +2616,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 265,
-	ifaceConstantCount = 2040,
+	ifaceConstantCount = 2041,
 	ifacePropertyCount = 170
 };
 

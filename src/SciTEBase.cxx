@@ -926,7 +926,9 @@ void SciTEBase::SetWindowName() {
 		windowName += GUI_TEXT(")");
 	} else if (props.GetInt("title.full.path") == 2) {
 		windowName = FileNameExt().AsInternal();
-		windowName += GUI_TEXT(" in ");
+		windowName += GUI_TEXT(" ");
+		windowName += localiser.Text("in");
+		windowName += GUI_TEXT(" ");
 		windowName += filePath.Directory().AsInternal();
 	} else if (props.GetInt("title.full.path") == 1) {
 		windowName = filePath.AsInternal();
@@ -942,7 +944,9 @@ void SciTEBase::SetWindowName() {
 	if (buffers.length > 1 && props.GetInt("title.show.buffers")) {
 		windowName += GUI_TEXT(" [");
 		windowName += GUI::StringFromInteger(buffers.Current() + 1);
-		windowName += GUI_TEXT(" of ");
+		windowName += GUI_TEXT(" ");
+		windowName += localiser.Text("of");
+		windowName += GUI_TEXT(" ");
 		windowName += GUI::StringFromInteger(buffers.length);
 		windowName += GUI_TEXT("]");
 	}
@@ -2242,7 +2246,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	int abbrevLength = currentPos - abbrevPos;
 	// Try each potential abbreviation from the first letter on a line
 	// and expanding to the right.
-	// We arbitrarily limits the length of an abbreviation (seems a reasonable value..),
+	// We arbitrarily limit the length of an abbreviation (seems a reasonable value..),
 	// and of course stop on the caret.
 	while (abbrevLength > 0) {
 		data = propsAbbrev.Get(abbrev);

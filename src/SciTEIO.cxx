@@ -720,7 +720,9 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document
-	wEditor.Call(SCI_SETDOCPOINTER, 0, buffers.buffers[0].doc);
+	if (buffers.length > 0) {
+		wEditor.Call(SCI_SETDOCPOINTER, 0, buffers.buffers[0].doc);
+	}
 	// Release all the extra documents
 	for (int j = 0; j < buffers.size; j++) {
 		if (buffers.buffers[j].doc)

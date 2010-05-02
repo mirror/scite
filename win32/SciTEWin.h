@@ -106,7 +106,6 @@ protected:
 	// Fields also used in tool execution thread
 	HANDLE hWriteSubProcess;
 	DWORD subProcessGroupId;
-	unsigned int win95DeathDelay;
 	int outputScroll;
 
 	HACCEL hAccTable;

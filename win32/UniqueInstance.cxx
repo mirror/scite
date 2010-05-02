@@ -144,10 +144,6 @@ void UniqueInstance::CheckOtherInstance() {
 		::GetUserObjectInformation(desktop, UOI_NAME, info, len, &len);
 		mutexName += info;
 		delete []info;
-	} else {
-		// Win9x: no multiple desktop, GetUserObjectInformation can be called
-		// but is bogus...
-		mutexName += "Win9x";
 	}
 	// Try to set the mutex. If return false, it failed, there is already another instance.
 	bAlreadyRunning = !AcceptToOpenFiles(true);

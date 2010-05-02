@@ -33,7 +33,7 @@ public:
 };
 
 /**
- * Methods in extensions return true if they have completely handled and event and
+ * Methods in extensions return true if they have completely handled an event and
  * false if default processing is to continue.
  */
 class Extension {
