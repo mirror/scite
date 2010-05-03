@@ -559,10 +559,12 @@ SString &SString::assign(const char *sOther, lenpos_t sSize_) {
 		sSize_ = strlen(sOther);
 	}
 	if (sSize > 0 && sSize_ <= sSize) {	// Does not allocate new buffer if the current is big enough
-		if (s && sSize_) {
-			memcpy(s, sOther, sSize_);
+		if (s) {
+			if (sSize_) {
+				memcpy(s, sOther, sSize_);
+			}
+			s[sSize_] = '\0';
 		}
-		s[sSize_] = '\0';
 		sLen = sSize_;
 	} else {
 		delete []s;

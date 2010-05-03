@@ -1163,7 +1163,7 @@ void SciTEBase::SetToolsMenu() {
 		        "Run Current &Macro", "F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACRORECORD,
 		        "&Record Macro", "Ctrl+F9");
-		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROSTOPRECORD,
+		SetMenuItemLocalised(menuTools, menuPos, IDM_MACROSTOPRECORD,
 		        "S&top Recording Macro", "Ctrl+Shift+F9");
 	}
 }
@@ -1599,19 +1599,18 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			// Absoft Pro Fortran 90/95 v8.x, v9.x  errors look like: cf90-113 f90fe: ERROR SHF3D, File = shf.f90, Line = 1101, Column = 19
 			const char *idFile = " File = ";
 			const char *idLine = ", Line = ";
-			const char *idColumn = ", Column = ";
 			size_t lenFile = strlen(idFile);
 			size_t lenLine = strlen(idLine);
 			const char *file = strstr(cdoc, idFile);
 			const char *line = strstr(cdoc, idLine);
-			const char *column = strstr(cdoc, idColumn);
+			//const char *idColumn = ", Column = ";
+			//const char *column = strstr(cdoc, idColumn);
 			if (line && file && (line > file)) {
 				file += lenFile;
 				size_t length = line - file;
 				strncpy(sourcePath, file, length);
 				sourcePath[length] = '\0';
 				line += lenLine;
-				length = column - line;
 				return atoi(line) - 1;
 			}
 			break;
@@ -1635,7 +1634,6 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 				sourcePath[length] = '\0';
 				line += lenLine;
 				if ((lineend > line)) {
-					length = lineend - line;
 					return atoi(line) - 1;
 				}
 			}

@@ -1060,7 +1060,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	if (0 >= (pr.pageWidth = atol(buffer))) {
 		pr.pageWidth = PDF_WIDTH_DEFAULT;
 	}
-	next = GetNextPropItem(next, buffer, 32);
+	GetNextPropItem(next, buffer, 32);
 	if (0 >= (pr.pageHeight = atol(buffer))) {
 		pr.pageHeight = PDF_HEIGHT_DEFAULT;
 	}

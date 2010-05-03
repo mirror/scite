@@ -131,14 +131,14 @@ static bool SendPipeCommand(const char *pipeCommand) {
 	int size;
 	if (fdCorrespondent) {
 		size = write(fdCorrespondent,pipeCommand,strlen(pipeCommand));
-		size = write(fdCorrespondent,"\n",1);
+		size += write(fdCorrespondent,"\n",1);
 		IF_DEBUG(fprintf(fdDebug, "Send correspondent: %s %d bytes to %d\n", pipeCommand, size,fdCorrespondent))
 	} else
 	for (int i = 0; i < s_send_cnt; ++i) {
 		int fd = s_send_pipes[i].fd;
 		// put a linefeed after the notification!
 		size = write(fd, pipeCommand, strlen(pipeCommand));
-		size = write(fd,"\n",1);
+		size += write(fd,"\n",1);
 		IF_DEBUG(fprintf(fdDebug, "Send pipecommand: %s %d bytes to %d\n", pipeCommand, size,fd))
 	}
 	(void)size; // to keep compiler happy if we aren't debugging...
@@ -360,8 +360,8 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 				sprintf(pipeName,"%s/SciTE.%d.%d.out", g_get_tmp_dir(), getpid(), kount++);
 			}
 			if (corresp == NULL) {
-                fprintf(stderr,"SciTE Director: bad request\n");
-                return;
+				fprintf(stderr,"SciTE Director: bad request\n");
+				return;
 			} else {
 				// the registering client has passed us a path for receiving the notify pipe name.
 				// this has to be a _regular_ file, which may not exist.
@@ -369,12 +369,15 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 				IF_DEBUG(fprintf(fdDebug,"register '%s' %d\n",corresp,fdCorrespondent))
 				if (fdCorrespondent == -1) {
 					fdCorrespondent = 0;
-                    fprintf(stderr,"SciTE Director: cannot open result file '%s'\n",corresp);
-                    return;
-                }
+					fprintf(stderr,"SciTE Director: cannot open result file '%s'\n",corresp);
+					return;
+				}
 				if (fdCorrespondent != 0) {
 					size_t size = write(fdCorrespondent, pipeName, strlen(pipeName));
-					size = write(fdCorrespondent, "\n", 1);
+					size += write(fdCorrespondent, "\n", 1);
+					if (size == 0)
+						fprintf(stderr,"SciTE Director: cannot write pipe name\n");
+
 				}
 			}
 			if (SendPipeAvailable()) {
@@ -389,9 +392,9 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 				IF_DEBUG(fprintf(fdDebug,"corresp '%s' %d\n",corresp,fdCorrespondent))
 				if (fdCorrespondent == -1) {
 					fdCorrespondent = 0;
-                    fprintf(stderr,"SciTE Director: cannot open correspondent pipe '%s'\n",corresp);
-                    return;
-                }
+					fprintf(stderr,"SciTE Director: cannot open correspondent pipe '%s'\n",corresp);
+					return;
+				}
 			}
 			host->Perform(cmd);
 		}

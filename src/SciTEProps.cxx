@@ -128,7 +128,7 @@ void SciTEBase::ReadGlobalPropFile() {
 #else
 	char **e=_environ;
 #endif
-	for (; *e; e++) {
+	for (; e && *e; e++) {
 		char key[1024];
 		char *k=*e;
 		char *v=strchr(k,'=');
