@@ -1,7 +1,7 @@
 # Make file for SciTE on Linux or compatible OS
-# Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
+# Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 # The License.txt file describes the conditions under which this software may be distributed.
-# This makefile assumes GCC 2.95.2 is used and changes will be needed to use other compilers.
+# This makefile assumes GCC 4.x is used and changes will be needed to use other compilers.
 # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
 
 .SUFFIXES: .cxx .o .h .a .c
@@ -14,31 +14,11 @@ CCOMP = gcc
 endif
 AR = ar
 
-# If explicit setting of GTK1 or GTK2 then use that else look for
-# pkg-config which is an OK indication that GTK2 is available
-ifndef GTK1
-ifndef GTK2
-ifneq (,$(findstring /,$(shell whereis pkg-config)))
-GTK2=1
-else
-GTK1=1
-endif
-endif
-endif
-
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
-# "h@h@" is printed here when gnome-config unavailable. Seems harmless.
-ifdef GTK2
 CONFIGFLAGS:=$(shell pkg-config --cflags gtk+-2.0)
 CONFIGLIB:=$(shell pkg-config --libs gtk+-2.0 gthread-2.0)
 CONFIGTHREADS:=
 gnomeprefix:=$(shell pkg-config --variable=prefix gtk+-2.0 2>/dev/null)
-else
-CONFIGFLAGS:=$(shell gtk-config --cflags)
-CONFIGLIB:=$(shell gtk-config --libs)
-CONFIGTHREADS:=$(shell glib-config --libs gthread)
-gnomeprefix:=$(shell gnome-config --prefix 2>/dev/null)
-endif
 ifndef prefix
 ifdef gnomeprefix
   prefix=$(gnomeprefix)
@@ -60,9 +40,8 @@ all: $(PROG)
 vpath %.h ../src ../../scintilla/include
 vpath %.cxx ../src
 
-#CXXFLAGS= -g -DGTK -DSCI_LEXER -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" -Wwrite-strings
 INCLUDEDIRS=-I ../../scintilla/include -I ../src
-CXXBASEFLAGS=-W -Wall -Wno-char-subscripts -pedantic -Os -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
+CXXBASEFLAGS=-W -Wall -Wno-char-subscripts -pedantic -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
 
 ifdef DEBUG
 CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
@@ -128,11 +107,7 @@ install:
 	done
 
 ifdef gnomeprefix
-ifdef GTK2
 	$(INSTALL) -m 755 -D SciTE.desktop $(DESTDIR)$(datadir)/applications/SciTE.desktop
-else
-	$(INSTALL) -m 755 -D SciTE.desktop $(DESTDIR)$(datadir)/gnome/apps/Applications/SciTE.desktop
-endif
 	$(INSTALL) -m 644 -D Sci48M.png $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
 
@@ -140,10 +115,6 @@ uninstall:
 	rm -f $(DESTDIR)$(bindir)/SciTE
 	rm -rf $(DESTDIR)$(SYSCONF_PATH)
 ifdef gnomeprefix
-ifdef GTK2
 	rm -f $(DESTDIR)$(datadir)/applications/SciTE.desktop
-else
-	rm -f $(DESTDIR)$(datadir)/gnome/apps/Applications/SciTE.desktop
-endif
 	rm -f $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
