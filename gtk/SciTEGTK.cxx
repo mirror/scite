@@ -59,19 +59,6 @@
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 
-#if GTK_MAJOR_VERSION >= 2
-#define ENCODE_TRANSLATION
-#include <iconv.h>
-// Since various versions of iconv can not agree on whether the src argument
-// is char ** or const char ** provide a templatised adaptor.
-template<typename T>
-size_t iconv_adaptor(size_t(*f_iconv)(iconv_t, T, size_t *, char **, size_t *),
-		iconv_t cd, char** src, size_t *srcleft,
-		char **dst, size_t *dstleft) {
-	return f_iconv(cd, (T)src, srcleft, dst, dstleft);
-}
-#endif
-
 #define MB_ABOUTBOX	0x100000L
 
 const char appName[] = "SciTE";
@@ -524,10 +511,8 @@ protected:
 		return scitew->TabBarScroll(event);
 	}
 
-#if GTK_MAJOR_VERSION >= 2
 	// This is used to create the pixmaps used in the interface.
 	GdkPixbuf *CreatePixbuf(const char *filename);
-#endif
 	// Callback function to show hidden files in filechooser
 	static void toggle_hidden_cb(GtkToggleButton *toggle, gpointer data);
 public:
@@ -663,7 +648,6 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	return button;
 }
 
-#if GTK_MAJOR_VERSION >= 2
 // This is an internally used function to create pixmaps.
 GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
 	char path[MAX_PATH + 20];
@@ -680,7 +664,6 @@ GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
 	}
 	return pixbuf;
 }
-#endif
 
 FilePath SciTEGTK::GetDefaultDirectory() {
 	const char *where = getenv("SciTE_HOME");
@@ -774,8 +757,7 @@ void SciTEGTK::TabSelect(int index) {
 
 void SciTEGTK::RemoveAllTabs() {
 	if (wTabBar.GetID()) {
-		GtkWidget *tab;
-		while ((tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(wTabBar.GetID()), 0)))
+		while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(wTabBar.GetID()), 0))
 			gtk_notebook_remove_page(GTK_NOTEBOOK(wTabBar.GetID()), 0);
 	}
 }
@@ -818,13 +800,11 @@ void SciTEGTK::ShowToolBar() {
 }
 
 void SciTEGTK::ShowTabBar() {
-#if GTK_MAJOR_VERSION >= 2
 	if (tabVisible && (!tabHideOne || buffers.length > 1) && buffers.size>1) {
 		gtk_widget_show(GTK_WIDGET(PWidget(wTabBar)));
 	} else {
 		gtk_widget_hide(GTK_WIDGET(PWidget(wTabBar)));
 	}
-#endif
 }
 
 void SciTEGTK::ShowStatusBar() {
@@ -895,10 +875,9 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 
 void SciTEGTK::ReadLocalization() {
 	SciTEBase::ReadLocalization();
-#ifdef ENCODE_TRANSLATION
 	SString encoding = localiser.Get("translation.encoding");
 	if (encoding.length()) {
-		iconv_t iconvh = iconv_open("UTF-8", encoding.c_str());
+		GIConv iconvh = g_iconv_open("UTF-8", encoding.c_str());
 		const char *key = NULL;
 		const char *val = NULL;
 		// Get encoding
@@ -911,16 +890,15 @@ void SciTEGTK::ReadLocalization() {
 			size_t inLeft = strlen(val);
 			char *pout = converted;
 			size_t outLeft = sizeof(converted);
-			size_t conversions = iconv_adaptor(iconv, iconvh, &pin, &inLeft, &pout, &outLeft);
+			size_t conversions = g_iconv(iconvh, &pin, &inLeft, &pout, &outLeft);
 			if (conversions != ((size_t)(-1))) {
 				*pout = '\0';
 				localiser.Set(key, converted);
 			}
 			more = localiser.GetNext(key, val);
 		}
-		iconv_close(iconvh);
+		g_iconv_close(iconvh);
 	}
-#endif
 }
 
 void SciTEGTK::ReadPropertiesInitial() {
@@ -950,13 +928,8 @@ void SciTEGTK::GetWindowPosition(int *left, int *top, int *width, int *height, i
 
 void SciTEGTK::SizeContentWindows() {
 	GUI::Rectangle rcClient = GetClientRectangle();
-#if GTK_MAJOR_VERSION < 2
-	int left = 0;
-	int top = 0;
-#else
 	int left = rcClient.left;
 	int top = rcClient.top;
-#endif
 	int w = rcClient.right - rcClient.left;
 	int h = rcClient.bottom - rcClient.top;
 	heightOutput = NormaliseSplit(heightOutput);
@@ -1658,9 +1631,7 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboDir)->entry), findInDir.AsInternal());
 	// Make a little wider than would happen automatically to show realistic paths
-#if GTK_MAJOR_VERSION >= 2
 	gtk_entry_set_width_chars(GTK_ENTRY(GTK_COMBO(comboDir)->entry), 40);
-#endif
 	dlgFindInFiles.OnActivate(GTK_COMBO(comboDir)->entry, sigFind.Function);
 	gtk_combo_disable_activate(GTK_COMBO(comboDir));
 
@@ -2043,9 +2014,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	table.Add(comboFind, 1, true);
 
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(comboFind)->entry), findWhat.c_str());
-#if GTK_MAJOR_VERSION >= 2
 	gtk_entry_set_width_chars(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 40);
-#endif
 	gtk_entry_select_region(GTK_ENTRY(GTK_COMBO(comboFind)->entry), 0, findWhat.length());
 	static Signal<&SciTEGTK::FRFindCmd> sigFRFind;
 	dlgFindReplace.OnActivate(GTK_COMBO(comboFind)->entry, sigFRFind.Function);
@@ -2356,9 +2325,7 @@ void SciTEGTK::AddToPopUp(const char *label, int cmd, bool enabled) {
 		const_cast<char *>(localised.c_str()), NULL,
 		GTK_SIGNAL_FUNC(MenuSignal), cmd,
 		const_cast<gchar *>(label[0] ? "<Item>" : "<Separator>")
-#if GTK_MAJOR_VERSION >= 2
 		,0
-#endif
 	};
 	gtk_item_factory_create_item(GTK_ITEM_FACTORY(popup.GetID()),
 	                             &itemEntry, this, 1);
@@ -2539,7 +2506,6 @@ gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 		SetDocumentAt(gtk_notebook_current_page(GTK_NOTEBOOK(wTabBar.GetID())));
 		CheckReload();
 	} else if (event->button == 2) {
-#if GTK_MAJOR_VERSION >= 2
 		for (int pageNum=0;pageNum<gtk_notebook_get_n_pages(notebook);pageNum++) {
 			GtkWidget *page = gtk_notebook_get_nth_page(notebook, pageNum);
 			if (page) {
@@ -2550,7 +2516,6 @@ gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 				}
 			}
 		}
-#endif
 	}
 	return FALSE;
 }
@@ -2606,7 +2571,6 @@ GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar
 }
 
 void SciTEGTK::AddToolBar() {
-#if GTK_MAJOR_VERSION >= 2
 	if (props.GetInt("toolbar.usestockicons") == 1) {
 		AddToolButton("New", IDM_NEW, gtk_image_new_from_stock("gtk-new", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Open", IDM_OPEN, gtk_image_new_from_stock("gtk-open", GTK_ICON_SIZE_LARGE_TOOLBAR));
@@ -2638,7 +2602,6 @@ void SciTEGTK::AddToolBar() {
 		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_stock("gtk-go-forward", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		return;
 	}
-#endif
 	AddToolButton("New", IDM_NEW, pixmap_new(PWidget(wSciTE), (gchar**)filenew_xpm));
 	AddToolButton("Open", IDM_OPEN, pixmap_new(PWidget(wSciTE), (gchar**)fileopen_xpm));
 	AddToolButton("Save", IDM_SAVE, pixmap_new(PWidget(wSciTE), (gchar**)filesave_xpm));
@@ -2732,9 +2695,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 		translatedItems[i].callback = items[i].callback;
 		translatedItems[i].callback_action = items[i].callback_action;
 		translatedItems[i].item_type = (gchar*) items[i].item_type;
-#if GTK_MAJOR_VERSION >= 2
 		translatedItems[i].extra_data = 0;
-#endif
 		translatedText[i] = TranslatePath(translatedItems[i].path);
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
 		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
@@ -2859,9 +2820,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/View/sep1", NULL, NULL, 0, "<Separator>"},
 	                                      {"/View/Full Scree_n", "F11", menuSig, IDM_FULLSCREEN, "<CheckItem>"},
 	                                      {"/View/_Tool Bar", "", menuSig, IDM_VIEWTOOLBAR, "<CheckItem>"},
-#if GTK_MAJOR_VERSION >= 2
 	                                      {"/View/Tab _Bar", "", menuSig, IDM_VIEWTABBAR, "<CheckItem>"},
-#endif
 	                                      {"/View/_Status Bar", "", menuSig, IDM_VIEWSTATUSBAR, "<CheckItem>"},
 	                                      {"/View/sep2", NULL, NULL, 0, "<Separator>"},
 	                                      {"/View/_Whitespace", "<control><shift>A", menuSig, IDM_VIEWSPACE, "<CheckItem>"},
@@ -3009,11 +2968,7 @@ void SciTEGTK::CreateMenu() {
 		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer,
 		                     30, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
 	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
-#if GTK_MAJOR_VERSION < 2
-	gtk_accel_group_attach(accelGroup, GTK_OBJECT(PWidget(wSciTE)));
-#else
 	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wSciTE)), accelGroup);
-#endif
 }
 
 void SciTEGTK::CreateUI() {
@@ -3083,12 +3038,8 @@ void SciTEGTK::CreateUI() {
 	}
 
 	// The Toolbar
-#if GTK_MAJOR_VERSION < 2
-	wToolBar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
-#else
 	wToolBar = gtk_toolbar_new();
 	gtk_toolbar_set_orientation(GTK_TOOLBAR(PWidget(wToolBar)), GTK_ORIENTATION_HORIZONTAL);
-#endif
 	gtk_toolbar_set_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_ICONS);
 	toolbarDetachable = props.GetInt("toolbar.detachable");
 	if (toolbarDetachable == 1) {
@@ -3101,15 +3052,9 @@ void SciTEGTK::CreateUI() {
 		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
 	}
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 0);
-#if GTK_MAJOR_VERSION < 2
-	gtk_toolbar_set_space_size(GTK_TOOLBAR(PWidget(wToolBar)), 17);
-	gtk_toolbar_set_space_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_SPACE_LINE);
-	gtk_toolbar_set_button_relief(GTK_TOOLBAR(PWidget(wToolBar)), GTK_RELIEF_NONE);
-#endif
 	tbVisible = false;
 
 	// The Notebook (GTK2)
-#if GTK_MAJOR_VERSION >= 2
 	wTabBar = gtk_notebook_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
@@ -3118,7 +3063,6 @@ void SciTEGTK::CreateUI() {
 	g_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
 		"scroll-event", GTK_SIGNAL_FUNC(TabBarScrollSignal), gthis);
 	gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
-#endif
 	tabVisible = false;
 
 	wContent = gtk_fixed_new();
@@ -3208,10 +3152,8 @@ void SciTEGTK::CreateUI() {
 	gtk_widget_show_all(PWidget(wSciTE));
 	SetIcon();
 
-#if GTK_MAJOR_VERSION >= 2
 	if (maximize)
 		gtk_window_maximize(GTK_WINDOW(PWidget(wSciTE)));
-#endif
 
 	gtk_widget_hide(wIncrementPanel);
 
@@ -3262,14 +3204,12 @@ void SciTEGTK::FindIncrement() {
 }
 
 void SciTEGTK::SetIcon() {
-#if GTK_MAJOR_VERSION >= 2
 	GdkPixbuf *icon_pix_buf = CreatePixbuf("Sci48M.png");
 	if (icon_pix_buf) {
 		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), icon_pix_buf);
 		gdk_pixbuf_unref(icon_pix_buf);
 		return;
 	}
-#endif
 	GtkStyle *style = gtk_widget_get_style(PWidget(wSciTE));
 	GdkBitmap *mask;
 	GdkPixmap *icon_pix = gdk_pixmap_create_from_xpm_d(
@@ -3394,13 +3334,11 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Find the SciTE executable, first trying to use argv[0] and converting
 	// to an absolute path and if that fails, searching the path.
 	sciteExecutable = FilePath(argv[0]).AbsolutePath();
-#if GTK_MAJOR_VERSION >= 2
 	if (!sciteExecutable.Exists()) {
 		gchar *progPath = g_find_program_in_path(argv[0]);
 		sciteExecutable = FilePath(progPath);
 		g_free(progPath);
 	}
-#endif
 
 	// Collect the argv into one string with each argument separated by '\n'
 	GUI::gui_string args;
