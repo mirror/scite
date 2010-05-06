@@ -961,11 +961,6 @@ void ExecThread(void *ptw) {
 	tw->ProcessExecute();
 }
 
-struct ShellErr {
-	DWORD code;
-	const char *descr;
-};
-
 void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 	char *mycmd;
 
