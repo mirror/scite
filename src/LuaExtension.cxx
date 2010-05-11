@@ -1410,10 +1410,8 @@ bool LuaExtension::Finalise() {
 	// The rest don't strictly need to be cleared since they
 	// are never accessed except when luaState and host are set
 
-	if (startupScript) {
-		delete [] startupScript;
-		startupScript = NULL;
-	}
+	delete [] startupScript;
+	startupScript = NULL;
 
 	return false;
 }
