@@ -317,7 +317,7 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 			specified = static_cast<flags>(specified | sdBack);
 			back = colon;
 		}
-		if (0 == strcmp(opt, "size")) {
+		if ((0 == strcmp(opt, "size")) && colon) {
 			specified = static_cast<flags>(specified | sdSize);
 			size = atoi(colon);
 		}
