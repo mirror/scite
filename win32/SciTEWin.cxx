@@ -477,10 +477,13 @@ void SciTEWin::CopyPath() {
 
 void SciTEWin::FullScreenToggle() {
 	HWND wTaskBar = FindWindow(TEXT("Shell_TrayWnd"), TEXT(""));
+	HWND wStartButton = FindWindow(TEXT("Button"), NULL);
 	fullScreen = !fullScreen;
 	if (fullScreen) {
 		::SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
 		::SystemParametersInfo(SPI_SETWORKAREA, 0, 0, SPIF_SENDCHANGE);
+		if (wStartButton != NULL)
+			::ShowWindow(wStartButton, SW_HIDE);
 		::ShowWindow(wTaskBar, SW_HIDE);
 
 		winPlace.length = sizeof(winPlace);
@@ -499,6 +502,8 @@ void SciTEWin::FullScreenToggle() {
 		               0);
 	} else {
 		::ShowWindow(wTaskBar, SW_SHOW);
+		if (wStartButton != NULL)
+			::ShowWindow(wStartButton, SW_SHOW);
 		if (winPlace.length) {
 			::SystemParametersInfo(SPI_SETWORKAREA, 0, &rcWorkArea, 0);
 			if (winPlace.showCmd == SW_SHOWMAXIMIZED) {
