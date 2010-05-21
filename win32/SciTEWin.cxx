@@ -488,22 +488,23 @@ void SciTEWin::FullScreenToggle() {
 
 		winPlace.length = sizeof(winPlace);
 		::GetWindowPlacement(MainHWND(), &winPlace);
-		int topStuff = ::GetSystemMetrics(SM_CYCAPTION) +
-		               ::GetSystemMetrics(SM_CYEDGE);
+		int topStuff = ::GetSystemMetrics(SM_CYSIZEFRAME) + ::GetSystemMetrics(SM_CYCAPTION);
 		if (props.GetInt("full.screen.hides.menu"))
 			topStuff += ::GetSystemMetrics(SM_CYMENU);
+		::SetWindowLongPtr(reinterpret_cast<HWND>(wContent.GetID()),
+			GWL_EXSTYLE, 0);
 		::SetWindowPos(MainHWND(), HWND_TOP,
-		               -::GetSystemMetrics(SM_CXSIZEFRAME) - 1,
-		               -topStuff - 2,
-		               ::GetSystemMetrics(SM_CXSCREEN) +
-		               2 * ::GetSystemMetrics(SM_CXSIZEFRAME) + 2,
-		               ::GetSystemMetrics(SM_CYSCREEN) + topStuff +
-		               ::GetSystemMetrics(SM_CYSIZEFRAME) + 3,
-		               0);
+			-::GetSystemMetrics(SM_CXSIZEFRAME),
+			-topStuff,
+			::GetSystemMetrics(SM_CXSCREEN) + 2 * ::GetSystemMetrics(SM_CXSIZEFRAME),
+			::GetSystemMetrics(SM_CYSCREEN) + topStuff + ::GetSystemMetrics(SM_CYSIZEFRAME),
+			0);
 	} else {
 		::ShowWindow(wTaskBar, SW_SHOW);
 		if (wStartButton != NULL)
 			::ShowWindow(wStartButton, SW_SHOW);
+		::SetWindowLongPtr(reinterpret_cast<HWND>(wContent.GetID()),
+			GWL_EXSTYLE, WS_EX_CLIENTEDGE);
 		if (winPlace.length) {
 			::SystemParametersInfo(SPI_SETWORKAREA, 0, &rcWorkArea, 0);
 			if (winPlace.showCmd == SW_SHOWMAXIMIZED) {
@@ -1715,15 +1716,12 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		case WM_GETMINMAXINFO: {
 				MINMAXINFO *pmmi = reinterpret_cast<MINMAXINFO *>(lParam);
 				if (fullScreen) {
-					// Last constants for both x and y are just fiddles - don't know why they are needed
 					pmmi->ptMaxSize.x = ::GetSystemMetrics(SM_CXSCREEN) +
-										2 * ::GetSystemMetrics(SM_CXSIZEFRAME) +
-										2;
+										2 * ::GetSystemMetrics(SM_CXSIZEFRAME);
 					pmmi->ptMaxSize.y = ::GetSystemMetrics(SM_CYSCREEN) +
 										::GetSystemMetrics(SM_CYCAPTION) +
 										::GetSystemMetrics(SM_CYMENU) +
-										2 * ::GetSystemMetrics(SM_CYSIZEFRAME) +
-										3;
+										2 * ::GetSystemMetrics(SM_CYSIZEFRAME);
 					pmmi->ptMaxTrackSize.x = pmmi->ptMaxSize.x;
 					pmmi->ptMaxTrackSize.y = pmmi->ptMaxSize.y;
 					return 0;
