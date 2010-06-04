@@ -629,7 +629,7 @@ protected:
 	int SaveIfUnsure(bool forceQuestion = false);
 	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();
-	void SaveIfNotOpen(const FilePath &destFile, bool fixCase);
+	bool SaveIfNotOpen(const FilePath &destFile, bool fixCase);
 	bool Save();
 	void SaveAs(const GUI::gui_char *file, bool fixCase);
 	virtual void SaveACopy() = 0;

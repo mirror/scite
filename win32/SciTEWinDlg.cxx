@@ -293,8 +293,7 @@ bool SciTEWin::SaveAsDialog() {
 		GUI::StringFromUTF8(props.GetExpanded("save.filter").c_str()).c_str());
 	FilePath path = ChooseSaveName(filePath.Directory(), "Save File", saveFilter.c_str());
 	if (path.IsSet()) {
-		SaveIfNotOpen(path, false);
-		return true;
+		return SaveIfNotOpen(path, false);
 	}
 	return false;
 }

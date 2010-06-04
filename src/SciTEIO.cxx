@@ -908,15 +908,17 @@ void SciTEBase::SaveAs(const GUI::gui_char *file, bool fixCase) {
 		extender->OnSave(filePath.AsUTF8().c_str());
 }
 
-void SciTEBase::SaveIfNotOpen(const FilePath &destFile, bool fixCase) {
+bool SciTEBase::SaveIfNotOpen(const FilePath &destFile, bool fixCase) {
 	FilePath absPath = destFile.AbsolutePath();
 	int index = buffers.GetDocumentByName(absPath, true /* excludeCurrent */);
 	if (index >= 0) {
 		GUI::gui_string msg = LocaliseMessage(
 			    "File '^0' is already open in another buffer.", destFile.AsInternal());
 		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		return false;
 	} else {
 		SaveAs(absPath.AsInternal(), fixCase);
+		return true;
 	}
 }
 
