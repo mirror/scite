@@ -388,7 +388,7 @@ protected:
 
 	virtual void OpenUriList(const char *list);
 	virtual bool OpenDialog(FilePath directory, const char *filter);
-	void HandleSaveAs(const char *savePath);
+	bool HandleSaveAs(const char *savePath);
 	bool SaveAsXXX(FileFormat fmt, const char *title, const char *ext=0);
 	virtual bool SaveAsDialog();
 	virtual void SaveACopy();
@@ -1186,7 +1186,7 @@ void SciTEGTK::toggle_hidden_cb(GtkToggleButton *toggle, gpointer data) {
 		g_object_set(GTK_FILE_CHOOSER(file_chooser), "show-hidden", FALSE, NULL);
 }
 
-void SciTEGTK::HandleSaveAs(const char *savePath) {
+bool SciTEGTK::HandleSaveAs(const char *savePath) {
 	switch (saveFormat) {
 	case sfCopy:
 		SaveBuffer(savePath);
@@ -1209,15 +1209,16 @@ void SciTEGTK::HandleSaveAs(const char *savePath) {
 	default: {
 			/* Checking that no other buffer refers to the same filename */
 			FilePath destFile(savePath);
-			SaveIfNotOpen(destFile, true);
+			return SaveIfNotOpen(destFile, true);
 		}
 	}
 	dlgFileSelector.OK();
+	return true;
 }
 
 bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title, const char *ext) {
 	filePath.SetWorkingDirectory();
-	bool canceled = true;
+	bool saved = false;
 	saveFormat = fmt;
 	if (!dlgFileSelector.Created()) {
 		GtkWidget *dlg = gtk_file_chooser_dialog_new(
@@ -1241,13 +1242,13 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title, const char *ext) {
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
 			gtk_widget_destroy(dlg);
-			HandleSaveAs(filename);
+			saved = HandleSaveAs(filename);
 			g_free(filename);
 		} else {
 			gtk_widget_destroy(dlg);
 		}
 	}
-	return !canceled;
+	return saved;
 }
 
 bool SciTEGTK::SaveAsDialog() {
