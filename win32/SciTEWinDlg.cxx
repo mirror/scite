@@ -744,16 +744,6 @@ public:
 		::EnableWindow(Item(id), enable);
 	}
 
-	SString ItemText(int id) {
-		HWND wT = Item(id);
-		int len = ::GetWindowTextLength(wT);
-		SBuffer itemText(len);
-		if (len > 0) {
-			::GetDlgItemTextA(hDlg, id, itemText.ptr(), len + 1);
-		}
-		return SString(itemText);
-	}
-
 	GUI::gui_string ItemTextG(int id) {
 		HWND wT = Item(id);
 		int len = ::GetWindowTextLengthW(wT) + 1;
@@ -808,9 +798,11 @@ static void FillComboFromProps(HWND combo, PropSetFile &props) {
 	const char *key;
 	const char *val;
 	if (props.GetFirst(key, val)) {
-		::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(key));
+		GUI::gui_string wkey = GUI::StringFromUTF8(key);
+		::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(wkey.c_str()));
 		while (props.GetNext(key, val)) {
-			::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(key));
+			wkey = GUI::StringFromUTF8(key);
+			::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(wkey.c_str()));
 		}
 	}
 }
@@ -1422,7 +1414,7 @@ BOOL SciTEWin::AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::EndDialog(hDlg, IDCANCEL);
 			return FALSE;
 		} else if (ControlIDOfCommand(wParam) == IDOK) {
-			SString sAbbrev = dlg.ItemText(IDABBREV);
+			SString sAbbrev = dlg.ItemTextU(IDABBREV);
 			strncpy(abbrevInsert, sAbbrev.c_str(), sizeof(abbrevInsert));
 			abbrevInsert[sizeof(abbrevInsert) - 1] = '\0';
 			::EndDialog(hDlg, IDOK);
