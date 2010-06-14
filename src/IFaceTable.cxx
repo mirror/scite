@@ -1241,12 +1241,15 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_POWERSHELL_CHARACTER",3},
 	{"SCE_POWERSHELL_CMDLET",9},
 	{"SCE_POWERSHELL_COMMENT",1},
+	{"SCE_POWERSHELL_COMMENTSTREAM",13},
 	{"SCE_POWERSHELL_DEFAULT",0},
+	{"SCE_POWERSHELL_FUNCTION",11},
 	{"SCE_POWERSHELL_IDENTIFIER",7},
 	{"SCE_POWERSHELL_KEYWORD",8},
 	{"SCE_POWERSHELL_NUMBER",4},
 	{"SCE_POWERSHELL_OPERATOR",6},
 	{"SCE_POWERSHELL_STRING",2},
+	{"SCE_POWERSHELL_USER1",12},
 	{"SCE_POWERSHELL_VARIABLE",5},
 	{"SCE_PO_COMMENT",1},
 	{"SCE_PO_DEFAULT",0},
@@ -2625,7 +2628,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 265,
-	ifaceConstantCount = 2050,
+	ifaceConstantCount = 2053,
 	ifacePropertyCount = 170
 };
 
