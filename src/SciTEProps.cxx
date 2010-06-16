@@ -34,13 +34,7 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("_");
 
 #else
 
-#ifdef __BORLANDC__
-// Borland includes Windows.h for STL and defaults to different API number
-#ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
-#endif
-#endif
-
 #define _WIN32_WINNT  0x0500
 #ifdef _MSC_VER
 // windows.h, et al, use a lot of nameless struct/unions - can't fix it, so allow it
