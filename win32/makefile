@@ -6,7 +6,6 @@
 
 .SUFFIXES: .cxx .properties
 CC = g++
-DLLWRAP = dllwrap
 ifndef CYGWIN
 DEL = del /q
 COPY = copy
