@@ -378,7 +378,7 @@ void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 			::WinHelpA(MainHWND(),
 			          path,
 			          HELP_KEY,
-			          reinterpret_cast<unsigned long>(topic));
+			          reinterpret_cast<ULONG_PTR>(topic));
 		}
 	}
 	delete []topic;
@@ -407,7 +407,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 		if (topic && path) {
 			*path = '\0';
 			path++;	// After the !
-			typedef HWND (WINAPI *HelpFn) (HWND, const char *, UINT, DWORD);
+			typedef HWND (WINAPI *HelpFn) (HWND, const char *, UINT, DWORD_PTR);
 			HelpFn fnHHA = (HelpFn)::GetProcAddress(hHH, "HtmlHelpA");
 			if (fnHHA) {
 				XHH_AKLINK ak;
@@ -422,7 +422,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				fnHHA(NULL,
 				      path,
 				      0x000d,          	// HH_KEYWORD_LOOKUP
-				      reinterpret_cast<DWORD>(&ak)
+				      reinterpret_cast<DWORD_PTR>(&ak)
 				     );
 			}
 		}
