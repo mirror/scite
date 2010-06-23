@@ -2600,7 +2600,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           command.subsystem.<i>number</i>.<i>filepattern</i><br />
           command.save.before.<i>number</i>.<i>filepattern</i><br />
           <span class="windowsonly">command.input.<i>number</i>.<i>filepattern</i></span><br />
-          <span class="windowsonly">command.replace.selection.<i>number</i>.<i>filepattern</i></span><br />
+          command.replace.selection.<i>number</i>.<i>filepattern</i><br />
           <span class="windowsonly">command.quiet.<i>number</i>.<i>filepattern</i></span><br />
           command.mode.<i>number</i>.<i>filepattern</i><br />
           command.shortcut.<i>number</i>.<i>filepattern</i>
@@ -2627,7 +2627,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         (command line programs).<br />
 	<br />
 
-        On Windows, the optional command.replace.selection can be used to specify that the
+        The optional command.replace.selection can be used to specify that the
         command output should replace the current selection (or be inserted at the cursor
         location, if there is no selection).  This property has three available settings:
         0, the default, means do not replace the selection.  1 means replace the selection
