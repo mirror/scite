@@ -319,6 +319,8 @@ protected:
 	guint pollID;
 	int inputHandle;
 	GUI::ElapsedTime commandTime;
+	SString lastOutput;
+	int lastFlags;
 
 	// For single instance
 	guint32 startupTimestamp;
@@ -1696,6 +1698,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 	if (count > 0) {
 		buf[count] = '\0';
 		OutputAppendString(buf);
+		lastOutput += buf;
 	} else if (count == 0) {
 		SString sExitMessage(WEXITSTATUS(exitStatus));
 		sExitMessage.insert(0, ">Exit code: ");
@@ -1707,6 +1710,12 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";
 			sExitMessage += SString(commandTime.Duration(), 3);
+		}
+		if ((lastFlags & jobRepSelYes)
+			|| ((lastFlags & jobRepSelAuto) && !exitStatus)) {
+			int cpMin = wEditor.Send(SCI_GETSELECTIONSTART, 0, 0);
+			wEditor.Send(SCI_REPLACESEL,0,(sptr_t)(lastOutput.c_str()));
+			wEditor.Send(SCI_SETSEL, cpMin, cpMin+lastOutput.length());
 		}
 		sExitMessage.append("\n");
 		OutputAppendString(sExitMessage.c_str());
@@ -1762,6 +1771,9 @@ void SciTEGTK::Execute() {
 	if (scrollOutput)
 		wOutput.Send(SCI_GOTOPOS, wOutput.Send(SCI_GETTEXTLENGTH));
 	originalEnd = wOutput.Send(SCI_GETCURRENTPOS);
+
+	lastOutput = "";
+	lastFlags = jobQueue.jobQueue[icmd].flags;
 
 	if (jobQueue.jobQueue[icmd].jobType != jobExtension) {
 		OutputAppendString(">");
