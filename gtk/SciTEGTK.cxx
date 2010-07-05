@@ -385,6 +385,7 @@ protected:
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
 	virtual void CheckMenus();
+	static void PopUpCmd(GtkMenuItem *menuItem, SciTEGTK *scitew);
 	virtual void AddToPopUp(const char *label, int cmd = 0, bool enabled = true);
 	virtual void ExecuteNext();
 
@@ -2331,22 +2332,25 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	return 0;
 }
 
+void SciTEGTK::PopUpCmd(GtkMenuItem *menuItem, SciTEGTK *scitew) {
+	sptr_t cmd = (sptr_t)(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
+	scitew->Command(cmd);
+}
+
 void SciTEGTK::AddToPopUp(const char *label, int cmd, bool enabled) {
 	GUI::gui_string localised = localiser.Text(label);
-	localised.insert(0, "/");
-	GtkItemFactoryEntry itemEntry = {
-		const_cast<char *>(localised.c_str()), NULL,
-		GTK_SIGNAL_FUNC(MenuSignal), cmd,
-		const_cast<gchar *>(label[0] ? "<Item>" : "<Separator>")
-		,0
-	};
-	gtk_item_factory_create_item(GTK_ITEM_FACTORY(popup.GetID()),
-	                             &itemEntry, this, 1);
+	GtkWidget *menuItem;
+	if (label[0])
+		menuItem = gtk_menu_item_new_with_label(localised.c_str());
+	else
+		menuItem = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
+	g_object_set_data(G_OBJECT(menuItem), "CmdNum", reinterpret_cast<void *>((sptr_t)(cmd)));
+	g_signal_connect(G_OBJECT(menuItem),"activate", G_CALLBACK(PopUpCmd), this);
+
 	if (cmd) {
-		GtkWidget *item = gtk_item_factory_get_widget_by_action(
-		                      reinterpret_cast<GtkItemFactory *>(popup.GetID()), cmd);
-		if (item)
-			gtk_widget_set_sensitive(item, enabled);
+		if (menuItem)
+			gtk_widget_set_sensitive(menuItem, enabled);
 	}
 }
 
