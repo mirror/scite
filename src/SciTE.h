@@ -181,6 +181,14 @@
 #define IDM_MOVETABRIGHT			508
 #define IDM_MOVETABLEFT			509
 
+#define IDM_WHOLEWORD			800
+#define IDM_MATCHCASE			801
+#define IDM_REGEXP					802
+#define IDM_WRAPAROUND		803
+#define IDM_UNSLASH				804
+#define IDM_DIRECTIONUP			805
+#define IDM_DIRECTIONDOWN	806
+
 // Help
 #define IDM_HELP			901
 #define IDM_ABOUT			902
@@ -235,6 +243,8 @@
 #define IDFINDINSTYLE		250
 #define IDFINDSTYLE			251
 #define IDCONVERT			252
+
+#define IDSHOWOPTIONS 257
 
 #define IDPARAMSTART		300
 

@@ -150,6 +150,14 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		if (!menuKey && DialogHandled(wParameters.GetID(), pmsg))
 			return true;
 	}
+	if ((pmsg->message == WM_KEYDOWN) || (pmsg->message == WM_SYSKEYDOWN)) {
+		if (searchStrip.KeyDown(pmsg->wParam))
+			return true;
+		if (findStrip.KeyDown(pmsg->wParam))
+			return true;
+		if (replaceStrip.KeyDown(pmsg->wParam))
+			return true;
+	}
 	if (pmsg->message == WM_KEYDOWN || pmsg->message == WM_SYSKEYDOWN) {
 		if (KeyDown(pmsg->wParam))
 			return true;
@@ -1072,20 +1080,32 @@ BOOL CALLBACK SciTEWin::FindIncrementDlg(HWND hDlg, UINT message, WPARAM wParam,
 }
 
 void SciTEWin::FindIncrement() {
-	if (wFindIncrement.Created()) {
-		wFindIncrement.Destroy();
+	if (findStrip.visible || replaceStrip.visible)
 		return;
+	if (props.GetInt("find.incremental.use.strip")) {
+		searchStrip.visible = !searchStrip.visible;
+		SizeSubWindows();
+		if (searchStrip.visible) {
+			searchStrip.Focus();
+		} else {
+			WindowSetFocus(wEditor);
+		}
+	} else {
+		if (wFindIncrement.Created()) {
+			wFindIncrement.Destroy();
+			return;
+		}
+
+		findWhat.clear();
+
+		replacing = false;
+		::CreateDialogParamW(hInstance,
+											(LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
+											MainHWND(),
+											reinterpret_cast<DLGPROC>(FindIncrementDlg),
+											reinterpret_cast<LPARAM>(this));
+		wFindIncrement.Show();
 	}
-
-	findWhat.clear();
-
-	replacing = false;
-	::CreateDialogParamW(hInstance,
-	                                    (LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
-	                                    MainHWND(),
-	                                    reinterpret_cast<DLGPROC>(FindIncrementDlg),
-	                                    reinterpret_cast<LPARAM>(this));
-	wFindIncrement.Show();
 }
 
 bool SciTEWin::FindReplaceAdvanced() {
@@ -1097,18 +1117,31 @@ void SciTEWin::Find() {
 		return;
 	if (wFindReplace.Created())
 		return;
+	if (searchStrip.visible || replaceStrip.visible)
+		return;
+
 	SelectionIntoFind();
 
-	int dialog_id = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
+	if (props.GetInt("find.use.strip")) {
+		findStrip.visible = true;
+		SizeSubWindows();
+		if (findStrip.visible) {
+			findStrip.Show();
+		} else {
+			WindowSetFocus(wEditor);
+		}
+	} else {
+		int dialog_id = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
 
-	wFindReplace = ::CreateDialogParamW(hInstance,
-	                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
-	                                    MainHWND(),
-	                                    reinterpret_cast<DLGPROC>(FindDlg),
-	                                    reinterpret_cast<LPARAM>(this));
-	wFindReplace.Show();
+		wFindReplace = ::CreateDialogParamW(hInstance,
+											(LPCWSTR)MAKEINTRESOURCE(dialog_id),
+											MainHWND(),
+											reinterpret_cast<DLGPROC>(FindDlg),
+											reinterpret_cast<LPARAM>(this));
+		wFindReplace.Show();
 
-	replacing = false;
+		replacing = false;
+	}
 }
 
 // Set a call back with the handle after init to set the path.
@@ -1294,21 +1327,32 @@ void SciTEWin::FindInFiles() {
 }
 
 void SciTEWin::Replace() {
-	if (wFindReplace.Created())
+	if (wFindReplace.Created() || searchStrip.visible || findStrip.visible)
 		return;
 	SelectionIntoFind(false); // don't strip EOL at end of selection
 
-	int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
+	if (props.GetInt("replace.use.strip")) {
+		replaceStrip.visible = true;
+		SizeSubWindows();
+		if (replaceStrip.visible) {
+			replaceStrip.Show();
+			havefound = false;
+		} else {
+			WindowSetFocus(wEditor);
+		}
+	} else {
+		int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
 
-	wFindReplace = ::CreateDialogParamW(hInstance,
-	                                    (LPCWSTR)MAKEINTRESOURCE(dialog_id),
-	                                    MainHWND(),
-	                                    reinterpret_cast<DLGPROC>(ReplaceDlg),
-	                                    reinterpret_cast<sptr_t>(this));
-	wFindReplace.Show();
+		wFindReplace = ::CreateDialogParamW(hInstance,
+											(LPCWSTR)MAKEINTRESOURCE(dialog_id),
+											MainHWND(),
+											reinterpret_cast<DLGPROC>(ReplaceDlg),
+											reinterpret_cast<sptr_t>(this));
+		wFindReplace.Show();
 
-	replacing = true;
-	havefound = false;
+		replacing = true;
+		havefound = false;
+	}
 }
 
 void SciTEWin::FindReplace(bool replace) {

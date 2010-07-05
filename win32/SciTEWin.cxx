@@ -153,6 +153,12 @@ SciTEWin *SciTEWin::app = NULL;
 
 SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	app = this;
+
+	contents.SetSciTE(this);
+	searchStrip.SetSciTE(this);
+	findStrip.SetSciTE(this);
+	replaceStrip.SetSciTE(this);
+
 	cmdShow = 0;
 	heightBar = 7;
 	fontTabs = 0;
@@ -251,7 +257,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 
 	// Register the window that holds the two Scintilla edit windows and the separator
 	classNameInternal = TEXT("SciTEWindowContent");
-	wndclass.lpfnWndProc = SciTEWin::IWndProc;
+	wndclass.lpfnWndProc = BaseWin::StWndProc;
 	wndclass.lpszMenuName = 0;
 	wndclass.lpszClassName = classNameInternal;
 	if (!::RegisterClass(&wndclass))
@@ -493,7 +499,7 @@ void SciTEWin::FullScreenToggle() {
 		int topStuff = ::GetSystemMetrics(SM_CYSIZEFRAME) + ::GetSystemMetrics(SM_CYCAPTION);
 		if (props.GetInt("full.screen.hides.menu"))
 			topStuff += ::GetSystemMetrics(SM_CYMENU);
-		::SetWindowLongPtr(reinterpret_cast<HWND>(wContent.GetID()),
+		::SetWindowLongPtr(HwndOf(wContent),
 			GWL_EXSTYLE, 0);
 		::SetWindowPos(MainHWND(), HWND_TOP,
 			-::GetSystemMetrics(SM_CXSIZEFRAME),
@@ -505,7 +511,7 @@ void SciTEWin::FullScreenToggle() {
 		::ShowWindow(wTaskBar, SW_SHOW);
 		if (wStartButton != NULL)
 			::ShowWindow(wStartButton, SW_SHOW);
-		::SetWindowLongPtr(reinterpret_cast<HWND>(wContent.GetID()),
+		::SetWindowLongPtr(HwndOf(wContent),
 			GWL_EXSTYLE, WS_EX_CLIENTEDGE);
 		if (winPlace.length) {
 			::SystemParametersInfo(SPI_SETWORKAREA, 0, &rcWorkArea, 0);
@@ -522,7 +528,7 @@ void SciTEWin::FullScreenToggle() {
 }
 
 HWND SciTEWin::MainHWND() {
-	return reinterpret_cast<HWND>(wSciTE.GetID());
+	return HwndOf(wSciTE);
 }
 
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
@@ -1305,27 +1311,27 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
 /**
  * Draw the split bar.
  */
-void SciTEWin::Paint(HDC hDC, GUI::Rectangle) {
-	GUI::Rectangle rcInternal = GetClientRectangle();
+void ContentWin::Paint(HDC hDC, GUI::Rectangle) {
+	GUI::Rectangle rcInternal = GetClientPosition();
 
 	int heightClient = rcInternal.Height();
 	int widthClient = rcInternal.Width();
 
-	int heightEditor = heightClient - heightOutput - heightBar;
+	int heightEditor = heightClient - pSciTEWin->heightOutput - pSciTEWin->heightBar;
 	int yBorder = heightEditor;
-	int xBorder = widthClient - heightOutput - heightBar;
-	for (int i = 0; i < heightBar; i++) {
+	int xBorder = widthClient - pSciTEWin->heightOutput - pSciTEWin->heightBar;
+	for (int i = 0; i < pSciTEWin->heightBar; i++) {
 		HPEN pen;
 		if (i == 1)
 			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DHIGHLIGHT));
-		else if (i == heightBar - 2)
+		else if (i == pSciTEWin->heightBar - 2)
 			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DSHADOW));
-		else if (i == heightBar - 1)
+		else if (i == pSciTEWin->heightBar - 1)
 			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DDKSHADOW));
 		else
 			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DFACE));
 		HPEN penOld = static_cast<HPEN>(::SelectObject(hDC, pen));
-		if (splitVertical) {
+		if (pSciTEWin->splitVertical) {
 			::MoveToEx(hDC, xBorder + i, 0, 0);
 			::LineTo(hDC, xBorder + i, heightClient);
 		} else {
@@ -1635,7 +1641,7 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 			}
 		}
 	}
-	menuSource = ::GetDlgCtrlID(reinterpret_cast<HWND>(w->GetID()));
+	menuSource = ::GetDlgCtrlID(HwndOf(*w));
 	ContextMenu(*w, pt, wSciTE);
 	return 0;
 }
@@ -1778,7 +1784,14 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 		case WM_ACTIVATE:
 			if (wParam != WA_INACTIVE) {
-				::SetFocus(wFocus);
+				if (searchStrip.visible)
+					searchStrip.Focus();
+				else if (findStrip.visible)
+					findStrip.Focus();
+				else if (replaceStrip.visible)
+					replaceStrip.Focus();
+				else
+					::SetFocus(wFocus);
 			}
 			break;
 
@@ -1847,43 +1860,51 @@ LRESULT PASCAL SciTEWin::TWndProc(
 		return scite->WndProc(iMessage, wParam, lParam);
 }
 
-LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
 	switch (iMessage) {
 
-	case WM_COMMAND:
-		Command(wParam, lParam);
-		break;
+	case WM_CREATE:
+		pSciTEWin->wContent = GetID();
+		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
 
+	case WM_COMMAND:
 	case WM_NOTIFY:
-		Notify(reinterpret_cast<SCNotification *>(lParam));
-		break;
+		return pSciTEWin->WndProc(iMessage, wParam, lParam);
 
 	case WM_PAINT: {
 			PAINTSTRUCT ps;
-			::BeginPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
+			::BeginPaint(Hwnd(), &ps);
 			GUI::Rectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 			Paint(ps.hdc, rcPaint);
-			::EndPaint(reinterpret_cast<HWND>(wContent.GetID()), &ps);
+			::EndPaint(Hwnd(), &ps);
+			return 0;
+		}
+
+	case WM_ERASEBKGND: {
+			RECT rc = {0, 0, 2000, 2000};
+			HBRUSH hbrFace = CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
+			::FillRect(reinterpret_cast<HDC>(wParam), &rc, hbrFace);
+			::DeleteObject(hbrFace);
 			return 0;
 		}
 
 	case WM_LBUTTONDOWN:
-		ptStartDrag = PointFromLong(lParam);
+		pSciTEWin->ptStartDrag = PointFromLong(lParam);
 		capturedMouse = true;
-		heightOutputStartDrag = heightOutput;
-		::SetCapture(reinterpret_cast<HWND>(wContent.GetID()));
+		pSciTEWin->heightOutputStartDrag = pSciTEWin->heightOutput;
+		::SetCapture(Hwnd());
 		break;
 
 	case WM_MOUSEMOVE:
 		if (capturedMouse) {
-			MoveSplit(PointFromLong(lParam));
+			pSciTEWin->MoveSplit(PointFromLong(lParam));
 		}
 		break;
 
 	case WM_LBUTTONUP:
 		if (capturedMouse) {
-			MoveSplit(PointFromLong(lParam));
+			pSciTEWin->MoveSplit(PointFromLong(lParam));
 			capturedMouse = false;
 			::ReleaseCapture();
 		}
@@ -1898,43 +1919,1110 @@ LRESULT SciTEWin::WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			GUI::Point ptCursor;
 			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
 			GUI::Point ptClient = ptCursor;
-			::ScreenToClient(MainHWND(), reinterpret_cast<POINT *>(&ptClient));
-			if ((ptClient.y > (visHeightTools + visHeightTab)) && (ptClient.y < visHeightTools + visHeightTab + visHeightEditor)) {
-				GUI::Rectangle rcScintilla = wEditor.GetPosition();
-				GUI::Rectangle rcOutput = wOutput.GetPosition();
+			::ScreenToClient(pSciTEWin->MainHWND(), reinterpret_cast<POINT *>(&ptClient));
+			if ((ptClient.y > (pSciTEWin->visHeightTools + pSciTEWin->visHeightTab)) && (ptClient.y < pSciTEWin->visHeightTools + pSciTEWin->visHeightTab + pSciTEWin->visHeightEditor)) {
+				GUI::Rectangle rcScintilla = pSciTEWin->wEditor.GetPosition();
+				GUI::Rectangle rcOutput = pSciTEWin->wOutput.GetPosition();
 				if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
-					::SetCursor(::LoadCursor(NULL, splitVertical ? IDC_SIZEWE : IDC_SIZENS));
+					::SetCursor(::LoadCursor(NULL, pSciTEWin->splitVertical ? IDC_SIZEWE : IDC_SIZENS));
 					return TRUE;
 				}
 			}
 		}
-		return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
+		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
 
 	default:
-		return ::DefWindowProc(reinterpret_cast<HWND>(wContent.GetID()),
-		                       iMessage, wParam, lParam);
+		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
+
 	}
 	} catch (...) {
 	}
 	return 0l;
 }
 
-LRESULT PASCAL SciTEWin::IWndProc(
+static void SetFontHandle(GUI::Window &w, HFONT hfont) {
+	::SendMessage(HwndOf(w),
+		WM_SETFONT, reinterpret_cast<WPARAM>(hfont),
+		0);    // redraw option
+}
+
+static int WidthText(HFONT hfont, const GUI::gui_char *text) {
+	HDC hdcMeasure = ::CreateCompatibleDC(NULL);
+	HFONT hfontOriginal = static_cast<HFONT>(::SelectObject(hdcMeasure, hfont));
+	RECT rcText = {0,0, 2000, 2000};
+	::DrawText(hdcMeasure, const_cast<LPWSTR>(text), -1, &rcText, DT_CALCRECT);
+	int width = rcText.right - rcText.left;
+	::SelectObject(hdcMeasure, hfontOriginal);
+	::DeleteDC(hdcMeasure);
+	return width;
+}
+
+static int WidthControl(GUI::Window &w) {
+	GUI::Rectangle rc = w.GetPosition();
+	return rc.Width();
+}
+
+static SString ControlText(GUI::Window w) {
+	HWND wT = HwndOf(w);
+	int len = ::GetWindowTextLengthW(wT) + 1;
+	std::vector<GUI::gui_char> itemText(len);
+	GUI::gui_string gsFind;
+	if (::GetWindowText(wT, &itemText[0], len)) {
+		gsFind = GUI::gui_string(&itemText[0]);
+	}
+	return GUI::UTF8FromString(gsFind.c_str()).c_str();
+}
+
+static const char *searchText = "Fi&nd:";
+static const char *replaceText = "Re&place:";
+
+GUI::Window Strip::CreateText(const char *text) {
+	GUI::gui_string localised = pSciTEWin->localiser.Text(text);
+	int width = WidthText(fontText, localised.c_str()) + 4;
+	GUI::Window w;
+	w.SetID(::CreateWindowEx(0, TEXT("Static"), localised.c_str(),
+		WS_CHILD | WS_CLIPSIBLINGS | SS_RIGHT,
+		2, 2, width, 21,
+		Hwnd(), reinterpret_cast<HMENU>(0), pSciTEWin->hInstance, 0));
+	SetFontHandle(w, fontText);
+	w.Show();
+	return w;
+}
+
+GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
+	GUI::gui_string localised = pSciTEWin->localiser.Text(text);
+	int width = WidthText(fontText, localised.c_str());
+	int height = 19 + 2 * ::GetSystemMetrics(SM_CYEDGE);
+	if (check) {
+		width += 6;
+		int checkSize = ::GetSystemMetrics(SM_CXMENUCHECK);
+		width += checkSize;
+	} else {
+		width += 2 * ::GetSystemMetrics(SM_CXEDGE);	// Allow for 3D borders
+		width += 2 * WidthText(fontText, TEXT(" "));	// Allow a bit of space
+	}
+	GUI::Window w;
+	w.SetID(::CreateWindowEx(0, TEXT("Button"), localised.c_str(),
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | (check ? BS_AUTOCHECKBOX : BS_PUSHBUTTON),
+		2, 2, width, height,
+		Hwnd(), reinterpret_cast<HMENU>(ident), pSciTEWin->hInstance, 0));
+	SetFontHandle(w, fontText);
+	w.Show();
+	if (!check) {
+		// Push buttons can be measured with BCM_GETIDEALSIZE
+		SIZE sz = {0, 0};
+		::SendMessage(reinterpret_cast<HWND>(w.GetID()),
+			BCM_GETIDEALSIZE, 0, reinterpret_cast<LPARAM>(&sz));
+		if (sz.cx > 0) {
+			GUI::Rectangle rc(0,0, sz.cx + 2 * WidthText(fontText, TEXT(" ")), sz.cy);
+			w.SetPosition(rc);
+		}
+	}
+	return w;
+}
+
+void Strip::Tab(bool forwards) {
+	HWND wToFocus = ::GetNextDlgTabItem(Hwnd(), ::GetFocus(), !forwards);
+	if (wToFocus)
+		::SetFocus(wToFocus);
+}
+
+void Strip::Creation() {
+	// Use the message box font for the strip's font
+	NONCLIENTMETRICS ncm;
+	ncm.cbSize = sizeof(ncm);
+	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE);
+	fontText = ::CreateFontIndirect(&ncm.lfMessageFont);
+	SetTheme();
+}
+
+void Strip::Destruction() {
+	if (fontText)
+		::DeleteObject(fontText);
+	fontText = 0;
+	if (hTheme)
+		::CloseThemeData(hTheme);
+	hTheme = 0;
+}
+
+void Strip::Close() {
+}
+
+bool Strip::KeyDown(WPARAM key) {
+	if (!visible)
+		return false;
+	switch (key) {
+	case VK_MENU:
+		::SendMessage(Hwnd(), WM_UPDATEUISTATE, (UISF_HIDEACCEL|UISF_HIDEFOCUS) << 16 | UIS_CLEAR, 0);
+		return false;
+	case VK_TAB:
+		if (IsChild(Hwnd(), ::GetFocus())) {
+			::SendMessage(Hwnd(), WM_UPDATEUISTATE, (UISF_HIDEACCEL|UISF_HIDEFOCUS) << 16 | UIS_CLEAR, 0);
+			Tab((::GetKeyState(VK_SHIFT) & 0x80000000) == 0);
+			return true;
+		} else {
+			return false;
+		}
+	case VK_ESCAPE:
+		Close();
+		return true;
+	default:
+		if ((::GetKeyState(VK_MENU) & 0x80000000) != 0) {
+			HWND wChild = ::GetWindow(Hwnd(), GW_CHILD);
+			while (wChild) {
+				enum { capSize = 2000 };
+				GUI::gui_char className[capSize];
+				::GetClassName(wChild, className, capSize);
+				if ((wcscmp(className, TEXT("Button")) == 0) ||
+					(wcscmp(className, TEXT("Static")) == 0)) {
+					GUI::gui_char caption[capSize];
+					::GetWindowText(wChild, caption, capSize);
+					for (int i=0; caption[i]; i++) {
+						if ((caption[i] == L'&') && (toupper(caption[i+1]) == static_cast<int>(key))) {
+							if (wcscmp(className, TEXT("Button")) == 0) {
+								::SendMessage(wChild, BM_CLICK, 0, 0);
+							} else {	// Static caption
+								wChild = ::GetWindow(wChild, GW_HWNDNEXT);
+								::SetFocus(wChild);
+							}
+							return true;
+						}
+					}
+				}
+				wChild = ::GetWindow(wChild, GW_HWNDNEXT);
+			};
+		}
+	}
+	return false;
+}
+
+bool Strip::Command(WPARAM) {
+	return false;
+}
+
+void Strip::ScrollEditorIfNeeded() {
+	GUI::Point ptCaret;
+	int caret = pSciTEWin->wEditor.Call(SCI_GETCURRENTPOS);
+	ptCaret.x = pSciTEWin->wEditor.Call(SCI_POINTXFROMPOSITION, 0, caret);
+	ptCaret.y = pSciTEWin->wEditor.Call(SCI_POINTYFROMPOSITION, 0, caret);
+	ptCaret.y += pSciTEWin->wEditor.Call(SCI_TEXTHEIGHT, 0, 0) - 1;
+
+	GUI::Rectangle rcEditor = pSciTEWin->wEditor.GetClientPosition();
+	if (!rcEditor.Contains(ptCaret))
+		pSciTEWin->wEditor.Call(SCI_SCROLLCARET);
+}
+
+void Strip::Size() {
+}
+
+void Strip::Paint(HDC hDC) {
+	GUI::Rectangle rcStrip = GetClientPosition();
+	RECT rc = {rcStrip.left, rcStrip.top, rcStrip.right, rcStrip.bottom};
+	HBRUSH hbrFace = CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
+	::FillRect(hDC, &rc, hbrFace);
+	::DeleteObject(hbrFace);
+
+#ifdef MANUALLY
+	// Draw close box
+	GUI::Rectangle rcClose = CloseArea();
+	COLORREF colourClose = ::GetSysColor(COLOR_3DFACE);
+	COLORREF colourCross = RGB(0,0,0);
+	if (closeState == csOver) {
+		colourClose = RGB(0xFF, 0x40, 0x40);
+		colourCross = RGB(0xff,0xff,0xff);
+	} else if (closeState == csClickedOver) {
+		colourClose = RGB(0xc0, 0x40, 0x40);
+		colourCross = RGB(0xff,0xff,0xff);
+	}
+
+	HBRUSH hbrClose = CreateSolidBrush(colourClose);
+	HBRUSH hbrStart = static_cast<HBRUSH>(::SelectObject(hDC, hbrClose));
+	::Rectangle(hDC, rcClose.left, rcClose.top, rcClose.right, rcClose.bottom);
+
+	HPEN pen = ::CreatePen(0,1,colourCross);
+	HPEN penStart = static_cast<HPEN>(::SelectObject(hDC, pen));
+
+	::MoveToEx(hDC, rcClose.left + 1, rcClose.top + 1, NULL);
+	::LineTo(hDC, rcClose.right-1, rcClose.bottom-1);
+	::MoveToEx(hDC, rcClose.left + 1, rcClose.bottom-2, NULL);
+	::LineTo(hDC, rcClose.right-1, rcClose.top);
+
+	::SelectObject(hDC, hbrStart);
+	::DeleteObject(hbrClose);
+	::SelectObject(hDC, penStart);
+	::DeleteObject(pen);
+#else
+	// Draw close box
+	GUI::Rectangle rcClose = CloseArea();
+	if (hTheme) {
+		int closeAppearence = CBS_NORMAL;
+		if (closeState == csOver) {
+			closeAppearence = CBS_HOT;
+		} else if (closeState == csClickedOver) {
+			closeAppearence = CBS_PUSHED;
+		}
+		//DrawThemeBackground(htheme, hDC, WP_CLOSEBUTTON, closeAppearence, 
+		//	reinterpret_cast<RECT *>(&rcClose), reinterpret_cast<RECT *>(&rcClose));
+		::DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, closeAppearence, 
+			reinterpret_cast<RECT *>(&rcClose), NULL);
+		//::DrawThemeBackground(hTheme, hDC, WP_MDICLOSEBUTTON, closeAppearence, 
+		//	reinterpret_cast<RECT *>(&rcClose), NULL);
+	} else {
+		int closeAppearence = 0;
+		if (closeState == csOver) {
+			closeAppearence = DFCS_HOT;
+		} else if (closeState == csClickedOver) {
+			closeAppearence = DFCS_PUSHED;
+		}
+
+		DrawFrameControl(hDC, reinterpret_cast<RECT *>(&rcClose), DFC_CAPTION, 
+			DFCS_CAPTIONCLOSE | closeAppearence);
+	}
+#endif
+}
+
+GUI::Rectangle Strip::CloseArea() {
+	GUI::Rectangle rcClose = GetClientPosition();
+	rcClose.right -= 2;
+	rcClose.left = rcClose.right - closeSize.cx;
+	rcClose.top += 2;
+	rcClose.bottom = rcClose.top + closeSize.cy;
+	return rcClose;
+}
+
+void Strip::InvalidateClose() {
+	GUI::Rectangle rcClose = CloseArea();
+	RECT rc = {
+		rcClose.left,
+		rcClose.top,
+		rcClose.right,
+		rcClose.bottom};
+	::InvalidateRect(Hwnd(), &rc, TRUE);
+}
+
+bool Strip::MouseInClose(GUI::Point pt) {
+	GUI::Rectangle rcClose = CloseArea();
+	return rcClose.Contains(pt);
+}
+
+void Strip::TrackMouse(GUI::Point pt) {
+	stripCloseState closeStateStart = closeState;
+	GUI::Rectangle rcStrip = GetClientPosition();
+	if (MouseInClose(pt)) {
+		if (closeState == csNone)
+			closeState = csOver;
+		if (closeState == csClicked)
+			closeState = csClickedOver;
+	} else {
+		if (closeState == csOver)
+			closeState = csNone;
+		if (closeState == csClickedOver)
+			closeState = csClicked;
+	}
+	if ((closeState != csNone) && !capturedMouse) {
+		TRACKMOUSEEVENT tme;
+		tme.cbSize = sizeof(tme);
+		tme.dwFlags = TME_LEAVE;
+		tme.hwndTrack = Hwnd();
+		TrackMouseEvent(&tme);
+	}
+	if (closeStateStart != closeState)
+		InvalidateClose();
+}
+
+void Strip::SetTheme() {
+	if (hTheme)
+		::CloseThemeData(hTheme);
+	hTheme = ::OpenThemeData(Hwnd(), L"Window");
+	if (hTheme) {
+		HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL, 
+			NULL, TS_TRUE, &closeSize);
+		//HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_MDICLOSEBUTTON, CBS_NORMAL, 
+		//	NULL, TS_TRUE, &closeSize);
+		if (!SUCCEEDED(hr)) {
+			closeSize.cx = 11;
+			closeSize.cy = 11;
+		}
+	}
+}
+
+static bool HideKeyboardCues() {
+	BOOL b;
+	::SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &b, 0);
+	return !b;
+}
+
+LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	switch (iMessage) {
+	case WM_CREATE:
+		Creation();
+		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
+
+	case WM_DESTROY:
+		Destruction();
+		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
+
+	case WM_COMMAND:
+		if (Command(wParam))
+			return 0;
+		else
+			return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
+
+	case WM_SETCURSOR:
+		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		break;
+
+	case WM_SIZE:
+		Size();
+		break;
+
+	case WM_WINDOWPOSCHANGED:
+		if ((reinterpret_cast<WINDOWPOS *>(lParam)->flags & SWP_SHOWWINDOW) && HideKeyboardCues())
+			::SendMessage(Hwnd(), WM_UPDATEUISTATE, (UISF_HIDEACCEL|UISF_HIDEFOCUS) << 16 | UIS_SET, 0);
+		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
+
+	case WM_PAINT: {
+			PAINTSTRUCT ps;
+			::BeginPaint(Hwnd(), &ps);
+			Paint(ps.hdc);
+			::EndPaint(Hwnd(), &ps);
+			return 0;
+		}
+
+	case WM_THEMECHANGED:
+		SetTheme();
+		break;
+
+	case WM_LBUTTONDOWN:
+		if (MouseInClose(PointFromLong(lParam))) {
+			closeState = csClickedOver;
+			InvalidateClose();
+			capturedMouse = true;
+			::SetCapture(Hwnd());
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+		TrackMouse(PointFromLong(lParam));
+		break;
+
+	case WM_LBUTTONUP:
+		if (capturedMouse) {
+			if (MouseInClose(PointFromLong(lParam))) {
+				Close();
+			}
+			capturedMouse = false;
+			closeState = csNone;
+			InvalidateClose();
+			::ReleaseCapture();
+		}
+		break;
+
+	case WM_MOUSELEAVE:
+		if (!capturedMouse) {
+			closeState = csNone;
+			InvalidateClose();
+		}
+		break;
+
+	default:
+		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
+	}
+
+	return 0l;
+}
+
+void SearchStrip::Creation() {
+	Strip::Creation();
+
+	wStaticFind = CreateText(searchText);
+
+	wText = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), TEXT(""),
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | ES_AUTOHSCROLL,
+		50, 2, 300, 21,
+		Hwnd(), reinterpret_cast<HMENU>(IDC_INCFINDTEXT), pSciTEWin->hInstance, 0);
+	wText.Show();
+
+	SetFontHandle(wText, fontText);
+
+	wButton = CreateButton(">", IDC_INCFINDBTNOK);
+}
+
+void SearchStrip::Destruction() {
+}
+
+void SearchStrip::Close() {
+	pSciTEWin->props.Set("Replacements", "");
+	pSciTEWin->UpdateStatusBar(false);
+	pSciTEWin->searchStrip.visible = false;
+	WindowSetFocus(pSciTEWin->wEditor);
+	entered++;
+	::SetWindowText(HwndOf(wText), TEXT(""));
+	entered--;
+	pSciTEWin->SizeSubWindows();
+}
+
+void SearchStrip::Size() {
+	if (!visible)
+		return;
+	Strip::Size();
+	GUI::Rectangle rcArea = GetPosition();
+
+	rcArea.bottom -= rcArea.top;
+	rcArea.right -= rcArea.left;
+
+	rcArea.left = 2;
+	rcArea.top = 2;
+	rcArea.right -= 2;
+	rcArea.bottom -= 3;
+
+	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
+
+	GUI::Rectangle rcButton = rcArea;
+	rcButton.top -= 1;
+	rcButton.left = rcButton.right - WidthControl(wButton);
+	wButton.SetPosition(rcButton);
+
+	GUI::Rectangle rcText = rcArea;
+	rcText.left = WidthControl(wStaticFind) + 8;
+	rcText.right = rcButton.left - 4;
+	wText.SetPosition(rcText);
+
+	rcText.right = rcText.left - 4;
+	rcText.left = 4;
+	rcText.top = rcArea.top + 3;
+
+	wStaticFind.SetPosition(rcText);
+
+	::InvalidateRect(Hwnd(), NULL, TRUE);
+}
+
+void SearchStrip::Paint(HDC hDC) {
+	Strip::Paint(hDC);
+}
+
+void SearchStrip::Focus() {
+	::SetFocus(HwndOf(wText));
+}
+
+bool SearchStrip::KeyDown(WPARAM key) {
+	if (!visible)
+		return false;
+	if (Strip::KeyDown(key))
+		return true;
+
+	if (key == VK_RETURN) {
+		Next(false);
+		return true;
+	}
+
+	return false;
+}
+
+void SearchStrip::Next(bool select) {
+	SString ffLastWhat = pSciTEWin->findWhat;
+	pSciTEWin->findWhat = ControlText(wText);
+
+	if (select) {
+		Sci_CharacterRange cr = pSciTEWin->GetSelection();
+		if (ffLastWhat.length()) {
+			pSciTEWin->SetSelection(cr.cpMin - ffLastWhat.length(), cr.cpMin - ffLastWhat.length());
+		}
+	}
+	pSciTEWin->wholeWord = false;
+	if (pSciTEWin->findWhat.length() > 0)
+		pSciTEWin->FindNext(false, false);
+ 	if ((!pSciTEWin->havefound) &&
+		strncmp(pSciTEWin->findWhat.c_str(), ffLastWhat.c_str(), ffLastWhat.length()) == 0) {
+		// Could not find string with added character so revert to previous value.
+		pSciTEWin->findWhat = ffLastWhat;
+		entered++;
+		GUI::gui_string gsPrevious = GUI::StringFromUTF8(ffLastWhat.c_str());
+		::SetWindowText(HwndOf(wText), gsPrevious.c_str());
+		::SendMessage(HwndOf(wText), EM_SETSEL, gsPrevious.length(), gsPrevious.length());
+		entered--;
+	}
+}
+
+bool SearchStrip::Command(WPARAM wParam) {
+	if (entered)
+		return false;
+	int control = ControlIDOfCommand(wParam);
+	int subCommand = wParam >> 16;
+	if (((control == IDC_INCFINDTEXT) && (subCommand == EN_CHANGE)) ||
+		(control == IDC_INCFINDBTNOK)) {
+		Next(control != IDC_INCFINDBTNOK);
+		return true;
+	}
+	return false;
+}
+
+LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	try {
+
+	return Strip::WndProc(iMessage, wParam, lParam);
+
+	/*
+	switch (iMessage) {
+
+	default:
+
+	}
+	*/
+	} catch (...) {
+	}
+	return 0l;
+}
+
+void FindStrip::Creation() {
+	Strip::Creation();
+
+	wStaticFind = CreateText(searchText);
+
+	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
+		50, 2, 300, 80,
+		Hwnd(), reinterpret_cast<HMENU>(IDFINDWHAT), pSciTEWin->hInstance, 0);
+	SetFontHandle(wText, fontText);
+	wText.Show();
+
+	GUI::Rectangle rcCombo = wText.GetPosition();
+	lineHeight = rcCombo.Height() + 3;
+
+	wButtonOptions = CreateButton("&Options", IDSHOWOPTIONS);
+	wButton = CreateButton("&Find Next", IDOK);
+	wButtonMarkAll = CreateButton("&Mark All", IDMARKALL);
+}
+
+void FindStrip::Destruction() {
+}
+
+void FindStrip::Size() {
+	if (!visible)
+		return;
+	Strip::Size();
+	GUI::Rectangle rcArea = GetPosition();
+
+	rcArea.bottom -= rcArea.top;
+	rcArea.right -= rcArea.left;
+
+	rcArea.left = 2;
+	rcArea.top = 2;
+	rcArea.right -= 2;
+	rcArea.bottom -= 2;
+
+	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
+
+	GUI::Rectangle rcButton = rcArea;
+	rcButton.top -= 1;
+	rcButton.bottom += 1;
+	rcButton.left = rcButton.right - WidthControl(wButtonMarkAll);
+	wButtonMarkAll.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wButton);
+	wButton.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wButtonOptions);
+	wButtonOptions.SetPosition(rcButton);
+
+	GUI::Rectangle rcText = rcArea;
+	rcText.bottom += 60;
+	rcText.left = WidthControl(wStaticFind) + 8;
+	rcText.right = rcButton.left - 4;
+	wText.SetPosition(rcText);
+	wText.Show();
+
+	rcText.right = rcText.left - 4;
+	rcText.left = 4;
+	rcText.top = rcArea.top + 3;
+	wStaticFind.SetPosition(rcText);
+
+	::InvalidateRect(Hwnd(), NULL, TRUE);
+}
+
+void FindStrip::Paint(HDC hDC) {
+	Strip::Paint(hDC);
+}
+
+void FindStrip::Focus() {
+	::SetFocus(HwndOf(wText));
+}
+
+void FindStrip::Close() {
+	pSciTEWin->props.Set("Replacements", "");
+	pSciTEWin->UpdateStatusBar(false);
+	pSciTEWin->findStrip.visible = false;
+	pSciTEWin->bands[SciTEWin::bandFind].visible = false;
+	pSciTEWin->SizeSubWindows();
+	WindowSetFocus(pSciTEWin->wEditor);
+}
+
+bool FindStrip::KeyDown(WPARAM key) {
+	if (!visible)
+		return false;
+	if (Strip::KeyDown(key))
+		return true;
+	switch (key) {
+	case VK_RETURN:
+		Next(false);
+		return true;
+	}
+	return false;
+}
+
+void FindStrip::Next(bool markAll) {
+	pSciTEWin->findWhat = ControlText(wText);
+	pSciTEWin->props.Set("find.what", pSciTEWin->findWhat.c_str());
+	pSciTEWin->memFinds.Insert(pSciTEWin->findWhat.c_str());
+	if (markAll){
+		pSciTEWin->MarkAll();
+	}
+	pSciTEWin->FindNext(pSciTEWin->reverseFind);
+	pSciTEWin->findStrip.visible = false;
+	pSciTEWin->bands[SciTEWin::bandFind].visible = false;
+	pSciTEWin->SizeSubWindows();
+	WindowSetFocus(pSciTEWin->wEditor);
+}
+
+void FindStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) {
+	GUI::gui_string localised = pSciTEWin->localiser.Text(label);
+	HMENU menu = reinterpret_cast<HMENU>(popup.GetID());
+	if (0 == localised.length())
+		::AppendMenu(menu, MF_SEPARATOR, 0, TEXT(""));
+	else
+		::AppendMenu(menu, MF_STRING | (checked ? MF_CHECKED : 0), cmd, localised.c_str());
+}
+
+void FindStrip::ShowPopup() {
+	GUI::Menu popup;
+	popup.CreatePopUp();
+	AddToPopUp(popup, "Match &whole word only", IDM_WHOLEWORD, pSciTEWin->wholeWord);
+	AddToPopUp(popup, "Match &case", IDM_MATCHCASE, pSciTEWin->matchCase);
+	AddToPopUp(popup, "Regular &expression", IDM_REGEXP, pSciTEWin->regExp);
+	AddToPopUp(popup, "Wrap ar&ound", IDM_WRAPAROUND, pSciTEWin->wrapFind);
+	AddToPopUp(popup, "Transform &backslash expressions", IDM_UNSLASH, pSciTEWin->unSlash);
+	AddToPopUp(popup, "&Up", IDM_DIRECTIONUP, pSciTEWin->reverseFind);
+	GUI::Rectangle rcButton = wButtonOptions.GetPosition();
+	GUI::Point pt(rcButton.left, rcButton.bottom);
+	popup.Show(pt, *this);
+}
+
+bool FindStrip::Command(WPARAM wParam) {
+	if (entered)
+		return false;
+	int control = ControlIDOfCommand(wParam);
+	if ((control == IDOK) || (control == IDMARKALL)) {
+		Next(control == IDMARKALL);
+		return true;
+	} else if (control == IDSHOWOPTIONS) {
+		ShowPopup();
+		return true;
+	} else {
+		switch (control) {
+		case IDM_WHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;
+		case IDM_MATCHCASE: pSciTEWin->matchCase = !pSciTEWin->matchCase; break;
+		case IDM_REGEXP: pSciTEWin->regExp = !pSciTEWin->regExp; break;
+		case IDM_WRAPAROUND: pSciTEWin->wrapFind = !pSciTEWin->wrapFind; break;
+		case IDM_UNSLASH: pSciTEWin->unSlash = !pSciTEWin->unSlash; break;
+		case IDM_DIRECTIONUP: pSciTEWin->reverseFind = !pSciTEWin->reverseFind; break;
+
+		case IDWHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;
+		case IDMATCHCASE: pSciTEWin->matchCase = !pSciTEWin->matchCase; break;
+		case IDREGEXP: pSciTEWin->regExp = !pSciTEWin->regExp; break;
+		case IDWRAP: pSciTEWin->wrapFind = !pSciTEWin->wrapFind; break;
+		case IDUNSLASH: pSciTEWin->unSlash = !pSciTEWin->unSlash; break;
+		case IDDIRECTIONUP: pSciTEWin->reverseFind = !pSciTEWin->reverseFind; break;
+		}
+	}
+	return false;
+}
+
+LRESULT FindStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	try {
+	return Strip::WndProc(iMessage, wParam, lParam);
+	/*
+	switch (iMessage) {
+
+	default:
+
+	}
+	*/
+	} catch (...) {
+	}
+	return 0l;
+}
+
+void FindStrip::Show() {
+	Focus();
+	HWND combo = GetDlgItem(Hwnd(), IDFINDWHAT);
+	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
+	for (int i = 0; i < pSciTEWin->memFinds.Length(); i++) {
+		GUI::gui_string gs = GUI::StringFromUTF8(pSciTEWin->memFinds.At(i).c_str());
+		::SendMessageW(combo, CB_ADDSTRING, 0,
+					reinterpret_cast<LPARAM>(gs.c_str()));
+	}
+	//::SendMessage(combo, CB_SETCURSEL, 0, 0);
+	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSciTEWin->findWhat.c_str()).c_str());
+	::SendMessage(HwndOf(wText), CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
+	ScrollEditorIfNeeded();
+}
+
+void ReplaceStrip::Creation() {
+	Strip::Creation();
+
+	lineHeight = 23;
+
+	wStaticFind = CreateText(searchText);
+
+	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
+		50, 2, 300, 80,
+		Hwnd(), reinterpret_cast<HMENU>(IDFINDWHAT), pSciTEWin->hInstance, 0);
+	SetFontHandle(wText, fontText);
+	wText.Show();
+
+	GUI::Rectangle rcCombo = wText.GetPosition();
+	lineHeight = rcCombo.Height() + 3;
+
+	wCheckWord = CreateButton("&Word", IDWHOLEWORD, true);
+	wCheckCase = CreateButton("&Case", IDMATCHCASE, true);
+	wCheckWrap = CreateButton("Ar&ound", IDWRAP, true);
+
+	//wButtonOptions = CreateButton(TEXT("&Options"), IDSHOWOPTIONS);
+	wButtonFind = CreateButton("&Find Next", IDOK);
+	wButtonReplaceAll = CreateButton("Replace &All", IDREPLACEALL);
+
+	wStaticReplace = CreateText(replaceText);
+
+	wReplace = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
+		WS_CHILD | WS_TABSTOP | CBS_DROPDOWN | CBS_AUTOHSCROLL,
+		50, 2, 300, 80,
+		Hwnd(), reinterpret_cast<HMENU>(IDREPLACEWITH), pSciTEWin->hInstance, 0);
+	SetFontHandle(wReplace, fontText);
+	wReplace.Show();
+
+	wCheckRE = CreateButton("Reg&Ex", IDREGEXP, true);
+	wCheckBE = CreateButton("&Backslash", IDUNSLASH, true);
+	wButtonReplace = CreateButton("&Replace", IDREPLACE);
+	wButtonReplaceInSelection = CreateButton("&In Selection", IDREPLACEINSEL);
+}
+
+void ReplaceStrip::Destruction() {
+}
+
+void ReplaceStrip::Size() {
+	if (!visible)
+		return;
+	Strip::Size();
+	GUI::Rectangle rcArea = GetPosition();
+
+	int widthCaption = Maximum(WidthControl(wStaticFind), WidthControl(wStaticReplace));
+
+	rcArea.bottom -= rcArea.top;
+	rcArea.right -= rcArea.left;
+
+	rcArea.left = 2;
+	rcArea.top = 2;
+	rcArea.right -= 2;
+	rcArea.bottom -= 4;
+
+	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
+
+	GUI::Rectangle rcLine = rcArea;
+	rcLine.bottom = rcLine.top + lineHeight - 3;
+
+	int widthButtons = Maximum(WidthControl(wButtonFind), WidthControl(wButtonReplace));
+	int widthLastButtons = Maximum(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
+
+	GUI::Rectangle rcButton = rcLine;
+	rcButton.top -= 1;
+	rcButton.left = rcButton.right - widthLastButtons;
+	wButtonReplaceAll.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - widthButtons;
+	wButtonFind.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckWrap);
+	wCheckWrap.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckCase);
+	wCheckCase.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckWord);
+	wCheckWord.SetPosition(rcButton);
+	//wButtonOptions.SetPosition(rcButton);
+
+	GUI::Rectangle rcText = rcLine;
+	rcText.bottom += 60;
+	rcText.left = widthCaption + 8;
+	rcText.right = rcButton.left - 4;
+	wText.SetPosition(rcText);
+
+	GUI::Rectangle rcStatic = rcLine;
+	rcStatic.right = rcText.left - 4;
+	rcStatic.left = 4;
+	rcStatic.top = rcLine.top + 3;
+	wStaticFind.SetPosition(rcStatic);
+
+	rcLine.top = rcLine.top + lineHeight;
+	rcLine.bottom = rcLine.bottom + lineHeight;
+
+	rcButton = rcLine;
+	rcButton.top -= 1;
+	rcButton.left = rcButton.right - widthLastButtons;
+	wButtonReplaceInSelection.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - widthButtons;
+	wButtonReplace.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckBE);
+	wCheckBE.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckRE);
+	wCheckRE.SetPosition(rcButton);
+
+	GUI::Rectangle rcReplace = rcLine;
+	rcReplace.bottom += 60;
+	rcReplace.left = rcText.left;
+	rcReplace.right = rcText.right;
+	wReplace.SetPosition(rcReplace);
+
+	rcStatic = rcLine;
+	rcStatic.right = rcReplace.left - 4;
+	rcStatic.left = 4;
+	rcStatic.top = rcLine.top + 3;
+	wStaticReplace.SetPosition(rcStatic);
+
+	::InvalidateRect(Hwnd(), NULL, TRUE);
+}
+
+void ReplaceStrip::Paint(HDC hDC) {
+	Strip::Paint(hDC);
+}
+
+void ReplaceStrip::Focus() {
+	::SetFocus(HwndOf(wText));
+}
+
+void ReplaceStrip::Close() {
+	pSciTEWin->props.Set("Replacements", "");
+	pSciTEWin->UpdateStatusBar(false);
+	visible = false;
+	pSciTEWin->bands[SciTEWin::bandReplace].visible = false;
+	pSciTEWin->SizeSubWindows();
+	WindowSetFocus(pSciTEWin->wEditor);
+}
+
+static bool IsSameOrChild(GUI::Window &wParent, HWND wChild) {
+	HWND hwnd = reinterpret_cast<HWND>(wParent.GetID());
+	return (wChild == hwnd) || IsChild(hwnd, wChild);
+}
+
+bool ReplaceStrip::KeyDown(WPARAM key) {
+	if (!visible)
+		return false;
+	if (Strip::KeyDown(key))
+		return true;
+	switch (key) {
+	case VK_RETURN:
+		if (IsChild(Hwnd(), ::GetFocus())) {
+			if (IsSameOrChild(wButtonFind, ::GetFocus()))
+				HandleReplaceCommand(IDOK);
+			else if (IsSameOrChild(wReplace, ::GetFocus()))
+				HandleReplaceCommand(IDOK);
+			else if (IsSameOrChild(wButtonReplace, ::GetFocus()))
+				HandleReplaceCommand(IDREPLACE);
+			else if (IsSameOrChild(wButtonReplaceAll, ::GetFocus()))
+				HandleReplaceCommand(IDREPLACEALL);
+			else if (IsSameOrChild(wButtonReplaceInSelection, ::GetFocus()))
+				HandleReplaceCommand(IDREPLACEINSEL);
+			else
+				HandleReplaceCommand(IDOK);
+			return true;
+		}
+	}
+	return false;
+}
+
+void ReplaceStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) {
+	GUI::gui_string localised = pSciTEWin->localiser.Text(label);
+	HMENU menu = reinterpret_cast<HMENU>(popup.GetID());
+	if (0 == localised.length())
+		::AppendMenu(menu, MF_SEPARATOR, 0, TEXT(""));
+	else
+		::AppendMenu(menu, MF_STRING | (checked ? MF_CHECKED : 0), cmd, localised.c_str());
+}
+
+void ReplaceStrip::ShowPopup() {
+	GUI::Menu popup;
+	popup.CreatePopUp();
+	AddToPopUp(popup, "Match &whole word only", IDM_WHOLEWORD, pSciTEWin->wholeWord);
+	AddToPopUp(popup, "Match &case", IDM_MATCHCASE, pSciTEWin->matchCase);
+	AddToPopUp(popup, "Wrap ar&ound", IDM_WRAPAROUND, pSciTEWin->wrapFind);
+	AddToPopUp(popup, "Regular &expression", IDM_REGEXP, pSciTEWin->regExp);
+	AddToPopUp(popup, "Transform &backslash expressions", IDM_UNSLASH, pSciTEWin->unSlash);
+	GUI::Rectangle rcButton = wCheckWord.GetPosition();
+	GUI::Point pt(rcButton.left, rcButton.bottom);
+	popup.Show(pt, *this);
+}
+
+void ReplaceStrip::HandleReplaceCommand(int cmd) {
+	pSciTEWin->findWhat = ControlText(wText);
+	pSciTEWin->props.Set("find.what", pSciTEWin->findWhat.c_str());
+	pSciTEWin->memFinds.Insert(pSciTEWin->findWhat.c_str());
+	if (cmd != IDOK) {
+		pSciTEWin->replaceWhat = ControlText(wReplace);
+		pSciTEWin->memReplaces.Insert(pSciTEWin->replaceWhat.c_str());
+	}
+	int replacements = 0;
+	if (cmd == IDOK) {
+		pSciTEWin->FindNext(false);
+	} else if (cmd == IDREPLACE) {
+		if (pSciTEWin->havefound) {
+			pSciTEWin->ReplaceOnce();
+		} else {
+			Sci_CharacterRange crange = pSciTEWin->GetSelection();
+			pSciTEWin->SetSelection(crange.cpMin, crange.cpMin);
+			pSciTEWin->FindNext(false);
+			if (pSciTEWin->havefound) {
+				pSciTEWin->ReplaceOnce();
+			}
+		}
+	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
+		replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
+	}
+	//GUI::gui_string replDone = GUI::StringFromInteger(replacements);
+	//dlg.SetItemText(IDREPLDONE, replDone.c_str());
+}
+
+bool ReplaceStrip::Command(WPARAM wParam) {
+	if (entered)
+		return false;
+	int control = ControlIDOfCommand(wParam);
+	switch (control) {
+
+	case IDFINDWHAT:
+		switch (HIWORD(wParam)) {
+		case CBN_SETFOCUS:
+		case CBN_KILLFOCUS:
+		case CBN_SELENDCANCEL:
+			return false;
+		default:
+			return false;
+		}
+
+	case IDOK:
+	case IDREPLACEALL:
+	case IDREPLACE:
+	case IDREPLACEINSEL:
+		HandleReplaceCommand(control);
+		return true;
+
+	case IDM_WHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;
+	case IDM_MATCHCASE: pSciTEWin->matchCase = !pSciTEWin->matchCase; break;
+	case IDM_REGEXP: pSciTEWin->regExp = !pSciTEWin->regExp; break;
+	case IDM_WRAPAROUND: pSciTEWin->wrapFind = !pSciTEWin->wrapFind; break;
+	case IDM_UNSLASH: pSciTEWin->unSlash = !pSciTEWin->unSlash; break;
+	case IDM_DIRECTIONUP: pSciTEWin->reverseFind = !pSciTEWin->reverseFind; break;
+
+	case IDWHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;
+	case IDMATCHCASE: pSciTEWin->matchCase = !pSciTEWin->matchCase; break;
+	case IDREGEXP: pSciTEWin->regExp = !pSciTEWin->regExp; break;
+	case IDWRAP: pSciTEWin->wrapFind = !pSciTEWin->wrapFind; break;
+	case IDUNSLASH: pSciTEWin->unSlash = !pSciTEWin->unSlash; break;
+	case IDDIRECTIONUP: pSciTEWin->reverseFind = !pSciTEWin->reverseFind; break;
+	}
+	CheckButtons();
+	return false;
+}
+
+LRESULT ReplaceStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	try {
+	switch (iMessage) {
+
+	case WM_CONTEXTMENU:
+		ShowPopup();
+		return 0;
+
+	default:
+		return Strip::WndProc(iMessage, wParam, lParam);
+
+	}
+	} catch (...) {
+	}
+	return 0l;
+}
+
+void ReplaceStrip::CheckButtons() {
+	entered++;
+	::SendMessage(reinterpret_cast<HWND>(wCheckWord.GetID()),
+		BM_SETCHECK, pSciTEWin->wholeWord ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(reinterpret_cast<HWND>(wCheckCase.GetID()),
+		BM_SETCHECK, pSciTEWin->matchCase ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(reinterpret_cast<HWND>(wCheckRE.GetID()),
+		BM_SETCHECK, pSciTEWin->regExp ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(reinterpret_cast<HWND>(wCheckWrap.GetID()),
+		BM_SETCHECK, pSciTEWin->wrapFind ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(reinterpret_cast<HWND>(wCheckBE.GetID()),
+		BM_SETCHECK, pSciTEWin->unSlash ? BST_CHECKED : BST_UNCHECKED, 0);
+	entered--;
+}
+
+void ReplaceStrip::Show() {
+	Focus();
+	HWND combo = GetDlgItem(Hwnd(), IDFINDWHAT);
+	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
+	for (int i = 0; i < pSciTEWin->memFinds.Length(); i++) {
+		GUI::gui_string gs = GUI::StringFromUTF8(pSciTEWin->memFinds.At(i).c_str());
+		::SendMessageW(combo, CB_ADDSTRING, 0,
+					reinterpret_cast<LPARAM>(gs.c_str()));
+	}
+	//::SendMessage(combo, CB_SETCURSEL, 0, 0);
+	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSciTEWin->findWhat.c_str()).c_str());
+	::SendMessage(HwndOf(wText), CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
+
+	HWND comboReplace = GetDlgItem(Hwnd(), IDREPLACEWITH);
+	::SendMessage(comboReplace, CB_RESETCONTENT, 0, 0);
+	for (int i = 0; i < pSciTEWin->memReplaces.Length(); i++) {
+		GUI::gui_string gs = GUI::StringFromUTF8(pSciTEWin->memReplaces.At(i).c_str());
+		::SendMessageW(comboReplace, CB_ADDSTRING, 0,
+					reinterpret_cast<LPARAM>(gs.c_str()));
+	}
+
+	CheckButtons();
+
+	if (pSciTEWin->findWhat.length() != 0 && pSciTEWin->props.GetInt("find.replacewith.focus", 1)) {
+		::SetFocus(comboReplace);
+	}
+
+	ScrollEditorIfNeeded();
+}
+
+LRESULT PASCAL BaseWin::StWndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	// Find C++ object associated with window.
-	SciTEWin *scite = reinterpret_cast<SciTEWin *>(::PointerFromWindow(hWnd));
+	BaseWin *base = reinterpret_cast<BaseWin *>(::PointerFromWindow(hWnd));
 	// scite will be zero if WM_CREATE not seen yet
-	if (scite == 0) {
+	if (base == 0) {
 		if (iMessage == WM_CREATE) {
 			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
-			scite = reinterpret_cast<SciTEWin *>(cs->lpCreateParams);
-			scite->wContent = hWnd;
-			SetWindowPointer(hWnd, scite);
-			return scite->WndProcI(iMessage, wParam, lParam);
+			base = reinterpret_cast<BaseWin *>(cs->lpCreateParams);
+			SetWindowPointer(hWnd, base);
+			base->SetID(hWnd);
+			return base->WndProc(iMessage, wParam, lParam);
 		} else
 			return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 	} else
-		return scite->WndProcI(iMessage, wParam, lParam);
+		return base->WndProc(iMessage, wParam, lParam);
 }
 
 // Convert String from UTF-8 to doc encoding
