@@ -8,6 +8,8 @@
 #include <time.h>
 
 #include "SciTEWin.h"
+#include <Vsstyle.h>
+#include <Vssym32.h>
 
 #ifndef NO_EXTENSIONS
 #include "MultiplexExtension.h"

@@ -35,12 +35,13 @@
 #endif
 
 #undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0500
+#define _WIN32_WINNT  0x0501
 #ifdef _MSC_VER
 // windows.h, et al, use a lot of nameless struct/unions - can't fix it, so allow it
 #pragma warning(disable: 4201)
 #endif
 #include <windows.h>
+#include <Uxtheme.h>
 #ifdef _MSC_VER
 // okay, that's done, don't allow it in our code
 #pragma warning(default: 4201)
