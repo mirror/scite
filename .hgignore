@@ -1,0 +1,12 @@
+syntax: glob
+*.o
+*.a
+*.obj
+*.pyc
+*.dll
+*.exp
+*.lib
+*.pdb
+*.res
+*.bak
+bin/SciTE
