@@ -96,11 +96,12 @@ void Window::SetTitle(const char *s) {
 void Menu::CreatePopUp() {
 	Destroy();
 	mid = gtk_menu_new();
+	g_object_ref_sink(G_OBJECT(mid));
 }
 
 void Menu::Destroy() {
 	if (mid)
-		g_object_ref_sink(G_OBJECT(mid));
+		g_object_unref(mid);
 	mid = 0;
 }
 
