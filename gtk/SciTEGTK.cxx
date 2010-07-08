@@ -350,6 +350,23 @@ public:
 	}
 };
 
+class Strip;
+
+class WCheckDraw : public WWidget {
+	bool *pControlVariable;
+	GdkPixbuf *pbAlpha;
+	Strip *pstrip;
+public:
+	WCheckDraw() : pControlVariable(0), pbAlpha(0), pstrip(0) {
+	}
+	void Create(const char **xpmImage, bool *pControlVariable_, Strip *pstrip_);
+	void Toggle();
+	gboolean Expose(GtkWidget *widget, GdkEventExpose *event);
+	static gboolean ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WCheckDraw *pcd);
+	gint Press(GtkWidget *widget, GdkEventButton *event);
+	static gint ButtonsPress(GtkWidget *widget, GdkEventButton *event, WCheckDraw *pcd);
+};
+
 class BaseWin : public GUI::Window {
 public:
 	SciTEGTK *pSciTEGTK;
@@ -364,29 +381,36 @@ public:
 
 class Strip : public BaseWin {
 protected:
+	bool allowMenuActions;
 	//~ enum { heightButton=22, heightStatic=12};
 	enum { heightButton=23, heightStatic=12};
 	GtkAccelGroup *accel_group;
 	Localization *localiser_;
 public:
 	bool visible;
-	Strip() : accel_group(0), visible(false) {
+	Strip() : allowMenuActions(false), accel_group(0), visible(false) {
 	}
 	virtual void Show();
 	virtual void Hide();
 	virtual bool KeyDown(GdkEventKey *event);
+	virtual void OptionsCmd() = 0;
+	virtual GtkStyle *ButtonStyle() = 0;
+	virtual void MenuAction(guint action) = 0;
+	static void MenuSignal(GtkMenuItem *menuItem, Strip *pStrip);
+	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
 };
 
 class FindStrip : public Strip {
 public:
-	bool allowMenuActions;
 	WStatic wStaticFind;
 	WComboBoxEntry wText;
 	WButton wButtonOptions;
 	WButton wButton;
 	WButton wButtonMarkAll;
+	enum { checks = 6 };
+	WCheckDraw wCheck[checks];
 
-	FindStrip() : allowMenuActions(false) {
+	FindStrip() {
 	}
 	virtual void Creation(GtkWidget *boxMain);
 	virtual void Destruction();
@@ -394,36 +418,33 @@ public:
 	virtual void Hide();
 	virtual bool KeyDown(GdkEventKey *event);
 	void MenuAction(guint action);
-	static void MenuSignal(GtkMenuItem *menuItem, FindStrip *pStrip);
 	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip);
-	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
 	void OptionsCmd();
 	void FindNextCmd();
 	void MarkAllCmd();
+	GtkStyle *ButtonStyle();
 };
 
 class ReplaceStrip : public Strip {
 public:
 	WStatic wStaticFind;
 	WComboBoxEntry wText;
-	WCheckBox wCheckWord;
-	WCheckBox wCheckCase;
 	WButton wButtonFind;
 	WButton wButtonReplaceAll;
-	WCheckBox wCheckRE;
-	WCheckBox wCheckWrap;
-	WCheckBox wCheckBE;
 	WStatic wStaticReplace;
 	WComboBoxEntry wReplace;
 	WButton wButtonReplace;
 	WButton wButtonReplaceInSelection;
+	enum { checks = 5 };
+	WCheckDraw wCheck[checks];
 
 	virtual void Creation(GtkWidget *boxMain);
 	virtual void Destruction();
 	virtual void Show();
 	virtual void Hide();
 	virtual bool KeyDown(GdkEventKey *event);
+	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, ReplaceStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip);
 	void GrabFields();
@@ -431,6 +452,8 @@ public:
 	void ReplaceAllCmd();
 	void ReplaceCmd();
 	void ReplaceInSelectionCmd();
+	void OptionsCmd();
+	GtkStyle *ButtonStyle();
 };
 
 class SciTEGTK : public SciTEBase {
@@ -2580,7 +2603,6 @@ gint SciTEGTK::DividerExpose(GtkWidget *widget, GdkEventExpose *, SciTEGTK *sciT
 		               area.width - sciThis->heightBar * 2, 1,
 		               sciThis->heightBar - 2, sciThis->heightBar - 2);
 	} else {
-		// Vertical divider
 		gtk_paint_vline(widget->style, widget->window, GTK_STATE_NORMAL,
 		                &area, widget, const_cast<char *>("hpaned"),
 		                0, widget->allocation.height - 1,
@@ -3190,18 +3212,338 @@ bool Strip::KeyDown(GdkEventKey *event) {
 	return retVal;
 }
 
+void Strip::MenuSignal(GtkMenuItem *menuItem, Strip *pStrip) {
+	sptr_t cmd = (sptr_t)(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
+	pStrip->MenuAction(cmd);
+}
+
+void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) {
+	allowMenuActions = false;
+	GUI::gui_string localised = localiser->Text(label);
+	GtkWidget *menuItem = gtk_check_menu_item_new_with_mnemonic(localised.c_str());
+	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
+	g_object_set_data(G_OBJECT(menuItem), "CmdNum", reinterpret_cast<void *>((sptr_t)(cmd)));
+	g_signal_connect(G_OBJECT(menuItem),"activate", G_CALLBACK(MenuSignal), this);
+	gtk_check_menu_item_set_state(GTK_CHECK_MENU_ITEM(menuItem), checked ? TRUE : FALSE);
+	allowMenuActions = true;
+}
+
+const int stripIconWidth = 16;
+const int stripButtonWidth = 16 + 3 * 2 + 1;
+const int stripButtonPitch = stripButtonWidth;
+
+static void GreyToAlpha(GdkPixbuf *ppb) {
+	guchar *pixels = gdk_pixbuf_get_pixels(ppb);
+	int rowStride = gdk_pixbuf_get_rowstride(ppb);
+	int width = gdk_pixbuf_get_width(ppb);
+	int height = gdk_pixbuf_get_height(ppb);
+	for (int y =0; y<height; y++) {
+		guchar *pixelsRow = pixels + rowStride * y;
+		for (int x =0; x<width; x++) {
+			guchar alpha = pixelsRow[0];
+			pixelsRow[3] = 255 - alpha;
+			pixelsRow[0] = 0;
+			pixelsRow[1] = 0;
+			pixelsRow[2] = 0;
+			pixelsRow += 4;
+		}
+	}
+}
+
+/* XPM */
+static const char * word1_x_xpm[] = {
+"16 16 15 1",
+" 	c #FFFFFF",
+".	c #000000",
+"+	c #E1E1E1",
+"@	c #D9D9D9",
+"#	c #4D4D4D",
+"$	c #7C7C7C",
+"%	c #D0D0D0",
+"&	c #A7A7A7",
+"*	c #8C8C8C",
+"=	c #BDBDBD",
+"-	c #B2B2B2",
+";	c #686868",
+">	c #F0F0F0",
+",	c #9A9A9A",
+"'	c #C7C7C7",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"               .",
+".+.+.@##@ .$%#&.",
+"*=.-*;++; .>;++.",
+",*.$,.  . . .  .",
+"=#,.=;++; . ;++.",
+"'.=.'@##@ . @#&.",
+"                ",
+".              .",
+".              .",
+"................"};
+
+/* XPM */
+static const char * case_x_xpm[] = {
+"16 16 12 1",
+" 	c #FFFFFF",
+".	c #BDBDBD",
+"+	c #4D4D4D",
+"@	c #000000",
+"#	c #D0D0D0",
+"$	c #C7C7C7",
+"%	c #7C7C7C",
+"&	c #B2B2B2",
+"*	c #8C8C8C",
+"=	c #E1E1E1",
+"-	c #686868",
+";	c #9A9A9A",
+"                ",
+"                ",
+"                ",
+"                ",
+"   .+@@         ",
+"  #@$           ",
+"  %%      &+@@  ",
+"  @*     &+=    ",
+"  @*     @&     ",
+"  -%     @&     ",
+"  .@#    ;+=    ",
+"   &+@@   ;@@@  ",
+"                ",
+"                ",
+"                ",
+"                "};
+
+/* XPM */
+static const char * regex_x_xpm[] = {
+"16 16 11 1",
+" 	c #FFFFFF",
+".	c #888888",
+"+	c #696969",
+"@	c #000000",
+"#	c #E0E0E0",
+"$	c #484848",
+"%	c #B6B6B6",
+"&	c #C4C4C4",
+"*	c #787878",
+"=	c #383838",
+"-	c #D3D3D3",
+"                ",
+"                ",
+"                ",
+"  .+        @   ",
+" #$$#     % + % ",
+" +&&+    #*=@=*#",
+"-$  $&     +++  ",
+"$&  &$    -$ =- ",
+"                ",
+"                ",
+"      %@%       ",
+"      %@%       ",
+"                ",
+"                ",
+"                ",
+"                "};
+
+/* XPM */
+static const char * backslash_x_xpm[] = {
+"16 16 15 1",
+" 	c #FFFFFF",
+".	c #141414",
+"+	c #585858",
+"@	c #A6A6A6",
+"#	c #B6B6B6",
+"$	c #272727",
+"%	c #E0E0E0",
+"&	c #979797",
+"*	c #000000",
+"=	c #696969",
+"-	c #484848",
+";	c #787878",
+">	c #D3D3D3",
+",	c #383838",
+"'	c #888888",
+"                ",
+"                ",
+"                ",
+".       .       ",
+"+@      +@   #  ",
+"#+      #+   $  ",
+" .%  .&* .% =*--",
+" ;&  *&  ;&  *  ",
+" >,  *   >,  *  ",
+"  $> *    $> *  ",
+"  &; *    &; *% ",
+"  %. *    %. '*.",
+"                ",
+"                ",
+"                ",
+"                "};
+
+/* XPM */
+static const char * around_x_xpm[] = {
+"16 16 2 1",
+" 	c #FFFFFF",
+".	c #000000",
+"                ",
+"      .....     ",
+"     .......    ",
+"    ...   ...   ",
+"            ..  ",
+"            ..  ",
+"   ..        .. ",
+"  ....       .. ",
+" ......      .. ",
+"   ..       ..  ",
+"   ...      ..  ",
+"    ...   ...   ",
+"     .......    ",
+"      .....     ",
+"                ",
+"                "};
+
+/* XPM */
+static const char * up_x_xpm[] = {
+"16 16 8 1",
+" 	c None",
+".	c #FFFFFF",
+"+	c #9C9C9C",
+"@	c #000000",
+"#	c #747474",
+"$	c #484848",
+"%	c #DFDFDF",
+"&	c #BFBFBF",
+"................",
+"................",
+"........+.......",
+".......@@#......",
+"......@@@@#.....",
+".....@@$@$@$....",
+"....@@%#@&+@$...",
+"...@@%.#@&.&@$..",
+"..#@%..#@&..&@&.",
+"..#....#@&...&&.",
+".......#@&......",
+".......#@&......",
+".......#@&......",
+".......#@&......",
+".......#@&......",
+"................"};
+
+void WCheckDraw::Create(const char **xpmImage, bool *pControlVariable_, Strip *pstrip_) {
+	pControlVariable = pControlVariable_;
+	pstrip = pstrip_;
+	GdkPixbuf *pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
+	// Give it an alpha channel
+	pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
+	// Convert the grey to alpha and make black
+	GreyToAlpha(pbAlpha);
+	g_object_unref(pbGrey);
+
+	GtkWidget *da = gtk_drawing_area_new();
+	gtk_widget_set_events(da,
+			      GDK_EXPOSURE_MASK
+			      | GDK_LEAVE_NOTIFY_MASK
+			      | GDK_BUTTON_PRESS_MASK
+			      | GDK_BUTTON_RELEASE_MASK
+			      | GDK_POINTER_MOTION_MASK
+			      | GDK_POINTER_MOTION_HINT_MASK
+			     );
+	gtk_widget_set_size_request(da, stripButtonPitch, 20);
+	SetID(da);
+	g_signal_connect(G_OBJECT(da), "expose_event", G_CALLBACK(ExposeEvent), this);
+	gtk_signal_connect(GTK_OBJECT(da), "button_press_event", GtkSignalFunc(ButtonsPress), this);
+}
+
+void WCheckDraw::Toggle() {
+	*pControlVariable = !*pControlVariable;
+	InvalidateAll();
+}
+
+gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
+	GdkRectangle area;
+	area.x = 0;
+	area.y = 0;
+	area.width = widget->allocation.width;
+	area.height = widget->allocation.height;
+	int heightOffset = (area.height - stripButtonWidth) / 2;
+	if (heightOffset < 0)
+		heightOffset = 0;
+	GdkGC *gcDraw = gdk_gc_new(GDK_DRAWABLE(widget->window));
+	bool active = *pControlVariable;
+	GtkStateType state = active ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL;
+	GtkShadowType shadow = active ? GTK_SHADOW_IN : GTK_SHADOW_IN;
+	if (active)
+		gtk_paint_box(pstrip->ButtonStyle(), widget->window,
+			       state,
+			       shadow,
+			       &area, widget, const_cast<char *>("button"),
+			       0, 0,
+			       stripButtonWidth, area.height);
+
+	int activeOffset = active ? 1 : 0;
+	gdk_pixbuf_render_to_drawable(pbAlpha,
+		widget->window,
+		gcDraw,
+		0, 0,
+		1 + 2 + activeOffset, 3 + heightOffset + activeOffset,
+		16, 16,
+		GDK_RGB_DITHER_NONE, 0, 0);
+	g_object_unref(gcDraw);
+	return TRUE;
+}
+
+gboolean WCheckDraw::ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WCheckDraw *pcd) {
+	return pcd->Expose(widget, event);
+}
+
+gint WCheckDraw::Press(GtkWidget */*widget*/, GdkEventButton *event) {
+	if (event->button == 3) {
+		// PopUp menu
+		pstrip->OptionsCmd();
+	} else {
+		Toggle();
+	}
+	return TRUE;
+}
+
+gint WCheckDraw::ButtonsPress(GtkWidget *widget, GdkEventButton *event, WCheckDraw *pcd) {
+	return pcd->Press(widget, event);
+}
+
 void FindStrip::Creation(GtkWidget *boxMain) {
 	accel_group = gtk_accel_group_new();
-	Table table(1, 5);
+	Table table(1, 10);
 	SetID(table.Widget());
-	table.PackInto(GTK_BOX(boxMain), false);
+	//GtkToolbar *tb = GTK_TOOLBAR(gtk_toolbar_new());
+	//gtk_toolbar_set_orientation(tb, GTK_ORIENTATION_HORIZONTAL);
+	//gtk_toolbar_set_style(tb, GTK_TOOLBAR_ICONS);
+	//gtk_toolbar_set_icon_size(tb, GTK_ICON_SIZE_BUTTON);
+	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
+	//SetID(tb);
+	gtk_box_pack_start(GTK_BOX(boxMain), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
+	//table.PackInto(GTK_BOX(boxMain), false);
 	wStaticFind.Create(localiser->Text("Fi_nd:").c_str());
 	table.Label(wStaticFind);
+	//ToolbarInsertWrapped(GTK_TOOLBAR(GetID()), wStaticFind);
+
+	//~ GtkToolItem *sep = gtk_separator_tool_item_new();
+	//~ gtk_toolbar_insert(GTK_TOOLBAR(GetID()), sep, -1);
+	//~ GtkToolItem *it = gtk_tool_button_new_from_stock(GTK_STOCK_OK);
+	//~ gtk_toolbar_insert(GTK_TOOLBAR(GetID()), it, -1);
+	
+	//~ gtk_toolbar_append_space(GTK_TOOLBAR(GetID()));
 
 	wText.Create();
-	table.Add(wText, 1, true, 0, 1);
+	table.Add(wText, 1, true, 0, 0);
+	//ToolbarInsertWrapped(GTK_TOOLBAR(GetID()), wText, true);
 
 	gtk_widget_show(wText);
+
+	gtk_widget_show(GTK_WIDGET(GetID()));
 
 	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event", 
 		GtkSignalFunc(EscapeSignal), this);
@@ -3211,10 +3553,10 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
 
-	static ObjectSignal<FindStrip, &FindStrip::OptionsCmd> sigOptions;
-	wButtonOptions.Create(localiser->Text("_Options"), 
-		GtkSignalFunc(sigOptions.Function), this);
-	table.Add(wButtonOptions, 1, false, 0, 0);
+	//static ObjectSignal<FindStrip, &FindStrip::OptionsCmd> sigOptions;
+	//wButtonOptions.Create(localiser->Text("_Options"), 
+	//	GtkSignalFunc(sigOptions.Function), this);
+	//table.Add(wButtonOptions, 1, false, 0, 0);
 
 	static ObjectSignal<FindStrip, &FindStrip::FindNextCmd> sigFindNext;
 	wButton.Create("_Find Next", GtkSignalFunc(sigFindNext.Function), this);
@@ -3223,7 +3565,15 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	static ObjectSignal<FindStrip, &FindStrip::MarkAllCmd> sigMarkAll;
 	wButtonMarkAll.Create("_Mark All", GtkSignalFunc(sigMarkAll.Function), this);
 	table.Add(wButtonMarkAll, 1, false, 0, 0);
-//fprintf(stderr, "button size w=%0d h=%0d\n", PWidget(wButtonOptions)->allocation.width, PWidget(wButtonOptions)->allocation.height);
+
+	wCheck[0].Create(word1_x_xpm, &pSciTEGTK->wholeWord, this);
+	wCheck[1].Create(case_x_xpm, &pSciTEGTK->matchCase, this);
+	wCheck[2].Create(regex_x_xpm, &pSciTEGTK->regExp, this);
+	wCheck[3].Create(backslash_x_xpm, &pSciTEGTK->unSlash, this);
+	wCheck[4].Create(around_x_xpm, &pSciTEGTK->wrapFind, this);
+	wCheck[5].Create(up_x_xpm, &pSciTEGTK->reverseFind, this);
+	for (int i=0;i<checks;i++)
+		table.Add(wCheck[i], 1, false, 0, 0);
 }
 
 void FindStrip::Destruction() {
@@ -3234,12 +3584,19 @@ void FindStrip::Show() {
 
 	int buttonHeight = pSciTEGTK->props.GetInt("strip.button.height");
 	if (buttonHeight) {
-		gtk_widget_set_size_request(wButtonOptions, -1, buttonHeight);
+//gtk_widget_set_size_request(GTK_WIDGET(GetID()), -1, buttonHeight+4);
+		//~ gtk_widget_set_size_request(wButtonOptions, -1, buttonHeight);
 		gtk_widget_set_size_request(wButton, -1, buttonHeight);
 		gtk_widget_set_size_request(wButtonMarkAll, -1, buttonHeight);
 		gtk_widget_set_size_request(wText, -1, buttonHeight);
 		gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
 		gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
+		for (int i=0;i<checks;i++)
+			gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
+	} else {
+		GUI::Rectangle rcButton = wButton.GetPosition();
+		for (int i=0;i<checks;i++)
+			gtk_widget_set_size_request(wCheck[i], stripButtonPitch, rcButton.Height());
 	}
 
 	FillComboFromMemory(wText, pSciTEGTK->memFinds);
@@ -3263,17 +3620,6 @@ bool FindStrip::KeyDown(GdkEventKey *event) {
 	return false;
 }
 
-void FindStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) {
-	allowMenuActions = false;
-	GUI::gui_string localised = localiser->Text(label);
-	GtkWidget *menuItem = gtk_check_menu_item_new_with_mnemonic(localised.c_str());
-	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
-	g_object_set_data(G_OBJECT(menuItem), "CmdNum", reinterpret_cast<void *>((sptr_t)(cmd)));
-	g_signal_connect(G_OBJECT(menuItem),"activate", G_CALLBACK(MenuSignal), this);
-	gtk_check_menu_item_set_state(GTK_CHECK_MENU_ITEM(menuItem), checked ? TRUE : FALSE);
-	allowMenuActions = true;
-}
-
 void FindStrip::MenuAction(guint action) {
 	if (allowMenuActions) {
 		switch (action) {
@@ -3284,12 +3630,8 @@ void FindStrip::MenuAction(guint action) {
 			case IDM_UNSLASH: pSciTEGTK->unSlash = !pSciTEGTK->unSlash; break;
 			case IDM_DIRECTIONUP: pSciTEGTK->reverseFind = !pSciTEGTK->reverseFind; break;
 		}
+		InvalidateAll();
 	}
-}
-
-void FindStrip::MenuSignal(GtkMenuItem *menuItem, FindStrip *pStrip) {
-	sptr_t cmd = (sptr_t)(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
-	pStrip->MenuAction(cmd);
 }
 
 void FindStrip::ActivateSignal(GtkWidget *, FindStrip *pStrip) {
@@ -3305,7 +3647,8 @@ gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pS
 }
 
 void FindStrip::OptionsCmd() {
-fprintf(stderr, "button size w=%0d h=%0d\n", PWidget(wButtonOptions)->allocation.width, PWidget(wButtonOptions)->allocation.height);
+//~ fprintf(stderr, "button size w=%0d h=%0d\n", PWidget(wButtonOptions)->allocation.width, PWidget(wButtonOptions)->allocation.height);
+//~ fprintf(stderr, "button size w=%0d h=%0d\n", PWidget(wDrawingArea)->allocation.width, PWidget(wDrawingArea)->allocation.height);
 	GUI::Menu popup;
 	popup.CreatePopUp();
 	AddToPopUp(popup, "Match _whole word only", IDM_WHOLEWORD, pSciTEGTK->wholeWord);
@@ -3314,11 +3657,12 @@ fprintf(stderr, "button size w=%0d h=%0d\n", PWidget(wButtonOptions)->allocation
 	AddToPopUp(popup, "Wrap ar_ound", IDM_WRAPAROUND, pSciTEGTK->wrapFind);
 	AddToPopUp(popup, "Transform _backslash expressions", IDM_UNSLASH, pSciTEGTK->unSlash);
 	AddToPopUp(popup, "_Up", IDM_DIRECTIONUP, pSciTEGTK->reverseFind);
-	GUI::Rectangle rcButton = wButtonOptions.GetPosition();
-	int ox = 0;
-	int oy = 0;
-	gdk_window_get_origin(PWidget(wButtonOptions)->window, &ox, &oy);
-	GUI::Point pt(rcButton.left + ox, rcButton.bottom + oy);
+	GUI::Rectangle rcButton = wCheck[0].GetPosition();
+	//~ int ox = 0;
+	//~ int oy = 0;
+	//~ gdk_window_get_origin(PWidget(wDrawingArea)->window, &ox, &oy);
+	//~ GUI::Point pt(rcButton.left + ox, rcButton.bottom + oy);
+	GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
 }
 
@@ -3341,13 +3685,17 @@ void FindStrip::MarkAllCmd() {
 	Hide();
 }
 
+GtkStyle *FindStrip::ButtonStyle() {
+	return PWidget(wButton)->style;
+}
+
 void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	accel_group = gtk_accel_group_new();
 	Table tableReplace(2, 7);
 	SetID(tableReplace.Widget());
 	tableReplace.PackInto(GTK_BOX(boxMain), false);
-	//~ wStaticFind.Create(localiser->Text("Fi_nd:"));
-	wStaticFind.Create(localiser->Text("_n"));
+	wStaticFind.Create(localiser->Text("Fi_nd:"));
+	//~ wStaticFind.Create(localiser->Text("_n"));
 	tableReplace.Label(wStaticFind);
 
 	wText.Create();
@@ -3364,18 +3712,6 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
 
-	// Whole Word
-	wCheckWord.Create(localiser->Text("_Word"), pSciTEGTK->wholeWord);
-	tableReplace.Add(PWidget(wCheckWord), 1, false, 0, 0);
-
-	// Case Sensitive
-	wCheckCase.Create(localiser->Text("_Case"), pSciTEGTK->matchCase);
-	tableReplace.Add(PWidget(wCheckCase), 1, false, 0, 0);
-
-	// Wrap Around
-	wCheckWrap.Create(localiser->Text("Ar_ound"), pSciTEGTK->wrapFind);
-	tableReplace.Add(wCheckWrap, 1, false, 0, 0);
-
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::FindCmd> sigFindNext;
 	wButtonFind.Create(localiser->Text("_Find Next"),
 			GtkSignalFunc(sigFindNext.Function), this);
@@ -3386,8 +3722,18 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 			GtkSignalFunc(sigReplaceAll.Function), this);
 	tableReplace.Add(wButtonReplaceAll, 1, false, 0, 0);
 
-	//~ wStaticReplace.Create(localiser->Text("Rep_lace:"));
-	wStaticReplace.Create(localiser->Text("_l"));
+	wCheck[0].Create(word1_x_xpm, &pSciTEGTK->wholeWord, this);
+	wCheck[1].Create(case_x_xpm, &pSciTEGTK->matchCase, this);
+	wCheck[2].Create(regex_x_xpm, &pSciTEGTK->regExp, this);
+	wCheck[3].Create(backslash_x_xpm, &pSciTEGTK->unSlash, this);
+	wCheck[4].Create(around_x_xpm, &pSciTEGTK->wrapFind, this);
+
+	tableReplace.Add(wCheck[0], 1, false, 0, 0);
+	tableReplace.Add(wCheck[1], 1, false, 0, 0);
+	tableReplace.Add(wCheck[2], 1, false, 0, 0);
+
+	wStaticReplace.Create(localiser->Text("Rep_lace:"));
+	//~ wStaticReplace.Create(localiser->Text("_l"));
 	tableReplace.Label(wStaticReplace);
 
 	wReplace.Create();
@@ -3403,14 +3749,6 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticReplace.GetID()), GTK_WIDGET(wReplace.Entry()));
 
-	// Regular Expression
-	wCheckRE.Create(localiser->Text("Reg_Ex"), pSciTEGTK->regExp);
-	tableReplace.Add(wCheckRE, 1, false, 0, 0);
-
-	// Transform backslash expressions
-	wCheckBE.Create(localiser->Text("_Backslash"), pSciTEGTK->unSlash);
-	tableReplace.Add(wCheckBE, 2, false, 0, 0);
-
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::ReplaceCmd> sigReplace;
 	wButtonReplace.Create(localiser->Text("_Replace"),
 			GtkSignalFunc(sigReplace.Function), this);
@@ -3420,6 +3758,9 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	wButtonReplaceInSelection.Create(localiser->Text("_In Selection"),
 			GtkSignalFunc(sigReplaceInSelection.Function), this);
 	tableReplace.Add(wButtonReplaceInSelection, 1, false, 0, 0);
+
+	tableReplace.Add(wCheck[3], 1, false, 0, 0);
+	tableReplace.Add(wCheck[4], 1, false, 0, 0);
 }
 
 void ReplaceStrip::Destruction() {
@@ -3430,11 +3771,8 @@ void ReplaceStrip::Show() {
 
 	int buttonHeight = pSciTEGTK->props.GetInt("strip.button.height");
 	if (buttonHeight) {
-		gtk_widget_set_size_request(wCheckWord, -1, buttonHeight);
-		gtk_widget_set_size_request(wCheckCase, -1, buttonHeight);
-		gtk_widget_set_size_request(wCheckWrap, -1, buttonHeight);
-		gtk_widget_set_size_request(wCheckRE, -1, buttonHeight);
-		gtk_widget_set_size_request(wCheckBE, -1, buttonHeight);
+		for (int i=0;i<checks;i++)
+			gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
 		gtk_widget_set_size_request(wButtonFind, -1, buttonHeight);
 		gtk_widget_set_size_request(wButtonReplaceAll, -1, buttonHeight);
@@ -3475,13 +3813,13 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 					gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
 					return true;
 				case 'w':
-					wCheckWord.Toggle();
+					wCheck[0].Toggle();
 					return true;
 				case 'c':
-					wCheckCase.Toggle();
+					wCheck[1].Toggle();
 					return true;
 				case 'o':
-					wCheckWrap.Toggle();
+					wCheck[4].Toggle();
 					return true;
 				case 'f':
 					FindCmd();
@@ -3493,10 +3831,10 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 					gtk_widget_grab_focus(GTK_WIDGET(wReplace.Entry()));
 					return true;
 				case 'e':
-					wCheckRE.Toggle();
+					wCheck[2].Toggle();
 					return true;
 				case 'b':
-					wCheckBE.Toggle();
+					wCheck[3].Toggle();
 					return true;
 				case 'r':
 					ReplaceCmd();
@@ -3508,6 +3846,19 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 		}
 	}
 	return false;
+}
+
+void ReplaceStrip::MenuAction(guint action) {
+	if (allowMenuActions) {
+		switch (action) {
+			case IDM_WHOLEWORD: pSciTEGTK->wholeWord = !pSciTEGTK->wholeWord; break;
+			case IDM_MATCHCASE: pSciTEGTK->matchCase = !pSciTEGTK->matchCase; break;
+			case IDM_REGEXP: pSciTEGTK->regExp = !pSciTEGTK->regExp; break;
+			case IDM_WRAPAROUND: pSciTEGTK->wrapFind = !pSciTEGTK->wrapFind; break;
+			case IDM_UNSLASH: pSciTEGTK->unSlash = !pSciTEGTK->unSlash; break;
+		}
+		InvalidateAll();
+	}
 }
 
 void ReplaceStrip::ActivateSignal(GtkWidget *, ReplaceStrip *pStrip) {
@@ -3529,11 +3880,6 @@ void ReplaceStrip::GrabFields() {
 	const char *replaceEntry = wReplace.Text();
 	pSciTEGTK->replaceWhat = replaceEntry;
 	pSciTEGTK->memReplaces.Insert(pSciTEGTK->replaceWhat);
-	pSciTEGTK->wholeWord = GTK_TOGGLE_BUTTON(wCheckWord.GetID())->active;
-	pSciTEGTK->matchCase = GTK_TOGGLE_BUTTON(wCheckCase.GetID())->active;
-	pSciTEGTK->regExp = GTK_TOGGLE_BUTTON(wCheckRE.GetID())->active;
-	pSciTEGTK->wrapFind = GTK_TOGGLE_BUTTON(wCheckWrap.GetID())->active;
-	pSciTEGTK->unSlash = GTK_TOGGLE_BUTTON(wCheckBE.GetID())->active;
 }
 
 void ReplaceStrip::FindCmd() {
@@ -3562,6 +3908,23 @@ void ReplaceStrip::ReplaceInSelectionCmd() {
 	if (pSciTEGTK->findWhat[0]) {
 		pSciTEGTK->ReplaceAll(true);
 	}
+}
+
+void ReplaceStrip::OptionsCmd() {
+	GUI::Menu popup;
+	popup.CreatePopUp();
+	AddToPopUp(popup, "Match _whole word only", IDM_WHOLEWORD, pSciTEGTK->wholeWord);
+	AddToPopUp(popup, "Match _case", IDM_MATCHCASE, pSciTEGTK->matchCase);
+	AddToPopUp(popup, "Regular _expression", IDM_REGEXP, pSciTEGTK->regExp);
+	AddToPopUp(popup, "Wrap ar_ound", IDM_WRAPAROUND, pSciTEGTK->wrapFind);
+	AddToPopUp(popup, "Transform _backslash expressions", IDM_UNSLASH, pSciTEGTK->unSlash);
+	GUI::Rectangle rcButton = wCheck[0].GetPosition();
+	GUI::Point pt(rcButton.left, rcButton.bottom);
+	popup.Show(pt, *this);
+}
+
+GtkStyle *ReplaceStrip::ButtonStyle() {
+	return PWidget(wButtonFind)->style;
 }
 
 void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
