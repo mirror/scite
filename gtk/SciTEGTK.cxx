@@ -1514,6 +1514,8 @@ SString SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, 
 void SciTEGTK::HandleFindReplace() {}
 
 void SciTEGTK::Find() {
+	if (findStrip.visible || replaceStrip.visible)
+		return;
 	if (dlgFindReplace.Created()) {
 		dlgFindReplace.Present();
 		return;
@@ -1832,6 +1834,8 @@ void SciTEGTK::FindInFiles() {
 }
 
 void SciTEGTK::Replace() {
+	if (findStrip.visible || replaceStrip.visible)
+		return;
 	if (dlgFindReplace.Created()) {
 		dlgFindReplace.Present();
 		return;
@@ -4177,6 +4181,8 @@ gboolean SciTEGTK::FindIncrementFocusOutSignal(GtkWidget *w) {
 }
 
 void SciTEGTK::FindIncrement() {
+	if (findStrip.visible || replaceStrip.visible)
+		return;
 	GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
 	gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &white);
 	gtk_widget_show(wIncrementPanel);
