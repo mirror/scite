@@ -4838,9 +4838,7 @@ std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) {
 			s += args[i];
 		}
 	}
-	if (s.size() > 0) {
-		vs.push_back(s);
-	}
+	vs.push_back(s);
 	return vs;
 }
 
