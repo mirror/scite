@@ -3641,21 +3641,23 @@ bool FindStrip::KeyDown(GdkEventKey *event) {
 	if (visible) {
 		if (Strip::KeyDown(event))
 			return true;
-		const char *menuStrings[] = {
-			textWholeWord,
-			textMatchCase,
-			textRegularExpression,
-			textBackSlash,
-			textWrapAround,
-			textUp,
-			0,
-		};
-		for (int i=0; menuStrings[i]; i++) {
-			GUI::gui_string localised = localiser->Text(menuStrings[i]);
-			char key = KeyFromLabel(localised);
-			if (static_cast<unsigned int>(key) == event->keyval) {
-				wCheck[i].Toggle();
-				return true;
+		if (event->state & GDK_MOD1_MASK) {
+			const char *menuStrings[] = {
+				textWholeWord,
+				textMatchCase,
+				textRegularExpression,
+				textBackSlash,
+				textWrapAround,
+				textUp,
+				0,
+			};
+			for (int i=0; menuStrings[i]; i++) {
+				GUI::gui_string localised = localiser->Text(menuStrings[i]);
+				char key = KeyFromLabel(localised);
+				if (static_cast<unsigned int>(key) == event->keyval) {
+					wCheck[i].Toggle();
+					return true;
+				}
 			}
 		}
 	}
