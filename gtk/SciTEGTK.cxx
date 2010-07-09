@@ -1232,13 +1232,17 @@ static void unquote(char *s) {
 /**
  * Open a list of URIs each terminated by "\r\n".
  * Only "file:" URIs currently understood.
+ * In KDE 4, the last URI is not terminated by "\r\n"!
  */
 void SciTEGTK::OpenUriList(const char *list) {
 	if (list) {
 		char *uri = StringDup(list);
+		char *lastenduri = uri + strlen(uri);
 		if (uri) {
-			char *enduri = strchr(uri, '\r');
-			while (enduri) {
+			while (uri < lastenduri) {
+				char *enduri = strchr(uri, '\r');
+				if (enduri == NULL)
+					enduri = lastenduri;	// if last URI has no "\r\n".
 				*enduri = '\0';
 				if (isprefix(uri, "file:")) {
 					uri += strlen("file:");
@@ -1256,7 +1260,6 @@ void SciTEGTK::OpenUriList(const char *list) {
 				uri = enduri + 1;
 				if (*uri == '\n')
 					uri++;
-				enduri = strchr(uri, '\r');
 			}
 		}
 	}
