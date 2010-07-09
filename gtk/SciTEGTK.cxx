@@ -338,18 +338,6 @@ public:
 	}
 };
 
-class WCheckBox : public WWidget {
-public:
-	void Create(const GUI::gui_string &text, bool active) {
-		SetID(gtk_check_button_new_with_mnemonic(text.c_str()));
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(GetID()), active);
-	}
-	void Toggle() {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(GetID()),
-			!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(GetID())));
-	}
-};
-
 class Strip;
 
 class WCheckDraw : public WWidget {
