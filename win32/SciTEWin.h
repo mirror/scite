@@ -176,9 +176,14 @@ class FindStrip : public Strip {
 	int lineHeight;
 	GUI::Window wStaticFind;
 	GUI::Window wText;
-	GUI::Window wButtonOptions;
 	GUI::Window wButton;
 	GUI::Window wButtonMarkAll;
+	GUI::Window wCheckWord;
+	GUI::Window wCheckCase;
+	GUI::Window wCheckRE;
+	GUI::Window wCheckBE;
+	GUI::Window wCheckWrap;
+	GUI::Window wCheckUp;
 public:
 	FindStrip() : entered(0), lineHeight(20) {
 	}

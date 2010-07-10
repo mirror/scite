@@ -573,6 +573,12 @@ BEGIN
 END
 
 IDR_CLOSEFILE BITMAP "closefile.bmp"
+IDBM_WORD BITMAP "word.bmp"
+IDBM_CASE BITMAP "case.bmp"
+IDBM_REGEX BITMAP "regex.bmp"
+IDBM_BACKSLASH BITMAP "backslash.bmp"
+IDBM_AROUND BITMAP "around.bmp"
+IDBM_UP BITMAP "up.bmp"
 
 //The embedded properties file is to allow a one file distribution of Sc1.EXE
 #ifdef STATIC_BUILD

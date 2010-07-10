@@ -258,4 +258,10 @@
 // Resource IDs
 #define IDR_CLOSEFILE 100
 #define IDC_DRAGDROP        401
+#define IDBM_WORD 101
+#define IDBM_CASE 102
+#define IDBM_REGEX 103
+#define IDBM_BACKSLASH 104
+#define IDBM_AROUND 105
+#define IDBM_UP 106
 #endif

@@ -2001,11 +2001,33 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		width += 2 * ::GetSystemMetrics(SM_CXEDGE);	// Allow for 3D borders
 		width += 2 * WidthText(fontText, TEXT(" "));	// Allow a bit of space
 	}
+	if (check) {
+		height = 16 + 2 * 2;
+		width = 16 + 2 * 2;
+	}
 	GUI::Window w;
 	w.SetID(::CreateWindowEx(0, TEXT("Button"), localised.c_str(),
-		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | (check ? BS_AUTOCHECKBOX : BS_PUSHBUTTON),
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | (check ? (BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_BITMAP) : BS_PUSHBUTTON),
 		2, 2, width, height,
 		Hwnd(), reinterpret_cast<HMENU>(ident), pSciTEWin->hInstance, 0));
+	if (check) {
+		int resNum = 0;
+		switch (ident) {
+		case IDWHOLEWORD: resNum = IDBM_WORD; break;
+		case IDMATCHCASE: resNum = IDBM_CASE; break;
+		case IDREGEXP: resNum = IDBM_REGEX; break;
+		case IDUNSLASH: resNum = IDBM_BACKSLASH; break;
+		case IDWRAP: resNum = IDBM_AROUND; break;
+		case IDDIRECTIONUP: resNum = IDBM_UP; break;
+		}
+
+		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
+			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum), IMAGE_BITMAP, 
+			16, 16, LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS));
+
+		::SendMessage(reinterpret_cast<HWND>(w.GetID()),
+			BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(bm));
+	}
 	SetFontHandle(w, fontText);
 	w.Show();
 	if (!check) {
@@ -2161,11 +2183,11 @@ void Strip::Paint(HDC hDC) {
 		} else if (closeState == csClickedOver) {
 			closeAppearence = CBS_PUSHED;
 		}
-		//DrawThemeBackground(htheme, hDC, WP_CLOSEBUTTON, closeAppearence, 
+		//DrawThemeBackground(htheme, hDC, WP_CLOSEBUTTON, closeAppearence,
 		//	reinterpret_cast<RECT *>(&rcClose), reinterpret_cast<RECT *>(&rcClose));
-		::DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, closeAppearence, 
+		::DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, closeAppearence,
 			reinterpret_cast<RECT *>(&rcClose), NULL);
-		//::DrawThemeBackground(hTheme, hDC, WP_MDICLOSEBUTTON, closeAppearence, 
+		//::DrawThemeBackground(hTheme, hDC, WP_MDICLOSEBUTTON, closeAppearence,
 		//	reinterpret_cast<RECT *>(&rcClose), NULL);
 	} else {
 		int closeAppearence = 0;
@@ -2175,7 +2197,7 @@ void Strip::Paint(HDC hDC) {
 			closeAppearence = DFCS_PUSHED;
 		}
 
-		DrawFrameControl(hDC, reinterpret_cast<RECT *>(&rcClose), DFC_CAPTION, 
+		DrawFrameControl(hDC, reinterpret_cast<RECT *>(&rcClose), DFC_CAPTION,
 			DFCS_CAPTIONCLOSE | closeAppearence);
 	}
 #endif
@@ -2235,9 +2257,9 @@ void Strip::SetTheme() {
 		::CloseThemeData(hTheme);
 	hTheme = ::OpenThemeData(Hwnd(), L"Window");
 	if (hTheme) {
-		HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL, 
+		HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL,
 			NULL, TS_TRUE, &closeSize);
-		//HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_MDICLOSEBUTTON, CBS_NORMAL, 
+		//HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_MDICLOSEBUTTON, CBS_NORMAL,
 		//	NULL, TS_TRUE, &closeSize);
 		if (!SUCCEEDED(hr)) {
 			closeSize.cx = 11;
@@ -2489,9 +2511,15 @@ void FindStrip::Creation() {
 	GUI::Rectangle rcCombo = wText.GetPosition();
 	lineHeight = rcCombo.Height() + 3;
 
-	wButtonOptions = CreateButton("&Options", IDSHOWOPTIONS);
 	wButton = CreateButton("&Find Next", IDOK);
 	wButtonMarkAll = CreateButton("&Mark All", IDMARKALL);
+
+	wCheckWord = CreateButton("&Word", IDWHOLEWORD, true);
+	wCheckCase = CreateButton("&Case", IDMATCHCASE, true);
+	wCheckRE = CreateButton("Reg&Ex", IDREGEXP, true);
+	wCheckBE = CreateButton("&Backslash", IDUNSLASH, true);
+	wCheckWrap = CreateButton("Ar&ound", IDWRAP, true);
+	wCheckUp = CreateButton("&Up", IDDIRECTIONUP, true);
 }
 
 void FindStrip::Destruction() {
@@ -2516,16 +2544,37 @@ void FindStrip::Size() {
 	GUI::Rectangle rcButton = rcArea;
 	rcButton.top -= 1;
 	rcButton.bottom += 1;
+
+	rcButton.left = rcButton.right - WidthControl(wCheckUp);
+	wCheckUp.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckWrap);
+	wCheckWrap.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckBE);
+	wCheckBE.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckRE);
+	wCheckRE.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckCase);
+	wCheckCase.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - WidthControl(wCheckWord);
+	wCheckWord.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
 	rcButton.left = rcButton.right - WidthControl(wButtonMarkAll);
 	wButtonMarkAll.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
 	rcButton.left = rcButton.right - WidthControl(wButton);
 	wButton.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wButtonOptions);
-	wButtonOptions.SetPosition(rcButton);
 
 	GUI::Rectangle rcText = rcArea;
 	rcText.bottom += 60;
@@ -2604,7 +2653,7 @@ void FindStrip::ShowPopup() {
 	AddToPopUp(popup, "Wrap ar&ound", IDM_WRAPAROUND, pSciTEWin->wrapFind);
 	AddToPopUp(popup, "Transform &backslash expressions", IDM_UNSLASH, pSciTEWin->unSlash);
 	AddToPopUp(popup, "&Up", IDM_DIRECTIONUP, pSciTEWin->reverseFind);
-	GUI::Rectangle rcButton = wButtonOptions.GetPosition();
+	GUI::Rectangle rcButton = wButton.GetPosition();
 	GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
 }
@@ -2686,13 +2735,11 @@ void ReplaceStrip::Creation() {
 	GUI::Rectangle rcCombo = wText.GetPosition();
 	lineHeight = rcCombo.Height() + 3;
 
-	wCheckWord = CreateButton("&Word", IDWHOLEWORD, true);
-	wCheckCase = CreateButton("&Case", IDMATCHCASE, true);
-	wCheckWrap = CreateButton("Ar&ound", IDWRAP, true);
-
-	//wButtonOptions = CreateButton(TEXT("&Options"), IDSHOWOPTIONS);
 	wButtonFind = CreateButton("&Find Next", IDOK);
 	wButtonReplaceAll = CreateButton("Replace &All", IDREPLACEALL);
+
+	wCheckWord = CreateButton("&Word", IDWHOLEWORD, true);
+	wCheckCase = CreateButton("&Case", IDMATCHCASE, true);
 
 	wStaticReplace = CreateText(replaceText);
 
@@ -2703,10 +2750,12 @@ void ReplaceStrip::Creation() {
 	SetFontHandle(wReplace, fontText);
 	wReplace.Show();
 
-	wCheckRE = CreateButton("Reg&Ex", IDREGEXP, true);
-	wCheckBE = CreateButton("&Backslash", IDUNSLASH, true);
 	wButtonReplace = CreateButton("&Replace", IDREPLACE);
 	wButtonReplaceInSelection = CreateButton("&In Selection", IDREPLACEINSEL);
+
+	wCheckRE = CreateButton("Reg&Ex", IDREGEXP, true);
+	wCheckBE = CreateButton("&Backslash", IDUNSLASH, true);
+	wCheckWrap = CreateButton("Ar&ound", IDWRAP, true);
 }
 
 void ReplaceStrip::Destruction() {
@@ -2738,25 +2787,24 @@ void ReplaceStrip::Size() {
 
 	GUI::Rectangle rcButton = rcLine;
 	rcButton.top -= 1;
-	rcButton.left = rcButton.right - widthLastButtons;
-	wButtonReplaceAll.SetPosition(rcButton);
 
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - widthButtons;
-	wButtonFind.SetPosition(rcButton);
+	// Allow empty slot to match wrap button on next line
+	rcButton.right = rcButton.right - (WidthControl(wCheckCase) + 4);
 
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckWrap);
-	wCheckWrap.SetPosition(rcButton);
-
-	rcButton.right = rcButton.left - 4;
 	rcButton.left = rcButton.right - WidthControl(wCheckCase);
 	wCheckCase.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
 	rcButton.left = rcButton.right - WidthControl(wCheckWord);
 	wCheckWord.SetPosition(rcButton);
-	//wButtonOptions.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - widthLastButtons;
+	wButtonReplaceAll.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - widthButtons;
+	wButtonFind.SetPosition(rcButton);
 
 	GUI::Rectangle rcText = rcLine;
 	rcText.bottom += 60;
@@ -2775,12 +2823,9 @@ void ReplaceStrip::Size() {
 
 	rcButton = rcLine;
 	rcButton.top -= 1;
-	rcButton.left = rcButton.right - widthLastButtons;
-	wButtonReplaceInSelection.SetPosition(rcButton);
 
-	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - widthButtons;
-	wButtonReplace.SetPosition(rcButton);
+	rcButton.left = rcButton.right - WidthControl(wCheckCase);
+	wCheckWrap.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
 	rcButton.left = rcButton.right - WidthControl(wCheckBE);
@@ -2789,6 +2834,14 @@ void ReplaceStrip::Size() {
 	rcButton.right = rcButton.left - 4;
 	rcButton.left = rcButton.right - WidthControl(wCheckRE);
 	wCheckRE.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - widthLastButtons;
+	wButtonReplaceInSelection.SetPosition(rcButton);
+
+	rcButton.right = rcButton.left - 4;
+	rcButton.left = rcButton.right - widthButtons;
+	wButtonReplace.SetPosition(rcButton);
 
 	GUI::Rectangle rcReplace = rcLine;
 	rcReplace.bottom += 60;
