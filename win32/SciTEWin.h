@@ -139,6 +139,7 @@ protected:
 	bool MouseInClose(GUI::Point pt);
 	void TrackMouse(GUI::Point pt);
 	void SetTheme();
+	virtual LRESULT CustomDraw(NMHDR *pnmh);
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 public:
 	bool visible;
@@ -275,6 +276,7 @@ protected:
 	static SciTEWin *app;
 	WINDOWPLACEMENT winPlace;
 	RECT rcWorkArea;
+	bool commonControlsLoaded;
 	GUI::gui_char openWhat[200];
 	bool modalParameters;
 	int filterDefault;

@@ -166,6 +166,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	winPlace.length = 0;
 
+	commonControlsLoaded = false;
 	openWhat[0] = '\0';
 	modalParameters = false;
 	filterDefault = 1;
@@ -2007,7 +2008,8 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 	}
 	GUI::Window w;
 	w.SetID(::CreateWindowEx(0, TEXT("Button"), localised.c_str(),
-		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | (check ? (BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_BITMAP) : BS_PUSHBUTTON),
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | 
+		(check ? (BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_BITMAP) : BS_PUSHBUTTON),
 		2, 2, width, height,
 		Hwnd(), reinterpret_cast<HMENU>(ident), pSciTEWin->hInstance, 0));
 	if (check) {
@@ -2021,9 +2023,10 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		case IDDIRECTIONUP: resNum = IDBM_UP; break;
 		}
 
+		UINT flags = pSciTEWin->commonControlsLoaded ? (LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
 		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
 			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum), IMAGE_BITMAP, 
-			16, 16, LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS));
+			16, 16, flags));
 
 		::SendMessage(reinterpret_cast<HWND>(w.GetID()),
 			BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(bm));
@@ -2274,6 +2277,101 @@ static bool HideKeyboardCues() {
 	return !b;
 }
 
+LRESULT Strip::CustomDraw(NMHDR *pnmh) {
+	int btnStyle = ::GetWindowLong(pnmh->hwndFrom, GWL_STYLE);
+	if ((btnStyle & BS_AUTOCHECKBOX) != BS_AUTOCHECKBOX) {
+		return CDRF_DODEFAULT;
+	}
+	LPNMCUSTOMDRAW pcd = reinterpret_cast<LPNMCUSTOMDRAW>(pnmh);
+	if (pcd->dwDrawStage == CDDS_PREERASE) {
+		::DrawThemeParentBackground(pnmh->hwndFrom, pcd->hdc, &pcd->rc);
+	}
+
+	if ((pcd->dwDrawStage == CDDS_PREERASE) || (pcd->dwDrawStage == CDDS_PREPAINT)) {
+		HTHEME hThemeButton = ::OpenThemeData(pnmh->hwndFrom, VSCLASS_TOOLBAR);
+		if (!hThemeButton) {
+			return CDRF_DODEFAULT;
+		}
+		bool checked = ::SendMessage(pnmh->hwndFrom, BM_GETCHECK, 0, 0) == BST_CHECKED;
+
+		int buttonAppearence = checked ? TS_CHECKED : TS_NORMAL;
+		if (pcd->uItemState & CDIS_SELECTED)
+			buttonAppearence = TS_PRESSED;
+		else if (pcd->uItemState & CDIS_HOT)
+			buttonAppearence = checked ? TS_HOTCHECKED : TS_HOT;
+		if (buttonAppearence == TS_NORMAL) {
+			HBRUSH hbrFace = CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
+			::FillRect(pcd->hdc, &pcd->rc, hbrFace);
+			::DeleteObject(hbrFace);
+		} else {
+			::DrawThemeBackground(hThemeButton, pcd->hdc, TP_BUTTON, buttonAppearence,
+				&pcd->rc, NULL);
+		}
+
+		RECT rcButton = pcd->rc;
+		rcButton.bottom--;
+		::GetThemeBackgroundContentRect(hThemeButton, pcd->hdc, TP_BUTTON,
+			buttonAppearence, &pcd->rc, &rcButton);
+
+		HBITMAP hBitmap = reinterpret_cast<HBITMAP>(::SendMessage(
+			pnmh->hwndFrom, BM_GETIMAGE, IMAGE_BITMAP, 0));
+
+		// Retrieve the bitmap dimensions
+		BITMAPINFO rbmi;
+		memset(&rbmi, 0, sizeof (BITMAPINFO));
+		rbmi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
+		::GetDIBits(pcd->hdc, hBitmap, 0, 0, NULL, &rbmi, DIB_RGB_COLORS);
+
+		// Extract the bits in RGBA format
+		BITMAPINFO xbmi;
+		memset(&xbmi, 0, sizeof (BITMAPINFO));
+		xbmi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
+		xbmi.bmiHeader.biWidth = rbmi.bmiHeader.biWidth;
+		xbmi.bmiHeader.biHeight = rbmi.bmiHeader.biHeight;
+		xbmi.bmiHeader.biPlanes = rbmi.bmiHeader.biPlanes;
+		xbmi.bmiHeader.biBitCount = rbmi.bmiHeader.biBitCount;
+		xbmi.bmiHeader.biCompression = BI_RGB;
+		xbmi.bmiHeader.biSizeImage = rbmi.bmiHeader.biWidth * rbmi.bmiHeader.biWidth * 4;
+		std::vector<DWORD> data(rbmi.bmiHeader.biSizeImage);
+		::GetDIBits(pcd->hdc, hBitmap, 0, 16, &data[0], &xbmi, DIB_RGB_COLORS);
+
+		HBITMAP hbmColoured = ::CreateCompatibleBitmap(pcd->hdc, rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight);
+		DWORD colourTransparent = RGB(0xC0,0xC0,0xC0);
+		DWORD colourBackground = checked ? RGB(0xFF,0xFF,0xFF) : (::GetSysColor(COLOR_3DFACE));
+		for (unsigned int pix=0; pix<rbmi.bmiHeader.biSizeImage; pix++) {
+			if (data[pix] == colourTransparent) 
+				data[pix] = colourBackground;
+		}
+		::SetDIBits(pcd->hdc, hbmColoured, 0, 16, &data[0], &xbmi, DIB_RGB_COLORS);
+
+		// Offset from button edge to contents.
+		int xOffset = 2;
+		int yOffset = 2;
+		if (checked || (pcd->uItemState & CDIS_SELECTED)) {
+			// Move image down to show selected/checked
+			//	xOffset++;
+			yOffset++;
+		}
+
+		::DrawState(pcd->hdc, NULL, NULL, (LPARAM) hbmColoured, 0, xOffset, yOffset, 
+			xbmi.bmiHeader.biWidth, xbmi.bmiHeader.biHeight,
+			DST_BITMAP | DSS_NORMAL);
+		::DeleteObject(hbmColoured);
+
+		if (pcd->uItemState & CDIS_FOCUS) {
+			// Draw focus rectangle
+			rcButton.left += 2;
+			rcButton.top += 2;
+			rcButton.right -= 2;
+			rcButton.bottom -= 2;
+			::DrawFocusRect(pcd->hdc, &rcButton);
+		}
+		::CloseThemeData(hThemeButton);
+		return CDRF_SKIPDEFAULT;
+	}
+	return CDRF_DODEFAULT;
+}
+
 LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	switch (iMessage) {
 	case WM_CREATE:
@@ -2346,6 +2444,15 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			InvalidateClose();
 		}
 		break;
+
+	case WM_NOTIFY: {
+			NMHDR *pnmh = reinterpret_cast<LPNMHDR>(lParam);
+			if (pnmh->code == NM_CUSTOMDRAW) {
+				return CustomDraw(pnmh);
+			} else {
+				return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
+			}
+		}
 
 	default:
 		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);

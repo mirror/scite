@@ -997,8 +997,8 @@ void SciTEWin::Creation() {
 
 	INITCOMMONCONTROLSEX icce;
 	icce.dwSize = sizeof(icce);
-	icce.dwICC = ICC_TAB_CLASSES;
-	InitCommonControlsEx(&icce);
+	icce.dwICC = ICC_TAB_CLASSES | ICC_STANDARD_CLASSES;
+	commonControlsLoaded = InitCommonControlsEx(&icce);
 
 	WNDCLASS wndClass = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	GetClassInfo(NULL, WC_TABCONTROL, &wndClass);
