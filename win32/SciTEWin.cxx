@@ -2774,9 +2774,6 @@ bool FindStrip::Command(WPARAM wParam) {
 	if ((control == IDOK) || (control == IDMARKALL)) {
 		Next(control == IDMARKALL);
 		return true;
-	} else if (control == IDSHOWOPTIONS) {
-		ShowPopup();
-		return true;
 	} else {
 		switch (control) {
 		case IDM_WHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;

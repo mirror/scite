@@ -244,8 +244,6 @@
 #define IDFINDSTYLE			251
 #define IDCONVERT			252
 
-#define IDSHOWOPTIONS 257
-
 #define IDPARAMSTART		300
 
 // Dialog IDs
