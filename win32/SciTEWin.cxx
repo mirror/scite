@@ -2003,8 +2003,8 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		width += 2 * WidthText(fontText, TEXT(" "));	// Allow a bit of space
 	}
 	if (check) {
-		height = 16 + 2 * 2;
-		width = 16 + 2 * 2;
+		height = 16 + 3 * 2;
+		width = 16 + 3 * 2;
 	}
 	GUI::Window w;
 	w.SetID(::CreateWindowEx(0, TEXT("Button"), localised.c_str(),
@@ -2345,8 +2345,8 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		::SetDIBits(pcd->hdc, hbmColoured, 0, 16, &data[0], &xbmi, DIB_RGB_COLORS);
 
 		// Offset from button edge to contents.
-		int xOffset = 2;
-		int yOffset = 2;
+		int xOffset = 3;
+		int yOffset = 3;
 		if (checked || (pcd->uItemState & CDIS_SELECTED)) {
 			// Move image down to show selected/checked
 			//	xOffset++;
