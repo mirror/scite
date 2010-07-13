@@ -2337,7 +2337,13 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 
 		HBITMAP hbmColoured = ::CreateCompatibleBitmap(pcd->hdc, rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight);
 		DWORD colourTransparent = RGB(0xC0,0xC0,0xC0);
-		DWORD colourBackground = checked ? RGB(0xFF,0xFF,0xFF) : (::GetSysColor(COLOR_3DFACE));
+		DWORD colourBackground = RGB(0xFF,0xFF,0xFF);
+		if (!checked) {
+			DWORD face3D = ::GetSysColor(COLOR_3DFACE);
+			// Inverted order in bitmap.
+			colourBackground = RGB(GetBValue(face3D), GetGValue(face3D), GetRValue(face3D));
+		}
+
 		for (unsigned int pix=0; pix<rbmi.bmiHeader.biSizeImage; pix++) {
 			if (data[pix] == colourTransparent) 
 				data[pix] = colourBackground;
