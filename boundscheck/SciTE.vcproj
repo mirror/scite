@@ -26,7 +26,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="TRUE"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\src;..\lua\include;..\..\scintilla\include;..\..\scintilla\src"
+				AdditionalIncludeDirectories="..\src;..\lua\include;..\..\scintilla\include;..\..\scintilla\src;..\..\scintilla\lexlib"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;STATIC_BUILD;SCI_LEXER;LINK_LEXERS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="FALSE"
@@ -91,7 +91,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\src;..\lua\include;..\..\scintilla\include;..\..\scintilla\src"
+				AdditionalIncludeDirectories="..\src;..\lua\include;..\..\scintilla\include;..\..\scintilla\src;..\..\scintilla\lexlib"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;STATIC_BUILD;SCI_LEXER;LINK_LEXERS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -154,13 +154,31 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath="..\..\scintilla\lexlib\Accessor.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\LexerBase.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\LexerSimple.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\LexerModule.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\AutoComplete.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\CallTip.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\Catalogue.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\CellBuffer.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\CharacterSet.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\CharClassify.cxx">
@@ -176,9 +194,6 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\Document.cxx">
-			</File>
-			<File
-				RelativePath="..\..\scintilla\src\DocumentAccessor.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\Editor.cxx">
@@ -205,9 +220,6 @@
 				RelativePath="..\..\scintilla\src\KeyMap.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\KeyWords.cxx">
-			</File>
-			<File
 				RelativePath="..\lua\src\lapi.c">
 			</File>
 			<File
@@ -232,238 +244,238 @@
 				RelativePath="..\lua\src\ldump.c">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAbaqus.cxx">
+				RelativePath="..\..\scintilla\lexers\LexAbaqus.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAda.cxx">
+				RelativePath="..\..\scintilla\lexers\LexAda.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAPDL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexAPDL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAsm.cxx">
+				RelativePath="..\..\scintilla\lexers\LexAsm.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAsn1.cxx">
+				RelativePath="..\..\scintilla\lexers\LexAsn1.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexASY.cxx">
+				RelativePath="..\..\scintilla\lexers\LexASY.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAU3.cxx">
+				RelativePath="..\..\scintilla\lexers\LexAU3.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexAVE.cxx">
+				RelativePath="..\..\scintilla\lexers\LexAVE.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexBaan.cxx">
+				RelativePath="..\..\scintilla\lexers\LexBaan.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexBash.cxx">
+				RelativePath="..\..\scintilla\lexers\LexBash.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexBasic.cxx">
+				RelativePath="..\..\scintilla\lexers\LexBasic.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexBullant.cxx">
+				RelativePath="..\..\scintilla\lexers\LexBullant.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCaml.cxx">
+				RelativePath="..\..\scintilla\lexers\LexCaml.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCLW.cxx">
+				RelativePath="..\..\scintilla\lexers\LexCLW.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCmake.cxx">
+				RelativePath="..\..\scintilla\lexers\LexCmake.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCOBOL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexCOBOL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexConf.cxx">
+				RelativePath="..\..\scintilla\lexers\LexConf.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCPP.cxx">
+				RelativePath="..\..\scintilla\lexers\LexCPP.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCrontab.cxx">
+				RelativePath="..\..\scintilla\lexers\LexCrontab.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCsound.cxx">
+				RelativePath="..\..\scintilla\lexers\LexCsound.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexCSS.cxx">
+				RelativePath="..\..\scintilla\lexers\LexCSS.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexD.cxx">
+				RelativePath="..\..\scintilla\lexers\LexD.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexEiffel.cxx">
+				RelativePath="..\..\scintilla\lexers\LexEiffel.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexErlang.cxx">
+				RelativePath="..\..\scintilla\lexers\LexErlang.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexEScript.cxx">
+				RelativePath="..\..\scintilla\lexers\LexEScript.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexFlagship.cxx">
+				RelativePath="..\..\scintilla\lexers\LexFlagship.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexForth.cxx">
+				RelativePath="..\..\scintilla\lexers\LexForth.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexFortran.cxx">
+				RelativePath="..\..\scintilla\lexers\LexFortran.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexGAP.cxx">
+				RelativePath="..\..\scintilla\lexers\LexGAP.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexGui4Cli.cxx">
+				RelativePath="..\..\scintilla\lexers\LexGui4Cli.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexHaskell.cxx">
+				RelativePath="..\..\scintilla\lexers\LexHaskell.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexHTML.cxx">
+				RelativePath="..\..\scintilla\lexers\LexHTML.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexInno.cxx">
+				RelativePath="..\..\scintilla\lexers\LexInno.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexKix.cxx">
+				RelativePath="..\..\scintilla\lexers\LexKix.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexLisp.cxx">
+				RelativePath="..\..\scintilla\lexers\LexLisp.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexLout.cxx">
+				RelativePath="..\..\scintilla\lexers\LexLout.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexLua.cxx">
+				RelativePath="..\..\scintilla\lexers\LexLua.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexMagik.cxx">
+				RelativePath="..\..\scintilla\lexers\LexMagik.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexMarkdown.cxx">
+				RelativePath="..\..\scintilla\lexers\LexMarkdown.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexMatlab.cxx">
+				RelativePath="..\..\scintilla\lexers\LexMatlab.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexMetapost.cxx">
+				RelativePath="..\..\scintilla\lexers\LexMetapost.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexMMIXAL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexMMIXAL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexMPT.cxx">
+				RelativePath="..\..\scintilla\lexers\LexMPT.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexMSSQL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexMSSQL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexMySQL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexMySQL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexNimrod.cxx">
+				RelativePath="..\..\scintilla\lexers\LexNimrod.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexNsis.cxx">
+				RelativePath="..\..\scintilla\lexers\LexNsis.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexOpal.cxx">
+				RelativePath="..\..\scintilla\lexers\LexOpal.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexOthers.cxx">
+				RelativePath="..\..\scintilla\lexers\LexOthers.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPascal.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPascal.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPB.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPB.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPerl.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPerl.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPLM.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPLM.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPOV.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPOV.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPowerPro.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPowerPro.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPowerShell.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPowerShell.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexProgress.cxx">
+				RelativePath="..\..\scintilla\lexers\LexProgress.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPS.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPS.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexPython.cxx">
+				RelativePath="..\..\scintilla\lexers\LexPython.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexR.cxx">
+				RelativePath="..\..\scintilla\lexers\LexR.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexRebol.cxx">
+				RelativePath="..\..\scintilla\lexers\LexRebol.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexRuby.cxx">
+				RelativePath="..\..\scintilla\lexers\LexRuby.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexScriptol.cxx">
+				RelativePath="..\..\scintilla\lexers\LexScriptol.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexSmalltalk.cxx">
+				RelativePath="..\..\scintilla\lexers\LexSmalltalk.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexSML.cxx">
+				RelativePath="..\..\scintilla\lexers\LexSML.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexSorcus.cxx">
+				RelativePath="..\..\scintilla\lexers\LexSorcus.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexSpecman.cxx">
+				RelativePath="..\..\scintilla\lexers\LexSpecman.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexSpice.cxx">
+				RelativePath="..\..\scintilla\lexers\LexSpice.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexSQL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexSQL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexTACL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexTACL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexTADS3.cxx">
+				RelativePath="..\..\scintilla\lexers\LexTADS3.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexTAL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexTAL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexTCL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexTCL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexTeX.cxx">
+				RelativePath="..\..\scintilla\lexers\LexTeX.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexVB.cxx">
+				RelativePath="..\..\scintilla\lexers\LexVB.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexVerilog.cxx">
+				RelativePath="..\..\scintilla\lexers\LexVerilog.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexVHDL.cxx">
+				RelativePath="..\..\scintilla\lexers\LexVHDL.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\LexYAML.cxx">
+				RelativePath="..\..\scintilla\lexers\LexYAML.cxx">
 			</File>
 
 			<File
@@ -545,10 +557,10 @@
 				RelativePath="..\..\scintilla\Src\PositionCache.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\Src\PropSet.cxx">
+				RelativePath="..\Src\PropSetFile.cxx">
 			</File>
 			<File
-				RelativePath="..\Src\PropSetFile.cxx">
+				RelativePath="..\..\scintilla\lexlib\PropSetSimple.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\RESearch.cxx">
@@ -611,7 +623,7 @@
 				RelativePath="..\..\scintilla\src\Style.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\src\StyleContext.cxx">
+				RelativePath="..\..\scintilla\lexlib\StyleContext.cxx">
 			</File>
 			<File
 				RelativePath="..\Src\StyleWriter.cxx">
@@ -629,10 +641,10 @@
 				RelativePath="..\..\scintilla\src\ViewStyle.cxx">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\Src\WindowAccessor.cxx">
+				RelativePath="..\win32\WinMutex.cxx">
 			</File>
 			<File
-				RelativePath="..\win32\WinMutex.cxx">
+				RelativePath="..\..\scintilla\lexlib\WordList.cxx">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\Src\XPM.cxx">
