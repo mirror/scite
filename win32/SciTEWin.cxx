@@ -3155,8 +3155,8 @@ void ReplaceStrip::Show() {
 
 	HWND comboReplace = GetDlgItem(Hwnd(), IDREPLACEWITH);
 	::SendMessage(comboReplace, CB_RESETCONTENT, 0, 0);
-	for (int i = 0; i < pSciTEWin->memReplaces.Length(); i++) {
-		GUI::gui_string gs = GUI::StringFromUTF8(pSciTEWin->memReplaces.At(i).c_str());
+	for (int j = 0; j < pSciTEWin->memReplaces.Length(); j++) {
+		GUI::gui_string gs = GUI::StringFromUTF8(pSciTEWin->memReplaces.At(j).c_str());
 		::SendMessageW(comboReplace, CB_ADDSTRING, 0,
 					reinterpret_cast<LPARAM>(gs.c_str()));
 	}
