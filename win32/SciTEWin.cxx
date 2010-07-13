@@ -2478,6 +2478,7 @@ void SearchStrip::Creation() {
 }
 
 void SearchStrip::Destruction() {
+	Strip::Destruction();
 }
 
 void SearchStrip::Close() {
@@ -2630,6 +2631,7 @@ void FindStrip::Creation() {
 }
 
 void FindStrip::Destruction() {
+	Strip::Destruction();
 }
 
 void FindStrip::Size() {
@@ -2866,6 +2868,7 @@ void ReplaceStrip::Creation() {
 }
 
 void ReplaceStrip::Destruction() {
+	Strip::Destruction();
 }
 
 void ReplaceStrip::Size() {
