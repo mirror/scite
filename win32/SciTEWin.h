@@ -200,6 +200,7 @@ public:
 	virtual void Size();
 	virtual void Paint(HDC hDC);
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	void CheckButtons();
 	void Show();
 	virtual int Height() {
 		return lineHeight + 1;

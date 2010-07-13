@@ -2796,17 +2796,34 @@ bool FindStrip::Command(WPARAM wParam) {
 
 LRESULT FindStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
-	return Strip::WndProc(iMessage, wParam, lParam);
-	/*
 	switch (iMessage) {
 
+	case WM_CONTEXTMENU:
+		ShowPopup();
+		return 0;
+
 	default:
+		return Strip::WndProc(iMessage, wParam, lParam);
 
 	}
-	*/
 	} catch (...) {
 	}
 	return 0l;
+}
+
+void FindStrip::CheckButtons() {
+	entered++;
+	::SendMessage(reinterpret_cast<HWND>(wCheckWord.GetID()),
+		BM_SETCHECK, pSciTEWin->wholeWord ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(reinterpret_cast<HWND>(wCheckCase.GetID()),
+		BM_SETCHECK, pSciTEWin->matchCase ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(reinterpret_cast<HWND>(wCheckRE.GetID()),
+		BM_SETCHECK, pSciTEWin->regExp ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(reinterpret_cast<HWND>(wCheckWrap.GetID()),
+		BM_SETCHECK, pSciTEWin->wrapFind ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(reinterpret_cast<HWND>(wCheckBE.GetID()),
+		BM_SETCHECK, pSciTEWin->unSlash ? BST_CHECKED : BST_UNCHECKED, 0);
+	entered--;
 }
 
 void FindStrip::Show() {
@@ -2821,6 +2838,7 @@ void FindStrip::Show() {
 	//::SendMessage(combo, CB_SETCURSEL, 0, 0);
 	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSciTEWin->findWhat.c_str()).c_str());
 	::SendMessage(HwndOf(wText), CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
+	CheckButtons();
 	ScrollEditorIfNeeded();
 }
 
