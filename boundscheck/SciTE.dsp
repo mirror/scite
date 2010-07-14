@@ -7,19 +7,19 @@
 CFG=SciTE - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "SciTE.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "SciTE.mak" CFG="SciTE - Win32 Debug"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "SciTE - Win32 Release" (based on "Win32 (x86) Application")
 !MESSAGE "SciTE - Win32 Debug" (based on "Win32 (x86) Application")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /Ox /I "..\src" /I "..\..\scintilla\include" /I "..\..\scintilla\src" /I "..\lua\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "UNICODE" /D "_UNICODE" /D "STATIC_BUILD" /D "SCI_LEXER" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /Ox /I "..\src" /I "..\..\scintilla\include" /I "..\..\scintilla\src" /I "..\..\scintilla\lexlib" /I "..\lua\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "UNICODE" /D "_UNICODE" /D "STATIC_BUILD" /D "SCI_LEXER" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib imm32.lib comctl32.lib uxtheme.lib /nologo /machine:I386 /opt:nowin98
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib imm32.lib comctl32.lib /nologo /machine:I386 /opt:nowin98
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "SciTE - Win32 Debug"
@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\src" /I "..\..\scintilla\include" /I "..\..\scintilla\src" /I "..\lua\include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "UNICODE" /D "_UNICODE" /D "STATIC_BUILD" /D "SCI_LEXER" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\src" /I "..\..\scintilla\include" /I "..\..\scintilla\src" /I "..\..\scintilla\lexlib" /I "..\lua\include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "UNICODE" /D "_UNICODE" /D "STATIC_BUILD" /D "SCI_LEXER" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -82,9 +82,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib imm32.lib comctl32.lib uxtheme.lib /nologo /debug /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib imm32.lib comctl32.lib /nologo /debug /machine:I386
 
-!ENDIF 
+!ENDIF
 
 # Begin Target
 
@@ -95,6 +95,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\..\scintilla\lexlib\Accessor.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\AutoComplete.cxx
 # End Source File
 # Begin Source File
@@ -103,11 +107,19 @@ SOURCE=..\..\scintilla\src\CallTip.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\src\Catalogue.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\src\CellBuffer.cxx
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\CharClassify.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\lexlib\CharacterSet.cxx
 # End Source File
 # Begin Source File
 
@@ -124,10 +136,6 @@ SOURCE=..\win32\DirectorExtension.cxx
 # Begin Source File
 
 SOURCE=..\..\scintilla\src\Document.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\scintilla\src\DocumentAccessor.cxx
 # End Source File
 # Begin Source File
 
@@ -163,10 +171,6 @@ SOURCE=..\..\scintilla\src\KeyMap.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\KeyWords.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\lua\src\lapi.c
 # End Source File
 # Begin Source File
@@ -199,315 +203,331 @@ SOURCE=..\lua\src\ldump.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexAbaqus.cxx
+SOURCE=..\..\scintilla\lexlib\LexerBase.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexAda.cxx
+SOURCE=..\..\scintilla\lexlib\LexerModule.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexAPDL.cxx
+SOURCE=..\..\scintilla\lexlib\LexerNoExceptions.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexAsm.cxx
+SOURCE=..\..\scintilla\lexlib\LexerSimple.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexAsn1.cxx
+SOURCE=..\..\scintilla\lexers\LexAbaqus.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexASY.cxx
+SOURCE=..\..\scintilla\lexers\LexAda.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexAU3.cxx
+SOURCE=..\..\scintilla\lexers\LexAPDL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexAVE.cxx
+SOURCE=..\..\scintilla\lexers\LexAsm.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexBaan.cxx
+SOURCE=..\..\scintilla\lexers\LexAsn1.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexBash.cxx
+SOURCE=..\..\scintilla\lexers\LexASY.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexBasic.cxx
+SOURCE=..\..\scintilla\lexers\LexAU3.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexBullant.cxx
+SOURCE=..\..\scintilla\lexers\LexAVE.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexCaml.cxx
+SOURCE=..\..\scintilla\lexers\LexBaan.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexCLW.cxx
+SOURCE=..\..\scintilla\lexers\LexBash.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexCmake.cxx
+SOURCE=..\..\scintilla\lexers\LexBasic.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexCOBOL.cxx
+SOURCE=..\..\scintilla\lexers\LexBullant.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexConf.cxx
+SOURCE=..\..\scintilla\lexers\LexCaml.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexCPP.cxx
+SOURCE=..\..\scintilla\lexers\LexCLW.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexCrontab.cxx
+SOURCE=..\..\scintilla\lexers\LexCmake.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexCsound.cxx
+SOURCE=..\..\scintilla\lexers\LexCOBOL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexCSS.cxx
+SOURCE=..\..\scintilla\lexers\LexConf.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexD.cxx
+SOURCE=..\..\scintilla\lexers\LexCPP.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexEiffel.cxx
+SOURCE=..\..\scintilla\lexers\LexCrontab.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexErlang.cxx
+SOURCE=..\..\scintilla\lexers\LexCsound.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexEScript.cxx
+SOURCE=..\..\scintilla\lexers\LexCSS.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexFlagship.cxx
+SOURCE=..\..\scintilla\lexers\LexD.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexForth.cxx
+SOURCE=..\..\scintilla\lexers\LexEiffel.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexFortran.cxx
+SOURCE=..\..\scintilla\lexers\LexErlang.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexGAP.cxx
+SOURCE=..\..\scintilla\lexers\LexEScript.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexGui4Cli.cxx
+SOURCE=..\..\scintilla\lexers\LexFlagship.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexHaskell.cxx
+SOURCE=..\..\scintilla\lexers\LexForth.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexHTML.cxx
+SOURCE=..\..\scintilla\lexers\LexFortran.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexInno.cxx
+SOURCE=..\..\scintilla\lexers\LexGAP.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexKix.cxx
+SOURCE=..\..\scintilla\lexers\LexGui4Cli.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexLisp.cxx
+SOURCE=..\..\scintilla\lexers\LexHaskell.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexLout.cxx
+SOURCE=..\..\scintilla\lexers\LexHTML.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexLua.cxx
+SOURCE=..\..\scintilla\lexers\LexInno.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexMagik.cxx
+SOURCE=..\..\scintilla\lexers\LexKix.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexMarkdown.cxx
+SOURCE=..\..\scintilla\lexers\LexLisp.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexMatlab.cxx
+SOURCE=..\..\scintilla\lexers\LexLout.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexMetapost.cxx
+SOURCE=..\..\scintilla\lexers\LexLua.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexMMIXAL.cxx
+SOURCE=..\..\scintilla\lexers\LexMagik.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexMPT.cxx
+SOURCE=..\..\scintilla\lexers\LexMarkdown.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexMSSQL.cxx
+SOURCE=..\..\scintilla\lexers\LexMatlab.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexMySQL.cxx
+SOURCE=..\..\scintilla\lexers\LexMetapost.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexNimrod.cxx
+SOURCE=..\..\scintilla\lexers\LexMMIXAL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexNsis.cxx
+SOURCE=..\..\scintilla\lexers\LexMPT.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexOpal.cxx
+SOURCE=..\..\scintilla\lexers\LexMSSQL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexOthers.cxx
+SOURCE=..\..\scintilla\lexers\LexMySQL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPascal.cxx
+SOURCE=..\..\scintilla\lexers\LexNimrod.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPB.cxx
+SOURCE=..\..\scintilla\lexers\LexNsis.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPerl.cxx
+SOURCE=..\..\scintilla\lexers\LexOpal.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPLM.cxx
+SOURCE=..\..\scintilla\lexers\LexOthers.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPOV.cxx
+SOURCE=..\..\scintilla\lexers\LexPascal.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPowerPro.cxx
+SOURCE=..\..\scintilla\lexers\LexPB.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPowerShell.cxx
+SOURCE=..\..\scintilla\lexers\LexPerl.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexProgress.cxx
+SOURCE=..\..\scintilla\lexers\LexPLM.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPS.cxx
+SOURCE=..\..\scintilla\lexers\LexPOV.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexPython.cxx
+SOURCE=..\..\scintilla\lexers\LexPowerPro.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexR.cxx
+SOURCE=..\..\scintilla\lexers\LexPowerShell.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexRebol.cxx
+SOURCE=..\..\scintilla\lexers\LexProgress.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexRuby.cxx
+SOURCE=..\..\scintilla\lexers\LexPS.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexScriptol.cxx
+SOURCE=..\..\scintilla\lexers\LexPython.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexSmalltalk.cxx
+SOURCE=..\..\scintilla\lexers\LexR.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexSML.cxx
+SOURCE=..\..\scintilla\lexers\LexRebol.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexSorcus.cxx
+SOURCE=..\..\scintilla\lexers\LexRuby.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexSpecman.cxx
+SOURCE=..\..\scintilla\lexers\LexScriptol.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexSpice.cxx
+SOURCE=..\..\scintilla\lexers\LexSmalltalk.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexSQL.cxx
+SOURCE=..\..\scintilla\lexers\LexSML.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexTACL.cxx
+SOURCE=..\..\scintilla\lexers\LexSorcus.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexTADS3.cxx
+SOURCE=..\..\scintilla\lexers\LexSpecman.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexTAL.cxx
+SOURCE=..\..\scintilla\lexers\LexSpice.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexTCL.cxx
+SOURCE=..\..\scintilla\lexers\LexSQL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexTeX.cxx
+SOURCE=..\..\scintilla\lexers\LexTACL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexVB.cxx
+SOURCE=..\..\scintilla\lexers\LexTADS3.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexVerilog.cxx
+SOURCE=..\..\scintilla\lexers\LexTAL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexVHDL.cxx
+SOURCE=..\..\scintilla\lexers\LexTCL.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\LexYAML.cxx
+SOURCE=..\..\scintilla\lexers\LexTeX.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\lexers\LexVB.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\lexers\LexVerilog.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\lexers\LexVHDL.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\lexers\LexYAML.cxx
 # End Source File
 # Begin Source File
 
@@ -619,7 +639,7 @@ SOURCE=..\..\scintilla\Src\PositionCache.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\Src\PropSet.cxx
+SOURCE=..\..\scintilla\lexlib\PropSetSimple.cxx
 # End Source File
 # Begin Source File
 
@@ -691,7 +711,7 @@ SOURCE=..\..\scintilla\src\Style.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\StyleContext.cxx
+SOURCE=..\..\scintilla\lexlib\StyleContext.cxx
 # End Source File
 # Begin Source File
 
@@ -715,10 +735,6 @@ SOURCE=..\..\scintilla\src\ViewStyle.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\Src\WindowAccessor.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\win32\WinMutex.cxx
 # End Source File
 # Begin Source File
@@ -739,19 +755,11 @@ SOURCE=..\src\GUI.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\Include\KeyWords.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\scintilla\Include\Platform.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\scintilla\Win32\PlatformRes.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\scintilla\Include\PropSet.h
 # End Source File
 # Begin Source File
 
@@ -779,7 +787,7 @@ SOURCE=..\..\scintilla\Include\WinDefs.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\Include\WindowAccessor.h
+SOURCE=..\..\scintilla\lexlib\WordList.cxx
 # End Source File
 # End Group
 # Begin Group "Resource Files"
