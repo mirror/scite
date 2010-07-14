@@ -2449,7 +2449,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_NOTIFY: {
 			NMHDR *pnmh = reinterpret_cast<LPNMHDR>(lParam);
-			if (pnmh->code == NM_CUSTOMDRAW) {
+			if (pnmh->code == static_cast<unsigned int>(NM_CUSTOMDRAW)) {
 				return CustomDraw(pnmh);
 			} else {
 				return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
