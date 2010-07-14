@@ -3063,7 +3063,7 @@ void ReplaceStrip::HandleReplaceCommand(int cmd) {
 		pSciTEWin->replaceWhat = ControlText(wReplace);
 		pSciTEWin->memReplaces.Insert(pSciTEWin->replaceWhat.c_str());
 	}
-	int replacements = 0;
+	//int replacements = 0;
 	if (cmd == IDOK) {
 		pSciTEWin->FindNext(false);
 	} else if (cmd == IDREPLACE) {
@@ -3078,7 +3078,8 @@ void ReplaceStrip::HandleReplaceCommand(int cmd) {
 			}
 		}
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
-		replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
+		//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
+		pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
 	}
 	//GUI::gui_string replDone = GUI::StringFromInteger(replacements);
 	//dlg.SetItemText(IDREPLDONE, replDone.c_str());
