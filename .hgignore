@@ -9,4 +9,5 @@ syntax: glob
 *.pdb
 *.res
 *.bak
-bin/SciTE
+bin
+BuildLog.htm
