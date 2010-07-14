@@ -8,8 +8,21 @@
 #include <time.h>
 
 #include "SciTEWin.h"
+#ifdef THEME_STRIPS
 #include <Vsstyle.h>
 #include <Vssym32.h>
+#endif
+
+#ifndef WM_UPDATEUISTATE
+#define WM_UPDATEUISTATE 0x0128
+#endif
+
+#ifndef UISF_HIDEACCEL
+#define UISF_HIDEACCEL 2
+#define UISF_HIDEFOCUS 1
+#define UIS_CLEAR 2
+#define UIS_SET 1
+#endif
 
 #ifndef NO_EXTENSIONS
 #include "MultiplexExtension.h"
@@ -2008,7 +2021,7 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 	}
 	GUI::Window w;
 	w.SetID(::CreateWindowEx(0, TEXT("Button"), localised.c_str(),
-		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | 
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS |
 		(check ? (BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_BITMAP) : BS_PUSHBUTTON),
 		2, 2, width, height,
 		Hwnd(), reinterpret_cast<HMENU>(ident), pSciTEWin->hInstance, 0));
@@ -2025,7 +2038,7 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 
 		UINT flags = pSciTEWin->commonControlsLoaded ? (LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
 		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
-			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum), IMAGE_BITMAP, 
+			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum), IMAGE_BITMAP,
 			16, 16, flags));
 
 		::SendMessage(reinterpret_cast<HWND>(w.GetID()),
@@ -2033,6 +2046,7 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 	}
 	SetFontHandle(w, fontText);
 	w.Show();
+#ifdef BCM_GETIDEALSIZE
 	if (!check) {
 		// Push buttons can be measured with BCM_GETIDEALSIZE
 		SIZE sz = {0, 0};
@@ -2043,6 +2057,7 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 			w.SetPosition(rc);
 		}
 	}
+#endif
 	return w;
 }
 
@@ -2065,9 +2080,11 @@ void Strip::Destruction() {
 	if (fontText)
 		::DeleteObject(fontText);
 	fontText = 0;
+#ifdef THEME_STRIPS
 	if (hTheme)
 		::CloseThemeData(hTheme);
 	hTheme = 0;
+#endif
 }
 
 void Strip::Close() {
@@ -2147,38 +2164,9 @@ void Strip::Paint(HDC hDC) {
 	::FillRect(hDC, &rc, hbrFace);
 	::DeleteObject(hbrFace);
 
-#ifdef MANUALLY
 	// Draw close box
 	GUI::Rectangle rcClose = CloseArea();
-	COLORREF colourClose = ::GetSysColor(COLOR_3DFACE);
-	COLORREF colourCross = RGB(0,0,0);
-	if (closeState == csOver) {
-		colourClose = RGB(0xFF, 0x40, 0x40);
-		colourCross = RGB(0xff,0xff,0xff);
-	} else if (closeState == csClickedOver) {
-		colourClose = RGB(0xc0, 0x40, 0x40);
-		colourCross = RGB(0xff,0xff,0xff);
-	}
-
-	HBRUSH hbrClose = CreateSolidBrush(colourClose);
-	HBRUSH hbrStart = static_cast<HBRUSH>(::SelectObject(hDC, hbrClose));
-	::Rectangle(hDC, rcClose.left, rcClose.top, rcClose.right, rcClose.bottom);
-
-	HPEN pen = ::CreatePen(0,1,colourCross);
-	HPEN penStart = static_cast<HPEN>(::SelectObject(hDC, pen));
-
-	::MoveToEx(hDC, rcClose.left + 1, rcClose.top + 1, NULL);
-	::LineTo(hDC, rcClose.right-1, rcClose.bottom-1);
-	::MoveToEx(hDC, rcClose.left + 1, rcClose.bottom-2, NULL);
-	::LineTo(hDC, rcClose.right-1, rcClose.top);
-
-	::SelectObject(hDC, hbrStart);
-	::DeleteObject(hbrClose);
-	::SelectObject(hDC, penStart);
-	::DeleteObject(pen);
-#else
-	// Draw close box
-	GUI::Rectangle rcClose = CloseArea();
+#ifdef THEME_STRIPS
 	if (hTheme) {
 		int closeAppearence = CBS_NORMAL;
 		if (closeState == csOver) {
@@ -2193,6 +2181,7 @@ void Strip::Paint(HDC hDC) {
 		//::DrawThemeBackground(hTheme, hDC, WP_MDICLOSEBUTTON, closeAppearence,
 		//	reinterpret_cast<RECT *>(&rcClose), NULL);
 	} else {
+#endif
 		int closeAppearence = 0;
 		if (closeState == csOver) {
 			closeAppearence = DFCS_HOT;
@@ -2202,6 +2191,7 @@ void Strip::Paint(HDC hDC) {
 
 		DrawFrameControl(hDC, reinterpret_cast<RECT *>(&rcClose), DFC_CAPTION,
 			DFCS_CAPTIONCLOSE | closeAppearence);
+#ifdef THEME_STRIPS
 	}
 #endif
 }
@@ -2256,6 +2246,7 @@ void Strip::TrackMouse(GUI::Point pt) {
 }
 
 void Strip::SetTheme() {
+#ifdef THEME_STRIPS
 	if (hTheme)
 		::CloseThemeData(hTheme);
 	hTheme = ::OpenThemeData(Hwnd(), L"Window");
@@ -2269,6 +2260,7 @@ void Strip::SetTheme() {
 			closeSize.cy = 11;
 		}
 	}
+#endif
 }
 
 static bool HideKeyboardCues() {
@@ -2282,6 +2274,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 	if ((btnStyle & BS_AUTOCHECKBOX) != BS_AUTOCHECKBOX) {
 		return CDRF_DODEFAULT;
 	}
+#ifdef THEME_STRIPS
 	LPNMCUSTOMDRAW pcd = reinterpret_cast<LPNMCUSTOMDRAW>(pnmh);
 	if (pcd->dwDrawStage == CDDS_PREERASE) {
 		::DrawThemeParentBackground(pnmh->hwndFrom, pcd->hdc, &pcd->rc);
@@ -2345,7 +2338,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		}
 
 		for (unsigned int pix=0; pix<rbmi.bmiHeader.biSizeImage; pix++) {
-			if (data[pix] == colourTransparent) 
+			if (data[pix] == colourTransparent)
 				data[pix] = colourBackground;
 		}
 		::SetDIBits(pcd->hdc, hbmColoured, 0, 16, &data[0], &xbmi, DIB_RGB_COLORS);
@@ -2359,7 +2352,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 			yOffset++;
 		}
 
-		::DrawState(pcd->hdc, NULL, NULL, (LPARAM) hbmColoured, 0, xOffset, yOffset, 
+		::DrawState(pcd->hdc, NULL, NULL, (LPARAM) hbmColoured, 0, xOffset, yOffset,
 			xbmi.bmiHeader.biWidth, xbmi.bmiHeader.biHeight,
 			DST_BITMAP | DSS_NORMAL);
 		::DeleteObject(hbmColoured);
@@ -2375,6 +2368,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		::CloseThemeData(hThemeButton);
 		return CDRF_SKIPDEFAULT;
 	}
+#endif
 	return CDRF_DODEFAULT;
 }
 
@@ -2415,9 +2409,11 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return 0;
 		}
 
+#ifdef THEME_STRIPS
 	case WM_THEMECHANGED:
 		SetTheme();
 		break;
+#endif
 
 	case WM_LBUTTONDOWN:
 		if (MouseInClose(PointFromLong(lParam))) {

@@ -36,12 +36,16 @@
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT  0x0501
+#undef WINVER
+#define WINVER 0x0501
 #ifdef _MSC_VER
 // windows.h, et al, use a lot of nameless struct/unions - can't fix it, so allow it
 #pragma warning(disable: 4201)
 #endif
 #include <windows.h>
+#ifdef THEME_STRIPS
 #include <Uxtheme.h>
+#endif
 #ifdef _MSC_VER
 // okay, that's done, don't allow it in our code
 #pragma warning(default: 4201)
@@ -89,7 +93,7 @@ class SciTEWin;
 
 inline HWND HwndOf(GUI::Window w) {
 	return reinterpret_cast<HWND>(w.GetID());
-};
+}
 
 class BaseWin : public GUI::Window {
 public:
@@ -119,7 +123,9 @@ public:
 class Strip : public BaseWin {
 protected:
 	HFONT fontText;
+#ifdef THEME_STRIPS
 	HTHEME hTheme;
+#endif
 	bool capturedMouse;
 	SIZE closeSize;
 	enum stripCloseState { csNone, csOver, csClicked, csClickedOver } closeState;
@@ -143,7 +149,10 @@ protected:
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 public:
 	bool visible;
-	Strip() : fontText(0), hTheme(0), capturedMouse(false), closeState(csNone), visible(false) {
+	Strip() : fontText(0), capturedMouse(false), closeState(csNone), visible(false) {
+#ifdef THEME_STRIPS
+		hTheme = 0;
+#endif
 		closeSize.cx = 11;
 		closeSize.cy = 11;
 	}
