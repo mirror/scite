@@ -27,13 +27,6 @@
 #define _WIN32_IE	0x0400
 #endif
 
-#ifdef __BORLANDC__
-// Borland includes Windows.h for STL and defaults to different API number
-#ifdef _WIN32_WINNT
-#undef _WIN32_WINNT
-#endif
-#endif
-
 #undef _WIN32_WINNT
 #define _WIN32_WINNT  0x0501
 #undef WINVER
