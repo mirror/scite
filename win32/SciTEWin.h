@@ -36,7 +36,10 @@
 #pragma warning(disable: 4201)
 #endif
 #include <windows.h>
-#ifdef THEME_STRIPS
+#if defined(__BORLANDC__) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
+// Borland C++ 5.5 does not have Uxtheme.h
+typedef HANDLE HTHEME;
+#else
 #include <Uxtheme.h>
 #endif
 #ifdef _MSC_VER
@@ -116,9 +119,7 @@ public:
 class Strip : public BaseWin {
 protected:
 	HFONT fontText;
-#ifdef THEME_STRIPS
 	HTHEME hTheme;
-#endif
 	bool capturedMouse;
 	SIZE closeSize;
 	enum stripCloseState { csNone, csOver, csClicked, csClickedOver } closeState;
@@ -142,10 +143,7 @@ protected:
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 public:
 	bool visible;
-	Strip() : fontText(0), capturedMouse(false), closeState(csNone), visible(false) {
-#ifdef THEME_STRIPS
-		hTheme = 0;
-#endif
+	Strip() : fontText(0), hTheme(0), capturedMouse(false), closeState(csNone), visible(false) {
 		closeSize.cx = 11;
 		closeSize.cy = 11;
 	}

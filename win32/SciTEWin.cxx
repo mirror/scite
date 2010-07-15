@@ -9,6 +9,10 @@
 
 #include "SciTEWin.h"
 
+#ifdef DTBG_CLIPRECT
+#define THEME_AVAILABLE
+#endif
+
 // Since Vsstyle.h and Vssym32.h are not available from all compilers just define the used symbols
 #define CBS_NORMAL 1
 #define CBS_HOT 2
@@ -2088,11 +2092,11 @@ void Strip::Destruction() {
 	if (fontText)
 		::DeleteObject(fontText);
 	fontText = 0;
-#ifdef THEME_STRIPS
+#ifdef THEME_AVAILABLE
 	if (hTheme)
 		::CloseThemeData(hTheme);
-	hTheme = 0;
 #endif
+	hTheme = 0;
 }
 
 void Strip::Close() {
@@ -2174,8 +2178,8 @@ void Strip::Paint(HDC hDC) {
 
 	// Draw close box
 	GUI::Rectangle rcClose = CloseArea();
-#ifdef THEME_STRIPS
 	if (hTheme) {
+#ifdef THEME_AVAILABLE
 		int closeAppearence = CBS_NORMAL;
 		if (closeState == csOver) {
 			closeAppearence = CBS_HOT;
@@ -2188,8 +2192,8 @@ void Strip::Paint(HDC hDC) {
 			reinterpret_cast<RECT *>(&rcClose), NULL);
 		//::DrawThemeBackground(hTheme, hDC, WP_MDICLOSEBUTTON, closeAppearence,
 		//	reinterpret_cast<RECT *>(&rcClose), NULL);
-	} else {
 #endif
+	} else {
 		int closeAppearence = 0;
 		if (closeState == csOver) {
 			closeAppearence = DFCS_HOT;
@@ -2199,9 +2203,7 @@ void Strip::Paint(HDC hDC) {
 
 		DrawFrameControl(hDC, reinterpret_cast<RECT *>(&rcClose), DFC_CAPTION,
 			DFCS_CAPTIONCLOSE | closeAppearence);
-#ifdef THEME_STRIPS
 	}
-#endif
 }
 
 GUI::Rectangle Strip::CloseArea() {
@@ -2254,10 +2256,10 @@ void Strip::TrackMouse(GUI::Point pt) {
 }
 
 void Strip::SetTheme() {
-#ifdef THEME_STRIPS
+#ifdef THEME_AVAILABLE
 	if (hTheme)
 		::CloseThemeData(hTheme);
-	hTheme = ::OpenThemeData(Hwnd(), L"Window");
+	hTheme = ::OpenThemeData(Hwnd(), TEXT("Window"));
 	if (hTheme) {
 		HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL,
 			NULL, TS_TRUE, &closeSize);
@@ -2282,14 +2284,14 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 	if ((btnStyle & BS_AUTOCHECKBOX) != BS_AUTOCHECKBOX) {
 		return CDRF_DODEFAULT;
 	}
-#ifdef THEME_STRIPS
+#ifdef THEME_AVAILABLE
 	LPNMCUSTOMDRAW pcd = reinterpret_cast<LPNMCUSTOMDRAW>(pnmh);
 	if (pcd->dwDrawStage == CDDS_PREERASE) {
 		::DrawThemeParentBackground(pnmh->hwndFrom, pcd->hdc, &pcd->rc);
 	}
 
 	if ((pcd->dwDrawStage == CDDS_PREERASE) || (pcd->dwDrawStage == CDDS_PREPAINT)) {
-		HTHEME hThemeButton = ::OpenThemeData(pnmh->hwndFrom, VSCLASS_TOOLBAR);
+		HTHEME hThemeButton = ::OpenThemeData(pnmh->hwndFrom, TEXT("Toolbar"));
 		if (!hThemeButton) {
 			return CDRF_DODEFAULT;
 		}
@@ -2417,7 +2419,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return 0;
 		}
 
-#ifdef THEME_STRIPS
+#ifdef THEME_AVAILABLE
 	case WM_THEMECHANGED:
 		SetTheme();
 		break;

@@ -1,7 +1,7 @@
 # Make file for SciTE on Windows
 # Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 # The License.txt file describes the conditions under which this software may be distributed.
-# This makefile assumes the mingw32 version of GCC 3.2 or 4.x is used and changes will
+# This makefile assumes the mingw32 version of GCC 4.x is used and changes will
 # be needed to use other compilers.
 
 .SUFFIXES: .cxx .properties
@@ -55,7 +55,7 @@ endif
 
 CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic -fno-rtti -mno-cygwin
 
-LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid $(LUA_LDFLAGS) -mno-cygwin
+LDFLAGS=-mwindows -lcomctl32 -limm32 -lole32 -luuid -luxtheme $(LUA_LDFLAGS) -mno-cygwin
 
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
