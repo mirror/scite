@@ -8,10 +8,18 @@
 #include <time.h>
 
 #include "SciTEWin.h"
-#ifdef THEME_STRIPS
-#include <Vsstyle.h>
-#include <Vssym32.h>
-#endif
+
+// Since Vsstyle.h and Vssym32.h are not available from all compilers just define the used symbols
+#define CBS_NORMAL 1
+#define CBS_HOT 2
+#define CBS_PUSHED 3
+#define WP_SMALLCLOSEBUTTON 19
+#define TS_NORMAL 1
+#define TS_HOT 2
+#define TS_PRESSED 3
+#define TS_CHECKED 5
+#define TS_HOTCHECKED 6
+#define TP_BUTTON 1
 
 #ifndef WM_UPDATEUISTATE
 #define WM_UPDATEUISTATE 0x0128
