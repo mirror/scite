@@ -1183,7 +1183,7 @@ void SciTEGTK::EnableAMenuItem(int wIDCheckItem, bool val) {
 	if (item) {
 		if (GTK_IS_WIDGET(item))
 			gtk_widget_set_sensitive(item, val);
-		
+
 	}
 }
 
@@ -2496,12 +2496,12 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 			}
 		}
 	}
-	
+
 	if (findStrip.KeyDown(event) || replaceStrip.KeyDown(event)) {
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -3578,10 +3578,10 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 
 	gtk_widget_show(GTK_WIDGET(GetID()));
 
-	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event", 
+	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event",
 		GtkSignalFunc(EscapeSignal), this);
 
-	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "activate", 
+	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
 		GtkSignalFunc(ActivateSignal), this);
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
@@ -3742,10 +3742,10 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	tableReplace.Add(wText, 1, true, 0, 0);
 	wText.Show();
 
-	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event", 
+	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event",
 		GtkSignalFunc(EscapeSignal), this);
 
-	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "activate", 
+	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
 		GtkSignalFunc(ActivateSignal), this);
 
 	//gtk_combo_disable_activate(pComboText);
@@ -3779,10 +3779,10 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	wReplace.Create();
 	tableReplace.Add(wReplace, 1, true, 0, 0);
 
-	gtk_signal_connect(GTK_OBJECT(wReplace.Entry()), "key-press-event", 
+	gtk_signal_connect(GTK_OBJECT(wReplace.Entry()), "key-press-event",
 		GtkSignalFunc(EscapeSignal), this);
-	
-	gtk_signal_connect(GTK_OBJECT(wReplace.Entry()), "activate", 
+
+	gtk_signal_connect(GTK_OBJECT(wReplace.Entry()), "activate",
 		GtkSignalFunc(ActivateSignal), this);
 
 	//gtk_combo_disable_activate(pComboReplace);
