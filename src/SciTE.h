@@ -181,6 +181,14 @@
 #define IDM_MOVETABRIGHT			508
 #define IDM_MOVETABLEFT			509
 
+#define IDM_WHOLEWORD			800
+#define IDM_MATCHCASE			801
+#define IDM_REGEXP					802
+#define IDM_WRAPAROUND		803
+#define IDM_UNSLASH				804
+#define IDM_DIRECTIONUP			805
+#define IDM_DIRECTIONDOWN	806
+
 // Help
 #define IDM_HELP			901
 #define IDM_ABOUT			902
@@ -248,4 +256,10 @@
 // Resource IDs
 #define IDR_CLOSEFILE 100
 #define IDC_DRAGDROP        401
+#define IDBM_WORD 101
+#define IDBM_CASE 102
+#define IDBM_REGEX 103
+#define IDBM_BACKSLASH 104
+#define IDBM_AROUND 105
+#define IDBM_UP 106
 #endif

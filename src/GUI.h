@@ -37,6 +37,12 @@ public:
 	}
 	int Width() const { return right - left; }
 	int Height() const { return bottom - top; }
+	bool operator==(const Rectangle &other) {
+		return (left == other.left) &&
+			(top == other.top) &&
+			(right == other.right) &&
+			(bottom == other.bottom);
+	}
 };
 
 #if defined(GTK)
@@ -78,6 +84,9 @@ public:
 	}
 	WindowID GetID() const {
 		return wid;
+	}
+	void SetID(WindowID wid_) {
+		wid = wid_;
 	}
 	bool Created() const {
 		return wid != 0;

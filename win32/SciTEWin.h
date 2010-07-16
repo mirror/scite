@@ -27,20 +27,21 @@
 #define _WIN32_IE	0x0400
 #endif
 
-#ifdef __BORLANDC__
-// Borland includes Windows.h for STL and defaults to different API number
-#ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
-#endif
-#endif
-
-#undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0500
+#define _WIN32_WINNT  0x0501
+#undef WINVER
+#define WINVER 0x0501
 #ifdef _MSC_VER
 // windows.h, et al, use a lot of nameless struct/unions - can't fix it, so allow it
 #pragma warning(disable: 4201)
 #endif
 #include <windows.h>
+#if defined(__BORLANDC__) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
+// Borland C++ 5.5 does not have Uxtheme.h
+typedef HANDLE HTHEME;
+#else
+#include <Uxtheme.h>
+#endif
 #ifdef _MSC_VER
 // okay, that's done, don't allow it in our code
 #pragma warning(default: 4201)
@@ -84,9 +85,188 @@ const int SCITE_DROP = WM_APP + 1;
 
 class Dialog;
 
+class SciTEWin;
+
+inline HWND HwndOf(GUI::Window w) {
+	return reinterpret_cast<HWND>(w.GetID());
+}
+
+class BaseWin : public GUI::Window {
+public:
+	SciTEWin *pSciTEWin;
+	BaseWin() : pSciTEWin(0) {
+	}
+	void SetSciTE(SciTEWin *pSciTEWin_) {
+		pSciTEWin = pSciTEWin_;
+	}
+	HWND Hwnd() const {
+		return reinterpret_cast<HWND>(GetID());
+	}
+	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) = 0;
+	static LRESULT PASCAL StWndProc(
+	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+};
+
+class ContentWin : public BaseWin {
+	bool capturedMouse;
+public:
+	ContentWin() : capturedMouse(false) {
+	}
+	void Paint(HDC hDC, GUI::Rectangle rcPaint);
+	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+};
+
+class Strip : public BaseWin {
+protected:
+	HFONT fontText;
+	HTHEME hTheme;
+	bool capturedMouse;
+	SIZE closeSize;
+	enum stripCloseState { csNone, csOver, csClicked, csClickedOver } closeState;
+	GUI::Window CreateText(const char *text);
+	GUI::Window CreateButton(const char *text, int ident, bool check=false);
+	void Tab(bool forwards);
+	virtual void Creation();
+	virtual void Destruction();
+	virtual void Close();
+	virtual bool KeyDown(WPARAM key);
+	virtual bool Command(WPARAM wParam);
+	void ScrollEditorIfNeeded();
+	virtual void Size();
+	virtual void Paint(HDC hDC);
+	GUI::Rectangle CloseArea();
+	void InvalidateClose();
+	bool MouseInClose(GUI::Point pt);
+	void TrackMouse(GUI::Point pt);
+	void SetTheme();
+	virtual LRESULT CustomDraw(NMHDR *pnmh);
+	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+public:
+	bool visible;
+	Strip() : fontText(0), hTheme(0), capturedMouse(false), closeState(csNone), visible(false) {
+		closeSize.cx = 11;
+		closeSize.cy = 11;
+	}
+	virtual int Height() {
+		return 25;
+	}
+};
+
+class SearchStrip : public Strip {
+	int entered;
+	GUI::Window wStaticFind;
+	GUI::Window wText;
+	GUI::Window wButton;
+public:
+	SearchStrip() : entered(0) {
+	}
+	virtual void Creation();
+	virtual void Destruction();
+	virtual void Close();
+	void Focus();
+	virtual bool KeyDown(WPARAM key);
+	void Next(bool select);
+	virtual bool Command(WPARAM wParam);
+	virtual void Size();
+	virtual void Paint(HDC hDC);
+	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+};
+
+class FindStrip : public Strip {
+	int entered;
+	int lineHeight;
+	GUI::Window wStaticFind;
+	GUI::Window wText;
+	GUI::Window wButton;
+	GUI::Window wButtonMarkAll;
+	GUI::Window wCheckWord;
+	GUI::Window wCheckCase;
+	GUI::Window wCheckRE;
+	GUI::Window wCheckBE;
+	GUI::Window wCheckWrap;
+	GUI::Window wCheckUp;
+public:
+	FindStrip() : entered(0), lineHeight(20) {
+	}
+	virtual void Creation();
+	virtual void Destruction();
+	virtual void Close();
+	void Focus();
+	virtual bool KeyDown(WPARAM key);
+	void Next(bool markAll);
+	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
+	void ShowPopup();
+	virtual bool Command(WPARAM wParam);
+	virtual void Size();
+	virtual void Paint(HDC hDC);
+	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	void CheckButtons();
+	void Show();
+	virtual int Height() {
+		return lineHeight + 1;
+	}
+};
+
+class ReplaceStrip : public Strip {
+	int entered;
+	int lineHeight;
+	GUI::Window wStaticFind;
+	GUI::Window wText;
+	//GUI::Window wButtonOptions;
+	GUI::Window wCheckWord;
+	GUI::Window wCheckCase;
+	GUI::Window wButtonFind;
+	GUI::Window wButtonReplaceAll;
+	GUI::Window wCheckRE;
+	GUI::Window wCheckWrap;
+	GUI::Window wCheckBE;
+	GUI::Window wStaticReplace;
+	GUI::Window wReplace;
+	GUI::Window wButtonReplace;
+	GUI::Window wButtonReplaceInSelection;
+public:
+	ReplaceStrip() : entered(0), lineHeight(20) {
+	}
+	virtual void Creation();
+	virtual void Destruction();
+	virtual void Close();
+	void Focus();
+	virtual bool KeyDown(WPARAM key);
+	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
+	void ShowPopup();
+	void HandleReplaceCommand(int cmd);
+	virtual bool Command(WPARAM wParam);
+	virtual void Size();
+	virtual void Paint(HDC hDC);
+	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	void CheckButtons();
+	void Show();
+	virtual int Height() {
+		return lineHeight * 2 + 1;
+	}
+};
+
+struct Band {
+	bool visible;
+	int height;
+	bool expands;
+	GUI::Window win;
+	Band(bool visible_, int height_, bool expands_, GUI::Window win_) :
+		visible(visible_),
+		height(height_),
+		expands(expands_),
+		win(win_) {
+	}
+};
+
 /** Windows specific stuff.
  **/
 class SciTEWin : public SciTEBase {
+	friend class ContentWin;
+	friend class Strip;
+	friend class SearchStrip;
+	friend class FindStrip;
+	friend class ReplaceStrip;
 
 protected:
 
@@ -97,6 +277,7 @@ protected:
 	static SciTEWin *app;
 	WINDOWPLACEMENT winPlace;
 	RECT rcWorkArea;
+	bool commonControlsLoaded;
 	GUI::gui_char openWhat[200];
 	bool modalParameters;
 	int filterDefault;
@@ -132,6 +313,14 @@ protected:
 	GUI::Window wFindInFiles;
 	GUI::Window wFindReplace;
 	GUI::Window wParameters;
+
+	ContentWin contents;
+	SearchStrip searchStrip;
+	FindStrip findStrip;
+	ReplaceStrip replaceStrip;
+
+	enum { bandTool, bandTab, bandContents, bandSearch, bandFind, bandReplace, bandStatus };
+	std::vector<Band> bands;
 
 	virtual void ReadLocalization();
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
@@ -279,14 +468,12 @@ public:
 	virtual void StopExecute();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input = "", int flags=0);
 
-	void Paint(HDC hDC, GUI::Rectangle rcPaint);
 	void Creation();
 	LRESULT KeyDown(WPARAM wParam);
 	LRESULT KeyUp(WPARAM wParam);
 	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true);
 	LRESULT ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
-	LRESULT WndProcI(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	virtual SString EncodeString(const SString &s);
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
@@ -298,8 +485,6 @@ public:
 	uptr_t GetInstance();
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
-	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
-	static LRESULT PASCAL IWndProc(
 	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	friend class UniqueInstance;

@@ -1742,7 +1742,7 @@ NameError: mistake
 	</tr>
 	<tr>
 	<td>fold.comment</td>
-	<td>This option enables folding multi-line comments and explicit fold points when using the C++ lexer. Explicit fold points allows adding extra folding by placing a //{ comment at the start and a //} at the end of a section that should fold.</td>
+	<td>This option enables folding multi-line comments and explicit fold points when using the C++ lexer.  Explicit fold points allows adding extra folding by placing a //{ comment at the start and a //}  at the end of a section that should fold.</td>
 	</tr>
 	<tr>
 	<td>fold.comment.python</td>
@@ -1774,7 +1774,7 @@ NameError: mistake
 	</tr>
 	<tr>
 	<td>fold.preprocessor</td>
-	<td>This option enables folding preprocessor directives when using the C++ lexer. Includes C#'s explicit #region and #endregion folding directives.</td>
+	<td>This option enables folding preprocessor directives when using the C++ lexer.  Includes C#'s explicit #region and #endregion folding directives.</td>
 	</tr>
 	<tr>
 	<td>fold.quotes.python</td>
@@ -1791,6 +1791,14 @@ NameError: mistake
 	<tr>
 	<td>lexer.cpp.allow.dollars</td>
 	<td>Set to 0 to disallow the '$' character in identifiers with the cpp lexer.</td>
+	</tr>
+	<tr>
+	<td>lexer.cpp.track.preprocessor</td>
+	<td>Set to 1 to interpret #if/#else/#endif to grey out code that is not active.</td>
+	</tr>
+	<tr>
+	<td>lexer.cpp.update.preprocessor</td>
+	<td>Set to 1 to update preprocessor definitions when #define found.</td>
 	</tr>
 	<tr>
 	<td>lexer.d.fold.at.else</td>
@@ -1842,7 +1850,7 @@ NameError: mistake
 	</tr>
 	<tr>
 	<td>styling.within.preprocessor</td>
-	<td>For C++ code, determines whether all preprocessor code is styled in the preprocessor style (0, the default) or only from the initial # to the end of the command word(1).</td>
+	<td>For C++ code, determines whether all preprocessor code is styled in the  preprocessor style (0, the default) or only from the initial # to the end  of the command word(1).</td>
 	</tr>
 	<tr>
 	<td>tab.timmy.whinge.level</td>

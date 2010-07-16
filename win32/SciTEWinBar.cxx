@@ -330,6 +330,7 @@ void SciTEWin::SizeSubWindows() {
 
 	//::SendMessage(MainHWND(), WM_SETREDRAW, false, 0); // suppress flashing
 	visHeightTools = tbVisible ? heightTools : 0;
+	bands[bandTool].visible = tbVisible;
 
 	if (tabVisible) {	// ? hide one tab only
 		showTab = tabHideOne ?
@@ -337,60 +338,71 @@ void SciTEWin::SizeSubWindows() {
 		          true;
 	}
 
-	if (showTab) {
+	bands[bandTab].visible = showTab;
+	int tabRows = 1;
+	if (showTab && tabMultiLine) {
 		wTabBar.SetPosition(GUI::Rectangle(
 			rcClient.left, rcClient.top + visHeightTools,
 			rcClient.right, rcClient.top + heightTab + visHeightTools));
-		int tabNb = ::SendMessage(reinterpret_cast<HWND>(
+		tabRows = ::SendMessage(reinterpret_cast<HWND>(
 			wTabBar.GetID()), TCM_GETROWCOUNT, 0, 0);
-		visHeightTab = ((tabNb - 1) * (heightTab - 6)) + heightTab;
-	} else {
-		visHeightTab = 0;
 	}
-	visHeightStatus = sbVisible ? heightStatus : 0;
-	visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus - visHeightTab;
-	if (visHeightEditor < 1) {
-		visHeightTools = 1;
-		visHeightStatus = 1;
-		visHeightTab = 1;
-		visHeightEditor = rcClient.Height() - visHeightTools - visHeightStatus - visHeightTab;
-	}
-	if (tbVisible) {
-		wToolBar.SetPosition(GUI::Rectangle(
-		                         rcClient.left, rcClient.top, rcClient.right, visHeightTools));
-		wToolBar.Show(true);
-	} else {
-		wToolBar.Show(false);
-		wToolBar.SetPosition(GUI::Rectangle(
-		                         rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
-	}
-	if (showTab) {
-		wTabBar.SetPosition(GUI::Rectangle(
-		                        rcClient.left, rcClient.top + visHeightTools,
-		                        rcClient.right, rcClient.top + visHeightTab + visHeightTools));
-		wTabBar.Show(true);
-	} else {
-		wTabBar.Show(false);
-		wTabBar.SetPosition(GUI::Rectangle(
-		                        rcClient.left, rcClient.top - 2,
-		                        rcClient.Width(), 1));
-	}
-	if (sbVisible) {
-		wStatusBar.SetPosition(GUI::Rectangle(
-		                           rcClient.left, rcClient.top + visHeightTools + visHeightTab + visHeightEditor,
-		                           rcClient.right,
-		                           rcClient.top + visHeightTools + visHeightTab + visHeightEditor + visHeightStatus));
-		wStatusBar.Show(true);
-	} else {
-		wStatusBar.Show(false);
-		wStatusBar.SetPosition(GUI::Rectangle(
-		                           rcClient.left, rcClient.top - 2, rcClient.Width(), 1));
-	}
+	bands[bandTab].height = ((tabRows - 1) * (heightTab - 6)) + heightTab;
 
-	wContent.SetPosition(GUI::Rectangle(
-	                         rcClient.left, rcClient.top + visHeightTab + visHeightTools,
-	                         rcClient.right,
-	                         rcClient.top + visHeightTab + visHeightTools + visHeightEditor));
+	bands[bandSearch].visible = searchStrip.visible;
+	bands[bandFind].visible = findStrip.visible;
+	bands[bandReplace].visible = replaceStrip.visible;
+	bands[bandStatus].visible = sbVisible;
+
+	int heightContent = rcClient.Height();
+	if (heightContent <= 0)
+		heightContent = 1;
+
+	for (size_t i=0;i<bands.size();i++) {
+		if (bands[i].visible && !bands[i].expands)
+			heightContent -= bands[i].height;
+	}
+	if (heightContent <= 0) {
+		heightContent = rcClient.Height();
+		for (size_t i=0;i<bands.size();i++) {
+			if (i != bandContents)
+				bands[i].visible = false;
+		}
+	}
+	bands[bandContents].height = heightContent;
+
+	// May need to copy some values out to other variables
+
+	HDWP hdwp = BeginDeferWindowPos(10);
+
+	int yPos = rcClient.top;
+	for (size_t b=0; b<bands.size(); b++) {
+		if (bands[b].visible) {
+			GUI::Rectangle rcToSet(rcClient.left, yPos, rcClient.right, yPos + bands[b].height);
+			if (hdwp)
+				hdwp = ::DeferWindowPos(hdwp, reinterpret_cast<HWND>(bands[b].win.GetID()),
+				0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
+				SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
+			//bands[b].win.Show(true);
+			yPos += bands[b].height;
+		} else {
+			GUI::Rectangle rcToSet(rcClient.left, rcClient.top - 41, rcClient.Width(), rcClient.top - 40);
+			if (hdwp)
+				hdwp = ::DeferWindowPos(hdwp, reinterpret_cast<HWND>(bands[b].win.GetID()),
+				0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
+				SWP_NOZORDER|SWP_NOACTIVATE|SWP_HIDEWINDOW);
+			//bands[b].win.Show(false);
+			//bands[b].win.SetPosition();
+		}
+	}
+	if (hdwp)
+		::EndDeferWindowPos(hdwp);
+
+	visHeightTools = bands[bandTool].height;
+	visHeightTab = bands[bandTab].height;
+	visHeightEditor = bands[bandContents].height;
+	visHeightStatus = bands[bandStatus].height;
+
 	SizeContentWindows();
 	//::SendMessage(MainHWND(), WM_SETREDRAW, true, 0);
 	//::RedrawWindow(MainHWND(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
@@ -480,9 +492,9 @@ void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 
 void SciTEWin::CheckMenus() {
 	SciTEBase::CheckMenus();
-	CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
+	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
 	                   wEditor.Call(SCI_GETEOLMODE) - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
-	CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UCOOKIE,
+	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UCOOKIE,
 	                   CurrentBuffer()->unicodeMode + IDM_ENCODING_DEFAULT, 0);
 }
 
@@ -902,7 +914,7 @@ void SciTEWin::Creation() {
 	               MainHWND(),
 	               reinterpret_cast<HMENU>(2000),
 	               hInstance,
-	               reinterpret_cast<LPSTR>(this));
+	               reinterpret_cast<LPSTR>(&contents));
 	wContent.Show();
 
 	wEditor.SetID(::CreateWindowEx(
@@ -986,7 +998,7 @@ void SciTEWin::Creation() {
 	INITCOMMONCONTROLSEX icce;
 	icce.dwSize = sizeof(icce);
 	icce.dwICC = ICC_TAB_CLASSES;
-	InitCommonControlsEx(&icce);
+	commonControlsLoaded = InitCommonControlsEx(&icce);
 
 	WNDCLASS wndClass = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	GetClassInfo(NULL, WC_TABCONTROL, &wndClass);
@@ -1025,6 +1037,45 @@ void SciTEWin::Creation() {
 
 	wTabBar.Show();
 
+	::CreateWindowEx(
+	               0,
+	               classNameInternal,
+	               TEXT("searchStrip"),
+	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	               0, 0,
+	               100, 100,
+	               MainHWND(),
+	               reinterpret_cast<HMENU>(2001),
+	               hInstance,
+	               reinterpret_cast<LPSTR>(&searchStrip));
+	//searchStrip.Show();
+
+	::CreateWindowEx(
+	               0,
+	               classNameInternal,
+	               TEXT("FindStrip"),
+	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	               0, 0,
+	               100, 100,
+	               MainHWND(),
+	               reinterpret_cast<HMENU>(2002),
+	               hInstance,
+	               reinterpret_cast<LPSTR>(&findStrip));
+	//findStrip.Show();
+
+	::CreateWindowEx(
+	               0,
+	               classNameInternal,
+	               TEXT("ReplaceStrip"),
+	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	               0, 0,
+	               100, 100,
+	               MainHWND(),
+	               reinterpret_cast<HMENU>(2003),
+	               hInstance,
+	               reinterpret_cast<LPSTR>(&replaceStrip));
+	//replaceStrip.Show();
+
 	wStatusBar = ::CreateWindowEx(
 	                 0,
 	                 STATUSCLASSNAME,
@@ -1043,6 +1094,14 @@ void SciTEWin::Creation() {
 	::SendMessage(reinterpret_cast<HWND>(wStatusBar.GetID()),
 	              SB_SETPARTS, 1,
 	              reinterpret_cast<LPARAM>(widths));
+
+	bands.push_back(Band(true, heightTools, false, wToolBar));
+	bands.push_back(Band(true, heightTab, false, wTabBar));
+	bands.push_back(Band(true, 100, true, wContent));
+	bands.push_back(Band(true, searchStrip.Height(), false, searchStrip));
+	bands.push_back(Band(true, findStrip.Height(), false, findStrip));
+	bands.push_back(Band(true, replaceStrip.Height(), false, replaceStrip));
+	bands.push_back(Band(true, heightStatus, false, wStatusBar));
 
 #ifndef NO_LUA
 		if (props.GetExpanded("ext.lua.startup.script").length() == 0)

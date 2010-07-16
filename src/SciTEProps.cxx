@@ -551,6 +551,8 @@ static const char *propertiesToForward[] = {
 	"html.tags.case.sensitive",
 	"lexer.caml.magic",
 	"lexer.cpp.allow.dollars",
+	"lexer.cpp.track.preprocessor",
+	"lexer.cpp.update.preprocessor",
 	"lexer.d.fold.at.else",
 	"lexer.errorlist.value.separate",
 	"lexer.flagship.styling.within.preprocessor",

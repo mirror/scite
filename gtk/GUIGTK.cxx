@@ -95,30 +95,37 @@ void Window::SetTitle(const char *s) {
 
 void Menu::CreatePopUp() {
 	Destroy();
-	mid = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+	mid = gtk_menu_new();
+	g_object_ref_sink(G_OBJECT(mid));
 }
 
 void Menu::Destroy() {
 	if (mid)
-		g_object_unref(G_OBJECT(mid));
+		g_object_unref(mid);
 	mid = 0;
+}
+
+static void  MenuPositionFunc(GtkMenu *, gint *x, gint *y, gboolean *, gpointer userData) {
+	sptr_t intFromPointer = reinterpret_cast<sptr_t>(userData);
+	*x = intFromPointer & 0xffff;
+	*y = intFromPointer >> 16;
 }
 
 void Menu::Show(Point pt, Window &) {
 	int screenHeight = gdk_screen_height();
 	int screenWidth = gdk_screen_width();
-	GtkItemFactory *factory = reinterpret_cast<GtkItemFactory *>(mid);
-	GtkWidget *widget = gtk_item_factory_get_widget(factory, "<main>");
-	gtk_widget_show_all(widget);
+	GtkMenu *widget = reinterpret_cast<GtkMenu *>(mid);
+	gtk_widget_show_all(GTK_WIDGET(widget));
 	GtkRequisition requisition;
-	gtk_widget_size_request(widget, &requisition);
+	gtk_widget_size_request(GTK_WIDGET(widget), &requisition);
 	if ((pt.x + requisition.width) > screenWidth) {
 		pt.x = screenWidth - requisition.width;
 	}
 	if ((pt.y + requisition.height) > screenHeight) {
 		pt.y = screenHeight - requisition.height;
 	}
-	gtk_item_factory_popup(factory, pt.x - 4, pt.y - 4, 3,
+	gtk_menu_popup(widget, NULL, NULL, MenuPositionFunc, 
+		reinterpret_cast<void *>((pt.y << 16) | pt.x), 0,
 		gtk_get_current_event_time());
 }
 
