@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="imm32.lib comctl32.lib"
+				AdditionalDependencies="imm32.lib comctl32.lib uxtheme.lib"
 				OutputFile=".\Release/SciTE.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -111,7 +111,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="imm32.lib comctl32.lib"
+				AdditionalDependencies="imm32.lib comctl32.lib uxtheme.lib"
 				OutputFile=".\Debug/SciTE.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
