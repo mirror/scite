@@ -37,7 +37,7 @@ public:
 	}
 	int Width() const { return right - left; }
 	int Height() const { return bottom - top; }
-	bool operator==(const Rectangle &other) {
+	bool operator==(const Rectangle &other) const {
 		return (left == other.left) &&
 			(top == other.top) &&
 			(right == other.right) &&
