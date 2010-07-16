@@ -11,6 +11,8 @@ syntax: glob
 *.res
 *.bak
 *.sbr
+*.suo
+*.vcxproj*
 *.bsc
 *.ilk
 *.idb
@@ -21,6 +23,6 @@ syntax: glob
 *.opensdf
 Debug
 _UpgradeReport_Files
-UpgradeLog.xml
+UpgradeLog.XML
 bin
 BuildLog.htm
