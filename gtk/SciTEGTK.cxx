@@ -377,7 +377,6 @@ protected:
 	//~ enum { heightButton=22, heightStatic=12};
 	enum { heightButton=23, heightStatic=12};
 	GtkAccelGroup *accel_group;
-	Localization *localiser_;
 public:
 	bool visible;
 	Strip() : allowMenuActions(false), accel_group(0), visible(false) {
