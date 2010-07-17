@@ -535,6 +535,7 @@ static const char *propertiesToForward[] = {
 	"fold.comment.nimrod",
 	"fold.comment.yaml",
 	"fold.compact",
+	"fold.cpp.comment.explicit",
 	"fold.directive",
 	"fold.html",
 	"fold.html.preprocessor",
