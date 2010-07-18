@@ -871,14 +871,10 @@ void SciTEBase::BuffersMenu() {
 #if !defined(GTK)
 
 			if (pos < 10) {
-				GUI::gui_char stemp[100];
-#if defined(_MSC_VER) && (_MSC_VER > 1200)
-				swprintf(stemp, ELEMENTS(stemp), GUI_TEXT("&%d "), (pos + 1) % 10 );
-#else
-				swprintf(stemp, GUI_TEXT("&%d "), (pos + 1) % 10 );
-#endif
-				entry = stemp;	// hotkey 1..0
-				titleTab = stemp; // add hotkey to the tabbar
+				GUI::gui_string sPos = GUI::StringFromInteger((pos + 1) % 10);
+				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
+				entry = sHotKey;	// hotkey 1..0
+				titleTab = sHotKey; // add hotkey to the tabbar
 			}
 #endif
 
