@@ -16,6 +16,7 @@ syntax: glob
 *.bsc
 *.ilk
 *.idb
+*.ncb
 *.tlog
 *.ipch
 *.old
