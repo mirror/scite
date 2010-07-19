@@ -1080,9 +1080,11 @@ BOOL CALLBACK SciTEWin::FindIncrementDlg(HWND hDlg, UINT message, WPARAM wParam,
 }
 
 void SciTEWin::FindIncrement() {
-	if (findStrip.visible || replaceStrip.visible)
-		return;
 	if (props.GetInt("find.incremental.use.strip")) {
+		if (findStrip.visible)
+			findStrip.Close();
+		if (replaceStrip.visible)
+			replaceStrip.Close();
 		searchStrip.visible = !searchStrip.visible;
 		SizeSubWindows();
 		if (searchStrip.visible) {
@@ -1091,6 +1093,8 @@ void SciTEWin::FindIncrement() {
 			WindowSetFocus(wEditor);
 		}
 	} else {
+		if (findStrip.visible || replaceStrip.visible)
+			return;
 		if (wFindIncrement.Created()) {
 			wFindIncrement.Destroy();
 			return;
@@ -1117,20 +1121,20 @@ void SciTEWin::Find() {
 		return;
 	if (wFindReplace.Created())
 		return;
-	if (searchStrip.visible || replaceStrip.visible)
-		return;
-
 	SelectionIntoFind();
 
 	if (props.GetInt("find.use.strip")) {
+		if (searchStrip.visible)
+			searchStrip.Close();
+		if (replaceStrip.visible)
+			replaceStrip.Close();
 		findStrip.visible = true;
 		SizeSubWindows();
-		if (findStrip.visible) {
-			findStrip.Show();
-		} else {
-			WindowSetFocus(wEditor);
-		}
+		findStrip.Show();
 	} else {
+		if (searchStrip.visible || replaceStrip.visible)
+			return;
+
 		int dialog_id = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
 
 		wFindReplace = ::CreateDialogParamW(hInstance,
@@ -1327,20 +1331,22 @@ void SciTEWin::FindInFiles() {
 }
 
 void SciTEWin::Replace() {
-	if (wFindReplace.Created() || searchStrip.visible || findStrip.visible)
+	if (wFindReplace.Created())
 		return;
 	SelectionIntoFind(false); // don't strip EOL at end of selection
 
 	if (props.GetInt("replace.use.strip")) {
+		if (searchStrip.visible)
+			searchStrip.Close();
+		if (findStrip.visible)
+			findStrip.Close();
 		replaceStrip.visible = true;
 		SizeSubWindows();
-		if (replaceStrip.visible) {
-			replaceStrip.Show();
-			havefound = false;
-		} else {
-			WindowSetFocus(wEditor);
-		}
+		replaceStrip.Show();
+		havefound = false;
 	} else {
+		if (searchStrip.visible || findStrip.visible)
+			return;
 		int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
 
 		wFindReplace = ::CreateDialogParamW(hInstance,
