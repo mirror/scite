@@ -584,6 +584,33 @@ HWND SciTEWin::MainHWND() {
 	return HwndOf(wSciTE);
 }
 
+// The find and replace dialogs and strips often manipulate boolean 
+// flags based on dialog control IDs and menu IDs.
+bool &SciTEWin::FlagFromCmd(int cmd) {
+	static bool notFound;
+	switch (cmd) {
+		case IDWHOLEWORD: 
+		case IDM_WHOLEWORD:
+			return wholeWord;
+		case IDMATCHCASE:
+		case IDM_MATCHCASE:
+			return matchCase;
+		case IDREGEXP:
+		case IDM_REGEXP:
+			return regExp;
+		case IDUNSLASH:
+		case IDM_UNSLASH:
+			return unSlash;
+		case IDWRAP:
+		case IDM_WRAPAROUND:
+			return wrapFind;
+		case IDDIRECTIONUP:
+		case IDM_DIRECTIONUP:
+			return reverseFind;
+	}
+	return notFound;
+}
+
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	int cmdID = ControlIDOfCommand(wParam);
 	if (wParam & 0x10000) {
@@ -2029,6 +2056,24 @@ static SString ControlText(GUI::Window w) {
 static const char *searchText = "Fi&nd:";
 static const char *replaceText = "Re&place:";
 
+struct Toggle {
+	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
+	const char *label;
+	int cmd;
+	int id;
+};
+
+static Toggle toggles[] = {
+	"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD,
+	"Match &case", IDM_MATCHCASE, IDMATCHCASE,
+	"Regular &expression", IDM_REGEXP, IDREGEXP,
+	"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH,
+	"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP,
+	"&Up", IDM_DIRECTIONUP, IDDIRECTIONUP,
+	0, 0, 0,
+};
+
+
 GUI::Window Strip::CreateText(const char *text) {
 	GUI::gui_string localised = pSciTEWin->localiser.Text(text);
 	int width = WidthText(fontText, localised.c_str()) + 4;
@@ -2097,6 +2142,18 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		}
 	}
 #endif
+	TOOLINFO toolInfo;
+	memset(&toolInfo, 0, sizeof(toolInfo));
+	toolInfo.cbSize = sizeof(toolInfo);
+	toolInfo.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
+	toolInfo.hinst = pSciTEWin->hInstance;
+	toolInfo.hwnd = Hwnd();
+	toolInfo.uId = (UINT_PTR)w.GetID();
+	toolInfo.lpszText = LPSTR_TEXTCALLBACK;
+	::GetClientRect(Hwnd(), &toolInfo.rect);
+	::SendMessageW(static_cast<HWND>(wToolTip.GetID()), TTM_ADDTOOLW, 
+		0, (LPARAM) &toolInfo);
+	::SendMessage(static_cast<HWND>(wToolTip.GetID()), TTM_ACTIVATE, TRUE, 0);
 	return w;
 }
 
@@ -2112,6 +2169,14 @@ void Strip::Creation() {
 	ncm.cbSize = sizeof(ncm);
 	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE);
 	fontText = ::CreateFontIndirect(&ncm.lfMessageFont);
+
+	wToolTip = ::CreateWindowEx(0,
+		TOOLTIPS_CLASSW, NULL,
+		WS_POPUP | TTS_ALWAYSTIP,  
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		Hwnd(), NULL, pSciTEWin->hInstance, NULL);
+
 	SetTheme();
 }
 
@@ -2488,6 +2553,17 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			NMHDR *pnmh = reinterpret_cast<LPNMHDR>(lParam);
 			if (pnmh->code == static_cast<unsigned int>(NM_CUSTOMDRAW)) {
 				return CustomDraw(pnmh);
+			} else if (pnmh->code == static_cast<unsigned int>(TTN_GETDISPINFO)) {
+				NMTTDISPINFOW *pnmtdi = (LPNMTTDISPINFO) lParam;
+				int idButton = (pnmtdi->uFlags & TTF_IDISHWND) ? 
+					::GetDlgCtrlID(reinterpret_cast<HWND>(pnmtdi->hdr.idFrom)) : pnmtdi->hdr.idFrom;
+				for (size_t i=0; toggles[i].label; i++) {
+					if (toggles[i].id == idButton) {
+						GUI::gui_string localised = pSciTEWin->localiser.Text(toggles[i].label);
+						wcscpy(pnmtdi->szText, localised.c_str());
+					}
+				}
+				return 0;
 			} else {
 				return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
 			}
@@ -2661,12 +2737,12 @@ void FindStrip::Creation() {
 	wButton = CreateButton("&Find Next", IDOK);
 	wButtonMarkAll = CreateButton("&Mark All", IDMARKALL);
 
-	wCheckWord = CreateButton("&Word", IDWHOLEWORD, true);
-	wCheckCase = CreateButton("&Case", IDMATCHCASE, true);
-	wCheckRE = CreateButton("Reg&Ex", IDREGEXP, true);
-	wCheckBE = CreateButton("&Backslash", IDUNSLASH, true);
-	wCheckWrap = CreateButton("Ar&ound", IDWRAP, true);
-	wCheckUp = CreateButton("&Up", IDDIRECTIONUP, true);
+	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
+	wCheckCase = CreateButton(toggles[Toggle::tCase].label, toggles[Toggle::tCase].id, true);
+	wCheckRE = CreateButton(toggles[Toggle::tRegExp].label, toggles[Toggle::tRegExp].id, true);
+	wCheckBE = CreateButton(toggles[Toggle::tBackslash].label, toggles[Toggle::tBackslash].id, true);
+	wCheckWrap = CreateButton(toggles[Toggle::tWrap].label, toggles[Toggle::tWrap].id, true);
+	wCheckUp = CreateButton(toggles[Toggle::tUp].label, toggles[Toggle::tUp].id, true);
 }
 
 void FindStrip::Destruction() {
@@ -2795,12 +2871,9 @@ void FindStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool ch
 void FindStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	AddToPopUp(popup, "Match &whole word only", IDM_WHOLEWORD, pSciTEWin->wholeWord);
-	AddToPopUp(popup, "Match &case", IDM_MATCHCASE, pSciTEWin->matchCase);
-	AddToPopUp(popup, "Regular &expression", IDM_REGEXP, pSciTEWin->regExp);
-	AddToPopUp(popup, "Wrap ar&ound", IDM_WRAPAROUND, pSciTEWin->wrapFind);
-	AddToPopUp(popup, "Transform &backslash expressions", IDM_UNSLASH, pSciTEWin->unSlash);
-	AddToPopUp(popup, "&Up", IDM_DIRECTIONUP, pSciTEWin->reverseFind);
+	for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
+		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSciTEWin->FlagFromCmd(toggles[i].cmd));
+	}
 	GUI::Rectangle rcButton = wButton.GetPosition();
 	GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
@@ -2814,21 +2887,7 @@ bool FindStrip::Command(WPARAM wParam) {
 		Next(control == IDMARKALL);
 		return true;
 	} else {
-		switch (control) {
-		case IDM_WHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;
-		case IDM_MATCHCASE: pSciTEWin->matchCase = !pSciTEWin->matchCase; break;
-		case IDM_REGEXP: pSciTEWin->regExp = !pSciTEWin->regExp; break;
-		case IDM_WRAPAROUND: pSciTEWin->wrapFind = !pSciTEWin->wrapFind; break;
-		case IDM_UNSLASH: pSciTEWin->unSlash = !pSciTEWin->unSlash; break;
-		case IDM_DIRECTIONUP: pSciTEWin->reverseFind = !pSciTEWin->reverseFind; break;
-
-		case IDWHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;
-		case IDMATCHCASE: pSciTEWin->matchCase = !pSciTEWin->matchCase; break;
-		case IDREGEXP: pSciTEWin->regExp = !pSciTEWin->regExp; break;
-		case IDWRAP: pSciTEWin->wrapFind = !pSciTEWin->wrapFind; break;
-		case IDUNSLASH: pSciTEWin->unSlash = !pSciTEWin->unSlash; break;
-		case IDDIRECTIONUP: pSciTEWin->reverseFind = !pSciTEWin->reverseFind; break;
-		}
+		pSciTEWin->FlagFromCmd(control) = !pSciTEWin->FlagFromCmd(control);
 	}
 	return false;
 }
@@ -2901,8 +2960,8 @@ void ReplaceStrip::Creation() {
 	wButtonFind = CreateButton("&Find Next", IDOK);
 	wButtonReplaceAll = CreateButton("Replace &All", IDREPLACEALL);
 
-	wCheckWord = CreateButton("&Word", IDWHOLEWORD, true);
-	wCheckCase = CreateButton("&Case", IDMATCHCASE, true);
+	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
+	wCheckCase = CreateButton(toggles[Toggle::tCase].label, toggles[Toggle::tCase].id, true);
 
 	wStaticReplace = CreateText(replaceText);
 
@@ -2916,9 +2975,9 @@ void ReplaceStrip::Creation() {
 	wButtonReplace = CreateButton("&Replace", IDREPLACE);
 	wButtonReplaceInSelection = CreateButton("&In Selection", IDREPLACEINSEL);
 
-	wCheckRE = CreateButton("Reg&Ex", IDREGEXP, true);
-	wCheckBE = CreateButton("&Backslash", IDUNSLASH, true);
-	wCheckWrap = CreateButton("Ar&ound", IDWRAP, true);
+	wCheckRE = CreateButton(toggles[Toggle::tRegExp].label, toggles[Toggle::tRegExp].id, true);
+	wCheckBE = CreateButton(toggles[Toggle::tBackslash].label, toggles[Toggle::tBackslash].id, true);
+	wCheckWrap = CreateButton(toggles[Toggle::tWrap].label, toggles[Toggle::tWrap].id, true);
 }
 
 void ReplaceStrip::Destruction() {
@@ -3082,11 +3141,9 @@ void ReplaceStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool
 void ReplaceStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	AddToPopUp(popup, "Match &whole word only", IDM_WHOLEWORD, pSciTEWin->wholeWord);
-	AddToPopUp(popup, "Match &case", IDM_MATCHCASE, pSciTEWin->matchCase);
-	AddToPopUp(popup, "Wrap ar&ound", IDM_WRAPAROUND, pSciTEWin->wrapFind);
-	AddToPopUp(popup, "Regular &expression", IDM_REGEXP, pSciTEWin->regExp);
-	AddToPopUp(popup, "Transform &backslash expressions", IDM_UNSLASH, pSciTEWin->unSlash);
+	for (int i=Toggle::tWord; i<=Toggle::tWrap; i++) {
+		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSciTEWin->FlagFromCmd(toggles[i].cmd));
+	}
 	GUI::Rectangle rcButton = wCheckWord.GetPosition();
 	GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
@@ -3145,19 +3202,9 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 		HandleReplaceCommand(control);
 		return true;
 
-	case IDM_WHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;
-	case IDM_MATCHCASE: pSciTEWin->matchCase = !pSciTEWin->matchCase; break;
-	case IDM_REGEXP: pSciTEWin->regExp = !pSciTEWin->regExp; break;
-	case IDM_WRAPAROUND: pSciTEWin->wrapFind = !pSciTEWin->wrapFind; break;
-	case IDM_UNSLASH: pSciTEWin->unSlash = !pSciTEWin->unSlash; break;
-	case IDM_DIRECTIONUP: pSciTEWin->reverseFind = !pSciTEWin->reverseFind; break;
-
-	case IDWHOLEWORD: pSciTEWin->wholeWord = !pSciTEWin->wholeWord; break;
-	case IDMATCHCASE: pSciTEWin->matchCase = !pSciTEWin->matchCase; break;
-	case IDREGEXP: pSciTEWin->regExp = !pSciTEWin->regExp; break;
-	case IDWRAP: pSciTEWin->wrapFind = !pSciTEWin->wrapFind; break;
-	case IDUNSLASH: pSciTEWin->unSlash = !pSciTEWin->unSlash; break;
-	case IDDIRECTIONUP: pSciTEWin->reverseFind = !pSciTEWin->reverseFind; break;
+	default:
+		pSciTEWin->FlagFromCmd(control) = !pSciTEWin->FlagFromCmd(control);
+		break;
 	}
 	CheckButtons();
 	return false;

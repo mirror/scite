@@ -123,6 +123,8 @@ protected:
 	bool capturedMouse;
 	SIZE closeSize;
 	enum stripCloseState { csNone, csOver, csClicked, csClickedOver } closeState;
+	GUI::Window wToolTip;
+
 	GUI::Window CreateText(const char *text);
 	GUI::Window CreateButton(const char *text, int ident, bool check=false);
 	void Tab(bool forwards);
@@ -403,6 +405,7 @@ protected:
 	void FullScreenToggle();
 	void Command(WPARAM wParam, LPARAM lParam);
 	HWND MainHWND();
+	bool &FlagFromCmd(int cmd);
 
 	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
