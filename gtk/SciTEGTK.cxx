@@ -309,6 +309,9 @@ public:
 	operator GtkWidget*() {
 		return GTK_WIDGET(GetID());
 	}
+	GtkWidget* Widget() {
+		return GTK_WIDGET(GetID());
+	}
 };
 
 class WStatic : public WWidget {
@@ -3792,9 +3795,10 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	Table tableReplace(2, 7);
 	SetID(tableReplace.Widget());
 	tableReplace.PackInto(GTK_BOX(boxMain), false);
+
 	wStaticFind.Create(localiser->Text(searchText));
 	tableReplace.Label(wStaticFind);
-
+	
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
 
 	wText.Create();
@@ -3806,8 +3810,6 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 
 	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
 		GtkSignalFunc(ActivateSignal), this);
-
-	//gtk_combo_disable_activate(pComboText);
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
 
@@ -3859,6 +3861,22 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 
 	tableReplace.Add(wCheck[3], 1, false, 0, 0);
 	tableReplace.Add(wCheck[4], 1, false, 0, 0);
+
+	// Make the fccus chain move down before moving right
+	GList *focusChain = 0;
+	focusChain = g_list_append(focusChain, wText.Widget());
+	focusChain = g_list_append(focusChain, wReplace.Widget());
+	focusChain = g_list_append(focusChain, wButtonFind.Widget());
+	focusChain = g_list_append(focusChain, wButtonReplace.Widget());
+	focusChain = g_list_append(focusChain, wButtonReplaceAll.Widget());
+	focusChain = g_list_append(focusChain, wButtonReplaceInSelection.Widget());
+	focusChain = g_list_append(focusChain, wCheck[0].Widget());
+	focusChain = g_list_append(focusChain, wCheck[3].Widget());
+	focusChain = g_list_append(focusChain, wCheck[1].Widget());
+	focusChain = g_list_append(focusChain, wCheck[4].Widget());
+	focusChain = g_list_append(focusChain, wCheck[2].Widget());
+	gtk_container_set_focus_chain(GTK_CONTAINER(GetID()), focusChain);
+	g_list_free(focusChain);
 }
 
 void ReplaceStrip::Destruction() {
