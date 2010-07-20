@@ -374,11 +374,12 @@ public:
 class Strip : public BaseWin {
 protected:
 	bool allowMenuActions;
+	bool childHasFocus;
 	enum { heightButton=23, heightStatic=12, widthCombo=20};
 	GtkAccelGroup *accel_group;
 public:
 	bool visible;
-	Strip() : allowMenuActions(false), accel_group(0), visible(false) {
+	Strip() : allowMenuActions(false), childHasFocus(false), accel_group(0), visible(false) {
 	}
 	virtual void Show();
 	virtual void Close();
@@ -388,6 +389,9 @@ public:
 	virtual void MenuAction(guint action) = 0;
 	static void MenuSignal(GtkMenuItem *menuItem, Strip *pStrip);
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
+	void ChildFocus(GtkWidget *widget);
+	static gboolean ChildFocusSignal(GtkContainer *container, GtkWidget *widget, Strip *pStrip);
+	bool VisibleHasFocus();
 };
 
 class FindStrip : public Strip {
@@ -543,6 +547,7 @@ protected:
 	virtual void DestroyMenuItem(int menuNumber, int itemID);
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
+	virtual void CheckMenusClipboard();
 	virtual void CheckMenus();
 	static void PopUpCmd(GtkMenuItem *menuItem, SciTEGTK *scitew);
 	virtual void AddToPopUp(const char *label, int cmd = 0, bool enabled = true);
@@ -696,6 +701,7 @@ public:
 	                          int startID = 0, const char *radioStart = 0);
 	void CreateMenu();
 	void CreateStrips(GtkWidget *boxMain);
+	bool StripHasFocus();
 	void CreateUI();
 	void Run(int argc, char *argv[]);
 	void ProcessExecute();
@@ -1052,7 +1058,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		SizeSubWindows();
 		CheckMenus();
 		break;
-
+		
 	default:
 		SciTEBase::MenuCommand(cmdID, menuSource);
 		menuSource = 0;
@@ -1211,6 +1217,17 @@ void SciTEGTK::EnableAMenuItem(int wIDCheckItem, bool val) {
 		if (GTK_IS_WIDGET(item))
 			gtk_widget_set_sensitive(item, val);
 
+	}
+}
+
+void SciTEGTK::CheckMenusClipboard() {
+	if (StripHasFocus()) {
+		EnableAMenuItem(IDM_CUT, false);
+		EnableAMenuItem(IDM_COPY, false);
+		EnableAMenuItem(IDM_CLEAR, false);
+		EnableAMenuItem(IDM_PASTE, false);
+	} else {
+		SciTEBase::CheckMenusClipboard();
 	}
 }
 
@@ -3278,6 +3295,20 @@ void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checke
 	allowMenuActions = true;
 }
 
+void Strip::ChildFocus(GtkWidget *widget) {
+	childHasFocus = widget != 0;
+	pSciTEGTK->CheckMenusClipboard();
+}
+
+gboolean Strip::ChildFocusSignal(GtkContainer */*container*/, GtkWidget *widget, Strip *pStrip) {
+	pStrip->ChildFocus(widget);
+	return FALSE;
+}
+
+bool Strip::VisibleHasFocus() {
+	return visible && childHasFocus;
+}
+
 const int stripIconWidth = 16;
 const int stripButtonWidth = 16 + 3 * 2 + 1;
 const int stripButtonPitch = stripButtonWidth;
@@ -3616,6 +3647,8 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	wStaticFind.Create(localiser->Text(searchText).c_str());
 	table.Label(wStaticFind);
 
+	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
+
 	wText.Create();
 	table.Add(wText, 1, true, 0, 0);
 
@@ -3764,6 +3797,8 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	tableReplace.PackInto(GTK_BOX(boxMain), false);
 	wStaticFind.Create(localiser->Text(searchText));
 	tableReplace.Label(wStaticFind);
+
+	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
 
 	wText.Create();
 	tableReplace.Add(wText, 1, true, 0, 0);
@@ -3965,6 +4000,10 @@ void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
 
 	replaceStrip.SetSciTE(this, &localiser);
 	replaceStrip.Creation(boxMain);
+}
+
+bool SciTEGTK::StripHasFocus() {
+	return findStrip.VisibleHasFocus() || replaceStrip.VisibleHasFocus();
 }
 
 void SciTEGTK::CreateUI() {
