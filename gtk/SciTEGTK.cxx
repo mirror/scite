@@ -382,7 +382,7 @@ public:
 	Strip() : allowMenuActions(false), accel_group(0), visible(false) {
 	}
 	virtual void Show();
-	virtual void Hide();
+	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
 	virtual void ShowPopup() = 0;
 	virtual GtkStyle *ButtonStyle() = 0;
@@ -405,7 +405,7 @@ public:
 	virtual void Creation(GtkWidget *boxMain);
 	virtual void Destruction();
 	virtual void Show();
-	virtual void Hide();
+	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
 	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
@@ -432,7 +432,7 @@ public:
 	virtual void Creation(GtkWidget *boxMain);
 	virtual void Destruction();
 	virtual void Show();
-	virtual void Hide();
+	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
 	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, ReplaceStrip *pStrip);
@@ -1544,16 +1544,17 @@ SString SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, 
 void SciTEGTK::HandleFindReplace() {}
 
 void SciTEGTK::Find() {
-	if (findStrip.visible || replaceStrip.visible)
-		return;
 	if (dlgFindReplace.Created()) {
 		dlgFindReplace.Present();
 		return;
 	}
 	SelectionIntoFind();
 	if (props.GetInt("find.use.strip")) {
+		replaceStrip.Close();
 		findStrip.Show();
 	} else {
+		if (findStrip.visible || replaceStrip.visible)
+			return;
 		FindReplace(false);
 	}
 }
@@ -1877,16 +1878,17 @@ void SciTEGTK::FindInFiles() {
 }
 
 void SciTEGTK::Replace() {
-	if (findStrip.visible || replaceStrip.visible)
-		return;
 	if (dlgFindReplace.Created()) {
 		dlgFindReplace.Present();
 		return;
 	}
 	SelectionIntoFind();
 	if (props.GetInt("replace.use.strip")) {
+		findStrip.Close();
 		replaceStrip.Show();
 	} else {
+		if (findStrip.visible || replaceStrip.visible)
+			return;
 		FindReplace(true);
 	}
 }
@@ -3206,7 +3208,7 @@ void Strip::Show() {
 	visible = true;
 }
 
-void Strip::Hide() {
+void Strip::Close() {
 	gtk_widget_hide(PWidget(*this));
 	visible = false;
 }
@@ -3224,7 +3226,7 @@ bool Strip::KeyDown(GdkEventKey *event) {
 
 	if (visible) {
 		if (event->keyval == GDK_Escape) {
-			Hide();
+			Close();
 			return true;
 		}
 
@@ -3678,9 +3680,11 @@ void FindStrip::Show() {
 	gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
 }
 
-void FindStrip::Hide() {
-	Strip::Hide();
-	SetFocus(pSciTEGTK->wEditor);
+void FindStrip::Close() {
+	if (visible) {
+		Strip::Close();
+		SetFocus(pSciTEGTK->wEditor);
+	}
 }
 
 bool FindStrip::KeyDown(GdkEventKey *event) {
@@ -3715,7 +3719,7 @@ void FindStrip::ActivateSignal(GtkWidget *, FindStrip *pStrip) {
 gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip) {
 	if (event->keyval == GDK_Escape) {
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key-press-event");
-		pStrip->Hide();
+		pStrip->Close();
 	}
 	return FALSE;
 }
@@ -3738,7 +3742,7 @@ void FindStrip::FindNextCmd() {
 	if (pSciTEGTK->findWhat[0]) {
 		pSciTEGTK->FindNext(pSciTEGTK->reverseFind);
 	}
-	Hide();
+	Close();
 }
 
 void FindStrip::MarkAllCmd() {
@@ -3747,7 +3751,7 @@ void FindStrip::MarkAllCmd() {
 	pSciTEGTK->memFinds.Insert(pSciTEGTK->findWhat);
 	pSciTEGTK->MarkAll();
 	pSciTEGTK->FindNext(pSciTEGTK->reverseFind);
-	Hide();
+	Close();
 }
 
 GtkStyle *FindStrip::ButtonStyle() {
@@ -3860,9 +3864,11 @@ void ReplaceStrip::Show() {
 	gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
 }
 
-void ReplaceStrip::Hide() {
-	Strip::Hide();
-	SetFocus(pSciTEGTK->wEditor);
+void ReplaceStrip::Close() {
+	if (visible) {
+		Strip::Close();
+		SetFocus(pSciTEGTK->wEditor);
+	}
 }
 
 bool ReplaceStrip::KeyDown(GdkEventKey *event) {
@@ -3897,7 +3903,7 @@ void ReplaceStrip::ActivateSignal(GtkWidget *, ReplaceStrip *pStrip) {
 gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip) {
 	if (event->keyval == GDK_Escape) {
 		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key-press-event");
-		pStrip->Hide();
+		pStrip->Close();
 	}
 	return FALSE;
 }
@@ -4191,8 +4197,8 @@ gboolean SciTEGTK::FindIncrementFocusOutSignal(GtkWidget *w) {
 }
 
 void SciTEGTK::FindIncrement() {
-	if (findStrip.visible || replaceStrip.visible)
-		return;
+	findStrip.Close();
+	replaceStrip.Close();
 	GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
 	gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &white);
 	gtk_widget_show(wIncrementPanel);
