@@ -374,8 +374,7 @@ public:
 class Strip : public BaseWin {
 protected:
 	bool allowMenuActions;
-	//~ enum { heightButton=22, heightStatic=12};
-	enum { heightButton=23, heightStatic=12};
+	enum { heightButton=23, heightStatic=12, widthCombo=20};
 	GtkAccelGroup *accel_group;
 public:
 	bool visible;
@@ -3661,7 +3660,7 @@ void FindStrip::Show() {
 //gtk_widget_set_size_request(GTK_WIDGET(GetID()), -1, buttonHeight+4);
 		gtk_widget_set_size_request(wButton, -1, buttonHeight);
 		gtk_widget_set_size_request(wButtonMarkAll, -1, buttonHeight);
-		gtk_widget_set_size_request(wText, -1, buttonHeight);
+		gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
 		gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
 		gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
 		for (int i=0;i<checks;i++)
@@ -3846,9 +3845,9 @@ void ReplaceStrip::Show() {
 		gtk_widget_set_size_request(wButtonReplace, -1, buttonHeight);
 		gtk_widget_set_size_request(wButtonReplaceInSelection, -1, buttonHeight);
 
-		gtk_widget_set_size_request(wText, -1, buttonHeight);
+		gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
 		gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
-		gtk_widget_set_size_request(wReplace, -1, buttonHeight);
+		gtk_widget_set_size_request(wReplace, widthCombo, buttonHeight);
 		gtk_widget_set_size_request(GTK_WIDGET(wReplace.Entry()), -1, buttonHeight);
 
 		gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
