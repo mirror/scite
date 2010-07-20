@@ -376,10 +376,9 @@ protected:
 	bool allowMenuActions;
 	bool childHasFocus;
 	enum { heightButton=23, heightStatic=12, widthCombo=20};
-	GtkAccelGroup *accel_group;
 public:
 	bool visible;
-	Strip() : allowMenuActions(false), childHasFocus(false), accel_group(0), visible(false) {
+	Strip() : allowMenuActions(false), childHasFocus(false), visible(false) {
 	}
 	virtual void Show();
 	virtual void Close();
@@ -3639,7 +3638,6 @@ gboolean WCheckDraw::ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WChec
 }
 
 void FindStrip::Creation(GtkWidget *boxMain) {
-	accel_group = gtk_accel_group_new();
 	Table table(1, 10);
 	SetID(table.Widget());
 	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
@@ -3791,7 +3789,6 @@ GtkStyle *FindStrip::ButtonStyle() {
 }
 
 void ReplaceStrip::Creation(GtkWidget *boxMain) {
-	accel_group = gtk_accel_group_new();
 	Table tableReplace(2, 7);
 	SetID(tableReplace.Widget());
 	tableReplace.PackInto(GTK_BOX(boxMain), false);
