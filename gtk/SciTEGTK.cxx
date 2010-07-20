@@ -332,6 +332,9 @@ public:
 	const char *Text() {
 		return gtk_combo_box_get_active_text(GTK_COMBO_BOX(GetID()));
 	}
+	bool HasFocusOnSelfOrChild() {
+		return HasFocus() || GTK_WIDGET_HAS_FOCUS(Entry());
+	}
 };
 
 class WButton : public WWidget {
@@ -393,6 +396,8 @@ public:
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
 	void ChildFocus(GtkWidget *widget);
 	static gboolean ChildFocusSignal(GtkContainer *container, GtkWidget *widget, Strip *pStrip);
+	virtual gboolean Focus(GtkDirectionType direction) = 0;
+	static gboolean FocusSignal(GtkWidget *widget, GtkDirectionType direction, Strip *pStrip);
 	bool VisibleHasFocus();
 };
 
@@ -419,6 +424,7 @@ public:
 	void FindNextCmd();
 	void MarkAllCmd();
 	GtkStyle *ButtonStyle();
+	gboolean Focus(GtkDirectionType direction);
 };
 
 class ReplaceStrip : public Strip {
@@ -449,6 +455,7 @@ public:
 	void ReplaceInSelectionCmd();
 	void ShowPopup();
 	GtkStyle *ButtonStyle();
+	gboolean Focus(GtkDirectionType direction);
 };
 
 class SciTEGTK : public SciTEBase {
@@ -3307,6 +3314,10 @@ gboolean Strip::ChildFocusSignal(GtkContainer */*container*/, GtkWidget *widget,
 	return FALSE;
 }
 
+gboolean Strip::FocusSignal(GtkWidget */*widget*/, GtkDirectionType direction, Strip *pStrip) {
+	return pStrip->Focus(direction);
+}
+
 bool Strip::VisibleHasFocus() {
 	return visible && childHasFocus;
 }
@@ -3649,6 +3660,7 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	table.Label(wStaticFind);
 
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
+	g_signal_connect(G_OBJECT(GetID()), "focus", G_CALLBACK(FocusSignal), this);
 
 	wText.Create();
 	table.Add(wText, 1, true, 0, 0);
@@ -3791,6 +3803,18 @@ GtkStyle *FindStrip::ButtonStyle() {
 	return PWidget(wButton)->style;
 }
 
+gboolean FindStrip::Focus(GtkDirectionType direction) {
+	const int lastFocusCheck = 5;
+	if ((direction == GTK_DIR_TAB_BACKWARD) && wText.HasFocusOnSelfOrChild()) {
+		gtk_widget_grab_focus(wCheck[lastFocusCheck]);
+		return TRUE;
+	} else if ((direction == GTK_DIR_TAB_FORWARD) && wCheck[lastFocusCheck].HasFocus()) {
+		gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
+		return TRUE;
+	}
+	return FALSE;
+}
+
 void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	Table tableReplace(2, 7);
 	SetID(tableReplace.Widget());
@@ -3800,6 +3824,7 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	tableReplace.Label(wStaticFind);
 	
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
+	g_signal_connect(G_OBJECT(GetID()), "focus", G_CALLBACK(FocusSignal), this);
 
 	wText.Create();
 	tableReplace.Add(wText, 1, true, 0, 0);
@@ -4007,6 +4032,18 @@ void ReplaceStrip::ShowPopup() {
 
 GtkStyle *ReplaceStrip::ButtonStyle() {
 	return PWidget(wButtonFind)->style;
+}
+
+gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
+	const int lastFocusCheck = 2;	// Due to last column starting with the thirs checkbox
+	if ((direction == GTK_DIR_TAB_BACKWARD) && wText.HasFocusOnSelfOrChild()) {
+		gtk_widget_grab_focus(wCheck[lastFocusCheck]);
+		return TRUE;
+	} else if ((direction == GTK_DIR_TAB_FORWARD) && wCheck[lastFocusCheck].HasFocus()) {
+		gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
+		return TRUE;
+	}
+	return FALSE;
 }
 
 void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
