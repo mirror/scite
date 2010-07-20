@@ -302,6 +302,8 @@ bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
 	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
 }
 
+class Strip;
+
 class WWidget : public GUI::Window {
 public:
 	operator GtkWidget*() {
@@ -338,8 +340,6 @@ public:
 	}
 };
 
-class Strip;
-
 class WCheckDraw : public WWidget {
 	bool *pControlVariable;
 	GdkPixbuf *pbAlpha;
@@ -348,7 +348,7 @@ class WCheckDraw : public WWidget {
 public:
 	WCheckDraw() : pControlVariable(0), pbAlpha(0), pstrip(0), over(false) {
 	}
-	void Create(const char **xpmImage, bool *pControlVariable_, Strip *pstrip_);
+	void Create(const char **xpmImage, const GUI::gui_string &toolTip, bool *pControlVariable_, Strip *pstrip_);
 	void Toggle();
 	static gboolean Focus(GtkWidget *widget, GdkEventFocus *event, WCheckDraw *pcd);
 	gint Press(GtkWidget *widget, GdkEventButton *event);
@@ -384,7 +384,7 @@ public:
 	virtual void Show();
 	virtual void Hide();
 	virtual bool KeyDown(GdkEventKey *event);
-	virtual void OptionsCmd() = 0;
+	virtual void ShowPopup() = 0;
 	virtual GtkStyle *ButtonStyle() = 0;
 	virtual void MenuAction(guint action) = 0;
 	static void MenuSignal(GtkMenuItem *menuItem, Strip *pStrip);
@@ -410,7 +410,7 @@ public:
 	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip);
-	void OptionsCmd();
+	void ShowPopup();
 	void FindNextCmd();
 	void MarkAllCmd();
 	GtkStyle *ButtonStyle();
@@ -442,7 +442,7 @@ public:
 	void ReplaceAllCmd();
 	void ReplaceCmd();
 	void ReplaceInSelectionCmd();
-	void OptionsCmd();
+	void ShowPopup();
 	GtkStyle *ButtonStyle();
 };
 
@@ -608,6 +608,7 @@ protected:
 	virtual void ShowStatusBar();
 	virtual void ActivateWindow(const char *timestamp);
 	void CopyPath();
+	bool &FlagFromCmd(int cmd);
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute(int fromPoll);
 
@@ -992,6 +993,33 @@ void SciTEGTK::ActivateWindow(const char *timestamp) {
 void SciTEGTK::CopyPath() {
 	gtk_clipboard_set_text(gtk_clipboard_get(GDK_SELECTION_CLIPBOARD),
 		filePath.AsInternal(), -1);
+}
+
+// The find and replace dialogs and strips often manipulate boolean 
+// flags based on dialog control IDs and menu IDs.
+bool &SciTEGTK::FlagFromCmd(int cmd) {
+	static bool notFound;
+	switch (cmd) {
+		case IDWHOLEWORD: 
+		case IDM_WHOLEWORD:
+			return wholeWord;
+		case IDMATCHCASE:
+		case IDM_MATCHCASE:
+			return matchCase;
+		case IDREGEXP:
+		case IDM_REGEXP:
+			return regExp;
+		case IDUNSLASH:
+		case IDM_UNSLASH:
+			return unSlash;
+		case IDWRAP:
+		case IDM_WRAPAROUND:
+			return wrapFind;
+		case IDDIRECTIONUP:
+		case IDM_DIRECTIONUP:
+			return reverseFind;
+	}
+	return notFound;
 }
 
 void SciTEGTK::Command(unsigned long wParam, long) {
@@ -1711,12 +1739,25 @@ void SciTEGTK::FindInFilesBrowse() {
 	gtk_widget_destroy(dialog);
 }
 
-static const char textWholeWord[] = "Match _whole word only";
-static const char textMatchCase[] = "Match _case";
-static const char textRegularExpression[] = "Regular _expression";
-static const char textBackSlash[] = "Transform _backslash expressions";
-static const char textWrapAround[] = "Wrap ar_ound";
-static const char textUp[] = "_Up";
+static const char *searchText = "Fi_nd:";
+static const char *replaceText = "Rep_lace:";
+
+struct Toggle {
+	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
+	const char *label;
+	int cmd;
+	int id;
+};
+
+const static Toggle toggles[] = {
+	{"Match _whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
+	{"Match _case", IDM_MATCHCASE, IDMATCHCASE},
+	{"Regular _expression", IDM_REGEXP, IDREGEXP},
+	{"Transform _backslash expressions", IDM_UNSLASH, IDUNSLASH},
+	{"Wrap ar_ound", IDM_WRAPAROUND, IDWRAP},
+	{"_Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
+	{0, 0, 0},
+};
 
 class Table {
 private:
@@ -1818,12 +1859,12 @@ void SciTEGTK::FindInFiles() {
 	bool enableToggles = props.GetNewExpand("find.command") == "";
 
 	// Whole Word
-	toggleWord = dlgFindInFiles.Toggle(textWholeWord, wholeWord && enableToggles);
+	toggleWord = dlgFindInFiles.Toggle(toggles[Toggle::tWord].label, wholeWord && enableToggles);
 	gtk_widget_set_sensitive(toggleWord, enableToggles);
 	table.Add(toggleWord, 1, true, 3, 0);
 
 	// Case Sensitive
-	toggleCase = dlgFindInFiles.Toggle(textMatchCase, matchCase || !enableToggles);
+	toggleCase = dlgFindInFiles.Toggle(toggles[Toggle::tCase].label, matchCase || !enableToggles);
 	gtk_widget_set_sensitive(toggleCase, enableToggles);
 	table.Add(toggleCase, 1, true, 3, 0);
 
@@ -2221,27 +2262,27 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	// Whole Word
-	toggleWord = dlgFindReplace.Toggle(textWholeWord, wholeWord);
+	toggleWord = dlgFindReplace.Toggle(toggles[Toggle::tWord].label, wholeWord);
 	table.Add(toggleWord, 2, false, 3, 0);
 
 	// Case Sensitive
-	toggleCase = dlgFindReplace.Toggle(textMatchCase, matchCase);
+	toggleCase = dlgFindReplace.Toggle(toggles[Toggle::tCase].label, matchCase);
 	table.Add(toggleCase, 2, false, 3, 0);
 
 	// Regular Expression
-	toggleRegExp = dlgFindReplace.Toggle(textRegularExpression, regExp);
+	toggleRegExp = dlgFindReplace.Toggle(toggles[Toggle::tRegExp].label, regExp);
 	table.Add(toggleRegExp, 2, false, 3, 0);
 
-	// Wrap Around
-	toggleWrap = dlgFindReplace.Toggle(textWrapAround, wrapFind);
-	table.Add(toggleWrap, 2, false, 3, 0);
-
 	// Transform backslash expressions
-	toggleUnSlash = dlgFindReplace.Toggle(textBackSlash, unSlash);
+	toggleUnSlash = dlgFindReplace.Toggle(toggles[Toggle::tBackslash].label, unSlash);
 	table.Add(toggleUnSlash, 2, false, 3, 0);
 
+	// Wrap Around
+	toggleWrap = dlgFindReplace.Toggle(toggles[Toggle::tWrap].label, wrapFind);
+	table.Add(toggleWrap, 2, false, 3, 0);
+
 	// Reverse
-	toggleReverse = dlgFindReplace.Toggle(textUp, reverseFind);
+	toggleReverse = dlgFindReplace.Toggle(toggles[Toggle::tUp].label, reverseFind);
 	table.Add(toggleReverse, 2, false, 3, 0);
 
 	if (!replace) {
@@ -3441,7 +3482,7 @@ static const char * up_x_xpm[] = {
 ".......#@&......",
 "................"};
 
-void WCheckDraw::Create(const char **xpmImage, bool *pControlVariable_, Strip *pstrip_) {
+void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, bool *pControlVariable_, Strip *pstrip_) {
 	pControlVariable = pControlVariable_;
 	pstrip = pstrip_;
 	GdkPixbuf *pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
@@ -3466,6 +3507,9 @@ void WCheckDraw::Create(const char **xpmImage, bool *pControlVariable_, Strip *p
 			     );
 	gtk_widget_set_size_request(da, stripButtonPitch, 20);
 	SetID(da);
+	GUI::gui_string toolTipNoMnemonic = toolTip;
+	Substitute(toolTipNoMnemonic, "_", "");
+	gtk_widget_set_tooltip_text(da, toolTipNoMnemonic.c_str());
 	g_signal_connect(G_OBJECT(da), "focus-in-event", G_CALLBACK(Focus), this);
 	g_signal_connect(G_OBJECT(da), "focus-out-event", G_CALLBACK(Focus), this);
 	g_signal_connect(G_OBJECT(da), "button_press_event", G_CALLBACK(ButtonsPress), this);
@@ -3495,7 +3539,7 @@ gboolean WCheckDraw::KeyDown(GtkWidget */*widget*/, GdkEventKey *event, WCheckDr
 gint WCheckDraw::Press(GtkWidget *widget, GdkEventButton *event) {
 	if (event->button == 3) {
 		// PopUp menu
-		pstrip->OptionsCmd();
+		pstrip->ShowPopup();
 	} else {
 		gtk_widget_grab_focus(widget);
 		Toggle();
@@ -3568,7 +3612,7 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	SetID(table.Widget());
 	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
 	gtk_box_pack_start(GTK_BOX(boxMain), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
-	wStaticFind.Create(localiser->Text("Fi_nd:").c_str());
+	wStaticFind.Create(localiser->Text(searchText).c_str());
 	table.Label(wStaticFind);
 
 	wText.Create();
@@ -3587,19 +3631,19 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
 
 	static ObjectSignal<FindStrip, &FindStrip::FindNextCmd> sigFindNext;
-	wButton.Create("_Find Next", GtkSignalFunc(sigFindNext.Function), this);
+	wButton.Create(localiser->Text("_Find Next"), GtkSignalFunc(sigFindNext.Function), this);
 	table.Add(wButton, 1, false, 0, 0);
 
 	static ObjectSignal<FindStrip, &FindStrip::MarkAllCmd> sigMarkAll;
-	wButtonMarkAll.Create("_Mark All", GtkSignalFunc(sigMarkAll.Function), this);
+	wButtonMarkAll.Create(localiser->Text("_Mark All"), GtkSignalFunc(sigMarkAll.Function), this);
 	table.Add(wButtonMarkAll, 1, false, 0, 0);
 
-	wCheck[0].Create(word1_x_xpm, &pSciTEGTK->wholeWord, this);
-	wCheck[1].Create(case_x_xpm, &pSciTEGTK->matchCase, this);
-	wCheck[2].Create(regex_x_xpm, &pSciTEGTK->regExp, this);
-	wCheck[3].Create(backslash_x_xpm, &pSciTEGTK->unSlash, this);
-	wCheck[4].Create(around_x_xpm, &pSciTEGTK->wrapFind, this);
-	wCheck[5].Create(up_x_xpm, &pSciTEGTK->reverseFind, this);
+	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSciTEGTK->wholeWord, this);
+	wCheck[1].Create(case_x_xpm, localiser->Text(toggles[Toggle::tCase].label), &pSciTEGTK->matchCase, this);
+	wCheck[2].Create(regex_x_xpm, localiser->Text(toggles[Toggle::tRegExp].label), &pSciTEGTK->regExp, this);
+	wCheck[3].Create(backslash_x_xpm, localiser->Text(toggles[Toggle::tBackslash].label), &pSciTEGTK->unSlash, this);
+	wCheck[4].Create(around_x_xpm, localiser->Text(toggles[Toggle::tWrap].label), &pSciTEGTK->wrapFind, this);
+	wCheck[5].Create(up_x_xpm, localiser->Text(toggles[Toggle::tUp].label), &pSciTEGTK->reverseFind, this);
 	for (int i=0;i<checks;i++)
 		table.Add(wCheck[i], 1, false, 0, 0);
 }
@@ -3644,17 +3688,8 @@ bool FindStrip::KeyDown(GdkEventKey *event) {
 		if (Strip::KeyDown(event))
 			return true;
 		if (event->state & GDK_MOD1_MASK) {
-			const char *menuStrings[] = {
-				textWholeWord,
-				textMatchCase,
-				textRegularExpression,
-				textBackSlash,
-				textWrapAround,
-				textUp,
-				0,
-			};
-			for (int i=0; menuStrings[i]; i++) {
-				GUI::gui_string localised = localiser->Text(menuStrings[i]);
+			for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
+				GUI::gui_string localised = localiser->Text(toggles[i].label);
 				char key = KeyFromLabel(localised);
 				if (static_cast<unsigned int>(key) == event->keyval) {
 					wCheck[i].Toggle();
@@ -3668,14 +3703,7 @@ bool FindStrip::KeyDown(GdkEventKey *event) {
 
 void FindStrip::MenuAction(guint action) {
 	if (allowMenuActions) {
-		switch (action) {
-			case IDM_WHOLEWORD: pSciTEGTK->wholeWord = !pSciTEGTK->wholeWord; break;
-			case IDM_MATCHCASE: pSciTEGTK->matchCase = !pSciTEGTK->matchCase; break;
-			case IDM_REGEXP: pSciTEGTK->regExp = !pSciTEGTK->regExp; break;
-			case IDM_WRAPAROUND: pSciTEGTK->wrapFind = !pSciTEGTK->wrapFind; break;
-			case IDM_UNSLASH: pSciTEGTK->unSlash = !pSciTEGTK->unSlash; break;
-			case IDM_DIRECTIONUP: pSciTEGTK->reverseFind = !pSciTEGTK->reverseFind; break;
-		}
+		pSciTEGTK->FlagFromCmd(action) = !pSciTEGTK->FlagFromCmd(action);
 		InvalidateAll();
 	}
 }
@@ -3692,15 +3720,12 @@ gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pS
 	return FALSE;
 }
 
-void FindStrip::OptionsCmd() {
+void FindStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	AddToPopUp(popup, textWholeWord, IDM_WHOLEWORD, pSciTEGTK->wholeWord);
-	AddToPopUp(popup, textMatchCase, IDM_MATCHCASE, pSciTEGTK->matchCase);
-	AddToPopUp(popup, textRegularExpression, IDM_REGEXP, pSciTEGTK->regExp);
-	AddToPopUp(popup, textBackSlash, IDM_UNSLASH, pSciTEGTK->unSlash);
-	AddToPopUp(popup, textWrapAround, IDM_WRAPAROUND, pSciTEGTK->wrapFind);
-	AddToPopUp(popup, textUp, IDM_DIRECTIONUP, pSciTEGTK->reverseFind);
+	for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
+		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSciTEGTK->FlagFromCmd(toggles[i].cmd));
+	}
 	GUI::Rectangle rcButton = wCheck[0].GetPosition();
 	GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
@@ -3734,8 +3759,7 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	Table tableReplace(2, 7);
 	SetID(tableReplace.Widget());
 	tableReplace.PackInto(GTK_BOX(boxMain), false);
-	wStaticFind.Create(localiser->Text("Fi_nd:"));
-	//~ wStaticFind.Create(localiser->Text("_n"));
+	wStaticFind.Create(localiser->Text(searchText));
 	tableReplace.Label(wStaticFind);
 
 	wText.Create();
@@ -3762,18 +3786,17 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 			GtkSignalFunc(sigReplaceAll.Function), this);
 	tableReplace.Add(wButtonReplaceAll, 1, false, 0, 0);
 
-	wCheck[0].Create(word1_x_xpm, &pSciTEGTK->wholeWord, this);
-	wCheck[1].Create(case_x_xpm, &pSciTEGTK->matchCase, this);
-	wCheck[2].Create(regex_x_xpm, &pSciTEGTK->regExp, this);
-	wCheck[3].Create(backslash_x_xpm, &pSciTEGTK->unSlash, this);
-	wCheck[4].Create(around_x_xpm, &pSciTEGTK->wrapFind, this);
+	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSciTEGTK->wholeWord, this);
+	wCheck[1].Create(case_x_xpm, localiser->Text(toggles[Toggle::tCase].label), &pSciTEGTK->matchCase, this);
+	wCheck[2].Create(regex_x_xpm, localiser->Text(toggles[Toggle::tRegExp].label), &pSciTEGTK->regExp, this);
+	wCheck[3].Create(backslash_x_xpm, localiser->Text(toggles[Toggle::tBackslash].label), &pSciTEGTK->unSlash, this);
+	wCheck[4].Create(around_x_xpm, localiser->Text(toggles[Toggle::tWrap].label), &pSciTEGTK->wrapFind, this);
 
 	tableReplace.Add(wCheck[0], 1, false, 0, 0);
 	tableReplace.Add(wCheck[1], 1, false, 0, 0);
 	tableReplace.Add(wCheck[2], 1, false, 0, 0);
 
-	wStaticReplace.Create(localiser->Text("Rep_lace:"));
-	//~ wStaticReplace.Create(localiser->Text("_l"));
+	wStaticReplace.Create(localiser->Text(replaceText));
 	tableReplace.Label(wStaticReplace);
 
 	wReplace.Create();
@@ -3847,17 +3870,8 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 		if (Strip::KeyDown(event))
 			return true;
 		if (event->state & GDK_MOD1_MASK) {
-			const char *menuStrings[] = {
-				textWholeWord,
-				textMatchCase,
-				textRegularExpression,
-				textBackSlash,
-				textWrapAround,
-				//textUp,
-				0,
-			};
-			for (int i=0; menuStrings[i]; i++) {
-				GUI::gui_string localised = localiser->Text(menuStrings[i]);
+			for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
+				GUI::gui_string localised = localiser->Text(toggles[i].label);
 				char key = KeyFromLabel(localised);
 				if (static_cast<unsigned int>(key) == event->keyval) {
 					wCheck[i].Toggle();
@@ -3871,13 +3885,7 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 
 void ReplaceStrip::MenuAction(guint action) {
 	if (allowMenuActions) {
-		switch (action) {
-			case IDM_WHOLEWORD: pSciTEGTK->wholeWord = !pSciTEGTK->wholeWord; break;
-			case IDM_MATCHCASE: pSciTEGTK->matchCase = !pSciTEGTK->matchCase; break;
-			case IDM_REGEXP: pSciTEGTK->regExp = !pSciTEGTK->regExp; break;
-			case IDM_WRAPAROUND: pSciTEGTK->wrapFind = !pSciTEGTK->wrapFind; break;
-			case IDM_UNSLASH: pSciTEGTK->unSlash = !pSciTEGTK->unSlash; break;
-		}
+		pSciTEGTK->FlagFromCmd(action) = !pSciTEGTK->FlagFromCmd(action);
 		InvalidateAll();
 	}
 }
@@ -3931,14 +3939,12 @@ void ReplaceStrip::ReplaceInSelectionCmd() {
 	}
 }
 
-void ReplaceStrip::OptionsCmd() {
+void ReplaceStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	AddToPopUp(popup, textWholeWord, IDM_WHOLEWORD, pSciTEGTK->wholeWord);
-	AddToPopUp(popup, textMatchCase, IDM_MATCHCASE, pSciTEGTK->matchCase);
-	AddToPopUp(popup, textRegularExpression, IDM_REGEXP, pSciTEGTK->regExp);
-	AddToPopUp(popup, textBackSlash, IDM_UNSLASH, pSciTEGTK->unSlash);
-	AddToPopUp(popup, textWrapAround, IDM_WRAPAROUND, pSciTEGTK->wrapFind);
+	for (int i=Toggle::tWord; i<=Toggle::tWrap; i++) {
+		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSciTEGTK->FlagFromCmd(toggles[i].cmd));
+	}
 	GUI::Rectangle rcButton = wCheck[0].GetPosition();
 	GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
