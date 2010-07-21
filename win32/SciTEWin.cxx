@@ -2957,12 +2957,6 @@ void ReplaceStrip::Creation() {
 	GUI::Rectangle rcCombo = wText.GetPosition();
 	lineHeight = rcCombo.Height() + 3;
 
-	wButtonFind = CreateButton("&Find Next", IDOK);
-	wButtonReplaceAll = CreateButton("Replace &All", IDREPLACEALL);
-
-	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
-	wCheckCase = CreateButton(toggles[Toggle::tCase].label, toggles[Toggle::tCase].id, true);
-
 	wStaticReplace = CreateText(replaceText);
 
 	wReplace = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
@@ -2972,11 +2966,18 @@ void ReplaceStrip::Creation() {
 	SetFontHandle(wReplace, fontText);
 	wReplace.Show();
 
+	wButtonFind = CreateButton("&Find Next", IDOK);
 	wButtonReplace = CreateButton("&Replace", IDREPLACE);
+
+	wButtonReplaceAll = CreateButton("Replace &All", IDREPLACEALL);
 	wButtonReplaceInSelection = CreateButton("&In Selection", IDREPLACEINSEL);
 
+	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
 	wCheckRE = CreateButton(toggles[Toggle::tRegExp].label, toggles[Toggle::tRegExp].id, true);
+
+	wCheckCase = CreateButton(toggles[Toggle::tCase].label, toggles[Toggle::tCase].id, true);
 	wCheckBE = CreateButton(toggles[Toggle::tBackslash].label, toggles[Toggle::tBackslash].id, true);
+
 	wCheckWrap = CreateButton(toggles[Toggle::tWrap].label, toggles[Toggle::tWrap].id, true);
 }
 
