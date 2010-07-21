@@ -2054,7 +2054,7 @@ static SString ControlText(GUI::Window w) {
 }
 
 static const char *searchText = "Fi&nd:";
-static const char *replaceText = "Re&place:";
+static const char *replaceText = "Rep&lace:";
 
 struct Toggle {
 	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
