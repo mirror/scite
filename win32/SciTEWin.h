@@ -415,8 +415,6 @@ protected:
 	void FillCombos(Dialog &dlg);
 	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	BOOL IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK FindIncrementDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void FindIncrement();
 	bool FindReplaceAdvanced();
 	virtual void Find();

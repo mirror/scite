@@ -135,9 +135,6 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 	if (DialogHandled(wFindReplace.GetID(), pmsg)) {
 		return true;
 	}
-	if (DialogHandled(wFindIncrement.GetID(), pmsg)) {
-		return true;
-	}
 	if (DialogHandled(wFindInFiles.GetID(), pmsg)) {
 		return true;
 	}
@@ -999,116 +996,17 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	return Caller(hDlg, message, lParam)->ReplaceMessage(hDlg, message, wParam);
 }
 
-BOOL SciTEWin::IncrementFindMessage(HWND hDlg, UINT message, WPARAM wParam) {
-	// Prevent reentrance when setting text
-	static bool entered = false;
-	if (entered)
-		return FALSE;
-
-	// Avoid getting dialog items before set up or during tear down.
-	if (WM_SETFONT == message || WM_NCDESTROY == message)
-		return FALSE;
-
-	Dialog dlg(hDlg);
-
-	switch (message) {
-
-	case WM_INITDIALOG:{
-		wFindIncrement = hDlg;
-		LocaliseDialog(hDlg);
-		SetWindowLong(hDlg, GWL_STYLE, WS_TABSTOP || GetWindowLong(hDlg, GWL_STYLE));
-		dlg.SetItemTextU(IDC_INCFINDTEXT, "");
-		SetFocus(hDlg);
-
-		GUI::Rectangle aRect = wFindIncrement.GetPosition();
-		GUI::Rectangle aTBRect = wStatusBar.GetPosition();
-		GUI::Rectangle aNewRect = aTBRect;
-		aNewRect.top = aNewRect.bottom - (aRect.bottom - aRect.top);
-		aNewRect.right = aNewRect.left + aRect.right - aRect.left;
-		wFindIncrement.SetPosition(aNewRect);
-
-		return TRUE;
-	}
-
-	case WM_SETFOCUS:
-		return 0;
-
-	case WM_CLOSE:
-		::SendMessage(hDlg, WM_COMMAND, IDCANCEL, 0);
-		break;
-
-	case WM_COMMAND:
-		if (ControlIDOfCommand(wParam) == IDCANCEL) {
-			props.Set("Replacements", "");
-			UpdateStatusBar(false);
-			::EndDialog(hDlg, IDCANCEL);
-			wFindIncrement.Destroy();
-			return FALSE;
-		} else if (((ControlIDOfCommand(wParam) == IDC_INCFINDTEXT) && ((wParam >> 16) == 0x0300))
-			|| (ControlIDOfCommand(wParam) == IDC_INCFINDBTNOK)) {
-			SString ffLastWhat;
-			ffLastWhat = findWhat;
-			findWhat = dlg.ItemTextU(IDC_INCFINDTEXT);
-
-			if (ControlIDOfCommand(wParam) != IDC_INCFINDBTNOK) {
-				Sci_CharacterRange cr = GetSelection();
-				if (ffLastWhat.length()) {
-					SetSelection(cr.cpMin - ffLastWhat.length(), cr.cpMin - ffLastWhat.length());
-				}
-			}
-			wholeWord = false;
-			FindNext(false, false);
- 			if ((!havefound) &&
-				strncmp(findWhat.c_str(), ffLastWhat.c_str(), ffLastWhat.length()) == 0) {
-				// Could not find string with added character so revert to previous value.
-				findWhat = ffLastWhat;
-				entered = true;
-				dlg.SetItemTextU(IDC_INCFINDTEXT, findWhat);
-				SendMessage(dlg.Item(IDC_INCFINDTEXT), EM_SETSEL, ffLastWhat.length(), ffLastWhat.length());
-				entered = false;
-			}
-			return FALSE;
-		}
-	}
-
-	return FALSE;
-}
-
-
-BOOL CALLBACK SciTEWin::FindIncrementDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-	return Caller(hDlg, message, lParam)->IncrementFindMessage(hDlg, message, wParam);
-}
-
 void SciTEWin::FindIncrement() {
-	if (props.GetInt("find.incremental.use.strip")) {
-		if (findStrip.visible)
-			findStrip.Close();
-		if (replaceStrip.visible)
-			replaceStrip.Close();
-		searchStrip.visible = !searchStrip.visible;
-		SizeSubWindows();
-		if (searchStrip.visible) {
-			searchStrip.Focus();
-		} else {
-			WindowSetFocus(wEditor);
-		}
+	if (findStrip.visible)
+		findStrip.Close();
+	if (replaceStrip.visible)
+		replaceStrip.Close();
+	searchStrip.visible = !searchStrip.visible;
+	SizeSubWindows();
+	if (searchStrip.visible) {
+		searchStrip.Focus();
 	} else {
-		if (findStrip.visible || replaceStrip.visible)
-			return;
-		if (wFindIncrement.Created()) {
-			wFindIncrement.Destroy();
-			return;
-		}
-
-		findWhat.clear();
-
-		replacing = false;
-		::CreateDialogParamW(hInstance,
-											(LPCWSTR)MAKEINTRESOURCE(IDD_FIND2),
-											MainHWND(),
-											reinterpret_cast<DLGPROC>(FindIncrementDlg),
-											reinterpret_cast<LPARAM>(this));
-		wFindIncrement.Show();
+		WindowSetFocus(wEditor);
 	}
 }
 
@@ -1117,8 +1015,6 @@ bool SciTEWin::FindReplaceAdvanced() {
 }
 
 void SciTEWin::Find() {
-	if (wFindIncrement.Created())
-		return;
 	if (wFindReplace.Created())
 		return;
 	SelectionIntoFind();

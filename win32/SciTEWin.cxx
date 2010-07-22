@@ -2055,6 +2055,7 @@ static SString ControlText(GUI::Window w) {
 
 static const char *searchText = "Fi&nd:";
 static const char *replaceText = "Rep&lace:";
+static const char *findNextText = "&Find Next";
 
 struct Toggle {
 	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
@@ -2589,7 +2590,7 @@ void SearchStrip::Creation() {
 
 	SetFontHandle(wText, fontText);
 
-	wButton = CreateButton(">", IDC_INCFINDBTNOK);
+	wButton = CreateButton(findNextText, IDC_INCFINDBTNOK);
 }
 
 void SearchStrip::Destruction() {
@@ -2734,7 +2735,7 @@ void FindStrip::Creation() {
 	GUI::Rectangle rcCombo = wText.GetPosition();
 	lineHeight = rcCombo.Height() + 3;
 
-	wButton = CreateButton("&Find Next", IDOK);
+	wButton = CreateButton(findNextText, IDOK);
 	wButtonMarkAll = CreateButton("&Mark All", IDMARKALL);
 
 	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
@@ -2966,7 +2967,7 @@ void ReplaceStrip::Creation() {
 	SetFontHandle(wReplace, fontText);
 	wReplace.Show();
 
-	wButtonFind = CreateButton("&Find Next", IDOK);
+	wButtonFind = CreateButton(findNextText, IDOK);
 	wButtonReplace = CreateButton("&Replace", IDREPLACE);
 
 	wButtonReplaceAll = CreateButton("Replace &All", IDREPLACEALL);

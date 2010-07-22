@@ -376,7 +376,6 @@ protected:
 	SString replaceWhat;
 	enum { indicatorMatch = INDIC_CONTAINER };
 	enum { markerBookmark = 1 };
-	GUI::Window wFindIncrement;
 	bool replacing;
 	bool havefound;
 	bool matchCase;
