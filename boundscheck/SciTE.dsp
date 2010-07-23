@@ -515,6 +515,10 @@ SOURCE=..\..\scintilla\lexers\LexTeX.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\lexers\LexTxt2tags.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\lexers\LexVB.cxx
 # End Source File
 # Begin Source File
