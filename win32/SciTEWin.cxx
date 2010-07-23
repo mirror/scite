@@ -584,12 +584,12 @@ HWND SciTEWin::MainHWND() {
 	return HwndOf(wSciTE);
 }
 
-// The find and replace dialogs and strips often manipulate boolean 
+// The find and replace dialogs and strips often manipulate boolean
 // flags based on dialog control IDs and menu IDs.
 bool &SciTEWin::FlagFromCmd(int cmd) {
 	static bool notFound;
 	switch (cmd) {
-		case IDWHOLEWORD: 
+		case IDWHOLEWORD:
 		case IDM_WHOLEWORD:
 			return wholeWord;
 		case IDMATCHCASE:
@@ -2065,13 +2065,13 @@ struct Toggle {
 };
 
 static Toggle toggles[] = {
-	"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD,
-	"Match &case", IDM_MATCHCASE, IDMATCHCASE,
-	"Regular &expression", IDM_REGEXP, IDREGEXP,
-	"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH,
-	"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP,
-	"&Up", IDM_DIRECTIONUP, IDDIRECTIONUP,
-	0, 0, 0,
+	{"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
+	{"Match &case", IDM_MATCHCASE, IDMATCHCASE},
+	{"Regular &expression", IDM_REGEXP, IDREGEXP},
+	{"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH},
+	{"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP},
+	{"&Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
+	{0, 0, 0},
 };
 
 
@@ -2152,7 +2152,7 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 	toolInfo.uId = (UINT_PTR)w.GetID();
 	toolInfo.lpszText = LPSTR_TEXTCALLBACK;
 	::GetClientRect(Hwnd(), &toolInfo.rect);
-	::SendMessageW(static_cast<HWND>(wToolTip.GetID()), TTM_ADDTOOLW, 
+	::SendMessageW(static_cast<HWND>(wToolTip.GetID()), TTM_ADDTOOLW,
 		0, (LPARAM) &toolInfo);
 	::SendMessage(static_cast<HWND>(wToolTip.GetID()), TTM_ACTIVATE, TRUE, 0);
 	return w;
@@ -2173,7 +2173,7 @@ void Strip::Creation() {
 
 	wToolTip = ::CreateWindowEx(0,
 		TOOLTIPS_CLASSW, NULL,
-		WS_POPUP | TTS_ALWAYSTIP,  
+		WS_POPUP | TTS_ALWAYSTIP,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		Hwnd(), NULL, pSciTEWin->hInstance, NULL);
@@ -2556,7 +2556,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				return CustomDraw(pnmh);
 			} else if (pnmh->code == static_cast<unsigned int>(TTN_GETDISPINFO)) {
 				NMTTDISPINFOW *pnmtdi = (LPNMTTDISPINFO) lParam;
-				int idButton = (pnmtdi->uFlags & TTF_IDISHWND) ? 
+				int idButton = (pnmtdi->uFlags & TTF_IDISHWND) ?
 					::GetDlgCtrlID(reinterpret_cast<HWND>(pnmtdi->hdr.idFrom)) : pnmtdi->hdr.idFrom;
 				for (size_t i=0; toggles[i].label; i++) {
 					if (toggles[i].id == idButton) {
