@@ -4839,7 +4839,9 @@ std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) {
 			s += args[i];
 		}
 	}
-	vs.push_back(s);
+	if (s.size() > 0) {
+		vs.push_back(s);
+	}
 	return vs;
 }
 
@@ -4872,8 +4874,8 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 				}
 			} else if ((tolower(arg[0]) == 'p') && (arg[1] == 0)) {
 				performPrint = true;
-			} else if (GUI::gui_string(arg) == GUI_TEXT("grep")) {
-				// wlArgs[i+1] will be options in future
+			} else if (GUI::gui_string(arg) == GUI_TEXT("grep") && (wlArgs.size() - i >= 4)) {
+				// in form -grep [w~][c~][d~][b~] "<file-patterns>" "<search-string>"
 				GrepFlags gf = grepStdOut;
 				if (wlArgs[i+1][0] == 'w')
 					gf = static_cast<GrepFlags>(gf | grepWholeWord);
