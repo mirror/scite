@@ -4436,7 +4436,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	// Collect the argv into one string with each argument separated by '\n'
 	GUI::gui_string args;
 	for (int arg = 1; arg < argc; arg++) {
-		if (args.size() > 0)
+		if (arg > 1)
 			args += '\n';
 		args += argv[arg];
 	}

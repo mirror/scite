@@ -4831,15 +4831,17 @@ std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) {
 	// Split on \n
 	std::vector<GUI::gui_string> vs;
 	GUI::gui_string s;
+	bool lastNewLine = false;
 	for (size_t i=0; i<args.size(); i++) {
-		if (args[i] == '\n') {
+		lastNewLine = args[i] == '\n';
+		if (lastNewLine) {
 			vs.push_back(s);
 			s = GUI::gui_string();
 		} else {
 			s += args[i];
 		}
 	}
-	if (s.size() > 0) {
+	if ((s.size() > 0) || lastNewLine) {
 		vs.push_back(s);
 	}
 	return vs;
