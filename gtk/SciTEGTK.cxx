@@ -330,7 +330,7 @@ public:
 		return GTK_ENTRY(gtk_bin_get_child(GTK_BIN(GetID())));
 	}
 	const char *Text() {
-		return gtk_combo_box_get_active_text(GTK_COMBO_BOX(GetID()));
+		return gtk_entry_get_text(Entry());
 	}
 	bool HasFocusOnSelfOrChild() {
 		return HasFocus() || GTK_WIDGET_HAS_FOCUS(Entry());
@@ -3554,7 +3554,9 @@ void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, b
 	SetID(da);
 	GUI::gui_string toolTipNoMnemonic = toolTip;
 	Substitute(toolTipNoMnemonic, "_", "");
+#if GTK_CHECK_VERSION(2,12,0)
 	gtk_widget_set_tooltip_text(da, toolTipNoMnemonic.c_str());
+#endif
 	g_signal_connect(G_OBJECT(da), "focus-in-event", G_CALLBACK(Focus), this);
 	g_signal_connect(G_OBJECT(da), "focus-out-event", G_CALLBACK(Focus), this);
 	g_signal_connect(G_OBJECT(da), "button_press_event", G_CALLBACK(ButtonsPress), this);
