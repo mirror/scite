@@ -467,6 +467,7 @@ void DirectorExtension::CreatePipe(bool) {
 		if (! not_empty(pipeName)) {
 			host->SetProperty("ipc.scite.name", requestPipeName);
 		}
+		delete[] pipeName;
 		return;
 	}
 
