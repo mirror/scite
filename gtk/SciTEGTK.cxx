@@ -3703,21 +3703,14 @@ void FindStrip::Destruction() {
 void FindStrip::Show() {
 	Strip::Show();
 
-	int buttonHeight = pSciTEGTK->props.GetInt("strip.button.height");
-	if (buttonHeight) {
-//gtk_widget_set_size_request(GTK_WIDGET(GetID()), -1, buttonHeight+4);
-		gtk_widget_set_size_request(wButton, -1, buttonHeight);
-		gtk_widget_set_size_request(wButtonMarkAll, -1, buttonHeight);
-		gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
-		gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
-		gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
-		for (int i=0;i<checks;i++)
-			gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
-	} else {
-		GUI::Rectangle rcButton = wButton.GetPosition();
-		for (int i=0;i<checks;i++)
-			gtk_widget_set_size_request(wCheck[i], stripButtonPitch, rcButton.Height());
-	}
+	int buttonHeight = pSciTEGTK->props.GetInt("strip.button.height", -1);
+	gtk_widget_set_size_request(wButton, -1, buttonHeight);
+	gtk_widget_set_size_request(wButtonMarkAll, -1, buttonHeight);
+	gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
+	gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
+	gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
+	for (int i=0; i<checks; i++)
+		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
 	FillComboFromMemory(wText, pSciTEGTK->memFinds);
 
@@ -3912,24 +3905,23 @@ void ReplaceStrip::Destruction() {
 void ReplaceStrip::Show() {
 	Strip::Show();
 
-	int buttonHeight = pSciTEGTK->props.GetInt("strip.button.height");
-	if (buttonHeight) {
-		for (int i=0;i<checks;i++)
-			gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
+	int buttonHeight = pSciTEGTK->props.GetInt("strip.button.height", -1);
 
-		gtk_widget_set_size_request(wButtonFind, -1, buttonHeight);
-		gtk_widget_set_size_request(wButtonReplaceAll, -1, buttonHeight);
-		gtk_widget_set_size_request(wButtonReplace, -1, buttonHeight);
-		gtk_widget_set_size_request(wButtonReplaceInSelection, -1, buttonHeight);
+	gtk_widget_set_size_request(wButtonFind, -1, buttonHeight);
+	gtk_widget_set_size_request(wButtonReplaceAll, -1, buttonHeight);
+	gtk_widget_set_size_request(wButtonReplace, -1, buttonHeight);
+	gtk_widget_set_size_request(wButtonReplaceInSelection, -1, buttonHeight);
 
-		gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
-		gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
-		gtk_widget_set_size_request(wReplace, widthCombo, buttonHeight);
-		gtk_widget_set_size_request(GTK_WIDGET(wReplace.Entry()), -1, buttonHeight);
+	gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
+	gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
+	gtk_widget_set_size_request(wReplace, widthCombo, buttonHeight);
+	gtk_widget_set_size_request(GTK_WIDGET(wReplace.Entry()), -1, buttonHeight);
 
-		gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
-		gtk_widget_set_size_request(wStaticReplace, -1, heightStatic);
-	}
+	gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
+	gtk_widget_set_size_request(wStaticReplace, -1, heightStatic);
+	
+	for (int i=0; i<checks; i++)
+		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
 	FillComboFromMemory(wText, pSciTEGTK->memFinds);
 	FillComboFromMemory(wReplace, pSciTEGTK->memReplaces);
