@@ -139,6 +139,8 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		return true;
 	}
 	if (wParameters.GetID()) {
+		// Allow commands, such as Ctrl+1 to be active while the Parameters dialog is
+		// visible so that a group of commands can be easily run with differing parameters.
 		bool menuKey = (pmsg->message == WM_KEYDOWN) &&
 		               (pmsg->wParam != VK_TAB) &&
 		               (pmsg->wParam != VK_ESCAPE) &&
