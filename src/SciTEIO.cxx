@@ -712,6 +712,14 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 		SaveSessionFile(GUI_TEXT(""));
 	}
 
+	// Ensure extender is told about each buffer closing
+	for (int k = 0; k < buffers.length; k++) {
+		SetDocumentAt(k);
+		if (extender) {
+			extender->OnClose(filePath.AsUTF8().c_str());
+		}
+	}
+
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document
 	if (buffers.length > 0) {
