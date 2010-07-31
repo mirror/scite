@@ -561,6 +561,7 @@ protected:
 	static void PopUpCmd(GtkMenuItem *menuItem, SciTEGTK *scitew);
 	virtual void AddToPopUp(const char *label, int cmd = 0, bool enabled = true);
 	virtual void ExecuteNext();
+	void ResetExecution();
 
 	virtual void OpenUriList(const char *list);
 	virtual bool OpenDialog(FilePath directory, const char *filter);
@@ -1918,18 +1919,22 @@ void SciTEGTK::Replace() {
 	}
 }
 
+void SciTEGTK::ResetExecution() {
+	icmd = 0;
+	jobQueue.SetExecuting(false);
+	if (needReadProperties)
+		ReadProperties();
+	CheckReload();
+	CheckMenus();
+	ClearJobQueue();
+}
+
 void SciTEGTK::ExecuteNext() {
 	icmd++;
 	if (icmd < jobQueue.commandCurrent && icmd < jobQueue.commandMax) {
 		Execute();
 	} else {
-		icmd = 0;
-		jobQueue.SetExecuting(false);
-		if (needReadProperties)
-			ReadProperties();
-		CheckReload();
-		CheckMenus();
-		ClearJobQueue();
+		ResetExecution();
 	}
 }
 
@@ -1973,7 +1978,10 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		fdFIFO = 0;
 		pidShell = 0;
 		triedKill = false;
-		ExecuteNext();
+		if (WEXITSTATUS(exitStatus))
+			ResetExecution();
+		else
+			ExecuteNext();
 	} else { // count < 0
 		// The FIFO is not ready - expected when called from polling callback.
 		if (!fromPoll) {
