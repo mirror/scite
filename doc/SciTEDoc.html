@@ -2165,7 +2165,7 @@ Prev File|IDM_PREVFILE|<br/>
         <td>
           Setting open.dialog.in.file.directory causes the open dialog to initially
           display the same directory as the current file. If it is not set then the
-          system default is used which on Windows 2000 is the last directory
+          system default is used which on Windows XP is the last directory
           visited by the open dialog in any instance of SciTE. This is hard
           to use with multiple instances of SciTE. <br />
 	  	  Some versions of GTK+ may also set an unexpected directory.
@@ -2322,16 +2322,15 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  <tr><td>UTF-8</td><td align="right">65001</td></tr>
 	  <tr><td>Japanese Shift-JIS</td><td align="right">932</td></tr>
 	  <tr><td>Simplified Chinese GBK</td><td align="right">936</td></tr>
+	  <tr><td>Korean Wansung</td><td align="right">949</td></tr>
 	  <tr><td>Traditional Chinese Big5</td><td align="right">950</td></tr>
-	  <tr class="windowsonly"><td>Korean</td><td align="right">949</td></tr>
-	  <tr class="windowsonly"><td>Korean Johab</td><td align="right">1361</td></tr>
+	  <tr><td>Korean Johab</td><td align="right">1361</td></tr>
   	  </table>
-	  All of these may work on Windows but the Korean code pages are not supported on GTK+.<br />
         Setting code.page to 65001 starts Unicode mode and the document is treated as
         a sequence of characters expressed as UTF-8. Display is performed by converting to the
         platform's normal Unicode encoding first so characters from any language will be displayed.
         Correct glyphs will only be displayed if fonts are chosen that contain the appropriate glyphs.
-        Tahoma is a good choice on Windows 2000. <br/>
+        Tahoma is a good choice on Windows XP. <br/>
         This property can <em>not</em> set a single byte character set.<br />
 	If output.code.page is set then it is used for the output pane which otherwise
 	matches the edit pane.
