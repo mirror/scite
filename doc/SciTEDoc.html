@@ -666,13 +666,41 @@ NameError: mistake
     </h3>
     <p>
        SciTE supports folding for many languages (see the list of languages
-       understood by SciTE for more information.)
-       Fold points are based upon indentation for Python and on counting braces
-       for the other languages. The fold point markers can be clicked to
-       expand and contract folds. Ctrl+Shift+Click in the fold margin
-       will expand or contract all the top level folds. Ctrl+Click on a fold
-       point to toggle it and perform the same operation on all children.
-       Shift+Click on a fold point to show all children.
+       understood by SciTE for more information.) Fold points are based upon
+       indentation for Python and on counting braces for the other languages.
+    </p>
+
+    <p>
+       The fold point markers (in the fold margin) can be clicked to expand and
+       contract folds. Normal clicking does not alter the fold state of child fold
+       points; naturally the children are hidden when the parent fold is
+       contracted, but when the parent is expanded again, each child is still
+       folded or not, as before.
+    </p>
+
+    <p>
+       Ctrl+Click on a fold point toggles it and performs the same operation on
+       all children.
+    </p>
+
+    <p>
+       Shift+Click on a fold point does not toggle that fold, it expands all the
+       child folds.
+    </p>
+
+    <p>
+       Ctrl+Shift+Click in the fold margin expands or contracts all the top level
+       folds.
+       "Toggle all folds" in the View menu does the same; it toggles only
+       top-level folds.
+    </p>
+
+    <p>
+       Tip:
+       To open a large code block with all its children folded, fold it with
+       Ctrl+Click, then open it with a normal click. Then on opening a child fold,
+       you will see that the grandchild folds are still closed; if you want those
+       'grandchild' folds open, Shift+Click the child fold.
     </p>
     <h3>
        Properties file
