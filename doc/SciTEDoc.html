@@ -1054,21 +1054,6 @@ NameError: mistake
           displayed in the selection margin area.
         </td>
       </tr>
-      <tr>
-        <td>
-          fold.margin.colour<br />
-          fold.margin.highlight.colour
-        </td>
-        <td>
-          These two properties defined the fold margin colour and fold
-          margin highlight colour.  If they are not defined (left commented out) the colours for the
-          fold margin will default to a reasonable pair of colours.
-          On Windows, the system colours are used to make the fold margin appear like the background
-          of scroll bars. As an example, with <span class="example">fold.margin.colour=#FF0000</span> and
-          <span class="example">fold.margin.highlight.colour=#0000FF</span>, the fold margin is a mixture of red
-          and blue.
-        </td>
-      </tr>
       <tr class="windowsonly">
         <td>
           full.screen.hides.menu
@@ -2947,19 +2932,49 @@ groupundo - yes or no
         </td>
       </tr>
       <tr>
+	<td>fold</td>
+	<td>Folding is turned on by setting fold=1.</td>
+      </tr>
+      <tr>
         <td>
-          fold<br />
-          fold.margin.width<br />
-          fold.symbols<br />
-          fold.on.open
+          fold.symbols
         </td>
         <td>
-                Options to control folding. Folding is turned on be setting fold to 1.
         The fold.symbols setting chooses between four ways of showing folding.
         Set to 0 (the default) for MacOS style arrows to indicate contracted
         (facing right) and expanded (facing down); 1 to display contracted folds
         with "+" and expanded with "-"; 2 for a flattened tree control with round
         headers and rounded joins; 3 for a flattened tree control with square headers.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          fold.margin.width
+        </td>
+        <td>
+          Sets the width of the fold margin.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          fold.margin.colour<br />
+          fold.margin.highlight.colour
+        </td>
+        <td>
+          These two properties defined the fold margin colour and fold
+          margin highlight colour.  If they are not defined (left commented out) the colours for the
+          fold margin will default to a reasonable pair of colours.
+          On Windows, the system colours are used to make the fold margin appear like the background
+          of scroll bars. As an example, with <span class="example">fold.margin.colour=#FF0000</span> and
+          <span class="example">fold.margin.highlight.colour=#0000FF</span>, the fold margin is a mixture of red
+          and blue.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          fold.on.open
+        </td>
+        <td>
         To automatically fold files as much as possible when loaded, set
         fold.on.open to 1.
         </td>
