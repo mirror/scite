@@ -2339,7 +2339,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	static Signal<&SciTEGTK::FRCancelCmd> sigFRCancel;
-	dlgFindReplace.CommandButton("_Close", sigFRCancel.Function);
+	dlgFindReplace.CommandButton("Close", sigFRCancel.Function);
 
 	dlgFindReplace.CommandButton("F_ind", sigFRFind.Function, true);
 
