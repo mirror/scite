@@ -331,8 +331,10 @@ public:
 
 class WEntry : public WWidget {
 public:
-	void Create() {
+	void Create(const char *text=0) {
 		SetID(gtk_entry_new());
+		if (text)
+			gtk_entry_set_text(GTK_ENTRY(GetID()), text);
 	}
 	void ActivatesDefault() {
 		gtk_entry_set_activates_default(GTK_ENTRY(GetID()), TRUE);
@@ -367,6 +369,17 @@ public:
 		SetID(gtk_button_new_with_mnemonic(text.c_str()));
 		GTK_WIDGET_SET_FLAGS(GetID(), GTK_CAN_DEFAULT);
 		gtk_signal_connect(GTK_OBJECT(GetID()), "clicked", func, data);
+	}
+};
+
+class WToggle : public WWidget {
+public:
+	void Create(const GUI::gui_string &text, bool active) {
+		SetID(gtk_check_button_new_with_mnemonic(text.c_str()));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(GetID()), active);
+	}
+	bool Active() {
+		return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(GetID()));
 	}
 };
 
