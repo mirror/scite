@@ -1011,12 +1011,12 @@ void SciTEGTK::CopyPath() {
 		filePath.AsInternal(), -1);
 }
 
-// The find and replace dialogs and strips often manipulate boolean 
+// The find and replace dialogs and strips often manipulate boolean
 // flags based on dialog control IDs and menu IDs.
 bool &SciTEGTK::FlagFromCmd(int cmd) {
 	static bool notFound;
 	switch (cmd) {
-		case IDWHOLEWORD: 
+		case IDWHOLEWORD:
 		case IDM_WHOLEWORD:
 			return wholeWord;
 		case IDMATCHCASE:
@@ -1069,7 +1069,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		SizeSubWindows();
 		CheckMenus();
 		break;
-		
+
 	default:
 		SciTEBase::MenuCommand(cmdID, menuSource);
 		menuSource = 0;
@@ -3822,7 +3822,7 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 
 	wStaticFind.Create(localiser->Text(searchText));
 	tableReplace.Label(wStaticFind);
-	
+
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
 	g_signal_connect(G_OBJECT(GetID()), "focus", G_CALLBACK(FocusSignal), this);
 
@@ -3924,7 +3924,7 @@ void ReplaceStrip::Show() {
 
 	gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
 	gtk_widget_set_size_request(wStaticReplace, -1, heightStatic);
-	
+
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
