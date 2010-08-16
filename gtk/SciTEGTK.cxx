@@ -67,22 +67,15 @@ static GtkWidget *PWidget(GUI::Window &w) {
 	return reinterpret_cast<GtkWidget *>(w.GetID());
 }
 
-static GtkWidget *MakeToggle(const char *text, GtkAccelGroup *accel_group, bool active) {
-	GtkWidget *toggle = gtk_check_button_new_with_label("");
-	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(toggle)->child), text);
-	gtk_widget_add_accelerator(toggle, "clicked", accel_group,
-	                           key, GDK_MOD1_MASK, (GtkAccelFlags)0);
+static GtkWidget *MakeToggle(const char *text, bool active) {
+	GtkWidget *toggle = gtk_check_button_new_with_mnemonic(text);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle), active);
 	return toggle;
 }
 
-static GtkWidget *MakeCommand(const char *text, GtkAccelGroup *accel_group,
-		GtkSignalFunc func, gpointer data, GdkModifierType accelMask) {
-	GtkWidget *command = gtk_button_new_with_label("");
+static GtkWidget *MakeCommand(const char *text, GtkSignalFunc func, gpointer data) {
+	GtkWidget *command = gtk_button_new_with_mnemonic(text);
 	GTK_WIDGET_SET_FLAGS(command, GTK_CAN_DEFAULT);
-	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(command)->child), text);
-	gtk_widget_add_accelerator(command, "clicked", accel_group,
-	                           key, accelMask, (GtkAccelFlags)0);
 	gtk_signal_connect(GTK_OBJECT(command), "clicked", func, data);
 	return command;
 }
@@ -111,18 +104,16 @@ public:
 
 class Dialog : public GUI::Window {
 public:
-	Dialog() : app(0), dialogCanceled(true), accel_group(0), localiser(0) {}
+	Dialog() : app(0), dialogCanceled(true), localiser(0) {}
 	void Create(SciTEGTK *app_, const char *title, Localization *localiser_, bool resizable=true) {
 		app = app_;
 		localiser = localiser_;
 		wid = gtk_dialog_new();
 		gtk_window_set_title(GTK_WINDOW(Widget()), localiser->Text(title).c_str());
 		gtk_window_set_resizable(GTK_WINDOW(Widget()), resizable);
-		accel_group = gtk_accel_group_new();
 	}
 	bool Display(GtkWidget *parent = 0, bool modal=true) {
 		// Mark it as a modal transient dialog
-		gtk_window_add_accel_group(GTK_WINDOW(Widget()), accel_group);
 		gtk_window_set_modal(GTK_WINDOW(Widget()), modal);
 		if (parent) {
 			gtk_window_set_transient_for(GTK_WINDOW(Widget()), GTK_WINDOW(parent));
@@ -153,7 +144,7 @@ public:
 		}
 	}
 	GtkWidget *Toggle(const char *original, bool active) {
-		return MakeToggle(localiser->Text(original).c_str(), accel_group, active);
+		return MakeToggle(localiser->Text(original).c_str(), active);
 	}
 	GtkWidget *CommandButton(const char *original, SigFunction func, bool makeDefault=false) {
 		return CreateButton(original, GtkSignalFunc(func), app, makeDefault);
@@ -162,8 +153,7 @@ public:
 		CreateButton("_Cancel", GtkSignalFunc(SignalCancel), this, false);
 	}
 	GtkWidget *Button(const char *original, SigFunction func) {
-		return MakeCommand(localiser->Text(original).c_str(), accel_group,
-			GtkSignalFunc(func), app, GDK_MOD1_MASK);
+		return MakeCommand(localiser->Text(original).c_str(), GtkSignalFunc(func), app);
 	}
 	void OnActivate(GtkWidget *w, SigFunction func) {
 		gtk_signal_connect(GTK_OBJECT(w), "activate", GtkSignalFunc(func), app);
@@ -193,8 +183,7 @@ private:
 		return FALSE;
 	}
 	GtkWidget *CreateButton(const char *original, GtkSignalFunc func, gpointer data, bool makeDefault) {
-		GtkWidget *btn = MakeCommand(localiser->Text(original).c_str(), accel_group,
-			func, data, GDK_MOD1_MASK);
+		GtkWidget *btn = MakeCommand(localiser->Text(original).c_str(), func, data);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(Widget())->action_area), btn, TRUE, TRUE, 0);
 		if (makeDefault) {
 			gtk_widget_grab_default(btn);
@@ -812,10 +801,15 @@ static void messageBoxOK(GtkWidget *, gpointer p) {
 }
 
 GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
-                                 int val, GtkAccelGroup *accel_group, bool isDefault) {
-	GtkWidget *button = MakeCommand(localiser.Text(label).c_str(),
-		accel_group, GtkSignalFunc(messageBoxOK),
-		reinterpret_cast<gpointer>(val), GdkModifierType(0));
+	int val, GtkAccelGroup *accel_group, bool isDefault) {
+	GUI::gui_string translated = localiser.Text(label);
+	GtkWidget *button = gtk_button_new_with_mnemonic(translated.c_str());
+	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), translated.c_str());
+	gtk_widget_add_accelerator(button, "clicked", accel_group,
+	                           key, GdkModifierType(0), (GtkAccelFlags)0);
+	gtk_signal_connect(GTK_OBJECT(button), "clicked",
+		GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val));
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
  	                   button, TRUE, TRUE, 0);
 	if (isDefault) {
