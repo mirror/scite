@@ -329,6 +329,22 @@ public:
 	}
 };
 
+class WEntry : public WWidget {
+public:
+	void Create() {
+		SetID(gtk_entry_new());
+	}
+	void ActivatesDefault() {
+		gtk_entry_set_activates_default(GTK_ENTRY(GetID()), TRUE);
+	}
+	const char *Text() {
+		return gtk_entry_get_text(GTK_ENTRY(GetID()));
+	}
+	int Value() {
+		return atoi(Text());
+	}
+};
+
 class WComboBoxEntry : public WWidget {
 public:
 	void Create() {
