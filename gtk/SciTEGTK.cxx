@@ -102,6 +102,21 @@ public:
 	}
 };
 
+// Callback thunk class connects GTK+ signals to a SciTEGTK instance method.
+template< void (SciTEGTK::*method)(int responseID) >
+class ResponseSignal {
+public:
+	static void Function(GtkDialog */*w*/, gint responseID, SciTEGTK *app) {
+		(app->*method)(responseID);
+	}
+};
+
+template< void (SciTEGTK::*method)(int responseID) >
+inline void AttachResponse(GtkWidget *w, SciTEGTK *object) {
+	ResponseSignal <method> sig;
+	g_signal_connect(GTK_OBJECT(w), "response", GCallback(sig.Function), object);
+}
+
 class Dialog : public GUI::Window {
 public:
 	Dialog() : app(0), dialogCanceled(true), localiser(0) {}
@@ -148,6 +163,10 @@ public:
 	}
 	GtkWidget *CommandButton(const char *original, SigFunction func, bool makeDefault=false) {
 		return CreateButton(original, GtkSignalFunc(func), app, makeDefault);
+	}
+	GtkWidget *ResponseButton(const char *original, int responseID) {
+		return gtk_dialog_add_button(GTK_DIALOG(Widget()),
+			localiser->Text(original).c_str(), responseID);
 	}
 	void CancelButton() {
 		CreateButton("_Cancel", GtkSignalFunc(SignalCancel), this, false);
@@ -628,6 +647,7 @@ protected:
 
 	void GotoCmd();
 	void TabSizeSet(int &tabSize, bool &useTabs);
+	void TabSizeResponse(int responseID);
 	void TabSizeCmd();
 	void TabSizeConvertCmd();
 	void FindIncrementCmd();
@@ -2108,6 +2128,24 @@ void SciTEGTK::TabSizeSet(int &tabSize, bool &useTabs) {
 	wEditor.Call(SCI_SETUSETABS, useTabs);
 }
 
+#define RESPONSE_CONVERT 1001
+
+void SciTEGTK::TabSizeResponse(int responseID) {
+	switch (responseID) {
+		case RESPONSE_CONVERT:
+			TabSizeConvertCmd();
+			break;
+
+		case GTK_RESPONSE_OK:
+			TabSizeCmd() ;
+			break;
+
+		case GTK_RESPONSE_CANCEL:
+			dlgTabSize.Destroy();
+			break;
+	}
+}
+
 void SciTEGTK::TabSizeCmd() {
 	int tabSize;
 	bool useTabs;
@@ -2132,31 +2170,36 @@ void SciTEGTK::TabSizeDialog() {
 	Table table(3, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->vbox));
 
-	table.Label(TranslatedLabel("_Tab Size:"));
+	GtkWidget *labelTabSize = TranslatedLabel("_Tab Size:");
+	table.Label(labelTabSize);
+
 	entryTabSize = gtk_entry_new();
 	table.Add(entryTabSize);
-	Signal<&SciTEGTK::TabSizeCmd> sigTabSize;
-	dlgTabSize.OnActivate(entryTabSize, sigTabSize.Function);
+	gtk_entry_set_activates_default(GTK_ENTRY(entryTabSize), TRUE);
 	gtk_widget_grab_focus(GTK_WIDGET(entryTabSize));
 	SString tabSize(wEditor.Call(SCI_GETTABWIDTH));
 	gtk_entry_set_text(GTK_ENTRY(entryTabSize), tabSize.c_str());
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelTabSize), entryTabSize);
 
-	table.Label(TranslatedLabel("_Indent Size:"));
+	GtkWidget *labelIndentSize = TranslatedLabel("_Indent Size:");
+	table.Label(labelIndentSize);
 	entryIndentSize = gtk_entry_new();
 	table.Add(entryIndentSize);
-	dlgTabSize.OnActivate(entryIndentSize, sigTabSize.Function);
+	gtk_entry_set_activates_default(GTK_ENTRY(entryTabSize), TRUE);
 	SString indentSize(wEditor.Call(SCI_GETINDENT));
 	gtk_entry_set_text(GTK_ENTRY(entryIndentSize), indentSize.c_str());
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelIndentSize), entryIndentSize);
 
 	bool useTabs = wEditor.Call(SCI_GETUSETABS);
 	toggleUseTabs = dlgTabSize.Toggle("_Use Tabs", useTabs);
 	table.Add();
 	table.Add(toggleUseTabs);
 
-	Signal<&SciTEGTK::TabSizeConvertCmd> sigTabSizeConvert;
-	dlgTabSize.CommandButton("Con_vert", sigTabSizeConvert.Function);
-	dlgTabSize.CancelButton();
-	dlgTabSize.CommandButton("_OK", sigTabSize.Function, true);
+	AttachResponse<&SciTEGTK::TabSizeResponse>(PWidget(dlgTabSize), this);
+	dlgTabSize.ResponseButton("Con_vert", RESPONSE_CONVERT);
+	dlgTabSize.ResponseButton("_Cancel", GTK_RESPONSE_CANCEL);
+	dlgTabSize.ResponseButton("_OK", GTK_RESPONSE_OK);
+	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgTabSize)), GTK_RESPONSE_OK);
 
 	dlgTabSize.Display(PWidget(wSciTE));
 }
