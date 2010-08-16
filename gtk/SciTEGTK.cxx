@@ -407,6 +407,13 @@ public:
 	WEntry entryGoto;
 };
 
+class DialogTabSize : public Dialog {
+public:
+	WEntry entryTabSize;
+	WEntry entryIndentSize;
+	WToggle toggleUseTabs;
+};
+
 class BaseWin : public GUI::Window {
 public:
 	SciTEGTK *pSciTEGTK;
@@ -542,7 +549,7 @@ protected:
 	Dialog dlgFindInFiles;
 	WComboBoxEntry comboFiles;
 	DialogGoto dlgGoto;
-	Dialog dlgTabSize;
+	DialogTabSize dlgTabSize;
 	bool paramDialogCanceled;
 
 	GtkWidget *wIncrementPanel;
@@ -554,15 +561,12 @@ protected:
 	Dialog dlgFindReplace;
 	Dialog dlgParameters;
 
-	GtkWidget *entryTabSize;
-	GtkWidget *entryIndentSize;
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
 	GtkWidget *toggleRegExp;
 	GtkWidget *toggleWrap;
 	GtkWidget *toggleUnSlash;
 	GtkWidget *toggleReverse;
-	GtkWidget *toggleUseTabs;
 	WComboBoxEntry comboFind;
 	WComboBoxEntry comboFindInFiles;
 	WComboBoxEntry comboDir;
@@ -798,8 +802,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	xor_gc = 0;
 	saveFormat = sfSource;
 	paramDialogCanceled = true;
-	entryTabSize = 0;
-	entryIndentSize = 0;
 	IncSearchEntry = 0;
 	toggleWord = 0;
 	toggleCase = 0;
@@ -807,7 +809,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	toggleWrap = 0;
 	toggleUnSlash = 0;
 	toggleReverse = 0;
-	toggleUseTabs = 0;
 	btnCompile = 0;
 	btnBuild = 0;
 	btnStop = 0;
@@ -2132,11 +2133,6 @@ void SciTEGTK::StopExecute() {
 	}
 }
 
-static int EntryValue(GtkWidget *entry) {
-	const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
-	return atoi(text);
-}
-
 void SciTEGTK::GotoCmd() {
 	int lineNo = dlgGoto.entryGoto.Value();
 	GotoLineEnsureVisible(lineNo - 1);
@@ -2184,13 +2180,13 @@ void SciTEGTK::GoLineDialog() {
 bool SciTEGTK::AbbrevDialog() { return false; }
 
 void SciTEGTK::TabSizeSet(int &tabSize, bool &useTabs) {
-	tabSize = EntryValue(entryTabSize);
+	tabSize = dlgTabSize.entryTabSize.Value();
 	if (tabSize > 0)
 		wEditor.Call(SCI_SETTABWIDTH, tabSize);
-	int indentSize = EntryValue(entryIndentSize);
+	int indentSize = dlgTabSize.entryIndentSize.Value();
 	if (indentSize > 0)
 		wEditor.Call(SCI_SETINDENT, indentSize);
-	useTabs = GTK_TOGGLE_BUTTON(toggleUseTabs)->active;
+	useTabs = dlgTabSize.toggleUseTabs.Active();
 	wEditor.Call(SCI_SETUSETABS, useTabs);
 }
 
@@ -2239,27 +2235,26 @@ void SciTEGTK::TabSizeDialog() {
 	GtkWidget *labelTabSize = TranslatedLabel("_Tab Size:");
 	table.Label(labelTabSize);
 
-	entryTabSize = gtk_entry_new();
-	table.Add(entryTabSize);
-	gtk_entry_set_activates_default(GTK_ENTRY(entryTabSize), TRUE);
-	gtk_widget_grab_focus(GTK_WIDGET(entryTabSize));
 	SString tabSize(wEditor.Call(SCI_GETTABWIDTH));
-	gtk_entry_set_text(GTK_ENTRY(entryTabSize), tabSize.c_str());
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelTabSize), entryTabSize);
+	dlgTabSize.entryTabSize.Create(tabSize.c_str());
+	table.Add(dlgTabSize.entryTabSize);
+	dlgTabSize.entryTabSize.ActivatesDefault();
+	gtk_widget_grab_focus(dlgTabSize.entryTabSize);
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelTabSize), dlgTabSize.entryTabSize);
 
 	GtkWidget *labelIndentSize = TranslatedLabel("_Indent Size:");
 	table.Label(labelIndentSize);
-	entryIndentSize = gtk_entry_new();
-	table.Add(entryIndentSize);
-	gtk_entry_set_activates_default(GTK_ENTRY(entryTabSize), TRUE);
+
 	SString indentSize(wEditor.Call(SCI_GETINDENT));
-	gtk_entry_set_text(GTK_ENTRY(entryIndentSize), indentSize.c_str());
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelIndentSize), entryIndentSize);
+	dlgTabSize.entryIndentSize.Create(indentSize.c_str());
+	table.Add(dlgTabSize.entryIndentSize);
+	dlgTabSize.entryIndentSize.ActivatesDefault();
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelIndentSize), dlgTabSize.entryIndentSize);
 
 	bool useTabs = wEditor.Call(SCI_GETUSETABS);
-	toggleUseTabs = dlgTabSize.Toggle("_Use Tabs", useTabs);
+	dlgTabSize.toggleUseTabs.Create("_Use Tabs", useTabs);
 	table.Add();
-	table.Add(toggleUseTabs);
+	table.Add(dlgTabSize.toggleUseTabs);
 
 	AttachResponse<&SciTEGTK::TabSizeResponse>(PWidget(dlgTabSize), this);
 	dlgTabSize.ResponseButton("Con_vert", RESPONSE_CONVERT);
