@@ -1828,7 +1828,7 @@ void SciTEGTK::FindInFiles() {
 	Table table(4, 5);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox));
 
-	static Signal<&SciTEGTK::FindInFilesCmd> sigFind;
+	Signal<&SciTEGTK::FindInFilesCmd> sigFind;
 
 	table.Label(TranslatedLabel("Find what:"));
 
@@ -1864,11 +1864,11 @@ void SciTEGTK::FindInFiles() {
 	dlgFindInFiles.OnActivate(GTK_WIDGET(comboDir.Entry()), sigFind.Function);
 	//gtk_combo_disable_activate(GTK_COMBO(comboDir));
 
-	static Signal<&SciTEGTK::FindInFilesDotDot> sigDotDot;
+	Signal<&SciTEGTK::FindInFilesDotDot> sigDotDot;
 	GtkWidget *btnDotDot = dlgFindInFiles.Button("_..", sigDotDot.Function);
 	table.Add(btnDotDot);
 
-	static Signal<&SciTEGTK::FindInFilesBrowse> sigBrowse;
+	Signal<&SciTEGTK::FindInFilesBrowse> sigBrowse;
 	GtkWidget *btnBrowse = dlgFindInFiles.Button("_Browse...", sigBrowse.Function);
 	table.Add(btnBrowse);
 
@@ -2085,7 +2085,7 @@ void SciTEGTK::GoLineDialog() {
 
 	entryGoto = gtk_entry_new();
 	table.Add(entryGoto);
-	static Signal<&SciTEGTK::GotoCmd> sigGoto;
+	Signal<&SciTEGTK::GotoCmd> sigGoto;
 	dlgGoto.OnActivate(entryGoto, sigGoto.Function);
 	gtk_widget_grab_focus(GTK_WIDGET(entryGoto));
 
@@ -2135,7 +2135,7 @@ void SciTEGTK::TabSizeDialog() {
 	table.Label(TranslatedLabel("_Tab Size:"));
 	entryTabSize = gtk_entry_new();
 	table.Add(entryTabSize);
-	static Signal<&SciTEGTK::TabSizeCmd> sigTabSize;
+	Signal<&SciTEGTK::TabSizeCmd> sigTabSize;
 	dlgTabSize.OnActivate(entryTabSize, sigTabSize.Function);
 	gtk_widget_grab_focus(GTK_WIDGET(entryTabSize));
 	SString tabSize(wEditor.Call(SCI_GETTABWIDTH));
@@ -2153,7 +2153,7 @@ void SciTEGTK::TabSizeDialog() {
 	table.Add();
 	table.Add(toggleUseTabs);
 
-	static Signal<&SciTEGTK::TabSizeConvertCmd> sigTabSizeConvert;
+	Signal<&SciTEGTK::TabSizeConvertCmd> sigTabSizeConvert;
 	dlgTabSize.CommandButton("Con_vert", sigTabSizeConvert.Function);
 	dlgTabSize.CancelButton();
 	dlgTabSize.CommandButton("_OK", sigTabSize.Function, true);
@@ -2218,7 +2218,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		table.Add(cmd, 2);
 	}
 
-	static Signal<&SciTEGTK::ParamCmd> sigParam;
+	Signal<&SciTEGTK::ParamCmd> sigParam;
 
 	for (int param = 0; param < maxParam; param++) {
 		SString paramText(param + 1);
@@ -2236,7 +2236,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 
 	gtk_widget_grab_focus(GTK_WIDGET(entryParam[0]));
 
-	static Signal<&SciTEGTK::ParamCancelCmd> sigParamCancel;
+	Signal<&SciTEGTK::ParamCancelCmd> sigParamCancel;
 	dlgParameters.CommandButton(modal ? "_Cancel" : "_Close", sigParamCancel.Function);
 	dlgParameters.CommandButton(modal ? "_Execute" : "_Set", sigParam.Function, true);
 
@@ -2269,7 +2269,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_entry_set_text(comboFind.Entry(), findWhat.c_str());
 	gtk_entry_set_width_chars(comboFind.Entry(), 40);
 	gtk_entry_select_region(comboFind.Entry(), 0, findWhat.length());
-	static Signal<&SciTEGTK::FRFindCmd> sigFRFind;
+	Signal<&SciTEGTK::FRFindCmd> sigFRFind;
 	dlgFindReplace.OnActivate(GTK_WIDGET(comboFind.Entry()), sigFRFind.Function);
 	//gtk_combo_disable_activate(GTK_COMBO(comboFind));
 
@@ -2312,24 +2312,24 @@ void SciTEGTK::FindReplace(bool replace) {
 	table.Add(toggleReverse, 2, false, 3, 0);
 
 	if (!replace) {
-		static Signal<&SciTEGTK::FRMarkAllCmd> sigFRMarkAll;
+		Signal<&SciTEGTK::FRMarkAllCmd> sigFRMarkAll;
 		dlgFindReplace.CommandButton("Mark _All", sigFRMarkAll.Function);
 	}
 
 	if (replace) {
-		static Signal<&SciTEGTK::FRReplaceCmd> sigFRReplace;
+		Signal<&SciTEGTK::FRReplaceCmd> sigFRReplace;
 		dlgFindReplace.CommandButton("_Replace", sigFRReplace.Function);
-		static Signal<&SciTEGTK::FRReplaceAllCmd> sigFRReplaceAll;
+		Signal<&SciTEGTK::FRReplaceAllCmd> sigFRReplaceAll;
 		dlgFindReplace.CommandButton("Replace _All", sigFRReplaceAll.Function);
-		static Signal<&SciTEGTK::FRReplaceInSelectionCmd> sigFRReplaceInSelection;
+		Signal<&SciTEGTK::FRReplaceInSelectionCmd> sigFRReplaceInSelection;
 		dlgFindReplace.CommandButton("In _Selection", sigFRReplaceInSelection.Function);
 		if (FindReplaceAdvanced()) {
-			static Signal<&SciTEGTK::FRReplaceInBuffersCmd> sigFRReplaceInBuffers;
+			Signal<&SciTEGTK::FRReplaceInBuffersCmd> sigFRReplaceInBuffers;
 			dlgFindReplace.CommandButton("Replace In _Buffers", sigFRReplaceInBuffers.Function);
 		}
 	}
 
-	static Signal<&SciTEGTK::FRCancelCmd> sigFRCancel;
+	Signal<&SciTEGTK::FRCancelCmd> sigFRCancel;
 	dlgFindReplace.CommandButton("Close", sigFRCancel.Function);
 
 	dlgFindReplace.CommandButton("F_ind", sigFRFind.Function, true);
@@ -4198,10 +4198,10 @@ void SciTEGTK::CreateUI() {
 
 	IncSearchEntry = gtk_entry_new();
 	table.Add(IncSearchEntry, 1, true, 5, 1);
-	static Signal<&SciTEGTK::FindIncrementCompleteCmd> sigFindIncrementComplete;
+	Signal<&SciTEGTK::FindIncrementCompleteCmd> sigFindIncrementComplete;
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"activate", GtkSignalFunc(sigFindIncrementComplete.Function), this);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry), "key-press-event", GtkSignalFunc(FindIncrementEscapeSignal), this);
-	static Signal<&SciTEGTK::FindIncrementCmd> sigFindIncrement;
+	Signal<&SciTEGTK::FindIncrementCmd> sigFindIncrement;
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"changed", GtkSignalFunc(sigFindIncrement.Function), this);
 	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"focus-out-event", GtkSignalFunc(FindIncrementFocusOutSignal), NULL);
 	gtk_widget_show(IncSearchEntry);
