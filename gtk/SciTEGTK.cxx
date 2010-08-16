@@ -596,7 +596,6 @@ protected:
 	virtual void Find();
 	void TranslatedSetTitle(GtkWindow *w, const char *original);
 	GtkWidget *TranslatedLabel(const char *original);
-	GtkWidget *TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active);
 	virtual void FindIncrement();
 	virtual void FindInFiles();
 	virtual void Replace();
@@ -1594,10 +1593,6 @@ void SciTEGTK::TranslatedSetTitle(GtkWindow *w, const char *original) {
 GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
 	GUI::gui_string text = localiser.Text(original);
 	return gtk_label_new_with_mnemonic(text.c_str());
-}
-
-GtkWidget *SciTEGTK::TranslatedToggle(const char *original, GtkAccelGroup *accel_group, bool active) {
-	return MakeToggle(localiser.Text(original).c_str(), accel_group, active);
 }
 
 static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool useTop = false) {
