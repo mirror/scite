@@ -389,6 +389,11 @@ public:
 	static gboolean ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WCheckDraw *pcd);
 };
 
+class DialogGoto : public Dialog {
+public:
+	WEntry entryGoto;
+};
+
 class BaseWin : public GUI::Window {
 public:
 	SciTEGTK *pSciTEGTK;
@@ -523,7 +528,7 @@ protected:
 	Dialog dlgFileSelector;
 	Dialog dlgFindInFiles;
 	WComboBoxEntry comboFiles;
-	Dialog dlgGoto;
+	DialogGoto dlgGoto;
 	Dialog dlgTabSize;
 	bool paramDialogCanceled;
 
@@ -536,7 +541,6 @@ protected:
 	Dialog dlgFindReplace;
 	Dialog dlgParameters;
 
-	GtkWidget *entryGoto;
 	GtkWidget *entryTabSize;
 	GtkWidget *entryIndentSize;
 	GtkWidget *toggleWord;
@@ -781,7 +785,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	xor_gc = 0;
 	saveFormat = sfSource;
 	paramDialogCanceled = true;
-	entryGoto = 0;
 	entryTabSize = 0;
 	entryIndentSize = 0;
 	IncSearchEntry = 0;
@@ -2122,7 +2125,7 @@ static int EntryValue(GtkWidget *entry) {
 }
 
 void SciTEGTK::GotoCmd() {
-	int lineNo = EntryValue(entryGoto);
+	int lineNo = dlgGoto.entryGoto.Value();
 	GotoLineEnsureVisible(lineNo - 1);
 	dlgGoto.Destroy();
 }
@@ -2151,11 +2154,11 @@ void SciTEGTK::GoLineDialog() {
 	GtkWidget *labelGoto = TranslatedLabel("_Destination Line Number:");
 	table.Label(labelGoto);
 
-	entryGoto = gtk_entry_new();
-	table.Add(entryGoto);
-	gtk_entry_set_activates_default(GTK_ENTRY(entryGoto), TRUE);
-	gtk_widget_grab_focus(GTK_WIDGET(entryGoto));
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelGoto), entryGoto);
+	dlgGoto.entryGoto.Create();
+	table.Add(dlgGoto.entryGoto);
+	dlgGoto.entryGoto.ActivatesDefault();
+	gtk_widget_grab_focus(dlgGoto.entryGoto);
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelGoto), dlgGoto.entryGoto);
 
 	AttachResponse<&SciTEGTK::GotoResponse>(PWidget(dlgGoto), this);
 	dlgGoto.ResponseButton("_Cancel", GTK_RESPONSE_CANCEL);
