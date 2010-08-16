@@ -605,8 +605,10 @@ protected:
 	void TranslatedSetTitle(GtkWindow *w, const char *original);
 	GtkWidget *TranslatedLabel(const char *original);
 	virtual void FindIncrement();
+	void FindInFilesResponse(int responseID);
 	virtual void FindInFiles();
 	virtual void Replace();
+	void FindReplaceResponse(int responseID);
 	virtual void FindReplace(bool replace);
 	virtual void DestroyFindReplace();
 	virtual void GoLineDialog();
@@ -646,10 +648,11 @@ protected:
 	void FindInFilesBrowse();
 
 	void GotoCmd();
+	void GotoResponse(int responseID);
 	void TabSizeSet(int &tabSize, bool &useTabs);
-	void TabSizeResponse(int responseID);
 	void TabSizeCmd();
 	void TabSizeConvertCmd();
+	void TabSizeResponse(int responseID);
 	void FindIncrementCmd();
 	void FindIncrementCompleteCmd();
 	static gboolean FindIncrementFocusOutSignal(GtkWidget *w);
@@ -669,6 +672,7 @@ protected:
 	static gint ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	void ParamCancelCmd();
 	void ParamCmd();
+	void ParamResponse(int responseID);
 
 	static void IOSignal(SciTEGTK *scitew);
 	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
@@ -1836,6 +1840,18 @@ public:
 	}
 };
 
+void SciTEGTK::FindInFilesResponse(int responseID) {
+	switch (responseID) {
+		case GTK_RESPONSE_OK:
+			FindInFilesCmd() ;
+			break;
+
+		case GTK_RESPONSE_CANCEL:
+			dlgFindInFiles.Destroy();
+			break;
+	}
+}
+
 void SciTEGTK::FindInFiles() {
 	SelectionIntoFind();
 	props.Set("find.what", findWhat.c_str());
@@ -1848,9 +1864,8 @@ void SciTEGTK::FindInFiles() {
 	Table table(4, 5);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox));
 
-	Signal<&SciTEGTK::FindInFilesCmd> sigFind;
-
-	table.Label(TranslatedLabel("Find what:"));
+	GtkWidget *labelFind = TranslatedLabel("Fi_nd what:");
+	table.Label(labelFind);
 
 	comboFindInFiles.Create();
 
@@ -1860,19 +1875,21 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_entry_set_text(comboFindInFiles.Entry(), findWhat.c_str());
 	gtk_entry_select_region(comboFindInFiles.Entry(), 0, findWhat.length());
-	dlgFindInFiles.OnActivate(GTK_WIDGET(comboFindInFiles.Entry()), sigFind.Function);
-	//gtk_combo_disable_activate(GTK_COMBO(comboFindInFiles));
+	gtk_entry_set_activates_default(comboFindInFiles.Entry(), TRUE);
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), comboFindInFiles);
 
-	table.Label(TranslatedLabel("Files:"));
+	GtkWidget *labelFiles = TranslatedLabel("_Files:");
+	table.Label(labelFiles);
 
 	comboFiles.Create();
 	FillComboFromMemory(comboFiles, memFiles, true);
 
 	table.Add(comboFiles, 4, true);
-	dlgFindInFiles.OnActivate(GTK_WIDGET(comboFiles.Entry()), sigFind.Function);
-	//gtk_combo_disable_activate(GTK_COMBO(comboFiles));
+	gtk_entry_set_activates_default(comboFiles.Entry(), TRUE);
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFiles), comboFiles);
 
-	table.Label(TranslatedLabel("Directory:"));
+	GtkWidget *labelDirectory = TranslatedLabel("_Directory:");
+	table.Label(labelDirectory);
 
 	comboDir.Create();
 	FillComboFromMemory(comboDir, memDirectory);
@@ -1881,8 +1898,8 @@ void SciTEGTK::FindInFiles() {
 	gtk_entry_set_text(comboDir.Entry(), findInDir.AsInternal());
 	// Make a little wider than would happen automatically to show realistic paths
 	gtk_entry_set_width_chars(comboDir.Entry(), 40);
-	dlgFindInFiles.OnActivate(GTK_WIDGET(comboDir.Entry()), sigFind.Function);
-	//gtk_combo_disable_activate(GTK_COMBO(comboDir));
+	gtk_entry_set_activates_default(comboDir.Entry(), TRUE);
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelDirectory), comboDir);
 
 	Signal<&SciTEGTK::FindInFilesDotDot> sigDotDot;
 	GtkWidget *btnDotDot = dlgFindInFiles.Button("_..", sigDotDot.Function);
@@ -1906,8 +1923,10 @@ void SciTEGTK::FindInFiles() {
 	gtk_widget_set_sensitive(toggleCase, enableToggles);
 	table.Add(toggleCase, 1, true, 3, 0);
 
-	dlgFindInFiles.CancelButton();
-	dlgFindInFiles.CommandButton("F_ind", sigFind.Function, true);
+	AttachResponse<&SciTEGTK::FindInFilesResponse>(PWidget(dlgFindInFiles), this);
+	dlgFindInFiles.ResponseButton("_Cancel", GTK_RESPONSE_CANCEL);
+	dlgFindInFiles.ResponseButton("F_ind", GTK_RESPONSE_OK);
+	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindInFiles)), GTK_RESPONSE_OK);
 
 	gtk_widget_grab_focus(GTK_WIDGET(comboFindInFiles.Entry()));
 
@@ -2092,6 +2111,18 @@ void SciTEGTK::GotoCmd() {
 	dlgGoto.Destroy();
 }
 
+void SciTEGTK::GotoResponse(int responseID) {
+	switch (responseID) {
+		case GTK_RESPONSE_OK:
+			GotoCmd() ;
+			break;
+
+		case GTK_RESPONSE_CANCEL:
+			dlgGoto.Destroy();
+			break;
+	}
+}
+
 void SciTEGTK::GoLineDialog() {
 
 	dlgGoto.Create(this, "Go To", &localiser);
@@ -2101,16 +2132,19 @@ void SciTEGTK::GoLineDialog() {
 	Table table(1, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgGoto))->vbox));
 
-	table.Label(TranslatedLabel("Destination Line Number:"));
+	GtkWidget *labelGoto = TranslatedLabel("_Destination Line Number:");
+	table.Label(labelGoto);
 
 	entryGoto = gtk_entry_new();
 	table.Add(entryGoto);
-	Signal<&SciTEGTK::GotoCmd> sigGoto;
-	dlgGoto.OnActivate(entryGoto, sigGoto.Function);
+	gtk_entry_set_activates_default(GTK_ENTRY(entryGoto), TRUE);
 	gtk_widget_grab_focus(GTK_WIDGET(entryGoto));
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelGoto), entryGoto);
 
-	dlgGoto.CancelButton();
-	dlgGoto.CommandButton("_Go To", sigGoto.Function, true);
+	AttachResponse<&SciTEGTK::GotoResponse>(PWidget(dlgGoto), this);
+	dlgGoto.ResponseButton("_Cancel", GTK_RESPONSE_CANCEL);
+	dlgGoto.ResponseButton("_Go To", GTK_RESPONSE_OK);
+	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgGoto)), GTK_RESPONSE_OK);
 
 	dlgGoto.Display(PWidget(wSciTE));
 }
@@ -2126,6 +2160,21 @@ void SciTEGTK::TabSizeSet(int &tabSize, bool &useTabs) {
 		wEditor.Call(SCI_SETINDENT, indentSize);
 	useTabs = GTK_TOGGLE_BUTTON(toggleUseTabs)->active;
 	wEditor.Call(SCI_SETUSETABS, useTabs);
+}
+
+void SciTEGTK::TabSizeCmd() {
+	int tabSize;
+	bool useTabs;
+	TabSizeSet(tabSize, useTabs);
+	dlgTabSize.Destroy();
+}
+
+void SciTEGTK::TabSizeConvertCmd() {
+	int tabSize;
+	bool useTabs;
+	TabSizeSet(tabSize, useTabs);
+	ConvertIndentation(tabSize, useTabs);
+	dlgTabSize.Destroy();
 }
 
 #define RESPONSE_CONVERT 1001
@@ -2144,21 +2193,6 @@ void SciTEGTK::TabSizeResponse(int responseID) {
 			dlgTabSize.Destroy();
 			break;
 	}
-}
-
-void SciTEGTK::TabSizeCmd() {
-	int tabSize;
-	bool useTabs;
-	TabSizeSet(tabSize, useTabs);
-	dlgTabSize.Destroy();
-}
-
-void SciTEGTK::TabSizeConvertCmd() {
-	int tabSize;
-	bool useTabs;
-	TabSizeSet(tabSize, useTabs);
-	ConvertIndentation(tabSize, useTabs);
-	dlgTabSize.Destroy();
 }
 
 void SciTEGTK::TabSizeDialog() {
@@ -2239,6 +2273,18 @@ void SciTEGTK::ParamCmd() {
 	CheckMenus();
 }
 
+void SciTEGTK::ParamResponse(int responseID) {
+	switch (responseID) {
+		case GTK_RESPONSE_OK:
+			ParamCmd() ;
+			break;
+
+		case GTK_RESPONSE_CANCEL:
+			ParamCancelCmd();
+			break;
+	}
+}
+
 bool SciTEGTK::ParametersDialog(bool modal) {
 	if (dlgParameters.Created()) {
 		ParamGrab();
@@ -2261,27 +2307,30 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		table.Add(cmd, 2);
 	}
 
-	Signal<&SciTEGTK::ParamCmd> sigParam;
-
 	for (int param = 0; param < maxParam; param++) {
 		SString paramText(param + 1);
 		SString paramTextVal = props.Get(paramText.c_str());
+		paramText.insert(0, "_");
 		paramText.append(":");
-		table.Label(gtk_label_new(paramText.c_str()));
+		GtkWidget *label = gtk_label_new_with_mnemonic(paramText.c_str());
+		table.Label(label);
 
 		entryParam[param] = gtk_entry_new();
 		gtk_entry_set_text(GTK_ENTRY(entryParam[param]), paramTextVal.c_str());
 		if (param == 0)
 			gtk_entry_select_region(GTK_ENTRY(entryParam[param]), 0, paramTextVal.length());
 		table.Add(entryParam[param]);
-		dlgParameters.OnActivate(entryParam[param], sigParam.Function);
+		gtk_entry_set_activates_default(GTK_ENTRY(entryParam[param]), TRUE);
+
+		gtk_label_set_mnemonic_widget(GTK_LABEL(label), entryParam[param]);
 	}
 
 	gtk_widget_grab_focus(GTK_WIDGET(entryParam[0]));
 
-	Signal<&SciTEGTK::ParamCancelCmd> sigParamCancel;
-	dlgParameters.CommandButton(modal ? "_Cancel" : "_Close", sigParamCancel.Function);
-	dlgParameters.CommandButton(modal ? "_Execute" : "_Set", sigParam.Function, true);
+	AttachResponse<&SciTEGTK::ParamResponse>(PWidget(dlgParameters), this);
+	dlgParameters.ResponseButton(modal ? "_Cancel" : "_Close", GTK_RESPONSE_CANCEL);
+	dlgParameters.ResponseButton(modal ? "_Execute" : "_Set", GTK_RESPONSE_OK);
+	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgParameters)), GTK_RESPONSE_OK);
 
 	dlgParameters.Display(PWidget(wSciTE), modal);
 
@@ -2290,6 +2339,44 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 
 bool SciTEGTK::FindReplaceAdvanced() {
 	return props.GetInt("find.replace.advanced");
+}
+
+#define RESPONSE_MARK_ALL 1002
+#define RESPONSE_REPLACE 1003
+#define RESPONSE_REPLACE_ALL 1004
+#define RESPONSE_REPLACE_IN_SELECTION 1005
+#define RESPONSE_REPLACE_IN_BUFFERS 1006
+
+void SciTEGTK::FindReplaceResponse(int responseID) {
+	switch (responseID) {
+		case GTK_RESPONSE_OK:
+			FRFindCmd() ;
+			break;
+
+		case GTK_RESPONSE_CANCEL:
+			dlgFindReplace.Destroy();
+			break;
+
+		case RESPONSE_MARK_ALL:
+			FRMarkAllCmd();
+			break;
+
+		case RESPONSE_REPLACE:
+			FRReplaceCmd();
+			break;
+
+		case RESPONSE_REPLACE_ALL:
+			FRReplaceAllCmd();
+			break;
+
+		case RESPONSE_REPLACE_IN_SELECTION:
+			FRReplaceInSelectionCmd();
+			break;
+
+		case RESPONSE_REPLACE_IN_BUFFERS:
+			FRReplaceInBuffersCmd();
+			break;
+	}
 }
 
 void SciTEGTK::FindReplace(bool replace) {
@@ -2303,7 +2390,8 @@ void SciTEGTK::FindReplace(bool replace) {
 	Table table(replace ? 8 : 7, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindReplace))->vbox));
 
-	table.Label(TranslatedLabel("Find what:"));
+	GtkWidget *labelFind = TranslatedLabel("Fi_nd what:");
+	table.Label(labelFind);
 
 	comboFind.Create();
 	FillComboFromMemory(comboFind, memFinds);
@@ -2312,19 +2400,19 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_entry_set_text(comboFind.Entry(), findWhat.c_str());
 	gtk_entry_set_width_chars(comboFind.Entry(), 40);
 	gtk_entry_select_region(comboFind.Entry(), 0, findWhat.length());
-	Signal<&SciTEGTK::FRFindCmd> sigFRFind;
-	dlgFindReplace.OnActivate(GTK_WIDGET(comboFind.Entry()), sigFRFind.Function);
-	//gtk_combo_disable_activate(GTK_COMBO(comboFind));
+	gtk_entry_set_activates_default(comboFind.Entry(), TRUE);
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), comboFind);
 
 	if (replace) {
-		table.Label(TranslatedLabel("Replace with:"));
+		GtkWidget *labelReplace = TranslatedLabel("Rep_lace with:");
+		table.Label(labelReplace);
 
 		comboReplace.Create();
 		FillComboFromMemory(comboReplace, memReplaces);
 		table.Add(comboReplace, 1, true);
 
-		dlgFindReplace.OnActivate(GTK_WIDGET(comboReplace.Entry()), sigFRFind.Function);
-		//gtk_combo_disable_activate(GTK_COMBO(comboReplace));
+		gtk_entry_set_activates_default(comboReplace.Entry(), TRUE);
+		gtk_label_set_mnemonic_widget(GTK_LABEL(labelReplace), comboReplace);
 
 	} else {
 		comboReplace.SetID(0);
@@ -2355,27 +2443,23 @@ void SciTEGTK::FindReplace(bool replace) {
 	table.Add(toggleReverse, 2, false, 3, 0);
 
 	if (!replace) {
-		Signal<&SciTEGTK::FRMarkAllCmd> sigFRMarkAll;
-		dlgFindReplace.CommandButton("Mark _All", sigFRMarkAll.Function);
+		dlgFindReplace.ResponseButton("Mark _All", RESPONSE_MARK_ALL);
 	}
 
 	if (replace) {
-		Signal<&SciTEGTK::FRReplaceCmd> sigFRReplace;
-		dlgFindReplace.CommandButton("_Replace", sigFRReplace.Function);
-		Signal<&SciTEGTK::FRReplaceAllCmd> sigFRReplaceAll;
-		dlgFindReplace.CommandButton("Replace _All", sigFRReplaceAll.Function);
-		Signal<&SciTEGTK::FRReplaceInSelectionCmd> sigFRReplaceInSelection;
-		dlgFindReplace.CommandButton("In _Selection", sigFRReplaceInSelection.Function);
+		dlgFindReplace.ResponseButton("_Replace", RESPONSE_REPLACE);
+		dlgFindReplace.ResponseButton("Replace _All", RESPONSE_REPLACE_ALL);
+		dlgFindReplace.ResponseButton("In _Selection", RESPONSE_REPLACE_IN_SELECTION);
 		if (FindReplaceAdvanced()) {
-			Signal<&SciTEGTK::FRReplaceInBuffersCmd> sigFRReplaceInBuffers;
-			dlgFindReplace.CommandButton("Replace In _Buffers", sigFRReplaceInBuffers.Function);
+			dlgFindReplace.ResponseButton("Replace In _Buffers", RESPONSE_REPLACE_IN_BUFFERS);
 		}
 	}
 
-	Signal<&SciTEGTK::FRCancelCmd> sigFRCancel;
-	dlgFindReplace.CommandButton("Close", sigFRCancel.Function);
+	dlgFindReplace.ResponseButton("Close", GTK_RESPONSE_CANCEL);
+	dlgFindReplace.ResponseButton("F_ind", GTK_RESPONSE_OK);
 
-	dlgFindReplace.CommandButton("F_ind", sigFRFind.Function, true);
+	AttachResponse<&SciTEGTK::FindReplaceResponse>(PWidget(dlgFindReplace), this);
+	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindReplace)), GTK_RESPONSE_OK);
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
 	                   "key_press_event", GtkSignalFunc(FRKeySignal), this);
