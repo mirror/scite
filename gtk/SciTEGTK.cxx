@@ -386,6 +386,8 @@ public:
 	bool visible;
 	Strip() : allowMenuActions(false), childHasFocus(false), visible(false) {
 	}
+	virtual ~Strip() {
+	}
 	virtual void Show();
 	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
