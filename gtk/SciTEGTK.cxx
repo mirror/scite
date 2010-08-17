@@ -67,19 +67,6 @@ static GtkWidget *PWidget(GUI::Window &w) {
 	return reinterpret_cast<GtkWidget *>(w.GetID());
 }
 
-static GtkWidget *MakeToggle(const char *text, bool active) {
-	GtkWidget *toggle = gtk_check_button_new_with_mnemonic(text);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle), active);
-	return toggle;
-}
-
-static GtkWidget *MakeCommand(const char *text, GtkSignalFunc func, gpointer data) {
-	GtkWidget *command = gtk_button_new_with_mnemonic(text);
-	GTK_WIDGET_SET_FLAGS(command, GTK_CAN_DEFAULT);
-	gtk_signal_connect(GTK_OBJECT(command), "clicked", func, data);
-	return command;
-}
-
 class SciTEGTK;
 
 typedef void (*SigFunction)(GtkWidget *w, SciTEGTK *app);
@@ -158,24 +145,9 @@ public:
 			d->Cancel();
 		}
 	}
-	GtkWidget *Toggle(const char *original, bool active) {
-		return MakeToggle(localiser->Text(original).c_str(), active);
-	}
-	GtkWidget *CommandButton(const char *original, SigFunction func, bool makeDefault=false) {
-		return CreateButton(original, GtkSignalFunc(func), app, makeDefault);
-	}
 	GtkWidget *ResponseButton(const char *original, int responseID) {
 		return gtk_dialog_add_button(GTK_DIALOG(Widget()),
 			localiser->Text(original).c_str(), responseID);
-	}
-	void CancelButton() {
-		CreateButton("_Cancel", GtkSignalFunc(SignalCancel), this, false);
-	}
-	GtkWidget *Button(const char *original, SigFunction func) {
-		return MakeCommand(localiser->Text(original).c_str(), GtkSignalFunc(func), app);
-	}
-	void OnActivate(GtkWidget *w, SigFunction func) {
-		gtk_signal_connect(GTK_OBJECT(w), "activate", GtkSignalFunc(func), app);
 	}
 	void Present() {
 		gtk_window_present(GTK_WINDOW(Widget()));
@@ -200,15 +172,6 @@ private:
 			d->Cancel();
 		}
 		return FALSE;
-	}
-	GtkWidget *CreateButton(const char *original, GtkSignalFunc func, gpointer data, bool makeDefault) {
-		GtkWidget *btn = MakeCommand(localiser->Text(original).c_str(), func, data);
-		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(Widget())->action_area), btn, TRUE, TRUE, 0);
-		if (makeDefault) {
-			gtk_widget_grab_default(btn);
-		}
-		gtk_widget_show(btn);
-		return btn;
 	}
 };
 
