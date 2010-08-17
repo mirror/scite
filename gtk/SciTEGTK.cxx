@@ -106,72 +106,37 @@ inline void AttachResponse(GtkWidget *w, SciTEGTK *object) {
 
 class Dialog : public GUI::Window {
 public:
-	Dialog() : app(0), dialogCanceled(true), localiser(0) {}
-	void Create(SciTEGTK *app_, const char *title, Localization *localiser_, bool resizable=true) {
-		app = app_;
-		localiser = localiser_;
+	void Create(const GUI::gui_string &title) {
 		wid = gtk_dialog_new();
-		gtk_window_set_title(GTK_WINDOW(Widget()), localiser->Text(title).c_str());
-		gtk_window_set_resizable(GTK_WINDOW(Widget()), resizable);
+		gtk_window_set_title(GTK_WINDOW(GetID()), title.c_str());
+		gtk_window_set_resizable(GTK_WINDOW(GetID()), TRUE);
 	}
-	bool Display(GtkWidget *parent = 0, bool modal=true) {
+	void Display(GtkWidget *parent = 0, bool modal=true) {
 		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(Widget()), modal);
+		gtk_window_set_modal(GTK_WINDOW(GetID()), modal);
 		if (parent) {
-			gtk_window_set_transient_for(GTK_WINDOW(Widget()), GTK_WINDOW(parent));
+			gtk_window_set_transient_for(GTK_WINDOW(GetID()), GTK_WINDOW(parent));
 		}
-		gtk_signal_connect(GTK_OBJECT(Widget()), "key_press_event",
-		                   GtkSignalFunc(SignalKey), this);
-		gtk_signal_connect(GTK_OBJECT(Widget()), "destroy",
-		                   GtkSignalFunc(SignalDestroy), this);
-		gtk_widget_show_all(Widget());
+		g_signal_connect(GTK_OBJECT(GetID()), "destroy", GtkSignalFunc(SignalDestroy), this);
+		gtk_widget_show_all(GTK_WIDGET(GetID()));
 		if (modal) {
 			while (Created()) {
 				gtk_main_iteration();
 			}
 		}
-		return dialogCanceled;
 	}
-	void OK() {
-		dialogCanceled = false;
-		Destroy();
-	}
-	void Cancel() {
-		dialogCanceled = true;
-		Destroy();
-	}
-	static void SignalCancel(GtkWidget *, Dialog *d) {
-		if (d) {
-			d->Cancel();
-		}
-	}
-	GtkWidget *ResponseButton(const char *original, int responseID) {
-		return gtk_dialog_add_button(GTK_DIALOG(Widget()),
-			localiser->Text(original).c_str(), responseID);
+	GtkWidget *ResponseButton(const GUI::gui_string &text, int responseID) {
+		return gtk_dialog_add_button(GTK_DIALOG(GetID()), text.c_str(), responseID);
 	}
 	void Present() {
-		gtk_window_present(GTK_WINDOW(Widget()));
+		gtk_window_present(GTK_WINDOW(GetID()));
 	}
 
 private:
-	SciTEGTK *app;
-	bool dialogCanceled;
-	GtkAccelGroup *accel_group;
-	Localization *localiser;
-	GtkWidget *Widget() const {
-		return reinterpret_cast<GtkWidget *>(GetID());
-	}
 	static void SignalDestroy(GtkWidget *, Dialog *d) {
 		if (d) {
-			d->wid = 0;
+			d->SetID(0);
 		}
-	}
-	static gint SignalKey(GtkWidget *w, GdkEventKey *event, Dialog *d) {
-		if (event->keyval == GDK_Escape) {
-			gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
-			d->Cancel();
-		}
-		return FALSE;
 	}
 };
 
@@ -1465,7 +1430,7 @@ bool SciTEGTK::HandleSaveAs(const char *savePath) {
 			return SaveIfNotOpen(destFile, true);
 		}
 	}
-	dlgFileSelector.OK();
+	dlgFileSelector.Destroy();
 	return true;
 }
 
@@ -1877,7 +1842,7 @@ void SciTEGTK::FindInFiles() {
 	FilePath findInDir = filePath.Directory().AbsolutePath();
 	props.Set("find.directory", findInDir.AsInternal());
 
-	dlgFindInFiles.Create(this, "Find in Files", &localiser);
+	dlgFindInFiles.Create(localiser.Text("Find in Files"));
 
 	Table table(4, 5);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox));
@@ -1941,8 +1906,8 @@ void SciTEGTK::FindInFiles() {
 	table.Add(dlgFindInFiles.toggleCase, 1, true, 3, 0);
 
 	AttachResponse<&SciTEGTK::FindInFilesResponse>(PWidget(dlgFindInFiles), this);
-	dlgFindInFiles.ResponseButton("_Cancel", GTK_RESPONSE_CANCEL);
-	dlgFindInFiles.ResponseButton("F_ind", GTK_RESPONSE_OK);
+	dlgFindInFiles.ResponseButton(localiser.Text("_Cancel"), GTK_RESPONSE_CANCEL);
+	dlgFindInFiles.ResponseButton(localiser.Text("F_ind"), GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindInFiles)), GTK_RESPONSE_OK);
 
 	gtk_widget_grab_focus(GTK_WIDGET(dlgFindInFiles.comboFindInFiles.Entry()));
@@ -2137,7 +2102,7 @@ void SciTEGTK::GotoResponse(int responseID) {
 
 void SciTEGTK::GoLineDialog() {
 
-	dlgGoto.Create(this, "Go To", &localiser);
+	dlgGoto.Create(localiser.Text("Go To"));
 
 	gtk_container_border_width(GTK_CONTAINER(PWidget(dlgGoto)), 0);
 
@@ -2154,8 +2119,8 @@ void SciTEGTK::GoLineDialog() {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelGoto), dlgGoto.entryGoto);
 
 	AttachResponse<&SciTEGTK::GotoResponse>(PWidget(dlgGoto), this);
-	dlgGoto.ResponseButton("_Cancel", GTK_RESPONSE_CANCEL);
-	dlgGoto.ResponseButton("_Go To", GTK_RESPONSE_OK);
+	dlgGoto.ResponseButton(localiser.Text("_Cancel"), GTK_RESPONSE_CANCEL);
+	dlgGoto.ResponseButton(localiser.Text("_Go To"), GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgGoto)), GTK_RESPONSE_OK);
 
 	dlgGoto.Display(PWidget(wSciTE));
@@ -2209,7 +2174,7 @@ void SciTEGTK::TabSizeResponse(int responseID) {
 
 void SciTEGTK::TabSizeDialog() {
 
-	dlgTabSize.Create(this, "Indentation Settings", &localiser);
+	dlgTabSize.Create(localiser.Text("Indentation Settings"));
 
 	gtk_container_border_width(GTK_CONTAINER(PWidget(dlgTabSize)), 0);
 
@@ -2241,9 +2206,9 @@ void SciTEGTK::TabSizeDialog() {
 	table.Add(dlgTabSize.toggleUseTabs);
 
 	AttachResponse<&SciTEGTK::TabSizeResponse>(PWidget(dlgTabSize), this);
-	dlgTabSize.ResponseButton("Con_vert", RESPONSE_CONVERT);
-	dlgTabSize.ResponseButton("_Cancel", GTK_RESPONSE_CANCEL);
-	dlgTabSize.ResponseButton("_OK", GTK_RESPONSE_OK);
+	dlgTabSize.ResponseButton(localiser.Text("Con_vert"), RESPONSE_CONVERT);
+	dlgTabSize.ResponseButton(localiser.Text("_Cancel"), GTK_RESPONSE_CANCEL);
+	dlgTabSize.ResponseButton(localiser.Text("_OK"), GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgTabSize)), GTK_RESPONSE_OK);
 
 	dlgTabSize.Display(PWidget(wSciTE));
@@ -2305,7 +2270,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		return true;
 	}
 	dlgParameters.paramDialogCanceled = true;
-	dlgParameters.Create(this, "Parameters", &localiser);
+	dlgParameters.Create(localiser.Text("Parameters"));
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(dlgParameters)),
 	                   "destroy", GtkSignalFunc(destroyDialog), &dlgParameters);
@@ -2336,8 +2301,8 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	gtk_widget_grab_focus(dlgParameters.entryParam[0]);
 
 	AttachResponse<&SciTEGTK::ParamResponse>(PWidget(dlgParameters), this);
-	dlgParameters.ResponseButton(modal ? "_Cancel" : "_Close", GTK_RESPONSE_CANCEL);
-	dlgParameters.ResponseButton(modal ? "_Execute" : "_Set", GTK_RESPONSE_OK);
+	dlgParameters.ResponseButton(localiser.Text(modal ? "_Cancel" : "_Close"), GTK_RESPONSE_CANCEL);
+	dlgParameters.ResponseButton(localiser.Text(modal ? "_Execute" : "_Set"), GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgParameters)), GTK_RESPONSE_OK);
 
 	dlgParameters.Display(PWidget(wSciTE), modal);
@@ -2390,7 +2355,7 @@ void SciTEGTK::FindReplaceResponse(int responseID) {
 void SciTEGTK::FindReplace(bool replace) {
 
 	replacing = replace;
-	dlgFindReplace.Create(this, replace ? "Replace" : "Find", &localiser);
+	dlgFindReplace.Create(localiser.Text(replace ? "Replace" : "Find"));
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
 	                   "destroy", GtkSignalFunc(destroyDialog), &dlgFindReplace);
@@ -2454,20 +2419,20 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	if (!replace) {
-		dlgFindReplace.ResponseButton("Mark _All", RESPONSE_MARK_ALL);
+		dlgFindReplace.ResponseButton(localiser.Text("Mark _All"), RESPONSE_MARK_ALL);
 	}
 
 	if (replace) {
-		dlgFindReplace.ResponseButton("_Replace", RESPONSE_REPLACE);
-		dlgFindReplace.ResponseButton("Replace _All", RESPONSE_REPLACE_ALL);
-		dlgFindReplace.ResponseButton("In _Selection", RESPONSE_REPLACE_IN_SELECTION);
+		dlgFindReplace.ResponseButton(localiser.Text("_Replace"), RESPONSE_REPLACE);
+		dlgFindReplace.ResponseButton(localiser.Text("Replace _All"), RESPONSE_REPLACE_ALL);
+		dlgFindReplace.ResponseButton(localiser.Text("In _Selection"), RESPONSE_REPLACE_IN_SELECTION);
 		if (FindReplaceAdvanced()) {
-			dlgFindReplace.ResponseButton("Replace In _Buffers", RESPONSE_REPLACE_IN_BUFFERS);
+			dlgFindReplace.ResponseButton(localiser.Text("Replace In _Buffers"), RESPONSE_REPLACE_IN_BUFFERS);
 		}
 	}
 
-	dlgFindReplace.ResponseButton("Close", GTK_RESPONSE_CANCEL);
-	dlgFindReplace.ResponseButton("F_ind", GTK_RESPONSE_OK);
+	dlgFindReplace.ResponseButton(localiser.Text("Close"), GTK_RESPONSE_CANCEL);
+	dlgFindReplace.ResponseButton(localiser.Text("F_ind"), GTK_RESPONSE_OK);
 
 	AttachResponse<&SciTEGTK::FindReplaceResponse>(PWidget(dlgFindReplace), this);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindReplace)), GTK_RESPONSE_OK);
