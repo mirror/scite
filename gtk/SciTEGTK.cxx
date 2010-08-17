@@ -431,6 +431,15 @@ public:
 	}
 };
 
+class DialogFindInFiles : public Dialog {
+public:
+	WComboBoxEntry comboFiles;
+	WComboBoxEntry comboFindInFiles;
+	WComboBoxEntry comboDir;
+	WToggle toggleWord;
+	WToggle toggleCase;
+};
+
 class BaseWin : public GUI::Window {
 public:
 	SciTEGTK *pSciTEGTK;
@@ -563,8 +572,7 @@ protected:
 
 	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX, sfXML } saveFormat;
 	Dialog dlgFileSelector;
-	Dialog dlgFindInFiles;
-	WComboBoxEntry comboFiles;
+	DialogFindInFiles dlgFindInFiles;
 	DialogGoto dlgGoto;
 	DialogTabSize dlgTabSize;
 
@@ -584,8 +592,6 @@ protected:
 	GtkWidget *toggleUnSlash;
 	GtkWidget *toggleReverse;
 	WComboBoxEntry comboFind;
-	WComboBoxEntry comboFindInFiles;
-	WComboBoxEntry comboDir;
 	WComboBoxEntry comboReplace;
 	GtkWidget *btnCompile;
 	GtkWidget *btnBuild;
@@ -1760,20 +1766,20 @@ void SciTEGTK::FRMarkAllCmd() {
 }
 
 void SciTEGTK::FindInFilesCmd() {
-	const char *findEntry = gtk_entry_get_text(comboFindInFiles.Entry());
+	const char *findEntry = dlgFindInFiles.comboFindInFiles.Text();
 	props.Set("find.what", findEntry);
 	memFinds.Insert(findEntry);
 
-	const char *dirEntry = gtk_entry_get_text(comboDir.Entry());
+	const char *dirEntry = dlgFindInFiles.comboDir.Text();
 	props.Set("find.directory", dirEntry);
 	memDirectory.Insert(dirEntry);
 
-	const char *filesEntry = gtk_entry_get_text(comboFiles.Entry());
+	const char *filesEntry = dlgFindInFiles.comboFiles.Text();
 	props.Set("find.files", filesEntry);
 	memFiles.Insert(filesEntry);
 
-	wholeWord = GTK_TOGGLE_BUTTON(toggleWord)->active;
-	matchCase = GTK_TOGGLE_BUTTON(toggleCase)->active;
+	wholeWord = dlgFindInFiles.toggleWord.Active();
+	matchCase = dlgFindInFiles.toggleCase.Active();
 
 	dlgFindInFiles.Destroy();
 
@@ -1804,12 +1810,12 @@ void SciTEGTK::FindInFilesCmd() {
 }
 
 void SciTEGTK::FindInFilesDotDot() {
-	FilePath findInDir(gtk_entry_get_text(comboDir.Entry()));
-	gtk_entry_set_text(comboDir.Entry(), findInDir.Directory().AsInternal());
+	FilePath findInDir(dlgFindInFiles.comboDir.Text());
+	gtk_entry_set_text(dlgFindInFiles.comboDir.Entry(), findInDir.Directory().AsInternal());
 }
 
 void SciTEGTK::FindInFilesBrowse() {
-	FilePath findInDir(gtk_entry_get_text(comboDir.Entry()));
+	FilePath findInDir(dlgFindInFiles.comboDir.Text());
 	GtkWidget *dialog = gtk_file_chooser_dialog_new(
 							localiser.Text("Select a folder to search from").c_str(),
 							GTK_WINDOW(dlgFindInFiles.GetID()), // parent_window,
@@ -1821,7 +1827,7 @@ void SciTEGTK::FindInFilesBrowse() {
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-		gtk_entry_set_text(comboDir.Entry(), filename);
+		dlgFindInFiles.comboDir.SetText(filename);
 		g_free(filename);
 	}
 
@@ -1914,38 +1920,38 @@ void SciTEGTK::FindInFiles() {
 	GtkWidget *labelFind = TranslatedLabel("Fi_nd what:");
 	table.Label(labelFind);
 
-	comboFindInFiles.Create();
+	dlgFindInFiles.comboFindInFiles.Create();
 
-	FillComboFromMemory(comboFindInFiles, memFinds);
+	FillComboFromMemory(dlgFindInFiles.comboFindInFiles, memFinds);
 
-	table.Add(comboFindInFiles, 4, true);
+	table.Add(dlgFindInFiles.comboFindInFiles, 4, true);
 
-	gtk_entry_set_text(comboFindInFiles.Entry(), findWhat.c_str());
-	gtk_entry_set_activates_default(comboFindInFiles.Entry(), TRUE);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), comboFindInFiles);
+	gtk_entry_set_text(dlgFindInFiles.comboFindInFiles.Entry(), findWhat.c_str());
+	dlgFindInFiles.comboFindInFiles.ActivatesDefault();
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), dlgFindInFiles.comboFindInFiles);
 
 	GtkWidget *labelFiles = TranslatedLabel("_Files:");
 	table.Label(labelFiles);
 
-	comboFiles.Create();
-	FillComboFromMemory(comboFiles, memFiles, true);
+	dlgFindInFiles.comboFiles.Create();
+	FillComboFromMemory(dlgFindInFiles.comboFiles, memFiles, true);
 
-	table.Add(comboFiles, 4, true);
-	gtk_entry_set_activates_default(comboFiles.Entry(), TRUE);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFiles), comboFiles);
+	table.Add(dlgFindInFiles.comboFiles, 4, true);
+	dlgFindInFiles.comboFiles.ActivatesDefault();
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFiles), dlgFindInFiles.comboFiles);
 
 	GtkWidget *labelDirectory = TranslatedLabel("_Directory:");
 	table.Label(labelDirectory);
 
-	comboDir.Create();
-	FillComboFromMemory(comboDir, memDirectory);
-	table.Add(comboDir, 2, true);
+	dlgFindInFiles.comboDir.Create();
+	FillComboFromMemory(dlgFindInFiles.comboDir, memDirectory);
+	table.Add(dlgFindInFiles.comboDir, 2, true);
 
-	gtk_entry_set_text(comboDir.Entry(), findInDir.AsInternal());
+	gtk_entry_set_text(dlgFindInFiles.comboDir.Entry(), findInDir.AsInternal());
 	// Make a little wider than would happen automatically to show realistic paths
-	gtk_entry_set_width_chars(comboDir.Entry(), 40);
-	gtk_entry_set_activates_default(comboDir.Entry(), TRUE);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelDirectory), comboDir);
+	gtk_entry_set_width_chars(dlgFindInFiles.comboDir.Entry(), 40);
+	dlgFindInFiles.comboDir.ActivatesDefault();
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelDirectory), dlgFindInFiles.comboDir);
 
 	Signal<&SciTEGTK::FindInFilesDotDot> sigDotDot;
 	GtkWidget *btnDotDot = dlgFindInFiles.Button("_..", sigDotDot.Function);
@@ -1960,21 +1966,21 @@ void SciTEGTK::FindInFiles() {
 	bool enableToggles = props.GetNewExpand("find.command") == "";
 
 	// Whole Word
-	toggleWord = dlgFindInFiles.Toggle(toggles[Toggle::tWord].label, wholeWord && enableToggles);
-	gtk_widget_set_sensitive(toggleWord, enableToggles);
-	table.Add(toggleWord, 1, true, 3, 0);
+	dlgFindInFiles.toggleWord.Create(toggles[Toggle::tWord].label, wholeWord && enableToggles);
+	gtk_widget_set_sensitive(dlgFindInFiles.toggleWord, enableToggles);
+	table.Add(dlgFindInFiles.toggleWord, 1, true, 3, 0);
 
 	// Case Sensitive
-	toggleCase = dlgFindInFiles.Toggle(toggles[Toggle::tCase].label, matchCase || !enableToggles);
-	gtk_widget_set_sensitive(toggleCase, enableToggles);
-	table.Add(toggleCase, 1, true, 3, 0);
+	dlgFindInFiles.toggleCase.Create(toggles[Toggle::tCase].label, matchCase || !enableToggles);
+	gtk_widget_set_sensitive(dlgFindInFiles.toggleCase, enableToggles);
+	table.Add(dlgFindInFiles.toggleCase, 1, true, 3, 0);
 
 	AttachResponse<&SciTEGTK::FindInFilesResponse>(PWidget(dlgFindInFiles), this);
 	dlgFindInFiles.ResponseButton("_Cancel", GTK_RESPONSE_CANCEL);
 	dlgFindInFiles.ResponseButton("F_ind", GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindInFiles)), GTK_RESPONSE_OK);
 
-	gtk_widget_grab_focus(GTK_WIDGET(comboFindInFiles.Entry()));
+	gtk_widget_grab_focus(GTK_WIDGET(dlgFindInFiles.comboFindInFiles.Entry()));
 
 	dlgFindInFiles.Display(PWidget(wSciTE));
 }
