@@ -345,6 +345,9 @@ public:
 	int Value() {
 		return atoi(Text());
 	}
+	void SetText(const char *text) {
+		return gtk_entry_set_text(GTK_ENTRY(GetID()), text);
+	}
 };
 
 class WComboBoxEntry : public WWidget {
@@ -355,8 +358,14 @@ public:
 	GtkEntry *Entry() {
 		return GTK_ENTRY(gtk_bin_get_child(GTK_BIN(GetID())));
 	}
+	void ActivatesDefault() {
+		gtk_entry_set_activates_default(Entry(), TRUE);
+	}
 	const char *Text() {
 		return gtk_entry_get_text(Entry());
+	}
+	void SetText(const char *text) {
+		return gtk_entry_set_text(Entry(), text);
 	}
 	bool HasFocusOnSelfOrChild() {
 		return HasFocus() || GTK_WIDGET_HAS_FOCUS(Entry());
