@@ -414,6 +414,14 @@ public:
 	WToggle toggleUseTabs;
 };
 
+class DialogParameters : public Dialog {
+public:
+	bool paramDialogCanceled;
+	WEntry entryParam[SciTEBase::maxParam];
+	DialogParameters() :  paramDialogCanceled(true) {
+	}
+};
+
 class BaseWin : public GUI::Window {
 public:
 	SciTEGTK *pSciTEGTK;
@@ -550,7 +558,6 @@ protected:
 	WComboBoxEntry comboFiles;
 	DialogGoto dlgGoto;
 	DialogTabSize dlgTabSize;
-	bool paramDialogCanceled;
 
 	GtkWidget *wIncrementPanel;
 	GtkWidget *IncSearchEntry;
@@ -559,7 +566,7 @@ protected:
 	ReplaceStrip replaceStrip;
 
 	Dialog dlgFindReplace;
-	Dialog dlgParameters;
+	DialogParameters dlgParameters;
 
 	GtkWidget *toggleWord;
 	GtkWidget *toggleCase;
@@ -571,7 +578,6 @@ protected:
 	WComboBoxEntry comboFindInFiles;
 	WComboBoxEntry comboDir;
 	WComboBoxEntry comboReplace;
-	GtkWidget *entryParam[maxParam];
 	GtkWidget *btnCompile;
 	GtkWidget *btnBuild;
 	GtkWidget *btnStop;
@@ -801,7 +807,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	ptOld = GUI::Point(0, 0);
 	xor_gc = 0;
 	saveFormat = sfSource;
-	paramDialogCanceled = true;
 	IncSearchEntry = 0;
 	toggleWord = 0;
 	toggleCase = 0;
@@ -2273,7 +2278,7 @@ void SciTEGTK::ParamGrab() {
 	if (dlgParameters.Created()) {
 		for (int param = 0; param < maxParam; param++) {
 			SString paramText(param + 1);
-			const char *paramVal = gtk_entry_get_text(GTK_ENTRY(entryParam[param]));
+			const char *paramVal = dlgParameters.entryParam[param].Text();
 			props.Set(paramText.c_str(), paramVal);
 		}
 		UpdateStatusBar(true);
@@ -2294,7 +2299,7 @@ void SciTEGTK::ParamCancelCmd() {
 }
 
 void SciTEGTK::ParamCmd() {
-	paramDialogCanceled = false;
+	dlgParameters.paramDialogCanceled = false;
 	ParamGrab();
 	dlgParameters.Destroy();
 	CheckMenus();
@@ -2320,7 +2325,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		}
 		return true;
 	}
-	paramDialogCanceled = true;
+	dlgParameters.paramDialogCanceled = true;
 	dlgParameters.Create(this, "Parameters", &localiser);
 
 	gtk_signal_connect(GTK_OBJECT(PWidget(dlgParameters)),
@@ -2342,17 +2347,14 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 		GtkWidget *label = gtk_label_new_with_mnemonic(paramText.c_str());
 		table.Label(label);
 
-		entryParam[param] = gtk_entry_new();
-		gtk_entry_set_text(GTK_ENTRY(entryParam[param]), paramTextVal.c_str());
-		if (param == 0)
-			gtk_entry_select_region(GTK_ENTRY(entryParam[param]), 0, paramTextVal.length());
-		table.Add(entryParam[param]);
-		gtk_entry_set_activates_default(GTK_ENTRY(entryParam[param]), TRUE);
+		dlgParameters.entryParam[param].Create(paramTextVal.c_str());
+		table.Add(dlgParameters.entryParam[param]);
+		dlgParameters.entryParam[param].ActivatesDefault();
 
-		gtk_label_set_mnemonic_widget(GTK_LABEL(label), entryParam[param]);
+		gtk_label_set_mnemonic_widget(GTK_LABEL(label), dlgParameters.entryParam[param]);
 	}
 
-	gtk_widget_grab_focus(GTK_WIDGET(entryParam[0]));
+	gtk_widget_grab_focus(dlgParameters.entryParam[0]);
 
 	AttachResponse<&SciTEGTK::ParamResponse>(PWidget(dlgParameters), this);
 	dlgParameters.ResponseButton(modal ? "_Cancel" : "_Close", GTK_RESPONSE_CANCEL);
@@ -2361,7 +2363,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 
 	dlgParameters.Display(PWidget(wSciTE), modal);
 
-	return !paramDialogCanceled;
+	return !dlgParameters.paramDialogCanceled;
 }
 
 bool SciTEGTK::FindReplaceAdvanced() {
