@@ -383,13 +383,12 @@ public:
 };
 
 class BaseWin : public GUI::Window {
+protected:
+	ILocalize *localiser;
 public:
-	SciTEGTK *pSciTEGTK;
-	Localization *localiser;
-	BaseWin() : pSciTEGTK(0), localiser(0) {
+	BaseWin() : localiser(0) {
 	}
-	void SetSciTE(SciTEGTK *pSciTEGTK_, Localization *localiser_) {
-		pSciTEGTK = pSciTEGTK_;
+	void SetLocalizer(ILocalize *localiser_) {
 		localiser = localiser_;
 	}
 };
@@ -405,7 +404,7 @@ public:
 	}
 	virtual ~Strip() {
 	}
-	virtual void Show();
+	virtual void Show(int buttonHeight);
 	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
 	virtual void ShowPopup() = 0;
@@ -413,7 +412,7 @@ public:
 	virtual void MenuAction(guint action) = 0;
 	static void MenuSignal(GtkMenuItem *menuItem, Strip *pStrip);
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
-	void ChildFocus(GtkWidget *widget);
+	virtual void ChildFocus(GtkWidget *widget);
 	static gboolean ChildFocusSignal(GtkContainer *container, GtkWidget *widget, Strip *pStrip);
 	virtual gboolean Focus(GtkDirectionType direction) = 0;
 	static gboolean FocusSignal(GtkWidget *widget, GtkDirectionType direction, Strip *pStrip);
@@ -421,6 +420,7 @@ public:
 };
 
 class FindStrip : public Strip {
+	Searcher *pSearcher;
 public:
 	WStatic wStaticFind;
 	WComboBoxEntry wText;
@@ -429,11 +429,12 @@ public:
 	enum { checks = 6 };
 	WCheckDraw wCheck[checks];
 
-	FindStrip() {
+	FindStrip() : pSearcher(0) {
 	}
 	virtual void Creation(GtkWidget *boxMain);
 	virtual void Destruction();
-	virtual void Show();
+	void SetSearcher(Searcher *pSearcher_);
+	virtual void Show(int buttonHeight);
 	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
 	void MenuAction(guint action);
@@ -443,10 +444,12 @@ public:
 	void FindNextCmd();
 	void MarkAllCmd();
 	GtkStyle *ButtonStyle();
+	virtual void ChildFocus(GtkWidget *widget);
 	gboolean Focus(GtkDirectionType direction);
 };
 
 class ReplaceStrip : public Strip {
+	Searcher *pSearcher;
 public:
 	WStatic wStaticFind;
 	WComboBoxEntry wText;
@@ -459,9 +462,12 @@ public:
 	enum { checks = 5 };
 	WCheckDraw wCheck[checks];
 
+	ReplaceStrip() : pSearcher(0) {
+	}
 	virtual void Creation(GtkWidget *boxMain);
 	virtual void Destruction();
-	virtual void Show();
+	void SetSearcher(Searcher *pSearcher_);
+	virtual void Show(int buttonHeight);
 	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
 	void MenuAction(guint action);
@@ -474,6 +480,7 @@ public:
 	void ReplaceInSelectionCmd();
 	void ShowPopup();
 	GtkStyle *ButtonStyle();
+	virtual void ChildFocus(GtkWidget *widget);
 	gboolean Focus(GtkDirectionType direction);
 };
 
@@ -594,6 +601,8 @@ protected:
 	void FindReplaceGrabFields();
 	void HandleFindReplace();
 	virtual void Find();
+	virtual void UIClosed();
+	virtual void UIHasFocus();
 	void TranslatedSetTitle(GtkWindow *w, const char *original);
 	GtkWidget *TranslatedLabel(const char *original);
 	virtual void FindIncrement();
@@ -1577,12 +1586,25 @@ void SciTEGTK::Find() {
 	SelectionIntoFind();
 	if (props.GetInt("find.use.strip")) {
 		replaceStrip.Close();
-		findStrip.Show();
+		findStrip.Show(props.GetInt("strip.button.height", -1));
 	} else {
 		if (findStrip.visible || replaceStrip.visible)
 			return;
 		FindReplace(false);
 	}
+}
+
+void SetFocus(GUI::ScintillaWindow &w) {
+	w.Call(SCI_GRABFOCUS);
+}
+
+void SciTEGTK::UIClosed() {
+	SciTEBase::UIClosed();
+	SetFocus(wEditor);
+}
+
+void SciTEGTK::UIHasFocus() {
+	CheckMenusClipboard();
 }
 
 void SciTEGTK::TranslatedSetTitle(GtkWindow *w, const char *original) {
@@ -1923,7 +1945,7 @@ void SciTEGTK::Replace() {
 	SelectionIntoFind();
 	if (props.GetInt("replace.use.strip")) {
 		findStrip.Close();
-		replaceStrip.Show();
+		replaceStrip.Show(props.GetInt("strip.button.height", -1));
 	} else {
 		if (findStrip.visible || replaceStrip.visible)
 			return;
@@ -2856,10 +2878,6 @@ void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
 	gtk_drag_finish(context, TRUE, FALSE, time);
 }
 
-void SetFocus(GUI::ScintillaWindow &w) {
-	w.Call(SCI_GRABFOCUS);
-}
-
 gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 	if (event->button == 1) {
 		SetDocumentAt(gtk_notebook_current_page(GTK_NOTEBOOK(wTabBar.GetID())));
@@ -3330,7 +3348,7 @@ void SciTEGTK::CreateMenu() {
 	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wSciTE)), accelGroup);
 }
 
-void Strip::Show() {
+void Strip::Show(int) {
 	gtk_widget_show(PWidget(*this));
 	visible = true;
 }
@@ -3408,7 +3426,6 @@ void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checke
 
 void Strip::ChildFocus(GtkWidget *widget) {
 	childHasFocus = widget != 0;
-	pSciTEGTK->CheckMenusClipboard();
 }
 
 gboolean Strip::ChildFocusSignal(GtkContainer */*container*/, GtkWidget *widget, Strip *pStrip) {
@@ -3789,12 +3806,12 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	wButtonMarkAll.Create(localiser->Text("_Mark All"), GtkSignalFunc(sigMarkAll.Function), this);
 	table.Add(wButtonMarkAll, 1, false, 0, 0);
 
-	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSciTEGTK->wholeWord, this);
-	wCheck[1].Create(case_x_xpm, localiser->Text(toggles[Toggle::tCase].label), &pSciTEGTK->matchCase, this);
-	wCheck[2].Create(regex_x_xpm, localiser->Text(toggles[Toggle::tRegExp].label), &pSciTEGTK->regExp, this);
-	wCheck[3].Create(backslash_x_xpm, localiser->Text(toggles[Toggle::tBackslash].label), &pSciTEGTK->unSlash, this);
-	wCheck[4].Create(around_x_xpm, localiser->Text(toggles[Toggle::tWrap].label), &pSciTEGTK->wrapFind, this);
-	wCheck[5].Create(up_x_xpm, localiser->Text(toggles[Toggle::tUp].label), &pSciTEGTK->reverseFind, this);
+	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSearcher->wholeWord, this);
+	wCheck[1].Create(case_x_xpm, localiser->Text(toggles[Toggle::tCase].label), &pSearcher->matchCase, this);
+	wCheck[2].Create(regex_x_xpm, localiser->Text(toggles[Toggle::tRegExp].label), &pSearcher->regExp, this);
+	wCheck[3].Create(backslash_x_xpm, localiser->Text(toggles[Toggle::tBackslash].label), &pSearcher->unSlash, this);
+	wCheck[4].Create(around_x_xpm, localiser->Text(toggles[Toggle::tWrap].label), &pSearcher->wrapFind, this);
+	wCheck[5].Create(up_x_xpm, localiser->Text(toggles[Toggle::tUp].label), &pSearcher->reverseFind, this);
 	for (int i=0;i<checks;i++)
 		table.Add(wCheck[i], 1, false, 0, 0);
 }
@@ -3802,10 +3819,13 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 void FindStrip::Destruction() {
 }
 
-void FindStrip::Show() {
-	Strip::Show();
+void FindStrip::SetSearcher(Searcher *pSearcher_) {
+	pSearcher = pSearcher_;
+}
 
-	int buttonHeight = pSciTEGTK->props.GetInt("strip.button.height", -1);
+void FindStrip::Show(int buttonHeight) {
+	Strip::Show(buttonHeight);
+
 	gtk_widget_set_size_request(wButton, -1, buttonHeight);
 	gtk_widget_set_size_request(wButtonMarkAll, -1, buttonHeight);
 	gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
@@ -3814,9 +3834,9 @@ void FindStrip::Show() {
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
-	FillComboFromMemory(wText, pSciTEGTK->memFinds);
+	FillComboFromMemory(wText, pSearcher->memFinds);
 
-	gtk_entry_set_text(wText.Entry(), pSciTEGTK->findWhat.c_str());
+	gtk_entry_set_text(wText.Entry(), pSearcher->findWhat.c_str());
 
 	gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
 }
@@ -3824,7 +3844,7 @@ void FindStrip::Show() {
 void FindStrip::Close() {
 	if (visible) {
 		Strip::Close();
-		SetFocus(pSciTEGTK->wEditor);
+		pSearcher->UIClosed();
 	}
 }
 
@@ -3848,7 +3868,7 @@ bool FindStrip::KeyDown(GdkEventKey *event) {
 
 void FindStrip::MenuAction(guint action) {
 	if (allowMenuActions) {
-		pSciTEGTK->FlagFromCmd(action) = !pSciTEGTK->FlagFromCmd(action);
+		pSearcher->FlagFromCmd(action) = !pSearcher->FlagFromCmd(action);
 		InvalidateAll();
 	}
 }
@@ -3869,7 +3889,7 @@ void FindStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
 	for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
-		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSciTEGTK->FlagFromCmd(toggles[i].cmd));
+		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
 	GUI::Rectangle rcButton = wCheck[0].GetPosition();
 	GUI::Point pt(rcButton.left, rcButton.bottom);
@@ -3877,26 +3897,27 @@ void FindStrip::ShowPopup() {
 }
 
 void FindStrip::FindNextCmd() {
-	const char *findEntry = wText.Text();
-	pSciTEGTK->findWhat = findEntry;
-	pSciTEGTK->memFinds.Insert(pSciTEGTK->findWhat);
-	if (pSciTEGTK->findWhat[0]) {
-		pSciTEGTK->FindNext(pSciTEGTK->reverseFind);
+	pSearcher->SetFind(wText.Text());
+	if (pSearcher->FindHasText()) {
+		pSearcher->FindNext(pSearcher->reverseFind);
 	}
 	Close();
 }
 
 void FindStrip::MarkAllCmd() {
-	const char *findEntry = wText.Text();
-	pSciTEGTK->findWhat = findEntry;
-	pSciTEGTK->memFinds.Insert(pSciTEGTK->findWhat);
-	pSciTEGTK->MarkAll();
-	pSciTEGTK->FindNext(pSciTEGTK->reverseFind);
+	pSearcher->SetFind(wText.Text());
+	pSearcher->MarkAll();
+	pSearcher->FindNext(pSearcher->reverseFind);
 	Close();
 }
 
 GtkStyle *FindStrip::ButtonStyle() {
 	return PWidget(wButton)->style;
+}
+
+void FindStrip::ChildFocus(GtkWidget *widget) {
+	Strip::ChildFocus(widget);
+	pSearcher->UIHasFocus();
 }
 
 gboolean FindStrip::Focus(GtkDirectionType direction) {
@@ -3944,11 +3965,11 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 			GtkSignalFunc(sigReplaceAll.Function), this);
 	tableReplace.Add(wButtonReplaceAll, 1, false, 0, 0);
 
-	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSciTEGTK->wholeWord, this);
-	wCheck[1].Create(case_x_xpm, localiser->Text(toggles[Toggle::tCase].label), &pSciTEGTK->matchCase, this);
-	wCheck[2].Create(regex_x_xpm, localiser->Text(toggles[Toggle::tRegExp].label), &pSciTEGTK->regExp, this);
-	wCheck[3].Create(backslash_x_xpm, localiser->Text(toggles[Toggle::tBackslash].label), &pSciTEGTK->unSlash, this);
-	wCheck[4].Create(around_x_xpm, localiser->Text(toggles[Toggle::tWrap].label), &pSciTEGTK->wrapFind, this);
+	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSearcher->wholeWord, this);
+	wCheck[1].Create(case_x_xpm, localiser->Text(toggles[Toggle::tCase].label), &pSearcher->matchCase, this);
+	wCheck[2].Create(regex_x_xpm, localiser->Text(toggles[Toggle::tRegExp].label), &pSearcher->regExp, this);
+	wCheck[3].Create(backslash_x_xpm, localiser->Text(toggles[Toggle::tBackslash].label), &pSearcher->unSlash, this);
+	wCheck[4].Create(around_x_xpm, localiser->Text(toggles[Toggle::tWrap].label), &pSearcher->wrapFind, this);
 
 	tableReplace.Add(wCheck[0], 1, false, 0, 0);
 	tableReplace.Add(wCheck[1], 1, false, 0, 0);
@@ -4003,10 +4024,12 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 void ReplaceStrip::Destruction() {
 }
 
-void ReplaceStrip::Show() {
-	Strip::Show();
+void ReplaceStrip::SetSearcher(Searcher *pSearcher_) {
+	pSearcher = pSearcher_;
+}
 
-	int buttonHeight = pSciTEGTK->props.GetInt("strip.button.height", -1);
+void ReplaceStrip::Show(int buttonHeight) {
+	Strip::Show(buttonHeight);
 
 	gtk_widget_set_size_request(wButtonFind, -1, buttonHeight);
 	gtk_widget_set_size_request(wButtonReplaceAll, -1, buttonHeight);
@@ -4024,10 +4047,10 @@ void ReplaceStrip::Show() {
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
-	FillComboFromMemory(wText, pSciTEGTK->memFinds);
-	FillComboFromMemory(wReplace, pSciTEGTK->memReplaces);
+	FillComboFromMemory(wText, pSearcher->memFinds);
+	FillComboFromMemory(wReplace, pSearcher->memReplaces);
 
-	gtk_entry_set_text(wText.Entry(), pSciTEGTK->findWhat.c_str());
+	gtk_entry_set_text(wText.Entry(), pSearcher->findWhat.c_str());
 
 	gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
 }
@@ -4035,7 +4058,7 @@ void ReplaceStrip::Show() {
 void ReplaceStrip::Close() {
 	if (visible) {
 		Strip::Close();
-		SetFocus(pSciTEGTK->wEditor);
+		pSearcher->UIClosed();
 	}
 }
 
@@ -4059,7 +4082,7 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 
 void ReplaceStrip::MenuAction(guint action) {
 	if (allowMenuActions) {
-		pSciTEGTK->FlagFromCmd(action) = !pSciTEGTK->FlagFromCmd(action);
+		pSearcher->FlagFromCmd(action) = !pSearcher->FlagFromCmd(action);
 		InvalidateAll();
 	}
 }
@@ -4077,39 +4100,35 @@ gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStr
 }
 
 void ReplaceStrip::GrabFields() {
-	const char *findEntry = wText.Text();
-	pSciTEGTK->findWhat = findEntry;
-	pSciTEGTK->memFinds.Insert(pSciTEGTK->findWhat);
-	const char *replaceEntry = wReplace.Text();
-	pSciTEGTK->replaceWhat = replaceEntry;
-	pSciTEGTK->memReplaces.Insert(pSciTEGTK->replaceWhat);
+	pSearcher->SetFind(wText.Text());
+	pSearcher->SetReplace(wReplace.Text());
 }
 
 void ReplaceStrip::FindCmd() {
 	GrabFields();
-	if (pSciTEGTK->findWhat[0]) {
-		pSciTEGTK->FindNext(pSciTEGTK->reverseFind);
+	if (pSearcher->FindHasText()) {
+		pSearcher->FindNext(pSearcher->reverseFind);
 	}
 }
 
 void ReplaceStrip::ReplaceAllCmd() {
 	GrabFields();
-	if (pSciTEGTK->findWhat[0]) {
-		pSciTEGTK->ReplaceAll(false);
+	if (pSearcher->FindHasText()) {
+		pSearcher->ReplaceAll(false);
 	}
 }
 
 void ReplaceStrip::ReplaceCmd() {
 	GrabFields();
-	if (pSciTEGTK->findWhat[0]) {
-		pSciTEGTK->ReplaceOnce();
+	if (pSearcher->FindHasText()) {
+		pSearcher->ReplaceOnce();
 	}
 }
 
 void ReplaceStrip::ReplaceInSelectionCmd() {
 	GrabFields();
-	if (pSciTEGTK->findWhat[0]) {
-		pSciTEGTK->ReplaceAll(true);
+	if (pSearcher->FindHasText()) {
+		pSearcher->ReplaceAll(true);
 	}
 }
 
@@ -4117,7 +4136,7 @@ void ReplaceStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
 	for (int i=Toggle::tWord; i<=Toggle::tWrap; i++) {
-		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSciTEGTK->FlagFromCmd(toggles[i].cmd));
+		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
 	GUI::Rectangle rcButton = wCheck[0].GetPosition();
 	GUI::Point pt(rcButton.left, rcButton.bottom);
@@ -4126,6 +4145,11 @@ void ReplaceStrip::ShowPopup() {
 
 GtkStyle *ReplaceStrip::ButtonStyle() {
 	return PWidget(wButtonFind)->style;
+}
+
+void ReplaceStrip::ChildFocus(GtkWidget *widget) {
+	Strip::ChildFocus(widget);
+	pSearcher->UIHasFocus();
 }
 
 gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
@@ -4141,10 +4165,12 @@ gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
 }
 
 void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
-	findStrip.SetSciTE(this, &localiser);
+	findStrip.SetLocalizer(&localiser);
+	findStrip.SetSearcher(this);
 	findStrip.Creation(boxMain);
 
-	replaceStrip.SetSciTE(this, &localiser);
+	replaceStrip.SetLocalizer(&localiser);
+	replaceStrip.SetSearcher(this);
 	replaceStrip.Creation(boxMain);
 }
 

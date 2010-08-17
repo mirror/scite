@@ -398,6 +398,7 @@ public:
 	virtual int ReplaceAll(bool inSelection) = 0;
 	virtual void ReplaceOnce() = 0;
 	virtual void UIClosed() = 0;
+	virtual void UIHasFocus() = 0;
 	bool &FlagFromCmd(int cmd);
 };
 
@@ -723,6 +724,7 @@ protected:
 	int ReplaceAll(bool inSelection);
 	int ReplaceInBuffers();
 	virtual void UIClosed();
+	virtual void UIHasFocus();
 	virtual void DestroyFindReplace() = 0;
 	virtual void GoLineDialog() = 0;
 	virtual bool AbbrevDialog() = 0;

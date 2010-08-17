@@ -364,12 +364,12 @@ Searcher::Searcher() {
 	focusOnReplace = false;
 }
 
-// The find and replace dialogs and strips often manipulate boolean 
+// The find and replace dialogs and strips often manipulate boolean
 // flags based on dialog control IDs and menu IDs.
 bool &Searcher::FlagFromCmd(int cmd) {
 	static bool notFound;
 	switch (cmd) {
-		case IDWHOLEWORD: 
+		case IDWHOLEWORD:
 		case IDM_WHOLEWORD:
 			return wholeWord;
 		case IDMATCHCASE:
@@ -1736,6 +1736,9 @@ int SciTEBase::ReplaceInBuffers() {
 }
 
 void SciTEBase::UIClosed() {
+}
+
+void SciTEBase::UIHasFocus() {
 }
 
 void SciTEBase::OutputAppendString(const char *s, int len) {
