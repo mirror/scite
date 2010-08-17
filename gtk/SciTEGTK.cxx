@@ -101,7 +101,7 @@ public:
 template< void (SciTEGTK::*method)(int responseID) >
 inline void AttachResponse(GtkWidget *w, SciTEGTK *object) {
 	ResponseSignal <method> sig;
-	g_signal_connect(GTK_OBJECT(w), "response", GCallback(sig.Function), object);
+	g_signal_connect(GTK_OBJECT(w), "response", G_CALLBACK(sig.Function), object);
 }
 
 class Dialog : public GUI::Window {
@@ -117,7 +117,7 @@ public:
 		if (parent) {
 			gtk_window_set_transient_for(GTK_WINDOW(GetID()), GTK_WINDOW(parent));
 		}
-		g_signal_connect(GTK_OBJECT(GetID()), "destroy", GtkSignalFunc(SignalDestroy), this);
+		g_signal_connect(GTK_OBJECT(GetID()), "destroy", G_CALLBACK(SignalDestroy), this);
 		gtk_widget_show_all(GTK_WIDGET(GetID()));
 		if (modal) {
 			while (Created()) {
@@ -302,10 +302,10 @@ public:
 
 class WButton : public WWidget {
 public:
-	void Create(const GUI::gui_string &text, GtkSignalFunc func, gpointer data) {
+	void Create(const GUI::gui_string &text, GCallback func, gpointer data) {
 		SetID(gtk_button_new_with_mnemonic(text.c_str()));
 		GTK_WIDGET_SET_FLAGS(GetID(), GTK_CAN_DEFAULT);
-		gtk_signal_connect(GTK_OBJECT(GetID()), "clicked", func, data);
+		g_signal_connect(GTK_OBJECT(GetID()), "clicked", func, data);
 	}
 };
 
@@ -796,7 +796,7 @@ static long messageBoxResult = 0;
 
 static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
 	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
+		g_signal_stop_emission_by_name(GTK_OBJECT(w), "key_press_event");
 		gtk_widget_destroy(GTK_WIDGET(w));
 		messageBoxDialog = 0;
 		messageBoxResult = reinterpret_cast<long>(p);
@@ -822,8 +822,8 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), translated.c_str());
 	gtk_widget_add_accelerator(button, "clicked", accel_group,
 	                           key, GdkModifierType(0), (GtkAccelFlags)0);
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		GtkSignalFunc(messageBoxOK), reinterpret_cast<gpointer>(val));
+	g_signal_connect(GTK_OBJECT(button), "clicked",
+		G_CALLBACK(messageBoxOK), reinterpret_cast<gpointer>(val));
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
  	                   button, TRUE, TRUE, 0);
 	if (isDefault) {
@@ -937,7 +937,7 @@ void SciTEGTK::TabInsert(int index, const GUI::gui_char *title) {
 
 void SciTEGTK::TabSelect(int index) {
 	if (wTabBar.GetID())
-		gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), index);
+		gtk_notebook_set_current_page(GTK_NOTEBOOK(wTabBar.GetID()), index);
 }
 
 void SciTEGTK::RemoveAllTabs() {
@@ -1187,7 +1187,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 
 	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
 	if (item) {
-		GList *al = gtk_container_children(GTK_CONTAINER(item));
+		GList *al = gtk_container_get_children(GTK_CONTAINER(item));
 		for (unsigned int ii = 0; ii < g_list_length(al); ii++) {
 			gpointer d = g_list_nth(al, ii);
 			GtkWidget **w = (GtkWidget **)d;
@@ -1226,7 +1226,7 @@ void SciTEGTK::CheckAMenuItem(int wIDCheckItem, bool val) {
 	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, wIDCheckItem);
 	allowMenuActions = false;
 	if (item)
-		gtk_check_menu_item_set_state(GTK_CHECK_MENU_ITEM(item), val ? TRUE : FALSE);
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), val ? TRUE : FALSE);
 	allowMenuActions = true;
 }
 
@@ -1664,7 +1664,7 @@ void SciTEGTK::FRCancelCmd() {
 
 gint SciTEGTK::FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
+		g_signal_stop_emission_by_name(GTK_OBJECT(w), "key_press_event");
 		scitew->dlgFindReplace.Destroy();
 	}
 	return FALSE;
@@ -1906,11 +1906,11 @@ void SciTEGTK::FindInFiles() {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelDirectory), dlgFindInFiles.comboDir);
 
 	Signal<&SciTEGTK::FindInFilesDotDot> sigDotDot;
-	dlgFindInFiles.btnDotDot.Create(localiser.Text("_.."), GtkSignalFunc(sigDotDot.Function), this);
+	dlgFindInFiles.btnDotDot.Create(localiser.Text("_.."), G_CALLBACK(sigDotDot.Function), this);
 	table.Add(dlgFindInFiles.btnDotDot);
 
 	Signal<&SciTEGTK::FindInFilesBrowse> sigBrowse;
-	dlgFindInFiles.btnBrowse.Create(localiser.Text("_Browse..."), GtkSignalFunc(sigBrowse.Function), this);
+	dlgFindInFiles.btnBrowse.Create(localiser.Text("_Browse..."), G_CALLBACK(sigBrowse.Function), this);
 	table.Add(dlgFindInFiles.btnBrowse);
 
 	table.Add();	// Space
@@ -2006,7 +2006,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		returnOutputToCommand = true;
 		gdk_input_remove(inputHandle);
 		inputHandle = 0;
-		gtk_timeout_remove(pollID);
+		g_source_remove(pollID);
 		pollID = 0;
 		close(fdFIFO);
 		fdFIFO = 0;
@@ -2093,7 +2093,7 @@ void SciTEGTK::Execute() {
 		inputHandle = gdk_input_add(pipefds[0], GDK_INPUT_READ,
 		                            (GdkInputFunction) IOSignal, this);
 		// Also add a background task in case there is no output from the tool
-		pollID = gtk_timeout_add(200, (gint (*)(void *)) SciTEGTK::PollTool, this);
+		pollID = g_timeout_add(200, (gint (*)(void *)) SciTEGTK::PollTool, this);
 	}
 }
 
@@ -2126,7 +2126,7 @@ void SciTEGTK::GoLineDialog() {
 
 	dlgGoto.Create(localiser.Text("Go To"));
 
-	gtk_container_border_width(GTK_CONTAINER(PWidget(dlgGoto)), 0);
+	gtk_container_set_border_width(GTK_CONTAINER(PWidget(dlgGoto)), 0);
 
 	Table table(1, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgGoto))->vbox));
@@ -2198,7 +2198,7 @@ void SciTEGTK::TabSizeDialog() {
 
 	dlgTabSize.Create(localiser.Text("Indentation Settings"));
 
-	gtk_container_border_width(GTK_CONTAINER(PWidget(dlgTabSize)), 0);
+	gtk_container_set_border_width(GTK_CONTAINER(PWidget(dlgTabSize)), 0);
 
 	Table table(3, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->vbox));
@@ -2253,7 +2253,7 @@ void SciTEGTK::ParamGrab() {
 
 gint SciTEGTK::ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key_press_event");
+		g_signal_stop_emission_by_name(GTK_OBJECT(w), "key_press_event");
 		scitew->dlgParameters.Destroy();
 	}
 	return FALSE;
@@ -2294,8 +2294,8 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	dlgParameters.paramDialogCanceled = true;
 	dlgParameters.Create(localiser.Text("Parameters"));
 
-	gtk_signal_connect(GTK_OBJECT(PWidget(dlgParameters)),
-	                   "destroy", GtkSignalFunc(destroyDialog), &dlgParameters);
+	g_signal_connect(GTK_OBJECT(PWidget(dlgParameters)),
+	                   "destroy", G_CALLBACK(destroyDialog), &dlgParameters);
 
 	Table table(modal ? 10 : 9, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgParameters))->vbox));
@@ -2379,8 +2379,8 @@ void SciTEGTK::FindReplace(bool replace) {
 	replacing = replace;
 	dlgFindReplace.Create(localiser.Text(replace ? "Replace" : "Find"));
 
-	gtk_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
-	                   "destroy", GtkSignalFunc(destroyDialog), &dlgFindReplace);
+	g_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
+	                   "destroy", G_CALLBACK(destroyDialog), &dlgFindReplace);
 
 	Table table(replace ? 8 : 7, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindReplace))->vbox));
@@ -2459,8 +2459,8 @@ void SciTEGTK::FindReplace(bool replace) {
 	AttachResponse<&SciTEGTK::FindReplaceResponse>(PWidget(dlgFindReplace), this);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindReplace)), GTK_RESPONSE_OK);
 
-	gtk_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
-	                   "key_press_event", GtkSignalFunc(FRKeySignal), this);
+	g_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
+	                   "key_press_event", G_CALLBACK(FRKeySignal), this);
 
 	gtk_widget_grab_focus(GTK_WIDGET(dlgFindReplace.comboFind.Entry()));
 
@@ -2480,10 +2480,10 @@ int SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int s
 		messageBoxResult = -1;
 		messageBoxDialog = gtk_dialog_new();
 		gtk_window_set_title(GTK_WINDOW(messageBoxDialog), appName);
-		gtk_container_border_width(GTK_CONTAINER(messageBoxDialog), 0);
+		gtk_container_set_border_width(GTK_CONTAINER(messageBoxDialog), 0);
 
-		gtk_signal_connect(GTK_OBJECT(messageBoxDialog),
-		                   "destroy", GtkSignalFunc(messageBoxDestroy), &messageBoxDialog);
+		g_signal_connect(GTK_OBJECT(messageBoxDialog),
+		                   "destroy", G_CALLBACK(messageBoxDestroy), &messageBoxDialog);
 
 		int escapeResult = IDOK;
 		if ((style & 0xf) == MB_OK) {
@@ -2497,8 +2497,8 @@ int SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int s
 				escapeResult = IDCANCEL;
 			}
 		}
-		gtk_signal_connect(GTK_OBJECT(messageBoxDialog),
-		                   "key_press_event", GtkSignalFunc(messageBoxKey),
+		g_signal_connect(GTK_OBJECT(messageBoxDialog),
+		                   "key_press_event", G_CALLBACK(messageBoxKey),
 		                   reinterpret_cast<gpointer>(escapeResult));
 
 		if (style & MB_ABOUTBOX) {
@@ -2508,7 +2508,7 @@ int SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int s
 			scintilla_set_id(SCINTILLA(explanation), 0);
 			gtk_box_pack_start(GTK_BOX(GTK_DIALOG(messageBoxDialog)->vbox),
 			                   explanation, TRUE, TRUE, 0);
-			gtk_widget_set_usize(GTK_WIDGET(explanation), 480, 380);
+			gtk_widget_set_size_request(GTK_WIDGET(explanation), 480, 380);
 			gtk_widget_show_all(explanation);
 			SetAboutMessage(scExplanation, "SciTE");
 		} else {
@@ -2656,7 +2656,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	}
 	if ((commandID == IDM_NEXTFILE) || (commandID == IDM_PREVFILE)) {
 		// Stop the default key processing from moving the focus
-		gtk_signal_emit_stop_by_name(
+		g_signal_stop_emission_by_name(
 		    GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
 	}
 
@@ -2682,7 +2682,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 				} else {
 					SciTEBase::CallFocused(commandNum);
 				}
-				gtk_signal_emit_stop_by_name(
+				g_signal_stop_emission_by_name(
 				    GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
 				return 1;
 			}
@@ -2690,7 +2690,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	}
 
 	if (findStrip.KeyDown(event) || replaceStrip.KeyDown(event)) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
+		g_signal_stop_emission_by_name(GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
 		return 1;
 	}
 
@@ -2880,7 +2880,7 @@ void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
 
 gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 	if (event->button == 1) {
-		SetDocumentAt(gtk_notebook_current_page(GTK_NOTEBOOK(wTabBar.GetID())));
+		SetDocumentAt(gtk_notebook_get_current_page(GTK_NOTEBOOK(wTabBar.GetID())));
 		CheckReload();
 	} else if (event->button == 2) {
 		for (int pageNum=0;pageNum<gtk_notebook_get_n_pages(notebook);pageNum++) {
@@ -2941,8 +2941,8 @@ GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar
 	                    text, NULL,
 	                    toolbar_icon, NULL, NULL);
 
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	                   GTK_SIGNAL_FUNC (ButtonSignal),
+	g_signal_connect(GTK_OBJECT(button), "clicked",
+	                   G_CALLBACK(ButtonSignal),
 	                   (gpointer)cmd);
 	return button;
 }
@@ -3376,7 +3376,7 @@ bool Strip::KeyDown(GdkEventKey *event) {
 		}
 
 		if (event->state & GDK_MOD1_MASK) {
-			GList *childWidgets = gtk_container_children(GTK_CONTAINER(GetID()));
+			GList *childWidgets = gtk_container_get_children(GTK_CONTAINER(GetID()));
 			for (GList *child = g_list_first(childWidgets); child; child = g_list_next(child)) {
 				GtkWidget **w = (GtkWidget **)child;
 				std::string name = gtk_widget_get_name(*w);
@@ -3420,7 +3420,7 @@ void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checke
 	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
 	g_object_set_data(G_OBJECT(menuItem), "CmdNum", reinterpret_cast<void *>((sptr_t)(cmd)));
 	g_signal_connect(G_OBJECT(menuItem),"activate", G_CALLBACK(MenuSignal), this);
-	gtk_check_menu_item_set_state(GTK_CHECK_MENU_ITEM(menuItem), checked ? TRUE : FALSE);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuItem), checked ? TRUE : FALSE);
 	allowMenuActions = true;
 }
 
@@ -3757,9 +3757,10 @@ gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
 	}
 
 	int activeOffset = active ? 1 : 0;
-	gdk_pixbuf_render_to_drawable(pbAlpha,
+	gdk_draw_pixbuf(
 		widget->window,
 		gcDraw,
+		pbAlpha,
 		0, 0,
 		1 + 2 + activeOffset, 3 + heightOffset + activeOffset,
 		stripIconWidth, stripIconWidth,
@@ -3790,20 +3791,20 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 
 	gtk_widget_show(GTK_WIDGET(GetID()));
 
-	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event",
-		GtkSignalFunc(EscapeSignal), this);
+	g_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event",
+		G_CALLBACK(EscapeSignal), this);
 
-	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
-		GtkSignalFunc(ActivateSignal), this);
+	g_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
+		G_CALLBACK(ActivateSignal), this);
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
 
 	static ObjectSignal<FindStrip, &FindStrip::FindNextCmd> sigFindNext;
-	wButton.Create(localiser->Text("_Find Next"), GtkSignalFunc(sigFindNext.Function), this);
+	wButton.Create(localiser->Text("_Find Next"), G_CALLBACK(sigFindNext.Function), this);
 	table.Add(wButton, 1, false, 0, 0);
 
 	static ObjectSignal<FindStrip, &FindStrip::MarkAllCmd> sigMarkAll;
-	wButtonMarkAll.Create(localiser->Text("_Mark All"), GtkSignalFunc(sigMarkAll.Function), this);
+	wButtonMarkAll.Create(localiser->Text("_Mark All"), G_CALLBACK(sigMarkAll.Function), this);
 	table.Add(wButtonMarkAll, 1, false, 0, 0);
 
 	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSearcher->wholeWord, this);
@@ -3879,7 +3880,7 @@ void FindStrip::ActivateSignal(GtkWidget *, FindStrip *pStrip) {
 
 gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip) {
 	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key-press-event");
+		g_signal_stop_emission_by_name(GTK_OBJECT(w), "key-press-event");
 		pStrip->Close();
 	}
 	return FALSE;
@@ -3947,22 +3948,22 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	tableReplace.Add(wText, 1, true, 0, 0);
 	wText.Show();
 
-	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event",
-		GtkSignalFunc(EscapeSignal), this);
+	g_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event",
+		G_CALLBACK(EscapeSignal), this);
 
-	gtk_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
-		GtkSignalFunc(ActivateSignal), this);
+	g_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
+		G_CALLBACK(ActivateSignal), this);
 
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::FindCmd> sigFindNext;
 	wButtonFind.Create(localiser->Text("_Find Next"),
-			GtkSignalFunc(sigFindNext.Function), this);
+			G_CALLBACK(sigFindNext.Function), this);
 	tableReplace.Add(wButtonFind, 1, false, 0, 0);
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::ReplaceAllCmd> sigReplaceAll;
 	wButtonReplaceAll.Create(localiser->Text("Replace _All"),
-			GtkSignalFunc(sigReplaceAll.Function), this);
+			G_CALLBACK(sigReplaceAll.Function), this);
 	tableReplace.Add(wButtonReplaceAll, 1, false, 0, 0);
 
 	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSearcher->wholeWord, this);
@@ -3981,11 +3982,11 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	wReplace.Create();
 	tableReplace.Add(wReplace, 1, true, 0, 0);
 
-	gtk_signal_connect(GTK_OBJECT(wReplace.Entry()), "key-press-event",
-		GtkSignalFunc(EscapeSignal), this);
+	g_signal_connect(GTK_OBJECT(wReplace.Entry()), "key-press-event",
+		G_CALLBACK(EscapeSignal), this);
 
-	gtk_signal_connect(GTK_OBJECT(wReplace.Entry()), "activate",
-		GtkSignalFunc(ActivateSignal), this);
+	g_signal_connect(GTK_OBJECT(wReplace.Entry()), "activate",
+		G_CALLBACK(ActivateSignal), this);
 
 	//gtk_combo_disable_activate(pComboReplace);
 
@@ -3993,12 +3994,12 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::ReplaceCmd> sigReplace;
 	wButtonReplace.Create(localiser->Text("_Replace"),
-			GtkSignalFunc(sigReplace.Function), this);
+			G_CALLBACK(sigReplace.Function), this);
 	tableReplace.Add(wButtonReplace, 1, false, 0, 0);
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::ReplaceInSelectionCmd> sigReplaceInSelection;
 	wButtonReplaceInSelection.Create(localiser->Text("_In Selection"),
-			GtkSignalFunc(sigReplaceInSelection.Function), this);
+			G_CALLBACK(sigReplaceInSelection.Function), this);
 	tableReplace.Add(wButtonReplaceInSelection, 1, false, 0, 0);
 
 	tableReplace.Add(wCheck[3], 1, false, 0, 0);
@@ -4093,7 +4094,7 @@ void ReplaceStrip::ActivateSignal(GtkWidget *, ReplaceStrip *pStrip) {
 
 gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip) {
 	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key-press-event");
+		g_signal_stop_emission_by_name(GTK_OBJECT(w), "key-press-event");
 		pStrip->Close();
 	}
 	return FALSE;
@@ -4192,14 +4193,14 @@ void SciTEGTK::CreateUI() {
 	                      | GDK_BUTTON_PRESS_MASK
 	                      | GDK_BUTTON_RELEASE_MASK
 	                     );
-	gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "delete_event",
-	                   GTK_SIGNAL_FUNC(QuitSignal), gthis);
+	g_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "delete_event",
+	                   G_CALLBACK(QuitSignal), gthis);
 
-	gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "key_press_event",
-	                   GtkSignalFunc(KeyPress), gthis);
+	g_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "key_press_event",
+	                   G_CALLBACK(KeyPress), gthis);
 
-	gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "button_press_event",
-	                   GtkSignalFunc(MousePress), gthis);
+	g_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "button_press_event",
+	                   G_CALLBACK(MousePress), gthis);
 
 	gtk_window_set_title(GTK_WINDOW(PWidget(wSciTE)), appName);
 	const int useDefault = 0x10000000;
@@ -4265,10 +4266,10 @@ void SciTEGTK::CreateUI() {
 	wTabBar = gtk_notebook_new();
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
-		"button-release-event", GTK_SIGNAL_FUNC(TabBarReleaseSignal), gthis);
 	g_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
-		"scroll-event", GTK_SIGNAL_FUNC(TabBarScrollSignal), gthis);
+		"button-release-event", G_CALLBACK(TabBarReleaseSignal), gthis);
+	g_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
+		"scroll-event", G_CALLBACK(TabBarScrollSignal), gthis);
 	gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
 	tabVisible = false;
 
@@ -4276,28 +4277,28 @@ void SciTEGTK::CreateUI() {
 	GTK_WIDGET_UNSET_FLAGS(PWidget(wContent), GTK_CAN_FOCUS);
 	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
 
-	gtk_signal_connect(GTK_OBJECT(PWidget(wContent)), "size_allocate",
-	                   GTK_SIGNAL_FUNC(MoveResize), gthis);
+	g_signal_connect(GTK_OBJECT(PWidget(wContent)), "size_allocate",
+	                   G_CALLBACK(MoveResize), gthis);
 
 	wEditor.SetID(scintilla_new());
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
 	wEditor.Call(SCI_USEPOPUP, 0);
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wEditor), 0, 0);
 
-	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), "command",
-	                   GtkSignalFunc(CommandSignal), this);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wEditor)), SCINTILLA_NOTIFY,
-	                   GtkSignalFunc(NotifySignal), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wEditor)), "command",
+	                   G_CALLBACK(CommandSignal), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wEditor)), SCINTILLA_NOTIFY,
+	                   G_CALLBACK(NotifySignal), this);
 
 	wDivider = gtk_drawing_area_new();
-	gtk_signal_connect(GTK_OBJECT(PWidget(wDivider)), "expose_event",
-	                   GtkSignalFunc(DividerExpose), this);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wDivider)), "motion_notify_event",
-	                   GtkSignalFunc(DividerMotion), this);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wDivider)), "button_press_event",
-	                   GtkSignalFunc(DividerPress), this);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wDivider)), "button_release_event",
-	                   GtkSignalFunc(DividerRelease), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wDivider)), "expose_event",
+	                   G_CALLBACK(DividerExpose), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wDivider)), "motion_notify_event",
+	                   G_CALLBACK(DividerMotion), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wDivider)), "button_press_event",
+	                   G_CALLBACK(DividerPress), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wDivider)), "button_release_event",
+	                   G_CALLBACK(DividerRelease), this);
 	gtk_widget_set_events(PWidget(wDivider),
 	                      GDK_EXPOSURE_MASK
 	                      | GDK_LEAVE_NOTIFY_MASK
@@ -4306,17 +4307,17 @@ void SciTEGTK::CreateUI() {
 	                      | GDK_POINTER_MOTION_MASK
 	                      | GDK_POINTER_MOTION_HINT_MASK
 	                     );
-	gtk_drawing_area_size(GTK_DRAWING_AREA(PWidget(wDivider)), (width == useDefault) ? 100 : width, 10);
+	gtk_widget_set_size_request(PWidget(wDivider), (width == useDefault) ? 100 : width, 10);
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wDivider), 0, 600);
 
 	wOutput.SetID(scintilla_new());
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
 	wOutput.Call(SCI_USEPOPUP, 0);
 	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wOutput), (width == useDefault) ? 100 : width, 0);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), "command",
-	                   GtkSignalFunc(CommandSignal), this);
-	gtk_signal_connect(GTK_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
-	                   GtkSignalFunc(NotifySignal), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wOutput)), "command",
+	                   G_CALLBACK(CommandSignal), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
+	                   G_CALLBACK(NotifySignal), this);
 
 	Table table(1, 2);
 	wIncrementPanel = table.Widget();
@@ -4326,11 +4327,11 @@ void SciTEGTK::CreateUI() {
 	IncSearchEntry = gtk_entry_new();
 	table.Add(IncSearchEntry, 1, true, 5, 1);
 	Signal<&SciTEGTK::FindIncrementCompleteCmd> sigFindIncrementComplete;
-	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"activate", GtkSignalFunc(sigFindIncrementComplete.Function), this);
-	gtk_signal_connect(GTK_OBJECT(IncSearchEntry), "key-press-event", GtkSignalFunc(FindIncrementEscapeSignal), this);
+	g_signal_connect(GTK_OBJECT(IncSearchEntry),"activate", G_CALLBACK(sigFindIncrementComplete.Function), this);
+	g_signal_connect(GTK_OBJECT(IncSearchEntry), "key-press-event", G_CALLBACK(FindIncrementEscapeSignal), this);
 	Signal<&SciTEGTK::FindIncrementCmd> sigFindIncrement;
-	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"changed", GtkSignalFunc(sigFindIncrement.Function), this);
-	gtk_signal_connect(GTK_OBJECT(IncSearchEntry),"focus-out-event", GtkSignalFunc(FindIncrementFocusOutSignal), NULL);
+	g_signal_connect(GTK_OBJECT(IncSearchEntry),"changed", G_CALLBACK(sigFindIncrement.Function), this);
+	g_signal_connect(GTK_OBJECT(IncSearchEntry),"focus-out-event", G_CALLBACK(FindIncrementFocusOutSignal), NULL);
 	gtk_widget_show(IncSearchEntry);
 
 	CreateStrips(boxMain);
@@ -4349,8 +4350,8 @@ void SciTEGTK::CreateUI() {
 
 	gtk_drag_dest_set(PWidget(wSciTE), GTK_DEST_DEFAULT_ALL, dragtypes,
 	                  n_dragtypes, GDK_ACTION_COPY);
-	(void)gtk_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "drag_data_received",
-	                         GTK_SIGNAL_FUNC(DragDataReceived), this);
+	g_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "drag_data_received",
+	                         G_CALLBACK(DragDataReceived), this);
 
 	SetFocus(wOutput);
 
@@ -4389,7 +4390,7 @@ void SciTEGTK::FindIncrementCmd() {
 
 gboolean SciTEGTK::FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 	if (event->keyval == GDK_Escape) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(w), "key-press-event");
+		g_signal_stop_emission_by_name(GTK_OBJECT(w), "key-press-event");
 		gtk_widget_hide(scitew->wIncrementPanel);
 		SetFocus(scitew->wEditor);
 	}
@@ -4420,7 +4421,7 @@ void SciTEGTK::SetIcon() {
 	GdkPixbuf *icon_pix_buf = CreatePixbuf("Sci48M.png");
 	if (icon_pix_buf) {
 		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), icon_pix_buf);
-		gdk_pixbuf_unref(icon_pix_buf);
+		g_object_unref(icon_pix_buf);
 		return;
 	}
 	GtkStyle *style = gtk_widget_get_style(PWidget(wSciTE));
