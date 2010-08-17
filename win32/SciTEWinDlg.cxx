@@ -998,6 +998,20 @@ BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	return Caller(hDlg, message, lParam)->ReplaceMessage(hDlg, message, wParam);
 }
 
+void SciTEWin::UIClosed() {
+	SciTEBase::UIClosed();
+	props.Set("Replacements", "");
+	if (!searchStrip.visible)
+		bands[SciTEWin::bandSearch].visible = false;
+	if (!findStrip.visible)
+		bands[SciTEWin::bandFind].visible = false;
+	if (!replaceStrip.visible)
+		bands[SciTEWin::bandReplace].visible = false;
+	UpdateStatusBar(false);
+	SizeSubWindows();
+	WindowSetFocus(wEditor);
+}
+
 void SciTEWin::FindIncrement() {
 	if (findStrip.visible)
 		findStrip.Close();

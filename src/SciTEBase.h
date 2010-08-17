@@ -345,7 +345,12 @@ struct StyleAndWords {
 	bool IsSingleChar() { return words.length() == 1; }
 };
 
-class Localization : public PropSetFile {
+class ILocalize {
+public:
+	virtual GUI::gui_string Text(const char *s, bool retainIfNotFound=true) = 0;
+};
+
+class Localization : public PropSetFile, public ILocalize {
 	SString missing;
 public:
 	bool read;
@@ -357,7 +362,46 @@ public:
 	}
 };
 
-class SciTEBase : public ExtensionAPI {
+// Interface between SciTE and dialogs and strips for find and replace
+class Searcher {
+public:
+	SString findWhat;
+	SString replaceWhat;
+
+	bool wholeWord;
+	bool matchCase;
+	bool regExp;
+	bool unSlash;
+	bool wrapFind;
+	bool reverseFind;
+
+	bool replacing;
+	bool havefound;
+	bool findInStyle;
+	int findStyle;
+	ComboMemory memFinds;
+	ComboMemory memReplaces;
+
+	bool focusOnReplace;
+
+	Searcher();
+
+	virtual void SetFind(const char *sFind) = 0;
+	virtual bool FindHasText() const = 0;
+	virtual void SetReplace(const char *sReplace) = 0;
+	virtual void MoveBack(int distance) = 0;
+	virtual void ScrollEditorIfNeeded() = 0;
+	virtual void CollapseSelectionToStart() = 0;
+
+	virtual int FindNext(bool reverseDirection, bool showWarnings = true) = 0;
+	virtual int MarkAll() = 0;
+	virtual int ReplaceAll(bool inSelection) = 0;
+	virtual void ReplaceOnce() = 0;
+	virtual void UIClosed() = 0;
+	bool &FlagFromCmd(int cmd);
+};
+
+class SciTEBase : public ExtensionAPI, public Searcher {
 protected:
 	GUI::gui_string windowName;
 	FilePath filePath;
@@ -372,22 +416,8 @@ protected:
 	FilePath importFiles[importMax];
 	enum { importCmdID = IDM_IMPORT };
 
-	SString findWhat;
-	SString replaceWhat;
 	enum { indicatorMatch = INDIC_CONTAINER };
 	enum { markerBookmark = 1 };
-	bool replacing;
-	bool havefound;
-	bool matchCase;
-	bool wholeWord;
-	bool reverseFind;
-	bool regExp;
-	bool wrapFind;
-	bool unSlash;
-	bool findInStyle;
-	int findStyle;
-	ComboMemory memFinds;
-	ComboMemory memReplaces;
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
 	SString parameterisedCommand;
@@ -677,6 +707,12 @@ protected:
 	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) = 0;
 	virtual void FindMessageBox(const SString &msg, const SString *findItem = 0) = 0;
 	int FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition);
+	virtual void SetFind(const char *sFind);
+	virtual bool FindHasText() const;
+	virtual void SetReplace(const char *sReplace);
+	virtual void MoveBack(int distance);
+	virtual void ScrollEditorIfNeeded();
+	virtual void CollapseSelectionToStart();
 	int FindNext(bool reverseDirection, bool showWarnings = true);
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();
@@ -686,6 +722,7 @@ protected:
 	int DoReplaceAll(bool inSelection); // returns number of replacements or negative value if error
 	int ReplaceAll(bool inSelection);
 	int ReplaceInBuffers();
+	virtual void UIClosed();
 	virtual void DestroyFindReplace() = 0;
 	virtual void GoLineDialog() = 0;
 	virtual bool AbbrevDialog() = 0;

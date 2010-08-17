@@ -92,12 +92,13 @@ inline HWND HwndOf(GUI::Window w) {
 }
 
 class BaseWin : public GUI::Window {
+protected:
+	ILocalize *localiser;
 public:
-	SciTEWin *pSciTEWin;
-	BaseWin() : pSciTEWin(0) {
+	BaseWin() : localiser(0) {
 	}
-	void SetSciTE(SciTEWin *pSciTEWin_) {
-		pSciTEWin = pSciTEWin_;
+	void SetLocalizer(ILocalize *localiser_) {
+		localiser = localiser_;
 	}
 	HWND Hwnd() const {
 		return reinterpret_cast<HWND>(GetID());
@@ -108,9 +109,13 @@ public:
 };
 
 class ContentWin : public BaseWin {
+	SciTEWin *pSciTEWin;
 	bool capturedMouse;
 public:
-	ContentWin() : capturedMouse(false) {
+	ContentWin() : pSciTEWin(0), capturedMouse(false) {
+	}
+	void SetSciTE(SciTEWin *pSciTEWin_) {
+		pSciTEWin = pSciTEWin_;
 	}
 	void Paint(HDC hDC, GUI::Rectangle rcPaint);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
@@ -133,7 +138,6 @@ protected:
 	virtual void Close();
 	virtual bool KeyDown(WPARAM key);
 	virtual bool Command(WPARAM wParam);
-	void ScrollEditorIfNeeded();
 	virtual void Size();
 	virtual void Paint(HDC hDC);
 	GUI::Rectangle CloseArea();
@@ -159,11 +163,13 @@ class SearchStrip : public Strip {
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wButton;
+	Searcher *pSearcher;
 public:
-	SearchStrip() : entered(0) {
+	SearchStrip() : entered(0), pSearcher(0) {
 	}
 	virtual void Creation();
 	virtual void Destruction();
+	void SetSearcher(Searcher *pSearcher_);
 	virtual void Close();
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
@@ -187,11 +193,13 @@ class FindStrip : public Strip {
 	GUI::Window wCheckBE;
 	GUI::Window wCheckWrap;
 	GUI::Window wCheckUp;
+	Searcher *pSearcher;
 public:
-	FindStrip() : entered(0), lineHeight(20) {
+	FindStrip() : entered(0), lineHeight(20), pSearcher(0) {
 	}
 	virtual void Creation();
 	virtual void Destruction();
+	void SetSearcher(Searcher *pSearcher_);
 	virtual void Close();
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
@@ -214,7 +222,6 @@ class ReplaceStrip : public Strip {
 	int lineHeight;
 	GUI::Window wStaticFind;
 	GUI::Window wText;
-	//GUI::Window wButtonOptions;
 	GUI::Window wCheckWord;
 	GUI::Window wCheckCase;
 	GUI::Window wButtonFind;
@@ -226,11 +233,13 @@ class ReplaceStrip : public Strip {
 	GUI::Window wReplace;
 	GUI::Window wButtonReplace;
 	GUI::Window wButtonReplaceInSelection;
+	Searcher *pSearcher;
 public:
-	ReplaceStrip() : entered(0), lineHeight(20) {
+	ReplaceStrip() : entered(0), lineHeight(20), pSearcher(0) {
 	}
 	virtual void Creation();
 	virtual void Destruction();
+	void SetSearcher(Searcher *pSearcher_);
 	virtual void Close();
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
@@ -279,7 +288,6 @@ protected:
 	static SciTEWin *app;
 	WINDOWPLACEMENT winPlace;
 	RECT rcWorkArea;
-	bool commonControlsLoaded;
 	GUI::gui_char openWhat[200];
 	bool modalParameters;
 	int filterDefault;
@@ -405,12 +413,12 @@ protected:
 	void FullScreenToggle();
 	void Command(WPARAM wParam, LPARAM lParam);
 	HWND MainHWND();
-	bool &FlagFromCmd(int cmd);
 
 	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual void UIClosed();
 	void PerformGrep();
 	void FillCombos(Dialog &dlg);
 	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);

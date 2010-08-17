@@ -348,6 +348,49 @@ static void HackColour(int &n) {
 		n = 0x80;
 }
 
+Searcher::Searcher() {
+	wholeWord = false;
+	matchCase = false;
+	regExp = false;
+	unSlash = false;
+	wrapFind = true;
+	reverseFind = false;
+
+	replacing = false;
+	havefound = false;
+	findInStyle = false;
+	findStyle = 0;
+
+	focusOnReplace = false;
+}
+
+// The find and replace dialogs and strips often manipulate boolean 
+// flags based on dialog control IDs and menu IDs.
+bool &Searcher::FlagFromCmd(int cmd) {
+	static bool notFound;
+	switch (cmd) {
+		case IDWHOLEWORD: 
+		case IDM_WHOLEWORD:
+			return wholeWord;
+		case IDMATCHCASE:
+		case IDM_MATCHCASE:
+			return matchCase;
+		case IDREGEXP:
+		case IDM_REGEXP:
+			return regExp;
+		case IDUNSLASH:
+		case IDM_UNSLASH:
+			return unSlash;
+		case IDWRAP:
+		case IDM_WRAPAROUND:
+			return wrapFind;
+		case IDDIRECTIONUP:
+		case IDM_DIRECTIONUP:
+			return reverseFind;
+	}
+	return notFound;
+}
+
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	codePage = 0;
 	characterSet = 0;
@@ -421,17 +464,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	lineNumbersWidth = lineNumbersWidthDefault;
 	lineNumbersExpand = false;
 	usePalette = false;
-
-	replacing = false;
-	havefound = false;
-	matchCase = false;
-	wholeWord = false;
-	reverseFind = false;
-	regExp = false;
-	wrapFind = true;
-	unSlash = false;
-	findInStyle = false;
-	findStyle = 0;
 
 	abbrevInsert[0] = '\0';
 
@@ -1427,6 +1459,43 @@ int SciTEBase::FindInTarget(const char *findWhat, int lenFind, int startPosition
 	return posFind;
 }
 
+void SciTEBase::SetFind(const char *sFind) {
+	findWhat = sFind;
+	memFinds.Insert(findWhat);
+	props.Set("find.what", findWhat.c_str());
+}
+
+bool SciTEBase::FindHasText() const {
+	return findWhat[0];
+}
+
+void SciTEBase::SetReplace(const char *sReplace) {
+	replaceWhat = sReplace;
+	memReplaces.Insert(replaceWhat);
+}
+
+void SciTEBase::MoveBack(int distance) {
+	Sci_CharacterRange cr = GetSelection();
+	SetSelection(cr.cpMin - distance, cr.cpMin - distance);
+}
+
+void SciTEBase::ScrollEditorIfNeeded() {
+	GUI::Point ptCaret;
+	int caret = wEditor.Call(SCI_GETCURRENTPOS);
+	ptCaret.x = wEditor.Call(SCI_POINTXFROMPOSITION, 0, caret);
+	ptCaret.y = wEditor.Call(SCI_POINTYFROMPOSITION, 0, caret);
+	ptCaret.y += wEditor.Call(SCI_TEXTHEIGHT, 0, 0) - 1;
+
+	GUI::Rectangle rcEditor = wEditor.GetClientPosition();
+	if (!rcEditor.Contains(ptCaret))
+		wEditor.Call(SCI_SCROLLCARET);
+}
+
+void SciTEBase::CollapseSelectionToStart() {
+	Sci_CharacterRange crange = GetSelection();
+	SetSelection(crange.cpMin, crange.cpMin);
+}
+
 int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (findWhat.length() == 0) {
 		Find();
@@ -1664,6 +1733,9 @@ int SciTEBase::ReplaceInBuffers() {
 		    "No replacements because string '^0' was not present.", &findWhat);
 	}
 	return replacements;
+}
+
+void SciTEBase::UIClosed() {
 }
 
 void SciTEBase::OutputAppendString(const char *s, int len) {

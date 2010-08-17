@@ -1286,6 +1286,7 @@ void SciTEBase::SetPropertiesInitial() {
 	regExp = props.GetInt("find.replace.regexp");
 	unSlash = props.GetInt("find.replace.escapes");
 	wrapFind = props.GetInt("find.replace.wrap", 1);
+	focusOnReplace = props.GetInt("find.replacewith.focus", 1);
 }
 
 GUI::gui_string Localization::Text(const char *s, bool retainIfNotFound) {
