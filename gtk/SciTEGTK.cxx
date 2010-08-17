@@ -1966,12 +1966,12 @@ void SciTEGTK::FindInFiles() {
 	bool enableToggles = props.GetNewExpand("find.command") == "";
 
 	// Whole Word
-	dlgFindInFiles.toggleWord.Create(toggles[Toggle::tWord].label, wholeWord && enableToggles);
+	dlgFindInFiles.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label), wholeWord && enableToggles);
 	gtk_widget_set_sensitive(dlgFindInFiles.toggleWord, enableToggles);
 	table.Add(dlgFindInFiles.toggleWord, 1, true, 3, 0);
 
 	// Case Sensitive
-	dlgFindInFiles.toggleCase.Create(toggles[Toggle::tCase].label, matchCase || !enableToggles);
+	dlgFindInFiles.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label), matchCase || !enableToggles);
 	gtk_widget_set_sensitive(dlgFindInFiles.toggleCase, enableToggles);
 	table.Add(dlgFindInFiles.toggleCase, 1, true, 3, 0);
 
@@ -2271,7 +2271,7 @@ void SciTEGTK::TabSizeDialog() {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelIndentSize), dlgTabSize.entryIndentSize);
 
 	bool useTabs = wEditor.Call(SCI_GETUSETABS);
-	dlgTabSize.toggleUseTabs.Create("_Use Tabs", useTabs);
+	dlgTabSize.toggleUseTabs.Create(localiser.Text("_Use Tabs"), useTabs);
 	table.Add();
 	table.Add(dlgTabSize.toggleUseTabs);
 
