@@ -390,7 +390,6 @@ protected:
 	ComboMemory memReplaces;
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
-	enum { maxParam = 4 };
 	SString parameterisedCommand;
 	char abbrevInsert[200];
 
@@ -887,6 +886,8 @@ protected:
 	bool isfilenamecharforsel(char ch);
 	bool islexerwordcharforsel(char ch);
 public:
+
+	enum { maxParam = 4 };
 
 	SciTEBase(Extension *ext = 0);
 	virtual ~SciTEBase();
