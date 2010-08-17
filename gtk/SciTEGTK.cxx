@@ -1912,7 +1912,6 @@ void SciTEGTK::FindInFiles() {
 	table.Add(comboFindInFiles, 4, true);
 
 	gtk_entry_set_text(comboFindInFiles.Entry(), findWhat.c_str());
-	gtk_entry_select_region(comboFindInFiles.Entry(), 0, findWhat.length());
 	gtk_entry_set_activates_default(comboFindInFiles.Entry(), TRUE);
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), comboFindInFiles);
 
@@ -2428,7 +2427,6 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	gtk_entry_set_text(comboFind.Entry(), findWhat.c_str());
 	gtk_entry_set_width_chars(comboFind.Entry(), 40);
-	gtk_entry_select_region(comboFind.Entry(), 0, findWhat.length());
 	gtk_entry_set_activates_default(comboFind.Entry(), TRUE);
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), comboFind);
 
@@ -3870,7 +3868,6 @@ void FindStrip::Show() {
 	FillComboFromMemory(wText, pSciTEGTK->memFinds);
 
 	gtk_entry_set_text(wText.Entry(), pSciTEGTK->findWhat.c_str());
-	gtk_entry_select_region(wText.Entry(), 0, pSciTEGTK->findWhat.length());
 
 	gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
 }
@@ -4082,7 +4079,6 @@ void ReplaceStrip::Show() {
 	FillComboFromMemory(wReplace, pSciTEGTK->memReplaces);
 
 	gtk_entry_set_text(wText.Entry(), pSciTEGTK->findWhat.c_str());
-	gtk_entry_select_region(wText.Entry(), 0, pSciTEGTK->findWhat.length());
 
 	gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
 }
