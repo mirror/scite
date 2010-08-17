@@ -438,6 +438,8 @@ public:
 	WComboBoxEntry comboDir;
 	WToggle toggleWord;
 	WToggle toggleCase;
+	WButton btnDotDot;
+	WButton btnBrowse;
 };
 
 class DialogFindReplace : public Dialog {
@@ -1954,12 +1956,12 @@ void SciTEGTK::FindInFiles() {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelDirectory), dlgFindInFiles.comboDir);
 
 	Signal<&SciTEGTK::FindInFilesDotDot> sigDotDot;
-	GtkWidget *btnDotDot = dlgFindInFiles.Button("_..", sigDotDot.Function);
-	table.Add(btnDotDot);
+	dlgFindInFiles.btnDotDot.Create(localiser.Text("_.."), GtkSignalFunc(sigDotDot.Function), this);
+	table.Add(dlgFindInFiles.btnDotDot);
 
 	Signal<&SciTEGTK::FindInFilesBrowse> sigBrowse;
-	GtkWidget *btnBrowse = dlgFindInFiles.Button("_Browse...", sigBrowse.Function);
-	table.Add(btnBrowse);
+	dlgFindInFiles.btnBrowse.Create(localiser.Text("_Browse..."), GtkSignalFunc(sigBrowse.Function), this);
+	table.Add(dlgFindInFiles.btnBrowse);
 
 	table.Add();	// Space
 
