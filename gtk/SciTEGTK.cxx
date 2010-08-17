@@ -440,6 +440,18 @@ public:
 	WToggle toggleCase;
 };
 
+class DialogFindReplace : public Dialog {
+public:
+	WToggle toggleWord;
+	WToggle toggleCase;
+	WToggle toggleRegExp;
+	WToggle toggleWrap;
+	WToggle toggleUnSlash;
+	WToggle toggleReverse;
+	WComboBoxEntry comboFind;
+	WComboBoxEntry comboReplace;
+};
+
 class BaseWin : public GUI::Window {
 public:
 	SciTEGTK *pSciTEGTK;
@@ -582,17 +594,9 @@ protected:
 	FindStrip findStrip;
 	ReplaceStrip replaceStrip;
 
-	Dialog dlgFindReplace;
+	DialogFindReplace dlgFindReplace;
 	DialogParameters dlgParameters;
 
-	GtkWidget *toggleWord;
-	GtkWidget *toggleCase;
-	GtkWidget *toggleRegExp;
-	GtkWidget *toggleWrap;
-	GtkWidget *toggleUnSlash;
-	GtkWidget *toggleReverse;
-	WComboBoxEntry comboFind;
-	WComboBoxEntry comboReplace;
 	GtkWidget *btnCompile;
 	GtkWidget *btnBuild;
 	GtkWidget *btnStop;
@@ -823,12 +827,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	xor_gc = 0;
 	saveFormat = sfSource;
 	IncSearchEntry = 0;
-	toggleWord = 0;
-	toggleCase = 0;
-	toggleRegExp = 0;
-	toggleWrap = 0;
-	toggleUnSlash = 0;
-	toggleReverse = 0;
 	btnCompile = 0;
 	btnBuild = 0;
 	btnStop = 0;
@@ -1690,20 +1688,22 @@ SString SciTEGTK::EncodeString(const SString &s) {
 }
 
 void SciTEGTK::FindReplaceGrabFields() {
-	const char *findEntry = gtk_entry_get_text(comboFind.Entry());
+	const char *findEntry = dlgFindReplace.comboFind.Text();
 	findWhat = findEntry;
 	memFinds.Insert(findWhat);
-	if (comboReplace) {
-		const char *replaceEntry = gtk_entry_get_text(comboReplace.Entry());
+	if (dlgFindReplace.comboReplace) {
+		const char *replaceEntry = dlgFindReplace.comboReplace.Text();
 		replaceWhat = replaceEntry;
 		memReplaces.Insert(replaceWhat);
 	}
-	wholeWord = GTK_TOGGLE_BUTTON(toggleWord)->active;
-	matchCase = GTK_TOGGLE_BUTTON(toggleCase)->active;
-	regExp = GTK_TOGGLE_BUTTON(toggleRegExp)->active;
-	wrapFind = GTK_TOGGLE_BUTTON(toggleWrap)->active;
-	unSlash = GTK_TOGGLE_BUTTON(toggleUnSlash)->active;
-	reverseFind = GTK_TOGGLE_BUTTON(toggleReverse)->active;
+	wholeWord = dlgFindReplace.toggleWord.Active();
+	matchCase = dlgFindReplace.toggleCase.Active();
+	regExp = dlgFindReplace.toggleRegExp.Active();
+	wrapFind = dlgFindReplace.toggleWrap.Active();
+	unSlash = dlgFindReplace.toggleUnSlash.Active();
+	if (dlgFindReplace.toggleReverse) {
+		reverseFind = dlgFindReplace.toggleReverse.Active();
+	}
 }
 
 void SciTEGTK::FRCancelCmd() {
@@ -1720,7 +1720,7 @@ gint SciTEGTK::FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
 
 void SciTEGTK::FRFindCmd() {
 	FindReplaceGrabFields();
-	bool isFindDialog = !comboReplace;
+	bool isFindDialog = !dlgFindReplace.comboReplace;
 	if (isFindDialog)
 		dlgFindReplace.Destroy();
 	if (findWhat[0]) {
@@ -2436,53 +2436,57 @@ void SciTEGTK::FindReplace(bool replace) {
 	GtkWidget *labelFind = TranslatedLabel("Fi_nd what:");
 	table.Label(labelFind);
 
-	comboFind.Create();
-	FillComboFromMemory(comboFind, memFinds);
-	table.Add(comboFind, 1, true);
+	dlgFindReplace.comboFind.Create();
+	FillComboFromMemory(dlgFindReplace.comboFind, memFinds);
+	table.Add(dlgFindReplace.comboFind, 1, true);
 
-	gtk_entry_set_text(comboFind.Entry(), findWhat.c_str());
-	gtk_entry_set_width_chars(comboFind.Entry(), 40);
-	gtk_entry_set_activates_default(comboFind.Entry(), TRUE);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), comboFind);
+	dlgFindReplace.comboFind.SetText(findWhat.c_str());
+	gtk_entry_set_width_chars(dlgFindReplace.comboFind.Entry(), 40);
+	dlgFindReplace.comboFind.ActivatesDefault();
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), dlgFindReplace.comboFind);
 
 	if (replace) {
 		GtkWidget *labelReplace = TranslatedLabel("Rep_lace with:");
 		table.Label(labelReplace);
 
-		comboReplace.Create();
-		FillComboFromMemory(comboReplace, memReplaces);
-		table.Add(comboReplace, 1, true);
+		dlgFindReplace.comboReplace.Create();
+		FillComboFromMemory(dlgFindReplace.comboReplace, memReplaces);
+		table.Add(dlgFindReplace.comboReplace, 1, true);
 
-		gtk_entry_set_activates_default(comboReplace.Entry(), TRUE);
-		gtk_label_set_mnemonic_widget(GTK_LABEL(labelReplace), comboReplace);
+		dlgFindReplace.comboReplace.ActivatesDefault();
+		gtk_label_set_mnemonic_widget(GTK_LABEL(labelReplace), dlgFindReplace.comboReplace);
 
 	} else {
-		comboReplace.SetID(0);
+		dlgFindReplace.comboReplace.SetID(0);
 	}
 
 	// Whole Word
-	toggleWord = dlgFindReplace.Toggle(toggles[Toggle::tWord].label, wholeWord);
-	table.Add(toggleWord, 2, false, 3, 0);
+	dlgFindReplace.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label), wholeWord);
+	table.Add(dlgFindReplace.toggleWord, 2, false, 3, 0);
 
 	// Case Sensitive
-	toggleCase = dlgFindReplace.Toggle(toggles[Toggle::tCase].label, matchCase);
-	table.Add(toggleCase, 2, false, 3, 0);
+	dlgFindReplace.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label), matchCase);
+	table.Add(dlgFindReplace.toggleCase, 2, false, 3, 0);
 
 	// Regular Expression
-	toggleRegExp = dlgFindReplace.Toggle(toggles[Toggle::tRegExp].label, regExp);
-	table.Add(toggleRegExp, 2, false, 3, 0);
+	dlgFindReplace.toggleRegExp.Create(localiser.Text(toggles[Toggle::tRegExp].label), regExp);
+	table.Add(dlgFindReplace.toggleRegExp, 2, false, 3, 0);
 
 	// Transform backslash expressions
-	toggleUnSlash = dlgFindReplace.Toggle(toggles[Toggle::tBackslash].label, unSlash);
-	table.Add(toggleUnSlash, 2, false, 3, 0);
+	dlgFindReplace.toggleUnSlash.Create(localiser.Text(toggles[Toggle::tBackslash].label), unSlash);
+	table.Add(dlgFindReplace.toggleUnSlash, 2, false, 3, 0);
 
 	// Wrap Around
-	toggleWrap = dlgFindReplace.Toggle(toggles[Toggle::tWrap].label, wrapFind);
-	table.Add(toggleWrap, 2, false, 3, 0);
+	dlgFindReplace.toggleWrap.Create(localiser.Text(toggles[Toggle::tWrap].label), wrapFind);
+	table.Add(dlgFindReplace.toggleWrap, 2, false, 3, 0);
 
-	// Reverse
-	toggleReverse = dlgFindReplace.Toggle(toggles[Toggle::tUp].label, reverseFind);
-	table.Add(toggleReverse, 2, false, 3, 0);
+	if (replace) {
+		dlgFindReplace.toggleReverse.SetID(0);
+	} else {
+		// Reverse
+		dlgFindReplace.toggleReverse.Create(localiser.Text(toggles[Toggle::tUp].label), reverseFind);
+		table.Add(dlgFindReplace.toggleReverse, 2, false, 3, 0);
+	}
 
 	if (!replace) {
 		dlgFindReplace.ResponseButton("Mark _All", RESPONSE_MARK_ALL);
@@ -2506,7 +2510,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	gtk_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
 	                   "key_press_event", GtkSignalFunc(FRKeySignal), this);
 
-	gtk_widget_grab_focus(GTK_WIDGET(comboFind.Entry()));
+	gtk_widget_grab_focus(GTK_WIDGET(dlgFindReplace.comboFind.Entry()));
 
 	dlgFindReplace.Display(PWidget(wSciTE), false);
 }
