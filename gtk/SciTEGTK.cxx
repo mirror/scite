@@ -254,6 +254,12 @@ public:
 	GtkWidget* Widget() {
 		return GTK_WIDGET(GetID());
 	}
+	bool Sensitive() {
+		return gtk_widget_get_sensitive(Widget());
+	}
+	void SetSensitive(bool sensitive) {
+		gtk_widget_set_sensitive(Widget(), sensitive);
+	}
 };
 
 class WStatic : public WWidget {
@@ -372,7 +378,7 @@ public:
 	}
 };
 
-class DialogFindInFiles : public Dialog {
+class DialogFindInFiles : public Dialog, public SearchUI {
 public:
 	WComboBoxEntry wComboFiles;
 	WComboBoxEntry wComboFindInFiles;
@@ -381,6 +387,8 @@ public:
 	WToggle toggleCase;
 	WButton btnDotDot;
 	WButton btnBrowse;
+	void GrabFields();
+	void FillFields();
 };
 
 class DialogFindReplace : public Dialog, public SearchUI {
@@ -1730,10 +1738,24 @@ void SciTEGTK::FRMarkAllCmd() {
 	FindNext(reverseFind);
 }
 
+void DialogFindInFiles::GrabFields() {
+	pSearcher->SetFind(wComboFindInFiles.Text());
+	if (toggleWord.Sensitive())
+		pSearcher->wholeWord = toggleWord.Active();
+	if (toggleCase.Sensitive())
+		pSearcher->matchCase = toggleCase.Active();
+}
+
+void DialogFindInFiles::FillFields() {
+	FillComboFromMemory(wComboFindInFiles, pSearcher->memFinds);
+	if (toggleWord.Sensitive())
+		toggleWord.SetActive(pSearcher->wholeWord);
+	if (toggleCase.Sensitive())
+		toggleCase.SetActive(pSearcher->matchCase);
+}
+
 void SciTEGTK::FindInFilesCmd() {
-	const char *findEntry = dlgFindInFiles.wComboFindInFiles.Text();
-	props.Set("find.what", findEntry);
-	memFinds.Insert(findEntry);
+	dlgFindInFiles.GrabFields();
 
 	const char *dirEntry = dlgFindInFiles.comboDir.Text();
 	props.Set("find.directory", dirEntry);
@@ -1742,9 +1764,6 @@ void SciTEGTK::FindInFilesCmd() {
 	const char *filesEntry = dlgFindInFiles.wComboFiles.Text();
 	props.Set("find.files", filesEntry);
 	memFiles.Insert(filesEntry);
-
-	wholeWord = dlgFindInFiles.toggleWord.Active();
-	matchCase = dlgFindInFiles.toggleCase.Active();
 
 	dlgFindInFiles.Destroy();
 
@@ -1871,6 +1890,8 @@ void SciTEGTK::FindInFilesResponse(int responseID) {
 }
 
 void SciTEGTK::FindInFiles() {
+	dlgFindInFiles.SetSearcher(this);
+
 	SelectionIntoFind();
 	props.Set("find.what", findWhat.c_str());
 
@@ -1886,8 +1907,6 @@ void SciTEGTK::FindInFiles() {
 	table.Label(labelFind);
 
 	dlgFindInFiles.wComboFindInFiles.Create();
-
-	FillComboFromMemory(dlgFindInFiles.wComboFindInFiles, memFinds);
 
 	table.Add(dlgFindInFiles.wComboFindInFiles, 4, true);
 
@@ -1932,13 +1951,11 @@ void SciTEGTK::FindInFiles() {
 
 	// Whole Word
 	dlgFindInFiles.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label));
-	dlgFindInFiles.toggleWord.SetActive(wholeWord && enableToggles);
 	gtk_widget_set_sensitive(dlgFindInFiles.toggleWord, enableToggles);
 	table.Add(dlgFindInFiles.toggleWord, 1, true, 3, 0);
 
 	// Case Sensitive
 	dlgFindInFiles.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label));
-	dlgFindInFiles.toggleCase.SetActive(matchCase || !enableToggles);
 	gtk_widget_set_sensitive(dlgFindInFiles.toggleCase, enableToggles);
 	table.Add(dlgFindInFiles.toggleCase, 1, true, 3, 0);
 
@@ -1946,6 +1963,8 @@ void SciTEGTK::FindInFiles() {
 	dlgFindInFiles.ResponseButton(localiser.Text("_Cancel"), GTK_RESPONSE_CANCEL);
 	dlgFindInFiles.ResponseButton(localiser.Text("F_ind"), GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindInFiles)), GTK_RESPONSE_OK);
+
+	dlgFindInFiles.FillFields();
 
 	gtk_widget_grab_focus(GTK_WIDGET(dlgFindInFiles.wComboFindInFiles.Entry()));
 
