@@ -322,11 +322,16 @@ public:
 
 class WCheckDraw : public WWidget {
 	bool *pControlVariable;
-	GdkPixbuf *pbAlpha;
+	GdkPixbuf *pbGrey;
 	Strip *pstrip;
 	bool over;
 public:
-	WCheckDraw() : pControlVariable(0), pbAlpha(0), pstrip(0), over(false) {
+	WCheckDraw() : pControlVariable(0), pbGrey(0), pstrip(0), over(false) {
+	}
+	~WCheckDraw() {
+		if (pbGrey)
+			g_object_unref(pbGrey);
+		pbGrey = 0;
 	}
 	void Create(const char **xpmImage, const GUI::gui_string &toolTip, bool *pControlVariable_, Strip *pstrip_);
 	void Toggle();
@@ -3445,7 +3450,7 @@ const int stripIconWidth = 16;
 const int stripButtonWidth = 16 + 3 * 2 + 1;
 const int stripButtonPitch = stripButtonWidth;
 
-static void GreyToAlpha(GdkPixbuf *ppb) {
+static void GreyToAlpha(GdkPixbuf *ppb, GdkColor fore) {
 	guchar *pixels = gdk_pixbuf_get_pixels(ppb);
 	int rowStride = gdk_pixbuf_get_rowstride(ppb);
 	int width = gdk_pixbuf_get_width(ppb);
@@ -3455,9 +3460,9 @@ static void GreyToAlpha(GdkPixbuf *ppb) {
 		for (int x =0; x<width; x++) {
 			guchar alpha = pixelsRow[0];
 			pixelsRow[3] = 255 - alpha;
-			pixelsRow[0] = 0;
-			pixelsRow[1] = 0;
-			pixelsRow[2] = 0;
+			pixelsRow[0] = fore.red / 256;
+			pixelsRow[1] = fore.green / 256;
+			pixelsRow[2] = fore.blue / 256;
 			pixelsRow += 4;
 		}
 	}
@@ -3649,12 +3654,7 @@ static const char * up_x_xpm[] = {
 void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, bool *pControlVariable_, Strip *pstrip_) {
 	pControlVariable = pControlVariable_;
 	pstrip = pstrip_;
-	GdkPixbuf *pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
-	// Give it an alpha channel
-	pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
-	// Convert the grey to alpha and make black
-	GreyToAlpha(pbAlpha);
-	g_object_unref(pbGrey);
+	pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
 
 	GtkWidget *da = gtk_drawing_area_new();
 	GTK_WIDGET_SET_FLAGS(da, GTK_CAN_FOCUS);
@@ -3736,12 +3736,13 @@ gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
 	bool active = *pControlVariable;
 	GtkStateType state = active ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL;
 	GtkShadowType shadow = GTK_SHADOW_IN;
+	GtkStyle *buttonStyle = pstrip->ButtonStyle();
 	if (over) {
 		state = GTK_STATE_PRELIGHT;
 		shadow = GTK_SHADOW_OUT;
 	}
 	if (active || over)
-		gtk_paint_box(pstrip->ButtonStyle(), widget->window,
+		gtk_paint_box(buttonStyle, widget->window,
 			       state,
 			       shadow,
 			       &area, widget, const_cast<char *>("button"),
@@ -3749,12 +3750,18 @@ gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
 			       area.width, area.height);
 	if (HasFocus()) {
 		// Draw focus inset by 2 pixels
-		gtk_paint_focus(pstrip->ButtonStyle(), widget->window,
+		gtk_paint_focus(buttonStyle, widget->window,
 			       state,
 			       &area, widget, const_cast<char *>("button"),
 			       2, 2,
 			       area.width-4, area.height-4);
 	}
+
+	GdkColor fore = buttonStyle->fg[GTK_STATE_NORMAL];
+	// Give it an alpha channel
+	GdkPixbuf *pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
+	// Convert the grey to alpha and make black
+	GreyToAlpha(pbAlpha, fore);
 
 	int activeOffset = active ? 1 : 0;
 	gdk_draw_pixbuf(
@@ -3765,6 +3772,7 @@ gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
 		1 + 2 + activeOffset, 3 + heightOffset + activeOffset,
 		stripIconWidth, stripIconWidth,
 		GDK_RGB_DITHER_NONE, 0, 0);
+	g_object_unref(pbAlpha);
 	g_object_unref(gcDraw);
 	return TRUE;
 }
