@@ -671,7 +671,6 @@ protected:
 	static gboolean FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 
 	void FRCancelCmd();
-	static gint FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	void FRFindCmd();
 	void FRReplaceCmd();
 	void FRReplaceAllCmd();
@@ -681,7 +680,6 @@ protected:
 
 	virtual bool ParametersOpen();
 	virtual void ParamGrab();
-	static gint ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 	void ParamCancelCmd();
 	void ParamCmd();
 	void ParamResponse(int responseID);
@@ -1673,14 +1671,6 @@ void SciTEGTK::FRCancelCmd() {
 	dlgFindReplace.Destroy();
 }
 
-gint SciTEGTK::FRKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
-	if (event->keyval == GDK_Escape) {
-		g_signal_stop_emission_by_name(GTK_OBJECT(w), "key_press_event");
-		scitew->dlgFindReplace.Destroy();
-	}
-	return FALSE;
-}
-
 void SciTEGTK::FRFindCmd() {
 	FindReplaceGrabFields();
 	bool isFindDialog = !dlgFindReplace.comboReplace;
@@ -2262,14 +2252,6 @@ void SciTEGTK::ParamGrab() {
 	}
 }
 
-gint SciTEGTK::ParamKeySignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
-	if (event->keyval == GDK_Escape) {
-		g_signal_stop_emission_by_name(GTK_OBJECT(w), "key_press_event");
-		scitew->dlgParameters.Destroy();
-	}
-	return FALSE;
-}
-
 void SciTEGTK::ParamCancelCmd() {
 	dlgParameters.Destroy();
 	CheckMenus();
@@ -2469,9 +2451,6 @@ void SciTEGTK::FindReplace(bool replace) {
 
 	AttachResponse<&SciTEGTK::FindReplaceResponse>(PWidget(dlgFindReplace), this);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindReplace)), GTK_RESPONSE_OK);
-
-	g_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
-	                   "key_press_event", G_CALLBACK(FRKeySignal), this);
 
 	gtk_widget_grab_focus(GTK_WIDGET(dlgFindReplace.comboFind.Entry()));
 
