@@ -61,6 +61,12 @@
 
 #define MB_ABOUTBOX	0x100000L
 
+#if GTK_CHECK_VERSION(2,20,0)
+#define IS_WIDGET_FOCUSSED(w) (gtk_widget_has_focus(GTK_WIDGET(w)))
+#else
+#define IS_WIDGET_FOCUSSED(w) (GTK_WIDGET_HAS_FOCUS(w))
+#endif
+
 const char appName[] = "SciTE";
 
 static GtkWidget *PWidget(GUI::Window &w) {
@@ -296,7 +302,7 @@ public:
 		return gtk_entry_set_text(Entry(), text);
 	}
 	bool HasFocusOnSelfOrChild() {
-		return HasFocus() || GTK_WIDGET_HAS_FOCUS(Entry());
+		return HasFocus() || IS_WIDGET_FOCUSSED(Entry());
 	}
 };
 
@@ -2853,7 +2859,8 @@ gint SciTEGTK::DividerPress(GtkWidget *, GdkEventButton *event, SciTEGTK *scitew
 		}
 		gtk_widget_grab_focus(GTK_WIDGET(PWidget(scitew->wDivider)));
 		gtk_grab_add(GTK_WIDGET(PWidget(scitew->wDivider)));
-		gtk_widget_draw(PWidget(scitew->wDivider), NULL);
+		gtk_widget_queue_draw(PWidget(scitew->wDivider));
+		gdk_window_process_updates(PWidget(scitew->wDivider)->window, TRUE);
 		scitew->DividerXOR(scitew->ptStartDrag);
 	}
 	return TRUE;
@@ -4255,7 +4262,6 @@ void SciTEGTK::CreateUI() {
 
 	// The Toolbar
 	wToolBar = gtk_toolbar_new();
-	gtk_toolbar_set_orientation(GTK_TOOLBAR(PWidget(wToolBar)), GTK_ORIENTATION_HORIZONTAL);
 	gtk_toolbar_set_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_ICONS);
 	toolbarDetachable = props.GetInt("toolbar.detachable");
 	if (toolbarDetachable == 1) {
