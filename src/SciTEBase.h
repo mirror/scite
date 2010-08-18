@@ -402,6 +402,17 @@ public:
 	bool &FlagFromCmd(int cmd);
 };
 
+class SearchUI {
+protected:
+	Searcher *pSearcher;
+public:
+	SearchUI() : pSearcher(0) {
+	}
+	void SetSearcher(Searcher *pSearcher_) {
+		pSearcher = pSearcher_;
+	}
+};
+
 class SciTEBase : public ExtensionAPI, public Searcher {
 protected:
 	GUI::gui_string windowName;

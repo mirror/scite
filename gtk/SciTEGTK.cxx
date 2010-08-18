@@ -317,12 +317,14 @@ public:
 
 class WToggle : public WWidget {
 public:
-	void Create(const GUI::gui_string &text, bool active) {
+	void Create(const GUI::gui_string &text) {
 		SetID(gtk_check_button_new_with_mnemonic(text.c_str()));
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(GetID()), active);
 	}
 	bool Active() {
 		return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(GetID()));
+	}
+	void SetActive(bool active) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(GetID()), active);
 	}
 };
 
@@ -372,8 +374,8 @@ public:
 
 class DialogFindInFiles : public Dialog {
 public:
-	WComboBoxEntry comboFiles;
-	WComboBoxEntry comboFindInFiles;
+	WComboBoxEntry wComboFiles;
+	WComboBoxEntry wComboFindInFiles;
 	WComboBoxEntry comboDir;
 	WToggle toggleWord;
 	WToggle toggleCase;
@@ -381,7 +383,7 @@ public:
 	WButton btnBrowse;
 };
 
-class DialogFindReplace : public Dialog {
+class DialogFindReplace : public Dialog, public SearchUI {
 public:
 	WToggle toggleWord;
 	WToggle toggleCase;
@@ -389,8 +391,10 @@ public:
 	WToggle toggleWrap;
 	WToggle toggleUnSlash;
 	WToggle toggleReverse;
-	WComboBoxEntry comboFind;
-	WComboBoxEntry comboReplace;
+	WComboBoxEntry wComboFind;
+	WComboBoxEntry wComboReplace;
+	void GrabFields();
+	void FillFields();
 };
 
 class BaseWin : public GUI::Window {
@@ -430,21 +434,19 @@ public:
 	bool VisibleHasFocus();
 };
 
-class FindStrip : public Strip {
-	Searcher *pSearcher;
+class FindStrip : public Strip, public SearchUI {
 public:
 	WStatic wStaticFind;
-	WComboBoxEntry wText;
+	WComboBoxEntry wComboFind;
 	WButton wButton;
 	WButton wButtonMarkAll;
 	enum { checks = 6 };
 	WCheckDraw wCheck[checks];
 
-	FindStrip() : pSearcher(0) {
+	FindStrip() {
 	}
 	virtual void Creation(GtkWidget *boxMain);
 	virtual void Destruction();
-	void SetSearcher(Searcher *pSearcher_);
 	virtual void Show(int buttonHeight);
 	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
@@ -459,25 +461,23 @@ public:
 	gboolean Focus(GtkDirectionType direction);
 };
 
-class ReplaceStrip : public Strip {
-	Searcher *pSearcher;
+class ReplaceStrip : public Strip, public SearchUI {
 public:
 	WStatic wStaticFind;
-	WComboBoxEntry wText;
+	WComboBoxEntry wComboFind;
 	WButton wButtonFind;
 	WButton wButtonReplaceAll;
 	WStatic wStaticReplace;
-	WComboBoxEntry wReplace;
+	WComboBoxEntry wComboReplace;
 	WButton wButtonReplace;
 	WButton wButtonReplaceInSelection;
 	enum { checks = 5 };
 	WCheckDraw wCheck[checks];
 
-	ReplaceStrip() : pSearcher(0) {
+	ReplaceStrip() {
 	}
 	virtual void Creation(GtkWidget *boxMain);
 	virtual void Destruction();
-	void SetSearcher(Searcher *pSearcher_);
 	virtual void Show(int buttonHeight);
 	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
@@ -496,9 +496,6 @@ public:
 };
 
 class SciTEGTK : public SciTEBase {
-	friend class Strip;
-	friend class FindStrip;
-	friend class ReplaceStrip;
 
 protected:
 
@@ -1648,23 +1645,38 @@ SString SciTEGTK::EncodeString(const SString &s) {
 	return SString(ret);
 }
 
+void DialogFindReplace::GrabFields() {
+	pSearcher->SetFind(wComboFind.Text());
+	if (wComboReplace) {
+		pSearcher->SetReplace(wComboReplace.Text());
+	}
+	pSearcher->wholeWord = toggleWord.Active();
+	pSearcher->matchCase = toggleCase.Active();
+	pSearcher->regExp = toggleRegExp.Active();
+	pSearcher->wrapFind = toggleWrap.Active();
+	pSearcher->unSlash = toggleUnSlash.Active();
+	if (toggleReverse) {
+		pSearcher->reverseFind = toggleReverse.Active();
+	}
+}
+
+void DialogFindReplace::FillFields() {
+	FillComboFromMemory(wComboFind, pSearcher->memFinds);
+	if (wComboReplace) {
+		FillComboFromMemory(wComboReplace, pSearcher->memReplaces);
+	}
+	toggleWord.SetActive(pSearcher->wholeWord);
+	toggleCase.SetActive(pSearcher->matchCase);
+	toggleRegExp.SetActive(pSearcher->regExp);
+	toggleWrap.SetActive(pSearcher->wrapFind);
+	toggleUnSlash.SetActive(pSearcher->unSlash);
+	if (toggleReverse) {
+		toggleReverse.SetActive(pSearcher->reverseFind);
+	}
+}
+
 void SciTEGTK::FindReplaceGrabFields() {
-	const char *findEntry = dlgFindReplace.comboFind.Text();
-	findWhat = findEntry;
-	memFinds.Insert(findWhat);
-	if (dlgFindReplace.comboReplace) {
-		const char *replaceEntry = dlgFindReplace.comboReplace.Text();
-		replaceWhat = replaceEntry;
-		memReplaces.Insert(replaceWhat);
-	}
-	wholeWord = dlgFindReplace.toggleWord.Active();
-	matchCase = dlgFindReplace.toggleCase.Active();
-	regExp = dlgFindReplace.toggleRegExp.Active();
-	wrapFind = dlgFindReplace.toggleWrap.Active();
-	unSlash = dlgFindReplace.toggleUnSlash.Active();
-	if (dlgFindReplace.toggleReverse) {
-		reverseFind = dlgFindReplace.toggleReverse.Active();
-	}
+	dlgFindReplace.GrabFields();
 }
 
 void SciTEGTK::FRCancelCmd() {
@@ -1673,7 +1685,7 @@ void SciTEGTK::FRCancelCmd() {
 
 void SciTEGTK::FRFindCmd() {
 	FindReplaceGrabFields();
-	bool isFindDialog = !dlgFindReplace.comboReplace;
+	bool isFindDialog = !dlgFindReplace.wComboReplace;
 	if (isFindDialog)
 		dlgFindReplace.Destroy();
 	if (findWhat[0]) {
@@ -1719,7 +1731,7 @@ void SciTEGTK::FRMarkAllCmd() {
 }
 
 void SciTEGTK::FindInFilesCmd() {
-	const char *findEntry = dlgFindInFiles.comboFindInFiles.Text();
+	const char *findEntry = dlgFindInFiles.wComboFindInFiles.Text();
 	props.Set("find.what", findEntry);
 	memFinds.Insert(findEntry);
 
@@ -1727,7 +1739,7 @@ void SciTEGTK::FindInFilesCmd() {
 	props.Set("find.directory", dirEntry);
 	memDirectory.Insert(dirEntry);
 
-	const char *filesEntry = dlgFindInFiles.comboFiles.Text();
+	const char *filesEntry = dlgFindInFiles.wComboFiles.Text();
 	props.Set("find.files", filesEntry);
 	memFiles.Insert(filesEntry);
 
@@ -1873,25 +1885,25 @@ void SciTEGTK::FindInFiles() {
 	GtkWidget *labelFind = TranslatedLabel("Fi_nd what:");
 	table.Label(labelFind);
 
-	dlgFindInFiles.comboFindInFiles.Create();
+	dlgFindInFiles.wComboFindInFiles.Create();
 
-	FillComboFromMemory(dlgFindInFiles.comboFindInFiles, memFinds);
+	FillComboFromMemory(dlgFindInFiles.wComboFindInFiles, memFinds);
 
-	table.Add(dlgFindInFiles.comboFindInFiles, 4, true);
+	table.Add(dlgFindInFiles.wComboFindInFiles, 4, true);
 
-	gtk_entry_set_text(dlgFindInFiles.comboFindInFiles.Entry(), findWhat.c_str());
-	dlgFindInFiles.comboFindInFiles.ActivatesDefault();
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), dlgFindInFiles.comboFindInFiles);
+	gtk_entry_set_text(dlgFindInFiles.wComboFindInFiles.Entry(), findWhat.c_str());
+	dlgFindInFiles.wComboFindInFiles.ActivatesDefault();
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), dlgFindInFiles.wComboFindInFiles);
 
 	GtkWidget *labelFiles = TranslatedLabel("_Files:");
 	table.Label(labelFiles);
 
-	dlgFindInFiles.comboFiles.Create();
-	FillComboFromMemory(dlgFindInFiles.comboFiles, memFiles, true);
+	dlgFindInFiles.wComboFiles.Create();
+	FillComboFromMemory(dlgFindInFiles.wComboFiles, memFiles, true);
 
-	table.Add(dlgFindInFiles.comboFiles, 4, true);
-	dlgFindInFiles.comboFiles.ActivatesDefault();
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFiles), dlgFindInFiles.comboFiles);
+	table.Add(dlgFindInFiles.wComboFiles, 4, true);
+	dlgFindInFiles.wComboFiles.ActivatesDefault();
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFiles), dlgFindInFiles.wComboFiles);
 
 	GtkWidget *labelDirectory = TranslatedLabel("_Directory:");
 	table.Label(labelDirectory);
@@ -1919,12 +1931,14 @@ void SciTEGTK::FindInFiles() {
 	bool enableToggles = props.GetNewExpand("find.command") == "";
 
 	// Whole Word
-	dlgFindInFiles.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label), wholeWord && enableToggles);
+	dlgFindInFiles.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label));
+	dlgFindInFiles.toggleWord.SetActive(wholeWord && enableToggles);
 	gtk_widget_set_sensitive(dlgFindInFiles.toggleWord, enableToggles);
 	table.Add(dlgFindInFiles.toggleWord, 1, true, 3, 0);
 
 	// Case Sensitive
-	dlgFindInFiles.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label), matchCase || !enableToggles);
+	dlgFindInFiles.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label));
+	dlgFindInFiles.toggleCase.SetActive(matchCase || !enableToggles);
 	gtk_widget_set_sensitive(dlgFindInFiles.toggleCase, enableToggles);
 	table.Add(dlgFindInFiles.toggleCase, 1, true, 3, 0);
 
@@ -1933,7 +1947,7 @@ void SciTEGTK::FindInFiles() {
 	dlgFindInFiles.ResponseButton(localiser.Text("F_ind"), GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindInFiles)), GTK_RESPONSE_OK);
 
-	gtk_widget_grab_focus(GTK_WIDGET(dlgFindInFiles.comboFindInFiles.Entry()));
+	gtk_widget_grab_focus(GTK_WIDGET(dlgFindInFiles.wComboFindInFiles.Entry()));
 
 	dlgFindInFiles.Display(PWidget(wSciTE));
 }
@@ -2224,7 +2238,8 @@ void SciTEGTK::TabSizeDialog() {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelIndentSize), dlgTabSize.entryIndentSize);
 
 	bool useTabs = wEditor.Call(SCI_GETUSETABS);
-	dlgTabSize.toggleUseTabs.Create(localiser.Text("_Use Tabs"), useTabs);
+	dlgTabSize.toggleUseTabs.Create(localiser.Text("_Use Tabs"));
+	dlgTabSize.toggleUseTabs.SetActive(useTabs);
 	table.Add();
 	table.Add(dlgTabSize.toggleUseTabs);
 
@@ -2370,6 +2385,7 @@ void SciTEGTK::FindReplaceResponse(int responseID) {
 void SciTEGTK::FindReplace(bool replace) {
 
 	replacing = replace;
+	dlgFindReplace.SetSearcher(this);
 	dlgFindReplace.Create(localiser.Text(replace ? "Replace" : "Find"));
 
 	g_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
@@ -2381,55 +2397,53 @@ void SciTEGTK::FindReplace(bool replace) {
 	GtkWidget *labelFind = TranslatedLabel("Fi_nd what:");
 	table.Label(labelFind);
 
-	dlgFindReplace.comboFind.Create();
-	FillComboFromMemory(dlgFindReplace.comboFind, memFinds);
-	table.Add(dlgFindReplace.comboFind, 1, true);
+	dlgFindReplace.wComboFind.Create();
+	table.Add(dlgFindReplace.wComboFind, 1, true);
 
-	dlgFindReplace.comboFind.SetText(findWhat.c_str());
-	gtk_entry_set_width_chars(dlgFindReplace.comboFind.Entry(), 40);
-	dlgFindReplace.comboFind.ActivatesDefault();
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), dlgFindReplace.comboFind);
+	dlgFindReplace.wComboFind.SetText(findWhat.c_str());
+	gtk_entry_set_width_chars(dlgFindReplace.wComboFind.Entry(), 40);
+	dlgFindReplace.wComboFind.ActivatesDefault();
+	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), dlgFindReplace.wComboFind);
 
 	if (replace) {
 		GtkWidget *labelReplace = TranslatedLabel("Rep_lace with:");
 		table.Label(labelReplace);
 
-		dlgFindReplace.comboReplace.Create();
-		FillComboFromMemory(dlgFindReplace.comboReplace, memReplaces);
-		table.Add(dlgFindReplace.comboReplace, 1, true);
+		dlgFindReplace.wComboReplace.Create();
+		table.Add(dlgFindReplace.wComboReplace, 1, true);
 
-		dlgFindReplace.comboReplace.ActivatesDefault();
-		gtk_label_set_mnemonic_widget(GTK_LABEL(labelReplace), dlgFindReplace.comboReplace);
+		dlgFindReplace.wComboReplace.ActivatesDefault();
+		gtk_label_set_mnemonic_widget(GTK_LABEL(labelReplace), dlgFindReplace.wComboReplace);
 
 	} else {
-		dlgFindReplace.comboReplace.SetID(0);
+		dlgFindReplace.wComboReplace.SetID(0);
 	}
 
 	// Whole Word
-	dlgFindReplace.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label), wholeWord);
+	dlgFindReplace.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label));
 	table.Add(dlgFindReplace.toggleWord, 2, false, 3, 0);
 
 	// Case Sensitive
-	dlgFindReplace.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label), matchCase);
+	dlgFindReplace.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label));
 	table.Add(dlgFindReplace.toggleCase, 2, false, 3, 0);
 
 	// Regular Expression
-	dlgFindReplace.toggleRegExp.Create(localiser.Text(toggles[Toggle::tRegExp].label), regExp);
+	dlgFindReplace.toggleRegExp.Create(localiser.Text(toggles[Toggle::tRegExp].label));
 	table.Add(dlgFindReplace.toggleRegExp, 2, false, 3, 0);
 
 	// Transform backslash expressions
-	dlgFindReplace.toggleUnSlash.Create(localiser.Text(toggles[Toggle::tBackslash].label), unSlash);
+	dlgFindReplace.toggleUnSlash.Create(localiser.Text(toggles[Toggle::tBackslash].label));
 	table.Add(dlgFindReplace.toggleUnSlash, 2, false, 3, 0);
 
 	// Wrap Around
-	dlgFindReplace.toggleWrap.Create(localiser.Text(toggles[Toggle::tWrap].label), wrapFind);
+	dlgFindReplace.toggleWrap.Create(localiser.Text(toggles[Toggle::tWrap].label));
 	table.Add(dlgFindReplace.toggleWrap, 2, false, 3, 0);
 
 	if (replace) {
 		dlgFindReplace.toggleReverse.SetID(0);
 	} else {
 		// Reverse
-		dlgFindReplace.toggleReverse.Create(localiser.Text(toggles[Toggle::tUp].label), reverseFind);
+		dlgFindReplace.toggleReverse.Create(localiser.Text(toggles[Toggle::tUp].label));
 		table.Add(dlgFindReplace.toggleReverse, 2, false, 3, 0);
 	}
 
@@ -2452,7 +2466,9 @@ void SciTEGTK::FindReplace(bool replace) {
 	AttachResponse<&SciTEGTK::FindReplaceResponse>(PWidget(dlgFindReplace), this);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindReplace)), GTK_RESPONSE_OK);
 
-	gtk_widget_grab_focus(GTK_WIDGET(dlgFindReplace.comboFind.Entry()));
+	dlgFindReplace.FillFields();
+
+	gtk_widget_grab_focus(GTK_WIDGET(dlgFindReplace.wComboFind.Entry()));
 
 	dlgFindReplace.Display(PWidget(wSciTE), false);
 }
@@ -3778,20 +3794,20 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
 	g_signal_connect(G_OBJECT(GetID()), "focus", G_CALLBACK(FocusSignal), this);
 
-	wText.Create();
-	table.Add(wText, 1, true, 0, 0);
+	wComboFind.Create();
+	table.Add(wComboFind, 1, true, 0, 0);
 
-	gtk_widget_show(wText);
+	gtk_widget_show(wComboFind);
 
 	gtk_widget_show(GTK_WIDGET(GetID()));
 
-	g_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event",
+	g_signal_connect(GTK_OBJECT(wComboFind.Entry()), "key-press-event",
 		G_CALLBACK(EscapeSignal), this);
 
-	g_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
+	g_signal_connect(GTK_OBJECT(wComboFind.Entry()), "activate",
 		G_CALLBACK(ActivateSignal), this);
 
-	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
+	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wComboFind.Entry()));
 
 	static ObjectSignal<FindStrip, &FindStrip::FindNextCmd> sigFindNext;
 	wButton.Create(localiser->Text("_Find Next"), G_CALLBACK(sigFindNext.Function), this);
@@ -3814,26 +3830,22 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 void FindStrip::Destruction() {
 }
 
-void FindStrip::SetSearcher(Searcher *pSearcher_) {
-	pSearcher = pSearcher_;
-}
-
 void FindStrip::Show(int buttonHeight) {
 	Strip::Show(buttonHeight);
 
 	gtk_widget_set_size_request(wButton, -1, buttonHeight);
 	gtk_widget_set_size_request(wButtonMarkAll, -1, buttonHeight);
-	gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
-	gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
+	gtk_widget_set_size_request(wComboFind, widthCombo, buttonHeight);
+	gtk_widget_set_size_request(GTK_WIDGET(wComboFind.Entry()), -1, buttonHeight);
 	gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
-	FillComboFromMemory(wText, pSearcher->memFinds);
+	FillComboFromMemory(wComboFind, pSearcher->memFinds);
 
-	gtk_entry_set_text(wText.Entry(), pSearcher->findWhat.c_str());
+	gtk_entry_set_text(wComboFind.Entry(), pSearcher->findWhat.c_str());
 
-	gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
+	gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 }
 
 void FindStrip::Close() {
@@ -3892,7 +3904,7 @@ void FindStrip::ShowPopup() {
 }
 
 void FindStrip::FindNextCmd() {
-	pSearcher->SetFind(wText.Text());
+	pSearcher->SetFind(wComboFind.Text());
 	if (pSearcher->FindHasText()) {
 		pSearcher->FindNext(pSearcher->reverseFind);
 	}
@@ -3900,7 +3912,7 @@ void FindStrip::FindNextCmd() {
 }
 
 void FindStrip::MarkAllCmd() {
-	pSearcher->SetFind(wText.Text());
+	pSearcher->SetFind(wComboFind.Text());
 	pSearcher->MarkAll();
 	pSearcher->FindNext(pSearcher->reverseFind);
 	Close();
@@ -3917,11 +3929,11 @@ void FindStrip::ChildFocus(GtkWidget *widget) {
 
 gboolean FindStrip::Focus(GtkDirectionType direction) {
 	const int lastFocusCheck = 5;
-	if ((direction == GTK_DIR_TAB_BACKWARD) && wText.HasFocusOnSelfOrChild()) {
+	if ((direction == GTK_DIR_TAB_BACKWARD) && wComboFind.HasFocusOnSelfOrChild()) {
 		gtk_widget_grab_focus(wCheck[lastFocusCheck]);
 		return TRUE;
 	} else if ((direction == GTK_DIR_TAB_FORWARD) && wCheck[lastFocusCheck].HasFocus()) {
-		gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
+		gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 		return TRUE;
 	}
 	return FALSE;
@@ -3938,17 +3950,17 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
 	g_signal_connect(G_OBJECT(GetID()), "focus", G_CALLBACK(FocusSignal), this);
 
-	wText.Create();
-	tableReplace.Add(wText, 1, true, 0, 0);
-	wText.Show();
+	wComboFind.Create();
+	tableReplace.Add(wComboFind, 1, true, 0, 0);
+	wComboFind.Show();
 
-	g_signal_connect(GTK_OBJECT(wText.Entry()), "key-press-event",
+	g_signal_connect(GTK_OBJECT(wComboFind.Entry()), "key-press-event",
 		G_CALLBACK(EscapeSignal), this);
 
-	g_signal_connect(GTK_OBJECT(wText.Entry()), "activate",
+	g_signal_connect(GTK_OBJECT(wComboFind.Entry()), "activate",
 		G_CALLBACK(ActivateSignal), this);
 
-	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wText.Entry()));
+	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wComboFind.Entry()));
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::FindCmd> sigFindNext;
 	wButtonFind.Create(localiser->Text("_Find Next"),
@@ -3973,18 +3985,16 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	wStaticReplace.Create(localiser->Text(replaceText));
 	tableReplace.Label(wStaticReplace);
 
-	wReplace.Create();
-	tableReplace.Add(wReplace, 1, true, 0, 0);
+	wComboReplace.Create();
+	tableReplace.Add(wComboReplace, 1, true, 0, 0);
 
-	g_signal_connect(GTK_OBJECT(wReplace.Entry()), "key-press-event",
+	g_signal_connect(GTK_OBJECT(wComboReplace.Entry()), "key-press-event",
 		G_CALLBACK(EscapeSignal), this);
 
-	g_signal_connect(GTK_OBJECT(wReplace.Entry()), "activate",
+	g_signal_connect(GTK_OBJECT(wComboReplace.Entry()), "activate",
 		G_CALLBACK(ActivateSignal), this);
 
-	//gtk_combo_disable_activate(pComboReplace);
-
-	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticReplace.GetID()), GTK_WIDGET(wReplace.Entry()));
+	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticReplace.GetID()), GTK_WIDGET(wComboReplace.Entry()));
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::ReplaceCmd> sigReplace;
 	wButtonReplace.Create(localiser->Text("_Replace"),
@@ -4001,8 +4011,8 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 
 	// Make the fccus chain move down before moving right
 	GList *focusChain = 0;
-	focusChain = g_list_append(focusChain, wText.Widget());
-	focusChain = g_list_append(focusChain, wReplace.Widget());
+	focusChain = g_list_append(focusChain, wComboFind.Widget());
+	focusChain = g_list_append(focusChain, wComboReplace.Widget());
 	focusChain = g_list_append(focusChain, wButtonFind.Widget());
 	focusChain = g_list_append(focusChain, wButtonReplace.Widget());
 	focusChain = g_list_append(focusChain, wButtonReplaceAll.Widget());
@@ -4019,10 +4029,6 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 void ReplaceStrip::Destruction() {
 }
 
-void ReplaceStrip::SetSearcher(Searcher *pSearcher_) {
-	pSearcher = pSearcher_;
-}
-
 void ReplaceStrip::Show(int buttonHeight) {
 	Strip::Show(buttonHeight);
 
@@ -4031,10 +4037,10 @@ void ReplaceStrip::Show(int buttonHeight) {
 	gtk_widget_set_size_request(wButtonReplace, -1, buttonHeight);
 	gtk_widget_set_size_request(wButtonReplaceInSelection, -1, buttonHeight);
 
-	gtk_widget_set_size_request(wText, widthCombo, buttonHeight);
-	gtk_widget_set_size_request(GTK_WIDGET(wText.Entry()), -1, buttonHeight);
-	gtk_widget_set_size_request(wReplace, widthCombo, buttonHeight);
-	gtk_widget_set_size_request(GTK_WIDGET(wReplace.Entry()), -1, buttonHeight);
+	gtk_widget_set_size_request(wComboFind, widthCombo, buttonHeight);
+	gtk_widget_set_size_request(GTK_WIDGET(wComboFind.Entry()), -1, buttonHeight);
+	gtk_widget_set_size_request(wComboReplace, widthCombo, buttonHeight);
+	gtk_widget_set_size_request(GTK_WIDGET(wComboReplace.Entry()), -1, buttonHeight);
 
 	gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
 	gtk_widget_set_size_request(wStaticReplace, -1, heightStatic);
@@ -4042,12 +4048,12 @@ void ReplaceStrip::Show(int buttonHeight) {
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
-	FillComboFromMemory(wText, pSearcher->memFinds);
-	FillComboFromMemory(wReplace, pSearcher->memReplaces);
+	FillComboFromMemory(wComboFind, pSearcher->memFinds);
+	FillComboFromMemory(wComboReplace, pSearcher->memReplaces);
 
-	gtk_entry_set_text(wText.Entry(), pSearcher->findWhat.c_str());
+	gtk_entry_set_text(wComboFind.Entry(), pSearcher->findWhat.c_str());
 
-	gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
+	gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 }
 
 void ReplaceStrip::Close() {
@@ -4095,8 +4101,8 @@ gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStr
 }
 
 void ReplaceStrip::GrabFields() {
-	pSearcher->SetFind(wText.Text());
-	pSearcher->SetReplace(wReplace.Text());
+	pSearcher->SetFind(wComboFind.Text());
+	pSearcher->SetReplace(wComboReplace.Text());
 }
 
 void ReplaceStrip::FindCmd() {
@@ -4149,11 +4155,11 @@ void ReplaceStrip::ChildFocus(GtkWidget *widget) {
 
 gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
 	const int lastFocusCheck = 2;	// Due to last column starting with the thirs checkbox
-	if ((direction == GTK_DIR_TAB_BACKWARD) && wText.HasFocusOnSelfOrChild()) {
+	if ((direction == GTK_DIR_TAB_BACKWARD) && wComboFind.HasFocusOnSelfOrChild()) {
 		gtk_widget_grab_focus(wCheck[lastFocusCheck]);
 		return TRUE;
 	} else if ((direction == GTK_DIR_TAB_FORWARD) && wCheck[lastFocusCheck].HasFocus()) {
-		gtk_widget_grab_focus(GTK_WIDGET(wText.Entry()));
+		gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 		return TRUE;
 	}
 	return FALSE;
