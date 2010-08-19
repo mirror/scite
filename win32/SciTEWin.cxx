@@ -3119,15 +3119,7 @@ void ReplaceStrip::HandleReplaceCommand(int cmd) {
 	if (cmd == IDOK) {
 		pSearcher->FindNext(false);
 	} else if (cmd == IDREPLACE) {
-		if (pSearcher->havefound) {
-			pSearcher->ReplaceOnce();
-		} else {
-			pSearcher->CollapseSelectionToStart();
-			pSearcher->FindNext(false);
-			if (pSearcher->havefound) {
-				pSearcher->ReplaceOnce();
-			}
-		}
+		pSearcher->ReplaceOnce();
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
 		pSearcher->ReplaceAll(cmd == IDREPLACEINSEL);

@@ -391,7 +391,6 @@ public:
 	virtual void SetReplace(const char *sReplace) = 0;
 	virtual void MoveBack(int distance) = 0;
 	virtual void ScrollEditorIfNeeded() = 0;
-	virtual void CollapseSelectionToStart() = 0;
 
 	virtual int FindNext(bool reverseDirection, bool showWarnings = true) = 0;
 	virtual int MarkAll() = 0;
@@ -724,7 +723,6 @@ protected:
 	virtual void SetReplace(const char *sReplace);
 	virtual void MoveBack(int distance);
 	virtual void ScrollEditorIfNeeded();
-	virtual void CollapseSelectionToStart();
 	int FindNext(bool reverseDirection, bool showWarnings = true);
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();

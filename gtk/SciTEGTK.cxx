@@ -1703,9 +1703,7 @@ void SciTEGTK::FRFindCmd() {
 
 void SciTEGTK::FRReplaceCmd() {
 	FindReplaceGrabFields();
-	if (findWhat[0]) {
-		ReplaceOnce();
-	}
+	ReplaceOnce();
 }
 
 void SciTEGTK::FRReplaceAllCmd() {
@@ -4140,9 +4138,7 @@ void ReplaceStrip::ReplaceAllCmd() {
 
 void ReplaceStrip::ReplaceCmd() {
 	GrabFields();
-	if (pSearcher->FindHasText()) {
-		pSearcher->ReplaceOnce();
-	}
+	pSearcher->ReplaceOnce();
 }
 
 void ReplaceStrip::ReplaceInSelectionCmd() {

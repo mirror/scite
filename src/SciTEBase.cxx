@@ -1491,11 +1491,6 @@ void SciTEBase::ScrollEditorIfNeeded() {
 		wEditor.Call(SCI_SCROLLCARET);
 }
 
-void SciTEBase::CollapseSelectionToStart() {
-	Sci_CharacterRange crange = GetSelection();
-	SetSelection(crange.cpMin, crange.cpMin);
-}
-
 int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 	if (findWhat.length() == 0) {
 		Find();
@@ -1556,6 +1551,15 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 }
 
 void SciTEBase::ReplaceOnce() {
+	if (!FindHasText())
+		return;
+
+	if (!havefound) {
+		Sci_CharacterRange crange = GetSelection();
+		SetSelection(crange.cpMin, crange.cpMin);
+		FindNext(false);
+	}
+
 	if (havefound) {
 		SString replaceTarget = EncodeString(replaceWhat);
 		int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
