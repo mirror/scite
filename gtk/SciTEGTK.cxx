@@ -1816,8 +1816,17 @@ void SciTEGTK::FindInFilesBrowse() {
 	gtk_widget_destroy(dialog);
 }
 
-static const char *searchText = "Fi_nd:";
-static const char *replaceText = "Rep_lace:";
+static const char *textFindPrompt = "Fi_nd:";
+static const char *textReplacePrompt = "Rep_lace:";
+static const char *findNextText = "_Find Next";
+static const char *markAllText = "_Mark All";
+
+static const char *textFind = "F_ind";
+static const char *textReplace = "_Replace";
+static const char *textReplaceAll = "Replace _All";
+static const char *textInSelection = "In _Selection";
+static const char *textReplaceInBuffers = "Replace In _Buffers";
+static const char *textClose = "_Close";
 
 struct Toggle {
 	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
@@ -1828,7 +1837,7 @@ struct Toggle {
 
 const static Toggle toggles[] = {
 	{"Match _whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
-	{"Match _case", IDM_MATCHCASE, IDMATCHCASE},
+	{"Case sensiti_ve", IDM_MATCHCASE, IDMATCHCASE},
 	{"Regular _expression", IDM_REGEXP, IDREGEXP},
 	{"Transform _backslash expressions", IDM_UNSLASH, IDUNSLASH},
 	{"Wrap ar_ound", IDM_WRAPAROUND, IDWRAP},
@@ -2465,20 +2474,20 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	if (!replace) {
-		dlgFindReplace.ResponseButton(localiser.Text("Mark _All"), RESPONSE_MARK_ALL);
+		dlgFindReplace.ResponseButton(localiser.Text(markAllText), RESPONSE_MARK_ALL);
 	}
 
 	if (replace) {
-		dlgFindReplace.ResponseButton(localiser.Text("_Replace"), RESPONSE_REPLACE);
-		dlgFindReplace.ResponseButton(localiser.Text("Replace _All"), RESPONSE_REPLACE_ALL);
-		dlgFindReplace.ResponseButton(localiser.Text("In _Selection"), RESPONSE_REPLACE_IN_SELECTION);
+		dlgFindReplace.ResponseButton(localiser.Text(textReplace), RESPONSE_REPLACE);
+		dlgFindReplace.ResponseButton(localiser.Text(textReplaceAll), RESPONSE_REPLACE_ALL);
+		dlgFindReplace.ResponseButton(localiser.Text(textInSelection), RESPONSE_REPLACE_IN_SELECTION);
 		if (FindReplaceAdvanced()) {
-			dlgFindReplace.ResponseButton(localiser.Text("Replace In _Buffers"), RESPONSE_REPLACE_IN_BUFFERS);
+			dlgFindReplace.ResponseButton(localiser.Text(textReplaceInBuffers), RESPONSE_REPLACE_IN_BUFFERS);
 		}
 	}
 
-	dlgFindReplace.ResponseButton(localiser.Text("Close"), GTK_RESPONSE_CANCEL);
-	dlgFindReplace.ResponseButton(localiser.Text("F_ind"), GTK_RESPONSE_OK);
+	dlgFindReplace.ResponseButton(localiser.Text(textClose), GTK_RESPONSE_CANCEL);
+	dlgFindReplace.ResponseButton(localiser.Text(textFind), GTK_RESPONSE_OK);
 
 	AttachResponse<&SciTEGTK::FindReplaceResponse>(PWidget(dlgFindReplace), this);
 	gtk_dialog_set_default_response(GTK_DIALOG(PWidget(dlgFindReplace)), GTK_RESPONSE_OK);
@@ -3805,7 +3814,7 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	SetID(table.Widget());
 	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
 	gtk_box_pack_start(GTK_BOX(boxMain), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
-	wStaticFind.Create(localiser->Text(searchText).c_str());
+	wStaticFind.Create(localiser->Text(textFindPrompt).c_str());
 	table.Label(wStaticFind);
 
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
@@ -3961,7 +3970,7 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	SetID(tableReplace.Widget());
 	tableReplace.PackInto(GTK_BOX(boxMain), false);
 
-	wStaticFind.Create(localiser->Text(searchText));
+	wStaticFind.Create(localiser->Text(textFindPrompt));
 	tableReplace.Label(wStaticFind);
 
 	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
@@ -3999,7 +4008,7 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	tableReplace.Add(wCheck[1], 1, false, 0, 0);
 	tableReplace.Add(wCheck[2], 1, false, 0, 0);
 
-	wStaticReplace.Create(localiser->Text(replaceText));
+	wStaticReplace.Create(localiser->Text(textReplacePrompt));
 	tableReplace.Label(wStaticReplace);
 
 	wComboReplace.Create();

@@ -2029,9 +2029,17 @@ static SString ControlText(GUI::Window w) {
 	return GUI::UTF8FromString(gsFind.c_str()).c_str();
 }
 
-static const char *searchText = "Fi&nd:";
-static const char *replaceText = "Rep&lace:";
+static const char *textFindPrompt = "Fi&nd:";
+static const char *textReplacePrompt = "Rep&lace:";
 static const char *findNextText = "&Find Next";
+static const char *markAllText = "&Mark All";
+
+static const char *textFind = "F&ind";
+static const char *textReplace = "&Replace";
+static const char *textReplaceAll = "Replace &All";
+static const char *textInSelection = "In &Selection";
+static const char *textReplaceInBuffers = "Replace In &Buffers";
+static const char *textClose = "Close";
 
 struct Toggle {
 	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
@@ -2042,14 +2050,13 @@ struct Toggle {
 
 static Toggle toggles[] = {
 	{"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
-	{"Match &case", IDM_MATCHCASE, IDMATCHCASE},
+	{"Case sensiti&ve", IDM_MATCHCASE, IDMATCHCASE},
 	{"Regular &expression", IDM_REGEXP, IDREGEXP},
 	{"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH},
 	{"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP},
 	{"&Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
 	{0, 0, 0},
 };
-
 
 GUI::Window Strip::CreateText(const char *text) {
 	GUI::gui_string localised = localiser->Text(text);
@@ -2544,7 +2551,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 void SearchStrip::Creation() {
 	Strip::Creation();
 
-	wStaticFind = CreateText(searchText);
+	wStaticFind = CreateText(textFindPrompt);
 
 	wText = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | ES_AUTOHSCROLL,
@@ -2686,7 +2693,7 @@ LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 void FindStrip::Creation() {
 	Strip::Creation();
 
-	wStaticFind = CreateText(searchText);
+	wStaticFind = CreateText(textFindPrompt);
 
 	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
@@ -2699,7 +2706,7 @@ void FindStrip::Creation() {
 	lineHeight = rcCombo.Height() + 3;
 
 	wButton = CreateButton(findNextText, IDOK);
-	wButtonMarkAll = CreateButton("&Mark All", IDMARKALL);
+	wButtonMarkAll = CreateButton(markAllText, IDMARKALL);
 
 	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
 	wCheckCase = CreateButton(toggles[Toggle::tCase].label, toggles[Toggle::tCase].id, true);
@@ -2905,7 +2912,7 @@ void ReplaceStrip::Creation() {
 
 	lineHeight = 23;
 
-	wStaticFind = CreateText(searchText);
+	wStaticFind = CreateText(textFindPrompt);
 
 	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
@@ -2917,7 +2924,7 @@ void ReplaceStrip::Creation() {
 	GUI::Rectangle rcCombo = wText.GetPosition();
 	lineHeight = rcCombo.Height() + 3;
 
-	wStaticReplace = CreateText(replaceText);
+	wStaticReplace = CreateText(textReplacePrompt);
 
 	wReplace = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | CBS_DROPDOWN | CBS_AUTOHSCROLL,
@@ -2927,10 +2934,10 @@ void ReplaceStrip::Creation() {
 	wReplace.Show();
 
 	wButtonFind = CreateButton(findNextText, IDOK);
-	wButtonReplace = CreateButton("&Replace", IDREPLACE);
+	wButtonReplace = CreateButton(textReplace, IDREPLACE);
 
-	wButtonReplaceAll = CreateButton("Replace &All", IDREPLACEALL);
-	wButtonReplaceInSelection = CreateButton("&In Selection", IDREPLACEINSEL);
+	wButtonReplaceAll = CreateButton(textReplaceAll, IDREPLACEALL);
+	wButtonReplaceInSelection = CreateButton(textInSelection, IDREPLACEINSEL);
 
 	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
 	wCheckRE = CreateButton(toggles[Toggle::tRegExp].label, toggles[Toggle::tRegExp].id, true);
