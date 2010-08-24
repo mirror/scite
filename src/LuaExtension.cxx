@@ -722,7 +722,9 @@ static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValu
 	if (L) {
 		int traceback = 0;
 		if (tracebackEnabled) {
-			lua_getglobal(L, "print");
+			lua_getglobal(L, "debug");
+			lua_getfield(L, -1, "traceback");
+			lua_remove(L, -2);
 			if (lua_isfunction(L, -1)) {
 				traceback = lua_gettop(L) - nargs - 1;
 				lua_insert(L, traceback);
