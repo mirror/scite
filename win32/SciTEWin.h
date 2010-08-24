@@ -40,7 +40,7 @@
 // Borland C++ 5.5 does not have Uxtheme.h
 typedef HANDLE HTHEME;
 #else
-#include <Uxtheme.h>
+#include <uxtheme.h>
 #endif
 #ifdef _MSC_VER
 // okay, that's done, don't allow it in our code

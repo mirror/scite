@@ -7,7 +7,7 @@
 
 #include "SciTEWin.h"
 // need this header for SHBrowseForFolder
-#include <Shlobj.h>
+#include <shlobj.h>
 
 /**
  * Flash the given window for the asked @a duration to visually warn the user.
