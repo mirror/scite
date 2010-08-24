@@ -2082,6 +2082,8 @@ void SciTEBase::EliminateDuplicateWords(char *words) {
 }
 
 bool SciTEBase::StartAutoComplete() {
+	if (wOutput.HasFocus())
+		return false;
 	SString line = GetLine();
 	int current = GetCaretInLine();
 
