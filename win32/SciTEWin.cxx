@@ -2031,8 +2031,8 @@ static SString ControlText(GUI::Window w) {
 
 static const char *textFindPrompt = "Fi&nd:";
 static const char *textReplacePrompt = "Rep&lace:";
-static const char *findNextText = "&Find Next";
-static const char *markAllText = "&Mark All";
+static const char *textFindNext = "&Find Next";
+static const char *textMarkAll = "&Mark All";
 
 static const char *textFind = "F&ind";
 static const char *textReplace = "&Replace";
@@ -2561,7 +2561,7 @@ void SearchStrip::Creation() {
 
 	SetFontHandle(wText, fontText);
 
-	wButton = CreateButton(findNextText, IDC_INCFINDBTNOK);
+	wButton = CreateButton(textFindNext, IDC_INCFINDBTNOK);
 }
 
 void SearchStrip::Destruction() {
@@ -2705,8 +2705,8 @@ void FindStrip::Creation() {
 	GUI::Rectangle rcCombo = wText.GetPosition();
 	lineHeight = rcCombo.Height() + 3;
 
-	wButton = CreateButton(findNextText, IDOK);
-	wButtonMarkAll = CreateButton(markAllText, IDMARKALL);
+	wButton = CreateButton(textFindNext, IDOK);
+	wButtonMarkAll = CreateButton(textMarkAll, IDMARKALL);
 
 	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
 	wCheckCase = CreateButton(toggles[Toggle::tCase].label, toggles[Toggle::tCase].id, true);
@@ -2933,7 +2933,7 @@ void ReplaceStrip::Creation() {
 	SetFontHandle(wReplace, fontText);
 	wReplace.Show();
 
-	wButtonFind = CreateButton(findNextText, IDOK);
+	wButtonFind = CreateButton(textFindNext, IDOK);
 	wButtonReplace = CreateButton(textReplace, IDREPLACE);
 
 	wButtonReplaceAll = CreateButton(textReplaceAll, IDREPLACEALL);
