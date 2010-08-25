@@ -161,6 +161,10 @@ SOURCE=..\win32\SingleThreadExtension.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\StringHelpers.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\StringList.cxx
 # End Source File
 # Begin Source File

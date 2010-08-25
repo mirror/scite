@@ -385,6 +385,9 @@
 				RelativePath="..\win32\SingleThreadExtension.cxx">
 			</File>
 			<File
+				RelativePath="..\src\StringHelpers.cxx">
+			</File>
+			<File
 				RelativePath="..\src\StringList.cxx">
 			</File>
 			<File

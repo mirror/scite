@@ -115,11 +115,11 @@ SOURCE=..\..\scintilla\src\CellBuffer.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\src\CharClassify.cxx
+SOURCE=..\..\scintilla\lexlib\CharacterSet.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\lexlib\CharacterSet.cxx
+SOURCE=..\..\scintilla\src\CharClassify.cxx
 # End Source File
 # Begin Source File
 
@@ -200,22 +200,6 @@ SOURCE=..\lua\src\ldo.c
 # Begin Source File
 
 SOURCE=..\lua\src\ldump.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\scintilla\lexlib\LexerBase.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\scintilla\lexlib\LexerModule.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\scintilla\lexlib\LexerNoExceptions.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\scintilla\lexlib\LexerSimple.cxx
 # End Source File
 # Begin Source File
 
@@ -311,7 +295,23 @@ SOURCE=..\..\scintilla\lexers\LexEiffel.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\lexlib\LexerBase.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\lexers\LexErlang.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\lexlib\LexerModule.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\lexlib\LexerNoExceptions.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\scintilla\lexlib\LexerSimple.cxx
 # End Source File
 # Begin Source File
 
@@ -643,11 +643,11 @@ SOURCE=..\..\scintilla\Src\PositionCache.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\lexlib\PropSetSimple.cxx
+SOURCE=..\Src\PropSetFile.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\Src\PropSetFile.cxx
+SOURCE=..\..\scintilla\lexlib\PropSetSimple.cxx
 # End Source File
 # Begin Source File
 
@@ -704,6 +704,10 @@ SOURCE=..\..\scintilla\src\Selection.cxx
 # Begin Source File
 
 SOURCE=..\win32\SingleThreadExtension.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\StringHelpers.cxx
 # End Source File
 # Begin Source File
 
