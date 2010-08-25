@@ -61,6 +61,7 @@
 #include "GUI.h"
 #include "SString.h"
 #include "StringList.h"
+#include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"
@@ -1461,7 +1462,7 @@ int SciTEBase::FindInTarget(const char *findWhat, int lenFind, int startPosition
 
 void SciTEBase::SetFind(const char *sFind) {
 	findWhat = sFind;
-	memFinds.Insert(findWhat);
+	memFinds.Insert(findWhat.c_str());
 	props.Set("find.what", findWhat.c_str());
 }
 
@@ -1471,7 +1472,7 @@ bool SciTEBase::FindHasText() const {
 
 void SciTEBase::SetReplace(const char *sReplace) {
 	replaceWhat = sReplace;
-	memReplaces.Insert(replaceWhat);
+	memReplaces.Insert(replaceWhat.c_str());
 }
 
 void SciTEBase::MoveBack(int distance) {

@@ -18,6 +18,7 @@
 #endif
 
 #include <string>
+#include <vector>
 #include <map>
 
 #include "Scintilla.h"
@@ -53,6 +54,7 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 
 #include "SString.h"
 #include "StringList.h"
+#include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"
@@ -1035,7 +1037,7 @@ void SciTEBase::ReadProperties() {
 	preprocCondEnd.Clear();
 	preprocCondEnd.Set(list.c_str());
 
-	memFiles.AppendList(props.GetNewExpand("find.files"));
+	memFiles.AppendList(props.GetNewExpand("find.files").c_str());
 
 	wEditor.Call(SCI_SETWRAPVISUALFLAGS, props.GetInt("wrap.visual.flags"));
 	wEditor.Call(SCI_SETWRAPVISUALFLAGSLOCATION, props.GetInt("wrap.visual.flags.location"));

@@ -14,6 +14,7 @@
 #include <time.h>
 
 #include <string>
+#include <vector>
 #include <map>
 #include <algorithm>
 
@@ -33,6 +34,7 @@
 #include "GUI.h"
 #include "SString.h"
 #include "StringList.h"
+#include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
 
@@ -56,6 +58,7 @@
 #include "JobQueue.h"
 #include "pixmapsGNOME.h"
 #include "SciIcon.h"
+#include "Widget.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 
@@ -86,15 +89,6 @@ public:
 	}
 };
 
-// Callback thunk class connects GTK+ signals to an instance method.
-template< class T, void (T::*method)() >
-class ObjectSignal {
-public:
-	static void Function(GtkWidget */*w*/, T *object) {
-		(object->*method)();
-	}
-};
-
 // Callback thunk class connects GTK+ signals to a SciTEGTK instance method.
 template< void (SciTEGTK::*method)(int responseID) >
 class ResponseSignal {
@@ -109,42 +103,6 @@ inline void AttachResponse(GtkWidget *w, SciTEGTK *object) {
 	ResponseSignal <method> sig;
 	g_signal_connect(GTK_OBJECT(w), "response", G_CALLBACK(sig.Function), object);
 }
-
-class Dialog : public GUI::Window {
-public:
-	void Create(const GUI::gui_string &title) {
-		wid = gtk_dialog_new();
-		gtk_window_set_title(GTK_WINDOW(GetID()), title.c_str());
-		gtk_window_set_resizable(GTK_WINDOW(GetID()), TRUE);
-	}
-	void Display(GtkWidget *parent = 0, bool modal=true) {
-		// Mark it as a modal transient dialog
-		gtk_window_set_modal(GTK_WINDOW(GetID()), modal);
-		if (parent) {
-			gtk_window_set_transient_for(GTK_WINDOW(GetID()), GTK_WINDOW(parent));
-		}
-		g_signal_connect(GTK_OBJECT(GetID()), "destroy", G_CALLBACK(SignalDestroy), this);
-		gtk_widget_show_all(GTK_WIDGET(GetID()));
-		if (modal) {
-			while (Created()) {
-				gtk_main_iteration();
-			}
-		}
-	}
-	GtkWidget *ResponseButton(const GUI::gui_string &text, int responseID) {
-		return gtk_dialog_add_button(GTK_DIALOG(GetID()), text.c_str(), responseID);
-	}
-	void Present() {
-		gtk_window_present(GTK_WINDOW(GetID()));
-	}
-
-private:
-	static void SignalDestroy(GtkWidget *, Dialog *d) {
-		if (d) {
-			d->SetID(0);
-		}
-	}
-};
 
 // Field added to GTK+ 1.x ItemFactoryEntry for 2.x  so have a struct that is the same as 1.x
 struct SciTEItemFactoryEntry {
@@ -244,120 +202,6 @@ bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
 	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
 }
 
-class Strip;
-
-class WWidget : public GUI::Window {
-public:
-	operator GtkWidget*() {
-		return GTK_WIDGET(GetID());
-	}
-	GtkWidget* Widget() {
-		return GTK_WIDGET(GetID());
-	}
-	bool Sensitive() {
-		return gtk_widget_get_sensitive(Widget());
-	}
-	void SetSensitive(bool sensitive) {
-		gtk_widget_set_sensitive(Widget(), sensitive);
-	}
-};
-
-class WStatic : public WWidget {
-public:
-	void Create(const GUI::gui_string &text) {
-		SetID(gtk_label_new_with_mnemonic(text.c_str()));
-	}
-};
-
-class WEntry : public WWidget {
-public:
-	void Create(const char *text=0) {
-		SetID(gtk_entry_new());
-		if (text)
-			gtk_entry_set_text(GTK_ENTRY(GetID()), text);
-	}
-	void ActivatesDefault() {
-		gtk_entry_set_activates_default(GTK_ENTRY(GetID()), TRUE);
-	}
-	const char *Text() {
-		return gtk_entry_get_text(GTK_ENTRY(GetID()));
-	}
-	int Value() {
-		return atoi(Text());
-	}
-	void SetText(const char *text) {
-		return gtk_entry_set_text(GTK_ENTRY(GetID()), text);
-	}
-};
-
-class WComboBoxEntry : public WWidget {
-public:
-	void Create() {
-		SetID(gtk_combo_box_entry_new_text());
-	}
-	GtkEntry *Entry() {
-		return GTK_ENTRY(gtk_bin_get_child(GTK_BIN(GetID())));
-	}
-	void ActivatesDefault() {
-		gtk_entry_set_activates_default(Entry(), TRUE);
-	}
-	const char *Text() {
-		return gtk_entry_get_text(Entry());
-	}
-	void SetText(const char *text) {
-		return gtk_entry_set_text(Entry(), text);
-	}
-	bool HasFocusOnSelfOrChild() {
-		return HasFocus() || IS_WIDGET_FOCUSSED(Entry());
-	}
-};
-
-class WButton : public WWidget {
-public:
-	void Create(const GUI::gui_string &text, GCallback func, gpointer data) {
-		SetID(gtk_button_new_with_mnemonic(text.c_str()));
-		GTK_WIDGET_SET_FLAGS(GetID(), GTK_CAN_DEFAULT);
-		g_signal_connect(GTK_OBJECT(GetID()), "clicked", func, data);
-	}
-};
-
-class WToggle : public WWidget {
-public:
-	void Create(const GUI::gui_string &text) {
-		SetID(gtk_check_button_new_with_mnemonic(text.c_str()));
-	}
-	bool Active() {
-		return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(GetID()));
-	}
-	void SetActive(bool active) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(GetID()), active);
-	}
-};
-
-class WCheckDraw : public WWidget {
-	bool *pControlVariable;
-	GdkPixbuf *pbGrey;
-	Strip *pstrip;
-	bool over;
-public:
-	WCheckDraw() : pControlVariable(0), pbGrey(0), pstrip(0), over(false) {
-	}
-	~WCheckDraw() {
-		if (pbGrey)
-			g_object_unref(pbGrey);
-		pbGrey = 0;
-	}
-	void Create(const char **xpmImage, const GUI::gui_string &toolTip, bool *pControlVariable_, Strip *pstrip_);
-	void Toggle();
-	static gboolean Focus(GtkWidget *widget, GdkEventFocus *event, WCheckDraw *pcd);
-	gint Press(GtkWidget *widget, GdkEventButton *event);
-	static gint ButtonsPress(GtkWidget *widget, GdkEventButton *event, WCheckDraw *pcd);
-	static gboolean MouseEnterLeave(GtkWidget *widget, GdkEventCrossing *event, WCheckDraw *pcd);
-	static gboolean KeyDown(GtkWidget *widget, GdkEventKey *event, WCheckDraw *pcd);
-	gboolean Expose(GtkWidget *widget, GdkEventExpose *event);
-	static gboolean ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WCheckDraw *pcd);
-};
-
 class DialogGoto : public Dialog {
 public:
 	WEntry entryGoto;
@@ -393,53 +237,18 @@ public:
 
 class DialogFindReplace : public Dialog, public SearchUI {
 public:
+	WStatic labelFind;
+	WComboBoxEntry wComboFind;
+	WStatic labelReplace;
+	WComboBoxEntry wComboReplace;
 	WToggle toggleWord;
 	WToggle toggleCase;
 	WToggle toggleRegExp;
 	WToggle toggleWrap;
 	WToggle toggleUnSlash;
 	WToggle toggleReverse;
-	WComboBoxEntry wComboFind;
-	WComboBoxEntry wComboReplace;
 	void GrabFields();
 	void FillFields();
-};
-
-class BaseWin : public GUI::Window {
-protected:
-	ILocalize *localiser;
-public:
-	BaseWin() : localiser(0) {
-	}
-	void SetLocalizer(ILocalize *localiser_) {
-		localiser = localiser_;
-	}
-};
-
-class Strip : public BaseWin {
-protected:
-	bool allowMenuActions;
-	bool childHasFocus;
-	enum { heightButton=23, heightStatic=12, widthCombo=20};
-public:
-	bool visible;
-	Strip() : allowMenuActions(false), childHasFocus(false), visible(false) {
-	}
-	virtual ~Strip() {
-	}
-	virtual void Show(int buttonHeight);
-	virtual void Close();
-	virtual bool KeyDown(GdkEventKey *event);
-	virtual void ShowPopup() = 0;
-	virtual GtkStyle *ButtonStyle() = 0;
-	virtual void MenuAction(guint action) = 0;
-	static void MenuSignal(GtkMenuItem *menuItem, Strip *pStrip);
-	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
-	virtual void ChildFocus(GtkWidget *widget);
-	static gboolean ChildFocusSignal(GtkContainer *container, GtkWidget *widget, Strip *pStrip);
-	virtual gboolean Focus(GtkDirectionType direction) = 0;
-	static gboolean FocusSignal(GtkWidget *widget, GtkDirectionType direction, Strip *pStrip);
-	bool VisibleHasFocus();
 };
 
 class FindStrip : public Strip, public SearchUI {
@@ -461,10 +270,11 @@ public:
 	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip);
+	void GrabFields();
+	void SetToggles();
 	void ShowPopup();
 	void FindNextCmd();
 	void MarkAllCmd();
-	GtkStyle *ButtonStyle();
 	virtual void ChildFocus(GtkWidget *widget);
 	gboolean Focus(GtkDirectionType direction);
 };
@@ -493,12 +303,12 @@ public:
 	static void ActivateSignal(GtkWidget *w, ReplaceStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip);
 	void GrabFields();
+	void SetToggles();
 	void FindCmd();
 	void ReplaceAllCmd();
 	void ReplaceCmd();
 	void ReplaceInSelectionCmd();
 	void ShowPopup();
-	GtkStyle *ButtonStyle();
 	virtual void ChildFocus(GtkWidget *widget);
 	gboolean Focus(GtkDirectionType direction);
 };
@@ -1669,9 +1479,9 @@ void DialogFindReplace::GrabFields() {
 }
 
 void DialogFindReplace::FillFields() {
-	FillComboFromMemory(wComboFind, pSearcher->memFinds);
+	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 	if (wComboReplace) {
-		FillComboFromMemory(wComboReplace, pSearcher->memReplaces);
+		wComboReplace.FillFromMemory(pSearcher->memReplaces.AsVector());
 	}
 	toggleWord.SetActive(pSearcher->wholeWord);
 	toggleCase.SetActive(pSearcher->matchCase);
@@ -1745,7 +1555,7 @@ void DialogFindInFiles::GrabFields() {
 }
 
 void DialogFindInFiles::FillFields() {
-	FillComboFromMemory(wComboFindInFiles, pSearcher->memFinds);
+	wComboFindInFiles.FillFromMemory(pSearcher->memFinds.AsVector());
 	if (toggleWord.Sensitive())
 		toggleWord.SetActive(pSearcher->wholeWord);
 	if (toggleCase.Sensitive())
@@ -1818,8 +1628,8 @@ void SciTEGTK::FindInFilesBrowse() {
 
 static const char *textFindPrompt = "Fi_nd:";
 static const char *textReplacePrompt = "Rep_lace:";
-static const char *findNextText = "_Find Next";
-static const char *markAllText = "_Mark All";
+static const char *textFindNext = "_Find Next";
+static const char *textMarkAll = "_Mark All";
 
 static const char *textFind = "F_ind";
 static const char *textReplace = "_Replace";
@@ -1827,6 +1637,189 @@ static const char *textReplaceAll = "Replace _All";
 static const char *textInSelection = "In _Selection";
 static const char *textReplaceInBuffers = "Replace In _Buffers";
 static const char *textClose = "_Close";
+
+/* XPM */
+static const char * word1_x_xpm[] = {
+"16 16 15 1",
+" 	c #FFFFFF",
+".	c #000000",
+"+	c #E1E1E1",
+"@	c #D9D9D9",
+"#	c #4D4D4D",
+"$	c #7C7C7C",
+"%	c #D0D0D0",
+"&	c #A7A7A7",
+"*	c #8C8C8C",
+"=	c #BDBDBD",
+"-	c #B2B2B2",
+";	c #686868",
+">	c #F0F0F0",
+",	c #9A9A9A",
+"'	c #C7C7C7",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"               .",
+".+.+.@##@ .$%#&.",
+"*=.-*;++; .>;++.",
+",*.$,.  . . .  .",
+"=#,.=;++; . ;++.",
+"'.=.'@##@ . @#&.",
+"                ",
+".              .",
+".              .",
+"................"};
+
+/* XPM */
+static const char * case_x_xpm[] = {
+"16 16 12 1",
+" 	c #FFFFFF",
+".	c #BDBDBD",
+"+	c #4D4D4D",
+"@	c #000000",
+"#	c #D0D0D0",
+"$	c #C7C7C7",
+"%	c #7C7C7C",
+"&	c #B2B2B2",
+"*	c #8C8C8C",
+"=	c #E1E1E1",
+"-	c #686868",
+";	c #9A9A9A",
+"                ",
+"                ",
+"                ",
+"                ",
+"   .+@@         ",
+"  #@$           ",
+"  %%      &+@@  ",
+"  @*     &+=    ",
+"  @*     @&     ",
+"  -%     @&     ",
+"  .@#    ;+=    ",
+"   &+@@   ;@@@  ",
+"                ",
+"                ",
+"                ",
+"                "};
+
+/* XPM */
+static const char * regex_x_xpm[] = {
+"16 16 11 1",
+" 	c #FFFFFF",
+".	c #888888",
+"+	c #696969",
+"@	c #000000",
+"#	c #E0E0E0",
+"$	c #484848",
+"%	c #B6B6B6",
+"&	c #C4C4C4",
+"*	c #787878",
+"=	c #383838",
+"-	c #D3D3D3",
+"                ",
+"                ",
+"                ",
+"  .+        @   ",
+" #$$#     % + % ",
+" +&&+    #*=@=*#",
+"-$  $&     +++  ",
+"$&  &$    -$ =- ",
+"                ",
+"                ",
+"      %@%       ",
+"      %@%       ",
+"                ",
+"                ",
+"                ",
+"                "};
+
+/* XPM */
+static const char * backslash_x_xpm[] = {
+"16 16 15 1",
+" 	c #FFFFFF",
+".	c #141414",
+"+	c #585858",
+"@	c #A6A6A6",
+"#	c #B6B6B6",
+"$	c #272727",
+"%	c #E0E0E0",
+"&	c #979797",
+"*	c #000000",
+"=	c #696969",
+"-	c #484848",
+";	c #787878",
+">	c #D3D3D3",
+",	c #383838",
+"'	c #888888",
+"                ",
+"                ",
+"                ",
+".       .       ",
+"+@      +@   #  ",
+"#+      #+   $  ",
+" .%  .&* .% =*--",
+" ;&  *&  ;&  *  ",
+" >,  *   >,  *  ",
+"  $> *    $> *  ",
+"  &; *    &; *% ",
+"  %. *    %. '*.",
+"                ",
+"                ",
+"                ",
+"                "};
+
+/* XPM */
+static const char * around_x_xpm[] = {
+"16 16 2 1",
+" 	c #FFFFFF",
+".	c #000000",
+"                ",
+"      .....     ",
+"     .......    ",
+"    ...   ...   ",
+"            ..  ",
+"            ..  ",
+"   ..        .. ",
+"  ....       .. ",
+" ......      .. ",
+"   ..       ..  ",
+"   ...      ..  ",
+"    ...   ...   ",
+"     .......    ",
+"      .....     ",
+"                ",
+"                "};
+
+/* XPM */
+static const char * up_x_xpm[] = {
+"16 16 8 1",
+" 	c None",
+".	c #FFFFFF",
+"+	c #9C9C9C",
+"@	c #000000",
+"#	c #747474",
+"$	c #484848",
+"%	c #DFDFDF",
+"&	c #BFBFBF",
+"................",
+"................",
+"........+.......",
+".......@@#......",
+"......@@@@#.....",
+".....@@$@$@$....",
+"....@@%#@&+@$...",
+"...@@%.#@&.&@$..",
+"..#@%..#@&..&@&.",
+"..#....#@&...&&.",
+".......#@&......",
+".......#@&......",
+".......#@&......",
+".......#@&......",
+".......#@&......",
+"................"};
 
 struct Toggle {
 	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
@@ -1845,43 +1838,14 @@ const static Toggle toggles[] = {
 	{0, 0, 0},
 };
 
-class Table {
-private:
-	GtkWidget *table;
-	int rows;
-	int columns;
-	int next;
-public:
-	Table(int rows_, int columns_) :
-		table(0), rows(rows_), columns(columns_), next(0) {
-		table = gtk_table_new(rows, columns, FALSE);
-	}
-	void Add(GtkWidget *child=0, int width=1, bool expand=false,
-		int xpadding=5, int ypadding=5) {
-		GtkAttachOptions opts = static_cast<GtkAttachOptions>(
-			GTK_SHRINK | GTK_FILL);
-		GtkAttachOptions optsExpand = static_cast<GtkAttachOptions>(
-			GTK_SHRINK | GTK_FILL | GTK_EXPAND);
-
-		if (child) {
-			gtk_table_attach(GTK_TABLE(table), child,
-				next % columns, next % columns + width,
-				next / columns, (next / columns) + 1,
-				expand ? optsExpand : opts, opts,
-				xpadding, ypadding);
-		}
-		next += width;
-	}
-	void Label(GtkWidget *child) {
-		gtk_misc_set_alignment(GTK_MISC(child), 1.0, 0.5);
-		Add(child);
-	}
-	void PackInto(GtkBox *box, gboolean expand=TRUE) {
-		gtk_box_pack_start(box, table, expand, expand, 0);
-	}
-	GtkWidget *Widget() const {
-		return table;
-	}
+// Has to be in same order as toggles
+static const char **xpmImages[] = {
+	word1_x_xpm,
+	case_x_xpm,
+	regex_x_xpm,
+	backslash_x_xpm,
+	around_x_xpm,
+	up_x_xpm,
 };
 
 void SciTEGTK::FindInFilesResponse(int responseID) {
@@ -1907,10 +1871,11 @@ void SciTEGTK::FindInFiles() {
 
 	dlgFindInFiles.Create(localiser.Text("Find in Files"));
 
-	Table table(4, 5);
+	WTable table(4, 5);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox));
 
-	GtkWidget *labelFind = TranslatedLabel("Fi_nd what:");
+	WStatic labelFind;
+	labelFind.Create(localiser.Text("Fi_nd what:"));
 	table.Label(labelFind);
 
 	dlgFindInFiles.wComboFindInFiles.Create();
@@ -1919,9 +1884,10 @@ void SciTEGTK::FindInFiles() {
 
 	gtk_entry_set_text(dlgFindInFiles.wComboFindInFiles.Entry(), findWhat.c_str());
 	dlgFindInFiles.wComboFindInFiles.ActivatesDefault();
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), dlgFindInFiles.wComboFindInFiles);
+	labelFind.SetMnemonicFor(dlgFindInFiles.wComboFindInFiles);
 
-	GtkWidget *labelFiles = TranslatedLabel("_Files:");
+	WStatic labelFiles;
+	labelFiles.Create(localiser.Text("_Files:"));
 	table.Label(labelFiles);
 
 	dlgFindInFiles.wComboFiles.Create();
@@ -1929,9 +1895,10 @@ void SciTEGTK::FindInFiles() {
 
 	table.Add(dlgFindInFiles.wComboFiles, 4, true);
 	dlgFindInFiles.wComboFiles.ActivatesDefault();
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFiles), dlgFindInFiles.wComboFiles);
+	labelFiles.SetMnemonicFor(dlgFindInFiles.wComboFiles);
 
-	GtkWidget *labelDirectory = TranslatedLabel("_Directory:");
+	WStatic labelDirectory;
+	labelDirectory.Create(localiser.Text("_Directory:"));
 	table.Label(labelDirectory);
 
 	dlgFindInFiles.comboDir.Create();
@@ -1942,7 +1909,7 @@ void SciTEGTK::FindInFiles() {
 	// Make a little wider than would happen automatically to show realistic paths
 	gtk_entry_set_width_chars(dlgFindInFiles.comboDir.Entry(), 40);
 	dlgFindInFiles.comboDir.ActivatesDefault();
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelDirectory), dlgFindInFiles.comboDir);
+	labelDirectory.SetMnemonicFor(dlgFindInFiles.comboDir);
 
 	Signal<&SciTEGTK::FindInFilesDotDot> sigDotDot;
 	dlgFindInFiles.btnDotDot.Create(localiser.Text("_.."), G_CALLBACK(sigDotDot.Function), this);
@@ -2169,7 +2136,7 @@ void SciTEGTK::GoLineDialog() {
 
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(dlgGoto)), 0);
 
-	Table table(1, 2);
+	WTable table(1, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgGoto))->vbox));
 
 	GtkWidget *labelGoto = TranslatedLabel("_Destination Line Number:");
@@ -2241,7 +2208,7 @@ void SciTEGTK::TabSizeDialog() {
 
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(dlgTabSize)), 0);
 
-	Table table(3, 2);
+	WTable table(3, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->vbox));
 
 	GtkWidget *labelTabSize = TranslatedLabel("_Tab Size:");
@@ -2331,7 +2298,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	g_signal_connect(GTK_OBJECT(PWidget(dlgParameters)),
 	                   "destroy", G_CALLBACK(destroyDialog), &dlgParameters);
 
-	Table table(modal ? 10 : 9, 2);
+	WTable table(modal ? 10 : 9, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgParameters))->vbox));
 
 	if (modal) {
@@ -2417,11 +2384,11 @@ void SciTEGTK::FindReplace(bool replace) {
 	g_signal_connect(GTK_OBJECT(PWidget(dlgFindReplace)),
 	                   "destroy", G_CALLBACK(destroyDialog), &dlgFindReplace);
 
-	Table table(replace ? 8 : 7, 2);
+	WTable table(replace ? 8 : 7, 2);
 	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindReplace))->vbox));
 
-	GtkWidget *labelFind = TranslatedLabel("Fi_nd what:");
-	table.Label(labelFind);
+	dlgFindReplace.labelFind.Create(localiser.Text("Fi_nd what:"));
+	table.Label(dlgFindReplace.labelFind);
 
 	dlgFindReplace.wComboFind.Create();
 	table.Add(dlgFindReplace.wComboFind, 1, true);
@@ -2429,17 +2396,17 @@ void SciTEGTK::FindReplace(bool replace) {
 	dlgFindReplace.wComboFind.SetText(findWhat.c_str());
 	gtk_entry_set_width_chars(dlgFindReplace.wComboFind.Entry(), 40);
 	dlgFindReplace.wComboFind.ActivatesDefault();
-	gtk_label_set_mnemonic_widget(GTK_LABEL(labelFind), dlgFindReplace.wComboFind);
+	dlgFindReplace.labelFind.SetMnemonicFor(dlgFindReplace.wComboFind);
 
 	if (replace) {
-		GtkWidget *labelReplace = TranslatedLabel("Rep_lace with:");
-		table.Label(labelReplace);
+		dlgFindReplace.labelReplace.Create(localiser.Text("Rep_lace with:"));
+		table.Label(dlgFindReplace.labelReplace);
 
 		dlgFindReplace.wComboReplace.Create();
 		table.Add(dlgFindReplace.wComboReplace, 1, true);
 
 		dlgFindReplace.wComboReplace.ActivatesDefault();
-		gtk_label_set_mnemonic_widget(GTK_LABEL(labelReplace), dlgFindReplace.wComboReplace);
+		dlgFindReplace.labelReplace.SetMnemonicFor(dlgFindReplace.wComboReplace);
 
 	} else {
 		dlgFindReplace.wComboReplace.SetID(0);
@@ -2474,7 +2441,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	if (!replace) {
-		dlgFindReplace.ResponseButton(localiser.Text(markAllText), RESPONSE_MARK_ALL);
+		dlgFindReplace.ResponseButton(localiser.Text(textMarkAll), RESPONSE_MARK_ALL);
 	}
 
 	if (replace) {
@@ -3381,439 +3348,15 @@ void SciTEGTK::CreateMenu() {
 	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wSciTE)), accelGroup);
 }
 
-void Strip::Show(int) {
-	gtk_widget_show(PWidget(*this));
-	visible = true;
-}
-
-void Strip::Close() {
-	gtk_widget_hide(PWidget(*this));
-	visible = false;
-}
-
-static char KeyFromLabel(std::string label) {
-	if (!label.empty()) {
-		size_t posMnemonic = label.find('_');
-		return tolower(label[posMnemonic + 1]);
-	}
-	return 0;
-}
-
-bool Strip::KeyDown(GdkEventKey *event) {
-	bool retVal = false;
-
-	if (visible) {
-		if (event->keyval == GDK_Escape) {
-			Close();
-			return true;
-		}
-
-		if (event->state & GDK_MOD1_MASK) {
-			GList *childWidgets = gtk_container_get_children(GTK_CONTAINER(GetID()));
-			for (GList *child = g_list_first(childWidgets); child; child = g_list_next(child)) {
-				GtkWidget **w = (GtkWidget **)child;
-				std::string name = gtk_widget_get_name(*w);
-				std::string label;
-				if (name == "GtkButton" || name == "GtkCheckButton") {
-					label = gtk_button_get_label(GTK_BUTTON(*w));
-				} else if (name == "GtkLabel") {
-					label = gtk_label_get_label(GTK_LABEL(*w));
-				}
-				char key = KeyFromLabel(label);
-				if (static_cast<unsigned int>(key) == event->keyval) {
-					//fprintf(stderr, "%p %s %s %c\n", *w, name.c_str(), label.c_str(), key);
-					if (name == "GtkButton" || name == "GtkCheckButton") {
-						gtk_button_clicked(GTK_BUTTON(*w));
-					} else if (name == "GtkLabel") {
-						// Only ever use labels to label ComboBoxEntry
-						GtkWidget *pwidgetSelect = gtk_label_get_mnemonic_widget(GTK_LABEL(*w));
-						if (pwidgetSelect) {
-							gtk_widget_grab_focus(pwidgetSelect);
-						}
-					}
-					retVal = true;
-					break;
-				}
-			}
-			g_list_free(childWidgets);
-		}
-	}
-	return retVal;
-}
-
-void Strip::MenuSignal(GtkMenuItem *menuItem, Strip *pStrip) {
-	sptr_t cmd = (sptr_t)(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
-	pStrip->MenuAction(cmd);
-}
-
-void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) {
-	allowMenuActions = false;
-	GUI::gui_string localised = localiser->Text(label);
-	GtkWidget *menuItem = gtk_check_menu_item_new_with_mnemonic(localised.c_str());
-	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
-	g_object_set_data(G_OBJECT(menuItem), "CmdNum", reinterpret_cast<void *>((sptr_t)(cmd)));
-	g_signal_connect(G_OBJECT(menuItem),"activate", G_CALLBACK(MenuSignal), this);
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuItem), checked ? TRUE : FALSE);
-	allowMenuActions = true;
-}
-
-void Strip::ChildFocus(GtkWidget *widget) {
-	childHasFocus = widget != 0;
-}
-
-gboolean Strip::ChildFocusSignal(GtkContainer */*container*/, GtkWidget *widget, Strip *pStrip) {
-	pStrip->ChildFocus(widget);
-	return FALSE;
-}
-
-gboolean Strip::FocusSignal(GtkWidget */*widget*/, GtkDirectionType direction, Strip *pStrip) {
-	return pStrip->Focus(direction);
-}
-
-bool Strip::VisibleHasFocus() {
-	return visible && childHasFocus;
-}
-
-const int stripIconWidth = 16;
 const int stripButtonWidth = 16 + 3 * 2 + 1;
 const int stripButtonPitch = stripButtonWidth;
 
-static void GreyToAlpha(GdkPixbuf *ppb, GdkColor fore) {
-	guchar *pixels = gdk_pixbuf_get_pixels(ppb);
-	int rowStride = gdk_pixbuf_get_rowstride(ppb);
-	int width = gdk_pixbuf_get_width(ppb);
-	int height = gdk_pixbuf_get_height(ppb);
-	for (int y =0; y<height; y++) {
-		guchar *pixelsRow = pixels + rowStride * y;
-		for (int x =0; x<width; x++) {
-			guchar alpha = pixelsRow[0];
-			pixelsRow[3] = 255 - alpha;
-			pixelsRow[0] = fore.red / 256;
-			pixelsRow[1] = fore.green / 256;
-			pixelsRow[2] = fore.blue / 256;
-			pixelsRow += 4;
-		}
-	}
-}
-
-/* XPM */
-static const char * word1_x_xpm[] = {
-"16 16 15 1",
-" 	c #FFFFFF",
-".	c #000000",
-"+	c #E1E1E1",
-"@	c #D9D9D9",
-"#	c #4D4D4D",
-"$	c #7C7C7C",
-"%	c #D0D0D0",
-"&	c #A7A7A7",
-"*	c #8C8C8C",
-"=	c #BDBDBD",
-"-	c #B2B2B2",
-";	c #686868",
-">	c #F0F0F0",
-",	c #9A9A9A",
-"'	c #C7C7C7",
-"                ",
-"                ",
-"                ",
-"                ",
-"                ",
-"                ",
-"               .",
-".+.+.@##@ .$%#&.",
-"*=.-*;++; .>;++.",
-",*.$,.  . . .  .",
-"=#,.=;++; . ;++.",
-"'.=.'@##@ . @#&.",
-"                ",
-".              .",
-".              .",
-"................"};
-
-/* XPM */
-static const char * case_x_xpm[] = {
-"16 16 12 1",
-" 	c #FFFFFF",
-".	c #BDBDBD",
-"+	c #4D4D4D",
-"@	c #000000",
-"#	c #D0D0D0",
-"$	c #C7C7C7",
-"%	c #7C7C7C",
-"&	c #B2B2B2",
-"*	c #8C8C8C",
-"=	c #E1E1E1",
-"-	c #686868",
-";	c #9A9A9A",
-"                ",
-"                ",
-"                ",
-"                ",
-"   .+@@         ",
-"  #@$           ",
-"  %%      &+@@  ",
-"  @*     &+=    ",
-"  @*     @&     ",
-"  -%     @&     ",
-"  .@#    ;+=    ",
-"   &+@@   ;@@@  ",
-"                ",
-"                ",
-"                ",
-"                "};
-
-/* XPM */
-static const char * regex_x_xpm[] = {
-"16 16 11 1",
-" 	c #FFFFFF",
-".	c #888888",
-"+	c #696969",
-"@	c #000000",
-"#	c #E0E0E0",
-"$	c #484848",
-"%	c #B6B6B6",
-"&	c #C4C4C4",
-"*	c #787878",
-"=	c #383838",
-"-	c #D3D3D3",
-"                ",
-"                ",
-"                ",
-"  .+        @   ",
-" #$$#     % + % ",
-" +&&+    #*=@=*#",
-"-$  $&     +++  ",
-"$&  &$    -$ =- ",
-"                ",
-"                ",
-"      %@%       ",
-"      %@%       ",
-"                ",
-"                ",
-"                ",
-"                "};
-
-/* XPM */
-static const char * backslash_x_xpm[] = {
-"16 16 15 1",
-" 	c #FFFFFF",
-".	c #141414",
-"+	c #585858",
-"@	c #A6A6A6",
-"#	c #B6B6B6",
-"$	c #272727",
-"%	c #E0E0E0",
-"&	c #979797",
-"*	c #000000",
-"=	c #696969",
-"-	c #484848",
-";	c #787878",
-">	c #D3D3D3",
-",	c #383838",
-"'	c #888888",
-"                ",
-"                ",
-"                ",
-".       .       ",
-"+@      +@   #  ",
-"#+      #+   $  ",
-" .%  .&* .% =*--",
-" ;&  *&  ;&  *  ",
-" >,  *   >,  *  ",
-"  $> *    $> *  ",
-"  &; *    &; *% ",
-"  %. *    %. '*.",
-"                ",
-"                ",
-"                ",
-"                "};
-
-/* XPM */
-static const char * around_x_xpm[] = {
-"16 16 2 1",
-" 	c #FFFFFF",
-".	c #000000",
-"                ",
-"      .....     ",
-"     .......    ",
-"    ...   ...   ",
-"            ..  ",
-"            ..  ",
-"   ..        .. ",
-"  ....       .. ",
-" ......      .. ",
-"   ..       ..  ",
-"   ...      ..  ",
-"    ...   ...   ",
-"     .......    ",
-"      .....     ",
-"                ",
-"                "};
-
-/* XPM */
-static const char * up_x_xpm[] = {
-"16 16 8 1",
-" 	c None",
-".	c #FFFFFF",
-"+	c #9C9C9C",
-"@	c #000000",
-"#	c #747474",
-"$	c #484848",
-"%	c #DFDFDF",
-"&	c #BFBFBF",
-"................",
-"................",
-"........+.......",
-".......@@#......",
-"......@@@@#.....",
-".....@@$@$@$....",
-"....@@%#@&+@$...",
-"...@@%.#@&.&@$..",
-"..#@%..#@&..&@&.",
-"..#....#@&...&&.",
-".......#@&......",
-".......#@&......",
-".......#@&......",
-".......#@&......",
-".......#@&......",
-"................"};
-
-void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, bool *pControlVariable_, Strip *pstrip_) {
-	pControlVariable = pControlVariable_;
-	pstrip = pstrip_;
-	pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
-
-	GtkWidget *da = gtk_drawing_area_new();
-	GTK_WIDGET_SET_FLAGS(da, GTK_CAN_FOCUS);
-	GTK_WIDGET_SET_FLAGS(da, GTK_SENSITIVE);
-	gtk_widget_set_events(da,
-			      GDK_EXPOSURE_MASK
-	                      | GDK_FOCUS_CHANGE_MASK
-			      | GDK_ENTER_NOTIFY_MASK
-			      | GDK_LEAVE_NOTIFY_MASK
-			      | GDK_BUTTON_PRESS_MASK
-			      | GDK_BUTTON_RELEASE_MASK
-			      | GDK_POINTER_MOTION_MASK
-			      | GDK_POINTER_MOTION_HINT_MASK
-			     );
-	gtk_widget_set_size_request(da, stripButtonPitch, 20);
-	SetID(da);
-	GUI::gui_string toolTipNoMnemonic = toolTip;
-	Substitute(toolTipNoMnemonic, "_", "");
-#if GTK_CHECK_VERSION(2,12,0)
-	gtk_widget_set_tooltip_text(da, toolTipNoMnemonic.c_str());
-#endif
-	g_signal_connect(G_OBJECT(da), "focus-in-event", G_CALLBACK(Focus), this);
-	g_signal_connect(G_OBJECT(da), "focus-out-event", G_CALLBACK(Focus), this);
-	g_signal_connect(G_OBJECT(da), "button_press_event", G_CALLBACK(ButtonsPress), this);
-	g_signal_connect(G_OBJECT(da), "enter-notify-event", G_CALLBACK(MouseEnterLeave), this);
-	g_signal_connect(G_OBJECT(da), "leave-notify-event", G_CALLBACK(MouseEnterLeave), this);
-	g_signal_connect(G_OBJECT(da), "key_press_event", G_CALLBACK(KeyDown), this);
-	g_signal_connect(G_OBJECT(da), "expose_event", G_CALLBACK(ExposeEvent), this);
-}
-
-void WCheckDraw::Toggle() {
-	*pControlVariable = !*pControlVariable;
-	InvalidateAll();
-}
-
-gboolean WCheckDraw::Focus(GtkWidget */*widget*/, GdkEventFocus */*event*/, WCheckDraw *pcd) {
-	pcd->InvalidateAll();
-	return FALSE;
-}
-
-gboolean WCheckDraw::KeyDown(GtkWidget */*widget*/, GdkEventKey *event, WCheckDraw *pcd) {
-	if (event->keyval == ' ') {
-		pcd->Toggle();
-	}
-	return FALSE;
-}
-
-gint WCheckDraw::Press(GtkWidget *widget, GdkEventButton *event) {
-	if (event->button == 3) {
-		// PopUp menu
-		pstrip->ShowPopup();
-	} else {
-		gtk_widget_grab_focus(widget);
-		Toggle();
-	}
-	return TRUE;
-}
-
-gint WCheckDraw::ButtonsPress(GtkWidget *widget, GdkEventButton *event, WCheckDraw *pcd) {
-	return pcd->Press(widget, event);
-}
-
-gboolean WCheckDraw::MouseEnterLeave(GtkWidget */*widget*/, GdkEventCrossing *event, WCheckDraw *pcd) {
-	pcd->over = event->type == GDK_ENTER_NOTIFY;
-	pcd->InvalidateAll();
-	return FALSE;
-}
-
-gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
-	GdkRectangle area;
-	area.x = 0;
-	area.y = 0;
-	area.width = widget->allocation.width;
-	area.height = widget->allocation.height;
-	int heightOffset = (area.height - stripButtonWidth) / 2;
-	if (heightOffset < 0)
-		heightOffset = 0;
-	GdkGC *gcDraw = gdk_gc_new(GDK_DRAWABLE(widget->window));
-	bool active = *pControlVariable;
-	GtkStateType state = active ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL;
-	GtkShadowType shadow = GTK_SHADOW_IN;
-	GtkStyle *buttonStyle = pstrip->ButtonStyle();
-	if (over) {
-		state = GTK_STATE_PRELIGHT;
-		shadow = GTK_SHADOW_OUT;
-	}
-	if (active || over)
-		gtk_paint_box(buttonStyle, widget->window,
-			       state,
-			       shadow,
-			       &area, widget, const_cast<char *>("button"),
-			       0, 0,
-			       area.width, area.height);
-	if (HasFocus()) {
-		// Draw focus inset by 2 pixels
-		gtk_paint_focus(buttonStyle, widget->window,
-			       state,
-			       &area, widget, const_cast<char *>("button"),
-			       2, 2,
-			       area.width-4, area.height-4);
-	}
-
-	GdkColor fore = buttonStyle->fg[GTK_STATE_NORMAL];
-	// Give it an alpha channel
-	GdkPixbuf *pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
-	// Convert the grey to alpha and make black
-	GreyToAlpha(pbAlpha, fore);
-
-	int activeOffset = active ? 1 : 0;
-	gdk_draw_pixbuf(
-		widget->window,
-		gcDraw,
-		pbAlpha,
-		0, 0,
-		1 + 2 + activeOffset, 3 + heightOffset + activeOffset,
-		stripIconWidth, stripIconWidth,
-		GDK_RGB_DITHER_NONE, 0, 0);
-	g_object_unref(pbAlpha);
-	g_object_unref(gcDraw);
-	return TRUE;
-}
-
-gboolean WCheckDraw::ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WCheckDraw *pcd) {
-	return pcd->Expose(widget, event);
-}
-
-void FindStrip::Creation(GtkWidget *boxMain) {
-	Table table(1, 10);
-	SetID(table.Widget());
+void FindStrip::Creation(GtkWidget *container) {
+	WTable table(1, 10);
+	SetID(table);
+	Strip::Creation(container);
 	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
-	gtk_box_pack_start(GTK_BOX(boxMain), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(container), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
 	wStaticFind.Create(localiser->Text(textFindPrompt).c_str());
 	table.Label(wStaticFind);
 
@@ -3836,21 +3379,20 @@ void FindStrip::Creation(GtkWidget *boxMain) {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wComboFind.Entry()));
 
 	static ObjectSignal<FindStrip, &FindStrip::FindNextCmd> sigFindNext;
-	wButton.Create(localiser->Text("_Find Next"), G_CALLBACK(sigFindNext.Function), this);
+	wButton.Create(localiser->Text(textFindNext), G_CALLBACK(sigFindNext.Function), this);
 	table.Add(wButton, 1, false, 0, 0);
 
 	static ObjectSignal<FindStrip, &FindStrip::MarkAllCmd> sigMarkAll;
-	wButtonMarkAll.Create(localiser->Text("_Mark All"), G_CALLBACK(sigMarkAll.Function), this);
+	wButtonMarkAll.Create(localiser->Text(textMarkAll), G_CALLBACK(sigMarkAll.Function), this);
 	table.Add(wButtonMarkAll, 1, false, 0, 0);
 
-	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSearcher->wholeWord, this);
-	wCheck[1].Create(case_x_xpm, localiser->Text(toggles[Toggle::tCase].label), &pSearcher->matchCase, this);
-	wCheck[2].Create(regex_x_xpm, localiser->Text(toggles[Toggle::tRegExp].label), &pSearcher->regExp, this);
-	wCheck[3].Create(backslash_x_xpm, localiser->Text(toggles[Toggle::tBackslash].label), &pSearcher->unSlash, this);
-	wCheck[4].Create(around_x_xpm, localiser->Text(toggles[Toggle::tWrap].label), &pSearcher->wrapFind, this);
-	wCheck[5].Create(up_x_xpm, localiser->Text(toggles[Toggle::tUp].label), &pSearcher->reverseFind, this);
-	for (int i=0;i<checks;i++)
+	gtk_widget_ensure_style(wButton);
+
+	for (int i=0;i<checks;i++) {
+		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButton.Pointer()->style);
+		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
 		table.Add(wCheck[i], 1, false, 0, 0);
+	}
 }
 
 void FindStrip::Destruction() {
@@ -3867,9 +3409,9 @@ void FindStrip::Show(int buttonHeight) {
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
-	FillComboFromMemory(wComboFind, pSearcher->memFinds);
-
+	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 	gtk_entry_set_text(wComboFind.Entry(), pSearcher->findWhat.c_str());
+	SetToggles();
 
 	gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 }
@@ -3902,6 +3444,7 @@ bool FindStrip::KeyDown(GdkEventKey *event) {
 void FindStrip::MenuAction(guint action) {
 	if (allowMenuActions) {
 		pSearcher->FlagFromCmd(action) = !pSearcher->FlagFromCmd(action);
+		SetToggles();
 		InvalidateAll();
 	}
 }
@@ -3918,6 +3461,20 @@ gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pS
 	return FALSE;
 }
 
+void FindStrip::GrabFields() {
+	pSearcher->SetFind(wComboFind.Text());
+
+	for (int i=0;i<checks;i++) {
+		pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
+	}
+}
+
+void FindStrip::SetToggles() {
+	for (int i=0;i<checks;i++) {
+		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
+	}
+}
+
 void FindStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
@@ -3930,7 +3487,7 @@ void FindStrip::ShowPopup() {
 }
 
 void FindStrip::FindNextCmd() {
-	pSearcher->SetFind(wComboFind.Text());
+	GrabFields();
 	if (pSearcher->FindHasText()) {
 		pSearcher->FindNext(pSearcher->reverseFind);
 	}
@@ -3938,14 +3495,10 @@ void FindStrip::FindNextCmd() {
 }
 
 void FindStrip::MarkAllCmd() {
-	pSearcher->SetFind(wComboFind.Text());
+	GrabFields();
 	pSearcher->MarkAll();
 	pSearcher->FindNext(pSearcher->reverseFind);
 	Close();
-}
-
-GtkStyle *FindStrip::ButtonStyle() {
-	return PWidget(wButton)->style;
 }
 
 void FindStrip::ChildFocus(GtkWidget *widget) {
@@ -3965,10 +3518,11 @@ gboolean FindStrip::Focus(GtkDirectionType direction) {
 	return FALSE;
 }
 
-void ReplaceStrip::Creation(GtkWidget *boxMain) {
-	Table tableReplace(2, 7);
-	SetID(tableReplace.Widget());
-	tableReplace.PackInto(GTK_BOX(boxMain), false);
+void ReplaceStrip::Creation(GtkWidget *container) {
+	WTable tableReplace(2, 7);
+	SetID(tableReplace);
+	Strip::Creation(container);
+	tableReplace.PackInto(GTK_BOX(container), false);
 
 	wStaticFind.Create(localiser->Text(textFindPrompt));
 	tableReplace.Label(wStaticFind);
@@ -3989,7 +3543,7 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticFind.GetID()), GTK_WIDGET(wComboFind.Entry()));
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::FindCmd> sigFindNext;
-	wButtonFind.Create(localiser->Text("_Find Next"),
+	wButtonFind.Create(localiser->Text(textFindNext),
 			G_CALLBACK(sigFindNext.Function), this);
 	tableReplace.Add(wButtonFind, 1, false, 0, 0);
 
@@ -3998,15 +3552,16 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 			G_CALLBACK(sigReplaceAll.Function), this);
 	tableReplace.Add(wButtonReplaceAll, 1, false, 0, 0);
 
-	wCheck[0].Create(word1_x_xpm, localiser->Text(toggles[Toggle::tWord].label), &pSearcher->wholeWord, this);
-	wCheck[1].Create(case_x_xpm, localiser->Text(toggles[Toggle::tCase].label), &pSearcher->matchCase, this);
-	wCheck[2].Create(regex_x_xpm, localiser->Text(toggles[Toggle::tRegExp].label), &pSearcher->regExp, this);
-	wCheck[3].Create(backslash_x_xpm, localiser->Text(toggles[Toggle::tBackslash].label), &pSearcher->unSlash, this);
-	wCheck[4].Create(around_x_xpm, localiser->Text(toggles[Toggle::tWrap].label), &pSearcher->wrapFind, this);
+	gtk_widget_ensure_style(wButtonFind);
 
-	tableReplace.Add(wCheck[0], 1, false, 0, 0);
-	tableReplace.Add(wCheck[1], 1, false, 0, 0);
-	tableReplace.Add(wCheck[2], 1, false, 0, 0);
+	for (int i=0;i<checks;i++) {
+		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButtonFind.Pointer()->style);
+		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
+	}
+
+	tableReplace.Add(wCheck[Toggle::tWord], 1, false, 0, 0);
+	tableReplace.Add(wCheck[Toggle::tCase], 1, false, 0, 0);
+	tableReplace.Add(wCheck[Toggle::tRegExp], 1, false, 0, 0);
 
 	wStaticReplace.Create(localiser->Text(textReplacePrompt));
 	tableReplace.Label(wStaticReplace);
@@ -4023,31 +3578,31 @@ void ReplaceStrip::Creation(GtkWidget *boxMain) {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(wStaticReplace.GetID()), GTK_WIDGET(wComboReplace.Entry()));
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::ReplaceCmd> sigReplace;
-	wButtonReplace.Create(localiser->Text("_Replace"),
+	wButtonReplace.Create(localiser->Text(textReplace),
 			G_CALLBACK(sigReplace.Function), this);
 	tableReplace.Add(wButtonReplace, 1, false, 0, 0);
 
 	static ObjectSignal<ReplaceStrip, &ReplaceStrip::ReplaceInSelectionCmd> sigReplaceInSelection;
-	wButtonReplaceInSelection.Create(localiser->Text("_In Selection"),
+	wButtonReplaceInSelection.Create(localiser->Text(textInSelection),
 			G_CALLBACK(sigReplaceInSelection.Function), this);
 	tableReplace.Add(wButtonReplaceInSelection, 1, false, 0, 0);
 
-	tableReplace.Add(wCheck[3], 1, false, 0, 0);
-	tableReplace.Add(wCheck[4], 1, false, 0, 0);
+	tableReplace.Add(wCheck[Toggle::tBackslash], 1, false, 0, 0);
+	tableReplace.Add(wCheck[Toggle::tWrap], 1, false, 0, 0);
 
 	// Make the fccus chain move down before moving right
 	GList *focusChain = 0;
-	focusChain = g_list_append(focusChain, wComboFind.Widget());
-	focusChain = g_list_append(focusChain, wComboReplace.Widget());
-	focusChain = g_list_append(focusChain, wButtonFind.Widget());
-	focusChain = g_list_append(focusChain, wButtonReplace.Widget());
-	focusChain = g_list_append(focusChain, wButtonReplaceAll.Widget());
-	focusChain = g_list_append(focusChain, wButtonReplaceInSelection.Widget());
-	focusChain = g_list_append(focusChain, wCheck[0].Widget());
-	focusChain = g_list_append(focusChain, wCheck[3].Widget());
-	focusChain = g_list_append(focusChain, wCheck[1].Widget());
-	focusChain = g_list_append(focusChain, wCheck[4].Widget());
-	focusChain = g_list_append(focusChain, wCheck[2].Widget());
+	focusChain = g_list_append(focusChain, wComboFind.Pointer());
+	focusChain = g_list_append(focusChain, wComboReplace.Pointer());
+	focusChain = g_list_append(focusChain, wButtonFind.Pointer());
+	focusChain = g_list_append(focusChain, wButtonReplace.Pointer());
+	focusChain = g_list_append(focusChain, wButtonReplaceAll.Pointer());
+	focusChain = g_list_append(focusChain, wButtonReplaceInSelection.Pointer());
+	focusChain = g_list_append(focusChain, wCheck[Toggle::tWord].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[Toggle::tBackslash].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[Toggle::tCase].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[Toggle::tWrap].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[Toggle::tRegExp].Pointer());
 	gtk_container_set_focus_chain(GTK_CONTAINER(GetID()), focusChain);
 	g_list_free(focusChain);
 }
@@ -4074,10 +3629,12 @@ void ReplaceStrip::Show(int buttonHeight) {
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
-	FillComboFromMemory(wComboFind, pSearcher->memFinds);
-	FillComboFromMemory(wComboReplace, pSearcher->memReplaces);
+	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
+	wComboReplace.FillFromMemory(pSearcher->memReplaces.AsVector());
 
 	gtk_entry_set_text(wComboFind.Entry(), pSearcher->findWhat.c_str());
+
+	SetToggles();
 
 	gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 }
@@ -4110,6 +3667,7 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 void ReplaceStrip::MenuAction(guint action) {
 	if (allowMenuActions) {
 		pSearcher->FlagFromCmd(action) = !pSearcher->FlagFromCmd(action);
+		SetToggles();
 		InvalidateAll();
 	}
 }
@@ -4129,6 +3687,16 @@ gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStr
 void ReplaceStrip::GrabFields() {
 	pSearcher->SetFind(wComboFind.Text());
 	pSearcher->SetReplace(wComboReplace.Text());
+
+	for (int i=0;i<checks;i++) {
+		pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
+	}
+}
+
+void ReplaceStrip::SetToggles() {
+	for (int i=0;i<checks;i++) {
+		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
+	}
 }
 
 void ReplaceStrip::FindCmd() {
@@ -4166,10 +3734,6 @@ void ReplaceStrip::ShowPopup() {
 	GUI::Rectangle rcButton = wCheck[0].GetPosition();
 	GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
-}
-
-GtkStyle *ReplaceStrip::ButtonStyle() {
-	return PWidget(wButtonFind)->style;
 }
 
 void ReplaceStrip::ChildFocus(GtkWidget *widget) {
@@ -4342,8 +3906,8 @@ void SciTEGTK::CreateUI() {
 	g_signal_connect(GTK_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
 
-	Table table(1, 2);
-	wIncrementPanel = table.Widget();
+	WTable table(1, 2);
+	wIncrementPanel = table;
 	table.PackInto(GTK_BOX(boxMain), false);
 	table.Label(TranslatedLabel("Find:"));
 

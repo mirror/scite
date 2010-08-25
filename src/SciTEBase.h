@@ -52,63 +52,6 @@ enum {
     menuHelp = 8
 };
 
-/**
- * This is a fixed length list of strings suitable for display in combo boxes
- * as a memory of user entries.
- */
-template < int sz >
-class EntryMemory {
-	SString entries[sz];
-public:
-	void Insert(const SString &s) {
-		for (int i = 0; i < sz; i++) {
-			if (entries[i] == s) {
-				for (int j = i; j > 0; j--) {
-					entries[j] = entries[j - 1];
-				}
-				entries[0] = s;
-				return;
-			}
-		}
-		for (int k = sz - 1; k > 0; k--) {
-			entries[k] = entries[k - 1];
-		}
-		entries[0] = s;
-	}
-	void AppendIfNotPresent(const SString &s) {
-		for (int i = 0; i < sz; i++) {
-			if (entries[i] == s) {
-				return;
-			}
-			if (0 == entries[i].length()) {
-				entries[i] = s;
-				return;
-			}
-		}
-	}
-	void AppendList(const SString &s, char sep = '|') {
-		int start = 0;
-		int end = 0;
-		while (s[end] != '\0') {
-			while ((s[end] != sep) && (s[end] != '\0'))
-				++end;
-			AppendIfNotPresent(SString(s.c_str(), start, end));
-			start = end + 1;
-			end = start;
-		}
-	}
-	int Length() const {
-		int len = 0;
-		for (int i = 0; i < sz; i++)
-			if (entries[i].length())
-				len++;
-		return len;
-	}
-	SString At(int n) const {
-		return entries[n];
-	}
-};
-
 class RecentFile : public FilePath {
 public:
 	Sci_CharacterRange selection;
@@ -286,8 +229,6 @@ public:
 	SString extension;
 };
 
-typedef EntryMemory < 10 > ComboMemory;
-
 enum {
     heightTools = 24,
     heightTab = 24,
@@ -343,11 +284,6 @@ struct StyleAndWords {
 	SString words;
 	bool IsEmpty() { return words.length() == 0; }
 	bool IsSingleChar() { return words.length() == 1; }
-};
-
-class ILocalize {
-public:
-	virtual GUI::gui_string Text(const char *s, bool retainIfNotFound=true) = 0;
 };
 
 class Localization : public PropSetFile, public ILocalize {

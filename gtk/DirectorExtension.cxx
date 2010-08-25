@@ -44,6 +44,7 @@
 #include <string.h>
 
 #include <string>
+#include <vector>
 #include <map>
 
 #include <gtk/gtk.h>
@@ -53,6 +54,7 @@
 #include "GUI.h"
 #include "SString.h"
 #include "StringList.h"
+#include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
 #include "Extender.h"

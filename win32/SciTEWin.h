@@ -69,6 +69,7 @@ typedef HANDLE HTHEME;
 
 #include "SString.h"
 #include "StringList.h"
+#include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"

@@ -16,6 +16,7 @@
 #endif
 
 #include <string>
+#include <vector>
 #include <map>
 
 #if defined(GTK)
@@ -58,6 +59,7 @@
 
 #include "SString.h"
 #include "StringList.h"
+#include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"
