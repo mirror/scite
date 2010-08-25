@@ -3324,6 +3324,14 @@ int SciTEWin::EventLoop() {
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
+	typedef BOOL (WINAPI *SetDllDirectorySig)(LPCTSTR lpPathName);
+	SetDllDirectorySig SetDllDirectoryFn = (SetDllDirectorySig)::GetProcAddress(
+		::GetModuleHandle(TEXT("kernel32.dll")), "SetDllDirectoryW");
+	if (SetDllDirectoryFn) {
+		// For security, remove current directory from the DLL search path
+		SetDllDirectoryFn(TEXT(""));
+	}
+
 #ifdef NO_EXTENSIONS
 	Extension *extender = 0;
 #else
