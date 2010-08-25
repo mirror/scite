@@ -904,14 +904,8 @@ const int blockSize = 131072;
 int ControlIDOfCommand(unsigned long);
 void LowerCaseString(char *s);
 long ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault);
-char *Slash(const char *s, bool quoteQuotes);
-unsigned int UnSlash(char *s);
 void WindowSetFocus(GUI::ScintillaWindow &w);
 
 inline bool isspacechar(unsigned char ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
-
-bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &end);
-bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
-int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace);

@@ -1329,29 +1329,6 @@ GUI::gui_string Localization::Text(const char *s, bool retainIfNotFound) {
 	return GUI::StringFromUTF8(s);
 }
 
-bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &start) {
-	return (s.size() >= start.size()) &&
-		(std::equal(s.begin(), s.begin() + start.size(), start.begin()));
-}
-
-bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end) {
-	return (s.size() >= end.size()) &&
-		(std::equal(s.begin() + s.size() - end.size(), s.end(), end.begin()));
-}
-
-int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace) {
-	int c = 0;
-	size_t lenFind = sFind.size();
-	size_t lenReplace = sReplace.size();
-	size_t posFound = s.find(sFind);
-	while (posFound != GUI::gui_string::npos) {
-		s.replace(posFound, lenFind, sReplace);
-		posFound = s.find(sFind, posFound + lenReplace);
-		c++;
-	}
-	return c;
-}
-
 GUI::gui_string SciTEBase::LocaliseMessage(const char *s, const GUI::gui_char *param0, const GUI::gui_char *param1, const GUI::gui_char *param2) {
 	GUI::gui_string translation = localiser.Text(s);
 	if (param0)

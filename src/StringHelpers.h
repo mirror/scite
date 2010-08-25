@@ -5,6 +5,14 @@
 // Copyright 2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &end);
+bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
+int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace);
+
+char *Slash(const char *s, bool quoteQuotes);
+unsigned int UnSlash(char *s);
+unsigned int UnSlashLowOctal(char *s);
+
 class ILocalize {
 public:
 	virtual GUI::gui_string Text(const char *s, bool retainIfNotFound=true) = 0;
