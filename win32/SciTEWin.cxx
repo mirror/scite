@@ -2034,12 +2034,12 @@ static const char *textReplacePrompt = "Rep&lace:";
 static const char *textFindNext = "&Find Next";
 static const char *textMarkAll = "&Mark All";
 
-static const char *textFind = "F&ind";
+//~ static const char *textFind = "F&ind";
 static const char *textReplace = "&Replace";
 static const char *textReplaceAll = "Replace &All";
 static const char *textInSelection = "In &Selection";
-static const char *textReplaceInBuffers = "Replace In &Buffers";
-static const char *textClose = "Close";
+//~ static const char *textReplaceInBuffers = "Replace In &Buffers";
+//~ static const char *textClose = "Close";
 
 struct Toggle {
 	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
