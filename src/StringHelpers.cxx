@@ -13,7 +13,6 @@
 #include "Scintilla.h"
 
 #include "GUI.h"
-//~ #include "SString.h"
 #include "StringHelpers.h"
 
 bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &start) {
