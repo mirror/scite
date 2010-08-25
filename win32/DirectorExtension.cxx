@@ -14,6 +14,7 @@
 #endif
 
 #include <string>
+#include <vector>
 #include <map>
 
 #undef _WIN32_WINNT
