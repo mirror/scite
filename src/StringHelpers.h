@@ -56,11 +56,11 @@ public:
 		int start = 0;
 		int end = 0;
 		while (s[end] != '\0') {
+			end = start;
 			while ((s[end] != sep) && (s[end] != '\0'))
 				++end;
 			AppendIfNotPresent(s.substr(start, end-start));
 			start = end + 1;
-			end = start;
 		}
 	}
 	int Length() const {
