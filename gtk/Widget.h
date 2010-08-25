@@ -19,7 +19,7 @@ public:
 template< int commandNumber >
 class CommandSignal {
 public:
-	CommandSignal(GtkWidget *w, CommandHandler *object, const char *sigName="clicked") {
+	void Attach(GtkWidget *w, CommandHandler *object, const char *sigName="clicked") {
 		gtk_signal_connect(GTK_OBJECT(w), sigName, GtkSignalFunc(Function), object);
 	}
 	static void Function(GtkWidget */*w*/, CommandHandler *object) {
@@ -29,7 +29,8 @@ public:
 
 template< int commandNumber >
 inline void CommandAttach(GtkWidget *w, CommandHandler *object, const char *sigName="clicked") {
-	CommandSignal <commandNumber> sig(w, object, sigName);
+	CommandSignal <commandNumber> sig;
+	sig.Attach(w, object, sigName);
 }
 
 // Callback thunk class connects GTK+ signals to an instance method.
