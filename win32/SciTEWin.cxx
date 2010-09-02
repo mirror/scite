@@ -2176,6 +2176,7 @@ void Strip::Destruction() {
 }
 
 void Strip::Close() {
+	visible = false;
 }
 
 bool Strip::KeyDown(WPARAM key) {
@@ -2576,6 +2577,7 @@ void SearchStrip::Close() {
 	entered++;
 	::SetWindowText(HwndOf(wText), TEXT(""));
 	entered--;
+	Strip::Close();
 	pSearcher->UIClosed();
 }
 
@@ -2799,7 +2801,7 @@ void FindStrip::Focus() {
 }
 
 void FindStrip::Close() {
-	visible = false;
+	Strip::Close();
 	pSearcher->UIClosed();
 }
 
@@ -3062,7 +3064,7 @@ void ReplaceStrip::Focus() {
 }
 
 void ReplaceStrip::Close() {
-	visible = false;
+	Strip::Close();
 	pSearcher->UIClosed();
 }
 
