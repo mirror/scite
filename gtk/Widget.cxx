@@ -16,7 +16,6 @@
 
 #include "GUI.h"
 #include "StringHelpers.h"
-//~ #include "Searcher.h"
 #include "Widget.h"
 
 WBase::operator GtkWidget*() {
@@ -28,7 +27,7 @@ GtkWidget* WBase::Pointer() {
 }
 
 bool WBase::Sensitive() {
-	return gtk_widget_get_sensitive(Pointer());
+	return IS_WIDGET_SENSITIVE(Pointer());
 }
 
 void WBase::SetSensitive(bool sensitive) {
