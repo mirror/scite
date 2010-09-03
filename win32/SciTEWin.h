@@ -48,6 +48,7 @@ typedef HANDLE HTHEME;
 #endif
 #include <commctrl.h>
 #include <richedit.h>
+#include <shlwapi.h>
 
 #include <io.h>
 #include <process.h>
@@ -161,6 +162,7 @@ public:
 
 class SearchStrip : public Strip {
 	int entered;
+	int lineHeight;
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wButton;
@@ -179,6 +181,9 @@ public:
 	virtual void Size();
 	virtual void Paint(HDC hDC);
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	virtual int Height() {
+		return lineHeight + 1;
+	}
 };
 
 class FindStrip : public Strip {

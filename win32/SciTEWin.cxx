@@ -2071,6 +2071,29 @@ GUI::Window Strip::CreateText(const char *text) {
 	return w;
 }
 
+#define PACKVERSION(major,minor) MAKELONG(minor,major)
+
+static DWORD GetVersion(LPCTSTR lpszDllName) {
+    DWORD dwVersion = 0;
+    HINSTANCE hinstDll = ::LoadLibrary(lpszDllName);
+    if (hinstDll) {
+        DLLGETVERSIONPROC pDllGetVersion = (DLLGETVERSIONPROC)::GetProcAddress(hinstDll, "DllGetVersion");
+
+        if (pDllGetVersion) {
+            DLLVERSIONINFO dvi;
+            ::ZeroMemory(&dvi, sizeof(dvi));
+            dvi.cbSize = sizeof(dvi);
+
+            HRESULT hr = (*pDllGetVersion)(&dvi);
+            if (SUCCEEDED(hr)) {
+               dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
+            }
+        }
+        ::FreeLibrary(hinstDll);
+    }
+    return dwVersion;
+}
+
 GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 	GUI::gui_string localised = localiser->Text(text);
 	int width = WidthText(fontText, localised.c_str());
@@ -2104,7 +2127,8 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		case IDDIRECTIONUP: resNum = IDBM_UP; break;
 		}
 
-		UINT flags = hTheme ? (LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
+		UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6,0)) ? 
+			(LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
 		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
 			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum), IMAGE_BITMAP,
 			16, 16, flags));
@@ -2390,47 +2414,24 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		rbmi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
 		::GetDIBits(pcd->hdc, hBitmap, 0, 0, NULL, &rbmi, DIB_RGB_COLORS);
 
-		// Extract the bits in RGBA format
-		BITMAPINFO xbmi;
-		memset(&xbmi, 0, sizeof (BITMAPINFO));
-		xbmi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
-		xbmi.bmiHeader.biWidth = rbmi.bmiHeader.biWidth;
-		xbmi.bmiHeader.biHeight = rbmi.bmiHeader.biHeight;
-		xbmi.bmiHeader.biPlanes = rbmi.bmiHeader.biPlanes;
-		xbmi.bmiHeader.biBitCount = rbmi.bmiHeader.biBitCount;
-		xbmi.bmiHeader.biCompression = BI_RGB;
-		xbmi.bmiHeader.biSizeImage = rbmi.bmiHeader.biWidth * rbmi.bmiHeader.biWidth * 4;
-		std::vector<DWORD> data(rbmi.bmiHeader.biSizeImage);
-		::GetDIBits(pcd->hdc, hBitmap, 0, 16, &data[0], &xbmi, DIB_RGB_COLORS);
-
-		HBITMAP hbmColoured = ::CreateCompatibleBitmap(pcd->hdc, rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight);
 		DWORD colourTransparent = RGB(0xC0,0xC0,0xC0);
-		DWORD colourBackground = RGB(0xFF,0xFF,0xFF);
-		if (!checked) {
-			DWORD face3D = ::GetSysColor(COLOR_3DFACE);
-			// Inverted order in bitmap.
-			colourBackground = RGB(GetBValue(face3D), GetGValue(face3D), GetRValue(face3D));
-		}
-
-		for (unsigned int pix=0; pix<rbmi.bmiHeader.biSizeImage; pix++) {
-			if (data[pix] == colourTransparent)
-				data[pix] = colourBackground;
-		}
-		::SetDIBits(pcd->hdc, hbmColoured, 0, 16, &data[0], &xbmi, DIB_RGB_COLORS);
 
 		// Offset from button edge to contents.
-		int xOffset = 3;
-		int yOffset = 3;
+		int xOffset = ((rcButton.right - rcButton.left) - rbmi.bmiHeader.biWidth) / 2;
+		int yOffset = ((rcButton.bottom - rcButton.top) - rbmi.bmiHeader.biHeight) / 2;
 		if (checked || (pcd->uItemState & CDIS_SELECTED)) {
 			// Move image down to show selected/checked
 			//	xOffset++;
 			yOffset++;
 		}
 
-		::DrawState(pcd->hdc, NULL, NULL, (LPARAM) hbmColoured, 0, xOffset, yOffset,
-			xbmi.bmiHeader.biWidth, xbmi.bmiHeader.biHeight,
-			DST_BITMAP | DSS_NORMAL);
-		::DeleteObject(hbmColoured);
+		HDC hdcBM = ::CreateCompatibleDC(NULL);
+		HBITMAP hbmOriginal = static_cast<HBITMAP>(::SelectObject(hdcBM, hBitmap));
+		::TransparentBlt(reinterpret_cast<HDC>(pcd->hdc), xOffset, yOffset, 
+			rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight, 
+			hdcBM, 0, 0, rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight, colourTransparent);
+		::SelectObject(hdcBM, hbmOriginal);
+		::DeleteDC(hdcBM);
 
 		if (pcd->uItemState & CDIS_FOCUS) {
 			// Draw focus rectangle
@@ -2563,6 +2564,9 @@ void SearchStrip::Creation() {
 	SetFontHandle(wText, fontText);
 
 	wButton = CreateButton(textFindNext, IDC_INCFINDBTNOK);
+
+	GUI::Rectangle rcButton = wButton.GetPosition();
+	lineHeight = rcButton.Height() + 3;
 }
 
 void SearchStrip::Destruction() {
@@ -2593,12 +2597,13 @@ void SearchStrip::Size() {
 	rcArea.left = 2;
 	rcArea.top = 2;
 	rcArea.right -= 2;
-	rcArea.bottom -= 3;
+	rcArea.bottom -= 2;
 
 	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
 
 	GUI::Rectangle rcButton = rcArea;
 	rcButton.top -= 1;
+	rcButton.bottom += 1;
 	rcButton.left = rcButton.right - WidthControl(wButton);
 	wButton.SetPosition(rcButton);
 
@@ -2746,27 +2751,28 @@ void FindStrip::Size() {
 	rcButton.top -= 1;
 	rcButton.bottom += 1;
 
-	rcButton.left = rcButton.right - WidthControl(wCheckUp);
+	int checkWidth = rcButton.Height() - 2;	// Using height to make square
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckUp.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckWrap);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckWrap.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckBE);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckBE.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckRE);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckRE.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckCase);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckCase.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckWord);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckWord.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
@@ -2977,7 +2983,7 @@ void ReplaceStrip::Size() {
 	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
 
 	GUI::Rectangle rcLine = rcArea;
-	rcLine.bottom = rcLine.top + lineHeight - 3;
+	rcLine.bottom = rcLine.top + lineHeight - 2;
 
 	int widthButtons = Maximum(WidthControl(wButtonFind), WidthControl(wButtonReplace));
 	int widthLastButtons = Maximum(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
@@ -2985,14 +2991,16 @@ void ReplaceStrip::Size() {
 	GUI::Rectangle rcButton = rcLine;
 	rcButton.top -= 1;
 
-	// Allow empty slot to match wrap button on next line
-	rcButton.right = rcButton.right - (WidthControl(wCheckCase) + 4);
+	int checkWidth = rcButton.Height() - 2;	// Using height to make square
 
-	rcButton.left = rcButton.right - WidthControl(wCheckCase);
+	// Allow empty slot to match wrap button on next line
+	rcButton.right = rcButton.right - (checkWidth + 4);
+
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckCase.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckWord);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckWord.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
@@ -3021,15 +3029,15 @@ void ReplaceStrip::Size() {
 	rcButton = rcLine;
 	rcButton.top -= 1;
 
-	rcButton.left = rcButton.right - WidthControl(wCheckCase);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckWrap.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckBE);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckBE.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
-	rcButton.left = rcButton.right - WidthControl(wCheckRE);
+	rcButton.left = rcButton.right - checkWidth;
 	wCheckRE.SetPosition(rcButton);
 
 	rcButton.right = rcButton.left - 4;
