@@ -65,7 +65,8 @@ SciTEProps.o: ../src/SciTEProps.cxx ../../scintilla/include/Scintilla.h \
  ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \
  ../src/SciTE.h ../src/IFaceTable.h ../src/Mutex.h ../src/JobQueue.h \
  ../src/SciTEBase.h
-StringHelpers.o: ../src/StringHelpers.cxx
+StringHelpers.o: ../src/StringHelpers.cxx \
+ ../../scintilla/include/Scintilla.h ../src/GUI.h ../src/StringHelpers.h
 StringList.o: ../src/StringList.cxx ../src/SString.h ../src/StringList.h
 StyleWriter.o: ../src/StyleWriter.cxx ../../scintilla/include/Scintilla.h \
  ../src/GUI.h ../src/StyleWriter.h
