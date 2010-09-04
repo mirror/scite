@@ -448,7 +448,7 @@ SString SciTEBase::ExtensionFileName() {
 }
 
 void SciTEBase::ForwardPropertyToEditor(const char *key) {
-	SString value = props.Get(key);
+	SString value = props.GetExpanded(key);
 	wEditor.CallString(SCI_SETPROPERTY,
 	                 reinterpret_cast<uptr_t>(key), value.c_str());
 	wOutput.CallString(SCI_SETPROPERTY,
