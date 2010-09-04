@@ -2127,7 +2127,7 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		case IDDIRECTIONUP: resNum = IDBM_UP; break;
 		}
 
-		UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6,0)) ? 
+		UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6,0)) ?
 			(LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
 		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
 			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum), IMAGE_BITMAP,
@@ -2419,8 +2419,8 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 
 		HDC hdcBM = ::CreateCompatibleDC(NULL);
 		HBITMAP hbmOriginal = static_cast<HBITMAP>(::SelectObject(hdcBM, hBitmap));
-		::TransparentBlt(reinterpret_cast<HDC>(pcd->hdc), xOffset, yOffset, 
-			rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight, 
+		::TransparentBlt(reinterpret_cast<HDC>(pcd->hdc), xOffset, yOffset,
+			rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight,
 			hdcBM, 0, 0, rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight, colourTransparent);
 		::SelectObject(hdcBM, hbmOriginal);
 		::DeleteDC(hdcBM);
