@@ -2391,14 +2391,11 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 			buttonAppearence = TS_PRESSED;
 		else if (pcd->uItemState & CDIS_HOT)
 			buttonAppearence = checked ? TS_HOTCHECKED : TS_HOT;
-		if (buttonAppearence == TS_NORMAL) {
-			HBRUSH hbrFace = CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
-			::FillRect(pcd->hdc, &pcd->rc, hbrFace);
-			::DeleteObject(hbrFace);
-		} else {
-			::DrawThemeBackground(hThemeButton, pcd->hdc, TP_BUTTON, buttonAppearence,
-				&pcd->rc, NULL);
-		}
+		HBRUSH hbrFace = CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
+		::FillRect(pcd->hdc, &pcd->rc, hbrFace);
+		::DeleteObject(hbrFace);
+		::DrawThemeBackground(hThemeButton, pcd->hdc, TP_BUTTON, buttonAppearence,
+			&pcd->rc, NULL);
 
 		RECT rcButton = pcd->rc;
 		rcButton.bottom--;
