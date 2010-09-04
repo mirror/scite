@@ -347,7 +347,17 @@ void SciTEWin::SizeSubWindows() {
 		tabRows = ::SendMessage(reinterpret_cast<HWND>(
 			wTabBar.GetID()), TCM_GETROWCOUNT, 0, 0);
 	}
-	bands[bandTab].height = ((tabRows - 1) * (heightTab - 6)) + heightTab;
+	
+	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO),0,0,0,0,TEXT("")};
+	::GetVersionEx(&osv);
+	if (osv.dwMajorVersion >= 6) {
+		RECT r = { rcClient.left, 0, rcClient.right, 0 };
+		::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()),
+			TCM_ADJUSTRECT, TRUE, LPARAM(&r));
+		bands[bandTab].height = r.bottom - r.top - 4;
+	} else {
+		bands[bandTab].height = ((tabRows - 1) * (heightTab - 6)) + heightTab;
+	}
 
 	bands[bandSearch].visible = searchStrip.visible;
 	bands[bandFind].visible = findStrip.visible;
