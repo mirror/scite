@@ -2436,9 +2436,9 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		if (pcd->uItemState & CDIS_FOCUS) {
 			// Draw focus rectangle
 			rcButton.left += 2;
-			rcButton.top += 2;
+			rcButton.top += 3;
 			rcButton.right -= 2;
-			rcButton.bottom -= 2;
+			rcButton.bottom -= 3;
 			::DrawFocusRect(pcd->hdc, &rcButton);
 		}
 		::CloseThemeData(hThemeButton);
