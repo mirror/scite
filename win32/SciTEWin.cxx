@@ -2417,13 +2417,8 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		DWORD colourTransparent = RGB(0xC0,0xC0,0xC0);
 
 		// Offset from button edge to contents.
-		int xOffset = ((rcButton.right - rcButton.left) - rbmi.bmiHeader.biWidth) / 2;
+		int xOffset = ((rcButton.right - rcButton.left) - rbmi.bmiHeader.biWidth) / 2 + 1;
 		int yOffset = ((rcButton.bottom - rcButton.top) - rbmi.bmiHeader.biHeight) / 2;
-		if (checked || (pcd->uItemState & CDIS_SELECTED)) {
-			// Move image down to show selected/checked
-			//	xOffset++;
-			yOffset++;
-		}
 
 		HDC hdcBM = ::CreateCompatibleDC(NULL);
 		HBITMAP hbmOriginal = static_cast<HBITMAP>(::SelectObject(hdcBM, hBitmap));
