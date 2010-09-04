@@ -3126,7 +3126,9 @@ void ReplaceStrip::HandleReplaceCommand(int cmd) {
 	}
 	//int replacements = 0;
 	if (cmd == IDOK) {
-		pSearcher->FindNext(false);
+		if (pSearcher->FindHasText()) {
+			pSearcher->FindNext(false);
+		}
 	} else if (cmd == IDREPLACE) {
 		pSearcher->ReplaceOnce();
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
