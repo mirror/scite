@@ -352,6 +352,9 @@ void SciTEWin::SizeSubWindows() {
 	bands[bandSearch].visible = searchStrip.visible;
 	bands[bandFind].visible = findStrip.visible;
 	bands[bandReplace].visible = replaceStrip.visible;
+	
+	GUI::Rectangle rcSB = wStatusBar.GetPosition();
+	bands[bandStatus].height = rcSB.Height() - 2;	// -2 hides a top border
 	bands[bandStatus].visible = sbVisible;
 
 	int heightContent = rcClient.Height();
