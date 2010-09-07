@@ -13,6 +13,7 @@
 
 #include "GUI.h"
 #include "SString.h"
+#include "FilePath.h"
 #include "StyleWriter.h"
 #include "Extender.h"
 #include "LuaExtension.h"
@@ -1368,9 +1369,12 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		// that should be blocked during startup, e.g. the ones that allow
 		// you to add or switch buffers?
 
-		luaL_loadfile(luaState, startupScript);
-		if (!call_function(luaState, 0, true)) {
-			host->Trace(">Lua: error occurred while loading startup script\n");
+		FilePath fpTest(GUI::StringFromUTF8(startupScript));
+		if (fpTest.Exists()) {
+			luaL_loadfile(luaState, startupScript);
+			if (!call_function(luaState, 0, true)) {
+				host->Trace(">Lua: error occurred while loading startup script\n");
+			}
 		}
 	}
 

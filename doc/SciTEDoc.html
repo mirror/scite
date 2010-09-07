@@ -3253,17 +3253,18 @@ groupundo - yes or no
           Interface</a> but is currently only used by the Lua Scripting Extension.
           <br />
           The ext.lua.startup.script property defines the filename of a Lua script that
-          will be loaded when SciTE starts to set up the global state for Lua.  You
-          should use an absolute path for this property, but can reference the
+          will be loaded when SciTE starts to set up the global state for Lua.
+          The default value is $(SciteUserHome)/SciTEStartup.lua.
+          You should use an absolute path for this property, but can reference the
           $(SciteDefaultHome) or $(SciteUserHome) properties.  Global event handlers,
           command functions, as well as other functions and objects can be defined here.
           <br />
           The ext.lua.auto.reload property determines what happens if you save the
           startup script, or the active extension script, from within SciTE.  If it
-          is set to 0 (the default), the startup script only applied at startup time
+          is set to 0, the startup script only applied at startup time
           or when you switch buffers (depending on ext.lua.reset), and changes to the
           extension script are only applied when you switch buffers.  If
-          ext.lua.auto.reload is set to 1, SciTE will re-initialize the global scope
+          ext.lua.auto.reload is set to 1 (the default), SciTE will re-initialize the global scope
           immediately when either script is saved from within SciTE.  <i>Even
           when ext.lua.auto.reload is enabled, SciTE will not notice if the files
           are changed from outside the current SciTE instance.  For that, see
@@ -3276,9 +3277,7 @@ groupundo - yes or no
           time you switch buffers.  As such, it has a different (larger) set of
           side effects than ext.lua.auto.reload.  In some situations it will make
           sense for both auto.reload and reset to be enabled, but usually
-          ext.lua.auto.reload alone will suffice.  <i>The ext.lua.reset
-          property may go away in an upcoming version if SciTE, perhaps to be
-          replaced with a new setting for ext.lua.auto.reload=2.</i>
+          ext.lua.auto.reload alone will suffice.
           <br />
           Aside from ext.lua.startup.script, the extension.<i>filepattern</i> property
           provides a way to load additional functions and event handlers that may be
