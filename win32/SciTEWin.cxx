@@ -822,6 +822,23 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			  startDirectory.AsInternal() : NULL,
 			  &si, &pi);
 
+	// if jobCLI "System cant find" - try calling with command processor
+	if ((!running) && (jobToRun.jobType == jobCLI) && (::GetLastError() == ERROR_FILE_NOT_FOUND)) {
+
+		SString runComLine = "cmd.exe /c ";
+		runComLine = runComLine.append(jobToRun.command.c_str());
+
+		running = ::CreateProcessW(
+			  NULL,
+			  const_cast<wchar_t*>(GUI::StringFromUTF8(runComLine.c_str()).c_str()),
+			  NULL, NULL,
+			  TRUE, CREATE_NEW_PROCESS_GROUP,
+			  NULL,
+			  startDirectory.IsSet() ?
+			  startDirectory.AsInternal() : NULL,
+			  &si, &pi);
+	}
+
 	if (running) {
 		subProcessGroupId = pi.dwProcessId;
 
