@@ -382,6 +382,7 @@ protected:
 	int characterSet;
 	SString language;
 	int lexLanguage;
+	int lexLPeg;
 	StringList apis;
 	SString apisFileNames;
 	SString functionDefinition;

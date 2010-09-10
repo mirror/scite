@@ -397,6 +397,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	characterSet = 0;
 	language = "java";
 	lexLanguage = SCLEX_CPP;
+	lexLPeg = -1;
 	functionDefinition = 0;
 	indentOpening = true;
 	indentClosing = true;
