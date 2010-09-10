@@ -325,8 +325,10 @@ bool SciTEBase::CanMakeRoom(bool maySaveIfDirty) {
 
 void SciTEBase::ClearDocument() {
 	wEditor.Call(SCI_SETREADONLY, 0);
+	wEditor.Call(SCI_SETUNDOCOLLECTION, 0);
 	wEditor.Call(SCI_CLEARALL);
 	wEditor.Call(SCI_EMPTYUNDOBUFFER);
+	wEditor.Call(SCI_SETUNDOCOLLECTION, 1);
 	wEditor.Call(SCI_SETSAVEPOINT);
 	wEditor.Call(SCI_SETREADONLY, isReadOnly);
 }
