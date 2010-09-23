@@ -454,6 +454,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	CurrentBuffer()->overrideExtension = "";
 	ReadProperties();
 	SetIndentSettings();
+	SetEol();
 	UpdateBuffersCurrent();
 	SizeSubWindows();
 

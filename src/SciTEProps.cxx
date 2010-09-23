@@ -765,8 +765,6 @@ void SciTEBase::ReadProperties() {
 		ReadAbbrevPropFile();
 	}
 
-	DiscoverEOLSetting();
-
 	props.Set("AbbrevPath", pathAbbreviations.AsUTF8().c_str());
 
 	codePage = props.GetInt("code.page");
