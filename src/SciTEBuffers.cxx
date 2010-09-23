@@ -280,10 +280,12 @@ void SciTEBase::UpdateBuffersCurrent() {
 		int maxLine = wEditor.Call(SCI_GETLINECOUNT);
 		int foldPoints = 0;
 
-		for (int line = 0; line < maxLine; line++) {
-			if ((wEditor.Call(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
-				!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
-				foldPoints++;
+		if (props.GetInt("fold")) {
+			for (int line = 0; line < maxLine; line++) {
+				if ((wEditor.Call(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
+					!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
+					foldPoints++;
+				}
 			}
 		}
 
@@ -1094,6 +1096,7 @@ void SciTEBase::StackMenu(int pos) {
 				SetWindowName();
 				ReadProperties();
 				SetIndentSettings();
+				SetEol();
 			} else if (recentFileStack[pos].IsSet()) {
 				RecentFile rf = recentFileStack[pos];
 				// Already asked user so don't allow Open to ask again.
