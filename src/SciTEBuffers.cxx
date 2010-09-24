@@ -277,30 +277,16 @@ void SciTEBase::UpdateBuffersCurrent() {
 		buffers.buffers[currentbuf].scrollPosition = GetCurrentScrollPosition();
 
 		// Retrieve fold state and store in buffer state info
-		int maxLine = wEditor.Call(SCI_GETLINECOUNT);
-		int foldPoints = 0;
+
+		std::vector<int> *f = &buffers.buffers[currentbuf].foldState;
+		f->clear();
 
 		if (props.GetInt("fold")) {
-			for (int line = 0; line < maxLine; line++) {
-				if ((wEditor.Call(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
-					!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
-					foldPoints++;
-				}
-			}
-		}
-
-		FoldState *f = &buffers.buffers[currentbuf].foldState;
-		f->Clear();
-
-		if (foldPoints > 0) {
-
-			f->Alloc(foldPoints);
-
-			for (int line = 0; line < maxLine; line++) {
-				if ((wEditor.Call(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
-					!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
-					f->Append(line);
-				}
+			for (int line = 0; ; line++) {
+				line = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
+				if (line < 0)
+					break;
+				f->push_back(line);
 			}
 		}
 	}
@@ -671,8 +657,8 @@ void SciTEBase::RestoreState(const Buffer &buffer) {
 	isReadOnly = wEditor.Call(SCI_GETREADONLY);
 
 	// check to see whether there is saved fold state, restore
-	for (int fold = 0; fold < buffer.foldState.Folds(); fold++) {
-		wEditor.Call(SCI_TOGGLEFOLD, buffer.foldState.Line(fold));
+	for (size_t fold = 0; fold < buffer.foldState.size(); fold++) {
+		wEditor.Call(SCI_TOGGLEFOLD, buffer.foldState[fold]);
 	}
 }
 
