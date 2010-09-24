@@ -142,9 +142,10 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 	int lengthDoc = LengthDocument();
 	char chPrev = ' ';
 	TextReader acc(wEditor);
+	char chNext = acc.SafeGetCharAt(0);
 	for (int i = 0; i < lengthDoc; i++) {
-		char ch = acc[i];
-		char chNext = acc.SafeGetCharAt(i + 1);
+		char ch = chNext;
+		chNext = acc.SafeGetCharAt(i + 1);
 		if (ch == '\r') {
 			if (chNext == '\n')
 				linesCRLF++;
