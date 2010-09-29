@@ -2645,8 +2645,10 @@ bool SearchStrip::KeyDown(WPARAM key) {
 		return true;
 
 	if (key == VK_RETURN) {
-		Next(false);
-		return true;
+		if (IsChild(Hwnd(), ::GetFocus())) {
+			Next(false);
+			return true;
+		}
 	}
 
 	return false;
@@ -2827,8 +2829,10 @@ bool FindStrip::KeyDown(WPARAM key) {
 		return true;
 	switch (key) {
 	case VK_RETURN:
-		Next(false);
-		return true;
+		if (IsChild(Hwnd(), ::GetFocus())) {
+			Next(false);
+			return true;
+		}
 	}
 	return false;
 }
