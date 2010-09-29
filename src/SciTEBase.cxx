@@ -323,6 +323,7 @@ const char *contributors[] = {
             "Toby Inkster",
             "Eric Forgeot",
             "Colomban Wendling",
+            "Neo",
         };
 
 // AddStyledText only called from About so static size buffer is OK
@@ -361,6 +362,7 @@ Searcher::Searcher() {
 	havefound = false;
 	findInStyle = false;
 	findStyle = 0;
+	closeFind = true;
 
 	focusOnReplace = false;
 }
@@ -1378,7 +1380,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		int end = wEditor.Call(SCI_GETTARGETEND);
 		EnsureRangeVisible(start, end);
 		SetSelection(start, end);
-		if (!replacing) {
+		if (!replacing && closeFind) {
 			DestroyFindReplace();
 		}
 	}

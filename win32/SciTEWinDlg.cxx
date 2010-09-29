@@ -896,8 +896,10 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		} else if ( (ControlIDOfCommand(wParam) == IDOK) ||
 		            (ControlIDOfCommand(wParam) == IDMARKALL) ) {
 			dlg.GrabFields();
-			::EndDialog(hDlg, IDOK);
-			wFindReplace.Destroy();
+			if (closeFind) {
+				::EndDialog(hDlg, IDOK);
+				wFindReplace.Destroy();
+			}
 			if (ControlIDOfCommand(wParam) == IDMARKALL){
 				MarkAll();
 			}

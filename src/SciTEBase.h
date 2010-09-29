@@ -236,6 +236,7 @@ public:
 	bool havefound;
 	bool findInStyle;
 	int findStyle;
+	bool closeFind;
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 

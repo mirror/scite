@@ -818,6 +818,8 @@ void SciTEBase::ReadProperties() {
 		wEditor.Call(SCI_INDICSETFORE, indicatorMatch, ColourFromString(findMark));
 	}
 
+	closeFind = props.GetInt("find.close.on.find", 1);
+
 	SString controlCharSymbol = props.Get("control.char.symbol");
 	if (controlCharSymbol.length()) {
 		wEditor.Call(SCI_SETCONTROLCHARSYMBOL, static_cast<unsigned char>(controlCharSymbol[0]));
