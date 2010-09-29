@@ -283,9 +283,10 @@ void SciTEBase::UpdateBuffersCurrent() {
 
 		if (props.GetInt("fold")) {
 			for (int line = 0; ; line++) {
-				line = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
-				if (line < 0)
+				int lineNext = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
+				if ((line < 0) || (lineNext < line))
 					break;
+				line = lineNext;
 				f->push_back(line);
 			}
 		}
