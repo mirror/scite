@@ -1032,8 +1032,16 @@ bool SciTEWin::FindReplaceAdvanced() {
 }
 
 void SciTEWin::Find() {
-	if (wFindReplace.Created())
+	if (wFindReplace.Created()) {
+		if (!replacing) {
+			SelectionIntoFind();
+			HWND hDlg = reinterpret_cast<HWND>(wFindReplace.GetID());
+			Dialog dlg(hDlg);
+			dlg.SetItemTextU(IDFINDWHAT, findWhat);
+			::SetFocus(hDlg);
+		}
 		return;
+	}
 	SelectionIntoFind();
 
 	if (props.GetInt("find.use.strip")) {
@@ -1244,8 +1252,16 @@ void SciTEWin::FindInFiles() {
 }
 
 void SciTEWin::Replace() {
-	if (wFindReplace.Created())
+	if (wFindReplace.Created()) {
+		if (replacing) {
+			SelectionIntoFind(false);
+			HWND hDlg = reinterpret_cast<HWND>(wFindReplace.GetID());
+			Dialog dlg(hDlg);
+			dlg.SetItemTextU(IDFINDWHAT, findWhat);
+			::SetFocus(hDlg);
+		}
 		return;
+	}
 	SelectionIntoFind(false); // don't strip EOL at end of selection
 
 	if (props.GetInt("replace.use.strip")) {
