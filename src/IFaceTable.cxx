@@ -2091,7 +2091,6 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_CHARSET_THAI",222},
 	{"SC_CHARSET_TURKISH",162},
 	{"SC_CHARSET_VIETNAMESE",163},
-	{"SC_CP_DBCS",1},
 	{"SC_CP_UTF8",65001},
 	{"SC_CURSORNORMAL",-1},
 	{"SC_CURSORWAIT",4},
@@ -2281,6 +2280,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"ClearRegisteredImages", 2408, iface_void, {iface_void, iface_void}},
 	{"ClearSelections", 2571, iface_void, {iface_void, iface_void}},
 	{"Colourise", 4003, iface_void, {iface_position, iface_position}},
+	{"ContractedFoldNext", 2618, iface_int, {iface_int, iface_void}},
 	{"ConvertEOLs", 2029, iface_void, {iface_int, iface_void}},
 	{"Copy", 2178, iface_void, {iface_void, iface_void}},
 	{"CopyAllowLine", 2519, iface_void, {iface_void, iface_void}},
@@ -2674,8 +2674,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 271,
-	ifaceConstantCount = 2094,
+	ifaceFunctionCount = 272,
+	ifaceConstantCount = 2093,
 	ifacePropertyCount = 170
 };
 
