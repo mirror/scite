@@ -22,6 +22,9 @@ syntax: glob
 *.old
 *.sdf
 *.opensdf
+*.lastbuildstate
+*.intermediate.manifest
+*.log
 Debug
 _UpgradeReport_Files
 UpgradeLog.XML
