@@ -66,7 +66,7 @@
     </p>
     <dl><dt><span class="ref">[1]</span> char</dt>
     <dd>matches itself, unless it is a special character
-    (metachar): <code>. \ [ ] * + ^ $</code> and <code>( )</code> in posix mode.
+    (metachar): <code>. \ [ ] * + ? ^ $</code> and <code>( )</code> in posix mode.
     </dd><dt><span class="ref">[2]</span> <code>.</code></dt>
     <dd>matches any character.
     </dd><dt><span class="ref">[3]</span> <code>\</code></dt>
@@ -77,11 +77,11 @@
     respectively BEL, BS, FF, LF, CR, TAB and VT;<br />
     Note that <code>\r</code> and <code>\n</code> are never matched because in Scintilla,
     regular expression searches are made line per line (stripped of end-of-line chars).
-    </li><li>if not in posix mode, when followed by a left or right round bracket (see <span class="ref">[7]</span>);
-    </li><li>when followed by a digit 1 to 9 (see <span class="ref">[8]</span>);
-    </li><li>when followed by a left or right angle bracket (see <span class="ref">[9]</span>);
-    </li><li>when followed by d, D, s, S, w or W (see <span class="ref">[10]</span>);
-    </li><li>when followed by x and two hexa digits (see <span class="ref">[11]</span>);
+    </li><li>if not in posix mode, when followed by a left or right round bracket (see <span class="ref">[8]</span>);
+    </li><li>when followed by a digit 1 to 9 (see <span class="ref">[9]</span>);
+    </li><li>when followed by a left or right angle bracket (see <span class="ref">[10]</span>);
+    </li><li>when followed by d, D, s, S, w or W (see <span class="ref">[11]</span>);
+    </li><li>when followed by x and two hexa digits (see <span class="ref">[12]</span>);
     </li></ul>
     Backslash is used as an escape character for all other meta-characters, and itself.
     </dd><dt><span class="ref">[4]</span> <code>[</code>set<code>]</code></dt>
@@ -101,22 +101,27 @@
     </table>
     </dd><dt><span class="ref">[5]</span> <code>*</code></dt>
     <dd>any regular expression form <span class="ref">[1]</span> to <span class="ref">[4]</span>
-    (except <span class="ref">[7]</span>, <span class="ref">[8]</span> and <span class="ref">[9]</span>
+    (except <span class="ref">[8]</span>, <span class="ref">[9]</span> and <span class="ref">[10]</span>
     forms of <span class="ref">[3]</span>),
     followed by closure char (<code>*</code>) matches zero or more matches of that form.
     </dd><dt><span class="ref">[6]</span> <code>+</code></dt>
     <dd>same as <span class="ref">[5]</span>, except it matches one or more.
-    Both <span class="ref">[5]</span> and <span class="ref">[6]</span> are greedy (they match as much as possible).
-    </dd><dt><span class="ref">[7]</span></dt>
-    <dd>a regular expression in the form <span class="ref">[1]</span> to <span class="ref">[12]</span>, enclosed
+    </dd><dt><span class="ref">[5-6]</span></dt>
+    <dd>Both <span class="ref">[5]</span> and <span class="ref">[6]</span> are greedy (they match as much as possible)
+    unless they are followed by the 'lazy' quantifier (<code>?</code>)
+    in which case both <span class="ref">[5]</span> and <span class="ref">[6]</span> try to match as little as possible.
+    </dd><dt><span class="ref">[7]</span> <code>?</code></dt>
+    <dd>same as <span class="ref">[5]</span>, except it matches zero or one.
+    </dd><dt><span class="ref">[8]</span></dt>
+    <dd>a regular expression in the form <span class="ref">[1]</span> to <span class="ref">[13]</span>, enclosed
     as <code>\(<i>form</i>\)</code> (or <code>(<i>form</i>)</code> with posix flag) matches
     what <i>form</i> matches.
-    The enclosure creates a set of tags, used for <span class="ref">[8]</span> and for
+    The enclosure creates a set of tags, used for <span class="ref">[9]</span> and for
     pattern substitution. The tagged forms are numbered starting from 1.
-    </dd><dt><span class="ref">[8]</span></dt>
+    </dd><dt><span class="ref">[9]</span></dt>
     <dd>a <code>\</code> followed by a digit 1 to 9 matches whatever a
-    previously tagged regular expression (<span class="ref">[7]</span>) matched.
-    </dd><dt><span class="ref">[9]</span> <code>\&lt; \&gt;</code></dt>
+    previously tagged regular expression (<span class="ref">[8]</span>) matched.
+    </dd><dt><span class="ref">[10]</span> <code>\&lt; \&gt;</code></dt>
     <dd>a regular expression starting with a <code>\&lt;</code> construct
     and/or ending with a <code>\&gt;</code> construct, restricts the
     pattern matching to the beginning of a word, and/or
@@ -125,7 +130,7 @@
     A-Z a-z 0-9 and _. Scintilla extends this definition
     by user setting. The word must also be preceded and/or
     followed by any character outside those mentioned.
-    </dd><dt><span class="ref">[10]</span> <code>\l</code></dt>
+    </dd><dt><span class="ref">[11]</span> <code>\l</code></dt>
     <dd>a backslash followed by d, D, s, S, w or W,
     becomes a character class (both inside and outside sets []).
     <ul><li>d: decimal digits
@@ -135,16 +140,16 @@
     </li><li>w: alphanumeric &amp; underscore (changed by user setting)
     </li><li>W: any char except alphanumeric &amp; underscore (see above)
     </li></ul>
-    </dd><dt><span class="ref">[11]</span> <code>\xHH</code></dt>
+    </dd><dt><span class="ref">[12]</span> <code>\xHH</code></dt>
     <dd>a backslash followed by x and two hexa digits,
     becomes the character whose Ascii code is equal
     to these digits. If not followed by two digits,
     it is 'x' char itself.
-    </dd><dt><span class="ref">[12]</span></dt>
+    </dd><dt><span class="ref">[13]</span></dt>
     <dd>a composite regular expression xy where x and y
-    are in the form <span class="ref">[1]</span> to <span class="ref">[10]</span> matches the longest
+    are in the form <span class="ref">[1]</span> to <span class="ref">[12]</span> matches the longest
     match of x followed by a match for y.
-    </dd><dt><span class="ref">[13]</span> <code>^ $</code></dt>
+    </dd><dt><span class="ref">[14]</span> <code>^ $</code></dt>
     <dd>a regular expression starting with a ^ character
     and/or ending with a $ character, restricts the
     pattern matching to the beginning of the line,
