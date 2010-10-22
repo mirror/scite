@@ -2480,6 +2480,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"VCHomeRectExtend", 2431, iface_void, {iface_void, iface_void}},
 	{"VCHomeWrap", 2453, iface_void, {iface_void, iface_void}},
 	{"VCHomeWrapExtend", 2454, iface_void, {iface_void, iface_void}},
+	{"VerticalCentreCaret", 2619, iface_void, {iface_void, iface_void}},
 	{"VisibleFromDocLine", 2220, iface_int, {iface_int, iface_void}},
 	{"WordEndPosition", 2267, iface_int, {iface_position, iface_bool}},
 	{"WordLeft", 2308, iface_void, {iface_void, iface_void}},
@@ -2674,7 +2675,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 272,
+	ifaceFunctionCount = 273,
 	ifaceConstantCount = 2093,
 	ifacePropertyCount = 170
 };
