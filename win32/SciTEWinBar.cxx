@@ -339,6 +339,11 @@ void SciTEWin::SizeSubWindows() {
 	}
 
 	bands[bandTab].visible = showTab;
+	if (showTab && tabMultiLine) {
+		wTabBar.SetPosition(GUI::Rectangle(
+			rcClient.left, rcClient.top + visHeightTools,
+			rcClient.right, rcClient.top + heightTab + visHeightTools));
+	}
 
 	RECT r = { rcClient.left, 0, rcClient.right, 0 };
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()),
