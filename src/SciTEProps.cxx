@@ -574,6 +574,7 @@ static const char *propertiesToForward[] = {
 	"lexer.python.strings.over.newline",
 	"lexer.python.strings.u",
 	"lexer.sql.backticks.identifier",
+	"lexer.sql.numbersign.comment",
 	"lexer.tex.auto.if",
 	"lexer.tex.comment.process",
 	"lexer.tex.interface.default",
