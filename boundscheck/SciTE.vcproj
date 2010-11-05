@@ -244,6 +244,9 @@
 				RelativePath="..\lua\src\ldump.c">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexA68k.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexAbaqus.cxx">
 			</File>
 			<File
