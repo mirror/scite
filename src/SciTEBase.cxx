@@ -46,9 +46,6 @@
 #ifdef _MSC_VER
 #include <direct.h>
 #endif
-#ifdef __BORLANDC__
-#include <dir.h>
-#endif
 #ifdef __DMC__
 #include <dir.h>
 #endif
@@ -782,11 +779,6 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
  * Find if there is a preprocessor condition after or before the caret position,
  * @return @c true if inside a preprocessor condition.
  */
-#ifdef __BORLANDC__
-// Borland warns that isInside is assigned a value that is never used in this method.
-// This is OK so turn off the warning just for this method.
-#pragma warn -aus
-#endif
 bool SciTEBase::FindMatchingPreprocCondPosition(
     bool isForward,   		///< @c true if search forward
     int &mppcAtCaret,   	///< Matching preproc. cond.: current position of caret
@@ -841,9 +833,6 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 	}
 	return isInside;
 }
-#ifdef __BORLANDC__
-#pragma warn .aus
-#endif
 
 static bool IsBrace(char ch) {
 	return ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '{' || ch == '}';

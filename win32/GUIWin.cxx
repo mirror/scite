@@ -161,9 +161,7 @@ std::string UTF8FromString(const gui_string &s) {
 
 gui_string StringFromInteger(int i) {
 	gui_char number[32];
-#if defined(__BORLANDC__)
-	wsprintf(number, L"%0d", i);
-#elif defined(_MSC_VER) && (_MSC_VER > 1310)
+#if defined(_MSC_VER) && (_MSC_VER > 1310)
 	swprintf(number, 30, L"%0d", i);
 #else
 	swprintf(number, L"%0d", i);

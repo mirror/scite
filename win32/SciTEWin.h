@@ -36,8 +36,8 @@
 #pragma warning(disable: 4201)
 #endif
 #include <windows.h>
-#if defined(__BORLANDC__) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
-// Borland C++ 5.5 does not have Uxtheme.h
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+// Old compilers do not have Uxtheme.h
 typedef HANDLE HTHEME;
 #else
 #include <uxtheme.h>
@@ -56,9 +56,6 @@ typedef HANDLE HTHEME;
 #include <commctrl.h>
 #ifdef _MSC_VER
 #include <direct.h>
-#endif
-#ifdef __BORLANDC__
-#include <dir.h>
 #endif
 #ifdef __DMC__
 #include <dir.h>

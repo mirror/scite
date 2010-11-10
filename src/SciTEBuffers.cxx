@@ -43,9 +43,6 @@
 #ifdef _MSC_VER
 #include <direct.h>
 #endif
-#ifdef __BORLANDC__
-#include <dir.h>
-#endif
 #ifdef __DMC__
 #include <dir.h>
 #endif

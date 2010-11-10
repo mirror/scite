@@ -48,9 +48,6 @@
 #ifdef _MSC_VER
 #include <direct.h>
 #endif
-#ifdef __BORLANDC__
-#include <dir.h>
-#endif
 #ifdef __DMC__
 #include <dir.h>
 #endif
@@ -442,7 +439,7 @@ void FilePath::Remove() const {
 }
 
 #ifndef R_OK
-// Neither Borland nor Microsoft define the constants used to call access
+// Microsoft does not define the constants used to call access
 #define R_OK 4
 #endif
 
