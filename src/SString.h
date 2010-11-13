@@ -9,7 +9,6 @@
 #define SSTRING_H
 
 // Define another string class.
-// While it would be 'better' to use std::string, that doubles the executable size.
 // An SString may contain embedded nul characters.
 
 /**
