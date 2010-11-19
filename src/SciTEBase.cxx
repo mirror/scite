@@ -4491,10 +4491,9 @@ void SciTEBase::PerformOne(char *action) {
 }
 
 static bool IsSwitchCharacter(GUI::gui_char ch) {
-#ifdef unix
+#ifdef __unix__
 	return ch == '-';
 #else
-
 	return (ch == '-') || (ch == '/');
 #endif
 }

@@ -64,7 +64,7 @@
 #include "SciTEBase.h"
 #include "Utf8_16.h"
 
-#ifdef unix
+#ifdef __unix__
 const GUI::gui_char propUserFileName[] = GUI_TEXT(".SciTEUser.properties");
 #else
 // Windows

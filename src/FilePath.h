@@ -12,7 +12,7 @@ extern const GUI::gui_char configFileVisibilityString[];
 extern const GUI::gui_char fileRead[];
 extern const GUI::gui_char fileWrite[];
 
-#ifdef unix
+#ifdef __unix__
 #include <limits.h>
 #ifdef PATH_MAX
 #define MAX_PATH PATH_MAX

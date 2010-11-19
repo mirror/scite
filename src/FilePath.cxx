@@ -64,7 +64,7 @@
 #include "SString.h"
 #include "FilePath.h"
 
-#ifdef unix
+#ifdef __unix__
 const GUI::gui_char pathSepString[] = "/";
 const GUI::gui_char pathSepChar = '/';
 const GUI::gui_char listSepString[] = ":";
@@ -143,7 +143,7 @@ bool FilePath::IsUntitled() const {
 bool FilePath::IsAbsolute() const {
 	if (fileName.length() == 0)
 		return false;
-#ifdef unix
+#ifdef __unix__
 	if (fileName[0] == '/')
 		return true;
 #endif
