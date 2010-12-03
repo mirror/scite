@@ -433,30 +433,27 @@ FilePath SciTEWin::GetSciteUserHome() {
 
 // Help command lines contain topic!path
 void SciTEWin::ExecuteOtherHelp(const char *cmd) {
-	char *topic = StringDup(cmd);
-	if (topic) {
-		char *path = strchr(topic, '!');
-		if (path) {
-			*path = '\0';
-			path++;	// After the !
-			::WinHelpA(MainHWND(),
-			          path,
-			          HELP_KEY,
-			          reinterpret_cast<ULONG_PTR>(topic));
-		}
-	}
-	delete []topic;
+	GUI::gui_string s = GUI::StringFromUTF8(cmd);
+	unsigned int pos = s.find_first_of('!');
+	if (pos != GUI::gui_string::npos) {
+		GUI::gui_string topic = s.substr(0, pos);
+		GUI::gui_string path = s.substr(pos+1);
+		::WinHelpW(MainHWND(),
+			path.c_str(),
+			HELP_KEY,
+			reinterpret_cast<ULONG_PTR>(topic.c_str()));
+ 	}
 }
 
 // HH_AKLINK not in mingw headers
 struct XHH_AKLINK {
 	long cbStruct;
 	BOOL fReserved;
-	const char *pszKeywords;
-	char *pszUrl;
-	char *pszMsgText;
-	char *pszMsgTitle;
-	char *pszWindow;
+	const wchar_t *pszKeywords;
+	wchar_t *pszUrl;
+	wchar_t *pszMsgText;
+	wchar_t *pszMsgTitle;
+	wchar_t *pszWindow;
 	BOOL fIndexOnFail;
 };
 
@@ -466,31 +463,30 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 		hHH = ::LoadLibrary(TEXT("HHCTRL.OCX"));
 
 	if (hHH) {
-		char *topic = StringDup(cmd);
-		char *path = strchr(topic, '!');
-		if (topic && path) {
-			*path = '\0';
-			path++;	// After the !
-			typedef HWND (WINAPI *HelpFn) (HWND, const char *, UINT, DWORD_PTR);
-			HelpFn fnHHA = (HelpFn)::GetProcAddress(hHH, "HtmlHelpA");
-			if (fnHHA) {
+		GUI::gui_string s = GUI::StringFromUTF8(cmd);
+		unsigned int pos = s.find_first_of('!');
+		if (pos != GUI::gui_string::npos) {
+			GUI::gui_string topic = s.substr(0, pos);
+			GUI::gui_string path = s.substr(pos + 1);
+			typedef HWND (WINAPI *HelpFn) (HWND, const wchar_t *, UINT, DWORD_PTR);
+			HelpFn fnHHW = (HelpFn)::GetProcAddress(hHH, "HtmlHelpW");
+			if (fnHHW) {
 				XHH_AKLINK ak;
 				ak.cbStruct = sizeof(ak);
 				ak.fReserved = FALSE;
-				ak.pszKeywords = topic;
+				ak.pszKeywords = topic.c_str();
 				ak.pszUrl = NULL;
 				ak.pszMsgText = NULL;
 				ak.pszMsgTitle = NULL;
 				ak.pszWindow = NULL;
 				ak.fIndexOnFail = TRUE;
-				fnHHA(NULL,
-				      path,
+				fnHHW(NULL,
+				      path.c_str(),
 				      0x000d,          	// HH_KEYWORD_LOOKUP
 				      reinterpret_cast<DWORD_PTR>(&ak)
 				     );
 			}
 		}
-		delete []topic;
 	}
 }
 
