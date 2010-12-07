@@ -343,6 +343,25 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_4GL_STRING_",19},
 	{"SCE_4GL_WORD",2},
 	{"SCE_4GL_WORD_",18},
+	{"SCE_A68K_COMMENT",1},
+	{"SCE_A68K_COMMENT_DOXYGEN",18},
+	{"SCE_A68K_COMMENT_SPECIAL",17},
+	{"SCE_A68K_COMMENT_WORD",16},
+	{"SCE_A68K_CPUINSTRUCTION",7},
+	{"SCE_A68K_DEFAULT",0},
+	{"SCE_A68K_DIRECTIVE",10},
+	{"SCE_A68K_EXTINSTRUCTION",8},
+	{"SCE_A68K_IDENTIFIER",14},
+	{"SCE_A68K_LABEL",12},
+	{"SCE_A68K_MACRO_ARG",11},
+	{"SCE_A68K_MACRO_DECLARATION",15},
+	{"SCE_A68K_NUMBER_BIN",3},
+	{"SCE_A68K_NUMBER_DEC",2},
+	{"SCE_A68K_NUMBER_HEX",4},
+	{"SCE_A68K_OPERATOR",6},
+	{"SCE_A68K_REGISTER",9},
+	{"SCE_A68K_STRING1",5},
+	{"SCE_A68K_STRING2",13},
 	{"SCE_ABAQUS_ARGUMENT",11},
 	{"SCE_ABAQUS_COMMAND",8},
 	{"SCE_ABAQUS_COMMENT",1},
@@ -1947,6 +1966,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCK_TAB",9},
 	{"SCK_UP",301},
 	{"SCK_WIN",313},
+	{"SCLEX_A68K",100},
 	{"SCLEX_ABAQUS",84},
 	{"SCLEX_ADA",20},
 	{"SCLEX_APDL",61},
@@ -2676,7 +2696,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 273,
-	ifaceConstantCount = 2093,
+	ifaceConstantCount = 2113,
 	ifacePropertyCount = 170
 };
 
