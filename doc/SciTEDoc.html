@@ -185,9 +185,8 @@ NameError: mistake
     Tools can be executed in various modes by SciTE which are called "subsystems". Different
     subsystems are supported on Windows and GTK+. The default subsystem is 0.
     </p>
-    <p>
     <table class="windowsonly" cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
-    <thead><td colspan="3">Windows</td></thead>
+    <thead><tr><td colspan="3">Windows</td></tr></thead>
     <tr><td>0</td><td>console</td><td>Command line programs<br/>Do not use for GUI programs as their windows will not be visible.</td></tr>
     <tr><td>1</td><td>windows</td><td>Programs that create their own windows</td></tr>
     <tr><td>2</td><td>shellexec</td><td>Run using ShellExecute<br />
@@ -201,14 +200,12 @@ NameError: mistake
     <tr><td>5</td><td>winhelp</td><td>Open with WinHelp function<br />
     Two part command similar to subsystem 4</td></tr>
     </table>
-    </p>
-    <p>
+    <br />
     <table class="gtkonly" cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
-    <thead><td colspan="3">GTK+</td></thead>
+    <thead><tr><td colspan="3">GTK+</td></tr></thead>
     <tr><td>0</td><td>console</td><td>Execute tool and wait for it to finish</td></tr>
     <tr><td>2</td><td>shellexec</td><td>Execute in background</td></tr>
     </table>
-    </p>
     <h3>
        Command line arguments
     </h3>
@@ -235,22 +232,21 @@ NameError: mistake
 	increased to approximately half of the screen width.<br />
 	<b>Note:</b> If stdin is not redirected, these arguments are effectively ignored.
     </p>
-    <p>
-       For example,
+    <div>
+       For example,</div>
        <div class="example">
        SciTE "-font.base=font:MS Gothic,size:11" -save.recent ScintillaGTK.cxx
        </div>
-       starts SciTE, opens ScintillaGTK.cxx, loads the recent file list, and uses
+       <div>starts SciTE, opens ScintillaGTK.cxx, loads the recent file list, and uses
        11 point MS Gothic as the base font.<br />
        A group of properties can be saved as a property set file (with the extension
-       ".properties") and the import command used on the command line:<br />
+       ".properties") and the import command used on the command line:</div>
        <div class="example">
        SciTE "-import c:\os\web_work" SciTEDoc.html
        </div>
-       </p>
+       <p>
        A few commands are currently available although this will expand in the future.
-       These commands are available:
-       <br />
+       These commands are available:</p>
        <table cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
         <thead>
         <tr><th>Command</th><th>Argument</th></tr>
@@ -709,7 +705,7 @@ NameError: mistake
        Much of SciTE's behaviour can be changed by editing the properties files.
     </p>
     <p>
-       There are four properties files used:
+       There are four properties files used:</p>
        <ul>
        <li>Local properties file called "SciTE.properties" which may be
        present in the same directory as the file being edited.</li>
@@ -719,7 +715,6 @@ NameError: mistake
        and ".SciTEUser.properties" on GTK+</li>
        <li>Global properties file called "SciTEGlobal.properties"</li>
        </ul>
-    </p>
     <p>
       Settings in the local properties file override those in the directory properties file
 	   which overrides those in the user properties file which override those
@@ -872,11 +867,10 @@ NameError: mistake
       UTF-8 files will also be recognised when they contain a coding cookie on one of the
       first two lines. A coding cookie looks similar to "coding: utf-8" ("coding" followed by ':'
       or '=', optional whitespace, optional quote, "utf-8") and is normally contained in
-      a comment:<br />
+      a comment:</p>
       <div class="example"># -*- coding: utf-8 -*-</div>
       For XML there is a declaration:<br />
       <div class="example">&lt;?xml version='1.0' encoding='utf-8'?&gt;</div>
-    </p>
     <p>
       For other encodings set the code.page and character.set properties.
     </p>
@@ -2198,7 +2192,6 @@ Prev File|IDM_PREVFILE|<br/>
         </td>
       </tr>
       <tr>
-      <tr>
         <td>
         find.replace.matchcase<br />
         find.replace.regexp<br />
@@ -2344,7 +2337,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           that double byte characters are always treated as a unit so the caret is never located
           between the two bytes of a double byte character.<br/><br/>
   	  <table>
-	  <thead><th>Code page</th><th>Value</th></thead>
+	  <thead><tr><th>Code page</th><th>Value</th></tr></thead>
 	  <tr><td>Default (single byte character set)</td><td align="right">0</td></tr>
 	  <tr><td>UTF-8</td><td align="right">65001</td></tr>
 	  <tr><td>Japanese Shift-JIS</td><td align="right">932</td></tr>
@@ -2371,7 +2364,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           This setting allows changing the character set that is asked for when setting up fonts.
 	Not all of the values will work on all platforms.<br/><br/>
 	  <table>
-	  <thead><th>Character set</th><th>Value</th></thead>
+	  <thead><tr><th>Character set</th><th>Value</th></tr></thead>
 	  <tr><td>Default</td><td align="right">0</td></tr>
 	  <tr><td>Japanese</td><td align="right">128</td></tr>
 	  <tr><td>Chinese GB2312</td><td align="right">134</td></tr>

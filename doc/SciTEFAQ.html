@@ -5,7 +5,7 @@
   <head>
     <meta name="generator" content="HTML Tidy, see www.w3.org" />
     <meta name="generator" content="SciTE" />
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <meta http-equiv="Content-Type" content="text/html" />
     <title>
       SciTE FAQ
     </title>
@@ -98,7 +98,7 @@
        How do I use a fixed width font for all text?
     </h4>
     <p>
-       Use these properties:<div class="example">
+       Use these properties:</p><div class="example">
 	font.base=$(font.monospace)<br />
 	font.small=$(font.monospace)<br />
 	font.comment=$(font.monospace)<br />
@@ -107,7 +107,6 @@
 	font.embedded.base=$(font.monospace)<br />
 	font.embedded.comment=$(font.monospace)<br />
 	font.vbs=$(font.monospace)</div>
-    </p>
     <h4 id="Monospaced">
        What happened to <span class="example">use.monospaced</span>?
     </h4>
@@ -131,7 +130,7 @@
     <p>
        You need to change the style settings. The main change is in the user
        options file to the global default style and caret colour but you may have
-       to change other style settings to make this work well:<div class="example">
+       to change other style settings to make this work well:</p><div class="example">
 	style.*.32=$(font.base),back:#000000,fore:#ffffff<br />
 	style.*.33=back:#C0C0C0,$(font.base)<br />
 	style.*.37=fore:#939393<br />
@@ -140,7 +139,6 @@
 	selection.back=#FFFFFF<br />
 	colour.keyword=fore:#649bff<br />
 	colour.operator=fore:#727272</div>
-    </p>
     <h4 id="OutputColour">
        How do I change the colours of the output pane?
     </h4>
@@ -148,10 +146,9 @@
        The output pane often lists error and warning messages and
        is styled by the "errorlist" lexer. The default errorlist styles are found
        in others.properties. To change the output pane background to black
-       and the default text to white set<div class="example">
+       and the default text to white set</p><div class="example">
        style.errorlist.32=$(font.small),back:#000000<br />
        style.errorlist.0=fore:#FFFFFF</div>
-    </p>
     <h4 id="HorizontalScrollBar">
        How do I make the horizontal scroll bar adjust to the width of text?
     </h4>
@@ -174,9 +171,8 @@
         How do I enable autocomplete?
     </h4>
     <p>
-        Goto Options | Open Global Options File and uncomment
+        Goto Options | Open Global Options File and uncomment</p>
         <div class="example">autocompleteword.automatic=1</div>
-    </p>
     <h4 id="CannotFindFile">
         When I try to compile/build/run my [some language] source files, I get the following error:
         'The system cannot find the file specified'.
@@ -187,11 +183,10 @@
         You can also search in your [language].properties for the compile
         commands used. If you have a different compiler or use different arguments,
         edit the commands to suit your needs.
-        The lines to look for:<div class="example">
+        The lines to look for:</p><div class="example">
         command.compile.filepattern=<br />
         command.build.filepattern=<br />
         command.go.filepattern=</div>
-    </p>
     <h4 id="ToolsMenu">
        How can I add [some external application] to the Tools menu on SciTE?
     </h4>
@@ -226,14 +221,13 @@ You can set a command for all files using * as a file pattern. Up to 10 commands
     </h4>
     <p>
 	This is similar to <a href="#ToolsMenu">adding to the tools menu</a> except that you set the name to be empty.
-	Then the command is included in <span class="example">user.shortcuts</span> by adding 1100 to produce its command ID. For example,
+	Then the command is included in <span class="example">user.shortcuts</span> by adding 1100 to produce its command ID. For example,</p>
 	<div class="example">
 command.name.21.*.properties=<br />
 command.21.*.properties=cmd /c echo $(FileNameExt)<br />
 user.shortcuts=\<br />
 Ctrl+Shift+V|1121|<br />
 	</div>
-    </p>
     <h4 id="ReplaceInFiles">
        Is there a command to replace a string in multiple files together?
     </h4>
@@ -249,7 +243,7 @@ Ctrl+Shift+V|1121|<br />
     <p>
      The default settings for SciTE were changed in version 1.63 to use the Pango font
      system and antialiased fonts. You can return to using X core fonts which are faster
-     with these settings:<div class="example">
+     with these settings:</p><div class="example">
 	font.base=font:lucidatypewriter,size:12<br />
 	font.small=font:lucidatypewriter,size:10<br />
 	font.comment=font:new century schoolbook,size:12<br />
@@ -263,7 +257,7 @@ Ctrl+Shift+V|1121|<br />
 	font.monospace=font:courier,size:12<br />
 	font.vbs=font:new century schoolbook,size:12<br />
      </div>
-     Line wrapping also slows SciTE down and this can be turned off with <span class="example">wrap=0</span>.
+     <p>Line wrapping also slows SciTE down and this can be turned off with <span class="example">wrap=0</span>.
     </p>
     <h4 id="NewlineInRegEx">
        Is it possible to use the newline character (\n) in a regular expression?
@@ -293,10 +287,9 @@ Ctrl+Shift+V|1121|<br />
 	Linux distributions now often set the locale to UTF-8 by, for
 	example, setting LANG=en_US.UTF-8. gcc takes this as an indication
 	that it can use any Unicode character encoded as UTF-8 so quotes using
-	&lsquo;these&rsquo; rather than ASCII. To see these as intended, set
-	<div class="example">
-	output.code.page=65001</div>
-    </p>
+	&lsquo;these&rsquo; rather than ASCII. To see these as intended, set</p>
+    <div class="example">
+    output.code.page=65001</div>
     <h4 id="WindowsSpaces">
        How do I make Windows open a file associated with SciTE when its path contains spaces?
     </h4>
@@ -306,18 +299,16 @@ Ctrl+Shift+V|1121|<br />
 	To fix this, the path variable %1 needs to be surrounded by double quotes.
 	This is done either directly in the registry or through the Explorer in
 	Tools | Folder Options | File Types | (Select type) | Advanced | open | Edit.
-	Change the "Application used to perform action" field to be similar to
+	Change the "Application used to perform action" field to be similar to</p>
 	<div class="example">"C:\bin\SciTE\SciTE.exe" "%1"</div>
-    </p>
     <h4 id="ExplicitFolds">
        Why does a //{ comment affect folding?
     </h4>
     <p>
 	For C++ and similar languages, explicit folds can be added with //{ and //} .
-	This feature can be turned off with
-	<div class="example">
-	fold.comment=0</div>
-    </p>
+	This feature can be turned off with</p>
+    <div class="example">
+    fold.comment=0</div>
   </body>
 </html>
 
