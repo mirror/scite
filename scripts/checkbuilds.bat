@@ -12,26 +12,7 @@ set MSDEV_BASE=D:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin
 set MSDEV71_BASE=D:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
 rem
 rem ************************************************************
-rem Target 1: Borland C++ build
-call scite\scripts\clearboth
-cd scintilla\win32
-set SAVE_PATH=%path%
-set SAVE_INCLUDE=%INCLUDE%
-path %BORLAND_BASE%\Bin;%path%
-set libpath=%BORLAND_BASE%\lib
-set INCLUDE=%BORLAND_BASE%\include
-make -f scintilla.mak QUIET=1
-if ERRORLEVEL 2 goto ERROR
-cd ..\test
-pythonw simpleTests.py
-pythonw lexTests.py
-pythonw performanceTests.py
-cd ..\..\scite\win32
-make -f scite.mak QUIET=1
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
-path %SAVE_PATH%
-set INCLUDE=%SAVE_INCLUDE%
+rem Borland (target 1) no longer supported
 rem
 rem ************************************************************
 rem Target 2: Normal gcc build
@@ -39,6 +20,10 @@ call scite\scripts\clearboth
 cd scintilla\win32
 mingw32-make
 if ERRORLEVEL 2 goto ERROR
+cd ..\test
+pythonw simpleTests.py
+pythonw lexTests.py
+pythonw performanceTests.py
 cd ..\..\scite\win32
 mingw32-make
 if ERRORLEVEL 2 goto ERROR
