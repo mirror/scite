@@ -488,9 +488,6 @@
 				RelativePath="..\..\scintilla\Include\Platform.h">
 			</File>
 			<File
-				RelativePath="..\..\scintilla\Win32\PlatformRes.h">
-			</File>
-			<File
 				RelativePath="..\..\scintilla\Include\PropSet.h">
 			</File>
 			<File
