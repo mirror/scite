@@ -5,7 +5,6 @@
 #include <windows.h>
 
 #include "SciTE.h"
-#include "PlatformRes.h"
 
 SciTE ICON SciBall.ico
 
@@ -571,7 +570,6 @@ IDBM_UP BITMAP "up.bmp"
 //The embedded properties file is to allow a one file distribution of Sc1.EXE
 #ifdef STATIC_BUILD
 Embedded Properties Embedded.properties
-IDC_MARGIN         CURSOR  DISCARDABLE     "Margin.cur"
 #endif
 IDC_DRAGDROP       CURSOR  DISCARDABLE     "DragDrop.cur"
 

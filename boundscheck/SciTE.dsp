@@ -771,10 +771,6 @@ SOURCE=..\..\scintilla\Include\Platform.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\Win32\PlatformRes.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\scintilla\Include\SciLexer.h
 # End Source File
 # Begin Source File

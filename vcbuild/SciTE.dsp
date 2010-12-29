@@ -217,10 +217,6 @@ SOURCE=..\..\scintilla\Include\Platform.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\scintilla\Win32\PlatformRes.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\scintilla\Include\PropSet.h
 # End Source File
 # Begin Source File
