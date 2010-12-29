@@ -14,3 +14,4 @@ Icon=Sci48M.png
 Terminal=false
 StartupNotify=true
 Categories=TextEditor;Development;GTK;Application;
+MimeType=text/plain;
