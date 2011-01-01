@@ -165,7 +165,7 @@ class SearchStrip : public Strip {
 	GUI::Window wButton;
 	Searcher *pSearcher;
 public:
-	SearchStrip() : entered(0), pSearcher(0) {
+	SearchStrip() : entered(0), lineHeight(20), pSearcher(0) {
 	}
 	virtual void Creation();
 	virtual void Destruction();
