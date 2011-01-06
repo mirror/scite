@@ -203,6 +203,8 @@ public:
 struct StyleAndWords {
 	int styleNumber;
 	SString words;
+	StyleAndWords() : styleNumber(0) {
+	}
 	bool IsEmpty() { return words.length() == 0; }
 	bool IsSingleChar() { return words.length() == 1; }
 };

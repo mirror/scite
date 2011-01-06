@@ -559,6 +559,7 @@ public:
 SciTEGTK *SciTEGTK::instance;
 
 SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
+	toolbarDetachable = 0;
 	menuSource = 0;
 	// Control of sub process
 	icmd = 0;
@@ -569,6 +570,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	exitStatus = 0;
 	pollID = 0;
 	inputHandle = 0;
+	lastFlags = 0;
 
 	startupTimestamp = 0;
 
@@ -582,12 +584,16 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	ptOld = GUI::Point(0, 0);
 	xor_gc = 0;
+	focusEditor = false;
+	focusOutput = false;
 	saveFormat = sfSource;
+	wIncrementPanel = 0;
 	IncSearchEntry = 0;
 	btnCompile = 0;
 	btnBuild = 0;
 	btnStop = 0;
 	itemFactory = 0;
+	accelGroup = 0;
 
 	fileSelectorWidth = 580;
 	fileSelectorHeight = 480;
