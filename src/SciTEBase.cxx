@@ -329,6 +329,7 @@ const char *contributors[] = {
             "vim",
             "Martial Demolins",
             "Tino Weinkauf",
+            "J\xc3\xa9r\xc3\xb4me Laforge",
         };
 
 // AddStyledText only called from About so static size buffer is OK
