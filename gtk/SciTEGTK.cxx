@@ -1460,6 +1460,7 @@ SString SciTEGTK::EncodeString(const SString &s) {
 	SBuffer ret(len);
 	wEditor.CallString(SCI_ENCODEDFROMUTF8,
 		reinterpret_cast<uptr_t>(s.c_str()), ret.ptr());
+	ret.ptr()[len] = '\0';
 	return SString(ret);
 }
 
