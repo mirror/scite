@@ -24,6 +24,7 @@ public:
 	void Set(const char *keyVal);
 	void Unset(const char *key, int lenKey=-1);
 	void SetMultiple(const char *s);
+	bool Exists(const char *key) const;
 	SString Get(const char *key) const;
 	SString GetExpanded(const char *key) const;
 	SString Expand(const char *withVars, int maxExpands=100) const;

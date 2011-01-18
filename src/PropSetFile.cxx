@@ -102,6 +102,20 @@ void PropSetFile::SetMultiple(const char *s) {
 	Set(s);
 }
 
+bool PropSetFile::Exists(const char *key) const {
+	mapss::const_iterator keyPos = props.find(std::string(key));
+	if (keyPos != props.end()) {
+		return true;
+	} else {
+		if (superPS) {
+			// Failed here, so try in base property set
+			return superPS->Exists(key);
+		} else {
+			return false;
+		}
+	}
+}
+
 SString PropSetFile::Get(const char *key) const {
 	mapss::const_iterator keyPos = props.find(std::string(key));
 	if (keyPos != props.end()) {
