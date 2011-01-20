@@ -580,6 +580,7 @@ static const char *propertiesToForward[] = {
 	"lexer.python.strings.b",
 	"lexer.python.strings.over.newline",
 	"lexer.python.strings.u",
+	"lexer.sql.allow.dotted.word",
 	"lexer.sql.backticks.identifier",
 	"lexer.sql.fold.at.else",
 	"lexer.sql.numbersign.comment",
