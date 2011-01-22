@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # makerpms.py
 # Copy files all over the place build RPMs and copy to top level directory
 
@@ -33,16 +34,16 @@ if not os.access(tgzFileName, os.F_OK):
 else:
 	shutil.copyfile(tgzFileName, tgzVFileName)
 	os.unlink(tgzFileName)
-	
+
 	rpmVFileName = rpmRoot + tgzV
-	
+
 	shutil.copyfile(tgzVFileName, rpmVFileName)
-	
+
 	# Run the rpm build command
 	os.system("rpm -ba scite.spec")
-	
+
 	rpmB = "scite-" + vPoint + "-1.i386.rpm"
 	shutil.copyfile(rpmBin + rpmB, srcRoot + rpmB)
 	rpmS = "scite-" + vPoint + "-1.src.rpm"
 	shutil.copyfile(rpmSource + rpmS, srcRoot + rpmS)
-	
+

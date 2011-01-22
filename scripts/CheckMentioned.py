@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # CheckMentioned.py
 # Find all the symbols in scintilla/include/Scintilla.h and check if they
 # are mentioned in scintilla/doc/ScintillaDoc.html.

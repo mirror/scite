@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # CheckMentioned.py
 # Find all the properties used in SciTE source files and check if they
 # are mentioned in scite/doc/SciTEDoc.html.
@@ -174,7 +175,7 @@ for line in open(localeFileName):
 	if not line.startswith("#"):
 		line = line.strip().strip("=")
 		localeSet[line.lower()] = 1
-		
+
 resourceFileName = srcRoot + "/win32/SciTERes.rc"
 resourceSet = {}
 for line in open(resourceFileName):
@@ -195,7 +196,7 @@ for line in open(resourceFileName):
 			line = line.replace('...','')
 			if len(line) > 2:
 				resourceSet[line] = 1
-		
+
 print("\n# Missing localisation of resource")
 resourceSet = list(resourceSet.keys())
 resourceSet.sort()
@@ -239,7 +240,7 @@ print("\n# Duplicate properties")
 propToFileKeys = list(propToFile.keys())
 propToFileKeys.sort()
 for k in propToFileKeys:
-	files = propToFile[k] 
+	files = propToFile[k]
 	if len(files) > 1:
 		if files.count(files[0]) < len(files):
 			print(k + (", ".join(propToFile[k])))
