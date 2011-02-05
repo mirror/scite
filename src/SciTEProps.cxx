@@ -714,17 +714,17 @@ void SciTEBase::ReadProperties() {
 	if (language.length()) {
 		if (language.startswith("script_")) {
 			wEditor.Call(SCI_SETLEXER, SCLEX_CONTAINER);
-		} else {
-			if (lexLanguage != lexLPeg) {
-				wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
-				int lex = wEditor.Call(SCI_GETLEXER);
-				if (lex != SCLEX_NULL && strcmp(language.c_str(), "lpeg") == 0) {
-					lexLPeg = lex;
-					wEditor.CallString(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE, "container");
-				}
-			} else {
-				wEditor.CallString(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE, language.c_str());
+		} else if (language.startswith("lpeg_")) {
+			modulePath = props.GetNewExpand("lexerpath.*.lpeg");
+			if (modulePath.length()) {
+				wEditor.CallString(SCI_LOADLEXERLIBRARY, 0, modulePath.c_str());
+				wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, "lpeg");
+				lexLPeg = wEditor.Call(SCI_GETLEXER);
+				const char *lexer = language.c_str() + language.search("_") + 1;
+				wEditor.CallString(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE, lexer);
 			}
+		} else {
+			wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
 		}
 	} else {
 		wEditor.Call(SCI_SETLEXER, SCLEX_NULL);
