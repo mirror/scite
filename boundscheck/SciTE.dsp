@@ -391,6 +391,10 @@ SOURCE=..\..\scintilla\lexers\LexMMIXAL.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\lexers\LexModula.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\lexers\LexMPT.cxx
 # End Source File
 # Begin Source File
