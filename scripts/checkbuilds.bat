@@ -12,7 +12,14 @@ set MSDEV_BASE=C:\Program Files (x86)\Microsoft Visual Studio\Common\MSDev98\Bin
 set MSDEV71_BASE=C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
 rem
 rem ************************************************************
-rem Borland (target 1) no longer supported
+rem Target 1: basic unit tests with gcc
+call scite\scripts\clearboth
+cd scintilla\test\unit
+mingw32-make
+if ERRORLEVEL 2 goto ERROR
+.\unitTest
+if ERRORLEVEL 2 goto ERROR
+cd ..\..\..
 rem
 rem ************************************************************
 rem Target 2: Normal gcc build
