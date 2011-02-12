@@ -1745,8 +1745,52 @@ NameError: mistake
 	<td>Script in ASP code is initially assumed to be in JavaScript. To change this to VBScript set asp.default.language to 2. Python is 3.</td>
 	</tr>
 	<tr>
+	<td>fold.asm.comment.explicit</td>
+	<td>This option enables folding explicit fold points when using the Asm lexer.  Explicit fold points allows adding extra folding by placing a ;{ comment at the start and a ;}  at the end of a section that should fold.</td>
+	</tr>
+	<tr>
+	<td>fold.asm.comment.multiline</td>
+	<td>Set this property to 1 to enable folding multi-line comments.</td>
+	</tr>
+	<tr>
+	<td>fold.asm.explicit.anywhere</td>
+	<td>Set this property to 1 to enable explicit fold points anywhere, not just in line comments.</td>
+	</tr>
+	<tr>
+	<td>fold.asm.explicit.end</td>
+	<td>The string to use for explicit fold end points, replacing the standard ;}.</td>
+	</tr>
+	<tr>
+	<td>fold.asm.explicit.start</td>
+	<td>The string to use for explicit fold start points, replacing the standard ;{.</td>
+	</tr>
+	<tr>
+	<td>fold.asm.syntax.based</td>
+	<td>Set this property to 0 to disable syntax based folding.</td>
+	</tr>
+	<tr>
 	<td>fold.at.else</td>
 	<td>This option enables C++ folding on a "} else {" line of an if statement.</td>
+	</tr>
+	<tr>
+	<td>fold.basic.comment.explicit</td>
+	<td>This option enables folding explicit fold points when using the Basic lexer.  Explicit fold points allows adding extra folding by placing a ;{ (BB/PB) or '{ (FB) comment at the start  and a ;} (BB/PB) or '} (FB) at the end of a section that should be folded.</td>
+	</tr>
+	<tr>
+	<td>fold.basic.explicit.anywhere</td>
+	<td>Set this property to 1 to enable explicit fold points anywhere, not just in line comments.</td>
+	</tr>
+	<tr>
+	<td>fold.basic.explicit.end</td>
+	<td>The string to use for explicit fold end points, replacing the standard ;} (BB/PB) or '} (FB).</td>
+	</tr>
+	<tr>
+	<td>fold.basic.explicit.start</td>
+	<td>The string to use for explicit fold start points, replacing the standard ;{ (BB/PB) or '{ (FB).</td>
+	</tr>
+	<tr>
+	<td>fold.basic.syntax.based</td>
+	<td>Set this property to 0 to disable syntax based folding.</td>
 	</tr>
 	<tr>
 	<td>fold.comment</td>
@@ -1778,6 +1822,30 @@ NameError: mistake
 	</tr>
 	<tr>
 	<td>fold.cpp.syntax.based</td>
+	<td>Set this property to 0 to disable syntax based folding.</td>
+	</tr>
+	<tr>
+	<td>fold.d.comment.explicit</td>
+	<td>Set this property to 0 to disable folding explicit fold points when fold.comment=1.</td>
+	</tr>
+	<tr>
+	<td>fold.d.comment.multiline</td>
+	<td>Set this property to 0 to disable folding multi-line comments when fold.comment=1.</td>
+	</tr>
+	<tr>
+	<td>fold.d.explicit.anywhere</td>
+	<td>Set this property to 1 to enable explicit fold points anywhere, not just in line comments.</td>
+	</tr>
+	<tr>
+	<td>fold.d.explicit.end</td>
+	<td>The string to use for explicit fold end points, replacing the standard //}.</td>
+	</tr>
+	<tr>
+	<td>fold.d.explicit.start</td>
+	<td>The string to use for explicit fold start points, replacing the standard //{.</td>
+	</tr>
+	<tr>
+	<td>fold.d.syntax.based</td>
 	<td>Set this property to 0 to disable syntax based folding.</td>
 	</tr>
 	<tr>
@@ -1815,6 +1883,10 @@ NameError: mistake
 	<tr>
 	<td>html.tags.case.sensitive</td>
 	<td>For XML and HTML, setting this property to 1 will make tags match in a case sensitive way which is the expected behaviour for XML and XHTML.</td>
+	</tr>
+	<tr>
+	<td>lexer.asm.comment.delimiter</td>
+	<td>Character used for COMMENT directive's delimiter, replacing the standard "~".</td>
 	</tr>
 	<tr>
 	<td>lexer.cpp.allow.dollars</td>
