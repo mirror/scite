@@ -23,10 +23,13 @@
 #include <map>
 #include <algorithm>
 
-#if defined(GTK)
+#if defined(__unix__)
 
 #include <unistd.h>
+
+#if defined(GTK)
 #include <gtk/gtk.h>
+#endif
 
 #else
 
@@ -66,6 +69,7 @@
 #include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
+
 #include "SciTEBase.h"
 
 // Contributor names are in UTF-8
@@ -4278,7 +4282,7 @@ void SciTEBase::CheckMenus() {
 		EnableAMenuItem(IDM_TOOLS + toolItem, !jobQueue.IsExecuting());
 	EnableAMenuItem(IDM_STOPEXECUTE, jobQueue.IsExecuting());
 	if (buffers.size > 0) {
-#if !defined(GTK)
+#if defined(WIN32)
 		// Tab Bar
 #ifndef TCM_DESELECTALL
 #define TCM_DESELECTALL TCM_FIRST+50

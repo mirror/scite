@@ -17,10 +17,13 @@
 #include <vector>
 #include <algorithm>
 
-#if defined(GTK)
+#if defined(__unix__)
 
 #include <unistd.h>
+
+#if defined(GTK)
 #include <gtk/gtk.h>
+#endif
 
 #include <dirent.h>
 #include <errno.h>
@@ -64,7 +67,7 @@
 #include "SString.h"
 #include "FilePath.h"
 
-#ifdef __unix__
+#if defined(__unix__)
 const GUI::gui_char pathSepString[] = "/";
 const GUI::gui_char pathSepChar = '/';
 const GUI::gui_char listSepString[] = ":";

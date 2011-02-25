@@ -20,10 +20,13 @@
 #include <vector>
 #include <map>
 
-#if defined(GTK)
+#if defined(__unix__)
 
 #include <unistd.h>
+
+#if defined(GTK)
 #include <gtk/gtk.h>
+#endif
 
 #else
 

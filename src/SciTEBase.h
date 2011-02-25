@@ -813,7 +813,7 @@ private:
 /// Base size of file I/O operations.
 const int blockSize = 131072;
 
-#if defined(GTK)
+#if defined(__unix__)
 // MessageBox
 #define MB_OK	(0L)
 #define MB_YESNO	(0x4L)

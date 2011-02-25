@@ -19,10 +19,13 @@
 #include <vector>
 #include <map>
 
-#if defined(GTK)
+#if defined(__unix__)
 
 #include <unistd.h>
+
+#if defined(GTK)
 #include <gtk/gtk.h>
+#endif
 
 #else
 
@@ -931,7 +934,7 @@ void SciTEBase::SetFileStackMenu() {
 			if (recentFileStack[stackPos].IsSet()) {
 				GUI::gui_char entry[MAX_PATH + 20];
 				entry[0] = '\0';
-#if !defined(GTK)
+#if defined(WIN32)
 
 #if defined(_MSC_VER) && (_MSC_VER > 1200)
 				swprintf(entry, ELEMENTS(entry), GUI_TEXT("&%d "), (stackPos + 1) % 10);

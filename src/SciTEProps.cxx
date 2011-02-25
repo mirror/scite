@@ -26,10 +26,13 @@
 
 #include "GUI.h"
 
-#if defined(GTK)
+#if defined(__unix__)
 
 #include <unistd.h>
+
+#if defined(GTK)
 #include <gtk/gtk.h>
+#endif
 
 const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("_");
 
@@ -118,7 +121,7 @@ const GUI::gui_char propDirectoryFileName[] = GUI_TEXT("SciTEDirectory.propertie
 Read global and user properties files.
 */
 void SciTEBase::ReadGlobalPropFile() {
-#ifdef __unix__
+#if defined(__unix__)
 	extern char **environ;
 	char **e=environ;
 #else
@@ -1473,7 +1476,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	// end load the user defined short cut props
 
 
-#if !defined(GTK)
+#if defined(WIN32)
 
 	if (tabMultiLine) {	// Windows specific!
 		long wl = ::GetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE);

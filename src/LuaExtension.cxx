@@ -29,7 +29,7 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-#if !defined(GTK)
+#if !defined(__unix__)
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
