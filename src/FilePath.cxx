@@ -423,9 +423,7 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 		}
 	}
 
-	if (errno == 0) {
-		closedir(dp);
-	}
+	closedir(dp);
 #endif
 }
 
