@@ -1752,23 +1752,23 @@ struct StylingContext {
 					(currentPos >= endPos);
 	}
 
-	void StartStyling(unsigned int startPos, unsigned int length, int initStyle) {
+	void StartStyling(unsigned int startPos_, unsigned int length, int initStyle_) {
 		endDoc = styler->Length();
-		endPos = startPos + length;
+		endPos = startPos_ + length;
 		if (endPos == endDoc)
 			endPos = endDoc + 1;
-		currentPos = startPos;
+		currentPos = startPos_;
 		atLineStart = true;
 		atLineEnd = false;
-		state = initStyle;
+		state = initStyle_;
 		cursorPos = 0;
 		lenCurrent = 0;
 		lenNext = 0;
 		memcpy(cursor[0], "\0\0\0\0\0\0\0\0", 8);
 		memcpy(cursor[1], "\0\0\0\0\0\0\0\0", 8);
 		memcpy(cursor[2], "\0\0\0\0\0\0\0\0", 8);
-		styler->StartAt(startPos, static_cast<char>(0xffu));
-		styler->StartSegment(startPos);
+		styler->StartAt(startPos_, static_cast<char>(0xffu));
+		styler->StartSegment(startPos_);
 
 		GetNextChar();
 		cursorPos++;

@@ -1285,10 +1285,10 @@ int SciTEBase::IncrementSearchMode() {
 	return 0;
 }
 
-int SciTEBase::FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition) {
+int SciTEBase::FindInTarget(const char *findWhatText, int lenFind, int startPosition, int endPosition) {
 	wEditor.Call(SCI_SETTARGETSTART, startPosition);
 	wEditor.Call(SCI_SETTARGETEND, endPosition);
-	int posFind = wEditor.CallString(SCI_SEARCHINTARGET, lenFind, findWhat);
+	int posFind = wEditor.CallString(SCI_SEARCHINTARGET, lenFind, findWhatText);
 	while (findInStyle && posFind != -1 && findStyle != wEditor.Call(SCI_GETSTYLEAT, posFind)) {
 		if (startPosition < endPosition) {
 			wEditor.Call(SCI_SETTARGETSTART, posFind + 1);
@@ -1297,7 +1297,7 @@ int SciTEBase::FindInTarget(const char *findWhat, int lenFind, int startPosition
 			wEditor.Call(SCI_SETTARGETSTART, startPosition);
 			wEditor.Call(SCI_SETTARGETEND, posFind + 1);
 		}
-		posFind = wEditor.CallString(SCI_SEARCHINTARGET, lenFind, findWhat);
+		posFind = wEditor.CallString(SCI_SEARCHINTARGET, lenFind, findWhatText);
 	}
 	return posFind;
 }

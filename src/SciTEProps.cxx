@@ -478,12 +478,12 @@ static int FileLength(const char *path) {
 }
 
 void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
-	SString apisFileNames = props.GetNewExpand("api.",
+	SString sApiFileNames = props.GetNewExpand("api.",
 	                        fileNameForExtension.c_str());
-	size_t nameLength = apisFileNames.length();
+	size_t nameLength = sApiFileNames.length();
 	if (nameLength) {
-		apisFileNames.substitute(';', '\0');
-		const char *apiFileName = apisFileNames.c_str();
+		sApiFileNames.substitute(';', '\0');
+		const char *apiFileName = sApiFileNames.c_str();
 		const char *nameEnd = apiFileName + nameLength;
 
 		int tlen = 0;    // total api length
@@ -498,7 +498,7 @@ void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 		if (tlen > 0) {
 			char *buffer = apis.Allocate(tlen);
 			if (buffer) {
-				apiFileName = apisFileNames.c_str();
+				apiFileName = sApiFileNames.c_str();
 				tlen = 0;
 				while (apiFileName < nameEnd) {
 					FILE *fp = fopen(apiFileName, "rb");

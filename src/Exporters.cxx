@@ -145,15 +145,15 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 	// Read the default settings
 	char key[200];
 	sprintf(key, "style.*.%0d", STYLE_DEFAULT);
-	char *valdef = StringDup(props.GetExpanded(key).c_str());
+	char *valdefDefault = StringDup(props.GetExpanded(key).c_str());
 	sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
-	char *val = StringDup(props.GetExpanded(key).c_str());
+	char *valDefault = StringDup(props.GetExpanded(key).c_str());
 
-	StyleDefinition defaultStyle(valdef);
-	defaultStyle.ParseStyleDefinition(val);
+	StyleDefinition defaultStyle(valdefDefault);
+	defaultStyle.ParseStyleDefinition(valDefault);
 
-	delete []val;
-	delete []valdef;
+	delete []valDefault;
+	delete []valdefDefault;
 
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
