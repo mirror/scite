@@ -243,6 +243,7 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
 		ofn.Flags |=
 		    OFN_EXPLORER |
 		    OFN_PATHMUSTEXIST |
+		    OFN_NOCHANGEDIR |
 		    OFN_ALLOWMULTISELECT;
 	}
 	if (::GetOpenFileNameW(&ofn)) {
@@ -282,7 +283,7 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
 		ofn.nMaxFile = ELEMENTS(saveName);
 		GUI::gui_string translatedTitle = localiser.Text(title);
 		ofn.lpstrTitle = translatedTitle.c_str();
-		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 		ofn.lpstrFilter = filter;
 		ofn.lpstrInitialDir = directory.AsInternal();
 
@@ -364,7 +365,7 @@ void SciTEWin::LoadSessionDialog() {
 	ofn.lpstrFilter = GUI_TEXT("Session (.session)\0*.session\0");
 	GUI::gui_string translatedTitle = localiser.Text("Load Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
-	ofn.Flags = OFN_HIDEREADONLY;
+	ofn.Flags = OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
 	if (::GetOpenFileNameW(&ofn)) {
 		LoadSessionFile(openName);
 		RestoreSession();
@@ -384,7 +385,7 @@ void SciTEWin::SaveSessionDialog() {
 	ofn.nMaxFile = ELEMENTS(saveName);
 	GUI::gui_string translatedTitle = localiser.Text("Save Current Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
-	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 	ofn.lpstrFilter = GUI_TEXT("Session (.session)\0*.session\0");
 	if (::GetSaveFileNameW(&ofn)) {
 		SaveSessionFile(saveName);
