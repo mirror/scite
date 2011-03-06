@@ -917,7 +917,11 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		SciTEBase::MenuCommand(cmdID, menuSource);
 		menuSource = 0;
 	}
-	UpdateStatusBar(true);
+	if (notifyCode != SCEN_CHANGE) {
+		// Changes to document produce SCN_UPDATEUI as well as SCEN_CHANGE
+		// and SCN_UPDATEUI updates the status bar but not too frequently.
+		UpdateStatusBar(true);
+	}
 }
 
 void SciTEGTK::ReadLocalization() {
