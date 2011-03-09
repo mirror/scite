@@ -606,10 +606,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 		buff[0] = '\0';
 		MENUITEMINFOW mii;
 		memset(&mii, 0, sizeof(mii));
-		// Explicitly use the struct size for NT 4 as otherwise
-		// GetMenuItemInfo will fail on NT 4.
-		//mii.cbSize = sizeof(mii);
-		mii.cbSize = 44;
+		mii.cbSize = sizeof(mii);
 		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID |
 		            MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
 		mii.dwTypeData = buff;
