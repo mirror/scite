@@ -19,6 +19,7 @@
 
 #include <string>
 #include <map>
+#include <sstream>
 
 #if defined(GTK)
 
@@ -539,6 +540,13 @@ SString::SString(int i) : sizeGrowth(sizeGrowthDefault) {
 	char number[32];
 	sprintf(number, "%0d", i);
 	s = StringAllocate(number);
+	sSize = sLen = (s) ? strlen(s) : 0;
+}
+
+SString::SString(size_t i) : sizeGrowth(sizeGrowthDefault) {
+	std::ostringstream strstrm;
+	strstrm << i;
+	s = StringAllocate(strstrm.str().c_str());
 	sSize = sLen = (s) ? strlen(s) : 0;
 }
 
