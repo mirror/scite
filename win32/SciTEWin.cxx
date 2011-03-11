@@ -963,7 +963,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 			::TerminateProcess(pi.hProcess, 2);
 		}
 		::GetExitCodeProcess(pi.hProcess, &exitcode);
-		SString sExitMessage(exitcode);
+		SString sExitMessage(static_cast<int>(exitcode));
 		sExitMessage.insert(0, ">Exit code: ");
 		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";

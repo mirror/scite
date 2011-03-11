@@ -4583,14 +4583,15 @@ bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
 		char *t;
 		bool handled;
 		t = (char*)(notification->lParam);
+		SString sWParam(static_cast<size_t>(notification->wParam));
 		if (t != NULL) {
 			//format : "<message>;<wParam>;1;<text>"
 			szMessage = new char[50 + strlen(t) + 4];
-			sprintf(szMessage, "%d;%ld;1;%s", notification->message, notification->wParam, t);
+			sprintf(szMessage, "%d;%s;1;%s", notification->message, sWParam.c_str(), t);
 		} else {
 			//format : "<message>;<wParam>;0;"
 			szMessage = new char[50];
-			sprintf(szMessage, "%d;%ld;0;", notification->message, notification->wParam);
+			sprintf(szMessage, "%d;%s;0;", notification->message, sWParam.c_str());
 		}
 		handled = extender->OnMacro("macro:record", szMessage);
 		delete []szMessage;

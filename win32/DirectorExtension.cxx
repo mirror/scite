@@ -59,7 +59,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 		SString addressedMessage;
 		if (wDestination) {
 			addressedMessage += ":";
-			SString address(reinterpret_cast<int>(wDestination));
+			SString address(reinterpret_cast<size_t>(wDestination));
 			addressedMessage += address;
 			addressedMessage += ":";
 		} else {
@@ -85,7 +85,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 }
 
 static void SendDirector(const char *verb, sptr_t arg) {
-	SString s(arg);
+	SString s(static_cast<size_t>(arg));
 	::SendDirector(verb, s.c_str());
 }
 
@@ -101,9 +101,8 @@ static void CheckEnvironment(ExtensionAPI *host) {
 			}
 			delete []director;
 		}
-		char number[32];
-		sprintf(number, "%0d", reinterpret_cast<int>(wReceiver));
-		host->SetProperty("WindowID", number);
+		SString sReceiver(reinterpret_cast<size_t>(wReceiver));
+		host->SetProperty("WindowID", sReceiver.c_str());
 	}
 }
 
