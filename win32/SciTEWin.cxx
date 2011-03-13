@@ -9,7 +9,7 @@
 
 #include "SciTEWin.h"
 
-#ifdef DTBG_CLIPRECT
+#if defined(DTBG_CLIPRECT) && !defined(DISABLE_THEMES)
 #define THEME_AVAILABLE
 #endif
 
