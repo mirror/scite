@@ -814,7 +814,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	int arg = 2;
 
-	long params[2] = {0,0};
+	sptr_t params[2] = {0,0};
 
 	char *stringResult = 0;
 	bool needStringResult = false;
@@ -822,8 +822,8 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	int loopParamCount = 2;
 
 	if (func.paramType[0] == iface_length && func.paramType[1] == iface_string) {
-		params[0] = static_cast<long>(lua_strlen(L, arg));
-		params[1] = reinterpret_cast<long>(params[0] ? lua_tostring(L, arg) : "");
+		params[0] = lua_strlen(L, arg);
+		params[1] = reinterpret_cast<sptr_t>(params[0] ? lua_tostring(L, arg) : "");
 		loopParamCount = 0;
 	} else if (func.paramType[1] == iface_stringresult) {
 		needStringResult = true;
@@ -839,7 +839,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	for (int i=0; i<loopParamCount; ++i) {
 		if (func.paramType[i] == iface_string) {
 			const char *s = lua_tostring(L, arg++);
-			params[i] = reinterpret_cast<long>(s ? s : "");
+			params[i] = reinterpret_cast<sptr_t>(s ? s : "");
 		} else if (func.paramType[i] == iface_keymod) {
 			int keycode = static_cast<int>(luaL_checknumber(L, arg++)) & 0xFFFF;
 			int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) & (SCMOD_SHIFT|SCMOD_CTRL|SCMOD_ALT);
@@ -858,7 +858,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 			stringResult = new char[stringResultLen+1];
 			if (stringResult) {
 				stringResult[stringResultLen]='\0';
-				params[1] = reinterpret_cast<long>(stringResult);
+				params[1] = reinterpret_cast<sptr_t>(stringResult);
 			} else {
 				raise_error(L, "String result buffer allocation failed");
 				return 0;
@@ -878,7 +878,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	// - numeric return type gets returned to lua as a number (following the stringresult)
 	// - other return types e.g. void get dropped.
 
-	int result = host->Send(p, func.value, reinterpret_cast<uptr_t&>(params[0]), reinterpret_cast<sptr_t&>(params[1]));
+	int result = host->Send(p, func.value, params[0], params[1]);
 
 	int resultCount = 0;
 
