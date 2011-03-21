@@ -407,7 +407,8 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 }
 
 void SciTEBase::SetStyleFor(GUI::ScintillaWindow &win, const char *lang) {
-	for (int style = 0; style <= STYLE_MAX; style++) {
+	int maxStyle = (1 << win.Call(SCI_GETSTYLEBITS)) - 1;
+	for (int style = 0; style <= maxStyle; style++) {
 		if (style != STYLE_DEFAULT) {
 			char key[200];
 			sprintf(key, "style.%s.%0d", lang, style);
