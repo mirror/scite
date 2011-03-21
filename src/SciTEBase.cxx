@@ -2149,8 +2149,6 @@ bool SciTEBase::StartInsertAbbreviation() {
 	// set the caret to the desired position
 	if (double_pipe) {
 		sel_length = 0;
-	} else if (!at_start && sel_length == 0) {
-		sel_start += static_cast<int>(expbuflen);
 	}
 	wEditor.Call(SCI_SETSEL, sel_start, sel_start + sel_length);
 
