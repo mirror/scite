@@ -511,6 +511,7 @@ protected:
 	static void CommandSignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
 	static void NotifySignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
 	static gint KeyPress(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
+	static gint KeyRelease(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
 	gint Key(GdkEventKey *event);
 	static gint MousePress(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	gint Mouse(GdkEventButton *event);
@@ -2663,6 +2664,10 @@ gint SciTEGTK::KeyPress(GtkWidget * /*widget*/, GdkEventKey *event, SciTEGTK *sc
 	return scitew->Key(event);
 }
 
+gint SciTEGTK::KeyRelease(GtkWidget * /*widget*/, GdkEventKey *event, SciTEGTK *scitew) {
+	return scitew->Key(event);
+}
+
 gint SciTEGTK::MousePress(GtkWidget * /*widget*/, GdkEventButton *event, SciTEGTK *scitew) {
 	return scitew->Mouse(event);
 }
@@ -2683,8 +2688,8 @@ enum {
 };
 
 static KeyToCommand kmap[] = {
-                                 {m_C, GDK_Tab, IDM_NEXTFILE},
-                                 {mSC, GDK_ISO_Left_Tab, IDM_PREVFILE},
+                                 {m_C, GDK_Tab, IDM_NEXTFILESTACK},
+                                 {mSC, GDK_ISO_Left_Tab, IDM_PREVFILESTACK},
                                  {m_C, GDK_KP_Enter, IDM_COMPLETEWORD},
                                  {m_C, GDK_F3, IDM_FINDNEXTSEL},
                                  {mSC, GDK_F3, IDM_FINDNEXTBACKSEL},
@@ -2704,6 +2709,17 @@ inline bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 
 gint SciTEGTK::Key(GdkEventKey *event) {
 	//printf("S-key: %d %x %x %x %x\n",event->keyval, event->state, GDK_SHIFT_MASK, GDK_CONTROL_MASK, GDK_F3);
+	if (event->type == GDK_KEY_RELEASE) {
+		g_signal_stop_emission_by_name(
+		    GTK_OBJECT(PWidget(wSciTE)), "key-release-event");
+		if (event->keyval == GDK_Control_L || event->keyval == GDK_Control_R) {
+			this->EndStackedTabbing();
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
 	int modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK);
 
 	int cmodifiers = // modifier mask for Lua extension
@@ -3863,6 +3879,9 @@ void SciTEGTK::CreateUI() {
 
 	g_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "key_press_event",
 	                   G_CALLBACK(KeyPress), gthis);
+
+	g_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "key-release-event",
+	                   G_CALLBACK(KeyRelease), gthis);
 
 	g_signal_connect(GTK_OBJECT(PWidget(wSciTE)), "button_press_event",
 	                   G_CALLBACK(MousePress), gthis);
