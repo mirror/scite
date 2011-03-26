@@ -25,6 +25,7 @@ syntax: glob
 *.lastbuildstate
 *.intermediate.manifest
 *.log
+.DS_Store
 Debug
 _UpgradeReport_Files
 UpgradeLog.XML
