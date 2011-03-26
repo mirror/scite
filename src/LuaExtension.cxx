@@ -1707,8 +1707,8 @@ struct StylingContext {
 	static int SetLineState(lua_State *L) {
 		StylingContext *context = Context(L);
 		int line = luaL_checkint(L, 2);
-		int state = luaL_checkint(L, 3);
-		context->styler->SetLineState(line, state);
+		int stateOfLine = luaL_checkint(L, 3);
+		context->styler->SetLineState(line, stateOfLine);
 		return 0;
 	}
 
@@ -1783,10 +1783,10 @@ struct StylingContext {
 
 	static int StartStyling(lua_State *L) {
 		StylingContext *context = Context(L);
-		unsigned int startPos = luaL_checkint(L, 2);
-		unsigned int length = luaL_checkint(L, 3);
-        int initStyle = luaL_checkint(L, 4);
-		context->StartStyling(startPos, length, initStyle);
+		unsigned int startPosStyle = luaL_checkint(L, 2);
+		unsigned int lengthStyle = luaL_checkint(L, 3);
+        int initialStyle = luaL_checkint(L, 4);
+		context->StartStyling(startPosStyle, lengthStyle, initialStyle);
 		return 0;
 	}
 

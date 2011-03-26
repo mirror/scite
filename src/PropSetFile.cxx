@@ -783,16 +783,16 @@ char *SContainer::StringAllocate(lenpos_t len) {
 	}
 }
 
-char *SContainer::StringAllocate(const char *s, lenpos_t len) {
-	if (s == 0) {
+char *SContainer::StringAllocate(const char *sValue, lenpos_t len) {
+	if (sValue == 0) {
 		return 0;
 	}
 	if (len == measure_length) {
-		len = strlen(s);
+		len = strlen(sValue);
 	}
 	char *sNew = new char[len + 1];
 	if (sNew) {
-		memcpy(sNew, s, len);
+		memcpy(sNew, sValue, len);
 		sNew[len] = '\0';
 	}
 	return sNew;
