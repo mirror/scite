@@ -33,6 +33,7 @@
 #define IDM_SAVEASXML		117
 #define IDM_COPYPATH			118
 #define IDM_MRU_SEP			120
+#define IDM_MRU_SUB			121
 #define IDM_PRINTSETUP		130
 #define IDM_PRINT			131
 #define IDM_LOADSESSION		132
