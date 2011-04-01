@@ -4280,22 +4280,7 @@ void SciTEBase::CheckMenus() {
 		EnableAMenuItem(IDM_TOOLS + toolItem, !jobQueue.IsExecuting());
 	EnableAMenuItem(IDM_STOPEXECUTE, jobQueue.IsExecuting());
 	if (buffers.size > 0) {
-#if defined(WIN32)
-		// Tab Bar
-#ifndef TCM_DESELECTALL
-#define TCM_DESELECTALL TCM_FIRST+50
-#endif
-		if (wTabBar.GetID()) {
-			::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_DESELECTALL, (WPARAM)0, (LPARAM)0);
-			::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()), TCM_SETCURSEL, (WPARAM)buffers.Current(), (LPARAM)0);
-		}
-#endif
-#if defined(GTK)
-
-		if (wTabBar.GetID())
-			gtk_notebook_set_page(GTK_NOTEBOOK(wTabBar.GetID()), buffers.Current());
-#endif
-
+		TabSelect(buffers.Current());
 		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
 			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.Current());
 		}
