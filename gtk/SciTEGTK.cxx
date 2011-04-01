@@ -62,6 +62,12 @@
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 
+#if GTK_CHECK_VERSION(2,20,0)
+#define WIDGET_SET_NO_FOCUS(w) gtk_widget_set_can_focus(w, FALSE)
+#else
+#define WIDGET_SET_NO_FOCUS(w) GTK_WIDGET_UNSET_FLAGS(w, GTK_CAN_FOCUS)
+#endif
+
 #define MB_ABOUTBOX	0x100000L
 
 const char appName[] = "SciTE";
@@ -337,6 +343,7 @@ protected:
 	int exitStatus;
 	guint pollID;
 	int inputHandle;
+	GIOChannel *inputChannel;
 	GUI::ElapsedTime commandTime;
 	SString lastOutput;
 	int lastFlags;
@@ -503,7 +510,7 @@ protected:
 	void ParamCmd();
 	void ParamResponse(int responseID);
 
-	static void IOSignal(SciTEGTK *scitew);
+	static gboolean IOSignal(GIOChannel *source, GIOCondition condition, SciTEGTK *scitew);
 	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
 	static gint QuitSignal(GtkWidget *w, GdkEventAny *e, SciTEGTK *scitew);
 	static void ButtonSignal(GtkWidget *widget, gpointer data);
@@ -581,6 +588,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	exitStatus = 0;
 	pollID = 0;
 	inputHandle = 0;
+	inputChannel = 0;
 	lastFlags = 0;
 
 	startupTimestamp = 0;
@@ -654,7 +662,11 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	int val, GtkAccelGroup *accel_group, bool isDefault) {
 	GUI::gui_string translated = localiser.Text(label);
 	GtkWidget *button = gtk_button_new_with_mnemonic(translated.c_str());
+#if GTK_CHECK_VERSION(2,20,0)
+	gtk_widget_set_can_default(button, TRUE);
+#else
 	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+#endif
 	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), translated.c_str());
 	gtk_widget_add_accelerator(button, "clicked", accel_group,
 	                           key, GdkModifierType(0), (GtkAccelFlags)0);
@@ -2043,8 +2055,10 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		if ((scrollOutput == 1) && returnOutputToCommand)
 			wOutput.Send(SCI_GOTOPOS, originalEnd);
 		returnOutputToCommand = true;
-		gdk_input_remove(inputHandle);
+		g_source_remove(inputHandle);
 		inputHandle = 0;
+		g_io_channel_unref(inputChannel);
+		inputChannel = 0;
 		g_source_remove(pollID);
 		pollID = 0;
 		close(fdFIFO);
@@ -2063,8 +2077,9 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 	}
 }
 
-void SciTEGTK::IOSignal(SciTEGTK *scitew) {
+gboolean SciTEGTK::IOSignal(GIOChannel *, GIOCondition, SciTEGTK *scitew) {
 	scitew->ContinueExecute(FALSE);
+	return TRUE;
 }
 
 int xsystem(const char *s, int fh) {
@@ -2129,8 +2144,8 @@ void SciTEGTK::Execute() {
 		triedKill = false;
 		fdFIFO = pipefds[0];
 		fcntl(fdFIFO, F_SETFL, fcntl(fdFIFO, F_GETFL) | O_NONBLOCK);
-		inputHandle = gdk_input_add(pipefds[0], GDK_INPUT_READ,
-		                            (GdkInputFunction) IOSignal, this);
+		inputChannel = g_io_channel_unix_new(pipefds[0]);
+		inputHandle = g_io_add_watch(inputChannel, G_IO_IN, (GIOFunc)IOSignal, this);
 		// Also add a background task in case there is no output from the tool
 		pollID = g_timeout_add(200, (gint (*)(void *)) SciTEGTK::PollTool, this);
 	}
@@ -3863,7 +3878,6 @@ bool SciTEGTK::StripHasFocus() {
 void SciTEGTK::CreateUI() {
 	CreateBuffers();
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	//GTK_WIDGET_UNSET_FLAGS(PWidget(wSciTE), GTK_CAN_FOCUS);
 	gtk_window_set_policy(GTK_WINDOW(PWidget(wSciTE)), TRUE, TRUE, FALSE);
 
 	char *gthis = reinterpret_cast<char *>(this);
@@ -3912,7 +3926,7 @@ void SciTEGTK::CreateUI() {
 
 	GtkWidget *boxMain = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(PWidget(wSciTE)), boxMain);
-	GTK_WIDGET_UNSET_FLAGS(boxMain, GTK_CAN_FOCUS);
+	WIDGET_SET_NO_FOCUS(boxMain);
 
  	// The Menubar
 	CreateMenu();
@@ -3947,7 +3961,7 @@ void SciTEGTK::CreateUI() {
 
 	// The Notebook (GTK2)
 	wTabBar = gtk_notebook_new();
-	GTK_WIDGET_UNSET_FLAGS(PWidget(wTabBar),GTK_CAN_FOCUS);
+	WIDGET_SET_NO_FOCUS(PWidget(wTabBar));
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
 	g_signal_connect(GTK_OBJECT(PWidget(wTabBar)),
 		"button-release-event", G_CALLBACK(TabBarReleaseSignal), gthis);
@@ -3957,7 +3971,7 @@ void SciTEGTK::CreateUI() {
 	tabVisible = false;
 
 	wContent = gtk_fixed_new();
-	GTK_WIDGET_UNSET_FLAGS(PWidget(wContent), GTK_CAN_FOCUS);
+	WIDGET_SET_NO_FOCUS(PWidget(wContent));
 	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
 
 	g_signal_connect(GTK_OBJECT(PWidget(wContent)), "size_allocate",

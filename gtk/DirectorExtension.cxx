@@ -147,20 +147,26 @@ static bool SendPipeCommand(const char *pipeCommand) {
 	return true;
 }
 
-static void ReceiverPipeSignal(void *data, gint fd, GdkInputCondition condition){
+static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, void *data) {
 	char pipeData[8192];
 	PropSetFile pipeProps;
 	DirectorExtension *ext = reinterpret_cast<DirectorExtension *>(data);
 
-	if (condition == GDK_INPUT_READ) {
+	if ((condition & G_IO_IN) == G_IO_IN) {
 		SString pipeString;
-		int readLength;
-		while ((readLength = read(fd, pipeData, sizeof(pipeData) - 1)) > 0) {
+		gsize readLength;
+		GError *error = NULL;
+		GIOStatus status = g_io_channel_read_chars(source, pipeData,
+			sizeof(pipeData) - 1, &readLength, &error);
+		while ((status != G_IO_STATUS_ERROR) && (readLength > 0)) {
 			pipeData[readLength] = '\0';
 			pipeString.append(pipeData);
+			status = g_io_channel_read_chars(source, pipeData,
+				sizeof(pipeData) - 1, &readLength, &error);
 		}
 		ext->HandleStringMessage(pipeString.c_str());
 	}
+	return TRUE;
 }
 
 static void SendDirector(const char *verb, const char *arg = 0) {
@@ -231,6 +237,12 @@ bool DirectorExtension::Finalise() {
 	}
 	IF_DEBUG(fprintf(fdDebug,"finished\n"))
 	IF_DEBUG(fclose(fdDebug))
+
+	g_source_remove(inputWatcher);
+	inputWatcher = 0;
+	g_io_channel_unref(inputChannel);
+	inputChannel = 0;
+
 	return true;
 }
 
@@ -413,6 +425,7 @@ void DirectorExtension::CreatePipe(bool) {
 
 	fdReceiver = -1;
 	inputWatcher = -1;
+	inputChannel = 0;
 	requestPipeName[0] = '\0';
 
 	// check we have been given a specific pipe name
@@ -462,8 +475,10 @@ void DirectorExtension::CreatePipe(bool) {
 
 	// If we were able to open a pipe, listen to it
 	if (fdReceiver != -1) {
-		// store the inputwatcher so we can remove it.
-		inputWatcher = gdk_input_add(fdReceiver, GDK_INPUT_READ, ReceiverPipeSignal, this);
+		// store the inputWatcher so we can remove it.
+		inputChannel = g_io_channel_unix_new(fdReceiver);
+		inputWatcher = g_io_add_watch(inputChannel, G_IO_IN, (GIOFunc)ReceiverPipeSignal, this);
+		//inputWatcher = gdk_input_add(fdReceiver, GDK_INPUT_READ, ReceiverPipeSignal, this);
 		// if we were not supplied with an explicit ipc.scite.name, then set this
 		// property to be the constructed pipe name.
 		if (! not_empty(pipeName)) {

@@ -7,7 +7,7 @@
 
 class DirectorExtension : public Extension {
 private:
-	DirectorExtension() : inputWatcher(-1) {} // Singleton
+	DirectorExtension() : inputWatcher(-1), inputChannel(0) {} // Singleton
 	DirectorExtension(const DirectorExtension &); // Disable copy ctor
 	void operator=(const DirectorExtension &);    // Disable operator=
 
@@ -42,5 +42,6 @@ public:
 	void CreatePipe(bool forceNew = false);
 private:
 	int inputWatcher;
+	GIOChannel *inputChannel;
 };
 
