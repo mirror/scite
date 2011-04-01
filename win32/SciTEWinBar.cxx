@@ -436,13 +436,12 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 		// tools, and for other menu entries it is just discarded.
 	}
 
-	if (::GetMenuState(hmenu, itemID, MF_BYCOMMAND) == 0xffffffff) {
-		if (text[0])
-			::InsertMenuW(hmenu, position, MF_BYPOSITION, itemID, sTextMnemonic.c_str());
-		else
-			::InsertMenuW(hmenu, position, MF_BYPOSITION | MF_SEPARATOR, itemID, sTextMnemonic.c_str());
+	UINT typeFlags = (text[0]) ? MF_STRING : MF_SEPARATOR;
+	if (::GetMenuState(hmenu, itemID, MF_BYCOMMAND) == (UINT)(-1)) {
+		// Not present so insert
+		::InsertMenuW(hmenu, position, MF_BYPOSITION | typeFlags, itemID, sTextMnemonic.c_str());
 	} else {
-		::ModifyMenuW(hmenu, position, MF_BYCOMMAND, itemID, sTextMnemonic.c_str());
+		::ModifyMenuW(hmenu, itemID, MF_BYCOMMAND | typeFlags, itemID, sTextMnemonic.c_str());
 	}
 
 	if (itemID >= IDM_TOOLS && itemID < IDM_TOOLS + toolMax) {
