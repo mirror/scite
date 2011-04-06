@@ -4150,8 +4150,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 			EnableAMenuItem(IDM_REDO, CallFocused(SCI_CANREDO));
 		} else if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
 			//this will be called a lot, and usually means "typing".
-			EnableAMenuItem(IDM_UNDO, TRUE);
-			EnableAMenuItem(IDM_REDO, FALSE);
+			EnableAMenuItem(IDM_UNDO, true);
+			EnableAMenuItem(IDM_REDO, false);
 			if (CurrentBuffer()->findMarks == Buffer::fmMarked) {
 				CurrentBuffer()->findMarks = Buffer::fmModified;
 			}
