@@ -45,9 +45,9 @@ public:
 	}
 };
 
-#if defined(GTK)
+#if defined(GTK) || defined(__APPLE__)
 
-// On GTK+ use UTF-8 char strings
+// On GTK+ and OS X use UTF-8 char strings
 
 typedef char gui_char;
 typedef std::string gui_string;
@@ -64,8 +64,6 @@ typedef std::wstring gui_string;
 #define GUI_TEXT(q) L##q
 
 #endif
-
-//typedef std::basic_string<gui_char> gui_string;
 
 gui_string StringFromUTF8(const char *s);
 std::string UTF8FromString(const gui_string &s);
@@ -168,5 +166,17 @@ public:
 bool IsDBCSLeadByte(int codePage, char ch);
 
 }
+
+#if defined(SCI_NAMESPACE)
+
+// Scintilla namespace may or may not be turned on.
+// If it is turned on, then make the structures usable without the Scintilla:: prefix
+
+using Scintilla::Sci_CharacterRange;
+using Scintilla::Sci_TextRange;
+using Scintilla::Sci_TextToFind;
+using Scintilla::SCNotification;
+
+#endif
 
 #endif
