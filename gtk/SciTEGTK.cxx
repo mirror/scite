@@ -2761,7 +2761,10 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	if (commandID) {
 		Command(commandID);
 	}
-	if ((commandID == IDM_NEXTFILE) || (commandID == IDM_PREVFILE)) {
+	if ((commandID == IDM_NEXTFILE) ||
+		(commandID == IDM_PREVFILE) ||
+		(commandID == IDM_NEXTFILESTACK) ||
+		(commandID == IDM_PREVFILESTACK)) {
 		// Stop the default key processing from moving the focus
 		g_signal_stop_emission_by_name(
 		    GTK_OBJECT(PWidget(wSciTE)), "key_press_event");
