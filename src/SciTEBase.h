@@ -769,6 +769,7 @@ protected:
 	    grepNone = 0, grepWholeWord = 1, grepMatchCase = 2, grepStdOut = 4,
 	    grepDot = 8, grepBinary = 16
 	};
+	virtual bool GrepIntoDirectory(const FilePath &directory);
 	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const GUI::gui_char *fileTypes);
 	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *files, const char *search);
 	void EnumProperties(const char *action);

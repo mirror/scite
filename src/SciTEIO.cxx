@@ -1134,6 +1134,15 @@ static bool IsWordCharacter(int ch) {
 	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')  || (ch >= '0' && ch <= '9')  || (ch == '_');
 }
 
+bool SciTEBase::GrepIntoDirectory(const FilePath &directory) {
+    const GUI::gui_char *sDirectory = directory.AsInternal();
+#ifdef __APPLE__
+    if (strcmp(sDirectory, "build") == 0)
+        return false;
+#endif
+    return sDirectory[0] != '.';
+}
+
 void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const GUI::gui_char *fileTypes) {
 	FilePathSet directories;
 	FilePathSet files;
@@ -1183,7 +1192,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 	}
 	for (size_t j = 0; j < directories.Length(); j++) {
 		FilePath fPath = directories.At(j);
-		if ((gf & grepDot) || (fPath.Name().AsInternal()[0] != '.')) {
+		if ((gf & grepDot) || GrepIntoDirectory(fPath.Name())) {
 			GrepRecursive(gf, fPath, searchString, fileTypes);
 		}
 	}
