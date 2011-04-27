@@ -683,13 +683,9 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 
 // This is an internally used function to create pixmaps.
 GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
-	char path[MAX_PATH + 20];
-	strncpy(path, PIXMAP_PATH, sizeof(path));
-	strcat(path, pathSepString);
-	strcat(path, filename);
-
+	FilePath pathPixmap(PIXMAP_PATH, filename);
 	GError *error = NULL;
-	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(path, &error);
+	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(pathPixmap.AsInternal(), &error);
 	if (!pixbuf) {
 		//~ fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",
 			//~ path, error->message);
@@ -1626,8 +1622,8 @@ void SciTEGTK::FindInFilesCmd() {
 	if (findCommand == "") {
 		findCommand = sciteExecutable.AsInternal();
 		findCommand += " -grep ";
-		findCommand += wholeWord ? "w" : "~";
-		findCommand += matchCase ? "c" : "~";
+		findCommand += (wholeWord ? "w" : "~");
+		findCommand += (matchCase ? "c" : "~");
 		findCommand += props.GetInt("find.in.dot") ? "d" : "~";
 		findCommand += props.GetInt("find.in.binary") ? "b" : "~";
 		findCommand += " \"";
@@ -2761,7 +2757,10 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	if (commandID) {
 		Command(commandID);
 	}
-	if ((commandID == IDM_NEXTFILE) || (commandID == IDM_PREVFILE)) {
+	if ((commandID == IDM_NEXTFILE) ||
+		(commandID == IDM_PREVFILE) ||
+		(commandID == IDM_NEXTFILESTACK) ||
+		(commandID == IDM_PREVFILESTACK)) {
 		// Stop the default key processing from moving the focus
 		g_signal_stop_emission_by_name(
 		    GTK_OBJECT(PWidget(wSciTE)), "key_press_event");

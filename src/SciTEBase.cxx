@@ -4665,6 +4665,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 
 	uptr_t message = ReadNum(nextarg);
 	strncpy(params, nextarg, 3);
+	params[3] = '\0';
 	nextarg += 4;
 	if (*(params + 1) == 'R') {
 		// in one function wParam is a string  : void SetProperty(string key,string name)

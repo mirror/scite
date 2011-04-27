@@ -1150,6 +1150,8 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 	size_t searchLength = strlen(searchString);
 	SString os;
 	for (size_t i = 0; i < files.Length(); i ++) {
+		if (jobQueue.Cancelled())
+			return;
 		FilePath fPath = files.At(i);
 		if (fPath.Matches(fileTypes)) {
 			//OutputAppendStringSynchronised(i->AsInternal());

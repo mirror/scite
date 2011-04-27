@@ -1989,13 +1989,11 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
 			GUI::Point ptClient = ptCursor;
 			::ScreenToClient(pSciTEWin->MainHWND(), reinterpret_cast<POINT *>(&ptClient));
-			if ((ptClient.y > (pSciTEWin->visHeightTools + pSciTEWin->visHeightTab)) && (ptClient.y < pSciTEWin->visHeightTools + pSciTEWin->visHeightTab + pSciTEWin->visHeightEditor)) {
-				GUI::Rectangle rcScintilla = pSciTEWin->wEditor.GetPosition();
-				GUI::Rectangle rcOutput = pSciTEWin->wOutput.GetPosition();
-				if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
-					::SetCursor(::LoadCursor(NULL, pSciTEWin->splitVertical ? IDC_SIZEWE : IDC_SIZENS));
-					return TRUE;
-				}
+			GUI::Rectangle rcScintilla = pSciTEWin->wEditor.GetPosition();
+			GUI::Rectangle rcOutput = pSciTEWin->wOutput.GetPosition();
+			if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
+				::SetCursor(::LoadCursor(NULL, pSciTEWin->splitVertical ? IDC_SIZEWE : IDC_SIZENS));
+				return TRUE;
 			}
 		}
 		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);

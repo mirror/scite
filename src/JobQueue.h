@@ -108,6 +108,11 @@ public:
 		cancelFlag = value;
 		return cancelFlagPrevious;
 	}
+
+	long Cancelled() {
+		Lock lock(mutex);
+		return cancelFlag;
+	}
 };
 
 #endif
