@@ -683,13 +683,9 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 
 // This is an internally used function to create pixmaps.
 GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
-	char path[MAX_PATH + 20];
-	strncpy(path, PIXMAP_PATH, sizeof(path));
-	strcat(path, pathSepString);
-	strcat(path, filename);
-
+	FilePath pathPixmap(PIXMAP_PATH, filename);
 	GError *error = NULL;
-	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(path, &error);
+	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(pathPixmap.AsInternal(), &error);
 	if (!pixbuf) {
 		//~ fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",
 			//~ path, error->message);
