@@ -67,8 +67,10 @@
 #include "SciTEBase.h"
 #include "Utf8_16.h"
 
-#ifdef __unix__
+#if defined(GTK)
 const GUI::gui_char propUserFileName[] = GUI_TEXT(".SciTEUser.properties");
+#elif defined(__APPLE__)
+const GUI::gui_char propUserFileName[] = GUI_TEXT("org.scintilla.SciTEUser.properties");
 #else
 // Windows
 const GUI::gui_char propUserFileName[] = GUI_TEXT("SciTEUser.properties");
