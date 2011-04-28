@@ -50,7 +50,7 @@
         .headerlinks {
             padding: 7px;
             background-color: #CCCCCC;
-	  border: 0px solid #FF0000;
+            border: 0px solid #FF0000;
             font-size: 120%;
         }
  </style>
@@ -845,7 +845,8 @@ NameError: mistake
       symbol that may be defined earlier in this property set file or in a base
       property set. If the symbol evaluates to '0' then the test fails. An empty
       string or not present symbol evaluates to 0. Into the very top property set
-      is inserted one of 'PLAT_GTK' with value '1' or 'PLAT_WIN' with value '1'.
+      is inserted one of 'PLAT_GTK' with value '1',
+      'PLAT_WIN' with value '1', or 'PLAT_MAC' with value '1'.
       If the test succeeds then following indented statements are executed. When a
       non-indented statement is found the if clause is finished. Only simple set
       statements are allowed in if clauses. The evaluation of if statements occurs
@@ -1023,10 +1024,9 @@ NameError: mistake
           depends on your platform.
           You can overwrite this behaviour by setting the property to
           <div class="example">
-  LF   for UNIX format<br />
-  CR   for Macintosh format<br />
+  LF   for UNIX and OS X format<br />
+  CR   for Macintosh format prior to OS X<br />
   CRLF for DOS/Windows format</div>
-          As you see, Windows combines the best of the other worlds ;-)
         </td>
       </tr>
       <tr>
@@ -1094,13 +1094,19 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          tabbar.visible<br />
-        tabbar.hide.one
+          tabbar.visible
         </td>
         <td>
-          Setting tabbar.visible to 1 makes the tab bar visible at start up on Windows.
-        The buffers property must be set to a value greater than 1 for this option to work.
-        Setting tabbar.hide.one to 1 hides the tab bar until there is more than one tab.
+          Setting tabbar.visible to 1 makes the tab bar visible at start up.
+          The buffers property must be set to a value greater than 1 for this option to work.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          tabbar.hide.one
+        </td>
+        <td>
+          Setting tabbar.hide.one to 1 hides the tab bar until there is more than one tab.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1171,10 +1177,10 @@ NameError: mistake
           Setting this to 1 makes the status bar visible at start up.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr>
         <td>
           statusbar.number<br />
-        statusbar.text.<i>number</i>
+          statusbar.text.<i>number</i>
         </td>
         <td>
         The statusbar.text.1 option defines the information displayed in the status bar
@@ -1187,9 +1193,9 @@ NameError: mistake
           You can also use file properties, which, unlike those above, are not updated
           on each keystroke: FileName or FileNameExt, FileDate and FileTime and
           FileAttr. Plus CurrentDate and CurrentTime.<br />
-        On Windows only, further texts may be set as statusbar.text.2 .. and these may be
+          On Windows only, further texts may be set as statusbar.text.2 .. and these may be
           cycled between by clicking the status bar.<br />
-        The statusbar.number option defines how many texts are to be cycled through.
+          The statusbar.number option defines how many texts are to be cycled through.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -1533,7 +1539,7 @@ NameError: mistake
         <td>Defines a path for the Open Selected Filename command in the File
         menu. The path is searched if the selected filename doesn't contain an
         absolute path or the file is not found in the document directory. The
-        directories in openpath are separated by ';' on Windows and ':' on GTK+.<br />
+        directories in openpath are separated by ';' on Windows and ':' on OS X and GTK+.<br />
         An openpath setting may look like:
         <div class="example">
         openpath.*.txt=c:\dos\;f:\;<br />
@@ -2208,7 +2214,6 @@ Prev File|IDM_PREVFILE|<br/>
           items out, one per line. These file types appear in the "Files of type:" pull down. The
           first item is the default, so you may wish to change the first item to include the file
           types you commonly open.<br />
-          On GTK+, this option only works for GTK+ 2.4 or later.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -2240,7 +2245,7 @@ Prev File|IDM_PREVFILE|<br/>
           save.deletes.first
         </td>
         <td>
-          Causes files to be deleted before being opened for saving. Can be used on Windows
+          Causes files to be deleted before being opened for saving. Can be used
           to ensure saving under a different capitalisation changes the files capitalisation rather
           than silently using the old capitalisation.
         </td>
@@ -2296,10 +2301,7 @@ Prev File|IDM_PREVFILE|<br/>
         <td>
           Setting open.dialog.in.file.directory causes the open dialog to initially
           display the same directory as the current file. If it is not set then the
-          system default is used which on Windows XP is the last directory
-          visited by the open dialog in any instance of SciTE. This is hard
-          to use with multiple instances of SciTE. <br />
-	  	  Some versions of GTK+ may also set an unexpected directory.
+          system default is used.
         </td>
       </tr>
       <tr class="windowsonly">
@@ -2468,8 +2470,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         Setting code.page to 65001 starts Unicode mode and the document is treated as
         a sequence of characters expressed as UTF-8. Display is performed by converting to the
         platform's normal Unicode encoding first so characters from any language will be displayed.
-        Correct glyphs will only be displayed if fonts are chosen that contain the appropriate glyphs.
-        Tahoma is a good choice on Windows XP. <br/>
+        Correct glyphs may only be displayed if fonts are chosen that contain the appropriate glyphs.
+        The Tahoma font contains a wide range of glyphs so may be a good choice. <br/>
         This property can <em>not</em> set a single byte character set.<br />
 	If output.code.page is set then it is used for the output pane which otherwise
 	matches the edit pane.
@@ -2501,10 +2503,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  <tr class="gtkonly"><td>Cyrillic (CP1251 on GTK+)</td><td align="right">1251</td></tr>
 	  <tr class="gtkonly"><td>European with Euro (ISO 8859-15)</td><td align="right">1000</td></tr>
 	  </table>
-        All of these values except for 1251 and 1000 may work on Windows, but on GTK+ Baltic, Turkish, Thai and Vietnamese
-        will probably not work.
-        Please send email if you use one of these settings and it works or doesn't or if you
-        have information on how to support other languages.
+        All of these values except for 1251 and 1000 should work on OS X or Windows.
+        On GTK+ Baltic, Turkish, Thai and Vietnamese will probably not work.
         </td>
       </tr>
       <tr>
@@ -2668,8 +2668,8 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           "fore:#FF0000,font:Courier,size:14" represents 14 point, red Courier text.<br />
            A global style can be set up using style.*.<i>stylenumber</i>. Any style options set in
           the global style will be inherited by each lexer style unless overridden.<br />
-	On GTK+ 2, Pango anti-aliased fonts can be chosen by prefixing the font name with "!",
-	such as "font:!Sans".
+	On GTK+, the font name should be prefixed with "!" such as "font:!Sans" to ensure Pango
+	anti-aliased fonts are used. If this is not done, an older font system will be used which may not work well.
         </td>
       </tr>
       <tr>
@@ -2741,8 +2741,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         </td>
         <td>
           These settings choose which commands to execute when the Compile, Build or Go menu items
-          are selected. The subsystem options determine for Windows whether the tools are run as
-          command line(0), windowed(1), through ShellExecute(2), or through the director interface(3).<br />
+          are selected. The subsystem options are explained in the subsystem section.<br />
         When source files are in a different directory to that they should be built in, the
         command.build.directory property can be set to change to a particular directory before performing
         the build.
@@ -2867,7 +2866,7 @@ groupundo - yes or no
         <td>
         Defines a command to be executed when the help command is
         invoked or F1 pressed. On Windows, this often uses subsystem 4 as described above.
-        On Linux, running man or a browser are common ways of displaying help.
+        On OS X or Linux, running man or a browser are common ways of displaying help.
         The word at the cursor is copied to $(CurrentWord) and this is often a good argument
         to the help application. The subsystem property works in the same way as for other
         commands.
@@ -3303,9 +3302,9 @@ groupundo - yes or no
           fileselector.height
         </td>
         <td>
-                For the GTK+ version determines the initial size of the file
-        selector dialog invoked by the Open and Save commands.
-        Setting has no effect on Windows.
+          For the GTK+ version determines the initial size of the file
+          selector dialog invoked by the Open and Save commands.
+          Setting has no effect on Windows.
         </td>
       </tr>
       <tr class="gtkonly">
