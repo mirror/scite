@@ -553,7 +553,6 @@ public:
 	~SciTEGTK();
 
 	void WarnUser(int warnID);
-	GtkWidget *pixmap_new(GtkWidget *window, gchar **xpm);
 	GtkWidget *AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon);
 	void AddToolBar();
 	SString TranslatePath(const char *path);
@@ -3021,37 +3020,30 @@ gint SciTEGTK::TabBarScroll(GdkEventScroll *event) {
 	return TRUE;
 }
 
-GtkWidget *SciTEGTK::pixmap_new(GtkWidget *window, gchar **xpm) {
-	GdkBitmap *mask = 0;
-
-	/* now for the pixmap from gdk */
-	GtkStyle *style = gtk_widget_get_style(window);
-	GdkPixmap *pixmap = gdk_pixmap_create_from_xpm_d(
-	                        window->window,
-	                        &mask,
-	                        &style->bg[GTK_STATE_NORMAL],
-	                        xpm);
-
-	/* a pixmap widget to contain the pixmap */
-	GtkWidget *pixmapwid = gtk_pixmap_new(pixmap, mask);
-	gtk_widget_show(pixmapwid);
-
-	return pixmapwid;
+static GtkWidget *pixmap_new(gchar **xpm) {
+	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_xpm_data((const char **)(char **)xpm);
+	return gtk_image_new_from_pixbuf(pixbuf);
 }
 
 GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon) {
+	gtk_widget_show(GTK_WIDGET(toolbar_icon));
+	GtkToolItem *button = gtk_tool_button_new(toolbar_icon, text);
+#if GTK_CHECK_VERSION(2,12,0)
+	gtk_widget_set_tooltip_text(GTK_WIDGET(button), text);
+#endif
+	gtk_widget_show(GTK_WIDGET(button));
+	gtk_toolbar_insert(GTK_TOOLBAR(PWidget(wToolBar)), button, -1);
 
-	GtkWidget *button = gtk_toolbar_append_element(GTK_TOOLBAR(PWidget(wToolBar)),
-	                    GTK_TOOLBAR_CHILD_BUTTON,
-	                    NULL,
-	                    NULL,
-	                    text, NULL,
-	                    toolbar_icon, NULL, NULL);
-
-	g_signal_connect(GTK_OBJECT(button), "clicked",
+	g_signal_connect(G_OBJECT(button), "clicked",
 	                   G_CALLBACK(ButtonSignal),
 	                   (gpointer)cmd);
-	return button;
+	return GTK_WIDGET(button);
+}
+
+static void AddToolSpace(GtkToolbar *toolbar) {
+	GtkToolItem *space = gtk_separator_tool_item_new();
+	gtk_widget_show(GTK_WIDGET(space));
+	gtk_toolbar_insert(toolbar, space, -1);
 }
 
 void SciTEGTK::AddToolBar() {
@@ -3061,59 +3053,59 @@ void SciTEGTK::AddToolBar() {
 		AddToolButton("Save", IDM_SAVE, gtk_image_new_from_stock("gtk-save", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Close", IDM_CLOSE, gtk_image_new_from_stock("gtk-close", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
 		AddToolButton("Undo", IDM_UNDO, gtk_image_new_from_stock("gtk-undo", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Redo", IDM_REDO, gtk_image_new_from_stock("gtk-redo", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
 		AddToolButton("Cut", IDM_CUT, gtk_image_new_from_stock("gtk-cut", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Copy", IDM_COPY, gtk_image_new_from_stock("gtk-copy", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Paste", IDM_PASTE, gtk_image_new_from_stock("gtk-paste", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
 		AddToolButton("Find in Files", IDM_FINDINFILES, gtk_image_new_from_stock("gtk-find", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Find", IDM_FIND, gtk_image_new_from_stock("gtk-zoom-fit", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Find Next", IDM_FINDNEXT, gtk_image_new_from_stock("gtk-jump-to", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Replace", IDM_REPLACE, gtk_image_new_from_stock("gtk-find-and-replace", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
 		btnCompile = AddToolButton("Compile", IDM_COMPILE, gtk_image_new_from_stock("gtk-execute", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		btnBuild = AddToolButton("Build", IDM_BUILD, gtk_image_new_from_stock("gtk-convert", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, gtk_image_new_from_stock("gtk-stop", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
-		gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
+		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
 		AddToolButton("Previous", IDM_PREVFILE, gtk_image_new_from_stock("gtk-go-back", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_stock("gtk-go-forward", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		return;
 	}
-	AddToolButton("New", IDM_NEW, pixmap_new(PWidget(wSciTE), (gchar**)filenew_xpm));
-	AddToolButton("Open", IDM_OPEN, pixmap_new(PWidget(wSciTE), (gchar**)fileopen_xpm));
-	AddToolButton("Save", IDM_SAVE, pixmap_new(PWidget(wSciTE), (gchar**)filesave_xpm));
-	AddToolButton("Close", IDM_CLOSE, pixmap_new(PWidget(wSciTE), (gchar**)close_xpm));
+	AddToolButton("New", IDM_NEW, pixmap_new((gchar**)filenew_xpm));
+	AddToolButton("Open", IDM_OPEN, pixmap_new((gchar**)fileopen_xpm));
+	AddToolButton("Save", IDM_SAVE, pixmap_new((gchar**)filesave_xpm));
+	AddToolButton("Close", IDM_CLOSE, pixmap_new((gchar**)close_xpm));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Undo", IDM_UNDO, pixmap_new(PWidget(wSciTE), (gchar**)undo_xpm));
-	AddToolButton("Redo", IDM_REDO, pixmap_new(PWidget(wSciTE), (gchar**)redo_xpm));
+	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
+	AddToolButton("Undo", IDM_UNDO, pixmap_new((gchar**)undo_xpm));
+	AddToolButton("Redo", IDM_REDO, pixmap_new((gchar**)redo_xpm));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Cut", IDM_CUT, pixmap_new(PWidget(wSciTE), (gchar**)editcut_xpm));
-	AddToolButton("Copy", IDM_COPY, pixmap_new(PWidget(wSciTE), (gchar**)editcopy_xpm));
-	AddToolButton("Paste", IDM_PASTE, pixmap_new(PWidget(wSciTE), (gchar**)editpaste_xpm));
+	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
+	AddToolButton("Cut", IDM_CUT, pixmap_new((gchar**)editcut_xpm));
+	AddToolButton("Copy", IDM_COPY, pixmap_new((gchar**)editcopy_xpm));
+	AddToolButton("Paste", IDM_PASTE, pixmap_new((gchar**)editpaste_xpm));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new(PWidget(wSciTE), (gchar**)findinfiles_xpm));
-	AddToolButton("Find", IDM_FIND, pixmap_new(PWidget(wSciTE), (gchar**)search_xpm));
-	AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new(PWidget(wSciTE), (gchar**)findnext_xpm));
-	AddToolButton("Replace", IDM_REPLACE, pixmap_new(PWidget(wSciTE), (gchar**)replace_xpm));
+	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
+	AddToolButton("Find in Files", IDM_FINDINFILES, pixmap_new((gchar**)findinfiles_xpm));
+	AddToolButton("Find", IDM_FIND, pixmap_new((gchar**)search_xpm));
+	AddToolButton("Find Next", IDM_FINDNEXT, pixmap_new((gchar**)findnext_xpm));
+	AddToolButton("Replace", IDM_REPLACE, pixmap_new((gchar**)replace_xpm));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new(PWidget(wSciTE), (gchar**)compile_xpm));
-	btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new(PWidget(wSciTE), (gchar**)build_xpm));
-	btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new(PWidget(wSciTE), (gchar**)stop_xpm));
+	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
+	btnCompile = AddToolButton("Compile", IDM_COMPILE, pixmap_new((gchar**)compile_xpm));
+	btnBuild = AddToolButton("Build", IDM_BUILD, pixmap_new((gchar**)build_xpm));
+	btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, pixmap_new((gchar**)stop_xpm));
 
-	gtk_toolbar_append_space(GTK_TOOLBAR(PWidget(wToolBar)));
-	AddToolButton("Previous", IDM_PREVFILE, pixmap_new(PWidget(wSciTE), (gchar**)prev_xpm));
-	AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new(PWidget(wSciTE), (gchar**)next_xpm));
+	AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
+	AddToolButton("Previous", IDM_PREVFILE, pixmap_new((gchar**)prev_xpm));
+	AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new((gchar**)next_xpm));
 }
 
 SString SciTEGTK::TranslatePath(const char *path) {
