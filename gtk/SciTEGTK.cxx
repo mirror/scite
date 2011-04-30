@@ -108,7 +108,7 @@ inline void AttachResponse(GtkWidget *w, SciTEGTK *object) {
 struct SciTEItemFactoryEntry {
 	const char *path;
 	const char *accelerator;
-	GtkItemFactoryCallback callback;
+	GCallback callback;
 	unsigned int callback_action;
 	const char *item_type;
 };
@@ -370,7 +370,10 @@ protected:
 	GtkWidget *btnCompile;
 	GtkWidget *btnBuild;
 	GtkWidget *btnStop;
-	GtkItemFactory *itemFactory;
+
+	GtkWidget *menuBar;
+	std::map<std::string, GtkWidget *> pulldowns;
+	std::map<std::string, GSList *> radiogroups;
 	GtkAccelGroup *accelGroup;
 
 	gint	fileSelectorWidth;
@@ -514,7 +517,7 @@ protected:
 	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
 	static gint QuitSignal(GtkWidget *w, GdkEventAny *e, SciTEGTK *scitew);
 	static void ButtonSignal(GtkWidget *widget, gpointer data);
-	static void MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *w);
+	static void MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew);
 	static void CommandSignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
 	static void NotifySignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
 	static gint KeyPress(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
@@ -610,7 +613,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	btnCompile = 0;
 	btnBuild = 0;
 	btnStop = 0;
-	itemFactory = 0;
+	menuBar = 0;
 	accelGroup = 0;
 
 	fileSelectorWidth = 580;
@@ -1007,6 +1010,39 @@ void SciTEGTK::SizeSubWindows() {
 	SizeContentWindows();
 }
 
+// Find the menu item with a particular ID so that it can be enable, disabled, set or hidden.
+// Performs a recursive search through the whole menu tree.
+// If it is too slow, could be replaced with a map of ID -> widget.
+static GtkWidget *MenuItemFromAction(GtkWidget *w, int itemID) {
+	GtkWidget *wFound = 0;
+	int val = (int)(sptr_t)g_object_get_data(G_OBJECT(w), "CmdNum");
+	std::string name = gtk_widget_get_name(w);
+	//fprintf(stderr, "%s -> %d\n", name.c_str(), val);
+	if (val == itemID)
+		wFound = w;
+	if (!wFound) {
+		if (GTK_IS_MENU_ITEM(w)) {
+			//fprintf(stderr, "menu item\n");
+			GtkWidget *subMenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(w));
+			if (subMenu)
+				wFound = MenuItemFromAction(subMenu, itemID);
+			if (wFound)
+				return wFound;
+		}
+		if (GTK_IS_MENU_SHELL(w)) {
+			GList *childWidgets = gtk_container_get_children(GTK_CONTAINER(w));
+			for (GList *child = g_list_first(childWidgets); child; child = g_list_next(child)) {
+				GtkWidget **cw = (GtkWidget **)child;
+				GtkWidget *wGot = MenuItemFromAction(*cw, itemID);
+				if (wGot)
+					wFound = wGot;
+			}
+			g_list_free(childWidgets);
+		}
+	}
+	return wFound;
+}
+
 void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *mnemonic) {
 	DestroyMenuItem(0, itemID);
 
@@ -1032,7 +1068,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 	// Reorder shift and ctrl indicators for compatibility with other menus
 	itemText.substitute("Ctrl+Shift+", "Shift+Ctrl+");
 
-	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
+	GtkWidget *item = MenuItemFromAction(menuBar, itemID);
 	if (item) {
 		GList *al = gtk_container_get_children(GTK_CONTAINER(item));
 		for (unsigned int ii = 0; ii < g_list_length(al); ii++) {
@@ -1050,7 +1086,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 		if (itemID >= IDM_TOOLS && itemID < IDM_TOOLS + toolMax) {
 			// Stow the keycode for later retrieval.
 			// Do this even if 0, in case the menu already existed (e.g. ModifyMenu)
-			gtk_object_set_user_data(GTK_OBJECT(item), reinterpret_cast<gpointer>(keycode));
+			g_object_set_data(G_OBJECT(item), "key", reinterpret_cast<gpointer>(keycode));
 		}
 	}
 }
@@ -1060,17 +1096,17 @@ void SciTEGTK::DestroyMenuItem(int, int itemID) {
 	// The menuNumber is ignored as all menu items in GTK+ can be found from the root of the menu tree
 
 	if (itemID) {
-		GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, itemID);
+		GtkWidget *item = MenuItemFromAction(menuBar, itemID);
 
 		if (item) {
 			gtk_widget_hide(item);
-			gtk_object_set_user_data(GTK_OBJECT(item), 0);
+			g_object_set_data(G_OBJECT(item), "key", 0);
 		}
 	}
 }
 
 void SciTEGTK::CheckAMenuItem(int wIDCheckItem, bool val) {
-	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, wIDCheckItem);
+	GtkWidget *item = MenuItemFromAction(menuBar, wIDCheckItem);
 	allowMenuActions = false;
 	if (item)
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), val ? TRUE : FALSE);
@@ -1078,7 +1114,7 @@ void SciTEGTK::CheckAMenuItem(int wIDCheckItem, bool val) {
 }
 
 void SciTEGTK::EnableAMenuItem(int wIDCheckItem, bool val) {
-	GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, wIDCheckItem);
+	GtkWidget *item = MenuItemFromAction(menuBar, wIDCheckItem);
 	if (item) {
 		if (GTK_IS_WIDGET(item))
 			gtk_widget_set_sensitive(item, val);
@@ -2656,9 +2692,11 @@ void SciTEGTK::ButtonSignal(GtkWidget *, gpointer data) {
 	instance->Command((guint)(long)data);
 }
 
-void SciTEGTK::MenuSignal(SciTEGTK *scitew, guint action, GtkWidget *) {
-	if (scitew->allowMenuActions)
+void SciTEGTK::MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew) {
+	if (scitew->allowMenuActions) {
+		guint action = (guint)(sptr_t)(g_object_get_data(G_OBJECT(menuitem), "CmdNum"));
 		scitew->Command(action);
+	}
 }
 
 void SciTEGTK::CommandSignal(GtkWidget *, gint wParam, gpointer lParam, SciTEGTK *scitew) {
@@ -2767,9 +2805,9 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 
 	// check tools menu command shortcuts
 	for (int tool_i = 0; tool_i < toolMax; ++tool_i) {
-		GtkWidget *item = gtk_item_factory_get_widget_by_action(itemFactory, IDM_TOOLS + tool_i);
+		GtkWidget *item = MenuItemFromAction(menuBar, IDM_TOOLS + tool_i);
 		if (item) {
-			long keycode = reinterpret_cast<long>(gtk_object_get_user_data(GTK_OBJECT(item)));
+			long keycode = reinterpret_cast<long>(g_object_get_data(G_OBJECT(item), "key"));
 			if (keycode && SciTEKeys::MatchKeyCode(keycode, event->keyval, modifiers)) {
 				SciTEBase::MenuCommand(IDM_TOOLS + tool_i);
 				return 1;
@@ -3129,13 +3167,22 @@ SString SciTEGTK::TranslatePath(const char *path) {
 	}
 }
 
+static std::string WithoutUnderscore(const char *s) {
+	std::string ret;
+	while (*s) {
+		if (*s != '_')
+			ret += *s;
+		s++;
+	}
+	return ret;
+}
+
 void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
                                     int nRepeats, const char *prefix, int startNum,
                                     int startID, const char *radioStart) {
 
-	char *gthis = reinterpret_cast<char *>(this);
 	int dim = n + nRepeats;
-	GtkItemFactoryEntry *translatedItems = new GtkItemFactoryEntry[dim];
+	SciTEItemFactoryEntry *translatedItems = new SciTEItemFactoryEntry[dim];
 	SString *translatedText = new SString[dim];
 	SString *translatedRadios = new SString[dim];
 	char **userDefinedAccels = new char*[n];
@@ -3168,17 +3215,14 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 
 		translatedItems[i].path = (gchar*) items[i].path;
 		translatedItems[i].accelerator = (gchar*) items[i].accelerator;
-		translatedItems[i].callback = items[i].callback;
 		translatedItems[i].callback_action = items[i].callback_action;
 		translatedItems[i].item_type = (gchar*) items[i].item_type;
-		translatedItems[i].extra_data = 0;
 		translatedText[i] = TranslatePath(translatedItems[i].path);
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
 		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
 		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
 
 	}
-	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
 	for (; i < dim; i++) {
 		int suffix = i - n + startNum;
 		SString ssnum(suffix);
@@ -3186,12 +3230,70 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 		translatedText[i] += ssnum;
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
 		translatedItems[i].accelerator = NULL;
-		translatedItems[i].callback = menuSig;
 		translatedItems[i].callback_action = startID + suffix;
 		translatedRadios[i] = TranslatePath(radioStart);
 		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
 	}
-	gtk_item_factory_create_items(itemFactory, dim, translatedItems, gthis);
+	// Only two levels of submenu supported
+	for (int itMenu=0; itMenu < dim; itMenu++) {
+		SciTEItemFactoryEntry *psife = translatedItems + itMenu;
+		const char *afterSlash = psife->path+1;
+		const char *lastSlash = strrchr(afterSlash, '/');
+		std::string menuName(afterSlash, lastSlash ? (lastSlash-afterSlash) : 0);
+		GtkWidget *menuParent = menuBar;
+		if (!menuName.empty()) {
+			if (pulldowns.count(menuName) > 0) {
+				menuParent = pulldowns[menuName];
+			} else {
+				fprintf(stderr, "*** failed to find parent %s\n", psife->path);
+			}
+		}
+		if (psife->item_type && strcmp(psife->item_type, "<Branch>") == 0) {
+			// Submenu "/_Tools" "/File/Encodin_g"
+			const char *menuTitle = lastSlash ? (lastSlash + 1) : afterSlash;
+			GtkWidget *menuItemPullDown = gtk_menu_item_new_with_mnemonic(menuTitle);
+			GtkWidget *menuPullDown = gtk_menu_new();
+			gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuItemPullDown), menuPullDown);
+			gtk_menu_shell_append(GTK_MENU_SHELL(menuParent), menuItemPullDown);
+			std::string baseName = WithoutUnderscore(afterSlash);
+			pulldowns[baseName] = menuPullDown;
+		} else {
+			// Item "/File/_New"
+			std::string itemName(lastSlash+1);
+			GtkWidget *menuParent = menuBar;
+			if (pulldowns.count(menuName) > 0) {
+				menuParent = pulldowns[menuName];
+			}
+			GtkWidget *menuItemCommand = 0;
+			if (!psife->item_type) {
+				menuItemCommand = gtk_menu_item_new_with_mnemonic(itemName.c_str());
+			} else if (strcmp(psife->item_type, "<CheckItem>") == 0) {
+				menuItemCommand = gtk_check_menu_item_new_with_mnemonic(itemName.c_str());
+			} else if ((strcmp(psife->item_type, "<RadioItem>") == 0) || (psife->item_type[0] == '/')) {
+				menuItemCommand = gtk_radio_menu_item_new_with_mnemonic(radiogroups[menuName], itemName.c_str());
+				radiogroups[menuName] = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuItemCommand));
+			} else if (strcmp(psife->item_type, "<Separator>") == 0) {
+				menuItemCommand = gtk_separator_menu_item_new();
+			} else {
+				menuItemCommand = gtk_menu_item_new_with_mnemonic(itemName.c_str());
+			}
+			if (psife->accelerator && psife->accelerator[0]) {
+				guint acceleratorKey;
+				GdkModifierType acceleratorMods;
+				gtk_accelerator_parse(psife->accelerator, &acceleratorKey, &acceleratorMods);
+				if (acceleratorKey) {
+					gtk_widget_add_accelerator(menuItemCommand, "activate", accelGroup,
+						acceleratorKey, acceleratorMods, GTK_ACCEL_VISIBLE);
+				} else {
+					//fprintf(stderr, "Failed to add accelerator '%s' for '%s'\n", psife->accelerator, psife->path);
+				}
+			}
+			g_object_set_data(G_OBJECT(menuItemCommand), "CmdNum",
+				reinterpret_cast<void *>(psife->callback_action));
+			g_signal_connect(G_OBJECT(menuItemCommand),"activate", G_CALLBACK(MenuSignal), this);
+			gtk_menu_shell_append(GTK_MENU_SHELL(menuParent), menuItemCommand);
+		}
+	}
 	delete []translatedRadios;
 	delete []translatedText;
 	delete []translatedItems;
@@ -3206,7 +3308,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 
 void SciTEGTK::CreateMenu() {
 
-	GtkItemFactoryCallback menuSig = GtkItemFactoryCallback(MenuSignal);
+	GCallback menuSig = G_CALLBACK(MenuSignal);
 	SciTEItemFactoryEntry menuItems[] = {
 	                                      {"/_File", NULL, NULL, 0, "<Branch>"},
 	                                      {"/File/_New", "<control>N", menuSig, IDM_NEW, 0},
@@ -3257,7 +3359,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Edit/_Copy", "<control>C", menuSig, IDM_COPY, 0},
 	                                      {"/Edit/_Paste", "<control>V", menuSig, IDM_PASTE, 0},
 	                                      {"/Edit/Duplicat_e", "<control>D", menuSig, IDM_DUPLICATE, 0},
-	                                      {"/Edit/_Delete", "Del", menuSig, IDM_CLEAR, 0},
+	                                      {"/Edit/_Delete", "Delete", menuSig, IDM_CLEAR, 0},
 	                                      {"/Edit/Select _All", "<control>A", menuSig, IDM_SELECTALL, 0},
 	                                      {"/Edit/sep2", NULL, NULL, 0, "<Separator>"},
 	                                      {"/Edit/Match _Brace", "<control>E", menuSig, IDM_MATCHBRACE, 0},
@@ -3273,8 +3375,8 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Edit/Make _Selection Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
 	                                      {"/Edit/Make Selection _Lowercase", "<control>U", menuSig, IDM_LWRCASE, 0},
 	                                      {"/Edit/Para_graph", NULL, NULL, 0, "<Branch>"},
-	                                      {"/Edit/Para_graph/_Join", NULL, menuSig, IDM_JOIN, 0},
-	                                      {"/Edit/Para_graph/_Split", NULL, menuSig, IDM_SPLIT, 0},
+	                                      {"/Edit/Paragraph/_Join", NULL, menuSig, IDM_JOIN, 0},
+	                                      {"/Edit/Paragraph/_Split", NULL, menuSig, IDM_SPLIT, 0},
 
 	                                      {"/_Search", NULL, NULL, 0, "<Branch>"},
 	                                      {"/Search/_Find...", "<control>F", menuSig, IDM_FIND, 0},
@@ -3434,8 +3536,10 @@ void SciTEGTK::CreateMenu() {
 	                                      };
 
 	accelGroup = gtk_accel_group_new();
-	itemFactory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", accelGroup);
+
+	menuBar = gtk_menu_bar_new();
 	CreateTranslatedMenu(ELEMENTS(menuItems), menuItems);
+
 	CreateTranslatedMenu(ELEMENTS(menuItemsOptions), menuItemsOptions,
 	                     50, "/Options/Edit Properties/Props", 0, IDM_IMPORT, 0);
 	CreateTranslatedMenu(ELEMENTS(menuItemsLanguage), menuItemsLanguage,
@@ -3921,18 +4025,7 @@ void SciTEGTK::CreateUI() {
 
  	// The Menubar
 	CreateMenu();
-	if (props.GetInt("menubar.detachable") == 1) {
-		GtkWidget *handle_box = gtk_handle_box_new();
-		gtk_container_add(GTK_CONTAINER(handle_box),
-			gtk_item_factory_get_widget(itemFactory, "<main>"));
-		gtk_box_pack_start(GTK_BOX(boxMain),
-			handle_box,
-			FALSE, FALSE, 0);
-	} else {
-		gtk_box_pack_start(GTK_BOX(boxMain),
-			gtk_item_factory_get_widget(itemFactory, "<main>"),
-			FALSE, FALSE, 0);
-	}
+	gtk_box_pack_start(GTK_BOX(boxMain), menuBar, FALSE, FALSE, 0);
 
 	// The Toolbar
 	wToolBar = gtk_toolbar_new();
