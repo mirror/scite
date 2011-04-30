@@ -4398,7 +4398,6 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	gtk_set_locale();
 	gtk_init(&argc, &argv);
 
 	SciTEGTK scite(extender);
