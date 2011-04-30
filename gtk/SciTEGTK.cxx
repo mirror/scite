@@ -4199,18 +4199,14 @@ void SciTEGTK::FindIncrement() {
 }
 
 void SciTEGTK::SetIcon() {
-	GdkPixbuf *icon_pix_buf = CreatePixbuf("Sci48M.png");
-	if (icon_pix_buf) {
-		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), icon_pix_buf);
-		g_object_unref(icon_pix_buf);
-		return;
+	FilePath pathPixmap(PIXMAP_PATH, "Sci48M.png");
+	if (!gtk_window_set_icon_from_file(
+		GTK_WINDOW(PWidget(wSciTE)), pathPixmap.AsInternal(), NULL)) {
+		// Failed to load from file so use backup inside executable
+		GdkPixbuf *pixbufIcon = gdk_pixbuf_new_from_xpm_data(SciIcon_xpm);
+		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), pixbufIcon);
+		g_object_unref(pixbufIcon);
 	}
-	GtkStyle *style = gtk_widget_get_style(PWidget(wSciTE));
-	GdkBitmap *mask;
-	GdkPixmap *icon_pix = gdk_pixmap_create_from_xpm_d(
-		PWidget(wSciTE)->window, &mask,
-		&style->bg[GTK_STATE_NORMAL], (gchar **)SciIcon_xpm);
-	gdk_window_set_icon(PWidget(wSciTE)->window, NULL, icon_pix, mask);
 }
 
 void SciTEGTK::SetStartupTime(const char *timestamp) {
