@@ -543,8 +543,6 @@ protected:
 		return scitew->TabBarScroll(event);
 	}
 
-	// This is used to create the pixmaps used in the interface.
-	GdkPixbuf *CreatePixbuf(const char *filename);
 	// Callback function to show hidden files in filechooser
 	static void toggle_hidden_cb(GtkToggleButton *toggle, gpointer data);
 public:
@@ -669,9 +667,13 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 #else
 	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 #endif
-	guint key = gtk_label_parse_uline(GTK_LABEL(GTK_BIN(button)->child), translated.c_str());
-	gtk_widget_add_accelerator(button, "clicked", accel_group,
+	size_t posMnemonic = translated.find('_');
+	if (posMnemonic != GUI::gui_string::npos) {
+		// With a "Yes" button want to respond to pressing "y" as well as standard "Alt+y"
+		guint key = tolower(translated[posMnemonic + 1]);
+		gtk_widget_add_accelerator(button, "clicked", accel_group,
 	                           key, GdkModifierType(0), (GtkAccelFlags)0);
+	}
 	g_signal_connect(GTK_OBJECT(button), "clicked",
 		G_CALLBACK(messageBoxOK), reinterpret_cast<gpointer>(val));
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
@@ -681,19 +683,6 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	}
 	gtk_widget_show(button);
 	return button;
-}
-
-// This is an internally used function to create pixmaps.
-GdkPixbuf *SciTEGTK::CreatePixbuf(const char *filename) {
-	FilePath pathPixmap(PIXMAP_PATH, filename);
-	GError *error = NULL;
-	GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(pathPixmap.AsInternal(), &error);
-	if (!pixbuf) {
-		//~ fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",
-			//~ path, error->message);
-		g_error_free(error);
-	}
-	return pixbuf;
 }
 
 FilePath SciTEGTK::GetDefaultDirectory() {
@@ -3973,7 +3962,6 @@ bool SciTEGTK::StripHasFocus() {
 void SciTEGTK::CreateUI() {
 	CreateBuffers();
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_policy(GTK_WINDOW(PWidget(wSciTE)), TRUE, TRUE, FALSE);
 
 	char *gthis = reinterpret_cast<char *>(this);
 
@@ -4055,6 +4043,8 @@ void SciTEGTK::CreateUI() {
 	tabVisible = false;
 
 	wContent = gtk_fixed_new();
+	// Ensure the content area is viable at 60 pixels high
+	gtk_widget_set_size_request(PWidget(wContent), 20, 60);
 	WIDGET_SET_NO_FOCUS(PWidget(wContent));
 	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
 
@@ -4137,7 +4127,7 @@ void SciTEGTK::CreateUI() {
 	SetFocus(wOutput);
 
 	if ((left != useDefault) && (top != useDefault))
-		gtk_widget_set_uposition(GTK_WIDGET(PWidget(wSciTE)), left, top);
+		gtk_window_move(GTK_WINDOW(PWidget(wSciTE)), left, top);
 	if ((width != useDefault) && (height != useDefault))
 		gtk_window_set_default_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
 	gtk_widget_show_all(PWidget(wSciTE));
