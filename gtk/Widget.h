@@ -22,7 +22,7 @@ template< int commandNumber >
 class CommandSignal {
 public:
 	void Attach(GtkWidget *w, CommandHandler *object, const char *sigName="clicked") {
-		gtk_signal_connect(GTK_OBJECT(w), sigName, GtkSignalFunc(Function), object);
+		g_signal_connect(G_OBJECT(w), sigName, G_CALLBACK(Function), object);
 	}
 	static void Function(GtkWidget */*w*/, CommandHandler *object) {
 		object->PerformCommand(commandNumber);

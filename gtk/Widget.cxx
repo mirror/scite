@@ -362,7 +362,7 @@ void Dialog::Display(GtkWidget *parent, bool modal) {
 	if (parent) {
 		gtk_window_set_transient_for(GTK_WINDOW(GetID()), GTK_WINDOW(parent));
 	}
-	g_signal_connect(GTK_OBJECT(GetID()), "destroy", G_CALLBACK(SignalDestroy), this);
+	g_signal_connect(G_OBJECT(GetID()), "destroy", G_CALLBACK(SignalDestroy), this);
 	gtk_widget_show_all(GTK_WIDGET(GetID()));
 	if (modal) {
 		while (Created()) {
