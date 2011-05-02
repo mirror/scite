@@ -3095,7 +3095,11 @@ gint SciTEGTK::DividerRelease(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 
 void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
                                 gint /*x*/, gint /*y*/, GtkSelectionData *seldata, guint /*info*/, guint time, SciTEGTK *scitew) {
+#if GTK_CHECK_VERSION(3,0,0)
+	scitew->OpenUriList(reinterpret_cast<const char *>(gtk_selection_data_get_data(seldata)));
+#else
 	scitew->OpenUriList(reinterpret_cast<const char *>(seldata->data));
+#endif
 	gtk_drag_finish(context, TRUE, FALSE, time);
 }
 
