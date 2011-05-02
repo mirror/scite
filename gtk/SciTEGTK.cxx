@@ -4295,7 +4295,11 @@ void SciTEGTK::FindIncrementCompleteCmd() {
 }
 
 gboolean SciTEGTK::FindIncrementFocusOutSignal(GtkWidget *w) {
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_hide(gtk_widget_get_parent(w));
+#else
 	gtk_widget_hide(w->parent);
+#endif
 	return FALSE;
 }
 
