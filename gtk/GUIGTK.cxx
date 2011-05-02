@@ -60,11 +60,17 @@ Rectangle Window::GetPosition() {
 	// Before any size allocated pretend its 1000 wide so not scrolled
 	Rectangle rc(0, 0, 1000, 1000);
 	if (wid) {
-		rc.left = PWidget(wid)->allocation.x;
-		rc.top = PWidget(wid)->allocation.y;
-		if (PWidget(wid)->allocation.width > 20) {
-			rc.right = rc.left + PWidget(wid)->allocation.width;
-			rc.bottom = rc.top + PWidget(wid)->allocation.height;
+		GtkAllocation allocation;
+#if GTK_CHECK_VERSION(3,0,0)
+		gtk_widget_get_allocation(PWidget(wid), &allocation);
+#else
+		allocation = PWidget(wid)->allocation;
+#endif
+		rc.left = allocation.x;
+		rc.top = allocation.y;
+		if (allocation.width > 20) {
+			rc.right = rc.left + allocation.width;
+			rc.bottom = rc.top + allocation.height;
 		}
 	}
 	return rc;

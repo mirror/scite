@@ -3108,7 +3108,13 @@ gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 			GtkWidget *page = gtk_notebook_get_nth_page(notebook, pageNum);
 			if (page) {
 				GtkWidget *label = gtk_notebook_get_tab_label(notebook, page);
-				if (event->x < (label->allocation.x + label->allocation.width)) {
+				GtkAllocation allocation;
+#if GTK_CHECK_VERSION(3,0,0)
+				gtk_widget_get_allocation(label, &allocation);
+#else
+				allocation = label->allocation;
+#endif
+				if (event->x < (allocation.x + allocation.width)) {
 					CloseTab(pageNum);
 					break;
 				}
