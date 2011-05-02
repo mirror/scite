@@ -70,6 +70,33 @@
 
 #define MB_ABOUTBOX	0x100000L
 
+// Key names are longer for GTK+ 3
+#if GTK_CHECK_VERSION(3,0,0)
+#define GKEY_Escape GDK_KEY_Escape
+#define GKEY_Tab GDK_KEY_Tab
+#define GKEY_ISO_Left_Tab GDK_KEY_ISO_Left_Tab
+#define GKEY_KP_Enter GDK_KEY_KP_Enter
+#define GKEY_KP_Multiply GDK_KEY_KP_Multiply
+#define GKEY_Control_L GDK_KEY_Control_L
+#define GKEY_Control_R GDK_KEY_Control_R
+#define GKEY_F1 GDK_KEY_F1
+#define GKEY_F2 GDK_KEY_F2
+#define GKEY_F3 GDK_KEY_F3
+#define GKEY_F4 GDK_KEY_F4
+#else
+#define GKEY_Escape GDK_Escape
+#define GKEY_Tab GDK_Tab
+#define GKEY_ISO_Left_Tab GDK_ISO_Left_Tab
+#define GKEY_KP_Enter GDK_KP_Enter
+#define GKEY_KP_Multiply GDK_KP_Multiply
+#define GKEY_Control_L GDK_Control_L
+#define GKEY_Control_R GDK_Control_R
+#define GKEY_F1 GDK_F1
+#define GKEY_F2 GDK_F2
+#define GKEY_F3 GDK_F3
+#define GKEY_F4 GDK_F4
+#endif
+
 const char appName[] = "SciTE";
 
 static GtkWidget *PWidget(GUI::Window &w) {
@@ -142,8 +169,61 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				sKey.remove("F");
 				int fkeyNum = sKey.value();
 				if (fkeyNum >= 1 && fkeyNum <= 12)
+#if GTK_CHECK_VERSION(3,0,0)
+					keyval = fkeyNum - 1 + GDK_KEY_F1;
+#else
 					keyval = fkeyNum - 1 + GDK_F1;
+#endif
 			} else {
+#if GTK_CHECK_VERSION(3,0,0)
+				if (sKey == "Left") {
+					keyval = GDK_KEY_Left;
+				} else if (sKey == "Right") {
+					keyval = GDK_KEY_Right;
+				} else if (sKey == "Up") {
+					keyval = GDK_KEY_Up;
+				} else if (sKey == "Down") {
+					keyval = GDK_KEY_Down;
+				} else if (sKey == "Insert") {
+					keyval = GDK_KEY_Insert;
+				} else if (sKey == "End") {
+					keyval = GDK_KEY_End;
+				} else if (sKey == "Home") {
+					keyval = GDK_KEY_Home;
+				} else if (sKey == "Enter") {
+					keyval = GDK_KEY_Return;
+				} else if (sKey == "Space") {
+					keyval = GDK_KEY_space;
+				} else if (sKey == "Tab") {
+					keyval = GDK_KEY_Tab;
+				} else if (sKey == "KeypadPlus") {
+					keyval = GDK_KEY_KP_Add;
+				} else if (sKey == "KeypadMinus") {
+					keyval = GDK_KEY_KP_Subtract;
+				} else if (sKey == "KeypadMultiply") {
+					keyval = GDK_KEY_KP_Multiply;
+				} else if (sKey == "KeypadDivide") {
+					keyval = GDK_KEY_KP_Divide;
+				} else if (sKey == "Escape") {
+					keyval = GDK_KEY_Escape;
+				} else if (sKey == "Delete") {
+					keyval = GDK_KEY_Delete;
+				} else if (sKey == "PageUp") {
+					keyval = GDK_KEY_Page_Up;
+				} else if (sKey == "PageDown") {
+					keyval = GDK_KEY_Page_Down;
+				} else if (sKey == "Slash") {
+					keyval = GDK_KEY_slash;
+				} else if (sKey == "Question") {
+					keyval = GDK_KEY_question;
+				} else if (sKey == "Equal") {
+					keyval = GDK_KEY_equal;
+				} else if (sKey == "Win") {
+					keyval = GDK_KEY_Super_L;
+				} else if (sKey == "Menu") {
+					keyval = GDK_KEY_Menu;
+				}
+#else
 				if (sKey == "Left") {
 					keyval = GDK_Left;
 				} else if (sKey == "Right") {
@@ -191,6 +271,7 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				} else if (sKey == "Menu") {
 					keyval = GDK_Menu;
 				}
+#endif
 			}
 		}
 	}
@@ -638,7 +719,7 @@ static GtkWidget *messageBoxDialog = 0;
 static long messageBoxResult = 0;
 
 static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
-	if (event->keyval == GDK_Escape) {
+	if (event->keyval == GKEY_Escape) {
 		g_signal_stop_emission_by_name(G_OBJECT(w), "key_press_event");
 		gtk_widget_destroy(GTK_WIDGET(w));
 		messageBoxDialog = 0;
@@ -2724,17 +2805,17 @@ enum {
 };
 
 static KeyToCommand kmap[] = {
-                                 {m_C, GDK_Tab, IDM_NEXTFILESTACK},
-                                 {mSC, GDK_ISO_Left_Tab, IDM_PREVFILESTACK},
-                                 {m_C, GDK_KP_Enter, IDM_COMPLETEWORD},
-                                 {m_C, GDK_F3, IDM_FINDNEXTSEL},
-                                 {mSC, GDK_F3, IDM_FINDNEXTBACKSEL},
-                                 {m_C, GDK_F4, IDM_CLOSE},
+                                 {m_C, GKEY_Tab, IDM_NEXTFILESTACK},
+                                 {mSC, GKEY_ISO_Left_Tab, IDM_PREVFILESTACK},
+                                 {m_C, GKEY_KP_Enter, IDM_COMPLETEWORD},
+                                 {m_C, GKEY_F3, IDM_FINDNEXTSEL},
+                                 {mSC, GKEY_F3, IDM_FINDNEXTBACKSEL},
+                                 {m_C, GKEY_F4, IDM_CLOSE},
                                  {m_C, 'j', IDM_PREVMATCHPPC},
                                  {mSC, 'J', IDM_SELECTTOPREVMATCHPPC},
                                  {m_C, 'k', IDM_NEXTMATCHPPC},
                                  {mSC, 'K', IDM_SELECTTONEXTMATCHPPC},
-                                 {m_C, GDK_KP_Multiply, IDM_EXPAND},
+                                 {m_C, GKEY_KP_Multiply, IDM_EXPAND},
                                  {0, 0, 0},
                              };
 
@@ -2748,7 +2829,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	if (event->type == GDK_KEY_RELEASE) {
 		g_signal_stop_emission_by_name(
 		    G_OBJECT(PWidget(wSciTE)), "key-release-event");
-		if (event->keyval == GDK_Control_L || event->keyval == GDK_Control_R) {
+		if (event->keyval == GKEY_Control_L || event->keyval == GKEY_Control_R) {
 			this->EndStackedTabbing();
 			return 1;
 		} else {
@@ -3645,7 +3726,7 @@ void FindStrip::ActivateSignal(GtkWidget *, FindStrip *pStrip) {
 }
 
 gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip) {
-	if (event->keyval == GDK_Escape) {
+	if (event->keyval == GKEY_Escape) {
 		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
 		pStrip->Close();
 	}
@@ -3868,7 +3949,7 @@ void ReplaceStrip::ActivateSignal(GtkWidget *, ReplaceStrip *pStrip) {
 }
 
 gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip) {
-	if (event->keyval == GDK_Escape) {
+	if (event->keyval == GKEY_Escape) {
 		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
 		pStrip->Close();
 	}
@@ -4159,7 +4240,7 @@ void SciTEGTK::FindIncrementCmd() {
 }
 
 gboolean SciTEGTK::FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
-	if (event->keyval == GDK_Escape) {
+	if (event->keyval == GKEY_Escape) {
 		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
 		gtk_widget_hide(scitew->wIncrementPanel);
 		SetFocus(scitew->wEditor);

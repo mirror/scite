@@ -18,6 +18,13 @@
 #include "StringHelpers.h"
 #include "Widget.h"
 
+// Key names are longer for GTK+ 3
+#if GTK_CHECK_VERSION(3,0,0)
+#define GKEY_Escape GDK_KEY_Escape
+#else
+#define GKEY_Escape GDK_Escape
+#endif
+
 WBase::operator GtkWidget*() {
 	return GTK_WIDGET(GetID());
 }
@@ -430,7 +437,7 @@ bool Strip::KeyDown(GdkEventKey *event) {
 	bool retVal = false;
 
 	if (visible) {
-		if (event->keyval == GDK_Escape) {
+		if (event->keyval == GKEY_Escape) {
 			Close();
 			return true;
 		}
