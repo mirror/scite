@@ -97,6 +97,14 @@
 #define GKEY_F4 GDK_F4
 #endif
 
+static GdkWindow *WindowFromWidget(GtkWidget *w) {
+#if GTK_CHECK_VERSION(3,0,0)
+	return gtk_widget_get_window(w);
+#else
+	return w->window;
+#endif
+}
+
 const char appName[] = "SciTE";
 
 static GtkWidget *PWidget(GUI::Window &w) {
@@ -984,7 +992,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 	case IDM_FULLSCREEN:
 		fullScreen = !fullScreen;
 		{
-			GdkWindow *parent_w = PWidget(wSciTE)->window;
+			GdkWindow *parent_w = WindowFromWidget(PWidget(wSciTE));
 			if (fullScreen)
 				gdk_window_fullscreen(parent_w);
 			else
@@ -1055,7 +1063,7 @@ void SciTEGTK::ReadProperties() {
 void SciTEGTK::GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) {
 	gtk_window_get_position(GTK_WINDOW(PWidget(wSciTE)), left, top);
 	gtk_window_get_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
-	*maximize = (gdk_window_get_state(PWidget(wSciTE)->window) & GDK_WINDOW_STATE_MAXIMIZED) != 0;
+	*maximize = (gdk_window_get_state(WindowFromWidget(PWidget(wSciTE))) & GDK_WINDOW_STATE_MAXIMIZED) != 0;
 }
 
 void SciTEGTK::SizeContentWindows() {
@@ -2936,8 +2944,8 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 		// PopUp menu
 		GUI::ScintillaWindow *w = &wEditor;
 		menuSource = IDM_SRCWIN;
-		if (PWidget(*w)->window != event->window) {
-			if (PWidget(wOutput)->window == event->window) {
+		if (WindowFromWidget(PWidget(*w)) != event->window) {
+			if (WindowFromWidget(PWidget(wOutput)) == event->window) {
 				menuSource = IDM_RUNWIN;
 				w = &wOutput;
 			} else {
@@ -2949,7 +2957,7 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 		// Convert to screen
 		int ox = 0;
 		int oy = 0;
-		gdk_window_get_origin(PWidget(*w)->window, &ox, &oy);
+		gdk_window_get_origin(WindowFromWidget(PWidget(*w)), &ox, &oy);
 		ContextMenu(*w, GUI::Point(static_cast<int>(event->x) + ox,
 		                     static_cast<int>(event->y) + oy), wSciTE);
 		//fprintf(stderr, "Menu source %s\n",
@@ -2996,26 +3004,26 @@ gint SciTEGTK::DividerExpose(GtkWidget *widget, GdkEventExpose *, SciTEGTK *sciT
 	area.y = 0;
 	area.width = widget->allocation.width;
 	area.height = widget->allocation.height;
-	gdk_window_clear_area(widget->window,
+	gdk_window_clear_area(WindowFromWidget(widget),
 	                      area.x, area.y, area.width, area.height);
 	if (widget->allocation.width > widget->allocation.height) {
 		// Horizontal divider
-		gtk_paint_hline(widget->style, widget->window, GTK_STATE_NORMAL,
+		gtk_paint_hline(widget->style, WindowFromWidget(widget), GTK_STATE_NORMAL,
 		                &area, widget, const_cast<char *>("vpaned"),
 		                0, widget->allocation.width - 1,
 		                area.height / 2 - 1);
-		gtk_paint_box (widget->style, widget->window,
+		gtk_paint_box (widget->style, WindowFromWidget(widget),
 		               GTK_STATE_NORMAL,
 		               GTK_SHADOW_OUT,
 		               &area, widget, const_cast<char *>("paned"),
 		               area.width - sciThis->heightBar * 2, 1,
 		               sciThis->heightBar - 2, sciThis->heightBar - 2);
 	} else {
-		gtk_paint_vline(widget->style, widget->window, GTK_STATE_NORMAL,
+		gtk_paint_vline(widget->style, WindowFromWidget(widget), GTK_STATE_NORMAL,
 		                &area, widget, const_cast<char *>("hpaned"),
 		                0, widget->allocation.height - 1,
 		                area.width / 2 - 1);
-		gtk_paint_box (widget->style, widget->window,
+		gtk_paint_box (widget->style, WindowFromWidget(widget),
 		               GTK_STATE_NORMAL,
 		               GTK_SHADOW_OUT,
 		               &area, widget, const_cast<char *>("paned"),
@@ -3031,7 +3039,7 @@ gint SciTEGTK::DividerMotion(GtkWidget *, GdkEventMotion *event, SciTEGTK *scite
 		int y = 0;
 		GdkModifierType state;
 		if (event->is_hint) {
-			gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
+			gdk_window_get_pointer(WindowFromWidget(PWidget(scitew->wSciTE)), &x, &y, &state);
 			if (state & GDK_BUTTON1_MASK) {
 				scitew->DividerXOR(scitew->ptOld);
 				scitew->DividerXOR(GUI::Point(x, y));
@@ -3046,7 +3054,7 @@ gint SciTEGTK::DividerPress(GtkWidget *, GdkEventButton *event, SciTEGTK *scitew
 		int x = 0;
 		int y = 0;
 		GdkModifierType state;
-		gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
+		gdk_window_get_pointer(WindowFromWidget(PWidget(scitew->wSciTE)), &x, &y, &state);
 		scitew->ptStartDrag = GUI::Point(x, y);
 		scitew->capturedMouse = true;
 		scitew->heightOutputStartDrag = scitew->heightOutput;
@@ -3061,7 +3069,7 @@ gint SciTEGTK::DividerPress(GtkWidget *, GdkEventButton *event, SciTEGTK *scitew
 		gtk_widget_grab_focus(GTK_WIDGET(PWidget(scitew->wDivider)));
 		gtk_grab_add(GTK_WIDGET(PWidget(scitew->wDivider)));
 		gtk_widget_queue_draw(PWidget(scitew->wDivider));
-		gdk_window_process_updates(PWidget(scitew->wDivider)->window, TRUE);
+		gdk_window_process_updates(WindowFromWidget(PWidget(scitew->wDivider)), TRUE);
 		scitew->DividerXOR(scitew->ptStartDrag);
 	}
 	return TRUE;
@@ -3075,7 +3083,7 @@ gint SciTEGTK::DividerRelease(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
 		int x = 0;
 		int y = 0;
 		GdkModifierType state;
-		gdk_window_get_pointer(PWidget(scitew->wSciTE)->window, &x, &y, &state);
+		gdk_window_get_pointer(WindowFromWidget(PWidget(scitew->wSciTE)), &x, &y, &state);
 		scitew->MoveSplit(GUI::Point(x, y));
 		if (scitew->focusEditor)
 			scitew->wEditor.Call(SCI_SETFOCUS, 1);
