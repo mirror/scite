@@ -14,11 +14,17 @@ CCOMP = gcc
 endif
 AR = ar
 
+ifdef GTK3
+GTKVERSION=gtk+-3.0
+else
+GTKVERSION=gtk+-2.0
+endif
+
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
-CONFIGFLAGS:=$(shell pkg-config --cflags gtk+-2.0)
-CONFIGLIB:=$(shell pkg-config --libs gtk+-2.0 gthread-2.0)
+CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
+CONFIGLIB:=$(shell pkg-config --libs $(GTKVERSION) gthread-2.0)
 CONFIGTHREADS:=
-gnomeprefix:=$(shell pkg-config --variable=prefix gtk+-2.0 2>/dev/null)
+gnomeprefix:=$(shell pkg-config --variable=prefix $(GTKVERSION) 2>/dev/null)
 ifndef prefix
 ifdef gnomeprefix
   prefix=$(gnomeprefix)
@@ -70,6 +76,10 @@ $(LUA_LIB_OBJS): ../lua/src/lib/*.c
 CXXFLAGS=$(CXXTFLAGS)
 else
 CXXFLAGS=$(CXXTFLAGS) -DNO_LUA
+endif
+
+ifdef GTK3
+CXXFLAGS:=$(CXXFLAGS) -Wno-long-long
 endif
 
 ifeq ($(shell uname), Darwin)
