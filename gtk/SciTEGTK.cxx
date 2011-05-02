@@ -902,7 +902,7 @@ void SciTEGTK::Notify(SCNotification *notification) {
 }
 
 void SciTEGTK::ShowToolBar() {
-	if (GTK_TOOLBAR(PWidget(wToolBar))->num_children < 1) {
+	if (gtk_toolbar_get_n_items(GTK_TOOLBAR(PWidget(wToolBar))) < 1) {
 		AddToolBar();
 	}
 
