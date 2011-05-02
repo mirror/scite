@@ -765,8 +765,13 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	}
 	g_signal_connect(G_OBJECT(button), "clicked",
 		G_CALLBACK(messageBoxOK), reinterpret_cast<gpointer>(val));
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(dialog))),
+ 	                   button, TRUE, TRUE, 0);
+#else
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
  	                   button, TRUE, TRUE, 0);
+#endif
 	if (isDefault) {
 		gtk_widget_grab_default(GTK_WIDGET(button));
 	}
@@ -2023,7 +2028,7 @@ void SciTEGTK::FindInFiles() {
 	dlgFindInFiles.Create(localiser.Text("Find in Files"));
 
 	WTable table(4, 5);
-	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindInFiles))->vbox));
+	table.PackInto(GTK_BOX(dlgFindInFiles.ContentArea()));
 
 	WStatic labelFind;
 	labelFind.Create(localiser.Text("Fi_nd what:"));
@@ -2291,7 +2296,7 @@ void SciTEGTK::GoLineDialog() {
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(dlgGoto)), 0);
 
 	WTable table(1, 2);
-	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgGoto))->vbox));
+	table.PackInto(GTK_BOX(dlgGoto.ContentArea()));
 
 	GtkWidget *labelGoto = TranslatedLabel("_Destination Line Number:");
 	table.Label(labelGoto);
@@ -2336,7 +2341,7 @@ bool SciTEGTK::AbbrevDialog() {
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(dlgAbbrev)), 0);
 
 	WTable table(1, 2);
-	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgAbbrev))->vbox));
+	table.PackInto(GTK_BOX(dlgAbbrev.ContentArea()));
 
 	GtkWidget *labelAbbrev = TranslatedLabel("_Abbreviation:");
 	table.Label(labelAbbrev);
@@ -2410,7 +2415,7 @@ void SciTEGTK::TabSizeDialog() {
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(dlgTabSize)), 0);
 
 	WTable table(3, 2);
-	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgTabSize))->vbox));
+	table.PackInto(GTK_BOX(dlgTabSize.ContentArea()));
 
 	GtkWidget *labelTabSize = TranslatedLabel("_Tab Size:");
 	table.Label(labelTabSize);
@@ -2500,7 +2505,7 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	                   "destroy", G_CALLBACK(destroyDialog), &dlgParameters);
 
 	WTable table(modal ? 10 : 9, 2);
-	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgParameters))->vbox));
+	table.PackInto(GTK_BOX(dlgParameters.ContentArea()));
 
 	if (modal) {
 		GtkWidget *cmd = gtk_label_new(parameterisedCommand.c_str());
@@ -2586,7 +2591,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	                   "destroy", G_CALLBACK(destroyDialog), &dlgFindReplace);
 
 	WTable table(replace ? 8 : 7, 2);
-	table.PackInto(GTK_BOX(GTK_DIALOG(PWidget(dlgFindReplace))->vbox));
+	table.PackInto(GTK_BOX(dlgFindReplace.ContentArea()));
 
 	dlgFindReplace.labelFind.Create(localiser.Text("Fi_nd what:"));
 	table.Label(dlgFindReplace.labelFind);
@@ -2706,16 +2711,26 @@ int SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int s
 			GUI::ScintillaWindow scExplanation;
 			scExplanation.SetID(explanation);
 			scintilla_set_id(SCINTILLA(explanation), 0);
+#if GTK_CHECK_VERSION(3,0,0)
+			gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(messageBoxDialog))),
+			                   explanation, TRUE, TRUE, 0);
+#else
 			gtk_box_pack_start(GTK_BOX(GTK_DIALOG(messageBoxDialog)->vbox),
 			                   explanation, TRUE, TRUE, 0);
+#endif
 			gtk_widget_set_size_request(GTK_WIDGET(explanation), 480, 380);
 			gtk_widget_show_all(explanation);
 			SetAboutMessage(scExplanation, "SciTE");
 		} else {
 			GtkWidget *label = gtk_label_new(sMsg.c_str());
 			gtk_misc_set_padding(GTK_MISC(label), 10, 10);
+#if GTK_CHECK_VERSION(3,0,0)
+			gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(messageBoxDialog))),
+			                   label, TRUE, TRUE, 0);
+#else
 			gtk_box_pack_start(GTK_BOX(GTK_DIALOG(messageBoxDialog)->vbox),
 			                   label, TRUE, TRUE, 0);
+#endif
 			gtk_widget_show(label);
 		}
 

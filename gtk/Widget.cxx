@@ -406,6 +406,14 @@ void Dialog::Present() {
 	gtk_window_present(GTK_WINDOW(GetID()));
 }
 
+GtkWidget *Dialog::ContentArea() {
+#if GTK_CHECK_VERSION(3,0,0)
+	return gtk_dialog_get_content_area(GTK_DIALOG(GetID()));
+#else
+	return GTK_DIALOG(GetID())->vbox));
+#endif
+}
+
 void Dialog::SignalDestroy(GtkWidget *, Dialog *d) {
 	if (d) {
 		d->SetID(0);

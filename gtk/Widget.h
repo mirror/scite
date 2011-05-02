@@ -140,6 +140,7 @@ public:
 	void Display(GtkWidget *parent = 0, bool modal=true);
 	GtkWidget *ResponseButton(const GUI::gui_string &text, int responseID);
 	void Present();
+	GtkWidget *ContentArea();
 
 private:
 	static void SignalDestroy(GtkWidget *, Dialog *d);
