@@ -585,6 +585,7 @@ protected:
 	void TabSizeCmd();
 	void TabSizeConvertCmd();
 	void TabSizeResponse(int responseID);
+	void FindIncrementSetColour(const GdkColor colourBack);
 	void FindIncrementCmd();
 	void FindIncrementCompleteCmd();
 	static gboolean FindIncrementFocusOutSignal(GtkWidget *w);
@@ -4301,6 +4302,15 @@ void SciTEGTK::CreateUI() {
 	UIAvailable();
 }
 
+void SciTEGTK::FindIncrementSetColour(const GdkColor colourBack) {
+#if GTK_CHECK_VERSION(3,0,0)
+	GdkRGBA colour = {colourBack.red / 65535.0, colourBack.green / 65535.0, colourBack.blue / 65535.0, 1.0 };
+	gtk_widget_override_background_color(GTK_WIDGET(IncSearchEntry), GTK_STATE_FLAG_FOCUSED, &colour);
+#else
+	gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &colourBack);
+#endif
+}
+
 void SciTEGTK::FindIncrementCmd() {
 	const char *lineEntry = gtk_entry_get_text(GTK_ENTRY(IncSearchEntry));
 	findWhat = lineEntry;
@@ -4309,10 +4319,10 @@ void SciTEGTK::FindIncrementCmd() {
 		FindNext(false, false);
 		if (!havefound) {
 			GdkColor red = { 0, 0xFFFF, 0x8888, 0x8888 };
-			gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &red);
+			FindIncrementSetColour(red);
 		} else {
 			GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
-			gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &white);
+			FindIncrementSetColour(white);
 		}
 	}
 }
@@ -4344,7 +4354,7 @@ void SciTEGTK::FindIncrement() {
 	findStrip.Close();
 	replaceStrip.Close();
 	GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
-	gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &white);
+	FindIncrementSetColour(white);
 	gtk_widget_show(wIncrementPanel);
 	gtk_widget_grab_focus(GTK_WIDGET(IncSearchEntry));
 	gtk_entry_set_text(GTK_ENTRY(IncSearchEntry), "");
