@@ -107,8 +107,13 @@ class WCheckDraw : public WBase {
 	static gint ButtonsPress(GtkWidget *widget, GdkEventButton *event, WCheckDraw *pcd);
 	static gboolean MouseEnterLeave(GtkWidget *widget, GdkEventCrossing *event, WCheckDraw *pcd);
 	static gboolean KeyDown(GtkWidget *widget, GdkEventKey *event, WCheckDraw *pcd);
+#if GTK_CHECK_VERSION(3,0,0)
+	gboolean Draw(GtkWidget *widget, cairo_t *cr);
+	static gboolean DrawEvent(GtkWidget *widget, cairo_t *cr, WCheckDraw *pcd);
+#else
 	gboolean Expose(GtkWidget *widget, GdkEventExpose *event);
 	static gboolean ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WCheckDraw *pcd);
+#endif
 public:
 	WCheckDraw();
 	~WCheckDraw();

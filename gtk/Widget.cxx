@@ -230,7 +230,11 @@ void WCheckDraw::Create(const char **xpmImage, GUI::gui_string toolTip, GtkStyle
 	g_signal_connect(G_OBJECT(da), "enter-notify-event", G_CALLBACK(MouseEnterLeave), this);
 	g_signal_connect(G_OBJECT(da), "leave-notify-event", G_CALLBACK(MouseEnterLeave), this);
 	g_signal_connect(G_OBJECT(da), "key-press-event", G_CALLBACK(KeyDown), this);
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(G_OBJECT(da), "draw", G_CALLBACK(DrawEvent), this);
+#else
 	g_signal_connect(G_OBJECT(da), "expose-event", G_CALLBACK(ExposeEvent), this);
+#endif
 }
 
 bool WCheckDraw::Active() {
@@ -279,6 +283,69 @@ gboolean WCheckDraw::MouseEnterLeave(GtkWidget */*widget*/, GdkEventCrossing *ev
 	pcd->InvalidateAll();
 	return FALSE;
 }
+
+#if GTK_CHECK_VERSION(3,0,0)
+
+gboolean WCheckDraw::Draw(GtkWidget *widget, cairo_t *cr) {
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	GdkWindow *window = gtk_widget_get_window(widget);
+	pStyle = gtk_style_attach(pStyle, window);
+
+	int heightOffset = (allocation.height - checkButtonWidth) / 2;
+	if (heightOffset < 0)
+		heightOffset = 0;
+
+	bool active = isActive;
+	GtkStateType state = active ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL;
+	GtkShadowType shadow = GTK_SHADOW_IN;
+	if (over) {
+		state = GTK_STATE_PRELIGHT;
+		shadow = GTK_SHADOW_OUT;
+	}
+	if (active || over)
+		gtk_paint_box(pStyle,
+			cr,
+			state,
+			shadow,
+			widget, const_cast<char *>("button"),
+			0, 0,
+			allocation.width, allocation.height);
+
+	if (HasFocus()) {
+		// Draw focus inset by 2 pixels
+		gtk_paint_focus(pStyle,
+			cr,
+			state,
+			widget, const_cast<char *>("button"),
+			2, 2,
+			allocation.width-4, allocation.height-4);
+	}
+
+	GdkColor fore = pStyle->fg[GTK_STATE_NORMAL];
+	// Give it an alpha channel
+	GdkPixbuf *pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
+	// Convert the grey to alpha and make black
+	GreyToAlpha(pbAlpha, fore);
+
+	int activeOffset = active ? 1 : 0;
+	int xOffset = 1 + 2 + activeOffset;
+	int yOffset = 3 + heightOffset + activeOffset;
+	gdk_cairo_set_source_pixbuf(cr, pbAlpha, xOffset, yOffset);
+	cairo_rectangle(cr,
+		xOffset, yOffset,
+		checkIconWidth, checkIconWidth);
+	cairo_fill(cr);
+	g_object_unref(pbAlpha);
+
+	return TRUE;
+}
+
+gboolean WCheckDraw::DrawEvent(GtkWidget *widget, cairo_t *cr, WCheckDraw *pcd) {
+	return pcd->Draw(widget, cr);
+}
+
+#else
 
 gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
 	pStyle = gtk_style_attach(pStyle, widget->window);
@@ -338,6 +405,8 @@ gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
 gboolean WCheckDraw::ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WCheckDraw *pcd) {
 	return pcd->Expose(widget, event);
 }
+
+#endif
 
 WTable::WTable(int rows_, int columns_) :
 	rows(rows_), columns(columns_), next(0) {
