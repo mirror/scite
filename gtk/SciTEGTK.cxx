@@ -413,7 +413,9 @@ protected:
 
 	GUI::Window wDivider;
 	GUI::Point ptOld;
+#if !GTK_CHECK_VERSION(3,0,0)
 	GdkGC *xor_gc;
+#endif
 	bool focusEditor;
 	bool focusOutput;
 
@@ -616,7 +618,11 @@ protected:
 	gint Mouse(GdkEventButton *event);
 
 	void DividerXOR(GUI::Point pt);
+#if GTK_CHECK_VERSION(3,0,0)
+	static gboolean DividerDraw(GtkWidget *widget, cairo_t *cr, SciTEGTK *sciThis);
+#else
 	static gint DividerExpose(GtkWidget *widget, GdkEventExpose *ose, SciTEGTK *scitew);
+#endif
 	static gint DividerMotion(GtkWidget *widget, GdkEventMotion *event, SciTEGTK *scitew);
 	static gint DividerPress(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	static gint DividerRelease(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
@@ -691,7 +697,9 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	ReadAbbrevPropFile();
 
 	ptOld = GUI::Point(0, 0);
+#if !GTK_CHECK_VERSION(3,0,0)
 	xor_gc = 0;
+#endif
 	focusEditor = false;
 	focusOutput = false;
 	saveFormat = sfSource;
@@ -2986,6 +2994,7 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 }
 
 void SciTEGTK::DividerXOR(GUI::Point pt) {
+#if !GTK_CHECK_VERSION(3,0,0)
 	if (!xor_gc) {
 		GdkGCValues values;
 		values.foreground = PWidget(wSciTE)->style->white;
@@ -3009,8 +3018,28 @@ void SciTEGTK::DividerXOR(GUI::Point pt) {
 		              PWidget(wDivider)->allocation.x + PWidget(wDivider)->allocation.width - 1,
 		              pt.y);
 	}
+#endif
 	ptOld = pt;
 }
+
+#if GTK_CHECK_VERSION(3,0,0)
+
+gboolean SciTEGTK::DividerDraw(GtkWidget *widget, cairo_t *cr, SciTEGTK *) {
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	GdkRectangle area;
+	area.x = 0;
+	area.y = 0;
+	area.width = allocation.width;
+	area.height = allocation.height;
+	// Should draw like other dividers but for now just draw the handle over the whole divider
+	GtkStyleContext *context = gtk_widget_get_style_context(widget);
+	//gtk_render_background(context, cr, area.x, area.y, area.width, area.height);
+	gtk_render_handle(context, cr, area.x, area.y, area.width, area.height);
+	return TRUE;
+}
+
+#else
 
 gint SciTEGTK::DividerExpose(GtkWidget *widget, GdkEventExpose *, SciTEGTK *sciThis) {
 	//GtkStyle style = gtk_widget_get_default_style();
@@ -3047,6 +3076,8 @@ gint SciTEGTK::DividerExpose(GtkWidget *widget, GdkEventExpose *, SciTEGTK *sciT
 	}
 	return TRUE;
 }
+
+#endif
 
 gint SciTEGTK::DividerMotion(GtkWidget *, GdkEventMotion *event, SciTEGTK *scitew) {
 	if (scitew->capturedMouse) {
@@ -4183,8 +4214,14 @@ void SciTEGTK::CreateUI() {
 	                   G_CALLBACK(NotifySignal), this);
 
 	wDivider = gtk_drawing_area_new();
+
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(G_OBJECT(PWidget(wDivider)), "draw",
+	                   G_CALLBACK(DividerDraw), this);
+#else
 	g_signal_connect(G_OBJECT(PWidget(wDivider)), "expose_event",
 	                   G_CALLBACK(DividerExpose), this);
+#endif
 	g_signal_connect(G_OBJECT(PWidget(wDivider)), "motion_notify_event",
 	                   G_CALLBACK(DividerMotion), this);
 	g_signal_connect(G_OBJECT(PWidget(wDivider)), "button_press_event",
