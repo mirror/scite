@@ -3679,7 +3679,11 @@ void FindStrip::Creation(GtkWidget *container) {
 	gtk_widget_ensure_style(wButton);
 
 	for (int i=0;i<checks;i++) {
+#if GTK_CHECK_VERSION(3,0,0)
+		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), gtk_widget_get_style(wButton.Pointer()));
+#else
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButton.Pointer()->style);
+#endif
 		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
 		table.Add(wCheck[i], 1, false, 0, 0);
 	}
@@ -3845,7 +3849,11 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	gtk_widget_ensure_style(wButtonFind);
 
 	for (int i=0;i<checks;i++) {
+#if GTK_CHECK_VERSION(3,0,0)
+		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), gtk_widget_get_style(wButtonFind.Pointer()));
+#else
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButtonFind.Pointer()->style);
+#endif
 		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
 
