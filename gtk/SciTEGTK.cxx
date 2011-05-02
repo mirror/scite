@@ -1488,30 +1488,29 @@ GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
 	return gtk_label_new_with_mnemonic(text.c_str());
 }
 
-static void FillComboFromProps(GtkWidget *combo, PropSetFile &props) {
+static void FillComboFromProps(WComboBoxEntry *combo, PropSetFile &props) {
 	const char *key;
 	const char *val;
 	for (int i = 0; i < 10; i++) {
-		gtk_combo_box_remove_text(GTK_COMBO_BOX(combo), 0);
+		combo->RemoveText(0);
 	}
 
 	if (props.GetFirst(key, val))
-		gtk_combo_box_append_text(GTK_COMBO_BOX(combo), key);
+		combo->AppendText(key);
 
 	while (props.GetNext(key, val))
-		gtk_combo_box_append_text(GTK_COMBO_BOX(combo), key);
+		combo->AppendText(key);
 }
 
-static void FillComboFromMemory(GtkWidget *combo, const ComboMemory &mem, bool useTop = false) {
+static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, bool useTop = false) {
 	for (int i = 0; i < 10; i++) {
-		gtk_combo_box_remove_text(GTK_COMBO_BOX(combo), 0);
+		combo->RemoveText(0);
 	}
 	for (int i = 0; i < mem.Length(); i++) {
-		gtk_combo_box_append_text(GTK_COMBO_BOX(combo), mem.At(i).c_str());
+		combo->AppendText(mem.At(i).c_str());
 	}
 	if (useTop) {
-		GtkWidget* entry = gtk_bin_get_child(GTK_BIN(combo));
-		gtk_entry_set_text(GTK_ENTRY(entry), mem.At(0).c_str());
+		combo->SetText(mem.At(0).c_str());
 	}
 }
 
@@ -1954,7 +1953,7 @@ void SciTEGTK::FindInFiles() {
 	table.Label(labelFiles);
 
 	dlgFindInFiles.wComboFiles.Create();
-	FillComboFromMemory(dlgFindInFiles.wComboFiles, memFiles, true);
+	FillComboFromMemory(&dlgFindInFiles.wComboFiles, memFiles, true);
 
 	table.Add(dlgFindInFiles.wComboFiles, 4, true);
 	dlgFindInFiles.wComboFiles.ActivatesDefault();
@@ -1965,7 +1964,7 @@ void SciTEGTK::FindInFiles() {
 	table.Label(labelDirectory);
 
 	dlgFindInFiles.comboDir.Create();
-	FillComboFromMemory(dlgFindInFiles.comboDir, memDirectory);
+	FillComboFromMemory(&dlgFindInFiles.comboDir, memDirectory);
 	table.Add(dlgFindInFiles.comboDir, 2, true);
 
 	gtk_entry_set_text(dlgFindInFiles.comboDir.Entry(), findInDir.AsInternal());
@@ -2255,7 +2254,7 @@ bool SciTEGTK::AbbrevDialog() {
 
 	dlgAbbrev.comboAbbrev.Create();
 	gtk_entry_set_width_chars(dlgAbbrev.comboAbbrev.Entry(), 35);
-	FillComboFromProps(dlgAbbrev.comboAbbrev, propsAbbrev);
+	FillComboFromProps(&dlgAbbrev.comboAbbrev, propsAbbrev);
 	table.Add(dlgAbbrev.comboAbbrev, 2, true);
 
 	gtk_widget_grab_focus(dlgAbbrev.comboAbbrev);

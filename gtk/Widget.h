@@ -79,6 +79,8 @@ public:
 	const GUI::gui_char *Text();
 	void SetText(const GUI::gui_char *text);
 	bool HasFocusOnSelfOrChild();
+	void RemoveText(int position);
+	void AppendText(const char *text);
 	void FillFromMemory(const std::vector<std::string> &mem, bool useTop = false);
 };
 

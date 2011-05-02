@@ -65,7 +65,11 @@ void WEntry::SetText(const GUI::gui_char *text) {
 }
 
 void WComboBoxEntry::Create() {
+#if GTK_CHECK_VERSION(3,0,0)
+	SetID(gtk_combo_box_text_new_with_entry());
+#else
 	SetID(gtk_combo_box_entry_new_text());
+#endif
 }
 
 GtkEntry *WComboBoxEntry::Entry() {
@@ -88,12 +92,28 @@ bool WComboBoxEntry::HasFocusOnSelfOrChild() {
 	return HasFocus() || IS_WIDGET_FOCUSSED(Entry());
 }
 
+void WComboBoxEntry::RemoveText(int position) {
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(GetID()), position);
+#else
+	gtk_combo_box_remove_text(GTK_COMBO_BOX(GetID()), position);
+#endif
+}
+
+void WComboBoxEntry::AppendText(const char *text) {
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(GetID()), text);
+#else
+	gtk_combo_box_append_text(GTK_COMBO_BOX(GetID()), text);
+#endif
+}
+
 void WComboBoxEntry::FillFromMemory(const std::vector<std::string> &mem, bool useTop) {
 	for (int i = 0; i < 10; i++) {
-		gtk_combo_box_remove_text(GTK_COMBO_BOX(GetID()), 0);
+		RemoveText(0);
 	}
 	for (size_t i = 0; i < mem.size(); i++) {
-		gtk_combo_box_append_text(GTK_COMBO_BOX(GetID()), mem[i].c_str());
+		AppendText(mem[i].c_str());
 	}
 	if (useTop) {
 		gtk_entry_set_text(Entry(), mem[0].c_str());
