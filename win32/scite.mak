@@ -54,6 +54,7 @@ INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src
 
 OBJS=\
 	SciTEBase.obj \
+	Credits.obj \
 	FilePath.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
@@ -78,6 +79,7 @@ LEXLIB=..\..\scintilla\win32\Lexers.lib
 
 OBJSSTATIC=\
 	SciTEBase.obj \
+	Credits.obj \
 	FilePath.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
@@ -425,6 +427,21 @@ SciTEBase.obj: \
 	../src/SciTEBase.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/SciLexer.h \
+	../src/GUI.h \
+	../src/SString.h \
+	../src/StringHelpers.h \
+	../src/StringList.h \
+	../src/FilePath.h \
+	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
+	../src/SciTEBase.h
+Credits.obj: \
+	../src/Credits.cxx \
+	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/SString.h \
 	../src/StringHelpers.h \

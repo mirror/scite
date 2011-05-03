@@ -64,8 +64,8 @@ LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -luxtheme $(LUA_LD
 .c.o:
 	gcc $(CFLAGS) -c $< -o $@
 
-OTHER_OBJS	= FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o PropSetFile.o StringHelpers.o StringList.o \
-SciTEProps.o SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
+OTHER_OBJS	= Credits.o FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o PropSetFile.o StringHelpers.o \
+StringList.o SciTEProps.o SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 StyleWriter.o UniqueInstance.o \
 Utf8_16.o SciTERes.o GUIWin.o \
 IFaceTable.o DirectorExtension.o JobQueue.o WinMutex.o $(LUA_OBJS)
@@ -132,7 +132,7 @@ $(PROG): $(OBJS)
 	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
 
 OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
-	StyleWriter.o UniqueInstance.o SciTEBase.o FilePath.o SciTEBuffers.o \
+	StyleWriter.o UniqueInstance.o SciTEBase.o Credits.o FilePath.o SciTEBuffers.o \
 	SciTEIO.o Exporters.o PropSetFile.o StringHelpers.o StringList.o SciTEProps.o ScintillaWinL.o \
 	ScintillaBaseL.o Editor.o Catalogue.o Accessor.o WordList.o CharacterSet.o \
 	LexerModule.o LexerSimple.o LexerBase.o \

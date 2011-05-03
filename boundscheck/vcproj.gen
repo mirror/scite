@@ -187,6 +187,9 @@
 				RelativePath="..\..\scintilla\src\ContractionState.cxx">
 			</File>
 			<File
+				RelativePath="..\Src\Credits.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\Decoration.cxx">
 			</File>
 			<File
