@@ -18,6 +18,11 @@ SciTEGTK.o: SciTEGTK.cxx \
 Widget.o: Widget.cxx \
  ../../scintilla/include/Scintilla.h ../src/GUI.h ../src/StringHelpers.h \
  Widget.h
+Credits.o: ../src/Credits.cxx ../../scintilla/include/Scintilla.h \
+ ../src/GUI.h ../src/SString.h ../src/StringList.h ../src/StringHelpers.h \
+ ../src/FilePath.h ../src/PropSetFile.h ../src/StyleWriter.h \
+ ../src/Extender.h ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h \
+ ../src/SciTEBase.h
 Exporters.o: ../src/Exporters.cxx \
  ../../scintilla/include/Scintilla.h ../src/GUI.h ../src/SString.h \
  ../src/StringList.h ../src/StringHelpers.h ../src/FilePath.h \
@@ -32,10 +37,10 @@ JobQueue.o: ../src/JobQueue.cxx ../../scintilla/include/Scintilla.h \
  ../src/Mutex.h ../src/JobQueue.h
 LuaExtension.o: ../src/LuaExtension.cxx \
  ../../scintilla/include/Scintilla.h ../src/GUI.h ../src/SString.h \
- ../src/StyleWriter.h ../src/Extender.h ../src/LuaExtension.h \
- ../src/IFaceTable.h ../src/SciTEKeys.h ../lua/include/lua.h \
- ../lua/include/luaconf.h ../lua/include/lualib.h ../lua/include/lua.h \
- ../lua/include/lauxlib.h
+ ../src/FilePath.h ../src/StyleWriter.h ../src/Extender.h \
+ ../src/LuaExtension.h ../src/IFaceTable.h ../src/SciTEKeys.h \
+ ../lua/include/lua.h ../lua/include/luaconf.h ../lua/include/lualib.h \
+ ../lua/include/lua.h ../lua/include/lauxlib.h
 MultiplexExtension.o: ../src/MultiplexExtension.cxx \
  ../../scintilla/include/Scintilla.h ../src/GUI.h \
  ../src/MultiplexExtension.h ../src/Extender.h
