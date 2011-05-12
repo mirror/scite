@@ -1463,7 +1463,7 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 		::SetForegroundWindow(MainHWND());
 		// Post message to ourself for opening the files so we can finish the drop message and
 		// the drop source will respond when open operation takes long time (opening big files...)
-		if (dropFilesQueue.size() > 0) {
+		if (!dropFilesQueue.empty()) {
 			::PostMessage(MainHWND(), SCITE_DROP, 0, 0);
 		}
 	}
