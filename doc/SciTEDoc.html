@@ -1287,6 +1287,19 @@ NameError: mistake
         New files are not affected by this setting.
         </td>
       </tr>
+      <tr class="windowsonly">
+        <td>
+          temp.files.sync.load
+        </td>
+        <td>
+          Files dropped on SciTE on Windows are normally opened asynchronously
+	as there may be a long list. However, files dragged from some applications
+	such as 7-Zip may only exist for a moment in the temporary directory and
+	be deleted once the drop has occurred.<br />
+	Setting this to 1 makes SciTE open dropped files in the temporary directory
+	immediately.
+        </td>
+      </tr>
       <tr>
         <td>
            quit.on.close.last
