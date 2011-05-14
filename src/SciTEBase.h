@@ -2,7 +2,7 @@
 /** @file SciTEBase.h
  ** Definition of platform independent base class of editor.
  **/
-// Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 extern const GUI::gui_char appName[];
