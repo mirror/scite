@@ -2530,6 +2530,40 @@ void SciTEBase::AutomaticIndentation(char ch) {
 	int indentSize = wEditor.Call(SCI_GETINDENT);
 	int indentBlock = IndentOfBlock(curLine - 1);
 
+	if ((wEditor.Call(SCI_GETLEXER) == SCLEX_PYTHON) &&
+			(props.GetInt("indent.python.colon") == 1)) {
+		int eolMode = wEditor.Call(SCI_GETEOLMODE);
+		int eolChar = (eolMode == SC_EOL_CR ? '\r' : '\n');
+		int eolChars = (eolMode == SC_EOL_CRLF ? 2 : 1);
+		int prevLineStart = wEditor.Call(SCI_POSITIONFROMLINE, curLine - 1);
+		int prevIndentPos = GetLineIndentPosition(curLine - 1);
+		int indentExisting = GetLineIndentation(curLine);
+
+		if (ch == eolChar) {
+			// Find last noncomment, nonwhitespace character on previous line
+			int character = 0;
+			int style = 0;
+			for (int p = selStart - eolChars - 1; p > prevLineStart; p--) {
+				style = wEditor.Call(SCI_GETSTYLEAT, p);
+				if (style != SCE_P_DEFAULT && style != SCE_P_COMMENTLINE &&
+						style != SCE_P_COMMENTBLOCK) {
+					character = wEditor.Call(SCI_GETCHARAT, p);
+					break;
+				}
+			}
+			indentBlock = GetLineIndentation(curLine - 1);
+			if (style == SCE_P_OPERATOR && character == ':') {
+				SetLineIndentation(curLine, indentBlock + indentSize);
+			} else if (selStart == prevIndentPos + eolChars) {
+				// Preserve the indentation of preexisting text beyond the caret
+				SetLineIndentation(curLine, indentBlock + indentExisting);
+			} else {
+				SetLineIndentation(curLine, indentBlock);
+			}
+		}
+		return;
+	}
+
 	if (blockEnd.IsSingleChar() && ch == blockEnd.words[0]) {	// Dedent maybe
 		if (!indentClosing) {
 			if (RangeIsAllWhitespace(thisLineStart, selStart - 1)) {
