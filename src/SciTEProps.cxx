@@ -1307,7 +1307,7 @@ void SciTEBase::ReadFontProperties() {
 		for (int i = 0; i < STYLE_MAX; i++) {
 			sprintf(key, "style.lpeg.%0d", i);
 			wEditor.Send(SCI_PRIVATELEXERCALL, i - STYLE_MAX, reinterpret_cast<sptr_t>(propStr));
-			props.Set(key, static_cast<const char*>(propStr));
+			props.Set(key, static_cast<const char *>(propStr));
 		}
 		languageName = "lpeg";
 	}

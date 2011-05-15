@@ -757,7 +757,7 @@ protected:
 	void StopRecordMacro();
 	void StartPlayMacro();
 	bool RecordMacroCommand(SCNotification *notification);
-	void ExecuteMacroCommand(const char * command);
+	void ExecuteMacroCommand(const char *command);
 	void AskMacroList();
 	bool StartMacroList(const char *words);
 	void ContinueMacroList(const char *stxt);

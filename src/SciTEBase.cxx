@@ -1599,7 +1599,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	SString root = line.substr(startword, current - startword);
 	int doclen = LengthDocument();
 	Sci_TextToFind ft = {{0, 0}, 0, {0, 0}};
-	ft.lpstrText = const_cast<char*>(root.c_str());
+	ft.lpstrText = const_cast<char *>(root.c_str());
 	ft.chrg.cpMin = 0;
 	ft.chrg.cpMax = doclen;
 	ft.chrgText.cpMin = 0;
@@ -2255,7 +2255,7 @@ void SciTEBase::SetTextProperties(
 	} else if (selLastLine == selFirstLine) {
 		sprintf(temp, "%d", 1);
 	} else if ((wEditor.Call(SCI_GETCOLUMN, caretPos) == 0 && (selAnchor <= caretPos)) ||
-	        ((wEditor.Call( SCI_GETCOLUMN, selAnchor) == 0) && (selAnchor > caretPos ))) {
+	        ((wEditor.Call(SCI_GETCOLUMN, selAnchor) == 0) && (selAnchor > caretPos ))) {
 		sprintf(temp, "%d", selLastLine - selFirstLine);
 	} else {
 		sprintf(temp, "%d", selLastLine - selFirstLine + 1);
@@ -2369,7 +2369,7 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 
 bool SciTEBase::RangeIsAllWhitespace(int start, int end) {
 	TextReader acc(wEditor);
-	for (int i = start;i < end;i++) {
+	for (int i = start; i < end; i++) {
 		if ((acc[i] != ' ') && (acc[i] != '\t'))
 			return false;
 	}
@@ -2758,8 +2758,8 @@ SString SciTEBase::FindOpenXmlTag(const char sel[], int nSize) {
 		// Smallest tag is "<p>" which is 3 characters
 		return strRet;
 	}
-	const char* pBegin = &sel[0];
-	const char* pCur = &sel[nSize - 1];
+	const char *pBegin = &sel[0];
+	const char *pCur = &sel[nSize - 1];
 
 	pCur--; // Skip past the >
 	while (pCur > pBegin) {
@@ -4230,7 +4230,7 @@ bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
 		char *szMessage;
 		char *t;
 		bool handled;
-		t = (char*)(notification->lParam);
+		t = (char *)(notification->lParam);
 		SString sWParam(static_cast<size_t>(notification->wParam));
 		if (t != NULL) {
 			//format : "<message>;<wParam>;1;<text>"
