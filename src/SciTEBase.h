@@ -209,6 +209,24 @@ struct StyleAndWords {
 	bool IsSingleChar() { return words.length() == 1; }
 };
 
+struct CurrentWordHighlight {
+	enum {
+		noDelay,            // No delay, and no word at the caret.
+		delay,              // Delay before to highlight the word at the caret.
+		delayJustEnded,     // Delay has just ended. This state allows to ignore next HighlightCurrentWord (SCN_UPDATEUI and SC_UPDATE_CONTENT for setting indicators).
+		delayAlreadyElapsed // Delay has already elapsed, word at the caret and occurrences are (or have to be) highlighted.
+	} statesOfDelay;
+	bool isEnabled;
+	GUI::ElapsedTime elapsedTimes;
+	bool isOnlyWithSameStyle;
+
+	CurrentWordHighlight() {
+		statesOfDelay = noDelay;
+		isEnabled = false;
+		isOnlyWithSameStyle = false;
+	}
+};
+
 class Localization : public PropSetFile, public ILocalize {
 	SString missing;
 public:
@@ -287,7 +305,7 @@ protected:
 	FilePath importFiles[importMax];
 	enum { importCmdID = IDM_IMPORT };
 
-	enum { indicatorMatch = INDIC_CONTAINER };
+	enum { indicatorMatch = INDIC_CONTAINER, indicatorHightlightCurrentWord };
 	enum { markerBookmark = 1 };
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
@@ -795,6 +813,9 @@ protected:
 	bool iswordcharforsel(char ch);
 	bool isfilenamecharforsel(char ch);
 	bool islexerwordcharforsel(char ch);
+
+	CurrentWordHighlight currentWordHighlight;
+	void HighlightCurrentWord(bool highlight);
 public:
 
 	enum { maxParam = 4 };
