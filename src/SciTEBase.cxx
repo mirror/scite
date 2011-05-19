@@ -732,8 +732,8 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	bool noUserSelection = selStart == selEnd;
 	SString wordToFind = RangeExtendAndGrab(wCurrent, selStart, selEnd,
 	        &SciTEBase::islexerwordcharforsel);
-	if (wordToFind.length() == 0)
-		return; // No selection.
+	if (wordToFind.length() == 0 || wordToFind.contains('\n') || wordToFind.contains('\r'))
+		return; // No highlight when no selection or multi-lines selection.
 	if (noUserSelection && currentWordHighlight.statesOfDelay == currentWordHighlight.noDelay) {
 		// Manage delay before highlight when no user selection but there is word at the caret.
 		currentWordHighlight.statesOfDelay = currentWordHighlight.delay;
@@ -754,7 +754,7 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	while (indexOf != -1 && indexOf < lenDoc) {
 		if (!currentWordHighlight.isOnlyWithSameStyle || selectedStyle ==
 		        wCurrent.Call(SCI_GETSTYLEAT, indexOf)) {
-			wCurrent.Call(SCI_INDICATORFILLRANGE,  indexOf, wordToFind.length());
+			wCurrent.Call(SCI_INDICATORFILLRANGE, indexOf, wordToFind.length());
 		}
 		// Try to find next occurrence of word.
 		wCurrent.Call(SCI_SETTARGETSTART, indexOf + wordToFind.length() + 1);
