@@ -849,6 +849,17 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETCARETLINEBACKALPHA,
 		props.GetInt("caret.line.back.alpha", SC_ALPHA_NOALPHA));
 
+	int alphaIndicator = props.GetInt("indicators.alpha", 30);
+	if (alphaIndicator < 0 || 255 < alphaIndicator) // If invalid value,
+		alphaIndicator = 30; //then set default value.
+	bool underIndicator = props.GetInt("indicators.under", 0) == 1;
+	for (int index = INDIC_CONTAINER; index < indicatorSentinel; ++index) {
+		wEditor.Call(SCI_INDICSETALPHA, index, alphaIndicator);
+		wOutput.Call(SCI_INDICSETALPHA, index, alphaIndicator);
+		wEditor.Call(SCI_INDICSETUNDER, index, underIndicator);
+		wOutput.Call(SCI_INDICSETUNDER, index, underIndicator);
+	}
+
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
 		wEditor.Call(SCI_INDICSETSTYLE, indicatorMatch, INDIC_ROUNDBOX);
@@ -1282,18 +1293,14 @@ void SciTEBase::ReadProperties() {
 		SString highlightCurrentWordColourString = props.Get("highlight.current.word.colour");
 		if (highlightCurrentWordColourString.length() == 0) {
 			// Set default colour for highlight.
-			highlightCurrentWordColourString = "#FFFF00";
+			highlightCurrentWordColourString = "#A0A000";
 		}
 		Colour highlightCurrentWordColour = ColourFromString(highlightCurrentWordColourString);
 
 		wEditor.Call(SCI_INDICSETSTYLE, indicatorHightlightCurrentWord, INDIC_ROUNDBOX);
 		wEditor.Call(SCI_INDICSETFORE, indicatorHightlightCurrentWord, highlightCurrentWordColour);
-		wEditor.Call(SCI_INDICSETALPHA,indicatorHightlightCurrentWord, 100);
-		wEditor.Call(SCI_INDICSETUNDER, indicatorHightlightCurrentWord, true);
 		wOutput.Call(SCI_INDICSETSTYLE, indicatorHightlightCurrentWord, INDIC_ROUNDBOX);
 		wOutput.Call(SCI_INDICSETFORE, indicatorHightlightCurrentWord, highlightCurrentWordColour);
-		wOutput.Call(SCI_INDICSETALPHA,indicatorHightlightCurrentWord, 100);
-		wOutput.Call(SCI_INDICSETUNDER, indicatorHightlightCurrentWord, true);
 		currentWordHighlight.isOnlyWithSameStyle = props.GetInt("highlight.current.word.by.style", 0) == 1;
 		HighlightCurrentWord(true);
 	}

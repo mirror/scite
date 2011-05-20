@@ -305,7 +305,7 @@ protected:
 	FilePath importFiles[importMax];
 	enum { importCmdID = IDM_IMPORT };
 
-	enum { indicatorMatch = INDIC_CONTAINER, indicatorHightlightCurrentWord };
+	enum { indicatorMatch = INDIC_CONTAINER, indicatorHightlightCurrentWord, indicatorSentinel };
 	enum { markerBookmark = 1 };
 	ComboMemory memFiles;
 	ComboMemory memDirectory;

@@ -1317,7 +1317,7 @@ NameError: mistake
         </td>
         <td>
 	When set to 1, all occurrences of the selected word are highlighted with the
-	colour defined by highlight.current.word.colour. By default, this option is disabled.<br />
+	colour defined by highlight.current.word.colour. By default, this option is disabled. (See indicators.alpha and indicators.under)
         </td>
       </tr>
       <tr>
@@ -1327,7 +1327,7 @@ NameError: mistake
         </td>
         <td>
 	The option highlight.current.word.colour defines the colour of highlight.
-	The default value is yellow (#FFFF00).<br />
+	The default value is #A0A000.<br />
 	If the option highlight.current.word.by.style is set, then only words with the same style
         are highlighted (e.g. if you select this word in a comment, then only occurrences of words in
 	comments are selected).
@@ -1545,7 +1545,25 @@ NameError: mistake
         </td>
         <td>
           If set, then the Mark All command in the Find dialog will draw translucent boxes over
-		    each string found.
+		    each string found. (See indicators.alpha and indicators.under)
+        </td>
+       </tr>
+       <tr>
+        <td>
+          indicators.alpha
+        </td>
+        <td>
+           This property defines the alpha level for indicators (default value is 30).
+	   The alpha value can range from 0 (completely transparent) to 255 (no transparency).
+	   A value out of this range is ignored and the default one is used.
+        </td>
+       </tr>
+       <tr>
+        <td>
+          indicators.under
+        </td>
+        <td>
+          If set, the indicators are drawn under text or over (by default, it is over).
         </td>
        </tr>
        <tr>
