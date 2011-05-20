@@ -7,7 +7,6 @@ rem Assumes environment set up so gcc and MSVC can be called.
 rem
 cd ..\..
 set
-set BORLAND_BASE=C:\Borland\bcc55
 set MSDEV_BASE=C:\Program Files (x86)\Microsoft Visual Studio\Common\MSDev98\Bin
 set MSDEV71_BASE=C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
 rem
@@ -99,6 +98,5 @@ goto CLEANUP
 :CLEANUP
 set SAVE_PATH=
 set SAVE_INCLUDE=
-set BORLAND_BASE=
 set MSDEV_BASE=
 set
