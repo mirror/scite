@@ -78,9 +78,7 @@ else
 CXXFLAGS=$(CXXTFLAGS) -DNO_LUA
 endif
 
-ifdef GTK3
 CXXFLAGS:=$(CXXFLAGS) -Wno-long-long
-endif
 
 ifeq ($(shell uname), Darwin)
 CXXFLAGS:=$(CXXFLAGS) -Dunix
