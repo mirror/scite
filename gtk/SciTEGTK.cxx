@@ -4362,8 +4362,9 @@ void SciTEGTK::FindIncrement() {
 
 void SciTEGTK::SetIcon() {
 	FilePath pathPixmap(PIXMAP_PATH, "Sci48M.png");
+	GError *err=0;
 	if (!gtk_window_set_icon_from_file(
-		GTK_WINDOW(PWidget(wSciTE)), pathPixmap.AsInternal(), NULL)) {
+		GTK_WINDOW(PWidget(wSciTE)), pathPixmap.AsInternal(), &err)) {
 		// Failed to load from file so use backup inside executable
 		GdkPixbuf *pixbufIcon = gdk_pixbuf_new_from_xpm_data(SciIcon_xpm);
 		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), pixbufIcon);
