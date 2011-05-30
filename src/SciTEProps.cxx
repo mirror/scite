@@ -240,7 +240,7 @@ const char *SciTEBase::GetNextPropItem(
 	char *pPropItem,	///< pointer on a buffer receiving the requested prop item
 	int maxLen)			///< size of the above buffer
 {
-	int size = maxLen - 1;
+	long size = maxLen - 1;
 
 	*pPropItem = '\0';
 	if (pStart == NULL) {
@@ -470,8 +470,8 @@ void SciTEBase::DefineMarker(int marker, int markerType, Colour fore, Colour bac
 	wEditor.Call(SCI_MARKERSETBACKSELECTED, marker, backSelected);
 }
 
-static int FileLength(const char *path) {
-	int len = 0;
+static long FileLength(const char *path) {
+	long len = 0;
 	FILE *fp = fopen(path, "rb");
 	if (fp) {
 		fseek(fp, 0, SEEK_END);
@@ -508,7 +508,7 @@ void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 					FILE *fp = fopen(apiFileName, "rb");
 					if (fp) {
 						fseek(fp, 0, SEEK_END);
-						int len = ftell(fp);
+						long len = ftell(fp);
 						fseek(fp, 0, SEEK_SET);
 						size_t readBytes = fread(buffer + tlen, 1, len, fp);
 						tlen += readBytes;
