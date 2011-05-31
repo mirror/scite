@@ -762,7 +762,10 @@ void SciTEBase::ReadProperties() {
 
 	lexLanguage = wEditor.Call(SCI_GETLEXER);
 
-	wEditor.Call(SCI_SETSTYLEBITS, wEditor.Call(SCI_GETSTYLEBITSNEEDED));
+	if (language.startswith("script_"))
+		wEditor.Call(SCI_SETSTYLEBITS, 8);
+	else
+		wEditor.Call(SCI_SETSTYLEBITS, wEditor.Call(SCI_GETSTYLEBITSNEEDED));
 
 	wOutput.Call(SCI_SETLEXER, SCLEX_ERRORLIST);
 
