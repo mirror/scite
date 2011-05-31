@@ -206,7 +206,7 @@ public:
 	virtual void Close();
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
-	void Next(bool markAll);
+	void Next(bool markAll, bool invertDirection);
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
 	void ShowPopup();
 	virtual bool Command(WPARAM wParam);
@@ -248,7 +248,7 @@ public:
 	virtual bool KeyDown(WPARAM key);
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
 	void ShowPopup();
-	void HandleReplaceCommand(int cmd);
+	void HandleReplaceCommand(int cmd, bool reverseFind = false);
 	virtual bool Command(WPARAM wParam);
 	virtual void Size();
 	virtual void Paint(HDC hDC);
@@ -379,7 +379,7 @@ protected:
 	/// Handle default print setup values and ask the user its preferences.
 	virtual void PrintSetup();
 
-	BOOL HandleReplaceCommand(int cmd);
+	BOOL HandleReplaceCommand(int cmd, bool reverseFind = false);
 
 	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style);
 	virtual void FindMessageBox(const SString &msg, const SString *findItem=0);
