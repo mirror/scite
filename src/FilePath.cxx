@@ -464,8 +464,8 @@ time_t FilePath::ModifiedTime() const {
 		return 0;
 }
 
-int FilePath::GetFileLength() const {
-	int size = -1;
+long FilePath::GetFileLength() const {
+	long size = -1;
 	if (IsSet()) {
 		FILE *fp = Open(fileRead);
 		if (fp) {

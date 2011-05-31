@@ -180,7 +180,7 @@ unsigned int UnSlash(char *s) {
 		}
 	}
 	*o = '\0';
-	return o - sStart;
+	return static_cast<unsigned int>(o - sStart);
 }
 
 /**
@@ -202,5 +202,5 @@ unsigned int UnSlashLowOctal(char *s) {
 			s++;
 	}
 	*o = '\0';
-	return o - sStart;
+	return static_cast<unsigned int>(o - sStart);
 }

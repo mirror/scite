@@ -105,7 +105,7 @@
 
 // extract the next RTF control word from *style
 void GetRTFNextControl(char **style, char *control) {
-	int len;
+	ptrdiff_t len;
 	char *pos = *style;
 	*control = '\0';
 	if ('\0' == *pos) return;
@@ -733,20 +733,20 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	class PDFObjectTracker {
 	private:
 		FILE *fp;
-		int *offsetList, tableSize;
+		long *offsetList, tableSize;
 	public:
 		int index;
 		PDFObjectTracker(FILE *fp_) {
 			fp = fp_;
 			tableSize = 100;
-			offsetList = new int[tableSize];
+			offsetList = new long[tableSize];
 			index = 1;
 		}
 		~PDFObjectTracker() {
 			delete []offsetList;
 		}
 		void write(const char *objectData) {
-			unsigned int length = strlen(objectData);
+			size_t length = strlen(objectData);
 			// note binary write used, open with "wb"
 			fwrite(objectData, sizeof(char), length, fp);
 		}
@@ -759,8 +759,8 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		int add(const char *objectData) {
 			// resize xref offset table if too small
 			if (index > tableSize) {
-				int newSize = tableSize * 2;
-				int *newList = new int[newSize];
+				long newSize = tableSize * 2;
+				long *newList = new long[newSize];
 				for (int i = 0; i < tableSize; i++) {
 					newList[i] = offsetList[i];
 				}
@@ -777,17 +777,17 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 			return index++;
 		}
 		// builds xref table, returns file offset of xref table
-		int xref() {
+		long xref() {
 			char val[32];
 			// xref start index and number of entries
-			int xrefStart = ftell(fp);
+			long xrefStart = ftell(fp);
 			write("xref\n0 ");
 			write(index);
 			// a xref entry *must* be 20 bytes long (PDF1.4Ref(p64))
 			// so extra space added; also the first entry is special
 			write("\n0000000000 65535 f \n");
 			for (int i = 0; i < index - 1; i++) {
-				sprintf(val, "%010d 00000 n \n", offsetList[i]);
+				sprintf(val, "%010ld 00000 n \n", offsetList[i]);
 				write(val);
 			}
 			return xrefStart;
@@ -816,7 +816,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		PDFStyle *style;
 		int fontSize;		// properties supplied by user
 		int fontSet;
-		int pageWidth, pageHeight;
+		long pageWidth, pageHeight;
 		GUI::Rectangle pageMargin;
 		//
 		PDFRender() {
@@ -901,7 +901,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 			int pagesRef = pageObjectStart + pageCount;
 			for (int i = 0; i < pageCount; i++) {
 				sprintf(buffer, "<</Type/Page/Parent %d 0 R\n"
-				        "/MediaBox[ 0 0 %d %d"
+				        "/MediaBox[ 0 0 %ld %ld"
 				        "]\n/Contents %d 0 R\n"
 				        "/Resources %d 0 R\n>>\n",
 				        pagesRef, pageWidth, pageHeight,
@@ -921,10 +921,10 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 			sprintf(buffer, "<</Type/Catalog/Pages %d 0 R >>\n", pagesRef);
 			int catalogRef = oT->add(buffer);
 			// append the cross reference table (PDF1.4Ref(p64))
-			int xref = oT->xref();
+			long xref = oT->xref();
 			// end the file with the trailer (PDF1.4Ref(p67))
 			sprintf(buffer, "trailer\n<< /Size %d /Root %d 0 R\n>>"
-			        "\nstartxref\n%d\n%%%%EOF\n",
+			        "\nstartxref\n%ld\n%%%%EOF\n",
 			        oT->index, catalogRef, xref);
 			oT->write(buffer);
 		}
@@ -1065,19 +1065,19 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	propItem = props.GetExpanded("export.pdf.margins");
 	ps = StringDup(propItem.c_str());
 	next = GetNextPropItem(ps, buffer, 32);
-	if (0 >= (pr.pageMargin.left = atol(buffer))) {
+	if (0 >= (pr.pageMargin.left = static_cast<int>(atol(buffer)))) {
 		pr.pageMargin.left = PDF_MARGIN_DEFAULT;
 	}
 	next = GetNextPropItem(next, buffer, 32);
-	if (0 >= (pr.pageMargin.right = atol(buffer))) {
+	if (0 >= (pr.pageMargin.right = static_cast<int>(atol(buffer)))) {
 		pr.pageMargin.right = PDF_MARGIN_DEFAULT;
 	}
 	next = GetNextPropItem(next, buffer, 32);
-	if (0 >= (pr.pageMargin.top = atol(buffer))) {
+	if (0 >= (pr.pageMargin.top = static_cast<int>(atol(buffer)))) {
 		pr.pageMargin.top = PDF_MARGIN_DEFAULT;
 	}
 	GetNextPropItem(next, buffer, 32);
-	if (0 >= (pr.pageMargin.bottom = atol(buffer))) {
+	if (0 >= (pr.pageMargin.bottom = static_cast<int>(atol(buffer)))) {
 		pr.pageMargin.bottom = PDF_MARGIN_DEFAULT;
 	}
 	delete []ps;

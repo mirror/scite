@@ -71,7 +71,7 @@ public:
 	FILE *Open(const GUI::gui_char *mode) const;
 	void Remove() const;
 	time_t ModifiedTime() const;
-	int GetFileLength() const;
+	long GetFileLength() const;
 	bool Exists() const;
 	bool IsDirectory() const;
 	bool Matches(const GUI::gui_char *pattern) const;

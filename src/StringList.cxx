@@ -314,7 +314,7 @@ static unsigned int LengthWord(const char *word, char otherSeparator) {
 			endWord--;
 		}
 	}
-	return endWord - word;
+	return static_cast<unsigned int>(endWord - word);
 }
 
 /**

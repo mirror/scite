@@ -59,7 +59,7 @@ PropSetFile::~PropSetFile() {
 	Clear();
 }
 
-void PropSetFile::Set(const char *key, const char *val, int lenKey, int lenVal) {
+void PropSetFile::Set(const char *key, const char *val, ptrdiff_t lenKey, ptrdiff_t lenVal) {
 	if (!*key)	// Empty keys are not supported
 		return;
 	if (lenKey == -1)
@@ -448,7 +448,7 @@ SString PropSetFile::GetNewExpand(const char *keybase, const char *filename) {
 	while (cpvar && (maxExpands > 0)) {
 		const char *cpendvar = strchr(cpvar, ')');
 		if (cpendvar) {
-			int lenvar = cpendvar - cpvar - 2;  	// Subtract the $()
+			ptrdiff_t lenvar = cpendvar - cpvar - 2;  	// Subtract the $()
 			char *var = StringDup(cpvar + 2, lenvar);
 			SString val = GetWild(var, filename);
 			if (0 == strcmp(var, keybase))
@@ -741,7 +741,7 @@ int SString::search(const char *sFind, lenpos_t start) const {
 	if (start < sLen) {
 		const char *sFound = strstr(s + start, sFind);
 		if (sFound) {
-			return sFound - s;
+			return static_cast<int>(sFound - s);
 		}
 	}
 	return -1;

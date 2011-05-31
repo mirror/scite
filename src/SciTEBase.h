@@ -525,7 +525,7 @@ protected:
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
 	SString DiscoverLanguage(const char *buf, size_t length);
-	void OpenFile(int fileSize, bool suppressMessage);
+	void OpenFile(long fileSize, bool suppressMessage);
 	virtual void OpenUriList(const char *) {}
 	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter) = 0;
 	virtual bool SaveAsDialog() = 0;

@@ -334,7 +334,7 @@ void SciTEBase::DiscoverIndentSetting() {
 	}
 }
 
-void SciTEBase::OpenFile(int fileSize, bool suppressMessage) {
+void SciTEBase::OpenFile(long fileSize, bool suppressMessage) {
 	FILE *fp = filePath.Open(fileRead);
 	if (fp) {
 		Utf8_16_Read convert;
@@ -424,12 +424,12 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		return false;
 	}
 
-	int size = absPath.GetFileLength();
+	long size = absPath.GetFileLength();
 	if (size > 0) {
 		// Real file, not empty buffer
 		int maxSize = props.GetInt("max.file.size");
 		if (maxSize > 0 && size > maxSize) {
-			GUI::gui_string sSize = GUI::StringFromInteger(size);
+			GUI::gui_string sSize = GUI::StringFromInteger(static_cast<int>(size));
 			GUI::gui_string sMaxSize = GUI::StringFromInteger(maxSize);
 			GUI::gui_string msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
 			        "larger than the ^2 bytes limit set in the properties.\n"
@@ -661,7 +661,7 @@ void SciTEBase::Activate(bool activeApp) {
 FilePath SciTEBase::SaveName(const char *ext) {
 	GUI::gui_string savePath = filePath.AsInternal();
 	if (ext) {
-		int dot = savePath.length() - 1;
+		int dot = static_cast<int>(savePath.length() - 1);
 		while ((dot >= 0) && (savePath[dot] != '.')) {
 			dot--;
 		}

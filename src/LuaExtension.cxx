@@ -1441,7 +1441,7 @@ bool LuaExtension::Load(const char *filename) {
 	bool loaded = false;
 
 	if (!luaDisabled) {
-		int sl = strlen(filename);
+		size_t sl = strlen(filename);
 		if (sl >= 4 && strcmp(filename+sl-4, ".lua")==0) {
 			if (luaState || InitGlobalScope(false)) {
 				extensionScript = filename;

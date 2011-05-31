@@ -122,8 +122,8 @@ public:
 };
 
 struct ScintillaFailure {
-	int status;
-	ScintillaFailure(int status_) : status(status_) {
+	sptr_t status;
+	ScintillaFailure(sptr_t status_) : status(status_) {
 	}
 };
 

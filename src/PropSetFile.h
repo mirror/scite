@@ -20,7 +20,7 @@ public:
 	PropSetFile *superPS;
 	PropSetFile(bool lowerKeys_=false);
 	virtual ~PropSetFile();
-	void Set(const char *key, const char *val, int lenKey=-1, int lenVal=-1);
+	void Set(const char *key, const char *val, ptrdiff_t lenKey=-1, ptrdiff_t lenVal=-1);
 	void Set(const char *keyVal);
 	void Unset(const char *key, int lenKey=-1);
 	void SetMultiple(const char *s);
