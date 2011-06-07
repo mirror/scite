@@ -861,7 +861,7 @@ void DialogFindReplace::FillFields() {
 		SetCheck(pSearcher->reverseFind ? IDDIRECTIONUP : IDDIRECTIONDOWN, true);
 	}
 	if (advanced) {
-		SetCheck(IDFINDSTYLE, pSearcher->findInStyle);
+		SetCheck(IDFINDINSTYLE, pSearcher->findInStyle);
 	}
 }
 
