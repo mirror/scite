@@ -113,6 +113,8 @@ clean:
 deps:
 	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c >deps.mak
 
+embedded: ..\src\Embedded.properties
+
 ..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
 	$(COPY) ..\..\scintilla\bin\Scintilla.dll $@
 
