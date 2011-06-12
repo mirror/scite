@@ -1015,10 +1015,6 @@ RecentFile SciTEBase::GetFilePosition() {
 
 void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
-		int lineStart = wEditor.Call(SCI_LINEFROMPOSITION, rf.selection.cpMin);
-		wEditor.Call(SCI_ENSUREVISIBLEENFORCEPOLICY, lineStart);
-		int lineEnd = wEditor.Call(SCI_LINEFROMPOSITION, rf.selection.cpMax);
-		wEditor.Call(SCI_ENSUREVISIBLEENFORCEPOLICY, lineEnd);
 		SetSelection(rf.selection.cpMax, rf.selection.cpMin);
 
 		int curTop = wEditor.Call(SCI_GETFIRSTVISIBLELINE);
