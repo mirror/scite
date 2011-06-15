@@ -465,6 +465,7 @@ protected:
 	GtkWidget *menuBar;
 	std::map<std::string, GtkWidget *> pulldowns;
 	std::map<std::string, GSList *> radiogroups;
+	std::map<int, GtkWidget *> mapMenuItemFromId;
 	GtkAccelGroup *accelGroup;
 
 	gint	fileSelectorWidth;
@@ -487,6 +488,7 @@ protected:
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
 
+	GtkWidget *MenuItemFromAction(int itemID);
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
 	                         const char *text, const char *mnemonic = 0);
 	virtual void DestroyMenuItem(int menuNumber, int itemID);
@@ -1103,36 +1105,13 @@ void SciTEGTK::SizeSubWindows() {
 }
 
 // Find the menu item with a particular ID so that it can be enable, disabled, set or hidden.
-// Performs a recursive search through the whole menu tree.
-// If it is too slow, could be replaced with a map of ID -> widget.
-static GtkWidget *MenuItemFromAction(GtkWidget *w, int itemID) {
-	GtkWidget *wFound = 0;
-	int val = (int)(sptr_t)g_object_get_data(G_OBJECT(w), "CmdNum");
-	std::string name = gtk_widget_get_name(w);
-	//fprintf(stderr, "%s -> %d\n", name.c_str(), val);
-	if (val == itemID)
-		wFound = w;
-	if (!wFound) {
-		if (GTK_IS_MENU_ITEM(w)) {
-			//fprintf(stderr, "menu item\n");
-			GtkWidget *subMenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(w));
-			if (subMenu)
-				wFound = MenuItemFromAction(subMenu, itemID);
-			if (wFound)
-				return wFound;
-		}
-		if (GTK_IS_MENU_SHELL(w)) {
-			GList *childWidgets = gtk_container_get_children(GTK_CONTAINER(w));
-			for (GList *child = g_list_first(childWidgets); child; child = g_list_next(child)) {
-				GtkWidget **cw = (GtkWidget **)child;
-				GtkWidget *wGot = MenuItemFromAction(*cw, itemID);
-				if (wGot)
-					wFound = wGot;
-			}
-			g_list_free(childWidgets);
-		}
-	}
-	return wFound;
+GtkWidget *SciTEGTK::MenuItemFromAction(int itemID) {
+	std::map<int, GtkWidget *>::iterator it;
+	it = mapMenuItemFromId.find(itemID);
+	if (it == mapMenuItemFromId.end())
+		return 0;
+	else
+		return it->second;
 }
 
 void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *mnemonic) {
@@ -1160,7 +1139,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 	// Reorder shift and ctrl indicators for compatibility with other menus
 	itemText.substitute("Ctrl+Shift+", "Shift+Ctrl+");
 
-	GtkWidget *item = MenuItemFromAction(menuBar, itemID);
+	GtkWidget *item = MenuItemFromAction(itemID);
 	if (item) {
 		GList *al = gtk_container_get_children(GTK_CONTAINER(item));
 		for (unsigned int ii = 0; ii < g_list_length(al); ii++) {
@@ -1188,7 +1167,7 @@ void SciTEGTK::DestroyMenuItem(int, int itemID) {
 	// The menuNumber is ignored as all menu items in GTK+ can be found from the root of the menu tree
 
 	if (itemID) {
-		GtkWidget *item = MenuItemFromAction(menuBar, itemID);
+		GtkWidget *item = MenuItemFromAction(itemID);
 
 		if (item) {
 			gtk_widget_hide(item);
@@ -1198,7 +1177,7 @@ void SciTEGTK::DestroyMenuItem(int, int itemID) {
 }
 
 void SciTEGTK::CheckAMenuItem(int wIDCheckItem, bool val) {
-	GtkWidget *item = MenuItemFromAction(menuBar, wIDCheckItem);
+	GtkWidget *item = MenuItemFromAction(wIDCheckItem);
 	allowMenuActions = false;
 	if (item)
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), val ? TRUE : FALSE);
@@ -1206,7 +1185,7 @@ void SciTEGTK::CheckAMenuItem(int wIDCheckItem, bool val) {
 }
 
 void SciTEGTK::EnableAMenuItem(int wIDCheckItem, bool val) {
-	GtkWidget *item = MenuItemFromAction(menuBar, wIDCheckItem);
+	GtkWidget *item = MenuItemFromAction(wIDCheckItem);
 	if (item) {
 		if (GTK_IS_WIDGET(item))
 			gtk_widget_set_sensitive(item, val);
@@ -2906,7 +2885,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 
 	// check tools menu command shortcuts
 	for (int tool_i = 0; tool_i < toolMax; ++tool_i) {
-		GtkWidget *item = MenuItemFromAction(menuBar, IDM_TOOLS + tool_i);
+		GtkWidget *item = MenuItemFromAction(IDM_TOOLS + tool_i);
 		if (item) {
 			long keycode = reinterpret_cast<long>(g_object_get_data(G_OBJECT(item), "key"));
 			if (keycode && SciTEKeys::MatchKeyCode(keycode, event->keyval, modifiers)) {
@@ -3426,6 +3405,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 				reinterpret_cast<void *>(psife->callback_action));
 			g_signal_connect(G_OBJECT(menuItemCommand),"activate", G_CALLBACK(MenuSignal), this);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menuParent), menuItemCommand);
+			mapMenuItemFromId[psife->callback_action] = menuItemCommand;
 		}
 	}
 	delete []translatedRadios;
