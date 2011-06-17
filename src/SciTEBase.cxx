@@ -744,6 +744,9 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	// Get style of the current word to highlight only word with same style.
 	int selectedStyle = wCurrent.Call(SCI_GETSTYLEAT, selStart);
 
+	// Manage word with DBCS.
+	wordToFind = EncodeString(wordToFind);
+
 	// Case sensitive & whole word only.
 	wCurrent.Call(SCI_SETSEARCHFLAGS, SCFIND_MATCHCASE | SCFIND_WHOLEWORD);
 	wCurrent.Call(SCI_SETTARGETSTART, 0);
