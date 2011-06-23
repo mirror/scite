@@ -70,17 +70,20 @@ LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
 $(LUA_CORE_OBJS): ../lua/src/*.c
-	$(CCOMP) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/*.c
+	$(CCOMP) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/*.c
 $(LUA_LIB_OBJS): ../lua/src/lib/*.c
-	$(CCOMP) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/lib/*.c
-CXXFLAGS=$(CXXTFLAGS)
+	$(CCOMP) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/lib/*.c
 else
-CXXFLAGS=$(CXXTFLAGS) -DNO_LUA
+CXXFLAGS+=-DNO_LUA
 endif
 
-CXXFLAGS:=$(CXXFLAGS) -Wno-long-long
+CXXFLAGS:=$(CXXFLAGS) $(CXXTFLAGS) -Wno-long-long
 
-ifeq ($(shell uname), Darwin)
+UNAME:=$(shell uname -s)
+ifeq ($(UNAME), Linux)
+LIBDL:=-ldl
+endif
+ifeq ($(UNAME), Darwin)
 CXXFLAGS:=$(CXXFLAGS) -Dunix
 endif
 
@@ -100,7 +103,7 @@ $(PROG): SciTEGTK.o GUIGTK.o Widget.o \
 FilePath.o SciTEBase.o Credits.o SciTEBuffers.o SciTEIO.o StringList.o Exporters.o StringHelpers.o \
 PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o StyleWriter.o Utf8_16.o \
 	JobQueue.o GTKMutex.o IFaceTable.o $(COMPLIB) $(LUA_OBJS)
-	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--as-needed -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB) -ldl -lstdc++
+	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--as-needed -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) -lstdc++
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
@@ -119,8 +122,9 @@ install:
 	done
 
 ifdef gnomeprefix
-	$(INSTALL) -m 755 -D SciTE.desktop $(DESTDIR)$(datadir)/applications/SciTE.desktop
-	$(INSTALL) -m 644 -D Sci48M.png $(DESTDIR)$(pixmapdir)/Sci48M.png
+	$(INSTALL) -m 755 -d $(DESTDIR)$(datadir)/applications $(DESTDIR)$(pixmapdir)
+	$(INSTALL) -m 755 SciTE.desktop $(DESTDIR)$(datadir)/applications/SciTE.desktop
+	$(INSTALL) -m 644 Sci48M.png $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
 
 uninstall:
