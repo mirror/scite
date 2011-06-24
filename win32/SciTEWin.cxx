@@ -731,21 +731,23 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 	if (jobToRun.jobType == jobGrep) {
 		// jobToRun.command is "(w|~)(c|~)(d|~)(b|~)\0files\0text"
 		const char *grepCmd = jobToRun.command.c_str();
-		GrepFlags gf = grepNone;
-		if (*grepCmd == 'w')
-			gf = static_cast<GrepFlags>(gf | grepWholeWord);
-		grepCmd++;
-		if (*grepCmd == 'c')
-			gf = static_cast<GrepFlags>(gf | grepMatchCase);
-		grepCmd++;
-		if (*grepCmd == 'd')
-			gf = static_cast<GrepFlags>(gf | grepDot);
-		grepCmd++;
-		if (*grepCmd == 'b')
-			gf = static_cast<GrepFlags>(gf | grepBinary);
-		const char *findFiles = grepCmd + 2;
-		const char *findWhat = findFiles + strlen(findFiles) + 1;
-		InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findWhat);
+		if (*grepCmd) {
+			GrepFlags gf = grepNone;
+			if (*grepCmd == 'w')
+				gf = static_cast<GrepFlags>(gf | grepWholeWord);
+			grepCmd++;
+			if (*grepCmd == 'c')
+				gf = static_cast<GrepFlags>(gf | grepMatchCase);
+			grepCmd++;
+			if (*grepCmd == 'd')
+				gf = static_cast<GrepFlags>(gf | grepDot);
+			grepCmd++;
+			if (*grepCmd == 'b')
+				gf = static_cast<GrepFlags>(gf | grepBinary);
+			const char *findFiles = grepCmd + 2;
+			const char *findWhat = findFiles + strlen(findFiles) + 1;
+			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findWhat);
+		}
 		return exitcode;
 	}
 
