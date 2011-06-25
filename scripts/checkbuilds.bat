@@ -9,6 +9,7 @@ cd ..\..
 set
 set MSDEV_BASE=C:\Program Files (x86)\Microsoft Visual Studio\Common\MSDev98\Bin
 set MSDEV71_BASE=C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
+set WINSDK_BASE=C:\Program Files\Microsoft SDKs\Windows\v6.0\Bin
 rem
 rem ************************************************************
 rem Target 1: basic unit tests with gcc
@@ -91,6 +92,21 @@ cd scite\boundscheck
 msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
+rem
+rem ************************************************************
+rem Target 10: SDK 64 bit compiler
+rem Currently produces too many warnings so do not run
+REM ~ call scite\scripts\clearboth
+REM ~ call "%WINSDK_BASE%\SetEnv.Cmd" /Release /x64 /vista
+REM ~ cd scintilla\win32
+REM ~ nmake -f scintilla.mak
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..\scite\win32
+REM ~ nmake -f scite.mak
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
+rem
+rem Finished
 call scite\scripts\clearboth
 goto CLEANUP
 :ERROR
