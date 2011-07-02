@@ -762,7 +762,7 @@ void SciTEBase::ReadProperties() {
 
 	lexLanguage = wEditor.Call(SCI_GETLEXER);
 
-	if (language.startswith("script_"))
+	if (language.startswith("script_") || language.startswith("lpeg_"))
 		wEditor.Call(SCI_SETSTYLEBITS, 8);
 	else
 		wEditor.Call(SCI_SETSTYLEBITS, wEditor.Call(SCI_GETSTYLEBITSNEEDED));
