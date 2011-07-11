@@ -604,6 +604,7 @@ static const char *propertiesToForward[] = {
 	"lexer.metapost.interface.default",
 	"lexer.pascal.smart.highlighting",
 	"lexer.props.allow.initial.spaces",
+	"lexer.python.keywords2.no.sub.identifiers",
 	"lexer.python.literals.binary",
 	"lexer.python.strings.b",
 	"lexer.python.strings.over.newline",
