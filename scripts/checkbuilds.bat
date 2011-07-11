@@ -96,15 +96,15 @@ rem
 rem ************************************************************
 rem Target 10: SDK 64 bit compiler
 rem Currently produces too many warnings so do not run
-REM ~ call scite\scripts\clearboth
-REM ~ call "%WINSDK_BASE%\SetEnv.Cmd" /Release /x64 /vista
-REM ~ cd scintilla\win32
-REM ~ nmake -f scintilla.mak
-REM ~ if ERRORLEVEL 2 goto ERROR
+call scite\scripts\clearboth
+call "%WINSDK_BASE%\SetEnv.Cmd" /Release /x64 /vista
+cd scintilla\win32
+nmake -f scintilla.mak
+if ERRORLEVEL 2 goto ERROR
 REM ~ cd ..\..\scite\win32
 REM ~ nmake -f scite.mak
 REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
+cd ..\..
 rem
 rem Finished
 call scite\scripts\clearboth
