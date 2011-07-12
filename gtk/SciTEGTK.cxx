@@ -2838,9 +2838,9 @@ inline bool KeyMatch(const char *menuKey, int keyval, int modifiers) {
 gint SciTEGTK::Key(GdkEventKey *event) {
 	//printf("S-key: %d %x %x %x %x\n",event->keyval, event->state, GDK_SHIFT_MASK, GDK_CONTROL_MASK, GDK_F3);
 	if (event->type == GDK_KEY_RELEASE) {
-		g_signal_stop_emission_by_name(
-		    G_OBJECT(PWidget(wSciTE)), "key-release-event");
 		if (event->keyval == GKEY_Control_L || event->keyval == GKEY_Control_R) {
+			g_signal_stop_emission_by_name(
+			    G_OBJECT(PWidget(wSciTE)), "key-release-event");
 			this->EndStackedTabbing();
 			return 1;
 		} else {
