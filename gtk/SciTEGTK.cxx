@@ -411,13 +411,7 @@ class SciTEGTK : public SciTEBase {
 
 protected:
 
-	GUI::Window wDivider;
-	GUI::Point ptOld;
-#if !GTK_CHECK_VERSION(3,0,0)
-	GdkGC *xor_gc;
-#endif
-	bool focusEditor;
-	bool focusOutput;
+	GtkWidget *splitPane;
 
 	guint sbContextID;
 	GUI::Window wToolBarBox;
@@ -487,6 +481,7 @@ protected:
 
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
+	bool UpdateOutputSize();
 
 	GtkWidget *MenuItemFromAction(int itemID);
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
@@ -607,8 +602,10 @@ protected:
 	void ParamCmd();
 	void ParamResponse(int responseID);
 
+	static void PanePositionChanged(GObject *object, GParamSpec *pspec, SciTEGTK *scitew);
+	static gint PaneButtonRelease(GtkWidget *widget, GdkEvent *event, SciTEGTK *scitew);
+
 	static gboolean IOSignal(GIOChannel *source, GIOCondition condition, SciTEGTK *scitew);
-	static gint MoveResize(GtkWidget *widget, GtkAllocation *allocation, SciTEGTK *scitew);
 	static gint QuitSignal(GtkWidget *w, GdkEventAny *e, SciTEGTK *scitew);
 	static void ButtonSignal(GtkWidget *widget, gpointer data);
 	static void MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew);
@@ -620,15 +617,6 @@ protected:
 	static gint MousePress(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	gint Mouse(GdkEventButton *event);
 
-	void DividerXOR(GUI::Point pt);
-#if GTK_CHECK_VERSION(3,0,0)
-	static gboolean DividerDraw(GtkWidget *widget, cairo_t *cr, SciTEGTK *sciThis);
-#else
-	static gint DividerExpose(GtkWidget *widget, GdkEventExpose *ose, SciTEGTK *scitew);
-#endif
-	static gint DividerMotion(GtkWidget *widget, GdkEventMotion *event, SciTEGTK *scitew);
-	static gint DividerPress(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
-	static gint DividerRelease(GtkWidget *widget, GdkEventButton *event, SciTEGTK *scitew);
 	static void DragDataReceived(GtkWidget *widget, GdkDragContext *context,
 	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
 
@@ -662,6 +650,7 @@ public:
 	void CreateStrips(GtkWidget *boxMain);
 	bool StripHasFocus();
 	void CreateUI();
+	void LayoutUI();
 	void Run(int argc, char *argv[]);
 	void ProcessExecute();
 	virtual void Execute();
@@ -699,12 +688,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	ReadGlobalPropFile();
 	ReadAbbrevPropFile();
 
-	ptOld = GUI::Point(0, 0);
-#if !GTK_CHECK_VERSION(3,0,0)
-	xor_gc = 0;
-#endif
-	focusEditor = false;
-	focusOutput = false;
 	saveFormat = sfSource;
 	wIncrementPanel = 0;
 	IncSearchEntry = 0;
@@ -713,6 +696,9 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	btnStop = 0;
 	menuBar = 0;
 	accelGroup = 0;
+
+	splitPane = 0;
+	heightBar = 0;
 
 	fileSelectorWidth = 580;
 	fileSelectorHeight = 480;
@@ -1018,6 +1004,14 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		CheckMenus();
 		break;
 
+	// override base class
+	case IDM_SPLITVERTICAL:
+		splitVertical = !splitVertical;
+		heightBar = 0;
+		LayoutUI();
+		CheckMenus();
+		break;
+
 	default:
 		SciTEBase::MenuCommand(cmdID, menuSource);
 		menuSource = 0;
@@ -1083,20 +1077,25 @@ void SciTEGTK::GetWindowPosition(int *left, int *top, int *width, int *height, i
 }
 
 void SciTEGTK::SizeContentWindows() {
-	GUI::Rectangle rcClient = GetClientRectangle();
-	int left = rcClient.left;
-	int top = rcClient.top;
-	int w = rcClient.right - rcClient.left;
-	int h = rcClient.bottom - rcClient.top;
-	heightOutput = NormaliseSplit(heightOutput);
-	if (splitVertical) {
-		wEditor.SetPosition(GUI::Rectangle(left, top, w - heightOutput - heightBar + left, h + top));
-		wDivider.SetPosition(GUI::Rectangle(w - heightOutput - heightBar + left, top, w - heightOutput + left, h + top));
-		wOutput.SetPosition(GUI::Rectangle(w - heightOutput + left, top, w + left, h + top));
-	} else {
-		wEditor.SetPosition(GUI::Rectangle(left, top, w + left, h - heightOutput - heightBar + top));
-		wDivider.SetPosition(GUI::Rectangle(left, h - heightOutput - heightBar + top, w + left, h - heightOutput + top));
-		wOutput.SetPosition(GUI::Rectangle(left, h - heightOutput + top, w + left, h + top));
+	gint max;
+	g_object_get(G_OBJECT(splitPane), "max-position", &max, NULL);
+
+	// This probably means the window hasn't been rendered yet
+	if (max == 0)
+		return;
+
+	// Since SciTEBase::NormaliseSplit() doesn't use the actual Paned maximum
+	// position, it may return an invalid heightOutput...
+	if (heightOutput > max)
+		heightOutput = max;
+
+	gtk_paned_set_position(GTK_PANED(splitPane), max - heightOutput);
+
+	// Make sure the focus is somewhere
+	if (heightOutput == max) {
+		WindowSetFocus(wOutput);
+	} else if (heightOutput == 0 || (!wEditor.HasFocus() && !wOutput.HasFocus())) {
+		WindowSetFocus(wEditor);
 	}
 }
 
@@ -2758,9 +2757,62 @@ void SciTEGTK::QuitProgram() {
 	}
 }
 
-gint SciTEGTK::MoveResize(GtkWidget *, GtkAllocation * /*allocation*/, SciTEGTK *scitew) {
-	scitew->SizeSubWindows();
-	return TRUE;
+void SciTEGTK::PanePositionChanged(GObject *, GParamSpec *, SciTEGTK *scitew) {
+	bool sizeForced = scitew->UpdateOutputSize();
+
+	if (sizeForced) {
+		// Calling SizeContentWindows sets position on the H/VPaned and thus
+		// prevents the user setting the size of either output or editor to less
+		// than 20px.
+
+		// Setting the position again may lead to this function being called
+		// twice, but it doesn't lead to an infinite loop, since sizeForced is
+		// only true when the position really changed.
+		scitew->SizeContentWindows();
+	}
+}
+
+gint SciTEGTK::PaneButtonRelease(GtkWidget *, GdkEvent *, SciTEGTK *scitew) {
+	// Only register previousHeightOutput when the user stops dragging
+
+	scitew->UpdateOutputSize();
+
+	if (scitew->heightOutput > 0) {
+		scitew->previousHeightOutput = scitew->heightOutput;
+	}
+
+	return FALSE;
+}
+
+bool SciTEGTK::UpdateOutputSize() {
+	// This sets heightOutput and returns a boolean indicating whether
+	// heightOutput is equal to the H/VPaned position or an adjustment was made.
+	
+	gint max;
+	int pos;
+	int newHeight;
+
+	g_object_get(G_OBJECT(splitPane), "max-position", &max, NULL);
+	pos = gtk_paned_get_position(GTK_PANED(splitPane));
+
+	newHeight = max - pos;
+
+	// Return false if the height hasn't changed
+	// This prevents an infinite loop in PanePositionChanged()
+	if (newHeight == heightOutput)
+		return false;
+
+	heightOutput = newHeight;
+
+	if (heightOutput > (max - 20)) {
+		heightOutput = max;
+		return true;
+	} else if (heightOutput < 20) {
+		heightOutput = 0;
+		return true;
+	}
+
+	return false;
 }
 
 gint SciTEGTK::QuitSignal(GtkWidget *, GdkEventAny *, SciTEGTK *scitew) {
@@ -2971,152 +3023,6 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 	}
 
 	return FALSE;
-}
-
-void SciTEGTK::DividerXOR(GUI::Point pt) {
-#if !GTK_CHECK_VERSION(3,0,0)
-	if (!xor_gc) {
-		GdkGCValues values;
-		values.foreground = PWidget(wSciTE)->style->white;
-		values.function = GDK_XOR;
-		values.subwindow_mode = GDK_INCLUDE_INFERIORS;
-		xor_gc = gdk_gc_new_with_values(PWidget(wSciTE)->window,
-		                                &values,
-		                                static_cast<GdkGCValuesMask>(
-		                                    GDK_GC_FOREGROUND | GDK_GC_FUNCTION | GDK_GC_SUBWINDOW));
-	}
-	if (splitVertical) {
-		gdk_draw_line(PWidget(wSciTE)->window, xor_gc,
-		              pt.x,
-		              PWidget(wDivider)->allocation.y,
-		              pt.x,
-		              PWidget(wDivider)->allocation.y + PWidget(wDivider)->allocation.height - 1);
-	} else {
-		gdk_draw_line(PWidget(wSciTE)->window, xor_gc,
-		              PWidget(wDivider)->allocation.x,
-		              pt.y,
-		              PWidget(wDivider)->allocation.x + PWidget(wDivider)->allocation.width - 1,
-		              pt.y);
-	}
-#endif
-	ptOld = pt;
-}
-
-#if GTK_CHECK_VERSION(3,0,0)
-
-gboolean SciTEGTK::DividerDraw(GtkWidget *widget, cairo_t *cr, SciTEGTK *) {
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
-	GdkRectangle area;
-	area.x = 0;
-	area.y = 0;
-	area.width = allocation.width;
-	area.height = allocation.height;
-	// Should draw like other dividers but for now just draw the handle over the whole divider
-	GtkStyleContext *context = gtk_widget_get_style_context(widget);
-	//gtk_render_background(context, cr, area.x, area.y, area.width, area.height);
-	gtk_render_handle(context, cr, area.x, area.y, area.width, area.height);
-	return TRUE;
-}
-
-#else
-
-gint SciTEGTK::DividerExpose(GtkWidget *widget, GdkEventExpose *, SciTEGTK *sciThis) {
-	//GtkStyle style = gtk_widget_get_default_style();
-	GdkRectangle area;
-	area.x = 0;
-	area.y = 0;
-	area.width = widget->allocation.width;
-	area.height = widget->allocation.height;
-	gdk_window_clear_area(WindowFromWidget(widget),
-	                      area.x, area.y, area.width, area.height);
-	if (widget->allocation.width > widget->allocation.height) {
-		// Horizontal divider
-		gtk_paint_hline(widget->style, WindowFromWidget(widget), GTK_STATE_NORMAL,
-		                &area, widget, const_cast<char *>("vpaned"),
-		                0, widget->allocation.width - 1,
-		                area.height / 2 - 1);
-		gtk_paint_box (widget->style, WindowFromWidget(widget),
-		               GTK_STATE_NORMAL,
-		               GTK_SHADOW_OUT,
-		               &area, widget, const_cast<char *>("paned"),
-		               area.width - sciThis->heightBar * 2, 1,
-		               sciThis->heightBar - 2, sciThis->heightBar - 2);
-	} else {
-		gtk_paint_vline(widget->style, WindowFromWidget(widget), GTK_STATE_NORMAL,
-		                &area, widget, const_cast<char *>("hpaned"),
-		                0, widget->allocation.height - 1,
-		                area.width / 2 - 1);
-		gtk_paint_box (widget->style, WindowFromWidget(widget),
-		               GTK_STATE_NORMAL,
-		               GTK_SHADOW_OUT,
-		               &area, widget, const_cast<char *>("paned"),
-		               1, area.height - sciThis->heightBar * 2,
-		               sciThis->heightBar - 2, sciThis->heightBar - 2);
-	}
-	return TRUE;
-}
-
-#endif
-
-gint SciTEGTK::DividerMotion(GtkWidget *, GdkEventMotion *event, SciTEGTK *scitew) {
-	if (scitew->capturedMouse) {
-		int x = 0;
-		int y = 0;
-		GdkModifierType state;
-		if (event->is_hint) {
-			gdk_window_get_pointer(WindowFromWidget(PWidget(scitew->wSciTE)), &x, &y, &state);
-			if (state & GDK_BUTTON1_MASK) {
-				scitew->DividerXOR(scitew->ptOld);
-				scitew->DividerXOR(GUI::Point(x, y));
-			}
-		}
-	}
-	return TRUE;
-}
-
-gint SciTEGTK::DividerPress(GtkWidget *, GdkEventButton *event, SciTEGTK *scitew) {
-	if (event->type == GDK_BUTTON_PRESS) {
-		int x = 0;
-		int y = 0;
-		GdkModifierType state;
-		gdk_window_get_pointer(WindowFromWidget(PWidget(scitew->wSciTE)), &x, &y, &state);
-		scitew->ptStartDrag = GUI::Point(x, y);
-		scitew->capturedMouse = true;
-		scitew->heightOutputStartDrag = scitew->heightOutput;
-		scitew->focusEditor = scitew->wEditor.Call(SCI_GETFOCUS) != 0;
-		if (scitew->focusEditor) {
-			scitew->wEditor.Call(SCI_SETFOCUS, 0);
-		}
-		scitew->focusOutput = scitew->wOutput.Call(SCI_GETFOCUS) != 0;
-		if (scitew->focusOutput) {
-			scitew->wOutput.Call(SCI_SETFOCUS, 0);
-		}
-		gtk_widget_grab_focus(GTK_WIDGET(PWidget(scitew->wDivider)));
-		gtk_grab_add(GTK_WIDGET(PWidget(scitew->wDivider)));
-		gtk_widget_queue_draw(PWidget(scitew->wDivider));
-		gdk_window_process_updates(WindowFromWidget(PWidget(scitew->wDivider)), TRUE);
-		scitew->DividerXOR(scitew->ptStartDrag);
-	}
-	return TRUE;
-}
-
-gint SciTEGTK::DividerRelease(GtkWidget *, GdkEventButton *, SciTEGTK *scitew) {
-	if (scitew->capturedMouse) {
-		scitew->capturedMouse = false;
-		gtk_grab_remove(GTK_WIDGET(PWidget(scitew->wDivider)));
-		scitew->DividerXOR(scitew->ptOld);
-		int x = 0;
-		int y = 0;
-		GdkModifierType state;
-		gdk_window_get_pointer(WindowFromWidget(PWidget(scitew->wSciTE)), &x, &y, &state);
-		scitew->MoveSplit(GUI::Point(x, y));
-		if (scitew->focusEditor)
-			scitew->wEditor.Call(SCI_SETFOCUS, 1);
-		if (scitew->focusOutput)
-			scitew->wOutput.Call(SCI_SETFOCUS, 1);
-	}
-	return TRUE;
 }
 
 void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
@@ -4092,6 +3998,42 @@ bool SciTEGTK::StripHasFocus() {
 	return findStrip.VisibleHasFocus() || replaceStrip.VisibleHasFocus();
 }
 
+void SciTEGTK::LayoutUI() {
+	bool focusOutput = false;
+
+	if (splitPane) {
+		focusOutput = wOutput.HasFocus();
+		gtk_container_remove(GTK_CONTAINER(splitPane), PWidget(wEditor));
+		gtk_container_remove(GTK_CONTAINER(splitPane), PWidget(wOutput));
+		gtk_widget_destroy(GTK_WIDGET(splitPane));
+	}
+
+	if (splitVertical) {
+		splitPane = gtk_hpaned_new();
+		gtk_widget_set_size_request(PWidget(wOutput), heightOutput, -1);
+	} else {
+		splitPane = gtk_vpaned_new();
+		gtk_widget_set_size_request(PWidget(wOutput), -1, heightOutput);
+	}
+
+	gtk_container_add(GTK_CONTAINER(PWidget(wContent)), GTK_WIDGET(splitPane));
+	gtk_paned_pack1(GTK_PANED(splitPane), PWidget(wEditor), TRUE, TRUE);
+	gtk_paned_pack2(GTK_PANED(splitPane), PWidget(wOutput), FALSE, TRUE);
+
+	g_signal_connect(GTK_WIDGET(splitPane), "button-release-event",
+	                   G_CALLBACK(PaneButtonRelease), reinterpret_cast<char *>(this));
+
+	g_signal_connect(G_OBJECT(splitPane), "notify::position",
+	                   G_CALLBACK(PanePositionChanged), reinterpret_cast<char *>(this));
+
+	if (focusOutput)
+		WindowSetFocus(wOutput);
+	else
+		WindowSetFocus(wEditor);
+
+	gtk_widget_show_all(GTK_WIDGET(splitPane));
+}
+
 void SciTEGTK::CreateUI() {
 	CreateBuffers();
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -4175,59 +4117,35 @@ void SciTEGTK::CreateUI() {
 	gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
 	tabVisible = false;
 
-	wContent = gtk_fixed_new();
+	wContent = gtk_alignment_new(0, 0, 1, 1);
+	
 	// Ensure the content area is viable at 60 pixels high
 	gtk_widget_set_size_request(PWidget(wContent), 20, 60);
 	WIDGET_SET_NO_FOCUS(PWidget(wContent));
 	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
 
-	g_signal_connect(G_OBJECT(PWidget(wContent)), "size_allocate",
-	                   G_CALLBACK(MoveResize), gthis);
-
 	wEditor.SetID(scintilla_new());
+	g_object_ref(G_OBJECT(PWidget(wEditor)));
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
 	wEditor.Call(SCI_USEPOPUP, 0);
-	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wEditor), 0, 0);
 
 	g_signal_connect(G_OBJECT(PWidget(wEditor)), "command",
 	                   G_CALLBACK(CommandSignal), this);
 	g_signal_connect(G_OBJECT(PWidget(wEditor)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
 
-	wDivider = gtk_drawing_area_new();
-
-#if GTK_CHECK_VERSION(3,0,0)
-	g_signal_connect(G_OBJECT(PWidget(wDivider)), "draw",
-	                   G_CALLBACK(DividerDraw), this);
-#else
-	g_signal_connect(G_OBJECT(PWidget(wDivider)), "expose_event",
-	                   G_CALLBACK(DividerExpose), this);
-#endif
-	g_signal_connect(G_OBJECT(PWidget(wDivider)), "motion_notify_event",
-	                   G_CALLBACK(DividerMotion), this);
-	g_signal_connect(G_OBJECT(PWidget(wDivider)), "button_press_event",
-	                   G_CALLBACK(DividerPress), this);
-	g_signal_connect(G_OBJECT(PWidget(wDivider)), "button_release_event",
-	                   G_CALLBACK(DividerRelease), this);
-	gtk_widget_set_events(PWidget(wDivider),
-	                      GDK_EXPOSURE_MASK
-	                      | GDK_LEAVE_NOTIFY_MASK
-	                      | GDK_BUTTON_PRESS_MASK
-	                      | GDK_BUTTON_RELEASE_MASK
-	                      | GDK_POINTER_MOTION_MASK
-	                      | GDK_POINTER_MOTION_HINT_MASK
-	                     );
-	gtk_widget_set_size_request(PWidget(wDivider), (width == useDefault) ? 100 : width, 10);
-	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wDivider), 0, 600);
-
+		
 	wOutput.SetID(scintilla_new());
+	g_object_ref(G_OBJECT(PWidget(wOutput)));
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
 	wOutput.Call(SCI_USEPOPUP, 0);
-	gtk_fixed_put(GTK_FIXED(PWidget(wContent)), PWidget(wOutput), (width == useDefault) ? 100 : width, 0);
 	g_signal_connect(G_OBJECT(PWidget(wOutput)), "command",
 	                   G_CALLBACK(CommandSignal), this);
 	g_signal_connect(G_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
+					   
+	splitVertical = props.GetInt("split.vertical", 0);
+	LayoutUI();
 
 	WTable table(1, 2);
 	wIncrementPanel = table;
