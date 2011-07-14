@@ -2787,7 +2787,7 @@ gint SciTEGTK::PaneButtonRelease(GtkWidget *, GdkEvent *, SciTEGTK *scitew) {
 bool SciTEGTK::UpdateOutputSize() {
 	// This sets heightOutput and returns a boolean indicating whether
 	// heightOutput is equal to the H/VPaned position or an adjustment was made.
-	
+
 	gint max;
 	int pos;
 	int newHeight;
@@ -4002,6 +4002,15 @@ void SciTEGTK::LayoutUI() {
 	bool focusOutput = false;
 
 	if (splitPane) {
+#if GTK_CHECK_VERSION(2,16,0)
+		// If GtkOrientable is available (GTK+ 2.16 and newer), just switch the
+		// orientation if needed, don't recreate the H/VPaned
+		GtkOrientation orient;
+		orient = (splitVertical) ? GTK_ORIENTATION_HORIZONTAL : GTK_ORIENTATION_VERTICAL;
+		gtk_orientable_set_orientation(GTK_ORIENTABLE(splitPane), orient);
+		return;
+#endif
+
 		focusOutput = wOutput.HasFocus();
 		gtk_container_remove(GTK_CONTAINER(splitPane), PWidget(wEditor));
 		gtk_container_remove(GTK_CONTAINER(splitPane), PWidget(wOutput));
@@ -4118,7 +4127,7 @@ void SciTEGTK::CreateUI() {
 	tabVisible = false;
 
 	wContent = gtk_alignment_new(0, 0, 1, 1);
-	
+
 	// Ensure the content area is viable at 60 pixels high
 	gtk_widget_set_size_request(PWidget(wContent), 20, 60);
 	WIDGET_SET_NO_FOCUS(PWidget(wContent));
@@ -4134,7 +4143,7 @@ void SciTEGTK::CreateUI() {
 	g_signal_connect(G_OBJECT(PWidget(wEditor)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
 
-		
+
 	wOutput.SetID(scintilla_new());
 	g_object_ref(G_OBJECT(PWidget(wOutput)));
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
@@ -4143,7 +4152,7 @@ void SciTEGTK::CreateUI() {
 	                   G_CALLBACK(CommandSignal), this);
 	g_signal_connect(G_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
-					   
+
 	splitVertical = props.GetInt("split.vertical", 0);
 	LayoutUI();
 
