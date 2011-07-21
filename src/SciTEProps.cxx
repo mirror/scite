@@ -1259,7 +1259,7 @@ void SciTEBase::ReadProperties() {
 		ColourOfProperty(props, "bookmark.fore", ColourRGB(0, 0, 0x7f)));
 	wEditor.Call(SCI_MARKERSETBACK, markerBookmark,
 		ColourOfProperty(props, "bookmark.back", ColourRGB(0x80, 0xff, 0xff)));
-	wEditor.Call(SCI_MARKERSETALPHA,
+	wEditor.Call(SCI_MARKERSETALPHA, markerBookmark,
 		props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA));
 	SString bookMarkXPM = props.Get("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
