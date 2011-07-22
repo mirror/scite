@@ -2871,6 +2871,8 @@ static KeyToCommand kmap[] = {
                                  {m_C, GKEY_Tab, IDM_NEXTFILESTACK},
                                  {mSC, GKEY_ISO_Left_Tab, IDM_PREVFILESTACK},
                                  {m_C, GKEY_KP_Enter, IDM_COMPLETEWORD},
+                                 {GDK_MOD1_MASK, GKEY_F2, IDM_BOOKMARK_NEXT_SELECT},
+                                 {GDK_MOD1_MASK|GDK_SHIFT_MASK, GKEY_F2, IDM_BOOKMARK_PREV_SELECT},
                                  {m_C, GKEY_F3, IDM_FINDNEXTSEL},
                                  {mSC, GKEY_F3, IDM_FINDNEXTBACKSEL},
                                  {m_C, GKEY_F4, IDM_CLOSE},
