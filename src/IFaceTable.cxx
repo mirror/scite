@@ -301,6 +301,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"INDIC_CONTAINER",8},
 	{"INDIC_DASH",9},
 	{"INDIC_DIAGONAL",3},
+	{"INDIC_DOTBOX",12},
 	{"INDIC_DOTS",10},
 	{"INDIC_HIDDEN",5},
 	{"INDIC_MAX",31},
@@ -2501,6 +2502,8 @@ static IFaceFunction ifaceFunctions[] = {
 	{"ReplaceTargetRE", 2195, iface_int, {iface_length, iface_string}},
 	{"RotateSelection", 2606, iface_void, {iface_void, iface_void}},
 	{"ScrollCaret", 2169, iface_void, {iface_void, iface_void}},
+	{"ScrollToEnd", 2629, iface_void, {iface_void, iface_void}},
+	{"ScrollToStart", 2628, iface_void, {iface_void, iface_void}},
 	{"SearchAnchor", 2366, iface_void, {iface_void, iface_void}},
 	{"SearchInTarget", 2197, iface_int, {iface_length, iface_string}},
 	{"SearchNext", 2367, iface_int, {iface_int, iface_string}},
@@ -2758,8 +2761,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 282,
-	ifaceConstantCount = 2161,
+	ifaceFunctionCount = 284,
+	ifaceConstantCount = 2162,
 	ifacePropertyCount = 176
 };
 
