@@ -3293,6 +3293,12 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_SPLITVERTICAL:
+		{
+			GUI::Rectangle rcClient = GetClientRectangle();
+			heightOutput = splitVertical ?
+				int((double)heightOutput * rcClient.Height() / rcClient.Width() + 0.5) : 
+				int((double)heightOutput * rcClient.Width() / rcClient.Height() + 0.5);
+		}
 		splitVertical = !splitVertical;
 		heightOutput = NormaliseSplit(heightOutput);
 		SizeSubWindows();
