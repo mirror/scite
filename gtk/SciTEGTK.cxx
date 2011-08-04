@@ -2247,7 +2247,7 @@ void SciTEGTK::Execute() {
 		inputChannel = g_io_channel_unix_new(pipefds[0]);
 		inputHandle = g_io_add_watch(inputChannel, G_IO_IN, (GIOFunc)IOSignal, this);
 		// Also add a background task in case there is no output from the tool
-		pollID = g_timeout_add(200, (gint (*)(void *)) SciTEGTK::PollTool, this);
+		pollID = g_timeout_add(20, (gint (*)(void *)) SciTEGTK::PollTool, this);
 	}
 }
 
