@@ -21,7 +21,7 @@ public:
 	PropSetFile(bool lowerKeys_=false);
 	PropSetFile(const PropSetFile &copy);
 	virtual ~PropSetFile();
-	void operator=(const PropSetFile &assign);
+	PropSetFile &operator=(const PropSetFile &assign);
 	void Set(const char *key, const char *val, ptrdiff_t lenKey=-1, ptrdiff_t lenVal=-1);
 	void Set(const char *keyVal);
 	void Unset(const char *key, int lenKey=-1);
