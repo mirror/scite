@@ -637,3 +637,106 @@ size_t FilePathSet::Length() const {
 	return lengthBody;
 }
 
+std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun) {
+	std::string output;
+	char buffer[16 * 1024];
+#ifdef _WIN32
+	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
+	sa.bInheritHandle = TRUE;
+	sa.lpSecurityDescriptor = NULL;
+
+	SECURITY_DESCRIPTOR sd;
+	// Make a real security thing to allow inheriting handles
+	::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
+	::SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.lpSecurityDescriptor = &sd;
+
+	HANDLE hPipeWrite = NULL;
+	HANDLE hPipeRead = NULL;
+	// Create pipe for output redirection
+	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
+	::CreatePipe(&hPipeRead, &hPipeWrite, &sa, 0);
+
+	// Create pipe for input redirection. In this code, you do not
+	// redirect the output of the child process, but you need a handle
+	// to set the hStdInput field in the STARTUP_INFO struct. For safety,
+	// you should not set the handles to an invalid handle.
+
+	HANDLE hWriteSubProcess = NULL;
+	//subProcessGroupId = 0;
+	HANDLE hRead2 = NULL;
+	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
+	::CreatePipe(&hRead2, &hWriteSubProcess, &sa, 0);
+
+	::SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
+	::SetHandleInformation(hWriteSubProcess, HANDLE_FLAG_INHERIT, 0);
+
+	// Make child process use hPipeWrite as standard out, and make
+	// sure it does not show on screen.
+	STARTUPINFOW si = {
+			     sizeof(STARTUPINFO), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			 };
+	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+	si.wShowWindow = SW_HIDE;
+	si.hStdInput = hRead2;
+	si.hStdOutput = hPipeWrite;
+	si.hStdError = hPipeWrite;
+
+	PROCESS_INFORMATION pi = {0, 0, 0, 0};
+
+	bool running = ::CreateProcessW(
+			  NULL,
+			  const_cast<wchar_t *>(command),
+			  NULL, NULL,
+			  TRUE, CREATE_NEW_PROCESS_GROUP,
+			  NULL,
+			  (directoryForRun && directoryForRun[0]) ? directoryForRun : 0,
+			  &si, &pi);
+
+	if (running) {
+		// Wait until child process exits but time out after 5 seconds.
+		::WaitForSingleObject(pi.hProcess, 5 * 1000);
+		
+		DWORD bytesRead = 0;
+		DWORD bytesAvail = 0;
+
+		if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+			if (bytesAvail > 0) {
+				int bTest = ::ReadFile(hPipeRead, buffer, sizeof(buffer), &bytesRead, NULL);
+				while (bTest && bytesRead) {
+					output.append(buffer, buffer+bytesRead);
+					bytesRead = 0;
+					if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+						if (bytesAvail) {
+							bTest = ::ReadFile(hPipeRead, buffer, sizeof(buffer), &bytesRead, NULL);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	::CloseHandle(pi.hProcess);
+	::CloseHandle(pi.hThread);
+	::CloseHandle(hPipeRead);
+	::CloseHandle(hPipeWrite);
+	::CloseHandle(hRead2);
+	::CloseHandle(hWriteSubProcess);
+
+#else
+	FilePath startDirectory= FilePath::GetWorkingDirectory();	// Save
+	FilePath(directoryForRun).SetWorkingDirectory();
+	FILE *fp = popen(command, "r");
+	if (fp) {
+		size_t lenData = fread(buffer, 1, sizeof(buffer), fp);
+		while (lenData > 0) {
+			output.append(buffer, buffer+lenData);
+			lenData = fread(buffer, 1, sizeof(buffer), fp);
+		}
+		pclose(fp);
+	}
+	startDirectory.SetWorkingDirectory();
+#endif
+	return output;
+}

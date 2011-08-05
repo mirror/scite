@@ -91,3 +91,5 @@ public:
 	void Append(FilePath fp);
 	size_t Length() const;
 };
+
+std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun);
