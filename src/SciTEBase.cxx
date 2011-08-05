@@ -206,7 +206,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	propsUser.superPS = &propsBase;
 	propsDirectory.superPS = &propsUser;
 	propsLocal.superPS = &propsDirectory;
-	props.superPS = &propsLocal;
+	propsDiscovered.superPS = &propsLocal;
+	props.superPS = &propsDiscovered;
 
 	propsStatus.superPS = &props;
 

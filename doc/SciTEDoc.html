@@ -2554,6 +2554,28 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
       </tr>
       <tr>
         <td>
+        command.discover.properties
+        </td>
+        <td>
+        This property can be used to run a program to determine file encoding and other properties
+        when a file is loaded.<br />
+        The program should print a list of property=value lines for each property it wants to set.
+        This is the same format as properties files.<br />
+        <div class="example">
+	      command.discover.properties=python /home/user/FileDetect.py "$(FilePath)"
+         </div>
+        A simple Python script that recognises a particular tag that indicates the file is in the Korean code page 949:<br />
+        <div class="example">
+<span><span class="S5">import</span><span class="S0"> </span>sys<br />
+<span class="S5">if</span><span class="S0"> </span><span class="S3">"Language:Korean"</span><span class="S0"> </span><span class="S5">in</span><span class="S0"> </span>open<span class="S10">(</span>sys<span class="S10">.</span>argv<span class="S10">[</span><span class="S2">1</span><span class="S10">]).</span>read<span class="S10">():</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">print</span><span class="S10">(</span><span class="S4">'code.page=949'</span><span class="S10">)</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">print</span><span class="S10">(</span><span class="S4">'character.set=129'</span><span class="S10">)</span><br />
+<span class="S0"></span></span>
+         </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
         comment.block.<i>lexer</i><br />
         comment.block.at.line.start.<i>lexer</i><br />
         comment.stream.start.<i>lexer</i><br />
