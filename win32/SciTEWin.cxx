@@ -860,9 +860,14 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 
 		unsigned writingPosition = 0;
 
+		int countPeeks = 0;
 		while (running) {
 			if (writingPosition >= totalBytesToWrite) {
-				::Sleep(100L);
+				if (countPeeks > 10)
+					::Sleep(100L);
+				else if (countPeeks > 2)
+					::Sleep(10L);
+				countPeeks++;
 			}
 
 			DWORD bytesRead = 0;

@@ -454,6 +454,17 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	}
 
 	SetFileName(absPath);
+
+	propsDiscovered.Clear();
+	SString discoveryScript = props.GetExpanded("command.discover.properties");
+	if (discoveryScript.length()) {
+		std::string propertiesText = CommandExecute(GUI::StringFromUTF8(discoveryScript.c_str()).c_str(),
+			absPath.Directory().AsInternal());
+		if (propertiesText.size()) {
+			propsDiscovered.ReadFromMemory(propertiesText.c_str(), propertiesText.size(), absPath.Directory());
+		}
+	}
+	CurrentBuffer()->props = propsDiscovered;
 	CurrentBuffer()->overrideExtension = "";
 	ReadProperties();
 	SetIndentSettings();

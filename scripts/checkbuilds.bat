@@ -49,16 +49,16 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
 rem Set path for VC 6
-path %MSDEV_BASE%;%path%
+REM ~ path %MSDEV_BASE%;%path%
 rem
 rem ************************************************************
 rem Target 4: Visual C++ .NET using scite\boundscheck\SciTE.sln
-call "%MSDEV71_BASE%\vsvars32.bat"
-call scite\scripts\clearboth
-cd scite\boundscheck
-devenv scite.sln /rebuild release
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
+REM ~ call "%MSDEV71_BASE%\vsvars32.bat"
+REM ~ call scite\scripts\clearboth
+REM ~ cd scite\boundscheck
+REM ~ devenv scite.sln /rebuild release
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
 rem
 rem ************************************************************
 rem Target 5: GTK+ version using gcc on scintilla\gtk\makefile
@@ -68,16 +68,16 @@ mingw32-make
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem Visual C++ builds
-call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
-echo on
+REM ~ call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
+REM ~ echo on
 rem
 rem ************************************************************
 rem Target 6: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
-call scite\scripts\clearboth
-cd scintilla\win32
-nmake -f scintilla_vc6.mak QUIET=1
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
+REM ~ call scite\scripts\clearboth
+REM ~ cd scintilla\win32
+REM ~ nmake -f scintilla_vc6.mak QUIET=1
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
 rem
 rem ************************************************************
 rem Removed: Target 7
@@ -87,11 +87,11 @@ rem Removed: Target 8
 rem
 rem ************************************************************
 rem Target 9: Visual C++ using scite\boundscheck\SciTE.dsp
-call scite\scripts\clearboth
-cd scite\boundscheck
-msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
+REM ~ call scite\scripts\clearboth
+REM ~ cd scite\boundscheck
+REM ~ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
 rem
 rem ************************************************************
 rem Target 10: SDK 64 bit compiler

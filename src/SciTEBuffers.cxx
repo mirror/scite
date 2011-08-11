@@ -250,6 +250,8 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 
 	Buffer bufferNext = buffers.buffers[buffers.Current()];
 	SetFileName(bufferNext);
+	propsDiscovered = bufferNext.props;
+	propsDiscovered.superPS = &propsLocal;
 	wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 	RestoreState(bufferNext);
 

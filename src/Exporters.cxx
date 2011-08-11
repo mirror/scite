@@ -240,10 +240,10 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 				} else {
 					strcat(lastStyle, RTF_SETBACKGROUND "1");	// Default back
 				}
-				if (sd.specified & StyleDefinition::sdBold) {
-					strcat(lastStyle, sd.bold ? RTF_BOLD_ON : RTF_BOLD_OFF);
+				if (sd.specified & StyleDefinition::sdWeight) {
+					strcat(lastStyle, sd.IsBold() ? RTF_BOLD_ON : RTF_BOLD_OFF);
 				} else {
-					strcat(lastStyle, defaultStyle.bold ? RTF_BOLD_ON : RTF_BOLD_OFF);
+					strcat(lastStyle, defaultStyle.IsBold() ? RTF_BOLD_ON : RTF_BOLD_OFF);
 				}
 				if (sd.specified & StyleDefinition::sdItalics) {
 					strcat(lastStyle, sd.italics ? RTF_ITALIC_ON : RTF_ITALIC_OFF);
@@ -436,7 +436,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 					sd.font = sdmono.font;
 					sd.size = sdmono.size;
 					sd.italics = sdmono.italics;
-					sd.bold = sdmono.bold;
+					sd.weight = sdmono.weight;
 				}
 
 				if (sd.specified != StyleDefinition::sdNone) {
@@ -448,7 +448,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 					if (sd.italics) {
 						fprintf(fp, "\tfont-style: italic;\n");
 					}
-					if (sd.bold) {
+					if (sd.IsBold()) {
 						fprintf(fp, "\tfont-weight: bold;\n");
 					}
 					if (wysiwyg && sd.font.length()) {
@@ -1099,7 +1099,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 
 		if (sd.specified != StyleDefinition::sdNone) {
 			if (sd.italics) { pr.style[i].font |= 2; }
-			if (sd.bold) { pr.style[i].font |= 1; }
+			if (sd.IsBold()) { pr.style[i].font |= 1; }
 			if (sd.fore.length()) {
 				getPDFRGB(pr.style[i].fore, sd.fore.c_str());
 			} else if (i == STYLE_DEFAULT) {
@@ -1210,7 +1210,7 @@ static void defineTexStyle(StyleDefinition &style, FILE* fp, int istyle) {
 		fputs("\\textit{", fp);
 		closing_brackets++;
 	}
-	if (style.bold) {
+	if (style.IsBold()) {
 		fputs("\\textbf{", fp);
 		closing_brackets++;
 	}
