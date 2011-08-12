@@ -1229,6 +1229,15 @@ NameError: mistake
         unless buffered drawing is on. The default is for drawing to be two phase.
         </td>
       </tr>
+      <tr class="windowsonly">
+        <td>
+          technology
+        </td>
+        <td>
+        On Windows Vista or newer, this can be set to 1 to use the Direct2D and DirectWrite APIs
+        for higher quality antialiased drawing. The default is 0.
+        </td>
+      </tr>
       <tr>
         <td>
           load.on.activate<br />
@@ -2727,11 +2736,13 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           each lexer.<br />
            The value of each setting is a set of ',' separated fields, some of which have a
           subvalue after a ':'. The fields are font, size, fore, back, italics, notitalics, bold,
-          notbold, eolfilled, noteolfilled, underlined, notunderlined, and case.
+          notbold, weight, eolfilled, noteolfilled, underlined, notunderlined, and case.
         The font field has a subvalue which is the name of
-          the font, the fore and back have colour subvalues, the size field has a numeric size
-          subvalue, the case field has a subvalue of 'm', 'u', or 'l' for mixed, upper or lower case,
-        and the bold, italics and eolfilled fields have no subvalue. The value
+          the font, the fore and back have colour subvalues,
+          the size field has a (fractional) numeric size subvalue, 
+          the weight field has a numeric size subvalue (1.. 999: 100=light, 400=normal, 700=bold), 
+          the case field has a subvalue of 'm', 'u', or 'l' for mixed, upper or lower case,
+          and the bold, italics and eolfilled fields have no subvalue. The value
           "fore:#FF0000,font:Courier,size:14" represents 14 point, red Courier text.<br />
            A global style can be set up using style.*.<i>stylenumber</i>. Any style options set in
           the global style will be inherited by each lexer style unless overridden.<br />
