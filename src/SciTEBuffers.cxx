@@ -705,6 +705,8 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			SetFileName(bufferNext);
 		else
 			filePath = bufferNext;
+		propsDiscovered = bufferNext.props;
+		propsDiscovered.superPS = &propsLocal;
 		wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 		if (closingLast) {
 			ClearDocument();
