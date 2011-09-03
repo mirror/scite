@@ -4559,7 +4559,7 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 					}
 				} else {
 					if (evaluate) {
-						props.ReadLine(GUI::UTF8FromString(arg).c_str(), true, FilePath::GetWorkingDirectory());
+						props.ReadLine(GUI::UTF8FromString(arg).c_str(), true, FilePath::GetWorkingDirectory(), filter);
 					}
 				}
 			}
