@@ -10,6 +10,14 @@
 
 typedef std::map<std::string, std::string> mapss;
 
+class ImportFilter {
+public:
+	std::map<std::string, bool> excludes;
+	std::map<std::string, bool> includes;
+	void SetFilter(std::string sExcludes, std::string sIncludes);
+	bool IsValid(std::string name) const;
+};
+
 class PropSetFile {
 	bool lowerKeys;
 	SString GetWildUsingStart(const PropSetFile &psStart, const char *keybase, const char *filename);
@@ -35,9 +43,10 @@ public:
 	void Clear();
 	char *ToString() const;	// Caller must delete[] the return value
 
-	bool ReadLine(const char *data, bool ifIsTrue, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
-	void ReadFromMemory(const char *data, int len, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
-	bool Read(FilePath filename, FilePath directoryForImports, FilePath imports[] = 0, int sizeImports = 0);
+	bool ReadLine(const char *data, bool ifIsTrue, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
+	void ReadFromMemory(const char *data, int len, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
+	void Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports);
+	bool Read(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
 	void SetInteger(const char *key, int i);
 	SString GetWild(const char *keybase, const char *filename);
 	SString GetNewExpand(const char *keybase, const char *filename="");

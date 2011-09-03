@@ -378,7 +378,7 @@ void SciTEBase::LoadSessionFile(const GUI::gui_char *sessionName) {
 	}
 
 	propsSession.Clear();
-	propsSession.Read(sessionPathName, sessionPathName.Directory(), NULL, 0);
+	propsSession.Read(sessionPathName, sessionPathName.Directory(), filter, NULL);
 
 	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
 	// Add/update SessionPath environment variable

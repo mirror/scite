@@ -72,8 +72,8 @@ void SciTEBase::SetImportMenu() {
 	for (int i = 0; i < importMax; i++) {
 		DestroyMenuItem(menuOptions, importCmdID + i);
 	}
-	if (importFiles[0].IsSet()) {
-		for (int stackPos = 0; stackPos < importMax; stackPos++) {
+	if (!importFiles.empty()) {
+		for (int stackPos = 0; stackPos < static_cast<int>(importFiles.size()) && stackPos < importMax; stackPos++) {
 			int itemID = importCmdID + stackPos;
 			if (importFiles[stackPos].IsSet()) {
 				GUI::gui_string entry = localiser.Text("Open");
@@ -138,17 +138,31 @@ void SciTEBase::ReadGlobalPropFile() {
 		}
 	}
 
-	for (int stackPos = 0; stackPos < importMax; stackPos++) {
-		importFiles[stackPos] = GUI_TEXT("");
+	SString excludes;
+	SString includes;
+
+	for (int attempt=0; attempt<2; attempt++) {
+
+		SString excludesRead = props.Get("imports.exclude");
+		SString includesRead = props.Get("imports.include");
+		if ((attempt > 0) && ((excludesRead == excludes) == (includesRead == includes)))
+			break;
+
+		excludes = excludesRead;
+		includes = includesRead;
+
+		filter.SetFilter(excludes.c_str(), includes.c_str());
+
+		importFiles.clear();
+
+		propsBase.Clear();
+		FilePath propfileBase = GetDefaultPropertiesFileName();
+		propsBase.Read(propfileBase, propfileBase.Directory(), filter, &importFiles);
+
+		propsUser.Clear();
+		FilePath propfileUser = GetUserPropertiesFileName();
+		propsUser.Read(propfileUser, propfileUser.Directory(), filter, &importFiles);
 	}
-
-	propsBase.Clear();
-	FilePath propfileBase = GetDefaultPropertiesFileName();
-	propsBase.Read(propfileBase, propfileBase.Directory(), importFiles, importMax);
-
-	propsUser.Clear();
-	FilePath propfileUser = GetUserPropertiesFileName();
-	propsUser.Read(propfileUser, propfileUser.Directory(), importFiles, importMax);
 
 	if (!localiser.read) {
 		ReadLocalization();
@@ -157,7 +171,7 @@ void SciTEBase::ReadGlobalPropFile() {
 
 void SciTEBase::ReadAbbrevPropFile() {
 	propsAbbrev.Clear();
-	propsAbbrev.Read(pathAbbreviations, pathAbbreviations.Directory(), importFiles, importMax);
+	propsAbbrev.Read(pathAbbreviations, pathAbbreviations.Directory(), filter, &importFiles);
 }
 
 /**
@@ -173,7 +187,7 @@ void SciTEBase::ReadDirectoryPropFile() {
 		FilePath propfile = GetDirectoryPropertiesFileName();
 		props.Set("SciteDirectoryHome", propfile.Directory().AsUTF8().c_str());
 
-		propsDirectory.Read(propfile, propfile.Directory());
+		propsDirectory.Read(propfile, propfile.Directory(), filter);
 	}
 }
 
@@ -188,7 +202,7 @@ void SciTEBase::ReadLocalPropFile() {
 	FilePath propfile = GetLocalPropertiesFileName();
 
 	propsLocal.Clear();
-	propsLocal.Read(propfile, propfile.Directory());
+	propsLocal.Read(propfile, propfile.Directory(), filter);
 
 	props.Set("Chrome", "#C0C0C0");
 	props.Set("ChromeHighlight", "#FFFFFF");
@@ -1491,7 +1505,7 @@ void SciTEBase::ReadLocalization() {
 	}
 	FilePath propdir = GetSciteDefaultHome();
 	FilePath localePath(propdir, title);
-	localiser.Read(localePath, propdir, importFiles, importMax);
+	localiser.Read(localePath, propdir, filter, &importFiles);
 	localiser.SetMissing(props.Get("translation.missing"));
 	localiser.read = true;
 }

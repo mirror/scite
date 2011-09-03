@@ -303,8 +303,9 @@ protected:
 	enum { fileStackCmdID = IDM_MRUFILE, bufferCmdID = IDM_BUFFER };
 
 	enum { importMax = 50 };
-	FilePath importFiles[importMax];
+	std::vector<FilePath> importFiles;
 	enum { importCmdID = IDM_IMPORT };
+	ImportFilter filter;
 
 	enum { indicatorMatch = INDIC_CONTAINER, indicatorHightlightCurrentWord, indicatorSentinel };
 	enum { markerBookmark = 1 };
