@@ -121,6 +121,10 @@ void FilePath::Init() {
 	fileName = GUI_TEXT("");
 }
 
+bool FilePath::operator==(const FilePath &other) const {
+	return SameNameAs(other);
+}
+
 bool FilePath::SameNameAs(const GUI::gui_char *other) const {
 #ifdef WIN32
 	return CSTR_EQUAL == CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
