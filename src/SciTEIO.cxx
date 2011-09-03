@@ -1164,10 +1164,10 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 	baseDir.List(directories, files);
 	size_t searchLength = strlen(searchString);
 	SString os;
-	for (size_t i = 0; i < files.Length(); i ++) {
+	for (size_t i = 0; i < files.size(); i ++) {
 		if (jobQueue.Cancelled())
 			return;
-		FilePath fPath = files.At(i);
+		FilePath fPath = files[i];
 		if (fPath.Matches(fileTypes)) {
 			//OutputAppendStringSynchronised(i->AsInternal());
 			//OutputAppendStringSynchronised("\n");
@@ -1207,8 +1207,8 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 			OutputAppendStringSynchronised(os.c_str());
 		}
 	}
-	for (size_t j = 0; j < directories.Length(); j++) {
-		FilePath fPath = directories.At(j);
+	for (size_t j = 0; j < directories.size(); j++) {
+		FilePath fPath = directories[j];
 		if ((gf & grepDot) || GrepIntoDirectory(fPath.Name())) {
 			GrepRecursive(gf, fPath, searchString, fileTypes);
 		}

@@ -397,9 +397,9 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 		while (!complete) {
 			if ((strcmp(findFileData.cFileName, GUI_TEXT(".")) != 0) && (strcmp(findFileData.cFileName, GUI_TEXT("..")) != 0)) {
 				if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-					directories.Append(FilePath(AsInternal(), findFileData.cFileName));
+					directories.push_back(FilePath(AsInternal(), findFileData.cFileName));
 				} else {
-					files.Append(FilePath(AsInternal(), findFileData.cFileName));
+					files.push_back(FilePath(AsInternal(), findFileData.cFileName));
 				}
 			}
 			if (!::FindNextFileW(hFind, &findFileData)) {
@@ -596,49 +596,6 @@ void FilePath::FixName() {
 		}
 	}
 #endif
-}
-
-FilePathSet::FilePathSet(int size_) {
-	size = size_;
-	body = new FilePath[size];
-	lengthBody = 0;
-}
-
-FilePathSet::FilePathSet(const FilePathSet &other) {
-	size = other.size;
-	lengthBody = other.lengthBody;
-	body = new FilePath[size];
-	for (size_t i = 0; i < lengthBody; i++) {
-		body[i] = other.body[i];
-	}
-}
-
-FilePathSet::~FilePathSet() {
-	delete []body;
-	body = NULL;
-	size = 0;
-	lengthBody = 0;
-}
-
-FilePath FilePathSet::At(size_t pos) const {
-	return body[pos];
-}
-
-void FilePathSet::Append(FilePath fp) {
-	if (lengthBody >= size) {
-		size *= 2;
-		FilePath *bodyNew = new FilePath[size];
-		for (size_t i = 0; i < lengthBody; i++) {
-			bodyNew[i] = body[i];
-		}
-		delete []body;
-		body = bodyNew;
-	}
-	body[lengthBody++] = fp;
-}
-
-size_t FilePathSet::Length() const {
-	return lengthBody;
 }
 
 std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun) {
