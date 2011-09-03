@@ -56,3 +56,6 @@ public:
 		caseSensitiveFilenames = caseSensitiveFilenames_;
 	}
 };
+
+#define PROPERTIES_EXTENSION	".properties"
+bool IsPropertiesFile(const FilePath &filename);

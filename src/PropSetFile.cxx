@@ -388,9 +388,7 @@ static bool IsCommentLine(const char *line) {
 	return (*line == '#');
 }
 
-#define PROPERTIES_EXTENSION	".properties"
-
-static bool IsPropertiesFile(const FilePath &filename) {
+bool IsPropertiesFile(const FilePath &filename) {
 	FilePath ext = filename.Extension();
 	if (EqualCaseInsensitive(ext.AsUTF8().c_str(), PROPERTIES_EXTENSION + 1))
 		return true;
