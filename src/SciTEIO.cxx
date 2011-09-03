@@ -78,15 +78,6 @@ const GUI::gui_char propUserFileName[] = GUI_TEXT("SciTEUser.properties");
 const GUI::gui_char propGlobalFileName[] = GUI_TEXT("SciTEGlobal.properties");
 const GUI::gui_char propAbbrevFileName[] = GUI_TEXT("abbrev.properties");
 
-#define PROPERTIES_EXTENSION	".properties"
-
-static bool IsPropertiesFile(const FilePath &filename) {
-	FilePath ext = filename.Extension();
-	if (EqualCaseInsensitive(ext.AsUTF8().c_str(), PROPERTIES_EXTENSION + 1))
-		return true;
-	return false;
-}
-
 void SciTEBase::SetFileName(FilePath openName, bool fixCase) {
 	if (openName.AsInternal()[0] == '\"') {
 		// openName is surrounded by double quotes
