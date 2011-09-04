@@ -12,8 +12,8 @@ typedef std::map<std::string, std::string> mapss;
 
 class ImportFilter {
 public:
-	std::map<std::string, bool> excludes;
-	std::map<std::string, bool> includes;
+	std::set<std::string> excludes;
+	std::set<std::string> includes;
 	void SetFilter(std::string sExcludes, std::string sIncludes);
 	bool IsValid(std::string name) const;
 };

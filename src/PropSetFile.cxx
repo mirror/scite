@@ -20,6 +20,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 #include <sstream>
 #include <algorithm>
@@ -52,21 +53,21 @@ inline bool IsASpace(unsigned int ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 
-static std::map<std::string, bool> FilterMapFromString(std::string values) {
-	std::map<std::string, bool> fm;
+static std::set<std::string> FilterFromString(std::string values) {
+	std::set<std::string> fs;
 	std::istringstream isValues(values);
 	while (!isValues.eof()) {
 		std::string sValue;
 		isValues >> sValue;
 		if (!sValue.empty())
-			fm[sValue] = true;
+			fs.insert(sValue);
 	}
-	return fm;
+	return fs;
 }
 
 void ImportFilter::SetFilter(std::string sExcludes, std::string sIncludes) {
-	excludes = FilterMapFromString(sExcludes);
-	includes = FilterMapFromString(sIncludes);
+	excludes = FilterFromString(sExcludes);
+	includes = FilterFromString(sIncludes);
 }
 
 bool ImportFilter::IsValid(std::string name) const {
