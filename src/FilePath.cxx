@@ -420,9 +420,9 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 		if ((strcmp(ent->d_name, ".") != 0) && (strcmp(ent->d_name, "..") != 0)) {
 			FilePath pathFull(AsInternal(), ent->d_name);
 			if (pathFull.IsDirectory()) {
-				directories.Append(pathFull);
+				directories.push_back(pathFull);
 			} else {
-				files.Append(pathFull);
+				files.push_back(pathFull);
 			}
 		}
 	}
