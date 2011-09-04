@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 #if defined(__unix__)
