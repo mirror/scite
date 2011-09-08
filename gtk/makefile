@@ -68,11 +68,13 @@ LUA_LIB_OBJS =	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o ltablib.o \
 
 LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
+vpath %.c ../lua/src ../lua/src/lib
+
 INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
-$(LUA_CORE_OBJS): ../lua/src/*.c
-	$(CCOMP) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/*.c
-$(LUA_LIB_OBJS): ../lua/src/lib/*.c
-	$(CCOMP) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c ../lua/src/lib/*.c
+
+.c.o:
+	$(CCOMP) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
+
 else
 CXXFLAGS+=-DNO_LUA
 endif
