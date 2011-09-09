@@ -15,6 +15,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 #undef _WIN32_WINNT

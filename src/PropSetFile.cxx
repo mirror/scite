@@ -19,8 +19,11 @@
 #endif
 
 #include <string>
+#include <vector>
+#include <set>
 #include <map>
 #include <sstream>
+#include <algorithm>
 
 #if defined(GTK)
 
@@ -50,15 +53,37 @@ inline bool IsASpace(unsigned int ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 
+static std::set<std::string> FilterFromString(std::string values) {
+	std::set<std::string> fs;
+	std::istringstream isValues(values);
+	while (!isValues.eof()) {
+		std::string sValue;
+		isValues >> sValue;
+		if (!sValue.empty())
+			fs.insert(sValue);
+	}
+	return fs;
+}
+
+void ImportFilter::SetFilter(std::string sExcludes, std::string sIncludes) {
+	excludes = FilterFromString(sExcludes);
+	includes = FilterFromString(sIncludes);
+}
+
+bool ImportFilter::IsValid(std::string name) const {
+	if (!includes.empty()) {
+		return includes.count(name) > 0;
+	} else {
+		return excludes.count(name) == 0;
+	}
+}
+
 bool PropSetFile::caseSensitiveFilenames = false;
 
 PropSetFile::PropSetFile(bool lowerKeys_) : lowerKeys(lowerKeys_), superPS(0) {
 }
 
-void PropSetFile::operator=(const PropSetFile &assign) {
-	lowerKeys = assign.lowerKeys;
-	superPS = assign.superPS;
-	props = assign.props;
+PropSetFile::PropSetFile(const PropSetFile &copy) : lowerKeys(copy.lowerKeys), props(copy.props), superPS(copy.superPS) {
 }
 
 PropSetFile::~PropSetFile() {
@@ -66,7 +91,14 @@ PropSetFile::~PropSetFile() {
 	Clear();
 }
 
-PropSetFile::PropSetFile(const PropSetFile &copy) : lowerKeys(copy.lowerKeys), props(copy.props), superPS(copy.superPS) {
+PropSetFile &PropSetFile::operator=(const PropSetFile &assign) {
+	if (this != &assign) {
+		lowerKeys = assign.lowerKeys;
+		superPS = assign.superPS;
+		props = assign.props;
+		enumnext = "";
+	}
+	return *this;
 }
 
 void PropSetFile::Set(const char *key, const char *val, ptrdiff_t lenKey, ptrdiff_t lenVal) {
@@ -141,6 +173,75 @@ SString PropSetFile::Get(const char *key) const {
 	return "";
 }
 
+static SString ShellEscape(const char *toEscape) {
+	SString str(toEscape);
+	for (int i = str.length()-1; i >= 0; --i) {
+		switch (str[i]) {
+		case ' ':
+		case '|':
+		case '&':
+		case ',':
+		case '`':
+		case '"':
+		case ';':
+		case ':':
+		case '!':
+		case '^':
+		case '$':
+		case '{':
+		case '}':
+		case '(':
+		case ')':
+		case '[':
+		case ']':
+		case '=':
+		case '<':
+		case '>':
+		case '\\':
+		case '\'':
+			str.insert(i, "\\");
+			break;
+		default:
+			break;
+		}
+	}
+	return str.c_str();
+}
+
+SString PropSetFile::Evaluate(const char *key) const {
+	if (strchr(key, ' ')) {
+		if (isprefix(key, "escape ")) {
+			SString val = Get(key+7);
+			return ShellEscape(val.c_str());
+		} else if (isprefix(key, "star ")) {
+			const std::string sKeybase(key + 5);
+			// Create set of variables with values
+			mapss values;
+			// For this property set and all base sets
+			for (const PropSetFile *psf = this; psf; psf = psf->superPS) {
+				mapss::const_iterator it = psf->props.lower_bound(sKeybase);
+				while ((it != psf->props.end()) && (it->first.find(sKeybase) == 0)) {
+					mapss::iterator itDestination = values.find(it->first);
+					if (itDestination == values.end()) {
+						// Not present so add
+						values[it->first] = it->second;
+					}
+					++it;
+				}
+			}
+			// Concatenate all variables
+			std::string combination;
+			for (mapss::const_iterator itV = values.begin(); itV != values.end(); ++itV) {
+				combination += itV->second;
+			}
+			return SString(combination.c_str());
+		}
+	} else {
+		return Get(key);
+	}
+	return "";
+}
+
 // There is some inconsistency between GetExpanded("foo") and Expand("$(foo)").
 // A solution is to keep a stack of variables that have been expanded, so that
 // recursive expansions can be skipped.  For now I'll just use the C++ stack
@@ -175,7 +276,7 @@ static int ExpandAllInPlace(const PropSetFile &props, SString &withVars, int max
 		}
 
 		SString var(withVars.c_str(), varStart + 2, varEnd);
-		SString val = props.Get(var.c_str());
+		SString val = props.Evaluate(var.c_str());
 
 		if (blankVars.contains(var.c_str())) {
 			val.clear(); // treat blankVar as an empty string (e.g. to block self-reference)
@@ -288,8 +389,30 @@ static bool IsCommentLine(const char *line) {
 	return (*line == '#');
 }
 
+bool IsPropertiesFile(const FilePath &filename) {
+	FilePath ext = filename.Extension();
+	if (EqualCaseInsensitive(ext.AsUTF8().c_str(), PROPERTIES_EXTENSION + 1))
+		return true;
+	return false;
+}
+
+static bool GenericPropertiesFile(const FilePath &filename) {
+	std::string name = filename.BaseName().AsUTF8();
+	if (name == "abbrev")
+		return true;
+	return filename.AsUTF8().find("SciTE") != std::string::npos;
+}
+
+void PropSetFile::Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports) {
+	if (Read(filename, directoryForImports, filter, imports)) {
+		if (imports && (std::find(imports->begin(),imports->end(), filename) == imports->end())) {
+			imports->push_back(filename);
+		}
+	}
+}
+
 bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath directoryForImports,
-                           FilePath imports[], int sizeImports) {
+                           const ImportFilter &filter, std::vector<FilePath> *imports) {
 	//UnSlash(lineBuffer);
 	if (!IsSpaceOrTab(lineBuffer[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
@@ -298,17 +421,24 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 		ifIsTrue = GetInt(expr) != 0;
 	} else if (isPrefix(lineBuffer, "import ") && directoryForImports.IsSet()) {
 		SString importName(lineBuffer + strlen("import") + 1);
-		importName += ".properties";
-		FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName.c_str())));
-		if (Read(importPath, directoryForImports, imports, sizeImports)) {
-			if (imports) {
-				for (int i = 0; i < sizeImports; i++) {
-					if (!imports[i].IsSet()) {
-						imports[i] = importPath;
-						break;
-					}
+		if (importName == "*") {
+			// Import all .properties files in this directory except for system properties
+			FilePathSet directories;
+			FilePathSet files;
+			directoryForImports.List(directories, files);
+			for (size_t i = 0; i < files.size(); i ++) {
+				FilePath fpFile = files[i];
+				if (IsPropertiesFile(fpFile) && 
+					!GenericPropertiesFile(fpFile) && 
+					filter.IsValid(fpFile.BaseName().AsUTF8())) {
+					FilePath importPath(directoryForImports, fpFile);
+					Import(importPath, directoryForImports, filter, imports);
 				}
 			}
+		} else if (filter.IsValid(importName.c_str())) {
+			importName += ".properties";
+			FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName.c_str())));
+			Import(importPath, directoryForImports, filter, imports);
 		}
 	} else if (ifIsTrue && !IsCommentLine(lineBuffer)) {
 		Set(lineBuffer);
@@ -317,7 +447,7 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 }
 
 void PropSetFile::ReadFromMemory(const char *data, int len, FilePath directoryForImports,
-                                 FilePath imports[], int sizeImports) {
+                                 const ImportFilter &filter, std::vector<FilePath> *imports) {
 	const char *pd = data;
 	char lineBuffer[60000];
 	bool ifIsTrue = true;
@@ -330,12 +460,12 @@ void PropSetFile::ReadFromMemory(const char *data, int len, FilePath directoryFo
 				}
 			}
 		}
-		ifIsTrue = ReadLine(lineBuffer, ifIsTrue, directoryForImports, imports, sizeImports);
+		ifIsTrue = ReadLine(lineBuffer, ifIsTrue, directoryForImports, filter, imports);
 	}
 }
 
 bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
-                       FilePath imports[], int sizeImports) {
+                       const ImportFilter &filter, std::vector<FilePath> *imports) {
 	FILE *rcfile = filename.Open(fileRead);
 	if (rcfile) {
 		char propsData[60000];
@@ -346,7 +476,7 @@ bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
 			data += 3;
 			lenFile -= 3;
 		}
-		ReadFromMemory(data, lenFile, directoryForImports, imports, sizeImports);
+		ReadFromMemory(data, lenFile, directoryForImports, filter, imports);
 		return true;
 	}
 	return false;

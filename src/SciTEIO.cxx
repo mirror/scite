@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 #if defined(__unix__)
@@ -77,15 +78,6 @@ const GUI::gui_char propUserFileName[] = GUI_TEXT("SciTEUser.properties");
 #endif
 const GUI::gui_char propGlobalFileName[] = GUI_TEXT("SciTEGlobal.properties");
 const GUI::gui_char propAbbrevFileName[] = GUI_TEXT("abbrev.properties");
-
-#define PROPERTIES_EXTENSION	".properties"
-
-static bool IsPropertiesFile(const FilePath &filename) {
-	FilePath ext = filename.Extension();
-	if (EqualCaseInsensitive(ext.AsUTF8().c_str(), PROPERTIES_EXTENSION + 1))
-		return true;
-	return false;
-}
 
 void SciTEBase::SetFileName(FilePath openName, bool fixCase) {
 	if (openName.AsInternal()[0] == '\"') {
@@ -461,7 +453,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		std::string propertiesText = CommandExecute(GUI::StringFromUTF8(discoveryScript.c_str()).c_str(),
 			absPath.Directory().AsInternal());
 		if (propertiesText.size()) {
-			propsDiscovered.ReadFromMemory(propertiesText.c_str(), propertiesText.size(), absPath.Directory());
+			propsDiscovered.ReadFromMemory(propertiesText.c_str(), propertiesText.size(), absPath.Directory(), filter);
 		}
 	}
 	CurrentBuffer()->props = propsDiscovered;
@@ -1164,10 +1156,10 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 	baseDir.List(directories, files);
 	size_t searchLength = strlen(searchString);
 	SString os;
-	for (size_t i = 0; i < files.Length(); i ++) {
+	for (size_t i = 0; i < files.size(); i ++) {
 		if (jobQueue.Cancelled())
 			return;
-		FilePath fPath = files.At(i);
+		FilePath fPath = files[i];
 		if (fPath.Matches(fileTypes)) {
 			//OutputAppendStringSynchronised(i->AsInternal());
 			//OutputAppendStringSynchronised("\n");
@@ -1207,8 +1199,8 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 			OutputAppendStringSynchronised(os.c_str());
 		}
 	}
-	for (size_t j = 0; j < directories.Length(); j++) {
-		FilePath fPath = directories.At(j);
+	for (size_t j = 0; j < directories.size(); j++) {
+		FilePath fPath = directories[j];
 		if ((gf & grepDot) || GrepIntoDirectory(fPath.Name())) {
 			GrepRecursive(gf, fPath, searchString, fileTypes);
 		}

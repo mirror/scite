@@ -15,6 +15,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 #include <algorithm>
 
@@ -434,6 +435,7 @@ protected:
 	int lastFlags;
 
 	// For single instance
+	char uniqueInstance[MAX_PATH];
 	guint32 startupTimestamp;
 
 	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX, sfXML } saveFormat;
@@ -4345,6 +4347,26 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 	char *pipeFileName = NULL;
 	const char *filename;
 
+	sprintf(uniqueInstance,"%s/SciTE.ensure.unique.instance.for.%s", g_get_tmp_dir(), getenv("USER"));
+	int fd;
+	bool isLocked;
+	do {
+		fd = open(uniqueInstance, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR); // Try to set the lock.
+		isLocked = (fd == -1 && errno == EEXIST);
+		if (isLocked) {
+			// There is already a lock.
+			time_t ltime;
+			time(&ltime);// Get current time.
+			struct stat file_status;
+			stat(uniqueInstance, &file_status); // Get status of lock file.
+			isLocked = difftime(ltime, file_status.st_mtime) <= 3.0; // Test whether the lock is fresh (<= 3 seconds) or not. Avoid perpetual lock if SciTE crashes during its launch and the lock file is present.
+			if (isLocked)
+				// Currently, another process of SciTE is launching. We are waiting for end of its initialisation.
+				usleep(50000);
+		}
+	} while (isLocked);
+	if (fd != -1)
+		close(fd);
 	// Find a working pipe in our temporary directory
 	while ((filename = g_dir_read_name(dir))) {
 		if (g_pattern_match_string(pattern, filename)) {
@@ -4378,6 +4400,7 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 
 	if (pipeFileName != NULL) {
 		// We need to call this since we're not displaying a window
+		unlink(uniqueInstance); // Unlock.
 		gdk_notify_startup_complete();
 		g_free(pipeFileName);
 		return true;
@@ -4423,6 +4446,8 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	}
 
 	CreateUI();
+	if ((props.Get("ipc.director.name").size() == 0) && props.GetInt ("check.if.already.open"))
+		unlink(uniqueInstance); // Unlock.
 
 	// Process remaining switches and files
 	ProcessCommandLine(args, 1);

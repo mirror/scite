@@ -20,6 +20,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 #include <algorithm>
 
@@ -3294,6 +3295,15 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_SPLITVERTICAL:
+		{
+			GUI::Rectangle rcClient = GetClientRectangle();
+			heightOutput = splitVertical ?
+				int((double)heightOutput * rcClient.Height() / rcClient.Width() + 0.5) : 
+				int((double)heightOutput * rcClient.Width() / rcClient.Height() + 0.5);
+			previousHeightOutput = splitVertical ?
+				int((double)previousHeightOutput * rcClient.Height() / rcClient.Width() + 0.5) : 
+				int((double)previousHeightOutput * rcClient.Width() / rcClient.Height() + 0.5);
+		}
 		splitVertical = !splitVertical;
 		heightOutput = NormaliseSplit(heightOutput);
 		SizeSubWindows();
@@ -4553,7 +4563,7 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 					}
 				} else {
 					if (evaluate) {
-						props.ReadLine(GUI::UTF8FromString(arg).c_str(), true, FilePath::GetWorkingDirectory());
+						props.ReadLine(GUI::UTF8FromString(arg).c_str(), true, FilePath::GetWorkingDirectory(), filter);
 					}
 				}
 			}

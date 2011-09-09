@@ -841,6 +841,12 @@ NameError: mistake
        c:\os\scite\bin\Lua.properties.
     </p>
     <p>
+       All of the properties files in a direcory can be imported with "import *".
+       This does not import generic properties files like user properties or abbreviations.
+       The set of files that are imported can be controlled with the imports.include and imports.exclude
+       properties.
+    </p>
+    <p>
       The 'if' statement takes one argument which is a
       symbol that may be defined earlier in this property set file or in a base
       property set. If the symbol evaluates to '0' then the test fails. An empty
@@ -2559,6 +2565,23 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  </table>
         All of these values except for 1251 and 1000 should work on OS X or Windows.
         On GTK+ Baltic, Turkish, Thai and Vietnamese will probably not work.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          imports.include<br />
+          imports.exclude
+        </td>
+        <td>
+          These settings control which files are imported by import statements.<br/>
+	The imports.include property defines the names of the properties
+	files that may be imported. Say you are only interested in using
+	fortran and lisp, then in user properties, you could set<br />
+	<div class="example">
+imports.include=fortran lisp
+	</div>
+	The imports.exclude property is examined only if imports.include is empty or missing.
+	This property stops the named files from being imported.
         </td>
       </tr>
       <tr>

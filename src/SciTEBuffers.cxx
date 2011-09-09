@@ -17,6 +17,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 #if defined(__unix__)
@@ -378,7 +379,7 @@ void SciTEBase::LoadSessionFile(const GUI::gui_char *sessionName) {
 	}
 
 	propsSession.Clear();
-	propsSession.Read(sessionPathName, sessionPathName.Directory(), NULL, 0);
+	propsSession.Read(sessionPathName, sessionPathName.Directory(), filter, NULL);
 
 	FilePath sessionFilePath = FilePath(sessionPathName).AbsolutePath();
 	// Add/update SessionPath environment variable
@@ -705,6 +706,8 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			SetFileName(bufferNext);
 		else
 			filePath = bufferNext;
+		propsDiscovered = bufferNext.props;
+		propsDiscovered.superPS = &propsLocal;
 		wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
 		if (closingLast) {
 			ClearDocument();

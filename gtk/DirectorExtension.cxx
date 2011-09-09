@@ -45,6 +45,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 #include <gtk/gtk.h>

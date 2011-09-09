@@ -121,6 +121,10 @@ void FilePath::Init() {
 	fileName = GUI_TEXT("");
 }
 
+bool FilePath::operator==(const FilePath &other) const {
+	return SameNameAs(other);
+}
+
 bool FilePath::SameNameAs(const GUI::gui_char *other) const {
 #ifdef WIN32
 	return CSTR_EQUAL == CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
@@ -393,9 +397,9 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 		while (!complete) {
 			if ((strcmp(findFileData.cFileName, GUI_TEXT(".")) != 0) && (strcmp(findFileData.cFileName, GUI_TEXT("..")) != 0)) {
 				if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-					directories.Append(FilePath(AsInternal(), findFileData.cFileName));
+					directories.push_back(FilePath(AsInternal(), findFileData.cFileName));
 				} else {
-					files.Append(FilePath(AsInternal(), findFileData.cFileName));
+					files.push_back(FilePath(AsInternal(), findFileData.cFileName));
 				}
 			}
 			if (!::FindNextFileW(hFind, &findFileData)) {
@@ -416,9 +420,9 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 		if ((strcmp(ent->d_name, ".") != 0) && (strcmp(ent->d_name, "..") != 0)) {
 			FilePath pathFull(AsInternal(), ent->d_name);
 			if (pathFull.IsDirectory()) {
-				directories.Append(pathFull);
+				directories.push_back(pathFull);
 			} else {
-				files.Append(pathFull);
+				files.push_back(pathFull);
 			}
 		}
 	}
@@ -594,11 +598,6 @@ void FilePath::FixName() {
 #endif
 }
 
-FilePathSet::FilePathSet(int size_) {
-	size = size_;
-	body = new FilePath[size];
-	lengthBody = 0;
-}
 
 FilePathSet::FilePathSet(const FilePathSet &other) {
 	size = other.size;

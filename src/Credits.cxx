@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 #include "Scintilla.h"
@@ -306,6 +307,9 @@ const char *contributors[] = {
             "Thomas Linder Puls",
             "Artyom Zuikov",
             "Gerrit",
+            "Occam's Razor",
+            "Ben Bluemel",
+            "David Wolfendale",
         };
 
 // AddStyledText only called from About so static size buffer is OK
