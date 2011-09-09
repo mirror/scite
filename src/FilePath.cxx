@@ -598,44 +598,6 @@ void FilePath::FixName() {
 #endif
 }
 
-
-FilePathSet::FilePathSet(const FilePathSet &other) {
-	size = other.size;
-	lengthBody = other.lengthBody;
-	body = new FilePath[size];
-	for (size_t i = 0; i < lengthBody; i++) {
-		body[i] = other.body[i];
-	}
-}
-
-FilePathSet::~FilePathSet() {
-	delete []body;
-	body = NULL;
-	size = 0;
-	lengthBody = 0;
-}
-
-FilePath FilePathSet::At(size_t pos) const {
-	return body[pos];
-}
-
-void FilePathSet::Append(FilePath fp) {
-	if (lengthBody >= size) {
-		size *= 2;
-		FilePath *bodyNew = new FilePath[size];
-		for (size_t i = 0; i < lengthBody; i++) {
-			bodyNew[i] = body[i];
-		}
-		delete []body;
-		body = bodyNew;
-	}
-	body[lengthBody++] = fp;
-}
-
-size_t FilePathSet::Length() const {
-	return lengthBody;
-}
-
 std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun) {
 	std::string output;
 	char buffer[16 * 1024];
