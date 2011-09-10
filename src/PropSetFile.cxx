@@ -173,6 +173,75 @@ SString PropSetFile::Get(const char *key) const {
 	return "";
 }
 
+static SString ShellEscape(const char *toEscape) {
+	SString str(toEscape);
+	for (int i = str.length()-1; i >= 0; --i) {
+		switch (str[i]) {
+		case ' ':
+		case '|':
+		case '&':
+		case ',':
+		case '`':
+		case '"':
+		case ';':
+		case ':':
+		case '!':
+		case '^':
+		case '$':
+		case '{':
+		case '}':
+		case '(':
+		case ')':
+		case '[':
+		case ']':
+		case '=':
+		case '<':
+		case '>':
+		case '\\':
+		case '\'':
+			str.insert(i, "\\");
+			break;
+		default:
+			break;
+		}
+	}
+	return str.c_str();
+}
+
+SString PropSetFile::Evaluate(const char *key) const {
+	if (strchr(key, ' ')) {
+		if (isprefix(key, "escape ")) {
+			SString val = Get(key+7);
+			return ShellEscape(val.c_str());
+		} else if (isprefix(key, "star ")) {
+			const std::string sKeybase(key + 5);
+			// Create set of variables with values
+			mapss values;
+			// For this property set and all base sets
+			for (const PropSetFile *psf = this; psf; psf = psf->superPS) {
+				mapss::const_iterator it = psf->props.lower_bound(sKeybase);
+				while ((it != psf->props.end()) && (it->first.find(sKeybase) == 0)) {
+					mapss::iterator itDestination = values.find(it->first);
+					if (itDestination == values.end()) {
+						// Not present so add
+						values[it->first] = it->second;
+					}
+					++it;
+				}
+			}
+			// Concatenate all variables
+			std::string combination;
+			for (mapss::const_iterator itV = values.begin(); itV != values.end(); ++itV) {
+				combination += itV->second;
+			}
+			return SString(combination.c_str());
+		}
+	} else {
+		return Get(key);
+	}
+	return "";
+}
+
 // There is some inconsistency between GetExpanded("foo") and Expand("$(foo)").
 // A solution is to keep a stack of variables that have been expanded, so that
 // recursive expansions can be skipped.  For now I'll just use the C++ stack
@@ -207,7 +276,7 @@ static int ExpandAllInPlace(const PropSetFile &props, SString &withVars, int max
 		}
 
 		SString var(withVars.c_str(), varStart + 2, varEnd);
-		SString val = props.Get(var.c_str());
+		SString val = props.Evaluate(var.c_str());
 
 		if (blankVars.contains(var.c_str())) {
 			val.clear(); // treat blankVar as an empty string (e.g. to block self-reference)
