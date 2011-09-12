@@ -398,7 +398,7 @@ bool IsPropertiesFile(const FilePath &filename) {
 
 static bool GenericPropertiesFile(const FilePath &filename) {
 	std::string name = filename.BaseName().AsUTF8();
-	if (name == "abbrev")
+	if (name == "abbrev" || name == "Embedded")
 		return true;
 	return filename.AsUTF8().find("SciTE") != std::string::npos;
 }
