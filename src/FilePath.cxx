@@ -125,6 +125,10 @@ bool FilePath::operator==(const FilePath &other) const {
 	return SameNameAs(other);
 }
 
+bool FilePath::operator<(const FilePath &other) const {
+	return fileName < other.fileName;
+}
+
 bool FilePath::SameNameAs(const GUI::gui_char *other) const {
 #ifdef WIN32
 	return CSTR_EQUAL == CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
@@ -429,6 +433,8 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 
 	closedir(dp);
 #endif
+	std::sort(files.begin(), files.end());
+	std::sort(directories.begin(), directories.end());
 }
 
 FILE *FilePath::Open(const GUI::gui_char *mode) const {

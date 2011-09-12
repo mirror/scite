@@ -51,6 +51,7 @@ public:
 	bool SameNameAs(const GUI::gui_char *other) const;
 	bool SameNameAs(const FilePath &other) const;
 	bool operator==(const FilePath &other) const;
+	bool operator<(const FilePath &other) const;
 	bool IsSet() const;
 	bool IsUntitled() const;
 	bool IsAbsolute() const;
