@@ -400,7 +400,7 @@ static bool GenericPropertiesFile(const FilePath &filename) {
 	std::string name = filename.BaseName().AsUTF8();
 	if (name == "abbrev" || name == "Embedded")
 		return true;
-	return filename.AsUTF8().find("SciTE") != std::string::npos;
+	return name.find("SciTE") != std::string::npos;
 }
 
 void PropSetFile::Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports) {
