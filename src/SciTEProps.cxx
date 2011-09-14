@@ -146,7 +146,7 @@ void SciTEBase::ReadGlobalPropFile() {
 
 		SString excludesRead = props.Get("imports.exclude");
 		SString includesRead = props.Get("imports.include");
-		if ((attempt > 0) && ((excludesRead == excludes) == (includesRead == includes)))
+		if ((attempt > 0) && ((excludesRead == excludes) && (includesRead == includes)))
 			break;
 
 		excludes = excludesRead;
