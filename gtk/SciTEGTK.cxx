@@ -1122,8 +1122,24 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 	// place so only needs to be shown and have its text set.
 
 	SString itemText(text);
-	// Remove accelerator as does not work.
-	itemText.remove("&");
+	// Escape underlines
+	itemText.substitute("_", "__");
+	// Replace Windows-style ampersands with GTK+ underlines
+	int posFound = itemText.search("&");
+	while (posFound >= 0) {
+		SString nextChar = itemText.substr(posFound + 1, 1);
+		if (nextChar == "&") {
+			// Escaped, move on
+			posFound += 2;
+		} else {
+			itemText.remove(posFound, 1);
+			itemText.insert(posFound, "_", 1);
+			posFound += 1;
+		}
+		posFound = itemText.search("&", posFound);
+	}
+	// Unescape ampersands
+	itemText.substitute("&&", "&");
 
 	long keycode = 0;
 	if (mnemonic && *mnemonic) {
@@ -1147,10 +1163,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 			gpointer d = g_list_nth(al, ii);
 			GtkWidget **w = (GtkWidget **)d;
 			gtk_label_set_text(GTK_LABEL(*w), itemText.c_str());
-			// Have not managed to make accelerator work
-			//guint key = gtk_label_parse_uline(GTK_LABEL(*w), itemText);
-			//gtk_widget_add_accelerator(*w, "clicked", accelGroup,
-			//           key, 0, (GtkAccelFlags)0);
+			gtk_label_set_text_with_mnemonic(GTK_LABEL(*w), itemText.c_str());
 		}
 		g_list_free(al);
 		gtk_widget_show(item);

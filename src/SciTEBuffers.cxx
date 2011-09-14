@@ -868,15 +868,17 @@ void SciTEBase::BuffersMenu() {
 			int itemID = bufferCmdID + pos;
 			GUI::gui_string entry;
 			GUI::gui_string titleTab;
-#if defined(WIN32)
 
 			if (pos < 10) {
 				GUI::gui_string sPos = GUI::StringFromInteger((pos + 1) % 10);
 				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
 				entry = sHotKey;	// hotkey 1..0
+#if defined(WIN32)
 				titleTab = sHotKey; // add hotkey to the tabbar
-			}
+#else
+				titleTab = sPos + GUI_TEXT(" ");
 #endif
+			}
 
 			if (buffers.buffers[pos].IsUntitled()) {
 				GUI::gui_string untitled = localiser.Text("Untitled");
@@ -884,23 +886,20 @@ void SciTEBase::BuffersMenu() {
 				titleTab += untitled;
 			} else {
 				GUI::gui_string path = buffers.buffers[pos].AsInternal();
+				GUI::gui_string filename = buffers.buffers[pos].Name().AsInternal();
+				
+				GUI::gui_string ampersand = GUI_TEXT("&");
+				GUI::gui_string escapedAmpersand = GUI_TEXT("&&");
+				// Escape '&' characters in path, since they are interpreted in
+				// menues.
+				Substitute(path, ampersand, escapedAmpersand);
 #if defined(WIN32)
-				// Handle '&' characters in path, since they are interpreted in
-				// menues and tab names.
-				size_t amp = 0;
-				while ((amp = path.find(GUI_TEXT("&"), amp)) != GUI::gui_string::npos) {
-					path.insert(amp, GUI_TEXT("&"));
-					amp += 2;
-				}
+				// On Windows, '&' are also interpreted in tab names, so we need
+				// the escaped filename
+				Substitute(filename, ampersand, escapedAmpersand);
 #endif
 				entry += path;
-
-				size_t dirEnd = entry.rfind(pathSepChar);
-				if (dirEnd != GUI::gui_string::npos) {
-					titleTab += entry.substr(dirEnd + 1);
-				} else {
-					titleTab += entry;
-				}
+				titleTab += filename;
 			}
 			// For short file names:
 			//char *cpDirEnd = strrchr(buffers.buffers[pos]->fileName, pathSepChar);
@@ -941,16 +940,25 @@ void SciTEBase::SetFileStackMenu() {
 			if (recentFileStack[stackPos].IsSet()) {
 				GUI::gui_char entry[MAX_PATH + 20];
 				entry[0] = '\0';
-#if defined(WIN32)
-
+#if defined(GTK) || defined(__APPLE__)
+				sprintf(entry, GUI_TEXT("&%d "), (stackPos + 1) % 10);
+#else
 #if defined(_MSC_VER) && (_MSC_VER > 1200)
 				swprintf(entry, ELEMENTS(entry), GUI_TEXT("&%d "), (stackPos + 1) % 10);
 #else
 				swprintf(entry, GUI_TEXT("&%d "), (stackPos + 1) % 10);
 #endif
 #endif
+				GUI::gui_string path = recentFileStack[stackPos].AsInternal();
+				// Escape '&' characters in path, since they are interpreted in
+				// menues.
+				Substitute(path, GUI_TEXT("&"), GUI_TEXT("&&"));
+#if defined(GTK)
+				GUI::gui_string query = getenv("HOME");
+				Substitute(path, query, GUI_TEXT("~"));
+#endif
 				GUI::gui_string sEntry(entry);
-				sEntry += recentFileStack[stackPos].AsInternal();
+				sEntry += path;
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, sEntry.c_str());
 			}
 		}
