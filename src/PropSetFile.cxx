@@ -428,8 +428,8 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 			directoryForImports.List(directories, files);
 			for (size_t i = 0; i < files.size(); i ++) {
 				FilePath fpFile = files[i];
-				if (IsPropertiesFile(fpFile) && 
-					!GenericPropertiesFile(fpFile) && 
+				if (IsPropertiesFile(fpFile) &&
+					!GenericPropertiesFile(fpFile) &&
 					filter.IsValid(fpFile.BaseName().AsUTF8())) {
 					FilePath importPath(directoryForImports, fpFile);
 					Import(importPath, directoryForImports, filter, imports);
