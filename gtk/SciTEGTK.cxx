@@ -1162,7 +1162,6 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 		for (unsigned int ii = 0; ii < g_list_length(al); ii++) {
 			gpointer d = g_list_nth(al, ii);
 			GtkWidget **w = (GtkWidget **)d;
-			gtk_label_set_text(GTK_LABEL(*w), itemText.c_str());
 			gtk_label_set_text_with_mnemonic(GTK_LABEL(*w), itemText.c_str());
 		}
 		g_list_free(al);

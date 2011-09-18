@@ -850,6 +850,18 @@ void SciTEBase::EndStackedTabbing() {
 	buffers.CommitStackSelection();
 }
 
+static void EscapeFilePathsForMenu(GUI::gui_string &path) {
+	// Escape '&' characters in path, since they are interpreted in
+	// menues.
+	Substitute(path, GUI_TEXT("&"), GUI_TEXT("&&"));
+#if defined(GTK)
+	GUI::gui_string homeDirectory = getenv("HOME");
+	if (StartsWith(path, homeDirectory)) {
+		Substitute(path, homeDirectory, GUI_TEXT("~"));
+	}
+#endif
+}	
+
 void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
 	if (buffers.size <= 1) {
@@ -888,15 +900,11 @@ void SciTEBase::BuffersMenu() {
 				GUI::gui_string path = buffers.buffers[pos].AsInternal();
 				GUI::gui_string filename = buffers.buffers[pos].Name().AsInternal();
 				
-				GUI::gui_string ampersand = GUI_TEXT("&");
-				GUI::gui_string escapedAmpersand = GUI_TEXT("&&");
-				// Escape '&' characters in path, since they are interpreted in
-				// menues.
-				Substitute(path, ampersand, escapedAmpersand);
+				EscapeFilePathsForMenu(path);
 #if defined(WIN32)
 				// On Windows, '&' are also interpreted in tab names, so we need
 				// the escaped filename
-				Substitute(filename, ampersand, escapedAmpersand);
+				EscapeFilePathsForMenu(filename);
 #endif
 				entry += path;
 				titleTab += filename;
@@ -950,13 +958,8 @@ void SciTEBase::SetFileStackMenu() {
 #endif
 #endif
 				GUI::gui_string path = recentFileStack[stackPos].AsInternal();
-				// Escape '&' characters in path, since they are interpreted in
-				// menues.
-				Substitute(path, GUI_TEXT("&"), GUI_TEXT("&&"));
-#if defined(GTK)
-				GUI::gui_string query = getenv("HOME");
-				Substitute(path, query, GUI_TEXT("~"));
-#endif
+				EscapeFilePathsForMenu(path);
+
 				GUI::gui_string sEntry(entry);
 				sEntry += path;
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, sEntry.c_str());
