@@ -175,7 +175,7 @@ SString PropSetFile::Get(const char *key) const {
 
 static SString ShellEscape(const char *toEscape) {
 	SString str(toEscape);
-	for (int i = str.length()-1; i >= 0; --i) {
+	for (int i = static_cast<int>(str.length()-1); i >= 0; --i) {
 		switch (str[i]) {
 		case ' ':
 		case '|':
