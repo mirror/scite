@@ -857,7 +857,7 @@ static void EscapeFilePathsForMenu(GUI::gui_string &path) {
 #if defined(GTK)
 	GUI::gui_string homeDirectory = getenv("HOME");
 	if (StartsWith(path, homeDirectory)) {
-		Substitute(path, homeDirectory, GUI_TEXT("~"));
+		path.replace(static_cast<size_t>(0), homeDirectory.size(), GUI_TEXT("~"));
 	}
 #endif
 }	
