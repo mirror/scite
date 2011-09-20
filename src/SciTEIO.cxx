@@ -71,7 +71,7 @@
 #if defined(GTK)
 const GUI::gui_char propUserFileName[] = GUI_TEXT(".SciTEUser.properties");
 #elif defined(__APPLE__)
-const GUI::gui_char propUserFileName[] = GUI_TEXT("org.scintilla.SciTEUser.properties");
+const GUI::gui_char propUserFileName[] = GUI_TEXT("SciTEUser.properties");
 #else
 // Windows
 const GUI::gui_char propUserFileName[] = GUI_TEXT("SciTEUser.properties");
