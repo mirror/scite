@@ -1205,7 +1205,7 @@ void SciTEBase::ToolsMenu(int item) {
 		int saveBefore = 0;
 
 		JobSubsystem jobType = jobCLI;
-		bool filter = false;
+		bool isFilter = false;
 		bool quiet = false;
 		int repSel = 0;
 		bool groupUndo = false;
@@ -1266,9 +1266,9 @@ void SciTEBase::ToolsMenu(int item) {
 
 				if (0 == strcmp(opt, "filter")) {
 					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
-						filter = true;
+						isFilter = true;
 					else if (colon[1] == '0' || 0 == strcmp(colon, "no"))
-						filter = false;
+						isFilter = false;
 				}
 
 				if (0 == strcmp(opt, "replaceselection")) {
@@ -1309,8 +1309,8 @@ void SciTEBase::ToolsMenu(int item) {
 			propName = "command.is.filter.";
 			propName += itemSuffix;
 			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
-				filter = (props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str())[0] == '1');
-			if (filter)
+				isFilter = (props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str())[0] == '1');
+			if (isFilter)
 				CurrentBuffer()->fileModTime -= 1;
 
 			propName = "command.subsystem.";
