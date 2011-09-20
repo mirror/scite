@@ -884,10 +884,11 @@ void SciTEBase::BuffersMenu() {
 			if (pos < 10) {
 				GUI::gui_string sPos = GUI::StringFromInteger((pos + 1) % 10);
 				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
-				entry = sHotKey;	// hotkey 1..0
 #if defined(WIN32)
+				entry = sHotKey;	// hotkey 1..0
 				titleTab = sHotKey; // add hotkey to the tabbar
-#else
+#elif defined(GTK)
+				entry = sHotKey;	// hotkey 1..0
 				titleTab = sPos + GUI_TEXT(" ");
 #endif
 			}
@@ -948,9 +949,9 @@ void SciTEBase::SetFileStackMenu() {
 			if (recentFileStack[stackPos].IsSet()) {
 				GUI::gui_char entry[MAX_PATH + 20];
 				entry[0] = '\0';
-#if defined(GTK) || defined(__APPLE__)
+#if defined(GTK)
 				sprintf(entry, GUI_TEXT("&%d "), (stackPos + 1) % 10);
-#else
+#elif defined(WIN32)
 #if defined(_MSC_VER) && (_MSC_VER > 1200)
 				swprintf(entry, ELEMENTS(entry), GUI_TEXT("&%d "), (stackPos + 1) % 10);
 #else
