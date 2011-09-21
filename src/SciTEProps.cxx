@@ -607,6 +607,7 @@ static const char *propertiesToForward[] = {
 	"lexer.asm.comment.delimiter",
 	"lexer.caml.magic",
 	"lexer.cpp.allow.dollars",
+	"lexer.cpp.hashquoted.strings",
 	"lexer.cpp.track.preprocessor",
 	"lexer.cpp.triplequoted.strings",
 	"lexer.cpp.update.preprocessor",
