@@ -182,10 +182,11 @@ int IntFromHexByte(const char *hexByte);
 class StyleDefinition {
 public:
 	SString font;
+	float sizeFractional;
 	int size;
 	SString fore;
 	SString back;
-	bool bold;
+	int weight;
 	bool italics;
 	bool eolfilled;
 	bool underlined;
@@ -193,12 +194,14 @@ public:
 	bool visible;
 	bool changeable;
 	enum flags { sdNone = 0, sdFont = 0x1, sdSize = 0x2, sdFore = 0x4, sdBack = 0x8,
-	        sdBold = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined = 0x80,
+	        sdWeight = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined = 0x80,
 	        sdCaseForce = 0x100, sdVisible = 0x200, sdChangeable = 0x400} specified;
 	StyleDefinition(const char *definition);
 	bool ParseStyleDefinition(const char *definition);
 	long ForeAsLong() const;
 	long BackAsLong() const;
+	int FractionalSize() const;
+	bool IsBold() const;
 };
 
 struct StyleAndWords {

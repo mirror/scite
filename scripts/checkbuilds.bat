@@ -50,11 +50,11 @@ cd ..\..
 rem
 rem ************************************************************
 rem Target 4: Visual C++ Express using scite\boundscheck\SciTE.sln
-call scite\scripts\clearboth
-cd scite\boundscheck
+REM ~ call scite\scripts\clearboth
+REM ~ cd scite\boundscheck
 vcexpress scite.sln /rebuild release
-if ERRORLEVEL 2 goto ERROR
-cd ..\..
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
 rem
 rem ************************************************************
 rem Target 5: GTK+ version using gcc on scintilla\gtk\makefile

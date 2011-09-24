@@ -275,8 +275,8 @@ const char *SciTEBase::GetNextPropItem(
 }
 
 StyleDefinition::StyleDefinition(const char *definition) :
-		size(0), fore("#000000"), back("#FFFFFF"),
-		bold(false), italics(false), eolfilled(false), underlined(false),
+		sizeFractional(10.0), size(10), fore("#000000"), back("#FFFFFF"),
+		weight(SC_WEIGHT_NORMAL), italics(false), eolfilled(false), underlined(false),
 		caseForce(SC_CASE_MIXED),
 		visible(true), changeable(true),
 		specified(sdNone) {
@@ -311,12 +311,16 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 			italics = false;
 		}
 		if (0 == strcmp(opt, "bold")) {
-			specified = static_cast<flags>(specified | sdBold);
-			bold = true;
+			specified = static_cast<flags>(specified | sdWeight);
+			weight = SC_WEIGHT_BOLD;
 		}
 		if (0 == strcmp(opt, "notbold")) {
-			specified = static_cast<flags>(specified | sdBold);
-			bold = false;
+			specified = static_cast<flags>(specified | sdWeight);
+			weight = SC_WEIGHT_NORMAL;
+		}
+		if ((0 == strcmp(opt, "weight")) && colon) {
+			specified = static_cast<flags>(specified | sdWeight);
+			weight = atoi(colon);
 		}
 		if (0 == strcmp(opt, "font")) {
 			specified = static_cast<flags>(specified | sdFont);
@@ -333,7 +337,8 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 		}
 		if ((0 == strcmp(opt, "size")) && colon) {
 			specified = static_cast<flags>(specified | sdSize);
-			size = atoi(colon);
+			sizeFractional = static_cast<float>(atof(colon));
+			size = static_cast<int>(sizeFractional);
 		}
 		if (0 == strcmp(opt, "eolfilled")) {
 			specified = static_cast<flags>(specified | sdEOLFilled);
@@ -394,11 +399,19 @@ long StyleDefinition::BackAsLong() const {
 	return ColourFromString(back);
 }
 
+int StyleDefinition::FractionalSize() const {
+	return static_cast<int>(sizeFractional * SC_FONT_SIZE_MULTIPLIER);
+}
+
+bool StyleDefinition::IsBold() const {
+	return weight > SC_WEIGHT_NORMAL;
+}
+
 void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd) {
 	if (sd.specified & StyleDefinition::sdItalics)
 		win.Send(SCI_STYLESETITALIC, style, sd.italics ? 1 : 0);
-	if (sd.specified & StyleDefinition::sdBold)
-		win.Send(SCI_STYLESETBOLD, style, sd.bold ? 1 : 0);
+	if (sd.specified & StyleDefinition::sdWeight)
+		win.Send(SCI_STYLESETWEIGHT, style, sd.weight);
 	if (sd.specified & StyleDefinition::sdFont)
 		win.SendPointer(SCI_STYLESETFONT, style,
 			const_cast<char *>(sd.font.c_str()));
@@ -407,7 +420,7 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 	if (sd.specified & StyleDefinition::sdBack)
 		win.Send(SCI_STYLESETBACK, style, sd.BackAsLong());
 	if (sd.specified & StyleDefinition::sdSize)
-		win.Send(SCI_STYLESETSIZE, style, sd.size);
+		win.Send(SCI_STYLESETSIZEFRACTIONAL, style, sd.FractionalSize());
 	if (sd.specified & StyleDefinition::sdEOLFilled)
 		win.Send(SCI_STYLESETEOLFILLED, style, sd.eolfilled ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdUnderlined)
@@ -823,6 +836,9 @@ void SciTEBase::ReadProperties() {
 	}
 
 	props.Set("AbbrevPath", pathAbbreviations.AsUTF8().c_str());
+
+	int tech = props.GetInt("technology");
+	wEditor.Call(SCI_SETTECHNOLOGY, tech);
 
 	codePage = props.GetInt("code.page");
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
@@ -1297,6 +1313,8 @@ void SciTEBase::ReadProperties() {
 		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
 			reinterpret_cast<char *>(bookmarkBluegem));
 	}
+	wEditor.CallString(SCI_REGISTERIMAGE, 1,
+		reinterpret_cast<char *>(bookmarkBluegem));
 
 	wEditor.Call(SCI_SETSCROLLWIDTH, props.GetInt("horizontal.scroll.width", 2000));
 	wEditor.Call(SCI_SETSCROLLWIDTHTRACKING, props.GetInt("horizontal.scroll.width.tracking", 1));
@@ -1416,7 +1434,7 @@ void SciTEBase::ReadFontProperties() {
 					wEditor.CallString(SCI_STYLESETFONT, style, sd.font.c_str());
 				}
 				if (sd.specified & StyleDefinition::sdSize) {
-					wEditor.Call(SCI_STYLESETSIZE, style, sd.size);
+					wEditor.Call(SCI_STYLESETSIZEFRACTIONAL, style, sd.FractionalSize());
 				}
 			}
 		}
