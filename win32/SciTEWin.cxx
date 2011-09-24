@@ -1857,19 +1857,6 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			wOutput.Call(WM_SYSCOLORCHANGE, wParam, lParam);
 			break;
 
-		case WM_PALETTECHANGED:
-			if (wParam != reinterpret_cast<WPARAM>(MainHWND())) {
-				wEditor.Call(WM_PALETTECHANGED, wParam, lParam);
-				//wOutput.Call(WM_PALETTECHANGED, wParam, lParam);
-			}
-
-			break;
-
-		case WM_QUERYNEWPALETTE:
-			wEditor.Call(WM_QUERYNEWPALETTE, wParam, lParam);
-			//wOutput.Call(WM_QUERYNEWPALETTE, wParam, lParam);
-			return TRUE;
-
 		case WM_ACTIVATEAPP:
 			wEditor.Call(SCI_HIDESELECTION, !wParam);
 			// Do not want to display dialog yet as may be in middle of system mouse capture

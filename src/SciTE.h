@@ -175,7 +175,6 @@
 
 //#define IDM_SELECTIONMARGIN	490
 //#define IDM_BUFFEREDDRAW	491
-//#define IDM_USEPALETTE		492
 
 // Buffers
 #define IDM_PREVFILE			501

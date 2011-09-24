@@ -431,7 +431,6 @@ protected:
 	enum { lineNumbersWidthDefault = 4 };
 	bool lineNumbersExpand;
 
-	bool usePalette;
 	bool allowMenuActions;
 	int scrollOutput;
 	bool returnOutputToCommand;

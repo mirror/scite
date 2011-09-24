@@ -383,10 +383,6 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage) {
 	if (!wEditor.Call(SCI_GETUNDOCOLLECTION)) {
 		wEditor.Call(SCI_SETUNDOCOLLECTION, 1);
 	}
-	// Flick focus to the output window and back to
-	// ensure palette realised correctly.
-	WindowSetFocus(wOutput);
-	WindowSetFocus(wEditor);
 	wEditor.Call(SCI_SETSAVEPOINT);
 	if (props.GetInt("fold.on.open") > 0) {
 		FoldAll();

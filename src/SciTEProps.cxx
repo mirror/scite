@@ -1051,7 +1051,6 @@ void SciTEBase::ReadProperties() {
 
 	ReadFontProperties();
 
-	wEditor.Call(SCI_SETUSEPALETTE, props.GetInt("use.palette"));
 	wEditor.Call(SCI_SETPRINTMAGNIFICATION, props.GetInt("print.magnification"));
 	wEditor.Call(SCI_SETPRINTCOLOURMODE, props.GetInt("print.colour.mode"));
 

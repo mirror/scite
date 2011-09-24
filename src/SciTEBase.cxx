@@ -190,7 +190,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	lineNumbers = false;
 	lineNumbersWidth = lineNumbersWidthDefault;
 	lineNumbersExpand = false;
-	usePalette = false;
 
 	abbrevInsert[0] = '\0';
 
