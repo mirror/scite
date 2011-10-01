@@ -631,8 +631,6 @@ protected:
 		return scitew->TabBarScroll(event);
 	}
 
-	// Callback function to show hidden files in filechooser
-	static void toggle_hidden_cb(GtkToggleButton *toggle, gpointer data);
 public:
 
 	// TODO: get rid of this - use callback argument to find SciTEGTK
@@ -1312,16 +1310,6 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 				filePath.Directory().AsInternal());
 		}
 
-		// Add a show hidden files toggle
-		GtkWidget *toggle = gtk_check_button_new_with_label(
-			localiser.Text("Show hidden files").c_str());
-		gtk_widget_show(toggle);
-		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(dlg), toggle);
-		g_signal_connect(toggle, "toggled",
-			G_CALLBACK(toggle_hidden_cb), GTK_DIALOG(dlg));
-		if (props.GetInt("fileselector.show.hidden"))
-			g_object_set(G_OBJECT(toggle), "active", TRUE, NULL);
-
 		SString openFilter = filter;
 		if (openFilter.length()) {
 			openFilter.substitute('|', '\0');
@@ -1368,16 +1356,6 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 		gtk_widget_destroy(dlg);
 	}
 	return !canceled;
-}
-
-// Callback function to show hidden files in filechooser
-void SciTEGTK::toggle_hidden_cb(GtkToggleButton *toggle, gpointer data) {
-	GtkWidget *file_chooser = GTK_WIDGET(data);
-
-	if (gtk_toggle_button_get_active(toggle))
-		g_object_set(GTK_FILE_CHOOSER(file_chooser), "show-hidden", TRUE, NULL);
-	else
-		g_object_set(GTK_FILE_CHOOSER(file_chooser), "show-hidden", FALSE, NULL);
 }
 
 bool SciTEGTK::HandleSaveAs(const char *savePath) {
