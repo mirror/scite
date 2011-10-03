@@ -52,19 +52,25 @@ enum {
     menuHelp = 8
 };
 
+struct SelectionRange {
+	int position;
+	int anchor;
+	SelectionRange(int position_= INVALID_POSITION, int anchor_= INVALID_POSITION) : 
+		position(position_), anchor(anchor_) {
+	}
+};
+
 class RecentFile : public FilePath {
 public:
-	Sci_CharacterRange selection;
+	SelectionRange selection;
 	int scrollPosition;
 	RecentFile() {
-		selection.cpMin = INVALID_POSITION;
-		selection.cpMax = INVALID_POSITION;
 		scrollPosition = 0;
 	}
 	void Init() {
 		FilePath::Init();
-		selection.cpMin = INVALID_POSITION;
-		selection.cpMax = INVALID_POSITION;
+		selection.position = INVALID_POSITION;
+		selection.anchor = INVALID_POSITION;
 		scrollPosition = 0;
 	}
 };
@@ -583,6 +589,7 @@ protected:
 	virtual void Print(bool) {}
 	virtual void PrintSetup() {}
 	Sci_CharacterRange GetSelection();
+	SelectionRange GetSelectionRange();
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	void GetCTag(char *sel, int len);
@@ -726,7 +733,7 @@ protected:
 	void SetFileStackMenu();
 	void DropFileStackTop();
 	bool AddFileToBuffer(FilePath file, int pos);
-	void AddFileToStack(FilePath file, Sci_CharacterRange selection, int scrollPos);
+	void AddFileToStack(FilePath file, SelectionRange selection, int scrollPos);
 	void RemoveFileFromStack(FilePath file);
 	RecentFile GetFilePosition();
 	void DisplayAround(const RecentFile &rf);

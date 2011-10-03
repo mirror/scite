@@ -276,7 +276,8 @@ void SciTEBase::UpdateBuffersCurrent() {
 
 	if ((buffers.length > 0) && (currentbuf >= 0)) {
 		buffers.buffers[currentbuf].Set(filePath);
-		buffers.buffers[currentbuf].selection = GetSelection();
+		buffers.buffers[currentbuf].selection.position = wEditor.Call(SCI_GETCURRENTPOS);
+		buffers.buffers[currentbuf].selection.anchor = wEditor.Call(SCI_GETANCHOR);
 		buffers.buffers[currentbuf].scrollPosition = GetCurrentScrollPosition();
 
 		// Retrieve fold state and store in buffer state info
@@ -395,8 +396,7 @@ void SciTEBase::LoadSessionFile(const GUI::gui_char *sessionName) {
 }
 
 void SciTEBase::RestoreRecentMenu() {
-	Sci_CharacterRange cr;
-	cr.cpMin = cr.cpMax = 0;
+	SelectionRange sr(0,0);
 
 	DeleteFileStackMenu();
 
@@ -405,7 +405,7 @@ void SciTEBase::RestoreRecentMenu() {
 		SString propStr = propsSession.Get(propKey.c_str());
 		if (propStr == "")
 			continue;
-		AddFileToStack(GUI::StringFromUTF8(propStr.c_str()), cr, 0);
+		AddFileToStack(GUI::StringFromUTF8(propStr.c_str()), sr, 0);
 	}
 }
 
@@ -518,11 +518,11 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 		int curr = buffers.Current();
 		for (int i = 0; i < buffers.length; i++) {
 			if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
+				Buffer &buff = buffers.buffers[i];
 				SString propKey = IndexPropKey("buffer", i, "path");
-				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buffers.buffers[i].AsUTF8().c_str());
+				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buff.AsUTF8().c_str());
 
-				SetDocumentAt(i);
-				int pos = wEditor.Call(SCI_GETCURRENTPOS) + 1;
+				int pos = buff.selection.position + 1;
 				propKey = IndexPropKey("buffer", i, "position");
 				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), pos);
 
@@ -532,15 +532,15 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				}
 
 				if (props.GetInt("session.bookmarks")) {
-					int line = -1;
 					bool found = false;
-					while ((line = wEditor.Call(SCI_MARKERNEXT, line + 1, 1 << markerBookmark)) >= 0) {
+					for (std::vector<int>::iterator itBM=buff.bookmarks.begin();
+						itBM != buff.bookmarks.end(); itBM++) {
 						if (!found) {
 							propKey = IndexPropKey("buffer", i, "bookmarks");
-							fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
+							fprintf(sessionFile, "%s=%d", propKey.c_str(), *itBM + 1);
 							found = true;
 						} else {
-							fprintf(sessionFile, ",%d", line + 1);
+							fprintf(sessionFile, ",%d", *itBM + 1);
 						}
 					}
 					if (found)
@@ -548,18 +548,15 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				}
 
 				if (props.GetInt("fold") && props.GetInt("session.folds")) {
-					int maxLine = wEditor.Call(SCI_GETLINECOUNT);
 					bool found = false;
-					for (int line = 0; line < maxLine; line++) {
-						if ((wEditor.Call(SCI_GETFOLDLEVEL, line) & SC_FOLDLEVELHEADERFLAG) &&
-							!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
-							if (!found) {
-								propKey = IndexPropKey("buffer", i, "folds");
-								fprintf(sessionFile, "%s=%d", propKey.c_str(), line + 1);
-								found = true;
-							} else {
-								fprintf(sessionFile, ",%d", line + 1);
-							}
+					for (std::vector<int>::iterator itF=buff.foldState.begin();
+						itF != buff.foldState.end(); itF++) {
+						if (!found) {
+							propKey = IndexPropKey("buffer", i, "folds");
+							fprintf(sessionFile, "%s=%d", propKey.c_str(), *itF + 1);
+							found = true;
+						} else {
+							fprintf(sessionFile, ",%d", *itF + 1);
 						}
 					}
 					if (found)
@@ -567,7 +564,6 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				}
 			}
 		}
-		SetDocumentAt(curr);
 	}
 
 	fclose(sessionFile);
@@ -995,7 +991,7 @@ bool SciTEBase::AddFileToBuffer(FilePath file, int pos) {
 	}
 }
 
-void SciTEBase::AddFileToStack(FilePath file, Sci_CharacterRange selection, int scrollPos) {
+void SciTEBase::AddFileToStack(FilePath file, SelectionRange selection, int scrollPos) {
 	if (!file.IsSet())
 		return;
 	DeleteFileStackMenu();
@@ -1033,14 +1029,14 @@ void SciTEBase::RemoveFileFromStack(FilePath file) {
 
 RecentFile SciTEBase::GetFilePosition() {
 	RecentFile rf;
-	rf.selection = GetSelection();
+	rf.selection = GetSelectionRange();
 	rf.scrollPosition = GetCurrentScrollPosition();
 	return rf;
 }
 
 void SciTEBase::DisplayAround(const RecentFile &rf) {
-	if ((rf.selection.cpMin != INVALID_POSITION) && (rf.selection.cpMax != INVALID_POSITION)) {
-		SetSelection(rf.selection.cpMax, rf.selection.cpMin);
+	if ((rf.selection.position != INVALID_POSITION) && (rf.selection.anchor != INVALID_POSITION)) {
+		SetSelection(rf.selection.anchor, rf.selection.position);
 
 		int curTop = wEditor.Call(SCI_GETFIRSTVISIBLELINE);
 		int lineTop = wEditor.Call(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
