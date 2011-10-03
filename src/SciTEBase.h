@@ -86,6 +86,7 @@ public:
 	enum { fmNone, fmMarked, fmModified} findMarks;
 	SString overrideExtension;	///< User has chosen to use a particular language
 	std::vector<int> foldState;
+	std::vector<int> bookmarks;
 	PropSetFile props;
 	Buffer() :
 			RecentFile(), doc(0), isDirty(false), useMonoFont(false),

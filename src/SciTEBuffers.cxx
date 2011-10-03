@@ -293,6 +293,14 @@ void SciTEBase::UpdateBuffersCurrent() {
 				f->push_back(line);
 			}
 		}
+
+		if (props.GetInt("session.bookmarks")) {
+			buffers.buffers[buffers.Current()].bookmarks.clear();
+			int lineBookmark = -1;
+			while ((lineBookmark = wEditor.Call(SCI_MARKERNEXT, lineBookmark + 1, 1 << markerBookmark)) >= 0) {
+				buffers.buffers[buffers.Current()].bookmarks.push_back(lineBookmark);
+			}
+		}
 	}
 }
 
@@ -860,7 +868,7 @@ static void EscapeFilePathsForMenu(GUI::gui_string &path) {
 		path.replace(static_cast<size_t>(0), homeDirectory.size(), GUI_TEXT("~"));
 	}
 #endif
-}	
+}
 
 void SciTEBase::BuffersMenu() {
 	UpdateBuffersCurrent();
@@ -900,7 +908,7 @@ void SciTEBase::BuffersMenu() {
 			} else {
 				GUI::gui_string path = buffers.buffers[pos].AsInternal();
 				GUI::gui_string filename = buffers.buffers[pos].Name().AsInternal();
-				
+
 				EscapeFilePathsForMenu(path);
 #if defined(WIN32)
 				// On Windows, '&' are also interpreted in tab names, so we need
