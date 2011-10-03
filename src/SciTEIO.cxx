@@ -149,6 +149,8 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 			if (chPrev != '\r') {
 				linesLF++;
 			}
+		} else if (i > 1000000) {
+			return;
 		}
 		chPrev = ch;
 	}
