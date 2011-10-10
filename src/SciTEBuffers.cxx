@@ -1737,7 +1737,7 @@ void SciTEBase::GoMessage(int dir) {
 			long sourceLine = DecodeMessage(message.c_str(), source, style, column);
 			if (sourceLine >= 0) {
 				GUI::gui_string sourceString = GUI::StringFromUTF8(source);
-				FilePath sourcePath(sourceString);
+				FilePath sourcePath = FilePath(sourceString).NormalizePath();
 				if (!filePath.Name().SameNameAs(sourcePath)) {
 					FilePath messagePath;
 					bool bExists = false;
