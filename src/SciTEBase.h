@@ -341,6 +341,8 @@ protected:
 	SString apisFileNames;
 	SString functionDefinition;
 
+	enum { diagnosticStyleStart=256, diagnosticStyleEnd=diagnosticStyleStart+4-1};
+
 	bool indentOpening;
 	bool indentClosing;
 	bool indentMaintain;
@@ -644,6 +646,7 @@ protected:
 	void ClearJobQueue();
 	virtual void Execute();
 	virtual void StopExecute() = 0;
+	void ShowMessages(int line);
 	void GoMessage(int dir);
 	virtual bool StartCallTip();
 	char *GetNearestWords(const char *wordStart, int searchLen,
@@ -772,6 +775,7 @@ protected:
 	SString FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
 	void SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd);
+	void SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last);
 	void SetStyleFor(GUI::ScintillaWindow &win, const char *language);
 	void ReloadProperties();
 

@@ -434,20 +434,24 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 	win.Send(SCI_STYLESETCHARACTERSET, style, characterSet);
 }
 
-void SciTEBase::SetStyleFor(GUI::ScintillaWindow &win, const char *lang) {
-	int maxStyle = (1 << win.Call(SCI_GETSTYLEBITS)) - 1;
-	if (maxStyle < STYLE_LASTPREDEFINED)
-		maxStyle = STYLE_LASTPREDEFINED;
-	for (int style = 0; style <= maxStyle; style++) {
+void SciTEBase::SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last) {
+	for (int style = start; style <= last; style++) {
 		if (style != STYLE_DEFAULT) {
 			char key[200];
-			sprintf(key, "style.%s.%0d", lang, style);
+			sprintf(key, "style.%s.%0d", lang, style-start);
 			SString sval = props.GetExpanded(key);
 			if (sval.length()) {
 				SetOneStyle(win, style, sval.c_str());
 			}
 		}
 	}
+}
+
+void SciTEBase::SetStyleFor(GUI::ScintillaWindow &win, const char *lang) {
+	int maxStyle = (1 << win.Call(SCI_GETSTYLEBITS)) - 1;
+	if (maxStyle < STYLE_LASTPREDEFINED)
+		maxStyle = STYLE_LASTPREDEFINED;
+	SetStyleBlock(win, lang, 0, maxStyle);
 }
 
 void LowerCaseString(char *s) {
@@ -1412,6 +1416,10 @@ void SciTEBase::ReadFontProperties() {
 
 	SetStyleFor(wEditor, "*");
 	SetStyleFor(wEditor, languageName);
+	if (props.GetInt("error.inline")) {
+		wEditor.Send(SCI_STYLESETFORE, diagnosticStyleEnd, 0);	// Ensure styles allocated
+		SetStyleBlock(wEditor, "error", diagnosticStyleStart, diagnosticStyleEnd);
+	}
 
 	wOutput.Call(SCI_STYLECLEARALL, 0, 0);
 

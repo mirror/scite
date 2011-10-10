@@ -1701,6 +1701,70 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 	return -1;
 }
 
+// Remove up to and including ch
+static void Chomp(SString &s, int ch) {
+	if (s.contains(static_cast<char>(ch)))
+			s.remove(0, s.search(":") + 1);
+}
+
+void SciTEBase::ShowMessages(int line) {
+	wEditor.Call(SCI_ANNOTATIONSETSTYLEOFFSET, 256);
+	wEditor.Call(SCI_ANNOTATIONSETVISIBLE, ANNOTATION_BOXED);
+	wEditor.Call(SCI_ANNOTATIONCLEARALL);
+	TextReader acc(wOutput);
+	while ((line > 0) && (acc.StyleAt(acc.LineStart(line-1)) != SCE_ERR_CMD))
+		line--;
+	int maxLine = wOutput.Call(SCI_GETLINECOUNT);
+	while ((line < maxLine) && (acc.StyleAt(acc.LineStart(line)) != SCE_ERR_CMD)) {
+		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line, 0);
+		int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line, 0);
+		SString message = GetRange(wOutput, startPosLine, lineEnd);
+		char source[MAX_PATH];	
+		int column;
+		char style = acc.StyleAt(startPosLine);
+		int sourceLine = DecodeMessage(message.c_str(), source, style, column);
+		Chomp(message, ':');
+		if (style == SCE_ERR_GCC) {
+			Chomp(message, ':');
+		}
+		GUI::gui_string sourceString = GUI::StringFromUTF8(source);
+		FilePath sourcePath = FilePath(sourceString).NormalizePath();
+		if (filePath.Name().SameNameAs(sourcePath.Name())) {
+			if (style == SCE_ERR_GCC) {
+				const char *sColon = strchr(message.c_str(), ':');
+				if (sColon) {
+					SString editLine = GetLine(wEditor, sourceLine);
+					if (editLine == (sColon+1)) {
+						line++;
+						continue;
+					}
+				}
+			}
+			int lenCurrent = wEditor.CallString(SCI_ANNOTATIONGETTEXT, sourceLine, NULL);
+			std::string msgCurrent(lenCurrent, '\0');
+			std::string stylesCurrent(lenCurrent, '\0');
+			if (lenCurrent) {
+				wEditor.CallString(SCI_ANNOTATIONGETTEXT, sourceLine, &msgCurrent[0]);
+				wEditor.CallString(SCI_ANNOTATIONGETSTYLES, sourceLine, &stylesCurrent[0]);
+				msgCurrent += "\n";
+				stylesCurrent += '\0';
+			}
+			msgCurrent += message.c_str();
+			int msgStyle = 0;
+			if (message.search("warning") >= 0)
+				msgStyle = 1;
+			if (message.search("error") >= 0)
+				msgStyle = 2;
+			if (message.search("fatal") >= 0)
+				msgStyle = 3;
+			stylesCurrent += std::string(message.length(), msgStyle);
+			wEditor.CallString(SCI_ANNOTATIONSETTEXT, sourceLine, msgCurrent.c_str());
+			wEditor.CallString(SCI_ANNOTATIONSETSTYLES, sourceLine, stylesCurrent.c_str());
+		}
+		line++;
+	}
+}
+
 void SciTEBase::GoMessage(int dir) {
 	Sci_CharacterRange crange;
 	crange.cpMin = wOutput.Call(SCI_GETSELECTIONSTART);
@@ -1783,6 +1847,10 @@ void SciTEBase::GoMessage(int dir) {
 							sourceLine = wEditor.Call(SCI_LINEFROMPOSITION, wEditor.Call(SCI_GETCURRENTPOS));
 						}
 					}
+				}
+
+				if (props.GetInt("error.inline")) {
+					ShowMessages(lookLine);
 				}
 
 				wEditor.Call(SCI_MARKERDELETEALL, 0);

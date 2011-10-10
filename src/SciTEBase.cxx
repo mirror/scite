@@ -941,6 +941,7 @@ void SciTEBase::RemoveFindMarks() {
 		wEditor.Call(SCI_INDICATORCLEARRANGE, 0, LengthDocument());
 		CurrentBuffer()->findMarks = Buffer::fmNone;
 	}
+	wEditor.Call(SCI_ANNOTATIONCLEARALL);
 }
 
 int SciTEBase::MarkAll() {
