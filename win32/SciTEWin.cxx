@@ -2344,7 +2344,6 @@ bool Strip::MouseInClose(GUI::Point pt) {
 
 void Strip::TrackMouse(GUI::Point pt) {
 	stripCloseState closeStateStart = closeState;
-	GUI::Rectangle rcStrip = GetClientPosition();
 	if (MouseInClose(pt)) {
 		if (closeState == csNone)
 			closeState = csOver;
