@@ -1757,7 +1757,7 @@ void SciTEBase::ShowMessages(int line) {
 				msgStyle = 2;
 			if (message.search("fatal") >= 0)
 				msgStyle = 3;
-			stylesCurrent += std::string(message.length(), msgStyle);
+			stylesCurrent += std::string(message.length(), static_cast<char>(msgStyle));
 			wEditor.CallString(SCI_ANNOTATIONSETTEXT, sourceLine, msgCurrent.c_str());
 			wEditor.CallString(SCI_ANNOTATIONSETSTYLES, sourceLine, stylesCurrent.c_str());
 		}
