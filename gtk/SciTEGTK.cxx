@@ -657,6 +657,9 @@ public:
 	virtual void StopExecute();
 	static int PollTool(SciTEGTK *scitew);
 	static void ChildSignal(int);
+	virtual bool PerformOnNewThread(Worker *pWorker);
+	virtual void PostOnMainThread(int cmd, Worker *pWorker);
+	static gboolean PostCallback(void *ptr);
 	// Single instance
 	void SetStartupTime(const char *timestamp);
 };
@@ -4271,6 +4274,38 @@ void SciTEGTK::SetIcon() {
 		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), pixbufIcon);
 		g_object_unref(pixbufIcon);
 	}
+}
+
+static void *WorkerThread(void *ptr) {
+	Worker *pWorker = static_cast<Worker *>(ptr);
+	pWorker->Execute();
+	return NULL;
+}
+
+bool SciTEGTK::PerformOnNewThread(Worker *pWorker) {
+	pthread_t tid;
+	pthread_create(&tid, NULL, WorkerThread, pWorker);
+	return tid != 0;
+}
+
+struct CallbackData {
+	SciTEGTK *pSciTE;
+	int cmd;
+	Worker *pWorker;
+	CallbackData(SciTEGTK *pSciTE_, int cmd_, Worker *pWorker_) : pSciTE(pSciTE_), cmd(cmd_), pWorker(pWorker_) {
+	}
+};
+
+void SciTEGTK::PostOnMainThread(int cmd, Worker *pWorker) {
+	CallbackData *pcbd = new CallbackData(this, cmd, pWorker);
+	gdk_threads_add_idle(PostCallback, pcbd);
+}
+
+gboolean SciTEGTK::PostCallback(void *ptr) {
+	CallbackData *pcbd = static_cast<CallbackData *>(ptr);
+	pcbd->pSciTE->WorkerCommand(pcbd->cmd, pcbd->pWorker);
+	delete pcbd;
+	return FALSE;
 }
 
 void SciTEGTK::SetStartupTime(const char *timestamp) {

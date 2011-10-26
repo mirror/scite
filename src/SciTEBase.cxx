@@ -222,6 +222,9 @@ SciTEBase::~SciTEBase() {
 	popup.Destroy();
 }
 
+void SciTEBase::WorkerCommand(int, Worker *) {
+}
+
 sptr_t SciTEBase::CallFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	if (wOutput.HasFocus())
 		return wOutput.Call(msg, wParam, lParam);

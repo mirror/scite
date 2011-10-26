@@ -82,6 +82,7 @@ typedef HANDLE HTHEME;
 
 const int SCITE_TRAY = WM_APP + 0;
 const int SCITE_DROP = WM_APP + 1;
+const int SCITE_WORKER = WM_APP + 2;
 
 class Dialog;
 
@@ -480,6 +481,9 @@ public:
 	virtual void Execute();
 	virtual void StopExecute();
 	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input = "", int flags=0);
+
+	virtual bool PerformOnNewThread(Worker *pWorker);
+	virtual void PostOnMainThread(int cmd, Worker *pWorker);
 
 	void Creation();
 	LRESULT KeyDown(WPARAM wParam);
