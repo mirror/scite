@@ -475,7 +475,7 @@ static std::vector<int> LinesFromString(const SString &s) {
 }
 
 void SciTEBase::RestoreFromSession(const Session &session) {
-	for (std::vector<BufferState>::const_iterator bs=session.buffers.begin(); bs != session.buffers.end(); bs++)
+	for (std::vector<BufferState>::const_iterator bs=session.buffers.begin(); bs != session.buffers.end(); ++bs)
 		AddFileToBuffer(*bs);
 	int iBuffer = buffers.GetDocumentByName(session.pathActive);
 	if (iBuffer >= 0)
@@ -589,7 +589,7 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				if (props.GetInt("session.bookmarks")) {
 					bool found = false;
 					for (std::vector<int>::iterator itBM=buff.bookmarks.begin();
-						itBM != buff.bookmarks.end(); itBM++) {
+						itBM != buff.bookmarks.end(); ++itBM) {
 						if (!found) {
 							propKey = IndexPropKey("buffer", i, "bookmarks");
 							fprintf(sessionFile, "%s=%d", propKey.c_str(), *itBM + 1);
@@ -605,7 +605,7 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				if (props.GetInt("fold") && props.GetInt("session.folds")) {
 					bool found = false;
 					for (std::vector<int>::iterator itF=buff.foldState.begin();
-						itF != buff.foldState.end(); itF++) {
+						itF != buff.foldState.end(); ++itF) {
 						if (!found) {
 							propKey = IndexPropKey("buffer", i, "folds");
 							fprintf(sessionFile, "%s=%d", propKey.c_str(), *itF + 1);
@@ -722,12 +722,12 @@ void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 	// check to see whether there is saved fold state, restore
 	if (!buffer.foldState.empty()) {
 		wEditor.Call(SCI_COLOURISE, 0, -1);
-		for (std::vector<int>::const_iterator fold=buffer.foldState.begin(); fold != buffer.foldState.end(); fold++) {
+		for (std::vector<int>::const_iterator fold=buffer.foldState.begin(); fold != buffer.foldState.end(); ++fold) {
 			wEditor.Call(SCI_TOGGLEFOLD, *fold);
 		}
 	}
 	if (restoreBookmarks) {
-		for (std::vector<int>::const_iterator mark=buffer.bookmarks.begin(); mark != buffer.bookmarks.end(); mark++) {
+		for (std::vector<int>::const_iterator mark=buffer.bookmarks.begin(); mark != buffer.bookmarks.end(); ++mark) {
 			wEditor.Call(SCI_MARKERADD, *mark, markerBookmark);
 		}
 	}
