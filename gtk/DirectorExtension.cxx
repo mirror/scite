@@ -150,6 +150,7 @@ static bool SendPipeCommand(const char *pipeCommand) {
 }
 
 static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, void *data) {
+	gdk_threads_enter();
 	char pipeData[8192];
 	PropSetFile pipeProps;
 	DirectorExtension *ext = reinterpret_cast<DirectorExtension *>(data);
@@ -168,6 +169,7 @@ static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, v
 		}
 		ext->HandleStringMessage(pipeString.c_str());
 	}
+	gdk_threads_leave();
 	return TRUE;
 }
 
