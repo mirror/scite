@@ -398,10 +398,10 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous)
 		return;
 	}
 
-		CurrentBuffer()->SetTimeFromFile();
+	CurrentBuffer()->SetTimeFromFile();
 
-		wEditor.Call(SCI_BEGINUNDOACTION);	// Group together clear and insert
-		wEditor.Call(SCI_CLEARALL);
+	wEditor.Call(SCI_BEGINUNDOACTION);	// Group together clear and insert
+	wEditor.Call(SCI_CLEARALL);
 
 	if (asynchronous) {
 		CurrentBuffer()->lifeState = Buffer::reading;
