@@ -58,6 +58,7 @@
 
 #include "Scintilla.h"
 #include "SciLexer.h"
+#include "ILexer.h"
 
 #include "GUI.h"
 #include "SString.h"

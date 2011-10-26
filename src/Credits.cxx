@@ -16,6 +16,7 @@
 #include <map>
 
 #include "Scintilla.h"
+#include "ILexer.h"
 
 #include "GUI.h"
 #include "SString.h"

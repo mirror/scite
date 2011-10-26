@@ -31,6 +31,7 @@
 
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
+#include "ILexer.h"
 
 #include "GUI.h"
 #include "SString.h"

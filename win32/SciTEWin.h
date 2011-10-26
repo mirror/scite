@@ -63,6 +63,7 @@ typedef HANDLE HTHEME;
 #endif
 
 #include "Scintilla.h"
+#include "ILexer.h"
 
 #include "GUI.h"
 

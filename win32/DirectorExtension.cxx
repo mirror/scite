@@ -32,6 +32,7 @@
 #include <commctrl.h>
 
 #include "Scintilla.h"
+#include "ILexer.h"
 
 #include "GUI.h"
 #include "SString.h"

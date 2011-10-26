@@ -86,6 +86,10 @@ struct Worker {
 	virtual void Execute() {}
 };
 
+#ifdef SCI_NAMESPACE
+using Scintilla::ILoader;
+#endif
+
 class Buffer : public RecentFile {
 public:
 	sptr_t doc;
