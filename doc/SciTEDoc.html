@@ -1290,6 +1290,16 @@ NameError: mistake
         New files are not affected by this setting.
         </td>
       </tr>
+      <tr>
+        <td>
+          open.asynchronous
+        </td>
+        <td>
+          This setting controls whether files can be opened without blocking the user interface
+	while they are being read. The default value 1 allows background reading in many
+	cases. All background reading is turned off with <span class="example">open.asynchronous=0</span>.
+        </td>
+      </tr>
       <tr class="windowsonly">
         <td>
           temp.files.sync.load
