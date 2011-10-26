@@ -86,15 +86,50 @@ struct Worker {
 	virtual void Execute() {}
 };
 
+class SciTEBase;
 #ifdef SCI_NAMESPACE
 using Scintilla::ILoader;
 #endif
+
+class FileLoader : public Worker {
+public:
+	SciTEBase *pSciTE;
+	ILoader *pLoader;
+	FilePath path;
+	long size;
+	int err;
+	FILE *fp;
+	volatile bool completed;
+	volatile bool cancelling;
+	long readSoFar;
+	GUI::ElapsedTime et;
+	UniMode unicodeMode;
+
+	FileLoader(SciTEBase *pSciTE_, ILoader *pLoader_, FilePath path_, long size_, FILE *fp_);
+	virtual ~FileLoader();
+	virtual double Duration();
+	virtual void Execute();
+	void Cancel();
+};
+
+struct BufferState : public RecentFile {
+public:
+	std::vector<int> foldState;
+	std::vector<int> bookmarks;
+};
+
+class Session {
+public:
+	FilePath pathActive;
+	std::vector<BufferState> buffers;
+};
 
 class Buffer : public RecentFile {
 public:
 	sptr_t doc;
 	bool isDirty;
 	bool useMonoFont;
+	enum { empty, reading, readAll, open } lifeState;
 	UniMode unicodeMode;
 	time_t fileModTime;
 	time_t fileModLastAsk;
@@ -102,13 +137,15 @@ public:
 	SString overrideExtension;	///< User has chosen to use a particular language
 	std::vector<int> foldState;
 	std::vector<int> bookmarks;
+	FileLoader *pFileLoader;
 	PropSetFile props;
 	Buffer() :
-			RecentFile(), doc(0), isDirty(false), useMonoFont(false),
-			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), foldState() {}
+			RecentFile(), doc(0), isDirty(false), useMonoFont(false), lifeState(empty),
+			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), pFileLoader(0) {}
 
 	void Init() {
 		RecentFile::Init();
+		doc = 0;
 		isDirty = false;
 		useMonoFont = false;
 		unicodeMode = uni8Bit;
@@ -117,12 +154,26 @@ public:
 		findMarks = fmNone;
 		overrideExtension = "";
 		foldState.clear();
+		bookmarks.clear();
+		pFileLoader = 0;
 	}
 
 	void SetTimeFromFile() {
 		fileModTime = ModifiedTime();
 		fileModLastAsk = fileModTime;
 	}
+
+	void CompleteLoading() {
+		lifeState = open;
+		delete pFileLoader;
+		pFileLoader = 0;
+	}
+
+	bool ShouldNotSave() const {
+		return lifeState != open;
+	}
+
+	void Cancel();
 };
 
 class BufferList {
@@ -139,6 +190,7 @@ public:
 	~BufferList();
 	void Allocate(int maxSize);
 	int Add();
+	int GetDocumentByLoader(FileLoader *pFileLoader) const;
 	int GetDocumentByName(FilePath filename, bool excludeCurrent=false);
 	void RemoveCurrent();
 	int Current() const;
@@ -309,6 +361,8 @@ public:
 		pSearcher = pSearcher_;
 	}
 };
+
+const int SCITE_FILEREAD = 1;
 
 class SciTEBase : public ExtensionAPI, public Searcher {
 protected:
@@ -481,6 +535,7 @@ protected:
 
 	// Handle buffers
 	sptr_t GetDocumentAt(int index);
+	void SwitchDocumentAt(int index, sptr_t pdoc);
 	int AddBuffer();
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable();
@@ -535,20 +590,21 @@ protected:
 	FilePath UserFilePath(const GUI::gui_char *name);
 	void LoadSessionFile(const GUI::gui_char *sessionName);
 	void RestoreRecentMenu();
+	void RestoreFromSession(const Session &session);
 	void RestoreSession();
 	void SaveSessionFile(const GUI::gui_char *sessionName);
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) = 0;
 	void SetIndentSettings();
 	void SetEol();
 	void New();
-	void RestoreState(const Buffer &buffer);
+	void RestoreState(const Buffer &buffer, bool restoreBookmarks);
 	void Close(bool updateUI = true, bool loadingSession = false, bool makingRoomForNew = false);
 	bool IsAbsolutePath(const char *path);
 	bool Exists(const GUI::gui_char *dir, const GUI::gui_char *path, FilePath *resultPath);
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
-	SString DiscoverLanguage(const char *buf, size_t length);
-	void OpenFile(long fileSize, bool suppressMessage);
+	SString DiscoverLanguage();
+	void OpenFile(long fileSize, bool suppressMessage, bool asynchronous);
 	virtual void OpenUriList(const char *) {}
 	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter) = 0;
 	virtual bool SaveAsDialog() = 0;
@@ -560,8 +616,12 @@ protected:
 	    ofNoSaveIfDirty = 1, 	// Suppress check for unsaved changes
 	    ofForceLoad = 2,	// Reload file even if already in a buffer
 	    ofPreserveUndo = 4,	// Do not delete undo history
-	    ofQuiet = 8		// Avoid "Could not open file" message
+	    ofQuiet = 8,		// Avoid "Could not open file" message
+	    ofSynchronous = 16	// Force synchronous read
 	};
+	void TextRead(FileLoader *pFileLoader);
+	enum OpenCompletion { ocSynchronous, ocCompleteCurrent, ocCompleteSwitch };
+	void CompleteOpen(OpenCompletion oc);
 	virtual bool PreOpenCheck(const GUI::gui_char *file);
 	bool Open(FilePath file, OpenFlags of = ofNone);
 	bool OpenSelected();
@@ -744,7 +804,7 @@ protected:
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	void DropFileStackTop();
-	bool AddFileToBuffer(FilePath file, int pos);
+	bool AddFileToBuffer(const BufferState &bufferState);
 	void AddFileToStack(FilePath file, SelectionRange selection, int scrollPos);
 	void RemoveFileFromStack(FilePath file);
 	RecentFile GetFilePosition();

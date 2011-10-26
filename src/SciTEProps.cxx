@@ -1422,6 +1422,10 @@ void SciTEBase::ReadFontProperties() {
 		SetStyleBlock(wEditor, "error", diagnosticStyleStart, diagnosticStyleEnd);
 	}
 
+	// Turn grey while loading
+	if (CurrentBuffer()->lifeState == Buffer::reading) 
+		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0x444444);
+
 	wOutput.Call(SCI_STYLECLEARALL, 0, 0);
 
 	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);

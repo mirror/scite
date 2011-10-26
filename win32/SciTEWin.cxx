@@ -1466,7 +1466,7 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 				}
 			}
 			if (isTempFile) {
-				if (!Open(pathDropped)) {
+				if (!Open(pathDropped, ofSynchronous)) {
 					break;
 				}
 			} else {

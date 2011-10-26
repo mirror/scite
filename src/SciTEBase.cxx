@@ -223,7 +223,10 @@ SciTEBase::~SciTEBase() {
 	popup.Destroy();
 }
 
-void SciTEBase::WorkerCommand(int, Worker *) {
+void SciTEBase::WorkerCommand(int cmd, Worker *pWorker) {
+	if (cmd == SCITE_FILEREAD) {
+		TextRead(static_cast<FileLoader *>(pWorker));
+	}
 }
 
 sptr_t SciTEBase::CallFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
@@ -4212,7 +4215,7 @@ void SciTEBase::PerformOne(char *action) {
 		} else if (isprefix(action, "menucommand:")) {
 			MenuCommand(atoi(arg));
 		} else if (isprefix(action, "open:")) {
-			Open(GUI::StringFromUTF8(arg));
+			Open(GUI::StringFromUTF8(arg), ofSynchronous);
 		} else if (isprefix(action, "output:") && wOutput.Created()) {
 			wOutput.Call(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(arg));
 		} else if (isprefix(action, "property:")) {
@@ -4593,7 +4596,7 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 				RestoreRecentMenu();
 
 			if (!PreOpenCheck(arg))
-				Open(arg, ofQuiet);
+				Open(arg, static_cast<OpenFlags>(ofQuiet|ofSynchronous));
 		}
 	}
 	if (phase == 1) {
