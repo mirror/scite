@@ -4446,7 +4446,10 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	SizeSubWindows();
 	SetFocus(wEditor);
 	gtk_widget_grab_focus(GTK_WIDGET(PWidget(wSciTE)));
+
+	gdk_threads_enter();
 	gtk_main();
+	gdk_threads_leave();
 }
 
 // Avoid zombie detached processes by reaping their exit statuses when
@@ -4484,6 +4487,10 @@ int main(int argc, char *argv[]) {
 #endif
 
 	signal(SIGCHLD, SciTEGTK::ChildSignal);
+
+	// Initialise threads	
+	g_thread_init(NULL);
+	gdk_threads_init();
 
 	// Get this now because gtk_init() clears it
 	const gchar *startup_id = g_getenv("DESKTOP_STARTUP_ID");
