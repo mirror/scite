@@ -409,6 +409,17 @@ public:
 	gboolean Focus(GtkDirectionType direction);
 };
 
+// Manage the use of the GDK thread lock within glib signal handlers
+class ThreadLockMinder {
+public:
+	ThreadLockMinder() {
+		gdk_threads_enter();
+	}
+	~ThreadLockMinder() {
+		gdk_threads_leave();
+	}
+};
+
 class SciTEGTK : public SciTEBase {
 
 protected:
@@ -2174,6 +2185,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 }
 
 gboolean SciTEGTK::IOSignal(GIOChannel *, GIOCondition, SciTEGTK *scitew) {
+	ThreadLockMinder minder;
 	scitew->ContinueExecute(FALSE);
 	return TRUE;
 }
@@ -4303,6 +4315,8 @@ void SciTEGTK::PostOnMainThread(int cmd, Worker *pWorker) {
 }
 
 gboolean SciTEGTK::PostCallback(void *ptr) {
+	// This callback was installed with gdk_threads_add_idle instead of g_idle_add
+	// so already holds the lock and does not need to call gdk_threads_enter/leave.
 	CallbackData *pcbd = static_cast<CallbackData *>(ptr);
 	pcbd->pSciTE->WorkerCommand(pcbd->cmd, pcbd->pWorker);
 	delete pcbd;
@@ -4503,6 +4517,7 @@ void SciTEGTK::ChildSignal(int) {
 
 // Detect if the tool has exited without producing any output
 int SciTEGTK::PollTool(SciTEGTK *scitew) {
+	ThreadLockMinder minder;
 	scitew->ContinueExecute(TRUE);
 	return TRUE;
 }
