@@ -406,7 +406,7 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous)
 	if (asynchronous) {
 		CurrentBuffer()->lifeState = Buffer::reading;
 		// Turn grey while loading
-		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0x444444);
+		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
 		wEditor.Call(SCI_SETREADONLY, 1);
 		ILoader *pdocLoad = reinterpret_cast<ILoader *>(wEditor.Call(SCI_CREATELOADER, fileSize + 1000));
 		CurrentBuffer()->pFileLoader = new FileLoader(this, pdocLoad, filePath, fileSize, fp);

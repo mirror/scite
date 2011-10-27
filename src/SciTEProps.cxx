@@ -1424,7 +1424,7 @@ void SciTEBase::ReadFontProperties() {
 
 	// Turn grey while loading
 	if (CurrentBuffer()->lifeState == Buffer::reading) 
-		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0x444444);
+		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
 
 	wOutput.Call(SCI_STYLECLEARALL, 0, 0);
 
