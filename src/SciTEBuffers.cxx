@@ -698,6 +698,7 @@ void SciTEBase::New() {
 	filePath.Set(curDirectory, GUI_TEXT(""));
 	SetFileName(filePath);
 	CurrentBuffer()->isDirty = false;
+	CurrentBuffer()->lifeState = Buffer::open;
 	jobQueue.isBuilding = false;
 	jobQueue.isBuilt = false;
 	isReadOnly = false;	// No sense to create an empty, read-only buffer...

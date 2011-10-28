@@ -403,8 +403,8 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous)
 	wEditor.Call(SCI_BEGINUNDOACTION);	// Group together clear and insert
 	wEditor.Call(SCI_CLEARALL);
 
+	CurrentBuffer()->lifeState = Buffer::reading;
 	if (asynchronous) {
-		CurrentBuffer()->lifeState = Buffer::reading;
 		// Turn grey while loading
 		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
 		wEditor.Call(SCI_SETREADONLY, 1);

@@ -148,6 +148,7 @@ public:
 		doc = 0;
 		isDirty = false;
 		useMonoFont = false;
+		lifeState = empty;
 		unicodeMode = uni8Bit;
 		fileModTime = 0;
 		fileModLastAsk = 0;
