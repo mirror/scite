@@ -989,7 +989,8 @@ bool SciTEBase::Save() {
 	if (!filePath.IsUntitled()) {
 		GUI::gui_string msg;
 		if (CurrentBuffer()->ShouldNotSave()) {
-			msg = LocaliseMessage("The file '^0' has not been read so can not be saved.",
+			msg = LocaliseMessage(
+				"The file '^0' has not yet been loaded entirely, so it can not be saved right now. Please retry in a while.",
 				filePath.AsInternal());
 			WindowMessageBox(wSciTE, msg, MB_ICONWARNING);
 			// It is OK to not save this file
