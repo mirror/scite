@@ -719,8 +719,9 @@ bool SciTEBase::iswordcharforsel(char ch) {
 // Doesn't accept all valid characters, as they are rarely used in source filenames...
 // Accept path separators '/' and '\', extension separator '.', and ':', MS drive unit
 // separator, and also used for separating the line number for grep. Same for '(' and ')' for cl.
+// Accept '?' and '%' which are used in URL.
 bool SciTEBase::isfilenamecharforsel(char ch) {
-	return !strchr("\t\n\r \"$%'*,;<>?[]^`{|}", ch);
+	return !strchr("\t\n\r \"$'*,;<>[]^`{|}", ch);
 }
 
 bool SciTEBase::islexerwordcharforsel(char ch) {
