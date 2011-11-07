@@ -388,9 +388,6 @@
 				RelativePath="..\..\scintilla\src\Selection.cxx">
 			</File>
 			<File
-				RelativePath="..\win32\SingleThreadExtension.cxx">
-			</File>
-			<File
 				RelativePath="..\src\StringHelpers.cxx">
 			</File>
 			<File
@@ -531,9 +528,6 @@
 			</File>
 			<File
 				RelativePath="..\win32\SciTEWin.h">
-			</File>
-			<File
-				RelativePath="..\win32\SingleThreadExtension.h">
 			</File>
 			<File
 				RelativePath="..\src\SString.h">

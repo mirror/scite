@@ -10,7 +10,7 @@ SciTEWin.o: SciTEWin.cxx SciTEWin.h ../../scintilla/include/Scintilla.h \
  ../src/Extender.h ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h \
  ../src/SciTEBase.h ../src/SciTEKeys.h UniqueInstance.h \
  ../src/MultiplexExtension.h ../src/Extender.h DirectorExtension.h \
- SingleThreadExtension.h ../src/LuaExtension.h
+ ../src/LuaExtension.h
 SciTEWinBar.o: SciTEWinBar.cxx SciTEWin.h \
  ../../scintilla/include/Scintilla.h ../src/GUI.h ../src/SString.h \
  ../src/StringList.h ../src/StringHelpers.h ../src/FilePath.h \
@@ -23,9 +23,6 @@ SciTEWinDlg.o: SciTEWinDlg.cxx SciTEWin.h \
  ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \
  ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h ../src/SciTEBase.h \
  ../src/SciTEKeys.h UniqueInstance.h
-SingleThreadExtension.o: SingleThreadExtension.cxx \
- ../../scintilla/include/Scintilla.h ../src/GUI.h SingleThreadExtension.h \
- ../src/Extender.h
 UniqueInstance.o: UniqueInstance.cxx ../../scintilla/include/Scintilla.h \
  ../src/GUI.h SciTEWin.h ../src/SString.h ../src/StringList.h \
  ../src/StringHelpers.h ../src/FilePath.h ../src/PropSetFile.h \

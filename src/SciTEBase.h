@@ -363,7 +363,10 @@ public:
 	}
 };
 
-const int SCITE_FILEREAD = 1;
+enum { 
+	WORK_FILEREAD = 1,
+	WORK_PLATFORM = 100
+};
 
 class SciTEBase : public ExtensionAPI, public Searcher {
 protected:
@@ -872,7 +875,7 @@ protected:
 	void OpenFilesFromStdin();
 	enum GrepFlags {
 	    grepNone = 0, grepWholeWord = 1, grepMatchCase = 2, grepStdOut = 4,
-	    grepDot = 8, grepBinary = 16
+	    grepDot = 8, grepBinary = 16, grepScroll = 32
 	};
 	virtual bool GrepIntoDirectory(const FilePath &directory);
 	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const GUI::gui_char *fileTypes);

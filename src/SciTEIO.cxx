@@ -362,7 +362,7 @@ void FileLoader::Execute() {
 		}
 	}
 	completed = true;
-	pSciTE->PostOnMainThread(SCITE_FILEREAD, this);
+	pSciTE->PostOnMainThread(WORK_FILEREAD, this);
 }
 
 double FileLoader::Duration() {
@@ -1361,7 +1361,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 		}
 		sExitMessage += "\n";
 		OutputAppendStringSynchronised(sExitMessage.c_str());
-		if (props.GetInt("output.scroll", 1) == 1 && returnOutputToCommand)
+		if ((gf & grepScroll) && returnOutputToCommand)
 			wOutput.Send(SCI_GOTOPOS, originalEnd, 0);
 	}
 }

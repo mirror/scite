@@ -44,7 +44,6 @@
 #endif
 
 #ifndef NO_LUA
-#include "SingleThreadExtension.h"
 #include "LuaExtension.h"
 #endif
 
@@ -202,7 +201,6 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	hWriteSubProcess = NULL;
 	subProcessGroupId = 0;
-	outputScroll = 1;
 
 	// Read properties resource into propsEmbed
 	// The embedded properties file is to allow distributions to be sure
@@ -243,6 +241,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	uniqueInstance.Init(this);
 
 	hAccTable = ::LoadAccelerators(hInstance, TEXT("ACCELS")); // md
+
+	cmdWorker.pSciTE = this;
 }
 
 SciTEWin::~SciTEWin() {
@@ -396,8 +396,6 @@ FILE *scite_lua_popen(const char *filename, const char *mode) {
 
 void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
-
-	outputScroll = props.GetInt("output.scroll", 1);
 }
 
 static FilePath GetSciTEPath(FilePath home) {
@@ -679,6 +677,43 @@ void SciTEWin::OutputAppendEncodedStringSynchronised(GUI::gui_string s, int code
 	delete []pszMulti;
 }
 
+CommandWorker::CommandWorker() : pSciTE(NULL) {
+	Initialise();
+}
+
+void CommandWorker::Initialise() {
+    icmd = 0;
+    originalEnd = 0;
+    exitStatus = 0;
+    flags = 0;
+	seenOutput = false;
+	outputScroll = 1;
+}
+
+void CommandWorker::Execute() {
+	pSciTE->ProcessExecute();
+}
+
+void SciTEWin::ResetExecution() {
+	cmdWorker.Initialise();
+	jobQueue.SetExecuting(false);
+	if (needReadProperties)
+		ReadProperties();
+	CheckReload();
+	CheckMenus();
+	ClearJobQueue();
+	::SendMessage(MainHWND(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
+}
+
+void SciTEWin::ExecuteNext() {
+	cmdWorker.icmd++;
+	if (cmdWorker.icmd < jobQueue.commandCurrent && cmdWorker.icmd < jobQueue.commandMax && cmdWorker.exitStatus == 0) {
+		Execute();
+	} else {
+		ResetExecution();
+	}
+}
+
 /**
  * Run a command with redirected input and output streams
  * so the output can be put in a window.
@@ -686,35 +721,11 @@ void SciTEWin::OutputAppendEncodedStringSynchronised(GUI::gui_string s, int code
  * This is running in a separate thread to the user interface so should always
  * use ScintillaWindow::Send rather than a one of the direct function calls.
  */
-DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
+DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	DWORD exitcode = 0;
-	GUI::ElapsedTime commandTime;
 
 	if (jobToRun.jobType == jobShell) {
 		ShellExec(jobToRun.command, jobToRun.directory.AsUTF8().c_str());
-		return exitcode;
-	}
-
-	if (jobToRun.jobType == jobExtension) {
-		if (extender) {
-			// Problem: we are in the wrong thread!  That is the cause of the cursed PC.
-			// It could also lead to other problems.
-
-			if (jobToRun.flags & jobGroupUndo)
-				wEditor.Send(SCI_BEGINUNDOACTION);
-
-			extender->OnExecute(jobToRun.command.c_str());
-
-			if (jobToRun.flags & jobGroupUndo)
-				wEditor.Send(SCI_ENDUNDOACTION);
-
-			Redraw();
-			// A Redraw "might" be needed, since Lua and Director
-			// provide enough low-level capabilities to corrupt the
-			// display.
-			// (That might have been due to a race condition, and might now be
-			// corrected by SingleThreadExtension.  Should check it some time.)
-		}
 		return exitcode;
 	}
 
@@ -746,6 +757,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 				gf = static_cast<GrepFlags>(gf | grepBinary);
 			const char *findFiles = grepCmd + 2;
 			const char *findWhat = findFiles + strlen(findFiles) + 1;
+			if (cmdWorker.outputScroll == 1)
+				gf = static_cast<GrepFlags>(gf | grepScroll);
 			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findWhat);
 		}
 		return exitcode;
@@ -930,9 +943,9 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 					}
 
 					if (!(jobToRun.flags & jobQuiet)) {
-						if (!seenOutput) {
+						if (!cmdWorker.seenOutput) {
 							MakeOutputVisible();
-							seenOutput = true;
+							cmdWorker.seenOutput = true;
 						}
 						// Display the data
 						OutputAppendStringSynchronised(buffer, bytesRead);
@@ -974,7 +987,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 		sExitMessage.insert(0, ">Exit code: ");
 		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";
-			sExitMessage += SString(commandTime.Duration(), 3);
+			sExitMessage += SString(cmdWorker.commandTime.Duration(), 3);
 		}
 		sExitMessage += "\n";
 		OutputAppendStringSynchronised(sExitMessage.c_str());
@@ -1014,41 +1027,31 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun, bool &seenOutput) {
 }
 
 /**
- * Run the commands in the job queue, stopping if one fails.
+ * Run a command in the job queue, stopping if one fails.
  * This is running in a separate thread to the user interface so must be
  * careful when reading and writing shared state.
  */
 void SciTEWin::ProcessExecute() {
-	DWORD exitcode = 0;
 	if (scrollOutput)
 		wOutput.Send(SCI_GOTOPOS, wOutput.Send(SCI_GETTEXTLENGTH));
-	int originalEnd = wOutput.Send(SCI_GETCURRENTPOS);
-	bool seenOutput = false;
 
-	for (int icmd = 0; icmd < jobQueue.commandCurrent && icmd < jobQueue.commandMax && exitcode == 0; icmd++) {
-		exitcode = ExecuteOne(jobQueue.jobQueue[icmd], seenOutput);
-		if (jobQueue.isBuilding) {
-			// The build command is first command in a sequence so it is only built if
-			// that command succeeds not if a second returns after document is modified.
-			jobQueue.isBuilding = false;
-			if (exitcode == 0)
-				jobQueue.isBuilt = true;
-		}
+	cmdWorker.exitStatus = ExecuteOne(jobQueue.jobQueue[cmdWorker.icmd]);
+	if (jobQueue.isBuilding) {
+		// The build command is first command in a sequence so it is only built if
+		// that command succeeds not if a second returns after document is modified.
+		jobQueue.isBuilding = false;
+		if (cmdWorker.exitStatus == 0)
+			jobQueue.isBuilt = true;
 	}
 
 	// Move selection back to beginning of this run so that F4 will go
 	// to first error of this run.
 	// scroll and return only if output.scroll equals
 	// one in the properties file
-	if ((outputScroll == 1) && returnOutputToCommand)
-		wOutput.Send(SCI_GOTOPOS, originalEnd, 0);
+	if ((cmdWorker.outputScroll == 1) && returnOutputToCommand)
+		wOutput.Send(SCI_GOTOPOS, cmdWorker.originalEnd, 0);
 	returnOutputToCommand = true;
-	::SendMessage(MainHWND(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
-}
-
-void ExecThread(void *ptw) {
-	SciTEWin *tw = reinterpret_cast<SciTEWin *>(ptw);
-	tw->ProcessExecute();
+	PostOnMainThread(WORK_EXECUTE, &cmdWorker);
 }
 
 void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
@@ -1142,7 +1145,35 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 void SciTEWin::Execute() {
 	SciTEBase::Execute();
 
-	_beginthread(ExecThread, 1024 * 1024, reinterpret_cast<void *>(this));
+	cmdWorker.Initialise();
+	cmdWorker.outputScroll = props.GetInt("output.scroll", 1);
+	cmdWorker.originalEnd = wOutput.Send(SCI_GETTEXTLENGTH);
+	cmdWorker.commandTime.Duration(true);
+	cmdWorker.flags = jobQueue.jobQueue[cmdWorker.icmd].flags;
+	if (scrollOutput)
+		wOutput.Send(SCI_GOTOPOS, wOutput.Send(SCI_GETTEXTLENGTH));
+
+	if (jobQueue.jobQueue[cmdWorker.icmd].jobType == jobExtension) {
+		// Execute extensions synchronously
+		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
+			wEditor.Send(SCI_BEGINUNDOACTION);
+
+		if (extender)
+			extender->OnExecute(jobQueue.jobQueue[cmdWorker.icmd].command.c_str());
+
+		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
+			wEditor.Send(SCI_ENDUNDOACTION);
+
+		Redraw();
+		// A Redraw "might" be needed, since Lua and Director
+		// provide enough low-level capabilities to corrupt the
+		// display.
+
+		ExecuteNext();
+	} else {
+		// Execute other jobs asynchronously on a new thread
+		PerformOnNewThread(&cmdWorker);
+	}
 }
 
 void SciTEWin::StopExecute() {
@@ -1205,6 +1236,17 @@ bool SciTEWin::PerformOnNewThread(Worker *pWorker) {
 
 void SciTEWin::PostOnMainThread(int cmd, Worker *pWorker) {
 	::PostMessage(reinterpret_cast<HWND>(wSciTE.GetID()), SCITE_WORKER, cmd, reinterpret_cast<LPARAM>(pWorker));
+}
+
+void SciTEWin::WorkerCommand(int cmd, Worker *pWorker) {
+	if (cmd < WORK_PLATFORM) {
+		SciTEBase::WorkerCommand(cmd, pWorker);
+	} else {
+		if (cmd == WORK_EXECUTE) {
+			// Move to next command
+			ExecuteNext();
+		}
+	}
 }
 
 void SciTEWin::QuitProgram() {
@@ -3389,8 +3431,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	Extension *extender = &multiExtender;
 
 #ifndef NO_LUA
-	SingleThreadExtension luaAdapter(LuaExtension::Instance());
-	multiExtender.RegisterExtension(luaAdapter);
+	multiExtender.RegisterExtension(LuaExtension::Instance());
 #endif
 
 #ifndef NO_FILER
