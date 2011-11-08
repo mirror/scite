@@ -309,6 +309,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 		wEditor.Call(SCI_SCROLLCARET);
 	}
 
+	SetBuffersMenu();
 	CheckMenus();
 	UpdateStatusBar(true);
 
@@ -328,25 +329,25 @@ void SciTEBase::UpdateBuffersCurrent() {
 			bufferCurrent.selection.anchor = wEditor.Call(SCI_GETANCHOR);
 			bufferCurrent.scrollPosition = GetCurrentScrollPosition();
 
-		// Retrieve fold state and store in buffer state info
+			// Retrieve fold state and store in buffer state info
 
 			std::vector<int> *f = &bufferCurrent.foldState;
-		f->clear();
+			f->clear();
 
-		if (props.GetInt("fold")) {
-			for (int line = 0; ; line++) {
-				int lineNext = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
-				if ((line < 0) || (lineNext < line))
-					break;
-				line = lineNext;
-				f->push_back(line);
+			if (props.GetInt("fold")) {
+				for (int line = 0; ; line++) {
+					int lineNext = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
+					if ((line < 0) || (lineNext < line))
+						break;
+					line = lineNext;
+					f->push_back(line);
+				}
 			}
-		}
 
-		if (props.GetInt("session.bookmarks")) {
-			buffers.buffers[buffers.Current()].bookmarks.clear();
-			int lineBookmark = -1;
-			while ((lineBookmark = wEditor.Call(SCI_MARKERNEXT, lineBookmark + 1, 1 << markerBookmark)) >= 0) {
+			if (props.GetInt("session.bookmarks")) {
+				buffers.buffers[buffers.Current()].bookmarks.clear();
+				int lineBookmark = -1;
+				while ((lineBookmark = wEditor.Call(SCI_MARKERNEXT, lineBookmark + 1, 1 << markerBookmark)) >= 0) {
 					bufferCurrent.bookmarks.push_back(lineBookmark);
 				}
 			}
@@ -527,6 +528,7 @@ void SciTEBase::RestoreSession() {
 }
 
 void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
+	UpdateBuffersCurrent();
 	bool defaultSession;
 	FilePath sessionPathName;
 	if (sessionName[0] == '\0') {
@@ -697,6 +699,8 @@ void SciTEBase::New() {
 	FilePath curDirectory(filePath.Directory());
 	filePath.Set(curDirectory, GUI_TEXT(""));
 	SetFileName(filePath);
+	UpdateBuffersCurrent();
+	SetBuffersMenu();
 	CurrentBuffer()->isDirty = false;
 	CurrentBuffer()->lifeState = Buffer::open;
 	jobQueue.isBuilding = false;
@@ -934,8 +938,7 @@ static void EscapeFilePathsForMenu(GUI::gui_string &path) {
 #endif
 }
 
-void SciTEBase::BuffersMenu() {
-	UpdateBuffersCurrent();
+void SciTEBase::SetBuffersMenu() {
 	if (buffers.size <= 1) {
         DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
     }
@@ -1004,6 +1007,11 @@ void SciTEBase::BuffersMenu() {
 #if defined(GTK)
 	ShowTabBar();
 #endif
+}
+
+void SciTEBase::BuffersMenu() {
+	UpdateBuffersCurrent();
+	SetBuffersMenu();
 }
 
 void SciTEBase::DeleteFileStackMenu() {

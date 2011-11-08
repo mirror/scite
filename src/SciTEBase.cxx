@@ -3861,7 +3861,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		CheckMenus();
 		SetWindowName();
-		BuffersMenu();
+		SetBuffersMenu();
 		break;
 
 	case SCN_SAVEPOINTLEFT:
@@ -3875,7 +3875,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		CheckMenus();
 		SetWindowName();
-		BuffersMenu();
+		SetBuffersMenu();
 		break;
 
 	case SCN_DOUBLECLICK:

@@ -548,6 +548,7 @@ protected:
 	Buffer *CurrentBuffer() {
 		return buffers.CurrentBuffer();
 	}
+	void SetBuffersMenu();
 	void BuffersMenu();
 	void Next();
 	void Prev();

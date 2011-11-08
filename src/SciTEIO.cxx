@@ -111,7 +111,6 @@ void SciTEBase::SetFileName(FilePath openName, bool fixCase) {
 	SetWindowName();
 	if (buffers.buffers)
 		buffers.buffers[buffers.Current()].Set(filePath);
-	BuffersMenu();
 }
 
 // See if path exists.
@@ -578,6 +577,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	SetEol();
 	UpdateBuffersCurrent();
 	SizeSubWindows();
+	SetBuffersMenu();
 
 	bool asynchronous = false;
 	if (!filePath.IsUntitled()) {
