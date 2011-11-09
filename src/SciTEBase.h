@@ -352,6 +352,14 @@ public:
 	bool &FlagFromCmd(int cmd);
 };
 
+// User interface for search options implemented as both buttons and popup menu items
+struct SearchOption {
+	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
+	const char *label;
+	int cmd;	// Menu item
+	int id;	// Control in dialog
+};
+
 class SearchUI {
 protected:
 	Searcher *pSearcher;

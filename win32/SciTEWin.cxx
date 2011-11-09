@@ -2117,21 +2117,11 @@ static const char *textReplacePrompt = "Rep&lace:";
 static const char *textFindNext = "&Find Next";
 static const char *textMarkAll = "&Mark All";
 
-//~ static const char *textFind = "F&ind";
 static const char *textReplace = "&Replace";
 static const char *textReplaceAll = "Replace &All";
 static const char *textInSelection = "In &Selection";
-//~ static const char *textReplaceInBuffers = "Replace In &Buffers";
-//~ static const char *textClose = "Close";
 
-struct Toggle {
-	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
-	const char *label;
-	int cmd;
-	int id;
-};
-
-static Toggle toggles[] = {
+static SearchOption toggles[] = {
 	{"Match &whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
 	{"Case sensiti&ve", IDM_MATCHCASE, IDMATCHCASE},
 	{"Regular &expression", IDM_REGEXP, IDREGEXP},
@@ -2791,12 +2781,12 @@ void FindStrip::Creation() {
 	wButton = CreateButton(textFindNext, IDOK);
 	wButtonMarkAll = CreateButton(textMarkAll, IDMARKALL);
 
-	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
-	wCheckCase = CreateButton(toggles[Toggle::tCase].label, toggles[Toggle::tCase].id, true);
-	wCheckRE = CreateButton(toggles[Toggle::tRegExp].label, toggles[Toggle::tRegExp].id, true);
-	wCheckBE = CreateButton(toggles[Toggle::tBackslash].label, toggles[Toggle::tBackslash].id, true);
-	wCheckWrap = CreateButton(toggles[Toggle::tWrap].label, toggles[Toggle::tWrap].id, true);
-	wCheckUp = CreateButton(toggles[Toggle::tUp].label, toggles[Toggle::tUp].id, true);
+	wCheckWord = CreateButton(toggles[SearchOption::tWord].label, toggles[SearchOption::tWord].id, true);
+	wCheckCase = CreateButton(toggles[SearchOption::tCase].label, toggles[SearchOption::tCase].id, true);
+	wCheckRE = CreateButton(toggles[SearchOption::tRegExp].label, toggles[SearchOption::tRegExp].id, true);
+	wCheckBE = CreateButton(toggles[SearchOption::tBackslash].label, toggles[SearchOption::tBackslash].id, true);
+	wCheckWrap = CreateButton(toggles[SearchOption::tWrap].label, toggles[SearchOption::tWrap].id, true);
+	wCheckUp = CreateButton(toggles[SearchOption::tUp].label, toggles[SearchOption::tUp].id, true);
 }
 
 void FindStrip::Destruction() {
@@ -2926,7 +2916,7 @@ void FindStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool ch
 void FindStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
+	for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
 	GUI::Rectangle rcButton = wButton.GetPosition();
@@ -3027,13 +3017,13 @@ void ReplaceStrip::Creation() {
 	wButtonReplaceAll = CreateButton(textReplaceAll, IDREPLACEALL);
 	wButtonReplaceInSelection = CreateButton(textInSelection, IDREPLACEINSEL);
 
-	wCheckWord = CreateButton(toggles[Toggle::tWord].label, toggles[Toggle::tWord].id, true);
-	wCheckRE = CreateButton(toggles[Toggle::tRegExp].label, toggles[Toggle::tRegExp].id, true);
+	wCheckWord = CreateButton(toggles[SearchOption::tWord].label, toggles[SearchOption::tWord].id, true);
+	wCheckRE = CreateButton(toggles[SearchOption::tRegExp].label, toggles[SearchOption::tRegExp].id, true);
 
-	wCheckCase = CreateButton(toggles[Toggle::tCase].label, toggles[Toggle::tCase].id, true);
-	wCheckBE = CreateButton(toggles[Toggle::tBackslash].label, toggles[Toggle::tBackslash].id, true);
+	wCheckCase = CreateButton(toggles[SearchOption::tCase].label, toggles[SearchOption::tCase].id, true);
+	wCheckBE = CreateButton(toggles[SearchOption::tBackslash].label, toggles[SearchOption::tBackslash].id, true);
 
-	wCheckWrap = CreateButton(toggles[Toggle::tWrap].label, toggles[Toggle::tWrap].id, true);
+	wCheckWrap = CreateButton(toggles[SearchOption::tWrap].label, toggles[SearchOption::tWrap].id, true);
 }
 
 void ReplaceStrip::Destruction() {
@@ -3199,7 +3189,7 @@ void ReplaceStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool
 void ReplaceStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	for (int i=Toggle::tWord; i<=Toggle::tWrap; i++) {
+	for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
 	GUI::Rectangle rcButton = wCheckWord.GetPosition();

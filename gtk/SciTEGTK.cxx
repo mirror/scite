@@ -1971,14 +1971,7 @@ static const char * up_x_xpm[] = {
 ".......#@&......",
 "................"};
 
-struct Toggle {
-	enum { tWord, tCase, tRegExp, tBackslash, tWrap, tUp };
-	const char *label;
-	int cmd;
-	int id;
-};
-
-const static Toggle toggles[] = {
+const static SearchOption toggles[] = {
 	{"Match _whole word only", IDM_WHOLEWORD, IDWHOLEWORD},
 	{"Case sensiti_ve", IDM_MATCHCASE, IDMATCHCASE},
 	{"Regular _expression", IDM_REGEXP, IDREGEXP},
@@ -2074,12 +2067,12 @@ void SciTEGTK::FindInFiles() {
 	bool enableToggles = props.GetNewExpand("find.command") == "";
 
 	// Whole Word
-	dlgFindInFiles.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label));
+	dlgFindInFiles.toggleWord.Create(localiser.Text(toggles[SearchOption::tWord].label));
 	gtk_widget_set_sensitive(dlgFindInFiles.toggleWord, enableToggles);
 	table.Add(dlgFindInFiles.toggleWord, 1, true, 3, 0);
 
 	// Case Sensitive
-	dlgFindInFiles.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label));
+	dlgFindInFiles.toggleCase.Create(localiser.Text(toggles[SearchOption::tCase].label));
 	gtk_widget_set_sensitive(dlgFindInFiles.toggleCase, enableToggles);
 	table.Add(dlgFindInFiles.toggleCase, 1, true, 3, 0);
 
@@ -2614,30 +2607,30 @@ void SciTEGTK::FindReplace(bool replace) {
 	}
 
 	// Whole Word
-	dlgFindReplace.toggleWord.Create(localiser.Text(toggles[Toggle::tWord].label));
+	dlgFindReplace.toggleWord.Create(localiser.Text(toggles[SearchOption::tWord].label));
 	table.Add(dlgFindReplace.toggleWord, 2, false, 3, 0);
 
 	// Case Sensitive
-	dlgFindReplace.toggleCase.Create(localiser.Text(toggles[Toggle::tCase].label));
+	dlgFindReplace.toggleCase.Create(localiser.Text(toggles[SearchOption::tCase].label));
 	table.Add(dlgFindReplace.toggleCase, 2, false, 3, 0);
 
 	// Regular Expression
-	dlgFindReplace.toggleRegExp.Create(localiser.Text(toggles[Toggle::tRegExp].label));
+	dlgFindReplace.toggleRegExp.Create(localiser.Text(toggles[SearchOption::tRegExp].label));
 	table.Add(dlgFindReplace.toggleRegExp, 2, false, 3, 0);
 
 	// Transform backslash expressions
-	dlgFindReplace.toggleUnSlash.Create(localiser.Text(toggles[Toggle::tBackslash].label));
+	dlgFindReplace.toggleUnSlash.Create(localiser.Text(toggles[SearchOption::tBackslash].label));
 	table.Add(dlgFindReplace.toggleUnSlash, 2, false, 3, 0);
 
 	// Wrap Around
-	dlgFindReplace.toggleWrap.Create(localiser.Text(toggles[Toggle::tWrap].label));
+	dlgFindReplace.toggleWrap.Create(localiser.Text(toggles[SearchOption::tWrap].label));
 	table.Add(dlgFindReplace.toggleWrap, 2, false, 3, 0);
 
 	if (replace) {
 		dlgFindReplace.toggleReverse.SetID(0);
 	} else {
 		// Reverse
-		dlgFindReplace.toggleReverse.Create(localiser.Text(toggles[Toggle::tUp].label));
+		dlgFindReplace.toggleReverse.Create(localiser.Text(toggles[SearchOption::tUp].label));
 		table.Add(dlgFindReplace.toggleReverse, 2, false, 3, 0);
 	}
 
@@ -3665,7 +3658,7 @@ bool FindStrip::KeyDown(GdkEventKey *event) {
 		if (Strip::KeyDown(event))
 			return true;
 		if (event->state & GDK_MOD1_MASK) {
-			for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
+			for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
 				GUI::gui_string localised = localiser->Text(toggles[i].label);
 				char key = KeyFromLabel(localised);
 				if (static_cast<unsigned int>(key) == event->keyval) {
@@ -3715,7 +3708,7 @@ void FindStrip::SetToggles() {
 void FindStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
+	for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
 	GUI::Rectangle rcButton = wCheck[0].GetPosition();
@@ -3800,9 +3793,9 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
 
-	tableReplace.Add(wCheck[Toggle::tWord], 1, false, 0, 0);
-	tableReplace.Add(wCheck[Toggle::tCase], 1, false, 0, 0);
-	tableReplace.Add(wCheck[Toggle::tRegExp], 1, false, 0, 0);
+	tableReplace.Add(wCheck[SearchOption::tWord], 1, false, 0, 0);
+	tableReplace.Add(wCheck[SearchOption::tCase], 1, false, 0, 0);
+	tableReplace.Add(wCheck[SearchOption::tRegExp], 1, false, 0, 0);
 
 	wStaticReplace.Create(localiser->Text(textReplacePrompt));
 	tableReplace.Label(wStaticReplace);
@@ -3828,8 +3821,8 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 			G_CALLBACK(sigReplaceInSelection.Function), this);
 	tableReplace.Add(wButtonReplaceInSelection, 1, false, 0, 0);
 
-	tableReplace.Add(wCheck[Toggle::tBackslash], 1, false, 0, 0);
-	tableReplace.Add(wCheck[Toggle::tWrap], 1, false, 0, 0);
+	tableReplace.Add(wCheck[SearchOption::tBackslash], 1, false, 0, 0);
+	tableReplace.Add(wCheck[SearchOption::tWrap], 1, false, 0, 0);
 
 	// Make the fccus chain move down before moving right
 	GList *focusChain = 0;
@@ -3839,11 +3832,11 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	focusChain = g_list_append(focusChain, wButtonReplace.Pointer());
 	focusChain = g_list_append(focusChain, wButtonReplaceAll.Pointer());
 	focusChain = g_list_append(focusChain, wButtonReplaceInSelection.Pointer());
-	focusChain = g_list_append(focusChain, wCheck[Toggle::tWord].Pointer());
-	focusChain = g_list_append(focusChain, wCheck[Toggle::tBackslash].Pointer());
-	focusChain = g_list_append(focusChain, wCheck[Toggle::tCase].Pointer());
-	focusChain = g_list_append(focusChain, wCheck[Toggle::tWrap].Pointer());
-	focusChain = g_list_append(focusChain, wCheck[Toggle::tRegExp].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[SearchOption::tWord].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[SearchOption::tBackslash].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[SearchOption::tCase].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[SearchOption::tWrap].Pointer());
+	focusChain = g_list_append(focusChain, wCheck[SearchOption::tRegExp].Pointer());
 	gtk_container_set_focus_chain(GTK_CONTAINER(GetID()), focusChain);
 	g_list_free(focusChain);
 }
@@ -3892,7 +3885,7 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 		if (Strip::KeyDown(event))
 			return true;
 		if (event->state & GDK_MOD1_MASK) {
-			for (int i=Toggle::tWord; i<=Toggle::tUp; i++) {
+			for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
 				GUI::gui_string localised = localiser->Text(toggles[i].label);
 				char key = KeyFromLabel(localised);
 				if (static_cast<unsigned int>(key) == event->keyval) {
@@ -3969,7 +3962,7 @@ void ReplaceStrip::ReplaceInSelectionCmd() {
 void ReplaceStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
-	for (int i=Toggle::tWord; i<=Toggle::tWrap; i++) {
+	for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
 	GUI::Rectangle rcButton = wCheck[0].GetPosition();
