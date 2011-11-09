@@ -693,6 +693,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	inputChannel = 0;
 	lastFlags = 0;
 
+	uniqueInstance[0] = '\0';
 	startupTimestamp = 0;
 
 	PropSetFile::SetCaseSensitiveFilenames(true);
