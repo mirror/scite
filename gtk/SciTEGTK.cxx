@@ -4022,10 +4022,18 @@ void SciTEGTK::LayoutUI() {
 	}
 
 	if (splitVertical) {
+#if GTK_CHECK_VERSION(3,0,0)
+		splitPane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+#else
 		splitPane = gtk_hpaned_new();
+#endif
 		gtk_widget_set_size_request(PWidget(wOutput), heightOutput, -1);
 	} else {
+#if GTK_CHECK_VERSION(3,0,0)
+		splitPane = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
+#else
 		splitPane = gtk_vpaned_new();
+#endif
 		gtk_widget_set_size_request(PWidget(wOutput), -1, heightOutput);
 	}
 
@@ -4095,7 +4103,12 @@ void SciTEGTK::CreateUI() {
 	fileSelectorWidth = props.GetInt("fileselector.width", fileSelectorWidth);
 	fileSelectorHeight = props.GetInt("fileselector.height", fileSelectorHeight);
 
+#if GTK_CHECK_VERSION(3,0,0)
+	GtkWidget *boxMain = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	gtk_box_set_homogeneous(GTK_BOX(boxMain), FALSE);
+#else
 	GtkWidget *boxMain = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_container_add(GTK_CONTAINER(PWidget(wSciTE)), boxMain);
 	WIDGET_SET_NO_FOCUS(boxMain);
 

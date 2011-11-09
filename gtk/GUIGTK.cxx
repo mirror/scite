@@ -134,7 +134,11 @@ void Menu::Show(Point pt, Window &) {
 	GtkMenu *widget = reinterpret_cast<GtkMenu *>(mid);
 	gtk_widget_show_all(GTK_WIDGET(widget));
 	GtkRequisition requisition;
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_get_preferred_size(GTK_WIDGET(widget), NULL, &requisition);
+#else
 	gtk_widget_size_request(GTK_WIDGET(widget), &requisition);
+#endif
 	if ((pt.x + requisition.width) > screenWidth) {
 		pt.x = screenWidth - requisition.width;
 	}
