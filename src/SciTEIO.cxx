@@ -394,6 +394,9 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous)
 			GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", filePath.AsInternal());
 			WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 		}
+		if (!wEditor.Call(SCI_GETUNDOCOLLECTION)) {
+			wEditor.Call(SCI_SETUNDOCOLLECTION, 1);
+		}
 		return;
 	}
 
