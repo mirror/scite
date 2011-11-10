@@ -646,11 +646,8 @@ Sci_CharacterRange SciTEBase::GetSelection() {
 	return crange;
 }
 
-SelectionRange SciTEBase::GetSelectionRange() {
-	SelectionRange range;
-	range.position = wEditor.Call(SCI_GETCURRENTPOS);
-	range.anchor = wEditor.Call(SCI_GETANCHOR);
-	return range;
+SelectedRange SciTEBase::GetSelectedRange() {
+	return SelectedRange(wEditor.Call(SCI_GETCURRENTPOS), wEditor.Call(SCI_GETANCHOR));
 }
 
 void SciTEBase::SetSelection(int anchor, int currentPos) {

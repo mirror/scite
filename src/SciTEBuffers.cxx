@@ -446,7 +446,7 @@ void SciTEBase::LoadSessionFile(const GUI::gui_char *sessionName) {
 }
 
 void SciTEBase::RestoreRecentMenu() {
-	SelectionRange sr(0,0);
+	SelectedRange sr(0,0);
 
 	DeleteFileStackMenu();
 
@@ -1076,7 +1076,7 @@ bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 	return opened;
 }
 
-void SciTEBase::AddFileToStack(FilePath file, SelectionRange selection, int scrollPos) {
+void SciTEBase::AddFileToStack(FilePath file, SelectedRange selection, int scrollPos) {
 	if (!file.IsSet())
 		return;
 	DeleteFileStackMenu();
@@ -1114,7 +1114,7 @@ void SciTEBase::RemoveFileFromStack(FilePath file) {
 
 RecentFile SciTEBase::GetFilePosition() {
 	RecentFile rf;
-	rf.selection = GetSelectionRange();
+	rf.selection = GetSelectedRange();
 	rf.scrollPosition = GetCurrentScrollPosition();
 	return rf;
 }

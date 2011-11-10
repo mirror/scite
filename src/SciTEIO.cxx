@@ -551,7 +551,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	}
 
 	if (buffers.size == buffers.length) {
-		AddFileToStack(filePath, GetSelectionRange(), GetCurrentScrollPosition());
+		AddFileToStack(filePath, GetSelectedRange(), GetCurrentScrollPosition());
 		ClearDocument();
 		if (extender)
 			extender->InitBuffer(buffers.Current());
