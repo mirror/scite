@@ -363,7 +363,7 @@ static int cf_pane_remove(lua_State *L) {
 static int cf_pane_append(lua_State *L) {
 	ExtensionAPI::Pane p = check_pane_object(L, 1);
 	const char *s = luaL_checkstring(L, 2);
-	host->Insert(p, host->Send(p, SCI_GETLENGTH, 0, 0), s);
+	host->Insert(p, static_cast<int>(host->Send(p, SCI_GETLENGTH, 0, 0)), s);
 	return 0;
 }
 
@@ -395,12 +395,12 @@ static int cf_pane_findtext(lua_State *L) {
 				ft.chrg.cpMax = static_cast<int>(luaL_checkint(L,5));
 				hasError = (lua_gettop(L) > nArgs);
 			} else {
-				ft.chrg.cpMax = host->Send(p, SCI_GETLENGTH, 0, 0);
+				ft.chrg.cpMax = static_cast<long>(host->Send(p, SCI_GETLENGTH, 0, 0));
 			}
 		}
 
 		if (!hasError) {
-			int result = host->Send(p, SCI_FINDTEXT, static_cast<uptr_t>(flags), reinterpret_cast<sptr_t>(&ft));
+			sptr_t result = host->Send(p, SCI_FINDTEXT, static_cast<uptr_t>(flags), reinterpret_cast<sptr_t>(&ft));
 			if (result >= 0) {
 				lua_pushnumber(L, ft.chrgText.cpMin);
 				lua_pushnumber(L, ft.chrgText.cpMax);
@@ -452,7 +452,7 @@ static int cf_match_replace(lua_State *L) {
 	host->Send(pmo->pane, SCI_SETTARGETSTART, pmo->startPos, 0);
 	host->Send(pmo->pane, SCI_SETTARGETEND, pmo->endPos, 0);
 	host->Send(pmo->pane, SCI_REPLACETARGET, lua_strlen(L, 2), reinterpret_cast<sptr_t>(replacement));
-	pmo->endPos = host->Send(pmo->pane, SCI_GETTARGETEND, 0, 0);
+	pmo->endPos = static_cast<long>(host->Send(pmo->pane, SCI_GETTARGETEND, 0, 0));
 	return 0;
 }
 
@@ -595,11 +595,11 @@ static int cf_pane_match_generator(lua_State *L) {
 
 	Sci_TextToFind ft = { {0,0}, 0, {0,0} };
 	ft.chrg.cpMin = searchPos;
-	ft.chrg.cpMax = host->Send(pmo->pane, SCI_GETLENGTH, 0, 0);
+	ft.chrg.cpMax = static_cast<long>(host->Send(pmo->pane, SCI_GETLENGTH, 0, 0));
 	ft.lpstrText = const_cast<char *>(text);
 
 	if (ft.chrg.cpMax > ft.chrg.cpMin) {
-		int result = host->Send(pmo->pane, SCI_FINDTEXT, static_cast<uptr_t>(pmo->flags), reinterpret_cast<sptr_t>(&ft));
+		sptr_t result = host->Send(pmo->pane, SCI_FINDTEXT, static_cast<uptr_t>(pmo->flags), reinterpret_cast<sptr_t>(&ft));
 		if (result >= 0) {
 			pmo->startPos = ft.chrgText.cpMin;
 			pmo->endPos = pmo->endPosOrig = ft.chrgText.cpMax;
@@ -853,7 +853,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	}
 
 	if (needStringResult) {
-		int stringResultLen = host->Send(p, func.value, params[0], 0);
+		sptr_t stringResultLen = host->Send(p, func.value, params[0], 0);
 		if (stringResultLen > 0) {
 			// not all string result methods are guaranteed to add a null terminator
 			stringResult = new char[stringResultLen+1];
@@ -879,7 +879,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	// - numeric return type gets returned to lua as a number (following the stringresult)
 	// - other return types e.g. void get dropped.
 
-	int result = host->Send(p, func.value, params[0], params[1]);
+	sptr_t result = host->Send(p, func.value, params[0], params[1]);
 
 	int resultCount = 0;
 
@@ -890,10 +890,10 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	}
 
 	if (func.returnType == iface_bool) {
-		lua_pushboolean(L, result);
+		lua_pushboolean(L, static_cast<int>(result));
 		resultCount++;
 	} else if (IFaceTypeIsNumeric(func.returnType)) {
-		lua_pushnumber(L, result);
+		lua_pushnumber(L, static_cast<int>(result));
 		resultCount++;
 	}
 
@@ -1932,7 +1932,7 @@ bool LuaExtension::OnStyle(unsigned int startPos, int lengthDoc, int initStyle, 
 			sc.lengthDoc = lengthDoc;
 			sc.initStyle = initStyle;
 			sc.styler = styler;
-			sc.codePage = host->Send(ExtensionAPI::paneEditor, SCI_GETCODEPAGE);
+			sc.codePage = static_cast<int>(host->Send(ExtensionAPI::paneEditor, SCI_GETCODEPAGE));
 
 			lua_newtable(luaState);
 

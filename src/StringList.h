@@ -28,9 +28,9 @@ public:
 	void SetFromAllocated();
 	bool InList(const char *s);
 	//bool InListAbbreviated(const char *s, const char marker);
-	const char *GetNearestWord(const char *wordStart, int searchLen,
+	const char *GetNearestWord(const char *wordStart, size_t searchLen,
 		bool ignoreCase = false, SString wordCharacters="", int wordIndex = -1);
-	char *GetNearestWords(const char *wordStart, int searchLen,
+	char *GetNearestWords(const char *wordStart, size_t searchLen,
 		bool ignoreCase=false, char otherSeparator='\0', bool exactLen=false);
 };
 

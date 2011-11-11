@@ -348,7 +348,7 @@ void FileLoader::Execute() {
 		while ((lenFile > 0) && (err == 0) && (!cancelling)) {
 			lenFile = convert.convert(data, lenFile);
 			char *dataBlock = convert.getNewBuf();
-			err = pLoader->AddData(dataBlock, lenFile);
+			err = pLoader->AddData(dataBlock, static_cast<int>(lenFile));
 			lenFile = fread(data, 1, sizeof(data), fp);
 		}
 		fclose(fp);
@@ -410,7 +410,7 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous)
 		// Turn grey while loading
 		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
 		wEditor.Call(SCI_SETREADONLY, 1);
-		ILoader *pdocLoad = reinterpret_cast<ILoader *>(wEditor.Call(SCI_CREATELOADER, fileSize + 1000));
+		ILoader *pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, fileSize + 1000));
 		CurrentBuffer()->pFileLoader = new FileLoader(this, pdocLoad, filePath, fileSize, fp);
 		PerformOnNewThread(CurrentBuffer()->pFileLoader);
 	} else {
@@ -1338,7 +1338,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 }
 
 void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *fileTypes, const char *search) {
-	int originalEnd = 0;
+	sptr_t originalEnd = 0;
 	GUI::ElapsedTime commandTime;
 	if (!(gf & grepStdOut)) {
 		SString os;

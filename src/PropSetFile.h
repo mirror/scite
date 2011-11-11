@@ -44,7 +44,7 @@ public:
 	char *ToString() const;	// Caller must delete[] the return value
 
 	bool ReadLine(const char *data, bool ifIsTrue, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
-	void ReadFromMemory(const char *data, int len, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
+	void ReadFromMemory(const char *data, size_t len, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
 	void Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports);
 	bool Read(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
 	void SetInteger(const char *key, int i);

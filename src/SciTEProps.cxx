@@ -256,7 +256,7 @@ const char *SciTEBase::GetNextPropItem(
 	char *pPropItem,	///< pointer on a buffer receiving the requested prop item
 	int maxLen)			///< size of the above buffer
 {
-	long size = maxLen - 1;
+	ptrdiff_t size = maxLen - 1;
 
 	*pPropItem = '\0';
 	if (pStart == NULL) {
@@ -523,7 +523,7 @@ void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 		const char *apiFileName = sApiFileNames.c_str();
 		const char *nameEnd = apiFileName + nameLength;
 
-		int tlen = 0;    // total api length
+		size_t tlen = 0;    // total api length
 
 		// Calculate total length
 		while (apiFileName < nameEnd) {
@@ -533,7 +533,7 @@ void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 
 		// Load files
 		if (tlen > 0) {
-			char *buffer = apis.Allocate(tlen);
+			char *buffer = apis.Allocate(static_cast<int>(tlen));
 			if (buffer) {
 				apiFileName = sApiFileNames.c_str();
 				tlen = 0;

@@ -347,7 +347,7 @@ char *PropSetFile::ToString() const {
 /**
  * Get a line of input. If end of line escaped with '\\' then continue reading.
  */
-static bool GetFullLine(const char *&fpc, int &lenData, char *s, int len) {
+static bool GetFullLine(const char *&fpc, size_t &lenData, char *s, size_t len) {
 	bool continuation = true;
 	s[0] = '\0';
 	while ((len > 1) && lenData > 0) {
@@ -446,7 +446,7 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 	return ifIsTrue;
 }
 
-void PropSetFile::ReadFromMemory(const char *data, int len, FilePath directoryForImports,
+void PropSetFile::ReadFromMemory(const char *data, size_t len, FilePath directoryForImports,
                                  const ImportFilter &filter, std::vector<FilePath> *imports) {
 	const char *pd = data;
 	char lineBuffer[60000];
