@@ -149,14 +149,31 @@ public:
 	bool CanCall() const {
 		return wid && fn && ptr;
 	}
-	sptr_t Call(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0) {
+	int Call(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0) {
+		switch (msg) {
+		case SCI_CREATEDOCUMENT:
+		case SCI_CREATELOADER:
+		case SCI_PRIVATELEXERCALL:
+		case SCI_GETDIRECTFUNCTION:
+		case SCI_GETDIRECTPOINTER:
+		case SCI_GETDOCPOINTER:
+		case SCI_GETCHARACTERPOINTER:
+			throw ScintillaFailure(SC_STATUS_FAILURE);
+		}
+		sptr_t retVal = fn(ptr, msg, wParam, lParam);
+		sptr_t status = fn(ptr, SCI_GETSTATUS, 0, 0);
+		if (status > 0)
+			throw ScintillaFailure(status);
+		return static_cast<int>(retVal);
+	}
+	sptr_t CallReturnPointer(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0) {
 		sptr_t retVal = fn(ptr, msg, wParam, lParam);
 		sptr_t status = fn(ptr, SCI_GETSTATUS, 0, 0);
 		if (status > 0)
 			throw ScintillaFailure(status);
 		return retVal;
 	}
-	sptr_t CallString(unsigned int msg, uptr_t wParam, const char *s) {
+	int CallString(unsigned int msg, uptr_t wParam, const char *s) {
 		return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
 	}
 	sptr_t Send(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
