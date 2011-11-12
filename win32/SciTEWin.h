@@ -495,7 +495,7 @@ public:
 	void CreateUI();
 	/// Management of the command line parameters.
 	void Run(const GUI::gui_char *cmdLine);
-	int EventLoop();
+	uptr_t EventLoop();
 	void OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePage);
 	void ResetExecution();
 	void ExecuteNext();
@@ -536,7 +536,10 @@ inline bool IsKeyDown(int key) {
 	return (::GetKeyState(key) & 0x80000000) != 0;
 }
 
-
-inline GUI::Point PointFromLong(long lPoint) {
+inline GUI::Point PointFromLong(LPARAM lPoint) {
 	return GUI::Point(static_cast<short>(LOWORD(lPoint)), static_cast<short>(HIWORD(lPoint)));
+}
+
+inline int ControlIDOfWParam(WPARAM wParam) {
+	return wParam & 0xffff;
 }

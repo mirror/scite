@@ -522,9 +522,9 @@ bool FilePath::IsDirectory() const {
 
 #ifdef _WIN32
 void Lowercase(GUI::gui_string &s) {
-	int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), s.size()+1, NULL, 0);
+	int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, NULL, 0);
 	std::vector<wchar_t> vc(chars);
-	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), s.size()+1, &vc[0], chars);
+	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, &vc[0], chars);
 	s = &vc[0];
 }
 #endif

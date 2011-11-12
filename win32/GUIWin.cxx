@@ -38,7 +38,7 @@ enum { SURROGATE_TRAIL_FIRST = 0xDC00 };
 enum { SURROGATE_TRAIL_LAST = 0xDFFF };
 
 static unsigned int UTF8Length(const wchar_t *uptr, size_t tlen) {
-	size_t len = 0;
+	unsigned int len = 0;
 	for (size_t i = 0; i < tlen && uptr[i];) {
 		unsigned int uch = uptr[i];
 		if (uch < 0x80) {
@@ -144,7 +144,7 @@ static size_t UTF16FromUTF8(const char *s, size_t len, gui_char *tbuf, size_t tl
 
 gui_string StringFromUTF8(const char *s) {
 	size_t sLen = s ? strlen(s) : 0;
-	size_t wideLen = UTF16Length(s, sLen);
+	size_t wideLen = UTF16Length(s, static_cast<int>(sLen));
 	std::vector<gui_char> vgc(wideLen + 1);
 	size_t outLen = UTF16FromUTF8(s, sLen, &vgc[0], wideLen);
 	vgc[outLen] = 0;
