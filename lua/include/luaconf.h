@@ -762,7 +762,7 @@ union luai_Cast { double l_d; long l_l; };
 */
 
 #ifdef _MSC_VER
-// Uninteresting 64-bit warnings with twoto
+/* Uninteresting 64-bit warnings with twoto */
 #pragma warning(disable: 4334)
 #endif
 
