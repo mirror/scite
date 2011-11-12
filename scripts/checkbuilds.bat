@@ -97,9 +97,9 @@ call "%WINSDK_BASE%\SetEnv.Cmd" /Release /x64 /vista
 cd scintilla\win32
 nmake -f scintilla.mak
 if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..\scite\win32
-REM ~ nmake -f scite.mak
-REM ~ if ERRORLEVEL 2 goto ERROR
+cd ..\..\scite\win32
+nmake -f scite.mak
+if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
 rem Finished
