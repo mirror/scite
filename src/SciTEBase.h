@@ -175,6 +175,7 @@ public:
 	}
 
 	void Cancel();
+	void ReleaseDocument(GUI::ScintillaWindow &w);
 };
 
 class BufferList {

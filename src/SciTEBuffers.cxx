@@ -82,6 +82,13 @@ void Buffer::Cancel() {
 	lifeState = empty;
 }
 
+void Buffer::ReleaseDocument(GUI::ScintillaWindow &w) {
+	if (doc) {
+		w.Call(SCI_RELEASEDOCUMENT, 0, doc);
+		doc = 0;
+	}
+}
+
 BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), size(0), length(0), initialised(false) {}
 
 BufferList::~BufferList() {
@@ -752,6 +759,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 	if (buffers.size == 1) {
 		// With no buffer list, Close means close from MRU
 		closingLast = !(recentFileStack[0].IsSet());
+		buffers.buffers[0].ReleaseDocument(wEditor);
 		buffers.buffers[0].Init();
 		filePath.Set(GUI_TEXT(""));
 		ClearDocument(); //avoid double are-you-sure
@@ -765,6 +773,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		}
 		closingLast = (buffers.length == 1);
 		if (closingLast) {
+			buffers.buffers[0].ReleaseDocument(wEditor);
 			buffers.buffers[0].Init();
 			if (extender)
 				extender->InitBuffer(0);
