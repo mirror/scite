@@ -761,6 +761,10 @@ union luai_Cast { double l_d; long l_l; };
 ** without modifying the main part of the file.
 */
 
+#ifdef _MSC_VER
+// Uninteresting 64-bit warnings with twoto
+#pragma warning(disable: 4334)
+#endif
 
 
 #endif
