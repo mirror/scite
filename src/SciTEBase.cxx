@@ -1015,7 +1015,8 @@ void SciTEBase::SetReplace(const char *sReplace) {
 
 void SciTEBase::MoveBack(int distance) {
 	Sci_CharacterRange cr = GetSelection();
-	SetSelection(cr.cpMin - distance, cr.cpMin - distance);
+	int caret = static_cast<int>(cr.cpMin) - distance;
+	SetSelection(caret, caret);
 }
 
 void SciTEBase::ScrollEditorIfNeeded() {
@@ -1041,10 +1042,10 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		return -1;
 
 	Sci_CharacterRange cr = GetSelection();
-	int startPosition = cr.cpMax;
+	int startPosition = static_cast<int>(cr.cpMax);
 	int endPosition = LengthDocument();
 	if (reverseDirection) {
-		startPosition = cr.cpMin;
+		startPosition = static_cast<int>(cr.cpMin);
 		endPosition = 0;
 	}
 
@@ -1095,7 +1096,7 @@ void SciTEBase::ReplaceOnce() {
 
 	if (!havefound) {
 		Sci_CharacterRange crange = GetSelection();
-		SetSelection(crange.cpMin, crange.cpMin);
+		SetSelection(static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMin));
 		FindNext(false);
 	}
 
@@ -1110,7 +1111,7 @@ void SciTEBase::ReplaceOnce() {
 			lenReplaced = wEditor.CallString(SCI_REPLACETARGETRE, replaceLen, replaceTarget.c_str());
 		else	// Allow \0 in replacement
 			wEditor.CallString(SCI_REPLACETARGET, replaceLen, replaceTarget.c_str());
-		SetSelection(cr.cpMin + lenReplaced, cr.cpMin);
+		SetSelection(static_cast<int>(cr.cpMin) + lenReplaced, static_cast<int>(cr.cpMin));
 		havefound = false;
 	}
 
@@ -1125,8 +1126,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	}
 
 	Sci_CharacterRange cr = GetSelection();
-	int startPosition = cr.cpMin;
-	int endPosition = cr.cpMax;
+	int startPosition = static_cast<int>(cr.cpMin);
+	int endPosition = static_cast<int>(cr.cpMax);
 	int countSelections = wEditor.Call(SCI_GETSELECTIONS);
 	if (inSelection) {
 		int selType = wEditor.Call(SCI_GETSELECTIONMODE);
@@ -2384,7 +2385,7 @@ void SciTEBase::SetLineIndentation(int line, int indent) {
 				crange.cpMax = posAfter;
 		}
 	}
-	SetSelection(crange.cpMin, crange.cpMax);
+	SetSelection(static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMax));
 }
 
 int SciTEBase::GetLineIndentation(int line) {
@@ -2589,7 +2590,7 @@ void SciTEBase::MaintainIndentation(char ch) {
 
 void SciTEBase::AutomaticIndentation(char ch) {
 	Sci_CharacterRange crange = GetSelection();
-	int selStart = crange.cpMin;
+	int selStart = static_cast<int>(crange.cpMin);
 	int curLine = GetCurrentLineNumber();
 	int thisLineStart = wEditor.Call(SCI_POSITIONFROMLINE, curLine);
 	int indentSize = wEditor.Call(SCI_GETINDENT);
@@ -2669,8 +2670,8 @@ void SciTEBase::CharAdded(char ch) {
 	if (recording)
 		return;
 	Sci_CharacterRange crange = GetSelection();
-	int selStart = crange.cpMin;
-	int selEnd = crange.cpMax;
+	int selStart = static_cast<int>(crange.cpMin);
+	int selEnd = static_cast<int>(crange.cpMax);
 	if ((selEnd == selStart) && (selStart > 0)) {
 		if (wEditor.Call(SCI_CALLTIPACTIVE)) {
 			if (calltipParametersEnd.contains(ch)) {
@@ -3468,7 +3469,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_GO: {
 			if (SaveIfUnsureForBuilt() != IDCANCEL) {
 				SelectionIntoProperties();
-				long flags = 0;
+				int flags = 0;
 
 				if (!jobQueue.isBuilt) {
 					SString buildcmd = props.GetNewExpand("command.go.needs.", FileNameExt().AsUTF8().c_str());

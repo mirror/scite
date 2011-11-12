@@ -425,10 +425,10 @@ static int cf_pane_findtext(lua_State *L) {
 
 struct PaneMatchObject {
 	ExtensionAPI::Pane pane;
-	long startPos;
-	long endPos;
+	int startPos;
+	int endPos;
 	int flags; // this is really part of the state, but is kept here for convenience
-	long endPosOrig; // has to do with preventing infinite loop on a 0-length match
+	int endPosOrig; // has to do with preventing infinite loop on a 0-length match
 };
 
 static int cf_match_replace(lua_State *L) {
@@ -452,7 +452,7 @@ static int cf_match_replace(lua_State *L) {
 	host->Send(pmo->pane, SCI_SETTARGETSTART, pmo->startPos, 0);
 	host->Send(pmo->pane, SCI_SETTARGETEND, pmo->endPos, 0);
 	host->Send(pmo->pane, SCI_REPLACETARGET, lua_strlen(L, 2), reinterpret_cast<sptr_t>(replacement));
-	pmo->endPos = static_cast<long>(host->Send(pmo->pane, SCI_GETTARGETEND, 0, 0));
+	pmo->endPos = static_cast<int>(host->Send(pmo->pane, SCI_GETTARGETEND, 0, 0));
 	return 0;
 }
 
@@ -601,8 +601,8 @@ static int cf_pane_match_generator(lua_State *L) {
 	if (ft.chrg.cpMax > ft.chrg.cpMin) {
 		sptr_t result = host->Send(pmo->pane, SCI_FINDTEXT, static_cast<uptr_t>(pmo->flags), reinterpret_cast<sptr_t>(&ft));
 		if (result >= 0) {
-			pmo->startPos = ft.chrgText.cpMin;
-			pmo->endPos = pmo->endPosOrig = ft.chrgText.cpMax;
+			pmo->startPos = static_cast<int>(ft.chrgText.cpMin);
+			pmo->endPos = pmo->endPosOrig = static_cast<int>(ft.chrgText.cpMax);
 			lua_pushvalue(L, 2);
 			return 1;
 		}
