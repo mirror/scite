@@ -12,10 +12,6 @@
 #include <fcntl.h>
 #include <time.h>
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4786)
-#endif
-
 #include <string>
 #include <vector>
 #include <set>
