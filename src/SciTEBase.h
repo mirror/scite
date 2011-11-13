@@ -145,7 +145,6 @@ public:
 
 	void Init() {
 		RecentFile::Init();
-		doc = 0;
 		isDirty = false;
 		useMonoFont = false;
 		lifeState = empty;
@@ -175,7 +174,6 @@ public:
 	}
 
 	void Cancel();
-	void ReleaseDocument(GUI::ScintillaWindow &w);
 };
 
 class BufferList {

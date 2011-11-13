@@ -369,13 +369,15 @@ double FileLoader::Duration() {
 }
 
 void FileLoader::Cancel() {
-	cancelling = true;
-	// Wait for reading thread to finish
-	// TODO: sleep and use threadsafe types 
-	while (!completed)
-		;
-	pLoader->Release();
-	pLoader = 0;
+	if (pLoader) {
+		cancelling = true;
+		// Wait for reading thread to finish
+		// TODO: sleep and use threadsafe types
+		while (!completed)
+			;
+		pLoader->Release();
+		pLoader = 0;
+	}
 }
 
 void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous) {
@@ -452,6 +454,7 @@ void SciTEBase::TextRead(FileLoader *pFileLoader) {
 		}
 		// Switch documents
 		sptr_t pdocLoading = reinterpret_cast<sptr_t>(pFileLoader->pLoader->ConvertToDocument());
+		pFileLoader->pLoader = 0;
 		SwitchDocumentAt(iBuffer, pdocLoading);
 		if (iBuffer == buffers.Current()) {
 			CompleteOpen(ocCompleteCurrent);
