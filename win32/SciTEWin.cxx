@@ -764,7 +764,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 		return exitcode;
 	}
 
-	UINT codePage = wOutput.Call(SCI_GETCODEPAGE);
+	UINT codePage = static_cast<UINT>(wOutput.Send(SCI_GETCODEPAGE));
 	if (codePage != SC_CP_UTF8) {
 		codePage = CodePageFromCharSet(characterSet, codePage);
 	}
@@ -1003,9 +1003,9 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				doRepSel = (0 == exitcode);
 
 			if (doRepSel) {
-				int cpMin = wEditor.Call(SCI_GETSELECTIONSTART, 0, 0);
-				wEditor.CallString(SCI_REPLACESEL,0,repSelBuf.c_str());
-				wEditor.Call(SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
+				int cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART, 0, 0));
+				wEditor.Send(SCI_REPLACESEL,0,reinterpret_cast<sptr_t>(repSelBuf.c_str()));
+				wEditor.Send(SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
 			}
 		}
 
