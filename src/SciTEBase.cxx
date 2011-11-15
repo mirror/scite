@@ -2303,11 +2303,11 @@ void SciTEBase::SetTextProperties(
 		for (int line = selFirstLine; line <= selLastLine; line++) {
 			int startPos = wEditor.Call(SCI_GETLINESELSTARTPOSITION, line);
 			int endPos = wEditor.Call(SCI_GETLINESELENDPOSITION, line);
-			charCount += endPos - startPos;
+			charCount += wEditor.Call(SCI_COUNTCHARACTERS, startPos, endPos);
 		}
 		sprintf(temp, "%ld", charCount);
 	} else {
-		sprintf(temp, "%ld", crange.cpMax - crange.cpMin);
+		sprintf(temp, "%ld", wEditor.Call(SCI_COUNTCHARACTERS, crange.cpMin, crange.cpMax));
 	}
 	ps.Set("SelLength", temp);
 	int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
