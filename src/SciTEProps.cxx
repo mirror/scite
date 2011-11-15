@@ -1313,8 +1313,6 @@ void SciTEBase::ReadProperties() {
 		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
 			reinterpret_cast<char *>(bookmarkBluegem));
 	}
-	wEditor.CallString(SCI_REGISTERIMAGE, 1,
-		reinterpret_cast<char *>(bookmarkBluegem));
 
 	wEditor.Call(SCI_SETSCROLLWIDTH, props.GetInt("horizontal.scroll.width", 2000));
 	wEditor.Call(SCI_SETSCROLLWIDTHTRACKING, props.GetInt("horizontal.scroll.width.tracking", 1));
