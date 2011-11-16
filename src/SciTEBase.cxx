@@ -2298,17 +2298,17 @@ void SciTEBase::SetTextProperties(
 	Sci_CharacterRange crange = GetSelection();
 	int selFirstLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMin);
 	int selLastLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMax);
+	long charCount = 0;
 	if (wEditor.Call(SCI_GETSELECTIONMODE) == SC_SEL_RECTANGLE) {
-		long charCount = 0;
 		for (int line = selFirstLine; line <= selLastLine; line++) {
 			int startPos = wEditor.Call(SCI_GETLINESELSTARTPOSITION, line);
 			int endPos = wEditor.Call(SCI_GETLINESELENDPOSITION, line);
 			charCount += wEditor.Call(SCI_COUNTCHARACTERS, startPos, endPos);
 		}
-		sprintf(temp, "%ld", charCount);
 	} else {
-		sprintf(temp, "%ld", wEditor.Call(SCI_COUNTCHARACTERS, crange.cpMin, crange.cpMax));
+		charCount = wEditor.Call(SCI_COUNTCHARACTERS, crange.cpMin, crange.cpMax);
 	}
+	sprintf(temp, "%ld", charCount);
 	ps.Set("SelLength", temp);
 	int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
 	int selAnchor = wEditor.Call(SCI_GETANCHOR);
