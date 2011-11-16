@@ -100,7 +100,7 @@ public:
 	int outputScroll;
 
 	CommandWorker();
-	void Initialise();
+	void Initialise(bool resetToStart);
 	virtual void Execute();
 };
 

@@ -678,11 +678,12 @@ void SciTEWin::OutputAppendEncodedStringSynchronised(GUI::gui_string s, int code
 }
 
 CommandWorker::CommandWorker() : pSciTE(NULL) {
-	Initialise();
+	Initialise(true);
 }
 
-void CommandWorker::Initialise() {
-    icmd = 0;
+void CommandWorker::Initialise(bool resetToStart) {
+	if (resetToStart)
+		icmd = 0;
     originalEnd = 0;
     exitStatus = 0;
     flags = 0;
@@ -695,7 +696,7 @@ void CommandWorker::Execute() {
 }
 
 void SciTEWin::ResetExecution() {
-	cmdWorker.Initialise();
+	cmdWorker.Initialise(true);
 	jobQueue.SetExecuting(false);
 	if (needReadProperties)
 		ReadProperties();
@@ -1145,7 +1146,7 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 void SciTEWin::Execute() {
 	SciTEBase::Execute();
 
-	cmdWorker.Initialise();
+	cmdWorker.Initialise(false);
 	cmdWorker.outputScroll = props.GetInt("output.scroll", 1);
 	cmdWorker.originalEnd = wOutput.Call(SCI_GETTEXTLENGTH);
 	cmdWorker.commandTime.Duration(true);
