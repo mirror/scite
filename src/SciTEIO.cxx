@@ -238,7 +238,7 @@ void SciTEBase::DiscoverEOLSetting() {
 SString SciTEBase::DiscoverLanguage() {
 	char buf[64 * 1024];
 	int length = Minimum(LengthDocument(), sizeof(buf)-1);
-	GetRange(wEditor, 0, length);
+	GetRange(wEditor, 0, length, buf);
 	buf[length] = '\0';
 	SString languageOverride = "";
 	SString l1 = ExtractLine(buf, length);
