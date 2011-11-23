@@ -184,13 +184,13 @@ public:
 	virtual void Show(int buttonHeight);
 	virtual void Close();
 	virtual bool KeyDown(GdkEventKey *event);
-	virtual void ShowPopup() = 0;
-	virtual void MenuAction(guint action) = 0;
+	virtual void ShowPopup() {}
+	virtual void MenuAction(guint /* action */) {}
 	static void MenuSignal(GtkMenuItem *menuItem, Strip *pStrip);
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
 	virtual void ChildFocus(GtkWidget *widget);
 	static gboolean ChildFocusSignal(GtkContainer *container, GtkWidget *widget, Strip *pStrip);
-	virtual gboolean Focus(GtkDirectionType direction) = 0;
+	virtual gboolean Focus(GtkDirectionType /* direction*/ ) { return false; }
 	static gboolean FocusSignal(GtkWidget *widget, GtkDirectionType direction, Strip *pStrip);
 	bool VisibleHasFocus();
 	static gint ButtonsPress(GtkWidget *widget, GdkEventButton *event, Strip *pstrip);
