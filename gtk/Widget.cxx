@@ -156,6 +156,10 @@ void WToggle::SetActive(bool active) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(GetID()), active);
 }
 
+void WProgress::Create() {
+	SetID(gtk_progress_bar_new());
+}
+
 WCheckDraw::WCheckDraw() : isActive(false), pbGrey(0), pStyle(0), over(false) {
 }
 

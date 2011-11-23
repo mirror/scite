@@ -124,6 +124,11 @@ public:
 	enum {  checkIconWidth = 16, checkButtonWidth = 16 + 3 * 2 + 1};
 };
 
+class WProgress : public WBase {
+public:
+	void Create();
+};
+
 class WTable : public WBase {
 private:
 	int rows;
