@@ -780,7 +780,8 @@ void SciTEBase::ReadProperties() {
 				wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, "lpeg");
 				lexLPeg = wEditor.Call(SCI_GETLEXER);
 				const char *lexer = language.c_str() + language.search("_") + 1;
-				wEditor.CallString(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE, lexer);
+				wEditor.CallReturnPointer(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE,
+					reinterpret_cast<sptr_t>(lexer));
 			}
 		} else {
 			wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
