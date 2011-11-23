@@ -1188,6 +1188,8 @@ void SciTEBase::StackMenu(int pos) {
 				RecentFile rf = recentFileStack[pos];
 				// Already asked user so don't allow Open to ask again.
 				Open(rf, ofNoSaveIfDirty);
+				CurrentBuffer()->scrollPosition = rf.scrollPosition;
+				CurrentBuffer()->selection = rf.selection;
 				DisplayAround(rf);
 			}
 		}
