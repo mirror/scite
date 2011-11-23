@@ -762,6 +762,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		closingLast = (buffers.length == 1);
 		if (closingLast) {
 			buffers.buffers[0].Init();
+			buffers.buffers[0].lifeState = Buffer::open;
 			if (extender)
 				extender->InitBuffer(0);
 		} else {
