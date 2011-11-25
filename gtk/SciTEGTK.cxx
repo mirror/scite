@@ -1377,7 +1377,7 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 bool SciTEGTK::HandleSaveAs(const char *savePath) {
 	switch (saveFormat) {
 	case sfCopy:
-		SaveBuffer(savePath);
+		SaveBuffer(savePath, true);
 		break;
 	case sfHTML:
 		SaveToHTML(savePath);
@@ -2755,7 +2755,11 @@ void SciTEGTK::AboutDialog() {
 
 void SciTEGTK::QuitProgram() {
 	if (SaveIfUnsureAll() != IDCANCEL) {
-		gtk_main_quit();
+		quitting = true;
+		// If ongoing saves, wait for them to complete.
+		if (!buffers.SavingInBackground()) {
+			gtk_main_quit();
+		}
 	}
 }
 

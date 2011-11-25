@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <time.h>
+#include <assert.h>
 
 #include <string>
 #include <vector>
@@ -69,16 +70,16 @@
 
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
 
-void Buffer::Cancel() {
+void Buffer::CancelLoad() {
 	// Complete any background loading
-	if (pFileLoader) {
-		pFileLoader->Cancel();
+	if (pFileWorker && pFileWorker->IsLoading()) {
+		pFileWorker->Cancel();
+		CompleteLoading();
+		lifeState = empty;
 	}
-	CompleteLoading();
-	lifeState = empty;
 }
 
-BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), size(0), length(0), initialised(false) {}
+BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), size(0), length(0), lengthVisible(0), initialised(false) {}
 
 BufferList::~BufferList() {
 	delete []buffers;
@@ -87,6 +88,7 @@ BufferList::~BufferList() {
 
 void BufferList::Allocate(int maxSize) {
 	length = 1;
+	lengthVisible = 1;
 	current = 0;
 	size = maxSize;
 	buffers = new Buffer[size];
@@ -101,13 +103,14 @@ int BufferList::Add() {
 	buffers[length - 1].Init();
 	stack[length - 1] = length - 1;
 	MoveToStackTop(length - 1);
+	SetVisible(length-1, true);
 
-	return length - 1;
+	return lengthVisible - 1;
 }
 
-int BufferList::GetDocumentByLoader(FileLoader *pFileLoader) const {
+int BufferList::GetDocumentByWorker(FileWorker *pFileWorker) const {
 	for (int i = 0;i < length;i++) {
-		if (buffers[i].pFileLoader == pFileLoader) {
+		if (buffers[i].pFileWorker == pFileWorker) {
 			return i;
 		}
 	}
@@ -126,6 +129,19 @@ int BufferList::GetDocumentByName(FilePath filename, bool excludeCurrent) {
 	return -1;
 }
 
+void BufferList::RemoveInvisible(int index) {
+	assert(!GetVisible(index));
+	if (index == current) {
+		RemoveCurrent();
+	} else {
+		if (index < length-1) {
+			// Swap with last visible
+			Swap(index, length-1);
+		}
+		length--;
+	}
+}
+
 void BufferList::RemoveCurrent() {
 	// Delete and move up to fill gap but ensure doc pointer is saved.
 	sptr_t currentDoc = buffers[current].doc;
@@ -139,6 +155,7 @@ void BufferList::RemoveCurrent() {
 		CommitStackSelection();
 		PopStack();
 		length--;
+		lengthVisible--;
 
 		buffers[length].Init();
 		if (current >= length) {
@@ -230,6 +247,91 @@ void BufferList::ShiftTo(int indexFrom, int indexTo) {
 	}
 }
 
+void BufferList::Swap(int indexA, int indexB) {
+	// shift buffer to new place in buffers array
+	if (indexA == indexB ||
+		indexA < 0 || indexA >= length ||
+		indexB < 0 || indexB >= length) return;
+	Buffer tmp = buffers[indexA];
+	buffers[indexA] = buffers[indexB];
+	buffers[indexB] = tmp;
+	// update stack indexes
+	for (int i = 0; i < length; i++) {
+		if (stack[i] == indexA) {
+			stack[i] = indexB;
+		} else if (stack[i] == indexB) {
+			stack[i] = indexA;
+		}
+	}
+}
+
+BackgroundActivities BufferList::CountBackgroundActivities() const {
+	BackgroundActivities bg;
+	bg.loaders = 0;
+	bg.storers = 0;
+	bg.totalWork = 0;
+	bg.totalProgress = 0;
+	for (int i = 0;i < length;i++) {
+		if (buffers[i].pFileWorker) {
+			if (!buffers[i].pFileWorker->FinishedJob()) {
+				if (buffers[i].pFileWorker->IsLoading())
+					bg.loaders++;
+				else
+					bg.storers++;
+				bg.fileNameLast = buffers[i].AsInternal();
+				bg.totalWork += buffers[i].pFileWorker->jobSize;
+				bg.totalProgress += buffers[i].pFileWorker->jobProgress;
+			}
+		}
+	}
+	return bg;
+}
+
+bool BufferList::SavingInBackground() const {
+	for (int i = 0; i<length; i++) {
+		if (buffers[i].pFileWorker && !buffers[i].pFileWorker->IsLoading() && !buffers[i].pFileWorker->FinishedJob()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool BufferList::GetVisible(int index) {
+	return index < lengthVisible;
+}
+
+void BufferList::SetVisible(int index, bool visible) {
+	if (visible != GetVisible(index)) {
+		if (visible) {
+			if (index > lengthVisible) {
+				// Swap with first invisible
+				Swap(index, lengthVisible);
+			}
+			lengthVisible++;
+		} else {
+			if (index < lengthVisible-1) {
+				// Swap with last visible
+				Swap(index, lengthVisible-1);
+			}
+			lengthVisible--;
+			if (current >= lengthVisible && lengthVisible > 0)
+				SetCurrent(lengthVisible-1);
+		}
+	}
+}
+
+void BufferList::AddFuture(int index, Buffer::FutureDo fd) {
+	if (index >= 0 || index < length) {
+		buffers[index].futureDo = static_cast<Buffer::FutureDo>(buffers[index].futureDo | fd);
+	}
+}
+
+void BufferList::FinishedFuture(int index, Buffer::FutureDo fd) {
+	if (index >= 0 || index < length) {
+		buffers[index].futureDo = static_cast<Buffer::FutureDo>(buffers[index].futureDo & ~(fd));
+	}
+}
+
 sptr_t SciTEBase::GetDocumentAt(int index) {
 	if (index < 0 || index >= buffers.size) {
 		return 0;
@@ -284,9 +386,9 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	propsDiscovered = bufferNext.props;
 	propsDiscovered.superPS = &propsLocal;
 	wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
-	bool restoreBookmarks = false;
+	bool restoreBookmarks = bufferNext.lifeState == Buffer::readAll;
+	PerformDeferredTasks();
 	if (bufferNext.lifeState == Buffer::readAll) {
-		restoreBookmarks = true;
 		CompleteOpen(ocCompleteSwitch);
 		if (extender)
 			extender->OnOpen(filePath.AsUTF8().c_str());
@@ -317,7 +419,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 void SciTEBase::UpdateBuffersCurrent() {
 	int currentbuf = buffers.Current();
 
-	if ((buffers.length > 0) && (currentbuf >= 0)) {
+	if ((buffers.length > 0) && (currentbuf >= 0) && (buffers.GetVisible(currentbuf))) {
 		Buffer &bufferCurrent = buffers.buffers[currentbuf];
 		bufferCurrent.Set(filePath);
 		if (bufferCurrent.lifeState != Buffer::reading && bufferCurrent.lifeState != Buffer::readAll) {
@@ -569,7 +671,7 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 
 	if (props.GetInt("buffers") && (!defaultSession || props.GetInt("save.session"))) {
 		int curr = buffers.Current();
-		for (int i = 0; i < buffers.length; i++) {
+		for (int i = 0; i < buffers.lengthVisible; i++) {
 			if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
 				Buffer &buff = buffers.buffers[i];
 				SString propKey = IndexPropKey("buffer", i, "path");
@@ -738,7 +840,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 	bool closingLast = false;
 	int index = buffers.Current();
 	if (index >= 0) {
-		buffers.buffers[index].Cancel();
+		buffers.buffers[index].CancelLoad();
 	}
 
 	if (extender) {
@@ -759,7 +861,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			Buffer buff = buffers.buffers[buffers.Current()];
 			AddFileToStack(buff, buff.selection, buff.scrollPosition);
 		}
-		closingLast = (buffers.length == 1);
+		closingLast = (buffers.lengthVisible == 1) && !buffers.buffers[0].pFileWorker;
 		if (closingLast) {
 			buffers.buffers[0].Init();
 			buffers.buffers[0].lifeState = Buffer::open;
@@ -768,8 +870,15 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		} else {
 			if (extender)
 				extender->RemoveBuffer(buffers.Current());
-			ClearDocument();
-			buffers.RemoveCurrent();
+			if (buffers.buffers[buffers.Current()].pFileWorker) {
+				buffers.SetVisible(buffers.Current(), false);
+				if (buffers.lengthVisible == 0)
+					New();
+			} else {
+				wEditor.Call(SCI_SETREADONLY, 0);
+				ClearDocument();
+				buffers.RemoveCurrent();
+			}
 			if (extender && !makingRoomForNew)
 				extender->ActivateBuffer(buffers.Current());
 		}
@@ -782,7 +891,15 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		propsDiscovered = bufferNext.props;
 		propsDiscovered.superPS = &propsLocal;
 		wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
+		PerformDeferredTasks();
+		if (bufferNext.lifeState == Buffer::readAll) {
+			//restoreBookmarks = true;
+			CompleteOpen(ocCompleteSwitch);
+			if (extender)
+				extender->OnOpen(filePath.AsUTF8().c_str());
+		}
 		if (closingLast) {
+			wEditor.Call(SCI_SETREADONLY, 0);
 			ClearDocument();
 		}
 		if (updateUI)
@@ -827,7 +944,7 @@ void SciTEBase::CloseTab(int tab) {
 
 void SciTEBase::CloseAllBuffers(bool loadingSession) {
 	if (SaveAllBuffers(false) != IDCANCEL) {
-		while (buffers.length > 1)
+		while (buffers.lengthVisible > 1)
 			Close(false, loadingSession);
 
 		Close(true, loadingSession);
@@ -838,7 +955,7 @@ int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
 	int choice = IDYES;
 	UpdateBuffersCurrent();
 	int currentBuffer = buffers.Current();
-	for (int i = 0; (i < buffers.length) && (choice != IDCANCEL); i++) {
+	for (int i = 0; (i < buffers.lengthVisible) && (choice != IDCANCEL); i++) {
 		if (buffers.buffers[i].isDirty) {
 			SetDocumentAt(i);
 			if (alwaysYes) {
@@ -857,7 +974,7 @@ int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
 void SciTEBase::SaveTitledBuffers() {
 	UpdateBuffersCurrent();
 	int currentBuffer = buffers.Current();
-	for (int i = 0; i < buffers.length; i++) {
+	for (int i = 0; i < buffers.lengthVisible; i++) {
 		if (buffers.buffers[i].isDirty && !buffers.buffers[i].IsUntitled()) {
 			SetDocumentAt(i);
 			Save();
@@ -868,7 +985,7 @@ void SciTEBase::SaveTitledBuffers() {
 
 void SciTEBase::Next() {
 	int next = buffers.Current();
-	if (++next >= buffers.length)
+	if (++next >= buffers.lengthVisible)
 		next = 0;
 	SetDocumentAt(next);
 	CheckReload();
@@ -877,7 +994,7 @@ void SciTEBase::Next() {
 void SciTEBase::Prev() {
 	int prev = buffers.Current();
 	if (--prev < 0)
-		prev = buffers.length - 1;
+		prev = buffers.lengthVisible - 1;
 
 	SetDocumentAt(prev);
 	CheckReload();
@@ -894,18 +1011,18 @@ void SciTEBase::ShiftTab(int indexFrom, int indexTo) {
 }
 
 void SciTEBase::MoveTabRight() {
-	if (buffers.length < 2) return;
+	if (buffers.lengthVisible < 2) return;
 	int indexFrom = buffers.Current();
 	int indexTo = indexFrom + 1;
-	if (indexTo >= buffers.length) indexTo = 0;
+	if (indexTo >= buffers.lengthVisible) indexTo = 0;
 	ShiftTab(indexFrom, indexTo);
 }
 
 void SciTEBase::MoveTabLeft() {
-	if (buffers.length < 2) return;
+	if (buffers.lengthVisible < 2) return;
 	int indexFrom = buffers.Current();
 	int indexTo = indexFrom - 1;
-	if (indexTo < 0) indexTo = buffers.length - 1;
+	if (indexTo < 0) indexTo = buffers.lengthVisible - 1;
 	ShiftTab(indexFrom, indexTo);
 }
 
@@ -942,13 +1059,13 @@ void SciTEBase::SetBuffersMenu() {
 	RemoveAllTabs();
 
 	int pos;
-	for (pos = buffers.length; pos < bufferMax; pos++) {
+	for (pos = buffers.lengthVisible; pos < bufferMax; pos++) {
 		DestroyMenuItem(menuBuffers, IDM_BUFFER + pos);
 	}
 	if (buffers.size > 1) {
 		int menuStart = 4;
 		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, GUI_TEXT(""));
-		for (pos = 0; pos < buffers.length; pos++) {
+		for (pos = 0; pos < buffers.lengthVisible; pos++) {
 			int itemID = bufferCmdID + pos;
 			GUI::gui_string entry;
 			GUI::gui_string titleTab;
@@ -1899,7 +2016,7 @@ void SciTEBase::GoMessage(int dir) {
 						bExists = true;
 					} else {
 						// Look through buffers for name match
-						for (int i = buffers.length - 1; i >= 0; i--) {
+						for (int i = buffers.lengthVisible - 1; i >= 0; i--) {
 							if (sourcePath.Name().SameNameAs(buffers.buffers[i].Name())) {
 								messagePath = buffers.buffers[i];
 								bExists = true;

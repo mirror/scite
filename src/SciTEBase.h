@@ -82,34 +82,71 @@ enum UniMode {
 };
 
 struct Worker {
+	volatile bool completed;
+	volatile bool cancelling;
+	volatile int jobSize;
+	volatile int jobProgress;
+
+	Worker() : completed(false), cancelling(false), jobSize(1), jobProgress(0) {
+	}
 	virtual ~Worker() {}
 	virtual void Execute() {}
+	bool FinishedJob() const {
+		return jobProgress >= jobSize;
+	}
 };
 
 class SciTEBase;
-#ifdef SCI_NAMESPACE
-using Scintilla::ILoader;
-#endif
 
-class FileLoader : public Worker {
-public:
+struct FileWorker : public Worker {
 	SciTEBase *pSciTE;
-	ILoader *pLoader;
 	FilePath path;
 	long size;
 	int err;
 	FILE *fp;
-	volatile bool completed;
-	volatile bool cancelling;
-	long readSoFar;
 	GUI::ElapsedTime et;
+	int sleepTime;
+	double nextProgress;
+
+	FileWorker(SciTEBase *pSciTE_, FilePath path_, long size_, FILE *fp_);
+	virtual ~FileWorker();
+	virtual double Duration();
+	virtual void Cancel() = 0;
+	virtual bool IsLoading() const = 0;
+};
+
+#ifdef SCI_NAMESPACE
+using Scintilla::ILoader;
+#endif
+
+class FileLoader : public FileWorker {
+public:
+	ILoader *pLoader;
+	long readSoFar;
 	UniMode unicodeMode;
 
 	FileLoader(SciTEBase *pSciTE_, ILoader *pLoader_, FilePath path_, long size_, FILE *fp_);
 	virtual ~FileLoader();
-	virtual double Duration();
 	virtual void Execute();
-	void Cancel();
+	virtual void Cancel();
+	virtual bool IsLoading() const {
+		return true;
+	}
+};
+
+class FileStorer : public FileWorker {
+public:
+	const char *documentBytes;
+	long writtenSoFar;
+	UniMode unicodeMode;
+
+	FileStorer(SciTEBase *pSciTE_, const char *documentBytes_, FilePath path_, long size_, FILE *fp_, UniMode unicodeMode_);
+	virtual ~FileStorer();
+	virtual void Execute();
+	virtual void Cancel();
+	virtual bool IsLoading() const {
+		return false;
+	}
 };
 
 struct BufferState : public RecentFile {
@@ -137,11 +174,12 @@ public:
 	SString overrideExtension;	///< User has chosen to use a particular language
 	std::vector<int> foldState;
 	std::vector<int> bookmarks;
-	FileLoader *pFileLoader;
+	FileWorker *pFileWorker;
 	PropSetFile props;
+	enum FutureDo { fdNone=0, fdFinishSave=1 } futureDo;
 	Buffer() :
 			RecentFile(), doc(0), isDirty(false), useMonoFont(false), lifeState(empty),
-			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), pFileLoader(0) {}
+			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), pFileWorker(0), futureDo(fdNone) {}
 
 	void Init() {
 		RecentFile::Init();
@@ -155,7 +193,8 @@ public:
 		overrideExtension = "";
 		foldState.clear();
 		bookmarks.clear();
-		pFileLoader = 0;
+		pFileWorker = 0;
+		futureDo = fdNone;
 	}
 
 	void SetTimeFromFile() {
@@ -165,15 +204,32 @@ public:
 
 	void CompleteLoading() {
 		lifeState = open;
-		delete pFileLoader;
-		pFileLoader = 0;
+		if (pFileWorker && pFileWorker->IsLoading()) {
+			delete pFileWorker;
+			pFileWorker = 0;
+		}
+	}
+
+	void CompleteStoring() {
+		if (pFileWorker && !pFileWorker->IsLoading()) {
+			delete pFileWorker;
+			pFileWorker = 0;
+		}
 	}
 
 	bool ShouldNotSave() const {
 		return lifeState != open;
 	}
 
-	void Cancel();
+	void CancelLoad();
+};
+
+struct BackgroundActivities {
+	int loaders;
+	int storers;
+	int totalWork;
+	int totalProgress;
+	GUI::gui_string fileNameLast;
 };
 
 class BufferList {
@@ -185,13 +241,16 @@ public:
 	Buffer *buffers;
 	int size;
 	int length;
+	int lengthVisible;
 	bool initialised;
+
 	BufferList();
 	~BufferList();
 	void Allocate(int maxSize);
 	int Add();
-	int GetDocumentByLoader(FileLoader *pFileLoader) const;
+	int GetDocumentByWorker(FileWorker *pFileWorker) const;
 	int GetDocumentByName(FilePath filename, bool excludeCurrent=false);
+	void RemoveInvisible(int index);
 	void RemoveCurrent();
 	int Current() const;
 	Buffer *CurrentBuffer();
@@ -201,6 +260,13 @@ public:
 	void CommitStackSelection();
 	void MoveToStackTop(int index);
 	void ShiftTo(int indexFrom, int indexTo);
+	void Swap(int indexA, int indexB);
+	BackgroundActivities CountBackgroundActivities() const;
+	bool SavingInBackground() const;
+	bool GetVisible(int index);
+	void SetVisible(int index, bool visible);
+	void AddFuture(int index, Buffer::FutureDo fd);
+	void FinishedFuture(int index, Buffer::FutureDo fd);
 private:
 	void PopStack();
 };
@@ -372,6 +438,8 @@ public:
 
 enum { 
 	WORK_FILEREAD = 1,
+	WORK_FILEWRITTEN = 2,
+	WORK_FILEPROGRESS = 3,
 	WORK_PLATFORM = 100
 };
 
@@ -465,6 +533,7 @@ protected:
 	enum { toolMax = 50 };
 	Extension *extender;
 	bool needReadProperties;
+	bool quitting;
 
 	int heightOutput;
 	int heightOutputStartDrag;
@@ -632,6 +701,9 @@ protected:
 	    ofSynchronous = 16	// Force synchronous read
 	};
 	void TextRead(FileLoader *pFileLoader);
+	void TextWritten(FileStorer *pFileStorer);
+	void UpdateProgress(Worker *pWorker);
+	void PerformDeferredTasks();
 	enum OpenCompletion { ocSynchronous, ocCompleteCurrent, ocCompleteSwitch };
 	void CompleteOpen(OpenCompletion oc);
 	virtual bool PreOpenCheck(const GUI::gui_char *file);
@@ -649,7 +721,7 @@ protected:
 	void SaveToHTML(FilePath saveName);
 	void StripTrailingSpaces();
 	void EnsureFinalNewLine();
-	bool SaveBuffer(FilePath saveName);
+	bool SaveBuffer(FilePath saveName, bool asynchronous);
 	virtual void SaveAsHTML() = 0;
 	void SaveToRTF(FilePath saveName, int start = 0, int end = -1);
 	virtual void SaveAsRTF() = 0;
@@ -671,6 +743,7 @@ protected:
 	int GetMenuCommandAsInt(SString commandName);
 	virtual void Print(bool) {}
 	virtual void PrintSetup() {}
+	virtual void ShowBackgroundProgress(const GUI::gui_string & /* explanation */, int /* size */, int /* progress */) {}
 	Sci_CharacterRange GetSelection();
 	SelectedRange GetSelectedRange();
 	void SetSelection(int anchor, int currentPos);
@@ -935,7 +1008,8 @@ private:
 };
 
 /// Base size of file I/O operations.
-const int blockSize = 131072;
+//const int blockSize = 131072;
+const int blockSize = 1024;
 
 #if defined(__unix__)
 // MessageBox

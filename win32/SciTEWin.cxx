@@ -1144,6 +1144,10 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 }
 
 void SciTEWin::Execute() {
+	if (buffers.SavingInBackground())
+		// May be saving file that should be used by command so wait until all saved
+		return;
+
 	SciTEBase::Execute();
 
 	cmdWorker.Initialise(false);
@@ -1251,11 +1255,16 @@ void SciTEWin::WorkerCommand(int cmd, Worker *pWorker) {
 }
 
 void SciTEWin::QuitProgram() {
+	quitting = false;
 	if (SaveIfUnsureAll() != IDCANCEL) {
 		if (fullScreen)	// Ensure tray visible on exit
 			FullScreenToggle();
-		::PostQuitMessage(0);
-		wSciTE.Destroy();
+		quitting = true;
+		// If ongoing saves, wait for them to complete.
+		if (!buffers.SavingInBackground()) {
+			::PostQuitMessage(0);
+			wSciTE.Destroy();
+		}
 	}
 }
 

@@ -209,6 +209,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	propsStatus.superPS = &props;
 
 	needReadProperties = false;
+	quitting = false;
 }
 
 SciTEBase::~SciTEBase() {
@@ -220,8 +221,18 @@ SciTEBase::~SciTEBase() {
 }
 
 void SciTEBase::WorkerCommand(int cmd, Worker *pWorker) {
-	if (cmd == WORK_FILEREAD) {
+	switch (cmd) {
+	case WORK_FILEREAD:
 		TextRead(static_cast<FileLoader *>(pWorker));
+		UpdateProgress(pWorker);
+		break;
+	case WORK_FILEWRITTEN:
+		TextWritten(static_cast<FileStorer *>(pWorker));
+		UpdateProgress(pWorker);
+		break;
+	case WORK_FILEPROGRESS:
+ 		UpdateProgress(pWorker);
+		break;
 	}
 }
 
@@ -4042,7 +4053,7 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_STOPEXECUTE, jobQueue.IsExecuting());
 	if (buffers.size > 0) {
 		TabSelect(buffers.Current());
-		for (int bufferItem = 0; bufferItem < buffers.length; bufferItem++) {
+		for (int bufferItem = 0; bufferItem < buffers.lengthVisible; bufferItem++) {
 			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.Current());
 		}
 	}
