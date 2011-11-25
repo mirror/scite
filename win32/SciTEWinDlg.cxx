@@ -816,6 +816,13 @@ static void FillComboFromProps(HWND combo, PropSetFile &props) {
 	}
 }
 
+void SciTEWin::ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress) {
+	backgroundStrip.visible = !explanation.empty();
+	SizeSubWindows();
+	if (backgroundStrip.visible)
+		backgroundStrip.SetProgress(explanation, size, progress);
+}
+
 class DialogFindReplace : public Dialog, public SearchUI  {
 	bool advanced;
 public:

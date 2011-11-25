@@ -293,6 +293,17 @@ bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
 	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
 }
 
+class BackgroundStrip : public Strip {
+public:
+	WStatic wExplanation;
+	WProgress wProgress;
+
+	BackgroundStrip() {
+	}
+	virtual void Creation(GtkWidget *container);
+	void SetProgress(const GUI::gui_string &explanation, int size, int progress);
+};
+
 class DialogGoto : public Dialog {
 public:
 	WEntry entryGoto;
@@ -449,6 +460,8 @@ protected:
 	// For single instance
 	char uniqueInstance[MAX_PATH];
 	guint32 startupTimestamp;
+	
+	BackgroundStrip backgroundStrip;
 
 	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX, sfXML } saveFormat;
 	Dialog dlgFileSelector;
@@ -575,6 +588,8 @@ protected:
 	bool &FlagFromCmd(int cmd);
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute(int fromPoll);
+
+	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress);
 
 	// Single instance
 	void SendFileName(int sendPipe, const char* filename);
@@ -1614,6 +1629,34 @@ SString SciTEGTK::EncodeString(const SString &s) {
 	return SString(ret);
 }
 
+void BackgroundStrip::Creation(GtkWidget *container) {
+	WTable table(1, 2);
+	SetID(table);
+	Strip::Creation(container);
+	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
+	gtk_box_pack_start(GTK_BOX(container), GTK_WIDGET(GetID()), FALSE, FALSE, 0);
+	
+	wProgress.Create();
+	table.Add(wProgress, 1, false, 0, 0);
+	gtk_widget_show(wProgress);
+	
+	wExplanation.Create("");
+	table.Label(wExplanation);
+
+	//g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
+	//g_signal_connect(G_OBJECT(GetID()), "focus", G_CALLBACK(FocusSignal), this);
+
+	gtk_widget_show(GTK_WIDGET(GetID()));
+}
+
+void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, int size, int progress) {
+	gtk_label_set_text(GTK_LABEL(wExplanation.GetID()), explanation.c_str());
+	if (size > 0) {
+		gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(wProgress.GetID()), 
+			static_cast<double>(progress) / static_cast<double>(size));
+	}
+}
+
 void DialogFindReplace::GrabFields() {
 	pSearcher->SetFind(wComboFind.Text());
 	if (wComboReplace) {
@@ -2175,6 +2218,16 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		if (!fromPoll) {
 			OutputAppendString(">End Bad\n");
 		}
+	}
+}
+
+void SciTEGTK::ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress) {
+	backgroundStrip.visible = !explanation.empty();
+	if (backgroundStrip.visible) {
+		backgroundStrip.Show(0);
+		backgroundStrip.SetProgress(explanation, size, progress);
+	} else {
+		backgroundStrip.Close();
 	}
 }
 
@@ -3993,6 +4046,9 @@ gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
 }
 
 void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
+	backgroundStrip.SetLocalizer(&localiser);
+	backgroundStrip.Creation(boxMain);
+
 	findStrip.SetLocalizer(&localiser);
 	findStrip.SetSearcher(this);
 	findStrip.Creation(boxMain);
@@ -4223,6 +4279,7 @@ void SciTEGTK::CreateUI() {
 	if (maximize)
 		gtk_window_maximize(GTK_WINDOW(PWidget(wSciTE)));
 
+	gtk_widget_hide(PWidget(backgroundStrip));
 	gtk_widget_hide(wIncrementPanel);
 	gtk_widget_hide(PWidget(findStrip));
 	gtk_widget_hide(PWidget(replaceStrip));

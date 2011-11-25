@@ -352,6 +352,7 @@ void SciTEWin::SizeSubWindows() {
 		TCM_ADJUSTRECT, TRUE, LPARAM(&r));
 	bands[bandTab].height = r.bottom - r.top - 4;
 
+	bands[bandBackground].visible = backgroundStrip.visible;
 	bands[bandSearch].visible = searchStrip.visible;
 	bands[bandFind].visible = findStrip.visible;
 	bands[bandReplace].visible = replaceStrip.visible;
@@ -1042,6 +1043,18 @@ void SciTEWin::Creation() {
 	::CreateWindowEx(
 	               0,
 	               classNameInternal,
+	               TEXT("backgroundStrip"),
+	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	               0, 0,
+	               100, 100,
+	               MainHWND(),
+	               reinterpret_cast<HMENU>(2001),
+	               hInstance,
+	               reinterpret_cast<LPSTR>(&backgroundStrip));
+
+	::CreateWindowEx(
+	               0,
+	               classNameInternal,
 	               TEXT("searchStrip"),
 	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	               0, 0,
@@ -1100,6 +1113,7 @@ void SciTEWin::Creation() {
 	bands.push_back(Band(true, heightTools, false, wToolBar));
 	bands.push_back(Band(true, heightTab, false, wTabBar));
 	bands.push_back(Band(true, 100, true, wContent));
+	bands.push_back(Band(true, backgroundStrip.Height(), false, backgroundStrip));
 	bands.push_back(Band(true, searchStrip.Height(), false, searchStrip));
 	bands.push_back(Band(true, findStrip.Height(), false, findStrip));
 	bands.push_back(Band(true, replaceStrip.Height(), false, replaceStrip));

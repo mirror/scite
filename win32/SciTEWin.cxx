@@ -180,6 +180,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	contents.SetSciTE(this);
 	contents.SetLocalizer(&localiser);
+	backgroundStrip.SetLocalizer(&localiser);
 	searchStrip.SetLocalizer(&localiser);
 	searchStrip.SetSearcher(this);
 	findStrip.SetLocalizer(&localiser);
@@ -2111,6 +2112,17 @@ static int WidthControl(GUI::Window &w) {
 	return rc.Width();
 }
 
+static GUI::gui_string ControlGText(GUI::Window w) {
+	HWND wT = HwndOf(w);
+	int len = ::GetWindowTextLengthW(wT) + 1;
+	std::vector<GUI::gui_char> itemText(len);
+	GUI::gui_string gsText;
+	if (::GetWindowTextW(wT, &itemText[0], len)) {
+		gsText = GUI::gui_string(&itemText[0]);
+	}
+	return gsText;
+}
+
 static SString ControlText(GUI::Window w) {
 	HWND wT = HwndOf(w);
 	int len = ::GetWindowTextLengthW(wT) + 1;
@@ -2348,43 +2360,53 @@ void Strip::Paint(HDC hDC) {
 	::FillRect(hDC, &rc, hbrFace);
 	::DeleteObject(hbrFace);
 
-	// Draw close box
-	GUI::Rectangle rcClose = CloseArea();
-	if (hTheme) {
+	if (HasClose()){
+		// Draw close box
+		GUI::Rectangle rcClose = CloseArea();
+		if (hTheme) {
 #ifdef THEME_AVAILABLE
-		int closeAppearence = CBS_NORMAL;
-		if (closeState == csOver) {
-			closeAppearence = CBS_HOT;
-		} else if (closeState == csClickedOver) {
-			closeAppearence = CBS_PUSHED;
-		}
-		//DrawThemeBackground(htheme, hDC, WP_CLOSEBUTTON, closeAppearence,
-		//	reinterpret_cast<RECT *>(&rcClose), reinterpret_cast<RECT *>(&rcClose));
-		::DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, closeAppearence,
-			reinterpret_cast<RECT *>(&rcClose), NULL);
-		//::DrawThemeBackground(hTheme, hDC, WP_MDICLOSEBUTTON, closeAppearence,
-		//	reinterpret_cast<RECT *>(&rcClose), NULL);
+			int closeAppearence = CBS_NORMAL;
+			if (closeState == csOver) {
+				closeAppearence = CBS_HOT;
+			} else if (closeState == csClickedOver) {
+				closeAppearence = CBS_PUSHED;
+			}
+			//DrawThemeBackground(htheme, hDC, WP_CLOSEBUTTON, closeAppearence,
+			//	reinterpret_cast<RECT *>(&rcClose), reinterpret_cast<RECT *>(&rcClose));
+			::DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, closeAppearence,
+				reinterpret_cast<RECT *>(&rcClose), NULL);
+			//::DrawThemeBackground(hTheme, hDC, WP_MDICLOSEBUTTON, closeAppearence,
+			//	reinterpret_cast<RECT *>(&rcClose), NULL);
 #endif
-	} else {
-		int closeAppearence = 0;
-		if (closeState == csOver) {
-			closeAppearence = DFCS_HOT;
-		} else if (closeState == csClickedOver) {
-			closeAppearence = DFCS_PUSHED;
-		}
+		} else {
+			int closeAppearence = 0;
+			if (closeState == csOver) {
+				closeAppearence = DFCS_HOT;
+			} else if (closeState == csClickedOver) {
+				closeAppearence = DFCS_PUSHED;
+			}
 
-		DrawFrameControl(hDC, reinterpret_cast<RECT *>(&rcClose), DFC_CAPTION,
-			DFCS_CAPTIONCLOSE | closeAppearence);
+			DrawFrameControl(hDC, reinterpret_cast<RECT *>(&rcClose), DFC_CAPTION,
+				DFCS_CAPTIONCLOSE | closeAppearence);
+		}
 	}
 }
 
+bool Strip::HasClose() const {
+	return true;
+}
+
 GUI::Rectangle Strip::CloseArea() {
-	GUI::Rectangle rcClose = GetClientPosition();
-	rcClose.right -= 2;
-	rcClose.left = rcClose.right - closeSize.cx;
-	rcClose.top += 2;
-	rcClose.bottom = rcClose.top + closeSize.cy;
-	return rcClose;
+	if (HasClose()) {
+		GUI::Rectangle rcClose = GetClientPosition();
+		rcClose.right -= 2;
+		rcClose.left = rcClose.right - closeSize.cx;
+		rcClose.top += 2;
+		rcClose.bottom = rcClose.top + closeSize.cy;
+		return rcClose;
+	} else {
+		return GUI::Rectangle(-1,-1,-1,-1);
+	}
 }
 
 void Strip::InvalidateClose() {
@@ -2623,6 +2645,103 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	}
 
 	return 0l;
+}
+
+void BackgroundStrip::Creation() {
+	Strip::Creation();
+
+	wExplanation = ::CreateWindowEx(0, TEXT("Static"), TEXT(""),
+		WS_CHILD | WS_CLIPSIBLINGS,
+		2, 2, 100, 21,
+		Hwnd(), reinterpret_cast<HMENU>(0), ::GetModuleHandle(NULL), 0);
+	wExplanation.Show();
+	SetFontHandle(wExplanation, fontText);
+
+	wProgress = ::CreateWindowEx(0, PROGRESS_CLASS, TEXT(""),
+		WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+		2, 2, 100, 21,
+		Hwnd(), reinterpret_cast<HMENU>(0), ::GetModuleHandle(NULL), 0);
+}
+
+void BackgroundStrip::Destruction() {
+	Strip::Destruction();
+}
+
+void BackgroundStrip::Close() {
+	entered++;
+	::SetWindowText(HwndOf(wExplanation), TEXT(""));
+	entered--;
+	Strip::Close();
+}
+
+void BackgroundStrip::Size() {
+	if (!visible)
+		return;
+	Strip::Size();
+	GUI::Rectangle rcArea = GetPosition();
+
+	rcArea.bottom -= rcArea.top;
+	rcArea.right -= rcArea.left;
+
+	rcArea.left = 2;
+	rcArea.top = 2;
+	rcArea.right -= 2;
+	rcArea.bottom -= 2;
+
+	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
+
+	const int progWidth = 200;
+
+	GUI::Rectangle rcProgress = rcArea;
+	rcProgress.right = rcProgress.left + progWidth;
+	wProgress.SetPosition(rcProgress);
+
+	GUI::Rectangle rcExplanation = rcArea;
+	rcExplanation.left += progWidth + 8;
+	rcExplanation.top -= 1;
+	rcExplanation.bottom += 1;
+	wExplanation.SetPosition(rcExplanation);
+
+	::InvalidateRect(Hwnd(), NULL, TRUE);
+}
+
+bool BackgroundStrip::HasClose() const {
+	return false;
+}
+
+void BackgroundStrip::Focus() {
+	::SetFocus(HwndOf(wExplanation));
+}
+
+bool BackgroundStrip::KeyDown(WPARAM key) {
+	if (!visible)
+		return false;
+	if (Strip::KeyDown(key))
+		return true;
+
+	return false;
+}
+
+bool BackgroundStrip::Command(WPARAM /* wParam */) {
+	return false;
+}
+
+LRESULT BackgroundStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	try {
+
+	return Strip::WndProc(iMessage, wParam, lParam);
+
+	} catch (...) {
+	}
+	return 0l;
+}
+
+void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, int size, int progress) {
+	if (explanation != ControlGText(wExplanation)) {
+		::SetWindowTextW(HwndOf(wExplanation), explanation.c_str());
+	}
+	::SendMessage(HwndOf(wProgress), PBM_SETRANGE32, 0, size);
+	::SendMessage(HwndOf(wProgress), PBM_SETPOS, progress, 0);
 }
 
 void SearchStrip::Creation() {
