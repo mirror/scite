@@ -41,6 +41,8 @@
 #include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
+#include "Cookie.h"
+#include "Worker.h"
 #include "SciTEBase.h"
 
 static ExtensionAPI *host = 0;

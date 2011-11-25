@@ -66,9 +66,27 @@
 #include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
+#include "Cookie.h"
+#include "Worker.h"
+#include "FileWorker.h"
 #include "SciTEBase.h"
 
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
+
+void Buffer::CompleteLoading() {
+	lifeState = open;
+	if (pFileWorker && pFileWorker->IsLoading()) {
+		delete pFileWorker;
+		pFileWorker = 0;
+	}
+}
+
+void Buffer::CompleteStoring() {
+	if (pFileWorker && !pFileWorker->IsLoading()) {
+		delete pFileWorker;
+		pFileWorker = 0;
+	}
+}
 
 void Buffer::CancelLoad() {
 	// Complete any background loading

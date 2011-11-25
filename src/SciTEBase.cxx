@@ -68,6 +68,9 @@
 #include "Mutex.h"
 #include "JobQueue.h"
 
+#include "Cookie.h"
+#include "Worker.h"
+#include "FileWorker.h"
 #include "SciTEBase.h"
 
 Searcher::Searcher() {

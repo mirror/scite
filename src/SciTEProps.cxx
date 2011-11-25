@@ -64,6 +64,8 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 #include "IFaceTable.h"
 #include "Mutex.h"
 #include "JobQueue.h"
+#include "Cookie.h"
+#include "Worker.h"
 #include "SciTEBase.h"
 
 void SciTEBase::SetImportMenu() {

@@ -187,6 +187,9 @@
 				RelativePath="..\..\scintilla\src\ContractionState.cxx">
 			</File>
 			<File
+				RelativePath="..\Src\Cookie.cxx">
+			</File>
+			<File
 				RelativePath="..\Src\Credits.cxx">
 			</File>
 			<File
@@ -209,6 +212,9 @@
 			</File>
 			<File
 				RelativePath="..\src\FilePath.cxx">
+			</File>
+			<File
+				RelativePath="..\src\FileWorker.cxx">
 			</File>
 			<File
 				RelativePath="..\win32\GUIWin.cxx">

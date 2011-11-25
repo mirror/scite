@@ -75,80 +75,6 @@ public:
 	}
 };
 
-// Related to Utf8_16::encodingType but with additional values at end
-enum UniMode {
-    uni8Bit = 0, uni16BE = 1, uni16LE = 2, uniUTF8 = 3,
-    uniCookie = 4
-};
-
-struct Worker {
-	volatile bool completed;
-	volatile bool cancelling;
-	volatile int jobSize;
-	volatile int jobProgress;
-
-	Worker() : completed(false), cancelling(false), jobSize(1), jobProgress(0) {
-	}
-	virtual ~Worker() {}
-	virtual void Execute() {}
-	bool FinishedJob() const {
-		return jobProgress >= jobSize;
-	}
-};
-
-class SciTEBase;
-
-struct FileWorker : public Worker {
-	SciTEBase *pSciTE;
-	FilePath path;
-	long size;
-	int err;
-	FILE *fp;
-	GUI::ElapsedTime et;
-	int sleepTime;
-	double nextProgress;
-
-	FileWorker(SciTEBase *pSciTE_, FilePath path_, long size_, FILE *fp_);
-	virtual ~FileWorker();
-	virtual double Duration();
-	virtual void Cancel() = 0;
-	virtual bool IsLoading() const = 0;
-};
-
-#ifdef SCI_NAMESPACE
-using Scintilla::ILoader;
-#endif
-
-class FileLoader : public FileWorker {
-public:
-	ILoader *pLoader;
-	long readSoFar;
-	UniMode unicodeMode;
-
-	FileLoader(SciTEBase *pSciTE_, ILoader *pLoader_, FilePath path_, long size_, FILE *fp_);
-	virtual ~FileLoader();
-	virtual void Execute();
-	virtual void Cancel();
-	virtual bool IsLoading() const {
-		return true;
-	}
-};
-
-class FileStorer : public FileWorker {
-public:
-	const char *documentBytes;
-	long writtenSoFar;
-	UniMode unicodeMode;
-
-	FileStorer(SciTEBase *pSciTE_, const char *documentBytes_, FilePath path_, long size_, FILE *fp_, UniMode unicodeMode_);
-	virtual ~FileStorer();
-	virtual void Execute();
-	virtual void Cancel();
-	virtual bool IsLoading() const {
-		return false;
-	}
-};
-
 struct BufferState : public RecentFile {
 public:
 	std::vector<int> foldState;
@@ -160,6 +86,8 @@ public:
 	FilePath pathActive;
 	std::vector<BufferState> buffers;
 };
+
+struct FileWorker;
 
 class Buffer : public RecentFile {
 public:
@@ -202,20 +130,8 @@ public:
 		fileModLastAsk = fileModTime;
 	}
 
-	void CompleteLoading() {
-		lifeState = open;
-		if (pFileWorker && pFileWorker->IsLoading()) {
-			delete pFileWorker;
-			pFileWorker = 0;
-		}
-	}
-
-	void CompleteStoring() {
-		if (pFileWorker && !pFileWorker->IsLoading()) {
-			delete pFileWorker;
-			pFileWorker = 0;
-		}
-	}
+	void CompleteLoading();
+	void CompleteStoring();
 
 	bool ShouldNotSave() const {
 		return lifeState != open;
@@ -436,14 +352,7 @@ public:
 	}
 };
 
-enum { 
-	WORK_FILEREAD = 1,
-	WORK_FILEWRITTEN = 2,
-	WORK_FILEPROGRESS = 3,
-	WORK_PLATFORM = 100
-};
-
-class SciTEBase : public ExtensionAPI, public Searcher {
+class SciTEBase : public ExtensionAPI, public Searcher, public WorkerListener {
 protected:
 	GUI::gui_string windowName;
 	FilePath filePath;
@@ -700,8 +609,8 @@ protected:
 	    ofQuiet = 8,		// Avoid "Could not open file" message
 	    ofSynchronous = 16	// Force synchronous read
 	};
-	void TextRead(FileLoader *pFileLoader);
-	void TextWritten(FileStorer *pFileStorer);
+	void TextRead(FileWorker *pFileLoader);
+	void TextWritten(FileWorker *pFileStorer);
 	void UpdateProgress(Worker *pWorker);
 	void PerformDeferredTasks();
 	enum OpenCompletion { ocSynchronous, ocCompleteCurrent, ocCompleteSwitch };
@@ -1006,10 +915,6 @@ private:
 	SciTEBase(const SciTEBase&);
 	void operator=(const SciTEBase&);
 };
-
-/// Base size of file I/O operations.
-//const int blockSize = 131072;
-const int blockSize = 1024;
 
 #if defined(__unix__)
 // MessageBox

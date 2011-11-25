@@ -62,6 +62,9 @@
 #include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
+#include "Cookie.h"
+#include "Worker.h"
+#include "FileWorker.h"
 #include "SciTEBase.h"
 #include "Utf8_16.h"
 
@@ -150,72 +153,6 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 		}
 		chPrev = ch;
 	}
-}
-
-static bool isEncodingChar(char ch) {
-	return (ch == '_') || (ch == '-') || (ch == '.') ||
-	       (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-	       (ch >= '0' && ch <= '9');
-}
-
-static bool isSpaceChar(char ch) {
-	return (ch == ' ') || (ch == '\t');
-}
-
-static SString ExtractLine(const char *buf, size_t length) {
-	unsigned int endl = 0;
-	if (length > 0) {
-		while ((endl < length) && (buf[endl] != '\r') && (buf[endl] != '\n')) {
-			endl++;
-		}
-		if (((endl + 1) < length) && (buf[endl] == '\r') && (buf[endl+1] == '\n')) {
-			endl++;
-		}
-		if (endl < length) {
-			endl++;
-		}
-	}
-	return SString(buf, 0, endl);
-}
-
-static const char codingCookie[] = "coding";
-
-static UniMode CookieValue(const SString &s) {
-	int posCoding = s.search(codingCookie);
-	if (posCoding >= 0) {
-		posCoding += static_cast<int>(strlen(codingCookie));
-		if ((s[posCoding] == ':') || (s[posCoding] == '=')) {
-			posCoding++;
-			if ((s[posCoding] == '\"') || (s[posCoding] == '\'')) {
-				posCoding++;
-			}
-			while ((posCoding < static_cast<int>(s.length())) &&
-			        (isSpaceChar(s[posCoding]))) {
-				posCoding++;
-			}
-			size_t endCoding = static_cast<size_t>(posCoding);
-			while ((endCoding < s.length()) &&
-			        (isEncodingChar(s[endCoding]))) {
-				endCoding++;
-			}
-			SString code(s.c_str(), posCoding, endCoding);
-			code.lowercase();
-			if (code == "utf-8") {
-				return uniCookie;
-			}
-		}
-	}
-	return uni8Bit;
-}
-
-static UniMode CodingCookieValue(const char *buf, size_t length) {
-	SString l1 = ExtractLine(buf, length);
-	UniMode unicodeMode = CookieValue(l1);
-	if (unicodeMode == uni8Bit) {
-		SString l2 = ExtractLine(buf + l1.length(), length - l1.length());
-		unicodeMode = CookieValue(l2);
-	}
-	return unicodeMode;
 }
 
 void SciTEBase::DiscoverEOLSetting() {
@@ -328,144 +265,6 @@ void SciTEBase::DiscoverIndentSetting() {
 	}
 }
 
-const double timeBetweenProgress = 0.4;
-
-FileWorker::FileWorker(SciTEBase *pSciTE_, FilePath path_, long size_, FILE *fp_) :
-	pSciTE(pSciTE_), path(path_), size(size_), err(0), fp(fp_), sleepTime(0), nextProgress(timeBetweenProgress) {
-}
-
-FileWorker::~FileWorker() {
-}
-
-double FileWorker::Duration() {
-	return et.Duration();
-}
-
-FileLoader::FileLoader(SciTEBase *pSciTE_, ILoader *pLoader_, FilePath path_, long size_, FILE *fp_) : 
-	FileWorker(pSciTE_, path_, size_, fp_), pLoader(pLoader_), readSoFar(0), unicodeMode(uni8Bit) {
-	jobSize = static_cast<int>(size);
-	jobProgress = 0;
-}
-
-FileLoader::~FileLoader() {
-}
-
-void FileLoader::Execute() {
-	if (fp) {
-		Utf8_16_Read convert;
-		char data[blockSize];
-		size_t lenFile = fread(data, 1, sizeof(data), fp);
-		UniMode umCodingCookie = CodingCookieValue(data, lenFile);
-		while ((lenFile > 0) && (err == 0) && (!cancelling)) {
-#ifdef __unix__
-			usleep(sleepTime * 1000);
-#else
-			::Sleep(sleepTime);
-#endif
-			lenFile = convert.convert(data, lenFile);
-			char *dataBlock = convert.getNewBuf();
-			err = pLoader->AddData(dataBlock, static_cast<int>(lenFile));
-			jobProgress += static_cast<int>(lenFile);
-			if (et.Duration() > nextProgress) {
-				nextProgress = et.Duration() + timeBetweenProgress;
-				pSciTE->PostOnMainThread(WORK_FILEPROGRESS, this);
-			}
-			lenFile = fread(data, 1, sizeof(data), fp);
-		}
-		fclose(fp);
-		fp = 0;
-		unicodeMode = static_cast<UniMode>(
-		            static_cast<int>(convert.getEncoding()));
-		// Check the first two lines for coding cookies
-		if (unicodeMode == uni8Bit) {
-			unicodeMode = umCodingCookie;
-		}
-	}
-	completed = true;
-	pSciTE->PostOnMainThread(WORK_FILEREAD, this);
-}
-
-void FileLoader::Cancel() {
-	if (pLoader) {
-		cancelling = true;
-		// Wait for reading thread to finish
-		// TODO: sleep and use threadsafe types
-		while (!completed)
-			;
-		pLoader->Release();
-		pLoader = 0;
-	}
-}
-
-FileStorer::FileStorer(SciTEBase *pSciTE_, const char *documentBytes_, FilePath path_, long size_, FILE *fp_, UniMode unicodeMode_) : 
-	FileWorker(pSciTE_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0), unicodeMode(unicodeMode_) {
-	jobSize = static_cast<int>(size);
-	jobProgress = 0;
-}
-
-FileStorer::~FileStorer() {
-}
-
-static bool IsUTF8TrailByte(int ch) {
-	return (ch >= 0x80) && (ch < (0x80 + 0x40));
-}
-
-void FileStorer::Execute() {
-	if (fp) {
-		//if (size % 3) err = 2;	// Fake a failure
-		Utf8_16_Write convert;
-		if (unicodeMode != uniCookie) {	// Save file with cookie without BOM.
-			convert.setEncoding(static_cast<Utf8_16::encodingType>(
-					static_cast<int>(unicodeMode)));
-		}
-		convert.setfile(fp);
-		char data[blockSize + 1];
-		int lengthDoc = static_cast<int>(size);
-		int grabSize;
-		for (int i = 0; i < lengthDoc; i += grabSize) {
-#ifdef __unix__
-			usleep(sleepTime * 1000);
-#else
-			::Sleep(sleepTime);
-#endif
-			grabSize = lengthDoc - i;
-			if (grabSize > blockSize)
-				grabSize = blockSize;
-			if ((unicodeMode != uni8Bit) && (i + grabSize < lengthDoc)) {
-				// Round down so only whole characters retrieved.
-				int startLast = grabSize;
-				while ((startLast > 0) && ((grabSize - startLast) > 6) && IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[i + startLast])))
-					startLast--;
-				if ((grabSize - startLast) < 5)
-					grabSize = startLast;
-			}
-			//grabSize = pStorer->PositionBefore(i + grabSize + 1) - i;
-			memcpy(data, documentBytes+i, grabSize);
-			size_t written = convert.fwrite(data, grabSize);
-			jobProgress += grabSize;
-			if (et.Duration() > nextProgress) {
-				nextProgress = et.Duration() + timeBetweenProgress;
-				pSciTE->PostOnMainThread(WORK_FILEPROGRESS, this);
-			}
-			if (written == 0) {
-				err = 1;
-				break;
-			}
-		}
-		convert.fclose();
-	}
-	completed = true;
-	pSciTE->PostOnMainThread(WORK_FILEWRITTEN, this);
-}
-
-void FileStorer::Cancel() {
-	cancelling = true;
-	// Wait for writing thread to finish
-	// TODO: sleep and use threadsafe types
-	while (!completed)
-		;
-}
-
 void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous) {
 	if (CurrentBuffer()->pFileWorker) {
 		// Already performing an asynchronous load or save so do not restart load
@@ -528,7 +327,8 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous)
 	}
 }
 
-void SciTEBase::TextRead(FileLoader *pFileLoader) {
+void SciTEBase::TextRead(FileWorker *pFileWorker) {
+	FileLoader *pFileLoader = static_cast<FileLoader *>(pFileWorker);
 	int iBuffer = buffers.GetDocumentByWorker(pFileLoader);
 	// May not be found if load cancelled
 	if (iBuffer >= 0) {
@@ -610,7 +410,8 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	Redraw();
 }
 
-void SciTEBase::TextWritten(FileStorer *pFileStorer) {
+void SciTEBase::TextWritten(FileWorker *pFileWorker) {
+	FileStorer *pFileStorer = static_cast<FileStorer *>(pFileWorker);
 	int iBuffer = buffers.GetDocumentByWorker(pFileStorer);
 
 	FilePath pathSaved = pFileStorer->path;

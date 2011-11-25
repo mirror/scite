@@ -30,6 +30,8 @@
 #include "Mutex.h"
 #include "JobQueue.h"
 
+#include "Cookie.h"
+#include "Worker.h"
 #include "SciTEBase.h"
 
 // Contributor names are in UTF-8
