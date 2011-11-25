@@ -61,6 +61,8 @@
 #include "pixmapsGNOME.h"
 #include "SciIcon.h"
 #include "Widget.h"
+#include "Cookie.h"
+#include "Worker.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 
