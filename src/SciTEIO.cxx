@@ -573,7 +573,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 			wEditor.Call(SCI_SETUNDOCOLLECTION, 0);
 		}
 
-		asynchronous = props.GetInt("open.asynchronous", 1) && 
+		asynchronous = (size > props.GetInt("background.open.size", -1)) && 
 			!(of & (ofPreserveUndo|ofSynchronous));
 		OpenFile(size, of & ofQuiet, asynchronous);
 
@@ -1019,7 +1019,7 @@ bool SciTEBase::Save() {
 			}
 		}
 
-		bool asynchronous = props.GetInt("save.asynchronous", 1) != 0;
+		bool asynchronous = LengthDocument() > props.GetInt("background.save.size", -1);
 		if (SaveBuffer(filePath, asynchronous)) {
 			CurrentBuffer()->SetTimeFromFile();
 			if (!asynchronous) {

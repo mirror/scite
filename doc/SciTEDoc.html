@@ -1292,12 +1292,17 @@ NameError: mistake
       </tr>
       <tr>
         <td>
-          open.asynchronous
+	background.open.size<br />
+	background.save.size
         </td>
         <td>
-          This setting controls whether files can be opened without blocking the user interface
-	while they are being read. The default value 1 allows background reading in many
-	cases. All background reading is turned off with <span class="example">open.asynchronous=0</span>.
+          This setting controls whether files are opened and saved without blocking the user interface
+	while they are being read or written.
+	Files larger than the given size in bytes will be read or written in the background while
+	smaller files will be read or written directly and SciTE will not respond until the file access is completed.
+	The default value is -1 allows background processing for all files.
+	For saving, the size used is the in-memory size in bytes which will differ from the on-disk size
+	when the UTF-16 encoding is used.
         </td>
       </tr>
       <tr class="windowsonly">
