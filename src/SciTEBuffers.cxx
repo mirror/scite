@@ -86,6 +86,7 @@ void Buffer::CompleteStoring() {
 		delete pFileWorker;
 		pFileWorker = 0;
 	}
+	SetTimeFromFile();
 }
 
 void Buffer::CancelLoad() {
