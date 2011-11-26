@@ -4560,7 +4560,9 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 		unlink(uniqueInstance); // Unlock.
 
 	// Process remaining switches and files
+	gdk_threads_enter();
 	ProcessCommandLine(args, 1);
+	gdk_threads_leave();
 
 	CheckMenus();
 	SizeSubWindows();
