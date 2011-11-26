@@ -807,6 +807,8 @@ SString SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart,
 SString SciTEBase::GetLine(GUI::ScintillaWindow &win, int line) {
 	int lineStart = win.Call(SCI_POSITIONFROMLINE, line);
 	int lineEnd = win.Call(SCI_GETLINEENDPOSITION, line);
+	if ((lineStart < 0) || (lineEnd < 0))
+		return SString();
 	return GetRange(win, lineStart, lineEnd);
 }
 
