@@ -304,6 +304,9 @@
 				RelativePath="..\..\scintilla\lexers\LexCOBOL.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexCoffeeScript.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexConf.cxx">
 			</File>
 			<File
