@@ -16,7 +16,7 @@ struct Worker {
 	virtual ~Worker() {}
 	virtual void Execute() {}
 	bool FinishedJob() const {
-		return jobProgress >= jobSize;
+		return completed;
 	}
 	virtual void Cancel() {
 		cancelling = true;
