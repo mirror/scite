@@ -2505,6 +2505,10 @@ int xsystem(const char *s, int fh) {
 }
 
 void SciTEGTK::Execute() {
+	if (buffers.SavingInBackground())
+		// May be saving file that should be used by command so wait until all saved
+		return;
+
 	SciTEBase::Execute();
 
 	commandTime.Duration(true);
