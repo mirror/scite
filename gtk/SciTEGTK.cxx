@@ -493,6 +493,10 @@ protected:
 
 	gint	fileSelectorWidth;
 	gint	fileSelectorHeight;
+	
+	GtkPrintSettings *printSettings;
+	GtkPageSetup *pageSetup;
+	std::vector<int> pageStarts;
 
 	// Fullscreen handling
 	GdkRectangle saved;
@@ -539,6 +543,11 @@ protected:
 	virtual void LoadSessionDialog();
 	virtual void SaveSessionDialog();
 
+	void SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context);
+	void BeginPrintThis(GtkPrintOperation *operation, GtkPrintContext *context);
+	static void BeginPrint(GtkPrintOperation *operation, GtkPrintContext *context, SciTEGTK *scitew);
+	void DrawPageThis(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr);
+	static void DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr, SciTEGTK *scitew);
 	virtual void Print(bool);
 	virtual void PrintSetup();
 
@@ -735,6 +744,9 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	fileSelectorWidth = 580;
 	fileSelectorHeight = 480;
+
+	printSettings = NULL;
+	pageSetup = NULL;
 
 	// Fullscreen handling
 	fullScreen = false;
@@ -1545,19 +1557,236 @@ void SciTEGTK::SaveSessionDialog() {
 	}
 }
 
-void SciTEGTK::Print(bool) {
-	RemoveFindMarks();
-	SelectionIntoProperties();
-	AddCommand(props.GetWild("command.print.", filePath.AsInternal()), "",
-	           SubsystemType("command.print.subsystem."));
-	if (jobQueue.commandCurrent > 0) {
-		jobQueue.isBuilding = true;
-		Execute();
+static PangoLayout *PangoLayoutFromStyleDefinition(GtkPrintContext *context, const StyleDefinition &sd) {
+	PangoLayout *layout = gtk_print_context_create_pango_layout(context);
+	if (layout) {
+		pango_layout_set_alignment(layout, PANGO_ALIGN_LEFT);
+		PangoFontDescription *pfd = pango_font_description_new();
+		if (pfd) {
+			const char *fontName = "Sans";
+			if (sd.specified & StyleDefinition::sdFont)
+				fontName = sd.font.c_str();
+			if (fontName[0] == '!')
+				fontName++;
+			pango_font_description_set_family(pfd, fontName);
+			pango_font_description_set_size(pfd, PANGO_SCALE * (
+				(sd.specified & StyleDefinition::sdSize) ? sd.sizeFractional : 9.0));
+			pango_font_description_set_weight(pfd, static_cast<PangoWeight>(sd.weight));
+			pango_font_description_set_style(pfd, sd.italics ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+			pango_layout_set_font_description(layout, pfd);
+			pango_font_description_free(pfd);
+		}
+	}
+	return layout;
+}
+
+void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context) {
+#if GTK_CHECK_VERSION(3,0,0)
+	cairo_t *cr = gtk_print_context_get_cairo_context(context);
+	frPrint.hdc = cr;
+	frPrint.hdcTarget = cr;
+#else
+#endif
+
+	gdouble width = gtk_print_context_get_width(context);
+	gdouble height = gtk_print_context_get_height(context);
+
+	frPrint.rc.left = 0;
+	frPrint.rc.top = 0;
+	frPrint.rc.right = width;
+	frPrint.rc.bottom = height;
+
+	gdouble marginLeft = 0;
+	gdouble marginTop = 0;
+	gdouble marginRight = 0;
+	gdouble marginBottom = 0;
+	if (gtk_print_context_get_hard_margins(context,
+		&marginTop, &marginBottom, &marginLeft, &marginRight)) {
+		frPrint.rc.left += marginLeft;
+		frPrint.rc.top += marginTop;
+		frPrint.rc.right -= marginRight;
+		frPrint.rc.bottom -= marginBottom;
+	}
+
+	frPrint.rcPage.left = 0;
+	frPrint.rcPage.top = 0;
+	frPrint.rcPage.right = width;
+	frPrint.rcPage.bottom = height;
+
+	SString headerFormat = props.Get("print.header.format");
+	if (headerFormat.size()) {
+		StyleDefinition sdHeader(props.Get("print.header.style").c_str());
+		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdHeader);
+		pango_layout_set_text(layout, "Xg", -1);
+		gint layoutHeight;
+		pango_layout_get_size(layout, NULL, &layoutHeight);
+		frPrint.rc.top += ((gdouble)layoutHeight / PANGO_SCALE) * 1.5;
+		g_object_unref(layout);
+	}
+
+	SString footerFormat = props.Get("print.footer.format");
+	if (footerFormat.size()) {
+		StyleDefinition sdFooter(props.Get("print.footer.style").c_str());
+		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdFooter);
+		pango_layout_set_text(layout, "Xg", -1);
+		gint layoutHeight;
+		pango_layout_get_size(layout, NULL, &layoutHeight);
+		frPrint.rc.bottom -= ((gdouble)layoutHeight / PANGO_SCALE) * 1.5;
+		g_object_unref(layout);
 	}
 }
 
+void SciTEGTK::BeginPrintThis(GtkPrintOperation *operation, GtkPrintContext *context) {
+	pageStarts.clear();
+	Sci_RangeToFormat frPrint;
+	SetupFormat(frPrint, context) ;
+
+	int lengthDoc = wEditor.Call(SCI_GETLENGTH);
+	int lengthPrinted = 0;
+	while (lengthPrinted < lengthDoc) {
+		pageStarts.push_back(lengthPrinted);
+		frPrint.chrg.cpMin = lengthPrinted;
+		frPrint.chrg.cpMax = lengthDoc;
+		lengthPrinted = wEditor.Call(SCI_FORMATRANGE, false, reinterpret_cast<sptr_t>(&frPrint));
+	}
+	pageStarts.push_back(lengthPrinted);
+
+	gtk_print_operation_set_n_pages(operation, pageStarts.size()-1);				
+}
+
+void SciTEGTK::BeginPrint(GtkPrintOperation *operation, GtkPrintContext *context, SciTEGTK *scitew) {
+	scitew->BeginPrintThis(operation, context);
+}
+
+static void SetCairoColour(cairo_t *cr, long co) {
+	cairo_set_source_rgb(cr,
+		(co & 0xff) / 255.0,
+		((co >> 8) & 0xff) / 255.0,
+		((co >> 16) & 0xff) / 255.0);
+}
+
+void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext *context, gint page_nr) {
+	Sci_RangeToFormat frPrint;
+	SetupFormat(frPrint, context) ;
+	cairo_t *cr = reinterpret_cast<cairo_t *>(frPrint.hdc);
+
+	PropSetFile propsPrint;
+	propsPrint.superPS = &props;
+	SetFileProperties(propsPrint);
+	char pageString[32];
+	sprintf(pageString, "%0d", page_nr + 1);
+	propsPrint.Set("CurrentPage", pageString);
+
+	SString headerFormat = props.Get("print.header.format");
+	if (headerFormat.size()) {
+		StyleDefinition sdHeader(props.Get("print.header.style").c_str());
+
+		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdHeader);
+
+		SetCairoColour(cr, sdHeader.ForeAsLong());
+
+		pango_layout_set_text(layout, propsPrint.GetExpanded("print.header.format").c_str(), -1);
+
+		gint layout_height;
+		pango_layout_get_size(layout, NULL, &layout_height);
+		gdouble text_height = (gdouble)layout_height / PANGO_SCALE;
+		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.top - text_height * 1.5);
+		pango_cairo_show_layout(cr, layout);
+		g_object_unref(layout);
+
+		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.top - text_height * 0.25);
+		cairo_line_to(cr, frPrint.rc.right, frPrint.rc.top - text_height * 0.25);
+		cairo_stroke(cr);
+	}
+
+	SString footerFormat = props.Get("print.footer.format");
+	if (footerFormat.size()) {
+		StyleDefinition sdFooter(props.Get("print.footer.style").c_str());
+
+		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdFooter);
+
+		SetCairoColour(cr, sdFooter.ForeAsLong());
+
+		pango_layout_set_text(layout, propsPrint.GetExpanded("print.footer.format").c_str(), -1);
+
+		gint layout_height;
+		pango_layout_get_size(layout, NULL, &layout_height);
+		gdouble text_height = (gdouble)layout_height / PANGO_SCALE;
+		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.bottom + text_height * 0.5);
+		pango_cairo_show_layout(cr, layout);
+		g_object_unref(layout);
+
+		cairo_move_to(cr, frPrint.rc.left, frPrint.rc.bottom + text_height * 0.25);
+		cairo_line_to(cr, frPrint.rc.right, frPrint.rc.bottom + text_height * 0.25);
+		cairo_stroke(cr);
+	}
+
+	int lengthDoc = wEditor.Call(SCI_GETLENGTH);
+	frPrint.chrg.cpMin = pageStarts[page_nr];
+	frPrint.chrg.cpMax = pageStarts[page_nr+1];
+	if (frPrint.chrg.cpMax < lengthDoc)
+		frPrint.chrg.cpMax--;
+
+	wEditor.Call(SCI_FORMATRANGE, true, reinterpret_cast<sptr_t>(&frPrint));
+}
+
+void SciTEGTK::DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr, SciTEGTK *scitew) {
+	scitew->DrawPageThis(operation, context, page_nr);
+}
+
+void SciTEGTK::Print(bool) {
+	RemoveFindMarks();
+	SelectionIntoProperties();
+#if GTK_CHECK_VERSION(3,0,0)
+	// Printing through the GTK+ API
+	GtkPrintOperation *printOp = gtk_print_operation_new();
+
+	if (printSettings != NULL)
+		gtk_print_operation_set_print_settings(printOp, printSettings);
+	if (pageSetup != NULL)
+		gtk_print_operation_set_default_page_setup(printOp, pageSetup); 
+
+	g_signal_connect(printOp, "begin_print", G_CALLBACK(BeginPrint), this);
+	g_signal_connect(printOp, "draw_page", G_CALLBACK(DrawPage), this);
+
+	GtkPrintOperationResult res = gtk_print_operation_run(
+		printOp, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG,
+		GTK_WINDOW(PWidget(wSciTE)), NULL);
+
+	if (res == GTK_PRINT_OPERATION_RESULT_APPLY) {
+		if (printSettings != NULL)
+			g_object_unref(printSettings);
+		printSettings = gtk_print_operation_get_print_settings(printOp);
+		g_object_ref(printSettings);
+	}
+
+	g_object_unref(printOp);
+#else
+	SString printCommand = props.GetWild("command.print.", filePath.AsInternal());
+	if (printCommand.length()) {
+		// Using a command to print
+		AddCommand(printCommand, "", SubsystemType("command.print.subsystem."));
+		if (jobQueue.commandCurrent > 0) {
+			jobQueue.isBuilding = true;
+			Execute();
+		}
+	}
+#endif
+}
+
 void SciTEGTK::PrintSetup() {
-	// Printing not yet supported on GTK+
+#if GTK_CHECK_VERSION(3,0,0)
+	if (printSettings == NULL)
+		printSettings = gtk_print_settings_new();
+
+	GtkPageSetup *newPageSetup = gtk_print_run_page_setup_dialog(
+		GTK_WINDOW(PWidget(wSciTE)), pageSetup, printSettings);
+
+	if (pageSetup)
+		g_object_unref(pageSetup);
+
+	pageSetup = newPageSetup;
+#endif
 }
 
 SString SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
@@ -3432,6 +3661,9 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
 	                                      {"/File/Export/As _LaTeX...", NULL, menuSig, IDM_SAVEASTEX, 0},
 	                                      {"/File/Export/As _XML...", NULL, menuSig, IDM_SAVEASXML, 0},
+#if GTK_CHECK_VERSION(3,0,0)
+	                                      {"/File/Page Set_up", NULL, menuSig, IDM_PRINTSETUP, 0},
+#endif
 	                                      {"/File/_Print", "<control>P", menuSig, IDM_PRINT, 0},
 	                                      {"/File/sep1", NULL, NULL, 0, "<Separator>"},
 	                                      {"/File/_Load Session...", "", menuSig, IDM_LOADSESSION, 0},
