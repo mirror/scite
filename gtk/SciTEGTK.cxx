@@ -3647,7 +3647,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/_Close", "<control>W", menuSig, IDM_CLOSE, 0},
 	                                      {"/File/_Save", "<control>S", menuSig, IDM_SAVE, 0},
 	                                      {"/File/Save _As...", "<control><shift>S", menuSig, IDM_SAVEAS, 0},
-	                                      {"/File/Save a Co_py...", "<control><shift>P", menuSig, IDM_SAVEACOPY, 0},
+	                                      {"/File/Save a Cop_y...", "<control><shift>P", menuSig, IDM_SAVEACOPY, 0},
 	                                      {"/File/Copy Pat_h", NULL, menuSig, IDM_COPYPATH, 0},
 	                                      {"/File/Encodin_g", NULL, NULL, 0, "<Branch>"},
 	                                      {"/File/Encoding/_Code Page Property", NULL, menuSig, IDM_ENCODING_DEFAULT, "<RadioItem>"},
