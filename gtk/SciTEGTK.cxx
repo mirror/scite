@@ -907,12 +907,29 @@ void SciTEGTK::RemoveAllTabs() {
 }
 
 void SciTEGTK::SetFileProperties(PropSetFile &ps) {
-	// Could use Unix standard calls here, someone less lazy than me (PL) should do it.
-	ps.Set("FileTime", "");
-	ps.Set("FileDate", "");
-	ps.Set("FileAttr", "");
-	ps.Set("CurrentDate", "");
-	ps.Set("CurrentTime", "");
+	char timeBuffer[200];
+
+	time_t timeNow = time(NULL);
+
+	strftime(timeBuffer, sizeof(timeBuffer), "%x", localtime(&timeNow));
+	ps.Set("CurrentDate", timeBuffer);
+	strftime(timeBuffer, sizeof(timeBuffer), "%X", localtime(&timeNow));
+	ps.Set("CurrentTime", timeBuffer);
+
+	time_t timeFileModified = filePath.ModifiedTime();
+	strftime(timeBuffer, sizeof(timeBuffer), "%x", localtime(&timeFileModified));
+	ps.Set("FileDate", timeBuffer);
+	strftime(timeBuffer, sizeof(timeBuffer), "%X", localtime(&timeFileModified));
+	ps.Set("FileTime", timeBuffer);
+
+	SString fa;
+	if (access(filePath.AsInternal(), W_OK)) {
+		fa += "R";
+	}
+	if (filePath.AsInternal()[0] == '.') {
+		fa += "H";
+	}
+	ps.Set("FileAttr", fa.c_str());
 }
 
 void SciTEGTK::UpdateStatusBar(bool bUpdateSlowData) {
