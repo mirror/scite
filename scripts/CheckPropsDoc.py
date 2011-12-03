@@ -33,7 +33,7 @@ for filename in os.listdir(srcRoot):
 	dirname = os.path.join(srcRoot, filename)
 	if stat.S_ISDIR(os.stat(dirname)[stat.ST_MODE]):
 		for src in os.listdir(dirname):
-			if ".cxx" in src:
+			if ".cxx" in src and ".bak" not in src:
 				srcPaths.append(dirname + os.sep + src)
 
 propertiesPaths = []
