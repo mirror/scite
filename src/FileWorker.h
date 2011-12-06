@@ -6,8 +6,7 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 /// Base size of file I/O operations.
-//const int blockSize = 131072;
-const int blockSize = 1024;
+const int blockSize = 131072;
 
 struct FileWorker : public Worker {
 	WorkerListener *pListener;
