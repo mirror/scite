@@ -494,9 +494,11 @@ protected:
 	gint	fileSelectorWidth;
 	gint	fileSelectorHeight;
 	
+#if GTK_CHECK_VERSION(2,10,0)
 	GtkPrintSettings *printSettings;
 	GtkPageSetup *pageSetup;
 	std::vector<int> pageStarts;
+#endif
 
 	// Fullscreen handling
 	GdkRectangle saved;
@@ -543,11 +545,13 @@ protected:
 	virtual void LoadSessionDialog();
 	virtual void SaveSessionDialog();
 
+#if GTK_CHECK_VERSION(2,10,0)
 	void SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context);
 	void BeginPrintThis(GtkPrintOperation *operation, GtkPrintContext *context);
 	static void BeginPrint(GtkPrintOperation *operation, GtkPrintContext *context, SciTEGTK *scitew);
 	void DrawPageThis(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr);
 	static void DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr, SciTEGTK *scitew);
+#endif
 	virtual void Print(bool);
 	virtual void PrintSetup();
 
@@ -745,8 +749,10 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	fileSelectorWidth = 580;
 	fileSelectorHeight = 480;
 
+#if GTK_CHECK_VERSION(2,10,0)
 	printSettings = NULL;
 	pageSetup = NULL;
+#endif
 
 	// Fullscreen handling
 	fullScreen = false;
@@ -1557,6 +1563,9 @@ void SciTEGTK::SaveSessionDialog() {
 	}
 }
 
+#if GTK_CHECK_VERSION(2,10,0)
+// Printing with GtkPrintContext appeared in GTK+ 2.10
+
 static PangoLayout *PangoLayoutFromStyleDefinition(GtkPrintContext *context, const StyleDefinition &sd) {
 	PangoLayout *layout = gtk_print_context_create_pango_layout(context);
 	if (layout) {
@@ -1735,6 +1744,8 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 void SciTEGTK::DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr, SciTEGTK *scitew) {
 	scitew->DrawPageThis(operation, context, page_nr);
 }
+
+#endif
 
 void SciTEGTK::Print(bool) {
 	RemoveFindMarks();
@@ -4635,8 +4646,10 @@ struct CallbackData {
 };
 
 void SciTEGTK::PostOnMainThread(int cmd, Worker *pWorker) {
+#if GTK_CHECK_VERSION(2,12,0)
 	CallbackData *pcbd = new CallbackData(this, cmd, pWorker);
 	gdk_threads_add_idle(PostCallback, pcbd);
+#endif
 }
 
 gboolean SciTEGTK::PostCallback(void *ptr) {
