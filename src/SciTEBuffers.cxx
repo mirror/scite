@@ -948,6 +948,7 @@ void SciTEBase::CloseTab(int tab) {
 	if (tab == tabCurrent) {
 		if (SaveIfUnsure() != IDCANCEL) {
 			Close();
+			WindowSetFocus(wEditor);
 		}
 	} else {
 		FilePath fpCurrent = buffers.buffers[tabCurrent].AbsolutePath();
