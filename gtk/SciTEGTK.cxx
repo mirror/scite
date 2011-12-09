@@ -4645,15 +4645,12 @@ struct CallbackData {
 };
 
 void SciTEGTK::PostOnMainThread(int cmd, Worker *pWorker) {
-#if GTK_CHECK_VERSION(2,12,0)
 	CallbackData *pcbd = new CallbackData(this, cmd, pWorker);
-	gdk_threads_add_idle(PostCallback, pcbd);
-#endif
+	g_idle_add(PostCallback, pcbd);
 }
 
 gboolean SciTEGTK::PostCallback(void *ptr) {
-	// This callback was installed with gdk_threads_add_idle instead of g_idle_add
-	// so already holds the lock and does not need to call gdk_threads_enter/leave.
+	ThreadLockMinder minder;
 	CallbackData *pcbd = static_cast<CallbackData *>(ptr);
 	pcbd->pSciTE->WorkerCommand(pcbd->cmd, pcbd->pWorker);
 	delete pcbd;
