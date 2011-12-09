@@ -1621,6 +1621,11 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 						strncpy(sourcePath, cdoc, i);
 						sourcePath[i] = 0;
 					}
+					i += 2;
+					while (isdigitchar(cdoc[i]))
+						++i;
+					if (cdoc[i] == ':' && isdigitchar(cdoc[i + 1]))
+						column = atoi(cdoc + i + 1) - 1;
 					return sourceNumber;
 				}
 			}
