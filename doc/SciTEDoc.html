@@ -782,26 +782,26 @@ NameError: mistake
         <thead>
         <tr><th>Name</th><th>Meaning</th></tr>
         </thead>
-               <tr><td>FilePath</td><td>full path of the current file</td></tr>
-               <tr><td>FileDir</td><td>directory of the current file without a trailing slash</td></tr>
-               <tr><td>FileName</td><td>base name of the current file</td></tr>
-               <tr><td>FileExt</td><td>extension of the current file</td></tr>
-               <tr><td>FileNameExt</td><td>$(FileName).$(FileExt)</td></tr>
-               <tr><td>Language</td><td>name of the lexer used for the current file</td></tr>
-               <tr><td>SessionPath</td><td>full path of the current session</td></tr>
-               <tr><td>CurrentSelection</td><td>value of the currently selected text</td></tr>
-               <tr><td>CurrentWord</td><td>value of word which the caret is within or near</td></tr>
-               <tr><td>Replacements</td><td>number of replacements made by last Replace command</td></tr>
-               <tr><td>SelectionStartColumn</td><td>column where selection starts</td></tr>
-               <tr><td>SelectionStartLine</td><td>line where selection starts</td></tr>
-               <tr><td>SelectionEndColumn</td><td>column where selection ends</td></tr>
-               <tr><td>SelectionEndLine</td><td>line where selection ends</td></tr>
-               <tr><td>CurrentMessage</td><td>most recently selected output pane message</td></tr>
-               <tr><td>SciteDefaultHome</td><td>directory in which the Global Options file is found</td></tr>
-               <tr><td>SciteUserHome</td><td>directory in which the User Options file is found</td></tr>
-               <tr><td>SciteDirectoryHome</td><td>directory in which the Directory Options file is found</td></tr>
-               <tr><td>APIPath</td><td>list of full paths of API files from api.<i>filepattern</i></td></tr>
-               <tr><td>AbbrevPath</td><td>full path of abbreviations file</td></tr>
+               <tr id='property-FilePath'><td>FilePath</td><td>full path of the current file</td></tr>
+               <tr id='property-FileDir'><td>FileDir</td><td>directory of the current file without a trailing slash</td></tr>
+               <tr id='property-FileName'><td>FileName</td><td>base name of the current file</td></tr>
+               <tr id='property-FileExt'><td>FileExt</td><td>extension of the current file</td></tr>
+               <tr id='property-FileNameExt'><td>FileNameExt</td><td>$(FileName).$(FileExt)</td></tr>
+               <tr id='property-Language'><td>Language</td><td>name of the lexer used for the current file</td></tr>
+               <tr id='property-SessionPath'><td>SessionPath</td><td>full path of the current session</td></tr>
+               <tr id='property-CurrentSelection'><td>CurrentSelection</td><td>value of the currently selected text</td></tr>
+               <tr id='property-CurrentWord'><td>CurrentWord</td><td>value of word which the caret is within or near</td></tr>
+               <tr id='property-Replacements'><td>Replacements</td><td>number of replacements made by last Replace command</td></tr>
+               <tr id='property-SelectionStartColumn'><td>SelectionStartColumn</td><td>column where selection starts</td></tr>
+               <tr id='property-SelectionStartLine'><td>SelectionStartLine</td><td>line where selection starts</td></tr>
+               <tr id='property-SelectionEndColumn'><td>SelectionEndColumn</td><td>column where selection ends</td></tr>
+               <tr id='property-SelectionEndLine'><td>SelectionEndLine</td><td>line where selection ends</td></tr>
+               <tr id='property-CurrentMessage'><td>CurrentMessage</td><td>most recently selected output pane message</td></tr>
+               <tr id='property-SciteDefaultHome'><td>SciteDefaultHome</td><td>directory in which the Global Options file is found</td></tr>
+               <tr id='property-SciteUserHome'><td>SciteUserHome</td><td>directory in which the User Options file is found</td></tr>
+               <tr id='property-SciteDirectoryHome'><td>SciteDirectoryHome</td><td>directory in which the Directory Options file is found</td></tr>
+               <tr id='property-APIPath'><td>APIPath</td><td>list of full paths of API files from api.<i>filepattern</i></td></tr>
+               <tr id='property-AbbrevPath'><td>AbbrevPath</td><td>full path of abbreviations file</td></tr>
         </table>
     <p>
        Some features use file name patterns to see which variable to use. For example, the lexer
@@ -833,6 +833,7 @@ NameError: mistake
        Importing properties files and conditional logic
     </h3>
     <p>
+      <a name="property-import"></a>
        The 'import' statement includes a properties file as if the text were
        inline at that point. The imported properties file
        must be in the same directory as the current file and a properties
@@ -847,6 +848,7 @@ NameError: mistake
        properties.
     </p>
     <p>
+      <a name="property-if"></a>
       The 'if' statement takes one argument which is a
       symbol that may be defined earlier in this property set file or in a base
       property set. If the symbol evaluates to '0' then the test fails. An empty
@@ -893,6 +895,7 @@ NameError: mistake
       For other encodings set the code.page and character.set properties.
     </p>
     <h3 id="DefinedVariables">
+      <a name="property-"></a>
        Defined variables in properties files
     </h3>
     <p>
@@ -901,8 +904,9 @@ NameError: mistake
       <span class="gtkonly">GTK+</span>.
     </p>
     <table cellpadding="1" cellspacing="0" border="1" summary="Defined variables in property files">
-      <tr>
+      <tr id='property-position.left'>
         <td>
+          <a name='property-position.top'></a><a name='property-position.width'></a><a name='property-position.height'></a><a name='property-position.maximize'></a>
           position.left<br />
            position.top<br />
            position.width<br />
@@ -915,7 +919,7 @@ NameError: mistake
           position.maximize property is set then the window is maximised.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-position.tile'>
         <td>
           position.tile
         </td>
@@ -927,7 +931,7 @@ NameError: mistake
           screen width.
         </td>
       </tr>
-      <tr>
+      <tr id='property-buffers'>
         <td>
           buffers
         </td>
@@ -939,7 +943,7 @@ NameError: mistake
         global properties files. So after changing it, restart SciTE to see the effect.
         </td>
       </tr>
-      <tr>
+      <tr id='property-buffers.zorder.switching'>
         <td>
         buffers.zorder.switching
         </td>
@@ -949,8 +953,9 @@ NameError: mistake
         they are chosen based on the buffer number.
         </td>
       </tr>
-      <tr>
+      <tr id='property-are.you.sure'>
         <td>
+          <a name='property-are.you.sure.for.build'></a>
           are.you.sure<br />
            are.you.sure.for.build
         </td>
@@ -965,7 +970,7 @@ NameError: mistake
           are.you.sure.for.build=1.
         </td>
       </tr>
-      <tr>
+      <tr id='property-save.all.for.build'>
         <td>
            save.all.for.build
         </td>
@@ -974,8 +979,9 @@ NameError: mistake
 	  command. To save all buffers set save.all.for.build=1
         </td>
       </tr>
-      <tr>
+      <tr id='property-view.whitespace'>
         <td>
+          <a name='property-view.indentation.whitespace'></a>
           view.whitespace<br />
         view.indentation.whitespace
         </td>
@@ -984,8 +990,9 @@ NameError: mistake
           Setting view.indentation.whitespace to 0 hides visible whitespace inside indentation.
         </td>
       </tr>
-      <tr>
+      <tr id='property-whitespace.fore'>
         <td>
+          <a name='property-whitespace.back'></a>
           whitespace.fore<br />
         whitespace.back
         </td>
@@ -994,8 +1001,9 @@ NameError: mistake
         applied by the lexer.
         </td>
       </tr>
-      <tr>
+      <tr id='property-view.indentation.guides'>
         <td>
+          <a name='property-view.indentation.examine'></a><a name='property-highlight.indentation.guides'></a>
           view.indentation.guides<br />
           view.indentation.examine<br />
           view.indentation.examine.<i>filepattern</i><br />
@@ -1011,7 +1019,7 @@ NameError: mistake
           brace when that brace is highlighted.
         </td>
       </tr>
-       <tr>
+       <tr id='property-view.eol'>
         <td>
           view.eol
         </td>
@@ -1021,7 +1029,7 @@ NameError: mistake
           operating system with software that is picky about line ends.
         </td>
       </tr>
-      <tr>
+      <tr id='property-eol.mode'>
         <td>
           eol.mode
         </td>
@@ -1035,7 +1043,7 @@ NameError: mistake
   CRLF for DOS/Windows format</div>
         </td>
       </tr>
-      <tr>
+      <tr id='property-eol.auto'>
         <td>
           eol.auto
         </td>
@@ -1045,8 +1053,9 @@ NameError: mistake
           when it is opened. The line ending used the most in the file is chosen.
         </td>
       </tr>
-      <tr>
+      <tr id='property-blank.margin.left'>
         <td>
+          <a name='property-blank.margin.right'></a>
           blank.margin.left<br />
            blank.margin.right
         </td>
@@ -1056,7 +1065,7 @@ NameError: mistake
           altered with these settings.
         </td>
       </tr>
-      <tr>
+      <tr id='property-margin.width'>
         <td>
           margin.width
         </td>
@@ -1066,7 +1075,7 @@ NameError: mistake
           displayed in the selection margin area.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-full.screen.hides.menu'>
         <td>
           full.screen.hides.menu
         </td>
@@ -1076,7 +1085,7 @@ NameError: mistake
         On GTK+ the menu is always visible.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-minimize.to.tray'>
         <td>
           minimize.to.tray
         </td>
@@ -1084,8 +1093,9 @@ NameError: mistake
         Setting this to 1 minimizes SciTE to the system tray rather than to the task bar.
         </td>
       </tr>
-      <tr>
+      <tr id='property-line.margin.visible'>
         <td>
+          <a name='property-line.margin.width'></a>
           line.margin.visible<br />
           line.margin.width
         </td>
@@ -1098,7 +1108,7 @@ NameError: mistake
           after the number of digits, e.g. <span class="example">line.margin.width=3+</span>.
         </td>
       </tr>
-      <tr>
+      <tr id='property-tabbar.visible'>
         <td>
           tabbar.visible
         </td>
@@ -1107,7 +1117,7 @@ NameError: mistake
           The buffers property must be set to a value greater than 1 for this option to work.
         </td>
       </tr>
-      <tr>
+      <tr id='property-tabbar.hide.one'>
         <td>
           tabbar.hide.one
         </td>
@@ -1115,7 +1125,7 @@ NameError: mistake
           Setting tabbar.hide.one to 1 hides the tab bar until there is more than one tab.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-tabbar.multiline'>
         <td>
         tabbar.multiline
         </td>
@@ -1123,7 +1133,7 @@ NameError: mistake
           Setting tabbar.multiline uses multiple lines for the tab bar
         </td>
       </tr>
-      <tr>
+      <tr id='property-toolbar.visible'>
         <td>
           toolbar.visible
         </td>
@@ -1131,7 +1141,7 @@ NameError: mistake
           Setting this to 1 makes the tool bar visible at start up.
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr class="gtkonly" id='property-toolbar.detachable'>
         <td>
           toolbar.detachable
         </td>
@@ -1139,7 +1149,7 @@ NameError: mistake
           Setting this to 1 makes the tool bar detachable from the main window.
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr class="gtkonly" id='property-toolbar.usestockicons'>
         <td>
           toolbar.usestockicons
         </td>
@@ -1149,7 +1159,7 @@ NameError: mistake
 	provided by the current theme used in GNOME.
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr class="gtkonly" id='property-pathbar.visible'>
         <td>
           pathbar.visible
         </td>
@@ -1158,7 +1168,7 @@ NameError: mistake
 	Setting pathbar.visible to 1 makes the path bar visible on GTK+.
         </td>
       </tr>
-      <tr>
+      <tr id='property-undo.redo.lazy'>
         <td>
           undo.redo.lazy
         </td>
@@ -1167,7 +1177,7 @@ NameError: mistake
           tool bar buttons to be less accurate. This may improve performance on slow machines.
         </td>
       </tr>
-      <tr>
+      <tr id='property-statusbar.visible'>
         <td>
           statusbar.visible
         </td>
@@ -1175,8 +1185,9 @@ NameError: mistake
           Setting this to 1 makes the status bar visible at start up.
         </td>
       </tr>
-      <tr>
+      <tr id='property-statusbar.number'>
         <td>
+          <a name='property-statusbar.text'></a>
           statusbar.number<br />
           statusbar.text.<i>number</i>
         </td>
@@ -1196,7 +1207,7 @@ NameError: mistake
           The statusbar.number option defines how many texts are to be cycled through.
         </td>
       </tr>
-      <tr>
+      <tr id='property-buffered.draw'>
         <td>
           buffered.draw
         </td>
@@ -1206,7 +1217,7 @@ NameError: mistake
           flickers less but is slower.
         </td>
       </tr>
-      <tr>
+      <tr id='property-two.phase.draw'>
         <td>
           two.phase.draw
         </td>
@@ -1223,7 +1234,7 @@ NameError: mistake
         unless buffered drawing is on. The default is for drawing to be two phase.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-technology'>
         <td>
           technology
         </td>
@@ -1232,8 +1243,9 @@ NameError: mistake
         for higher quality antialiased drawing. The default is 0.
         </td>
       </tr>
-      <tr>
+      <tr id='property-load.on.activate'>
         <td>
+          <a name='property-save.on.deactivate'></a>
           load.on.activate<br />
            save.on.deactivate
         </td>
@@ -1246,7 +1258,7 @@ NameError: mistake
           check the appearance of the page in a browser.
         </td>
       </tr>
-       <tr>
+       <tr id='property-are.you.sure.on.reload'>
          <td>
           are.you.sure.on.reload
         </td>
@@ -1256,7 +1268,7 @@ NameError: mistake
           property is disabled, causing SciTE to reload the file without bothering you.
         </td>
       </tr>
-      <tr>
+      <tr id='property-reload.preserves.undo'>
         <td>
           reload.preserves.undo
         </td>
@@ -1265,7 +1277,7 @@ NameError: mistake
           when load.on.activate is used in conjunction with filter commands.
         </td>
       </tr>
-      <tr>
+      <tr id='property-check.if.already.open'>
         <td>
            check.if.already.open
         </td>
@@ -1281,7 +1293,7 @@ NameError: mistake
 	On GTK+, an arbitrary instance opens the file.
         </td>
       </tr>
-      <tr>
+      <tr id='property-read.only'>
         <td>
            read.only
         </td>
@@ -1290,8 +1302,9 @@ NameError: mistake
         New files are not affected by this setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-background.open.size'>
         <td>
+          <a name='property-background.save.size'></a>
 	background.open.size<br />
 	background.save.size
         </td>
@@ -1305,7 +1318,7 @@ NameError: mistake
 	when the UTF-16 encoding is used.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-temp.files.sync.load'>
         <td>
           temp.files.sync.load
         </td>
@@ -1318,7 +1331,7 @@ NameError: mistake
 	immediately.
         </td>
       </tr>
-      <tr>
+      <tr id='property-quit.on.close.last'>
         <td>
            quit.on.close.last
         </td>
@@ -1329,7 +1342,7 @@ NameError: mistake
         last buffer is closed.)
         </td>
       </tr>
-      <tr>
+      <tr id='property-highlight.current.word'>
         <td>
            highlight.current.word
         </td>
@@ -1338,8 +1351,9 @@ NameError: mistake
 	colour defined by highlight.current.word.colour. By default, this option is disabled. (See indicators.alpha and indicators.under)
         </td>
       </tr>
-      <tr>
+      <tr id='property-highlight.current.word.colour'>
         <td>
+          <a name='property-highlight.current.word.by.style'></a>
 	   highlight.current.word.colour<br />
 	   highlight.current.word.by.style
         </td>
@@ -1351,7 +1365,7 @@ NameError: mistake
 	comments are selected).
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr class="gtkonly" id='property-rectangular.selection.modifier'>
         <td>
            rectangular.selection.modifier
         </td>
@@ -1366,8 +1380,9 @@ NameError: mistake
         is &lt;Super&gt;.
         </td>
       </tr>
-      <tr>
+      <tr id='property-selection.fore'>
         <td>
+          <a name='property-selection.back'></a><a name='property-selection.alpha'></a>
           selection.fore<br />
            selection.back<br />
            selection.alpha
@@ -1380,7 +1395,7 @@ NameError: mistake
 	of 256 turning translucency off.
         </td>
       </tr>
-      <tr>
+      <tr id='property-caret.fore'>
         <td>
           caret.fore
         </td>
@@ -1388,8 +1403,9 @@ NameError: mistake
           Sets the colour used for the caret.
         </td>
       </tr>
-      <tr>
+      <tr id='property-selection.additional.fore'>
         <td>
+          <a name='property-selection.additional.back'></a><a name='property-selection.additional.alpha'></a>
           selection.additional.fore<br />
            selection.additional.back<br />
            selection.additional.alpha
@@ -1400,7 +1416,7 @@ NameError: mistake
         enabled or a rectangular selection is made.
         </td>
       </tr>
-      <tr>
+      <tr id='property-caret.additional.blinks'>
         <td>
           caret.additional.blinks
         </td>
@@ -1408,8 +1424,9 @@ NameError: mistake
           Set whether all carets blink. 0 means only the main caret blinks. Default is 1.
         </td>
       </tr>
-      <tr>
+      <tr id='property-caret.line.back'>
         <td>
+          <a name='property-caret.line.back.alpha'></a>
           caret.line.back<br />
           caret.line.back.alpha
         </td>
@@ -1419,7 +1436,7 @@ NameError: mistake
 			 256 being opaque and not using translucent drawing code which may be slower.
         </td>
       </tr>
-      <tr>
+      <tr id='property-caret.period'>
         <td>
           caret.period
         </td>
@@ -1429,7 +1446,7 @@ NameError: mistake
           period before appearing again. A value of 0 stops the caret from blinking.
         </td>
       </tr>
-      <tr>
+      <tr id='property-caret.width'>
         <td>
           caret.width
         </td>
@@ -1437,8 +1454,9 @@ NameError: mistake
           Sets the width of the caret in pixels. Only values of 1, 2, or 3 work.
         </td>
       </tr>
-      <tr>
+      <tr id='property-selection.multiple'>
         <td>
+          <a name='property-selection.additional.typing'></a>
           selection.multiple<br />
           selection.additional.typing
         </td>
@@ -1448,7 +1466,7 @@ NameError: mistake
 	of rectangular selections. When set to 0, typing only affectes the main selection.
         </td>
       </tr>
-      <tr>
+      <tr id='property-virtual.space'>
         <td>
           virtual.space
         </td>
@@ -1458,8 +1476,9 @@ NameError: mistake
 	click to  move the caret into virtual space, and 3 to allow both.
         </td>
       </tr>
-      <tr>
+      <tr id='property-caret.policy.xslop'>
         <td>
+          <a name='property-caret.policy.width'></a><a name='property-caret.policy.xstrict'></a><a name='property-caret.policy.xeven'></a><a name='property-caret.policy.xjumps'></a><a name='property-caret.policy.yslop'></a><a name='property-caret.policy.lines'></a><a name='property-caret.policy.ystrict'></a><a name='property-caret.policy.yeven'></a><a name='property-caret.policy.yjumps'></a>
           caret.policy.xslop<br />
           caret.policy.width<br />
           caret.policy.xstrict<br />
@@ -1497,8 +1516,9 @@ NameError: mistake
           Default: xslop, yslop, xeven, yeven=1, width=50, all others = 0.</p>
         </td>
       </tr>
-      <tr>
+      <tr id='property-visible.policy.strict'>
         <td>
+          <a name='property-visible.policy.slop'></a><a name='property-visible.policy.lines'></a>
           visible.policy.strict<br />
           visible.policy.slop<br />
         visible.policy.lines
@@ -1508,8 +1528,9 @@ NameError: mistake
         equivalent such as a Find or Next Message. Options are similar to caret.policy.*.
         </td>
       </tr>
-      <tr>
+      <tr id='property-edge.mode'>
         <td>
+          <a name='property-edge.column'></a><a name='property-edge.colour'></a>
           edge.mode<br />
            edge.column<br />
            edge.colour<br />
@@ -1521,7 +1542,7 @@ NameError: mistake
           an edge.mode of 2 is more useful than 1.
         </td>
       </tr>
-      <tr>
+      <tr id='property-control.char.symbol'>
         <td>
           control.char.symbol
         </td>
@@ -1530,8 +1551,9 @@ NameError: mistake
           not set, control characters are shown as mnemonics.
         </td>
       </tr>
-      <tr>
+      <tr id='property-error.marker.fore'>
         <td>
+          <a name='property-error.marker.back'></a>
           error.marker.fore<br />
           error.marker.back
         </td>
@@ -1545,8 +1567,9 @@ NameError: mistake
           error.marker.back colour.
         </td>
        </tr>
-      <tr>
+      <tr id='property-error.inline'>
         <td>
+          <a name='property-style.error.0'></a><a name='property-style.error.1'></a><a name='property-style.error.2'></a><a name='property-style.error.3'></a>
           error.inline<br />
           style.error.0<br />
           style.error.1<br />
@@ -1560,8 +1583,9 @@ NameError: mistake
           The severity of a message is inferred from finding the text "warning", "error", or "fatal" in the message.
         </td>
        </tr>
-      <tr>
+      <tr id='property-bookmark.fore'>
         <td>
+          <a name='property-bookmark.back'></a><a name='property-bookmark.alpha'></a>
           bookmark.fore<br />
           bookmark.back<br />
           bookmark.alpha
@@ -1572,7 +1596,7 @@ NameError: mistake
           change in the background colour of the line with the translucency set with bookmark.alpha.
         </td>
        </tr>
-      <tr>
+      <tr id='property-find.mark'>
         <td>
           find.mark
         </td>
@@ -1581,7 +1605,7 @@ NameError: mistake
 		    each string found. (See indicators.alpha and indicators.under)
         </td>
        </tr>
-       <tr>
+       <tr id='property-indicators.alpha'>
         <td>
           indicators.alpha
         </td>
@@ -1591,7 +1615,7 @@ NameError: mistake
 	   A value out of this range is ignored and the default one is used.
         </td>
        </tr>
-       <tr>
+       <tr id='property-indicators.under'>
         <td>
           indicators.under
         </td>
@@ -1599,7 +1623,7 @@ NameError: mistake
           If set, the indicators are drawn under text or over (by default, it is over).
         </td>
        </tr>
-       <tr>
+       <tr id='property-error.select.line'>
         <td>
           error.select.line
         </td>
@@ -1612,7 +1636,7 @@ NameError: mistake
           the external tool must match the tab size of your source file for correct column reporting.
         </td>
        </tr>
-       <tr>
+       <tr id='property-openpath'>
         <td>openpath.<i>filepattern</i></td>
         <td>Defines a path for the Open Selected Filename command in the File
         menu. The path is searched if the selected filename doesn't contain an
@@ -1624,7 +1648,7 @@ NameError: mistake
         openpath.$(file.patterns.cpp)=$(cpp_includes)</div>
         </td>
        </tr>
-       <tr>
+       <tr id='property-open.suffix'>
         <td>open.suffix.<i>filepattern</i></td>
         <td>Defines a suffix to add to the selected file name for the
         Open Selected Filename command in the File menu.
@@ -1635,7 +1659,7 @@ NameError: mistake
         <div class="example">open.suffix.*.py=.py</div>
         </td>
        </tr>
-       <tr>
+       <tr id='property-strip.trailing.spaces'>
         <td>
           strip.trailing.spaces
         </td>
@@ -1643,7 +1667,7 @@ NameError: mistake
           Strips trailing white spaces from the file while saving.
         </td>
       </tr>
-       <tr>
+       <tr id='property-ensure.final.line.end'>
         <td>
           ensure.final.line.end
         </td>
@@ -1651,7 +1675,7 @@ NameError: mistake
           Ensures file ends with a line end when saved.
         </td>
       </tr>
-       <tr>
+       <tr id='property-ensure.consistent.line.ends'>
         <td>
           ensure.consistent.line.ends
         </td>
@@ -1659,7 +1683,7 @@ NameError: mistake
           Ensures all lines end with the current Line End Characters setting when saved.
         </td>
       </tr>
-      <tr>
+      <tr id='property-abbreviations'>
         <td>
           abbreviations.<i>filepattern</i>
         </td>
@@ -1671,7 +1695,7 @@ NameError: mistake
          </div>
         </td>
       </tr>
-      <tr>
+      <tr id='property-api'>
         <td>
           api.<i>filepattern</i>
         </td>
@@ -1704,7 +1728,7 @@ NameError: mistake
         See the Creating API files section for ways to create API files.
         </td>
       </tr>
-      <tr>
+      <tr id='property-autocomplete.choose.single'>
         <td>
           autocomplete.choose.single
         </td>
@@ -1714,7 +1738,7 @@ NameError: mistake
         element is inserted and the list is not displayed.
         </td>
       </tr>
-      <tr>
+      <tr id='property-autocomplete.*.ignorecase'>
         <td>
           autocomplete.<i>lexer</i>.ignorecase<br />
           autocomplete.*.ignorecase
@@ -1725,7 +1749,7 @@ NameError: mistake
         The * form is used if there is no lexer specific setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-autocomplete.*.start.characters'>
         <td>
           autocomplete.<i>lexer</i>.start.characters<br />
           autocomplete.*.start.characters
@@ -1739,7 +1763,7 @@ NameError: mistake
         The * form is used if there is no lexer specific setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-autocomplete.*.fillups'>
         <td>
           autocomplete.<i>lexer</i>.fillups<br />
           autocomplete.*.fillups
@@ -1754,7 +1778,7 @@ NameError: mistake
         The * form is used if there is no lexer specific setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-autocompleteword.automatic'>
         <td>
           autocompleteword.automatic
         </td>
@@ -1764,7 +1788,7 @@ NameError: mistake
         can be chosen by pressing Tab.
         </td>
       </tr>
-      <tr>
+      <tr id='property-calltip.*.ignorecase'>
         <td>
           calltip.<i>lexer</i>.ignorecase<br />
           calltip.*.ignorecase
@@ -1775,7 +1799,7 @@ NameError: mistake
         is no lexer specific setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-calltip.*.word.characters'>
         <td>
           calltip.<i>lexer</i>.word.characters<br />
           calltip.*.word.characters
@@ -1792,8 +1816,9 @@ NameError: mistake
         The * form is used if there is no lexer specific setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-calltip.*.parameters.start'>
         <td>
+          <a name='property-calltip.*.parameters.end'></a><a name='property-calltip.*.parameters.separators'></a>
           calltip.<i>lexer</i>.parameters.start<br />
           calltip.<i>lexer</i>.parameters.end<br />
           calltip.<i>lexer</i>.parameters.separators<br />
@@ -1810,7 +1835,7 @@ NameError: mistake
           The * form is used if there is no lexer specific setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-calltip.*.end.definition'>
         <td>
           calltip.<i>lexer</i>.end.definition<br />
           calltip.*.end.definition
@@ -1822,7 +1847,7 @@ NameError: mistake
         The * form is used if there is no lexer specific setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-xml.auto.close.tags'>
         <td>
           xml.auto.close.tags
         </td>
@@ -1835,253 +1860,253 @@ NameError: mistake
       </tr>
 <!--++Autogenerated - run ../../scintilla/src/LexGen.py to regenerate -->
 <!--**\(\*\n\) -->
-	<tr>
+	<tr id='property-asp.default.language'>
 	<td>asp.default.language</td>
 	<td>Script in ASP code is initially assumed to be in JavaScript. To change this to VBScript set asp.default.language to 2. Python is 3.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.asm.comment.explicit'>
 	<td>fold.asm.comment.explicit</td>
 	<td>This option enables folding explicit fold points when using the Asm lexer. Explicit fold points allows adding extra folding by placing a ;{ comment at the start and a ;} at the end of a section that should fold.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.asm.comment.multiline'>
 	<td>fold.asm.comment.multiline</td>
 	<td>Set this property to 1 to enable folding multi-line comments.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.asm.explicit.anywhere'>
 	<td>fold.asm.explicit.anywhere</td>
 	<td>Set this property to 1 to enable explicit fold points anywhere, not just in line comments.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.asm.explicit.end'>
 	<td>fold.asm.explicit.end</td>
 	<td>The string to use for explicit fold end points, replacing the standard ;}.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.asm.explicit.start'>
 	<td>fold.asm.explicit.start</td>
 	<td>The string to use for explicit fold start points, replacing the standard ;{.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.asm.syntax.based'>
 	<td>fold.asm.syntax.based</td>
 	<td>Set this property to 0 to disable syntax based folding.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.at.else'>
 	<td>fold.at.else</td>
 	<td>This option enables C++ folding on a "} else {" line of an if statement.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.basic.comment.explicit'>
 	<td>fold.basic.comment.explicit</td>
 	<td>This option enables folding explicit fold points when using the Basic lexer. Explicit fold points allows adding extra folding by placing a ;{ (BB/PB) or '{ (FB) comment at the start and a ;} (BB/PB) or '} (FB) at the end of a section that should be folded.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.basic.explicit.anywhere'>
 	<td>fold.basic.explicit.anywhere</td>
 	<td>Set this property to 1 to enable explicit fold points anywhere, not just in line comments.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.basic.explicit.end'>
 	<td>fold.basic.explicit.end</td>
 	<td>The string to use for explicit fold end points, replacing the standard ;} (BB/PB) or '} (FB).</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.basic.explicit.start'>
 	<td>fold.basic.explicit.start</td>
 	<td>The string to use for explicit fold start points, replacing the standard ;{ (BB/PB) or '{ (FB).</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.basic.syntax.based'>
 	<td>fold.basic.syntax.based</td>
 	<td>Set this property to 0 to disable syntax based folding.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.comment'>
 	<td>fold.comment</td>
 	<td>This option enables folding multi-line comments and explicit fold points when using the C++ lexer. Explicit fold points allows adding extra folding by placing a //{ comment at the start and a //} at the end of a section that should fold.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.cpp.comment.explicit'>
 	<td>fold.cpp.comment.explicit</td>
 	<td>Set this property to 0 to disable folding explicit fold points when fold.comment=1.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.cpp.comment.multiline'>
 	<td>fold.cpp.comment.multiline</td>
 	<td>Set this property to 0 to disable folding multi-line comments when fold.comment=1.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.cpp.explicit.anywhere'>
 	<td>fold.cpp.explicit.anywhere</td>
 	<td>Set this property to 1 to enable explicit fold points anywhere, not just in line comments.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.cpp.explicit.end'>
 	<td>fold.cpp.explicit.end</td>
 	<td>The string to use for explicit fold end points, replacing the standard //}.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.cpp.explicit.start'>
 	<td>fold.cpp.explicit.start</td>
 	<td>The string to use for explicit fold start points, replacing the standard //{.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.cpp.syntax.based'>
 	<td>fold.cpp.syntax.based</td>
 	<td>Set this property to 0 to disable syntax based folding.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.d.comment.explicit'>
 	<td>fold.d.comment.explicit</td>
 	<td>Set this property to 0 to disable folding explicit fold points when fold.comment=1.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.d.comment.multiline'>
 	<td>fold.d.comment.multiline</td>
 	<td>Set this property to 0 to disable folding multi-line comments when fold.comment=1.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.d.explicit.anywhere'>
 	<td>fold.d.explicit.anywhere</td>
 	<td>Set this property to 1 to enable explicit fold points anywhere, not just in line comments.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.d.explicit.end'>
 	<td>fold.d.explicit.end</td>
 	<td>The string to use for explicit fold end points, replacing the standard //}.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.d.explicit.start'>
 	<td>fold.d.explicit.start</td>
 	<td>The string to use for explicit fold start points, replacing the standard //{.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.d.syntax.based'>
 	<td>fold.d.syntax.based</td>
 	<td>Set this property to 0 to disable syntax based folding.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.html'>
 	<td>fold.html</td>
 	<td>Folding is turned on or off for HTML and XML files with this option. The fold option must also be on for folding to occur.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.html.preprocessor'>
 	<td>fold.html.preprocessor</td>
 	<td>Folding is turned on or off for scripts embedded in HTML files with this option. The default is on.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.hypertext.comment'>
 	<td>fold.hypertext.comment</td>
 	<td>Allow folding for comments in scripts embedded in HTML. The default is off.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.hypertext.heredoc'>
 	<td>fold.hypertext.heredoc</td>
 	<td>Allow folding for heredocs in scripts embedded in HTML. The default is off.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.perl.at.else'>
 	<td>fold.perl.at.else</td>
 	<td>This option enables Perl folding on a "} else {" line of an if statement.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.perl.comment.explicit'>
 	<td>fold.perl.comment.explicit</td>
 	<td>Set to 0 to disable explicit folding.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.perl.package'>
 	<td>fold.perl.package</td>
 	<td>Set to 0 to disable folding packages when using the Perl lexer.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.perl.pod'>
 	<td>fold.perl.pod</td>
 	<td>Set to 0 to disable folding Pod blocks when using the Perl lexer.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.preprocessor'>
 	<td>fold.preprocessor</td>
 	<td>This option enables folding preprocessor directives when using the C++ lexer. Includes C#'s explicit #region and #endregion folding directives.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.quotes.python'>
 	<td>fold.quotes.python</td>
 	<td>This option enables folding multi-line quoted strings when using the Python lexer.</td>
 	</tr>
-	<tr>
+	<tr id='property-fold.sql.at.else'>
 	<td>fold.sql.at.else</td>
 	<td>This option enables SQL folding on a "ELSE" and "ELSIF" line of an IF statement.</td>
 	</tr>
-	<tr>
+	<tr id='property-html.tags.case.sensitive'>
 	<td>html.tags.case.sensitive</td>
 	<td>For XML and HTML, setting this property to 1 will make tags match in a case sensitive way which is the expected behaviour for XML and XHTML.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.asm.comment.delimiter'>
 	<td>lexer.asm.comment.delimiter</td>
 	<td>Character used for COMMENT directive's delimiter, replacing the standard "~".</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.cpp.allow.dollars'>
 	<td>lexer.cpp.allow.dollars</td>
 	<td>Set to 0 to disallow the '$' character in identifiers with the cpp lexer.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.cpp.hashquoted.strings'>
 	<td>lexer.cpp.hashquoted.strings</td>
 	<td>Set to 1 to enable highlighting of hash-quoted strings.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.cpp.track.preprocessor'>
 	<td>lexer.cpp.track.preprocessor</td>
 	<td>Set to 1 to interpret #if/#else/#endif to grey out code that is not active.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.cpp.triplequoted.strings'>
 	<td>lexer.cpp.triplequoted.strings</td>
 	<td>Set to 1 to enable highlighting of triple-quoted strings.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.cpp.update.preprocessor'>
 	<td>lexer.cpp.update.preprocessor</td>
 	<td>Set to 1 to update preprocessor definitions when #define found.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.d.fold.at.else'>
 	<td>lexer.d.fold.at.else</td>
 	<td>This option enables D folding on a "} else {" line of an if statement.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.errorlist.value.separate'>
 	<td>lexer.errorlist.value.separate</td>
 	<td>For lines in the output pane that are matches from Find in Files or GCC-style diagnostics, style the path and line number separately from the rest of the line with style 21 used for the rest of the line. This allows matched text to be more easily distinguished from its location.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.flagship.styling.within.preprocessor'>
 	<td>lexer.flagship.styling.within.preprocessor</td>
 	<td>For Harbour code, determines whether all preprocessor code is styled in the preprocessor style (0) or only from the initial # to the end of the command word(1, the default). It also determines how to present text, dump, and disabled code.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.html.django'>
 	<td>lexer.html.django</td>
 	<td>Set to 1 to enable the django template language.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.html.mako'>
 	<td>lexer.html.mako</td>
 	<td>Set to 1 to enable the mako template language.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.props.allow.initial.spaces'>
 	<td>lexer.props.allow.initial.spaces</td>
 	<td>For properties files, set to 0 to style all lines that start with whitespace in the default style. This is not suitable for SciTE .properties files which use indentation for flow control but can be used for RFC2822 text where indentation is used for continuation lines.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.python.keywords2.no.sub.identifiers'>
 	<td>lexer.python.keywords2.no.sub.identifiers</td>
 	<td>When enabled, it will not style keywords2 items that are used as a sub-identifier. Example: when set, will not highlight "foo.open" when "open" is a keywords2 item.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.python.literals.binary'>
 	<td>lexer.python.literals.binary</td>
 	<td>Set to 0 to not recognise Python 3 binary and octal literals: 0b1011 0o712.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.python.strings.b'>
 	<td>lexer.python.strings.b</td>
 	<td>Set to 0 to not recognise Python 3 bytes literals b"x".</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.python.strings.over.newline'>
 	<td>lexer.python.strings.over.newline</td>
 	<td>Set to 1 to allow strings to span newline characters.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.python.strings.u'>
 	<td>lexer.python.strings.u</td>
 	<td>Set to 0 to not recognise Python Unicode literals u"x" as used before Python 3.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.sql.allow.dotted.word'>
 	<td>lexer.sql.allow.dotted.word</td>
 	<td>Set to 1 to colourise recognized words with dots (recommended for Oracle PL/SQL objects).</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.sql.numbersign.comment'>
 	<td>lexer.sql.numbersign.comment</td>
 	<td>If "lexer.sql.numbersign.comment" property is set to 0 a line beginning with '#' will not be a comment.</td>
 	</tr>
-	<tr>
+	<tr id='property-lexer.xml.allow.scripts'>
 	<td>lexer.xml.allow.scripts</td>
 	<td>Set to 0 to disable scripts in XML.</td>
 	</tr>
-	<tr>
+	<tr id='property-sql.backslash.escapes'>
 	<td>sql.backslash.escapes</td>
 	<td>Enables backslash as an escape character in SQL.</td>
 	</tr>
-	<tr>
+	<tr id='property-styling.within.preprocessor'>
 	<td>styling.within.preprocessor</td>
 	<td>For C++ code, determines whether all preprocessor code is styled in the preprocessor style (0, the default) or only from the initial # to the end of the command word(1).</td>
 	</tr>
-	<tr>
+	<tr id='property-tab.timmy.whinge.level'>
 	<td>tab.timmy.whinge.level</td>
 	<td>For Python code, checks whether indenting is consistent. The default, 0 turns off indentation checking, 1 checks whether each line is potentially inconsistent with the previous line, 2 checks whether any space characters occur before a tab character in the indentation, 3 checks whether any spaces are in the indentation, and 4 checks for any tab characters in the indentation. 1 is a good level to use.</td>
 	</tr>
 
 <!----Autogenerated -- end of automatically generated section -->
-      <tr>
+      <tr id='property-user.shortcuts'>
         <td>
           user.shortcuts
         </td>
@@ -2105,7 +2130,7 @@ Ctrl+Shift+Left|IDM_CLOSE|<br/>
         <br/>
         </td>
       </tr>
-      <tr>
+      <tr id='property-user.context.menu'>
         <td>
           user.context.menu
         </td>
@@ -2123,8 +2148,9 @@ Prev File|IDM_PREVFILE|<br/>
         </div>
         </td>
       </tr>
-      <tr>
+      <tr id='property-magnification'>
         <td>
+          <a name='property-output.magnification'></a>
           magnification<br />
         output.magnification
         </td>
@@ -2135,8 +2161,9 @@ Prev File|IDM_PREVFILE|<br/>
         negative values makes the size smaller and positive values make it larger.
         </td>
       </tr>
-      <tr>
+      <tr id='property-split.vertical'>
         <td>
+          <a name='property-output.horizontal.size'></a><a name='property-output.vertical.size'></a><a name='property-output.initial.hide'></a>
           split.vertical<br />
         output.horizontal.size<br />
         output.vertical.size<br />
@@ -2151,7 +2178,7 @@ Prev File|IDM_PREVFILE|<br/>
         startup.
         </td>
       </tr>
-      <tr>
+      <tr id='property-clear.before.execute'>
         <td>
           clear.before.execute
         </td>
@@ -2159,8 +2186,9 @@ Prev File|IDM_PREVFILE|<br/>
           If set to 1 then the output pane is cleared before any tool commands are run.
         </td>
       </tr>
-      <tr>
+      <tr id='property-horizontal.scrollbar'>
         <td>
+          <a name='property-horizontal.scroll.width'></a><a name='property-horizontal.scroll.width.tracking'></a><a name='property-output.horizontal.scrollbar'></a><a name='property-output.horizontal.scroll.width'></a><a name='property-output.horizontal.scroll.width.tracking'></a><a name='property-output.scroll'></a><a name='property-end.at.last.line'></a>
           horizontal.scrollbar<br />
         horizontal.scroll.width<br />
         horizontal.scroll.width.tracking<br />
@@ -2186,8 +2214,9 @@ Prev File|IDM_PREVFILE|<br/>
         scrolling one page below the last line.
         </td>
       </tr>
-      <tr>
+      <tr id='property-wrap'>
         <td>
+          <a name='property-output.wrap'></a>
           wrap<br />
         output.wrap
         </td>
@@ -2198,7 +2227,7 @@ Prev File|IDM_PREVFILE|<br/>
         so should be turned off for large documents on slow machines.
         </td>
       </tr>
-      <tr>
+      <tr id='property-wrap.style'>
         <td>
           wrap.style
         </td>
@@ -2208,7 +2237,7 @@ Prev File|IDM_PREVFILE|<br/>
 	between words.
         </td>
       </tr>
-      <tr>
+      <tr id='property-wrap.visual.flags'>
         <td>
           wrap.visual.flags
         </td>
@@ -2219,7 +2248,7 @@ Prev File|IDM_PREVFILE|<br/>
           display markers at begin and end.
         </td>
       </tr>
-      <tr>
+      <tr id='property-wrap.visual.flags.location'>
         <td>
           wrap.visual.flags.location
         </td>
@@ -2230,7 +2259,7 @@ Prev File|IDM_PREVFILE|<br/>
           to 3 to have all markers near text.
         </td>
       </tr>
-      <tr>
+      <tr id='property-wrap.indent.mode'>
         <td>
           wrap.indent.mode
         </td>
@@ -2241,7 +2270,7 @@ Prev File|IDM_PREVFILE|<br/>
           Mode 2 aligns sublines to the first subline plus one more level of indentation.
         </td>
       </tr>
-      <tr>
+      <tr id='property-wrap.visual.startindent'>
         <td>
           wrap.visual.startindent
         </td>
@@ -2251,7 +2280,7 @@ Prev File|IDM_PREVFILE|<br/>
           the line is indented at least 1, even if wrap.visual.startindent is still 0.
         </td>
       </tr>
-      <tr>
+      <tr id='property-wrap.aware.home.end.keys'>
         <td>wrap.aware.home.end.keys</td>
         <td>
           This property changes the behaviour of the home and end keys when dynamic
@@ -2266,8 +2295,9 @@ Prev File|IDM_PREVFILE|<br/>
           effect.
         </td>
       </tr>
-      <tr>
+      <tr id='property-cache.layout'>
         <td>
+          <a name='property-output.cache.layout'></a>
         cache.layout<br />
         output.cache.layout
         </td>
@@ -2284,7 +2314,7 @@ Prev File|IDM_PREVFILE|<br/>
         memory is plentiful.
         </td>
       </tr>
-      <tr>
+      <tr id='property-open.filter'>
         <td>
           open.filter
         </td>
@@ -2298,7 +2328,7 @@ Prev File|IDM_PREVFILE|<br/>
           types you commonly open.<br />
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-save.filter'>
         <td>
           save.filter
         </td>
@@ -2308,7 +2338,7 @@ Prev File|IDM_PREVFILE|<br/>
           Does not work on GTK+.
         </td>
       </tr>
-      <tr>
+      <tr id='property-max.file.size'>
         <td>
           max.file.size
         </td>
@@ -2322,7 +2352,7 @@ Prev File|IDM_PREVFILE|<br/>
         action is taken (no file loaded, no buffer created).
         </td>
       </tr>
-      <tr>
+      <tr id='property-save.deletes.first'>
         <td>
           save.deletes.first
         </td>
@@ -2332,7 +2362,7 @@ Prev File|IDM_PREVFILE|<br/>
           than silently using the old capitalisation.
         </td>
       </tr>
-      <tr>
+      <tr id='property-save.check.modified.time'>
         <td>
           save.check.modified.time
         </td>
@@ -2341,8 +2371,9 @@ Prev File|IDM_PREVFILE|<br/>
         process, check if it should be overwritten by the current contents.
         </td>
       </tr>
-      <tr>
+      <tr id='property-save.session'>
         <td>
+          <a name='property-save.recent'></a><a name='property-save.position'></a>
           save.session<br />
           save.recent<br />
           save.position
@@ -2364,8 +2395,9 @@ Prev File|IDM_PREVFILE|<br/>
         saved on exit in the session file and restored at start up.
         </td>
       </tr>
-      <tr>
+      <tr id='property-session.bookmarks'>
         <td>
+          <a name='property-session.folds'></a>
           session.bookmarks<br />
           session.folds
         </td>
@@ -2376,7 +2408,7 @@ Prev File|IDM_PREVFILE|<br/>
         Folding states are not restored if fold.on.open is set.
         </td>
       </tr>
-      <tr>
+      <tr id='property-open.dialog.in.file.directory'>
         <td>
         open.dialog.in.file.directory
         </td>
@@ -2386,7 +2418,7 @@ Prev File|IDM_PREVFILE|<br/>
           system default is used.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-find.close.on.find'>
         <td>
           find.close.on.find
         </td>
@@ -2394,8 +2426,9 @@ Prev File|IDM_PREVFILE|<br/>
           Set to 0 to prevent the Find dialog from closing when "Find" pressed.
         </td>
       </tr>
-      <tr>
+      <tr id='property-find.replace.matchcase'>
         <td>
+          <a name='property-find.replace.regexp'></a><a name='property-find.replace.wrap'></a><a name='property-find.replace.escapes'></a>
         find.replace.matchcase<br />
         find.replace.regexp<br />
         find.replace.wrap<br />
@@ -2409,7 +2442,7 @@ Prev File|IDM_PREVFILE|<br/>
         find.replace.escapes the "Transform backslash expressions" option.<br />
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-find.replacewith.focus'>
         <td>
         find.replacewith.focus
         </td>
@@ -2418,7 +2451,7 @@ Prev File|IDM_PREVFILE|<br/>
 	in the Replace dialog if Find What is non-empty.
         </td>
       </tr>
-      <tr>
+      <tr id='property-find.replace.regexp.posix'>
         <td>
         find.replace.regexp.posix
         </td>
@@ -2428,8 +2461,9 @@ Prev File|IDM_PREVFILE|<br/>
         If set to 1, these characters are meta characters itself.
         </td>
       </tr>
-      <tr>
+      <tr id='property-find.use.strip'>
         <td>
+          <a name='property-replace.use.strip'></a>
          find.use.strip<br />
 	 replace.use.strip
         </td>
@@ -2437,7 +2471,7 @@ Prev File|IDM_PREVFILE|<br/>
           Use in-window strips rather than dialogs for performing Find or Replace commands.
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr class="gtkonly" id='property-strip.button.height'>
         <td>
          strip.button.height
         </td>
@@ -2447,7 +2481,7 @@ Prev File|IDM_PREVFILE|<br/>
 	  A value of 23 or 24 may work well.
         </td>
       </tr>
-      <tr>
+      <tr id='property-find.replace.advanced'>
         <td>
          find.replace.advanced
         </td>
@@ -2457,7 +2491,7 @@ Prev File|IDM_PREVFILE|<br/>
           If enabled, searches can be restricted to a particular style (e.g. strings).</span>
         </td>
       </tr>
-      <tr>
+      <tr id='property-find.command'>
         <td>
           find.command<br />
           <span class="windowsonly">find.input</span>
@@ -2488,7 +2522,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	simple search without regular expressions and is faster than running an external program.
         </td>
       </tr>
-      <tr>
+      <tr id='property-find.files'>
         <td>
           find.files
         </td>
@@ -2503,7 +2537,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           will result in any local setting of find.files being added to the list.
         </td>
       </tr>
-      <tr>
+      <tr id='property-find.in.dot'>
         <td>
           find.in.dot
         </td>
@@ -2513,7 +2547,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	files kept by Subversion in .svn subdirectories.
         </td>
       </tr>
-      <tr>
+      <tr id='property-find.in.binary'>
         <td>
           find.in.binary
         </td>
@@ -2522,7 +2556,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	For Find in Files, a binary file is a file that contains a NUL byte in the first 64K block read from the file.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-find.in.files.close.on.find'>
         <td>
           find.in.files.close.on.find
         </td>
@@ -2530,8 +2564,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           Set to 0 to prevent the Find in Files dialog from closing when "Find" pressed.
         </td>
       </tr>
-      <tr>
+      <tr id='property-code.page'>
         <td>
+          <a name='property-output.code.page'></a>
           code.page<br />
           output.code.page
         </td>
@@ -2559,7 +2594,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	matches the edit pane.
         </td>
       </tr>
-      <tr>
+      <tr id='property-character.set'>
         <td>
           character.set
         </td>
@@ -2589,8 +2624,9 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
         On GTK+ Baltic, Turkish, Thai and Vietnamese will probably not work.
         </td>
       </tr>
-      <tr>
+      <tr id='property-imports.include'>
         <td>
+          <a name='property-imports.exclude'></a>
           imports.include<br />
           imports.exclude
         </td>
@@ -2606,7 +2642,7 @@ imports.include=fortran lisp
 	This property stops the named files from being imported.
         </td>
       </tr>
-      <tr>
+      <tr id='property-command.discover.properties'>
         <td>
         command.discover.properties
         </td>
@@ -2628,8 +2664,9 @@ imports.include=fortran lisp
          </div>
         </td>
       </tr>
-      <tr>
+      <tr id='property-comment.block'>
         <td>
+          <a name='property-comment.block.at.line.start'></a><a name='property-comment.stream.start'></a><a name='property-comment.stream.end'></a><a name='property-comment.box.start'></a><a name='property-comment.box.middle'></a><a name='property-comment.box.end'></a>
         comment.block.<i>lexer</i><br />
         comment.block.at.line.start.<i>lexer</i><br />
         comment.stream.start.<i>lexer</i><br />
@@ -2662,8 +2699,9 @@ imports.include=fortran lisp
         comment.box.middle and comment.box.end.
         </td>
       </tr>
-      <tr>
+      <tr id='property-preprocessor.symbol'>
         <td>
+          <a name='property-preprocessor.start'></a><a name='property-preprocessor.middle'></a><a name='property-preprocessor.end'></a>
         preprocessor.symbol.<i>filepattern</i><br />
         preprocessor.start.<i>filepattern</i><br />
         preprocessor.middle.<i>filepattern</i><br />
@@ -2678,7 +2716,7 @@ imports.include=fortran lisp
         and "ifndef" to begin preprocessor conditionals.
         </td>
       </tr>
-      <tr>
+      <tr id='property-lexer'>
         <td>
           lexer.<i>filepattern</i>
         </td>
@@ -2693,7 +2731,7 @@ imports.include=fortran lisp
           or as a Lua LPeg lexer using <a href="http://code.google.com/p/scintillua/">scintillua</a>.
         </td>
       </tr>
-      <tr>
+      <tr id='property-shbang'>
         <td>
           shbang.<i>command</i>
         </td>
@@ -2706,7 +2744,7 @@ imports.include=fortran lisp
 			 triggered by an initial line <span class="example">#!/usr/bin/env python</span> so the file will be treated as Python.
         </td>
       </tr>
-      <tr>
+      <tr id='property-lexerpath'>
       	<td>
       	lexerpath.<i>filepattern</i>
       	</td>
@@ -2714,8 +2752,9 @@ imports.include=fortran lisp
       	Specifies the path to an external lexer module that will be loaded into Scintilla.
       	</td>
       </tr>
-      <tr>
+      <tr id='property-keywords'>
         <td>
+          <a name='property-keywords2'></a><a name='property-keywords3'></a><a name='property-keywords4'></a><a name='property-keywords5'></a><a name='property-keywords6'></a><a name='property-keywords7'></a><a name='property-keywords8'></a><a name='property-keywords9'></a><a name='property-keywordclass'></a>
           keywords.<i>filepattern</i><br />
           keywords2.<i>filepattern</i><br />
           keywords3.<i>filepattern</i><br />
@@ -2739,7 +2778,7 @@ imports.include=fortran lisp
         with GTK_ as keywords.
         </td>
       </tr>
-      <tr>
+      <tr id='property-default.file.ext'>
         <td>
           default.file.ext
         </td>
@@ -2749,7 +2788,7 @@ imports.include=fortran lisp
           syntax styling is used.
         </td>
       </tr>
-      <tr>
+      <tr id='property-word.characters'>
         <td>
           word.characters.<i>filepattern</i>
         </td>
@@ -2759,7 +2798,7 @@ imports.include=fortran lisp
           languages such as C++.
         </td>
       </tr>
-      <tr>
+      <tr id='property-whitespace.characters'>
         <td>
           whitespace.characters.<i>filepattern</i>
         </td>
@@ -2770,7 +2809,7 @@ imports.include=fortran lisp
 		  as cursor navigation (ctrl+left/right).
         </td>
       </tr>
-      <tr>
+      <tr id='property-style.*'>
         <td>
           style.*.<i>stylenumber</i><br />
            style.<i>lexer</i>.<i>stylenumber</i>
@@ -2820,8 +2859,9 @@ imports.include=fortran lisp
            A * can be used instead of a lexer to indicate a global style setting.
         </td>
       </tr>
-       <tr>
+       <tr id='property-braces.check'>
         <td>
+          <a name='property-braces.sloppy'></a>
           braces.check<br />
            braces.sloppy<br />
            style.<i>lexer</i>.34<br />
@@ -2842,7 +2882,7 @@ imports.include=fortran lisp
           match highlighting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-font.monospace'>
         <td>
         font.monospace
         </td>
@@ -2852,8 +2892,9 @@ imports.include=fortran lisp
         command is performed.
         </td>
       </tr>
-      <tr>
+      <tr id='property-command.compile'>
         <td>
+          <a name='property-command.compile.subsystem'></a><a name='property-command.build'></a><a name='property-command.build.subsystem'></a><a name='property-command.build.directory'></a><a name='property-command.go'></a><a name='property-command.go.subsystem'></a>
           command.compile.<i>filepattern</i><br />
           command.compile.subsystem.<i>filepattern</i><br />
           command.build.<i>filepattern</i><br />
@@ -2870,8 +2911,9 @@ imports.include=fortran lisp
         the build.
         </td>
       </tr>
-      <tr>
+      <tr id='property-command.go.needs'>
         <td>
+          <a name='property-command.go.needs.subsystem'></a>
           command.go.needs.<i>filepattern</i><br />
           command.go.needs.subsystem.<i>filepattern</i>
         </td>
@@ -2981,8 +3023,9 @@ groupundo - yes or no
 	 for commands that are only in the context menu or user shortcuts.
         </td>
       </tr>
-      <tr>
+      <tr id='property-command.help'>
         <td>
+          <a name='property-command.help.subsystem'></a>
           command.help.<i>filepattern</i><br />
           command.help.subsystem.<i>filepattern</i>
         </td>
@@ -2995,8 +3038,9 @@ groupundo - yes or no
         commands.
         </td>
       </tr>
-      <tr>
+      <tr id='property-command.scite.help'>
         <td>
+          <a name='property-command.scite.help.subsystem'></a>
           command.scite.help<br />
           command.scite.help.subsystem
         </td>
@@ -3005,8 +3049,9 @@ groupundo - yes or no
         means displaying this file in a browser.
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr class="gtkonly" id='property-command.print'>
         <td>
+          <a name='property-command.print.subsystem'></a>
           command.print.<i>filepattern</i><br />
           command.print.subsystem.<i>filepattern</i>
         </td>
@@ -3015,7 +3060,7 @@ groupundo - yes or no
         On Windows and GTK+ 3.x, printing is performed directly by SciTE.
         </td>
       </tr>
-      <tr>
+      <tr id='property-time.commands'>
         <td>
         time.commands
         </td>
@@ -3023,7 +3068,7 @@ groupundo - yes or no
           When a command is completed, print the time it took in seconds.
         </td>
       </tr>
-      <tr>
+      <tr id='property-print.magnification'>
         <td>
         print.magnification
         </td>
@@ -3034,7 +3079,7 @@ groupundo - yes or no
         good miniaturisation of text, set print.magnification to -4.
         </td>
       </tr>
-      <tr>
+      <tr id='property-print.colour.mode'>
         <td>
         print.colour.mode
         </td>
@@ -3046,7 +3091,7 @@ groupundo - yes or no
         background to white and 4 forces the default background to white.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-print.margins'>
         <td>
         print.margins
         </td>
@@ -3057,8 +3102,9 @@ groupundo - yes or no
         This property is only read at start up.
         </td>
       </tr>
-      <tr>
+      <tr id='property-print.header.format'>
         <td>
+          <a name='property-print.footer.format'></a>
         print.header.format<br />
         print.footer.format
         </td>
@@ -3075,8 +3121,9 @@ groupundo - yes or no
         </div>
         </td>
       </tr>
-      <tr>
+      <tr id='property-print.header.style'>
         <td>
+          <a name='property-print.footer.style'></a>
         print.header.style<br />
         print.footer.style
         </td>
@@ -3086,7 +3133,7 @@ groupundo - yes or no
         and underlined attributes are supported.
         </td>
       </tr>
-      <tr>
+      <tr id='property-export.keep.ext'>
         <td>
         export.keep.ext
         </td>
@@ -3102,8 +3149,9 @@ groupundo - yes or no
         export format extension added (LineMarker_cxx.html).
         </td>
       </tr>
-      <tr>
+      <tr id='property-export.html.wysiwyg'>
         <td>
+          <a name='property-export.html.tabs'></a><a name='property-export.html.folding'></a><a name='property-export.html.styleused'></a><a name='property-export.html.title.fullpath'></a>
         export.html.wysiwyg<br />
         export.html.tabs<br />
         export.html.folding<br />
@@ -3122,8 +3170,9 @@ groupundo - yes or no
         when export.html.title.fullpath set to 1.
         </td>
       </tr>
-      <tr>
+      <tr id='property-export.rtf.wysiwyg'>
         <td>
+          <a name='property-export.rtf.tabs'></a><a name='property-export.rtf.font.face'></a><a name='property-export.rtf.font.size'></a><a name='property-export.rtf.tabsize'></a>
         export.rtf.wysiwyg<br />
         export.rtf.tabs<br />
         export.rtf.font.face<br />
@@ -3140,8 +3189,9 @@ groupundo - yes or no
         defined by the tabsize setting.
         </td>
       </tr>
-      <tr>
+      <tr id='property-export.pdf.magnification'>
         <td>
+          <a name='property-export.pdf.font'></a><a name='property-export.pdf.pagesize'></a><a name='property-export.pdf.margins'></a>
         export.pdf.magnification<br />
         export.pdf.font<br />
         export.pdf.pagesize<br />
@@ -3163,7 +3213,7 @@ groupundo - yes or no
         has to be done before exporting to PDF, if you want to use extended characters.
         </td>
       </tr>
-      <tr>
+      <tr id='property-export.tex.title.fullpath'>
         <td>
         export.tex.title.fullpath
         </td>
@@ -3172,8 +3222,9 @@ groupundo - yes or no
         when export.tex.title.fullpath set to 1.
         </td>
       </tr>
-      <tr>
+      <tr id='property-export.xml.collapse.spaces'>
         <td>
+          <a name='property-export.xml.collapse.lines'></a>
         export.xml.collapse.spaces<br />
         export.xml.collapse.lines
         </td>
@@ -3183,11 +3234,11 @@ groupundo - yes or no
         characters are always converted by the XML exporter into spaces according to the tabsize property.
         </td>
       </tr>
-      <tr>
+      <tr id='property-fold'>
 	<td>fold</td>
 	<td>Folding is turned on by setting fold=1.</td>
       </tr>
-      <tr>
+      <tr id='property-fold.symbols'>
         <td>
           fold.symbols
         </td>
@@ -3199,7 +3250,7 @@ groupundo - yes or no
         headers and rounded joins; 3 for a flattened tree control with square headers.
         </td>
       </tr>
-      <tr>
+      <tr id='property-fold.margin.width'>
         <td>
           fold.margin.width
         </td>
@@ -3207,8 +3258,9 @@ groupundo - yes or no
           Sets the width of the fold margin.
         </td>
       </tr>
-      <tr>
+      <tr id='property-fold.margin.colour'>
         <td>
+          <a name='property-fold.margin.highlight.colour'></a>
           fold.margin.colour<br />
           fold.margin.highlight.colour
         </td>
@@ -3222,7 +3274,7 @@ groupundo - yes or no
           and blue.
         </td>
       </tr>
-      <tr>
+      <tr id='property-fold.on.open'>
         <td>
           fold.on.open
         </td>
@@ -3231,7 +3283,7 @@ groupundo - yes or no
         fold.on.open to 1.
         </td>
       </tr>
-      <tr>
+      <tr id='property-fold.flags'>
         <td>
           fold.flags
         </td>
@@ -3242,7 +3294,7 @@ groupundo - yes or no
         Set to 64 to help debug folding by showing hexadecimal fold levels in margin.
         </td>
       </tr>
-      <tr>
+      <tr id='property-fold.compact'>
         <td>
           fold.compact<br />
         </td>
@@ -3251,7 +3303,7 @@ groupundo - yes or no
         end of an element folding with that element. Defaults to on.
         </td>
       </tr>
-      <tr>
+      <tr id='property-fold.highlight'>
         <td>
           fold.highlight<br />
         </td>
@@ -3261,7 +3313,7 @@ groupundo - yes or no
 	to 2 (round headers) or 3 (square headers).
         </td>
       </tr>
-      <tr>
+      <tr id='property-fold.highlight.colour'>
         <td>
           fold.highlight.colour<br />
         </td>
@@ -3269,7 +3321,7 @@ groupundo - yes or no
         Define the colour of highlight. The colour by default is red (#FF0000).
         </td>
       </tr>
-      <tr>
+      <tr id='property-title.full.path'>
         <td>
           title.full.path
         </td>
@@ -3279,7 +3331,7 @@ groupundo - yes or no
                When 2 the window title displays "filename in directory".
         </td>
       </tr>
-      <tr>
+      <tr id='property-title.show.buffers'>
         <td>
           title.show.buffers
         </td>
@@ -3287,8 +3339,9 @@ groupundo - yes or no
                 When set to 1 shows the current buffer number in the title bar.
         </td>
       </tr>
-      <tr>
+      <tr id='property-tabsize'>
         <td>
+          <a name='property-tab.size'></a><a name='property-indent.size'></a><a name='property-use.tabs'></a><a name='property-indent.auto'></a><a name='property-tab.indents'></a><a name='property-backspace.unindents'></a>
           tabsize<br />
           tab.size.<i>filepattern</i><br />
         indent.size<br />
@@ -3320,8 +3373,9 @@ groupundo - yes or no
         before the caret.
         </td>
       </tr>
-      <tr>
+      <tr id='property-indent.automatic'>
         <td>
+          <a name='property-indent.opening'></a><a name='property-indent.closing'></a><a name='property-indent.maintain'></a>
         indent.automatic<br />
         indent.opening<br />
         indent.closing<br />
@@ -3349,8 +3403,9 @@ groupundo - yes or no
          overrides the other language specific settings.
          </td>
       </tr>
-      <tr>
+      <tr id='property-statement.indent'>
         <td>
+          <a name='property-statement.end'></a><a name='property-statement.lookback'></a><a name='property-block.start'></a><a name='property-block.end'></a>
         statement.indent.<i>filepattern</i><br />
         statement.end.<i>filepattern</i><br />
         statement.lookback.<i>filepattern</i><br />
@@ -3379,7 +3434,7 @@ groupundo - yes or no
          of statements. In C++ these are '{' and '}'.
         </td>
       </tr>
-      <tr>
+      <tr id='property-indent.python.colon'>
         <td>
         indent.python.colon
         </td>
@@ -3389,7 +3444,7 @@ groupundo - yes or no
 	This property overrides other indentation settings.
          </td>
       </tr>
-      <tr>
+      <tr id='property-os.x.home.end.keys'>
         <td>
           os.x.home.end.keys
         </td>
@@ -3399,7 +3454,7 @@ groupundo - yes or no
 	vc.home.key.
         </td>
       </tr>
-      <tr>
+      <tr id='property-vc.home.key'>
         <td>
           vc.home.key
         </td>
@@ -3409,8 +3464,9 @@ groupundo - yes or no
         there, in which case it moves to the start of the line. 0 moves to the start of the line.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-warning.findwrapped'>
         <td>
+          <a name='property-warning.notfound'></a><a name='property-warning.wrongfile'></a><a name='property-warning.executeok'></a><a name='property-warning.executeko'></a><a name='property-warning.nootherbookmark'></a>
           warning.findwrapped<br />
           warning.notfound<br />
           warning.wrongfile<br />
@@ -3440,8 +3496,9 @@ groupundo - yes or no
         nootherbookmark when there is no bookmark to find.
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr class="gtkonly" id='property-fileselector.width'>
         <td>
+          <a name='property-fileselector.height'></a>
           fileselector.width<br />
           fileselector.height
         </td>
@@ -3451,7 +3508,7 @@ groupundo - yes or no
           Setting has no effect on Windows.
         </td>
       </tr>
-      <tr>
+      <tr id='property-locale.properties'>
         <td>
         locale.properties
         </td>
@@ -3460,7 +3517,7 @@ groupundo - yes or no
 	this allows each user to set a preferred user interface language.
         </td>
       </tr>
-      <tr>
+      <tr id='property-translation.missing'>
         <td>
         translation.missing
         </td>
@@ -3471,7 +3528,7 @@ groupundo - yes or no
         provided with translations.
         </td>
       </tr>
-      <tr>
+      <tr id='property-menu.language'>
         <td>
         menu.language
         </td>
@@ -3483,7 +3540,7 @@ groupundo - yes or no
 		Menu items may be commented out by prefixing the name with '#'.
         </td>
       </tr>
-      <tr class="gtkonly">
+      <tr class="gtkonly" id='property-menukey.*'>
         <td>
         menukey.*
         </td>
@@ -3506,7 +3563,7 @@ groupundo - yes or no
 		key should be defined for a particular menu.
         </td>
       </tr>
-      <tr class="windowsonly">
+      <tr class="windowsonly" id='property-source.default.extensions'>
         <td>
           source.default.extensions
         </td>
@@ -3520,8 +3577,9 @@ groupundo - yes or no
           ScTEWinBar.cxx since that is the first match.
         </td>
       </tr>
-      <tr>
+      <tr id='property-ext.lua.startup.script'>
         <td>
+          <a name='property-ext.lua.auto.reload'></a><a name='property-ext.lua.reset'></a><a name='property-extension'></a>
           ext.lua.startup.script<br />
           ext.lua.auto.reload<br />
           ext.lua.reset<br />
@@ -3575,7 +3633,7 @@ groupundo - yes or no
           with a local SciTE.properties file.
         </td>
       </tr>
-      <tr>
+      <tr id='property-caret.sticky'>
         <td>
           caret.sticky
         </td>
@@ -3586,7 +3644,7 @@ groupundo - yes or no
 		  off this feature.
         </td>
       </tr>
-	  <tr>
+	  <tr id='property-properties.directory.enable'>
         <td>
           properties.directory.enable
         </td>
