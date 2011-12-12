@@ -792,6 +792,8 @@ void SciTEBase::New() {
 	InitialiseBuffers();
 	UpdateBuffersCurrent();
 
+	propsDiscovered.Clear();
+
 	if ((buffers.size == 1) && (!buffers.buffers[0].IsUntitled())) {
 		AddFileToStack(buffers.buffers[0],
 		        buffers.buffers[0].selection,
