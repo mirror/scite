@@ -1590,11 +1590,10 @@ static PangoLayout *PangoLayoutFromStyleDefinition(GtkPrintContext *context, con
 }
 
 void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context) {
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,10,0)
 	cairo_t *cr = gtk_print_context_get_cairo_context(context);
 	frPrint.hdc = cr;
 	frPrint.hdcTarget = cr;
-#else
 #endif
 
 	gdouble width = gtk_print_context_get_width(context);
@@ -1750,7 +1749,7 @@ void SciTEGTK::DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, 
 void SciTEGTK::Print(bool) {
 	RemoveFindMarks();
 	SelectionIntoProperties();
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,10,0)
 	// Printing through the GTK+ API
 	GtkPrintOperation *printOp = gtk_print_operation_new();
 
@@ -1788,7 +1787,7 @@ void SciTEGTK::Print(bool) {
 }
 
 void SciTEGTK::PrintSetup() {
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,10,0)
 	if (printSettings == NULL)
 		printSettings = gtk_print_settings_new();
 
@@ -3678,7 +3677,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
 	                                      {"/File/Export/As _LaTeX...", NULL, menuSig, IDM_SAVEASTEX, 0},
 	                                      {"/File/Export/As _XML...", NULL, menuSig, IDM_SAVEASXML, 0},
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,10,0)
 	                                      {"/File/Page Set_up", NULL, menuSig, IDM_PRINTSETUP, 0},
 #endif
 	                                      {"/File/_Print", "<control>P", menuSig, IDM_PRINT, 0},
