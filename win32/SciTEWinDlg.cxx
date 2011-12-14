@@ -145,6 +145,7 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		               (pmsg->wParam != VK_TAB) &&
 		               (pmsg->wParam != VK_ESCAPE) &&
 		               (pmsg->wParam != VK_RETURN) &&
+		               (pmsg->wParam < 'A' || pmsg->wParam > 'Z') &&
 		               (IsKeyDown(VK_CONTROL) || !IsKeyDown(VK_MENU));
 		if (!menuKey && DialogHandled(wParameters.GetID(), pmsg))
 			return true;
