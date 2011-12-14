@@ -612,6 +612,20 @@ bool SciTEBase::OpenSelected() {
 		WarnUser(warnWrongFile);
 		return false;	// No selection
 	}
+
+#if !defined(GTK)
+	if (strncmp(selectedFilename, "http:", 5) == 0 ||
+	        strncmp(selectedFilename, "https:", 6) == 0 ||
+	        strncmp(selectedFilename, "ftp:", 4) == 0 ||
+	        strncmp(selectedFilename, "ftps:", 5) == 0 ||
+	        strncmp(selectedFilename, "news:", 5) == 0 ||
+	        strncmp(selectedFilename, "mailto:", 7) == 0) {
+		SString cmd = selectedFilename;
+		AddCommand(cmd, "", jobShell);
+		return false;	// Job is done
+	}
+#endif
+
 	SString fileNameForExtension = ExtensionFileName();
 	SString openSuffix = props.GetNewExpand("open.suffix.", fileNameForExtension.c_str());
 	strcat(selectedFilename, openSuffix.c_str());
@@ -647,19 +661,6 @@ bool SciTEBase::OpenSelected() {
 		if (lineNumber > 0) {
 			*endPath = '\0';
 		}
-
-#if !defined(GTK)
-		if (strncmp(selectedFilename, "http:", 5) == 0 ||
-		        strncmp(selectedFilename, "https:", 6) == 0 ||
-		        strncmp(selectedFilename, "ftp:", 4) == 0 ||
-		        strncmp(selectedFilename, "ftps:", 5) == 0 ||
-		        strncmp(selectedFilename, "news:", 5) == 0 ||
-		        strncmp(selectedFilename, "mailto:", 7) == 0) {
-			SString cmd = selectedFilename;
-			AddCommand(cmd, "", jobShell);
-			return false;	// Job is done
-		}
-#endif
 
 		// Support the ctags format
 
