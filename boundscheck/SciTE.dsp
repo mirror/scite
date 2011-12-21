@@ -523,6 +523,10 @@ SOURCE=..\..\scintilla\lexers\LexTCL.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\scintilla\lexers\LexTCMD.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\scintilla\lexers\LexTeX.cxx
 # End Source File
 # Begin Source File
