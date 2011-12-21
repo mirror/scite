@@ -481,6 +481,9 @@
 				RelativePath="..\..\scintilla\lexers\LexTCL.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexTCMD.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexTeX.cxx">
 			</File>
 			<File
