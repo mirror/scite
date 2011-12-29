@@ -1913,10 +1913,10 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 		}
 
 	case SCE_ERR_DIFF_MESSAGE: {
-			// Diff file header, either +++ <filename>\t or --- <filename>\t
+			// Diff file header, either +++ <filename> or --- <filename>, may be followed by \t
 			// Often followed by a position line @@ <linenumber>
 			const char *startPath = cdoc + 4;
-			const char *endPath = strchr(startPath, '\t');
+			const char *endPath = strpbrk(startPath, "\t\r\n");
 			if (endPath) {
 				ptrdiff_t length = endPath - startPath;
 				strncpy(sourcePath, startPath, length);
