@@ -2077,6 +2077,19 @@ void SciTEBase::GoMessage(int dir) {
 					}
 				}
 
+				else if (style == SCE_ERR_DIFF_MESSAGE) {
+					bool isAdd = message.startswith("+++ ");
+					int atLine = lookLine + (isAdd ? 1 : 2); // lines are in this order: ---, +++, @@
+					SString atMessage = GetLine(wOutput, atLine);
+					if (atMessage.startswith("@@ -")) {
+						int atPos = (isAdd
+							? atMessage.search(" +", 7) + 2 // skip "@@ -1,1" and then " +"
+							: 4 // deleted position starts right after "@@ -"
+						);
+						sourceLine = atol(atMessage.c_str() + atPos) - 1;
+					}
+				}
+
 				if (props.GetInt("error.inline")) {
 					ShowMessages(lookLine);
 				}
