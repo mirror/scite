@@ -22,7 +22,7 @@ endif
 
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
 CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
-CONFIGLIB:=$(shell pkg-config --libs $(GTKVERSION) gthread-2.0)
+CONFIGLIB:=$(shell pkg-config --libs $(GTKVERSION) gthread-2.0 gmodule-no-export-2.0)
 CONFIGTHREADS:=
 gnomeprefix:=$(shell pkg-config --variable=prefix $(GTKVERSION) 2>/dev/null)
 ifndef prefix
