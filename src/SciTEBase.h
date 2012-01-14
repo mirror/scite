@@ -93,6 +93,7 @@ class Buffer : public RecentFile {
 public:
 	sptr_t doc;
 	bool isDirty;
+	bool isReadOnly;
 	bool useMonoFont;
 	enum { empty, reading, readAll, open } lifeState;
 	UniMode unicodeMode;
@@ -106,12 +107,13 @@ public:
 	PropSetFile props;
 	enum FutureDo { fdNone=0, fdFinishSave=1 } futureDo;
 	Buffer() :
-			RecentFile(), doc(0), isDirty(false), useMonoFont(false), lifeState(empty),
+			RecentFile(), doc(0), isDirty(false), isReadOnly(false), useMonoFont(false), lifeState(empty),
 			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), pFileWorker(0), futureDo(fdNone) {}
 
 	void Init() {
 		RecentFile::Init();
 		isDirty = false;
+		isReadOnly = false;
 		useMonoFont = false;
 		lifeState = empty;
 		unicodeMode = uni8Bit;

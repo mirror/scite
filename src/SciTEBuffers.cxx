@@ -825,6 +825,7 @@ void SciTEBase::New() {
 	jobQueue.isBuilding = false;
 	jobQueue.isBuilt = false;
 	isReadOnly = false;	// No sense to create an empty, read-only buffer...
+	CurrentBuffer()->isReadOnly = false;
 
 	ClearDocument();
 	DeleteFileStackMenu();
@@ -841,7 +842,7 @@ void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 		codePage = SC_CP_UTF8;
 		wEditor.Call(SCI_SETCODEPAGE, codePage);
 	}
-	isReadOnly = wEditor.Call(SCI_GETREADONLY);
+	isReadOnly = CurrentBuffer()->isReadOnly;
 
 	// check to see whether there is saved fold state, restore
 	if (!buffer.foldState.empty()) {

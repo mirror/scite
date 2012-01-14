@@ -360,7 +360,7 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 void SciTEBase::PerformDeferredTasks() {
 	if (buffers.buffers[buffers.Current()].futureDo & Buffer::fdFinishSave) {
 		wEditor.Call(SCI_SETSAVEPOINT);
-		wEditor.Call(SCI_SETREADONLY, isReadOnly);
+		wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
 		buffers.FinishedFuture(buffers.Current(), Buffer::fdFinishSave);
 	}
 }
@@ -431,7 +431,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 			buffers.SetVisible(iBuffer, true);
 			SetBuffersMenu();
 			if (iBuffer == buffers.Current()) {
-				wEditor.Call(SCI_SETREADONLY, isReadOnly);
+				wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
 			}
 		} else {
 			if (!buffers.GetVisible(iBuffer)) {
@@ -439,7 +439,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 			}
 			if (iBuffer == buffers.Current()) {
 				wEditor.Call(SCI_SETSAVEPOINT);
-				wEditor.Call(SCI_SETREADONLY, isReadOnly);
+				wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
 				if (extender)
 					extender->OnSave(buffers.buffers[iBuffer].AsUTF8().c_str());
 			} else {
@@ -585,6 +585,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 			wEditor.Call(SCI_EMPTYUNDOBUFFER);
 		}
 		isReadOnly = props.GetInt("read.only");
+		CurrentBuffer()->isReadOnly = isReadOnly;
 		wEditor.Call(SCI_SETREADONLY, isReadOnly);
 	}
 	RemoveFileFromStack(filePath);
