@@ -443,6 +443,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 				if (extender)
 					extender->OnSave(buffers.buffers[iBuffer].AsUTF8().c_str());
 			} else {
+				buffers.buffers[iBuffer].isDirty = false;
 				// Need to make writable and set save point when next receive focus.
 				buffers.AddFuture(iBuffer, Buffer::fdFinishSave);
 			}
