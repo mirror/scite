@@ -422,8 +422,6 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 	// May not be found if save cancelled or buffer closed
 	if (iBuffer >= 0) {
 		// Complete and release
-		//pFileStorer->pStorer->SaveCompleted();
-		//pFileStorer->pStorer = 0;
 		buffers.buffers[iBuffer].CompleteStoring();
 		if (errSaved) {
 			// Background save failed (possibly out-of-space) so resurrect the 
