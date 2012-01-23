@@ -280,6 +280,9 @@
 				RelativePath="..\..\scintilla\lexers\LexAVE.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexAVS.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexBaan.cxx">
 			</File>
 			<File
