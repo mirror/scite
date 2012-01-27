@@ -1250,9 +1250,14 @@ BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 }
 
 void SciTEWin::FindInFiles() {
-	if (wFindInFiles.Created())
-		return;
 	SelectionIntoFind();
+	if (wFindInFiles.Created()) {
+		HWND hDlg = reinterpret_cast<HWND>(wFindInFiles.GetID());
+		Dialog dlg(hDlg);
+		dlg.SetItemTextU(IDFINDWHAT, findWhat);
+		::SetFocus(hDlg);
+		return;
+	}
 	props.Set("find.what", findWhat.c_str());
 	FilePath findInDir = filePath.Directory();
 	props.Set("find.directory", findInDir.AsUTF8().c_str());
