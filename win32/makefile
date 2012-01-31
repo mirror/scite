@@ -64,9 +64,9 @@ LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -luxtheme $(LUA_LD
 .c.o:
 	gcc $(CFLAGS) -c $< -o $@
 
-OTHER_OBJS	= FileWorker.o Cookie.o Credits.o FilePath.o SciTEBuffers.o SciTEIO.o Exporters.o PropSetFile.o StringHelpers.o \
-StringList.o SciTEProps.o SciTEWin.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
-StyleWriter.o UniqueInstance.o \
+OTHER_OBJS	= FileWorker.o Cookie.o Credits.o FilePath.o JobQueue.o SciTEBuffers.o SciTEIO.o \
+Exporters.o PropSetFile.o StringHelpers.o StringList.o SciTEProps.o SciTEWin.o SciTEWinBar.o \
+SciTEWinDlg.o MultiplexExtension.o StyleWriter.o UniqueInstance.o \
 Utf8_16.o SciTERes.o GUIWin.o \
 IFaceTable.o DirectorExtension.o JobQueue.o WinMutex.o $(LUA_OBJS)
 

@@ -708,7 +708,6 @@ protected:
 	void OutputAppendString(const char *s, int len = -1);
 	void OutputAppendStringSynchronised(const char *s, int len = -1);
 	void MakeOutputVisible();
-	void ClearJobQueue();
 	virtual void Execute();
 	virtual void StopExecute() = 0;
 	void ShowMessages(int line);

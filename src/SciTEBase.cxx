@@ -1325,13 +1325,6 @@ void SciTEBase::MakeOutputVisible() {
 	}
 }
 
-void SciTEBase::ClearJobQueue() {
-	for (int ic = 0; ic < jobQueue.commandMax; ic++) {
-		jobQueue.jobQueue[ic].Clear();
-	}
-	jobQueue.commandCurrent = 0;
-}
-
 void SciTEBase::Execute() {
 	props.Set("CurrentMessage", "");
 	dirNameForExecute = FilePath();
@@ -1350,7 +1343,7 @@ void SciTEBase::Execute() {
 	}
 	if (displayParameterDialog) {
 		if (!ParametersDialog(true)) {
-			ClearJobQueue();
+			jobQueue.ClearJobs();
 			return;
 		}
 	} else {

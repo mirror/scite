@@ -703,7 +703,7 @@ void SciTEWin::ResetExecution() {
 		ReadProperties();
 	CheckReload();
 	CheckMenus();
-	ClearJobQueue();
+	jobQueue.ClearJobs();
 	::SendMessage(MainHWND(), WM_COMMAND, IDM_FINISHEDEXECUTE, 0);
 }
 

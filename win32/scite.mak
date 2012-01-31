@@ -58,6 +58,7 @@ OBJS=\
 	Cookie.obj \
 	Credits.obj \
 	FilePath.obj \
+	JobQueue.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
 	Exporters.obj \
@@ -85,6 +86,7 @@ OBJSSTATIC=\
 	Cookie.obj \
 	Credits.obj \
 	FilePath.obj \
+	JobQueue.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
 	Exporters.obj \

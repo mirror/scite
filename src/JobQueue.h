@@ -113,6 +113,8 @@ public:
 		Lock lock(mutex);
 		return cancelFlag;
 	}
+
+	void ClearJobs();
 };
 
 #endif

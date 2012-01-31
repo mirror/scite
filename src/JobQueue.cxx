@@ -29,3 +29,9 @@
 #include "Mutex.h"
 #include "JobQueue.h"
 
+void JobQueue::ClearJobs() {
+	for (int ic = 0; ic < commandMax; ic++) {
+		jobQueue[ic].Clear();
+	}
+	commandCurrent = 0;
+}
