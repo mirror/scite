@@ -2415,7 +2415,7 @@ void SciTEGTK::ResetExecution() {
 		ReadProperties();
 	CheckReload();
 	CheckMenus();
-	ClearJobQueue();
+	jobQueue.ClearJobs();
 }
 
 void SciTEGTK::ExecuteNext() {
