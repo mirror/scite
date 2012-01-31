@@ -1150,6 +1150,9 @@ void SciTEWin::Execute() {
 		return;
 
 	SciTEBase::Execute();
+	if (cmdWorker.icmd >= jobQueue.commandCurrent)
+		// No commands to execute - possibly cancelled in SciTEBase::Execute
+		return;
 
 	cmdWorker.Initialise(false);
 	cmdWorker.outputScroll = props.GetInt("output.scroll", 1);
