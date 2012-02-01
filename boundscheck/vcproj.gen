@@ -226,6 +226,9 @@
 				RelativePath="..\..\scintilla\src\Indicator.cxx">
 			</File>
 			<File
+				RelativePath="..\src\JobQueue.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\KeyMap.cxx">
 			</File>
 			<File
