@@ -371,6 +371,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 		SString languageOverride = DiscoverLanguage();
 		if (languageOverride.length()) {
 			CurrentBuffer()->overrideExtension = languageOverride;
+			CurrentBuffer()->lifeState = Buffer::open;
 			ReadProperties();
 			SetIndentSettings();
 		}
