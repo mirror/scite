@@ -2132,7 +2132,7 @@ void SciTEBase::GoMessage(int dir) {
 					// Get the position in line according to current tab setting
 					startSourceLine = wEditor.Call(SCI_FINDCOLUMN, sourceLine, column);
 				}
-				EnsureRangeVisible(startSourceLine, startSourceLine);
+				EnsureRangeVisible(wEditor, startSourceLine, startSourceLine);
 				if (props.GetInt("error.select.line") == 1) {
 					//select whole source source line from column with error
 					SetSelection(endSourceline, startSourceLine);

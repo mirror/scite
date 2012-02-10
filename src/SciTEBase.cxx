@@ -305,7 +305,7 @@ void SciTEBase::AssignKey(int key, int mods, int cmd) {
  */
 void SciTEBase::SetOverrideLanguage(int cmdID) {
 	RecentFile rf = GetFilePosition();
-	EnsureRangeVisible(0, wEditor.Call(SCI_GETLENGTH), false);
+	EnsureRangeVisible(wEditor, 0, wEditor.Call(SCI_GETLENGTH), false);
 	// Zero all the style bytes
 	wEditor.Call(SCI_CLEARDOCUMENTSTYLE);
 
@@ -1097,7 +1097,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 		havefound = true;
 		int start = wEditor.Call(SCI_GETTARGETSTART);
 		int end = wEditor.Call(SCI_GETTARGETEND);
-		EnsureRangeVisible(start, end);
+		EnsureRangeVisible(wEditor, start, end);
 		SetSelection(start, end);
 		if (!replacing && closeFind) {
 			DestroyFindReplace();
@@ -2861,7 +2861,8 @@ SString SciTEBase::FindOpenXmlTag(const char sel[], int nSize) {
 void SciTEBase::GoMatchingBrace(bool select) {
 	int braceAtCaret = -1;
 	int braceOpposite = -1;
-	bool isInside = FindMatchingBracePosition(true, braceAtCaret, braceOpposite, true);
+	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
+	bool isInside = FindMatchingBracePosition(!wOutput.HasFocus(), braceAtCaret, braceOpposite, true);
 	// Convert the character positions into caret positions based on whether
 	// the caret position was inside or outside the braces.
 	if (isInside) {
@@ -2878,11 +2879,11 @@ void SciTEBase::GoMatchingBrace(bool select) {
 		}
 	}
 	if (braceOpposite >= 0) {
-		EnsureRangeVisible(braceOpposite, braceOpposite);
+		EnsureRangeVisible(wCurrent, braceOpposite, braceOpposite);
 		if (select) {
-			SetSelection(braceAtCaret, braceOpposite);
+			wCurrent.Call(SCI_SETSEL, braceAtCaret, braceOpposite);
 		} else {
-			SetSelection(braceOpposite, braceOpposite);
+			wCurrent.Call(SCI_SETSEL, braceOpposite, braceOpposite);
 		}
 	}
 }
@@ -2896,7 +2897,7 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 	bool isInside = FindMatchingPreprocCondPosition(forward, mppcAtCaret, mppcMatch);
 
 	if (isInside && mppcMatch >= 0) {
-		EnsureRangeVisible(mppcMatch, mppcMatch);
+		EnsureRangeVisible(wEditor, mppcMatch, mppcMatch);
 		if (select) {
 			// Selection changes the rules a bit...
 			int selStart = wEditor.Call(SCI_GETSELECTIONSTART);
@@ -3739,11 +3740,11 @@ void SciTEBase::GotoLineEnsureVisible(int line) {
 	wEditor.Call(SCI_GOTOLINE, line);
 }
 
-void SciTEBase::EnsureRangeVisible(int posStart, int posEnd, bool enforcePolicy) {
-	int lineStart = wEditor.Call(SCI_LINEFROMPOSITION, Minimum(posStart, posEnd));
-	int lineEnd = wEditor.Call(SCI_LINEFROMPOSITION, Maximum(posStart, posEnd));
+void SciTEBase::EnsureRangeVisible(GUI::ScintillaWindow &win, int posStart, int posEnd, bool enforcePolicy) {
+	int lineStart = win.Call(SCI_LINEFROMPOSITION, Minimum(posStart, posEnd));
+	int lineEnd = win.Call(SCI_LINEFROMPOSITION, Maximum(posStart, posEnd));
 	for (int line = lineStart; line <= lineEnd; line++) {
-		wEditor.Call(enforcePolicy ? SCI_ENSUREVISIBLEENFORCEPOLICY : SCI_ENSUREVISIBLE, line);
+		win.Call(enforcePolicy ? SCI_ENSUREVISIBLEENFORCEPOLICY : SCI_ENSUREVISIBLE, line);
 	}
 }
 
@@ -3958,7 +3959,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_NEEDSHOWN: {
-			EnsureRangeVisible(notification->position, notification->position + notification->length, false);
+			EnsureRangeVisible(wEditor, notification->position, notification->position + notification->length, false);
 		}
 		break;
 
