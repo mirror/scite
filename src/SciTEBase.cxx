@@ -4024,7 +4024,6 @@ void SciTEBase::CheckMenusClipboard() {
 
 void SciTEBase::CheckMenus() {
 	CheckMenusClipboard();
-	EnableAMenuItem(IDM_SAVE, CurrentBuffer()->isDirty);
 	EnableAMenuItem(IDM_UNDO, CallFocused(SCI_CANUNDO));
 	EnableAMenuItem(IDM_REDO, CallFocused(SCI_CANREDO));
 	EnableAMenuItem(IDM_DUPLICATE, !isReadOnly);
