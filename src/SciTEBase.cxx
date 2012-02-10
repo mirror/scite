@@ -4031,7 +4031,6 @@ void SciTEBase::CheckMenus() {
 	EnableAMenuItem(IDM_UNDO, CallFocused(SCI_CANUNDO));
 	EnableAMenuItem(IDM_REDO, CallFocused(SCI_CANREDO));
 	EnableAMenuItem(IDM_DUPLICATE, !isReadOnly);
-	EnableAMenuItem(IDM_FINDINFILES, !jobQueue.IsExecuting());
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);

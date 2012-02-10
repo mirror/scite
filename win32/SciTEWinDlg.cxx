@@ -1163,6 +1163,11 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			return FALSE;
 
 		} else if (ControlIDOfWParam(wParam) == IDOK) {
+			if (jobQueue.IsExecuting()) {
+				GUI::gui_string msgBuf = LocaliseMessage("Job is currently executing. Wait until it finishes.");
+				WindowMessageBox(wFindInFiles, msgBuf, MB_OK | MB_ICONWARNING);
+				return FALSE;
+			}
 			findWhat = dlg.ItemTextU(IDFINDWHAT);
 			props.Set("find.what", findWhat.c_str());
 			memFinds.Insert(findWhat.c_str());
