@@ -51,10 +51,13 @@ public:
 	const char *documentBytes;
 	long writtenSoFar;
 	UniMode unicodeMode;
+	bool visibleProgress;
 
-	FileStorer(WorkerListener *pListener_, const char *documentBytes_, FilePath path_, long size_, FILE *fp_, UniMode unicodeMode_);
+	FileStorer(WorkerListener *pListener_, const char *documentBytes_, FilePath path_,
+		long size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
 	virtual ~FileStorer();
 	virtual void Execute();
+	virtual void Cancel();
 	virtual bool IsLoading() const {
 		return false;
 	}

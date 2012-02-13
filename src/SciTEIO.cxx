@@ -419,12 +419,13 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 
 	FilePath pathSaved = pFileStorer->path;
 	int errSaved = pFileStorer->err;
+	bool cancelledSaved = pFileStorer->cancelling;
 
 	// May not be found if save cancelled or buffer closed
 	if (iBuffer >= 0) {
 		// Complete and release
 		buffers.buffers[iBuffer].CompleteStoring();
-		if (errSaved) {
+		if (errSaved || cancelledSaved) {
 			// Background save failed (possibly out-of-space) so resurrect the 
 			// buffer so can be saved to another disk or retried after making room.
 			buffers.SetVisible(iBuffer, true);
@@ -908,10 +909,8 @@ void SciTEBase::EnsureFinalNewLine() {
 	}
 }
 
-/**
- * Writes the buffer to the given filename.
- */
-bool SciTEBase::SaveBuffer(FilePath saveName, bool asynchronous) {
+// Perform any changes needed before saving such as normalizing spaces and line ends.
+bool SciTEBase::PrepareBufferForSave(FilePath saveName) {
 	bool retVal = false;
 	// Perform clean ups on text before saving
 	wEditor.Call(SCI_BEGINUNDOACTION);
@@ -927,15 +926,24 @@ bool SciTEBase::SaveBuffer(FilePath saveName, bool asynchronous) {
 
 	wEditor.Call(SCI_ENDUNDOACTION);
 
+	return retVal;
+}
+
+/**
+ * Writes the buffer to the given filename.
+ */
+bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
+	bool retVal = PrepareBufferForSave(saveName);
+
 	if (!retVal) {
 
 		FILE *fp = saveName.Open(fileWrite);
 		if (fp) {
 			int lengthDoc = LengthDocument();
-			if (asynchronous) {
+			if (!(sf & sfSynchronous)) {
 				wEditor.Call(SCI_SETREADONLY, 1);
 				const char *documentBytes = reinterpret_cast<const char *>(wEditor.CallReturnPointer(SCI_GETCHARACTERPOINTER));
-				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, filePath, lengthDoc, fp, CurrentBuffer()->unicodeMode);
+				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, filePath, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
 				CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 				PerformOnNewThread(CurrentBuffer()->pFileWorker);
 				retVal = true;
@@ -986,7 +994,7 @@ void SciTEBase::ReloadProperties() {
 }
 
 // Returns false if cancelled or failed to save
-bool SciTEBase::Save() {
+bool SciTEBase::Save(SaveFlags sf) {
 	if (!filePath.IsUntitled()) {
 		GUI::gui_string msg;
 		if (CurrentBuffer()->ShouldNotSave()) {
@@ -1024,10 +1032,11 @@ bool SciTEBase::Save() {
 			}
 		}
 
-		bool asynchronous = LengthDocument() > props.GetInt("background.save.size", -1);
-		if (SaveBuffer(filePath, asynchronous)) {
+		if (LengthDocument() <= props.GetInt("background.save.size", -1))
+			sf = static_cast<SaveFlags>(sf | sfSynchronous);
+		if (SaveBuffer(filePath, sf)) {
 			CurrentBuffer()->SetTimeFromFile();
-			if (!asynchronous) {
+			if (sf & sfSynchronous) {
 				wEditor.Call(SCI_SETSAVEPOINT);
 				if (IsPropertiesFile(filePath)) {
 					ReloadProperties();
@@ -1073,6 +1082,10 @@ bool SciTEBase::SaveIfNotOpen(const FilePath &destFile, bool fixCase) {
 		SaveAs(absPath.AsInternal(), fixCase);
 		return true;
 	}
+}
+
+void SciTEBase::AbandonAutomaticSave() {
+	CurrentBuffer()->AbandonAutomaticSave();
 }
 
 bool SciTEBase::IsStdinBlocked() {

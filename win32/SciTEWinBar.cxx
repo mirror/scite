@@ -303,6 +303,29 @@ void SciTEWin::ActivateWindow(const char *) {
 	// This does nothing as, on Windows, you can no longer activate yourself
 }
 
+enum { tickerID = 100 };
+
+void SciTEWin::TimerStart(int mask) {
+	int maskNew = timerMask | mask;
+	if (timerMask != maskNew) {
+		if (timerMask == 0) {
+			// Create a 1 second ticker
+			::SetTimer(reinterpret_cast<HWND>(wSciTE.GetID()), tickerID, 1000, NULL);
+		}
+		timerMask = maskNew;
+	}
+}
+
+void SciTEWin::TimerEnd(int mask) {
+	int maskNew = timerMask & ~mask;
+	if (timerMask != maskNew) {
+		if (maskNew == 0) {
+			::KillTimer(reinterpret_cast<HWND>(wSciTE.GetID()), tickerID);
+		}
+		timerMask = maskNew;
+	}
+}
+
 /**
  * Resize the content windows, embedding the editor and output windows.
  */

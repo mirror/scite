@@ -106,8 +106,10 @@ void FileLoader::Cancel() {
 	pLoader = 0;
 }
 
-FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, FilePath path_, long size_, FILE *fp_, UniMode unicodeMode_) : 
-	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0), unicodeMode(unicodeMode_) {
+FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, FilePath path_,
+	long size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) : 
+	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0),
+		unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
 	jobSize = static_cast<int>(size);
 	jobProgress = 0;
 }
@@ -131,7 +133,7 @@ void FileStorer::Execute() {
 		char data[blockSize + 1];
 		int lengthDoc = static_cast<int>(size);
 		int grabSize;
-		for (int i = 0; i < lengthDoc; i += grabSize) {
+		for (int i = 0; i < lengthDoc && (!cancelling); i += grabSize) {
 #ifdef __unix__
 			usleep(sleepTime * 1000);
 #else
@@ -165,4 +167,8 @@ void FileStorer::Execute() {
 	}
 	completed = true;
 	pListener->PostOnMainThread(WORK_FILEWRITTEN, this);
+}
+
+void FileStorer::Cancel() {
+	FileWorker::Cancel();
 }

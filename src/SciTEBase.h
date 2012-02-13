@@ -99,6 +99,7 @@ public:
 	UniMode unicodeMode;
 	time_t fileModTime;
 	time_t fileModLastAsk;
+	time_t documentModTime;
 	enum { fmNone, fmMarked, fmModified} findMarks;
 	SString overrideExtension;	///< User has chosen to use a particular language
 	std::vector<int> foldState;
@@ -108,7 +109,8 @@ public:
 	enum FutureDo { fdNone=0, fdFinishSave=1 } futureDo;
 	Buffer() :
 			RecentFile(), doc(0), isDirty(false), isReadOnly(false), useMonoFont(false), lifeState(empty),
-			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), findMarks(fmNone), pFileWorker(0), futureDo(fdNone) {}
+			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
+			findMarks(fmNone), pFileWorker(0), futureDo(fdNone) {}
 
 	void Init() {
 		RecentFile::Init();
@@ -119,6 +121,7 @@ public:
 		unicodeMode = uni8Bit;
 		fileModTime = 0;
 		fileModLastAsk = 0;
+		documentModTime = 0;
 		findMarks = fmNone;
 		overrideExtension = "";
 		foldState.clear();
@@ -130,10 +133,15 @@ public:
 	void SetTimeFromFile() {
 		fileModTime = ModifiedTime();
 		fileModLastAsk = fileModTime;
+		documentModTime = fileModTime;
 	}
+
+	void DocumentModified();
+	bool NeedsSave(int delayBeforeSave);
 
 	void CompleteLoading();
 	void CompleteStoring();
+	void AbandonAutomaticSave();
 
 	bool ShouldNotSave() const {
 		return lifeState != open;
@@ -446,6 +454,10 @@ protected:
 	bool needReadProperties;
 	bool quitting;
 
+	int timerMask;
+	enum { timerAutoSave=1 };
+	int delayBeforeAutoSave;
+
 	int heightOutput;
 	int heightOutputStartDrag;
 	GUI::Point ptStartDrag;
@@ -626,13 +638,20 @@ protected:
 	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();
 	bool SaveIfNotOpen(const FilePath &destFile, bool fixCase);
-	bool Save();
+	void AbandonAutomaticSave();
+	enum SaveFlags {
+	    sfNone = 0, 		// Default
+	    sfProgressVisible = 1, 	// Show in background save strip
+	    sfSynchronous = 16	// Write synchronously blocking UI
+	};
+	bool Save(SaveFlags sf = sfProgressVisible);
 	void SaveAs(const GUI::gui_char *file, bool fixCase);
 	virtual void SaveACopy() = 0;
 	void SaveToHTML(FilePath saveName);
 	void StripTrailingSpaces();
 	void EnsureFinalNewLine();
-	bool SaveBuffer(FilePath saveName, bool asynchronous);
+	bool PrepareBufferForSave(FilePath saveName);
+	bool SaveBuffer(FilePath saveName, SaveFlags sf);
 	virtual void SaveAsHTML() = 0;
 	void SaveToRTF(FilePath saveName, int start = 0, int end = -1);
 	virtual void SaveAsRTF() = 0;
@@ -849,6 +868,10 @@ protected:
 	void Redraw();
 	int NormaliseSplit(int splitPos);
 	void MoveSplit(GUI::Point ptNewDrag);
+
+	virtual void TimerStart(int mask);
+	virtual void TimerEnd(int mask);
+	void OnTimer();
 
 	void UIAvailable();
 	void PerformOne(char *action);

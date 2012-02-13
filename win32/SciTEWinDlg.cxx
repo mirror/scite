@@ -311,7 +311,7 @@ bool SciTEWin::SaveAsDialog() {
 void SciTEWin::SaveACopy() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Save a Copy");
 	if (path.IsSet()) {
-		SaveBuffer(path, true);
+		SaveBuffer(path, sfNone);
 	}
 }
 

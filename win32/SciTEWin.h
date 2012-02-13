@@ -389,6 +389,9 @@ protected:
 
 	virtual void ReadProperties();
 
+	virtual void TimerStart(int mask);
+	virtual void TimerEnd(int mask);
+
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
 

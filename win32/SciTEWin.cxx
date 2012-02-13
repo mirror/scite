@@ -1950,6 +1950,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			}
 			break;
 
+		case WM_TIMER:
+			OnTimer();
+			break;
+
 		case WM_DROPFILES:
 			DropFiles(reinterpret_cast<HDROP>(wParam));
 			break;

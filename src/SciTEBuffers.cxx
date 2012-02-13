@@ -73,6 +73,15 @@
 
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
 
+void Buffer::DocumentModified() {
+	documentModTime = time(0);
+}
+
+bool Buffer::NeedsSave(int delayBeforeSave) {
+	time_t now = time(0);
+	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !IsUntitled();
+}
+
 void Buffer::CompleteLoading() {
 	lifeState = open;
 	if (pFileWorker && pFileWorker->IsLoading()) {
@@ -87,6 +96,16 @@ void Buffer::CompleteStoring() {
 		pFileWorker = 0;
 	}
 	SetTimeFromFile();
+}
+
+void Buffer::AbandonAutomaticSave() {
+	if (pFileWorker && !pFileWorker->IsLoading()) {
+		FileStorer *pFileStorer = static_cast<FileStorer *>(pFileWorker);
+		if (!pFileStorer->visibleProgress) {
+			pFileWorker->Cancel();
+			// File is in partially saved state so may be better to remove
+		}
+	}
 }
 
 void Buffer::CancelLoad() {
@@ -293,6 +312,11 @@ BackgroundActivities BufferList::CountBackgroundActivities() const {
 	for (int i = 0;i < length;i++) {
 		if (buffers[i].pFileWorker) {
 			if (!buffers[i].pFileWorker->FinishedJob()) {
+				if (!buffers[i].pFileWorker->IsLoading()) {
+					FileStorer *fstorer = static_cast<FileStorer*>(buffers[i].pFileWorker);
+					if (!fstorer->visibleProgress)
+						continue;
+				}
 				if (buffers[i].pFileWorker->IsLoading())
 					bg.loaders++;
 				else
