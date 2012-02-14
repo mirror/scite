@@ -219,6 +219,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 }
 
 SciTEBase::~SciTEBase() {
+	TimerEnd(timerAutoSave);
 	if (extender)
 		extender->Finalise();
 	delete []languageMenu;

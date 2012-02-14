@@ -463,6 +463,8 @@ protected:
 	char uniqueInstance[MAX_PATH];
 	guint32 startupTimestamp;
 	
+	guint timerID;
+	
 	BackgroundStrip backgroundStrip;
 
 	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX, sfXML } saveFormat;
@@ -512,6 +514,11 @@ protected:
 	virtual void ReadLocalization();
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
+
+	static gboolean TimerTick(SciTEGTK *scitew);
+	virtual void TimerStart(int mask);
+	virtual void TimerEnd(int mask);
+
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
 
 	virtual void SizeContentWindows();
@@ -725,6 +732,8 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	uniqueInstance[0] = '\0';
 	startupTimestamp = 0;
+	
+	timerID = 0;
 
 	PropSetFile::SetCaseSensitiveFilenames(true);
 	propsEmbed.Set("PLAT_GTK", "1");
@@ -1138,6 +1147,33 @@ void SciTEGTK::ReadProperties() {
 	ShowTabBar();
 }
 
+gboolean SciTEGTK::TimerTick(SciTEGTK *scitew) {
+	scitew->OnTimer();
+	return TRUE;
+}
+
+void SciTEGTK::TimerStart(int mask) {
+	int maskNew = timerMask | mask;
+	if (timerMask != maskNew) {
+		if (timerMask == 0) {
+			// Create a 1 second ticker
+			timerID = g_timeout_add(1000, reinterpret_cast<GSourceFunc>(TimerTick), this);
+		}
+		timerMask = maskNew;
+	}
+}
+
+void SciTEGTK::TimerEnd(int mask) {
+	int maskNew = timerMask & ~mask;
+	if (timerMask != maskNew) {
+		if (maskNew == 0) {
+			g_source_remove(timerID);
+			timerID = 0;
+		}
+		timerMask = maskNew;
+	}
+}
+
 void SciTEGTK::GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) {
 	gtk_window_get_position(GTK_WINDOW(PWidget(wSciTE)), left, top);
 	gtk_window_get_size(GTK_WINDOW(PWidget(wSciTE)), width, height);
@@ -1429,7 +1465,7 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 bool SciTEGTK::HandleSaveAs(const char *savePath) {
 	switch (saveFormat) {
 	case sfCopy:
-		SaveBuffer(savePath, true);
+		SaveBuffer(savePath, sfNone);
 		break;
 	case sfHTML:
 		SaveToHTML(savePath);
