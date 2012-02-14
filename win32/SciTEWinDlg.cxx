@@ -1210,7 +1210,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				memset(&info, 0, sizeof(info));
 				info.hwndOwner = hDlg;
 				info.pidlRoot = NULL;
-				TCHAR szDisplayName[MAX_PATH];
+				TCHAR szDisplayName[MAX_PATH] = TEXT("");
 				info.pszDisplayName = szDisplayName;
 				GUI::gui_string title = localiser.Text("Select a folder to search from");
 				info.lpszTitle = title.c_str();
