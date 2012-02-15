@@ -3240,11 +3240,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_SELECTTONEXTMATCHPPC:
 		GoMatchingPreprocCond(IDM_NEXTMATCHPPC, true);
 		break;
-
 	case IDM_SHOWCALLTIP:
-		StartCallTip();
+		if (wEditor.Call(SCI_CALLTIPACTIVE)) {
+			currentCallTip = (currentCallTip + 1 == maxCallTips) ? 0 : currentCallTip + 1;
+			FillFunctionDefinition();
+		} else {
+			StartCallTip();
+		}
 		break;
-
 	case IDM_COMPLETE:
 		autoCCausedByOnlyOne = false;
 		StartAutoComplete();
