@@ -2807,6 +2807,11 @@ bool SciTEBase::HandleXml(char ch) {
 		return false;
 	}
 
+	if (sel[nCaret - nMin - 2] == '-') {
+		// User typed something like "<a $this->"
+		return false;
+	}
+
 	SString strFound = FindOpenXmlTag(sel, nCaret - nMin);
 
 	if (strFound.length() > 0) {
@@ -2841,7 +2846,9 @@ SString SciTEBase::FindOpenXmlTag(const char sel[], int nSize) {
 		if (*pCur == '<') {
 			break;
 		} else if (*pCur == '>') {
-			break;
+			if (*(pCur - 1) != '-') {
+				break;
+			}
 		}
 		--pCur;
 	}
