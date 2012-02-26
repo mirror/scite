@@ -157,6 +157,8 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 			return true;
 		if (replaceStrip.KeyDown(pmsg->wParam))
 			return true;
+		if (userStrip.KeyDown(pmsg->wParam))
+			return true;
 	}
 	if (pmsg->message == WM_KEYDOWN || pmsg->message == WM_SYSKEYDOWN) {
 		if (KeyDown(pmsg->wParam))
@@ -815,6 +817,35 @@ static void FillComboFromProps(HWND combo, PropSetFile &props) {
 			::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(wkey.c_str()));
 		}
 	}
+}
+
+void SciTEWin::UserStripShow(const char *description) {
+	userStrip.visible = *description != 0;
+	if (userStrip.visible) {
+		userStrip.SetSciTE(this);
+		userStrip.SetExtender(extender);
+		userStrip.SetDescription(description);
+	}
+	SizeSubWindows();
+}
+
+void SciTEWin::UserStripSet(int control, const char *value) {
+	userStrip.Set(control, value);
+}
+
+void SciTEWin::UserStripSetList(int control, const char *value) {
+	userStrip.SetList(control, value);
+}
+
+const char *SciTEWin::UserStripValue(int control) {
+	std::string val = userStrip.GetValue(control);
+	char *ret = new char[val.size() + 1];
+	strcpy(ret, val.c_str());
+	return ret;
+}
+
+void SciTEWin::UserStripClosed() {
+	SizeSubWindows();
 }
 
 void SciTEWin::ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress) {

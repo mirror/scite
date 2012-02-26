@@ -30,6 +30,10 @@ public:
 	virtual void Perform(const char *actions)=0;
 	virtual void DoMenuCommand(int cmdID)=0;
 	virtual void UpdateStatusBar(bool bUpdateSlowData)=0;
+	virtual void UserStripShow(const char *description)=0;
+	virtual void UserStripSet(int control, const char *value)=0;
+	virtual void UserStripSetList(int control, const char *value)=0;
+	virtual const char *UserStripValue(int control)=0;
 };
 
 /**
@@ -71,6 +75,7 @@ public:
 	virtual bool OnKey(int, int) { return false; }
 	virtual bool OnDwellStart(int, const char *) { return false; }
 	virtual bool OnClose(const char *) { return false; }
+	virtual bool OnUserStrip(int /* control */, int /* change */) { return false; }
 };
 
 #endif

@@ -73,6 +73,7 @@ public:
 	virtual bool OnKey(int, int);
 	virtual bool OnDwellStart(int, const char *);
 	virtual bool OnClose(const char *);
+	virtual bool OnUserStrip(int control, int change);
 
 private:
 	Extension **extensions;

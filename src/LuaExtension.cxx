@@ -291,6 +291,45 @@ static int cf_scite_update_status_bar(lua_State *L) {
 	return 0;
 }
 
+static int cf_scite_strip_show(lua_State *L) {
+	const char *s = luaL_checkstring(L, 1);
+	if (s) {
+		host->UserStripShow(s);
+	}
+	return 0;
+}
+
+static int cf_scite_strip_set(lua_State *L) {
+	int control = luaL_checkint(L, 1);
+	const char *value = luaL_checkstring(L, 2);
+	if (value) {
+		host->UserStripSet(control, value);
+	}
+	return 0;
+}
+
+static int cf_scite_strip_set_list(lua_State *L) {
+	int control = luaL_checkint(L, 1);
+	const char *value = luaL_checkstring(L, 2);
+	if (value) {
+		host->UserStripSetList(control, value);
+	}
+	return 0;
+}
+
+static int cf_scite_strip_value(lua_State *L) {
+	int control = luaL_checkint(L, 1);
+	const char *value = host->UserStripValue(control);
+	if (value) {
+		lua_pushstring(L, value);
+		delete []value;
+		return 1;
+	} else {
+		lua_pushstring(L, "");
+	}
+	return 0;
+}
+
 static ExtensionAPI::Pane check_pane_object(lua_State *L, int index) {
 	ExtensionAPI::Pane *pPane = reinterpret_cast<ExtensionAPI::Pane *>(checkudata(L, index, "SciTE_MT_Pane"));
 
@@ -802,6 +841,21 @@ static bool CallNamedFunction(const char *name, int numberArg, const char *strin
 		if (lua_isfunction(luaState, -1)) {
 			lua_pushnumber(luaState, numberArg);
 			lua_pushstring(luaState, stringArg);
+			handled = call_function(luaState, 2);
+		} else {
+			lua_pop(luaState, 1);
+		}
+	}
+	return handled;
+}
+
+static bool CallNamedFunction(const char *name, int numberArg, int numberArg2) {
+	bool handled = false;
+	if (luaState) {
+		lua_getglobal(luaState, name);
+		if (lua_isfunction(luaState, -1)) {
+			lua_pushnumber(luaState, numberArg);
+			lua_pushnumber(luaState, numberArg2);
 			handled = call_function(luaState, 2);
 		} else {
 			lua_pop(luaState, 1);
@@ -1351,6 +1405,18 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 
 	lua_pushcfunction(luaState, cf_scite_update_status_bar);
 	lua_setfield(luaState, -2, "UpdateStatusBar");
+
+	lua_pushcfunction(luaState, cf_scite_strip_show);
+	lua_setfield(luaState, -2, "StripShow");
+
+	lua_pushcfunction(luaState, cf_scite_strip_set);
+	lua_setfield(luaState, -2, "StripSet");
+
+	lua_pushcfunction(luaState, cf_scite_strip_set_list);
+	lua_setfield(luaState, -2, "StripSetList");
+
+	lua_pushcfunction(luaState, cf_scite_strip_value);
+	lua_setfield(luaState, -2, "StripValue");
 
 	lua_setglobal(luaState, "scite");
 
@@ -2026,6 +2092,10 @@ bool LuaExtension::OnDwellStart(int pos, const char *word) {
 
 bool LuaExtension::OnClose(const char *filename) {
 	return CallNamedFunction("OnClose", filename);
+}
+
+bool LuaExtension::OnUserStrip(int control, int change) {
+	return CallNamedFunction("OnStrip", control, change);
 }
 
 #ifdef _MSC_VER

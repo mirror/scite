@@ -39,4 +39,5 @@ public:
 	virtual bool OnKey(int keyval, int modifiers);
 	virtual bool OnDwellStart(int pos, const char *word);
 	virtual bool OnClose(const char *filename);
+	virtual bool OnUserStrip(int control, int change);
 };

@@ -247,3 +247,9 @@ bool MultiplexExtension::OnClose(const char *filename) {
 	return false;
 }
 
+bool MultiplexExtension::OnUserStrip(int control, int change) {
+	for (int i = 0; i < extensionCount; ++i)
+		extensions[i]->OnUserStrip(control, change);
+	return false;
+}
+
