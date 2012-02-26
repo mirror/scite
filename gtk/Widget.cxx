@@ -115,10 +115,18 @@ void WComboBoxEntry::AppendText(const char *text) {
 #endif
 }
 
-void WComboBoxEntry::FillFromMemory(const std::vector<std::string> &mem, bool useTop) {
+void WComboBoxEntry::ClearList() {
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(GetID()));
+#else
 	for (int i = 0; i < 10; i++) {
 		RemoveText(0);
 	}
+#endif
+}
+
+void WComboBoxEntry::FillFromMemory(const std::vector<std::string> &mem, bool useTop) {
+	ClearList();
 	for (size_t i = 0; i < mem.size(); i++) {
 		AppendText(mem[i].c_str());
 	}
@@ -440,6 +448,17 @@ void WTable::Label(GtkWidget *child) {
 
 void WTable::PackInto(GtkBox *box, gboolean expand) {
 	gtk_box_pack_start(box, Pointer(), expand, expand, 0);
+}
+
+void WTable::Resize(int rows_, int columns_) {
+	rows = rows_;
+	columns = columns_;
+	gtk_table_resize(GTK_TABLE(GetID()), rows, columns);
+	next = 0;
+}
+
+void WTable::NextLine() {
+	next = ((next - 1) / columns + 1) * columns;
 }
 
 GUI::gui_char KeyFromLabel(GUI::gui_string label) {

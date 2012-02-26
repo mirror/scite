@@ -65,6 +65,7 @@
 #include "Worker.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
+#include "StripDefinition.h"
 
 #if GTK_CHECK_VERSION(2,20,0)
 #define WIDGET_SET_NO_FOCUS(w) gtk_widget_set_can_focus(w, FALSE)
@@ -422,6 +423,34 @@ public:
 	gboolean Focus(GtkDirectionType direction);
 };
 
+class UserStrip : public Strip {
+public:
+	StripDefinition *psd;
+	Extension *extender;
+	SciTEGTK *pSciTEGTK;
+	WTable tableUser;
+
+	UserStrip() : psd(0), extender(0), pSciTEGTK(0), tableUser(1, 1){
+	}
+	virtual void Creation(GtkWidget *boxMain);
+	virtual void Destruction();
+	virtual void Show(int buttonHeight);
+	virtual void Close();
+	virtual bool KeyDown(GdkEventKey *event);
+	static void ActivateSignal(GtkWidget *w, UserStrip *pStrip);
+	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pStrip);
+	void ClickThis(GtkWidget *w);
+	static void ClickSignal(GtkWidget *w, UserStrip *pStrip);
+	virtual void ChildFocus(GtkWidget *widget);
+	gboolean Focus(GtkDirectionType direction);
+	void SetDescription(const char *description);
+	void SetExtender(Extension *extender_);
+	void SetSciTE(SciTEGTK *pSciTEGTK_);
+	void Set(int control, const char *value);
+	void SetList(int control, const char *value);
+	std::string GetValue(int control);
+};
+
 // Manage the use of the GDK thread lock within glib signal handlers
 class ThreadLockMinder {
 public:
@@ -434,6 +463,8 @@ public:
 };
 
 class SciTEGTK : public SciTEBase {
+
+	friend class UserStrip;
 
 protected:
 
@@ -466,6 +497,7 @@ protected:
 	guint timerID;
 	
 	BackgroundStrip backgroundStrip;
+	UserStrip userStrip;
 
 	enum FileFormat { sfSource, sfCopy, sfHTML, sfRTF, sfPDF, sfTEX, sfXML } saveFormat;
 	Dialog dlgFileSelector;
@@ -611,6 +643,11 @@ protected:
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute(int fromPoll);
 
+	virtual void UserStripShow(const char *description);
+	virtual void UserStripSet(int control, const char *value);
+	virtual void UserStripSetList(int control, const char *value);
+	virtual const char *UserStripValue(int control);
+	void UserStripClosed();
 	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress);
 
 	// Single instance
@@ -1196,10 +1233,12 @@ void SciTEGTK::SizeContentWindows() {
 	gtk_paned_set_position(GTK_PANED(splitPane), max - heightOutput);
 
 	// Make sure the focus is somewhere
-	if (heightOutput == max) {
-		WindowSetFocus(wOutput);
-	} else if (heightOutput == 0 || (!wEditor.HasFocus() && !wOutput.HasFocus())) {
-		WindowSetFocus(wEditor);
+	if (!userStrip.VisibleHasFocus()) {
+		if (heightOutput == max) {
+			WindowSetFocus(wOutput);
+		} else if (heightOutput == 0 || (!wEditor.HasFocus() && !wOutput.HasFocus())) {
+			WindowSetFocus(wEditor);
+		}
 	}
 }
 
@@ -2527,6 +2566,35 @@ void SciTEGTK::ShowBackgroundProgress(const GUI::gui_string &explanation, int si
 	}
 }
 
+void SciTEGTK::UserStripShow(const char *description) {
+	if (*description) {
+		userStrip.SetDescription(description);
+		userStrip.Show(props.GetInt("strip.button.height", -1));
+	} else {
+		userStrip.Close();
+		SizeSubWindows();
+	}
+}
+
+void SciTEGTK::UserStripSet(int control, const char *value) {
+	userStrip.Set(control, value);
+}
+
+void SciTEGTK::UserStripSetList(int control, const char *value) {
+	userStrip.SetList(control, value);
+}
+
+const char *SciTEGTK::UserStripValue(int control) {
+	std::string val = userStrip.GetValue(control);
+	char *ret = new char[val.size() + 1];
+	strcpy(ret, val.c_str());
+	return ret;
+}
+
+void SciTEGTK::UserStripClosed() {
+	SizeSubWindows();
+}
+
 gboolean SciTEGTK::IOSignal(GIOChannel *, GIOCondition, SciTEGTK *scitew) {
 	ThreadLockMinder minder;
 	scitew->ContinueExecute(FALSE);
@@ -3325,7 +3393,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 		}
 	}
 
-	if (findStrip.KeyDown(event) || replaceStrip.KeyDown(event)) {
+	if (findStrip.KeyDown(event) || replaceStrip.KeyDown(event) || userStrip.KeyDown(event)) {
 		g_signal_stop_emission_by_name(G_OBJECT(PWidget(wSciTE)), "key_press_event");
 		return 1;
 	}
@@ -4348,9 +4416,218 @@ gboolean ReplaceStrip::Focus(GtkDirectionType direction) {
 	return FALSE;
 }
 
+void UserStrip::Creation(GtkWidget *container) {
+	SetID(tableUser);
+	Strip::Creation(container);
+	gtk_container_set_border_width(GTK_CONTAINER(GetID()), 1);
+	tableUser.PackInto(GTK_BOX(container), false);
+	g_signal_connect(G_OBJECT(GetID()), "set-focus-child", G_CALLBACK(ChildFocusSignal), this);
+}
+
+void UserStrip::Destruction() {
+}
+
+void UserStrip::Show(int buttonHeight) {
+	Strip::Show(buttonHeight);
+	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); line++) {
+		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ctl++) {
+			if (ctl->controlType == UserControl::ucStatic) {
+				gtk_widget_set_size_request(GTK_WIDGET(ctl->w.GetID()), -1, heightStatic);
+			} else if (ctl->controlType == UserControl::ucEdit) {
+				gtk_widget_set_size_request(GTK_WIDGET(ctl->w.GetID()), -1, buttonHeight);
+			} else if (ctl->controlType == UserControl::ucCombo) {
+				GtkEntry *entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(ctl->w.GetID())));
+				gtk_widget_set_size_request(GTK_WIDGET(entry), -1, buttonHeight);
+			} else if (ctl->controlType == UserControl::ucButton) {
+				gtk_widget_set_size_request(GTK_WIDGET(ctl->w.GetID()), -1, buttonHeight);
+			}
+		}
+	}
+}
+
+void UserStrip::Close() {
+	if (visible) {
+		Strip::Close();
+		if (pSciTEGTK)
+			pSciTEGTK->UserStripClosed();
+	}
+}
+
+bool UserStrip::KeyDown(GdkEventKey *event) {
+	if (visible) {
+		if (Strip::KeyDown(event))
+			return true;
+	}
+	return false;
+}
+
+void UserStrip::ActivateSignal(GtkWidget *, UserStrip * /* pStrip */) {
+	// TODO: activate the best button when return hit
+}
+
+gboolean UserStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pStrip) {
+	if (event->keyval == GKEY_Escape) {
+		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
+		pStrip->Close();
+	}
+	return FALSE;
+}
+
+void UserStrip::ClickThis(GtkWidget *w) {
+	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); line++) {
+		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ctl++) {
+			if (w == GTK_WIDGET(ctl->w.GetID())) {
+				extender->OnUserStrip(ctl->item, scClicked);
+			}
+		}
+	}
+}
+
+void UserStrip::ClickSignal(GtkWidget *w, UserStrip *pStrip) {
+	pStrip->ClickThis(w);
+}
+
+void UserStrip::ChildFocus(GtkWidget *widget) {
+	Strip::ChildFocus(widget);
+}
+
+gboolean UserStrip::Focus(GtkDirectionType /* direction */) {
+	// Can be used to loop focus around from last widget to first
+	return FALSE;
+}
+
+void UserStrip::SetDescription(const char *description) {
+	if (psd) {
+		for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); line++) {
+			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ctl++) {
+				gtk_widget_destroy(GTK_WIDGET(ctl->w.GetID()));
+			}
+		}
+	}
+	delete psd;
+	psd = new StripDefinition(description);
+	tableUser.Resize(psd->controls.size(), psd->columns);
+
+	int item = 0;
+	bool hasSetFocus = false;
+	for (size_t line=0; line<psd->controls.size(); line++) {
+		std::vector<UserControl> &uc = psd->controls[line];
+		for (size_t control=0; control<uc.size(); control++) {
+			UserControl *puc = &(uc[control]);
+			puc->item = item;
+			switch (puc->controlType) {
+			case UserControl::ucEdit: {
+					WEntry we;
+					we.Create(puc->text.c_str());
+					puc->w.SetID(we.GetID());
+					tableUser.Add(we, 1, true, 0, 0);
+					break;
+				}
+			case UserControl::ucCombo: {
+					WComboBoxEntry wc;
+					wc.Create();
+					wc.SetText(puc->text.c_str());
+					puc->w.SetID(wc.GetID());
+					tableUser.Add(wc, 1, true, 0, 0);
+					break;
+				}
+			case UserControl::ucButton: {
+					WButton wb;
+					wb.Create(puc->text.c_str(), reinterpret_cast<GCallback>(UserStrip::ClickSignal), this);
+					puc->w.SetID(wb.GetID());
+					tableUser.Add(wb, 1, false, 0, 0);
+					break;
+				}
+			default: {
+					WStatic ws;
+					ws.Create(puc->text.c_str());
+					puc->w.SetID(ws.GetID());
+					gtk_misc_set_alignment(GTK_MISC(puc->w.GetID()), 1.0, 0.5);
+					tableUser.Add(ws, 1, false, 5, 0);
+				}
+			}
+			gtk_widget_show(GTK_WIDGET(puc->w.GetID()));
+			if (!hasSetFocus && (puc->controlType != UserControl::ucStatic)) {
+				gtk_widget_grab_focus(GTK_WIDGET(puc->w.GetID()));
+				hasSetFocus = true;
+			}
+			item++;
+		}
+		tableUser.NextLine() ;
+	}
+
+	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); line++) {
+		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ctl++) {
+			if ((ctl->controlType == UserControl::ucEdit) || (ctl->controlType == UserControl::ucCombo)) {
+				GtkEntry *entry;
+				if (ctl->controlType == UserControl::ucEdit)
+					entry = GTK_ENTRY(ctl->w.GetID());
+				else
+					entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(ctl->w.GetID())));
+
+				g_signal_connect(G_OBJECT(entry), "key-press-event", G_CALLBACK(EscapeSignal), this);
+				g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(ActivateSignal), this);
+			}
+		}
+	}
+}
+
+void UserStrip::SetExtender(Extension *extender_) {
+	extender = extender_;
+}
+
+void UserStrip::SetSciTE(SciTEGTK *pSciTEGTK_) {
+	pSciTEGTK = pSciTEGTK_;
+}
+
+void UserStrip::Set(int control, const char *value) {
+	if (psd) {
+		UserControl *ctl = psd->FindControl(control);
+		if (ctl) {
+			if (ctl->controlType == UserControl::ucEdit) {
+				WEntry *pwe = static_cast<WEntry *>(&(ctl->w));
+				pwe->SetText(value);
+			}
+		}
+	}
+}
+
+void UserStrip::SetList(int control, const char *value) {
+	if (psd) {
+		UserControl *ctl = psd->FindControl(control);
+		if (ctl) {
+			if (ctl->controlType == UserControl::ucCombo) {
+				GUI::gui_string sValue = GUI::StringFromUTF8(value);
+				std::vector<std::string> listValues = ListFromString(sValue);
+				WComboBoxEntry *pwc = static_cast<WComboBoxEntry *>(&(ctl->w));
+				pwc->FillFromMemory(listValues);
+			}
+		}
+	}
+}
+
+std::string UserStrip::GetValue(int control) {
+	if (psd) {
+		UserControl *ctl = psd->FindControl(control);
+		if (ctl->controlType == UserControl::ucEdit) {
+			WEntry *pwe = static_cast<WEntry *>(&(ctl->w));
+			return pwe->Text();
+		} else if (ctl->controlType == UserControl::ucCombo) {
+			WComboBoxEntry *pwc = static_cast<WComboBoxEntry *>(&(ctl->w));
+			return pwc->Text();
+		}
+	}
+	return "";
+}
+
 void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
 	backgroundStrip.SetLocalizer(&localiser);
 	backgroundStrip.Creation(boxMain);
+
+	userStrip.SetSciTE(this);
+	userStrip.SetExtender(extender);
+	userStrip.SetLocalizer(&localiser);
+	userStrip.Creation(boxMain);
 
 	findStrip.SetLocalizer(&localiser);
 	findStrip.SetSearcher(this);
@@ -4362,7 +4639,7 @@ void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
 }
 
 bool SciTEGTK::StripHasFocus() {
-	return findStrip.VisibleHasFocus() || replaceStrip.VisibleHasFocus();
+	return findStrip.VisibleHasFocus() || replaceStrip.VisibleHasFocus() || userStrip.VisibleHasFocus();
 }
 
 void SciTEGTK::LayoutUI() {
@@ -4583,6 +4860,7 @@ void SciTEGTK::CreateUI() {
 		gtk_window_maximize(GTK_WINDOW(PWidget(wSciTE)));
 
 	gtk_widget_hide(PWidget(backgroundStrip));
+	gtk_widget_hide(PWidget(userStrip));
 	gtk_widget_hide(wIncrementPanel);
 	gtk_widget_hide(PWidget(findStrip));
 	gtk_widget_hide(PWidget(replaceStrip));

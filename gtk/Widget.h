@@ -79,6 +79,7 @@ public:
 	const GUI::gui_char *Text();
 	void SetText(const GUI::gui_char *text);
 	bool HasFocusOnSelfOrChild();
+	void ClearList();
 	void RemoveText(int position);
 	void AppendText(const char *text);
 	void FillFromMemory(const std::vector<std::string> &mem, bool useTop = false);
@@ -140,6 +141,8 @@ public:
 		int xpadding=5, int ypadding=5);
 	void Label(GtkWidget *child);
 	void PackInto(GtkBox *box, gboolean expand=TRUE);
+	void Resize(int rows, int columns);
+	void NextLine();
 };
 
 GUI::gui_char KeyFromLabel(GUI::gui_string label);
