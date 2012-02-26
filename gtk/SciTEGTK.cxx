@@ -4429,8 +4429,8 @@ void UserStrip::Destruction() {
 
 void UserStrip::Show(int buttonHeight) {
 	Strip::Show(buttonHeight);
-	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); line++) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ctl++) {
+	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
+		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
 			if (ctl->controlType == UserControl::ucStatic) {
 				gtk_widget_set_size_request(GTK_WIDGET(ctl->w.GetID()), -1, heightStatic);
 			} else if (ctl->controlType == UserControl::ucEdit) {
@@ -4474,8 +4474,8 @@ gboolean UserStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pS
 }
 
 void UserStrip::ClickThis(GtkWidget *w) {
-	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); line++) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ctl++) {
+	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
+		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
 			if (w == GTK_WIDGET(ctl->w.GetID())) {
 				extender->OnUserStrip(ctl->item, scClicked);
 			}
@@ -4498,8 +4498,8 @@ gboolean UserStrip::Focus(GtkDirectionType /* direction */) {
 
 void UserStrip::SetDescription(const char *description) {
 	if (psd) {
-		for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); line++) {
-			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ctl++) {
+		for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
+			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
 				gtk_widget_destroy(GTK_WIDGET(ctl->w.GetID()));
 			}
 		}
@@ -4556,8 +4556,8 @@ void UserStrip::SetDescription(const char *description) {
 		tableUser.NextLine() ;
 	}
 
-	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); line++) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ctl++) {
+	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
+		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
 			if ((ctl->controlType == UserControl::ucEdit) || (ctl->controlType == UserControl::ucCombo)) {
 				GtkEntry *entry;
 				if (ctl->controlType == UserControl::ucEdit)
