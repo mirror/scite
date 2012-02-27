@@ -144,7 +144,7 @@ void FileStorer::Execute() {
 			if ((unicodeMode != uni8Bit) && (i + grabSize < lengthDoc)) {
 				// Round down so only whole characters retrieved.
 				int startLast = grabSize;
-				while ((startLast > 0) && ((grabSize - startLast) > 6) && IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[i + startLast])))
+				while ((startLast > 0) && ((grabSize - startLast) < 6) && IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[i + startLast])))
 					startLast--;
 				if ((grabSize - startLast) < 5)
 					grabSize = startLast;
