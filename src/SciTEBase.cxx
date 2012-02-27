@@ -969,6 +969,7 @@ int SciTEBase::MarkAll() {
 	int posCurrent = wEditor.Call(SCI_GETCURRENTPOS);
 	int marked = 0;
 	int posFirstFound = FindNext(false, false);
+	int posEndFound = wEditor.Call(SCI_GETTARGETEND);
 
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
@@ -986,7 +987,9 @@ int SciTEBase::MarkAll() {
 				wEditor.Call(SCI_INDICATORFILLRANGE, posFound, wEditor.Call(SCI_GETTARGETEND) - posFound);
 			}
 			posFound = FindNext(false, false);
-		} while ((posFound != -1) && (posFound != posFirstFound));
+			posEndFound = wEditor.Call(SCI_GETTARGETEND);
+			// Since start position may be within a match, terminate when match includes initial position
+		} while ((posFound != -1) && !((posFound <= posFirstFound) && (posFirstFound <= posEndFound)));
 	}
 	wEditor.Call(SCI_SETCURRENTPOS, posCurrent);
 	return marked;
