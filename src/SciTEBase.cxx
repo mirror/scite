@@ -969,7 +969,6 @@ int SciTEBase::MarkAll() {
 	int posCurrent = wEditor.Call(SCI_GETCURRENTPOS);
 	int marked = 0;
 	int posFirstFound = FindNext(false, false);
-	int posEndFound = wEditor.Call(SCI_GETTARGETEND);
 
 	SString findMark = props.Get("find.mark");
 	if (findMark.length()) {
@@ -978,6 +977,7 @@ int SciTEBase::MarkAll() {
 		CurrentBuffer()->findMarks = Buffer::fmMarked;
 	}
 	if (posFirstFound != -1) {
+		int posEndFound;
 		int posFound = posFirstFound;
 		do {
 			marked++;
