@@ -604,7 +604,8 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 
 // Returns true if editor should get the focus
 bool SciTEBase::OpenSelected() {
-	char selectedFilename[MAX_PATH];
+	char targetFilename[MAX_PATH];
+	char *selectedFilename = targetFilename;
 	char cTag[200];
 	unsigned long lineNumber = 0;
 
@@ -628,6 +629,13 @@ bool SciTEBase::OpenSelected() {
 		return false;	// Job is done
 	}
 #endif
+
+	if (strncmp(selectedFilename, "file://", 7) == 0) {
+		selectedFilename += 7;
+		if (selectedFilename[0] == '/' && selectedFilename[2] == ':') { // file:///C:/filename.ext
+			selectedFilename++;
+		}
+	}
 
 	SString fileNameForExtension = ExtensionFileName();
 	SString openSuffix = props.GetNewExpand("open.suffix.", fileNameForExtension.c_str());
