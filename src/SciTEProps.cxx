@@ -1011,10 +1011,11 @@ void SciTEBase::ReadProperties() {
 
 	sval = FindLanguageProperty("calltip.*.ignorecase");
 	callTipIgnoreCase = sval == "1";
+	sval = FindLanguageProperty("calltip.*.use.escapes");
+	callTipUseEscapes = sval == "1";
 
 	calltipWordCharacters = FindLanguageProperty("calltip.*.word.characters",
 		"_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-
 	calltipParametersStart = FindLanguageProperty("calltip.*.parameters.start", "(");
 	calltipParametersEnd = FindLanguageProperty("calltip.*.parameters.end", ")");
 	calltipParametersSeparators = FindLanguageProperty("calltip.*.parameters.separators", ",;");
