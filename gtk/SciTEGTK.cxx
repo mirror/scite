@@ -4461,8 +4461,16 @@ bool UserStrip::KeyDown(GdkEventKey *event) {
 	return false;
 }
 
-void UserStrip::ActivateSignal(GtkWidget *, UserStrip * /* pStrip */) {
-	// TODO: activate the best button when return hit
+void UserStrip::ActivateSignal(GtkWidget *, UserStrip *pStrip) {
+	// Treat Enter as pressing the first button
+	for (std::vector<std::vector<UserControl> >::iterator line=pStrip->psd->controls.begin(); line != pStrip->psd->controls.end(); ++line) {
+		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
+			if (ctl->controlType == UserControl::ucButton) {
+				pStrip->extender->OnUserStrip(ctl->item, scClicked);
+				return;
+			}
+		}
+	}
 }
 
 gboolean UserStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pStrip) {
