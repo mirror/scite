@@ -242,6 +242,7 @@ The possible Scintilla calls are listed in <a href="http://scite-interest.google
 The Scintilla API is described in 
 <a href="http://www.scintilla.org/ScintillaDoc.html">ScintillaDoc</a>.
 </p>
+<p>
 The <tt>scite</tt> namespace includes the following functions:
 </p><pre><tt>  scite.Open(filename)
     - opens a file in a new buffer
@@ -284,6 +285,52 @@ or if extending the SciTE LuaExtension to support macro recording.
 The <tt>MenuCommand</tt> function enables usage of SciTE's menu commands
 as defined in SciTE.h.
 </p>
+
+<h4>Scripting user interfaces with strips</h4>
+<p>Simple user interfaces may be defined from Lua as strips similar to
+the find and replace strips. An example looks like
+<img src="http://scintilla.org/UserStrip.png"></img></p>
+
+<p>Strips are shown with StripShow which takes a string describing
+the user interface then builds and displays it as a strip at the
+bottom of the application window. There are 4 supported elements:
+static text, editable text, combo boxes and buttons. These are
+surrounded by different indicator characters: ' for static text; []
+for editable text; {} for combo boxes; and () for buttons. There can
+also be a newline to start a new line and a ! to show a close box on
+Windows only. Buttons may include accelerator keys prefixed with &amp;.
+
+  For example, the code
+<pre><tt>
+       scite.StripShow("!'Explanation:'{}(&amp;Search)\n'Name:'[Name](OK)(Cancel)")
+</tt></pre>
+  shows the strip displayed in the picture. The strip can be closed
+by passing an empty string.</p>
+
+<p>On GTK+ a table is used for layout and the approach was copied to the other
+platforms. It is not yet as capable on the other platforms yet as on
+GTK+ - columns containing editable text and combo boxes can expand and
+other columns are fixed to the their natural width of their widest
+element.</p>
+
+<p>Events from the user are communicated back to the script through
+the OnUser function which takes an element number (starting at 0 and
+including static text elements) and a change type (clicked=1,
+change=2, focusIn=3, focusOut=4). 'clicked' is for button presses,
+'change' for changes to editable text or the editable text part of a
+combo boxes and 'focusIn' and 'focusOut' are when the user moves focus
+between elements. The value of editable text or combo boxes can be
+retrieved with StripValue(element).</p>
+
+<p>There are some bugs and limitations with these events currently.
+Focus events may not occur or may occur only when text is edited.
+Selecting an item from the list in a combo box may not send a 'change'
+event.</p>
+
+<p>The editable part of combo boxes and editable text can be set with
+StripSet(element, value) and the list part of combo boxes can be set
+with StripSetList(element, value) where the items in 'value' are
+separated with new lines.</p>
 
 <h4>Lua 5.1</h4>
 <pre>
