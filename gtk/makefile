@@ -76,27 +76,27 @@ INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
 	$(CCOMP) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
 
 else
-CXXFLAGS+=-DNO_LUA
+CXXTFLAGS+=-DNO_LUA
 endif
 
-CXXFLAGS:=$(CXXFLAGS) $(CXXTFLAGS) -Wno-long-long
+CXXTFLAGS:=$(CXXTFLAGS) -Wno-long-long
 
 UNAME:=$(shell uname -s)
 ifeq ($(UNAME), Linux)
 LIBDL:=-ldl
 endif
 ifeq ($(UNAME), Darwin)
-CXXFLAGS:=$(CXXFLAGS) -Dunix
+CXXTFLAGS:=$(CXXTFLAGS) -Dunix
 endif
 
 .cxx.o:
-	$(CC) $(CONFIGFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CC) $(CONFIGFLAGS) $(CXXTFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o $(PROG)
 
 deps:
-	$(CC) -MM $(CONFIGFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
+	$(CC) -MM $(CONFIGFLAGS) $(CXXTFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=../../scintilla/bin/scintilla.a
