@@ -1256,31 +1256,36 @@ GtkWidget *SciTEGTK::MenuItemFromAction(int itemID) {
 		return it->second;
 }
 
+static SString GtkFromWinCaption(const char *text) {
+	SString sCaption(text);
+	// Escape underlines
+	sCaption.substitute("_", "__");
+	// Replace Windows-style ampersands with GTK+ underlines
+	int posFound = sCaption.search("&");
+	while (posFound >= 0) {
+		SString nextChar = sCaption.substr(posFound + 1, 1);
+		if (nextChar == "&") {
+			// Escaped, move on
+			posFound += 2;
+		} else {
+			sCaption.remove(posFound, 1);
+			sCaption.insert(posFound, "_", 1);
+			posFound += 1;
+		}
+		posFound = sCaption.search("&", posFound);
+	}
+	// Unescape ampersands
+	sCaption.substitute("&&", "&");
+	return sCaption;
+}
+
 void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *mnemonic) {
 	DestroyMenuItem(0, itemID);
 
 	// On GTK+ the menuNumber and position are ignored as the menu item already exists and is in the right
 	// place so only needs to be shown and have its text set.
 
-	SString itemText(text);
-	// Escape underlines
-	itemText.substitute("_", "__");
-	// Replace Windows-style ampersands with GTK+ underlines
-	int posFound = itemText.search("&");
-	while (posFound >= 0) {
-		SString nextChar = itemText.substr(posFound + 1, 1);
-		if (nextChar == "&") {
-			// Escaped, move on
-			posFound += 2;
-		} else {
-			itemText.remove(posFound, 1);
-			itemText.insert(posFound, "_", 1);
-			posFound += 1;
-		}
-		posFound = itemText.search("&", posFound);
-	}
-	// Unescape ampersands
-	itemText.substitute("&&", "&");
+	SString itemText = GtkFromWinCaption(text);
 
 	long keycode = 0;
 	if (mnemonic && *mnemonic) {
@@ -4523,6 +4528,7 @@ void UserStrip::SetDescription(const char *description) {
 		for (size_t control=0; control<uc.size(); control++) {
 			UserControl *puc = &(uc[control]);
 			puc->item = item;
+			SString sCaption = GtkFromWinCaption(puc->text.c_str());
 			switch (puc->controlType) {
 			case UserControl::ucEdit: {
 					WEntry we;
@@ -4541,14 +4547,14 @@ void UserStrip::SetDescription(const char *description) {
 				}
 			case UserControl::ucButton: {
 					WButton wb;
-					wb.Create(puc->text.c_str(), reinterpret_cast<GCallback>(UserStrip::ClickSignal), this);
+					wb.Create(sCaption.c_str(), reinterpret_cast<GCallback>(UserStrip::ClickSignal), this);
 					puc->w.SetID(wb.GetID());
 					tableUser.Add(wb, 1, false, 0, 0);
 					break;
 				}
 			default: {
 					WStatic ws;
-					ws.Create(puc->text.c_str());
+					ws.Create(sCaption.c_str());
 					puc->w.SetID(ws.GetID());
 					gtk_misc_set_alignment(GTK_MISC(puc->w.GetID()), 1.0, 0.5);
 					tableUser.Add(ws, 1, false, 5, 0);
