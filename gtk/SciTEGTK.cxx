@@ -4601,6 +4601,9 @@ void UserStrip::Set(int control, const char *value) {
 			if (ctl->controlType == UserControl::ucEdit) {
 				WEntry *pwe = static_cast<WEntry *>(&(ctl->w));
 				pwe->SetText(value);
+			} else if (ctl->controlType == UserControl::ucCombo) {
+				WComboBoxEntry *pwc = static_cast<WComboBoxEntry *>(&(ctl->w));
+				pwc->SetText(value);
 			}
 		}
 	}
