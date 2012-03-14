@@ -59,6 +59,7 @@ inline GtkWidget *Widget(const GUI::Window &w) {
 class WStatic : public WBase {
 public:
 	void Create(GUI::gui_string text);
+	bool HasMnemonic();
 	void SetMnemonicFor(WBase &w);
 };
 

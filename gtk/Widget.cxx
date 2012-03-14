@@ -21,8 +21,10 @@
 // Key names are longer for GTK+ 3
 #if GTK_CHECK_VERSION(3,0,0)
 #define GKEY_Escape GDK_KEY_Escape
+#define GKEY_Void GDK_KEY_VoidSymbol
 #else
 #define GKEY_Escape GDK_Escape
+#define GKEY_Void GDK_VoidSymbol
 #endif
 
 WBase::operator GtkWidget*() {
@@ -43,6 +45,10 @@ void WBase::SetSensitive(bool sensitive) {
 
 void WStatic::Create(GUI::gui_string text) {
 	SetID(gtk_label_new_with_mnemonic(text.c_str()));
+}
+
+bool WStatic::HasMnemonic() {
+	return gtk_label_get_mnemonic_keyval(GTK_LABEL(Pointer())) != GKEY_Void;
 }
 
 void WStatic::SetMnemonicFor(WBase &w) {
