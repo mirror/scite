@@ -239,7 +239,7 @@ However, if an iface function is declared as get / set but cannot be
 mapped to a Lua property, it is exposed as a Lua function instead.
 </p><p>
 The possible Scintilla calls are listed in <a href="http://scite-interest.googlegroups.com/web/SciTELua.api">API file format.</a>
-The Scintilla API is described in 
+The Scintilla API is described in
 <a href="http://www.scintilla.org/ScintillaDoc.html">ScintillaDoc</a>.
 </p>
 <p>
@@ -288,21 +288,24 @@ as defined in SciTE.h.
 
 <h4>Scripting user interfaces with strips</h4>
 <p>Simple user interfaces may be defined from Lua as strips similar to
-the find and replace strips. An example looks like
+the find and replace strips. An example looks like<br />
 <img src="http://scintilla.org/UserStrip.png"></img></p>
 
 <p>Strips are shown with StripShow which takes a string describing
 the user interface then builds and displays it as a strip at the
 bottom of the application window. There are 4 supported elements:
-static text, editable text, combo boxes and buttons. These are
-surrounded by different indicator characters: ' for static text; []
+labels, editable text, combo boxes and buttons. These are
+surrounded by different indicator characters: ' for labels; []
 for editable text; {} for combo boxes; and () for buttons. There can
 also be a newline to start a new line and a ! to show a close box on
-Windows only. Buttons may include accelerator keys prefixed with &amp;.
+Windows only.</p>
+<p>The first button is the default and can be triggered by pressing the Enter key.
+Buttons may include accelerator keys prefixed with &amp;.
+On Windows and GTK+ but not OS X, labels may also define accelerator keys
+which cause focus to move to the next element which accepts focus.
+Literal ampersands are defined with &amp;&amp;.
 
-  For example, the code
-<pre><tt>
-       scite.StripShow("!'Explanation:'{}(&amp;Search)\n'Name:'[Name](OK)(Cancel)")
+  For example, the code<pre><tt>       scite.StripShow("!'Explanation:'{}(&amp;Search)\n'Name:'[Name](OK)(Cancel)")
 </tt></pre>
   shows the strip displayed in the picture. The strip can be closed
 by passing an empty string.</p>
