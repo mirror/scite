@@ -1374,7 +1374,6 @@ void SciTEBase::Execute() {
 	jobQueue.cancelFlag = 0L;
 	jobQueue.SetExecuting(true);
 	CheckMenus();
-	filePath.Directory().SetWorkingDirectory();
 	dirNameAtExecute = filePath.Directory();
 }
 
@@ -2957,7 +2956,13 @@ void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem 
 		jobQueue.jobUsesOutputPane = false;
 	if (cmd.length()) {
 		jobQueue.jobQueue[jobQueue.commandCurrent].command = cmd;
-		jobQueue.jobQueue[jobQueue.commandCurrent].directory.Set(GUI::StringFromUTF8(dir.c_str()));
+		if (dir.length() != 0) {
+			// Explicit directory
+			jobQueue.jobQueue[jobQueue.commandCurrent].directory.Set(GUI::StringFromUTF8(dir.c_str()));
+		} else {
+			// Default to directory of current file
+			jobQueue.jobQueue[jobQueue.commandCurrent].directory = filePath.Directory();
+		}
 		jobQueue.jobQueue[jobQueue.commandCurrent].jobType = jobType;
 		jobQueue.jobQueue[jobQueue.commandCurrent].input = input;
 		jobQueue.jobQueue[jobQueue.commandCurrent].flags = flags;
@@ -3839,7 +3844,7 @@ void SciTEBase::NewLineInOutput() {
 		cmd = cmd.substr(1);
 	}
 	returnOutputToCommand = false;
-	AddCommand(cmd, ".", jobCLI);
+	AddCommand(cmd, "", jobCLI);
 	Execute();
 }
 
