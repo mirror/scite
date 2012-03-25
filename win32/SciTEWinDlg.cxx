@@ -846,6 +846,7 @@ const char *SciTEWin::UserStripValue(int control) {
 
 void SciTEWin::UserStripClosed() {
 	SizeSubWindows();
+	WindowSetFocus(wEditor);
 }
 
 void SciTEWin::ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress) {
