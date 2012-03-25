@@ -3615,6 +3615,7 @@ int UserStrip::Lines() {
 void UserStrip::SetDescription(const char *description) {
 	entered++;
 	GUI::gui_string sDescription = GUI::StringFromUTF8(description);
+	bool resetting = psd != 0;
 	if (psd) {
 		for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
 			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
@@ -3671,6 +3672,8 @@ void UserStrip::SetDescription(const char *description) {
 			controlID++;
 		}
 	}
+	if (resetting)
+		Size();
 	entered--;
 	Focus();
 }
