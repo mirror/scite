@@ -3688,10 +3688,8 @@ UserControl *UserStrip::FindControl(int control) {
 void UserStrip::Set(int control, const char *value) {
 	UserControl *ctl = FindControl(control);
 	if (ctl) {
-		if (ctl->controlType == UserControl::ucEdit) {
-			GUI::gui_string sValue = GUI::StringFromUTF8(value);
-			::SetWindowTextW(HwndOf(ctl->w), sValue.c_str());
-		}
+		GUI::gui_string sValue = GUI::StringFromUTF8(value);
+		::SetWindowTextW(HwndOf(ctl->w), sValue.c_str());
 	}
 }
 
