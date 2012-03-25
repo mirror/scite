@@ -625,6 +625,24 @@ void SciTEBase::RestoreFromSession(const Session &session) {
 }
 
 void SciTEBase::RestoreSession() {
+	if (props.GetInt("save.find") != 0) {
+		for (int i = 0;; i++) {
+			SString propKey = IndexPropKey("search", i, "findwhat");
+			SString propStr = propsSession.Get(propKey.c_str());
+			if (propStr == "")
+				break;
+			memFinds.AppendList(propStr.c_str());
+		}
+
+		for (int i = 0;; i++) {
+			SString propKey = IndexPropKey("search", i, "replacewith");
+			SString propStr = propsSession.Get(propKey.c_str());
+			if (propStr == "")
+				break;
+			memReplaces.AppendList(propStr.c_str());
+		}
+	}
+
 	// Comment next line if you don't want to close all buffers before restoring session
 	CloseAllBuffers(true);
 
@@ -708,6 +726,31 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 			if (recentFileStack[i].IsSet()) {
 				propKey = IndexPropKey("mru", j++, "path");
 				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), recentFileStack[i].AsUTF8().c_str());
+			}
+		}
+	}
+
+	if (defaultSession && props.GetInt("save.find")) {
+		SString propKey;
+		std::vector<std::string>::iterator it;
+		std::vector<std::string> mem = memFinds.AsVector();
+		if (!mem.empty()) {
+			fprintf(sessionFile, "\n");
+			it = mem.begin();
+			for (int i = 0; it != mem.end(); i++, it++) {
+				propKey = IndexPropKey("search", i, "findwhat");
+				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), (*it).c_str());
+			}
+		}
+
+		mem = memReplaces.AsVector();
+		if (!mem.empty()) {
+			fprintf(sessionFile, "\n");
+			mem = memReplaces.AsVector();
+			it = mem.begin();
+			for (int i = 0; it != mem.end(); i++, it++) {
+				propKey = IndexPropKey("search", i, "replacewith");
+				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), (*it).c_str());
 			}
 		}
 	}
