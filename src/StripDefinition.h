@@ -118,7 +118,8 @@ public:
 			if (cw.isResizeable)
 				resizeables++;
 		}
-		int widthSpareEach = (widthToAllocate - widthOfNonResizeables) / resizeables;
+		int widthSpareEach = resizeables ? 
+			(widthToAllocate - widthOfNonResizeables) / resizeables : 0;
 		for (std::vector<ColumnWidth>::iterator cw=widths.begin(); cw != widths.end(); ++cw) {
 			if (cw->isResizeable) {
 				cw->widthAllocated = widthSpareEach + cw->widthDesired;
