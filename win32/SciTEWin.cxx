@@ -3551,12 +3551,14 @@ bool UserStrip::KeyDown(WPARAM key) {
 	if (Strip::KeyDown(key))
 		return true;
 	if (key == VK_RETURN) {
-		// Treat Enter as pressing the first button
-		for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-				if (ctl->controlType == UserControl::ucButton) {
-					extender->OnUserStrip(ctl->item, scClicked);
-					return true;
+		if (IsChild(Hwnd(), ::GetFocus())) {
+			// Treat Enter as pressing the first button
+			for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
+				for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
+					if (ctl->controlType == UserControl::ucButton) {
+						extender->OnUserStrip(ctl->item, scClicked);
+						return true;
+					}
 				}
 			}
 		}
