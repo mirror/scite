@@ -1321,7 +1321,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 		if (jobQueue.Cancelled())
 			return;
 		FilePath fPath = files[i];
-		if (fPath.Matches(fileTypes)) {
+		if (*fileTypes == '\0' || fPath.Matches(fileTypes)) {
 			//OutputAppendStringSynchronised(i->AsInternal());
 			//OutputAppendStringSynchronised("\n");
 			FileReader fr(fPath, gf & grepMatchCase);
