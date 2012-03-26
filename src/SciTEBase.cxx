@@ -1050,7 +1050,7 @@ void SciTEBase::ScrollEditorIfNeeded() {
 		wEditor.Call(SCI_SCROLLCARET);
 }
 
-int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
+int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegExp) {
 	if (findWhat.length() == 0) {
 		Find();
 		return -1;
@@ -1070,7 +1070,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings) {
 
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	        (matchCase ? SCFIND_MATCHCASE : 0) |
-	        (regExp ? SCFIND_REGEXP : 0) |
+	        ((allowRegExp && regExp) ? SCFIND_REGEXP : 0) |
 	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
 
 	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
@@ -3231,7 +3231,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_FINDNEXTSEL:
 		SelectionIntoFind();
-		FindNext(reverseFind);
+		FindNext(reverseFind, true, false);
 		break;
 
 	case IDM_ENTERSELECTION:
@@ -3240,7 +3240,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_FINDNEXTBACKSEL:
 		SelectionIntoFind();
-		FindNext(!reverseFind);
+		FindNext(!reverseFind, true, false);
 		break;
 
 	case IDM_FINDINFILES:
