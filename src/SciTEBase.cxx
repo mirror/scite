@@ -1372,7 +1372,9 @@ void SciTEBase::Execute() {
 	}
 
 	jobQueue.cancelFlag = 0L;
-	jobQueue.SetExecuting(true);
+	if (jobQueue.HasCommandToRun()) {
+		jobQueue.SetExecuting(true);
+	}
 	CheckMenus();
 	dirNameAtExecute = filePath.Directory();
 }

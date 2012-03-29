@@ -102,6 +102,10 @@ public:
 		executing = state;
 	}
 
+	bool HasCommandToRun() const {
+		return commandCurrent > 0;
+	}
+
 	long SetCancelFlag(long value) {
 		Lock lock(mutex);
 		long cancelFlagPrevious = cancelFlag;

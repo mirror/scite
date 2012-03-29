@@ -1150,7 +1150,7 @@ void SciTEWin::Execute() {
 		return;
 
 	SciTEBase::Execute();
-	if (cmdWorker.icmd >= jobQueue.commandCurrent)
+	if (!jobQueue.HasCommandToRun())
 		// No commands to execute - possibly cancelled in SciTEBase::Execute
 		return;
 
