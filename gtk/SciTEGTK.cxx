@@ -1858,7 +1858,7 @@ void SciTEGTK::Print(bool) {
 	if (printCommand.length()) {
 		// Using a command to print
 		AddCommand(printCommand, "", SubsystemType("command.print.subsystem."));
-		if (jobQueue.commandCurrent > 0) {
+		if (jobQueue.HasCommandToRun()) {
 			jobQueue.isBuilding = true;
 			Execute();
 		}
@@ -2131,7 +2131,7 @@ void SciTEGTK::FindInFilesCmd() {
 		//~ fprintf(stderr, "%s\n", findCommand.c_str());
 	}
 	AddCommand(findCommand, props.Get("find.directory"), jobCLI);
-	if (jobQueue.commandCurrent > 0)
+	if (jobQueue.HasCommandToRun())
 		Execute();
 }
 

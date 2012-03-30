@@ -615,10 +615,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 			if (needReadProperties)
 				ReadProperties();
 			CheckMenus();
-			for (int icmd = 0; icmd < jobQueue.commandMax; icmd++) {
-				jobQueue.jobQueue[icmd].Clear();
-			}
-			jobQueue.commandCurrent = 0;
+			jobQueue.ClearJobs();
 			CheckReload();
 		}
 		break;

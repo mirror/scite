@@ -1151,7 +1151,7 @@ void SciTEWin::PerformGrep() {
 			   props.Get("find.directory"),
 			   jobCLI, findInput, flags);
 	}
-	if (jobQueue.commandCurrent > 0) {
+	if (jobQueue.HasCommandToRun()) {
 		Execute();
 	}
 }

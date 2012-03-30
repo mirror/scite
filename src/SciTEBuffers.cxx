@@ -1644,7 +1644,7 @@ void SciTEBase::ToolsMenu(int item) {
 				flags |= jobGroupUndo;
 
 			AddCommand(command, "", jobType, input, flags);
-			if (jobQueue.commandCurrent > 0)
+			if (jobQueue.HasCommandToRun())
 				Execute();
 		}
 	}

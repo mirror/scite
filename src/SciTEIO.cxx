@@ -463,7 +463,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 		ReloadProperties();
 	}
 	UpdateStatusBar(true);
-	if (!jobQueue.executing && (jobQueue.commandCurrent > 0)) {
+	if (!jobQueue.executing && (jobQueue.HasCommandToRun())) {
 		Execute();
 	}
 	if (quitting && !buffers.SavingInBackground()) {

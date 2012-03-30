@@ -35,3 +35,15 @@ void JobQueue::ClearJobs() {
 	}
 	commandCurrent = 0;
 }
+
+void JobQueue::AddCommand(const SString &command, const FilePath &directory, JobSubsystem jobType, const SString &input, int flags) {
+	if ((commandCurrent < commandMax) && (command.length())) {
+		if (commandCurrent == 0)
+			jobUsesOutputPane = false;
+		jobQueue[commandCurrent] = Job(command, directory, jobType, input, flags);
+		commandCurrent++;
+		if (jobType == jobCLI)
+			jobUsesOutputPane = true;
+		// For jobExtension, the Trace() method shows output pane on demand.
+	}
+}

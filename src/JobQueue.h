@@ -29,19 +29,23 @@ class Job {
 public:
 	SString command;
 	FilePath directory;
-	SString input;
 	JobSubsystem jobType;
+	SString input;
 	int flags;
 
 	Job() {
 		Clear();
 	}
 
+	Job(const SString &command_, const FilePath &directory_, JobSubsystem jobType_, const SString &input_, int flags_)
+		: command(command_), directory(directory_), jobType(jobType_), input(input_), flags(flags_) {
+	}
+
 	void Clear() {
 		command = "";
 		directory.Init();
-		input = "";
 		jobType = jobCLI;
+		input = "";
 		flags = 0;
 	}
 };
@@ -119,6 +123,7 @@ public:
 	}
 
 	void ClearJobs();
+	void AddCommand(const SString &command, const FilePath &directory, JobSubsystem jobType, const SString &input, int flags);
 };
 
 #endif
