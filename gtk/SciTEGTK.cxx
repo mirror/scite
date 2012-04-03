@@ -4444,7 +4444,7 @@ void UserStrip::Show(int buttonHeight) {
 			} else if (ctl->controlType == UserControl::ucCombo) {
 				GtkEntry *entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(ctl->w.GetID())));
 				gtk_widget_set_size_request(GTK_WIDGET(entry), -1, buttonHeight);
-			} else if (ctl->controlType == UserControl::ucButton) {
+			} else if (ctl->controlType == UserControl::ucButton || ctl->controlType == UserControl::ucDefaultButton) {
 				gtk_widget_set_size_request(GTK_WIDGET(ctl->w.GetID()), -1, buttonHeight);
 			}
 		}
@@ -4468,10 +4468,10 @@ bool UserStrip::KeyDown(GdkEventKey *event) {
 }
 
 void UserStrip::ActivateSignal(GtkWidget *, UserStrip *pStrip) {
-	// Treat Enter as pressing the first button
+	// Treat Enter as pressing the first default button
 	for (std::vector<std::vector<UserControl> >::iterator line=pStrip->psd->controls.begin(); line != pStrip->psd->controls.end(); ++line) {
 		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-			if (ctl->controlType == UserControl::ucButton) {
+			if (ctl->controlType == UserControl::ucDefaultButton) {
 				pStrip->extender->OnUserStrip(ctl->item, scClicked);
 				return;
 			}
@@ -4574,11 +4574,15 @@ void UserStrip::SetDescription(const char *description) {
 					tableUser.Add(wc, 1, true, 0, 0);
 					break;
 				}
-			case UserControl::ucButton: {
+			case UserControl::ucButton:
+			case UserControl::ucDefaultButton: {
 					WButton wb;
 					wb.Create(sCaption.c_str(), reinterpret_cast<GCallback>(UserStrip::ClickSignal), this);
 					puc->w.SetID(wb.GetID());
 					tableUser.Add(wb, 1, false, 0, 0);
+					if (puc->controlType == UserControl::ucDefaultButton) {
+						gtk_widget_grab_default(GTK_WIDGET(puc->w.GetID()));
+					}
 					break;
 				}
 			default: {
