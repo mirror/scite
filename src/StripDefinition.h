@@ -7,17 +7,17 @@
 
 class UserControl {
 public:
-	enum UCControlType { ucStatic, ucEdit, ucCombo, ucButton } controlType;
+	enum UCControlType { ucStatic, ucEdit, ucCombo, ucButton, ucDefaultButton } controlType;
 	GUI::gui_string text;
 	int item;
 	bool fixedWidth;
 	int widthDesired;
 	int widthAllocated;
 	GUI::Window w;
-	UserControl(UCControlType controlType_, GUI::gui_string text_) : 
+	UserControl(UCControlType controlType_, GUI::gui_string text_, int item_) : 
 		controlType(controlType_),
 		text(text_),
-		item(0),
+		item(item_),
 		fixedWidth(true),
 		widthDesired(20),
 		widthAllocated(20)	{
@@ -47,6 +47,7 @@ public:
 		const GUI::gui_char *pdef=definition.c_str();
 		int line = 0;
 		unsigned int column = 0;
+		int item = 0;
 		while (*pdef) {
 			if (*pdef == '\n') {
 				controls.push_back(std::vector<UserControl>());
@@ -76,7 +77,12 @@ public:
 					endChar = '}';
 					break;
 				case '(':
-					controlType = UserControl::ucButton;
+					if (pdef[1] == '(') {
+						controlType = UserControl::ucDefaultButton;
+						pdef++;
+					} else {
+						controlType = UserControl::ucButton;
+					}
 					endChar = ')';
 					break;
 			}
@@ -86,12 +92,15 @@ public:
 				text += *pdef;
 				pdef++;
 			}
-			controls.back().push_back(UserControl(controlType, text));
+			if ((controlType == UserControl::ucDefaultButton) && *pdef)
+				pdef++;
+			controls.back().push_back(UserControl(controlType, text, item));
 			column++;
 			if (columns < column)
 				columns = column;
 			if (*pdef)
 				pdef++;
+			item++;
 		}
 	}
 

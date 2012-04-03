@@ -3549,10 +3549,10 @@ bool UserStrip::KeyDown(WPARAM key) {
 		return true;
 	if (key == VK_RETURN) {
 		if (IsChild(Hwnd(), ::GetFocus())) {
-			// Treat Enter as pressing the first button
+			// Treat Enter as pressing the first default button
 			for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
 				for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-					if (ctl->controlType == UserControl::ucButton) {
+					if (ctl->controlType == UserControl::ucDefaultButton) {
 						extender->OnUserStrip(ctl->item, scClicked);
 						return true;
 					}
@@ -3647,11 +3647,13 @@ void UserStrip::SetDescription(const char *description) {
 				break;
 
 			case UserControl::ucButton:
+			case UserControl::ucDefaultButton:
 				puc->widthDesired = WidthText(fontText, puc->text.c_str()) + 
 					2 * ::GetSystemMetrics(SM_CXEDGE) +
 					2 * WidthText(fontText, TEXT(" "));
 				puc->w = ::CreateWindowEx(0, TEXT("Button"), puc->text.c_str(),
-					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | BS_PUSHBUTTON,
+					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | 
+					((puc->controlType == UserControl::ucDefaultButton) ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON),
 					60 * control, line * lineHeight + 2, puc->widthDesired, 25,
 					Hwnd(), reinterpret_cast<HMENU>(controlID), ::GetModuleHandle(NULL), 0);
 				break;

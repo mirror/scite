@@ -293,13 +293,13 @@ the find and replace strips. An example looks like<br />
 
 <p>Strips are shown with StripShow which takes a string describing
 the user interface then builds and displays it as a strip at the
-bottom of the application window. There are 4 supported elements:
-labels, editable text, combo boxes and buttons. These are
-surrounded by different indicator characters: ' for labels; []
-for editable text; {} for combo boxes; and () for buttons. There can
-also be a newline to start a new line and a ! to show a close box on
+bottom of the application window. There are 5 supported elements:
+labels, editable text, combo boxes, buttons and default buttons. These are
+surrounded by different indicator strings: ' for labels; []
+for editable text; {} for combo boxes; () for buttons; and (()) for default buttons.
+There can also be a newline to start a new line and a ! to show a close box on
 Windows only.</p>
-<p>The first button is the default and can be triggered by pressing the Enter key.
+<p>A default button looks like ((OK)) and can be triggered by pressing the Enter key.
 Buttons may include accelerator keys prefixed with &amp;.
 On Windows and GTK+ but not OS X, labels may also define accelerator keys
 which cause focus to move to the next element which accepts focus.

@@ -4551,14 +4551,12 @@ void UserStrip::SetDescription(const char *description) {
 	psd = new StripDefinition(description);
 	tableUser.Resize(psd->controls.size(), psd->columns);
 
-	int item = 0;
 	bool hasSetFocus = false;
 	GtkWidget *pwWithAccelerator = 0;
 	for (size_t line=0; line<psd->controls.size(); line++) {
 		std::vector<UserControl> &uc = psd->controls[line];
 		for (size_t control=0; control<uc.size(); control++) {
 			UserControl *puc = &(uc[control]);
-			puc->item = item;
 			SString sCaption = GtkFromWinCaption(puc->text.c_str());
 			switch (puc->controlType) {
 			case UserControl::ucEdit: {
@@ -4602,8 +4600,6 @@ void UserStrip::SetDescription(const char *description) {
 				gtk_label_set_mnemonic_widget(GTK_LABEL(pwWithAccelerator), GTK_WIDGET(puc->w.GetID()));
 				pwWithAccelerator = 0;
 			}
-
-			item++;
 		}
 		tableUser.NextLine() ;
 	}
