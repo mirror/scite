@@ -1274,6 +1274,12 @@ bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 				buffers.buffers[iBuffer].selection = bufferState.selection;
 				buffers.buffers[iBuffer].foldState = bufferState.foldState;
 				buffers.buffers[iBuffer].bookmarks = bufferState.bookmarks;
+				if (buffers.buffers[iBuffer].lifeState == Buffer::open) {
+					// File was opened synchronously
+					RestoreState(buffers.buffers[iBuffer], true);
+					DisplayAround(buffers.buffers[iBuffer]);
+					wEditor.Call(SCI_SCROLLCARET);
+				}
 			}
 		}
 	}
