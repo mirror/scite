@@ -28,6 +28,9 @@
         .gtkonly {
             background: #FFFFE7;
         }
+        .osxonly {
+            background: #FFE7E7;
+        }
         .example {
             color: #008000;
             font-weight: bold;
@@ -900,8 +903,9 @@ NameError: mistake
     </h3>
     <p>
       Some properties are only available on
-      <span class="windowsonly">Windows</span> or
-      <span class="gtkonly">GTK+</span>.
+      <span class="windowsonly">Windows</span>,
+      <span class="gtkonly">GTK+</span>, or.
+      <span class="osxonly">OS X</span>.
     </p>
     <table cellpadding="1" cellspacing="0" border="1" summary="Defined variables in property files">
       <tr id='property-position.left'>
@@ -2516,6 +2520,16 @@ Prev File|IDM_PREVFILE|<br/>
           Enables Replace in Buffers command
 	  <span class="windowsonly">and Search only in this style checkbox.
           If enabled, searches can be restricted to a particular style (e.g. strings).</span>
+        </td>
+      </tr>
+      <tr class="osxonly" id='property-find.indicator'>
+        <td>
+         find.indicator
+        </td>
+        <td>
+          Controls the animated golden match indicator on OS X.
+	The default value, 1, shows and animates the find indicator then fades it away so surrounding text can be seen clearly.
+	Use the value 0 to disable the find indicator and the value 2 to keep the find indicator displayed.
         </td>
       </tr>
       <tr id='property-find.command'>
