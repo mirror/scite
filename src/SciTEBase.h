@@ -335,6 +335,7 @@ public:
 	virtual void ScrollEditorIfNeeded() = 0;
 
 	virtual int FindNext(bool reverseDirection, bool showWarnings = true, bool allowRegExp=true) = 0;
+	virtual void HideMatch() = 0;
 	virtual int MarkAll() = 0;
 	virtual int ReplaceAll(bool inSelection) = 0;
 	virtual void ReplaceOnce() = 0;
@@ -705,7 +706,8 @@ protected:
 	virtual void SetReplace(const char *sReplace);
 	virtual void MoveBack(int distance);
 	virtual void ScrollEditorIfNeeded();
-	int FindNext(bool reverseDirection, bool showWarnings = true, bool allowRegExp=true);
+	virtual int FindNext(bool reverseDirection, bool showWarnings = true, bool allowRegExp=true);
+	virtual void HideMatch();
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();
 	virtual void FindInFiles() = 0;

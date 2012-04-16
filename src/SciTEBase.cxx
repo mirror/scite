@@ -1109,6 +1109,9 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 	return posFind;
 }
 
+void SciTEBase::HideMatch() {
+}
+
 void SciTEBase::ReplaceOnce() {
 	if (!FindHasText())
 		return;
