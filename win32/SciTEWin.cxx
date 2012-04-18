@@ -758,7 +758,10 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			const char *findWhat = findFiles + strlen(findFiles) + 1;
 			if (cmdWorker.outputScroll == 1)
 				gf = static_cast<GrepFlags>(gf | grepScroll);
-			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findWhat);
+			sptr_t positionEnd = wOutput.Send(SCI_GETCURRENTPOS);
+			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findWhat, positionEnd);
+			if ((gf & grepScroll) && returnOutputToCommand)
+				wOutput.Send(SCI_GOTOPOS, positionEnd, 0);
 		}
 		return exitcode;
 	}

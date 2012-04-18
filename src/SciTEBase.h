@@ -731,7 +731,7 @@ protected:
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
 	void OutputAppendString(const char *s, int len = -1);
-	void OutputAppendStringSynchronised(const char *s, int len = -1);
+	virtual void OutputAppendStringSynchronised(const char *s, int len = -1);
 	void MakeOutputVisible();
 	virtual void Execute();
 	virtual void StopExecute() = 0;
@@ -806,7 +806,7 @@ protected:
 	bool BookmarkPresent(int lineno = -1);
 	void BookmarkToggle(int lineno = -1);
 	void BookmarkNext(bool forwardScan = true, bool select = false);
-	void ToggleOutputVisible();
+	virtual void ToggleOutputVisible();
 	virtual void SizeContentWindows() = 0;
 	virtual void SizeSubWindows() = 0;
 
@@ -899,7 +899,8 @@ protected:
 	};
 	virtual bool GrepIntoDirectory(const FilePath &directory);
 	void GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const GUI::gui_char *fileTypes);
-	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *files, const char *search);
+	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *files,
+			  const char *search, sptr_t &originalEnd);
 	void EnumProperties(const char *action);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);
