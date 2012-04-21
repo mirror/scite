@@ -453,15 +453,6 @@ void SciTEBase::SetStyleFor(GUI::ScintillaWindow &win, const char *lang) {
 	SetStyleBlock(win, lang, 0, maxStyle);
 }
 
-void LowerCaseString(char *s) {
-	while (*s) {
-		if ((*s >= 'A') && (*s <= 'Z')) {
-			*s = static_cast<char>(*s - 'A' + 'a');
-		}
-		s++;
-	}
-}
-
 SString SciTEBase::ExtensionFileName() {
 	if (CurrentBuffer()->overrideExtension.length()) {
 		return CurrentBuffer()->overrideExtension;
@@ -469,15 +460,14 @@ SString SciTEBase::ExtensionFileName() {
 		FilePath name = FileNameExt();
 		if (name.IsSet()) {
 			// Force extension to lower case
-			char fileNameWithLowerCaseExtension[MAX_PATH];
-			strcpy(fileNameWithLowerCaseExtension, name.AsUTF8().c_str());
+			SString fileNameWithLowerCaseExtension = name.AsUTF8().c_str();
 #if !defined(GTK)
-			char *extension = strrchr(fileNameWithLowerCaseExtension, '.');
+			const char *extension = strrchr(fileNameWithLowerCaseExtension.c_str(), '.');
 			if (extension) {
-				LowerCaseString(extension);
+				fileNameWithLowerCaseExtension.lowercase(extension - fileNameWithLowerCaseExtension.c_str());
 			}
 #endif
-			return SString(fileNameWithLowerCaseExtension);
+			return fileNameWithLowerCaseExtension;
 		} else {
 			return props.Get("default.file.ext");
 		}

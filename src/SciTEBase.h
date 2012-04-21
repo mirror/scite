@@ -961,7 +961,6 @@ private:
 #endif
 
 int ControlIDOfCommand(unsigned long);
-void LowerCaseString(char *s);
 std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args);
 long ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault);
 void WindowSetFocus(GUI::ScintillaWindow &w);
