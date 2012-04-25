@@ -1631,32 +1631,32 @@ void SciTEBase::ContinueCallTip() {
 
 	wEditor.Call(SCI_CALLTIPSETHLT, startHighlight, endHighlight);
 }
+
 void SciTEBase::EliminateDuplicateWords(char *words) {
-	char *firstWord = words;
-	char *firstSpace = strchr(firstWord, ' ');
-	char *secondWord;
-	char *secondSpace;
-	size_t firstLen, secondLen;
+	std::set<std::string> wordSet;
+	std::vector<char> wordsOut(strlen(words) + 1);
+	char *wordsWrite = &wordsOut[0];
 
-	while (firstSpace) {
-		firstLen = firstSpace - firstWord;
-		secondWord = firstWord + firstLen + 1;
-		secondSpace = strchr(secondWord, ' ');
-
-		if (secondSpace)
-			secondLen = secondSpace - secondWord;
-		else
-			secondLen = strlen(secondWord);
-
-		if (firstLen == secondLen &&
-		        !strncmp(firstWord, secondWord, firstLen)) {
-			strcpy(firstWord, secondWord);
-			firstSpace = strchr(firstWord, ' ');
-		} else {
-			firstWord = secondWord;
-			firstSpace = secondSpace;
+	char *wordCurrent = words;
+	while (*wordCurrent) {
+		char *afterWord = strchr(wordCurrent, ' ');
+		if (!afterWord)
+			afterWord = wordCurrent + strlen(wordCurrent);
+		std::string word(wordCurrent, afterWord);
+		if (wordSet.count(word) == 0) {
+			wordSet.insert(word);
+			if (wordsWrite != &wordsOut[0])
+				*wordsWrite++ = ' ';
+			strcpy(wordsWrite, word.c_str());
+			wordsWrite += word.length();
 		}
+		wordCurrent = afterWord;
+		if (*wordCurrent)
+			wordCurrent++;
 	}
+
+	*wordsWrite = '\0';
+	strcpy(words, &wordsOut[0]);
 }
 
 bool SciTEBase::StartAutoComplete() {
