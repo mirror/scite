@@ -232,7 +232,7 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
 				// Finds first word in a series of equal words
 				for (pivot = start; pivot <= end; pivot++) {
 					word = wordsNoCase[pivot];
-					if (!wordCharacters.contains(word[searchLen])) {
+					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
 						if (wordIndex <= 0) // Checks if a specific index was requested
 							return word; // result must not be freed with free()
 						wordIndex--;
@@ -270,7 +270,7 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
 				pivot = start;
 				while (pivot <= end) {
 					word = words[pivot];
-					if (!wordCharacters.contains(word[searchLen])) {
+					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
 						if (wordIndex <= 0) // Checks if a specific index was requested
 							return word; // result must not be freed with free()
 						wordIndex--;
