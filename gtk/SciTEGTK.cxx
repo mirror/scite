@@ -3506,6 +3506,10 @@ gint SciTEGTK::TabBarScroll(GdkEventScroll *event) {
 			Prev();
 			WindowSetFocus(wEditor);
 			break;
+#if GTK_CHECK_VERSION(3,4,0)
+		case GDK_SCROLL_SMOOTH:
+			break;
+#endif
 	}
 	// Return true because Next() or Prev() already switches the tab
 	return TRUE;
