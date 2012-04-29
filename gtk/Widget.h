@@ -102,7 +102,9 @@ public:
 class WCheckDraw : public WBase {
 	bool isActive;
 	GdkPixbuf *pbGrey;
+#if !GTK_CHECK_VERSION(3,4,0)
 	GtkStyle *pStyle;
+#endif
 	bool over;
 	static gboolean Focus(GtkWidget *widget, GdkEventFocus *event, WCheckDraw *pcd);
 	gint Press(GtkWidget *widget, GdkEventButton *event);
