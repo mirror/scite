@@ -2051,17 +2051,20 @@ void SciTEBase::ShowMessages(int line) {
 				msgCurrent += "\n";
 				stylesCurrent += '\0';
 			}
-			msgCurrent += message.c_str();
-			int msgStyle = 0;
-			if (message.search("warning") >= 0)
-				msgStyle = 1;
-			if (message.search("error") >= 0)
-				msgStyle = 2;
-			if (message.search("fatal") >= 0)
-				msgStyle = 3;
-			stylesCurrent += std::string(message.length(), static_cast<char>(msgStyle));
-			wEditor.CallString(SCI_ANNOTATIONSETTEXT, sourceLine, msgCurrent.c_str());
-			wEditor.CallString(SCI_ANNOTATIONSETSTYLES, sourceLine, stylesCurrent.c_str());
+			if (msgCurrent.find(message.c_str()) == std::string::npos) {
+				// Only append unique messages
+				msgCurrent += message.c_str();
+				int msgStyle = 0;
+				if (message.search("warning") >= 0)
+					msgStyle = 1;
+				if (message.search("error") >= 0)
+					msgStyle = 2;
+				if (message.search("fatal") >= 0)
+					msgStyle = 3;
+				stylesCurrent += std::string(message.length(), static_cast<char>(msgStyle));
+				wEditor.CallString(SCI_ANNOTATIONSETTEXT, sourceLine, msgCurrent.c_str());
+				wEditor.CallString(SCI_ANNOTATIONSETSTYLES, sourceLine, stylesCurrent.c_str());
+			}
 		}
 		line++;
 	}
