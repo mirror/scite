@@ -367,6 +367,11 @@ void SciTEBase::PerformDeferredTasks() {
 
 void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	wEditor.Call(SCI_SETREADONLY, isReadOnly);
+
+	if (oc != ocSynchronous) {
+		ReadProperties();
+	}
+
 	if (language == "") {
 		SString languageOverride = DiscoverLanguage();
 		if (languageOverride.length()) {
@@ -378,7 +383,6 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	}
 
 	if (oc != ocSynchronous) {
-		ReadProperties();
 		SetIndentSettings();
 		SetEol();
 		UpdateBuffersCurrent();
