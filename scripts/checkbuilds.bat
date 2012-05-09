@@ -15,7 +15,7 @@ rem ************************************************************
 rem Target 1: basic unit tests with gcc
 call scite\scripts\clearboth
 cd scintilla\test\unit
-mingw32-make -j
+make -j
 if ERRORLEVEL 2 goto ERROR
 .\unitTest
 if ERRORLEVEL 2 goto ERROR
@@ -25,14 +25,14 @@ rem ************************************************************
 rem Target 2: Normal gcc build
 call scite\scripts\clearboth
 cd scintilla\win32
-mingw32-make -j
+make -j
 if ERRORLEVEL 2 goto ERROR
 cd ..\test
 pythonw simpleTests.py
 pythonw lexTests.py
 pythonw performanceTests.py
 cd ..\..\scite\win32
-mingw32-make -j
+make -j
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
@@ -60,7 +60,7 @@ rem ************************************************************
 rem Target 5: GTK+ version using gcc on scintilla\gtk\makefile
 call scite\scripts\clearboth
 cd scintilla\gtk
-mingw32-make -j
+make -j
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem Visual C++ builds
