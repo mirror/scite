@@ -67,6 +67,11 @@
 #include "SciTEKeys.h"
 #include "StripDefinition.h"
 
+#if defined(__clang__)
+// Clang 3.0 incorrectly displays  sentinel warnings. Fixed by clang 3.1.
+#pragma GCC diagnostic ignored "-Wsentinel"
+#endif
+
 #if GTK_CHECK_VERSION(2,20,0)
 #define WIDGET_SET_NO_FOCUS(w) gtk_widget_set_can_focus(w, FALSE)
 #else
