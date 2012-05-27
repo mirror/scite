@@ -6,8 +6,11 @@
 
 .SUFFIXES: .cxx .o .h .a .c
 ifdef CLANG
-CC = clang
-CCOMP = clang
+ifdef CLANG_ANALYZE
+ANALYZE=--analyze
+endif
+CC = clang $(ANALYZE)
+CCOMP = clang $(ANALYZE)
 else
 CC = g++
 CCOMP = gcc
