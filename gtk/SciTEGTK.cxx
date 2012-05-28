@@ -1446,7 +1446,6 @@ void SciTEGTK::OpenUriList(const char *list) {
 }
 
 bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
-	directory.SetWorkingDirectory();
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
 		GtkWidget *dlg = gtk_file_chooser_dialog_new(
@@ -1458,10 +1457,7 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 				      NULL);
 		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dlg), TRUE);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
-		if (props.GetInt("open.dialog.in.file.directory")) {
-			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg),
-				filePath.Directory().AsInternal());
-		}
+		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), directory.AsInternal());
 
 		SString openFilter = filter;
 		if (openFilter.length()) {
@@ -1542,7 +1538,6 @@ bool SciTEGTK::HandleSaveAs(const char *savePath) {
 }
 
 bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title, const char *ext) {
-	filePath.SetWorkingDirectory();
 	bool saved = false;
 	saveFormat = fmt;
 	if (!dlgFileSelector.Created()) {
@@ -1561,6 +1556,7 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title, const char *ext) {
 		} else if (savePath.IsUntitled()) { // saving 'untitled'
 			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), savePath.Directory().AsInternal());
 		} else {
+			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), filePath.Directory().AsInternal());
 			gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dlg), savePath.AsInternal());
 		}
 
@@ -1605,7 +1601,6 @@ void SciTEGTK::SaveAsXML() {
 }
 
 void SciTEGTK::LoadSessionDialog() {
-	filePath.SetWorkingDirectory();
 	if (!dlgFileSelector.Created()) {
 		GtkWidget *dlg = gtk_file_chooser_dialog_new(
 					localiser.Text("Load Session").c_str(),
@@ -1615,6 +1610,7 @@ void SciTEGTK::LoadSessionDialog() {
 				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
 
+		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), filePath.Directory().AsInternal());
 		gtk_window_set_default_size(GTK_WINDOW(dlg), fileSelectorWidth, fileSelectorHeight);
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
@@ -1628,7 +1624,6 @@ void SciTEGTK::LoadSessionDialog() {
 }
 
 void SciTEGTK::SaveSessionDialog() {
-	filePath.SetWorkingDirectory();
 	if (!dlgFileSelector.Created()) {
 		GtkWidget *dlg = gtk_file_chooser_dialog_new(
 					localiser.Text("Save Session").c_str(),
@@ -1638,6 +1633,7 @@ void SciTEGTK::SaveSessionDialog() {
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
 
+		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), filePath.Directory().AsInternal());
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
 
