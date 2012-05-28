@@ -16,7 +16,14 @@ try:	# Old Python
 except AttributeError:	# Python 3.x
 	identCharacters = "_*." + string.ascii_letters + string.digits
 
-knownOutputProperties = {"find.directory":1, "find.what":1}
+# These properties are either set by SciTE and used (not set) in property files or
+# should only be located in known lexer-specific property files.
+knownOutputAndLexerProperties = {
+	"find.directory":1, 
+	"find.what":1, 
+	"xml.auto.close.tags":1,
+	"indent.python.colon":1
+}
 
 # Convert all punctuation characters except '_', '*', and '.' into spaces.
 def depunctuate(s):
@@ -141,7 +148,7 @@ propsFile.close()
 
 print("\n# Not mentioned in %s" % propsFileName)
 for identifier in identifiersSorted:
-	if not propertyNames[identifier] and identifier not in knownOutputProperties:
+	if not propertyNames[identifier] and identifier not in knownOutputAndLexerProperties:
 		if "." != identifier[-1:]:
 			print(identifier)
 
