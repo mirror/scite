@@ -5,7 +5,12 @@
 
 import string
 
-uninteresting = {"SCINTILLA_H", "SCI_START", "SCI_LEXER_START", "SCI_OPTIONAL_START"}
+uninteresting = {
+	"SCINTILLA_H", "SCI_START", "SCI_LEXER_START", "SCI_OPTIONAL_START",
+	# These archaic names are #defined to the Sci_ prefixed modern equivalents.
+	# They are not documented so they are not used in new code.
+	"CharacterRange", "TextRange", "TextToFind", "RangeToFormat",
+}
 srcRoot = "../.."
 incFileName = srcRoot + "/scintilla/include/Scintilla.h"
 docFileName = srcRoot + "/scintilla/doc/ScintillaDoc.html"
