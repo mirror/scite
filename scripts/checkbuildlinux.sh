@@ -16,6 +16,19 @@
 # sudo apt-get install --yes libpyside-dev
 # sudo apt-get install --yes python-pyside
 
+# Pre-requisite packages on Fedora:
+# sudo yum install -y gcc-c++
+# sudo yum install -y gtk3-devel
+# sudo yum install -y gtk2-devel
+# sudo yum install -y clang
+# sudo yum install -y qt-creator
+# sudo yum install -y python-devel
+# sudo yum install -y shiboken-devel
+# sudo yum install -y python-pyside-devel
+
+# On Fedora 17, qmake is called qmake-qt4 so sepbuild.py should probe for correct name.
+# There are also problems with clang failing in the g++ 4.7 headers.
+
 # Run up to 2 commands in parallel
 set JOBS=-j 2
 
