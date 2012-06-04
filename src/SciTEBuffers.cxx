@@ -196,8 +196,8 @@ void BufferList::RemoveCurrent() {
 		lengthVisible--;
 
 		buffers[length].Init();
-		if (current >= length) {
-			SetCurrent(length - 1);
+		if (current >= lengthVisible) {
+			SetCurrent(lengthVisible - 1);
 		}
 		if (current < 0) {
 			SetCurrent(0);
