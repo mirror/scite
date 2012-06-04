@@ -5005,9 +5005,14 @@ static void *WorkerThread(void *ptr) {
 }
 
 bool SciTEGTK::PerformOnNewThread(Worker *pWorker) {
-	pthread_t tid;
-	pthread_create(&tid, NULL, WorkerThread, pWorker);
-	return tid != 0;
+	GError *err = NULL;
+	GThread *pThread = g_thread_create(WorkerThread, pWorker,TRUE, &err);
+	if (pThread == NULL) {
+		fprintf(stderr, "g_thread_create failed: %s\n", err->message);
+		g_error_free(err) ;
+		return false;
+	}
+	return true;
 }
 
 struct CallbackData {

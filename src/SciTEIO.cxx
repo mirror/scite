@@ -957,8 +957,12 @@ bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
 				const char *documentBytes = reinterpret_cast<const char *>(wEditor.CallReturnPointer(SCI_GETCHARACTERPOINTER));
 				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, filePath, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
 				CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
-				PerformOnNewThread(CurrentBuffer()->pFileWorker);
-				retVal = true;
+				if (PerformOnNewThread(CurrentBuffer()->pFileWorker)) {
+					retVal = true;
+				} else {
+					GUI::gui_string msg = LocaliseMessage("Failed to save file '^0' as thread could not be started.", filePath.AsInternal());
+					WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+				}
 			} else {
 				Utf8_16_Write convert;
 				if (CurrentBuffer()->unicodeMode != uniCookie) {	// Save file with cookie without BOM.
