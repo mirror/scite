@@ -3532,7 +3532,7 @@ GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar
 
 	g_signal_connect(G_OBJECT(button), "clicked",
 	                   G_CALLBACK(ButtonSignal),
-	                   (gpointer)cmd);
+	                   GINT_TO_POINTER(cmd));
 	return GTK_WIDGET(button);
 }
 
