@@ -521,7 +521,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		return false;
 	}
 
-	long size = absPath.GetFileLength();
+	long size = absPath.IsUntitled() ? 0 : absPath.GetFileLength();
 	if (size > 0) {
 		// Real file, not empty buffer
 		int maxSize = props.GetInt("max.file.size");
