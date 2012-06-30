@@ -1767,11 +1767,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	return true;
 }
 
-bool SciTEBase::StartInsertAbbreviation() {
-	if (!AbbrevDialog()) {
-		return true;
-	}
-
+bool SciTEBase::PerformInsertAbbreviation() {
 	SString data = propsAbbrev.Get(abbrevInsert);
 	size_t dataLength = data.length();
 	if (dataLength == 0) {
@@ -1890,6 +1886,14 @@ bool SciTEBase::StartInsertAbbreviation() {
 	wEditor.Call(SCI_ENDUNDOACTION);
 	delete []expbuf;
 	return true;
+}
+
+bool SciTEBase::StartInsertAbbreviation() {
+	if (!AbbrevDialog()) {
+		return true;
+	}
+
+	return PerformInsertAbbreviation();
 }
 
 bool SciTEBase::StartExpandAbbreviation() {

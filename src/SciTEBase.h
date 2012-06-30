@@ -746,6 +746,7 @@ protected:
 	virtual bool StartAutoComplete();
 	virtual bool StartAutoCompleteWord(bool onlyOneWord);
 	virtual bool StartExpandAbbreviation();
+	bool PerformInsertAbbreviation();
 	virtual bool StartInsertAbbreviation();
 	virtual bool StartBlockComment();
 	virtual bool StartBoxComment();
