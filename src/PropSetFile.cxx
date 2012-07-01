@@ -625,7 +625,7 @@ bool PropSetFile::GetFirst(const char *&key, const char *&val) {
 bool PropSetFile::GetNext(const char *&key, const char *&val) {
 	mapss::iterator it = props.find(key);
 	if (it != props.end()) {
-		it++;
+		++it;
 		if (it != props.end()) {
 			key = it->first.c_str();
 			val = it->second.c_str();
