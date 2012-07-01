@@ -23,7 +23,6 @@ class PropSetFile {
 	SString GetWildUsingStart(const PropSetFile &psStart, const char *keybase, const char *filename);
 	static bool caseSensitiveFilenames;
 	mapss props;
-	std::string enumnext;
 public:
 	PropSetFile *superPS;
 	PropSetFile(bool lowerKeys_=false);

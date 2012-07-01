@@ -92,7 +92,6 @@ PropSetFile &PropSetFile::operator=(const PropSetFile &assign) {
 		lowerKeys = assign.lowerKeys;
 		superPS = assign.superPS;
 		props = assign.props;
-		enumnext = "";
 	}
 	return *this;
 }
@@ -614,12 +613,6 @@ bool PropSetFile::GetFirst(const char *&key, const char *&val) {
 	if (it != props.end()) {
 		key = it->first.c_str();
 		val = it->second.c_str();
-		++it;
-		if (it != props.end()) {
-			enumnext = it->first; // GetNext will begin here ...
-		} else {
-			enumnext = "";
-		}
 		return true;
 	} else {
 		return false;
@@ -630,20 +623,16 @@ bool PropSetFile::GetFirst(const char *&key, const char *&val) {
  * Continue enumeration.
  */
 bool PropSetFile::GetNext(const char *&key, const char *&val) {
-	mapss::iterator it = props.find(enumnext);
+	mapss::iterator it = props.find(key);
 	if (it != props.end()) {
-		key = it->first.c_str();
-		val = it->second.c_str();
-		++it;
+		it++;
 		if (it != props.end()) {
-			enumnext = it->first; // GetNext will begin here ...
-		} else {
-			enumnext = "";
+			key = it->first.c_str();
+			val = it->second.c_str();
+			return true;
 		}
-		return true;
-	} else {
-		return false;
 	}
+	return false;
 }
 
 static inline bool IsLetter(char ch) {
