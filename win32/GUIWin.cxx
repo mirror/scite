@@ -169,7 +169,7 @@ gui_string StringFromInteger(int i) {
 		gnumber[n] = static_cast<gui_char>(number[n]);
 		n++;
 	}
-	gnumber[i] = 0;
+	gnumber[n] = 0;
 	return gui_string(gnumber);
 }
 
