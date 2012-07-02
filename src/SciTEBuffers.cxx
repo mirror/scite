@@ -1231,21 +1231,17 @@ void SciTEBase::SetFileStackMenu() {
 		for (int stackPos = 0; stackPos < fileStackMax; stackPos++) {
 			int itemID = fileStackCmdID + stackPos;
 			if (recentFileStack[stackPos].IsSet()) {
-				GUI::gui_char entry[MAX_PATH + 20];
-				entry[0] = '\0';
-#if defined(GTK)
-				sprintf(entry, GUI_TEXT("&%d "), (stackPos + 1) % 10);
-#elif defined(WIN32)
-#if defined(_MSC_VER) && (_MSC_VER > 1200)
-				swprintf(entry, ELEMENTS(entry), GUI_TEXT("&%d "), (stackPos + 1) % 10);
-#else
-				swprintf(entry, GUI_TEXT("&%d "), (stackPos + 1) % 10);
+				GUI::gui_string sEntry;
+
+#if defined(WIN32) || defined(GTK)
+				GUI::gui_string sPos = GUI::StringFromInteger((stackPos + 1) % 10);
+				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
+				sEntry = sHotKey;
 #endif
-#endif
+
 				GUI::gui_string path = recentFileStack[stackPos].AsInternal();
 				EscapeFilePathsForMenu(path);
 
-				GUI::gui_string sEntry(entry);
 				sEntry += path;
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, sEntry.c_str());
 			}
