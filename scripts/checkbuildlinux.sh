@@ -15,6 +15,7 @@
 # sudo apt-get install --yes shiboken
 # sudo apt-get install --yes libpyside-dev
 # sudo apt-get install --yes python-pyside
+# sudo apt-get install --yes cppcheck
 
 # Pre-requisite packages on Fedora:
 # sudo yum install -y gcc-c++
@@ -127,3 +128,9 @@ cd ../..
 #~ make clean
 #~ make $JOBS CLANG=1 CLANG_ANALYZE=1
 #~ cd ../..
+
+# ************************************************************
+# Target 7: cppcheck static checker
+# Disabled as there are false warnings and some different style choices
+#~ cppcheck --enable=all --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template='{file}:{line}: {severity}({id}): {message}' --quiet scintilla
+#~ cppcheck --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include --template='{file}:{line}: {severity}({id}): {message}' --quiet scite
