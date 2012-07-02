@@ -1061,9 +1061,10 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 
 	// guess if cmd is an executable, if this succeeds it can
 	// contain spaces without enclosing it with "
-	char *mycmdcopy = StringDup(cmd.c_str());
-	strlwr(mycmdcopy);
-
+	SString cmdLower = cmd;
+	cmdLower.lowercase();
+	char *mycmdcopy = StringDup(cmdLower.c_str());
+	
 	char *mycmd_end = NULL;
 	char *myparams = NULL;
 
