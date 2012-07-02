@@ -153,12 +153,10 @@ static bool SendPipeCommand(const char *pipeCommand) {
 
 static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, void *data) {
 	gdk_threads_enter();
-	char pipeData[8192];
-	PropSetFile pipeProps;
-	DirectorExtension *ext = reinterpret_cast<DirectorExtension *>(data);
 
 	if ((condition & G_IO_IN) == G_IO_IN) {
 		SString pipeString;
+		char pipeData[8192];
 		gsize readLength;
 		GError *error = NULL;
 		GIOStatus status = g_io_channel_read_chars(source, pipeData,
@@ -169,6 +167,7 @@ static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, v
 			status = g_io_channel_read_chars(source, pipeData,
 			        sizeof(pipeData) - 1, &readLength, &error);
 		}
+		DirectorExtension *ext = reinterpret_cast<DirectorExtension *>(data);
 		ext->HandleStringMessage(pipeString.c_str());
 	}
 	gdk_threads_leave();
