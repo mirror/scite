@@ -3854,15 +3854,18 @@ void SciTEBase::Notify(SCNotification *notification) {
 	bool handled = false;
 	switch (notification->nmhdr.code) {
 	case SCN_PAINTED:
-		// Manage delay before highlight when no user selection but there is word at the caret.
-		// So the Delay is based on the blinking of caret, scroll...
-		// If currentWordHighlight.statesOfDelay == currentWordHighlight.delay,
-		// then there is word at the caret without selection, and need some delay.
-		if (currentWordHighlight.statesOfDelay == currentWordHighlight.delay) {
-			if (currentWordHighlight.elapsedTimes.Duration() >= 0.5) {
-				currentWordHighlight.statesOfDelay = currentWordHighlight.delayJustEnded;
-				HighlightCurrentWord(true);
-				(wOutput.HasFocus() ? wOutput : wEditor).InvalidateAll();
+		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (wEditor.HasFocus())) {
+			// Obly highlight focussed pane.
+			// Manage delay before highlight when no user selection but there is word at the caret.
+			// So the Delay is based on the blinking of caret, scroll...
+			// If currentWordHighlight.statesOfDelay == currentWordHighlight.delay,
+			// then there is word at the caret without selection, and need some delay.
+			if (currentWordHighlight.statesOfDelay == currentWordHighlight.delay) {
+				if (currentWordHighlight.elapsedTimes.Duration() >= 0.5) {
+					currentWordHighlight.statesOfDelay = currentWordHighlight.delayJustEnded;
+					HighlightCurrentWord(true);
+					(wOutput.HasFocus() ? wOutput : wEditor).InvalidateAll();
+				}
 			}
 		}
 		break;
@@ -3952,12 +3955,15 @@ void SciTEBase::Notify(SCNotification *notification) {
 			RemoveFindMarks();
 		}
 		if (notification->updated & (SC_UPDATE_SELECTION | SC_UPDATE_CONTENT)) {
-			if (notification->updated & SC_UPDATE_SELECTION)
-				currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
-			if (currentWordHighlight.statesOfDelay != currentWordHighlight.delayJustEnded)
-				HighlightCurrentWord(notification->updated != SC_UPDATE_CONTENT);
-			else
-				currentWordHighlight.statesOfDelay = currentWordHighlight.delayAlreadyElapsed;
+			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (wEditor.HasFocus())) {
+				// Obly highlight focussed pane.
+				if (notification->updated & SC_UPDATE_SELECTION)
+					currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
+				if (currentWordHighlight.statesOfDelay != currentWordHighlight.delayJustEnded)
+					HighlightCurrentWord(notification->updated != SC_UPDATE_CONTENT);
+				else
+					currentWordHighlight.statesOfDelay = currentWordHighlight.delayAlreadyElapsed;
+			}
 		}
 		break;
 
