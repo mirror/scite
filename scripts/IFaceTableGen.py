@@ -77,12 +77,15 @@ properties - a sorted list of (name, property), where property is a
 		isok = (getterName or setterName) and not (getter is setter)
 
 		if isok and getter:
+			if getter['Param2Type'] == 'stringresult':
+				getterType = getter['Param2Type']
+			else:
+				getterType = getter['ReturnType']
 			getterValue = getter['Value']
-			getterType = getter['ReturnType']
 			getterIndex = getter['Param1Type'] or 'void'
 			getterIndexName = getter['Param1Name']
 
-			isok = ((getter['Param2Type'] or 'void') == 'void')
+			isok = ((getter['Param2Type'] or 'void') == 'void') or (getterType == 'stringresult')
 
 		if isok and setter:
 			setterValue = setter['Value']
@@ -93,10 +96,10 @@ properties - a sorted list of (name, property), where property is a
 				setterIndexName = setter['Param1Name']
 				setterType = setter['Param2Type']
 
-			isok = (setter['ReturnType'] == 'void')
+			isok = (setter['ReturnType'] == 'void') or (setter['ReturnType'] == 'int' and setterType=='string')
 
 		if isok and getter and setter:
-			isok = (getterType == setterType) and (getterIndex == setterIndex)
+			isok = ((getterType == setterType) or (getterType == 'stringresult' and setterType == 'string')) and (getterIndex == setterIndex)
 
 		propType = getterType or setterType
 		propIndex = getterIndex or setterIndex
@@ -104,13 +107,11 @@ properties - a sorted list of (name, property), where property is a
 
 		if isok:
 			# do the types appear to be useable?  THIS IS OVERRIDDEN BELOW
-			isok = (propType in ('int', 'position', 'colour', 'bool', 'string')
+			isok = (propType in ('int', 'position', 'colour', 'bool', 'string', 'stringresult')
 				and propIndex in ('void','int','position','string','bool'))
 
-			# If there were getters on string properties (which there are not),
-			# they would have to follow a different protocol, and would not have
-			# matched the signature above.  I suggest this is the signature for
-			# a string getter and setter:
+			# getters on string properties follow a different protocol with this signature
+			# for a string getter and setter:
 			#   get int funcname(void,stringresult)
 			#   set void funcname(void,string)
 			#
@@ -225,7 +226,6 @@ def printIFaceTableCXXFile(faceAndIDs, out):
 		for propname, property in properties:
 			if first: first = 0
 			else: out.write(",")
-
 			out.write('\n\t{"%s", %s, %s, iface_%s, iface_%s}' % (
 				propname,
 				property["GetterValue"],

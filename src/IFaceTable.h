@@ -52,11 +52,17 @@ struct IFaceProperty {
 		IFaceFunction result = {"(property setter)",setter,iface_void,{valueType, iface_void}};
 		if (paramType != iface_void) {
 			result.paramType[0] = paramType;
-			result.paramType[1] = valueType;
+			if (valueType == iface_stringresult)
+				result.paramType[1] = iface_string;
+			else
+				result.paramType[1] = valueType;
 		}
-		if ((paramType == iface_void) && (valueType == iface_string)){
+		if ((paramType == iface_void) && ((valueType == iface_string) || (valueType == iface_stringresult))) {
 			result.paramType[0] = paramType;
-			result.paramType[1] = valueType;
+			if (valueType == iface_stringresult)
+				result.paramType[1] = iface_string;
+			else
+				result.paramType[1] = valueType;
 		}
 		return result;
 	}
