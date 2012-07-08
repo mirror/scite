@@ -608,73 +608,67 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 
 // Returns true if editor should get the focus
 bool SciTEBase::OpenSelected() {
-	char targetFilename[MAX_PATH];
-	char *selectedFilename = targetFilename;
-	char cTag[200];
-	unsigned long lineNumber = 0;
-
 	SString selName = SelectionFilename();
-	strncpy(selectedFilename, selName.c_str(), MAX_PATH);
-	selectedFilename[MAX_PATH - 1] = '\0';
-	if (selectedFilename[0] == '\0') {
+	if (selName.length() == 0) {
 		WarnUser(warnWrongFile);
 		return false;	// No selection
 	}
 
 #if !defined(GTK)
-	if (strncmp(selectedFilename, "http:", 5) == 0 ||
-	        strncmp(selectedFilename, "https:", 6) == 0 ||
-	        strncmp(selectedFilename, "ftp:", 4) == 0 ||
-	        strncmp(selectedFilename, "ftps:", 5) == 0 ||
-	        strncmp(selectedFilename, "news:", 5) == 0 ||
-	        strncmp(selectedFilename, "mailto:", 7) == 0) {
-		SString cmd = selectedFilename;
+	if (selName.startswith("http:") ||
+	        selName.startswith("https:") ||
+	        selName.startswith("ftp:") ||
+	        selName.startswith("ftps:") ||
+	        selName.startswith("news:") ||
+	        selName.startswith("mailto:")) {
+		SString cmd = selName;
 		AddCommand(cmd, "", jobShell);
 		return false;	// Job is done
 	}
 #endif
 
-	if (strncmp(selectedFilename, "file://", 7) == 0) {
-		selectedFilename += 7;
-		if (selectedFilename[0] == '/' && selectedFilename[2] == ':') { // file:///C:/filename.ext
-			selectedFilename++;
+	if (selName.startswith("file://")) {
+		selName.remove(0, 7);
+		if (selName[0] == '/' && selName[2] == ':') { // file:///C:/filename.ext
+			selName.remove(0, 1);
 		}
 	}
 
 	SString fileNameForExtension = ExtensionFileName();
 	SString openSuffix = props.GetNewExpand("open.suffix.", fileNameForExtension.c_str());
-	strcat(selectedFilename, openSuffix.c_str());
+	selName += openSuffix;
 
-	if (EqualCaseInsensitive(selectedFilename, FileNameExt().AsUTF8().c_str()) || EqualCaseInsensitive(selectedFilename, filePath.AsUTF8().c_str())) {
+	if (EqualCaseInsensitive(selName.c_str(), FileNameExt().AsUTF8().c_str()) || EqualCaseInsensitive(selName.c_str(), filePath.AsUTF8().c_str())) {
 		WarnUser(warnWrongFile);
 		return true;	// Do not open if it is the current file!
 	}
 
+	char cTag[200];
 	cTag[0] = '\0';
+	unsigned long lineNumber = 0;
 	if (IsPropertiesFile(filePath) &&
-	        strchr(selectedFilename, '.') == 0 &&
-	        strlen(selectedFilename) + strlen(PROPERTIES_EXTENSION) < MAX_PATH) {
+	        !selName.contains('.')) {
 		// We are in a properties file and try to open a file without extension,
 		// we suppose we want to open an imported .properties file
 		// So we append the correct extension to open the included file.
 		// Maybe we should check if the filename is preceded by "import"...
-		strcat(selectedFilename, PROPERTIES_EXTENSION);
+		selName += PROPERTIES_EXTENSION;
 	} else {
 		// Check if we have a line number (error message or grep result)
 		// A bit of duplicate work with DecodeMessage, but we don't know
 		// here the format of the line, so we do guess work.
 		// Can't do much for space separated line numbers anyway...
-		char *endPath = strchr(selectedFilename, '(');
-		if (endPath) {	// Visual Studio error message: F:\scite\src\SciTEBase.h(312):	bool Exists(
-			lineNumber = atol(endPath + 1);
+		int endPath = selName.search("(");
+		if (endPath >= 0) {	// Visual Studio error message: F:\scite\src\SciTEBase.h(312):	bool Exists(
+			lineNumber = atol(selName.c_str() + endPath + 1);
 		} else {
-			endPath = strchr(selectedFilename + 2, ':');	// Skip Windows' drive separator
-			if (endPath) {	// grep -n line, perhaps gcc too: F:\scite\src\SciTEBase.h:312:	bool Exists(
-				lineNumber = atol(endPath + 1);
+			endPath = selName.search(":", 2);	// Skip Windows' drive separator
+			if (endPath >= 0) {	// grep -n line, perhaps gcc too: F:\scite\src\SciTEBase.h:312:	bool Exists(
+				lineNumber = atol(selName.c_str() + endPath + 1);
 			}
 		}
 		if (lineNumber > 0) {
-			*endPath = '\0';
+			selName.remove(endPath, 0);
 		}
 
 		// Support the ctags format
@@ -687,7 +681,7 @@ bool SciTEBase::OpenSelected() {
 	FilePath path;
 	// Don't load the path of the current file if the selected
 	// filename is an absolute pathname
-	GUI::gui_string selFN = GUI::StringFromUTF8(selectedFilename);
+	GUI::gui_string selFN = GUI::StringFromUTF8(selName.c_str());
 	if (!FilePath(selFN).IsAbsolute()) {
 		path = filePath.Directory();
 		// If not there, look in openpath
