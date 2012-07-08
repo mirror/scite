@@ -706,7 +706,9 @@ bool SciTEBase::OpenSelected() {
 	}
 	FilePath pathReturned;
 	if (Exists(path.AsInternal(), selFN.c_str(), &pathReturned)) {
-		if (Open(pathReturned)) {
+		// Open synchronously if want to seek line number or search tag
+		OpenFlags of = ((lineNumber > 0) || (cTag[0] != '\0')) ? ofSynchronous : ofNone;
+		if (Open(pathReturned, of)) {
 			if (lineNumber > 0) {
 				wEditor.Call(SCI_GOTOLINE, lineNumber - 1);
 			} else if (cTag[0] != '\0') {
