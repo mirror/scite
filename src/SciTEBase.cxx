@@ -668,7 +668,7 @@ void SciTEBase::SetSelection(int anchor, int currentPos) {
 	wEditor.Call(SCI_SETSEL, anchor, currentPos);
 }
 
-void SciTEBase::GetCTag(char *sel, int len) {
+SString SciTEBase::GetCTag() {
 	int lengthDoc, selStart, selEnd;
 	int mustStop = 0;
 	char c;
@@ -715,9 +715,10 @@ void SciTEBase::GetCTag(char *sel, int len) {
 		}
 	}
 
-	sel[0] = '\0';
-	if ((selStart < selEnd) && ((selEnd - selStart + 1) < len)) {
-		GetRange(wCurrent, selStart, selEnd, sel);
+	if (selStart < selEnd) {
+		return GetRange(wCurrent, selStart, selEnd);
+	} else {
+		return SString();
 	}
 }
 

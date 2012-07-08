@@ -643,8 +643,7 @@ bool SciTEBase::OpenSelected() {
 		return true;	// Do not open if it is the current file!
 	}
 
-	char cTag[200];
-	cTag[0] = '\0';
+	SString cTag;
 	unsigned long lineNumber = 0;
 	if (IsPropertiesFile(filePath) &&
 	        !selName.contains('.')) {
@@ -674,7 +673,7 @@ bool SciTEBase::OpenSelected() {
 		// Support the ctags format
 
 		if (lineNumber == 0) {
-			GetCTag(cTag, sizeof(cTag));
+			cTag = GetCTag();
 		}
 	}
 
@@ -707,13 +706,13 @@ bool SciTEBase::OpenSelected() {
 	FilePath pathReturned;
 	if (Exists(path.AsInternal(), selFN.c_str(), &pathReturned)) {
 		// Open synchronously if want to seek line number or search tag
-		OpenFlags of = ((lineNumber > 0) || (cTag[0] != '\0')) ? ofSynchronous : ofNone;
+		OpenFlags of = ((lineNumber > 0) || (cTag.length() != 0)) ? ofSynchronous : ofNone;
 		if (Open(pathReturned, of)) {
 			if (lineNumber > 0) {
 				wEditor.Call(SCI_GOTOLINE, lineNumber - 1);
-			} else if (cTag[0] != '\0') {
-				if (atol(cTag) > 0) {
-					wEditor.Call(SCI_GOTOLINE, atol(cTag) - 1);
+			} else if (cTag.length() != 0) {
+				if (cTag.value() > 0) {
+					wEditor.Call(SCI_GOTOLINE, cTag.value() - 1);
 				} else {
 					findWhat = cTag;
 					FindNext(false);

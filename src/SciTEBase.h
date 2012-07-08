@@ -683,7 +683,7 @@ protected:
 	SelectedRange GetSelectedRange();
 	void SetSelection(int anchor, int currentPos);
 	//	void SelectionExtend(char *sel, int len, char *notselchar);
-	void GetCTag(char *sel, int len);
+	SString GetCTag();
 	SString GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	SString GetLine(GUI::ScintillaWindow &win, int line);

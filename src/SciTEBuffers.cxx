@@ -2133,14 +2133,13 @@ void SciTEBase::GoMessage(int dir) {
 
 				// If ctag then get line number after search tag or use ctag line number
 				if (style == SCE_ERR_CTAG) {
-					char cTag[200];
 					//without following focus GetCTag wouldn't work correct
 					WindowSetFocus(wOutput);
-					GetCTag(cTag, 200);
-					if (cTag[0] != '\0') {
-						if (atol(cTag) > 0) {
+					SString cTag = GetCTag();
+					if (cTag.length() != 0) {
+						if (cTag.value() > 0) {
 							//if tag is linenumber, get line
-							sourceLine = atol(cTag) - 1;
+							sourceLine = cTag.value() - 1;
 						} else {
 							findWhat = cTag;
 							FindNext(false);
