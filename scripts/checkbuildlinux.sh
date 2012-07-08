@@ -127,6 +127,7 @@ cd ../..
 #~ cd scite/gtk
 #~ make clean
 #~ make $JOBS CLANG=1 CLANG_ANALYZE=1
+#~ make clean
 #~ cd ../..
 
 # ************************************************************
