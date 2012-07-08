@@ -191,8 +191,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	lineNumbersWidth = lineNumbersWidthDefault;
 	lineNumbersExpand = false;
 
-	abbrevInsert[0] = '\0';
-
 	languageMenu = 0;
 	languageItems = 0;
 
@@ -1769,7 +1767,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 }
 
 bool SciTEBase::PerformInsertAbbreviation() {
-	SString data = propsAbbrev.Get(abbrevInsert);
+	SString data = propsAbbrev.Get(abbrevInsert.c_str());
 	size_t dataLength = data.length();
 	if (dataLength == 0) {
 		return true; // returning if expanded abbreviation is empty

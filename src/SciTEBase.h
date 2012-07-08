@@ -384,7 +384,7 @@ protected:
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
 	SString parameterisedCommand;
-	char abbrevInsert[200];
+	SString abbrevInsert;
 
 	enum { languageCmdID = IDM_LANGUAGE };
 	LanguageMenuItem *languageMenu;

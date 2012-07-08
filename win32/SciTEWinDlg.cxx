@@ -1446,9 +1446,7 @@ BOOL SciTEWin::AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::EndDialog(hDlg, IDCANCEL);
 			return FALSE;
 		} else if (ControlIDOfWParam(wParam) == IDOK) {
-			SString sAbbrev = dlg.ItemTextU(IDABBREV);
-			strncpy(abbrevInsert, sAbbrev.c_str(), sizeof(abbrevInsert));
-			abbrevInsert[sizeof(abbrevInsert) - 1] = '\0';
+			abbrevInsert = dlg.ItemTextU(IDABBREV);
 			::EndDialog(hDlg, IDOK);
 			return TRUE;
 		}
