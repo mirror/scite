@@ -772,7 +772,6 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	}
 
 	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
-	char buffer[16384];
 	OutputAppendStringSynchronised(">");
 	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command.c_str()), codePage);
 	OutputAppendStringSynchronised("\n");
@@ -887,6 +886,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 			DWORD bytesRead = 0;
 			DWORD bytesAvail = 0;
+			char buffer[16384];
 
 			if (!::PeekNamedPipe(hPipeRead, buffer,
 					     sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {

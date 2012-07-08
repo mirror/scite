@@ -394,10 +394,10 @@ bool FilePath::SetWorkingDirectory() const {
 void FilePath::List(FilePathSet &directories, FilePathSet &files) {
 #ifdef WIN32
 	FilePath wildCard(*this, GUI_TEXT("*.*"));
-	bool complete = false;
 	WIN32_FIND_DATAW findFileData;
 	HANDLE hFind = ::FindFirstFileW(wildCard.AsInternal(), &findFileData);
 	if (hFind != INVALID_HANDLE_VALUE) {
+		bool complete = false;
 		while (!complete) {
 			if ((strcmp(findFileData.cFileName, GUI_TEXT(".")) != 0) && (strcmp(findFileData.cFileName, GUI_TEXT("..")) != 0)) {
 				if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {

@@ -1249,7 +1249,6 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 	if (tabSize == 0)
 		tabSize = 4;
 
-	char key[200];
 	int lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 	bool styleIsUsed[STYLE_MAX + 1];
@@ -1277,6 +1276,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 
 		for (i = 0; i < STYLE_MAX; i++) {      // get keys
 			if (styleIsUsed[i]) {
+				char key[200];
 				sprintf(key, "style.*.%0d", i);
 				char *valdef = StringDup(props.GetExpanded(key).c_str());
 				sprintf(key, "style.%s.%0d", language.c_str(), i);

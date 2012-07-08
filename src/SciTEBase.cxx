@@ -4346,8 +4346,6 @@ static bool IsSwitchCharacter(GUI::gui_char ch) {
 
 // Called by SciTEBase::PerformOne when action="enumproperties:"
 void SciTEBase::EnumProperties(const char *propkind) {
-	const char *key = NULL;
-	const char *val = NULL;
 	PropSetFile *pf = NULL;
 
 	if (!extender)
@@ -4369,6 +4367,8 @@ void SciTEBase::EnumProperties(const char *propkind) {
 		pf = &propsAbbrev;
 
 	if (pf != NULL) {
+		const char *key = NULL;
+		const char *val = NULL;
 		bool b = pf->GetFirst(key, val);
 		while (b) {
 			SendOneProperty(propkind, key, val);
