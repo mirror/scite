@@ -2732,9 +2732,7 @@ void SciTEGTK::GoLineDialog() {
 }
 
 void SciTEGTK::AbbrevCmd() {
-	SString sAbbrev = dlgAbbrev.comboAbbrev.Text();
-	strncpy(abbrevInsert, sAbbrev.c_str(), sizeof(abbrevInsert));
-	abbrevInsert[sizeof(abbrevInsert) - 1] = '\0';
+	abbrevInsert = dlgAbbrev.comboAbbrev.Text();
 	dlgAbbrev.Destroy();
 }
 
@@ -2745,7 +2743,7 @@ void SciTEGTK::AbbrevResponse(int responseID) {
 			break;
 
 		case GTK_RESPONSE_CANCEL:
-			abbrevInsert[0] = '\0';
+			abbrevInsert = "";
 			dlgAbbrev.Destroy();
 			break;
 	}
