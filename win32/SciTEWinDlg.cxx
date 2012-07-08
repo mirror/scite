@@ -218,7 +218,8 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
 
 	if (!openWhat[0]) {
 		wcscpy(openWhat, localiser.Text("Custom Filter").c_str());
-		openWhat[wcslen(openWhat) + 1] = '\0';
+		// 2 NULs as there are 2 strings here: the display string and the filter string
+		openWhat[wcslen(openWhat) + 1] = L'\0';
 	}
 
 	bool succeeded = false;
