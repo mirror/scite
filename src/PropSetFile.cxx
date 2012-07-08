@@ -463,10 +463,13 @@ bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
                        const ImportFilter &filter, std::vector<FilePath> *imports) {
 	FILE *rcfile = filename.Open(fileRead);
 	if (rcfile) {
-		char propsData[60000];
-		int lenFile = static_cast<int>(fread(propsData, 1, sizeof(propsData), rcfile));
+		fseek(rcfile, 0, SEEK_END);
+		long sizeFile = ftell(rcfile);
+		fseek(rcfile, 0, SEEK_SET);
+		std::vector<char> propsData(sizeFile);
+		int lenFile = static_cast<int>(fread(&propsData[0], 1, propsData.size(), rcfile));
 		fclose(rcfile);
-		const char *data = propsData;
+		const char *data = propsData.data();
 		if (memcmp(data, "\xef\xbb\xbf", 3) == 0) {
 			data += 3;
 			lenFile -= 3;
