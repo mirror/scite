@@ -821,8 +821,21 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		//
 		PDFRender() {
 			pageStarted = false;
+			firstLine = false;
 			pageCount = 0;
+			pageContentStart = 0;
+			xPos = 0.0;
+			yPos = 0.0;
+			justWhiteSpace = true;
+			styleCurrent = STYLE_DEFAULT;
+			stylePrev = STYLE_DEFAULT;
+			leading = PDF_FONTSIZE_DEFAULT * PDF_SPACING_DEFAULT;
+			oT = NULL;
 			style = NULL;
+			fontSize = 0;
+			fontSet = PDF_FONT_DEFAULT;
+			pageWidth = 100;
+			pageHeight = 100;
 			buffer = new char[250];
 			segStyle = new char[100];
 		}
