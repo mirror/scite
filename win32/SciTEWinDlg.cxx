@@ -22,8 +22,8 @@ static void FlashThisWindow(
 		::GetClientRect(hWnd, &rc);
 		::FillRect(hDC, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		::Sleep(duration);
+		::ReleaseDC(hWnd, hDC);
 	}
-	::ReleaseDC(hWnd, hDC);
 	::InvalidateRect(hWnd, NULL, true);
 }
 

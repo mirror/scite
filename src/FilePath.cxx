@@ -661,7 +661,7 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 			  (directoryForRun && directoryForRun[0]) ? directoryForRun : 0,
 			  &si, &pi);
 
-	if (running) {
+	if (running && pi.hProcess && pi.hThread) {
 		// Wait until child process exits but time out after 5 seconds.
 		::WaitForSingleObject(pi.hProcess, 5 * 1000);
 		
@@ -682,10 +682,10 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 				}
 			}
 		}
+		::CloseHandle(pi.hProcess);
+		::CloseHandle(pi.hThread);
 	}
 
-	::CloseHandle(pi.hProcess);
-	::CloseHandle(pi.hThread);
 	::CloseHandle(hPipeRead);
 	::CloseHandle(hPipeWrite);
 	::CloseHandle(hRead2);

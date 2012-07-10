@@ -504,8 +504,10 @@ void SciTEWin::CopyAsRTF() {
 				::OpenClipboard(MainHWND());
 				::EmptyClipboard();
 				char *ptr = static_cast<char *>(::GlobalLock(hand));
-				fread(ptr, 1, len, fp);
-				ptr[len] = '\0';
+				if (ptr) {
+					fread(ptr, 1, len, fp);
+					ptr[len] = '\0';
+				}
 				::GlobalUnlock(hand);
 				::SetClipboardData(::RegisterClipboardFormat(CF_RTF), hand);
 				::CloseClipboard();
@@ -527,7 +529,8 @@ void SciTEWin::CopyPath() {
 	if (hand && ::OpenClipboard(MainHWND())) {
 		::EmptyClipboard();
 		GUI::gui_char *ptr = static_cast<GUI::gui_char*>(::GlobalLock(hand));
-		memcpy(ptr, clipText.c_str(), blobSize);
+		if (ptr)
+			memcpy(ptr, clipText.c_str(), blobSize);
 		::GlobalUnlock(hand);
 		::SetClipboardData(CF_UNICODETEXT, hand);
 		::CloseClipboard();
@@ -2222,7 +2225,7 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		2, 2, width, height,
 		Hwnd(), reinterpret_cast<HMENU>(ident), ::GetModuleHandle(NULL), 0));
 	if (check) {
-		int resNum = 0;
+		int resNum = IDBM_WORD;
 		switch (ident) {
 		case IDWHOLEWORD: resNum = IDBM_WORD; break;
 		case IDMATCHCASE: resNum = IDBM_CASE; break;
@@ -2477,7 +2480,7 @@ void Strip::SetTheme() {
 }
 
 static bool HideKeyboardCues() {
-	BOOL b;
+	BOOL b=FALSE;
 	::SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &b, 0);
 	return !b;
 }

@@ -916,8 +916,8 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 						::DeleteObject(brush);
 						::SelectObject(hDC, penOld);
 						::DeleteObject(pen);
+						::ReleaseDC(hWnd, hDC);
 					}
-					::ReleaseDC(hWnd, hDC);
 				}
 			}
 		}
