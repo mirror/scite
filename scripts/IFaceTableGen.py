@@ -20,6 +20,11 @@ def Contains(s,sub):
 def StartsWith(s, prefix):
 	return s.find(prefix) == 0
 
+def CommentString(prop):
+	if prop and prop["Comment"]:
+		return " -- " + " ".join(prop["Comment"])
+	return ""
+
 def GetScriptableInterface(f):
 	"""Returns a tuple of (constants, functions, properties)
 constants - a sorted list of (name, features) tuples, including all
@@ -139,9 +144,10 @@ properties - a sorted list of (name, property), where property is a
 				"Category"       : (getter or setter)["Category"],
 				"GetterName"     : getterName,
 				"SetterName"     : setterName,
-				"GetterComment"  : getter and getter["Comment"],
-				"SetterComment"  : setter and setter["Comment"]
+				"GetterComment"  : CommentString(getter),
+				"SetterComment"  : CommentString(setter)
 			}
+			#~ print(properties[propname])
 
 			# If it is exposed as a property, the constant name is not picked up implicitly
 			# (because the name is different) but its constant should still be exposed.
@@ -243,6 +249,119 @@ def printIFaceTableCXXFile(faceAndIDs, out):
 	out.write("\tifacePropertyCount = %d\n" % len(properties))
 	out.write("};\n\n")
 
+def convertStringResult(s):
+	if s == "stringresult":
+		return "string"
+	else:
+		return s
+
+def idsFromDocumentation(filename):
+	""" Read the Scintilla documentation and return a list of all the features 
+	in the same order as they are explained in the documentation.
+	Also include the previous header with each feature. """
+	idsInOrder = []
+	segment = ""
+	with open(filename) as f:
+		for l in f:
+			if "<h2" in l:
+				segment = l.split(">")[1].split("<")[0]
+			if 'id="SCI_' in l:
+				idFeature = l.split('"')[1]
+				#~ print(idFeature)
+				idsInOrder.append([segment, idFeature])
+	return idsInOrder
+
+nonScriptableTypes = ["cells", "textrange", "findtext", "formatrange"]
+
+def printIFaceTableHTMLFile(faceAndIDs, out):
+	f, ids, idsInOrder = faceAndIDs
+	(constants, functions, properties) = GetScriptableInterface(f)
+	explanations = {}
+	for name, features in functions:
+		featureDefineName = "SCI_" + name.upper()
+		explanation = ""
+		href = ""
+		hrefEnd = ""
+		href = "<a href='http://www.scintilla.org/ScintillaDoc.html#" + featureDefineName + "'>"
+		hrefEnd = "</a>"
+		
+		if features['Param1Type'] in nonScriptableTypes or features['Param2Type'] in nonScriptableTypes:
+			#~ print(name, features)
+			continue
+
+		parameters = ""
+		stringresult = ""
+		if features['Param2Type'] == "stringresult":
+			stringresult = "string "
+			if features['Param1Name'] and features['Param1Name'] != "length":
+				parameters += features['Param1Type'] + " " + features['Param1Name'] 
+		else:
+			if features['Param1Name']:
+				parameters += features['Param1Type'] + " " + features['Param1Name'] 
+				if features['Param1Name'] == "length" and features['Param2Type'] == "string":
+					# special case removal
+					parameters = ""
+			if features['Param2Name']:
+				if parameters:
+					parameters += ", "
+				parameters += features['Param2Type'] + " " + features['Param2Name'] 
+			
+		returnType = stringresult
+		if not returnType and features["ReturnType"] != "void":
+			returnType = convertStringResult(features["ReturnType"]) + " "
+
+		explanation += '%seditor:%s%s%s(%s)' % (
+			returnType,
+			href,
+			name, 
+			hrefEnd,
+			parameters
+		)
+		if features["Comment"]:
+			explanation += '<span class="comment">%s</span>' % CommentString(features)
+
+		explanations[featureDefineName] = explanation
+
+	for propname, property in properties:
+		functionName = property['SetterName'] or property['GetterName']
+		featureDefineName = "SCI_" + functionName.upper()
+		explanation = ""
+		href = "<a href='http://www.scintilla.org/ScintillaDoc.html#" + featureDefineName + "'>"
+		hrefEnd = "</a>"
+
+		direction = ""
+		if not property['SetterName']:
+			direction = " read-only"
+		if not property['GetterName']:
+			direction = " write-only"
+		indexExpression = ""
+		if property["IndexParamType"] != "void":
+			indexExpression = "[" + property["IndexParamType"] + " " + property["IndexParamName"] + "]"
+
+		explanation += '%s editor.%s%s%s%s%s' % (
+			convertStringResult(property["PropertyType"]),
+			href,
+			propname, 
+			hrefEnd,
+			indexExpression,
+			direction
+		)
+		if property["SetterComment"]:
+			explanation += '<span class="comment">%s</span>' % property["SetterComment"]
+		explanations[featureDefineName] = explanation
+
+	lastSegment = ""
+	for segment, featureId in idsInOrder:
+		if featureId in explanations:
+			if segment != lastSegment:
+				out.write('\t<h2>')
+				out.write(segment)
+				out.write('</h2>\n')
+				lastSegment = segment
+			out.write('\t<p>')
+			out.write(explanations[featureId])
+			out.write('</p>\n')
+	out.write("\n")
 
 def CopyWithInsertion(input, output, genfn, definition):
 	copying = 1
@@ -298,4 +417,6 @@ def ReadMenuIDs(filename):
 f = Face.Face()
 f.ReadFromFile(srcRoot + "/scintilla/include/Scintilla.iface")
 menuIDs  = ReadMenuIDs(srcRoot + "/scite/src/SciTE.h")
+idsInOrder = idsFromDocumentation(srcRoot + "/scintilla/doc/ScintillaDoc.html")
 Regenerate(srcRoot + "/scite/src/IFaceTable.cxx", printIFaceTableCXXFile, [f, menuIDs])
+Regenerate(srcRoot + "/scite/doc/PaneAPI.html", printIFaceTableHTMLFile, [f, menuIDs, idsInOrder])
