@@ -1073,7 +1073,7 @@ void SciTEBase::SaveAs(const GUI::gui_char *file, bool fixCase) {
 	Save();
 	ReadProperties();
 	wEditor.Call(SCI_CLEARDOCUMENTSTYLE);
-	wEditor.Call(SCI_COLOURISE, 0, -1);
+	wEditor.Call(SCI_COLOURISE, 0, wEditor.Call(SCI_POSITIONFROMLINE, 1));
 	Redraw();
 	SetWindowName();
 	BuffersMenu();
