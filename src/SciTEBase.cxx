@@ -3178,12 +3178,12 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_CUT:
-		if (CallPane(source, SCI_GETSELECTIONSTART) != CallPane(source, SCI_GETSELECTIONEND)) {
+		if (!CallPane(source, SCI_GETSELECTIONEMPTY)) {
 			CallPane(source, SCI_CUT);
 		}
 		break;
 	case IDM_COPY:
-		if (CallPane(source, SCI_GETSELECTIONSTART) != CallPane(source, SCI_GETSELECTIONEND)) {
+		if (!CallPane(source, SCI_GETSELECTIONEMPTY)) {
 			//fprintf(stderr, "Copy from %d\n", source);
 			CallPane(source, SCI_COPY);
 		}
@@ -4064,7 +4064,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 }
 
 void SciTEBase::CheckMenusClipboard() {
-	bool hasSelection = CallFocused(SCI_GETSELECTIONSTART) != CallFocused(SCI_GETSELECTIONEND);
+	bool hasSelection = !CallFocused(SCI_GETSELECTIONEMPTY);
 	EnableAMenuItem(IDM_CUT, hasSelection);
 	EnableAMenuItem(IDM_COPY, hasSelection);
 	EnableAMenuItem(IDM_CLEAR, hasSelection);
