@@ -226,9 +226,9 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
 	GUI::gui_char openName[maxBufferSize]; // maximum common dialog buffer size (says mfc..)
 	openName[0] = '\0';
 
-	OPENFILENAMEW ofn = {
-	       sizeof(ofn), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	};
+	OPENFILENAMEW ofn;
+	memset(&ofn, 0, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
@@ -279,9 +279,9 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
 		if (!savePath.IsUntitled()) {
 			wcscpy(saveName, savePath.AsInternal());
 		}
-		OPENFILENAMEW ofn = {
-		                       sizeof(ofn), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		                   };
+		OPENFILENAMEW ofn;
+		memset(&ofn, 0, sizeof(ofn));
+		ofn.lStructSize = sizeof(ofn);
 		ofn.hwndOwner = MainHWND();
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
@@ -360,9 +360,9 @@ void SciTEWin::SaveAsXML() {
 
 void SciTEWin::LoadSessionDialog() {
 	GUI::gui_char openName[MAX_PATH] = GUI_TEXT("");
-	OPENFILENAMEW ofn = {
-	                       sizeof(ofn), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	                   };
+	OPENFILENAMEW ofn;
+	memset(&ofn, 0, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
@@ -380,9 +380,9 @@ void SciTEWin::LoadSessionDialog() {
 void SciTEWin::SaveSessionDialog() {
 	GUI::gui_char saveName[MAX_PATH] = GUI_TEXT("\0");
 	wcscpy(saveName, GUI_TEXT("SciTE.session"));
-	OPENFILENAMEW ofn = {
-			       sizeof(ofn), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			   };
+	OPENFILENAMEW ofn;
+	memset(&ofn, 0, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
 	ofn.lpstrDefExt = GUI_TEXT("session");

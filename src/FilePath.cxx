@@ -571,8 +571,23 @@ bool FilePath::Matches(const GUI::gui_char *pattern) const {
  * false on failure, and copies the @a shortPath arg to the @a longPath buffer.
  */
 static bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_char* longPath) {
+	typedef DWORD (STDAPICALLTYPE* GetLongSig)(const GUI::gui_char* lpszShortPath, GUI::gui_char* lpszLongPath, DWORD cchBuffer);
+	static GetLongSig pfnGetLong = NULL;
+	static bool kernelTried = false;
 
-	bool ok = ::GetLongPathNameW(shortPath, longPath, _MAX_PATH) != 0;
+	if (!kernelTried) {
+		kernelTried = true;
+		HMODULE hModule = ::GetModuleHandle(TEXT("kernel32.dll"));
+		if (hModule) {
+			// attempt to get GetLongPathNameW implemented in Windows 2000 or newer
+			pfnGetLong = (GetLongSig)::GetProcAddress(hModule, "GetLongPathNameW");
+		}
+	}
+
+	bool ok = false;
+	if (pfnGetLong) {
+		ok = (pfnGetLong)(shortPath, longPath, _MAX_PATH) != 0;
+	}
 
 	if (!ok) {
 		wcsncpy(longPath, shortPath, _MAX_PATH);

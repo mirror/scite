@@ -18,11 +18,15 @@ endif
 # For Windows 2000 looks like:Microsoft Windows 2000 [Version 5.00.2195]
 WINVERWORDS:=$(wordlist 1,2,$(subst ., ,$(lastword $(shell ver))))
 WINVER:=$(firstword $(WINVERWORDS)).$(lastword $(WINVERWORDS))
-# Windows 2000 does not support themes so turn off
+# Windows NT 4 and Windows 2000 do not support themes so turn off
+ifeq '$(WINVER)' '4.0'
+	VERSION_DEFINES:=-DDISABLE_THEMES -DWIN_TARGET=0x0400
+else
 ifeq '$(WINVER)' '5.00'
-	THEMES:=-DDISABLE_THEMES
+	VERSION_DEFINES:=-DDISABLE_THEMES
 else
 	UXLIB:=-luxtheme
+endif
 endif
 
 PROG	= ../bin/SciTE.exe
@@ -56,7 +60,7 @@ endif
 INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src $(LUA_INCLUDES)
 RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src
 
-CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS) $(THEMES)
+CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS) $(VERSION_DEFINES)
 
 ifdef DEBUG
 CFLAGS=-DDEBUG -g $(CBASEFLAGS)
