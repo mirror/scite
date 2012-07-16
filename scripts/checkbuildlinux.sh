@@ -71,6 +71,7 @@ cd ScintillaEditBase
 $QMAKENAME
 make clean
 make $JOBS
+make distclean
 cd ..
 
 cd ScintillaEdit
@@ -78,10 +79,12 @@ python WidgetGen.py
 $QMAKENAME
 make clean
 make $JOBS
+make distclean
 cd ..
 
 cd ScintillaEditPy
 python sepbuild.py
+python sepbuild.py --clean
 cd ..
 cd ../..
 
@@ -127,6 +130,9 @@ cd ../..
 #~ cd scite/gtk
 #~ make clean
 #~ make $JOBS CLANG=1 CLANG_ANALYZE=1
+#~ make clean
+#~ cd ../..
+#~ cd scintilla/gtk
 #~ make clean
 #~ cd ../..
 
