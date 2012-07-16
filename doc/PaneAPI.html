@@ -202,6 +202,7 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETVIRTUALSPACEOPTIONS'>VirtualSpaceOptions</a><span class="comment"> -- Returns the position at the end of the selection.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETRECTANGULARSELECTIONMODIFIER'>RectangularSelectionModifier</a><span class="comment"> -- On GTK+, allow selecting the modifier key to use for mouse-based rectangular selection. Often the window manager requires Alt+Mouse Drag for moving windows. Valid values are SCMOD_CTRL(default), SCMOD_ALT, or SCMOD_SUPER.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONS'>Selections</a> read-only</p>
+	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONEMPTY'>SelectionEmpty</a> read-only</p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARSELECTIONS'>ClearSelections</a>()<span class="comment"> -- Clear selections to a single empty stream selection</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTION'>SetSelection</a>(int caret, int anchor)<span class="comment"> -- Set a simple selection</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ADDSELECTION'>AddSelection</a>(int caret, int anchor)<span class="comment"> -- Add a selection</span></p>
