@@ -24,6 +24,9 @@
 #define TS_CHECKED 5
 #define TS_HOTCHECKED 6
 #define TP_BUTTON 1
+#ifndef DFCS_HOT
+#define DFCS_HOT 1000
+#endif
 
 #ifndef WM_UPDATEUISTATE
 #define WM_UPDATEUISTATE 0x0128

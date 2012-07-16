@@ -38,7 +38,7 @@
 #pragma warning(disable: 4201)
 #endif
 #include <windows.h>
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+#if defined(DISABLE_THEMES) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
 // Old compilers do not have Uxtheme.h
 typedef void *HTHEME;
 #else
