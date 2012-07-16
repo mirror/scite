@@ -14,6 +14,17 @@ DEL = rm
 COPY = cp
 endif
 
+# Discover Windows version by running 'VER' command and parsing output
+# For Windows 2000 looks like:Microsoft Windows 2000 [Version 5.00.2195]
+WINVERWORDS:=$(wordlist 1,2,$(subst ., ,$(lastword $(shell ver))))
+WINVER:=$(firstword $(WINVERWORDS)).$(lastword $(WINVERWORDS))
+# Windows 2000 does not support themes so turn off
+ifeq '$(WINVER)' '5.00'
+	THEMES:=-DDISABLE_THEMES
+else
+	UXLIB:=-luxtheme
+endif
+
 PROG	= ../bin/SciTE.exe
 PROGSTATIC = ../bin/Sc1.exe
 WIDEFLAGS=-DUNICODE -D_UNICODE
@@ -45,7 +56,7 @@ endif
 INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src $(LUA_INCLUDES)
 RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src
 
-CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS)
+CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS) $(THEMES)
 
 ifdef DEBUG
 CFLAGS=-DDEBUG -g $(CBASEFLAGS)
@@ -56,7 +67,7 @@ endif
 
 CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic -fno-rtti
 
-LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -luxtheme $(LUA_LDFLAGS)
+LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid $(UXLIB) $(LUA_LDFLAGS)
 
 .cxx.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
