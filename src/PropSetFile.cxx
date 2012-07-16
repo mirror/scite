@@ -444,10 +444,10 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 void PropSetFile::ReadFromMemory(const char *data, size_t len, FilePath directoryForImports,
                                  const ImportFilter &filter, std::vector<FilePath> *imports) {
 	const char *pd = data;
-	char lineBuffer[60000];
+	std::vector<char> lineBuffer(len+1);	// +1 for NUL
 	bool ifIsTrue = true;
 	while (len > 0) {
-		GetFullLine(pd, len, lineBuffer, sizeof(lineBuffer));
+		GetFullLine(pd, len, &lineBuffer[0], lineBuffer.size());
 		if (lowerKeys) {
 			for (int i=0; lineBuffer[i] && (lineBuffer[i] != '='); i++) {
 				if ((lineBuffer[i] >= 'A') && (lineBuffer[i] <= 'Z')) {
@@ -455,7 +455,7 @@ void PropSetFile::ReadFromMemory(const char *data, size_t len, FilePath director
 				}
 			}
 		}
-		ifIsTrue = ReadLine(lineBuffer, ifIsTrue, directoryForImports, filter, imports);
+		ifIsTrue = ReadLine(&lineBuffer[0], ifIsTrue, directoryForImports, filter, imports);
 	}
 }
 
