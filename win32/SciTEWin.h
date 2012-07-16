@@ -40,7 +40,7 @@
 #include <windows.h>
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
 // Old compilers do not have Uxtheme.h
-typedef HANDLE HTHEME;
+typedef void *HTHEME;
 #else
 #include <uxtheme.h>
 #endif
