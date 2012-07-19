@@ -248,6 +248,15 @@ int SciTEBase::CallFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 		return wEditor.Call(msg, wParam, lParam);
 }
 
+int SciTEBase::CallFocusedElseDefault(int defaultValue, unsigned int msg, uptr_t wParam, sptr_t lParam) {
+	if (wOutput.HasFocus())
+		return wOutput.Call(msg, wParam, lParam);
+	else if (wEditor.HasFocus())
+		return wEditor.Call(msg, wParam, lParam);
+	else
+		return defaultValue;
+}
+
 sptr_t SciTEBase::CallPane(int destination, unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	if (destination == IDM_SRCWIN)
 		return wEditor.Call(msg, wParam, lParam);
@@ -3972,8 +3981,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 		if (notification->modificationType & SC_LASTSTEPINUNDOREDO) {
 			//when the user hits undo or redo, several normal insert/delete
 			//notifications may fire, but we will end up here in the end
-			EnableAMenuItem(IDM_UNDO, CallFocused(SCI_CANUNDO));
-			EnableAMenuItem(IDM_REDO, CallFocused(SCI_CANREDO));
+			EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SCI_CANUNDO));
+			EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SCI_CANREDO));
 		} else if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
 			//this will be called a lot, and usually means "typing".
 			EnableAMenuItem(IDM_UNDO, true);
@@ -4064,17 +4073,17 @@ void SciTEBase::Notify(SCNotification *notification) {
 }
 
 void SciTEBase::CheckMenusClipboard() {
-	bool hasSelection = !CallFocused(SCI_GETSELECTIONEMPTY);
+	bool hasSelection = !CallFocusedElseDefault(false, SCI_GETSELECTIONEMPTY);
 	EnableAMenuItem(IDM_CUT, hasSelection);
 	EnableAMenuItem(IDM_COPY, hasSelection);
 	EnableAMenuItem(IDM_CLEAR, hasSelection);
-	EnableAMenuItem(IDM_PASTE, CallFocused(SCI_CANPASTE));
+	EnableAMenuItem(IDM_PASTE, CallFocusedElseDefault(true, SCI_CANPASTE));
 }
 
 void SciTEBase::CheckMenus() {
 	CheckMenusClipboard();
-	EnableAMenuItem(IDM_UNDO, CallFocused(SCI_CANUNDO));
-	EnableAMenuItem(IDM_REDO, CallFocused(SCI_CANREDO));
+	EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SCI_CANUNDO));
+	EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SCI_CANREDO));
 	EnableAMenuItem(IDM_DUPLICATE, !isReadOnly);
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);

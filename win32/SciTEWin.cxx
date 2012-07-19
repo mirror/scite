@@ -598,6 +598,27 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		// From toolbar -> goes to focused pane.
 		menuSource = 0;
 	}
+	if (!menuSource) {
+		if (!wEditor.HasFocus() && !wOutput.HasFocus()) {
+			HWND wWithFocus = ::GetFocus();
+			enum { capSize = 2000 };
+			GUI::gui_char className[capSize];
+			::GetClassName(wWithFocus, className, capSize);
+			if (wcscmp(className, TEXT("Edit")) == 0) {
+				switch (cmdID) {
+				case IDM_UNDO:
+					::SendMessage(wWithFocus, EM_UNDO, 0, 0);
+					return;
+				case IDM_CUT:
+					::SendMessage(wWithFocus, WM_CUT, 0, 0);
+					return;
+				case IDM_COPY:
+					::SendMessage(wWithFocus, WM_COPY, 0, 0);
+					return;
+				}
+			}
+		}
+	}
 
 	switch (cmdID) {
 
