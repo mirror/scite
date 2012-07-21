@@ -1607,7 +1607,7 @@ void SciTEBase::ContinueCallTip() {
 	int startHighlight = 0;
 	while (functionDefinition[startHighlight] && !calltipParametersStart.contains(functionDefinition[startHighlight]))
 		startHighlight++;
-	if (calltipParametersStart.contains(functionDefinition[startHighlight]))
+	if (functionDefinition[startHighlight] && calltipParametersStart.contains(functionDefinition[startHighlight]))
 		startHighlight++;
 	while (functionDefinition[startHighlight] && commas > 0) {
 		if (calltipParametersSeparators.contains(functionDefinition[startHighlight]))
@@ -1619,7 +1619,7 @@ void SciTEBase::ContinueCallTip() {
 		else
 			startHighlight++;
 	}
-	if (calltipParametersSeparators.contains(functionDefinition[startHighlight]))
+	if (functionDefinition[startHighlight] && calltipParametersSeparators.contains(functionDefinition[startHighlight]))
 		startHighlight++;
 	int endHighlight = startHighlight;
 	while (functionDefinition[endHighlight] && !calltipParametersSeparators.contains(functionDefinition[endHighlight]) && !calltipParametersEnd.contains(functionDefinition[endHighlight]))
@@ -1629,9 +1629,12 @@ void SciTEBase::ContinueCallTip() {
 		int unslashedStartHighlight = UnSlash(sUnslashed) - 1;
 		delete []sUnslashed;
 
-		sUnslashed = StringDup(functionDefinition.substr(startHighlight, endHighlight - startHighlight + 1).c_str());
-		int unslashedEndHighlight = unslashedStartHighlight + UnSlash(sUnslashed) - 1;
-		delete []sUnslashed;
+		int unslashedEndHighlight = unslashedStartHighlight;
+		if (startHighlight < endHighlight) {
+			sUnslashed = StringDup(functionDefinition.substr(startHighlight, endHighlight - startHighlight + 1).c_str());
+			unslashedEndHighlight = unslashedStartHighlight + UnSlash(sUnslashed) - 1;
+			delete []sUnslashed;
+		}
 
 		startHighlight = unslashedStartHighlight;
 		endHighlight = unslashedEndHighlight;
