@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <locale.h>
+#include <assert.h>
 
 #include <string>
 #include <vector>
@@ -581,6 +582,7 @@ SString PropSetFile::GetWild(const char *keybase, const char *filename) {
 // variable reference found.
 SString PropSetFile::GetNewExpand(const char *keybase, const char *filename) {
 	char *base = StringDup(GetWild(keybase, filename).c_str());
+	assert(base);
 	char *cpvar = strstr(base, "$(");
 	int maxExpands = 1000;	// Avoid infinite expansion of recursive definitions
 	while (cpvar && (maxExpands > 0)) {
@@ -588,6 +590,7 @@ SString PropSetFile::GetNewExpand(const char *keybase, const char *filename) {
 		if (cpendvar) {
 			ptrdiff_t lenvar = cpendvar - cpvar - 2;  	// Subtract the $()
 			char *var = StringDup(cpvar + 2, lenvar);
+			assert(var);
 			SString val = GetWild(var, filename);
 			if (0 == strcmp(var, keybase))
 				val.clear(); // Self-references evaluate to empty string

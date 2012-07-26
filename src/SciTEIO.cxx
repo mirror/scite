@@ -1270,7 +1270,6 @@ public:
 			int ch = bf->NextByte();
 			if (i == 0 && lastWasCR && ch == '\n') {
 				lastWasCR = false;
-				ch = 0;
 			} else if (ch == '\r' || ch == '\n') {
 				lastWasCR = ch == '\r';
 				break;
