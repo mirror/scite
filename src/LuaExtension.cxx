@@ -1663,9 +1663,8 @@ bool LuaExtension::OnBeforeSave(const char *filename) {
 bool LuaExtension::OnSave(const char *filename) {
 	bool result = CallNamedFunction("OnSave", filename);
 
-	// should this be case insensitive on windows?  check for different
-	// ways of spelling a filename, e.g. short vs. long?
-	if (startupScript && 0 == strcmp(filename, startupScript)) {
+	FilePath fpSaving = FilePath(GUI::StringFromUTF8(filename)).NormalizePath();
+	if (startupScript && fpSaving == FilePath(GUI::StringFromUTF8(startupScript)).NormalizePath()) {
 		if (GetPropertyInt("ext.lua.auto.reload") > 0) {
 			InitGlobalScope(false, true);
 			if (extensionScript.length()) {
