@@ -466,6 +466,10 @@ bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
 	if (rcfile) {
 		fseek(rcfile, 0, SEEK_END);
 		long sizeFile = ftell(rcfile);
+		if (sizeFile == 0) {
+			fclose(rcfile);
+			return false;
+		}
 		fseek(rcfile, 0, SEEK_SET);
 		std::vector<char> propsData(sizeFile);
 		int lenFile = static_cast<int>(fread(&propsData[0], 1, propsData.size(), rcfile));
