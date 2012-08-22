@@ -2395,6 +2395,10 @@ void SciTEGTK::FindInFiles() {
 	props.Set("find.what", findWhat.c_str());
 
 	FilePath findInDir = filePath.Directory().AbsolutePath();
+	SString directory = props.Get("find.in.directory");
+	if (directory.length()) {
+		findInDir = FilePath(directory.c_str());
+	}
 	props.Set("find.directory", findInDir.AsInternal());
 
 	dlgFindInFiles.Create(localiser.Text("Find in Files"));
