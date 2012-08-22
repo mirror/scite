@@ -1675,10 +1675,18 @@ NameError: mistake
        </tr>
        <tr id='property-strip.trailing.spaces'>
         <td>
-          strip.trailing.spaces
+          strip.trailing.spaces<br />
+          strip.trailing.spaces.<i>filepattern</i>
         </td>
         <td>
-          Strips trailing white spaces from the file while saving.
+          Strips trailing white spaces from the file while saving.<br />
+          The global strip.trailing.spaces property can be overridden for
+          files that match a pattern by using the file pattern forms: <br />
+          <div class="example">
+          strip.trailing.spaces.*.yaml=0<br />
+          or <br />
+          strip.trailing.spaces.$(file.patterns.yaml)=0<br />
+          </div>
         </td>
       </tr>
        <tr id='property-ensure.final.line.end'>
