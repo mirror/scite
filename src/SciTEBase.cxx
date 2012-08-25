@@ -786,10 +786,20 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	wCurrent.Call(SCI_SETSEARCHFLAGS, SCFIND_MATCHCASE | SCFIND_WHOLEWORD);
 	wCurrent.Call(SCI_SETTARGETSTART, 0);
 	wCurrent.Call(SCI_SETTARGETEND, lenDoc);
+
+	//Monitor the amount of time took by the search.
+	GUI::ElapsedTime searchElapsedTime;
+
 	// Find the first occurrence of word.
 	int indexOf = wCurrent.CallString(SCI_SEARCHINTARGET,
 	        wordToFind.length(), wordToFind.c_str());
 	while (indexOf != -1 && indexOf < lenDoc) {
+		// Limit the search duration to 250 ms. Avoid to freeze editor for large files.
+		if (searchElapsedTime.Duration() > 0.25) {
+			// Clear all indicators because timer has expired.
+			wCurrent.Call(SCI_INDICATORCLEARRANGE, 0, lenDoc);
+			break;
+		}
 		if (!currentWordHighlight.isOnlyWithSameStyle || selectedStyle ==
 		        wCurrent.Call(SCI_GETSTYLEAT, indexOf)) {
 			wCurrent.Call(SCI_INDICATORFILLRANGE, indexOf, wordToFind.length());
