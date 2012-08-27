@@ -2745,6 +2745,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"UserListShow", 2117, iface_void, {iface_int, iface_string}},
 	{"VCHome", 2331, iface_void, {iface_void, iface_void}},
 	{"VCHomeDisplay", 4018, iface_void, {iface_void, iface_void}},
+	{"VCHomeDisplayExtend", 4019, iface_void, {iface_void, iface_void}},
 	{"VCHomeExtend", 2332, iface_void, {iface_void, iface_void}},
 	{"VCHomeRectExtend", 2431, iface_void, {iface_void, iface_void}},
 	{"VCHomeWrap", 2453, iface_void, {iface_void, iface_void}},
@@ -2973,7 +2974,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 271,
+	ifaceFunctionCount = 272,
 	ifaceConstantCount = 2359,
 	ifacePropertyCount = 199
 };
