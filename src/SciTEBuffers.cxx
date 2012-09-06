@@ -1160,17 +1160,18 @@ void SciTEBase::SetBuffersMenu() {
 			GUI::gui_string entry;
 			GUI::gui_string titleTab;
 
+#if defined(WIN32) || defined(GTK)
 			if (pos < 10) {
 				GUI::gui_string sPos = GUI::StringFromInteger((pos + 1) % 10);
 				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
-#if defined(WIN32)
 				entry = sHotKey;	// hotkey 1..0
+#if defined(WIN32)
 				titleTab = sHotKey; // add hotkey to the tabbar
 #elif defined(GTK)
-				entry = sHotKey;	// hotkey 1..0
 				titleTab = sPos + GUI_TEXT(" ");
 #endif
 			}
+#endif
 
 			if (buffers.buffers[pos].IsUntitled()) {
 				GUI::gui_string untitled = localiser.Text("Untitled");
