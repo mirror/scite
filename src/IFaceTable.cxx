@@ -1424,13 +1424,20 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_POWERSHELL_VARIABLE",5},
 	{"SCE_PO_COMMENT",1},
 	{"SCE_PO_DEFAULT",0},
+	{"SCE_PO_ERROR",15},
+	{"SCE_PO_FLAGS",11},
 	{"SCE_PO_FUZZY",8},
 	{"SCE_PO_MSGCTXT",6},
 	{"SCE_PO_MSGCTXT_TEXT",7},
+	{"SCE_PO_MSGCTXT_TEXT_EOL",14},
 	{"SCE_PO_MSGID",2},
 	{"SCE_PO_MSGID_TEXT",3},
+	{"SCE_PO_MSGID_TEXT_EOL",12},
 	{"SCE_PO_MSGSTR",4},
 	{"SCE_PO_MSGSTR_TEXT",5},
+	{"SCE_PO_MSGSTR_TEXT_EOL",13},
+	{"SCE_PO_PROGRAMMER_COMMENT",9},
+	{"SCE_PO_REFERENCE",10},
 	{"SCE_PROPS_ASSIGNMENT",3},
 	{"SCE_PROPS_COMMENT",1},
 	{"SCE_PROPS_DEFAULT",0},
@@ -2975,7 +2982,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 272,
-	ifaceConstantCount = 2359,
+	ifaceConstantCount = 2366,
 	ifacePropertyCount = 199
 };
 
