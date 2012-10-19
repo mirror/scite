@@ -4233,13 +4233,17 @@ void SciTEBase::OnTimer() {
 	}
 }
 
+void SciTEBase::SetHomeProperties() {
+	FilePath homepath = GetSciteDefaultHome();
+	props.Set("SciteDefaultHome", homepath.AsUTF8().c_str());
+	homepath = GetSciteUserHome();
+	props.Set("SciteUserHome", homepath.AsUTF8().c_str());
+}
+
 void SciTEBase::UIAvailable() {
 	SetImportMenu();
 	if (extender) {
-		FilePath homepath = GetSciteDefaultHome();
-		props.Set("SciteDefaultHome", homepath.AsUTF8().c_str());
-		homepath = GetSciteUserHome();
-		props.Set("SciteUserHome", homepath.AsUTF8().c_str());
+		SetHomeProperties();
 		extender->Initialise(this);
 	}
 }
