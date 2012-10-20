@@ -3590,7 +3590,13 @@ groupundo - yes or no
         </td>
         <td>
           Set the name of the localisation file. For a multi-user installation
-	this allows each user to set a preferred user interface language.
+	this allows each user to set a preferred user interface language.<br />
+	On OS X, localisation files for some languages are installed in the translations
+	subdirectory of the user home directory which allows setting
+	the user interface to, for example, German with
+		<div class="example">
+		locale.properties=$(SciteUserHome)/translations/locale.de.properties
+		</div>
         </td>
       </tr>
       <tr id='property-translation.missing'>
