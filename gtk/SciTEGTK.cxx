@@ -5102,8 +5102,7 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 
 	char *pipeFileName = NULL;
 	const char *filename;
-
-	sprintf(uniqueInstance,"%s/SciTE.ensure.unique.instance.for.%s", g_get_tmp_dir(), getenv("USER"));
+	snprintf(uniqueInstance, MAX_PATH, "%s/SciTE.ensure.unique.instance.for.%s", g_get_tmp_dir(), getenv("USER"));
 	int fd;
 	bool isLocked;
 	do {
