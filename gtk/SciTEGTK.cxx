@@ -5009,7 +5009,11 @@ static void *WorkerThread(void *ptr) {
 
 bool SciTEGTK::PerformOnNewThread(Worker *pWorker) {
 	GError *err = NULL;
+#if GLIB_CHECK_VERSION(2,31,0)
+	GThread *pThread = g_thread_try_new("SciTEWorker", WorkerThread, pWorker, &err);
+#else
 	GThread *pThread = g_thread_create(WorkerThread, pWorker,TRUE, &err);
+#endif
 	if (pThread == NULL) {
 		fprintf(stderr, "g_thread_create failed: %s\n", err->message);
 		g_error_free(err) ;
@@ -5257,7 +5261,9 @@ int main(int argc, char *argv[]) {
 	signal(SIGCHLD, SciTEGTK::ChildSignal);
 
 	// Initialise threads	
+#if !GLIB_CHECK_VERSION(2,31,0)
 	g_thread_init(NULL);
+#endif
 	gdk_threads_init();
 
 	// Get this now because gtk_init() clears it
