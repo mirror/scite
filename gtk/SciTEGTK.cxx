@@ -459,12 +459,14 @@ public:
 // Manage the use of the GDK thread lock within glib signal handlers
 class ThreadLockMinder {
 public:
+#ifndef GDK_VERSION_3_6
 	ThreadLockMinder() {
 		gdk_threads_enter();
 	}
 	~ThreadLockMinder() {
 		gdk_threads_leave();
 	}
+#endif
 };
 
 class SciTEGTK : public SciTEBase {
@@ -2607,7 +2609,9 @@ void SciTEGTK::UserStripClosed() {
 }
 
 gboolean SciTEGTK::IOSignal(GIOChannel *, GIOCondition, SciTEGTK *scitew) {
+#ifndef GDK_VERSION_3_6
 	ThreadLockMinder minder;
+#endif
 	scitew->ContinueExecute(FALSE);
 	return TRUE;
 }
@@ -5036,7 +5040,9 @@ void SciTEGTK::PostOnMainThread(int cmd, Worker *pWorker) {
 }
 
 gboolean SciTEGTK::PostCallback(void *ptr) {
+#ifndef GDK_VERSION_3_6
 	ThreadLockMinder minder;
+#endif
 	CallbackData *pcbd = static_cast<CallbackData *>(ptr);
 	pcbd->pSciTE->WorkerCommand(pcbd->cmd, pcbd->pWorker);
 	delete pcbd;
@@ -5209,18 +5215,26 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 		unlink(uniqueInstance); // Unlock.
 
 	// Process remaining switches and files
+#ifndef GDK_VERSION_3_6
 	gdk_threads_enter();
+#endif
 	ProcessCommandLine(args, 1);
+#ifndef GDK_VERSION_3_6
 	gdk_threads_leave();
+#endif
 
 	CheckMenus();
 	SizeSubWindows();
 	SetFocus(wEditor);
 	gtk_widget_grab_focus(GTK_WIDGET(PWidget(wSciTE)));
 
+#ifndef GDK_VERSION_3_6
 	gdk_threads_enter();
+#endif
 	gtk_main();
+#ifndef GDK_VERSION_3_6
 	gdk_threads_leave();
+#endif
 }
 
 // Avoid zombie detached processes by reaping their exit statuses when
@@ -5238,7 +5252,9 @@ void SciTEGTK::ChildSignal(int) {
 
 // Detect if the tool has exited without producing any output
 int SciTEGTK::PollTool(SciTEGTK *scitew) {
+#ifndef GDK_VERSION_3_6
 	ThreadLockMinder minder;
+#endif
 	scitew->ContinueExecute(TRUE);
 	return TRUE;
 }
@@ -5264,7 +5280,9 @@ int main(int argc, char *argv[]) {
 #if !GLIB_CHECK_VERSION(2,31,0)
 	g_thread_init(NULL);
 #endif
+#ifndef GDK_VERSION_3_6
 	gdk_threads_init();
+#endif
 
 	// Get this now because gtk_init() clears it
 	const gchar *startup_id = g_getenv("DESKTOP_STARTUP_ID");

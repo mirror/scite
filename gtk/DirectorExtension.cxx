@@ -152,7 +152,9 @@ static bool SendPipeCommand(const char *pipeCommand) {
 }
 
 static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, void *data) {
+#ifndef GDK_VERSION_3_6
 	gdk_threads_enter();
+#endif
 
 	if ((condition & G_IO_IN) == G_IO_IN) {
 		SString pipeString;
@@ -170,7 +172,9 @@ static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, v
 		DirectorExtension *ext = reinterpret_cast<DirectorExtension *>(data);
 		ext->HandleStringMessage(pipeString.c_str());
 	}
+#ifndef GDK_VERSION_3_6
 	gdk_threads_leave();
+#endif
 	return TRUE;
 }
 
