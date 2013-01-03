@@ -4826,16 +4826,8 @@ void SciTEGTK::CreateUI() {
 	// The Toolbar
 	wToolBar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(PWidget(wToolBar)), GTK_TOOLBAR_ICONS);
-	toolbarDetachable = props.GetInt("toolbar.detachable");
-	if (toolbarDetachable == 1) {
-		wToolBarBox = gtk_handle_box_new();
-		gtk_container_add(GTK_CONTAINER(PWidget(wToolBarBox)), PWidget(wToolBar));
-		gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wToolBarBox), FALSE, FALSE, 0);
-		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBarBox)));
-	} else {
-		gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wToolBar), FALSE, FALSE, 0);
-		gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
-	}
+	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wToolBar), FALSE, FALSE, 0);
+	gtk_widget_hide(GTK_WIDGET(PWidget(wToolBar)));
 	gtk_container_set_border_width(GTK_CONTAINER(PWidget(wToolBar)), 0);
 	tbVisible = false;
 
