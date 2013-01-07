@@ -187,6 +187,7 @@ public:
 	void MoveToStackTop(int index);
 	void ShiftTo(int indexFrom, int indexTo);
 	void Swap(int indexA, int indexB);
+	bool SingleBuffer() const;
 	BackgroundActivities CountBackgroundActivities() const;
 	bool SavingInBackground() const;
 	bool GetVisible(int index);

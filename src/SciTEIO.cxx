@@ -1047,7 +1047,8 @@ bool SciTEBase::Save(SaveFlags sf) {
 			}
 		}
 
-		if (LengthDocument() <= props.GetInt("background.save.size", -1))
+		if ((LengthDocument() <= props.GetInt("background.save.size", -1)) ||
+			(buffers.SingleBuffer()))
 			sf = static_cast<SaveFlags>(sf | sfSynchronous);
 		if (SaveBuffer(filePath, sf)) {
 			CurrentBuffer()->SetTimeFromFile();

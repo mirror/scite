@@ -303,6 +303,10 @@ void BufferList::Swap(int indexA, int indexB) {
 	}
 }
 
+bool BufferList::SingleBuffer() const {
+	return size == 1;
+}
+
 BackgroundActivities BufferList::CountBackgroundActivities() const {
 	BackgroundActivities bg;
 	bg.loaders = 0;
