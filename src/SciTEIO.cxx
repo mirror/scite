@@ -798,8 +798,12 @@ FilePath SciTEBase::SaveName(const char *ext) {
 }
 
 int SciTEBase::SaveIfUnsure(bool forceQuestion) {
-	if (CurrentBuffer()->pFileWorker && !CurrentBuffer()->pFileWorker->IsLoading()) {
-		return IDNO;
+	if (CurrentBuffer()->pFileWorker) {
+		if (CurrentBuffer()->pFileWorker->IsLoading())
+			// In semi-loaded state so refuse to save
+			return IDCANCEL;
+		else
+			return IDNO;
 	}
 	if ((CurrentBuffer()->isDirty) && (LengthDocument() || !filePath.IsUntitled() || forceQuestion)) {
 		if (props.GetInt("are.you.sure", 1) ||
