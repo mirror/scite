@@ -883,7 +883,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 			}
 			// start to write PDF file here (PDF1.4Ref(p63))
 			// ASCII>127 characters to indicate binary-possible stream
-			oT->write("%PDF-1.3\n%Çì¢\n");
+			oT->write("%PDF-1.3\n%\xc7\xec\x8f\xa2\n");
 			styleCurrent = STYLE_DEFAULT;
 
 			// build objects for font resources; note that font objects are
