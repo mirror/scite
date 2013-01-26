@@ -327,19 +327,6 @@ void PropSetFile::Clear() {
 	props.clear();
 }
 
-char *PropSetFile::ToString() const {
-	std::string sval;
-	for (mapss::const_iterator it=props.begin(); it != props.end(); ++it) {
-		sval += it->first;
-		sval += "=";
-		sval += it->second;
-		sval += "\n";
-	}
-	char *ret = new char [sval.size() + 1];
-	strcpy(ret, sval.c_str());
-	return ret;
-}
-
 /**
  * Get a line of input. If end of line escaped with '\\' then continue reading.
  */
@@ -643,10 +630,6 @@ bool PropSetFile::GetNext(const char *&key, const char *&val) {
 		}
 	}
 	return false;
-}
-
-static inline bool IsLetter(char ch) {
-	return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'));
 }
 
 int CompareNoCase(const char *a, const char *b) {

@@ -40,7 +40,6 @@ public:
 	SString Expand(const char *withVars, int maxExpands=100) const;
 	int GetInt(const char *key, int defaultValue=0) const;
 	void Clear();
-	char *ToString() const;	// Caller must delete[] the return value
 
 	bool ReadLine(const char *data, bool ifIsTrue, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
 	void ReadFromMemory(const char *data, size_t len, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports=0);
