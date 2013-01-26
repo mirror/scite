@@ -1258,6 +1258,8 @@ class FileReader {
 	char lineToCompare[bufLen+1];
 	char lineToShow[bufLen+1];
 	bool caseSensitive;
+	// Private so FileReader objects can not be copied
+	FileReader(const FileReader &);
 public:
 
 	FileReader(FilePath fPath, bool caseSensitive_) {

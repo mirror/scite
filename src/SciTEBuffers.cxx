@@ -2022,7 +2022,7 @@ void SciTEBase::ShowMessages(int line) {
 		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line, 0);
 		int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line, 0);
 		SString message = GetRange(wOutput, startPosLine, lineEnd);
-		char source[MAX_PATH];	
+		char source[MAX_PATH] = "";	
 		int column;
 		char style = acc.StyleAt(startPosLine);
 		int sourceLine = DecodeMessage(message.c_str(), source, style, column);
@@ -2102,7 +2102,7 @@ void SciTEBase::GoMessage(int dir) {
 			wOutput.Call(SCI_MARKERADD, lookLine, 0);
 			wOutput.Call(SCI_SETSEL, startPosLine, startPosLine);
 			SString message = GetRange(wOutput, startPosLine, startPosLine + lineLength);
-			char source[MAX_PATH];
+			char source[MAX_PATH] = "";
 			int column;
 			long sourceLine = DecodeMessage(message.c_str(), source, style, column);
 			if (sourceLine >= 0) {
