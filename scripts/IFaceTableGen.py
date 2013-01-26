@@ -187,7 +187,10 @@ def printIFaceTableCXXFile(faceAndIDs, out):
 		for name, features in constants:
 			if first: first = 0
 			else: out.write(",")
-			out.write('\n\t{"%s",%s}' % (name, features["Value"]))
+			val = features["Value"]
+			if int(val, base=0) >= 0x8000000:
+				val = "static_cast<int>(" + val + ")"
+			out.write('\n\t{"%s",%s}' % (name, val))
 
 		out.write("\n};\n")
 	else:
