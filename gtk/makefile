@@ -56,9 +56,9 @@ endif
 CXXBASEFLAGS=-W -Wall -Wno-char-subscripts -pedantic -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS) $(DEPRECATED)
 
 ifdef DEBUG
-CXXTFLAGS=-DDEBUG -g $(CXXFLAGS) $(CXXBASEFLAGS)
+CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
 else
-CXXTFLAGS=-DNDEBUG -Os $(CXXFLAGS) $(CXXBASEFLAGS)
+CXXTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
 endif
 
 ifndef NO_LUA
@@ -93,7 +93,7 @@ CXXTFLAGS:=$(CXXTFLAGS) -Dunix
 endif
 
 .cxx.o:
-	$(CC) $(CONFIGFLAGS) $(CXXTFLAGS) -c $< -o $@
+	$(CC) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o $(PROG)
