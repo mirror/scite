@@ -160,6 +160,8 @@ public:
 		case SCI_GETCHARACTERPOINTER:
 			throw ScintillaFailure(SC_STATUS_FAILURE);
 		}
+		if (!fn)
+			throw ScintillaFailure(SC_STATUS_FAILURE);
 		sptr_t retVal = fn(ptr, msg, wParam, lParam);
 		sptr_t status = fn(ptr, SCI_GETSTATUS, 0, 0);
 		if (status > 0)

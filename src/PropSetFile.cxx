@@ -791,6 +791,7 @@ SString &SString::append(const char *sOther, lenpos_t sLenOther, char sep) {
 			s[sLen] = sep;
 			sLen++;
 		}
+		assert(s);
 		memcpy(&s[sLen], sOther, sLenOther);
 		sLen += sLenOther;
 		s[sLen] = '\0';
