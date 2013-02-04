@@ -1337,6 +1337,7 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 		int curTop = wEditor.Call(SCI_GETFIRSTVISIBLELINE);
 		int lineTop = wEditor.Call(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
 		wEditor.Call(SCI_LINESCROLL, 0, lineTop - curTop);
+		wEditor.Call(SCI_CHOOSECARETX, 0, 0);
 	}
 }
 
