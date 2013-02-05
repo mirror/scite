@@ -115,26 +115,19 @@ cd ../..
 
 # ************************************************************
 # Target 6: clang analyze for GTK+ 2
-# Disabled as there are warnings from librarian, linker and Lua code
-#~ cd scintilla/gtk
-#~ make clean
-#~ make $JOBS CLANG=1 CLANG_ANALYZE=1 CHECK_DEPRECATED=1
-#~ cd ../..
+cd scintilla/gtk
+make clean
+make $JOBS CHECK_DEPRECATED=1 analyze
+cd ../..
 
-#~ # Need scintilla.a or else make of SciTE dies early
-#~ cd scintilla/gtk
-#~ make clean
-#~ make $JOBS CLANG=1 GTK3=1 CHECK_DEPRECATED=1
-#~ cd ../..
-#~ # There are several warnings from clang analyze for Lua code
-#~ cd scite/gtk
-#~ make clean
-#~ make $JOBS CLANG=1 CLANG_ANALYZE=1
-#~ make clean
-#~ cd ../..
-#~ cd scintilla/gtk
-#~ make clean
-#~ cd ../..
+cd scite/gtk
+make clean
+make $JOBS analyze
+make clean
+cd ../..
+cd scintilla/gtk
+make clean
+cd ../..
 
 # ************************************************************
 # Target 7: cppcheck static checker
