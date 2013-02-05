@@ -6,11 +6,8 @@
 
 .SUFFIXES: .cxx .o .h .a .c
 ifdef CLANG
-ifdef CLANG_ANALYZE
-ANALYZE=--analyze
-endif
-CC = clang $(ANALYZE)
-CCOMP = clang $(ANALYZE)
+CC = clang
+CCOMP = clang
 else
 CC = g++
 CCOMP = gcc
@@ -96,7 +93,12 @@ endif
 	$(CC) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o $(PROG)
+	rm -f *.o *.plist $(PROG)
+
+analyze:
+	clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx
+	# Could analyze Lua implementation as well but won't be fixing the warnings so its just noise
+	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c
 
 deps:
 	$(CC) -MM $(CONFIGFLAGS) $(CXXTFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
