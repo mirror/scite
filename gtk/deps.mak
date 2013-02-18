@@ -17,7 +17,7 @@ SciTEGTK.o: SciTEGTK.cxx \
  ../src/Extender.h DirectorExtension.h ../src/LuaExtension.h \
  ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h pixmapsGNOME.h SciIcon.h \
  Widget.h ../src/Cookie.h ../src/Worker.h ../src/SciTEBase.h \
- ../src/SciTEKeys.h
+ ../src/SciTEKeys.h ../src/StripDefinition.h
 Widget.o: Widget.cxx \
  ../../scintilla/include/Scintilla.h ../src/GUI.h ../src/StringHelpers.h \
  Widget.h
