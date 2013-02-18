@@ -6,8 +6,8 @@
 
 .SUFFIXES: .cxx .o .h .a .c
 ifdef CLANG
-CC = clang
-CCOMP = clang
+CC = clang --std=c++0x
+CCOMP = clang -Wno-empty-body
 else
 CC = g++
 CCOMP = gcc
@@ -79,7 +79,7 @@ else
 CXXTFLAGS+=-DNO_LUA
 endif
 
-CXXTFLAGS:=$(CXXTFLAGS) -Wno-long-long
+CXXTFLAGS:=$(CXXTFLAGS)
 
 UNAME:=$(shell uname -s)
 ifeq ($(UNAME), Linux)
