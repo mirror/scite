@@ -60,7 +60,7 @@ rem ************************************************************
 rem Target 5: GTK+ version using gcc on scintilla\gtk\makefile
 call scite\scripts\clearboth
 cd scintilla\gtk
-make -j
+make -j CXXFLAGS=-Wno-long-long
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem Visual C++ builds
