@@ -1687,10 +1687,16 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 				}
 			}
 		}
-	case SCE_ERR_GCC: {
+	case SCE_ERR_GCC:
+	case SCE_ERR_FROM: {
 			// GCC - look for number after colon to be line number
 			// This will be preceded by file name.
 			// Lua debug traceback messages also piggyback this style, but begin with a tab.
+			// GCC include paths are similar but start with either "In file included from " or
+			// "                 from "
+			if (format == SCE_ERR_FROM) {
+				cdoc += strlen("In file included from ");
+			}
 			if (cdoc[0] == '\t')
 				++cdoc;
 			for (int i = 0; cdoc[i]; i++) {
