@@ -790,6 +790,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_ERR_DIFF_MESSAGE",13},
 	{"SCE_ERR_ELF",15},
 	{"SCE_ERR_GCC",2},
+	{"SCE_ERR_GCC_INCLUDED_FROM",22},
 	{"SCE_ERR_IFC",16},
 	{"SCE_ERR_IFORT",17},
 	{"SCE_ERR_JAVA_STACK",20},
@@ -2443,6 +2444,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_MARK_UNDERLINE",29},
 	{"SC_MARK_VLINE",9},
 	{"SC_MASK_FOLDERS",static_cast<int>(0xFE000000)},
+	{"SC_MAX_MARGIN",4},
 	{"SC_MODEVENTMASKALL",0xFFFFF},
 	{"SC_MOD_BEFOREDELETE",0x800},
 	{"SC_MOD_BEFOREINSERT",0x400},
@@ -2524,6 +2526,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"AddText", 2001, iface_void, {iface_length, iface_string}},
 	{"AddUndoAction", 2560, iface_void, {iface_int, iface_int}},
 	{"Allocate", 2446, iface_void, {iface_int, iface_void}},
+	{"AllocateExtendedStyles", 2553, iface_int, {iface_int, iface_void}},
 	{"AllocateSubStyles", 4020, iface_int, {iface_int, iface_int}},
 	{"AnnotationClearAll", 2547, iface_void, {iface_void, iface_void}},
 	{"AppendText", 2282, iface_void, {iface_length, iface_string}},
@@ -2710,6 +2713,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"Redo", 2011, iface_void, {iface_void, iface_void}},
 	{"RegisterImage", 2405, iface_void, {iface_int, iface_string}},
 	{"RegisterRGBAImage", 2627, iface_void, {iface_int, iface_string}},
+	{"ReleaseAllExtendedStyles", 2552, iface_void, {iface_void, iface_void}},
 	{"ReleaseDocument", 2377, iface_void, {iface_void, iface_int}},
 	{"ReplaceSel", 2170, iface_void, {iface_void, iface_string}},
 	{"ReplaceTarget", 2194, iface_int, {iface_length, iface_string}},
@@ -3006,8 +3010,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 274,
-	ifaceConstantCount = 2380,
+	ifaceFunctionCount = 276,
+	ifaceConstantCount = 2382,
 	ifacePropertyCount = 208
 };
 
