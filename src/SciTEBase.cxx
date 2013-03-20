@@ -1118,7 +1118,12 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 		havefound = true;
 		int start = wEditor.Call(SCI_GETTARGETSTART);
 		int end = wEditor.Call(SCI_GETTARGETEND);
+		// Ensure found text is styled so that caret will be made visible.
+		int endStyled = wEditor.Call(SCI_GETENDSTYLED);
+		if (endStyled < end)
+			wEditor.Call(SCI_COLOURISE, endStyled, end);
 		EnsureRangeVisible(wEditor, start, end);
+		wEditor.Call(SCI_SCROLLRANGE, start, end);
 		SetSelection(start, end);
 		if (!replacing && closeFind) {
 			DestroyFindReplace();
