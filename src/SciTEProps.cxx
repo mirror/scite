@@ -1418,8 +1418,9 @@ void SciTEBase::ReadFontProperties() {
 	SetStyleFor(wEditor, "*");
 	SetStyleFor(wEditor, languageName);
 	if (props.GetInt("error.inline")) {
-		wEditor.Send(SCI_STYLESETFORE, diagnosticStyleEnd, 0);	// Ensure styles allocated
-		SetStyleBlock(wEditor, "error", diagnosticStyleStart, diagnosticStyleEnd);
+		wEditor.Call(SCI_RELEASEALLEXTENDEDSTYLES, 0, 0);
+		diagnosticStyleStart = wEditor.Call(SCI_ALLOCATEEXTENDEDSTYLES, diagnosticStyles, 0);
+		SetStyleBlock(wEditor, "error", diagnosticStyleStart, diagnosticStyleStart+diagnosticStyles-1);
 	}
 
 	// Turn grey while loading

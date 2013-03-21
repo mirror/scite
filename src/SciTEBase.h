@@ -404,7 +404,8 @@ protected:
 	SString apisFileNames;
 	SString functionDefinition;
 
-	enum { diagnosticStyleStart=256, diagnosticStyleEnd=diagnosticStyleStart+4-1};
+	int diagnosticStyleStart;
+	enum { diagnosticStyles=4};
 
 	bool indentOpening;
 	bool indentClosing;
