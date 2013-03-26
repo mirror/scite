@@ -2720,6 +2720,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"ReplaceTargetRE", 2195, iface_int, {iface_length, iface_string}},
 	{"RotateSelection", 2606, iface_void, {iface_void, iface_void}},
 	{"ScrollCaret", 2169, iface_void, {iface_void, iface_void}},
+	{"ScrollRange", 2569, iface_void, {iface_position, iface_position}},
 	{"ScrollToEnd", 2629, iface_void, {iface_void, iface_void}},
 	{"ScrollToStart", 2628, iface_void, {iface_void, iface_void}},
 	{"SearchAnchor", 2366, iface_void, {iface_void, iface_void}},
@@ -3010,7 +3011,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 276,
+	ifaceFunctionCount = 277,
 	ifaceConstantCount = 2382,
 	ifacePropertyCount = 208
 };
