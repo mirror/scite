@@ -2018,7 +2018,7 @@ static void Chomp(SString &s, int ch) {
 }
 
 void SciTEBase::ShowMessages(int line) {
-	wEditor.Call(SCI_ANNOTATIONSETSTYLEOFFSET, 256);
+	wEditor.Call(SCI_ANNOTATIONSETSTYLEOFFSET, diagnosticStyleStart);
 	wEditor.Call(SCI_ANNOTATIONSETVISIBLE, ANNOTATION_BOXED);
 	wEditor.Call(SCI_ANNOTATIONCLEARALL);
 	TextReader acc(wOutput);

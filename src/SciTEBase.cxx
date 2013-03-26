@@ -124,6 +124,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	lexLanguage = SCLEX_CPP;
 	lexLPeg = -1;
 	functionDefinition = 0;
+	diagnosticStyleStart = 0;
 	indentOpening = true;
 	indentClosing = true;
 	indentMaintain = false;
