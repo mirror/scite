@@ -626,13 +626,12 @@ void SciTEWin::Print(
 	}
 	// Print each page
 	int pageNum = 1;
-	bool printPage;
 	PropSetFile propsPrint;
 	propsPrint.superPS = &props;
 	SetFileProperties(propsPrint);
 
 	while (lengthPrinted < lengthDoc) {
-		printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
+		bool printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
 		             ((pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage)));
 
 		char pageString[32];

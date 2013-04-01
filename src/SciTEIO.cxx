@@ -1180,13 +1180,13 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 
 void SciTEBase::OpenFilesFromStdin() {
 	char data[blockSize];
-	char *pNL;
 
 	/* if stdin is blocked, do not execute this method */
 	if (IsStdinBlocked())
 		return;
 
 	while (fgets(data, sizeof(data) - 1, stdin)) {
+		char *pNL;
 		if ((pNL = strchr(data, '\n')) != NULL)
 			* pNL = '\0';
 		Open(GUI::StringFromUTF8(data).c_str(), ofQuiet);
