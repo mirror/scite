@@ -4754,13 +4754,10 @@ char *SciTEBase::Range(Pane p, int start, int end) {
 }
 
 void SciTEBase::Remove(Pane p, int start, int end) {
-	// Should have a scintilla call for this
 	if (p == paneEditor) {
-		wEditor.Call(SCI_SETSEL, start, end);
-		wEditor.Call(SCI_CLEAR);
+		wEditor.Call(SCI_DELETERANGE, start, end-start);
 	} else {
-		wOutput.Call(SCI_SETSEL, start, end);
-		wOutput.Call(SCI_CLEAR);
+		wOutput.Call(SCI_DELETERANGE, start, end-start);
 	}
 }
 
