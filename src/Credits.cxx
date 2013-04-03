@@ -14,6 +14,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <memory>
 
 #include "Scintilla.h"
 #include "ILexer.h"
@@ -341,6 +342,7 @@ const char *contributors[] = {
             "G. Hu",
             "Byron Hawkins",
             "Alpha",
+            "John Donoghue",
         };
 
 // AddStyledText only called from About so static size buffer is OK
