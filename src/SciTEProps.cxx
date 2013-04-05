@@ -624,6 +624,7 @@ static const char *propertiesToForward[] = {
 	"lexer.d.fold.at.else",
 	"lexer.errorlist.value.separate",
 	"lexer.flagship.styling.within.preprocessor",
+	"lexer.haskell.allow.hash",
 	"lexer.html.django",
 	"lexer.html.mako",
 	"lexer.metapost.comment.process",
