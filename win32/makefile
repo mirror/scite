@@ -6,17 +6,13 @@
 
 .SUFFIXES: .cxx .properties
 CC = g++
-ifndef CYGWIN
-DEL = del /q
-COPY = copy
-else
-DEL = rm
-COPY = cp
-endif
+DEL = $(if $(wildcard $(dir $(SHELL))rm.exe), $(dir $(SHELL))rm.exe -f, del)
+COPY = xcopy
+VER = cmd /c ver
 
 # Discover Windows version by running 'VER' command and parsing output
 # For Windows 2000 looks like:Microsoft Windows 2000 [Version 5.00.2195]
-WINVERWORDS:=$(wordlist 1,2,$(subst ., ,$(lastword $(shell ver))))
+WINVERWORDS:=$(wordlist 1,2,$(subst ., ,$(lastword $(shell $(VER)))))
 WINVER:=$(firstword $(WINVERWORDS)).$(lastword $(WINVERWORDS))
 # Windows NT 4 and Windows 2000 do not support themes so turn off
 ifeq '$(WINVER)' '4.0'
@@ -132,14 +128,14 @@ deps:
 embedded: ..\src\Embedded.properties
 
 ..\bin\Scintilla.dll:	..\..\scintilla\bin\Scintilla.dll
-	$(COPY) ..\..\scintilla\bin\Scintilla.dll $@
+	$(COPY) $^ $(@D)
 
 ..\bin\SciLexer.dll:	..\..\scintilla\bin\SciLexer.dll
-	$(COPY) ..\..\scintilla\bin\SciLexer.dll $@
+	$(COPY) $^ $(@D)
 
 # Using '/' rather than '\' as that allows make to match the next rule
 ../bin/%.properties:	../src/%.properties
-	$(COPY) $(subst /,\,$^) $(subst /,\,$@)
+	$(COPY) $(subst /,\, $< $(@D))
 
 # Normally distributed rather than built as may not have grep on all machines
 # Copy all non-comment lines from all the properties files into one combined file
