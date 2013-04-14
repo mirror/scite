@@ -120,7 +120,10 @@ PROPS=../bin/SciTEGlobal.properties ../bin/abbrev.properties $(LEXPROPS)
 ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS) $(LUA_SCRIPTS)
 
 clean:
-	$(DEL) *.exe *.o *.obj *.dll *.res *.map
+	$(DEL) *.exe *.o *.obj *.dll *.res *.map *.plist
+
+analyze:
+	clang --analyze $(CXXFLAGS) *.cxx ../src/*.cxx
 
 deps:
 	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c >deps.mak

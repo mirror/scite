@@ -102,6 +102,18 @@ nmake -f scite.mak
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
+rem ************************************************************
+rem Target 11: Clang analyze
+REM ~ call scite\scripts\clearboth
+REM ~ set PATH=c:\mingw32-dw2\bin;%PATH%
+REM ~ cd scintilla\win32
+REM ~ mingw32-make analyze
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..\scite\win32
+REM ~ mingw32-make analyze
+REM ~ if ERRORLEVEL 2 goto ERROR
+REM ~ cd ..\..
+rem
 rem Finished
 call scite\scripts\clearboth
 goto CLEANUP
