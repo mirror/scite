@@ -1990,6 +1990,14 @@ NameError: mistake
 	<td>fold.d.syntax.based</td>
 	<td>Set this property to 0 to disable syntax based folding.</td>
 	</tr>
+	<tr id='property-fold.haskell.imports'>
+	<td>fold.haskell.imports</td>
+	<td>Set to 1 to enable folding of import declarations</td>
+	</tr>
+	<tr id='property-fold.haskell.imports.indented'>
+	<td>fold.haskell.imports.indented</td>
+	<td>Set this property to 0 to disable folding imports not starting at column 0 when fold.haskell.imports=1</td>
+	</tr>
 	<tr id='property-fold.html'>
 	<td>fold.html</td>
 	<td>Folding is turned on or off for HTML and XML files with this option. The fold option must also be on for folding to occur.</td>
@@ -2088,7 +2096,15 @@ NameError: mistake
 	</tr>
 	<tr id='property-lexer.haskell.allow.hash'>
 	<td>lexer.haskell.allow.hash</td>
-	<td>Set to 1 to allow the # character in identifiers with the haskell lexer. (GHC -XMagicHash extension)</td>
+	<td>Set to 1 to allow the '#' character at the end of identifiers and literals with the haskell lexer (GHC -XMagicHash extension)</td>
+	</tr>
+	<tr id='property-lexer.haskell.allow.quotes'>
+	<td>lexer.haskell.allow.quotes</td>
+	<td>Set to 1 to enable highlighting of Template Haskell name quotations and promoted constructors (GHC -XTemplateHaskell and -XDataKinds extensions)</td>
+	</tr>
+	<tr id='property-lexer.haskell.import.safe'>
+	<td>lexer.haskell.import.safe</td>
+	<td>Set to 1 to allow keyword "safe" in imports (GHC SafeHaskell extensions)</td>
 	</tr>
 	<tr id='property-lexer.html.django'>
 	<td>lexer.html.django</td>
