@@ -91,7 +91,6 @@ REM ~ cd ..\..
 rem
 rem ************************************************************
 rem Target 10: SDK 64 bit compiler
-rem Currently produces too many warnings so do not run
 call scite\scripts\clearboth
 call "%WINSDK_BASE%\SetEnv.Cmd" /Release /x64 /vista
 cd scintilla\win32
@@ -113,6 +112,12 @@ REM ~ cd ..\..\scite\win32
 REM ~ mingw32-make analyze
 REM ~ if ERRORLEVEL 2 goto ERROR
 REM ~ cd ..\..
+rem
+rem ************************************************************
+rem Target 12: cppcheck
+REM ~ call scite\scripts\clearboth
+REM ~ cppcheck -j 8 --enable=all --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
+REM ~ cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include --template=gcc --quiet scite
 rem
 rem Finished
 call scite\scripts\clearboth
