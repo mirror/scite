@@ -893,16 +893,6 @@ SString SciTEBase::SelectionExtend(
 	return RangeExtendAndGrab(wCurrent, selStart, selEnd, ischarforsel, stripEol);
 }
 
-void SciTEBase::FindWordAtCaret(int &start, int &end) {
-
-	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
-
-	start = wCurrent.Call(SCI_GETSELECTIONSTART);
-	end = wCurrent.Call(SCI_GETSELECTIONEND);
-	// Call just to update start & end
-	RangeExtendAndGrab(wCurrent, start, end, &SciTEBase::iswordcharforsel, false);
-}
-
 SString SciTEBase::SelectionWord(bool stripEol /*=true*/) {
 	return SelectionExtend(&SciTEBase::islexerwordcharforsel, stripEol);
 }
