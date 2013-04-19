@@ -1254,14 +1254,6 @@ void SciTEBase::SetFileStackMenu() {
 	}
 }
 
-void SciTEBase::DropFileStackTop() {
-	DeleteFileStackMenu();
-	for (int stackPos = 0; stackPos < fileStackMax - 1; stackPos++)
-		recentFileStack[stackPos] = recentFileStack[stackPos + 1];
-	recentFileStack[fileStackMax - 1].Init();
-	SetFileStackMenu();
-}
-
 bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 	// Return whether file loads successfully
 	bool opened = false;

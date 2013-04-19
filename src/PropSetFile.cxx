@@ -131,16 +131,6 @@ void PropSetFile::Unset(const char *key, int lenKey) {
 		props.erase(keyPos);
 }
 
-void PropSetFile::SetMultiple(const char *s) {
-	const char *eol = strchr(s, '\n');
-	while (eol) {
-		Set(s);
-		s = eol + 1;
-		eol = strchr(s, '\n');
-	}
-	Set(s);
-}
-
 bool PropSetFile::Exists(const char *key) const {
 	mapss::const_iterator keyPos = props.find(std::string(key));
 	if (keyPos != props.end()) {
@@ -846,14 +836,6 @@ bool SString::startswith(const char *prefix) {
 		return false;
 	}
 	return strncmp(s, prefix, lenPrefix) == 0;
-}
-
-bool SString::endswith(const char *suffix) {
-	lenpos_t lenSuffix = strlen(suffix);
-	if (lenSuffix > sLen) {
-		return false;
-	}
-	return strncmp(s + sLen - lenSuffix, suffix, lenSuffix) == 0;
 }
 
 int SString::search(const char *sFind, lenpos_t start) const {

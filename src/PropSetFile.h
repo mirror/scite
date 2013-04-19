@@ -32,7 +32,6 @@ public:
 	void Set(const char *key, const char *val, ptrdiff_t lenKey=-1, ptrdiff_t lenVal=-1);
 	void Set(const char *keyVal);
 	void Unset(const char *key, int lenKey=-1);
-	void SetMultiple(const char *s);
 	bool Exists(const char *key) const;
 	SString Get(const char *key) const;
 	SString Evaluate(const char *key) const;

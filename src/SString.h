@@ -246,7 +246,6 @@ public:
 		return s ? atoi(s) : 0;
 	}
 	bool startswith(const char *prefix);
-	bool endswith(const char *suffix);
 	int search(const char *sFind, lenpos_t start=0) const;
 	bool contains(const char *sFind) const {
 		return search(sFind) >= 0;

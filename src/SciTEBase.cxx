@@ -903,14 +903,6 @@ void SciTEBase::FindWordAtCaret(int &start, int &end) {
 	RangeExtendAndGrab(wCurrent, start, end, &SciTEBase::iswordcharforsel, false);
 }
 
-bool SciTEBase::SelectWordAtCaret() {
-	int selStart = 0;
-	int selEnd = 0;
-	FindWordAtCaret(selStart, selEnd);
-	SetSelection(selStart, selEnd);
-	return selStart != selEnd;
-}
-
 SString SciTEBase::SelectionWord(bool stripEol /*=true*/) {
 	return SelectionExtend(&SciTEBase::islexerwordcharforsel, stripEol);
 }

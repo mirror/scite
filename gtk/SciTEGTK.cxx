@@ -611,11 +611,9 @@ protected:
 	bool FindReplaceAdvanced();
 	virtual SString EncodeString(const SString &s);
 	void FindReplaceGrabFields();
-	void HandleFindReplace();
 	virtual void Find();
 	virtual void UIClosed();
 	virtual void UIHasFocus();
-	void TranslatedSetTitle(GtkWindow *w, const char *original);
 	GtkWidget *TranslatedLabel(const char *original);
 	virtual void FindIncrement();
 	void FindInFilesResponse(int responseID);
@@ -683,7 +681,6 @@ protected:
 	static gboolean FindIncrementFocusOutSignal(GtkWidget *w);
 	static gboolean FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
 
-	void FRCancelCmd();
 	void FRFindCmd();
 	void FRReplaceCmd();
 	void FRReplaceAllCmd();
@@ -1896,8 +1893,6 @@ SString SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, 
 	return sel;
 }
 
-void SciTEGTK::HandleFindReplace() {}
-
 void SciTEGTK::Find() {
 	if (dlgFindReplace.Created()) {
 		dlgFindReplace.Present();
@@ -1925,10 +1920,6 @@ void SciTEGTK::UIClosed() {
 
 void SciTEGTK::UIHasFocus() {
 	CheckMenusClipboard();
-}
-
-void SciTEGTK::TranslatedSetTitle(GtkWindow *w, const char *original) {
-	gtk_window_set_title(w, localiser.Text(original).c_str());
 }
 
 GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
@@ -2033,10 +2024,6 @@ void DialogFindReplace::FillFields() {
 
 void SciTEGTK::FindReplaceGrabFields() {
 	dlgFindReplace.GrabFields();
-}
-
-void SciTEGTK::FRCancelCmd() {
-	dlgFindReplace.Destroy();
 }
 
 void SciTEGTK::FRFindCmd() {

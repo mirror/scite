@@ -49,7 +49,6 @@ public:
 	operator GtkWidget*();
 	GtkWidget* Pointer();
 	bool Sensitive();
-	void SetSensitive(bool sensitive);
 };
 
 inline GtkWidget *Widget(const GUI::Window &w) {
@@ -161,8 +160,6 @@ public:
 private:
 	static void SignalDestroy(GtkWidget *, Dialog *d);
 };
-
-void DestroyDialog(GtkWidget *, gpointer *window);
 
 class BaseWin : public GUI::Window {
 protected:

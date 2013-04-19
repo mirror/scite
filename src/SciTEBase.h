@@ -694,7 +694,6 @@ protected:
 	        bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	SString SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	void FindWordAtCaret(int &start, int &end);
-	bool SelectWordAtCaret();
 	SString SelectionWord(bool stripEol = true);
 	SString SelectionFilename();
 	void SelectionIntoProperties();
@@ -827,7 +826,6 @@ protected:
 
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
-	void DropFileStackTop();
 	bool AddFileToBuffer(const BufferState &bufferState);
 	void AddFileToStack(FilePath file, SelectedRange selection, int scrollPos);
 	void RemoveFileFromStack(FilePath file);

@@ -39,10 +39,6 @@ bool WBase::Sensitive() {
 	return IS_WIDGET_SENSITIVE(Pointer());
 }
 
-void WBase::SetSensitive(bool sensitive) {
-	gtk_widget_set_sensitive(Pointer(), sensitive);
-}
-
 void WStatic::Create(GUI::gui_string text) {
 	SetID(gtk_label_new_with_mnemonic(text.c_str()));
 }
@@ -583,13 +579,6 @@ GtkWidget *Dialog::ContentArea() {
 void Dialog::SignalDestroy(GtkWidget *, Dialog *d) {
 	if (d) {
 		d->SetID(0);
-	}
-}
-
-void DestroyDialog(GtkWidget *, gpointer *window) {
-	if (window) {
-		GUI::Window *pwin = reinterpret_cast<GUI::Window *>(window);
-		*(pwin) = 0;
 	}
 }
 
