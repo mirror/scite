@@ -6,7 +6,6 @@ rem machine so must be modified for other installations.
 rem Assumes environment set up so gcc and MSVC can be called.
 rem
 cd ..\..
-set
 set MSDEV_BASE=C:\Program Files (x86)\Microsoft Visual Studio\Common\MSDev98\Bin
 set MSDEV71_BASE=C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
 set WINSDK_BASE=C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin
@@ -116,7 +115,7 @@ rem
 rem ************************************************************
 rem Target 12: cppcheck
 REM ~ call scite\scripts\clearboth
-REM ~ cppcheck -j 8 --enable=all --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
+REM ~ cppcheck -j 8 --enable=all --suppressions scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
 REM ~ cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include --template=gcc --quiet scite
 rem
 rem Finished
@@ -128,4 +127,3 @@ goto CLEANUP
 set SAVE_PATH=
 set SAVE_INCLUDE=
 set MSDEV_BASE=
-set
