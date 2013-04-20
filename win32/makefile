@@ -7,7 +7,7 @@
 .SUFFIXES: .cxx .properties
 CC = g++
 DEL = $(if $(wildcard $(dir $(SHELL))rm.exe), $(dir $(SHELL))rm.exe -f, del)
-COPY = xcopy
+COPY = xcopy /y
 VER = cmd /c ver
 
 # Discover Windows version by running 'VER' command and parsing output
