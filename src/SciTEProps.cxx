@@ -627,6 +627,7 @@ static const char *propertiesToForward[] = {
 	"lexer.errorlist.value.separate",
 	"lexer.flagship.styling.within.preprocessor",
 	"lexer.haskell.allow.hash",
+	"lexer.haskell.allow.questionmark",
 	"lexer.haskell.allow.quotes",
 	"lexer.haskell.import.safe",
 	"lexer.html.django",
