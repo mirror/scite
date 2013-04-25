@@ -6,8 +6,8 @@
 
 .SUFFIXES: .cxx .o .h .a .c
 ifdef CLANG
-CC = clang --std=c++0x
-CCOMP = clang -Wno-empty-body
+CC = clang -fsanitize=address --std=c++0x
+CCOMP = clang -fsanitize=address -Wno-empty-body
 else
 CC = g++
 CCOMP = gcc
@@ -53,7 +53,11 @@ endif
 CXXBASEFLAGS=-W -Wall -Wno-char-subscripts -pedantic -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS) $(DEPRECATED)
 
 ifdef DEBUG
+ifdef CLANG
+CXXTFLAGS=-DDEBUG -g -fsanitize=address $(CXXBASEFLAGS)
+else
 CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
+endif
 else
 CXXTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
 endif
