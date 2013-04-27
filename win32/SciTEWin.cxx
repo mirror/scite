@@ -1578,7 +1578,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 	HANDLE hFFile;
 	WIN32_FIND_DATA ffile;
 	DWORD fileattributes = ::GetFileAttributes(arg);
-	GUI::gui_char filename[MAX_PATH];
+	GUI::gui_char filename[MAX_PATH] = L"";
 	int nbuffers = props.GetInt("buffers");
 
 	if (fileattributes != (DWORD) -1) {	// arg is an existing directory or filename
@@ -1613,7 +1613,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 		if ((lastslash && lastdot && lastslash == lastdot - 1) || (!lastslash && lastdot == arg)) {
 			isHandled = true;
 
-			GUI::gui_char dir[MAX_PATH];
+			GUI::gui_char dir[MAX_PATH] = L"";
 			if (lastslash) { // the arg contains a path, so copy that part to dirName
 				wcsncpy(dir, arg, lastslash - arg + 1);
 				dir[lastslash - arg + 1] = '\0';
