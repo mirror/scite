@@ -3377,7 +3377,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	}
 
 	// check user defined keys
-	for (int cut_i = 0; cut_i < shortCutItems; cut_i++) {
+	for (size_t cut_i = 0; cut_i < shortCutItemList.size(); cut_i++) {
 		if (KeyMatch(shortCutItemList[cut_i].menuKey.c_str(), event->keyval, modifiers)) {
 			int commandNum = SciTEBase::GetMenuCommandAsInt(shortCutItemList[cut_i].menuCommand);
 			if (commandNum != -1) {

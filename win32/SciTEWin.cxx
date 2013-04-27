@@ -1768,7 +1768,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 
 	// loop through the keyboard short cuts defined by user.. if found
 	// exec it the command defined
-	for (int cut_i = 0; cut_i < shortCutItems; cut_i++) {
+	for (size_t cut_i = 0; cut_i < shortCutItemList.size(); cut_i++) {
 		if (KeyMatch(shortCutItemList[cut_i].menuKey, static_cast<int>(wParam), modifiers)) {
 			int commandNum = SciTEBase::GetMenuCommandAsInt(shortCutItemList[cut_i].menuCommand);
 			if (commandNum != -1) {

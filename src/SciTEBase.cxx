@@ -195,9 +195,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	languageMenu = 0;
 	languageItems = 0;
 
-	shortCutItemList = 0;
-	shortCutItems = 0;
-
 	macrosEnabled = false;
 	recording = false;
 
@@ -222,7 +219,6 @@ SciTEBase::~SciTEBase() {
 	if (extender)
 		extender->Finalise();
 	delete []languageMenu;
-	delete []shortCutItemList;
 	popup.Destroy();
 }
 

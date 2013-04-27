@@ -17,6 +17,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <algorithm>
 
 #include "Scintilla.h"
 #include "SciLexer.h"
@@ -1606,20 +1607,17 @@ void SciTEBase::ReadPropertiesInitial() {
 	// load the user defined short cut props
 	SString shortCutProp = props.GetNewExpand("user.shortcuts");
 	if (shortCutProp.length()) {
-		shortCutItems = 0;
-		for (unsigned int i = 0; i < shortCutProp.length(); i++) {
-			if (shortCutProp[i] == '|')
-				shortCutItems++;
-		}
-		shortCutItems /= 2;
-		shortCutItemList = new ShortcutItem[shortCutItems];
+		size_t pipes = std::count(shortCutProp.c_str(),
+			shortCutProp.c_str()+shortCutProp.length(), '|');
 		shortCutProp.substitute('|', '\0');
 		const char *sShortCutProp = shortCutProp.c_str();
-		for (int item = 0; item < shortCutItems; item++) {
-			shortCutItemList[item].menuKey = sShortCutProp;
+		for (size_t item = 0; item < pipes/2; item++) {
+			ShortcutItem sci;
+			sci.menuKey = sShortCutProp;
 			sShortCutProp += strlen(sShortCutProp) + 1;
-			shortCutItemList[item].menuCommand = sShortCutProp;
+			sci.menuCommand = sShortCutProp;
 			sShortCutProp += strlen(sShortCutProp) + 1;
+			shortCutItemList.push_back(sci);
 		}
 	}
 	// end load the user defined short cut props

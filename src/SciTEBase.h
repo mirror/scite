@@ -392,8 +392,7 @@ protected:
 	int languageItems;
 
 	// an array of short cut items that are defined by the user in the properties file.
-	ShortcutItem *shortCutItemList; // array
-	int shortCutItems; // length of array
+	std::vector<ShortcutItem> shortCutItemList;
 
 	int codePage;
 	int characterSet;
