@@ -259,7 +259,7 @@ def convertStringResult(s):
 		return s
 
 def idsFromDocumentation(filename):
-	""" Read the Scintilla documentation and return a list of all the features 
+	""" Read the Scintilla documentation and return a list of all the features
 	in the same order as they are explained in the documentation.
 	Also include the previous header with each feature. """
 	idsInOrder = []
@@ -287,7 +287,7 @@ def printIFaceTableHTMLFile(faceAndIDs, out):
 		hrefEnd = ""
 		href = "<a href='http://www.scintilla.org/ScintillaDoc.html#" + featureDefineName + "'>"
 		hrefEnd = "</a>"
-		
+
 		if features['Param1Type'] in nonScriptableTypes or features['Param2Type'] in nonScriptableTypes:
 			#~ print(name, features)
 			continue
@@ -297,18 +297,18 @@ def printIFaceTableHTMLFile(faceAndIDs, out):
 		if features['Param2Type'] == "stringresult":
 			stringresult = "string "
 			if features['Param1Name'] and features['Param1Name'] != "length":
-				parameters += features['Param1Type'] + " " + features['Param1Name'] 
+				parameters += features['Param1Type'] + " " + features['Param1Name']
 		else:
 			if features['Param1Name']:
-				parameters += features['Param1Type'] + " " + features['Param1Name'] 
+				parameters += features['Param1Type'] + " " + features['Param1Name']
 				if features['Param1Name'] == "length" and features['Param2Type'] == "string":
 					# special case removal
 					parameters = ""
 			if features['Param2Name']:
 				if parameters:
 					parameters += ", "
-				parameters += features['Param2Type'] + " " + features['Param2Name'] 
-			
+				parameters += features['Param2Type'] + " " + features['Param2Name']
+
 		returnType = stringresult
 		if not returnType and features["ReturnType"] != "void":
 			returnType = convertStringResult(features["ReturnType"]) + " "
@@ -316,7 +316,7 @@ def printIFaceTableHTMLFile(faceAndIDs, out):
 		explanation += '%seditor:%s%s%s(%s)' % (
 			returnType,
 			href,
-			name, 
+			name,
 			hrefEnd,
 			parameters
 		)
@@ -344,7 +344,7 @@ def printIFaceTableHTMLFile(faceAndIDs, out):
 		explanation += '%s editor.%s%s%s%s%s' % (
 			convertStringResult(property["PropertyType"]),
 			href,
-			propname, 
+			propname,
 			hrefEnd,
 			indexExpression,
 			direction

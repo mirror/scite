@@ -19,8 +19,8 @@ except AttributeError:	# Python 3.x
 # These properties are either set by SciTE and used (not set) in property files or
 # should only be located in known lexer-specific property files.
 knownOutputAndLexerProperties = {
-	"find.directory":1, 
-	"find.what":1, 
+	"find.directory":1,
+	"find.what":1,
 	"xml.auto.close.tags":1,
 	"indent.python.colon":1
 }

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 # Produces a .api file for SciTE's identifier completion and calltip features.
-# invoke as 
+# invoke as
 # 	python tags2api.py tags >x.api
 # before running this program, create a tags file with
 # 	ctags --excmd=number --c-types=pcdgstu <header files>
@@ -28,7 +28,7 @@ class FileCache:
 
 	def __init__(self):
 		self.filecache = {}
-		
+
 	def grabFile(self, filename):
 		'''Return the contents of a file as a list of strings.
 		New line characters are removed.

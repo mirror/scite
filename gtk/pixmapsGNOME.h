@@ -2,7 +2,7 @@
 // Icons  Copyright(C) 1998  by  Dean S. Jones
 // http://jfa.javalobby.org/projects/icons/
 // Modified to have same names as tigert.h
-// Not really anything to do with Gnome - just calling this 
+// Not really anything to do with Gnome - just calling this
 // file pixmapsGNOME to fit in with previous code.
 
 /* XPM */

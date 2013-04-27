@@ -63,7 +63,7 @@ public:
 	}
 };
 
-enum { 
+enum {
 	WORK_FILEREAD = 1,
 	WORK_FILEWRITTEN = 2,
 	WORK_FILEPROGRESS = 3,

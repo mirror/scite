@@ -56,7 +56,7 @@ double FileWorker::Duration() {
 	return et.Duration();
 }
 
-FileLoader::FileLoader(WorkerListener *pListener_, ILoader *pLoader_, FilePath path_, long size_, FILE *fp_) : 
+FileLoader::FileLoader(WorkerListener *pListener_, ILoader *pLoader_, FilePath path_, long size_, FILE *fp_) :
 	FileWorker(pListener_, path_, size_, fp_), pLoader(pLoader_), readSoFar(0), unicodeMode(uni8Bit) {
 	jobSize = static_cast<int>(size);
 	jobProgress = 0;
@@ -107,7 +107,7 @@ void FileLoader::Cancel() {
 }
 
 FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, FilePath path_,
-	long size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) : 
+	long size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
 	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0),
 		unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
 	jobSize = static_cast<int>(size);

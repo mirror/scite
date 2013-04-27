@@ -1087,7 +1087,7 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 	SString cmdLower = cmd;
 	cmdLower.lowercase();
 	char *mycmdcopy = StringDup(cmdLower.c_str());
-	
+
 	char *mycmd_end = NULL;
 	char *myparams = NULL;
 
@@ -3604,7 +3604,7 @@ static StripCommand NotificationToStripCommand(int notification) {
 			return scFocusIn;
 		case EN_KILLFOCUS:
 			return scFocusOut;
-		default: 
+		default:
 			return scUnknown;
 	}
 }
@@ -3675,11 +3675,11 @@ void UserStrip::SetDescription(const char *description) {
 
 			case UserControl::ucButton:
 			case UserControl::ucDefaultButton:
-				puc->widthDesired = WidthText(fontText, puc->text.c_str()) + 
+				puc->widthDesired = WidthText(fontText, puc->text.c_str()) +
 					2 * ::GetSystemMetrics(SM_CXEDGE) +
 					2 * WidthText(fontText, TEXT(" "));
 				puc->w = ::CreateWindowEx(0, TEXT("Button"), puc->text.c_str(),
-					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | 
+					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS |
 					((puc->controlType == UserControl::ucDefaultButton) ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON),
 					60 * control, line * lineHeight + 2, puc->widthDesired, 25,
 					Hwnd(), reinterpret_cast<HMENU>(controlID), ::GetModuleHandle(NULL), 0);

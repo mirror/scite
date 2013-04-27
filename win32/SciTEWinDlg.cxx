@@ -1296,7 +1296,7 @@ void SciTEWin::FindInFiles() {
 		return;
 	}
 	props.Set("find.what", findWhat.c_str());
-	
+
 	SString directory = props.Get("find.in.directory");
 	if (directory.length()) {
 		props.Set("find.directory", directory.c_str());
@@ -1304,7 +1304,7 @@ void SciTEWin::FindInFiles() {
 		FilePath findInDir = filePath.Directory();
 		props.Set("find.directory", findInDir.AsUTF8().c_str());
 	}
-	
+
 	wFindInFiles = ::CreateDialogParam(hInstance, TEXT("Grep"), MainHWND(),
 		reinterpret_cast<DLGPROC>(GrepDlg), reinterpret_cast<sptr_t>(this));
 	wFindInFiles.Show();

@@ -678,7 +678,7 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 	if (running && pi.hProcess && pi.hThread) {
 		// Wait until child process exits but time out after 5 seconds.
 		::WaitForSingleObject(pi.hProcess, 5 * 1000);
-		
+
 		DWORD bytesRead = 0;
 		DWORD bytesAvail = 0;
 		char buffer[16 * 1024];
