@@ -310,10 +310,7 @@ FilePath FilePath::NormalizePath() const {
 	strcpy(path, AsInternal());
 #ifdef WIN32
 	// Convert unix path separators to Windows
-	for (GUI::gui_char *cp = path; *cp; cp++) {
-		if (*cp == '/')
-			*cp = pathSepChar;
-	}
+	std::replace(path, path+strlen(path), L'/', pathSepChar);
 #endif
 	GUI::gui_char *absPath = new GUI::gui_char[fileName.length() + 1];
 	GUI::gui_char *cur = absPath;
