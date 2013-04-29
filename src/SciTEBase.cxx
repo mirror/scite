@@ -4687,9 +4687,11 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 			else
 				evaluate = true;
 
-			InitialiseBuffers();
-			if (props.GetInt("save.recent"))
-				RestoreRecentMenu();
+			if (!buffers.initialised) {
+				InitialiseBuffers();
+				if (props.GetInt("save.recent"))
+					RestoreRecentMenu();
+			}
 
 			if (!PreOpenCheck(arg))
 				Open(arg, static_cast<OpenFlags>(ofQuiet|ofSynchronous));
