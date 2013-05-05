@@ -473,6 +473,11 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETFOLDPARENT'>FoldParent</a>[int line] read-only</p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_TOGGLEFOLD'>ToggleFold</a>(int line)<span class="comment"> -- Switch a header line between expanded and contracted.</span></p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETFOLDEXPANDED'>FoldExpanded</a>[int line]<span class="comment"> -- Show the children of a header line.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDLINE'>FoldLine</a>(int line, int action)<span class="comment"> -- Expand or contract a fold header.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDCHILDREN'>FoldChildren</a>(int line, int action)<span class="comment"> -- Expand or contract a fold header and its children.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDALL'>FoldAll</a>(int action)<span class="comment"> -- Expand or contract all fold headers.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_EXPANDCHILDREN'>ExpandChildren</a>(int line, int level)<span class="comment"> -- Expand a fold header and all children. Use the level argument instead of the line's current level.</span></p>
+	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETAUTOMATICFOLD'>AutomaticFold</a><span class="comment"> -- Set automatic folding behaviours.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CONTRACTEDFOLDNEXT'>ContractedFoldNext</a>(int lineStart)<span class="comment"> -- Find the next line at or after lineStart that is a contracted fold header line. Return -1 when no more lines.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ENSUREVISIBLE'>EnsureVisible</a>(int line)<span class="comment"> -- Ensure a particular line is visible by expanding any header line hiding it.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ENSUREVISIBLEENFORCEPOLICY'>EnsureVisibleEnforcePolicy</a>(int line)<span class="comment"> -- Ensure a particular line is visible by expanding any header line hiding it. Use the currently set visibility policy to determine which range to display.</span></p>
