@@ -994,7 +994,7 @@ bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
 		}
 	}
 
-	if (retVal && extender) {
+	if (retVal && extender && (sf & sfSynchronous)) {
 		extender->OnSave(saveName.AsUTF8().c_str());
 	}
 	UpdateStatusBar(true);
