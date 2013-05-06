@@ -911,13 +911,8 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		if (stringResultLen > 0) {
 			// not all string result methods are guaranteed to add a null terminator
 			stringResult = new char[stringResultLen+1];
-			if (stringResult) {
-				stringResult[stringResultLen]='\0';
-				params[1] = reinterpret_cast<sptr_t>(stringResult);
-			} else {
-				raise_error(L, "String result buffer allocation failed");
-				return 0;
-			}
+			stringResult[stringResultLen]='\0';
+			params[1] = reinterpret_cast<sptr_t>(stringResult);
 		} else {
 			// Is this an error?  Are there any cases where it's not an error,
 			// and where the right thing to do is just return a blank string?
