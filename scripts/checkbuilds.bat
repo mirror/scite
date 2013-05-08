@@ -63,16 +63,9 @@ make -j CXXFLAGS=-Wno-long-long
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem Visual C++ builds
-REM ~ call "%MSDEV_BASE%\..\..\..\VC98\bin\vcvars32.bat"
-REM ~ echo on
 rem
 rem ************************************************************
-rem Target 6: Visual C++ 98 using scintilla\win32\scintilla_vc6.mak
-REM ~ call scite\scripts\clearboth
-REM ~ cd scintilla\win32
-REM ~ nmake -f scintilla_vc6.mak QUIET=1
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
+rem Removed:  Target 6
 rem
 rem ************************************************************
 rem Removed: Target 7
