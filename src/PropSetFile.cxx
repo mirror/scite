@@ -672,15 +672,13 @@ bool SString::grow(lenpos_t lenNew) {
 		sizeGrowth *= 2;
 	}
 	char *sNew = new char[lenNew + sizeGrowth + 1];
-	if (sNew) {
-		if (s) {
-			memcpy(sNew, s, sLen);
-			delete []s;
-		}
-		s = sNew;
-		s[sLen] = '\0';
-		sSize = lenNew + sizeGrowth;
+	if (s) {
+		memcpy(sNew, s, sLen);
+		delete []s;
 	}
+	s = sNew;
+	s[sLen] = '\0';
+	sSize = lenNew + sizeGrowth;
 	return sNew != 0;
 }
 
@@ -892,10 +890,8 @@ char *SContainer::StringAllocate(const char *sValue, lenpos_t len) {
 		len = strlen(sValue);
 	}
 	char *sNew = new char[len + 1];
-	if (sNew) {
-		memcpy(sNew, sValue, len);
-		sNew[len] = '\0';
-	}
+	memcpy(sNew, sValue, len);
+	sNew[len] = '\0';
 	return sNew;
 }
 
