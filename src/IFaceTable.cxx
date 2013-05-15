@@ -677,6 +677,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_C_OPERATOR",10},
 	{"SCE_C_PREPROCESSOR",9},
 	{"SCE_C_PREPROCESSORCOMMENT",23},
+	{"SCE_C_PREPROCESSORCOMMENTDOC",24},
 	{"SCE_C_REGEX",14},
 	{"SCE_C_STRING",6},
 	{"SCE_C_STRINGEOL",12},
@@ -3039,7 +3040,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 281,
-	ifaceConstantCount = 2403,
+	ifaceConstantCount = 2404,
 	ifacePropertyCount = 210
 };
 
