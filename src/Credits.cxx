@@ -375,11 +375,12 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 	if (wsci.Created()) {
 		wsci.Send(SCI_SETSTYLEBITS, 7, 0);
 		wsci.Send(SCI_STYLERESETDEFAULT, 0, 0);
-		int fontSize = 15;
 #if defined(GTK)
 		wsci.Send(SCI_STYLESETFONT, STYLE_DEFAULT,
 		        reinterpret_cast<uptr_t>("!Serif"));
-		fontSize = 14;
+		int fontSize = 14;
+#else
+		int fontSize = 15;
 #endif
 
 		wsci.Send(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
