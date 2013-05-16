@@ -910,6 +910,8 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_HA_IMPORT",10},
 	{"SCE_HA_INSTANCE",12},
 	{"SCE_HA_KEYWORD",2},
+	{"SCE_HA_LITERATE_CODEDELIM",22},
+	{"SCE_HA_LITERATE_COMMENT",21},
 	{"SCE_HA_MODULE",7},
 	{"SCE_HA_NUMBER",3},
 	{"SCE_HA_OPERATOR",11},
@@ -2273,6 +2275,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_KIX",57},
 	{"SCLEX_LATEX",14},
 	{"SCLEX_LISP",21},
+	{"SCLEX_LITERATEHASKELL",108},
 	{"SCLEX_LOT",47},
 	{"SCLEX_LOUT",40},
 	{"SCLEX_LUA",15},
@@ -3040,7 +3043,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 281,
-	ifaceConstantCount = 2404,
+	ifaceConstantCount = 2407,
 	ifacePropertyCount = 210
 };
 
