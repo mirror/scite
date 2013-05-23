@@ -4595,26 +4595,6 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	delete []tbuff;
 }
 
-std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) {
-	// Split on \n
-	std::vector<GUI::gui_string> vs;
-	GUI::gui_string s;
-	bool lastNewLine = false;
-	for (size_t i=0; i<args.size(); i++) {
-		lastNewLine = args[i] == '\n';
-		if (lastNewLine) {
-			vs.push_back(s);
-			s = GUI::gui_string();
-		} else {
-			s += args[i];
-		}
-	}
-	if ((s.size() > 0) || lastNewLine) {
-		vs.push_back(s);
-	}
-	return vs;
-}
-
 /**
  * Process all the command line arguments.
  * Arguments that start with '-' (also '/' on Windows) are switches or commands with

@@ -9,6 +9,24 @@ bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace);
 
+// StringSplit can be expanded over std::string or GUI::gui_string
+template <typename T>
+std::vector<T> StringSplit(const T &text, int separator) {
+	std::vector<T> vs(text.empty() ? 0 : 1);
+	for (typename T::const_iterator it=text.begin(); it!=text.end(); ++it) {
+		if (*it == separator) {
+			vs.push_back(T());
+		} else {
+			vs.back() += *it;
+		}
+	}
+	return vs;
+}
+
+inline std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) {
+	return StringSplit(args, '\n');
+}
+
 char *Slash(const char *s, bool quoteQuotes);
 unsigned int UnSlash(char *s);
 unsigned int UnSlashLowOctal(char *s);
