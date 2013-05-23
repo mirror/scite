@@ -1666,6 +1666,25 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_SQL_USER4",22},
 	{"SCE_SQL_WORD",5},
 	{"SCE_SQL_WORD2",16},
+	{"SCE_STTXT_CHARACTER",11},
+	{"SCE_STTXT_COMMENT",1},
+	{"SCE_STTXT_COMMENTLINE",2},
+	{"SCE_STTXT_DATETIME",16},
+	{"SCE_STTXT_DEFAULT",0},
+	{"SCE_STTXT_FB",6},
+	{"SCE_STTXT_FUNCTION",5},
+	{"SCE_STTXT_HEXNUMBER",8},
+	{"SCE_STTXT_IDENTIFIER",15},
+	{"SCE_STTXT_KEYWORD",3},
+	{"SCE_STTXT_NUMBER",7},
+	{"SCE_STTXT_OPERATOR",10},
+	{"SCE_STTXT_PRAGMA",9},
+	{"SCE_STTXT_PRAGMAS",18},
+	{"SCE_STTXT_STRING1",12},
+	{"SCE_STTXT_STRING2",13},
+	{"SCE_STTXT_STRINGEOL",14},
+	{"SCE_STTXT_TYPE",4},
+	{"SCE_STTXT_VARS",17},
 	{"SCE_ST_ASSIGN",14},
 	{"SCE_ST_BINARY",5},
 	{"SCE_ST_BOOL",6},
@@ -2319,6 +2338,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_SPECMAN",59},
 	{"SCLEX_SPICE",78},
 	{"SCLEX_SQL",7},
+	{"SCLEX_STTXT",109},
 	{"SCLEX_TACL",93},
 	{"SCLEX_TADS3",70},
 	{"SCLEX_TAL",91},
@@ -3043,7 +3063,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 281,
-	ifaceConstantCount = 2407,
+	ifaceConstantCount = 2427,
 	ifacePropertyCount = 210
 };
 
