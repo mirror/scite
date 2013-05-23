@@ -6,6 +6,7 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <string.h>
+#include <stdio.h>
 
 #include <string>
 #include <vector>
@@ -36,6 +37,12 @@ int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_
 		c++;
 	}
 	return c;
+}
+
+std::string StdStringFromInteger(int i) {
+	char number[32];
+	sprintf(number, "%0d", i);
+	return std::string(number);
 }
 
 /**

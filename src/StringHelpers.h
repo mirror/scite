@@ -9,6 +9,8 @@ bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace);
 
+std::string StdStringFromInteger(int i);
+
 // StringSplit can be expanded over std::string or GUI::gui_string
 template <typename T>
 std::vector<T> StringSplit(const T &text, int separator) {
