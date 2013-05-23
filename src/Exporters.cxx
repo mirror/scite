@@ -849,7 +849,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 			delete []segStyle;
 		}
 		//
-		double fontToPoints(int thousandths) {
+		double fontToPoints(int thousandths) const {
 			return (double)fontSize * thousandths / 1000.0;
 		}
 		void setStyle(char *buff, int style_) {

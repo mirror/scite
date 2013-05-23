@@ -44,7 +44,7 @@ public:
 		return m_nCur;
 	}
 	void operator++();
-	operator bool() { return m_pRead <= m_pEnd; }
+	operator bool() const { return m_pRead <= m_pEnd; }
 
 protected:
 	enum eState {
@@ -77,7 +77,7 @@ public:
 	}
 	bool canGet() const { return m_eState == eStart; }
 	void operator++();
-	operator bool() { return m_pRead <= m_pEnd; }
+	operator bool() const { return m_pRead <= m_pEnd; }
 
 protected:
 	void toStart(); // Put to start state

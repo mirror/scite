@@ -137,7 +137,7 @@ public:
 	}
 
 	void DocumentModified();
-	bool NeedsSave(int delayBeforeSave);
+	bool NeedsSave(int delayBeforeSave) const;
 
 	void CompleteLoading();
 	void CompleteStoring();
@@ -190,7 +190,7 @@ public:
 	bool SingleBuffer() const;
 	BackgroundActivities CountBackgroundActivities() const;
 	bool SavingInBackground() const;
-	bool GetVisible(int index);
+	bool GetVisible(int index) const;
 	void SetVisible(int index, bool visible);
 	void AddFuture(int index, Buffer::FutureDo fd);
 	void FinishedFuture(int index, Buffer::FutureDo fd);
@@ -270,8 +270,8 @@ struct StyleAndWords {
 	SString words;
 	StyleAndWords() : styleNumber(0) {
 	}
-	bool IsEmpty() { return words.length() == 0; }
-	bool IsSingleChar() { return words.length() == 1; }
+	bool IsEmpty() const { return words.length() == 0; }
+	bool IsSingleChar() const { return words.length() == 1; }
 };
 
 struct CurrentWordHighlight {
@@ -543,7 +543,7 @@ protected:
 	void SwitchDocumentAt(int index, sptr_t pdoc);
 	int AddBuffer();
 	void UpdateBuffersCurrent();
-	bool IsBufferAvailable();
+	bool IsBufferAvailable() const;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
 	void SetDocumentAt(int index, bool updateStack = true);
 	Buffer *CurrentBuffer() {

@@ -1230,7 +1230,7 @@ public:
 		}
 		fp = NULL;
 	}
-	bool Exhausted() {
+	bool Exhausted() const {
 		return exhausted;
 	}
 	int NextByte() {
@@ -1303,7 +1303,7 @@ public:
 	int LineNumber() const {
 		return lineNum;
 	}
-	const char *Original() {
+	const char *Original() const {
 		return lineToShow;
 	}
 	bool BufferContainsNull() {

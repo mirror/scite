@@ -77,7 +77,7 @@ void Buffer::DocumentModified() {
 	documentModTime = time(0);
 }
 
-bool Buffer::NeedsSave(int delayBeforeSave) {
+bool Buffer::NeedsSave(int delayBeforeSave) const {
 	time_t now = time(0);
 	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !IsUntitled();
 }
@@ -343,7 +343,7 @@ bool BufferList::SavingInBackground() const {
 	return false;
 }
 
-bool BufferList::GetVisible(int index) {
+bool BufferList::GetVisible(int index) const {
 	return index < lengthVisible;
 }
 
@@ -500,7 +500,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 	}
 }
 
-bool SciTEBase::IsBufferAvailable() {
+bool SciTEBase::IsBufferAvailable() const {
 	return buffers.size > 1 && buffers.length < buffers.size;
 }
 
