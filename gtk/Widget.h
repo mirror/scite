@@ -13,28 +13,6 @@
 #define IS_WIDGET_SENSITIVE(w) (GTK_WIDGET_SENSITIVE(w))
 #endif
 
-class CommandHandler {
-public:
-	virtual void PerformCommand(int commandNumber) = 0;
-};
-
-template< int commandNumber >
-class CommandSignal {
-public:
-	void Attach(GtkWidget *w, CommandHandler *object, const char *sigName="clicked") {
-		g_signal_connect(G_OBJECT(w), sigName, G_CALLBACK(Function), object);
-	}
-	static void Function(GtkWidget */*w*/, CommandHandler *object) {
-		object->PerformCommand(commandNumber);
-	}
-};
-
-template< int commandNumber >
-inline void CommandAttach(GtkWidget *w, CommandHandler *object, const char *sigName="clicked") {
-	CommandSignal <commandNumber> sig;
-	sig.Attach(w, object, sigName);
-}
-
 // Callback thunk class connects GTK+ signals to an instance method.
 template< class T, void (T::*method)() >
 class ObjectSignal {
@@ -46,7 +24,7 @@ public:
 
 class WBase : public GUI::Window {
 public:
-	operator GtkWidget*();
+	operator GtkWidget*() const;
 	GtkWidget* Pointer();
 	bool Sensitive();
 };
@@ -195,7 +173,7 @@ public:
 	static gboolean ChildFocusSignal(GtkContainer *container, GtkWidget *widget, Strip *pStrip);
 	virtual gboolean Focus(GtkDirectionType /* direction*/ ) { return false; }
 	static gboolean FocusSignal(GtkWidget *widget, GtkDirectionType direction, Strip *pStrip);
-	bool VisibleHasFocus();
+	bool VisibleHasFocus() const;
 	static gint ButtonsPress(GtkWidget *widget, GdkEventButton *event, Strip *pstrip);
 };
 

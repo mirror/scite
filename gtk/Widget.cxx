@@ -27,7 +27,7 @@
 #define GKEY_Void GDK_VoidSymbol
 #endif
 
-WBase::operator GtkWidget*() {
+WBase::operator GtkWidget*() const {
 	return GTK_WIDGET(GetID());
 }
 
@@ -667,7 +667,7 @@ gboolean Strip::FocusSignal(GtkWidget */*widget*/, GtkDirectionType direction, S
 	return pStrip->Focus(direction);
 }
 
-bool Strip::VisibleHasFocus() {
+bool Strip::VisibleHasFocus() const {
 	return visible && childHasFocus;
 }
 
