@@ -1408,6 +1408,10 @@ void SciTEBase::ReadFontProperties() {
 	// Set styles
 	// For each window set the global default style, then the language default style, then the other global styles, then the other language styles
 
+	int fontQuality = props.GetInt("font.quality");
+	wEditor.Call(SCI_SETFONTQUALITY, fontQuality);
+	wOutput.Call(SCI_SETFONTQUALITY, fontQuality);
+
 	wEditor.Call(SCI_STYLERESETDEFAULT, 0, 0);
 	wOutput.Call(SCI_STYLERESETDEFAULT, 0, 0);
 

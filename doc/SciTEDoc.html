@@ -31,6 +31,9 @@
         .osxonly {
             background: #FFE7E7;
         }
+        .windows-osx {
+            background: #FFF3FF;
+        }
         .example {
             color: #008000;
             font-weight: bold;
@@ -2941,6 +2944,23 @@ imports.include=fortran lisp
            Style 37 is used for displaying indentation guides. Only the fore and back are used.<br />
            Style 38 is used for displaying calltips. Only the font, size, fore and back are used.<br />
            A * can be used instead of a lexer to indicate a global style setting.
+        </td>
+      </tr>
+      <tr class="windows-osx" id='property-font.quality'>
+        <td>
+          font.quality
+        </td>
+        <td>
+        This setting allows choosing different ways of drawing text on Windows and OS X.
+        The appearance will depend on platform settings and, on Windows, the technology setting.
+        This setting does not currently have any effect on GTK+.
+	  <table>
+	  <thead><tr><th>Value</th><th>Meaning</th></tr></thead>
+	  <tr><td>0</td><td>Default</td></tr>
+	  <tr><td>1</td><td>Non-antialiased</td></tr>
+	  <tr><td>2</td><td>Antialiased</td></tr>
+	  <tr><td>3</td><td>LCD Optimized</td></tr>
+	  </table>
         </td>
       </tr>
        <tr id='property-braces.check'>
