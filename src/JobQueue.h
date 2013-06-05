@@ -12,7 +12,9 @@
 #define JOBQUEUE_H
 
 enum JobSubsystem {
-    jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5, jobGrep = 6};
+    jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5, jobGrep = 6, jobImmediate = 7};
+
+JobSubsystem SubsystemFromChar(char c);
 
 enum JobFlags {
     jobForceQueue = 1,
@@ -23,6 +25,15 @@ enum JobFlags {
     jobRepSelYes = 16,
     jobRepSelAuto = 32,
     jobGroupUndo = 64
+};
+
+struct JobMode {
+	JobSubsystem jobType;
+	int saveBefore;
+	bool isFilter;
+	int flags;
+	SString input;
+	JobMode(PropSetFile &props, int item, const char *fileNameExt);
 };
 
 class Job {

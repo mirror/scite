@@ -1416,6 +1416,21 @@ void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
 	SetMenuItem(menuNumber, position, itemID, localised.c_str(), GUI::StringFromUTF8(mnemonic).c_str());
 }
 
+bool SciTEBase::ToolIsImmediate(int item) {
+	SString itemSuffix = item;
+	itemSuffix += '.';
+
+	SString propName = "command.";
+	propName += itemSuffix;
+
+	SString command = props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str());
+	if (command.length()) {
+		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
+		return jobMode.jobType == jobImmediate;
+	}
+	return false;
+}
+
 void SciTEBase::SetToolsMenu() {
 	//command.name.0.*.py=Edit in PythonWin
 	//command.0.*.py="c:\program files\python\pythonwin\pythonwin" /edit c:\coloreditor.py
@@ -1462,20 +1477,6 @@ void SciTEBase::SetToolsMenu() {
 	}
 }
 
-JobSubsystem SciTEBase::SubsystemType(char c) {
-	if (c == '1')
-		return jobGUI;
-	else if (c == '2')
-		return jobShell;
-	else if (c == '3')
-		return jobExtension;
-	else if (c == '4')
-		return jobHelp;
-	else if (c == '5')
-		return jobOtherHelp;
-	return jobCLI;
-}
-
 JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 	SString subsysprefix = cmd;
 	if (item >= 0) {
@@ -1483,169 +1484,29 @@ JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
 		subsysprefix += ".";
 	}
 	SString subsystem = props.GetNewExpand(subsysprefix.c_str(), FileNameExt().AsUTF8().c_str());
-	return SubsystemType(subsystem[0]);
+	return SubsystemFromChar(subsystem[0]);
 }
 
 void SciTEBase::ToolsMenu(int item) {
 	SelectionIntoProperties();
 
-	SString itemSuffix = item;
-	itemSuffix += '.';
-
-	SString propName = "command.";
-	propName += itemSuffix;
-
-	SString command = props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str());
+	const std::string itemSuffix = StdStringFromInteger(item) + ".";
+	const std::string propName = std::string("command.") + itemSuffix;
+	std::string command(props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).c_str());
 	if (command.length()) {
-		int saveBefore = 0;
-
-		JobSubsystem jobType = jobCLI;
-		bool isFilter = false;
-		bool quiet = false;
-		int repSel = 0;
-		bool groupUndo = false;
-
-		propName = "command.mode.";
-		propName += itemSuffix;
-		SString modeVal = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str());
-		modeVal.remove(" ");
-		if (modeVal.length()) {
-			char *modeTags = modeVal.detach();
-
-			// copy/paste from style selectors.
-			char *opt = modeTags;
-			while (opt) {
-				// Find attribute separator
-				char *cpComma = strchr(opt, ',');
-				if (cpComma) {
-					// If found, we terminate the current attribute (opt) string
-					*cpComma = '\0';
-				}
-				// Find attribute name/value separator
-				char *colon = strchr(opt, ':');
-				if (colon) {
-					// If found, we terminate the current attribute name and point on the value
-					*colon++ = '\0';
-				}
-
-				if (0 == strcmp(opt, "subsystem") && colon) {
-					if (colon[0] == '0' || 0 == strcmp(colon, "console"))
-						jobType = jobCLI;
-					else if (colon[0] == '1' || 0 == strcmp(colon, "windows"))
-						jobType = jobGUI;
-					else if (colon[0] == '2' || 0 == strcmp(colon, "shellexec"))
-						jobType = jobShell;
-					else if (colon[0] == '3' || 0 == strcmp(colon, "lua") || 0 == strcmp(colon, "director"))
-						jobType = jobExtension;
-					else if (colon[0] == '4' || 0 == strcmp(colon, "htmlhelp"))
-						jobType = jobHelp;
-					else if (colon[0] == '5' || 0 == strcmp(colon, "winhelp"))
-						jobType = jobOtherHelp;
-				}
-
-				if (0 == strcmp(opt, "quiet")) {
-					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
-						quiet = true;
-					else if (colon[0] == '0' || 0 == strcmp(colon, "no"))
-						quiet = false;
-				}
-
-				if (0 == strcmp(opt, "savebefore")) {
-					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
-						saveBefore = 1;
-					else if (colon[0] == '0' || 0 == strcmp(colon, "no"))
-						saveBefore = 2;
-					else if (0 == strcmp(colon, "prompt"))
-						saveBefore = 0;
-				}
-
-				if (0 == strcmp(opt, "filter")) {
-					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
-						isFilter = true;
-					else if (colon[1] == '0' || 0 == strcmp(colon, "no"))
-						isFilter = false;
-				}
-
-				if (0 == strcmp(opt, "replaceselection")) {
-					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
-						repSel = 1;
-					else if (colon[0] == '0' || 0 == strcmp(colon, "no"))
-						repSel = 0;
-					else if (0 == strcmp(colon, "auto"))
-						repSel = 2;
-				}
-
-				if (0 == strcmp(opt, "groupundo")) {
-					if (!colon || colon[0] == '1' || 0 == strcmp(colon, "yes"))
-						groupUndo = true;
-					else if (colon[0] == '0' || 0 == strcmp(colon, "no"))
-						groupUndo = false;
-				}
-
-				opt = cpComma ? cpComma + 1 : 0;
-			}
-			delete []modeTags;
-		}
-
-		// The mode flags also have classic properties with similar effect.
-		// If the classic property is specified, it overrides the mode.
-		// To see if the property is absent (as opposed to merely evaluating
-		// to nothing after variable expansion), use GetWild for the
-		// existence check.  However, for the value check, use getNewExpand.
-
-		propName = "command.save.before.";
-		propName += itemSuffix;
-		if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
-			saveBefore = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str()).value();
-
-		if (saveBefore == 2 || (saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != IDCANCEL) {
-			int flags = 0;
-
-			propName = "command.is.filter.";
-			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
-				isFilter = (props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str())[0] == '1');
-			if (isFilter)
+		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
+		if (jobMode.saveBefore == 2 || (jobMode.saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != IDCANCEL) {
+			if (jobMode.isFilter)
 				CurrentBuffer()->fileModTime -= 1;
-
-			propName = "command.subsystem.";
-			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length()) {
-				SString subsystemVal = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str());
-				jobType = SubsystemType(subsystemVal[0]);
+			if (jobMode.jobType == jobImmediate) {
+				if (extender) {
+					extender->OnExecute(command.c_str());
+				}
+			} else {
+				AddCommand(command.c_str(), "", jobMode.jobType, jobMode.input, jobMode.flags);
+				if (jobQueue.HasCommandToRun())
+					Execute();
 			}
-
-			propName = "command.input.";
-			propName += itemSuffix;
-			SString input;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length()) {
-				input = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str());
-				flags |= jobHasInput;
-			}
-
-			propName = "command.quiet.";
-			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
-				quiet = (props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str()).value() == 1);
-			if (quiet)
-				flags |= jobQuiet;
-
-			propName = "command.replace.selection.";
-			propName += itemSuffix;
-			if (props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).length())
-				repSel = props.GetNewExpand(propName.c_str(), FileNameExt().AsUTF8().c_str()).value();
-
-			if (repSel == 1)
-				flags |= jobRepSelYes;
-			else if (repSel == 2)
-				flags |= jobRepSelAuto;
-
-			if (groupUndo)
-				flags |= jobGroupUndo;
-
-			AddCommand(command, "", jobType, input, flags);
-			if (jobQueue.HasCommandToRun())
-				Execute();
 		}
 	}
 }

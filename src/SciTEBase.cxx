@@ -3653,7 +3653,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_HELP_SCITE: {
 			SelectionIntoProperties();
 			AddCommand(props.Get("command.scite.help"), "",
-			        SubsystemType(props.Get("command.scite.help.subsystem")[0]));
+			        SubsystemFromChar(props.Get("command.scite.help.subsystem")[0]));
 			if (jobQueue.HasCommandToRun()) {
 				jobQueue.isBuilding = true;
 				Execute();
@@ -4110,7 +4110,7 @@ void SciTEBase::CheckMenus() {
 	        props.GetWild("command.go.", FileNameExt().AsUTF8().c_str()).size() != 0);
 	EnableAMenuItem(IDM_OPENDIRECTORYPROPERTIES, props.GetInt("properties.directory.enable") != 0);
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
-		EnableAMenuItem(IDM_TOOLS + toolItem, !jobQueue.IsExecuting());
+		EnableAMenuItem(IDM_TOOLS + toolItem, ToolIsImmediate(toolItem) || !jobQueue.IsExecuting());
 	EnableAMenuItem(IDM_STOPEXECUTE, jobQueue.IsExecuting());
 	if (buffers.size > 0) {
 		TabSelect(buffers.Current());
