@@ -563,7 +563,7 @@ public:
 	SciTEWin(Extension *ext = 0);
 	~SciTEWin();
 
-	bool DialogHandled(GUI::WindowID id, MSG *pmsg);
+	static bool DialogHandled(GUI::WindowID id, MSG *pmsg);
 	bool ModelessHandler(MSG *pmsg);
 
 	void CreateUI();
