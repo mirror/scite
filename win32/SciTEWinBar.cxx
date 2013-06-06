@@ -457,7 +457,7 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 		keycode = SciTEKeys::ParseKeyCode(GUI::UTF8FromString(mnemonic).c_str());
 		if (keycode) {
 			sTextMnemonic += GUI_TEXT("\t");
-			sTextMnemonic += LocaliseAccelerator(mnemonic, itemID);
+			sTextMnemonic += mnemonic;
 		}
 		// the keycode could be used to make a custom accelerator table
 		// but for now, the menu's item data is used instead for command
@@ -529,104 +529,6 @@ void SciTEWin::CheckMenus() {
 	                   CurrentBuffer()->unicodeMode + IDM_ENCODING_DEFAULT, 0);
 }
 
-void SciTEWin::MakeAccelerator(SString sAccelerator, ACCEL &Accel) {
-	SString s = sAccelerator;
-
-	if (s.contains("null")) {
-		Accel.key = 0;
-		return ;
-	}
-
-	if (s.contains("Ctrl+")) {
-		Accel.fVirt |= FCONTROL;
-		s.remove("Ctrl+");
-	}
-	if (s.contains("Shift+")) {
-		Accel.fVirt |= FSHIFT;
-		s.remove("Shift+");
-	}
-	if (s.contains("Alt+")) {
-		Accel.fVirt |= FALT;
-		s.remove("Alt+");
-	}
-	if (s.length() == 1) {
-		Accel.key = s[0];
-		Accel.fVirt |= FVIRTKEY;
-	} else if ((s.length() > 1) && (s[0] == 'F') && (isdigit(s[1]))) {
-		s.remove("F");
-		int keyNum = s.value();
-		Accel.key = static_cast<WORD>(keyNum + VK_F1 - 1);
-		Accel.fVirt |= FVIRTKEY;
-	} else if (s.contains("Del")) {
-		Accel.key = VK_DELETE;
-		Accel.fVirt |= FVIRTKEY;
-	} else if (s.contains("Space")) {
-		Accel.key = VK_SPACE;
-		Accel.fVirt |= FVIRTKEY;
-	} else if (s.contains("Enter")) {
-		Accel.key = VK_RETURN;
-		Accel.fVirt |= FVIRTKEY;
-	} else if (s.contains("Back")) {
-		Accel.key = VK_BACK;
-		Accel.fVirt |= FVIRTKEY;
-	} else if (s.contains("Tab")) {
-		Accel.key = VK_TAB;
-		Accel.fVirt |= FVIRTKEY;
-	} else if (s.contains("Num")) {
-		Accel.fVirt |= FVIRTKEY;
-		s.remove("Num");
-		if (isdigit(s[0])) {
-			int keyNum = s.value();
-			Accel.key = static_cast<WORD>(keyNum + VK_NUMPAD0);
-		} else {
-			switch (s[0]) {
-			case '*':
-				Accel.key = VK_MULTIPLY;
-				break;
-			case '+':
-				Accel.key = VK_ADD;
-				break;
-			case '-':
-				Accel.key = VK_SUBTRACT;
-				break;
-			case '/':
-				Accel.key = VK_DIVIDE;
-				break;
-			default:
-				Accel.key = 0;
-				break;
-			}
-		}
-	}
-}
-
-//SString SciTEWin::LocaliseAccelerator(const char *pAccelerator, int cmd) {
-GUI::gui_string SciTEWin::LocaliseAccelerator(const GUI::gui_char *pAccelerator, int) {
-#ifdef LOCALISE_ACCELERATORS_WORKED
-	SString translation = localiser.Text(pAccelerator, true);
-	int AccelCount = ::CopyAcceleratorTable(hAccTable, NULL, 0);
-	ACCEL *AccelTable = new ACCEL[AccelCount];
-	::CopyAcceleratorTable(hAccTable, AccelTable, AccelCount);
-	for (int i = 0; i < AccelCount; i++) {
-		if (AccelTable[i].cmd == cmd) {
-			MakeAccelerator(translation, AccelTable[i]);
-		}
-	}
-
-	::DestroyAcceleratorTable(hAccTable);
-	hAccTable = ::CreateAcceleratorTable(AccelTable, AccelCount);
-	delete []AccelTable;
-
-	if (translation.contains("null")) {
-		translation.clear();
-	}
-
-	return translation;
-#else
-	return pAccelerator;
-#endif
-}
-
 void SciTEWin::LocaliseMenu(HMENU hmenu) {
 	for (int i = 0; i <= ::GetMenuItemCount(hmenu); i++) {
 		GUI::gui_char buff[200];
@@ -658,7 +560,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 					if (text.length()) {
 						if (accel != GUI_TEXT("")) {
 							text += GUI_TEXT("\t");
-							text += LocaliseAccelerator(accel.c_str(), mii.wID);
+							text += accel;
 						}
 						mii.dwTypeData = const_cast<GUI::gui_char *>(text.c_str());
 						::SetMenuItemInfoW(hmenu, i, TRUE, &mii);
@@ -672,22 +574,6 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 void SciTEWin::LocaliseMenus() {
 	LocaliseMenu(::GetMenu(MainHWND()));
 	::DrawMenuBar(MainHWND());
-}
-
-void SciTEWin::LocaliseAccelerators() {
-	LocaliseAccelerator(GUI_TEXT("Alt+1"), IDM_BUFFER + 0);
-	LocaliseAccelerator(GUI_TEXT("Alt+2"), IDM_BUFFER + 1);
-	LocaliseAccelerator(GUI_TEXT("Alt+3"), IDM_BUFFER + 2);
-	LocaliseAccelerator(GUI_TEXT("Alt+4"), IDM_BUFFER + 3);
-	LocaliseAccelerator(GUI_TEXT("Alt+5"), IDM_BUFFER + 4);
-	LocaliseAccelerator(GUI_TEXT("Alt+6"), IDM_BUFFER + 5);
-	LocaliseAccelerator(GUI_TEXT("Alt+7"), IDM_BUFFER + 6);
-	LocaliseAccelerator(GUI_TEXT("Alt+8"), IDM_BUFFER + 7);
-	LocaliseAccelerator(GUI_TEXT("Alt+9"), IDM_BUFFER + 8);
-	LocaliseAccelerator(GUI_TEXT("Alt+0"), IDM_BUFFER + 9);
-
-	// todo read keymap from cfg
-	// AssignKey('Y', SCMOD_CTRL, SCI_LINECUT);
 }
 
 void SciTEWin::LocaliseControl(HWND w) {

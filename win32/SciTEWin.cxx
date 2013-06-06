@@ -1354,7 +1354,6 @@ void SciTEWin::CreateUI() {
 		RestorePosition();
 
 	LocaliseMenus();
-	LocaliseAccelerators();
 	SString pageSetup = props.Get("print.margins");
 	char val[32];
 	char *ps = StringDup(pageSetup.c_str());

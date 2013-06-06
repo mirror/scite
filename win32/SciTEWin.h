@@ -443,8 +443,6 @@ protected:
 	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
 	virtual void CheckMenus();
 
-	void LocaliseAccelerators();
-	GUI::gui_string LocaliseAccelerator(const GUI::gui_char *Accelerator, int cmd);
 	void LocaliseMenu(HMENU hmenu);
 	void LocaliseMenus();
 	void LocaliseControl(HWND w);
@@ -553,8 +551,6 @@ protected:
 	BOOL AboutMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	void AboutDialogWithBuild(int staticBuild);
-
-	void MakeAccelerator(SString sKey, ACCEL &Accel);
 
 	void RestorePosition();
 
