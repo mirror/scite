@@ -336,7 +336,7 @@ public:
 	virtual int Height() {
 		return lineHeight * Lines() + 1;
 	}
-	int Lines();
+	int Lines() const;
 	void SetDescription(const char *description);
 	void SetExtender(Extension *extender_);
 	void SetSciTE(SciTEWin *pSciTEWin_);
@@ -477,7 +477,7 @@ protected:
 	void DropFiles(HDROP hdrop);
 	void MinimizeToTray();
 	void RestoreFromTray();
-	GUI::gui_string ProcessArgs(const GUI::gui_char *cmdLine);
+	static GUI::gui_string ProcessArgs(const GUI::gui_char *cmdLine);
 	virtual void QuitProgram();
 
 	virtual FilePath GetDefaultDirectory();

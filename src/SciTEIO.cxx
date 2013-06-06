@@ -776,7 +776,7 @@ void SciTEBase::Activate(bool activeApp) {
 	}
 }
 
-FilePath SciTEBase::SaveName(const char *ext) {
+FilePath SciTEBase::SaveName(const char *ext) const {
 	GUI::gui_string savePath = filePath.AsInternal();
 	if (ext) {
 		int dot = static_cast<int>(savePath.length() - 1);

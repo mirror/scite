@@ -578,7 +578,7 @@ protected:
 	int GetCaretInLine();
 	void GetLine(char *text, int sizeText, int line = -1);
 	SString GetLine(int line = -1);
-	void GetRange(GUI::ScintillaWindow &win, int start, int end, char *text);
+	static void GetRange(GUI::ScintillaWindow &win, int start, int end, char *text);
 	int IsLinePreprocessorCondition(char *line);
 	bool FindMatchingPreprocessorCondition(int &curLine, int direction, int condEnd1, int condEnd2);
 	bool FindMatchingPreprocCondPosition(bool isForward, int &mppcAtCaret, int &mppcMatch);
@@ -607,7 +607,7 @@ protected:
 	void RestoreState(const Buffer &buffer, bool restoreBookmarks);
 	void Close(bool updateUI = true, bool loadingSession = false, bool makingRoomForNew = false);
 	bool IsAbsolutePath(const char *path);
-	bool Exists(const GUI::gui_char *dir, const GUI::gui_char *path, FilePath *resultPath);
+	static bool Exists(const GUI::gui_char *dir, const GUI::gui_char *path, FilePath *resultPath);
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
 	SString DiscoverLanguage();
@@ -636,7 +636,7 @@ protected:
 	bool Open(FilePath file, OpenFlags of = ofNone);
 	bool OpenSelected();
 	void Revert();
-	FilePath SaveName(const char *ext);
+	FilePath SaveName(const char *ext) const;
 	int SaveIfUnsure(bool forceQuestion = false);
 	int SaveIfUnsureAll(bool forceQuestion = false);
 	int SaveIfUnsureForBuilt();
@@ -673,7 +673,7 @@ protected:
 	FilePath GetLocalPropertiesFileName();
 	FilePath GetAbbrevPropertiesFileName();
 	void OpenProperties(int propsFile);
-	int GetMenuCommandAsInt(SString commandName);
+	static int GetMenuCommandAsInt(SString commandName);
 	virtual void Print(bool) {}
 	virtual void PrintSetup() {}
 	virtual void UserStripShow(const char * /* description */) {}
@@ -684,11 +684,10 @@ protected:
 	Sci_CharacterRange GetSelection();
 	SelectedRange GetSelectedRange();
 	void SetSelection(int anchor, int currentPos);
-	//	void SelectionExtend(char *sel, int len, char *notselchar);
 	SString GetCTag();
-	SString GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd);
+	static SString GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
-	SString GetLine(GUI::ScintillaWindow &win, int line);
+	static SString GetLine(GUI::ScintillaWindow &win, int line);
 	SString RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,
 	        bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	SString SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
@@ -726,7 +725,7 @@ protected:
 	virtual void ParamGrab() = 0;
 	virtual bool ParametersDialog(bool modal) = 0;
 	bool HandleXml(char ch);
-	SString FindOpenXmlTag(const char sel[], int nSize);
+	static SString FindOpenXmlTag(const char sel[], int nSize);
 	void GoMatchingBrace(bool select);
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
@@ -789,7 +788,7 @@ protected:
 	void FoldAll();
 	void ToggleFoldRecursive(int line, int level);
 	void EnsureAllChildrenVisible(int line, int level);
-	void EnsureRangeVisible(GUI::ScintillaWindow &win, int posStart, int posEnd, bool enforcePolicy = true);
+	static void EnsureRangeVisible(GUI::ScintillaWindow &win, int posStart, int posEnd, bool enforcePolicy = true);
 	void GotoLineEnsureVisible(int line);
 	bool MarginClick(int position, int modifiers);
 	void NewLineInOutput();
@@ -857,7 +856,7 @@ protected:
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);
 	SString ExtensionFileName();
-	const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
+	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
 	void DefineMarker(int marker, int markerType, Colour fore, Colour back, Colour backSelected);
 	void ReadAPI(const SString &fileNameForExtension);

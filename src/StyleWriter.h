@@ -89,7 +89,7 @@ public:
 	int SetLineState(int line, int state);
 
 	void StartAt(unsigned int start, char chMask=31);
-	unsigned int GetStartSegment() { return startSeg; }
+	unsigned int GetStartSegment() const { return startSeg; }
 	void StartSegment(unsigned int pos);
 	void ColourTo(unsigned int pos, int chAttr);
 	void SetLevel(int line, int level);

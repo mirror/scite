@@ -3631,7 +3631,7 @@ LRESULT UserStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	return 0l;
 }
 
-int UserStrip::Lines() {
+int UserStrip::Lines() const {
 	return psd ? static_cast<int>(psd->controls.size()) : 1;
 }
 
