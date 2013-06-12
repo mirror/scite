@@ -1495,6 +1495,9 @@ void SciTEBase::ToolsMenu(int item) {
 	std::string command(props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str()).c_str());
 	if (command.length()) {
 		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
+		if (jobQueue.IsExecuting() && (jobMode.jobType != jobImmediate))
+			// Busy running a tool and running a second can cause failures.
+			return;
 		if (jobMode.saveBefore == 2 || (jobMode.saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != IDCANCEL) {
 			if (jobMode.isFilter)
 				CurrentBuffer()->fileModTime -= 1;
