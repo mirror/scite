@@ -91,6 +91,10 @@ IF_DEBUG(static FILE *fdDebug = 0)
 struct PipeEntry {
 	int fd;
 	char *name;
+	~PipeEntry() {
+		free(name);
+		name = 0;
+	}
 };
 static PipeEntry s_send_pipes[MAX_PIPES];
 static int s_send_cnt = 0;
@@ -428,6 +432,8 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 }
 
 void DirectorExtension::CreatePipe(bool) {
+	if (!host)
+		return;
 	bool tryStandardPipeCreation;
 	char *pipeName = host->Property("ipc.scite.name");
 
