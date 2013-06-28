@@ -3474,6 +3474,16 @@ void ReplaceStrip::Show() {
 
 void UserStrip::Creation() {
 	Strip::Creation();
+	// Combo boxes automatically size to a reasonable height so create a temporary and measure
+	HWND wComboTest = ::CreateWindowEx(0, TEXT("ComboBox"), TEXT("Aby"),
+		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
+		50, 2, 300, 80,
+		Hwnd(), 0, ::GetModuleHandle(NULL), 0);
+	::SendMessage(wComboTest, WM_SETFONT, reinterpret_cast<WPARAM>(fontText), 0);
+	RECT rc;
+	::GetWindowRect(reinterpret_cast<HWND>(wComboTest), &rc);
+	::DestroyWindow(wComboTest);
+	lineHeight = rc.bottom - rc.top + 3;
 }
 
 void UserStrip::Destruction() {
@@ -3680,7 +3690,7 @@ void UserStrip::SetDescription(const char *description) {
 				puc->w = ::CreateWindowEx(0, TEXT("Button"), puc->text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS |
 					((puc->controlType == UserControl::ucDefaultButton) ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON),
-					60 * control, line * lineHeight + 2, puc->widthDesired, 25,
+					60 * control, line * lineHeight + 2, puc->widthDesired, lineHeight-1,
 					Hwnd(), reinterpret_cast<HMENU>(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 
@@ -3688,7 +3698,7 @@ void UserStrip::SetDescription(const char *description) {
 				puc->widthDesired = WidthText(fontText, puc->text.c_str());
 				puc->w = ::CreateWindowEx(0, TEXT("Static"), puc->text.c_str(),
 					WS_CHILD | WS_CLIPSIBLINGS | ES_RIGHT,
-					60 * control, line * lineHeight + 2, puc->widthDesired, 21,
+					60 * control, line * lineHeight + 2, puc->widthDesired, lineHeight - 5,
 					Hwnd(), reinterpret_cast<HMENU>(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 			}
