@@ -154,7 +154,8 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o MultiplexExtension.o \
 	ScintillaBaseL.o Editor.o Catalogue.o Accessor.o WordList.o CharacterSet.o \
 	LexerModule.o LexerSimple.o LexerBase.o \
 	ExternalLexer.o StyleContext.o Lexers.a PropSetSimple.o RunStyles.o \
-	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o CallTip.o Sc1Res.o PlatWin.o \
+	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o \
+	CharacterCategory.o CallTip.o Sc1Res.o PlatWin.o \
 	PositionCache.o UniConversion.o Utf8_16.o GUIWin.o KeyMap.o Indicator.o LineMarker.o RESearch.o Selection.o Style.o \
 	ViewStyle.o AutoComplete.o IFaceTable.o DirectorExtension.o MultiplexExtension.o XPM.o PerLine.o \
 	JobQueue.o WinMutex.o $(LUA_OBJS)
