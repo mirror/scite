@@ -1115,10 +1115,10 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 			// the cmd is surrounded by ", so it can contain spaces, but we must
 			// strip the " for ShellExec
 			mycmd = mycmdcopy + 1;
-			char *s = strchr(mycmdcopy + 1, '"');
-			if (s != NULL) {
-				*s = '\0';
-				mycmd_end = s + 1;
+			char *sm = strchr(mycmdcopy + 1, '"');
+			if (sm != NULL) {
+				*sm = '\0';
+				mycmd_end = sm + 1;
 			}
 		}
 	}
