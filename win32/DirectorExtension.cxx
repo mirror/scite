@@ -89,10 +89,10 @@ static void SendDirector(const char *verb, sptr_t arg) {
 	::SendDirector(verb, s.c_str());
 }
 
-static void CheckEnvironment(ExtensionAPI *host) {
-	if (host && !shuttingDown) {
+static void CheckEnvironment(ExtensionAPI *phost) {
+	if (phost && !shuttingDown) {
 		if (!wDirector) {
-			char *director = host->Property("director.hwnd");
+			char *director = phost->Property("director.hwnd");
 			if (director && *director) {
 				startedByDirector = true;
 				wDirector = reinterpret_cast<HWND>(atoi(director));
@@ -102,7 +102,7 @@ static void CheckEnvironment(ExtensionAPI *host) {
 			delete []director;
 		}
 		SString sReceiver(reinterpret_cast<size_t>(wReceiver));
-		host->SetProperty("WindowID", sReceiver.c_str());
+		phost->SetProperty("WindowID", sReceiver.c_str());
 	}
 }
 
