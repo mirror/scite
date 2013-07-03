@@ -181,6 +181,9 @@
 				RelativePath="..\..\scintilla\lexlib\CharacterSet.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexlib\CharacterCategory.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\CharClassify.cxx">
 			</File>
 			<File
@@ -447,6 +450,48 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\CellBuffer.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\Accessor.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\CharacterCategory.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\CharacterSet.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\LexAccessor.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\LexerBase.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\LexerModule.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\LexerNoExceptions.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\LexerSimple.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\OptionSet.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\PropSetSimple.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\SparseState.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\StyleContext.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\SubStyles.h">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexlib\WordList.h">
 			</File>
 			<File
 				RelativePath="..\..\scintilla\src\ContractionState.h">
