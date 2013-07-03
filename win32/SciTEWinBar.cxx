@@ -23,7 +23,8 @@ void SciTEWin::SetFileProperties(
 		FILETIME lft;
 		::FileTimeToLocalFileTime(&ft, &lft);
 		SYSTEMTIME st;
-		::FileTimeToSystemTime(&lft, &st);
+		if (::FileTimeToSystemTime(&lft, &st) == 0)
+			memset(&st, 0, sizeof(st));
 		::GetTimeFormatA(LOCALE_USER_DEFAULT,
 		                0, &st,
 		                NULL, temp, TEMP_LEN);
@@ -915,7 +916,8 @@ void SciTEWin::Creation() {
 	InitCommonControlsEx(&icce);
 
 	WNDCLASS wndClass = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	GetClassInfo(NULL, WC_TABCONTROL, &wndClass);
+	if (::GetClassInfo(NULL, WC_TABCONTROL, &wndClass) == 0)
+		exit(FALSE);
 	stDefaultTabProc = wndClass.lpfnWndProc;
 	wndClass.lpfnWndProc = TabWndProc;
 	wndClass.style = wndClass.style | CS_DBLCLKS;
@@ -942,7 +944,8 @@ void SciTEWin::Creation() {
 
 	LOGFONT lfIconTitle;
 	ZeroMemory(&lfIconTitle, sizeof(lfIconTitle));
-	::SystemParametersInfo(SPI_GETICONTITLELOGFONT,sizeof(lfIconTitle),&lfIconTitle,FALSE);
+	if (::SystemParametersInfo(SPI_GETICONTITLELOGFONT,sizeof(lfIconTitle),&lfIconTitle,FALSE) == 0)
+		exit(FALSE);
 	fontTabs = ::CreateFontIndirect(&lfIconTitle);
 	::SendMessage(reinterpret_cast<HWND>(wTabBar.GetID()),
 	              WM_SETFONT,

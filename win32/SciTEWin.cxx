@@ -60,20 +60,23 @@ const GUI::gui_char appName[] = GUI_TEXT("SciTE");
 
 static GUI::gui_string GetErrorMessage(DWORD nRet) {
 	LPWSTR lpMsgBuf = NULL;
-	::FormatMessage(
-	    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	    FORMAT_MESSAGE_FROM_SYSTEM |
-	    FORMAT_MESSAGE_IGNORE_INSERTS,
-	    NULL,
-	    nRet,
-	    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   // Default language
-	    reinterpret_cast<LPWSTR>(&lpMsgBuf),
-	    0,
-	    NULL
-	);
-	GUI::gui_string s= lpMsgBuf;
-	::LocalFree(lpMsgBuf);
-	return s;
+	if (::FormatMessage(
+		    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		    FORMAT_MESSAGE_FROM_SYSTEM |
+		    FORMAT_MESSAGE_IGNORE_INSERTS,
+		    NULL,
+		    nRet,
+		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   // Default language
+		    reinterpret_cast<LPWSTR>(&lpMsgBuf),
+		    0,
+		    NULL
+		) != 0) {
+		GUI::gui_string s= lpMsgBuf;
+		::LocalFree(lpMsgBuf);
+		return s;
+	} else {
+		return TEXT("");
+	}
 }
 
 long SciTEKeys::ParseKeyCode(const char *mnemonic) {
@@ -403,7 +406,8 @@ static FilePath GetSciTEPath(FilePath home) {
 		return FilePath(home);
 	} else {
 		GUI::gui_char path[MAX_PATH];
-		::GetModuleFileNameW(0, path, ELEMENTS(path));
+		if (::GetModuleFileNameW(0, path, ELEMENTS(path)) == 0)
+			return FilePath();
 		// Remove the SciTE.exe
 		GUI::gui_char *lastSlash = wcsrchr(path, pathSepChar);
 		if (lastSlash)
@@ -2500,7 +2504,8 @@ void Strip::SetTheme() {
 
 static bool HideKeyboardCues() {
 	BOOL b=FALSE;
-	::SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &b, 0);
+	if (::SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &b, 0) == 0)
+		return FALSE;
 	return !b;
 }
 
@@ -2535,8 +2540,11 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 
 		RECT rcButton = pcd->rc;
 		rcButton.bottom--;
-		::GetThemeBackgroundContentRect(hThemeButton, pcd->hdc, TP_BUTTON,
+		HRESULT hr = ::GetThemeBackgroundContentRect(hThemeButton, pcd->hdc, TP_BUTTON,
 			buttonAppearence, &pcd->rc, &rcButton);
+		if (!SUCCEEDED(hr)) {
+			return CDRF_DODEFAULT;
+		}
 
 		HBITMAP hBitmap = reinterpret_cast<HBITMAP>(::SendMessage(
 			pnmh->hwndFrom, BM_GETIMAGE, IMAGE_BITMAP, 0));
