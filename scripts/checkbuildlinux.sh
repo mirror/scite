@@ -84,6 +84,11 @@ cd ..
 
 cd ScintillaEditPy
 python sepbuild.py
+cd ../../test
+python simpleTests.py
+python lexTests.py
+python performanceTests.py
+cd ../qt/ScintillaEditPy
 python sepbuild.py --clean
 cd ..
 cd ../..
