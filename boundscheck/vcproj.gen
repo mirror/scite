@@ -172,6 +172,12 @@
 				RelativePath="..\..\scintilla\src\CallTip.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\CaseConvert.cxx">
+			</File>
+			<File
+				RelativePath="..\..\scintilla\src\CaseFolder.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\Catalogue.cxx">
 			</File>
 			<File

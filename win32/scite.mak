@@ -108,6 +108,8 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\Accessor.obj \
 	..\..\scintilla\win32\AutoComplete.obj \
 	..\..\scintilla\win32\CallTip.obj \
+	..\..\scintilla\win32\CaseConvert.obj \
+	..\..\scintilla\win32\CaseFolder.obj \
 	..\..\scintilla\win32\Catalogue.obj \
 	..\..\scintilla\win32\CellBuffer.obj \
 	..\..\scintilla\win32\CharacterCategory.obj \
