@@ -5,8 +5,9 @@ from __future__ import with_statement
 
 import os, sys
 
-scintillaDirectory = os.path.join("..", "..", "scintilla", "include")
-sys.path.append(scintillaDirectory)
+scintillaDirectory = os.path.join("..", "..", "scintilla")
+scintillaScriptsDirectory = os.path.join(scintillaDirectory, "scripts")
+sys.path.append(scintillaScriptsDirectory)
 import Face
 
 def cell(s):
@@ -17,7 +18,7 @@ def faceFeatures(out):
 	out.write("<table>\n")
 	out.write("<thead>%s%s%s</thead>\n" % (cell("Command"), cell("Name"), cell("Explanation")))
 	face = Face.Face()
-	face.ReadFromFile(os.path.join(scintillaDirectory, "Scintilla.iface"))
+	face.ReadFromFile(os.path.join(scintillaDirectory, "include", "Scintilla.iface"))
 	texts = []
 	for name in face.features:
 		#~ print name
