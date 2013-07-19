@@ -43,8 +43,8 @@ FileWorker.o: ../src/FileWorker.cxx ../../scintilla/include/Scintilla.h \
  ../src/Utf8_16.h
 IFaceTable.o: ../src/IFaceTable.cxx ../src/IFaceTable.h
 JobQueue.o: ../src/JobQueue.cxx ../../scintilla/include/Scintilla.h \
- ../src/GUI.h ../src/SString.h ../src/FilePath.h ../src/SciTE.h \
- ../src/Mutex.h ../src/JobQueue.h
+ ../src/GUI.h ../src/SString.h ../src/StringHelpers.h ../src/FilePath.h \
+ ../src/PropSetFile.h ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h
 LuaExtension.o: ../src/LuaExtension.cxx \
  ../../scintilla/include/Scintilla.h ../src/GUI.h ../src/SString.h \
  ../src/FilePath.h ../src/StyleWriter.h ../src/Extender.h \
