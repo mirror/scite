@@ -3007,7 +3007,8 @@ void SciTEBase::SetLineNumberWidth() {
 				lineNumWidth = lineNumbersWidth;
 			}
 		}
-
+		if (lineNumWidth < 0)
+			lineNumWidth = 0;
 		// The 4 here allows for spacing: 1 pixel on left and 3 on right.
 		std::string nNines(lineNumWidth, '9');
 		int pixelWidth = 4 + wEditor.CallString(SCI_TEXTWIDTH, STYLE_LINENUMBER, nNines.c_str());
