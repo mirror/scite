@@ -448,6 +448,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 					extender->OnSave(buffers.buffers[iBuffer].AsUTF8().c_str());
 			} else {
 				buffers.buffers[iBuffer].isDirty = false;
+				buffers.buffers[iBuffer].failedSave = false;
 				// Need to make writable and set save point when next receive focus.
 				buffers.AddFuture(iBuffer, Buffer::fdFinishSave);
 				SetBuffersMenu();
@@ -1063,6 +1064,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 				}
 			}
 		} else {
+			CurrentBuffer()->failedSave = true;
 			msg = LocaliseMessage(
 			            "Could not save file '^0'. Save under a different name?", filePath.AsInternal());
 			decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);

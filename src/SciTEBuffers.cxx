@@ -79,7 +79,7 @@ void Buffer::DocumentModified() {
 
 bool Buffer::NeedsSave(int delayBeforeSave) const {
 	time_t now = time(0);
-	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !IsUntitled();
+	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !IsUntitled() && !failedSave;
 }
 
 void Buffer::CompleteLoading() {
@@ -892,6 +892,7 @@ void SciTEBase::New() {
 	UpdateBuffersCurrent();
 	SetBuffersMenu();
 	CurrentBuffer()->isDirty = false;
+	CurrentBuffer()->failedSave = false;
 	CurrentBuffer()->lifeState = Buffer::open;
 	jobQueue.isBuilding = false;
 	jobQueue.isBuilt = false;
