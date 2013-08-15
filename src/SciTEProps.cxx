@@ -869,6 +869,7 @@ void SciTEBase::ReadProperties() {
 	CallChildren(SCI_SETCARETFORE,
 	           ColourOfProperty(props, "caret.fore", ColourRGB(0, 0, 0)));
 
+	CallChildren(SCI_SETMOUSESELECTIONRECTANGULARSWITCH, props.GetInt("selection.rectangular.switch.mouse", 0));
 	CallChildren(SCI_SETMULTIPLESELECTION, props.GetInt("selection.multiple", 1));
 	CallChildren(SCI_SETADDITIONALSELECTIONTYPING, props.GetInt("selection.additional.typing", 1));
 	CallChildren(SCI_SETADDITIONALCARETSBLINK, props.GetInt("caret.additional.blinks", 1));
