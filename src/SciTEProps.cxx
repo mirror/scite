@@ -844,6 +844,7 @@ void SciTEBase::ReadProperties() {
 
 	int tech = props.GetInt("technology");
 	wEditor.Call(SCI_SETTECHNOLOGY, tech);
+	wOutput.Call(SCI_SETTECHNOLOGY, tech);
 
 	codePage = props.GetInt("code.page");
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
@@ -1083,9 +1084,11 @@ void SciTEBase::ReadProperties() {
 
 	bufferedDraw = props.GetInt("buffered.draw", 1);
 	wEditor.Call(SCI_SETBUFFEREDDRAW, bufferedDraw);
+	wOutput.Call(SCI_SETBUFFEREDDRAW, bufferedDraw);
 
 	twoPhaseDraw = props.GetInt("two.phase.draw", 1);
 	wEditor.Call(SCI_SETTWOPHASEDRAW, twoPhaseDraw);
+	wOutput.Call(SCI_SETTWOPHASEDRAW, twoPhaseDraw);
 
 	wEditor.Call(SCI_SETLAYOUTCACHE, props.GetInt("cache.layout", SC_CACHE_CARET));
 	wOutput.Call(SCI_SETLAYOUTCACHE, props.GetInt("output.cache.layout", SC_CACHE_CARET));
