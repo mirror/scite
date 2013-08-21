@@ -1055,6 +1055,19 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_KIX_STRING1",2},
 	{"SCE_KIX_STRING2",3},
 	{"SCE_KIX_VAR",5},
+	{"SCE_KVIRC_COMMENT",1},
+	{"SCE_KVIRC_COMMENTBLOCK",2},
+	{"SCE_KVIRC_DEFAULT",0},
+	{"SCE_KVIRC_FUNCTION",7},
+	{"SCE_KVIRC_FUNCTION_KEYWORD",6},
+	{"SCE_KVIRC_KEYWORD",5},
+	{"SCE_KVIRC_NUMBER",9},
+	{"SCE_KVIRC_OPERATOR",10},
+	{"SCE_KVIRC_STRING",3},
+	{"SCE_KVIRC_STRING_FUNCTION",11},
+	{"SCE_KVIRC_STRING_VARIABLE",12},
+	{"SCE_KVIRC_VARIABLE",8},
+	{"SCE_KVIRC_WORD",4},
 	{"SCE_LISP_COMMENT",1},
 	{"SCE_LISP_DEFAULT",0},
 	{"SCE_LISP_IDENTIFIER",9},
@@ -2296,6 +2309,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_HTML",4},
 	{"SCLEX_INNOSETUP",76},
 	{"SCLEX_KIX",57},
+	{"SCLEX_KVIRC",110},
 	{"SCLEX_LATEX",14},
 	{"SCLEX_LISP",21},
 	{"SCLEX_LITERATEHASKELL",108},
@@ -2761,6 +2775,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"PositionFromLine", 2167, iface_position, {iface_int, iface_void}},
 	{"PositionFromPoint", 2022, iface_position, {iface_int, iface_int}},
 	{"PositionFromPointClose", 2023, iface_position, {iface_int, iface_int}},
+	{"PositionRelative", 2670, iface_position, {iface_position, iface_int}},
 	{"PrivateLexerCall", 4013, iface_int, {iface_int, iface_int}},
 	{"PropertyNames", 4014, iface_int, {iface_void, iface_stringresult}},
 	{"PropertyType", 4015, iface_int, {iface_string, iface_void}},
@@ -3069,8 +3084,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 282,
-	ifaceConstantCount = 2431,
+	ifaceFunctionCount = 283,
+	ifaceConstantCount = 2445,
 	ifacePropertyCount = 212
 };
 
