@@ -1543,6 +1543,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 					return sourceNumber;
 				}
 			}
+			break;
 		}
 	case SCE_ERR_GCC:
 	case SCE_ERR_GCC_INCLUDED_FROM: {
@@ -1580,13 +1581,16 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 				start++;
 			}
 			const char *endPath = strchr(start, '(');
-			ptrdiff_t length = endPath - start;
-			if ((length > 0) && (length < MAX_PATH)) {
-				strncpy(sourcePath, start, length);
-				sourcePath[length] = 0;
+			if (endPath) {
+				ptrdiff_t length = endPath - start;
+				if ((length > 0) && (length < MAX_PATH)) {
+					strncpy(sourcePath, start, length);
+					sourcePath[length] = 0;
+				}
+				endPath++;
+				return atoi(endPath) - 1;
 			}
-			endPath++;
-			return atoi(endPath) - 1;
+			break;
 		}
 	case SCE_ERR_BORLAND: {
 			// Borland
@@ -1652,6 +1656,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 				line += 6;
 				return atoi(line) - 1;
 			}
+			break;
 		}
 	case SCE_ERR_LUA: {
 			// Lua 4 error looks like: last token read: `result' at line 40 in file `Test.lua'
@@ -1675,7 +1680,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 				// Lua 5.1 error looks like: lua.exe: test1.lua:3: syntax error
 				// reuse the GCC error parsing code above!
 				const char* colon = strstr(cdoc, ": ");
-				if (cdoc)
+				if (colon)
 					return DecodeMessage(colon + 2, sourcePath, SCE_ERR_GCC, column);
 			}
 			break;
@@ -1697,6 +1702,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 					return 0;
 				}
 			}
+			break;
 		}
 	case SCE_ERR_PHP: {
 			// PHP error look like: Fatal error: Call to undefined function:  foo() in example.php on line 11
@@ -1752,15 +1758,17 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			 * These are trapped by the MS handler, and are identified OK, so no problem...
 			 */
 			const char *line = strchr(cdoc, '(');
-			const char *file = strchr(line, ':');
-			if (line && file) {
-				file++;
-				const char *endfile = strchr(file, ')');
-				size_t length = endfile - file;
-				strncpy(sourcePath, file, length);
-				sourcePath[length] = '\0';
-				line++;
-				return atoi(line) - 1;
+			if (line) {
+				const char *file = strchr(line, ':');
+				if (file) {
+					file++;
+					const char *endfile = strchr(file, ')');
+					size_t length = endfile - file;
+					strncpy(sourcePath, file, length);
+					sourcePath[length] = '\0';
+					line++;
+					return atoi(line) - 1;
+				}
 			}
 			break;
 		}
