@@ -184,10 +184,10 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 		char lastStyle[MAX_STYLEDEF], deltaStyle[MAX_STYLEDEF];
 		int fontCount = 1, colorCount = 2, i;
 		fputs(RTF_HEADEROPEN RTF_FONTDEFOPEN, fp);
-		strncpy(fonts[0], defaultStyle.font.c_str(), MAX_FONTDEF);
+		StringCopy(fonts[0], defaultStyle.font.c_str());
 		fprintf(fp, RTF_FONTDEF, 0, characterset, defaultStyle.font.c_str());
-		strncpy(colors[0], defaultStyle.fore.c_str(), MAX_COLORDEF);
-		strncpy(colors[1], defaultStyle.back.c_str(), MAX_COLORDEF);
+		StringCopy(colors[0], defaultStyle.fore.c_str());
+		StringCopy(colors[1], defaultStyle.back.c_str());
 
 		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 			sprintf(key, "style.*.%0d", istyle);
@@ -204,7 +204,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 						if (EqualCaseInsensitive(sd.font.c_str(), fonts[i]))
 							break;
 					if (i >= fontCount) {
-						strncpy(fonts[fontCount++], sd.font.c_str(), MAX_FONTDEF);
+						StringCopy(fonts[fontCount++], sd.font.c_str());
 						fprintf(fp, RTF_FONTDEF, i, characterset, sd.font.c_str());
 					}
 					sprintf(lastStyle, RTF_SETFONTFACE "%d", i);
@@ -220,7 +220,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 						if (EqualCaseInsensitive(sd.fore.c_str(), colors[i]))
 							break;
 					if (i >= colorCount)
-						strncpy(colors[colorCount++], sd.fore.c_str(), MAX_COLORDEF);
+						StringCopy(colors[colorCount++], sd.fore.c_str());
 					sprintf(lastStyle + strlen(lastStyle), RTF_SETCOLOR "%d", i);
 				} else {
 					strcat(lastStyle, RTF_SETCOLOR "0");	// Default fore
@@ -235,7 +235,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 						if (EqualCaseInsensitive(sd.back.c_str(), colors[i]))
 							break;
 					if (i >= colorCount)
-						strncpy(colors[colorCount++], sd.back.c_str(), MAX_COLORDEF);
+						StringCopy(colors[colorCount++], sd.back.c_str());
 					sprintf(lastStyle + strlen(lastStyle), RTF_SETBACKGROUND "%d", i);
 				} else {
 					strcat(lastStyle, RTF_SETBACKGROUND "1");	// Default back
@@ -250,7 +250,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 				} else {
 					strcat(lastStyle, defaultStyle.italics ? RTF_ITALIC_ON : RTF_ITALIC_OFF);
 				}
-				strncpy(styles[istyle], lastStyle, MAX_STYLEDEF);
+				StringCopy(styles[istyle], lastStyle);
 			} else {
 				sprintf(styles[istyle], RTF_SETFONTFACE "0" RTF_SETFONTSIZE "%d"
 				        RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"

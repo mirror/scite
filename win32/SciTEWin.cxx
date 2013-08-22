@@ -198,6 +198,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	winPlace.length = 0;
 
 	openWhat[0] = '\0';
+	tooltipText[0] = '\0';
 	modalParameters = false;
 	filterDefault = 1;
 	menuSource = 0;
@@ -1703,7 +1704,7 @@ void SciTEWin::MinimizeToTray() {
 	nid.uCallbackMessage = SCITE_TRAY;
 	nid.hIcon = static_cast<HICON>(
 	                ::LoadImage(hInstance, TEXT("SCITE"), IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
-	lstrcpy(nid.szTip, n);
+	StringCopy(nid.szTip, n);
 	::ShowWindow(MainHWND(), SW_MINIMIZE);
 	if (::Shell_NotifyIcon(NIM_ADD, &nid)) {
 		::ShowWindow(MainHWND(), SW_HIDE);
@@ -2671,7 +2672,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				for (size_t i=0; toggles[i].label; i++) {
 					if (toggles[i].id == idButton) {
 						GUI::gui_string localised = localiser->Text(toggles[i].label);
-						wcscpy(pnmtdi->szText, localised.c_str());
+						StringCopy(pnmtdi->szText, localised.c_str());
 					}
 				}
 				return 0;

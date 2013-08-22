@@ -217,7 +217,8 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
 	GUI::gui_string openFilter = DialogFilterFromProperty(filter);
 
 	if (!openWhat[0]) {
-		wcscpy(openWhat, localiser.Text("Custom Filter").c_str());
+		StringCopy(openWhat, localiser.Text("Custom Filter").c_str());
+		openWhat[ELEMENTS(openWhat)-2] = L'\0';
 		// 2 NULs as there are 2 strings here: the display string and the filter string
 		openWhat[wcslen(openWhat) + 1] = L'\0';
 	}
@@ -277,7 +278,7 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
 		GUI::gui_char saveName[MAX_PATH] = GUI_TEXT("");
 		FilePath savePath = SaveName(ext);
 		if (!savePath.IsUntitled()) {
-			wcscpy(saveName, savePath.AsInternal());
+			StringCopy(saveName, savePath.AsInternal());
 		}
 		OPENFILENAMEW ofn;
 		memset(&ofn, 0, sizeof(ofn));
@@ -379,7 +380,7 @@ void SciTEWin::LoadSessionDialog() {
 
 void SciTEWin::SaveSessionDialog() {
 	GUI::gui_char saveName[MAX_PATH] = GUI_TEXT("\0");
-	wcscpy(saveName, GUI_TEXT("SciTE.session"));
+	StringCopy(saveName, GUI_TEXT("SciTE.session"));
 	OPENFILENAMEW ofn;
 	memset(&ofn, 0, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);

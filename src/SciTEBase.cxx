@@ -4637,7 +4637,7 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 				if (wlArgs[i+1][3] == 'b')
 					gf = static_cast<GrepFlags>(gf | grepBinary);
 				char unquoted[1000];
-				strcpy(unquoted, GUI::UTF8FromString(wlArgs[i+3].c_str()).c_str());
+				StringCopy(unquoted, GUI::UTF8FromString(wlArgs[i+3].c_str()).c_str());
 				UnSlash(unquoted);
 				sptr_t originalEnd = 0;
 				InternalGrep(gf, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2].c_str(), unquoted, originalEnd);

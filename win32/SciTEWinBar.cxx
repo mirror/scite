@@ -179,7 +179,6 @@ void SciTEWin::Notify(SCNotification *notification) {
 	case TTN_GETDISPINFO:
 		// Ask for tooltip text
 		{
-			static GUI::gui_char ttt[MAX_PATH*2 + 1];
 			const GUI::gui_char *ttext = 0;
 			NMTTDISPINFOW *pDispInfo = (NMTTDISPINFOW *)notification;
 			// Toolbar tooltips
@@ -253,16 +252,16 @@ void SciTEWin::Notify(SCNotification *notification) {
 							path.insert(amp, GUI_TEXT("&"));
 							amp += 2;
 						}
-						wcscpy(ttt, path.c_str());
-						pDispInfo->lpszText = const_cast<GUI::gui_char *>(ttt);
+						StringCopy(tooltipText, path.c_str());
+						pDispInfo->lpszText = tooltipText;
 					}
 				}
 				break;
 			}
 			if (ttext) {
 				GUI::gui_string localised = localiser.Text(GUI::UTF8FromString(ttext).c_str());
-				wcscpy(ttt, localised.c_str());
-				pDispInfo->lpszText = ttt;
+				StringCopy(tooltipText, localised.c_str());
+				pDispInfo->lpszText = tooltipText;
 			}
 			break;
 		}
