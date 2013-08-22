@@ -405,7 +405,6 @@ protected:
 	HMODULE hMM;
 
 	// Tab Bar
-	TCITEM tie;
 	HFONT fontTabs;
 
 	/// Preserve focus during deactivation
