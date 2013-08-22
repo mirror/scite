@@ -195,12 +195,15 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	fontTabs = 0;
 	wFocus = 0;
 
+	memset(&winPlace, 0, sizeof(winPlace));
 	winPlace.length = 0;
+	memset(&rcWorkArea, 0, sizeof(rcWorkArea));
 
 	openWhat[0] = '\0';
 	tooltipText[0] = '\0';
 	modalParameters = false;
 	filterDefault = 1;
+	staticBuild = false;
 	menuSource = 0;
 
 	hWriteSubProcess = NULL;
