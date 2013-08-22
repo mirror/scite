@@ -33,6 +33,7 @@
 #include "GUI.h"
 
 #include "SString.h"
+#include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
 
@@ -51,13 +52,11 @@ inline bool IsASpace(unsigned int ch) {
 }
 
 static std::set<std::string> FilterFromString(std::string values) {
+	std::vector<std::string> vsFilter = StringSplit(values, ' ');
 	std::set<std::string> fs;
-	std::istringstream isValues(values);
-	while (!isValues.eof()) {
-		std::string sValue;
-		isValues >> sValue;
-		if (!sValue.empty())
-			fs.insert(sValue);
+	for (std::vector<std::string>::const_iterator it=vsFilter.begin(); it != vsFilter.end(); ++it) {
+		if (!it->empty())
+			fs.insert(*it);
 	}
 	return fs;
 }
