@@ -127,7 +127,7 @@ class SString : protected SContainer {
 	lenpos_t sizeGrowth;	///< Minimum growth size when appending strings
 	enum { sizeGrowthDefault = 64 };
 
-	bool grow(lenpos_t lenNew);
+	void grow(lenpos_t lenNew);
 	SString &assign(const char *sOther, lenpos_t sSize_=measure_length);
 
 public:

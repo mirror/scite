@@ -667,7 +667,7 @@ SString::SString(double d, int precision) : sizeGrowth(sizeGrowthDefault) {
 	sSize = sLen = (s) ? strlen(s) : 0;
 }
 
-bool SString::grow(lenpos_t lenNew) {
+void SString::grow(lenpos_t lenNew) {
 	while (sizeGrowth * 6 < lenNew) {
 		sizeGrowth *= 2;
 	}
@@ -679,7 +679,6 @@ bool SString::grow(lenpos_t lenNew) {
 	s = sNew;
 	s[sLen] = '\0';
 	sSize = lenNew + sizeGrowth;
-	return sNew != 0;
 }
 
 SString &SString::assign(const char *sOther, lenpos_t sSize_) {
@@ -774,16 +773,17 @@ SString &SString::append(const char *sOther, lenpos_t sLenOther, char sep) {
 	}
 	lenpos_t lenNew = sLen + sLenOther + lenSep;
 	// Conservative about growing the buffer: don't do it, unless really needed
-	if ((lenNew < sSize) || (grow(lenNew))) {
-		if (lenSep) {
-			s[sLen] = sep;
-			sLen++;
-		}
-		assert(s);
-		memcpy(&s[sLen], sOther, sLenOther);
-		sLen += sLenOther;
-		s[sLen] = '\0';
+	if (lenNew >= sSize) {
+		grow(lenNew);
 	}
+	if (lenSep) {
+		s[sLen] = sep;
+		sLen++;
+	}
+	assert(s);
+	memcpy(&s[sLen], sOther, sLenOther);
+	sLen += sLenOther;
+	s[sLen] = '\0';
 	return *this;
 }
 
@@ -796,14 +796,15 @@ SString &SString::insert(lenpos_t pos, const char *sOther, lenpos_t sLenOther) {
 	}
 	lenpos_t lenNew = sLen + sLenOther;
 	// Conservative about growing the buffer: don't do it, unless really needed
-	if ((lenNew < sSize) || grow(lenNew)) {
-		lenpos_t moveChars = sLen - pos + 1;
-		for (lenpos_t i = moveChars; i > 0; i--) {
-			s[pos + sLenOther + i - 1] = s[pos + i - 1];
-		}
-		memcpy(s + pos, sOther, sLenOther);
-		sLen = lenNew;
+	if (lenNew >= sSize) {
+		grow(lenNew);
 	}
+	lenpos_t moveChars = sLen - pos + 1;
+	for (lenpos_t i = moveChars; i > 0; i--) {
+		s[pos + sLenOther + i - 1] = s[pos + i - 1];
+	}
+	memcpy(s + pos, sOther, sLenOther);
+	sLen = lenNew;
 	return *this;
 }
 
