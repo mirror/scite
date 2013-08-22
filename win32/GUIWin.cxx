@@ -250,6 +250,7 @@ ElapsedTime::ElapsedTime() {
 		littleBit = timeVal.LowPart;
 	} else {
 		bigBit = clock();
+		littleBit = 0;
 	}
 }
 
