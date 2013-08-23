@@ -1378,6 +1378,18 @@ NameError: mistake
 	comments are selected).
         </td>
       </tr>
+      <tr class="osxonly" id='property-find.indicator'>
+        <td>
+         spell.ignore.<i>filepattern</i>
+        </td>
+        <td>
+          Specifies a list of words that should not be treated as spelling mistakes for a particular filepattern.
+          For example, in HTML, tag names that are not words are common so turn off the spelling highlight with:
+         <div class="example">
+         spell.ignore.*.html=br ul toc valign blockquote kbd thead tr th tbody colspan</div>
+         To turn spell checking completely off for a filepattern use the value *.
+        </td>
+      </tr>
       <tr class="gtkonly" id='property-rectangular.selection.modifier'>
         <td>
            rectangular.selection.modifier
