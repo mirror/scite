@@ -442,8 +442,10 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 				buffers.RemoveInvisible(iBuffer);
 			}
 			if (iBuffer == buffers.Current()) {
-				wEditor.Call(SCI_SETSAVEPOINT);
 				wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
+				if (pathSaved.SameNameAs(CurrentBuffer()->AsInternal())) {
+					wEditor.Call(SCI_SETSAVEPOINT);
+				}
 				if (extender)
 					extender->OnSave(buffers.buffers[iBuffer].AsUTF8().c_str());
 			} else {
@@ -960,12 +962,12 @@ bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
 			if (!(sf & sfSynchronous)) {
 				wEditor.Call(SCI_SETREADONLY, 1);
 				const char *documentBytes = reinterpret_cast<const char *>(wEditor.CallReturnPointer(SCI_GETCHARACTERPOINTER));
-				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, filePath, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
+				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, saveName, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
 				CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 				if (PerformOnNewThread(CurrentBuffer()->pFileWorker)) {
 					retVal = true;
 				} else {
-					GUI::gui_string msg = LocaliseMessage("Failed to save file '^0' as thread could not be started.", filePath.AsInternal());
+					GUI::gui_string msg = LocaliseMessage("Failed to save file '^0' as thread could not be started.", saveName.AsInternal());
 					WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
 				}
 			} else {
