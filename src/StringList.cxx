@@ -48,13 +48,13 @@ static int CompareNCaseInsensitive(const char *a, const char *b, size_t len) {
  * Creates an array that points into each word in the string and puts \0 terminators
  * after each word.
  */
-static char **ArrayFromStringList(char *StringList, int *len, bool onlyLineEnds = false) {
+static char **ArrayFromStringList(char *stringList, int *len, bool onlyLineEnds = false) {
 	int prev = '\n';
 	int words = 0;
 	// For rapid determination of whether a character is a separator, build
 	// a look up table.
 	bool wordSeparator[256];
-	for (int i=0;i<256; i++) {
+	for (int i=0; i<256; i++) {
 		wordSeparator[i] = false;
 	}
 	wordSeparator['\r'] = true;
@@ -63,29 +63,31 @@ static char **ArrayFromStringList(char *StringList, int *len, bool onlyLineEnds 
 		wordSeparator[' '] = true;
 		wordSeparator['\t'] = true;
 	}
-	for (int j = 0; StringList[j]; j++) {
-		int curr = static_cast<unsigned char>(StringList[j]);
+	for (int j = 0; stringList[j]; j++) {
+		int curr = static_cast<unsigned char>(stringList[j]);
 		if (!wordSeparator[curr] && wordSeparator[prev])
 			words++;
 		prev = curr;
 	}
 	char **keywords = new char *[words + 1];
-	words = 0;
-	prev = '\0';
-	size_t slen = strlen(StringList);
-	for (size_t k = 0; k < slen; k++) {
-		if (!wordSeparator[static_cast<unsigned char>(StringList[k])]) {
-			if (!prev) {
-				keywords[words] = &StringList[k];
-				words++;
+	int wordsStore = 0;
+	const size_t slen = strlen(stringList);
+	if (words) {
+		prev = '\0';
+		for (size_t k = 0; k < slen; k++) {
+			if (!wordSeparator[static_cast<unsigned char>(stringList[k])]) {
+				if (!prev) {
+					keywords[wordsStore] = &stringList[k];
+					wordsStore++;
+				}
+			} else {
+				stringList[k] = '\0';
 			}
-		} else {
-			StringList[k] = '\0';
+			prev = stringList[k];
 		}
-		prev = StringList[k];
 	}
-	keywords[words] = &StringList[slen];
-	*len = words;
+	keywords[wordsStore] = &stringList[slen];
+	*len = wordsStore;
 	return keywords;
 }
 
