@@ -640,16 +640,16 @@ protected:
 	bool OpenSelected();
 	void Revert();
 	FilePath SaveName(const char *ext) const;
-	int SaveIfUnsure(bool forceQuestion = false);
-	int SaveIfUnsureAll(bool forceQuestion = false);
-	int SaveIfUnsureForBuilt();
-	bool SaveIfNotOpen(const FilePath &destFile, bool fixCase);
-	void AbandonAutomaticSave();
 	enum SaveFlags {
 	    sfNone = 0, 		// Default
 	    sfProgressVisible = 1, 	// Show in background save strip
 	    sfSynchronous = 16	// Write synchronously blocking UI
 	};
+	int SaveIfUnsure(bool forceQuestion = false, SaveFlags sf = sfProgressVisible);
+	int SaveIfUnsureAll(bool forceQuestion = false);
+	int SaveIfUnsureForBuilt();
+	bool SaveIfNotOpen(const FilePath &destFile, bool fixCase);
+	void AbandonAutomaticSave();
 	bool Save(SaveFlags sf = sfProgressVisible);
 	void SaveAs(const GUI::gui_char *file, bool fixCase);
 	virtual void SaveACopy() = 0;

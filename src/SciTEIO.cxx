@@ -801,7 +801,7 @@ FilePath SciTEBase::SaveName(const char *ext) const {
 	return FilePath(savePath.c_str());
 }
 
-int SciTEBase::SaveIfUnsure(bool forceQuestion) {
+int SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) {
 	if (CurrentBuffer()->pFileWorker) {
 		if (CurrentBuffer()->pFileWorker->IsLoading())
 			// In semi-loaded state so refuse to save
@@ -821,12 +821,12 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion) {
 			}
 			int decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL | MB_ICONQUESTION);
 			if (decision == IDYES) {
-				if (!Save())
+				if (!Save(sf))
 					decision = IDCANCEL;
 			}
 			return decision;
 		} else {
-			if (!Save())
+			if (!Save(sf))
 				return IDCANCEL;
 		}
 	}
