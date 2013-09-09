@@ -89,6 +89,9 @@ UNAME:=$(shell uname -s)
 ifeq ($(UNAME), Linux)
 LIBDL:=-ldl
 endif
+ifneq (,$(findstring GNU,$(UNAME)))
+LIBDL:=-ldl
+endif
 ifeq ($(UNAME), Darwin)
 CXXTFLAGS:=$(CXXTFLAGS) -Dunix
 endif
