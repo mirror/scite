@@ -65,7 +65,7 @@ CFLAGS=-DNDEBUG -Os $(CBASEFLAGS)
 STRIPFLAG="-Wl,-s"
 endif
 
-CXXFLAGS = $(CFLAGS) -Wno-char-subscripts -pedantic -fno-rtti
+CXXFLAGS = $(CFLAGS) -pedantic -fno-rtti
 
 LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid $(UXLIB) $(LUA_LDFLAGS)
 
