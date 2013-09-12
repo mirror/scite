@@ -147,7 +147,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	wrap = false;
 	wrapOutput = false;
 	wrapStyle = SC_WRAP_WORD;
-	isReadOnly = false;
 	openFilesHere = false;
 	fullScreen = false;
 
@@ -2335,7 +2334,7 @@ void SciTEBase::SetTextProperties(
 	char temp[TEMP_LEN];
 
 	std::string ro = GUI::UTF8FromString(localiser.Text("READ"));
-	ps.Set("ReadOnly", isReadOnly ? ro.c_str() : "");
+	ps.Set("ReadOnly", CurrentBuffer()->isReadOnly ? ro.c_str() : "");
 
 	int eolMode = wEditor.Call(SCI_GETEOLMODE);
 	ps.Set("EOLMode", eolMode == SC_EOL_CRLF ? "CR+LF" : (eolMode == SC_EOL_LF ? "LF" : "CR"));
@@ -3434,9 +3433,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_READONLY:
-		isReadOnly = !isReadOnly;
-		CurrentBuffer()->isReadOnly = isReadOnly;
-		wEditor.Call(SCI_SETREADONLY, isReadOnly);
+		CurrentBuffer()->isReadOnly = !CurrentBuffer()->isReadOnly;
+		wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
 		UpdateStatusBar(true);
 		CheckMenus();
 		break;
@@ -4081,7 +4079,7 @@ void SciTEBase::CheckMenus() {
 	CheckMenusClipboard();
 	EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SCI_CANUNDO));
 	EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SCI_CANREDO));
-	EnableAMenuItem(IDM_DUPLICATE, !isReadOnly);
+	EnableAMenuItem(IDM_DUPLICATE, CurrentBuffer()->isReadOnly);
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
 	CheckAMenuItem(IDM_SPLITVERTICAL, splitVertical);
@@ -4089,7 +4087,7 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_OPENFILESHERE, openFilesHere);
 	CheckAMenuItem(IDM_WRAP, wrap);
 	CheckAMenuItem(IDM_WRAPOUTPUT, wrapOutput);
-	CheckAMenuItem(IDM_READONLY, isReadOnly);
+	CheckAMenuItem(IDM_READONLY, CurrentBuffer()->isReadOnly);
 	CheckAMenuItem(IDM_FULLSCREEN, fullScreen);
 	CheckAMenuItem(IDM_VIEWTOOLBAR, tbVisible);
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);

@@ -366,7 +366,7 @@ void SciTEBase::PerformDeferredTasks() {
 }
 
 void SciTEBase::CompleteOpen(OpenCompletion oc) {
-	wEditor.Call(SCI_SETREADONLY, isReadOnly);
+	wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
 
 	if (oc != ocSynchronous) {
 		ReadProperties();
@@ -594,9 +594,8 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		} else {
 			wEditor.Call(SCI_EMPTYUNDOBUFFER);
 		}
-		isReadOnly = props.GetInt("read.only");
-		CurrentBuffer()->isReadOnly = isReadOnly;
-		wEditor.Call(SCI_SETREADONLY, isReadOnly);
+		CurrentBuffer()->isReadOnly = props.GetInt("read.only");
+		wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
 	}
 	RemoveFileFromStack(filePath);
 	DeleteFileStackMenu();

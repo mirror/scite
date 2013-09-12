@@ -451,7 +451,6 @@ protected:
 	bool wrap;
 	bool wrapOutput;
 	int wrapStyle;
-	bool isReadOnly;
 	bool openFilesHere;
 	bool fullScreen;
 	enum { toolMax = 50 };
