@@ -3875,11 +3875,8 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		}
 	}
 
-#ifdef NO_EXTENSIONS
-	Extension *extender = 0;
-#else
+#ifndef NO_EXTENSIONS
 	MultiplexExtension multiExtender;
-	Extension *extender = &multiExtender;
 
 #ifndef NO_LUA
 	multiExtender.RegisterExtension(LuaExtension::Instance());
@@ -3905,6 +3902,11 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
 	uptr_t result;
 	{
+#ifdef NO_EXTENSIONS
+		Extension *extender = 0;
+#else
+		Extension *extender = &multiExtender;
+#endif
 		SciTEWin MainWind(extender);
 		LPTSTR lptszCmdLine = GetCommandLine();
 		if (*lptszCmdLine == '\"') {
