@@ -4045,10 +4045,14 @@ void FindStrip::Creation(GtkWidget *container) {
 	wButtonMarkAll.Create(localiser->Text(textMarkAll), G_CALLBACK(sigMarkAll.Function), this);
 	table.Add(wButtonMarkAll, 1, false, 0, 0);
 
+#if !GTK_CHECK_VERSION(3,4,0)
 	gtk_widget_ensure_style(wButton);
+#endif
 
 	for (int i=0;i<checks;i++) {
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,4,0)
+		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), NULL);
+#elif GTK_CHECK_VERSION(3,0,0)
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), gtk_widget_get_style(wButton.Pointer()));
 #else
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButton.Pointer()->style);
@@ -4215,10 +4219,14 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 			G_CALLBACK(sigReplaceAll.Function), this);
 	tableReplace.Add(wButtonReplaceAll, 1, false, 0, 0);
 
+#if !GTK_CHECK_VERSION(3,4,0)
 	gtk_widget_ensure_style(wButtonFind);
+#endif
 
 	for (int i=0;i<checks;i++) {
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,4,0)
+		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), NULL);
+#elif GTK_CHECK_VERSION(3,0,0)
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), gtk_widget_get_style(wButtonFind.Pointer()));
 #else
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButtonFind.Pointer()->style);
