@@ -675,7 +675,7 @@ protected:
 	void TabSizeCmd();
 	void TabSizeConvertCmd();
 	void TabSizeResponse(int responseID);
-	void FindIncrementSetColour(const GdkColor colourBack);
+	void FindIncrementSetColour(bool valid);
 	void FindIncrementCmd();
 	void FindIncrementCompleteCmd();
 	static gboolean FindIncrementFocusOutSignal(GtkWidget *w);
@@ -4922,12 +4922,23 @@ void SciTEGTK::CreateUI() {
 	UIAvailable();
 }
 
-void SciTEGTK::FindIncrementSetColour(const GdkColor colourBack) {
+void SciTEGTK::FindIncrementSetColour(bool valid) {
 #if GTK_CHECK_VERSION(3,0,0)
-	GdkRGBA colour = {colourBack.red / 65535.0, colourBack.green / 65535.0, colourBack.blue / 65535.0, 1.0 };
-	gtk_widget_override_background_color(GTK_WIDGET(IncSearchEntry), GTK_STATE_FLAG_FOCUSED, &colour);
+	if (valid) {
+		GdkRGBA black = { 0, 0, 0, 1};
+		gtk_widget_override_color(GTK_WIDGET(IncSearchEntry), (GtkStateFlags)GTK_STATE_NORMAL, &black);
+	} else {
+		GdkRGBA red = { 1.0, 0, 0, 1};
+		gtk_widget_override_color(GTK_WIDGET(IncSearchEntry), (GtkStateFlags)GTK_STATE_NORMAL, &red);
+	}
 #else
-	gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &colourBack);
+	if (valid) {
+		GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
+		gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &white);
+	} else {
+		GdkColor red = { 0, 0xFFFF, 0x8888, 0x8888 };
+		gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &red);
+	}
 #endif
 }
 
@@ -4937,13 +4948,7 @@ void SciTEGTK::FindIncrementCmd() {
 	wholeWord = false;
 	if (findWhat != "") {
 		FindNext(false, false);
-		if (!havefound) {
-			GdkColor red = { 0, 0xFFFF, 0x8888, 0x8888 };
-			FindIncrementSetColour(red);
-		} else {
-			GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
-			FindIncrementSetColour(white);
-		}
+		FindIncrementSetColour(havefound);
 	}
 }
 
@@ -4973,8 +4978,7 @@ gboolean SciTEGTK::FindIncrementFocusOutSignal(GtkWidget *w) {
 void SciTEGTK::FindIncrement() {
 	findStrip.Close();
 	replaceStrip.Close();
-	GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
-	FindIncrementSetColour(white);
+	FindIncrementSetColour(true);
 	gtk_widget_show(wIncrementPanel);
 	gtk_widget_grab_focus(GTK_WIDGET(IncSearchEntry));
 	gtk_entry_set_text(GTK_ENTRY(IncSearchEntry), "");
