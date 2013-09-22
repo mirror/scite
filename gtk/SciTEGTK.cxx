@@ -4936,7 +4936,7 @@ void SciTEGTK::FindIncrementSetColour(bool valid) {
 		GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
 		gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &white);
 	} else {
-		GdkColor red = { 0, 0xFFFF, 0x8888, 0x8888 };
+		GdkColor red = { 0, 0xFFFF, 0x6666, 0x6666 };
 		gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &red);
 	}
 #endif
