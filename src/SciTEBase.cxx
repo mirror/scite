@@ -968,7 +968,8 @@ int SciTEBase::MarkAll() {
 	int posFirstFound = FindNext(false, false);
 
 	SString findMark = props.Get("find.mark");
-	if (findMark.length()) {
+	SString findMarkindicator = props.Get("find.mark.indicator");
+	if (findMark.length() || findMarkindicator.length()) {
 		wEditor.Call(SCI_SETINDICATORCURRENT, indicatorMatch);
 		RemoveFindMarks();
 		CurrentBuffer()->findMarks = Buffer::fmMarked;
@@ -980,7 +981,7 @@ int SciTEBase::MarkAll() {
 			marked++;
 			int line = wEditor.Call(SCI_LINEFROMPOSITION, posFound);
 			BookmarkAdd(line);
-			if (findMark.length()) {
+			if (findMark.length() || findMarkindicator.length()) {
 				wEditor.Call(SCI_INDICATORFILLRANGE, posFound, wEditor.Call(SCI_GETTARGETEND) - posFound);
 			}
 			posFound = FindNext(false, false);
