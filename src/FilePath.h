@@ -64,7 +64,6 @@ public:
 	FilePath Extension() const;
 	FilePath Directory() const;
 	void FixName();
-	void LowerCaseExtension();
 	FilePath AbsolutePath() const;
 	FilePath NormalizePath() const;
 	static FilePath GetWorkingDirectory();
