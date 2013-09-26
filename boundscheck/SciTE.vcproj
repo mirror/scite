@@ -683,6 +683,9 @@
 				RelativePath="..\src\StringList.cxx">
 			</File>
 			<File
+				RelativePath="..\win32\Strips.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\Style.cxx">
 			</File>
 			<File
