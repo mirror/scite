@@ -23,8 +23,6 @@ extern const GUI::gui_char propAbbrevFileName[];
 #endif
 #endif
 
-#define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
-
 inline int Minimum(int a, int b) {
 	return (a < b) ? a : b;
 }
@@ -837,6 +835,7 @@ protected:
 	void SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd);
 	void SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last);
 	void SetStyleFor(GUI::ScintillaWindow &win, const char *language);
+	static void SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const IndicatorDefinition &ind);
 	void ReloadProperties();
 
 	void CheckReload();

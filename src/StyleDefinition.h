@@ -40,3 +40,13 @@ int IntFromHexDigit(int ch);
 int IntFromHexByte(const char *hexByte);
 
 Colour ColourFromString(const SString &s);
+
+struct IndicatorDefinition {
+	int style;
+	long colour;
+	int fillAlpha;
+	int outlineAlpha;
+	bool under;
+	IndicatorDefinition(const char *definition);
+	bool ParseIndicatorDefinition(const char *definition);
+};

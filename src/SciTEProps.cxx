@@ -295,6 +295,14 @@ void SciTEBase::SetStyleFor(GUI::ScintillaWindow &win, const char *lang) {
 	SetStyleBlock(win, lang, 0, maxStyle);
 }
 
+void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const IndicatorDefinition &ind) {
+	win.Call(SCI_INDICSETSTYLE, indicator, ind.style);
+	win.Call(SCI_INDICSETFORE, indicator, ind.colour);
+	win.Call(SCI_INDICSETALPHA, indicator, ind.fillAlpha);
+	win.Call(SCI_INDICSETOUTLINEALPHA, indicator, ind.outlineAlpha);
+	win.Call(SCI_INDICSETUNDER, indicator, ind.under);
+}
+
 SString SciTEBase::ExtensionFileName() {
 	if (CurrentBuffer()->overrideExtension.length()) {
 		return CurrentBuffer()->overrideExtension;
@@ -737,18 +745,18 @@ void SciTEBase::ReadProperties() {
 	if (alphaIndicator < 0 || 255 < alphaIndicator) // If invalid value,
 		alphaIndicator = 30; //then set default value.
 	bool underIndicator = props.GetInt("indicators.under", 0) == 1;
-	for (int index = INDIC_CONTAINER; index < indicatorSentinel; ++index) {
-		wEditor.Call(SCI_INDICSETALPHA, index, alphaIndicator);
-		wOutput.Call(SCI_INDICSETALPHA, index, alphaIndicator);
-		wEditor.Call(SCI_INDICSETUNDER, index, underIndicator);
-		wOutput.Call(SCI_INDICSETUNDER, index, underIndicator);
-	}
 
-	SString findMark = props.Get("find.mark");
-	if (findMark.length()) {
-		wEditor.Call(SCI_INDICSETSTYLE, indicatorMatch, INDIC_ROUNDBOX);
-		wEditor.Call(SCI_INDICSETFORE, indicatorMatch, ColourFromString(findMark));
+	SString findIndicatorString = props.Get("find.mark.indicator");
+	IndicatorDefinition findIndicator(findIndicatorString.c_str());
+	if (!findIndicatorString.length()) {
+		findIndicator.style = INDIC_ROUNDBOX;
+		SString findMark = props.Get("find.mark");
+		if (findMark.length())
+			findIndicator.colour = ColourFromString(findMark);
+		findIndicator.fillAlpha = alphaIndicator;
+		findIndicator.under = underIndicator;
 	}
+	SetOneIndicator(wEditor, indicatorMatch, findIndicator);
 
 	closeFind = props.GetInt("find.close.on.find", 1);
 
@@ -1185,17 +1193,21 @@ void SciTEBase::ReadProperties() {
 
 	currentWordHighlight.isEnabled = props.GetInt("highlight.current.word", 0) == 1;
 	if (currentWordHighlight.isEnabled) {
-		SString highlightCurrentWordColourString = props.Get("highlight.current.word.colour");
-		if (highlightCurrentWordColourString.length() == 0) {
-			// Set default colour for highlight.
-			highlightCurrentWordColourString = "#A0A000";
+		SString highlightCurrentWordIndicatorString = props.Get("highlight.current.word.indicator");
+		IndicatorDefinition highlightCurrentWordIndicator(highlightCurrentWordIndicatorString.c_str());
+		if (highlightCurrentWordIndicatorString.length() == 0) {
+			highlightCurrentWordIndicator.style = INDIC_ROUNDBOX;
+			SString highlightCurrentWordColourString = props.Get("highlight.current.word.colour");
+			if (highlightCurrentWordColourString.length() == 0) {
+				// Set default colour for highlight.
+				highlightCurrentWordColourString = "#A0A000";
+			}
+			highlightCurrentWordIndicator.colour = ColourFromString(highlightCurrentWordColourString);
+			highlightCurrentWordIndicator.fillAlpha = alphaIndicator;
+			highlightCurrentWordIndicator.under = underIndicator;
 		}
-		Colour highlightCurrentWordColour = ColourFromString(highlightCurrentWordColourString);
-
-		wEditor.Call(SCI_INDICSETSTYLE, indicatorHightlightCurrentWord, INDIC_ROUNDBOX);
-		wEditor.Call(SCI_INDICSETFORE, indicatorHightlightCurrentWord, highlightCurrentWordColour);
-		wOutput.Call(SCI_INDICSETSTYLE, indicatorHightlightCurrentWord, INDIC_ROUNDBOX);
-		wOutput.Call(SCI_INDICSETFORE, indicatorHightlightCurrentWord, highlightCurrentWordColour);
+		SetOneIndicator(wEditor, indicatorHightlightCurrentWord, highlightCurrentWordIndicator);
+		SetOneIndicator(wOutput, indicatorHightlightCurrentWord, highlightCurrentWordIndicator);
 		currentWordHighlight.isOnlyWithSameStyle = props.GetInt("highlight.current.word.by.style", 0) == 1;
 		HighlightCurrentWord(true);
 	}

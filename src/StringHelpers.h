@@ -11,6 +11,10 @@ int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_
 
 std::string StdStringFromInteger(int i);
 
+// Basic case lowering that converts A-Z to a-z.
+// Does not handle non-ASCII characters.
+void LowerCaseAZ(char *s);
+
 // StringSplit can be expanded over std::string or GUI::gui_string
 template <typename T>
 std::vector<T> StringSplit(const T &text, int separator) {

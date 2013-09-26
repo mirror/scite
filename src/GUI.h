@@ -10,6 +10,8 @@
 #ifndef GUI_H
 #define GUI_H
 
+#define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
+
 namespace GUI {
 
 class Point {

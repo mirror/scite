@@ -1364,13 +1364,26 @@ NameError: mistake
 	colour defined by highlight.current.word.colour. By default, this option is disabled. (See indicators.alpha and indicators.under)
         </td>
       </tr>
+      <tr id='property-highlight.current.word.indicator'>
+        <td>
+          highlight.current.word.indicator
+        </td>
+        <td>
+          If set, defines the appearance of the current word highlight. This is a 
+          <a href="#IndicatorProperty">structured property</a> with multiple attributes similar to:
+         <div class="example">
+              highlight.current.word.indicator=style:roundbox,colour:#0080FF,under,outlinealpha:140,fillalpha:80
+         </div>
+        </td>
+       </tr>
       <tr id='property-highlight.current.word.colour'>
         <td>
-	   highlight.current.word.colour<br />
+           highlight.current.word.colour
         </td>
         <td>
 	The option highlight.current.word.colour defines the colour of highlight.
 	The default value is #A0A000.<br />
+        Overridden by highlight.current.word.indicator.
         </td>
       </tr>
       <tr id='property-highlight.current.word.by.style'>
@@ -1635,13 +1648,27 @@ NameError: mistake
           change in the background colour of the line with the translucency set with bookmark.alpha.
         </td>
        </tr>
+      <tr id='property-find.mark.indicator'>
+        <td>
+          find.mark.indicator
+        </td>
+        <td>
+          If set, then the Mark All command in the Find dialog will draw indicators over
+            each string found. This is a
+            <a href="#IndicatorProperty">structured property</a> with multiple attributes similar to:
+         <div class="example">
+              find.mark.indicator=style:roundbox,colour:#0080FF,under,outlinealpha:140,fillalpha:80
+         </div>
+        </td>
+       </tr>
       <tr id='property-find.mark'>
         <td>
           find.mark
         </td>
         <td>
           If set, then the Mark All command in the Find dialog will draw translucent boxes over
-		    each string found. (See indicators.alpha and indicators.under)
+          each string found. (See indicators.alpha and indicators.under)<br />
+          Overridden by find.mark.indicator.
         </td>
        </tr>
        <tr id='property-indicators.alpha'>
@@ -1649,9 +1676,10 @@ NameError: mistake
           indicators.alpha
         </td>
         <td>
-           This property defines the alpha level for indicators (default value is 30).
-	   The alpha value can range from 0 (completely transparent) to 255 (no transparency).
-	   A value out of this range is ignored and the default one is used.
+          This property defines the alpha level for indicators (default value is 30).
+          The alpha value can range from 0 (completely transparent) to 255 (no transparency).
+          A value out of this range is ignored and the default one is used.<br />
+          Will be overridden by specific indicator definitions such as find.mark.indicator.
         </td>
        </tr>
        <tr id='property-indicators.under'>
@@ -1659,7 +1687,8 @@ NameError: mistake
           indicators.under
         </td>
         <td>
-          If set, the indicators are drawn under text or over (by default, it is over).
+          If set, the indicators are drawn under text or over (by default, it is over).<br />
+          Will be overridden by specific indicator definitions such as find.mark.indicator.
         </td>
        </tr>
        <tr id='property-error.select.line'>
@@ -3923,6 +3952,55 @@ groupundo - yes or no
       <td>moved to put caret at 3UZ of the margin</td>
      </tr>
     </table>
+    <h3 id="IndicatorProperty">
+       Indicator definition
+    </h3>
+    <p>Properties that define indicators look like</p>
+    <div class="example">
+       highlight.current.word.indicator=style:roundbox,colour:#0080FF,under,outlinealpha:140,fillalpha:80</div>
+    <p>The structure uses commas between attributes and a colon between an attribute name and value:</p>
+    <table cellpadding="1" cellspacing="0" border="1" summary="Caret policy">
+     <tr>
+      <th>attribute</th>
+      <th>value</th>
+      <th>default</th>
+     </tr>
+     <tr>
+      <td>style</td>
+      <td>one of plain, squiggle, tt, diagonal, strike, hidden, box, roundbox, straightbox, dash,
+      dots, squigglelow, dotbox, squigglepixmap, or compositionthick.<br />
+      </td>
+      <td>plain</td>
+     </tr>
+     <tr>
+      <td>colour or color</td>
+      <td>a hex colour value preceded by '#' such as #008020.</td>
+      <td>black</td>
+     </tr>
+     <tr>
+      <td>fillalpha</td>
+      <td>the translucency from 0 for completely transparent to 255 for opaque of the fill for roundbox, straightbox and dotbox.</td>
+      <td>30</td>
+     </tr>
+     <tr>
+      <td>outlinealpha</td>
+      <td>the translucency from 0 for completely transparent to 255 for opaque of the outline for roundbox, straightbox and dotbox.</td>
+      <td>50</td>
+     </tr>
+     <tr>
+      <td>under</td>
+      <td>the indicator is drawn under the text.</td>
+      <td>no</td>
+     </tr>
+     <tr>
+      <td>notunder</td>
+      <td>the indicator is drawn over the text.</td>
+      <td>yes</td>
+     </tr>
+    </table>
+    </p>
+    <p>Samples:<br />
+    <img src="SciTEIndicators.png" alt="Indicator samples" /></p>
     <h3 id="NewLanguage">
        Supporting a new language
     </h3>

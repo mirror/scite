@@ -8,9 +8,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <string>
+#include <vector>
+
 #include "Scintilla.h"
 
+#include "GUI.h"
 #include "SString.h"
+#include "StringHelpers.h"
 #include "StyleDefinition.h"
 
 StyleDefinition::StyleDefinition(const char *definition) :
@@ -171,4 +176,84 @@ Colour ColourFromString(const SString &s) {
 	} else {
 		return 0;
 	}
+}
+
+IndicatorDefinition::IndicatorDefinition(const char *definition) :
+	style(INDIC_PLAIN), colour(0), fillAlpha(30), outlineAlpha(50), under(false) {
+	ParseIndicatorDefinition(definition);
+}
+
+bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
+	if (definition == NULL || *definition == '\0') {
+		return false;
+	}
+	struct {
+		const char *name;
+		int value;
+	} indicStyleNames[] = {
+		{ "plain", INDIC_PLAIN },
+		{ "squiggle", INDIC_SQUIGGLE },
+		{ "tt", INDIC_TT },
+		{ "diagonal", INDIC_DIAGONAL },
+		{ "strike", INDIC_STRIKE },
+		{ "hidden", INDIC_HIDDEN },
+		{ "box", INDIC_BOX },
+		{ "roundbox", INDIC_ROUNDBOX },
+		{ "straightbox", INDIC_STRAIGHTBOX },
+		{ "dash", INDIC_DASH },
+		{ "dots", INDIC_DOTS },
+		{ "squigglelow", INDIC_SQUIGGLELOW },
+		{ "dotbox", INDIC_DOTBOX },
+		{ "squigglepixmap", INDIC_SQUIGGLEPIXMAP },
+		{ "compositionthick", INDIC_COMPOSITIONTHICK },
+	};
+
+	std::string val(definition);
+	char *opt = &val[0];
+	LowerCaseAZ(opt);
+	while (opt) {
+		// Find attribute separator
+		char *cpComma = strchr(opt, ',');
+		if (cpComma) {
+			// If found, we terminate the current attribute (opt) string
+			*cpComma = '\0';
+		}
+		// Find attribute name/value separator
+		char *colon = strchr(opt, ':');
+		if (colon) {
+			// If found, we terminate the current attribute name and point on the value
+			*colon++ = '\0';
+		}
+		if (colon && (0 == strcmp(opt, "style"))) {
+			bool found = false;
+			for (size_t i=0;i<ELEMENTS(indicStyleNames);i++) {
+				if ((indicStyleNames[i].name) && (0 == strcmp(colon, indicStyleNames[i].name))) {
+					style = indicStyleNames[i].value;
+					found = true;
+				}
+			}
+			if (!found)
+				style = atoi(colon);
+		}
+		if ((0 == strcmp(opt, "colour")) || (0 == strcmp(opt, "color"))) {
+			colour = ColourFromString(SString(colon));
+		}
+		if (colon && (0 == strcmp(opt, "fillalpha"))) {
+			fillAlpha = atoi(colon);
+		}
+		if (colon && (0 == strcmp(opt, "outlinealpha"))) {
+			outlineAlpha = atoi(colon);
+		}
+		if (0 == strcmp(opt, "under")) {
+			under = true;
+		}
+		if (0 == strcmp(opt, "notunder")) {
+			under = false;
+		}
+		if (cpComma)
+			opt = cpComma + 1;
+		else
+			opt = 0;
+	}
+	return true;
 }

@@ -45,6 +45,15 @@ std::string StdStringFromInteger(int i) {
 	return std::string(number);
 }
 
+void LowerCaseAZ(char *s) {
+	while (*s) {
+		if (*s >= 'A' && *s <= 'Z') {
+			*s = static_cast<char>(*s - 'A' + 'a');
+		}
+		s++;
+	}
+}
+
 /**
  * Convert a string into C string literal form using \a, \b, \f, \n, \r, \t, \v, and \ooo.
  * The return value is a newly allocated character array containing the result.
