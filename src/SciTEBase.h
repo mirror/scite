@@ -383,7 +383,10 @@ protected:
 	enum { importCmdID = IDM_IMPORT };
 	ImportFilter filter;
 
-	enum { indicatorMatch = INDIC_CONTAINER, indicatorHightlightCurrentWord, indicatorSentinel };
+	enum { indicatorMatch = INDIC_CONTAINER,
+		indicatorHightlightCurrentWord,
+		indicatorSpellingMistake,
+		indicatorSentinel };
 	enum { markerBookmark = 1 };
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
