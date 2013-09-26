@@ -72,6 +72,7 @@ typedef void *HTHEME;
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
+#include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"
 #include "Extender.h"

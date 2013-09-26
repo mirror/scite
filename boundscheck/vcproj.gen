@@ -418,6 +418,9 @@
 				RelativePath="..\..\scintilla\lexlib\StyleContext.cxx">
 			</File>
 			<File
+				RelativePath="..\Src\StyleDefinition.cxx">
+			</File>
+			<File
 				RelativePath="..\Src\StyleWriter.cxx">
 			</File>
 			<File

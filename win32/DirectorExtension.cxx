@@ -35,6 +35,7 @@
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
+#include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "Extender.h"
 #include "DirectorExtension.h"

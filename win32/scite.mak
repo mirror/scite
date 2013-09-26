@@ -73,6 +73,7 @@ OBJS=\
 	IFaceTable.obj \
 	DirectorExtension.obj \
 	MultiplexExtension.obj \
+	StyleDefinition.obj \
 	StyleWriter.obj \
 	GUIWin.obj \
 	UniqueInstance.obj \
@@ -101,6 +102,7 @@ OBJSSTATIC=\
 	IFaceTable.obj \
 	DirectorExtension.obj \
 	MultiplexExtension.obj \
+	StyleDefinition.obj \
 	StyleWriter.obj \
 	GUIWin.obj \
 	UniqueInstance.obj \
@@ -270,6 +272,7 @@ DirectorExtension.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/Extender.h \
 	DirectorExtension.h \
@@ -290,6 +293,7 @@ SciTEWin.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -312,6 +316,7 @@ Sc1.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -334,6 +339,7 @@ SciTEWinBar.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -352,6 +358,7 @@ SciTEWinDlg.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -370,6 +377,7 @@ UniqueInstance.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -390,6 +398,7 @@ Exporters.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -433,6 +442,7 @@ SciTEBase.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -464,6 +474,7 @@ Credits.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -480,6 +491,7 @@ SciTEBuffers.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -495,6 +507,7 @@ SciTEIO.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -513,6 +526,7 @@ SciTEProps.obj: \
 	../src/StringHelpers.h \
 	../src/StringList.h \
 	../src/FilePath.h \
+	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \
@@ -525,6 +539,11 @@ StringList.obj: \
 	../src/StringList.cxx \
 	../src/SString.h \
 	../src/StringList.h
+StyleDefinition.obj: \
+	../src/StyleDefinition.cxx \
+	../../scintilla/include/Scintilla.h \
+	../src/SString.h \
+	../src/StyleDefinition.h
 StyleWriter.obj: \
 	../src/StyleWriter.cxx \
 	../../scintilla/include/Scintilla.h \
