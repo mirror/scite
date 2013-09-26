@@ -146,7 +146,7 @@ bool StyleDefinition::IsBold() const {
 	return weight > SC_WEIGHT_NORMAL;
 }
 
-static int IntFromHexDigit(int ch) {
+int IntFromHexDigit(int ch) {
 	if ((ch >= '0') && (ch <= '9')) {
 		return ch - '0';
 	} else if (ch >= 'A' && ch <= 'F') {

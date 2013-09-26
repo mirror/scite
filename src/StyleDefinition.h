@@ -36,6 +36,7 @@ inline Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue)
 	return red | (green << 8) | (blue << 16);
 }
 
+int IntFromHexDigit(int ch);
 int IntFromHexByte(const char *hexByte);
 
 Colour ColourFromString(const SString &s);
