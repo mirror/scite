@@ -65,6 +65,7 @@ protected:
 	bool MouseInClose(GUI::Point pt);
 	void TrackMouse(GUI::Point pt);
 	void SetTheme();
+	virtual LRESULT EditColour(HWND hwnd, HDC hdc);
 	virtual LRESULT CustomDraw(NMHDR *pnmh);
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	virtual void ShowPopup();
@@ -112,8 +113,9 @@ class SearchStrip : public SearchStripBase {
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wButton;
+	HBRUSH hbrNoMatch;
 public:
-	SearchStrip() {
+	SearchStrip() : hbrNoMatch(0) {
 	}
 	virtual void Creation();
 	virtual void Destruction();
@@ -124,6 +126,7 @@ public:
 	virtual bool Command(WPARAM wParam);
 	virtual void Size();
 	virtual void Paint(HDC hDC);
+	virtual LRESULT EditColour(HWND hwnd, HDC hdc);
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 };
 

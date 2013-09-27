@@ -1064,6 +1064,8 @@ void SciTEWin::FindIncrement() {
 	searchStrip.visible = !searchStrip.visible;
 	SizeSubWindows();
 	if (searchStrip.visible) {
+		Sci_CharacterRange cr = GetSelection();
+		searchStartPosition = cr.cpMin;
 		searchStrip.Focus();
 	} else {
 		WindowSetFocus(wEditor);

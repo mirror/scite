@@ -446,6 +446,10 @@ static bool HideKeyboardCues() {
 	return !b;
 }
 
+LRESULT Strip::EditColour(HWND, HDC) {
+	return 0;
+}
+
 LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 	int btnStyle = ::GetWindowLong(pnmh->hwndFrom, GWL_STYLE);
 	if ((btnStyle & BS_AUTOCHECKBOX) != BS_AUTOCHECKBOX) {
@@ -600,6 +604,9 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		ShowPopup();
 		return 0;
 
+	case WM_CTLCOLOREDIT:
+		return EditColour((HWND) lParam, (HDC)wParam);
+
 	case WM_NOTIFY: {
 			NMHDR *pnmh = reinterpret_cast<LPNMHDR>(lParam);
 			if (pnmh->code == static_cast<unsigned int>(NM_CUSTOMDRAW)) {
@@ -716,9 +723,12 @@ void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, int size, 
 	::SendMessage(HwndOf(wProgress), PBM_SETPOS, progress, 0);
 }
 
+static const COLORREF colourNoMatch = RGB(0xff,0x66,0x66);
+
 void SearchStrip::Creation() {
 	Strip::Creation();
 
+	hbrNoMatch = CreateSolidBrush(colourNoMatch);
 	wStaticFind = CreateText(textFindPrompt);
 
 	wText = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), TEXT(""),
@@ -736,6 +746,7 @@ void SearchStrip::Creation() {
 }
 
 void SearchStrip::Destruction() {
+	::DeleteObject(hbrNoMatch);
 	Strip::Destruction();
 }
 
@@ -798,27 +809,14 @@ bool SearchStrip::KeyDown(WPARAM key) {
 }
 
 void SearchStrip::Next(bool select) {
-	SString ffLastWhat = pSearcher->findWhat;
-	pSearcher->findWhat = ControlText(wText);
-
 	if (select) {
-		if (ffLastWhat.length()) {
-			pSearcher->MoveBack(static_cast<int>(ffLastWhat.length()));
-		}
+		pSearcher->MoveBack();
 	}
+	pSearcher->findWhat = ControlText(wText);
 	pSearcher->wholeWord = false;
 	if (pSearcher->FindHasText())
 		pSearcher->FindNext(false, false);
- 	if ((!pSearcher->havefound) &&
-		strncmp(pSearcher->findWhat.c_str(), ffLastWhat.c_str(), ffLastWhat.length()) == 0) {
-		// Could not find string with added character so revert to previous value.
-		pSearcher->findWhat = ffLastWhat;
-		entered++;
-		GUI::gui_string gsPrevious = GUI::StringFromUTF8(ffLastWhat.c_str());
-		::SetWindowText(HwndOf(wText), gsPrevious.c_str());
-		::SendMessage(HwndOf(wText), EM_SETSEL, gsPrevious.length(), gsPrevious.length());
-		entered--;
-	}
+	wText.InvalidateAll();
 }
 
 bool SearchStrip::Command(WPARAM wParam) {
@@ -832,6 +830,17 @@ bool SearchStrip::Command(WPARAM wParam) {
 		return true;
 	}
 	return false;
+}
+
+LRESULT SearchStrip::EditColour(HWND hwnd, HDC hdc) {
+	if (GetDlgItem(static_cast<HWND>(GetID()),IDC_INCFINDTEXT) == hwnd) {
+		if (pSearcher->FindHasText() && !pSearcher->havefound) {
+			SetTextColor(hdc, RGB(0xff,0xff,0xff));
+			SetBkColor(hdc, colourNoMatch);
+			return reinterpret_cast<LRESULT>(hbrNoMatch);
+		}
+	}
+	return 0;
 }
 
 LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {

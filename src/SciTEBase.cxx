@@ -82,6 +82,7 @@ Searcher::Searcher() {
 	wrapFind = true;
 	reverseFind = false;
 
+	searchStartPosition = 0;
 	replacing = false;
 	havefound = false;
 	findInStyle = false;
@@ -1030,10 +1031,8 @@ void SciTEBase::SetReplace(const char *sReplace) {
 	memReplaces.Insert(replaceWhat.c_str());
 }
 
-void SciTEBase::MoveBack(int distance) {
-	Sci_CharacterRange cr = GetSelection();
-	int caret = static_cast<int>(cr.cpMin) - distance;
-	SetSelection(caret, caret);
+void SciTEBase::MoveBack() {
+	SetSelection(searchStartPosition, searchStartPosition);
 }
 
 void SciTEBase::ScrollEditorIfNeeded() {
