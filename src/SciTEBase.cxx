@@ -1031,6 +1031,11 @@ void SciTEBase::SetReplace(const char *sReplace) {
 	memReplaces.Insert(replaceWhat.c_str());
 }
 
+void SciTEBase::SetCaretAsStart() {
+	Sci_CharacterRange cr = GetSelection();
+	searchStartPosition = cr.cpMin;
+}
+
 void SciTEBase::MoveBack() {
 	SetSelection(searchStartPosition, searchStartPosition);
 }

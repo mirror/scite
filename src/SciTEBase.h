@@ -301,6 +301,7 @@ public:
 	virtual void SetFind(const char *sFind) = 0;
 	virtual bool FindHasText() const = 0;
 	virtual void SetReplace(const char *sReplace) = 0;
+	virtual void SetCaretAsStart() = 0;
 	virtual void MoveBack() = 0;
 	virtual void ScrollEditorIfNeeded() = 0;
 
@@ -674,6 +675,7 @@ protected:
 	virtual void SetFind(const char *sFind);
 	virtual bool FindHasText() const;
 	virtual void SetReplace(const char *sReplace);
+	virtual void SetCaretAsStart();
 	virtual void MoveBack();
 	virtual void ScrollEditorIfNeeded();
 	virtual int FindNext(bool reverseDirection, bool showWarnings = true, bool allowRegExp=true);

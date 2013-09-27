@@ -814,8 +814,12 @@ void SearchStrip::Next(bool select) {
 	}
 	pSearcher->findWhat = ControlText(wText);
 	pSearcher->wholeWord = false;
-	if (pSearcher->FindHasText())
+	if (pSearcher->FindHasText()) {
 		pSearcher->FindNext(false, false);
+		if (!select) {
+			pSearcher->SetCaretAsStart();
+		}
+	}
 	wText.InvalidateAll();
 }
 
