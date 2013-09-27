@@ -44,6 +44,8 @@ protected:
 	SIZE closeSize;
 	enum stripCloseState { csNone, csOver, csClicked, csClickedOver } closeState;
 	GUI::Window wToolTip;
+	int entered;
+	int lineHeight;
 
 	GUI::Window CreateText(const char *text);
 	GUI::Window CreateButton(const char *text, int ident, bool check=false);
@@ -57,6 +59,7 @@ protected:
 	virtual void Paint(HDC hDC);
 	virtual bool HasClose() const;
 	GUI::Rectangle CloseArea();
+	virtual int Lines() const;
 	void InvalidateClose();
 	bool MouseInClose(GUI::Point pt);
 	void TrackMouse(GUI::Point pt);
@@ -65,22 +68,20 @@ protected:
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 public:
 	bool visible;
-	Strip() : fontText(0), hTheme(0), capturedMouse(false), closeState(csNone), visible(false) {
+	Strip() : fontText(0), hTheme(0), capturedMouse(false), closeState(csNone), entered(0), lineHeight(20), visible(false) {
 		closeSize.cx = 11;
 		closeSize.cy = 11;
 	}
 	virtual int Height() {
-		return 25;
+		return lineHeight * Lines() + 1;
 	}
 };
 
 class BackgroundStrip : public Strip {
-	int entered;
-	int lineHeight;
 	GUI::Window wExplanation;
 	GUI::Window wProgress;
 public:
-	BackgroundStrip() : entered(0), lineHeight(20) {
+	BackgroundStrip() {
 	}
 	virtual void Creation();
 	virtual void Destruction();
@@ -91,21 +92,16 @@ public:
 	virtual void Size();
 	virtual bool HasClose() const;
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
-	virtual int Height() {
-		return lineHeight + 1;
-	}
 	void SetProgress(const GUI::gui_string &explanation, int size, int progress);
 };
 
 class SearchStrip : public Strip {
-	int entered;
-	int lineHeight;
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wButton;
 	Searcher *pSearcher;
 public:
-	SearchStrip() : entered(0), lineHeight(20), pSearcher(0) {
+	SearchStrip() : pSearcher(0) {
 	}
 	virtual void Creation();
 	virtual void Destruction();
@@ -118,14 +114,9 @@ public:
 	virtual void Size();
 	virtual void Paint(HDC hDC);
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
-	virtual int Height() {
-		return lineHeight + 1;
-	}
 };
 
 class FindStrip : public Strip {
-	int entered;
-	int lineHeight;
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wButton;
@@ -138,7 +129,7 @@ class FindStrip : public Strip {
 	GUI::Window wCheckUp;
 	Searcher *pSearcher;
 public:
-	FindStrip() : entered(0), lineHeight(20), pSearcher(0) {
+	FindStrip() : pSearcher(0) {
 	}
 	virtual void Creation();
 	virtual void Destruction();
@@ -155,14 +146,9 @@ public:
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	void CheckButtons();
 	void Show();
-	virtual int Height() {
-		return lineHeight + 1;
-	}
 };
 
 class ReplaceStrip : public Strip {
-	int entered;
-	int lineHeight;
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wCheckWord;
@@ -178,11 +164,12 @@ class ReplaceStrip : public Strip {
 	GUI::Window wButtonReplaceInSelection;
 	Searcher *pSearcher;
 public:
-	ReplaceStrip() : entered(0), lineHeight(20), pSearcher(0) {
+	ReplaceStrip() : pSearcher(0) {
 	}
 	virtual void Creation();
 	virtual void Destruction();
 	void SetSearcher(Searcher *pSearcher_);
+	virtual int Lines() const;
 	virtual void Close();
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
@@ -195,21 +182,17 @@ public:
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	void CheckButtons();
 	void Show();
-	virtual int Height() {
-		return lineHeight * 2 + 1;
-	}
 };
 
 class StripDefinition;
 
 class UserStrip : public Strip {
-	int entered;
-	int lineHeight;
 	StripDefinition *psd;
 	Extension *extender;
 	SciTEWin *pSciTEWin;
 public:
-	UserStrip() : entered(0), lineHeight(26), psd(0), extender(0), pSciTEWin(0) {
+	UserStrip() : psd(0), extender(0), pSciTEWin(0) {
+		lineHeight = 26;
 	}
 	virtual void Creation();
 	virtual void Destruction();
@@ -220,10 +203,7 @@ public:
 	virtual void Size();
 	virtual bool HasClose() const;
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
-	virtual int Height() {
-		return lineHeight * Lines() + 1;
-	}
-	int Lines() const;
+	virtual int Lines() const;
 	void SetDescription(const char *description);
 	void SetExtender(Extension *extender_);
 	void SetSciTE(SciTEWin *pSciTEWin_);

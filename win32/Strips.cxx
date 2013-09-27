@@ -361,6 +361,10 @@ GUI::Rectangle Strip::CloseArea() {
 	}
 }
 
+int Strip::Lines() const {
+	return 1;
+}
+
 void Strip::InvalidateClose() {
 	GUI::Rectangle rcClose = CloseArea();
 	RECT rc = {
@@ -1118,6 +1122,10 @@ void ReplaceStrip::Destruction() {
 
 void ReplaceStrip::SetSearcher(Searcher *pSearcher_) {
 	pSearcher = pSearcher_;
+}
+
+int ReplaceStrip::Lines() const {
+	return 2;
 }
 
 void ReplaceStrip::Size() {
