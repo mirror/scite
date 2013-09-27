@@ -1033,7 +1033,7 @@ void SciTEBase::SetReplace(const char *sReplace) {
 
 void SciTEBase::SetCaretAsStart() {
 	Sci_CharacterRange cr = GetSelection();
-	searchStartPosition = cr.cpMin;
+	searchStartPosition = static_cast<int>(cr.cpMin);
 }
 
 void SciTEBase::MoveBack() {
