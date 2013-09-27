@@ -59,6 +59,7 @@ protected:
 	virtual void Paint(HDC hDC);
 	virtual bool HasClose() const;
 	GUI::Rectangle CloseArea();
+	GUI::Rectangle LineArea(int line);
 	virtual int Lines() const;
 	void InvalidateClose();
 	bool MouseInClose(GUI::Point pt);
@@ -66,6 +67,7 @@ protected:
 	void SetTheme();
 	virtual LRESULT CustomDraw(NMHDR *pnmh);
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	virtual void ShowPopup();
 public:
 	bool visible;
 	Strip() : fontText(0), hTheme(0), capturedMouse(false), closeState(csNone), entered(0), lineHeight(20), visible(false) {
@@ -95,17 +97,26 @@ public:
 	void SetProgress(const GUI::gui_string &explanation, int size, int progress);
 };
 
-class SearchStrip : public Strip {
+class SearchStripBase : public Strip {
+protected:
+	Searcher *pSearcher;
+public:
+	SearchStripBase() : pSearcher(0) {
+	}
+	void SetSearcher(Searcher *pSearcher_) {
+		pSearcher = pSearcher_;
+	}
+};
+
+class SearchStrip : public SearchStripBase {
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wButton;
-	Searcher *pSearcher;
 public:
-	SearchStrip() : pSearcher(0) {
+	SearchStrip() {
 	}
 	virtual void Creation();
 	virtual void Destruction();
-	void SetSearcher(Searcher *pSearcher_);
 	virtual void Close();
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
@@ -116,7 +127,7 @@ public:
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 };
 
-class FindStrip : public Strip {
+class FindStrip : public SearchStripBase {
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wButton;
@@ -127,19 +138,17 @@ class FindStrip : public Strip {
 	GUI::Window wCheckBE;
 	GUI::Window wCheckWrap;
 	GUI::Window wCheckUp;
-	Searcher *pSearcher;
 public:
-	FindStrip() : pSearcher(0) {
+	FindStrip() {
 	}
 	virtual void Creation();
 	virtual void Destruction();
-	void SetSearcher(Searcher *pSearcher_);
 	virtual void Close();
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
 	void Next(bool markAll, bool invertDirection);
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
-	void ShowPopup();
+	virtual void ShowPopup();
 	virtual bool Command(WPARAM wParam);
 	virtual void Size();
 	virtual void Paint(HDC hDC);
@@ -148,7 +157,7 @@ public:
 	void Show();
 };
 
-class ReplaceStrip : public Strip {
+class ReplaceStrip : public SearchStripBase {
 	GUI::Window wStaticFind;
 	GUI::Window wText;
 	GUI::Window wCheckWord;
@@ -162,19 +171,17 @@ class ReplaceStrip : public Strip {
 	GUI::Window wReplace;
 	GUI::Window wButtonReplace;
 	GUI::Window wButtonReplaceInSelection;
-	Searcher *pSearcher;
 public:
-	ReplaceStrip() : pSearcher(0) {
+	ReplaceStrip() {
 	}
 	virtual void Creation();
 	virtual void Destruction();
-	void SetSearcher(Searcher *pSearcher_);
 	virtual int Lines() const;
 	virtual void Close();
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
-	void ShowPopup();
+	virtual void ShowPopup();
 	void HandleReplaceCommand(int cmd, bool reverseFind = false);
 	virtual bool Command(WPARAM wParam);
 	virtual void Size();

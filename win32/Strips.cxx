@@ -361,6 +361,23 @@ GUI::Rectangle Strip::CloseArea() {
 	}
 }
 
+GUI::Rectangle Strip::LineArea(int line) {
+	GUI::Rectangle rcLine = GetPosition();
+
+	rcLine.bottom -= rcLine.top;
+	rcLine.right -= rcLine.left;
+
+	rcLine.left = 2;
+	rcLine.top = 2 + line * lineHeight;
+	rcLine.right -= 2;
+	rcLine.bottom = rcLine.top + lineHeight - 2;
+
+	if (HasClose())
+		rcLine.right -= closeSize.cx + 2;	// Allow for close box and gap
+
+	return rcLine;
+}
+
 int Strip::Lines() const {
 	return 1;
 }
@@ -579,6 +596,10 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 
+	case WM_CONTEXTMENU:
+		ShowPopup();
+		return 0;
+
 	case WM_NOTIFY: {
 			NMHDR *pnmh = reinterpret_cast<LPNMHDR>(lParam);
 			if (pnmh->code == static_cast<unsigned int>(NM_CUSTOMDRAW)) {
@@ -605,6 +626,9 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	}
 
 	return 0l;
+}
+
+void Strip::ShowPopup() {
 }
 
 void BackgroundStrip::Creation() {
@@ -638,17 +662,7 @@ void BackgroundStrip::Size() {
 	if (!visible)
 		return;
 	Strip::Size();
-	GUI::Rectangle rcArea = GetPosition();
-
-	rcArea.bottom -= rcArea.top;
-	rcArea.right -= rcArea.left;
-
-	rcArea.left = 2;
-	rcArea.top = 2;
-	rcArea.right -= 2;
-	rcArea.bottom -= 2;
-
-	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
+	GUI::Rectangle rcArea = LineArea(0);
 
 	const int progWidth = 200;
 
@@ -688,9 +702,7 @@ bool BackgroundStrip::Command(WPARAM /* wParam */) {
 
 LRESULT BackgroundStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
-
-	return Strip::WndProc(iMessage, wParam, lParam);
-
+		return Strip::WndProc(iMessage, wParam, lParam);
 	} catch (...) {
 	}
 	return 0l;
@@ -727,10 +739,6 @@ void SearchStrip::Destruction() {
 	Strip::Destruction();
 }
 
-void SearchStrip::SetSearcher(Searcher *pSearcher_) {
-	pSearcher = pSearcher_;
-}
-
 void SearchStrip::Close() {
 	entered++;
 	::SetWindowText(HwndOf(wText), TEXT(""));
@@ -743,17 +751,7 @@ void SearchStrip::Size() {
 	if (!visible)
 		return;
 	Strip::Size();
-	GUI::Rectangle rcArea = GetPosition();
-
-	rcArea.bottom -= rcArea.top;
-	rcArea.right -= rcArea.left;
-
-	rcArea.left = 2;
-	rcArea.top = 2;
-	rcArea.right -= 2;
-	rcArea.bottom -= 2;
-
-	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
+	GUI::Rectangle rcArea = LineArea(0);
 
 	GUI::Rectangle rcButton = rcArea;
 	rcButton.top -= 1;
@@ -838,16 +836,7 @@ bool SearchStrip::Command(WPARAM wParam) {
 
 LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
-
-	return Strip::WndProc(iMessage, wParam, lParam);
-
-	/*
-	switch (iMessage) {
-
-	default:
-
-	}
-	*/
+		return Strip::WndProc(iMessage, wParam, lParam);
 	} catch (...) {
 	}
 	return 0l;
@@ -883,25 +872,11 @@ void FindStrip::Destruction() {
 	Strip::Destruction();
 }
 
-void FindStrip::SetSearcher(Searcher *pSearcher_) {
-	pSearcher = pSearcher_;
-}
-
 void FindStrip::Size() {
 	if (!visible)
 		return;
 	Strip::Size();
-	GUI::Rectangle rcArea = GetPosition();
-
-	rcArea.bottom -= rcArea.top;
-	rcArea.right -= rcArea.left;
-
-	rcArea.left = 2;
-	rcArea.top = 2;
-	rcArea.right -= 2;
-	rcArea.bottom -= 2;
-
-	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
+	GUI::Rectangle rcArea = LineArea(0);
 
 	GUI::Rectangle rcButton = rcArea;
 	rcButton.top -= 1;
@@ -949,6 +924,7 @@ void FindStrip::Size() {
 	rcText.right = rcText.left - 4;
 	rcText.left = 4;
 	rcText.top = rcArea.top + 3;
+	rcText.bottom = rcArea.bottom;
 	wStaticFind.SetPosition(rcText);
 
 	::InvalidateRect(Hwnd(), NULL, TRUE);
@@ -1029,16 +1005,7 @@ bool FindStrip::Command(WPARAM wParam) {
 
 LRESULT FindStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
-	switch (iMessage) {
-
-	case WM_CONTEXTMENU:
-		ShowPopup();
-		return 0;
-
-	default:
 		return Strip::WndProc(iMessage, wParam, lParam);
-
-	}
 	} catch (...) {
 	}
 	return 0l;
@@ -1120,10 +1087,6 @@ void ReplaceStrip::Destruction() {
 	Strip::Destruction();
 }
 
-void ReplaceStrip::SetSearcher(Searcher *pSearcher_) {
-	pSearcher = pSearcher_;
-}
-
 int ReplaceStrip::Lines() const {
 	return 2;
 }
@@ -1132,22 +1095,10 @@ void ReplaceStrip::Size() {
 	if (!visible)
 		return;
 	Strip::Size();
-	GUI::Rectangle rcArea = GetPosition();
 
 	int widthCaption = Maximum(WidthControl(wStaticFind), WidthControl(wStaticReplace));
 
-	rcArea.bottom -= rcArea.top;
-	rcArea.right -= rcArea.left;
-
-	rcArea.left = 2;
-	rcArea.top = 2;
-	rcArea.right -= 2;
-	rcArea.bottom -= 4;
-
-	rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
-
-	GUI::Rectangle rcLine = rcArea;
-	rcLine.bottom = rcLine.top + lineHeight - 2;
+	GUI::Rectangle rcLine = LineArea(0);
 
 	int widthButtons = Maximum(WidthControl(wButtonFind), WidthControl(wButtonReplace));
 	int widthLastButtons = Maximum(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
@@ -1187,8 +1138,7 @@ void ReplaceStrip::Size() {
 	rcStatic.top = rcLine.top + 3;
 	wStaticFind.SetPosition(rcStatic);
 
-	rcLine.top = rcLine.top + lineHeight;
-	rcLine.bottom = rcLine.bottom + lineHeight;
+	rcLine = LineArea(1);
 
 	rcButton = rcLine;
 	rcButton.top -= 1;
@@ -1344,16 +1294,7 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 
 LRESULT ReplaceStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
-	switch (iMessage) {
-
-	case WM_CONTEXTMENU:
-		ShowPopup();
-		return 0;
-
-	default:
 		return Strip::WndProc(iMessage, wParam, lParam);
-
-	}
 	} catch (...) {
 	}
 	return 0l;
@@ -1565,9 +1506,7 @@ bool UserStrip::Command(WPARAM wParam) {
 
 LRESULT UserStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
-
-	return Strip::WndProc(iMessage, wParam, lParam);
-
+		return Strip::WndProc(iMessage, wParam, lParam);
 	} catch (...) {
 	}
 	return 0l;
