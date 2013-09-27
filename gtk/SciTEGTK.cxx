@@ -516,6 +516,7 @@ protected:
 
 	GtkWidget *wIncrementPanel;
 	GtkWidget *IncSearchEntry;
+	GtkWidget *IncSearchBtnNext;
 
 	FindStrip findStrip;
 	ReplaceStrip replaceStrip;
@@ -677,7 +678,8 @@ protected:
 	void TabSizeConvertCmd();
 	void TabSizeResponse(int responseID);
 	void FindIncrementSetColour(bool valid);
-	void FindIncrementCmd();
+	void FindIncrementNext(bool select);
+	void FindIncrementChanged();
 	void FindIncrementCompleteCmd();
 	static gboolean FindIncrementFocusOutSignal(GtkWidget *w);
 	static gboolean FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew);
@@ -789,6 +791,7 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	saveFormat = sfSource;
 	wIncrementPanel = 0;
 	IncSearchEntry = 0;
+	IncSearchBtnNext = 0;
 	btnCompile = 0;
 	btnBuild = 0;
 	btnStop = 0;
@@ -4868,7 +4871,7 @@ void SciTEGTK::CreateUI() {
 	splitVertical = props.GetInt("split.vertical", 0);
 	LayoutUI();
 
-	WTable table(1, 2);
+	WTable table(1, 3);
 	wIncrementPanel = table;
 	table.PackInto(GTK_BOX(boxMain), false);
 	table.Label(TranslatedLabel("Find:"));
@@ -4878,10 +4881,17 @@ void SciTEGTK::CreateUI() {
 	Signal<&SciTEGTK::FindIncrementCompleteCmd> sigFindIncrementComplete;
 	g_signal_connect(G_OBJECT(IncSearchEntry),"activate", G_CALLBACK(sigFindIncrementComplete.Function), this);
 	g_signal_connect(G_OBJECT(IncSearchEntry), "key-press-event", G_CALLBACK(FindIncrementEscapeSignal), this);
-	Signal<&SciTEGTK::FindIncrementCmd> sigFindIncrement;
-	g_signal_connect(G_OBJECT(IncSearchEntry),"changed", G_CALLBACK(sigFindIncrement.Function), this);
+	Signal<&SciTEGTK::FindIncrementChanged> sigFindIncrementChanged;
+	g_signal_connect(G_OBJECT(IncSearchEntry),"changed", G_CALLBACK(sigFindIncrementChanged.Function), this);
 	g_signal_connect(G_OBJECT(IncSearchEntry),"focus-out-event", G_CALLBACK(FindIncrementFocusOutSignal), NULL);
 	gtk_widget_show(IncSearchEntry);
+	
+	GUI::gui_string translated = localiser.Text("Find Next");
+	IncSearchBtnNext = gtk_button_new_with_mnemonic(translated.c_str());
+	table.Add(IncSearchBtnNext, 1, false, 5, 1);
+	g_signal_connect(G_OBJECT(IncSearchBtnNext), "clicked",
+		G_CALLBACK(sigFindIncrementComplete.Function), this);
+	gtk_widget_show(IncSearchBtnNext);
 
 	CreateStrips(boxMain);
 
@@ -4943,14 +4953,24 @@ void SciTEGTK::FindIncrementSetColour(bool valid) {
 #endif
 }
 
-void SciTEGTK::FindIncrementCmd() {
+void SciTEGTK::FindIncrementNext(bool select) {
+	if (select) {
+		MoveBack();
+	}
 	const char *lineEntry = gtk_entry_get_text(GTK_ENTRY(IncSearchEntry));
 	findWhat = lineEntry;
 	wholeWord = false;
-	if (findWhat != "") {
+	if (FindHasText()) {
 		FindNext(false, false);
-		FindIncrementSetColour(havefound);
+		if (!select) {
+			SetCaretAsStart();
+		}
 	}
+	FindIncrementSetColour(!FindHasText() || havefound);
+}
+
+void SciTEGTK::FindIncrementChanged() {
+	FindIncrementNext(true);
 }
 
 gboolean SciTEGTK::FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, SciTEGTK *scitew) {
@@ -4963,15 +4983,14 @@ gboolean SciTEGTK::FindIncrementEscapeSignal(GtkWidget *w, GdkEventKey *event, S
 }
 
 void SciTEGTK::FindIncrementCompleteCmd() {
-	gtk_widget_hide(wIncrementPanel);
-	SetFocus(wEditor);
+	FindIncrementNext(false);
 }
 
-gboolean SciTEGTK::FindIncrementFocusOutSignal(GtkWidget *w) {
+gboolean SciTEGTK::FindIncrementFocusOutSignal(GtkWidget *) {
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_widget_hide(gtk_widget_get_parent(w));
+	//gtk_widget_hide(gtk_widget_get_parent(w));
 #else
-	gtk_widget_hide(w->parent);
+	//gtk_widget_hide(w->parent);
 #endif
 	return FALSE;
 }
