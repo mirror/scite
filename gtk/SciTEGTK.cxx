@@ -705,7 +705,7 @@ protected:
 	static void ButtonSignal(GtkWidget *widget, gpointer data);
 	static void MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew);
 	static void CommandSignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
-	static void NotifySignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
+	static void NotifySignal(GtkWidget *w, gint wParam, SCNotification *notification, SciTEGTK *scitew);
 	static gint KeyPress(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
 	static gint KeyRelease(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
 	gint Key(GdkEventKey *event);
@@ -3263,12 +3263,11 @@ void SciTEGTK::MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::CommandSignal(GtkWidget *, gint wParam, gpointer lParam, SciTEGTK *scitew) {
-
 	scitew->Command(wParam, reinterpret_cast<long>(lParam));
 }
 
-void SciTEGTK::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciTEGTK *scitew) {
-	scitew->Notify(reinterpret_cast<SCNotification *>(lParam));
+void SciTEGTK::NotifySignal(GtkWidget *, gint /*wParam*/, SCNotification *notification, SciTEGTK *scitew) {
+	scitew->Notify(notification);
 }
 
 gint SciTEGTK::KeyPress(GtkWidget * /*widget*/, GdkEventKey *event, SciTEGTK *scitew) {
