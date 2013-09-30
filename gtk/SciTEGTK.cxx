@@ -704,7 +704,6 @@ protected:
 	static gint QuitSignal(GtkWidget *w, GdkEventAny *e, SciTEGTK *scitew);
 	static void ButtonSignal(GtkWidget *widget, gpointer data);
 	static void MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew);
-	static void CommandSignal(GtkWidget *w, gint wParam, gpointer lParam, SciTEGTK *scitew);
 	static void NotifySignal(GtkWidget *w, gint wParam, SCNotification *notification, SciTEGTK *scitew);
 	static gint KeyPress(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
 	static gint KeyRelease(GtkWidget *widget, GdkEventKey *event, SciTEGTK *scitew);
@@ -1010,6 +1009,13 @@ void SciTEGTK::UpdateStatusBar(bool bUpdateSlowData) {
 }
 
 void SciTEGTK::Notify(SCNotification *notification) {
+	if (notification->nmhdr.idFrom == IDM_SRCWIN) {
+		if (notification->nmhdr.code == SCN_FOCUSIN)
+			Activate(true);
+		else if (notification->nmhdr.code == SCN_FOCUSOUT)
+			Activate(false);
+	}
+
 	SciTEBase::Notify(notification);
 }
 
@@ -1097,22 +1103,7 @@ bool &SciTEGTK::FlagFromCmd(int cmd) {
 
 void SciTEGTK::Command(unsigned long wParam, long) {
 	int cmdID = ControlIDOfCommand(wParam);
-	int notifyCode = wParam >> 16;
 	switch (cmdID) {
-
-	case IDM_SRCWIN:
-		if (notifyCode == SCEN_SETFOCUS) {
-			Activate(true);
-			CheckMenus();
-		} else if (notifyCode == SCEN_KILLFOCUS) {
-			Activate(false);
-		}
-		break;
-
-	case IDM_RUNWIN:
-		if (notifyCode == SCEN_SETFOCUS)
-			CheckMenus();
-		break;
 
 	case IDM_FULLSCREEN:
 		fullScreen = !fullScreen;
@@ -1139,11 +1130,9 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 		SciTEBase::MenuCommand(cmdID, menuSource);
 		menuSource = 0;
 	}
-	if (notifyCode != SCEN_CHANGE) {
-		// Changes to document produce SCN_UPDATEUI as well as SCEN_CHANGE
-		// and SCN_UPDATEUI updates the status bar but not too frequently.
-		UpdateStatusBar(true);
-	}
+	// Changes to document produce SCN_UPDATEUI which updates the status
+	// bar but not too frequently.
+	UpdateStatusBar(true);
 }
 
 void SciTEGTK::ReadLocalization() {
@@ -3262,10 +3251,6 @@ void SciTEGTK::MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew) {
 	}
 }
 
-void SciTEGTK::CommandSignal(GtkWidget *, gint wParam, gpointer lParam, SciTEGTK *scitew) {
-	scitew->Command(wParam, reinterpret_cast<long>(lParam));
-}
-
 void SciTEGTK::NotifySignal(GtkWidget *, gint /*wParam*/, SCNotification *notification, SciTEGTK *scitew) {
 	scitew->Notify(notification);
 }
@@ -4852,8 +4837,6 @@ void SciTEGTK::CreateUI() {
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
 	wEditor.Call(SCI_USEPOPUP, 0);
 
-	g_signal_connect(G_OBJECT(PWidget(wEditor)), "command",
-	                   G_CALLBACK(CommandSignal), this);
 	g_signal_connect(G_OBJECT(PWidget(wEditor)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
 
@@ -4862,8 +4845,6 @@ void SciTEGTK::CreateUI() {
 	g_object_ref(G_OBJECT(PWidget(wOutput)));
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
 	wOutput.Call(SCI_USEPOPUP, 0);
-	g_signal_connect(G_OBJECT(PWidget(wOutput)), "command",
-	                   G_CALLBACK(CommandSignal), this);
 	g_signal_connect(G_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
 

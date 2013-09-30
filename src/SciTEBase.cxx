@@ -3878,8 +3878,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 			}
 		}
 		break;
-	case SCEN_SETFOCUS:
-	case SCEN_KILLFOCUS:
+
+	case SCN_FOCUSIN:
+	case SCN_FOCUSOUT:
 		CheckMenus();
 		break;
 

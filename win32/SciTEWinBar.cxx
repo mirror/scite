@@ -281,6 +281,13 @@ void SciTEWin::Notify(SCNotification *notification) {
 		}
 		break;
 
+	case SCN_FOCUSIN:
+		if ((notification->nmhdr.idFrom == IDM_SRCWIN) ||
+			(notification->nmhdr.idFrom == IDM_RUNWIN))
+			wFocus = reinterpret_cast<HWND>(notification->nmhdr.hwndFrom);
+		SciTEBase::Notify(notification);
+		break;
+
 	default:     	// Scintilla notification, use default treatment
 		SciTEBase::Notify(notification);
 		break;
