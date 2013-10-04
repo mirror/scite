@@ -3990,7 +3990,7 @@ void SciTEGTK::CreateMenu() {
 	                     100, "/Language/Language", 0, IDM_LANGUAGE, 0);
 	if (props.GetInt("buffers") > 1)
 		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer,
-		                     30, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
+		                     bufferMax - 10, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
 	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
 	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wSciTE)), accelGroup);
 }
