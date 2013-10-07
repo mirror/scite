@@ -107,7 +107,7 @@ LEXPROPS=\
 ../bin/pov.properties ../bin/powerpro.properties ../bin/powershell.properties \
 ../bin/ps.properties ../bin/purebasic.properties ../bin/python.properties \
 ../bin/r.properties ../bin/rebol.properties ../bin/ruby.properties \
-../bin/scriptol.properties ../bin/smalltalk.properties \
+../bin/rust.properties ../bin/scriptol.properties ../bin/smalltalk.properties \
 ../bin/sorcins.properties ../bin/specman.properties ../bin/spice.properties \
 ../bin/sql.properties ../bin/tacl.properties ../bin/tal.properties \
 ../bin/tcl.properties ../bin/tex.properties ../bin/txt2tags.properties \

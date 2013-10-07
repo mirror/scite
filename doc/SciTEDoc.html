@@ -2107,6 +2107,30 @@ NameError: mistake
 	<td>fold.quotes.python</td>
 	<td>This option enables folding multi-line quoted strings when using the Python lexer.</td>
 	</tr>
+	<tr id='property-fold.rust.comment.explicit'>
+	<td>fold.rust.comment.explicit</td>
+	<td>Set this property to 0 to disable folding explicit fold points when fold.comment=1.</td>
+	</tr>
+	<tr id='property-fold.rust.comment.multiline'>
+	<td>fold.rust.comment.multiline</td>
+	<td>Set this property to 0 to disable folding multi-line comments when fold.comment=1.</td>
+	</tr>
+	<tr id='property-fold.rust.explicit.anywhere'>
+	<td>fold.rust.explicit.anywhere</td>
+	<td>Set this property to 1 to enable explicit fold points anywhere, not just in line comments.</td>
+	</tr>
+	<tr id='property-fold.rust.explicit.end'>
+	<td>fold.rust.explicit.end</td>
+	<td>The string to use for explicit fold end points, replacing the standard //}.</td>
+	</tr>
+	<tr id='property-fold.rust.explicit.start'>
+	<td>fold.rust.explicit.start</td>
+	<td>The string to use for explicit fold start points, replacing the standard //{.</td>
+	</tr>
+	<tr id='property-fold.rust.syntax.based'>
+	<td>fold.rust.syntax.based</td>
+	<td>Set this property to 0 to disable syntax based folding.</td>
+	</tr>
 	<tr id='property-fold.sql.at.else'>
 	<td>fold.sql.at.else</td>
 	<td>This option enables SQL folding on a "ELSE" and "ELSIF" line of an IF statement.</td>
@@ -2214,6 +2238,10 @@ NameError: mistake
 	<tr id='property-lexer.python.strings.u'>
 	<td>lexer.python.strings.u</td>
 	<td>Set to 0 to not recognise Python Unicode literals u"x" as used before Python 3.</td>
+	</tr>
+	<tr id='property-lexer.rust.fold.at.else'>
+	<td>lexer.rust.fold.at.else</td>
+	<td>This option enables Rust folding on a "} else {" line of an if statement.</td>
 	</tr>
 	<tr id='property-lexer.sql.allow.dotted.word'>
 	<td>lexer.sql.allow.dotted.word</td>

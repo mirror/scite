@@ -478,6 +478,9 @@
 				RelativePath="..\..\scintilla\lexers\LexRuby.cxx">
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexRust.cxx">
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexScriptol.cxx">
 			</File>
 			<File
