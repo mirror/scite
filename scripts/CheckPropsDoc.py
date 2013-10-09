@@ -16,14 +16,26 @@ try:	# Old Python
 except AttributeError:	# Python 3.x
 	identCharacters = "_*." + string.ascii_letters + string.digits
 
+# These properties are for debugging or for optionally attached features or are archaic
+# and kept to preserve compatibility.
+# lexerpath.*.lpeg is a special case for LPEG lexers associated with Scintillua projects.
+knownDebugOptionalAndArchaicProperties = {
+	"asynchronous.sleep":1,	# Debug
+	"dwell.period":1,	# Debug
+	"bookmark.pixmap":1,	# Debug
+	"lexerpath.*.lpeg":1,	# Option for Scintillua
+	"ipc.director.name":1,	# Archaic
+}
+
 # These properties are either set by SciTE and used (not set) in property files or
 # should only be located in known lexer-specific property files.
 knownOutputAndLexerProperties = {
 	"find.directory":1,
 	"find.what":1,
 	"xml.auto.close.tags":1,
-	"indent.python.colon":1
+	"indent.python.colon":1,
 }
+knownOutputAndLexerProperties.update(knownDebugOptionalAndArchaicProperties)
 
 # Convert all punctuation characters except '_', '*', and '.' into spaces.
 def depunctuate(s):
@@ -119,7 +131,7 @@ print("# Not mentioned in %s" % docFileName)
 identifiersSorted = list(propertyNames.keys())
 identifiersSorted.sort()
 for identifier in identifiersSorted:
-	if not propertyNames[identifier]:
+	if not propertyNames[identifier] and identifier not in knownDebugOptionalAndArchaicProperties:
 		print(identifier)
 
 # Rest flags for searching properties file
