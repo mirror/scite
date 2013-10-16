@@ -715,7 +715,7 @@ SString SciTEBase::GetCTag() {
 	} else if (mustStop == 1 && isdigit(acc[selStart + 1])) {
 		// a Tag can be referenced by line Number also
 		selEnd = selStart += 1;
-		while (isdigit(acc[selEnd]) && (selEnd < lengthDoc)) {
+		while ((selEnd < lengthDoc) && isdigit(acc[selEnd])) {
 			selEnd++;
 		}
 	}
