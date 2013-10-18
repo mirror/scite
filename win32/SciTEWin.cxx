@@ -2148,6 +2148,10 @@ uptr_t SciTEWin::EventLoop() {
 	return msg.wParam;
 }
 
+#if defined(_MSC_VER) && defined(_PREFAST_)
+#pragma warning(disable: 28251)
+#endif
+
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
 	typedef BOOL (WINAPI *SetDllDirectorySig)(LPCTSTR lpPathName);
