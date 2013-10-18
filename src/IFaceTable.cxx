@@ -522,9 +522,13 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_B_ASM",14},
 	{"SCE_B_BINNUMBER",18},
 	{"SCE_B_COMMENT",1},
+	{"SCE_B_COMMENTBLOCK",19},
 	{"SCE_B_CONSTANT",13},
 	{"SCE_B_DATE",8},
 	{"SCE_B_DEFAULT",0},
+	{"SCE_B_DOCBLOCK",21},
+	{"SCE_B_DOCKEYWORD",22},
+	{"SCE_B_DOCLINE",20},
 	{"SCE_B_ERROR",16},
 	{"SCE_B_HEXNUMBER",17},
 	{"SCE_B_IDENTIFIER",7},
@@ -695,6 +699,17 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_DIFF_DELETED",5},
 	{"SCE_DIFF_HEADER",3},
 	{"SCE_DIFF_POSITION",4},
+	{"SCE_DMAP_COMMENT",1},
+	{"SCE_DMAP_DEFAULT",0},
+	{"SCE_DMAP_IDENTIFIER",7},
+	{"SCE_DMAP_NUMBER",2},
+	{"SCE_DMAP_OPERATOR",6},
+	{"SCE_DMAP_STRING1",3},
+	{"SCE_DMAP_STRING2",4},
+	{"SCE_DMAP_STRINGEOL",5},
+	{"SCE_DMAP_WORD",8},
+	{"SCE_DMAP_WORD2",9},
+	{"SCE_DMAP_WORD3",10},
 	{"SCE_D_CHARACTER",12},
 	{"SCE_D_COMMENT",1},
 	{"SCE_D_COMMENTDOC",3},
@@ -2315,6 +2330,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_CSS",38},
 	{"SCLEX_D",79},
 	{"SCLEX_DIFF",16},
+	{"SCLEX_DMAP",112},
 	{"SCLEX_ECL",105},
 	{"SCLEX_EIFFEL",23},
 	{"SCLEX_EIFFELKW",24},
@@ -3111,7 +3127,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 283,
-	ifaceConstantCount = 2469,
+	ifaceConstantCount = 2485,
 	ifacePropertyCount = 214
 };
 
