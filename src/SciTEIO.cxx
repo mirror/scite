@@ -1067,12 +1067,14 @@ bool SciTEBase::Save(SaveFlags sf) {
 				}
 			}
 		} else {
-			CurrentBuffer()->failedSave = true;
-			msg = LocaliseMessage(
-			            "Could not save file '^0'. Save under a different name?", filePath.AsInternal());
-			decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
-			if (decision == IDYES) {
-				return SaveAsDialog();
+			if (!CurrentBuffer()->failedSave) {
+				CurrentBuffer()->failedSave = true;
+				msg = LocaliseMessage(
+					"Could not save file '^0'. Save under a different name?", filePath.AsInternal());
+				decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+				if (decision == IDYES) {
+					return SaveAsDialog();
+				}
 			}
 			return false;
 		}
