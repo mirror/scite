@@ -628,6 +628,7 @@ protected:
 	bool PrepareBufferForSave(FilePath saveName);
 	bool SaveBuffer(FilePath saveName, SaveFlags sf);
 	virtual void SaveAsHTML() = 0;
+	void SaveToStreamRTF(std::ostream &os, int start = 0, int end = -1);
 	void SaveToRTF(FilePath saveName, int start = 0, int end = -1);
 	virtual void SaveAsRTF() = 0;
 	void SaveToPDF(FilePath saveName);

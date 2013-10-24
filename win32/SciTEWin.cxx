@@ -468,31 +468,22 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 
 void SciTEWin::CopyAsRTF() {
 	Sci_CharacterRange cr = GetSelection();
-	char *fileNameTemp = _tempnam(NULL, "scite-tmp-");
-	if (fileNameTemp) {
-		SaveToRTF(GUI::StringFromUTF8(fileNameTemp), cr.cpMin, cr.cpMax);
-		FILE *fp = fopen(fileNameTemp, "rb");
-		if (fp) {
-			fseek(fp, 0, SEEK_END);
-			int len = ftell(fp);
-			fseek(fp, 0, SEEK_SET);
-			HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, len + 1);
-			if (hand) {
-				::OpenClipboard(MainHWND());
-				::EmptyClipboard();
-				char *ptr = static_cast<char *>(::GlobalLock(hand));
-				if (ptr) {
-					fread(ptr, 1, len, fp);
-					ptr[len] = '\0';
-				}
-				::GlobalUnlock(hand);
-				::SetClipboardData(::RegisterClipboardFormat(CF_RTF), hand);
-				::CloseClipboard();
-			}
-			fclose(fp);
+	std::ostringstream oss;
+	SaveToStreamRTF(oss, cr.cpMin, cr.cpMax);
+	std::string rtf = oss.str();
+	size_t len = rtf.length();
+	HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, len + 1);
+	if (hand) {
+		::OpenClipboard(MainHWND());
+		::EmptyClipboard();
+		char *ptr = static_cast<char *>(::GlobalLock(hand));
+		if (ptr) {
+			memcpy(ptr, rtf.c_str(), len);
+			ptr[len] = '\0';
 		}
-		unlink(fileNameTemp);
-		free(fileNameTemp);
+		::GlobalUnlock(hand);
+		::SetClipboardData(::RegisterClipboardFormat(CF_RTF), hand);
+		::CloseClipboard();
 	}
 }
 
