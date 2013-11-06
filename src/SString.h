@@ -20,7 +20,7 @@ public:
 	/** Type of string lengths (sizes) and positions (indexes). */
 	typedef size_t lenpos_t;
 	/** Out of bounds value indicating that the string argument should be measured. */
-	enum { measure_length=0xffffffffU};
+	enum { measure_length=0x7fffffffU};
 
 protected:
 	char *s;				///< The C string
