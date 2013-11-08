@@ -4599,6 +4599,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 		sprintf(tbuff + alen, "%0d", rep);
 	extender->OnMacro("macro", tbuff);
 	delete []tbuff;
+	delete []string1;
 }
 
 /**
