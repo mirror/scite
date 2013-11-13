@@ -1391,7 +1391,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *fileTypes, const char *search, sptr_t &originalEnd) {
 	GUI::ElapsedTime commandTime;
 	if (!(gf & grepStdOut)) {
-		SString os;
+		std::string os;
 		os.append(">Internal search for \"");
 		os.append(search);
 		os.append("\" in \"");
