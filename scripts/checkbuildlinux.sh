@@ -37,6 +37,11 @@ cd ../..
 
 # ************************************************************
 # Target 1: gcc build for GTK+ 2
+cd scintilla/test/unit
+make clean
+make $JOBS test
+cd ../../..
+
 cd scintilla/gtk
 make clean
 make $JOBS CHECK_DEPRECATED=1
