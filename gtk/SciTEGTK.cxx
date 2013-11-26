@@ -488,7 +488,7 @@ protected:
 	int icmd;
 	int originalEnd;
 	int fdFIFO;
-	int pidShell;
+	GPid pidShell;
 	bool triedKill;
 	int exitStatus;
 	guint pollID;
@@ -748,7 +748,7 @@ public:
 	virtual void Execute();
 	virtual void StopExecute();
 	static int PollTool(SciTEGTK *scitew);
-	static void ChildSignal(int);
+	static void ReapChild(GPid, gint, gpointer);
 	virtual bool PerformOnNewThread(Worker *pWorker);
 	virtual void PostOnMainThread(int cmd, Worker *pWorker);
 	static gboolean PostCallback(void *ptr);
@@ -2596,23 +2596,19 @@ gboolean SciTEGTK::IOSignal(GIOChannel *, GIOCondition, SciTEGTK *scitew) {
 	return TRUE;
 }
 
-int xsystem(const char *s, int fh) {
-	int pid = 0;
-	if ((pid = fork()) == 0) {
-		for (int i=getdtablesize();i>=0;--i) if (i != fh) close(i);
-		if (open("/dev/null", O_RDWR) >= 0) { // stdin
-			if (dup(fh) >= 0) { // stdout
-				if (dup(fh) >= 0) { // stderr
-					close(fh);
-					setpgid(0, 0);
-					execlp("/bin/sh", "sh", "-c", s, static_cast<char *>(NULL));
-				}
-			}
-		}
-		_exit(127);
-	}
-	close(fh);
-	return pid;
+void SciTEGTK::ReapChild(GPid pid, gint status, gpointer user_data) {
+	SciTEGTK *self = reinterpret_cast<SciTEGTK*>(user_data);
+
+	self->exitStatus = status;
+	self->pidShell = 0;
+	self->triedKill = false;
+
+	g_spawn_close_pid(pid);
+}
+
+static void SetupChild(gpointer) {
+	dup2(1, 2);
+	setpgid(0, 0);
 }
 
 void SciTEGTK::Execute() {
@@ -2641,28 +2637,35 @@ void SciTEGTK::Execute() {
 	}
 
 	if (jobQueue.jobQueue[icmd].jobType == jobShell) {
-		if (fork() == 0)
-			execlp("/bin/sh", "sh", "-c", jobQueue.jobQueue[icmd].command.c_str(),
-				static_cast<char *>(NULL));
-		else
-			ExecuteNext();
+		const gchar *argv[] = { "/bin/sh", "-c", jobQueue.jobQueue[icmd].command.c_str(), NULL };
+		g_spawn_async(NULL, const_cast<gchar**>(argv), NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL);
+		ExecuteNext();
 	} else if (jobQueue.jobQueue[icmd].jobType == jobExtension) {
 		if (extender)
 			extender->OnExecute(jobQueue.jobQueue[icmd].command.c_str());
 		ExecuteNext();
 	} else {
-		int pipefds[2];
-		if (pipe(pipefds)) {
-			OutputAppendString(">Failed to create FIFO\n");
-			ExecuteNext();
-			return;
-		}
+		GError *error = NULL;
+		gint fdout;
+		const char *argv[] = { "/bin/sh", "-c", jobQueue.jobQueue[icmd].command.c_str(), NULL };
 
-		pidShell = xsystem(jobQueue.jobQueue[icmd].command.c_str(), pipefds[1]);
+		if (!g_spawn_async_with_pipes(
+			NULL, const_cast<gchar**>(argv), NULL,
+			G_SPAWN_DO_NOT_REAP_CHILD, SetupChild, NULL,
+			&pidShell, NULL, &fdout, NULL, &error
+		)) {
+			OutputAppendString(">g_spawn_async_with_pipes: ");
+			OutputAppendString(error->message);
+			OutputAppendString("\n");
+
+			g_error_free(error);
+		}
+		g_child_watch_add(pidShell, SciTEGTK::ReapChild, this);
+
+		fdFIFO = fdout;
 		triedKill = false;
-		fdFIFO = pipefds[0];
 		fcntl(fdFIFO, F_SETFL, fcntl(fdFIFO, F_GETFL) | O_NONBLOCK);
-		inputChannel = g_io_channel_unix_new(pipefds[0]);
+		inputChannel = g_io_channel_unix_new(fdout);
 		inputHandle = g_io_add_watch(inputChannel, G_IO_IN, (GIOFunc)IOSignal, this);
 		// Also add a background task in case there is no output from the tool
 		pollID = g_timeout_add(20, (gint (*)(void *)) SciTEGTK::PollTool, this);
@@ -4865,7 +4868,7 @@ void SciTEGTK::CreateUI() {
 	g_signal_connect(G_OBJECT(IncSearchEntry),"changed", G_CALLBACK(sigFindIncrementChanged.Function), this);
 	g_signal_connect(G_OBJECT(IncSearchEntry),"focus-out-event", G_CALLBACK(FindIncrementFocusOutSignal), NULL);
 	gtk_widget_show(IncSearchEntry);
-	
+
 	GUI::gui_string translated = localiser.Text("Find Next");
 	IncSearchBtnNext = gtk_button_new_with_mnemonic(translated.c_str());
 	table.Add(IncSearchBtnNext, 1, false, 5, 1);
@@ -5228,19 +5231,6 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 #endif
 }
 
-// Avoid zombie detached processes by reaping their exit statuses when
-// they are shut down.
-void SciTEGTK::ChildSignal(int) {
-	int status = 0;
-	int pid = wait(&status);
-	if (instance && (pid == instance->pidShell)) {
-		// If this child is the currently running tool, save the exit status
-		instance->pidShell = 0;
-		instance->triedKill = false;
-		instance->exitStatus = status;
-	}
-}
-
 // Detect if the tool has exited without producing any output
 int SciTEGTK::PollTool(SciTEGTK *scitew) {
 #ifndef GDK_VERSION_3_6
@@ -5264,8 +5254,6 @@ int main(int argc, char *argv[]) {
 	multiExtender.RegisterExtension(DirectorExtension::Instance());
 #endif
 #endif
-
-	signal(SIGCHLD, SciTEGTK::ChildSignal);
 
 	// Initialise threads
 #if !GLIB_CHECK_VERSION(2,31,0)
