@@ -446,8 +446,8 @@ static bool HideKeyboardCues() {
 	return !b;
 }
 
-LRESULT Strip::EditColour(HWND, HDC) {
-	return 0;
+LRESULT Strip::EditColour(HWND hwnd, HDC hdc) {
+	return ::DefWindowProc(Hwnd(), WM_CTLCOLOREDIT, WPARAM(hdc), LPARAM(hwnd));
 }
 
 LRESULT Strip::CustomDraw(NMHDR *pnmh) {
@@ -844,7 +844,7 @@ LRESULT SearchStrip::EditColour(HWND hwnd, HDC hdc) {
 			return reinterpret_cast<LRESULT>(hbrNoMatch);
 		}
 	}
-	return 0;
+	return Strip::EditColour(hwnd, hdc);
 }
 
 LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
