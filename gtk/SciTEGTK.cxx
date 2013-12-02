@@ -2638,7 +2638,7 @@ void SciTEGTK::Execute() {
 
 	if (jobQueue.jobQueue[icmd].jobType == jobShell) {
 		const gchar *argv[] = { "/bin/sh", "-c", jobQueue.jobQueue[icmd].command.c_str(), NULL };
-		g_spawn_async(NULL, const_cast<gchar**>(argv), NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL);
+		g_spawn_async(NULL, const_cast<gchar**>(argv), NULL, GSpawnFlags(0), NULL, NULL, NULL, NULL);
 		ExecuteNext();
 	} else if (jobQueue.jobQueue[icmd].jobType == jobExtension) {
 		if (extender)
