@@ -31,3 +31,4 @@ _UpgradeReport_Files
 UpgradeLog.XML
 bin
 BuildLog.htm
+cov-int
