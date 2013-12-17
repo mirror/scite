@@ -2701,6 +2701,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"DocumentEndExtend", 2319, iface_void, {iface_void, iface_void}},
 	{"DocumentStart", 2316, iface_void, {iface_void, iface_void}},
 	{"DocumentStartExtend", 2317, iface_void, {iface_void, iface_void}},
+	{"DropSelectionN", 2671, iface_void, {iface_int, iface_void}},
 	{"EditToggleOvertype", 2324, iface_void, {iface_void, iface_void}},
 	{"EmptyUndoBuffer", 2175, iface_void, {iface_void, iface_void}},
 	{"EncodedFromUTF8", 2449, iface_int, {iface_string, iface_stringresult}},
@@ -3126,7 +3127,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 283,
+	ifaceFunctionCount = 284,
 	ifaceConstantCount = 2485,
 	ifacePropertyCount = 214
 };
