@@ -2,6 +2,7 @@
 # CheckMentioned.py
 # Find all the properties used in SciTE source files and check if they
 # are mentioned in scite/doc/SciTEDoc.html.
+# Requires Python 2.5 or later
 
 import os
 import string

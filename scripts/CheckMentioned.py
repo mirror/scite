@@ -2,6 +2,7 @@
 # CheckMentioned.py
 # Find all the symbols in scintilla/include/Scintilla.h and check if they
 # are mentioned in scintilla/doc/ScintillaDoc.html.
+# Requires Python 2.7 or later
 
 import string
 

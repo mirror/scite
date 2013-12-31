@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Requires Python 2.5 or later
 
 from __future__ import with_statement
 
