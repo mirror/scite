@@ -510,6 +510,13 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	InitialiseBuffers();
 
 	FilePath absPath = file.AbsolutePath();
+	if (!absPath.IsUntitled() && absPath.IsDirectory()) {
+		GUI::gui_string msg = LocaliseMessage("Path '^0' is a directory so can not be opened.",
+			absPath.AsInternal());
+		WindowMessageBox(wSciTE, msg, MB_ICONWARNING);
+		return false;
+	}
+
 	int index = buffers.GetDocumentByName(absPath);
 	if (index >= 0) {
 		buffers.SetVisible(index, true);
@@ -530,7 +537,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		// Real file, not empty buffer
 		int maxSize = props.GetInt("max.file.size");
 		if (maxSize > 0 && size > maxSize) {
-			GUI::gui_string sSize = GUI::StringFromInteger(static_cast<int>(size));
+			GUI::gui_string sSize = GUI::StringFromInteger(size);
 			GUI::gui_string sMaxSize = GUI::StringFromInteger(maxSize);
 			GUI::gui_string msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
 			        "larger than the ^2 bytes limit set in the properties.\n"
