@@ -163,9 +163,9 @@ std::string UTF8FromString(const gui_string &s) {
 	return std::string(&vc[0], narrowLen);
 }
 
-gui_string StringFromInteger(int i) {
+gui_string StringFromInteger(long i) {
 	char number[32];
-	sprintf(number, "%0d", i);
+	sprintf(number, "%0ld", i);
 	gui_char gnumber[32];
 	size_t n=0;
 	while (number[n]) {

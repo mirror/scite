@@ -69,7 +69,7 @@ typedef std::wstring gui_string;
 
 gui_string StringFromUTF8(const char *s);
 std::string UTF8FromString(const gui_string &s);
-gui_string StringFromInteger(int i);
+gui_string StringFromInteger(long i);
 
 typedef void *WindowID;
 class Window {
