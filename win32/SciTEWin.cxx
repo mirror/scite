@@ -663,9 +663,9 @@ CommandWorker::CommandWorker() : pSciTE(NULL) {
 void CommandWorker::Initialise(bool resetToStart) {
 	if (resetToStart)
 		icmd = 0;
-    originalEnd = 0;
-    exitStatus = 0;
-    flags = 0;
+	originalEnd = 0;
+	exitStatus = 0;
+	flags = 0;
 	seenOutput = false;
 	outputScroll = 1;
 }
