@@ -1408,9 +1408,9 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 		MakeOutputVisible();
 		originalEnd += os.length();
 	}
-	SString searchString(search);
+	std::string searchString(search);
 	if (!(gf & grepMatchCase)) {
-		searchString.lowercase();
+		LowerCaseAZ(searchString);
 	}
 	GrepRecursive(gf, FilePath(directory), searchString.c_str(), fileTypes);
 	if (!(gf & grepStdOut)) {

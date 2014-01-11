@@ -33,6 +33,7 @@ public:
 	void Set(const char *keyVal);
 	void Unset(const char *key, int lenKey=-1);
 	bool Exists(const char *key) const;
+	std::string GetString(const char *key) const;
 	SString Get(const char *key) const;
 	SString Evaluate(const char *key) const;
 	SString GetExpanded(const char *key) const;

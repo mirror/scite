@@ -13,7 +13,7 @@ std::string StdStringFromInteger(int i);
 
 // Basic case lowering that converts A-Z to a-z.
 // Does not handle non-ASCII characters.
-void LowerCaseAZ(char *s);
+void LowerCaseAZ(std::string &s);
 
 // StringSplit can be expanded over std::string or GUI::gui_string
 template <typename T>

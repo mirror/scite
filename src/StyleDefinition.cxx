@@ -209,8 +209,8 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 	};
 
 	std::string val(definition);
+	LowerCaseAZ(val);
 	char *opt = &val[0];
-	LowerCaseAZ(opt);
 	while (opt) {
 		// Find attribute separator
 		char *cpComma = strchr(opt, ',');

@@ -144,6 +144,20 @@ bool PropSetFile::Exists(const char *key) const {
 	}
 }
 
+std::string PropSetFile::GetString(const char *key) const {
+	const std::string sKey(key);
+	const PropSetFile *psf = this;
+	while (psf) {
+		mapss::const_iterator keyPos = psf->props.find(sKey);
+		if (keyPos != psf->props.end()) {
+			return keyPos->second;
+		}
+		// Failed here, so try in base property set
+		psf = psf->superPS;
+	}
+	return "";
+}
+
 SString PropSetFile::Get(const char *key) const {
 	const std::string sKey(key);
 	const PropSetFile *psf = this;

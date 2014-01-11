@@ -270,7 +270,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 		exit(FALSE);
 }
 
-static int CodePageFromName(const SString &encodingName) {
+static int CodePageFromName(const std::string &encodingName) {
 	struct Encoding {
 		const char *name;
 		int codePage;
@@ -315,8 +315,8 @@ static std::string ConvertEncoding(const char *original, int codePage) {
 
 void SciTEWin::ReadLocalization() {
 	SciTEBase::ReadLocalization();
-	SString encoding = localiser.Get("translation.encoding");
-	encoding.lowercase();
+	std::string encoding = localiser.GetString("translation.encoding");
+	LowerCaseAZ(encoding);
 	if (encoding.length()) {
 		int codePage = CodePageFromName(encoding);
 		const char *key = NULL;
@@ -1042,8 +1042,8 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 
 	// guess if cmd is an executable, if this succeeds it can
 	// contain spaces without enclosing it with "
-	SString cmdLower = cmd;
-	cmdLower.lowercase();
+	std::string cmdLower = cmd.c_str();
+	LowerCaseAZ(cmdLower);
 	char *mycmdcopy = StringDup(cmdLower.c_str());
 
 	char *mycmd_end = NULL;

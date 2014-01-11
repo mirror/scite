@@ -10,6 +10,8 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <functional>
 
 #include "Scintilla.h"
 
@@ -45,13 +47,16 @@ std::string StdStringFromInteger(int i) {
 	return std::string(number);
 }
 
-void LowerCaseAZ(char *s) {
-	while (*s) {
-		if (*s >= 'A' && *s <= 'Z') {
-			*s = static_cast<char>(*s - 'A' + 'a');
-		}
-		s++;
+static int LowerCaseAZ(int c) {
+	if (c >= 'A' && c <= 'Z') {
+		return c - 'A' + 'a';
+	} else {
+		return c;
 	}
+}
+
+void LowerCaseAZ(std::string &s) {
+	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(LowerCaseAZ));
 }
 
 /**
