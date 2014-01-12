@@ -380,9 +380,11 @@ void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 					if (fp) {
 						fseek(fp, 0, SEEK_END);
 						long len = ftell(fp);
-						fseek(fp, 0, SEEK_SET);
-						size_t readBytes = fread(buffer + tlen, 1, len, fp);
-						tlen += readBytes;
+						if (len > 0) {
+							fseek(fp, 0, SEEK_SET);
+							size_t readBytes = fread(buffer + tlen, 1, len, fp);
+							tlen += readBytes;
+						}
 						fclose(fp);
 					}
 					apiFileName += strlen(apiFileName) + 1;
