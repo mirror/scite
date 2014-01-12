@@ -493,14 +493,16 @@ void SciTEWin::CopyPath() {
 
 	GUI::gui_string clipText(filePath.AsInternal());
 	size_t blobSize = sizeof(GUI::gui_char)*(clipText.length()+1);
-	HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, blobSize);
-	if (hand && ::OpenClipboard(MainHWND())) {
-		::EmptyClipboard();
-		GUI::gui_char *ptr = static_cast<GUI::gui_char*>(::GlobalLock(hand));
-		if (ptr)
-			memcpy(ptr, clipText.c_str(), blobSize);
-		::GlobalUnlock(hand);
-		::SetClipboardData(CF_UNICODETEXT, hand);
+	if (::OpenClipboard(MainHWND())) {
+		HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, blobSize);
+		if (hand) {
+			::EmptyClipboard();
+			GUI::gui_char *ptr = static_cast<GUI::gui_char*>(::GlobalLock(hand));
+			if (ptr)
+				memcpy(ptr, clipText.c_str(), blobSize);
+			::GlobalUnlock(hand);
+			::SetClipboardData(CF_UNICODETEXT, hand);
+		}
 		::CloseClipboard();
 	}
 }
