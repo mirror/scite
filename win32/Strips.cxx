@@ -7,22 +7,13 @@
 
 #include "SciTEWin.h"
 
-// Take care of 32/64 bit pointers
-#ifdef GetWindowLongPtr
 void *PointerFromWindow(HWND hWnd) {
 	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, 0));
 }
+
 void SetWindowPointer(HWND hWnd, void *ptr) {
 	::SetWindowLongPtr(hWnd, 0, reinterpret_cast<LONG_PTR>(ptr));
 }
-#else
-void *PointerFromWindow(HWND hWnd) {
-	return reinterpret_cast<void *>(::GetWindowLong(hWnd, 0));
-}
-void SetWindowPointer(HWND hWnd, void *ptr) {
-	::SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(ptr));
-}
-#endif
 
 static void SetFontHandle(GUI::Window &w, HFONT hfont) {
 	::SendMessage(HwndOf(w),
