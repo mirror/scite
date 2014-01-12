@@ -48,7 +48,7 @@ static GUI::gui_string ControlGText(GUI::Window w) {
 	return gsText;
 }
 
-static SString ControlText(GUI::Window w) {
+static std::string ControlText(GUI::Window w) {
 	HWND wT = HwndOf(w);
 	int len = ::GetWindowTextLengthW(wT) + 1;
 	std::vector<GUI::gui_char> itemText(len);
@@ -56,7 +56,7 @@ static SString ControlText(GUI::Window w) {
 	if (::GetWindowText(wT, &itemText[0], len)) {
 		gsFind = GUI::gui_string(&itemText[0]);
 	}
-	return GUI::UTF8FromString(gsFind.c_str()).c_str();
+	return GUI::UTF8FromString(gsFind.c_str());
 }
 
 LRESULT PASCAL BaseWin::StWndProc(
@@ -803,7 +803,7 @@ void SearchStrip::Next(bool select) {
 	if (select) {
 		pSearcher->MoveBack();
 	}
-	pSearcher->findWhat = ControlText(wText);
+	pSearcher->SetFindText(ControlText(wText).c_str());
 	pSearcher->wholeWord = false;
 	if (pSearcher->FindHasText()) {
 		pSearcher->FindNext(false, false);
@@ -1626,7 +1626,7 @@ void UserStrip::SetList(int control, const char *value) {
 std::string UserStrip::GetValue(int control) {
 	UserControl *ctl = FindControl(control);
 	if (ctl) {
-		return ControlText(ctl->w).c_str();
+		return ControlText(ctl->w);
 	}
 	return "";
 }

@@ -609,7 +609,7 @@ static const char *bookmarkBluegem[] = {
 };
 
 SString SciTEBase::GetFileNameProperty(const char *name) {
-	SString namePlusDot = name;
+	std::string namePlusDot = name;
 	namePlusDot.append(".");
 	SString valueForFileName = props.GetNewExpand(namePlusDot.c_str(),
 	        ExtensionFileName().c_str());

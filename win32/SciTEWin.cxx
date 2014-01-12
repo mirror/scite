@@ -968,14 +968,14 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			::TerminateProcess(pi.hProcess, 2);
 		}
 		::GetExitCodeProcess(pi.hProcess, &exitcode);
-		SString sExitMessage(static_cast<int>(exitcode));
-		sExitMessage.insert(0, ">Exit code: ");
+		std::ostringstream stExitMessage;
+		stExitMessage << ">Exit code: " << exitcode;
 		if (jobQueue.TimeCommands()) {
-			sExitMessage += "    Time: ";
-			sExitMessage += SString(cmdWorker.commandTime.Duration(), 3);
+			stExitMessage << "    Time: ";
+			stExitMessage << std::setprecision(4) << cmdWorker.commandTime.Duration();
 		}
-		sExitMessage += "\n";
-		OutputAppendStringSynchronised(sExitMessage.c_str());
+		stExitMessage << "\n";
+		OutputAppendStringSynchronised(stExitMessage.str().c_str());
 
 		::CloseHandle(pi.hProcess);
 		::CloseHandle(pi.hThread);

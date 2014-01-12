@@ -1016,10 +1016,14 @@ int SciTEBase::FindInTarget(const char *findWhatText, int lenFind, int startPosi
 	return posFind;
 }
 
-void SciTEBase::SetFind(const char *sFind) {
+void SciTEBase::SetFindText(const char *sFind) {
 	findWhat = sFind;
-	memFinds.Insert(findWhat.c_str());
 	props.Set("find.what", findWhat.c_str());
+}
+
+void SciTEBase::SetFind(const char *sFind) {
+	SetFindText(sFind);
+	memFinds.Insert(findWhat.c_str());
 }
 
 bool SciTEBase::FindHasText() const {

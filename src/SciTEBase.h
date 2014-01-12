@@ -298,6 +298,7 @@ public:
 
 	Searcher();
 
+	virtual void SetFindText(const char *sFind) = 0;
 	virtual void SetFind(const char *sFind) = 0;
 	virtual bool FindHasText() const = 0;
 	virtual void SetReplace(const char *sReplace) = 0;
@@ -673,6 +674,7 @@ protected:
 	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) = 0;
 	virtual void FindMessageBox(const SString &msg, const SString *findItem = 0) = 0;
 	int FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition);
+	virtual void SetFindText(const char *sFind);
 	virtual void SetFind(const char *sFind);
 	virtual bool FindHasText() const;
 	virtual void SetReplace(const char *sReplace);
