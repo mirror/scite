@@ -66,9 +66,12 @@ startFile = """
 <body>
 """
 
-if __name__ == "__main__":
+def RegenerateAll():
 	with open(os.path.join("..", "doc", "CommandValues.html"), "w") as out:
 		out.write(startFile)
 		menuFeatures(out)
 		faceFeatures(out)
 		out.write("</body>\n</html>\n")
+
+if __name__ == "__main__":
+	RegenerateAll()

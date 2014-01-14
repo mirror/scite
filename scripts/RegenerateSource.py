@@ -22,6 +22,8 @@ sys.path.append(srcRoot + "/scintilla/scripts")
 from FileGenerator import Generate, Regenerate, UpdateLineInFile, ReplaceREInFile
 import ScintillaData
 import LexGen
+import IFaceTableGen
+import commandsdoc
 
 def UpdateVersionNumbers(sci, root):
     UpdateLineInFile(root + "scite/src/SciTE.h", "#define VERSION_SCITE",
@@ -84,3 +86,5 @@ def RegenerateAll():
 
 LexGen.RegenerateAll("../../scintilla/")
 RegenerateAll()
+IFaceTableGen.RegenerateAll()
+commandsdoc.RegenerateAll()
