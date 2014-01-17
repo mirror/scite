@@ -189,6 +189,7 @@ protected:
 	RECT rcWorkArea;
 	GUI::gui_char openWhat[200];
 	GUI::gui_char tooltipText[MAX_PATH*2 + 1];
+	bool tbLarge;
 	bool modalParameters;
 	int filterDefault;
 	bool staticBuild;

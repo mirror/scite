@@ -210,6 +210,7 @@ public:
 
 enum {
     heightTools = 24,
+    heightToolsBig = 32,
     heightTab = 24,
     heightStatus = 20,
     statusPosWidth = 256

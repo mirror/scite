@@ -361,7 +361,7 @@ void SciTEWin::SizeSubWindows() {
 	bool showTab = false;
 
 	//::SendMessage(MainHWND(), WM_SETREDRAW, false, 0); // suppress flashing
-	visHeightTools = tbVisible ? heightTools : 0;
+	visHeightTools = tbVisible ? (tbLarge ? heightToolsBig : heightTools) : 0;
 	bands[bandTool].visible = tbVisible;
 
 	if (tabVisible) {	// ? hide one tab only
@@ -882,7 +882,7 @@ void SciTEWin::Creation() {
 	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS | CCS_NORESIZE,
 	               0, 0,
-	               100, heightTools,
+	               100, tbLarge ? heightToolsBig : heightTools,
 	               MainHWND(),
 	               reinterpret_cast<HMENU>(IDM_TOOLWIN),
 	               hInstance,
@@ -890,7 +890,9 @@ void SciTEWin::Creation() {
 	wToolBar = hwndToolBar;
 
 	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
-	::SendMessage(hwndToolBar, TB_LOADIMAGES, IDB_STD_SMALL_COLOR,
+	::SendMessage(hwndToolBar, TB_SETBITMAPSIZE, 0, tbLarge ? MAKELPARAM(24, 24) : MAKELPARAM(16, 16));
+	::SendMessage(hwndToolBar, TB_LOADIMAGES, 
+	              tbLarge ? IDB_STD_LARGE_COLOR : IDB_STD_SMALL_COLOR,
 	              reinterpret_cast<LPARAM>(HINST_COMMCTRL));
 
 	TBADDBITMAP addbmp = { hInstance, IDR_CLOSEFILE };
@@ -1042,7 +1044,7 @@ void SciTEWin::Creation() {
 	              SB_SETPARTS, 1,
 	              reinterpret_cast<LPARAM>(widths));
 
-	bands.push_back(Band(true, heightTools, false, wToolBar));
+	bands.push_back(Band(true, tbLarge ? heightToolsBig : heightTools, false, wToolBar));
 	bands.push_back(Band(true, heightTab, false, wTabBar));
 	bands.push_back(Band(true, 100, true, wContent));
 	bands.push_back(Band(true, userStrip.Height(), false, userStrip));

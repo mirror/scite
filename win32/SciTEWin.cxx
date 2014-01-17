@@ -171,6 +171,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	openWhat[0] = '\0';
 	tooltipText[0] = '\0';
+	tbLarge = false;
 	modalParameters = false;
 	filterDefault = 1;
 	staticBuild = false;
@@ -205,6 +206,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	pathAbbreviations = GetAbbrevPropertiesFileName();
 
 	ReadGlobalPropFile();
+	tbLarge = props.GetInt("toolbar.large");
 	/// Need to copy properties to variables before setting up window
 	SetPropertiesInitial();
 	ReadAbbrevPropFile();
