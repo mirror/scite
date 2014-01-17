@@ -930,6 +930,9 @@ void SciTEBase::ReadProperties() {
 	wOutput.Call(SCI_SETMARGINLEFT, 0, blankMarginLeft);
 	wOutput.Call(SCI_SETMARGINRIGHT, 0, blankMarginRight);
 
+	marginWidth = props.GetInt("margin.width");
+	if (marginWidth == 0)
+		marginWidth = marginWidthDefault;
 	wEditor.Call(SCI_SETMARGINWIDTHN, 1, margin ? marginWidth : 0);
 
 	SString lineMarginProp = props.Get("line.margin.width");
@@ -1072,6 +1075,9 @@ void SciTEBase::ReadProperties() {
 	// Create a margin column for the folding symbols
 	wEditor.Call(SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
 
+	foldMarginWidth = props.GetInt("fold.margin.width");
+	if (foldMarginWidth == 0)
+		foldMarginWidth = foldMarginWidthDefault;
 	wEditor.Call(SCI_SETMARGINWIDTHN, 2, foldMargin ? foldMarginWidth : 0);
 
 	wEditor.Call(SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
@@ -1343,17 +1349,8 @@ void SciTEBase::SetPropertiesInitial() {
 	tabVisible = props.GetInt("tabbar.visible");
 	tabMultiLine = props.GetInt("tabbar.multiline");
 	lineNumbers = props.GetInt("line.margin.visible");
-	marginWidth = 0;
-	SString margwidth = props.Get("margin.width");
-	if (margwidth.length())
-		marginWidth = margwidth.value();
-	margin = marginWidth;
-	if (marginWidth == 0)
-		marginWidth = marginWidthDefault;
-	foldMarginWidth = props.GetInt("fold.margin.width", foldMarginWidthDefault);
-	foldMargin = foldMarginWidth;
-	if (foldMarginWidth == 0)
-		foldMarginWidth = foldMarginWidthDefault;
+	margin = props.GetInt("margin.width");
+	foldMargin = props.GetInt("fold.margin.width");
 
 	matchCase = props.GetInt("find.replace.matchcase");
 	regExp = props.GetInt("find.replace.regexp");
