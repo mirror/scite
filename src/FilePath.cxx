@@ -209,7 +209,7 @@ FilePath FilePath::BaseName() const {
 		} else {
 			return FilePath(fileName.substr(dirEnd + 1));
 		}
-	} else if (extStart) {
+	} else if (extStart != GUI::gui_string::npos) {
 		return FilePath(fileName.substr(0, extStart));
 	} else {
 		return fileName;
