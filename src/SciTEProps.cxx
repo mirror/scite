@@ -1350,7 +1350,7 @@ void SciTEBase::SetPropertiesInitial() {
 	tabMultiLine = props.GetInt("tabbar.multiline");
 	lineNumbers = props.GetInt("line.margin.visible");
 	margin = props.GetInt("margin.width");
-	foldMargin = props.GetInt("fold.margin.width");
+	foldMargin = props.GetInt("fold.margin.width", foldMarginWidthDefault);
 
 	matchCase = props.GetInt("find.replace.matchcase");
 	regExp = props.GetInt("find.replace.regexp");
