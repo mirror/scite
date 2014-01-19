@@ -1781,9 +1781,24 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 	return 0;
 }
 
-LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	int statusFailure = 0;
+void SciTEWin::CheckForScintillaFailure(int statusFailure) {
 	static int boxesVisible = 0;
+	if ((statusFailure > 0) && (boxesVisible == 0)) {
+		boxesVisible++;
+		char buff[200];
+		if (statusFailure == SC_STATUS_BADALLOC) {
+			strcpy(buff, "Memory exhausted.");
+		} else {
+			sprintf(buff, "Scintilla failed with status %d.", statusFailure);
+		}
+		strcat(buff, " SciTE will now close.");
+		GUI::gui_string sMessage = GUI::StringFromUTF8(buff);
+		::MessageBox(MainHWND(), sMessage.c_str(), TEXT("Failure in Scintilla"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
+		exit(FALSE);
+	}
+}
+
+LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
 		LRESULT uim = uniqueInstance.CheckMessage(iMessage, wParam, lParam);
 		if (uim != 0) {
@@ -1938,20 +1953,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 		}
 	} catch (GUI::ScintillaFailure &sf) {
-		statusFailure = static_cast<int>(sf.status);
-	}
-	if ((statusFailure > 0) && (boxesVisible == 0)) {
-		boxesVisible++;
-		char buff[200];
-		if (statusFailure == SC_STATUS_BADALLOC) {
-			strcpy(buff, "Memory exhausted.");
-		} else {
-			sprintf(buff, "Scintilla failed with status %d.", statusFailure);
-		}
-		strcat(buff, " SciTE will now close.");
-		GUI::gui_string sMessage = GUI::StringFromUTF8(buff);
-		::MessageBox(MainHWND(), sMessage.c_str(), TEXT("Failure in Scintilla"), MB_OK | MB_ICONERROR | MB_APPLMODAL);
-		exit(FALSE);
+		CheckForScintillaFailure(static_cast<int>(sf.status));
 	}
 	return 0l;
 }
@@ -2171,7 +2173,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);
 #endif
 
-	uptr_t result;
+	uptr_t result = 0;
 	{
 #ifdef NO_EXTENSIONS
 		Extension *extender = 0;
@@ -2192,8 +2194,12 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		}
 		while (*lptszCmdLine == ' ')
 			lptszCmdLine++;
-		MainWind.Run(lptszCmdLine);
-		result = MainWind.EventLoop();
+		try {
+			MainWind.Run(lptszCmdLine);
+			result = MainWind.EventLoop();
+		} catch (GUI::ScintillaFailure &sf) {
+			MainWind.CheckForScintillaFailure(static_cast<int>(sf.status));
+		}
 	}
 
 #ifdef STATIC_BUILD

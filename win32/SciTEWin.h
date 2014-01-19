@@ -395,6 +395,7 @@ public:
 	LRESULT KeyUp(WPARAM wParam);
 	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true);
 	LRESULT ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	void CheckForScintillaFailure(int statusFailure);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	virtual SString EncodeString(const SString &s);
