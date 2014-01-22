@@ -1170,9 +1170,9 @@ void SciTEBase::ReadProperties() {
 	}
 
 	wEditor.Call(SCI_MARKERSETFORE, markerBookmark,
-		ColourOfProperty(props, "bookmark.fore", ColourRGB(0, 0, 0x7f)));
+		ColourOfProperty(props, "bookmark.fore", ColourRGB(0xbe, 0, 0)));
 	wEditor.Call(SCI_MARKERSETBACK, markerBookmark,
-		ColourOfProperty(props, "bookmark.back", ColourRGB(0x80, 0xff, 0xff)));
+		ColourOfProperty(props, "bookmark.back", ColourRGB(0xe2, 0x40, 0x40)));
 	wEditor.Call(SCI_MARKERSETALPHA, markerBookmark,
 		props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA));
 	SString bookMarkXPM = props.Get("bookmark.pixmap");
@@ -1180,7 +1180,7 @@ void SciTEBase::ReadProperties() {
 		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
 			bookMarkXPM.c_str());
 	} else if (props.Get("bookmark.fore").length()) {
-		wEditor.Call(SCI_MARKERDEFINE, markerBookmark, SC_MARK_CIRCLE);
+		wEditor.Call(SCI_MARKERDEFINE, markerBookmark, SC_MARK_BOOKMARK);
 	} else {
 		// No bookmark.fore setting so display default pixmap.
 		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
