@@ -2517,6 +2517,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_MARK_ARROWS",24},
 	{"SC_MARK_AVAILABLE",28},
 	{"SC_MARK_BACKGROUND",22},
+	{"SC_MARK_BOOKMARK",31},
 	{"SC_MARK_BOXMINUS",14},
 	{"SC_MARK_BOXMINUSCONNECTED",15},
 	{"SC_MARK_BOXPLUS",12},
@@ -3130,7 +3131,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 284,
-	ifaceConstantCount = 2486,
+	ifaceConstantCount = 2487,
 	ifacePropertyCount = 215
 };
 
