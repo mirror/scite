@@ -108,8 +108,8 @@ rem
 rem ************************************************************
 rem Target 12: cppcheck
 REM ~ call scite\scripts\clearboth
-REM ~ cppcheck -j 8 --enable=all --suppressions scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
-REM ~ cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include --template=gcc --quiet scite
+cppcheck -j 8 --enable=all --suppressions scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
+cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include --template=gcc --quiet scite
 rem
 rem Finished
 call scite\scripts\clearboth
