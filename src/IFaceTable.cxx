@@ -2609,6 +2609,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_WRAPVISUALFLAG_START",0x0002},
 	{"SC_WRAP_CHAR",2},
 	{"SC_WRAP_NONE",0},
+	{"SC_WRAP_WHITESPACE",3},
 	{"SC_WRAP_WORD",1},
 	{"STYLE_BRACEBAD",35},
 	{"STYLE_BRACELIGHT",34},
@@ -3131,7 +3132,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 284,
-	ifaceConstantCount = 2487,
+	ifaceConstantCount = 2488,
 	ifacePropertyCount = 215
 };
 
