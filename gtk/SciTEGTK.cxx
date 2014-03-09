@@ -4917,23 +4917,7 @@ void SciTEGTK::CreateUI() {
 }
 
 void SciTEGTK::FindIncrementSetColour(bool valid) {
-#if GTK_CHECK_VERSION(3,0,0)
-	if (valid) {
-		GdkRGBA black = { 0, 0, 0, 1};
-		gtk_widget_override_color(GTK_WIDGET(IncSearchEntry), (GtkStateFlags)GTK_STATE_NORMAL, &black);
-	} else {
-		GdkRGBA red = { 1.0, 0, 0, 1};
-		gtk_widget_override_color(GTK_WIDGET(IncSearchEntry), (GtkStateFlags)GTK_STATE_NORMAL, &red);
-	}
-#else
-	if (valid) {
-		GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
-		gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &white);
-	} else {
-		GdkColor red = { 0, 0xFFFF, 0x6666, 0x6666 };
-		gtk_widget_modify_base(GTK_WIDGET(IncSearchEntry), GTK_STATE_NORMAL, &red);
-	}
-#endif
+	WEntry::SetValid(GTK_ENTRY(IncSearchEntry), valid);
 }
 
 void SciTEGTK::FindIncrementNext(bool select) {

@@ -47,6 +47,7 @@ public:
 	const GUI::gui_char *Text();
 	int Value();
 	void SetText(const GUI::gui_char *text);
+	static void SetValid(GtkEntry *entry, bool valid);
 };
 
 class WComboBoxEntry : public WBase {

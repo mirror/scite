@@ -73,6 +73,26 @@ void WEntry::SetText(const GUI::gui_char *text) {
 	return gtk_entry_set_text(GTK_ENTRY(GetID()), text);
 }
 
+void WEntry::SetValid(GtkEntry *entry, bool valid) {
+#if GTK_CHECK_VERSION(3,0,0)
+	if (valid) {
+		GdkRGBA black = { 0, 0, 0, 1};
+		gtk_widget_override_color(GTK_WIDGET(entry), (GtkStateFlags)GTK_STATE_NORMAL, &black);
+	} else {
+		GdkRGBA red = { 1.0, 0, 0, 1};
+		gtk_widget_override_color(GTK_WIDGET(entry), (GtkStateFlags)GTK_STATE_NORMAL, &red);
+	}
+#else
+	if (valid) {
+		GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
+		gtk_widget_modify_base(GTK_WIDGET(entry), GTK_STATE_NORMAL, &white);
+	} else {
+		GdkColor red = { 0, 0xFFFF, 0x6666, 0x6666 };
+		gtk_widget_modify_base(GTK_WIDGET(entry), GTK_STATE_NORMAL, &red);
+	}
+#endif
+}
+
 void WComboBoxEntry::Create() {
 #if GTK_CHECK_VERSION(3,0,0)
 	SetID(gtk_combo_box_text_new_with_entry());
