@@ -1410,8 +1410,8 @@ static void unquote(char *s) {
 void SciTEGTK::OpenUriList(const char *list) {
 	if (list) {
 		char *uri = StringDup(list);
-		char *lastenduri = uri + strlen(uri);
 		if (uri) {
+			char *lastenduri = uri + strlen(uri);
 			while (uri < lastenduri) {
 				char *enduri = strchr(uri, '\r');
 				if (enduri == NULL)
