@@ -716,10 +716,21 @@ void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, int size, 
 
 static const COLORREF colourNoMatch = RGB(0xff,0x66,0x66);
 
-void SearchStrip::Creation() {
+void SearchStripBase::Creation() {
 	Strip::Creation();
 
 	hbrNoMatch = CreateSolidBrush(colourNoMatch);
+}
+
+void SearchStripBase::Destruction() {
+	::DeleteObject(hbrNoMatch);
+	hbrNoMatch = 0;
+	Strip::Destruction();
+}
+
+void SearchStrip::Creation() {
+	SearchStripBase::Creation();
+
 	wStaticFind = CreateText(textFindPrompt);
 
 	wText = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), TEXT(""),
@@ -737,8 +748,7 @@ void SearchStrip::Creation() {
 }
 
 void SearchStrip::Destruction() {
-	::DeleteObject(hbrNoMatch);
-	Strip::Destruction();
+	SearchStripBase::Destruction();
 }
 
 void SearchStrip::Close() {
@@ -829,7 +839,7 @@ bool SearchStrip::Command(WPARAM wParam) {
 
 LRESULT SearchStrip::EditColour(HWND hwnd, HDC hdc) {
 	if (GetDlgItem(static_cast<HWND>(GetID()),IDC_INCFINDTEXT) == hwnd) {
-		if (pSearcher->FindHasText() && !pSearcher->havefound) {
+		if (pSearcher->FindHasText() && pSearcher->failedfind) {
 			SetTextColor(hdc, RGB(0xff,0xff,0xff));
 			SetBkColor(hdc, colourNoMatch);
 			return reinterpret_cast<LRESULT>(hbrNoMatch);
@@ -846,8 +856,56 @@ LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	return 0l;
 }
 
+LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) {
+	if (GetDlgItem(static_cast<HWND>(GetID()),IDFINDWHAT) == ::GetParent(hwnd)) {
+		if (pSearcher->FindHasText() && 
+			(incrementalBehaviour != simple) &&
+			pSearcher->failedfind) {
+			SetTextColor(hdc, RGB(0xff,0xff,0xff));
+			SetBkColor(hdc, colourNoMatch);
+			return reinterpret_cast<LRESULT>(hbrNoMatch);
+		}
+	}
+	return 0;
+}
+
+void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) {
+	incrementalBehaviour = static_cast<FindReplaceStrip::IncrementalBehaviour>(behaviour);
+}
+
+void FindReplaceStrip::MarkIncremental() {
+	if (incrementalBehaviour == showAllMatches) {
+		pSearcher->MarkAll(Searcher::markIncremental);
+	}
+}
+
+void FindReplaceStrip::NextIncremental() {
+	if (incrementalBehaviour == simple)
+		return;
+	if (pSearcher->findWhat.length()) {
+		pSearcher->MoveBack();
+	}
+
+	pSearcher->SetFindText(ControlText(wText).c_str());
+
+	if (pSearcher->FindHasText()) {
+		pSearcher->FindNext(pSearcher->reverseFind, false, true);
+		pSearcher->SetCaretAsStart();
+	}
+	MarkIncremental();	// Mark all secondary hits
+	wText.InvalidateAll();
+}
+
+void FindReplaceStrip::Close() {
+	if (pSearcher->havefound) {
+		pSearcher->InsertFindInMemory();
+	}
+	Strip::Close();
+	pSearcher->UIClosed();
+}
+
 void FindStrip::Creation() {
-	Strip::Creation();
+	SearchStripBase::Creation();
 
 	wStaticFind = CreateText(textFindPrompt);
 
@@ -873,7 +931,7 @@ void FindStrip::Creation() {
 }
 
 void FindStrip::Destruction() {
-	Strip::Destruction();
+	SearchStripBase::Destruction();
 }
 
 void FindStrip::Size() {
@@ -942,11 +1000,6 @@ void FindStrip::Focus() {
 	::SetFocus(HwndOf(wText));
 }
 
-void FindStrip::Close() {
-	Strip::Close();
-	pSearcher->UIClosed();
-}
-
 bool FindStrip::KeyDown(WPARAM key) {
 	if (!visible)
 		return false;
@@ -955,7 +1008,13 @@ bool FindStrip::KeyDown(WPARAM key) {
 	switch (key) {
 	case VK_RETURN:
 		if (IsChild(Hwnd(), ::GetFocus())) {
-			Next(false, IsKeyDown(VK_SHIFT));
+			if (incrementalBehaviour == simple) {
+				Next(false, IsKeyDown(VK_SHIFT));
+			} else {
+				if (pSearcher->closeFind) {
+					Close();
+				}
+			}
 			return true;
 		}
 	}
@@ -965,12 +1024,11 @@ bool FindStrip::KeyDown(WPARAM key) {
 void FindStrip::Next(bool markAll, bool invertDirection) {
 	pSearcher->SetFind(ControlText(wText).c_str());
 	if (markAll){
-		pSearcher->MarkAll();
+		pSearcher->MarkAll(Searcher::markWithBookMarks);
 	}
 	pSearcher->FindNext(pSearcher->reverseFind ^ invertDirection);
 	if (pSearcher->closeFind) {
-		visible = false;
-		pSearcher->UIClosed();
+		Close();
 	}
 }
 
@@ -998,21 +1056,29 @@ bool FindStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
 	int control = ControlIDOfWParam(wParam);
-	if ((control == IDOK) || (control == IDMARKALL)) {
-		Next(control == IDMARKALL, false);
+	int subCommand = static_cast<int>(wParam >> 16);
+	if (control == IDOK) {
+		if (incrementalBehaviour == simple) {
+			Next(false, false);
+		} else {
+			if (pSearcher->closeFind) {
+				Close();
+			}
+		}
 		return true;
+	} else if (control == IDMARKALL) {
+		Next(true, false);
+		return true;
+	} else if (control == IDFINDWHAT) {
+		if (subCommand == CBN_EDITCHANGE) {
+			NextIncremental();
+			return true;
+		}
 	} else {
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
+		NextIncremental();
 	}
 	return false;
-}
-
-LRESULT FindStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	try {
-		return Strip::WndProc(iMessage, wParam, lParam);
-	} catch (...) {
-	}
-	return 0l;
 }
 
 void FindStrip::CheckButtons() {
@@ -1031,7 +1097,9 @@ void FindStrip::CheckButtons() {
 }
 
 void FindStrip::Show() {
+	pSearcher->failedfind = false;
 	Focus();
+	pSearcher->SetCaretAsStart();
 	HWND combo = GetDlgItem(Hwnd(), IDFINDWHAT);
 	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
 	for (int i = 0; i < pSearcher->memFinds.Length(); i++) {
@@ -1044,10 +1112,11 @@ void FindStrip::Show() {
 	::SendMessage(HwndOf(wText), CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
 	CheckButtons();
 	pSearcher->ScrollEditorIfNeeded();
+	MarkIncremental();
 }
 
 void ReplaceStrip::Creation() {
-	Strip::Creation();
+	SearchStripBase::Creation();
 
 	lineHeight = 23;
 
@@ -1088,7 +1157,7 @@ void ReplaceStrip::Creation() {
 }
 
 void ReplaceStrip::Destruction() {
-	Strip::Destruction();
+	SearchStripBase::Destruction();
 }
 
 int ReplaceStrip::Lines() const {
@@ -1189,11 +1258,6 @@ void ReplaceStrip::Focus() {
 	::SetFocus(HwndOf(wText));
 }
 
-void ReplaceStrip::Close() {
-	Strip::Close();
-	pSearcher->UIClosed();
-}
-
 static bool IsSameOrChild(GUI::Window &wParent, HWND wChild) {
 	HWND hwnd = reinterpret_cast<HWND>(wParent.GetID());
 	return (wChild == hwnd) || IsChild(hwnd, wChild);
@@ -1277,6 +1341,9 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 		case CBN_KILLFOCUS:
 		case CBN_SELENDCANCEL:
 			return false;
+		case CBN_EDITCHANGE:
+			NextIncremental();
+			return true;
 		default:
 			return false;
 		}
@@ -1288,20 +1355,20 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 		HandleReplaceCommand(control);
 		return true;
 
-	default:
+	case IDWHOLEWORD:
+	case IDMATCHCASE:
+	case IDREGEXP:
+	case IDUNSLASH:
+	case IDWRAP:
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
+		NextIncremental();
 		break;
+
+	default:
+		return false;
 	}
 	CheckButtons();
 	return false;
-}
-
-LRESULT ReplaceStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	try {
-		return Strip::WndProc(iMessage, wParam, lParam);
-	} catch (...) {
-	}
-	return 0l;
 }
 
 void ReplaceStrip::CheckButtons() {
@@ -1320,7 +1387,9 @@ void ReplaceStrip::CheckButtons() {
 }
 
 void ReplaceStrip::Show() {
+	pSearcher->failedfind = false;
 	Focus();
+	pSearcher->SetCaretAsStart();
 	HWND combo = GetDlgItem(Hwnd(), IDFINDWHAT);
 	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
 	for (int i = 0; i < pSearcher->memFinds.Length(); i++) {
@@ -1347,6 +1416,7 @@ void ReplaceStrip::Show() {
 	}
 
 	pSearcher->ScrollEditorIfNeeded();
+	MarkIncremental();
 }
 
 void UserStrip::Creation() {

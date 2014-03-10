@@ -750,22 +750,10 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETCARETLINEBACKALPHA,
 		props.GetInt("caret.line.back.alpha", SC_ALPHA_NOALPHA));
 
-	int alphaIndicator = props.GetInt("indicators.alpha", 30);
+	alphaIndicator = props.GetInt("indicators.alpha", 30);
 	if (alphaIndicator < 0 || 255 < alphaIndicator) // If invalid value,
 		alphaIndicator = 30; //then set default value.
-	bool underIndicator = props.GetInt("indicators.under", 0) == 1;
-
-	SString findIndicatorString = props.Get("find.mark.indicator");
-	IndicatorDefinition findIndicator(findIndicatorString.c_str());
-	if (!findIndicatorString.length()) {
-		findIndicator.style = INDIC_ROUNDBOX;
-		SString findMark = props.Get("find.mark");
-		if (findMark.length())
-			findIndicator.colour = ColourFromString(findMark);
-		findIndicator.fillAlpha = alphaIndicator;
-		findIndicator.under = underIndicator;
-	}
-	SetOneIndicator(wEditor, indicatorMatch, findIndicator);
+	underIndicator = props.GetInt("indicators.under", 0) == 1;
 
 	closeFind = props.GetInt("find.close.on.find", 1);
 

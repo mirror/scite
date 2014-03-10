@@ -85,11 +85,16 @@ Searcher::Searcher() {
 	searchStartPosition = 0;
 	replacing = false;
 	havefound = false;
+	failedfind = false;
 	findInStyle = false;
 	findStyle = 0;
 	closeFind = true;
 
 	focusOnReplace = false;
+}
+
+void Searcher::InsertFindInMemory() {
+	memFinds.Insert(findWhat.c_str());
 }
 
 // The find and replace dialogs and strips often manipulate boolean
@@ -149,6 +154,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	wrap = false;
 	wrapOutput = false;
 	wrapStyle = SC_WRAP_WORD;
+	alphaIndicator = 30;
+	underIndicator = false;
 	openFilesHere = false;
 	fullScreen = false;
 
@@ -963,34 +970,58 @@ void SciTEBase::RemoveFindMarks() {
 	wEditor.Call(SCI_ANNOTATIONCLEARALL);
 }
 
-int SciTEBase::MarkAll() {
-	int posCurrent = wEditor.Call(SCI_GETCURRENTPOS);
-	int marked = 0;
-	int posFirstFound = FindNext(false, false);
-
-	SString findMark = props.Get("find.mark");
-	SString findMarkindicator = props.Get("find.mark.indicator");
-	if (findMark.length() || findMarkindicator.length()) {
-		wEditor.Call(SCI_SETINDICATORCURRENT, indicatorMatch);
-		RemoveFindMarks();
+int SciTEBase::MarkAll(MarkPurpose purpose) {
+	RemoveFindMarks();
+	wEditor.Call(SCI_SETINDICATORCURRENT, indicatorMatch);
+	if (purpose == markIncremental) {
+		CurrentBuffer()->findMarks = Buffer::fmTemporary;
+		SetOneIndicator(wEditor, indicatorMatch, props.Get("find.indicator.incremental").c_str());
+	} else {
 		CurrentBuffer()->findMarks = Buffer::fmMarked;
+		SString findIndicatorString = props.Get("find.mark.indicator");
+		IndicatorDefinition findIndicator(findIndicatorString.c_str());
+		if (!findIndicatorString.length()) {
+			findIndicator.style = INDIC_ROUNDBOX;
+			SString findMark = props.Get("find.mark");
+			if (findMark.length())
+				findIndicator.colour = ColourFromString(findMark);
+			findIndicator.fillAlpha = alphaIndicator;
+			findIndicator.under = underIndicator;
+		}
+		SetOneIndicator(wEditor, indicatorMatch, findIndicator);
 	}
-	if (posFirstFound != -1) {
-		int posEndFound;
-		int posFound = posFirstFound;
-		do {
-			marked++;
-			int line = wEditor.Call(SCI_LINEFROMPOSITION, posFound);
-			BookmarkAdd(line);
-			if (findMark.length() || findMarkindicator.length()) {
-				wEditor.Call(SCI_INDICATORFILLRANGE, posFound, wEditor.Call(SCI_GETTARGETEND) - posFound);
-			}
-			posFound = FindNext(false, false);
-			posEndFound = wEditor.Call(SCI_GETTARGETEND);
-			// Since start position may be within a match, terminate when match includes initial position
-		} while ((posFound != -1) && !((posFound <= posFirstFound) && (posFirstFound <= posEndFound)));
+
+	SString findTarget = EncodeString(findWhat);
+	int lenFind = UnSlashAsNeeded(findTarget, unSlash, regExp);
+	if (lenFind == 0) {
+		return 0;
 	}
-	wEditor.Call(SCI_SETCURRENTPOS, posCurrent);
+
+	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
+	        (matchCase ? SCFIND_MATCHCASE : 0) |
+	        (regExp ? SCFIND_REGEXP : 0) |
+	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
+
+	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
+
+	const int endPosition = LengthDocument();
+	int marked = 0;
+
+	int posFound = FindInTarget(findTarget.c_str(), lenFind, 0, endPosition);
+	while (posFound != INVALID_POSITION) {
+		marked++;
+		if (purpose == markWithBookMarks) {
+			BookmarkAdd(wEditor.Call(SCI_LINEFROMPOSITION, posFound));
+		}
+		int posEndFound = wEditor.Call(SCI_GETTARGETEND);
+		wEditor.Call(SCI_INDICATORFILLRANGE, posFound, posEndFound - posFound);
+		if (posEndFound == posFound) {
+			// Empty matches are possible for regex
+			posEndFound = wEditor.Call(SCI_POSITIONAFTER, posEndFound);
+		}
+		posFound = FindInTarget(findTarget.c_str(), lenFind, posEndFound, endPosition);
+	}
+
 	return marked;
 }
 
@@ -1023,7 +1054,7 @@ void SciTEBase::SetFindText(const char *sFind) {
 
 void SciTEBase::SetFind(const char *sFind) {
 	SetFindText(sFind);
-	memFinds.Insert(findWhat.c_str());
+	InsertFindInMemory();
 }
 
 bool SciTEBase::FindHasText() const {
@@ -1097,6 +1128,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 	}
 	if (posFind == -1) {
 		havefound = false;
+		failedfind = true;
 		if (showWarnings) {
 			WarnUser(warnNotFound);
 			FindMessageBox("Can not find the string '^0'.",
@@ -1104,6 +1136,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 		}
 	} else {
 		havefound = true;
+		failedfind = false;
 		int start = wEditor.Call(SCI_GETTARGETSTART);
 		int end = wEditor.Call(SCI_GETTARGETEND);
 		// Ensure found text is styled so that caret will be made visible.
@@ -1313,6 +1346,9 @@ int SciTEBase::ReplaceInBuffers() {
 }
 
 void SciTEBase::UIClosed() {
+	if (CurrentBuffer()->findMarks == Buffer::fmTemporary) {
+		RemoveFindMarks();
+	}
 }
 
 void SciTEBase::UIHasFocus() {

@@ -94,7 +94,7 @@ public:
 	time_t fileModTime;
 	time_t fileModLastAsk;
 	time_t documentModTime;
-	enum { fmNone, fmMarked, fmModified} findMarks;
+	enum { fmNone, fmTemporary, fmMarked, fmModified} findMarks;
 	SString overrideExtension;	///< User has chosen to use a particular language
 	std::vector<int> foldState;
 	std::vector<int> bookmarks;
@@ -289,6 +289,7 @@ public:
 	int searchStartPosition;
 	bool replacing;
 	bool havefound;
+	bool failedfind;
 	bool findInStyle;
 	int findStyle;
 	bool closeFind;
@@ -302,6 +303,7 @@ public:
 	virtual void SetFindText(const char *sFind) = 0;
 	virtual void SetFind(const char *sFind) = 0;
 	virtual bool FindHasText() const = 0;
+	void InsertFindInMemory();
 	virtual void SetReplace(const char *sReplace) = 0;
 	virtual void SetCaretAsStart() = 0;
 	virtual void MoveBack() = 0;
@@ -309,7 +311,8 @@ public:
 
 	virtual int FindNext(bool reverseDirection, bool showWarnings = true, bool allowRegExp=true) = 0;
 	virtual void HideMatch() = 0;
-	virtual int MarkAll() = 0;
+	enum MarkPurpose { markWithBookMarks, markIncremental };
+	virtual int MarkAll(MarkPurpose purpose=markWithBookMarks) = 0;
 	virtual int ReplaceAll(bool inSelection) = 0;
 	virtual void ReplaceOnce() = 0;
 	virtual void UIClosed() = 0;
@@ -423,6 +426,8 @@ protected:
 	bool wrap;
 	bool wrapOutput;
 	int wrapStyle;
+	int alphaIndicator;
+	bool underIndicator;
 	bool openFilesHere;
 	bool fullScreen;
 	enum { toolMax = 50 };
@@ -777,7 +782,7 @@ protected:
 	virtual void ActivateWindow(const char *timestamp) = 0;
 
 	void RemoveFindMarks();
-	int MarkAll();
+	int MarkAll(MarkPurpose purpose=markWithBookMarks);
 	void BookmarkAdd(int lineno = -1);
 	void BookmarkDelete(int lineno = -1);
 	bool BookmarkPresent(int lineno = -1);

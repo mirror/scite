@@ -2647,6 +2647,32 @@ Prev File|IDM_PREVFILE|<br/>
           Use in-window strips rather than dialogs for performing Find or Replace commands.
         </td>
       </tr>
+      <tr id='property-find.strip.incremental'>
+        <td>
+          <a name='property-replace.strip.incremental'></a>
+         find.strip.incremental<br />
+	 replace.strip.incremental
+        </td>
+        <td>
+          Perform incremental search when typing in the find and replace strips.
+	  Set to 1 to enable incremental searching and 2 to enable both incremental searching
+	  and highlighting all matches. Highlighting all matches (2) can be slow on large files so
+	  should only be enabled when performance is reasonable.
+        </td>
+      </tr>
+      <tr id='property-find.indicator.incremental'>
+        <td>
+          find.indicator.incremental
+        </td>
+        <td>
+          Sets the indicator to use for find.strip.incremental=2 or replace.strip.incremental=2.
+	  This is a
+            <a href="#IndicatorProperty">structured property</a> with multiple attributes similar to:
+         <div class="example">
+              find.indicator.incremental=style:compositionthick,colour:#FFB700,under
+         </div>
+        </td>
+       </tr>
       <tr class="gtkonly" id='property-strip.button.height'>
         <td>
          strip.button.height

@@ -944,7 +944,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				wFindReplace.Destroy();
 			}
 			if (ControlIDOfWParam(wParam) == IDMARKALL){
-				MarkAll();
+				MarkAll(markWithBookMarks);
 			}
 			FindNext(reverseFind ^ IsKeyDown(VK_SHIFT));
 			return TRUE;
@@ -1062,6 +1062,7 @@ void SciTEWin::FindIncrement() {
 	if (replaceStrip.visible)
 		replaceStrip.Close();
 	searchStrip.visible = !searchStrip.visible;
+	failedfind = false;
 	SizeSubWindows();
 	if (searchStrip.visible) {
 		SetCaretAsStart();
@@ -1096,6 +1097,7 @@ void SciTEWin::Find() {
 			replaceStrip.Close();
 		findStrip.visible = true;
 		SizeSubWindows();
+		findStrip.SetIncrementalBehaviour(props.GetInt("find.strip.incremental"));
 		findStrip.Show();
 	} else {
 		if (searchStrip.visible || replaceStrip.visible)
@@ -1205,7 +1207,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			}
 			findWhat = dlg.ItemTextU(IDFINDWHAT);
 			props.Set("find.what", findWhat.c_str());
-			memFinds.Insert(findWhat.c_str());
+			InsertFindInMemory();
 
 			SString files = dlg.ItemTextU(IDFILES);
 			props.Set("find.files", files.c_str());
@@ -1333,6 +1335,7 @@ void SciTEWin::Replace() {
 			findStrip.Close();
 		replaceStrip.visible = true;
 		SizeSubWindows();
+		replaceStrip.SetIncrementalBehaviour(props.GetInt("replace.strip.incremental"));
 		replaceStrip.Show();
 		havefound = false;
 	} else {
