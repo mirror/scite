@@ -367,10 +367,23 @@ public:
 	void FillFields();
 };
 
-class FindStrip : public Strip, public SearchUI {
+class FindReplaceStrip : public Strip, public SearchUI {
+public:
+	WComboBoxEntry wComboFind;
+	bool initializingSearch;
+	enum IncrementalBehaviour { simple, incremental, showAllMatches };
+	IncrementalBehaviour incrementalBehaviour;
+	FindReplaceStrip() : initializingSearch(false), incrementalBehaviour(simple) {
+	}
+	void SetIncrementalBehaviour(int behaviour);
+	void MarkIncremental();
+	void NextIncremental();
+};
+
+
+class FindStrip : public FindReplaceStrip {
 public:
 	WStatic wStaticFind;
-	WComboBoxEntry wComboFind;
 	WButton wButton;
 	WButton wButtonMarkAll;
 	enum { checks = 6 };
@@ -385,8 +398,10 @@ public:
 	virtual bool KeyDown(GdkEventKey *event);
 	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
+	static void FindComboChanged(GtkEditable *, FindStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip);
 	void GrabFields();
+	void GrabToggles();
 	void SetToggles();
 	void ShowPopup();
 	void FindNextCmd();
@@ -395,10 +410,9 @@ public:
 	gboolean Focus(GtkDirectionType direction);
 };
 
-class ReplaceStrip : public Strip, public SearchUI {
+class ReplaceStrip : public FindReplaceStrip {
 public:
 	WStatic wStaticFind;
-	WComboBoxEntry wComboFind;
 	WButton wButtonFind;
 	WButton wButtonReplaceAll;
 	WStatic wStaticReplace;
@@ -417,8 +431,10 @@ public:
 	virtual bool KeyDown(GdkEventKey *event);
 	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, ReplaceStrip *pStrip);
+	static void FindComboChanged(GtkEditable *, ReplaceStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip);
 	void GrabFields();
+	void GrabToggles();
 	void SetToggles();
 	void FindCmd();
 	void ReplaceAllCmd();
@@ -1894,6 +1910,7 @@ void SciTEGTK::Find() {
 	SelectionIntoFind();
 	if (props.GetInt("find.use.strip")) {
 		replaceStrip.Close();
+		findStrip.SetIncrementalBehaviour(props.GetInt("find.strip.incremental"));
 		findStrip.Show(props.GetInt("strip.button.height", -1));
 	} else {
 		if (findStrip.visible || replaceStrip.visible)
@@ -2060,7 +2077,7 @@ void SciTEGTK::FRReplaceInBuffersCmd() {
 
 void SciTEGTK::FRMarkAllCmd() {
 	FindReplaceGrabFields();
-	MarkAll();
+	MarkAll(markWithBookMarks);
 	FindNext(reverseFind);
 }
 
@@ -2468,6 +2485,7 @@ void SciTEGTK::Replace() {
 	SelectionIntoFind();
 	if (props.GetInt("replace.use.strip")) {
 		findStrip.Close();
+		replaceStrip.SetIncrementalBehaviour(props.GetInt("replace.strip.incremental"));
 		replaceStrip.Show(props.GetInt("strip.button.height", -1));
 	} else {
 		if (findStrip.visible || replaceStrip.visible)
@@ -4001,6 +4019,37 @@ void SciTEGTK::CreateMenu() {
 const int stripButtonWidth = 16 + 3 * 2 + 1;
 const int stripButtonPitch = stripButtonWidth;
 
+void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) {
+	incrementalBehaviour = static_cast<IncrementalBehaviour>(behaviour);
+}
+
+void FindReplaceStrip::MarkIncremental() {
+ 	if (incrementalBehaviour == showAllMatches) {
+		pSearcher->MarkAll(Searcher::markIncremental);
+	}
+}
+
+void FindReplaceStrip::NextIncremental() {
+	if (initializingSearch)
+		return;
+
+	if (incrementalBehaviour == simple)
+		return;
+	if (pSearcher->findWhat.length()) {
+		pSearcher->MoveBack();
+	}
+
+	pSearcher->SetFindText(wComboFind.Text());
+
+	if (pSearcher->FindHasText()) {
+		pSearcher->FindNext(pSearcher->reverseFind, false, true);
+		pSearcher->SetCaretAsStart();
+	}
+	MarkIncremental();
+	WEntry::SetValid(wComboFind.Entry(), !pSearcher->FindHasText() || !pSearcher->failedfind);
+	wComboFind.InvalidateAll();
+}
+
 void FindStrip::Creation(GtkWidget *container) {
 	WTable table(1, 10);
 	SetID(table);
@@ -4019,6 +4068,9 @@ void FindStrip::Creation(GtkWidget *container) {
 	gtk_widget_show(wComboFind);
 
 	gtk_widget_show(GTK_WIDGET(GetID()));
+
+	g_signal_connect(G_OBJECT(wComboFind.Entry()),"changed",
+		G_CALLBACK(FindComboChanged), this);
 
 	g_signal_connect(G_OBJECT(wComboFind.Entry()), "key-press-event",
 		G_CALLBACK(EscapeSignal), this);
@@ -4057,6 +4109,8 @@ void FindStrip::Destruction() {
 }
 
 void FindStrip::Show(int buttonHeight) {
+	pSearcher->failedfind = false;
+	pSearcher->SetCaretAsStart();
 	Strip::Show(buttonHeight);
 
 	gtk_widget_set_size_request(wButton, -1, buttonHeight);
@@ -4067,15 +4121,21 @@ void FindStrip::Show(int buttonHeight) {
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
+	initializingSearch = true;	// Avoid search for initial value in search entry
 	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 	gtk_entry_set_text(wComboFind.Entry(), pSearcher->findWhat.c_str());
 	SetToggles();
+	initializingSearch = false;
+	MarkIncremental();
 
 	gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 }
 
 void FindStrip::Close() {
 	if (visible) {
+		if (pSearcher->havefound) {
+			pSearcher->InsertFindInMemory();
+		}
 		Strip::Close();
 		pSearcher->UIClosed();
 	}
@@ -4111,6 +4171,11 @@ void FindStrip::ActivateSignal(GtkWidget *, FindStrip *pStrip) {
 	pStrip->FindNextCmd();
 }
 
+void FindStrip::FindComboChanged(GtkEditable *, FindStrip *pStrip) {
+	pStrip->GrabToggles();
+	pStrip->NextIncremental();
+}
+
 gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip) {
 	if (event->keyval == GKEY_Escape) {
 		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
@@ -4121,7 +4186,10 @@ gboolean FindStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pS
 
 void FindStrip::GrabFields() {
 	pSearcher->SetFind(wComboFind.Text());
+	GrabToggles();
+}
 
+void FindStrip::GrabToggles() {
 	for (int i=0;i<checks;i++) {
 		pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
 	}
@@ -4191,6 +4259,9 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 	wComboFind.Create();
 	tableReplace.Add(wComboFind, 1, true, 0, 0);
 	wComboFind.Show();
+
+	g_signal_connect(G_OBJECT(wComboFind.Entry()),"changed",
+		G_CALLBACK(FindComboChanged), this);
 
 	g_signal_connect(G_OBJECT(wComboFind.Entry()), "key-press-event",
 		G_CALLBACK(EscapeSignal), this);
@@ -4277,6 +4348,8 @@ void ReplaceStrip::Destruction() {
 }
 
 void ReplaceStrip::Show(int buttonHeight) {
+	pSearcher->failedfind = false;
+	pSearcher->SetCaretAsStart();
 	Strip::Show(buttonHeight);
 
 	gtk_widget_set_size_request(wButtonFind, -1, buttonHeight);
@@ -4295,18 +4368,24 @@ void ReplaceStrip::Show(int buttonHeight) {
 	for (int i=0; i<checks; i++)
 		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
+	initializingSearch = true;	// Avoid search for initial value in search entry
 	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 	wComboReplace.FillFromMemory(pSearcher->memReplaces.AsVector());
 
 	gtk_entry_set_text(wComboFind.Entry(), pSearcher->findWhat.c_str());
 
 	SetToggles();
+	initializingSearch = false;
+	MarkIncremental();
 
 	gtk_widget_grab_focus(GTK_WIDGET(wComboFind.Entry()));
 }
 
 void ReplaceStrip::Close() {
 	if (visible) {
+		if (pSearcher->havefound) {
+			pSearcher->InsertFindInMemory();
+		}
 		Strip::Close();
 		pSearcher->UIClosed();
 	}
@@ -4342,6 +4421,11 @@ void ReplaceStrip::ActivateSignal(GtkWidget *, ReplaceStrip *pStrip) {
 	pStrip->FindCmd();
 }
 
+void ReplaceStrip::FindComboChanged(GtkEditable *, ReplaceStrip *pStrip) {
+	pStrip->GrabToggles();
+	pStrip->NextIncremental();
+}
+
 gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip) {
 	if (event->keyval == GKEY_Escape) {
 		g_signal_stop_emission_by_name(G_OBJECT(w), "key-press-event");
@@ -4353,7 +4437,10 @@ gboolean ReplaceStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStr
 void ReplaceStrip::GrabFields() {
 	pSearcher->SetFind(wComboFind.Text());
 	pSearcher->SetReplace(wComboReplace.Text());
+	GrabToggles();
+}
 
+void ReplaceStrip::GrabToggles() {
 	for (int i=0;i<checks;i++) {
 		pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
 	}
@@ -4933,7 +5020,7 @@ void SciTEGTK::FindIncrementNext(bool select) {
 			SetCaretAsStart();
 		}
 	}
-	FindIncrementSetColour(!FindHasText() || havefound);
+	FindIncrementSetColour(!FindHasText() || !failedfind);
 }
 
 void SciTEGTK::FindIncrementChanged() {
@@ -4966,6 +5053,7 @@ void SciTEGTK::FindIncrement() {
 	findStrip.Close();
 	replaceStrip.Close();
 	FindIncrementSetColour(true);
+	failedfind = false;
 	gtk_widget_show(wIncrementPanel);
 	gtk_widget_grab_focus(GTK_WIDGET(IncSearchEntry));
 	gtk_entry_set_text(GTK_ENTRY(IncSearchEntry), "");
