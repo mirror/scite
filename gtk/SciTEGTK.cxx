@@ -399,6 +399,7 @@ public:
 	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
 	static void FindComboChanged(GtkEditable *, FindStrip *pStrip);
+	static void ToggleChanged(WCheckDraw *, void *user);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, FindStrip *pStrip);
 	void GrabFields();
 	void GrabToggles();
@@ -432,6 +433,7 @@ public:
 	void MenuAction(guint action);
 	static void ActivateSignal(GtkWidget *w, ReplaceStrip *pStrip);
 	static void FindComboChanged(GtkEditable *, ReplaceStrip *pStrip);
+	static void ToggleChanged(WCheckDraw *, void *user);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, ReplaceStrip *pStrip);
 	void GrabFields();
 	void GrabToggles();
@@ -4102,6 +4104,7 @@ void FindStrip::Creation(GtkWidget *container) {
 #endif
 		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
 		table.Add(wCheck[i], 1, false, 0, 0);
+		wCheck[i].SetChangeFunction(ToggleChanged, this);
 	}
 }
 
@@ -4172,6 +4175,12 @@ void FindStrip::ActivateSignal(GtkWidget *, FindStrip *pStrip) {
 }
 
 void FindStrip::FindComboChanged(GtkEditable *, FindStrip *pStrip) {
+	pStrip->GrabToggles();
+	pStrip->NextIncremental();
+}
+
+void FindStrip::ToggleChanged(WCheckDraw *, void *user) {
+	FindStrip *pStrip = reinterpret_cast<FindStrip *>(user);
 	pStrip->GrabToggles();
 	pStrip->NextIncremental();
 }
@@ -4294,6 +4303,7 @@ void ReplaceStrip::Creation(GtkWidget *container) {
 		wCheck[i].Create(xpmImages[i], localiser->Text(toggles[i].label), wButtonFind.Pointer()->style);
 #endif
 		wCheck[i].SetActive(pSearcher->FlagFromCmd(toggles[i].cmd));
+		wCheck[i].SetChangeFunction(ToggleChanged, this);
 	}
 
 	tableReplace.Add(wCheck[SearchOption::tWord], 1, false, 0, 0);
@@ -4422,6 +4432,12 @@ void ReplaceStrip::ActivateSignal(GtkWidget *, ReplaceStrip *pStrip) {
 }
 
 void ReplaceStrip::FindComboChanged(GtkEditable *, ReplaceStrip *pStrip) {
+	pStrip->GrabToggles();
+	pStrip->NextIncremental();
+}
+
+void ReplaceStrip::ToggleChanged(WCheckDraw *, void *user) {
+	ReplaceStrip *pStrip = reinterpret_cast<ReplaceStrip *>(user);
 	pStrip->GrabToggles();
 	pStrip->NextIncremental();
 }

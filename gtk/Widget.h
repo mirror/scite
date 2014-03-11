@@ -78,12 +78,17 @@ public:
 };
 
 class WCheckDraw : public WBase {
+public:
+	typedef void (*ChangeFunction)(WCheckDraw *cd, void *user);
+private:
 	bool isActive;
 	GdkPixbuf *pbGrey;
 #if !GTK_CHECK_VERSION(3,4,0)
 	GtkStyle *pStyle;
 #endif
 	bool over;
+	ChangeFunction cdfn;
+	void *user;
 	static gboolean Focus(GtkWidget *widget, GdkEventFocus *event, WCheckDraw *pcd);
 	gint Press(GtkWidget *widget, GdkEventButton *event);
 	static gint ButtonsPress(GtkWidget *widget, GdkEventButton *event, WCheckDraw *pcd);
@@ -103,6 +108,7 @@ public:
 	bool Active();
 	void SetActive(bool active);
 	void Toggle();
+	void SetChangeFunction(ChangeFunction cdfn_, void *user_);
 	enum {  checkIconWidth = 16, checkButtonWidth = 16 + 3 * 2 + 1};
 };
 

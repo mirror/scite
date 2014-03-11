@@ -190,7 +190,7 @@ void WProgress::Create() {
 	SetID(gtk_progress_bar_new());
 }
 
-WCheckDraw::WCheckDraw() : isActive(false), pbGrey(0), over(false) {
+WCheckDraw::WCheckDraw() : isActive(false), pbGrey(0), over(false), cdfn(NULL), user(NULL) {
 #if !GTK_CHECK_VERSION(3,4,0)
 	pStyle = 0;
 #endif
@@ -292,6 +292,13 @@ void WCheckDraw::SetActive(bool active) {
 void WCheckDraw::Toggle() {
 	isActive = !isActive;
 	InvalidateAll();
+	if (cdfn)
+		cdfn(this, user);
+}
+
+void WCheckDraw::SetChangeFunction(ChangeFunction cdfn_, void *user_) {
+	cdfn = cdfn_;
+	user = user_;
 }
 
 gboolean WCheckDraw::Focus(GtkWidget */*widget*/, GdkEventFocus */*event*/, WCheckDraw *pcd) {
