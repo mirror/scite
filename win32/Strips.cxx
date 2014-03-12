@@ -1320,10 +1320,12 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 			pSearcher->FindNext(reverseFind);
 		}
 	} else if (cmd == IDREPLACE) {
-		pSearcher->ReplaceOnce();
+		pSearcher->ReplaceOnce(incrementalBehaviour == simple);
+		NextIncremental();	// Show not found colour if no more matches.
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
 		pSearcher->ReplaceAll(cmd == IDREPLACEINSEL);
+		NextIncremental();	// Show not found colour if no more matches.
 	}
 	//GUI::gui_string replDone = GUI::StringFromInteger(replacements);
 	//dlg.SetItemText(IDREPLDONE, replDone.c_str());

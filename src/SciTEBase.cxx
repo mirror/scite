@@ -1156,7 +1156,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 void SciTEBase::HideMatch() {
 }
 
-void SciTEBase::ReplaceOnce() {
+void SciTEBase::ReplaceOnce(bool showWarnings) {
 	if (!FindHasText())
 		return;
 
@@ -1181,7 +1181,7 @@ void SciTEBase::ReplaceOnce() {
 		havefound = false;
 	}
 
-	FindNext(false);
+	FindNext(false, showWarnings);
 }
 
 int SciTEBase::DoReplaceAll(bool inSelection) {

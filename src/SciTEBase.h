@@ -309,12 +309,12 @@ public:
 	virtual void MoveBack() = 0;
 	virtual void ScrollEditorIfNeeded() = 0;
 
-	virtual int FindNext(bool reverseDirection, bool showWarnings = true, bool allowRegExp=true) = 0;
+	virtual int FindNext(bool reverseDirection, bool showWarnings=true, bool allowRegExp=true) = 0;
 	virtual void HideMatch() = 0;
 	enum MarkPurpose { markWithBookMarks, markIncremental };
 	virtual int MarkAll(MarkPurpose purpose=markWithBookMarks) = 0;
 	virtual int ReplaceAll(bool inSelection) = 0;
-	virtual void ReplaceOnce() = 0;
+	virtual void ReplaceOnce(bool showWarnings=true) = 0;
 	virtual void UIClosed() = 0;
 	virtual void UIHasFocus() = 0;
 	bool &FlagFromCmd(int cmd);
@@ -687,13 +687,13 @@ protected:
 	virtual void SetCaretAsStart();
 	virtual void MoveBack();
 	virtual void ScrollEditorIfNeeded();
-	virtual int FindNext(bool reverseDirection, bool showWarnings = true, bool allowRegExp=true);
+	virtual int FindNext(bool reverseDirection, bool showWarnings=true, bool allowRegExp=true);
 	virtual void HideMatch();
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
-	void ReplaceOnce();
+	void ReplaceOnce(bool showWarnings=true);
 	int DoReplaceAll(bool inSelection); // returns number of replacements or negative value if error
 	int ReplaceAll(bool inSelection);
 	int ReplaceInBuffers();
