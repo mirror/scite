@@ -4113,6 +4113,7 @@ void FindStrip::Destruction() {
 
 void FindStrip::Show(int buttonHeight) {
 	pSearcher->failedfind = false;
+	WEntry::SetValid(wComboFind.Entry(), true);
 	pSearcher->SetCaretAsStart();
 	Strip::Show(buttonHeight);
 
@@ -4359,6 +4360,7 @@ void ReplaceStrip::Destruction() {
 
 void ReplaceStrip::Show(int buttonHeight) {
 	pSearcher->failedfind = false;
+	WEntry::SetValid(wComboFind.Entry(), true);
 	pSearcher->SetCaretAsStart();
 	Strip::Show(buttonHeight);
 
@@ -4479,18 +4481,21 @@ void ReplaceStrip::ReplaceAllCmd() {
 	GrabFields();
 	if (pSearcher->FindHasText()) {
 		pSearcher->ReplaceAll(false);
+		NextIncremental();	// Show not found colour if no more matches.
 	}
 }
 
 void ReplaceStrip::ReplaceCmd() {
 	GrabFields();
-	pSearcher->ReplaceOnce();
+	pSearcher->ReplaceOnce(incrementalBehaviour == simple);
+	NextIncremental();	// Show not found colour if no more matches.
 }
 
 void ReplaceStrip::ReplaceInSelectionCmd() {
 	GrabFields();
 	if (pSearcher->FindHasText()) {
 		pSearcher->ReplaceAll(true);
+		NextIncremental();	// Show not found colour if no more matches.
 	}
 }
 
