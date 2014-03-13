@@ -44,7 +44,7 @@ val SCE_CONF_DEFAULT=0<br />
 val SCE_CONF_COMMENT=1
 </li>
 <li>
-In the scintilla/include directory run HFacer.py to regenerate the
+In the scintilla/scripts directory run HFacer.py to regenerate the
 SciLexer.h file. Alternatively (if you don't want to run a Python script)
 just add these values to SciLexer.h as #defines and I'll put them in
 Scintilla.iface.
@@ -61,10 +61,9 @@ LexerModule lmConf(SCLEX_CONF, ColouriseConfDoc, "conf");
 </li>
 <li>
 If this is a complex lexer then it may be better off in its own file, in
-which case clone one of the current files and then add the file to all of
-the make files where LexOthers is currently referenced -
-scintilla/win32/makefile, scintilla/win32/scintilla.mak,
-scintilla/gtk/makefile, scite/win32/makefile, and scite/win32/scite.mak.
+which case clone one of the current files.
+In the scite/scripts directory run RegenerateSource.py to add the new
+lexer file to each make file.
 </li>
 <li>
 To the scite/src/others.properties add an entry to associate the file
@@ -82,7 +81,7 @@ style.conf.0=fore:#FF0000,bold<br />
 style.conf.1=fore:#007F7F,$(font.comment)<br />
 </li>
 <li>
-If on Windows (someday this may work on GTK+ too), a filter should be
+A filter should be
 added for conf files in scite/src/others.properties:
 filter.conf=Configuration (.conf)|*.conf|
 </li>
