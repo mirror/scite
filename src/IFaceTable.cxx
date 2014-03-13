@@ -2305,6 +2305,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_ABAQUS",84},
 	{"SCLEX_ADA",20},
 	{"SCLEX_APDL",61},
+	{"SCLEX_AS",113},
 	{"SCLEX_ASM",34},
 	{"SCLEX_ASN1",63},
 	{"SCLEX_ASYMPTOTE",85},
@@ -3132,7 +3133,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 284,
-	ifaceConstantCount = 2488,
+	ifaceConstantCount = 2489,
 	ifacePropertyCount = 215
 };
 
