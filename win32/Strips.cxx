@@ -144,9 +144,23 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		width += 2 * ::GetSystemMetrics(SM_CXEDGE);	// Allow for 3D borders
 		width += 2 * WidthText(fontText, TEXT(" "));	// Allow a bit of space
 	}
+
+	int bmpDimension = 16;
+	int resDifference = 0;
+	if (scale >= 192) {
+		bmpDimension = 32;
+		resDifference = 300;
+	} else if (scale >= 144) {
+		bmpDimension = 24;
+		resDifference = 200;
+	} else if (scale >= 120) {
+		bmpDimension = 20;
+		resDifference = 100;
+	}
+
 	if (check) {
-		height = 16 + 3 * 2;
-		width = 16 + 3 * 2;
+		height = bmpDimension + 3 * 2;
+		width = bmpDimension + 3 * 2;
 	}
 	GUI::Window w;
 	w.SetID(::CreateWindowEx(0, TEXT("Button"), localised.c_str(),
@@ -168,8 +182,8 @@ GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
 		UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6,0)) ?
 			(LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
 		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
-			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum), IMAGE_BITMAP,
-			16, 16, flags));
+			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum + resDifference), IMAGE_BITMAP,
+			bmpDimension, bmpDimension, flags));
 
 		::SendMessage(reinterpret_cast<HWND>(w.GetID()),
 			BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(bm));
@@ -416,8 +430,12 @@ void Strip::SetTheme() {
 #ifdef THEME_AVAILABLE
 	if (hTheme)
 		::CloseThemeData(hTheme);
+	scale = 96;
 	hTheme = ::OpenThemeData(Hwnd(), TEXT("Window"));
 	if (hTheme) {
+		HDC hdc = ::GetDC(Hwnd());
+		scale = ::GetDeviceCaps(hdc, LOGPIXELSX);
+		::DeleteDC(reinterpret_cast<HDC>(hdc));
 		HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL,
 			NULL, TS_TRUE, &closeSize);
 		//HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_MDICLOSEBUTTON, CBS_NORMAL,
@@ -426,6 +444,8 @@ void Strip::SetTheme() {
 			closeSize.cx = 11;
 			closeSize.cy = 11;
 		}
+		closeSize.cx = closeSize.cx * scale / 96;
+		closeSize.cy = closeSize.cy * scale / 96;
 	}
 #endif
 }

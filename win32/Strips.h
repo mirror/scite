@@ -40,6 +40,7 @@ class Strip : public BaseWin {
 protected:
 	HFONT fontText;
 	HTHEME hTheme;
+	int scale;
 	bool capturedMouse;
 	SIZE closeSize;
 	enum stripCloseState { csNone, csOver, csClicked, csClickedOver } closeState;
@@ -71,7 +72,7 @@ protected:
 	virtual void ShowPopup();
 public:
 	bool visible;
-	Strip() : fontText(0), hTheme(0), capturedMouse(false), closeState(csNone), entered(0), lineHeight(20), visible(false) {
+	Strip() : fontText(0), hTheme(0), scale(96), capturedMouse(false), closeState(csNone), entered(0), lineHeight(20), visible(false) {
 		closeSize.cx = 11;
 		closeSize.cy = 11;
 	}
