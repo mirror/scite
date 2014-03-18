@@ -50,6 +50,15 @@ def UpdateVersionNumbers(sci, root):
         '    <meta name="Date.Modified"',
         '    <meta name="Date.Modified" content="' + sci.dateModified + '" />')
 
+def OctalEscape(s):
+    result = []
+    for char in s:
+        if ord(char) < 128:
+            result.append(char)
+        else:
+            result.append("\%o" % ord(char))
+    return ''.join(result)
+
 def RegenerateAll():
     root="../../"
 
@@ -81,6 +90,8 @@ def RegenerateAll():
     Regenerate(root + "scite/doc/SciTEDoc.html", "<!--", propertiesHTML)
     Generate(root + "scite/boundscheck/vcproj.gen",
      root + "scite/boundscheck/SciTE.vcproj", "#", sci.lexFiles)
+    credits = [OctalEscape(c.encode("utf-8")) for c in sci.credits]
+    Regenerate(root + "scite/src/Credits.cxx", "//", credits)
 
     UpdateVersionNumbers(sci, root)
 
