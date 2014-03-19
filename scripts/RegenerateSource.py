@@ -59,6 +59,25 @@ def OctalEscape(s):
             result.append("\%o" % ord(char))
     return ''.join(result)
 
+def UpdateEmbedded(root, propFiles):
+    propFilesAll = ["SciTEGlobal.properties", "abbrev.properties"] + propFiles
+    linesEmbedded = []
+    for pf in propFilesAll:
+        with open(os.path.join(root, "scite", "src", pf)) as fi:
+            for line in fi:
+                if not line.startswith("#"):
+                    linesEmbedded.append(line)
+            if not linesEmbedded[-1].endswith("\n"):
+                linesEmbedded[-1] += "\n"
+    textEmbedded = "".join(linesEmbedded)
+    pathEmbedded = os.path.join(root, "scite", "src", "Embedded.properties")
+    with open(pathEmbedded) as fileEmbedded:
+        original = fileEmbedded.read()
+    if textEmbedded != original:
+        with open(pathEmbedded, "w") as fileOutEmbedded:
+            fileOutEmbedded.write(textEmbedded)
+            print("Changed %s" % pathEmbedded)
+
 def RegenerateAll():
     root="../../"
 
@@ -84,6 +103,7 @@ def RegenerateAll():
     propFiles = [os.path.basename(f) for f in propFilePaths if os.path.basename(f) not in otherProps]
     ScintillaData.SortListInsensitive(propFiles)
 
+    UpdateEmbedded(root, propFiles)
     Regenerate(root + "scite/win32/makefile", "#", propFiles)
     Regenerate(root + "scite/win32/scite.mak", "#", propFiles)
     Regenerate(root + "scite/src/SciTEProps.cxx", "//", sci.lexerProperties)
