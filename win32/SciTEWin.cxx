@@ -1867,7 +1867,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return KeyUp(wParam);
 
 		case WM_SIZE:
-			if (wParam != 1)
+			if (wParam != SIZE_MINIMIZED)
 				SizeSubWindows();
 			break;
 
