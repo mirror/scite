@@ -389,8 +389,10 @@ static bool GenericPropertiesFile(const FilePath &filename) {
 	return name.find("SciTE") != std::string::npos;
 }
 
-void PropSetFile::Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports) {
-	if (Read(filename, directoryForImports, filter, imports)) {
+void PropSetFile::Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth) {
+	if (depth > 20)	// Possibly recursive import so give up to avoid crash
+		return;
+	if (Read(filename, directoryForImports, filter, imports, depth)) {
 		if (imports && (std::find(imports->begin(),imports->end(), filename) == imports->end())) {
 			imports->push_back(filename);
 		}
@@ -398,7 +400,7 @@ void PropSetFile::Import(FilePath filename, FilePath directoryForImports, const 
 }
 
 bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath directoryForImports,
-                           const ImportFilter &filter, std::vector<FilePath> *imports) {
+                           const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth) {
 	//UnSlash(lineBuffer);
 	if (!IsSpaceOrTab(lineBuffer[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
@@ -418,13 +420,13 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 					!GenericPropertiesFile(fpFile) &&
 					filter.IsValid(fpFile.BaseName().AsUTF8())) {
 					FilePath importPath(directoryForImports, fpFile);
-					Import(importPath, directoryForImports, filter, imports);
+					Import(importPath, directoryForImports, filter, imports, depth+1);
 				}
 			}
 		} else if (filter.IsValid(importName.c_str())) {
 			importName += ".properties";
 			FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName.c_str())));
-			Import(importPath, directoryForImports, filter, imports);
+			Import(importPath, directoryForImports, filter, imports, depth+1);
 		}
 	} else if (ifIsTrue && !IsCommentLine(lineBuffer)) {
 		Set(lineBuffer);
@@ -433,7 +435,7 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 }
 
 void PropSetFile::ReadFromMemory(const char *data, size_t len, FilePath directoryForImports,
-                                 const ImportFilter &filter, std::vector<FilePath> *imports) {
+                                 const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth) {
 	const char *pd = data;
 	std::vector<char> lineBuffer(len+1);	// +1 for NUL
 	bool ifIsTrue = true;
@@ -446,12 +448,12 @@ void PropSetFile::ReadFromMemory(const char *data, size_t len, FilePath director
 				}
 			}
 		}
-		ifIsTrue = ReadLine(&lineBuffer[0], ifIsTrue, directoryForImports, filter, imports);
+		ifIsTrue = ReadLine(&lineBuffer[0], ifIsTrue, directoryForImports, filter, imports, depth);
 	}
 }
 
 bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
-                       const ImportFilter &filter, std::vector<FilePath> *imports) {
+                       const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth) {
 	FILE *rcfile = filename.Open(fileRead);
 	if (rcfile) {
 		fseek(rcfile, 0, SEEK_END);
@@ -469,7 +471,7 @@ bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
 			data += 3;
 			lenFile -= 3;
 		}
-		ReadFromMemory(data, lenFile, directoryForImports, filter, imports);
+		ReadFromMemory(data, lenFile, directoryForImports, filter, imports, depth);
 		return true;
 	}
 	return false;

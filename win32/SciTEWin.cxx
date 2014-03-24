@@ -197,7 +197,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 			const void *pv = ::LockResource(hmem);
 			if (pv) {
 				propsEmbed.ReadFromMemory(
-				    reinterpret_cast<const char *>(pv), size, FilePath(), filter);
+				    reinterpret_cast<const char *>(pv), size, FilePath(), filter, NULL, 0);
 			}
 		}
 		::FreeResource(handProps);

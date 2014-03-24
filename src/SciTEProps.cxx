@@ -159,11 +159,11 @@ void SciTEBase::ReadGlobalPropFile() {
 
 		propsBase.Clear();
 		FilePath propfileBase = GetDefaultPropertiesFileName();
-		propsBase.Read(propfileBase, propfileBase.Directory(), filter, &importFiles);
+		propsBase.Read(propfileBase, propfileBase.Directory(), filter, &importFiles, 0);
 
 		propsUser.Clear();
 		FilePath propfileUser = GetUserPropertiesFileName();
-		propsUser.Read(propfileUser, propfileUser.Directory(), filter, &importFiles);
+		propsUser.Read(propfileUser, propfileUser.Directory(), filter, &importFiles, 0);
 	}
 
 	if (!localiser.read) {
@@ -173,7 +173,7 @@ void SciTEBase::ReadGlobalPropFile() {
 
 void SciTEBase::ReadAbbrevPropFile() {
 	propsAbbrev.Clear();
-	propsAbbrev.Read(pathAbbreviations, pathAbbreviations.Directory(), filter, &importFiles);
+	propsAbbrev.Read(pathAbbreviations, pathAbbreviations.Directory(), filter, &importFiles, 0);
 }
 
 /**
@@ -189,7 +189,7 @@ void SciTEBase::ReadDirectoryPropFile() {
 		FilePath propfile = GetDirectoryPropertiesFileName();
 		props.Set("SciteDirectoryHome", propfile.Directory().AsUTF8().c_str());
 
-		propsDirectory.Read(propfile, propfile.Directory(), filter);
+		propsDirectory.Read(propfile, propfile.Directory(), filter, NULL, 0);
 	}
 }
 
@@ -204,7 +204,7 @@ void SciTEBase::ReadLocalPropFile() {
 	FilePath propfile = GetLocalPropertiesFileName();
 
 	propsLocal.Clear();
-	propsLocal.Read(propfile, propfile.Directory(), filter);
+	propsLocal.Read(propfile, propfile.Directory(), filter, NULL, 0);
 
 	props.Set("Chrome", "#C0C0C0");
 	props.Set("ChromeHighlight", "#FFFFFF");
@@ -1409,7 +1409,7 @@ void SciTEBase::ReadLocalization() {
 	}
 	FilePath propdir = GetSciteDefaultHome();
 	FilePath localePath(propdir, title);
-	localiser.Read(localePath, propdir, filter, &importFiles);
+	localiser.Read(localePath, propdir, filter, &importFiles, 0);
 	localiser.SetMissing(props.Get("translation.missing"));
 	localiser.read = true;
 }

@@ -571,7 +571,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		std::string propertiesText = CommandExecute(GUI::StringFromUTF8(discoveryScript.c_str()).c_str(),
 			absPath.Directory().AsInternal());
 		if (propertiesText.size()) {
-			propsDiscovered.ReadFromMemory(propertiesText.c_str(), propertiesText.size(), absPath.Directory(), filter);
+			propsDiscovered.ReadFromMemory(propertiesText.c_str(), propertiesText.size(), absPath.Directory(), filter, NULL, 0);
 		}
 	}
 	CurrentBuffer()->props = propsDiscovered;
