@@ -2957,7 +2957,7 @@ void SciTEBase::GoMatchingBrace(bool select) {
 	if (isInside) {
 		if (braceOpposite > braceAtCaret) {
 			braceAtCaret++;
-		} else {
+		} else if (braceOpposite >= 0) {
 			braceOpposite++;
 		}
 	} else {    // Outside
