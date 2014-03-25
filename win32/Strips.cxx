@@ -886,7 +886,7 @@ LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) {
 			return reinterpret_cast<LRESULT>(hbrNoMatch);
 		}
 	}
-	return 0;
+	return Strip::EditColour(hwnd, hdc);
 }
 
 void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) {
