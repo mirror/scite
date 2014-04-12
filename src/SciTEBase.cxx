@@ -400,17 +400,12 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
 			word[i++] = *currChar++;
 		}
 		word[i] = '\0';
-		if (preprocCondStart.InList(word)) {
-			return ppcStart;
-		}
-		if (preprocCondMiddle.InList(word)) {
-			return ppcMiddle;
-		}
-		if (preprocCondEnd.InList(word)) {
-			return ppcEnd;
+		std::map<std::string, PreProcKind>::const_iterator it = preprocOfString.find(word);
+		if (it != preprocOfString.end()) {
+			return it->second;
 		}
 	}
-	return noPPC;
+	return ppcNone;
 }
 
 /**

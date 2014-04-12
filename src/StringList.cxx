@@ -148,53 +148,6 @@ static void SortStringListNoCase(char **wordsNoCase, unsigned int len) {
 	      slCmpStringNoCase);
 }
 
-bool StringList::InList(const char *s) {
-	if (0 == words)
-		return false;
-	if (!sorted) {
-		sorted = true;
-		SortStringList(words, len);
-		for (unsigned int k = 0; k < (sizeof(starts) / sizeof(starts[0])); k++)
-			starts[k] = -1;
-		for (int l = len - 1; l >= 0; l--) {
-			unsigned char indexChar = words[l][0];
-			starts[indexChar] = l;
-		}
-	}
-	unsigned char firstChar = s[0];
-	int j = starts[firstChar];
-	if (j >= 0) {
-		while ((unsigned char)words[j][0] == firstChar) {
-			if (s[1] == words[j][1]) {
-				const char *a = words[j] + 1;
-				const char *b = s + 1;
-				while (*a && *a == *b) {
-					a++;
-					b++;
-				}
-				if (!*a && !*b)
-					return true;
-			}
-			j++;
-		}
-	}
-	j = starts[static_cast<unsigned int>('^')];
-	if (j >= 0) {
-		while (words[j][0] == '^') {
-			const char *a = words[j] + 1;
-			const char *b = s;
-			while (*a && *a == *b) {
-				a++;
-				b++;
-			}
-			if (!*a)
-				return true;
-			j++;
-		}
-	}
-	return false;
-}
-
 /**
  * Returns an element (complete) of the StringList array which has
  * the same beginning as the passed string.

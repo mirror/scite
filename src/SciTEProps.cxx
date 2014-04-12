@@ -980,18 +980,25 @@ void SciTEBase::ReadProperties() {
 	blockStart = GetStyleAndWords("block.start.");
 	blockEnd = GetStyleAndWords("block.end.");
 
+	struct {
+		const char *propName;
+		PreProcKind ppc;
+	} propToPPC[] = {
+		"preprocessor.start.", ppcStart,
+		"preprocessor.middle.", ppcMiddle,
+		"preprocessor.end.", ppcEnd,
+	};
 	SString list;
 	list = props.GetNewExpand("preprocessor.symbol.", fileNameForExtension.c_str());
 	preprocessorSymbol = list[0];
-	list = props.GetNewExpand("preprocessor.start.", fileNameForExtension.c_str());
-	preprocCondStart.Clear();
-	preprocCondStart.Set(list.c_str());
-	list = props.GetNewExpand("preprocessor.middle.", fileNameForExtension.c_str());
-	preprocCondMiddle.Clear();
-	preprocCondMiddle.Set(list.c_str());
-	list = props.GetNewExpand("preprocessor.end.", fileNameForExtension.c_str());
-	preprocCondEnd.Clear();
-	preprocCondEnd.Set(list.c_str());
+	preprocOfString.clear();
+	for (size_t iPreproc = 0; iPreproc < ELEMENTS(propToPPC); iPreproc++) {
+		list = props.GetNewExpand(propToPPC[iPreproc].propName, fileNameForExtension.c_str());
+		std::vector<std::string> words = StringSplit(std::string(list.c_str()), ' ');
+		for (std::vector<std::string>::iterator it = words.begin(); it != words.end(); ++it) {
+			preprocOfString[*it] = propToPPC[iPreproc].ppc;
+		}
+	}
 
 	memFiles.AppendList(props.GetNewExpand("find.files").c_str());
 

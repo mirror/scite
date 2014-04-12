@@ -391,11 +391,10 @@ protected:
 	StyleAndWords statementEnd;
 	StyleAndWords blockStart;
 	StyleAndWords blockEnd;
-	enum { noPPC, ppcStart, ppcMiddle, ppcEnd, ppcDummy };	///< Indicate the kind of preprocessor condition line
-	char preprocessorSymbol;	///< Preprocessor symbol (in C: #)
-	StringList preprocCondStart;	///< List of preprocessor conditional start keywords (in C: if ifdef ifndef)
-	StringList preprocCondMiddle;	///< List of preprocessor conditional middle keywords (in C: else elif)
-	StringList preprocCondEnd;	///< List of preprocessor conditional end keywords (in C: endif)
+	enum PreProcKind { ppcNone, ppcStart, ppcMiddle, ppcEnd, ppcDummy };	///< Indicate the kind of preprocessor condition line
+	char preprocessorSymbol;	///< Preprocessor symbol (in C, #)
+	std::map<std::string, PreProcKind> preprocOfString; ///< Map preprocessor keywords to positions
+	/// In C, if ifdef ifndef : start, else elif : middle, endif : end.
 
 	GUI::Window wSciTE;  ///< Contains wToolBar, wTabBar, wContent, and wStatusBar
 	GUI::Window wContent;    ///< Contains wEditor and wOutput

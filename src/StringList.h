@@ -15,7 +15,6 @@ public:
 	bool onlyLineEnds;	///< Delimited by any white space or only line ends
 	bool sorted;
 	bool sortedNoCase;
-	int starts[256];
 	StringList(bool onlyLineEnds_ = false) :
 		words(0), wordsNoCase(0), list(0), len(0), onlyLineEnds(onlyLineEnds_),
 		sorted(false), sortedNoCase(false) {}
@@ -26,7 +25,6 @@ public:
 	void Set(const char *s);
 	char *Allocate(int size);
 	void SetFromAllocated();
-	bool InList(const char *s);
 	const char *GetNearestWord(const char *wordStart, size_t searchLen,
 		bool ignoreCase = false, SString wordCharacters="", int wordIndex = -1);
 	char *GetNearestWords(const char *wordStart, size_t searchLen,
