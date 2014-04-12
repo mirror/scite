@@ -1235,6 +1235,7 @@ public:
 		fp = fPath.Open(fileRead);
 		readAll = false;
 		exhausted = fp == NULL;
+		buffer[0] = 0;
 		pos = 0;
 		valid = 0;
 	}
@@ -1268,9 +1269,8 @@ class FileReader {
 	BufferedFile *bf;
 	int lineNum;
 	bool lastWasCR;
-	enum {bufLen = 1000};
-	char lineToCompare[bufLen+1];
-	char lineToShow[bufLen+1];
+	std::string lineToCompare;
+	std::string lineToShow;
 	bool caseSensitive;
 	// Private so FileReader objects can not be copied
 	FileReader(const FileReader &);
@@ -1286,39 +1286,38 @@ public:
 		delete bf;
 		bf = NULL;
 	}
-	char *Next() {
+	const char *Next() {
 		if (bf->Exhausted()) {
 			return NULL;
 		}
-		int i = 0;
+		lineToShow.clear();
 		while (!bf->Exhausted()) {
 			int ch = bf->NextByte();
-			if (i == 0 && lastWasCR && ch == '\n') {
+			if (lastWasCR && ch == '\n' && lineToShow.empty()) {
 				lastWasCR = false;
 			} else if (ch == '\r' || ch == '\n') {
 				lastWasCR = ch == '\r';
 				break;
-			} else if (i < bufLen) {
-				lineToShow[i++] = static_cast<char>(ch);
+			} else {
+				lineToShow.push_back(static_cast<char>(ch));
 			}
 		}
-		lineToShow[i] = '\0';
 		lineNum++;
-		strcpy(lineToCompare, lineToShow);
+		lineToCompare = lineToShow;
 		if (!caseSensitive) {
-			for (int j = 0; j < i; j++) {
+			for (unsigned int j = 0; j < lineToCompare.length(); j++) {
 				if (lineToCompare[j] >= 'A' && lineToCompare[j] <= 'Z') {
 					lineToCompare[j] = static_cast<char>(lineToCompare[j] - 'A' + 'a');
 				}
 			}
 		}
-		return lineToCompare;
+		return lineToCompare.c_str();
 	}
 	int LineNumber() const {
 		return lineNum;
 	}
 	const char *Original() const {
-		return lineToShow;
+		return lineToShow.c_str();
 	}
 	bool BufferContainsNull() {
 		return bf->BufferContainsNull();
@@ -1353,11 +1352,11 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 			//OutputAppendStringSynchronised("\n");
 			FileReader fr(fPath, gf & grepMatchCase);
 			if ((gf & grepBinary) || !fr.BufferContainsNull()) {
-				while (char *line = fr.Next()) {
-					char *match = strstr(line, searchString);
+				while (const char *line = fr.Next()) {
+					const char *match = strstr(line, searchString);
 					if (match) {
 						if (gf & grepWholeWord) {
-							char *lineEnd = line + strlen(line);
+							const char *lineEnd = line + strlen(line);
 							while (match) {
 								if (((match == line) || !IsWordCharacter(match[-1])) &&
 								        ((match + searchLength == (lineEnd)) || !IsWordCharacter(match[searchLength]))) {
