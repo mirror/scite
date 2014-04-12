@@ -984,9 +984,9 @@ void SciTEBase::ReadProperties() {
 		const char *propName;
 		PreProcKind ppc;
 	} propToPPC[] = {
-		"preprocessor.start.", ppcStart,
-		"preprocessor.middle.", ppcMiddle,
-		"preprocessor.end.", ppcEnd,
+		{"preprocessor.start.", ppcStart},
+		{"preprocessor.middle.", ppcMiddle},
+		{"preprocessor.end.", ppcEnd},
 	};
 	SString list;
 	list = props.GetNewExpand("preprocessor.symbol.", fileNameForExtension.c_str());
