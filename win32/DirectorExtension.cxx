@@ -46,7 +46,6 @@
 #include "Worker.h"
 #include "SciTEBase.h"
 
-static ExtensionAPI *host = 0;
 static HWND wDirector = 0;
 static HWND wCorrespondent = 0;
 static HWND wReceiver = 0;

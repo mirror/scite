@@ -7,7 +7,8 @@
 
 class DirectorExtension : public Extension {
 private:
-	DirectorExtension() {} // Singleton
+	ExtensionAPI *host;
+	DirectorExtension() : host(0) {} // Singleton
 	DirectorExtension(const DirectorExtension &); // Disable copy ctor
 	void operator=(const DirectorExtension &);    // Disable operator=
 

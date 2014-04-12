@@ -69,7 +69,6 @@
 #include "Worker.h"
 #include "SciTEBase.h"
 
-static ExtensionAPI *host = 0;
 static int fdDirector = 0;
 static int fdCorrespondent = 0;
 static int fdReceiver = 0;
