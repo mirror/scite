@@ -300,6 +300,12 @@ SString PropSetFile::GetExpanded(const char *key) const {
 	return val;
 }
 
+std::string PropSetFile::GetExpandedString(const char *key) const {
+	SString val = Get(key);
+	ExpandAllInPlace(*this, val, 100, VarChain(key));
+	return std::string(val.c_str(), val.length());
+}
+
 SString PropSetFile::Expand(const char *withVars, int maxExpands) const {
 	SString val = withVars;
 	ExpandAllInPlace(*this, val, maxExpands);

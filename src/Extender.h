@@ -22,7 +22,7 @@ public:
 	virtual void Remove(Pane p, int start, int end)=0;
 	virtual void Insert(Pane p, int pos, const char *s)=0;
 	virtual void Trace(const char *s)=0;
-	virtual char *Property(const char *key)=0;
+	virtual std::string Property(const char *key)=0;
 	virtual void SetProperty(const char *key, const char *val)=0;
 	virtual void UnsetProperty(const char *key)=0;
 	virtual uptr_t GetInstance()=0;

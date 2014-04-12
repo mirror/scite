@@ -71,8 +71,8 @@ static ExtensionAPI *host = 0;
 static lua_State *luaState = 0;
 static bool luaDisabled = false;
 
-static char *startupScript = NULL;
-static SString extensionScript;
+static std::string startupScript;
+static std::string extensionScript;
 
 static bool tracebackEnabled = true;
 
@@ -82,10 +82,9 @@ static int curBufferIndex = -1;
 static int GetPropertyInt(const char *propName) {
 	int propVal = 0;
 	if (host) {
-		char *pszPropVal = host->Property(propName);
-		if (pszPropVal) {
-			propVal = atoi(pszPropVal);
-			delete [] pszPropVal;
+		std::string sPropVal = host->Property(propName);
+		if (sPropVal.length()) {
+			propVal = atoi(sPropVal.c_str());
 		}
 	}
 	return propVal;
@@ -659,15 +658,9 @@ static int cf_props_metatable_index(lua_State *L) {
 	int selfArg = lua_isuserdata(L, 1) ? 1 : 0;
 
 	if (lua_isstring(L, selfArg + 1)) {
-		char *value = host->Property(lua_tostring(L, selfArg + 1));
-		if (value) {
-			lua_pushstring(L, value);
-			delete []value;
-			return 1;
-		} else {
-			lua_pushliteral(L, "");
-			return 1;
-		}
+		std::string value = host->Property(lua_tostring(L, selfArg + 1));
+		lua_pushstring(L, value.c_str());
+		return 1;
 	} else {
 		raise_error(L, "String argument required for property access");
 	}
@@ -1228,17 +1221,9 @@ static int LuaPanicFunction(lua_State *L) {
 // since it means a user who is having trouble with Lua can just refrain from
 // using it.
 
-static char *CheckStartupScript() {
-	delete[] startupScript;
-
+static bool CheckStartupScript() {
 	startupScript = host->Property("ext.lua.startup.script");
-
-	if (startupScript && startupScript[0] == '\0') {
-		delete[] startupScript;
-		startupScript = NULL;
-	}
-
-	return startupScript;
+	return startupScript.length() > 0;
 }
 
 void PublishGlobalBufferData() {
@@ -1426,16 +1411,16 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		CheckStartupScript();
 	}
 
-	if (startupScript) {
+	if (startupScript.length()) {
 		// TODO: Should buffer be deactivated temporarily, so editor iface
 		// functions won't be available during a reset, just as they are not
 		// available during a normal startup?  Are there any other functions
 		// that should be blocked during startup, e.g. the ones that allow
 		// you to add or switch buffers?
 
-		FilePath fpTest(GUI::StringFromUTF8(startupScript));
+		FilePath fpTest(GUI::StringFromUTF8(startupScript.c_str()));
 		if (fpTest.Exists()) {
-			luaL_loadfile(luaState, startupScript);
+			luaL_loadfile(luaState, startupScript.c_str());
 			if (!call_function(luaState, 0, true)) {
 				host->Trace(">Lua: error occurred while loading startup script\n");
 			}
@@ -1480,8 +1465,7 @@ bool LuaExtension::Finalise() {
 	// The rest don't strictly need to be cleared since they
 	// are never accessed except when luaState and host are set
 
-	delete [] startupScript;
-	startupScript = NULL;
+	startupScript = "";
 
 	return false;
 }
@@ -1659,7 +1643,7 @@ bool LuaExtension::OnSave(const char *filename) {
 	bool result = CallNamedFunction("OnSave", filename);
 
 	FilePath fpSaving = FilePath(GUI::StringFromUTF8(filename)).NormalizePath();
-	if (startupScript && fpSaving == FilePath(GUI::StringFromUTF8(startupScript)).NormalizePath()) {
+	if (startupScript.length() && fpSaving == FilePath(GUI::StringFromUTF8(startupScript.c_str())).NormalizePath()) {
 		if (GetPropertyInt("ext.lua.auto.reload") > 0) {
 			InitGlobalScope(false, true);
 			if (extensionScript.length()) {
@@ -2009,9 +1993,8 @@ bool LuaExtension::OnStyle(unsigned int startPos, int lengthDoc, int initStyle, 
 			lua_settable(luaState, -3);
 
 			lua_pushstring(luaState, "language");
-			char *lang = host->Property("Language");
-			lua_pushstring(luaState, lang);
-			delete []lang;
+			std::string lang = host->Property("Language");
+			lua_pushstring(luaState, lang.c_str());
 			lua_settable(luaState, -3);
 
 			sc.PushMethod(luaState, StylingContext::Line, "Line");

@@ -4780,11 +4780,8 @@ void SciTEBase::Trace(const char *s) {
 	OutputAppendStringSynchronised(s);
 }
 
-char *SciTEBase::Property(const char *key) {
-	SString value = props.GetExpanded(key);
-	char *retval = new char[value.length() + 1];
-	strcpy(retval, value.c_str());
-	return retval;
+std::string SciTEBase::Property(const char *key) {
+	return props.GetExpandedString(key);
 }
 
 void SciTEBase::SetProperty(const char *key, const char *val) {

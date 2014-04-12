@@ -37,6 +37,7 @@ public:
 	SString Get(const char *key) const;
 	SString Evaluate(const char *key) const;
 	SString GetExpanded(const char *key) const;
+	std::string GetExpandedString(const char *key) const;
 	SString Expand(const char *withVars, int maxExpands=100) const;
 	int GetInt(const char *key, int defaultValue=0) const;
 	void Clear();

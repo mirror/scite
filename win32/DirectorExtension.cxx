@@ -93,14 +93,13 @@ static void SendDirector(const char *verb, sptr_t arg) {
 static void CheckEnvironment(ExtensionAPI *phost) {
 	if (phost && !shuttingDown) {
 		if (!wDirector) {
-			char *director = phost->Property("director.hwnd");
-			if (director && *director) {
+			std::string director = phost->Property("director.hwnd");
+			if (director.length() > 0) {
 				startedByDirector = true;
-				wDirector = reinterpret_cast<HWND>(atoi(director));
+				wDirector = reinterpret_cast<HWND>(atoi(director.c_str()));
 				// Director is just seen so identify this to it
 				::SendDirector("identity", reinterpret_cast<sptr_t>(wReceiver));
 			}
-			delete []director;
 		}
 		SString sReceiver(reinterpret_cast<size_t>(wReceiver));
 		phost->SetProperty("WindowID", sReceiver.c_str());

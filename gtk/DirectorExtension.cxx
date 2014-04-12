@@ -206,13 +206,12 @@ static void CheckEnvironment(ExtensionAPI *host) {
 	if (!host)
 		return ;
 	if (!fdDirector) {
-		char *director = host->Property("ipc.director.name");
-		if (not_empty(director)) {
+		std::string director = host->Property("ipc.director.name");
+		if (director.length() > 0) {
 			startedByDirector = true;
-			fdDirector = OpenPipe(director);
+			fdDirector = OpenPipe(director.c_str());
 			AddSendPipe(fdDirector,NULL);  // we won't remove this pipe!
 		}
-		delete []director;
 	}
 }
 
@@ -436,7 +435,7 @@ void DirectorExtension::CreatePipe(bool) {
 	if (!host)
 		return;
 	bool tryStandardPipeCreation;
-	char *pipeName = host->Property("ipc.scite.name");
+	std::string pipeName = host->Property("ipc.scite.name");
 
 	fdReceiver = -1;
 	inputWatcher = -1;
@@ -444,14 +443,14 @@ void DirectorExtension::CreatePipe(bool) {
 	requestPipeName[0] = '\0';
 
 	// check we have been given a specific pipe name
-	if (not_empty(pipeName)) {
-		IF_DEBUG(fprintf(fdDebug, "CreatePipe: if (not_empty(pipeName)): '%s'\n", pipeName))
-		fdReceiver = OpenPipe(pipeName);
+	if (pipeName.length() > 0) {
+		IF_DEBUG(fprintf(fdDebug, "CreatePipe: if (not_empty(pipeName)): '%s'\n", pipeName.c_str()))
+		fdReceiver = OpenPipe(pipeName.c_str());
 		// there isn't a pipe - so create one
 		if (fdReceiver == -1 && errno == ENOENT) {
 			IF_DEBUG(fprintf(fdDebug, "CreatePipe: Non found - making\n"))
-			if (MakePipe(pipeName)) {
-				fdReceiver = OpenPipe(pipeName);
+			if (MakePipe(pipeName.c_str())) {
+				fdReceiver = OpenPipe(pipeName.c_str());
 				if (fdReceiver == -1) {
 					perror("CreatePipe: could not open newly created pipe");
 				}
@@ -490,14 +489,11 @@ void DirectorExtension::CreatePipe(bool) {
 		//inputWatcher = gdk_input_add(fdReceiver, GDK_INPUT_READ, ReceiverPipeSignal, this);
 		// if we were not supplied with an explicit ipc.scite.name, then set this
 		// property to be the constructed pipe name.
-		if (! not_empty(pipeName)) {
+		if (pipeName.length() > 0) {
 			host->SetProperty("ipc.scite.name", requestPipeName);
 		}
-		delete[] pipeName;
 		return;
 	}
-
-	delete[] pipeName;
 
 	// if we arrive here, we must have failed
 	fdReceiver = 0;
