@@ -48,7 +48,7 @@ bool UniqueInstance::AcceptToOpenFiles(bool bAccept) {
 		// The mutex object is destroyed when its last handle has been closed."
 		// If the mutex already exists, the new process get a handle on it, so even if the first
 		// process exits, the mutex isn't destroyed, until all SciTE instances exit.
-		mutex = ::CreateMutexA(NULL, FALSE, mutexName.c_str());
+		mutex = ::CreateMutex(NULL, FALSE, mutexName.c_str());
 		// The call fails with ERROR_ACCESS_DENIED if the mutex was
 		// created in a different user session because of passing
 		// NULL for the SECURITY_ATTRIBUTES on mutex creation
@@ -133,17 +133,16 @@ void UniqueInstance::CheckOtherInstance() {
 	// Use the method explained by Joseph M. Newcomer to avoid multiple instances of an application:
 	// http://www.codeproject.com/cpp/avoidmultinstance.asp
 	// I limit instances by desktop, it seems to make sense with a GUI application...
-	mutexName = "SciTE-UniqueInstanceMutex-";	// I doubt I really need a GUID here...
+	mutexName = TEXT("SciTE-UniqueInstanceMutex-");	// I doubt I really need a GUID here...
 	HDESK desktop = ::GetThreadDesktop(::GetCurrentThreadId());
 	DWORD len = 0;
 	// Query the needed size for the buffer
 	BOOL result = ::GetUserObjectInformation(desktop, UOI_NAME, NULL, 0, &len);
 	if (result == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 		// WinNT / Win2000
-		char *info = new char[len];
-		::GetUserObjectInformation(desktop, UOI_NAME, info, len, &len);
+		std::wstring info(len, 0);	// len is actually bytes so this is twice length needed
+		::GetUserObjectInformation(desktop, UOI_NAME, &info[0], len, NULL);
 		mutexName += info;
-		delete []info;
 	}
 	// Try to set the mutex. If return false, it failed, there is already another instance.
 	bAlreadyRunning = !AcceptToOpenFiles(true);

@@ -15,7 +15,7 @@ private:
 	SciTEWin *stw;	///< Access to SciTEWin interface
 	UINT identityMessage;	///< Registered message to identify SciTE instances
 	HANDLE mutex;	///< Mutex to avoid concurrent running
-	SString mutexName;	///< Name of the above
+	std::wstring mutexName;	///< Name of the above
 	bool bAlreadyRunning;	///< true if another instance accepting files is found
 	HWND hOtherWindow;	///< Handle of the window of the found other instance
 
