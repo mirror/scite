@@ -3357,7 +3357,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	}
 	if (!commandID) {
 		// Look through language menu
-		for (int j = 0; j < languageItems; j++) {
+		for (unsigned int j = 0; j < languageMenu.size(); j++) {
 			if (KeyMatch(languageMenu[j].menuKey.c_str(), event->keyval, modifiers)) {
 				commandID = IDM_LANGUAGE + j;
 			}

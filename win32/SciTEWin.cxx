@@ -1676,7 +1676,7 @@ static const int VK_OEM_6=0xdd;
 static const int VK_OEM_PLUS=0xbb;
 #endif
 
-inline bool KeyMatch(const SString &sKey, int keyval, int modifiers) {
+inline bool KeyMatch(const std::string &sKey, int keyval, int modifiers) {
 	return SciTEKeys::MatchKeyCode(
 		SciTEKeys::ParseKeyCode(sKey.c_str()), keyval, modifiers);
 }
@@ -1691,7 +1691,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	if (extender && extender->OnKey(static_cast<int>(wParam), modifiers))
 		return 1l;
 
-	for (int j = 0; j < languageItems; j++) {
+	for (unsigned int j = 0; j < languageMenu.size(); j++) {
 		if (KeyMatch(languageMenu[j].menuKey, static_cast<int>(wParam), modifiers)) {
 			SciTEBase::MenuCommand(IDM_LANGUAGE + j);
 			return 1l;
@@ -1717,7 +1717,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// exec it the command defined
 	for (size_t cut_i = 0; cut_i < shortCutItemList.size(); cut_i++) {
 		if (KeyMatch(shortCutItemList[cut_i].menuKey, static_cast<int>(wParam), modifiers)) {
-			int commandNum = SciTEBase::GetMenuCommandAsInt(shortCutItemList[cut_i].menuCommand);
+			int commandNum = SciTEBase::GetMenuCommandAsInt(shortCutItemList[cut_i].menuCommand.c_str());
 			if (commandNum != -1) {
 				// its possible that the command is for scintilla directly
 				// all scintilla commands are larger then 2000

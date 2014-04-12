@@ -95,7 +95,7 @@ public:
 	time_t fileModLastAsk;
 	time_t documentModTime;
 	enum { fmNone, fmTemporary, fmMarked, fmModified} findMarks;
-	SString overrideExtension;	///< User has chosen to use a particular language
+	std::string overrideExtension;	///< User has chosen to use a particular language
 	std::vector<int> foldState;
 	std::vector<int> bookmarks;
 	FileWorker *pFileWorker;
@@ -197,15 +197,15 @@ private:
 // class to hold user defined keyboard short cuts
 class ShortcutItem {
 public:
-	SString menuKey; // the keyboard short cut
-	SString menuCommand; // the menu command to be passed to "SciTEBase::MenuCommand"
+	std::string menuKey; // the keyboard short cut
+	std::string menuCommand; // the menu command to be passed to "SciTEBase::MenuCommand"
 };
 
 class LanguageMenuItem {
 public:
-	SString menuItem;
-	SString menuKey;
-	SString extension;
+	std::string menuItem;
+	std::string menuKey;
+	std::string extension;
 };
 
 enum {
@@ -366,8 +366,7 @@ protected:
 	SString abbrevInsert;
 
 	enum { languageCmdID = IDM_LANGUAGE };
-	LanguageMenuItem *languageMenu;
-	int languageItems;
+	std::vector<LanguageMenuItem> languageMenu;
 
 	// an array of short cut items that are defined by the user in the properties file.
 	std::vector<ShortcutItem> shortCutItemList;
@@ -589,7 +588,7 @@ protected:
 	static bool Exists(const GUI::gui_char *dir, const GUI::gui_char *path, FilePath *resultPath);
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
-	SString DiscoverLanguage();
+	std::string DiscoverLanguage();
 	void OpenFile(long fileSize, bool suppressMessage, bool asynchronous);
 	virtual void OpenUriList(const char *) {}
 	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter) = 0;

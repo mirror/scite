@@ -200,9 +200,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	lineNumbersWidth = lineNumbersWidthDefault;
 	lineNumbersExpand = false;
 
-	languageMenu = 0;
-	languageItems = 0;
-
 	macrosEnabled = false;
 	recording = false;
 
@@ -226,7 +223,6 @@ SciTEBase::~SciTEBase() {
 	TimerEnd(timerAutoSave);
 	if (extender)
 		extender->Finalise();
-	delete []languageMenu;
 	popup.Destroy();
 }
 

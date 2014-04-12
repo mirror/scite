@@ -173,12 +173,12 @@ void SciTEBase::DiscoverEOLSetting() {
 }
 
 // Look inside the first line for a #! clue regarding the language
-SString SciTEBase::DiscoverLanguage() {
+std::string SciTEBase::DiscoverLanguage() {
 	char buf[64 * 1024];
 	int length = Minimum(LengthDocument(), sizeof(buf)-1);
 	GetRange(wEditor, 0, length, buf);
 	buf[length] = '\0';
-	SString languageOverride = "";
+	std::string languageOverride = "";
 	SString l1 = ExtractLine(buf, length);
 	if (l1.startswith("<?xml")) {
 		languageOverride = "xml";
@@ -198,9 +198,9 @@ SString SciTEBase::DiscoverLanguage() {
 		l1.substitute(' ', '\0');
 		const char *word = l1.c_str();
 		while (*word) {
-			SString propShBang("shbang.");
+			std::string propShBang("shbang.");
 			propShBang.append(word);
-			SString langShBang = props.GetExpanded(propShBang.c_str());
+			std::string langShBang = props.GetExpandedString(propShBang.c_str());
 			if (langShBang.length()) {
 				languageOverride = langShBang;
 			}
@@ -374,7 +374,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	}
 
 	if (language == "") {
-		SString languageOverride = DiscoverLanguage();
+		std::string languageOverride = DiscoverLanguage();
 		if (languageOverride.length()) {
 			CurrentBuffer()->overrideExtension = languageOverride;
 			CurrentBuffer()->lifeState = Buffer::open;

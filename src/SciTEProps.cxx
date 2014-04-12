@@ -99,7 +99,7 @@ void SciTEBase::SetLanguageMenu() {
 	for (int i = 0; i < 100; i++) {
 		DestroyMenuItem(menuLanguage, languageCmdID + i);
 	}
-	for (int item = 0; item < languageItems; item++) {
+	for (unsigned int item = 0; item < languageMenu.size(); item++) {
 		int itemID = languageCmdID + item;
 		GUI::gui_string entry = localiser.Text(languageMenu[item].menuItem.c_str());
 		if (languageMenu[item].menuKey.length()) {
@@ -305,7 +305,7 @@ void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const 
 
 SString SciTEBase::ExtensionFileName() {
 	if (CurrentBuffer()->overrideExtension.length()) {
-		return CurrentBuffer()->overrideExtension;
+		return CurrentBuffer()->overrideExtension.c_str();
 	} else {
 		FilePath name = FileNameExt();
 		if (name.IsSet()) {
@@ -1440,23 +1440,17 @@ void SciTEBase::ReadPropertiesInitial() {
 	wOutput.Call(SCI_SETWRAPMODE, wrapOutput ? wrapStyle : SC_WRAP_NONE);
 
 	SString menuLanguageProp = props.GetNewExpand("menu.language");
-	languageItems = 0;
-	for (unsigned int i = 0; i < menuLanguageProp.length(); i++) {
-		if (menuLanguageProp[i] == '|')
-			languageItems++;
-	}
-	languageItems /= 3;
-	languageMenu = new LanguageMenuItem[languageItems];
-
 	menuLanguageProp.substitute('|', '\0');
 	const char *sMenuLanguage = menuLanguageProp.c_str();
-	for (int item = 0; item < languageItems; item++) {
-		languageMenu[item].menuItem = sMenuLanguage;
+	while (*sMenuLanguage) {
+		LanguageMenuItem lmi;
+		lmi.menuItem = sMenuLanguage;
 		sMenuLanguage += strlen(sMenuLanguage) + 1;
-		languageMenu[item].extension = sMenuLanguage;
+		lmi.extension = sMenuLanguage;
 		sMenuLanguage += strlen(sMenuLanguage) + 1;
-		languageMenu[item].menuKey = sMenuLanguage;
+		lmi.menuKey = sMenuLanguage;
 		sMenuLanguage += strlen(sMenuLanguage) + 1;
+		languageMenu.push_back(lmi);
 	}
 	SetLanguageMenu();
 
