@@ -298,31 +298,27 @@ static int stat(const wchar_t *path, struct _stat *buffer) {
 
 #endif
 
-static GUI::gui_char *split(GUI::gui_char*& s, GUI::gui_char c) {
-	GUI::gui_char *t = s;
-	if (s && (s = strchr(s, c)) != NULL)
-		* s++ = '\0';
-	return t;
-}
-
 FilePath FilePath::NormalizePath() const {
-	GUI::gui_char *path = new GUI::gui_char[fileName.length() + 1];
-	strcpy(path, AsInternal());
+	GUI::gui_string path = fileName;
 #ifdef WIN32
 	// Convert unix path separators to Windows
-	std::replace(path, path+strlen(path), L'/', pathSepChar);
+	std::replace(path.begin(), path.end(), L'/', pathSepChar);
 #endif
-	GUI::gui_char *absPath = new GUI::gui_char[fileName.length() + 1];
+	GUI::gui_string absPathString(fileName.length() + 1, 0);
+	GUI::gui_char *absPath = &absPathString[0];
 	GUI::gui_char *cur = absPath;
 	*cur = '\0';
-	GUI::gui_char *tmp = path;
-	if (*tmp == pathSepChar) {
+	GUI::gui_char *part = &path[0];
+	if (*part == pathSepChar) {
 		*cur++ = pathSepChar;
 		*cur = '\0';
-		tmp++;
+		part++;
 	}
-	GUI::gui_char *part;
-	while ((part = split(tmp, pathSepChar)) != NULL) {
+	// Split into components and remove x/.. and .
+	while (part) {
+		GUI::gui_char *next = strchr(part, pathSepChar);
+		if (next)
+			*next++ = 0;
 		GUI::gui_char *last;
 		if (strcmp(part, GUI_TEXT(".")) == 0)
 			;
@@ -338,11 +334,9 @@ FilePath FilePath::NormalizePath() const {
 			strcpy(cur, part);
 			cur += strlen(part);
 		}
+		part = next;
 	}
-	FilePath ret(absPath);
-	delete []path;
-	delete []absPath;
-	return ret;
+	return FilePath(absPath);
 }
 
 /**
