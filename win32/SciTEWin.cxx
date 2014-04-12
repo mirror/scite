@@ -300,18 +300,27 @@ static int CodePageFromName(const std::string &encodingName) {
 	return CP_UTF8;
 }
 
+static std::string StringEncode(std::wstring s, int codePage) {
+	int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), NULL, 0, NULL, NULL);
+	std::string sMulti(cchMulti, 0);
+	::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, NULL, NULL);
+	return sMulti;
+}
+
+static std::wstring StringDecode(std::string s, int codePage) {
+	int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0);
+	std::wstring sWide(cchWide, 0);
+	::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), &sWide[0], cchWide);
+	return sWide;
+}
+
 // Convert to UTF-8
 static std::string ConvertEncoding(const char *original, int codePage) {
 	if (codePage == CP_UTF8) {
 		return original;
 	} else {
-		int cchWide = ::MultiByteToWideChar(codePage, 0, original, -1, NULL, 0);
-		wchar_t *pszWide = new wchar_t[cchWide + 1];
-		::MultiByteToWideChar(codePage, 0, original, -1, pszWide, cchWide + 1);
-		GUI::gui_string sWide(pszWide);
-		std::string ret = GUI::UTF8FromString(sWide);
-		delete []pszWide;
-		return ret;
+		GUI::gui_string sWide = StringDecode(std::string(original), codePage);
+		return GUI::UTF8FromString(sWide);
 	}
 }
 
@@ -652,12 +661,8 @@ static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 }
 
 void SciTEWin::OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePage) {
-	int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), NULL, 0, NULL, NULL);
-	char *pszMulti = new char[cchMulti + 1];
-	::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), pszMulti, cchMulti + 1, NULL, NULL);
-	pszMulti[cchMulti] = 0;
-	OutputAppendStringSynchronised(pszMulti);
-	delete []pszMulti;
+	std::string sMulti = StringEncode(s, codePage);
+	OutputAppendStringSynchronised(sMulti.c_str());
 }
 
 CommandWorker::CommandWorker() : pSciTE(NULL) {
@@ -2057,29 +2062,13 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 // Convert String from UTF-8 to doc encoding
 SString SciTEWin::EncodeString(const SString &s) {
-	//::MessageBox(GetFocus(),SString(s).c_str(),"EncodeString:in",0);
-
 	UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
 
 	if (codePage != SC_CP_UTF8) {
 		codePage = CodePageFromCharSet(characterSet, codePage);
-
-		int cchWide = ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0);
-		wchar_t *pszWide = new wchar_t[cchWide + 1];
-		::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), static_cast<int>(s.length()), pszWide, cchWide + 1);
-
-		int cchMulti = ::WideCharToMultiByte(codePage, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
-		char *pszMulti = new char[cchMulti + 1];
-		::WideCharToMultiByte(codePage, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
-		pszMulti[cchMulti] = 0;
-
-		SString result(pszMulti);
-
-		delete []pszWide;
-		delete []pszMulti;
-
-		//::MessageBox(GetFocus(),result.c_str(),"EncodeString:out",0);
-		return result;
+		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), CP_UTF8);
+		std::string sMulti = StringEncode(sWide, codePage);
+		return SString(sMulti.c_str(), 0, sMulti.length());
 	}
 	return SciTEBase::EncodeString(s);
 }
@@ -2092,22 +2081,9 @@ SString SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, 
 
 	if (codePage != SC_CP_UTF8) {
 		codePage = CodePageFromCharSet(characterSet, codePage);
-
-		int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0);
-		wchar_t *pszWide = new wchar_t[cchWide + 1];
-		::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), pszWide, cchWide + 1);
-
-		int cchMulti = ::WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, NULL, 0, NULL, NULL);
-		char *pszMulti = new char[cchMulti + 1];
-		::WideCharToMultiByte(CP_UTF8, 0, pszWide, cchWide, pszMulti, cchMulti + 1, NULL, NULL);
-		pszMulti[cchMulti] = 0;
-
-		SString result(pszMulti);
-
-		delete []pszWide;
-		delete []pszMulti;
-
-		return result;
+		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), codePage);
+		std::string sMulti = StringEncode(sWide, CP_UTF8);
+		return SString(sMulti.c_str(), 0, sMulti.length());
 	}
 	return s;
 }
