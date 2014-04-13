@@ -157,7 +157,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
-	SString fontFace = props.GetExpanded("export.rtf.font.face");
+	std::string fontFace = props.GetExpandedString("export.rtf.font.face");
 	if (fontFace.length()) {
 		defaultStyle.font = fontFace;
 	} else if (defaultStyle.font.length() == 0) {
@@ -409,7 +409,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 
 		fputs("<style type=\"text/css\">\n", fp);
 
-		SString bgColour;
+		std::string bgColour;
 		char key[200];
 		sprintf(key, "style.*.%0d", STYLE_DEFAULT);
 		char *valdef = StringDup(props.GetExpanded(key).c_str());

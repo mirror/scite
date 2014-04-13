@@ -211,7 +211,7 @@ void SciTEBase::ReadLocalPropFile() {
 }
 
 Colour ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault) {
-	SString colour = props.GetExpanded(key);
+	std::string colour = props.GetExpandedString(key);
 	if (colour.length()) {
 		return ColourFromString(colour);
 	}
@@ -741,7 +741,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	wOutput.Call(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 
-	SString caretLineBack = props.Get("caret.line.back");
+	std::string caretLineBack = props.GetString("caret.line.back");
 	if (caretLineBack.length()) {
 		wEditor.Call(SCI_SETCARETLINEVISIBLE, 1);
 		wEditor.Call(SCI_SETCARETLINEBACK, ColourFromString(caretLineBack));
@@ -795,13 +795,13 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETEDGECOLOUR,
 	           ColourOfProperty(props, "edge.colour", ColourRGB(0xff, 0xda, 0xda)));
 
-	SString selFore = props.Get("selection.fore");
+	std::string selFore = props.GetString("selection.fore");
 	if (selFore.length()) {
 		CallChildren(SCI_SETSELFORE, 1, ColourFromString(selFore));
 	} else {
 		CallChildren(SCI_SETSELFORE, 0, 0);
 	}
-	SString selBack = props.Get("selection.back");
+	std::string selBack = props.GetString("selection.back");
 	if (selBack.length()) {
 		CallChildren(SCI_SETSELBACK, 1, ColourFromString(selBack));
 	} else {
@@ -813,37 +813,37 @@ void SciTEBase::ReadProperties() {
 	int selectionAlpha = props.GetInt("selection.alpha", SC_ALPHA_NOALPHA);
 	CallChildren(SCI_SETSELALPHA, selectionAlpha);
 
-	SString selAdditionalFore = props.Get("selection.additional.fore");
+	std::string selAdditionalFore = props.GetString("selection.additional.fore");
 	if (selAdditionalFore.length()) {
 		CallChildren(SCI_SETADDITIONALSELFORE, ColourFromString(selAdditionalFore));
 	}
-	SString selAdditionalBack = props.Get("selection.additional.back");
+	std::string selAdditionalBack = props.GetString("selection.additional.back");
 	if (selAdditionalBack.length()) {
 		CallChildren(SCI_SETADDITIONALSELBACK, ColourFromString(selAdditionalBack));
 	}
 	int selectionAdditionalAlpha = (selectionAlpha == SC_ALPHA_NOALPHA) ? SC_ALPHA_NOALPHA : selectionAlpha / 2;
 	CallChildren(SCI_SETADDITIONALSELALPHA, props.GetInt("selection.additional.alpha", selectionAdditionalAlpha));
 
-	SString foldColour = props.Get("fold.margin.colour");
+	std::string foldColour = props.GetString("fold.margin.colour");
 	if (foldColour.length()) {
 		CallChildren(SCI_SETFOLDMARGINCOLOUR, 1, ColourFromString(foldColour));
 	} else {
 		CallChildren(SCI_SETFOLDMARGINCOLOUR, 0, 0);
 	}
-	SString foldHiliteColour = props.Get("fold.margin.highlight.colour");
+	std::string foldHiliteColour = props.GetString("fold.margin.highlight.colour");
 	if (foldHiliteColour.length()) {
 		CallChildren(SCI_SETFOLDMARGINHICOLOUR, 1, ColourFromString(foldHiliteColour));
 	} else {
 		CallChildren(SCI_SETFOLDMARGINHICOLOUR, 0, 0);
 	}
 
-	SString whitespaceFore = props.Get("whitespace.fore");
+	std::string whitespaceFore = props.GetString("whitespace.fore");
 	if (whitespaceFore.length()) {
 		CallChildren(SCI_SETWHITESPACEFORE, 1, ColourFromString(whitespaceFore));
 	} else {
 		CallChildren(SCI_SETWHITESPACEFORE, 0, 0);
 	}
-	SString whitespaceBack = props.Get("whitespace.back");
+	std::string whitespaceBack = props.GetString("whitespace.back");
 	if (whitespaceBack.length()) {
 		CallChildren(SCI_SETWHITESPACEBACK, 1, ColourFromString(whitespaceBack));
 	} else {
@@ -1082,7 +1082,7 @@ void SciTEBase::ReadProperties() {
 	// Enable/disable highlight for current folding bloc (smallest one that contains the caret)
 	int isHighlightEnabled = props.GetInt("fold.highlight", 0);
 	// Define the colour of highlight
-	SString foldBlockHighlight = props.Get("fold.highlight.colour");
+	std::string foldBlockHighlight = props.GetString("fold.highlight.colour");
 	if (foldBlockHighlight.length() == 0) {
 		//Set default colour for highlight
 		foldBlockHighlight = "#FF0000";
@@ -1208,7 +1208,7 @@ void SciTEBase::ReadProperties() {
 		IndicatorDefinition highlightCurrentWordIndicator(highlightCurrentWordIndicatorString.c_str());
 		if (highlightCurrentWordIndicatorString.length() == 0) {
 			highlightCurrentWordIndicator.style = INDIC_ROUNDBOX;
-			SString highlightCurrentWordColourString = props.Get("highlight.current.word.colour");
+			std::string highlightCurrentWordColourString = props.GetString("highlight.current.word.colour");
 			if (highlightCurrentWordColourString.length() == 0) {
 				// Set default colour for highlight.
 				highlightCurrentWordColourString = "#A0A000";

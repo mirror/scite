@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "Scintilla.h"
 
@@ -69,7 +70,7 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 		if (0 == strcmp(opt, "font")) {
 			specified = static_cast<flags>(specified | sdFont);
 			font = colon;
-			font.substitute('|', ',');
+			std::replace(font.begin(), font.end(), '|', ',');
 		}
 		if (0 == strcmp(opt, "fore")) {
 			specified = static_cast<flags>(specified | sdFore);
@@ -167,7 +168,7 @@ int IntFromHexByte(const char *hexByte) {
 	return IntFromHexDigit(hexByte[0]) * 16 + IntFromHexDigit(hexByte[1]);
 }
 
-Colour ColourFromString(const SString &s) {
+Colour ColourFromString(const std::string &s) {
 	if (s.length()) {
 		int r = IntFromHexByte(s.c_str() + 1);
 		int g = IntFromHexByte(s.c_str() + 3);
@@ -236,7 +237,7 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 				style = atoi(colon);
 		}
 		if ((0 == strcmp(opt, "colour")) || (0 == strcmp(opt, "color"))) {
-			colour = ColourFromString(SString(colon));
+			colour = ColourFromString(std::string(colon));
 		}
 		if (colon && (0 == strcmp(opt, "fillalpha"))) {
 			fillAlpha = atoi(colon);

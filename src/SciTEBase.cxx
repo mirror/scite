@@ -973,7 +973,7 @@ int SciTEBase::MarkAll(MarkPurpose purpose) {
 		IndicatorDefinition findIndicator(findIndicatorString.c_str());
 		if (!findIndicatorString.length()) {
 			findIndicator.style = INDIC_ROUNDBOX;
-			SString findMark = props.Get("find.mark");
+			std::string findMark = props.GetString("find.mark");
 			if (findMark.length())
 				findIndicator.colour = ColourFromString(findMark);
 			findIndicator.fillAlpha = alphaIndicator;

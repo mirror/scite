@@ -7,11 +7,11 @@
 
 class StyleDefinition {
 public:
-	SString font;
+	std::string font;
 	float sizeFractional;
 	int size;
-	SString fore;
-	SString back;
+	std::string fore;
+	std::string back;
 	int weight;
 	bool italics;
 	bool eolfilled;
@@ -39,7 +39,7 @@ inline Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue)
 int IntFromHexDigit(int ch);
 int IntFromHexByte(const char *hexByte);
 
-Colour ColourFromString(const SString &s);
+Colour ColourFromString(const std::string &s);
 
 struct IndicatorDefinition {
 	int style;
