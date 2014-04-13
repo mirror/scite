@@ -28,12 +28,25 @@ bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end) {
 		(std::equal(s.begin() + s.size() - end.size(), s.end(), end.begin()));
 }
 
-int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace) {
+int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &sReplace) {
 	int c = 0;
 	size_t lenFind = sFind.size();
 	size_t lenReplace = sReplace.size();
 	size_t posFound = s.find(sFind);
-	while (posFound != GUI::gui_string::npos) {
+	while (posFound != std::wstring::npos) {
+		s.replace(posFound, lenFind, sReplace);
+		posFound = s.find(sFind, posFound + lenReplace);
+		c++;
+	}
+	return c;
+}
+
+int Substitute(std::string &s, const std::string &sFind, const std::string &sReplace) {
+	int c = 0;
+	size_t lenFind = sFind.size();
+	size_t lenReplace = sReplace.size();
+	size_t posFound = s.find(sFind);
+	while (posFound != std::string::npos) {
 		s.replace(posFound, lenFind, sReplace);
 		posFound = s.find(sFind, posFound + lenReplace);
 		c++;

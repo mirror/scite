@@ -7,7 +7,10 @@
 
 bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
-int Substitute(GUI::gui_string &s, const GUI::gui_string &sFind, const GUI::gui_string &sReplace);
+
+// Substitute is duplicated instead of templated as it was ambiguous when implemented as a template.
+int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &sReplace);
+int Substitute(std::string &s, const std::string &sFind, const std::string &sReplace);
 
 std::string StdStringFromInteger(int i);
 
