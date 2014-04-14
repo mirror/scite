@@ -236,7 +236,7 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 			if (!found)
 				style = atoi(colon);
 		}
-		if ((0 == strcmp(opt, "colour")) || (0 == strcmp(opt, "color"))) {
+		if (colon && ((0 == strcmp(opt, "colour")) || (0 == strcmp(opt, "color")))) {
 			colour = ColourFromString(std::string(colon));
 		}
 		if (colon && (0 == strcmp(opt, "fillalpha"))) {
