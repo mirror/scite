@@ -67,16 +67,16 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 			specified = static_cast<flags>(specified | sdWeight);
 			weight = atoi(colon);
 		}
-		if (0 == strcmp(opt, "font")) {
+		if ((0 == strcmp(opt, "font")) && colon) {
 			specified = static_cast<flags>(specified | sdFont);
 			font = colon;
 			std::replace(font.begin(), font.end(), '|', ',');
 		}
-		if (0 == strcmp(opt, "fore")) {
+		if ((0 == strcmp(opt, "fore")) && colon) {
 			specified = static_cast<flags>(specified | sdFore);
 			fore = colon;
 		}
-		if (0 == strcmp(opt, "back")) {
+		if ((0 == strcmp(opt, "back")) && colon) {
 			specified = static_cast<flags>(specified | sdBack);
 			back = colon;
 		}
