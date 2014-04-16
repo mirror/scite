@@ -2549,7 +2549,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_MARK_VLINE",9},
 	{"SC_MASK_FOLDERS",static_cast<int>(0xFE000000)},
 	{"SC_MAX_MARGIN",4},
-	{"SC_MODEVENTMASKALL",0xFFFFF},
+	{"SC_MODEVENTMASKALL",0x1FFFFF},
 	{"SC_MOD_BEFOREDELETE",0x800},
 	{"SC_MOD_BEFOREINSERT",0x400},
 	{"SC_MOD_CHANGEANNOTATION",0x20000},
@@ -2561,6 +2561,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_MOD_CHANGESTYLE",0x4},
 	{"SC_MOD_CONTAINER",0x40000},
 	{"SC_MOD_DELETETEXT",0x2},
+	{"SC_MOD_INSERTCHECK",0x100000},
 	{"SC_MOD_INSERTTEXT",0x1},
 	{"SC_MOD_LEXERSTATE",0x80000},
 	{"SC_MULTILINEUNDOREDO",0x1000},
@@ -2662,6 +2663,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"CanRedo", 2016, iface_bool, {iface_void, iface_void}},
 	{"CanUndo", 2174, iface_bool, {iface_void, iface_void}},
 	{"Cancel", 2325, iface_void, {iface_void, iface_void}},
+	{"ChangeInsertion", 2672, iface_void, {iface_length, iface_string}},
 	{"ChangeLexerState", 2617, iface_int, {iface_position, iface_position}},
 	{"CharLeft", 2304, iface_void, {iface_void, iface_void}},
 	{"CharLeftExtend", 2305, iface_void, {iface_void, iface_void}},
@@ -3133,8 +3135,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 284,
-	ifaceConstantCount = 2490,
+	ifaceFunctionCount = 285,
+	ifaceConstantCount = 2491,
 	ifacePropertyCount = 215
 };
 
