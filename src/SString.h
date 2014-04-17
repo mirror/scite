@@ -201,6 +201,9 @@ public:
 	const char *c_str() const {
 		return s ? s : "";
 	}
+	std::string string() const {
+		return std::string(c_str(), length());
+	}
 	/** Give ownership of buffer to caller which must use delete[] to free buffer. */
 	char *detach() {
 		char *sRet = s;
