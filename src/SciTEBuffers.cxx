@@ -1518,7 +1518,7 @@ inline bool isdigitchar(int ch) {
 	return (ch >= '0') && (ch <= '9');
 }
 
-int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
+int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &column) {
 	sourcePath[0] = '\0';
 	column = -1; // default to not detected
 	switch (format) {
@@ -1530,10 +1530,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 				const char *endPath = strchr(startPath, '\"');
 				if (endPath) {
 					ptrdiff_t length = endPath - startPath;
-					if (length > 0) {
-						strncpy(sourcePath, startPath, length);
-						sourcePath[length] = 0;
-					}
+					sourcePath.assign(startPath, length);
 					endPath++;
 					while (*endPath && !isdigitchar(*endPath)) {
 						endPath++;
@@ -1559,10 +1556,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			for (int i = 0; cdoc[i]; i++) {
 				if (cdoc[i] == ':' && isdigitchar(cdoc[i + 1])) {
 					int sourceNumber = atoi(cdoc + i + 1) - 1;
-					if (i > 0) {
-						strncpy(sourcePath, cdoc, i);
-						sourcePath[i] = 0;
-					}
+					sourcePath.assign(cdoc, i);
 					i += 2;
 					while (isdigitchar(cdoc[i]))
 						++i;
@@ -1582,10 +1576,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			const char *endPath = strchr(start, '(');
 			if (endPath) {
 				ptrdiff_t length = endPath - start;
-				if ((length > 0) && (length < MAX_PATH)) {
-					strncpy(sourcePath, start, length);
-					sourcePath[length] = 0;
-				}
+				sourcePath.assign(start, length);
 				endPath++;
 				return atoi(endPath) - 1;
 			}
@@ -1623,8 +1614,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 					ptrdiff_t length = space2 - space;
 
 					if (length > 0) {
-						strncpy(sourcePath, space, length);
-						sourcePath[length] = '\0';
+						sourcePath.assign(space, length);
 						return atoi(space2) - 1;
 					}
 				}
@@ -1637,8 +1627,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			const char *line = strstr(cdoc, " line ");
 			ptrdiff_t length = line - (at + 4);
 			if (at && line && length > 0) {
-				strncpy(sourcePath, at + 4, length);
-				sourcePath[length] = 0;
+				sourcePath.assign(at + 4, length);
 				line += 6;
 				return atoi(line) - 1;
 			}
@@ -1650,8 +1639,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			const char *line = strstr(cdoc, ":line ");
 			if (in && line && (line > in)) {
 				in += 4;
-				strncpy(sourcePath, in, line - in);
-				sourcePath[line - in] = 0;
+				sourcePath.assign(in, line - in);
 				line += 6;
 				return atoi(line) - 1;
 			}
@@ -1670,8 +1658,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 				const char *quote = strstr(fileStart, "'");
 				size_t length = quote - fileStart;
 				if (quote && length > 0) {
-					strncpy(sourcePath, fileStart, length);
-					sourcePath[length] = '\0';
+					sourcePath.assign(fileStart, length);
 				}
 				line += lenLine;
 				return atoi(line) - 1;
@@ -1695,8 +1682,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 					if (strchr("\t\n\r \"$%'*,;<>?[]^`{|}", cdoc[j])) {
 						j++;
 					}
-					strncpy(sourcePath, &cdoc[j], i - j);
-					sourcePath[i - j] = 0;
+					sourcePath.assign(&cdoc[j], i - j);
 					// Because usually the address is a searchPattern, lineNumber has to be evaluated later
 					return 0;
 				}
@@ -1714,8 +1700,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			if (line && file && (line > file)) {
 				file += lenFile;
 				size_t length = line - file;
-				strncpy(sourcePath, file, length);
-				sourcePath[length] = '\0';
+				sourcePath.assign(file, length);
 				line += lenLine;
 				return atoi(line) - 1;
 			}
@@ -1738,8 +1723,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 						file++;
 					}
 					size_t length = strlen(file);
-					strncpy(sourcePath, file, length);
-					sourcePath[length] = '\0';
+					sourcePath.assign(file, length);
 					return atoi(line) - 1;
 				}
 			}
@@ -1763,8 +1747,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 					file++;
 					const char *endfile = strchr(file, ')');
 					size_t length = endfile - file;
-					strncpy(sourcePath, file, length);
-					sourcePath[length] = '\0';
+					sourcePath.assign(file, length);
 					line++;
 					return atoi(line) - 1;
 				}
@@ -1785,8 +1768,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			if (line && file && (line > file)) {
 				file += lenFile;
 				size_t length = line - file;
-				strncpy(sourcePath, file, length);
-				sourcePath[length] = '\0';
+				sourcePath.assign(file, length);
 				line += lenLine;
 				return atoi(line) - 1;
 			}
@@ -1807,8 +1789,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			if (line && file && (line > file)) {
 				file += lenFile;
 				size_t length = line - file;
-				strncpy(sourcePath, file, length);
-				sourcePath[length] = '\0';
+				sourcePath.assign(file, length);
 				line += lenLine;
 				if ((lineend > line)) {
 					return atoi(line) - 1;
@@ -1850,8 +1831,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			const char *endPath = strchr(startPath, ':');
 			ptrdiff_t length = endPath - startPath;
 			if (length > 0) {
-				strncpy(sourcePath, startPath, length);
-				sourcePath[length] = 0;
+				sourcePath.assign(startPath, length);
 				int sourceNumber = atoi(endPath + 1) - 1;
 				return sourceNumber;
 			}
@@ -1865,8 +1845,7 @@ int DecodeMessage(const char *cdoc, char *sourcePath, int format, int &column) {
 			const char *endPath = strpbrk(startPath, "\t\r\n");
 			if (endPath) {
 				ptrdiff_t length = endPath - startPath;
-				strncpy(sourcePath, startPath, length);
-				sourcePath[length] = 0;
+				sourcePath.assign(startPath, length);
 				return 0;
 			}
 			break;
@@ -1893,7 +1872,7 @@ void SciTEBase::ShowMessages(int line) {
 		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line, 0);
 		int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line, 0);
 		SString message = GetRange(wOutput, startPosLine, lineEnd);
-		char source[MAX_PATH] = "";	
+		std::string source;
 		int column;
 		char style = acc.StyleAt(startPosLine);
 		int sourceLine = DecodeMessage(message.c_str(), source, style, column);
@@ -1901,7 +1880,7 @@ void SciTEBase::ShowMessages(int line) {
 		if (style == SCE_ERR_GCC) {
 			Chomp(message, ':');
 		}
-		GUI::gui_string sourceString = GUI::StringFromUTF8(source);
+		GUI::gui_string sourceString = GUI::StringFromUTF8(source.c_str());
 		FilePath sourcePath = FilePath(sourceString).NormalizePath();
 		if (filePath.Name().SameNameAs(sourcePath.Name())) {
 			if (style == SCE_ERR_GCC) {
@@ -1973,11 +1952,11 @@ void SciTEBase::GoMessage(int dir) {
 			wOutput.Call(SCI_MARKERADD, lookLine, 0);
 			wOutput.Call(SCI_SETSEL, startPosLine, startPosLine);
 			SString message = GetRange(wOutput, startPosLine, startPosLine + lineLength);
-			char source[MAX_PATH] = "";
+			std::string source;
 			int column;
 			long sourceLine = DecodeMessage(message.c_str(), source, style, column);
 			if (sourceLine >= 0) {
-				GUI::gui_string sourceString = GUI::StringFromUTF8(source);
+				GUI::gui_string sourceString = GUI::StringFromUTF8(source.c_str());
 				FilePath sourcePath = FilePath(sourceString).NormalizePath();
 				if (!filePath.Name().SameNameAs(sourcePath)) {
 					FilePath messagePath;
