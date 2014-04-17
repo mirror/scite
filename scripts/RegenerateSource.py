@@ -53,10 +53,19 @@ def UpdateVersionNumbers(sci, root):
 def OctalEscape(s):
     result = []
     for char in s:
-        if ord(char) < 128:
-            result.append(char)
-        else:
-            result.append("\%o" % ord(char))
+        try:
+            ordChar = ord(char)
+            # Python 2.x, s is a string so bytes
+            if ordChar < 128:
+                result.append(char)
+            else:
+                result.append("\%o" % ordChar)
+        except TypeError:
+            # Python 3.x, s is a byte string
+            if char < 128:
+                result.append(chr(char))
+            else:
+                result.append("\%o" % char)
     return ''.join(result)
 
 def UpdateEmbedded(root, propFiles):
