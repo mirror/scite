@@ -2061,14 +2061,13 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 }
 
 // Convert String from UTF-8 to doc encoding
-SString SciTEWin::EncodeString(const SString &s) {
+std::string SciTEWin::EncodeString(const std::string &s) {
 	UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
 
 	if (codePage != SC_CP_UTF8) {
 		codePage = CodePageFromCharSet(characterSet, codePage);
 		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), CP_UTF8);
-		std::string sMulti = StringEncode(sWide, codePage);
-		return SString(sMulti.c_str(), 0, sMulti.length());
+		return StringEncode(sWide, codePage);
 	}
 	return SciTEBase::EncodeString(s);
 }

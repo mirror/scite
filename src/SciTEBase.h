@@ -276,8 +276,8 @@ public:
 // Interface between SciTE and dialogs and strips for find and replace
 class Searcher {
 public:
-	SString findWhat;
-	SString replaceWhat;
+	std::string findWhat;
+	std::string replaceWhat;
 
 	bool wholeWord;
 	bool matchCase;
@@ -673,11 +673,11 @@ protected:
 	SString SelectionFilename();
 	void SelectionIntoProperties();
 	void SelectionIntoFind(bool stripEol = true);
-	virtual SString EncodeString(const SString &s);
+	virtual std::string EncodeString(const std::string &s);
 	virtual void Find() = 0;
 	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) = 0;
-	virtual void FindMessageBox(const SString &msg, const SString *findItem = 0) = 0;
-	int FindInTarget(const char *findWhat, int lenFind, int startPosition, int endPosition);
+	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0) = 0;
+	int FindInTarget(std::string findWhat, int startPosition, int endPosition);
 	virtual void SetFindText(const char *sFind);
 	virtual void SetFind(const char *sFind);
 	virtual bool FindHasText() const;

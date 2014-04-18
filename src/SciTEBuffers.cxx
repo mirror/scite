@@ -1996,7 +1996,7 @@ void SciTEBase::GoMessage(int dir) {
 							//if tag is linenumber, get line
 							sourceLine = cTag.value() - 1;
 						} else {
-							findWhat = cTag;
+							findWhat = cTag.string();
 							FindNext(false);
 							//get linenumber for marker from found position
 							sourceLine = wEditor.Call(SCI_LINEFROMPOSITION, wEditor.Call(SCI_GETCURRENTPOS));

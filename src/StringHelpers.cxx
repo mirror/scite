@@ -217,11 +217,17 @@ unsigned int UnSlash(char *s) {
 	return static_cast<unsigned int>(o - sStart);
 }
 
+std::string UnSlashString(const char *s) {
+	std::string sCopy(s, strlen(s) + 1);
+	unsigned int len = UnSlash(&sCopy[0]);
+	return sCopy.substr(0, len);
+}
+
 /**
  * Convert C style \0oo into their indicated characters.
  * This is used to get control characters into the regular expresion engine.
  */
-unsigned int UnSlashLowOctal(char *s) {
+static unsigned int UnSlashLowOctal(char *s) {
 	char *sStart = s;
 	char *o = s;
 	while (*s) {
@@ -237,4 +243,10 @@ unsigned int UnSlashLowOctal(char *s) {
 	}
 	*o = '\0';
 	return static_cast<unsigned int>(o - sStart);
+}
+
+std::string UnSlashLowOctalString(const char *s) {
+	std::string sCopy(s, strlen(s) + 1);
+	unsigned int len = UnSlashLowOctal(&sCopy[0]);
+	return sCopy.substr(0, len);
 }

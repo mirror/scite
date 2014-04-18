@@ -725,7 +725,7 @@ bool SciTEBase::OpenSelected() {
 				if (cTag.value() > 0) {
 					wEditor.Call(SCI_GOTOLINE, cTag.value() - 1);
 				} else {
-					findWhat = cTag;
+					findWhat = cTag.string();
 					FindNext(false);
 				}
 			}

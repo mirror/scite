@@ -629,7 +629,7 @@ protected:
 	virtual void QuitProgram();
 
 	bool FindReplaceAdvanced();
-	virtual SString EncodeString(const SString &s);
+	virtual std::string EncodeString(const std::string &s);
 	void FindReplaceGrabFields();
 	virtual void Find();
 	virtual void UIClosed();
@@ -1965,15 +1965,14 @@ static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, b
 	}
 }
 
-SString SciTEGTK::EncodeString(const SString &s) {
+std::string SciTEGTK::EncodeString(const std::string &s) {
 	wEditor.Call(SCI_SETLENGTHFORENCODE, s.length());
 	int len = wEditor.Call(SCI_ENCODEDFROMUTF8,
 		reinterpret_cast<uptr_t>(s.c_str()), 0);
-	SBuffer ret(len);
+	std::vector<char> ret(len+1);
 	wEditor.CallString(SCI_ENCODEDFROMUTF8,
-		reinterpret_cast<uptr_t>(s.c_str()), ret.ptr());
-	ret.ptr()[len] = '\0';
-	return SString(ret);
+		reinterpret_cast<uptr_t>(s.c_str()), &ret[0]);
+	return std::string(&ret[0], len);
 }
 
 void BackgroundStrip::Creation(GtkWidget *container) {

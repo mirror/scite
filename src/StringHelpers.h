@@ -38,7 +38,8 @@ inline std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) 
 
 char *Slash(const char *s, bool quoteQuotes);
 unsigned int UnSlash(char *s);
-unsigned int UnSlashLowOctal(char *s);
+std::string UnSlashString(const char *s);
+std::string UnSlashLowOctalString(const char *s);
 
 class ILocalize {
 public:

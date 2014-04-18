@@ -761,9 +761,9 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	int selStart = wCurrent.Call(SCI_GETSELECTIONSTART);
 	int selEnd = wCurrent.Call(SCI_GETSELECTIONEND);
 	bool noUserSelection = selStart == selEnd;
-	SString wordToFind = RangeExtendAndGrab(wCurrent, selStart, selEnd,
+	SString sWordToFind = RangeExtendAndGrab(wCurrent, selStart, selEnd,
 	        &SciTEBase::islexerwordcharforsel);
-	if (wordToFind.length() == 0 || wordToFind.contains('\n') || wordToFind.contains('\r'))
+	if (sWordToFind.length() == 0 || sWordToFind.contains('\n') || sWordToFind.contains('\r'))
 		return; // No highlight when no selection or multi-lines selection.
 	if (noUserSelection && currentWordHighlight.statesOfDelay == currentWordHighlight.noDelay) {
 		// Manage delay before highlight when no user selection but there is word at the caret.
@@ -776,7 +776,7 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	int selectedStyle = wCurrent.Call(SCI_GETSTYLEAT, selStart);
 
 	// Manage word with DBCS.
-	wordToFind = EncodeString(wordToFind);
+	const std::string wordToFind = EncodeString(sWordToFind.string());
 
 	// Case sensitive & whole word only.
 	wCurrent.Call(SCI_SETSEARCHFLAGS, SCFIND_MATCHCASE | SCFIND_WHOLEWORD);
@@ -916,7 +916,7 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 	if (sel.length() && !sel.contains('\r') && !sel.contains('\n')) {
 		// The selection does not include a new line, so is likely to be
 		// the expression to search...
-		findWhat = sel;
+		findWhat = sel.string();
 		if (unSlash) {
 			char *slashedFind = Slash(findWhat.c_str(), false);
 			if (slashedFind) {
@@ -928,27 +928,22 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 	// else findWhat remains the same as last time.
 }
 
-SString SciTEBase::EncodeString(const SString &s) {
-	return SString(s);
+std::string SciTEBase::EncodeString(const std::string &s) {
+	return s;
 }
 
-static int UnSlashAsNeeded(SString &s, bool escapes, bool regularExpression) {
+static std::string UnSlashAsNeeded(const std::string &s, bool escapes, bool regularExpression) {
 	if (escapes) {
-		char *sUnslashed = StringDup(s.c_str(), s.length());
-		size_t len;
 		if (regularExpression) {
 			// For regular expressions, the only escape sequences allowed start with \0
 			// Other sequences, like \t, are handled by the RE engine.
-			len = UnSlashLowOctal(sUnslashed);
+			return UnSlashLowOctalString(s.c_str());
 		} else {
 			// C style escapes allowed
-			len = UnSlash(sUnslashed);
+			return UnSlashString(s.c_str());
 		}
-		s = sUnslashed;
-		delete []sUnslashed;
-		return static_cast<int>(len);
 	} else {
-		return static_cast<int>(s.length());
+		return s;
 	}
 }
 
@@ -982,9 +977,8 @@ int SciTEBase::MarkAll(MarkPurpose purpose) {
 		SetOneIndicator(wEditor, indicatorMatch, findIndicator);
 	}
 
-	SString findTarget = EncodeString(findWhat);
-	int lenFind = UnSlashAsNeeded(findTarget, unSlash, regExp);
-	if (lenFind == 0) {
+	const std::string findTarget = UnSlashAsNeeded(EncodeString(findWhat), unSlash, regExp);
+	if (findTarget.length() == 0) {
 		return 0;
 	}
 
@@ -998,7 +992,7 @@ int SciTEBase::MarkAll(MarkPurpose purpose) {
 	const int endPosition = LengthDocument();
 	int marked = 0;
 
-	int posFound = FindInTarget(findTarget.c_str(), lenFind, 0, endPosition);
+	int posFound = FindInTarget(findTarget, 0, endPosition);
 	while (posFound != INVALID_POSITION) {
 		marked++;
 		if (purpose == markWithBookMarks) {
@@ -1010,7 +1004,7 @@ int SciTEBase::MarkAll(MarkPurpose purpose) {
 			// Empty matches are possible for regex
 			posEndFound = wEditor.Call(SCI_POSITIONAFTER, posEndFound);
 		}
-		posFound = FindInTarget(findTarget.c_str(), lenFind, posEndFound, endPosition);
+		posFound = FindInTarget(findTarget, posEndFound, endPosition);
 	}
 
 	return marked;
@@ -1021,10 +1015,11 @@ int SciTEBase::IncrementSearchMode() {
 	return 0;
 }
 
-int SciTEBase::FindInTarget(const char *findWhatText, int lenFind, int startPosition, int endPosition) {
+int SciTEBase::FindInTarget(std::string findWhatText, int startPosition, int endPosition) {
+	size_t lenFind = findWhatText.length();
 	wEditor.Call(SCI_SETTARGETSTART, startPosition);
 	wEditor.Call(SCI_SETTARGETEND, endPosition);
-	int posFind = wEditor.CallString(SCI_SEARCHINTARGET, lenFind, findWhatText);
+	int posFind = wEditor.CallString(SCI_SEARCHINTARGET, lenFind, findWhatText.c_str());
 	while (findInStyle && posFind != -1 && findStyle != wEditor.Call(SCI_GETSTYLEAT, posFind)) {
 		if (startPosition < endPosition) {
 			wEditor.Call(SCI_SETTARGETSTART, posFind + 1);
@@ -1033,7 +1028,7 @@ int SciTEBase::FindInTarget(const char *findWhatText, int lenFind, int startPosi
 			wEditor.Call(SCI_SETTARGETSTART, startPosition);
 			wEditor.Call(SCI_SETTARGETEND, posFind + 1);
 		}
-		posFind = wEditor.CallString(SCI_SEARCHINTARGET, lenFind, findWhatText);
+		posFind = wEditor.CallString(SCI_SEARCHINTARGET, lenFind, findWhatText.c_str());
 	}
 	return posFind;
 }
@@ -1083,9 +1078,8 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 		Find();
 		return -1;
 	}
-	SString findTarget = EncodeString(findWhat);
-	int lenFind = UnSlashAsNeeded(findTarget, unSlash, regExp);
-	if (lenFind == 0)
+	const std::string findTarget = UnSlashAsNeeded(EncodeString(findWhat), unSlash, regExp);
+	if (findTarget.length() == 0)
 		return -1;
 
 	Sci_CharacterRange cr = GetSelection();
@@ -1102,7 +1096,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
 
 	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
-	int posFind = FindInTarget(findTarget.c_str(), lenFind, startPosition, endPosition);
+	int posFind = FindInTarget(findTarget, startPosition, endPosition);
 	if (posFind == -1 && wrapFind) {
 		// Failed to find in indicated direction
 		// so search from the beginning (forward) or from the end (reverse)
@@ -1114,7 +1108,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 			startPosition = 0;
 			endPosition = LengthDocument();
 		}
-		posFind = FindInTarget(findTarget.c_str(), lenFind, startPosition, endPosition);
+		posFind = FindInTarget(findTarget, startPosition, endPosition);
 		WarnUser(warnFindWrapped);
 	}
 	if (posFind == -1) {
@@ -1158,16 +1152,15 @@ void SciTEBase::ReplaceOnce(bool showWarnings) {
 	}
 
 	if (havefound) {
-		SString replaceTarget = EncodeString(replaceWhat);
-		int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
+		const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
 		Sci_CharacterRange cr = GetSelection();
 		wEditor.Call(SCI_SETTARGETSTART, cr.cpMin);
 		wEditor.Call(SCI_SETTARGETEND, cr.cpMax);
-		int lenReplaced = replaceLen;
+		int lenReplaced = static_cast<int>(replaceTarget.length());
 		if (regExp)
-			lenReplaced = wEditor.CallString(SCI_REPLACETARGETRE, replaceLen, replaceTarget.c_str());
+			lenReplaced = wEditor.CallString(SCI_REPLACETARGETRE, replaceTarget.length(), replaceTarget.c_str());
 		else	// Allow \0 in replacement
-			wEditor.CallString(SCI_REPLACETARGET, replaceLen, replaceTarget.c_str());
+			wEditor.CallString(SCI_REPLACETARGET, replaceTarget.length(), replaceTarget.c_str());
 		SetSelection(static_cast<int>(cr.cpMin) + lenReplaced, static_cast<int>(cr.cpMin));
 		havefound = false;
 	}
@@ -1176,9 +1169,8 @@ void SciTEBase::ReplaceOnce(bool showWarnings) {
 }
 
 int SciTEBase::DoReplaceAll(bool inSelection) {
-	SString findTarget = EncodeString(findWhat);
-	int findLen = UnSlashAsNeeded(findTarget, unSlash, regExp);
-	if (findLen == 0) {
+	const std::string findTarget = UnSlashAsNeeded(EncodeString(findWhat), unSlash, regExp);
+	if (findTarget.length() == 0) {
 		return -1;
 	}
 
@@ -1212,15 +1204,14 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 		// If not wrapFind, replace all only from caret to end of document
 	}
 
-	SString replaceTarget = EncodeString(replaceWhat);
-	int replaceLen = UnSlashAsNeeded(replaceTarget, unSlash, regExp);
+	const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
 	        (matchCase ? SCFIND_MATCHCASE : 0) |
 	        (regExp ? SCFIND_REGEXP : 0) |
 	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
 	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
-	int posFind = FindInTarget(findTarget.c_str(), findLen, startPosition, endPosition);
-	if ((findLen == 1) && regExp && (findTarget[0] == '^')) {
+	int posFind = FindInTarget(findTarget, startPosition, endPosition);
+	if ((findTarget.length() == 1) && regExp && (findTarget[0] == '^')) {
 		// Special case for replace all start of line so it hits the first line
 		posFind = startPosition;
 		wEditor.Call(SCI_SETTARGETSTART, startPosition);
@@ -1249,7 +1240,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 						// Run off the end of the document/selection with an empty match
 						posFind = -1;
 					} else {
-						posFind = FindInTarget(findTarget.c_str(), findLen, lastMatch, endPosition);
+						posFind = FindInTarget(findTarget, lastMatch, endPosition);
 					}
 					continue;	// No replacement
 				}
@@ -1261,11 +1252,11 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 					movepastEOL = 1;
 				}
 			}
-			int lenReplaced = replaceLen;
+			int lenReplaced = static_cast<int>(replaceTarget.length());
 			if (regExp) {
-				lenReplaced = wEditor.CallString(SCI_REPLACETARGETRE, replaceLen, replaceTarget.c_str());
+				lenReplaced = wEditor.CallString(SCI_REPLACETARGETRE, replaceTarget.length(), replaceTarget.c_str());
 			} else {
-				wEditor.CallString(SCI_REPLACETARGET, replaceLen, replaceTarget.c_str());
+				wEditor.CallString(SCI_REPLACETARGET, replaceTarget.length(), replaceTarget.c_str());
 			}
 			// Modify for change caused by replacement
 			endPosition += lenReplaced - lenTarget;
@@ -1279,7 +1270,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 				// Run off the end of the document/selection with an empty match
 				posFind = -1;
 			} else {
-				posFind = FindInTarget(findTarget.c_str(), findLen, lastMatch, endPosition);
+				posFind = FindInTarget(findTarget, lastMatch, endPosition);
 			}
 			replacements++;
 		}
@@ -1560,14 +1551,11 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 				functionDefinition.insert(1, "\002");
 			}
 
-			SString definitionForDisplay;
+			std::string definitionForDisplay;
 			if (callTipUseEscapes) {
-				char *sUnslashed = StringDup(functionDefinition.c_str());
-				UnSlash(sUnslashed);
-				definitionForDisplay = sUnslashed;
-				delete []sUnslashed;
+				definitionForDisplay = UnSlashString(functionDefinition.c_str());
 			} else {
-				definitionForDisplay = functionDefinition;
+				definitionForDisplay = functionDefinition.string();
 			}
 
 			wEditor.CallString(SCI_CALLTIPSHOW, lastPosCallTip - currentCallTipWord.length(), definitionForDisplay.c_str());
@@ -4673,11 +4661,10 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 					gf = static_cast<GrepFlags>(gf | grepDot);
 				if (wlArgs[i+1][3] == 'b')
 					gf = static_cast<GrepFlags>(gf | grepBinary);
-				char unquoted[1000];
-				StringCopy(unquoted, GUI::UTF8FromString(wlArgs[i+3].c_str()).c_str());
-				UnSlash(unquoted);
+				std::string sSearch = GUI::UTF8FromString(wlArgs[i+3].c_str());
+				std::string unquoted = UnSlashString(sSearch.c_str());
 				sptr_t originalEnd = 0;
-				InternalGrep(gf, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2].c_str(), unquoted, originalEnd);
+				InternalGrep(gf, FilePath::GetWorkingDirectory().AsInternal(), wlArgs[i+2].c_str(), unquoted.c_str(), originalEnd);
 				exit(0);
 			} else {
 				if (AfterName(arg) == ':') {
