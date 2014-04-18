@@ -1457,6 +1457,18 @@ void SciTEGTK::OpenUriList(const char *list) {
 	}
 }
 
+#if GTK_CHECK_VERSION(3,10,0)
+#define SCITE_STOCK_CANCEL "_Cancel"
+#define SCITE_STOCK_OPEN "_Open"
+#define SCITE_STOCK_SAVE "_Save"
+#define SCITE_STOCK_OK "_OK"
+#else
+#define SCITE_STOCK_CANCEL GTK_STOCK_CANCEL
+#define SCITE_STOCK_OPEN GTK_STOCK_OPEN
+#define SCITE_STOCK_SAVE GTK_STOCK_SAVE
+#define SCITE_STOCK_OK GTK_STOCK_OK
+#endif
+
 bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
@@ -1464,8 +1476,8 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 					localiser.Text("Open File").c_str(),
 				      GTK_WINDOW(wSciTE.GetID()),
 				      GTK_FILE_CHOOSER_ACTION_OPEN,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      SCITE_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      SCITE_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
 		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dlg), TRUE);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
@@ -1557,8 +1569,8 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title, const char *ext) {
 					localiser.Text(title).c_str(),
 				      GTK_WINDOW(wSciTE.GetID()),
 				      GTK_FILE_CHOOSER_ACTION_SAVE,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+				      SCITE_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      SCITE_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
 		FilePath savePath = SaveName(ext);
@@ -1618,8 +1630,8 @@ void SciTEGTK::LoadSessionDialog() {
 					localiser.Text("Load Session").c_str(),
 				      GTK_WINDOW(wSciTE.GetID()),
 				      GTK_FILE_CHOOSER_ACTION_OPEN,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      SCITE_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      SCITE_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
 
 		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), filePath.Directory().AsInternal());
@@ -1641,8 +1653,8 @@ void SciTEGTK::SaveSessionDialog() {
 					localiser.Text("Save Session").c_str(),
 				      GTK_WINDOW(wSciTE.GetID()),
 				      GTK_FILE_CHOOSER_ACTION_SAVE,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+				      SCITE_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      SCITE_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
 
 		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), filePath.Directory().AsInternal());
@@ -2149,8 +2161,8 @@ void SciTEGTK::FindInFilesBrowse() {
 							localiser.Text("Select a folder to search from").c_str(),
 							GTK_WINDOW(dlgFindInFiles.GetID()), // parent_window,
 							GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-							GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-							GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+							SCITE_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+							SCITE_STOCK_OK, GTK_RESPONSE_ACCEPT,
 							NULL);
 	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), findInDir.AsInternal());
 
@@ -3549,34 +3561,34 @@ static void AddToolSpace(GtkToolbar *toolbar) {
 
 void SciTEGTK::AddToolBar() {
 	if (props.GetInt("toolbar.usestockicons") == 1) {
-		AddToolButton("New", IDM_NEW, gtk_image_new_from_stock("gtk-new", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Open", IDM_OPEN, gtk_image_new_from_stock("gtk-open", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Save", IDM_SAVE, gtk_image_new_from_stock("gtk-save", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Close", IDM_CLOSE, gtk_image_new_from_stock("gtk-close", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("New", IDM_NEW, gtk_image_new_from_icon_name("gtk-new", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Open", IDM_OPEN, gtk_image_new_from_icon_name("gtk-open", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Save", IDM_SAVE, gtk_image_new_from_icon_name("gtk-save", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Close", IDM_CLOSE, gtk_image_new_from_icon_name("gtk-close", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Undo", IDM_UNDO, gtk_image_new_from_stock("gtk-undo", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Redo", IDM_REDO, gtk_image_new_from_stock("gtk-redo", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Undo", IDM_UNDO, gtk_image_new_from_icon_name("gtk-undo", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Redo", IDM_REDO, gtk_image_new_from_icon_name("gtk-redo", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Cut", IDM_CUT, gtk_image_new_from_stock("gtk-cut", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Copy", IDM_COPY, gtk_image_new_from_stock("gtk-copy", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Paste", IDM_PASTE, gtk_image_new_from_stock("gtk-paste", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Cut", IDM_CUT, gtk_image_new_from_icon_name("gtk-cut", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Copy", IDM_COPY, gtk_image_new_from_icon_name("gtk-copy", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Paste", IDM_PASTE, gtk_image_new_from_icon_name("gtk-paste", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Find in Files", IDM_FINDINFILES, gtk_image_new_from_stock("gtk-find", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Find", IDM_FIND, gtk_image_new_from_stock("gtk-zoom-fit", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Find Next", IDM_FINDNEXT, gtk_image_new_from_stock("gtk-jump-to", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Replace", IDM_REPLACE, gtk_image_new_from_stock("gtk-find-and-replace", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Find in Files", IDM_FINDINFILES, gtk_image_new_from_icon_name("gtk-find", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Find", IDM_FIND, gtk_image_new_from_icon_name("gtk-zoom-fit", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Find Next", IDM_FINDNEXT, gtk_image_new_from_icon_name("gtk-jump-to", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Replace", IDM_REPLACE, gtk_image_new_from_icon_name("gtk-find-and-replace", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		btnCompile = AddToolButton("Compile", IDM_COMPILE, gtk_image_new_from_stock("gtk-execute", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		btnBuild = AddToolButton("Build", IDM_BUILD, gtk_image_new_from_stock("gtk-convert", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, gtk_image_new_from_stock("gtk-stop", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		btnCompile = AddToolButton("Compile", IDM_COMPILE, gtk_image_new_from_icon_name("gtk-execute", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		btnBuild = AddToolButton("Build", IDM_BUILD, gtk_image_new_from_icon_name("gtk-convert", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, gtk_image_new_from_icon_name("gtk-stop", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Previous", IDM_PREVFILE, gtk_image_new_from_stock("gtk-go-back", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_stock("gtk-go-forward", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Previous", IDM_PREVFILE, gtk_image_new_from_icon_name("gtk-go-back", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_icon_name("gtk-go-forward", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		return;
 	}
 	AddToolButton("New", IDM_NEW, pixmap_new((gchar**)filenew_xpm));
