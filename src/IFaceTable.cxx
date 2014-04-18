@@ -673,6 +673,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_C_COMMENTLINE",2},
 	{"SCE_C_COMMENTLINEDOC",15},
 	{"SCE_C_DEFAULT",0},
+	{"SCE_C_ESCAPESEQUENCE",27},
 	{"SCE_C_GLOBALCLASS",19},
 	{"SCE_C_HASHQUOTEDSTRING",22},
 	{"SCE_C_IDENTIFIER",11},
@@ -3136,7 +3137,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 285,
-	ifaceConstantCount = 2491,
+	ifaceConstantCount = 2492,
 	ifacePropertyCount = 215
 };
 
