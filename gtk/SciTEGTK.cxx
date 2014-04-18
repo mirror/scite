@@ -624,7 +624,7 @@ protected:
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
 
 	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style);
-	virtual void FindMessageBox(const SString &msg, const SString *findItem=0);
+	virtual void FindMessageBox(const SString &msg, const std::string *findItem=0);
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
@@ -3174,7 +3174,7 @@ int SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int s
 	return messageBoxResult;
 }
 
-void SciTEGTK::FindMessageBox(const SString &msg, const SString *findItem) {
+void SciTEGTK::FindMessageBox(const SString &msg, const std::string *findItem) {
 	if (findItem == 0) {
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str());
 		WindowMessageBox(wSciTE, msgBuf, MB_OK | MB_ICONWARNING);

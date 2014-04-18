@@ -779,7 +779,7 @@ public:
 		return s;
 	}
 
-	void SetItemTextU(int id, const SString &s) {
+	void SetItemTextU(int id, const std::string &s) {
 		SetItemText(id, GUI::StringFromUTF8(s.c_str()).c_str());
 	}
 
@@ -1177,8 +1177,8 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
 		FillCombos(dlg);
-		dlg.SetItemTextU(IDFINDWHAT, props.Get("find.what"));
-		dlg.SetItemTextU(IDDIRECTORY, props.Get("find.directory"));
+		dlg.SetItemTextU(IDFINDWHAT, props.GetString("find.what"));
+		dlg.SetItemTextU(IDDIRECTORY, props.GetString("find.directory"));
 		if (props.GetNewExpand("find.command") == "") {
 			// Empty means use internal that can respond to flags
 			dlg.SetCheck(IDWHOLEWORD, wholeWord);
@@ -1205,7 +1205,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				WindowMessageBox(wFindInFiles, msgBuf, MB_OK | MB_ICONWARNING);
 				return FALSE;
 			}
-			findWhat = dlg.ItemTextU(IDFINDWHAT);
+			findWhat = dlg.ItemTextU(IDFINDWHAT).string();
 			props.Set("find.what", findWhat.c_str());
 			InsertFindInMemory();
 
@@ -1642,7 +1642,7 @@ int SciTEWin::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int s
 	return ret;
 }
 
-void SciTEWin::FindMessageBox(const SString &msg, const SString *findItem) {
+void SciTEWin::FindMessageBox(const SString &msg, const std::string *findItem) {
 	if (findItem == 0) {
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str());
 		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
