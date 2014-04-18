@@ -975,6 +975,7 @@ void SciTEGTK::TabInsert(int index, const GUI::gui_char *title) {
 		} else {
 			// No path bar
 			tabcontent = gtk_image_new();
+			gtk_image_set_pixel_size(GTK_IMAGE(tabcontent), 0);
 		}
 
 		gtk_widget_show(tablabel);
