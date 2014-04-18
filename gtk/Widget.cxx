@@ -225,8 +225,6 @@ static void GreyToAlpha(GdkPixbuf *ppb, GdkColor fore) {
 	}
 }
 
-const int stripIconWidth = 16;
-
 void WCheckDraw::Create(const char **xpmImage, GUI::gui_string toolTip, GtkStyle *pStyle_) {
 	isActive = false;
 	pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
