@@ -2488,6 +2488,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_FOLDFLAG_LINEAFTER_EXPANDED",0x0008},
 	{"SC_FOLDFLAG_LINEBEFORE_CONTRACTED",0x0004},
 	{"SC_FOLDFLAG_LINEBEFORE_EXPANDED",0x0002},
+	{"SC_FOLDFLAG_LINESTATE",0x0080},
 	{"SC_FOLDLEVELBASE",0x400},
 	{"SC_FOLDLEVELHEADERFLAG",0x2000},
 	{"SC_FOLDLEVELNUMBERMASK",0x0FFF},
@@ -3137,7 +3138,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 285,
-	ifaceConstantCount = 2492,
+	ifaceConstantCount = 2493,
 	ifacePropertyCount = 215
 };
 
