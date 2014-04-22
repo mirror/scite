@@ -5122,6 +5122,8 @@ bool SciTEGTK::PerformOnNewThread(Worker *pWorker) {
 		g_error_free(err) ;
 		return false;
 	}
+	// The thread keeps itself alive so no need to keep reference.
+	g_thread_unref(pThread);
 	return true;
 }
 
