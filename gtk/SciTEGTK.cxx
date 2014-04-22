@@ -3561,34 +3561,34 @@ static void AddToolSpace(GtkToolbar *toolbar) {
 
 void SciTEGTK::AddToolBar() {
 	if (props.GetInt("toolbar.usestockicons") == 1) {
-		AddToolButton("New", IDM_NEW, gtk_image_new_from_icon_name("gtk-new", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Open", IDM_OPEN, gtk_image_new_from_icon_name("gtk-open", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Save", IDM_SAVE, gtk_image_new_from_icon_name("gtk-save", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Close", IDM_CLOSE, gtk_image_new_from_icon_name("gtk-close", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("New", IDM_NEW, gtk_image_new_from_icon_name("document-new", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Open", IDM_OPEN, gtk_image_new_from_icon_name("document-open", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Save", IDM_SAVE, gtk_image_new_from_icon_name("document-save", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Close", IDM_CLOSE, gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Undo", IDM_UNDO, gtk_image_new_from_icon_name("gtk-undo", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Redo", IDM_REDO, gtk_image_new_from_icon_name("gtk-redo", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Undo", IDM_UNDO, gtk_image_new_from_icon_name("edit-undo", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Redo", IDM_REDO, gtk_image_new_from_icon_name("edit-redo", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Cut", IDM_CUT, gtk_image_new_from_icon_name("gtk-cut", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Copy", IDM_COPY, gtk_image_new_from_icon_name("gtk-copy", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Paste", IDM_PASTE, gtk_image_new_from_icon_name("gtk-paste", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Cut", IDM_CUT, gtk_image_new_from_icon_name("edit-cut", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Copy", IDM_COPY, gtk_image_new_from_icon_name("edit-copy", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Paste", IDM_PASTE, gtk_image_new_from_icon_name("edit-paste", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Find in Files", IDM_FINDINFILES, gtk_image_new_from_icon_name("gtk-find", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Find in Files", IDM_FINDINFILES, gtk_image_new_from_icon_name("edit-find", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		AddToolButton("Find", IDM_FIND, gtk_image_new_from_icon_name("gtk-zoom-fit", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Find Next", IDM_FINDNEXT, gtk_image_new_from_icon_name("gtk-jump-to", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Replace", IDM_REPLACE, gtk_image_new_from_icon_name("gtk-find-and-replace", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Find Next", IDM_FINDNEXT, gtk_image_new_from_icon_name("go-jump", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Replace", IDM_REPLACE, gtk_image_new_from_icon_name("edit-find-replace", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
 		btnCompile = AddToolButton("Compile", IDM_COMPILE, gtk_image_new_from_icon_name("gtk-execute", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		btnBuild = AddToolButton("Build", IDM_BUILD, gtk_image_new_from_icon_name("gtk-convert", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, gtk_image_new_from_icon_name("gtk-stop", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		btnStop = AddToolButton("Stop", IDM_STOPEXECUTE, gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		AddToolSpace(GTK_TOOLBAR(PWidget(wToolBar)));
-		AddToolButton("Previous", IDM_PREVFILE, gtk_image_new_from_icon_name("gtk-go-back", GTK_ICON_SIZE_LARGE_TOOLBAR));
-		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_icon_name("gtk-go-forward", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Previous", IDM_PREVFILE, gtk_image_new_from_icon_name("go-previous", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		AddToolButton("Next Buffer", IDM_NEXTFILE, gtk_image_new_from_icon_name("go-next", GTK_ICON_SIZE_LARGE_TOOLBAR));
 		return;
 	}
 	AddToolButton("New", IDM_NEW, pixmap_new((gchar**)filenew_xpm));
