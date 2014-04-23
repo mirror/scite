@@ -8,14 +8,25 @@
 
 // http://www.microsoft.com/msj/0797/win320797.aspx
 
+#include <glib.h>
+
 #include "Mutex.h"
 
 class GTKMutex : public Mutex {
 private:
-	virtual void Lock() {}
-	virtual void Unlock() {}
-	GTKMutex() {}
-	virtual ~GTKMutex() {}
+	GMutex m;
+	virtual void Lock() {
+		g_mutex_lock(&m);
+	}
+	virtual void Unlock() {
+		g_mutex_unlock(&m);
+	}
+	GTKMutex() {
+		g_mutex_init(&m);
+	}
+	virtual ~GTKMutex() {
+		g_mutex_clear(&m);
+	}
 	friend class Mutex;
 };
 
