@@ -16,6 +16,10 @@
 #include <map>
 #include <memory>
 
+#if defined(GTK)
+#include <gtk/gtk.h>
+#endif
+
 #include "Scintilla.h"
 #include "ILexer.h"
 
@@ -397,13 +401,23 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 	if (wsci.Created()) {
 		wsci.Send(SCI_SETSTYLEBITS, 7, 0);
 		wsci.Send(SCI_STYLERESETDEFAULT, 0, 0);
+		std::string sVersion = " ";
+		sVersion += VERSION_SCITE;
+		sVersion += " ";
 #if defined(GTK)
 		wsci.Send(SCI_STYLESETFONT, STYLE_DEFAULT,
 		        reinterpret_cast<uptr_t>("!Serif"));
 		int fontSize = 14;
+		sVersion += "compiled for GTK+ ";
+		sVersion += StdStringFromInteger(GTK_MAJOR_VERSION);
+		sVersion += ".";
+		sVersion += StdStringFromInteger(GTK_MINOR_VERSION);
+		sVersion += ".";
+		sVersion += StdStringFromInteger(GTK_MICRO_VERSION);
 #else
 		int fontSize = 15;
 #endif
+		sVersion += "\n";
 
 		wsci.Send(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
 
@@ -421,7 +435,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		SString translator = GetTranslationToAbout("TranslationCredit", false);
 		SetAboutStyle(wsci, trsSty, ColourRGB(0, 0, 0));
 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
-		AddStyledText(wsci, " " VERSION_SCITE "\n", 1);
+		AddStyledText(wsci, sVersion.c_str(), 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
 		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
 		wsci.Send(SCI_STYLESETITALIC, 2, 1);
