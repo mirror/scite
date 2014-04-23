@@ -424,7 +424,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 
 	FilePath pathSaved = pFileStorer->path;
 	int errSaved = pFileStorer->err;
-	bool cancelledSaved = pFileStorer->cancelling;
+	bool cancelledSaved = pFileStorer->Cancelling();
 
 	// May not be found if save cancelled or buffer closed
 	if (iBuffer >= 0) {

@@ -327,8 +327,8 @@ BackgroundActivities BufferList::CountBackgroundActivities() const {
 				else
 					bg.storers++;
 				bg.fileNameLast = buffers[i].AsInternal();
-				bg.totalWork += buffers[i].pFileWorker->jobSize;
-				bg.totalProgress += buffers[i].pFileWorker->jobProgress;
+				bg.totalWork += buffers[i].pFileWorker->SizeJob();
+				bg.totalProgress += buffers[i].pFileWorker->ProgressMade();
 			}
 		}
 	}
