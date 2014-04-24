@@ -763,7 +763,8 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	bool noUserSelection = selStart == selEnd;
 	SString sWordToFind = RangeExtendAndGrab(wCurrent, selStart, selEnd,
 	        &SciTEBase::islexerwordcharforsel);
-	if (sWordToFind.length() == 0 || sWordToFind.contains('\n') || sWordToFind.contains('\r'))
+	if (sWordToFind.length() == 0 || sWordToFind.contains('\n') ||
+		sWordToFind.contains('\r') || sWordToFind.contains(' '))
 		return; // No highlight when no selection or multi-lines selection.
 	if (noUserSelection && currentWordHighlight.statesOfDelay == currentWordHighlight.noDelay) {
 		// Manage delay before highlight when no user selection but there is word at the caret.
