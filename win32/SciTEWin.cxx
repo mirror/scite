@@ -2092,6 +2092,13 @@ uptr_t SciTEWin::EventLoop() {
 	msg.wParam = 0;
 	bool going = true;
 	while (going) {
+		if (needIdle) {
+			bool haveMessage = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+			if (!haveMessage) {
+				OnIdle();
+				continue;
+			}
+		}
 		going = ::GetMessageW(&msg, NULL, 0, 0);
 		if (going) {
 			if (!ModelessHandler(&msg)) {

@@ -125,6 +125,7 @@ bool &Searcher::FlagFromCmd(int cmd) {
 }
 
 SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
+	needIdle = false;
 	codePage = 0;
 	characterSet = 0;
 	language = "java";
@@ -4236,6 +4237,10 @@ void SciTEBase::OnTimer() {
 		}
 		SetDocumentAt(currentBuffer);
 	}
+}
+
+void SciTEBase::OnIdle() {
+	needIdle = false;
 }
 
 void SciTEBase::SetHomeProperties() {

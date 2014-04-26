@@ -341,6 +341,7 @@ public:
 
 class SciTEBase : public ExtensionAPI, public Searcher, public WorkerListener {
 protected:
+	bool needIdle;
 	GUI::gui_string windowName;
 	FilePath filePath;
 	FilePath dirNameAtExecute;
@@ -858,6 +859,7 @@ protected:
 	virtual void TimerStart(int mask);
 	virtual void TimerEnd(int mask);
 	void OnTimer();
+	void OnIdle();
 
 	void SetHomeProperties();
 	void UIAvailable();
