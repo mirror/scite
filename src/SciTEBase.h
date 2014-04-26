@@ -312,7 +312,7 @@ public:
 	virtual int FindNext(bool reverseDirection, bool showWarnings=true, bool allowRegExp=true) = 0;
 	virtual void HideMatch() = 0;
 	enum MarkPurpose { markWithBookMarks, markIncremental };
-	virtual int MarkAll(MarkPurpose purpose=markWithBookMarks) = 0;
+	virtual void MarkAll(MarkPurpose purpose=markWithBookMarks) = 0;
 	virtual int ReplaceAll(bool inSelection) = 0;
 	virtual void ReplaceOnce(bool showWarnings=true) = 0;
 	virtual void UIClosed() = 0;
@@ -780,7 +780,7 @@ protected:
 	virtual void ActivateWindow(const char *timestamp) = 0;
 
 	void RemoveFindMarks();
-	int MarkAll(MarkPurpose purpose=markWithBookMarks);
+	void MarkAll(MarkPurpose purpose=markWithBookMarks);
 	void BookmarkAdd(int lineno = -1);
 	void BookmarkDelete(int lineno = -1);
 	bool BookmarkPresent(int lineno = -1);

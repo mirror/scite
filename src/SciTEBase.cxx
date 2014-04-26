@@ -957,7 +957,7 @@ void SciTEBase::RemoveFindMarks() {
 	wEditor.Call(SCI_ANNOTATIONCLEARALL);
 }
 
-int SciTEBase::MarkAll(MarkPurpose purpose) {
+void SciTEBase::MarkAll(MarkPurpose purpose) {
 	RemoveFindMarks();
 	wEditor.Call(SCI_SETINDICATORCURRENT, indicatorMatch);
 	if (purpose == markIncremental) {
@@ -980,7 +980,7 @@ int SciTEBase::MarkAll(MarkPurpose purpose) {
 
 	const std::string findTarget = UnSlashAsNeeded(EncodeString(findWhat), unSlash, regExp);
 	if (findTarget.length() == 0) {
-		return 0;
+		return;
 	}
 
 	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
@@ -991,11 +991,9 @@ int SciTEBase::MarkAll(MarkPurpose purpose) {
 	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
 
 	const int endPosition = LengthDocument();
-	int marked = 0;
 
 	int posFound = FindInTarget(findTarget, 0, endPosition);
 	while (posFound != INVALID_POSITION) {
-		marked++;
 		if (purpose == markWithBookMarks) {
 			BookmarkAdd(wEditor.Call(SCI_LINEFROMPOSITION, posFound));
 		}
@@ -1007,8 +1005,6 @@ int SciTEBase::MarkAll(MarkPurpose purpose) {
 		}
 		posFound = FindInTarget(findTarget, posEndFound, endPosition);
 	}
-
-	return marked;
 }
 
 int SciTEBase::IncrementSearchMode() {
