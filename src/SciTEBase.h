@@ -859,6 +859,7 @@ protected:
 	virtual void TimerStart(int mask);
 	virtual void TimerEnd(int mask);
 	void OnTimer();
+	virtual void SetIdler(bool on);
 	void OnIdle();
 
 	void SetHomeProperties();

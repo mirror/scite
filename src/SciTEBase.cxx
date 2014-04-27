@@ -4239,8 +4239,12 @@ void SciTEBase::OnTimer() {
 	}
 }
 
+void SciTEBase::SetIdler(bool on) {
+	needIdle = on;
+}
+
 void SciTEBase::OnIdle() {
-	needIdle = false;
+	SetIdler(false);
 }
 
 void SciTEBase::SetHomeProperties() {
