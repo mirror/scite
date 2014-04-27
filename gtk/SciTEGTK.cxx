@@ -521,6 +521,7 @@ protected:
 	guint32 startupTimestamp;
 
 	guint timerID;
+	guint idlerID;
 
 	BackgroundStrip backgroundStrip;
 	UserStrip userStrip;
@@ -577,6 +578,8 @@ protected:
 	static gboolean TimerTick(SciTEGTK *scitew);
 	virtual void TimerStart(int mask);
 	virtual void TimerEnd(int mask);
+	static gboolean IdlerTick(SciTEGTK *scitew);
+	virtual void SetIdler(bool on);
 
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
 
@@ -1225,6 +1228,25 @@ void SciTEGTK::TimerEnd(int mask) {
 			timerID = 0;
 		}
 		timerMask = maskNew;
+	}
+}
+
+gboolean SciTEGTK::IdlerTick(SciTEGTK *scitew) {
+	scitew->OnIdle();
+	return TRUE;
+}
+
+void SciTEGTK::SetIdler(bool on) {
+	if (needIdle != on) {
+		needIdle = on;
+		if (needIdle) {
+			idlerID = g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
+					reinterpret_cast<GSourceFunc>(IdlerTick), this, NULL);
+		} else {
+			if (idlerID) {
+				g_source_remove(idlerID);
+			}
+		}
 	}
 }
 
