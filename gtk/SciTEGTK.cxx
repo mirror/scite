@@ -64,6 +64,7 @@
 #include "Widget.h"
 #include "Cookie.h"
 #include "Worker.h"
+#include "MatchMarker.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 #include "StripDefinition.h"
