@@ -712,6 +712,16 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_DMAP_WORD",8},
 	{"SCE_DMAP_WORD2",9},
 	{"SCE_DMAP_WORD3",10},
+	{"SCE_DMIS_COMMENT",1},
+	{"SCE_DMIS_DEFAULT",0},
+	{"SCE_DMIS_KEYWORD",4},
+	{"SCE_DMIS_LABEL",9},
+	{"SCE_DMIS_MAJORWORD",5},
+	{"SCE_DMIS_MINORWORD",6},
+	{"SCE_DMIS_NUMBER",3},
+	{"SCE_DMIS_STRING",2},
+	{"SCE_DMIS_UNSUPPORTED_MAJOR",7},
+	{"SCE_DMIS_UNSUPPORTED_MINOR",8},
 	{"SCE_D_CHARACTER",12},
 	{"SCE_D_COMMENT",1},
 	{"SCE_D_COMMENTDOC",3},
@@ -2335,6 +2345,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_D",79},
 	{"SCLEX_DIFF",16},
 	{"SCLEX_DMAP",112},
+	{"SCLEX_DMIS",114},
 	{"SCLEX_ECL",105},
 	{"SCLEX_EIFFEL",23},
 	{"SCLEX_EIFFELKW",24},
@@ -3138,7 +3149,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 285,
-	ifaceConstantCount = 2493,
+	ifaceConstantCount = 2504,
 	ifacePropertyCount = 215
 };
 
