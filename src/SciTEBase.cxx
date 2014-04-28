@@ -752,6 +752,10 @@ bool SciTEBase::islexerwordcharforsel(char ch) {
 void SciTEBase::HighlightCurrentWord(bool highlight) {
 	if (!currentWordHighlight.isEnabled)
 		return;
+	if (!wEditor.HasFocus() && !wOutput.HasFocus()) {
+		// Neither text window has focus, possibly app is inactive so do not highlight
+		return;
+	}
 	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
 	// Remove old indicators if any exist.
 	wCurrent.Call(SCI_SETINDICATORCURRENT, indicatorHighlightCurrentWord);
