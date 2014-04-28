@@ -62,6 +62,7 @@ OBJS=\
 	SciTEBuffers.obj \
 	SciTEIO.obj \
 	Exporters.obj \
+	MatchMarker.obj \
 	PropSetFile.obj \
 	StringHelpers.obj \
 	StringList.obj \
@@ -92,6 +93,7 @@ OBJSSTATIC=\
 	SciTEBuffers.obj \
 	SciTEIO.obj \
 	Exporters.obj \
+	MatchMarker.obj \
 	PropSetFile.obj \
 	StringHelpers.obj \
 	StringList.obj \
@@ -286,6 +288,7 @@ DirectorExtension.obj: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h
 GUIWin.obj: \
 	GUIWin.cxx \
@@ -311,6 +314,7 @@ SciTEWin.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h \
@@ -340,6 +344,7 @@ Sc1.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h \
@@ -369,6 +374,7 @@ SciTEWinBar.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h \
@@ -394,6 +400,7 @@ SciTEWinDlg.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h \
@@ -419,6 +426,7 @@ Strips.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h \
@@ -444,6 +452,7 @@ UniqueInstance.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	../src/SciTEKeys.h \
 	UniqueInstance.h \
@@ -474,6 +483,7 @@ Credits.obj: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h
 Exporters.obj: \
 	../src/Exporters.cxx \
@@ -493,6 +503,7 @@ Exporters.obj: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h
 FilePath.obj: \
 	../src/FilePath.cxx \
@@ -504,6 +515,7 @@ FileWorker.obj: \
 	../src/FileWorker.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
+	../src/Mutex.h \
 	../src/GUI.h \
 	../src/SString.h \
 	../src/FilePath.h \
@@ -522,6 +534,11 @@ JobQueue.obj: \
 	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h
+MatchMarker.obj: \
+	../src/MatchMarker.cxx \
+	../../scintilla/include/Scintilla.h \
+	../src/GUI.h \
+	../src/MatchMarker.h
 MultiplexExtension.obj: \
 	../src/MultiplexExtension.cxx \
 	../../scintilla/include/Scintilla.h \
@@ -556,6 +573,7 @@ SciTEBase.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h
 SciTEBuffers.obj: \
 	../src/SciTEBuffers.cxx \
@@ -577,6 +595,7 @@ SciTEBuffers.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h
 SciTEIO.obj: \
 	../src/SciTEIO.cxx \
@@ -597,6 +616,7 @@ SciTEIO.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/FileWorker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	../src/Utf8_16.h
 SciTEProps.obj: \
@@ -619,6 +639,7 @@ SciTEProps.obj: \
 	../src/JobQueue.h \
 	../src/Cookie.h \
 	../src/Worker.h \
+	../src/MatchMarker.h \
 	../src/SciTEBase.h
 StringHelpers.obj: \
 	../src/StringHelpers.cxx \

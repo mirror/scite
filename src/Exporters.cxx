@@ -67,6 +67,7 @@
 #include "JobQueue.h"
 #include "Cookie.h"
 #include "Worker.h"
+#include "MatchMarker.h"
 #include "SciTEBase.h"
 
 

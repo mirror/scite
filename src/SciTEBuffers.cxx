@@ -70,6 +70,7 @@
 #include "Cookie.h"
 #include "Worker.h"
 #include "FileWorker.h"
+#include "MatchMarker.h"
 #include "SciTEBase.h"
 
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");

@@ -251,6 +251,7 @@ struct CurrentWordHighlight {
 		delayAlreadyElapsed // Delay has already elapsed, word at the caret and occurrences are (or have to be) highlighted.
 	} statesOfDelay;
 	bool isEnabled;
+	bool textHasChanged;
 	GUI::ElapsedTime elapsedTimes;
 	bool isOnlyWithSameStyle;
 
@@ -258,6 +259,7 @@ struct CurrentWordHighlight {
 		statesOfDelay = noDelay;
 		isEnabled = false;
 		isOnlyWithSameStyle = false;
+		textHasChanged = false;
 	}
 };
 
@@ -911,6 +913,8 @@ protected:
 
 	CurrentWordHighlight currentWordHighlight;
 	void HighlightCurrentWord(bool highlight);
+	MatchMarker matchMarker;
+	MatchMarker findMarker;
 public:
 
 	enum { maxParam = 4 };

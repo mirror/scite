@@ -107,6 +107,7 @@ typedef void *HTHEME;
 #include "Cookie.h"
 #include "Worker.h"
 #include "FileWorker.h"
+#include "MatchMarker.h"
 #include "SciTEBase.h"
 #include "SciTEKeys.h"
 #include "UniqueInstance.h"

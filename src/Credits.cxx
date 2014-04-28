@@ -38,6 +38,7 @@
 
 #include "Cookie.h"
 #include "Worker.h"
+#include "MatchMarker.h"
 #include "SciTEBase.h"
 
 // Contributor names are in UTF-8

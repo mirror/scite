@@ -72,6 +72,7 @@
 #include "Cookie.h"
 #include "Worker.h"
 #include "FileWorker.h"
+#include "MatchMarker.h"
 #include "SciTEBase.h"
 
 Searcher::Searcher() {
@@ -776,38 +777,16 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	}
 	// Get style of the current word to highlight only word with same style.
 	int selectedStyle = wCurrent.Call(SCI_GETSTYLEAT, selStart);
+	if (!currentWordHighlight.isOnlyWithSameStyle)
+		selectedStyle = -1;
 
 	// Manage word with DBCS.
 	const std::string wordToFind = EncodeString(sWordToFind.string());
 
-	// Case sensitive & whole word only.
-	wCurrent.Call(SCI_SETSEARCHFLAGS, SCFIND_MATCHCASE | SCFIND_WHOLEWORD);
-	wCurrent.Call(SCI_SETTARGETSTART, 0);
-	wCurrent.Call(SCI_SETTARGETEND, lenDoc);
-
-	//Monitor the amount of time took by the search.
-	GUI::ElapsedTime searchElapsedTime;
-
-	// Find the first occurrence of word.
-	int indexOf = wCurrent.CallString(SCI_SEARCHINTARGET,
-	        wordToFind.length(), wordToFind.c_str());
-	while (indexOf != -1 && indexOf < lenDoc) {
-		// Limit the search duration to 250 ms. Avoid to freeze editor for large files.
-		if (searchElapsedTime.Duration() > 0.25) {
-			// Clear all indicators because timer has expired.
-			wCurrent.Call(SCI_INDICATORCLEARRANGE, 0, lenDoc);
-			break;
-		}
-		if (!currentWordHighlight.isOnlyWithSameStyle || selectedStyle ==
-		        wCurrent.Call(SCI_GETSTYLEAT, indexOf)) {
-			wCurrent.Call(SCI_INDICATORFILLRANGE, indexOf, wordToFind.length());
-		}
-		// Try to find next occurrence of word.
-		wCurrent.Call(SCI_SETTARGETSTART, indexOf + wordToFind.length() + 1);
-		wCurrent.Call(SCI_SETTARGETEND, lenDoc);
-		indexOf = wCurrent.CallString(SCI_SEARCHINTARGET, wordToFind.length(),
-		        wordToFind.c_str());
-	}
+	matchMarker.StartMatch(&wCurrent, wordToFind,
+		SCFIND_MATCHCASE | SCFIND_WHOLEWORD, selectedStyle,
+		indicatorHightlightCurrentWord, -1);
+	SetIdler(true);
 }
 
 SString SciTEBase::GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd) {
@@ -950,6 +929,7 @@ static std::string UnSlashAsNeeded(const std::string &s, bool escapes, bool regu
 }
 
 void SciTEBase::RemoveFindMarks() {
+	findMarker.Stop();	// Cancel ongoing background find
 	if (CurrentBuffer()->findMarks != Buffer::fmNone) {
 		wEditor.Call(SCI_SETINDICATORCURRENT, indicatorMatch);
 		wEditor.Call(SCI_INDICATORCLEARRANGE, 0, LengthDocument());
@@ -989,23 +969,10 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 	        (regExp ? SCFIND_REGEXP : 0) |
 	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
 
-	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
-
-	const int endPosition = LengthDocument();
-
-	int posFound = FindInTarget(findTarget, 0, endPosition);
-	while (posFound != INVALID_POSITION) {
-		if (purpose == markWithBookMarks) {
-			BookmarkAdd(wEditor.Call(SCI_LINEFROMPOSITION, posFound));
-		}
-		int posEndFound = wEditor.Call(SCI_GETTARGETEND);
-		wEditor.Call(SCI_INDICATORFILLRANGE, posFound, posEndFound - posFound);
-		if (posEndFound == posFound) {
-			// Empty matches are possible for regex
-			posEndFound = wEditor.Call(SCI_POSITIONAFTER, posEndFound);
-		}
-		posFound = FindInTarget(findTarget, posEndFound, endPosition);
-	}
+	findMarker.StartMatch(&wEditor, findTarget,
+		flags, -1,
+		indicatorMatch, (purpose == markWithBookMarks) ? markerBookmark : -1);
+	SetIdler(true);
 }
 
 int SciTEBase::IncrementSearchMode() {
@@ -3984,12 +3951,17 @@ void SciTEBase::Notify(SCNotification *notification) {
 		if (notification->updated & (SC_UPDATE_SELECTION | SC_UPDATE_CONTENT)) {
 			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (wEditor.HasFocus())) {
 				// Obly highlight focussed pane.
-				if (notification->updated & SC_UPDATE_SELECTION)
+				if (notification->updated & SC_UPDATE_SELECTION) {
 					currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
-				if (currentWordHighlight.statesOfDelay != currentWordHighlight.delayJustEnded)
-					HighlightCurrentWord(notification->updated != SC_UPDATE_CONTENT);
-				else
-					currentWordHighlight.statesOfDelay = currentWordHighlight.delayAlreadyElapsed;
+					currentWordHighlight.textHasChanged = false;
+					HighlightCurrentWord(true);
+				} else if (currentWordHighlight.textHasChanged) {
+					HighlightCurrentWord(false);
+				}
+				//	if (notification->updated & SC_UPDATE_SELECTION)
+				//if (currentWordHighlight.statesOfDelay != currentWordHighlight.delayJustEnded)
+				//else
+				//	currentWordHighlight.statesOfDelay = currentWordHighlight.delayAlreadyElapsed;
 			}
 		}
 		break;
@@ -4003,6 +3975,9 @@ void SciTEBase::Notify(SCNotification *notification) {
 			EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SCI_CANUNDO));
 			EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SCI_CANREDO));
 		} else if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
+			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (wEditor.HasFocus())) {
+				currentWordHighlight.textHasChanged = true;
+			}
 			//this will be called a lot, and usually means "typing".
 			EnableAMenuItem(IDM_UNDO, true);
 			EnableAMenuItem(IDM_REDO, false);
@@ -4244,6 +4219,14 @@ void SciTEBase::SetIdler(bool on) {
 }
 
 void SciTEBase::OnIdle() {
+	if (!findMarker.Complete()) {
+		findMarker.Continue();
+		return;
+	}
+	if (!matchMarker.Complete()) {
+		matchMarker.Continue();
+		return;
+	}
 	SetIdler(false);
 }
 
