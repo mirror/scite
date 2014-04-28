@@ -359,7 +359,7 @@ protected:
 	ImportFilter filter;
 
 	enum { indicatorMatch = INDIC_CONTAINER,
-		indicatorHightlightCurrentWord,
+		indicatorHighlightCurrentWord,
 		indicatorSpellingMistake,
 		indicatorSentinel };
 	enum { markerBookmark = 1 };

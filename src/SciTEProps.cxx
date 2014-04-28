@@ -1198,9 +1198,9 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETCARETSTICKY, props.GetInt("caret.sticky", 0));
 
 	// Clear all previous indicators.
-	wEditor.Call(SCI_SETINDICATORCURRENT, indicatorHightlightCurrentWord);
+	wEditor.Call(SCI_SETINDICATORCURRENT, indicatorHighlightCurrentWord);
 	wEditor.Call(SCI_INDICATORCLEARRANGE, 0, wEditor.Call(SCI_GETLENGTH));
-	wOutput.Call(SCI_SETINDICATORCURRENT, indicatorHightlightCurrentWord);
+	wOutput.Call(SCI_SETINDICATORCURRENT, indicatorHighlightCurrentWord);
 	wOutput.Call(SCI_INDICATORCLEARRANGE, 0, wOutput.Call(SCI_GETLENGTH));
 	currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay;
 
@@ -1219,8 +1219,8 @@ void SciTEBase::ReadProperties() {
 			highlightCurrentWordIndicator.fillAlpha = alphaIndicator;
 			highlightCurrentWordIndicator.under = underIndicator;
 		}
-		SetOneIndicator(wEditor, indicatorHightlightCurrentWord, highlightCurrentWordIndicator);
-		SetOneIndicator(wOutput, indicatorHightlightCurrentWord, highlightCurrentWordIndicator);
+		SetOneIndicator(wEditor, indicatorHighlightCurrentWord, highlightCurrentWordIndicator);
+		SetOneIndicator(wOutput, indicatorHighlightCurrentWord, highlightCurrentWordIndicator);
 		currentWordHighlight.isOnlyWithSameStyle = props.GetInt("highlight.current.word.by.style", 0) == 1;
 		HighlightCurrentWord(true);
 	}

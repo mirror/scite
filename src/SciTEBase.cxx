@@ -754,7 +754,7 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 		return;
 	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
 	// Remove old indicators if any exist.
-	wCurrent.Call(SCI_SETINDICATORCURRENT, indicatorHightlightCurrentWord);
+	wCurrent.Call(SCI_SETINDICATORCURRENT, indicatorHighlightCurrentWord);
 	int lenDoc = wCurrent.Call(SCI_GETLENGTH);
 	wCurrent.Call(SCI_INDICATORCLEARRANGE, 0, lenDoc);
 	if (!highlight)
@@ -785,7 +785,7 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 
 	matchMarker.StartMatch(&wCurrent, wordToFind,
 		SCFIND_MATCHCASE | SCFIND_WHOLEWORD, selectedStyle,
-		indicatorHightlightCurrentWord, -1);
+		indicatorHighlightCurrentWord, -1);
 	SetIdler(true);
 }
 
