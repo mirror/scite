@@ -498,8 +498,3 @@ void DirectorExtension::CreatePipe(bool) {
 	// if we arrive here, we must have failed
 	fdReceiver = 0;
 }
-
-#ifdef _MSC_VER
-// Unreferenced inline functions are OK
-#pragma warning(disable: 4514)
-#endif
