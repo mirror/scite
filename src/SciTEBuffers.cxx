@@ -1520,7 +1520,7 @@ inline bool isdigitchar(int ch) {
 }
 
 int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &column) {
-	sourcePath[0] = '\0';
+	sourcePath.clear();
 	column = -1; // default to not detected
 	switch (format) {
 	case SCE_ERR_PYTHON: {
