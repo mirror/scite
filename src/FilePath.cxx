@@ -299,6 +299,9 @@ static int stat(const wchar_t *path, struct _stat *buffer) {
 #endif
 
 FilePath FilePath::NormalizePath() const {
+	if (fileName.empty()) {
+		return FilePath();
+	}
 	GUI::gui_string path = fileName;
 #ifdef WIN32
 	// Convert unix path separators to Windows
