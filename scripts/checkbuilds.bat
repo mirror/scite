@@ -3,11 +3,10 @@ rem compilers and exercise all the projects and makefiles.
 rem Current directory must be scite\scripts before running.
 rem Contains references to local install directories on Neil's
 rem machine so must be modified for other installations.
-rem Assumes environment set up so gcc and MSVC can be called.
+rem Assumes environment set up so gcc, MSVC amd cppcheck can be called.
 rem
 cd ..\..
-set MSDEV_BASE=C:\Program Files (x86)\Microsoft Visual Studio\Common\MSDev98\Bin
-set MSDEV71_BASE=C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\Tools
+set MSDEV_BASE=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC
 set WINSDK_BASE=C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin
 rem
 rem ************************************************************
@@ -48,12 +47,19 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
 rem ************************************************************
-rem Target 4: Visual C++ Express using scite\boundscheck\SciTE.sln
-REM ~ call scite\scripts\clearboth
-REM ~ cd scite\boundscheck
-vcexpress scite.sln /rebuild release
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
+rem Target 4: Visual C++ Express using scintilla\win32\SciLexer.vcxproj and scite\win32\SciTE.vcxproj
+call "%MSDEV_BASE%\vcvarsall"
+@echo on
+call scite\scripts\clearboth
+pushd scintilla\win32
+msbuild /verbosity:minimal /p:Platform=Win32 /p:Configuration=Release SciLexer.vcxproj
+if ERRORLEVEL 2 goto ERROR
+popd
+call scite\scripts\clearboth
+pushd scite\win32
+msbuild /verbosity:minimal /p:Platform=Win32 /p:Configuration=Release SciTE.vcxproj
+if ERRORLEVEL 2 goto ERROR
+popd
 rem
 rem ************************************************************
 rem Target 5: GTK+ version using gcc on scintilla\gtk\makefile
@@ -62,27 +68,9 @@ cd scintilla\gtk
 mingw32-make -j CXXFLAGS=-Wno-long-long
 if ERRORLEVEL 2 goto ERROR
 cd ..\..
-rem Visual C++ builds
 rem
 rem ************************************************************
-rem Removed:  Target 6
-rem
-rem ************************************************************
-rem Removed: Target 7
-rem
-rem ************************************************************
-rem Removed: Target 8
-rem
-rem ************************************************************
-rem Target 9: Visual C++ using scite\boundscheck\SciTE.dsp
-REM ~ call scite\scripts\clearboth
-REM ~ cd scite\boundscheck
-REM ~ msdev SciTE.dsp /MAKE "SciTE - Win32 Release" /REBUILD
-REM ~ if ERRORLEVEL 2 goto ERROR
-REM ~ cd ..\..
-rem
-rem ************************************************************
-rem Target 10: SDK 64 bit compiler
+rem Target 6: SDK 64 bit compiler
 call scite\scripts\clearboth
 call "%WINSDK_BASE%\SetEnv.Cmd" /Release /x64 /vista
 cd scintilla\win32
@@ -94,7 +82,7 @@ if ERRORLEVEL 2 goto ERROR
 cd ..\..
 rem
 rem ************************************************************
-rem Target 11: Clang analyze
+rem Target 7: Clang analyze
 REM ~ call scite\scripts\clearboth
 REM ~ set PATH=c:\mingw32-dw2\bin;%PATH%
 REM ~ cd scintilla\win32
@@ -106,8 +94,8 @@ REM ~ if ERRORLEVEL 2 goto ERROR
 REM ~ cd ..\..
 rem
 rem ************************************************************
-rem Target 12: cppcheck
-REM ~ call scite\scripts\clearboth
+rem Target 8: cppcheck
+call scite\scripts\clearboth
 cppcheck -j 8 --enable=all --suppressions scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
 cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include --template=gcc --quiet scite
 rem
@@ -119,4 +107,3 @@ goto CLEANUP
 :CLEANUP
 set SAVE_PATH=
 set SAVE_INCLUDE=
-set MSDEV_BASE=
