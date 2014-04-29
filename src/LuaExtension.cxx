@@ -2074,8 +2074,3 @@ bool LuaExtension::OnClose(const char *filename) {
 bool LuaExtension::OnUserStrip(int control, int change) {
 	return CallNamedFunction("OnStrip", control, change);
 }
-
-#ifdef _MSC_VER
-// Unreferenced inline functions are OK
-#pragma warning(disable: 4514)
-#endif

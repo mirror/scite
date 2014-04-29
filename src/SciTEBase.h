@@ -14,9 +14,8 @@ extern const GUI::gui_char propAbbrevFileName[];
 #ifdef WIN32
 #ifdef _MSC_VER
 // Shut up level 4 warning:
-// warning C4710: function 'void whatever(...)' not inlined
 // warning C4800: forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning(disable: 4710 4800)
+#pragma warning(disable: 4800)
 #endif
 #ifdef __DMC__
 #include <time.h>

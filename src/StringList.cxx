@@ -365,8 +365,3 @@ char *StringList::GetNearestWords(
 	}
 	return NULL;
 }
-
-#ifdef _MSC_VER
-// Unreferenced inline functions are OK
-#pragma warning(disable: 4514)
-#endif

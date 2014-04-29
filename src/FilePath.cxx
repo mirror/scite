@@ -34,17 +34,7 @@
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT  0x0500
-#ifdef _MSC_VER
-// windows.h, et al, use a lot of nameless struct/unions - can't fix it, so allow it
-#pragma warning(disable: 4201)
-#endif
 #include <windows.h>
-#ifdef _MSC_VER
-// okay, that's done, don't allow it in our code
-#pragma warning(default: 4201)
-// Turn off MS dislike of POSIX
-#pragma warning(disable: 4996)
-#endif
 #include <commctrl.h>
 
 // For chdir
@@ -506,9 +496,9 @@ bool FilePath::IsDirectory() const {
 #endif
 	if (stat(AsInternal(), &statusFile) != -1)
 #ifdef WIN32
-		return statusFile.st_mode & _S_IFDIR;
+		return (statusFile.st_mode & _S_IFDIR) != 0;
 #else
-		return statusFile.st_mode & S_IFDIR;
+		return (statusFile.st_mode & S_IFDIR) != 0;
 #endif
 	else
 		return false;
@@ -660,7 +650,7 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 
 	PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
-	bool running = ::CreateProcessW(
+	BOOL running = ::CreateProcessW(
 			  NULL,
 			  const_cast<wchar_t *>(command),
 			  NULL, NULL,

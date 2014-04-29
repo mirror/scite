@@ -35,20 +35,12 @@
 #define _WIN32_WINNT  0x0501
 #define WINVER 0x0501
 #endif
-#ifdef _MSC_VER
-// windows.h, et al, use a lot of nameless struct/unions - can't fix it, so allow it
-#pragma warning(disable: 4201)
-#endif
 #include <windows.h>
 #if defined(DISABLE_THEMES) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
 // Old compilers do not have Uxtheme.h
 typedef void *HTHEME;
 #else
 #include <uxtheme.h>
-#endif
-#ifdef _MSC_VER
-// okay, that's done, don't allow it in our code
-#pragma warning(default: 4201)
 #endif
 #include <commctrl.h>
 #include <richedit.h>
