@@ -59,6 +59,22 @@ static std::string ControlText(GUI::Window w) {
 	return GUI::UTF8FromString(gsFind.c_str());
 }
 
+static std::string ComboSelectionText(GUI::Window w) {
+	GUI::gui_string gsText;
+	HWND wT = HwndOf(w);
+	const LRESULT selection = ::SendMessageW(wT, CB_GETCURSEL, 0, 0);
+	if (selection != CB_ERR) {
+		const LRESULT len = ::SendMessageW(wT, CB_GETLBTEXTLEN, selection, 0) + 1;
+		std::vector<GUI::gui_char> itemText(len);
+		const LRESULT lenActual = ::SendMessageW(wT, CB_GETLBTEXT, selection,
+			reinterpret_cast<LPARAM>(&itemText[0]));
+		if (lenActual != CB_ERR) {
+			gsText = GUI::gui_string(&itemText[0], lenActual);
+		}
+	}
+	return GUI::UTF8FromString(gsText.c_str());
+}
+
 LRESULT PASCAL BaseWin::StWndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	// Find C++ object associated with window.
@@ -889,6 +905,27 @@ LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) {
 	return Strip::EditColour(hwnd, hdc);
 }
 
+void FindReplaceStrip::NextIncremental(ChangingSource source) {
+	if (incrementalBehaviour == simple)
+		return;
+	if (pSearcher->findWhat.length()) {
+		pSearcher->MoveBack();
+	}
+
+	if (source == changingEdit) {
+		pSearcher->SetFindText(ControlText(wText).c_str());
+	} else {
+		pSearcher->SetFindText(ComboSelectionText(wText).c_str());
+	}
+
+	if (pSearcher->FindHasText()) {
+		pSearcher->FindNext(pSearcher->reverseFind, false, true);
+		pSearcher->SetCaretAsStart();
+	}
+	MarkIncremental();	// Mark all secondary hits
+	wText.InvalidateAll();
+}
+
 void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) {
 	incrementalBehaviour = static_cast<FindReplaceStrip::IncrementalBehaviour>(behaviour);
 }
@@ -897,23 +934,6 @@ void FindReplaceStrip::MarkIncremental() {
 	if (incrementalBehaviour == showAllMatches) {
 		pSearcher->MarkAll(Searcher::markIncremental);
 	}
-}
-
-void FindReplaceStrip::NextIncremental() {
-	if (incrementalBehaviour == simple)
-		return;
-	if (pSearcher->findWhat.length()) {
-		pSearcher->MoveBack();
-	}
-
-	pSearcher->SetFindText(ControlText(wText).c_str());
-
-	if (pSearcher->FindHasText()) {
-		pSearcher->FindNext(pSearcher->reverseFind, false, true);
-		pSearcher->SetCaretAsStart();
-	}
-	MarkIncremental();	// Mark all secondary hits
-	wText.InvalidateAll();
 }
 
 void FindReplaceStrip::Close() {
@@ -1091,12 +1111,15 @@ bool FindStrip::Command(WPARAM wParam) {
 		return true;
 	} else if (control == IDFINDWHAT) {
 		if (subCommand == CBN_EDITCHANGE) {
-			NextIncremental();
+			NextIncremental(changingEdit);
+			return true;
+		} else if (subCommand == CBN_SELCHANGE) {
+			NextIncremental(changingCombo);
 			return true;
 		}
 	} else {
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
-		NextIncremental();
+		NextIncremental(changingEdit);
 	}
 	return false;
 }
@@ -1341,11 +1364,11 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 		}
 	} else if (cmd == IDREPLACE) {
 		pSearcher->ReplaceOnce(incrementalBehaviour == simple);
-		NextIncremental();	// Show not found colour if no more matches.
+		NextIncremental(changingEdit);	// Show not found colour if no more matches.
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		//~ replacements = pSciTEWin->ReplaceAll(cmd == IDREPLACEINSEL);
 		pSearcher->ReplaceAll(cmd == IDREPLACEINSEL);
-		NextIncremental();	// Show not found colour if no more matches.
+		NextIncremental(changingEdit);	// Show not found colour if no more matches.
 	}
 	//GUI::gui_string replDone = GUI::StringFromInteger(replacements);
 	//dlg.SetItemText(IDREPLDONE, replDone.c_str());
@@ -1364,7 +1387,10 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 		case CBN_SELENDCANCEL:
 			return false;
 		case CBN_EDITCHANGE:
-			NextIncremental();
+			NextIncremental(changingEdit);
+			return true;
+		case CBN_SELCHANGE:
+			NextIncremental(changingCombo);
 			return true;
 		default:
 			return false;
@@ -1383,7 +1409,7 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 	case IDUNSLASH:
 	case IDWRAP:
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
-		NextIncremental();
+		NextIncremental(changingEdit);
 		break;
 
 	default:

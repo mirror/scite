@@ -147,11 +147,12 @@ protected:
 	FindReplaceStrip() : incrementalBehaviour(simple) {
 	}
 	virtual LRESULT EditColour(HWND hwnd, HDC hdc);
+	enum ChangingSource { changingEdit, changingCombo };
+	void NextIncremental(ChangingSource source);
 public:
 	virtual void Close();
 	void SetIncrementalBehaviour(int behaviour);
 	void MarkIncremental();
-	void NextIncremental();
 };
 
 class FindStrip : public FindReplaceStrip {
