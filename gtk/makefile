@@ -6,8 +6,12 @@
 
 .SUFFIXES: .cxx .o .h .a .c
 ifdef CLANG
-CC = clang -fsanitize=address --std=c++0x
-CCOMP = clang -fsanitize=address -Wno-empty-body
+# Can choose aspect to sanitize: address and undefined can simply change SANITIZE but for
+# thread also need to create Position Independent Executable -> search online documentation
+SANITIZE = address
+#SANITIZE = undefined
+CC = clang++ -fsanitize=$(SANITIZE) --std=c++0x
+CCOMP = clang -fsanitize=$(SANITIZE) -Wno-empty-body
 else
 CC = g++
 CCOMP = gcc
@@ -53,11 +57,7 @@ endif
 CXXBASEFLAGS=-W -Wall -pedantic -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS) $(DEPRECATED)
 
 ifdef DEBUG
-ifdef CLANG
-CXXTFLAGS=-DDEBUG -g -fsanitize=address $(CXXBASEFLAGS)
-else
 CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
-endif
 else
 CXXTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
 endif
