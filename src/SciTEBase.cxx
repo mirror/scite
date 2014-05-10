@@ -2001,7 +2001,7 @@ bool SciTEBase::StartBlockComment() {
 	comment_at_line_start += lexerName;
 	bool placeCommentsAtLineStart = props.GetInt(comment_at_line_start.c_str()) != 0;
 
-	SString comment = props.Get(base.c_str());
+	std::string comment = props.GetString(base.c_str());
 	if (comment == "") { // user friendly error message box
 		GUI::gui_string sBase = GUI::StringFromUTF8(base.c_str());
 		GUI::gui_string error = LocaliseMessage(
@@ -2009,7 +2009,7 @@ bool SciTEBase::StartBlockComment() {
 		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
 		return true;
 	}
-	SString long_comment = comment;
+	std::string long_comment = comment;
 	long_comment.append(" ");
 	int selectionStart = wEditor.Call(SCI_GETSELECTIONSTART);
 	int selectionEnd = wEditor.Call(SCI_GETSELECTIONEND);
