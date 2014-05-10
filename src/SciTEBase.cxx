@@ -3628,7 +3628,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			SelectionIntoProperties();
 			AddCommand(props.GetWild("command.help.", FileNameExt().AsUTF8().c_str()), "",
 			        SubsystemType("command.help.subsystem."));
-			if (jobQueue.HasCommandToRun()) {
+			if (!jobQueue.IsExecuting() && jobQueue.HasCommandToRun()) {
 				jobQueue.isBuilding = true;
 				Execute();
 			}
@@ -3639,7 +3639,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			SelectionIntoProperties();
 			AddCommand(props.Get("command.scite.help"), "",
 			        SubsystemFromChar(props.Get("command.scite.help.subsystem")[0]));
-			if (jobQueue.HasCommandToRun()) {
+			if (!jobQueue.IsExecuting() && jobQueue.HasCommandToRun()) {
 				jobQueue.isBuilding = true;
 				Execute();
 			}
