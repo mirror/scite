@@ -72,7 +72,6 @@ void MatchMarker::Continue() {
 	if (lineEndSegment > rangeSearch.lineEnd)
 		lineEndSegment = rangeSearch.lineEnd;
 
-	// Case sensitive & whole word only.
 	pSci->Call(SCI_SETSEARCHFLAGS, flagsMatch);
 	const int positionStart = pSci->Call(SCI_POSITIONFROMLINE, rangeSearch.lineStart);
 	const int positionEnd = pSci->Call(SCI_POSITIONFROMLINE, lineEndSegment);
