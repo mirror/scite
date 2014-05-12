@@ -4443,7 +4443,7 @@ bool ReplaceStrip::KeyDown(GdkEventKey *event) {
 		if (Strip::KeyDown(event))
 			return true;
 		if (event->state & GDK_MOD1_MASK) {
-			for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
+			for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
 				GUI::gui_string localised = localiser->Text(toggles[i].label);
 				char key = KeyFromLabel(localised);
 				if (static_cast<unsigned int>(key) == event->keyval) {
