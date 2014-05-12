@@ -960,7 +960,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 500)) {
 					// We should use it only if the GUI process is stuck and
 					// don't answer to a normal termination command.
-					// This function is dangerous: dependant DLLs don't know the process
+					// This function is dangerous: dependent DLLs don't know the process
 					// is terminated, and memory isn't released.
 					OutputAppendStringSynchronised("\n>Process failed to respond; forcing abrupt termination...\n");
 					::TerminateProcess(pi.hProcess, 1);
