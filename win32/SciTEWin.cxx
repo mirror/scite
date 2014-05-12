@@ -824,7 +824,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			  startDirectory.AsInternal() : NULL,
 			  &si, &pi);
 
-	// if jobCLI "System cant find" - try calling with command processor
+	// if jobCLI "System can't find" - try calling with command processor
 	if ((!running) && (jobToRun.jobType == jobCLI) && (::GetLastError() == ERROR_FILE_NOT_FOUND)) {
 
 		SString runComLine = "cmd.exe /c ";
@@ -1619,15 +1619,15 @@ bool SciTEWin::IsStdinBlocked() {
 	char bytebuffer;
 	HANDLE hStdIn = ::GetStdHandle(STD_INPUT_HANDLE);
 	if (hStdIn == INVALID_HANDLE_VALUE) {
-		/* an invalid handle, assume that stdin is blocked by falling to bottomn */;
+		/* an invalid handle, assume that stdin is blocked by falling to bottom */;
 	} else if (::PeekConsoleInput(hStdIn, irec, 1, &unread_messages) != 0) {
-		/* it is the console, assume that stdin is blocked by falling to bottomn */;
+		/* it is the console, assume that stdin is blocked by falling to bottom */;
 	} else if (::GetLastError() == ERROR_INVALID_HANDLE) {
 		for (int n = 0; n < 4; n++) {
 			/*	if this fails, it is either
 				- a busy pipe "scite \*.,cxx /s /b | s -@",
 				- another type of pipe "scite - <file", or
-				- a blocked pipe "findstrin nothing | scite -"
+				- a blocked pipe "findstring nothing | scite -"
 				in any case case, retry in a short bit
 			*/
 			if (::PeekNamedPipe(hStdIn, &bytebuffer, sizeof(bytebuffer), NULL,NULL, &unread_messages) != 0) {

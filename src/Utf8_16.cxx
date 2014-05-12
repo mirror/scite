@@ -84,7 +84,7 @@ size_t Utf8_16_Read::convert(char* buf, size_t len) {
 		*pCur++ = m_Iter16.get();
 	}
 
-	// Return number of bytes writen out
+	// Return number of bytes written out
 	return pCur - m_pNewBuf;
 }
 
@@ -291,7 +291,7 @@ void Utf16_Iter::set
 	m_pEnd = pBuf + nLen;
 	m_eEncoding = eEncoding;
 	operator++();
-	// Note: m_eState, m_nCur, m_nCur16 not reinitalized.
+	// Note: m_eState, m_nCur, m_nCur16 not reinitialized.
 }
 
 // Goes to the next byte.

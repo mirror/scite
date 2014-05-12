@@ -174,7 +174,7 @@ bool UniqueInstance::FindOtherInstance() {
  */
 void UniqueInstance::SendCommands(const char *cmdLine) {
 	// On Win2k, windows can't get focus by themselves,
-	// so it is the responsability of the new process to bring the window
+	// so it is the responsibility of the new process to bring the window
 	// to foreground.
 	// Put the other SciTE uniconized and to forefront.
 	if (::IsIconic(hOtherWindow)) {

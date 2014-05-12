@@ -607,7 +607,7 @@ void SciTEWin::Print(
 			lengthDoc = lengthDocMax;
 	}
 
-	// We must substract the physical margins from the printable area
+	// We must subtract the physical margins from the printable area
 	Sci_RangeToFormat frPrint;
 	frPrint.hdc = hdc;
 	frPrint.hdcTarget = hdc;

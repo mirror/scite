@@ -413,7 +413,7 @@ protected:
 	bool tabMultiLine;
 	bool sbVisible;	///< @c true if status bar is visible.
 	SString sbValue;	///< Status bar text.
-	int sbNum;	///< Number of the currenly displayed status bar information.
+	int sbNum;	///< Number of the currently displayed status bar information.
 	int visHeightTools;
 	int visHeightTab;
 	int visHeightStatus;

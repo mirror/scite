@@ -1296,7 +1296,7 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 			}
 		}
 
-		// reload mode is enabled, or else the inital state has been broken.
+		// reload mode is enabled, or else the initial state has been broken.
 		// either way, we're going to need a "new" initial state.
 
 		lua_pushnil(luaState);
@@ -1321,7 +1321,7 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		luaState = lua_open();
 		if (!luaState) {
 			luaDisabled = true;
-			host->Trace("> Lua: scripting engine failed to initalise\n");
+			host->Trace("> Lua: scripting engine failed to initialise\n");
 			return false;
 		}
 		lua_atpanic(luaState, LuaPanicFunction);
