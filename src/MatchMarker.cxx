@@ -19,9 +19,10 @@ std::vector<LineRange> LinesBreak(GUI::ScintillaWindow *pSci) {
 	if (pSci) {
 		const int lineEnd = pSci->Call(SCI_GETLINECOUNT);
 		const int lineStartVisible = pSci->Call(SCI_GETFIRSTVISIBLELINE);
+		const int docLineStartVisible = pSci->Call(SCI_DOCLINEFROMVISIBLE, lineStartVisible);
 		const int linesOnScreen = pSci->Call(SCI_LINESONSCREEN);
 		const int surround = 40;
-		LineRange rangePriority(lineStartVisible - surround, lineStartVisible + linesOnScreen + surround);
+		LineRange rangePriority(docLineStartVisible - surround, docLineStartVisible + linesOnScreen + surround);
 		if (rangePriority.lineStart < 0)
 			rangePriority.lineStart = 0;
 		if (rangePriority.lineEnd > lineEnd)
@@ -87,7 +88,7 @@ void MatchMarker::Continue() {
 		SCI_SEARCHINTARGET, textMatch.length(), textMatch.c_str());
 	while (posFound != INVALID_POSITION) {
 		// Limit the search duration to 250 ms. Avoid to freeze editor for huge lines.
-		if (searchElapsedTime.Duration() > 100.25) {
+		if (searchElapsedTime.Duration() > 0.25) {
 			// Clear all indicators because timer has expired.
 			pSci->Call(SCI_INDICATORCLEARRANGE, 0, pSci->Call(SCI_GETLENGTH));
 			lineRanges.clear();
