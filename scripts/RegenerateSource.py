@@ -117,8 +117,6 @@ def RegenerateAll():
     Regenerate(root + "scite/win32/scite.mak", "#", propFiles)
     Regenerate(root + "scite/src/SciTEProps.cxx", "//", sci.lexerProperties)
     Regenerate(root + "scite/doc/SciTEDoc.html", "<!--", propertiesHTML)
-    Generate(root + "scite/boundscheck/vcproj.gen",
-     root + "scite/boundscheck/SciTE.vcproj", "#", sci.lexFiles)
     credits = [OctalEscape(c.encode("utf-8")) for c in sci.credits]
     Regenerate(root + "scite/src/Credits.cxx", "//", credits)
 
