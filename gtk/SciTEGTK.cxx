@@ -5145,8 +5145,10 @@ bool SciTEGTK::PerformOnNewThread(Worker *pWorker) {
 		g_error_free(err) ;
 		return false;
 	}
+#if GLIB_CHECK_VERSION(2,31,0)
 	// The thread keeps itself alive so no need to keep reference.
 	g_thread_unref(pThread);
+#endif
 	return true;
 }
 

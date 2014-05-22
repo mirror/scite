@@ -14,18 +14,30 @@
 
 class GTKMutex : public Mutex {
 private:
+#if GLIB_CHECK_VERSION(2,31,0)
 	GMutex m;
+#endif
+	GMutex *pm;
 	virtual void Lock() {
-		g_mutex_lock(&m);
+		g_mutex_lock(pm);
 	}
 	virtual void Unlock() {
-		g_mutex_unlock(&m);
+		g_mutex_unlock(pm);
 	}
 	GTKMutex() {
-		g_mutex_init(&m);
+#if GLIB_CHECK_VERSION(2,31,0)
+		pm = &m;
+		g_mutex_init(pm);
+#else
+		pm = g_mutex_new();
+#endif
 	}
 	virtual ~GTKMutex() {
-		g_mutex_clear(&m);
+#if GLIB_CHECK_VERSION(2,31,0)
+		g_mutex_clear(pm);
+#else
+		g_mutex_free(pm);
+#endif
 	}
 	friend class Mutex;
 };
