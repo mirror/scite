@@ -451,7 +451,7 @@ void Strip::SetTheme() {
 	if (hTheme) {
 		HDC hdc = ::GetDC(Hwnd());
 		scale = ::GetDeviceCaps(hdc, LOGPIXELSX);
-		::DeleteDC(reinterpret_cast<HDC>(hdc));
+		::ReleaseDC(Hwnd(), hdc);
 		HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL,
 			NULL, TS_TRUE, &closeSize);
 		//HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_MDICLOSEBUTTON, CBS_NORMAL,

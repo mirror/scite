@@ -235,6 +235,8 @@ SciTEWin::~SciTEWin() {
 		::FreeLibrary(hMM);
 	if (fontTabs)
 		::DeleteObject(fontTabs);
+	if (hAccTable)
+		::DestroyAcceleratorTable(hAccTable);
 }
 
 uptr_t SciTEWin::GetInstance() {

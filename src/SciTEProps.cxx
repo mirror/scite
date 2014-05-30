@@ -506,7 +506,6 @@ static const char *propertiesToForward[] = {
 	"nsis.ignorecase",
 	"nsis.uservars",
 	"ps.level",
-	"ps.tokenize",
 	"sql.backslash.escapes",
 	"styling.within.preprocessor",
 	"tab.timmy.whinge.level",
