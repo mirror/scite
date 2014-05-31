@@ -1166,11 +1166,6 @@ void SciTEWin::Execute() {
 		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
 			wEditor.Send(SCI_ENDUNDOACTION);
 
-		Redraw();
-		// A Redraw "might" be needed, since Lua and Director
-		// provide enough low-level capabilities to corrupt the
-		// display.
-
 		ExecuteNext();
 	} else {
 		// Execute other jobs asynchronously on a new thread
