@@ -115,10 +115,13 @@ void MatchMarker::Continue() {
 	}
 
 	// Retire searched lines
-	if (lineEndSegment >= rangeSearch.lineEnd) {
-		lineRanges.erase(lineRanges.begin());
-	} else {
-		lineRanges[0].lineStart = lineEndSegment;
+	if (!lineRanges.empty()) {
+		// Check in case of re-entrance
+		if (lineEndSegment >= rangeSearch.lineEnd) {
+			lineRanges.erase(lineRanges.begin());
+		} else {
+			lineRanges[0].lineStart = lineEndSegment;
+		}
 	}
 }
 
