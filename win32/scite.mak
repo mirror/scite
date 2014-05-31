@@ -18,8 +18,6 @@ DLLS=$(DIR_BIN)\Scintilla.dll $(DIR_BIN)\SciLexer.dll
 
 WIDEFLAGS=-DUNICODE -D_UNICODE
 
-CC=cl
-RC=rc
 LD=link
 
 CXXFLAGS=-Zi -TP -MP -W4 -EHsc -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_DEPRECATE $(WIDEFLAGS)
@@ -35,7 +33,7 @@ LIBS=KERNEL32.lib USER32.lib GDI32.lib MSIMG32.lib COMDLG32.lib COMCTL32.lib ADV
 NOLOGO=-nologo
 
 !IFDEF QUIET
-CC=@$(CC)
+CXX=@$(CXX)
 CXXFLAGS=$(CXXFLAGS) $(NOLOGO)
 CCFLAGS=$(CCFLAGS) $(NOLOGO)
 LDFLAGS=$(LDFLAGS) $(NOLOGO)
@@ -52,65 +50,43 @@ CCFLAGS=$(CCFLAGS) $(CXXNDEBUG)
 
 INCLUDEDIRS=-I../../scintilla/include -I../../scintilla/win32 -I../src
 
-OBJS=\
-	SciTEBase.obj \
-	FileWorker.obj \
+SHAREDOBJS=\
 	Cookie.obj \
 	Credits.obj \
+	DirectorExtension.obj \
+	Exporters.obj \
 	FilePath.obj \
+	FileWorker.obj \
+	GUIWin.obj \
+	IFaceTable.obj \
 	JobQueue.obj \
+	MatchMarker.obj \
+	MultiplexExtension.obj \
+	PropSetFile.obj \
+	SciTEBase.obj \
 	SciTEBuffers.obj \
 	SciTEIO.obj \
-	Exporters.obj \
-	MatchMarker.obj \
-	PropSetFile.obj \
-	StringHelpers.obj \
-	StringList.obj \
 	SciTEProps.obj \
-	Utf8_16.obj \
-	SciTEWin.obj \
 	SciTEWinBar.obj \
 	SciTEWinDlg.obj \
+	StringHelpers.obj \
+	StringList.obj \
 	Strips.obj \
-	IFaceTable.obj \
-	DirectorExtension.obj \
-	MultiplexExtension.obj \
 	StyleDefinition.obj \
 	StyleWriter.obj \
-	GUIWin.obj \
 	UniqueInstance.obj \
+	Utf8_16.obj \
 	WinMutex.obj
+
+OBJS=\
+	$(SHAREDOBJS) \
+	SciTEWin.obj
 
 LEXLIB=..\..\scintilla\win32\Lexers.lib
 
 OBJSSTATIC=\
-	SciTEBase.obj \
-	FileWorker.obj \
-	Cookie.obj \
-	Credits.obj \
-	FilePath.obj \
-	JobQueue.obj \
-	SciTEBuffers.obj \
-	SciTEIO.obj \
-	Exporters.obj \
-	MatchMarker.obj \
-	PropSetFile.obj \
-	StringHelpers.obj \
-	StringList.obj \
-	SciTEProps.obj \
-	Utf8_16.obj \
+	$(SHAREDOBJS) \
 	Sc1.obj \
-	SciTEWinBar.obj \
-	SciTEWinDlg.obj \
-	Strips.obj \
-	IFaceTable.obj \
-	DirectorExtension.obj \
-	MultiplexExtension.obj \
-	StyleDefinition.obj \
-	StyleWriter.obj \
-	GUIWin.obj \
-	UniqueInstance.obj \
-	WinMutex.obj \
 	..\..\scintilla\win32\Accessor.obj \
 	..\..\scintilla\win32\AutoComplete.obj \
 	..\..\scintilla\win32\CallTip.obj \
@@ -257,17 +233,17 @@ $(PROGSTATIC): $(OBJSSTATIC) $(LEXLIB) Sc1Res.res
 # Some source files are compiled into more than one object because of different conditional compilation
 
 {..\src}.cxx.obj::
-	$(CC) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 {.}.cxx.obj::
-	$(CC) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 {..\lua\src}.c.obj::
-	$(CC) $(CCFLAGS) -c $<
+	$(CXX) $(CCFLAGS) -c $<
 {..\lua\src\lib}.c.obj::
-	$(CC) $(CCFLAGS) -c $<
+	$(CXX) $(CCFLAGS) -c $<
 
 Sc1.obj: SciTEWin.cxx
-	$(CC) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAME)$@ SciTEWin.cxx
+	$(CXX) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAME)$@ SciTEWin.cxx
 
 # Dependencies
 DirectorExtension.obj: \

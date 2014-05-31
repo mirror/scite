@@ -5,7 +5,6 @@
 # be needed to use other compilers.
 
 .SUFFIXES: .cxx .properties
-CC = g++
 DEL = $(if $(wildcard $(dir $(SHELL))rm.exe), $(dir $(SHELL))rm.exe -f, del)
 COPY = xcopy /y
 VER = cmd /c ver
@@ -70,10 +69,10 @@ CXXFLAGS = $(CFLAGS) -pedantic -fno-rtti
 LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid $(UXLIB) $(LUA_LDFLAGS)
 
 .cxx.o:
-	$(CC) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .c.o:
-	gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 OTHER_OBJS	= FileWorker.o Cookie.o Credits.o FilePath.o JobQueue.o SciTEBuffers.o SciTEIO.o \
 Exporters.o MatchMarker.o PropSetFile.o StringHelpers.o StringList.o SciTEProps.o SciTEWin.o SciTEWinBar.o \
@@ -126,7 +125,7 @@ analyze:
 	clang --analyze $(CXXFLAGS) *.cxx ../src/*.cxx
 
 deps:
-	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c >deps.mak
+	$(CXX) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c >deps.mak
 
 embedded: ..\src\Embedded.properties
 
@@ -146,7 +145,7 @@ embedded: ..\src\Embedded.properties
 	grep -v -h "^[#]" $(PROPS) >..\src\Embedded.properties
 
 $(PROG): $(OBJS)
-	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
+	$(CXX) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
 
 OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o Strips.o MultiplexExtension.o \
 	StyleDefinition.o StyleWriter.o UniqueInstance.o SciTEBase.o FileWorker.o Cookie.o Credits.o FilePath.o SciTEBuffers.o \
@@ -161,14 +160,14 @@ OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o Strips.o MultiplexExtension.o \
 	JobQueue.o WinMutex.o $(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
-	$(CC) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
+	$(CXX) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
 
 # Automatically generate dependencies for most files with "make deps"
 include deps.mak
 
 Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h PropSetFile.h \
  SString.h Scintilla.h Extender.h FilePath.h SciTEBase.h FileWorker.h JobQueue.h
-	$(CC) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
+	$(CXX) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
 
 SciTERes.o:	SciTERes.rc SciTE.h SciTE.exe.manifest
 	windres $(RCINCLUDEDIRS) SciTERes.rc $@

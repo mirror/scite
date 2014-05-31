@@ -10,13 +10,9 @@ ifdef CLANG
 # thread also need to create Position Independent Executable -> search online documentation
 SANITIZE = address
 #SANITIZE = undefined
-CC = clang++ -fsanitize=$(SANITIZE) --std=c++0x
-CCOMP = clang -fsanitize=$(SANITIZE) -Wno-empty-body
-else
-CC = g++
-CCOMP = gcc
+CXX = clang++ -fsanitize=$(SANITIZE) --std=c++0x
+CC = clang -fsanitize=$(SANITIZE) -Wno-empty-body
 endif
-AR = ar
 
 ifdef GTK3
 GTKVERSION=gtk+-3.0
@@ -77,7 +73,7 @@ vpath %.c ../lua/src ../lua/src/lib
 INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
 
 .c.o:
-	$(CCOMP) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
 
 else
 CXXTFLAGS+=-DNO_LUA
@@ -97,7 +93,7 @@ CXXTFLAGS:=$(CXXTFLAGS) -Dunix
 endif
 
 .cxx.o:
-	$(CC) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.plist $(PROG)
@@ -108,7 +104,7 @@ analyze:
 	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c
 
 deps:
-	$(CC) -MM $(CONFIGFLAGS) $(CXXTFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
+	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=../../scintilla/bin/scintilla.a
@@ -118,7 +114,7 @@ FilePath.o SciTEBase.o FileWorker.o Cookie.o Credits.o SciTEBuffers.o SciTEIO.o 
 Exporters.o  MatchMarker.o StringHelpers.o \
 PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o StyleDefinition.o StyleWriter.o Utf8_16.o \
 	JobQueue.o GTKMutex.o IFaceTable.o $(COMPLIB) $(LUA_OBJS)
-	$(CC) `$(CONFIGTHREADS)` -rdynamic -Wl,--as-needed -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) -lm -lstdc++
+	$(CXX) `$(CONFIGTHREADS)` -rdynamic -Wl,--as-needed -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) -lm -lstdc++
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
