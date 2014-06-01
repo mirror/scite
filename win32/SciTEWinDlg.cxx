@@ -211,6 +211,15 @@ GUI::gui_string SciTEWin::DialogFilterFromProperty(const GUI::gui_char *filterPr
 	return filter;
 }
 
+void SciTEWin::CheckCommonDialogError() {
+	DWORD errorNumber = ::CommDlgExtendedError();
+	if (errorNumber) {
+		GUI::gui_string sError = GUI::HexStringFromInteger(errorNumber);
+		GUI::gui_string msg = LocaliseMessage("Common dialog error 0x^0.", sError.c_str());
+		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+	}
+}
+
 bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
 	enum {maxBufferSize=2048};
 
@@ -268,6 +277,8 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
 				p += wcslen(p) + 1;
 			}
 		}
+	} else {
+		CheckCommonDialogError();
 	}
 	return succeeded;
 }
@@ -296,6 +307,8 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
 		dialogsOnScreen++;
 		if (::GetSaveFileNameW(&ofn)) {
 			path = saveName;
+		} else {
+			CheckCommonDialogError();
 		}
 		dialogsOnScreen--;
 	}
@@ -375,6 +388,8 @@ void SciTEWin::LoadSessionDialog() {
 	if (::GetOpenFileNameW(&ofn)) {
 		LoadSessionFile(openName);
 		RestoreSession();
+	} else {
+		CheckCommonDialogError();
 	}
 }
 
@@ -395,6 +410,8 @@ void SciTEWin::SaveSessionDialog() {
 	ofn.lpstrFilter = GUI_TEXT("Session (.session)\0*.session\0");
 	if (::GetSaveFileNameW(&ofn)) {
 		SaveSessionFile(saveName);
+	} else {
+		CheckCommonDialogError();
 	}
 }
 
@@ -445,6 +462,7 @@ void SciTEWin::Print(
 		pdlg.Flags |= PD_RETURNDEFAULT;
 	}
 	if (!::PrintDlg(&pdlg)) {
+		CheckCommonDialogError();
 		return;
 	}
 
@@ -730,8 +748,10 @@ void SciTEWin::PrintSetup() {
 	pdlg.hDevMode = hDevMode;
 	pdlg.hDevNames = hDevNames;
 
-	if (!PageSetupDlg(&pdlg))
+	if (!PageSetupDlg(&pdlg)) {
+		CheckCommonDialogError();
 		return;
+	}
 
 	pagesetupMargin.left = pdlg.rtMargin.left;
 	pagesetupMargin.top = pdlg.rtMargin.top;

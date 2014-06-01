@@ -253,6 +253,7 @@ protected:
 
 	int DoDialog(HINSTANCE hInst, const TCHAR *resName, HWND hWnd, DLGPROC lpProc);
 	GUI::gui_string DialogFilterFromProperty(const GUI::gui_char *filterProperty);
+	void CheckCommonDialogError();
 	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter);
 	FilePath ChooseSaveName(FilePath directory, const char *title, const GUI::gui_char *filter=0, const char *ext=0);
 	virtual bool SaveAsDialog();
