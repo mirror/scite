@@ -536,8 +536,8 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 			        "larger than the ^2 bytes limit set in the properties.\n"
 			        "Do you still want to open it?",
 			        absPath.AsInternal(), sSize.c_str(), sMaxSize.c_str());
-			int answer = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
-			if (answer != IDYES) {
+			MessageBoxChoice answer = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+			if (answer != mbYes) {
 				return false;
 			}
 		}
@@ -755,8 +755,8 @@ void SciTEBase::CheckReload() {
 						          "The file '^0' has been modified outside SciTE. Should it be reloaded?",
 						          FileNameExt().AsInternal());
 					}
-					int decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
-					if (decision == IDYES) {
+					MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
+					if (decision == mbYes) {
 						Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
 						DisplayAround(rf);
 					}
@@ -819,12 +819,12 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) 
 			} else {
 				msg = LocaliseMessage("Save changes to (Untitled)?");
 			}
-			int decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL | MB_ICONQUESTION);
-			if (decision == IDYES) {
+			MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL | MB_ICONQUESTION);
+			if (decision == mbYes) {
 				if (!Save(sf))
 					return saveCancelled;
 			}
-			return decision == IDCANCEL ? saveCancelled : saveCompleted;
+			return (decision == mbCancel) ? saveCancelled : saveCompleted;
 		} else {
 			if (!Save(sf))
 				return saveCancelled;
@@ -1038,8 +1038,6 @@ bool SciTEBase::Save(SaveFlags sf) {
 			return true;
 		}
 
-		int decision;
-
 		if (props.GetInt("save.deletes.first")) {
 			filePath.Remove();
 		} else if (props.GetInt("save.check.modified.time")) {
@@ -1048,8 +1046,8 @@ bool SciTEBase::Save(SaveFlags sf) {
 				(newModTime != CurrentBuffer()->fileModTime)) {
 				msg = LocaliseMessage("The file '^0' has been modified outside SciTE. Should it be saved?",
 					filePath.AsInternal());
-				decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
-				if (decision == IDNO) {
+				MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+				if (decision == mbNo) {
 					return false;
 				}
 			}
@@ -1071,8 +1069,8 @@ bool SciTEBase::Save(SaveFlags sf) {
 				CurrentBuffer()->failedSave = true;
 				msg = LocaliseMessage(
 					"Could not save file '^0'. Save under a different name?", filePath.AsInternal());
-				decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
-				if (decision == IDYES) {
+				MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+				if (decision == mbYes) {
 					return SaveAsDialog();
 				}
 			}

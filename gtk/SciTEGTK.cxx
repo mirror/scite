@@ -627,7 +627,7 @@ protected:
 
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
 
-	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style);
+	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style);
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem=0);
 	virtual void AboutDialog();
 	virtual void QuitProgram();
@@ -3137,7 +3137,7 @@ void SciTEGTK::DestroyFindReplace() {
 	dlgFindReplace.Destroy();
 }
 
-int SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) {
+SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) {
 	if (!messageBoxDialog) {
 		SString sMsg(msg.c_str());
 		dialogsOnScreen++;
@@ -3151,16 +3151,16 @@ int SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int s
 		g_signal_connect(G_OBJECT(messageBoxDialog),
 		                   "destroy", G_CALLBACK(messageBoxDestroy), &messageBoxDialog);
 
-		int escapeResult = IDOK;
+		MessageBoxChoice escapeResult = mbOK;
 		if ((style & 0xf) == MB_OK) {
-			AddMBButton(messageBoxDialog, "_OK", IDOK, accel_group, true);
+			AddMBButton(messageBoxDialog, "_OK", mbOK, accel_group, true);
 		} else {
-			AddMBButton(messageBoxDialog, "_Yes", IDYES, accel_group, true);
-			AddMBButton(messageBoxDialog, "_No", IDNO, accel_group);
-			escapeResult = IDNO;
+			AddMBButton(messageBoxDialog, "_Yes", mbYes, accel_group, true);
+			AddMBButton(messageBoxDialog, "_No", mbNo, accel_group);
+			escapeResult = mbNo;
 			if ((style & 0xf) == MB_YESNOCANCEL) {
-				AddMBButton(messageBoxDialog, "_Cancel", IDCANCEL, accel_group);
-				escapeResult = IDCANCEL;
+				AddMBButton(messageBoxDialog, "_Cancel", mbCancel, accel_group);
+				escapeResult = mbCancel;
 			}
 		}
 		g_signal_connect(G_OBJECT(messageBoxDialog),

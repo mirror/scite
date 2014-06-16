@@ -1655,11 +1655,22 @@ bool SciTEWin::ParametersDialog(bool modal) {
 	return success;
 }
 
-int SciTEWin::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) {
+SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) {
 	dialogsOnScreen++;
 	int ret = ::MessageBoxW(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
 	dialogsOnScreen--;
-	return ret;
+	switch (ret) {
+	case IDOK:
+		return mbOK;
+	case IDCANCEL:
+		return mbCancel;
+	case IDYES:
+		return mbYes;
+	case IDNO:
+		return mbNo;
+	default:
+		return mbOK;
+	}
 }
 
 void SciTEWin::FindMessageBox(const SString &msg, const std::string *findItem) {

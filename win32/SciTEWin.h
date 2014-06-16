@@ -275,7 +275,7 @@ protected:
 
 	BOOL HandleReplaceCommand(int cmd, bool reverseFind = false);
 
-	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style);
+	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style);
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0);
 	virtual void AboutDialog();
 	void DropFiles(HDROP hdrop);

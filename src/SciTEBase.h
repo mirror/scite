@@ -683,7 +683,13 @@ protected:
 	void SelectionIntoFind(bool stripEol = true);
 	virtual std::string EncodeString(const std::string &s);
 	virtual void Find() = 0;
-	virtual int WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) = 0;
+	enum MessageBoxChoice {
+		mbOK,
+		mbCancel,
+		mbYes,
+		mbNo
+	};
+	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) = 0;
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0) = 0;
 	int FindInTarget(std::string findWhat, int startPosition, int endPosition);
 	virtual void SetFindText(const char *sFind);
@@ -947,10 +953,6 @@ private:
 #define MB_YESNOCANCEL	(0x3L)
 #define MB_ICONWARNING	(0x30L)
 #define MB_ICONQUESTION (0x20L)
-#define IDOK	(1)
-#define IDCANCEL	(2)
-#define IDYES	(6)
-#define IDNO	(7)
 #endif
 
 int ControlIDOfCommand(unsigned long);
