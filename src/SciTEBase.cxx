@@ -807,16 +807,14 @@ SString SciTEBase::GetLine(GUI::ScintillaWindow &win, int line) {
 	return GetRange(win, lineStart, lineEnd);
 }
 
-SString SciTEBase::RangeExtendAndGrab(
+void SciTEBase::RangeExtend(
     GUI::ScintillaWindow &wCurrent,
     int &selStart,
     int &selEnd,
-    bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
-    bool stripEol /*=true*/) {
-
+    bool (SciTEBase::*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
 	if (selStart == selEnd && ischarforsel) {
 		// Empty range and have a function to extend it
-		int lengthDoc = wCurrent.Call(SCI_GETLENGTH);
+		const int lengthDoc = wCurrent.Call(SCI_GETLENGTH);
 		TextReader acc(wCurrent);
 		// Try and find a word at the caret
 		// On the left...
@@ -828,6 +826,16 @@ SString SciTEBase::RangeExtendAndGrab(
 			selEnd++;
 		}
 	}
+}
+
+SString SciTEBase::RangeExtendAndGrab(
+    GUI::ScintillaWindow &wCurrent,
+    int &selStart,
+    int &selEnd,
+    bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
+    bool stripEol /*=true*/) {
+
+	RangeExtend(wCurrent, selStart, selEnd, ischarforsel);
 	SString selected;
 	if (selStart != selEnd) {
 		selected = GetRangeInUIEncoding(wCurrent, selStart, selEnd);
@@ -2240,42 +2248,18 @@ bool SciTEBase::StartStreamComment() {
 	start_comment += white_space;
 	white_space += end_comment;
 	end_comment = white_space;
-	size_t start_comment_length = start_comment.length();
-	size_t selectionStart = wEditor.Call(SCI_GETSELECTIONSTART);
-	size_t selectionEnd = wEditor.Call(SCI_GETSELECTIONEND);
-	size_t caretPosition = wEditor.Call(SCI_GETCURRENTPOS);
+	int start_comment_length = static_cast<int>(start_comment.length());
+	int selectionStart = wEditor.Call(SCI_GETSELECTIONSTART);
+	int selectionEnd = wEditor.Call(SCI_GETSELECTIONEND);
+	int caretPosition = wEditor.Call(SCI_GETCURRENTPOS);
 	// checking if caret is located in _beginning_ of selected block
 	bool move_caret = caretPosition < selectionEnd;
 	// if there is no selection?
-	if (selectionEnd - selectionStart <= 0) {
-		int selLine = wEditor.Call(SCI_LINEFROMPOSITION, selectionStart);
-		int lineIndent = GetLineIndentPosition(selLine);
-		int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, selLine);
-		if (RangeIsAllWhitespace(lineIndent, lineEnd))
-			return true; // we are not dealing with empty lines
-		char linebuf[1000];
-		GetLine(linebuf, sizeof(linebuf));
-		int current = GetCaretInLine();
-		// checking if we are not inside a word
-		if (!wordCharacters.contains(linebuf[current]))
+	if (selectionStart == selectionEnd) {
+		RangeExtend(wEditor, selectionStart, selectionEnd,
+			&SciTEBase::islexerwordcharforsel);
+		if (selectionStart == selectionEnd)
 			return true; // caret is located _between_ words
-		int startword = current;
-		int endword = current;
-		int start_counter = 0;
-		int end_counter = 0;
-		while (startword > 0 && wordCharacters.contains(linebuf[startword - 1])) {
-			start_counter++;
-			startword--;
-		}
-		// checking _beginning_ of the word
-		if (startword == current)
-			return true; // caret is located _before_ a word
-		while (linebuf[endword + 1] != '\0' && wordCharacters.contains(linebuf[endword + 1])) {
-			end_counter++;
-			endword++;
-		}
-		selectionStart -= start_counter;
-		selectionEnd += (end_counter + 1);
 	}
 	wEditor.Call(SCI_BEGINUNDOACTION);
 	wEditor.CallString(SCI_INSERTTEXT, selectionStart, start_comment.c_str());

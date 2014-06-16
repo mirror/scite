@@ -668,8 +668,10 @@ protected:
 	static SString GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	static SString GetLine(GUI::ScintillaWindow &win, int line);
+	void RangeExtend(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,
+		bool (SciTEBase::*ischarforsel)(char ch));
 	SString RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,
-	        bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
+		bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	SString SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	SString SelectionWord(bool stripEol = true);
 	SString SelectionFilename();
