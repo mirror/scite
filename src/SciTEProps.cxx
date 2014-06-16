@@ -37,11 +37,6 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("_");
 
 #else
 
-#undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0500
-#include <windows.h>
-#include <commctrl.h>
-
 const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 
 #endif
@@ -1471,15 +1466,6 @@ void SciTEBase::ReadPropertiesInitial() {
 		}
 	}
 	// end load the user defined short cut props
-
-
-#if defined(WIN32)
-
-	if (tabMultiLine) {	// Windows specific!
-		long wl = ::GetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE);
-		::SetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE, wl | TCS_MULTILINE);
-	}
-#endif
 
 	FilePath homepath = GetSciteDefaultHome();
 	props.Set("SciteDefaultHome", homepath.AsUTF8().c_str());

@@ -50,12 +50,6 @@ typedef void *HTHEME;
 #include <process.h>
 #include <mmsystem.h>
 #include <commctrl.h>
-#ifdef _MSC_VER
-#include <direct.h>
-#endif
-#ifdef __DMC__
-#include <dir.h>
-#endif
 
 #if defined(DTBG_CLIPRECT) && !defined(DISABLE_THEMES)
 #define THEME_AVAILABLE
@@ -230,6 +224,7 @@ protected:
 	virtual void ReadLocalization();
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
 
+	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
 
 	virtual void TimerStart(int mask);

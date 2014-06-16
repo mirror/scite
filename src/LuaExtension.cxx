@@ -32,9 +32,6 @@ extern "C" {
 
 #if !defined(__unix__)
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
 #ifdef _MSC_VER
 // MSVC looks deeper into the code than other compilers, sees that
 // lua_error calls longjmp, and complains about unreachable code.

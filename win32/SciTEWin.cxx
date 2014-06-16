@@ -384,6 +384,14 @@ FILE *scite_lua_popen(const char *filename, const char *mode) {
 
 }
 
+void SciTEWin::ReadPropertiesInitial() {
+	SciTEBase::ReadPropertiesInitial();
+	if (tabMultiLine) {	// Windows specific!
+		long wl = ::GetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE);
+		::SetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE, wl | TCS_MULTILINE);
+	}
+}
+
 void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
 }

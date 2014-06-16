@@ -25,18 +25,6 @@
 #include <gtk/gtk.h>
 #endif
 
-#else
-
-#undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0500
-#include <windows.h>
-#include <commctrl.h>
-
-// For chdir
-#ifdef _MSC_VER
-#include <direct.h>
-#endif
-
 #endif
 
 #include "Scintilla.h"

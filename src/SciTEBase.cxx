@@ -28,20 +28,6 @@
 #include <gtk/gtk.h>
 #endif
 
-#else
-
-#undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0500
-#include <windows.h>
-#include <commctrl.h>
-
-#ifdef _MSC_VER
-#include <direct.h>
-#endif
-#ifdef __DMC__
-#include <dir.h>
-#endif
-
 #endif
 
 #include "Scintilla.h"
