@@ -21,10 +21,6 @@
 
 #include <unistd.h>
 
-#if defined(GTK)
-#include <gtk/gtk.h>
-#endif
-
 #include <dirent.h>
 #include <errno.h>
 

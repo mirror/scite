@@ -696,7 +696,7 @@ protected:
 		mbsYesNo = 4,
 		mbsYesNoCancel = 3,
 		mbsIconQuestion = 0x20,
-		mbsIconWarning = 0x30,
+		mbsIconWarning = 0x30
 	};
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) = 0;
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0) = 0;

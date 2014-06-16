@@ -9,6 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <fcntl.h>
 #include <time.h>
 #include <locale.h>
@@ -26,12 +27,6 @@
 #include "GUI.h"
 
 #if defined(__unix__)
-
-#include <unistd.h>
-
-#if defined(GTK)
-#include <gtk/gtk.h>
-#endif
 
 const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("_");
 

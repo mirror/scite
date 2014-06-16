@@ -627,7 +627,7 @@ protected:
 
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
 
-	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style);
+	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style = mbsIconWarning);
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem=0);
 	virtual void AboutDialog();
 	virtual void QuitProgram();
@@ -3137,7 +3137,7 @@ void SciTEGTK::DestroyFindReplace() {
 	dlgFindReplace.Destroy();
 }
 
-SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) {
+SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style) {
 	if (!messageBoxDialog) {
 		SString sMsg(msg.c_str());
 		dialogsOnScreen++;
@@ -3207,7 +3207,7 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 		}
 		dialogsOnScreen--;
 	}
-	return messageBoxResult;
+	return static_cast<MessageBoxChoice>(messageBoxResult);
 }
 
 void SciTEGTK::FindMessageBox(const SString &msg, const std::string *findItem) {

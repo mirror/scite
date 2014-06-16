@@ -9,6 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <fcntl.h>
 #include <time.h>
 
@@ -16,16 +17,6 @@
 #include <vector>
 #include <set>
 #include <map>
-
-#if defined(__unix__)
-
-#include <unistd.h>
-
-#if defined(GTK)
-#include <gtk/gtk.h>
-#endif
-
-#endif
 
 #include "Scintilla.h"
 #include "ILexer.h"
