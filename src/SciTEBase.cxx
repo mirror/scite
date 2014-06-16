@@ -3019,7 +3019,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_CLOSE:
-		if (SaveIfUnsure() != IDCANCEL) {
+		if (SaveIfUnsure() != saveCancelled) {
 			Close();
 			WindowSetFocus(wEditor);
 		}
@@ -3468,7 +3468,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_COMPILE: {
-			if (SaveIfUnsureForBuilt() != IDCANCEL) {
+			if (SaveIfUnsureForBuilt() != saveCancelled) {
 				SelectionIntoProperties();
 				AddCommand(props.GetWild("command.compile.", FileNameExt().AsUTF8().c_str()), "",
 				        SubsystemType("command.compile.subsystem."));
@@ -3479,7 +3479,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_BUILD: {
-			if (SaveIfUnsureForBuilt() != IDCANCEL) {
+			if (SaveIfUnsureForBuilt() != saveCancelled) {
 				SelectionIntoProperties();
 				AddCommand(
 				    props.GetWild("command.build.", FileNameExt().AsUTF8().c_str()),
@@ -3494,7 +3494,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_GO: {
-			if (SaveIfUnsureForBuilt() != IDCANCEL) {
+			if (SaveIfUnsureForBuilt() != saveCancelled) {
 				SelectionIntoProperties();
 				int flags = 0;
 

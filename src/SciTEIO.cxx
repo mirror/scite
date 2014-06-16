@@ -801,13 +801,13 @@ FilePath SciTEBase::SaveName(const char *ext) const {
 	return FilePath(savePath.c_str());
 }
 
-int SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) {
+SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) {
 	if (CurrentBuffer()->pFileWorker) {
 		if (CurrentBuffer()->pFileWorker->IsLoading())
 			// In semi-loaded state so refuse to save
-			return IDCANCEL;
+			return saveCancelled;
 		else
-			return IDNO;
+			return saveCompleted;
 	}
 	if ((CurrentBuffer()->isDirty) && (LengthDocument() || !filePath.IsUntitled() || forceQuestion)) {
 		if (props.GetInt("are.you.sure", 1) ||
@@ -822,20 +822,20 @@ int SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) {
 			int decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL | MB_ICONQUESTION);
 			if (decision == IDYES) {
 				if (!Save(sf))
-					decision = IDCANCEL;
+					return saveCancelled;
 			}
-			return decision;
+			return decision == IDCANCEL ? saveCancelled : saveCompleted;
 		} else {
 			if (!Save(sf))
-				return IDCANCEL;
+				return saveCancelled;
 		}
 	}
-	return IDYES;
+	return saveCompleted;
 }
 
-int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
-	if (SaveAllBuffers(forceQuestion) == IDCANCEL) {
-		return IDCANCEL;
+SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
+	if (SaveAllBuffers(forceQuestion) == saveCancelled) {
+		return saveCancelled;
 	}
 	if (props.GetInt("save.recent")) {
 		for (int i = 0; i < buffers.lengthVisible; ++i) {
@@ -868,10 +868,10 @@ int SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 		}
 	}
 	// Initial document will be deleted when editor deleted
-	return IDYES;
+	return saveCompleted;
 }
 
-int SciTEBase::SaveIfUnsureForBuilt() {
+SciTEBase::SaveResult SciTEBase::SaveIfUnsureForBuilt() {
 	if (props.GetInt("save.all.for.build")) {
 		return SaveAllBuffers(false, !props.GetInt("are.you.sure.for.build"));
 	}
@@ -881,7 +881,7 @@ int SciTEBase::SaveIfUnsureForBuilt() {
 
 		Save();
 	}
-	return IDYES;
+	return saveCompleted;
 }
 
 void SciTEBase::StripTrailingSpaces() {

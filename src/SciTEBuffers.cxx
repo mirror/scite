@@ -503,7 +503,7 @@ bool SciTEBase::CanMakeRoom(bool maySaveIfDirty) {
 		return true;
 	} else if (maySaveIfDirty) {
 		// All available buffers are taken, try and close the current one
-		if (SaveIfUnsure(true, static_cast<SaveFlags>(sfProgressVisible | sfSynchronous)) != IDCANCEL) {
+		if (SaveIfUnsure(true, static_cast<SaveFlags>(sfProgressVisible | sfSynchronous)) != saveCancelled) {
 			// The file isn't dirty, or the user agreed to close the current one
 			return true;
 		}
@@ -1013,14 +1013,14 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 void SciTEBase::CloseTab(int tab) {
 	int tabCurrent = buffers.Current();
 	if (tab == tabCurrent) {
-		if (SaveIfUnsure() != IDCANCEL) {
+		if (SaveIfUnsure() != saveCancelled) {
 			Close();
 			WindowSetFocus(wEditor);
 		}
 	} else {
 		FilePath fpCurrent = buffers.buffers[tabCurrent].AbsolutePath();
 		SetDocumentAt(tab);
-		if (SaveIfUnsure() != IDCANCEL) {
+		if (SaveIfUnsure() != saveCancelled) {
 			Close();
 			WindowSetFocus(wEditor);
 			// Return to the previous buffer
@@ -1030,7 +1030,7 @@ void SciTEBase::CloseTab(int tab) {
 }
 
 void SciTEBase::CloseAllBuffers(bool loadingSession) {
-	if (SaveAllBuffers(false) != IDCANCEL) {
+	if (SaveAllBuffers(false) != saveCancelled) {
 		while (buffers.lengthVisible > 1)
 			Close(false, loadingSession);
 
@@ -1038,16 +1038,16 @@ void SciTEBase::CloseAllBuffers(bool loadingSession) {
 	}
 }
 
-int SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
-	int choice = IDYES;
+SciTEBase::SaveResult SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
+	SaveResult choice = saveCompleted;
 	UpdateBuffersCurrent();
 	int currentBuffer = buffers.Current();
-	for (int i = 0; (i < buffers.lengthVisible) && (choice != IDCANCEL); i++) {
+	for (int i = 0; (i < buffers.lengthVisible) && (choice != saveCancelled); i++) {
 		if (buffers.buffers[i].isDirty) {
 			SetDocumentAt(i);
 			if (alwaysYes) {
 				if (!Save()) {
-					choice = IDCANCEL;
+					choice = saveCancelled;
 				}
 			} else {
 				choice = SaveIfUnsure(forceQuestion);
@@ -1491,7 +1491,7 @@ void SciTEBase::ToolsMenu(int item) {
 		if (jobQueue.IsExecuting() && (jobMode.jobType != jobImmediate))
 			// Busy running a tool and running a second can cause failures.
 			return;
-		if (jobMode.saveBefore == 2 || (jobMode.saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != IDCANCEL) {
+		if (jobMode.saveBefore == 2 || (jobMode.saveBefore == 1 && (!(CurrentBuffer()->isDirty) || Save())) || SaveIfUnsure() != saveCancelled) {
 			if (jobMode.isFilter)
 				CurrentBuffer()->fileModTime -= 1;
 			if (jobMode.jobType == jobImmediate) {

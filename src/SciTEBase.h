@@ -621,9 +621,13 @@ protected:
 	    sfProgressVisible = 1, 	// Show in background save strip
 	    sfSynchronous = 16	// Write synchronously blocking UI
 	};
-	int SaveIfUnsure(bool forceQuestion = false, SaveFlags sf = sfProgressVisible);
-	int SaveIfUnsureAll(bool forceQuestion = false);
-	int SaveIfUnsureForBuilt();
+	enum SaveResult {
+		saveCompleted,
+		saveCancelled
+	};
+	SaveResult SaveIfUnsure(bool forceQuestion = false, SaveFlags sf = sfProgressVisible);
+	SaveResult SaveIfUnsureAll(bool forceQuestion = false);
+	SaveResult SaveIfUnsureForBuilt();
 	bool SaveIfNotOpen(const FilePath &destFile, bool fixCase);
 	void AbandonAutomaticSave();
 	bool Save(SaveFlags sf = sfProgressVisible);
@@ -759,7 +763,7 @@ protected:
 	virtual void QuitProgram() = 0;
 	void CloseTab(int tab);
 	void CloseAllBuffers(bool loadingSession = false);
-	int SaveAllBuffers(bool forceQuestion, bool alwaysYes = false);
+	SaveResult SaveAllBuffers(bool forceQuestion, bool alwaysYes = false);
 	void SaveTitledBuffers();
 	virtual void CopyAsRTF() {}
 	virtual void CopyPath() {}

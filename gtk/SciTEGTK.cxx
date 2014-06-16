@@ -3226,7 +3226,7 @@ void SciTEGTK::AboutDialog() {
 }
 
 void SciTEGTK::QuitProgram() {
-	if (SaveIfUnsureAll() != IDCANCEL) {
+	if (SaveIfUnsureAll() != saveCancelled) {
 		quitting = true;
 		// If ongoing saves, wait for them to complete.
 		if (!buffers.SavingInBackground()) {

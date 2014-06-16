@@ -1248,7 +1248,7 @@ void SciTEWin::WorkerCommand(int cmd, Worker *pWorker) {
 
 void SciTEWin::QuitProgram() {
 	quitting = false;
-	if (SaveIfUnsureAll() != IDCANCEL) {
+	if (SaveIfUnsureAll() != saveCancelled) {
 		if (fullScreen)	// Ensure tray visible on exit
 			FullScreenToggle();
 		quitting = true;
