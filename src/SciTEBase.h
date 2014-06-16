@@ -689,7 +689,16 @@ protected:
 		mbYes,
 		mbNo
 	};
-	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) = 0;
+	typedef int MessageBoxStyle;
+	enum {
+		// Same as Win32 MB_*
+		mbsOK = 0,
+		mbsYesNo = 4,
+		mbsYesNoCancel = 3,
+		mbsIconQuestion = 0x20,
+		mbsIconWarning = 0x30,
+	};
+	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) = 0;
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0) = 0;
 	int FindInTarget(std::string findWhat, int startPosition, int endPosition);
 	virtual void SetFindText(const char *sFind);
@@ -945,15 +954,6 @@ private:
 	SciTEBase(const SciTEBase&);
 	void operator=(const SciTEBase&);
 };
-
-#if defined(__unix__)
-// MessageBox
-#define MB_OK	(0L)
-#define MB_YESNO	(0x4L)
-#define MB_YESNOCANCEL	(0x3L)
-#define MB_ICONWARNING	(0x30L)
-#define MB_ICONQUESTION (0x20L)
-#endif
 
 int ControlIDOfCommand(unsigned long);
 long ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault);

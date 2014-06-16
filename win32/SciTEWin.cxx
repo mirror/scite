@@ -1132,7 +1132,7 @@ void SciTEWin::ShellExec(const SString &cmd, const char *dir) {
 	}
 	errormsg += "\"\n";
 	GUI::gui_string sErrorMsg = GUI::StringFromUTF8(errormsg.c_str()) + GetErrorMessage(rc);
-	WindowMessageBox(wSciTE, sErrorMsg, MB_OK);
+	WindowMessageBox(wSciTE, sErrorMsg, mbsOK);
 
 	delete []mycmdcopy;
 }
@@ -1849,7 +1849,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 					Open(file.AsInternal());
 				} else {
 					GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", file.AsInternal());
-					WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+					WindowMessageBox(wSciTE, msg);
 				}
 			}
 			break;

@@ -80,7 +80,7 @@
 #define WIDGET_SET_NO_FOCUS(w) GTK_WIDGET_UNSET_FLAGS(w, GTK_CAN_FOCUS)
 #endif
 
-#define MB_ABOUTBOX	0x100000L
+enum { mbsAboutBox = 0x100000 };
 
 // Key names are longer for GTK+ 3
 #if GTK_CHECK_VERSION(3,0,0)
@@ -1469,7 +1469,7 @@ void SciTEGTK::OpenUriList(const char *list) {
 					Open(uri);
 				} else {
 					GUI::gui_string msg = LocaliseMessage("URI '^0' not understood.", uri);
-					WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+					WindowMessageBox(wSciTE, msg);
 				}
 
 				uri = enduri + 1;
@@ -3137,7 +3137,7 @@ void SciTEGTK::DestroyFindReplace() {
 	dlgFindReplace.Destroy();
 }
 
-SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) {
+SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) {
 	if (!messageBoxDialog) {
 		SString sMsg(msg.c_str());
 		dialogsOnScreen++;
@@ -3152,13 +3152,13 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 		                   "destroy", G_CALLBACK(messageBoxDestroy), &messageBoxDialog);
 
 		MessageBoxChoice escapeResult = mbOK;
-		if ((style & 0xf) == MB_OK) {
+		if ((style & 0xf) == mbsOK) {
 			AddMBButton(messageBoxDialog, "_OK", mbOK, accel_group, true);
 		} else {
 			AddMBButton(messageBoxDialog, "_Yes", mbYes, accel_group, true);
 			AddMBButton(messageBoxDialog, "_No", mbNo, accel_group);
 			escapeResult = mbNo;
-			if ((style & 0xf) == MB_YESNOCANCEL) {
+			if ((style & 0xf) == mbsYesNoCancel) {
 				AddMBButton(messageBoxDialog, "_Cancel", mbCancel, accel_group);
 				escapeResult = mbCancel;
 			}
@@ -3167,7 +3167,7 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 		                   "key_press_event", G_CALLBACK(messageBoxKey),
 		                   reinterpret_cast<gpointer>(escapeResult));
 
-		if (style & MB_ABOUTBOX) {
+		if (style & mbsAboutBox) {
 			GtkWidget *explanation = scintilla_new();
 			GUI::ScintillaWindow scExplanation;
 			scExplanation.SetID(explanation);
@@ -3213,16 +3213,16 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 void SciTEGTK::FindMessageBox(const SString &msg, const std::string *findItem) {
 	if (findItem == 0) {
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str());
-		WindowMessageBox(wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msgBuf);
 	} else {
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str(), findItem->c_str());
-		WindowMessageBox(wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msgBuf);
 	}
 }
 
 void SciTEGTK::AboutDialog() {
 	WindowMessageBox(wSciTE, GUI::gui_string("SciTE\nby Neil Hodgson neilh@scintilla.org ."),
-	                 MB_OK | MB_ABOUTBOX);
+	                 mbsAboutBox);
 }
 
 void SciTEGTK::QuitProgram() {

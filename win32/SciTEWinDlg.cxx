@@ -216,7 +216,7 @@ void SciTEWin::CheckCommonDialogError() {
 	if (errorNumber) {
 		GUI::gui_string sError = GUI::HexStringFromInteger(errorNumber);
 		GUI::gui_string msg = LocaliseMessage("Common dialog error 0x^0.", sError.c_str());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 	}
 }
 
@@ -601,7 +601,7 @@ void SciTEWin::Print(
 		DeleteFontObject(fontHeader);
 		DeleteFontObject(fontFooter);
 		GUI::gui_string msg = LocaliseMessage("Can not start printer document.");
-		WindowMessageBox(wSciTE, msg, MB_OK);
+		WindowMessageBox(wSciTE, msg, mbsOK);
 		return;
 	}
 
@@ -1222,7 +1222,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		} else if (ControlIDOfWParam(wParam) == IDOK) {
 			if (jobQueue.IsExecuting()) {
 				GUI::gui_string msgBuf = LocaliseMessage("Job is currently executing. Wait until it finishes.");
-				WindowMessageBox(wFindInFiles, msgBuf, MB_OK | MB_ICONWARNING);
+				WindowMessageBox(wFindInFiles, msgBuf);
 				return FALSE;
 			}
 			findWhat = dlg.ItemTextU(IDFINDWHAT).string();
@@ -1655,7 +1655,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 	return success;
 }
 
-SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style) {
+SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style) {
 	dialogsOnScreen++;
 	int ret = ::MessageBoxW(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
 	dialogsOnScreen--;
@@ -1676,11 +1676,11 @@ SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI
 void SciTEWin::FindMessageBox(const SString &msg, const std::string *findItem) {
 	if (findItem == 0) {
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str());
-		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf);
 	} else {
 		GUI::gui_string findThing = GUI::StringFromUTF8(findItem->c_str());
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str(), findThing.c_str());
-		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf);
 	}
 }
 

@@ -317,7 +317,7 @@ void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 		fclose(fp);
 	} else {
 		GUI::gui_string msg = LocaliseMessage("Could not save file '^0'.", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 	}
 }
 
@@ -665,7 +665,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 	} else {
 		GUI::gui_string msg = LocaliseMessage(
 		            "Could not save file \"^0\".", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 	}
 }
 
@@ -1145,7 +1145,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	if (!fp) {
 		// couldn't open the file for saving, issue an error message
 		GUI::gui_string msg = LocaliseMessage("Could not save file '^0'.", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 		return;
 	}
 	// initialise PDF rendering
@@ -1365,7 +1365,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 	} else {
 		GUI::gui_string msg = LocaliseMessage(
 		            "Could not save file \"^0\".", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 	}
 }
 
@@ -1544,6 +1544,6 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 		fclose(fp);
 	} else {
 		GUI::gui_string msg = LocaliseMessage("Could not save file \"^0\".", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 	}
 }

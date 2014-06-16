@@ -264,7 +264,7 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous)
 		// Already performing an asynchronous load or save so do not restart load
 		if (!suppressMessage) {
 			GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", filePath.AsInternal());
-			WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+			WindowMessageBox(wSciTE, msg);
 		}
 		return;
 	}
@@ -273,7 +273,7 @@ void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous)
 	if (!fp) {
 		if (!suppressMessage) {
 			GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", filePath.AsInternal());
-			WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+			WindowMessageBox(wSciTE, msg);
 		}
 		if (!wEditor.Call(SCI_GETUNDOCOLLECTION)) {
 			wEditor.Call(SCI_SETUNDOCOLLECTION, 1);
@@ -332,7 +332,7 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 		buffers.buffers[iBuffer].lifeState = Buffer::readAll;
 		if (pFileLoader->err) {
 			GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", pFileLoader->path.AsInternal());
-			WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+			WindowMessageBox(wSciTE, msg);
 			// Should refuse to save when failure occurs
 			buffers.buffers[iBuffer].lifeState = Buffer::empty;
 		}
@@ -452,12 +452,12 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 		}
 	} else {
 		GUI::gui_string msg = LocaliseMessage("Could not find buffer '^0'.", pathSaved.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 	}
 
 	if (errSaved) {
 		GUI::gui_string msg = LocaliseMessage("Could not save file '^0'.", pathSaved.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 	}
 
 	if (IsPropertiesFile(pathSaved)) {
@@ -506,7 +506,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	if (!absPath.IsUntitled() && absPath.IsDirectory()) {
 		GUI::gui_string msg = LocaliseMessage("Path '^0' is a directory so can not be opened.",
 			absPath.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 		return false;
 	}
 
@@ -536,7 +536,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 			        "larger than the ^2 bytes limit set in the properties.\n"
 			        "Do you still want to open it?",
 			        absPath.AsInternal(), sSize.c_str(), sMaxSize.c_str());
-			MessageBoxChoice answer = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+			MessageBoxChoice answer = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconWarning);
 			if (answer != mbYes) {
 				return false;
 			}
@@ -755,7 +755,7 @@ void SciTEBase::CheckReload() {
 						          "The file '^0' has been modified outside SciTE. Should it be reloaded?",
 						          FileNameExt().AsInternal());
 					}
-					MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, MB_YESNO);
+					MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
 					if (decision == mbYes) {
 						Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
 						DisplayAround(rf);
@@ -819,7 +819,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) 
 			} else {
 				msg = LocaliseMessage("Save changes to (Untitled)?");
 			}
-			MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, MB_YESNOCANCEL | MB_ICONQUESTION);
+			MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNoCancel | mbsIconQuestion);
 			if (decision == mbYes) {
 				if (!Save(sf))
 					return saveCancelled;
@@ -968,7 +968,7 @@ bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
 					retVal = true;
 				} else {
 					GUI::gui_string msg = LocaliseMessage("Failed to save file '^0' as thread could not be started.", saveName.AsInternal());
-					WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+					WindowMessageBox(wSciTE, msg);
 				}
 			} else {
 				Utf8_16_Write convert;
@@ -1024,7 +1024,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 			msg = LocaliseMessage(
 				"The file '^0' has not yet been loaded entirely, so it can not be saved right now. Please retry in a while.",
 				filePath.AsInternal());
-			WindowMessageBox(wSciTE, msg, MB_ICONWARNING);
+			WindowMessageBox(wSciTE, msg);
 			// It is OK to not save this file
 			return true;
 		}
@@ -1033,7 +1033,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 			msg = LocaliseMessage(
 				"The file '^0' is already being saved.",
 				filePath.AsInternal());
-			WindowMessageBox(wSciTE, msg, MB_ICONWARNING);
+			WindowMessageBox(wSciTE, msg);
 			// It is OK to not save this file
 			return true;
 		}
@@ -1046,7 +1046,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 				(newModTime != CurrentBuffer()->fileModTime)) {
 				msg = LocaliseMessage("The file '^0' has been modified outside SciTE. Should it be saved?",
 					filePath.AsInternal());
-				MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+				MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
 				if (decision == mbNo) {
 					return false;
 				}
@@ -1069,7 +1069,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 				CurrentBuffer()->failedSave = true;
 				msg = LocaliseMessage(
 					"Could not save file '^0'. Save under a different name?", filePath.AsInternal());
-				MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, MB_YESNO | MB_ICONWARNING);
+				MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconWarning);
 				if (decision == mbYes) {
 					return SaveAsDialog();
 				}
@@ -1101,7 +1101,7 @@ bool SciTEBase::SaveIfNotOpen(const FilePath &destFile, bool fixCase) {
 	if (index >= 0) {
 		GUI::gui_string msg = LocaliseMessage(
 			    "File '^0' is already open in another buffer.", destFile.AsInternal());
-		WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, msg);
 		return false;
 	} else {
 		SaveAs(absPath.AsInternal(), fixCase);

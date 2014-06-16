@@ -2014,7 +2014,7 @@ bool SciTEBase::StartBlockComment() {
 		GUI::gui_string sBase = GUI::StringFromUTF8(base.c_str());
 		GUI::gui_string error = LocaliseMessage(
 		            "Block comment variable '^0' is not defined in SciTE *.properties!", sBase.c_str());
-		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error);
 		return true;
 	}
 	std::string long_comment = comment;
@@ -2115,7 +2115,7 @@ bool SciTEBase::StartBoxComment() {
 		GUI::gui_string error = LocaliseMessage(
 		            "Box comment variables '^0', '^1' and '^2' are not defined in SciTE *.properties!",
 		            sStart.c_str(), sMiddle.c_str(), sEnd.c_str());
-		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error);
 		return true;
 	}
 
@@ -2242,7 +2242,7 @@ bool SciTEBase::StartStreamComment() {
 		GUI::gui_string error = LocaliseMessage(
 		            "Stream comment variables '^0' and '^1' are not defined in SciTE *.properties!",
 		            sStart.c_str(), sEnd.c_str());
-		WindowMessageBox(wSciTE, error, MB_OK | MB_ICONWARNING);
+		WindowMessageBox(wSciTE, error);
 		return true;
 	}
 	start_comment += white_space;
@@ -4255,7 +4255,7 @@ void SciTEBase::PerformOne(char *action) {
 			FilePath dirTarget(GUI::StringFromUTF8(arg));
 			if (!dirTarget.SetWorkingDirectory()) {
 				GUI::gui_string msg = LocaliseMessage("Invalid directory '^0'.", dirTarget.AsInternal());
-				WindowMessageBox(wSciTE, msg, MB_OK | MB_ICONWARNING);
+				WindowMessageBox(wSciTE, msg);
 			}
 		} else if (isprefix(action, "enumproperties:")) {
 			EnumProperties(arg);
