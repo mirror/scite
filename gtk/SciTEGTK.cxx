@@ -4235,8 +4235,10 @@ void FindStrip::GrabFields() {
 }
 
 void FindStrip::GrabToggles() {
-	for (int i=0;i<checks;i++) {
-		pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
+	if (!initializingSearch) {
+		for (int i=0;i<checks;i++) {
+			pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
+		}
 	}
 }
 
@@ -4494,8 +4496,10 @@ void ReplaceStrip::GrabFields() {
 }
 
 void ReplaceStrip::GrabToggles() {
-	for (int i=0;i<checks;i++) {
-		pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
+	if (!initializingSearch) {
+		for (int i=0;i<checks;i++) {
+			pSearcher->FlagFromCmd(toggles[i].cmd) = wCheck[i].Active();
+		}
 	}
 }
 
