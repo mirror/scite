@@ -30,22 +30,11 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-#if !defined(__unix__)
+#if defined(_WIN32) && defined(_MSC_VER)
 
-#ifdef _MSC_VER
 // MSVC looks deeper into the code than other compilers, sees that
 // lua_error calls longjmp, and complains about unreachable code.
 #pragma warning(disable: 4702)
-#endif
-
-#else
-
-#include <limits.h>
-#ifdef PATH_MAX
-#define MAX_PATH PATH_MAX
-#else
-#define MAX_PATH 260
-#endif
 
 #endif
 
