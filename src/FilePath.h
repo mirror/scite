@@ -21,12 +21,6 @@ extern const GUI::gui_char fileWrite[];
 #endif
 #endif
 
-#ifdef WIN32
-#ifdef __DMC__
-#include <time.h>
-#endif
-#endif
-
 class FilePath;
 
 typedef std::vector<FilePath> FilePathSet;

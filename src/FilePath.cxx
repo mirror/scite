@@ -34,15 +34,7 @@
 #include <commctrl.h>
 
 // For chdir
-#ifdef _MSC_VER
 #include <direct.h>
-#endif
-#ifdef __DMC__
-#include <dir.h>
-#endif
-#ifdef __MINGW32_VERSION
-#include <direct.h>
-#endif
 
 #endif
 

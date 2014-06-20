@@ -11,14 +11,11 @@ extern const GUI::gui_char propUserFileName[];
 extern const GUI::gui_char propGlobalFileName[];
 extern const GUI::gui_char propAbbrevFileName[];
 
-#ifdef WIN32
+#ifdef _WIN32
 #ifdef _MSC_VER
 // Shut up level 4 warning:
 // warning C4800: forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning(disable: 4800)
-#endif
-#ifdef __DMC__
-#include <time.h>
 #endif
 #endif
 

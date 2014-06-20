@@ -1133,12 +1133,12 @@ void SciTEBase::SetBuffersMenu() {
 			GUI::gui_string entry;
 			GUI::gui_string titleTab;
 
-#if defined(WIN32) || defined(GTK)
+#if defined(_WIN32) || defined(GTK)
 			if (pos < 10) {
 				GUI::gui_string sPos = GUI::StringFromInteger((pos + 1) % 10);
 				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
 				entry = sHotKey;	// hotkey 1..0
-#if defined(WIN32)
+#if defined(_WIN32)
 				titleTab = sHotKey; // add hotkey to the tabbar
 #elif defined(GTK)
 				titleTab = sPos + GUI_TEXT(" ");
@@ -1155,7 +1155,7 @@ void SciTEBase::SetBuffersMenu() {
 				GUI::gui_string filename = buffers.buffers[pos].Name().AsInternal();
 
 				EscapeFilePathsForMenu(path);
-#if defined(WIN32)
+#if defined(_WIN32)
 				// On Windows, '&' are also interpreted in tab names, so we need
 				// the escaped filename
 				EscapeFilePathsForMenu(filename);
@@ -1207,7 +1207,7 @@ void SciTEBase::SetFileStackMenu() {
 			if (recentFileStack[stackPos].IsSet()) {
 				GUI::gui_string sEntry;
 
-#if defined(WIN32) || defined(GTK)
+#if defined(_WIN32) || defined(GTK)
 				GUI::gui_string sPos = GUI::StringFromInteger((stackPos + 1) % 10);
 				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
 				sEntry = sHotKey;
