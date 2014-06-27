@@ -74,13 +74,36 @@ LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid $(UXLIB) $(LUA_LDF
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
-OTHER_OBJS	= FileWorker.o Cookie.o Credits.o FilePath.o JobQueue.o SciTEBuffers.o SciTEIO.o \
-Exporters.o MatchMarker.o PropSetFile.o StringHelpers.o StringList.o SciTEProps.o SciTEWin.o SciTEWinBar.o \
-SciTEWinDlg.o Strips.o MultiplexExtension.o StyleDefinition.o StyleWriter.o UniqueInstance.o \
-Utf8_16.o SciTERes.o GUIWin.o \
-IFaceTable.o DirectorExtension.o JobQueue.o WinMutex.o $(LUA_OBJS)
+SHAREDOBJS=\
+	Cookie.o \
+	DirectorExtension.o \
+	Exporters.o \
+	FilePath.o \
+	FileWorker.o \
+	GUIWin.o \
+	IFaceTable.o \
+	JobQueue.o \
+	MatchMarker.o \
+	MultiplexExtension.o \
+	PropSetFile.o \
+	SciTEBase.o \
+	SciTEBuffers.o \
+	SciTEIO.o \
+	SciTEProps.o \
+	SciTEWinBar.o \
+	SciTEWinDlg.o \
+	StringHelpers.o \
+	StringList.o \
+	Strips.o \
+	StyleDefinition.o \
+	StyleWriter.o \
+	UniqueInstance.o \
+	Utf8_16.o \
+	WinMutex.o
 
-OBJS = SciTEBase.o $(OTHER_OBJS)
+OTHER_OBJS = $(SHAREDOBJS) $(LUA_OBJS) SciTERes.o SciTEWin.o
+
+OBJS = Credits.o $(OTHER_OBJS)
 
 DLLS=..\bin\Scintilla.dll ..\bin\SciLexer.dll
 
@@ -147,17 +170,49 @@ embedded: ..\src\Embedded.properties
 $(PROG): $(OBJS)
 	$(CXX) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
 
-OBJSSTATIC = Sc1.o SciTEWinBar.o SciTEWinDlg.o Strips.o MultiplexExtension.o \
-	StyleDefinition.o StyleWriter.o UniqueInstance.o SciTEBase.o FileWorker.o Cookie.o Credits.o FilePath.o SciTEBuffers.o \
-	SciTEIO.o Exporters.o MatchMarker.o PropSetFile.o StringHelpers.o StringList.o SciTEProps.o ScintillaWinL.o \
-	ScintillaBaseL.o Editor.o Catalogue.o Accessor.o WordList.o CharacterSet.o \
-	LexerModule.o LexerSimple.o LexerBase.o \
-	ExternalLexer.o StyleContext.o Lexers.a PropSetSimple.o RunStyles.o \
-	ContractionState.o CharClassify.o Decoration.o Document.o CellBuffer.o \
-	CharacterCategory.o CallTip.o CaseConvert.o CaseFolder.o Sc1Res.o PlatWin.o \
-	PositionCache.o UniConversion.o Utf8_16.o GUIWin.o KeyMap.o Indicator.o LineMarker.o RESearch.o Selection.o Style.o \
-	ViewStyle.o AutoComplete.o IFaceTable.o DirectorExtension.o MultiplexExtension.o XPM.o PerLine.o \
-	JobQueue.o WinMutex.o $(LUA_OBJS)
+OBJSSTATIC = \
+	$(SHAREDOBJS) \
+	Credits.o \
+	Sc1.o \
+	Sc1Res.o \
+	Accessor.o \
+	AutoComplete.o \
+	CallTip.o \
+	CaseConvert.o \
+	CaseFolder.o \
+	Catalogue.o \
+	CellBuffer.o \
+	CharacterCategory.o \
+	CharacterSet.o \
+	CharClassify.o \
+	ContractionState.o \
+	Decoration.o \
+	Document.o \
+	Editor.o \
+	ExternalLexer.o \
+	Indicator.o \
+	KeyMap.o \
+	LexerBase.o \
+	LexerModule.o \
+	LexerSimple.o \
+	LineMarker.o \
+	PerLine.o \
+	PlatWin.o \
+	PositionCache.o \
+	PropSetSimple.o \
+	RESearch.o \
+	RunStyles.o \
+	ScintillaBaseL.o \
+	ScintillaWinL.o \
+	Selection.o \
+	Style.o \
+	StyleContext.o \
+	UniConversion.o \
+	ViewStyle.o \
+	WordList.o \
+	XPM.o \
+	Lexers.a \
+	$(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
 	$(CXX) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
@@ -177,6 +232,6 @@ SciTERes.o:	SciTERes.rc SciTE.h SciTE.exe.manifest
 Sc1Res.o:	SciTERes.rc SciTE.h SciTE.exe.manifest
 	windres $(RCINCLUDEDIRS) SciTERes.rc --define STATIC_BUILD $@
 
-# Make sure SciTEBase gets rebuilt (so its about box gets a new
+# Make sure Credits gets rebuilt (so its about box gets a new
 # date stamp) when any of the other objects are updated.
-SciTEBase.o: $(OTHER_OBJS)
+Credits.o: $(OTHER_OBJS)
