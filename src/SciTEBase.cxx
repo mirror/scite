@@ -1401,7 +1401,9 @@ void SciTEBase::BookmarkToggle(int lineno) {
 	if (lineno == -1)
 		lineno = GetCurrentLineNumber();
 	if (BookmarkPresent(lineno)) {
-		BookmarkDelete(lineno);
+		while (BookmarkPresent(lineno)) {
+			BookmarkDelete(lineno);
+		}
 	} else {
 		BookmarkAdd(lineno);
 	}
