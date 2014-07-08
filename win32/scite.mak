@@ -100,7 +100,9 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\ContractionState.obj \
 	..\..\scintilla\win32\Decoration.obj \
 	..\..\scintilla\win32\Document.obj \
+	..\..\scintilla\win32\EditModel.obj \
 	..\..\scintilla\win32\Editor.obj \
+	..\..\scintilla\win32\EditView.obj \
 	..\..\scintilla\win32\ExternalLexer.obj \
 	..\..\scintilla\win32\Indicator.obj \
 	..\..\scintilla\win32\KeyMap.obj \
@@ -109,6 +111,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\LexerSimple.obj \
 	..\..\scintilla\win32\LineMarker.obj \
 	..\..\scintilla\win32\PerLine.obj \
+	..\..\scintilla\win32\MarginView.obj \
 	..\..\scintilla\win32\PlatWin.obj \
 	..\..\scintilla\win32\PositionCache.obj \
 	..\..\scintilla\win32\PropSetSimple.obj \

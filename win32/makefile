@@ -188,7 +188,9 @@ OBJSSTATIC = \
 	ContractionState.o \
 	Decoration.o \
 	Document.o \
+	EditModel.o \
 	Editor.o \
+	EditView.o \
 	ExternalLexer.o \
 	Indicator.o \
 	KeyMap.o \
@@ -196,6 +198,7 @@ OBJSSTATIC = \
 	LexerModule.o \
 	LexerSimple.o \
 	LineMarker.o \
+	MarginView.o \
 	PerLine.o \
 	PlatWin.o \
 	PositionCache.o \
