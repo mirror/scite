@@ -1072,6 +1072,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_INNO_STRING_DOUBLE",10},
 	{"SCE_INNO_STRING_SINGLE",11},
 	{"SCE_KIX_COMMENT",1},
+	{"SCE_KIX_COMMENTSTREAM",10},
 	{"SCE_KIX_DEFAULT",0},
 	{"SCE_KIX_FUNCTIONS",8},
 	{"SCE_KIX_IDENTIFIER",31},
@@ -3154,7 +3155,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 285,
-	ifaceConstantCount = 2508,
+	ifaceConstantCount = 2509,
 	ifacePropertyCount = 216
 };
 
