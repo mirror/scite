@@ -2751,7 +2751,7 @@ void SciTEBase::CharAddedOutput(int ch) {
 
 /**
  * This routine will auto complete XML or HTML tags that are still open by closing them
- * @parm ch The characer we are dealing with, currently only works with the '>' character
+ * @param ch The character we are dealing with, currently only works with the '>' character
  * @return True if handled, false otherwise
  */
 bool SciTEBase::HandleXml(char ch) {
