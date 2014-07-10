@@ -42,7 +42,7 @@
 #include "SciTEBase.h"
 
 // Contributor names are in UTF-8
-const char *contributors[] = {
+static const char *contributors[] = {
 #if defined(GTK)
             "Icons Copyright(C) 1998 by Dean S. Jones",
             "    http://jfa.javalobby.org/projects/icons/",
