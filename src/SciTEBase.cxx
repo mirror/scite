@@ -3472,6 +3472,17 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		}
 		break;
 
+	case IDM_CLEAN: {
+			if (SaveIfUnsureForBuilt() != saveCancelled) {
+				SelectionIntoProperties();
+				AddCommand(props.GetWild("command.clean.", FileNameExt().AsUTF8().c_str()), "",
+				        SubsystemType("command.clean.subsystem."));
+				if (jobQueue.HasCommandToRun())
+					Execute();
+			}
+		}
+		break;
+
 	case IDM_GO: {
 			if (SaveIfUnsureForBuilt() != saveCancelled) {
 				SelectionIntoProperties();
@@ -4063,6 +4074,8 @@ void SciTEBase::CheckMenus() {
 	        props.GetWild("command.compile.", FileNameExt().AsUTF8().c_str()).size() != 0);
 	EnableAMenuItem(IDM_BUILD, !jobQueue.IsExecuting() &&
 	        props.GetWild("command.build.", FileNameExt().AsUTF8().c_str()).size() != 0);
+	EnableAMenuItem(IDM_CLEAN, !jobQueue.IsExecuting() &&
+	        props.GetWild("command.clean.", FileNameExt().AsUTF8().c_str()).size() != 0);
 	EnableAMenuItem(IDM_GO, !jobQueue.IsExecuting() &&
 	        props.GetWild("command.go.", FileNameExt().AsUTF8().c_str()).size() != 0);
 	EnableAMenuItem(IDM_OPENDIRECTORYPROPERTIES, props.GetInt("properties.directory.enable") != 0);

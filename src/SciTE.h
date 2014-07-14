@@ -54,7 +54,7 @@
 
 #define MRU_START	17
 #define IMPORT_START 20
-#define TOOLS_START 3
+#define TOOLS_START 4
 
 // Edit
 #define IDM_UNDO			201
@@ -122,6 +122,7 @@
 #define IDM_FINISHEDEXECUTE	305
 #define IDM_NEXTMSG			306
 #define IDM_PREVMSG			307
+#define IDM_CLEAN			308
 
 #define IDM_MACRO_SEP		310
 #define IDM_MACRORECORD		311

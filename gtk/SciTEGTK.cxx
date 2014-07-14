@@ -3915,6 +3915,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/_Tools", NULL, NULL, 0, "<Branch>"},
 	                                      {"/Tools/_Compile", "<control>F7", menuSig, IDM_COMPILE, 0},
 	                                      {"/Tools/_Build", "F7", menuSig, IDM_BUILD, 0},
+	                                      {"/Tools/_Clean", "<shift>F7", menuSig, IDM_CLEAN, 0},
 	                                      {"/Tools/_Go", "F5", menuSig, IDM_GO, 0},
 
 	                                      {"/Tools/Tool0", NULL, menuSig, IDM_TOOLS + 0, 0},

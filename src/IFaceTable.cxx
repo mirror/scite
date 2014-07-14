@@ -163,6 +163,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"IDM_BUFFER",1200},
 	{"IDM_BUFFERSEP",505},
 	{"IDM_BUILD",302},
+	{"IDM_CLEAN",308},
 	{"IDM_CLEAR",206},
 	{"IDM_CLEAROUTPUT",420},
 	{"IDM_CLOSE",105},
@@ -3155,7 +3156,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 285,
-	ifaceConstantCount = 2509,
+	ifaceConstantCount = 2510,
 	ifacePropertyCount = 216
 };
 
