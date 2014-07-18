@@ -1225,24 +1225,41 @@ NameError: mistake
         <td>
           Setting this to 0 rather than the default 1 makes SciTE draw output directly to the
           screen rather than into a buffer bitmap first and then to the screen. Buffered drawing
-          flickers less but is slower.
+          flickers less but is slower.<br />
+          This is setting is now only effective on Windows with GDI drawing.
+          OS X and GTK+ are always buffered as is Windows with Direct2D drawing.
         </td>
       </tr>
       <tr id='property-two.phase.draw'>
         <td>
+          phases.draw<br />
           two.phase.draw
         </td>
         <td>
-        Two phase drawing is a better but slower way of drawing text.
-        In single phase drawing each run of characters in one style is drawn along with
-        its background.
+        There are several orders in which the text area may be drawn offering a trade-off
+        between speed and allowing all pixels of text to be seen even when they overlap
+        other elements. There may also be some flickering on some platforms with higher
+        numbers of phases unless buffered drawing is turned on.<br/>
+        In single phase drawing (phases.draw=0) each
+        run of characters in one style is drawn along with its background.
         If a character overhangs the end of a run, such as in "<i>V</i>_" where the
         "<i>V</i>" is in a different style from the "_", then this can cause the right hand
         side of the "<i>V</i>" to be overdrawn by the background of the "_" which
-        cuts it off. Two phase drawing
-        fixes this by drawing all the backgrounds first and then drawing the text in
-        transparent mode. Two phase drawing may flicker more than single phase
-        unless buffered drawing is on. The default is for drawing to be two phase.
+        cuts it off.<br/>
+        Two phase drawing (phases.draw=1)
+        fixes this by drawing all the backgrounds of a line first and then drawing the text
+        in transparent mode. Lines are drawn separately and no line will overlap another
+        so any pixels that overlap into another line such as extreme ascenders and
+        descenders on characters will be cut off.<br/>
+        Multiple phase drawing (phases.draw=2)
+        draws the whole area multiple times, once for each feature, building up the
+        the appearance in layers or phases. The coloured backgrounds for all lines are
+        drawn before any text and then all the text is drawn in transparent mode over this
+        combined background without clipping text to the line boundaries. This allows
+        extreme ascenders and decenders to overflow into the adjacent lines.<br/>
+        The default is for drawing to be two phase.<br/>
+        The two.phase.draw property was used before multiple phase drawing was added
+        and should be replaced with phases.draw.
         </td>
       </tr>
       <tr class="windowsonly" id='property-technology'>

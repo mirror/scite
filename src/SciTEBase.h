@@ -44,7 +44,7 @@ enum {
 struct SelectedRange {
 	int position;
 	int anchor;
-	SelectedRange(int position_= INVALID_POSITION, int anchor_= INVALID_POSITION) : 
+	SelectedRange(int position_= INVALID_POSITION, int anchor_= INVALID_POSITION) :
 		position(position_), anchor(anchor_) {
 	}
 };
@@ -444,7 +444,6 @@ protected:
 	bool firstPropertiesRead;
 	bool splitVertical;	///< @c true if the split bar between editor and output is vertical.
 	bool bufferedDraw;
-	bool twoPhaseDraw;
 	bool bracesCheck;
 	bool bracesSloppy;
 	int bracesStyle;

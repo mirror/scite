@@ -145,7 +145,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	localiser.read = false;
 	splitVertical = false;
 	bufferedDraw = true;
-	twoPhaseDraw = true;
 	bracesCheck = true;
 	bracesSloppy = false;
 	bracesStyle = 0;
