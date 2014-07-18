@@ -1982,11 +1982,11 @@ static void FillComboFromProps(WComboBoxEntry *combo, PropSetFile &props) {
 		combo->RemoveText(0);
 	}
 
-	if (props.GetFirst(key, val))
+	bool more = props.GetFirst(key, val);
+	while (more) {
 		combo->AppendText(key);
-
-	while (props.GetNext(key, val))
-		combo->AppendText(key);
+		more = props.GetNext(key, val);
+	}
 }
 
 static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, bool useTop = false) {
