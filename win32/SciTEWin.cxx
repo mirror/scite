@@ -331,13 +331,13 @@ void SciTEWin::ReadLocalization() {
 	std::string encoding = localiser.GetString("translation.encoding");
 	LowerCaseAZ(encoding);
 	if (encoding.length()) {
-		int codePage = CodePageFromName(encoding);
+		int codePageNamed = CodePageFromName(encoding);
 		const char *key = NULL;
 		const char *val = NULL;
 		// Get encoding
 		bool more = localiser.GetFirst(key, val);
 		while (more) {
-			std::string converted = ConvertEncoding(val, codePage);
+			std::string converted = ConvertEncoding(val, codePageNamed);
 			if (converted != "") {
 				localiser.Set(key, converted.c_str());
 			}
@@ -590,9 +590,9 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		if (!wEditor.HasFocus() && !wOutput.HasFocus()) {
 			HWND wWithFocus = ::GetFocus();
 			enum { capSize = 2000 };
-			GUI::gui_char className[capSize];
-			::GetClassName(wWithFocus, className, capSize);
-			if (wcscmp(className, TEXT("Edit")) == 0) {
+			GUI::gui_char classNameFocus[capSize];
+			::GetClassName(wWithFocus, classNameFocus, capSize);
+			if (wcscmp(classNameFocus, TEXT("Edit")) == 0) {
 				switch (cmdID) {
 				case IDM_UNDO:
 					::SendMessage(wWithFocus, EM_UNDO, 0, 0);
@@ -670,8 +670,8 @@ static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 	return cp;
 }
 
-void SciTEWin::OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePage) {
-	std::string sMulti = StringEncode(s, codePage);
+void SciTEWin::OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePageDocument) {
+	std::string sMulti = StringEncode(s, codePageDocument);
 	OutputAppendStringSynchronised(sMulti.c_str());
 }
 
@@ -755,25 +755,25 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			if (*grepCmd == 'b')
 				gf = static_cast<GrepFlags>(gf | grepBinary);
 			const char *findFiles = grepCmd + 2;
-			const char *findWhat = findFiles + strlen(findFiles) + 1;
+			const char *findText = findFiles + strlen(findFiles) + 1;
 			if (cmdWorker.outputScroll == 1)
 				gf = static_cast<GrepFlags>(gf | grepScroll);
 			sptr_t positionEnd = wOutput.Send(SCI_GETCURRENTPOS);
-			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findWhat, positionEnd);
+			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findText, positionEnd);
 			if ((gf & grepScroll) && returnOutputToCommand)
 				wOutput.Send(SCI_GOTOPOS, positionEnd, 0);
 		}
 		return exitcode;
 	}
 
-	UINT codePage = static_cast<UINT>(wOutput.Send(SCI_GETCODEPAGE));
-	if (codePage != SC_CP_UTF8) {
-		codePage = CodePageFromCharSet(characterSet, codePage);
+	UINT codePageOutput = static_cast<UINT>(wOutput.Send(SCI_GETCODEPAGE));
+	if (codePageOutput != SC_CP_UTF8) {
+		codePageOutput = CodePageFromCharSet(characterSet, codePageOutput);
 	}
 
 	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
 	OutputAppendStringSynchronised(">");
-	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command.c_str()), codePage);
+	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command.c_str()), codePageOutput);
 	OutputAppendStringSynchronised("\n");
 
 	sa.bInheritHandle = TRUE;
@@ -1016,7 +1016,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	} else {
 		DWORD nRet = ::GetLastError();
 		OutputAppendStringSynchronised(">");
-		OutputAppendEncodedStringSynchronised(GetErrorMessage(nRet), codePage);
+		OutputAppendEncodedStringSynchronised(GetErrorMessage(nRet), codePageOutput);
 		WarnUser(warnExecuteKO);
 	}
 	::CloseHandle(hPipeRead);
@@ -2067,12 +2067,12 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 // Convert String from UTF-8 to doc encoding
 std::string SciTEWin::EncodeString(const std::string &s) {
-	UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
+	UINT codePageDocument = wEditor.Call(SCI_GETCODEPAGE);
 
-	if (codePage != SC_CP_UTF8) {
-		codePage = CodePageFromCharSet(characterSet, codePage);
+	if (codePageDocument != SC_CP_UTF8) {
+		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
 		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), CP_UTF8);
-		return StringEncode(sWide, codePage);
+		return StringEncode(sWide, codePageDocument);
 	}
 	return SciTEBase::EncodeString(s);
 }
@@ -2081,11 +2081,11 @@ std::string SciTEWin::EncodeString(const std::string &s) {
 SString SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
 	SString s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
-	UINT codePage = wEditor.Call(SCI_GETCODEPAGE);
+	UINT codePageDocument = wEditor.Call(SCI_GETCODEPAGE);
 
-	if (codePage != SC_CP_UTF8) {
-		codePage = CodePageFromCharSet(characterSet, codePage);
-		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), codePage);
+	if (codePageDocument != SC_CP_UTF8) {
+		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
+		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), codePageDocument);
 		std::string sMulti = StringEncode(sWide, CP_UTF8);
 		return SString(sMulti.c_str(), 0, sMulti.length());
 	}

@@ -588,7 +588,7 @@ protected:
 	std::string DiscoverLanguage();
 	void OpenFile(long fileSize, bool suppressMessage, bool asynchronous);
 	virtual void OpenUriList(const char *) {}
-	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter) = 0;
+	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filesFilter) = 0;
 	virtual bool SaveAsDialog() = 0;
 	virtual void LoadSessionDialog() {}
 	virtual void SaveSessionDialog() {}
@@ -696,7 +696,7 @@ protected:
 	};
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) = 0;
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0) = 0;
-	int FindInTarget(std::string findWhat, int startPosition, int endPosition);
+	int FindInTarget(std::string findWhatText, int startPosition, int endPosition);
 	virtual void SetFindText(const char *sFind);
 	virtual void SetFind(const char *sFind);
 	virtual bool FindHasText() const;
@@ -863,7 +863,7 @@ protected:
 	virtual void ReadProperties();
 	void SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd);
 	void SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last);
-	void SetStyleFor(GUI::ScintillaWindow &win, const char *language);
+	void SetStyleFor(GUI::ScintillaWindow &win, const char *lang);
 	static void SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const IndicatorDefinition &ind);
 	void ReloadProperties();
 

@@ -249,8 +249,8 @@ protected:
 	int DoDialog(HINSTANCE hInst, const TCHAR *resName, HWND hWnd, DLGPROC lpProc);
 	GUI::gui_string DialogFilterFromProperty(const GUI::gui_char *filterProperty);
 	void CheckCommonDialogError();
-	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filter);
-	FilePath ChooseSaveName(FilePath directory, const char *title, const GUI::gui_char *filter=0, const char *ext=0);
+	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filesFilter);
+	FilePath ChooseSaveName(FilePath directory, const char *title, const GUI::gui_char *filesFilter = 0, const char *ext = 0);
 	virtual bool SaveAsDialog();
 	virtual void SaveACopy();
 	virtual void SaveAsHTML();
@@ -268,7 +268,7 @@ protected:
 	/// Handle default print setup values and ask the user its preferences.
 	virtual void PrintSetup();
 
-	BOOL HandleReplaceCommand(int cmd, bool reverseFind = false);
+	BOOL HandleReplaceCommand(int cmd, bool reverseDirection = false);
 
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning);
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0);
@@ -349,7 +349,7 @@ protected:
 
 	BOOL AboutMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static BOOL CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	void AboutDialogWithBuild(int staticBuild);
+	void AboutDialogWithBuild(int staticBuild_);
 
 	void RestorePosition();
 
@@ -365,7 +365,7 @@ public:
 	/// Management of the command line parameters.
 	void Run(const GUI::gui_char *cmdLine);
 	uptr_t EventLoop();
-	void OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePage);
+	void OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePageDocument);
 	void ResetExecution();
 	void ExecuteNext();
 	DWORD ExecuteOne(const Job &jobToRun);

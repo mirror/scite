@@ -187,28 +187,28 @@ int SciTEWin::DoDialog(HINSTANCE hInst, const TCHAR *resName, HWND hWnd, DLGPROC
 
 
 GUI::gui_string SciTEWin::DialogFilterFromProperty(const GUI::gui_char *filterProperty) {
-	GUI::gui_string filter = filterProperty;
-	if (filter.length()) {
-		std::replace(filter.begin(), filter.end(), '|', '\0');
+	GUI::gui_string filterText = filterProperty;
+	if (filterText.length()) {
+		std::replace(filterText.begin(), filterText.end(), '|', '\0');
 		size_t start = 0;
-		while (start < filter.length()) {
-			const GUI::gui_char *filterName = filter.c_str() + start;
+		while (start < filterText.length()) {
+			const GUI::gui_char *filterName = filterText.c_str() + start;
 			if (*filterName == '#') {
-				size_t next = start + wcslen(filter.c_str() + start) + 1;
-				next += wcslen(filter.c_str() + next) + 1;
-				filter.erase(start, next - start);
+				size_t next = start + wcslen(filterText.c_str() + start) + 1;
+				next += wcslen(filterText.c_str() + next) + 1;
+				filterText.erase(start, next - start);
 			} else {
 				GUI::gui_string localised = localiser.Text(GUI::UTF8FromString(filterName).c_str(), false);
 				if (localised.size()) {
-					filter.erase(start, wcslen(filterName));
-					filter.insert(start, localised.c_str());
+					filterText.erase(start, wcslen(filterName));
+					filterText.insert(start, localised.c_str());
 				}
-				start += wcslen(filter.c_str() + start) + 1;
-				start += wcslen(filter.c_str() + start) + 1;
+				start += wcslen(filterText.c_str() + start) + 1;
+				start += wcslen(filterText.c_str() + start) + 1;
 			}
 		}
 	}
-	return filter;
+	return filterText;
 }
 
 void SciTEWin::CheckCommonDialogError() {
@@ -220,10 +220,10 @@ void SciTEWin::CheckCommonDialogError() {
 	}
 }
 
-bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
+bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filesFilter) {
 	enum {maxBufferSize=2048};
 
-	GUI::gui_string openFilter = DialogFilterFromProperty(filter);
+	GUI::gui_string openFilter = DialogFilterFromProperty(filesFilter);
 
 	if (!openWhat[0]) {
 		StringCopy(openWhat, localiser.Text("Custom Filter").c_str());
@@ -283,7 +283,7 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filter) {
 	return succeeded;
 }
 
-FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const GUI::gui_char *filter, const char *ext) {
+FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const GUI::gui_char *filesFilter, const char *ext) {
 	FilePath path;
 	if (0 == dialogsOnScreen) {
 		GUI::gui_char saveName[MAX_PATH] = GUI_TEXT("");
@@ -301,7 +301,7 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
 		GUI::gui_string translatedTitle = localiser.Text(title);
 		ofn.lpstrTitle = translatedTitle.c_str();
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
-		ofn.lpstrFilter = filter;
+		ofn.lpstrFilter = filesFilter;
 		ofn.lpstrInitialDir = directory.AsInternal();
 
 		dialogsOnScreen++;
@@ -984,7 +984,7 @@ BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	return Caller(hDlg, message, lParam)->FindMessage(hDlg, message, wParam);
 }
 
-BOOL SciTEWin::HandleReplaceCommand(int cmd, bool reverseFind) {
+BOOL SciTEWin::HandleReplaceCommand(int cmd, bool reverseDirection) {
 	if (!wFindReplace.GetID())
 		return TRUE;
 	HWND hwndFR = reinterpret_cast<HWND>(wFindReplace.GetID());
@@ -997,7 +997,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd, bool reverseFind) {
 
 	int replacements = 0;
 	if (cmd == IDOK) {
-		FindNext(reverseFind);
+		FindNext(reverseDirection);
 	} else if (cmd == IDREPLACE) {
 		ReplaceOnce();
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
