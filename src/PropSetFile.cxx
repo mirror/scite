@@ -172,8 +172,8 @@ SString PropSetFile::Get(const char *key) const {
 	return "";
 }
 
-static SString ShellEscape(const char *toEscape) {
-	SString str(toEscape);
+static std::string ShellEscape(const char *toEscape) {
+	std::string str(toEscape);
 	for (int i = static_cast<int>(str.length()-1); i >= 0; --i) {
 		switch (str[i]) {
 		case ' ':
@@ -204,14 +204,15 @@ static SString ShellEscape(const char *toEscape) {
 			break;
 		}
 	}
-	return str.c_str();
+	return str;
 }
 
 SString PropSetFile::Evaluate(const char *key) const {
 	if (strchr(key, ' ')) {
 		if (isprefix(key, "escape ")) {
 			SString val = Get(key+7);
-			return ShellEscape(val.c_str());
+			std::string escaped = ShellEscape(val.c_str());
+			return escaped.c_str();
 		} else if (isprefix(key, "star ")) {
 			const std::string sKeybase(key + 5);
 			// Create set of variables with values

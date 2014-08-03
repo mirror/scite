@@ -650,7 +650,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.CallString(SCI_SETKEYWORDS, 0, kw0.c_str());
 
 	for (int wl = 1; wl <= KEYWORDSET_MAX; wl++) {
-		SString kwk(wl+1);
+		std::string kwk = StdStringFromInteger(wl+1);
 		kwk += '.';
 		kwk.insert(0, "keywords");
 		SString kw = props.GetNewExpand(kwk.c_str(), fileNameForExtension.c_str());

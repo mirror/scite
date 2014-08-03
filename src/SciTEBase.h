@@ -377,7 +377,7 @@ protected:
 	int lexLPeg;
 	StringList apis;
 	SString apisFileNames;
-	SString functionDefinition;
+	std::string functionDefinition;
 
 	int diagnosticStyleStart;
 	enum { diagnosticStyles=4};

@@ -101,7 +101,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	lexLPeg = -1;
-	functionDefinition = 0;
+	functionDefinition = "";
 	diagnosticStyleStart = 0;
 	indentOpening = true;
 	indentClosing = true;
@@ -1480,17 +1480,15 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 			}
 
 			if (calltipEndDefinition != "") {
-				int posEndDef = functionDefinition.search(calltipEndDefinition.c_str());
+				size_t posEndDef = functionDefinition.find(calltipEndDefinition.c_str());
 				if (maxCallTips > 1) {
-					if ((posEndDef > 1) &&
-					        ((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
+					if (posEndDef != std::string::npos) {
 						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n\002");
 					} else {
 						functionDefinition.append("\n\002");
 					}
 				} else {
-					if ((posEndDef > 1) &&
-					        ((posEndDef + calltipEndDefinition.length()) < functionDefinition.length())) {
+					if (posEndDef != std::string::npos) {
 						functionDefinition.insert(posEndDef + calltipEndDefinition.length(), "\n");
 					}
 				}
@@ -1502,7 +1500,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 			if (callTipUseEscapes) {
 				definitionForDisplay = UnSlashString(functionDefinition.c_str());
 			} else {
-				definitionForDisplay = functionDefinition.string();
+				definitionForDisplay = functionDefinition;
 			}
 
 			wEditor.CallString(SCI_CALLTIPSHOW, lastPosCallTip - currentCallTipWord.length(), definitionForDisplay.c_str());
@@ -1568,12 +1566,12 @@ void SciTEBase::ContinueCallTip() {
 			commas++;
 	}
 
-	int startHighlight = 0;
-	while (functionDefinition[startHighlight] && !calltipParametersStart.contains(functionDefinition[startHighlight]))
+	size_t startHighlight = 0;
+	while ((startHighlight < functionDefinition.length()) && !calltipParametersStart.contains(functionDefinition[startHighlight]))
 		startHighlight++;
-	if (functionDefinition[startHighlight] && calltipParametersStart.contains(functionDefinition[startHighlight]))
+	if ((startHighlight < functionDefinition.length()) && calltipParametersStart.contains(functionDefinition[startHighlight]))
 		startHighlight++;
-	while (functionDefinition[startHighlight] && commas > 0) {
+	while ((startHighlight < functionDefinition.length()) && commas > 0) {
 		if (calltipParametersSeparators.contains(functionDefinition[startHighlight]))
 			commas--;
 		// If it reached the end of the argument list it means that the user typed in more
@@ -1583,10 +1581,10 @@ void SciTEBase::ContinueCallTip() {
 		else
 			startHighlight++;
 	}
-	if (functionDefinition[startHighlight] && calltipParametersSeparators.contains(functionDefinition[startHighlight]))
+	if ((startHighlight < functionDefinition.length()) && calltipParametersSeparators.contains(functionDefinition[startHighlight]))
 		startHighlight++;
-	int endHighlight = startHighlight;
-	while (functionDefinition[endHighlight] && !calltipParametersSeparators.contains(functionDefinition[endHighlight]) && !calltipParametersEnd.contains(functionDefinition[endHighlight]))
+	size_t endHighlight = startHighlight;
+	while ((endHighlight < functionDefinition.length()) && !calltipParametersSeparators.contains(functionDefinition[endHighlight]) && !calltipParametersEnd.contains(functionDefinition[endHighlight]))
 		endHighlight++;
 	if (callTipUseEscapes) {
 		char *sUnslashed = StringDup(functionDefinition.substr(0, startHighlight + 1).c_str());
