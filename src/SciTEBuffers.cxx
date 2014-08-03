@@ -711,7 +711,7 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 		if (!mem.empty()) {
 			fprintf(sessionFile, "\n");
 			it = mem.begin();
-			for (int i = 0; it != mem.end(); i++, it++) {
+			for (int i = 0; it != mem.end(); i++, ++it) {
 				propKey = IndexPropKey("search", i, "findwhat");
 				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), (*it).c_str());
 			}
@@ -722,7 +722,7 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 			fprintf(sessionFile, "\n");
 			mem = memReplaces.AsVector();
 			it = mem.begin();
-			for (int i = 0; it != mem.end(); i++, it++) {
+			for (int i = 0; it != mem.end(); i++, ++it) {
 				propKey = IndexPropKey("search", i, "replacewith");
 				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), (*it).c_str());
 			}
