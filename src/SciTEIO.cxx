@@ -403,7 +403,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 		// Complete and release
 		buffers.buffers[iBuffer].CompleteStoring();
 		if (errSaved || cancelledSaved) {
-			// Background save failed (possibly out-of-space) so resurrect the 
+			// Background save failed (possibly out-of-space) so resurrect the
 			// buffer so can be saved to another disk or retried after making room.
 			buffers.SetVisible(iBuffer, true);
 			SetBuffersMenu();
@@ -565,7 +565,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 			wEditor.Call(SCI_SETUNDOCOLLECTION, 0);
 		}
 
-		asynchronous = (size > props.GetInt("background.open.size", -1)) && 
+		asynchronous = (size > props.GetInt("background.open.size", -1)) &&
 			!(of & (ofPreserveUndo|ofSynchronous));
 		OpenFile(size, of & ofQuiet, asynchronous);
 
@@ -813,8 +813,8 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) 
 	return saveCompleted;
 }
 
-SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
-	if (SaveAllBuffers(forceQuestion) == saveCancelled) {
+SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
+	if (SaveAllBuffers(false) == saveCancelled) {
 		return saveCancelled;
 	}
 	if (props.GetInt("save.recent")) {
@@ -853,7 +853,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll(bool forceQuestion) {
 
 SciTEBase::SaveResult SciTEBase::SaveIfUnsureForBuilt() {
 	if (props.GetInt("save.all.for.build")) {
-		return SaveAllBuffers(false, !props.GetInt("are.you.sure.for.build"));
+		return SaveAllBuffers(!props.GetInt("are.you.sure.for.build"));
 	}
 	if (CurrentBuffer()->isDirty) {
 		if (props.GetInt("are.you.sure.for.build"))

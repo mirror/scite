@@ -1014,7 +1014,7 @@ void SciTEBase::CloseAllBuffers(bool loadingSession) {
 	}
 }
 
-SciTEBase::SaveResult SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysYes) {
+SciTEBase::SaveResult SciTEBase::SaveAllBuffers(bool alwaysYes) {
 	SaveResult choice = saveCompleted;
 	UpdateBuffersCurrent();
 	int currentBuffer = buffers.Current();
@@ -1026,7 +1026,7 @@ SciTEBase::SaveResult SciTEBase::SaveAllBuffers(bool forceQuestion, bool alwaysY
 					choice = saveCancelled;
 				}
 			} else {
-				choice = SaveIfUnsure(forceQuestion);
+				choice = SaveIfUnsure(false);
 			}
 		}
 	}
