@@ -3314,10 +3314,10 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		{
 			GUI::Rectangle rcClient = GetClientRectangle();
 			heightOutput = splitVertical ?
-				int((double)heightOutput * rcClient.Height() / rcClient.Width() + 0.5) : 
+				int((double)heightOutput * rcClient.Height() / rcClient.Width() + 0.5) :
 				int((double)heightOutput * rcClient.Width() / rcClient.Height() + 0.5);
 			previousHeightOutput = splitVertical ?
-				int((double)previousHeightOutput * rcClient.Height() / rcClient.Width() + 0.5) : 
+				int((double)previousHeightOutput * rcClient.Height() / rcClient.Width() + 0.5) :
 				int((double)previousHeightOutput * rcClient.Width() / rcClient.Height() + 0.5);
 		}
 		splitVertical = !splitVertical;
