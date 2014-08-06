@@ -781,6 +781,7 @@ FilePath SciTEBase::SaveName(const char *ext) const {
 }
 
 SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) {
+	CurrentBuffer()->failedSave = false;
 	if (CurrentBuffer()->pFileWorker) {
 		if (CurrentBuffer()->pFileWorker->IsLoading())
 			// In semi-loaded state so refuse to save
