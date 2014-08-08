@@ -40,6 +40,7 @@ cd ../..
 cd scintilla/test/unit
 make clean
 make $JOBS test
+make clean
 cd ../../..
 
 cd scintilla/gtk
