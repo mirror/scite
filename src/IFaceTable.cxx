@@ -2571,7 +2571,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_MARK_VLINE",9},
 	{"SC_MASK_FOLDERS",static_cast<int>(0xFE000000)},
 	{"SC_MAX_MARGIN",4},
-	{"SC_MODEVENTMASKALL",0x1FFFFF},
+	{"SC_MODEVENTMASKALL",0x3FFFFF},
 	{"SC_MOD_BEFOREDELETE",0x800},
 	{"SC_MOD_BEFOREINSERT",0x400},
 	{"SC_MOD_CHANGEANNOTATION",0x20000},
@@ -2581,6 +2581,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_MOD_CHANGEMARGIN",0x10000},
 	{"SC_MOD_CHANGEMARKER",0x200},
 	{"SC_MOD_CHANGESTYLE",0x4},
+	{"SC_MOD_CHANGETABSTOPS",0x200000},
 	{"SC_MOD_CONTAINER",0x40000},
 	{"SC_MOD_DELETETEXT",0x2},
 	{"SC_MOD_INSERTCHECK",0x100000},
@@ -2659,6 +2660,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"AddRefDocument", 2376, iface_void, {iface_void, iface_int}},
 	{"AddSelection", 2573, iface_int, {iface_int, iface_int}},
 	{"AddStyledText", 2002, iface_void, {iface_length, iface_cells}},
+	{"AddTabStop", 2676, iface_void, {iface_int, iface_int}},
 	{"AddText", 2001, iface_void, {iface_length, iface_string}},
 	{"AddUndoAction", 2560, iface_void, {iface_int, iface_int}},
 	{"Allocate", 2446, iface_void, {iface_int, iface_void}},
@@ -2709,6 +2711,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"ClearRegisteredImages", 2408, iface_void, {iface_void, iface_void}},
 	{"ClearRepresentation", 2667, iface_void, {iface_string, iface_void}},
 	{"ClearSelections", 2571, iface_void, {iface_void, iface_void}},
+	{"ClearTabStops", 2675, iface_void, {iface_int, iface_void}},
 	{"Colourise", 4003, iface_void, {iface_position, iface_position}},
 	{"ContractedFoldNext", 2618, iface_int, {iface_int, iface_void}},
 	{"ConvertEOLs", 2029, iface_void, {iface_int, iface_void}},
@@ -2761,6 +2764,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"GetLine", 2153, iface_int, {iface_int, iface_stringresult}},
 	{"GetLineSelEndPosition", 2425, iface_position, {iface_int, iface_void}},
 	{"GetLineSelStartPosition", 2424, iface_position, {iface_int, iface_void}},
+	{"GetNextTabStop", 2677, iface_int, {iface_int, iface_int}},
 	{"GetRangePointer", 2643, iface_int, {iface_int, iface_int}},
 	{"GetSelText", 2161, iface_int, {iface_void, iface_stringresult}},
 	{"GetStyledText", 2015, iface_int, {iface_void, iface_textrange}},
@@ -3164,8 +3168,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 285,
-	ifaceConstantCount = 2518,
+	ifaceFunctionCount = 288,
+	ifaceConstantCount = 2519,
 	ifacePropertyCount = 217
 };
 
