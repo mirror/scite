@@ -368,7 +368,7 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 		}
 		if (isprefix(cmd, "closing:")) {
 			fdDirector = 0;
-			if (startedByDirector) {
+			if (startedByDirector && host) {
 				shuttingDown = true;
 				host->ShutDown();
 				shuttingDown = false;
