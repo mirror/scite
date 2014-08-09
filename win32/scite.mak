@@ -156,7 +156,8 @@ $(DIR_BIN)\pascal.properties $(DIR_BIN)\perl.properties \
 $(DIR_BIN)\pov.properties $(DIR_BIN)\powerpro.properties \
 $(DIR_BIN)\powershell.properties $(DIR_BIN)\ps.properties \
 $(DIR_BIN)\purebasic.properties $(DIR_BIN)\python.properties \
-$(DIR_BIN)\r.properties $(DIR_BIN)\rebol.properties $(DIR_BIN)\ruby.properties \
+$(DIR_BIN)\r.properties $(DIR_BIN)\rebol.properties \
+$(DIR_BIN)\registry.properties $(DIR_BIN)\ruby.properties \
 $(DIR_BIN)\rust.properties $(DIR_BIN)\scriptol.properties \
 $(DIR_BIN)\smalltalk.properties $(DIR_BIN)\sorcins.properties \
 $(DIR_BIN)\specman.properties $(DIR_BIN)\spice.properties \

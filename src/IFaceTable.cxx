@@ -1594,6 +1594,19 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_REBOL_WORD6",26},
 	{"SCE_REBOL_WORD7",27},
 	{"SCE_REBOL_WORD8",28},
+	{"SCE_REG_ADDEDKEY",6},
+	{"SCE_REG_COMMENT",1},
+	{"SCE_REG_DEFAULT",0},
+	{"SCE_REG_DELETEDKEY",7},
+	{"SCE_REG_ESCAPED",8},
+	{"SCE_REG_HEXDIGIT",4},
+	{"SCE_REG_KEYPATH_GUID",9},
+	{"SCE_REG_OPERATOR",12},
+	{"SCE_REG_PARAMETER",11},
+	{"SCE_REG_STRING",3},
+	{"SCE_REG_STRING_GUID",10},
+	{"SCE_REG_VALUENAME",2},
+	{"SCE_REG_VALUETYPE",5},
 	{"SCE_RUST_BYTECHARACTER",23},
 	{"SCE_RUST_BYTESTRING",21},
 	{"SCE_RUST_BYTESTRINGR",22},
@@ -2411,6 +2424,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_PYTHON",2},
 	{"SCLEX_R",86},
 	{"SCLEX_REBOL",71},
+	{"SCLEX_REGISTRY",115},
 	{"SCLEX_RUBY",22},
 	{"SCLEX_RUST",111},
 	{"SCLEX_SCRIPTOL",33},
@@ -3169,7 +3183,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 288,
-	ifaceConstantCount = 2519,
+	ifaceConstantCount = 2533,
 	ifacePropertyCount = 217
 };
 
