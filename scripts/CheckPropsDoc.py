@@ -26,6 +26,7 @@ knownDebugOptionalAndArchaicProperties = {
 	"bookmark.pixmap":1,	# Debug
 	"lexerpath.*.lpeg":1,	# Option for Scintillua
 	"ipc.director.name":1,	# Archaic
+	"two.phase.draw":1,	# Archaic
 }
 
 # These properties are either set by SciTE and used (not set) in property files or
