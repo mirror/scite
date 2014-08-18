@@ -635,6 +635,10 @@ void SciTEBase::RestoreSession() {
 		if (propsSession.GetInt(propKey.c_str()))
 			session.pathActive = bufferState;
 
+		propKey = IndexPropKey("buffer", i, "scroll");
+		int scroll = propsSession.GetInt(propKey.c_str());
+		bufferState.scrollPosition = scroll;
+
 		propKey = IndexPropKey("buffer", i, "position");
 		int pos = propsSession.GetInt(propKey.c_str());
 
@@ -740,6 +744,10 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				int pos = buff.selection.position + 1;
 				propKey = IndexPropKey("buffer", i, "position");
 				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), pos);
+
+				int scroll = buff.scrollPosition;
+				propKey = IndexPropKey("buffer", i, "scroll");
+				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), scroll);
 
 				if (i == curr) {
 					propKey = IndexPropKey("buffer", i, "current");
@@ -1232,7 +1240,7 @@ bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 		if (opened) {
 			int iBuffer = buffers.GetDocumentByName(bufferState, false);
 			if (iBuffer >= 0) {
-				buffers.buffers[iBuffer].scrollPosition = 0;
+				buffers.buffers[iBuffer].scrollPosition = bufferState.scrollPosition;
 				buffers.buffers[iBuffer].selection = bufferState.selection;
 				buffers.buffers[iBuffer].foldState = bufferState.foldState;
 				buffers.buffers[iBuffer].bookmarks = bufferState.bookmarks;
