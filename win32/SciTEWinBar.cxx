@@ -141,10 +141,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 				prefix += ".";
 				SString commandName = props.GetNewExpand(prefix.c_str(), filePath.AsUTF8().c_str());
 				if (commandName.length()) {
-					SString sMenuItem = commandName;
-					SString sMnemonic = "Ctrl+";
-					sMnemonic += SString(item);
-					AddToPopUp(sMenuItem.c_str(), itemID, true);
+					AddToPopUp(commandName.c_str(), itemID, true);
 					bAddSeparator = true;
 				}
 			}
