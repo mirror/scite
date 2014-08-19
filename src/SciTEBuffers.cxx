@@ -533,10 +533,10 @@ FilePath SciTEBase::UserFilePath(const GUI::gui_char *name) {
 	return FilePath(GetSciteUserHome(), nameWithVisibility.c_str());
 }
 
-static SString IndexPropKey(const char *bufPrefix, int bufIndex, const char *bufAppendix) {
-	SString pKey = bufPrefix;
+static std::string IndexPropKey(const char *bufPrefix, int bufIndex, const char *bufAppendix) {
+	std::string pKey = bufPrefix;
 	pKey += '.';
-	pKey += SString(bufIndex + 1);
+	pKey += StdStringFromInteger(bufIndex + 1);
 	if (bufAppendix != NULL) {
 		pKey += ".";
 		pKey += bufAppendix;
@@ -566,26 +566,26 @@ void SciTEBase::RestoreRecentMenu() {
 	DeleteFileStackMenu();
 
 	for (int i = 0; i < fileStackMax; i++) {
-		SString propKey = IndexPropKey("mru", i, "path");
-		SString propStr = propsSession.Get(propKey.c_str());
+		std::string propKey = IndexPropKey("mru", i, "path");
+		std::string propStr = propsSession.GetString(propKey.c_str());
 		if (propStr == "")
 			continue;
 		AddFileToStack(GUI::StringFromUTF8(propStr.c_str()), sr, 0);
 	}
 }
 
-static std::vector<int> LinesFromString(const SString &s) {
+static std::vector<int> LinesFromString(const std::string &s) {
 	std::vector<int> result;
 	if (s.length()) {
-		char *buf = new char[s.length() + 1];
-		strcpy(buf, s.c_str());
-		char *p = strtok(buf, ",");
-		while (p != NULL) {
-			int line = atoi(p) - 1;
+		size_t start = 0;
+		for (;;) {
+			const int line = atoi(s.c_str() + start) - 1;
 			result.push_back(line);
-			p = strtok(NULL, ",");
+			const size_t posComma = s.find(',', start);
+			if (posComma == std::string::npos)
+				break;
+			start = posComma + 1;
 		}
-		delete []buf;
 	}
 	return result;
 }
@@ -601,16 +601,16 @@ void SciTEBase::RestoreFromSession(const Session &session) {
 void SciTEBase::RestoreSession() {
 	if (props.GetInt("save.find") != 0) {
 		for (int i = 0;; i++) {
-			SString propKey = IndexPropKey("search", i, "findwhat");
-			SString propStr = propsSession.Get(propKey.c_str());
+			std::string propKey = IndexPropKey("search", i, "findwhat");
+			std::string propStr = propsSession.GetString(propKey.c_str());
 			if (propStr == "")
 				break;
 			memFinds.AppendList(propStr.c_str());
 		}
 
 		for (int i = 0;; i++) {
-			SString propKey = IndexPropKey("search", i, "replacewith");
-			SString propStr = propsSession.Get(propKey.c_str());
+			std::string propKey = IndexPropKey("search", i, "replacewith");
+			std::string propStr = propsSession.GetString(propKey.c_str());
 			if (propStr == "")
 				break;
 			memReplaces.AppendList(propStr.c_str());
@@ -623,8 +623,8 @@ void SciTEBase::RestoreSession() {
 	Session session;
 
 	for (int i = 0; i < bufferMax; i++) {
-		SString propKey = IndexPropKey("buffer", i, "path");
-		SString propStr = propsSession.Get(propKey.c_str());
+		std::string propKey = IndexPropKey("buffer", i, "path");
+		std::string propStr = propsSession.GetString(propKey.c_str());
 		if (propStr == "")
 			continue;
 
@@ -647,14 +647,14 @@ void SciTEBase::RestoreSession() {
 
 		if (props.GetInt("session.bookmarks")) {
 			propKey = IndexPropKey("buffer", i, "bookmarks");
-			propStr = propsSession.Get(propKey.c_str());
+			propStr = propsSession.GetString(propKey.c_str());
 			bufferState.bookmarks = LinesFromString(propStr);
 		}
 
 		if (props.GetInt("fold") && !props.GetInt("fold.on.open") &&
 			props.GetInt("session.folds")) {
 			propKey = IndexPropKey("buffer", i, "folds");
-			propStr = propsSession.Get(propKey.c_str());
+			propStr = propsSession.GetString(propKey.c_str());
 			bufferState.foldState = LinesFromString(propStr);
 		}
 
@@ -694,7 +694,7 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 	}
 
 	if (defaultSession && props.GetInt("save.recent")) {
-		SString propKey;
+		std::string propKey;
 		int j = 0;
 
 		fprintf(sessionFile, "\n");
@@ -709,7 +709,7 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 	}
 
 	if (defaultSession && props.GetInt("save.find")) {
-		SString propKey;
+		std::string propKey;
 		std::vector<std::string>::iterator it;
 		std::vector<std::string> mem = memFinds.AsVector();
 		if (!mem.empty()) {
@@ -738,7 +738,7 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 		for (int i = 0; i < buffers.lengthVisible; i++) {
 			if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
 				Buffer &buff = buffers.buffers[i];
-				SString propKey = IndexPropKey("buffer", i, "path");
+				std::string propKey = IndexPropKey("buffer", i, "path");
 				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buff.AsUTF8().c_str());
 
 				int pos = buff.selection.position + 1;
