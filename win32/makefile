@@ -5,6 +5,7 @@
 # be needed to use other compilers.
 
 .SUFFIXES: .cxx .properties
+CC = gcc
 DEL = $(if $(wildcard $(dir $(SHELL))rm.exe), $(dir $(SHELL))rm.exe -f, del)
 COPY = xcopy /y
 VER = cmd /c ver
