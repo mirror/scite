@@ -303,17 +303,25 @@ static int CodePageFromName(const std::string &encodingName) {
 }
 
 static std::string StringEncode(std::wstring s, int codePage) {
-	int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), NULL, 0, NULL, NULL);
-	std::string sMulti(cchMulti, 0);
-	::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, NULL, NULL);
-	return sMulti;
+	if (s.length()) {
+		int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0, NULL, NULL);
+		std::string sMulti(cchMulti, 0);
+		::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, NULL, NULL);
+		return sMulti;
+	} else {
+		return std::string();
+	}
 }
 
 static std::wstring StringDecode(std::string s, int codePage) {
-	int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0);
-	std::wstring sWide(cchWide, 0);
-	::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), &sWide[0], cchWide);
-	return sWide;
+	if (s.length()) {
+		int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0);
+		std::wstring sWide(cchWide, 0);
+		::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), &sWide[0], cchWide);
+		return sWide;
+	} else {
+		return std::wstring();
+	}
 }
 
 // Convert to UTF-8
