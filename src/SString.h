@@ -136,6 +136,14 @@ public:
 		s = StringAllocate(source.s, source.sLen);
 		sSize = sLen = (s) ? source.sLen : 0;
 	}
+	SString(const std::string &source) : SContainer(), sizeGrowth(sizeGrowthDefault) {
+		if (source.length()) {
+			s = StringAllocate(source.c_str(), source.length());
+			sSize = sLen = source.length();
+		} else {
+			sLen = 0;
+		}
+	}
 	SString(const char *s_) : sizeGrowth(sizeGrowthDefault) {
 		s = StringAllocate(s_);
 		sSize = sLen = (s) ? strlen(s) : 0;
