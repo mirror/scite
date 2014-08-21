@@ -139,7 +139,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 				SString prefix = "command.name.";
 				prefix += SString(item);
 				prefix += ".";
-				SString commandName = props.GetNewExpand(prefix.c_str(), filePath.AsUTF8().c_str());
+				std::string commandName = props.GetNewExpandString(prefix.c_str(), filePath.AsUTF8().c_str());
 				if (commandName.length()) {
 					AddToPopUp(commandName.c_str(), itemID, true);
 					bAddSeparator = true;

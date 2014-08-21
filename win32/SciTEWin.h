@@ -370,10 +370,10 @@ public:
 	void ExecuteNext();
 	DWORD ExecuteOne(const Job &jobToRun);
 	void ProcessExecute();
-	void ShellExec(const SString &cmd, const char *dir);
+	void ShellExec(const std::string &cmd, const char *dir);
 	virtual void Execute();
 	virtual void StopExecute();
-	virtual void AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input = "", int flags=0);
+	virtual void AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input = "", int flags = 0);
 
 	virtual bool PerformOnNewThread(Worker *pWorker);
 	virtual void PostOnMainThread(int cmd, Worker *pWorker);

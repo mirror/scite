@@ -20,7 +20,7 @@ public:
 
 class PropSetFile {
 	bool lowerKeys;
-	SString GetWildUsingStart(const PropSetFile &psStart, const char *keybase, const char *filename);
+	std::string GetWildUsingStart(const PropSetFile &psStart, const char *keybase, const char *filename);
 	static bool caseSensitiveFilenames;
 	mapss props;
 public:
@@ -47,8 +47,9 @@ public:
 	void Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
 	bool Read(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
 	void SetInteger(const char *key, int i);
-	SString GetWild(const char *keybase, const char *filename);
+	std::string GetWild(const char *keybase, const char *filename);
 	SString GetNewExpand(const char *keybase, const char *filename="");
+	std::string GetNewExpandString(const char *keybase, const char *filename = "");
 	bool GetFirst(const char *&key, const char *&val);
 	bool GetNext(const char *&key, const char *&val);
 	static void SetCaseSensitiveFilenames(bool caseSensitiveFilenames_) {

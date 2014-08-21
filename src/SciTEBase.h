@@ -361,7 +361,7 @@ protected:
 	enum { markerBookmark = 1 };
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
-	SString parameterisedCommand;
+	std::string parameterisedCommand;
 	SString abbrevInsert;
 
 	enum { languageCmdID = IDM_LANGUAGE };
@@ -767,8 +767,8 @@ protected:
 	int GetLineLength(int line);
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
-	virtual void AddCommand(const SString &cmd, const SString &dir,
-	        JobSubsystem jobType, const SString &input = "",
+	virtual void AddCommand(const std::string &cmd, const std::string &dir,
+	        JobSubsystem jobType, const std::string &input = "",
 	        int flags = 0);
 	virtual void AboutDialog() = 0;
 	virtual void QuitProgram() = 0;

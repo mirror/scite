@@ -1316,9 +1316,9 @@ void SciTEBase::Execute() {
 	int ic;
 	parameterisedCommand = "";
 	for (ic = 0; ic < jobQueue.commandMax; ic++) {
-		if (jobQueue.jobQueue[ic].command[0] == '*') {
+		if (jobQueue.jobQueue[ic].command.find('*') == 0) {
 			displayParameterDialog = true;
-			jobQueue.jobQueue[ic].command.remove(0, 1);
+			jobQueue.jobQueue[ic].command.erase(0, 1);
 			parameterisedCommand = jobQueue.jobQueue[ic].command;
 		}
 		if (jobQueue.jobQueue[ic].directory.IsSet()) {
@@ -1334,7 +1334,7 @@ void SciTEBase::Execute() {
 		ParamGrab();
 	}
 	for (ic = 0; ic < jobQueue.commandMax; ic++) {
-		jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command.c_str());
+		jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command.c_str()).c_str();
 	}
 
 	if (jobQueue.ClearBeforeExecute()) {
@@ -2907,7 +2907,7 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 	}
 }
 
-void SciTEBase::AddCommand(const SString &cmd, const SString &dir, JobSubsystem jobType, const SString &input, int flags) {
+void SciTEBase::AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input, int flags) {
 	// If no explicit directory, use the directory of the current file
 	FilePath directoryRun;
 	if (dir.length()) {
@@ -3459,7 +3459,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				SelectionIntoProperties();
 				AddCommand(
 				    props.GetWild("command.build.", FileNameExt().AsUTF8().c_str()),
-				    props.GetNewExpand("command.build.directory.", FileNameExt().AsUTF8().c_str()),
+				    props.GetNewExpandString("command.build.directory.", FileNameExt().AsUTF8().c_str()),
 				    SubsystemType("command.build.subsystem."));
 				if (jobQueue.HasCommandToRun()) {
 					jobQueue.isBuilding = true;
@@ -3486,7 +3486,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 				int flags = 0;
 
 				if (!jobQueue.isBuilt) {
-					SString buildcmd = props.GetNewExpand("command.go.needs.", FileNameExt().AsUTF8().c_str());
+					std::string buildcmd = props.GetNewExpandString("command.go.needs.", FileNameExt().AsUTF8().c_str());
 					AddCommand(buildcmd, "",
 					        SubsystemType("command.go.needs.subsystem."));
 					if (buildcmd.length() > 0) {
@@ -3608,7 +3608,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_HELP_SCITE: {
 			SelectionIntoProperties();
-			AddCommand(props.Get("command.scite.help"), "",
+			AddCommand(props.GetString("command.scite.help"), "",
 			        SubsystemFromChar(props.Get("command.scite.help.subsystem")[0]));
 			if (!jobQueue.IsExecuting() && jobQueue.HasCommandToRun()) {
 				jobQueue.isBuilding = true;
@@ -3806,7 +3806,7 @@ void SciTEBase::NewLineInOutput() {
 		cmd = cmd.substr(1);
 	}
 	returnOutputToCommand = false;
-	AddCommand(cmd, "", jobCLI);
+	AddCommand(cmd.c_str(), "", jobCLI);
 	Execute();
 }
 

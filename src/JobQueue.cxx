@@ -56,7 +56,7 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 
 	const std::string itemSuffix = StdStringFromInteger(item) + ".";
 	std::string propName = std::string("command.mode.") + itemSuffix;
-	std::string modeVal(props.GetNewExpand(propName.c_str(), fileNameExt).c_str());
+	std::string modeVal(props.GetNewExpandString(propName.c_str(), fileNameExt));
 
 	modeVal.erase(std::remove(modeVal.begin(), modeVal.end(),' '), modeVal.end());
 	std::vector<std::string> modes = StringSplit(modeVal, ',');
@@ -128,43 +128,43 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 	// If the classic property is specified, it overrides the mode.
 	// To see if the property is absent (as opposed to merely evaluating
 	// to nothing after variable expansion), use GetWild for the
-	// existence check.  However, for the value check, use getNewExpand.
+	// existence check.  However, for the value check, use GetNewExpandString.
 
 	propName = "command.save.before.";
 	propName += itemSuffix;
 	if (props.GetWild(propName.c_str(), fileNameExt).length())
-		saveBefore = props.GetNewExpand(propName.c_str(), fileNameExt).value();
+		saveBefore = atoi(props.GetNewExpandString(propName.c_str(), fileNameExt).c_str());
 
 	propName = "command.is.filter.";
 	propName += itemSuffix;
 	if (props.GetWild(propName.c_str(), fileNameExt).length())
-		isFilter = (props.GetNewExpand(propName.c_str(), fileNameExt)[0] == '1');
+		isFilter = (props.GetNewExpandString(propName.c_str(), fileNameExt) == "1");
 
 	propName = "command.subsystem.";
 	propName += itemSuffix;
 	if (props.GetWild(propName.c_str(), fileNameExt).length()) {
-		SString subsystemVal = props.GetNewExpand(propName.c_str(), fileNameExt);
+		std::string subsystemVal = props.GetNewExpandString(propName.c_str(), fileNameExt);
 		jobType = SubsystemFromChar(subsystemVal[0]);
 	}
 
 	propName = "command.input.";
 	propName += itemSuffix;
 	if (props.GetWild(propName.c_str(), fileNameExt).length()) {
-		input = props.GetNewExpand(propName.c_str(), fileNameExt);
+		input = props.GetNewExpandString(propName.c_str(), fileNameExt);
 		flags |= jobHasInput;
 	}
 
 	propName = "command.quiet.";
 	propName += itemSuffix;
 	if (props.GetWild(propName.c_str(), fileNameExt).length())
-		quiet = (props.GetNewExpand(propName.c_str(), fileNameExt).value() == 1);
+		quiet = props.GetNewExpandString(propName.c_str(), fileNameExt) == "1";
 	if (quiet)
 		flags |= jobQuiet;
 
 	propName = "command.replace.selection.";
 	propName += itemSuffix;
 	if (props.GetWild(propName.c_str(), fileNameExt).length())
-		repSel = props.GetNewExpand(propName.c_str(), fileNameExt).value();
+		repSel = atoi(props.GetNewExpandString(propName.c_str(), fileNameExt).c_str());
 
 	if (repSel == 1)
 		flags |= jobRepSelYes;
@@ -182,7 +182,7 @@ void JobQueue::ClearJobs() {
 	commandCurrent = 0;
 }
 
-void JobQueue::AddCommand(const SString &command, const FilePath &directory, JobSubsystem jobType, const SString &input, int flags) {
+void JobQueue::AddCommand(const std::string &command, const FilePath &directory, JobSubsystem jobType, const std::string &input, int flags) {
 	if ((commandCurrent < commandMax) && (command.length())) {
 		if (commandCurrent == 0)
 			jobUsesOutputPane = false;

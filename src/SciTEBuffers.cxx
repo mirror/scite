@@ -1400,7 +1400,7 @@ bool SciTEBase::ToolIsImmediate(int item) {
 	SString propName = "command.";
 	propName += itemSuffix;
 
-	SString command = props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str());
+	std::string command = props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str());
 	if (command.length()) {
 		JobMode jobMode(props, item, FileNameExt().AsUTF8().c_str());
 		return jobMode.jobType == jobImmediate;

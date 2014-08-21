@@ -604,7 +604,7 @@ bool SciTEBase::OpenSelected() {
 	        selName.startswith("ftps:") ||
 	        selName.startswith("news:") ||
 	        selName.startswith("mailto:")) {
-		SString cmd = selName;
+		std::string cmd = selName.string();
 		AddCommand(cmd, "", jobShell);
 		return false;	// Job is done
 	}

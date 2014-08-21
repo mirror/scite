@@ -794,9 +794,8 @@ public:
 
 	// Handle Unicode controls (assume strings to be UTF-8 on Windows NT)
 
-	SString ItemTextU(int id) {
-		SString s = GUI::UTF8FromString(ItemTextG(id).c_str()).c_str();
-		return s;
+	std::string ItemTextU(int id) {
+		return GUI::UTF8FromString(ItemTextG(id));
 	}
 
 	void SetItemTextU(int id, const std::string &s) {
@@ -1149,31 +1148,31 @@ static int __stdcall BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM, LPARAM pDa
 void SciTEWin::PerformGrep() {
 	SelectionIntoProperties();
 
-	SString findInput;
+	std::string findInput;
 	long flags = 0;
-	if (props.Get("find.input").length()) {
-		findInput = props.GetNewExpand("find.input");
+	if (props.GetString("find.input").length()) {
+		findInput = props.GetNewExpandString("find.input");
 		flags += jobHasInput;
 	}
 
-	SString findCommand = props.GetNewExpand("find.command");
+	std::string findCommand = props.GetNewExpandString("find.command");
 	if (findCommand == "") {
 		// Call InternalGrep in a new thread
 		// searchParams is "(w|~)(c|~)(d|~)(b|~)\0files\0text"
 		// A "w" indicates whole word, "c" case sensitive, "d" dot directories, "b" binary files
-		SString searchParams;
+		std::string searchParams;
 		searchParams.append(wholeWord ? "w" : "~");
 		searchParams.append(matchCase ? "c" : "~");
 		searchParams.append(props.GetInt("find.in.dot") ? "d" : "~");
 		searchParams.append(props.GetInt("find.in.binary") ? "b" : "~");
 		searchParams.append("\0", 1);
-		searchParams.append(props.Get("find.files").c_str());
+		searchParams.append(props.GetString("find.files"));
 		searchParams.append("\0", 1);
-		searchParams.append(props.Get("find.what").c_str());
-		AddCommand(searchParams, props.Get("find.directory"), jobGrep, findInput, flags);
+		searchParams.append(props.GetString("find.what"));
+		AddCommand(searchParams, props.GetString("find.directory"), jobGrep, findInput, flags);
 	} else {
 		AddCommand(findCommand,
-			   props.Get("find.directory"),
+			   props.GetString("find.directory"),
 			   jobCLI, findInput, flags);
 	}
 	if (jobQueue.HasCommandToRun()) {
@@ -1199,7 +1198,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		FillCombos(dlg);
 		dlg.SetItemTextU(IDFINDWHAT, props.GetString("find.what"));
 		dlg.SetItemTextU(IDDIRECTORY, props.GetString("find.directory"));
-		if (props.GetNewExpand("find.command") == "") {
+		if (props.GetNewExpandString("find.command") == "") {
 			// Empty means use internal that can respond to flags
 			dlg.SetCheck(IDWHOLEWORD, wholeWord);
 			dlg.SetCheck(IDMATCHCASE, matchCase);
@@ -1225,17 +1224,17 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				WindowMessageBox(wFindInFiles, msgBuf);
 				return FALSE;
 			}
-			findWhat = dlg.ItemTextU(IDFINDWHAT).string();
+			findWhat = dlg.ItemTextU(IDFINDWHAT);
 			props.Set("find.what", findWhat.c_str());
 			InsertFindInMemory();
 
-			SString files = dlg.ItemTextU(IDFILES);
+			std::string files = dlg.ItemTextU(IDFILES);
 			props.Set("find.files", files.c_str());
-			memFiles.Insert(files.c_str());
+			memFiles.Insert(files);
 
-			SString directory = dlg.ItemTextU(IDDIRECTORY);
+			std::string directory = dlg.ItemTextU(IDDIRECTORY);
 			props.Set("find.directory", directory.c_str());
-			memDirectory.Insert(directory.c_str());
+			memDirectory.Insert(directory);
 
 			wholeWord = dlg.Checked(IDWHOLEWORD);
 			matchCase = dlg.Checked(IDMATCHCASE);
