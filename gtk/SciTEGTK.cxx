@@ -2151,7 +2151,7 @@ void SciTEGTK::FindInFilesCmd() {
 	//	props.Get("find.what"),
 	//	props.Get("find.files"));
 	SelectionIntoProperties();
-	SString findCommand = props.GetNewExpand("find.command");
+	std::string findCommand = props.GetNewExpandString("find.command");
 	if (findCommand == "") {
 		findCommand = sciteExecutable.AsInternal();
 		findCommand += " -grep ";
@@ -2160,7 +2160,7 @@ void SciTEGTK::FindInFilesCmd() {
 		findCommand += props.GetInt("find.in.dot") ? "d" : "~";
 		findCommand += props.GetInt("find.in.binary") ? "b" : "~";
 		findCommand += " \"";
-		findCommand += props.Get("find.files");
+		findCommand += props.GetString("find.files");
 		findCommand += "\" \"";
 		char *quotedForm = Slash(props.Get("find.what").c_str(), true);
 		findCommand += quotedForm;
@@ -2168,7 +2168,7 @@ void SciTEGTK::FindInFilesCmd() {
 		delete []quotedForm;
 		//~ fprintf(stderr, "%s\n", findCommand.c_str());
 	}
-	AddCommand(findCommand, props.Get("find.directory"), jobCLI);
+	AddCommand(findCommand, props.GetString("find.directory"), jobCLI);
 	if (jobQueue.HasCommandToRun())
 		Execute();
 }
