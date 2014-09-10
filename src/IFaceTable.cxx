@@ -520,6 +520,13 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_BAT_LABEL",3},
 	{"SCE_BAT_OPERATOR",7},
 	{"SCE_BAT_WORD",2},
+	{"SCE_BIBTEX_COMMENT",6},
+	{"SCE_BIBTEX_DEFAULT",0},
+	{"SCE_BIBTEX_ENTRY",1},
+	{"SCE_BIBTEX_KEY",3},
+	{"SCE_BIBTEX_PARAMETER",4},
+	{"SCE_BIBTEX_UNKNOWN_ENTRY",2},
+	{"SCE_BIBTEX_VALUE",5},
 	{"SCE_B_ASM",14},
 	{"SCE_B_BINNUMBER",18},
 	{"SCE_B_COMMENT",1},
@@ -1734,6 +1741,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_SQL_IDENTIFIER",11},
 	{"SCE_SQL_NUMBER",4},
 	{"SCE_SQL_OPERATOR",10},
+	{"SCE_SQL_QOPERATOR",24},
 	{"SCE_SQL_QUOTEDIDENTIFIER",23},
 	{"SCE_SQL_SQLPLUS",8},
 	{"SCE_SQL_SQLPLUS_COMMENT",13},
@@ -1868,6 +1876,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_TXT2TAGS_STRONG2",3},
 	{"SCE_TXT2TAGS_ULIST_ITEM",13},
 	{"SCE_VHDL_ATTRIBUTE",10},
+	{"SCE_VHDL_BLOCK_COMMENT",15},
 	{"SCE_VHDL_COMMENT",1},
 	{"SCE_VHDL_COMMENTLINEBANG",2},
 	{"SCE_VHDL_DEFAULT",0},
@@ -2350,6 +2359,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_BAAN",31},
 	{"SCLEX_BASH",62},
 	{"SCLEX_BATCH",12},
+	{"SCLEX_BIBTEX",116},
 	{"SCLEX_BLITZBASIC",66},
 	{"SCLEX_BULLANT",27},
 	{"SCLEX_CAML",65},
@@ -2631,6 +2641,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_STATUS_OK",0},
 	{"SC_TECHNOLOGY_DEFAULT",0},
 	{"SC_TECHNOLOGY_DIRECTWRITE",1},
+	{"SC_TECHNOLOGY_DIRECTWRITERETAIN",2},
 	{"SC_TIME_FOREVER",10000000},
 	{"SC_TYPE_BOOLEAN",0},
 	{"SC_TYPE_INTEGER",1},
@@ -3183,7 +3194,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 288,
-	ifaceConstantCount = 2533,
+	ifaceConstantCount = 2544,
 	ifacePropertyCount = 217
 };
 
