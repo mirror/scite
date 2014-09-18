@@ -707,6 +707,11 @@ void SciTEBase::ReadProperties() {
 		setlocale(LC_CTYPE, "C");
 #endif
 
+	std::string imeInteraction = props.GetString("ime.interaction");
+	if (imeInteraction.length()) {
+		CallChildren(SCI_SETIMEINTERACTION, props.GetInt("ime.interaction", SC_IME_WINDOWED));
+	}
+
 	wrapStyle = props.GetInt("wrap.style", SC_WRAP_WORD);
 
 	CallChildren(SCI_SETCARETFORE,
