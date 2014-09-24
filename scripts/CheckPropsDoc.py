@@ -106,7 +106,7 @@ for srcPath in srcPaths:
 			#print parts
 			if len(parts) > 1:
 				propertyName = parts[1]
-				if propertyName:
+				if propertyName and propertyName != "1":
 					propertyNames[propertyName] = 0
 					#print propertyName
 		if '"' in srcLine and nameOKSrc(srcPath):
