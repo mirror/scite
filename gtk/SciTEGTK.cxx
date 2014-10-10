@@ -2558,16 +2558,16 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 		OutputAppendString(buf);
 		lastOutput += buf;
 	} else if (count == 0) {
-		SString sExitMessage(WEXITSTATUS(exitStatus));
+		std::string sExitMessage = StdStringFromInteger(WEXITSTATUS(exitStatus));
 		sExitMessage.insert(0, ">Exit code: ");
 		if (WIFSIGNALED(exitStatus)) {
-			SString sSignal(WTERMSIG(exitStatus));
+			std::string sSignal = StdStringFromInteger(WTERMSIG(exitStatus));
 			sSignal.insert(0, " Signal: ");
 			sExitMessage += sSignal;
 		}
 		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";
-			sExitMessage += SString(commandTime.Duration(), 3);
+			sExitMessage += StdStringFromDouble(commandTime.Duration(), 3);
 		}
 		if ((lastFlags & jobRepSelYes)
 			|| ((lastFlags & jobRepSelAuto) && !exitStatus)) {
@@ -2881,7 +2881,7 @@ void SciTEGTK::TabSizeDialog() {
 	GtkWidget *labelTabSize = TranslatedLabel("_Tab Size:");
 	table.Label(labelTabSize);
 
-	SString tabSize(static_cast<int>(wEditor.Call(SCI_GETTABWIDTH)));
+	std::string tabSize = StdStringFromInteger(static_cast<int>(wEditor.Call(SCI_GETTABWIDTH)));
 	dlgTabSize.entryTabSize.Create(tabSize.c_str());
 	table.Add(dlgTabSize.entryTabSize);
 	dlgTabSize.entryTabSize.ActivatesDefault();
@@ -2891,7 +2891,7 @@ void SciTEGTK::TabSizeDialog() {
 	GtkWidget *labelIndentSize = TranslatedLabel("_Indent Size:");
 	table.Label(labelIndentSize);
 
-	SString indentSize(static_cast<int>(wEditor.Call(SCI_GETINDENT)));
+	std::string indentSize = StdStringFromInteger(static_cast<int>(wEditor.Call(SCI_GETINDENT)));
 	dlgTabSize.entryIndentSize.Create(indentSize.c_str());
 	table.Add(dlgTabSize.entryIndentSize);
 	dlgTabSize.entryIndentSize.ActivatesDefault();
@@ -2919,7 +2919,7 @@ bool SciTEGTK::ParametersOpen() {
 void SciTEGTK::ParamGrab() {
 	if (dlgParameters.Created()) {
 		for (int param = 0; param < maxParam; param++) {
-			SString paramText(param + 1);
+			std::string paramText = StdStringFromInteger(param + 1);
 			const char *paramVal = dlgParameters.entryParam[param].Text();
 			props.Set(paramText.c_str(), paramVal);
 		}
@@ -2974,8 +2974,8 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	}
 
 	for (int param = 0; param < maxParam; param++) {
-		SString paramText(param + 1);
-		SString paramTextVal = props.Get(paramText.c_str());
+		std::string paramText = StdStringFromInteger(param + 1);
+		std::string paramTextVal = props.GetString(paramText.c_str());
 		paramText.insert(0, "_");
 		paramText.append(":");
 		GtkWidget *label = gtk_label_new_with_mnemonic(paramText.c_str());
@@ -3723,7 +3723,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 	}
 	for (; i < dim; i++) {
 		int suffix = i - n + startNum;
-		SString ssnum(suffix);
+		std::string ssnum = StdStringFromInteger(suffix);
 		translatedText[i] = TranslatePath(prefix);
 		translatedText[i] += ssnum;
 		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
