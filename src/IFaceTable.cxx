@@ -312,7 +312,9 @@ static IFaceConstant ifaceConstants[] = {
 	{"INDIC_DOTBOX",12},
 	{"INDIC_DOTS",10},
 	{"INDIC_HIDDEN",5},
-	{"INDIC_MAX",31},
+	{"INDIC_IME",32},
+	{"INDIC_IME_MAX",35},
+	{"INDIC_MAX",35},
 	{"INDIC_PLAIN",0},
 	{"INDIC_ROUNDBOX",7},
 	{"INDIC_SQUIGGLE",1},
@@ -1938,6 +1940,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_YAML_OPERATOR",9},
 	{"SCE_YAML_REFERENCE",5},
 	{"SCE_YAML_TEXT",7},
+	{"SCFIND_CXX11REGEX",0x00800000},
 	{"SCFIND_MATCHCASE",0x4},
 	{"SCFIND_POSIX",0x00400000},
 	{"SCFIND_REGEXP",0x00200000},
@@ -2643,6 +2646,8 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_STATUS_BADALLOC",2},
 	{"SC_STATUS_FAILURE",1},
 	{"SC_STATUS_OK",0},
+	{"SC_STATUS_WARN_REGEX",1001},
+	{"SC_STATUS_WARN_START",1000},
 	{"SC_TECHNOLOGY_DEFAULT",0},
 	{"SC_TECHNOLOGY_DIRECTWRITE",1},
 	{"SC_TECHNOLOGY_DIRECTWRITERETAIN",2},
@@ -3199,7 +3204,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 288,
-	ifaceConstantCount = 2548,
+	ifaceConstantCount = 2553,
 	ifacePropertyCount = 218
 };
 
