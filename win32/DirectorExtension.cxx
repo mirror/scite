@@ -49,10 +49,10 @@ unsigned int SDI = 0;
 static void SendDirector(const char *verb, const char *arg = 0) {
 	if ((wDirector != 0) || (wCorrespondent != 0)) {
 		HWND wDestination = wCorrespondent;
-		SString addressedMessage;
+		std::string addressedMessage;
 		if (wDestination) {
 			addressedMessage += ":";
-			SString address(reinterpret_cast<size_t>(wDestination));
+			std::string address = StdStringFromSizeT(reinterpret_cast<size_t>(wDestination));
 			addressedMessage += address;
 			addressedMessage += ":";
 		} else {
@@ -78,7 +78,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 }
 
 static void SendDirector(const char *verb, sptr_t arg) {
-	SString s(static_cast<size_t>(arg));
+	std::string s = StdStringFromSizeT(static_cast<size_t>(arg));
 	::SendDirector(verb, s.c_str());
 }
 
@@ -93,7 +93,7 @@ static void CheckEnvironment(ExtensionAPI *phost) {
 				::SendDirector("identity", reinterpret_cast<sptr_t>(wReceiver));
 			}
 		}
-		SString sReceiver(reinterpret_cast<size_t>(wReceiver));
+		std::string sReceiver = StdStringFromSizeT(reinterpret_cast<size_t>(wReceiver));
 		phost->SetProperty("WindowID", sReceiver.c_str());
 	}
 }

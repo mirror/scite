@@ -136,8 +136,8 @@ void SciTEWin::Notify(SCNotification *notification) {
 			bool bAddSeparator = false;
 			for (int item = 0; item < toolMax; item++) {
 				int itemID = IDM_TOOLS + item;
-				SString prefix = "command.name.";
-				prefix += SString(item);
+				std::string prefix = "command.name.";
+				prefix += StdStringFromInteger(item);
 				prefix += ".";
 				std::string commandName = props.GetNewExpandString(prefix.c_str(), filePath.AsUTF8().c_str());
 				if (commandName.length()) {

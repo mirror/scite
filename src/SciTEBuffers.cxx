@@ -1394,10 +1394,10 @@ void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
 }
 
 bool SciTEBase::ToolIsImmediate(int item) {
-	SString itemSuffix = item;
+	std::string itemSuffix = StdStringFromInteger(item);
 	itemSuffix += '.';
 
-	SString propName = "command.";
+	std::string propName = "command.";
 	propName += itemSuffix;
 
 	std::string command = props.GetWild(propName.c_str(), FileNameExt().AsUTF8().c_str());
@@ -1415,19 +1415,19 @@ void SciTEBase::SetToolsMenu() {
 	int menuPos = TOOLS_START;
 	for (int item = 0; item < toolMax; item++) {
 		int itemID = IDM_TOOLS + item;
-		SString prefix = "command.name.";
-		prefix += SString(item);
+		std::string prefix = "command.name.";
+		prefix += StdStringFromInteger(item);
 		prefix += ".";
-		SString commandName = props.GetNewExpand(prefix.c_str(), FileNameExt().AsUTF8().c_str());
+		std::string commandName = props.GetNewExpandString(prefix.c_str(), FileNameExt().AsUTF8().c_str());
 		if (commandName.length()) {
-			SString sMenuItem = commandName;
+			std::string sMenuItem = commandName;
 			prefix = "command.shortcut.";
-			prefix += SString(item);
+			prefix += StdStringFromInteger(item);
 			prefix += ".";
-			SString sMnemonic = props.GetNewExpand(prefix.c_str(), FileNameExt().AsUTF8().c_str());
+			std::string sMnemonic = props.GetNewExpandString(prefix.c_str(), FileNameExt().AsUTF8().c_str());
 			if (item < 10 && sMnemonic.length() == 0) {
 				sMnemonic += "Ctrl+";
-				sMnemonic += SString(item);
+				sMnemonic += StdStringFromInteger(item);
 			}
 			SetMenuItemLocalised(menuTools, menuPos, itemID, sMenuItem.c_str(),
 				sMnemonic[0] ? sMnemonic.c_str() : NULL);

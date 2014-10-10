@@ -674,20 +674,6 @@ bool EqualCaseInsensitive(const char *a, const char *b) {
 // implementations of the SString members here as well, so
 // that I can quickly see what effect this has.
 
-SString::SString(int i) : sizeGrowth(sizeGrowthDefault) {
-	char number[32];
-	sprintf(number, "%0d", i);
-	s = StringAllocate(number);
-	sSize = sLen = (s) ? strlen(s) : 0;
-}
-
-SString::SString(size_t i) : sizeGrowth(sizeGrowthDefault) {
-	std::ostringstream strstrm;
-	strstrm << i;
-	s = StringAllocate(strstrm.str().c_str());
-	sSize = sLen = (s) ? strlen(s) : 0;
-}
-
 void SString::grow(lenpos_t lenNew) {
 	while (sizeGrowth * 6 < lenNew) {
 		sizeGrowth *= 2;

@@ -1570,7 +1570,7 @@ void SciTEWin::ParamGrab() {
 		Dialog dlg(hDlg);
 		for (int param = 0; param < maxParam; param++) {
 			std::string paramVal = GUI::UTF8FromString(dlg.ItemTextG(IDPARAMSTART + param));
-			SString paramText(param + 1);
+			std::string paramText = StdStringFromInteger(param + 1);
 			props.Set(paramText.c_str(), paramVal.c_str());
 		}
 		UpdateStatusBar(true);
@@ -1589,8 +1589,8 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				dlg.SetItemText(IDCMD, sCommand.c_str());
 			}
 			for (int param = 0; param < maxParam; param++) {
-				SString paramText(param + 1);
-				SString paramTextVal = props.Get(paramText.c_str());
+				std::string paramText = StdStringFromInteger(param + 1);
+				std::string paramTextVal = props.GetString(paramText.c_str());
 				GUI::gui_string sVal = GUI::StringFromUTF8(paramTextVal.c_str());
 				dlg.SetItemText(IDPARAMSTART + param, sVal.c_str());
 			}

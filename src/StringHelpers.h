@@ -18,6 +18,7 @@ int Remove(T &s, const T &sFind) {
 }
 
 std::string StdStringFromInteger(int i);
+std::string StdStringFromSizeT(size_t i);
 std::string StdStringFromDouble(double d, int precision);
 
 // Basic case lowering that converts A-Z to a-z.

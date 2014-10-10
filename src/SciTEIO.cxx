@@ -1339,7 +1339,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 						if (match) {
 							os.append(fPath.AsUTF8().c_str());
 							os.append(":");
-							SString lNumber(fr.LineNumber());
+							std::string lNumber = StdStringFromInteger(fr.LineNumber());
 							os.append(lNumber.c_str());
 							os.append(":");
 							os.append(fr.Original());

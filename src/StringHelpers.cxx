@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 #include <algorithm>
 #include <functional>
 
@@ -58,6 +59,12 @@ std::string StdStringFromInteger(int i) {
 	char number[32];
 	sprintf(number, "%0d", i);
 	return std::string(number);
+}
+
+std::string StdStringFromSizeT(size_t i) {
+	std::ostringstream strstrm;
+	strstrm << i;
+	return strstrm.str();
 }
 
 std::string StdStringFromDouble(double d, int precision) {

@@ -159,8 +159,6 @@ public:
 		s = StringAllocate(s_ + first, last - first);
 		sSize = sLen = (s) ? last - first : 0;
 	}
-	SString(int i);
-	SString(size_t i);
 	~SString() {
 		sLen = 0;
 	}

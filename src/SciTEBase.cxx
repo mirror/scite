@@ -4410,7 +4410,7 @@ bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
 		char *t;
 		bool handled;
 		t = (char *)(notification->lParam);
-		SString sWParam(static_cast<size_t>(notification->wParam));
+		std::string sWParam = StdStringFromSizeT(static_cast<size_t>(notification->wParam));
 		if (t != NULL) {
 			//format : "<message>;<wParam>;1;<text>"
 			szMessage = new char[50 + strlen(t) + 4];
