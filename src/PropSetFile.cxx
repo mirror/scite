@@ -688,13 +688,6 @@ SString::SString(size_t i) : sizeGrowth(sizeGrowthDefault) {
 	sSize = sLen = (s) ? strlen(s) : 0;
 }
 
-SString::SString(double d, int precision) : sizeGrowth(sizeGrowthDefault) {
-	char number[32];
-	sprintf(number, "%.*f", precision, d);
-	s = StringAllocate(number);
-	sSize = sLen = (s) ? strlen(s) : 0;
-}
-
 void SString::grow(lenpos_t lenNew) {
 	while (sizeGrowth * 6 < lenNew) {
 		sizeGrowth *= 2;

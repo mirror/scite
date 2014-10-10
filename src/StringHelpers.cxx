@@ -60,6 +60,12 @@ std::string StdStringFromInteger(int i) {
 	return std::string(number);
 }
 
+std::string StdStringFromDouble(double d, int precision) {
+	char number[32];
+	sprintf(number, "%.*f", precision, d);
+	return std::string(number);
+}
+
 static int LowerCaseAZ(int c) {
 	if (c >= 'A' && c <= 'Z') {
 		return c - 'A' + 'a';

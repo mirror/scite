@@ -1384,10 +1384,10 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 	}
 	GrepRecursive(gf, FilePath(directory), searchString.c_str(), fileTypes);
 	if (!(gf & grepStdOut)) {
-		SString sExitMessage(">");
+		std::string sExitMessage(">");
 		if (jobQueue.TimeCommands()) {
 			sExitMessage += "    Time: ";
-			sExitMessage += SString(commandTime.Duration(), 3);
+			sExitMessage += StdStringFromDouble(commandTime.Duration(), 3);
 		}
 		sExitMessage += "\n";
 		OutputAppendStringSynchronised(sExitMessage.c_str());

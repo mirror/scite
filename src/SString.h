@@ -161,7 +161,6 @@ public:
 	}
 	SString(int i);
 	SString(size_t i);
-	SString(double d, int precision);
 	~SString() {
 		sLen = 0;
 	}
