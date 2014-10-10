@@ -1346,19 +1346,19 @@ void SciTEBase::SetPropertiesInitial() {
 }
 
 GUI::gui_string Localization::Text(const char *s, bool retainIfNotFound) {
-	const char *utfEllipse = "\xe2\x80\xa6";	// A UTF-8 ellipse
-	SString translation = s;
-	int ellipseIndicator = translation.remove("...");
-	int utfEllipseIndicator = translation.remove(utfEllipse);
-	char menuAccessIndicatorChar[2] = "!";
-	menuAccessIndicatorChar[0] = static_cast<char>(menuAccessIndicator[0]);
-	int accessKeyPresent = translation.remove(menuAccessIndicatorChar);
-	translation.lowercase();
-	translation.substitute("\n", "\\n");
-	translation = Get(translation.c_str());
+	const std::string sEllipse("...");	// An ASCII ellipse
+	const std::string utfEllipse("\xe2\x80\xa6");	// A UTF-8 ellipse
+	std::string translation = s;
+	const int ellipseIndicator = Remove(translation, sEllipse);
+	const int utfEllipseIndicator = Remove(translation, utfEllipse);
+	const std::string menuAccessIndicatorChar(1, static_cast<char>(menuAccessIndicator[0]));
+	const int accessKeyPresent = Remove(translation, menuAccessIndicatorChar);
+	LowerCaseAZ(translation);
+	Substitute(translation, "\n", "\\n");
+	translation = GetString(translation.c_str());
 	if (translation.length()) {
 		if (ellipseIndicator)
-			translation += "...";
+			translation += sEllipse;
 		if (utfEllipseIndicator)
 			translation += utfEllipse;
 		if (0 == accessKeyPresent) {
@@ -1366,18 +1366,18 @@ GUI::gui_string Localization::Text(const char *s, bool retainIfNotFound) {
 			// Following codes are required because accelerator is not always
 			// part of alphabetical word in several language. In these cases,
 			// accelerator is written like "(&O)".
-			int posOpenParenAnd = translation.search("(&");
-			if (posOpenParenAnd > 0 && translation.search(")", posOpenParenAnd) == posOpenParenAnd+3) {
-				translation.remove(posOpenParenAnd, 4);
+			const size_t posOpenParenAnd = translation.find("(&");
+			if ((posOpenParenAnd != std::string::npos) && (translation.find(")", posOpenParenAnd) == posOpenParenAnd + 3)) {
+				translation.erase(posOpenParenAnd, 4);
 			} else {
-				translation.remove("&");
+				Remove(translation, std::string("&"));
 			}
 #else
-			translation.remove("&");
+			Remove(translation, std::string("&"));
 #endif
 		}
-		translation.substitute("&", menuAccessIndicatorChar);
-		translation.substitute("\\n", "\n");
+		Substitute(translation, "&", menuAccessIndicatorChar);
+		Substitute(translation, "\\n", "\n");
 	} else {
 		translation = missing;
 	}
@@ -1408,7 +1408,7 @@ void SciTEBase::ReadLocalization() {
 	FilePath propdir = GetSciteDefaultHome();
 	FilePath localePath(propdir, title);
 	localiser.Read(localePath, propdir, filter, &importFiles, 0);
-	localiser.SetMissing(props.Get("translation.missing"));
+	localiser.SetMissing(props.GetString("translation.missing"));
 	localiser.read = true;
 }
 

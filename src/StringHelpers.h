@@ -12,6 +12,11 @@ bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &sReplace);
 int Substitute(std::string &s, const std::string &sFind, const std::string &sReplace);
 
+template <typename T>
+int Remove(T &s, const T &sFind) {
+	return Substitute(s, sFind, T());
+}
+
 std::string StdStringFromInteger(int i);
 
 // Basic case lowering that converts A-Z to a-z.

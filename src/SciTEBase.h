@@ -260,13 +260,13 @@ struct CurrentWordHighlight {
 };
 
 class Localization : public PropSetFile, public ILocalize {
-	SString missing;
+	std::string missing;
 public:
 	bool read;
 	Localization() : PropSetFile(true), read(false) {
 	}
 	GUI::gui_string Text(const char *s, bool retainIfNotFound=true);
-	void SetMissing(const SString &missing_) {
+	void SetMissing(const std::string &missing_) {
 		missing = missing_;
 	}
 };
