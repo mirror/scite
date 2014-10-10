@@ -1454,14 +1454,9 @@ void SciTEBase::SetToolsMenu() {
 	}
 }
 
-JobSubsystem SciTEBase::SubsystemType(const char *cmd, int item) {
-	SString subsysprefix = cmd;
-	if (item >= 0) {
-		subsysprefix += SString(item);
-		subsysprefix += ".";
-	}
-	SString subsystem = props.GetNewExpand(subsysprefix.c_str(), FileNameExt().AsUTF8().c_str());
-	return SubsystemFromChar(subsystem[0]);
+JobSubsystem SciTEBase::SubsystemType(const char *cmd) {
+	std::string subsystem = props.GetNewExpandString(cmd, FileNameExt().AsUTF8().c_str());
+	return subsystem.empty() ? jobCLI : SubsystemFromChar(subsystem.at(0));
 }
 
 void SciTEBase::ToolsMenu(int item) {

@@ -836,7 +836,7 @@ protected:
 	        const char *text, const char *mnemonic);
 	bool ToolIsImmediate(int item);
 	void SetToolsMenu();
-	JobSubsystem SubsystemType(const char *cmd, int item = -1);
+	JobSubsystem SubsystemType(const char *cmd);
 	void ToolsMenu(int item);
 
 	void AssignKey(int key, int mods, int cmd);
