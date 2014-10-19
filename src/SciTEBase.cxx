@@ -2415,8 +2415,8 @@ int SciTEBase::GetLineIndentPosition(int line) {
 	return wEditor.Call(SCI_GETLINEINDENTPOSITION, line);
 }
 
-static SString CreateIndentation(int indent, int tabSize, bool insertSpaces) {
-	SString indentation;
+static std::string CreateIndentation(int indent, int tabSize, bool insertSpaces) {
+	std::string indentation;
 	if (!insertSpaces) {
 		while (indent >= tabSize) {
 			indentation.append("\t", 1);
@@ -2439,8 +2439,8 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 		int indentPos = GetLineIndentPosition(line);
 		const int maxIndentation = 1000;
 		if (indent < maxIndentation) {
-			SString indentationNow = GetRange(wEditor, lineStart, indentPos);
-			SString indentationWanted = CreateIndentation(indent, tabSize, !useTabs);
+			std::string indentationNow = GetRangeString(wEditor, lineStart, indentPos);
+			std::string indentationWanted = CreateIndentation(indent, tabSize, !useTabs);
 			if (indentationNow != indentationWanted) {
 				wEditor.Call(SCI_SETTARGETSTART, lineStart);
 				wEditor.Call(SCI_SETTARGETEND, indentPos);
