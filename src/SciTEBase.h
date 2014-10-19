@@ -171,7 +171,7 @@ public:
 	void RemoveInvisible(int index);
 	void RemoveCurrent();
 	int Current() const;
-	Buffer *CurrentBuffer();
+	Buffer *CurrentBuffer() const;
 	void SetCurrent(int index);
 	int StackNext();
 	int StackPrev();
@@ -521,7 +521,7 @@ protected:
 	bool IsBufferAvailable() const;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
 	void SetDocumentAt(int index, bool updateStack = true);
-	Buffer *CurrentBuffer() {
+	Buffer *CurrentBuffer() const {
 		return buffers.CurrentBuffer();
 	}
 	void SetBuffersMenu();

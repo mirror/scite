@@ -182,7 +182,7 @@ int BufferList::Current() const {
 	return current;
 }
 
-Buffer *BufferList::CurrentBuffer() {
+Buffer *BufferList::CurrentBuffer() const {
 	return &buffers[Current()];
 }
 
