@@ -338,6 +338,25 @@ SString SciTEBase::GetLine(int line) {
 	return SString(text);
 }
 
+std::string SciTEBase::GetLineString(int line) {
+	int len;
+	// Get needed buffer size
+	if (line < 0) {
+		len = wEditor.Call(SCI_GETCURLINE, 0, 0);
+	} else {
+		len = wEditor.Call(SCI_GETLINE, line, 0);
+	}
+	// Allocate buffer
+	std::string text(len+1, '\0');
+	// And get the line
+	if (line < 0) {
+		wEditor.CallString(SCI_GETCURLINE, len, &text[0]);
+	} else {
+		wEditor.CallString(SCI_GETLINE, line, &text[0]);
+	}
+	return text.substr(0, text.length()-1);
+}
+
 void SciTEBase::GetRange(GUI::ScintillaWindow &win, int start, int end, char *text) {
 	Sci_TextRange tr;
 	tr.chrg.cpMin = start;
@@ -769,6 +788,16 @@ SString SciTEBase::GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd)
 	tr.lpstrText = sel.ptr();
 	win.SendPointer(SCI_GETTEXTRANGE, 0, &tr);
 	return SString(sel);
+}
+
+std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, int selStart, int selEnd) {
+	std::string sel(selEnd - selStart + 1, '\0');
+	Sci_TextRange tr;
+	tr.chrg.cpMin = selStart;
+	tr.chrg.cpMax = selEnd;
+	tr.lpstrText = &sel[0];
+	win.SendPointer(SCI_GETTEXTRANGE, 0, &tr);
+	return sel.substr(0, sel.length()-1);
 }
 
 SString SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
@@ -1659,8 +1688,8 @@ bool SciTEBase::StartAutoComplete() {
 }
 
 bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
-	SString line = GetLine();
-	int current = GetCaretInLine();
+	const std::string line = GetLineString(-1);
+	const int current = GetCaretInLine();
 
 	int startword = current;
 	// Autocompletion of pure numbers is mostly an annoyance
@@ -1673,8 +1702,8 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	}
 	if (startword == current || allNumber)
 		return true;
-	SString root = line.substr(startword, current - startword);
-	int doclen = LengthDocument();
+	const std::string root = line.substr(startword, current - startword);
+	const int doclen = LengthDocument();
 	Sci_TextToFind ft = {{0, 0}, 0, {0, 0}};
 	ft.lpstrText = const_cast<char *>(root.c_str());
 	ft.chrg.cpMin = 0;
@@ -1682,14 +1711,13 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	ft.chrgText.cpMin = 0;
 	ft.chrgText.cpMax = 0;
 	const int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
-	int posCurrentWord = wEditor.Call(SCI_GETCURRENTPOS) - static_cast<int>(root.length());
+	const int posCurrentWord = wEditor.Call(SCI_GETCURRENTPOS) - static_cast<int>(root.length());
 	unsigned int minWordLength = 0;
 	unsigned int nwords = 0;
 
 	// wordsNear contains a list of words separated by single spaces and with a space
 	// at the start and end. This makes it easy to search for words.
-	SString wordsNear;
-	wordsNear.setsizegrowth(1000);
+	std::string wordsNear;
 	wordsNear.append("\n");
 
 	int posFind = wEditor.CallString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
@@ -1699,12 +1727,12 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		if (posFind != posCurrentWord) {
 			while (wordCharacters.contains(acc.SafeGetCharAt(wordEnd)))
 				wordEnd++;
-			unsigned int wordLength = wordEnd - posFind;
+			const unsigned int wordLength = wordEnd - posFind;
 			if (wordLength > root.length()) {
-				SString word = GetRange(wEditor, posFind, wordEnd);
+				std::string word = GetRangeString(wEditor, posFind, wordEnd);
 				word.insert(0, "\n");
 				word.append("\n");
-				if (!wordsNear.contains(word.c_str())) {	// add a new entry
+				if (wordsNear.find(word.c_str()) == std::string::npos) {	// add a new entry
 					wordsNear += word.c_str() + 1;
 					if (minWordLength < wordLength)
 						minWordLength = wordLength;
@@ -1719,18 +1747,18 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		ft.chrg.cpMin = wordEnd;
 		posFind = wEditor.CallString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
 	}
-	size_t length = wordsNear.length();
+	const size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > root.length()))) {
 		// Protect spaces by temporrily transforming to \001
-		wordsNear.substitute(' ', '\001');
+		std::replace(wordsNear.begin(), wordsNear.end(), ' ', '\001');
 		StringList wl(true);
 		wl.Set(wordsNear.c_str());
 		char *words = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
-		SString acText(words);
+		std::string acText(words);
 		// Use \n as word separator
-		acText.substitute(' ', '\n');
+		std::replace(acText.begin(), acText.end(), ' ', '\n');
 		// Return spaces from \001
-		acText.substitute('\001', ' ');
+		std::replace(acText.begin(), acText.end(), '\001', ' ');
 		wEditor.Call(SCI_AUTOCSETSEPARATOR, '\n');
 		wEditor.CallString(SCI_AUTOCSHOW, root.length(), acText.c_str());
 		delete []words;
