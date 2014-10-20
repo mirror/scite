@@ -626,7 +626,7 @@ bool SciTEBase::OpenSelected() {
 		return true;	// Do not open if it is the current file!
 	}
 
-	SString cTag;
+	std::string cTag;
 	unsigned long lineNumber = 0;
 	if (IsPropertiesFile(filePath) &&
 	        !selName.contains('.')) {
@@ -694,10 +694,10 @@ bool SciTEBase::OpenSelected() {
 			if (lineNumber > 0) {
 				wEditor.Call(SCI_GOTOLINE, lineNumber - 1);
 			} else if (cTag.length() != 0) {
-				if (cTag.value() > 0) {
-					wEditor.Call(SCI_GOTOLINE, cTag.value() - 1);
+				if (atoi(cTag.c_str()) > 0) {
+					wEditor.Call(SCI_GOTOLINE, atoi(cTag.c_str()) - 1);
 				} else {
-					findWhat = cTag.string();
+					findWhat = cTag;
 					FindNext(false);
 				}
 			}

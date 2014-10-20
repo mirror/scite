@@ -552,8 +552,7 @@ protected:
 	int LengthDocument();
 	int GetCaretInLine();
 	void GetLine(char *text, int sizeText, int line = -1);
-	SString GetLine(int line = -1);
-	std::string GetLineString(int line);
+	std::string GetCurrentLine();
 	static void GetRange(GUI::ScintillaWindow &win, int start, int end, char *text);
 	int IsLinePreprocessorCondition(char *line);
 	bool FindMatchingPreprocessorCondition(int &curLine, int direction, int condEnd1, int condEnd2);
@@ -665,11 +664,11 @@ protected:
 	Sci_CharacterRange GetSelection();
 	SelectedRange GetSelectedRange();
 	void SetSelection(int anchor, int currentPos);
-	SString GetCTag();
+	std::string GetCTag();
 	static SString GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	static std::string GetRangeString(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
-	static SString GetLine(GUI::ScintillaWindow &win, int line);
+	static std::string GetLine(GUI::ScintillaWindow &win, int line);
 	void RangeExtend(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,
 		bool (SciTEBase::*ischarforsel)(char ch));
 	SString RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,

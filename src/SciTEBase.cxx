@@ -319,41 +319,13 @@ void SciTEBase::GetLine(char *text, int sizeText, int line) {
 	text[lineEnd - lineStart] = '\0';
 }
 
-SString SciTEBase::GetLine(int line) {
-	int len;
+std::string SciTEBase::GetCurrentLine() {
 	// Get needed buffer size
-	if (line < 0) {
-		len = wEditor.Call(SCI_GETCURLINE, 0, 0);
-	} else {
-		len = wEditor.Call(SCI_GETLINE, line, 0);
-	}
-	// Allocate buffer
-	SBuffer text(len);
-	// And get the line
-	if (line < 0) {
-		wEditor.CallString(SCI_GETCURLINE, len, text.ptr());
-	} else {
-		wEditor.CallString(SCI_GETLINE, line, text.ptr());
-	}
-	return SString(text);
-}
-
-std::string SciTEBase::GetLineString(int line) {
-	int len;
-	// Get needed buffer size
-	if (line < 0) {
-		len = wEditor.Call(SCI_GETCURLINE, 0, 0);
-	} else {
-		len = wEditor.Call(SCI_GETLINE, line, 0);
-	}
+	const int len = wEditor.Call(SCI_GETCURLINE, 0, 0);
 	// Allocate buffer
 	std::string text(len+1, '\0');
 	// And get the line
-	if (line < 0) {
-		wEditor.CallString(SCI_GETCURLINE, len, &text[0]);
-	} else {
-		wEditor.CallString(SCI_GETLINE, line, &text[0]);
-	}
+	wEditor.CallString(SCI_GETCURLINE, len, &text[0]);
 	return text.substr(0, text.length()-1);
 }
 
@@ -660,7 +632,7 @@ void SciTEBase::SetSelection(int anchor, int currentPos) {
 	wEditor.Call(SCI_SETSEL, anchor, currentPos);
 }
 
-SString SciTEBase::GetCTag() {
+std::string SciTEBase::GetCTag() {
 	int lengthDoc, selStart, selEnd;
 	int mustStop = 0;
 	char c;
@@ -708,9 +680,9 @@ SString SciTEBase::GetCTag() {
 	}
 
 	if (selStart < selEnd) {
-		return GetRange(wCurrent, selStart, selEnd);
+		return GetRangeString(wCurrent, selStart, selEnd);
 	} else {
-		return SString();
+		return std::string();
 	}
 }
 
@@ -804,12 +776,12 @@ SString SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart,
 	return GetRange(win, selStart, selEnd);
 }
 
-SString SciTEBase::GetLine(GUI::ScintillaWindow &win, int line) {
+std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, int line) {
 	int lineStart = win.Call(SCI_POSITIONFROMLINE, line);
 	int lineEnd = win.Call(SCI_GETLINEENDPOSITION, line);
 	if ((lineStart < 0) || (lineEnd < 0))
-		return SString();
-	return GetRange(win, lineStart, lineEnd);
+		return std::string();
+	return GetRangeString(win, lineStart, lineEnd);
 }
 
 void SciTEBase::RangeExtend(
@@ -1541,7 +1513,7 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 bool SciTEBase::StartCallTip() {
 	currentCallTip = 0;
 	currentCallTipWord = "";
-	SString line = GetLine();
+	std::string line = GetCurrentLine();
 	int current = GetCaretInLine();
 	int pos = wEditor.Call(SCI_GETCURRENTPOS);
 	do {
@@ -1573,7 +1545,7 @@ bool SciTEBase::StartCallTip() {
 		startCalltipWord--;
 	}
 
-	line.change(current, '\0');
+	line.at(current) = '\0';
 	currentCallTipWord = line.c_str() + startCalltipWord;
 	functionDefinition = "";
 	FillFunctionDefinition(pos);
@@ -1581,7 +1553,7 @@ bool SciTEBase::StartCallTip() {
 }
 
 void SciTEBase::ContinueCallTip() {
-	SString line = GetLine();
+	std::string line = GetCurrentLine();
 	int current = GetCaretInLine();
 
 	int braces = 0;
@@ -1662,7 +1634,7 @@ void SciTEBase::EliminateDuplicateWords(char *words) {
 }
 
 bool SciTEBase::StartAutoComplete() {
-	SString line = GetLine();
+	std::string line = GetCurrentLine();
 	int current = GetCaretInLine();
 
 	int startword = current;
@@ -1673,7 +1645,7 @@ bool SciTEBase::StartAutoComplete() {
 		startword--;
 	}
 
-	SString root = line.substr(startword, current - startword);
+	std::string root = line.substr(startword, current - startword);
 	if (apis) {
 		char *words = GetNearestWords(root.c_str(), root.length(),
 			calltipParametersStart.c_str(), autoCompleteIgnoreCase);
@@ -1688,7 +1660,7 @@ bool SciTEBase::StartAutoComplete() {
 }
 
 bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
-	const std::string line = GetLineString(-1);
+	const std::string line = GetCurrentLine();
 	const int current = GetCaretInLine();
 
 	int startword = current;
@@ -3818,19 +3790,19 @@ void SciTEBase::NewLineInOutput() {
 		return;
 	int line = wOutput.Call(SCI_LINEFROMPOSITION,
 	        wOutput.Call(SCI_GETCURRENTPOS)) - 1;
-	SString cmd = GetLine(wOutput, line);
+	std::string cmd = GetLine(wOutput, line);
 	if (cmd == ">") {
 		// Search output buffer for previous command
 		line--;
 		while (line >= 0) {
 			cmd = GetLine(wOutput, line);
-			if (cmd.startswith(">") && !cmd.startswith(">Exit")) {
+			if ((cmd.find(">") == 0) && !(cmd.find(">Exit") == 0)) {
 				cmd = cmd.substr(1);
 				break;
 			}
 			line--;
 		}
-	} else if (cmd.startswith(">")) {
+	} else if (cmd.find(">") == 0) {
 		cmd = cmd.substr(1);
 	}
 	returnOutputToCommand = false;

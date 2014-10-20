@@ -17,6 +17,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <algorithm>
 
 #include "Scintilla.h"
 #include "SciLexer.h"
@@ -1827,9 +1828,10 @@ int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &co
 }
 
 // Remove up to and including ch
-static void Chomp(SString &s, int ch) {
-	if (s.contains(static_cast<char>(ch)))
-			s.remove(0, s.search(":") + 1);
+static void Chomp(std::string &s, int ch) {
+	const size_t posCh = s.find(static_cast<char>(ch));
+	if (posCh != std::string::npos)
+		s.erase(0, posCh + 1);
 }
 
 void SciTEBase::ShowMessages(int line) {
@@ -1843,7 +1845,7 @@ void SciTEBase::ShowMessages(int line) {
 	while ((line < maxLine) && (acc.StyleAt(acc.LineStart(line)) != SCE_ERR_CMD)) {
 		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line, 0);
 		int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line, 0);
-		SString message = GetRange(wOutput, startPosLine, lineEnd);
+		std::string message = GetRangeString(wOutput, startPosLine, lineEnd);
 		std::string source;
 		int column;
 		char style = acc.StyleAt(startPosLine);
@@ -1858,7 +1860,7 @@ void SciTEBase::ShowMessages(int line) {
 			if (style == SCE_ERR_GCC) {
 				const char *sColon = strchr(message.c_str(), ':');
 				if (sColon) {
-					SString editLine = GetLine(wEditor, sourceLine);
+					std::string editLine = GetLine(wEditor, sourceLine);
 					if (editLine == (sColon+1)) {
 						line++;
 						continue;
@@ -1878,11 +1880,11 @@ void SciTEBase::ShowMessages(int line) {
 				// Only append unique messages
 				msgCurrent += message.c_str();
 				int msgStyle = 0;
-				if (message.search("warning") >= 0)
+				if (message.find("warning") != std::string::npos)
 					msgStyle = 1;
-				if (message.search("error") >= 0)
+				if (message.find("error") != std::string::npos)
 					msgStyle = 2;
-				if (message.search("fatal") >= 0)
+				if (message.find("fatal") != std::string::npos)
 					msgStyle = 3;
 				stylesCurrent += std::string(message.length(), static_cast<char>(msgStyle));
 				wEditor.CallString(SCI_ANNOTATIONSETTEXT, sourceLine, msgCurrent.c_str());
@@ -1923,7 +1925,7 @@ void SciTEBase::GoMessage(int dir) {
 			        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 			wOutput.Call(SCI_MARKERADD, lookLine, 0);
 			wOutput.Call(SCI_SETSEL, startPosLine, startPosLine);
-			SString message = GetRange(wOutput, startPosLine, startPosLine + lineLength);
+			std::string message = GetRangeString(wOutput, startPosLine, startPosLine + lineLength);
 			std::string source;
 			int column;
 			long sourceLine = DecodeMessage(message.c_str(), source, style, column);
@@ -1962,13 +1964,13 @@ void SciTEBase::GoMessage(int dir) {
 				if (style == SCE_ERR_CTAG) {
 					//without following focus GetCTag wouldn't work correct
 					WindowSetFocus(wOutput);
-					SString cTag = GetCTag();
+					std::string cTag = GetCTag();
 					if (cTag.length() != 0) {
-						if (cTag.value() > 0) {
+						if (atoi(cTag.c_str()) > 0) {
 							//if tag is linenumber, get line
-							sourceLine = cTag.value() - 1;
+							sourceLine = atoi(cTag.c_str()) - 1;
 						} else {
-							findWhat = cTag.string();
+							findWhat = cTag;
 							FindNext(false);
 							//get linenumber for marker from found position
 							sourceLine = wEditor.Call(SCI_LINEFROMPOSITION, wEditor.Call(SCI_GETCURRENTPOS));
@@ -1977,14 +1979,16 @@ void SciTEBase::GoMessage(int dir) {
 				}
 
 				else if (style == SCE_ERR_DIFF_MESSAGE) {
-					bool isAdd = message.startswith("+++ ");
-					int atLine = lookLine + (isAdd ? 1 : 2); // lines are in this order: ---, +++, @@
-					SString atMessage = GetLine(wOutput, atLine);
-					if (atMessage.startswith("@@ -")) {
-						int atPos = (isAdd
-							? atMessage.search(" +", 7) + 2 // skip "@@ -1,1" and then " +"
-							: 4 // deleted position starts right after "@@ -"
-						);
+					const bool isAdd = message.find("+++ ") == 0;
+					const int atLine = lookLine + (isAdd ? 1 : 2); // lines are in this order: ---, +++, @@
+					std::string atMessage = GetLine(wOutput, atLine);
+					if (atMessage.find("@@ -") == 0) {
+						size_t atPos = 4; // deleted position starts right after "@@ -"
+						if (isAdd) {
+							const size_t linePlace = atMessage.find(" +", 7);
+							if (linePlace != std::string::npos)
+								atPos = linePlace + 2; // skip "@@ -1,1" and then " +"
+						}
 						sourceLine = atol(atMessage.c_str() + atPos) - 1;
 					}
 				}
@@ -2014,8 +2018,8 @@ void SciTEBase::GoMessage(int dir) {
 					//simply move cursor to line, don't do any selection
 					SetSelection(startSourceLine, startSourceLine);
 				}
-				message.substitute('\t', ' ');
-				message.remove("\n");
+				std::replace(message.begin(), message.end(), '\t', ' ');
+				::Remove(message, std::string("\n"));
 				props.Set("CurrentMessage", message.c_str());
 				UpdateStatusBar(false);
 				WindowSetFocus(wEditor);
