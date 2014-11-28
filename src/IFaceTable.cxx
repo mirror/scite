@@ -137,6 +137,7 @@ int IFaceTable::GetConstantName(int value, char *nameOut, unsigned nameBufferLen
 static IFaceConstant ifaceConstants[] = {
 	{"ANNOTATION_BOXED",2},
 	{"ANNOTATION_HIDDEN",0},
+	{"ANNOTATION_INDENTED",3},
 	{"ANNOTATION_STANDARD",1},
 	{"CARETSTYLE_BLOCK",2},
 	{"CARETSTYLE_INVISIBLE",0},
@@ -2650,6 +2651,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_STATUS_WARN_START",1000},
 	{"SC_TECHNOLOGY_DEFAULT",0},
 	{"SC_TECHNOLOGY_DIRECTWRITE",1},
+	{"SC_TECHNOLOGY_DIRECTWRITEDC",3},
 	{"SC_TECHNOLOGY_DIRECTWRITERETAIN",2},
 	{"SC_TIME_FOREVER",10000000},
 	{"SC_TYPE_BOOLEAN",0},
@@ -3204,7 +3206,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 288,
-	ifaceConstantCount = 2553,
+	ifaceConstantCount = 2555,
 	ifacePropertyCount = 218
 };
 
