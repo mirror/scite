@@ -1756,6 +1756,19 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_SQL_USER4",22},
 	{"SCE_SQL_WORD",5},
 	{"SCE_SQL_WORD2",16},
+	{"SCE_SREC_BYTECOUNT",3},
+	{"SCE_SREC_BYTECOUNT_WRONG",4},
+	{"SCE_SREC_CHECKSUM",11},
+	{"SCE_SREC_CHECKSUM_WRONG",12},
+	{"SCE_SREC_DATAADDRESS",6},
+	{"SCE_SREC_DATA_EVEN",10},
+	{"SCE_SREC_DATA_ODD",9},
+	{"SCE_SREC_DEFAULT",0},
+	{"SCE_SREC_NOADDRESS",5},
+	{"SCE_SREC_RECCOUNT",7},
+	{"SCE_SREC_RECSTART",1},
+	{"SCE_SREC_RECTYPE",2},
+	{"SCE_SREC_STARTADDRESS",8},
 	{"SCE_STTXT_CHARACTER",11},
 	{"SCE_STTXT_COMMENT",1},
 	{"SCE_STTXT_COMMENTLINE",2},
@@ -2450,6 +2463,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_SPECMAN",59},
 	{"SCLEX_SPICE",78},
 	{"SCLEX_SQL",7},
+	{"SCLEX_SREC",117},
 	{"SCLEX_STTXT",109},
 	{"SCLEX_TACL",93},
 	{"SCLEX_TADS3",70},
@@ -3206,7 +3220,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 288,
-	ifaceConstantCount = 2555,
+	ifaceConstantCount = 2569,
 	ifacePropertyCount = 218
 };
 
