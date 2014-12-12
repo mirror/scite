@@ -286,7 +286,7 @@ void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const 
 	win.Call(SCI_INDICSETUNDER, indicator, ind.under);
 }
 
-SString SciTEBase::ExtensionFileName() {
+SString SciTEBase::ExtensionFileName() const {
 	if (CurrentBuffer()->overrideExtension.length()) {
 		return CurrentBuffer()->overrideExtension.c_str();
 	} else {

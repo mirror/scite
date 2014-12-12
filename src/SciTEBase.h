@@ -697,6 +697,7 @@ protected:
 	};
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) = 0;
 	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0) = 0;
+	bool FindReplaceAdvanced() const;
 	int FindInTarget(std::string findWhatText, int startPosition, int endPosition);
 	virtual void SetFindText(const char *sFind);
 	virtual void SetFind(const char *sFind);
@@ -855,7 +856,7 @@ protected:
 	void ReadFontProperties();
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);
-	SString ExtensionFileName();
+	SString ExtensionFileName() const;
 	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
 	void DefineMarker(int marker, int markerType, Colour fore, Colour back, Colour backSelected);

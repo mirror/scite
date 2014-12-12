@@ -961,6 +961,10 @@ int SciTEBase::IncrementSearchMode() {
 	return 0;
 }
 
+bool SciTEBase::FindReplaceAdvanced() const {
+	return props.GetInt("find.replace.advanced");
+}
+
 int SciTEBase::FindInTarget(std::string findWhatText, int startPosition, int endPosition) {
 	size_t lenFind = findWhatText.length();
 	wEditor.Call(SCI_SETTARGETSTART, startPosition);

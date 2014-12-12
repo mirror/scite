@@ -1092,10 +1092,6 @@ void SciTEWin::FindIncrement() {
 	}
 }
 
-bool SciTEWin::FindReplaceAdvanced() {
-	return props.GetInt("find.replace.advanced");
-}
-
 void SciTEWin::Find() {
 	if (wFindReplace.Created()) {
 		if (!replacing) {

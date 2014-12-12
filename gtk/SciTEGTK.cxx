@@ -632,7 +632,6 @@ protected:
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
-	bool FindReplaceAdvanced();
 	virtual std::string EncodeString(const std::string &s);
 	void FindReplaceGrabFields();
 	virtual void Find();
@@ -2998,10 +2997,6 @@ bool SciTEGTK::ParametersDialog(bool modal) {
 	dlgParameters.Display(PWidget(wSciTE), modal);
 
 	return !dlgParameters.paramDialogCanceled;
-}
-
-bool SciTEGTK::FindReplaceAdvanced() {
-	return props.GetInt("find.replace.advanced");
 }
 
 #define RESPONSE_MARK_ALL 1002
