@@ -9,11 +9,16 @@
 #include <string.h>
 
 #include <string>
+#include <vector>
 
-#include "SString.h"
+#include "Scintilla.h"
+
+#include "GUI.h"
+
+#include "StringHelpers.h"
 #include "Cookie.h"
 
-SString ExtractLine(const char *buf, size_t length) {
+std::string ExtractLine(const char *buf, size_t length) {
 	unsigned int endl = 0;
 	if (length > 0) {
 		while ((endl < length) && (buf[endl] != '\r') && (buf[endl] != '\n')) {
@@ -26,7 +31,7 @@ SString ExtractLine(const char *buf, size_t length) {
 			endl++;
 		}
 	}
-	return SString(buf, 0, endl);
+	return std::string(buf, 0, endl);
 }
 
 static const char codingCookie[] = "coding";
@@ -41,26 +46,26 @@ static bool isSpaceChar(char ch) {
 	return (ch == ' ') || (ch == '\t');
 }
 
-static UniMode CookieValue(const SString &s) {
-	int posCoding = s.search(codingCookie);
-	if (posCoding >= 0) {
-		posCoding += static_cast<int>(strlen(codingCookie));
+static UniMode CookieValue(const std::string &s) {
+	size_t posCoding = s.find(codingCookie);
+	if (posCoding != std::string::npos) {
+		posCoding += strlen(codingCookie);
 		if ((s[posCoding] == ':') || (s[posCoding] == '=')) {
 			posCoding++;
 			if ((s[posCoding] == '\"') || (s[posCoding] == '\'')) {
 				posCoding++;
 			}
-			while ((posCoding < static_cast<int>(s.length())) &&
+			while ((posCoding < s.length()) &&
 			        (isSpaceChar(s[posCoding]))) {
 				posCoding++;
 			}
-			size_t endCoding = static_cast<size_t>(posCoding);
+			size_t endCoding = posCoding;
 			while ((endCoding < s.length()) &&
 			        (isEncodingChar(s[endCoding]))) {
 				endCoding++;
 			}
-			SString code(s.c_str(), posCoding, endCoding);
-			code.lowercase();
+			std::string code(s, posCoding, endCoding-posCoding);
+			LowerCaseAZ(code);
 			if (code == "utf-8") {
 				return uniCookie;
 			}
@@ -70,10 +75,10 @@ static UniMode CookieValue(const SString &s) {
 }
 
 UniMode CodingCookieValue(const char *buf, size_t length) {
-	SString l1 = ExtractLine(buf, length);
+	std::string l1 = ExtractLine(buf, length);
 	UniMode unicodeMode = CookieValue(l1);
 	if (unicodeMode == uni8Bit) {
-		SString l2 = ExtractLine(buf + l1.length(), length - l1.length());
+		std::string l2 = ExtractLine(buf + l1.length(), length - l1.length());
 		unicodeMode = CookieValue(l2);
 	}
 	return unicodeMode;

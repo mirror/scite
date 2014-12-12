@@ -26,8 +26,9 @@ bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &start) {
 
 bool StartsWith(std::string const &s, const char *start) {
 	const size_t startSize = strlen(start);
+	std::string sStart(start);
 	return (s.size() >= startSize) &&
-		(std::equal(s.begin(), s.begin() + startSize, start));
+		(std::equal(s.begin(), s.begin() + startSize, sStart.begin()));
 }
 
 bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end) {

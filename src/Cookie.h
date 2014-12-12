@@ -11,5 +11,5 @@ enum UniMode {
     uniCookie = 4
 };
 
-SString ExtractLine(const char *buf, size_t length);
+std::string ExtractLine(const char *buf, size_t length);
 UniMode CodingCookieValue(const char *buf, size_t length);

@@ -17,6 +17,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <algorithm>
 
 #include "Scintilla.h"
 #include "ILexer.h"
@@ -151,23 +152,23 @@ std::string SciTEBase::DiscoverLanguage() {
 	GetRange(wEditor, 0, length, buf);
 	buf[length] = '\0';
 	std::string languageOverride = "";
-	SString l1 = ExtractLine(buf, length);
-	if (l1.startswith("<?xml")) {
+	std::string l1 = ExtractLine(buf, length);
+	if (StartsWith(l1, "<?xml")) {
 		languageOverride = "xml";
-	} else if (l1.startswith("#!")) {
+	} else if (StartsWith(l1, "#!")) {
 		l1 = l1.substr(2);
-		l1.substitute('\\', ' ');
-		l1.substitute('/', ' ');
-		l1.substitute("\t", " ");
-		l1.substitute("  ", " ");
-		l1.substitute("  ", " ");
-		l1.substitute("  ", " ");
-		l1.remove("\r");
-		l1.remove("\n");
-		if (l1.startswith(" ")) {
+		std::replace(l1.begin(), l1.end(), '\\', ' ');
+		std::replace(l1.begin(), l1.end(), '/', ' ');
+		std::replace(l1.begin(), l1.end(), '\t', ' ');
+		Substitute(l1, "  ", " ");
+		Substitute(l1, "  ", " ");
+		Substitute(l1, "  ", " ");
+		::Remove(l1, std::string("\r"));
+		::Remove(l1, std::string("\n"));
+		if (StartsWith(l1, " ")) {
 			l1 = l1.substr(1);
 		}
-		l1.substitute(' ', '\0');
+		std::replace(l1.begin(), l1.end(), ' ', '\0');
 		const char *word = l1.c_str();
 		while (*word) {
 			std::string propShBang("shbang.");
