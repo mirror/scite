@@ -548,7 +548,7 @@ protected:
 	int CallFocusedElseDefault(int defaultValue, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t CallPane(int destination, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	void CallChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	SString GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
+	std::string GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
 	int LengthDocument();
 	int GetCaretInLine();
 	void GetLine(char *text, int sizeText, int line = -1);

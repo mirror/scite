@@ -447,7 +447,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
 		int trsSty = 5; // define the stylenumber to assign font for translators.
-		SString translator = GetTranslationToAbout("TranslationCredit", false);
+		std::string translator = GetTranslationToAbout("TranslationCredit", false);
 		SetAboutStyle(wsci, trsSty, ColourRGB(0, 0, 0));
 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
 		AddStyledText(wsci, sVersion.c_str(), 1);
