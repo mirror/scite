@@ -16,6 +16,7 @@
 
 #include "GUI.h"
 #include "SString.h"
+#include "StringHelpers.h"
 #include "FilePath.h"
 #include "StyleWriter.h"
 #include "Extender.h"
@@ -254,9 +255,9 @@ static int cf_scite_constname(lua_State *L) {
 static int cf_scite_open(lua_State *L) {
 	const char *s = luaL_checkstring(L, 1);
 	if (s) {
-		SString cmd = "open:";
+		std::string cmd = "open:";
 		cmd += s;
-		cmd.substitute("\\", "\\\\");
+		Substitute(cmd, "\\", "\\\\");
 		host->Perform(cmd.c_str());
 	}
 	return 0;
