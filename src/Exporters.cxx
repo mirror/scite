@@ -396,7 +396,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		delete []val;
 		delete []valdef;
 
-		SString sval = props.GetExpanded("font.monospace");
+		std::string sval = props.GetExpandedString("font.monospace");
 		StyleDefinition sdmono(sval.c_str());
 
 		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
@@ -785,8 +785,8 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		int pageCount;
 		int pageContentStart;
 		double xPos, yPos;	// position tracking for line wrapping
-		SString pageData;	// holds PDF stream contents
-		SString segment;	// character data
+		std::string pageData;	// holds PDF stream contents
+		std::string segment;	// character data
 		char *segStyle;		// style of segment
 		bool justWhiteSpace;
 		int styleCurrent, stylePrev;
@@ -1034,7 +1034,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	// read magnification value to add to default screen font size
 	pr.fontSize = props.GetInt("export.pdf.magnification");
 	// set font family according to face name
-	SString propItem = props.GetExpanded("export.pdf.font");
+	std::string propItem = props.GetExpandedString("export.pdf.font");
 	pr.fontSet = PDF_FONT_DEFAULT;
 	if (propItem.length()) {
 		if (propItem == "Courier")
@@ -1045,7 +1045,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 			pr.fontSet = 2;
 	}
 	// page size: width, height
-	propItem = props.GetExpanded("export.pdf.pagesize");
+	propItem = props.GetExpandedString("export.pdf.pagesize");
 	char *buffer = new char[200];
 	char *ps = StringDup(propItem.c_str());
 	const char *next = GetNextPropItem(ps, buffer, 32);
@@ -1058,7 +1058,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	}
 	delete []ps;
 	// page margins: left, right, top, bottom
-	propItem = props.GetExpanded("export.pdf.margins");
+	propItem = props.GetExpandedString("export.pdf.margins");
 	ps = StringDup(propItem.c_str());
 	next = GetNextPropItem(ps, buffer, 32);
 	if (0 >= (pr.pageMargin.left = static_cast<int>(atol(buffer)))) {
