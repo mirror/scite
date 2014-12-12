@@ -5,7 +5,8 @@
 // Copyright 2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &end);
+bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &start);
+bool StartsWith(std::string const &s, const char *start);
 bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end);
 
 // Substitute is duplicated instead of templated as it was ambiguous when implemented as a template.
