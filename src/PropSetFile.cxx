@@ -465,7 +465,7 @@ bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
 	if (rcfile) {
 		fseek(rcfile, 0, SEEK_END);
 		long sizeFile = ftell(rcfile);
-		if (sizeFile == 0) {
+		if (sizeFile <= 0) {
 			fclose(rcfile);
 			return false;
 		}
