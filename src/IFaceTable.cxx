@@ -1933,10 +1933,15 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_V_COMMENT",1},
 	{"SCE_V_COMMENTLINE",2},
 	{"SCE_V_COMMENTLINEBANG",3},
+	{"SCE_V_COMMENT_WORD",20},
 	{"SCE_V_DEFAULT",0},
 	{"SCE_V_IDENTIFIER",11},
+	{"SCE_V_INOUT",23},
+	{"SCE_V_INPUT",21},
 	{"SCE_V_NUMBER",4},
 	{"SCE_V_OPERATOR",10},
+	{"SCE_V_OUTPUT",22},
+	{"SCE_V_PORT_CONNECT",24},
 	{"SCE_V_PREPROCESSOR",9},
 	{"SCE_V_STRING",6},
 	{"SCE_V_STRINGEOL",12},
@@ -3220,7 +3225,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 288,
-	ifaceConstantCount = 2569,
+	ifaceConstantCount = 2574,
 	ifacePropertyCount = 218
 };
 
