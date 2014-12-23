@@ -36,7 +36,7 @@ void SciTEWin::SetFileProperties(
 		ps.Set("FileDate", temp);
 
 		DWORD attr = ::GetFileAttributesW(filePath.AsInternal());
-		SString fa;
+		std::string fa;
 		if (attr & FILE_ATTRIBUTE_READONLY) {
 			fa += "R";
 		}

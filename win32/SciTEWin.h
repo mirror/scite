@@ -271,7 +271,7 @@ protected:
 	BOOL HandleReplaceCommand(int cmd, bool reverseDirection = false);
 
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning);
-	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0);
+	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = 0);
 	virtual void AboutDialog();
 	void DropFiles(HDROP hdrop);
 	void MinimizeToTray();

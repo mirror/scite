@@ -628,7 +628,7 @@ protected:
 	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
 
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style = mbsIconWarning);
-	virtual void FindMessageBox(const SString &msg, const std::string *findItem=0);
+	virtual void FindMessageBox(const std::string &msg, const std::string *findItem=0);
 	virtual void AboutDialog();
 	virtual void QuitProgram();
 
@@ -3205,7 +3205,7 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 	return static_cast<MessageBoxChoice>(messageBoxResult);
 }
 
-void SciTEGTK::FindMessageBox(const SString &msg, const std::string *findItem) {
+void SciTEGTK::FindMessageBox(const std::string &msg, const std::string *findItem) {
 	if (findItem == 0) {
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str());
 		WindowMessageBox(wSciTE, msgBuf);

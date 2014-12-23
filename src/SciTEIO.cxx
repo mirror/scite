@@ -539,7 +539,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	SetFileName(absPath);
 
 	propsDiscovered.Clear();
-	SString discoveryScript = props.GetExpanded("command.discover.properties");
+	std::string discoveryScript = props.GetExpandedString("command.discover.properties");
 	if (discoveryScript.length()) {
 		std::string propertiesText = CommandExecute(GUI::StringFromUTF8(discoveryScript.c_str()).c_str(),
 			absPath.Directory().AsInternal());
@@ -1314,7 +1314,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *search
 	FilePathSet files;
 	baseDir.List(directories, files);
 	size_t searchLength = strlen(searchString);
-	SString os;
+	std::string os;
 	for (size_t i = 0; i < files.size(); i ++) {
 		if (jobQueue.Cancelled())
 			return;

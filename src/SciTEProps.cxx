@@ -123,13 +123,13 @@ void SciTEBase::ReadGlobalPropFile() {
 		}
 	}
 
-	SString excludes;
-	SString includes;
+	std::string excludes;
+	std::string includes;
 
 	for (int attempt=0; attempt<2; attempt++) {
 
-		SString excludesRead = props.Get("imports.exclude");
-		SString includesRead = props.Get("imports.include");
+		std::string excludesRead = props.GetString("imports.exclude");
+		std::string includesRead = props.GetString("imports.include");
 		if ((attempt > 0) && ((excludesRead == excludes) && (includesRead == includes)))
 			break;
 
@@ -263,7 +263,7 @@ void SciTEBase::SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int s
 		if (style != STYLE_DEFAULT) {
 			char key[200];
 			sprintf(key, "style.%s.%0d", lang, style-start);
-			SString sval = props.GetExpanded(key);
+			std::string sval = props.GetExpandedString(key);
 			if (sval.length()) {
 				SetOneStyle(win, style, sval.c_str());
 			}
@@ -309,7 +309,7 @@ SString SciTEBase::ExtensionFileName() const {
 
 void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	if (props.Exists(key)) {
-		SString value = props.GetExpanded(key);
+		std::string value = props.GetExpandedString(key);
 		wEditor.CallString(SCI_SETPROPERTY,
 						 reinterpret_cast<uptr_t>(key), value.c_str());
 		wOutput.CallString(SCI_SETPROPERTY,
@@ -1548,11 +1548,11 @@ void SciTEBase::OpenProperties(int propsFile) {
 }
 
 // return the int value of the command name passed in.
-int SciTEBase::GetMenuCommandAsInt(SString commandName) {
+int SciTEBase::GetMenuCommandAsInt(std::string commandName) {
 	int i = IFaceTable::FindConstant(commandName.c_str());
 	if (i != -1) {
 		return IFaceTable::constants[i].value;
 	}
 	// Otherwise we might have entered a number as command to access a "SCI_" command
-	return commandName.value();
+	return atoi(commandName.c_str());
 }

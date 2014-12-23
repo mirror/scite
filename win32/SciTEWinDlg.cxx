@@ -83,28 +83,28 @@ static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
 }
 
 void SciTEWin::WarnUser(int warnID) {
-	SString warning;
+	std::string warning;
 	char *warn;
 	char flashDuration[10], sound[_MAX_PATH], soundDuration[10];
 
 	switch (warnID) {
 	case warnFindWrapped:
-		warning = props.Get("warning.findwrapped");
+		warning = props.GetString("warning.findwrapped");
 		break;
 	case warnNotFound:
-		warning = props.Get("warning.notfound");
+		warning = props.GetString("warning.notfound");
 		break;
 	case warnWrongFile:
-		warning = props.Get("warning.wrongfile");
+		warning = props.GetString("warning.wrongfile");
 		break;
 	case warnExecuteOK:
-		warning = props.Get("warning.executeok");
+		warning = props.GetString("warning.executeok");
 		break;
 	case warnExecuteKO:
-		warning = props.Get("warning.executeko");
+		warning = props.GetString("warning.executeko");
 		break;
 	case warnNoOtherBookmark:
-		warning = props.Get("warning.nootherbookmark");
+		warning = props.GetString("warning.nootherbookmark");
 		break;
 	default:
 		warning = "";
@@ -549,13 +549,12 @@ void SciTEWin::Print(
 	// Convert page size to logical units and we're done!
 	DPtoLP(hdc, (LPPOINT) &ptPage, 1);
 
-	SString headerFormat = props.Get("print.header.format");
-	SString footerFormat = props.Get("print.footer.format");
+	std::string headerFormat = props.GetString("print.header.format");
+	std::string footerFormat = props.GetString("print.footer.format");
 
 	TEXTMETRIC tm;
-	SString headerOrFooter;	// Usually the path, date and page number
 
-	SString headerStyle = props.Get("print.header.style");
+	std::string headerStyle = props.GetString("print.header.style");
 	StyleDefinition sdHeader(headerStyle.c_str());
 
 	int headerLineHeight = ::MulDiv(
@@ -573,7 +572,7 @@ void SciTEWin::Print(
 	::GetTextMetrics(hdc, &tm);
 	headerLineHeight = tm.tmHeight + tm.tmExternalLeading;
 
-	SString footerStyle = props.Get("print.footer.style");
+	std::string footerStyle = props.GetString("print.footer.style");
 	StyleDefinition sdFooter(footerStyle.c_str());
 
 	int footerLineHeight = ::MulDiv(
@@ -1317,7 +1316,7 @@ void SciTEWin::FindInFiles() {
 	}
 	props.Set("find.what", findWhat.c_str());
 
-	SString directory = props.Get("find.in.directory");
+	std::string directory = props.GetString("find.in.directory");
 	if (directory.length()) {
 		props.Set("find.directory", directory.c_str());
 	} else {
@@ -1668,7 +1667,7 @@ SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI
 	}
 }
 
-void SciTEWin::FindMessageBox(const SString &msg, const std::string *findItem) {
+void SciTEWin::FindMessageBox(const std::string &msg, const std::string *findItem) {
 	if (findItem == 0) {
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str());
 		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf);

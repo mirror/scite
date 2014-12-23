@@ -653,7 +653,7 @@ protected:
 	FilePath GetLocalPropertiesFileName();
 	FilePath GetAbbrevPropertiesFileName();
 	void OpenProperties(int propsFile);
-	static int GetMenuCommandAsInt(SString commandName);
+	static int GetMenuCommandAsInt(std::string commandName);
 	virtual void Print(bool) {}
 	virtual void PrintSetup() {}
 	virtual void UserStripShow(const char * /* description */) {}
@@ -696,7 +696,7 @@ protected:
 		mbsIconWarning = 0x30
 	};
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) = 0;
-	virtual void FindMessageBox(const SString &msg, const std::string *findItem = 0) = 0;
+	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = 0) = 0;
 	bool FindReplaceAdvanced() const;
 	int FindInTarget(std::string findWhatText, int startPosition, int endPosition);
 	virtual void SetFindText(const char *sFind);
