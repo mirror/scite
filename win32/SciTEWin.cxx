@@ -1383,7 +1383,11 @@ GUI::gui_string SciTEWin::ProcessArgs(const GUI::gui_char *cmdLine) {
 			args += GUI_TEXT("\n");
 		args += arg;
 		startArg = endArg;	// On a space or a double-quote, or on the end of the command line
-		if (*startArg) {
+		if (*startArg == '"') {	// Closing double-quote
+			startArg++;	// Consume the double-quote
+		}
+		while (IsASpace(*startArg)) {
+			// Consume spaces between arguments
 			startArg++;
 		}
 	}
