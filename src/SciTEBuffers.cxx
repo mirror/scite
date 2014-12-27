@@ -908,9 +908,9 @@ void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 }
 
 void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew) {
-	bool closingLast = false;
+	bool closingLast = true;
 	int index = buffers.Current();
-	if (index >= 0) {
+	if ((index >= 0) && buffers.initialised) {
 		buffers.buffers[index].CancelLoad();
 	}
 
@@ -981,7 +981,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		}
 	}
 
-	if (updateUI) {
+	if (updateUI && buffers.initialised) {
 		BuffersMenu();
 		UpdateStatusBar(true);
 	}
