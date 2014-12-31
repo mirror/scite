@@ -31,7 +31,7 @@ std::string ExtractLine(const char *buf, size_t length) {
 			endl++;
 		}
 	}
-	return std::string(buf, 0, endl);
+	return std::string(buf, endl);
 }
 
 static const char codingCookie[] = "coding";
