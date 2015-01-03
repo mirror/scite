@@ -244,7 +244,7 @@ void SciTEBase::CallChildren(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 
 std::string SciTEBase::GetTranslationToAbout(const char * const propname, bool retainIfNotFound) {
 #if !defined(GTK)
-	return GUI::UTF8FromString(localiser.Text(propname, retainIfNotFound)).c_str();
+	return GUI::UTF8FromString(localiser.Text(propname, retainIfNotFound));
 #else
 	// On GTK+, localiser.Text always converts to UTF-8.
 	return localiser.Text(propname, retainIfNotFound);
