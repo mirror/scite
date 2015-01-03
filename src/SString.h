@@ -219,7 +219,6 @@ public:
 	}
 	SString substr(lenpos_t subPos, lenpos_t subLen=measure_length) const;
 	SString &lowercase(lenpos_t subPos = 0, lenpos_t subLen=measure_length);
-	SString &uppercase(lenpos_t subPos = 0, lenpos_t subLen=measure_length);
 	SString &append(const char *sOther, lenpos_t sLenOther=measure_length, char sep = '\0');
 	SString &operator+=(const char *sOther) {
 		return append(sOther, static_cast<lenpos_t>(measure_length));

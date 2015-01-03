@@ -754,19 +754,6 @@ SString &SString::lowercase(lenpos_t subPos, lenpos_t subLen) {
 	return *this;
 }
 
-SString &SString::uppercase(lenpos_t subPos, lenpos_t subLen) {
-	if ((subLen == measure_length) || (subPos + subLen > sLen)) {
-		subLen = sLen - subPos;		// don't apply past end of string
-	}
-	for (lenpos_t i = subPos; i < subPos + subLen; i++) {
-		if (s[i] < 'a' || s[i] > 'z')
-			continue;
-		else
-			s[i] = static_cast<char>(s[i] - 'a' + 'A');
-	}
-	return *this;
-}
-
 SString &SString::append(const char *sOther, lenpos_t sLenOther, char sep) {
 	if (!sOther) {
 		return *this;
