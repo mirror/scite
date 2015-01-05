@@ -3373,9 +3373,9 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	int modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK);
 
 	int cmodifiers = // modifier mask for Lua extension
-		(event->state & GDK_SHIFT_MASK   ? SCMOD_SHIFT : 0) |
-		(event->state & GDK_CONTROL_MASK ? SCMOD_CTRL  : 0) |
-		(event->state & GDK_MOD1_MASK    ? SCMOD_ALT   : 0);
+		((event->state & GDK_SHIFT_MASK)   ? SCMOD_SHIFT : 0) |
+		((event->state & GDK_CONTROL_MASK) ? SCMOD_CTRL  : 0) |
+		((event->state & GDK_MOD1_MASK)    ? SCMOD_ALT   : 0);
 	if (extender && extender->OnKey(event->keyval, cmodifiers))
 		return 1;
 
