@@ -492,6 +492,8 @@ static const char *propertiesToForward[] = {
 	"lexer.tex.comment.process",
 	"lexer.tex.interface.default",
 	"lexer.tex.use.keywords",
+	"lexer.verilog.track.preprocessor",
+	"lexer.verilog.update.preprocessor",
 	"lexer.xml.allow.scripts",
 	"nsis.ignorecase",
 	"nsis.uservars",

@@ -2167,6 +2167,10 @@ NameError: mistake
 	<td>fold.sql.at.else</td>
 	<td>This option enables SQL folding on a "ELSE" and "ELSIF" line of an IF statement.</td>
 	</tr>
+	<tr id='property-fold.verilog.flags'>
+	<td>fold.verilog.flags</td>
+	<td>This option enables folding module definitions. Typically source files contain only one module definition so this option is somewhat useless.</td>
+	</tr>
 	<tr id='property-html.tags.case.sensitive'>
 	<td>html.tags.case.sensitive</td>
 	<td>For XML and HTML, setting this property to 1 will make tags match in a case sensitive way which is the expected behaviour for XML and XHTML.</td>
@@ -2290,6 +2294,14 @@ NameError: mistake
 	<tr id='property-lexer.sql.numbersign.comment'>
 	<td>lexer.sql.numbersign.comment</td>
 	<td>If "lexer.sql.numbersign.comment" property is set to 0 a line beginning with '#' will not be a comment.</td>
+	</tr>
+	<tr id='property-lexer.verilog.track.preprocessor'>
+	<td>lexer.verilog.track.preprocessor</td>
+	<td>Set to 1 to interpret `if/`else/`endif to grey out code that is not active.</td>
+	</tr>
+	<tr id='property-lexer.verilog.update.preprocessor'>
+	<td>lexer.verilog.update.preprocessor</td>
+	<td>Set to 1 to update preprocessor definitions when `define, `undef, or `undefineall found.</td>
 	</tr>
 	<tr id='property-lexer.xml.allow.scripts'>
 	<td>lexer.xml.allow.scripts</td>
