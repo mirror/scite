@@ -990,6 +990,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_HEX_RECCOUNT",7},
 	{"SCE_HEX_RECSTART",1},
 	{"SCE_HEX_RECTYPE",2},
+	{"SCE_HEX_RECTYPE_UNKNOWN",17},
 	{"SCE_HEX_STARTADDRESS",8},
 	{"SCE_HJA_COMMENT",57},
 	{"SCE_HJA_COMMENTDOC",59},
@@ -2481,6 +2482,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_TCL",25},
 	{"SCLEX_TCMD",103},
 	{"SCLEX_TEX",49},
+	{"SCLEX_THEX",119},
 	{"SCLEX_TXT2TAGS",99},
 	{"SCLEX_VB",8},
 	{"SCLEX_VBSCRIPT",28},
@@ -3230,7 +3232,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 288,
-	ifaceConstantCount = 2579,
+	ifaceConstantCount = 2581,
 	ifacePropertyCount = 218
 };
 
