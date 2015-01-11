@@ -828,13 +828,11 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 		SaveSessionFile(GUI_TEXT(""));
 	}
 
-	if (extender->NeedsOnClose()) {
+	if (extender && extender->NeedsOnClose()) {
 		// Ensure extender is told about each buffer closing
 		for (int k = 0; k < buffers.lengthVisible; k++) {
 			SetDocumentAt(k);
-			if (extender) {
-				extender->OnClose(filePath.AsUTF8().c_str());
-			}
+			extender->OnClose(filePath.AsUTF8().c_str());
 		}
 	}
 
