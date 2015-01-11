@@ -35,6 +35,7 @@ public:
 
 	virtual bool SendProperty(const char *prop);
 	virtual bool OnClose(const char *path);
+	virtual bool NeedsOnClose();
 
 	// Allow messages through to extension
 	void HandleStringMessage(const char *message);

@@ -253,3 +253,10 @@ bool MultiplexExtension::OnUserStrip(int control, int change) {
 	return false;
 }
 
+bool MultiplexExtension::NeedsOnClose() {
+	for (int i = 0; i < extensionCount; ++i) {
+		if (extensions[i]->NeedsOnClose())
+			return true;
+	}
+	return false;
+}

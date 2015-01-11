@@ -76,6 +76,7 @@ public:
 	virtual bool OnDwellStart(int, const char *) { return false; }
 	virtual bool OnClose(const char *) { return false; }
 	virtual bool OnUserStrip(int /* control */, int /* change */) { return false; }
+	virtual bool NeedsOnClose() { return true; }
 };
 
 #endif

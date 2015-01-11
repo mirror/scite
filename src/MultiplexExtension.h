@@ -74,6 +74,7 @@ public:
 	virtual bool OnDwellStart(int, const char *);
 	virtual bool OnClose(const char *);
 	virtual bool OnUserStrip(int control, int change);
+	virtual bool NeedsOnClose();
 
 private:
 	Extension **extensions;

@@ -298,6 +298,11 @@ bool DirectorExtension::OnClose(const char *path) {
 	return false;
 }
 
+bool DirectorExtension::NeedsOnClose() {
+	CheckEnvironment(host);
+	return s_send_cnt > 0;
+}
+
 bool DirectorExtension::OnChar(char) {
 	return false;
 }

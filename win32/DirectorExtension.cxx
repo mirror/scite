@@ -46,8 +46,12 @@ static bool startedByDirector = false;
 static bool shuttingDown = false;
 unsigned int SDI = 0;
 
+static bool HasConnection() {
+	return (wDirector != 0) || (wCorrespondent != 0);
+}
+
 static void SendDirector(const char *verb, const char *arg = 0) {
-	if ((wDirector != 0) || (wCorrespondent != 0)) {
+	if (HasConnection()) {
 		HWND wDestination = wCorrespondent;
 		std::string addressedMessage;
 		if (wDestination) {
@@ -214,6 +218,11 @@ bool DirectorExtension::OnClose(const char *path) {
 		::SendDirector("closed", path);
 	}
 	return false;
+}
+
+bool DirectorExtension::NeedsOnClose() {
+	CheckEnvironment(host);
+	return HasConnection();
 }
 
 bool DirectorExtension::OnChar(char) {

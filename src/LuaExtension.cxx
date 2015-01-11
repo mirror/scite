@@ -787,6 +787,16 @@ static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValu
 	return handled;
 }
 
+static bool HasNamedFunction(const char *name) {
+	bool hasFunction = false;
+	if (luaState) {
+		lua_getglobal(luaState, name);
+		hasFunction = lua_isfunction(luaState, -1);
+		lua_pop(luaState, 1);
+	}
+	return hasFunction;
+}
+
 static bool CallNamedFunction(const char *name) {
 	bool handled = false;
 	if (luaState) {
@@ -2060,4 +2070,8 @@ bool LuaExtension::OnClose(const char *filename) {
 
 bool LuaExtension::OnUserStrip(int control, int change) {
 	return CallNamedFunction("OnStrip", control, change);
+}
+
+bool LuaExtension::NeedsOnClose() {
+	return HasNamedFunction("OnClose");
 }
