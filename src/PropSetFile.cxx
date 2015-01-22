@@ -415,7 +415,7 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 		const char *expr = lineBuffer + strlen("if") + 1;
 		ifIsTrue = GetInt(expr) != 0;
 	} else if (isPrefix(lineBuffer, "import ") && directoryForImports.IsSet()) {
-		SString importName(lineBuffer + strlen("import") + 1);
+		std::string importName(lineBuffer + strlen("import") + 1);
 		if (importName == "*") {
 			// Import all .properties files in this directory except for system properties
 			FilePathSet directories;
@@ -430,7 +430,7 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 					Import(importPath, directoryForImports, filter, imports, depth+1);
 				}
 			}
-		} else if (filter.IsValid(importName.c_str())) {
+		} else if (filter.IsValid(importName)) {
 			importName += ".properties";
 			FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName.c_str())));
 			Import(importPath, directoryForImports, filter, imports, depth+1);
