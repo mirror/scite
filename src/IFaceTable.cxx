@@ -307,6 +307,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"INDICS_MASK",0xE0},
 	{"INDIC_BOX",6},
 	{"INDIC_COMPOSITIONTHICK",14},
+	{"INDIC_COMPOSITIONTHIN",15},
 	{"INDIC_CONTAINER",8},
 	{"INDIC_DASH",9},
 	{"INDIC_DIAGONAL",3},
@@ -3233,7 +3234,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 288,
-	ifaceConstantCount = 2582,
+	ifaceConstantCount = 2583,
 	ifacePropertyCount = 218
 };
 
