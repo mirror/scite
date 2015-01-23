@@ -165,29 +165,23 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 	int keyval = -1;
 
 	if (mnemonic && *mnemonic) {
-		SString sKey = mnemonic;
+		std::string sKey = mnemonic;
 
-		if (sKey.contains("Ctrl+")) {
+		if (RemoveStringOnce(sKey, "Ctrl+"))
 			modsInKey |= GDK_CONTROL_MASK;
-			sKey.remove("Ctrl+");
-		}
-		if (sKey.contains("Shift+")) {
+		if (RemoveStringOnce(sKey, "Shift+"))
 			modsInKey |= GDK_SHIFT_MASK;
-			sKey.remove("Shift+");
-		}
-		if (sKey.contains("Alt+")) {
+		if (RemoveStringOnce(sKey, "Alt+"))
 			modsInKey |= GDK_MOD1_MASK;
-			sKey.remove("Alt+");
-		}
 
 		if (sKey.length() == 1) {
 			if (modsInKey & GDK_CONTROL_MASK && !(modsInKey & GDK_SHIFT_MASK))
-				sKey.lowercase();
+				LowerCaseAZ(sKey);
 			keyval = sKey[0];
 		} else if ((sKey.length() > 1)) {
 			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
-				sKey.remove("F");
-				int fkeyNum = sKey.value();
+				sKey.erase(0, 1);
+				int fkeyNum = atoi(sKey.c_str());
 				if (fkeyNum >= 1 && fkeyNum <= 12)
 #if GTK_CHECK_VERSION(3,0,0)
 					keyval = fkeyNum - 1 + GDK_KEY_F1;
@@ -514,7 +508,7 @@ protected:
 	int inputHandle;
 	GIOChannel *inputChannel;
 	GUI::ElapsedTime commandTime;
-	SString lastOutput;
+	std::string lastOutput;
 	int lastFlags;
 
 	// For single instance
@@ -755,7 +749,7 @@ public:
 	void WarnUser(int warnID);
 	GtkWidget *AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon);
 	void AddToolBar();
-	SString TranslatePath(const char *path);
+	std::string TranslatePath(const char *path);
 	void CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 	                          int nRepeats = 0, const char *prefix = 0, int startNum = 0,
 	                          int startID = 0, const char *radioStart = 0);
@@ -1016,7 +1010,7 @@ void SciTEGTK::SetFileProperties(PropSetFile &ps) {
 	strftime(timeBuffer, sizeof(timeBuffer), "%X", localtime(&timeFileModified));
 	ps.Set("FileTime", timeBuffer);
 
-	SString fa;
+	std::string fa;
 	if (access(filePath.AsInternal(), W_OK)) {
 		fa += "R";
 	}
@@ -1159,7 +1153,7 @@ void SciTEGTK::Command(unsigned long wParam, long) {
 
 void SciTEGTK::ReadLocalization() {
 	SciTEBase::ReadLocalization();
-	SString encoding = localiser.Get("translation.encoding");
+	std::string encoding = localiser.GetString("translation.encoding");
 	if (encoding.length()) {
 		GIConv iconvh = g_iconv_open("UTF-8", encoding.c_str());
 		const char *key = NULL;
@@ -1295,26 +1289,26 @@ GtkWidget *SciTEGTK::MenuItemFromAction(int itemID) {
 		return it->second;
 }
 
-static SString GtkFromWinCaption(const char *text) {
-	SString sCaption(text);
+static std::string GtkFromWinCaption(const char *text) {
+	std::string sCaption(text);
 	// Escape underlines
-	sCaption.substitute("_", "__");
+	Substitute(sCaption, "_", "__");
 	// Replace Windows-style ampersands with GTK+ underlines
-	int posFound = sCaption.search("&");
-	while (posFound >= 0) {
-		SString nextChar = sCaption.substr(posFound + 1, 1);
+	size_t posFound = sCaption.find("&");
+	while (posFound != std::string::npos) {
+		std::string nextChar = sCaption.substr(posFound + 1, 1);
 		if (nextChar == "&") {
 			// Escaped, move on
 			posFound += 2;
 		} else {
-			sCaption.remove(posFound, 1);
+			sCaption.erase(posFound, 1);
 			sCaption.insert(posFound, "_", 1);
 			posFound += 1;
 		}
-		posFound = sCaption.search("&", posFound);
+		posFound = sCaption.find("&", posFound);
 	}
 	// Unescape ampersands
-	sCaption.substitute("&&", "&");
+	Substitute(sCaption, "&&", "&");
 	return sCaption;
 }
 
@@ -1324,7 +1318,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 	// On GTK+ the menuNumber and position are ignored as the menu item already exists and is in the right
 	// place so only needs to be shown and have its text set.
 
-	SString itemText = GtkFromWinCaption(text);
+	std::string itemText = GtkFromWinCaption(text);
 
 	long keycode = 0;
 	if (mnemonic && *mnemonic) {
@@ -1339,7 +1333,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 	}
 
 	// Reorder shift and ctrl indicators for compatibility with other menus
-	itemText.substitute("Ctrl+Shift+", "Shift+Ctrl+");
+	Substitute(itemText, "Ctrl+Shift+", "Shift+Ctrl+");
 
 	GtkWidget *item = MenuItemFromAction(itemID);
 	if (item) {
@@ -1505,15 +1499,15 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
 		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), directory.AsInternal());
 
-		SString openFilter = filter;
+		std::string openFilter = filter;
 		if (openFilter.length()) {
-			openFilter.substitute('|', '\0');
+			std::replace(openFilter.begin(), openFilter.end(), '|', '\0');
 			size_t start = 0;
 			while (start < openFilter.length()) {
 				const char *filterName = openFilter.c_str() + start;
 				GUI::gui_string localised = localiser.Text(filterName, false);
 				if (localised.length()) {
-					openFilter.remove(start, strlen(filterName));
+					openFilter.erase(start, strlen(filterName));
 					openFilter.insert(start, localised.c_str());
 				}
 				if (openFilter.c_str()[start] == '#') {
@@ -1522,8 +1516,8 @@ bool SciTEGTK::OpenDialog(FilePath directory, const char *filter) {
 					GtkFileFilter *filter = gtk_file_filter_new();
 					gtk_file_filter_set_name(filter, openFilter.c_str() + start);
 					start += strlen(openFilter.c_str() + start) + 1;
-					SString oneSet(openFilter.c_str() + start);
-					oneSet.substitute(';', '\0');
+					std::string oneSet(openFilter.c_str() + start);
+					std::replace(oneSet.begin(), oneSet.end(), ';', '\0');
 					size_t item = 0;
 					while (item < oneSet.length()) {
 						gtk_file_filter_add_pattern(filter, oneSet.c_str() + item);
@@ -1750,7 +1744,7 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 	frPrint.rcPage.right = width;
 	frPrint.rcPage.bottom = height;
 
-	SString headerFormat = props.Get("print.header.format");
+	std::string headerFormat = props.GetString("print.header.format");
 	if (headerFormat.size()) {
 		StyleDefinition sdHeader(props.Get("print.header.style").c_str());
 		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdHeader);
@@ -1761,7 +1755,7 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 		g_object_unref(layout);
 	}
 
-	SString footerFormat = props.Get("print.footer.format");
+	std::string footerFormat = props.GetString("print.footer.format");
 	if (footerFormat.size()) {
 		StyleDefinition sdFooter(props.Get("print.footer.style").c_str());
 		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdFooter);
@@ -1814,7 +1808,7 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 	sprintf(pageString, "%0d", page_nr + 1);
 	propsPrint.Set("CurrentPage", pageString);
 
-	SString headerFormat = props.Get("print.header.format");
+	std::string headerFormat = props.GetString("print.header.format");
 	if (headerFormat.size()) {
 		StyleDefinition sdHeader(props.Get("print.header.style").c_str());
 
@@ -1836,7 +1830,7 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 		cairo_stroke(cr);
 	}
 
-	SString footerFormat = props.Get("print.footer.format");
+	std::string footerFormat = props.GetString("print.footer.format");
 	if (footerFormat.size()) {
 		StyleDefinition sdFooter(props.Get("print.footer.style").c_str());
 
@@ -1901,7 +1895,7 @@ void SciTEGTK::Print(bool) {
 
 	g_object_unref(printOp);
 #else
-	SString printCommand = props.GetWild("command.print.", filePath.AsInternal());
+	std::string printCommand = props.GetWild("command.print.", filePath.AsInternal());
 	if (printCommand.length()) {
 		// Using a command to print
 		AddCommand(printCommand, "", SubsystemType("command.print.subsystem."));
@@ -2432,7 +2426,7 @@ void SciTEGTK::FindInFiles() {
 	props.Set("find.what", findWhat.c_str());
 
 	FilePath findInDir = filePath.Directory().AbsolutePath();
-	SString directory = props.Get("find.in.directory");
+	std::string directory = props.GetString("find.in.directory");
 	if (directory.length()) {
 		findInDir = FilePath(directory.c_str());
 	}
@@ -3135,7 +3129,7 @@ void SciTEGTK::DestroyFindReplace() {
 
 SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style) {
 	if (!messageBoxDialog) {
-		SString sMsg(msg.c_str());
+		std::string sMsg(msg.c_str());
 		dialogsOnScreen++;
 		GtkAccelGroup *accel_group = gtk_accel_group_new();
 
@@ -3640,24 +3634,24 @@ void SciTEGTK::AddToolBar() {
 	AddToolButton("Next Buffer", IDM_NEXTFILE, pixmap_new((gchar**)next_xpm));
 }
 
-SString SciTEGTK::TranslatePath(const char *path) {
+std::string SciTEGTK::TranslatePath(const char *path) {
 	if (path && path[0] == '/') {
-		SString spathTranslated;
-		SString spath(path, 1, strlen(path));
+		std::string spathTranslated;
+		std::string spath(path, 1, strlen(path));
 		spath.append("/");
-		int end = spath.search("/");
+		size_t end = spath.find("/");
 		while (spath.length() > 1) {
-			SString segment(spath.c_str(), 0, end);
+			std::string segment(spath.c_str(), 0, end);
 			GUI::gui_string segmentLocalised = localiser.Text(segment.c_str());
 			std::replace(segmentLocalised.begin(), segmentLocalised.end(), '/', '|');
 			spathTranslated.append("/");
 			spathTranslated.append(segmentLocalised.c_str());
-			spath.remove(0, end + 1);
-			end = spath.search("/");
+			spath.erase(0, end + 1);
+			end = spath.find("/");
 		}
 		return spathTranslated;
 	} else {
-		return path;
+		return path ? path : std::string();
 	}
 }
 
@@ -3677,23 +3671,23 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 
 	int dim = n + nRepeats;
 	SciTEItemFactoryEntry *translatedItems = new SciTEItemFactoryEntry[dim];
-	SString *translatedText = new SString[dim];
-	SString *translatedRadios = new SString[dim];
+	std::string *translatedText = new std::string[dim];
+	std::string *translatedRadios = new std::string[dim];
 	char **userDefinedAccels = new char*[n];
-	SString menuPath;
+	std::string menuPath;
 	int i = 0;
 
 	for (; i < n; i++) {
 		// Try to find user-defined accelerator key
 		menuPath = "menukey";			// menupath="menukey"
 		menuPath += items[i].path;		// menupath="menukey/File/Save _As..."
-		menuPath.remove("_");			// menupath="menukey/File/Save As..."
-		menuPath.remove(".");			// menupath="menukey/File/Save As"
-		menuPath.substitute('/', '.');	// menupath="menukey.File.Save As"
-		menuPath.substitute(' ', '_');	// menupath="menukey.File.Save_As"
-		menuPath.lowercase();			// menupath="menukey.file.save_as"
+		Substitute(menuPath, "_", "");		// menupath="menukey/File/Save As..."
+		Substitute(menuPath, ".", "");		// menupath="menukey/File/Save As"
+		Substitute(menuPath, "/", ".");		// menupath="menukey.File.Save As"
+		Substitute(menuPath, " ", "_");	// menupath="menukey.File.Save_As"
+		LowerCaseAZ(menuPath);		// menupath="menukey.file.save_as"
 
-		SString accelKey = props.Get(menuPath.c_str());
+		std::string accelKey = props.GetString(menuPath.c_str());
 
 		int accLength = accelKey.length();
 		if (accLength > 0) {
@@ -4699,7 +4693,7 @@ void UserStrip::SetDescription(const char *description) {
 		std::vector<UserControl> &uc = psd->controls[line];
 		for (size_t control=0; control<uc.size(); control++) {
 			UserControl *puc = &(uc[control]);
-			SString sCaption = GtkFromWinCaption(puc->text.c_str());
+			std::string sCaption = GtkFromWinCaption(puc->text.c_str());
 			switch (puc->controlType) {
 			case UserControl::ucEdit: {
 					WEntry we;
@@ -5194,7 +5188,7 @@ void SciTEGTK::SetStartupTime(const char *timestamp) {
 // it to present itself (ie. the window should come to the front)
 void SciTEGTK::SendFileName(int sendPipe, const char* filename) {
 
-	SString command;
+	std::string command;
 	const char *pipeData;
 
 	if (strlen(filename) != 0) {

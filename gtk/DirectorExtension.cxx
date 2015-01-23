@@ -162,7 +162,7 @@ static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, v
 #endif
 
 	if ((condition & G_IO_IN) == G_IO_IN) {
-		SString pipeString;
+		std::string pipeString;
 		char pipeData[8192];
 		gsize readLength;
 		GError *error = NULL;
@@ -186,7 +186,7 @@ static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, v
 static void SendDirector(const char *verb, const char *arg = 0) {
 	IF_DEBUG(fprintf(fdDebug, "SendDirector:(%s, %s):  fdDirector = %d\n", verb, arg, fdDirector))
 	if (s_send_cnt) {
-		SString addressedMessage;
+		std::string addressedMessage;
 		addressedMessage += verb;
 		addressedMessage += ":";
 		if (arg)
