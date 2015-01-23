@@ -625,7 +625,7 @@ protected:
 	virtual void Print(bool);
 	virtual void PrintSetup();
 
-	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
+	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
 
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style = mbsIconWarning);
 	virtual void FindMessageBox(const std::string &msg, const std::string *findItem=0);
@@ -1928,14 +1928,15 @@ void SciTEGTK::PrintSetup() {
 #endif
 }
 
-SString SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
+std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
 	int len = selEnd - selStart;
-	SBuffer allocation(len * 3);
+	if (len == 0)
+		return std::string();
+	std::string allocation(len * 3 + 1, 0);
 	win.Call(SCI_SETTARGETSTART, selStart);
 	win.Call(SCI_SETTARGETEND, selEnd);
-	int byteLength = win.Call(SCI_TARGETASUTF8, 0, reinterpret_cast<sptr_t>(allocation.ptr()));
-	SString sel(allocation);
-	sel.remove(byteLength, 0);
+	int byteLength = win.Call(SCI_TARGETASUTF8, 0, reinterpret_cast<sptr_t>(&allocation[0]));
+	std::string sel(allocation, 0, byteLength);
 	return sel;
 }
 

@@ -592,34 +592,34 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 
 // Returns true if editor should get the focus
 bool SciTEBase::OpenSelected() {
-	SString selName = SelectionFilename();
+	std::string selName = SelectionFilename();
 	if (selName.length() == 0) {
 		WarnUser(warnWrongFile);
 		return false;	// No selection
 	}
 
 #if !defined(GTK)
-	if (selName.startswith("http:") ||
-	        selName.startswith("https:") ||
-	        selName.startswith("ftp:") ||
-	        selName.startswith("ftps:") ||
-	        selName.startswith("news:") ||
-	        selName.startswith("mailto:")) {
-		std::string cmd = selName.string();
+	if (StartsWith(selName, "http:") ||
+		StartsWith(selName, "https:") ||
+		StartsWith(selName, "ftp:") ||
+		StartsWith(selName, "ftps:") ||
+		StartsWith(selName, "news:") ||
+		StartsWith(selName, "mailto:")) {
+		std::string cmd = selName;
 		AddCommand(cmd, "", jobShell);
 		return false;	// Job is done
 	}
 #endif
 
-	if (selName.startswith("file://")) {
-		selName.remove(0, 7);
+	if (StartsWith(selName, "file://")) {
+		selName.erase(0, 7);
 		if (selName[0] == '/' && selName[2] == ':') { // file:///C:/filename.ext
-			selName.remove(0, 1);
+			selName.erase(0, 1);
 		}
 	}
 
-	SString fileNameForExtension = ExtensionFileName();
-	SString openSuffix = props.GetNewExpand("open.suffix.", fileNameForExtension.c_str());
+	std::string fileNameForExtension = ExtensionFileName();
+	std::string openSuffix = props.GetNewExpandString("open.suffix.", fileNameForExtension.c_str());
 	selName += openSuffix;
 
 	if (EqualCaseInsensitive(selName.c_str(), FileNameExt().AsUTF8().c_str()) || EqualCaseInsensitive(selName.c_str(), filePath.AsUTF8().c_str())) {
@@ -630,7 +630,7 @@ bool SciTEBase::OpenSelected() {
 	std::string cTag;
 	unsigned long lineNumber = 0;
 	if (IsPropertiesFile(filePath) &&
-	        !selName.contains('.')) {
+	        (selName.find('.') == std::string::npos)) {
 		// We are in a properties file and try to open a file without extension,
 		// we suppose we want to open an imported .properties file
 		// So we append the correct extension to open the included file.
@@ -641,17 +641,17 @@ bool SciTEBase::OpenSelected() {
 		// A bit of duplicate work with DecodeMessage, but we don't know
 		// here the format of the line, so we do guess work.
 		// Can't do much for space separated line numbers anyway...
-		int endPath = selName.search("(");
-		if (endPath >= 0) {	// Visual Studio error message: F:\scite\src\SciTEBase.h(312):	bool Exists(
+		size_t endPath = selName.find("(");
+		if (endPath != std::string::npos) {	// Visual Studio error message: F:\scite\src\SciTEBase.h(312):	bool Exists(
 			lineNumber = atol(selName.c_str() + endPath + 1);
 		} else {
-			endPath = selName.search(":", 2);	// Skip Windows' drive separator
-			if (endPath >= 0) {	// grep -n line, perhaps gcc too: F:\scite\src\SciTEBase.h:312:	bool Exists(
+			endPath = selName.find(":", 2);	// Skip Windows' drive separator
+			if (endPath != std::string::npos) {	// grep -n line, perhaps gcc too: F:\scite\src\SciTEBase.h:312:	bool Exists(
 				lineNumber = atol(selName.c_str() + endPath + 1);
 			}
 		}
 		if (lineNumber > 0) {
-			selName.remove(endPath, 0);
+			selName.erase(endPath);
 		}
 
 		// Support the ctags format

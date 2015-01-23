@@ -665,17 +665,16 @@ protected:
 	SelectedRange GetSelectedRange();
 	void SetSelection(int anchor, int currentPos);
 	std::string GetCTag();
-	static SString GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	static std::string GetRangeString(GUI::ScintillaWindow &win, int selStart, int selEnd);
-	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
+	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
 	static std::string GetLine(GUI::ScintillaWindow &win, int line);
 	void RangeExtend(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,
 		bool (SciTEBase::*ischarforsel)(char ch));
-	SString RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,
+	std::string RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, int &selStart, int &selEnd,
 		bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
-	SString SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
-	SString SelectionWord(bool stripEol = true);
-	SString SelectionFilename();
+	std::string SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
+	std::string SelectionWord(bool stripEol = true);
+	std::string SelectionFilename();
 	void SelectionIntoProperties();
 	void SelectionIntoFind(bool stripEol = true);
 	virtual std::string EncodeString(const std::string &s);
@@ -856,7 +855,7 @@ protected:
 	void ReadFontProperties();
 	void SetOverrideLanguage(int cmdID);
 	StyleAndWords GetStyleAndWords(const char *base);
-	SString ExtensionFileName() const;
+	std::string ExtensionFileName() const;
 	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
 	void DefineMarker(int marker, int markerType, Colour fore, Colour back, Colour backSelected);

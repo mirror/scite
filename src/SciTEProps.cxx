@@ -286,23 +286,22 @@ void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const 
 	win.Call(SCI_INDICSETUNDER, indicator, ind.under);
 }
 
-SString SciTEBase::ExtensionFileName() const {
+std::string SciTEBase::ExtensionFileName() const {
 	if (CurrentBuffer()->overrideExtension.length()) {
-		return CurrentBuffer()->overrideExtension.c_str();
+		return CurrentBuffer()->overrideExtension;
 	} else {
 		FilePath name = FileNameExt();
 		if (name.IsSet()) {
-			// Force extension to lower case
-			SString fileNameWithLowerCaseExtension = name.AsUTF8().c_str();
 #if !defined(GTK)
-			const char *extension = strrchr(fileNameWithLowerCaseExtension.c_str(), '.');
-			if (extension) {
-				fileNameWithLowerCaseExtension.lowercase(extension - fileNameWithLowerCaseExtension.c_str());
-			}
+			// Force extension to lower case
+			std::string extension = name.Extension().AsUTF8();
+			LowerCaseAZ(extension);
+			return name.BaseName().AsUTF8() + "." + extension;
+#else
+			return name.AsUTF8();
 #endif
-			return fileNameWithLowerCaseExtension;
 		} else {
-			return props.Get("default.file.ext");
+			return props.GetString("default.file.ext");
 		}
 	}
 }
@@ -612,7 +611,7 @@ void SciTEBase::ReadProperties() {
 	if (extender)
 		extender->Clear();
 
-	SString fileNameForExtension = ExtensionFileName();
+	std::string fileNameForExtension = ExtensionFileName();
 
 	SString modulePath = props.GetNewExpand("lexerpath.",
 	    fileNameForExtension.c_str());

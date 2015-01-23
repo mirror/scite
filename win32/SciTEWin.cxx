@@ -54,38 +54,32 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 	int keyval = -1;
 
 	if (mnemonic && *mnemonic) {
-		SString sKey = mnemonic;
+		std::string sKey = mnemonic;
 
-		if (sKey.contains("Ctrl+")) {
+		if (RemoveStringOnce(sKey, "Ctrl+"))
 			modsInKey |= SCMOD_CTRL;
-			sKey.remove("Ctrl+");
-		}
-		if (sKey.contains("Shift+")) {
+		if (RemoveStringOnce(sKey, "Shift+"))
 			modsInKey |= SCMOD_SHIFT;
-			sKey.remove("Shift+");
-		}
-		if (sKey.contains("Alt+")) {
+		if (RemoveStringOnce(sKey, "Alt+"))
 			modsInKey |= SCMOD_ALT;
-			sKey.remove("Alt+");
-		}
 
 		if (sKey.length() == 1) {
 			keyval = VkKeyScan(sKey[0]) & 0xFF;
 		} else if (sKey.length() > 1) {
 			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
-				sKey.remove("F");
-				int fkeyNum = sKey.value();
+				sKey.erase(0, 1);
+				int fkeyNum = atoi(sKey.c_str());
 				if (fkeyNum >= 1 && fkeyNum <= 12)
 					keyval = fkeyNum - 1 + VK_F1;
 			} else if ((sKey[0] == 'V') && (isdigit(sKey[1]))) {
-				sKey.remove("V");
-				int vkey = sKey.value();
+				sKey.erase(0, 1);
+				int vkey = atoi(sKey.c_str());
 				if (vkey > 0 && vkey <= 0x7FFF)
 					keyval = vkey;
-			} else if (sKey.search("Keypad") == 0) {
-				sKey.remove("Keypad");
+			} else if (sKey.find("Keypad") == 0) {
+				sKey.erase(0, strlen("Keypad"));
 				if (isdigit(sKey[0])) {
-					int keyNum = sKey.value();
+					int keyNum = atoi(sKey.c_str());
 					if (keyNum >= 0 && keyNum <= 9)
 						keyval = keyNum + VK_NUMPAD0;
 				} else if (sKey == "Plus") {
@@ -845,8 +839,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	// if jobCLI "System can't find" - try calling with command processor
 	if ((!running) && (jobToRun.jobType == jobCLI) && (::GetLastError() == ERROR_FILE_NOT_FOUND)) {
 
-		SString runComLine = "cmd.exe /c ";
-		runComLine = runComLine.append(jobToRun.command.c_str());
+		std::string runComLine = "cmd.exe /c ";
+		runComLine = runComLine.append(jobToRun.command);
 
 		running = ::CreateProcessW(
 			  NULL,
@@ -864,7 +858,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 		bool cancelled = false;
 
-		SString repSelBuf;
+		std::string repSelBuf;
 
 		size_t totalBytesToWrite = 0;
 		if (jobToRun.flags & jobHasInput) {
@@ -1140,7 +1134,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 	}
 	DWORD rc = GetLastError();
 
-	SString errormsg("Error while launching:\n\"");
+	std::string errormsg("Error while launching:\n\"");
 	errormsg += mycmdcopy;
 	if (myparams != NULL) {
 		errormsg += "\" with Params:\n\"";
@@ -1205,7 +1199,8 @@ void SciTEWin::StopExecute() {
 		if (!GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, subProcessGroupId)) {
 			LONG errCode = GetLastError();
 			OutputAppendStringSynchronised("\n>BREAK Failed ");
-			OutputAppendStringSynchronised(SString(errCode).c_str());
+			std::string sError = StdStringFromInteger(errCode);
+			OutputAppendStringSynchronised(sError.c_str());
 			OutputAppendStringSynchronised("\n");
 		}
 		Sleep(100L);
@@ -1599,9 +1594,9 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 			OpenDialog(fpArg.Directory(), wildcard.c_str());
 		} else if (!fpArg.Extension().IsSet()) {
 			// if the filename has no extension, try to match a file with list of standard extensions
-			SString extensions = props.GetExpanded("source.default.extensions");
+			std::string extensions = props.GetExpandedString("source.default.extensions");
 			if (extensions.length()) {
-				extensions.substitute('|', '\0');
+				std::replace(extensions.begin(), extensions.end(), '|', '\0');
 				size_t start = 0;
 				while (start < extensions.length()) {
 					GUI::gui_string filterName = GUI::StringFromUTF8(extensions.c_str() + start);
@@ -2090,8 +2085,8 @@ std::string SciTEWin::EncodeString(const std::string &s) {
 }
 
 // Convert String from doc encoding to UTF-8
-SString SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
-	SString s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
+std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
+	std::string s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
 	UINT codePageDocument = wEditor.Call(SCI_GETCODEPAGE);
 
@@ -2099,7 +2094,7 @@ SString SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, 
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
 		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), codePageDocument);
 		std::string sMulti = StringEncode(sWide, CP_UTF8);
-		return SString(sMulti.c_str(), 0, sMulti.length());
+		return std::string(sMulti.c_str(), 0, sMulti.length());
 	}
 	return s;
 }

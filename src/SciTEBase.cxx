@@ -262,7 +262,7 @@ void SciTEBase::ViewWhitespace(bool view) {
 
 StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 	StyleAndWords sw;
-	SString fileNameForExtension = ExtensionFileName();
+	std::string fileNameForExtension = ExtensionFileName();
 	SString sAndW = props.GetNewExpand(base, fileNameForExtension.c_str());
 	sw.styleNumber = sAndW.value();
 	const char *space = strchr(sAndW.c_str(), ' ');
@@ -726,10 +726,9 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	int selStart = wCurrent.Call(SCI_GETSELECTIONSTART);
 	int selEnd = wCurrent.Call(SCI_GETSELECTIONEND);
 	bool noUserSelection = selStart == selEnd;
-	SString sWordToFind = RangeExtendAndGrab(wCurrent, selStart, selEnd,
+	std::string sWordToFind = RangeExtendAndGrab(wCurrent, selStart, selEnd,
 	        &SciTEBase::islexerwordcharforsel);
-	if (sWordToFind.length() == 0 || sWordToFind.contains('\n') ||
-		sWordToFind.contains('\r') || sWordToFind.contains(' '))
+	if (sWordToFind.length() == 0 || (sWordToFind.find_first_of("\n\r ") != std::string::npos))
 		return; // No highlight when no selection or multi-lines selection.
 	if (noUserSelection && currentWordHighlight.statesOfDelay == currentWordHighlight.noDelay) {
 		// Manage delay before highlight when no user selection but there is word at the caret.
@@ -744,22 +743,12 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 		selectedStyle = -1;
 
 	// Manage word with DBCS.
-	const std::string wordToFind = EncodeString(sWordToFind.string());
+	const std::string wordToFind = EncodeString(sWordToFind);
 
 	matchMarker.StartMatch(&wCurrent, wordToFind,
 		SCFIND_MATCHCASE | SCFIND_WHOLEWORD, selectedStyle,
 		indicatorHighlightCurrentWord, -1);
 	SetIdler(true);
-}
-
-SString SciTEBase::GetRange(GUI::ScintillaWindow &win, int selStart, int selEnd) {
-	SBuffer sel(selEnd - selStart);
-	Sci_TextRange tr;
-	tr.chrg.cpMin = selStart;
-	tr.chrg.cpMax = selEnd;
-	tr.lpstrText = sel.ptr();
-	win.SendPointer(SCI_GETTEXTRANGE, 0, &tr);
-	return SString(sel);
 }
 
 std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, int selStart, int selEnd) {
@@ -772,8 +761,8 @@ std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, int selStart, i
 	return sel.substr(0, sel.length()-1);
 }
 
-SString SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
-	return GetRange(win, selStart, selEnd);
+std::string SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
+	return GetRangeString(win, selStart, selEnd);
 }
 
 std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, int line) {
@@ -805,7 +794,7 @@ void SciTEBase::RangeExtend(
 	}
 }
 
-SString SciTEBase::RangeExtendAndGrab(
+std::string SciTEBase::RangeExtendAndGrab(
     GUI::ScintillaWindow &wCurrent,
     int &selStart,
     int &selEnd,
@@ -813,7 +802,7 @@ SString SciTEBase::RangeExtendAndGrab(
     bool stripEol /*=true*/) {
 
 	RangeExtend(wCurrent, selStart, selEnd, ischarforsel);
-	SString selected;
+	std::string selected;
 	if (selStart != selEnd) {
 		selected = GetRangeInUIEncoding(wCurrent, selStart, selEnd);
 	}
@@ -822,9 +811,9 @@ SString SciTEBase::RangeExtendAndGrab(
 		// Remove possible terminating \r, \n, or \r\n.
 		size_t sellen = selected.length();
 		if (sellen >= 2 && (selected[sellen - 2] == '\r' && selected[sellen - 1] == '\n')) {
-			selected.remove(sellen - 2, 0);
+			selected.erase(sellen - 2);
 		} else if (sellen >= 1 && (selected[sellen - 1] == '\r' || selected[sellen - 1] == '\n')) {
-			selected.remove(sellen - 1, 0);
+			selected.erase(sellen - 1);
 		}
 	}
 
@@ -839,7 +828,7 @@ SString SciTEBase::RangeExtendAndGrab(
  * Remove the last two character controls from the result, as they are likely
  * to be CR and/or LF.
  */
-SString SciTEBase::SelectionExtend(
+std::string SciTEBase::SelectionExtend(
     bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
     bool stripEol /*=true*/) {
 
@@ -850,19 +839,19 @@ SString SciTEBase::SelectionExtend(
 	return RangeExtendAndGrab(wCurrent, selStart, selEnd, ischarforsel, stripEol);
 }
 
-SString SciTEBase::SelectionWord(bool stripEol /*=true*/) {
+std::string SciTEBase::SelectionWord(bool stripEol /*=true*/) {
 	return SelectionExtend(&SciTEBase::islexerwordcharforsel, stripEol);
 }
 
-SString SciTEBase::SelectionFilename() {
+std::string SciTEBase::SelectionFilename() {
 	return SelectionExtend(&SciTEBase::isfilenamecharforsel);
 }
 
 void SciTEBase::SelectionIntoProperties() {
-	SString currentSelection = SelectionExtend(0, false);
+	std::string currentSelection = SelectionExtend(0, false);
 	props.Set("CurrentSelection", currentSelection.c_str());
 
-	SString word = SelectionWord();
+	std::string word = SelectionWord();
 	props.Set("CurrentWord", word.c_str());
 
 	int selStart = CallFocused(SCI_GETSELECTIONSTART);
@@ -874,11 +863,11 @@ void SciTEBase::SelectionIntoProperties() {
 }
 
 void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
-	SString sel = SelectionWord(stripEol);
-	if (sel.length() && !sel.contains('\r') && !sel.contains('\n')) {
+	std::string sel = SelectionWord(stripEol);
+	if (sel.length() && (sel.find_first_of("\r\n") == std::string::npos)) {
 		// The selection does not include a new line, so is likely to be
 		// the expression to search...
-		findWhat = sel.string();
+		findWhat = sel;
 		if (unSlash) {
 			char *slashedFind = Slash(findWhat.c_str(), false);
 			if (slashedFind) {
@@ -1981,7 +1970,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 }
 
 bool SciTEBase::StartBlockComment() {
-	SString fileNameForExtension = ExtensionFileName();
+	std::string fileNameForExtension = ExtensionFileName();
 	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString base("comment.block.");
 	SString comment_at_line_start("comment.block.at.line.start.");
@@ -2020,13 +2009,13 @@ bool SciTEBase::StartBlockComment() {
 		if (!placeCommentsAtLineStart) {
 			lineIndent = GetLineIndentPosition(i);
 		}
-		SString linebuf = GetRange(wEditor, lineIndent, lineEnd);
+		std::string linebuf = GetRangeString(wEditor, lineIndent, lineEnd);
 		// empty lines are not commented
 		if (linebuf.length() < 1)
 			continue;
-		if (linebuf.startswith(comment.c_str())) {
+		if (StartsWith(linebuf, comment.c_str())) {
 			int commentLength = static_cast<int>(comment.length());
-			if (linebuf.startswith(long_comment.c_str())) {
+			if (StartsWith(linebuf, long_comment.c_str())) {
 				// Removing comment with space after it.
 				commentLength = static_cast<int>(long_comment.length());
 			}
@@ -2075,7 +2064,7 @@ static const char *LineEndString(int eolMode) {
 
 bool SciTEBase::StartBoxComment() {
 	// Get start/middle/end comment strings from options file(s)
-	SString fileNameForExtension = ExtensionFileName();
+	std::string fileNameForExtension = ExtensionFileName();
 	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString start_base("comment.box.start.");
 	SString middle_base("comment.box.middle.");
@@ -2207,7 +2196,7 @@ bool SciTEBase::StartBoxComment() {
 }
 
 bool SciTEBase::StartStreamComment() {
-	SString fileNameForExtension = ExtensionFileName();
+	std::string fileNameForExtension = ExtensionFileName();
 	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
 	SString start_base("comment.stream.start.");
 	SString end_base("comment.stream.end.");
@@ -4012,7 +4001,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 	case SCN_DWELLSTART:
 		if (extender && (INVALID_POSITION != notification->position)) {
 			int endWord = notification->position;
-			SString message =
+			std::string message =
 				RangeExtendAndGrab(wEditor,
 					notification->position, endWord, &SciTEBase::iswordcharforsel);
 			if (message.length()) {

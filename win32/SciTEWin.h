@@ -387,7 +387,7 @@ public:
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	virtual std::string EncodeString(const std::string &s);
-	virtual SString GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
+	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
 
 	HACCEL GetAcceleratorTable() {
 		return hAccTable;

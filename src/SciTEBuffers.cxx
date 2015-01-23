@@ -803,7 +803,7 @@ void SciTEBase::SetIndentSettings() {
 	int tabSize = props.GetInt("tabsize");
 	int indentSize = props.GetInt("indent.size");
 	// Either set the settings related to the extension or the default ones
-	SString fileNameForExtension = ExtensionFileName();
+	std::string fileNameForExtension = ExtensionFileName();
 	SString useTabsChars = props.GetNewExpand("use.tabs.",
 	        fileNameForExtension.c_str());
 	if (useTabsChars.length() != 0) {
