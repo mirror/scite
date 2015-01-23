@@ -18,6 +18,8 @@ int Remove(T &s, const T &sFind) {
 	return Substitute(s, sFind, T());
 }
 
+bool RemoveStringOnce(std::string &s, const char *marker);
+
 std::string StdStringFromInteger(int i);
 std::string StdStringFromSizeT(size_t i);
 std::string StdStringFromDouble(double d, int precision);

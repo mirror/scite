@@ -62,6 +62,15 @@ int Substitute(std::string &s, const std::string &sFind, const std::string &sRep
 	return c;
 }
 
+bool RemoveStringOnce(std::string &s, const char *marker) {
+	size_t modText = s.find(marker);
+	if (modText != std::string::npos) {
+		s.erase(modText, strlen(marker));
+		return true;
+	}
+	return false;
+}
+
 std::string StdStringFromInteger(int i) {
 	char number[32];
 	sprintf(number, "%0d", i);
