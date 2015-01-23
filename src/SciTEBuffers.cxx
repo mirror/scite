@@ -804,31 +804,31 @@ void SciTEBase::SetIndentSettings() {
 	int indentSize = props.GetInt("indent.size");
 	// Either set the settings related to the extension or the default ones
 	std::string fileNameForExtension = ExtensionFileName();
-	SString useTabsChars = props.GetNewExpand("use.tabs.",
+	std::string useTabsChars = props.GetNewExpandString("use.tabs.",
 	        fileNameForExtension.c_str());
 	if (useTabsChars.length() != 0) {
-		wEditor.Call(SCI_SETUSETABS, useTabsChars.value());
+		wEditor.Call(SCI_SETUSETABS, atoi(useTabsChars.c_str()));
 	} else {
 		wEditor.Call(SCI_SETUSETABS, useTabs);
 	}
-	SString tabSizeForExt = props.GetNewExpand("tab.size.",
+	std::string tabSizeForExt = props.GetNewExpandString("tab.size.",
 	        fileNameForExtension.c_str());
 	if (tabSizeForExt.length() != 0) {
-		wEditor.Call(SCI_SETTABWIDTH, tabSizeForExt.value());
+		wEditor.Call(SCI_SETTABWIDTH, atoi(tabSizeForExt.c_str()));
 	} else if (tabSize != 0) {
 		wEditor.Call(SCI_SETTABWIDTH, tabSize);
 	}
-	SString indentSizeForExt = props.GetNewExpand("indent.size.",
+	std::string indentSizeForExt = props.GetNewExpandString("indent.size.",
 	        fileNameForExtension.c_str());
 	if (indentSizeForExt.length() != 0) {
-		wEditor.Call(SCI_SETINDENT, indentSizeForExt.value());
+		wEditor.Call(SCI_SETINDENT, atoi(indentSizeForExt.c_str()));
 	} else {
 		wEditor.Call(SCI_SETINDENT, indentSize);
 	}
 }
 
 void SciTEBase::SetEol() {
-	SString eol_mode = props.Get("eol.mode");
+	std::string eol_mode = props.GetString("eol.mode");
 	if (eol_mode == "LF") {
 		wEditor.Call(SCI_SETEOLMODE, SC_EOL_LF);
 	} else if (eol_mode == "CR") {
