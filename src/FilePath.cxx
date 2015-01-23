@@ -197,7 +197,7 @@ FilePath FilePath::BaseName() const {
 FilePath FilePath::Extension() const {
 	size_t dirEnd = fileName.rfind(pathSepChar);
 	size_t extStart = fileName.rfind('.');
-	if ((extStart != GUI::gui_string::npos) && (extStart > dirEnd))
+	if ((extStart != GUI::gui_string::npos) && ((dirEnd == GUI::gui_string::npos) || (extStart > dirEnd)))
 		return fileName.substr(extStart + 1);
 	else
 		return GUI_TEXT("");
