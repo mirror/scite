@@ -847,10 +847,12 @@ NameError: mistake
       <a name="property-import"></a>
        The 'import' statement includes a properties file as if the text were
        inline at that point. The imported properties file
-       must be in the same directory as the current file and a properties
-       extension is assumed. Therefore a "import Lua" statement in
+       is either relative to the base file or absolute and a '.properties'
+       extension is assumed. Therefore an "import Lua" statement in
        c:\os\scite\bin\SciTEGlobal.properties will import
        c:\os\scite\bin\Lua.properties.
+       Any import statements in imported files are relative to directory of the original file,
+       rather than the current file.
     </p>
     <p>
        All of the properties files in a directory can be imported with "import *".
@@ -860,7 +862,7 @@ NameError: mistake
     </p>
     <p>
        Imported files are not scope walls: properties may be redefined in another file.
-       Thus, if a file contains both "import cplusplus", "import java", and "style.cpp.1=fore:$(comment.colour)" then 
+       Thus, if a file contains both "import cplusplus", "import java", and "style.cpp.1=fore:$(comment.colour)" then
        cplusplus.properties contains "comment.colour=#800000" and java.properties contains
        "comment.colour=#008000" then the last definition wins and is active for the definitions in the base
        file as well as any definitions in cplusplus.properties and java.properties.
