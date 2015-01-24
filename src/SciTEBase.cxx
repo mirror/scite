@@ -1436,10 +1436,10 @@ void SciTEBase::Redraw() {
 	wOutput.InvalidateAll();
 }
 
-char *SciTEBase::GetNearestWords(const char *wordStart, size_t searchLen,
+std::string SciTEBase::GetNearestWords(const char *wordStart, size_t searchLen,
 		const char *separators, bool ignoreCase /*=false*/, bool exactLen /*=false*/) {
-	char *words = 0;
-	while (!words && *separators) {
+	std::string words;
+	while (words.empty() && *separators) {
 		words = apis.GetNearestWords(wordStart, searchLen, ignoreCase, *separators, exactLen);
 		separators++;
 	}
@@ -1451,23 +1451,17 @@ void SciTEBase::FillFunctionDefinition(int pos /*= -1*/) {
 		lastPosCallTip = pos;
 	}
 	if (apis) {
-		char *words = GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
+		std::string words = GetNearestWords(currentCallTipWord.c_str(), currentCallTipWord.length(),
 			calltipParametersStart.c_str(), callTipIgnoreCase, true);
-		if (!words)
+		if (words.empty())
 			return;
 		// Counts how many call tips
-		const char *spacePos = strchr(words, ' ');
-		maxCallTips = 1;
-		while (spacePos) {
-			maxCallTips++;
-			spacePos = strchr(spacePos + 1, ' ');
-		}
-		delete []words;
+		maxCallTips = std::count(words.begin(), words.end(), ' ') + 1;
 
 		// Should get current api definition
-		const char *word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),
+		std::string word = apis.GetNearestWord(currentCallTipWord.c_str(), currentCallTipWord.length(),
 		        callTipIgnoreCase, calltipWordCharacters, currentCallTip);
-		if (word) {
+		if (word.length()) {
 			functionDefinition = word;
 			if (maxCallTips > 1) {
 				functionDefinition.insert(0, "\001");
@@ -1599,14 +1593,14 @@ void SciTEBase::ContinueCallTip() {
 	wEditor.Call(SCI_CALLTIPSETHLT, startHighlight, endHighlight);
 }
 
-void SciTEBase::EliminateDuplicateWords(char *words) {
+void SciTEBase::EliminateDuplicateWords(std::string &words) {
 	std::set<std::string> wordSet;
-	std::vector<char> wordsOut(strlen(words) + 1);
+	std::vector<char> wordsOut(words.length() + 1);
 	char *wordsWrite = &wordsOut[0];
 
-	char *wordCurrent = words;
+	const char *wordCurrent = words.c_str();
 	while (*wordCurrent) {
-		char *afterWord = strchr(wordCurrent, ' ');
+		const char *afterWord = strchr(wordCurrent, ' ');
 		if (!afterWord)
 			afterWord = wordCurrent + strlen(wordCurrent);
 		std::string word(wordCurrent, afterWord);
@@ -1623,7 +1617,7 @@ void SciTEBase::EliminateDuplicateWords(char *words) {
 	}
 
 	*wordsWrite = '\0';
-	strcpy(words, &wordsOut[0]);
+	words = &wordsOut[0];
 }
 
 bool SciTEBase::StartAutoComplete() {
@@ -1640,13 +1634,12 @@ bool SciTEBase::StartAutoComplete() {
 
 	std::string root = line.substr(startword, current - startword);
 	if (apis) {
-		char *words = GetNearestWords(root.c_str(), root.length(),
+		std::string words = GetNearestWords(root.c_str(), root.length(),
 			calltipParametersStart.c_str(), autoCompleteIgnoreCase);
-		if (words) {
+		if (words.length()) {
 			EliminateDuplicateWords(words);
 			wEditor.Call(SCI_AUTOCSETSEPARATOR, ' ');
-			wEditor.CallString(SCI_AUTOCSHOW, root.length(), words);
-			delete []words;
+			wEditor.CallString(SCI_AUTOCSHOW, root.length(), words.c_str());
 		}
 	}
 	return true;
@@ -1718,15 +1711,13 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		std::replace(wordsNear.begin(), wordsNear.end(), ' ', '\001');
 		StringList wl(true);
 		wl.Set(wordsNear.c_str());
-		char *words = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
-		std::string acText(words);
+		std::string acText = wl.GetNearestWords("", 0, autoCompleteIgnoreCase);
 		// Use \n as word separator
 		std::replace(acText.begin(), acText.end(), ' ', '\n');
 		// Return spaces from \001
 		std::replace(acText.begin(), acText.end(), '\001', ' ');
 		wEditor.Call(SCI_AUTOCSETSEPARATOR, '\n');
 		wEditor.CallString(SCI_AUTOCSHOW, root.length(), acText.c_str());
-		delete []words;
 	} else {
 		wEditor.Call(SCI_AUTOCCANCEL);
 	}
@@ -2729,11 +2720,10 @@ void SciTEBase::CharAddedOutput(int ch) {
 			}
 			StringList symList;
 			symList.Set(symbols.c_str());
-			char *words = symList.GetNearestWords("", 0, true);
-			if (words) {
+			std::string words = symList.GetNearestWords("", 0, true);
+			if (words.length()) {
 				wEditor.Call(SCI_AUTOCSETSEPARATOR, ' ');
-				wOutput.CallString(SCI_AUTOCSHOW, 0, words);
-				delete []words;
+				wOutput.CallString(SCI_AUTOCSHOW, 0, words.c_str());
 			}
 		}
 	}

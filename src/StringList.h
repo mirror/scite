@@ -25,9 +25,9 @@ public:
 	void Set(const char *s);
 	char *Allocate(int size);
 	void SetFromAllocated();
-	const char *GetNearestWord(const char *wordStart, size_t searchLen,
+	std::string GetNearestWord(const char *wordStart, size_t searchLen,
 		bool ignoreCase = false, SString wordCharacters="", int wordIndex = -1);
-	char *GetNearestWords(const char *wordStart, size_t searchLen,
+	std::string GetNearestWords(const char *wordStart, size_t searchLen,
 		bool ignoreCase=false, char otherSeparator='\0', bool exactLen=false);
 };
 

@@ -154,7 +154,7 @@ static void SortStringListNoCase(char **wordsNoCase, unsigned int len) {
  * The length of the word to compare is passed too.
  * Letter case can be ignored or preserved (default).
  */
-const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, bool ignoreCase /*= false*/, SString wordCharacters /*='/0' */, int wordIndex /*= -1 */) {
+std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, bool ignoreCase /*= false*/, SString wordCharacters /*='/0' */, int wordIndex /*= -1 */) {
 	int start = 0; // lower bound of the api array block to search
 	int end = len - 1; // upper bound of the api array block to search
 	int pivot; // index of api array element just being compared
@@ -162,7 +162,7 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
 	const char *word; // api array element just being compared
 
 	if (0 == words)
-		return NULL;
+		return std::string();
 	if (ignoreCase) {
 		if (!sortedNoCase) {
 			sortedNoCase = true;
@@ -189,11 +189,11 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
 					word = wordsNoCase[pivot];
 					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
 						if (wordIndex <= 0) // Checks if a specific index was requested
-							return word; // result must not be freed with free()
+							return std::string(word); // result must not be freed with free()
 						wordIndex--;
 					}
 				}
-				return NULL;
+				return std::string();
 			}
 			else if (cond > 0)
 				start = pivot + 1;
@@ -227,12 +227,12 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
 					word = words[pivot];
 					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
 						if (wordIndex <= 0) // Checks if a specific index was requested
-							return word; // result must not be freed with free()
+							return std::string(word); // result must not be freed with free()
 						wordIndex--;
 					}
 					pivot++;
 				}
-				return NULL;
+				return std::string();
 			}
 			else if (cond > 0)
 				start = pivot + 1;
@@ -240,7 +240,7 @@ const char *StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
 				end = pivot - 1;
 		}
 	}
-	return NULL;
+	return std::string();
 }
 
 /**
@@ -282,22 +282,21 @@ static unsigned int LengthWord(const char *word, char otherSeparator) {
  *
  * NOTE: returned buffer has to be freed with delete[].
  */
-char *StringList::GetNearestWords(
+std::string StringList::GetNearestWords(
     const char *wordStart,
     size_t searchLen,
     bool ignoreCase /*= false*/,
     char otherSeparator /*= '\0'*/,
     bool exactLen /*=false*/) {
 	unsigned int wordlen; // length of the word part (before the '(' brace) of the api array element
-	SString wordsNear;
-	wordsNear.setsizegrowth(1000);
+	std::string wordsNear;
 	int start = 0; // lower bound of the api array block to search
 	int end = len - 1; // upper bound of the api array block to search
 	int pivot; // index of api array element just being compared
 	int cond; // comparison result (in the sense of strcmp() result)
 
 	if (0 == words)
-		return NULL;
+		return std::string();
 	if (ignoreCase) {
 		if (!sortedNoCase) {
 			sortedNoCase = true;
@@ -321,9 +320,11 @@ char *StringList::GetNearestWords(
 					++pivot;
 					if (exactLen && wordlen != LengthWord(wordStart, otherSeparator) + 1)
 						continue;
-					wordsNear.append(wordsNoCase[pivot-1], wordlen, ' ');
+					if (wordsNear.length() > 0)
+						wordsNear.append(" ", 1);
+					wordsNear.append(wordsNoCase[pivot-1], wordlen);
 				}
-				return wordsNear.detach();
+				return wordsNear;
 			} else if (cond < 0) {
 				end = pivot - 1;
 			} else if (cond > 0) {
@@ -353,9 +354,11 @@ char *StringList::GetNearestWords(
 					++pivot;
 					if (exactLen && wordlen != LengthWord(wordStart, otherSeparator) + 1)
 						continue;
-					wordsNear.append(words[pivot-1], wordlen, ' ');
+					if (wordsNear.length() > 0)
+						wordsNear.append(" ", 1);
+					wordsNear.append(words[pivot-1], wordlen);
 				}
-				return wordsNear.detach();
+				return wordsNear;
 			} else if (cond < 0) {
 				end = pivot - 1;
 			} else if (cond > 0) {
@@ -363,5 +366,5 @@ char *StringList::GetNearestWords(
 			}
 		}
 	}
-	return NULL;
+	return std::string();
 }
