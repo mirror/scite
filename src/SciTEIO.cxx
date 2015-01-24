@@ -910,9 +910,9 @@ bool SciTEBase::PrepareBufferForSave(FilePath saveName) {
 	bool retVal = false;
 	// Perform clean ups on text before saving
 	wEditor.Call(SCI_BEGINUNDOACTION);
-	SString useStripTrailingSpaces = props.GetNewExpand("strip.trailing.spaces.", ExtensionFileName().c_str());
+	std::string useStripTrailingSpaces = props.GetNewExpandString("strip.trailing.spaces.", ExtensionFileName().c_str());
 	if (useStripTrailingSpaces.length() > 0) {
-		if (useStripTrailingSpaces.value())
+		if (atoi(useStripTrailingSpaces.c_str()))
 			StripTrailingSpaces();
 	} else if (props.GetInt("strip.trailing.spaces"))
 		StripTrailingSpaces();
