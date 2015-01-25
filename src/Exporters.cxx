@@ -117,15 +117,12 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	// Read the default settings
 	char key[200];
 	sprintf(key, "style.*.%0d", STYLE_DEFAULT);
-	char *valdefDefault = StringDup(props.GetExpanded(key).c_str());
+	const std::string valdefDefault = props.GetExpandedString(key);
 	sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
-	char *valDefault = StringDup(props.GetExpanded(key).c_str());
+	const std::string valDefault = props.GetExpandedString(key);
 
-	StyleDefinition defaultStyle(valdefDefault);
-	defaultStyle.ParseStyleDefinition(valDefault);
-
-	delete []valDefault;
-	delete []valdefDefault;
+	StyleDefinition defaultStyle(valdefDefault.c_str());
+	defaultStyle.ParseStyleDefinition(valDefault.c_str());
 
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
@@ -161,12 +158,12 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 
 	for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 		sprintf(key, "style.*.%0d", istyle);
-		char *valdef = StringDup(props.GetExpanded(key).c_str());
+		const std::string valdef = props.GetExpandedString(key);
 		sprintf(key, "style.%s.%0d", language.c_str(), istyle);
-		char *val = StringDup(props.GetExpanded(key).c_str());
+		const std::string val = props.GetExpandedString(key);
 
-		StyleDefinition sd(valdef);
-		sd.ParseStyleDefinition(val);
+		StyleDefinition sd(valdef.c_str());
+		sd.ParseStyleDefinition(val.c_str());
 
 		if (sd.specified != StyleDefinition::sdNone) {
 			if (wysiwyg && sd.font.length()) {
@@ -226,8 +223,6 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 				RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
 				RTF_BOLD_OFF RTF_ITALIC_OFF, defaultStyle.size);
 		}
-		delete []val;
-		delete []valdef;
 	}
 	os << RTF_FONTDEFCLOSE RTF_COLORDEFOPEN;
 	for (i = 0; i < colorCount; i++) {
@@ -384,17 +379,15 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		std::string bgColour;
 		char key[200];
 		sprintf(key, "style.*.%0d", STYLE_DEFAULT);
-		char *valdef = StringDup(props.GetExpanded(key).c_str());
+		std::string valdef = props.GetExpandedString(key);
 		sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
-		char *val = StringDup(props.GetExpanded(key).c_str());
+		std::string val = props.GetExpandedString(key);
 
-		StyleDefinition sddef(valdef);
-		sddef.ParseStyleDefinition(val);
+		StyleDefinition sddef(valdef.c_str());
+		sddef.ParseStyleDefinition(val.c_str());
 		if (sddef.back.length()) {
 			bgColour = sddef.back;
 		}
-		delete []val;
-		delete []valdef;
 
 		std::string sval = props.GetExpandedString("font.monospace");
 		StyleDefinition sdmono(sval.c_str());
@@ -404,12 +397,12 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 				continue;
 			if (styleIsUsed[istyle]) {
 				sprintf(key, "style.*.%0d", istyle);
-				valdef = StringDup(props.GetExpanded(key).c_str());
+				valdef = props.GetExpandedString(key);
 				sprintf(key, "style.%s.%0d", language.c_str(), istyle);
-				val = StringDup(props.GetExpanded(key).c_str());
+				val = props.GetExpandedString(key);
 
-				StyleDefinition sd(valdef);
-				sd.ParseStyleDefinition(val);
+				StyleDefinition sd(valdef.c_str());
+				sd.ParseStyleDefinition(val.c_str());
 
 				if (CurrentBuffer()->useMonoFont && sd.font.length() && sdmono.font.length()) {
 					sd.font = sdmono.font;
@@ -451,9 +444,6 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 				} else {
 					styleIsUsed[istyle] = false;	// No definition, it uses default style (32)
 				}
-
-				delete []val;
-				delete []valdef;
 			}
 		}
 		fputs("</style>\n", fp);
@@ -1046,8 +1036,8 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	}
 	// page size: width, height
 	propItem = props.GetExpandedString("export.pdf.pagesize");
-	char *buffer = new char[200];
-	char *ps = StringDup(propItem.c_str());
+	char buffer[200];
+	const char *ps = propItem.c_str();
 	const char *next = GetNextPropItem(ps, buffer, 32);
 	if (0 >= (pr.pageWidth = atol(buffer))) {
 		pr.pageWidth = PDF_WIDTH_DEFAULT;
@@ -1056,10 +1046,9 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	if (0 >= (pr.pageHeight = atol(buffer))) {
 		pr.pageHeight = PDF_HEIGHT_DEFAULT;
 	}
-	delete []ps;
 	// page margins: left, right, top, bottom
 	propItem = props.GetExpandedString("export.pdf.margins");
-	ps = StringDup(propItem.c_str());
+	ps = propItem.c_str();
 	next = GetNextPropItem(ps, buffer, 32);
 	if (0 >= (pr.pageMargin.left = static_cast<int>(atol(buffer)))) {
 		pr.pageMargin.left = PDF_MARGIN_DEFAULT;
@@ -1076,7 +1065,6 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	if (0 >= (pr.pageMargin.bottom = static_cast<int>(atol(buffer)))) {
 		pr.pageMargin.bottom = PDF_MARGIN_DEFAULT;
 	}
-	delete []ps;
 
 	// collect all styles available for that 'language'
 	// or the default style if no language is available...
@@ -1086,12 +1074,12 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		pr.style[i].fore[0] = '\0';
 
 		sprintf(buffer, "style.*.%0d", i);
-		char *valdef = StringDup(props.GetExpanded(buffer).c_str());
+		const std::string valdef = props.GetExpandedString(buffer);
 		sprintf(buffer, "style.%s.%0d", language.c_str(), i);
-		char *val = StringDup(props.GetExpanded(buffer).c_str());
+		const std::string val = props.GetExpandedString(buffer);
 
-		StyleDefinition sd(valdef);
-		sd.ParseStyleDefinition(val);
+		StyleDefinition sd(valdef.c_str());
+		sd.ParseStyleDefinition(val.c_str());
 
 		if (sd.specified != StyleDefinition::sdNone) {
 			if (sd.italics) { pr.style[i].font |= 2; }
@@ -1109,8 +1097,6 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 					pr.fontSize = PDF_FONTSIZE_DEFAULT;
 			}
 		}
-		delete []val;
-		delete []valdef;
 	}
 	// patch in default foregrounds
 	for (int j = 0; j <= STYLE_MAX; j++) {
@@ -1118,7 +1104,6 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 			strcpy(pr.style[j].fore, pr.style[STYLE_DEFAULT].fore);
 		}
 	}
-	delete []buffer;
 
 	FILE *fp = saveName.Open(GUI_TEXT("wb"));
 	if (!fp) {
@@ -1261,16 +1246,14 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 			if (styleIsUsed[i]) {
 				char key[200];
 				sprintf(key, "style.*.%0d", i);
-				char *valdef = StringDup(props.GetExpanded(key).c_str());
+				const std::string valdef = props.GetExpandedString(key);
 				sprintf(key, "style.%s.%0d", language.c_str(), i);
-				char *val = StringDup(props.GetExpanded(key).c_str());
+				const std::string val = props.GetExpandedString(key);
 
-				StyleDefinition sd(valdef); //check default properties
-				sd.ParseStyleDefinition(val); //check language properties
+				StyleDefinition sd(valdef.c_str()); //check default properties
+				sd.ParseStyleDefinition(val.c_str()); //check language properties
 
 				defineTexStyle(sd, fp, i); // writeout style macroses
-				delete []val;
-				delete []valdef;
 			}
 		}
 
