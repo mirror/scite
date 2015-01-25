@@ -32,7 +32,8 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 	if (definition == NULL || *definition == '\0') {
 		return false;
 	}
-	char *val = StringDup(definition);
+	std::vector<char> valHolder(definition, definition + strlen(definition)+1);
+	char *val = &valHolder[0];
 	char *opt = val;
 	while (opt) {
 		// Find attribute separator
@@ -132,7 +133,6 @@ bool StyleDefinition::ParseStyleDefinition(const char *definition) {
 		else
 			opt = 0;
 	}
-	delete []val;
 	return true;
 }
 
