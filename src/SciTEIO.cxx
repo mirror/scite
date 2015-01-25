@@ -669,7 +669,7 @@ bool SciTEBase::OpenSelected() {
 		path = filePath.Directory();
 		// If not there, look in openpath
 		if (!Exists(path.AsInternal(), selFN.c_str(), NULL)) {
-			GUI::gui_string openPath = GUI::StringFromUTF8(props.GetNewExpand(
+			GUI::gui_string openPath = GUI::StringFromUTF8(props.GetNewExpandString(
 			            "openpath.", fileNameForExtension.c_str()).c_str());
 			while (openPath.length()) {
 				GUI::gui_string tryPath(openPath);
