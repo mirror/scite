@@ -1059,37 +1059,32 @@ void SciTEWin::ProcessExecute() {
 }
 
 void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
-	char *mycmd;
-
 	// guess if cmd is an executable, if this succeeds it can
 	// contain spaces without enclosing it with "
 	std::string cmdLower = cmd;
 	LowerCaseAZ(cmdLower);
-	char *mycmdcopy = StringDup(cmdLower.c_str());
+	const char *mycmdlowered = cmdLower.c_str();
 
+	const char *s = strstr(mycmdlowered, ".exe");
+	if (s == NULL)
+		s = strstr(mycmdlowered, ".cmd");
+	if (s == NULL)
+		s = strstr(mycmdlowered, ".bat");
+	if (s == NULL)
+		s = strstr(mycmdlowered, ".com");
+	std::vector<char> cmdcopy(cmd.c_str(), cmd.c_str() + cmd.length() + 1);
+	char *mycmdcopy = &cmdcopy[0];
+	char *mycmd;
 	char *mycmd_end = NULL;
-	char *myparams = NULL;
-
-	char *s = strstr(mycmdcopy, ".exe");
-	if (s == NULL)
-		s = strstr(mycmdcopy, ".cmd");
-	if (s == NULL)
-		s = strstr(mycmdcopy, ".bat");
-	if (s == NULL)
-		s = strstr(mycmdcopy, ".com");
 	if ((s != NULL) && ((*(s + 4) == '\0') || (*(s + 4) == ' '))) {
-		ptrdiff_t len_mycmd = s - mycmdcopy + 4;
-		delete []mycmdcopy;
-		mycmdcopy = StringDup(cmd.c_str());
+		ptrdiff_t len_mycmd = s - mycmdlowered + 4;
 		mycmd = mycmdcopy;
 		mycmd_end = mycmdcopy + len_mycmd;
 	} else {
-		delete []mycmdcopy;
-		mycmdcopy = StringDup(cmd.c_str());
 		if (*mycmdcopy != '"') {
 			// get next space to separate cmd and parameters
-			mycmd_end = strchr(mycmdcopy, ' ');
 			mycmd = mycmdcopy;
+			mycmd_end = strchr(mycmdcopy, ' ');
 		} else {
 			// the cmd is surrounded by ", so it can contain spaces, but we must
 			// strip the " for ShellExec
@@ -1102,6 +1097,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 		}
 	}
 
+	std::string myparams;
 	if ((mycmd_end != NULL) && (*mycmd_end != '\0')) {
 		*mycmd_end = '\0';
 		// test for remaining params after cmd, they may be surrounded by " but
@@ -1115,7 +1111,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 	}
 
 	GUI::gui_string sMycmd = GUI::StringFromUTF8(mycmd);
-	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
+	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams.c_str());
 	GUI::gui_string sDir = GUI::StringFromUTF8(dir);
 
 	SHELLEXECUTEINFO exec= { sizeof (exec), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -1129,22 +1125,19 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 
 	if (::ShellExecuteEx(&exec)) {
 		// it worked!
-		delete []mycmdcopy;
 		return;
 	}
 	DWORD rc = GetLastError();
 
 	std::string errormsg("Error while launching:\n\"");
 	errormsg += mycmdcopy;
-	if (myparams != NULL) {
+	if (myparams.length()) {
 		errormsg += "\" with Params:\n\"";
 		errormsg += myparams;
 	}
 	errormsg += "\"\n";
 	GUI::gui_string sErrorMsg = GUI::StringFromUTF8(errormsg.c_str()) + GetErrorMessage(rc);
 	WindowMessageBox(wSciTE, sErrorMsg, mbsOK);
-
-	delete []mycmdcopy;
 }
 
 void SciTEWin::Execute() {
@@ -1331,7 +1324,7 @@ void SciTEWin::CreateUI() {
 	LocaliseMenus();
 	std::string pageSetup = props.GetString("print.margins");
 	char val[32];
-	char *ps = StringDup(pageSetup.c_str());
+	const char *ps = pageSetup.c_str();
 	const char *next = GetNextPropItem(ps, val, 32);
 	pagesetupMargin.left = atol(val);
 	next = GetNextPropItem(next, val, 32);
@@ -1340,7 +1333,6 @@ void SciTEWin::CreateUI() {
 	pagesetupMargin.top = atol(val);
 	GetNextPropItem(next, val, 32);
 	pagesetupMargin.bottom = atol(val);
-	delete []ps;
 
 	UIAvailable();
 }

@@ -84,7 +84,6 @@ static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
 
 void SciTEWin::WarnUser(int warnID) {
 	std::string warning;
-	char *warn;
 	char flashDuration[10], sound[_MAX_PATH], soundDuration[10];
 
 	switch (warnID) {
@@ -110,11 +109,10 @@ void SciTEWin::WarnUser(int warnID) {
 		warning = "";
 		break;
 	}
-	warn = StringDup(warning.c_str());
+	const char *warn = warning.c_str();
 	const char *next = GetNextPropItem(warn, flashDuration, 10);
 	next = GetNextPropItem(next, sound, _MAX_PATH);
 	GetNextPropItem(next, soundDuration, 10);
-	delete []warn;
 
 	int flashLen = atoi(flashDuration);
 	if (flashLen) {
