@@ -1443,8 +1443,9 @@ static void unquote(char *s) {
  * In KDE 4, the last URI is not terminated by "\r\n"!
  */
 void SciTEGTK::OpenUriList(const char *list) {
-	if (list) {
-		char *uri = StringDup(list);
+	if (list && *list) {
+		std::vector<char> uriList(list, list+strlen(list) + 1);
+		char *uri = &uriList[0];
 		if (uri) {
 			char *lastenduri = uri + strlen(uri);
 			while (uri < lastenduri) {
@@ -1746,7 +1747,7 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 
 	std::string headerFormat = props.GetString("print.header.format");
 	if (headerFormat.size()) {
-		StyleDefinition sdHeader(props.Get("print.header.style").c_str());
+		StyleDefinition sdHeader(props.GetString("print.header.style").c_str());
 		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdHeader);
 		pango_layout_set_text(layout, "Xg", -1);
 		gint layoutHeight;
@@ -1757,7 +1758,7 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 
 	std::string footerFormat = props.GetString("print.footer.format");
 	if (footerFormat.size()) {
-		StyleDefinition sdFooter(props.Get("print.footer.style").c_str());
+		StyleDefinition sdFooter(props.GetString("print.footer.style").c_str());
 		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdFooter);
 		pango_layout_set_text(layout, "Xg", -1);
 		gint layoutHeight;
@@ -1810,13 +1811,13 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 
 	std::string headerFormat = props.GetString("print.header.format");
 	if (headerFormat.size()) {
-		StyleDefinition sdHeader(props.Get("print.header.style").c_str());
+		StyleDefinition sdHeader(props.GetString("print.header.style").c_str());
 
 		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdHeader);
 
 		SetCairoColour(cr, sdHeader.ForeAsLong());
 
-		pango_layout_set_text(layout, propsPrint.GetExpanded("print.header.format").c_str(), -1);
+		pango_layout_set_text(layout, propsPrint.GetExpandedString("print.header.format").c_str(), -1);
 
 		gint layout_height;
 		pango_layout_get_size(layout, NULL, &layout_height);
@@ -1832,13 +1833,13 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 
 	std::string footerFormat = props.GetString("print.footer.format");
 	if (footerFormat.size()) {
-		StyleDefinition sdFooter(props.Get("print.footer.style").c_str());
+		StyleDefinition sdFooter(props.GetString("print.footer.style").c_str());
 
 		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdFooter);
 
 		SetCairoColour(cr, sdFooter.ForeAsLong());
 
-		pango_layout_set_text(layout, propsPrint.GetExpanded("print.footer.format").c_str(), -1);
+		pango_layout_set_text(layout, propsPrint.GetExpandedString("print.footer.format").c_str(), -1);
 
 		gint layout_height;
 		pango_layout_get_size(layout, NULL, &layout_height);
@@ -2141,9 +2142,6 @@ void SciTEGTK::FindInFilesCmd() {
 
 	dlgFindInFiles.Destroy();
 
-	//printf("Grepping for <%s> in <%s>\n",
-	//	props.Get("find.what"),
-	//	props.Get("find.files"));
 	SelectionIntoProperties();
 	std::string findCommand = props.GetNewExpandString("find.command");
 	if (findCommand == "") {
@@ -2156,7 +2154,7 @@ void SciTEGTK::FindInFilesCmd() {
 		findCommand += " \"";
 		findCommand += props.GetString("find.files");
 		findCommand += "\" \"";
-		char *quotedForm = Slash(props.Get("find.what").c_str(), true);
+		char *quotedForm = Slash(props.GetString("find.what").c_str(), true);
 		findCommand += quotedForm;
 		findCommand += "\"";
 		delete []quotedForm;
@@ -2484,7 +2482,7 @@ void SciTEGTK::FindInFiles() {
 
 	table.Add();	// Space
 
-	bool enableToggles = props.GetNewExpand("find.command") == "";
+	bool enableToggles = props.GetNewExpandString("find.command") == "";
 
 	// Whole Word
 	dlgFindInFiles.toggleWord.Create(localiser.Text(toggles[SearchOption::tWord].label));
@@ -5324,7 +5322,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	ProcessCommandLine(args, 0);
 
 	// Check if SciTE is already running.
-	if ((props.Get("ipc.director.name").size() == 0) && props.GetInt ("check.if.already.open")) {
+	if ((props.GetString("ipc.director.name").size() == 0) && props.GetInt ("check.if.already.open")) {
 		if (CheckForRunningInstance (argc, argv)) {
 			// Returning from this function exits the program.
 			return;
@@ -5332,7 +5330,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 	}
 
 	CreateUI();
-	if ((props.Get("ipc.director.name").size() == 0) && props.GetInt ("check.if.already.open"))
+	if ((props.GetString("ipc.director.name").size() == 0) && props.GetInt ("check.if.already.open"))
 		unlink(uniqueInstance); // Unlock.
 
 	// Process remaining switches and files
