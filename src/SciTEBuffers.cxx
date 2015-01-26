@@ -1431,7 +1431,7 @@ void SciTEBase::SetToolsMenu() {
 				sMnemonic += StdStringFromInteger(item);
 			}
 			SetMenuItemLocalised(menuTools, menuPos, itemID, sMenuItem.c_str(),
-				sMnemonic[0] ? sMnemonic.c_str() : NULL);
+				sMnemonic.length() ? sMnemonic.c_str() : NULL);
 			menuPos++;
 		}
 	}
