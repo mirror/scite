@@ -255,7 +255,6 @@ DirectorExtension.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -280,7 +279,6 @@ SciTEWin.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -310,7 +308,6 @@ Sc1.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -340,7 +337,6 @@ SciTEWinBar.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -366,7 +362,6 @@ SciTEWinDlg.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -392,7 +387,6 @@ Strips.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -418,7 +412,6 @@ UniqueInstance.obj: \
 	../src/GUI.h \
 	SciTEWin.h \
 	../../scintilla/include/ILexer.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -443,14 +436,12 @@ WinMutex.obj: \
 	../src/Mutex.h
 Cookie.obj: \
 	../src/Cookie.cxx \
-	../src/SString.h \
 	../src/Cookie.h
 Credits.obj: \
 	../src/Credits.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -470,7 +461,6 @@ Exporters.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -489,7 +479,6 @@ FilePath.obj: \
 	../src/FilePath.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/FilePath.h
 FileWorker.obj: \
 	../src/FileWorker.cxx \
@@ -497,7 +486,6 @@ FileWorker.obj: \
 	../../scintilla/include/ILexer.h \
 	../src/Mutex.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/FilePath.h \
 	../src/Cookie.h \
 	../src/Worker.h \
@@ -507,7 +495,6 @@ JobQueue.obj: \
 	../src/JobQueue.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h \
@@ -529,7 +516,6 @@ PropSetFile.obj: \
 	../src/PropSetFile.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h
@@ -539,7 +525,6 @@ SciTEBase.obj: \
 	../../scintilla/include/SciLexer.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -561,7 +546,6 @@ SciTEBuffers.obj: \
 	../../scintilla/include/SciLexer.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -582,7 +566,6 @@ SciTEIO.obj: \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -605,7 +588,6 @@ SciTEProps.obj: \
 	../../scintilla/include/SciLexer.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -628,13 +610,11 @@ StringHelpers.obj: \
 	../src/StringHelpers.h
 StringList.obj: \
 	../src/StringList.cxx \
-	../src/SString.h \
 	../src/StringList.h
 StyleDefinition.obj: \
 	../src/StyleDefinition.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/StringHelpers.h \
 	../src/StyleDefinition.h
 StyleWriter.obj: \
@@ -651,7 +631,6 @@ LuaExtension.obj: \
 	../src/LuaExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
-	../src/SString.h \
 	../src/FilePath.h \
 	../src/StyleWriter.h \
 	../src/Extender.h \

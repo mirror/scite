@@ -245,7 +245,7 @@ $(PROGSTATIC): $(OBJSSTATIC)
 include deps.mak
 
 Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h PropSetFile.h \
- SString.h Scintilla.h Extender.h FilePath.h SciTEBase.h FileWorker.h JobQueue.h
+ Scintilla.h Extender.h FilePath.h SciTEBase.h FileWorker.h JobQueue.h
 	$(CXX) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
 
 SciTERes.o:	SciTERes.rc SciTE.h SciTE.exe.manifest
