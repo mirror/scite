@@ -1554,7 +1554,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 	if (fileattributes != (DWORD) -1) {	// arg is an existing directory or filename
 		// if the command line argument is a directory, use OpenDialog()
 		if (fileattributes & FILE_ATTRIBUTE_DIRECTORY) {
-			OpenDialog(fpArg, GUI::StringFromUTF8(props.GetExpanded("open.filter").c_str()).c_str());
+			OpenDialog(fpArg, GUI::StringFromUTF8(props.GetExpandedString("open.filter").c_str()).c_str());
 			isHandled = true;
 		}
 	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(arg, &ffile)) != INVALID_HANDLE_VALUE) {

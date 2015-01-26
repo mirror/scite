@@ -315,7 +315,7 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
 
 bool SciTEWin::SaveAsDialog() {
 	GUI::gui_string saveFilter = DialogFilterFromProperty(
-		GUI::StringFromUTF8(props.GetExpanded("save.filter").c_str()).c_str());
+		GUI::StringFromUTF8(props.GetExpandedString("save.filter").c_str()).c_str());
 	FilePath path = ChooseSaveName(filePath.Directory(), "Save File", saveFilter.c_str());
 	if (path.IsSet()) {
 		return SaveIfNotOpen(path, false);
@@ -658,7 +658,7 @@ void SciTEWin::Print(
 			::StartPage(hdc);
 
 			if (headerFormat.size()) {
-				GUI::gui_string sHeader = GUI::StringFromUTF8(propsPrint.GetExpanded("print.header.format").c_str());
+				GUI::gui_string sHeader = GUI::StringFromUTF8(propsPrint.GetExpandedString("print.header.format").c_str());
 				::SetTextColor(hdc, sdHeader.ForeAsLong());
 				::SetBkColor(hdc, sdHeader.BackAsLong());
 				::SelectObject(hdc, fontHeader);
@@ -688,7 +688,7 @@ void SciTEWin::Print(
 
 		if (printPage) {
 			if (footerFormat.size()) {
-				GUI::gui_string sFooter = GUI::StringFromUTF8(propsPrint.GetExpanded("print.footer.format").c_str());
+				GUI::gui_string sFooter = GUI::StringFromUTF8(propsPrint.GetExpandedString("print.footer.format").c_str());
 				::SetTextColor(hdc, sdFooter.ForeAsLong());
 				::SetBkColor(hdc, sdFooter.BackAsLong());
 				::SelectObject(hdc, fontFooter);

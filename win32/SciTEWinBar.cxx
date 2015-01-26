@@ -1052,7 +1052,7 @@ void SciTEWin::Creation() {
 	bands.push_back(Band(true, heightStatus, false, wStatusBar));
 
 #ifndef NO_LUA
-		if (props.GetExpanded("ext.lua.startup.script").length() == 0)
+		if (props.GetExpandedString("ext.lua.startup.script").length() == 0)
 			DestroyMenuItem(menuOptions,IDM_OPENLUAEXTERNALFILE);
 #else
 		DestroyMenuItem(menuOptions,IDM_OPENLUAEXTERNALFILE);
