@@ -25,7 +25,6 @@
 
 #include "GUI.h"
 
-#include "SString.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"

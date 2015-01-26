@@ -42,7 +42,6 @@
 
 #include "GUI.h"
 
-#include "SString.h"
 #include "FilePath.h"
 
 #if defined(__unix__)

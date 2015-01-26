@@ -26,7 +26,6 @@
 #include "ILexer.h"
 
 #include "GUI.h"
-#include "SString.h"
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
@@ -263,8 +262,8 @@ void SciTEBase::ViewWhitespace(bool view) {
 StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 	StyleAndWords sw;
 	std::string fileNameForExtension = ExtensionFileName();
-	SString sAndW = props.GetNewExpand(base, fileNameForExtension.c_str());
-	sw.styleNumber = sAndW.value();
+	std::string sAndW = props.GetNewExpandString(base, fileNameForExtension.c_str());
+	sw.styleNumber = atoi(sAndW.c_str());
 	const char *space = strchr(sAndW.c_str(), ' ');
 	if (space)
 		sw.words = space + 1;
@@ -703,7 +702,7 @@ bool SciTEBase::isfilenamecharforsel(char ch) {
 bool SciTEBase::islexerwordcharforsel(char ch) {
 	// If there are no word.characters defined for the current file, fall back on the original function
 	if (wordCharacters.length())
-		return wordCharacters.contains(ch);
+		return Contains(wordCharacters, ch);
 	else
 		return iswordcharforsel(ch);
 }
@@ -913,10 +912,10 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 	wEditor.Call(SCI_SETINDICATORCURRENT, indicatorMatch);
 	if (purpose == markIncremental) {
 		CurrentBuffer()->findMarks = Buffer::fmTemporary;
-		SetOneIndicator(wEditor, indicatorMatch, props.Get("find.indicator.incremental").c_str());
+		SetOneIndicator(wEditor, indicatorMatch, props.GetString("find.indicator.incremental").c_str());
 	} else {
 		CurrentBuffer()->findMarks = Buffer::fmMarked;
-		SString findIndicatorString = props.Get("find.mark.indicator");
+		std::string findIndicatorString = props.GetString("find.mark.indicator");
 		IndicatorDefinition findIndicator(findIndicatorString.c_str());
 		if (!findIndicatorString.length()) {
 			findIndicator.style = INDIC_ROUNDBOX;
@@ -1328,7 +1327,7 @@ void SciTEBase::Execute() {
 		ParamGrab();
 	}
 	for (ic = 0; ic < jobQueue.commandMax; ic++) {
-		jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command.c_str()).c_str();
+		jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command.c_str());
 	}
 
 	if (jobQueue.ClearBeforeExecute()) {
@@ -1505,10 +1504,10 @@ bool SciTEBase::StartCallTip() {
 	int pos = wEditor.Call(SCI_GETCURRENTPOS);
 	do {
 		int braces = 0;
-		while (current > 0 && (braces || !calltipParametersStart.contains(line[current - 1]))) {
-			if (calltipParametersStart.contains(line[current - 1]))
+		while (current > 0 && (braces || !Contains(calltipParametersStart, line[current - 1]))) {
+			if (Contains(calltipParametersStart, line[current - 1]))
 				braces--;
-			else if (calltipParametersEnd.contains(line[current - 1]))
+			else if (Contains(calltipParametersEnd, line[current - 1]))
 				braces++;
 			current--;
 			pos--;
@@ -1522,13 +1521,13 @@ bool SciTEBase::StartCallTip() {
 			current--;
 			pos--;
 		}
-	} while (current > 0 && !calltipWordCharacters.contains(line[current - 1]));
+	} while (current > 0 && !Contains(calltipWordCharacters, line[current - 1]));
 	if (current <= 0)
 		return true;
 
 	startCalltipWord = current - 1;
 	while (startCalltipWord > 0 &&
-	        calltipWordCharacters.contains(line[startCalltipWord - 1])) {
+	        Contains(calltipWordCharacters, line[startCalltipWord - 1])) {
 		startCalltipWord--;
 	}
 
@@ -1546,44 +1545,44 @@ void SciTEBase::ContinueCallTip() {
 	int braces = 0;
 	int commas = 0;
 	for (int i = startCalltipWord; i < current; i++) {
-		if (calltipParametersStart.contains(line[i]))
+		if (Contains(calltipParametersStart, line[i]))
 			braces++;
-		else if (calltipParametersEnd.contains(line[i]) && braces > 0)
+		else if (Contains(calltipParametersEnd, line[i]) && braces > 0)
 			braces--;
-		else if (braces == 1 && calltipParametersSeparators.contains(line[i]))
+		else if (braces == 1 && Contains(calltipParametersSeparators, line[i]))
 			commas++;
 	}
 
 	size_t startHighlight = 0;
-	while ((startHighlight < functionDefinition.length()) && !calltipParametersStart.contains(functionDefinition[startHighlight]))
+	while ((startHighlight < functionDefinition.length()) && !Contains(calltipParametersStart, functionDefinition[startHighlight]))
 		startHighlight++;
-	if ((startHighlight < functionDefinition.length()) && calltipParametersStart.contains(functionDefinition[startHighlight]))
+	if ((startHighlight < functionDefinition.length()) && Contains(calltipParametersStart, functionDefinition[startHighlight]))
 		startHighlight++;
 	while ((startHighlight < functionDefinition.length()) && commas > 0) {
-		if (calltipParametersSeparators.contains(functionDefinition[startHighlight]))
+		if (Contains(calltipParametersSeparators, functionDefinition[startHighlight]))
 			commas--;
 		// If it reached the end of the argument list it means that the user typed in more
 		// arguments than the ones listed in the calltip
-		if (calltipParametersEnd.contains(functionDefinition[startHighlight]))
+		if (Contains(calltipParametersEnd, functionDefinition[startHighlight]))
 			commas = 0;
 		else
 			startHighlight++;
 	}
-	if ((startHighlight < functionDefinition.length()) && calltipParametersSeparators.contains(functionDefinition[startHighlight]))
+	if ((startHighlight < functionDefinition.length()) && Contains(calltipParametersSeparators, functionDefinition[startHighlight]))
 		startHighlight++;
 	size_t endHighlight = startHighlight;
-	while ((endHighlight < functionDefinition.length()) && !calltipParametersSeparators.contains(functionDefinition[endHighlight]) && !calltipParametersEnd.contains(functionDefinition[endHighlight]))
+	while ((endHighlight < functionDefinition.length()) && !Contains(calltipParametersSeparators, functionDefinition[endHighlight]) && !Contains(calltipParametersEnd, functionDefinition[endHighlight]))
 		endHighlight++;
 	if (callTipUseEscapes) {
-		char *sUnslashed = StringDup(functionDefinition.substr(0, startHighlight + 1).c_str());
-		int unslashedStartHighlight = UnSlash(sUnslashed) - 1;
-		delete []sUnslashed;
+		std::string sPreHighlight = functionDefinition.substr(0, startHighlight);
+		std::vector<char> vPreHighlight(sPreHighlight.c_str(), sPreHighlight.c_str() + sPreHighlight.length() + 1);
+		int unslashedStartHighlight = UnSlash(&vPreHighlight[0]);
 
 		int unslashedEndHighlight = unslashedStartHighlight;
 		if (startHighlight < endHighlight) {
-			sUnslashed = StringDup(functionDefinition.substr(startHighlight, endHighlight - startHighlight + 1).c_str());
-			unslashedEndHighlight = unslashedStartHighlight + UnSlash(sUnslashed) - 1;
-			delete []sUnslashed;
+			std::string sHighlight = functionDefinition.substr(startHighlight, endHighlight - startHighlight);
+			std::vector<char> vHighlight(sHighlight.c_str(), sHighlight.c_str() + sHighlight.length() + 1);
+			unslashedEndHighlight = unslashedStartHighlight + UnSlash(&vHighlight[0]);
 		}
 
 		startHighlight = unslashedStartHighlight;
@@ -1627,8 +1626,8 @@ bool SciTEBase::StartAutoComplete() {
 	int startword = current;
 
 	while ((startword > 0) &&
-	        (calltipWordCharacters.contains(line[startword - 1]) ||
-	         autoCompleteStartCharacters.contains(line[startword - 1]))) {
+	        (Contains(calltipWordCharacters, line[startword - 1]) ||
+		Contains(autoCompleteStartCharacters, line[startword - 1]))) {
 		startword--;
 	}
 
@@ -1652,7 +1651,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	int startword = current;
 	// Autocompletion of pure numbers is mostly an annoyance
 	bool allNumber = true;
-	while (startword > 0 && wordCharacters.contains(line[startword - 1])) {
+	while (startword > 0 && Contains(wordCharacters, line[startword - 1])) {
 		startword--;
 		if (line[startword] < '0' || line[startword] > '9') {
 			allNumber = false;
@@ -1683,7 +1682,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	while (posFind >= 0 && posFind < doclen) {	// search all the document
 		int wordEnd = posFind + static_cast<int>(root.length());
 		if (posFind != posCurrentWord) {
-			while (wordCharacters.contains(acc.SafeGetCharAt(wordEnd)))
+			while (Contains(wordCharacters, acc.SafeGetCharAt(wordEnd)))
 				wordEnd++;
 			const unsigned int wordLength = wordEnd - posFind;
 			if (wordLength > root.length()) {
@@ -1725,7 +1724,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 }
 
 bool SciTEBase::PerformInsertAbbreviation() {
-	SString data = propsAbbrev.Get(abbrevInsert.c_str());
+	std::string data = propsAbbrev.GetString(abbrevInsert.c_str());
 	size_t dataLength = data.length();
 	if (dataLength == 0) {
 		return true; // returning if expanded abbreviation is empty
@@ -1766,7 +1765,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	// add the abbreviation one character at a time
 	for (i = 0; i < expbuflen; i++) {
 		char c = expbuf[i];
-		SString abbrevText("");
+		std::string abbrevText("");
 		if (isIndent && c == '\t') {
 			if (props.GetInt("indent.automatic")) {
 				indentExtra++;
@@ -1861,7 +1860,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	linebuf[currentPos] = '\0';
 	int abbrevPos = (currentPos > 32 ? currentPos - 32 : 0);
 	const char *abbrev = linebuf + abbrevPos;
-	SString data;
+	std::string data;
 	size_t dataLength = 0;
 	int abbrevLength = currentPos - abbrevPos;
 	// Try each potential abbreviation from the first letter on a line
@@ -1869,7 +1868,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	// We arbitrarily limit the length of an abbreviation (seems a reasonable value..),
 	// and of course stop on the caret.
 	while (abbrevLength > 0) {
-		data = propsAbbrev.Get(abbrev);
+		data = propsAbbrev.GetString(abbrev);
 		dataLength = data.length();
 		if (dataLength > 0) {
 			break;	/* Found */
@@ -1904,7 +1903,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	// add the abbreviation one character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
 		char c = expbuf[i];
-		SString abbrevText("");
+		std::string abbrevText("");
 		if (isIndent && c == '\t') {
 			indentExtra++;
 			SetLineIndentation(currentLineNumber, indent + wEditor.Call(SCI_GETINDENT) * indentExtra);
@@ -1962,9 +1961,9 @@ bool SciTEBase::StartExpandAbbreviation() {
 
 bool SciTEBase::StartBlockComment() {
 	std::string fileNameForExtension = ExtensionFileName();
-	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
-	SString base("comment.block.");
-	SString comment_at_line_start("comment.block.at.line.start.");
+	std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
+	std::string base("comment.block.");
+	std::string comment_at_line_start("comment.block.at.line.start.");
 	base += lexerName;
 	comment_at_line_start += lexerName;
 	bool placeCommentsAtLineStart = props.GetInt(comment_at_line_start.c_str()) != 0;
@@ -2056,18 +2055,18 @@ static const char *LineEndString(int eolMode) {
 bool SciTEBase::StartBoxComment() {
 	// Get start/middle/end comment strings from options file(s)
 	std::string fileNameForExtension = ExtensionFileName();
-	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
-	SString start_base("comment.box.start.");
-	SString middle_base("comment.box.middle.");
-	SString end_base("comment.box.end.");
-	SString white_space(" ");
-	SString eol(LineEndString(wEditor.Call(SCI_GETEOLMODE)));
+	std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
+	std::string start_base("comment.box.start.");
+	std::string middle_base("comment.box.middle.");
+	std::string end_base("comment.box.end.");
+	const std::string white_space(" ");
+	const std::string eol(LineEndString(wEditor.Call(SCI_GETEOLMODE)));
 	start_base += lexerName;
 	middle_base += lexerName;
 	end_base += lexerName;
-	SString start_comment = props.Get(start_base.c_str());
-	SString middle_comment = props.Get(middle_base.c_str());
-	SString end_comment = props.Get(end_base.c_str());
+	std::string start_comment = props.GetString(start_base.c_str());
+	std::string middle_comment = props.GetString(middle_base.c_str());
+	std::string end_comment = props.GetString(end_base.c_str());
 	if (start_comment == "" || middle_comment == "" || end_comment == "") {
 		GUI::gui_string sStart = GUI::StringFromUTF8(start_base.c_str());
 		GUI::gui_string sMiddle = GUI::StringFromUTF8(middle_base.c_str());
@@ -2188,14 +2187,14 @@ bool SciTEBase::StartBoxComment() {
 
 bool SciTEBase::StartStreamComment() {
 	std::string fileNameForExtension = ExtensionFileName();
-	SString lexerName = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
-	SString start_base("comment.stream.start.");
-	SString end_base("comment.stream.end.");
-	SString white_space(" ");
+	const std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
+	std::string start_base("comment.stream.start.");
+	std::string end_base("comment.stream.end.");
+	std::string white_space(" ");
 	start_base += lexerName;
 	end_base += lexerName;
-	SString start_comment = props.Get(start_base.c_str());
-	SString end_comment = props.Get(end_base.c_str());
+	std::string start_comment = props.GetString(start_base.c_str());
+	std::string end_comment = props.GetString(end_base.c_str());
 	if (start_comment == "" || end_comment == "") {
 		GUI::gui_string sStart = GUI::StringFromUTF8(start_base.c_str());
 		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base.c_str());
@@ -2319,7 +2318,7 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 
 		char sbKey[32];
 		sprintf(sbKey, "statusbar.text.%d", sbNum);
-		SString msg = propsStatus.GetExpanded(sbKey);
+		std::string msg = propsStatus.GetExpandedString(sbKey);
 		if (msg.size() && sbValue != msg) {	// To avoid flickering, update only if needed
 			SetStatusBarText(msg.c_str());
 			sbValue = msg;
@@ -2417,11 +2416,11 @@ bool SciTEBase::RangeIsAllWhitespace(int start, int end) {
 	return true;
 }
 
-unsigned int SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len) {
+unsigned int SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, std::string sv[], int len) {
 	for (int i = 0; i < len; i++)
 		sv[i] = "";
 	TextReader acc(wEditor);
-	SString s;
+	std::string s;
 	int part = 0;
 	int thisLineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
 	int nextLineStart = wEditor.Call(SCI_POSITIONFROMLINE, line + 1);
@@ -2448,7 +2447,7 @@ inline bool IsAlphabetic(unsigned int ch) {
 	return ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z'));
 }
 
-static bool includes(const StyleAndWords &symbols, const SString &value) {
+static bool includes(const StyleAndWords &symbols, const std::string &value) {
 	if (symbols.words.length() == 0) {
 		return false;
 	} else if (IsAlphabetic(symbols.words[0])) {
@@ -2480,7 +2479,7 @@ static bool includes(const StyleAndWords &symbols, const SString &value) {
 IndentationStatus SciTEBase::GetIndentState(int line) {
 	// C like language indentation defined by braces and keywords
 	IndentationStatus indentState = isNone;
-	SString controlWords[20];
+	std::string controlWords[20];
 	unsigned int parts = GetLinePartsInStyle(line, statementIndent.styleNumber,
 	        -1, controlWords, ELEMENTS(controlWords));
 	unsigned int i;
@@ -2495,7 +2494,7 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 			indentState = isNone;
 	}
 	// Braces override keywords
-	SString controlStrings[20];
+	std::string controlStrings[20];
 	parts = GetLinePartsInStyle(line, blockEnd.styleNumber,
 	        -1, controlStrings, ELEMENTS(controlStrings));
 	for (unsigned int j = 0; j < parts; j++) {
@@ -2622,7 +2621,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 		}
 	} else if ((ch == '\r' || ch == '\n') && (selStart == thisLineStart)) {
 		if (!indentClosing && !blockEnd.IsSingleChar()) {	// Dedent previous line maybe
-			SString controlWords[1];
+			std::string controlWords[1];
 			if (GetLinePartsInStyle(curLine - 1, blockEnd.styleNumber,
 			        -1, controlWords, ELEMENTS(controlWords))) {
 				if (includes(blockEnd, controlWords[0])) {
@@ -2649,27 +2648,27 @@ void SciTEBase::CharAdded(char ch) {
 	int selEnd = static_cast<int>(crange.cpMax);
 	if ((selEnd == selStart) && (selStart > 0)) {
 		if (wEditor.Call(SCI_CALLTIPACTIVE)) {
-			if (calltipParametersEnd.contains(ch)) {
+			if (Contains(calltipParametersEnd, ch)) {
 				braceCount--;
 				if (braceCount < 1)
 					wEditor.Call(SCI_CALLTIPCANCEL);
 				else
 					StartCallTip();
-			} else if (calltipParametersStart.contains(ch)) {
+			} else if (Contains(calltipParametersStart, ch)) {
 				braceCount++;
 				StartCallTip();
 			} else {
 				ContinueCallTip();
 			}
 		} else if (wEditor.Call(SCI_AUTOCACTIVE)) {
-			if (calltipParametersStart.contains(ch)) {
+			if (Contains(calltipParametersStart, ch)) {
 				braceCount++;
 				StartCallTip();
-			} else if (calltipParametersEnd.contains(ch)) {
+			} else if (Contains(calltipParametersEnd, ch)) {
 				braceCount--;
-			} else if (!wordCharacters.contains(ch)) {
+			} else if (!Contains(wordCharacters, ch)) {
 				wEditor.Call(SCI_AUTOCCANCEL);
-				if (autoCompleteStartCharacters.contains(ch)) {
+				if (Contains(autoCompleteStartCharacters, ch)) {
 					StartAutoComplete();
 				}
 			} else if (autoCCausedByOnlyOne) {
@@ -2678,7 +2677,7 @@ void SciTEBase::CharAdded(char ch) {
 		} else if (HandleXml(ch)) {
 			// Handled in the routine
 		} else {
-			if (calltipParametersStart.contains(ch)) {
+			if (Contains(calltipParametersStart, ch)) {
 				braceCount = 1;
 				StartCallTip();
 			} else {
@@ -2687,9 +2686,9 @@ void SciTEBase::CharAdded(char ch) {
 					MaintainIndentation(ch);
 				else if (props.GetInt("indent.automatic"))
 					AutomaticIndentation(ch);
-				if (autoCompleteStartCharacters.contains(ch)) {
+				if (Contains(autoCompleteStartCharacters, ch)) {
 					StartAutoComplete();
-				} else if (props.GetInt("autocompleteword.automatic") && wordCharacters.contains(ch)) {
+				} else if (props.GetInt("autocompleteword.automatic") && Contains(wordCharacters, ch)) {
 					StartAutoCompleteWord(true);
 					autoCCausedByOnlyOne = wEditor.Call(SCI_AUTOCACTIVE);
 				}
@@ -2748,7 +2747,7 @@ bool SciTEBase::HandleXml(char ch) {
 
 	// If the user has turned us off, quit now.
 	// Default is off
-	SString value = props.GetExpanded("xml.auto.close.tags");
+	const std::string value = props.GetExpandedString("xml.auto.close.tags");
 	if ((value.length() == 0) || (value == "0")) {
 		return false;
 	}
@@ -2777,11 +2776,11 @@ bool SciTEBase::HandleXml(char ch) {
 		return false;
 	}
 
-	SString strFound = FindOpenXmlTag(sel, nCaret - nMin);
+	std::string strFound = FindOpenXmlTag(sel, nCaret - nMin);
 
 	if (strFound.length() > 0) {
 		wEditor.Call(SCI_BEGINUNDOACTION);
-		SString toInsert = "</";
+		std::string toInsert = "</";
 		toInsert += strFound;
 		toInsert += ">";
 		wEditor.CallString(SCI_REPLACESEL, 0, toInsert.c_str());
@@ -2796,8 +2795,8 @@ bool SciTEBase::HandleXml(char ch) {
 /** Search backward through nSize bytes looking for a '<', then return the tag if any
  * @return The tag name
  */
-SString SciTEBase::FindOpenXmlTag(const char sel[], int nSize) {
-	SString strRet = "";
+std::string SciTEBase::FindOpenXmlTag(const char sel[], int nSize) {
+	std::string strRet = "";
 
 	if (nSize < 3) {
 		// Smallest tag is "<p>" which is 3 characters
@@ -2966,7 +2965,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		// when doing the opening. Must be done there as user
 		// may decide to open multiple files so do not know yet
 		// how much room needed.
-		OpenDialog(filePath.Directory(), GUI::StringFromUTF8(props.GetExpanded("open.filter").c_str()).c_str());
+		OpenDialog(filePath.Directory(), GUI::StringFromUTF8(props.GetExpandedString("open.filter").c_str()).c_str());
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_OPENSELECTED:
@@ -3592,7 +3591,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_HELP_SCITE: {
 			SelectionIntoProperties();
 			AddCommand(props.GetString("command.scite.help"), "",
-			        SubsystemFromChar(props.Get("command.scite.help.subsystem")[0]));
+			        SubsystemFromChar(props.GetString("command.scite.help.subsystem")[0]));
 			if (!jobQueue.IsExecuting() && jobQueue.HasCommandToRun()) {
 				jobQueue.isBuilding = true;
 				Execute();
@@ -4093,8 +4092,8 @@ void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::W
 	} else {
 		AddToPopUp("Close", IDM_CLOSE, true);
 	}
-	SString userContextMenu = props.GetNewExpand("user.context.menu");
-	userContextMenu.substitute('|', '\0');
+	std::string userContextMenu = props.GetNewExpandString("user.context.menu");
+	std::replace(userContextMenu.begin(), userContextMenu.end(), '|', '\0');
 	const char *userContextItem = userContextMenu.c_str();
 	const char *endDefinition = userContextItem + userContextMenu.length();
 	while (userContextItem < endDefinition) {
@@ -4371,7 +4370,7 @@ void SciTEBase::PropertyToDirector(const char *arg) {
 	if (!extender)
 		return;
 	SelectionIntoProperties();
-	SString gotprop = props.Get(arg);
+	const std::string gotprop = props.GetString(arg);
 	extender->OnMacro("macro:stringinfo", gotprop.c_str());
 }
 
@@ -4704,7 +4703,7 @@ std::string SciTEBase::Property(const char *key) {
 }
 
 void SciTEBase::SetProperty(const char *key, const char *val) {
-	SString value = props.GetExpanded(key);
+	const std::string value = props.GetExpandedString(key);
 	if (value != val) {
 		props.Set(key, val);
 		needReadProperties = true;
@@ -4725,8 +4724,8 @@ void SciTEBase::ShutDown() {
 }
 
 void SciTEBase::Perform(const char *actionList) {
-	char *actionsDup = StringDup(actionList);
-	char *actions = actionsDup;
+	std::vector<char> vActions(actionList, actionList + strlen(actionList) + 1);
+	char *actions = &vActions[0];
 	char *nextAct;
 	while ((nextAct = strchr(actions, '\n')) != NULL) {
 		*nextAct = '\0';
@@ -4734,7 +4733,6 @@ void SciTEBase::Perform(const char *actionList) {
 		actions = nextAct + 1;
 	}
 	PerformOne(actions);
-	delete []actionsDup;
 }
 
 void SciTEBase::DoMenuCommand(int cmdID) {

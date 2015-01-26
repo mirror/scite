@@ -79,7 +79,6 @@ typedef void *HTHEME;
 
 #include "GUI.h"
 
-#include "SString.h"
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"

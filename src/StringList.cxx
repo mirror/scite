@@ -1,6 +1,6 @@
 // SciTE - Scintilla based Text Editor
 /** @file StringList.cxx
- ** IMplementation of class holding a list of strings.
+ ** Implementation of class holding a list of strings.
  **/
 // Copyright 1998-2005 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
@@ -9,20 +9,18 @@
 #include <string.h>
 
 #include <string>
+#include <vector>
+#include <set>
 #include <map>
 
-#include "SString.h"
+#include "Scintilla.h"
+
+#include "GUI.h"
 #include "StringList.h"
+#include "StringHelpers.h"
 
 static inline bool IsASpace(unsigned int ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
-}
-
-static inline char MakeUpperCase(char ch) {
-	if (ch < 'a' || ch > 'z')
-		return ch;
-	else
-		return static_cast<char>(ch - 'a' + 'A');
 }
 
 static int CompareNCaseInsensitive(const char *a, const char *b, size_t len) {
@@ -106,7 +104,8 @@ void StringList::Clear() {
 }
 
 void StringList::Set(const char *s) {
-	list = StringDup(s);
+	list = new char[strlen(s)+1];
+	strcpy(list, s);
 	sorted = false;
 	sortedNoCase = false;
 	words = ArrayFromStringList(list, &len, onlyLineEnds);
@@ -154,7 +153,7 @@ static void SortStringListNoCase(char **wordsNoCase, unsigned int len) {
  * The length of the word to compare is passed too.
  * Letter case can be ignored or preserved (default).
  */
-std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, bool ignoreCase /*= false*/, SString wordCharacters /*='/0' */, int wordIndex /*= -1 */) {
+std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, bool ignoreCase /*= false*/, std::string wordCharacters /*='/0' */, int wordIndex /*= -1 */) {
 	int start = 0; // lower bound of the api array block to search
 	int end = len - 1; // upper bound of the api array block to search
 	int pivot; // index of api array element just being compared
@@ -187,7 +186,7 @@ std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
 				// Finds first word in a series of equal words
 				for (pivot = start; pivot <= end; pivot++) {
 					word = wordsNoCase[pivot];
-					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
+					if (!word[searchLen] || !Contains(wordCharacters, word[searchLen])) {
 						if (wordIndex <= 0) // Checks if a specific index was requested
 							return std::string(word); // result must not be freed with free()
 						wordIndex--;
@@ -225,7 +224,7 @@ std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
 				pivot = start;
 				while (pivot <= end) {
 					word = words[pivot];
-					if (!word[searchLen] || !wordCharacters.contains(word[searchLen])) {
+					if (!word[searchLen] || !Contains(wordCharacters, word[searchLen])) {
 						if (wordIndex <= 0) // Checks if a specific index was requested
 							return std::string(word); // result must not be freed with free()
 						wordIndex--;

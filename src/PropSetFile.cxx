@@ -32,20 +32,12 @@
 
 #include "GUI.h"
 
-#include "SString.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
 #include "PropSetFile.h"
 
 // The comparison and case changing functions here assume ASCII
 // or extended ASCII such as the normal Windows code page.
-
-static inline char MakeUpperCase(char ch) {
-	if (ch < 'a' || ch > 'z')
-		return ch;
-	else
-		return static_cast<char>(ch - 'a' + 'A');
-}
 
 inline bool IsASpace(unsigned int ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
@@ -158,20 +150,6 @@ std::string PropSetFile::GetString(const char *key) const {
 	return "";
 }
 
-SString PropSetFile::Get(const char *key) const {
-	const std::string sKey(key);
-	const PropSetFile *psf = this;
-	while (psf) {
-		mapss::const_iterator keyPos = psf->props.find(sKey);
-		if (keyPos != psf->props.end()) {
-			return SString(keyPos->second.c_str());
-		}
-		// Failed here, so try in base property set
-		psf = psf->superPS;
-	}
-	return "";
-}
-
 static std::string ShellEscape(const char *toEscape) {
 	std::string str(toEscape);
 	for (int i = static_cast<int>(str.length()-1); i >= 0; --i) {
@@ -207,12 +185,12 @@ static std::string ShellEscape(const char *toEscape) {
 	return str;
 }
 
-SString PropSetFile::Evaluate(const char *key) const {
+std::string PropSetFile::Evaluate(const char *key) const {
 	if (strchr(key, ' ')) {
 		if (isprefix(key, "escape ")) {
-			SString val = Get(key+7);
+			std::string val = GetString(key+7);
 			std::string escaped = ShellEscape(val.c_str());
-			return escaped.c_str();
+			return escaped;
 		} else if (isprefix(key, "star ")) {
 			const std::string sKeybase(key + 5);
 			// Create set of variables with values
@@ -234,10 +212,10 @@ SString PropSetFile::Evaluate(const char *key) const {
 			for (mapss::const_iterator itV = values.begin(); itV != values.end(); ++itV) {
 				combination += itV->second;
 			}
-			return SString(combination.c_str());
+			return combination;
 		}
 	} else {
-		return Get(key);
+		return GetString(key);
 	}
 	return "";
 }
@@ -259,24 +237,24 @@ struct VarChain {
 	const VarChain *link;
 };
 
-static int ExpandAllInPlace(const PropSetFile &props, SString &withVars, int maxExpands, const VarChain &blankVars = VarChain()) {
-	int varStart = withVars.search("$(");
-	while ((varStart >= 0) && (maxExpands > 0)) {
-		int varEnd = withVars.search(")", varStart+2);
-		if (varEnd < 0) {
+static int ExpandAllInPlace(const PropSetFile &props, std::string &withVars, int maxExpands, const VarChain &blankVars = VarChain()) {
+	size_t varStart = withVars.find("$(");
+	while ((varStart != std::string::npos) && (maxExpands > 0)) {
+		size_t varEnd = withVars.find(")", varStart+2);
+		if (varEnd == std::string::npos) {
 			break;
 		}
 
 		// For consistency, when we see '$(ab$(cde))', expand the inner variable first,
 		// regardless whether there is actually a degenerate variable named 'ab$(cde'.
-		int innerVarStart = withVars.search("$(", varStart+2);
-		while ((innerVarStart > varStart) && (innerVarStart < varEnd)) {
+		size_t innerVarStart = withVars.find("$(", varStart+2);
+		while ((innerVarStart != std::string::npos) && (innerVarStart < varEnd)) {
 			varStart = innerVarStart;
-			innerVarStart = withVars.search("$(", varStart+2);
+			innerVarStart = withVars.find("$(", varStart+2);
 		}
 
-		SString var(withVars.c_str(), varStart + 2, varEnd);
-		SString val = props.Evaluate(var.c_str());
+		std::string var(withVars.c_str(), varStart + 2, varEnd - (varStart + 2));
+		std::string val = props.Evaluate(var.c_str());
 
 		if (blankVars.contains(var.c_str())) {
 			val.clear(); // treat blankVar as an empty string (e.g. to block self-reference)
@@ -286,51 +264,32 @@ static int ExpandAllInPlace(const PropSetFile &props, SString &withVars, int max
 			maxExpands = ExpandAllInPlace(props, val, maxExpands, VarChain(var.c_str(), &blankVars));
 		}
 
-		withVars.remove(varStart, varEnd-varStart+1);
-		withVars.insert(varStart, val.c_str(), val.length());
+		withVars.erase(varStart, varEnd-varStart+1);
+		withVars.insert(varStart, val);
 
-		varStart = withVars.search("$(");
+		varStart = withVars.find("$(");
 	}
 
 	return maxExpands;
 }
 
-SString PropSetFile::GetExpanded(const char *key) const {
-	SString val = Get(key);
+std::string PropSetFile::GetExpandedString(const char *key) const {
+	std::string val = GetString(key);
 	ExpandAllInPlace(*this, val, 100, VarChain(key));
 	return val;
 }
 
-std::string PropSetFile::GetExpandedString(const char *key) const {
-	SString val = Get(key);
-	ExpandAllInPlace(*this, val, 100, VarChain(key));
-	return std::string(val.c_str(), val.length());
-}
-
-SString PropSetFile::Expand(const char *withVars, int maxExpands) const {
-	SString val = withVars;
+std::string PropSetFile::Expand(const char *withVars, int maxExpands) const {
+	std::string val = withVars;
 	ExpandAllInPlace(*this, val, maxExpands);
 	return val;
 }
 
 int PropSetFile::GetInt(const char *key, int defaultValue) const {
-	SString val = GetExpanded(key);
+	std::string val = GetExpandedString(key);
 	if (val.length())
-		return val.value();
+		return atoi(val.c_str());
 	return defaultValue;
-}
-
-static bool isPrefix(const char *target, const char *prefix) {
-	while (*target && *prefix) {
-		if (*target != *prefix)
-			return false;
-		target++;
-		prefix++;
-	}
-	if (*prefix)
-		return false;
-	else
-		return true;
 }
 
 void PropSetFile::Clear() {
@@ -382,13 +341,6 @@ static bool IsCommentLine(const char *line) {
 	return (*line == '#');
 }
 
-bool IsPropertiesFile(const FilePath &filename) {
-	FilePath ext = filename.Extension();
-	if (EqualCaseInsensitive(ext.AsUTF8().c_str(), PROPERTIES_EXTENSION + 1))
-		return true;
-	return false;
-}
-
 static bool GenericPropertiesFile(const FilePath &filename) {
 	std::string name = filename.BaseName().AsUTF8();
 	if (name == "abbrev" || name == "Embedded")
@@ -411,10 +363,10 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 	//UnSlash(lineBuffer);
 	if (!IsSpaceOrTab(lineBuffer[0]))    // If clause ends with first non-indented line
 		ifIsTrue = true;
-	if (isPrefix(lineBuffer, "if ")) {
+	if (isprefix(lineBuffer, "if ")) {
 		const char *expr = lineBuffer + strlen("if") + 1;
 		ifIsTrue = GetInt(expr) != 0;
-	} else if (isPrefix(lineBuffer, "import ") && directoryForImports.IsSet()) {
+	} else if (isprefix(lineBuffer, "import ") && directoryForImports.IsSet()) {
 		std::string importName(lineBuffer + strlen("import") + 1);
 		if (importName == "*") {
 			// Import all .properties files in this directory except for system properties
@@ -526,7 +478,7 @@ static bool MatchWild(const char *pattern, size_t lenPattern, const char *fileNa
 }
 
 static bool startswith(const std::string &s, const char *keybase) {
-	return isPrefix(s.c_str(), keybase);
+	return isprefix(s.c_str(), keybase);
 }
 
 std::string PropSetFile::GetWildUsingStart(const PropSetFile &psStart, const char *keybase, const char *filename) {
@@ -537,14 +489,15 @@ std::string PropSetFile::GetWildUsingStart(const PropSetFile &psStart, const cha
 		mapss::const_iterator it = psf->props.lower_bound(sKeybase);
 		while ((it != psf->props.end()) && startswith(it->first, keybase)) {
 			const char *orgkeyfile = it->first.c_str() + lenKeybase;
-			char *keyptr = NULL;
+			const char *keyptr = NULL;
+			std::string key;
 
 			if (strncmp(orgkeyfile, "$(", 2) == 0) {
 				const char *cpendvar = strchr(orgkeyfile, ')');
 				if (cpendvar) {
 					std::string var(orgkeyfile, 2, cpendvar - orgkeyfile - 2);
-					std::string s = psStart.GetExpandedString(var.c_str());
-					keyptr = StringDup(s.c_str());
+					key = psStart.GetExpandedString(var.c_str());
+					keyptr = key.c_str();
 				}
 			}
 			const char *keyfile = keyptr;
@@ -557,14 +510,12 @@ std::string PropSetFile::GetWildUsingStart(const PropSetFile &psStart, const cha
 				if (del == NULL)
 					del = keyfile + strlen(keyfile);
 				if (MatchWild(keyfile, del - keyfile, filename, caseSensitiveFilenames)) {
-					delete []keyptr;
 					return it->second;
 				}
 				if (*del == '\0')
 					break;
 				keyfile = del + 1;
 			}
-			delete []keyptr;
 
 			if (0 == strcmp(it->first.c_str(), keybase)) {
 				return it->second;
@@ -581,43 +532,27 @@ std::string PropSetFile::GetWild(const char *keybase, const char *filename) {
 	return GetWildUsingStart(*this, keybase, filename);
 }
 
-// GetNewExpand does not use Expand as it has to use GetWild with the filename for each
+// GetNewExpandString does not use Expand as it has to use GetWild with the filename for each
 // variable reference found.
 
-SString PropSetFile::GetNewExpand(const char *keybase, const char *filename) {
-	SString sret = GetNewExpandString(keybase, filename).c_str();
-	return sret;
-}
-
 std::string PropSetFile::GetNewExpandString(const char *keybase, const char *filename) {
-	char *base = StringDup(GetWild(keybase, filename).c_str());
-	assert(base);
-	char *cpvar = strstr(base, "$(");
+	std::string withVars = GetWild(keybase, filename);
+	size_t varStart = withVars.find("$(");
 	int maxExpands = 1000;	// Avoid infinite expansion of recursive definitions
-	while (cpvar && (maxExpands > 0)) {
-		const char *cpendvar = strchr(cpvar, ')');
-		if (cpendvar) {
-			ptrdiff_t lenvar = cpendvar - cpvar - 2;  	// Subtract the $()
-			char *var = StringDup(cpvar + 2, lenvar);
-			assert(var);
-			std::string val = GetWild(var, filename);
-			if (0 == strcmp(var, keybase))
-				val.clear(); // Self-references evaluate to empty string
-			size_t newlenbase = strlen(base) + val.length() - lenvar;
-			char *newbase = new char[newlenbase];
-			strncpy(newbase, base, cpvar - base);
-			strcpy(newbase + (cpvar - base), val.c_str());
-			strcpy(newbase + (cpvar - base) + val.length(), cpendvar + 1);
-			delete []var;
-			delete []base;
-			base = newbase;
+	while ((varStart != std::string::npos) && (maxExpands > 0)) {
+		size_t varEnd = withVars.find(")", varStart+2);
+		if (varEnd == std::string::npos) {
+			break;
 		}
-		cpvar = strstr(base, "$(");
+		std::string var(withVars, varStart + 2, varEnd - varStart - 2);	// Subtract the $(
+		std::string val = GetWild(var.c_str(), filename);
+		if (var == keybase)
+			val.clear(); // Self-references evaluate to empty string
+		withVars.replace(varStart, varEnd - varStart + 1, val);
+		varStart = withVars.find("$(");
 		maxExpands--;
 	}
-	std::string sret = base;
-	delete []base;
-	return sret;
+	return withVars;
 }
 
 /**
@@ -650,257 +585,9 @@ bool PropSetFile::GetNext(const char *&key, const char *&val) {
 	return false;
 }
 
-int CompareNoCase(const char *a, const char *b) {
-	while (*a && *b) {
-		if (*a != *b) {
-			char upperA = MakeUpperCase(*a);
-			char upperB = MakeUpperCase(*b);
-			if (upperA != upperB)
-				return upperA - upperB;
-		}
-		a++;
-		b++;
-	}
-	// Either *a or *b is nul
-	return *a - *b;
-}
-
-bool EqualCaseInsensitive(const char *a, const char *b) {
-	return 0 == CompareNoCase(a, b);
-}
-
-// Since the CaseInsensitive functions declared in SString
-// are implemented here, I will for now put the non-inline
-// implementations of the SString members here as well, so
-// that I can quickly see what effect this has.
-
-void SString::grow(lenpos_t lenNew) {
-	while (sizeGrowth * 6 < lenNew) {
-		sizeGrowth *= 2;
-	}
-	char *sNew = new char[lenNew + sizeGrowth + 1];
-	if (s) {
-		memcpy(sNew, s, sLen);
-		delete []s;
-	}
-	s = sNew;
-	s[sLen] = '\0';
-	sSize = lenNew + sizeGrowth;
-}
-
-SString &SString::assign(const char *sOther, lenpos_t sSize_) {
-	if (!sOther) {
-		sSize_ = 0;
-	} else if (sSize_ == measure_length) {
-		sSize_ = strlen(sOther);
-	}
-	if (sSize > 0 && sSize_ <= sSize) {	// Does not allocate new buffer if the current is big enough
-		if (s) {
-			if (sSize_) {
-				memcpy(s, sOther, sSize_);
-			}
-			s[sSize_] = '\0';
-		}
-		sLen = sSize_;
-	} else {
-		delete []s;
-		s = StringAllocate(sOther, sSize_);
-		if (s) {
-			sSize = sSize_;	// Allow buffer bigger than real string, thus providing space to grow
-			sLen = sSize_;
-		} else {
-			sSize = sLen = 0;
-		}
-	}
-	return *this;
-}
-
-bool SString::operator==(const SString &sOther) const {
-	if ((s == 0) && (sOther.s == 0))
+bool IsPropertiesFile(const FilePath &filename) {
+	FilePath ext = filename.Extension();
+	if (EqualCaseInsensitive(ext.AsUTF8().c_str(), PROPERTIES_EXTENSION + 1))
 		return true;
-	if ((s == 0) || (sOther.s == 0))
-		return false;
-	return strcmp(s, sOther.s) == 0;
-}
-
-bool SString::operator==(const char *sOther) const {
-	if ((s == 0) && (sOther == 0))
-		return true;
-	if ((s == 0) || (sOther == 0))
-		return false;
-	return strcmp(s, sOther) == 0;
-}
-
-SString SString::substr(lenpos_t subPos, lenpos_t subLen) const {
-	if (subPos >= sLen) {
-		return SString();					// return a null string if start index is out of bounds
-	}
-	if ((subLen == measure_length) || (subPos + subLen > sLen)) {
-		subLen = sLen - subPos;		// can't substr past end of source string
-	}
-	return SString(s, subPos, subPos + subLen);
-}
-
-SString &SString::lowercase(lenpos_t subPos, lenpos_t subLen) {
-	if ((subLen == measure_length) || (subPos + subLen > sLen)) {
-		subLen = sLen - subPos;		// don't apply past end of string
-	}
-	for (lenpos_t i = subPos; i < subPos + subLen; i++) {
-		if (s[i] < 'A' || s[i] > 'Z')
-			continue;
-		else
-			s[i] = static_cast<char>(s[i] - 'A' + 'a');
-	}
-	return *this;
-}
-
-SString &SString::append(const char *sOther, lenpos_t sLenOther, char sep) {
-	if (!sOther) {
-		return *this;
-	}
-	if (sLenOther == measure_length) {
-		sLenOther = strlen(sOther);
-	}
-	int lenSep = 0;
-	if (sLen && sep) {	// Only add a separator if not empty
-		lenSep = 1;
-	}
-	lenpos_t lenNew = sLen + sLenOther + lenSep;
-	// Conservative about growing the buffer: don't do it, unless really needed
-	if (lenNew >= sSize) {
-		grow(lenNew);
-	}
-	if (lenSep) {
-		s[sLen] = sep;
-		sLen++;
-	}
-	assert(s);
-	memcpy(&s[sLen], sOther, sLenOther);
-	sLen += sLenOther;
-	s[sLen] = '\0';
-	return *this;
-}
-
-SString &SString::insert(lenpos_t pos, const char *sOther, lenpos_t sLenOther) {
-	if (!sOther || pos > sLen) {
-		return *this;
-	}
-	if (sLenOther == measure_length) {
-		sLenOther = strlen(sOther);
-	}
-	lenpos_t lenNew = sLen + sLenOther;
-	// Conservative about growing the buffer: don't do it, unless really needed
-	if (lenNew >= sSize) {
-		grow(lenNew);
-	}
-	lenpos_t moveChars = sLen - pos + 1;
-	for (lenpos_t i = moveChars; i > 0; i--) {
-		s[pos + sLenOther + i - 1] = s[pos + i - 1];
-	}
-	memcpy(s + pos, sOther, sLenOther);
-	sLen = lenNew;
-	return *this;
-}
-
-/**
- * Remove @a len characters from the @a pos position, included.
- * Characters at pos + len and beyond replace characters at pos.
- * If @a len is 0, or greater than the length of the string
- * starting at @a pos, the string is just truncated at @a pos.
- */
-void SString::remove(lenpos_t pos, lenpos_t len) {
-	if (pos >= sLen) {
-		return;
-	}
-	if (len < 1 || pos + len >= sLen) {
-		s[pos] = '\0';
-		sLen = pos;
-	} else {
-		for (lenpos_t i = pos; i < sLen - len + 1; i++) {
-			s[i] = s[i+len];
-		}
-		sLen -= len;
-	}
-}
-
-bool SString::startswith(const char *prefix) {
-	lenpos_t lenPrefix = strlen(prefix);
-	if (lenPrefix > sLen) {
-		return false;
-	}
-	return strncmp(s, prefix, lenPrefix) == 0;
-}
-
-int SString::search(const char *sFind, lenpos_t start) const {
-	if (start < sLen) {
-		const char *sFound = strstr(s + start, sFind);
-		if (sFound) {
-			return static_cast<int>(sFound - s);
-		}
-	}
-	return -1;
-}
-
-int SString::substitute(char chFind, char chReplace) {
-	int c = 0;
-	char *t = s;
-	while (t) {
-		t = strchr(t, chFind);
-		if (t) {
-			*t = chReplace;
-			t++;
-			c++;
-		}
-	}
-	return c;
-}
-
-int SString::substitute(const char *sFind, const char *sReplace) {
-	int c = 0;
-	lenpos_t lenFind = strlen(sFind);
-	lenpos_t lenReplace = strlen(sReplace);
-	int posFound = search(sFind);
-	while (posFound >= 0) {
-		remove(posFound, lenFind);
-		insert(posFound, sReplace, lenReplace);
-		posFound = search(sFind, posFound + lenReplace);
-		c++;
-	}
-	return c;
-}
-
-char *SContainer::StringAllocate(lenpos_t len) {
-	if (len != measure_length) {
-		return new char[len + 1];
-	} else {
-		return 0;
-	}
-}
-
-char *SContainer::StringAllocate(const char *sValue, lenpos_t len) {
-	if (sValue == 0) {
-		return 0;
-	}
-	if (len == measure_length) {
-		len = strlen(sValue);
-	}
-	char *sNew = new char[len + 1];
-	memcpy(sNew, sValue, len);
-	sNew[len] = '\0';
-	return sNew;
-}
-
-// End SString functions
-
-bool isprefix(const char *target, const char *prefix) {
-	while (*target && *prefix) {
-		if (*target != *prefix)
-			return false;
-		target++;
-		prefix++;
-	}
-	if (*prefix)
-		return false;
-	else
-		return true;
+	return false;
 }

@@ -232,7 +232,7 @@ enum IndentationStatus {
 
 struct StyleAndWords {
 	int styleNumber;
-	SString words;
+	std::string words;
 	StyleAndWords() : styleNumber(0) {
 	}
 	bool IsEmpty() const { return words.length() == 0; }
@@ -362,7 +362,7 @@ protected:
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
 	std::string parameterisedCommand;
-	SString abbrevInsert;
+	std::string abbrevInsert;
 
 	enum { languageCmdID = IDM_LANGUAGE };
 	std::vector<LanguageMenuItem> languageMenu;
@@ -372,11 +372,11 @@ protected:
 
 	int codePage;
 	int characterSet;
-	SString language;
+	std::string language;
 	int lexLanguage;
 	int lexLPeg;
 	StringList apis;
-	SString apisFileNames;
+	std::string apisFileNames;
 	std::string functionDefinition;
 
 	int diagnosticStyleStart;
@@ -409,7 +409,7 @@ protected:
 	bool tabHideOne; // Hide tab bar if one buffer is opened only
 	bool tabMultiLine;
 	bool sbVisible;	///< @c true if status bar is visible.
-	SString sbValue;	///< Status bar text.
+	std::string sbValue;	///< Status bar text.
 	int sbNum;	///< Number of the currently displayed status bar information.
 	int visHeightTools;
 	int visHeightTab;
@@ -455,19 +455,19 @@ protected:
 	bool callTipUseEscapes;
 	bool callTipIgnoreCase;
 	bool autoCCausedByOnlyOne;
-	SString calltipWordCharacters;
-	SString calltipParametersStart;
-	SString calltipParametersEnd;
-	SString calltipParametersSeparators;
-	SString calltipEndDefinition;
-	SString autoCompleteStartCharacters;
-	SString autoCompleteFillUpCharacters;
-	SString wordCharacters;
-	SString whitespaceCharacters;
+	std::string calltipWordCharacters;
+	std::string calltipParametersStart;
+	std::string calltipParametersEnd;
+	std::string calltipParametersSeparators;
+	std::string calltipEndDefinition;
+	std::string autoCompleteStartCharacters;
+	std::string autoCompleteFillUpCharacters;
+	std::string wordCharacters;
+	std::string whitespaceCharacters;
 	int startCalltipWord;
 	int currentCallTip;
 	int maxCallTips;
-	SString currentCallTipWord;
+	std::string currentCallTipWord;
 	int lastPosCallTip;
 
 	bool margin;
@@ -489,7 +489,7 @@ protected:
 	JobQueue jobQueue;
 
 	bool macrosEnabled;
-	SString currentMacro;
+	std::string currentMacro;
 	bool recording;
 
 	PropSetFile propsEmbed;
@@ -725,7 +725,7 @@ protected:
 	virtual void ParamGrab() = 0;
 	virtual bool ParametersDialog(bool modal) = 0;
 	bool HandleXml(char ch);
-	static SString FindOpenXmlTag(const char sel[], int nSize);
+	static std::string FindOpenXmlTag(const char sel[], int nSize);
 	void GoMatchingBrace(bool select);
 	void GoMatchingPreprocCond(int direction, bool select);
 	virtual void FindReplace(bool replace) = 0;
@@ -750,7 +750,7 @@ protected:
 	virtual bool StartBlockComment();
 	virtual bool StartBoxComment();
 	virtual bool StartStreamComment();
-	unsigned int GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
+	unsigned int GetLinePartsInStyle(int line, int style1, int style2, std::string sv[], int len);
 	void SetLineIndentation(int line, int indent);
 	int GetLineIndentation(int line);
 	int GetLineIndentPosition(int line);
@@ -850,7 +850,7 @@ protected:
 	GUI::gui_string LocaliseMessage(const char *s,
 		const GUI::gui_char *param0 = 0, const GUI::gui_char *param1 = 0, const GUI::gui_char *param2 = 0);
 	virtual void ReadLocalization();
-	SString GetFileNameProperty(const char *name);
+	std::string GetFileNameProperty(const char *name);
 	virtual void ReadPropertiesInitial();
 	void ReadFontProperties();
 	void SetOverrideLanguage(int cmdID);
@@ -859,8 +859,8 @@ protected:
 	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
 	void DefineMarker(int marker, int markerType, Colour fore, Colour back, Colour backSelected);
-	void ReadAPI(const SString &fileNameForExtension);
-	SString FindLanguageProperty(const char *pattern, const char *defaultValue = "");
+	void ReadAPI(const std::string &fileNameForExtension);
+	std::string FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
 	void SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd);
 	void SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last);

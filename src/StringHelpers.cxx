@@ -36,6 +36,10 @@ bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end) {
 		(std::equal(s.begin() + s.size() - end.size(), s.end(), end.begin()));
 }
 
+bool Contains(std::string const &s, char ch) {
+	return s.find(ch) != std::string::npos;
+}
+
 int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &sReplace) {
 	int c = 0;
 	size_t lenFind = sFind.size();
@@ -99,6 +103,38 @@ static int LowerCaseAZ(int c) {
 
 void LowerCaseAZ(std::string &s) {
 	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(LowerCaseAZ));
+}
+
+int CompareNoCase(const char *a, const char *b) {
+	while (*a && *b) {
+		if (*a != *b) {
+			char upperA = MakeUpperCase(*a);
+			char upperB = MakeUpperCase(*b);
+			if (upperA != upperB)
+				return upperA - upperB;
+		}
+		a++;
+		b++;
+	}
+	// Either *a or *b is nul
+	return *a - *b;
+}
+
+bool EqualCaseInsensitive(const char *a, const char *b) {
+	return 0 == CompareNoCase(a, b);
+}
+
+bool isprefix(const char *target, const char *prefix) {
+	while (*target && *prefix) {
+		if (*target != *prefix)
+			return false;
+		target++;
+		prefix++;
+	}
+	if (*prefix)
+		return false;
+	else
+		return true;
 }
 
 /**

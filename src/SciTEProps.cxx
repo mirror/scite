@@ -36,7 +36,6 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 
 #endif
 
-#include "SString.h"
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
@@ -334,12 +333,12 @@ static long FileLength(const char *path) {
 	return len;
 }
 
-void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
-	SString sApiFileNames = props.GetNewExpand("api.",
+void SciTEBase::ReadAPI(const std::string &fileNameForExtension) {
+	std::string sApiFileNames = props.GetNewExpandString("api.",
 	                        fileNameForExtension.c_str());
 	size_t nameLength = sApiFileNames.length();
 	if (nameLength) {
-		sApiFileNames.substitute(';', '\0');
+		std::replace(sApiFileNames.begin(), sApiFileNames.end(), ';', '\0');
 		const char *apiFileName = sApiFileNames.c_str();
 		const char *nameEnd = apiFileName + nameLength;
 
@@ -377,12 +376,12 @@ void SciTEBase::ReadAPI(const SString &fileNameForExtension) {
 	}
 }
 
-SString SciTEBase::FindLanguageProperty(const char *pattern, const char *defaultValue) {
-	SString key = pattern;
-	key.substitute("*", language.c_str());
-	SString ret = props.GetExpanded(key.c_str());
+std::string SciTEBase::FindLanguageProperty(const char *pattern, const char *defaultValue) {
+	std::string key = pattern;
+	Substitute(key, "*", language.c_str());
+	std::string ret = props.GetExpandedString(key.c_str());
 	if (ret == "")
-		ret = props.GetExpanded(pattern);
+		ret = props.GetExpandedString(pattern);
 	if (ret == "")
 		ret = defaultValue;
 	return ret;
@@ -595,15 +594,15 @@ static const char *bookmarkBluegem[] = {
 "    1GdddG1    "
 };
 
-SString SciTEBase::GetFileNameProperty(const char *name) {
+std::string SciTEBase::GetFileNameProperty(const char *name) {
 	std::string namePlusDot = name;
 	namePlusDot.append(".");
-	SString valueForFileName = props.GetNewExpand(namePlusDot.c_str(),
+	std::string valueForFileName = props.GetNewExpandString(namePlusDot.c_str(),
 	        ExtensionFileName().c_str());
 	if (valueForFileName.length() != 0) {
 		return valueForFileName;
 	} else {
-		return props.Get(name);
+		return props.GetString(name);
 	}
 }
 
@@ -611,23 +610,23 @@ void SciTEBase::ReadProperties() {
 	if (extender)
 		extender->Clear();
 
-	std::string fileNameForExtension = ExtensionFileName();
+	const std::string fileNameForExtension = ExtensionFileName();
 
-	SString modulePath = props.GetNewExpand("lexerpath.",
+	std::string modulePath = props.GetNewExpandString("lexerpath.",
 	    fileNameForExtension.c_str());
 	if (modulePath.length())
 	    wEditor.CallString(SCI_LOADLEXERLIBRARY, 0, modulePath.c_str());
-	language = props.GetNewExpand("lexer.", fileNameForExtension.c_str());
+	language = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
 	if (language.length()) {
-		if (language.startswith("script_")) {
+		if (StartsWith(language, "script_")) {
 			wEditor.Call(SCI_SETLEXER, SCLEX_CONTAINER);
-		} else if (language.startswith("lpeg_")) {
-			modulePath = props.GetNewExpand("lexerpath.*.lpeg");
+		} else if (StartsWith(language, "lpeg_")) {
+			modulePath = props.GetNewExpandString("lexerpath.*.lpeg");
 			if (modulePath.length()) {
 				wEditor.CallString(SCI_LOADLEXERLIBRARY, 0, modulePath.c_str());
 				wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, "lpeg");
 				lexLPeg = wEditor.Call(SCI_GETLEXER);
-				const char *lexer = language.c_str() + language.search("_") + 1;
+				const char *lexer = language.c_str() + language.find("_") + 1;
 				wEditor.CallReturnPointer(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE,
 					reinterpret_cast<sptr_t>(lexer));
 			}
@@ -642,21 +641,21 @@ void SciTEBase::ReadProperties() {
 
 	lexLanguage = wEditor.Call(SCI_GETLEXER);
 
-	if (language.startswith("script_") || language.startswith("lpeg_"))
+	if (StartsWith(language, "script_") || StartsWith(language, "lpeg_"))
 		wEditor.Call(SCI_SETSTYLEBITS, 8);
 	else
 		wEditor.Call(SCI_SETSTYLEBITS, wEditor.Call(SCI_GETSTYLEBITSNEEDED));
 
 	wOutput.Call(SCI_SETLEXER, SCLEX_ERRORLIST);
 
-	SString kw0 = props.GetNewExpand("keywords.", fileNameForExtension.c_str());
+	const std::string kw0 = props.GetNewExpandString("keywords.", fileNameForExtension.c_str());
 	wEditor.CallString(SCI_SETKEYWORDS, 0, kw0.c_str());
 
 	for (int wl = 1; wl <= KEYWORDSET_MAX; wl++) {
 		std::string kwk = StdStringFromInteger(wl+1);
 		kwk += '.';
 		kwk.insert(0, "keywords");
-		SString kw = props.GetNewExpand(kwk.c_str(), fileNameForExtension.c_str());
+		const std::string kw = props.GetNewExpandString(kwk.c_str(), fileNameForExtension.c_str());
 		wEditor.CallString(SCI_SETKEYWORDS, wl, kw.c_str());
 	}
 
@@ -669,15 +668,15 @@ void SciTEBase::ReadProperties() {
 		ForwardPropertyToEditor(propertiesToForward[i]);
 	}
 
-	if (apisFileNames != props.GetNewExpand("api.",	fileNameForExtension.c_str())) {
+	if (apisFileNames != props.GetNewExpandString("api.", fileNameForExtension.c_str())) {
 		apis.Clear();
 		ReadAPI(fileNameForExtension);
-		apisFileNames = props.GetNewExpand("api.", fileNameForExtension.c_str());
+		apisFileNames = props.GetNewExpandString("api.", fileNameForExtension.c_str());
 	}
 
 	props.Set("APIPath", apisFileNames.c_str());
 
-	FilePath fileAbbrev = GUI::StringFromUTF8(props.GetNewExpand("abbreviations.", fileNameForExtension.c_str()).c_str());
+	FilePath fileAbbrev = GUI::StringFromUTF8(props.GetNewExpandString("abbreviations.", fileNameForExtension.c_str()).c_str());
 	if (!fileAbbrev.IsSet())
 		fileAbbrev = GetAbbrevPropertiesFileName();
 	if (!pathAbbreviations.SameNameAs(fileAbbrev)) {
@@ -703,7 +702,7 @@ void SciTEBase::ReadProperties() {
 	characterSet = props.GetInt("character.set", SC_CHARSET_DEFAULT);
 
 #ifdef __unix__
-	SString localeCType = props.Get("LC_CTYPE");
+	const std::string localeCType = props.GetString("LC_CTYPE");
 	if (localeCType.length())
 		setlocale(LC_CTYPE, localeCType.c_str());
 	else
@@ -749,17 +748,17 @@ void SciTEBase::ReadProperties() {
 
 	closeFind = props.GetInt("find.close.on.find", 1);
 
-	SString controlCharSymbol = props.Get("control.char.symbol");
+	const std::string controlCharSymbol = props.GetString("control.char.symbol");
 	if (controlCharSymbol.length()) {
 		wEditor.Call(SCI_SETCONTROLCHARSYMBOL, static_cast<unsigned char>(controlCharSymbol[0]));
 	} else {
 		wEditor.Call(SCI_SETCONTROLCHARSYMBOL, 0);
 	}
 
-	SString caretPeriod = props.Get("caret.period");
+	const std::string caretPeriod = props.GetString("caret.period");
 	if (caretPeriod.length()) {
-		wEditor.Call(SCI_SETCARETPERIOD, caretPeriod.value());
-		wOutput.Call(SCI_SETCARETPERIOD, caretPeriod.value());
+		wEditor.Call(SCI_SETCARETPERIOD, atoi(caretPeriod.c_str()));
+		wOutput.Call(SCI_SETCARETPERIOD, atoi(caretPeriod.c_str()));
 	}
 
 	int caretSlop = props.GetInt("caret.policy.xslop", 1) ? CARET_SLOP : 0;
@@ -846,7 +845,7 @@ void SciTEBase::ReadProperties() {
 	bracesStyle = props.GetInt(bracesStyleKey, 0);
 
 	char key[200];
-	SString sval;
+	std::string sval;
 
 	sval = FindLanguageProperty("calltip.*.ignorecase");
 	callTipIgnoreCase = sval == "1";
@@ -862,24 +861,24 @@ void SciTEBase::ReadProperties() {
 	calltipEndDefinition = FindLanguageProperty("calltip.*.end.definition");
 
 	sprintf(key, "autocomplete.%s.start.characters", language.c_str());
-	autoCompleteStartCharacters = props.GetExpanded(key);
+	autoCompleteStartCharacters = props.GetExpandedString(key);
 	if (autoCompleteStartCharacters == "")
-		autoCompleteStartCharacters = props.GetExpanded("autocomplete.*.start.characters");
+		autoCompleteStartCharacters = props.GetExpandedString("autocomplete.*.start.characters");
 	// "" is a quite reasonable value for this setting
 
 	sprintf(key, "autocomplete.%s.fillups", language.c_str());
-	autoCompleteFillUpCharacters = props.GetExpanded(key);
+	autoCompleteFillUpCharacters = props.GetExpandedString(key);
 	if (autoCompleteFillUpCharacters == "")
 		autoCompleteFillUpCharacters =
-			props.GetExpanded("autocomplete.*.fillups");
+			props.GetExpandedString("autocomplete.*.fillups");
 	wEditor.CallString(SCI_AUTOCSETFILLUPS, 0,
 		autoCompleteFillUpCharacters.c_str());
 
 	sprintf(key, "autocomplete.%s.ignorecase", "*");
-	sval = props.GetNewExpand(key);
+	sval = props.GetNewExpandString(key);
 	autoCompleteIgnoreCase = sval == "1";
 	sprintf(key, "autocomplete.%s.ignorecase", language.c_str());
-	sval = props.GetNewExpand(key);
+	sval = props.GetNewExpandString(key);
 	if (sval != "")
 		autoCompleteIgnoreCase = sval == "1";
 	wEditor.Call(SCI_AUTOCSETIGNORECASE, autoCompleteIgnoreCase ? 1 : 0);
@@ -915,11 +914,11 @@ void SciTEBase::ReadProperties() {
 		marginWidth = marginWidthDefault;
 	wEditor.Call(SCI_SETMARGINWIDTHN, 1, margin ? marginWidth : 0);
 
-	SString lineMarginProp = props.Get("line.margin.width");
-	lineNumbersWidth = lineMarginProp.value();
+	const std::string lineMarginProp = props.GetString("line.margin.width");
+	lineNumbersWidth = atoi(lineMarginProp.c_str());
 	if (lineNumbersWidth == 0)
 		lineNumbersWidth = lineNumbersWidthDefault;
-	lineNumbersExpand = lineMarginProp.contains('+');
+	lineNumbersExpand = lineMarginProp.find('+') != std::string::npos;
 
 	SetLineNumberWidth();
 
@@ -940,20 +939,20 @@ void SciTEBase::ReadProperties() {
 	bracesSloppy = props.GetInt("braces.sloppy");
 
 	wEditor.Call(SCI_SETCHARSDEFAULT);
-	wordCharacters = props.GetNewExpand("word.characters.", fileNameForExtension.c_str());
+	wordCharacters = props.GetNewExpandString("word.characters.", fileNameForExtension.c_str());
 	if (wordCharacters.length()) {
 		wEditor.CallString(SCI_SETWORDCHARS, 0, wordCharacters.c_str());
 	} else {
 		wordCharacters = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	}
 
-	whitespaceCharacters = props.GetNewExpand("whitespace.characters.", fileNameForExtension.c_str());
+	whitespaceCharacters = props.GetNewExpandString("whitespace.characters.", fileNameForExtension.c_str());
 	if (whitespaceCharacters.length()) {
 		wEditor.CallString(SCI_SETWHITESPACECHARS, 0, whitespaceCharacters.c_str());
 	}
 
-	SString viewIndentExamine = GetFileNameProperty("view.indentation.examine");
-	indentExamine = viewIndentExamine.length() ? viewIndentExamine.value() : SC_IV_REAL;
+	const std::string viewIndentExamine = GetFileNameProperty("view.indentation.examine");
+	indentExamine = viewIndentExamine.length() ? (atoi(viewIndentExamine.c_str())) : SC_IV_REAL;
 	wEditor.Call(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides") ?
 		indentExamine : SC_IV_NONE);
 
@@ -964,10 +963,10 @@ void SciTEBase::ReadProperties() {
 
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
-	indentMaintain = props.GetNewExpand("indent.maintain.", fileNameForExtension.c_str()).value();
+	indentMaintain = atoi(props.GetNewExpandString("indent.maintain.", fileNameForExtension.c_str()).c_str());
 
-	SString lookback = props.GetNewExpand("statement.lookback.", fileNameForExtension.c_str());
-	statementLookback = lookback.value();
+	const std::string lookback = props.GetNewExpandString("statement.lookback.", fileNameForExtension.c_str());
+	statementLookback = atoi(lookback.c_str());
 	statementIndent = GetStyleAndWords("statement.indent.");
 	statementEnd = GetStyleAndWords("statement.end.");
 	blockStart = GetStyleAndWords("block.start.");
@@ -981,19 +980,18 @@ void SciTEBase::ReadProperties() {
 		{"preprocessor.middle.", ppcMiddle},
 		{"preprocessor.end.", ppcEnd},
 	};
-	SString list;
-	list = props.GetNewExpand("preprocessor.symbol.", fileNameForExtension.c_str());
+	std::string list = props.GetNewExpandString("preprocessor.symbol.", fileNameForExtension.c_str());
 	preprocessorSymbol = list[0];
 	preprocOfString.clear();
 	for (size_t iPreproc = 0; iPreproc < ELEMENTS(propToPPC); iPreproc++) {
-		list = props.GetNewExpand(propToPPC[iPreproc].propName, fileNameForExtension.c_str());
-		std::vector<std::string> words = StringSplit(std::string(list.c_str()), ' ');
+		list = props.GetNewExpandString(propToPPC[iPreproc].propName, fileNameForExtension.c_str());
+		std::vector<std::string> words = StringSplit(list, ' ');
 		for (std::vector<std::string>::iterator it = words.begin(); it != words.end(); ++it) {
 			preprocOfString[*it] = propToPPC[iPreproc].ppc;
 		}
 	}
 
-	memFiles.AppendList(props.GetNewExpand("find.files").c_str());
+	memFiles.AppendList(props.GetNewExpandString("find.files").c_str());
 
 	wEditor.Call(SCI_SETWRAPVISUALFLAGS, props.GetInt("wrap.visual.flags"));
 	wEditor.Call(SCI_SETWRAPVISUALFLAGSLOCATION, props.GetInt("wrap.visual.flags.location"));
@@ -1164,11 +1162,11 @@ void SciTEBase::ReadProperties() {
 		ColourOfProperty(props, "bookmark.back", ColourRGB(0xe2, 0x40, 0x40)));
 	wEditor.Call(SCI_MARKERSETALPHA, markerBookmark,
 		props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA));
-	SString bookMarkXPM = props.Get("bookmark.pixmap");
+	const std::string bookMarkXPM = props.GetString("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
 		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
 			bookMarkXPM.c_str());
-	} else if (props.Get("bookmark.fore").length()) {
+	} else if (props.GetString("bookmark.fore").length()) {
 		wEditor.Call(SCI_MARKERDEFINE, markerBookmark, SC_MARK_BOOKMARK);
 	} else {
 		// No bookmark.fore setting so display default pixmap.
@@ -1197,7 +1195,7 @@ void SciTEBase::ReadProperties() {
 
 	currentWordHighlight.isEnabled = props.GetInt("highlight.current.word", 0) == 1;
 	if (currentWordHighlight.isEnabled) {
-		SString highlightCurrentWordIndicatorString = props.Get("highlight.current.word.indicator");
+		const std::string highlightCurrentWordIndicatorString = props.GetString("highlight.current.word.indicator");
 		IndicatorDefinition highlightCurrentWordIndicator(highlightCurrentWordIndicatorString.c_str());
 		if (highlightCurrentWordIndicatorString.length() == 0) {
 			highlightCurrentWordIndicator.style = INDIC_ROUNDBOX;
@@ -1222,7 +1220,7 @@ void SciTEBase::ReadProperties() {
 
 		// Check for an extension script
 		GUI::gui_string extensionFile = GUI::StringFromUTF8(
-			props.GetNewExpand("extension.", fileNameForExtension.c_str()).c_str());
+			props.GetNewExpandString("extension.", fileNameForExtension.c_str()).c_str());
 		if (extensionFile.length()) {
 			// find file in local directory
 			FilePath docDir = filePath.Directory();
@@ -1252,7 +1250,6 @@ void SciTEBase::ReadProperties() {
 
 void SciTEBase::ReadFontProperties() {
 	char key[200];
-	SString sval;
 	const char *languageName = language.c_str();
 
 	if (lexLanguage == lexLPeg) {
@@ -1277,12 +1274,12 @@ void SciTEBase::ReadFontProperties() {
 	wOutput.Call(SCI_STYLERESETDEFAULT, 0, 0);
 
 	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
-	sval = props.GetNewExpand(key);
+	std::string sval = props.GetNewExpandString(key);
 	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
 	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
 
 	sprintf(key, "style.%s.%0d", languageName, STYLE_DEFAULT);
-	sval = props.GetNewExpand(key);
+	sval = props.GetNewExpandString(key);
 	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
 
 	wEditor.Call(SCI_STYLECLEARALL, 0, 0);
@@ -1302,7 +1299,7 @@ void SciTEBase::ReadFontProperties() {
 	wOutput.Call(SCI_STYLECLEARALL, 0, 0);
 
 	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
-	sval = props.GetNewExpand(key);
+	sval = props.GetNewExpandString(key);
 	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
 
 	wOutput.Call(SCI_STYLECLEARALL, 0, 0);
@@ -1311,7 +1308,7 @@ void SciTEBase::ReadFontProperties() {
 	SetStyleFor(wOutput, "errorlist");
 
 	if (CurrentBuffer()->useMonoFont) {
-		sval = props.GetExpanded("font.monospace");
+		sval = props.GetExpandedString("font.monospace");
 		StyleDefinition sd(sval.c_str());
 		for (int style = 0; style <= STYLE_MAX; style++) {
 			if (style != STYLE_LINENUMBER) {
@@ -1404,7 +1401,7 @@ GUI::gui_string SciTEBase::LocaliseMessage(const char *s, const GUI::gui_char *p
 void SciTEBase::ReadLocalization() {
 	localiser.Clear();
 	GUI::gui_string title = GUI_TEXT("locale.properties");
-	SString localeProps = props.GetExpanded("locale.properties");
+	const std::string localeProps = props.GetExpandedString("locale.properties");
 	if (localeProps.length()) {
 		title = GUI::StringFromUTF8(localeProps.c_str());
 	}
@@ -1439,8 +1436,8 @@ void SciTEBase::ReadPropertiesInitial() {
 	wEditor.Call(SCI_SETWRAPMODE, wrap ? wrapStyle : SC_WRAP_NONE);
 	wOutput.Call(SCI_SETWRAPMODE, wrapOutput ? wrapStyle : SC_WRAP_NONE);
 
-	SString menuLanguageProp = props.GetNewExpand("menu.language");
-	menuLanguageProp.substitute('|', '\0');
+	std::string menuLanguageProp = props.GetNewExpandString("menu.language");
+	std::replace(menuLanguageProp.begin(), menuLanguageProp.end(), '|', '\0');
 	const char *sMenuLanguage = menuLanguageProp.c_str();
 	while (*sMenuLanguage) {
 		LanguageMenuItem lmi;
@@ -1455,11 +1452,10 @@ void SciTEBase::ReadPropertiesInitial() {
 	SetLanguageMenu();
 
 	// load the user defined short cut props
-	SString shortCutProp = props.GetNewExpand("user.shortcuts");
+	std::string shortCutProp = props.GetNewExpandString("user.shortcuts");
 	if (shortCutProp.length()) {
-		size_t pipes = std::count(shortCutProp.c_str(),
-			shortCutProp.c_str()+shortCutProp.length(), '|');
-		shortCutProp.substitute('|', '\0');
+		size_t pipes = std::count(shortCutProp.begin(), shortCutProp.end(), '|');
+		std::replace(shortCutProp.begin(), shortCutProp.end(), '|', '\0');
 		const char *sShortCutProp = shortCutProp.c_str();
 		for (size_t item = 0; item < pipes/2; item++) {
 			ShortcutItem sci;
@@ -1533,7 +1529,7 @@ void SciTEBase::OpenProperties(int propsFile) {
 		Open(propfile, ofQuiet);
 		break;
 	case IDM_OPENLUAEXTERNALFILE: {
-			GUI::gui_string extlua = GUI::StringFromUTF8(props.GetExpanded("ext.lua.startup.script").c_str());
+			GUI::gui_string extlua = GUI::StringFromUTF8(props.GetExpandedString("ext.lua.startup.script").c_str());
 			if (extlua.length()) {
 				Open(extlua.c_str(), ofQuiet);
 			}

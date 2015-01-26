@@ -24,7 +24,6 @@
 #include "ILexer.h"
 
 #include "GUI.h"
-#include "SString.h"
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"

@@ -31,7 +31,6 @@
 #include "Mutex.h"
 
 #include "GUI.h"
-#include "SString.h"
 
 #include "FilePath.h"
 #include "Cookie.h"
