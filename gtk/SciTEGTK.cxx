@@ -866,7 +866,11 @@ static void messageBoxOK(GtkWidget *, gpointer p) {
 GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	int val, GtkAccelGroup *accel_group, bool isDefault) {
 	GUI::gui_string translated = localiser.Text(label);
+#if GTK_CHECK_VERSION(3,14,0)
+	GtkWidget *button = gtk_dialog_add_button(GTK_DIALOG(dialog), translated.c_str(), val);
+#else
 	GtkWidget *button = gtk_button_new_with_mnemonic(translated.c_str());
+#endif
 #if GTK_CHECK_VERSION(2,20,0)
 	gtk_widget_set_can_default(button, TRUE);
 #else
@@ -882,8 +886,10 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	g_signal_connect(G_OBJECT(button), "clicked",
 		G_CALLBACK(messageBoxOK), reinterpret_cast<gpointer>(val));
 #if GTK_CHECK_VERSION(3,0,0)
+#if !GTK_CHECK_VERSION(3,14,0)
 	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(dialog))),
  	                   button, TRUE, TRUE, 0);
+#endif
 #else
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->action_area),
  	                   button, TRUE, TRUE, 0);
@@ -3171,7 +3177,14 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 			SetAboutMessage(scExplanation, "SciTE");
 		} else {
 			GtkWidget *label = gtk_label_new(sMsg.c_str());
+#if GTK_CHECK_VERSION(3,14,0)
+			gtk_widget_set_margin_start(label, 10);
+			gtk_widget_set_margin_end(label, 10);
+			gtk_widget_set_margin_top(label, 10);
+			gtk_widget_set_margin_bottom(label, 10);
+#else
 			gtk_misc_set_padding(GTK_MISC(label), 10, 10);
+#endif
 #if GTK_CHECK_VERSION(3,0,0)
 			gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(messageBoxDialog))),
 			                   label, TRUE, TRUE, 0);
@@ -4722,7 +4735,12 @@ void UserStrip::SetDescription(const char *description) {
 					WStatic ws;
 					ws.Create(sCaption.c_str());
 					puc->w.SetID(ws.GetID());
+#if GTK_CHECK_VERSION(3,14,0)
+					gtk_widget_set_halign(GTK_WIDGET(puc->w.GetID()), GTK_ALIGN_END);
+					gtk_widget_set_valign(GTK_WIDGET(puc->w.GetID()), GTK_ALIGN_BASELINE);
+#else
 					gtk_misc_set_alignment(GTK_MISC(puc->w.GetID()), 1.0, 0.5);
+#endif
 					tableUser.Add(ws, 1, false, 5, 0);
 					if (ws.HasMnemonic())
 						pwWithAccelerator = GTK_WIDGET(puc->w.GetID());
@@ -4963,7 +4981,11 @@ void SciTEGTK::CreateUI() {
 	gtk_notebook_set_scrollable(GTK_NOTEBOOK(PWidget(wTabBar)), TRUE);
 	tabVisible = false;
 
+#if GTK_CHECK_VERSION(3,0,0)
+	wContent = gtk_event_box_new();
+#else
 	wContent = gtk_alignment_new(0, 0, 1, 1);
+#endif
 
 	// Ensure the content area is viable at 60 pixels high
 	gtk_widget_set_size_request(PWidget(wContent), 20, 60);

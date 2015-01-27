@@ -513,7 +513,11 @@ void WTable::Add(GtkWidget *child, int width, bool expand, int xpadding, int ypa
 	if (child) {
 #if USE_GRID
 		gtk_widget_set_hexpand(child, expand);
+#if GTK_CHECK_VERSION(3,14,0)
+		gtk_widget_set_margin_end(child, xpadding);
+#else
 		gtk_widget_set_margin_right(child, xpadding);
+#endif
 		gtk_widget_set_margin_bottom(child, ypadding);
 		gtk_grid_attach(GTK_GRID(GetID()), child,
 			next % columns, next / columns,
@@ -535,7 +539,12 @@ void WTable::Add(GtkWidget *child, int width, bool expand, int xpadding, int ypa
 }
 
 void WTable::Label(GtkWidget *child) {
+#if GTK_CHECK_VERSION(3,14,0)
+	gtk_widget_set_halign(child, GTK_ALIGN_END);
+	gtk_widget_set_valign(child, GTK_ALIGN_BASELINE);
+#else
 	gtk_misc_set_alignment(GTK_MISC(child), 1.0, 0.5);
+#endif
 	Add(child);
 }
 
