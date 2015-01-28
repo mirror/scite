@@ -1414,7 +1414,7 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		// that should be blocked during startup, e.g. the ones that allow
 		// you to add or switch buffers?
 
-		FilePath fpTest(GUI::StringFromUTF8(startupScript.c_str()));
+		FilePath fpTest(GUI::StringFromUTF8(startupScript));
 		if (fpTest.Exists()) {
 			luaL_loadfile(luaState, startupScript.c_str());
 			if (!call_function(luaState, 0, true)) {
@@ -1639,7 +1639,7 @@ bool LuaExtension::OnSave(const char *filename) {
 	bool result = CallNamedFunction("OnSave", filename);
 
 	FilePath fpSaving = FilePath(GUI::StringFromUTF8(filename)).NormalizePath();
-	if (startupScript.length() && fpSaving == FilePath(GUI::StringFromUTF8(startupScript.c_str())).NormalizePath()) {
+	if (startupScript.length() && fpSaving == FilePath(GUI::StringFromUTF8(startupScript)).NormalizePath()) {
 		if (GetPropertyInt("ext.lua.auto.reload") > 0) {
 			InitGlobalScope(false, true);
 			if (extensionScript.length()) {

@@ -540,7 +540,7 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 	propsDiscovered.Clear();
 	std::string discoveryScript = props.GetExpandedString("command.discover.properties");
 	if (discoveryScript.length()) {
-		std::string propertiesText = CommandExecute(GUI::StringFromUTF8(discoveryScript.c_str()).c_str(),
+		std::string propertiesText = CommandExecute(GUI::StringFromUTF8(discoveryScript).c_str(),
 			absPath.Directory().AsInternal());
 		if (propertiesText.size()) {
 			propsDiscovered.ReadFromMemory(propertiesText.c_str(), propertiesText.size(), absPath.Directory(), filter, NULL, 0);
@@ -663,13 +663,13 @@ bool SciTEBase::OpenSelected() {
 	FilePath path;
 	// Don't load the path of the current file if the selected
 	// filename is an absolute pathname
-	GUI::gui_string selFN = GUI::StringFromUTF8(selName.c_str());
+	GUI::gui_string selFN = GUI::StringFromUTF8(selName);
 	if (!FilePath(selFN).IsAbsolute()) {
 		path = filePath.Directory();
 		// If not there, look in openpath
 		if (!Exists(path.AsInternal(), selFN.c_str(), NULL)) {
 			GUI::gui_string openPath = GUI::StringFromUTF8(props.GetNewExpandString(
-			            "openpath.", fileNameForExtension.c_str()).c_str());
+			            "openpath.", fileNameForExtension.c_str()));
 			while (openPath.length()) {
 				GUI::gui_string tryPath(openPath);
 				size_t sepIndex = tryPath.find(listSepString);

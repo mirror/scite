@@ -570,7 +570,7 @@ void SciTEBase::RestoreRecentMenu() {
 		std::string propStr = propsSession.GetString(propKey.c_str());
 		if (propStr == "")
 			continue;
-		AddFileToStack(GUI::StringFromUTF8(propStr.c_str()), sr, 0);
+		AddFileToStack(GUI::StringFromUTF8(propStr), sr, 0);
 	}
 }
 
@@ -629,7 +629,7 @@ void SciTEBase::RestoreSession() {
 			continue;
 
 		BufferState bufferState;
-		bufferState.Set(GUI::StringFromUTF8(propStr.c_str()));
+		bufferState.Set(GUI::StringFromUTF8(propStr));
 
 		propKey = IndexPropKey("buffer", i, "current");
 		if (propsSession.GetInt(propKey.c_str()))
@@ -1853,7 +1853,7 @@ void SciTEBase::ShowMessages(int line) {
 		if (style == SCE_ERR_GCC) {
 			Chomp(message, ':');
 		}
-		GUI::gui_string sourceString = GUI::StringFromUTF8(source.c_str());
+		GUI::gui_string sourceString = GUI::StringFromUTF8(source);
 		FilePath sourcePath = FilePath(sourceString).NormalizePath();
 		if (filePath.Name().SameNameAs(sourcePath.Name())) {
 			if (style == SCE_ERR_GCC) {
@@ -1929,7 +1929,7 @@ void SciTEBase::GoMessage(int dir) {
 			int column;
 			long sourceLine = DecodeMessage(message.c_str(), source, style, column);
 			if (sourceLine >= 0) {
-				GUI::gui_string sourceString = GUI::StringFromUTF8(source.c_str());
+				GUI::gui_string sourceString = GUI::StringFromUTF8(source);
 				FilePath sourcePath = FilePath(sourceString).NormalizePath();
 				if (!filePath.Name().SameNameAs(sourcePath)) {
 					FilePath messagePath;

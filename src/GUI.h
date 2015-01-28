@@ -68,6 +68,7 @@ typedef std::wstring gui_string;
 #endif
 
 gui_string StringFromUTF8(const char *s);
+gui_string StringFromUTF8(const std::string &s);
 std::string UTF8FromString(const gui_string &s);
 gui_string StringFromInteger(long i);
 gui_string HexStringFromInteger(long i);

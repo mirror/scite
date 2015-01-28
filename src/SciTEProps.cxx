@@ -90,7 +90,7 @@ void SciTEBase::SetLanguageMenu() {
 #else
 			entry += GUI_TEXT("\t");
 #endif
-			entry += GUI::StringFromUTF8(languageMenu[item].menuKey.c_str());
+			entry += GUI::StringFromUTF8(languageMenu[item].menuKey);
 		}
 		if (entry.size() && entry[0] != '#') {
 			SetMenuItem(menuLanguage, item, itemID, entry.c_str());
@@ -676,7 +676,7 @@ void SciTEBase::ReadProperties() {
 
 	props.Set("APIPath", apisFileNames.c_str());
 
-	FilePath fileAbbrev = GUI::StringFromUTF8(props.GetNewExpandString("abbreviations.", fileNameForExtension.c_str()).c_str());
+	FilePath fileAbbrev = GUI::StringFromUTF8(props.GetNewExpandString("abbreviations.", fileNameForExtension.c_str()));
 	if (!fileAbbrev.IsSet())
 		fileAbbrev = GetAbbrevPropertiesFileName();
 	if (!pathAbbreviations.SameNameAs(fileAbbrev)) {
@@ -1220,7 +1220,7 @@ void SciTEBase::ReadProperties() {
 
 		// Check for an extension script
 		GUI::gui_string extensionFile = GUI::StringFromUTF8(
-			props.GetNewExpandString("extension.", fileNameForExtension.c_str()).c_str());
+			props.GetNewExpandString("extension.", fileNameForExtension.c_str()));
 		if (extensionFile.length()) {
 			// find file in local directory
 			FilePath docDir = filePath.Directory();
@@ -1382,7 +1382,7 @@ GUI::gui_string Localization::Text(const char *s, bool retainIfNotFound) {
 		translation = missing;
 	}
 	if ((translation.length() > 0) || !retainIfNotFound) {
-		return GUI::StringFromUTF8(translation.c_str());
+		return GUI::StringFromUTF8(translation);
 	}
 	return GUI::StringFromUTF8(s);
 }
@@ -1403,7 +1403,7 @@ void SciTEBase::ReadLocalization() {
 	GUI::gui_string title = GUI_TEXT("locale.properties");
 	const std::string localeProps = props.GetExpandedString("locale.properties");
 	if (localeProps.length()) {
-		title = GUI::StringFromUTF8(localeProps.c_str());
+		title = GUI::StringFromUTF8(localeProps);
 	}
 	FilePath propdir = GetSciteDefaultHome();
 	FilePath localePath(propdir, title);
@@ -1529,7 +1529,7 @@ void SciTEBase::OpenProperties(int propsFile) {
 		Open(propfile, ofQuiet);
 		break;
 	case IDM_OPENLUAEXTERNALFILE: {
-			GUI::gui_string extlua = GUI::StringFromUTF8(props.GetExpandedString("ext.lua.startup.script").c_str());
+			GUI::gui_string extlua = GUI::StringFromUTF8(props.GetExpandedString("ext.lua.startup.script"));
 			if (extlua.length()) {
 				Open(extlua.c_str(), ofQuiet);
 			}

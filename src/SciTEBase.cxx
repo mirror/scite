@@ -1972,7 +1972,7 @@ bool SciTEBase::StartBlockComment() {
 
 	std::string comment = props.GetString(base.c_str());
 	if (comment == "") { // user friendly error message box
-		GUI::gui_string sBase = GUI::StringFromUTF8(base.c_str());
+		GUI::gui_string sBase = GUI::StringFromUTF8(base);
 		GUI::gui_string error = LocaliseMessage(
 		            "Block comment variable '^0' is not defined in SciTE *.properties!", sBase.c_str());
 		WindowMessageBox(wSciTE, error);
@@ -2070,9 +2070,9 @@ bool SciTEBase::StartBoxComment() {
 	std::string middle_comment = props.GetString(middle_base.c_str());
 	std::string end_comment = props.GetString(end_base.c_str());
 	if (start_comment == "" || middle_comment == "" || end_comment == "") {
-		GUI::gui_string sStart = GUI::StringFromUTF8(start_base.c_str());
-		GUI::gui_string sMiddle = GUI::StringFromUTF8(middle_base.c_str());
-		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base.c_str());
+		GUI::gui_string sStart = GUI::StringFromUTF8(start_base);
+		GUI::gui_string sMiddle = GUI::StringFromUTF8(middle_base);
+		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base);
 		GUI::gui_string error = LocaliseMessage(
 		            "Box comment variables '^0', '^1' and '^2' are not defined in SciTE *.properties!",
 		            sStart.c_str(), sMiddle.c_str(), sEnd.c_str());
@@ -2198,8 +2198,8 @@ bool SciTEBase::StartStreamComment() {
 	std::string start_comment = props.GetString(start_base.c_str());
 	std::string end_comment = props.GetString(end_base.c_str());
 	if (start_comment == "" || end_comment == "") {
-		GUI::gui_string sStart = GUI::StringFromUTF8(start_base.c_str());
-		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base.c_str());
+		GUI::gui_string sStart = GUI::StringFromUTF8(start_base);
+		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base);
 		GUI::gui_string error = LocaliseMessage(
 		            "Stream comment variables '^0' and '^1' are not defined in SciTE *.properties!",
 		            sStart.c_str(), sEnd.c_str());
@@ -2895,7 +2895,7 @@ void SciTEBase::AddCommand(const std::string &cmd, const std::string &dir, JobSu
 	// If no explicit directory, use the directory of the current file
 	FilePath directoryRun;
 	if (dir.length()) {
-		FilePath directoryExplicit(GUI::StringFromUTF8(dir.c_str()));
+		FilePath directoryExplicit(GUI::StringFromUTF8(dir));
 		if (directoryExplicit.IsAbsolute()) {
 			directoryRun = directoryExplicit;
 		} else {
@@ -2967,7 +2967,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		// when doing the opening. Must be done there as user
 		// may decide to open multiple files so do not know yet
 		// how much room needed.
-		OpenDialog(filePath.Directory(), GUI::StringFromUTF8(props.GetExpandedString("open.filter").c_str()).c_str());
+		OpenDialog(filePath.Directory(), GUI::StringFromUTF8(props.GetExpandedString("open.filter")).c_str());
 		WindowSetFocus(wEditor);
 		break;
 	case IDM_OPENSELECTED:

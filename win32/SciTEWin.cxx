@@ -775,7 +775,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
 	OutputAppendStringSynchronised(">");
-	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command.c_str()), codePageOutput);
+	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command), codePageOutput);
 	OutputAppendStringSynchronised("\n");
 
 	sa.bInheritHandle = TRUE;
@@ -828,7 +828,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 	bool running = ::CreateProcessW(
 			  NULL,
-			  const_cast<wchar_t *>(GUI::StringFromUTF8(jobToRun.command.c_str()).c_str()),
+			  const_cast<wchar_t *>(GUI::StringFromUTF8(jobToRun.command).c_str()),
 			  NULL, NULL,
 			  TRUE, CREATE_NEW_PROCESS_GROUP,
 			  NULL,
@@ -844,7 +844,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 		running = ::CreateProcessW(
 			  NULL,
-			  const_cast<wchar_t*>(GUI::StringFromUTF8(runComLine.c_str()).c_str()),
+			  const_cast<wchar_t*>(GUI::StringFromUTF8(runComLine).c_str()),
 			  NULL, NULL,
 			  TRUE, CREATE_NEW_PROCESS_GROUP,
 			  NULL,
@@ -1111,7 +1111,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 	}
 
 	GUI::gui_string sMycmd = GUI::StringFromUTF8(mycmd);
-	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams.c_str());
+	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
 	GUI::gui_string sDir = GUI::StringFromUTF8(dir);
 
 	SHELLEXECUTEINFO exec= { sizeof (exec), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -1136,7 +1136,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 		errormsg += myparams;
 	}
 	errormsg += "\"\n";
-	GUI::gui_string sErrorMsg = GUI::StringFromUTF8(errormsg.c_str()) + GetErrorMessage(rc);
+	GUI::gui_string sErrorMsg = GUI::StringFromUTF8(errormsg) + GetErrorMessage(rc);
 	WindowMessageBox(wSciTE, sErrorMsg, mbsOK);
 }
 
@@ -1554,7 +1554,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 	if (fileattributes != (DWORD) -1) {	// arg is an existing directory or filename
 		// if the command line argument is a directory, use OpenDialog()
 		if (fileattributes & FILE_ATTRIBUTE_DIRECTORY) {
-			OpenDialog(fpArg, GUI::StringFromUTF8(props.GetExpandedString("open.filter").c_str()).c_str());
+			OpenDialog(fpArg, GUI::StringFromUTF8(props.GetExpandedString("open.filter")).c_str());
 			isHandled = true;
 		}
 	} else if (nbuffers > 1 && (hFFile = ::FindFirstFile(arg, &ffile)) != INVALID_HANDLE_VALUE) {

@@ -1146,12 +1146,12 @@ void FindStrip::Show() {
 	HWND combo = GetDlgItem(Hwnd(), IDFINDWHAT);
 	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
 	for (int i = 0; i < pSearcher->memFinds.Length(); i++) {
-		GUI::gui_string gs = GUI::StringFromUTF8(pSearcher->memFinds.At(i).c_str());
+		GUI::gui_string gs = GUI::StringFromUTF8(pSearcher->memFinds.At(i));
 		::SendMessageW(combo, CB_ADDSTRING, 0,
 					reinterpret_cast<LPARAM>(gs.c_str()));
 	}
 	//::SendMessage(combo, CB_SETCURSEL, 0, 0);
-	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat.c_str()).c_str());
+	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat).c_str());
 	::SendMessage(HwndOf(wText), CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
 	CheckButtons();
 	pSearcher->ScrollEditorIfNeeded();
@@ -1441,18 +1441,18 @@ void ReplaceStrip::Show() {
 	HWND combo = GetDlgItem(Hwnd(), IDFINDWHAT);
 	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
 	for (int i = 0; i < pSearcher->memFinds.Length(); i++) {
-		GUI::gui_string gs = GUI::StringFromUTF8(pSearcher->memFinds.At(i).c_str());
+		GUI::gui_string gs = GUI::StringFromUTF8(pSearcher->memFinds.At(i));
 		::SendMessageW(combo, CB_ADDSTRING, 0,
 					reinterpret_cast<LPARAM>(gs.c_str()));
 	}
 	//::SendMessage(combo, CB_SETCURSEL, 0, 0);
-	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat.c_str()).c_str());
+	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat).c_str());
 	::SendMessage(HwndOf(wText), CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
 
 	HWND comboReplace = GetDlgItem(Hwnd(), IDREPLACEWITH);
 	::SendMessage(comboReplace, CB_RESETCONTENT, 0, 0);
 	for (int j = 0; j < pSearcher->memReplaces.Length(); j++) {
-		GUI::gui_string gs = GUI::StringFromUTF8(pSearcher->memReplaces.At(j).c_str());
+		GUI::gui_string gs = GUI::StringFromUTF8(pSearcher->memReplaces.At(j));
 		::SendMessageW(comboReplace, CB_ADDSTRING, 0,
 					reinterpret_cast<LPARAM>(gs.c_str()));
 	}

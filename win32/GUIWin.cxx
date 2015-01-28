@@ -146,6 +146,15 @@ gui_string StringFromUTF8(const char *s) {
 	return gui_string(&vgc[0], outLen);
 }
 
+gui_string StringFromUTF8(const std::string &s) {
+	size_t sLen = s.length();
+	size_t wideLen = UTF16Length(s.c_str(), static_cast<int>(sLen));
+	std::vector<gui_char> vgc(wideLen + 1);
+	size_t outLen = UTF16FromUTF8(s.c_str(), sLen, &vgc[0], wideLen);
+	vgc[outLen] = 0;
+	return gui_string(&vgc[0], outLen);
+}
+
 std::string UTF8FromString(const gui_string &s) {
 	size_t sLen = s.size();
 	size_t narrowLen = UTF8Length(s.c_str(), sLen);

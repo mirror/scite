@@ -384,7 +384,7 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 			}
 		} else if (filter.IsValid(importName)) {
 			importName += ".properties";
-			FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName.c_str())));
+			FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName)));
 			Import(importPath, directoryForImports, filter, imports, depth+1);
 		}
 	} else if (ifIsTrue && !IsCommentLine(lineBuffer)) {

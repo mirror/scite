@@ -315,7 +315,7 @@ FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const G
 
 bool SciTEWin::SaveAsDialog() {
 	GUI::gui_string saveFilter = DialogFilterFromProperty(
-		GUI::StringFromUTF8(props.GetExpandedString("save.filter").c_str()).c_str());
+		GUI::StringFromUTF8(props.GetExpandedString("save.filter")).c_str());
 	FilePath path = ChooseSaveName(filePath.Directory(), "Save File", saveFilter.c_str());
 	if (path.IsSet()) {
 		return SaveIfNotOpen(path, false);
@@ -658,7 +658,7 @@ void SciTEWin::Print(
 			::StartPage(hdc);
 
 			if (headerFormat.size()) {
-				GUI::gui_string sHeader = GUI::StringFromUTF8(propsPrint.GetExpandedString("print.header.format").c_str());
+				GUI::gui_string sHeader = GUI::StringFromUTF8(propsPrint.GetExpandedString("print.header.format"));
 				::SetTextColor(hdc, sdHeader.ForeAsLong());
 				::SetBkColor(hdc, sdHeader.BackAsLong());
 				::SelectObject(hdc, fontHeader);
@@ -688,7 +688,7 @@ void SciTEWin::Print(
 
 		if (printPage) {
 			if (footerFormat.size()) {
-				GUI::gui_string sFooter = GUI::StringFromUTF8(propsPrint.GetExpandedString("print.footer.format").c_str());
+				GUI::gui_string sFooter = GUI::StringFromUTF8(propsPrint.GetExpandedString("print.footer.format"));
 				::SetTextColor(hdc, sdFooter.ForeAsLong());
 				::SetBkColor(hdc, sdFooter.BackAsLong());
 				::SelectObject(hdc, fontFooter);
@@ -796,7 +796,7 @@ public:
 	}
 
 	void SetItemTextU(int id, const std::string &s) {
-		SetItemText(id, GUI::StringFromUTF8(s.c_str()).c_str());
+		SetItemText(id, GUI::StringFromUTF8(s).c_str());
 	}
 
 	void SetCheck(int id, bool value) {
@@ -812,7 +812,7 @@ public:
 		HWND combo = Item(id);
 		::SendMessage(combo, CB_RESETCONTENT, 0, 0);
 		for (int i = 0; i < mem.Length(); i++) {
-			GUI::gui_string gs = GUI::StringFromUTF8(mem.At(i).c_str());
+			GUI::gui_string gs = GUI::StringFromUTF8(mem.At(i));
 			::SendMessageW(combo, CB_ADDSTRING, 0,
 				       reinterpret_cast<LPARAM>(gs.c_str()));
 		}
@@ -1578,13 +1578,13 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			wParameters = hDlg;
 			Dialog dlg(hDlg);
 			if (modalParameters) {
-				GUI::gui_string sCommand = GUI::StringFromUTF8(parameterisedCommand.c_str());
+				GUI::gui_string sCommand = GUI::StringFromUTF8(parameterisedCommand);
 				dlg.SetItemText(IDCMD, sCommand.c_str());
 			}
 			for (int param = 0; param < maxParam; param++) {
 				std::string paramText = StdStringFromInteger(param + 1);
 				std::string paramTextVal = props.GetString(paramText.c_str());
-				GUI::gui_string sVal = GUI::StringFromUTF8(paramTextVal.c_str());
+				GUI::gui_string sVal = GUI::StringFromUTF8(paramTextVal);
 				dlg.SetItemText(IDPARAMSTART + param, sVal.c_str());
 			}
 		}
@@ -1670,7 +1670,7 @@ void SciTEWin::FindMessageBox(const std::string &msg, const std::string *findIte
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str());
 		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf);
 	} else {
-		GUI::gui_string findThing = GUI::StringFromUTF8(findItem->c_str());
+		GUI::gui_string findThing = GUI::StringFromUTF8(*findItem);
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str(), findThing.c_str());
 		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf);
 	}
