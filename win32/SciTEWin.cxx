@@ -1217,7 +1217,7 @@ void SciTEWin::AddCommand(const std::string &cmd, const std::string &dir, JobSub
 			} else {
 				ParamGrab();
 			}
-			pCmd = props.Expand(pCmd.c_str()).c_str();
+			pCmd = props.Expand(pCmd);
 			ShellExec(pCmd, dir.c_str());
 		} else {
 			SciTEBase::AddCommand(cmd, dir, jobType, input, flags);

@@ -279,7 +279,7 @@ std::string PropSetFile::GetExpandedString(const char *key) const {
 	return val;
 }
 
-std::string PropSetFile::Expand(const char *withVars, int maxExpands) const {
+std::string PropSetFile::Expand(const std::string &withVars, int maxExpands) const {
 	std::string val = withVars;
 	ExpandAllInPlace(*this, val, maxExpands);
 	return val;

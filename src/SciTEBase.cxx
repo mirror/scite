@@ -1327,7 +1327,9 @@ void SciTEBase::Execute() {
 		ParamGrab();
 	}
 	for (ic = 0; ic < jobQueue.commandMax; ic++) {
-		jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command.c_str());
+		if (jobQueue.jobQueue[ic].jobType != jobGrep) {
+			jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command);
+		}
 	}
 
 	if (jobQueue.ClearBeforeExecute()) {
