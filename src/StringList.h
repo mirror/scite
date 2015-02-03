@@ -23,11 +23,9 @@ public:
 	char *operator[](int ind) { return words[ind]; }
 	void Clear();
 	void Set(const char *s);
-	char *Allocate(int size);
-	void SetFromAllocated();
+	void Set(const std::vector<char> &data);
 	std::string GetNearestWord(const char *wordStart, size_t searchLen,
 		bool ignoreCase = false, std::string wordCharacters="", int wordIndex = -1);
 	std::string GetNearestWords(const char *wordStart, size_t searchLen,
 		bool ignoreCase=false, char otherSeparator='\0', bool exactLen=false);
 };
-

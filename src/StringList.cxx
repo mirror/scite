@@ -113,17 +113,14 @@ void StringList::Set(const char *s) {
 	memcpy(wordsNoCase, words, (len + 1) * sizeof (*words));
 }
 
-char *StringList::Allocate(int size) {
-	list = new char[size + 1];
-	list[size] = '\0';
-	return list;
-}
-
-void StringList::SetFromAllocated() {
+void StringList::Set(const std::vector<char> &data) {
+	list = new char[data.size() + 1];
+	memcpy(list, &data[0], data.size());
+	list[data.size()] = '\0';
 	sorted = false;
 	sortedNoCase = false;
 	words = ArrayFromStringList(list, &len, onlyLineEnds);
-	wordsNoCase = new char * [len + 1];
+	wordsNoCase = new char *[len + 1];
 	memcpy(wordsNoCase, words, (len + 1) * sizeof (*words));
 }
 

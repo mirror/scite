@@ -322,56 +322,22 @@ void SciTEBase::DefineMarker(int marker, int markerType, Colour fore, Colour bac
 	wEditor.Call(SCI_MARKERSETBACKSELECTED, marker, backSelected);
 }
 
-static long FileLength(const char *path) {
-	long len = 0;
-	FILE *fp = fopen(path, "rb");
-	if (fp) {
-		fseek(fp, 0, SEEK_END);
-		len = ftell(fp);
-		fclose(fp);
-	}
-	return len;
-}
-
 void SciTEBase::ReadAPI(const std::string &fileNameForExtension) {
 	std::string sApiFileNames = props.GetNewExpandString("api.",
 	                        fileNameForExtension.c_str());
-	size_t nameLength = sApiFileNames.length();
-	if (nameLength) {
-		std::replace(sApiFileNames.begin(), sApiFileNames.end(), ';', '\0');
-		const char *apiFileName = sApiFileNames.c_str();
-		const char *nameEnd = apiFileName + nameLength;
+	if (sApiFileNames.length() > 0) {
+		std::vector<std::string> vApiFileNames = StringSplit(sApiFileNames, ';');
+		std::vector<char> data;
 
-		size_t tlen = 0;    // total api length
-
-		// Calculate total length
-		while (apiFileName < nameEnd) {
-			tlen += FileLength(apiFileName);
-			apiFileName += strlen(apiFileName) + 1;
+		// Load files into data
+		for (std::vector<std::string>::iterator it = vApiFileNames.begin(); it != vApiFileNames.end(); ++it) {
+			std::vector<char> contents = FilePath(GUI::StringFromUTF8(*it)).Read();
+			data.insert(data.end(), contents.begin(), contents.end());
 		}
 
-		// Load files
-		if (tlen > 0) {
-			char *buffer = apis.Allocate(static_cast<int>(tlen));
-			if (buffer) {
-				apiFileName = sApiFileNames.c_str();
-				tlen = 0;
-				while (apiFileName < nameEnd) {
-					FILE *fp = fopen(apiFileName, "rb");
-					if (fp) {
-						fseek(fp, 0, SEEK_END);
-						long len = ftell(fp);
-						if (len > 0) {
-							fseek(fp, 0, SEEK_SET);
-							size_t readBytes = fread(buffer + tlen, 1, len, fp);
-							tlen += readBytes;
-						}
-						fclose(fp);
-					}
-					apiFileName += strlen(apiFileName) + 1;
-				}
-				apis.SetFromAllocated();
-			}
+		// Initialise apis
+		if (data.size() > 0) {
+			apis.Set(data);
 		}
 	}
 }
