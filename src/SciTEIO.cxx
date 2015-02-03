@@ -238,7 +238,7 @@ void SciTEBase::DiscoverIndentSetting() {
 	}
 }
 
-void SciTEBase::OpenFile(long fileSize, bool suppressMessage, bool asynchronous) {
+void SciTEBase::OpenCurrentFile(long fileSize, bool suppressMessage, bool asynchronous) {
 	if (CurrentBuffer()->pFileWorker) {
 		// Already performing an asynchronous load or save so do not restart load
 		if (!suppressMessage) {
@@ -504,12 +504,12 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 		return false;
 	}
 
-	long size = absPath.IsUntitled() ? 0 : absPath.GetFileLength();
-	if (size > 0) {
+	const long fileSize = absPath.IsUntitled() ? 0 : absPath.GetFileLength();
+	if (fileSize > 0) {
 		// Real file, not empty buffer
 		int maxSize = props.GetInt("max.file.size");
-		if (maxSize > 0 && size > maxSize) {
-			GUI::gui_string sSize = GUI::StringFromInteger(size);
+		if (maxSize > 0 && fileSize > maxSize) {
+			GUI::gui_string sSize = GUI::StringFromInteger(fileSize);
 			GUI::gui_string sMaxSize = GUI::StringFromInteger(maxSize);
 			GUI::gui_string msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
 			        "larger than the ^2 bytes limit set in the properties.\n"
@@ -565,9 +565,9 @@ bool SciTEBase::Open(FilePath file, OpenFlags of) {
 			wEditor.Call(SCI_SETUNDOCOLLECTION, 0);
 		}
 
-		asynchronous = (size > props.GetInt("background.open.size", -1)) &&
+		asynchronous = (fileSize > props.GetInt("background.open.size", -1)) &&
 			!(of & (ofPreserveUndo|ofSynchronous));
-		OpenFile(size, of & ofQuiet, asynchronous);
+		OpenCurrentFile(fileSize, of & ofQuiet, asynchronous);
 
 		if (of & ofPreserveUndo) {
 			wEditor.Call(SCI_ENDUNDOACTION);
@@ -711,7 +711,7 @@ bool SciTEBase::OpenSelected() {
 
 void SciTEBase::Revert() {
 	RecentFile rf = GetFilePosition();
-	OpenFile(filePath.GetFileLength(), false, false);
+	OpenCurrentFile(filePath.GetFileLength(), false, false);
 	DisplayAround(rf);
 }
 
