@@ -426,7 +426,7 @@ bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
 		int lenFile = static_cast<int>(fread(&propsData[0], 1, propsData.size(), rcfile));
 		fclose(rcfile);
 		const char *data = &propsData[0];
-		if (memcmp(data, "\xef\xbb\xbf", 3) == 0) {
+		if ((lenFile >= 3) && (memcmp(data, "\xef\xbb\xbf", 3) == 0)) {
 			data += 3;
 			lenFile -= 3;
 		}
