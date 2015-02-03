@@ -416,6 +416,24 @@ FILE *FilePath::Open(const GUI::gui_char *mode) const {
 	}
 }
 
+/// Size of block for file reading.
+static const size_t readBlockSize = 64 * 1024;
+
+std::vector<char> FilePath::Read() const {
+	std::vector<char> data;
+	FILE *fp = Open(fileRead);
+	if (fp) {
+		std::vector<char> block(readBlockSize);
+		size_t lenBlock = fread(&block[0], 1, block.size(), fp);
+		while (lenBlock > 0) {
+			data.insert(data.end(), block.begin(), block.begin() + lenBlock);
+			lenBlock = fread(&block[0], 1, block.size(), fp);
+		}
+		fclose(fp);
+	}
+	return data;
+}
+
 void FilePath::Remove() const {
 	unlink(AsInternal());
 }

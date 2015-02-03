@@ -413,18 +413,9 @@ void PropSetFile::ReadFromMemory(const char *data, size_t len, FilePath director
 
 bool PropSetFile::Read(FilePath filename, FilePath directoryForImports,
                        const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth) {
-	FILE *rcfile = filename.Open(fileRead);
-	if (rcfile) {
-		fseek(rcfile, 0, SEEK_END);
-		long sizeFile = ftell(rcfile);
-		if (sizeFile <= 0) {
-			fclose(rcfile);
-			return false;
-		}
-		fseek(rcfile, 0, SEEK_SET);
-		std::vector<char> propsData(sizeFile);
-		int lenFile = static_cast<int>(fread(&propsData[0], 1, propsData.size(), rcfile));
-		fclose(rcfile);
+	std::vector<char> propsData = filename.Read();
+	size_t lenFile = propsData.size();
+	if (lenFile > 0) {
 		const char *data = &propsData[0];
 		if ((lenFile >= 3) && (memcmp(data, "\xef\xbb\xbf", 3) == 0)) {
 			data += 3;
