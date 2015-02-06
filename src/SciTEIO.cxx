@@ -842,7 +842,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 	}
 	// Release all the extra documents
 	for (int j = 0; j < buffers.size; j++) {
-		if (buffers.buffers[j].doc) {
+		if (buffers.buffers[j].doc && !buffers.buffers[j].pFileWorker) {
 			wEditor.Call(SCI_RELEASEDOCUMENT, 0, buffers.buffers[j].doc);
 			buffers.buffers[j].doc = 0;
 		}
