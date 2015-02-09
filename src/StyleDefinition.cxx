@@ -206,6 +206,8 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 		{ "dotbox", INDIC_DOTBOX },
 		{ "squigglepixmap", INDIC_SQUIGGLEPIXMAP },
 		{ "compositionthick", INDIC_COMPOSITIONTHICK },
+		{ "compositionthin", INDIC_COMPOSITIONTHIN },
+		{ "fullbox", INDIC_FULLBOX },
 	};
 
 	std::string val(definition);
