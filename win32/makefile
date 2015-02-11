@@ -74,7 +74,7 @@ endif
 
 CXXFLAGS = $(CFLAGS) -pedantic -fno-rtti
 
-LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid $(UXLIB) $(LUA_LDFLAGS)
+LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -loleaut32 $(UXLIB) $(LUA_LDFLAGS)
 
 .cxx.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
