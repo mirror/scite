@@ -24,7 +24,7 @@ def StartsWith(s, prefix):
 
 def CommentString(prop):
 	if prop and prop["Comment"]:
-		return " -- " + " ".join(prop["Comment"])
+		return (" -- " + " ".join(prop["Comment"])).replace("<", "&lt;")
 	return ""
 
 def GetScriptableInterface(f):
@@ -358,21 +358,17 @@ def printIFaceTableHTMLFile(faceAndIDs):
 			direction
 		)
 		if property["SetterComment"]:
-			explanation += '<span class="comment">%s</span>' % property["SetterComment"]
+			explanation += '<span class="comment">%s</span>' % (property["SetterComment"].replace("<", "&lt;"))
 		explanations[featureDefineName] = explanation
 
 	lastSegment = ""
 	for segment, featureId in idsInOrder:
 		if featureId in explanations:
 			if segment != lastSegment:
-				out.append('\t<h2>')
-				out.append(segment)
-				out.append('</h2>\n')
+				out.append('\t<h2>' + segment + '</h2>')
 				lastSegment = segment
-			out.append('\t<p>')
-			out.append(explanations[featureId])
-			out.append('</p>\n')
-	out.append("\n")
+			out.append('\t<p>' + explanations[featureId] + '</p>')
+	out.append("")
 	return out
 
 def ReadMenuIDs(filename):
@@ -399,7 +395,7 @@ def RegenerateAll():
 	menuIDs  = ReadMenuIDs(srcRoot + "/scite/src/SciTE.h")
 	idsInOrder = idsFromDocumentation(srcRoot + "/scintilla/doc/ScintillaDoc.html")
 	Regenerate(srcRoot + "/scite/src/IFaceTable.cxx", "//", printIFaceTableCXXFile([f, menuIDs]))
-	Regenerate(srcRoot + "/scite/doc/PaneAPI.html", "<!-- ", printIFaceTableHTMLFile([f, menuIDs, idsInOrder]))
+	Regenerate(srcRoot + "/scite/doc/PaneAPI.html", "<!--", printIFaceTableHTMLFile([f, menuIDs, idsInOrder]))
 
 if __name__=="__main__":
 	RegenerateAll()
