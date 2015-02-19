@@ -426,6 +426,7 @@ static const char *propertiesToForward[] = {
 	"lexer.cpp.track.preprocessor",
 	"lexer.cpp.triplequoted.strings",
 	"lexer.cpp.update.preprocessor",
+	"lexer.cpp.verbatim.strings.allow.escapes",
 	"lexer.css.hss.language",
 	"lexer.css.less.language",
 	"lexer.css.scss.language",
