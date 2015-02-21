@@ -144,6 +144,7 @@
     <ClCompile Include="..\..\scintilla\src\*.cxx" />
     <ClCompile Include="..\..\scintilla\lexlib\*.cxx" />
     <ClCompile Include="..\..\scintilla\lexers\*.cxx" />
+    <ClCompile Include="..\..\scintilla\win32\HanjaDic.cxx" />
     <ClCompile Include="..\..\scintilla\win32\PlatWin.cxx" />
     <ClCompile Include="..\..\scintilla\win32\ScintillaWin.cxx" />
     <ClCompile Include="..\src\*.cxx" />

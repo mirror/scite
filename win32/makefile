@@ -213,6 +213,7 @@ OBJSSTATIC = \
 	Editor.o \
 	EditView.o \
 	ExternalLexer.o \
+	HanjaDic.o \
 	Indicator.o \
 	KeyMap.o \
 	LexerBase.o \

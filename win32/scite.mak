@@ -104,6 +104,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\Editor.obj \
 	..\..\scintilla\win32\EditView.obj \
 	..\..\scintilla\win32\ExternalLexer.obj \
+	..\..\scintilla\win32\HanjaDic.obj \
 	..\..\scintilla\win32\Indicator.obj \
 	..\..\scintilla\win32\KeyMap.obj \
 	..\..\scintilla\win32\LexerBase.obj \
