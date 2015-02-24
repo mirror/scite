@@ -168,6 +168,7 @@ std::string SciTEBase::DiscoverLanguage() {
 			l1 = l1.substr(1);
 		}
 		std::replace(l1.begin(), l1.end(), ' ', '\0');
+		l1.append(1, '\0');
 		const char *word = l1.c_str();
 		while (*word) {
 			std::string propShBang("shbang.");
