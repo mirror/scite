@@ -329,11 +329,9 @@ std::string SciTEBase::GetCurrentLine() {
 }
 
 void SciTEBase::GetRange(GUI::ScintillaWindow &win, int start, int end, char *text) {
-	Sci_TextRange tr;
-	tr.chrg.cpMin = start;
-	tr.chrg.cpMax = end;
-	tr.lpstrText = text;
-	win.SendPointer(SCI_GETTEXTRANGE, 0, &tr);
+	win.Send(SCI_SETTARGETRANGE, start, end);
+	win.SendPointer(SCI_GETTARGETTEXT, 0, text);
+	text[end - start] = '\0';
 }
 
 /**
@@ -751,13 +749,10 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 }
 
 std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, int selStart, int selEnd) {
-	std::string sel(selEnd - selStart + 1, '\0');
-	Sci_TextRange tr;
-	tr.chrg.cpMin = selStart;
-	tr.chrg.cpMax = selEnd;
-	tr.lpstrText = &sel[0];
-	win.SendPointer(SCI_GETTEXTRANGE, 0, &tr);
-	return sel.substr(0, sel.length()-1);
+	std::string sel(selEnd - selStart, '\0');
+	win.Send(SCI_SETTARGETRANGE, selStart, selEnd);
+	win.SendPointer(SCI_GETTARGETTEXT, 0, &sel[0]);
+	return sel;
 }
 
 std::string SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
@@ -2110,14 +2105,12 @@ bool SciTEBase::StartBoxComment() {
 		maxCommentLength = middle_comment_length;
 	if (end_comment_length + whitespace_length > maxCommentLength)
 		maxCommentLength = end_comment_length + whitespace_length;
-	char *tempString = new char[maxCommentLength + 1];
 
 	wEditor.Call(SCI_BEGINUNDOACTION);
 
 	// Insert start_comment if needed
 	int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, selStartLine);
-	GetRange(wEditor, lineStart, lineStart + start_comment_length, tempString);
-	tempString[start_comment_length] = '\0';
+	std::string tempString = GetRangeString(wEditor, lineStart, lineStart + start_comment_length);
 	if (start_comment != tempString) {
 		wEditor.CallString(SCI_INSERTTEXT, lineStart, start_comment.c_str());
 		selectionStart += start_comment_length;
@@ -2127,8 +2120,7 @@ bool SciTEBase::StartBoxComment() {
 	if (lines <= 1) {
 		// Only a single line was selected, so just append whitespace + end-comment at end of line if needed
 		int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, selEndLine);
-		GetRange(wEditor, lineEnd - end_comment_length, lineEnd, tempString);
-		tempString[end_comment_length] = '\0';
+		tempString = GetRangeString(wEditor, lineEnd - end_comment_length, lineEnd);
 		if (end_comment != tempString) {
 			end_comment.insert(0, white_space.c_str());
 			wEditor.CallString(SCI_INSERTTEXT, lineEnd, end_comment.c_str());
@@ -2137,8 +2129,7 @@ bool SciTEBase::StartBoxComment() {
 		// More than one line selected, so insert middle_comments where needed
 		for (size_t i = selStartLine + 1; i < selEndLine; i++) {
 			lineStart = wEditor.Call(SCI_POSITIONFROMLINE, i);
-			GetRange(wEditor, lineStart, lineStart + middle_comment_length, tempString);
-			tempString[middle_comment_length] = '\0';
+			tempString = GetRangeString(wEditor, lineStart, lineStart + middle_comment_length);
 			if (middle_comment != tempString) {
 				wEditor.CallString(SCI_INSERTTEXT, lineStart, middle_comment.c_str());
 				selectionEnd += middle_comment_length;
@@ -2150,11 +2141,9 @@ bool SciTEBase::StartBoxComment() {
 		// and end-comment tag after the last line (extra logic is necessary to
 		// deal with the case that user selected the end-comment tag)
 		lineStart = wEditor.Call(SCI_POSITIONFROMLINE, selEndLine);
-		GetRange(wEditor, lineStart, lineStart + end_comment_length, tempString);
-		tempString[end_comment_length] = '\0';
+		GetRangeString(wEditor, lineStart, lineStart + end_comment_length);
 		if (end_comment != tempString) {
-			GetRange(wEditor, lineStart, lineStart + middle_comment_length, tempString);
-			tempString[middle_comment_length] = '\0';
+			tempString = GetRangeString(wEditor, lineStart, lineStart + middle_comment_length);
 			if (middle_comment != tempString) {
 				wEditor.CallString(SCI_INSERTTEXT, lineStart, middle_comment.c_str());
 				selectionEnd += middle_comment_length;
@@ -2163,8 +2152,7 @@ bool SciTEBase::StartBoxComment() {
 			// And since we didn't find the end-comment string yet, we need to check the *next* line
 			//  to see if it's necessary to insert an end-comment string and a linefeed there....
 			lineStart = wEditor.Call(SCI_POSITIONFROMLINE, selEndLine + 1);
-			GetRange(wEditor, lineStart, lineStart + (int) end_comment_length, tempString);
-			tempString[end_comment_length] = '\0';
+			tempString = GetRangeString(wEditor, lineStart, lineStart + (int)end_comment_length);
 			if (end_comment != tempString) {
 				end_comment += eol;
 				wEditor.CallString(SCI_INSERTTEXT, lineStart, end_comment.c_str());
@@ -2181,8 +2169,6 @@ bool SciTEBase::StartBoxComment() {
 	}
 
 	wEditor.Call(SCI_ENDUNDOACTION);
-
-	delete[] tempString;
 
 	return true;
 }
@@ -2756,8 +2742,7 @@ bool SciTEBase::HandleXml(char ch) {
 
 	// Grab the last 512 characters or so
 	int nCaret = wEditor.Call(SCI_GETCURRENTPOS);
-	char sel[512];
-	int nMin = nCaret - (sizeof(sel) - 1);
+	int nMin = nCaret - 512;
 	if (nMin < 0) {
 		nMin = 0;
 	}
@@ -2765,8 +2750,7 @@ bool SciTEBase::HandleXml(char ch) {
 	if (nCaret - nMin < 3) {
 		return false; // Smallest tag is 3 characters ex. <p>
 	}
-	GetRange(wEditor, nMin, nCaret, sel);
-	sel[sizeof(sel) - 1] = '\0';
+	std::string sel = GetRangeString(wEditor, nMin, nCaret);
 
 	if (sel[nCaret - nMin - 2] == '/') {
 		// User typed something like "<br/>"
@@ -2778,7 +2762,7 @@ bool SciTEBase::HandleXml(char ch) {
 		return false;
 	}
 
-	std::string strFound = FindOpenXmlTag(sel, nCaret - nMin);
+	std::string strFound = FindOpenXmlTag(sel.c_str(), nCaret - nMin);
 
 	if (strFound.length() > 0) {
 		wEditor.Call(SCI_BEGINUNDOACTION);

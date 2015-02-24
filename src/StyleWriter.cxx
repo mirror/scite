@@ -35,9 +35,8 @@ void TextReader::Fill(int position) {
 	endPos = startPos + bufferSize;
 	if (endPos > lenDoc)
 		endPos = lenDoc;
-
-	Sci_TextRange tr = {{startPos, endPos}, buf};
-	sw.Call(SCI_GETTEXTRANGE, 0, reinterpret_cast<sptr_t>(&tr));
+	sw.Call(SCI_SETTARGETRANGE, startPos, endPos);
+	sw.Call(SCI_GETTARGETTEXT, 0, reinterpret_cast<sptr_t>(buf));
 }
 
 bool TextReader::Match(int pos, const char *s) {

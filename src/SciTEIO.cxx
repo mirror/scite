@@ -146,12 +146,10 @@ void SciTEBase::DiscoverEOLSetting() {
 
 // Look inside the first line for a #! clue regarding the language
 std::string SciTEBase::DiscoverLanguage() {
-	char buf[64 * 1024];
-	int length = Minimum(LengthDocument(), sizeof(buf)-1);
-	GetRange(wEditor, 0, length, buf);
-	buf[length] = '\0';
+	int length = Minimum(LengthDocument(), 64 * 1024);
+	std::string buf = GetRangeString(wEditor, 0, length);
 	std::string languageOverride = "";
-	std::string l1 = ExtractLine(buf, length);
+	std::string l1 = ExtractLine(buf.c_str(), length);
 	if (StartsWith(l1, "<?xml")) {
 		languageOverride = "xml";
 	} else if (StartsWith(l1, "#!")) {
