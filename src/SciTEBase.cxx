@@ -2097,14 +2097,6 @@ bool SciTEBase::StartBoxComment() {
 	int start_comment_length = static_cast<int>(start_comment.length());
 	int middle_comment_length = static_cast<int>(middle_comment.length());
 	int end_comment_length = static_cast<int>(end_comment.length());
-	int whitespace_length = static_cast<int>(white_space.length());
-
-	// Calculate the length of the longest comment string to be inserted, and allocate a null-terminated char buffer of equal size
-	int maxCommentLength = start_comment_length;
-	if (middle_comment_length > maxCommentLength)
-		maxCommentLength = middle_comment_length;
-	if (end_comment_length + whitespace_length > maxCommentLength)
-		maxCommentLength = end_comment_length + whitespace_length;
 
 	wEditor.Call(SCI_BEGINUNDOACTION);
 
