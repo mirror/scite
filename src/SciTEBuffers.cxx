@@ -1547,10 +1547,16 @@ int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &co
 			}
 			const char *endPath = strchr(start, '(');
 			if (endPath) {
-				ptrdiff_t length = endPath - start;
-				sourcePath.assign(start, length);
-				endPath++;
-				return atoi(endPath) - 1;
+				if (!isdigitchar(endPath[1])) {
+					// This handles the common case of include files in the C:\Program Files (x86)\ directory
+					endPath = strchr(endPath + 1, '(');
+				}
+				if (endPath) {
+					ptrdiff_t length = endPath - start;
+					sourcePath.assign(start, length);
+					endPath++;
+					return atoi(endPath) - 1;
+				}
 			}
 			break;
 		}
