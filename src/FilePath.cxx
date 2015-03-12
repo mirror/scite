@@ -670,7 +670,7 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 
 		DWORD bytesRead = 0;
 		DWORD bytesAvail = 0;
-		char buffer[16 * 1024];
+		char buffer[8 * 1024];
 
 		if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
 			if (bytesAvail > 0) {

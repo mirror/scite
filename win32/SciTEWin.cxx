@@ -888,10 +888,10 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 			DWORD bytesRead = 0;
 			DWORD bytesAvail = 0;
-			char buffer[16384];
+			std::vector<char> buffer(16*1024);
 
-			if (!::PeekNamedPipe(hPipeRead, buffer,
-					     sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+			if (!::PeekNamedPipe(hPipeRead, &buffer[0],
+					     static_cast<DWORD>(buffer.size()), &bytesRead, &bytesAvail, NULL)) {
 				bytesAvail = 0;
 			}
 
@@ -937,13 +937,13 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				}
 
 			} else if (bytesAvail > 0) {
-				int bTest = ::ReadFile(hPipeRead, buffer,
-						       sizeof(buffer), &bytesRead, NULL);
+				int bTest = ::ReadFile(hPipeRead, &buffer[0],
+						       static_cast<DWORD>(buffer.size()), &bytesRead, NULL);
 
 				if (bTest && bytesRead) {
 
 					if (jobToRun.flags & jobRepSelMask) {
-						repSelBuf.append(buffer, bytesRead);
+						repSelBuf.append(&buffer[0], bytesRead);
 					}
 
 					if (!(jobToRun.flags & jobQuiet)) {
@@ -952,7 +952,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 							cmdWorker.seenOutput = true;
 						}
 						// Display the data
-						OutputAppendStringSynchronised(buffer, bytesRead);
+						OutputAppendStringSynchronised(&buffer[0], bytesRead);
 					}
 
 					::UpdateWindow(MainHWND());

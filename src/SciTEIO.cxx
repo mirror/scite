@@ -278,14 +278,14 @@ void SciTEBase::OpenCurrentFile(long fileSize, bool suppressMessage, bool asynch
 		wEditor.Call(SCI_ALLOCATE, fileSize + 1000);
 
 		Utf8_16_Read convert;
-		char data[blockSize];
-		size_t lenFile = fread(data, 1, sizeof(data), fp);
-		UniMode umCodingCookie = CodingCookieValue(data, lenFile);
+		std::vector<char> data(blockSize);
+		size_t lenFile = fread(&data[0], 1, data.size(), fp);
+		UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
 		while (lenFile > 0) {
-			lenFile = convert.convert(data, lenFile);
+			lenFile = convert.convert(&data[0], lenFile);
 			char *dataBlock = convert.getNewBuf();
 			wEditor.CallString(SCI_ADDTEXT, lenFile, dataBlock);
-			lenFile = fread(data, 1, sizeof(data), fp);
+			lenFile = fread(&data[0], 1, data.size(), fp);
 		}
 		fclose(fp);
 		wEditor.Call(SCI_ENDUNDOACTION);
@@ -956,7 +956,7 @@ bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
 							static_cast<int>(CurrentBuffer()->unicodeMode)));
 				}
 				convert.setfile(fp);
-				char data[blockSize + 1];
+				std::vector<char> data(blockSize + 1);
 				retVal = true;
 				int grabSize;
 				for (int i = 0; i < lengthDoc; i += grabSize) {
@@ -965,8 +965,8 @@ bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
 						grabSize = blockSize;
 					// Round down so only whole characters retrieved.
 					grabSize = wEditor.Call(SCI_POSITIONBEFORE, i + grabSize + 1) - i;
-					GetRange(wEditor, i, i + grabSize, data);
-					size_t written = convert.fwrite(data, grabSize);
+					GetRange(wEditor, i, i + grabSize, &data[0]);
+					size_t written = convert.fwrite(&data[0], grabSize);
 					if (written == 0) {
 						retVal = false;
 						break;
@@ -1098,7 +1098,7 @@ bool SciTEBase::IsStdinBlocked() {
 
 void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 	Utf8_16_Read convert;
-	char data[blockSize];
+	std::vector<char> data(blockSize);
 
 	/* if stdin is blocked, do not execute this method */
 	if (IsStdinBlocked())
@@ -1111,16 +1111,16 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		wEditor.Call(SCI_BEGINUNDOACTION);	// Group together clear and insert
 		wEditor.Call(SCI_CLEARALL);
 	}
-	size_t lenFile = fread(data, 1, sizeof(data), stdin);
-	UniMode umCodingCookie = CodingCookieValue(data, lenFile);
+	size_t lenFile = fread(&data[0], 1, data.size(), stdin);
+	UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
 	while (lenFile > 0) {
-		lenFile = convert.convert(data, lenFile);
+		lenFile = convert.convert(&data[0], lenFile);
 		if (UseOutputPane) {
 			wOutput.CallString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
 		} else {
 			wEditor.CallString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
 		}
-		lenFile = fread(data, 1, sizeof(data), stdin);
+		lenFile = fread(&data[0], 1, data.size(), stdin);
 	}
 	if (UseOutputPane) {
 		if (props.GetInt("split.vertical") == 0) {
@@ -1163,7 +1163,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 }
 
 void SciTEBase::OpenFilesFromStdin() {
-	char data[blockSize];
+	char data[8 * 1024];
 
 	/* if stdin is blocked, do not execute this method */
 	if (IsStdinBlocked())
