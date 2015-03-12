@@ -4329,15 +4329,12 @@ void SciTEBase::EnumProperties(const char *propkind) {
 }
 
 void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *val) {
-	size_t keysize = strlen(kind) + 1 + strlen(key) + 1 + strlen(val) + 1;
-	char *m = new char[keysize];
-	strcpy(m, kind);
-	strcat(m, ":");
-	strcat(m, key);
-	strcat(m, "=");
-	strcat(m, val);
-	extender->SendProperty(m);
-	delete []m;
+	std::string m = kind;
+	m += ":";
+	m += key;
+	m += "=";
+	m += val;
+	extender->SendProperty(m.c_str());
 }
 
 void SciTEBase::PropertyFromDirector(const char *arg) {
@@ -4366,22 +4363,20 @@ void SciTEBase::StartRecordMacro() {
  */
 bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
 	if (extender) {
-		char *szMessage;
-		char *t;
-		bool handled;
-		t = (char *)(notification->lParam);
-		std::string sWParam = StdStringFromSizeT(static_cast<size_t>(notification->wParam));
+		std::string sMessage = StdStringFromInteger(notification->message);
+		sMessage += ";";
+		sMessage += StdStringFromSizeT(static_cast<size_t>(notification->wParam));
+		sMessage += ";";
+		const char *t = (const char *)(notification->lParam);
 		if (t != NULL) {
 			//format : "<message>;<wParam>;1;<text>"
-			szMessage = new char[50 + strlen(t) + 4];
-			sprintf(szMessage, "%d;%s;1;%s", notification->message, sWParam.c_str(), t);
+			sMessage += "1;";
+			sMessage += t;
 		} else {
 			//format : "<message>;<wParam>;0;"
-			szMessage = new char[50];
-			sprintf(szMessage, "%d;%s;0;", notification->message, sWParam.c_str());
+			sMessage += "0;";
 		}
-		handled = extender->OnMacro("macro:record", szMessage);
-		delete []szMessage;
+		const bool handled = extender->OnMacro("macro:record", sMessage.c_str());
 		return handled;
 	}
 	return true;
@@ -4524,18 +4519,17 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 		l = 30;
 	}
 
-	size_t alen = strlen(answercmd);
-	char *tbuff = new char[l + alen + 1];
-	strcpy(tbuff, answercmd);
+	std::string tbuff = answercmd;
+	const size_t alen = strlen(answercmd);
+	tbuff.resize(l + alen + 1);
 	if (*params == 'S')
-		lParam = reinterpret_cast<sptr_t>(tbuff + alen);
+		lParam = reinterpret_cast<sptr_t>(&tbuff[alen]);
 
 	if (l > 0)
 		rep = wEditor.Call(message, wParam, lParam);
 	if (*params == 'I')
-		sprintf(tbuff + alen, "%0d", rep);
-	extender->OnMacro("macro", tbuff);
-	delete []tbuff;
+		sprintf(&tbuff[alen], "%0d", rep);
+	extender->OnMacro("macro", tbuff.c_str());
 	delete []string1;
 }
 
