@@ -1727,10 +1727,8 @@ bool SciTEBase::PerformInsertAbbreviation() {
 		return true; // returning if expanded abbreviation is empty
 	}
 
-	char *expbuf = new char[dataLength + 1];
-	strcpy(expbuf, data.c_str());
-	UnSlash(expbuf);
-	size_t expbuflen = strlen(expbuf);
+	std::string expbuf(data.c_str(), dataLength + 1);
+	size_t expbuflen = UnSlash(&expbuf[0]);
 	int caret_pos = wEditor.Call(SCI_GETSELECTIONSTART);
 	int sel_start = caret_pos;
 	int sel_length = wEditor.Call(SCI_GETSELECTIONEND) - sel_start;
@@ -1837,7 +1835,6 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	wEditor.Call(SCI_SETSEL, sel_start, sel_start + sel_length);
 
 	wEditor.Call(SCI_ENDUNDOACTION);
-	delete []expbuf;
 	return true;
 }
 
@@ -1880,10 +1877,8 @@ bool SciTEBase::StartExpandAbbreviation() {
 		return true; // returning if expanded abbreviation is empty
 	}
 
-	char *expbuf = new char[dataLength + 1];
-	strcpy(expbuf, data.c_str());
-	UnSlash(expbuf);
-	size_t expbuflen = strlen(expbuf);
+	std::string expbuf(data.c_str(), dataLength + 1);
+	size_t expbuflen = UnSlash(&expbuf[0]);
 	int caret_pos = -1; // caret position
 	int currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
@@ -1951,7 +1946,6 @@ bool SciTEBase::StartExpandAbbreviation() {
 	}
 
 	wEditor.Call(SCI_ENDUNDOACTION);
-	delete []expbuf;
 	delete []linebuf;
 	return true;
 }
