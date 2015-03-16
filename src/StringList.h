@@ -6,26 +6,29 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 class StringList {
-public:
-	// Each word contains at least one character - a empty word acts as sentinel at the end.
-	char **words;
-	char **wordsNoCase;
-	char *list;
-	int len;
+	// Text pointed into by words and wordsNoCase
+	std::string listText;
+	// Each word contains at least one character.
+	std::vector<char *> words;
+	std::vector<char *> wordsNoCase;
 	bool onlyLineEnds;	///< Delimited by any white space or only line ends
 	bool sorted;
 	bool sortedNoCase;
+	void SetFromListText();
+	void SortIfNeeded(bool ignoreCase);
+public:
 	StringList(bool onlyLineEnds_ = false) :
-		words(0), wordsNoCase(0), list(0), len(0), onlyLineEnds(onlyLineEnds_),
+		words(0), wordsNoCase(0), onlyLineEnds(onlyLineEnds_),
 		sorted(false), sortedNoCase(false) {}
 	~StringList() { Clear(); }
-	operator bool() const { return len ? true : false; }
-	char *operator[](int ind) { return words[ind]; }
+	size_t Length() const { return words.size(); }
+	operator bool() const { return !words.empty(); }
+	char *operator[](size_t ind) { return words[ind]; }
 	void Clear();
 	void Set(const char *s);
 	void Set(const std::vector<char> &data);
 	std::string GetNearestWord(const char *wordStart, size_t searchLen,
-		bool ignoreCase = false, std::string wordCharacters="", int wordIndex = -1);
+		bool ignoreCase, const std::string &wordCharacters, int wordIndex);
 	std::string GetNearestWords(const char *wordStart, size_t searchLen,
-		bool ignoreCase=false, char otherSeparator='\0', bool exactLen=false);
+		bool ignoreCase, char otherSeparator='\0', bool exactLen=false);
 };

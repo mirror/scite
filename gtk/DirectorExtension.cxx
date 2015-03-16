@@ -357,7 +357,7 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 	StringList  wlMessage(true);
 	wlMessage.Set(message);
 	IF_DEBUG(fprintf(fdDebug, "HandleStringMessage: got %s\n", message))
-	for (int i = 0; i < wlMessage.len; i++) {
+	for (size_t i = 0; i < wlMessage.Length(); i++) {
 		// Message format is [:return address:]command:argument
 		char *cmd = wlMessage[i];
 		char *corresp = NULL;
