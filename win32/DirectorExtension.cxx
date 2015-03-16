@@ -299,7 +299,9 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 			wDirector = 0;
 			if (startedByDirector) {
 				shuttingDown = true;
-				host->ShutDown();
+				if (host) {
+					host->ShutDown();
+				}
 				shuttingDown = false;
 			}
 		} else if (host) {
