@@ -611,16 +611,7 @@ void FilePath::FixName() {
 std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun) {
 	std::string output;
 #ifdef _WIN32
-	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
-	sa.bInheritHandle = TRUE;
-	sa.lpSecurityDescriptor = NULL;
-
-	SECURITY_DESCRIPTOR sd;
-	// Make a real security thing to allow inheriting handles
-	::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-	::SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
-	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-	sa.lpSecurityDescriptor = &sd;
+	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
 
 	HANDLE hPipeWrite = NULL;
 	HANDLE hPipeRead = NULL;

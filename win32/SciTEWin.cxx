@@ -773,20 +773,10 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 		codePageOutput = CodePageFromCharSet(characterSet, codePageOutput);
 	}
 
-	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), 0, 0};
+	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
 	OutputAppendStringSynchronised(">");
 	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command), codePageOutput);
 	OutputAppendStringSynchronised("\n");
-
-	sa.bInheritHandle = TRUE;
-	sa.lpSecurityDescriptor = NULL;
-
-	SECURITY_DESCRIPTOR sd;
-	// Make a real security thing to allow inheriting handles
-	::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-	::SetSecurityDescriptorDacl(&sd, TRUE, NULL, FALSE);
-	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-	sa.lpSecurityDescriptor = &sd;
 
 	HANDLE hPipeWrite = NULL;
 	HANDLE hPipeRead = NULL;
