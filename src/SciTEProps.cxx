@@ -294,8 +294,12 @@ std::string SciTEBase::ExtensionFileName() const {
 #if !defined(GTK)
 			// Force extension to lower case
 			std::string extension = name.Extension().AsUTF8();
-			LowerCaseAZ(extension);
-			return name.BaseName().AsUTF8() + "." + extension;
+			if (extension.empty()) {
+				return name.AsUTF8();
+			} else {
+				LowerCaseAZ(extension);
+				return name.BaseName().AsUTF8() + "." + extension;
+			}
 #else
 			return name.AsUTF8();
 #endif
