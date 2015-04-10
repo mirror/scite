@@ -462,6 +462,7 @@ static const char *propertiesToForward[] = {
 	"lexer.tex.interface.default",
 	"lexer.tex.use.keywords",
 	"lexer.verilog.allupperkeywords",
+	"lexer.verilog.fold.preprocessor.else",
 	"lexer.verilog.portstyling",
 	"lexer.verilog.track.preprocessor",
 	"lexer.verilog.update.preprocessor",
