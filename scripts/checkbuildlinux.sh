@@ -30,8 +30,8 @@
 # On Fedora 17, qmake is called qmake-qt4 so sepbuild.py should probe for correct name.
 # There are also problems with clang failing in the g++ 4.7 headers.
 
-# Run up to 2 commands in parallel
-set JOBS=-j 2
+# Run commands in parallel up to number of processors 
+JOBS="-j $(getconf _NPROCESSORS_ONLN)"
 
 cd ../..
 
