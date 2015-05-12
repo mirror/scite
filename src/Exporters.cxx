@@ -113,11 +113,13 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	RemoveFindMarks();
 	wEditor.Call(SCI_COLOURISE, 0, -1);
 
+	const std::string languageName = !StartsWith(language.c_str(), "lpeg_") ? language : "lpeg";
+
 	// Read the default settings
 	char key[200];
 	sprintf(key, "style.*.%0d", STYLE_DEFAULT);
 	const std::string valdefDefault = props.GetExpandedString(key);
-	sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
+	sprintf(key, "style.%s.%0d", languageName.c_str(), STYLE_DEFAULT);
 	const std::string valDefault = props.GetExpandedString(key);
 
 	StyleDefinition defaultStyle(valdefDefault.c_str());
@@ -158,7 +160,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 		sprintf(key, "style.*.%0d", istyle);
 		const std::string valdef = props.GetExpandedString(key);
-		sprintf(key, "style.%s.%0d", language.c_str(), istyle);
+		sprintf(key, "style.%s.%0d", languageName.c_str(), istyle);
 		const std::string val = props.GetExpandedString(key);
 
 		StyleDefinition sd(valdef.c_str());
@@ -375,11 +377,13 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 
 		fputs("<style type=\"text/css\">\n", fp);
 
+		const std::string languageName = !StartsWith(language.c_str(), "lpeg_") ? language : "lpeg";
+
 		std::string bgColour;
 		char key[200];
 		sprintf(key, "style.*.%0d", STYLE_DEFAULT);
 		std::string valdef = props.GetExpandedString(key);
-		sprintf(key, "style.%s.%0d", language.c_str(), STYLE_DEFAULT);
+		sprintf(key, "style.%s.%0d", languageName.c_str(), STYLE_DEFAULT);
 		std::string val = props.GetExpandedString(key);
 
 		StyleDefinition sddef(valdef.c_str());
@@ -397,7 +401,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 			if (styleIsUsed[istyle]) {
 				sprintf(key, "style.*.%0d", istyle);
 				valdef = props.GetExpandedString(key);
-				sprintf(key, "style.%s.%0d", language.c_str(), istyle);
+				sprintf(key, "style.%s.%0d", languageName.c_str(), istyle);
 				val = props.GetExpandedString(key);
 
 				StyleDefinition sd(valdef.c_str());
@@ -1065,6 +1069,8 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		pr.pageMargin.bottom = PDF_MARGIN_DEFAULT;
 	}
 
+	const std::string languageName = !StartsWith(language.c_str(), "lpeg_") ? language : "lpeg";
+
 	// collect all styles available for that 'language'
 	// or the default style if no language is available...
 	pr.style = new PDFStyle[STYLE_MAX + 1];
@@ -1074,7 +1080,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 
 		sprintf(buffer, "style.*.%0d", i);
 		const std::string valdef = props.GetExpandedString(buffer);
-		sprintf(buffer, "style.%s.%0d", language.c_str(), i);
+		sprintf(buffer, "style.%s.%0d", languageName.c_str(), i);
 		const std::string val = props.GetExpandedString(buffer);
 
 		StyleDefinition sd(valdef.c_str());
@@ -1241,12 +1247,14 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
  		      "\\usepackage{times}\n"
  		      "\\setlength{\\fboxsep}{0pt}\n", fp);
 
+		const std::string languageName = !StartsWith(language.c_str(), "lpeg_") ? language : "lpeg";
+
 		for (i = 0; i < STYLE_MAX; i++) {      // get keys
 			if (styleIsUsed[i]) {
 				char key[200];
 				sprintf(key, "style.*.%0d", i);
 				const std::string valdef = props.GetExpandedString(key);
-				sprintf(key, "style.%s.%0d", language.c_str(), i);
+				sprintf(key, "style.%s.%0d", languageName.c_str(), i);
 				const std::string val = props.GetExpandedString(key);
 
 				StyleDefinition sd(valdef.c_str()); //check default properties
