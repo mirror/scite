@@ -763,7 +763,7 @@ class Dialog {
 	HWND hDlg;
 public:
 
-	Dialog(HWND hDlg_) : hDlg(hDlg_) {
+	explicit Dialog(HWND hDlg_) : hDlg(hDlg_) {
 	}
 
 	HWND Item(int id) {

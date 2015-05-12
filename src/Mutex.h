@@ -22,7 +22,7 @@ public:
 class Lock {
 	Mutex *mute;
 public:
-	Lock(Mutex *mute_) : mute(mute_) {
+	explicit Lock(Mutex *mute_) : mute(mute_) {
 		mute->Lock();
 	}
 	~Lock() {

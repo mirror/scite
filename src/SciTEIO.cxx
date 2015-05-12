@@ -1201,7 +1201,7 @@ class BufferedFile {
 		}
 	}
 public:
-	BufferedFile(FilePath fPath) {
+	explicit BufferedFile(FilePath fPath) {
 		fp = fPath.Open(fileRead);
 		readAll = false;
 		exhausted = fp == NULL;

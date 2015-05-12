@@ -31,7 +31,7 @@ protected:
 	bool InternalIsLeadByte(char ch) const;
 	void Fill(int position);
 public:
-	TextReader(GUI::ScintillaWindow &sw_);
+	explicit TextReader(GUI::ScintillaWindow &sw_);
 	char operator[](int position) {
 		if (position < startPos || position >= endPos) {
 			Fill(position);
@@ -74,7 +74,7 @@ protected:
 	int validLen;
 	unsigned int startSeg;
 public:
-	StyleWriter(GUI::ScintillaWindow &sw_);
+	explicit StyleWriter(GUI::ScintillaWindow &sw_);
 	void Flush();
 	int SetLineState(int line, int state);
 

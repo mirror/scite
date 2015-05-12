@@ -706,7 +706,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		PDFObjectTracker(const PDFObjectTracker &) {}
 	public:
 		int index;
-		PDFObjectTracker(FILE *fp_) {
+		explicit PDFObjectTracker(FILE *fp_) {
 			fp = fp_;
 			tableSize = 100;
 			offsetList = new long[tableSize];

@@ -353,7 +353,7 @@ protected:
 
 public:
 
-	SciTEWin(Extension *ext = 0);
+	explicit SciTEWin(Extension *ext = 0);
 	~SciTEWin();
 
 	static bool DialogHandled(GUI::WindowID id, MSG *pmsg);

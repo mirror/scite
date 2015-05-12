@@ -936,7 +936,7 @@ public:
 
 	enum { maxParam = 4 };
 
-	SciTEBase(Extension *ext = 0);
+	explicit SciTEBase(Extension *ext = 0);
 	virtual ~SciTEBase();
 
 	void ProcessExecute();

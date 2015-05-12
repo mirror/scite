@@ -17,7 +17,7 @@ class StringList {
 	void SetFromListText();
 	void SortIfNeeded(bool ignoreCase);
 public:
-	StringList(bool onlyLineEnds_ = false) :
+	explicit StringList(bool onlyLineEnds_ = false) :
 		words(0), wordsNoCase(0), onlyLineEnds(onlyLineEnds_),
 		sorted(false), sortedNoCase(false) {}
 	~StringList() { Clear(); }
