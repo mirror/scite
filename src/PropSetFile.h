@@ -39,7 +39,7 @@ public:
 	std::string GetString(const char *key) const;
 	std::string Evaluate(const char *key) const;
 	std::string GetExpandedString(const char *key) const;
-	std::string Expand(const std::string &withVars, int maxExpands=100) const;
+	std::string Expand(const std::string &withVars, int maxExpands=200) const;
 	int GetInt(const char *key, int defaultValue=0) const;
 	void Clear();
 

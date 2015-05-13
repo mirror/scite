@@ -275,7 +275,7 @@ static int ExpandAllInPlace(const PropSetFile &props, std::string &withVars, int
 
 std::string PropSetFile::GetExpandedString(const char *key) const {
 	std::string val = GetString(key);
-	ExpandAllInPlace(*this, val, 100, VarChain(key));
+	ExpandAllInPlace(*this, val, 200, VarChain(key));
 	return val;
 }
 
