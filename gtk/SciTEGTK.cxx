@@ -742,7 +742,7 @@ public:
 	// TODO: get rid of this - use callback argument to find SciTEGTK
 	static SciTEGTK *instance;
 
-	SciTEGTK(Extension *ext = 0);
+	explicit SciTEGTK(Extension *ext = 0);
 	~SciTEGTK();
 
 	void WarnUser(int warnID);
