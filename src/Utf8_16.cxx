@@ -313,15 +313,23 @@ void Utf16_Iter::operator++() {
 		}
 		if (m_nCur16 >= SURROGATE_LEAD_FIRST && m_nCur16 <= SURROGATE_LEAD_LAST) {
 			++m_pRead;
-			int trail;
-			if (m_eEncoding == eUtf16LittleEndian) {
-				trail = *m_pRead++;
-				trail |= static_cast<utf16>(*m_pRead << 8);
+			if (m_pRead >= m_pEnd) {
+				// Have a lead surrogate at end of document with no access to trail surrogate.
+				// May be end of document.
+				--m_pRead;	// With next increment, leave pointer just past buffer 
+				m_nCur16 = m_nCur16;	// Write as lone surrogate
 			} else {
-				trail = static_cast<utf16>(*m_pRead++ << 8);
-				trail |= *m_pRead;
+				int trail;
+				if (m_eEncoding == eUtf16LittleEndian) {
+					trail = *m_pRead++;
+					trail |= static_cast<utf16>(*m_pRead << 8);
+				}
+				else {
+					trail = static_cast<utf16>(*m_pRead++ << 8);
+					trail |= *m_pRead;
+				}
+				m_nCur16 = (((m_nCur16 & 0x3ff) << 10) | (trail & 0x3ff)) + SURROGATE_FIRST_VALUE;
 			}
-			m_nCur16 = (((m_nCur16 & 0x3ff) << 10) | (trail & 0x3ff)) + SURROGATE_FIRST_VALUE;
 		}
 		++m_pRead;
 
