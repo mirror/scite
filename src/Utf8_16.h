@@ -35,12 +35,13 @@ class Utf16_Iter : public Utf8_16 {
 public:
 	Utf16_Iter();
 	void reset();
-	void set(const ubyte* pBuf, size_t nLen, encodingType eEncoding);
+	void set(const ubyte* pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate);
 	utf8 get() const {
 		return m_nCur;
 	}
 	void operator++();
 	operator bool() const { return m_pRead <= m_pEnd; }
+	utf16 read(const ubyte* pRead) const;
 
 protected:
 	enum eState {
@@ -110,6 +111,7 @@ private:
 	ubyte* m_pNewBuf;
 	size_t m_nBufSize;
 	bool m_bFirstRead;
+	ubyte m_leadSurrogate[2];
 	size_t m_nLen;
 	Utf16_Iter m_Iter16;
 };

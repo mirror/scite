@@ -286,6 +286,14 @@ void SciTEBase::OpenCurrentFile(long fileSize, bool suppressMessage, bool asynch
 			char *dataBlock = convert.getNewBuf();
 			wEditor.CallString(SCI_ADDTEXT, lenFile, dataBlock);
 			lenFile = fread(&data[0], 1, data.size(), fp);
+			if (lenFile == 0) {
+				// Handle case where convert is holding a lead surrogate but no more data
+				size_t lenFileTrail = convert.convert(NULL, lenFile);
+				if (lenFileTrail) {
+					char *dataTrail = convert.getNewBuf();
+					wEditor.CallString(SCI_ADDTEXT, lenFileTrail, dataTrail);
+				}
+			}
 		}
 		fclose(fp);
 		wEditor.Call(SCI_ENDUNDOACTION);

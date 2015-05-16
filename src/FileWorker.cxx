@@ -80,6 +80,14 @@ void FileLoader::Execute() {
 				pListener->PostOnMainThread(WORK_FILEPROGRESS, this);
 			}
 			lenFile = fread(&data[0], 1, blockSize, fp);
+			if ((lenFile == 0) && (err == 0)) {
+				// Handle case where convert is holding a lead surrogate but no more data
+				size_t lenFileTrail = convert.convert(NULL, lenFile);
+				if (lenFileTrail) {
+					char *dataTrail = convert.getNewBuf();
+					err = pLoader->AddData(dataTrail, static_cast<int>(lenFileTrail));
+				}
+			}
 		}
 		fclose(fp);
 		fp = 0;

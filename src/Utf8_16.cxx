@@ -11,6 +11,7 @@
 
 #include "Utf8_16.h"
 
+#include <memory.h>
 #include <stdio.h>
 
 const Utf8_16::utf8 Utf8_16::k_Boms[][3] = {
@@ -35,6 +36,8 @@ Utf8_16_Read::Utf8_16_Read() {
 	m_pNewBuf = NULL;
 	m_bFirstRead = true;
 	m_nLen = 0;
+	m_leadSurrogate[0] = 0;
+	m_leadSurrogate[1] = 0;
 }
 
 Utf8_16_Read::~Utf8_16_Read() {
@@ -69,7 +72,7 @@ size_t Utf8_16_Read::convert(char* buf, size_t len) {
 	}
 
 	// Else...
-	size_t newSize = len + len / 2 + 1;
+	size_t newSize = len + len / 2 + 4 + 1;
 	if (m_nBufSize != newSize) {
 		delete [] m_pNewBuf;
 		m_pNewBuf = new ubyte[newSize];
@@ -78,11 +81,28 @@ size_t Utf8_16_Read::convert(char* buf, size_t len) {
 
 	ubyte* pCur = m_pNewBuf;
 
-	m_Iter16.set(m_pBuf + nSkip, len - nSkip, m_eEncoding);
+	ubyte endSurrogate[2] = { 0, 0 };
+	ubyte *pbufPrependSurrogate = NULL;
+	if (m_leadSurrogate[0]) {
+		pbufPrependSurrogate = new ubyte[len - nSkip + 2];
+		memcpy(pbufPrependSurrogate, m_leadSurrogate, 2);
+		if (m_pBuf)
+			memcpy(pbufPrependSurrogate + 2, m_pBuf + nSkip, len - nSkip);
+		m_Iter16.set(pbufPrependSurrogate, len - nSkip + 2, m_eEncoding, endSurrogate);
+	}
+	else {
+		if (!m_pBuf)
+			return 0;
+		m_Iter16.set(m_pBuf + nSkip, len - nSkip, m_eEncoding, endSurrogate);
+	}
 
 	for (; m_Iter16; ++m_Iter16) {
 		*pCur++ = m_Iter16.get();
 	}
+
+	delete []pbufPrependSurrogate;
+
+	memcpy(m_leadSurrogate, endSurrogate, 2);
 
 	// Return number of bytes written out
 	return pCur - m_pNewBuf;
@@ -285,11 +305,20 @@ void Utf16_Iter::reset() {
 }
 
 void Utf16_Iter::set
-	(const ubyte* pBuf, size_t nLen, encodingType eEncoding) {
+	(const ubyte* pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) {
 	m_pBuf = pBuf;
 	m_pRead = pBuf;
 	m_pEnd = pBuf + nLen;
 	m_eEncoding = eEncoding;
+	if (nLen > 2) {
+		utf16 lastElement = read(m_pEnd-2);
+		if (lastElement >= SURROGATE_LEAD_FIRST && lastElement <= SURROGATE_LEAD_LAST) {
+			// Buffer ends with lead surrogate so cut off buffer and store
+			endSurrogate[0] = m_pEnd[-2];
+			endSurrogate[1] = m_pEnd[-1];
+			m_pEnd -= 2;
+		}
+	}
 	operator++();
 	// Note: m_eState, m_nCur, m_nCur16 not reinitialized.
 }
@@ -317,7 +346,6 @@ void Utf16_Iter::operator++() {
 				// Have a lead surrogate at end of document with no access to trail surrogate.
 				// May be end of document.
 				--m_pRead;	// With next increment, leave pointer just past buffer 
-				m_nCur16 = m_nCur16;	// Write as lone surrogate
 			} else {
 				int trail;
 				if (m_eEncoding == eUtf16LittleEndian) {
@@ -359,5 +387,13 @@ void Utf16_Iter::operator++() {
 		m_nCur = static_cast<ubyte>(0x80 | (m_nCur16 & 0x3F));
 		m_eState = eStart;
 		break;
+	}
+}
+
+Utf8_16::utf16 Utf16_Iter::read(const ubyte* pRead) const {
+	if (m_eEncoding == eUtf16LittleEndian) {
+		return pRead[0] | static_cast<utf16>(pRead[1] << 8);
+	} else {
+		return pRead[1] | static_cast<utf16>(pRead[0] << 8);
 	}
 }
