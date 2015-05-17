@@ -948,7 +948,7 @@ public:
 
 private:
 	// un-implemented copy-constructor and assignment operator
-	SciTEBase(const SciTEBase&);
+	explicit SciTEBase(const SciTEBase&);
 	void operator=(const SciTEBase&);
 };
 
