@@ -1978,9 +1978,7 @@ GtkWidget *SciTEGTK::TranslatedLabel(const char *original) {
 static void FillComboFromProps(WComboBoxEntry *combo, PropSetFile &props) {
 	const char *key;
 	const char *val;
-	for (int i = 0; i < 10; i++) {
-		combo->RemoveText(0);
-	}
+	combo->ClearList();
 
 	bool more = props.GetFirst(key, val);
 	while (more) {
@@ -1990,9 +1988,7 @@ static void FillComboFromProps(WComboBoxEntry *combo, PropSetFile &props) {
 }
 
 static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, bool useTop = false) {
-	for (int i = 0; i < 10; i++) {
-		combo->RemoveText(0);
-	}
+	combo->ClearList();
 	for (int i = 0; i < mem.Length(); i++) {
 		combo->AppendText(mem.At(i).c_str());
 	}

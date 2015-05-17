@@ -132,6 +132,9 @@ void WComboBoxEntry::RemoveText(int position) {
 void WComboBoxEntry::AppendText(const char *text) {
 #if GTK_CHECK_VERSION(3,0,0)
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(GetID()), text);
+#if GTK_CHECK_VERSION(3,14,0)
+	gtk_combo_box_set_button_sensitivity(GTK_COMBO_BOX(GetID()), GTK_SENSITIVITY_ON);
+#endif
 #else
 	gtk_combo_box_append_text(GTK_COMBO_BOX(GetID()), text);
 #endif
@@ -140,6 +143,9 @@ void WComboBoxEntry::AppendText(const char *text) {
 void WComboBoxEntry::ClearList() {
 #if GTK_CHECK_VERSION(3,0,0)
 	gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(GetID()));
+#if GTK_CHECK_VERSION(3,14,0)
+	gtk_combo_box_set_button_sensitivity(GTK_COMBO_BOX(GetID()), GTK_SENSITIVITY_OFF);
+#endif
 #else
 	for (int i = 0; i < 10; i++) {
 		RemoveText(0);
