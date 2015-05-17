@@ -1078,10 +1078,12 @@ void SciTEBase::ReplaceOnce(bool showWarnings) {
 	if (!FindHasText())
 		return;
 
+	bool haveWarned = false;
 	if (!havefound) {
 		Sci_CharacterRange crange = GetSelection();
 		SetSelection(static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMin));
 		FindNext(false);
+		haveWarned = !havefound;
 	}
 
 	if (havefound) {
@@ -1098,7 +1100,7 @@ void SciTEBase::ReplaceOnce(bool showWarnings) {
 		havefound = false;
 	}
 
-	FindNext(false, showWarnings);
+	FindNext(false, showWarnings && !haveWarned);
 }
 
 int SciTEBase::DoReplaceAll(bool inSelection) {
