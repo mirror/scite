@@ -1063,6 +1063,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 			wEditor.Call(SCI_COLOURISE, endStyled, end);
 		EnsureRangeVisible(wEditor, start, end);
 		wEditor.Call(SCI_SCROLLRANGE, start, end);
+		wEditor.Call(SCI_SETTARGETRANGE, start, end);
 		SetSelection(start, end);
 		if (!replacing && closeFind) {
 			DestroyFindReplace();
