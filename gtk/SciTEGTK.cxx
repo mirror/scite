@@ -5076,9 +5076,12 @@ void SciTEGTK::CreateUI() {
 		GTK_STYLE_PROVIDER(provider),
 		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 	gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),
-		"#entryInvalid {\n"                         
+		"#entryInvalid {\n"
 		"    color: #FFFFFF;\n"
 		"    background: #FF6666;\n"
+		"}\n"
+		"#entryInvalid:selected {\n"
+		"    background: #771111;\n"
 		"}\n", -1, NULL);
 	g_object_unref(provider);
 #endif
