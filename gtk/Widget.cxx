@@ -75,13 +75,7 @@ void WEntry::SetText(const GUI::gui_char *text) {
 
 void WEntry::SetValid(GtkEntry *entry, bool valid) {
 #if GTK_CHECK_VERSION(3,0,0)
-	if (valid) {
-		GdkRGBA black = { 0, 0, 0, 1};
-		gtk_widget_override_color(GTK_WIDGET(entry), (GtkStateFlags)GTK_STATE_NORMAL, &black);
-	} else {
-		GdkRGBA red = { 1.0, 0, 0, 1};
-		gtk_widget_override_color(GTK_WIDGET(entry), (GtkStateFlags)GTK_STATE_NORMAL, &red);
-	}
+	gtk_widget_set_name(GTK_WIDGET(entry), valid ? "" : "entryInvalid");
 #else
 	if (valid) {
 		GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};

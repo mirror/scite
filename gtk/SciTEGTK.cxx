@@ -5066,6 +5066,23 @@ void SciTEGTK::CreateUI() {
 	gtk_widget_hide(PWidget(findStrip));
 	gtk_widget_hide(PWidget(replaceStrip));
 
+#if GTK_CHECK_VERSION(3,0,0)
+	// Create a named style "entryInvalid" that can be applied to a search entry
+	// when the text can not be found.
+	GtkCssProvider *provider = gtk_css_provider_new();
+	GdkDisplay *display = gdk_display_get_default();
+	GdkScreen *screen = gdk_display_get_default_screen(display);
+	gtk_style_context_add_provider_for_screen(screen,
+		GTK_STYLE_PROVIDER(provider),
+		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),
+		"#entryInvalid {\n"                         
+		"    color: #FFFFFF;\n"
+		"    background: #FF6666;\n"
+		"}\n", -1, NULL);
+	g_object_unref(provider);
+#endif
+
 	UIAvailable();
 }
 
