@@ -5070,8 +5070,7 @@ void SciTEGTK::CreateUI() {
 	// Create a named style "entryInvalid" that can be applied to a search entry
 	// when the text can not be found.
 	GtkCssProvider *provider = gtk_css_provider_new();
-	GdkDisplay *display = gdk_display_get_default();
-	GdkScreen *screen = gdk_display_get_default_screen(display);
+	GdkScreen *screen = gtk_widget_get_screen(PWidget(wSciTE));
 	gtk_style_context_add_provider_for_screen(screen,
 		GTK_STYLE_PROVIDER(provider),
 		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
