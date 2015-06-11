@@ -677,6 +677,8 @@ protected:
 	std::string SelectionFilename();
 	void SelectionIntoProperties();
 	void SelectionIntoFind(bool stripEol = true);
+	enum AddSelection { addNext, addEach };
+	void SelectionAdd(AddSelection add);
 	virtual std::string EncodeString(const std::string &s);
 	virtual void Find() = 0;
 	enum MessageBoxChoice {

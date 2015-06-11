@@ -873,6 +873,27 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 	// else findWhat remains the same as last time.
 }
 
+void SciTEBase::SelectionAdd(AddSelection add) {
+	int flags = 0;
+	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
+	if (!wCurrent.Call(SCI_GETSELECTIONEMPTY)) {
+		// If selection is word then match as word.
+		if (wCurrent.Call(SCI_ISRANGEWORD, wCurrent.Call(SCI_GETSELECTIONSTART),
+			wCurrent.Call(SCI_GETSELECTIONEND)))
+			flags = SCFIND_WHOLEWORD;
+	}
+	wCurrent.Call(SCI_TARGETWHOLEDOCUMENT);
+	wCurrent.Call(SCI_SETSEARCHFLAGS, flags);
+	if (add == addNext) {
+		wCurrent.Call(SCI_MULTIPLESELECTADDNEXT);
+	} else {
+		if (wCurrent.Call(SCI_GETSELECTIONEMPTY)) {
+			wCurrent.Call(SCI_MULTIPLESELECTADDNEXT);
+		}
+		wCurrent.Call(SCI_MULTIPLESELECTADDEACH);
+	}
+}
+
 std::string SciTEBase::EncodeString(const std::string &s) {
 	return s;
 }
@@ -3145,6 +3166,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_ENTERSELECTION:
 		SelectionIntoFind();
+		break;
+
+	case IDM_SELECTIONADDNEXT:
+		SelectionAdd(addNext);
+		break;
+
+	case IDM_SELECTIONADDEACH:
+		SelectionAdd(addEach);
 		break;
 
 	case IDM_FINDNEXTBACKSEL:

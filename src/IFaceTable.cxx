@@ -267,6 +267,8 @@ static IFaceConstant ifaceConstants[] = {
 	{"IDM_SAVEASXML",117},
 	{"IDM_SAVESESSION",133},
 	{"IDM_SELECTALL",207},
+	{"IDM_SELECTIONADDEACH",258},
+	{"IDM_SELECTIONADDNEXT",257},
 	{"IDM_SELECTION_FOR_FIND",217},
 	{"IDM_SELECTTOBRACE",231},
 	{"IDM_SELECTTONEXTMATCHPPC",263},
@@ -2863,6 +2865,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"IndicatorStart", 2508, iface_int, {iface_int, iface_int}},
 	{"IndicatorValueAt", 2507, iface_int, {iface_int, iface_int}},
 	{"InsertText", 2003, iface_void, {iface_position, iface_string}},
+	{"IsRangeWord", 2691, iface_bool, {iface_position, iface_position}},
 	{"LineCopy", 2455, iface_void, {iface_void, iface_void}},
 	{"LineCut", 2337, iface_void, {iface_void, iface_void}},
 	{"LineDelete", 2338, iface_void, {iface_void, iface_void}},
@@ -2908,6 +2911,8 @@ static IFaceFunction ifaceFunctions[] = {
 	{"MoveCaretInsideView", 2401, iface_void, {iface_void, iface_void}},
 	{"MoveSelectedLinesDown", 2621, iface_void, {iface_void, iface_void}},
 	{"MoveSelectedLinesUp", 2620, iface_void, {iface_void, iface_void}},
+	{"MultipleSelectAddEach", 2689, iface_void, {iface_void, iface_void}},
+	{"MultipleSelectAddNext", 2688, iface_void, {iface_void, iface_void}},
 	{"NewLine", 2329, iface_void, {iface_void, iface_void}},
 	{"Null", 2172, iface_void, {iface_void, iface_void}},
 	{"PageDown", 2322, iface_void, {iface_void, iface_void}},
@@ -2986,6 +2991,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"Tab", 2327, iface_void, {iface_void, iface_void}},
 	{"TargetAsUTF8", 2447, iface_int, {iface_void, iface_stringresult}},
 	{"TargetFromSelection", 2287, iface_void, {iface_void, iface_void}},
+	{"TargetWholeDocument", 2690, iface_void, {iface_void, iface_void}},
 	{"TextHeight", 2279, iface_int, {iface_int, iface_void}},
 	{"TextWidth", 2276, iface_int, {iface_int, iface_string}},
 	{"ToggleCaretSticky", 2459, iface_void, {iface_void, iface_void}},
@@ -3247,8 +3253,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 289,
-	ifaceConstantCount = 2593,
+	ifaceFunctionCount = 293,
+	ifaceConstantCount = 2595,
 	ifacePropertyCount = 221
 };
 
