@@ -90,8 +90,8 @@ BEGIN
 	MENUITEM "F&ind in Files...\tCtrl+Shift+F",	IDM_FINDINFILES
 	MENUITEM "R&eplace...\tCtrl+H",			IDM_REPLACE
 	MENUITEM "Incrementa&l Search...\tCtrl+Alt+I",	IDM_INCSEARCH
-	MENUITEM "Selection Add Next\tCtrl+Shift+D",	IDM_SELECTIONADDNEXT
-	MENUITEM "Selection Add Each",			IDM_SELECTIONADDEACH
+	MENUITEM "Selection A&dd Next\tCtrl+Shift+D",	IDM_SELECTIONADDNEXT
+	MENUITEM "Selection &Add Each",			IDM_SELECTIONADDEACH
 	MENUITEM SEPARATOR
 	MENUITEM "&Go to...\tCtrl+G",			IDM_GOTO
 	MENUITEM "Next Book&mark\tF2",			IDM_BOOKMARK_NEXT
