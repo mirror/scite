@@ -3883,6 +3883,8 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Search/F_ind in Files...", "<control><shift>F", menuSig, IDM_FINDINFILES, 0},
 	                                      {"/Search/R_eplace...", "<control>H", menuSig, IDM_REPLACE, 0},
 	                                      {"/Search/Incrementa_l Search", "<control><alt>I", menuSig, IDM_INCSEARCH, 0},
+	                                      {"/Search/Selection A_dd Next", "<control><shift>D", menuSig, IDM_SELECTIONADDNEXT, 0},
+	                                      {"/Search/Selection _Add Each", "", menuSig, IDM_SELECTIONADDEACH, 0},
 	                                      {"/Search/sep3", NULL, NULL, 0, "<Separator>"},
 	                                      {"/Search/_Go To...", "<control>G", menuSig, IDM_GOTO, 0},
 	                                      {"/Search/Next Book_mark", "F2", menuSig, IDM_BOOKMARK_NEXT, 0},
