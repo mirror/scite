@@ -953,7 +953,7 @@ void SciTEBase::ReadProperties() {
 		{"preprocessor.end.", ppcEnd},
 	};
 	std::string list = props.GetNewExpandString("preprocessor.symbol.", fileNameForExtension.c_str());
-	preprocessorSymbol = list[0];
+	preprocessorSymbol = list.empty() ? 0 : list[0];
 	preprocOfString.clear();
 	for (size_t iPreproc = 0; iPreproc < ELEMENTS(propToPPC); iPreproc++) {
 		list = props.GetNewExpandString(propToPPC[iPreproc].propName, fileNameForExtension.c_str());
