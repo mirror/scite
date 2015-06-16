@@ -749,10 +749,14 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 }
 
 std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, int selStart, int selEnd) {
-	std::string sel(selEnd - selStart, '\0');
-	win.Send(SCI_SETTARGETRANGE, selStart, selEnd);
-	win.SendPointer(SCI_GETTARGETTEXT, 0, &sel[0]);
-	return sel;
+	if (selStart == selEnd) {
+		return std::string();
+	} else {
+		std::string sel(selEnd - selStart, '\0');
+		win.Send(SCI_SETTARGETRANGE, selStart, selEnd);
+		win.SendPointer(SCI_GETTARGETTEXT, 0, &sel[0]);
+		return sel;
+	}
 }
 
 std::string SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
