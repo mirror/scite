@@ -2334,6 +2334,7 @@ void SciTEBase::SetLineIndentation(int line, int indent) {
 	if (indent < 0)
 		return;
 	Sci_CharacterRange crange = GetSelection();
+	Sci_CharacterRange crangeStart = crange;
 	int posBefore = GetLineIndentPosition(line);
 	wEditor.Call(SCI_SETLINEINDENTATION, line, indent);
 	int posAfter = GetLineIndentPosition(line);
@@ -2361,7 +2362,9 @@ void SciTEBase::SetLineIndentation(int line, int indent) {
 				crange.cpMax = posAfter;
 		}
 	}
-	SetSelection(static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMax));
+	if ((crangeStart.cpMin != crange.cpMin) || (crangeStart.cpMax != crange.cpMax)) {
+		SetSelection(static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMax));
+	}
 }
 
 int SciTEBase::GetLineIndentation(int line) {
