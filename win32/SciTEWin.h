@@ -74,6 +74,10 @@ typedef void *HTHEME;
 #define WM_UPDATEUISTATE 0x0128
 #endif
 
+#ifndef WM_DPICHANGED
+#define WM_DPICHANGED 0x02E0
+#endif
+
 #include "Scintilla.h"
 #include "ILexer.h"
 
@@ -222,6 +226,7 @@ protected:
 
 	virtual void ReadLocalization();
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
+	void SetScaleFactor(int scale);
 
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();

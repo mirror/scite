@@ -786,7 +786,16 @@ NameError: mistake
        For long values, a '\' character at the end of the line continues that value on the next
       line. Space characters are significant so <span class="example">x&nbsp;=1</span> defines a variable called
       "x&nbsp;".
-      Values may include the values of other variables by using $(variablename). There are
+      Values may include the values of other variables by using $(variablename).
+      </p>
+      <p>
+      On Windows, values may be scaled using the current screen dots-per-inch so that they use more
+      pixels on high resolution screens and appear a reasonable size.
+      <span class="example">margin.width=$(scale&nbsp;16)</span> makes the margin 16 pixels wide
+      on a normal screen and 32 pixels wide when the screen is set to 200%.
+      </p>
+      <p>
+      There are
       some variables set by the environment to access the name of the current file as well:
     </p>
        <table cellpadding="0" cellspacing="0" border="1" summary="Variables set by the environment for use in property files">
@@ -813,6 +822,7 @@ NameError: mistake
                <tr id='property-SciteDirectoryHome'><td>SciteDirectoryHome</td><td>directory in which the Directory Options file is found</td></tr>
                <tr id='property-APIPath'><td>APIPath</td><td>list of full paths of API files from api.<i>filepattern</i></td></tr>
                <tr id='property-AbbrevPath'><td>AbbrevPath</td><td>full path of abbreviations file</td></tr>
+               <tr id='property-ScaleFactor'><td>ScaleFactor</td><td>the screen's scaling factor with a default value of 100</td></tr>
         </table>
     <p>
        Some features use file name patterns to see which variable to use. For example, the lexer

@@ -200,6 +200,9 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	pathAbbreviations = GetAbbrevPropertiesFileName();
 
 	ReadGlobalPropFile();
+
+	SetScaleFactor(0);
+
 	tbLarge = props.GetInt("toolbar.large");
 	/// Need to copy properties to variables before setting up window
 	SetPropertiesInitial();
@@ -357,6 +360,16 @@ void SciTEWin::GetWindowPosition(int *left, int *top, int *width, int *height, i
 	*width =  winPlace.rcNormalPosition.right - winPlace.rcNormalPosition.left;
 	*height = winPlace.rcNormalPosition.bottom - winPlace.rcNormalPosition.top;
 	*maximize = (winPlace.showCmd == SW_MAXIMIZE) ? 1 : 0;
+}
+
+void SciTEWin::SetScaleFactor(int scale) {
+	if (scale == 0) {
+		HDC hdcMeasure = ::CreateCompatibleDC(NULL);
+		scale = ::GetDeviceCaps(hdcMeasure, LOGPIXELSX) * 100 / 96;
+		::DeleteDC(hdcMeasure);
+	}
+	std::string sScale = StdStringFromInteger(scale);
+	propsEmbed.Set("ScaleFactor", sScale.c_str());
 }
 
 // Allow UTF-8 file names and command lines to be used in calls to io.open and io.popen in Lua scripts.
@@ -1915,6 +1928,11 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			wEditor.Call(WM_SYSCOLORCHANGE, wParam, lParam);
 			wOutput.Call(WM_SYSCOLORCHANGE, wParam, lParam);
 			break;
+
+		case WM_DPICHANGED:
+			SetScaleFactor(LOWORD(wParam) * 100 / 96);
+			ReadProperties();
+			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 
 		case WM_ACTIVATEAPP:
 			wEditor.Call(SCI_HIDESELECTION, !wParam);

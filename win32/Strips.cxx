@@ -372,9 +372,9 @@ bool Strip::HasClose() const {
 GUI::Rectangle Strip::CloseArea() {
 	if (HasClose()) {
 		GUI::Rectangle rcClose = GetClientPosition();
-		rcClose.right -= 2;
+		rcClose.right -= space;
 		rcClose.left = rcClose.right - closeSize.cx;
-		rcClose.top += 2;
+		rcClose.top += space;
 		rcClose.bottom = rcClose.top + closeSize.cy;
 		return rcClose;
 	} else {
@@ -388,13 +388,13 @@ GUI::Rectangle Strip::LineArea(int line) {
 	rcLine.bottom -= rcLine.top;
 	rcLine.right -= rcLine.left;
 
-	rcLine.left = 2;
-	rcLine.top = 2 + line * lineHeight;
-	rcLine.right -= 2;
-	rcLine.bottom = rcLine.top + lineHeight - 2;
+	rcLine.left = space;
+	rcLine.top = space + line * lineHeight;
+	rcLine.right -= space;
+	rcLine.bottom = rcLine.top + lineHeight - space;
 
 	if (HasClose())
-		rcLine.right -= closeSize.cx + 2;	// Allow for close box and gap
+		rcLine.right -= closeSize.cx + space;	// Allow for close box and gap
 
 	return rcLine;
 }
@@ -452,6 +452,7 @@ void Strip::SetTheme() {
 		HDC hdc = ::GetDC(Hwnd());
 		scale = ::GetDeviceCaps(hdc, LOGPIXELSX);
 		::ReleaseDC(Hwnd(), hdc);
+		space = scale * 2 / 96;
 		HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL,
 			NULL, TS_TRUE, &closeSize);
 		//HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_MDICLOSEBUTTON, CBS_NORMAL,
@@ -780,7 +781,7 @@ void SearchStrip::Creation() {
 	wButton = CreateButton(textFindNext, IDC_INCFINDBTNOK);
 
 	GUI::Rectangle rcButton = wButton.GetPosition();
-	lineHeight = rcButton.Height() + 3;
+	lineHeight = rcButton.Height() + space + 1;
 }
 
 void SearchStrip::Destruction() {
@@ -957,7 +958,7 @@ void FindStrip::Creation() {
 	wText.Show();
 
 	GUI::Rectangle rcCombo = wText.GetPosition();
-	lineHeight = rcCombo.Height() + 3;
+	lineHeight = rcCombo.Height() + space + 1;
 
 	wButton = CreateButton(textFindNext, IDOK);
 	wButtonMarkAll = CreateButton(textMarkAll, IDMARKALL);
@@ -1173,7 +1174,7 @@ void ReplaceStrip::Creation() {
 	wText.Show();
 
 	GUI::Rectangle rcCombo = wText.GetPosition();
-	lineHeight = rcCombo.Height() + 3;
+	lineHeight = rcCombo.Height() + space + 1;
 
 	wStaticReplace = CreateText(textReplacePrompt);
 
@@ -1662,7 +1663,7 @@ void UserStrip::SetDescription(const char *description) {
 				puc->fixedWidth = false;
 				puc->w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), puc->text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | ES_AUTOHSCROLL,
-					60 * control, line * lineHeight + 2, puc->widthDesired, 27,
+					60 * control, line * lineHeight + space, puc->widthDesired, 27,
 					Hwnd(), reinterpret_cast<HMENU>(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 
@@ -1671,7 +1672,7 @@ void UserStrip::SetDescription(const char *description) {
 				puc->fixedWidth = false;
 				puc->w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("ComboBox"), puc->text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
-					60 * control, line * lineHeight + 2, puc->widthDesired, 180,
+					60 * control, line * lineHeight + space, puc->widthDesired, 180,
 					Hwnd(), reinterpret_cast<HMENU>(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 
@@ -1683,7 +1684,7 @@ void UserStrip::SetDescription(const char *description) {
 				puc->w = ::CreateWindowEx(0, TEXT("Button"), puc->text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS |
 					((puc->controlType == UserControl::ucDefaultButton) ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON),
-					60 * control, line * lineHeight + 2, puc->widthDesired, lineHeight-1,
+					60 * control, line * lineHeight + space, puc->widthDesired, lineHeight-1,
 					Hwnd(), reinterpret_cast<HMENU>(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 
@@ -1691,7 +1692,7 @@ void UserStrip::SetDescription(const char *description) {
 				puc->widthDesired = WidthText(fontText, puc->text.c_str());
 				puc->w = ::CreateWindowEx(0, TEXT("Static"), puc->text.c_str(),
 					WS_CHILD | WS_CLIPSIBLINGS | ES_RIGHT,
-					60 * control, line * lineHeight + 2, puc->widthDesired, lineHeight - 5,
+					60 * control, line * lineHeight + space, puc->widthDesired, lineHeight - 5,
 					Hwnd(), reinterpret_cast<HMENU>(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 			}

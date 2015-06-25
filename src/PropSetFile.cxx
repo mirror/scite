@@ -213,6 +213,15 @@ std::string PropSetFile::Evaluate(const char *key) const {
 				combination += itV->second;
 			}
 			return combination;
+		} else if (isprefix(key, "scale ")) {
+			const int scaleFactor = GetInt("ScaleFactor", 100);
+			const char *val = key + 6;
+			if (scaleFactor == 100) {
+				return val;
+			} else {
+				const int value = atoi(val);
+				return StdStringFromInteger(value * scaleFactor / 100);
+			}
 		}
 	} else {
 		return GetString(key);
