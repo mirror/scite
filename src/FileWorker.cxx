@@ -20,7 +20,7 @@
 // Only include <windows.h> for Sleep.
 
 #undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0500
+#define _WIN32_WINNT  0x0602
 #include <windows.h>
 
 #endif
