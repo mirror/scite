@@ -2141,7 +2141,9 @@ void SciTEGTK::FindInFilesCmd() {
 	props.Set("find.files", filesEntry);
 	memFiles.Insert(filesEntry);
 
-	dlgFindInFiles.Destroy();
+	if (props.GetInt("find.in.files.close.on.find", 1)) {
+		dlgFindInFiles.Destroy();
+	}
 
 	SelectionIntoProperties();
 	std::string findCommand = props.GetNewExpandString("find.command");
