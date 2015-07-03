@@ -270,7 +270,13 @@ void SciTEBase::OpenCurrentFile(long fileSize, bool suppressMessage, bool asynch
 		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
 		wEditor.Call(SCI_SETREADONLY, 1);
 		assert(CurrentBuffer()->pFileWorker == NULL);
-		ILoader *pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, fileSize + 1000));
+		ILoader *pdocLoad;
+		try {
+			pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, fileSize + 1000));
+		} catch (...) {
+			wEditor.Call(SCI_SETSTATUS, 0);
+			return;
+		}
 		CurrentBuffer()->pFileWorker = new FileLoader(this, pdocLoad, filePath, fileSize, fp);
 		CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 		PerformOnNewThread(CurrentBuffer()->pFileWorker);
