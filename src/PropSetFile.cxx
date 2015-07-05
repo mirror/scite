@@ -92,9 +92,9 @@ void PropSetFile::Set(const char *key, const char *val, ptrdiff_t lenKey, ptrdif
 	if (!*key)	// Empty keys are not supported
 		return;
 	if (lenKey == -1)
-		lenKey = static_cast<int>(strlen(key));
+		lenKey = strlen(key);
 	if (lenVal == -1)
-		lenVal = static_cast<int>(strlen(val));
+		lenVal = strlen(val);
 	props[std::string(key, lenKey)] = std::string(val, lenVal);
 }
 
@@ -110,8 +110,8 @@ void PropSetFile::Set(const char *keyVal) {
 		while ((pKeyEnd >= keyVal) && IsASpace(*pKeyEnd)) {
 			--pKeyEnd;
 		}
-		ptrdiff_t lenVal = endVal - eqAt - 1;
-		ptrdiff_t lenKey = pKeyEnd - keyVal + 1;
+		const ptrdiff_t lenVal = endVal - eqAt - 1;
+		const ptrdiff_t lenKey = pKeyEnd - keyVal + 1;
 		Set(keyVal, eqAt + 1, lenKey, lenVal);
 	} else if (*keyVal) {	// No '=' so assume '=1'
 		Set(keyVal, "1", endVal-keyVal, 1);
