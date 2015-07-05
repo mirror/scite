@@ -2515,6 +2515,11 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCWS_INVISIBLE",0},
 	{"SCWS_VISIBLEAFTERINDENT",2},
 	{"SCWS_VISIBLEALWAYS",1},
+	{"SC_AC_COMMAND",5},
+	{"SC_AC_DOUBLECLICK",2},
+	{"SC_AC_FILLUP",1},
+	{"SC_AC_NEWLINE",4},
+	{"SC_AC_TAB",3},
 	{"SC_ALPHA_NOALPHA",256},
 	{"SC_ALPHA_OPAQUE",255},
 	{"SC_ALPHA_TRANSPARENT",0},
@@ -2530,6 +2535,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_CARETSTICKY_WHITESPACE",2},
 	{"SC_CASEINSENSITIVEBEHAVIOUR_IGNORECASE",1},
 	{"SC_CASEINSENSITIVEBEHAVIOUR_RESPECTCASE",0},
+	{"SC_CASE_CAMEL",3},
 	{"SC_CASE_LOWER",2},
 	{"SC_CASE_MIXED",0},
 	{"SC_CASE_UPPER",1},
@@ -3254,7 +3260,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 293,
-	ifaceConstantCount = 2595,
+	ifaceConstantCount = 2601,
 	ifacePropertyCount = 221
 };
 
