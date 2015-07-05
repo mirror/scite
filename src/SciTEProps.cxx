@@ -631,6 +631,43 @@ void SciTEBase::ReadProperties() {
 		wEditor.CallString(SCI_SETKEYWORDS, wl, kw.c_str());
 	}
 
+	subStyleBases.clear();
+	int lenSSB = wEditor.CallString(SCI_GETSUBSTYLEBASES, 0, NULL);
+	if (lenSSB) {
+		wEditor.Call(SCI_FREESUBSTYLES);
+
+		subStyleBases.resize(lenSSB+1);
+		wEditor.CallString(SCI_GETSUBSTYLEBASES, 0, &subStyleBases[0]);
+		subStyleBases.resize(lenSSB);	// Remove NUL
+
+		for (int baseStyle=0;baseStyle<lenSSB;baseStyle++) {
+			//substyles.cpp.11=2
+			std::string ssSubStylesKey = "substyles.";
+			ssSubStylesKey += language;
+			ssSubStylesKey += ".";
+			ssSubStylesKey += StdStringFromInteger(subStyleBases[baseStyle]);
+			std::string ssNumber = props.GetNewExpandString(ssSubStylesKey.c_str());
+			int subStyleIdentifiers = atoi(ssNumber.c_str());
+
+			int subStyleIdentifiersStart = 0;
+			if (subStyleIdentifiers) {
+				subStyleIdentifiersStart = wEditor.Call(SCI_ALLOCATESUBSTYLES, subStyleBases[baseStyle], subStyleIdentifiers);
+				if (subStyleIdentifiersStart < 0)
+					subStyleIdentifiers = 0;
+			}
+			for (int subStyle=0; subStyle<subStyleIdentifiers; subStyle++) {
+				// substylewords.11.1.$(file.patterns.cpp)=CharacterSet LexAccessor SString WordList
+				std::string ssWordsKey = "substylewords.";
+				ssWordsKey += StdStringFromInteger(subStyleBases[baseStyle]);
+				ssWordsKey += ".";
+				ssWordsKey += StdStringFromInteger(subStyle + 1);
+				ssWordsKey += ".";
+				std::string ssWords = props.GetNewExpandString(ssWordsKey.c_str(), fileNameForExtension.c_str());
+				wEditor.CallString(SCI_SETIDENTIFIERS, subStyleIdentifiersStart + subStyle, ssWords.c_str());
+			}
+		}
+	}
+
 	FilePath homepath = GetSciteDefaultHome();
 	props.Set("SciteDefaultHome", homepath.AsUTF8().c_str());
 	homepath = GetSciteUserHome();
@@ -1262,6 +1299,20 @@ void SciTEBase::ReadFontProperties() {
 		wEditor.Call(SCI_RELEASEALLEXTENDEDSTYLES, 0, 0);
 		diagnosticStyleStart = wEditor.Call(SCI_ALLOCATEEXTENDEDSTYLES, diagnosticStyles, 0);
 		SetStyleBlock(wEditor, "error", diagnosticStyleStart, diagnosticStyleStart+diagnosticStyles-1);
+	}
+
+	int diffToSecondary = static_cast<int>(wEditor.Call(SCI_DISTANCETOSECONDARYSTYLES));
+	for (unsigned int baseStyle=0; baseStyle<subStyleBases.size(); baseStyle++) {
+		int subStylesStart = wEditor.Call(SCI_GETSUBSTYLESSTART, subStyleBases[baseStyle]);
+		int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, subStyleBases[baseStyle]);
+		for (int subStyle=0; subStyle<subStylesLength; subStyle++) {
+			for (int active=0; active<(diffToSecondary?2:1); active++) {
+				int activity = active * diffToSecondary;
+				sprintf(key, "style.%s.%0d.%0d", languageName, subStyleBases[baseStyle] + activity, subStyle+1);
+				sval = props.GetNewExpandString(key);
+				SetOneStyle(wEditor, subStylesStart + subStyle + activity, sval.c_str());
+			}
+		}
 	}
 
 	// Turn grey while loading

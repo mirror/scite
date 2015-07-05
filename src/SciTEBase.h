@@ -374,6 +374,7 @@ protected:
 	int characterSet;
 	std::string language;
 	int lexLanguage;
+	std::vector<char> subStyleBases;
 	int lexLPeg;
 	StringList apis;
 	std::string apisFileNames;

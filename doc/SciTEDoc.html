@@ -3169,6 +3169,51 @@ imports.include=fortran lisp
            A * can be used instead of a lexer to indicate a global style setting.
         </td>
       </tr>
+      <tr id='property-substyles'>
+        <td>
+          substyles.<i>lexer</i>.<i>stylenumber</i>
+        </td>
+        <td>
+          Substyles are mainly used to display sets of identifiers distinctly.
+          When working with a particular library, you may want to highlight all the calls to functions in that library
+          differently to your own functions or operating system calls.
+          Substyles splits one style, commonly an identifier style, into several groups.
+          Only some lexers support this and within a lexer it will only be supported for some styles.
+          Currently the cpp lexer allows substyles for identifiers (11) and
+          comment doc keywords (17), and the python lexer allows substyles for identifiers (11).
+          Language properties files will specify the styles that can be split.<br />
+          This setting defines how many substyles are allocated to a particular main style.
+          To allow 2 extra styles for identifiers in C++:
+          <div class="example">
+                substyles.cpp.11=2
+          </div>
+        </td>
+      </tr>
+      <tr id='property-substylewords'>
+        <td>
+          substylewords.<i>mainstyle</i>.<i>substyle</i>.<i>filepattern</i>
+        </td>
+        <td>
+          This property defines which words are to be styled in a particular substyle, in a similar way to keywords.
+          For example, to use the first substyle of identifiers (11) for the C++ standard library identifiers "std", "map",
+          "string", and "vector":
+          <div class="example">
+                substylewords.11.1.$(file.patterns.cpp)=std map string vector
+          </div>
+        </td>
+      </tr>
+      <tr id='property-style.sub'>
+        <td>
+          style.<i>lexer</i>.<i>mainstyle</i>.<i>substyle</i>
+        </td>
+        <td>
+          This property defines the visual appearance of a substyle.
+          For example, to display the first substyle of identifiers (11) as pink:
+          <div class="example">
+                style.cpp.11.1=fore:#EE00AA
+          </div>
+        </td>
+      </tr>
       <tr class="windows-osx" id='property-font.quality'>
         <td>
           font.quality
