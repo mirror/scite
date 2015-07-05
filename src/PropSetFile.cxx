@@ -106,7 +106,13 @@ void PropSetFile::Set(const char *keyVal) {
 		endVal++;
 	const char *eqAt = strchr(keyVal, '=');
 	if (eqAt) {
-		Set(keyVal, eqAt + 1, eqAt-keyVal, endVal - eqAt - 1);
+		const char *pKeyEnd = eqAt - 1;
+		while ((pKeyEnd >= keyVal) && IsASpace(*pKeyEnd)) {
+			--pKeyEnd;
+		}
+		ptrdiff_t lenVal = endVal - eqAt - 1;
+		ptrdiff_t lenKey = pKeyEnd - keyVal + 1;
+		Set(keyVal, eqAt + 1, lenKey, lenVal);
 	} else if (*keyVal) {	// No '=' so assume '=1'
 		Set(keyVal, "1", endVal-keyVal, 1);
 	}

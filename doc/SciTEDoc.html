@@ -783,10 +783,10 @@ NameError: mistake
        variable=value
     </p>
     <p>
-       For long values, a '\' character at the end of the line continues that value on the next
-      line. Space characters are significant so <span class="example">x&nbsp;=1</span> defines a variable called
-      "x&nbsp;".
-      Values may include the values of other variables by using $(variablename).
+       For long values, a '\' character at the end of the line continues that value on the next line.
+       Space characters are significant in values but leading and trailing spaces are not significant in variable names
+       so "<span class="example">&nbsp;x&nbsp;=1</span>" defines a variable called "x".
+       Values may include the values of other variables by using $(variablename).
       </p>
       <p>
       On Windows, values may be scaled using the current screen dots-per-inch so that they use more
