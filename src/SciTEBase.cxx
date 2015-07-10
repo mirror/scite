@@ -152,6 +152,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	indentationWSVisible = true;
 	indentExamine = SC_IV_LOOKBOTH;
 	autoCompleteIgnoreCase = false;
+	imeAutoComplete = false;
 	callTipUseEscapes = false;
 	callTipIgnoreCase = false;
 	autoCCausedByOnlyOne = false;
@@ -2645,12 +2646,31 @@ void SciTEBase::AutomaticIndentation(char ch) {
  * Upon a character being added, SciTE may decide to perform some action
  * such as displaying a completion list or auto-indentation.
  */
-void SciTEBase::CharAdded(char ch) {
+void SciTEBase::CharAdded(int utf32) {
 	if (recording)
 		return;
 	Sci_CharacterRange crange = GetSelection();
 	int selStart = static_cast<int>(crange.cpMin);
 	int selEnd = static_cast<int>(crange.cpMax);
+
+	if (utf32 > 0XFF) { // MBCS, never let it go.
+		if (imeAutoComplete) {
+			if ((selEnd == selStart) && (selStart > 0)) {
+				if (wEditor.Call(SCI_CALLTIPACTIVE)) {
+					ContinueCallTip();
+				} else if (wEditor.Call(SCI_AUTOCACTIVE)) {
+					wEditor.Call(SCI_AUTOCCANCEL);
+					StartAutoComplete();
+				} else {
+					StartAutoComplete();
+				}
+			}
+		}
+		return;
+	}
+
+	// SBCS
+	char ch = static_cast<char>(utf32);
 	if ((selEnd == selStart) && (selStart > 0)) {
 		if (wEditor.Call(SCI_CALLTIPACTIVE)) {
 			if (Contains(calltipParametersEnd, ch)) {
@@ -3853,7 +3873,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			handled = extender->OnChar(static_cast<char>(notification->ch));
 		if (!handled) {
 			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-				CharAdded(static_cast<char>(notification->ch));
+				CharAdded(notification->ch);
 			} else {
 				CharAddedOutput(notification->ch);
 			}

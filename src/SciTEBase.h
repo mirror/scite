@@ -453,6 +453,7 @@ protected:
 	bool indentationWSVisible;
 	int indentExamine;
 	bool autoCompleteIgnoreCase;
+	bool imeAutoComplete;
 	bool callTipUseEscapes;
 	bool callTipIgnoreCase;
 	bool autoCCausedByOnlyOne;
@@ -763,7 +764,7 @@ protected:
 	int IndentOfBlock(int line);
 	void MaintainIndentation(char ch);
 	void AutomaticIndentation(char ch);
-	void CharAdded(char ch);
+	void CharAdded(int ch);
 	void CharAddedOutput(int ch);
 	void SetTextProperties(PropSetFile &ps);
 	virtual void SetFileProperties(PropSetFile &ps) = 0;

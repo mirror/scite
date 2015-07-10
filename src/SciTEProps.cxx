@@ -722,6 +722,7 @@ void SciTEBase::ReadProperties() {
 	if (imeInteraction.length()) {
 		CallChildren(SCI_SETIMEINTERACTION, props.GetInt("ime.interaction", SC_IME_WINDOWED));
 	}
+	imeAutoComplete = props.GetInt("ime.autocomplete", 0) == 1;
 
 	wrapStyle = props.GetInt("wrap.style", SC_WRAP_WORD);
 
