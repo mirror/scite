@@ -85,13 +85,21 @@ static void SendDirector(const char *verb, sptr_t arg) {
 	::SendDirector(verb, s.c_str());
 }
 
+static HWND HwndFromString(const char *s) {
+#ifdef _WIN64
+	return reinterpret_cast<HWND>(strtoull(s, NULL, 10));
+#else
+	return reinterpret_cast<HWND>(atoi(s));
+#endif
+}
+
 static void CheckEnvironment(ExtensionAPI *phost) {
 	if (phost && !shuttingDown) {
 		if (!wDirector) {
 			std::string director = phost->Property("director.hwnd");
 			if (director.length() > 0) {
 				startedByDirector = true;
-				wDirector = reinterpret_cast<HWND>(atoi(director.c_str()));
+				wDirector = HwndFromString(director.c_str());
 				// Director is just seen so identify this to it
 				::SendDirector("identity", reinterpret_cast<sptr_t>(wReceiver));
 			}
@@ -287,14 +295,14 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 			char *colon = strchr(cmd + 1, ':');
 			if (colon) {
 				*colon = '\0';
-				wCorrespondent = reinterpret_cast<HWND>(atoi(cmd + 1));
+				wCorrespondent = HwndFromString(cmd + 1);
 				cmd = colon + 1;
 			}
 		}
 		if (isprefix(cmd, "identity:")) {
 			char *arg = strchr(cmd, ':');
 			if (arg)
-				wDirector = reinterpret_cast<HWND>(atoi(arg + 1));
+				wDirector = HwndFromString(arg + 1);
 		} else if (isprefix(cmd, "closing:")) {
 			wDirector = 0;
 			if (startedByDirector) {

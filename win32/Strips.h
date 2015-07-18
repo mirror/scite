@@ -50,7 +50,7 @@ protected:
 	int lineHeight;
 
 	GUI::Window CreateText(const char *text);
-	GUI::Window CreateButton(const char *text, int ident, bool check=false);
+	GUI::Window CreateButton(const char *text, size_t ident, bool check=false);
 	void Tab(bool forwards);
 	virtual void Creation();
 	virtual void Destruction();

@@ -148,7 +148,7 @@ static DWORD GetVersion(LPCTSTR lpszDllName) {
     return dwVersion;
 }
 
-GUI::Window Strip::CreateButton(const char *text, int ident, bool check) {
+GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 	GUI::gui_string localised = localiser->Text(text);
 	int width = WidthText(fontText, localised.c_str());
 	int height = 19 + 2 * ::GetSystemMetrics(SM_CYEDGE);
@@ -1652,7 +1652,7 @@ void UserStrip::SetDescription(const char *description) {
 	}
 	delete psd;
 	psd = new StripDefinition(sDescription);
-	int controlID=0;
+	size_t controlID=0;
 	for (unsigned int line=0; line<psd->controls.size(); line++) {
 		std::vector<UserControl> &uc = psd->controls[line];
 		for (unsigned int control=0; control<uc.size(); control++) {
