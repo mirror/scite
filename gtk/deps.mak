@@ -32,7 +32,31 @@ Credits.o: ../src/Credits.cxx \
  ../src/StyleWriter.h ../src/Extender.h ../src/SciTE.h ../src/Mutex.h \
  ../src/JobQueue.h ../src/Cookie.h ../src/Worker.h ../src/MatchMarker.h \
  ../src/SciTEBase.h
-Exporters.o: ../src/Exporters.cxx ../../scintilla/include/Scintilla.h \
+ExportHTML.o: ../src/ExportHTML.cxx ../../scintilla/include/Scintilla.h \
+ ../../scintilla/include/ILexer.h ../src/GUI.h ../src/StringList.h \
+ ../src/StringHelpers.h ../src/FilePath.h ../src/StyleDefinition.h \
+ ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \
+ ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h ../src/Cookie.h \
+ ../src/Worker.h ../src/MatchMarker.h ../src/SciTEBase.h
+ExportPDF.o: ../src/ExportPDF.cxx ../../scintilla/include/Scintilla.h \
+ ../../scintilla/include/ILexer.h ../src/GUI.h ../src/StringList.h \
+ ../src/StringHelpers.h ../src/FilePath.h ../src/StyleDefinition.h \
+ ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \
+ ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h ../src/Cookie.h \
+ ../src/Worker.h ../src/MatchMarker.h ../src/SciTEBase.h
+ExportRTF.o: ../src/ExportRTF.cxx ../../scintilla/include/Scintilla.h \
+ ../../scintilla/include/ILexer.h ../src/GUI.h ../src/StringList.h \
+ ../src/StringHelpers.h ../src/FilePath.h ../src/StyleDefinition.h \
+ ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \
+ ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h ../src/Cookie.h \
+ ../src/Worker.h ../src/MatchMarker.h ../src/SciTEBase.h
+ExportTEX.o: ../src/ExportTEX.cxx ../../scintilla/include/Scintilla.h \
+ ../../scintilla/include/ILexer.h ../src/GUI.h ../src/StringList.h \
+ ../src/StringHelpers.h ../src/FilePath.h ../src/StyleDefinition.h \
+ ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \
+ ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h ../src/Cookie.h \
+ ../src/Worker.h ../src/MatchMarker.h ../src/SciTEBase.h
+ExportXML.o: ../src/ExportXML.cxx ../../scintilla/include/Scintilla.h \
  ../../scintilla/include/ILexer.h ../src/GUI.h ../src/StringList.h \
  ../src/StringHelpers.h ../src/FilePath.h ../src/StyleDefinition.h \
  ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \

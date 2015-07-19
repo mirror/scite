@@ -54,7 +54,11 @@ SHAREDOBJS=\
 	Cookie.obj \
 	Credits.obj \
 	DirectorExtension.obj \
-	Exporters.obj \
+	ExportHTML.obj \
+	ExportPDF.obj \
+	ExportRTF.obj \
+	ExportTEX.obj \
+	ExportXML.obj \
 	FilePath.obj \
 	FileWorker.obj \
 	GUIWin.obj \
@@ -437,6 +441,9 @@ WinMutex.obj: \
 	../src/Mutex.h
 Cookie.obj: \
 	../src/Cookie.cxx \
+	../../scintilla/include/Scintilla.h \
+	../src/GUI.h \
+	../src/StringHelpers.h \
 	../src/Cookie.h
 Credits.obj: \
 	../src/Credits.cxx \
@@ -457,8 +464,84 @@ Credits.obj: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
-Exporters.obj: \
-	../src/Exporters.cxx \
+ExportHTML.obj: \
+	../src/ExportHTML.cxx \
+	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/ILexer.h \
+	../src/GUI.h \
+	../src/StringList.h \
+	../src/StringHelpers.h \
+	../src/FilePath.h \
+	../src/StyleDefinition.h \
+	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
+	../src/Cookie.h \
+	../src/Worker.h \
+	../src/MatchMarker.h \
+	../src/SciTEBase.h
+ExportPDF.obj: \
+	../src/ExportPDF.cxx \
+	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/ILexer.h \
+	../src/GUI.h \
+	../src/StringList.h \
+	../src/StringHelpers.h \
+	../src/FilePath.h \
+	../src/StyleDefinition.h \
+	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
+	../src/Cookie.h \
+	../src/Worker.h \
+	../src/MatchMarker.h \
+	../src/SciTEBase.h
+ExportRTF.obj: \
+	../src/ExportRTF.cxx \
+	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/ILexer.h \
+	../src/GUI.h \
+	../src/StringList.h \
+	../src/StringHelpers.h \
+	../src/FilePath.h \
+	../src/StyleDefinition.h \
+	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
+	../src/Cookie.h \
+	../src/Worker.h \
+	../src/MatchMarker.h \
+	../src/SciTEBase.h
+ExportTEX.obj: \
+	../src/ExportTEX.cxx \
+	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/ILexer.h \
+	../src/GUI.h \
+	../src/StringList.h \
+	../src/StringHelpers.h \
+	../src/FilePath.h \
+	../src/StyleDefinition.h \
+	../src/PropSetFile.h \
+	../src/StyleWriter.h \
+	../src/Extender.h \
+	../src/SciTE.h \
+	../src/Mutex.h \
+	../src/JobQueue.h \
+	../src/Cookie.h \
+	../src/Worker.h \
+	../src/MatchMarker.h \
+	../src/SciTEBase.h
+ExportXML.obj: \
+	../src/ExportXML.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
@@ -611,7 +694,10 @@ StringHelpers.obj: \
 	../src/StringHelpers.h
 StringList.obj: \
 	../src/StringList.cxx \
-	../src/StringList.h
+	../../scintilla/include/Scintilla.h \
+	../src/GUI.h \
+	../src/StringList.h \
+	../src/StringHelpers.h
 StyleDefinition.obj: \
 	../src/StyleDefinition.cxx \
 	../../scintilla/include/Scintilla.h \

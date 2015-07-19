@@ -72,7 +72,7 @@ def nameOKSrc(src):
 		return False
 	if "IFaceTable" in srcPath:
 		return False
-	if "Exporters" in srcPath:
+	if "Export" in srcPath:
 		return False
 	return True
 

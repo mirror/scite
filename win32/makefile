@@ -85,7 +85,11 @@ LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -loleaut32 $(UXLIB
 SHAREDOBJS=\
 	Cookie.o \
 	DirectorExtension.o \
-	Exporters.o \
+	ExportHTML.o \
+	ExportPDF.o \
+	ExportRTF.o \
+	ExportTEX.o \
+	ExportXML.o \
 	FilePath.o \
 	FileWorker.o \
 	GUIWin.o \

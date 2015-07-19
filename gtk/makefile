@@ -111,7 +111,8 @@ COMPLIB=../../scintilla/bin/scintilla.a
 
 $(PROG): SciTEGTK.o GUIGTK.o Widget.o \
 FilePath.o SciTEBase.o FileWorker.o Cookie.o Credits.o SciTEBuffers.o SciTEIO.o StringList.o \
-Exporters.o  MatchMarker.o StringHelpers.o \
+ExportHTML.o ExportPDF.o ExportRTF.o ExportTEX.o ExportXML.o \
+MatchMarker.o StringHelpers.o \
 PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o StyleDefinition.o StyleWriter.o Utf8_16.o \
 	JobQueue.o GTKMutex.o IFaceTable.o $(COMPLIB) $(LUA_OBJS)
 	$(CXX) `$(CONFIGTHREADS)` -rdynamic -Wl,--as-needed -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) -lm -lstdc++
