@@ -69,15 +69,20 @@
 #define RTF_TAB "\\tab "
 
 #define MAX_STYLEDEF 128
-#define MAX_FONTDEF 64
-#define MAX_COLORDEF 8
 #define RTF_FONTFACE "Courier New"
 #define RTF_COLOR "#000000"
 
+static size_t FindCaseInsensitive(const std::vector<std::string> &values, const std::string &s) {
+	for (size_t i = 0; i < values.size(); i++)
+		if (EqualCaseInsensitive(s.c_str(), values[i].c_str()))
+			return i;
+	return values.size();
+}
+
 // extract the next RTF control word from *style
-void GetRTFNextControl(char **style, char *control) {
+void GetRTFNextControl(const char **style, char *control) {
 	ptrdiff_t len;
-	char *pos = *style;
+	const char *pos = *style;
 	*control = '\0';
 	if ('\0' == *pos) return;
 	pos++; // implicit skip over leading '\'
@@ -89,21 +94,21 @@ void GetRTFNextControl(char **style, char *control) {
 }
 
 // extracts control words that are different between two styles
-void GetRTFStyleChange(char *delta, char *last, char *current) { // \f0\fs20\cf0\highlight0\b0\i0
+std::string GetRTFStyleChange(const char *last, const char *current) { // \f0\fs20\cf0\highlight0\b0\i0
 	char lastControl[MAX_STYLEDEF], currentControl[MAX_STYLEDEF];
-	char *lastPos = last;
-	char *currentPos = current;
-	*delta = '\0';
+	const char *lastPos = last;
+	const char *currentPos = current;
+	std::string delta;
 	// font face, size, color, background, bold, italic
 	for (int i = 0; i < 6; i++) {
 		GetRTFNextControl(&lastPos, lastControl);
 		GetRTFNextControl(&currentPos, currentControl);
 		if (strcmp(lastControl, currentControl)) {	// changed
-			strcat(delta, currentControl);
+			delta += currentControl;
 		}
 	}
-	if ('\0' != *delta) { strcat(delta, " "); }
-	strcpy(last, current);
+	if (!delta.empty()) { delta += " "; }
+	return delta;
 }
 
 void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
@@ -136,102 +141,93 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	if (tabSize == 0)
 		tabSize = 4;
 
-	char styles[STYLE_MAX + 1][MAX_STYLEDEF];
-	char fonts[STYLE_MAX + 1][MAX_FONTDEF];
-	char colors[STYLE_MAX + 1][MAX_COLORDEF];
-	char lastStyle[MAX_STYLEDEF], deltaStyle[MAX_STYLEDEF];
-	int fontCount = 1, colorCount = 2, i;
+	std::vector<std::string> styles;
+	std::vector<std::string> fonts;
+	std::vector<std::string> colors;
 	os << RTF_HEADEROPEN << RTF_FONTDEFOPEN;
-	StringCopy(fonts[0], defaultStyle.font.c_str());
+	fonts.push_back(defaultStyle.font);
 	os << "{\\f" << 0 << "\\fnil\\fcharset" << characterset << " " << defaultStyle.font.c_str() << ";}";
-	StringCopy(colors[0], defaultStyle.fore.c_str());
-	StringCopy(colors[1], defaultStyle.back.c_str());
+	colors.push_back(defaultStyle.fore);
+	colors.push_back(defaultStyle.back);
 
 	for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
+		std::ostringstream osStyle;
 
 		StyleDefinition sd = StyleDefinitionFor(istyle);
 
 		if (sd.specified != StyleDefinition::sdNone) {
+			size_t iFont = 0;
 			if (wysiwyg && sd.font.length()) {
-				for (i = 0; i < fontCount; i++)
-					if (EqualCaseInsensitive(sd.font.c_str(), fonts[i]))
-						break;
-				if (i >= fontCount) {
-					StringCopy(fonts[fontCount++], sd.font.c_str());
-					os << "{\\f" << i << "\\fnil\\fcharset" << characterset << " " << sd.font.c_str() << ";}";
+				iFont = FindCaseInsensitive(fonts, sd.font);
+				if (iFont >= fonts.size()) {
+					fonts.push_back(sd.font);
+					os << "{\\f" << iFont << "\\fnil\\fcharset" << characterset << " " << sd.font.c_str() << ";}";
 				}
-				sprintf(lastStyle, RTF_SETFONTFACE "%d", i);
-			} else {
-				strcpy(lastStyle, RTF_SETFONTFACE "0");
 			}
+			osStyle << RTF_SETFONTFACE << iFont;
 
-			sprintf(lastStyle + strlen(lastStyle), RTF_SETFONTSIZE "%d",
-				wysiwyg && sd.size ? sd.size << 1 : defaultStyle.size);
+			osStyle << RTF_SETFONTSIZE << (wysiwyg && sd.size ? sd.size << 1 : defaultStyle.size);
 
+			size_t iFore = 0;
 			if (sd.specified & StyleDefinition::sdFore) {
-				for (i = 0; i < colorCount; i++)
-					if (EqualCaseInsensitive(sd.fore.c_str(), colors[i]))
-						break;
-				if (i >= colorCount)
-					StringCopy(colors[colorCount++], sd.fore.c_str());
-				sprintf(lastStyle + strlen(lastStyle), RTF_SETCOLOR "%d", i);
-			} else {
-				strcat(lastStyle, RTF_SETCOLOR "0");	// Default fore
+				iFore = FindCaseInsensitive(colors, sd.fore);
+				if (iFore >= colors.size())
+					colors.push_back(sd.fore);
 			}
+			osStyle << RTF_SETCOLOR << iFore;
 
 			// PL: highlights doesn't seems to follow a distinct table, at least with WordPad and Word 97
 			// Perhaps it is different for Word 6?
-//				sprintf(lastStyle + strlen(lastStyle), RTF_SETBACKGROUND "%d",
-//				        sd.back.length() ? GetRTFHighlight(sd.back.c_str()) : 0);
+			size_t iBack = 1;
 			if (sd.specified & StyleDefinition::sdBack) {
-				for (i = 0; i < colorCount; i++)
-					if (EqualCaseInsensitive(sd.back.c_str(), colors[i]))
-						break;
-				if (i >= colorCount)
-					StringCopy(colors[colorCount++], sd.back.c_str());
-				sprintf(lastStyle + strlen(lastStyle), RTF_SETBACKGROUND "%d", i);
-			} else {
-				strcat(lastStyle, RTF_SETBACKGROUND "1");	// Default back
+				iBack = FindCaseInsensitive(colors, sd.back);
+				if (iBack >= colors.size())
+					colors.push_back(sd.back);
 			}
+			osStyle << RTF_SETBACKGROUND << iBack;
+
 			if (sd.specified & StyleDefinition::sdWeight) {
-				strcat(lastStyle, sd.IsBold() ? RTF_BOLD_ON : RTF_BOLD_OFF);
+				osStyle << (sd.IsBold() ? RTF_BOLD_ON : RTF_BOLD_OFF);
 			} else {
-				strcat(lastStyle, defaultStyle.IsBold() ? RTF_BOLD_ON : RTF_BOLD_OFF);
+				osStyle << (defaultStyle.IsBold() ? RTF_BOLD_ON : RTF_BOLD_OFF);
 			}
 			if (sd.specified & StyleDefinition::sdItalics) {
-				strcat(lastStyle, sd.italics ? RTF_ITALIC_ON : RTF_ITALIC_OFF);
+				osStyle << (sd.italics ? RTF_ITALIC_ON : RTF_ITALIC_OFF);
 			} else {
-				strcat(lastStyle, defaultStyle.italics ? RTF_ITALIC_ON : RTF_ITALIC_OFF);
+				osStyle << (defaultStyle.italics ? RTF_ITALIC_ON : RTF_ITALIC_OFF);
 			}
-			StringCopy(styles[istyle], lastStyle);
 		} else {
-			sprintf(styles[istyle], RTF_SETFONTFACE "0" RTF_SETFONTSIZE "%d"
-				RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
-				RTF_BOLD_OFF RTF_ITALIC_OFF, defaultStyle.size);
+			osStyle << RTF_SETFONTFACE "0" RTF_SETFONTSIZE << defaultStyle.size <<
+			        RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
+			        RTF_BOLD_OFF RTF_ITALIC_OFF;
 		}
+		styles.push_back(osStyle.str());
 	}
 	os << RTF_FONTDEFCLOSE RTF_COLORDEFOPEN;
-	for (i = 0; i < colorCount; i++) {
-		os << "\\red" << IntFromHexByte(colors[i] + 1) << "\\green" << IntFromHexByte(colors[i] + 3) <<
-			"\\blue" << IntFromHexByte(colors[i] + 5) << ";";
+	for (size_t i = 0; i < colors.size(); i++) {
+		os << "\\red" << IntFromHexByte(colors[i].c_str() + 1) << "\\green" << IntFromHexByte(colors[i].c_str() + 3) <<
+		   "\\blue" << IntFromHexByte(colors[i].c_str() + 5) << ";";
 	}
 	os << RTF_COLORDEFCLOSE RTF_HEADERCLOSE RTF_BODYOPEN RTF_SETFONTFACE "0"
-		RTF_SETFONTSIZE << defaultStyle.size << RTF_SETCOLOR "0 ";
-	sprintf(lastStyle, RTF_SETFONTFACE "0" RTF_SETFONTSIZE "%d"
-		RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
-		RTF_BOLD_OFF RTF_ITALIC_OFF, defaultStyle.size);
+	   RTF_SETFONTSIZE << defaultStyle.size << RTF_SETCOLOR "0 ";
+	std::ostringstream osStyleDefault;
+	osStyleDefault << RTF_SETFONTFACE "0" RTF_SETFONTSIZE << defaultStyle.size <<
+	               RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
+	               RTF_BOLD_OFF RTF_ITALIC_OFF;
+	std::string lastStyle = osStyleDefault.str();
 	bool prevCR = false;
 	int styleCurrent = -1;
 	TextReader acc(wEditor);
 	int column = 0;
-	for (i = start; i < end; i++) {
-		char ch = acc[i];
-		int style = acc.StyleAt(i);
+	for (int iPos = start; iPos < end; iPos++) {
+		char ch = acc[iPos];
+		int style = acc.StyleAt(iPos);
 		if (style > STYLE_MAX)
 			style = 0;
 		if (style != styleCurrent) {
-			GetRTFStyleChange(deltaStyle, lastStyle, styles[style]);
-			if (*deltaStyle)
+			const std::string deltaStyle = GetRTFStyleChange(lastStyle.c_str(), styles[style].c_str());
+			lastStyle = styles[style];
+			if (!deltaStyle.empty())
 				os << deltaStyle;
 			styleCurrent = style;
 		}
