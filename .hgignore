@@ -17,6 +17,9 @@ syntax: glob
 *.bsc
 *.intermediate.manifest
 *.lastbuildstate
+*.nativecodeanalysis.xml
+*.nativecodeanalysis.all.xml
+*.lastcodeanalysissucceeded
 *.ilk
 *.ncb
 *.tlog
