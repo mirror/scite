@@ -1853,7 +1853,7 @@ void SciTEBase::ShowMessages(int line) {
 		std::string message = GetRangeString(wOutput, startPosLine, lineEnd);
 		std::string source;
 		int column;
-		char style = acc.StyleAt(startPosLine);
+		int style = acc.StyleAt(startPosLine);
 		int sourceLine = DecodeMessage(message.c_str(), source, style, column);
 		Chomp(message, ':');
 		if (style == SCE_ERR_GCC) {
@@ -1916,7 +1916,7 @@ void SciTEBase::GoMessage(int dir) {
 	while ((dir == 0) || (lookLine != curLine)) {
 		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, lookLine, 0);
 		int lineLength = wOutput.Call(SCI_LINELENGTH, lookLine, 0);
-		char style = acc.StyleAt(startPosLine);
+		int style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
 		        style != SCE_ERR_CMD &&
 		        style != SCE_ERR_DIFF_ADDITION &&

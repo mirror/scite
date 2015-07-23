@@ -112,7 +112,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 		styleIsUsed[i] = false;
 	}
 	for (i = 0; i < lengthDoc; i++) {	// check the used styles
-		styleIsUsed[acc.StyleAt(i) & 0X7f] = true;
+		styleIsUsed[acc.StyleAt(i)] = true;
 	}
 	styleIsUsed[STYLE_DEFAULT] = true;
 

@@ -56,7 +56,7 @@ public:
 		codePage = codePage_;
 	}
 	bool Match(int pos, const char *s);
-	char StyleAt(int position);
+	int StyleAt(int position);
 	int GetLine(int position);
 	int LineStart(int line);
 	int LevelAt(int line);

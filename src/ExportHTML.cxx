@@ -65,7 +65,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		}
 		// check the used styles
 		for (i = 0; i < lengthDoc; i++) {
-			styleIsUsed[acc.StyleAt(i) & 0x7F] = true;
+			styleIsUsed[acc.StyleAt(i)] = true;
 		}
 	} else {
 		for (int i = 0; i <= STYLE_MAX; i++) {

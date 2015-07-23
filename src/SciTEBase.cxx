@@ -469,7 +469,6 @@ static bool IsBrace(char ch) {
  * @return @c true if inside a bracket pair.
  */
 bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &braceOpposite, bool sloppy) {
-	int maskStyle = (1 << wEditor.Call(SCI_GETSTYLEBITSNEEDED)) - 1;
 	bool isInside = false;
 	GUI::ScintillaWindow &win = editor ? wEditor : wOutput;
 
@@ -482,14 +481,14 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	braceAtCaret = -1;
 	braceOpposite = -1;
 	char charBefore = '\0';
-	char styleBefore = '\0';
+	int styleBefore = 0;
 	int lengthDoc = win.Call(SCI_GETLENGTH, 0, 0);
 	TextReader acc(win);
 	if ((lengthDoc > 0) && (caretPos > 0)) {
 		// Check to ensure not matching brace that is part of a multibyte character
 		if (win.Send(SCI_POSITIONBEFORE, caretPos) == (caretPos - 1)) {
 			charBefore = acc[caretPos - 1];
-			styleBefore = static_cast<char>(acc.StyleAt(caretPos - 1) & maskStyle);
+			styleBefore = acc.StyleAt(caretPos - 1);
 		}
 	}
 	// Priority goes to character before caret
@@ -509,7 +508,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		// Check to ensure not matching brace that is part of a multibyte character
 		if (win.Send(SCI_POSITIONAFTER, caretPos) == (caretPos + 1)) {
 			char charAfter = acc[caretPos];
-			char styleAfter = static_cast<char>(acc.StyleAt(caretPos) & maskStyle);
+			int styleAfter = acc.StyleAt(caretPos);
 			if (charAfter && IsBrace(charAfter) && ((styleAfter == bracesStyleCheck) || (!bracesStyle))) {
 				braceAtCaret = caretPos;
 				isAfter = false;
