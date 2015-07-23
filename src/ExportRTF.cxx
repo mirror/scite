@@ -113,17 +113,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	RemoveFindMarks();
 	wEditor.Call(SCI_COLOURISE, 0, -1);
 
-	const std::string languageName = !StartsWith(language.c_str(), "lpeg_") ? language : "lpeg";
-
-	// Read the default settings
-	char key[200];
-	sprintf(key, "style.*.%0d", STYLE_DEFAULT);
-	const std::string valdefDefault = props.GetExpandedString(key);
-	sprintf(key, "style.%s.%0d", languageName.c_str(), STYLE_DEFAULT);
-	const std::string valDefault = props.GetExpandedString(key);
-
-	StyleDefinition defaultStyle(valdefDefault.c_str());
-	defaultStyle.ParseStyleDefinition(valDefault.c_str());
+	StyleDefinition defaultStyle = StyleDefinitionFor(STYLE_DEFAULT);
 
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
@@ -158,13 +148,8 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	StringCopy(colors[1], defaultStyle.back.c_str());
 
 	for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
-		sprintf(key, "style.*.%0d", istyle);
-		const std::string valdef = props.GetExpandedString(key);
-		sprintf(key, "style.%s.%0d", languageName.c_str(), istyle);
-		const std::string val = props.GetExpandedString(key);
 
-		StyleDefinition sd(valdef.c_str());
-		sd.ParseStyleDefinition(val.c_str());
+		StyleDefinition sd = StyleDefinitionFor(istyle);
 
 		if (sd.specified != StyleDefinition::sdNone) {
 			if (wysiwyg && sd.font.length()) {

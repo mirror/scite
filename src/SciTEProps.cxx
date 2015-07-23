@@ -230,6 +230,40 @@ const char *SciTEBase::GetNextPropItem(
 	return pNext;
 }
 
+std::string SciTEBase::StyleString(const char *language, int style) {
+	char key[200];
+	sprintf(key, "style.%s.%0d", language, style);
+	return props.GetExpandedString(key);
+}
+
+StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
+	const std::string languageName = !StartsWith(language, "lpeg_") ? language : "lpeg";
+
+	const std::string ssDefault = StyleString("*", style);
+	std::string ss = StyleString(languageName.c_str(), style);
+
+	if (!subStyleBases.empty()) {
+		const int baseStyle = wEditor.Call(SCI_GETSTYLEFROMSUBSTYLE, style);
+		if (baseStyle != style) {
+			const int primaryStyle = wEditor.Call(SCI_GETPRIMARYSTYLEFROMSTYLE, style);
+			const int distanceSecondary = (style == primaryStyle) ? 0 : wEditor.Call(SCI_DISTANCETOSECONDARYSTYLES);
+			const int primaryBase = baseStyle - distanceSecondary;
+			const int subStylesStart = wEditor.Call(SCI_GETSUBSTYLESSTART, primaryBase);
+			const int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, primaryBase);
+			const int subStyle = style - (subStylesStart + distanceSecondary);
+			if (subStyle < subStylesLength) {
+				char key[200];
+				sprintf(key, "style.%s.%0d.%0d", languageName.c_str(), baseStyle, subStyle + 1);
+				ss = props.GetNewExpandString(key);
+			}
+		}
+	}
+
+	StyleDefinition sd(ssDefault.c_str());
+	sd.ParseStyleDefinition(ss.c_str());
+	return sd;
+}
+
 void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd) {
 	if (sd.specified & StyleDefinition::sdItalics)
 		win.Send(SCI_STYLESETITALIC, style, sd.italics ? 1 : 0);

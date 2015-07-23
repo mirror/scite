@@ -467,8 +467,6 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		pr.pageMargin.bottom = PDF_MARGIN_DEFAULT;
 	}
 
-	const std::string languageName = !StartsWith(language.c_str(), "lpeg_") ? language : "lpeg";
-
 	// collect all styles available for that 'language'
 	// or the default style if no language is available...
 	pr.style = new PDFStyle[STYLE_MAX + 1];
@@ -476,13 +474,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		pr.style[i].font = 0;
 		pr.style[i].fore[0] = '\0';
 
-		sprintf(buffer, "style.*.%0d", i);
-		const std::string valdef = props.GetExpandedString(buffer);
-		sprintf(buffer, "style.%s.%0d", languageName.c_str(), i);
-		const std::string val = props.GetExpandedString(buffer);
-
-		StyleDefinition sd(valdef.c_str());
-		sd.ParseStyleDefinition(val.c_str());
+		StyleDefinition sd = StyleDefinitionFor(i);
 
 		if (sd.specified != StyleDefinition::sdNone) {
 			if (sd.italics) { pr.style[i].font |= 2; }

@@ -120,17 +120,10 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 
 		fputs("<style type=\"text/css\">\n", fp);
 
-		const std::string languageName = !StartsWith(language.c_str(), "lpeg_") ? language : "lpeg";
-
 		std::string bgColour;
-		char key[200];
-		sprintf(key, "style.*.%0d", STYLE_DEFAULT);
-		std::string valdef = props.GetExpandedString(key);
-		sprintf(key, "style.%s.%0d", languageName.c_str(), STYLE_DEFAULT);
-		std::string val = props.GetExpandedString(key);
 
-		StyleDefinition sddef(valdef.c_str());
-		sddef.ParseStyleDefinition(val.c_str());
+		StyleDefinition sddef = StyleDefinitionFor(STYLE_DEFAULT);
+
 		if (sddef.back.length()) {
 			bgColour = sddef.back;
 		}
@@ -142,13 +135,8 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 			if ((istyle > STYLE_DEFAULT) && (istyle <= STYLE_LASTPREDEFINED))
 				continue;
 			if (styleIsUsed[istyle]) {
-				sprintf(key, "style.*.%0d", istyle);
-				valdef = props.GetExpandedString(key);
-				sprintf(key, "style.%s.%0d", languageName.c_str(), istyle);
-				val = props.GetExpandedString(key);
 
-				StyleDefinition sd(valdef.c_str());
-				sd.ParseStyleDefinition(val.c_str());
+				StyleDefinition sd = StyleDefinitionFor(istyle);
 
 				if (CurrentBuffer()->useMonoFont && sd.font.length() && sdmono.font.length()) {
 					sd.font = sdmono.font;

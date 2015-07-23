@@ -126,19 +126,9 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
  		      "\\usepackage{times}\n"
  		      "\\setlength{\\fboxsep}{0pt}\n", fp);
 
-		const std::string languageName = !StartsWith(language.c_str(), "lpeg_") ? language : "lpeg";
-
 		for (i = 0; i < STYLE_MAX; i++) {      // get keys
 			if (styleIsUsed[i]) {
-				char key[200];
-				sprintf(key, "style.*.%0d", i);
-				const std::string valdef = props.GetExpandedString(key);
-				sprintf(key, "style.%s.%0d", languageName.c_str(), i);
-				const std::string val = props.GetExpandedString(key);
-
-				StyleDefinition sd(valdef.c_str()); //check default properties
-				sd.ParseStyleDefinition(val.c_str()); //check language properties
-
+				StyleDefinition sd = StyleDefinitionFor(i);
 				defineTexStyle(sd, fp, i); // writeout style macroses
 			}
 		}
