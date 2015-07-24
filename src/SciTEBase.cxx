@@ -3816,7 +3816,7 @@ void SciTEBase::NewLineInOutput() {
 	Execute();
 }
 
-void SciTEBase::Notify(SCNotification *notification) {
+void SciTEBase::Notify(const SCNotification *notification) {
 	bool handled = false;
 	switch (notification->nmhdr.code) {
 	case SCN_PAINTED:
@@ -4014,11 +4014,12 @@ void SciTEBase::Notify(SCNotification *notification) {
 	case SCN_DWELLSTART:
 		if (extender && (INVALID_POSITION != notification->position)) {
 			int endWord = notification->position;
+			int position = notification->position;
 			std::string message =
 				RangeExtendAndGrab(wEditor,
-					notification->position, endWord, &SciTEBase::iswordcharforsel);
+					position, endWord, &SciTEBase::iswordcharforsel);
 			if (message.length()) {
-				extender->OnDwellStart(notification->position,message.c_str());
+				extender->OnDwellStart(position, message.c_str());
 			}
 		}
 		break;
@@ -4407,7 +4408,7 @@ void SciTEBase::StartRecordMacro() {
 /**
  * Received a SCN_MACRORECORD from Scintilla: send it to director.
  */
-bool SciTEBase::RecordMacroCommand(SCNotification *notification) {
+bool SciTEBase::RecordMacroCommand(const SCNotification *notification) {
 	if (extender) {
 		std::string sMessage = StdStringFromInteger(notification->message);
 		sMessage += ";";

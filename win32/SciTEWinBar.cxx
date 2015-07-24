@@ -93,7 +93,7 @@ void SciTEWin::RemoveAllTabs() {
 /**
  * Manage Windows specific notifications.
  */
-void SciTEWin::Notify(SCNotification *notification) {
+void SciTEWin::Notify(const SCNotification *notification) {
 	switch (notification->nmhdr.code) {
 	case TCN_SELCHANGE:
 		// Change of tab

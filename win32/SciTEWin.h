@@ -297,7 +297,7 @@ protected:
 	/// Warn the user, by means defined in its properties.
 	virtual void WarnUser(int warnID);
 
-	virtual void Notify(SCNotification *notification);
+	virtual void Notify(const SCNotification *notification);
 	virtual void ShowToolBar();
 	virtual void ShowTabBar();
 	virtual void ShowStatusBar();

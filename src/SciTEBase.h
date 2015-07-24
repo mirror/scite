@@ -797,7 +797,7 @@ protected:
 	bool MarginClick(int position, int modifiers);
 	void NewLineInOutput();
 	virtual void SetStatusBarText(const char *s) = 0;
-	virtual void Notify(SCNotification *notification);
+	virtual void Notify(const SCNotification *notification);
 	virtual void ShowToolBar() = 0;
 	virtual void ShowTabBar() = 0;
 	virtual void ShowStatusBar() = 0;
@@ -893,7 +893,7 @@ protected:
 	void StartRecordMacro();
 	void StopRecordMacro();
 	void StartPlayMacro();
-	bool RecordMacroCommand(SCNotification *notification);
+	bool RecordMacroCommand(const SCNotification *notification);
 	void ExecuteMacroCommand(const char *command);
 	void AskMacroList();
 	bool StartMacroList(const char *words);
