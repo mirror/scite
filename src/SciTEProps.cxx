@@ -230,7 +230,7 @@ const char *SciTEBase::GetNextPropItem(
 	return pNext;
 }
 
-std::string SciTEBase::StyleString(const char *lang, int style) {
+std::string SciTEBase::StyleString(const char *lang, int style) const {
 	char key[200];
 	sprintf(key, "style.%s.%0d", lang, style);
 	return props.GetExpandedString(key);
