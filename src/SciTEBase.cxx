@@ -2261,23 +2261,19 @@ int SciTEBase::GetCurrentScrollPosition() {
 void SciTEBase::SetTextProperties(
     PropSetFile &ps) {			///< Property set to update.
 
-	const int TEMP_LEN = 100;
-	char temp[TEMP_LEN];
-
 	std::string ro = GUI::UTF8FromString(localiser.Text("READ"));
 	ps.Set("ReadOnly", CurrentBuffer()->isReadOnly ? ro.c_str() : "");
 
-	int eolMode = wEditor.Call(SCI_GETEOLMODE);
+	const int eolMode = wEditor.Call(SCI_GETEOLMODE);
 	ps.Set("EOLMode", eolMode == SC_EOL_CRLF ? "CR+LF" : (eolMode == SC_EOL_LF ? "LF" : "CR"));
 
-	sprintf(temp, "%d", LengthDocument());
-	ps.Set("BufferLength", temp);
+	ps.SetInteger("BufferLength", LengthDocument());
 
 	ps.SetInteger("NbOfLines", wEditor.Call(SCI_GETLINECOUNT));
 
-	Sci_CharacterRange crange = GetSelection();
-	int selFirstLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMin);
-	int selLastLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMax);
+	const Sci_CharacterRange crange = GetSelection();
+	const int selFirstLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMin);
+	const int selLastLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMax);
 	long charCount = 0;
 	if (wEditor.Call(SCI_GETSELECTIONMODE) == SC_SEL_RECTANGLE) {
 		for (int line = selFirstLine; line <= selLastLine; line++) {
@@ -2288,21 +2284,19 @@ void SciTEBase::SetTextProperties(
 	} else {
 		charCount = wEditor.Call(SCI_COUNTCHARACTERS, crange.cpMin, crange.cpMax);
 	}
-	sprintf(temp, "%ld", charCount);
-	ps.Set("SelLength", temp);
-	int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
-	int selAnchor = wEditor.Call(SCI_GETANCHOR);
+	ps.SetInteger("SelLength", charCount);
+	const int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
+	const int selAnchor = wEditor.Call(SCI_GETANCHOR);
+	int selHeight = selLastLine - selFirstLine + 1;
 	if (0 == (crange.cpMax - crange.cpMin)) {
-		sprintf(temp, "%d", 0);
+		selHeight = 0;
 	} else if (selLastLine == selFirstLine) {
-		sprintf(temp, "%d", 1);
+		selHeight = 1;
 	} else if ((wEditor.Call(SCI_GETCOLUMN, caretPos) == 0 && (selAnchor <= caretPos)) ||
 	        ((wEditor.Call(SCI_GETCOLUMN, selAnchor) == 0) && (selAnchor > caretPos ))) {
-		sprintf(temp, "%d", selLastLine - selFirstLine);
-	} else {
-		sprintf(temp, "%d", selLastLine - selFirstLine + 1);
+		selHeight = selLastLine - selFirstLine;
 	}
-	ps.Set("SelHeight", temp);
+	ps.SetInteger("SelHeight", selHeight);
 }
 
 void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
