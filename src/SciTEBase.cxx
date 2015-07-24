@@ -2284,7 +2284,7 @@ void SciTEBase::SetTextProperties(
 	} else {
 		charCount = wEditor.Call(SCI_COUNTCHARACTERS, crange.cpMin, crange.cpMax);
 	}
-	ps.SetInteger("SelLength", charCount);
+	ps.SetInteger("SelLength", static_cast<int>(charCount));
 	const int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
 	const int selAnchor = wEditor.Call(SCI_GETANCHOR);
 	int selHeight = selLastLine - selFirstLine + 1;
