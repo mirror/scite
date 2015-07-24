@@ -136,6 +136,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	} else {
 		defaultStyle.size <<= 1;
 	}
+	const bool isUTF8 = wEditor.Call(SCI_GETCODEPAGE) == SC_CP_UTF8;
 	unsigned int characterset = props.GetInt("character.set", SC_CHARSET_DEFAULT);
 	int tabs = props.GetInt("export.rtf.tabs", 0);
 	if (tabSize == 0)
@@ -255,8 +256,22 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 		} else if (ch == '\r') {
 			os << RTF_EOLN;
 			column = -1;
-		} else
+		} else if (isUTF8 && !isascii(ch)) {
+			const int nextPosition = wEditor.Call(SCI_POSITIONAFTER, iPos);
+			wEditor.Call(SCI_SETTARGETRANGE, iPos, nextPosition);
+			unsigned char u8Char[5] = "";
+			wEditor.CallString(SCI_TARGETASUTF8, 0, reinterpret_cast<char *>(u8Char));
+			unsigned int u32 = UTF32Character(u8Char);
+			if (u32 < 0x10000) {
+				os << "\\u" << static_cast<short>(u32) << "?";
+			} else {
+				os << "\\u" << static_cast<short>(((u32 - 0x10000) >> 10) + 0xD800) << "?";
+				os << "\\u" << static_cast<short>((u32 & 0x3ff) + 0xDC00) << "?";
+			}
+			iPos = nextPosition - 1;
+		} else {
 			os << ch;
+		}
 		column++;
 		prevCR = ch == '\r';
 	}

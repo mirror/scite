@@ -137,6 +137,33 @@ bool isprefix(const char *target, const char *prefix) {
 		return true;
 }
 
+unsigned int UTF32Character(const unsigned char *utf8) {
+	unsigned char ch = utf8[0];
+	unsigned int u32Char;
+	if (ch < 0x80) {
+		u32Char = ch;
+	} else if (ch < 0x80 + 0x40 + 0x20) {
+		u32Char = (ch & 0x1F) << 6;
+		ch = utf8[1];
+		u32Char += ch & 0x7F;
+	} else if (ch < 0x80 + 0x40 + 0x20 + 0x10) {
+		u32Char = (ch & 0xF) << 12;
+		ch = utf8[1];
+		u32Char += (ch & 0x7F) << 6;
+		ch = utf8[2];
+		u32Char += ch & 0x7F;
+	} else {
+		u32Char = (ch & 0x7) << 18;
+		ch = utf8[1];
+		u32Char += (ch & 0x3F) << 12;
+		ch = utf8[2];
+		u32Char += (ch & 0x3F) << 6;
+		ch = utf8[3];
+		u32Char += ch & 0x3F;
+	}
+	return u32Char;
+}
+
 /**
  * Convert a string into C string literal form using \a, \b, \f, \n, \r, \t, \v, and \ooo.
  * The return value is a newly allocated character array containing the result.

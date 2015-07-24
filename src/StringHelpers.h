@@ -54,6 +54,7 @@ inline std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) 
 	return StringSplit(args, '\n');
 }
 
+
 // Safer version of string copy functions like strcpy, wcsncpy, etc.
 // Instantiate over fixed length strings of both char and wchar_t.
 // May truncate if source doesn't fit into dest with room for NUL.
@@ -71,6 +72,7 @@ void StringCopy(T (&dest)[count], const T* source) {
 int CompareNoCase(const char *a, const char *b);
 bool EqualCaseInsensitive(const char *a, const char *b);
 bool isprefix(const char *target, const char *prefix);
+unsigned int UTF32Character(const unsigned char *utf8);
 
 char *Slash(const char *s, bool quoteQuotes);
 unsigned int UnSlash(char *s);
