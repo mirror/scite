@@ -866,7 +866,7 @@ protected:
 	void ReadAPI(const std::string &fileNameForExtension);
 	std::string FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
-	std::string StyleString(const char *language, int style);
+	std::string StyleString(const char *lang, int style);
 	StyleDefinition StyleDefinitionFor(int style);
 	void SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd);
 	void SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last);
