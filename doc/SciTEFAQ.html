@@ -56,6 +56,8 @@
        SciTE Frequently Asked Question
     </h2>
     <ul>
+    <li><a class="toc" href="#WindowsFont">
+    	On Windows, how can asian fonts can be applied?</a></li>
     <li><a class="toc" href="#WindowsFlash">
     	On Windows, how can window flashing be avoided?</a></li>
     <li><a class="toc" href="#FixedWidth">
@@ -96,6 +98,13 @@
     <li><a class="toc" href="#ExplicitFolds">
     	Why does a //{ comment affect folding?</a></li>
     </ul>
+    <h4 id="WindowsFont">
+       On Windows, how can asian fonts can be applied?
+    </h4>
+    <p>
+       On Windows GDI, font names have been <a href="http://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETFONT">encoded in UTF-8</a> since Scintilla 3.5.3.
+       This matches the Direct2D code path. Perviously they were encoded in the local code page.
+       Giving the name in UTF-8 or Ascii may solve the problem.</p>
     <h4 id="WindowsFlash">
        On Windows, how can window flashing be avoided?
     </h4>
