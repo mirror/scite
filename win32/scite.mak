@@ -258,6 +258,7 @@ Sc1.obj: SciTEWin.cxx
 DirectorExtension.obj: \
 	DirectorExtension.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -277,11 +278,13 @@ DirectorExtension.obj: \
 GUIWin.obj: \
 	GUIWin.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h
 SciTEWin.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -311,6 +314,7 @@ Sc1.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -340,6 +344,7 @@ SciTEWinBar.obj: \
 	SciTEWinBar.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -365,6 +370,7 @@ SciTEWinDlg.obj: \
 	SciTEWinDlg.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -390,6 +396,7 @@ Strips.obj: \
 	Strips.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -414,6 +421,7 @@ Strips.obj: \
 UniqueInstance.obj: \
 	UniqueInstance.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	SciTEWin.h \
 	../../scintilla/include/ILexer.h \
@@ -442,12 +450,14 @@ WinMutex.obj: \
 Cookie.obj: \
 	../src/Cookie.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringHelpers.h \
 	../src/Cookie.h
 Credits.obj: \
 	../src/Credits.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -467,6 +477,7 @@ Credits.obj: \
 ExportHTML.obj: \
 	../src/ExportHTML.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -486,6 +497,7 @@ ExportHTML.obj: \
 ExportPDF.obj: \
 	../src/ExportPDF.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -505,6 +517,7 @@ ExportPDF.obj: \
 ExportRTF.obj: \
 	../src/ExportRTF.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -524,6 +537,7 @@ ExportRTF.obj: \
 ExportTEX.obj: \
 	../src/ExportTEX.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -543,6 +557,7 @@ ExportTEX.obj: \
 ExportXML.obj: \
 	../src/ExportXML.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -562,11 +577,13 @@ ExportXML.obj: \
 FilePath.obj: \
 	../src/FilePath.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/FilePath.h
 FileWorker.obj: \
 	../src/FileWorker.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/Mutex.h \
 	../src/GUI.h \
@@ -578,6 +595,7 @@ FileWorker.obj: \
 JobQueue.obj: \
 	../src/JobQueue.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -588,17 +606,20 @@ JobQueue.obj: \
 MatchMarker.obj: \
 	../src/MatchMarker.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/MatchMarker.h
 MultiplexExtension.obj: \
 	../src/MultiplexExtension.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/MultiplexExtension.h \
 	../src/Extender.h
 PropSetFile.obj: \
 	../src/PropSetFile.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
@@ -606,6 +627,7 @@ PropSetFile.obj: \
 SciTEBase.obj: \
 	../src/SciTEBase.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/SciLexer.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
@@ -627,6 +649,7 @@ SciTEBase.obj: \
 SciTEBuffers.obj: \
 	../src/SciTEBuffers.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/SciLexer.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
@@ -648,6 +671,7 @@ SciTEBuffers.obj: \
 SciTEIO.obj: \
 	../src/SciTEIO.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
 	../src/StringList.h \
@@ -669,6 +693,7 @@ SciTEIO.obj: \
 SciTEProps.obj: \
 	../src/SciTEProps.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/SciLexer.h \
 	../../scintilla/include/ILexer.h \
 	../src/GUI.h \
@@ -690,23 +715,27 @@ SciTEProps.obj: \
 StringHelpers.obj: \
 	../src/StringHelpers.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringHelpers.h
 StringList.obj: \
 	../src/StringList.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringList.h \
 	../src/StringHelpers.h
 StyleDefinition.obj: \
 	../src/StyleDefinition.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringHelpers.h \
 	../src/StyleDefinition.h
 StyleWriter.obj: \
 	../src/StyleWriter.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StyleWriter.h
 Utf8_16.obj: \
@@ -717,6 +746,7 @@ Utf8_16.obj: \
 LuaExtension.obj: \
 	../src/LuaExtension.cxx \
 	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/FilePath.h \
 	../src/StyleWriter.h \
