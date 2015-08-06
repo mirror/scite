@@ -86,11 +86,7 @@ static void SendDirector(const char *verb, sptr_t arg) {
 }
 
 static HWND HwndFromString(const char *s) {
-#ifdef _WIN64
-	return reinterpret_cast<HWND>(strtoull(s, NULL, 10));
-#else
-	return reinterpret_cast<HWND>(atoi(s));
-#endif
+	return reinterpret_cast<HWND>(static_cast<uptr_t>(atoi(s)));
 }
 
 static void CheckEnvironment(ExtensionAPI *phost) {
