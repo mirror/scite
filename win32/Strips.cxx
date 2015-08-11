@@ -241,7 +241,7 @@ void Strip::Tab(bool forwards) {
 
 void Strip::Creation() {
 	// Use the message box font for the strip's font
-	NONCLIENTMETRICS ncm;
+	NONCLIENTMETRICS ncm = NONCLIENTMETRICS();
 	ncm.cbSize = sizeof(ncm);
 	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE);
 	fontText = ::CreateFontIndirect(&ncm.lfMessageFont);

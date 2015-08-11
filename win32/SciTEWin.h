@@ -32,8 +32,8 @@
 #define _WIN32_WINNT WIN_TARGET
 #define WINVER WIN_TARGET
 #else
-#define _WIN32_WINNT  0x0602
-#define WINVER 0x0602
+#define _WIN32_WINNT  0x0501
+#define WINVER 0x0501
 #endif
 #include <windows.h>
 #if defined(DISABLE_THEMES) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
