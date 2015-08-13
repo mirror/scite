@@ -2554,6 +2554,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_CHARSET_JOHAB",130},
 	{"SC_CHARSET_MAC",77},
 	{"SC_CHARSET_OEM",255},
+	{"SC_CHARSET_OEM866",866},
 	{"SC_CHARSET_RUSSIAN",204},
 	{"SC_CHARSET_SHIFTJIS",128},
 	{"SC_CHARSET_SYMBOL",2},
@@ -3260,7 +3261,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 293,
-	ifaceConstantCount = 2601,
+	ifaceConstantCount = 2602,
 	ifacePropertyCount = 221
 };
 
