@@ -447,8 +447,8 @@ void SciTEWin::Print(
 
 	// See if a range has been selected
 	Sci_CharacterRange crange = GetSelection();
-	int startPos = crange.cpMin;
-	int endPos = crange.cpMax;
+	int startPos = static_cast<int>(crange.cpMin);
+	int endPos = static_cast<int>(crange.cpMax);
 
 	if (startPos == endPos) {
 		pdlg.Flags |= PD_NOSELECTION;

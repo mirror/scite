@@ -3853,7 +3853,7 @@ void SciTEBase::Notify(const SCNotification *notification) {
 					if (endStyled > 0)
 						styleStart = styler.StyleAt(endStyled - 1);
 					styler.SetCodePage(codePage);
-					extender->OnStyle(endStyled, notification->position - endStyled,
+					extender->OnStyle(endStyled, static_cast<int>(notification->position - endStyled),
 					        styleStart, &styler);
 					styler.Flush();
 				}
@@ -3963,7 +3963,7 @@ void SciTEBase::Notify(const SCNotification *notification) {
 			SetLineNumberWidth();
 
 		if (0 != (notification->modificationType & SC_MOD_CHANGEFOLD)) {
-			FoldChanged(notification->line,
+			FoldChanged(static_cast<int>(notification->line),
 			        notification->foldLevelNow, notification->foldLevelPrev);
 		}
 		break;
@@ -3973,14 +3973,14 @@ void SciTEBase::Notify(const SCNotification *notification) {
 				handled = extender->OnMarginClick();
 			if (!handled) {
 				if (notification->margin == 2) {
-					MarginClick(notification->position, notification->modifiers);
+					MarginClick(static_cast<int>(notification->position), notification->modifiers);
 				}
 			}
 		}
 		break;
 
 	case SCN_NEEDSHOWN: {
-			EnsureRangeVisible(wEditor, notification->position, notification->position + notification->length, false);
+			EnsureRangeVisible(wEditor, static_cast<int>(notification->position), static_cast<int>(notification->position + notification->length), false);
 		}
 		break;
 
@@ -4013,8 +4013,8 @@ void SciTEBase::Notify(const SCNotification *notification) {
 
 	case SCN_DWELLSTART:
 		if (extender && (INVALID_POSITION != notification->position)) {
-			int endWord = notification->position;
-			int position = notification->position;
+			int endWord = static_cast<int>(notification->position);
+			int position = static_cast<int>(notification->position);
 			std::string message =
 				RangeExtendAndGrab(wEditor,
 					position, endWord, &SciTEBase::iswordcharforsel);

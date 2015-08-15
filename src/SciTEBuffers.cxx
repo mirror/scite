@@ -1904,7 +1904,7 @@ void SciTEBase::GoMessage(int dir) {
 	Sci_CharacterRange crange;
 	crange.cpMin = wOutput.Call(SCI_GETSELECTIONSTART);
 	crange.cpMax = wOutput.Call(SCI_GETSELECTIONEND);
-	long selStart = crange.cpMin;
+	long selStart = static_cast<long>(crange.cpMin);
 	int curLine = wOutput.Call(SCI_LINEFROMPOSITION, selStart);
 	int maxLine = wOutput.Call(SCI_GETLINECOUNT);
 	int lookLine = curLine + dir;

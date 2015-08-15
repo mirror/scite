@@ -426,8 +426,8 @@ static int cf_pane_findtext(lua_State *L) {
 		if (!hasError) {
 			sptr_t result = host->Send(p, SCI_FINDTEXT, static_cast<uptr_t>(flags), reinterpret_cast<sptr_t>(&ft));
 			if (result >= 0) {
-				lua_pushnumber(L, ft.chrgText.cpMin);
-				lua_pushnumber(L, ft.chrgText.cpMax);
+				lua_pushnumber(L, static_cast<LUA_NUMBER>(ft.chrgText.cpMin));
+				lua_pushnumber(L, static_cast<LUA_NUMBER>(ft.chrgText.cpMax));
 				return 2;
 			} else {
 				lua_pushnil(L);

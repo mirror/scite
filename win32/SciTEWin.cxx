@@ -505,7 +505,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 void SciTEWin::CopyAsRTF() {
 	Sci_CharacterRange cr = GetSelection();
 	std::ostringstream oss;
-	SaveToStreamRTF(oss, cr.cpMin, cr.cpMax);
+	SaveToStreamRTF(oss, static_cast<int>(cr.cpMin), static_cast<int>(cr.cpMax));
 	std::string rtf = oss.str();
 	size_t len = rtf.length();
 	HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, len + 1);
