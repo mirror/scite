@@ -617,6 +617,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_COFFEESCRIPT_DEFAULT",0},
 	{"SCE_COFFEESCRIPT_GLOBALCLASS",19},
 	{"SCE_COFFEESCRIPT_IDENTIFIER",11},
+	{"SCE_COFFEESCRIPT_INSTANCEPROPERTY",25},
 	{"SCE_COFFEESCRIPT_NUMBER",4},
 	{"SCE_COFFEESCRIPT_OPERATOR",10},
 	{"SCE_COFFEESCRIPT_PREPROCESSOR",9},
@@ -3261,7 +3262,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 293,
-	ifaceConstantCount = 2602,
+	ifaceConstantCount = 2603,
 	ifacePropertyCount = 221
 };
 
