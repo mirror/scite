@@ -880,6 +880,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 		unsigned writingPosition = 0;
 
 		int countPeeks = 0;
+		bool processDead = false;
 		while (running) {
 			if (writingPosition >= totalBytesToWrite) {
 				if (countPeeks > 10)
@@ -887,6 +888,12 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				else if (countPeeks > 2)
 					::Sleep(10L);
 				countPeeks++;
+			}
+
+			// If we don't already know the process is dead,
+			// check now (before polling the output pipe)
+			if (!processDead && (WAIT_OBJECT_0 == ::WaitForSingleObject(pi.hProcess, 0))) {
+				processDead = true;
 			}
 
 			DWORD bytesRead = 0;
@@ -962,12 +969,13 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				} else {
 					running = false;
 				}
-			} else {
-				if (::GetExitCodeProcess(pi.hProcess, &exitcode)) {
-					if (STILL_ACTIVE != exitcode) {
-						// Already dead
-						running = false;
-					}
+			} else { 
+				// bytesAvail == 0, and if the process
+				// was already dead by the time we did
+				// PeekNamedPipe, there should not be
+				// any more data coming	
+				if (processDead) {
+					running = false;
 				}
 			}
 
