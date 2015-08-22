@@ -21,6 +21,9 @@ syntax: glob
 *.nativecodeanalysis.all.xml
 *.lastcodeanalysissucceeded
 *.ilk
+*.iobj
+*.ipdb
+*.psess
 *.ncb
 *.tlog
 *.ipch
