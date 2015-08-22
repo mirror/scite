@@ -794,8 +794,9 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	HANDLE hPipeWrite = NULL;
 	HANDLE hPipeRead = NULL;
 	// Create pipe for output redirection
-	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
-	::CreatePipe(&hPipeRead, &hPipeWrite, &sa, 0);
+	// read handle, write handle, security attributes,  number of bytes reserved for pipe
+	const DWORD pipeBufferSize = 64 * 1024;
+	::CreatePipe(&hPipeRead, &hPipeWrite, &sa, pipeBufferSize);
 
 	// Create pipe for input redirection. In this code, you do not
 	// redirect the output of the child process, but you need a handle
@@ -805,8 +806,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	hWriteSubProcess = NULL;
 	subProcessGroupId = 0;
 	HANDLE hRead2 = NULL;
-	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
-	::CreatePipe(&hRead2, &hWriteSubProcess, &sa, 0);
+	// read handle, write handle, security attributes,  number of bytes reserved for pipe
+	::CreatePipe(&hRead2, &hWriteSubProcess, &sa, pipeBufferSize);
 
 	::SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
 	::SetHandleInformation(hWriteSubProcess, HANDLE_FLAG_INHERIT, 0);
@@ -898,7 +899,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 			DWORD bytesRead = 0;
 			DWORD bytesAvail = 0;
-			std::vector<char> buffer(16*1024);
+			std::vector<char> buffer(pipeBufferSize);
 
 			if (!::PeekNamedPipe(hPipeRead, &buffer[0],
 					     static_cast<DWORD>(buffer.size()), &bytesRead, &bytesAvail, NULL)) {
