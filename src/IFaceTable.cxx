@@ -835,6 +835,24 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_ERR_DIFF_DELETION",12},
 	{"SCE_ERR_DIFF_MESSAGE",13},
 	{"SCE_ERR_ELF",15},
+	{"SCE_ERR_ESCSEQ",23},
+	{"SCE_ERR_ESCSEQ_UNKNOWN",24},
+	{"SCE_ERR_ES_BLACK",40},
+	{"SCE_ERR_ES_BLUE",44},
+	{"SCE_ERR_ES_BRIGHT_BLUE",52},
+	{"SCE_ERR_ES_BRIGHT_CYAN",54},
+	{"SCE_ERR_ES_BRIGHT_GREEN",50},
+	{"SCE_ERR_ES_BRIGHT_MAGENTA",53},
+	{"SCE_ERR_ES_BRIGHT_RED",49},
+	{"SCE_ERR_ES_BROWN",43},
+	{"SCE_ERR_ES_CYAN",46},
+	{"SCE_ERR_ES_DARK_GRAY",48},
+	{"SCE_ERR_ES_GRAY",47},
+	{"SCE_ERR_ES_GREEN",42},
+	{"SCE_ERR_ES_MAGENTA",45},
+	{"SCE_ERR_ES_RED",41},
+	{"SCE_ERR_ES_WHITE",55},
+	{"SCE_ERR_ES_YELLOW",51},
 	{"SCE_ERR_GCC",2},
 	{"SCE_ERR_GCC_INCLUDED_FROM",22},
 	{"SCE_ERR_IFC",16},
@@ -3262,7 +3280,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 293,
-	ifaceConstantCount = 2603,
+	ifaceConstantCount = 2621,
 	ifacePropertyCount = 221
 };
 

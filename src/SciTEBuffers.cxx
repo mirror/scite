@@ -1832,6 +1832,23 @@ int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &co
 	return -1;
 }
 
+#define CSI "\033["
+
+static bool SeqEnd(int ch) {
+	return (ch == 0) || ((ch >= '@') && (ch <= '~'));
+}
+
+static void RemoveEscSeq(std::string &s) {
+	size_t csi = s.find(CSI);
+	while (csi != std::string::npos) {
+		size_t endSeq = csi + 2;
+		while (endSeq < s.length() && !SeqEnd(s.at(endSeq)))
+			endSeq++;
+		s.erase(csi, endSeq-csi+1);
+		csi = s.find(CSI);
+	}
+}
+
 // Remove up to and including ch
 static void Chomp(std::string &s, int ch) {
 	const size_t posCh = s.find(static_cast<char>(ch));
@@ -1854,6 +1871,11 @@ void SciTEBase::ShowMessages(int line) {
 		std::string source;
 		int column;
 		int style = acc.StyleAt(startPosLine);
+		if ((style == SCE_ERR_ESCSEQ) || (style == SCE_ERR_ESCSEQ_UNKNOWN) || (style >= SCE_ERR_ES_BLACK)) {
+			// GCC message with ANSI escape sequences
+			RemoveEscSeq(message);
+			style = SCE_ERR_GCC;
+		}
 		int sourceLine = DecodeMessage(message.c_str(), source, style, column);
 		Chomp(message, ':');
 		if (style == SCE_ERR_GCC) {
@@ -1931,6 +1953,11 @@ void SciTEBase::GoMessage(int dir) {
 			wOutput.Call(SCI_MARKERADD, lookLine, 0);
 			wOutput.Call(SCI_SETSEL, startPosLine, startPosLine);
 			std::string message = GetRangeString(wOutput, startPosLine, startPosLine + lineLength);
+			if ((style == SCE_ERR_ESCSEQ) || (style == SCE_ERR_ESCSEQ_UNKNOWN) || (style >= SCE_ERR_ES_BLACK)) {
+				// GCC message with ANSI escape sequences
+				RemoveEscSeq(message);
+				style = SCE_ERR_GCC;
+			}
 			std::string source;
 			int column;
 			long sourceLine = DecodeMessage(message.c_str(), source, style, column);
