@@ -112,12 +112,7 @@ void Window::SetTitle(const char *s) {
 void Menu::CreatePopUp() {
 	Destroy();
 	mid = gtk_menu_new();
-#if GLIB_CHECK_VERSION(2,10,0)
-	 g_object_ref_sink(G_OBJECT(mid));
-#else
-	g_object_ref(G_OBJECT(mid));
-	gtk_object_sink(GTK_OBJECT(G_OBJECT(mid)));
-#endif
+	g_object_ref_sink(G_OBJECT(mid));
 }
 
 void Menu::Destroy() {

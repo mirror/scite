@@ -261,9 +261,7 @@ void WCheckDraw::Create(const char **xpmImage, GUI::gui_string toolTip, GtkStyle
 	size_t posMnemonic = toolTipNoMnemonic.find("_");
 	if (posMnemonic != GUI::gui_string::npos)
 		toolTipNoMnemonic.replace(posMnemonic, 1, "");
-#if GTK_CHECK_VERSION(2,12,0)
 	gtk_widget_set_tooltip_text(da, toolTipNoMnemonic.c_str());
-#endif
 
 	g_signal_connect(G_OBJECT(da), "focus-in-event", G_CALLBACK(Focus), this);
 	g_signal_connect(G_OBJECT(da), "focus-out-event", G_CALLBACK(Focus), this);

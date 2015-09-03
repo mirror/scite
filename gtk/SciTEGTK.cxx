@@ -550,11 +550,9 @@ protected:
 	gint	fileSelectorWidth;
 	gint	fileSelectorHeight;
 
-#if GTK_CHECK_VERSION(2,10,0)
 	GtkPrintSettings *printSettings;
 	GtkPageSetup *pageSetup;
 	std::vector<int> pageStarts;
-#endif
 
 	// Fullscreen handling
 	GdkRectangle saved;
@@ -608,13 +606,11 @@ protected:
 	virtual void LoadSessionDialog();
 	virtual void SaveSessionDialog();
 
-#if GTK_CHECK_VERSION(2,10,0)
 	void SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context);
 	void BeginPrintThis(GtkPrintOperation *operation, GtkPrintContext *context);
 	static void BeginPrint(GtkPrintOperation *operation, GtkPrintContext *context, SciTEGTK *scitew);
 	void DrawPageThis(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr);
 	static void DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr, SciTEGTK *scitew);
-#endif
 	virtual void Print(bool);
 	virtual void PrintSetup();
 
@@ -817,10 +813,8 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	fileSelectorWidth = 580;
 	fileSelectorHeight = 480;
 
-#if GTK_CHECK_VERSION(2,10,0)
 	printSettings = NULL;
 	pageSetup = NULL;
-#endif
 
 	// Fullscreen handling
 	fullScreen = false;
@@ -1082,9 +1076,7 @@ void SciTEGTK::ActivateWindow(const char *timestamp) {
 	errno = 0;
 	gulong ts = strtoul(timestamp, &end, 0);
 	if (end != timestamp && errno == 0) {
-#if GTK_CHECK_VERSION(2,8,0)
 		gtk_window_present_with_time(GTK_WINDOW(PWidget(wSciTE)), ts);
-#endif
 	} else {
 		gtk_window_present(GTK_WINDOW(PWidget(wSciTE)));
 	}
@@ -1690,9 +1682,6 @@ void SciTEGTK::SaveSessionDialog() {
 	}
 }
 
-#if GTK_CHECK_VERSION(2,10,0)
-// Printing with GtkPrintContext appeared in GTK+ 2.10
-
 static PangoLayout *PangoLayoutFromStyleDefinition(GtkPrintContext *context, const StyleDefinition &sd) {
 	PangoLayout *layout = gtk_print_context_create_pango_layout(context);
 	if (layout) {
@@ -1717,11 +1706,9 @@ static PangoLayout *PangoLayoutFromStyleDefinition(GtkPrintContext *context, con
 }
 
 void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context) {
-#if GTK_CHECK_VERSION(2,10,0)
 	cairo_t *cr = gtk_print_context_get_cairo_context(context);
 	frPrint.hdc = cr;
 	frPrint.hdcTarget = cr;
-#endif
 
 	gdouble width = gtk_print_context_get_width(context);
 	gdouble height = gtk_print_context_get_height(context);
@@ -1871,12 +1858,9 @@ void SciTEGTK::DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, 
 	scitew->DrawPageThis(operation, context, page_nr);
 }
 
-#endif
-
 void SciTEGTK::Print(bool) {
 	RemoveFindMarks();
 	SelectionIntoProperties();
-#if GTK_CHECK_VERSION(2,10,0)
 	// Printing through the GTK+ API
 	GtkPrintOperation *printOp = gtk_print_operation_new();
 
@@ -1900,21 +1884,9 @@ void SciTEGTK::Print(bool) {
 	}
 
 	g_object_unref(printOp);
-#else
-	std::string printCommand = props.GetWild("command.print.", filePath.AsInternal());
-	if (printCommand.length()) {
-		// Using a command to print
-		AddCommand(printCommand, "", SubsystemType("command.print.subsystem."));
-		if (jobQueue.HasCommandToRun()) {
-			jobQueue.isBuilding = true;
-			Execute();
-		}
-	}
-#endif
 }
 
 void SciTEGTK::PrintSetup() {
-#if GTK_CHECK_VERSION(2,10,0)
 	if (printSettings == NULL)
 		printSettings = gtk_print_settings_new();
 
@@ -1925,7 +1897,6 @@ void SciTEGTK::PrintSetup() {
 		g_object_unref(pageSetup);
 
 	pageSetup = newPageSetup;
-#endif
 }
 
 std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
@@ -3562,9 +3533,7 @@ static GtkWidget *pixmap_new(gchar **xpm) {
 GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon) {
 	gtk_widget_show(GTK_WIDGET(toolbar_icon));
 	GtkToolItem *button = gtk_tool_button_new(toolbar_icon, text);
-#if GTK_CHECK_VERSION(2,12,0)
 	gtk_widget_set_tooltip_text(GTK_WIDGET(button), text);
-#endif
 	gtk_widget_show(GTK_WIDGET(button));
 	gtk_toolbar_insert(GTK_TOOLBAR(PWidget(wToolBar)), button, -1);
 
@@ -3829,9 +3798,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/File/Export/As _PDF...", NULL, menuSig, IDM_SAVEASPDF, 0},
 	                                      {"/File/Export/As _LaTeX...", NULL, menuSig, IDM_SAVEASTEX, 0},
 	                                      {"/File/Export/As _XML...", NULL, menuSig, IDM_SAVEASXML, 0},
-#if GTK_CHECK_VERSION(2,10,0)
 	                                      {"/File/Page Set_up", NULL, menuSig, IDM_PRINTSETUP, 0},
-#endif
 	                                      {"/File/_Print", "<control>P", menuSig, IDM_PRINT, 0},
 	                                      {"/File/sep1", NULL, NULL, 0, "<Separator>"},
 	                                      {"/File/_Load Session...", "", menuSig, IDM_LOADSESSION, 0},
@@ -4852,19 +4819,12 @@ void SciTEGTK::LayoutUI() {
 	bool focusOutput = false;
 
 	if (splitPane) {
-#if GTK_CHECK_VERSION(2,16,0)
 		// If GtkOrientable is available (GTK+ 2.16 and newer), just switch the
 		// orientation if needed, don't recreate the H/VPaned
 		GtkOrientation orient;
 		orient = (splitVertical) ? GTK_ORIENTATION_HORIZONTAL : GTK_ORIENTATION_VERTICAL;
 		gtk_orientable_set_orientation(GTK_ORIENTABLE(splitPane), orient);
 		return;
-#endif
-
-		focusOutput = wOutput.HasFocus();
-		gtk_container_remove(GTK_CONTAINER(splitPane), PWidget(wEditor));
-		gtk_container_remove(GTK_CONTAINER(splitPane), PWidget(wOutput));
-		gtk_widget_destroy(GTK_WIDGET(splitPane));
 	}
 
 	if (splitVertical) {
