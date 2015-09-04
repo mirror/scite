@@ -17,12 +17,6 @@
 
 #include "GUI.h"
 
-#if GTK_CHECK_VERSION(2,20,0)
-#define IS_WIDGET_FOCUSSED(w) (gtk_widget_has_focus(GTK_WIDGET(w)))
-#else
-#define IS_WIDGET_FOCUSSED(w) (GTK_WIDGET_HAS_FOCUS(w))
-#endif
-
 namespace GUI {
 
 gui_string StringFromUTF8(const char *s) {
@@ -57,7 +51,7 @@ void Window::Destroy() {
 }
 
 bool Window::HasFocus() {
-	return IS_WIDGET_FOCUSSED(wid);
+	return gtk_widget_has_focus(GTK_WIDGET(wid));
 }
 
 Rectangle Window::GetPosition() {

@@ -36,7 +36,7 @@ GtkWidget* WBase::Pointer() {
 }
 
 bool WBase::Sensitive() {
-	return IS_WIDGET_SENSITIVE(Pointer());
+	return gtk_widget_get_sensitive(GTK_WIDGET(Pointer()));
 }
 
 void WStatic::Create(GUI::gui_string text) {
@@ -112,7 +112,7 @@ void WComboBoxEntry::SetText(const GUI::gui_char *text) {
 }
 
 bool WComboBoxEntry::HasFocusOnSelfOrChild() {
-	return HasFocus() || IS_WIDGET_FOCUSSED(Entry());
+	return HasFocus() || gtk_widget_has_focus(GTK_WIDGET(Entry()));
 }
 
 void WComboBoxEntry::RemoveText(int position) {
@@ -159,21 +159,13 @@ void WComboBoxEntry::FillFromMemory(const std::vector<std::string> &mem, bool us
 
 void WButton::Create(GUI::gui_string text, GCallback func, gpointer data) {
 	SetID(gtk_button_new_with_mnemonic(text.c_str()));
-#if GTK_CHECK_VERSION(2,20,0)
 	gtk_widget_set_can_default(GTK_WIDGET(GetID()), TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(GetID(), GTK_CAN_DEFAULT);
-#endif
 	g_signal_connect(G_OBJECT(GetID()), "clicked", func, data);
 }
 
 void WButton::Create(GUI::gui_string text) {
 	SetID(gtk_button_new_with_mnemonic(text.c_str()));
-#if GTK_CHECK_VERSION(2,20,0)
 	gtk_widget_set_can_default(GTK_WIDGET(GetID()), TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(GetID(), GTK_CAN_DEFAULT);
-#endif
 }
 
 void WToggle::Create(const GUI::gui_string &text) {
@@ -236,13 +228,8 @@ void WCheckDraw::Create(const char **xpmImage, GUI::gui_string toolTip, GtkStyle
 	pStyle = gtk_style_copy(pStyle_);
 #endif
 
-#if GTK_CHECK_VERSION(2,20,0)
 	gtk_widget_set_can_focus(da, TRUE);
 	gtk_widget_set_sensitive(da, TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(da, GTK_CAN_FOCUS);
-	GTK_WIDGET_SET_FLAGS(da, GTK_SENSITIVE);
-#endif
 
 	gtk_widget_set_events(da,
 			      GDK_EXPOSURE_MASK

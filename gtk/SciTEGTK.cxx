@@ -73,12 +73,6 @@
 #pragma GCC diagnostic ignored "-Wsentinel"
 #endif
 
-#if GTK_CHECK_VERSION(2,20,0)
-#define WIDGET_SET_NO_FOCUS(w) gtk_widget_set_can_focus(w, FALSE)
-#else
-#define WIDGET_SET_NO_FOCUS(w) GTK_WIDGET_UNSET_FLAGS(w, GTK_CAN_FOCUS)
-#endif
-
 enum { mbsAboutBox = 0x100000 };
 
 // Key names are longer for GTK+ 3
@@ -865,11 +859,7 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 #else
 	GtkWidget *button = gtk_button_new_with_mnemonic(translated.c_str());
 #endif
-#if GTK_CHECK_VERSION(2,20,0)
 	gtk_widget_set_can_default(button, TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-#endif
 	size_t posMnemonic = translated.find('_');
 	if (posMnemonic != GUI::gui_string::npos) {
 		// With a "Yes" button want to respond to pressing "y" as well as standard "Alt+y"
@@ -4916,7 +4906,7 @@ void SciTEGTK::CreateUI() {
 	GtkWidget *boxMain = gtk_vbox_new(FALSE, 0);
 #endif
 	gtk_container_add(GTK_CONTAINER(PWidget(wSciTE)), boxMain);
-	WIDGET_SET_NO_FOCUS(boxMain);
+	gtk_widget_set_can_focus(boxMain, FALSE);
 
  	// The Menubar
 	CreateMenu();
@@ -4932,7 +4922,7 @@ void SciTEGTK::CreateUI() {
 
 	// The Notebook (GTK2)
 	wTabBar = gtk_notebook_new();
-	WIDGET_SET_NO_FOCUS(PWidget(wTabBar));
+	gtk_widget_set_can_focus(PWidget(wTabBar), FALSE);
 	gtk_box_pack_start(GTK_BOX(boxMain),PWidget(wTabBar),FALSE,FALSE,0);
 	g_signal_connect(G_OBJECT(PWidget(wTabBar)),
 		"button-release-event", G_CALLBACK(TabBarReleaseSignal), gthis);
@@ -4949,7 +4939,7 @@ void SciTEGTK::CreateUI() {
 
 	// Ensure the content area is viable at 60 pixels high
 	gtk_widget_set_size_request(PWidget(wContent), 20, 60);
-	WIDGET_SET_NO_FOCUS(PWidget(wContent));
+	gtk_widget_set_can_focus(PWidget(wContent), FALSE);
 	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
 
 	wEditor.SetID(scintilla_new());
