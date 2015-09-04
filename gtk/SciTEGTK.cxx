@@ -103,11 +103,7 @@ enum { mbsAboutBox = 0x100000 };
 #endif
 
 static GdkWindow *WindowFromWidget(GtkWidget *w) {
-#if GTK_CHECK_VERSION(3,0,0)
 	return gtk_widget_get_window(w);
-#else
-	return w->window;
-#endif
 }
 
 const char appName[] = "SciTE";
@@ -3461,11 +3457,7 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 
 void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
                                 gint /*x*/, gint /*y*/, GtkSelectionData *seldata, guint /*info*/, guint time, SciTEGTK *scitew) {
-#if GTK_CHECK_VERSION(3,0,0)
 	scitew->OpenUriList(reinterpret_cast<const char *>(gtk_selection_data_get_data(seldata)));
-#else
-	scitew->OpenUriList(reinterpret_cast<const char *>(seldata->data));
-#endif
 	gtk_drag_finish(context, TRUE, FALSE, time);
 }
 
@@ -3479,11 +3471,7 @@ gint SciTEGTK::TabBarRelease(GtkNotebook *notebook, GdkEventButton *event) {
 			if (page) {
 				GtkWidget *label = gtk_notebook_get_tab_label(notebook, page);
 				GtkAllocation allocation;
-#if GTK_CHECK_VERSION(3,0,0)
 				gtk_widget_get_allocation(label, &allocation);
-#else
-				allocation = label->allocation;
-#endif
 				if (event->x < (allocation.x + allocation.width)) {
 					CloseTab(pageNum);
 					break;
