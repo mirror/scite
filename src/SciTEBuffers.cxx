@@ -2014,7 +2014,7 @@ void SciTEBase::GoMessage(int dir) {
 					const bool isAdd = message.find("+++ ") == 0;
 					const int atLine = lookLine + (isAdd ? 1 : 2); // lines are in this order: ---, +++, @@
 					std::string atMessage = GetLine(wOutput, atLine);
-					if (atMessage.find("@@ -") == 0) {
+					if (StartsWith(atMessage, "@@ -")) {
 						size_t atPos = 4; // deleted position starts right after "@@ -"
 						if (isAdd) {
 							const size_t linePlace = atMessage.find(" +", 7);

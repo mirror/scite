@@ -3802,13 +3802,13 @@ void SciTEBase::NewLineInOutput() {
 		line--;
 		while (line >= 0) {
 			cmd = GetLine(wOutput, line);
-			if ((cmd.find(">") == 0) && !(cmd.find(">Exit") == 0)) {
+			if (StartsWith(cmd, ">") && !StartsWith(cmd, ">Exit")) {
 				cmd = cmd.substr(1);
 				break;
 			}
 			line--;
 		}
-	} else if (cmd.find(">") == 0) {
+	} else if (StartsWith(cmd, ">")) {
 		cmd = cmd.substr(1);
 	}
 	returnOutputToCommand = false;

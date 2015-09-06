@@ -64,21 +64,21 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 			modsInKey |= SCMOD_ALT;
 
 		if (sKey.length() == 1) {
-			keyval = VkKeyScan(sKey[0]) & 0xFF;
+			keyval = VkKeyScan(sKey.at(0)) & 0xFF;
 		} else if (sKey.length() > 1) {
-			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
+			if ((sKey.at(0) == 'F') && (isdigit(sKey.at(1)))) {
 				sKey.erase(0, 1);
 				int fkeyNum = atoi(sKey.c_str());
 				if (fkeyNum >= 1 && fkeyNum <= 12)
 					keyval = fkeyNum - 1 + VK_F1;
-			} else if ((sKey[0] == 'V') && (isdigit(sKey[1]))) {
+			} else if ((sKey.at(0) == 'V') && (isdigit(sKey.at(1)))) {
 				sKey.erase(0, 1);
 				int vkey = atoi(sKey.c_str());
 				if (vkey > 0 && vkey <= 0x7FFF)
 					keyval = vkey;
-			} else if (sKey.find("Keypad") == 0) {
+			} else if (StartsWith(sKey, "Keypad")) {
 				sKey.erase(0, strlen("Keypad"));
-				if (isdigit(sKey[0])) {
+				if ((sKey.length() > 0) && isdigit(sKey.at(0))) {
 					int keyNum = atoi(sKey.c_str());
 					if (keyNum >= 0 && keyNum <= 9)
 						keyval = keyNum + VK_NUMPAD0;
