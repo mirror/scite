@@ -503,8 +503,7 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	FILE *fp = saveName.Open(GUI_TEXT("wb"));
 	if (!fp) {
 		// couldn't open the file for saving, issue an error message
-		GUI::gui_string msg = LocaliseMessage("Could not save file '^0'.", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg);
+		FailedSaveMessageBox(saveName);
 		return;
 	}
 	// initialise PDF rendering
@@ -547,6 +546,8 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	}
 	// write required stuff and close the PDF file
 	pr.endPDF();
-	fclose(fp);
+	if (fclose(fp) != 0) {
+		FailedSaveMessageBox(saveName);
+	}
 }
 

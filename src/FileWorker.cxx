@@ -162,7 +162,9 @@ void FileStorer::Execute() {
 				break;
 			}
 		}
-		convert.fclose();
+		if (convert.fclose() != 0) {
+			err = 1;
+		}
 	}
 	SetCompleted();
 	pListener->PostOnMainThread(WORK_FILEWRITTEN, this);

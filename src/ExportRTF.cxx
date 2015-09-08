@@ -280,15 +280,20 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 
 void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
+	bool failedWrite = fp == NULL;
 	if (fp) {
 		std::ostringstream oss;
 		SaveToStreamRTF(oss, start, end);
 		std::string rtf = oss.str();
-		fwrite(rtf.c_str(), 1, rtf.length(), fp);
-		fclose(fp);
-	} else {
-		GUI::gui_string msg = LocaliseMessage("Could not save file '^0'.", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg);
+		if (fwrite(rtf.c_str(), 1, rtf.length(), fp) != rtf.length()) {
+			failedWrite = true;
+		}
+		if (fclose(fp) != 0) {
+			failedWrite = true;
+		}
+	}
+	if (failedWrite) {
+		FailedSaveMessageBox(saveName);
 	}
 }
 

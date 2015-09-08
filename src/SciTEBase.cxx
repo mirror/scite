@@ -969,6 +969,12 @@ int SciTEBase::IncrementSearchMode() {
 	return 0;
 }
 
+void SciTEBase::FailedSaveMessageBox(const FilePath &filePathSaving) {
+	const GUI::gui_string msg = LocaliseMessage(
+		"Could not save file \"^0\".", filePathSaving.AsInternal());
+	WindowMessageBox(wSciTE, msg);
+}
+
 bool SciTEBase::FindReplaceAdvanced() const {
 	return props.GetInt("find.replace.advanced");
 }

@@ -126,7 +126,7 @@ public:
 
 	void setfile(FILE *pFile);
 	size_t fwrite(const void* p, size_t _size);
-	void fclose();
+	int fclose();
 protected:
 	encodingType m_eEncoding;
 	FILE* m_pFile;

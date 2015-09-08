@@ -85,6 +85,7 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 	TextReader acc(wEditor);
 
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
+	bool failedWrite = fp == NULL;
 
 	if (fp) {
 
@@ -211,9 +212,11 @@ void SciTEBase::SaveToXML(FilePath saveName) {
 		fputs("</text>\n", fp);
 		fputs("</document>\n", fp);
 
-		fclose(fp);
-	} else {
-		GUI::gui_string msg = LocaliseMessage("Could not save file \"^0\".", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg);
+		if (fclose(fp) != 0) {
+			failedWrite = true;
+		}
+	}
+	if (failedWrite) {
+		FailedSaveMessageBox(saveName);
 	}
 }

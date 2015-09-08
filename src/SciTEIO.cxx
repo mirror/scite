@@ -448,8 +448,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 	}
 
 	if (errSaved) {
-		GUI::gui_string msg = LocaliseMessage("Could not save file '^0'.", pathSaved.AsInternal());
-		WindowMessageBox(wSciTE, msg);
+		FailedSaveMessageBox(pathSaved);
 	}
 
 	if (IsPropertiesFile(pathSaved)) {
@@ -986,7 +985,9 @@ bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
 						break;
 					}
 				}
-				convert.fclose();
+				if (convert.fclose() != 0) {
+					retVal = false;
+				}
 			}
 		}
 	}

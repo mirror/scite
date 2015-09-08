@@ -75,6 +75,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 	styleIsUsed[STYLE_DEFAULT] = true;
 
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
+	bool failedWrite = fp == NULL;
 	if (fp) {
 		fputs("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n", fp);
 		fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);
@@ -364,11 +365,12 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 		}
 
 		fputs("\n</body>\n</html>\n", fp);
-		fclose(fp);
-	} else {
-		GUI::gui_string msg = LocaliseMessage(
-		            "Could not save file \"^0\".", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg);
+		if (fclose(fp) != 0) {
+			failedWrite = true;
+		}
+	}
+	if (failedWrite) {
+		FailedSaveMessageBox(saveName);
 	}
 }
 

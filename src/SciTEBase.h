@@ -699,6 +699,7 @@ protected:
 		mbsIconWarning = 0x30
 	};
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) = 0;
+	void FailedSaveMessageBox(const FilePath &filePathSaving);
 	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = 0) = 0;
 	bool FindReplaceAdvanced() const;
 	int FindInTarget(std::string findWhatText, int startPosition, int endPosition);

@@ -117,6 +117,7 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 	styleIsUsed[STYLE_DEFAULT] = true;
 
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
+	bool failedWrite = fp == NULL;
 	if (fp) {
 		fputs("\\documentclass[a4paper]{article}\n"
 		      "\\usepackage[a4paper,margin=2cm]{geometry}\n"
@@ -199,10 +200,11 @@ void SciTEBase::SaveToTEX(FilePath saveName) {
 			lineIdx++;
 		}
 		fputs("}\n} %end small\n\n\\end{document}\n", fp); //close last empty style macros and document too
-		fclose(fp);
-	} else {
-		GUI::gui_string msg = LocaliseMessage(
-		            "Could not save file \"^0\".", filePath.AsInternal());
-		WindowMessageBox(wSciTE, msg);
+		if (fclose(fp) != 0) {
+			failedWrite = true;
+		}
+	}
+	if (failedWrite) {
+		FailedSaveMessageBox(saveName);
 	}
 }

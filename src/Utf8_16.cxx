@@ -216,12 +216,14 @@ size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {
 	return ret;
 }
 
-void Utf8_16_Write::fclose() {
+int Utf8_16_Write::fclose() {
 	delete [] m_pBuf;
 	m_pBuf = NULL;
 
-	::fclose(m_pFile);
+	int ret = ::fclose(m_pFile);
 	m_pFile = NULL;
+
+	return ret;
 }
 
 void Utf8_16_Write::setEncoding(Utf8_16::encodingType eType) {
