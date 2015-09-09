@@ -1529,14 +1529,15 @@ int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &co
 				++cdoc;
 			for (int i = 0; cdoc[i]; i++) {
 				if (cdoc[i] == ':' && isdigitchar(cdoc[i + 1])) {
-					int sourceNumber = atoi(cdoc + i + 1) - 1;
+					const int sourceLine = atoi(cdoc + i + 1);
 					sourcePath.assign(cdoc, i);
 					i += 2;
 					while (isdigitchar(cdoc[i]))
 						++i;
 					if (cdoc[i] == ':' && isdigitchar(cdoc[i + 1]))
 						column = atoi(cdoc + i + 1) - 1;
-					return sourceNumber;
+					// Some tools show whole file errors as occurring at line 0
+					return (sourceLine > 0) ? sourceLine - 1 : 0;
 				}
 			}
 			break;
