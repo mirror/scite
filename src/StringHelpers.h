@@ -36,6 +36,10 @@ inline char MakeUpperCase(char ch) {
 		return static_cast<char>(ch - 'a' + 'A');
 }
 
+inline bool IsASCII(int ch) {
+	return (ch >= 0) && (ch < 0x80);
+}
+
 // StringSplit can be expanded over std::string or GUI::gui_string
 template <typename T>
 std::vector<T> StringSplit(const T &text, int separator) {

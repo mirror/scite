@@ -256,7 +256,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 		} else if (ch == '\r') {
 			os << RTF_EOLN;
 			column = -1;
-		} else if (isUTF8 && !isascii(ch)) {
+		} else if (isUTF8 && !IsASCII(ch)) {
 			const int nextPosition = wEditor.Call(SCI_POSITIONAFTER, iPos);
 			wEditor.Call(SCI_SETTARGETRANGE, iPos, nextPosition);
 			unsigned char u8Char[5] = "";

@@ -205,7 +205,7 @@ char *Slash(const char *s, bool quoteQuotes) {
 		} else if (quoteQuotes && (*s == '\"')) {
 			*o++ = '\\';
 			*o++ = '\"';
-		} else if (isascii(*s) && (*s < ' ')) {
+		} else if (IsASCII(*s) && (*s < ' ')) {
 			*o++ = '\\';
 			*o++ = static_cast<char>((*s >> 6) + '0');
 			*o++ = static_cast<char>((*s >> 3) + '0');
