@@ -104,8 +104,8 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 	private:
 		FILE *fp;
 		long *offsetList, tableSize;
-		// Private so PDFObjectTracker objects can not be copied
-		PDFObjectTracker(const PDFObjectTracker &) {}
+		// Deleted so PDFObjectTracker objects can not be copied
+		PDFObjectTracker(const PDFObjectTracker &) = delete;
 	public:
 		int index;
 		explicit PDFObjectTracker(FILE *fp_) {
@@ -183,8 +183,8 @@ void SciTEBase::SaveToPDF(FilePath saveName) {
 		int styleCurrent, stylePrev;
 		double leading;
 		char *buffer;
-		// Private so PDFRender objects can not be copied
-		PDFRender(const PDFRender &) {}
+		// Deleted so PDFRender objects can not be copied
+		PDFRender(const PDFRender &) = delete;
 	public:
 		PDFObjectTracker *oT;
 		PDFStyle *style;

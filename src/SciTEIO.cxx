@@ -1257,8 +1257,8 @@ class FileReader {
 	std::string lineToCompare;
 	std::string lineToShow;
 	bool caseSensitive;
-	// Private so FileReader objects can not be copied
-	FileReader(const FileReader &);
+	// Deleted so FileReader objects can not be copied
+	FileReader(const FileReader &) = delete;
 public:
 
 	FileReader(FilePath fPath, bool caseSensitive_) {

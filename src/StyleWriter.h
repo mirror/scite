@@ -10,9 +10,9 @@
 
 // Read only access to a document, its styles and other data
 class TextReader {
-	// Private so TextReader objects can not be copied
-	TextReader(const TextReader &source);
-	TextReader &operator=(const TextReader &);
+	// Deleted so TextReader objects can not be copied
+	TextReader(const TextReader &source) = delete;
+	TextReader &operator=(const TextReader &) = delete;
 protected:
 	enum {extremePosition=0x7FFFFFFF};
 	/** @a bufferSize is a trade off between time taken to copy the characters
@@ -66,9 +66,9 @@ public:
 
 // Adds methods needed to write styles and folding
 class StyleWriter : public TextReader {
-	// Private so StyleWriter objects can not be copied
-	StyleWriter(const StyleWriter &source);
-	StyleWriter &operator=(const StyleWriter &);
+	// Deleted so StyleWriter objects can not be copied
+	StyleWriter(const StyleWriter &source) = delete;
+	StyleWriter &operator=(const StyleWriter &) = delete;
 protected:
 	char styleBuf[bufferSize];
 	int validLen;
