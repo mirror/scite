@@ -6,18 +6,16 @@ rem machine so must be modified for other installations.
 rem Assumes environment set up so gcc, MSVC amd cppcheck can be called.
 rem
 cd ..\..
-set MSDEV_BASE=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC
-set WINSDK_BASE=C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin
 rem
 rem ************************************************************
 rem Target 1: basic unit tests with gcc
 call scite\scripts\clearboth
-cd scintilla\test\unit
+pushd scintilla\test\unit
 mingw32-make -j
 if ERRORLEVEL 2 goto ERROR
 .\unitTest
 if ERRORLEVEL 2 goto ERROR
-cd ..\..\..
+popd
 rem
 rem ************************************************************
 rem Target 2: Normal gcc build
@@ -37,18 +35,18 @@ rem
 rem ************************************************************
 rem Target 3: Microsoft VC++ build
 call scite\scripts\clearboth
-cd scintilla\win32
+pushd scintilla\win32
 cl
 nmake -f scintilla.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
-cd ..\..\scite\win32
+popd
+pushd scite\win32
 nmake -f scite.mak QUIET=1
 if ERRORLEVEL 2 goto ERROR
-cd ..\..
+popd
 rem
 rem ************************************************************
-rem Target 4: Visual C++ Express using scintilla\win32\SciLexer.vcxproj and scite\win32\SciTE.vcxproj
-call "%MSDEV_BASE%\vcvarsall"
+rem Target 4: Visual C++ using scintilla\win32\SciLexer.vcxproj and scite\win32\SciTE.vcxproj
 @echo on
 call scite\scripts\clearboth
 pushd scintilla\win32
@@ -64,22 +62,23 @@ rem
 rem ************************************************************
 rem Target 5: GTK+ version using gcc on scintilla\gtk\makefile
 call scite\scripts\clearboth
-cd scintilla\gtk
+pushd scintilla\gtk
 mingw32-make -j CXXFLAGS=-Wno-long-long
 if ERRORLEVEL 2 goto ERROR
-cd ..\..
+popd ..\..
 rem
 rem ************************************************************
-rem Target 6: SDK 64 bit compiler
+rem Target 6: Visual C++ 64 bit
 call scite\scripts\clearboth
-call "%WINSDK_BASE%\SetEnv.Cmd" /Release /x64 /vista
-cd scintilla\win32
-nmake -f scintilla.mak
+pushd scintilla\win32
+msbuild /verbosity:minimal /p:Platform=x64 /p:Configuration=Release SciLexer.vcxproj
 if ERRORLEVEL 2 goto ERROR
-cd ..\..\scite\win32
-nmake -f scite.mak
+popd
+call scite\scripts\clearboth
+pushd scite\win32
+msbuild /verbosity:minimal /p:Platform=x64 /p:Configuration=Release SciTE.vcxproj
 if ERRORLEVEL 2 goto ERROR
-cd ..\..
+popd
 rem
 rem ************************************************************
 rem Target 7: Clang analyze
