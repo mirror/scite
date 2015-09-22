@@ -10,7 +10,7 @@ ifdef CLANG
 # thread also need to create Position Independent Executable -> search online documentation
 SANITIZE = address
 #SANITIZE = undefined
-CXX = clang++ -fsanitize=$(SANITIZE) --std=c++0x -Wno-deprecated-register
+CXX = clang++ -fsanitize=$(SANITIZE) -Wno-deprecated-register
 CC = clang -fsanitize=$(SANITIZE) -Wno-empty-body
 endif
 
@@ -93,7 +93,7 @@ CXXTFLAGS:=$(CXXTFLAGS) -Dunix
 endif
 
 .cxx.o:
-	$(CXX) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) --std=c++0x $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.plist $(PROG)
