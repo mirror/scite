@@ -722,9 +722,13 @@ bool SciTEBase::OpenSelected() {
 }
 
 void SciTEBase::Revert() {
-	RecentFile rf = GetFilePosition();
-	OpenCurrentFile(filePath.GetFileLength(), false, false);
-	DisplayAround(rf);
+	if (filePath.IsUntitled()) {
+		wEditor.Call(SCI_CLEARALL);
+	} else {
+		RecentFile rf = GetFilePosition();
+		OpenCurrentFile(filePath.GetFileLength(), false, false);
+		DisplayAround(rf);
+	}
 }
 
 void SciTEBase::CheckReload() {
