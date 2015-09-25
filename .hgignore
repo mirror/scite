@@ -29,7 +29,10 @@ syntax: glob
 *.ipch
 *.old
 *.sdf
+*.diagsession
+*.vspx
 *.opensdf
+*.tgz
 *.log
 .DS_Store
 Debug
