@@ -60,6 +60,10 @@ bool UniqueInstance::AcceptToOpenFiles(bool bAccept) {
 	return !bError;
 }
 
+void UniqueInstance::CallSearchOnAllWindows() {
+	::EnumWindows(SearchOtherInstance, reinterpret_cast<LPARAM>(this));
+}
+
 /**
  * Toggle the open files here option.
  * If set, search if another instance have this option set.
@@ -71,7 +75,7 @@ void UniqueInstance::ToggleOpenFilesHere() {
 	// Else, we set the option and try to set the mutex.
 	if (!AcceptToOpenFiles(!stw->openFilesHere)) {
 		// Cannot set the mutex, search the previous instance holding it
-		::EnumWindows(reinterpret_cast<WNDENUMPROC>(SearchOtherInstance), reinterpret_cast<LPARAM>(this));
+		CallSearchOnAllWindows();
 		if (hOtherWindow != NULL) {
 			// Found, we indicate it to yield the acceptation of files
 			::SendMessage(hOtherWindow, identityMessage, 0,
@@ -159,12 +163,20 @@ void UniqueInstance::CheckOtherInstance() {
  */
 bool UniqueInstance::FindOtherInstance() {
 	if (bAlreadyRunning && identityMessage != 0) {
-		::EnumWindows(reinterpret_cast<WNDENUMPROC>(SearchOtherInstance), reinterpret_cast<LPARAM>(this));
+		CallSearchOnAllWindows();
 		if (hOtherWindow) {
 			return true;
 		}
 	}
 	return false;
+}
+
+void UniqueInstance::WindowCopyData(const char *s, size_t len) {
+	COPYDATASTRUCT cds;
+	cds.dwData = 0;
+	cds.cbData = static_cast<DWORD>(len);
+	cds.lpData = const_cast<void *>(static_cast<const void *>(s));
+	::SendMessage(hOtherWindow, WM_COPYDATA, 0, reinterpret_cast<LPARAM>(&cds));
 }
 
 /**
@@ -182,8 +194,6 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
 	}
 	::SetForegroundWindow(hOtherWindow);
 
-	COPYDATASTRUCT cds;
-	cds.dwData = 0;
 	// Send 2 messages - first the CWD, so paths relative to
 	// the new instance can be resolved in the old instance,
 	// then the real command line.
@@ -196,15 +206,9 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
 	cwdCmd.append("\"");
 	// Defeat the "\" mangling - convert "\" to "/"
 	std::replace(cwdCmd.begin(), cwdCmd.end(), '\\', '/');
-	cds.cbData = static_cast<DWORD>(cwdCmd.length() + 1);
-	cds.lpData = const_cast<void *>(static_cast<const void *>(cwdCmd.c_str()));
-	::SendMessage(hOtherWindow, WM_COPYDATA, 0,
-	              reinterpret_cast<LPARAM>(&cds));
+	WindowCopyData(cwdCmd.c_str(), cwdCmd.length() + 1);
 	// Now the command line itself.
-	cds.cbData = static_cast<DWORD>(strlen(cmdLine) + 1);
-	cds.lpData = static_cast<void *>(const_cast<char *>(cmdLine));
-	::SendMessage(hOtherWindow, WM_COPYDATA, 0,
-	              reinterpret_cast<LPARAM>(&cds));
+	WindowCopyData(cmdLine, strlen(cmdLine) + 1);
 }
 
 /**
@@ -221,7 +225,7 @@ BOOL CALLBACK UniqueInstance::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 	UniqueInstance *ui = reinterpret_cast<UniqueInstance *>(lParam);
 
 	// First, avoid to send a message to ourself
-	if (hWnd != reinterpret_cast<HWND>(ui->stw->MainHWND())) {
+	if (hWnd != static_cast<HWND>(ui->stw->MainHWND())) {
 		// Send a message to the given window, to see if it will answer with
 		// the same message. If it does, it is a Gui window with
 		// openFilesHere set.

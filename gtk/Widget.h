@@ -22,7 +22,7 @@ public:
 };
 
 inline GtkWidget *Widget(const GUI::Window &w) {
-	return reinterpret_cast<GtkWidget *>(w.GetID());
+	return static_cast<GtkWidget *>(w.GetID());
 }
 
 class WStatic : public WBase {

@@ -191,7 +191,7 @@ gui_string HexStringFromInteger(long i) {
 
 void Window::Destroy() {
 	if (wid)
-		::DestroyWindow(reinterpret_cast<HWND>(wid));
+		::DestroyWindow(static_cast<HWND>(wid));
 	wid = 0;
 }
 
@@ -201,35 +201,35 @@ bool Window::HasFocus() {
 
 Rectangle Window::GetPosition() {
 	RECT rc;
-	::GetWindowRect(reinterpret_cast<HWND>(wid), &rc);
+	::GetWindowRect(static_cast<HWND>(wid), &rc);
 	return Rectangle(rc.left, rc.top, rc.right, rc.bottom);
 }
 
 void Window::SetPosition(Rectangle rc) {
-	::SetWindowPos(reinterpret_cast<HWND>(wid),
+	::SetWindowPos(static_cast<HWND>(wid),
 		0, rc.left, rc.top, rc.Width(), rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
 }
 
 Rectangle Window::GetClientPosition() {
 	RECT rc={0,0,0,0};
 	if (wid)
-		::GetClientRect(reinterpret_cast<HWND>(wid), &rc);
+		::GetClientRect(static_cast<HWND>(wid), &rc);
 	return  Rectangle(rc.left, rc.top, rc.right, rc.bottom);
 }
 
 void Window::Show(bool show) {
 	if (show)
-		::ShowWindow(reinterpret_cast<HWND>(wid), SW_SHOWNOACTIVATE);
+		::ShowWindow(static_cast<HWND>(wid), SW_SHOWNOACTIVATE);
 	else
-		::ShowWindow(reinterpret_cast<HWND>(wid), SW_HIDE);
+		::ShowWindow(static_cast<HWND>(wid), SW_HIDE);
 }
 
 void Window::InvalidateAll() {
-	::InvalidateRect(reinterpret_cast<HWND>(wid), NULL, FALSE);
+	::InvalidateRect(static_cast<HWND>(wid), NULL, FALSE);
 }
 
 void Window::SetTitle(const gui_char *s) {
-	::SetWindowTextW(reinterpret_cast<HWND>(wid), s);
+	::SetWindowTextW(static_cast<HWND>(wid), s);
 }
 
 void Menu::CreatePopUp() {
@@ -239,14 +239,14 @@ void Menu::CreatePopUp() {
 
 void Menu::Destroy() {
 	if (mid)
-		::DestroyMenu(reinterpret_cast<HMENU>(mid));
+		::DestroyMenu(static_cast<HMENU>(mid));
 	mid = 0;
 }
 
 void Menu::Show(Point pt, Window &w) {
-	::TrackPopupMenu(reinterpret_cast<HMENU>(mid),
+	::TrackPopupMenu(static_cast<HMENU>(mid),
 		TPM_RIGHTBUTTON, pt.x - 4, pt.y, 0,
-		reinterpret_cast<HWND>(w.GetID()), NULL);
+		static_cast<HWND>(w.GetID()), NULL);
 	Destroy();
 }
 
@@ -299,11 +299,11 @@ double ElapsedTime::Duration(bool reset) {
 }
 
 sptr_t ScintillaWindow::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
-	return ::SendMessage(reinterpret_cast<HWND>(GetID()), msg, wParam, lParam);
+	return ::SendMessage(static_cast<HWND>(GetID()), msg, wParam, lParam);
 }
 
 sptr_t ScintillaWindow::SendPointer(unsigned int msg, uptr_t wParam, void *lParam) {
-	return ::SendMessage(reinterpret_cast<HWND>(GetID()), msg, wParam, reinterpret_cast<LPARAM>(lParam));
+	return ::SendMessage(static_cast<HWND>(GetID()), msg, wParam, reinterpret_cast<LPARAM>(lParam));
 }
 
 bool IsDBCSLeadByte(int codePage, char ch) {

@@ -1306,7 +1306,7 @@ void SciTEBase::UIHasFocus() {
 void SciTEBase::OutputAppendString(const char *s, int len) {
 	if (len == -1)
 		len = static_cast<int>(strlen(s));
-	wOutput.Call(SCI_APPENDTEXT, len, reinterpret_cast<sptr_t>(s));
+	wOutput.CallString(SCI_APPENDTEXT, len, s);
 	if (scrollOutput) {
 		int line = wOutput.Call(SCI_GETLINECOUNT, 0, 0);
 		int lineStart = wOutput.Call(SCI_POSITIONFROMLINE, line);
@@ -1317,7 +1317,7 @@ void SciTEBase::OutputAppendString(const char *s, int len) {
 void SciTEBase::OutputAppendStringSynchronised(const char *s, int len) {
 	if (len == -1)
 		len = static_cast<int>(strlen(s));
-	wOutput.Send(SCI_APPENDTEXT, len, reinterpret_cast<sptr_t>(s));
+	wOutput.Send(SCI_APPENDTEXT, len, SptrFromString(s));
 	if (scrollOutput) {
 		sptr_t line = wOutput.Send(SCI_GETLINECOUNT);
 		sptr_t lineStart = wOutput.Send(SCI_POSITIONFROMLINE, line);
@@ -1708,7 +1708,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	std::string wordsNear;
 	wordsNear.append("\n");
 
-	int posFind = wEditor.CallString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
+	int posFind = wEditor.CallPointer(SCI_FINDTEXT, flags, &ft);
 	TextReader acc(wEditor);
 	while (posFind >= 0 && posFind < doclen) {	// search all the document
 		int wordEnd = posFind + static_cast<int>(root.length());
@@ -1733,7 +1733,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 			}
 		}
 		ft.chrg.cpMin = wordEnd;
-		posFind = wEditor.CallString(SCI_FINDTEXT, flags, reinterpret_cast<char *>(&ft));
+		posFind = wEditor.CallPointer(SCI_FINDTEXT, flags, &ft);
 	}
 	const size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > root.length()))) {
@@ -4308,7 +4308,7 @@ void SciTEBase::PerformOne(char *action) {
 		} else if (isprefix(action, "open:")) {
 			Open(GUI::StringFromUTF8(arg), ofSynchronous);
 		} else if (isprefix(action, "output:") && wOutput.Created()) {
-			wOutput.Call(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(arg));
+			wOutput.CallString(SCI_REPLACESEL, 0, arg);
 		} else if (isprefix(action, "property:")) {
 			PropertyFromDirector(arg);
 		} else if (isprefix(action, "reloadproperties:")) {
@@ -4529,14 +4529,14 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 		if (lstring1 > 0)
 			strncpy(string1, s1, lstring1);
 		*(string1 + lstring1) = '\0';
-		wParam = reinterpret_cast<uptr_t>(string1);
+		wParam = UptrFromString(string1);
 		nextarg++;
 	} else {
 		wParam = ReadNum(nextarg);
 	}
 
 	if (*(params + 2) == 'S')
-		lParam = reinterpret_cast<sptr_t>(nextarg);
+		lParam = SptrFromString(nextarg);
 	else if (*(params + 2) == 'I')
 		lParam = atoi(nextarg);
 
@@ -4576,7 +4576,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	const size_t alen = strlen(answercmd);
 	tbuff.resize(l + alen + 1);
 	if (*params == 'S')
-		lParam = reinterpret_cast<sptr_t>(&tbuff[alen]);
+		lParam = SptrFromPointer(&tbuff[alen]);
 
 	if (l > 0)
 		rep = wEditor.Call(message, wParam, lParam);
@@ -4763,4 +4763,3 @@ void SciTEBase::Perform(const char *actionList) {
 void SciTEBase::DoMenuCommand(int cmdID) {
 	MenuCommand(cmdID, 0);
 }
-

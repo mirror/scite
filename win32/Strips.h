@@ -12,10 +12,6 @@
 #define UIS_SET 1
 #endif
 
-inline HWND HwndOf(GUI::Window w) {
-	return reinterpret_cast<HWND>(w.GetID());
-}
-
 void *PointerFromWindow(HWND hWnd);
 void SetWindowPointer(HWND hWnd, void *ptr);
 
@@ -29,7 +25,7 @@ public:
 		localiser = localiser_;
 	}
 	HWND Hwnd() const {
-		return reinterpret_cast<HWND>(GetID());
+		return static_cast<HWND>(GetID());
 	}
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) = 0;
 	static LRESULT PASCAL StWndProc(
@@ -112,6 +108,7 @@ public:
 	}
 	virtual void Creation();
 	virtual void Destruction();
+	LRESULT NoMatchColour(HDC hdc);
 };
 
 class SearchStrip : public SearchStripBase {

@@ -109,7 +109,7 @@ static GdkWindow *WindowFromWidget(GtkWidget *w) {
 const char appName[] = "SciTE";
 
 static GtkWidget *PWidget(GUI::Window &w) {
-	return reinterpret_cast<GtkWidget *>(w.GetID());
+	return static_cast<GtkWidget *>(w.GetID());
 }
 
 class SciTEGTK;
@@ -1757,7 +1757,7 @@ void SciTEGTK::BeginPrintThis(GtkPrintOperation *operation, GtkPrintContext *con
 		pageStarts.push_back(lengthPrinted);
 		frPrint.chrg.cpMin = lengthPrinted;
 		frPrint.chrg.cpMax = lengthDoc;
-		lengthPrinted = wEditor.Call(SCI_FORMATRANGE, false, reinterpret_cast<sptr_t>(&frPrint));
+		lengthPrinted = wEditor.CallPointer(SCI_FORMATRANGE, false, &frPrint);
 	}
 	pageStarts.push_back(lengthPrinted);
 
@@ -1778,7 +1778,7 @@ static void SetCairoColour(cairo_t *cr, long co) {
 void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext *context, gint page_nr) {
 	Sci_RangeToFormat frPrint;
 	SetupFormat(frPrint, context) ;
-	cairo_t *cr = reinterpret_cast<cairo_t *>(frPrint.hdc);
+	cairo_t *cr = static_cast<cairo_t *>(frPrint.hdc);
 
 	PropSetFile propsPrint;
 	propsPrint.superPS = &props;
@@ -1837,7 +1837,7 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 	if (frPrint.chrg.cpMax < lengthDoc)
 		frPrint.chrg.cpMax--;
 
-	wEditor.Call(SCI_FORMATRANGE, true, reinterpret_cast<sptr_t>(&frPrint));
+	wEditor.CallPointer(SCI_FORMATRANGE, true, &frPrint);
 }
 
 void SciTEGTK::DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr, SciTEGTK *scitew) {
@@ -1892,7 +1892,7 @@ std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selSta
 	std::string allocation(len * 3 + 1, 0);
 	win.Call(SCI_SETTARGETSTART, selStart);
 	win.Call(SCI_SETTARGETEND, selEnd);
-	int byteLength = win.Call(SCI_TARGETASUTF8, 0, reinterpret_cast<sptr_t>(&allocation[0]));
+	int byteLength = win.CallPointer(SCI_TARGETASUTF8, 0, &allocation[0]);
 	std::string sel(allocation, 0, byteLength);
 	return sel;
 }
@@ -1957,10 +1957,10 @@ static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, b
 std::string SciTEGTK::EncodeString(const std::string &s) {
 	wEditor.Call(SCI_SETLENGTHFORENCODE, s.length());
 	int len = wEditor.Call(SCI_ENCODEDFROMUTF8,
-		reinterpret_cast<uptr_t>(s.c_str()), 0);
+		UptrFromString(s.c_str()), 0);
 	std::vector<char> ret(len+1);
 	wEditor.CallString(SCI_ENCODEDFROMUTF8,
-		reinterpret_cast<uptr_t>(s.c_str()), &ret[0]);
+		UptrFromString(s.c_str()), &ret[0]);
 	return std::string(&ret[0], len);
 }
 
@@ -2604,7 +2604,7 @@ gboolean SciTEGTK::IOSignal(GIOChannel *, GIOCondition, SciTEGTK *scitew) {
 }
 
 void SciTEGTK::ReapChild(GPid pid, gint status, gpointer user_data) {
-	SciTEGTK *self = reinterpret_cast<SciTEGTK*>(user_data);
+	SciTEGTK *self = static_cast<SciTEGTK*>(user_data);
 
 	self->exitStatus = status;
 	self->pidShell = 0;
@@ -4162,7 +4162,7 @@ void FindStrip::FindComboChanged(GtkEditable *, FindStrip *pStrip) {
 }
 
 void FindStrip::ToggleChanged(WCheckDraw *, void *user) {
-	FindStrip *pStrip = reinterpret_cast<FindStrip *>(user);
+	FindStrip *pStrip = static_cast<FindStrip *>(user);
 	pStrip->GrabToggles();
 	pStrip->NextIncremental();
 }
@@ -4422,7 +4422,7 @@ void ReplaceStrip::FindComboChanged(GtkEditable *, ReplaceStrip *pStrip) {
 }
 
 void ReplaceStrip::ToggleChanged(WCheckDraw *, void *user) {
-	ReplaceStrip *pStrip = reinterpret_cast<ReplaceStrip *>(user);
+	ReplaceStrip *pStrip = static_cast<ReplaceStrip *>(user);
 	pStrip->GrabToggles();
 	pStrip->NextIncremental();
 }
@@ -4826,10 +4826,10 @@ void SciTEGTK::LayoutUI() {
 	gtk_paned_pack2(GTK_PANED(splitPane), PWidget(wOutput), FALSE, TRUE);
 
 	g_signal_connect(GTK_WIDGET(splitPane), "button-release-event",
-	                   G_CALLBACK(PaneButtonRelease), reinterpret_cast<char *>(this));
+	                   G_CALLBACK(PaneButtonRelease), static_cast<void *>(this));
 
 	g_signal_connect(G_OBJECT(splitPane), "notify::position",
-	                   G_CALLBACK(PanePositionChanged), reinterpret_cast<char *>(this));
+	                   G_CALLBACK(PanePositionChanged), static_cast<void *>(this));
 
 	if (focusOutput)
 		WindowSetFocus(wOutput);
@@ -4843,7 +4843,7 @@ void SciTEGTK::CreateUI() {
 	CreateBuffers();
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-	char *gthis = reinterpret_cast<char *>(this);
+	void *gthis = static_cast<void *>(this);
 
 	gtk_widget_set_events(PWidget(wSciTE),
 	                      GDK_EXPOSURE_MASK

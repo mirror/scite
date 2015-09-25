@@ -70,7 +70,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 			COPYDATASTRUCT cds;
 			cds.dwData = 0;
 			cds.cbData = static_cast<int>(strlen(slashedMessage));
-			cds.lpData = reinterpret_cast<void *>(
+			cds.lpData = static_cast<void *>(
 			                 const_cast<char *>(slashedMessage));
 			::SendMessage(wDestination, WM_COPYDATA,
 			              reinterpret_cast<WPARAM>(wReceiver),
@@ -112,7 +112,7 @@ static LRESULT HandleCopyData(LPARAM lParam) {
 	// Copy into an temporary buffer to ensure \0 terminated
 	if (pcds->lpData) {
 		char *dataCopy = new char[pcds->cbData + 1];
-		strncpy(dataCopy, reinterpret_cast<char *>(pcds->lpData), pcds->cbData);
+		strncpy(dataCopy, static_cast<char *>(pcds->lpData), pcds->cbData);
 		dataCopy[pcds->cbData] = '\0';
 		DirectorExtension::Instance().HandleStringMessage(dataCopy);
 		delete []dataCopy;

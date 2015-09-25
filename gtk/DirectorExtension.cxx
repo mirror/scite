@@ -173,7 +173,7 @@ static gboolean ReceiverPipeSignal(GIOChannel *source, GIOCondition condition, v
 			status = g_io_channel_read_chars(source, pipeData,
 			        sizeof(pipeData) - 1, &readLength, &error);
 		}
-		DirectorExtension *ext = reinterpret_cast<DirectorExtension *>(data);
+		DirectorExtension *ext = static_cast<DirectorExtension *>(data);
 		ext->HandleStringMessage(pipeString.c_str());
 	}
 #ifndef GDK_VERSION_3_6

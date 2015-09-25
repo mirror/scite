@@ -41,7 +41,7 @@ gui_string StringFromInteger(long i) {
 }
 
 static GtkWidget *PWidget(WindowID wid) {
-	return reinterpret_cast<GtkWidget *>(wid);
+	return static_cast<GtkWidget *>(wid);
 }
 
 void Window::Destroy() {

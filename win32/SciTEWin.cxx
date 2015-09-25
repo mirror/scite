@@ -191,7 +191,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 			const void *pv = ::LockResource(hmem);
 			if (pv) {
 				propsEmbed.ReadFromMemory(
-				    reinterpret_cast<const char *>(pv), size, FilePath(), filter, NULL, 0);
+				    static_cast<const char *>(pv), size, FilePath(), filter, NULL, 0);
 			}
 		}
 		::FreeResource(handProps);
@@ -402,8 +402,8 @@ FILE *scite_lua_popen(const char *filename, const char *mode) {
 void SciTEWin::ReadPropertiesInitial() {
 	SciTEBase::ReadPropertiesInitial();
 	if (tabMultiLine) {	// Windows specific!
-		long wl = ::GetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE);
-		::SetWindowLong(reinterpret_cast<HWND>(wTabBar.GetID()), GWL_STYLE, wl | TCS_MULTILINE);
+		long wl = ::GetWindowLong(HwndOf(wTabBar), GWL_STYLE);
+		::SetWindowLong(HwndOf(wTabBar), GWL_STYLE, wl | TCS_MULTILINE);
 	}
 }
 
@@ -1020,7 +1020,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 			if (doRepSel) {
 				int cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART, 0, 0));
-				wEditor.Send(SCI_REPLACESEL,0,reinterpret_cast<sptr_t>(repSelBuf.c_str()));
+				wEditor.Send(SCI_REPLACESEL,0,SptrFromString(repSelBuf.c_str()));
 				wEditor.Send(SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
 			}
 		}
@@ -1243,12 +1243,12 @@ static void WorkerThread(void *ptr) {
 }
 
 bool SciTEWin::PerformOnNewThread(Worker *pWorker) {
-	uintptr_t result = _beginthread(WorkerThread, 1024 * 1024, reinterpret_cast<void *>(pWorker));
+	uintptr_t result = _beginthread(WorkerThread, 1024 * 1024, static_cast<void *>(pWorker));
 	return result != static_cast<uintptr_t>(-1);
 }
 
 void SciTEWin::PostOnMainThread(int cmd, Worker *pWorker) {
-	::PostMessage(reinterpret_cast<HWND>(wSciTE.GetID()), SCITE_WORKER, cmd, reinterpret_cast<LPARAM>(pWorker));
+	::PostMessage(HwndOf(wSciTE), SCITE_WORKER, cmd, reinterpret_cast<LPARAM>(pWorker));
 }
 
 void SciTEWin::WorkerCommand(int cmd, Worker *pWorker) {
@@ -1326,7 +1326,7 @@ void SciTEWin::CreateUI() {
 	             NULL,
 	             NULL,
 	             hInstance,
-	             reinterpret_cast<LPSTR>(this));
+	             this);
 	if (!wSciTE.Created())
 		exit(FALSE);
 
@@ -1764,7 +1764,7 @@ LRESULT SciTEWin::KeyUp(WPARAM wParam) {
 
 void SciTEWin::AddToPopUp(const char *label, int cmd, bool enabled) {
 	GUI::gui_string localised = localiser.Text(label);
-	HMENU menu = reinterpret_cast<HMENU>(popup.GetID());
+	HMENU menu = static_cast<HMENU>(popup.GetID());
 	if (0 == localised.length())
 		::AppendMenu(menu, MF_SEPARATOR, 0, TEXT(""));
 	else if (enabled)
@@ -1784,7 +1784,7 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 		pt.x = w->Call(SCI_POINTXFROMPOSITION, 0, position);
 		pt.y = w->Call(SCI_POINTYFROMPOSITION, 0, position);
 		POINT spt = {pt.x, pt.y};
-		::ClientToScreen(static_cast<HWND>(w->GetID()), &spt);
+		::ClientToScreen(HwndOf(*w), &spt);
 		pt = GUI::Point(spt.x, spt.y);
 	} else {
 		GUI::Rectangle rcEditor = wEditor.GetPosition();
@@ -1988,12 +1988,12 @@ LRESULT PASCAL SciTEWin::TWndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	// Find C++ object associated with window.
-	SciTEWin *scite = reinterpret_cast<SciTEWin *>(PointerFromWindow(hWnd));
+	SciTEWin *scite = static_cast<SciTEWin *>(PointerFromWindow(hWnd));
 	// scite will be zero if WM_CREATE not seen yet
 	if (scite == 0) {
 		if (iMessage == WM_CREATE) {
 			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
-			scite = reinterpret_cast<SciTEWin *>(cs->lpCreateParams);
+			scite = static_cast<SciTEWin *>(cs->lpCreateParams);
 			scite->wSciTE = hWnd;
 			SetWindowPointer(hWnd, scite);
 			return scite->WndProc(iMessage, wParam, lParam);
@@ -2060,9 +2060,9 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_SETCURSOR:
 		if (ControlIDOfCommand(static_cast<unsigned long>(lParam)) == HTCLIENT) {
 			GUI::Point ptCursor;
-			::GetCursorPos(reinterpret_cast<POINT *>(&ptCursor));
+			::GetCursorPos(PointPointer(&ptCursor));
 			GUI::Point ptClient = ptCursor;
-			::ScreenToClient(pSciTEWin->MainHWND(), reinterpret_cast<POINT *>(&ptClient));
+			::ScreenToClient(pSciTEWin->MainHWND(), PointPointer(&ptClient));
 			GUI::Rectangle rcScintilla = pSciTEWin->wEditor.GetPosition();
 			GUI::Rectangle rcOutput = pSciTEWin->wOutput.GetPosition();
 			if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
@@ -2124,7 +2124,7 @@ uptr_t SciTEWin::EventLoop() {
 		if (going) {
 			if (!ModelessHandler(&msg)) {
 				if (!GetID() ||
-					::TranslateAccelerator(reinterpret_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
+					::TranslateAccelerator(static_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
 					::TranslateMessage(&msg);
 					::DispatchMessageW(&msg);
 				}

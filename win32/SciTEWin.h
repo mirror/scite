@@ -36,6 +36,7 @@
 #define WINVER 0x0501
 #endif
 #include <windows.h>
+#include <windowsx.h>
 #if defined(DISABLE_THEMES) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
 // Old compilers do not have Uxtheme.h
 typedef void *HTHEME;
@@ -317,14 +318,14 @@ protected:
 	void UserStripClosed();
 	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress);
 	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void UIClosed();
 	void PerformGrep();
 	void FillCombos(Dialog &dlg);
 	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void FindIncrement();
 	virtual void Find();
 	virtual void FindInFiles();
@@ -333,25 +334,25 @@ protected:
 	virtual void DestroyFindReplace();
 
 	BOOL GoLineMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void GoLineDialog();
 
 	BOOL AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual bool AbbrevDialog();
 
 	BOOL TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual void TabSizeDialog();
 
 	virtual bool ParametersOpen();
 	void ParamGrab();
 	virtual bool ParametersDialog(bool modal);
 	BOOL ParametersMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 	BOOL AboutMessage(HWND hDlg, UINT message, WPARAM wParam);
-	static BOOL CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	void AboutDialogWithBuild(int staticBuild_);
 
 	void RestorePosition();
@@ -409,10 +410,24 @@ inline bool IsKeyDown(int key) {
 	return (::GetKeyState(key) & 0x80000000) != 0;
 }
 
+// Common minor conversions
+
 inline GUI::Point PointFromLong(LPARAM lPoint) {
 	return GUI::Point(static_cast<short>(LOWORD(lPoint)), static_cast<short>(HIWORD(lPoint)));
 }
 
 inline int ControlIDOfWParam(WPARAM wParam) {
 	return wParam & 0xffff;
+}
+
+inline HWND HwndOf(GUI::Window w) {
+	return static_cast<HWND>(w.GetID());
+}
+
+inline HMENU HmenuID(size_t id) {
+	return reinterpret_cast<HMENU>(id);
+}
+
+inline POINT *PointPointer(GUI::Point *pt) {
+	return reinterpret_cast<POINT *>(pt);
 }

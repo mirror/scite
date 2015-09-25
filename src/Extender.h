@@ -12,6 +12,18 @@
 
 class StyleWriter;
 
+inline sptr_t SptrFromPointer(void *p) {
+	return reinterpret_cast<sptr_t>(p);
+}
+
+inline sptr_t SptrFromString(const char *cp) {
+	return reinterpret_cast<sptr_t>(cp);
+}
+
+inline uptr_t UptrFromString(const char *cp) {
+	return reinterpret_cast<uptr_t>(cp);
+}
+
 class ExtensionAPI {
 public:
 	virtual ~ExtensionAPI() {

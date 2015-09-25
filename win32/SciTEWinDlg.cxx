@@ -116,14 +116,14 @@ void SciTEWin::WarnUser(int warnID) {
 
 	int flashLen = atoi(flashDuration);
 	if (flashLen) {
-		FlashThisWindow(reinterpret_cast<HWND>(wEditor.GetID()), flashLen);
+		FlashThisWindow(HwndOf(wEditor), flashLen);
 	}
 	PlayThisSound(sound, atoi(soundDuration), hMM);
 }
 
 bool SciTEWin::DialogHandled(GUI::WindowID id, MSG *pmsg) {
 	if (id) {
-		if (	::IsDialogMessageW(reinterpret_cast<HWND>(id), pmsg))
+		if (::IsDialogMessageW(static_cast<HWND>(id), pmsg))
 			return true;
 	}
 	return false;
@@ -682,9 +682,9 @@ void SciTEWin::Print(
 		frPrint.chrg.cpMin = lengthPrinted;
 		frPrint.chrg.cpMax = lengthDoc;
 
-		lengthPrinted = wEditor.Call(SCI_FORMATRANGE,
+		lengthPrinted = wEditor.CallPointer(SCI_FORMATRANGE,
 		                           printPage,
-		                           reinterpret_cast<LPARAM>(&frPrint));
+		                           &frPrint);
 
 		if (printPage) {
 			if (footerFormat.size()) {
@@ -813,8 +813,7 @@ public:
 		::SendMessage(combo, CB_RESETCONTENT, 0, 0);
 		for (int i = 0; i < mem.Length(); i++) {
 			GUI::gui_string gs = GUI::StringFromUTF8(mem.At(i));
-			::SendMessageW(combo, CB_ADDSTRING, 0,
-				       reinterpret_cast<LPARAM>(gs.c_str()));
+			ComboBox_AddString(combo, gs.c_str());
 		}
 		if (useTop) {
 			::SendMessage(combo, CB_SETCURSEL, 0, 0);
@@ -828,10 +827,10 @@ static void FillComboFromProps(HWND combo, PropSetFile &props) {
 	const char *val;
 	if (props.GetFirst(key, val)) {
 		GUI::gui_string wkey = GUI::StringFromUTF8(key);
-		::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(wkey.c_str()));
+		ComboBox_AddString(combo, wkey.c_str());
 		while (props.GetNext(key, val)) {
 			wkey = GUI::StringFromUTF8(key);
-			::SendMessage(combo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(wkey.c_str()));
+			ComboBox_AddString(combo, wkey.c_str());
 		}
 	}
 }
@@ -976,14 +975,14 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK SciTEWin::FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Caller(hDlg, message, lParam)->FindMessage(hDlg, message, wParam);
 }
 
 BOOL SciTEWin::HandleReplaceCommand(int cmd, bool reverseDirection) {
 	if (!wFindReplace.GetID())
 		return TRUE;
-	HWND hwndFR = reinterpret_cast<HWND>(wFindReplace.GetID());
+	HWND hwndFR = HwndOf(wFindReplace);
 	DialogFindReplace dlg(hwndFR, FindReplaceAdvanced());
 	dlg.SetSearcher(this);
 
@@ -1054,7 +1053,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK SciTEWin::ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Caller(hDlg, message, lParam)->ReplaceMessage(hDlg, message, wParam);
 }
 
@@ -1093,7 +1092,7 @@ void SciTEWin::Find() {
 	if (wFindReplace.Created()) {
 		if (!replacing) {
 			SelectionIntoFind();
-			HWND hDlg = reinterpret_cast<HWND>(wFindReplace.GetID());
+			HWND hDlg = HwndOf(wFindReplace);
 			Dialog dlg(hDlg);
 			dlg.SetItemTextU(IDFINDWHAT, findWhat);
 			::SetFocus(hDlg);
@@ -1122,7 +1121,7 @@ void SciTEWin::Find() {
 		wFindReplace = ::CreateDialogParamW(hInstance,
 											(LPCWSTR)MAKEINTRESOURCE(dialog_id),
 											MainHWND(),
-											reinterpret_cast<DLGPROC>(FindDlg),
+											FindDlg,
 											reinterpret_cast<LPARAM>(this));
 		wFindReplace.Show();
 	}
@@ -1299,14 +1298,14 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK SciTEWin::GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Caller(hDlg, message, lParam)->GrepMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::FindInFiles() {
 	SelectionIntoFind();
 	if (wFindInFiles.Created()) {
-		HWND hDlg = reinterpret_cast<HWND>(wFindInFiles.GetID());
+		HWND hDlg = HwndOf(wFindInFiles);
 		Dialog dlg(hDlg);
 		dlg.SetItemTextU(IDFINDWHAT, findWhat);
 		::SetFocus(hDlg);
@@ -1323,7 +1322,7 @@ void SciTEWin::FindInFiles() {
 	}
 
 	wFindInFiles = ::CreateDialogParam(hInstance, TEXT("Grep"), MainHWND(),
-		reinterpret_cast<DLGPROC>(GrepDlg), reinterpret_cast<sptr_t>(this));
+		GrepDlg, reinterpret_cast<sptr_t>(this));
 	wFindInFiles.Show();
 }
 
@@ -1331,7 +1330,7 @@ void SciTEWin::Replace() {
 	if (wFindReplace.Created()) {
 		if (replacing) {
 			SelectionIntoFind(false);
-			HWND hDlg = reinterpret_cast<HWND>(wFindReplace.GetID());
+			HWND hDlg = HwndOf(wFindReplace);
 			Dialog dlg(hDlg);
 			dlg.SetItemTextU(IDFINDWHAT, findWhat);
 			::SetFocus(hDlg);
@@ -1361,7 +1360,7 @@ void SciTEWin::Replace() {
 		wFindReplace = ::CreateDialogParamW(hInstance,
 											(LPCWSTR)MAKEINTRESOURCE(dialog_id),
 											MainHWND(),
-											reinterpret_cast<DLGPROC>(ReplaceDlg),
+											ReplaceDlg,
 											reinterpret_cast<sptr_t>(this));
 		wFindReplace.Show();
 	}
@@ -1373,7 +1372,7 @@ void SciTEWin::FindReplace(bool replace) {
 
 void SciTEWin::DestroyFindReplace() {
 	if (wFindReplace.Created()) {
-		::EndDialog(reinterpret_cast<HWND>(wFindReplace.GetID()), IDCANCEL);
+		::EndDialog(HwndOf(wFindReplace), IDCANCEL);
 		wFindReplace.Destroy();
 	}
 }
@@ -1442,12 +1441,12 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Caller(hDlg, message, lParam)->GoLineMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::GoLineDialog() {
-	DoDialog(hInstance, TEXT("GoLine"), MainHWND(), reinterpret_cast<DLGPROC>(GoLineDlg));
+	DoDialog(hInstance, TEXT("GoLine"), MainHWND(), GoLineDlg);
 	WindowSetFocus(wEditor);
 }
 
@@ -1479,13 +1478,12 @@ BOOL SciTEWin::AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Caller(hDlg, message, lParam)->AbbrevMessage(hDlg, message, wParam);
 }
 
 bool SciTEWin::AbbrevDialog() {
-	bool success = (DoDialog(hInstance, TEXT("InsAbbrev"), MainHWND(),
-		reinterpret_cast<DLGPROC>(AbbrevDlg)) == IDOK);
+	bool success = (DoDialog(hInstance, TEXT("InsAbbrev"), MainHWND(), AbbrevDlg) == IDOK);
 	WindowSetFocus(wEditor);
 	return success;
 }
@@ -1544,12 +1542,12 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Caller(hDlg, message, lParam)->TabSizeMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::TabSizeDialog() {
-	DoDialog(hInstance, TEXT("TabSize"), MainHWND(), reinterpret_cast<DLGPROC>(TabSizeDlg));
+	DoDialog(hInstance, TEXT("TabSize"), MainHWND(), TabSizeDlg);
 	WindowSetFocus(wEditor);
 }
 
@@ -1559,7 +1557,7 @@ bool SciTEWin::ParametersOpen() {
 
 void SciTEWin::ParamGrab() {
 	if (wParameters.Created()) {
-		HWND hDlg = reinterpret_cast<HWND>(wParameters.GetID());
+		HWND hDlg = HwndOf(wParameters);
 		Dialog dlg(hDlg);
 		for (int param = 0; param < maxParam; param++) {
 			std::string paramVal = GUI::UTF8FromString(dlg.ItemTextG(IDPARAMSTART + param));
@@ -1614,7 +1612,7 @@ BOOL SciTEWin::ParametersMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK SciTEWin::ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Caller(hDlg, message, lParam)->ParametersMessage(hDlg, message, wParam);
 }
 
@@ -1632,14 +1630,14 @@ bool SciTEWin::ParametersDialog(bool modal) {
 		success = DoDialog(hInstance,
 		                   TEXT("PARAMETERS"),
 		                   MainHWND(),
-		                   reinterpret_cast<DLGPROC>(ParametersDlg)) == IDOK;
+		                   ParametersDlg) == IDOK;
 		wParameters = 0;
 		WindowSetFocus(wEditor);
 	} else {
 		::CreateDialogParam(hInstance,
 		                    TEXT("PARAMETERSNONMODAL"),
 		                    MainHWND(),
-		                    reinterpret_cast<DLGPROC>(ParametersDlg),
+		                    ParametersDlg,
 		                    reinterpret_cast<LPARAM>(this));
 		wParameters.Show();
 	}
@@ -1649,7 +1647,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 
 SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style) {
 	dialogsOnScreen++;
-	int ret = ::MessageBoxW(reinterpret_cast<HWND>(w.GetID()), msg.c_str(), appName, style | MB_SETFOREGROUND);
+	int ret = ::MessageBoxW(HwndOf(w), msg.c_str(), appName, style | MB_SETFOREGROUND);
 	dialogsOnScreen--;
 	switch (ret) {
 	case IDOK:
@@ -1718,13 +1716,12 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	return FALSE;
 }
 
-BOOL CALLBACK SciTEWin::AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK SciTEWin::AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Caller(hDlg, message, lParam)->AboutMessage(hDlg, message, wParam);
 }
 
 void SciTEWin::AboutDialogWithBuild(int staticBuild_) {
 	staticBuild = staticBuild_;
-	DoDialog(hInstance, TEXT("About"), MainHWND(),
-	         reinterpret_cast<DLGPROC>(AboutDlg));
+	DoDialog(hInstance, TEXT("About"), MainHWND(), AboutDlg);
 	WindowSetFocus(wEditor);
 }

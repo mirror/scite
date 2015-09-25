@@ -347,9 +347,9 @@ void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	if (props.Exists(key)) {
 		std::string value = props.GetExpandedString(key);
 		wEditor.CallString(SCI_SETPROPERTY,
-						 reinterpret_cast<uptr_t>(key), value.c_str());
+						 UptrFromString(key), value.c_str());
 		wOutput.CallString(SCI_SETPROPERTY,
-						 reinterpret_cast<uptr_t>(key), value.c_str());
+						 UptrFromString(key), value.c_str());
 	}
 }
 
@@ -634,8 +634,7 @@ void SciTEBase::ReadProperties() {
 				wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, "lpeg");
 				lexLPeg = wEditor.Call(SCI_GETLEXER);
 				const char *lexer = language.c_str() + language.find("_") + 1;
-				wEditor.CallReturnPointer(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE,
-					reinterpret_cast<sptr_t>(lexer));
+				wEditor.CallString(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE, lexer);
 			}
 		} else {
 			wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
@@ -1215,8 +1214,7 @@ void SciTEBase::ReadProperties() {
 		wEditor.Call(SCI_MARKERDEFINE, markerBookmark, SC_MARK_BOOKMARK);
 	} else {
 		// No bookmark.fore setting so display default pixmap.
-		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
-			reinterpret_cast<char *>(bookmarkBluegem));
+		wEditor.CallPointer(SCI_MARKERDEFINEPIXMAP, markerBookmark, bookmarkBluegem);
 	}
 
 	wEditor.Call(SCI_SETSCROLLWIDTH, props.GetInt("horizontal.scroll.width", 2000));
@@ -1302,7 +1300,7 @@ void SciTEBase::ReadFontProperties() {
 		char propStr[256];
 		for (int i = 0; i < STYLE_MAX; i++) {
 			sprintf(key, "style.lpeg.%0d", i);
-			wEditor.Send(SCI_PRIVATELEXERCALL, i - STYLE_MAX, reinterpret_cast<sptr_t>(propStr));
+			wEditor.CallPointer(SCI_PRIVATELEXERCALL, i - STYLE_MAX, propStr);
 			props.Set(key, static_cast<const char *>(propStr));
 		}
 		languageName = "lpeg";

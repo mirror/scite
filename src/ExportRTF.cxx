@@ -260,7 +260,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 			const int nextPosition = wEditor.Call(SCI_POSITIONAFTER, iPos);
 			wEditor.Call(SCI_SETTARGETRANGE, iPos, nextPosition);
 			unsigned char u8Char[5] = "";
-			wEditor.CallString(SCI_TARGETASUTF8, 0, reinterpret_cast<char *>(u8Char));
+			wEditor.CallPointer(SCI_TARGETASUTF8, 0, u8Char);
 			unsigned int u32 = UTF32Character(u8Char);
 			if (u32 < 0x10000) {
 				os << "\\u" << static_cast<short>(u32) << "?";

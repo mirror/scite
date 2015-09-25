@@ -180,6 +180,9 @@ public:
 			throw ScintillaFailure(status);
 		return retVal;
 	}
+	int CallPointer(unsigned int msg, uptr_t wParam, void *s) {
+		return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
+	}
 	int CallString(unsigned int msg, uptr_t wParam, const char *s) {
 		return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
 	}
