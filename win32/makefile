@@ -36,7 +36,7 @@ PROG	= ../bin/SciTE.exe
 PROGSTATIC = ../bin/Sc1.exe
 WIDEFLAGS=-DUNICODE -D_UNICODE
 
-vpath %.h ../src ../../scintilla/include ../../scintilla/win32
+vpath %.h ../src ../../scintilla/include
 vpath %.cxx ../src
 vpath %.o ../../scintilla/win32
 vpath %.a ../../scintilla/win32
@@ -60,8 +60,8 @@ else
 LUA_DEFINES = -DNO_LUA
 endif
 
-INCLUDEDIRS=-I ../../scintilla/include -I ../../scintilla/win32 -I ../src $(LUA_INCLUDES)
-RCINCLUDEDIRS=--include-dir ../../scintilla/win32 --include-dir ../src
+INCLUDEDIRS=-I ../../scintilla/include -I ../src $(LUA_INCLUDES)
+RCINCLUDEDIRS=--include-dir ../src
 
 CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS) $(VERSION_DEFINES)
 
