@@ -252,7 +252,9 @@ std::string SciTEBase::GetTranslationToAbout(const char * const propname, bool r
 }
 
 void SciTEBase::ViewWhitespace(bool view) {
-	if (view && indentationWSVisible)
+	if (view && indentationWSVisible == 2)
+		wEditor.Call(SCI_SETVIEWWS, SCWS_VISIBLEONLYININDENT);
+	else if (view && indentationWSVisible)
 		wEditor.Call(SCI_SETVIEWWS, SCWS_VISIBLEALWAYS);
 	else if (view)
 		wEditor.Call(SCI_SETVIEWWS, SCWS_VISIBLEAFTERINDENT);

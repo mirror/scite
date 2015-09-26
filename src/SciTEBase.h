@@ -450,7 +450,7 @@ protected:
 	int bracesStyle;
 	int braceCount;
 
-	bool indentationWSVisible;
+	int indentationWSVisible;
 	int indentExamine;
 	bool autoCompleteIgnoreCase;
 	bool imeAutoComplete;
