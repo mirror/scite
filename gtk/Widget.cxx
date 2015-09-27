@@ -658,7 +658,7 @@ bool Strip::KeyDown(GdkEventKey *event) {
 }
 
 void Strip::MenuSignal(GtkMenuItem *menuItem, Strip *pStrip) {
-	sptr_t cmd = (sptr_t)(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
+	sptr_t cmd = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
 	pStrip->MenuAction(cmd);
 }
 
@@ -667,7 +667,7 @@ void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checke
 	GUI::gui_string localised = localiser->Text(label);
 	GtkWidget *menuItem = gtk_check_menu_item_new_with_mnemonic(localised.c_str());
 	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
-	g_object_set_data(G_OBJECT(menuItem), "CmdNum", reinterpret_cast<void *>((sptr_t)(cmd)));
+	g_object_set_data(G_OBJECT(menuItem), "CmdNum", GINT_TO_POINTER(cmd));
 	g_signal_connect(G_OBJECT(menuItem),"activate", G_CALLBACK(MenuSignal), this);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuItem), checked ? TRUE : FALSE);
 	allowMenuActions = true;

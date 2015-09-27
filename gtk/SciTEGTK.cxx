@@ -145,7 +145,7 @@ struct SciTEItemFactoryEntry {
 	const char *path;
 	const char *accelerator;
 	GCallback callback;
-	unsigned int callback_action;
+	int callback_action;
 	const char *item_type;
 };
 
@@ -557,10 +557,10 @@ protected:
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
 
-	static gboolean TimerTick(SciTEGTK *scitew);
+	static gboolean TimerTick(gpointer pSciTE);
 	virtual void TimerStart(int mask);
 	virtual void TimerEnd(int mask);
-	static gboolean IdlerTick(SciTEGTK *scitew);
+	static gboolean IdlerTick(gpointer pSciTE);
 	virtual void SetIdler(bool on);
 
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
@@ -824,14 +824,14 @@ static void destroyDialog(GtkWidget *, gpointer *window) {
 void SciTEGTK::WarnUser(int) {}
 
 static GtkWidget *messageBoxDialog = 0;
-static long messageBoxResult = 0;
+static int messageBoxResult = 0;
 
 static gint messageBoxKey(GtkWidget *w, GdkEventKey *event, gpointer p) {
 	if (event->keyval == GKEY_Escape) {
 		g_signal_stop_emission_by_name(G_OBJECT(w), "key_press_event");
 		gtk_widget_destroy(GTK_WIDGET(w));
 		messageBoxDialog = 0;
-		messageBoxResult = reinterpret_cast<long>(p);
+		messageBoxResult = GPOINTER_TO_INT(p);
 	}
 	return FALSE;
 }
@@ -844,7 +844,7 @@ static void messageBoxDestroy(GtkWidget *, gpointer *) {
 static void messageBoxOK(GtkWidget *, gpointer p) {
 	gtk_widget_destroy(GTK_WIDGET(messageBoxDialog));
 	messageBoxDialog = 0;
-	messageBoxResult = reinterpret_cast<long>(p);
+	messageBoxResult = GPOINTER_TO_INT(p);
 }
 
 GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
@@ -864,7 +864,7 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	                           key, GdkModifierType(0), (GtkAccelFlags)0);
 	}
 	g_signal_connect(G_OBJECT(button), "clicked",
-		G_CALLBACK(messageBoxOK), reinterpret_cast<gpointer>(val));
+		G_CALLBACK(messageBoxOK), GINT_TO_POINTER(val));
 #if GTK_CHECK_VERSION(3,0,0)
 #if !GTK_CHECK_VERSION(3,14,0)
 	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(dialog))),
@@ -1181,7 +1181,8 @@ void SciTEGTK::ReadProperties() {
 	ShowTabBar();
 }
 
-gboolean SciTEGTK::TimerTick(SciTEGTK *scitew) {
+gboolean SciTEGTK::TimerTick(gpointer pSciTE) {
+	SciTEGTK *scitew = static_cast<SciTEGTK *>(pSciTE);
 	scitew->OnTimer();
 	return TRUE;
 }
@@ -1191,7 +1192,7 @@ void SciTEGTK::TimerStart(int mask) {
 	if (timerMask != maskNew) {
 		if (timerMask == 0) {
 			// Create a 1 second ticker
-			timerID = g_timeout_add(1000, reinterpret_cast<GSourceFunc>(TimerTick), this);
+			timerID = g_timeout_add(1000, TimerTick, this);
 		}
 		timerMask = maskNew;
 	}
@@ -1208,7 +1209,8 @@ void SciTEGTK::TimerEnd(int mask) {
 	}
 }
 
-gboolean SciTEGTK::IdlerTick(SciTEGTK *scitew) {
+gboolean SciTEGTK::IdlerTick(gpointer pSciTE) {
+	SciTEGTK *scitew = static_cast<SciTEGTK *>(pSciTE);
 	scitew->OnIdle();
 	return TRUE;
 }
@@ -1218,7 +1220,7 @@ void SciTEGTK::SetIdler(bool on) {
 		needIdle = on;
 		if (needIdle) {
 			idlerID = g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
-					reinterpret_cast<GSourceFunc>(IdlerTick), this, NULL);
+					IdlerTick, this, NULL);
 		} else {
 			if (idlerID) {
 				g_source_remove(idlerID);
@@ -1332,7 +1334,7 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 		if (itemID >= IDM_TOOLS && itemID < IDM_TOOLS + toolMax) {
 			// Stow the keycode for later retrieval.
 			// Do this even if 0, in case the menu already existed (e.g. ModifyMenu)
-			g_object_set_data(G_OBJECT(item), "key", reinterpret_cast<gpointer>(keycode));
+			g_object_set_data(G_OBJECT(item), "key", GINT_TO_POINTER(static_cast<int>(keycode)));
 		}
 	}
 }
@@ -3113,7 +3115,7 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 		}
 		g_signal_connect(G_OBJECT(messageBoxDialog),
 		                   "key_press_event", G_CALLBACK(messageBoxKey),
-		                   reinterpret_cast<gpointer>(escapeResult));
+		                   GINT_TO_POINTER(escapeResult));
 
 		if (style & mbsAboutBox) {
 			GtkWidget *explanation = scintilla_new();
@@ -3259,7 +3261,7 @@ void SciTEGTK::ButtonSignal(GtkWidget *, gpointer data) {
 
 void SciTEGTK::MenuSignal(GtkMenuItem *menuitem, SciTEGTK *scitew) {
 	if (scitew->allowMenuActions) {
-		guint action = (guint)(sptr_t)(g_object_get_data(G_OBJECT(menuitem), "CmdNum"));
+		gint action = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuitem), "CmdNum"));
 		scitew->Command(action);
 	}
 }
@@ -3369,7 +3371,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	for (int tool_i = 0; tool_i < toolMax; ++tool_i) {
 		GtkWidget *item = MenuItemFromAction(IDM_TOOLS + tool_i);
 		if (item) {
-			long keycode = reinterpret_cast<long>(g_object_get_data(G_OBJECT(item), "key"));
+			long keycode = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "key"));
 			if (keycode && SciTEKeys::MatchKeyCode(keycode, event->keyval, modifiers)) {
 				SciTEBase::MenuCommand(IDM_TOOLS + tool_i);
 				return 1;
@@ -3403,7 +3405,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 }
 
 void SciTEGTK::PopUpCmd(GtkMenuItem *menuItem, SciTEGTK *scitew) {
-	sptr_t cmd = (sptr_t)(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
+	sptr_t cmd = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuItem), "CmdNum"));
 	scitew->Command(cmd);
 }
 
@@ -3415,7 +3417,7 @@ void SciTEGTK::AddToPopUp(const char *label, int cmd, bool enabled) {
 	else
 		menuItem = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(popup.GetID()), menuItem);
-	g_object_set_data(G_OBJECT(menuItem), "CmdNum", reinterpret_cast<void *>((sptr_t)(cmd)));
+	g_object_set_data(G_OBJECT(menuItem), "CmdNum", GINT_TO_POINTER(cmd));
 	g_signal_connect(G_OBJECT(menuItem),"activate", G_CALLBACK(PopUpCmd), this);
 
 	if (cmd) {
@@ -3732,7 +3734,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 				}
 			}
 			g_object_set_data(G_OBJECT(menuItemCommand), "CmdNum",
-				reinterpret_cast<void *>(psife->callback_action));
+				GINT_TO_POINTER(psife->callback_action));
 			g_signal_connect(G_OBJECT(menuItemCommand),"activate", G_CALLBACK(MenuSignal), this);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menuParent), menuItemCommand);
 			mapMenuItemFromId[psife->callback_action] = menuItemCommand;
@@ -4668,7 +4670,7 @@ void UserStrip::SetDescription(const char *description) {
 			case UserControl::ucButton:
 			case UserControl::ucDefaultButton: {
 					WButton wb;
-					wb.Create(sCaption.c_str(), reinterpret_cast<GCallback>(UserStrip::ClickSignal), this);
+					wb.Create(sCaption.c_str(), G_CALLBACK(UserStrip::ClickSignal), this);
 					puc->w.SetID(wb.GetID());
 					tableUser.Add(wb, 1, false, 0, 0);
 					if (puc->controlType == UserControl::ucDefaultButton) {

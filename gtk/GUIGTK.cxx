@@ -112,7 +112,7 @@ void Menu::Destroy() {
 }
 
 static void  MenuPositionFunc(GtkMenu *, gint *x, gint *y, gboolean *, gpointer userData) {
-	sptr_t intFromPointer = reinterpret_cast<sptr_t>(userData);
+	sptr_t intFromPointer = GPOINTER_TO_INT(userData);
 	*x = intFromPointer & 0xffff;
 	*y = intFromPointer >> 16;
 }
@@ -120,7 +120,7 @@ static void  MenuPositionFunc(GtkMenu *, gint *x, gint *y, gboolean *, gpointer 
 void Menu::Show(Point pt, Window &) {
 	int screenHeight = gdk_screen_height();
 	int screenWidth = gdk_screen_width();
-	GtkMenu *widget = reinterpret_cast<GtkMenu *>(mid);
+	GtkMenu *widget = static_cast<GtkMenu *>(mid);
 	gtk_widget_show_all(GTK_WIDGET(widget));
 	GtkRequisition requisition;
 #if GTK_CHECK_VERSION(3,0,0)
@@ -135,7 +135,7 @@ void Menu::Show(Point pt, Window &) {
 		pt.y = screenHeight - requisition.height;
 	}
 	gtk_menu_popup(widget, NULL, NULL, MenuPositionFunc,
-		reinterpret_cast<void *>((pt.y << 16) | pt.x), 0,
+		GINT_TO_POINTER((pt.y << 16) | pt.x), 0,
 		gtk_get_current_event_time());
 }
 
