@@ -947,10 +947,11 @@ void SciTEBase::ReadProperties() {
 	jobQueue.timeCommands = props.GetInt("time.commands");
 
 	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
+	int blankMarginLeftOutput = props.GetInt("output.blank.margin.left", blankMarginLeft);
 	int blankMarginRight = props.GetInt("blank.margin.right", 1);
 	wEditor.Call(SCI_SETMARGINLEFT, 0, blankMarginLeft);
 	wEditor.Call(SCI_SETMARGINRIGHT, 0, blankMarginRight);
-	wOutput.Call(SCI_SETMARGINLEFT, 0, blankMarginLeft);
+	wOutput.Call(SCI_SETMARGINLEFT, 0, blankMarginLeftOutput);
 	wOutput.Call(SCI_SETMARGINRIGHT, 0, blankMarginRight);
 
 	marginWidth = props.GetInt("margin.width");
