@@ -251,7 +251,8 @@ protected:
 	void LocaliseControl(HWND w);
 	void LocaliseDialog(HWND wDialog);
 
-	int DoDialog(HINSTANCE hInst, const TCHAR *resName, HWND hWnd, DLGPROC lpProc);
+	int DoDialog(const TCHAR *resName, DLGPROC lpProc);
+	HWND CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc);
 	GUI::gui_string DialogFilterFromProperty(const GUI::gui_char *filterProperty);
 	void CheckCommonDialogError();
 	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filesFilter);

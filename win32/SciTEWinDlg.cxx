@@ -170,19 +170,28 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 }
 
 //  DoDialog is a bit like something in PC Magazine May 28, 1991, page 357
-int SciTEWin::DoDialog(HINSTANCE hInst, const TCHAR *resName, HWND hWnd, DLGPROC lpProc) {
+int SciTEWin::DoDialog(const TCHAR *resName, DLGPROC lpProc) {
 	int result = static_cast<int>(
-		::DialogBoxParam(hInst, resName, hWnd, lpProc, reinterpret_cast<LPARAM>(this)));
+		::DialogBoxParam(hInstance, resName, MainHWND(), lpProc, reinterpret_cast<LPARAM>(this)));
 
 	if (result == -1) {
 		GUI::gui_string errorNum = GUI::StringFromInteger(::GetLastError());
 		GUI::gui_string msg = LocaliseMessage("Failed to create dialog box: ^0.", errorNum.c_str());
-		::MessageBoxW(hWnd, msg.c_str(), appName, MB_OK | MB_SETFOREGROUND);
+		::MessageBoxW(MainHWND(), msg.c_str(), appName, MB_OK | MB_SETFOREGROUND);
 	}
+
+	WindowSetFocus(wEditor);
 
 	return result;
 }
 
+HWND SciTEWin::CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc) {
+	return ::CreateDialogParamW(hInstance,
+		lpTemplateName,
+		MainHWND(),
+		lpProc,
+		reinterpret_cast<LPARAM>(this));
+}
 
 GUI::gui_string SciTEWin::DialogFilterFromProperty(const GUI::gui_char *filterProperty) {
 	GUI::gui_string filterText = filterProperty;
@@ -1116,13 +1125,8 @@ void SciTEWin::Find() {
 
 		replacing = false;
 
-		int dialog_id = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
-
-		wFindReplace = ::CreateDialogParamW(hInstance,
-											(LPCWSTR)MAKEINTRESOURCE(dialog_id),
-											MainHWND(),
-											FindDlg,
-											reinterpret_cast<LPARAM>(this));
+		const int dialogID = FindReplaceAdvanced() ? IDD_FIND_ADV : IDD_FIND;
+		wFindReplace = CreateParameterisedDialog(MAKEINTRESOURCE(dialogID), FindDlg);
 		wFindReplace.Show();
 	}
 }
@@ -1320,9 +1324,7 @@ void SciTEWin::FindInFiles() {
 		FilePath findInDir = filePath.Directory();
 		props.Set("find.directory", findInDir.AsUTF8().c_str());
 	}
-
-	wFindInFiles = ::CreateDialogParam(hInstance, TEXT("Grep"), MainHWND(),
-		GrepDlg, reinterpret_cast<sptr_t>(this));
+	wFindInFiles = CreateParameterisedDialog(TEXT("Grep"), GrepDlg);
 	wFindInFiles.Show();
 }
 
@@ -1352,16 +1354,12 @@ void SciTEWin::Replace() {
 	} else {
 		if (searchStrip.visible || findStrip.visible)
 			return;
-		int dialog_id = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
 
 		replacing = true;
 		havefound = false;
 
-		wFindReplace = ::CreateDialogParamW(hInstance,
-											(LPCWSTR)MAKEINTRESOURCE(dialog_id),
-											MainHWND(),
-											ReplaceDlg,
-											reinterpret_cast<sptr_t>(this));
+		const int dialogID = (!props.GetInt("find.replace.advanced") ? IDD_REPLACE : IDD_REPLACE_ADV);
+		wFindReplace = CreateParameterisedDialog(MAKEINTRESOURCE(dialogID), ReplaceDlg);
 		wFindReplace.Show();
 	}
 }
@@ -1446,8 +1444,7 @@ INT_PTR CALLBACK SciTEWin::GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPA
 }
 
 void SciTEWin::GoLineDialog() {
-	DoDialog(hInstance, TEXT("GoLine"), MainHWND(), GoLineDlg);
-	WindowSetFocus(wEditor);
+	DoDialog(TEXT("GoLine"), GoLineDlg);
 }
 
 BOOL SciTEWin::AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam) {
@@ -1483,9 +1480,7 @@ INT_PTR CALLBACK SciTEWin::AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPA
 }
 
 bool SciTEWin::AbbrevDialog() {
-	bool success = (DoDialog(hInstance, TEXT("InsAbbrev"), MainHWND(), AbbrevDlg) == IDOK);
-	WindowSetFocus(wEditor);
-	return success;
+	return DoDialog(TEXT("InsAbbrev"), AbbrevDlg) == IDOK;
 }
 
 BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
@@ -1547,8 +1542,7 @@ INT_PTR CALLBACK SciTEWin::TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LP
 }
 
 void SciTEWin::TabSizeDialog() {
-	DoDialog(hInstance, TEXT("TabSize"), MainHWND(), TabSizeDlg);
-	WindowSetFocus(wEditor);
+	DoDialog(TEXT("TabSize"), TabSizeDlg);
 }
 
 bool SciTEWin::ParametersOpen() {
@@ -1627,18 +1621,10 @@ bool SciTEWin::ParametersDialog(bool modal) {
 	bool success = false;
 	modalParameters = modal;
 	if (modal) {
-		success = DoDialog(hInstance,
-		                   TEXT("PARAMETERS"),
-		                   MainHWND(),
-		                   ParametersDlg) == IDOK;
+		success = DoDialog(TEXT("PARAMETERS"), ParametersDlg) == IDOK;
 		wParameters = 0;
-		WindowSetFocus(wEditor);
 	} else {
-		::CreateDialogParam(hInstance,
-		                    TEXT("PARAMETERSNONMODAL"),
-		                    MainHWND(),
-		                    ParametersDlg,
-		                    reinterpret_cast<LPARAM>(this));
+		CreateParameterisedDialog(TEXT("PARAMETERSNONMODAL"), ParametersDlg);
 		wParameters.Show();
 	}
 
@@ -1722,6 +1708,5 @@ INT_PTR CALLBACK SciTEWin::AboutDlg(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
 void SciTEWin::AboutDialogWithBuild(int staticBuild_) {
 	staticBuild = staticBuild_;
-	DoDialog(hInstance, TEXT("About"), MainHWND(), AboutDlg);
-	WindowSetFocus(wEditor);
+	DoDialog(TEXT("About"), AboutDlg);
 }
