@@ -641,14 +641,14 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		return 0;
 
 	case WM_CTLCOLOREDIT:
-		return EditColour((HWND) lParam, (HDC)wParam);
+		return EditColour(reinterpret_cast<HWND>(lParam), reinterpret_cast<HDC>(wParam));
 
 	case WM_NOTIFY: {
 			NMHDR *pnmh = reinterpret_cast<LPNMHDR>(lParam);
 			if (pnmh->code == static_cast<unsigned int>(NM_CUSTOMDRAW)) {
 				return CustomDraw(pnmh);
 			} else if (pnmh->code == static_cast<unsigned int>(TTN_GETDISPINFO)) {
-				NMTTDISPINFOW *pnmtdi = (LPNMTTDISPINFO) lParam;
+				NMTTDISPINFOW *pnmtdi = reinterpret_cast<LPNMTTDISPINFO>(lParam);
 				int idButton = static_cast<int>(
 					(pnmtdi->uFlags & TTF_IDISHWND) ?
 					::GetDlgCtrlID(reinterpret_cast<HWND>(pnmtdi->hdr.idFrom)) : pnmtdi->hdr.idFrom);
