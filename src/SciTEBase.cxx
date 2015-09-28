@@ -869,11 +869,8 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 		// the expression to search...
 		findWhat = sel;
 		if (unSlash) {
-			char *slashedFind = Slash(findWhat.c_str(), false);
-			if (slashedFind) {
-				findWhat = slashedFind;
-				delete []slashedFind;
-			}
+			std::string slashedFind = Slash(findWhat, false);
+			findWhat = slashedFind;
 		}
 	}
 	// else findWhat remains the same as last time.

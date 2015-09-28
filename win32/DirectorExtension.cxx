@@ -65,18 +65,15 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 		addressedMessage += ":";
 		if (arg)
 			addressedMessage += arg;
-		char *slashedMessage = Slash(addressedMessage.c_str(), false);
-		if (slashedMessage) {
-			COPYDATASTRUCT cds;
-			cds.dwData = 0;
-			cds.cbData = static_cast<int>(strlen(slashedMessage));
-			cds.lpData = static_cast<void *>(
-			                 const_cast<char *>(slashedMessage));
-			::SendMessage(wDestination, WM_COPYDATA,
-			              reinterpret_cast<WPARAM>(wReceiver),
-			              reinterpret_cast<LPARAM>(&cds));
-			delete []slashedMessage;
-		}
+		std::string slashedMessage = Slash(addressedMessage, false);
+		COPYDATASTRUCT cds;
+		cds.dwData = 0;
+		cds.cbData = static_cast<int>(slashedMessage.length());
+		cds.lpData = static_cast<void *>(
+			                const_cast<char *>(slashedMessage.c_str()));
+		::SendMessage(wDestination, WM_COPYDATA,
+			            reinterpret_cast<WPARAM>(wReceiver),
+			            reinterpret_cast<LPARAM>(&cds));
 	}
 }
 

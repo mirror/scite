@@ -166,56 +166,39 @@ unsigned int UTF32Character(const unsigned char *utf8) {
 
 /**
  * Convert a string into C string literal form using \a, \b, \f, \n, \r, \t, \v, and \ooo.
- * The return value is a newly allocated character array containing the result.
- * 4 bytes are allocated for each byte of the input because that is the maximum
- * expansion needed when all of the input needs to be output using the octal form.
- * The return value should be deleted with delete[].
  */
-char *Slash(const char *s, bool quoteQuotes) {
-	char *oRet = new char[strlen(s) * 4 + 1];
-	char *o = oRet;
-	while (*s) {
-		if (*s == '\a') {
-			*o++ = '\\';
-			*o++ = 'a';
-		} else if (*s == '\b') {
-			*o++ = '\\';
-			*o++ = 'b';
-		} else if (*s == '\f') {
-			*o++ = '\\';
-			*o++ = 'f';
-		} else if (*s == '\n') {
-			*o++ = '\\';
-			*o++ = 'n';
-		} else if (*s == '\r') {
-			*o++ = '\\';
-			*o++ = 'r';
-		} else if (*s == '\t') {
-			*o++ = '\\';
-			*o++ = 't';
-		} else if (*s == '\v') {
-			*o++ = '\\';
-			*o++ = 'v';
-		} else if (*s == '\\') {
-			*o++ = '\\';
-			*o++ = '\\';
-		} else if (quoteQuotes && (*s == '\'')) {
-			*o++ = '\\';
-			*o++ = '\'';
-		} else if (quoteQuotes && (*s == '\"')) {
-			*o++ = '\\';
-			*o++ = '\"';
-		} else if (IsASCII(*s) && (*s < ' ')) {
-			*o++ = '\\';
-			*o++ = static_cast<char>((*s >> 6) + '0');
-			*o++ = static_cast<char>((*s >> 3) + '0');
-			*o++ = static_cast<char>((*s & 0x7) + '0');
+std::string Slash(const std::string &s, bool quoteQuotes) {
+	std::string oRet;
+	for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+		if (*it == '\a') {
+			oRet.append("\\a");
+		} else if (*it == '\b') {
+			oRet.append("\\b");
+		} else if (*it == '\f') {
+			oRet.append("\\f");
+		} else if (*it == '\n') {
+			oRet.append("\\n");
+		} else if (*it == '\r') {
+			oRet.append("\\r");
+		} else if (*it == '\t') {
+			oRet.append("\\t");
+		} else if (*it == '\v') {
+			oRet.append("\\v");
+		} else if (*it == '\\') {
+			oRet.append("\\\\");
+		} else if (quoteQuotes && (*it == '\'')) {
+			oRet.append("\\\'");
+		} else if (quoteQuotes && (*it == '\"')) {
+			oRet.append("\\\"");
+		} else if (IsASCII(*it) && (*it < ' ')) {
+			oRet.push_back('\\');
+			oRet.push_back(static_cast<char>((*it >> 6) + '0'));
+			oRet.push_back(static_cast<char>((*it >> 3) + '0'));
+			oRet.push_back(static_cast<char>((*it & 0x7) + '0'));
 		} else {
-			*o++ = *s;
+			oRet.push_back(*it);
 		}
-		s++;
 	}
-	*o = '\0';
 	return oRet;
 }
 

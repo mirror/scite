@@ -78,7 +78,7 @@ bool EqualCaseInsensitive(const char *a, const char *b);
 bool isprefix(const char *target, const char *prefix);
 unsigned int UTF32Character(const unsigned char *utf8);
 
-char *Slash(const char *s, bool quoteQuotes);
+std::string Slash(const std::string &s, bool quoteQuotes);
 unsigned int UnSlash(char *s);
 std::string UnSlashString(const char *s);
 std::string UnSlashLowOctalString(const char *s);
