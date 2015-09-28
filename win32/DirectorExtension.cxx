@@ -108,11 +108,8 @@ static LRESULT HandleCopyData(LPARAM lParam) {
 	COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
 	// Copy into an temporary buffer to ensure \0 terminated
 	if (pcds->lpData) {
-		char *dataCopy = new char[pcds->cbData + 1];
-		strncpy(dataCopy, static_cast<char *>(pcds->lpData), pcds->cbData);
-		dataCopy[pcds->cbData] = '\0';
-		DirectorExtension::Instance().HandleStringMessage(dataCopy);
-		delete []dataCopy;
+		std::string dataCopy(static_cast<char *>(pcds->lpData), pcds->cbData);
+		DirectorExtension::Instance().HandleStringMessage(dataCopy.c_str());
 	}
 	return 0;
 }
