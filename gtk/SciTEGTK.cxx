@@ -2119,8 +2119,6 @@ void SciTEGTK::FindInFilesCmd() {
 		std::string quotedForm = Slash(props.GetString("find.what"), true);
 		findCommand += quotedForm;
 		findCommand += "\"";
-		delete []quotedForm;
-		//~ fprintf(stderr, "%s\n", findCommand.c_str());
 	}
 	AddCommand(findCommand, props.GetString("find.directory"), jobCLI);
 	if (jobQueue.HasCommandToRun())
