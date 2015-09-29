@@ -397,7 +397,7 @@ static const char *contributors[] = {
         };
 
 // AddStyledText only called from About so static size buffer is OK
-void AddStyledText(GUI::ScintillaWindow &wsci, const char *s, int attr) {
+static void AddStyledText(GUI::ScintillaWindow &wsci, const char *s, int attr) {
 	size_t len = strlen(s);
 	std::vector<char> buf(len*2);
 	for (size_t i = 0; i < len; i++) {
@@ -408,7 +408,7 @@ void AddStyledText(GUI::ScintillaWindow &wsci, const char *s, int attr) {
 	        static_cast<int>(len*2), const_cast<char *>(&buf[0]));
 }
 
-void SetAboutStyle(GUI::ScintillaWindow &wsci, int style, Colour fore) {
+static void SetAboutStyle(GUI::ScintillaWindow &wsci, int style, Colour fore) {
 	wsci.Send(SCI_STYLESETFORE, style, fore);
 }
 

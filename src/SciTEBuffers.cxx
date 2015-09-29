@@ -1492,7 +1492,7 @@ inline bool isdigitchar(int ch) {
 	return (ch >= '0') && (ch <= '9');
 }
 
-int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &column) {
+static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &column) {
 	sourcePath.clear();
 	column = -1; // default to not detected
 	switch (format) {

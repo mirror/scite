@@ -1222,7 +1222,7 @@ static bool CheckStartupScript() {
 	return startupScript.length() > 0;
 }
 
-void PublishGlobalBufferData() {
+static void PublishGlobalBufferData() {
 	lua_pushliteral(luaState, "buffer");
 	if (curBufferIndex >= 0) {
 		lua_pushliteral(luaState, "SciTE_BufferData_Array");
