@@ -412,12 +412,47 @@ static void SetAboutStyle(GUI::ScintillaWindow &wsci, int style, Colour fore) {
 	wsci.Send(SCI_STYLESETFORE, style, fore);
 }
 
-static void HackColour(int &n) {
-	n += (rand() % 100) - 50;
-	if (n > 0xE7)
-		n = 0x60;
-	if (n < 0)
-		n = 0x80;
+namespace {
+
+// Implement low quality pseudo-random colours for the pretties.
+// Pseudo-random algorithm based on R. G. Dromey "How to Solve it by Computer" page 122.
+
+class RandomColour {
+	int mult;
+	int incr;
+	int modulus;
+	int randomValue;
+	int NextRandom() {
+		randomValue = (mult * randomValue + incr) % modulus;
+		return randomValue;
+	}
+	void HackColour(int &n) {
+		n += (NextRandom() % 100) - 50;
+		if (n > 0xE7)
+			n = 0x60;
+		if (n < 0)
+			n = 0x80;
+	}
+public:
+	int r;
+	int g;
+	int b;
+	RandomColour() :
+		mult(109),
+		incr(853),
+		modulus(4096),
+		randomValue(time(0) % modulus),
+		r(NextRandom() % 256),
+		g(NextRandom() % 256),
+		b(NextRandom() % 256) {
+	}
+	void Next() {
+		HackColour(r);
+		HackColour(g);
+		HackColour(b);
+	}
+};
+
 }
 
 void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle) {
@@ -474,20 +509,15 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 			AddStyledText(wsci, "\n", 5);
 		}
 		AddStyledText(wsci, GetTranslationToAbout("Contributors:").c_str(), trsSty);
-		srand(static_cast<unsigned>(time(0)));
 		for (unsigned int co = 0;co < ELEMENTS(contributors);co++) {
 			int colourIndex = 50 + (co % 78);
 			AddStyledText(wsci, "\n    ", colourIndex);
 			AddStyledText(wsci, contributors[co], colourIndex);
 		}
-		int r = rand() % 256;
-		int g = rand() % 256;
-		int b = rand() % 256;
+		RandomColour colour;
 		for (unsigned int sty = 0;sty < 78; sty++) {
-			HackColour(r);
-			HackColour(g);
-			HackColour(b);
-			SetAboutStyle(wsci, sty + 50, ColourRGB(r, g, b));
+			colour.Next();
+			SetAboutStyle(wsci, sty + 50, ColourRGB(colour.r, colour.g, colour.b));
 		}
 		wsci.Send(SCI_SETREADONLY, 1, 0);
 	}
