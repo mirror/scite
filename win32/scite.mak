@@ -146,17 +146,18 @@ $(DIR_BIN)\au3.properties $(DIR_BIN)\ave.properties $(DIR_BIN)\avs.properties \
 $(DIR_BIN)\baan.properties $(DIR_BIN)\blitzbasic.properties \
 $(DIR_BIN)\bullant.properties $(DIR_BIN)\caml.properties \
 $(DIR_BIN)\cmake.properties $(DIR_BIN)\cobol.properties \
-$(DIR_BIN)\conf.properties $(DIR_BIN)\cpp.properties \
-$(DIR_BIN)\csound.properties $(DIR_BIN)\css.properties $(DIR_BIN)\d.properties \
-$(DIR_BIN)\ecl.properties $(DIR_BIN)\eiffel.properties \
-$(DIR_BIN)\erlang.properties $(DIR_BIN)\escript.properties \
-$(DIR_BIN)\flagship.properties $(DIR_BIN)\forth.properties \
-$(DIR_BIN)\fortran.properties $(DIR_BIN)\freebasic.properties \
-$(DIR_BIN)\gap.properties $(DIR_BIN)\haskell.properties \
-$(DIR_BIN)\hex.properties $(DIR_BIN)\html.properties \
-$(DIR_BIN)\inno.properties $(DIR_BIN)\kix.properties \
-$(DIR_BIN)\latex.properties $(DIR_BIN)\lisp.properties \
-$(DIR_BIN)\lot.properties $(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
+$(DIR_BIN)\coffeescript.properties $(DIR_BIN)\conf.properties \
+$(DIR_BIN)\cpp.properties $(DIR_BIN)\csound.properties \
+$(DIR_BIN)\css.properties $(DIR_BIN)\d.properties $(DIR_BIN)\ecl.properties \
+$(DIR_BIN)\eiffel.properties $(DIR_BIN)\erlang.properties \
+$(DIR_BIN)\escript.properties $(DIR_BIN)\flagship.properties \
+$(DIR_BIN)\forth.properties $(DIR_BIN)\fortran.properties \
+$(DIR_BIN)\freebasic.properties $(DIR_BIN)\gap.properties \
+$(DIR_BIN)\haskell.properties $(DIR_BIN)\hex.properties \
+$(DIR_BIN)\html.properties $(DIR_BIN)\inno.properties \
+$(DIR_BIN)\kix.properties $(DIR_BIN)\latex.properties \
+$(DIR_BIN)\lisp.properties $(DIR_BIN)\lot.properties \
+$(DIR_BIN)\lout.properties $(DIR_BIN)\lua.properties \
 $(DIR_BIN)\matlab.properties $(DIR_BIN)\metapost.properties \
 $(DIR_BIN)\mmixal.properties $(DIR_BIN)\modula3.properties \
 $(DIR_BIN)\nimrod.properties $(DIR_BIN)\nncrontab.properties \
