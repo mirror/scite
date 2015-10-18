@@ -43,7 +43,8 @@ public:
 	int GetInt(const char *key, int defaultValue=0) const;
 	void Clear();
 
-	bool ReadLine(const char *data, bool ifIsTrue, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
+	enum ReadLineState { rlActive, rlExcludedModule, rlConditionFalse };
+	ReadLineState ReadLine(const char *data, ReadLineState rls, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
 	void ReadFromMemory(const char *data, size_t len, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
 	void Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
 	bool Read(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);

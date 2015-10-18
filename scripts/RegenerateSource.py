@@ -69,10 +69,15 @@ def OctalEscape(s):
     return ''.join(result)
 
 def UpdateEmbedded(root, propFiles):
-    propFilesAll = ["SciTEGlobal.properties", "abbrev.properties"] + propFiles
+    propFilesSpecial = ["SciTEGlobal.properties", "abbrev.properties"]
+    propFilesAll = propFilesSpecial + propFiles
     linesEmbedded = []
     for pf in propFilesAll:
-        with open(os.path.join(root, "scite", "src", pf)) as fi:
+        fullPath = os.path.join(root, "scite", "src", pf)
+        with open(fullPath) as fi:
+            fileBase = pf.split(".")[0]
+            if pf not in propFilesSpecial:
+                linesEmbedded.append("\nmodule " + fileBase + "\n")
             for line in fi:
                 if not line.startswith("#"):
                     linesEmbedded.append(line)

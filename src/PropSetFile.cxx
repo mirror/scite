@@ -373,14 +373,25 @@ void PropSetFile::Import(FilePath filename, FilePath directoryForImports, const 
 	}
 }
 
-bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath directoryForImports,
-                           const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth) {
+PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLineState rls, FilePath directoryForImports,
+	const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth) {
 	//UnSlash(lineBuffer);
-	if (!IsSpaceOrTab(lineBuffer[0]))    // If clause ends with first non-indented line
-		ifIsTrue = true;
+	if ((rls == rlConditionFalse) && (!IsSpaceOrTab(lineBuffer[0])))    // If clause ends with first non-indented line
+		rls = rlActive;
+	if (isprefix(lineBuffer, "module ")) {
+		std::string module = lineBuffer + strlen("module") + 1;
+		if (module.empty() || filter.IsValid(module)) {
+			rls = rlActive;
+		} else {
+			rls = rlExcludedModule;
+		}
+	}
+	if (rls != rlActive) {
+		return rls;
+	}
 	if (isprefix(lineBuffer, "if ")) {
 		const char *expr = lineBuffer + strlen("if") + 1;
-		ifIsTrue = GetInt(expr) != 0;
+		rls = (GetInt(expr) != 0) ? rlActive : rlConditionFalse;
 	} else if (isprefix(lineBuffer, "import ") && directoryForImports.IsSet()) {
 		std::string importName(lineBuffer + strlen("import") + 1);
 		if (importName == "*") {
@@ -402,17 +413,17 @@ bool PropSetFile::ReadLine(const char *lineBuffer, bool ifIsTrue, FilePath direc
 			FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName)));
 			Import(importPath, directoryForImports, filter, imports, depth+1);
 		}
-	} else if (ifIsTrue && !IsCommentLine(lineBuffer)) {
+	} else if (!IsCommentLine(lineBuffer)) {
 		Set(lineBuffer);
 	}
-	return ifIsTrue;
+	return rls;
 }
 
 void PropSetFile::ReadFromMemory(const char *data, size_t len, FilePath directoryForImports,
                                  const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth) {
 	const char *pd = data;
 	std::vector<char> lineBuffer(len+1);	// +1 for NUL
-	bool ifIsTrue = true;
+	ReadLineState rls = rlActive;
 	while (len > 0) {
 		GetFullLine(pd, len, &lineBuffer[0], lineBuffer.size());
 		if (lowerKeys) {
@@ -422,7 +433,7 @@ void PropSetFile::ReadFromMemory(const char *data, size_t len, FilePath director
 				}
 			}
 		}
-		ifIsTrue = ReadLine(&lineBuffer[0], ifIsTrue, directoryForImports, filter, imports, depth);
+		rls = ReadLine(&lineBuffer[0], rls, directoryForImports, filter, imports, depth);
 	}
 }
 

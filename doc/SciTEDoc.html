@@ -891,6 +891,16 @@ NameError: mistake
       statements are allowed in if clauses. The evaluation of if statements occurs
       at read time, not at evaluation time.
     </p>
+    <p>
+      <a name="property-module"></a>
+      The 'module' statement is meant for use in the single-file distribution Sc1 where all of the
+      standard .properties files are joined together as a resource in the executable.
+      The module statement marks which file each segment originally came from so that the
+      imports.include and imports.exclude properties will work with Sc1 and unwanted properties
+      will not be active. The syntax is "module &lt;name&gt;" and the effect is to either process or
+      ignore all text up to the next module statement depending on whether the name is in
+      imports.include or imports.exclude.
+    </p>
     <h3 id="Parameters">
        Command parameters and prompting
     </h3>

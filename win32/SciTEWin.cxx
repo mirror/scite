@@ -174,30 +174,13 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	hWriteSubProcess = NULL;
 	subProcessGroupId = 0;
 
-	// Read properties resource into propsEmbed
-	// The embedded properties file is to allow distributions to be sure
-	// that they have a sensible default configuration even if the properties
-	// files are missing. Also allows a one file distribution of Sc1.EXE.
-	propsEmbed.Clear();
-	// System type properties are also stored in the embedded properties.
-	propsEmbed.Set("PLAT_WIN", "1");
-	propsEmbed.Set("PLAT_WINNT", "1");
-
-	HRSRC handProps = ::FindResource(hInstance, TEXT("Embedded"), TEXT("Properties"));
-	if (handProps) {
-		DWORD size = ::SizeofResource(hInstance, handProps);
-		HGLOBAL hmem = ::LoadResource(hInstance, handProps);
-		if (hmem) {
-			const void *pv = ::LockResource(hmem);
-			if (pv) {
-				propsEmbed.ReadFromMemory(
-				    static_cast<const char *>(pv), size, FilePath(), filter, NULL, 0);
-			}
-		}
-		::FreeResource(handProps);
-	}
-
 	pathAbbreviations = GetAbbrevPropertiesFileName();
+
+	// System type properties are stored in the platform properties.
+	propsPlatform.Set("PLAT_WIN", "1");
+	propsPlatform.Set("PLAT_WINNT", "1");
+
+	ReadEnvironment();
 
 	ReadGlobalPropFile();
 
@@ -397,6 +380,29 @@ FILE *scite_lua_popen(const char *filename, const char *mode) {
 	return f;
 }
 
+}
+
+// Read properties resource into propsEmbed
+// The embedded properties file is to allow distributions to be sure
+// that they have a sensible default configuration even if the properties
+// files are missing. Also allows a one file distribution of Sc1.EXE.
+void SciTEWin::ReadEmbeddedProperties() {
+
+	propsEmbed.Clear();
+
+	HRSRC handProps = ::FindResource(hInstance, TEXT("Embedded"), TEXT("Properties"));
+	if (handProps) {
+		DWORD size = ::SizeofResource(hInstance, handProps);
+		HGLOBAL hmem = ::LoadResource(hInstance, handProps);
+		if (hmem) {
+			const void *pv = ::LockResource(hmem);
+			if (pv) {
+				propsEmbed.ReadFromMemory(
+					static_cast<const char *>(pv), size, FilePath(), filter, NULL, 0);
+			}
+		}
+		::FreeResource(handProps);
+	}
 }
 
 void SciTEWin::ReadPropertiesInitial() {

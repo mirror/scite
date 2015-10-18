@@ -98,32 +98,41 @@ void SciTEBase::SetLanguageMenu() {
 	}
 }
 
+// Null except on Windows where it may be overridden
+void SciTEBase::ReadEmbeddedProperties() {
+}
+
 const GUI::gui_char propLocalFileName[] = GUI_TEXT("SciTE.properties");
 const GUI::gui_char propDirectoryFileName[] = GUI_TEXT("SciTEDirectory.properties");
+
+void SciTEBase::ReadEnvironment() {
+#if defined(__unix__)
+	extern char **environ;
+	char **e = environ;
+#else
+	char **e = _environ;
+#endif
+	for (; e && *e; e++) {
+		char key[1024];
+		char *k = *e;
+		char *v = strchr(k, '=');
+		if (v && (static_cast<size_t>(v - k) < sizeof(key))) {
+			memcpy(key, k, v - k);
+			key[v - k] = '\0';
+			propsPlatform.Set(key, v + 1);
+		}
+	}
+}
 
 /**
 Read global and user properties files.
 */
 void SciTEBase::ReadGlobalPropFile() {
-#if defined(__unix__)
-	extern char **environ;
-	char **e=environ;
-#else
-	char **e=_environ;
-#endif
-	for (; e && *e; e++) {
-		char key[1024];
-		char *k=*e;
-		char *v=strchr(k,'=');
-		if (v && (static_cast<size_t>(v-k) < sizeof(key))) {
-			memcpy(key, k, v-k);
-			key[v-k] = '\0';
-			propsEmbed.Set(key, v+1);
-		}
-	}
-
 	std::string excludes;
 	std::string includes;
+
+	// Want to apply imports.exclude and imports.include but these may well be in
+	// user properties.
 
 	for (int attempt=0; attempt<2; attempt++) {
 
@@ -138,6 +147,8 @@ void SciTEBase::ReadGlobalPropFile() {
 		filter.SetFilter(excludes.c_str(), includes.c_str());
 
 		importFiles.clear();
+
+		ReadEmbeddedProperties();
 
 		propsBase.Clear();
 		FilePath propfileBase = GetDefaultPropertiesFileName();
@@ -1494,7 +1505,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	wEditor.Call(SCI_SETWRAPMODE, wrap ? wrapStyle : SC_WRAP_NONE);
 	wOutput.Call(SCI_SETWRAPMODE, wrapOutput ? wrapStyle : SC_WRAP_NONE);
 
-	std::string menuLanguageProp = props.GetNewExpandString("menu.language");
+	std::string menuLanguageProp = props.GetExpandedString("menu.language");
 	std::replace(menuLanguageProp.begin(), menuLanguageProp.end(), '|', '\0');
 	const char *sMenuLanguage = menuLanguageProp.c_str();
 	while (*sMenuLanguage) {

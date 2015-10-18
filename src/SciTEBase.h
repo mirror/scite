@@ -494,6 +494,7 @@ protected:
 	std::string currentMacro;
 	bool recording;
 
+	PropSetFile propsPlatform;
 	PropSetFile propsEmbed;
 	PropSetFile propsBase;
 	PropSetFile propsUser;
@@ -541,6 +542,8 @@ protected:
 	void MoveTabRight();
 	void MoveTabLeft();
 
+	virtual void ReadEmbeddedProperties();
+	void ReadEnvironment();
 	void ReadGlobalPropFile();
 	void ReadAbbrevPropFile();
 	void ReadLocalPropFile();

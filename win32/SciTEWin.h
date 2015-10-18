@@ -229,6 +229,7 @@ protected:
 	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
 	void SetScaleFactor(int scale);
 
+	virtual void ReadEmbeddedProperties();
 	virtual void ReadPropertiesInitial();
 	virtual void ReadProperties();
 

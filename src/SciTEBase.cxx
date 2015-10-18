@@ -173,6 +173,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
 	macrosEnabled = false;
 	recording = false;
 
+	propsEmbed.superPS = &propsPlatform;
 	propsBase.superPS = &propsEmbed;
 	propsUser.superPS = &propsBase;
 	propsDirectory.superPS = &propsUser;
@@ -4366,6 +4367,8 @@ void SciTEBase::EnumProperties(const char *propkind) {
 		pf = &propsBase;
 	else if (!strcmp(propkind, "embed"))
 		pf = &propsEmbed;
+	else if (!strcmp(propkind, "platform"))
+		pf = &propsPlatform;
 	else if (!strcmp(propkind, "abbrev"))
 		pf = &propsAbbrev;
 
@@ -4646,7 +4649,8 @@ bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
 					}
 				} else {
 					if (evaluate) {
-						props.ReadLine(GUI::UTF8FromString(arg).c_str(), true, FilePath::GetWorkingDirectory(), filter, NULL, 0);
+						props.ReadLine(GUI::UTF8FromString(arg).c_str(), PropSetFile::rlActive,
+							FilePath::GetWorkingDirectory(), filter, NULL, 0);
 					}
 				}
 			}
