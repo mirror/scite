@@ -4052,6 +4052,7 @@ void SciTEBase::CheckMenusClipboard() {
 	EnableAMenuItem(IDM_COPY, hasSelection);
 	EnableAMenuItem(IDM_CLEAR, hasSelection);
 	EnableAMenuItem(IDM_PASTE, CallFocusedElseDefault(true, SCI_CANPASTE));
+	EnableAMenuItem(IDM_SELECTALL, true);
 }
 
 void SciTEBase::CheckMenus() {

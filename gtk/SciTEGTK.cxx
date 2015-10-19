@@ -1378,6 +1378,7 @@ void SciTEGTK::CheckMenusClipboard() {
 		EnableAMenuItem(IDM_COPY, false);
 		EnableAMenuItem(IDM_CLEAR, false);
 		EnableAMenuItem(IDM_PASTE, false);
+		EnableAMenuItem(IDM_SELECTALL, false);
 	} else {
 		SciTEBase::CheckMenusClipboard();
 	}
