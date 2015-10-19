@@ -789,6 +789,19 @@ NameError: mistake
        Values may include the values of other variables by using $(variablename).
       </p>
       <p>
+      The "star" function may be used to collect the values of all variables that start with a particular prefix.
+      <span class="example">all.languages=$(star&nbsp;language.)</span> finds every variable
+      that starts with "language." and assigns that to all.languages.
+      This can be used to combine settings from many files for user interface elements such as the Language menu.
+      Within a property file level (local, directory, user, global) the ordering is alphabetically by variable name
+      which allows a degree of control over the ordering.
+      Prefixes that are used by the standard distribution are
+      <a href="#property-star-filter">"*filter."</a>, <a href="#property-star-language">"*language."</a>,
+      and <a href="#property-star-source.patterns">"*source.patterns."</a> with the
+      initial "*" being a convention that the variables are meant for use in a star function.
+      These prefixes are discussed in the "Defined variables" section.
+      </p>
+      <p>
       On Windows, values may be scaled using the current screen dots-per-inch so that they use more
       pixels on high resolution screens and appear a reasonable size.
       <span class="example">margin.width=$(scale&nbsp;16)</span> makes the margin 16 pixels wide
@@ -2593,11 +2606,14 @@ Prev File|IDM_PREVFILE|<br/>
         <td>
           This is a complex expression used for determining the file types that will be available in
           the open file dialog. For each type of file, there is some explanatory text, a '|'
-          character, some file patterns, and another '|' character. In the distributed
-          SciTEGlobal.properties file, the line continuation character '\', is used to spread these
-          items out, one per line. These file types appear in the "Files of type:" pull down. The
-          first item is the default, so you may wish to change the first item to include the file
-          types you commonly open.<br />
+          character, some file patterns, and another '|' character. These file types appear in the "Files of type:" pull down.
+          The first item is the default, so you may wish to change the first item to include the file
+          types you commonly open.
+          The default value for this setting is built up by combining some specific settings for "All Source" and "All Files"
+          with all the <a href="#property-star-filter">*filter</a> settings.
+          The "All Source" item uses a set of file patterns which combines all the
+          <a href="#property-star-source.patterns">*source.patterns</a> settings.
+          <br />
         </td>
       </tr>
       <tr class="windowsonly" id='property-save.filter'>
@@ -2608,6 +2624,29 @@ Prev File|IDM_PREVFILE|<br/>
           This is a complex expression used for determining the file types that will be available in
           the save file dialog. The structure of the property is the same as open.filter.<br />
           Does not work on GTK+.
+        </td>
+      </tr>
+      <tr id='property-star-source.patterns'>
+        <td>
+          *source.patterns.<i>name</i>
+        </td>
+        <td>
+          Set a value to be included in the set of file extensions used for the "All Source" pull down menu item in the Open dialog
+          when using the default value for <a href="#property-open.filter">open.filter</a>.
+          For example, <span class="example">*source.patterns.ruby=*.rb;*.rbw;</span> adds the file patterns *.rb and *.rbw
+          to the set of source extensions.
+        </td>
+      </tr>
+      <tr id='property-star-filter'>
+        <td>
+          *filter.<i>name</i>
+        </td>
+        <td>
+          Set a value to be included in the file type pull down menu in the Open dialog
+          when using the default value for <a href="#property-open.filter">open.filter</a>.
+          For example, <span class="example">*filter.ruby=Ruby (rb rbw)|*.rb;*.rbw|</span> adds a "Ruby" item to the file type
+          pull down menu. Selecting that item will show files that match the patterns *.rb and *.rbw.
+          There must be 2 '|' characters in the setting.
         </td>
       </tr>
       <tr id='property-max.file.size'>
@@ -2995,7 +3034,16 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 imports.include=fortran lisp
 	</div>
 	The imports.exclude property is examined only if imports.include is empty or missing.
-	This property stops the named files from being imported.
+	This property stops the named files from being imported.<br />
+          The properties files shipped with SciTE, and which can be included or excluded with these properties, are:<br />
+          abaqus ada asl asm asn1 au3 ave avs baan blitzbasic 
+          bullant caml cmake cobol coffeescript conf cpp csound css d ecl 
+          eiffel erlang escript flagship forth fortran freebasic gap haskell 
+          hex html inno kix latex lisp lot lout lua matlab metapost 
+          mmixal modula3 nimrod nncrontab nsis opal oscript others 
+          pascal perl pov powerpro powershell ps purebasic python r rebol 
+          registry ruby rust scriptol smalltalk sorcins specman spice sql 
+          tacl tal tcl tex txt2tags vb verilog vhdl yaml.
         </td>
       </tr>
       <tr id='property-command.discover.properties'>
@@ -3958,8 +4006,23 @@ groupundo - yes or no
                 Defines the entries in the Language menu and the file extensions they map to.
 		Each menu item is defined by 3 elements, language name, extension and an optional
 		keyboard equivalent. Each element is terminated by '|'. For example:<br />
-		H&amp;ypertext|html|F12|<br />
+		<span class="example">H&amp;ypertext|html|F12|</span><br />
 		Menu items may be commented out by prefixing the name with '#'.
+                The default value for this setting is built up by combining all
+                <a href="#property-star-language">*language</a> settings.
+        </td>
+      </tr>
+      <tr id='property-star-language'>
+        <td>
+          *language.<i>name</i>
+        </td>
+        <td>
+          Set a value to be included in the Language menu when using the default value for
+          <a href="#property-menu.language">menu.language</a>.
+          For example, <span class="example">*language.ruby=Ruby|rb|F9|</span> adds a "Ruby"
+          item to the Language menu which maps to the "rb" file extension and can be chosen with the F9 key.
+          More than one language may be defined in one variable.
+          There must be a multiple of 3 '|' characters in the setting.
         </td>
       </tr>
       <tr class="gtkonly" id='property-menukey.*'>
