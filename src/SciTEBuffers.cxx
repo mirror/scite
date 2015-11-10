@@ -1177,6 +1177,11 @@ void SciTEBase::SetBuffersMenu() {
 			//char *cpDirEnd = strrchr(buffers.buffers[pos]->fileName, pathSepChar);
 			//strcat(entry, cpDirEnd + 1);
 
+			if (buffers.buffers[pos].isReadOnly && props.GetInt("read.only.indicator"))  {
+				entry=entry+GUI_TEXT(" |");
+				titleTab=titleTab+GUI_TEXT(" |");
+			}
+
 			if (buffers.buffers[pos].isDirty) {
 				entry += GUI_TEXT(" *");
 				titleTab += GUI_TEXT(" *");

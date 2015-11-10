@@ -3395,6 +3395,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
 		UpdateStatusBar(true);
 		CheckMenus();
+		SetBuffersMenu();
 		break;
 
 	case IDM_VIEWTABBAR:
