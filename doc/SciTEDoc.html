@@ -2603,6 +2603,23 @@ Prev File|IDM_PREVFILE|<br/>
           effect.
         </td>
       </tr>
+      <tr id='property-idle.styling'>
+        <td>
+          <a name='property-output.idle.styling'></a>
+          idle.styling<br />
+          output.idle.styling
+        </td>
+        <td>
+          By default (0), syntax styling is performed for all the currently visible text before displaying it.
+          On very large files, this may make scrolling down slow.
+          With idle.styling=1, a small amount of styling is performed before display and then
+          further styling is performed incrementally in the background. This may result in the
+          text initially appearing uncoloured and then, some time later, it is coloured.
+          Text after the currently visible portion may be styled in the background with 2.
+          To style both before and after the visible text in the background use the value 3.
+          output.idle.styling is the equivalent setting for the output pane.
+        </td>
+      </tr>
       <tr id='property-cache.layout'>
         <td>
           <a name='property-output.cache.layout'></a>
