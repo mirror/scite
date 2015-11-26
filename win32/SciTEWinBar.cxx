@@ -328,6 +328,10 @@ void SciTEWin::TimerEnd(int mask) {
 	}
 }
 
+void SciTEWin::ShowOutputOnMainThread() {
+	::PostMessage(MainHWND(), SCITE_SHOWOUTPUT, 0, 0);
+}
+
 /**
  * Resize the content windows, embedding the editor and output windows.
  */

@@ -739,7 +739,6 @@ protected:
 	virtual void FindReplace(bool replace) = 0;
 	void OutputAppendString(const char *s, int len = -1);
 	virtual void OutputAppendStringSynchronised(const char *s, int len = -1);
-	void MakeOutputVisible();
 	virtual void Execute();
 	virtual void StopExecute() = 0;
 	void ShowMessages(int line);
@@ -814,7 +813,9 @@ protected:
 	bool BookmarkPresent(int lineno = -1);
 	void BookmarkToggle(int lineno = -1);
 	void BookmarkNext(bool forwardScan = true, bool select = false);
-	virtual void ToggleOutputVisible();
+	void SetOutputVisibility(bool show);
+	virtual void ShowOutputOnMainThread();
+	void ToggleOutputVisible();
 	virtual void SizeContentWindows() = 0;
 	virtual void SizeSubWindows() = 0;
 

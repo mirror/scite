@@ -1393,7 +1393,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 		os.append(GUI::UTF8FromString(fileTypes).c_str());
 		os.append("\"\n");
 		OutputAppendStringSynchronised(os.c_str());
-		MakeOutputVisible();
+		ShowOutputOnMainThread();
 		originalEnd += os.length();
 	}
 	std::string searchString(search);

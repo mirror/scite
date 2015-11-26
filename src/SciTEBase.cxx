@@ -1325,12 +1325,6 @@ void SciTEBase::OutputAppendStringSynchronised(const char *s, int len) {
 	}
 }
 
-void SciTEBase::MakeOutputVisible() {
-	if (heightOutput <= 0) {
-		ToggleOutputVisible();
-	}
-}
-
 void SciTEBase::Execute() {
 	props.Set("CurrentMessage", "");
 	dirNameForExecute = FilePath();
@@ -1369,7 +1363,7 @@ void SciTEBase::Execute() {
 	wEditor.Call(SCI_MARKERDELETEALL, 0);
 	// Ensure the output pane is visible
 	if (jobQueue.ShowOutputPane()) {
-		MakeOutputVisible();
+		SetOutputVisibility(true);
 	}
 
 	jobQueue.cancelFlag = 0L;
@@ -1380,23 +1374,37 @@ void SciTEBase::Execute() {
 	dirNameAtExecute = filePath.Directory();
 }
 
-void SciTEBase::ToggleOutputVisible() {
-	if (heightOutput > 0) {
-		heightOutput = NormaliseSplit(0);
-		WindowSetFocus(wEditor);
+void SciTEBase::SetOutputVisibility(bool show) {
+	if (show) {
+		if (heightOutput <= 0) {
+			if (previousHeightOutput < 20) {
+				if (splitVertical)
+					heightOutput = NormaliseSplit(300);
+				else
+					heightOutput = NormaliseSplit(100);
+				previousHeightOutput = heightOutput;
+			} else {
+				heightOutput = NormaliseSplit(previousHeightOutput);
+			}
+		}
 	} else {
-		if (previousHeightOutput < 20) {
-			if (splitVertical)
-				heightOutput = NormaliseSplit(300);
-			else
-				heightOutput = NormaliseSplit(100);
-			previousHeightOutput = heightOutput;
-		} else {
-			heightOutput = NormaliseSplit(previousHeightOutput);
+		if (heightOutput > 0) {
+			heightOutput = NormaliseSplit(0);
+			WindowSetFocus(wEditor);
 		}
 	}
 	SizeSubWindows();
 	Redraw();
+}
+
+// Background threads that are send text to the output pane want it to be made visible.
+// Derived methods for each platform may perform thread synchronization.
+void SciTEBase::ShowOutputOnMainThread() {
+	SetOutputVisibility(true);
+}
+
+void SciTEBase::ToggleOutputVisible() {
+	SetOutputVisibility(heightOutput <= 0);
 }
 
 void SciTEBase::BookmarkAdd(int lineno) {
@@ -4724,7 +4732,7 @@ void SciTEBase::Insert(Pane p, int pos, const char *s) {
 }
 
 void SciTEBase::Trace(const char *s) {
-	MakeOutputVisible();
+	ShowOutputOnMainThread();
 	OutputAppendStringSynchronised(s);
 }
 

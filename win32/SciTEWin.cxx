@@ -965,7 +965,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 					if (!(jobToRun.flags & jobQuiet)) {
 						if (!cmdWorker.seenOutput) {
-							MakeOutputVisible();
+							ShowOutputOnMainThread();
 							cmdWorker.seenOutput = true;
 						}
 						// Display the data
@@ -1881,6 +1881,10 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 		case SCITE_WORKER:
 			WorkerCommand(static_cast<int>(wParam), reinterpret_cast<Worker *>(lParam));
+			break;
+
+		case SCITE_SHOWOUTPUT:
+			SetOutputVisibility(true);
 			break;
 
 		case WM_NOTIFY:

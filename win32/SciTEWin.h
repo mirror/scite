@@ -107,6 +107,7 @@ typedef void *HTHEME;
 const int SCITE_TRAY = WM_APP + 0;
 const int SCITE_DROP = WM_APP + 1;
 const int SCITE_WORKER = WM_APP + 2;
+const int SCITE_SHOWOUTPUT = WM_APP + 3;
 
 enum {
 	WORK_EXECUTE = WORK_PLATFORM + 1
@@ -236,6 +237,7 @@ protected:
 	virtual void TimerStart(int mask);
 	virtual void TimerEnd(int mask);
 
+	virtual void ShowOutputOnMainThread();
 	virtual void SizeContentWindows();
 	virtual void SizeSubWindows();
 
