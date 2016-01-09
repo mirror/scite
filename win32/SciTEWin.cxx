@@ -159,9 +159,9 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	fontTabs = 0;
 	wFocus = 0;
 
-	memset(&winPlace, 0, sizeof(winPlace));
+	winPlace = WINDOWPLACEMENT();
 	winPlace.length = 0;
-	memset(&rcWorkArea, 0, sizeof(rcWorkArea));
+	rcWorkArea = RECT();
 
 	openWhat[0] = '\0';
 	tooltipText[0] = '\0';
@@ -1664,9 +1664,7 @@ bool SciTEWin::IsStdinBlocked() {
 }
 
 void SciTEWin::MinimizeToTray() {
-	TCHAR n[64] = TEXT("SciTE");
-	NOTIFYICONDATA nid;
-	memset(&nid, 0, sizeof(nid));
+	NOTIFYICONDATA nid = {};
 	nid.cbSize = sizeof(nid);
 	nid.hWnd = MainHWND();
 	nid.uID = 1;
@@ -1674,7 +1672,7 @@ void SciTEWin::MinimizeToTray() {
 	nid.uCallbackMessage = SCITE_TRAY;
 	nid.hIcon = static_cast<HICON>(
 	                ::LoadImage(hInstance, TEXT("SCITE"), IMAGE_ICON, 16, 16, LR_DEFAULTSIZE));
-	StringCopy(nid.szTip, n);
+	StringCopy(nid.szTip, TEXT("SciTE"));
 	::ShowWindow(MainHWND(), SW_MINIMIZE);
 	if (::Shell_NotifyIcon(NIM_ADD, &nid)) {
 		::ShowWindow(MainHWND(), SW_HIDE);
@@ -1682,8 +1680,7 @@ void SciTEWin::MinimizeToTray() {
 }
 
 void SciTEWin::RestoreFromTray() {
-	NOTIFYICONDATA nid;
-	memset(&nid, 0, sizeof(nid));
+	NOTIFYICONDATA nid = {};
 	nid.cbSize = sizeof(nid);
 	nid.hWnd = MainHWND();
 	nid.uID = 1;
