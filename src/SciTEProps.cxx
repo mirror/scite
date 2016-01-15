@@ -645,7 +645,8 @@ void SciTEBase::ReadProperties() {
 				wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, "lpeg");
 				lexLPeg = wEditor.Call(SCI_GETLEXER);
 				const char *lexer = language.c_str() + language.find("_") + 1;
-				wEditor.CallString(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE, lexer);
+				wEditor.CallReturnPointer(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE,
+					SptrFromString(lexer));
 			}
 		} else {
 			wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
@@ -1316,7 +1317,8 @@ void SciTEBase::ReadFontProperties() {
 		char propStr[256];
 		for (int i = 0; i < STYLE_MAX; i++) {
 			sprintf(key, "style.lpeg.%0d", i);
-			wEditor.CallPointer(SCI_PRIVATELEXERCALL, i - STYLE_MAX, propStr);
+			wEditor.CallReturnPointer(SCI_PRIVATELEXERCALL, i - STYLE_MAX,
+				SptrFromString(propStr));
 			props.Set(key, static_cast<const char *>(propStr));
 		}
 		languageName = "lpeg";
