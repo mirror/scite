@@ -3663,6 +3663,8 @@ static int LevelNumber(int level) {
 }
 
 void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
+	// Unfold any regions where the new fold structure makes that fold wrong.
+	// Will only unfold and show lines and never fold or hide lines.
 	if (levelNow & SC_FOLDLEVELHEADERFLAG) {
 		if (!(levelPrev & SC_FOLDLEVELHEADERFLAG)) {
 			// Adding a fold point.
@@ -3671,11 +3673,23 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 				ExpandFolds(line, true, levelPrev);
 		}
 	} else if (levelPrev & SC_FOLDLEVELHEADERFLAG) {
+		const int prevLine = line - 1;
+		const int levelPrevLine = wEditor.Call(SCI_GETFOLDLEVEL, prevLine);
+
+		// Combining two blocks where the first block is collapsed (e.g. by deleting the line(s) which separate(s) the two blocks)
+		if ((LevelNumber(levelPrevLine) == LevelNumber(levelNow)) && !wEditor.Call(SCI_GETLINEVISIBLE, prevLine)) {
+			const int parentLine = wEditor.Call(SCI_GETFOLDPARENT, prevLine);
+			const int levelParentLine = wEditor.Call(SCI_GETFOLDLEVEL, parentLine);
+			wEditor.Call(SCI_SETFOLDEXPANDED, parentLine, 1);
+			ExpandFolds(parentLine, true, levelParentLine);
+		}
+
 		if (!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
 			// Removing the fold from one that has been contracted so should expand
 			// otherwise lines are left invisible with no way to make them visible
 			wEditor.Call(SCI_SETFOLDEXPANDED, line, 1);
 			if (!wEditor.Call(SCI_GETALLLINESVISIBLE))
+				// Combining two blocks where the second one is collapsed (e.g. by adding characters in the line which separates the two blocks)
 				ExpandFolds(line, true, levelPrev);
 		}
 	}
@@ -3688,6 +3702,17 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 				wEditor.Call(SCI_SHOWLINES, line, line);
 			} else if (wEditor.Call(SCI_GETFOLDEXPANDED, parentLine) && wEditor.Call(SCI_GETLINEVISIBLE, parentLine)) {
 				wEditor.Call(SCI_SHOWLINES, line, line);
+			}
+		}
+	}
+	// Combining two blocks where the first one is collapsed (e.g. by adding characters in the line which separates the two blocks)
+	if (!(levelNow & SC_FOLDLEVELWHITEFLAG) && (LevelNumber(levelPrev) < LevelNumber(levelNow))) {
+		if (!wEditor.Call(SCI_GETALLLINESVISIBLE)) {
+			const int parentLine = wEditor.Call(SCI_GETFOLDPARENT, line);
+			if (!wEditor.Call(SCI_GETFOLDEXPANDED, parentLine) && wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
+				wEditor.Call(SCI_SETFOLDEXPANDED, parentLine, 1);
+				const int levelParentLine = wEditor.Call(SCI_GETFOLDLEVEL, parentLine);
+				ExpandFolds(parentLine, true, levelParentLine);
 			}
 		}
 	}
