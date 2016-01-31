@@ -3658,13 +3658,17 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	}
 }
 
+static int LevelNumber(int level) {
+	return level & SC_FOLDLEVELNUMBERMASK;
+}
+
 void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 	if (levelNow & SC_FOLDLEVELHEADERFLAG) {
 		if (!(levelPrev & SC_FOLDLEVELHEADERFLAG)) {
 			// Adding a fold point.
 			wEditor.Call(SCI_SETFOLDEXPANDED, line, 1);
 			if (!wEditor.Call(SCI_GETALLLINESVISIBLE))
-				Expand(line, true, false, 0, levelPrev);
+				ExpandFolds(line, true, levelPrev);
 		}
 	} else if (levelPrev & SC_FOLDLEVELHEADERFLAG) {
 		if (!wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
@@ -3672,11 +3676,11 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 			// otherwise lines are left invisible with no way to make them visible
 			wEditor.Call(SCI_SETFOLDEXPANDED, line, 1);
 			if (!wEditor.Call(SCI_GETALLLINESVISIBLE))
-				Expand(line, true, false, 0, levelPrev);
+				ExpandFolds(line, true, levelPrev);
 		}
 	}
 	if (!(levelNow & SC_FOLDLEVELWHITEFLAG) &&
-	        ((levelPrev & SC_FOLDLEVELNUMBERMASK) > (levelNow & SC_FOLDLEVELNUMBERMASK))) {
+	        (LevelNumber(levelPrev) > LevelNumber(levelNow))) {
 		if (!wEditor.Call(SCI_GETALLLINESVISIBLE)) {
 			// See if should still be hidden
 			int parentLine = wEditor.Call(SCI_GETFOLDPARENT, line);
@@ -3689,41 +3693,18 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 	}
 }
 
-void SciTEBase::Expand(int &line, bool doExpand, bool force, int visLevels, int level) {
-	int lineMaxSubord = wEditor.Call(SCI_GETLASTCHILD, line, level & SC_FOLDLEVELNUMBERMASK);
+void SciTEBase::ExpandFolds(int line, bool expand, int level) {
+	// Expand or contract line and all subordinates
+	// level is the fold level of line
+	const int lineMaxSubord = wEditor.Call(SCI_GETLASTCHILD, line, LevelNumber(level));
 	line++;
+	wEditor.Call(expand ? SCI_SHOWLINES : SCI_HIDELINES, line, lineMaxSubord);
 	while (line <= lineMaxSubord) {
-		if (force) {
-			if (visLevels > 0)
-				wEditor.Call(SCI_SHOWLINES, line, line);
-			else
-				wEditor.Call(SCI_HIDELINES, line, line);
-		} else {
-			if (doExpand)
-				wEditor.Call(SCI_SHOWLINES, line, line);
-		}
-		int levelLine = level;
-		if (levelLine == -1)
-			levelLine = wEditor.Call(SCI_GETFOLDLEVEL, line);
+		const int levelLine = wEditor.Call(SCI_GETFOLDLEVEL, line);
 		if (levelLine & SC_FOLDLEVELHEADERFLAG) {
-			if (force) {
-				if (visLevels > 1)
-					wEditor.Call(SCI_SETFOLDEXPANDED, line, 1);
-				else
-					wEditor.Call(SCI_SETFOLDEXPANDED, line, 0);
-				Expand(line, doExpand, force, visLevels - 1);
-			} else {
-				if (doExpand) {
-					if (!wEditor.Call(SCI_GETFOLDEXPANDED, line))
-						wEditor.Call(SCI_SETFOLDEXPANDED, line, 1);
-					Expand(line, true, force, visLevels - 1);
-				} else {
-					Expand(line, false, force, visLevels - 1);
-				}
-			}
-		} else {
-			line++;
+			wEditor.Call(SCI_SETFOLDEXPANDED, line, expand ? 1 : 0);
 		}
+		line++;
 	}
 }
 
@@ -3740,13 +3721,13 @@ void SciTEBase::FoldAll() {
 	for (int line = 0; line < maxLine; line++) {
 		int level = wEditor.Call(SCI_GETFOLDLEVEL, line);
 		if ((level & SC_FOLDLEVELHEADERFLAG) &&
-		        (SC_FOLDLEVELBASE == (level & SC_FOLDLEVELNUMBERMASK))) {
+		        (SC_FOLDLEVELBASE == LevelNumber(level))) {
+			const int lineMaxSubord = wEditor.Call(SCI_GETLASTCHILD, line, -1);
 			if (expanding) {
 				wEditor.Call(SCI_SETFOLDEXPANDED, line, 1);
-				Expand(line, true, false, 0, level);
-				line--;
+				ExpandFolds(line, true, level);
+				line = lineMaxSubord;
 			} else {
-				int lineMaxSubord = wEditor.Call(SCI_GETLASTCHILD, line, -1);
 				wEditor.Call(SCI_SETFOLDEXPANDED, line, 0);
 				if (lineMaxSubord > line)
 					wEditor.Call(SCI_HIDELINES, line + 1, lineMaxSubord);
@@ -3792,18 +3773,18 @@ void SciTEBase::ToggleFoldRecursive(int line, int level) {
 	if (wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
 		// Contract this line and all children
 		wEditor.Call(SCI_SETFOLDEXPANDED, line, 0);
-		Expand(line, false, true, 0, level);
+		ExpandFolds(line, false, level);
 	} else {
 		// Expand this line and all children
 		wEditor.Call(SCI_SETFOLDEXPANDED, line, 1);
-		Expand(line, true, true, 100, level);
+		ExpandFolds(line, true, level);
 	}
 }
 
 void SciTEBase::EnsureAllChildrenVisible(int line, int level) {
 	// Ensure all children visible
 	wEditor.Call(SCI_SETFOLDEXPANDED, line, 1);
-	Expand(line, true, true, 100, level);
+	ExpandFolds(line, true, level);
 }
 
 void SciTEBase::NewLineInOutput() {

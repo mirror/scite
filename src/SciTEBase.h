@@ -790,8 +790,7 @@ protected:
 	void MenuCommand(int cmdID, int source = 0);
 	void FoldChanged(int line, int levelNow, int levelPrev);
 	void FoldChanged(int position);
-	void Expand(int &line, bool doExpand, bool force = false,
-	        int visLevels = 0, int level = -1);
+	void ExpandFolds(int line, bool expand, int level);
 	void FoldAll();
 	void ToggleFoldRecursive(int line, int level);
 	void EnsureAllChildrenVisible(int line, int level);
