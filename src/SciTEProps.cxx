@@ -931,6 +931,16 @@ void SciTEBase::ReadProperties() {
 	wEditor.CallString(SCI_AUTOCSETFILLUPS, 0,
 		autoCompleteFillUpCharacters.c_str());
 
+	sprintf(key, "autocomplete.%s.typesep", language.c_str());
+	autoCompleteTypeSeparator = props.GetExpandedString(key);
+	if (autoCompleteTypeSeparator == "")
+		autoCompleteTypeSeparator =
+			props.GetExpandedString("autocomplete.*.typesep");
+	if (autoCompleteTypeSeparator.length()) {
+		wEditor.Call(SCI_AUTOCSETTYPESEPARATOR,
+			static_cast<unsigned char>(autoCompleteTypeSeparator[0]));
+	}
+
 	sprintf(key, "autocomplete.%s.ignorecase", "*");
 	sval = props.GetNewExpandString(key);
 	autoCompleteIgnoreCase = sval == "1";

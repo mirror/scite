@@ -464,6 +464,7 @@ protected:
 	std::string calltipEndDefinition;
 	std::string autoCompleteStartCharacters;
 	std::string autoCompleteFillUpCharacters;
+	std::string autoCompleteTypeSeparator;
 	std::string wordCharacters;
 	std::string whitespaceCharacters;
 	int startCalltipWord;
