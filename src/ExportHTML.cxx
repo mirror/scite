@@ -106,7 +106,7 @@ void SciTEBase::SaveToHTML(FilePath saveName) {
 			      "var togline=document.getElementById('hd'+id);\n"
 			      "var togsym=document.getElementById('bt'+id);\n"
 			      "if (thislayer.style.display == 'none') {\n"
-			      " thislayer.style.display='block';\n"
+			      " thislayer.style.display='';\n"
 			      " togline.style.textDecoration='none';\n"
 			      " symbol(togsym,'- ');\n"
 			      "} else {\n"
