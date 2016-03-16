@@ -187,6 +187,8 @@ static void *checkudata(lua_State *L, int ud, const char *tname) {
 			if (lua_rawequal(L, -1, -2)) { // does it have correct mt?
 				lua_pop(L, 2);
 				return p;
+			} else {
+				lua_pop(L, 2);
 			}
 		}
 	}
