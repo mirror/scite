@@ -490,6 +490,8 @@ static const char *propertiesToForward[] = {
 	"lexer.haskell.import.safe",
 	"lexer.html.django",
 	"lexer.html.mako",
+	"lexer.json.allow.comments",
+	"lexer.json.escape.sequence",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
 	"lexer.pascal.smart.highlighting",

@@ -1125,6 +1125,20 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_INNO_SECTION",4},
 	{"SCE_INNO_STRING_DOUBLE",10},
 	{"SCE_INNO_STRING_SINGLE",11},
+	{"SCE_JSON_BLOCKCOMMENT",7},
+	{"SCE_JSON_COMPACTIRI",10},
+	{"SCE_JSON_DEFAULT",0},
+	{"SCE_JSON_ERROR",13},
+	{"SCE_JSON_ESCAPESEQUENCE",5},
+	{"SCE_JSON_KEYWORD",11},
+	{"SCE_JSON_LDKEYWORD",12},
+	{"SCE_JSON_LINECOMMENT",6},
+	{"SCE_JSON_NUMBER",1},
+	{"SCE_JSON_OPERATOR",8},
+	{"SCE_JSON_PROPERTYNAME",4},
+	{"SCE_JSON_STRING",2},
+	{"SCE_JSON_STRINGEOL",3},
+	{"SCE_JSON_URI",9},
 	{"SCE_KIX_COMMENT",1},
 	{"SCE_KIX_COMMENTSTREAM",10},
 	{"SCE_KIX_DEFAULT",0},
@@ -2456,6 +2470,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_HTML",4},
 	{"SCLEX_IHEX",118},
 	{"SCLEX_INNOSETUP",76},
+	{"SCLEX_JSON",120},
 	{"SCLEX_KIX",57},
 	{"SCLEX_KVIRC",110},
 	{"SCLEX_LATEX",14},
@@ -3288,7 +3303,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 293,
-	ifaceConstantCount = 2628,
+	ifaceConstantCount = 2643,
 	ifacePropertyCount = 222
 };
 
