@@ -1129,6 +1129,7 @@ bool FindStrip::Command(WPARAM wParam) {
 	} else {
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
 		NextIncremental(changingEdit);
+		CheckButtons();
 	}
 	return false;
 }
@@ -1406,6 +1407,11 @@ bool ReplaceStrip::Command(WPARAM wParam) {
 	case IDREGEXP:
 	case IDUNSLASH:
 	case IDWRAP:
+	case IDM_WHOLEWORD:
+	case IDM_MATCHCASE:
+	case IDM_REGEXP:
+	case IDM_WRAPAROUND:
+	case IDM_UNSLASH:
 		pSearcher->FlagFromCmd(control) = !pSearcher->FlagFromCmd(control);
 		NextIncremental(changingEdit);
 		break;
