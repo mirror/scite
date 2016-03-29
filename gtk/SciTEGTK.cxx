@@ -162,6 +162,8 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 			modsInKey |= GDK_SHIFT_MASK;
 		if (RemoveStringOnce(sKey, "Alt+"))
 			modsInKey |= GDK_MOD1_MASK;
+		if (RemoveStringOnce(sKey, "Super+"))
+			modsInKey |= GDK_MOD4_MASK;
 
 		if (sKey.length() == 1) {
 			if (modsInKey & GDK_CONTROL_MASK && !(modsInKey & GDK_SHIFT_MASK))
@@ -3333,7 +3335,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 		}
 	}
 
-	int modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK);
+	int modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_MOD4_MASK);
 
 	int cmodifiers = // modifier mask for Lua extension
 		((event->state & GDK_SHIFT_MASK)   ? SCMOD_SHIFT : 0) |
