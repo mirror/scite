@@ -352,7 +352,7 @@ void SciTEWin::SetScaleFactor(int scale) {
 		::DeleteDC(hdcMeasure);
 	}
 	std::string sScale = StdStringFromInteger(scale);
-	propsEmbed.Set("ScaleFactor", sScale.c_str());
+	propsPlatform.Set("ScaleFactor", sScale.c_str());
 }
 
 // Allow UTF-8 file names and command lines to be used in calls to io.open and io.popen in Lua scripts.
