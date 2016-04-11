@@ -1529,7 +1529,7 @@ void UserStrip::Size() {
 			if (ctl->controlType == UserControl::ucStatic)
 				topWithFix += 3;
 			if (ctl->controlType == UserControl::ucEdit)
-				rcSize.bottom = rcSize.top + 23;
+				rcSize.bottom = rcSize.top + lineHeight - 3;
 			if (ctl->controlType == UserControl::ucCombo)
 				rcSize.bottom = rcSize.top + 180;
 			GUI::Rectangle rcControl(left, topWithFix, left + ctl->widthAllocated, topWithFix + rcSize.Height());
@@ -1647,7 +1647,7 @@ void UserStrip::SetDescription(const char *description) {
 				puc->fixedWidth = false;
 				puc->w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), puc->text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | ES_AUTOHSCROLL,
-					60 * control, line * lineHeight + space, puc->widthDesired, 27,
+					60 * control, line * lineHeight + space, puc->widthDesired, lineHeight - 3,
 					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 
