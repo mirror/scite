@@ -927,6 +927,14 @@ void SciTEBase::RemoveFindMarks() {
 	wEditor.Call(SCI_ANNOTATIONCLEARALL);
 }
 
+int SciTEBase::SearchFlags(bool regularExpressions) const {
+	return (wholeWord ? SCFIND_WHOLEWORD : 0) |
+	        (matchCase ? SCFIND_MATCHCASE : 0) |
+	        (regularExpressions ? SCFIND_REGEXP : 0) |
+	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0) |
+		(props.GetInt("find.replace.regexp.cpp11") ? SCFIND_CXX11REGEX : 0);
+}
+
 void SciTEBase::MarkAll(MarkPurpose purpose) {
 	RemoveFindMarks();
 	wEditor.Call(SCI_SETINDICATORCURRENT, indicatorMatch);
@@ -953,13 +961,8 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 		return;
 	}
 
-	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
-	        (matchCase ? SCFIND_MATCHCASE : 0) |
-	        (regExp ? SCFIND_REGEXP : 0) |
-	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
-
 	findMarker.StartMatch(&wEditor, findTarget,
-		flags, -1,
+		SearchFlags(regExp), -1,
 		indicatorMatch, (purpose == markWithBookMarks) ? markerBookmark : -1);
 	SetIdler(true);
 }
@@ -1054,12 +1057,7 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 		endPosition = 0;
 	}
 
-	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
-	        (matchCase ? SCFIND_MATCHCASE : 0) |
-	        ((allowRegExp && regExp) ? SCFIND_REGEXP : 0) |
-	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
-
-	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
+	wEditor.Call(SCI_SETSEARCHFLAGS, SearchFlags(allowRegExp && regExp));
 	int posFind = FindInTarget(findTarget, startPosition, endPosition);
 	if (posFind == -1 && wrapFind) {
 		// Failed to find in indicated direction
@@ -1172,11 +1170,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	}
 
 	const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
-	int flags = (wholeWord ? SCFIND_WHOLEWORD : 0) |
-	        (matchCase ? SCFIND_MATCHCASE : 0) |
-	        (regExp ? SCFIND_REGEXP : 0) |
-	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0);
-	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
+	wEditor.Call(SCI_SETSEARCHFLAGS, SearchFlags(regExp));
 	int posFind = FindInTarget(findTarget, startPosition, endPosition);
 	if ((findTarget.length() == 1) && regExp && (findTarget[0] == '^')) {
 		// Special case for replace all start of line so it hits the first line

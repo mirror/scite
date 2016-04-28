@@ -807,6 +807,7 @@ protected:
 	virtual void ActivateWindow(const char *timestamp) = 0;
 
 	void RemoveFindMarks();
+	int SearchFlags(bool regularExpressions) const;
 	void MarkAll(MarkPurpose purpose=markWithBookMarks);
 	void BookmarkAdd(int lineno = -1);
 	void BookmarkDelete(int lineno = -1);
