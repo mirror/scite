@@ -476,7 +476,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	GUI::ScintillaWindow &win = editor ? wEditor : wOutput;
 
 	int mainSel = win.Call(SCI_GETMAINSELECTION, 0, 0);
-	if (win.Send(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0) > 0)
+	if (win.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0) > 0)
 		return false;
 
 	int bracesStyleCheck = editor ? bracesStyle : 0;
@@ -489,7 +489,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	TextReader acc(win);
 	if ((lengthDoc > 0) && (caretPos > 0)) {
 		// Check to ensure not matching brace that is part of a multibyte character
-		if (win.Send(SCI_POSITIONBEFORE, caretPos) == (caretPos - 1)) {
+		if (win.Call(SCI_POSITIONBEFORE, caretPos) == (caretPos - 1)) {
 			charBefore = acc[caretPos - 1];
 			styleBefore = acc.StyleAt(caretPos - 1);
 		}
@@ -509,7 +509,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	if (lengthDoc > 0 && sloppy && (braceAtCaret < 0) && (caretPos < lengthDoc)) {
 		// No brace found so check other side
 		// Check to ensure not matching brace that is part of a multibyte character
-		if (win.Send(SCI_POSITIONAFTER, caretPos) == (caretPos + 1)) {
+		if (win.Call(SCI_POSITIONAFTER, caretPos) == (caretPos + 1)) {
 			char charAfter = acc[caretPos];
 			int styleAfter = acc.StyleAt(caretPos);
 			if (charAfter && IsBrace(charAfter) && ((styleAfter == bracesStyleCheck) || (!bracesStyle))) {
@@ -548,14 +548,14 @@ void SciTEBase::BraceMatch(bool editor) {
 	FindMatchingBracePosition(editor, braceAtCaret, braceOpposite, bracesSloppy);
 	GUI::ScintillaWindow &win = editor ? wEditor : wOutput;
 	if ((braceAtCaret != -1) && (braceOpposite == -1)) {
-		win.Send(SCI_BRACEBADLIGHT, braceAtCaret, 0);
+		win.Call(SCI_BRACEBADLIGHT, braceAtCaret, 0);
 		wEditor.Call(SCI_SETHIGHLIGHTGUIDE, 0);
 	} else {
 		char chBrace = 0;
 		if (braceAtCaret >= 0)
-			chBrace = static_cast<char>(win.Send(
+			chBrace = static_cast<char>(win.Call(
 			            SCI_GETCHARAT, braceAtCaret, 0));
-		win.Send(SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
+		win.Call(SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
 		int columnAtCaret = win.Call(SCI_GETCOLUMN, braceAtCaret, 0);
 		int columnOpposite = win.Call(SCI_GETCOLUMN, braceOpposite, 0);
 		if (chBrace == ':') {
@@ -570,7 +570,7 @@ void SciTEBase::BraceMatch(bool editor) {
 			if (columnOpposite == 0)	// If the final line of the structure is empty
 				columnOpposite = columnAtCaret;
 		} else {
-			if (win.Send(SCI_LINEFROMPOSITION, braceAtCaret) == win.Send(SCI_LINEFROMPOSITION, braceOpposite)) {
+			if (win.Call(SCI_LINEFROMPOSITION, braceAtCaret) == win.Call(SCI_LINEFROMPOSITION, braceOpposite)) {
 				// Avoid attempting to draw a highlight guide
 				columnAtCaret = 0;
 				columnOpposite = 0;
@@ -578,7 +578,7 @@ void SciTEBase::BraceMatch(bool editor) {
 		}
 
 		if (props.GetInt("highlight.indentation.guides"))
-			win.Send(SCI_SETHIGHLIGHTGUIDE, Minimum(columnAtCaret, columnOpposite), 0);
+			win.Call(SCI_SETHIGHLIGHTGUIDE, Minimum(columnAtCaret, columnOpposite), 0);
 	}
 }
 
@@ -1350,7 +1350,7 @@ void SciTEBase::Execute() {
 	}
 
 	if (jobQueue.ClearBeforeExecute()) {
-		wOutput.Send(SCI_CLEARALL);
+		wOutput.Call(SCI_CLEARALL);
 	}
 
 	wOutput.Call(SCI_MARKERDELETEALL, static_cast<uptr_t>(-1));
@@ -3414,7 +3414,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_CLEAROUTPUT:
-		wOutput.Send(SCI_CLEARALL);
+		wOutput.Call(SCI_CLEARALL);
 		break;
 
 	case IDM_SWITCHPANE:

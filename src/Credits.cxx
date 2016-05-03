@@ -418,7 +418,7 @@ static void AddStyledText(GUI::ScintillaWindow &wsci, const char *s, int attr) {
 }
 
 static void SetAboutStyle(GUI::ScintillaWindow &wsci, int style, Colour fore) {
-	wsci.Send(SCI_STYLESETFORE, style, fore);
+	wsci.Call(SCI_STYLESETFORE, style, fore);
 }
 
 namespace {
@@ -466,8 +466,8 @@ public:
 
 void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle) {
 	if (wsci.Created()) {
-		wsci.Send(SCI_SETSTYLEBITS, 7, 0);
-		wsci.Send(SCI_STYLERESETDEFAULT, 0, 0);
+		wsci.Call(SCI_SETSTYLEBITS, 7, 0);
+		wsci.Call(SCI_STYLERESETDEFAULT, 0, 0);
 		std::string sVersion = " ";
 		sVersion += VERSION_SCITE;
 		sVersion += " ";
@@ -485,15 +485,15 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 #endif
 		sVersion += "\n";
 
-		wsci.Send(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
+		wsci.Call(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
 
-		wsci.Send(SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
-		wsci.Send(SCI_STYLESETBACK, STYLE_DEFAULT, ColourRGB(0xff, 0xff, 0xff));
-		wsci.Send(SCI_STYLECLEARALL, 0, 0);
+		wsci.Call(SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
+		wsci.Call(SCI_STYLESETBACK, STYLE_DEFAULT, ColourRGB(0xff, 0xff, 0xff));
+		wsci.Call(SCI_STYLECLEARALL, 0, 0);
 
 		SetAboutStyle(wsci, 0, ColourRGB(0xff, 0xff, 0xff));
-		wsci.Send(SCI_STYLESETSIZE, 0, fontSize);
-		wsci.Send(SCI_STYLESETBACK, 0, ColourRGB(0, 0, 0x80));
+		wsci.Call(SCI_STYLESETSIZE, 0, fontSize);
+		wsci.Call(SCI_STYLESETBACK, 0, ColourRGB(0, 0, 0x80));
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
@@ -504,7 +504,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		AddStyledText(wsci, sVersion.c_str(), 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
 		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
-		wsci.Send(SCI_STYLESETITALIC, 2, 1);
+		wsci.Call(SCI_STYLESETITALIC, 2, 1);
 		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
 		AddStyledText(wsci, " Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourRGB(0, 0, 0));
@@ -528,6 +528,6 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 			colour.Next();
 			SetAboutStyle(wsci, sty + 50, ColourRGB(colour.r, colour.g, colour.b));
 		}
-		wsci.Send(SCI_SETREADONLY, 1, 0);
+		wsci.Call(SCI_SETREADONLY, 1, 0);
 	}
 }

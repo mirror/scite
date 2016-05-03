@@ -1181,18 +1181,18 @@ void SciTEWin::Execute() {
 	cmdWorker.commandTime.Duration(true);
 	cmdWorker.flags = jobQueue.jobQueue[cmdWorker.icmd].flags;
 	if (scrollOutput)
-		wOutput.Send(SCI_GOTOPOS, wOutput.Send(SCI_GETTEXTLENGTH));
+		wOutput.Call(SCI_GOTOPOS, wOutput.Call(SCI_GETTEXTLENGTH));
 
 	if (jobQueue.jobQueue[cmdWorker.icmd].jobType == jobExtension) {
 		// Execute extensions synchronously
 		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
-			wEditor.Send(SCI_BEGINUNDOACTION);
+			wEditor.Call(SCI_BEGINUNDOACTION);
 
 		if (extender)
 			extender->OnExecute(jobQueue.jobQueue[cmdWorker.icmd].command.c_str());
 
 		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
-			wEditor.Send(SCI_ENDUNDOACTION);
+			wEditor.Call(SCI_ENDUNDOACTION);
 
 		ExecuteNext();
 	} else {

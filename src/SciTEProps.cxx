@@ -277,29 +277,29 @@ StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
 
 void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd) {
 	if (sd.specified & StyleDefinition::sdItalics)
-		win.Send(SCI_STYLESETITALIC, style, sd.italics ? 1 : 0);
+		win.Call(SCI_STYLESETITALIC, style, sd.italics ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdWeight)
-		win.Send(SCI_STYLESETWEIGHT, style, sd.weight);
+		win.Call(SCI_STYLESETWEIGHT, style, sd.weight);
 	if (sd.specified & StyleDefinition::sdFont)
 		win.CallString(SCI_STYLESETFONT, style,
 			sd.font.c_str());
 	if (sd.specified & StyleDefinition::sdFore)
-		win.Send(SCI_STYLESETFORE, style, sd.ForeAsLong());
+		win.Call(SCI_STYLESETFORE, style, sd.ForeAsLong());
 	if (sd.specified & StyleDefinition::sdBack)
-		win.Send(SCI_STYLESETBACK, style, sd.BackAsLong());
+		win.Call(SCI_STYLESETBACK, style, sd.BackAsLong());
 	if (sd.specified & StyleDefinition::sdSize)
-		win.Send(SCI_STYLESETSIZEFRACTIONAL, style, sd.FractionalSize());
+		win.Call(SCI_STYLESETSIZEFRACTIONAL, style, sd.FractionalSize());
 	if (sd.specified & StyleDefinition::sdEOLFilled)
-		win.Send(SCI_STYLESETEOLFILLED, style, sd.eolfilled ? 1 : 0);
+		win.Call(SCI_STYLESETEOLFILLED, style, sd.eolfilled ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdUnderlined)
-		win.Send(SCI_STYLESETUNDERLINE, style, sd.underlined ? 1 : 0);
+		win.Call(SCI_STYLESETUNDERLINE, style, sd.underlined ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdCaseForce)
-		win.Send(SCI_STYLESETCASE, style, sd.caseForce);
+		win.Call(SCI_STYLESETCASE, style, sd.caseForce);
 	if (sd.specified & StyleDefinition::sdVisible)
-		win.Send(SCI_STYLESETVISIBLE, style, sd.visible ? 1 : 0);
+		win.Call(SCI_STYLESETVISIBLE, style, sd.visible ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdChangeable)
-		win.Send(SCI_STYLESETCHANGEABLE, style, sd.changeable ? 1 : 0);
-	win.Send(SCI_STYLESETCHARACTERSET, style, characterSet);
+		win.Call(SCI_STYLESETCHANGEABLE, style, sd.changeable ? 1 : 0);
+	win.Call(SCI_STYLESETCHARACTERSET, style, characterSet);
 }
 
 void SciTEBase::SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last) {

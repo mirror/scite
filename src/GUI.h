@@ -186,6 +186,7 @@ public:
 	int CallString(unsigned int msg, uptr_t wParam, const char *s) {
 		return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
 	}
+	// Send is the basic method and can be used between threads on Win32
 	sptr_t Send(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 };
 
