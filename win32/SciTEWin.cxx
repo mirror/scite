@@ -937,7 +937,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				DWORD bytesWrote = 0;
 
 				int bTest = ::WriteFile(hWriteSubProcess,
-					    const_cast<char *>(jobToRun.input.c_str() + writingPosition),
+					    jobToRun.input.c_str() + writingPosition,
 					    static_cast<DWORD>(bytesToWrite), &bytesWrote, NULL);
 
 				if (bTest) {

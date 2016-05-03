@@ -28,7 +28,7 @@ static int WidthText(HFONT hfont, const GUI::gui_char *text) {
 	HDC hdcMeasure = ::CreateCompatibleDC(NULL);
 	HFONT hfontOriginal = static_cast<HFONT>(::SelectObject(hdcMeasure, hfont));
 	RECT rcText = {0,0, 2000, 2000};
-	::DrawText(hdcMeasure, const_cast<LPWSTR>(text), -1, &rcText, DT_CALCRECT);
+	::DrawText(hdcMeasure, text, -1, &rcText, DT_CALCRECT);
 	int width = rcText.right - rcText.left;
 	::SelectObject(hdcMeasure, hfontOriginal);
 	::DeleteDC(hdcMeasure);

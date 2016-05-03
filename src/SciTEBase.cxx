@@ -1695,7 +1695,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	const std::string root = line.substr(startword, current - startword);
 	const int doclen = LengthDocument();
 	Sci_TextToFind ft = {{0, 0}, 0, {0, 0}};
-	ft.lpstrText = const_cast<char *>(root.c_str());
+	ft.lpstrText = root.c_str();
 	ft.chrg.cpMin = 0;
 	ft.chrg.cpMax = doclen;
 	ft.chrgText.cpMin = 0;
