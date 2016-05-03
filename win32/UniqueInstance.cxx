@@ -172,10 +172,11 @@ bool UniqueInstance::FindOtherInstance() {
 }
 
 void UniqueInstance::WindowCopyData(const char *s, size_t len) {
+	std::string sCopy(s, s + len);	// Ensure NUL at end of string
 	COPYDATASTRUCT cds;
 	cds.dwData = 0;
 	cds.cbData = static_cast<DWORD>(len);
-	cds.lpData = const_cast<void *>(static_cast<const void *>(s));
+	cds.lpData = &sCopy[0];
 	::SendMessage(hOtherWindow, WM_COPYDATA, 0, reinterpret_cast<LPARAM>(&cds));
 }
 
