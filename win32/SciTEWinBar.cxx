@@ -78,7 +78,8 @@ void SciTEWin::TabInsert(int index, const GUI::gui_char *title) {
 	TCITEMW tie;
 	tie.mask = TCIF_TEXT | TCIF_IMAGE;
 	tie.iImage = -1;
-	tie.pszText = const_cast<GUI::gui_char *>(title);
+	GUI::gui_string titleCopy(title, title + wcslen(title) + 1);
+	tie.pszText = &titleCopy[0];
 	::SendMessage(HwndOf(wTabBar), TCM_INSERTITEMW, index, reinterpret_cast<LPARAM>(&tie));
 }
 
@@ -567,7 +568,8 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 							text += GUI_TEXT("\t");
 							text += accel;
 						}
-						mii.dwTypeData = const_cast<GUI::gui_char *>(text.c_str());
+						text.append(1, 0);
+						mii.dwTypeData = &text[0];
 						::SetMenuItemInfoW(hmenu, i, TRUE, &mii);
 					}
 				}
