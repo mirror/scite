@@ -187,7 +187,6 @@ public:
 		return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
 	}
 	sptr_t Send(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
-	sptr_t SendPointer(unsigned int msg, uptr_t wParam=0, void *lParam=0);
 };
 
 bool IsDBCSLeadByte(int codePage, char ch);

@@ -119,7 +119,7 @@ void StyleWriter::Flush() {
 	startPos = extremePosition;
 	lenDoc = -1;
 	if (validLen > 0) {
-		sw.SendPointer(SCI_SETSTYLINGEX, validLen, styleBuf);
+		sw.CallPointer(SCI_SETSTYLINGEX, validLen, styleBuf);
 		validLen = 0;
 	}
 }

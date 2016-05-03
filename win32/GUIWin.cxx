@@ -302,10 +302,6 @@ sptr_t ScintillaWindow::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	return ::SendMessage(static_cast<HWND>(GetID()), msg, wParam, lParam);
 }
 
-sptr_t ScintillaWindow::SendPointer(unsigned int msg, uptr_t wParam, void *lParam) {
-	return ::SendMessage(static_cast<HWND>(GetID()), msg, wParam, reinterpret_cast<LPARAM>(lParam));
-}
-
 bool IsDBCSLeadByte(int codePage, char ch) {
 	if (SC_CP_UTF8 == codePage)
 		// For lexing, all characters >= 0x80 are treated the

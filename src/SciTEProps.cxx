@@ -281,8 +281,8 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 	if (sd.specified & StyleDefinition::sdWeight)
 		win.Send(SCI_STYLESETWEIGHT, style, sd.weight);
 	if (sd.specified & StyleDefinition::sdFont)
-		win.SendPointer(SCI_STYLESETFONT, style,
-			const_cast<char *>(sd.font.c_str()));
+		win.CallString(SCI_STYLESETFONT, style,
+			sd.font.c_str());
 	if (sd.specified & StyleDefinition::sdFore)
 		win.Send(SCI_STYLESETFORE, style, sd.ForeAsLong());
 	if (sd.specified & StyleDefinition::sdBack)

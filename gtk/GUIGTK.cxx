@@ -165,10 +165,6 @@ sptr_t ScintillaWindow::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	return scintilla_send_message(SCINTILLA(GetID()), msg, wParam, lParam);
 }
 
-sptr_t ScintillaWindow::SendPointer(unsigned int msg, uptr_t wParam, void *lParam) {
-	return scintilla_send_message(SCINTILLA(GetID()), msg, wParam, reinterpret_cast<sptr_t>(lParam));
-}
-
 bool IsDBCSLeadByte(int codePage, char ch) {
 	// Byte ranges found in Wikipedia articles with relevant search strings in each case
 	unsigned char uch = static_cast<unsigned char>(ch);

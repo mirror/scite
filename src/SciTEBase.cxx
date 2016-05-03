@@ -333,8 +333,8 @@ std::string SciTEBase::GetCurrentLine() {
 }
 
 void SciTEBase::GetRange(GUI::ScintillaWindow &win, int start, int end, char *text) {
-	win.Send(SCI_SETTARGETRANGE, start, end);
-	win.SendPointer(SCI_GETTARGETTEXT, 0, text);
+	win.Call(SCI_SETTARGETRANGE, start, end);
+	win.CallPointer(SCI_GETTARGETTEXT, 0, text);
 	text[end - start] = '\0';
 }
 
@@ -756,8 +756,8 @@ std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, int selStart, i
 		return std::string();
 	} else {
 		std::string sel(selEnd - selStart, '\0');
-		win.Send(SCI_SETTARGETRANGE, selStart, selEnd);
-		win.SendPointer(SCI_GETTARGETTEXT, 0, &sel[0]);
+		win.Call(SCI_SETTARGETRANGE, selStart, selEnd);
+		win.CallPointer(SCI_GETTARGETTEXT, 0, &sel[0]);
 		return sel;
 	}
 }
