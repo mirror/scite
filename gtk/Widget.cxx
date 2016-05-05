@@ -361,7 +361,7 @@ gboolean WCheckDraw::Draw(GtkWidget *widget, cairo_t *cr) {
 			cr,
 			state,
 			shadow,
-			widget, const_cast<char *>("button"),
+			widget, "button",
 			0, 0,
 			allocation.width, allocation.height);
 #endif
@@ -376,7 +376,7 @@ gboolean WCheckDraw::Draw(GtkWidget *widget, cairo_t *cr) {
 		gtk_paint_focus(pStyle,
 			cr,
 			state,
-			widget, const_cast<char *>("button"),
+			widget, "button",
 			2, 2,
 			allocation.width-4, allocation.height-4);
 #endif
@@ -441,14 +441,14 @@ gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
 		gtk_paint_box(pStyle, widget->window,
 			       state,
 			       shadow,
-			       &area, widget, const_cast<char *>("button"),
+			       &area, widget, "button",
 			       0, 0,
 			       area.width, area.height);
 	if (HasFocus()) {
 		// Draw focus inset by 2 pixels
 		gtk_paint_focus(pStyle, widget->window,
 			       state,
-			       &area, widget, const_cast<char *>("button"),
+			       &area, widget, "button",
 			       2, 2,
 			       area.width-4, area.height-4);
 	}

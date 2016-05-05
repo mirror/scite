@@ -1150,7 +1150,7 @@ void SciTEGTK::ReadLocalization() {
 		while (more) {
 			char converted[1000];
 			converted[0] = '\0';
-			// Cast needed for some versions of iconv not marking input argument as const
+			// g_iconv does not actually write to its input argument so safe to cast away const
 			char *pin = const_cast<char *>(val);
 			size_t inLeft = strlen(val);
 			char *pout = converted;
@@ -3666,9 +3666,9 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 		translatedItems[i].callback_action = items[i].callback_action;
 		translatedItems[i].item_type = (gchar*) items[i].item_type;
 		translatedText[i] = TranslatePath(translatedItems[i].path);
-		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
+		translatedItems[i].path = translatedText[i].c_str();
 		translatedRadios[i] = TranslatePath(translatedItems[i].item_type);
-		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
+		translatedItems[i].item_type = translatedRadios[i].c_str();
 
 	}
 	for (; i < dim; i++) {
@@ -3676,11 +3676,11 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 		std::string ssnum = StdStringFromInteger(suffix);
 		translatedText[i] = TranslatePath(prefix);
 		translatedText[i] += ssnum;
-		translatedItems[i].path = const_cast<char *>(translatedText[i].c_str());
+		translatedItems[i].path = translatedText[i].c_str();
 		translatedItems[i].accelerator = NULL;
 		translatedItems[i].callback_action = startID + suffix;
 		translatedRadios[i] = TranslatePath(radioStart);
-		translatedItems[i].item_type = const_cast<char *>(translatedRadios[i].c_str());
+		translatedItems[i].item_type = translatedRadios[i].c_str();
 	}
 	// Only two levels of submenu supported
 	for (int itMenu=0; itMenu < dim; itMenu++) {
