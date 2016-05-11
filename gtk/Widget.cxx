@@ -78,8 +78,9 @@ void WEntry::SetValid(GtkEntry *entry, bool valid) {
 	gtk_widget_set_name(GTK_WIDGET(entry), valid ? "" : "entryInvalid");
 #else
 	if (valid) {
-		GdkColor white = { 0, 0xFFFF, 0xFFFF, 0xFFFF};
-		gtk_widget_modify_base(GTK_WIDGET(entry), GTK_STATE_NORMAL, &white);
+		// Reset widget's background color
+		// to the one given by the GTK theme
+		gtk_widget_modify_base(GTK_WIDGET(entry), GTK_STATE_NORMAL, NULL);
 	} else {
 		GdkColor red = { 0, 0xFFFF, 0x6666, 0x6666 };
 		gtk_widget_modify_base(GTK_WIDGET(entry), GTK_STATE_NORMAL, &red);
