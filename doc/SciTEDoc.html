@@ -791,9 +791,18 @@ NameError: mistake
       USERPROFILE is not set.
       For GTK+ the user properties file is found in the user's home directory and the global
       properties in a directory set at build time - normally /usr/share/scite.
-      If the "SciTE_HOME" environment variable is set on either Windows or GTK+ then it is where
-      both the global and user properties files are found.
     </p>
+    <p>
+      There are two environment variables, "SciTE_HOME" and "SciTE_USERHOME", which the user
+      may set to override the standard locations of the global and/or the user properties files
+      (this and the following applies to Windows and GTK):
+    </p>
+    <ul>
+        <li>If SciTE_USERHOME is set then it is where the user properties files are found.</li>
+        <li>If SciTE_HOME is set then it is where the global properties files are found.</li>
+        <li>If <b>only</b> SciTE_HOME is set then it is where both the global and user properties
+            files are found.</li>
+    </ul>
     <p>
        There are commands in the Options menu for opening each of the properties files.
     </p>
@@ -2767,13 +2776,16 @@ Prev File|IDM_PREVFILE|<br/>
         If you set save.session, the list of currently opened buffers will be saved on exit
         in a session file. When you start SciTE next time (without specifying a file name
         on the command line) the last session will be restored automatically.<br />
-        For GTK+, the file is called ".SciTE.session" and is located in the directory
-        given by the SciTE_HOME environment variable and if that is not set, the value
-        of the HOME environment variable and if that is not set, the top level directory.
-        For Windows, the file is called "SciTE.session" and is located in the directory
-        given by the SciTE_HOME environment variable and if that is not set, the value
-        of the USERPROFILE environment variable and if that is not set, the directory
-        of the SciTE executable.<br />
+        <b>For GTK+</b>, the file is called ".SciTE.session" and is located in the
+        directory given by the SciTE_USERHOME environment variable and if that is
+        not set, the value of the SciTE_HOME environment variable and if that is not
+        set, the value of the HOME environment variable and if that is not
+        set, the top level directory.<br />
+        <b>For Windows</b>, the file is called "SciTE.session" and is located in the
+        directory given by the SciTE_USERHOME environment variable and if that is not
+        set, the value of the SciTE_HOME environment variable and if that is not set,
+        the value of the USERPROFILE environment variable and if that is not set, the
+        directory of the SciTE executable.<br />
         Setting save.recent causes the most recently used files list to be saved on
         exit in the session file and read at start up.<br />
         Setting save.position causes the SciTE window position on the desktop to be

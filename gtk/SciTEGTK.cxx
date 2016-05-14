@@ -922,10 +922,17 @@ FilePath SciTEGTK::GetSciteDefaultHome() {
 }
 
 FilePath SciTEGTK::GetSciteUserHome() {
-	char *where = getenv("SciTE_HOME");
+	// First looking for environment variable $SciTE_USERHOME
+	// to set SciteUserHome. If not present we look for $SciTE_HOME
+	// then defaulting to $HOME
+	char *where = getenv("SciTE_USERHOME");
 	if (!where) {
-		where = getenv("HOME");
+		where = getenv("SciTE_HOME");
+		if (!where) {
+			where = getenv("HOME");
+		}
 	}
+
 	return FilePath(where);
 }
 
