@@ -1184,7 +1184,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 		wEditor.Call(SCI_BEGINUNDOACTION);
 		// Replacement loop
 		while (posFind != -1) {
-			int lenTarget = wEditor.Call(SCI_GETTARGETEND) - wEditor.Call(SCI_GETTARGETSTART);
+			const int lenTarget = wEditor.Call(SCI_GETTARGETEND) - wEditor.Call(SCI_GETTARGETSTART);
 			if (inSelection && countSelections > 1) {
 				// We must check that the found target is entirely inside a selection
 				bool insideASelection = false;
@@ -1206,13 +1206,6 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 					continue;	// No replacement
 				}
 			}
-			int movepastEOL = 0;
-			if (lenTarget <= 0) {
-				char chNext = static_cast<char>(wEditor.Call(SCI_GETCHARAT, wEditor.Call(SCI_GETTARGETEND)));
-				if (chNext == '\r' || chNext == '\n') {
-					movepastEOL = 1;
-				}
-			}
 			int lenReplaced = static_cast<int>(replaceTarget.length());
 			if (regExp) {
 				lenReplaced = wEditor.CallString(SCI_REPLACETARGETRE, replaceTarget.length(), replaceTarget.c_str());
@@ -1223,8 +1216,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 			endPosition += lenReplaced - lenTarget;
 			// For the special cases of start of line and end of line
 			// something better could be done but there are too many special cases
-			lastMatch = posFind + lenReplaced + movepastEOL;
-			if (lenTarget == 0) {
+			lastMatch = posFind + lenReplaced;
+			if (lenTarget <= 0) {
 				lastMatch = wEditor.Call(SCI_POSITIONAFTER, lastMatch);
 			}
 			if (lastMatch >= endPosition) {
