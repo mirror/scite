@@ -966,7 +966,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			if (ControlIDOfWParam(wParam) == IDMARKALL){
 				MarkAll(markWithBookMarks);
 			}
-			FindNext(reverseFind ^ IsKeyDown(VK_SHIFT));
+			// Holding the Shift key inverts the current reverse flag
+			FindNext(reverseFind != IsKeyDown(VK_SHIFT));
 			return TRUE;
 		} else if (ControlIDOfWParam(wParam) == IDFINDINSTYLE) {
 			if (FindReplaceAdvanced()) {
