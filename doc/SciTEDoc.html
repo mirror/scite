@@ -1304,11 +1304,11 @@ NameError: mistake
           buffered.draw
         </td>
         <td>
-          Setting this to 0 rather than the default 1 makes SciTE draw output directly to the
-          screen rather than into a buffer bitmap first and then to the screen. Buffered drawing
-          flickers less but is slower.<br />
-          This setting is now only effective on Windows with GDI drawing.
-          OS X and GTK+ are always buffered as is Windows with Direct2D drawing.
+          Setting this to 1 rather than the default 0 may make SciTE
+          draw output into a buffer bitmap first and then to the screen instead of directly to the
+          screen. On old platforms and some unusual modes this can result in less flickering.
+          but is slower.<br />
+          Has no effect on OS X and may have no effect on other platforms or technology choices.
         </td>
       </tr>
       <tr id='property-two.phase.draw'>

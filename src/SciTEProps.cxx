@@ -992,7 +992,7 @@ void SciTEBase::ReadProperties() {
 
 	SetLineNumberWidth();
 
-	bufferedDraw = props.GetInt("buffered.draw", 1);
+	bufferedDraw = props.GetInt("buffered.draw");
 	wEditor.Call(SCI_SETBUFFEREDDRAW, bufferedDraw);
 	wOutput.Call(SCI_SETBUFFEREDDRAW, bufferedDraw);
 
