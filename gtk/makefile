@@ -73,7 +73,7 @@ vpath %.c ../lua/src ../lua/src/lib
 INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
 
 .c.o:
-	$(CC) $(CFLAGS) $(INCLUDEDIRS) -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDEDIRS) -Wno-misleading-indentation -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
 
 else
 CXXTFLAGS+=-DNO_LUA
