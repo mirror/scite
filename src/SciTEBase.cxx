@@ -3783,6 +3783,8 @@ bool SciTEBase::MarginClick(int position, int modifiers) {
 
 void SciTEBase::ToggleFoldRecursive(int line, int level) {
 	if (wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
+		// This ensure fold structure created before the fold is expanded
+		wEditor.Call(SCI_GETLASTCHILD, line, LevelNumber(level));
 		// Contract this line and all children
 		wEditor.Call(SCI_SETFOLDEXPANDED, line, 0);
 		ExpandFolds(line, false, level);
