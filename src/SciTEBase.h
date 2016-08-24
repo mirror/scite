@@ -758,7 +758,7 @@ protected:
 	virtual bool StartBlockComment();
 	virtual bool StartBoxComment();
 	virtual bool StartStreamComment();
-	unsigned int GetLinePartsInStyle(int line, int style1, int style2, std::string sv[], int len);
+	unsigned int GetLinePartsInStyle(int line, int style1, int style2, std::string sv[], int len, bool separateCharacters);
 	void SetLineIndentation(int line, int indent);
 	int GetLineIndentation(int line);
 	int GetLineIndentPosition(int line);

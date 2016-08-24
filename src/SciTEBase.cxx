@@ -2416,7 +2416,7 @@ bool SciTEBase::RangeIsAllWhitespace(int start, int end) {
 	return true;
 }
 
-unsigned int SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, std::string sv[], int len) {
+unsigned int SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, std::string sv[], int len, bool separateCharacters) {
 	for (int i = 0; i < len; i++)
 		sv[i] = "";
 	TextReader acc(wEditor);
@@ -2426,6 +2426,13 @@ unsigned int SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, st
 	int nextLineStart = wEditor.Call(SCI_POSITIONFROMLINE, line + 1);
 	for (int pos = thisLineStart; pos < nextLineStart; pos++) {
 		if ((acc.StyleAt(pos) == style1) || (acc.StyleAt(pos) == style2)) {
+			if (separateCharacters) {
+				// Add one character at a a time, even if there is an adjacent character in the same style
+				if ((s.length() > 0) && (part < len)) {
+					sv[part++] = s;
+				}
+				s = "";
+			}
 			char c[2];
 			c[0] = acc[pos];
 			c[1] = '\0';
@@ -2481,22 +2488,23 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 	IndentationStatus indentState = isNone;
 	std::string controlWords[20];
 	unsigned int parts = GetLinePartsInStyle(line, statementIndent.styleNumber,
-	        -1, controlWords, ELEMENTS(controlWords));
+	        -1, controlWords, ELEMENTS(controlWords), statementIndent.IsSingleChar());
 	unsigned int i;
 	for (i = 0; i < parts; i++) {
 		if (includes(statementIndent, controlWords[i]))
 			indentState = isKeyWordStart;
 	}
 	parts = GetLinePartsInStyle(line, statementEnd.styleNumber,
-	        -1, controlWords, ELEMENTS(controlWords));
+	        -1, controlWords, ELEMENTS(controlWords), statementEnd.IsSingleChar());
 	for (i = 0; i < parts; i++) {
 		if (includes(statementEnd, controlWords[i]))
 			indentState = isNone;
 	}
 	// Braces override keywords
 	std::string controlStrings[20];
+	bool separateChars = blockStart.IsSingleChar() && blockEnd.IsSingleChar();
 	parts = GetLinePartsInStyle(line, blockEnd.styleNumber,
-	        -1, controlStrings, ELEMENTS(controlStrings));
+	        -1, controlStrings, ELEMENTS(controlStrings), separateChars);
 	for (unsigned int j = 0; j < parts; j++) {
 		if (includes(blockEnd, controlStrings[j]))
 			indentState = isBlockEnd;
@@ -2623,7 +2631,7 @@ void SciTEBase::AutomaticIndentation(char ch) {
 		if (!indentClosing && !blockEnd.IsSingleChar()) {	// Dedent previous line maybe
 			std::string controlWords[1];
 			if (GetLinePartsInStyle(curLine - 1, blockEnd.styleNumber,
-			        -1, controlWords, ELEMENTS(controlWords))) {
+			        -1, controlWords, ELEMENTS(controlWords), blockEnd.IsSingleChar())) {
 				if (includes(blockEnd, controlWords[0])) {
 					// Check if first keyword on line is an ender
 					SetLineIndentation(curLine - 1, IndentOfBlock(curLine - 2) - indentSize);
