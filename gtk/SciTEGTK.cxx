@@ -4011,9 +4011,6 @@ void SciTEGTK::CreateMenu() {
 	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wSciTE)), accelGroup);
 }
 
-const int stripButtonWidth = 16 + 3 * 2 + 1;
-const int stripButtonPitch = stripButtonWidth;
-
 void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) {
 	incrementalBehaviour = static_cast<IncrementalBehaviour>(behaviour);
 }
@@ -4115,8 +4112,6 @@ void FindStrip::Show(int buttonHeight) {
 	gtk_widget_set_size_request(wComboFind, widthCombo, buttonHeight);
 	gtk_widget_set_size_request(GTK_WIDGET(wComboFind.Entry()), -1, buttonHeight);
 	gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
-	for (int i=0; i<checks; i++)
-		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
 	initializingSearch = true;	// Avoid search for initial value in search entry
 	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
@@ -4371,9 +4366,6 @@ void ReplaceStrip::Show(int buttonHeight) {
 
 	gtk_widget_set_size_request(wStaticFind, -1, heightStatic);
 	gtk_widget_set_size_request(wStaticReplace, -1, heightStatic);
-
-	for (int i=0; i<checks; i++)
-		gtk_widget_set_size_request(wCheck[i], stripButtonPitch, buttonHeight);
 
 	initializingSearch = true;	// Avoid search for initial value in search entry
 	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
@@ -5029,6 +5021,9 @@ void SciTEGTK::CreateUI() {
 		GTK_STYLE_PROVIDER(provider),
 		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 	gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider),
+		"#toggler {\n"
+		"    padding: 2px;\n"
+		"}\n"
 		"#entryInvalid {\n"
 		"    color: #FFFFFF;\n"
 		"    background: #FF6666;\n"

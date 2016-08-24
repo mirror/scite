@@ -73,23 +73,21 @@ class WCheckDraw : public WBase {
 public:
 	typedef void (*ChangeFunction)(WCheckDraw *cd, void *user);
 private:
-	bool isActive;
-	GdkPixbuf *pbGrey;
-#if !GTK_CHECK_VERSION(3,4,0)
-	GtkStyle *pStyle;
-#endif
-	bool over;
 	ChangeFunction cdfn;
 	void *user;
+#if GTK_CHECK_VERSION(3,0,0)
+	static void Toggled(GtkWidget *widget, WCheckDraw *pcd);
+	GtkToggleButton *ToggleButton();
+#else
+	bool isActive;
+	GdkPixbuf *pbGrey;
+	GtkStyle *pStyle;
+	bool over;
 	static gboolean Focus(GtkWidget *widget, GdkEventFocus *event, WCheckDraw *pcd);
 	gint Press(GtkWidget *widget, GdkEventButton *event);
 	static gint ButtonsPress(GtkWidget *widget, GdkEventButton *event, WCheckDraw *pcd);
 	static gboolean MouseEnterLeave(GtkWidget *widget, GdkEventCrossing *event, WCheckDraw *pcd);
 	static gboolean KeyDown(GtkWidget *widget, GdkEventKey *event, WCheckDraw *pcd);
-#if GTK_CHECK_VERSION(3,0,0)
-	gboolean Draw(GtkWidget *widget, cairo_t *cr);
-	static gboolean DrawEvent(GtkWidget *widget, cairo_t *cr, WCheckDraw *pcd);
-#else
 	gboolean Expose(GtkWidget *widget, GdkEventExpose *event);
 	static gboolean ExposeEvent(GtkWidget *widget, GdkEventExpose *event, WCheckDraw *pcd);
 #endif

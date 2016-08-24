@@ -183,17 +183,20 @@ void WProgress::Create() {
 	SetID(gtk_progress_bar_new());
 }
 
-WCheckDraw::WCheckDraw() : isActive(false), pbGrey(0), over(false), cdfn(NULL), user(NULL) {
-#if !GTK_CHECK_VERSION(3,4,0)
+WCheckDraw::WCheckDraw() : cdfn(NULL), user(NULL) {
+#if !GTK_CHECK_VERSION(3,0,0)
+	isActive = false;
+	pbGrey = 0;
+	over = false; 
 	pStyle = 0;
 #endif
 }
 
 WCheckDraw::~WCheckDraw() {
+#if !GTK_CHECK_VERSION(3,0,0)
 	if (pbGrey)
 		g_object_unref(pbGrey);
 	pbGrey = 0;
-#if !GTK_CHECK_VERSION(3,4,0)
 	if (pStyle)
 		g_object_unref(pStyle);
 	pStyle = 0;
@@ -219,15 +222,43 @@ static void GreyToAlpha(GdkPixbuf *ppb, GdkColor fore) {
 }
 
 void WCheckDraw::Create(const char **xpmImage, GUI::gui_string toolTip, GtkStyle *pStyle_) {
+#if GTK_CHECK_VERSION(3,0,0)
+	GtkWidget *button = gtk_toggle_button_new();
+	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
+
+	GdkPixbuf *pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
+	GdkPixbuf *pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
+	g_object_unref(pbGrey);
+#if GTK_CHECK_VERSION(3, 4, 0)
+	(void)pStyle_;
+	GdkRGBA rgbaFore;
+	GtkStyleContext *context = gtk_widget_get_style_context(button);
+	gtk_style_context_get_color(context, gtk_style_context_get_state(context), &rgbaFore);
+	GdkColor fore;
+	fore.red = rgbaFore.red * 65535;
+	fore.green = rgbaFore.green * 65535;
+	fore.blue = rgbaFore.blue * 65535;
+	fore.pixel = 0;
+#else
+	GdkColor fore = pStyle_->fg[gtk_widget_get_state(button)];
+#endif
+	// Convert the grey to alpha and make black
+	GreyToAlpha(pbAlpha, fore);
+	GtkWidget *image = gtk_image_new_from_pixbuf(pbAlpha);
+	g_object_unref(pbAlpha);
+
+	SetID(button);
+	gtk_container_add(GTK_CONTAINER(button), image);
+
+	g_signal_connect(button, "toggled", G_CALLBACK(Toggled), this);
+	gtk_widget_set_name(GTK_WIDGET(button), "toggler");
+#else
 	isActive = false;
 	pbGrey = gdk_pixbuf_new_from_xpm_data(xpmImage);
 
 	GtkWidget *da = gtk_drawing_area_new();
-#if GTK_CHECK_VERSION(3,4,0)
-	(void)pStyle_;
-#else
 	pStyle = gtk_style_copy(pStyle_);
-#endif
 
 	gtk_widget_set_can_focus(da, TRUE);
 	gtk_widget_set_sensitive(da, TRUE);
@@ -245,45 +276,68 @@ void WCheckDraw::Create(const char **xpmImage, GUI::gui_string toolTip, GtkStyle
 	gtk_widget_set_size_request(da, checkButtonWidth, 20);
 	SetID(da);
 
-	GUI::gui_string toolTipNoMnemonic = toolTip;
-	size_t posMnemonic = toolTipNoMnemonic.find("_");
-	if (posMnemonic != GUI::gui_string::npos)
-		toolTipNoMnemonic.replace(posMnemonic, 1, "");
-	gtk_widget_set_tooltip_text(da, toolTipNoMnemonic.c_str());
-
 	g_signal_connect(G_OBJECT(da), "focus-in-event", G_CALLBACK(Focus), this);
 	g_signal_connect(G_OBJECT(da), "focus-out-event", G_CALLBACK(Focus), this);
 	g_signal_connect(G_OBJECT(da), "button-press-event", G_CALLBACK(ButtonsPress), this);
 	g_signal_connect(G_OBJECT(da), "enter-notify-event", G_CALLBACK(MouseEnterLeave), this);
 	g_signal_connect(G_OBJECT(da), "leave-notify-event", G_CALLBACK(MouseEnterLeave), this);
 	g_signal_connect(G_OBJECT(da), "key-press-event", G_CALLBACK(KeyDown), this);
-#if GTK_CHECK_VERSION(3,0,0)
-	g_signal_connect(G_OBJECT(da), "draw", G_CALLBACK(DrawEvent), this);
-#else
 	g_signal_connect(G_OBJECT(da), "expose-event", G_CALLBACK(ExposeEvent), this);
+#endif
+	GUI::gui_string toolTipNoMnemonic = toolTip;
+	size_t posMnemonic = toolTipNoMnemonic.find("_");
+	if (posMnemonic != GUI::gui_string::npos)
+		toolTipNoMnemonic.replace(posMnemonic, 1, "");
+	gtk_widget_set_tooltip_text(Pointer(), toolTipNoMnemonic.c_str());
+}
+
+#if GTK_CHECK_VERSION(3,0,0)
+
+void WCheckDraw::Toggled(GtkWidget *, WCheckDraw *pcd) {
+	if (pcd->cdfn)
+		pcd->cdfn(pcd, pcd->user);
+}
+
+GtkToggleButton *WCheckDraw::ToggleButton() {
+	return reinterpret_cast<GtkToggleButton*>(GetID());
+}
+
+#endif
+
+bool WCheckDraw::Active() {
+#if GTK_CHECK_VERSION(3,0,0)
+	return gtk_toggle_button_get_active(ToggleButton());
+#else
+	return isActive;
 #endif
 }
 
-bool WCheckDraw::Active() {
-	return isActive;
-}
-
 void WCheckDraw::SetActive(bool active) {
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_toggle_button_set_active(ToggleButton(), active);
+#else
 	isActive = active;
 	InvalidateAll();
+#endif
 }
 
 void WCheckDraw::Toggle() {
+#if GTK_CHECK_VERSION(3,0,0)
+	SetActive(!Active());
+#else
 	isActive = !isActive;
 	InvalidateAll();
 	if (cdfn)
 		cdfn(this, user);
+#endif
 }
 
 void WCheckDraw::SetChangeFunction(ChangeFunction cdfn_, void *user_) {
 	cdfn = cdfn_;
 	user = user_;
 }
+
+#if !GTK_CHECK_VERSION(3,0,0)
 
 gboolean WCheckDraw::Focus(GtkWidget */*widget*/, GdkEventFocus */*event*/, WCheckDraw *pcd) {
 	pcd->InvalidateAll();
@@ -317,107 +371,6 @@ gboolean WCheckDraw::MouseEnterLeave(GtkWidget */*widget*/, GdkEventCrossing *ev
 	pcd->InvalidateAll();
 	return FALSE;
 }
-
-#if GTK_CHECK_VERSION(3,0,0)
-
-gboolean WCheckDraw::Draw(GtkWidget *widget, cairo_t *cr) {
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
-
-#if GTK_CHECK_VERSION(3,4,0)
-	GtkStyleContext *context = gtk_widget_get_style_context(widget);
-	gtk_style_context_save(context);
-	gtk_style_context_add_class(context, GTK_STYLE_CLASS_BUTTON);
-#else
-	GdkWindow *window = gtk_widget_get_window(widget);
-	pStyle = gtk_style_attach(pStyle, window);
-#endif
-
-	int heightOffset = (allocation.height - checkButtonWidth) / 2;
-	if (heightOffset < 0)
-		heightOffset = 0;
-
-	bool active = isActive;
-#if GTK_CHECK_VERSION(3,4,0)
-	GtkStateFlags flags = active ? GTK_STATE_FLAG_ACTIVE : GTK_STATE_FLAG_NORMAL;
-	if (over) {
-		flags = static_cast<GtkStateFlags>(flags | GTK_STATE_FLAG_PRELIGHT);
-	}
-#else
-	GtkStateType state = active ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL;
-	if (over) {
-		state = GTK_STATE_PRELIGHT;
-	}
-#endif
-	if (active || over) {
-#if GTK_CHECK_VERSION(3,4,0)
-		gtk_style_context_set_state(context, flags);
-		gtk_render_background(context, cr, 0, 0,
-			allocation.width, allocation.height);
-		gtk_render_frame(context, cr, 0, 0,
-			allocation.width, allocation.height);
-#else
-		GtkShadowType shadow = over ? GTK_SHADOW_OUT : GTK_SHADOW_IN;
-		gtk_paint_box(pStyle,
-			cr,
-			state,
-			shadow,
-			widget, "button",
-			0, 0,
-			allocation.width, allocation.height);
-#endif
-	}
-
-	if (HasFocus()) {
-		// Draw focus inset by 2 pixels
-#if GTK_CHECK_VERSION(3,4,0)
-		gtk_render_focus(context, cr, 2, 2,
-			allocation.width-4, allocation.height-4);
-#else
-		gtk_paint_focus(pStyle,
-			cr,
-			state,
-			widget, "button",
-			2, 2,
-			allocation.width-4, allocation.height-4);
-#endif
-	}
-
-#if GTK_CHECK_VERSION(3,4,0)
-	GdkRGBA rgbaFore;
-	gtk_style_context_get_color(context, GTK_STATE_FLAG_NORMAL, &rgbaFore);
-	GdkColor fore;
-	fore.red = rgbaFore.red * 65535;
-	fore.green = rgbaFore.green * 65535;
-	fore.blue = rgbaFore.blue * 65535;
-	fore.pixel = 0;
-	gtk_style_context_restore(context);
-#else
-	GdkColor fore = pStyle->fg[GTK_STATE_NORMAL];
-#endif
-	// Give it an alpha channel
-	GdkPixbuf *pbAlpha = gdk_pixbuf_add_alpha(pbGrey, TRUE, 0xff, 0xff, 0);
-	// Convert the grey to alpha and make black
-	GreyToAlpha(pbAlpha, fore);
-
-	int activeOffset = active ? 1 : 0;
-	int xOffset = 1 + 2 + activeOffset;
-	int yOffset = 3 + heightOffset + activeOffset;
-	gdk_cairo_set_source_pixbuf(cr, pbAlpha, xOffset, yOffset);
-	cairo_rectangle(cr,
-		xOffset, yOffset,
-		checkIconWidth, checkIconWidth);
-	cairo_fill(cr);
-	g_object_unref(pbAlpha);
-
-	return TRUE;
-}
-
-gboolean WCheckDraw::DrawEvent(GtkWidget *widget, cairo_t *cr, WCheckDraw *pcd) {
-	return pcd->Draw(widget, cr);
-}
-
-#else
 
 gboolean WCheckDraw::Expose(GtkWidget *widget, GdkEventExpose */*event*/) {
 	pStyle = gtk_style_attach(pStyle, widget->window);
