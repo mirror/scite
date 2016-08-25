@@ -2416,38 +2416,32 @@ bool SciTEBase::RangeIsAllWhitespace(int start, int end) {
 	return true;
 }
 
-unsigned int SciTEBase::GetLinePartsInStyle(int line, int style1, int style2, std::string sv[], int len, bool separateCharacters) {
-	for (int i = 0; i < len; i++)
-		sv[i] = "";
+std::vector<std::string> SciTEBase::GetLinePartsInStyle(int line, const StyleAndWords &saw) {
+	std::vector<std::string> sv;
 	TextReader acc(wEditor);
 	std::string s;
-	int part = 0;
-	int thisLineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
-	int nextLineStart = wEditor.Call(SCI_POSITIONFROMLINE, line + 1);
+	const bool separateCharacters = saw.IsSingleChar();
+	const int thisLineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
+	const int nextLineStart = wEditor.Call(SCI_POSITIONFROMLINE, line + 1);
 	for (int pos = thisLineStart; pos < nextLineStart; pos++) {
-		if ((acc.StyleAt(pos) == style1) || (acc.StyleAt(pos) == style2)) {
+		if (acc.StyleAt(pos) == saw.styleNumber) {
 			if (separateCharacters) {
-				// Add one character at a a time, even if there is an adjacent character in the same style
-				if ((s.length() > 0) && (part < len)) {
-					sv[part++] = s;
+				// Add one character at a time, even if there is an adjacent character in the same style
+				if (s.length() > 0) {
+					sv.push_back(s);
 				}
 				s = "";
 			}
-			char c[2];
-			c[0] = acc[pos];
-			c[1] = '\0';
-			s += c;
+			s += acc[pos];
 		} else if (s.length() > 0) {
-			if (part < len) {
-				sv[part++] = s;
-			}
+			sv.push_back(s);
 			s = "";
 		}
 	}
-	if ((s.length() > 0) && (part < len)) {
-		sv[part++] = s;
+	if (s.length() > 0) {
+		sv.push_back(s);
 	}
-	return part;
+	return sv;
 }
 
 inline bool IsAlphabetic(unsigned int ch) {
@@ -2486,29 +2480,22 @@ static bool includes(const StyleAndWords &symbols, const std::string &value) {
 IndentationStatus SciTEBase::GetIndentState(int line) {
 	// C like language indentation defined by braces and keywords
 	IndentationStatus indentState = isNone;
-	std::string controlWords[20];
-	unsigned int parts = GetLinePartsInStyle(line, statementIndent.styleNumber,
-	        -1, controlWords, ELEMENTS(controlWords), statementIndent.IsSingleChar());
-	unsigned int i;
-	for (i = 0; i < parts; i++) {
-		if (includes(statementIndent, controlWords[i]))
+	const std::vector<std::string> controlIndents = GetLinePartsInStyle(line, statementIndent);
+	for (const std::string &sIndent : controlIndents) {
+		if (includes(statementIndent, sIndent))
 			indentState = isKeyWordStart;
 	}
-	parts = GetLinePartsInStyle(line, statementEnd.styleNumber,
-	        -1, controlWords, ELEMENTS(controlWords), statementEnd.IsSingleChar());
-	for (i = 0; i < parts; i++) {
-		if (includes(statementEnd, controlWords[i]))
+	const std::vector<std::string> controlEnds = GetLinePartsInStyle(line, statementEnd);
+	for (const std::string &sEnd : controlEnds) {
+		if (includes(statementEnd, sEnd))
 			indentState = isNone;
 	}
 	// Braces override keywords
-	std::string controlStrings[20];
-	bool separateChars = blockStart.IsSingleChar() && blockEnd.IsSingleChar();
-	parts = GetLinePartsInStyle(line, blockEnd.styleNumber,
-	        -1, controlStrings, ELEMENTS(controlStrings), separateChars);
-	for (unsigned int j = 0; j < parts; j++) {
-		if (includes(blockEnd, controlStrings[j]))
+	const std::vector<std::string> controlBlocks = GetLinePartsInStyle(line, blockEnd);
+	for (const std::string &sBlock : controlBlocks) {
+		if (includes(blockEnd, sBlock))
 			indentState = isBlockEnd;
-		if (includes(blockStart, controlStrings[j]))
+		if (includes(blockStart, sBlock))
 			indentState = isBlockStart;
 	}
 	return indentState;
@@ -2629,9 +2616,8 @@ void SciTEBase::AutomaticIndentation(char ch) {
 		}
 	} else if ((ch == '\r' || ch == '\n') && (selStart == thisLineStart)) {
 		if (!indentClosing && !blockEnd.IsSingleChar()) {	// Dedent previous line maybe
-			std::string controlWords[1];
-			if (GetLinePartsInStyle(curLine - 1, blockEnd.styleNumber,
-			        -1, controlWords, ELEMENTS(controlWords), blockEnd.IsSingleChar())) {
+			const std::vector<std::string> controlWords = GetLinePartsInStyle(curLine - 1, blockEnd);
+			if (!controlWords.empty()) {
 				if (includes(blockEnd, controlWords[0])) {
 					// Check if first keyword on line is an ender
 					SetLineIndentation(curLine - 1, IndentOfBlock(curLine - 2) - indentSize);
