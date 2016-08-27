@@ -4,6 +4,8 @@
 # This makefile assumes GCC 4.x is used and changes will be needed to use other compilers.
 # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
 
+srcdir ?= .
+
 .SUFFIXES: .cxx .o .h .a .c
 ifdef CLANG
 # Can choose aspect to sanitize: address and undefined can simply change SANITIZE but for
@@ -39,14 +41,14 @@ SYSCONF_PATH=$(prefix)/share/scite
 
 INSTALL=install
 
-PROG	= ../bin/SciTE
+PROG	= $(srcdir)/../bin/SciTE
 
 all: $(PROG)
 
-vpath %.h ../src ../../scintilla/include
-vpath %.cxx ../src
+vpath %.h $(srcdir) $(srcdir)/../src $(srcdir)/../../scintilla/include
+vpath %.cxx $(srcdir) $(srcdir)/../src
 
-INCLUDEDIRS=-I ../../scintilla/include -I ../src
+INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src
 ifdef CHECK_DEPRECATED
 DEPRECATED=-DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
 endif
@@ -68,9 +70,9 @@ LUA_LIB_OBJS =	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o ltablib.o \
 
 LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
-vpath %.c ../lua/src ../lua/src/lib
+vpath %.c $(srcdir)/../lua/src $(srcdir)/../lua/src/lib
 
-INCLUDEDIRS=-I ../../scintilla/include -I ../src -I../lua/include
+INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src -I$(srcdir)/../lua/include
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDEDIRS) -Wno-misleading-indentation -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
@@ -99,15 +101,16 @@ clean:
 	rm -f *.o *.plist $(PROG)
 
 analyze:
-	clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx
+	clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
 	# Could analyze Lua implementation as well but won't be fixing the warnings so its just noise
 	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c
 
-deps:
-	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
+deps: deps.mak
+deps.mak:
+	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >$@
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
-COMPLIB=../../scintilla/bin/scintilla.a
+COMPLIB=$(srcdir)/../../scintilla/bin/scintilla.a
 
 $(PROG): SciTEGTK.o GUIGTK.o Widget.o \
 FilePath.o SciTEBase.o FileWorker.o Cookie.o Credits.o SciTEBuffers.o SciTEIO.o StringList.o \
@@ -115,7 +118,7 @@ ExportHTML.o ExportPDF.o ExportRTF.o ExportTEX.o ExportXML.o \
 MatchMarker.o StringHelpers.o \
 PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o StyleDefinition.o StyleWriter.o Utf8_16.o \
 	JobQueue.o GTKMutex.o IFaceTable.o $(COMPLIB) $(LUA_OBJS)
-	$(CXX) `$(CONFIGTHREADS)` -rdynamic -Wl,--as-needed -Wl,--version-script lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) -lm -lstdc++
+	$(CXX) `$(CONFIGTHREADS)` -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) -lm -lstdc++
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
@@ -128,15 +131,15 @@ install:
 
 	$(INSTALL) -m 755 $(PROG) $(DESTDIR)$(bindir)
 
-	for files in ../src/*.properties ../doc/*.html ../doc/SciTEIco.png ../doc/PrintHi.png; \
+	for files in $(srcdir)/../src/*.properties $(srcdir)/../doc/*.html $(srcdir)/../doc/SciTEIco.png $(srcdir)/../doc/PrintHi.png; \
 	do \
 		$(INSTALL) -m 644 $$files $(DESTDIR)$(SYSCONF_PATH); \
 	done
 
 ifdef gnomeprefix
 	$(INSTALL) -m 755 -d $(DESTDIR)$(datadir)/applications $(DESTDIR)$(pixmapdir)
-	$(INSTALL) -m 755 SciTE.desktop $(DESTDIR)$(datadir)/applications/SciTE.desktop
-	$(INSTALL) -m 644 Sci48M.png $(DESTDIR)$(pixmapdir)/Sci48M.png
+	$(INSTALL) -m 755 $(srcdir)/SciTE.desktop $(DESTDIR)$(datadir)/applications/SciTE.desktop
+	$(INSTALL) -m 644 $(srcdir)/Sci48M.png $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
 
 uninstall:
