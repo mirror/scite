@@ -4844,6 +4844,18 @@ void SciTEGTK::LayoutUI() {
 }
 
 void SciTEGTK::CreateUI() {
+#if !GTK_CHECK_VERSION(3,0,0)
+	gtk_rc_parse_string(
+		"style \"toggler-style\" {\n"
+		"    GtkWidget::focus-padding = 0\n"
+		"    GtkWidget::focus-line-width = 0\n"
+		"    xthickness = 0\n"
+		"    ythickness = 0\n"
+		"}\n"
+		"widget \"*.toggler\" style \"toggler-style\"\n"
+	);
+#endif
+
 	CreateBuffers();
 	wSciTE = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
