@@ -14,6 +14,8 @@ SANITIZE = address
 #SANITIZE = undefined
 CXX = clang++ -fsanitize=$(SANITIZE) -Wno-deprecated-register
 CC = clang -fsanitize=$(SANITIZE) -Wno-empty-body
+else
+MISLEADING=-Wno-misleading-indentation
 endif
 
 ifdef GTK3
@@ -75,7 +77,7 @@ vpath %.c $(srcdir)/../lua/src $(srcdir)/../lua/src/lib
 INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src -I$(srcdir)/../lua/include
 
 .c.o:
-	$(CC) $(CFLAGS) $(INCLUDEDIRS) -Wno-misleading-indentation -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
 
 else
 CXXTFLAGS+=-DNO_LUA
