@@ -406,6 +406,7 @@ static const char *contributors[] = {
             "Chris Mayo",
             "Van de Bugger",
             "Tse Kit Yam",
+            "SmartShare Systems https://www.smartsharesystems.com/",
             "Morten Br\303\270rup",
             "Alexey Denisov",
             "jedailey",
