@@ -436,6 +436,7 @@ static const char *propertiesToForward[] = {
 	"fold.cpp.explicit.anywhere",
 	"fold.cpp.explicit.end",
 	"fold.cpp.explicit.start",
+	"fold.cpp.preprocessor.at.else",
 	"fold.cpp.syntax.based",
 	"fold.d.comment.explicit",
 	"fold.d.comment.multiline",

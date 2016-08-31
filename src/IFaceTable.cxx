@@ -2546,6 +2546,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCMOD_SHIFT",1},
 	{"SCMOD_SUPER",8},
 	{"SCVS_NONE",0},
+	{"SCVS_NOWRAPLINESTART",4},
 	{"SCVS_RECTANGULARSELECTION",1},
 	{"SCVS_USERACCESSIBLE",2},
 	{"SCWS_INVISIBLE",0},
@@ -3303,7 +3304,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 293,
-	ifaceConstantCount = 2643,
+	ifaceConstantCount = 2644,
 	ifacePropertyCount = 222
 };
 
