@@ -63,6 +63,10 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 
 		std::vector<std::string> optValue = StringSplit(*it, ':');
 
+		if (optValue.size() == 0) {
+			continue;
+		}
+
 		const std::string opt = optValue[0];
 		const std::string value = (optValue.size() > 1) ? optValue[1] : std::string();
 
