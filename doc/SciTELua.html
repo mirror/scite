@@ -258,8 +258,9 @@ The <tt>scite</tt> namespace includes the following functions:
   scite.SendOutput(SCI_constant, ...)
     - sends a message to the output pane
 
-  scite.ConstantName(number)
+  scite.ConstantName(number[, prefix])
     - returns the symbolic name of a Scintilla / SciTE constant
+    - optional prefix to find a specific constant name
 
   scite.MenuCommand(IDM_constant)
     - equivalent to the corresponding IDM_ command defined in SciTE.h

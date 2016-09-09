@@ -86,7 +86,7 @@ int IFaceTable::FindProperty(const char *name) {
 	return -1;
 }
 
-int IFaceTable::GetConstantName(int value, char *nameOut, unsigned nameBufferLen) {
+int IFaceTable::GetConstantName(int value, char *nameOut, unsigned nameBufferLen, const char *prefix) {
 	if (nameOut && nameBufferLen > 0) {
 		*nameOut = '\0';
 	}
@@ -112,7 +112,7 @@ int IFaceTable::GetConstantName(int value, char *nameOut, unsigned nameBufferLen
 	}
 
 	for (int constIdx = 0; constIdx < constantCount; ++constIdx) {
-		if (constants[constIdx].value == value) {
+		if (constants[constIdx].value == value && (prefix == NULL || strncmp(prefix, constants[constIdx].name, strlen(prefix)) == 0)) {
 			int len = static_cast<int>(strlen(constants[constIdx].name));
 			if (nameOut && (static_cast<int>(nameBufferLen) > len)) {
 				strcpy(nameOut, constants[constIdx].name);

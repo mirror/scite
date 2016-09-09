@@ -244,7 +244,8 @@ static int cf_scite_send(lua_State *L) {
 static int cf_scite_constname(lua_State *L) {
 	char constName[100] = "";
 	int message = luaL_checkint(L, 1);
-	if (IFaceTable::GetConstantName(message, constName, 100) > 0) {
+	const char *prefix = luaL_optstring(L, 2, NULL);
+	if (IFaceTable::GetConstantName(message, constName, 100, prefix) > 0) {
 		lua_pushstring(L, constName);
 		return 1;
 	} else {
