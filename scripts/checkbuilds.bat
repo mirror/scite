@@ -93,7 +93,16 @@ REM ~ if ERRORLEVEL 2 goto ERROR
 REM ~ cd ..\..
 rem
 rem ************************************************************
-rem Target 8: cppcheck
+rem Target 8: Visual C++ 2008, just Scintilla without C++11 regex
+call scite\scripts\clearboth
+call "%LOCALAPPDATA%\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat" x86
+pushd scintilla\win32
+nmake -f scintilla.mak QUIET=1 NO_CXX11_REGEX=1
+if ERRORLEVEL 2 goto ERROR
+popd
+rem
+rem ************************************************************
+rem Target 9: cppcheck
 call scite\scripts\clearboth
 cppcheck -j 8 --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
 cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include --template=gcc --quiet scite
