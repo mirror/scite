@@ -174,8 +174,8 @@
 <tr><td>2346</td><td>HomeDisplayExtend</td><td>Move caret to first position on display line extending selection to new caret position.</td></tr>
 <tr><td>2313</td><td>HomeExtend</td><td>Move caret to first position on line extending selection to new caret position.</td></tr>
 <tr><td>2430</td><td>HomeRectExtend</td><td>Move caret to first position on line, extending rectangular selection to new caret position.</td></tr>
-<tr><td>2349</td><td>HomeWrap</td><td>These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)? except they behave differently when word-wrap is enabled: They go first to the start / end of the display line, like (Home|LineEnd)Display The difference is that, the cursor is already at the point, it goes on to the start or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.</td></tr>
-<tr><td>2450</td><td>HomeWrapExtend</td><td>These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)? except they behave differently when word-wrap is enabled: They go first to the start / end of the display line, like (Home|LineEnd)Display The difference is that, the cursor is already at the point, it goes on to the start or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.</td></tr>
+<tr><td>2349</td><td>HomeWrap</td><td>Like Home but when word-wrap is enabled goes first to start of display line HomeDisplay, then to start of document line Home.</td></tr>
+<tr><td>2450</td><td>HomeWrapExtend</td><td>Like HomeExtend but when word-wrap is enabled extends first to start of display line HomeDisplayExtend, then to start of document line HomeExtend.</td></tr>
 <tr><td>2455</td><td>LineCopy</td><td>Copy the line containing the caret.</td></tr>
 <tr><td>2337</td><td>LineCut</td><td>Cut the line containing the caret.</td></tr>
 <tr><td>2338</td><td>LineDelete</td><td>Delete the line containing the caret.</td></tr>
@@ -188,8 +188,8 @@
 <tr><td>2348</td><td>LineEndDisplayExtend</td><td>Move caret to last position on display line extending selection to new caret position.</td></tr>
 <tr><td>2315</td><td>LineEndExtend</td><td>Move caret to last position on line extending selection to new caret position.</td></tr>
 <tr><td>2432</td><td>LineEndRectExtend</td><td>Move caret to last position on line, extending rectangular selection to new caret position.</td></tr>
-<tr><td>2451</td><td>LineEndWrap</td><td>These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)? except they behave differently when word-wrap is enabled: They go first to the start / end of the display line, like (Home|LineEnd)Display The difference is that, the cursor is already at the point, it goes on to the start or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.</td></tr>
-<tr><td>2452</td><td>LineEndWrapExtend</td><td>These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)? except they behave differently when word-wrap is enabled: They go first to the start / end of the display line, like (Home|LineEnd)Display The difference is that, the cursor is already at the point, it goes on to the start or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.</td></tr>
+<tr><td>2451</td><td>LineEndWrap</td><td>Like LineEnd but when word-wrap is enabled goes first to end of display line LineEndDisplay, then to start of document line LineEnd.</td></tr>
+<tr><td>2452</td><td>LineEndWrapExtend</td><td>Like LineEndExtend but when word-wrap is enabled extends first to end of display line LineEndDisplayExtend, then to start of document line LineEndExtend.</td></tr>
 <tr><td>2342</td><td>LineScrollDown</td><td>Scroll the document down, keeping the caret visible.</td></tr>
 <tr><td>2343</td><td>LineScrollUp</td><td>Scroll the document up, keeping the caret visible.</td></tr>
 <tr><td>2339</td><td>LineTranspose</td><td>Switch the current line with the previous.</td></tr>
@@ -212,10 +212,10 @@
 <tr><td>2320</td><td>PageUp</td><td>Move caret one page up.</td></tr>
 <tr><td>2321</td><td>PageUpExtend</td><td>Move caret one page up extending selection to new caret position.</td></tr>
 <tr><td>2433</td><td>PageUpRectExtend</td><td>Move caret one page up, extending rectangular selection to new caret position.</td></tr>
-<tr><td>2413</td><td>ParaDown</td><td>Move caret between paragraphs (delimited by empty lines).</td></tr>
-<tr><td>2414</td><td>ParaDownExtend</td><td>Move caret between paragraphs (delimited by empty lines).</td></tr>
-<tr><td>2415</td><td>ParaUp</td><td>Move caret between paragraphs (delimited by empty lines).</td></tr>
-<tr><td>2416</td><td>ParaUpExtend</td><td>Move caret between paragraphs (delimited by empty lines).</td></tr>
+<tr><td>2413</td><td>ParaDown</td><td>Move caret down one paragraph (delimited by empty lines).</td></tr>
+<tr><td>2414</td><td>ParaDownExtend</td><td>Extend selection down one paragraph (delimited by empty lines).</td></tr>
+<tr><td>2415</td><td>ParaUp</td><td>Move caret up one paragraph (delimited by empty lines).</td></tr>
+<tr><td>2416</td><td>ParaUpExtend</td><td>Extend selection up one paragraph (delimited by empty lines).</td></tr>
 <tr><td>2179</td><td>Paste</td><td>Paste the contents of the clipboard into the document replacing the selection.</td></tr>
 <tr><td>2011</td><td>Redo</td><td>Redoes the next action on the undo history.</td></tr>
 <tr><td>2552</td><td>ReleaseAllExtendedStyles</td><td>Release all extended (>255) style numbers</td></tr>
@@ -248,8 +248,8 @@
 <tr><td>2653</td><td>VCHomeDisplayExtend</td><td>Like VCHomeDisplay but extending selection to new caret position.</td></tr>
 <tr><td>2332</td><td>VCHomeExtend</td><td>Like VCHome but extending selection to new caret position.</td></tr>
 <tr><td>2431</td><td>VCHomeRectExtend</td><td>Move caret to before first visible character on line. If already there move to first character on line. In either case, extend rectangular selection to new caret position.</td></tr>
-<tr><td>2453</td><td>VCHomeWrap</td><td>These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)? except they behave differently when word-wrap is enabled: They go first to the start / end of the display line, like (Home|LineEnd)Display The difference is that, the cursor is already at the point, it goes on to the start or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.</td></tr>
-<tr><td>2454</td><td>VCHomeWrapExtend</td><td>These are like their namesakes Home(Extend)?, LineEnd(Extend)?, VCHome(Extend)? except they behave differently when word-wrap is enabled: They go first to the start / end of the display line, like (Home|LineEnd)Display The difference is that, the cursor is already at the point, it goes on to the start or end of the document line, as appropriate for (Home|LineEnd|VCHome)(Extend)?.</td></tr>
+<tr><td>2453</td><td>VCHomeWrap</td><td>Like VCHome but when word-wrap is enabled goes first to start of display line VCHomeDisplay, then behaves like VCHome.</td></tr>
+<tr><td>2454</td><td>VCHomeWrapExtend</td><td>Like VCHomeExtend but when word-wrap is enabled extends first to start of display line VCHomeDisplayExtend, then behaves like VCHomeExtend.</td></tr>
 <tr><td>2619</td><td>VerticalCentreCaret</td><td>Centre current line in window.</td></tr>
 <tr><td>2308</td><td>WordLeft</td><td>Move caret left one word.</td></tr>
 <tr><td>2439</td><td>WordLeftEnd</td><td>Move caret left one word, position cursor at end of word.</td></tr>
