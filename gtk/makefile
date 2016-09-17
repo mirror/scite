@@ -77,7 +77,7 @@ vpath %.c $(srcdir)/../lua/src $(srcdir)/../lua/src/lib
 INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src -I$(srcdir)/../lua/include
 
 .c.o:
-	$(CC) $(CFLAGS) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(CXXTFLAGS) -c $< -o $@
+	$(CC) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
 
 else
 CXXTFLAGS+=-DNO_LUA
@@ -109,7 +109,7 @@ analyze:
 
 deps: deps.mak
 deps.mak:
-	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >$@
+	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >$@
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=$(srcdir)/../../scintilla/bin/scintilla.a
