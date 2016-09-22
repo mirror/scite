@@ -181,9 +181,6 @@
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINESELSTARTPOSITION'>GetLineSelStartPosition</a>(int line)<span class="comment"> -- Retrieve the position of the start of the selection at the given line (INVALID_POSITION if no selection on this line).</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINESELENDPOSITION'>GetLineSelEndPosition</a>(int line)<span class="comment"> -- Retrieve the position of the end of the selection at the given line (INVALID_POSITION if no selection on this line).</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MOVECARETINSIDEVIEW'>MoveCaretInsideView</a>()<span class="comment"> -- Move the caret inside current view if it's not there already.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_WORDENDPOSITION'>WordEndPosition</a>(position pos, bool onlyWordCharacters)<span class="comment"> -- Get position of end of word.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_WORDSTARTPOSITION'>WordStartPosition</a>(position pos, bool onlyWordCharacters)<span class="comment"> -- Get position of start of word.</span></p>
-	<p>bool editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ISRANGEWORD'>IsRangeWord</a>(position start, position end)<span class="comment"> -- Is the range start..end considered a word?</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONBEFORE'>PositionBefore</a>(position pos)<span class="comment"> -- Given a valid document position, return the previous position taking code page into account. Returns 0 if passed 0.</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONAFTER'>PositionAfter</a>(position pos)<span class="comment"> -- Given a valid document position, return the next position taking code page into account. Maximum value returned is the last position in the document.</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONRELATIVE'>PositionRelative</a>(position pos, int relative)<span class="comment"> -- Given a valid document position, return a position that differs in a number of characters. Returned value is always between 0 and last position in document.</span></p>
@@ -268,6 +265,14 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESSUPPORTED'>LineEndTypesSupported</a> read-only</p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETLINEENDTYPESALLOWED'>LineEndTypesAllowed</a><span class="comment"> -- Set the line end types that the application wants to use. May not be used if incompatible with lexer or encoding.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEENDTYPESACTIVE'>LineEndTypesActive</a> read-only</p>
+	<h2>Words</h2>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_WORDENDPOSITION'>WordEndPosition</a>(position pos, bool onlyWordCharacters)<span class="comment"> -- Get position of end of word.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_WORDSTARTPOSITION'>WordStartPosition</a>(position pos, bool onlyWordCharacters)<span class="comment"> -- Get position of start of word.</span></p>
+	<p>bool editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ISRANGEWORD'>IsRangeWord</a>(position start, position end)<span class="comment"> -- Is the range start..end considered a word?</span></p>
+	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETWORDCHARS'>WordChars</a><span class="comment"> -- Set the set of characters making up words for when moving or selecting by word. First sets defaults like SetCharsDefault.</span></p>
+	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETWHITESPACECHARS'>WhitespaceChars</a><span class="comment"> -- Set the set of characters making up whitespace for when moving or selecting by word. Should be called after SetWordChars.</span></p>
+	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETPUNCTUATIONCHARS'>PunctuationChars</a><span class="comment"> -- Set the set of characters making up punctuation characters Should be called after SetWordChars.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETCHARSDEFAULT'>SetCharsDefault</a>()<span class="comment"> -- Reset the set of characters for whitespace and word characters to the defaults.</span></p>
 	<h2>Styling</h2>
 	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETENDSTYLED'>EndStyled</a> read-only</p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_STARTSTYLING'>StartStyling</a>(position pos, int mask)<span class="comment"> -- Set the current styling position to pos and the styling mask to mask. The styling mask can be used to protect some bits in each styling byte from modification.</span></p>
@@ -351,10 +356,6 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETFONTQUALITY'>FontQuality</a><span class="comment"> -- Choose the quality level for text from the FontQuality enumeration.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETCODEPAGE'>CodePage</a><span class="comment"> -- Set the code page used to interpret the bytes of the document as characters. The SC_CP_UTF8 value can be used to enter Unicode mode.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETIMEINTERACTION'>IMEInteraction</a><span class="comment"> -- Choose to display the the IME in a winow or inline.</span></p>
-	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETWORDCHARS'>WordChars</a><span class="comment"> -- Set the set of characters making up words for when moving or selecting by word. First sets defaults like SetCharsDefault.</span></p>
-	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETWHITESPACECHARS'>WhitespaceChars</a><span class="comment"> -- Set the set of characters making up whitespace for when moving or selecting by word. Should be called after SetWordChars.</span></p>
-	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETPUNCTUATIONCHARS'>PunctuationChars</a><span class="comment"> -- Set the set of characters making up punctuation characters Should be called after SetWordChars.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETCHARSDEFAULT'>SetCharsDefault</a>()<span class="comment"> -- Reset the set of characters for whitespace and word characters to the defaults.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GRABFOCUS'>GrabFocus</a>()<span class="comment"> -- Set the focus to this Scintilla widget.</span></p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETFOCUS'>Focus</a><span class="comment"> -- Change internal focus flag.</span></p>
 	<h2>Brace highlighting</h2>
