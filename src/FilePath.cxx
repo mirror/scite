@@ -555,11 +555,13 @@ bool FilePath::Matches(const GUI::gui_char *pattern) const {
  * The short path/file must exist, and if it is a file it must be fully specified
  * otherwise the function fails.
  *
- * sizeof @a longPath buffer must be a least _MAX_PATH
- * @returns true on success, and the long path in @a longPath buffer,
- * false on failure, and copies the @a shortPath arg to the @a longPath buffer.
+ * @returns true on success, and the long path in @a longPath,
+ * false on failure.
  */
-static bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_char* longPath) {
+static bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_string &longPath) {
+	if (!*shortPath) {
+		return false;
+	}
 	typedef DWORD (STDAPICALLTYPE* GetLongSig)(const GUI::gui_char* lpszShortPath, GUI::gui_char* lpszLongPath, DWORD cchBuffer);
 	static GetLongSig pfnGetLong = NULL;
 	static bool kernelTried = false;
@@ -573,22 +575,29 @@ static bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_char* longPath
 		}
 	}
 
-	bool ok = false;
-	if (pfnGetLong) {
-		ok = (pfnGetLong)(shortPath, longPath, _MAX_PATH) != 0;
+	if (!pfnGetLong) {
+		return false;
 	}
-
-	if (!ok) {
-		wcsncpy(longPath, shortPath, _MAX_PATH);
+	GUI::gui_string gsLong(1, L'\0');
+	// Call with too-short string returns size + terminating NUL
+	const DWORD size = (pfnGetLong)(shortPath, &gsLong[0], 0);
+	if (size == 0) {
+		return false;
 	}
-	return ok;
+	gsLong.resize(size);
+	// Call with correct size string returns size without terminating NUL
+	const DWORD characters = (pfnGetLong)(shortPath, &gsLong[0], size);
+	if (characters != 0) {
+		longPath.assign(gsLong, 0, characters);
+	}
+	return characters != 0;
 }
 #endif
 
 void FilePath::FixName() {
 #ifdef WIN32
 	// Only used on Windows to use long file names and fix the case of file names
-	GUI::gui_char longPath[_MAX_PATH];
+	GUI::gui_string longPath;
 	// first try MakeLongPath which corrects the path and the case of filename too
 	if (MakeLongPath(AsInternal(), longPath)) {
 		Set(longPath);
