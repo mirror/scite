@@ -148,6 +148,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"CARET_STRICT",0x04},
 	{"EDGE_BACKGROUND",2},
 	{"EDGE_LINE",1},
+	{"EDGE_MULTILINE",3},
 	{"EDGE_NONE",0},
 	{"IDM_ABBREV",242},
 	{"IDM_ABOUT",902},
@@ -2955,6 +2956,8 @@ static IFaceFunction ifaceFunctions[] = {
 	{"MoveCaretInsideView", 2401, iface_void, {iface_void, iface_void}},
 	{"MoveSelectedLinesDown", 2621, iface_void, {iface_void, iface_void}},
 	{"MoveSelectedLinesUp", 2620, iface_void, {iface_void, iface_void}},
+	{"MultiEdgeAddLine", 2694, iface_void, {iface_int, iface_colour}},
+	{"MultiEdgeClearAll", 2695, iface_void, {iface_void, iface_void}},
 	{"MultipleSelectAddEach", 2689, iface_void, {iface_void, iface_void}},
 	{"MultipleSelectAddNext", 2688, iface_void, {iface_void, iface_void}},
 	{"NewLine", 2329, iface_void, {iface_void, iface_void}},
@@ -3298,8 +3301,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 293,
-	ifaceConstantCount = 2639,
+	ifaceFunctionCount = 295,
+	ifaceConstantCount = 2640,
 	ifacePropertyCount = 222
 };
 

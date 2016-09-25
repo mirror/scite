@@ -523,9 +523,11 @@
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ZOOMOUT'>ZoomOut</a>()<span class="comment"> -- Make the displayed text smaller by decreasing the sizes by 1 point.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETZOOM'>Zoom</a><span class="comment"> -- Set the zoom level. This number of points is added to the size of all fonts. It may be positive to magnify or negative to reduce.</span></p>
 	<h2>Long lines</h2>
-	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETEDGEMODE'>EdgeMode</a><span class="comment"> -- The edge may be displayed by a line (EDGE_LINE) or by highlighting text that goes beyond it (EDGE_BACKGROUND) or not displayed at all (EDGE_NONE).</span></p>
+	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETEDGEMODE'>EdgeMode</a><span class="comment"> -- The edge may be displayed by a line (EDGE_LINE/EDGE_MULTILINE) or by highlighting text that goes beyond it (EDGE_BACKGROUND) or not displayed at all (EDGE_NONE).</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETEDGECOLUMN'>EdgeColumn</a><span class="comment"> -- Set the column number of the edge. If text goes past the edge then it is highlighted.</span></p>
 	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETEDGECOLOUR'>EdgeColour</a><span class="comment"> -- Change the colour used in edge indication.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MULTIEDGEADDLINE'>MultiEdgeAddLine</a>(int column, colour edgeColour)<span class="comment"> -- Add a new vertical edge to the view.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MULTIEDGECLEARALL'>MultiEdgeClearAll</a>()<span class="comment"> -- Clear all vertical edges.</span></p>
 	<h2>Lexer</h2>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETLEXER'>Lexer</a><span class="comment"> -- Set the lexing language of the document.</span></p>
 	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETLEXERLANGUAGE'>LexerLanguage</a><span class="comment"> -- Set the lexing language of the document based on string name.</span></p>
