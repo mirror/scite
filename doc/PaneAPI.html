@@ -107,7 +107,7 @@
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INSERTTEXT'>InsertText</a>(position pos, string text)<span class="comment"> -- Insert string at a position.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CHANGEINSERTION'>ChangeInsertion</a>(string text)<span class="comment"> -- Change the text that is being inserted in response to SC_MOD_INSERTCHECK</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARALL'>ClearAll</a>()<span class="comment"> -- Delete all text in the document.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DELETERANGE'>DeleteRange</a>(position pos, int deleteLength)<span class="comment"> -- Delete a range of text in the document.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DELETERANGE'>DeleteRange</a>(position start, int lengthDelete)<span class="comment"> -- Delete a range of text in the document.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARDOCUMENTSTYLE'>ClearDocumentStyle</a>()<span class="comment"> -- Set all style bytes to 0, remove all folding information.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETCHARAT'>CharAt</a>[position pos] read-only</p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEAT'>StyleAt</a>[position pos] read-only</p>
@@ -129,8 +129,8 @@
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_REPLACETARGETRE'>ReplaceTargetRE</a>(string text)<span class="comment"> -- Replace the target text with the argument text after \d processing. Text is counted so it can contain NULs. Looks for \d where d is between 1 and 9 and replaces these with the strings matched in the last search operation which were surrounded by \( and \). Returns the length of the replacement text including any change caused by processing the \d patterns.</span></p>
 	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETTAG'>Tag</a>[int tagNumber] read-only</p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHANCHOR'>SearchAnchor</a>()<span class="comment"> -- Sets the current caret position to be the search anchor.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHNEXT'>SearchNext</a>(int flags, string text)<span class="comment"> -- Find some text starting at the search anchor. Does not ensure the selection is visible.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHPREV'>SearchPrev</a>(int flags, string text)<span class="comment"> -- Find some text starting at the search anchor and moving backwards. Does not ensure the selection is visible.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHNEXT'>SearchNext</a>(int searchFlags, string text)<span class="comment"> -- Find some text starting at the search anchor. Does not ensure the selection is visible.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SEARCHPREV'>SearchPrev</a>(int searchFlags, string text)<span class="comment"> -- Find some text starting at the search anchor and moving backwards. Does not ensure the selection is visible.</span></p>
 	<h2>Overtype</h2>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETOVERTYPE'>Overtype</a><span class="comment"> -- Set to overtype (true) or insert mode.</span></p>
 	<h2>Cut, copy and paste</h2>
@@ -161,14 +161,14 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINECOUNT'>LineCount</a> read-only</p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_LINESONSCREEN'>LinesOnScreen</a> read-only</p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETMODIFY'>Modify</a> read-only</p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSEL'>SetSel</a>(position start, position end)<span class="comment"> -- Select a range of text.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GOTOPOS'>GotoPos</a>(position pos)<span class="comment"> -- Set caret to a position and ensure it is visible.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSEL'>SetSel</a>(position anchor, position caret)<span class="comment"> -- Select a range of text.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GOTOPOS'>GotoPos</a>(position caret)<span class="comment"> -- Set caret to a position and ensure it is visible.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GOTOLINE'>GotoLine</a>(int line)<span class="comment"> -- Set caret to start of a line and ensure it is visible.</span></p>
 	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETCURRENTPOS'>CurrentPos</a><span class="comment"> -- Sets the position of the caret.</span></p>
 	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETANCHOR'>Anchor</a><span class="comment"> -- Set the selection anchor to a position. The anchor is the opposite end of the selection from the caret.</span></p>
 	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONSTART'>SelectionStart</a><span class="comment"> -- Sets the position that starts the selection - this becomes the anchor.</span></p>
-	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONEND'>SelectionEnd</a><span class="comment"> -- Sets the position that ends the selection - this becomes the currentPosition.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETEMPTYSELECTION'>SetEmptySelection</a>(position pos)<span class="comment"> -- Set caret to a position, while removing any existing selection.</span></p>
+	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONEND'>SelectionEnd</a><span class="comment"> -- Sets the position that ends the selection - this becomes the caret.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETEMPTYSELECTION'>SetEmptySelection</a>(position caret)<span class="comment"> -- Set caret to a position, while removing any existing selection.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SELECTALL'>SelectAll</a>()<span class="comment"> -- Select all the text in the document.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_LINEFROMPOSITION'>LineFromPosition</a>(position pos)<span class="comment"> -- Retrieve the line containing a position.</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONFROMLINE'>PositionFromLine</a>(int line)<span class="comment"> -- Retrieve the position at the start of a line.</span></p>
@@ -184,7 +184,7 @@
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONBEFORE'>PositionBefore</a>(position pos)<span class="comment"> -- Given a valid document position, return the previous position taking code page into account. Returns 0 if passed 0.</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONAFTER'>PositionAfter</a>(position pos)<span class="comment"> -- Given a valid document position, return the next position taking code page into account. Maximum value returned is the last position in the document.</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POSITIONRELATIVE'>PositionRelative</a>(position pos, int relative)<span class="comment"> -- Given a valid document position, return a position that differs in a number of characters. Returned value is always between 0 and last position in document.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_COUNTCHARACTERS'>CountCharacters</a>(int startPos, int endPos)<span class="comment"> -- Count characters between two positions.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_COUNTCHARACTERS'>CountCharacters</a>(position start, position end)<span class="comment"> -- Count characters between two positions.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_TEXTWIDTH'>TextWidth</a>(int style, string text)<span class="comment"> -- Measure the pixel width of some text in a particular style. NUL terminated text argument. Does not handle tab or control characters.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_TEXTHEIGHT'>TextHeight</a>(int line)<span class="comment"> -- Retrieve the height of a particular line of text in pixels.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETCOLUMN'>Column</a>[position pos] read-only</p>
@@ -195,7 +195,7 @@
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CHARPOSITIONFROMPOINTCLOSE'>CharPositionFromPointClose</a>(int x, int y)<span class="comment"> -- Find the position of a character from a point within the window. Return INVALID_POSITION if not close to text.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POINTXFROMPOSITION'>PointXFromPosition</a>(position pos)<span class="comment"> -- Retrieve the x value of the point in the window where a position is displayed.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_POINTYFROMPOSITION'>PointYFromPosition</a>(position pos)<span class="comment"> -- Retrieve the y value of the point in the window where a position is displayed.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_HIDESELECTION'>HideSelection</a>(bool normal)<span class="comment"> -- Draw the selection in normal style or with selection highlighted.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_HIDESELECTION'>HideSelection</a>(bool hide)<span class="comment"> -- Draw the selection in normal style or with selection highlighted.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CHOOSECARETX'>ChooseCaretX</a>()<span class="comment"> -- Set the last x chosen value to be the caret x position.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MOVESELECTEDLINESUP'>MoveSelectedLinesUp</a>()<span class="comment"> -- Move the selected lines up one line, shifting the line above after the selection</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MOVESELECTEDLINESDOWN'>MoveSelectedLinesDown</a>()<span class="comment"> -- Move the selected lines down one line, shifting the line below before the selection</span></p>
@@ -209,8 +209,8 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONS'>Selections</a> read-only</p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONEMPTY'>SelectionEmpty</a> read-only</p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARSELECTIONS'>ClearSelections</a>()<span class="comment"> -- Clear selections to a single empty stream selection</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTION'>SetSelection</a>(int caret, int anchor)<span class="comment"> -- Set a simple selection</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ADDSELECTION'>AddSelection</a>(int caret, int anchor)<span class="comment"> -- Add a selection</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTION'>SetSelection</a>(position caret, position anchor)<span class="comment"> -- Set a simple selection</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ADDSELECTION'>AddSelection</a>(position caret, position anchor)<span class="comment"> -- Add a selection</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DROPSELECTIONN'>DropSelectionN</a>(int selection)<span class="comment"> -- Drop one selection</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMAINSELECTION'>MainSelection</a><span class="comment"> -- Set the main selection</span></p>
 	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNCARET'>SelectionNCaret</a>[int selection]<span class="comment"> -- Set the caret position of the nth selection.</span></p>
@@ -258,6 +258,7 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETCURSOR'>Cursor</a><span class="comment"> -- Sets the cursor to one of the SC_CURSOR* values.</span></p>
 	<h2>Mouse capture</h2>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMOUSEDOWNCAPTURES'>MouseDownCaptures</a><span class="comment"> -- Set whether the mouse is captured when its button is pressed.</span></p>
+	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMOUSEWHEELCAPTURES'>MouseWheelCaptures</a><span class="comment"> -- Set whether the mouse wheel can be active outside the window.</span></p>
 	<h2>Line endings</h2>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETEOLMODE'>EOLMode</a><span class="comment"> -- Set the current end of line mode.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CONVERTEOLS'>ConvertEOLs</a>(int eolMode)<span class="comment"> -- Convert all line endings in the document to one mode.</span></p>
@@ -275,7 +276,7 @@
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETCHARSDEFAULT'>SetCharsDefault</a>()<span class="comment"> -- Reset the set of characters for whitespace and word characters to the defaults.</span></p>
 	<h2>Styling</h2>
 	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETENDSTYLED'>EndStyled</a> read-only</p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_STARTSTYLING'>StartStyling</a>(position pos, int mask)<span class="comment"> -- Set the current styling position to pos and the styling mask to mask. The styling mask can be used to protect some bits in each styling byte from modification.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_STARTSTYLING'>StartStyling</a>(position start, int unused)<span class="comment"> -- Set the current styling position to start. The unused parameter is no longer used and should be set to 0.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSTYLING'>SetStyling</a>(int length, int style)<span class="comment"> -- Change style from current styling position for length characters to a style and move the current styling position to after this newly styled segment.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETSTYLINGEX'>SetStylingEx</a>(string styles)<span class="comment"> -- Set the styles for a segment of the document.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETIDLESTYLING'>IdleStyling</a><span class="comment"> -- Sets limits to idle styling.</span></p>
@@ -325,11 +326,13 @@
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARREPRESENTATION'>ClearRepresentation</a>(string encodedCharacter)<span class="comment"> -- Remove a character representation.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETCONTROLCHARSYMBOL'>ControlCharSymbol</a><span class="comment"> -- Change the way control characters are displayed: If symbol is &lt; 32, keep the drawn way, else, use the given character.</span></p>
 	<h2>Margins</h2>
+	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINS'>Margins</a><span class="comment"> -- Allocate a non-standard number of margins.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINTYPEN'>MarginTypeN</a>[int margin]<span class="comment"> -- Set a margin to be either numeric or symbolic.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINWIDTHN'>MarginWidthN</a>[int margin]<span class="comment"> -- Set the width of a margin to a width expressed in pixels.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINMASKN'>MarginMaskN</a>[int margin]<span class="comment"> -- Set a mask that determines which markers are displayed in a margin.</span></p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINSENSITIVEN'>MarginSensitiveN</a>[int margin]<span class="comment"> -- Make a margin sensitive or insensitive to mouse clicks.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINCURSORN'>MarginCursorN</a>[int margin]<span class="comment"> -- Set the cursor shown when the mouse is inside a margin.</span></p>
+	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINBACKN'>MarginBackN</a>[int margin]<span class="comment"> -- Set the background colour of a margin. Only visible for SC_MARGIN_COLOUR.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINLEFT'>MarginLeft</a><span class="comment"> -- Sets the size in pixels of the left margin.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMARGINRIGHT'>MarginRight</a><span class="comment"> -- Sets the size in pixels of the right margin.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETFOLDMARGINCOLOUR'>SetFoldMarginColour</a>(bool useSetting, colour back)<span class="comment"> -- Set one of the colours used as a chequerboard pattern in the fold margin</span></p>
@@ -359,11 +362,11 @@
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GRABFOCUS'>GrabFocus</a>()<span class="comment"> -- Set the focus to this Scintilla widget.</span></p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETFOCUS'>Focus</a><span class="comment"> -- Change internal focus flag.</span></p>
 	<h2>Brace highlighting</h2>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEHIGHLIGHT'>BraceHighlight</a>(position pos1, position pos2)<span class="comment"> -- Highlight the characters at two positions.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEHIGHLIGHT'>BraceHighlight</a>(position posA, position posB)<span class="comment"> -- Highlight the characters at two positions.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEBADLIGHT'>BraceBadLight</a>(position pos)<span class="comment"> -- Highlight the character at a position indicating there is no matching brace.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEHIGHLIGHTINDICATOR'>BraceHighlightIndicator</a>(bool useBraceHighlightIndicator, int indicator)<span class="comment"> -- Use specified indicator to highlight matching braces instead of changing their style.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEBADLIGHTINDICATOR'>BraceBadLightIndicator</a>(bool useBraceBadLightIndicator, int indicator)<span class="comment"> -- Use specified indicator to highlight non matching brace instead of changing its style.</span></p>
-	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEMATCH'>BraceMatch</a>(position pos)<span class="comment"> -- Find the position of a matching brace or INVALID_POSITION if no match.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEHIGHLIGHTINDICATOR'>BraceHighlightIndicator</a>(bool useSetting, int indicator)<span class="comment"> -- Use specified indicator to highlight matching braces instead of changing their style.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEBADLIGHTINDICATOR'>BraceBadLightIndicator</a>(bool useSetting, int indicator)<span class="comment"> -- Use specified indicator to highlight non matching brace instead of changing its style.</span></p>
+	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_BRACEMATCH'>BraceMatch</a>(position pos, int maxReStyle)<span class="comment"> -- Find the position of a matching brace or INVALID_POSITION if no match. The maxReStyle must be 0 for now. It may be defined in a future release.</span></p>
 	<h2>Tabs and Indentation Guides</h2>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETTABWIDTH'>TabWidth</a><span class="comment"> -- Change the visible size of a tab to be a multiple of the width of a space character.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARTABSTOPS'>ClearTabStops</a>(int line)<span class="comment"> -- Clear explicit tabstops on a line.</span></p>
@@ -391,43 +394,43 @@
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERENABLEHIGHLIGHT'>MarkerEnableHighlight</a>(bool enabled)<span class="comment"> -- Enable/disable highlight for current folding bloc (smallest one that contains the caret)</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERSETALPHA'>MarkerAlpha</a>[int markerNumber] write-only<span class="comment"> -- Set the alpha used for a marker that is drawn in the text area, not the margin.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERADD'>MarkerAdd</a>(int line, int markerNumber)<span class="comment"> -- Add a marker to a line, returning an ID which can be used to find or delete the marker.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERADDSET'>MarkerAddSet</a>(int line, int set)<span class="comment"> -- Add a set of markers to a line.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERADDSET'>MarkerAddSet</a>(int line, int markerSet)<span class="comment"> -- Add a set of markers to a line.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERDELETE'>MarkerDelete</a>(int line, int markerNumber)<span class="comment"> -- Delete a marker from a line.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERDELETEALL'>MarkerDeleteAll</a>(int markerNumber)<span class="comment"> -- Delete all markers with a particular number from all lines.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERGET'>MarkerGet</a>(int line)<span class="comment"> -- Get a bit mask of all the markers set on a line.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERNEXT'>MarkerNext</a>(int lineStart, int markerMask)<span class="comment"> -- Find the next line at or after lineStart that includes a marker in mask. Return -1 when no more lines.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERPREVIOUS'>MarkerPrevious</a>(int lineStart, int markerMask)<span class="comment"> -- Find the previous line before lineStart that includes a marker in mask.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERLINEFROMHANDLE'>MarkerLineFromHandle</a>(int handle)<span class="comment"> -- Retrieve the line number at which a particular marker is located.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERDELETEHANDLE'>MarkerDeleteHandle</a>(int handle)<span class="comment"> -- Delete a marker.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERLINEFROMHANDLE'>MarkerLineFromHandle</a>(int markerHandle)<span class="comment"> -- Retrieve the line number at which a particular marker is located.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_MARKERDELETEHANDLE'>MarkerDeleteHandle</a>(int markerHandle)<span class="comment"> -- Delete a marker.</span></p>
 	<h2>Indicators</h2>
-	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETSTYLE'>IndicStyle</a>[int indic]<span class="comment"> -- Set an indicator to plain, squiggle or TT.</span></p>
-	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETFORE'>IndicFore</a>[int indic]<span class="comment"> -- Set the foreground colour of an indicator.</span></p>
+	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETSTYLE'>IndicStyle</a>[int indicator]<span class="comment"> -- Set an indicator to plain, squiggle or TT.</span></p>
+	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETFORE'>IndicFore</a>[int indicator]<span class="comment"> -- Set the foreground colour of an indicator.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETALPHA'>IndicAlpha</a>[int indicator]<span class="comment"> -- Set the alpha fill colour of the given indicator.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETOUTLINEALPHA'>IndicOutlineAlpha</a>[int indicator]<span class="comment"> -- Set the alpha outline colour of the given indicator.</span></p>
-	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETUNDER'>IndicUnder</a>[int indic]<span class="comment"> -- Set an indicator to draw under text or over(default).</span></p>
-	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETHOVERSTYLE'>IndicHoverStyle</a>[int indic]<span class="comment"> -- Set a hover indicator to plain, squiggle or TT.</span></p>
-	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETHOVERFORE'>IndicHoverFore</a>[int indic]<span class="comment"> -- Set the foreground hover colour of an indicator.</span></p>
-	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETFLAGS'>IndicFlags</a>[int indic]<span class="comment"> -- Set the attributes of an indicator.</span></p>
+	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETUNDER'>IndicUnder</a>[int indicator]<span class="comment"> -- Set an indicator to draw under text or over(default).</span></p>
+	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETHOVERSTYLE'>IndicHoverStyle</a>[int indicator]<span class="comment"> -- Set a hover indicator to plain, squiggle or TT.</span></p>
+	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETHOVERFORE'>IndicHoverFore</a>[int indicator]<span class="comment"> -- Set the foreground hover colour of an indicator.</span></p>
+	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETFLAGS'>IndicFlags</a>[int indicator]<span class="comment"> -- Set the attributes of an indicator.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETINDICATORCURRENT'>IndicatorCurrent</a><span class="comment"> -- Set the indicator used for IndicatorFillRange and IndicatorClearRange</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETINDICATORVALUE'>IndicatorValue</a><span class="comment"> -- Set the value used for IndicatorFillRange</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORFILLRANGE'>IndicatorFillRange</a>(int position, int fillLength)<span class="comment"> -- Turn a indicator on over a range.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORCLEARRANGE'>IndicatorClearRange</a>(int position, int clearLength)<span class="comment"> -- Turn a indicator off over a range.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORALLONFOR'>IndicatorAllOnFor</a>(int position)<span class="comment"> -- Are any indicators present at position?</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORVALUEAT'>IndicatorValueAt</a>(int indicator, int position)<span class="comment"> -- What value does a particular indicator have at at a position?</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORSTART'>IndicatorStart</a>(int indicator, int position)<span class="comment"> -- Where does a particular indicator start?</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATOREND'>IndicatorEnd</a>(int indicator, int position)<span class="comment"> -- Where does a particular indicator end?</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORFILLRANGE'>IndicatorFillRange</a>(position start, int lengthFill)<span class="comment"> -- Turn a indicator on over a range.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORCLEARRANGE'>IndicatorClearRange</a>(position start, int lengthClear)<span class="comment"> -- Turn a indicator off over a range.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORALLONFOR'>IndicatorAllOnFor</a>(position pos)<span class="comment"> -- Are any indicators present at pos?</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORVALUEAT'>IndicatorValueAt</a>(int indicator, position pos)<span class="comment"> -- What value does a particular indicator have at a position?</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORSTART'>IndicatorStart</a>(int indicator, position pos)<span class="comment"> -- Where does a particular indicator start?</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_INDICATOREND'>IndicatorEnd</a>(int indicator, position pos)<span class="comment"> -- Where does a particular indicator end?</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORSHOW'>FindIndicatorShow</a>(position start, position end)<span class="comment"> -- On OS X, show a find indicator.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORFLASH'>FindIndicatorFlash</a>(position start, position end)<span class="comment"> -- On OS X, flash a find indicator, then fade out.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORHIDE'>FindIndicatorHide</a>()<span class="comment"> -- On OS X, hide the find indicator.</span></p>
 	<h2>Autocompletion</h2>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSHOW'>AutoCShow</a>(int lenEntered, string itemList)<span class="comment"> -- Display a auto-completion list. The lenEntered parameter indicates how many characters before the caret should be used to provide context.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSHOW'>AutoCShow</a>(int lengthEntered, string itemList)<span class="comment"> -- Display a auto-completion list. The lengthEntered parameter indicates how many characters before the caret should be used to provide context.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCCANCEL'>AutoCCancel</a>()<span class="comment"> -- Remove the auto-completion list from the screen.</span></p>
 	<p>bool editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCACTIVE'>AutoCActive</a>()<span class="comment"> -- Is there an auto-completion list visible?</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCPOSSTART'>AutoCPosStart</a>()<span class="comment"> -- Retrieve the position of the caret when the auto-completion list was displayed.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCCOMPLETE'>AutoCComplete</a>()<span class="comment"> -- User has selected an item so remove the list and insert the selection.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSTOPS'>AutoCStops</a>(string characterSet)<span class="comment"> -- Define a set of character that when typed cancel the auto-completion list.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSETSEPARATOR'>AutoCSeparator</a><span class="comment"> -- Change the separator character in the string setting up an auto-completion list. Default is space but can be changed if items contain space.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSELECT'>AutoCSelect</a>(string text)<span class="comment"> -- Select the item in the auto-completion list that starts with a string.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSELECT'>AutoCSelect</a>(string select)<span class="comment"> -- Select the item in the auto-completion list that starts with a string.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETCURRENT'>AutoCCurrent</a> read-only</p>
 	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCGETCURRENTTEXT'>AutoCCurrentText</a> read-only</p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_AUTOCSETCANCELATSTART'>AutoCCancelAtStart</a><span class="comment"> -- Should the auto-completion list be cancelled if the user backspaces to a position before where the box was created.</span></p>
@@ -453,15 +456,15 @@
 	<p>bool editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPACTIVE'>CallTipActive</a>()<span class="comment"> -- Is there an active call tip?</span></p>
 	<p>position editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPPOSSTART'>CallTipPosStart</a>()<span class="comment"> -- Retrieve the position where the caret was before displaying the call tip.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETPOSSTART'>CallTipPosStart</a> write-only<span class="comment"> -- Set the start position in order to change when backspacing removes the calltip.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETHLT'>CallTipSetHlt</a>(int start, int end)<span class="comment"> -- Highlight a segment of the definition.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETHLT'>CallTipSetHlt</a>(int highlightStart, int highlightEnd)<span class="comment"> -- Highlight a segment of the definition.</span></p>
 	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETBACK'>CallTipBack</a> write-only<span class="comment"> -- Set the background colour for the call tip.</span></p>
 	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETFORE'>CallTipFore</a> write-only<span class="comment"> -- Set the foreground colour for the call tip.</span></p>
 	<p>colour editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETFOREHLT'>CallTipForeHlt</a> write-only<span class="comment"> -- Set the foreground colour for the highlighted part of the call tip.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPUSESTYLE'>CallTipUseStyle</a> write-only<span class="comment"> -- Enable use of STYLE_CALLTIP and set call tip tab size in pixels.</span></p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETPOSITION'>CallTipPosition</a> write-only<span class="comment"> -- Set position of calltip, above or below text.</span></p>
 	<h2>Key bindings</h2>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ASSIGNCMDKEY'>AssignCmdKey</a>(keymod km, int msg)<span class="comment"> -- When key+modifier combination km is pressed perform msg.</span></p>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARCMDKEY'>ClearCmdKey</a>(keymod km)<span class="comment"> -- When key+modifier combination km is pressed do nothing.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ASSIGNCMDKEY'>AssignCmdKey</a>(keymod keyDefinition, int sciCommand)<span class="comment"> -- When key+modifier combination keyDefinition is pressed perform sciCommand.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARCMDKEY'>ClearCmdKey</a>(keymod keyDefinition)<span class="comment"> -- When key+modifier combination keyDefinition is pressed do nothing.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARALLCMDKEYS'>ClearAllCmdKeys</a>()<span class="comment"> -- Drop all key mappings.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_NULL'>Null</a>()<span class="comment"> -- Null operation.</span></p>
 	<h2>Popup edit menu</h2>
@@ -477,7 +480,7 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETDIRECTFUNCTION'>DirectFunction</a> read-only</p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETDIRECTPOINTER'>DirectPointer</a> read-only</p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETCHARACTERPOINTER'>CharacterPointer</a> read-only</p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETRANGEPOINTER'>GetRangePointer</a>(int position, int rangeLength)<span class="comment"> -- Return a read-only pointer to a range of characters in the document. May move the gap so that the range is contiguous, but will only move up to rangeLength bytes.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETRANGEPOINTER'>GetRangePointer</a>(position start, int lengthRange)<span class="comment"> -- Return a read-only pointer to a range of characters in the document. May move the gap so that the range is contiguous, but will only move up to lengthRange bytes.</span></p>
 	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETGAPPOSITION'>GapPosition</a> read-only</p>
 	<h2>Multiple views</h2>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETDOCPOINTER'>DocPointer</a><span class="comment"> -- Change the document object used.</span></p>
@@ -487,8 +490,8 @@
 	<h2>Background loading and saving</h2>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CREATELOADER'>CreateLoader</a>(int bytes)<span class="comment"> -- Create an ILoader*.</span></p>
 	<h2>Folding</h2>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_VISIBLEFROMDOCLINE'>VisibleFromDocLine</a>(int line)<span class="comment"> -- Find the display line of a document line taking hidden lines into account.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DOCLINEFROMVISIBLE'>DocLineFromVisible</a>(int lineDisplay)<span class="comment"> -- Find the document line of a display line taking hidden lines into account.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_VISIBLEFROMDOCLINE'>VisibleFromDocLine</a>(int docLine)<span class="comment"> -- Find the display line of a document line taking hidden lines into account.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DOCLINEFROMVISIBLE'>DocLineFromVisible</a>(int displayLine)<span class="comment"> -- Find the document line of a display line taking hidden lines into account.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SHOWLINES'>ShowLines</a>(int lineStart, int lineEnd)<span class="comment"> -- Make a range of lines visible.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_HIDELINES'>HideLines</a>(int lineStart, int lineEnd)<span class="comment"> -- Make a range of lines invisible.</span></p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETLINEVISIBLE'>LineVisible</a>[int line] read-only</p>
@@ -517,7 +520,7 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETPOSITIONCACHE'>PositionCache</a><span class="comment"> -- Set number of entries in position cache</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_LINESSPLIT'>LinesSplit</a>(int pixelWidth)<span class="comment"> -- Split the lines in the target into lines that are less wide than pixelWidth where possible.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_LINESJOIN'>LinesJoin</a>()<span class="comment"> -- Join the lines in the target.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_WRAPCOUNT'>WrapCount</a>(int line)<span class="comment"> -- The number of display lines needed to wrap a document line</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_WRAPCOUNT'>WrapCount</a>(int docLine)<span class="comment"> -- The number of display lines needed to wrap a document line</span></p>
 	<h2>Zooming</h2>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ZOOMIN'>ZoomIn</a>()<span class="comment"> -- Magnify the displayed text by increasing the sizes by 1 point.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ZOOMOUT'>ZoomOut</a>()<span class="comment"> -- Make the displayed text smaller by decreasing the sizes by 1 point.</span></p>
@@ -539,8 +542,8 @@
 	<p>string editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DESCRIBEPROPERTY'>DescribeProperty</a>(string name)<span class="comment"> -- Describe a property. Result is NUL-terminated.</span></p>
 	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETPROPERTY'>Property</a>[string key]<span class="comment"> -- Set up a value that may be used by a lexer for some optional feature.</span></p>
 	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETPROPERTYEXPANDED'>PropertyExpanded</a>[string key] read-only</p>
-	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETPROPERTYINT'>PropertyInt</a>[string key] read-only</p>
-	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETKEYWORDS'>KeyWords</a>[int keywordSet] write-only<span class="comment"> -- Set up the key words used by the lexer.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETPROPERTYINT'>GetPropertyInt</a>(string key, int defaultValue)<span class="comment"> -- Retrieve a "property" value previously set with SetProperty, interpreted as an int AFTER any "$()" variable replacement.</span></p>
+	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETKEYWORDS'>KeyWords</a>[int keyWordSet] write-only<span class="comment"> -- Set up the key words used by the lexer.</span></p>
 	<p>string editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DESCRIBEKEYWORDSETS'>DescribeKeyWordSets</a>()<span class="comment"> -- Retrieve a '\n' separated list of descriptions of the keyword sets understood by the current lexer. Result is NUL-terminated.</span></p>
 	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETSUBSTYLEBASES'>SubStyleBases</a> read-only</p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DISTANCETOSECONDARYSTYLES'>DistanceToSecondaryStyles</a> read-only</p>
@@ -551,6 +554,7 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETSTYLEFROMSUBSTYLE'>StyleFromSubStyle</a>[int subStyle] read-only</p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETPRIMARYSTYLEFROMSTYLE'>PrimaryStyleFromStyle</a>[int style] read-only</p>
 	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETIDENTIFIERS'>Identifiers</a>[int style] write-only<span class="comment"> -- Set the identifiers that are shown in a particular style</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_PRIVATELEXERCALL'>PrivateLexerCall</a>(int operation, int pointer)<span class="comment"> -- For private communication between an application and a known lexer.</span></p>
 	<h2>Notifications</h2>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETIDENTIFIER'>Identifier</a><span class="comment"> -- Set the identifier reported as idFrom in notification messages.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMODEVENTMASK'>ModEventMask</a><span class="comment"> -- Set which document modification events are sent to the container.</span></p>
