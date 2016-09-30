@@ -1965,7 +1965,9 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 
 		case WM_ACTIVATEAPP:
-			wEditor.Call(SCI_HIDESELECTION, !wParam);
+			if (props.GetInt("selection.always.visible", 0) == 0) {
+				wEditor.Call(SCI_HIDESELECTION, !wParam);
+			}
 			// Do not want to display dialog yet as may be in middle of system mouse capture
 			::PostMessage(MainHWND(), WM_COMMAND, IDM_ACTIVATE, wParam);
 			break;
