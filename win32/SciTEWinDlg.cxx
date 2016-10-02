@@ -959,7 +959,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		} else if ( (ControlIDOfWParam(wParam) == IDOK) ||
 		            (ControlIDOfWParam(wParam) == IDMARKALL) ) {
 			dlg.GrabFields();
-			if (closeFind) {
+			if (closeFind != Searcher::CloseFind::closePrevent) {
 				::EndDialog(hDlg, IDOK);
 				wFindReplace.Destroy();
 			}

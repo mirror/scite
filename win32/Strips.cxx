@@ -1060,7 +1060,7 @@ bool FindStrip::KeyDown(WPARAM key) {
 			if (incrementalBehaviour == simple) {
 				Next(false, IsKeyDown(VK_SHIFT));
 			} else {
-				if (pSearcher->closeFind) {
+				if (pSearcher->closeFind != Searcher::CloseFind::closePrevent) {
 					Close();
 				}
 			}
@@ -1075,8 +1075,8 @@ void FindStrip::Next(bool markAll, bool invertDirection) {
 	if (markAll){
 		pSearcher->MarkAll(Searcher::markWithBookMarks);
 	}
-	pSearcher->FindNext(pSearcher->reverseFind ^ invertDirection);
-	if (pSearcher->closeFind) {
+	const bool found = pSearcher->FindNext(pSearcher->reverseFind ^ invertDirection) >= 0;
+	if (pSearcher->ShouldClose(found)) {
 		Close();
 	}
 }
@@ -1110,7 +1110,7 @@ bool FindStrip::Command(WPARAM wParam) {
 		if (incrementalBehaviour == simple) {
 			Next(false, false);
 		} else {
-			if (pSearcher->closeFind) {
+			if (pSearcher->closeFind != Searcher::CloseFind::closePrevent) {
 				Close();
 			}
 		}

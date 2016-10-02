@@ -2854,7 +2854,11 @@ Prev File|IDM_PREVFILE|<br/>
           find.close.on.find
         </td>
         <td>
-          Set to 0 to prevent the Find dialog from closing when "Find" pressed.
+          Set find.close.on.find to 0, 1 or 2 to prevent (0) or allow (1) closing the
+          the find strip automatically when the Find button is pressed.
+          The value 2 causes the strip to close automatically only when the search finds a match
+          which enables the user to change options or search string if a mistake was made.
+          The default value is 1.
         </td>
       </tr>
       <tr id='property-find.replace.matchcase'>

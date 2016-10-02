@@ -811,7 +811,7 @@ void SciTEBase::ReadProperties() {
 		alphaIndicator = 30; //then set default value.
 	underIndicator = props.GetInt("indicators.under", 0) == 1;
 
-	closeFind = props.GetInt("find.close.on.find", 1);
+	closeFind = static_cast<CloseFind>(props.GetInt("find.close.on.find", 1));
 
 	const std::string controlCharSymbol = props.GetString("control.char.symbol");
 	if (controlCharSymbol.length()) {

@@ -290,7 +290,7 @@ public:
 	bool failedfind;
 	bool findInStyle;
 	int findStyle;
-	bool closeFind;
+	enum class CloseFind { closePrevent, closeAlways, closeOnMatch } closeFind;
 	ComboMemory memFinds;
 	ComboMemory memReplaces;
 
@@ -316,6 +316,9 @@ public:
 	virtual void UIClosed() = 0;
 	virtual void UIHasFocus() = 0;
 	bool &FlagFromCmd(int cmd);
+	bool ShouldClose(bool found) const {
+		return (closeFind == CloseFind::closeAlways) || (found && (closeFind == CloseFind::closeOnMatch));
+	}
 };
 
 // User interface for search options implemented as both buttons and popup menu items
