@@ -896,6 +896,11 @@ void SciTEWin::Creation() {
 	              reinterpret_cast<LPARAM>(HINST_COMMCTRL));
 
 	TBADDBITMAP addbmp = { hInstance, IDR_CLOSEFILE };
+
+	if (tbLarge) {
+		addbmp.nID = IDR_CLOSEFILE24;
+	}
+	
 	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, (LPARAM)&addbmp);
 
 	TBBUTTON tbb[ELEMENTS(bbs)];

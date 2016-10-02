@@ -565,6 +565,7 @@ BEGIN
 END
 
 IDR_CLOSEFILE BITMAP "closefile.bmp"
+IDR_CLOSEFILE24 BITMAP "closefile24.bmp"
 
 IDBM_WORD BITMAP "word.bmp"
 IDBM_CASE BITMAP "case.bmp"
