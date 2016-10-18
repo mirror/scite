@@ -846,6 +846,8 @@ void SciTEWin::UserStripShow(const char *description) {
 		userStrip.SetSciTE(this);
 		userStrip.SetExtender(extender);
 		userStrip.SetDescription(description);
+	} else {
+		WindowSetFocus(wEditor);
 	}
 	SizeSubWindows();
 }
