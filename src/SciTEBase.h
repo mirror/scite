@@ -955,7 +955,7 @@ public:
 	virtual ~SciTEBase();
 
 	void ProcessExecute();
-	GUI::WindowID GetID() { return wSciTE.GetID(); }
+	GUI::WindowID GetID() const { return wSciTE.GetID(); }
 
 	virtual bool PerformOnNewThread(Worker *pWorker) = 0;
 	virtual void PostOnMainThread(int cmd, Worker *pWorker) = 0;
