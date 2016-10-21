@@ -143,5 +143,5 @@ cd ../..
 # ************************************************************
 # Target 7: cppcheck static checker
 # Disabled as there are false warnings and some different style choices
-#~ cppcheck --enable=all --max-configs=100 --suppressions-list=scintilla/cppcheck.suppress -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
-#~ cppcheck --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include --template=gcc --quiet scite
+cppcheck --enable=all --max-configs=100 --suppressions-list=scintilla/cppcheck.suppress -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
+cppcheck --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
