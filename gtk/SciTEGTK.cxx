@@ -1159,11 +1159,11 @@ void SciTEGTK::ReadLocalization() {
 			converted[0] = '\0';
 			// g_iconv does not actually write to its input argument so safe to cast away const
 			char *pin = const_cast<char *>(val);
-			size_t inLeft = strlen(val);
+			gsize inLeft = strlen(val);
 			char *pout = converted;
-			size_t outLeft = sizeof(converted);
-			size_t conversions = g_iconv(iconvh, &pin, &inLeft, &pout, &outLeft);
-			if (conversions != ((size_t)(-1))) {
+			gsize outLeft = sizeof(converted);
+			gsize conversions = g_iconv(iconvh, &pin, &inLeft, &pout, &outLeft);
+			if (conversions != ((gsize)(-1))) {
 				*pout = '\0';
 				localiser.Set(key, converted);
 			}
