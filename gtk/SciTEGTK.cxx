@@ -2693,7 +2693,11 @@ void SciTEGTK::Execute() {
 
 void SciTEGTK::StopExecute() {
 	if (!triedKill && pidShell) {
+#if defined(G_OS_UNIX)
+		// Only on Unix.
 		kill(-pidShell, SIGKILL);
+		// On Windows should call a native API, possibly TerminateProcess.
+#endif
 		triedKill = true;
 	}
 }
