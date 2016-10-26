@@ -322,6 +322,8 @@ static IFaceConstant ifaceConstants[] = {
 	{"INDIC_IME_MAX",35},
 	{"INDIC_MAX",35},
 	{"INDIC_PLAIN",0},
+	{"INDIC_POINT",18},
+	{"INDIC_POINTCHARACTER",19},
 	{"INDIC_ROUNDBOX",7},
 	{"INDIC_SQUIGGLE",1},
 	{"INDIC_SQUIGGLELOW",11},
@@ -3311,7 +3313,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 296,
-	ifaceConstantCount = 2646,
+	ifaceConstantCount = 2648,
 	ifacePropertyCount = 224
 };
 

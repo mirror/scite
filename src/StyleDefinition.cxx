@@ -208,6 +208,9 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 		{ "compositionthick", INDIC_COMPOSITIONTHICK },
 		{ "compositionthin", INDIC_COMPOSITIONTHIN },
 		{ "fullbox", INDIC_FULLBOX },
+		{ "textfore", INDIC_TEXTFORE },
+		{ "point", INDIC_POINT },
+		{ "pointcharacter", INDIC_POINTCHARACTER },
 	};
 
 	std::string val(definition);
