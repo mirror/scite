@@ -56,7 +56,7 @@ public:
 	FilePath NormalizePath() const;
 	static FilePath GetWorkingDirectory();
 	bool SetWorkingDirectory() const;
-	void List(FilePathSet &directories, FilePathSet &files);
+	void List(FilePathSet &directories, FilePathSet &files) const;
 	FILE *Open(const GUI::gui_char *mode) const;
 	std::vector<char> Read() const;
 	void Remove() const;

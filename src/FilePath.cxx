@@ -362,7 +362,7 @@ bool FilePath::SetWorkingDirectory() const {
 	return chdir(AsInternal()) == 0;
 }
 
-void FilePath::List(FilePathSet &directories, FilePathSet &files) {
+void FilePath::List(FilePathSet &directories, FilePathSet &files) const {
 #ifdef WIN32
 	FilePath wildCard(*this, GUI_TEXT("*.*"));
 	WIN32_FIND_DATAW findFileData;
