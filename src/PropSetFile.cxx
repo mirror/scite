@@ -311,7 +311,7 @@ long long PropSetFile::GetLongLong(const char *key, long long defaultValue) cons
 	std::string val = GetExpandedString(key);
 	if (val.length()) {
 		std::istringstream strstrm(val);
-		long long llValue;
+		long long llValue = 0;
 		strstrm >> llValue;
 		return llValue;
 	}
