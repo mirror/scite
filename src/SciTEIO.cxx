@@ -6,6 +6,7 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -237,7 +238,7 @@ void SciTEBase::DiscoverIndentSetting() {
 	}
 }
 
-void SciTEBase::OpenCurrentFile(long fileSize, bool suppressMessage, bool asynchronous) {
+void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool asynchronous) {
 	if (CurrentBuffer()->pFileWorker) {
 		// Already performing an asynchronous load or save so do not restart load
 		if (!suppressMessage) {
@@ -272,16 +273,16 @@ void SciTEBase::OpenCurrentFile(long fileSize, bool suppressMessage, bool asynch
 		assert(CurrentBuffer()->pFileWorker == NULL);
 		ILoader *pdocLoad;
 		try {
-			pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, fileSize + 1000));
+			pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, static_cast<int>(fileSize) + 1000));
 		} catch (...) {
 			wEditor.Call(SCI_SETSTATUS, 0);
 			return;
 		}
-		CurrentBuffer()->pFileWorker = new FileLoader(this, pdocLoad, filePath, fileSize, fp);
+		CurrentBuffer()->pFileWorker = new FileLoader(this, pdocLoad, filePath, static_cast<int>(fileSize), fp);
 		CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 		PerformOnNewThread(CurrentBuffer()->pFileWorker);
 	} else {
-		wEditor.Call(SCI_ALLOCATE, fileSize + 1000);
+		wEditor.Call(SCI_ALLOCATE, static_cast<int>(fileSize) + 1000);
 
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
@@ -516,14 +517,22 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		return false;
 	}
 
-	const long fileSize = absPath.IsUntitled() ? 0 : absPath.GetFileLength();
+	const long long fileSize = absPath.IsUntitled() ? 0 : absPath.GetFileLength();
+	if (fileSize > INT32_MAX) {
+		const GUI::gui_string sSize = GUI::StringFromLongLong(fileSize);
+		const GUI::gui_string msg = LocaliseMessage("File '^0' is ^1 bytes long, "
+			"larger than 2GB which is the largest SciTE can open.",
+			absPath.AsInternal(), sSize.c_str());
+		WindowMessageBox(wSciTE, msg, mbsIconWarning);
+		return false;
+	}
 	if (fileSize > 0) {
 		// Real file, not empty buffer
-		int maxSize = props.GetInt("max.file.size");
+		long long maxSize = props.GetLongLong("max.file.size", 2000000000LL);
 		if (maxSize > 0 && fileSize > maxSize) {
-			GUI::gui_string sSize = GUI::StringFromInteger(fileSize);
-			GUI::gui_string sMaxSize = GUI::StringFromInteger(maxSize);
-			GUI::gui_string msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
+			const GUI::gui_string sSize = GUI::StringFromLongLong(fileSize);
+			const GUI::gui_string sMaxSize = GUI::StringFromLongLong(maxSize);
+			const GUI::gui_string msg = LocaliseMessage("File '^0' is ^1 bytes long,\n"
 			        "larger than the ^2 bytes limit set in the properties.\n"
 			        "Do you still want to open it?",
 			        absPath.AsInternal(), sSize.c_str(), sMaxSize.c_str());

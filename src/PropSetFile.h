@@ -41,6 +41,7 @@ public:
 	std::string GetExpandedString(const char *key) const;
 	std::string Expand(const std::string &withVars, int maxExpands=200) const;
 	int GetInt(const char *key, int defaultValue=0) const;
+	long long GetLongLong(const char *key, long long defaultValue=0) const;
 	void Clear();
 
 	enum ReadLineState { rlActive, rlExcludedModule, rlConditionFalse };

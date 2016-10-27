@@ -307,6 +307,17 @@ int PropSetFile::GetInt(const char *key, int defaultValue) const {
 	return defaultValue;
 }
 
+long long PropSetFile::GetLongLong(const char *key, long long defaultValue) const {
+	std::string val = GetExpandedString(key);
+	if (val.length()) {
+		std::istringstream strstrm(val);
+		long long llValue;
+		strstrm >> llValue;
+		return llValue;
+	}
+	return defaultValue;
+}
+
 void PropSetFile::Clear() {
 	props.clear();
 }

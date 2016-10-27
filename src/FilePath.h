@@ -61,7 +61,7 @@ public:
 	std::vector<char> Read() const;
 	void Remove() const;
 	time_t ModifiedTime() const;
-	long GetFileLength() const;
+	long long GetFileLength() const;
 	bool Exists() const;
 	bool IsDirectory() const;
 	bool Matches(const GUI::gui_char *pattern) const;

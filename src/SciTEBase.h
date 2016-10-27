@@ -595,7 +595,7 @@ protected:
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
 	std::string DiscoverLanguage();
-	void OpenCurrentFile(long fileSize, bool suppressMessage, bool asynchronous);
+	void OpenCurrentFile(long long fileSize, bool suppressMessage, bool asynchronous);
 	virtual void OpenUriList(const char *) {}
 	virtual bool OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter) = 0;
 	virtual bool SaveAsDialog() = 0;
