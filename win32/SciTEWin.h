@@ -377,7 +377,7 @@ public:
 	/// Management of the command line parameters.
 	void Run(const GUI::gui_char *cmdLine);
 	uptr_t EventLoop();
-	void OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePageDocument);
+	void OutputAppendEncodedStringSynchronised(const GUI::gui_string &s, int codePageDocument);
 	void ResetExecution();
 	void ExecuteNext();
 	DWORD ExecuteOne(const Job &jobToRun);

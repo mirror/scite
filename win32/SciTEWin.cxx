@@ -698,7 +698,7 @@ static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 	return cp;
 }
 
-void SciTEWin::OutputAppendEncodedStringSynchronised(GUI::gui_string s, int codePageDocument) {
+void SciTEWin::OutputAppendEncodedStringSynchronised(const GUI::gui_string &s, int codePageDocument) {
 	std::string sMulti = StringEncode(s, codePageDocument);
 	OutputAppendStringSynchronised(sMulti.c_str());
 }
