@@ -40,7 +40,7 @@
 
 const double timeBetweenProgress = 0.4;
 
-FileWorker::FileWorker(WorkerListener *pListener_, FilePath path_, long size_, FILE *fp_) :
+FileWorker::FileWorker(WorkerListener *pListener_, const FilePath &path_, long size_, FILE *fp_) :
 	pListener(pListener_), path(path_), size(size_), err(0), fp(fp_), sleepTime(0), nextProgress(timeBetweenProgress) {
 }
 
@@ -51,7 +51,7 @@ double FileWorker::Duration() {
 	return et.Duration();
 }
 
-FileLoader::FileLoader(WorkerListener *pListener_, ILoader *pLoader_, FilePath path_, long size_, FILE *fp_) :
+FileLoader::FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, long size_, FILE *fp_) :
 	FileWorker(pListener_, path_, size_, fp_), pLoader(pLoader_), readSoFar(0), unicodeMode(uni8Bit) {
 	SetSizeJob(static_cast<int>(size));
 }
@@ -108,7 +108,7 @@ void FileLoader::Cancel() {
 	pLoader = 0;
 }
 
-FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, FilePath path_,
+FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
 	long size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
 	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0),
 		unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {

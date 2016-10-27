@@ -262,8 +262,8 @@ protected:
 	HWND CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc);
 	GUI::gui_string DialogFilterFromProperty(const GUI::gui_char *filterProperty);
 	void CheckCommonDialogError();
-	virtual bool OpenDialog(FilePath directory, const GUI::gui_char *filesFilter);
-	FilePath ChooseSaveName(FilePath directory, const char *title, const GUI::gui_char *filesFilter = 0, const char *ext = 0);
+	virtual bool OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter);
+	FilePath ChooseSaveName(const FilePath &directory, const char *title, const GUI::gui_char *filesFilter = 0, const char *ext = 0);
 	virtual bool SaveAsDialog();
 	virtual void SaveACopy();
 	virtual void SaveAsHTML();

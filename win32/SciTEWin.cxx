@@ -417,7 +417,7 @@ void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
 }
 
-static FilePath GetSciTEPath(FilePath home) {
+static FilePath GetSciTEPath(const FilePath &home) {
 	if (home.IsSet()) {
 		return FilePath(home);
 	} else {

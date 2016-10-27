@@ -42,7 +42,7 @@
 
 //---------- Save to XML ----------
 
-void SciTEBase::SaveToXML(FilePath saveName) {
+void SciTEBase::SaveToXML(const FilePath &saveName) {
 
 	// Author: Hans Hagen / PRAGMA ADE / www.pragma-ade.com
 	// Version: 1.0 / august 18, 2003

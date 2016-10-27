@@ -278,7 +278,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	os << RTF_BODYCLOSE;
 }
 
-void SciTEBase::SaveToRTF(FilePath saveName, int start, int end) {
+void SciTEBase::SaveToRTF(const FilePath &saveName, int start, int end) {
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 	bool failedWrite = fp == NULL;
 	if (fp) {

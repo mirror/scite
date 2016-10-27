@@ -42,7 +42,7 @@
 
 //---------- Save to HTML ----------
 
-void SciTEBase::SaveToHTML(FilePath saveName) {
+void SciTEBase::SaveToHTML(const FilePath &saveName) {
 	RemoveFindMarks();
 	wEditor.Call(SCI_COLOURISE, 0, -1);
 	int tabSize = props.GetInt("tabsize");

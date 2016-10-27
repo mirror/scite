@@ -52,7 +52,7 @@ const GUI::gui_char propUserFileName[] = GUI_TEXT("SciTEUser.properties");
 const GUI::gui_char propGlobalFileName[] = GUI_TEXT("SciTEGlobal.properties");
 const GUI::gui_char propAbbrevFileName[] = GUI_TEXT("abbrev.properties");
 
-void SciTEBase::SetFileName(FilePath openName, bool fixCase) {
+void SciTEBase::SetFileName(const FilePath &openName, bool fixCase) {
 	if (openName.AsInternal()[0] == '\"') {
 		// openName is surrounded by double quotes
 		GUI::gui_string pathCopy = openName.AsInternal();
@@ -490,7 +490,7 @@ bool SciTEBase::PreOpenCheck(const GUI::gui_char *) {
 	return false;
 }
 
-bool SciTEBase::Open(FilePath file, OpenFlags of) {
+bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	InitialiseBuffers();
 
 	FilePath absPath = file.AbsolutePath();
@@ -921,7 +921,7 @@ void SciTEBase::EnsureFinalNewLine() {
 }
 
 // Perform any changes needed before saving such as normalizing spaces and line ends.
-bool SciTEBase::PrepareBufferForSave(FilePath saveName) {
+bool SciTEBase::PrepareBufferForSave(const FilePath &saveName) {
 	bool retVal = false;
 	// Perform clean ups on text before saving
 	wEditor.Call(SCI_BEGINUNDOACTION);
@@ -947,7 +947,7 @@ bool SciTEBase::PrepareBufferForSave(FilePath saveName) {
 /**
  * Writes the buffer to the given filename.
  */
-bool SciTEBase::SaveBuffer(FilePath saveName, SaveFlags sf) {
+bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 	bool retVal = PrepareBufferForSave(saveName);
 
 	if (!retVal) {
@@ -1220,7 +1220,7 @@ class BufferedFile {
 		}
 	}
 public:
-	explicit BufferedFile(FilePath fPath) {
+	explicit BufferedFile(const FilePath &fPath) {
 		fp = fPath.Open(fileRead);
 		readAll = false;
 		exhausted = fp == NULL;
@@ -1265,7 +1265,7 @@ class FileReader {
 	FileReader(const FileReader &) = delete;
 public:
 
-	FileReader(FilePath fPath, bool caseSensitive_) {
+	FileReader(const FilePath &fPath, bool caseSensitive_) {
 		bf = new BufferedFile(fPath);
 		lineNum = 0;
 		lastWasCR = false;
@@ -1326,7 +1326,7 @@ bool SciTEBase::GrepIntoDirectory(const FilePath &directory) {
     return sDirectory[0] != '.';
 }
 
-void SciTEBase::GrepRecursive(GrepFlags gf, FilePath baseDir, const char *searchString, const GUI::gui_char *fileTypes) {
+void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, const GUI::gui_char *fileTypes) {
 	FilePathSet directories;
 	FilePathSet files;
 	baseDir.List(directories, files);

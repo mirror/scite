@@ -89,7 +89,7 @@ void FilePath::Set(FilePath const &directory, FilePath const &name) {
 	}
 }
 
-void FilePath::SetDirectory(FilePath directory) {
+void FilePath::SetDirectory(FilePath const &directory) {
 	FilePath curName(*this);
 	Set(directory, curName);
 }

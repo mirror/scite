@@ -17,8 +17,8 @@ class ImportFilter {
 public:
 	std::set<std::string> excludes;
 	std::set<std::string> includes;
-	void SetFilter(std::string sExcludes, std::string sIncludes);
-	bool IsValid(std::string name) const;
+	void SetFilter(const std::string &sExcludes, const std::string &sIncludes);
+	bool IsValid(const std::string &name) const;
 };
 
 class PropSetFile {
@@ -44,10 +44,14 @@ public:
 	void Clear();
 
 	enum ReadLineState { rlActive, rlExcludedModule, rlConditionFalse };
-	ReadLineState ReadLine(const char *data, ReadLineState rls, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
-	void ReadFromMemory(const char *data, size_t len, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
-	void Import(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
-	bool Read(FilePath filename, FilePath directoryForImports, const ImportFilter &filter, std::vector<FilePath> *imports, size_t depth);
+	ReadLineState ReadLine(const char *data, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
+		FilePathSet *imports, size_t depth);
+	void ReadFromMemory(const char *data, size_t len, const FilePath &directoryForImports, const ImportFilter &filter,
+		FilePathSet *imports, size_t depth);
+	void Import(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
+		FilePathSet *imports, size_t depth);
+	bool Read(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
+		FilePathSet *imports, size_t depth);
 	void SetInteger(const char *key, int i);
 	std::string GetWild(const char *keybase, const char *filename);
 	std::string GetNewExpandString(const char *keybase, const char *filename = "");

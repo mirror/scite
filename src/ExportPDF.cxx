@@ -96,7 +96,7 @@ inline void getPDFRGB(char* pdfcolour, const char* stylecolour) {
 	}
 }
 
-void SciTEBase::SaveToPDF(FilePath saveName) {
+void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	// This class conveniently handles the tracking of PDF objects
 	// so that the cross-reference table can be built (PDF1.4Ref(p39))
 	// All writes to fp passes through a PDFObjectTracker object.

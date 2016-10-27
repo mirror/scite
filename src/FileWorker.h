@@ -18,7 +18,7 @@ struct FileWorker : public Worker {
 	int sleepTime;
 	double nextProgress;
 
-	FileWorker(WorkerListener *pListener_, FilePath path_, long size_, FILE *fp_);
+	FileWorker(WorkerListener *pListener_, const FilePath &path_, long size_, FILE *fp_);
 	virtual ~FileWorker();
 	virtual double Duration();
 	virtual void Cancel() {
@@ -37,7 +37,7 @@ public:
 	long readSoFar;
 	UniMode unicodeMode;
 
-	FileLoader(WorkerListener *pListener_, ILoader *pLoader_, FilePath path_, long size_, FILE *fp_);
+	FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, long size_, FILE *fp_);
 	virtual ~FileLoader();
 	virtual void Execute();
 	virtual void Cancel();
@@ -53,7 +53,7 @@ public:
 	UniMode unicodeMode;
 	bool visibleProgress;
 
-	FileStorer(WorkerListener *pListener_, const char *documentBytes_, FilePath path_,
+	FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
 		long size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
 	virtual ~FileStorer();
 	virtual void Execute();

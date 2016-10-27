@@ -34,7 +34,7 @@ public:
 	void Set(const GUI::gui_char *fileName_);
 	void Set(FilePath const &other);
 	void Set(FilePath const &directory, FilePath const &name);
-	void SetDirectory(FilePath directory);
+	void SetDirectory(FilePath const &directory);
 	void Init();
 	bool SameNameAs(const GUI::gui_char *other) const;
 	bool SameNameAs(const FilePath &other) const;

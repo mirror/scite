@@ -227,7 +227,7 @@ void SciTEWin::CheckCommonDialogError() {
 	}
 }
 
-bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filesFilter) {
+bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter) {
 	enum {maxBufferSize=2048};
 
 	GUI::gui_string openFilter = DialogFilterFromProperty(filesFilter);
@@ -289,7 +289,7 @@ bool SciTEWin::OpenDialog(FilePath directory, const GUI::gui_char *filesFilter) 
 	return succeeded;
 }
 
-FilePath SciTEWin::ChooseSaveName(FilePath directory, const char *title, const GUI::gui_char *filesFilter, const char *ext) {
+FilePath SciTEWin::ChooseSaveName(const FilePath &directory, const char *title, const GUI::gui_char *filesFilter, const char *ext) {
 	FilePath path;
 	if (0 == dialogsOnScreen) {
 		GUI::gui_char saveName[MAX_PATH] = GUI_TEXT("");

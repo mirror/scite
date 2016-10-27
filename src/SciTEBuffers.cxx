@@ -125,7 +125,7 @@ int BufferList::GetDocumentByWorker(FileWorker *pFileWorker) const {
 	return -1;
 }
 
-int BufferList::GetDocumentByName(FilePath filename, bool excludeCurrent) {
+int BufferList::GetDocumentByName(const FilePath &filename, bool excludeCurrent) {
 	if (!filename.IsSet()) {
 		return -1;
 	}
@@ -1263,7 +1263,7 @@ bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 	return opened;
 }
 
-void SciTEBase::AddFileToStack(FilePath file, SelectedRange selection, int scrollPos) {
+void SciTEBase::AddFileToStack(const FilePath &file, SelectedRange selection, int scrollPos) {
 	if (!file.IsSet())
 		return;
 	DeleteFileStackMenu();
@@ -1283,7 +1283,7 @@ void SciTEBase::AddFileToStack(FilePath file, SelectedRange selection, int scrol
 	SetFileStackMenu();
 }
 
-void SciTEBase::RemoveFileFromStack(FilePath file) {
+void SciTEBase::RemoveFileFromStack(const FilePath &file) {
 	if (!file.IsSet())
 		return;
 	DeleteFileStackMenu();
