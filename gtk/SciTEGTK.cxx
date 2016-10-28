@@ -742,7 +742,7 @@ public:
 	                          int startID = 0, const char *radioStart = 0);
 	void CreateMenu();
 	void CreateStrips(GtkWidget *boxMain);
-	bool StripHasFocus();
+	bool StripHasFocus() const;
 	void CreateUI();
 	void LayoutUI();
 	void Run(int argc, char *argv[]);
@@ -4797,7 +4797,7 @@ void SciTEGTK::CreateStrips(GtkWidget *boxMain) {
 	replaceStrip.Creation(boxMain);
 }
 
-bool SciTEGTK::StripHasFocus() {
+bool SciTEGTK::StripHasFocus() const {
 	return findStrip.VisibleHasFocus() || replaceStrip.VisibleHasFocus() || userStrip.VisibleHasFocus();
 }
 
