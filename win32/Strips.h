@@ -93,7 +93,7 @@ public:
 	virtual void Size();
 	virtual bool HasClose() const;
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
-	void SetProgress(const GUI::gui_string &explanation, int size, int progress);
+	void SetProgress(const GUI::gui_string &explanation, size_t size, size_t progress);
 };
 
 class SearchStripBase : public Strip {

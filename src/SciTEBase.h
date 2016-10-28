@@ -145,8 +145,8 @@ public:
 struct BackgroundActivities {
 	int loaders;
 	int storers;
-	int totalWork;
-	int totalProgress;
+	size_t totalWork;
+	size_t totalProgress;
 	GUI::gui_string fileNameLast;
 };
 
@@ -669,7 +669,7 @@ protected:
 	virtual void UserStripSet(int /* control */, const char * /* value */) {}
 	virtual void UserStripSetList(int /* control */, const char * /* value */) {}
 	virtual const char *UserStripValue(int /* control */) { return 0; }
-	virtual void ShowBackgroundProgress(const GUI::gui_string & /* explanation */, int /* size */, int /* progress */) {}
+	virtual void ShowBackgroundProgress(const GUI::gui_string & /* explanation */, size_t /* size */, size_t /* progress */) {}
 	Sci_CharacterRange GetSelection();
 	SelectedRange GetSelectedRange();
 	void SetSelection(int anchor, int currentPos);

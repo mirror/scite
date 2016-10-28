@@ -324,7 +324,7 @@ protected:
 	virtual void UserStripSetList(int control, const char *value);
 	virtual const char *UserStripValue(int control);
 	void UserStripClosed();
-	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress);
+	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress);
 	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam);

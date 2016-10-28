@@ -10,8 +10,8 @@ private:
 	Mutex *mutex;
 	volatile bool completed;
 	volatile bool cancelling;
-	volatile int jobSize;
-	volatile int jobProgress;
+	volatile size_t jobSize;
+	volatile size_t jobProgress;
 public:
 	Worker() : mutex(Mutex::Create()), completed(false), cancelling(false), jobSize(1), jobProgress(0) {
 	}
@@ -31,19 +31,19 @@ public:
 		Lock lock(mutex);
 		return cancelling;
 	}
-	int SizeJob() const {
+	size_t SizeJob() const {
 		Lock lock(mutex);
 		return jobSize;
 	}
-	void SetSizeJob(int size) {
+	void SetSizeJob(size_t size) {
 		Lock lock(mutex);
 		jobSize = size;
 	}
-	int ProgressMade() const {
+	size_t ProgressMade() const {
 		Lock lock(mutex);
 		return jobProgress;
 	}
-	void IncrementProgress(int increment) {
+	void IncrementProgress(size_t increment) {
 		Lock lock(mutex);
 		jobProgress += increment;
 	}

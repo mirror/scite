@@ -296,7 +296,7 @@ public:
 	BackgroundStrip() {
 	}
 	virtual void Creation(GtkWidget *container);
-	void SetProgress(const GUI::gui_string &explanation, int size, int progress);
+	void SetProgress(const GUI::gui_string &explanation, size_t size, size_t progress);
 };
 
 class DialogGoto : public Dialog {
@@ -657,7 +657,7 @@ protected:
 	virtual void UserStripSetList(int control, const char *value);
 	virtual const char *UserStripValue(int control);
 	void UserStripClosed();
-	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress);
+	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress);
 
 	// Single instance
 	void SendFileName(int sendPipe, const char* filename);
@@ -1998,7 +1998,7 @@ void BackgroundStrip::Creation(GtkWidget *container) {
 	gtk_widget_show(GTK_WIDGET(GetID()));
 }
 
-void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, int size, int progress) {
+void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, size_t size, size_t progress) {
 	gtk_label_set_text(GTK_LABEL(wExplanation.GetID()), explanation.c_str());
 	if (size > 0) {
 		gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(wProgress.GetID()),
@@ -2568,7 +2568,7 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 	}
 }
 
-void SciTEGTK::ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress) {
+void SciTEGTK::ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress) {
 	backgroundStrip.visible = !explanation.empty();
 	if (backgroundStrip.visible) {
 		backgroundStrip.Show(0);

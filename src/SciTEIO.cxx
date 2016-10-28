@@ -273,16 +273,16 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		assert(CurrentBuffer()->pFileWorker == NULL);
 		ILoader *pdocLoad;
 		try {
-			pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, static_cast<int>(fileSize) + 1000));
+			pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, static_cast<uptr_t>(fileSize) + 1000));
 		} catch (...) {
 			wEditor.Call(SCI_SETSTATUS, 0);
 			return;
 		}
-		CurrentBuffer()->pFileWorker = new FileLoader(this, pdocLoad, filePath, static_cast<int>(fileSize), fp);
+		CurrentBuffer()->pFileWorker = new FileLoader(this, pdocLoad, filePath, static_cast<size_t>(fileSize), fp);
 		CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 		PerformOnNewThread(CurrentBuffer()->pFileWorker);
 	} else {
-		wEditor.Call(SCI_ALLOCATE, static_cast<int>(fileSize) + 1000);
+		wEditor.Call(SCI_ALLOCATE, static_cast<uptr_t>(fileSize) + 1000);
 
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
@@ -963,7 +963,7 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 
 		FILE *fp = saveName.Open(fileWrite);
 		if (fp) {
-			int lengthDoc = LengthDocument();
+			size_t lengthDoc = LengthDocument();
 			if (!(sf & sfSynchronous)) {
 				wEditor.Call(SCI_SETREADONLY, 1);
 				const char *documentBytes = reinterpret_cast<const char *>(wEditor.CallReturnPointer(SCI_GETCHARACTERPOINTER));
@@ -984,14 +984,14 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 				convert.setfile(fp);
 				std::vector<char> data(blockSize + 1);
 				retVal = true;
-				int grabSize;
-				for (int i = 0; i < lengthDoc; i += grabSize) {
+				size_t grabSize;
+				for (size_t i = 0; i < lengthDoc; i += grabSize) {
 					grabSize = lengthDoc - i;
 					if (grabSize > blockSize)
 						grabSize = blockSize;
 					// Round down so only whole characters retrieved.
 					grabSize = wEditor.Call(SCI_POSITIONBEFORE, i + grabSize + 1) - i;
-					GetRange(wEditor, i, i + grabSize, &data[0]);
+					GetRange(wEditor, static_cast<int>(i), static_cast<int>(i + grabSize), &data[0]);
 					size_t written = convert.fwrite(&data[0], grabSize);
 					if (written == 0) {
 						retVal = false;

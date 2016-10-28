@@ -40,7 +40,7 @@
 
 const double timeBetweenProgress = 0.4;
 
-FileWorker::FileWorker(WorkerListener *pListener_, const FilePath &path_, long size_, FILE *fp_) :
+FileWorker::FileWorker(WorkerListener *pListener_, const FilePath &path_, size_t size_, FILE *fp_) :
 	pListener(pListener_), path(path_), size(size_), err(0), fp(fp_), sleepTime(0), nextProgress(timeBetweenProgress) {
 }
 
@@ -51,7 +51,7 @@ double FileWorker::Duration() {
 	return et.Duration();
 }
 
-FileLoader::FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, long size_, FILE *fp_) :
+FileLoader::FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_) :
 	FileWorker(pListener_, path_, size_, fp_), pLoader(pLoader_), readSoFar(0), unicodeMode(uni8Bit) {
 	SetSizeJob(static_cast<int>(size));
 }
@@ -109,7 +109,7 @@ void FileLoader::Cancel() {
 }
 
 FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
-	long size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
+	size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
 	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0),
 		unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
 	SetSizeJob(static_cast<int>(size));
@@ -131,9 +131,9 @@ void FileStorer::Execute() {
 		}
 		convert.setfile(fp);
 		std::vector<char> data(blockSize + 1);
-		int lengthDoc = static_cast<int>(size);
-		int grabSize;
-		for (int i = 0; i < lengthDoc && (!Cancelling()); i += grabSize) {
+		size_t lengthDoc = size;
+		size_t grabSize;
+		for (size_t i = 0; i < lengthDoc && (!Cancelling()); i += grabSize) {
 #ifdef __unix__
 			usleep(sleepTime * 1000);
 #else
@@ -144,7 +144,7 @@ void FileStorer::Execute() {
 				grabSize = blockSize;
 			if ((unicodeMode != uni8Bit) && (i + grabSize < lengthDoc)) {
 				// Round down so only whole characters retrieved.
-				int startLast = grabSize;
+				size_t startLast = grabSize;
 				while ((startLast > 0) && ((grabSize - startLast) < 6) && IsUTF8TrailByte(static_cast<unsigned char>(documentBytes[i + startLast])))
 					startLast--;
 				if ((grabSize - startLast) < 5)

@@ -6,19 +6,19 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 /// Base size of file I/O operations.
-const int blockSize = 131072;
+const size_t blockSize = 131072;
 
 struct FileWorker : public Worker {
 	WorkerListener *pListener;
 	FilePath path;
-	long size;
+	size_t size;
 	int err;
 	FILE *fp;
 	GUI::ElapsedTime et;
 	int sleepTime;
 	double nextProgress;
 
-	FileWorker(WorkerListener *pListener_, const FilePath &path_, long size_, FILE *fp_);
+	FileWorker(WorkerListener *pListener_, const FilePath &path_, size_t size_, FILE *fp_);
 	virtual ~FileWorker();
 	virtual double Duration();
 	virtual void Cancel() {
@@ -34,10 +34,10 @@ using Scintilla::ILoader;
 class FileLoader : public FileWorker {
 public:
 	ILoader *pLoader;
-	long readSoFar;
+	size_t readSoFar;
 	UniMode unicodeMode;
 
-	FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, long size_, FILE *fp_);
+	FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_);
 	virtual ~FileLoader();
 	virtual void Execute();
 	virtual void Cancel();
@@ -49,12 +49,12 @@ public:
 class FileStorer : public FileWorker {
 public:
 	const char *documentBytes;
-	long writtenSoFar;
+	size_t writtenSoFar;
 	UniMode unicodeMode;
 	bool visibleProgress;
 
 	FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
-		long size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
+		size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
 	virtual ~FileStorer();
 	virtual void Execute();
 	virtual void Cancel();

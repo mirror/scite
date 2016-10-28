@@ -872,7 +872,7 @@ void SciTEWin::UserStripClosed() {
 	WindowSetFocus(wEditor);
 }
 
-void SciTEWin::ShowBackgroundProgress(const GUI::gui_string &explanation, int size, int progress) {
+void SciTEWin::ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress) {
 	backgroundStrip.visible = !explanation.empty();
 	SizeSubWindows();
 	if (backgroundStrip.visible)
