@@ -964,7 +964,7 @@ void SciTEWin::Creation() {
 
 	wTabBar.Show();
 
-	::CreateWindowEx(
+	HWND hwnd = ::CreateWindowEx(
 	               0,
 	               classNameInternal,
 	               TEXT("userStrip"),
@@ -975,8 +975,10 @@ void SciTEWin::Creation() {
 	               HmenuID(2001),
 	               hInstance,
 	               &userStrip);
+	if (!hwnd)
+		exit(FALSE);
 
-	::CreateWindowEx(
+	hwnd = ::CreateWindowEx(
 	               0,
 	               classNameInternal,
 	               TEXT("backgroundStrip"),
@@ -987,8 +989,10 @@ void SciTEWin::Creation() {
 	               HmenuID(2001),
 	               hInstance,
 	               &backgroundStrip);
+	if (!hwnd)
+		exit(FALSE);
 
-	::CreateWindowEx(
+	hwnd = ::CreateWindowEx(
 	               0,
 	               classNameInternal,
 	               TEXT("searchStrip"),
@@ -999,8 +1003,10 @@ void SciTEWin::Creation() {
 	               HmenuID(2001),
 	               hInstance,
 	               &searchStrip);
+	if (!hwnd)
+		exit(FALSE);
 
-	::CreateWindowEx(
+	hwnd = ::CreateWindowEx(
 	               0,
 	               classNameInternal,
 	               TEXT("FindStrip"),
@@ -1011,8 +1017,10 @@ void SciTEWin::Creation() {
 	               HmenuID(2002),
 	               hInstance,
 	               &findStrip);
+	if (!hwnd)
+		exit(FALSE);
 
-	::CreateWindowEx(
+	hwnd = ::CreateWindowEx(
 	               0,
 	               classNameInternal,
 	               TEXT("ReplaceStrip"),
@@ -1023,6 +1031,8 @@ void SciTEWin::Creation() {
 	               HmenuID(2003),
 	               hInstance,
 	               &replaceStrip);
+	if (!hwnd)
+		exit(FALSE);
 
 	wStatusBar = ::CreateWindowEx(
 	                 0,
