@@ -68,11 +68,6 @@
 #include "SciTEKeys.h"
 #include "StripDefinition.h"
 
-#if defined(__clang__)
-// Clang 3.0 incorrectly displays  sentinel warnings. Fixed by clang 3.1.
-#pragma GCC diagnostic ignored "-Wsentinel"
-#endif
-
 enum { mbsAboutBox = 0x100000 };
 
 // Key names are longer for GTK+ 3
