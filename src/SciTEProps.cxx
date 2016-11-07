@@ -424,6 +424,7 @@ static const char *propertiesToForward[] = {
 	"fold.asm.syntax.based",
 	"fold.at.else",
 	"fold.baan.keywords.based",
+	"fold.baan.sections",
 	"fold.baan.syntax.based",
 	"fold.basic.comment.explicit",
 	"fold.basic.explicit.anywhere",
