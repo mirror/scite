@@ -17,12 +17,12 @@ void SciTEWin::SetFileProperties(
 	char temp[TEMP_LEN];
 	HANDLE hf = ::CreateFileW(filePath.AsInternal(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hf != INVALID_HANDLE_VALUE) {
-		FILETIME ft = {};
+		FILETIME ft = FILETIME();
 		::GetFileTime(hf, NULL, NULL, &ft);
 		::CloseHandle(hf);
-		FILETIME lft = {};
+		FILETIME lft = FILETIME();
 		::FileTimeToLocalFileTime(&ft, &lft);
-		SYSTEMTIME st = {};
+		SYSTEMTIME st = SYSTEMTIME();
 		if (::FileTimeToSystemTime(&lft, &st) == 0)
 			st = SYSTEMTIME();
 		::GetTimeFormatA(LOCALE_USER_DEFAULT,
@@ -540,7 +540,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 	for (int i = 0; i <= ::GetMenuItemCount(hmenu); i++) {
 		GUI::gui_char buff[200];
 		buff[0] = '\0';
-		MENUITEMINFOW mii = {};
+		MENUITEMINFOW mii = MENUITEMINFOW();
 		mii.cbSize = sizeof(mii);
 		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID |
 		            MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;

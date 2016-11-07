@@ -1678,7 +1678,7 @@ bool SciTEWin::IsStdinBlocked() {
 }
 
 void SciTEWin::MinimizeToTray() {
-	NOTIFYICONDATA nid = {};
+	NOTIFYICONDATA nid = NOTIFYICONDATA();
 	nid.cbSize = sizeof(nid);
 	nid.hWnd = MainHWND();
 	nid.uID = 1;
@@ -1694,7 +1694,7 @@ void SciTEWin::MinimizeToTray() {
 }
 
 void SciTEWin::RestoreFromTray() {
-	NOTIFYICONDATA nid = {};
+	NOTIFYICONDATA nid = NOTIFYICONDATA();
 	nid.cbSize = sizeof(nid);
 	nid.hWnd = MainHWND();
 	nid.uID = 1;

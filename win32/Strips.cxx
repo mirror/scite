@@ -229,7 +229,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 		}
 	}
 #endif
-	TOOLINFO toolInfo = {};
+	TOOLINFO toolInfo = TOOLINFO();
 	toolInfo.cbSize = sizeof(toolInfo);
 	toolInfo.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
 	toolInfo.hinst = ::GetModuleHandle(NULL);
@@ -526,7 +526,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 			pnmh->hwndFrom, BM_GETIMAGE, IMAGE_BITMAP, 0));
 
 		// Retrieve the bitmap dimensions
-		BITMAPINFO rbmi = {};
+		BITMAPINFO rbmi = BITMAPINFO();
 		rbmi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
 		::GetDIBits(pcd->hdc, hBitmap, 0, 0, NULL, &rbmi, DIB_RGB_COLORS);
 

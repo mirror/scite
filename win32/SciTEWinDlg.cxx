@@ -243,7 +243,7 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 	GUI::gui_char openName[maxBufferSize]; // maximum common dialog buffer size (says mfc..)
 	openName[0] = '\0';
 
-	OPENFILENAMEW ofn = {};
+	OPENFILENAMEW ofn = OPENFILENAMEW();
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
@@ -297,7 +297,7 @@ FilePath SciTEWin::ChooseSaveName(const FilePath &directory, const char *title, 
 		if (!savePath.IsUntitled()) {
 			StringCopy(saveName, savePath.AsInternal());
 		}
-		OPENFILENAMEW ofn = {};
+		OPENFILENAMEW ofn = OPENFILENAMEW();
 		ofn.lStructSize = sizeof(ofn);
 		ofn.hwndOwner = MainHWND();
 		ofn.hInstance = hInstance;
@@ -379,7 +379,7 @@ void SciTEWin::SaveAsXML() {
 
 void SciTEWin::LoadSessionDialog() {
 	GUI::gui_char openName[MAX_PATH] = GUI_TEXT("");
-	OPENFILENAMEW ofn = {};
+	OPENFILENAMEW ofn = OPENFILENAMEW();
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
@@ -400,7 +400,7 @@ void SciTEWin::LoadSessionDialog() {
 void SciTEWin::SaveSessionDialog() {
 	GUI::gui_char saveName[MAX_PATH] = GUI_TEXT("\0");
 	StringCopy(saveName, GUI_TEXT("SciTE.session"));
-	OPENFILENAMEW ofn = {};
+	OPENFILENAMEW ofn = OPENFILENAMEW();
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
@@ -1262,7 +1262,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			if (::SHGetMalloc(&pShellMalloc) == NO_ERROR) {
 				// If we were able to get the shell malloc object,
 				// then proceed by initializing the BROWSEINFO stuct
-				BROWSEINFO info = {};
+				BROWSEINFO info = BROWSEINFO();
 				info.hwndOwner = hDlg;
 				info.pidlRoot = NULL;
 				TCHAR szDisplayName[MAX_PATH] = TEXT("");
