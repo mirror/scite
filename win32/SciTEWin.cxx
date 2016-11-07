@@ -847,7 +847,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	const GUI::gui_string sCommand = GUI::StringFromUTF8(jobToRun.command);
 	std::vector<wchar_t> vwcCommand(sCommand.c_str(), sCommand.c_str() + sCommand.length() + 1);
 
-	bool running = ::CreateProcessW(
+	BOOL running = ::CreateProcessW(
 			  NULL,
 			  &vwcCommand[0],
 			  NULL, NULL,
@@ -2134,10 +2134,10 @@ std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selSta
 uptr_t SciTEWin::EventLoop() {
 	MSG msg;
 	msg.wParam = 0;
-	bool going = true;
+	BOOL going = true;
 	while (going) {
 		if (needIdle) {
-			bool haveMessage = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+			BOOL haveMessage = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
 			if (!haveMessage) {
 				OnIdle();
 				continue;

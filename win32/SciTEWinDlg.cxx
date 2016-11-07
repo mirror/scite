@@ -35,7 +35,7 @@ static void PlayThisSound(
     int duration,    		///< If @a sound is a frequency, gives the duration of the sound.
     HMODULE &hMM) {		///< Multimedia DLL handle.
 
-	bool bPlayOK = false;
+	BOOL bPlayOK = false;
 	int soundFreq;
 	if (!sound || *sound == '\0') {
 		soundFreq = -1;	// No sound at all
