@@ -423,6 +423,7 @@ static const char *propertiesToForward[] = {
 	"fold.asm.explicit.start",
 	"fold.asm.syntax.based",
 	"fold.at.else",
+	"fold.baan.inner.level",
 	"fold.baan.keywords.based",
 	"fold.baan.sections",
 	"fold.baan.syntax.based",
