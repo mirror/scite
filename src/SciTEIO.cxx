@@ -6,6 +6,8 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
+// Older versions of GNU stdint.h require this definition to be able to see INT32_MAX
+#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
