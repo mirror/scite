@@ -598,7 +598,7 @@ void SciTEBase::SetWindowName() {
 	} else {
 		windowName = FileNameExt().AsInternal();
 	}
-	if (CurrentBuffer()->isDirty)
+	if (CurrentBufferConst()->isDirty)
 		windowName += GUI_TEXT(" * ");
 	else
 		windowName += GUI_TEXT(" - ");
@@ -3070,14 +3070,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_NEXTFILESTACK:
-		if (buffers.size > 1 && props.GetInt("buffers.zorder.switching")) {
+		if (buffers.size() > 1 && props.GetInt("buffers.zorder.switching")) {
 			NextInStack(); // next most recently selected buffer
 			WindowSetFocus(wEditor);
 			break;
 		}
 		// else fall through and do NEXTFILE behaviour...
 	case IDM_NEXTFILE:
-		if (buffers.size > 1) {
+		if (buffers.size() > 1) {
 			Next(); // Use Next to tabs move left-to-right
 			WindowSetFocus(wEditor);
 		} else {
@@ -3087,14 +3087,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_PREVFILESTACK:
-		if (buffers.size > 1 && props.GetInt("buffers.zorder.switching")) {
+		if (buffers.size() > 1 && props.GetInt("buffers.zorder.switching")) {
 			PrevInStack(); // next least recently selected buffer
 			WindowSetFocus(wEditor);
 			break;
 		}
 		// else fall through and do PREVFILE behaviour...
 	case IDM_PREVFILE:
-		if (buffers.size > 1) {
+		if (buffers.size() > 1) {
 			Prev(); // Use Prev to tabs move right-to-left
 			WindowSetFocus(wEditor);
 		} else {
@@ -3621,7 +3621,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	default:
 		if ((cmdID >= bufferCmdID) &&
-		        (cmdID < bufferCmdID + buffers.size)) {
+		        (cmdID < bufferCmdID + buffers.size())) {
 			SetDocumentAt(cmdID - bufferCmdID);
 			CheckReload();
 		} else if ((cmdID >= fileStackCmdID) &&
@@ -4091,7 +4091,7 @@ void SciTEBase::CheckMenus() {
 	for (int toolItem = 0; toolItem < toolMax; toolItem++)
 		EnableAMenuItem(IDM_TOOLS + toolItem, ToolIsImmediate(toolItem) || !jobQueue.IsExecuting());
 	EnableAMenuItem(IDM_STOPEXECUTE, jobQueue.IsExecuting());
-	if (buffers.size > 0) {
+	if (buffers.size() > 0) {
 		TabSelect(buffers.Current());
 		for (int bufferItem = 0; bufferItem < buffers.lengthVisible; bufferItem++) {
 			CheckAMenuItem(IDM_BUFFER + bufferItem, bufferItem == buffers.Current());

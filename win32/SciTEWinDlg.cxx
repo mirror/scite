@@ -260,7 +260,7 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 	}
 	ofn.Flags = OFN_HIDEREADONLY;
 
-	if (buffers.size > 1) {
+	if (buffers.size() > 1) {
 		ofn.Flags |=
 		    OFN_EXPLORER |
 		    OFN_PATHMUSTEXIST |

@@ -87,25 +87,22 @@ void Buffer::CancelLoad() {
 	}
 }
 
-BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), size(0), length(0), lengthVisible(0), initialised(false) {}
+BufferList::BufferList() : current(0), stackcurrent(0), stack(0), buffers(0), length(0), lengthVisible(0), initialised(false) {}
 
 BufferList::~BufferList() {
-	delete []buffers;
-	delete []stack;
 }
 
 void BufferList::Allocate(int maxSize) {
 	length = 1;
 	lengthVisible = 1;
 	current = 0;
-	size = maxSize;
-	buffers = new Buffer[size];
-	stack = new int[size];
+	buffers.resize(maxSize);
+	stack.resize(maxSize);
 	stack[0] = 0;
 }
 
 int BufferList::Add() {
-	if (length < size) {
+	if (length < size()) {
 		length++;
 	}
 	buffers[length - 1].Init();
@@ -182,7 +179,11 @@ int BufferList::Current() const {
 	return current;
 }
 
-Buffer *BufferList::CurrentBuffer() const {
+Buffer *BufferList::CurrentBuffer() {
+	return &buffers[Current()];
+}
+
+const Buffer *BufferList::CurrentBufferConst() const {
 	return &buffers[Current()];
 }
 
@@ -274,7 +275,7 @@ void BufferList::Swap(int indexA, int indexB) {
 }
 
 bool BufferList::SingleBuffer() const {
-	return size == 1;
+	return size() == 1;
 }
 
 BackgroundActivities BufferList::CountBackgroundActivities() const {
@@ -350,7 +351,7 @@ void BufferList::FinishedFuture(int index, Buffer::FutureDo fd) {
 }
 
 sptr_t SciTEBase::GetDocumentAt(int index) {
-	if (index < 0 || index >= buffers.size) {
+	if (index < 0 || index >= buffers.size()) {
 		return 0;
 	}
 	if (buffers.buffers[index].doc == 0) {
@@ -361,7 +362,7 @@ sptr_t SciTEBase::GetDocumentAt(int index) {
 }
 
 void SciTEBase::SwitchDocumentAt(int index, sptr_t pdoc) {
-	if (index < 0 || index >= buffers.size) {
+	if (index < 0 || index >= buffers.size()) {
 		return;
 	}
 	sptr_t pdocOld = buffers.buffers[index].doc;
@@ -392,7 +393,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	}
 
 	if (extender) {
-		if (buffers.size > 1)
+		if (buffers.size() > 1)
 			extender->ActivateBuffer(index);
 		else
 			extender->InitBuffer(0);
@@ -471,7 +472,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 }
 
 bool SciTEBase::IsBufferAvailable() const {
-	return buffers.size > 1 && buffers.length < buffers.size;
+	return buffers.size() > 1 && buffers.length < buffers.size();
 }
 
 bool SciTEBase::CanMakeRoom(bool maySaveIfDirty) {
@@ -516,7 +517,7 @@ void SciTEBase::InitialiseBuffers() {
 		// First document is the default from creation of control
 		buffers.buffers[0].doc = wEditor.CallReturnPointer(SCI_GETDOCPOINTER, 0, 0);
 		wEditor.Call(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
-		if (buffers.size == 1) {
+		if (buffers.size() == 1) {
 			// Single buffer mode, delete the Buffers main menu entry
 			DestroyMenuItem(menuBuffers, 0);
 			// Destroy command "View Tab Bar" in the menu "View"
@@ -845,7 +846,7 @@ void SciTEBase::New() {
 
 	propsDiscovered.Clear();
 
-	if ((buffers.size == 1) && (!buffers.buffers[0].IsUntitled())) {
+	if ((buffers.size() == 1) && (!buffers.buffers[0].IsUntitled())) {
 		AddFileToStack(buffers.buffers[0],
 		        buffers.buffers[0].selection,
 		        buffers.buffers[0].scrollPosition);
@@ -857,7 +858,7 @@ void SciTEBase::New() {
 	        (buffers.Current() != 0) ||
 	        (buffers.buffers[0].isDirty) ||
 	        (!buffers.buffers[0].IsUntitled())) {
-		if (buffers.size == buffers.length) {
+		if (buffers.size() == buffers.length) {
 			Close(false, false, true);
 		}
 		buffers.SetCurrent(buffers.Add());
@@ -919,7 +920,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		extender->OnClose(filePath.AsUTF8().c_str());
 	}
 
-	if (buffers.size == 1) {
+	if (buffers.size() == 1) {
 		// With no buffer list, Close means close from MRU
 		closingLast = !(recentFileStack[0].IsSet());
 		buffers.buffers[0].Init();
@@ -927,7 +928,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		ClearDocument(); //avoid double are-you-sure
 		if (!makingRoomForNew)
 			StackMenu(0); // calls New, or Open, which calls InitBuffer
-	} else if (buffers.size > 1) {
+	} else if (buffers.size() > 1) {
 		if (buffers.Current() >= 0 && buffers.Current() < buffers.length) {
 			UpdateBuffersCurrent();
 			Buffer buff = buffers.buffers[buffers.Current()];
@@ -1126,7 +1127,7 @@ static void EscapeFilePathsForMenu(GUI::gui_string &path) {
 }
 
 void SciTEBase::SetBuffersMenu() {
-	if (buffers.size <= 1) {
+	if (buffers.size() <= 1) {
         DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
     }
 	RemoveAllTabs();
@@ -1135,7 +1136,7 @@ void SciTEBase::SetBuffersMenu() {
 	for (pos = buffers.lengthVisible; pos < bufferMax; pos++) {
 		DestroyMenuItem(menuBuffers, IDM_BUFFER + pos);
 	}
-	if (buffers.size > 1) {
+	if (buffers.size() > 1) {
 		int menuStart = 4;
 		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, GUI_TEXT(""));
 		for (pos = 0; pos < buffers.lengthVisible; pos++) {

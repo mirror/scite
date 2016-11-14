@@ -331,8 +331,8 @@ void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const 
 }
 
 std::string SciTEBase::ExtensionFileName() const {
-	if (CurrentBuffer()->overrideExtension.length()) {
-		return CurrentBuffer()->overrideExtension;
+	if (CurrentBufferConst()->overrideExtension.length()) {
+		return CurrentBufferConst()->overrideExtension;
 	} else {
 		FilePath name = FileNameExt();
 		if (name.IsSet()) {

@@ -154,16 +154,18 @@ class BufferList {
 protected:
 	int current;
 	int stackcurrent;
-	int *stack;
+	std::vector<int> stack;
 public:
-	Buffer *buffers;
-	int size;
+	std::vector<Buffer> buffers;
 	int length;
 	int lengthVisible;
 	bool initialised;
 
 	BufferList();
 	~BufferList();
+	int size() const {
+		return static_cast<int>(buffers.size());
+	}
 	void Allocate(int maxSize);
 	int Add();
 	int GetDocumentByWorker(FileWorker *pFileWorker) const;
@@ -171,7 +173,8 @@ public:
 	void RemoveInvisible(int index);
 	void RemoveCurrent();
 	int Current() const;
-	Buffer *CurrentBuffer() const;
+	Buffer *CurrentBuffer();
+	const Buffer *CurrentBufferConst() const;
 	void SetCurrent(int index);
 	int StackNext();
 	int StackPrev();
@@ -528,8 +531,11 @@ protected:
 	bool IsBufferAvailable() const;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
 	void SetDocumentAt(int index, bool updateStack = true);
-	Buffer *CurrentBuffer() const {
+	Buffer *CurrentBuffer() {
 		return buffers.CurrentBuffer();
+	}
+	const Buffer *CurrentBufferConst() const {
+		return buffers.CurrentBufferConst();
 	}
 	void SetBuffersMenu();
 	void BuffersMenu();

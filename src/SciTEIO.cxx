@@ -84,7 +84,7 @@ void SciTEBase::SetFileName(const FilePath &openName, bool fixCase) {
 	props.Set("FileNameExt", FileNameExt().AsUTF8().c_str());
 
 	SetWindowName();
-	if (buffers.buffers)
+	if (buffers.buffers.size() > 0)
 		buffers.buffers[buffers.Current()].Set(filePath);
 }
 
@@ -272,7 +272,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		// Turn grey while loading
 		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
 		wEditor.Call(SCI_SETREADONLY, 1);
-		assert(CurrentBuffer()->pFileWorker == NULL);
+		assert(CurrentBufferConst()->pFileWorker == NULL);
 		ILoader *pdocLoad;
 		try {
 			pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, static_cast<uptr_t>(fileSize) + 1000));
@@ -545,7 +545,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		}
 	}
 
-	if (buffers.size == buffers.length) {
+	if (buffers.size() == buffers.length) {
 		AddFileToStack(filePath, GetSelectedRange(), GetCurrentScrollPosition());
 		ClearDocument();
 		CurrentBuffer()->lifeState = Buffer::open;
@@ -557,7 +557,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		}
 	}
 
-	assert(CurrentBuffer()->pFileWorker == NULL);
+	assert(CurrentBufferConst()->pFileWorker == NULL);
 	SetFileName(absPath);
 
 	propsDiscovered.Clear();
@@ -868,7 +868,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 		wEditor.Call(SCI_SETDOCPOINTER, 0, buffers.buffers[0].doc);
 	}
 	// Release all the extra documents
-	for (int j = 0; j < buffers.size; j++) {
+	for (int j = 0; j < buffers.size(); j++) {
 		if (buffers.buffers[j].doc && !buffers.buffers[j].pFileWorker) {
 			wEditor.Call(SCI_RELEASEDOCUMENT, 0, buffers.buffers[j].doc);
 			buffers.buffers[j].doc = 0;

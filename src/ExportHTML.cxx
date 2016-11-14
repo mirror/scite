@@ -139,7 +139,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 
 				StyleDefinition sd = StyleDefinitionFor(istyle);
 
-				if (CurrentBuffer()->useMonoFont && sd.font.length() && sdmono.font.length()) {
+				if (CurrentBufferConst()->useMonoFont && sd.font.length() && sdmono.font.length()) {
 					sd.font = sdmono.font;
 					sd.size = sdmono.size;
 					sd.italics = sdmono.italics;
