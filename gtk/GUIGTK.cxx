@@ -46,9 +46,11 @@ gui_string StringFromLongLong(long long i) {
 		std::ostringstream strstrm;
 		strstrm << i;
 		return StringFromUTF8(strstrm.str());
-	} catch (std::ios_base::failure &) {
-		return gui_string();
+	} catch (std::exception &) {
+		// Exceptions not enabled on stream but still causes diagnostic in Coverity.
+		// Simply swallow the failure and return the default value.
 	}
+	return gui_string();
 }
 
 static GtkWidget *PWidget(WindowID wid) {

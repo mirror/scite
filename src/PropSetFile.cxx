@@ -310,10 +310,15 @@ int PropSetFile::GetInt(const char *key, int defaultValue) const {
 long long PropSetFile::GetLongLong(const char *key, long long defaultValue) const {
 	std::string val = GetExpandedString(key);
 	if (val.length()) {
-		std::istringstream strstrm(val);
-		long long llValue = 0;
-		strstrm >> llValue;
-		return llValue;
+		try {
+			std::istringstream strstrm(val);
+			long long llValue = 0;
+			strstrm >> llValue;
+			return llValue;
+		} catch (std::exception &) {
+			// Exceptions not enabled on stream but still causes diagnostic in Coverity.
+			// Simply swallow the failure and return the default value.
+		}
 	}
 	return defaultValue;
 }
