@@ -753,9 +753,10 @@ void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, size_t siz
 	if (explanation != ControlGText(wExplanation)) {
 		::SetWindowTextW(HwndOf(wExplanation), explanation.c_str());
 	}
-	// TODO: Should scale values as PBM_SETRANGE32 limited to 32-bit
-	::SendMessage(HwndOf(wProgress), PBM_SETRANGE32, 0, size);
-	::SendMessage(HwndOf(wProgress), PBM_SETPOS, progress, 0);
+	// Scale values by 1000 as PBM_SETRANGE32 limited to 32-bit
+	const int scaleProgress = 1000;
+	::SendMessage(HwndOf(wProgress), PBM_SETRANGE32, 0, size/scaleProgress);
+	::SendMessage(HwndOf(wProgress), PBM_SETPOS, progress/scaleProgress, 0);
 }
 
 static const COLORREF colourNoMatch = RGB(0xff,0x66,0x66);

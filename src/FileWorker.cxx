@@ -53,7 +53,7 @@ double FileWorker::Duration() {
 
 FileLoader::FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_) :
 	FileWorker(pListener_, path_, size_, fp_), pLoader(pLoader_), readSoFar(0), unicodeMode(uni8Bit) {
-	SetSizeJob(static_cast<int>(size));
+	SetSizeJob(size);
 }
 
 FileLoader::~FileLoader() {
@@ -112,7 +112,7 @@ FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, c
 	size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
 	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0),
 		unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
-	SetSizeJob(static_cast<int>(size));
+	SetSizeJob(size);
 }
 
 FileStorer::~FileStorer() {
