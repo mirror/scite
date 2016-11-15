@@ -1047,7 +1047,7 @@ void SciTEGTK::ShowToolBar() {
 }
 
 void SciTEGTK::ShowTabBar() {
-	if (tabVisible && (!tabHideOne || buffers.length > 1) && buffers.size>1) {
+	if (tabVisible && (!tabHideOne || buffers.length > 1) && buffers.size()>1) {
 		gtk_widget_show(GTK_WIDGET(PWidget(wTabBar)));
 	} else {
 		gtk_widget_hide(GTK_WIDGET(PWidget(wTabBar)));
