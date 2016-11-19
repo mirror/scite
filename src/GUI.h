@@ -195,16 +195,4 @@ bool IsDBCSLeadByte(int codePage, char ch);
 
 }
 
-#if defined(SCI_NAMESPACE)
-
-// Scintilla namespace may or may not be turned on.
-// If it is turned on, then make the structures usable without the Scintilla:: prefix
-
-using Scintilla::Sci_CharacterRange;
-using Scintilla::Sci_TextRange;
-using Scintilla::Sci_TextToFind;
-using Scintilla::SCNotification;
-
-#endif
-
 #endif
