@@ -3521,8 +3521,9 @@ static GtkWidget *pixmap_new(gchar **xpm) {
 
 GtkWidget *SciTEGTK::AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon) {
 	gtk_widget_show(GTK_WIDGET(toolbar_icon));
-	GtkToolItem *button = gtk_tool_button_new(toolbar_icon, text);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(button), text);
+	GUI::gui_string localised = localiser.Text(text);
+	GtkToolItem *button = gtk_tool_button_new(toolbar_icon, localised.c_str());
+	gtk_widget_set_tooltip_text(GTK_WIDGET(button), localised.c_str());
 	gtk_widget_show(GTK_WIDGET(button));
 	gtk_toolbar_insert(GTK_TOOLBAR(PWidget(wToolBar)), button, -1);
 
