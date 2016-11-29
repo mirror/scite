@@ -469,7 +469,7 @@
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CLEARALLCMDKEYS'>ClearAllCmdKeys</a>()<span class="comment"> -- Drop all key mappings.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_NULL'>Null</a>()<span class="comment"> -- Null operation.</span></p>
 	<h2>Popup edit menu</h2>
-	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_USEPOPUP'>UsePopUp</a>(bool allowPopUp)<span class="comment"> -- Set whether a pop up menu is displayed automatically when the user presses the wrong mouse button.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_USEPOPUP'>UsePopUp</a>(int popUpMode)<span class="comment"> -- Set whether a pop up menu is displayed automatically when the user presses the wrong mouse button on certain areas.</span></p>
 	<h2>Macro recording</h2>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_STARTRECORD'>StartRecord</a>()<span class="comment"> -- Start notifying the container of all key presses and commands.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_STOPRECORD'>StopRecord</a>()<span class="comment"> -- Stop notifying the container of all key presses and commands.</span></p>
@@ -502,6 +502,8 @@
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETLASTCHILD'>GetLastChild</a>(int line, int level)<span class="comment"> -- Find the last child line of a header line.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETFOLDPARENT'>FoldParent</a>[int line] read-only</p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_TOGGLEFOLD'>ToggleFold</a>(int line)<span class="comment"> -- Switch a header line between expanded and contracted.</span></p>
+	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_TOGGLEFOLDSHOWTEXT'>ToggleFoldShowText</a>(int line, string text)<span class="comment"> -- Switch a header line between expanded and contracted and show some text after the line.</span></p>
+	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDDISPLAYTEXTSETSTYLE'>FoldDisplayTextStyle</a> write-only<span class="comment"> -- Set the style of fold display text</span></p>
 	<p>bool editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETFOLDEXPANDED'>FoldExpanded</a>[int line]<span class="comment"> -- Show the children of a header line.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDLINE'>FoldLine</a>(int line, int action)<span class="comment"> -- Expand or contract a fold header.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_FOLDCHILDREN'>FoldChildren</a>(int line, int action)<span class="comment"> -- Expand or contract a fold header and its children.</span></p>
