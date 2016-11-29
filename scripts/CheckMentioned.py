@@ -17,7 +17,7 @@ uninteresting = {
 	"SCINTILLA_H", "SCI_START", "SCI_LEXER_START", "SCI_OPTIONAL_START",
 	# These archaic names are #defined to the Sci_ prefixed modern equivalents.
 	# They are not documented so they are not used in new code.
-	"CharacterRange", "TextRange", "TextToFind", "RangeToFormat",
+	"CharacterRange", "TextRange", "TextToFind", "RangeToFormat", "NotifyHeader",
 }
 
 incFileName = srcRoot + "/scintilla/include/Scintilla.h"
@@ -179,12 +179,15 @@ def checkDocumentation():
 		sigApi = re.split('\W+', sigFlat)[0]
 		#~ print(sigFlat, ";;", sig, ";;", api)
 		if '(' in sigFlat or api.startswith("SCI_"):
-			name = sciToFeature[api]
-			sigFromFace = api + makeSig(face.features[name])
-			if sigFlat != sigFromFace:
-				print(sigFlat, sigFromFace)
-				#~ printCtag('="' + api, docFileName)
-				#~ printCtag(" " + name, pathIface)
+			try:
+				name = sciToFeature[api]
+				sigFromFace = api + makeSig(face.features[name])
+				if sigFlat != sigFromFace:
+					print(sigFlat, sigFromFace)
+					#~ printCtag('="' + api, docFileName)
+					#~ printCtag(" " + name, pathIface)
+			except KeyError:
+				pass		# Feature removed but still has documentation
 		if api != sigApi:
 			print(sigApi, ";;", sig, ";;", api)
 		definitions[api] = 1
