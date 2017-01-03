@@ -4825,6 +4825,9 @@ void SciTEGTK::LayoutUI() {
 		gtk_widget_set_size_request(PWidget(wOutput), -1, heightOutput);
 	}
 
+#if GTK_CHECK_VERSION(3,16,0)
+	gtk_paned_set_wide_handle(GTK_PANED(splitPane), props.GetInt("split.wide", 0));
+#endif
 	gtk_container_add(GTK_CONTAINER(PWidget(wContent)), GTK_WIDGET(splitPane));
 	gtk_paned_pack1(GTK_PANED(splitPane), PWidget(wEditor), TRUE, TRUE);
 	gtk_paned_pack2(GTK_PANED(splitPane), PWidget(wOutput), FALSE, TRUE);
