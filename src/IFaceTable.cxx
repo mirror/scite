@@ -2809,7 +2809,7 @@ static IFaceConstant ifaceConstants[] = {
 
 static IFaceFunction ifaceFunctions[] = {
 	{"AddRefDocument", 2376, iface_void, {iface_void, iface_int}},
-	{"AddSelection", 2573, iface_int, {iface_position, iface_position}},
+	{"AddSelection", 2573, iface_void, {iface_position, iface_position}},
 	{"AddStyledText", 2002, iface_void, {iface_length, iface_cells}},
 	{"AddTabStop", 2676, iface_void, {iface_int, iface_int}},
 	{"AddText", 2001, iface_void, {iface_length, iface_string}},
@@ -3045,7 +3045,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"SetSel", 2160, iface_void, {iface_position, iface_position}},
 	{"SetSelBack", 2068, iface_void, {iface_bool, iface_colour}},
 	{"SetSelFore", 2067, iface_void, {iface_bool, iface_colour}},
-	{"SetSelection", 2572, iface_int, {iface_position, iface_position}},
+	{"SetSelection", 2572, iface_void, {iface_position, iface_position}},
 	{"SetStyling", 2033, iface_void, {iface_length, iface_int}},
 	{"SetStylingEx", 2073, iface_void, {iface_length, iface_string}},
 	{"SetTargetRange", 2686, iface_void, {iface_position, iface_position}},
