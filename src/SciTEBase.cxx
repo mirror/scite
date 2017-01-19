@@ -3690,7 +3690,7 @@ void SciTEBase::FoldChanged(int line, int levelNow, int levelPrev) {
 	if (!(levelNow & SC_FOLDLEVELWHITEFLAG) && (LevelNumber(levelPrev) < LevelNumber(levelNow))) {
 		if (!wEditor.Call(SCI_GETALLLINESVISIBLE)) {
 			const int parentLine = wEditor.Call(SCI_GETFOLDPARENT, line);
-			if (!wEditor.Call(SCI_GETFOLDEXPANDED, parentLine) && wEditor.Call(SCI_GETFOLDEXPANDED, line)) {
+			if (!wEditor.Call(SCI_GETFOLDEXPANDED, parentLine) && wEditor.Call(SCI_GETLINEVISIBLE, line)) {
 				wEditor.Call(SCI_SETFOLDEXPANDED, parentLine, 1);
 				const int levelParentLine = wEditor.Call(SCI_GETFOLDLEVEL, parentLine);
 				ExpandFolds(parentLine, true, levelParentLine);
