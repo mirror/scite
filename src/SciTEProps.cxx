@@ -800,7 +800,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	wOutput.Call(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 
-	std::string caretLineBack = props.GetString("caret.line.back");
+	std::string caretLineBack = props.GetExpandedString("caret.line.back");
 	if (caretLineBack.length()) {
 		wEditor.Call(SCI_SETCARETLINEVISIBLE, 1);
 		wEditor.Call(SCI_SETCARETLINEBACK, ColourFromString(caretLineBack));
@@ -854,13 +854,13 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETEDGECOLOUR,
 	           ColourOfProperty(props, "edge.colour", ColourRGB(0xff, 0xda, 0xda)));
 
-	std::string selFore = props.GetString("selection.fore");
+	std::string selFore = props.GetExpandedString("selection.fore");
 	if (selFore.length()) {
 		CallChildren(SCI_SETSELFORE, 1, ColourFromString(selFore));
 	} else {
 		CallChildren(SCI_SETSELFORE, 0, 0);
 	}
-	std::string selBack = props.GetString("selection.back");
+	std::string selBack = props.GetExpandedString("selection.back");
 	if (selBack.length()) {
 		CallChildren(SCI_SETSELBACK, 1, ColourFromString(selBack));
 	} else {
@@ -883,26 +883,26 @@ void SciTEBase::ReadProperties() {
 	int selectionAdditionalAlpha = (selectionAlpha == SC_ALPHA_NOALPHA) ? SC_ALPHA_NOALPHA : selectionAlpha / 2;
 	CallChildren(SCI_SETADDITIONALSELALPHA, props.GetInt("selection.additional.alpha", selectionAdditionalAlpha));
 
-	std::string foldColour = props.GetString("fold.margin.colour");
+	std::string foldColour = props.GetExpandedString("fold.margin.colour");
 	if (foldColour.length()) {
 		CallChildren(SCI_SETFOLDMARGINCOLOUR, 1, ColourFromString(foldColour));
 	} else {
 		CallChildren(SCI_SETFOLDMARGINCOLOUR, 0, 0);
 	}
-	std::string foldHiliteColour = props.GetString("fold.margin.highlight.colour");
+	std::string foldHiliteColour = props.GetExpandedString("fold.margin.highlight.colour");
 	if (foldHiliteColour.length()) {
 		CallChildren(SCI_SETFOLDMARGINHICOLOUR, 1, ColourFromString(foldHiliteColour));
 	} else {
 		CallChildren(SCI_SETFOLDMARGINHICOLOUR, 0, 0);
 	}
 
-	std::string whitespaceFore = props.GetString("whitespace.fore");
+	std::string whitespaceFore = props.GetExpandedString("whitespace.fore");
 	if (whitespaceFore.length()) {
 		CallChildren(SCI_SETWHITESPACEFORE, 1, ColourFromString(whitespaceFore));
 	} else {
 		CallChildren(SCI_SETWHITESPACEFORE, 0, 0);
 	}
-	std::string whitespaceBack = props.GetString("whitespace.back");
+	std::string whitespaceBack = props.GetExpandedString("whitespace.back");
 	if (whitespaceBack.length()) {
 		CallChildren(SCI_SETWHITESPACEBACK, 1, ColourFromString(whitespaceBack));
 	} else {
@@ -1311,11 +1311,11 @@ void SciTEBase::ReadProperties() {
 
 	currentWordHighlight.isEnabled = props.GetInt("highlight.current.word", 0) == 1;
 	if (currentWordHighlight.isEnabled) {
-		const std::string highlightCurrentWordIndicatorString = props.GetString("highlight.current.word.indicator");
+		const std::string highlightCurrentWordIndicatorString = props.GetExpandedString("highlight.current.word.indicator");
 		IndicatorDefinition highlightCurrentWordIndicator(highlightCurrentWordIndicatorString.c_str());
 		if (highlightCurrentWordIndicatorString.length() == 0) {
 			highlightCurrentWordIndicator.style = INDIC_ROUNDBOX;
-			std::string highlightCurrentWordColourString = props.GetString("highlight.current.word.colour");
+			std::string highlightCurrentWordColourString = props.GetExpandedString("highlight.current.word.colour");
 			if (highlightCurrentWordColourString.length() == 0) {
 				// Set default colour for highlight.
 				highlightCurrentWordColourString = "#A0A000";
