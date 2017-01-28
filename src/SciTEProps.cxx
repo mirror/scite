@@ -1153,88 +1153,122 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
 	wEditor.Call(SCI_SETMARGINSENSITIVEN, 2, 1);
 
-	// Enable/disable highlight for current folding bloc (smallest one that contains the caret)
+	// Define foreground (outline) and background (fill) color of folds
+	int foldSymbols = props.GetInt("fold.symbols");
+	std::string foldFore = props.GetExpandedString("fold.fore");
+	if (foldFore.length() == 0) {
+		// Set default colour for outline
+		switch (foldSymbols) {
+		case 0: // Arrows
+			foldFore = "#000000";
+			break;
+		case 1: // + -
+			foldFore = "#FFFFFF";
+			break;
+		case 2: // Circles
+			foldFore = "#404040";
+			break;
+		case 3: // Squares
+			foldFore = "#808080";
+			break;
+		}
+	}
+	Colour colourFoldFore = ColourFromString(foldFore);
+
+	std::string foldBack = props.GetExpandedString("fold.back");
+	// Set default colour for fill
+	if (foldBack.length() == 0) {
+		switch (foldSymbols) {
+		case 0:
+		case 1:
+			foldBack = "#000000";
+			break;
+		case 2:
+		case 3:
+			foldBack = "#FFFFFF";
+			break;
+		}
+	}
+	Colour colourFoldBack = ColourFromString(foldBack);
+
+	// Enable/disable highlight for current folding block (smallest one that contains the caret)
 	int isHighlightEnabled = props.GetInt("fold.highlight", 0);
 	// Define the colour of highlight
-	std::string foldBlockHighlight = props.GetString("fold.highlight.colour");
-	if (foldBlockHighlight.length() == 0) {
-		//Set default colour for highlight
-		foldBlockHighlight = "#FF0000";
-	}
-	Colour colourFoldBlockHighlight = ColourFromString(foldBlockHighlight);
-	switch (props.GetInt("fold.symbols")) {
+	Colour colourFoldBlockHighlight = ColourOfProperty(props, "fold.highlight.colour", ColourRGB(0xFF, 0, 0));
+
+	switch (foldSymbols) {
 	case 0:
 		// Arrow pointing right for contracted folders, arrow pointing down for expanded
 		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN,
-					 ColourRGB(0, 0, 0), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_ARROW,
-					 ColourRGB(0, 0, 0), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY,
-					 ColourRGB(0, 0, 0), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY,
-					 ColourRGB(0, 0, 0), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY,
-					 ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY,
-					 ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY,
-					 ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		// The highlight is disabled for arrow.
 		wEditor.Call(SCI_MARKERENABLEHIGHLIGHT, false);
 		break;
 	case 1:
 		// Plus for contracted folders, minus for expanded
 		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_MINUS,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_PLUS,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0, 0, 0), colourFoldBlockHighlight);
+		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		// The highlight is disabled for plus/minus.
 		wEditor.Call(SCI_MARKERENABLEHIGHLIGHT, false);
 		break;
 	case 2:
 		// Like a flattened tree control using circular headers and curved joins
 		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNERCURVE,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_CIRCLEPLUSCONNECTED,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x40, 0x40, 0x40), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		wEditor.Call(SCI_MARKERENABLEHIGHLIGHT, isHighlightEnabled);
 		break;
 	case 3:
 		// Like a flattened tree control using square headers
 		DefineMarker(SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER,
-		             ColourRGB(0xff, 0xff, 0xff), ColourRGB(0x80, 0x80, 0x80), colourFoldBlockHighlight);
+		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		wEditor.Call(SCI_MARKERENABLEHIGHLIGHT, isHighlightEnabled);
 		break;
 	}
