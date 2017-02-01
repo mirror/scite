@@ -4891,8 +4891,21 @@ void SciTEGTK::CreateUI() {
 	bool maximize = props.GetInt("position.maximize", 0) ? true : false;
 	if (width == -1 || height == -1) {
 		maximize = true;
+#if GTK_CHECK_VERSION(3,22,0)
+		GdkDisplay *pdisplay = gdk_display_get_default();
+		// gdk_display_get_primary_monitor would be a better call
+		// but that returned NULL on Fedora 25.
+		// There should always be a monitor numbered 0.
+		// At this point, wSciTE hasn't become a real window.
+		GdkMonitor *monitor = gdk_display_get_monitor(pdisplay, 0);
+		GdkRectangle rcScreen;
+		gdk_monitor_get_geometry(monitor, &rcScreen);
+		width = rcScreen.width - left - 10;
+		height = rcScreen.height - top - 30;
+#else
 		width = gdk_screen_width() - left - 10;
 		height = gdk_screen_height() - top - 30;
+#endif
 	}
 
 	if (props.GetInt("save.position")) {
