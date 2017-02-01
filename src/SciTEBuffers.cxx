@@ -1149,11 +1149,13 @@ void SciTEBase::SetBuffersMenu() {
 				GUI::gui_string sPos = GUI::StringFromInteger((pos + 1) % 10);
 				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
 				entry = sHotKey;	// hotkey 1..0
+				if (props.GetInt("tabbar.hide.index") == 0) {
 #if defined(_WIN32)
-				titleTab = sHotKey; // add hotkey to the tabbar
+					titleTab = sHotKey; // add hotkey to the tabbar
 #elif defined(GTK)
-				titleTab = sPos + GUI_TEXT(" ");
+					titleTab = sPos + GUI_TEXT(" ");
 #endif
+				}
 			}
 #endif
 
