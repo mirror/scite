@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <time.h>
-#include <locale.h>
 #include <assert.h>
 
 #include <string>

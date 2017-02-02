@@ -9,10 +9,10 @@
 // It is provided "as is" without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Utf8_16.h"
-
 #include <memory.h>
 #include <stdio.h>
+
+#include "Utf8_16.h"
 
 const Utf8_16::utf8 Utf8_16::k_Boms[][3] = {
 	{0x00, 0x00, 0x00},  // Unknown

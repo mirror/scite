@@ -12,7 +12,6 @@
 //   http://www.cl.cam.ac.uk/~mgk25/unicode.html
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
 #include <assert.h>
 
 class Utf8_16 {
