@@ -1584,14 +1584,21 @@ bool SciTEGTK::SaveAsXXX(FileFormat fmt, const char *title, const char *ext) {
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
 		FilePath savePath = SaveName(ext);
 		if (ext) {
+			GtkFileFilter *filter = gtk_file_filter_new();
+			gtk_file_filter_set_name(filter, ext+1);
+			std::string filterSTR = "*";
+			filterSTR += ext;
+			gtk_file_filter_add_pattern(filter, filterSTR.c_str());
+			gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filter);
 			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), savePath.Directory().AsInternal());
 			gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dlg), savePath.Name().AsInternal());
 		} else if (savePath.IsUntitled()) { // saving 'untitled'
 			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), savePath.Directory().AsInternal());
 		} else {
 			gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), filePath.Directory().AsInternal());
-			gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dlg), savePath.AsInternal());
+			gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dlg), savePath.Name().AsInternal());
 		}
+		gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dlg), TRUE);
 
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
@@ -1643,6 +1650,10 @@ void SciTEGTK::LoadSessionDialog() {
 				      SCITE_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
 
+		GtkFileFilter *filter = gtk_file_filter_new();
+		gtk_file_filter_set_name(filter, "session");
+		gtk_file_filter_add_pattern(filter, "*.session");
+		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filter);
 		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), filePath.Directory().AsInternal());
 		gtk_window_set_default_size(GTK_WINDOW(dlg), fileSelectorWidth, fileSelectorHeight);
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
@@ -1666,7 +1677,13 @@ void SciTEGTK::SaveSessionDialog() {
 				      SCITE_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
 
+		GtkFileFilter *filter = gtk_file_filter_new();
+		gtk_file_filter_set_name(filter, "session");
+		gtk_file_filter_add_pattern(filter, "*.session");
+		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filter);
 		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), filePath.Directory().AsInternal());
+		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dlg), "SciTE.session");
+		gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dlg), TRUE);
 		if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
 			char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
 
