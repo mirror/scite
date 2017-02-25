@@ -385,7 +385,7 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 			// if there are no more slots, then the returned pipename is '*'
 			char pipeName[MAX_PATH];
 			if (! SendPipeAvailable()) {
-				strcpy(pipeName,"*");
+				StringCopy(pipeName,"*");
 			} else {
 				sprintf(pipeName,"%s/SciTE.%d.%d.out", g_get_tmp_dir(), getpid(), kount++);
 			}

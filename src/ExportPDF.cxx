@@ -482,7 +482,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			if (sd.fore.length()) {
 				getPDFRGB(pr.style[i].fore, sd.fore.c_str());
 			} else if (i == STYLE_DEFAULT) {
-				strcpy(pr.style[i].fore, "0 0 0 ");
+				StringCopy(pr.style[i].fore, "0 0 0 ");
 			}
 			// grab font size from default style
 			if (i == STYLE_DEFAULT) {
@@ -496,7 +496,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	// patch in default foregrounds
 	for (int j = 0; j <= STYLE_MAX; j++) {
 		if (pr.style[j].fore[0] == '\0') {
-			strcpy(pr.style[j].fore, pr.style[STYLE_DEFAULT].fore);
+			StringCopy(pr.style[j].fore, pr.style[STYLE_DEFAULT].fore);
 		}
 	}
 
