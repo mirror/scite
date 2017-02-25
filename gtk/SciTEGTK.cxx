@@ -546,8 +546,6 @@ protected:
 
 	GtkWidget *AddMBButton(GtkWidget *dialog, const char *label,
 	                       int val, GtkAccelGroup *accel_group, bool isDefault = false);
-	void SetWindowName();
-	void ShowFileInStatus();
 	void SetIcon();
 
 	virtual void ReadLocalization();
@@ -929,21 +927,6 @@ FilePath SciTEGTK::GetSciteUserHome() {
 	}
 
 	return FilePath(where);
-}
-
-void SciTEGTK::ShowFileInStatus() {
-	char sbText[1000];
-	sprintf(sbText, " File: ");
-	if (filePath.IsUntitled())
-		strcat(sbText, "Untitled");
-	else
-		strcat(sbText, filePath.AsInternal());
-	SetStatusBarText(sbText);
-}
-
-void SciTEGTK::SetWindowName() {
-	SciTEBase::SetWindowName();
-	ShowFileInStatus();
 }
 
 void SciTEGTK::SetStatusBarText(const char *s) {
