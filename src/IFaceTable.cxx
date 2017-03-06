@@ -2489,6 +2489,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_HASKELL",68},
 	{"SCLEX_HTML",4},
 	{"SCLEX_IHEX",118},
+	{"SCLEX_INDENT",122},
 	{"SCLEX_INNOSETUP",76},
 	{"SCLEX_JSON",120},
 	{"SCLEX_KIX",57},
@@ -3342,7 +3343,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 297,
-	ifaceConstantCount = 2674,
+	ifaceConstantCount = 2675,
 	ifacePropertyCount = 226
 };
 
