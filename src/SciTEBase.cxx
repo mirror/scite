@@ -93,7 +93,7 @@ bool &Searcher::FlagFromCmd(int cmd) {
 	return notFound;
 }
 
-SciTEBase::SciTEBase(Extension *ext) : apis(true), extender(ext) {
+SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extender(ext) {
 	needIdle = false;
 	codePage = 0;
 	characterSet = 0;
@@ -211,6 +211,13 @@ void SciTEBase::WorkerCommand(int cmd, Worker *pWorker) {
  		UpdateProgress(pWorker);
 		break;
 	}
+}
+
+// The system focus may move to other controls including the menu bar
+// but we are normally interested in whether the edit or output pane was
+// most recently focused and should be used by menu commands.
+void SciTEBase::SetPaneFocus(bool editPane) {
+	pwFocussed = editPane ? &wEditor : &wOutput;
 }
 
 int SciTEBase::CallFocused(unsigned int msg, uptr_t wParam, sptr_t lParam) {
@@ -636,11 +643,10 @@ std::string SciTEBase::GetCTag() {
 	int lengthDoc, selStart, selEnd;
 	int mustStop = 0;
 	char c;
-	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
 
-	lengthDoc = wCurrent.Call(SCI_GETLENGTH);
-	selStart = selEnd = wCurrent.Call(SCI_GETSELECTIONEND);
-	TextReader acc(wCurrent);
+	lengthDoc = pwFocussed->Call(SCI_GETLENGTH);
+	selStart = selEnd = pwFocussed->Call(SCI_GETSELECTIONEND);
+	TextReader acc(*pwFocussed);
 	while (!mustStop) {
 		if (selStart < lengthDoc - 1) {
 			selStart++;
@@ -680,7 +686,7 @@ std::string SciTEBase::GetCTag() {
 	}
 
 	if (selStart < selEnd) {
-		return GetRangeString(wCurrent, selStart, selEnd);
+		return GetRangeString(*pwFocussed, selStart, selEnd);
 	} else {
 		return std::string();
 	}
@@ -833,11 +839,9 @@ std::string SciTEBase::SelectionExtend(
     bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
     bool stripEol /*=true*/) {
 
-	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
-
-	int selStart = wCurrent.Call(SCI_GETSELECTIONSTART);
-	int selEnd = wCurrent.Call(SCI_GETSELECTIONEND);
-	return RangeExtendAndGrab(wCurrent, selStart, selEnd, ischarforsel, stripEol);
+	int selStart = pwFocussed->Call(SCI_GETSELECTIONSTART);
+	int selEnd = pwFocussed->Call(SCI_GETSELECTIONEND);
+	return RangeExtendAndGrab(*pwFocussed, selStart, selEnd, ischarforsel, stripEol);
 }
 
 std::string SciTEBase::SelectionWord(bool stripEol /*=true*/) {
@@ -879,22 +883,21 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 
 void SciTEBase::SelectionAdd(AddSelection add) {
 	int flags = 0;
-	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
-	if (!wCurrent.Call(SCI_GETSELECTIONEMPTY)) {
+	if (!pwFocussed->Call(SCI_GETSELECTIONEMPTY)) {
 		// If selection is word then match as word.
-		if (wCurrent.Call(SCI_ISRANGEWORD, wCurrent.Call(SCI_GETSELECTIONSTART),
-			wCurrent.Call(SCI_GETSELECTIONEND)))
+		if (pwFocussed->Call(SCI_ISRANGEWORD, pwFocussed->Call(SCI_GETSELECTIONSTART),
+			pwFocussed->Call(SCI_GETSELECTIONEND)))
 			flags = SCFIND_WHOLEWORD;
 	}
-	wCurrent.Call(SCI_TARGETWHOLEDOCUMENT);
-	wCurrent.Call(SCI_SETSEARCHFLAGS, flags);
+	pwFocussed->Call(SCI_TARGETWHOLEDOCUMENT);
+	pwFocussed->Call(SCI_SETSEARCHFLAGS, flags);
 	if (add == addNext) {
-		wCurrent.Call(SCI_MULTIPLESELECTADDNEXT);
+		pwFocussed->Call(SCI_MULTIPLESELECTADDNEXT);
 	} else {
-		if (wCurrent.Call(SCI_GETSELECTIONEMPTY)) {
-			wCurrent.Call(SCI_MULTIPLESELECTADDNEXT);
+		if (pwFocussed->Call(SCI_GETSELECTIONEMPTY)) {
+			pwFocussed->Call(SCI_MULTIPLESELECTADDNEXT);
 		}
-		wCurrent.Call(SCI_MULTIPLESELECTADDEACH);
+		pwFocussed->Call(SCI_MULTIPLESELECTADDEACH);
 	}
 }
 
@@ -2843,8 +2846,7 @@ std::string SciTEBase::FindOpenXmlTag(const char sel[], int nSize) {
 void SciTEBase::GoMatchingBrace(bool select) {
 	int braceAtCaret = -1;
 	int braceOpposite = -1;
-	GUI::ScintillaWindow &wCurrent = wOutput.HasFocus() ? wOutput : wEditor;
-	bool isInside = FindMatchingBracePosition(!wOutput.HasFocus(), braceAtCaret, braceOpposite, true);
+	bool isInside = FindMatchingBracePosition(pwFocussed == &wEditor, braceAtCaret, braceOpposite, true);
 	// Convert the character positions into caret positions based on whether
 	// the caret position was inside or outside the braces.
 	if (isInside) {
@@ -2861,11 +2863,11 @@ void SciTEBase::GoMatchingBrace(bool select) {
 		}
 	}
 	if (braceOpposite >= 0) {
-		EnsureRangeVisible(wCurrent, braceOpposite, braceOpposite);
+		EnsureRangeVisible(*pwFocussed, braceOpposite, braceOpposite);
 		if (select) {
-			wCurrent.Call(SCI_SETSEL, braceAtCaret, braceOpposite);
+			pwFocussed->Call(SCI_SETSEL, braceAtCaret, braceOpposite);
 		} else {
-			wCurrent.Call(SCI_SETSEL, braceOpposite, braceOpposite);
+			pwFocussed->Call(SCI_SETSEL, braceOpposite, braceOpposite);
 		}
 	}
 }
@@ -3405,7 +3407,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_SWITCHPANE:
-		if (wEditor.HasFocus())
+		if (pwFocussed == &wEditor)
 			WindowSetFocus(wOutput);
 		else
 			WindowSetFocus(wEditor);
@@ -3824,7 +3826,7 @@ void SciTEBase::Notify(const SCNotification *notification) {
 	bool handled = false;
 	switch (notification->nmhdr.code) {
 	case SCN_PAINTED:
-		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (wEditor.HasFocus())) {
+		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
 			// Obly highlight focussed pane.
 			// Manage delay before highlight when no user selection but there is word at the caret.
 			// So the Delay is based on the blinking of caret, scroll...
@@ -3834,13 +3836,17 @@ void SciTEBase::Notify(const SCNotification *notification) {
 				if (currentWordHighlight.elapsedTimes.Duration() >= 0.5) {
 					currentWordHighlight.statesOfDelay = currentWordHighlight.delayJustEnded;
 					HighlightCurrentWord(true);
-					(wOutput.HasFocus() ? wOutput : wEditor).InvalidateAll();
+					pwFocussed->InvalidateAll();
 				}
 			}
 		}
 		break;
 
 	case SCN_FOCUSIN:
+		SetPaneFocus(notification->nmhdr.idFrom == IDM_SRCWIN);
+		CheckMenus();
+		break;
+
 	case SCN_FOCUSOUT:
 		CheckMenus();
 		break;
@@ -3926,7 +3932,7 @@ void SciTEBase::Notify(const SCNotification *notification) {
 			RemoveFindMarks();
 		}
 		if (notification->updated & (SC_UPDATE_SELECTION | SC_UPDATE_CONTENT)) {
-			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (wEditor.HasFocus())) {
+			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
 				// Obly highlight focussed pane.
 				if (notification->updated & SC_UPDATE_SELECTION) {
 					currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
@@ -3952,7 +3958,7 @@ void SciTEBase::Notify(const SCNotification *notification) {
 			EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SCI_CANUNDO));
 			EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SCI_CANREDO));
 		} else if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
-			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (wEditor.HasFocus())) {
+			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
 				currentWordHighlight.textHasChanged = true;
 			}
 			//this will be called a lot, and usually means "typing".

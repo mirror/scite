@@ -406,6 +406,7 @@ protected:
 	GUI::Window wContent;    ///< Contains wEditor and wOutput
 	GUI::ScintillaWindow wEditor;
 	GUI::ScintillaWindow wOutput;
+	GUI::ScintillaWindow *pwFocussed;
 	GUI::Window wIncrement;
 	GUI::Window wToolBar;
 	GUI::Window wStatusBar;
@@ -559,6 +560,7 @@ protected:
 	void ReadLocalPropFile();
 	void ReadDirectoryPropFile();
 
+	void SetPaneFocus(bool editPane);
 	int CallFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	int CallFocusedElseDefault(int defaultValue, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t CallPane(int destination, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
