@@ -93,7 +93,7 @@ std::string StdStringFromDouble(double d, int precision) {
 	return std::string(number);
 }
 
-static int LowerCaseAZ(int c) {
+static char LowerCaseAZ(char c) {
 	if (c >= 'A' && c <= 'Z') {
 		return c - 'A' + 'a';
 	} else {
@@ -102,7 +102,7 @@ static int LowerCaseAZ(int c) {
 }
 
 void LowerCaseAZ(std::string &s) {
-	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(LowerCaseAZ));
+	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<char, char>(LowerCaseAZ));
 }
 
 int CompareNoCase(const char *a, const char *b) {
