@@ -782,6 +782,10 @@ void SciTEBase::ReadProperties() {
 	}
 	imeAutoComplete = props.GetInt("ime.autocomplete", 0) == 1;
 
+	const int accessibility = props.GetInt("accessibility", 1);
+	wEditor.Call(SCI_SETACCESSIBILITY, accessibility);
+	wOutput.Call(SCI_SETACCESSIBILITY, accessibility);
+
 	wrapStyle = props.GetInt("wrap.style", SC_WRAP_WORD);
 
 	CallChildren(SCI_SETCARETFORE,
