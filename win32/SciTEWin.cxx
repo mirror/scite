@@ -2161,18 +2161,40 @@ uptr_t SciTEWin::EventLoop() {
 #pragma warning(disable: 28251)
 #endif
 
-int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
+#ifndef LOAD_LIBRARY_SEARCH_APPLICATION_DIR
+#define LOAD_LIBRARY_SEARCH_APPLICATION_DIR 0x200
+#endif
+#ifndef LOAD_LIBRARY_SEARCH_SYSTEM32
+#define LOAD_LIBRARY_SEARCH_SYSTEM32 0x800
+#endif
 
-	typedef BOOL (WINAPI *SetDllDirectorySig)(LPCTSTR lpPathName);
+static void RestrictDLLPath() {
+	// Try to limit the locations where DLLs will be loaded from to prevent binary planting.
+	// That is where a bad DLL is placed in the current directory or in the PATH.
+	typedef BOOL(WINAPI *SetDefaultDllDirectoriesSig)(DWORD DirectoryFlags);
+	typedef BOOL(WINAPI *SetDllDirectorySig)(LPCTSTR lpPathName);
 	HMODULE kernel32 = ::GetModuleHandle(TEXT("kernel32.dll"));
 	if (kernel32) {
-		SetDllDirectorySig SetDllDirectoryFn = (SetDllDirectorySig)::GetProcAddress(
-			kernel32, "SetDllDirectoryW");
-		if (SetDllDirectoryFn) {
-			// For security, remove current directory from the DLL search path
-			SetDllDirectoryFn(TEXT(""));
+		// SetDefaultDllDirectories is stronger, limiting search path to just the application and
+		// system directories but is only available on Windows 8+
+		SetDefaultDllDirectoriesSig SetDefaultDllDirectoriesFn = (SetDefaultDllDirectoriesSig)::GetProcAddress(
+			kernel32, "SetDefaultDllDirectories");
+		if (SetDefaultDllDirectoriesFn) {
+			SetDefaultDllDirectoriesFn(LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32);
+		} else {
+			SetDllDirectorySig SetDllDirectoryFn = (SetDllDirectorySig)::GetProcAddress(
+				kernel32, "SetDllDirectoryW");
+			if (SetDllDirectoryFn) {
+				// For security, remove current directory from the DLL search path
+				SetDllDirectoryFn(TEXT(""));
+			}
 		}
 	}
+}
+
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
+
+	RestrictDLLPath();
 
 #ifndef NO_EXTENSIONS
 	MultiplexExtension multiExtender;
