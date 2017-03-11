@@ -1490,16 +1490,13 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			int tabSize = wEditor.Call(SCI_GETTABWIDTH);
 			if (tabSize > 99)
 				tabSize = 99;
-			char tmp[3];
-			sprintf(tmp, "%d", tabSize);
-			::SetDlgItemTextA(hDlg, IDTABSIZE, tmp);
+			::SetDlgItemInt(hDlg, IDTABSIZE, tabSize, FALSE);
 
 			::SendDlgItemMessage(hDlg, IDINDENTSIZE, EM_LIMITTEXT, 2, 1);
 			int indentSize = wEditor.Call(SCI_GETINDENT);
 			if (indentSize > 99)
 				indentSize = 99;
-			sprintf(tmp, "%d", indentSize);
-			::SetDlgItemTextA(hDlg, IDINDENTSIZE, tmp);
+			::SetDlgItemInt(hDlg, IDINDENTSIZE, indentSize, FALSE);
 
 			::CheckDlgButton(hDlg, IDUSETABS, wEditor.Call(SCI_GETUSETABS));
 			return TRUE;
