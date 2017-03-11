@@ -80,15 +80,23 @@ void SciTEWin::TabInsert(int index, const GUI::gui_char *title) {
 	tie.iImage = -1;
 	GUI::gui_string titleCopy(title, title + wcslen(title) + 1);
 	tie.pszText = &titleCopy[0];
-	::SendMessage(HwndOf(wTabBar), TCM_INSERTITEMW, index, reinterpret_cast<LPARAM>(&tie));
+	TabCtrl_InsertItem(HwndOf(wTabBar), index, &tie);
 }
 
 void SciTEWin::TabSelect(int index) {
-	::SendMessage(HwndOf(wTabBar), TCM_SETCURSEL, index, 0);
+	TabCtrl_SetCurSel(HwndOf(wTabBar), index);
 }
 
 void SciTEWin::RemoveAllTabs() {
-	::SendMessage(HwndOf(wTabBar), TCM_DELETEALLITEMS, 0, 0);
+	TabCtrl_DeleteAllItems(HwndOf(wTabBar));
+}
+
+static int TabAtPoint(HWND hWnd, GUI::Point pt) {
+	TCHITTESTINFO thti;
+	thti.pt.x = pt.x;
+	thti.pt.y = pt.y;
+	thti.flags = 0;
+	return TabCtrl_HitTest(hWnd, &thti);
 }
 
 /**
@@ -99,8 +107,7 @@ void SciTEWin::Notify(const SCNotification *notification) {
 	case TCN_SELCHANGE:
 		// Change of tab
 		if (notification->nmhdr.idFrom == IDM_TABWIN) {
-			int index = static_cast<int>(
-				::SendMessage(HwndOf(wTabBar), TCM_GETCURSEL, 0, 0));
+			const int index = TabCtrl_GetCurSel(HwndOf(wTabBar));
 			SetDocumentAt(index);
 			CheckReload();
 		}
@@ -114,11 +121,7 @@ void SciTEWin::Notify(const SCNotification *notification) {
 			::GetCursorPos(PointPointer(&ptCursor));
 			GUI::Point ptClient = ptCursor;
 			::ScreenToClient(HwndOf(wTabBar), PointPointer(&ptClient));
-			TCHITTESTINFO info;
-			info.pt.x = ptClient.x;
-			info.pt.y = ptClient.y;
-
-			int tabbarHitLast = TabCtrl_HitTest(HwndOf(wTabBar), &info);
+			const int tabbarHitLast = TabAtPoint(HwndOf(wTabBar), ptClient);
 
 			if (buffers.Current() != tabbarHitLast) {
 				SetDocumentAt(tabbarHitLast);
@@ -234,11 +237,7 @@ void SciTEWin::Notify(const SCNotification *notification) {
 					::GetCursorPos(PointPointer(&ptCursor));
 					GUI::Point ptClient = ptCursor;
 					::ScreenToClient(HwndOf(wTabBar), PointPointer(&ptClient));
-					TCHITTESTINFO info;
-					info.pt.x = ptClient.x;
-					info.pt.y = ptClient.y;
-					int index = static_cast<int>(
-						::SendMessage(HwndOf(wTabBar), TCM_HITTEST, (WPARAM)0, (LPARAM) & info));
+					const int index = TabAtPoint(HwndOf(wTabBar), ptClient);
 					if (index >= 0) {
 						GUI::gui_string path = buffers.buffers[index].AsInternal();
 						// Handle '&' characters in path, since they are interpreted in
@@ -366,7 +365,7 @@ void SciTEWin::SizeSubWindows() {
 
 	if (tabVisible) {	// ? hide one tab only
 		showTab = tabHideOne ?
-		          ::SendMessage(HwndOf(wTabBar), TCM_GETITEMCOUNT, 0, 0) > 1 :
+		          TabCtrl_GetItemCount(HwndOf(wTabBar)) > 1 :
 		          true;
 	}
 
@@ -378,8 +377,7 @@ void SciTEWin::SizeSubWindows() {
 	}
 
 	RECT r = { rcClient.left, 0, rcClient.right, 0 };
-	::SendMessage(HwndOf(wTabBar),
-		TCM_ADJUSTRECT, TRUE, LPARAM(&r));
+	TabCtrl_AdjustRect(HwndOf(wTabBar), TRUE, &r);
 	bands[bandTab].height = r.bottom - r.top - 4;
 
 	bands[bandBackground].visible = backgroundStrip.visible;
@@ -645,11 +643,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 
 	case WM_LBUTTONDOWN: {
 			GUI::Point pt = PointFromLong(lParam);
-			TCHITTESTINFO thti;
-			thti.pt.x = pt.x;
-			thti.pt.y = pt.y;
-			thti.flags = 0;
-			st_iLastClickTab = static_cast<int>(::SendMessage(hWnd, TCM_HITTEST, (WPARAM)0, (LPARAM) & thti));
+			st_iLastClickTab = TabAtPoint(hWnd, pt);
 		}
 		break;
 	}
@@ -666,11 +660,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	case WM_MBUTTONDOWN: {
 			// Check if on tab bar
 			GUI::Point pt = PointFromLong(lParam);
-			TCHITTESTINFO thti;
-			thti.pt.x = pt.x;
-			thti.pt.y = pt.y;
-			thti.flags = 0;
-			int tab = static_cast<int>(::SendMessage(hWnd, TCM_HITTEST, (WPARAM)0, (LPARAM) & thti));
+			const int tab = TabAtPoint(hWnd, pt);
 			if (tab >= 0) {
 				::SendMessage(::GetParent(hWnd), WM_COMMAND, IDC_TABCLOSE, (LPARAM)tab);
 			}
@@ -685,11 +675,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 				st_bDragBegin = FALSE;
 				GUI::Point pt = PointFromLong(lParam);
-				TCHITTESTINFO thti;
-				thti.pt.x = pt.x;
-				thti.pt.y = pt.y;
-				thti.flags = 0;
-				int tab = static_cast<int>(::SendMessage(hWnd, TCM_HITTEST, (WPARAM)0, (LPARAM) & thti));
+				const int tab = TabAtPoint(hWnd, pt);
 				if (tab > -1 && st_iDraggingTab > -1 && st_iDraggingTab != tab) {
 					::SendMessage(::GetParent(hWnd),
 					        WM_COMMAND,
@@ -719,12 +705,8 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	case WM_MOUSEMOVE: {
 
 			GUI::Point pt = PointFromLong(lParam);
-			TCHITTESTINFO thti;
-			thti.pt.x = pt.x;
-			thti.pt.y = pt.y;
-			thti.flags = 0;
-			int tab = static_cast<int>(::SendMessage(hWnd, TCM_HITTEST, (WPARAM)0, (LPARAM) & thti));
-			int tabcount = static_cast<int>(::SendMessage(hWnd, TCM_GETITEMCOUNT, (WPARAM)0, (LPARAM)0));
+			const int tab = TabAtPoint(hWnd, pt);
+			const int tabcount = TabCtrl_GetItemCount(hWnd);
 
 			if (wParam == MK_LBUTTON &&
 			        tabcount > 1 &&
@@ -759,11 +741,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 				::GetCursorPos(PointPointer(&ptCursor));
 				GUI::Point ptClient = ptCursor;
 				::ScreenToClient(hWnd, PointPointer(&ptClient));
-				TCHITTESTINFO thti;
-				thti.pt.x = ptClient.x;
-				thti.pt.y = ptClient.y;
-				thti.flags = 0;
-				int tab = static_cast<int>(::SendMessage(hWnd, TCM_HITTEST, (WPARAM)0, (LPARAM) & thti));
+				const int tab = TabAtPoint(hWnd, ptClient);
 
 				RECT tabrc;
 				if (tab != -1 &&
