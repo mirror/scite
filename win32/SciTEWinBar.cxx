@@ -584,12 +584,10 @@ void SciTEWin::LocaliseMenus() {
 }
 
 void SciTEWin::LocaliseControl(HWND w) {
-	char wtext[200];
-	if (::GetWindowTextA(w, wtext, sizeof(wtext))) {
-		GUI::gui_string text = localiser.Text(wtext, false);
-		if (text.length())
-			::SetWindowTextW(w, text.c_str());
-	}
+	std::string originalText = GUI::UTF8FromString(TextOfWindow(w));
+	GUI::gui_string translatedText = localiser.Text(originalText.c_str(), false);
+	if (translatedText.length())
+		::SetWindowTextW(w, translatedText.c_str());
 }
 
 void SciTEWin::LocaliseDialog(HWND wDialog) {

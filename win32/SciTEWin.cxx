@@ -617,10 +617,8 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 	if (!menuSource) {
 		if (!wEditor.HasFocus() && !wOutput.HasFocus()) {
 			HWND wWithFocus = ::GetFocus();
-			enum { capSize = 2000 };
-			GUI::gui_char classNameFocus[capSize];
-			::GetClassName(wWithFocus, classNameFocus, capSize);
-			if (wcscmp(classNameFocus, TEXT("Edit")) == 0) {
+			const GUI::gui_string classNameFocus = ClassNameOfWindow(wWithFocus);
+			if (classNameFocus == GUI_TEXT("Edit")) {
 				switch (cmdID) {
 				case IDM_UNDO:
 					::SendMessage(wWithFocus, EM_UNDO, 0, 0);

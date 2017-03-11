@@ -14,6 +14,8 @@
 
 void *PointerFromWindow(HWND hWnd);
 void SetWindowPointer(HWND hWnd, void *ptr);
+GUI::gui_string TextOfWindow(HWND hWnd);
+GUI::gui_string ClassNameOfWindow(HWND hWnd);
 
 class BaseWin : public GUI::Window {
 protected:

@@ -15,6 +15,27 @@ void SetWindowPointer(HWND hWnd, void *ptr) {
 	::SetWindowLongPtr(hWnd, 0, reinterpret_cast<LONG_PTR>(ptr));
 }
 
+GUI::gui_string TextOfWindow(HWND hWnd) {
+	const int len = ::GetWindowTextLengthW(hWnd);
+	std::vector<GUI::gui_char> itemText(len+1);
+	GUI::gui_string gsText;
+	if (::GetWindowTextW(hWnd, &itemText[0], len+1)) {
+		gsText = GUI::gui_string(&itemText[0], len);
+	}
+	return gsText;
+}
+
+GUI::gui_string ClassNameOfWindow(HWND hWnd) {
+	// In the documentation of WNDCLASS:
+	// "The maximum length for lpszClassName is 256."
+	const size_t maxClassNameLength = 256+1;	// +1 for NUL
+	GUI::gui_char className[maxClassNameLength];
+	if (::GetClassNameW(hWnd, className, maxClassNameLength))
+		return GUI::gui_string(className);
+	else
+		return GUI::gui_string();
+}
+
 static void SetFontHandle(GUI::Window &w, HFONT hfont) {
 	SetWindowFont(HwndOf(w), hfont, 0);
 }
@@ -41,25 +62,12 @@ static int WidthControl(GUI::Window &w) {
 }
 
 static GUI::gui_string ControlGText(GUI::Window w) {
-	HWND wT = HwndOf(w);
-	int len = ::GetWindowTextLengthW(wT) + 1;
-	std::vector<GUI::gui_char> itemText(len);
-	GUI::gui_string gsText;
-	if (::GetWindowTextW(wT, &itemText[0], len)) {
-		gsText = GUI::gui_string(&itemText[0]);
-	}
-	return gsText;
+	return TextOfWindow(HwndOf(w));
 }
 
 static std::string ControlText(GUI::Window w) {
-	HWND wT = HwndOf(w);
-	int len = ::GetWindowTextLengthW(wT) + 1;
-	std::vector<GUI::gui_char> itemText(len);
-	GUI::gui_string gsFind;
-	if (::GetWindowText(wT, &itemText[0], len)) {
-		gsFind = GUI::gui_string(&itemText[0]);
-	}
-	return GUI::UTF8FromString(gsFind.c_str());
+	const GUI::gui_string gsText = ControlGText(w);
+	return GUI::UTF8FromString(gsText);
 }
 
 static std::string ComboSelectionText(GUI::Window w) {
@@ -303,16 +311,12 @@ bool Strip::KeyDown(WPARAM key) {
 		if ((::GetKeyState(VK_MENU) & 0x80000000) != 0) {
 			HWND wChild = ::GetWindow(Hwnd(), GW_CHILD);
 			while (wChild) {
-				enum { capSize = 2000 };
-				GUI::gui_char className[capSize];
-				::GetClassName(wChild, className, capSize);
-				if ((wcscmp(className, TEXT("Button")) == 0) ||
-					(wcscmp(className, TEXT("Static")) == 0)) {
-					GUI::gui_char caption[capSize];
-					::GetWindowText(wChild, caption, capSize);
+				const GUI::gui_string className = ClassNameOfWindow(wChild);
+				if ((className == TEXT("Button")) || (className == TEXT("Static"))) {
+					GUI::gui_string caption = TextOfWindow(wChild);
 					for (int i=0; caption[i]; i++) {
 						if ((caption[i] == L'&') && (toupper(caption[i+1]) == static_cast<int>(key))) {
-							if (wcscmp(className, TEXT("Button")) == 0) {
+							if (className == TEXT("Button")) {
 								::SendMessage(wChild, BM_CLICK, 0, 0);
 							} else {	// Static caption
 								wChild = ::GetWindow(wChild, GW_HWNDNEXT);

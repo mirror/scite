@@ -780,14 +780,7 @@ public:
 	}
 
 	GUI::gui_string ItemTextG(int id) {
-		HWND wT = Item(id);
-		int len = ::GetWindowTextLengthW(wT) + 1;
-		std::vector<GUI::gui_char> itemText(len);
-		if (::GetDlgItemTextW(hDlg, id, &itemText[0], len)) {
-			return GUI::gui_string(&itemText[0]);
-		} else {
-			return GUI::gui_string();
-		}
+		return TextOfWindow(Item(id));
 	}
 
 	void SetItemText(int id, const GUI::gui_char *s) {
