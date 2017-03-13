@@ -635,7 +635,7 @@ protected:
 	virtual void SetFileProperties(PropSetFile &ps);
 	virtual void UpdateStatusBar(bool bUpdateSlowData);
 
-	virtual void Notify(const SCNotification *notification);
+	virtual void Notify(SCNotification *notification) override;
 	virtual void ShowToolBar();
 	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
@@ -998,7 +998,7 @@ void SciTEGTK::UpdateStatusBar(bool bUpdateSlowData) {
 	SciTEBase::UpdateStatusBar(bUpdateSlowData);
 }
 
-void SciTEGTK::Notify(const SCNotification *notification) {
+void SciTEGTK::Notify(SCNotification *notification) {
 	if (notification->nmhdr.idFrom == IDM_SRCWIN) {
 		if (notification->nmhdr.code == SCN_FOCUSIN)
 			Activate(true);

@@ -3822,7 +3822,7 @@ void SciTEBase::NewLineInOutput() {
 	Execute();
 }
 
-void SciTEBase::Notify(const SCNotification *notification) {
+void SciTEBase::Notify(SCNotification *notification) {
 	bool handled = false;
 	switch (notification->nmhdr.code) {
 	case SCN_PAINTED:

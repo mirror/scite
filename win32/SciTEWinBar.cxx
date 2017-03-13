@@ -35,7 +35,7 @@ void SciTEWin::SetFileProperties(
 		                NULL, temp, TEMP_LEN);
 		ps.Set("FileDate", temp);
 
-		DWORD attr = ::GetFileAttributesW(filePath.AsInternal());
+		const DWORD attr = ::GetFileAttributesW(filePath.AsInternal());
 		std::string fa;
 		if (attr & FILE_ATTRIBUTE_READONLY) {
 			fa += "R";
@@ -91,7 +91,21 @@ void SciTEWin::RemoveAllTabs() {
 	TabCtrl_DeleteAllItems(HwndOf(wTabBar));
 }
 
-static int TabAtPoint(HWND hWnd, GUI::Point pt) {
+GUI::Point PointOfCursor() {
+	POINT ptCursor;
+	::GetCursorPos(&ptCursor);
+	return GUI::Point(ptCursor.x, ptCursor.y);
+}
+
+GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen) {
+	POINT ptClient = { ptScreen.x, ptScreen.y };
+	::ScreenToClient(hWnd, &ptClient);
+	return GUI::Point(ptClient.x, ptClient.y);
+}
+
+namespace {
+
+int TabAtPoint(HWND hWnd, GUI::Point pt) {
 	TCHITTESTINFO thti;
 	thti.pt.x = pt.x;
 	thti.pt.y = pt.y;
@@ -99,10 +113,12 @@ static int TabAtPoint(HWND hWnd, GUI::Point pt) {
 	return TabCtrl_HitTest(hWnd, &thti);
 }
 
+}
+
 /**
  * Manage Windows specific notifications.
  */
-void SciTEWin::Notify(const SCNotification *notification) {
+void SciTEWin::Notify(SCNotification *notification) {
 	switch (notification->nmhdr.code) {
 	case TCN_SELCHANGE:
 		// Change of tab
@@ -117,10 +133,8 @@ void SciTEWin::Notify(const SCNotification *notification) {
 		// Right click on a control
 		if (notification->nmhdr.idFrom == IDM_TABWIN) {
 
-			GUI::Point ptCursor;
-			::GetCursorPos(PointPointer(&ptCursor));
-			GUI::Point ptClient = ptCursor;
-			::ScreenToClient(HwndOf(wTabBar), PointPointer(&ptClient));
+			const GUI::Point ptCursor = PointOfCursor();
+			const GUI::Point ptClient = ClientFromScreen(HwndOf(wTabBar), ptCursor);
 			const int tabbarHitLast = TabAtPoint(HwndOf(wTabBar), ptClient);
 
 			if (buffers.Current() != tabbarHitLast) {
@@ -161,7 +175,7 @@ void SciTEWin::Notify(const SCNotification *notification) {
 		// Click on a control
 		if (notification->nmhdr.idFrom == IDM_STATUSWIN) {
 			// Click on the status bar
-			NMMOUSE *pNMMouse = (NMMOUSE *)notification;
+			const NMMOUSE *pNMMouse = reinterpret_cast<NMMOUSE *>(notification);
 			switch (pNMMouse->dwItemSpec) {
 			case 0: 		/* Display of status */
 				sbNum++;
@@ -180,7 +194,7 @@ void SciTEWin::Notify(const SCNotification *notification) {
 		// Ask for tooltip text
 		{
 			const GUI::gui_char *ttext = 0;
-			NMTTDISPINFOW *pDispInfo = (NMTTDISPINFOW *)notification;
+			NMTTDISPINFOW *pDispInfo = reinterpret_cast<NMTTDISPINFOW *>(notification);
 			// Toolbar tooltips
 			switch (notification->nmhdr.idFrom) {
 			case IDM_NEW:
@@ -233,10 +247,7 @@ void SciTEWin::Notify(const SCNotification *notification) {
 				break;
 			default: {
 					// notification->nmhdr.idFrom appears to be the buffer number for tabbar tooltips
-					GUI::Point ptCursor;
-					::GetCursorPos(PointPointer(&ptCursor));
-					GUI::Point ptClient = ptCursor;
-					::ScreenToClient(HwndOf(wTabBar), PointPointer(&ptClient));
+					const GUI::Point ptClient = ClientFromScreen(HwndOf(wTabBar), PointOfCursor());
 					const int index = TabAtPoint(HwndOf(wTabBar), ptClient);
 					if (index >= 0) {
 						GUI::gui_string path = buffers.buffers[index].AsInternal();
@@ -308,7 +319,7 @@ void SciTEWin::ActivateWindow(const char *) {
 enum { tickerID = 100 };
 
 void SciTEWin::TimerStart(int mask) {
-	int maskNew = timerMask | mask;
+	const int maskNew = timerMask | mask;
 	if (timerMask != maskNew) {
 		if (timerMask == 0) {
 			// Create a 1 second ticker
@@ -319,7 +330,7 @@ void SciTEWin::TimerStart(int mask) {
 }
 
 void SciTEWin::TimerEnd(int mask) {
-	int maskNew = timerMask & ~mask;
+	const int maskNew = timerMask & ~mask;
 	if (timerMask != maskNew) {
 		if (maskNew == 0) {
 			::KillTimer(HwndOf(wSciTE), tickerID);
@@ -469,7 +480,7 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 		// tools, and for other menu entries it is just discarded.
 	}
 
-	UINT typeFlags = (text[0]) ? MF_STRING : MF_SEPARATOR;
+	const UINT typeFlags = (text[0]) ? MF_STRING : MF_SEPARATOR;
 	if (::GetMenuState(hmenu, itemID, MF_BYCOMMAND) == (UINT)(-1)) {
 		// Not present so insert
 		::InsertMenuW(hmenu, position, MF_BYPOSITION | typeFlags, itemID, sTextMnemonic.c_str());
@@ -659,10 +670,10 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 
 	case WM_MBUTTONDOWN: {
 			// Check if on tab bar
-			GUI::Point pt = PointFromLong(lParam);
+			const GUI::Point pt = PointFromLong(lParam);
 			const int tab = TabAtPoint(hWnd, pt);
 			if (tab >= 0) {
-				::SendMessage(::GetParent(hWnd), WM_COMMAND, IDC_TABCLOSE, (LPARAM)tab);
+				::SendMessage(::GetParent(hWnd), WM_COMMAND, IDC_TABCLOSE, tab);
 			}
 		}
 		break;
@@ -674,7 +685,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 				::ReleaseCapture();
 				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 				st_bDragBegin = FALSE;
-				GUI::Point pt = PointFromLong(lParam);
+				const GUI::Point pt = PointFromLong(lParam);
 				const int tab = TabAtPoint(hWnd, pt);
 				if (tab > -1 && st_iDraggingTab > -1 && st_iDraggingTab != tab) {
 					::SendMessage(::GetParent(hWnd),
@@ -704,7 +715,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 
 	case WM_MOUSEMOVE: {
 
-			GUI::Point pt = PointFromLong(lParam);
+			const GUI::Point pt = PointFromLong(lParam);
 			const int tab = TabAtPoint(hWnd, pt);
 			const int tabcount = TabCtrl_GetItemCount(hWnd);
 
@@ -737,10 +748,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	case WM_PAINT: {
 			if (st_bDragBegin == TRUE && st_iDraggingTab != -1) {
 
-				GUI::Point ptCursor;
-				::GetCursorPos(PointPointer(&ptCursor));
-				GUI::Point ptClient = ptCursor;
-				::ScreenToClient(hWnd, PointPointer(&ptClient));
+				const GUI::Point ptClient = ClientFromScreen(hWnd, PointOfCursor());
 				const int tab = TabAtPoint(hWnd, ptClient);
 
 				RECT tabrc;
@@ -877,7 +885,7 @@ void SciTEWin::Creation() {
 		addbmp.nID = IDR_CLOSEFILE24;
 	}
 	
-	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, (LPARAM)&addbmp);
+	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, reinterpret_cast<LPARAM>(&addbmp));
 
 	TBBUTTON tbb[ELEMENTS(bbs)];
 	for (unsigned int i = 0;i < ELEMENTS(bbs);i++) {

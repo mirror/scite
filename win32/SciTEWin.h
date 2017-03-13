@@ -302,7 +302,7 @@ protected:
 	/// Warn the user, by means defined in its properties.
 	virtual void WarnUser(int warnID);
 
-	virtual void Notify(const SCNotification *notification);
+	virtual void Notify(SCNotification *notification) override;
 	virtual void ShowToolBar();
 	virtual void ShowTabBar();
 	virtual void ShowStatusBar();
@@ -413,6 +413,9 @@ public:
 inline bool IsKeyDown(int key) {
 	return (::GetKeyState(key) & 0x80000000) != 0;
 }
+
+GUI::Point PointOfCursor();
+GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen);
 
 // Common minor conversions
 

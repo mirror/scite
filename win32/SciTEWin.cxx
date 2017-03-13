@@ -665,7 +665,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case IDC_TABCLOSE:
-		CloseTab((int)lParam);
+		CloseTab(static_cast<int>(lParam));
 		break;
 
 	case IDC_SHIFTTAB:
@@ -2080,12 +2080,9 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_SETCURSOR:
 		if (ControlIDOfCommand(static_cast<unsigned long>(lParam)) == HTCLIENT) {
-			GUI::Point ptCursor;
-			::GetCursorPos(PointPointer(&ptCursor));
-			GUI::Point ptClient = ptCursor;
-			::ScreenToClient(pSciTEWin->MainHWND(), PointPointer(&ptClient));
-			GUI::Rectangle rcScintilla = pSciTEWin->wEditor.GetPosition();
-			GUI::Rectangle rcOutput = pSciTEWin->wOutput.GetPosition();
+			const GUI::Point ptCursor = PointOfCursor();
+			const GUI::Rectangle rcScintilla = pSciTEWin->wEditor.GetPosition();
+			const GUI::Rectangle rcOutput = pSciTEWin->wOutput.GetPosition();
 			if (!rcScintilla.Contains(ptCursor) && !rcOutput.Contains(ptCursor)) {
 				::SetCursor(::LoadCursor(NULL, pSciTEWin->splitVertical ? IDC_SIZEWE : IDC_SIZENS));
 				return TRUE;
