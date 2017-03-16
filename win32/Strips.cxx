@@ -340,17 +340,25 @@ bool Strip::Command(WPARAM) {
 void Strip::Size() {
 }
 
+namespace {
+
+RECT RECTFromRectangle(GUI::Rectangle r) {
+	RECT rc = { r.left, r.top, r.right, r.bottom };
+	return rc;
+}
+
+}
+
 void Strip::Paint(HDC hDC) {
 	GUI::Rectangle rcStrip = GetClientPosition();
-	RECT rc = {rcStrip.left, rcStrip.top, rcStrip.right, rcStrip.bottom};
+	RECT rc = RECTFromRectangle(rcStrip);
 	HBRUSH hbrFace = CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
 	::FillRect(hDC, &rc, hbrFace);
 	::DeleteObject(hbrFace);
 
 	if (HasClose()){
 		// Draw close box
-		GUI::Rectangle rcClose = CloseArea();
-		LPRECT prcClose = reinterpret_cast<RECT *>(&rcClose);
+		RECT rcClose = RECTFromRectangle(CloseArea());
 		if (hTheme) {
 #ifdef THEME_AVAILABLE
 			int closeAppearence = CBS_NORMAL;
@@ -360,7 +368,7 @@ void Strip::Paint(HDC hDC) {
 				closeAppearence = CBS_PUSHED;
 			}
 			::DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, closeAppearence,
-				prcClose, NULL);
+				&rcClose, NULL);
 #endif
 		} else {
 			int closeAppearence = 0;
@@ -370,7 +378,7 @@ void Strip::Paint(HDC hDC) {
 				closeAppearence = DFCS_PUSHED;
 			}
 
-			DrawFrameControl(hDC, prcClose, DFC_CAPTION,
+			DrawFrameControl(hDC, &rcClose, DFC_CAPTION,
 				DFCS_CAPTIONCLOSE | closeAppearence);
 		}
 	}
@@ -415,12 +423,7 @@ int Strip::Lines() const {
 }
 
 void Strip::InvalidateClose() {
-	GUI::Rectangle rcClose = CloseArea();
-	RECT rc = {
-		rcClose.left,
-		rcClose.top,
-		rcClose.right,
-		rcClose.bottom};
+	RECT rc = RECTFromRectangle(CloseArea());
 	::InvalidateRect(Hwnd(), &rc, TRUE);
 }
 
