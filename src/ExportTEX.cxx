@@ -48,9 +48,9 @@ static char* getTexRGB(char* texcolor, const char* stylecolor) {
 	double gf = IntFromHexByte(stylecolor + 3) / 256.0;
 	double bf = IntFromHexByte(stylecolor + 5) / 256.0;
 	// avoid breakage due to locale setting
-	int r = (int)(rf * 10 + 0.5);
-	int g = (int)(gf * 10 + 0.5);
-	int b = (int)(bf * 10 + 0.5);
+	int r = static_cast<int>(rf * 10 + 0.5);
+	int g = static_cast<int>(gf * 10 + 0.5);
+	int b = static_cast<int>(bf * 10 + 0.5);
 	sprintf(texcolor, "%d.%d, %d.%d, %d.%d", r / 10, r % 10, g / 10, g % 10, b / 10, b % 10);
 	return texcolor;
 }

@@ -20,7 +20,7 @@ static void FlashThisWindow(
 	if (hDC != NULL) {
 		RECT rc;
 		::GetClientRect(hWnd, &rc);
-		::FillRect(hDC, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
+		::FillRect(hDC, &rc, static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
 		::Sleep(duration);
 		::ReleaseDC(hWnd, hDC);
 	}
@@ -546,11 +546,11 @@ void SciTEWin::Print(
 	// area of the page.
 
 	// Convert device coordinates into logical coordinates
-	DPtoLP(hdc, (LPPOINT) &rectMargins, 2);
-	DPtoLP(hdc, (LPPOINT)&rectPhysMargins, 2);
+	DPtoLP(hdc, reinterpret_cast<LPPOINT>(&rectMargins), 2);
+	DPtoLP(hdc, reinterpret_cast<LPPOINT>(&rectPhysMargins), 2);
 
 	// Convert page size to logical units and we're done!
-	DPtoLP(hdc, (LPPOINT) &ptPage, 1);
+	DPtoLP(hdc, reinterpret_cast<LPPOINT>(&ptPage), 1);
 
 	std::string headerFormat = props.GetString("print.header.format");
 	std::string footerFormat = props.GetString("print.footer.format");

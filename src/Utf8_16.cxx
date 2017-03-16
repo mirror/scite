@@ -211,7 +211,9 @@ size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {
 		}
 	}
 
-	size_t ret = ::fwrite(m_pBuf, (const char*)pCur - (const char*)m_pBuf, 1, m_pFile);
+	size_t ret = ::fwrite(m_pBuf,
+		reinterpret_cast<const char*>(pCur) - reinterpret_cast<const char*>(m_pBuf),
+		1, m_pFile);
 
 	return ret;
 }

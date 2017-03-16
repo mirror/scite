@@ -404,7 +404,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			}
 			if (firstLine) {
 				// avoid breakage due to locale setting
-				int f = (int)(leading * 10 + 0.5);
+				int f = static_cast<int>(leading * 10 + 0.5);
 				sprintf(buffer, "0 -%d.%d TD\n", f / 10, f % 10);
 				firstLine = false;
 			} else {

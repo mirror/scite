@@ -242,11 +242,11 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 	toolInfo.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
 	toolInfo.hinst = ::GetModuleHandle(NULL);
 	toolInfo.hwnd = Hwnd();
-	toolInfo.uId = (UINT_PTR)w.GetID();
+	toolInfo.uId = reinterpret_cast<UINT_PTR>(w.GetID());
 	toolInfo.lpszText = LPSTR_TEXTCALLBACK;
 	::GetClientRect(Hwnd(), &toolInfo.rect);
 	::SendMessageW(HwndOf(wToolTip), TTM_ADDTOOLW,
-		0, (LPARAM) &toolInfo);
+		0, reinterpret_cast<LPARAM>(&toolInfo));
 	::SendMessage(HwndOf(wToolTip), TTM_ACTIVATE, TRUE, 0);
 	return w;
 }
@@ -486,7 +486,8 @@ static bool HideKeyboardCues() {
 }
 
 LRESULT Strip::EditColour(HWND hwnd, HDC hdc) {
-	return ::DefWindowProc(Hwnd(), WM_CTLCOLOREDIT, WPARAM(hdc), LPARAM(hwnd));
+	return ::DefWindowProc(Hwnd(), WM_CTLCOLOREDIT, reinterpret_cast<WPARAM>(hdc),
+		reinterpret_cast<LPARAM>(hwnd));
 }
 
 LRESULT Strip::CustomDraw(NMHDR *pnmh) {

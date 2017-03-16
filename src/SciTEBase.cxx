@@ -2170,7 +2170,7 @@ bool SciTEBase::StartBoxComment() {
 			// And since we didn't find the end-comment string yet, we need to check the *next* line
 			//  to see if it's necessary to insert an end-comment string and a linefeed there....
 			lineStart = wEditor.Call(SCI_POSITIONFROMLINE, selEndLine + 1);
-			tempString = GetRangeString(wEditor, lineStart, lineStart + (int)end_comment_length);
+			tempString = GetRangeString(wEditor, lineStart, lineStart + static_cast<int>(end_comment_length));
 			if (end_comment != tempString) {
 				end_comment += eol;
 				wEditor.CallString(SCI_INSERTTEXT, lineStart, end_comment.c_str());
@@ -4427,7 +4427,7 @@ bool SciTEBase::RecordMacroCommand(const SCNotification *notification) {
 		sMessage += ";";
 		sMessage += StdStringFromSizeT(static_cast<size_t>(notification->wParam));
 		sMessage += ";";
-		const char *t = (const char *)(notification->lParam);
+		const char *t = reinterpret_cast<const char *>(notification->lParam);
 		if (t != NULL) {
 			//format : "<message>;<wParam>;1;<text>"
 			sMessage += "1;";
