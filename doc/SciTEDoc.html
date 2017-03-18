@@ -682,7 +682,7 @@ NameError: mistake
        expansion defined in the Abbreviations file. You can open the
        Abbreviations file with a command in the Options menu and
        add abbreviations. There is a default abbreviations file but a different
-	    abbreviations file can be set for particular file extensions.
+       abbreviations file can be set for particular file extensions.
     </p>
     <p>
        Each line in the files looks like "abbreviation=expansion".<br />
@@ -757,16 +757,16 @@ NameError: mistake
        <li>Directory properties file called "SciTEDirectory.properties" which may be
        present in the same or in a parent directory as the file being edited.</li>
        <li>User properties file called "SciTEUser.properties" on Windows
-       and ".SciTEUser.properties" on GTK+</li>
-       <li>Global properties file called "SciTEGlobal.properties"</li>
+       and ".SciTEUser.properties" on GTK+.</li>
+       <li>Global properties file called "SciTEGlobal.properties".</li>
        </ul>
     <p>
       Settings in the local properties file override those in the directory properties file
-	   which overrides those in the user properties file which override those
+      which overrides those in the user properties file which override those
       in the global properties files. Environment variables are also available as properties and these
       are overridden by an explicit setting in one of the properties files.
     </p>
-	<p>
+    <p>
       The directory properties file can be used as project options file where user commands and
       compile, build commands should work in the same manner in subdirectories of a project. The
       benefit is that local properties files in subdirectories can be replaced by one properties file
@@ -783,6 +783,11 @@ NameError: mistake
       command for compiling .java files to "javac". If I want to use the jvc compiler for the files
       in one directory, then the SciTE.properties file in that directory contains an entry setting
       the command to "jvc".
+    </p>
+    <p>
+      The global properties file should not be edited by the user as it is replaced with
+      each release. Instead copy the property into the user properties file
+      and change it there.
     </p>
     <p>
      On Windows, the global properties file is located in the directory of the executable.
