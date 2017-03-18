@@ -111,7 +111,7 @@
     </p>
     <blockquote>
 <kbd>
-print "Hi"
+print("hi")
 </kbd>
     </blockquote>
     <p>
@@ -122,15 +122,14 @@ print "Hi"
     the syntax styling to use:
     <blockquote>
         <code>
-                <b><font color="#000080">print </font></b>
-                <i><font color="#800080">"hi"</font></i>
+                <b><font color="#000080">print</font></b><b><font color="#000000">(</font></b><font color="#800080">"hi"</font><b><font color="#000000">)</font></b>
         </code>
     </blockquote>
     Perform the Tools | Go command.<br />
      The output window will be made visible if it is not already visible and will show:<br />
     <blockquote>
         <code>
-                <font color="#0000FF">&gt;python -u printhi.py</font><br />
+                <font color="#0000FF">&gt;pythonw -u printhi.py</font><br />
                 hi<br />
                 <font color="#0000FF">&gt;Exit code: 0</font>
         </code>
@@ -147,8 +146,8 @@ print "Hi"
     </p>
     <blockquote>
         <code>
-        <span style="color:#000080;font-weight:bold;">print </span>
-        <span style="color:#800080;font-style:italic;">"hi"</span><br />
+        <span style="color:#000080;font-weight:bold;">print</span><span style="color:#000000;font-weight:bold;">(</span><span style="color:#800080;">"hi"</span><span style="color:#000000;font-weight:bold;">)</span>
+        <br />
         mistake
         </code>
     </blockquote>
@@ -157,12 +156,12 @@ print "Hi"
     </p>
     <blockquote>
 <pre>
-<span style="color:#0000FF">&gt;python -u printhi.py</span>
+<span style="color:#0000FF">&gt;pythonw -u printhi.py</span>
 hi
-Traceback (innermost last):
-  <span style="color:#FF0000">File "printhi.py", line 2, in ?</span>
+Traceback (most recent call last):
+  <span style="color:#FF0000">File "printhi.py", line 2, in &lt;module&gt;</span>
     mistake
-NameError: mistake
+NameError: name 'mistake' is not defined
 <span style="color:#0000FF">&gt;Exit code: 1</span>
 </pre>
     </blockquote>
