@@ -810,7 +810,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 void SciTEWin::Creation() {
 
 	wContent = ::CreateWindowEx(
-	               WS_EX_CLIENTEDGE,
+	               flatterUI ? 0 : WS_EX_CLIENTEDGE,
 	               classNameInternal,
 	               TEXT("Source"),
 	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,

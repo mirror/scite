@@ -141,6 +141,32 @@ const TCHAR *SciTEWin::className = NULL;
 const TCHAR *SciTEWin::classNameInternal = NULL;
 SciTEWin *SciTEWin::app = NULL;
 
+namespace {
+
+// Using VerifyVersionInfo on Windows 10 will pretend its Windows 8
+// but that is good enough for switching UI elements to flatter.
+// The VersionHelpers.h functions can't be used as they aren't supported by GCC.
+
+bool UIShouldBeFlat() {
+	OSVERSIONINFOEX osvi = OSVERSIONINFOEX();
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	osvi.dwMajorVersion = 6;
+	osvi.dwMinorVersion = 2;
+
+	const BYTE op = VER_GREATER_EQUAL;
+	DWORDLONG dwlConditionMask = 0;
+	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
+	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, op);
+
+	return VerifyVersionInfo(
+		&osvi,
+		VER_MAJORVERSION | VER_MINORVERSION |
+		VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR,
+		dwlConditionMask);
+}
+
+}
+
 SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	app = this;
 
@@ -153,6 +179,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	findStrip.SetSearcher(this);
 	replaceStrip.SetLocalizer(&localiser);
 	replaceStrip.SetSearcher(this);
+
+	flatterUI = UIShouldBeFlat();
 
 	cmdShow = 0;
 	heightBar = 7;
@@ -1491,15 +1519,23 @@ void ContentWin::Paint(HDC hDC, GUI::Rectangle) {
 	int yBorder = heightEditor;
 	int xBorder = widthClient - pSciTEWin->heightOutput - pSciTEWin->heightBar;
 	for (int i = 0; i < pSciTEWin->heightBar; i++) {
-		HPEN pen;
-		if (i == 1)
-			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DHIGHLIGHT));
-		else if (i == pSciTEWin->heightBar - 2)
-			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DSHADOW));
-		else if (i == pSciTEWin->heightBar - 1)
-			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DDKSHADOW));
-		else
-			pen = ::CreatePen(0,1,::GetSysColor(COLOR_3DFACE));
+		int colourIndex = COLOR_3DFACE;
+		if (pSciTEWin->flatterUI) {
+			if (i == 0 || i == pSciTEWin->heightBar - 1)
+				colourIndex = COLOR_3DFACE;
+			else
+				colourIndex = COLOR_WINDOW;
+		} else {
+			if (i == 1)
+				colourIndex = COLOR_3DHIGHLIGHT;
+			else if (i == pSciTEWin->heightBar - 2)
+				colourIndex = COLOR_3DSHADOW;
+			else if (i == pSciTEWin->heightBar - 1)
+				colourIndex = COLOR_3DDKSHADOW;
+			else
+				colourIndex = COLOR_3DFACE;
+		}
+		HPEN pen = ::CreatePen(0, 1, ::GetSysColor(colourIndex));
 		HPEN penOld = static_cast<HPEN>(::SelectObject(hDC, pen));
 		if (pSciTEWin->splitVertical) {
 			::MoveToEx(hDC, xBorder + i, 0, 0);

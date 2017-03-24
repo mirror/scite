@@ -172,6 +172,7 @@ class SciTEWin : public SciTEBase {
 
 protected:
 
+	bool flatterUI;
 	int cmdShow;
 	static HINSTANCE hInstance;
 	static const TCHAR *className;
