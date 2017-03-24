@@ -433,6 +433,8 @@ protected:
 	int wrapStyle;
 	int alphaIndicator;
 	bool underIndicator;
+	std::string foldColour;
+	std::string foldHiliteColour;
 	bool openFilesHere;
 	bool fullScreen;
 	enum { toolMax = 50 };

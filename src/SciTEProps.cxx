@@ -887,13 +887,13 @@ void SciTEBase::ReadProperties() {
 	int selectionAdditionalAlpha = (selectionAlpha == SC_ALPHA_NOALPHA) ? SC_ALPHA_NOALPHA : selectionAlpha / 2;
 	CallChildren(SCI_SETADDITIONALSELALPHA, props.GetInt("selection.additional.alpha", selectionAdditionalAlpha));
 
-	std::string foldColour = props.GetExpandedString("fold.margin.colour");
+	foldColour = props.GetExpandedString("fold.margin.colour");
 	if (foldColour.length()) {
 		CallChildren(SCI_SETFOLDMARGINCOLOUR, 1, ColourFromString(foldColour));
 	} else {
 		CallChildren(SCI_SETFOLDMARGINCOLOUR, 0, 0);
 	}
-	std::string foldHiliteColour = props.GetExpandedString("fold.margin.highlight.colour");
+	foldHiliteColour = props.GetExpandedString("fold.margin.highlight.colour");
 	if (foldHiliteColour.length()) {
 		CallChildren(SCI_SETFOLDMARGINHICOLOUR, 1, ColourFromString(foldHiliteColour));
 	} else {

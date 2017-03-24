@@ -443,6 +443,13 @@ void SciTEWin::ReadPropertiesInitial() {
 
 void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
+	if (flatterUI) {
+		if (foldColour.empty() && foldHiliteColour.empty()) {
+			Colour lightMargin = ColourRGB(0xF7, 0xF7, 0xF7);
+			CallChildren(SCI_SETFOLDMARGINCOLOUR, 1, lightMargin);
+			CallChildren(SCI_SETFOLDMARGINHICOLOUR, 1, lightMargin);
+		}
+	}
 }
 
 static FilePath GetSciTEPath(const FilePath &home) {
