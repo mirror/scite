@@ -188,7 +188,7 @@ std::string SciTEBase::DiscoverLanguage() {
 }
 
 void SciTEBase::DiscoverIndentSetting() {
-	int lengthDoc = LengthDocument();
+	const int lengthDoc = std::min(LengthDocument(), 1000000);
 	TextReader acc(wEditor);
 	bool newline = true;
 	int indent = 0; // current line indentation
@@ -196,7 +196,7 @@ void SciTEBase::DiscoverIndentSetting() {
 	int prevIndent = 0; // previous line indentation
 	int prevTabSize = -1; // previous line tab size
 	for (int i = 0; i < lengthDoc; i++) {
-		char ch = acc[i];
+		const char ch = acc[i];
 		if (ch == '\r' || ch == '\n') {
 			indent = 0;
 			newline = true;
