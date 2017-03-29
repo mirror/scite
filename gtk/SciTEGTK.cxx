@@ -548,109 +548,109 @@ protected:
 	                       int val, GtkAccelGroup *accel_group, bool isDefault = false);
 	void SetIcon();
 
-	virtual void ReadLocalization();
-	virtual void ReadPropertiesInitial();
-	virtual void ReadProperties();
+	void ReadLocalization() override;
+	void ReadPropertiesInitial() override;
+	void ReadProperties() override;
 
 	static gboolean TimerTick(gpointer pSciTE);
-	virtual void TimerStart(int mask);
-	virtual void TimerEnd(int mask);
+	void TimerStart(int mask) override;
+	void TimerEnd(int mask) override;
 	static gboolean IdlerTick(gpointer pSciTE);
-	virtual void SetIdler(bool on);
+	void SetIdler(bool on) override;
 
-	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
+	void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) override;
 
-	virtual void SizeContentWindows();
-	virtual void SizeSubWindows();
+	void SizeContentWindows() override;
+	void SizeSubWindows() override;
 	bool UpdateOutputSize();
 
 	GtkWidget *MenuItemFromAction(int itemID);
-	virtual void SetMenuItem(int menuNumber, int position, int itemID,
-	                         const char *text, const char *mnemonic = 0);
-	virtual void DestroyMenuItem(int menuNumber, int itemID);
-	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
-	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
-	virtual void CheckMenusClipboard();
-	virtual void CheckMenus();
+	void SetMenuItem(int menuNumber, int position, int itemID,
+	                         const char *text, const char *mnemonic = 0) override;
+	void DestroyMenuItem(int menuNumber, int itemID) override;
+	void CheckAMenuItem(int wIDCheckItem, bool val) override;
+	void EnableAMenuItem(int wIDCheckItem, bool val) override;
+	void CheckMenusClipboard() override;
+	void CheckMenus() override;
 	static void PopUpCmd(GtkMenuItem *menuItem, SciTEGTK *scitew);
-	virtual void AddToPopUp(const char *label, int cmd = 0, bool enabled = true);
-	virtual void ExecuteNext();
+	void AddToPopUp(const char *label, int cmd = 0, bool enabled = true) override;
+	void ExecuteNext();
 	void ResetExecution();
 
-	virtual void OpenUriList(const char *list);
-	virtual bool OpenDialog(const FilePath &directory, const char *filter);
+	void OpenUriList(const char *list) override;
+	bool OpenDialog(const FilePath &directory, const char *filter) override;
 	bool HandleSaveAs(const char *savePath);
 	bool SaveAsXXX(FileFormat fmt, const char *title, const char *ext=0);
-	virtual bool SaveAsDialog();
-	virtual void SaveACopy();
-	virtual void SaveAsHTML();
-	virtual void SaveAsRTF();
-	virtual void SaveAsPDF();
-	virtual void SaveAsTEX();
-	virtual void SaveAsXML();
-	virtual void LoadSessionDialog();
-	virtual void SaveSessionDialog();
+	bool SaveAsDialog() override;
+	void SaveACopy() override;
+	void SaveAsHTML() override;
+	void SaveAsRTF() override;
+	void SaveAsPDF() override;
+	void SaveAsTEX() override;
+	void SaveAsXML() override;
+	void LoadSessionDialog() override;
+	void SaveSessionDialog() override;
 
 	void SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context);
 	void BeginPrintThis(GtkPrintOperation *operation, GtkPrintContext *context);
 	static void BeginPrint(GtkPrintOperation *operation, GtkPrintContext *context, SciTEGTK *scitew);
 	void DrawPageThis(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr);
 	static void DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr, SciTEGTK *scitew);
-	virtual void Print(bool);
-	virtual void PrintSetup();
+	void Print(bool) override;
+	void PrintSetup() override;
 
-	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
+	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd) override;
 
-	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style = mbsIconWarning);
-	virtual void FindMessageBox(const std::string &msg, const std::string *findItem=0);
-	virtual void AboutDialog();
-	virtual void QuitProgram();
+	MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style = mbsIconWarning) override;
+	void FindMessageBox(const std::string &msg, const std::string *findItem=0) override;
+	void AboutDialog() override;
+	void QuitProgram() override;
 
-	virtual std::string EncodeString(const std::string &s);
+	std::string EncodeString(const std::string &s) override;
 	void FindReplaceGrabFields();
-	virtual void Find();
-	virtual void UIClosed();
-	virtual void UIHasFocus();
+	void Find() override;
+	void UIClosed() override;
+	void UIHasFocus() override;
 	GtkWidget *TranslatedLabel(const char *original);
-	virtual void FindIncrement();
+	void FindIncrement() override;
 	void FindInFilesResponse(int responseID);
-	virtual void FindInFiles();
-	virtual void Replace();
+	void FindInFiles() override;
+	void Replace() override;
 	void FindReplaceResponse(int responseID);
-	virtual void FindReplace(bool replace);
-	virtual void DestroyFindReplace();
-	virtual void GoLineDialog();
-	virtual bool AbbrevDialog();
-	virtual void TabSizeDialog();
-	virtual bool ParametersDialog(bool modal);
+	void FindReplace(bool replace) override;
+	void DestroyFindReplace() override;
+	void GoLineDialog() override;
+	bool AbbrevDialog() override;
+	void TabSizeDialog() override;
+	bool ParametersDialog(bool modal) override;
 
-	virtual FilePath GetDefaultDirectory();
-	virtual FilePath GetSciteDefaultHome();
-	virtual FilePath GetSciteUserHome();
+	FilePath GetDefaultDirectory() override;
+	FilePath GetSciteDefaultHome() override;
+	FilePath GetSciteUserHome() override;
 
-	virtual void SetStatusBarText(const char *s);
-	virtual void TabInsert(int index, const GUI::gui_char *title);
-	virtual void TabSelect(int index);
-	virtual void RemoveAllTabs();
-	virtual void SetFileProperties(PropSetFile &ps);
-	virtual void UpdateStatusBar(bool bUpdateSlowData);
+	void SetStatusBarText(const char *s) override;
+	void TabInsert(int index, const GUI::gui_char *title) override;
+	void TabSelect(int index) override;
+	void RemoveAllTabs() override;
+	void SetFileProperties(PropSetFile &ps) override;
+	void UpdateStatusBar(bool bUpdateSlowData) override;
 
-	virtual void Notify(SCNotification *notification) override;
-	virtual void ShowToolBar();
-	virtual void ShowTabBar();
-	virtual void ShowStatusBar();
-	virtual void ActivateWindow(const char *timestamp);
-	void CopyPath();
+	void Notify(SCNotification *notification) override;
+	void ShowToolBar() override;
+	void ShowTabBar() override;
+	void ShowStatusBar() override;
+	void ActivateWindow(const char *timestamp) override;
+	void CopyPath() override;
 	bool &FlagFromCmd(int cmd);
 	void Command(unsigned long wParam, long lParam = 0);
 	void ContinueExecute(int fromPoll);
 
-	virtual void UserStripShow(const char *description);
-	virtual void UserStripSet(int control, const char *value);
-	virtual void UserStripSetList(int control, const char *value);
-	virtual const char *UserStripValue(int control);
+	void UserStripShow(const char *description) override;
+	void UserStripSet(int control, const char *value) override;
+	void UserStripSetList(int control, const char *value) override;
+	const char *UserStripValue(int control) override;
 	void UserStripClosed();
-	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress);
+	void ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress) override;
 
 	// Single instance
 	void SendFileName(int sendPipe, const char* filename);
@@ -686,8 +686,8 @@ protected:
 	void FRReplaceInBuffersCmd();
 	void FRMarkAllCmd();
 
-	virtual bool ParametersOpen();
-	virtual void ParamGrab();
+	bool ParametersOpen() override;
+	void ParamGrab() override;
 	void ParamCancelCmd();
 	void ParamCmd();
 	void ParamResponse(int responseID);
@@ -726,7 +726,7 @@ public:
 	explicit SciTEGTK(Extension *ext = 0);
 	~SciTEGTK();
 
-	void WarnUser(int warnID);
+	void WarnUser(int warnID) override;
 	GtkWidget *AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon);
 	void AddToolBar();
 	std::string TranslatePath(const char *path);
@@ -740,12 +740,12 @@ public:
 	void LayoutUI();
 	void Run(int argc, char *argv[]);
 	void ProcessExecute();
-	virtual void Execute();
-	virtual void StopExecute();
+	void Execute() override;
+	void StopExecute() override;
 	static int PollTool(SciTEGTK *scitew);
 	static void ReapChild(GPid, gint, gpointer);
-	virtual bool PerformOnNewThread(Worker *pWorker);
-	virtual void PostOnMainThread(int cmd, Worker *pWorker);
+	bool PerformOnNewThread(Worker *pWorker) override;
+	void PostOnMainThread(int cmd, Worker *pWorker) override;
 	static gboolean PostCallback(void *ptr);
 	// Single instance
 	void SetStartupTime(const char *timestamp);
