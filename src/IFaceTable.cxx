@@ -212,6 +212,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"IDM_JOIN",248},
 	{"IDM_LANGUAGE",1400},
 	{"IDM_LINENUMBERMARGIN",407},
+	{"IDM_LINEREVERSE",218},
 	{"IDM_LOADSESSION",132},
 	{"IDM_LWRCASE",241},
 	{"IDM_MACROLIST",314},
@@ -2967,6 +2968,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"LineEndWrapExtend", 2452, iface_void, {iface_void, iface_void}},
 	{"LineFromPosition", 2166, iface_int, {iface_position, iface_void}},
 	{"LineLength", 2350, iface_int, {iface_int, iface_void}},
+	{"LineReverse", 2354, iface_void, {iface_void, iface_void}},
 	{"LineScroll", 2168, iface_void, {iface_int, iface_int}},
 	{"LineScrollDown", 2342, iface_void, {iface_void, iface_void}},
 	{"LineScrollUp", 2343, iface_void, {iface_void, iface_void}},
@@ -3347,8 +3349,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 297,
-	ifaceConstantCount = 2679,
+	ifaceFunctionCount = 298,
+	ifaceConstantCount = 2680,
 	ifacePropertyCount = 227
 };
 

@@ -3831,6 +3831,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Edit/Stream Comme_nt", "<control><shift>Q", menuSig, IDM_STREAM_COMMENT, 0},
 	                                      {"/Edit/Make _Selection Uppercase", "<control><shift>U", menuSig, IDM_UPRCASE, 0},
 	                                      {"/Edit/Make Selection _Lowercase", "<control>U", menuSig, IDM_LWRCASE, 0},
+	                                      {"/Edit/Reverse Selected Lines", NULL, menuSig, IDM_LINEREVERSE, 0},
 	                                      {"/Edit/Para_graph", NULL, NULL, 0, "<Branch>"},
 	                                      {"/Edit/Paragraph/_Join", NULL, menuSig, IDM_JOIN, 0},
 	                                      {"/Edit/Paragraph/_Split", NULL, menuSig, IDM_SPLIT, 0},

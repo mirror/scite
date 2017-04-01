@@ -3285,6 +3285,10 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		CallFocused(SCI_LOWERCASE);
 		break;
 
+	case IDM_LINEREVERSE:
+		CallFocused(SCI_LINEREVERSE);
+		break;
+
 	case IDM_JOIN:
 		CallFocused(SCI_TARGETFROMSELECTION);
 		CallFocused(SCI_LINESJOIN);
