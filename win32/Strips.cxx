@@ -1070,7 +1070,9 @@ bool FindStrip::KeyDown(WPARAM key) {
 			if (incrementalBehaviour == simple) {
 				Next(false, IsKeyDown(VK_SHIFT));
 			} else {
-				if (pSearcher->closeFind != Searcher::CloseFind::closePrevent) {
+				if (pSearcher->closeFind == Searcher::CloseFind::closePrevent) {
+					Next(false, IsKeyDown(VK_SHIFT));
+				} else {
 					Close();
 				}
 			}
@@ -1120,7 +1122,9 @@ bool FindStrip::Command(WPARAM wParam) {
 		if (incrementalBehaviour == simple) {
 			Next(false, false);
 		} else {
-			if (pSearcher->closeFind != Searcher::CloseFind::closePrevent) {
+			if (pSearcher->closeFind == Searcher::CloseFind::closePrevent) {
+				Next(false, false);
+			} else {
 				Close();
 			}
 		}
