@@ -112,7 +112,7 @@ static std::string GetRTFStyleChange(const char *last, const char *current) { //
 }
 
 void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
-	int lengthDoc = LengthDocument();
+	const int lengthDoc = LengthDocument();
 	if (end < 0)
 		end = lengthDoc;
 	RemoveFindMarks();
@@ -121,14 +121,14 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	StyleDefinition defaultStyle = StyleDefinitionFor(STYLE_DEFAULT);
 
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
-	int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
+	const int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
 	std::string fontFace = props.GetExpandedString("export.rtf.font.face");
 	if (fontFace.length()) {
 		defaultStyle.font = fontFace;
 	} else if (defaultStyle.font.length() == 0) {
 		defaultStyle.font = RTF_FONTFACE;
 	}
-	int fontSize = props.GetInt("export.rtf.font.size", 0);
+	const int fontSize = props.GetInt("export.rtf.font.size", 0);
 	if (fontSize > 0) {
 		defaultStyle.size = fontSize << 1;
 	} else if (defaultStyle.size == 0) {
@@ -138,7 +138,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	}
 	const bool isUTF8 = wEditor.Call(SCI_GETCODEPAGE) == SC_CP_UTF8;
 	unsigned int characterset = props.GetInt("character.set", SC_CHARSET_DEFAULT);
-	int tabs = props.GetInt("export.rtf.tabs", 0);
+	const int tabs = props.GetInt("export.rtf.tabs", 0);
 	if (tabSize == 0)
 		tabSize = 4;
 
@@ -221,7 +221,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	TextReader acc(wEditor);
 	int column = 0;
 	for (int iPos = start; iPos < end; iPos++) {
-		char ch = acc[iPos];
+		const char ch = acc[iPos];
 		int style = acc.StyleAt(iPos);
 		if (style > STYLE_MAX)
 			style = 0;
@@ -242,7 +242,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 			if (tabs) {
 				os << RTF_TAB;
 			} else {
-				int ts = tabSize - (column % tabSize);
+				const int ts = tabSize - (column % tabSize);
 				for (int itab = 0; itab < ts; itab++) {
 					os << ' ';
 				}

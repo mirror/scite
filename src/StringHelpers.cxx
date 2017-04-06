@@ -108,8 +108,8 @@ void LowerCaseAZ(std::string &s) {
 int CompareNoCase(const char *a, const char *b) {
 	while (*a && *b) {
 		if (*a != *b) {
-			char upperA = MakeUpperCase(*a);
-			char upperB = MakeUpperCase(*b);
+			const char upperA = MakeUpperCase(*a);
+			const char upperB = MakeUpperCase(*b);
 			if (upperA != upperB)
 				return upperA - upperB;
 		}
@@ -229,7 +229,7 @@ static int GetHexaDigit(char ch) {
  * Convert C style \a, \b, \f, \n, \r, \t, \v, \ooo and \xhh into their indicated characters.
  */
 unsigned int UnSlash(char *s) {
-	char *sStart = s;
+	const char *sStart = s;
 	char *o = s;
 
 	while (*s) {
@@ -303,7 +303,7 @@ std::string UnSlashString(const char *s) {
  * This is used to get control characters into the regular expresion engine.
  */
 static unsigned int UnSlashLowOctal(char *s) {
-	char *sStart = s;
+	const char *sStart = s;
 	char *o = s;
 	while (*s) {
 		if ((s[0] == '\\') && (s[1] == '0') && IsOctalDigit(s[2]) && IsOctalDigit(s[3])) {

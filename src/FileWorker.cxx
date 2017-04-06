@@ -65,7 +65,7 @@ void FileLoader::Execute() {
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
 		size_t lenFile = fread(&data[0], 1, blockSize, fp);
-		UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
+		const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
 		while ((lenFile > 0) && (err == 0) && (!Cancelling())) {
 #ifdef __unix__
 			usleep(sleepTime * 1000);
@@ -152,7 +152,7 @@ void FileStorer::Execute() {
 					grabSize = startLast;
 			}
 			memcpy(&data[0], documentBytes+i, grabSize);
-			size_t written = convert.fwrite(&data[0], grabSize);
+			const size_t written = convert.fwrite(&data[0], grabSize);
 			IncrementProgress(grabSize);
 			if (et.Duration() > nextProgress) {
 				nextProgress = et.Duration() + timeBetweenProgress;

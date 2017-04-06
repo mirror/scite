@@ -86,7 +86,7 @@ inline void getPDFRGB(char* pdfcolour, const char* stylecolour) {
 	for (int i = 1; i < 6; i += 2) {
 		char val[20];
 		// 3 decimal places for enough dynamic range
-		int c = (IntFromHexByte(stylecolour + i) * 1000 + 127) / 255;
+		const int c = (IntFromHexByte(stylecolour + i) * 1000 + 127) / 255;
 		if (c == 0 || c == 1000) {	// optimise
 			sprintf(val, "%d ", c / 1000);
 		} else {
@@ -152,7 +152,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		long xref() {
 			char val[32];
 			// xref start index and number of entries
-			long xrefStart = ftell(fp);
+			const long xrefStart = ftell(fp);
 			write("xref\n0 ");
 			write(index);
 			// a xref entry *must* be 20 bytes long (PDF1.4Ref(p64))
@@ -247,11 +247,11 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			// leading is the term for distance between lines
 			leading = fontSize * PDF_SPACING_DEFAULT;
 			// sanity check for page size and margins
-			int pageWidthMin = (int)leading + pageMargin.left + pageMargin.right;
+			const int pageWidthMin = (int)leading + pageMargin.left + pageMargin.right;
 			if (pageWidth < pageWidthMin) {
 				pageWidth = pageWidthMin;
 			}
-			int pageHeightMin = (int)leading + pageMargin.top + pageMargin.bottom;
+			const int pageHeightMin = (int)leading + pageMargin.top + pageMargin.bottom;
 			if (pageHeight < pageHeightMin) {
 				pageHeight = pageHeightMin;
 			}
@@ -278,14 +278,14 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 				endPage();
 			}
 			// refer to all used or unused fonts for simplicity
-			int resourceRef = oT->add(
+			const int resourceRef = oT->add(
 			            "<</ProcSet[/PDF/Text]\n"
 			            "/Font<</F1 1 0 R/F2 2 0 R/F3 3 0 R"
 			            "/F4 4 0 R>> >>\n");
 			// create all the page objects (PDF1.4Ref(p88))
 			// forward reference pages object; calculate its object number
-			int pageObjectStart = oT->index;
-			int pagesRef = pageObjectStart + pageCount;
+			const int pageObjectStart = oT->index;
+			const int pagesRef = pageObjectStart + pageCount;
 			for (int i = 0; i < pageCount; i++) {
 				sprintf(buffer, "<</Type/Page/Parent %d 0 R\n"
 				        "/MediaBox[ 0 0 %ld %ld"
@@ -306,9 +306,9 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			oT->add(pageData.c_str());
 			// create catalog object (PDF1.4Ref(p83))
 			sprintf(buffer, "<</Type/Catalog/Pages %d 0 R >>\n", pagesRef);
-			int catalogRef = oT->add(buffer);
+			const int catalogRef = oT->add(buffer);
 			// append the cross reference table (PDF1.4Ref(p64))
-			long xref = oT->xref();
+			const long xref = oT->xref();
 			// end the file with the trailer (PDF1.4Ref(p67))
 			sprintf(buffer, "trailer\n<< /Size %d /Root %d 0 R\n>>"
 			        "\nstartxref\n%ld\n%%%%EOF\n",
@@ -320,7 +320,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 				startPage();
 			}
 			// get glyph width (TODO future non-monospace handling)
-			double glyphWidth = fontToPoints(PDFfontWidths[fontSet]);
+			const double glyphWidth = fontToPoints(PDFfontWidths[fontSet]);
 			xPos += glyphWidth;
 			// if cannot fit into a line, flush, wrap to next line
 			if (xPos > pageWidth - pageMargin.right) {
@@ -361,7 +361,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			pageStarted = true;
 			firstLine = true;
 			pageCount++;
-			double fontAscender = fontToPoints(PDFfontAscenders[fontSet]);
+			const double fontAscender = fontToPoints(PDFfontAscenders[fontSet]);
 			yPos = pageHeight - pageMargin.top - fontAscender;
 			// start a new page
 			sprintf(buffer, "BT 1 0 0 1 %d %d Tm\n",
@@ -396,7 +396,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			flushSegment();
 			// PDF follows cartesian coords, subtract -> down
 			yPos -= leading;
-			double fontDescender = fontToPoints(PDFfontDescenders[fontSet]);
+			const double fontDescender = fontToPoints(PDFfontDescenders[fontSet]);
 			if (yPos < pageMargin.bottom + fontDescender) {
 				endPage();
 				startPage();
@@ -404,7 +404,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			}
 			if (firstLine) {
 				// avoid breakage due to locale setting
-				int f = static_cast<int>(leading * 10 + 0.5);
+				const int f = static_cast<int>(leading * 10 + 0.5);
 				sprintf(buffer, "0 -%d.%d TD\n", f / 10, f % 10);
 				firstLine = false;
 			} else {
@@ -512,7 +512,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	pr.startPDF();
 
 	// do here all the writing
-	int lengthDoc = LengthDocument();
+	const int lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 
 	if (!lengthDoc) {	// enable zero length docs

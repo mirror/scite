@@ -291,7 +291,7 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 			}
 		}
 		if (isprefix(cmd, "identity:")) {
-			char *arg = strchr(cmd, ':');
+			const char *arg = strchr(cmd, ':');
 			if (arg)
 				wDirector = HwndFromString(arg + 1);
 		} else if (isprefix(cmd, "closing:")) {

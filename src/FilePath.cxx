@@ -194,8 +194,8 @@ FilePath FilePath::BaseName() const {
 }
 
 FilePath FilePath::Extension() const {
-	size_t dirEnd = fileName.rfind(pathSepChar);
-	size_t extStart = fileName.rfind('.');
+	const size_t dirEnd = fileName.rfind(pathSepChar);
+	const size_t extStart = fileName.rfind('.');
 	if ((extStart != GUI::gui_string::npos) && ((dirEnd == GUI::gui_string::npos) || (extStart > dirEnd)))
 		return fileName.substr(extStart + 1);
 	else
@@ -662,7 +662,7 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 
 	std::vector<wchar_t> vwcCommand(command, command + wcslen(command) + 1);
 
-	BOOL running = ::CreateProcessW(
+	const BOOL running = ::CreateProcessW(
 			  NULL,
 			  &vwcCommand[0],
 			  NULL, NULL,

@@ -48,7 +48,7 @@ void Buffer::DocumentModified() {
 }
 
 bool Buffer::NeedsSave(int delayBeforeSave) const {
-	time_t now = time(0);
+	const time_t now = time(0);
 	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !IsUntitled() && !failedSave;
 }
 
@@ -70,7 +70,7 @@ void Buffer::CompleteStoring() {
 
 void Buffer::AbandonAutomaticSave() {
 	if (pFileWorker && !pFileWorker->IsLoading()) {
-		FileStorer *pFileStorer = static_cast<FileStorer *>(pFileWorker);
+		const FileStorer *pFileStorer = static_cast<FileStorer *>(pFileWorker);
 		if (!pFileStorer->visibleProgress) {
 			pFileWorker->Cancel();
 			// File is in partially saved state so may be better to remove
@@ -113,7 +113,7 @@ int BufferList::Add() {
 	return lengthVisible - 1;
 }
 
-int BufferList::GetDocumentByWorker(FileWorker *pFileWorker) const {
+int BufferList::GetDocumentByWorker(const FileWorker *pFileWorker) const {
 	for (int i = 0;i < length;i++) {
 		if (buffers[i].pFileWorker == pFileWorker) {
 			return i;
@@ -288,7 +288,7 @@ BackgroundActivities BufferList::CountBackgroundActivities() const {
 		if (buffers[i].pFileWorker) {
 			if (!buffers[i].pFileWorker->FinishedJob()) {
 				if (!buffers[i].pFileWorker->IsLoading()) {
-					FileStorer *fstorer = static_cast<FileStorer*>(buffers[i].pFileWorker);
+					const FileStorer *fstorer = static_cast<FileStorer*>(buffers[i].pFileWorker);
 					if (!fstorer->visibleProgress)
 						continue;
 				}
@@ -376,7 +376,7 @@ void SciTEBase::SwitchDocumentAt(int index, sptr_t pdoc) {
 }
 
 void SciTEBase::SetDocumentAt(int index, bool updateStack) {
-	int currentbuf = buffers.Current();
+	const int currentbuf = buffers.Current();
 
 	if (	index < 0 ||
 	        index >= buffers.length ||
@@ -452,7 +452,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 
 			if (props.GetInt("fold")) {
 				for (int line = 0; ; line++) {
-					int lineNext = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
+					const int lineNext = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
 					if ((line < 0) || (lineNext < line))
 						break;
 					line = lineNext;
@@ -637,11 +637,11 @@ void SciTEBase::RestoreSession() {
 			session.pathActive = bufferState;
 
 		propKey = IndexPropKey("buffer", i, "scroll");
-		int scroll = propsSession.GetInt(propKey.c_str());
+		const int scroll = propsSession.GetInt(propKey.c_str());
 		bufferState.scrollPosition = scroll;
 
 		propKey = IndexPropKey("buffer", i, "position");
-		int pos = propsSession.GetInt(propKey.c_str());
+		const int pos = propsSession.GetInt(propKey.c_str());
 
 		bufferState.selection.anchor = pos - 1;
 		bufferState.selection.position = bufferState.selection.anchor;
@@ -735,18 +735,18 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 	}
 
 	if (props.GetInt("buffers") && (!defaultSession || props.GetInt("save.session"))) {
-		int curr = buffers.Current();
+		const int curr = buffers.Current();
 		for (int i = 0; i < buffers.lengthVisible; i++) {
 			if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
 				Buffer &buff = buffers.buffers[i];
 				std::string propKey = IndexPropKey("buffer", i, "path");
 				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buff.AsUTF8().c_str());
 
-				int pos = buff.selection.position + 1;
+				const int pos = buff.selection.position + 1;
 				propKey = IndexPropKey("buffer", i, "position");
 				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), pos);
 
-				int scroll = buff.scrollPosition;
+				const int scroll = buff.scrollPosition;
 				propKey = IndexPropKey("buffer", i, "scroll");
 				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), scroll);
 
@@ -1517,7 +1517,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 					while (*endPath && !isdigitchar(*endPath)) {
 						endPath++;
 					}
-					int sourceNumber = atoi(endPath) - 1;
+					const int sourceNumber = atoi(endPath) - 1;
 					return sourceNumber;
 				}
 			}
@@ -1638,8 +1638,8 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 			// Lua 4 error looks like: last token read: `result' at line 40 in file `Test.lua'
 			const char *idLine = "at line ";
 			const char *idFile = "file ";
-			size_t lenLine = strlen(idLine);
-			size_t lenFile = strlen(idFile);
+			const size_t lenLine = strlen(idLine);
+			const size_t lenFile = strlen(idFile);
 			const char *line = strstr(cdoc, idLine);
 			const char *file = strstr(cdoc, idFile);
 			if (line && file) {
@@ -1682,8 +1682,8 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 			// PHP error look like: Fatal error: Call to undefined function:  foo() in example.php on line 11
 			const char *idLine = " on line ";
 			const char *idFile = " in ";
-			size_t lenLine = strlen(idLine);
-			size_t lenFile = strlen(idFile);
+			const size_t lenLine = strlen(idLine);
+			const size_t lenFile = strlen(idFile);
 			const char *line = strstr(cdoc, idLine);
 			const char *file = strstr(cdoc, idFile);
 			if (line && file && (line > file)) {
@@ -1748,8 +1748,8 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 			// Absoft Pro Fortran 90/95 v8.x, v9.x  errors look like: cf90-113 f90fe: ERROR SHF3D, File = shf.f90, Line = 1101, Column = 19
 			const char *idFile = " File = ";
 			const char *idLine = ", Line = ";
-			size_t lenFile = strlen(idFile);
-			size_t lenLine = strlen(idLine);
+			const size_t lenFile = strlen(idFile);
+			const size_t lenLine = strlen(idLine);
 			const char *file = strstr(cdoc, idFile);
 			const char *line = strstr(cdoc, idLine);
 			//const char *idColumn = ", Column = ";
@@ -1770,8 +1770,8 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				 */
 			const char *idFile = ": Error: ";
 			const char *idLine = ", line ";
-			size_t lenFile = strlen(idFile);
-			size_t lenLine = strlen(idLine);
+			const size_t lenFile = strlen(idFile);
+			const size_t lenLine = strlen(idLine);
 			const char *file = strstr(cdoc, idFile);
 			const char *line = strstr(cdoc, idLine);
 			const char *lineend = strrchr(cdoc, ':');
@@ -1797,7 +1797,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				const char *col = strchr(line + 1, ' ');
 				if (col) {
 					//*col = '\0';
-					int lnr = atoi(line) - 1;
+					const int lnr = atoi(line) - 1;
 					col = strchr(col + 1, ' ');
 					if (col) {
 						const char *endcol = strchr(col + 1, ' ');
@@ -1821,7 +1821,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 			ptrdiff_t length = endPath - startPath;
 			if (length > 0) {
 				sourcePath.assign(startPath, length);
-				int sourceNumber = atoi(endPath + 1) - 1;
+				const int sourceNumber = atoi(endPath + 1) - 1;
 				return sourceNumber;
 			}
 			break;
@@ -1874,10 +1874,10 @@ void SciTEBase::ShowMessages(int line) {
 	TextReader acc(wOutput);
 	while ((line > 0) && (acc.StyleAt(acc.LineStart(line-1)) != SCE_ERR_CMD))
 		line--;
-	int maxLine = wOutput.Call(SCI_GETLINECOUNT);
+	const int maxLine = wOutput.Call(SCI_GETLINECOUNT);
 	while ((line < maxLine) && (acc.StyleAt(acc.LineStart(line)) != SCE_ERR_CMD)) {
 		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line, 0);
-		int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line, 0);
+		const int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line, 0);
 		std::string message = GetRangeString(wOutput, startPosLine, lineEnd);
 		std::string source;
 		int column;
@@ -1938,8 +1938,8 @@ void SciTEBase::GoMessage(int dir) {
 	crange.cpMin = wOutput.Call(SCI_GETSELECTIONSTART);
 	crange.cpMax = wOutput.Call(SCI_GETSELECTIONEND);
 	long selStart = static_cast<long>(crange.cpMin);
-	int curLine = wOutput.Call(SCI_LINEFROMPOSITION, selStart);
-	int maxLine = wOutput.Call(SCI_GETLINECOUNT);
+	const int curLine = wOutput.Call(SCI_LINEFROMPOSITION, selStart);
+	const int maxLine = wOutput.Call(SCI_GETLINECOUNT);
 	int lookLine = curLine + dir;
 	if (lookLine < 0)
 		lookLine = maxLine - 1;
@@ -1948,7 +1948,7 @@ void SciTEBase::GoMessage(int dir) {
 	TextReader acc(wOutput);
 	while ((dir == 0) || (lookLine != curLine)) {
 		int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, lookLine, 0);
-		int lineLength = wOutput.Call(SCI_LINELENGTH, lookLine, 0);
+		const int lineLength = wOutput.Call(SCI_LINELENGTH, lookLine, 0);
 		int style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
 		        style != SCE_ERR_CMD &&

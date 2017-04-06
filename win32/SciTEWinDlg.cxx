@@ -114,7 +114,7 @@ void SciTEWin::WarnUser(int warnID) {
 	next = GetNextPropItem(next, sound, _MAX_PATH);
 	GetNextPropItem(next, soundDuration, 10);
 
-	int flashLen = atoi(flashDuration);
+	const int flashLen = atoi(flashDuration);
 	if (flashLen) {
 		FlashThisWindow(HwndOf(wEditor), flashLen);
 	}
@@ -139,7 +139,7 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 	if (wParameters.GetID()) {
 		// Allow commands, such as Ctrl+1 to be active while the Parameters dialog is
 		// visible so that a group of commands can be easily run with differing parameters.
-		bool menuKey = (pmsg->message == WM_KEYDOWN) &&
+		const bool menuKey = (pmsg->message == WM_KEYDOWN) &&
 		               (pmsg->wParam != VK_TAB) &&
 		               (pmsg->wParam != VK_ESCAPE) &&
 		               (pmsg->wParam != VK_RETURN) &&
@@ -171,7 +171,7 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 
 //  DoDialog is a bit like something in PC Magazine May 28, 1991, page 357
 int SciTEWin::DoDialog(const TCHAR *resName, DLGPROC lpProc) {
-	int result = static_cast<int>(
+	const int result = static_cast<int>(
 		::DialogBoxParam(hInstance, resName, MainHWND(), lpProc, reinterpret_cast<LPARAM>(this)));
 
 	if (result == -1) {
@@ -219,7 +219,7 @@ GUI::gui_string SciTEWin::DialogFilterFromProperty(const GUI::gui_char *filterPr
 }
 
 void SciTEWin::CheckCommonDialogError() {
-	DWORD errorNumber = ::CommDlgExtendedError();
+	const DWORD errorNumber = ::CommDlgExtendedError();
 	if (errorNumber) {
 		GUI::gui_string sError = GUI::HexStringFromInteger(errorNumber);
 		GUI::gui_string msg = LocaliseMessage("Common dialog error 0x^0.", sError.c_str());
@@ -1371,8 +1371,8 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 	case WM_INITDIALOG: {
 			int position = wEditor.Call(SCI_GETCURRENTPOS);
-			int lineNumber = wEditor.Call(SCI_LINEFROMPOSITION, position) + 1;
-			int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
+			const int lineNumber = wEditor.Call(SCI_LINEFROMPOSITION, position) + 1;
+			const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
 			int characterOnLine = 1;
 			while (position > lineStart) {
 				position = wEditor.Call(SCI_POSITIONBEFORE, position);
@@ -1412,8 +1412,8 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 				if (bHasChar && characterOnLine > 1 && lineNumber <= wEditor.Call(SCI_GETLINECOUNT)) {
 					// Constrain to the requested line
-					int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
-					int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, lineNumber - 1);
+					const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
+					const int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, lineNumber - 1);
 
 					int position = lineStart;
 					while (--characterOnLine && position < lineEnd)
@@ -1621,7 +1621,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 
 SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style) {
 	dialogsOnScreen++;
-	int ret = ::MessageBoxW(HwndOf(w), msg.c_str(), appName, style | MB_SETFOREGROUND);
+	const int ret = ::MessageBoxW(HwndOf(w), msg.c_str(), appName, style | MB_SETFOREGROUND);
 	dialogsOnScreen--;
 	switch (ret) {
 	case IDOK:

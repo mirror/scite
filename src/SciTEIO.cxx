@@ -108,12 +108,12 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 	linesCR = 0;
 	linesLF = 0;
 	linesCRLF = 0;
-	int lengthDoc = LengthDocument();
+	const int lengthDoc = LengthDocument();
 	char chPrev = ' ';
 	TextReader acc(wEditor);
 	char chNext = acc.SafeGetCharAt(0);
 	for (int i = 0; i < lengthDoc; i++) {
-		char ch = chNext;
+		const char ch = chNext;
 		chNext = acc.SafeGetCharAt(i + 1);
 		if (ch == '\r') {
 			if (chNext == '\n')
@@ -289,7 +289,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
 		size_t lenFile = fread(&data[0], 1, data.size(), fp);
-		UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
+		const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
 		while (lenFile > 0) {
 			lenFile = convert.convert(&data[0], lenFile);
 			char *dataBlock = convert.getNewBuf();
@@ -411,8 +411,8 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 	int iBuffer = buffers.GetDocumentByWorker(pFileStorer);
 
 	FilePath pathSaved = pFileStorer->path;
-	int errSaved = pFileStorer->err;
-	bool cancelledSaved = pFileStorer->Cancelling();
+	const int errSaved = pFileStorer->err;
+	const bool cancelledSaved = pFileStorer->Cancelling();
 
 	// May not be found if save cancelled or buffer closed
 	if (iBuffer >= 0) {
@@ -469,7 +469,7 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 void SciTEBase::UpdateProgress(Worker *) {
 	GUI::gui_string prog;
 	BackgroundActivities bgActivities = buffers.CountBackgroundActivities();
-	int countBoth = bgActivities.loaders + bgActivities.storers;
+	const int countBoth = bgActivities.loaders + bgActivities.storers;
 	if (countBoth == 0) {
 		// Should hide UI
 		ShowBackgroundProgress(GUI_TEXT(""), 0, 0);
@@ -530,7 +530,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	}
 	if (fileSize > 0) {
 		// Real file, not empty buffer
-		long long maxSize = props.GetLongLong("max.file.size", 2000000000LL);
+		const long long maxSize = props.GetLongLong("max.file.size", 2000000000LL);
 		if (maxSize > 0 && fileSize > maxSize) {
 			const GUI::gui_string sSize = GUI::StringFromLongLong(fileSize);
 			const GUI::gui_string sMaxSize = GUI::StringFromLongLong(maxSize);
@@ -538,7 +538,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 			        "larger than the ^2 bytes limit set in the properties.\n"
 			        "Do you still want to open it?",
 			        absPath.AsInternal(), sSize.c_str(), sMaxSize.c_str());
-			MessageBoxChoice answer = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconWarning);
+			const MessageBoxChoice answer = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconWarning);
 			if (answer != mbYes) {
 				return false;
 			}
@@ -761,7 +761,7 @@ void SciTEBase::CheckReload() {
 						          "The file '^0' has been modified outside SciTE. Should it be reloaded?",
 						          FileNameExt().AsInternal());
 					}
-					MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
+					const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
 					if (decision == mbYes) {
 						Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
 						DisplayAround(rf);
@@ -794,7 +794,7 @@ FilePath SciTEBase::SaveName(const char *ext) const {
 			dot--;
 		}
 		if (dot >= 0) {
-			int keepExt = props.GetInt("export.keep.ext");
+			const int keepExt = props.GetInt("export.keep.ext");
 			if (keepExt == 0) {
 				savePath.erase(dot);
 			} else if (keepExt == 2) {
@@ -826,7 +826,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsure(bool forceQuestion, SaveFlags sf) 
 			} else {
 				msg = LocaliseMessage("Save changes to (Untitled)?");
 			}
-			MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNoCancel | mbsIconQuestion);
+			const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNoCancel | mbsIconQuestion);
 			if (decision == mbYes) {
 				if (!Save(sf))
 					return saveCancelled;
@@ -892,9 +892,9 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureForBuilt() {
 }
 
 void SciTEBase::StripTrailingSpaces() {
-	int maxLines = wEditor.Call(SCI_GETLINECOUNT);
+	const int maxLines = wEditor.Call(SCI_GETLINECOUNT);
 	for (int line = 0; line < maxLines; line++) {
-		int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
+		const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
 		int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, line);
 		int i = lineEnd - 1;
 		char ch = static_cast<char>(wEditor.Call(SCI_GETCHARAT, i));
@@ -994,7 +994,7 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 					// Round down so only whole characters retrieved.
 					grabSize = wEditor.Call(SCI_POSITIONBEFORE, i + grabSize + 1) - i;
 					GetRange(wEditor, static_cast<int>(i), static_cast<int>(i + grabSize), &data[0]);
-					size_t written = convert.fwrite(&data[0], grabSize);
+					const size_t written = convert.fwrite(&data[0], grabSize);
 					if (written == 0) {
 						retVal = false;
 						break;
@@ -1050,12 +1050,12 @@ bool SciTEBase::Save(SaveFlags sf) {
 		if (props.GetInt("save.deletes.first")) {
 			filePath.Remove();
 		} else if (props.GetInt("save.check.modified.time")) {
-			time_t newModTime = filePath.ModifiedTime();
+			const time_t newModTime = filePath.ModifiedTime();
 			if ((newModTime != 0) && (CurrentBuffer()->fileModTime != 0) &&
 				(newModTime != CurrentBuffer()->fileModTime)) {
 				msg = LocaliseMessage("The file '^0' has been modified outside SciTE. Should it be saved?",
 					filePath.AsInternal());
-				MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
+				const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconQuestion);
 				if (decision == mbNo) {
 					return false;
 				}
@@ -1078,7 +1078,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 				CurrentBuffer()->failedSave = true;
 				msg = LocaliseMessage(
 					"Could not save file '^0'. Save under a different name?", filePath.AsInternal());
-				MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconWarning);
+				const MessageBoxChoice decision = WindowMessageBox(wSciTE, msg, mbsYesNo | mbsIconWarning);
 				if (decision == mbYes) {
 					return SaveAsDialog();
 				}
@@ -1106,7 +1106,7 @@ void SciTEBase::SaveAs(const GUI::gui_char *file, bool fixCase) {
 
 bool SciTEBase::SaveIfNotOpen(const FilePath &destFile, bool fixCase) {
 	FilePath absPath = destFile.AbsolutePath();
-	int index = buffers.GetDocumentByName(absPath, true /* excludeCurrent */);
+	const int index = buffers.GetDocumentByName(absPath, true /* excludeCurrent */);
 	if (index >= 0) {
 		GUI::gui_string msg = LocaliseMessage(
 			    "File '^0' is already open in another buffer.", destFile.AsInternal());
@@ -1142,7 +1142,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		wEditor.Call(SCI_CLEARALL);
 	}
 	size_t lenFile = fread(&data[0], 1, data.size(), stdin);
-	UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
+	const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
 	while (lenFile > 0) {
 		lenFile = convert.convert(&data[0], lenFile);
 		if (UseOutputPane) {
@@ -1341,7 +1341,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char 
 	FilePathSet directories;
 	FilePathSet files;
 	baseDir.List(directories, files);
-	size_t searchLength = strlen(searchString);
+	const size_t searchLength = strlen(searchString);
 	std::string os;
 	for (size_t i = 0; i < files.size(); i ++) {
 		if (jobQueue.Cancelled())

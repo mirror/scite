@@ -27,8 +27,8 @@ static inline bool IsASpace(unsigned int ch) {
 static int CompareNCaseInsensitive(const char *a, const char *b, size_t len) {
 	while (*a && *b && len) {
 		if (*a != *b) {
-			char upperA = MakeUpperCase(*a);
-			char upperB = MakeUpperCase(*b);
+			const char upperA = MakeUpperCase(*a);
+			const char upperB = MakeUpperCase(*b);
 			if (upperA != upperB)
 				return upperA - upperB;
 		}
@@ -63,7 +63,7 @@ static std::vector<char *> ArrayFromStringList(char *stringList, bool onlyLineEn
 		wordSeparator[static_cast<unsigned int>('\t')] = true;
 	}
 	for (int j = 0; stringList[j]; j++) {
-		int curr = static_cast<unsigned char>(stringList[j]);
+		const int curr = static_cast<unsigned char>(stringList[j]);
 		if (!wordSeparator[curr] && wordSeparator[prev])
 			words++;
 		prev = curr;

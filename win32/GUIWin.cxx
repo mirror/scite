@@ -34,7 +34,7 @@ enum { SURROGATE_TRAIL_LAST = 0xDFFF };
 static unsigned int UTF8Length(const wchar_t *uptr, size_t tlen) {
 	unsigned int len = 0;
 	for (size_t i = 0; i < tlen && uptr[i];) {
-		unsigned int uch = uptr[i];
+		const unsigned int uch = uptr[i];
 		if (uch < 0x80) {
 			len++;
 		} else if (uch < 0x800) {
@@ -54,7 +54,7 @@ static unsigned int UTF8Length(const wchar_t *uptr, size_t tlen) {
 static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf, size_t len) {
 	int k = 0;
 	for (size_t i = 0; i < tlen && uptr[i];) {
-		unsigned int uch = uptr[i];
+		const unsigned int uch = uptr[i];
 		if (uch < 0x80) {
 			putf[k++] = static_cast<char>(uch);
 		} else if (uch < 0x800) {
@@ -64,7 +64,7 @@ static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf, size_t l
 			(uch <= SURROGATE_TRAIL_LAST)) {
 			// Half a surrogate pair
 			i++;
-			unsigned int xch = 0x10000 + ((uch & 0x3ff) << 10) + (uptr[i] & 0x3ff);
+			const unsigned int xch = 0x10000 + ((uch & 0x3ff) << 10) + (uptr[i] & 0x3ff);
 			putf[k++] = static_cast<char>(0xF0 | (xch >> 18));
 			putf[k++] = static_cast<char>(0x80 | ((xch >> 12) & 0x3f));
 			putf[k++] = static_cast<char>(0x80 | ((xch >> 6) & 0x3f));
@@ -83,7 +83,7 @@ static size_t UTF16Length(const char *s, unsigned int len) {
 	size_t ulen = 0;
 	size_t charLen;
 	for (size_t i=0; i<len;) {
-		unsigned char ch = static_cast<unsigned char>(s[i]);
+		const unsigned char ch = static_cast<unsigned char>(s[i]);
 		if (ch < 0x80) {
 			charLen = 1;
 		} else if (ch < 0x80 + 0x40 + 0x20) {
@@ -297,12 +297,12 @@ double ElapsedTime::Duration(bool reset) {
 		LARGE_INTEGER lBegin;
 		lBegin.HighPart = bigBit;
 		lBegin.LowPart = littleBit;
-		double elapsed = static_cast<double>(lEnd.QuadPart - lBegin.QuadPart);
+		const double elapsed = static_cast<double>(lEnd.QuadPart - lBegin.QuadPart);
 		result = elapsed / static_cast<double>(frequency.QuadPart);
 	} else {
 		endBigBit = clock();
 		endLittleBit = 0;
-		double elapsed = endBigBit - bigBit;
+		const double elapsed = endBigBit - bigBit;
 		result = elapsed / CLOCKS_PER_SEC;
 	}
 	if (reset) {

@@ -44,13 +44,13 @@
 
 static char* getTexRGB(char* texcolor, const char* stylecolor) {
 	//texcolor[rgb]{0,0.5,0}{....}
-	double rf = IntFromHexByte(stylecolor + 1) / 256.0;
-	double gf = IntFromHexByte(stylecolor + 3) / 256.0;
-	double bf = IntFromHexByte(stylecolor + 5) / 256.0;
+	const double rf = IntFromHexByte(stylecolor + 1) / 256.0;
+	const double gf = IntFromHexByte(stylecolor + 3) / 256.0;
+	const double bf = IntFromHexByte(stylecolor + 5) / 256.0;
 	// avoid breakage due to locale setting
-	int r = static_cast<int>(rf * 10 + 0.5);
-	int g = static_cast<int>(gf * 10 + 0.5);
-	int b = static_cast<int>(bf * 10 + 0.5);
+	const int r = static_cast<int>(rf * 10 + 0.5);
+	const int g = static_cast<int>(gf * 10 + 0.5);
+	const int b = static_cast<int>(bf * 10 + 0.5);
 	sprintf(texcolor, "%d.%d, %d.%d, %d.%d", r / 10, r % 10, g / 10, g % 10, b / 10, b % 10);
 	return texcolor;
 }
@@ -67,7 +67,7 @@ static char* texStyle(int style) {
 	return buf;
 }
 
-static void defineTexStyle(StyleDefinition &style, FILE* fp, int istyle) {
+static void defineTexStyle(const StyleDefinition &style, FILE* fp, int istyle) {
 	int closing_brackets = 2;
 	char rgb[200];
 	fprintf(fp, "\\newcommand{\\scite%s}[1]{\\noindent{\\ttfamily{", texStyle(istyle));
@@ -101,11 +101,11 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 	if (tabSize == 0)
 		tabSize = 4;
 
-	int lengthDoc = LengthDocument();
+	const int lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 	bool styleIsUsed[STYLE_MAX + 1];
 
-	int titleFullPath = props.GetInt("export.tex.title.fullpath", 0);
+	const int titleFullPath = props.GetInt("export.tex.title.fullpath", 0);
 
 	int i;
 	for (i = 0; i <= STYLE_MAX; i++) {
@@ -145,8 +145,8 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 		int lineIdx = 0;
 
 		for (i = 0; i < lengthDoc; i++) { //here process each character of the document
-			char ch = acc[i];
-			int style = acc.StyleAt(i);
+			const char ch = acc[i];
+			const int style = acc.StyleAt(i);
 
 			if (style != styleCurrent) { //new style?
 				fprintf(fp, "}\\scite%s{", texStyle(style) );
@@ -155,7 +155,7 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 
 			switch ( ch ) { //write out current character.
 			case '\t': {
-					int ts = tabSize - (lineIdx % tabSize);
+					const int ts = tabSize - (lineIdx % tabSize);
 					lineIdx += ts - 1;
 					fprintf(fp, "\\hspace*{%dem}", ts);
 					break;

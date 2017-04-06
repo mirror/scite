@@ -80,7 +80,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 		tabSize = 4;
 	}
 
-	int lengthDoc = LengthDocument();
+	const int lengthDoc = LengthDocument();
 
 	TextReader acc(wEditor);
 
@@ -89,8 +89,8 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 
 	if (fp) {
 
-		bool collapseSpaces = (props.GetInt("export.xml.collapse.spaces", 1) == 1);
-		bool collapseLines  = (props.GetInt("export.xml.collapse.lines", 1) == 1);
+		const bool collapseSpaces = (props.GetInt("export.xml.collapse.spaces", 1) == 1);
+		const bool collapseLines  = (props.GetInt("export.xml.collapse.lines", 1) == 1);
 
 		fprintf(fp, "<?xml version='1.0' encoding='%s'?>\n", (codePage == SC_CP_UTF8) ? "utf-8" : "ascii");
 
@@ -116,8 +116,8 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 		int emptyLines = 0;
 
 		for (int i = 0; i < lengthDoc; i++) {
-			char ch = acc[i];
-			int style = acc.StyleAt(i);
+			const char ch = acc[i];
+			const int style = acc.StyleAt(i);
 			if (style != styleCurrent) {
 				styleCurrent = style;
 				styleNew = style;
@@ -125,7 +125,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 			if (ch == ' ') {
 				spaceLen++;
 			} else if (ch == '\t') {
-				int ts = tabSize - (lineIndex % tabSize);
+				const int ts = tabSize - (lineIndex % tabSize);
 				lineIndex += ts - 1;
 				spaceLen += ts;
 			} else if (ch == '\f') {

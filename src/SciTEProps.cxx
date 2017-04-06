@@ -203,7 +203,7 @@ void SciTEBase::ReadLocalPropFile() {
 	props.Set("ChromeHighlight", "#FFFFFF");
 }
 
-Colour ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault) {
+Colour ColourOfProperty(const PropSetFile &props, const char *key, Colour colourDefault) {
 	std::string colour = props.GetExpandedString(key);
 	if (colour.length()) {
 		return ColourFromString(colour);
@@ -884,7 +884,7 @@ void SciTEBase::ReadProperties() {
 	if (selAdditionalBack.length()) {
 		CallChildren(SCI_SETADDITIONALSELBACK, ColourFromString(selAdditionalBack));
 	}
-	int selectionAdditionalAlpha = (selectionAlpha == SC_ALPHA_NOALPHA) ? SC_ALPHA_NOALPHA : selectionAlpha / 2;
+	const int selectionAdditionalAlpha = (selectionAlpha == SC_ALPHA_NOALPHA) ? SC_ALPHA_NOALPHA : selectionAlpha / 2;
 	CallChildren(SCI_SETADDITIONALSELALPHA, props.GetInt("selection.additional.alpha", selectionAdditionalAlpha));
 
 	foldColour = props.GetExpandedString("fold.margin.colour");
@@ -1158,7 +1158,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETMARGINSENSITIVEN, 2, 1);
 
 	// Define foreground (outline) and background (fill) color of folds
-	int foldSymbols = props.GetInt("fold.symbols");
+	const int foldSymbols = props.GetInt("fold.symbols");
 	std::string foldFore = props.GetExpandedString("fold.fore");
 	if (foldFore.length() == 0) {
 		// Set default colour for outline
@@ -1413,10 +1413,10 @@ void SciTEBase::ReadFontProperties() {
 		SetStyleBlock(wEditor, "error", diagnosticStyleStart, diagnosticStyleStart+diagnosticStyles-1);
 	}
 
-	int diffToSecondary = static_cast<int>(wEditor.Call(SCI_DISTANCETOSECONDARYSTYLES));
+	const int diffToSecondary = static_cast<int>(wEditor.Call(SCI_DISTANCETOSECONDARYSTYLES));
 	for (unsigned int baseStyle=0; baseStyle<subStyleBases.size(); baseStyle++) {
-		int subStylesStart = wEditor.Call(SCI_GETSUBSTYLESSTART, subStyleBases[baseStyle]);
-		int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, subStyleBases[baseStyle]);
+		const int subStylesStart = wEditor.Call(SCI_GETSUBSTYLESSTART, subStyleBases[baseStyle]);
+		const int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, subStyleBases[baseStyle]);
 		for (int subStyle=0; subStyle<subStylesLength; subStyle++) {
 			for (int active=0; active<(diffToSecondary?2:1); active++) {
 				int activity = active * diffToSecondary;
@@ -1549,9 +1549,9 @@ void SciTEBase::ReadLocalization() {
 
 void SciTEBase::ReadPropertiesInitial() {
 	SetPropertiesInitial();
-	int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
-	int sizeVertical = props.GetInt("output.vertical.size", 0);
-	int hideOutput = props.GetInt("output.initial.hide", 0);
+	const int sizeHorizontal = props.GetInt("output.horizontal.size", 0);
+	const int sizeVertical = props.GetInt("output.vertical.size", 0);
+	const int hideOutput = props.GetInt("output.initial.hide", 0);
 	if ((!splitVertical && (sizeVertical > 0) && (heightOutput < sizeVertical)) ||
 		(splitVertical && (sizeHorizontal > 0) && (heightOutput < sizeHorizontal))) {
 		previousHeightOutput = splitVertical ? sizeHorizontal : sizeVertical;
@@ -1589,7 +1589,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	// load the user defined short cut props
 	std::string shortCutProp = props.GetNewExpandString("user.shortcuts");
 	if (shortCutProp.length()) {
-		size_t pipes = std::count(shortCutProp.begin(), shortCutProp.end(), '|');
+		const size_t pipes = std::count(shortCutProp.begin(), shortCutProp.end(), '|');
 		std::replace(shortCutProp.begin(), shortCutProp.end(), '|', '\0');
 		const char *sShortCutProp = shortCutProp.c_str();
 		for (size_t item = 0; item < pipes/2; item++) {
@@ -1672,7 +1672,7 @@ void SciTEBase::OpenProperties(int propsFile) {
 		}
 	case IDM_OPENDIRECTORYPROPERTIES: {
 			propfile = GetDirectoryPropertiesFileName();
-			bool alreadyExists = propfile.Exists();
+			const bool alreadyExists = propfile.Exists();
 			Open(propfile, ofQuiet);
 			if (!alreadyExists)
 				SaveAsDialog();
@@ -1683,7 +1683,7 @@ void SciTEBase::OpenProperties(int propsFile) {
 
 // return the int value of the command name passed in.
 int SciTEBase::GetMenuCommandAsInt(std::string commandName) {
-	int i = IFaceTable::FindConstant(commandName.c_str());
+	const int i = IFaceTable::FindConstant(commandName.c_str());
 	if (i != -1) {
 		return IFaceTable::constants[i].value;
 	}

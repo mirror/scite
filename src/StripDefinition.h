@@ -113,7 +113,7 @@ public:
 			ColumnWidth cw;
 			for (size_t line=0; line<controls.size(); line++) {
 				if (column <  controls[line].size()) {
-					UserControl *ctl = &controls[line][column];
+					const UserControl *ctl = &controls[line][column];
 					if (ctl->fixedWidth) {
 						if  (cw.widthDesired < ctl->widthDesired)
 							cw.widthDesired = ctl->widthDesired;
@@ -127,7 +127,7 @@ public:
 			if (cw.isResizeable)
 				resizeables++;
 		}
-		int widthSpareEach = resizeables ? 
+		const int widthSpareEach = resizeables ?
 			(widthToAllocate - widthOfNonResizeables) / resizeables : 0;
 		for (std::vector<ColumnWidth>::iterator cw=widths.begin(); cw != widths.end(); ++cw) {
 			if (cw->isResizeable) {

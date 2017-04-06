@@ -311,9 +311,9 @@ int SciTEBase::LengthDocument() {
 }
 
 int SciTEBase::GetCaretInLine() {
-	int caret = wEditor.Call(SCI_GETCURRENTPOS);
-	int line = wEditor.Call(SCI_LINEFROMPOSITION, caret);
-	int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
+	const int caret = wEditor.Call(SCI_GETCURRENTPOS);
+	const int line = wEditor.Call(SCI_LINEFROMPOSITION, caret);
+	const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
 	return caret - lineStart;
 }
 
@@ -322,7 +322,7 @@ void SciTEBase::GetLine(char *text, int sizeText, int line) {
 		line = GetCurrentLineNumber();
 	int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
 	int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, line);
-	int lineMax = lineStart + sizeText - 1;
+	const int lineMax = lineStart + sizeText - 1;
 	if (lineEnd > lineMax)
 		lineEnd = lineMax;
 	GetRange(wEditor, lineStart, lineEnd, text);
@@ -391,12 +391,12 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
 	bool isInside = false;
 	char line[800];	// No need for full line
 	int level = 0;
-	int maxLines = wEditor.Call(SCI_GETLINECOUNT) - 1;
+	const int maxLines = wEditor.Call(SCI_GETLINECOUNT) - 1;
 
 	while (curLine < maxLines && curLine > 0 && !isInside) {
 		curLine += direction;	// Increment or decrement
 		GetLine(line, sizeof(line), curLine);
-		int status = IsLinePreprocessorCondition(line);
+		const int status = IsLinePreprocessorCondition(line);
 
 		if ((direction == 1 && status == ppcStart) || (direction == -1 && status == ppcEnd)) {
 			level++;
@@ -486,13 +486,13 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	if (win.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0) > 0)
 		return false;
 
-	int bracesStyleCheck = editor ? bracesStyle : 0;
+	const int bracesStyleCheck = editor ? bracesStyle : 0;
 	int caretPos = win.Call(SCI_GETCURRENTPOS, 0, 0);
 	braceAtCaret = -1;
 	braceOpposite = -1;
 	char charBefore = '\0';
 	int styleBefore = 0;
-	int lengthDoc = win.Call(SCI_GETLENGTH, 0, 0);
+	const int lengthDoc = win.Call(SCI_GETLENGTH, 0, 0);
 	TextReader acc(win);
 	if ((lengthDoc > 0) && (caretPos > 0)) {
 		// Check to ensure not matching brace that is part of a multibyte character
@@ -517,8 +517,8 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 		// No brace found so check other side
 		// Check to ensure not matching brace that is part of a multibyte character
 		if (win.Call(SCI_POSITIONAFTER, caretPos) == (caretPos + 1)) {
-			char charAfter = acc[caretPos];
-			int styleAfter = acc.StyleAt(caretPos);
+			const char charAfter = acc[caretPos];
+			const int styleAfter = acc.StyleAt(caretPos);
 			if (charAfter && IsBrace(charAfter) && ((styleAfter == bracesStyleCheck) || (!bracesStyle))) {
 				braceAtCaret = caretPos;
 				isAfter = false;
@@ -570,8 +570,8 @@ void SciTEBase::BraceMatch(bool editor) {
 			int indentPos = win.Call(SCI_GETLINEINDENTPOSITION, lineStart, 0);
 			int indentPosNext = win.Call(SCI_GETLINEINDENTPOSITION, lineStart + 1, 0);
 			columnAtCaret = win.Call(SCI_GETCOLUMN, indentPos, 0);
-			int columnAtCaretNext = win.Call(SCI_GETCOLUMN, indentPosNext, 0);
-			int indentSize = win.Call(SCI_GETINDENT);
+			const int columnAtCaretNext = win.Call(SCI_GETCOLUMN, indentPosNext, 0);
+			const int indentSize = win.Call(SCI_GETINDENT);
 			if (columnAtCaretNext - indentSize > 1)
 				columnAtCaret = columnAtCaretNext - indentSize;
 			if (columnOpposite == 0)	// If the final line of the structure is empty
@@ -731,7 +731,7 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	// Get start & end selection.
 	int selStart = wCurrent.Call(SCI_GETSELECTIONSTART);
 	int selEnd = wCurrent.Call(SCI_GETSELECTIONEND);
-	bool noUserSelection = selStart == selEnd;
+	const bool noUserSelection = selStart == selEnd;
 	std::string sWordToFind = RangeExtendAndGrab(wCurrent, selStart, selEnd,
 	        &SciTEBase::islexerwordcharforsel);
 	if (sWordToFind.length() == 0 || (sWordToFind.find_first_of("\n\r ") != std::string::npos))
@@ -773,8 +773,8 @@ std::string SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selSt
 }
 
 std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, int line) {
-	int lineStart = win.Call(SCI_POSITIONFROMLINE, line);
-	int lineEnd = win.Call(SCI_GETLINEENDPOSITION, line);
+	const int lineStart = win.Call(SCI_POSITIONFROMLINE, line);
+	const int lineEnd = win.Call(SCI_GETLINEENDPOSITION, line);
 	if ((lineStart < 0) || (lineEnd < 0))
 		return std::string();
 	return GetRangeString(win, lineStart, lineEnd);
@@ -1145,9 +1145,9 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	Sci_CharacterRange cr = GetSelection();
 	int startPosition = static_cast<int>(cr.cpMin);
 	int endPosition = static_cast<int>(cr.cpMax);
-	int countSelections = wEditor.Call(SCI_GETSELECTIONS);
+	const int countSelections = wEditor.Call(SCI_GETSELECTIONS);
 	if (inSelection) {
-		int selType = wEditor.Call(SCI_GETSELECTIONMODE);
+		const int selType = wEditor.Call(SCI_GETSELECTIONMODE);
 		if (selType == SC_SEL_LINES) {
 			// Take care to replace in whole lines
 			int startLine = wEditor.Call(SCI_LINEFROMPOSITION, startPosition);
@@ -1192,8 +1192,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 				// We must check that the found target is entirely inside a selection
 				bool insideASelection = false;
 				for (int i=0; i<countSelections && !insideASelection; i++) {
-					int startPos= wEditor.Call(SCI_GETSELECTIONNSTART, i);
-					int endPos = wEditor.Call(SCI_GETSELECTIONNEND, i);
+					const int startPos= wEditor.Call(SCI_GETSELECTIONNSTART, i);
+					const int endPos = wEditor.Call(SCI_GETSELECTIONNEND, i);
 					if (posFind >= startPos && posFind + lenTarget <= endPos)
 						insideASelection = true;
 				}
@@ -1244,7 +1244,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 }
 
 int SciTEBase::ReplaceAll(bool inSelection) {
-	int replacements = DoReplaceAll(inSelection);
+	const int replacements = DoReplaceAll(inSelection);
 	props.SetInteger("Replacements", (replacements > 0 ? replacements : 0));
 	UpdateStatusBar(false);
 	if (replacements == -1) {
@@ -1414,7 +1414,7 @@ void SciTEBase::BookmarkDelete(int lineno) {
 bool SciTEBase::BookmarkPresent(int lineno) {
 	if (lineno == -1)
 		lineno = GetCurrentLineNumber();
-	int state = wEditor.Call(SCI_MARKERGET, lineno);
+	const int state = wEditor.Call(SCI_MARKERGET, lineno);
 	return state & (1 << markerBookmark);
 }
 
@@ -1431,7 +1431,7 @@ void SciTEBase::BookmarkToggle(int lineno) {
 }
 
 void SciTEBase::BookmarkNext(bool forwardScan, bool select) {
-	int lineno = GetCurrentLineNumber();
+	const int lineno = GetCurrentLineNumber();
 	int sci_marker = SCI_MARKERNEXT;
 	int lineStart = lineno + 1;	//Scan starting from next line
 	int lineRetry = 0;				//If not found, try from the beginning
@@ -1569,7 +1569,7 @@ bool SciTEBase::StartCallTip() {
 
 void SciTEBase::ContinueCallTip() {
 	std::string line = GetCurrentLine();
-	int current = GetCaretInLine();
+	const int current = GetCaretInLine();
 
 	int braces = 0;
 	int commas = 0;
@@ -1770,10 +1770,10 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	int currentLineNumber = wEditor.Call(SCI_LINEFROMPOSITION, caret_pos);
 	int indent = 0;
 	int indentSize = wEditor.Call(SCI_GETINDENT);
-	int indentChars = (wEditor.Call(SCI_GETUSETABS) && wEditor.Call(SCI_GETTABWIDTH) ? wEditor.Call(SCI_GETTABWIDTH) : 1);
+	const int indentChars = (wEditor.Call(SCI_GETUSETABS) && wEditor.Call(SCI_GETTABWIDTH) ? wEditor.Call(SCI_GETTABWIDTH) : 1);
 	int indentExtra = 0;
 	bool isIndent = true;
-	int eolMode = wEditor.Call(SCI_GETEOLMODE);
+	const int eolMode = wEditor.Call(SCI_GETEOLMODE);
 	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
 	}
@@ -1884,7 +1884,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	char *linebuf = new char[currentPos + 2];
 	GetLine(linebuf, currentPos + 2);	// Just get text to the left of the caret
 	linebuf[currentPos] = '\0';
-	int abbrevPos = (currentPos > 32 ? currentPos - 32 : 0);
+	const int abbrevPos = (currentPos > 32 ? currentPos - 32 : 0);
 	const char *abbrev = linebuf + abbrevPos;
 	std::string data;
 	size_t dataLength = 0;
@@ -1910,13 +1910,13 @@ bool SciTEBase::StartExpandAbbreviation() {
 	}
 
 	std::string expbuf(data.c_str(), dataLength + 1);
-	size_t expbuflen = UnSlash(&expbuf[0]);
+	const size_t expbuflen = UnSlash(&expbuf[0]);
 	int caret_pos = -1; // caret position
 	int currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
 	int indentExtra = 0;
 	bool isIndent = true;
-	int eolMode = wEditor.Call(SCI_GETEOLMODE);
+	const int eolMode = wEditor.Call(SCI_GETEOLMODE);
 	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
 	}
@@ -1989,7 +1989,7 @@ bool SciTEBase::StartBlockComment() {
 	std::string comment_at_line_start("comment.block.at.line.start.");
 	base += lexerName;
 	comment_at_line_start += lexerName;
-	bool placeCommentsAtLineStart = props.GetInt(comment_at_line_start.c_str()) != 0;
+	const bool placeCommentsAtLineStart = props.GetInt(comment_at_line_start.c_str()) != 0;
 
 	std::string comment = props.GetString(base.c_str());
 	if (comment == "") { // user friendly error message box
@@ -2003,22 +2003,22 @@ bool SciTEBase::StartBlockComment() {
 	long_comment.append(" ");
 	int selectionStart = wEditor.Call(SCI_GETSELECTIONSTART);
 	int selectionEnd = wEditor.Call(SCI_GETSELECTIONEND);
-	int caretPosition = wEditor.Call(SCI_GETCURRENTPOS);
+	const int caretPosition = wEditor.Call(SCI_GETCURRENTPOS);
 	// checking if caret is located in _beginning_ of selected block
-	bool move_caret = caretPosition < selectionEnd;
+	const bool move_caret = caretPosition < selectionEnd;
 	int selStartLine = wEditor.Call(SCI_LINEFROMPOSITION, selectionStart);
 	int selEndLine = wEditor.Call(SCI_LINEFROMPOSITION, selectionEnd);
-	int lines = selEndLine - selStartLine;
-	int firstSelLineStart = wEditor.Call(SCI_POSITIONFROMLINE, selStartLine);
+	const int lines = selEndLine - selStartLine;
+	const int firstSelLineStart = wEditor.Call(SCI_POSITIONFROMLINE, selStartLine);
 	// "caret return" is part of the last selected line
 	if ((lines > 0) &&
 	        (selectionEnd == wEditor.Call(SCI_POSITIONFROMLINE, selEndLine)))
 		selEndLine--;
 	wEditor.Call(SCI_BEGINUNDOACTION);
 	for (int i = selStartLine; i <= selEndLine; i++) {
-		int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, i);
+		const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, i);
 		int lineIndent = lineStart;
-		int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, i);
+		const int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, i);
 		if (!placeCommentsAtLineStart) {
 			lineIndent = GetLineIndentPosition(i);
 		}
@@ -2104,8 +2104,8 @@ bool SciTEBase::StartBoxComment() {
 	// Note selection and cursor location so that we can reselect text and reposition cursor after we insert comment strings
 	size_t selectionStart = wEditor.Call(SCI_GETSELECTIONSTART);
 	size_t selectionEnd = wEditor.Call(SCI_GETSELECTIONEND);
-	size_t caretPosition = wEditor.Call(SCI_GETCURRENTPOS);
-	bool move_caret = caretPosition < selectionEnd;
+	const size_t caretPosition = wEditor.Call(SCI_GETCURRENTPOS);
+	const bool move_caret = caretPosition < selectionEnd;
 	size_t selStartLine = wEditor.Call(SCI_LINEFROMPOSITION, selectionStart);
 	size_t selEndLine = wEditor.Call(SCI_LINEFROMPOSITION, selectionEnd);
 	size_t lines = selEndLine - selStartLine + 1;
@@ -2122,7 +2122,7 @@ bool SciTEBase::StartBoxComment() {
 	middle_comment += white_space;
 	int start_comment_length = static_cast<int>(start_comment.length());
 	int middle_comment_length = static_cast<int>(middle_comment.length());
-	int end_comment_length = static_cast<int>(end_comment.length());
+	const int end_comment_length = static_cast<int>(end_comment.length());
 
 	wEditor.Call(SCI_BEGINUNDOACTION);
 
@@ -2213,12 +2213,12 @@ bool SciTEBase::StartStreamComment() {
 	start_comment += white_space;
 	white_space += end_comment;
 	end_comment = white_space;
-	int start_comment_length = static_cast<int>(start_comment.length());
+	const int start_comment_length = static_cast<int>(start_comment.length());
 	int selectionStart = wEditor.Call(SCI_GETSELECTIONSTART);
 	int selectionEnd = wEditor.Call(SCI_GETSELECTIONEND);
-	int caretPosition = wEditor.Call(SCI_GETCURRENTPOS);
+	const int caretPosition = wEditor.Call(SCI_GETCURRENTPOS);
 	// checking if caret is located in _beginning_ of selected block
-	bool move_caret = caretPosition < selectionEnd;
+	const bool move_caret = caretPosition < selectionEnd;
 	// if there is no selection?
 	if (selectionStart == selectionEnd) {
 		RangeExtend(wEditor, selectionStart, selectionEnd,
@@ -2332,8 +2332,8 @@ void SciTEBase::SetLineIndentation(int line, int indent) {
 	if (indent < 0)
 		return;
 	Sci_CharacterRange crange = GetSelection();
-	Sci_CharacterRange crangeStart = crange;
-	int posBefore = GetLineIndentPosition(line);
+	const Sci_CharacterRange crangeStart = crange;
+	const int posBefore = GetLineIndentPosition(line);
 	wEditor.Call(SCI_SETLINEINDENTATION, line, indent);
 	int posAfter = GetLineIndentPosition(line);
 	int posDifference = posAfter - posBefore;
@@ -2390,10 +2390,10 @@ static std::string CreateIndentation(int indent, int tabSize, bool insertSpaces)
 
 void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 	wEditor.Call(SCI_BEGINUNDOACTION);
-	int maxLine = wEditor.Call(SCI_GETLINECOUNT);
+	const int maxLine = wEditor.Call(SCI_GETLINECOUNT);
 	for (int line = 0; line < maxLine; line++) {
 		int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
-		int indent = GetLineIndentation(line);
+		const int indent = GetLineIndentation(line);
 		int indentPos = GetLineIndentPosition(line);
 		const int maxIndentation = 1000;
 		if (indent < maxIndentation) {
@@ -2456,7 +2456,7 @@ static bool includes(const StyleAndWords &symbols, const std::string &value) {
 		return false;
 	} else if (IsAlphabetic(symbols.words[0])) {
 		// Set of symbols separated by spaces
-		size_t lenVal = value.length();
+		const size_t lenVal = value.length();
 		const char *symbol = symbols.words.c_str();
 		while (symbol) {
 			const char *symbolEnd = strchr(symbol, ' ');
@@ -2474,7 +2474,7 @@ static bool includes(const StyleAndWords &symbols, const std::string &value) {
 		}
 	} else {
 		// Set of individual characters. Only one character allowed for now
-		char ch = symbols.words[0];
+		const char ch = symbols.words[0];
 		return strchr(value.c_str(), ch) != 0;
 	}
 	return false;
@@ -2507,7 +2507,7 @@ IndentationStatus SciTEBase::GetIndentState(int line) {
 int SciTEBase::IndentOfBlock(int line) {
 	if (line < 0)
 		return 0;
-	int indentSize = wEditor.Call(SCI_GETINDENT);
+	const int indentSize = wEditor.Call(SCI_GETINDENT);
 	int indentBlock = GetLineIndentation(line);
 	int backLine = line;
 	IndentationStatus indentState = isNone;
@@ -2540,7 +2540,7 @@ int SciTEBase::IndentOfBlock(int line) {
 }
 
 void SciTEBase::MaintainIndentation(char ch) {
-	int eolMode = wEditor.Call(SCI_GETEOLMODE);
+	const int eolMode = wEditor.Call(SCI_GETEOLMODE);
 	int curLine = GetCurrentLineNumber();
 	int lastLine = curLine - 1;
 
@@ -2570,11 +2570,11 @@ void SciTEBase::AutomaticIndentation(char ch) {
 
 	if ((wEditor.Call(SCI_GETLEXER) == SCLEX_PYTHON) &&
 			(props.GetInt("indent.python.colon") == 1)) {
-		int eolMode = wEditor.Call(SCI_GETEOLMODE);
-		int eolChar = (eolMode == SC_EOL_CR ? '\r' : '\n');
-		int eolChars = (eolMode == SC_EOL_CRLF ? 2 : 1);
-		int prevLineStart = wEditor.Call(SCI_POSITIONFROMLINE, curLine - 1);
-		int prevIndentPos = GetLineIndentPosition(curLine - 1);
+		const int eolMode = wEditor.Call(SCI_GETEOLMODE);
+		const int eolChar = (eolMode == SC_EOL_CR ? '\r' : '\n');
+		const int eolChars = (eolMode == SC_EOL_CRLF ? 2 : 1);
+		const int prevLineStart = wEditor.Call(SCI_POSITIONFROMLINE, curLine - 1);
+		const int prevIndentPos = GetLineIndentPosition(curLine - 1);
 		int indentExisting = GetLineIndentation(curLine);
 
 		if (ch == eolChar) {
@@ -2641,8 +2641,8 @@ void SciTEBase::CharAdded(int utf32) {
 	if (recording)
 		return;
 	Sci_CharacterRange crange = GetSelection();
-	int selStart = static_cast<int>(crange.cpMin);
-	int selEnd = static_cast<int>(crange.cpMax);
+	const int selStart = static_cast<int>(crange.cpMin);
+	const int selEnd = static_cast<int>(crange.cpMax);
 
 	if (utf32 > 0XFF) { // MBCS, never let it go.
 		if (imeAutoComplete) {
@@ -2846,7 +2846,7 @@ std::string SciTEBase::FindOpenXmlTag(const char sel[], int nSize) {
 void SciTEBase::GoMatchingBrace(bool select) {
 	int braceAtCaret = -1;
 	int braceOpposite = -1;
-	bool isInside = FindMatchingBracePosition(pwFocussed == &wEditor, braceAtCaret, braceOpposite, true);
+	const bool isInside = FindMatchingBracePosition(pwFocussed == &wEditor, braceAtCaret, braceOpposite, true);
 	// Convert the character positions into caret positions based on whether
 	// the caret position was inside or outside the braces.
 	if (isInside) {
@@ -2878,14 +2878,14 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 	int mppcAtCaret = wEditor.Call(SCI_GETCURRENTPOS);
 	int mppcMatch = -1;
 	int forward = (direction == IDM_NEXTMATCHPPC);
-	bool isInside = FindMatchingPreprocCondPosition(forward, mppcAtCaret, mppcMatch);
+	const bool isInside = FindMatchingPreprocCondPosition(forward, mppcAtCaret, mppcMatch);
 
 	if (isInside && mppcMatch >= 0) {
 		EnsureRangeVisible(wEditor, mppcMatch, mppcMatch);
 		if (select) {
 			// Selection changes the rules a bit...
-			int selStart = wEditor.Call(SCI_GETSELECTIONSTART);
-			int selEnd = wEditor.Call(SCI_GETSELECTIONEND);
+			const int selStart = wEditor.Call(SCI_GETSELECTIONSTART);
+			const int selEnd = wEditor.Call(SCI_GETSELECTIONEND);
 			// pivot isn't the caret position but the opposite (if there is a selection)
 			int pivot = (mppcAtCaret == selStart ? selEnd : selStart);
 			if (forward) {
@@ -3444,7 +3444,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_VIEWGUIDES: {
-			bool viewIG = wEditor.Call(SCI_GETINDENTATIONGUIDES, 0, 0) == 0;
+			const bool viewIG = wEditor.Call(SCI_GETINDENTATIONGUIDES, 0, 0) == 0;
 			wEditor.Call(SCI_SETINDENTATIONGUIDES, viewIG ? indentExamine : SC_IV_NONE);
 			CheckMenus();
 			Redraw();
@@ -3722,7 +3722,7 @@ void SciTEBase::ExpandFolds(int line, bool expand, int level) {
 
 void SciTEBase::FoldAll() {
 	wEditor.Call(SCI_COLOURISE, 0, -1);
-	int maxLine = wEditor.Call(SCI_GETLINECOUNT);
+	const int maxLine = wEditor.Call(SCI_GETLINECOUNT);
 	bool expanding = true;
 	for (int lineSeek = 0; lineSeek < maxLine; lineSeek++) {
 		if (wEditor.Call(SCI_GETFOLDLEVEL, lineSeek) & SC_FOLDLEVELHEADERFLAG) {
@@ -3754,8 +3754,8 @@ void SciTEBase::GotoLineEnsureVisible(int line) {
 }
 
 void SciTEBase::EnsureRangeVisible(GUI::ScintillaWindow &win, int posStart, int posEnd, bool enforcePolicy) {
-	int lineStart = win.Call(SCI_LINEFROMPOSITION, Minimum(posStart, posEnd));
-	int lineEnd = win.Call(SCI_LINEFROMPOSITION, Maximum(posStart, posEnd));
+	const int lineStart = win.Call(SCI_LINEFROMPOSITION, Minimum(posStart, posEnd));
+	const int lineEnd = win.Call(SCI_LINEFROMPOSITION, Maximum(posStart, posEnd));
 	for (int line = lineStart; line <= lineEnd; line++) {
 		win.Call(enforcePolicy ? SCI_ENSUREVISIBLEENFORCEPOLICY : SCI_ENSUREVISIBLE, line);
 	}
@@ -4116,7 +4116,7 @@ void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::W
 	int currentPos = wSource.Call(SCI_GETCURRENTPOS);
 	int anchor = wSource.Call(SCI_GETANCHOR);
 	popup.CreatePopUp();
-	bool writable = !wSource.Call(SCI_GETREADONLY);
+	const bool writable = !wSource.Call(SCI_GETREADONLY);
 	AddToPopUp("Undo", IDM_UNDO, writable && wSource.Call(SCI_CANUNDO));
 	AddToPopUp("Redo", IDM_REDO, writable && wSource.Call(SCI_CANREDO));
 	AddToPopUp("");
@@ -4153,8 +4153,8 @@ void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::W
  */
 int SciTEBase::NormaliseSplit(int splitPos) {
 	GUI::Rectangle rcClient = GetClientRectangle();
-	int w = rcClient.Width();
-	int h = rcClient.Height();
+	const int w = rcClient.Width();
+	const int h = rcClient.Height();
 	if (splitPos < 20)
 		splitPos = 0;
 	if (splitVertical) {
@@ -4249,7 +4249,7 @@ static GUI::gui_char AfterName(const GUI::gui_char *s) {
 }
 
 void SciTEBase::PerformOne(char *action) {
-	unsigned int len = UnSlash(action);
+	const unsigned int len = UnSlash(action);
 	char *arg = strchr(action, ':');
 	if (arg) {
 		arg++;
@@ -4287,9 +4287,9 @@ void SciTEBase::PerformOne(char *action) {
 			int line = atoi(arg) - 1;
 			GotoLineEnsureVisible(line);
 			// jump to column if given and greater than 0
-			char *colstr = strchr(arg, ',');
+			const char *colstr = strchr(arg, ',');
 			if (colstr != NULL) {
-				int col = atoi(colstr + 1);
+				const int col = atoi(colstr + 1);
 				if (col > 0) {
 					int pos = wEditor.Call(SCI_GETCURRENTPOS) + col;
 					// select the word you have found there
@@ -4706,7 +4706,7 @@ sptr_t SciTEBase::Send(Pane p, unsigned int msg, uptr_t wParam, sptr_t lParam) {
 }
 
 char *SciTEBase::Range(Pane p, int start, int end) {
-	int len = end - start;
+	const int len = end - start;
 	char *s = new char[len + 1];
 	if (p == paneEditor)
 		GetRange(wEditor, start, end, s);

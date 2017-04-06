@@ -198,10 +198,10 @@ size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {
 			int codePoint = iter8.get();
 			if (codePoint >= SURROGATE_FIRST_VALUE) {
 				codePoint -= SURROGATE_FIRST_VALUE;
-				int lead = (codePoint >> 10) + SURROGATE_LEAD_FIRST;
+				const int lead = (codePoint >> 10) + SURROGATE_LEAD_FIRST;
 				*pCur++ = static_cast<utf16>((m_eEncoding == eUtf16BigEndian) ?
 					swapped(lead) : lead);
-				int trail = (codePoint & 0x3ff) + SURROGATE_TRAIL_FIRST;
+				const int trail = (codePoint & 0x3ff) + SURROGATE_TRAIL_FIRST;
 				*pCur++ = static_cast<utf16>((m_eEncoding == eUtf16BigEndian) ?
 					swapped(trail) : trail);
 			} else {
@@ -222,7 +222,7 @@ int Utf8_16_Write::fclose() {
 	delete [] m_pBuf;
 	m_pBuf = NULL;
 
-	int ret = ::fclose(m_pFile);
+	const int ret = ::fclose(m_pFile);
 	m_pFile = NULL;
 
 	return ret;
@@ -315,7 +315,7 @@ void Utf16_Iter::set
 	m_pEnd = pBuf + nLen;
 	m_eEncoding = eEncoding;
 	if (nLen > 2) {
-		utf16 lastElement = read(m_pEnd-2);
+		const utf16 lastElement = read(m_pEnd-2);
 		if (lastElement >= SURROGATE_LEAD_FIRST && lastElement <= SURROGATE_LEAD_LAST) {
 			// Buffer ends with lead surrogate so cut off buffer and store
 			endSurrogate[0] = m_pEnd[-2];

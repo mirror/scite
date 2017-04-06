@@ -48,13 +48,13 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;
-	int wysiwyg = props.GetInt("export.html.wysiwyg", 1);
-	int tabs = props.GetInt("export.html.tabs", 0);
-	int folding = props.GetInt("export.html.folding", 0);
-	int onlyStylesUsed = props.GetInt("export.html.styleused", 0);
-	int titleFullPath = props.GetInt("export.html.title.fullpath", 0);
+	const int wysiwyg = props.GetInt("export.html.wysiwyg", 1);
+	const int tabs = props.GetInt("export.html.tabs", 0);
+	const int folding = props.GetInt("export.html.folding", 0);
+	const int onlyStylesUsed = props.GetInt("export.html.styleused", 0);
+	const int titleFullPath = props.GetInt("export.html.title.fullpath", 0);
 
-	int lengthDoc = LengthDocument();
+	const int lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 
 	bool styleIsUsed[STYLE_MAX + 1];
@@ -202,7 +202,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 		}
 
 		if (folding) {
-			int lvl = acc.LevelAt(0);
+			const int lvl = acc.LevelAt(0);
 			level = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 
 			if (lvl & SC_FOLDLEVELHEADERFLAG) {
@@ -223,8 +223,8 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 
 		int column = 0;
 		for (int i = 0; i < lengthDoc; i++) {
-			char ch = acc[i];
-			int style = acc.StyleAt(i);
+			const char ch = acc[i];
+			const int style = acc.StyleAt(i);
 
 			if (style != styleCurrent) {
 				if (inStyleSpan) {
@@ -261,7 +261,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 					column++;
 				}
 			} else if (ch == '\t') {
-				int ts = tabSize - (column % tabSize);
+				const int ts = tabSize - (column % tabSize);
 				if (wysiwyg) {
 					for (int itab = 0; itab < ts; itab++) {
 						if (itab % 2) {
@@ -303,7 +303,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 				if (folding) {
 					line = acc.GetLine(i + 1);
 
-					int lvl = acc.LevelAt(line);
+					const int lvl = acc.LevelAt(line);
 					newLevel = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 
 					if (newLevel < level)

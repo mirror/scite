@@ -169,9 +169,9 @@ int IntFromHexByte(const char *hexByte) {
 
 Colour ColourFromString(const std::string &s) {
 	if (s.length()) {
-		int r = IntFromHexByte(s.c_str() + 1);
-		int g = IntFromHexByte(s.c_str() + 3);
-		int b = IntFromHexByte(s.c_str() + 5);
+		const int r = IntFromHexByte(s.c_str() + 1);
+		const int g = IntFromHexByte(s.c_str() + 3);
+		const int b = IntFromHexByte(s.c_str() + 5);
 		return ColourRGB(r, g, b);
 	} else {
 		return 0;

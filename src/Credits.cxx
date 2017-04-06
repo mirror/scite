@@ -513,7 +513,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
-		int trsSty = 5; // define the stylenumber to assign font for translators.
+		const int trsSty = 5; // define the stylenumber to assign font for translators.
 		std::string translator = GetTranslationToAbout("TranslationCredit", false);
 		SetAboutStyle(wsci, trsSty, ColourRGB(0, 0, 0));
 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
@@ -535,7 +535,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		}
 		AddStyledText(wsci, GetTranslationToAbout("Contributors:").c_str(), trsSty);
 		for (unsigned int co = 0;co < ELEMENTS(contributors);co++) {
-			int colourIndex = 50 + (co % 78);
+			const int colourIndex = 50 + (co % 78);
 			AddStyledText(wsci, "\n    ", colourIndex);
 			AddStyledText(wsci, contributors[co], colourIndex);
 		}

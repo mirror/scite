@@ -168,7 +168,7 @@ public:
 		}
 		if (!fn)
 			throw ScintillaFailure(SC_STATUS_FAILURE);
-		sptr_t retVal = fn(ptr, msg, wParam, lParam);
+		const sptr_t retVal = fn(ptr, msg, wParam, lParam);
 		status = fn(ptr, SCI_GETSTATUS, 0, 0);
 		if (status > 0 && status < SC_STATUS_WARN_START)
 			throw ScintillaFailure(status);

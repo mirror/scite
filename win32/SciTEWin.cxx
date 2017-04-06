@@ -68,18 +68,18 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 		} else if (sKey.length() > 1) {
 			if ((sKey.at(0) == 'F') && (isdigit(sKey.at(1)))) {
 				sKey.erase(0, 1);
-				int fkeyNum = atoi(sKey.c_str());
+				const int fkeyNum = atoi(sKey.c_str());
 				if (fkeyNum >= 1 && fkeyNum <= 12)
 					keyval = fkeyNum - 1 + VK_F1;
 			} else if ((sKey.at(0) == 'V') && (isdigit(sKey.at(1)))) {
 				sKey.erase(0, 1);
-				int vkey = atoi(sKey.c_str());
+				const int vkey = atoi(sKey.c_str());
 				if (vkey > 0 && vkey <= 0x7FFF)
 					keyval = vkey;
 			} else if (StartsWith(sKey, "Keypad")) {
 				sKey.erase(0, strlen("Keypad"));
 				if ((sKey.length() > 0) && isdigit(sKey.at(0))) {
-					int keyNum = atoi(sKey.c_str());
+					const int keyNum = atoi(sKey.c_str());
 					if (keyNum >= 0 && keyNum <= 9)
 						keyval = keyNum + VK_NUMPAD0;
 				} else if (sKey == "Plus") {
@@ -347,7 +347,7 @@ void SciTEWin::ReadLocalization() {
 	std::string encoding = localiser.GetString("translation.encoding");
 	LowerCaseAZ(encoding);
 	if (encoding.length()) {
-		int codePageNamed = CodePageFromName(encoding);
+		const int codePageNamed = CodePageFromName(encoding);
 		const char *key = NULL;
 		const char *val = NULL;
 		// Get encoding
@@ -436,7 +436,7 @@ void SciTEWin::ReadEmbeddedProperties() {
 void SciTEWin::ReadPropertiesInitial() {
 	SciTEBase::ReadPropertiesInitial();
 	if (tabMultiLine) {	// Windows specific!
-		long wl = ::GetWindowLong(HwndOf(wTabBar), GWL_STYLE);
+		const long wl = ::GetWindowLong(HwndOf(wTabBar), GWL_STYLE);
 		::SetWindowLong(HwndOf(wTabBar), GWL_STYLE, wl | TCS_MULTILINE);
 	}
 }
@@ -715,7 +715,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 // from ScintillaWin.cxx
 static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
-	BOOL bci = ::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<uptr_t>(characterSet)),
+	const BOOL bci = ::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<uptr_t>(characterSet)),
 	                                  &ci, TCI_SRCCHARSET);
 
 	UINT cp;
@@ -976,7 +976,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 				DWORD bytesWrote = 0;
 
-				int bTest = ::WriteFile(hWriteSubProcess,
+				const int bTest = ::WriteFile(hWriteSubProcess,
 					    jobToRun.input.c_str() + writingPosition,
 					    static_cast<DWORD>(bytesToWrite), &bytesWrote, NULL);
 
@@ -1001,7 +1001,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				}
 
 			} else if (bytesAvail > 0) {
-				int bTest = ::ReadFile(hPipeRead, &buffer[0],
+				const int bTest = ::ReadFile(hPipeRead, &buffer[0],
 						       static_cast<DWORD>(buffer.size()), &bytesRead, NULL);
 
 				if (bTest && bytesRead) {
@@ -1296,7 +1296,7 @@ static void WorkerThread(void *ptr) {
 }
 
 bool SciTEWin::PerformOnNewThread(Worker *pWorker) {
-	uintptr_t result = _beginthread(WorkerThread, 1024 * 1024, static_cast<void *>(pWorker));
+	const uintptr_t result = _beginthread(WorkerThread, 1024 * 1024, static_cast<void *>(pWorker));
 	return result != static_cast<uintptr_t>(-1);
 }
 
@@ -1353,7 +1353,7 @@ void SciTEWin::CreateUI() {
 	CreateBuffers();
 
 	int left = props.GetInt("position.left", CW_USEDEFAULT);
-	int top = props.GetInt("position.top", CW_USEDEFAULT);
+	const int top = props.GetInt("position.top", CW_USEDEFAULT);
 	int width = props.GetInt("position.width", CW_USEDEFAULT);
 	int height = props.GetInt("position.height", CW_USEDEFAULT);
 	cmdShow = props.GetInt("position.maximize", 0) ? SW_MAXIMIZE : 0;
@@ -1465,7 +1465,7 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
 	// we still get a last chance to force checking or to open a separate instance;
 	// Check if the user just want to print the file(s).
 	// Don't process files yet.
-	bool bBatchProcessing = ProcessCommandLine(args, 0);
+	const bool bBatchProcessing = ProcessCommandLine(args, 0);
 
 	// No need to check for other instances when doing a batch job:
 	// perform some tasks and exit immediately.
@@ -1517,14 +1517,14 @@ void SciTEWin::Run(const GUI::gui_char *cmdLine) {
  * Draw the split bar.
  */
 void ContentWin::Paint(HDC hDC, GUI::Rectangle) {
-	GUI::Rectangle rcInternal = GetClientPosition();
+	const GUI::Rectangle rcInternal = GetClientPosition();
 
-	int heightClient = rcInternal.Height();
-	int widthClient = rcInternal.Width();
+	const int heightClient = rcInternal.Height();
+	const int widthClient = rcInternal.Width();
 
-	int heightEditor = heightClient - pSciTEWin->heightOutput - pSciTEWin->heightBar;
-	int yBorder = heightEditor;
-	int xBorder = widthClient - pSciTEWin->heightOutput - pSciTEWin->heightBar;
+	const int heightEditor = heightClient - pSciTEWin->heightOutput - pSciTEWin->heightBar;
+	const int yBorder = heightEditor;
+	const int xBorder = widthClient - pSciTEWin->heightOutput - pSciTEWin->heightBar;
 	for (int i = 0; i < pSciTEWin->heightBar; i++) {
 		int colourIndex = COLOR_3DFACE;
 		if (pSciTEWin->flatterUI) {
@@ -1571,11 +1571,11 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 	// If drag'n'drop inside the SciTE window but outside
 	// Scintilla, hdrop is null, and an exception is generated!
 	if (hdrop) {
-		bool tempFilesSyncLoad = props.GetInt("temp.files.sync.load") != 0;
+		const bool tempFilesSyncLoad = props.GetInt("temp.files.sync.load") != 0;
 		GUI::gui_char tempDir[MAX_PATH];
 		DWORD tempDirLen = ::GetTempPath(MAX_PATH, tempDir);
 		bool isTempFile = false;
-		int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, NULL, 0);
+		const int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, NULL, 0);
 		// Append paths to dropFilesQueue, to finish drag operation soon
 		for (int i = 0; i < filesDropped; ++i) {
 			GUI::gui_char pathDropped[MAX_PATH];
@@ -1620,7 +1620,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 	bool isHandled = false;
 	HANDLE hFFile;
 	WIN32_FIND_DATA ffile;
-	DWORD fileattributes = ::GetFileAttributes(arg);
+	const DWORD fileattributes = ::GetFileAttributes(arg);
 	int nbuffers = props.GetInt("buffers");
 	FilePath fpArg(arg);
 
@@ -2175,7 +2175,7 @@ uptr_t SciTEWin::EventLoop() {
 	BOOL going = true;
 	while (going) {
 		if (needIdle) {
-			BOOL haveMessage = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+			const BOOL haveMessage = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
 			if (!haveMessage) {
 				OnIdle();
 				continue;

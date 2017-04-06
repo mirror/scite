@@ -13,8 +13,8 @@ int IFaceTable::FindConstant(const char *name) {
 	int lo = 0;
 	int hi = IFaceTable::constantCount - 1;
 	do {
-		int idx = (lo+hi)/2;
-		int cmp = strcmp(name, constants[idx].name);
+		const int idx = (lo+hi)/2;
+		const int cmp = strcmp(name, constants[idx].name);
 
 		if (cmp > 0) {
 			lo = idx + 1;
@@ -32,8 +32,8 @@ int IFaceTable::FindFunction(const char *name) {
 	int lo = 0;
 	int hi = IFaceTable::functionCount - 1;
 	do {
-		int idx = (lo+hi)/2;
-		int cmp = strcmp(name, functions[idx].name);
+		const int idx = (lo+hi)/2;
+		const int cmp = strcmp(name, functions[idx].name);
 		if (cmp > 0) {
 			lo = idx + 1;
 		} else if (cmp < 0) {
@@ -71,8 +71,8 @@ int IFaceTable::FindProperty(const char *name) {
 	int lo = 0;
 	int hi = IFaceTable::propertyCount - 1;
 	do {
-		int idx = (lo+hi)/2;
-		int cmp = strcmp(name, properties[idx].name);
+		const int idx = (lo+hi)/2;
+		const int cmp = strcmp(name, properties[idx].name);
 
 		if (cmp > 0) {
 			lo = idx + 1;
@@ -94,7 +94,7 @@ int IFaceTable::GetConstantName(int value, char *nameOut, unsigned nameBufferLen
 	// Look in both the constants table and the functions table.  Start with functions.
 	for (int funcIdx = 0; funcIdx < functionCount; ++funcIdx) {
 		if (functions[funcIdx].value == value) {
-			int len = static_cast<int>(strlen(functions[funcIdx].name)) + 4;
+			const int len = static_cast<int>(strlen(functions[funcIdx].name)) + 4;
 			if (nameOut && (static_cast<int>(nameBufferLen) > len)) {
 				strcpy(nameOut, "SCI_");
 				strcat(nameOut, functions[funcIdx].name);
@@ -113,7 +113,7 @@ int IFaceTable::GetConstantName(int value, char *nameOut, unsigned nameBufferLen
 
 	for (int constIdx = 0; constIdx < constantCount; ++constIdx) {
 		if (constants[constIdx].value == value && (prefix == NULL || strncmp(prefix, constants[constIdx].name, strlen(prefix)) == 0)) {
-			int len = static_cast<int>(strlen(constants[constIdx].name));
+			const int len = static_cast<int>(strlen(constants[constIdx].name));
 			if (nameOut && (static_cast<int>(nameBufferLen) > len)) {
 				strcpy(nameOut, constants[constIdx].name);
 				return len;

@@ -167,7 +167,7 @@ public:
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
 	void Next(bool markAll, bool invertDirection);
-	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
+	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const;
 	virtual void ShowPopup();
 	virtual bool Command(WPARAM wParam);
 	virtual void Size();
@@ -191,7 +191,7 @@ public:
 	virtual int Lines() const;
 	void Focus();
 	virtual bool KeyDown(WPARAM key);
-	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked);
+	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const;
 	virtual void ShowPopup();
 	void HandleReplaceCommand(int cmd, bool reverseFind = false);
 	virtual bool Command(WPARAM wParam);

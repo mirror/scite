@@ -36,11 +36,11 @@ GUI::gui_string ClassNameOfWindow(HWND hWnd) {
 		return GUI::gui_string();
 }
 
-static void SetFontHandle(GUI::Window &w, HFONT hfont) {
+static void SetFontHandle(const GUI::Window &w, HFONT hfont) {
 	SetWindowFont(HwndOf(w), hfont, 0);
 }
 
-static void CheckButton(GUI::Window &wButton, bool checked) {
+static void CheckButton(const GUI::Window &wButton, bool checked) {
 	::SendMessage(HwndOf(wButton),
 		BM_SETCHECK, checked ? BST_CHECKED : BST_UNCHECKED, 0);
 }
@@ -50,7 +50,7 @@ static int WidthText(HFONT hfont, const GUI::gui_char *text) {
 	HFONT hfontOriginal = static_cast<HFONT>(::SelectObject(hdcMeasure, hfont));
 	RECT rcText = {0,0, 2000, 2000};
 	::DrawText(hdcMeasure, text, -1, &rcText, DT_CALCRECT);
-	int width = rcText.right - rcText.left;
+	const int width = rcText.right - rcText.left;
 	::SelectObject(hdcMeasure, hfontOriginal);
 	::DeleteDC(hdcMeasure);
 	return width;
@@ -133,7 +133,7 @@ static SearchOption toggles[] = {
 
 GUI::Window Strip::CreateText(const char *text) {
 	GUI::gui_string localised = localiser->Text(text);
-	int width = WidthText(fontText, localised.c_str()) + 4;
+	const int width = WidthText(fontText, localised.c_str()) + 4;
 	GUI::Window w;
 	w.SetID(::CreateWindowEx(0, TEXT("Static"), localised.c_str(),
 		WS_CHILD | WS_CLIPSIBLINGS | SS_RIGHT,
@@ -157,7 +157,7 @@ static DWORD GetVersion(LPCTSTR lpszDllName) {
             ::ZeroMemory(&dvi, sizeof(dvi));
             dvi.cbSize = sizeof(dvi);
 
-            HRESULT hr = (*pDllGetVersion)(&dvi);
+            const HRESULT hr = (*pDllGetVersion)(&dvi);
             if (SUCCEEDED(hr)) {
                dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
             }
@@ -173,7 +173,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 	int height = 19 + 2 * ::GetSystemMetrics(SM_CYEDGE);
 	if (check) {
 		width += 6;
-		int checkSize = ::GetSystemMetrics(SM_CXMENUCHECK);
+		const int checkSize = ::GetSystemMetrics(SM_CXMENUCHECK);
 		width += checkSize;
 	} else {
 		width += 2 * ::GetSystemMetrics(SM_CXEDGE);	// Allow for 3D borders
@@ -433,7 +433,7 @@ bool Strip::MouseInClose(GUI::Point pt) {
 }
 
 void Strip::TrackMouse(GUI::Point pt) {
-	stripCloseState closeStateStart = closeState;
+	const stripCloseState closeStateStart = closeState;
 	if (MouseInClose(pt)) {
 		if (closeState == csNone)
 			closeState = csOver;
@@ -467,7 +467,7 @@ void Strip::SetTheme() {
 		scale = ::GetDeviceCaps(hdc, LOGPIXELSX);
 		::ReleaseDC(Hwnd(), hdc);
 		space = scale * 2 / 96;
-		HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL,
+		const HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL,
 			NULL, TS_TRUE, &closeSize);
 		//HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_MDICLOSEBUTTON, CBS_NORMAL,
 		//	NULL, TS_TRUE, &closeSize);
@@ -494,7 +494,7 @@ LRESULT Strip::EditColour(HWND hwnd, HDC hdc) {
 }
 
 LRESULT Strip::CustomDraw(NMHDR *pnmh) {
-	int btnStyle = ::GetWindowLong(pnmh->hwndFrom, GWL_STYLE);
+	const int btnStyle = ::GetWindowLong(pnmh->hwndFrom, GWL_STYLE);
 	if ((btnStyle & BS_AUTOCHECKBOX) != BS_AUTOCHECKBOX) {
 		return CDRF_DODEFAULT;
 	}
@@ -509,7 +509,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		if (!hThemeButton) {
 			return CDRF_DODEFAULT;
 		}
-		bool checked = ::SendMessage(pnmh->hwndFrom, BM_GETCHECK, 0, 0) == BST_CHECKED;
+		const bool checked = ::SendMessage(pnmh->hwndFrom, BM_GETCHECK, 0, 0) == BST_CHECKED;
 
 		int buttonAppearence = checked ? TS_CHECKED : TS_NORMAL;
 		if (pcd->uItemState & CDIS_SELECTED)
@@ -524,7 +524,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 
 		RECT rcButton = pcd->rc;
 		rcButton.bottom--;
-		HRESULT hr = ::GetThemeBackgroundContentRect(hThemeButton, pcd->hdc, TP_BUTTON,
+		const HRESULT hr = ::GetThemeBackgroundContentRect(hThemeButton, pcd->hdc, TP_BUTTON,
 			buttonAppearence, &pcd->rc, &rcButton);
 		if (!SUCCEEDED(hr)) {
 			return CDRF_DODEFAULT;
@@ -541,8 +541,8 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		DWORD colourTransparent = RGB(0xC0,0xC0,0xC0);
 
 		// Offset from button edge to contents.
-		int xOffset = ((rcButton.right - rcButton.left) - rbmi.bmiHeader.biWidth) / 2 + 1;
-		int yOffset = ((rcButton.bottom - rcButton.top) - rbmi.bmiHeader.biHeight) / 2;
+		const int xOffset = ((rcButton.right - rcButton.left) - rbmi.bmiHeader.biWidth) / 2 + 1;
+		const int yOffset = ((rcButton.bottom - rcButton.top) - rbmi.bmiHeader.biHeight) / 2;
 
 		HDC hdcBM = ::CreateCompatibleDC(NULL);
 		HBITMAP hbmOriginal = static_cast<HBITMAP>(::SelectObject(hdcBM, hBitmap));
@@ -655,7 +655,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				return CustomDraw(pnmh);
 			} else if (pnmh->code == static_cast<unsigned int>(TTN_GETDISPINFO)) {
 				NMTTDISPINFOW *pnmtdi = reinterpret_cast<LPNMTTDISPINFO>(lParam);
-				int idButton = static_cast<int>(
+				const int idButton = static_cast<int>(
 					(pnmtdi->uFlags & TTF_IDISHWND) ?
 					::GetDlgCtrlID(reinterpret_cast<HWND>(pnmtdi->hdr.idFrom)) : pnmtdi->hdr.idFrom);
 				for (size_t i=0; toggles[i].label; i++) {
@@ -887,7 +887,7 @@ bool SearchStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
 	int control = ControlIDOfWParam(wParam);
-	int subCommand = static_cast<int>(wParam >> 16);
+	const int subCommand = static_cast<int>(wParam >> 16);
 	if (((control == IDC_INCFINDTEXT) && (subCommand == EN_CHANGE)) ||
 		(control == IDC_INCFINDBTNOK)) {
 		Next(control != IDC_INCFINDBTNOK);
@@ -1003,7 +1003,7 @@ void FindStrip::Size() {
 	rcButton.top -= 1;
 	rcButton.bottom += 1;
 
-	int checkWidth = rcButton.Height() - 2;	// Using height to make square
+	const int checkWidth = rcButton.Height() - 2;	// Using height to make square
 	rcButton.left = rcButton.right - checkWidth;
 	wCheckUp.SetPosition(rcButton);
 
@@ -1093,7 +1093,7 @@ void FindStrip::Next(bool markAll, bool invertDirection) {
 	}
 }
 
-void FindStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) {
+void FindStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const {
 	GUI::gui_string localised = localiser->Text(label);
 	HMENU menu = static_cast<HMENU>(popup.GetID());
 	if (0 == localised.length())
@@ -1117,7 +1117,7 @@ bool FindStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
 	int control = ControlIDOfWParam(wParam);
-	int subCommand = static_cast<int>(wParam >> 16);
+	const int subCommand = static_cast<int>(wParam >> 16);
 	if (control == IDOK) {
 		if (incrementalBehaviour == simple) {
 			Next(false, false);
@@ -1225,17 +1225,17 @@ void ReplaceStrip::Size() {
 		return;
 	Strip::Size();
 
-	int widthCaption = Maximum(WidthControl(wStaticFind), WidthControl(wStaticReplace));
+	const int widthCaption = Maximum(WidthControl(wStaticFind), WidthControl(wStaticReplace));
 
 	GUI::Rectangle rcLine = LineArea(0);
 
-	int widthButtons = Maximum(WidthControl(wButtonFind), WidthControl(wButtonReplace));
-	int widthLastButtons = Maximum(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
+	const int widthButtons = Maximum(WidthControl(wButtonFind), WidthControl(wButtonReplace));
+	const int widthLastButtons = Maximum(WidthControl(wButtonReplaceAll), WidthControl(wButtonReplaceInSelection));
 
 	GUI::Rectangle rcButton = rcLine;
 	rcButton.top -= 1;
 
-	int checkWidth = rcButton.Height() - 2;	// Using height to make square
+	const int checkWidth = rcButton.Height() - 2;	// Using height to make square
 
 	// Allow empty slot to match wrap button on next line
 	rcButton.right = rcButton.right - (checkWidth + 4);
@@ -1314,7 +1314,7 @@ void ReplaceStrip::Focus() {
 	::SetFocus(HwndOf(wText));
 }
 
-static bool IsSameOrChild(GUI::Window &wParent, HWND wChild) {
+static bool IsSameOrChild(const GUI::Window &wParent, HWND wChild) {
 	HWND hwnd = HwndOf(wParent);
 	return (wChild == hwnd) || IsChild(hwnd, wChild);
 }
@@ -1345,7 +1345,7 @@ bool ReplaceStrip::KeyDown(WPARAM key) {
 	return false;
 }
 
-void ReplaceStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) {
+void ReplaceStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const {
 	GUI::gui_string localised = localiser->Text(label);
 	HMENU menu = static_cast<HMENU>(popup.GetID());
 	if (0 == localised.length())
@@ -1529,7 +1529,7 @@ void UserStrip::Size() {
 	psd->CalculateColumnWidths(rcArea.Width());
 
 	for (unsigned int line=0; line<psd->controls.size(); line++) {
-		int top = rcArea.top + line * lineHeight;
+		const int top = rcArea.top + line * lineHeight;
 		int left = rcArea.left;
 		size_t column = 0;
 		std::vector<UserControl> &uc = psd->controls[line];
@@ -1616,7 +1616,7 @@ bool UserStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
 	int control = ControlIDOfWParam(wParam);
-	int notification = HIWORD(wParam);
+	const int notification = HIWORD(wParam);
 	if (extender) {
 		StripCommand sc = NotificationToStripCommand(notification);
 		if (sc != scUnknown)
@@ -1640,7 +1640,7 @@ int UserStrip::Lines() const {
 void UserStrip::SetDescription(const char *description) {
 	entered++;
 	GUI::gui_string sDescription = GUI::StringFromUTF8(description);
-	bool resetting = psd != 0;
+	const bool resetting = psd != 0;
 	if (psd) {
 		for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
 			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
@@ -1718,7 +1718,7 @@ UserControl *UserStrip::FindControl(int control) {
 }
 
 void UserStrip::Set(int control, const char *value) {
-	UserControl *ctl = FindControl(control);
+	const UserControl *ctl = FindControl(control);
 	if (ctl) {
 		GUI::gui_string sValue = GUI::StringFromUTF8(value);
 		::SetWindowTextW(HwndOf(ctl->w), sValue.c_str());
@@ -1726,7 +1726,7 @@ void UserStrip::Set(int control, const char *value) {
 }
 
 void UserStrip::SetList(int control, const char *value) {
-	UserControl *ctl = FindControl(control);
+	const UserControl *ctl = FindControl(control);
 	if (ctl) {
 		if (ctl->controlType == UserControl::ucCombo) {
 			GUI::gui_string sValue = GUI::StringFromUTF8(value);
@@ -1741,7 +1741,7 @@ void UserStrip::SetList(int control, const char *value) {
 }
 
 std::string UserStrip::GetValue(int control) {
-	UserControl *ctl = FindControl(control);
+	const UserControl *ctl = FindControl(control);
 	if (ctl) {
 		return ControlText(ctl->w);
 	}

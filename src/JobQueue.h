@@ -123,7 +123,7 @@ public:
 
 	long SetCancelFlag(long value) {
 		Lock lock(mutex);
-		long cancelFlagPrevious = cancelFlag;
+		const long cancelFlagPrevious = cancelFlag;
 		cancelFlag = value;
 		return cancelFlagPrevious;
 	}

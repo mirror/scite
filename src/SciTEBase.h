@@ -168,7 +168,7 @@ public:
 	}
 	void Allocate(int maxSize);
 	int Add();
-	int GetDocumentByWorker(FileWorker *pFileWorker) const;
+	int GetDocumentByWorker(const FileWorker *pFileWorker) const;
 	int GetDocumentByName(const FilePath &filename, bool excludeCurrent=false);
 	void RemoveInvisible(int index);
 	void RemoveCurrent();
@@ -978,7 +978,7 @@ private:
 };
 
 int ControlIDOfCommand(unsigned long);
-long ColourOfProperty(PropSetFile &props, const char *key, Colour colourDefault);
+long ColourOfProperty(const PropSetFile &props, const char *key, Colour colourDefault);
 void WindowSetFocus(GUI::ScintillaWindow &w);
 
 inline bool isspacechar(unsigned char ch) {

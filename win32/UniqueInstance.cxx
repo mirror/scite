@@ -141,7 +141,7 @@ void UniqueInstance::CheckOtherInstance() {
 	HDESK desktop = ::GetThreadDesktop(::GetCurrentThreadId());
 	DWORD len = 0;
 	// Query the needed size for the buffer
-	BOOL result = ::GetUserObjectInformation(desktop, UOI_NAME, NULL, 0, &len);
+	const BOOL result = ::GetUserObjectInformation(desktop, UOI_NAME, NULL, 0, &len);
 	if (result == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 		// WinNT / Win2000
 		std::wstring info(len, 0);	// len is actually bytes so this is twice length needed
@@ -221,7 +221,6 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
  */
 BOOL CALLBACK UniqueInstance::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 	BOOL bResult = TRUE;
-	DWORD_PTR result;
 
 	UniqueInstance *ui = reinterpret_cast<UniqueInstance *>(lParam);
 
@@ -231,7 +230,8 @@ BOOL CALLBACK UniqueInstance::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 		// the same message. If it does, it is a Gui window with
 		// openFilesHere set.
 		// We use a timeout to avoid being blocked by hung processes.
-		LRESULT found = ::SendMessageTimeout(hWnd,
+		DWORD_PTR result = 0;
+		const LRESULT found = ::SendMessageTimeout(hWnd,
 		                                     ui->identityMessage, 0, 0,
 		                                     SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
 		if (found != 0 && result == static_cast<DWORD_PTR>(ui->identityMessage)) {
