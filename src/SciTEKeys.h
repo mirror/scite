@@ -11,7 +11,7 @@
 class SciTEKeys {
 public:
 	static long ParseKeyCode(const char *mnemonic);
-	static bool MatchKeyCode(long parsedKeyCode, int key, int modifiers);
+	static bool MatchKeyCode(long parsedKeyCode, int keyval, int modifiers);
 };
 
 #endif

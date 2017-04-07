@@ -104,7 +104,7 @@ public:
 		int xpadding=5, int ypadding=5);
 	void Label(GtkWidget *child);
 	void PackInto(GtkBox *box, gboolean expand=TRUE);
-	void Resize(int rows, int columns);
+	void Resize(int rows_, int columns_);
 	void NextLine();
 };
 

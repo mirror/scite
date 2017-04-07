@@ -620,8 +620,8 @@ protected:
 	    ofQuiet = 8,		// Avoid "Could not open file" message
 	    ofSynchronous = 16	// Force synchronous read
 	};
-	void TextRead(FileWorker *pFileLoader);
-	void TextWritten(FileWorker *pFileStorer);
+	void TextRead(FileWorker *pFileWorker);
+	void TextWritten(FileWorker *pFileWorker);
 	void UpdateProgress(Worker *pWorker);
 	void PerformDeferredTasks();
 	enum OpenCompletion { ocSynchronous, ocCompleteCurrent, ocCompleteSwitch };
@@ -781,7 +781,7 @@ protected:
 	int IndentOfBlock(int line);
 	void MaintainIndentation(char ch);
 	void AutomaticIndentation(char ch);
-	void CharAdded(int ch);
+	void CharAdded(int utf32);
 	void CharAddedOutput(int ch);
 	void SetTextProperties(PropSetFile &ps);
 	virtual void SetFileProperties(PropSetFile &ps) = 0;
@@ -916,7 +916,7 @@ protected:
 	void ExecuteMacroCommand(const char *command);
 	void AskMacroList();
 	bool StartMacroList(const char *words);
-	void ContinueMacroList(const char *stxt);
+	void ContinueMacroList(const char *stext);
 	bool ProcessCommandLine(GUI::gui_string &args, int phase);
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
@@ -927,9 +927,9 @@ protected:
 	};
 	virtual bool GrepIntoDirectory(const FilePath &directory);
 	void GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, const GUI::gui_char *fileTypes);
-	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *files,
+	void InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *fileTypes,
 			  const char *search, sptr_t &originalEnd);
-	void EnumProperties(const char *action);
+	void EnumProperties(const char *propkind);
 	void SendOneProperty(const char *kind, const char *key, const char *val);
 	void PropertyFromDirector(const char *arg);
 	void PropertyToDirector(const char *arg);
@@ -945,7 +945,7 @@ protected:
 	void UnsetProperty(const char *key);
 	uptr_t GetInstance();
 	void ShutDown();
-	void Perform(const char *actions);
+	void Perform(const char *actionList);
 	void DoMenuCommand(int cmdID);
 
 	// Valid CurrentWord characters

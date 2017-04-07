@@ -270,7 +270,7 @@ protected:
 	virtual void SaveAsXML();
 	virtual void LoadSessionDialog();
 	virtual void SaveSessionDialog();
-	virtual bool PreOpenCheck(const GUI::gui_char *file);
+	virtual bool PreOpenCheck(const GUI::gui_char *arg);
 	virtual bool IsStdinBlocked();
 
 	/// Print the current buffer.
@@ -397,7 +397,7 @@ public:
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	virtual std::string EncodeString(const std::string &s);
-	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd);
+	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
 
 	HACCEL GetAcceleratorTable() {
 		return hAccTable;

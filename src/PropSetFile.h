@@ -45,7 +45,7 @@ public:
 	void Clear();
 
 	enum ReadLineState { rlActive, rlExcludedModule, rlConditionFalse };
-	ReadLineState ReadLine(const char *data, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
+	ReadLineState ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
 		FilePathSet *imports, size_t depth);
 	void ReadFromMemory(const char *data, size_t len, const FilePath &directoryForImports, const ImportFilter &filter,
 		FilePathSet *imports, size_t depth);

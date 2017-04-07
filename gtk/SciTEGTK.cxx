@@ -372,7 +372,7 @@ public:
 
 	FindStrip() {
 	}
-	virtual void Creation(GtkWidget *boxMain);
+	virtual void Creation(GtkWidget *container);
 	virtual void Destruction();
 	virtual void Show(int buttonHeight);
 	virtual void Close();
@@ -406,7 +406,7 @@ public:
 
 	ReplaceStrip() {
 	}
-	virtual void Creation(GtkWidget *boxMain);
+	virtual void Creation(GtkWidget *container);
 	virtual void Destruction();
 	virtual void Show(int buttonHeight);
 	virtual void Close();
@@ -437,7 +437,7 @@ public:
 
 	UserStrip() : psd(0), extender(0), pSciTEGTK(0), tableUser(1, 1){
 	}
-	virtual void Creation(GtkWidget *boxMain);
+	virtual void Creation(GtkWidget *container);
 	virtual void Destruction();
 	virtual void Show(int buttonHeight);
 	virtual void Close();
@@ -599,7 +599,7 @@ protected:
 	void Print(bool) override;
 	void PrintSetup() override;
 
-	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &wCurrent, int selStart, int selEnd) override;
+	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) override;
 
 	MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style = mbsIconWarning) override;
 	void FindMessageBox(const std::string &msg, const std::string *findItem=0) override;
@@ -707,7 +707,7 @@ protected:
 	gint Mouse(GdkEventButton *event);
 
 	static void DragDataReceived(GtkWidget *widget, GdkDragContext *context,
-	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, SciTEGTK *scitew);
+	                             gint x, gint y, GtkSelectionData *selectionData, guint info, guint time, SciTEGTK *scitew);
 
 	gint TabBarRelease(GtkNotebook *notebook, GdkEventButton *event);
 	gint TabBarScroll(GdkEventScroll *event);
@@ -3467,8 +3467,8 @@ gint SciTEGTK::Mouse(GdkEventButton *event) {
 }
 
 void SciTEGTK::DragDataReceived(GtkWidget *, GdkDragContext *context,
-                                gint /*x*/, gint /*y*/, GtkSelectionData *seldata, guint /*info*/, guint time, SciTEGTK *scitew) {
-	scitew->OpenUriList(reinterpret_cast<const char *>(gtk_selection_data_get_data(seldata)));
+                                gint /*x*/, gint /*y*/, GtkSelectionData *selectionData, guint /*info*/, guint time, SciTEGTK *scitew) {
+	scitew->OpenUriList(reinterpret_cast<const char *>(gtk_selection_data_get_data(selectionData)));
 	gtk_drag_finish(context, TRUE, FALSE, time);
 }
 

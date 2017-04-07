@@ -24,7 +24,7 @@ public:
 	virtual bool OnSwitchFile(const char *path);
 	virtual bool OnSave(const char *path);
 	virtual bool OnChar(char ch);
-	virtual bool OnExecute(const char *s);
+	virtual bool OnExecute(const char *cmd);
 	virtual bool OnSavePointReached();
 	virtual bool OnSavePointLeft();
 	virtual bool OnStyle(unsigned int startPos, int lengthDoc, int initStyle, StyleWriter *styler);
