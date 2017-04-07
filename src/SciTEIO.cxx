@@ -772,6 +772,18 @@ void SciTEBase::CheckReload() {
 				Open(filePath, static_cast<OpenFlags>(of | ofForceLoad));
 				DisplayAround(rf);
 			}
+		}  else if (newModTime == 0 && CurrentBuffer()->fileModTime != 0)  {
+			// Check if the file is deleted
+			CurrentBuffer()->fileModTime = 0;
+			CurrentBuffer()->fileModLastAsk = 0;
+			CurrentBuffer()->isDirty = true;
+			CheckMenus();
+			SetWindowName();
+			SetBuffersMenu();
+			GUI::gui_string msg = LocaliseMessage(
+						      "The file '^0' has been deleted.",
+						      filePath.AsInternal());
+			WindowMessageBox(wSciTE, msg, mbsOK);
 		}
 	}
 }
