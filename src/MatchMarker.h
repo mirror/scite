@@ -25,7 +25,7 @@ public:
 	MatchMarker();
 	~MatchMarker();
 	void StartMatch(GUI::ScintillaWindow *pSci_,
-		std::string textMatch_, int flagsMatch_, int styleMatch_,
+		const std::string &textMatch_, int flagsMatch_, int styleMatch_,
 		int indicator_, int bookMark_);
 	bool Complete() const;
 	void Continue();

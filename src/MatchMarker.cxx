@@ -44,7 +44,7 @@ MatchMarker::~MatchMarker() {
 }
 
 void MatchMarker::StartMatch(GUI::ScintillaWindow *pSci_,
-	std::string textMatch_, int flagsMatch_, int styleMatch_,
+	const std::string &textMatch_, int flagsMatch_, int styleMatch_,
 	int indicator_, int bookMark_) {
 	lineRanges.clear();
 	pSci = pSci_;
