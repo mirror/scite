@@ -1322,7 +1322,7 @@ void SciTEBase::Execute() {
 	int ic;
 	parameterisedCommand = "";
 	for (ic = 0; ic < jobQueue.commandMax; ic++) {
-		if (jobQueue.jobQueue[ic].command.find('*') == 0) {
+		if (StartsWith(jobQueue.jobQueue[ic].command, "*")) {
 			displayParameterDialog = true;
 			jobQueue.jobQueue[ic].command.erase(0, 1);
 			parameterisedCommand = jobQueue.jobQueue[ic].command;
