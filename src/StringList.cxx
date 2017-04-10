@@ -52,10 +52,7 @@ static std::vector<char *> ArrayFromStringList(char *stringList, bool onlyLineEn
 	int words = 0;
 	// For rapid determination of whether a character is a separator, build
 	// a look up table.
-	bool wordSeparator[256];
-	for (int i=0; i<256; i++) {
-		wordSeparator[i] = false;
-	}
+	bool wordSeparator[256] = {};
 	wordSeparator[static_cast<unsigned int>('\r')] = true;
 	wordSeparator[static_cast<unsigned int>('\n')] = true;
 	if (!onlyLineEnds) {
