@@ -1317,11 +1317,7 @@ public:
 		lineNum++;
 		lineToCompare = lineToShow;
 		if (!caseSensitive) {
-			for (unsigned int j = 0; j < lineToCompare.length(); j++) {
-				if (lineToCompare[j] >= 'A' && lineToCompare[j] <= 'Z') {
-					lineToCompare[j] = static_cast<char>(lineToCompare[j] - 'A' + 'a');
-				}
-			}
+			LowerCaseAZ(lineToCompare);
 		}
 		return lineToCompare.c_str();
 	}
