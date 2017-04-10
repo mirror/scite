@@ -169,34 +169,34 @@ unsigned int UTF32Character(const unsigned char *utf8) {
  */
 std::string Slash(const std::string &s, bool quoteQuotes) {
 	std::string oRet;
-	for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
-		if (*it == '\a') {
+	for (char ch : s) {
+		if (ch == '\a') {
 			oRet.append("\\a");
-		} else if (*it == '\b') {
+		} else if (ch == '\b') {
 			oRet.append("\\b");
-		} else if (*it == '\f') {
+		} else if (ch == '\f') {
 			oRet.append("\\f");
-		} else if (*it == '\n') {
+		} else if (ch == '\n') {
 			oRet.append("\\n");
-		} else if (*it == '\r') {
+		} else if (ch == '\r') {
 			oRet.append("\\r");
-		} else if (*it == '\t') {
+		} else if (ch == '\t') {
 			oRet.append("\\t");
-		} else if (*it == '\v') {
+		} else if (ch == '\v') {
 			oRet.append("\\v");
-		} else if (*it == '\\') {
+		} else if (ch == '\\') {
 			oRet.append("\\\\");
-		} else if (quoteQuotes && (*it == '\'')) {
+		} else if (quoteQuotes && (ch == '\'')) {
 			oRet.append("\\\'");
-		} else if (quoteQuotes && (*it == '\"')) {
+		} else if (quoteQuotes && (ch == '\"')) {
 			oRet.append("\\\"");
-		} else if (IsASCII(*it) && (*it < ' ')) {
+		} else if (IsASCII(ch) && (ch < ' ')) {
 			oRet.push_back('\\');
-			oRet.push_back(static_cast<char>((*it >> 6) + '0'));
-			oRet.push_back(static_cast<char>((*it >> 3) + '0'));
-			oRet.push_back(static_cast<char>((*it & 0x7) + '0'));
+			oRet.push_back(static_cast<char>((ch >> 6) + '0'));
+			oRet.push_back(static_cast<char>((ch >> 3) + '0'));
+			oRet.push_back(static_cast<char>((ch & 0x7) + '0'));
 		} else {
-			oRet.push_back(*it);
+			oRet.push_back(ch);
 		}
 	}
 	return oRet;

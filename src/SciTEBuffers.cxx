@@ -575,7 +575,11 @@ void SciTEBase::RestoreRecentMenu() {
 	}
 }
 
-static std::vector<int> LinesFromString(const std::string &s) {
+namespace {
+
+// Line numbers are 0-based inside SciTE but are saved in session files as 1-based.
+
+std::vector<int> LinesFromString(const std::string &s) {
 	std::vector<int> result;
 	if (s.length()) {
 		size_t start = 0;
@@ -591,9 +595,23 @@ static std::vector<int> LinesFromString(const std::string &s) {
 	return result;
 }
 
+std::string StringFromLines(const std::vector<int> &lines) {
+	std::string result;
+	for (const int line : lines) {
+		if (result.length()) {
+			result.append(",");
+		}
+		std::string sLine = StdStringFromInteger(line + 1);
+		result.append(sLine);
+	}
+	return result;
+}
+
+}
+
 void SciTEBase::RestoreFromSession(const Session &session) {
-	for (std::vector<BufferState>::const_iterator bs=session.buffers.begin(); bs != session.buffers.end(); ++bs)
-		AddFileToBuffer(*bs);
+	for (const BufferState &buffer : session.buffers)
+		AddFileToBuffer(buffer);
 	int iBuffer = buffers.GetDocumentByName(session.pathActive);
 	if (iBuffer >= 0)
 		SetDocumentAt(iBuffer);
@@ -756,35 +774,19 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				}
 
 				if (props.GetInt("session.bookmarks")) {
-					bool found = false;
-					for (std::vector<int>::iterator itBM=buff.bookmarks.begin();
-						itBM != buff.bookmarks.end(); ++itBM) {
-						if (!found) {
-							propKey = IndexPropKey("buffer", i, "bookmarks");
-							fprintf(sessionFile, "%s=%d", propKey.c_str(), *itBM + 1);
-							found = true;
-						} else {
-							fprintf(sessionFile, ",%d", *itBM + 1);
-						}
+					const std::string bmString = StringFromLines(buff.bookmarks);
+					if (bmString.length()) {
+						propKey = IndexPropKey("buffer", i, "bookmarks");
+						fprintf(sessionFile, "%s=%s\n", propKey.c_str(), bmString.c_str());
 					}
-					if (found)
-						fprintf(sessionFile, "\n");
 				}
 
 				if (props.GetInt("fold") && props.GetInt("session.folds")) {
-					bool found = false;
-					for (std::vector<int>::iterator itF=buff.foldState.begin();
-						itF != buff.foldState.end(); ++itF) {
-						if (!found) {
-							propKey = IndexPropKey("buffer", i, "folds");
-							fprintf(sessionFile, "%s=%d", propKey.c_str(), *itF + 1);
-							found = true;
-						} else {
-							fprintf(sessionFile, ",%d", *itF + 1);
-						}
+					const std::string foldsString = StringFromLines(buff.foldState);
+					if (foldsString.length()) {
+						propKey = IndexPropKey("buffer", i, "folds");
+						fprintf(sessionFile, "%s=%s\n", propKey.c_str(), foldsString.c_str());
 					}
-					if (found)
-						fprintf(sessionFile, "\n");
 				}
 			}
 		}
@@ -898,13 +900,13 @@ void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 	// check to see whether there is saved fold state, restore
 	if (!buffer.foldState.empty()) {
 		wEditor.Call(SCI_COLOURISE, 0, -1);
-		for (std::vector<int>::const_iterator fold=buffer.foldState.begin(); fold != buffer.foldState.end(); ++fold) {
-			wEditor.Call(SCI_TOGGLEFOLD, *fold);
+		for (const int fold : buffer.foldState) {
+			wEditor.Call(SCI_TOGGLEFOLD, fold);
 		}
 	}
 	if (restoreBookmarks) {
-		for (std::vector<int>::const_iterator mark=buffer.bookmarks.begin(); mark != buffer.bookmarks.end(); ++mark) {
-			wEditor.Call(SCI_MARKERADD, *mark, markerBookmark);
+		for (const int bookmark : buffer.bookmarks) {
+			wEditor.Call(SCI_MARKERADD, bookmark, markerBookmark);
 		}
 	}
 }

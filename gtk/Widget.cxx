@@ -150,8 +150,8 @@ void WComboBoxEntry::ClearList() {
 
 void WComboBoxEntry::FillFromMemory(const std::vector<std::string> &mem, bool useTop) {
 	ClearList();
-	for (size_t i = 0; i < mem.size(); i++) {
-		AppendText(mem[i].c_str());
+	for (const std::string &s : mem) {
+		AppendText(s.c_str());
 	}
 	if (useTop) {
 		gtk_entry_set_text(Entry(), mem[0].c_str());

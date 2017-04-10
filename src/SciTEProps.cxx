@@ -379,8 +379,8 @@ void SciTEBase::ReadAPI(const std::string &fileNameForExtension) {
 		std::vector<char> data;
 
 		// Load files into data
-		for (std::vector<std::string>::iterator it = vApiFileNames.begin(); it != vApiFileNames.end(); ++it) {
-			std::vector<char> contents = FilePath(GUI::StringFromUTF8(*it)).Read();
+		for (const std::string &vApiFileName : vApiFileNames) {
+			std::vector<char> contents = FilePath(GUI::StringFromUTF8(vApiFileName)).Read();
 			data.insert(data.end(), contents.begin(), contents.end());
 		}
 
@@ -1414,13 +1414,13 @@ void SciTEBase::ReadFontProperties() {
 	}
 
 	const int diffToSecondary = static_cast<int>(wEditor.Call(SCI_DISTANCETOSECONDARYSTYLES));
-	for (unsigned int baseStyle=0; baseStyle<subStyleBases.size(); baseStyle++) {
-		const int subStylesStart = wEditor.Call(SCI_GETSUBSTYLESSTART, subStyleBases[baseStyle]);
-		const int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, subStyleBases[baseStyle]);
+	for (const char subStyleBase : subStyleBases) {
+		const int subStylesStart = wEditor.Call(SCI_GETSUBSTYLESSTART, subStyleBase);
+		const int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, subStyleBase);
 		for (int subStyle=0; subStyle<subStylesLength; subStyle++) {
 			for (int active=0; active<(diffToSecondary?2:1); active++) {
 				int activity = active * diffToSecondary;
-				sprintf(key, "style.%s.%0d.%0d", languageName, subStyleBases[baseStyle] + activity, subStyle+1);
+				sprintf(key, "style.%s.%0d.%0d", languageName, subStyleBase + activity, subStyle+1);
 				sval = props.GetNewExpandString(key);
 				SetOneStyle(wEditor, subStylesStart + subStyle + activity, sval.c_str());
 			}

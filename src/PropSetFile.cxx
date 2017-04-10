@@ -415,8 +415,7 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 			FilePathSet directories;
 			FilePathSet files;
 			directoryForImports.List(directories, files);
-			for (size_t i = 0; i < files.size(); i ++) {
-				FilePath fpFile = files[i];
+			for (const FilePath &fpFile : files) {
 				if (IsPropertiesFile(fpFile) &&
 					!GenericPropertiesFile(fpFile) &&
 					filter.IsValid(fpFile.BaseName().AsUTF8())) {

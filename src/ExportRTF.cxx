@@ -205,9 +205,9 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 		styles.push_back(osStyle.str());
 	}
 	os << RTF_FONTDEFCLOSE RTF_COLORDEFOPEN;
-	for (size_t i = 0; i < colors.size(); i++) {
-		os << "\\red" << IntFromHexByte(colors[i].c_str() + 1) << "\\green" << IntFromHexByte(colors[i].c_str() + 3) <<
-		   "\\blue" << IntFromHexByte(colors[i].c_str() + 5) << ";";
+	for (const std::string &color : colors) {
+		os << "\\red" << IntFromHexByte(color.c_str() + 1) << "\\green" << IntFromHexByte(color.c_str() + 3) <<
+		   "\\blue" << IntFromHexByte(color.c_str() + 5) << ";";
 	}
 	os << RTF_COLORDEFCLOSE RTF_HEADERCLOSE RTF_BODYOPEN RTF_SETFONTFACE "0"
 	   RTF_SETFONTSIZE << defaultStyle.size << RTF_SETCOLOR "0 ";

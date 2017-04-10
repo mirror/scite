@@ -59,9 +59,9 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 
 	modeVal.erase(std::remove(modeVal.begin(), modeVal.end(),' '), modeVal.end());
 	std::vector<std::string> modes = StringSplit(modeVal, ',');
-	for (std::vector<std::string>::iterator it=modes.begin(); it != modes.end(); ++it) {
+	for (const std::string &mode : modes) {
 
-		std::vector<std::string> optValue = StringSplit(*it, ':');
+		std::vector<std::string> optValue = StringSplit(mode, ':');
 
 		if (optValue.size() == 0) {
 			continue;
@@ -179,8 +179,8 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 }
 
 void JobQueue::ClearJobs() {
-	for (int ic = 0; ic < commandMax; ic++) {
-		jobQueue[ic].Clear();
+	for (Job &ic : jobQueue) {
+		ic.Clear();
 	}
 	commandCurrent = 0;
 }
