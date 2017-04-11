@@ -51,6 +51,8 @@ static SIZE SizeButton(const GUI::Window &wButton) {
 	// Push buttons can be measured with BCM_GETIDEALSIZE.
 	::SendMessage(HwndOf(wButton),
 		BCM_GETIDEALSIZE, 0, reinterpret_cast<LPARAM>(&sz));
+#else
+	(void)wButton;	// Avoid warning from GCC
 #endif
 	return sz;
 }
