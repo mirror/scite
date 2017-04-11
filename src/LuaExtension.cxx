@@ -24,11 +24,18 @@
 #include "IFaceTable.h"
 #include "SciTEKeys.h"
 
+#define LUA_COMPAT_5_1
 extern "C" {
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
 }
+
+#if (LUA_VERSION_NUM < 502)
+#define lua_pushglobaltable(L) lua_pushvalue(L, LUA_GLOBALSINDEX)
+#else
+#define LUA_GLOBALSINDEX LUA_RIDX_GLOBALS
+#endif
 
 #if defined(_WIN32) && defined(_MSC_VER)
 
@@ -104,8 +111,8 @@ inline bool IFaceFunctionIsScriptable(const IFaceFunction &f) {
 
 inline bool IFacePropertyIsScriptable(const IFaceProperty &p) {
 	return (((p.valueType > iface_void) && (p.valueType <= iface_stringresult) && (p.valueType != iface_keymod)) &&
-	        ((p.paramType < iface_colour) || (p.paramType == iface_string) ||
-	                (p.paramType == iface_bool)) && (p.getter || p.setter));
+		((p.paramType < iface_colour) || (p.paramType == iface_string) ||
+		 (p.paramType == iface_bool)) && (p.getter || p.setter));
 }
 
 inline void raise_error(lua_State *L, const char *errMsg=NULL) {
@@ -119,10 +126,20 @@ inline void raise_error(lua_State *L, const char *errMsg=NULL) {
 	lua_error(L);
 }
 
+// lua_absindex for LUA <5.1
 inline int absolute_index(lua_State *L, int index) {
-	return ((index < 0) && (index != LUA_REGISTRYINDEX) && (index != LUA_GLOBALSINDEX))
-	       ? (lua_gettop(L) + index + 1) : index;
+	if (index > LUA_REGISTRYINDEX && index < 0)
+		return lua_gettop(L) + index + 1;
+	else
+		return index;
 }
+
+/**
+* merge_table / clone_table / clear_table utilized to
+* "soft-replace" an existing global scope instead of using using new_table,
+* because then startup script would be bound to a different copy
+* of the globals than the extension script.
+**/
 
 // copy the contents of one table into another returning the size
 static int merge_table(lua_State *L, int destTableIdx, int srcTableIdx, bool copyMetatable = false) {
@@ -412,14 +429,14 @@ static int cf_pane_findtext(lua_State *L) {
 
 		if (!hasError) {
 			if (nArgs > 3) {
-				ft.chrg.cpMin = static_cast<int>(luaL_checkint(L,4));
+				ft.chrg.cpMin = static_cast<int>(luaL_checkint(L, 4));
 				hasError = (lua_gettop(L) > nArgs);
 			}
 		}
 
 		if (!hasError) {
 			if (nArgs > 4) {
-				ft.chrg.cpMax = static_cast<int>(luaL_checkint(L,5));
+				ft.chrg.cpMax = static_cast<int>(luaL_checkint(L, 5));
 				hasError = (lua_gettop(L) > nArgs);
 			} else {
 				ft.chrg.cpMax = static_cast<long>(host->Send(p, SCI_GETLENGTH, 0, 0));
@@ -429,8 +446,8 @@ static int cf_pane_findtext(lua_State *L) {
 		if (!hasError) {
 			sptr_t result = host->Send(p, SCI_FINDTEXT, static_cast<uptr_t>(flags), SptrFromPointer(&ft));
 			if (result >= 0) {
-				lua_pushnumber(L, static_cast<LUA_NUMBER>(ft.chrgText.cpMin));
-				lua_pushnumber(L, static_cast<LUA_NUMBER>(ft.chrgText.cpMax));
+				lua_pushinteger(L, static_cast<int>(ft.chrgText.cpMin));
+				lua_pushinteger(L, static_cast<int>(ft.chrgText.cpMax));
 				return 2;
 			} else {
 				lua_pushnil(L);
@@ -497,10 +514,10 @@ static int cf_match_metatable_index(lua_State *L) {
 		const char *key = lua_tostring(L, 2);
 
 		if (0 == strcmp(key, "pos")) {
-			lua_pushnumber(L, pmo->startPos);
+			lua_pushinteger(L, pmo->startPos);
 			return 1;
 		} else if (0 == strcmp(key, "len")) {
-			lua_pushnumber(L, pmo->endPos - pmo->startPos);
+			lua_pushinteger(L, pmo->endPos - pmo->startPos);
 			return 1;
 		} else if (0 == strcmp(key, "text")) {
 			// If the document is changed while in the match loop, this will be broken.
@@ -620,7 +637,7 @@ static int cf_pane_match_generator(lua_State *L) {
 		searchPos++;
 	}
 
-	Sci_TextToFind ft = { {0,0}, 0, {0,0} };
+	Sci_TextToFind ft = { {0, 0}, 0, {0, 0} };
 	ft.chrg.cpMin = searchPos;
 	ft.chrg.cpMax = static_cast<long>(host->Send(pmo->pane, SCI_GETLENGTH, 0, 0));
 	ft.lpstrText = text;
@@ -722,7 +739,7 @@ static int cf_global_print(lua_State *L) {
 
 
 static int cf_global_trace(lua_State *L) {
-	const char *s = lua_tostring(L,1);
+	const char *s = lua_tostring(L, 1);
 	if (s) {
 		host->Trace(s);
 	}
@@ -831,7 +848,7 @@ static bool CallNamedFunction(const char *name, int numberArg, const char *strin
 	if (luaState) {
 		lua_getglobal(luaState, name);
 		if (lua_isfunction(luaState, -1)) {
-			lua_pushnumber(luaState, numberArg);
+			lua_pushinteger(luaState, numberArg);
 			lua_pushstring(luaState, stringArg);
 			handled = call_function(luaState, 2);
 		} else {
@@ -846,8 +863,8 @@ static bool CallNamedFunction(const char *name, int numberArg, int numberArg2) {
 	if (luaState) {
 		lua_getglobal(luaState, name);
 		if (lua_isfunction(luaState, -1)) {
-			lua_pushnumber(luaState, numberArg);
-			lua_pushnumber(luaState, numberArg2);
+			lua_pushinteger(luaState, numberArg);
+			lua_pushinteger(luaState, numberArg2);
 			handled = call_function(luaState, 2);
 		} else {
 			lua_pop(luaState, 1);
@@ -861,7 +878,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	int arg = 2;
 
-	sptr_t params[2] = {0,0};
+	sptr_t params[2] = {0, 0};
 
 	char *stringResult = 0;
 	bool needStringResult = false;
@@ -947,7 +964,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		lua_pushboolean(L, static_cast<int>(result));
 		resultCount++;
 	} else if (IFaceTypeIsNumeric(func.returnType)) {
-		lua_pushnumber(L, static_cast<int>(result));
+		lua_pushinteger(L, static_cast<int>(result));
 		resultCount++;
 	}
 
@@ -1137,7 +1154,7 @@ static int cf_pane_metatable_newindex(lua_State *L) {
 						} else {
 							// the nil will do as a false value.
 							// just push an arbitrary numeric value that Scintilla will ignore
-							lua_pushnumber(L, 0);
+							lua_pushinteger(L, 0);
 						}
 						return iface_function_helper(L, prop.SetterFunction());
 
@@ -1194,12 +1211,12 @@ static int cf_global_metatable_index(lua_State *L) {
 
 		int i = IFaceTable::FindConstant(name);
 		if (i >= 0) {
-			lua_pushnumber(L, IFaceTable::constants[i].value);
+			lua_pushinteger(L, IFaceTable::constants[i].value);
 			return 1;
 		} else {
 			i = IFaceTable::FindFunctionByConstantName(name);
 			if (i >= 0) {
-				lua_pushnumber(L, IFaceTable::functions[i].value);
+				lua_pushinteger(L, IFaceTable::functions[i].value);
 
 				// FindFunctionByConstantName is slow, so cache the result into the
 				// global table.  My tests show this gives an order of magnitude
@@ -1239,34 +1256,38 @@ static bool CheckStartupScript() {
 }
 
 static void PublishGlobalBufferData() {
+// release 1.62
+// A Lua table called 'buffer' is associated with each buffer
+// and can be used to maintain buffer-specific state.
 	lua_pushliteral(luaState, "buffer");
 	if (curBufferIndex >= 0) {
 		lua_pushliteral(luaState, "SciTE_BufferData_Array");
 		lua_rawget(luaState, LUA_REGISTRYINDEX);
+		// Create new SciTE_BufferData_Array / append to LUA_REGISTRYINDEX
 		if (!lua_istable(luaState, -1)) {
 			lua_pop(luaState, 1);
-
 			lua_newtable(luaState);
 			lua_pushliteral(luaState, "SciTE_BufferData_Array");
 			lua_pushvalue(luaState, -2);
 			lua_rawset(luaState, LUA_REGISTRYINDEX);
 		}
+		//  create new entry for current buffer in SciTE_BufferData_Array(idx)
 		lua_rawgeti(luaState, -1, curBufferIndex);
 		if (!lua_istable(luaState, -1)) {
-			// create new buffer-data
 			lua_pop(luaState, 1);
 			lua_newtable(luaState);
 			// remember it
 			lua_pushvalue(luaState, -1);
 			lua_rawseti(luaState, -3, curBufferIndex);
 		}
-		// Replace SciTE_BufferData_Array in the stack, leaving (buffer=-1, 'buffer'=-2)
+		// replace SciTE_BufferData_Array on the Stack (Leaving (buffer=-1, 'buffer'=-2))
+		// done to apply the expanded  SciTE_BufferData_Array ?
 		lua_replace(luaState, -2);
 	} else {
-		// for example, during startup, before any InitBuffer / ActivateBuffer
+		/// ensure that the luatable "buffer" will be empty during startup and before any InitBuffer / ActivateBuffer
 		lua_pushnil(luaState);
 	}
-	lua_rawset(luaState, LUA_GLOBALSINDEX);
+	lua_setglobal(luaState, "buffer");
 }
 
 static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
@@ -1287,11 +1308,11 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		// copy of the initialized global environment, and uses that to re-init the scope.
 
 		if (!reload) {
+			lua_pushglobaltable(luaState);
 			lua_getfield(luaState, LUA_REGISTRYINDEX, "SciTE_InitialState");
 			if (lua_istable(luaState, -1)) {
-				clear_table(luaState, LUA_GLOBALSINDEX, true);
-				merge_table(luaState, LUA_GLOBALSINDEX, -1, true);
-				lua_pop(luaState, 1);
+				clear_table(luaState, -2, true);
+				merge_table(luaState, -2, -1, true);
 
 				// restore initial package.loaded state
 				lua_getfield(luaState, LUA_REGISTRYINDEX, "SciTE_InitialPackageState");
@@ -1321,7 +1342,9 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 
 		// Don't replace global scope using new_table, because then startup script is
 		// bound to a different copy of the globals than the extension script.
-		clear_table(luaState, LUA_GLOBALSINDEX, true);
+
+		lua_pushglobaltable(luaState);
+		clear_table(luaState, -1, true);
 
 		// Lua 5.1: _LOADED is in LUA_REGISTRYINDEX, so it must be cleared before
 		// loading libraries or they will not load because Lua's package system
@@ -1330,7 +1353,7 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		lua_setfield(luaState, LUA_REGISTRYINDEX, "_LOADED");
 
 	} else if (!luaDisabled) {
-		luaState = lua_open();
+		luaState = luaL_newstate();
 		if (!luaState) {
 			luaDisabled = true;
 			host->Trace("> Lua: scripting engine failed to initialise\n");
@@ -1412,12 +1435,15 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 
 	lua_setglobal(luaState, "scite");
 
-	// Metatable for global namespace, to publish iface constants
+	// append a Metatable onto global namespace, to publish iface constants
+	lua_pushglobaltable(luaState);
 	if (luaL_newmetatable(luaState, "SciTE_MT_GlobalScope")) {
 		lua_pushcfunction(luaState, cf_global_metatable_index);
 		lua_setfield(luaState, -2, "__index");
 	}
-	lua_setmetatable(luaState, LUA_GLOBALSINDEX);
+
+	lua_setmetatable(luaState, -2);
+	lua_pop(luaState, 1);
 
 	if (checkProperties && reload) {
 		CheckStartupScript();
@@ -1443,11 +1469,14 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 		}
 	}
 
-	// Clone the initial state (including metatable) in the registry so that it can be restored.
+	// Clone the initial (globalsindex) state (including metatable) in the registry so that it can be restored.
 	// (If reset==1 this will not be used, but this is a shallow copy, not very expensive, and
 	// who knows what the value of reset will be the next time InitGlobalScope runs.)
-	clone_table(luaState, LUA_GLOBALSINDEX, true);
+
+	lua_pushglobaltable(luaState);
+	clone_table(luaState, -1, true);
 	lua_setfield(luaState, LUA_REGISTRYINDEX, "SciTE_InitialState");
+	lua_pop(luaState, 1);
 
 	// Clone loaded packages (package.loaded) state in the registry so that it can be restored.
 	lua_getfield(luaState, LUA_REGISTRYINDEX, "_LOADED");
@@ -1520,9 +1549,11 @@ bool LuaExtension::Load(const char *filename) {
 
 
 bool LuaExtension::InitBuffer(int index) {
-	//char msg[100];
-	//sprintf(msg, "InitBuffer(%d)\n", index);
-	//host->Trace(msg);
+	/*
+	char msg[100];
+	sprintf(msg, "InitBuffer(%d)\n", index);
+	host->Trace(msg);
+	*/
 
 	if (index > maxBufferIndex)
 		maxBufferIndex = index;
@@ -1548,9 +1579,11 @@ bool LuaExtension::InitBuffer(int index) {
 }
 
 bool LuaExtension::ActivateBuffer(int index) {
-	//char msg[100];
-	//sprintf(msg, "ActivateBuffer(%d)\n", index);
-	//host->Trace(msg);
+	/*
+	char msg[100];
+	sprintf(msg, "ActivateBuffer(%d)\n", index);
+	host->Trace(msg);
+	*/
 
 	// Probably don't need to do anything with Lua here.  Setting
 	// curBufferIndex is important so that InitGlobalScope knows
@@ -1599,15 +1632,22 @@ bool LuaExtension::RemoveBuffer(int index) {
 }
 
 bool LuaExtension::OnExecute(const char *s) {
+// gets called when selecting a luaScript within the tools menu
+// pcalls string.find(s) -> if that succeeds, insert the function onto the stack and try to call_function(s).
 	bool handled = false;
+	/*	std::string msg = "lua: selected Tools->";
+		msg.append(s);
+		msg.append("\n");
+		host->Trace(msg.c_str());
+	*/
 
 	if (luaState || InitGlobalScope(false)) {
 		// May as well use Lua's pattern matcher to parse the command.
 		// Scintilla's RESearch was the other option.
 		int stackBase = lua_gettop(luaState);
-
+		lua_pushglobaltable(luaState);
 		lua_pushliteral(luaState, "string");
-		lua_rawget(luaState, LUA_GLOBALSINDEX);
+		lua_rawget(luaState, -2);
 		if (lua_istable(luaState, -1)) {
 			lua_pushliteral(luaState, "find");
 			lua_rawget(luaState, -2);
@@ -1616,7 +1656,7 @@ bool LuaExtension::OnExecute(const char *s) {
 				lua_pushliteral(luaState, "^%s*([%a_][%a%d_]*)%s*(.-)%s*$");
 				int status = lua_pcall(luaState, 2, 4, 0);
 				if (status==0) {
-					lua_insert(luaState, stackBase+1);
+					lua_insert(luaState, stackBase+1);	//function
 					lua_gettable(luaState, LUA_GLOBALSINDEX);
 					if (!lua_isnil(luaState, -1)) {
 						if (lua_isfunction(luaState, -1)) {
@@ -1636,7 +1676,6 @@ bool LuaExtension::OnExecute(const char *s) {
 		} else {
 			host->Trace("> Lua: string library not loaded\n");
 		}
-
 		lua_settop(luaState, stackBase);
 	}
 
@@ -1712,7 +1751,7 @@ struct StylingContext {
 
 	static StylingContext *Context(lua_State *L) {
 		return static_cast<StylingContext *>(
-		        lua_touserdata(L, lua_upvalueindex(1)));
+			       lua_touserdata(L, lua_upvalueindex(1)));
 	}
 
 	void Colourize() {
@@ -1725,28 +1764,28 @@ struct StylingContext {
 	static int Line(lua_State *L) {
 		StylingContext *context = Context(L);
 		int position = luaL_checkint(L, 2);
-		lua_pushnumber(L, context->styler->GetLine(position));
+		lua_pushinteger(L, context->styler->GetLine(position));
 		return 1;
 	}
 
 	static int CharAt(lua_State *L) {
 		StylingContext *context = Context(L);
 		int position = luaL_checkint(L, 2);
-		lua_pushnumber(L, context->styler->SafeGetCharAt(position));
+		lua_pushinteger(L, context->styler->SafeGetCharAt(position));
 		return 1;
 	}
 
 	static int StyleAt(lua_State *L) {
 		StylingContext *context = Context(L);
 		int position = luaL_checkint(L, 2);
-		lua_pushnumber(L, context->styler->StyleAt(position));
+		lua_pushinteger(L, context->styler->StyleAt(position));
 		return 1;
 	}
 
 	static int LevelAt(lua_State *L) {
 		StylingContext *context = Context(L);
 		int line = luaL_checkint(L, 2);
-		lua_pushnumber(L, context->styler->LevelAt(line));
+		lua_pushinteger(L, context->styler->LevelAt(line));
 		return 1;
 	}
 
@@ -1761,7 +1800,7 @@ struct StylingContext {
 	static int LineState(lua_State *L) {
 		StylingContext *context = Context(L);
 		int line = luaL_checkint(L, 2);
-		lua_pushnumber(L, context->styler->GetLineState(line));
+		lua_pushinteger(L, context->styler->GetLineState(line));
 		return 1;
 	}
 
@@ -1809,8 +1848,8 @@ struct StylingContext {
 		// or on LF alone (Unix). Avoid triggering two times on Dos/Win.
 		char ch = cursor[(cursorPos) % 3][0];
 		atLineEnd = (ch == '\r' && cursor[nextSlot][0] != '\n') ||
-		        (ch == '\n') ||
-		        (currentPos >= endPos);
+			    (ch == '\n') ||
+			    (currentPos >= endPos);
 	}
 
 	void StartStyling(unsigned int startPos_, unsigned int length, int initStyle_) {
@@ -1880,7 +1919,7 @@ struct StylingContext {
 
 	static int Position(lua_State *L) {
 		StylingContext *context = Context(L);
-		lua_pushnumber(L, context->currentPos);
+		lua_pushinteger(L, context->currentPos);
 		return 1;
 	}
 
@@ -1898,7 +1937,7 @@ struct StylingContext {
 
 	static int State(lua_State *L) {
 		StylingContext *context = Context(L);
-		lua_pushnumber(L, context->state);
+		lua_pushinteger(L, context->state);
 		return 1;
 	}
 
@@ -2067,7 +2106,7 @@ bool LuaExtension::OnKey(int keyval, int modifiers) {
 	if (luaState) {
 		lua_getglobal(luaState, "OnKey");
 		if (lua_isfunction(luaState, -1)) {
-			lua_pushnumber(luaState, keyval);
+			lua_pushinteger(luaState, keyval);
 			lua_pushboolean(luaState, (SCMOD_SHIFT & modifiers) != 0 ? 1 : 0); // shift/lock
 			lua_pushboolean(luaState, (SCMOD_CTRL  & modifiers) != 0 ? 1 : 0); // control
 			lua_pushboolean(luaState, (SCMOD_ALT   & modifiers) != 0 ? 1 : 0); // alt
