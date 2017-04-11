@@ -207,7 +207,7 @@ static void GreyToAlpha(GdkPixbuf *ppb, GdkColor fore) {
 	}
 }
 
-void WCheckDraw::Create(const char **xpmImage, GUI::gui_string toolTip, GtkStyle *pStyle_) {
+void WCheckDraw::Create(const char **xpmImage, const GUI::gui_string &toolTip, GtkStyle *pStyle_) {
 	GtkWidget *button = gtk_toggle_button_new();
 	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);

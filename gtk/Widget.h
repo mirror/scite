@@ -80,7 +80,7 @@ private:
 public:
 	WCheckDraw();
 	~WCheckDraw();
-	void Create(const char **xpmImage, GUI::gui_string toolTip, GtkStyle *pStyle_);
+	void Create(const char **xpmImage, const GUI::gui_string &toolTip, GtkStyle *pStyle_);
 	bool Active();
 	void SetActive(bool active);
 	void Toggle();
