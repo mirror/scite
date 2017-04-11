@@ -1056,22 +1056,23 @@ void SciTEBase::ReadProperties() {
 	blockStart = GetStyleAndWords("block.start.");
 	blockEnd = GetStyleAndWords("block.end.");
 
-	struct {
+	struct PropToPPC {
 		const char *propName;
 		PreProcKind ppc;
-	} propToPPC[] = {
+	};
+	PropToPPC propToPPC[] = {
 		{"preprocessor.start.", ppcStart},
 		{"preprocessor.middle.", ppcMiddle},
 		{"preprocessor.end.", ppcEnd},
 	};
-	std::string list = props.GetNewExpandString("preprocessor.symbol.", fileNameForExtension.c_str());
-	preprocessorSymbol = list.empty() ? 0 : list[0];
+	const std::string ppSymbol = props.GetNewExpandString("preprocessor.symbol.", fileNameForExtension.c_str());
+	preprocessorSymbol = ppSymbol.empty() ? 0 : ppSymbol[0];
 	preprocOfString.clear();
-	for (size_t iPreproc = 0; iPreproc < ELEMENTS(propToPPC); iPreproc++) {
-		list = props.GetNewExpandString(propToPPC[iPreproc].propName, fileNameForExtension.c_str());
-		std::vector<std::string> words = StringSplit(list, ' ');
-		for (std::vector<std::string>::iterator it = words.begin(); it != words.end(); ++it) {
-			preprocOfString[*it] = propToPPC[iPreproc].ppc;
+	for (const PropToPPC &preproc : propToPPC) {
+		const std::string list = props.GetNewExpandString(preproc.propName, fileNameForExtension.c_str());
+		const std::vector<std::string> words = StringSplit(list, ' ');
+		for (const std::string &word : words) {
+			preprocOfString[word] = preproc.ppc;
 		}
 	}
 

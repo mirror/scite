@@ -4531,17 +4531,17 @@ void UserStrip::Destruction() {
 
 void UserStrip::Show(int buttonHeight) {
 	Strip::Show(buttonHeight);
-	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-			if (ctl->controlType == UserControl::ucStatic) {
-				gtk_widget_set_size_request(GTK_WIDGET(ctl->w.GetID()), -1, heightStatic);
-			} else if (ctl->controlType == UserControl::ucEdit) {
-				gtk_widget_set_size_request(GTK_WIDGET(ctl->w.GetID()), -1, buttonHeight);
-			} else if (ctl->controlType == UserControl::ucCombo) {
-				GtkEntry *entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(ctl->w.GetID())));
+	for (const std::vector<UserControl> &line : psd->controls) {
+		for (const UserControl &ctl : line) {
+			if (ctl.controlType == UserControl::ucStatic) {
+				gtk_widget_set_size_request(GTK_WIDGET(ctl.w.GetID()), -1, heightStatic);
+			} else if (ctl.controlType == UserControl::ucEdit) {
+				gtk_widget_set_size_request(GTK_WIDGET(ctl.w.GetID()), -1, buttonHeight);
+			} else if (ctl.controlType == UserControl::ucCombo) {
+				GtkEntry *entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(ctl.w.GetID())));
 				gtk_widget_set_size_request(GTK_WIDGET(entry), -1, buttonHeight);
-			} else if (ctl->controlType == UserControl::ucButton || ctl->controlType == UserControl::ucDefaultButton) {
-				gtk_widget_set_size_request(GTK_WIDGET(ctl->w.GetID()), -1, buttonHeight);
+			} else if (ctl.controlType == UserControl::ucButton || ctl.controlType == UserControl::ucDefaultButton) {
+				gtk_widget_set_size_request(GTK_WIDGET(ctl.w.GetID()), -1, buttonHeight);
 			}
 		}
 	}
@@ -4565,10 +4565,10 @@ bool UserStrip::KeyDown(GdkEventKey *event) {
 
 void UserStrip::ActivateSignal(GtkWidget *, UserStrip *pStrip) {
 	// Treat Enter as pressing the first default button
-	for (std::vector<std::vector<UserControl> >::iterator line=pStrip->psd->controls.begin(); line != pStrip->psd->controls.end(); ++line) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-			if (ctl->controlType == UserControl::ucDefaultButton) {
-				pStrip->extender->OnUserStrip(ctl->item, scClicked);
+	for (const std::vector<UserControl> &line : pStrip->psd->controls) {
+		for (const UserControl &ctl : line) {
+			if (ctl.controlType == UserControl::ucDefaultButton) {
+				pStrip->extender->OnUserStrip(ctl.item, scClicked);
 				return;
 			}
 		}
@@ -4584,10 +4584,10 @@ gboolean UserStrip::EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pS
 }
 
 void UserStrip::ClickThis(GtkWidget *w) {
-	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-			if (w == GTK_WIDGET(ctl->w.GetID())) {
-				extender->OnUserStrip(ctl->item, scClicked);
+	for (const std::vector<UserControl> &line : psd->controls) {
+		for (const UserControl &ctl : line) {
+			if (w == GTK_WIDGET(ctl.w.GetID())) {
+				extender->OnUserStrip(ctl.item, scClicked);
 			}
 		}
 	}
@@ -4615,11 +4615,11 @@ static bool WidgetHasFocus(UserControl *ctl) {
 gboolean UserStrip::Focus(GtkDirectionType direction) {
 	UserControl *ctlFirstFocus = 0;
 	UserControl *ctlLastFocus = 0;
-	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-			if (ctl->controlType != UserControl::ucStatic) {
+	for (std::vector<UserControl> &line : psd->controls) {
+		for (UserControl &ctl : line) {
+			if (ctl.controlType != UserControl::ucStatic) {
 				// Widget can have focus
-				ctlLastFocus = &*ctl;
+				ctlLastFocus = &ctl;
 				if (!ctlFirstFocus)
 					ctlFirstFocus = ctlLastFocus;
 			}
@@ -4637,9 +4637,9 @@ gboolean UserStrip::Focus(GtkDirectionType direction) {
 
 void UserStrip::SetDescription(const char *description) {
 	if (psd) {
-		for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-				gtk_widget_destroy(GTK_WIDGET(ctl->w.GetID()));
+		for (const std::vector<UserControl> &line : psd->controls) {
+			for (const UserControl &ctl : line) {
+				gtk_widget_destroy(GTK_WIDGET(ctl.w.GetID()));
 			}
 		}
 	}
@@ -4649,10 +4649,9 @@ void UserStrip::SetDescription(const char *description) {
 
 	bool hasSetFocus = false;
 	GtkWidget *pwWithAccelerator = 0;
-	for (size_t line=0; line<psd->controls.size(); line++) {
-		std::vector<UserControl> &uc = psd->controls[line];
-		for (size_t control=0; control<uc.size(); control++) {
-			UserControl *puc = &(uc[control]);
+	for (std::vector<UserControl> &line : psd->controls) {
+		for (UserControl &ctl : line) {
+			UserControl *puc = &ctl;
 			std::string sCaption = GtkFromWinCaption(puc->text.c_str());
 			switch (puc->controlType) {
 			case UserControl::ucEdit: {
@@ -4709,14 +4708,14 @@ void UserStrip::SetDescription(const char *description) {
 		tableUser.NextLine() ;
 	}
 
-	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-			if ((ctl->controlType == UserControl::ucEdit) || (ctl->controlType == UserControl::ucCombo)) {
+	for (const std::vector<UserControl> &line : psd->controls) {
+		for (const UserControl &ctl : line) {
+			if ((ctl.controlType == UserControl::ucEdit) || (ctl.controlType == UserControl::ucCombo)) {
 				GtkEntry *entry;
-				if (ctl->controlType == UserControl::ucEdit)
-					entry = GTK_ENTRY(ctl->w.GetID());
+				if (ctl.controlType == UserControl::ucEdit)
+					entry = GTK_ENTRY(ctl.w.GetID());
 				else
-					entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(ctl->w.GetID())));
+					entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(ctl.w.GetID())));
 
 				g_signal_connect(G_OBJECT(entry), "key-press-event", G_CALLBACK(EscapeSignal), this);
 				g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(ActivateSignal), this);

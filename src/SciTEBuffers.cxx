@@ -1323,8 +1323,10 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 }
 
 // Next and Prev file comments.
+// StackMenuNext and StackMenuPrev only used in single buffer mode.
 // Decided that "Prev" file should mean the file you had opened last
 // This means "Next" file means the file you opened longest ago.
+
 void SciTEBase::StackMenuNext() {
 	DeleteFileStackMenu();
 	for (int stackPos = fileStackMax - 1; stackPos >= 0;stackPos--) {
@@ -1342,8 +1344,8 @@ void SciTEBase::StackMenuPrev() {
 		// May need to restore last entry if removed by StackMenu
 		RecentFile rfLast = recentFileStack[fileStackMax - 1];
 		StackMenu(0);	// Swap current with top of stack
-		for (int checkPos = 0; checkPos < fileStackMax; checkPos++) {
-			if (rfLast.SameNameAs(recentFileStack[checkPos])) {
+		for (const RecentFile &rf : recentFileStack) {
+			if (rfLast.SameNameAs(rf)) {
 				rfLast.Init();
 			}
 		}
@@ -1355,13 +1357,13 @@ void SciTEBase::StackMenuPrev() {
 		}
 		recentFileStack[fileStackMax - 1].Init();
 		// Copy current file into first empty
-		for (int emptyPos = 0; emptyPos < fileStackMax; emptyPos++) {
-			if (!recentFileStack[emptyPos].IsSet()) {
+		for (RecentFile &rf : recentFileStack) {
+			if (!rf.IsSet()) {
 				if (rfLast.IsSet()) {
-					recentFileStack[emptyPos] = rfLast;
+					rf = rfLast;
 					rfLast.Init();
 				} else {
-					recentFileStack[emptyPos] = rfCurrent;
+					rf = rfCurrent;
 					break;
 				}
 			}

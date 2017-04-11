@@ -187,10 +187,11 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 	if (definition == NULL || *definition == '\0') {
 		return false;
 	}
-	struct {
+	struct NameValue {
 		const char *name;
 		int value;
-	} indicStyleNames[] = {
+	};
+	NameValue indicStyleNames[] = {
 		{ "plain", INDIC_PLAIN },
 		{ "squiggle", INDIC_SQUIGGLE },
 		{ "tt", INDIC_TT },
@@ -231,9 +232,9 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 		}
 		if (colon && (0 == strcmp(opt, "style"))) {
 			bool found = false;
-			for (size_t i=0;i<ELEMENTS(indicStyleNames);i++) {
-				if ((indicStyleNames[i].name) && (0 == strcmp(colon, indicStyleNames[i].name))) {
-					style = indicStyleNames[i].value;
+			for (const NameValue &indicStyleName : indicStyleNames) {
+				if (0 == strcmp(colon, indicStyleName.name)) {
+					style = indicStyleName.value;
 					found = true;
 				}
 			}

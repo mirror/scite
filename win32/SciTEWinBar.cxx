@@ -406,9 +406,9 @@ void SciTEWin::SizeSubWindows() {
 	if (heightContent <= 0)
 		heightContent = 1;
 
-	for (size_t i=0;i<bands.size();i++) {
-		if (bands[i].visible && !bands[i].expands)
-			heightContent -= bands[i].height;
+	for (const Band &band : bands) {
+		if (band.visible && !band.expands)
+			heightContent -= band.height;
 	}
 	if (heightContent <= 0) {
 		heightContent = rcClient.Height();
@@ -424,23 +424,20 @@ void SciTEWin::SizeSubWindows() {
 	HDWP hdwp = BeginDeferWindowPos(10);
 
 	int yPos = rcClient.top;
-	for (size_t b=0; b<bands.size(); b++) {
-		if (bands[b].visible) {
-			GUI::Rectangle rcToSet(rcClient.left, yPos, rcClient.right, yPos + bands[b].height);
+	for (const Band &band : bands) {
+		if (band.visible) {
+			GUI::Rectangle rcToSet(rcClient.left, yPos, rcClient.right, yPos + band.height);
 			if (hdwp)
-				hdwp = ::DeferWindowPos(hdwp, HwndOf(bands[b].win),
+				hdwp = ::DeferWindowPos(hdwp, HwndOf(band.win),
 				0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
 				SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
-			//bands[b].win.Show(true);
-			yPos += bands[b].height;
+			yPos += band.height;
 		} else {
 			GUI::Rectangle rcToSet(rcClient.left, rcClient.top - 41, rcClient.Width(), rcClient.top - 40);
 			if (hdwp)
-				hdwp = ::DeferWindowPos(hdwp, HwndOf(bands[b].win),
+				hdwp = ::DeferWindowPos(hdwp, HwndOf(band.win),
 				0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
 				SWP_NOZORDER|SWP_NOACTIVATE|SWP_HIDEWINDOW);
-			//bands[b].win.Show(false);
-			//bands[b].win.SetPosition();
 		}
 	}
 	if (hdwp)

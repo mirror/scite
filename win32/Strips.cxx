@@ -45,6 +45,16 @@ static void CheckButton(const GUI::Window &wButton, bool checked) {
 		BM_SETCHECK, checked ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 
+static SIZE SizeButton(const GUI::Window &wButton) {
+	SIZE sz = { 0, 0 };
+#ifdef BCM_GETIDEALSIZE
+	// Push buttons can be measured with BCM_GETIDEALSIZE.
+	::SendMessage(HwndOf(wButton),
+		BCM_GETIDEALSIZE, 0, reinterpret_cast<LPARAM>(&sz));
+#endif
+	return sz;
+}
+
 static int WidthText(HFONT hfont, const GUI::gui_char *text) {
 	HDC hdcMeasure = ::CreateCompatibleDC(NULL);
 	HFONT hfontOriginal = static_cast<HFONT>(::SelectObject(hdcMeasure, hfont));
@@ -225,18 +235,13 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 	}
 	SetFontHandle(w, fontText);
 	w.Show();
-#ifdef BCM_GETIDEALSIZE
 	if (!check) {
-		// Push buttons can be measured with BCM_GETIDEALSIZE
-		SIZE sz = {0, 0};
-		::SendMessage(HwndOf(w),
-			BCM_GETIDEALSIZE, 0, reinterpret_cast<LPARAM>(&sz));
+		const SIZE sz = SizeButton(w);
 		if (sz.cx > 0) {
 			GUI::Rectangle rc(0,0, sz.cx + 2 * WidthText(fontText, TEXT(" ")), sz.cy);
 			w.SetPosition(rc);
 		}
 	}
-#endif
 	TOOLINFO toolInfo = TOOLINFO();
 	toolInfo.cbSize = sizeof(toolInfo);
 	toolInfo.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
@@ -658,9 +663,9 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				const int idButton = static_cast<int>(
 					(pnmtdi->uFlags & TTF_IDISHWND) ?
 					::GetDlgCtrlID(reinterpret_cast<HWND>(pnmtdi->hdr.idFrom)) : pnmtdi->hdr.idFrom);
-				for (size_t i=0; toggles[i].label; i++) {
-					if (toggles[i].id == idButton) {
-						GUI::gui_string localised = localiser->Text(toggles[i].label);
+				for (const SearchOption &so : toggles) {
+					if (so.id == idButton) {
+						GUI::gui_string localised = localiser->Text(so.label);
 						StringCopy(pnmtdi->szText, localised.c_str());
 					}
 				}
@@ -1509,49 +1514,45 @@ void UserStrip::Size() {
 	if (HasClose())
 		rcArea.right -= closeSize.cx + 2;	// Allow for close box and gap
 
-#ifdef BCM_GETIDEALSIZE
-	for (size_t line=0; line<psd->controls.size(); line++) {
-		std::vector<UserControl> &uc = psd->controls[line];
-		// Push buttons can be measured with BCM_GETIDEALSIZE
-		for (std::vector<UserControl>::iterator ctl=uc.begin(); ctl != uc.end(); ++ctl) {
-			if (ctl->controlType == UserControl::ucButton) {
-				SIZE sz = {0, 0};
-				::SendMessage(HwndOf(ctl->w),
-					BCM_GETIDEALSIZE, 0, reinterpret_cast<LPARAM>(&sz));
+	// Calculate widths of buttons.
+	for (std::vector<UserControl> &line : psd->controls) {
+		for (UserControl &ctl : line) {
+			if (ctl.controlType == UserControl::ucButton) {
+				const SIZE sz = SizeButton(ctl.w);
 				if (sz.cx > 0) {
-					ctl->widthDesired = sz.cx + 2 * WidthText(fontText, TEXT(" "));
+					ctl.widthDesired = sz.cx + 2 * WidthText(fontText, TEXT(" "));
 				}
 			}
 		}
 	}
-#endif
 
 	psd->CalculateColumnWidths(rcArea.Width());
 
-	for (unsigned int line=0; line<psd->controls.size(); line++) {
-		const int top = rcArea.top + line * lineHeight;
+	// Position each control.
+	int top = rcArea.top;
+	for (std::vector<UserControl> &line : psd->controls) {
 		int left = rcArea.left;
 		size_t column = 0;
-		std::vector<UserControl> &uc = psd->controls[line];
-		for (std::vector<UserControl>::iterator ctl=uc.begin(); ctl != uc.end(); ++ctl) {
-			ctl->widthAllocated = psd->widths[column].widthAllocated;
+		for (UserControl &ctl : line) {
+			ctl.widthAllocated = psd->widths[column].widthAllocated;
 
-			GUI::Rectangle rcSize = ctl->w.GetClientPosition();
+			GUI::Rectangle rcSize = ctl.w.GetClientPosition();
 			int topWithFix = top;
-			if (ctl->controlType == UserControl::ucButton)
+			if (ctl.controlType == UserControl::ucButton)
 				topWithFix--;
-			if (ctl->controlType == UserControl::ucStatic)
+			if (ctl.controlType == UserControl::ucStatic)
 				topWithFix += 3;
-			if (ctl->controlType == UserControl::ucEdit)
+			if (ctl.controlType == UserControl::ucEdit)
 				rcSize.bottom = rcSize.top + lineHeight - 3;
-			if (ctl->controlType == UserControl::ucCombo)
+			if (ctl.controlType == UserControl::ucCombo)
 				rcSize.bottom = rcSize.top + 180;
-			GUI::Rectangle rcControl(left, topWithFix, left + ctl->widthAllocated, topWithFix + rcSize.Height());
-			ctl->w.SetPosition(rcControl);
-			left += ctl->widthAllocated + 4;
+			GUI::Rectangle rcControl(left, topWithFix, left + ctl.widthAllocated, topWithFix + rcSize.Height());
+			ctl.w.SetPosition(rcControl);
+			left += ctl.widthAllocated + 4;
 
 			column++;
 		}
+		top += lineHeight;
 	}
 
 	::InvalidateRect(Hwnd(), NULL, TRUE);
@@ -1562,10 +1563,10 @@ bool UserStrip::HasClose() const {
 }
 
 void UserStrip::Focus() {
-	for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-		for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-			if (ctl->controlType != UserControl::ucStatic) {
-				::SetFocus(HwndOf(ctl->w));
+	for (const std::vector<UserControl> &line : psd->controls) {
+		for (const UserControl &ctl : line) {
+			if (ctl.controlType != UserControl::ucStatic) {
+				::SetFocus(HwndOf(ctl.w));
 				return;
 			}
 		}
@@ -1580,10 +1581,10 @@ bool UserStrip::KeyDown(WPARAM key) {
 	if (key == VK_RETURN) {
 		if (IsChild(Hwnd(), ::GetFocus())) {
 			// Treat Enter as pressing the first default button
-			for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-				for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-					if (ctl->controlType == UserControl::ucDefaultButton) {
-						extender->OnUserStrip(ctl->item, scClicked);
+			for (const std::vector<UserControl> &line : psd->controls) {
+				for (const UserControl &ctl : line) {
+					if (ctl.controlType == UserControl::ucDefaultButton) {
+						extender->OnUserStrip(ctl.item, scClicked);
 						return true;
 					}
 				}
@@ -1642,62 +1643,65 @@ void UserStrip::SetDescription(const char *description) {
 	GUI::gui_string sDescription = GUI::StringFromUTF8(description);
 	const bool resetting = psd != 0;
 	if (psd) {
-		for (std::vector<std::vector<UserControl> >::iterator line=psd->controls.begin(); line != psd->controls.end(); ++line) {
-			for (std::vector<UserControl>::iterator ctl=line->begin(); ctl != line->end(); ++ctl) {
-				ctl->w.Destroy();
+		for (std::vector<UserControl> &line : psd->controls) {
+			for (UserControl &ctl : line) {
+				ctl.w.Destroy();
 			}
 		}
 	}
 	delete psd;
 	psd = new StripDefinition(sDescription);
+	// Create all the controls but with arbitrary initial positions which will be fixed up later.
 	size_t controlID=0;
-	for (unsigned int line=0; line<psd->controls.size(); line++) {
-		std::vector<UserControl> &uc = psd->controls[line];
-		for (unsigned int control=0; control<uc.size(); control++) {
-			UserControl *puc = &(uc[control]);
-			switch (puc->controlType) {
+	int top = space;
+	for (std::vector<UserControl> &line : psd->controls) {
+		int left = 0;
+		for (UserControl &ctl : line) {
+			switch (ctl.controlType) {
 			case UserControl::ucEdit:
-				puc->widthDesired = 100;
-				puc->fixedWidth = false;
-				puc->w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), puc->text.c_str(),
+				ctl.widthDesired = 100;
+				ctl.fixedWidth = false;
+				ctl.w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), ctl.text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | ES_AUTOHSCROLL,
-					60 * control, line * lineHeight + space, puc->widthDesired, lineHeight - 3,
+					left, top, ctl.widthDesired, lineHeight - 3,
 					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 
 			case UserControl::ucCombo:
-				puc->widthDesired = 100;
-				puc->fixedWidth = false;
-				puc->w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("ComboBox"), puc->text.c_str(),
+				ctl.widthDesired = 100;
+				ctl.fixedWidth = false;
+				ctl.w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("ComboBox"), ctl.text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
-					60 * control, line * lineHeight + space, puc->widthDesired, 180,
+					left, top, ctl.widthDesired, 180,
 					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 
 			case UserControl::ucButton:
 			case UserControl::ucDefaultButton:
-				puc->widthDesired = WidthText(fontText, puc->text.c_str()) +
+				ctl.widthDesired = WidthText(fontText, ctl.text.c_str()) +
 					2 * ::GetSystemMetrics(SM_CXEDGE) +
 					2 * WidthText(fontText, TEXT(" "));
-				puc->w = ::CreateWindowEx(0, TEXT("Button"), puc->text.c_str(),
+				ctl.w = ::CreateWindowEx(0, TEXT("Button"), ctl.text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS |
-					((puc->controlType == UserControl::ucDefaultButton) ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON),
-					60 * control, line * lineHeight + space, puc->widthDesired, lineHeight-1,
+					((ctl.controlType == UserControl::ucDefaultButton) ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON),
+					left, top, ctl.widthDesired, lineHeight-1,
 					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 
 			default:
-				puc->widthDesired = WidthText(fontText, puc->text.c_str());
-				puc->w = ::CreateWindowEx(0, TEXT("Static"), puc->text.c_str(),
+				ctl.widthDesired = WidthText(fontText, ctl.text.c_str());
+				ctl.w = ::CreateWindowEx(0, TEXT("Static"), ctl.text.c_str(),
 					WS_CHILD | WS_CLIPSIBLINGS | ES_RIGHT,
-					60 * control, line * lineHeight + space, puc->widthDesired, lineHeight - 5,
+					left, top, ctl.widthDesired, lineHeight - 5,
 					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
 				break;
 			}
-			puc->w.Show();
-			SetFontHandle(puc->w, fontText);
+			ctl.w.Show();
+			SetFontHandle(ctl.w, fontText);
 			controlID++;
+			left += 60;
 		}
+		top += lineHeight;
 	}
 	if (resetting)
 		Size();
@@ -1729,12 +1733,12 @@ void UserStrip::SetList(int control, const char *value) {
 	const UserControl *ctl = FindControl(control);
 	if (ctl) {
 		if (ctl->controlType == UserControl::ucCombo) {
-			GUI::gui_string sValue = GUI::StringFromUTF8(value);
-			std::vector<GUI::gui_string> listValues = ListFromString(sValue);
+			const GUI::gui_string sValue = GUI::StringFromUTF8(value);
+			const std::vector<GUI::gui_string> listValues = ListFromString(sValue);
 			HWND combo = HwndOf(ctl->w);
 			::SendMessage(combo, CB_RESETCONTENT, 0, 0);
-			for (std::vector<GUI::gui_string>::iterator i = listValues.begin(); i != listValues.end(); ++i) {
-				ComboBox_AddString(combo, i->c_str());
+			for (const GUI::gui_string &gs : listValues) {
+				ComboBox_AddString(combo, gs.c_str());
 			}
 		}
 	}

@@ -300,11 +300,10 @@ static int CodePageFromName(const std::string &encodingName) {
 		{ "iso8859-11", 874 },
 		{ "1250", 1250 },
 		{ "windows-1251", 1251 },
-		{ 0, 0 },
 	};
-	for (Encoding *enc=knownEncodings; enc->name; enc++) {
-		if (encodingName == enc->name) {
-			return enc->codePage;
+	for (const Encoding &enc : knownEncodings) {
+		if (encodingName == enc.name) {
+			return enc.codePage;
 		}
 	}
 	return CP_UTF8;
@@ -1794,9 +1793,9 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 
 	// loop through the keyboard short cuts defined by user.. if found
 	// exec it the command defined
-	for (size_t cut_i = 0; cut_i < shortCutItemList.size(); cut_i++) {
-		if (KeyMatch(shortCutItemList[cut_i].menuKey, static_cast<int>(wParam), modifiers)) {
-			int commandNum = SciTEBase::GetMenuCommandAsInt(shortCutItemList[cut_i].menuCommand.c_str());
+	for (const ShortcutItem &scut : shortCutItemList) {
+		if (KeyMatch(scut.menuKey, static_cast<int>(wParam), modifiers)) {
+			const int commandNum = SciTEBase::GetMenuCommandAsInt(scut.menuCommand.c_str());
 			if (commandNum != -1) {
 				// its possible that the command is for scintilla directly
 				// all scintilla commands are larger then 2000
