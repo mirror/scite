@@ -964,6 +964,8 @@ public:
 	explicit SciTEBase(Extension *ext = 0);
 	virtual ~SciTEBase();
 
+	void Finalise();
+
 	void ProcessExecute();
 	GUI::WindowID GetID() const { return wSciTE.GetID(); }
 

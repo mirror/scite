@@ -2285,6 +2285,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		} catch (GUI::ScintillaFailure &sf) {
 			MainWind.CheckForScintillaFailure(static_cast<int>(sf.status));
 		}
+		MainWind.Finalise();
 	}
 
 #ifdef STATIC_BUILD

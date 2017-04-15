@@ -191,10 +191,13 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 }
 
 SciTEBase::~SciTEBase() {
-	TimerEnd(timerAutoSave);
 	if (extender)
 		extender->Finalise();
 	popup.Destroy();
+}
+
+void SciTEBase::Finalise() {
+	TimerEnd(timerAutoSave);
 }
 
 void SciTEBase::WorkerCommand(int cmd, Worker *pWorker) {

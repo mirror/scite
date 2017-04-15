@@ -5416,6 +5416,7 @@ int main(int argc, char *argv[]) {
 	SciTEGTK scite(extender);
 	scite.SetStartupTime(timestamp);
 	scite.Run(argc, argv);
+	scite.Finalise();
 
 	return 0;
 }
