@@ -1284,16 +1284,15 @@ class FileReader {
 	std::string lineToCompare;
 	std::string lineToShow;
 	bool caseSensitive;
-	// Deleted so FileReader objects can not be copied
-	FileReader(const FileReader &) = delete;
 public:
-
 	FileReader(const FilePath &fPath, bool caseSensitive_) {
 		bf = new BufferedFile(fPath);
 		lineNum = 0;
 		lastWasCR = false;
 		caseSensitive = caseSensitive_;
 	}
+	// Deleted so FileReader objects can not be copied
+	FileReader(const FileReader &) = delete;
 	~FileReader() {
 		delete bf;
 		bf = NULL;

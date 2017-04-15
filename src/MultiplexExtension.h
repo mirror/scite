@@ -40,6 +40,9 @@
 class MultiplexExtension: public Extension {
 public:
 	MultiplexExtension();
+	// Copying is unsupported.
+	MultiplexExtension(const MultiplexExtension & copy) = delete;
+	MultiplexExtension & operator=(const MultiplexExtension & copy) = delete;
 	virtual ~MultiplexExtension();
 
 	bool RegisterExtension(Extension &ext_);
@@ -80,10 +83,6 @@ private:
 	Extension **extensions;
 	int extensionCount;
 	ExtensionAPI *host;
-
-	// Copying is unsupported.
-	MultiplexExtension(const MultiplexExtension & copy);
-	MultiplexExtension & operator=(const MultiplexExtension & copy);
 };
 
 #endif
