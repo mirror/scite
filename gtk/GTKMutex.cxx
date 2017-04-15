@@ -18,10 +18,10 @@ private:
 	GMutex m;
 #endif
 	GMutex *pm;
-	virtual void Lock() {
+	void Lock() override {
 		g_mutex_lock(pm);
 	}
-	virtual void Unlock() {
+	void Unlock() override {
 		g_mutex_unlock(pm);
 	}
 	GTKMutex() {
@@ -32,7 +32,7 @@ private:
 		pm = g_mutex_new();
 #endif
 	}
-	virtual ~GTKMutex() {
+	~GTKMutex() override {
 #if GLIB_CHECK_VERSION(2,31,0)
 		g_mutex_clear(pm);
 #else

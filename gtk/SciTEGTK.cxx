@@ -290,7 +290,7 @@ public:
 
 	BackgroundStrip() {
 	}
-	virtual void Creation(GtkWidget *container);
+	void Creation(GtkWidget *container) override;
 	void SetProgress(const GUI::gui_string &explanation, size_t size, size_t progress);
 };
 
@@ -372,12 +372,12 @@ public:
 
 	FindStrip() {
 	}
-	virtual void Creation(GtkWidget *container);
+	void Creation(GtkWidget *container) override;
 	virtual void Destruction();
-	virtual void Show(int buttonHeight);
-	virtual void Close();
-	virtual bool KeyDown(GdkEventKey *event);
-	void MenuAction(guint action);
+	void Show(int buttonHeight) override;
+	void Close() override;
+	bool KeyDown(GdkEventKey *event) override;
+	void MenuAction(guint action) override;
 	static void ActivateSignal(GtkWidget *w, FindStrip *pStrip);
 	static void FindComboChanged(GtkEditable *, FindStrip *pStrip);
 	static void ToggleChanged(WCheckDraw *, void *user);
@@ -385,11 +385,11 @@ public:
 	void GrabFields();
 	void GrabToggles();
 	void SetToggles();
-	void ShowPopup();
+	void ShowPopup() override;
 	void FindNextCmd();
 	void MarkAllCmd();
-	virtual void ChildFocus(GtkWidget *widget);
-	gboolean Focus(GtkDirectionType direction);
+	void ChildFocus(GtkWidget *widget) override;
+	gboolean Focus(GtkDirectionType direction) override;
 };
 
 class ReplaceStrip : public FindReplaceStrip {
@@ -406,12 +406,12 @@ public:
 
 	ReplaceStrip() {
 	}
-	virtual void Creation(GtkWidget *container);
+	void Creation(GtkWidget *container) override;
 	virtual void Destruction();
-	virtual void Show(int buttonHeight);
-	virtual void Close();
-	virtual bool KeyDown(GdkEventKey *event);
-	void MenuAction(guint action);
+	void Show(int buttonHeight) override;
+	void Close() override;
+	bool KeyDown(GdkEventKey *event) override;
+	void MenuAction(guint action) override;
 	static void ActivateSignal(GtkWidget *w, ReplaceStrip *pStrip);
 	static void FindComboChanged(GtkEditable *, ReplaceStrip *pStrip);
 	static void ToggleChanged(WCheckDraw *, void *user);
@@ -423,9 +423,9 @@ public:
 	void ReplaceAllCmd();
 	void ReplaceCmd();
 	void ReplaceInSelectionCmd();
-	void ShowPopup();
-	virtual void ChildFocus(GtkWidget *widget);
-	gboolean Focus(GtkDirectionType direction);
+	void ShowPopup() override;
+	void ChildFocus(GtkWidget *widget) override;
+	gboolean Focus(GtkDirectionType direction) override;
 };
 
 class UserStrip : public Strip {
@@ -437,17 +437,17 @@ public:
 
 	UserStrip() : psd(0), extender(0), pSciTEGTK(0), tableUser(1, 1){
 	}
-	virtual void Creation(GtkWidget *container);
+	void Creation(GtkWidget *container) override;
 	virtual void Destruction();
-	virtual void Show(int buttonHeight);
-	virtual void Close();
-	virtual bool KeyDown(GdkEventKey *event);
+	void Show(int buttonHeight) override;
+	void Close() override;
+	bool KeyDown(GdkEventKey *event) override;
 	static void ActivateSignal(GtkWidget *w, UserStrip *pStrip);
 	static gboolean EscapeSignal(GtkWidget *w, GdkEventKey *event, UserStrip *pStrip);
 	void ClickThis(GtkWidget *w);
 	static void ClickSignal(GtkWidget *w, UserStrip *pStrip);
-	virtual void ChildFocus(GtkWidget *widget);
-	gboolean Focus(GtkDirectionType direction);
+	void ChildFocus(GtkWidget *widget) override;
+	gboolean Focus(GtkDirectionType direction) override;
 	void SetDescription(const char *description);
 	void SetExtender(Extension *extender_);
 	void SetSciTE(SciTEGTK *pSciTEGTK_);
@@ -724,7 +724,7 @@ public:
 	static SciTEGTK *instance;
 
 	explicit SciTEGTK(Extension *ext = 0);
-	~SciTEGTK();
+	~SciTEGTK() override;
 
 	void WarnUser(int warnID) override;
 	GtkWidget *AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon);
