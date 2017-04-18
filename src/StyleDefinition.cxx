@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <cassert>
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -233,6 +235,7 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 		if (colon && (0 == strcmp(opt, "style"))) {
 			bool found = false;
 			for (const NameValue &indicStyleName : indicStyleNames) {
+				assert(indicStyleName.name);
 				if (0 == strcmp(colon, indicStyleName.name)) {
 					style = indicStyleName.value;
 					found = true;
