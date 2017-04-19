@@ -971,10 +971,9 @@ public:
 	virtual void PostOnMainThread(int cmd, Worker *pWorker) override = 0;
 	virtual void WorkerCommand(int cmd, Worker *pWorker);
 
-private:
-	// un-implemented copy-constructor and assignment operator
-	explicit SciTEBase(const SciTEBase&);
-	void operator=(const SciTEBase&);
+	// Deleted copy-constructor and assignment operator
+	explicit SciTEBase(const SciTEBase&) = delete;
+	void operator=(const SciTEBase&) = delete;
 };
 
 int ControlIDOfCommand(unsigned long);
