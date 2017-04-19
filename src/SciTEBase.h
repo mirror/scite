@@ -675,10 +675,10 @@ protected:
 	static int GetMenuCommandAsInt(std::string commandName);
 	virtual void Print(bool) {}
 	virtual void PrintSetup() {}
-	virtual void UserStripShow(const char * /* description */) {}
-	virtual void UserStripSet(int /* control */, const char * /* value */) {}
-	virtual void UserStripSetList(int /* control */, const char * /* value */) {}
-	virtual const char *UserStripValue(int /* control */) { return 0; }
+	void UserStripShow(const char * /* description */) override {}
+	void UserStripSet(int /* control */, const char * /* value */) override {}
+	void UserStripSetList(int /* control */, const char * /* value */) override {}
+	const char *UserStripValue(int /* control */) override { return 0; }
 	virtual void ShowBackgroundProgress(const GUI::gui_string & /* explanation */, size_t /* size */, size_t /* progress */) {}
 	Sci_CharacterRange GetSelection();
 	SelectedRange GetSelectedRange();
@@ -720,25 +720,26 @@ protected:
 	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = 0) = 0;
 	bool FindReplaceAdvanced() const;
 	int FindInTarget(std::string findWhatText, int startPosition, int endPosition);
-	virtual void SetFindText(const char *sFind);
-	virtual void SetFind(const char *sFind);
-	virtual bool FindHasText() const;
-	virtual void SetReplace(const char *sReplace);
-	virtual void SetCaretAsStart();
-	virtual void MoveBack();
-	virtual void ScrollEditorIfNeeded();
-	virtual int FindNext(bool reverseDirection, bool showWarnings=true, bool allowRegExp=true);
-	virtual void HideMatch();
+	// Implement Searcher
+	void SetFindText(const char *sFind) override;
+	void SetFind(const char *sFind) override;
+	bool FindHasText() const override;
+	void SetReplace(const char *sReplace) override;
+	void SetCaretAsStart() override;
+	void MoveBack() override;
+	void ScrollEditorIfNeeded() override;
+	int FindNext(bool reverseDirection, bool showWarnings=true, bool allowRegExp=true) override;
+	virtual void HideMatch() override;
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
-	void ReplaceOnce(bool showWarnings=true);
+	void ReplaceOnce(bool showWarnings=true) override;
 	int DoReplaceAll(bool inSelection); // returns number of replacements or negative value if error
-	int ReplaceAll(bool inSelection);
+	int ReplaceAll(bool inSelection) override;
 	int ReplaceInBuffers();
-	virtual void UIClosed();
-	virtual void UIHasFocus();
+	void UIClosed() override;
+	void UIHasFocus() override;
 	virtual void DestroyFindReplace() = 0;
 	virtual void GoLineDialog() = 0;
 	virtual bool AbbrevDialog() = 0;
@@ -785,7 +786,7 @@ protected:
 	void CharAddedOutput(int ch);
 	void SetTextProperties(PropSetFile &ps);
 	virtual void SetFileProperties(PropSetFile &ps) = 0;
-	virtual void UpdateStatusBar(bool bUpdateSlowData);
+	void UpdateStatusBar(bool bUpdateSlowData) override;
 	int GetLineLength(int line);
 	int GetCurrentLineNumber();
 	int GetCurrentScrollPosition();
@@ -821,7 +822,7 @@ protected:
 
 	void RemoveFindMarks();
 	int SearchFlags(bool regularExpressions) const;
-	void MarkAll(MarkPurpose purpose=markWithBookMarks);
+	void MarkAll(MarkPurpose purpose=markWithBookMarks) override;
 	void BookmarkAdd(int lineno = -1);
 	void BookmarkDelete(int lineno = -1);
 	bool BookmarkPresent(int lineno = -1);
@@ -935,18 +936,18 @@ protected:
 	void PropertyToDirector(const char *arg);
 
 	// ExtensionAPI
-	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	char *Range(Pane p, int start, int end);
-	void Remove(Pane p, int start, int end);
-	void Insert(Pane p, int pos, const char *s);
-	void Trace(const char *s);
-	std::string Property(const char *key);
-	void SetProperty(const char *key, const char *val);
-	void UnsetProperty(const char *key);
-	uptr_t GetInstance();
-	void ShutDown();
-	void Perform(const char *actionList);
-	void DoMenuCommand(int cmdID);
+	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0) override;
+	char *Range(Pane p, int start, int end) override;
+	void Remove(Pane p, int start, int end) override;
+	void Insert(Pane p, int pos, const char *s) override;
+	void Trace(const char *s) override;
+	std::string Property(const char *key) override;
+	void SetProperty(const char *key, const char *val) override;
+	void UnsetProperty(const char *key) override;
+	uptr_t GetInstance() override;
+	void ShutDown() override;
+	void Perform(const char *actionList) override;
+	void DoMenuCommand(int cmdID) override;
 
 	// Valid CurrentWord characters
 	bool iswordcharforsel(char ch);
@@ -970,7 +971,8 @@ public:
 	GUI::WindowID GetID() const { return wSciTE.GetID(); }
 
 	virtual bool PerformOnNewThread(Worker *pWorker) = 0;
-	virtual void PostOnMainThread(int cmd, Worker *pWorker) = 0;
+	// WorkerListener
+	virtual void PostOnMainThread(int cmd, Worker *pWorker) override = 0;
 	virtual void WorkerCommand(int cmd, Worker *pWorker);
 
 private:

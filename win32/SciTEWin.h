@@ -227,28 +227,28 @@ protected:
 	enum { bandTool, bandTab, bandContents, bandUser, bandBackground, bandSearch, bandFind, bandReplace, bandStatus };
 	std::vector<Band> bands;
 
-	virtual void ReadLocalization();
-	virtual void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize);
+	void ReadLocalization() override;
+	void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) override;
 	void SetScaleFactor(int scale);
 
-	virtual void ReadEmbeddedProperties();
-	virtual void ReadPropertiesInitial();
-	virtual void ReadProperties();
+	void ReadEmbeddedProperties() override;
+	void ReadPropertiesInitial() override;
+	void ReadProperties() override;
 
-	virtual void TimerStart(int mask);
-	virtual void TimerEnd(int mask);
+	void TimerStart(int mask) override;
+	void TimerEnd(int mask) override;
 
-	virtual void ShowOutputOnMainThread();
-	virtual void SizeContentWindows();
-	virtual void SizeSubWindows();
+	void ShowOutputOnMainThread() override;
+	void SizeContentWindows() override;
+	void SizeSubWindows() override;
 
-	virtual void SetMenuItem(int menuNumber, int position, int itemID,
-	                         const GUI::gui_char *text, const GUI::gui_char *mnemonic = 0);
-	virtual void RedrawMenu();
-	virtual void DestroyMenuItem(int menuNumber, int itemID);
-	virtual void CheckAMenuItem(int wIDCheckItem, bool val);
-	virtual void EnableAMenuItem(int wIDCheckItem, bool val);
-	virtual void CheckMenus();
+	void SetMenuItem(int menuNumber, int position, int itemID,
+	                         const GUI::gui_char *text, const GUI::gui_char *mnemonic = 0) override;
+	void RedrawMenu() override;
+	void DestroyMenuItem(int menuNumber, int itemID) override;
+	void CheckAMenuItem(int wIDCheckItem, bool val) override;
+	void EnableAMenuItem(int wIDCheckItem, bool val) override;
+	void CheckMenus() override;
 
 	void LocaliseMenu(HMENU hmenu);
 	void LocaliseMenus();
@@ -259,100 +259,100 @@ protected:
 	HWND CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc);
 	GUI::gui_string DialogFilterFromProperty(const GUI::gui_char *filterProperty);
 	void CheckCommonDialogError();
-	virtual bool OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter);
+	bool OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter) override;
 	FilePath ChooseSaveName(const FilePath &directory, const char *title, const GUI::gui_char *filesFilter = 0, const char *ext = 0);
-	virtual bool SaveAsDialog();
-	virtual void SaveACopy();
-	virtual void SaveAsHTML();
-	virtual void SaveAsRTF();
-	virtual void SaveAsPDF();
-	virtual void SaveAsTEX();
-	virtual void SaveAsXML();
-	virtual void LoadSessionDialog();
-	virtual void SaveSessionDialog();
-	virtual bool PreOpenCheck(const GUI::gui_char *arg);
-	virtual bool IsStdinBlocked();
+	bool SaveAsDialog() override;
+	void SaveACopy() override;
+	void SaveAsHTML() override;
+	void SaveAsRTF() override;
+	void SaveAsPDF() override;
+	void SaveAsTEX() override;
+	void SaveAsXML() override;
+	void LoadSessionDialog() override;
+	void SaveSessionDialog() override;
+	bool PreOpenCheck(const GUI::gui_char *arg) override;
+	bool IsStdinBlocked() override;
 
 	/// Print the current buffer.
-	virtual void Print(bool showDialog);
+	void Print(bool showDialog) override;
 	/// Handle default print setup values and ask the user its preferences.
-	virtual void PrintSetup();
+	void PrintSetup() override;
 
 	BOOL HandleReplaceCommand(int cmd, bool reverseDirection = false);
 
-	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning);
-	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = 0);
-	virtual void AboutDialog();
+	MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) override;
+	void FindMessageBox(const std::string &msg, const std::string *findItem = 0) override;
+	void AboutDialog() override;
 	void DropFiles(HDROP hdrop);
 	void MinimizeToTray();
 	void RestoreFromTray();
 	static GUI::gui_string ProcessArgs(const GUI::gui_char *cmdLine);
-	virtual void QuitProgram();
+	void QuitProgram() override;
 
-	virtual FilePath GetDefaultDirectory();
-	virtual FilePath GetSciteDefaultHome();
-	virtual FilePath GetSciteUserHome();
+	FilePath GetDefaultDirectory() override;
+	FilePath GetSciteDefaultHome() override;
+	FilePath GetSciteUserHome() override;
 
-	virtual void SetFileProperties(PropSetFile &ps);
-	virtual void SetStatusBarText(const char *s);
+	void SetFileProperties(PropSetFile &ps) override;
+	void SetStatusBarText(const char *s) override;
 
-	virtual void TabInsert(int index, const GUI::gui_char *title);
-	virtual void TabSelect(int index);
-	virtual void RemoveAllTabs();
+	void TabInsert(int index, const GUI::gui_char *title) override;
+	void TabSelect(int index) override;
+	void RemoveAllTabs() override;
 
 	/// Warn the user, by means defined in its properties.
-	virtual void WarnUser(int warnID);
+	void WarnUser(int warnID) override;
 
-	virtual void Notify(SCNotification *notification) override;
-	virtual void ShowToolBar();
-	virtual void ShowTabBar();
-	virtual void ShowStatusBar();
-	virtual void ActivateWindow(const char *timestamp);
+	void Notify(SCNotification *notification) override;
+	void ShowToolBar() override;
+	void ShowTabBar() override;
+	void ShowStatusBar() override;
+	void ActivateWindow(const char *timestamp) override;
 	void ExecuteHelp(const char *cmd);
 	void ExecuteOtherHelp(const char *cmd);
-	void CopyAsRTF();
-	void CopyPath();
+	void CopyAsRTF() override;
+	void CopyPath() override;
 	void FullScreenToggle();
 	void Command(WPARAM wParam, LPARAM lParam);
 	HWND MainHWND();
 
-	virtual void UserStripShow(const char *description);
-	virtual void UserStripSet(int control, const char *value);
-	virtual void UserStripSetList(int control, const char *value);
-	virtual const char *UserStripValue(int control);
+	void UserStripShow(const char *description) override;
+	void UserStripSet(int control, const char *value) override;
+	void UserStripSetList(int control, const char *value) override;
+	const char *UserStripValue(int control) override;
 	void UserStripClosed();
-	virtual void ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress);
+	void ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress) override;
 	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK FindDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK ReplaceDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	virtual void UIClosed();
+	void UIClosed() override;
 	void PerformGrep();
 	void FillCombos(Dialog &dlg);
 	BOOL GrepMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK GrepDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	virtual void FindIncrement();
-	virtual void Find();
-	virtual void FindInFiles();
-	virtual void Replace();
-	virtual void FindReplace(bool replace);
-	virtual void DestroyFindReplace();
+	void FindIncrement() override;
+	void Find() override;
+	void FindInFiles() override;
+	void Replace() override;
+	void FindReplace(bool replace) override;
+	void DestroyFindReplace() override;
 
 	BOOL GoLineMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK GoLineDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	virtual void GoLineDialog();
+	void GoLineDialog() override;
 
 	BOOL AbbrevMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK AbbrevDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	virtual bool AbbrevDialog();
+	bool AbbrevDialog() override;
 
 	BOOL TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK TabSizeDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	virtual void TabSizeDialog();
+	void TabSizeDialog() override;
 
-	virtual bool ParametersOpen();
-	void ParamGrab();
-	virtual bool ParametersDialog(bool modal);
+	bool ParametersOpen() override;
+	void ParamGrab() override;
+	bool ParametersDialog(bool modal) override;
 	BOOL ParametersMessage(HWND hDlg, UINT message, WPARAM wParam);
 	static INT_PTR CALLBACK ParametersDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -380,30 +380,30 @@ public:
 	DWORD ExecuteOne(const Job &jobToRun);
 	void ProcessExecute();
 	void ShellExec(const std::string &cmd, const char *dir);
-	virtual void Execute();
-	virtual void StopExecute();
-	virtual void AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input = "", int flags = 0);
+	void Execute() override;
+	void StopExecute() override;
+	void AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input = "", int flags = 0) override;
 
-	virtual bool PerformOnNewThread(Worker *pWorker);
-	virtual void PostOnMainThread(int cmd, Worker *pWorker);
-	virtual void WorkerCommand(int cmd, Worker *pWorker);
+	bool PerformOnNewThread(Worker *pWorker) override;
+	void PostOnMainThread(int cmd, Worker *pWorker) override;
+	void WorkerCommand(int cmd, Worker *pWorker) override;
 
 	void Creation();
 	LRESULT KeyDown(WPARAM wParam);
 	LRESULT KeyUp(WPARAM wParam);
-	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true);
+	void AddToPopUp(const char *label, int cmd=0, bool enabled=true) override;
 	LRESULT ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam);
 	void CheckForScintillaFailure(int statusFailure);
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
-	virtual std::string EncodeString(const std::string &s);
-	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd);
+	std::string EncodeString(const std::string &s) override;
+	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) override;
 
 	HACCEL GetAcceleratorTable() {
 		return hAccTable;
 	}
 
-	uptr_t GetInstance();
+	uptr_t GetInstance() override;
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
 	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
