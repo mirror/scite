@@ -739,7 +739,6 @@ public:
 	void CreateUI();
 	void LayoutUI();
 	void Run(int argc, char *argv[]);
-	void ProcessExecute();
 	void Execute() override;
 	void StopExecute() override;
 	static int PollTool(SciTEGTK *scitew);

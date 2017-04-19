@@ -529,7 +529,6 @@ protected:
 	// Handle buffers
 	sptr_t GetDocumentAt(int index);
 	void SwitchDocumentAt(int index, sptr_t pdoc);
-	int AddBuffer();
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable() const;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
@@ -600,7 +599,6 @@ protected:
 	void New();
 	void RestoreState(const Buffer &buffer, bool restoreBookmarks);
 	void Close(bool updateUI = true, bool loadingSession = false, bool makingRoomForNew = false);
-	bool IsAbsolutePath(const char *path);
 	static bool Exists(const GUI::gui_char *dir, const GUI::gui_char *path, FilePath *resultPath);
 	void DiscoverEOLSetting();
 	void DiscoverIndentSetting();
@@ -804,7 +802,6 @@ protected:
 	void SetLineNumberWidth();
 	void MenuCommand(int cmdID, int source = 0);
 	void FoldChanged(int line, int levelNow, int levelPrev);
-	void FoldChanged(int position);
 	void ExpandFolds(int line, bool expand, int level);
 	void FoldAll();
 	void ToggleFoldRecursive(int line, int level);
@@ -967,7 +964,6 @@ public:
 
 	void Finalise();
 
-	void ProcessExecute();
 	GUI::WindowID GetID() const { return wSciTE.GetID(); }
 
 	virtual bool PerformOnNewThread(Worker *pWorker) = 0;
