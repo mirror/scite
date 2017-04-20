@@ -960,6 +960,9 @@ public:
 	enum { maxParam = 4 };
 
 	explicit SciTEBase(Extension *ext = 0);
+	// Deleted copy-constructor and assignment operator.
+	explicit SciTEBase(const SciTEBase&) = delete;
+	void operator=(const SciTEBase&) = delete;
 	virtual ~SciTEBase();
 
 	void Finalise();
@@ -970,10 +973,6 @@ public:
 	// WorkerListener
 	virtual void PostOnMainThread(int cmd, Worker *pWorker) override = 0;
 	virtual void WorkerCommand(int cmd, Worker *pWorker);
-
-	// Deleted copy-constructor and assignment operator
-	explicit SciTEBase(const SciTEBase&) = delete;
-	void operator=(const SciTEBase&) = delete;
 };
 
 int ControlIDOfCommand(unsigned long);

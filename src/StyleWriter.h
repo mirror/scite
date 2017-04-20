@@ -10,9 +10,6 @@
 
 // Read only access to a document, its styles and other data
 class TextReader {
-	// Deleted so TextReader objects can not be copied
-	TextReader(const TextReader &source) = delete;
-	TextReader &operator=(const TextReader &) = delete;
 protected:
 	enum {extremePosition=0x7FFFFFFF};
 	/** @a bufferSize is a trade off between time taken to copy the characters
@@ -32,6 +29,9 @@ protected:
 	void Fill(int position);
 public:
 	explicit TextReader(GUI::ScintillaWindow &sw_);
+	// Deleted so TextReader objects can not be copied.
+	TextReader(const TextReader &source) = delete;
+	TextReader &operator=(const TextReader &) = delete;
 	char operator[](int position) {
 		if (position < startPos || position >= endPos) {
 			Fill(position);
@@ -66,7 +66,7 @@ public:
 
 // Adds methods needed to write styles and folding
 class StyleWriter : public TextReader {
-	// Deleted so StyleWriter objects can not be copied
+	// Deleted so StyleWriter objects can not be copied.
 	StyleWriter(const StyleWriter &source) = delete;
 	StyleWriter &operator=(const StyleWriter &) = delete;
 protected:

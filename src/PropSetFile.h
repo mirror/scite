@@ -30,8 +30,8 @@ public:
 	PropSetFile *superPS;
 	explicit PropSetFile(bool lowerKeys_=false);
 	PropSetFile(const PropSetFile &copy);
-	virtual ~PropSetFile();
 	PropSetFile &operator=(const PropSetFile &assign);
+	virtual ~PropSetFile();
 	void Set(const char *key, const char *val, ptrdiff_t lenKey=-1, ptrdiff_t lenVal=-1);
 	void Set(const char *keyVal);
 	void Unset(const char *key, int lenKey=-1);

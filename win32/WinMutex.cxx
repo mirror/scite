@@ -17,6 +17,9 @@ private:
 	virtual void Lock() { ::EnterCriticalSection(&cs); }
 	virtual void Unlock() { ::LeaveCriticalSection(&cs); }
 	WinMutex() { ::InitializeCriticalSection(&cs); }
+	// Deleted so WinMutex objects can not be copied.
+	WinMutex(const WinMutex &) = delete;
+	void operator=(const WinMutex &) = delete;
 	virtual ~WinMutex() { ::DeleteCriticalSection(&cs); }
 	friend class Mutex;
 };

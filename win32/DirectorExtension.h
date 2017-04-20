@@ -9,8 +9,9 @@ class DirectorExtension : public Extension {
 private:
 	ExtensionAPI *host;
 	DirectorExtension() : host(0) {} // Singleton
-	DirectorExtension(const DirectorExtension &); // Disable copy ctor
-	void operator=(const DirectorExtension &);    // Disable operator=
+	// Deleted so DirectorExtension objects can not be copied.
+	DirectorExtension(const DirectorExtension &) = delete;
+	void operator=(const DirectorExtension &) = delete;
 
 public:
 	static DirectorExtension &Instance();

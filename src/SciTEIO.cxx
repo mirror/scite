@@ -1291,7 +1291,7 @@ public:
 		lastWasCR = false;
 		caseSensitive = caseSensitive_;
 	}
-	// Deleted so FileReader objects can not be copied
+	// Deleted so FileReader objects can not be copied.
 	FileReader(const FileReader &) = delete;
 	~FileReader() {
 		delete bf;

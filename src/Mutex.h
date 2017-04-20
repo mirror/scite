@@ -25,6 +25,9 @@ public:
 	explicit Lock(Mutex *mute_) : mute(mute_) {
 		mute->Lock();
 	}
+	// Deleted so Lock objects can not be copied.
+	Lock(const Lock &) = delete;
+	void operator=(const Lock &) = delete;
 	~Lock() {
 		mute->Unlock();
 	}

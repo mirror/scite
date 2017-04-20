@@ -6,12 +6,13 @@
 class LuaExtension : public Extension {
 private:
 	LuaExtension(); // Singleton
-	LuaExtension(const LuaExtension &);   // Disable copy ctor
-	void operator=(const LuaExtension &); // Disable operator=
 
 public:
 	static LuaExtension &Instance();
 
+	// Deleted so LuaExtension objects can not be copied.
+	LuaExtension(const LuaExtension &) = delete;
+	void operator=(const LuaExtension &) = delete;
 	virtual ~LuaExtension();
 
 	virtual bool Initialise(ExtensionAPI *host_);
