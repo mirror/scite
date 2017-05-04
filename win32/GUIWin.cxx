@@ -51,7 +51,7 @@ static unsigned int UTF8Length(const wchar_t *uptr, size_t tlen) {
 	return len;
 }
 
-static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf, size_t len) {
+static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf) {
 	int k = 0;
 	for (size_t i = 0; i < tlen && uptr[i];) {
 		const unsigned int uch = uptr[i];
@@ -76,10 +76,9 @@ static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf, size_t l
 		}
 		i++;
 	}
-	putf[len] = '\0';
 }
 
-static size_t UTF16Length(const char *s, unsigned int len) {
+static size_t UTF16Length(const char *s, size_t len) {
 	size_t ulen = 0;
 	size_t charLen;
 	for (size_t i=0; i<len;) {
@@ -137,31 +136,35 @@ static size_t UTF16FromUTF8(const char *s, size_t len, gui_char *tbuf, size_t tl
 }
 
 gui_string StringFromUTF8(const char *s) {
-	if (!s) {
+	if (!s || !*s) {
 		return gui_string();
 	}
-	size_t sLen = strlen(s);
-	size_t wideLen = UTF16Length(s, static_cast<int>(sLen));
-	std::vector<gui_char> vgc(wideLen + 1);
-	size_t outLen = UTF16FromUTF8(s, sLen, &vgc[0], wideLen);
-	vgc[outLen] = 0;
-	return gui_string(&vgc[0], outLen);
+	const size_t sLen = strlen(s);
+	const size_t wideLen = UTF16Length(s, sLen);
+	std::vector<gui_char> vgc(wideLen);
+	UTF16FromUTF8(s, sLen, &vgc[0], wideLen);
+	return gui_string(&vgc[0], wideLen);
 }
 
 gui_string StringFromUTF8(const std::string &s) {
-	size_t sLen = s.length();
-	size_t wideLen = UTF16Length(s.c_str(), static_cast<int>(sLen));
-	std::vector<gui_char> vgc(wideLen + 1);
-	size_t outLen = UTF16FromUTF8(s.c_str(), sLen, &vgc[0], wideLen);
-	vgc[outLen] = 0;
-	return gui_string(&vgc[0], outLen);
+	if (s.empty()) {
+		return gui_string();
+	}
+	const size_t sLen = s.length();
+	const size_t wideLen = UTF16Length(s.c_str(), sLen);
+	std::vector<gui_char> vgc(wideLen);
+	UTF16FromUTF8(s.c_str(), sLen, &vgc[0], wideLen);
+	return gui_string(&vgc[0], wideLen);
 }
 
 std::string UTF8FromString(const gui_string &s) {
-	size_t sLen = s.size();
-	size_t narrowLen = UTF8Length(s.c_str(), sLen);
-	std::vector<char> vc(narrowLen + 1);
-	UTF8FromUTF16(s.c_str(), sLen, &vc[0], narrowLen);
+	if (s.empty()) {
+		return std::string();
+	}
+	const size_t sLen = s.size();
+	const size_t narrowLen = UTF8Length(s.c_str(), sLen);
+	std::vector<char> vc(narrowLen);
+	UTF8FromUTF16(s.c_str(), sLen, &vc[0]);
 	return std::string(&vc[0], narrowLen);
 }
 
