@@ -6,42 +6,29 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <string>
+#include <vector>
 
 #include "Scintilla.h"
 #include "GUI.h"
 #include "MultiplexExtension.h"
 
-MultiplexExtension::MultiplexExtension(): extensions(0), extensionCount(0), host(0) {}
+MultiplexExtension::MultiplexExtension(): host(nullptr) {}
 
 MultiplexExtension::~MultiplexExtension() {
 	Finalise();
-	delete [] extensions;
 }
 
 bool MultiplexExtension::RegisterExtension(Extension &ext_) {
-	for (int i = 0; i < extensionCount; ++i)
-		if (extensions[i] == &ext_)
+	for (Extension *pexp : extensions)
+		if (pexp == &ext_)
 			return true;
 
-	Extension **newExtensions = new Extension *[extensionCount+1];
+	extensions.push_back(&ext_);
 
-	if (newExtensions) {
-		if (extensions) {
-			for (int i = 0; i < extensionCount; ++i)
-				newExtensions[i] = extensions[i];
-			delete[] extensions;
-		}
+	if (host)
+		ext_.Initialise(host);
 
-		extensions = newExtensions;
-		extensions[extensionCount++] = &ext_;
-
-		if (host)
-			ext_.Initialise(host);
-
-		return true;
-	} else {
-		return false;
-	}
+	return true;
 }
 
 
@@ -59,204 +46,219 @@ bool MultiplexExtension::Initialise(ExtensionAPI *host_) {
 		Finalise(); // shouldn't happen.
 
 	host = host_;
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->Initialise(host_);
+	for (Extension *pexp : extensions)
+		pexp->Initialise(host_);
 
 	return false;
 }
 
 bool MultiplexExtension::Finalise() {
 	if (host) {
-		for (int i = extensionCount - 1; i >= 0; --i)
+		for (int i = extensions.size() - 1; i >= 0; --i)
 			extensions[i]->Finalise();
 
-		host = 0;
+		host = nullptr;
 	}
 	return false;
 }
 
 bool MultiplexExtension::Clear() {
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->Clear();
+	for (Extension *pexp : extensions)
+		pexp->Clear();
 	return false;
 }
 
 bool MultiplexExtension::Load(const char *filename) {
-	bool handled = false;
-
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->Load(filename))
-			handled = true;
-
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->Load(filename)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::InitBuffer(int index) {
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->InitBuffer(index);
+	for (Extension *pexp : extensions)
+		pexp->InitBuffer(index);
 	return false;
 }
 
 bool MultiplexExtension::ActivateBuffer(int index) {
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->ActivateBuffer(index);
+	for (Extension *pexp : extensions)
+		pexp->ActivateBuffer(index);
 	return false;
 }
 
 bool MultiplexExtension::RemoveBuffer(int index) {
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->RemoveBuffer(index);
+	for (Extension *pexp : extensions)
+		pexp->RemoveBuffer(index);
 	return false;
 }
 
 bool MultiplexExtension::OnOpen(const char *filename) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnOpen(filename))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnOpen(filename)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnSwitchFile(const char *filename) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnSwitchFile(filename))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnSwitchFile(filename)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnBeforeSave(const char *filename) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnBeforeSave(filename))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnBeforeSave(filename)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnSave(const char *filename) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnSave(filename))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnSave(filename)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnChar(char c) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnChar(c))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnChar(c)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnExecute(const char *cmd) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnExecute(cmd))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnExecute(cmd)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnSavePointReached() {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnSavePointReached())
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnSavePointReached()) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnSavePointLeft() {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnSavePointLeft())
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnSavePointLeft()) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnStyle(unsigned int p, int q, int r, StyleWriter *s) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnStyle(p, q, r, s))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnStyle(p, q, r, s)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnDoubleClick() {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnDoubleClick())
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnDoubleClick()) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnUpdateUI() {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnUpdateUI())
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnUpdateUI()) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnMarginClick() {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnMarginClick())
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnMarginClick()) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnMacro(const char *p, const char *q) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnMacro(p, q))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnMacro(p, q)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnUserListSelection(int listType, const char *selection) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount && !handled; ++i)
-		if (extensions[i]->OnUserListSelection(listType, selection))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnUserListSelection(listType, selection)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::SendProperty(const char *prop) {
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->SendProperty(prop);
+	for (Extension *pexp : extensions)
+		pexp->SendProperty(prop);
 	return false;
 }
 
 bool MultiplexExtension::OnKey(int keyval, int modifiers) {
-	bool handled = false;
-	for (int i = 0; i < extensionCount; ++i)
-		if (extensions[i]->OnKey(keyval, modifiers))
-			handled = true;
-	return handled;
+	for (Extension *pexp : extensions) {
+		if (pexp->OnKey(keyval, modifiers)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool MultiplexExtension::OnDwellStart(int pos, const char *word) {
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->OnDwellStart(pos, word);
+	for (Extension *pexp : extensions)
+		pexp->OnDwellStart(pos, word);
 	return false;
 }
 
 bool MultiplexExtension::OnClose(const char *filename) {
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->OnClose(filename);
+	for (Extension *pexp : extensions)
+		pexp->OnClose(filename);
 	return false;
 }
 
 bool MultiplexExtension::OnUserStrip(int control, int change) {
-	for (int i = 0; i < extensionCount; ++i)
-		extensions[i]->OnUserStrip(control, change);
+	for (Extension *pexp : extensions)
+		pexp->OnUserStrip(control, change);
 	return false;
 }
 
 bool MultiplexExtension::NeedsOnClose() {
-	for (int i = 0; i < extensionCount; ++i) {
-		if (extensions[i]->NeedsOnClose())
+	for (Extension *pexp : extensions) {
+		if (pexp->NeedsOnClose()) {
 			return true;
+		}
 	}
 	return false;
 }

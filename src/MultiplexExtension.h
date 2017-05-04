@@ -80,8 +80,7 @@ public:
 	virtual bool NeedsOnClose();
 
 private:
-	Extension **extensions;
-	int extensionCount;
+	std::vector<Extension *> extensions;
 	ExtensionAPI *host;
 };
 
