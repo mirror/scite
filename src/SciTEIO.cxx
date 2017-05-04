@@ -21,6 +21,7 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <memory>
 
 #include "Scintilla.h"
 #include "ILexer.h"
@@ -1278,7 +1279,7 @@ public:
 };
 
 class FileReader {
-	BufferedFile *bf;
+	std::unique_ptr<BufferedFile> bf;
 	int lineNum;
 	bool lastWasCR;
 	std::string lineToCompare;
@@ -1286,7 +1287,7 @@ class FileReader {
 	bool caseSensitive;
 public:
 	FileReader(const FilePath &fPath, bool caseSensitive_) {
-		bf = new BufferedFile(fPath);
+		bf.reset(new BufferedFile(fPath));
 		lineNum = 0;
 		lastWasCR = false;
 		caseSensitive = caseSensitive_;
@@ -1294,8 +1295,6 @@ public:
 	// Deleted so FileReader objects can not be copied.
 	FileReader(const FileReader &) = delete;
 	~FileReader() {
-		delete bf;
-		bf = NULL;
 	}
 	const char *Next() {
 		if (bf->Exhausted()) {

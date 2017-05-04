@@ -19,6 +19,7 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <memory>
 #include <sstream>
 #include <iomanip>
 

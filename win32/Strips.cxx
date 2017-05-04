@@ -1488,8 +1488,7 @@ void UserStrip::Creation() {
 }
 
 void UserStrip::Destruction() {
-	delete psd;
-	psd = NULL;
+	psd.reset();
 	Strip::Destruction();
 }
 
@@ -1651,8 +1650,7 @@ void UserStrip::SetDescription(const char *description) {
 			}
 		}
 	}
-	delete psd;
-	psd = new StripDefinition(sDescription);
+	psd.reset(new StripDefinition(sDescription));
 	// Create all the controls but with arbitrary initial positions which will be fixed up later.
 	size_t controlID=0;
 	int top = space;

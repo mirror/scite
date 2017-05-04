@@ -7,7 +7,7 @@
 
 struct Worker {
 private:
-	Mutex *mutex;
+	std::unique_ptr<Mutex> mutex;
 	volatile bool completed;
 	volatile bool cancelling;
 	volatile size_t jobSize;
@@ -19,45 +19,44 @@ public:
 	Worker(const Worker &) = delete;
 	void operator=(const Worker &) = delete;
 	virtual ~Worker() {
-		delete mutex;
 	}
 	virtual void Execute() {}
 	bool FinishedJob() const {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return completed;
 	}
 	void SetCompleted() {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		completed = true;
 	}
 	bool Cancelling() const {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return cancelling;
 	}
 	size_t SizeJob() const {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return jobSize;
 	}
 	void SetSizeJob(size_t size) {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		jobSize = size;
 	}
 	size_t ProgressMade() const {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return jobProgress;
 	}
 	void IncrementProgress(size_t increment) {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		jobProgress += increment;
 	}
 	virtual void Cancel() {
 		{
-			Lock lock(mutex);
+			Lock lock(mutex.get());
 			cancelling = true;
 		}
 		// Wait for writing thread to finish
 		for (;;) {
-			Lock lock(mutex);
+			Lock lock(mutex.get());
 			if (completed)
 				return;
 		}

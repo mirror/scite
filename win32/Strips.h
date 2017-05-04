@@ -204,11 +204,11 @@ public:
 class StripDefinition;
 
 class UserStrip : public Strip {
-	StripDefinition *psd;
+	std::unique_ptr<StripDefinition> psd;
 	Extension *extender;
 	SciTEWin *pSciTEWin;
 public:
-	UserStrip() : psd(0), extender(0), pSciTEWin(0) {
+	UserStrip() : extender(nullptr), pSciTEWin(nullptr) {
 		lineHeight = 26;
 	}
 	virtual void Creation();
