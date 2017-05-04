@@ -66,7 +66,7 @@
 #define PDF_ENCODING		"WinAnsiEncoding"
 
 struct PDFStyle {
-	char fore[24];
+	std::string fore;
 	int font;
 };
 
@@ -81,7 +81,8 @@ static short PDFfontAscenders[] =  { 629, 718, 699 };
 static short PDFfontDescenders[] = { 157, 207, 217 };
 static short PDFfontWidths[] =     { 600,   0,   0 };
 
-inline void getPDFRGB(char* pdfcolour, const char* stylecolour) {
+inline std::string getPDFRGB(const char* stylecolour) {
+	std::string ret;
 	// grab colour components (max string length produced = 18)
 	for (int i = 1; i < 6; i += 2) {
 		char val[20];
@@ -92,8 +93,9 @@ inline void getPDFRGB(char* pdfcolour, const char* stylecolour) {
 		} else {
 			sprintf(val, "0.%03d ", c);
 		}
-		strcat(pdfcolour, val);
+		ret += val;
 	}
+	return ret;
 }
 
 void SciTEBase::SaveToPDF(const FilePath &saveName) {
@@ -103,19 +105,16 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	class PDFObjectTracker {
 	private:
 		FILE *fp;
-		long *offsetList, tableSize;
+		std::vector<long> offsetList;
 	public:
 		int index;
 		explicit PDFObjectTracker(FILE *fp_) {
 			fp = fp_;
-			tableSize = 100;
-			offsetList = new long[tableSize];
 			index = 1;
 		}
 		// Deleted so PDFObjectTracker objects can not be copied.
 		PDFObjectTracker(const PDFObjectTracker &) = delete;
 		~PDFObjectTracker() {
-			delete []offsetList;
 		}
 		void write(const char *objectData) {
 			size_t length = strlen(objectData);
@@ -129,19 +128,8 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		}
 		// returns object number assigned to the supplied data
 		int add(const char *objectData) {
-			// resize xref offset table if too small
-			if (index > tableSize) {
-				long newSize = tableSize * 2;
-				long *newList = new long[newSize];
-				for (int i = 0; i < tableSize; i++) {
-					newList[i] = offsetList[i];
-				}
-				delete []offsetList;
-				offsetList = newList;
-				tableSize = newSize;
-			}
 			// save offset, then format and write object
-			offsetList[index - 1] = ftell(fp);
+			offsetList.push_back(ftell(fp));
 			write(index);
 			write(" 0 obj\n");
 			write(objectData);
@@ -178,14 +166,14 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		double xPos, yPos;	// position tracking for line wrapping
 		std::string pageData;	// holds PDF stream contents
 		std::string segment;	// character data
-		char *segStyle;		// style of segment
+		std::string segStyle;		// style of segment
 		bool justWhiteSpace;
 		int styleCurrent, stylePrev;
 		double leading;
-		char *buffer;
+		char buffer[250];
 	public:
 		PDFObjectTracker *oT;
-		PDFStyle *style;
+		std::vector<PDFStyle> style;
 		int fontSize;		// properties supplied by user
 		int fontSet;
 		long pageWidth, pageHeight;
@@ -202,42 +190,39 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			styleCurrent = STYLE_DEFAULT;
 			stylePrev = STYLE_DEFAULT;
 			leading = PDF_FONTSIZE_DEFAULT * PDF_SPACING_DEFAULT;
+			buffer[0] = '\0';
 			oT = NULL;
-			style = NULL;
 			fontSize = 0;
 			fontSet = PDF_FONT_DEFAULT;
 			pageWidth = 100;
 			pageHeight = 100;
-			buffer = new char[250];
-			segStyle = new char[100];
 		}
 		// Deleted so PDFRender objects can not be copied.
 		PDFRender(const PDFRender &) = delete;
 		~PDFRender() {
-			delete []style;
-			delete []buffer;
-			delete []segStyle;
 		}
 		//
 		double fontToPoints(int thousandths) const {
 			return (double)fontSize * thousandths / 1000.0;
 		}
-		void setStyle(char *buff, int style_) {
+		std::string setStyle(int style_) {
 			int styleNext = style_;
 			if (style_ == -1) { styleNext = styleCurrent; }
-			*buff = '\0';
+			char buff[100];
+			buff[0] = '\0';
 			if (styleNext != styleCurrent || style_ == -1) {
 				if (style[styleCurrent].font != style[styleNext].font
 				        || style_ == -1) {
 					sprintf(buff, "/F%d %d Tf ",
 					        style[styleNext].font + 1, fontSize);
 				}
-				if (strcmp(style[styleCurrent].fore, style[styleNext].fore) != 0
+				if ((style[styleCurrent].fore != style[styleNext].fore)
 				        || style_ == -1) {
-					strcat(buff, style[styleNext].fore);
+					strcat(buff, style[styleNext].fore.c_str());
 					strcat(buff, "rg ");
 				}
 			}
+			return buff;
 		}
 		//
 		void startPDF() {
@@ -331,7 +316,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			if (style_ != styleCurrent) {
 				flushSegment();
 				// output code (if needed) for new style
-				setStyle(segStyle, style_);
+				segStyle = setStyle(style_);
 				stylePrev = styleCurrent;
 				styleCurrent = style_;
 			}
@@ -354,7 +339,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 				pageData += ")Tj\n";
 			}
 			segment.clear();
-			*segStyle = '\0';
+			segStyle = "";
 			justWhiteSpace = true;
 		}
 		void startPage() {
@@ -367,8 +352,8 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			sprintf(buffer, "BT 1 0 0 1 %d %d Tm\n",
 			        pageMargin.left, (int)yPos);
 			// force setting of initial font, colour
-			setStyle(segStyle, -1);
-			strcat(buffer, segStyle);
+			segStyle = setStyle(-1);
+			strcat(buffer, segStyle.c_str());
 			pageData = buffer;
 			xPos = pageMargin.left;
 			segment.clear();
@@ -379,14 +364,16 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			flushSegment();
 			// build actual text object; +3 is for "ET\n"
 			// PDF1.4Ref(p38) EOL marker preceding endstream not counted
-			char *textObj = new char[pageData.length() + 100];
+			std::ostringstream osTextObj;
 			// concatenate stream within the text object
-			sprintf(textObj, "<</Length %d>>\nstream\n%s"
-			        "ET\nendstream\n",
-			        static_cast<int>(pageData.length() - 1 + 3),
-			        pageData.c_str());
-			oT->add(textObj);
-			delete []textObj;
+			osTextObj
+				<< "<</Length "
+				<< static_cast<int>(pageData.length() - 1 + 3)
+				<< ">>\nstream\n"
+				<< pageData.c_str()
+				<< "ET\nendstream\n";
+			std::string textObj = osTextObj.str();
+			oT->add(textObj.c_str());
 		}
 		void nextLine() {
 			if (!pageStarted) {
@@ -469,10 +456,10 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 
 	// collect all styles available for that 'language'
 	// or the default style if no language is available...
-	pr.style = new PDFStyle[STYLE_MAX + 1];
+	pr.style.resize(STYLE_MAX + 1);
 	for (int i = 0; i <= STYLE_MAX; i++) {	// get keys
 		pr.style[i].font = 0;
-		pr.style[i].fore[0] = '\0';
+		pr.style[i].fore = "";
 
 		StyleDefinition sd = StyleDefinitionFor(i);
 
@@ -480,9 +467,9 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			if (sd.italics) { pr.style[i].font |= 2; }
 			if (sd.IsBold()) { pr.style[i].font |= 1; }
 			if (sd.fore.length()) {
-				getPDFRGB(pr.style[i].fore, sd.fore.c_str());
+				pr.style[i].fore = getPDFRGB(sd.fore.c_str());
 			} else if (i == STYLE_DEFAULT) {
-				StringCopy(pr.style[i].fore, "0 0 0 ");
+				pr.style[i].fore = "0 0 0 ";
 			}
 			// grab font size from default style
 			if (i == STYLE_DEFAULT) {
@@ -495,8 +482,8 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	}
 	// patch in default foregrounds
 	for (int j = 0; j <= STYLE_MAX; j++) {
-		if (pr.style[j].fore[0] == '\0') {
-			StringCopy(pr.style[j].fore, pr.style[STYLE_DEFAULT].fore);
+		if (pr.style[j].fore.empty()) {
+			pr.style[j].fore = pr.style[STYLE_DEFAULT].fore;
 		}
 	}
 
