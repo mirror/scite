@@ -18,6 +18,7 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <memory>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>

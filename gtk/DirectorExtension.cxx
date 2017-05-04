@@ -47,6 +47,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <memory>
 
 #include <gtk/gtk.h>
 
