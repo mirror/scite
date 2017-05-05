@@ -63,7 +63,7 @@ public:
 
 class JobQueue {
 public:
-	Mutex *mutex;
+	std::unique_ptr<Mutex> mutex;
 	bool clearBeforeExecute;
 	bool isBuilding;
 	bool isBuilt;
@@ -76,7 +76,7 @@ public:
 	bool timeCommands;
 
 	JobQueue() {
-		mutex = Mutex::Create();
+		mutex.reset(Mutex::Create());
 		clearBeforeExecute = false;
 		isBuilding = false;
 		isBuilt = false;
@@ -88,32 +88,32 @@ public:
 	}
 
 	~JobQueue() {
-		delete mutex;
+		mutex.reset();
 		mutex = 0;
 	}
 
 	bool TimeCommands() const {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return timeCommands;
 	}
 
 	bool ClearBeforeExecute() const {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return clearBeforeExecute;
 	}
 
 	bool ShowOutputPane() const {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return jobUsesOutputPane;
 	}
 
 	bool IsExecuting() const {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return executing;
 	}
 
 	void SetExecuting(bool state) {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		executing = state;
 	}
 
@@ -122,14 +122,14 @@ public:
 	}
 
 	long SetCancelFlag(long value) {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		const long cancelFlagPrevious = cancelFlag;
 		cancelFlag = value;
 		return cancelFlagPrevious;
 	}
 
 	long Cancelled() {
-		Lock lock(mutex);
+		Lock lock(mutex.get());
 		return cancelFlag;
 	}
 
