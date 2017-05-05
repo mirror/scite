@@ -880,7 +880,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	sptr_t params[2] = {0, 0};
 
-	char *stringResult = 0;
+	std::string stringResult;
 	bool needStringResult = false;
 
 	int loopParamCount = 2;
@@ -919,9 +919,8 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		sptr_t stringResultLen = host->Send(p, func.value, params[0], 0);
 		if (stringResultLen > 0) {
 			// not all string result methods are guaranteed to add a null terminator
-			stringResult = new char[stringResultLen+1];
-			stringResult[stringResultLen]='\0';
-			params[1] = SptrFromPointer(stringResult);
+			stringResult.assign(stringResultLen + 1, '\0');
+			params[1] = SptrFromPointer(&stringResult[0]);
 		} else {
 			// Is this an error?  Are there any cases where it's not an error,
 			// and where the right thing to do is just return a blank string?
@@ -954,9 +953,8 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	int resultCount = 0;
 
-	if (stringResult) {
-		lua_pushstring(L, stringResult);
-		delete[] stringResult;
+	if (needStringResult) {
+		lua_pushstring(L, stringResult.c_str());
 		resultCount++;
 	}
 
@@ -1982,18 +1980,16 @@ struct StylingContext {
 
 	static int Token(lua_State *L) {
 		StylingContext *context = Context(L);
-		int start = context->styler->GetStartSegment();
-		int end = context->currentPos - 1;
+		const int start = context->styler->GetStartSegment();
+		const int end = context->currentPos - 1;
 		int len = end - start + 1;
 		if (len <= 0)
 			len = 1;
-		char *sReturn = new char[len+1];
+		std::string sReturn(len, '\0');
 		for (int i = 0; i < len; i++) {
 			sReturn[i] = context->styler->SafeGetCharAt(start + i);
 		}
-		sReturn[len] = '\0';
-		lua_pushstring(L, sReturn);
-		delete []sReturn;
+		lua_pushstring(L, sReturn.c_str());
 		return 1;
 	}
 
