@@ -4504,7 +4504,7 @@ static unsigned int ReadNum(const char *&t) {
 	unsigned int v = 0;
 	if (*t)
 		v = atoi(t);					// read value
-	t = argend + 1;					// update pointer
+	t = (argend) ? (argend + 1) : nullptr;	// update pointer
 	return v;						// return value
 }
 
@@ -4515,17 +4515,23 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	int rep = 0;				//Scintilla's answer
 	const char *answercmd;
 	int l;
-	char *string1 = NULL;
+	std::string string1;
 	char params[4];
-	//params describe types of return values and of arguments
-	//0 : void or no param
-	//I : integer
-	//S : string
-	//R : return string (for lParam only)
+	// 'params' describes types of return values and of arguments.
+	// There are exactly 3 characters: return type, wParam, lParam.
+	// 0 : void or no param
+	// I : integer
+	// S : string
+	// R : string (for wParam only)
+	// For example, "4004;0RS;fruit;mango" performs SCI_SETPROPERTY("fruit","mango") with no return
 
-	//extract message,wParam ,lParam
+	// Extract message, parameter specification, wParam, lParam
 
 	unsigned int message = ReadNum(nextarg);
+	if (!nextarg) {
+		Trace("Malformed macro command.\n");
+		return;
+	}
 	strncpy(params, nextarg, 3);
 	params[3] = '\0';
 	nextarg += 4;
@@ -4534,12 +4540,8 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 		const char *s1 = nextarg;
 		while (*nextarg != ';')
 			nextarg++;
-		size_t lstring1 = nextarg - s1;
-		string1 = new char[lstring1 + 1];
-		if (lstring1 > 0)
-			strncpy(string1, s1, lstring1);
-		*(string1 + lstring1) = '\0';
-		wParam = UptrFromString(string1);
+		string1.assign(s1, nextarg - s1);
+		wParam = UptrFromString(string1.c_str());
 		nextarg++;
 	} else {
 		wParam = ReadNum(nextarg);
@@ -4553,7 +4555,6 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	if (*params == '0') {
 		// no answer ...
 		wEditor.Call(message, wParam, lParam);
-		delete []string1;
 		return;
 	}
 
@@ -4593,7 +4594,6 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	if (*params == 'I')
 		sprintf(&tbuff[alen], "%0d", rep);
 	extender->OnMacro("macro", tbuff.c_str());
-	delete []string1;
 }
 
 /**
