@@ -209,18 +209,19 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		std::string setStyle(int style_) {
 			int styleNext = style_;
 			if (style_ == -1) { styleNext = styleCurrent; }
-			char buff[100];
-			buff[0] = '\0';
+			std::string buff;
 			if (styleNext != styleCurrent || style_ == -1) {
 				if (style[styleCurrent].font != style[styleNext].font
 				        || style_ == -1) {
-					sprintf(buff, "/F%d %d Tf ",
+					char fontSpec[100];
+					sprintf(fontSpec, "/F%d %d Tf ",
 					        style[styleNext].font + 1, fontSize);
+					buff += fontSpec;
 				}
 				if ((style[styleCurrent].fore != style[styleNext].fore)
 				        || style_ == -1) {
-					strcat(buff, style[styleNext].fore.c_str());
-					strcat(buff, "rg ");
+					buff += style[styleNext].fore;
+					buff += "rg ";
 				}
 			}
 			return buff;
@@ -352,10 +353,10 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			// start a new page
 			sprintf(buffer, "BT 1 0 0 1 %d %d Tm\n",
 			        pageMargin.left, (int)yPos);
+			pageData = buffer;
 			// force setting of initial font, colour
 			segStyle = setStyle(-1);
-			strcat(buffer, segStyle.c_str());
-			pageData = buffer;
+			pageData += segStyle;
 			xPos = pageMargin.left;
 			segment.clear();
 			flushSegment();
@@ -363,18 +364,23 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		void endPage() {
 			pageStarted = false;
 			flushSegment();
-			// build actual text object; +3 is for "ET\n"
-			// PDF1.4Ref(p38) EOL marker preceding endstream not counted
-			std::ostringstream osTextObj;
-			// concatenate stream within the text object
-			osTextObj
-				<< "<</Length "
-				<< static_cast<int>(pageData.length() - 1 + 3)
-				<< ">>\nstream\n"
-				<< pageData.c_str()
-				<< "ET\nendstream\n";
-			std::string textObj = osTextObj.str();
-			oT->add(textObj.c_str());
+			try {
+				// build actual text object; +3 is for "ET\n"
+				// PDF1.4Ref(p38) EOL marker preceding endstream not counted
+				std::ostringstream osTextObj;
+				// concatenate stream within the text object
+				osTextObj
+					<< "<</Length "
+					<< static_cast<int>(pageData.length() - 1 + 3)
+					<< ">>\nstream\n"
+					<< pageData.c_str()
+					<< "ET\nendstream\n";
+				std::string textObj = osTextObj.str();
+				oT->add(textObj.c_str());
+			} catch (std::exception &) {
+				// Exceptions not enabled on stream but still causes diagnostic in Coverity.
+				// Simply swallow the failure.
+			}
 		}
 		void nextLine() {
 			if (!pageStarted) {
