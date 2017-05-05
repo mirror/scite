@@ -1757,14 +1757,14 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 }
 
 bool SciTEBase::PerformInsertAbbreviation() {
-	std::string data = propsAbbrev.GetString(abbrevInsert.c_str());
-	size_t dataLength = data.length();
-	if (dataLength == 0) {
+	const std::string data = propsAbbrev.GetString(abbrevInsert.c_str());
+	if (data.empty()) {
 		return true; // returning if expanded abbreviation is empty
 	}
 
-	std::string expbuf(data.c_str(), dataLength + 1);
-	size_t expbuflen = UnSlash(&expbuf[0]);
+	const std::string expbuf = UnSlashString(data.c_str());
+	const size_t expbuflen = expbuf.length();
+
 	int caret_pos = wEditor.Call(SCI_GETSELECTIONSTART);
 	int sel_start = caret_pos;
 	int sel_length = wEditor.Call(SCI_GETSELECTIONEND) - sel_start;
@@ -1773,7 +1773,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	size_t last_pipe = expbuflen;
 	int currentLineNumber = wEditor.Call(SCI_LINEFROMPOSITION, caret_pos);
 	int indent = 0;
-	int indentSize = wEditor.Call(SCI_GETINDENT);
+	const int indentSize = wEditor.Call(SCI_GETINDENT);
 	const int indentChars = (wEditor.Call(SCI_GETUSETABS) && wEditor.Call(SCI_GETTABWIDTH) ? wEditor.Call(SCI_GETTABWIDTH) : 1);
 	int indentExtra = 0;
 	bool isIndent = true;
@@ -1782,9 +1782,8 @@ bool SciTEBase::PerformInsertAbbreviation() {
 		indent = GetLineIndentation(currentLineNumber);
 	}
 
-	size_t i;
 	// find last |, can't be strrchr(exbuf, '|') because of ||
-	for (i = expbuflen; i--; ) {
+	for (size_t i = expbuflen; i--; ) {
 		if (expbuf[i] == '|' && (i == 0 || expbuf[i-1] != '|')) {
 			last_pipe = i;
 			break;
@@ -1794,8 +1793,8 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	wEditor.Call(SCI_BEGINUNDOACTION);
 
 	// add the abbreviation one character at a time
-	for (i = 0; i < expbuflen; i++) {
-		char c = expbuf[i];
+	for (size_t i = 0; i < expbuflen; i++) {
+		const char c = expbuf[i];
 		std::string abbrevText("");
 		if (isIndent && c == '\t') {
 			if (props.GetInt("indent.automatic")) {
@@ -1807,7 +1806,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 			switch (c) {
 			case '|':
 				// user may want to insert '|' instead of caret
-				if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
+				if (i < (expbuflen - 1) && expbuf[i + 1] == '|') {
 					// put '|' into the line
 					abbrevText += c;
 					i++;
@@ -1883,15 +1882,12 @@ bool SciTEBase::StartInsertAbbreviation() {
 }
 
 bool SciTEBase::StartExpandAbbreviation() {
-	int currentPos = GetCaretInLine();
-	int position = wEditor.Call(SCI_GETCURRENTPOS); // from the beginning
-	char *linebuf = new char[currentPos + 2];
-	GetLine(linebuf, currentPos + 2);	// Just get text to the left of the caret
-	linebuf[currentPos] = '\0';
+	const int currentPos = GetCaretInLine();
+	const int position = wEditor.Call(SCI_GETCURRENTPOS); // from the beginning
+	const std::string linebuf(GetCurrentLine(), 0, currentPos);	// Just get text to the left of the caret
 	const int abbrevPos = (currentPos > 32 ? currentPos - 32 : 0);
-	const char *abbrev = linebuf + abbrevPos;
+	const char *abbrev = linebuf.c_str() + abbrevPos;
 	std::string data;
-	size_t dataLength = 0;
 	int abbrevLength = currentPos - abbrevPos;
 	// Try each potential abbreviation from the first letter on a line
 	// and expanding to the right.
@@ -1899,25 +1895,25 @@ bool SciTEBase::StartExpandAbbreviation() {
 	// and of course stop on the caret.
 	while (abbrevLength > 0) {
 		data = propsAbbrev.GetString(abbrev);
-		dataLength = data.length();
-		if (dataLength > 0) {
+		if (!data.empty()) {
 			break;	/* Found */
 		}
 		abbrev++;	// One more letter to the right
 		abbrevLength--;
 	}
 
-	if (dataLength == 0) {
-		delete []linebuf;
+	if (data.empty()) {
 		WarnUser(warnNotFound);	// No need for a special warning
 		return true; // returning if expanded abbreviation is empty
 	}
 
-	std::string expbuf(data.c_str(), dataLength + 1);
-	const size_t expbuflen = UnSlash(&expbuf[0]);
+	const std::string expbuf = UnSlashString(data.c_str());
+	const size_t expbuflen = expbuf.length();
+
 	int caret_pos = -1; // caret position
 	int currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
+	const int indentSize = wEditor.Call(SCI_GETINDENT);
 	int indentExtra = 0;
 	bool isIndent = true;
 	const int eolMode = wEditor.Call(SCI_GETEOLMODE);
@@ -1930,16 +1926,16 @@ bool SciTEBase::StartExpandAbbreviation() {
 
 	// add the abbreviation one character at a time
 	for (size_t i = 0; i < expbuflen; i++) {
-		char c = expbuf[i];
+		const char c = expbuf[i];
 		std::string abbrevText("");
 		if (isIndent && c == '\t') {
 			indentExtra++;
-			SetLineIndentation(currentLineNumber, indent + wEditor.Call(SCI_GETINDENT) * indentExtra);
+			SetLineIndentation(currentLineNumber, indent + indentSize * indentExtra);
 		} else {
 			switch (c) {
 			case '|':
 				// user may want to insert '|' instead of caret
-				if (i < (dataLength - 1) && expbuf[i + 1] == '|') {
+				if (i < (expbuflen - 1) && expbuf[i + 1] == '|') {
 					// put '|' into the line
 					abbrevText += c;
 					i++;
@@ -1982,7 +1978,6 @@ bool SciTEBase::StartExpandAbbreviation() {
 	}
 
 	wEditor.Call(SCI_ENDUNDOACTION);
-	delete []linebuf;
 	return true;
 }
 
