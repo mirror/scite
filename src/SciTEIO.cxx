@@ -1100,7 +1100,24 @@ bool SciTEBase::Save(SaveFlags sf) {
 		}
 		return true;
 	} else {
-		return SaveAsDialog();
+		if (props.GetString("save.path.suggestion").length()) {
+			time_t t = time(NULL);
+			char timeBuff[15];
+			strftime(timeBuff, sizeof(timeBuff), "%Y%m%d%H%M%S",  localtime(&t));
+			PropSetFile propsSuggestion;
+			propsSuggestion.superPS = &props;  // Allow access to other settings
+			propsSuggestion.Set("TimeStamp", timeBuff);
+			propsSuggestion.Set("SciteUserHome", GetSciteUserHome().AsUTF8().c_str());
+			std::string savePathSuggestion = propsSuggestion.GetExpandedString("save.path.suggestion");
+			std::replace(savePathSuggestion.begin(), savePathSuggestion.end(), '\\', '/');  // To accept "\" on Unix
+			if (savePathSuggestion.size() > 0) {
+				filePath = FilePath(GUI::StringFromUTF8(savePathSuggestion)).NormalizePath();
+			}
+		}
+		bool ret = SaveAsDialog();
+		if (!ret)
+			filePath.Set(GUI_TEXT(""));
+		return ret;
 	}
 }
 

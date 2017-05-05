@@ -4322,6 +4322,21 @@ groupundo - yes or no
 		   this properties file.
         </td>
       </tr>
+	  <tr id='property-save.path.suggestion'>
+        <td>
+          save.path.suggestion
+        </td>
+        <td>
+          If set, SciTE suggests this name and directory when we perform the "Save" command for a new, unnamed buffer.
+          The directory should exist. (This setting doesn't affect the "Save As" command).
+          A save.path.suggestion setting may be defined as either a relative to $(SciteUserHome) path, like:
+          <div class="example">
+          save.path.suggestion=$(SciteUserHome)\Notes\note_$(TimeStamp).txt<br/>
+          </div>
+          or as a full path. It accepts both directory delimiters: the slash "/" and the backslash "\".<br/>
+          If $(TimeStamp) is specified, it will be replaced by an actual timestamp, 14 characters long.
+        </td>
+      </tr>
     </table>
     <p>
     caret.policy.{x|y}&lt;param&gt; interaction:
