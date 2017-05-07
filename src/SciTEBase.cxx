@@ -4517,6 +4517,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	int l;
 	std::string string1;
 	char params[4];
+	// This code does not validate its input which may cause crashes when bad.
 	// 'params' describes types of return values and of arguments.
 	// There are exactly 3 characters: return type, wParam, lParam.
 	// 0 : void or no param
@@ -4549,7 +4550,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 
 	if (*(params + 2) == 'S')
 		lParam = SptrFromString(nextarg);
-	else if (*(params + 2) == 'I')
+	else if ((*(params + 2) == 'I') && nextarg)	// nextarg check avoids warning from clang analyze
 		lParam = atoi(nextarg);
 
 	if (*params == '0') {

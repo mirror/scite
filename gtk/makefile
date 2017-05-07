@@ -97,13 +97,13 @@ CXXTFLAGS:=$(CXXTFLAGS) -Dunix
 endif
 
 .cxx.o:
-	$(CXX) --std=c++0x $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) --std=c++11 $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.plist $(PROG)
 
 analyze:
-	clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
+	clang --analyze --std=c++11 $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
 	# Could analyze Lua implementation as well but won't be fixing the warnings so its just noise
 	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c
 
