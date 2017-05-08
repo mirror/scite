@@ -825,6 +825,7 @@ protected:
 	bool BookmarkPresent(int lineno = -1);
 	void BookmarkToggle(int lineno = -1);
 	void BookmarkNext(bool forwardScan = true, bool select = false);
+	void BookmarkSelectAll();
 	void SetOutputVisibility(bool show);
 	virtual void ShowOutputOnMainThread();
 	void ToggleOutputVisible();

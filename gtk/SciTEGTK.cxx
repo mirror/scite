@@ -3851,6 +3851,7 @@ void SciTEGTK::CreateMenu() {
 	                                      {"/Search/Pre_vious Bookmark", "<shift>F2", menuSig, IDM_BOOKMARK_PREV, 0},
 	                                      {"/Search/Toggle Bookmar_k", "<control>F2", menuSig, IDM_BOOKMARK_TOGGLE, 0},
 	                                      {"/Search/_Clear All Bookmarks", "", menuSig, IDM_BOOKMARK_CLEARALL, 0},
+	                                      {"/Search/Select All _Bookmarks", "", menuSig, IDM_BOOKMARK_SELECT_ALL, 0},
 
 	                                      {"/_View", NULL, NULL, 0, "<Branch>"},
 	                                      {"/View/Toggle _current fold", "", menuSig, IDM_EXPAND, 0},

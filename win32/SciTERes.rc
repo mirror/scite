@@ -99,6 +99,7 @@ BEGIN
 	MENUITEM "Pre&vious Bookmark\tShift+F2",	IDM_BOOKMARK_PREV
 	MENUITEM "Toggle Bookmar&k\tCtrl+F2",		IDM_BOOKMARK_TOGGLE
 	MENUITEM "&Clear All Bookmarks",			IDM_BOOKMARK_CLEARALL
+	MENUITEM "Select All &Bookmarks",		IDM_BOOKMARK_SELECT_ALL
 END
 
 POPUP "&View"

@@ -1458,6 +1458,25 @@ void SciTEBase::BookmarkNext(bool forwardScan, bool select) {
 	}
 }
 
+void SciTEBase::BookmarkSelectAll() {
+	std::vector<int> bookmarks;
+	int lineBookmark = -1;
+	while ((lineBookmark = wEditor.Call(SCI_MARKERNEXT, lineBookmark + 1, 1 << markerBookmark)) >= 0) {
+		bookmarks.push_back(lineBookmark);
+	}
+	for (size_t i = 0; i < bookmarks.size(); i++) {
+		Sci_CharacterRange crange = {
+			wEditor.Call(SCI_POSITIONFROMLINE, bookmarks[i]),
+			wEditor.Call(SCI_POSITIONFROMLINE, bookmarks[i] + 1)
+		};
+		if (i == 0) {
+			wEditor.Call(SCI_SETSELECTION, crange.cpMax, crange.cpMin);
+		} else {
+			wEditor.Call(SCI_ADDSELECTION, crange.cpMax, crange.cpMin);
+		}
+	}
+}
+
 GUI::Rectangle SciTEBase::GetClientRectangle() {
 	return wContent.GetClientPosition();
 }
@@ -3577,6 +3596,10 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_BOOKMARK_CLEARALL:
 		wEditor.Call(SCI_MARKERDELETEALL, markerBookmark);
 		RemoveFindMarks();
+		break;
+
+	case IDM_BOOKMARK_SELECT_ALL:
+		BookmarkSelectAll();
 		break;
 
 	case IDM_TABSIZE:
