@@ -160,6 +160,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"IDM_BOOKMARK_NEXT_SELECT",225},
 	{"IDM_BOOKMARK_PREV",223},
 	{"IDM_BOOKMARK_PREV_SELECT",226},
+	{"IDM_BOOKMARK_SELECT_ALL",227},
 	{"IDM_BOOKMARK_TOGGLE",222},
 	{"IDM_BOX_COMMENT",246},
 	{"IDM_BUFFER",1200},
@@ -3353,7 +3354,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 298,
-	ifaceConstantCount = 2682,
+	ifaceConstantCount = 2683,
 	ifacePropertyCount = 228
 };
 
