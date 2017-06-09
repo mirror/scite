@@ -766,6 +766,10 @@ union luai_Cast { double l_d; long l_l; };
 #pragma warning(disable: 4334)
 #endif
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#pragma GCC diagnostic ignored "-Wmisleading-indentation"
+#endif
 
 #endif
 

@@ -3095,6 +3095,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			WindowSetFocus(wEditor);
 			break;
 		}
+		/* FALLTHRU */
 		// else fall through and do NEXTFILE behaviour...
 	case IDM_NEXTFILE:
 		if (buffers.size() > 1) {
@@ -3112,6 +3113,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			WindowSetFocus(wEditor);
 			break;
 		}
+		/* FALLTHRU */
 		// else fall through and do PREVFILE behaviour...
 	case IDM_PREVFILE:
 		if (buffers.size() > 1) {
