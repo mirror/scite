@@ -767,8 +767,14 @@ union luai_Cast { double l_d; long l_l; };
 #endif
 
 #if defined(__GNUC__)
+// Want to avoid fallthrough and misleading indentation warnings but those pragmas
+// may not be available so protect by temporarily turning off pragma warnings 
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 #pragma GCC diagnostic ignored "-Wmisleading-indentation"
+#pragma GCC diagnostic warning "-Wpragmas"
+#pragma GCC diagnostic warning "-Wunknown-pragmas"
 #endif
 
 #endif
