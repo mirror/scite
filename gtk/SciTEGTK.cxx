@@ -5221,7 +5221,7 @@ void SciTEGTK::SendFileName(int sendPipe, const char* filename) {
 
 		if (startupTimestamp != 0) {
 			char timestamp[14];
-			snprintf(timestamp, 14, "%d", startupTimestamp);
+			snprintf(timestamp, 14, "%u", startupTimestamp);
 			command += timestamp;
 		}
 		command += "\n";
