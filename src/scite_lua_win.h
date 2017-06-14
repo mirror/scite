@@ -11,7 +11,7 @@ Imported into Lua build with -DLUA_USER_H=\"scite_lua_win.h\"
 Redirect fopen and _popen to functions that treat their arguments as UTF-8.
 If UTF-8 does not work then retry with the original strings as may be in locale characters.
 */
-#if defined(LUA_WIN)
+#if defined(LUA_USE_WINDOWS)
 #include <stdio.h>
 FILE *scite_lua_fopen(const char *filename, const char *mode);
 #define fopen scite_lua_fopen
