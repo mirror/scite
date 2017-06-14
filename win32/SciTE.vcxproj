@@ -64,7 +64,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STATIC_BUILD;SCI_LEXER;LINK_LEXERS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;LUA_USER_H="scite_lua_win.h";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\src;..\lua\include;..\..\scintilla\include;..\..\scintilla\src;..\..\scintilla\lexlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src;..\lua\src;..\..\scintilla\include;..\..\scintilla\src;..\..\scintilla\lexlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4702;4324</DisableSpecificWarnings>
@@ -154,7 +154,6 @@
     <ClCompile Include="..\src\*.cxx" />
     <ClCompile Include="..\win32\*.cxx" />
     <ClCompile Include="..\lua\src\*.c" />
-    <ClCompile Include="..\lua\src\lib\*.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\scintilla\include\*.h" />

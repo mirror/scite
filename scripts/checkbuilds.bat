@@ -96,7 +96,7 @@ rem ************************************************************
 rem Target 8: cppcheck
 call scite\scripts\clearboth
 cppcheck -j 8 --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
-cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/include -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
+cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
 rem
 rem Finished
 call scite\scripts\clearboth

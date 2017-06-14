@@ -63,18 +63,18 @@ CXXTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
 endif
 
 ifndef NO_LUA
-LUA_CORE_OBJS = lapi.o lcode.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
+LUA_CORE_OBJS = lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
 		lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o \
 		ltable.o ltm.o lundump.o lvm.o lzio.o
 
-LUA_LIB_OBJS =	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o ltablib.o \
-		lstrlib.o loadlib.o loslib.o linit.o
+LUA_LIB_OBJS =	lauxlib.o lbaselib.o lbitlib.o lcorolib.o ldblib.o liolib.o lmathlib.o ltablib.o \
+		lstrlib.o loadlib.o loslib.o linit.o lutf8lib.o
 
 LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
-vpath %.c $(srcdir)/../lua/src $(srcdir)/../lua/src/lib
+vpath %.c $(srcdir)/../lua/src
 
-INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src -I$(srcdir)/../lua/include
+INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src -I$(srcdir)/../lua/src
 
 .c.o:
 	$(CC) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
@@ -105,7 +105,7 @@ clean:
 analyze:
 	clang --analyze --std=c++11 $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
 	# Could analyze Lua implementation as well but won't be fixing the warnings so its just noise
-	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c ../lua/src/lib/*.c
+	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c
 
 deps: deps.mak
 deps.mak:
@@ -113,6 +113,9 @@ deps.mak:
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=$(srcdir)/../../scintilla/bin/scintilla.a
+
+# To almost make lua.vers (needs header and footer added) which is only needed after updating Lua:
+# nm -g ../bin/SciTE | grep lua | awk '{print "\t\t" $3 ";"}' >lua2.vers
 
 $(PROG): SciTEGTK.o GUIGTK.o Widget.o \
 FilePath.o SciTEBase.o FileWorker.o Cookie.o Credits.o SciTEBuffers.o SciTEIO.o StringList.o \

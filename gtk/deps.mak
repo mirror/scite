@@ -89,8 +89,8 @@ LuaExtension.o: ../src/LuaExtension.cxx \
  ../../scintilla/include/Sci_Position.h ../src/GUI.h \
  ../src/StringHelpers.h ../src/FilePath.h ../src/StyleWriter.h \
  ../src/Extender.h ../src/LuaExtension.h ../src/IFaceTable.h \
- ../src/SciTEKeys.h ../lua/include/lua.h ../lua/include/luaconf.h \
- ../lua/include/lualib.h ../lua/include/lua.h ../lua/include/lauxlib.h
+ ../src/SciTEKeys.h ../lua/src/lua.h ../lua/src/luaconf.h \
+ ../lua/src/lualib.h ../lua/src/lua.h ../lua/src/lauxlib.h
 MatchMarker.o: ../src/MatchMarker.cxx ../../scintilla/include/Scintilla.h \
  ../../scintilla/include/Sci_Position.h ../src/GUI.h ../src/MatchMarker.h
 MultiplexExtension.o: ../src/MultiplexExtension.cxx \
