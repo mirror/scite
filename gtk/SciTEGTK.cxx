@@ -1713,7 +1713,6 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 	frPrint.rc.right = width;
 	frPrint.rc.bottom = height;
 
-#if GTK_CHECK_VERSION(2,20,0)
 	gdouble marginLeft = 0;
 	gdouble marginTop = 0;
 	gdouble marginRight = 0;
@@ -1725,7 +1724,6 @@ void SciTEGTK::SetupFormat(Sci_RangeToFormat &frPrint, GtkPrintContext *context)
 		frPrint.rc.right -= marginRight;
 		frPrint.rc.bottom -= marginBottom;
 	}
-#endif
 
 	frPrint.rcPage.left = 0;
 	frPrint.rcPage.top = 0;
