@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Version=1.0
 Name=SciTE Text Editor
 Name[es]=Editor de textos SciTE
@@ -15,5 +14,5 @@ Exec=SciTE %F
 Icon=Sci48M
 Terminal=false
 StartupNotify=true
-Categories=TextEditor;Development;GTK;Application;
+Categories=TextEditor;Development;GTK;
 MimeType=text/plain;
