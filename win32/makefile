@@ -214,6 +214,7 @@ OBJSSTATIC = \
 	ContractionState.o \
 	DBCS.o \
 	Decoration.o \
+	DefaultLexer.o \
 	Document.o \
 	EditModel.o \
 	Editor.o \

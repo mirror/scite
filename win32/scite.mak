@@ -109,6 +109,7 @@ OBJSSTATIC=\
 	..\..\scintilla\win32\ContractionState.obj \
 	..\..\scintilla\win32\DBCS.obj \
 	..\..\scintilla\win32\Decoration.obj \
+	..\..\scintilla\win32\DefaultLexer.obj \
 	..\..\scintilla\win32\Document.obj \
 	..\..\scintilla\win32\EditModel.obj \
 	..\..\scintilla\win32\Editor.obj \
