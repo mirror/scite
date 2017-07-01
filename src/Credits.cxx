@@ -409,7 +409,7 @@ static const char *contributors[] = {
             "SmartShare Systems https://www.smartsharesystems.com/",
             "Morten Br\303\270rup",
             "Alexey Denisov",
-            "jedailey",
+            "Justin Dailey",
             "oirfeodent",
             "A-R-C-A",
             "Roberto Rossi",
