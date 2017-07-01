@@ -1011,9 +1011,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETBUFFEREDDRAW, bufferedDraw);
 	wOutput.Call(SCI_SETBUFFEREDDRAW, bufferedDraw);
 
-	int phasesDraw = props.GetInt("phases.draw", -1);
-	if (phasesDraw < 0 || phasesDraw > SC_PHASES_MULTIPLE)
-		phasesDraw = props.GetInt("two.phase.draw", 1) ? SC_PHASES_TWO : SC_PHASES_ONE;
+	const int phasesDraw = props.GetInt("phases.draw", 1);
 	wEditor.Call(SCI_SETPHASESDRAW, phasesDraw);
 	wOutput.Call(SCI_SETPHASESDRAW, phasesDraw);
 

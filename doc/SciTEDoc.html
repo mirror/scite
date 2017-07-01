@@ -1323,24 +1323,17 @@ NameError: name 'mistake' is not defined
           Has no effect on OS X and may have no effect on other platforms or technology choices.
         </td>
       </tr>
-      <tr id='property-two.phase.draw'>
+      <tr id='property-phases.draw'>
         <td>
-          phases.draw<br />
-          two.phase.draw
+          phases.draw
         </td>
         <td>
-        There are several orders in which the text area may be drawn offering a trade-off
+        There are two orders in which the text area may be drawn offering a trade-off
         between speed and allowing all pixels of text to be seen even when they overlap
-        other elements. There may also be some flickering on some platforms with higher
-        numbers of phases unless buffered drawing is turned on.<br/>
-        In single phase drawing (phases.draw=0) each
-        run of characters in one style is drawn along with its background.
-        If a character overhangs the end of a run, such as in "<i>V</i>_" where the
-        "<i>V</i>" is in a different style from the "_", then this can cause the right hand
-        side of the "<i>V</i>" to be overdrawn by the background of the "_" which
-        cuts it off.<br/>
+        other elements.
+        There may be some flickering on some platforms if buffered drawing is not turned on.<br/>
         Two phase drawing (phases.draw=1)
-        fixes this by drawing all the backgrounds of a line first and then drawing the text
+        draws all the backgrounds of a line first and then draws the text
         in transparent mode. Lines are drawn separately and no line will overlap another
         so any pixels that overlap into another line such as extreme ascenders and
         descenders on characters will be cut off.<br/>
@@ -1352,9 +1345,9 @@ NameError: name 'mistake' is not defined
         extreme ascenders and decenders to overflow into the adjacent lines.
         This mode is incompatible with buffered.draw so will be treated as phases.draw=1
         when bufferd.draw=1.<br/>
-        The default is for drawing to be two phase.<br/>
-        The two.phase.draw property was used before multiple phase drawing was added
-        and should be replaced with phases.draw.
+        The default is for drawing to be two phase.<br />
+        Single phase drawing (phases.draw=0) is a deprecated mode that was used in previous
+        releases. While it can still be enabled, it is not supported and may cause incorrect drawing.<br/>
         </td>
       </tr>
       <tr class="windowsonly" id='property-technology'>
