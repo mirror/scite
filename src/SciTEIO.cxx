@@ -512,7 +512,8 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		RemoveFileFromStack(absPath);
 		DeleteFileStackMenu();
 		SetFileStackMenu();
-		if (!(of & ofForceLoad)) // Just rotate into view
+		// If not forcing reload or currently busy with load or save, just rotate into view
+		if ((!(of & ofForceLoad)) || (CurrentBufferConst()->pFileWorker))
 			return true;
 	}
 	// See if we can have a buffer for the file to open
