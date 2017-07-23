@@ -70,7 +70,7 @@ cd ../..
 # Target 3: Qt builds
 # Requires Qt development libraries and qmake to be installed
 
-QMAKENAME=$(basename `which qmake-qt4 || which qmake`)
+QMAKENAME=$(basename `which qmake-qt5 || which qmake-qt4 || which qmake`)
 
 cd scintilla/qt
 cd ScintillaEditBase
