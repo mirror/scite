@@ -2036,11 +2036,12 @@ void SciTEGTK::FindReplaceGrabFields() {
 void SciTEGTK::FRFindCmd() {
 	FindReplaceGrabFields();
 	bool isFindDialog = !dlgFindReplace.wComboReplace;
-	if (isFindDialog)
-		dlgFindReplace.Destroy();
+	bool found = false;
 	if (findWhat[0]) {
-		FindNext(isFindDialog && reverseFind);
+		found = FindNext(isFindDialog && reverseFind) >= 0;
 	}
+	if (isFindDialog && ShouldClose(found))
+		dlgFindReplace.Destroy();
 }
 
 void SciTEGTK::FRReplaceCmd() {
@@ -2052,7 +2053,6 @@ void SciTEGTK::FRReplaceAllCmd() {
 	FindReplaceGrabFields();
 	if (findWhat[0]) {
 		ReplaceAll(false);
-		dlgFindReplace.Destroy();
 	}
 }
 
@@ -2060,7 +2060,6 @@ void SciTEGTK::FRReplaceInSelectionCmd() {
 	FindReplaceGrabFields();
 	if (findWhat[0]) {
 		ReplaceAll(true);
-		dlgFindReplace.Destroy();
 	}
 }
 
@@ -2068,14 +2067,15 @@ void SciTEGTK::FRReplaceInBuffersCmd() {
 	FindReplaceGrabFields();
 	if (findWhat[0]) {
 		ReplaceInBuffers();
-		dlgFindReplace.Destroy();
 	}
 }
 
 void SciTEGTK::FRMarkAllCmd() {
 	FindReplaceGrabFields();
 	MarkAll(markWithBookMarks);
-	FindNext(reverseFind);
+	const bool found = FindNext(reverseFind) >= 0;
+	if (ShouldClose(found))
+		dlgFindReplace.Destroy();
 }
 
 void DialogFindInFiles::GrabFields() {
@@ -4214,17 +4214,20 @@ void FindStrip::ShowPopup() {
 
 void FindStrip::FindNextCmd() {
 	GrabFields();
+	bool found = false;
 	if (pSearcher->FindHasText()) {
-		pSearcher->FindNext(pSearcher->reverseFind);
+		found = pSearcher->FindNext(pSearcher->reverseFind) >= 0;
 	}
-	Close();
+	if (pSearcher->ShouldClose(found))
+		Close();
 }
 
 void FindStrip::MarkAllCmd() {
 	GrabFields();
 	pSearcher->MarkAll();
-	pSearcher->FindNext(pSearcher->reverseFind);
-	Close();
+	const bool found = pSearcher->FindNext(pSearcher->reverseFind) >= 0;
+	if (pSearcher->ShouldClose(found))
+		Close();
 }
 
 void FindStrip::ChildFocus(GtkWidget *widget) {

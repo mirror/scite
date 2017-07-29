@@ -954,15 +954,15 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		} else if ( (ControlIDOfWParam(wParam) == IDOK) ||
 		            (ControlIDOfWParam(wParam) == IDMARKALL) ) {
 			dlg.GrabFields();
-			if (closeFind != Searcher::CloseFind::closePrevent) {
-				::EndDialog(hDlg, IDOK);
-				wFindReplace.Destroy();
-			}
-			if (ControlIDOfWParam(wParam) == IDMARKALL){
+			if (ControlIDOfWParam(wParam) == IDMARKALL) {
 				MarkAll(markWithBookMarks);
 			}
 			// Holding the Shift key inverts the current reverse flag
-			FindNext(reverseFind != IsKeyDown(VK_SHIFT));
+			const bool found = FindNext(reverseFind != IsKeyDown(VK_SHIFT)) >= 0;
+			if (ShouldClose(found)) {
+				::EndDialog(hDlg, IDOK);
+				wFindReplace.Destroy();
+			}
 			return TRUE;
 		} else if (ControlIDOfWParam(wParam) == IDFINDINSTYLE) {
 			if (FindReplaceAdvanced()) {
