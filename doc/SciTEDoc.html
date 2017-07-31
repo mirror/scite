@@ -191,7 +191,7 @@ NameError: name 'mistake' is not defined
     </h3>
     <p>
     Tools can be executed in various modes by SciTE which are called "subsystems". Different
-    subsystems are supported on Windows, GTK+ and OS X. The default subsystem is 0.
+    subsystems are supported on Windows, GTK+ and macOS. The default subsystem is 0.
     </p>
     <table class="windowsonly" cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
     <thead><tr><td colspan="3">Windows</td></tr></thead>
@@ -211,7 +211,7 @@ NameError: name 'mistake' is not defined
     </table>
     <br />
     <table class="gtkonly" cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
-    <thead><tr><td colspan="3">GTK+ and OS X</td></tr></thead>
+    <thead><tr><td colspan="3">GTK+ and macOS</td></tr></thead>
     <tr><td>0</td><td>console</td><td>Execute tool and wait for it to finish</td></tr>
     <tr><td>2</td><td>shellexec</td><td>Execute in background</td></tr>
     <tr><td>3</td><td>lua<br />director</td><td>Internal extension or director extension</td></tr>
@@ -535,13 +535,13 @@ NameError: name 'mistake' is not defined
        The user.shortcuts setting may be used to assign a key to a function.
        Note that Home key behaviour is changed by the vc.home.key option.
        Keyboard equivalents of menu commands are listed in the menus.
-       OS X keys differ from the other platforms with the command key &#8984;
+       macOS keys differ from the other platforms with the command key &#8984;
        often used where the Ctrl key is used on Windows and GTK+.
        Some less common commands with no menu equivalent are:
     </p>
 <table cellpadding="0" cellspacing="0" border="1" summary="Keyboard commands">
       <thead>
-        <tr><th>Command</th><th>Key</td><th align="left">OS X Key<br />
+        <tr><th>Command</th><th>Key</td><th align="left">macOS Key<br />
         &#8679; shift<br/>
         &#8963; control<br />
         &#8997; option<br />
@@ -995,8 +995,8 @@ NameError: name 'mistake' is not defined
       Some properties are only available on
       <span class="windowsonly">Windows</span>,
       <span class="gtkonly">GTK+</span>,
-      <span class="osxonly">OS X</span>, or
-      <span class="windows-osx">Windows &amp; OS X</span>.
+      <span class="osxonly">macOS</span>, or
+      <span class="windows-osx">Windows &amp; macOS</span>.
     </p>
     <table cellpadding="1" cellspacing="0" border="1" summary="Defined variables in property files">
       <tr id='property-position.left'>
@@ -1135,7 +1135,7 @@ NameError: name 'mistake' is not defined
           depends on your platform.
           You can overwrite this behaviour by setting the property to
           <div class="example">
-  LF   for UNIX and OS X format<br />
+  LF   for UNIX and macOS format<br />
   CR   for Macintosh format prior to OS X<br />
   CRLF for DOS/Windows format</div>
         </td>
@@ -1324,7 +1324,7 @@ NameError: name 'mistake' is not defined
           draw output into a buffer bitmap first and then to the screen instead of directly to the
           screen. On old platforms and some unusual modes this can result in less flickering.
           but is slower.<br />
-          Has no effect on OS X and may have no effect on other platforms or technology choices.
+          Has no effect on macOS and may have no effect on other platforms or technology choices.
         </td>
       </tr>
       <tr id='property-phases.draw'>
@@ -1862,7 +1862,7 @@ NameError: name 'mistake' is not defined
         <td>Defines a path for the Open Selected Filename command in the File
         menu. The path is searched if the selected filename doesn't contain an
         absolute path or the file is not found in the document directory. The
-        directories in openpath are separated by ';' on Windows and ':' on OS X and GTK+.<br />
+        directories in openpath are separated by ';' on Windows and ':' on macOS and GTK+.<br />
         An openpath setting may look like:
         <div class="example">
         openpath.*.txt=c:\dos\;f:\;<br />
@@ -2524,7 +2524,7 @@ NameError: name 'mistake' is not defined
         KeypadMultiply, KeypadDivide, Escape, Delete, PageUp, PageDown, Slash,
         Question, Equal, Win.
         <br/>
-        On OS X the command key uses the modifier Ctrl+ as this eases using one setting between platforms and
+        On macOS the command key uses the modifier Ctrl+ as this eases using one setting between platforms and
         the control key uses the modifier Control+.
         <br/>
         The Super modifier can be used only on GTK+.
@@ -2982,7 +2982,7 @@ Prev File|IDM_PREVFILE|<br/>
          strip.shortcuts.enable
         </td>
         <td>
-          On OS X, default behaviour is to allow use of shortcuts in the Find and Replace strips
+          On macOS, default behaviour is to allow use of shortcuts in the Find and Replace strips
           such as &#x2318;W to turn "Match whole word only" on or off.
           This prevents closing the file with &#x2318;W so shortcuts can be disabled for strips
           by setting this property to 0.
@@ -3004,7 +3004,7 @@ Prev File|IDM_PREVFILE|<br/>
          find.indicator
         </td>
         <td>
-          Controls the animated golden match indicator on OS X.
+          Controls the animated golden match indicator on macOS.
 	The default value, 1, shows and animates the find indicator then fades it away so surrounding text can be seen clearly.
 	Use the value 0 to disable the find indicator and the value 2 to keep the find indicator displayed.
           This setting is not available on OS X 10.6.
@@ -3149,7 +3149,7 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
 	  <tr class="gtkonly"><td>Cyrillic (CP1251 on GTK+)</td><td align="right">1251</td></tr>
 	  <tr class="gtkonly"><td>European with Euro (ISO 8859-15)</td><td align="right">1000</td></tr>
 	  </table>
-        All of these values except for 1251 and 1000 should work on OS X or Windows.
+        All of these values except for 1251 and 1000 should work on macOS or Windows.
         On GTK+ Baltic, Turkish, Thai and Vietnamese will probably not work.
         </td>
       </tr>
@@ -3481,7 +3481,7 @@ imports.include=fortran lisp
           font.quality
         </td>
         <td>
-        This setting allows choosing different ways of drawing text on Windows and OS X.
+        This setting allows choosing different ways of drawing text on Windows and macOS.
         The appearance will depend on platform settings and, on Windows, the technology setting.
         This setting does not currently have any effect on GTK+.
 	  <table>
@@ -3668,7 +3668,7 @@ groupundo - yes or no
         <td>
         Defines a command to be executed when the help command is
         invoked or F1 pressed. On Windows, this often uses subsystem 4 as described above.
-        On OS X or Linux, running man or a browser are common ways of displaying help.
+        On macOS or Linux, running man or a browser are common ways of displaying help.
         The word at the cursor is copied to $(CurrentWord) and this is often a good argument
         to the help application. The subsystem property works in the same way as for other
         commands.
@@ -3869,7 +3869,7 @@ groupundo - yes or no
         </td>
         <td>
         The fold.symbols setting chooses between four ways of showing folding.
-        Set to 0 (the default) for MacOS style arrows to indicate contracted
+        Set to 0 (the default) for macOS style arrows to indicate contracted
         (facing right) and expanded (facing down); 1 to display contracted folds
         with "+" and expanded with "-"; 2 for a flattened tree control with round
         headers and rounded joins; 3 for a flattened tree control with square headers.
@@ -4084,7 +4084,7 @@ groupundo - yes or no
           os.x.home.end.keys
         </td>
         <td>
-	Chooses the standard OS X behaviour for the Home and End keys which is
+	Chooses the standard macOS behaviour for the Home and End keys which is
 	to scroll the file to the start or end. This setting takes precedence over
 	vc.home.key.
         </td>
@@ -4148,7 +4148,7 @@ groupundo - yes or no
           fileselector.show.hidden
         </td>
         <td>
-          On OS X setting this to 0 makes the file selector dialog
+          On macOS setting this to 0 makes the file selector dialog
           invoked by the Open command not show hidden files.
         </td>
       </tr>
@@ -4159,7 +4159,7 @@ groupundo - yes or no
         <td>
           Set the name of the localisation file. For a multi-user installation
 	this allows each user to set a preferred user interface language.<br />
-	On OS X, localisation files for some languages are installed in the translations
+	On macOS, localisation files for some languages are installed in the translations
 	subdirectory of the user home directory which allows setting
 	the user interface to, for example, German with
 		<div class="example">
