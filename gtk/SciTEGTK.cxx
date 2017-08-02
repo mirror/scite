@@ -1162,7 +1162,7 @@ void SciTEGTK::ReadProperties() {
 	SciTEBase::ReadProperties();
 
 	CallChildren(SCI_SETRECTANGULARSELECTIONMODIFIER,
-		props.GetInt("rectangular.selection.modifier", SCMOD_CTRL));
+		props.GetInt("rectangular.selection.modifier", SCMOD_ALT));
 
 	CheckMenus();
 
