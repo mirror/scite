@@ -283,13 +283,17 @@ void SciTEBase::SaveToRTF(const FilePath &saveName, int start, int end) {
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 	bool failedWrite = fp == NULL;
 	if (fp) {
-		std::ostringstream oss;
-		SaveToStreamRTF(oss, start, end);
-		std::string rtf = oss.str();
-		if (fwrite(rtf.c_str(), 1, rtf.length(), fp) != rtf.length()) {
-			failedWrite = true;
-		}
-		if (fclose(fp) != 0) {
+		try {
+			std::ostringstream oss;
+			SaveToStreamRTF(oss, start, end);
+			std::string rtf = oss.str();
+			if (fwrite(rtf.c_str(), 1, rtf.length(), fp) != rtf.length()) {
+				failedWrite = true;
+			}
+			if (fclose(fp) != 0) {
+				failedWrite = true;
+			}
+		} catch (std::exception &) {
 			failedWrite = true;
 		}
 	}
