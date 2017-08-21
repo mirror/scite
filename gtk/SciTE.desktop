@@ -1,10 +1,12 @@
 [Desktop Entry]
 Version=1.0
 Name=SciTE Text Editor
+Name[da]=SciTE-tekstredigering
 Name[es]=Editor de textos SciTE
 Name[fr]=Éditeur de texte SciTE
 Name[ru]=Текстовый редактор SciTE
 Comment=Edit your source files
+Comment[da]=Rediger dine kildefiler
 Comment[es]=Edita especializado para programación
 Comment[fr]=Éditer des fichiers sources
 Comment[ru]=Редактор исходных кодов
