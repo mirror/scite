@@ -486,7 +486,6 @@ public:
 
 void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle) {
 	if (wsci.Created()) {
-		wsci.Call(SCI_SETSTYLEBITS, 7, 0);
 		wsci.Call(SCI_STYLERESETDEFAULT, 0, 0);
 		std::string sVersion = " ";
 		sVersion += VERSION_SCITE;

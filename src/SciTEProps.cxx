@@ -317,10 +317,7 @@ void SciTEBase::SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int s
 }
 
 void SciTEBase::SetStyleFor(GUI::ScintillaWindow &win, const char *lang) {
-	int maxStyle = (1 << win.Call(SCI_GETSTYLEBITS)) - 1;
-	if (maxStyle < STYLE_LASTPREDEFINED)
-		maxStyle = STYLE_LASTPREDEFINED;
-	SetStyleBlock(win, lang, 0, maxStyle);
+	SetStyleBlock(win, lang, 0, STYLE_MAX);
 }
 
 void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const IndicatorDefinition &ind) {
@@ -671,11 +668,6 @@ void SciTEBase::ReadProperties() {
 	props.Set("Language", language.c_str());
 
 	lexLanguage = wEditor.Call(SCI_GETLEXER);
-
-	if (StartsWith(language, "script_") || StartsWith(language, "lpeg_"))
-		wEditor.Call(SCI_SETSTYLEBITS, 8);
-	else
-		wEditor.Call(SCI_SETSTYLEBITS, wEditor.Call(SCI_GETSTYLEBITSNEEDED));
 
 	wOutput.Call(SCI_SETLEXER, SCLEX_ERRORLIST);
 
