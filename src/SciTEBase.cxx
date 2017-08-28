@@ -24,7 +24,7 @@
 
 #include "Scintilla.h"
 #include "SciLexer.h"
-#include "ILexer.h"
+#include "ILoader.h"
 
 #include "GUI.h"
 #include "StringList.h"

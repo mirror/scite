@@ -27,10 +27,6 @@ struct FileWorker : public Worker {
 	virtual bool IsLoading() const = 0;
 };
 
-#ifdef SCI_NAMESPACE
-using Scintilla::ILoader;
-#endif
-
 class FileLoader : public FileWorker {
 public:
 	ILoader *pLoader;

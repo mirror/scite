@@ -28,7 +28,7 @@
 #endif
 
 #include "Scintilla.h"
-#include "ILexer.h"
+#include "ILoader.h"
 
 #include "Mutex.h"
 
