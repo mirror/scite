@@ -786,6 +786,7 @@
 
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wconversion"
+#pragma clang diagnostic ignored "-Wcomma"
 #endif
 
 #endif
