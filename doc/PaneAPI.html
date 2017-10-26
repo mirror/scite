@@ -560,6 +560,10 @@
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETPRIMARYSTYLEFROMSTYLE'>PrimaryStyleFromStyle</a>[int style] read-only</p>
 	<p>string editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETIDENTIFIERS'>Identifiers</a>[int style] write-only<span class="comment"> -- Set the identifiers that are shown in a particular style</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_PRIVATELEXERCALL'>PrivateLexerCall</a>(int operation, int pointer)<span class="comment"> -- For private communication between an application and a known lexer.</span></p>
+	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETNAMEDSTYLES'>NamedStyles</a> read-only</p>
+	<p>string editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_NAMEOFSTYLE'>NameOfStyle</a>(int style)<span class="comment"> -- Retrieve the name of a style. Result is NUL-terminated.</span></p>
+	<p>string editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_TAGSOFSTYLE'>TagsOfStyle</a>(int style)<span class="comment"> -- Retrieve a ' ' separated list of style tags like "literal quoted string". Result is NUL-terminated.</span></p>
+	<p>string editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DESCRIPTIONOFSTYLE'>DescriptionOfStyle</a>(int style)<span class="comment"> -- Retrieve a description of a style. Result is NUL-terminated.</span></p>
 	<h2>Notifications</h2>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETIDENTIFIER'>Identifier</a><span class="comment"> -- Set the identifier reported as idFrom in notification messages.</span></p>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETMODEVENTMASK'>ModEventMask</a><span class="comment"> -- Set which document modification events are sent to the container.</span></p>
