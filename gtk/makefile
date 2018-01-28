@@ -143,7 +143,7 @@ install:
 
 ifdef gnomeprefix
 	$(INSTALL) -m 755 -d $(DESTDIR)$(datadir)/applications $(DESTDIR)$(pixmapdir)
-	$(INSTALL) -m 755 $(srcdir)/SciTE.desktop $(DESTDIR)$(datadir)/applications/SciTE.desktop
+	$(INSTALL) -m 644 $(srcdir)/SciTE.desktop $(DESTDIR)$(datadir)/applications/SciTE.desktop
 	$(INSTALL) -m 644 $(srcdir)/Sci48M.png $(DESTDIR)$(pixmapdir)/Sci48M.png
 endif
 
