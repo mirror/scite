@@ -787,6 +787,7 @@ protected:
 	void UpdateStatusBar(bool bUpdateSlowData) override;
 	int GetLineLength(int line);
 	int GetCurrentLineNumber();
+	int GetCurrentColumnNumber();
 	int GetCurrentScrollPosition();
 	virtual void AddCommand(const std::string &cmd, const std::string &dir,
 	        JobSubsystem jobType, const std::string &input = "",

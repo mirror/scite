@@ -2272,6 +2272,12 @@ int SciTEBase::GetCurrentLineNumber() {
 	        wEditor.Call(SCI_GETCURRENTPOS));
 }
 
+int SciTEBase::GetCurrentColumnNumber() {
+	const int mainSel = wEditor.Call(SCI_GETMAINSELECTION, 0, 0);
+	return wEditor.Call(SCI_GETCOLUMN, wEditor.Call(SCI_GETSELECTIONNCARET, mainSel, 0), 0) + 
+	        wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0);
+}
+
 int SciTEBase::GetCurrentScrollPosition() {
 	int lineDisplayTop = wEditor.Call(SCI_GETFIRSTVISIBLELINE);
 	return wEditor.Call(SCI_DOCLINEFROMVISIBLE, lineDisplayTop);
@@ -2327,11 +2333,8 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 			SetFileProperties(propsStatus);
 		}
 		SetTextProperties(propsStatus);
-		int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
-		propsStatus.SetInteger("LineNumber",
-		        wEditor.Call(SCI_LINEFROMPOSITION, caretPos) + 1);
-		propsStatus.SetInteger("ColumnNumber",
-		        wEditor.Call(SCI_GETCOLUMN, caretPos) + 1);
+		propsStatus.SetInteger("LineNumber", GetCurrentLineNumber() + 1);
+		propsStatus.SetInteger("ColumnNumber", GetCurrentColumnNumber() + 1);
 		propsStatus.Set("OverType", wEditor.Call(SCI_GETOVERTYPE) ? "OVR" : "INS");
 
 		char sbKey[32];
