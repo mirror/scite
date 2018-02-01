@@ -904,9 +904,105 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureForBuilt() {
 	}
 	return saveCompleted;
 }
+/**
+	Selection saver and restorer.
+
+	If virtual space is disabled, the class does nothing.
+
+	If virtual space is enabled, constructor saves all selections using (line, column) coordinates,
+	destructor restores all the saved selections.
+**/
+class SelectionKeeper {
+public:
+	explicit SelectionKeeper(GUI::ScintillaWindow &editor) : wEditor(editor) {
+		int mask = SCVS_RECTANGULARSELECTION | SCVS_USERACCESSIBLE;
+		if (wEditor.Call(SCI_GETVIRTUALSPACEOPTIONS, 0, 0) & mask) {
+			int n = wEditor.Call(SCI_GETSELECTIONS, 0, 0);
+			for (int i = 0; i < n; ++i) {
+				selections.push_back(LocFromPos(GetSelection(i)));
+			}
+		}
+	}
+
+	~SelectionKeeper() {
+		int i = 0;
+		for (auto const &sel : selections) {
+			SetSelection(i, PosFromLoc(sel));
+			++i;
+		}
+	}
+
+private:
+	struct Position {
+		Position(int pos_, int virt_ = 0) : pos(pos_), virt(virt_) {};
+		int pos;
+		int virt;
+	};
+
+	struct Location {
+		Location(int line_, int col_) : line(line_), col(col_) {};
+		int line;
+		int col;
+	};
+
+	Position GetAnchor(int i) {
+		int pos  = wEditor.Call(SCI_GETSELECTIONNANCHOR, i, 0);
+		int virt = wEditor.Call(SCI_GETSELECTIONNANCHORVIRTUALSPACE, i, 0);
+		return Position(pos, virt);
+	}
+
+	Position GetCaret(int i) {
+		int pos  = wEditor.Call(SCI_GETSELECTIONNCARET, i, 0);
+		int virt = wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, i, 0);
+		return Position(pos, virt);
+	}
+
+	std::pair<Position, Position> GetSelection(int i) {
+		return {GetAnchor(i), GetCaret(i)};
+	};
+
+	Location LocFromPos(Position const &pos) {
+		int line = wEditor.Call(SCI_LINEFROMPOSITION, pos.pos, 0);
+		int col  = wEditor.Call(SCI_GETCOLUMN, pos.pos, 0) + pos.virt;
+		return Location(line, col);
+	}
+
+	std::pair<Location, Location> LocFromPos(std::pair<Position, Position> const &pos) {
+		return {LocFromPos(pos.first), LocFromPos(pos.second)};
+	}
+
+	Position PosFromLoc(Location const &loc) {
+		int pos = wEditor.Call(SCI_FINDCOLUMN, loc.line, loc.col);
+		int col = wEditor.Call(SCI_GETCOLUMN, pos, 0);
+		return Position(pos, loc.col - col);
+	}
+
+	std::pair<Position, Position> PosFromLoc(std::pair<Location, Location> const &loc) {
+		return {PosFromLoc(loc.first), PosFromLoc(loc.second)};
+	}
+
+	void SetAnchor(int i, Position const &pos) {
+		wEditor.Call(SCI_SETSELECTIONNANCHOR, i, pos.pos);
+		wEditor.Call(SCI_SETSELECTIONNANCHORVIRTUALSPACE, i, pos.virt);
+	};
+
+	void SetCaret(int i, Position const &pos) {
+		wEditor.Call(SCI_SETSELECTIONNCARET, i, pos.pos);
+		wEditor.Call(SCI_SETSELECTIONNCARETVIRTUALSPACE, i, pos.virt);
+	}
+
+	void SetSelection(int i, std::pair<Position, Position> const &pos) {
+		SetAnchor(i, pos.first);
+		SetCaret(i, pos.second);
+	}
+
+	GUI::ScintillaWindow &wEditor;
+	std::vector<std::pair<Location, Location>> selections;
+};
 
 void SciTEBase::StripTrailingSpaces() {
 	const int maxLines = wEditor.Call(SCI_GETLINECOUNT);
+	SelectionKeeper keeper(wEditor);
 	for (int line = 0; line < maxLines; line++) {
 		const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
 		int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, line);
