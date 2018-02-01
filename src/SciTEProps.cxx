@@ -1280,7 +1280,7 @@ void SciTEBase::ReadProperties() {
 		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
 			bookMarkXPM.c_str());
 	} else if (props.GetString("bookmark.fore").length()) {
-		wEditor.Call(SCI_MARKERDEFINE, markerBookmark, SC_MARK_BOOKMARK);
+		wEditor.Call(SCI_MARKERDEFINE, markerBookmark, props.GetInt("bookmark.symbol", SC_MARK_BOOKMARK));
 	} else {
 		// No bookmark.fore setting so display default pixmap.
 		wEditor.CallPointer(SCI_MARKERDEFINEPIXMAP, markerBookmark, bookmarkBluegem);
