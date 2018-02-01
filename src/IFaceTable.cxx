@@ -2637,6 +2637,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_CURSORNORMAL",-1},
 	{"SC_CURSORREVERSEARROW",7},
 	{"SC_CURSORWAIT",4},
+	{"SC_DOCUMENTOPTION_DEFAULT",0},
 	{"SC_EFF_QUALITY_ANTIALIASED",2},
 	{"SC_EFF_QUALITY_DEFAULT",0},
 	{"SC_EFF_QUALITY_LCD_OPTIMIZED",3},
@@ -2886,8 +2887,8 @@ static IFaceFunction ifaceFunctions[] = {
 	{"CopyRange", 2419, iface_void, {iface_position, iface_position}},
 	{"CopyText", 2420, iface_void, {iface_length, iface_string}},
 	{"CountCharacters", 2633, iface_int, {iface_position, iface_position}},
-	{"CreateDocument", 2375, iface_int, {iface_void, iface_void}},
-	{"CreateLoader", 2632, iface_int, {iface_int, iface_void}},
+	{"CreateDocument", 2375, iface_int, {iface_int, iface_int}},
+	{"CreateLoader", 2632, iface_int, {iface_int, iface_int}},
 	{"Cut", 2177, iface_void, {iface_void, iface_void}},
 	{"DelLineLeft", 2395, iface_void, {iface_void, iface_void}},
 	{"DelLineRight", 2396, iface_void, {iface_void, iface_void}},
@@ -3359,7 +3360,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 301,
-	ifaceConstantCount = 2685,
+	ifaceConstantCount = 2686,
 	ifacePropertyCount = 228
 };
 

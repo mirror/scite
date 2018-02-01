@@ -487,11 +487,11 @@
 	<p>position editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_GETGAPPOSITION'>GapPosition</a> read-only</p>
 	<h2>Multiple views</h2>
 	<p>int editor.<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_SETDOCPOINTER'>DocPointer</a><span class="comment"> -- Change the document object used.</span></p>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CREATEDOCUMENT'>CreateDocument</a>()<span class="comment"> -- Create a new document object. Starts with reference count of 1 and not selected into editor.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CREATEDOCUMENT'>CreateDocument</a>(int bytes, int documentOption)<span class="comment"> -- Create a new document object. Starts with reference count of 1 and not selected into editor.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_ADDREFDOCUMENT'>AddRefDocument</a>(int doc)<span class="comment"> -- Extend life of document.</span></p>
 	<p>editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_RELEASEDOCUMENT'>ReleaseDocument</a>(int doc)<span class="comment"> -- Release a reference to the document, deleting document if it fades to black.</span></p>
 	<h2>Background loading and saving</h2>
-	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CREATELOADER'>CreateLoader</a>(int bytes)<span class="comment"> -- Create an ILoader*.</span></p>
+	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_CREATELOADER'>CreateLoader</a>(int bytes, int documentOption)<span class="comment"> -- Create an ILoader*.</span></p>
 	<h2>Folding</h2>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_VISIBLEFROMDOCLINE'>VisibleFromDocLine</a>(int docLine)<span class="comment"> -- Find the display line of a document line taking hidden lines into account.</span></p>
 	<p>int editor:<a href='http://www.scintilla.org/ScintillaDoc.html#SCI_DOCLINEFROMVISIBLE'>DocLineFromVisible</a>(int displayLine)<span class="comment"> -- Find the document line of a display line taking hidden lines into account.</span></p>
