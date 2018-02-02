@@ -2638,6 +2638,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_CURSORREVERSEARROW",7},
 	{"SC_CURSORWAIT",4},
 	{"SC_DOCUMENTOPTION_DEFAULT",0},
+	{"SC_DOCUMENTOPTION_STYLES_NONE",1},
 	{"SC_EFF_QUALITY_ANTIALIASED",2},
 	{"SC_EFF_QUALITY_DEFAULT",0},
 	{"SC_EFF_QUALITY_LCD_OPTIMIZED",3},
@@ -3360,7 +3361,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 301,
-	ifaceConstantCount = 2686,
+	ifaceConstantCount = 2687,
 	ifacePropertyCount = 228
 };
 
