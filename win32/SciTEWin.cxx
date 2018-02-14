@@ -889,8 +889,10 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			  startDirectory.AsInternal() : NULL,
 			  &si, &pi);
 
+	const DWORD errCode = ::GetLastError();
 	// if jobCLI "System can't find" - try calling with command processor
-	if ((!running) && (jobToRun.jobType == jobCLI) && (::GetLastError() == ERROR_FILE_NOT_FOUND)) {
+	if ((!running) && (jobToRun.jobType == jobCLI) && (
+		(errCode == ERROR_FILE_NOT_FOUND) || (errCode == ERROR_BAD_EXE_FORMAT))) {
 
 		std::string runComLine = "cmd.exe /c ";
 		runComLine = runComLine.append(jobToRun.command);
