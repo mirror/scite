@@ -320,7 +320,12 @@ public:
 	}
 };
 
-class DialogFindInFiles : public Dialog, public SearchUI {
+class FindDialog : public Dialog {
+public:
+	virtual void FillCombosInDialog()=0;
+};
+
+class DialogFindInFiles : public FindDialog, public SearchUI {
 public:
 	WComboBoxEntry wComboFiles;
 	WComboBoxEntry wComboFindInFiles;
@@ -331,9 +336,10 @@ public:
 	WButton btnBrowse;
 	void GrabFields();
 	void FillFields();
+	void FillCombosInDialog() override;
 };
 
-class DialogFindReplace : public Dialog, public SearchUI {
+class DialogFindReplace : public FindDialog, public SearchUI {
 public:
 	WStatic labelFind;
 	WComboBoxEntry wComboFind;
@@ -347,6 +353,7 @@ public:
 	WToggle toggleReverse;
 	void GrabFields();
 	void FillFields();
+	void FillCombosInDialog() override;
 };
 
 class FindReplaceStrip : public Strip, public SearchUI {
@@ -686,6 +693,8 @@ protected:
 	void FRReplaceInSelectionCmd();
 	void FRReplaceInBuffersCmd();
 	void FRMarkAllCmd();
+	void FillCombos(FindDialog &dlg1);
+	void FillCombosForGrep();
 
 	bool ParametersOpen() override;
 	void ParamGrab() override;
@@ -815,6 +824,13 @@ static void destroyDialog(GtkWidget *, gpointer *window) {
 	if (window) {
 		GUI::Window *pwin = reinterpret_cast<GUI::Window *>(window);
 		*(pwin) = 0;
+	}
+}
+
+static void destroyDialogFindReplace(GtkWidget *, gpointer *window) {
+	if (window) {
+		DialogFindReplace *dlg = reinterpret_cast<DialogFindReplace *>(window);
+		*((GUI::Window *)dlg) = 0;
 	}
 }
 
@@ -2029,6 +2045,12 @@ void DialogFindReplace::FillFields() {
 	}
 }
 
+void DialogFindReplace::FillCombosInDialog() {
+	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
+	if (pSearcher->replacing)
+		wComboReplace.FillFromMemory(pSearcher->memReplaces.AsVector());
+}
+
 void SciTEGTK::FindReplaceGrabFields() {
 	dlgFindReplace.GrabFields();
 }
@@ -2042,11 +2064,14 @@ void SciTEGTK::FRFindCmd() {
 	}
 	if (isFindDialog && ShouldClose(found))
 		dlgFindReplace.Destroy();
+	else
+		FillCombos(dlgFindReplace);
 }
 
 void SciTEGTK::FRReplaceCmd() {
 	FindReplaceGrabFields();
 	ReplaceOnce();
+	FillCombos(dlgFindReplace);
 }
 
 void SciTEGTK::FRReplaceAllCmd() {
@@ -2054,6 +2079,7 @@ void SciTEGTK::FRReplaceAllCmd() {
 	if (findWhat[0]) {
 		ReplaceAll(false);
 	}
+	FillCombos(dlgFindReplace);
 }
 
 void SciTEGTK::FRReplaceInSelectionCmd() {
@@ -2061,6 +2087,7 @@ void SciTEGTK::FRReplaceInSelectionCmd() {
 	if (findWhat[0]) {
 		ReplaceAll(true);
 	}
+	FillCombos(dlgFindReplace);
 }
 
 void SciTEGTK::FRReplaceInBuffersCmd() {
@@ -2068,6 +2095,7 @@ void SciTEGTK::FRReplaceInBuffersCmd() {
 	if (findWhat[0]) {
 		ReplaceInBuffers();
 	}
+	FillCombos(dlgFindReplace);
 }
 
 void SciTEGTK::FRMarkAllCmd() {
@@ -2076,6 +2104,17 @@ void SciTEGTK::FRMarkAllCmd() {
 	const bool found = FindNext(reverseFind) >= 0;
 	if (ShouldClose(found))
 		dlgFindReplace.Destroy();
+	else
+		FillCombos(dlgFindReplace);
+}
+
+void SciTEGTK::FillCombos(FindDialog &dlg)  {
+	dlg.FillCombosInDialog();
+}
+
+void SciTEGTK::FillCombosForGrep()  {
+	FillComboFromMemory(&dlgFindInFiles.wComboFiles, memFiles, true);
+	FillComboFromMemory(&dlgFindInFiles.comboDir, memDirectory, true);
 }
 
 void DialogFindInFiles::GrabFields() {
@@ -2092,6 +2131,10 @@ void DialogFindInFiles::FillFields() {
 		toggleWord.SetActive(pSearcher->wholeWord);
 	if (toggleCase.Sensitive())
 		toggleCase.SetActive(pSearcher->matchCase);
+}
+
+void DialogFindInFiles::FillCombosInDialog() {
+	wComboFindInFiles.FillFromMemory(pSearcher->memFinds.AsVector());
 }
 
 void SciTEGTK::FindInFilesCmd() {
@@ -2128,6 +2171,8 @@ void SciTEGTK::FindInFilesCmd() {
 	AddCommand(findCommand, props.GetString("find.directory"), jobCLI);
 	if (jobQueue.HasCommandToRun())
 		Execute();
+	FillCombos(dlgFindInFiles);
+	FillCombosForGrep();
 }
 
 void SciTEGTK::FindInFilesDotDot() {
@@ -2417,7 +2462,9 @@ void SciTEGTK::FindInFiles() {
 	table.Label(labelFiles);
 
 	dlgFindInFiles.wComboFiles.Create();
-	FillComboFromMemory(&dlgFindInFiles.wComboFiles, memFiles, true);
+	dlgFindInFiles.comboDir.Create();
+
+	FillCombosForGrep();
 
 	table.Add(dlgFindInFiles.wComboFiles, 4, true);
 	dlgFindInFiles.wComboFiles.ActivatesDefault();
@@ -2427,8 +2474,6 @@ void SciTEGTK::FindInFiles() {
 	labelDirectory.Create(localiser.Text("_Directory:"));
 	table.Label(labelDirectory);
 
-	dlgFindInFiles.comboDir.Create();
-	FillComboFromMemory(&dlgFindInFiles.comboDir, memDirectory);
 	table.Add(dlgFindInFiles.comboDir, 2, true);
 
 	gtk_entry_set_text(dlgFindInFiles.comboDir.Entry(), findInDir.AsInternal());
@@ -3006,7 +3051,7 @@ void SciTEGTK::FindReplace(bool replace) {
 	dlgFindReplace.Create(localiser.Text(replace ? "Replace" : "Find"));
 
 	g_signal_connect(G_OBJECT(PWidget(dlgFindReplace)),
-	                   "destroy", G_CALLBACK(destroyDialog), &dlgFindReplace);
+	                   "destroy", G_CALLBACK(destroyDialogFindReplace), &dlgFindReplace);
 
 	WTable table(replace ? 8 : 7, 2);
 	table.PackInto(GTK_BOX(dlgFindReplace.ContentArea()));
@@ -4220,6 +4265,8 @@ void FindStrip::FindNextCmd() {
 	}
 	if (pSearcher->ShouldClose(found))
 		Close();
+	else
+		wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 }
 
 void FindStrip::MarkAllCmd() {
@@ -4228,6 +4275,8 @@ void FindStrip::MarkAllCmd() {
 	const bool found = pSearcher->FindNext(pSearcher->reverseFind) >= 0;
 	if (pSearcher->ShouldClose(found))
 		Close();
+	else
+		wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 }
 
 void FindStrip::ChildFocus(GtkWidget *widget) {
@@ -4466,6 +4515,7 @@ void ReplaceStrip::FindCmd() {
 	GrabFields();
 	if (pSearcher->FindHasText()) {
 		pSearcher->FindNext(pSearcher->reverseFind);
+		wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 	}
 }
 
@@ -4474,6 +4524,8 @@ void ReplaceStrip::ReplaceAllCmd() {
 	if (pSearcher->FindHasText()) {
 		pSearcher->ReplaceAll(false);
 		NextIncremental();	// Show not found colour if no more matches.
+		wComboReplace.FillFromMemory(pSearcher->memReplaces.AsVector());
+		wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 	}
 }
 
@@ -4481,6 +4533,8 @@ void ReplaceStrip::ReplaceCmd() {
 	GrabFields();
 	pSearcher->ReplaceOnce(incrementalBehaviour == simple);
 	NextIncremental();	// Show not found colour if no more matches.
+	wComboReplace.FillFromMemory(pSearcher->memReplaces.AsVector());
+	wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 }
 
 void ReplaceStrip::ReplaceInSelectionCmd() {
@@ -4488,6 +4542,8 @@ void ReplaceStrip::ReplaceInSelectionCmd() {
 	if (pSearcher->FindHasText()) {
 		pSearcher->ReplaceAll(true);
 		NextIncremental();	// Show not found colour if no more matches.
+		wComboReplace.FillFromMemory(pSearcher->memReplaces.AsVector());
+		wComboFind.FillFromMemory(pSearcher->memFinds.AsVector());
 	}
 }
 

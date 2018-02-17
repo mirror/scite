@@ -1097,6 +1097,9 @@ void FindStrip::Next(bool markAll, bool invertDirection) {
 	const bool found = pSearcher->FindNext(pSearcher->reverseFind ^ invertDirection) >= 0;
 	if (pSearcher->ShouldClose(found)) {
 		Close();
+	} else {
+ 		SetComboFromMemory(wText, pSearcher->memFinds);
+ 		SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat).c_str());
 	}
 }
 
@@ -1374,8 +1377,12 @@ void ReplaceStrip::ShowPopup() {
 
 void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 	pSearcher->SetFind(ControlText(wText).c_str());
+	SetComboFromMemory(wText, pSearcher->memFinds);
+	SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat).c_str());
 	if (cmd != IDOK) {
 		pSearcher->SetReplace(ControlText(wReplace).c_str());
+ 		SetComboFromMemory(wReplace, pSearcher->memReplaces);
+ 		SetWindowText(HwndOf(wReplace), GUI::StringFromUTF8(pSearcher->replaceWhat).c_str());
 	}
 	//int replacements = 0;
 	if (cmd == IDOK) {

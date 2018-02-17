@@ -962,6 +962,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			if (ShouldClose(found)) {
 				::EndDialog(hDlg, IDOK);
 				wFindReplace.Destroy();
+			} else {
+				FillCombos(dlg);
 			}
 			return TRUE;
 		} else if (ControlIDOfWParam(wParam) == IDFINDINSTYLE) {
@@ -969,6 +971,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				findInStyle = dlg.Checked(IDFINDINSTYLE);
 				dlg.Enable(IDFINDSTYLE, findInStyle);
 			}
+			FillCombos(dlg);
 			return TRUE;
 		}
 	}
@@ -994,12 +997,16 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd, bool reverseDirection) {
 	int replacements = 0;
 	if (cmd == IDOK) {
 		FindNext(reverseDirection);
+		FillCombos(dlg);
 	} else if (cmd == IDREPLACE) {
 		ReplaceOnce();
+		FillCombos(dlg);
 	} else if ((cmd == IDREPLACEALL) || (cmd == IDREPLACEINSEL)) {
 		replacements = ReplaceAll(cmd == IDREPLACEINSEL);
+		FillCombos(dlg);
 	} else if (cmd == IDREPLACEINBUF) {
 		replacements = ReplaceInBuffers();
+		FillCombos(dlg);
 	}
 	GUI::gui_string replDone = GUI::StringFromInteger(replacements);
 	dlg.SetItemText(IDREPLDONE, replDone.c_str());
@@ -1170,6 +1177,11 @@ void SciTEWin::PerformGrep() {
 
 void SciTEWin::FillCombos(Dialog &dlg) {
 	dlg.FillComboFromMemory(IDFINDWHAT, memFinds, true);
+	if (dlg.Item(IDREPLACEWITH))    // Replace combo is presented
+		dlg.FillComboFromMemory(IDREPLACEWITH, memReplaces,true);
+}
+
+void SciTEWin::FillCombosForGrep(Dialog &dlg) {
 	dlg.FillComboFromMemory(IDFILES, memFiles, true);
 	dlg.FillComboFromMemory(IDDIRECTORY, memDirectory, true);
 }
@@ -1184,6 +1196,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_INITDIALOG:
 		LocaliseDialog(hDlg);
 		FillCombos(dlg);
+		FillCombosForGrep(dlg);
 		dlg.SetItemTextU(IDFINDWHAT, props.GetString("find.what"));
 		dlg.SetItemTextU(IDDIRECTORY, props.GetString("find.directory"));
 		if (props.GetNewExpandString("find.command") == "") {
@@ -1228,6 +1241,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			matchCase = dlg.Checked(IDMATCHCASE);
 
 			FillCombos(dlg);
+			FillCombosForGrep(dlg);
 
 			PerformGrep();
 			if (props.GetInt("find.in.files.close.on.find", 1)) {
