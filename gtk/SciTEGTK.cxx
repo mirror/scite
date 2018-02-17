@@ -693,7 +693,7 @@ protected:
 	void FRReplaceInSelectionCmd();
 	void FRReplaceInBuffersCmd();
 	void FRMarkAllCmd();
-	void FillCombos(FindDialog &dlg1);
+	void FillCombos(FindDialog &dlg);
 	void FillCombosForGrep();
 
 	bool ParametersOpen() override;
