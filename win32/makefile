@@ -6,11 +6,14 @@
 
 .SUFFIXES: .cxx .properties
 WINDRES ?= windres
+ifeq (\,$(shell echo \\))
+	SHELL_TYPE = sh
+endif
 
 ifeq ($(OS),Windows_NT)
 	CC = gcc
 	DEL = $(if $(wildcard $(dir $(SHELL))rm.exe), $(dir $(SHELL))rm.exe -f, del)
-	COPY = xcopy /Y
+	COPY = $(if $(wildcard $(dir $(SHELL))cp.exe), $(dir $(SHELL))cp.exe -a, xcopy /Y)
 	VER = cmd /c ver
 	# Discover Windows version by running 'VER' command and parsing output
 	# For Windows 2000 looks like:Microsoft Windows 2000 [Version 5.00.2195]
@@ -167,14 +170,14 @@ deps:
 embedded: ../src/Embedded.properties
 
 ../bin/Scintilla.dll:	../../scintilla/bin/Scintilla.dll
-ifeq ($(OS),Windows_NT)
+ifneq (sh,$(SHELL_TYPE))
 	$(COPY) $(subst /,\, $< $(@D))
 else
 	$(COPY) $^ $(@D)
 endif
 
 ../bin/SciLexer.dll:	../../scintilla/bin/SciLexer.dll
-ifeq ($(OS),Windows_NT)
+ifneq (sh,$(SHELL_TYPE))
 	$(COPY) $(subst /,\, $< $(@D))
 else
 	$(COPY) $^ $(@D)
@@ -182,7 +185,7 @@ endif
 
 # Using '/' rather than '\' as that allows make to match the next rule
 ../bin/%.properties:	../src/%.properties
-ifeq ($(OS),Windows_NT)
+ifneq (sh,$(SHELL_TYPE))
 	$(COPY) $(subst /,\, $< $(@D))
 else
 	$(COPY) $^ $(@D)
