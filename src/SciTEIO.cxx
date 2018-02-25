@@ -1458,6 +1458,7 @@ bool SciTEBase::GrepIntoDirectory(const FilePath &directory) {
 }
 
 void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, const GUI::gui_char *fileTypes) {
+	const int checkAfterLines = 10'000;
 	FilePathSet directories;
 	FilePathSet files;
 	baseDir.List(directories, files);
@@ -1472,6 +1473,8 @@ void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char 
 			FileReader fr(fPath, gf & grepMatchCase);
 			if ((gf & grepBinary) || !fr.BufferContainsNull()) {
 				while (const char *line = fr.Next()) {
+					if (((fr.LineNumber() % checkAfterLines) == 0) && jobQueue.Cancelled())
+						return;
 					const char *match = strstr(line, searchString);
 					if (match) {
 						if (gf & grepWholeWord) {
