@@ -4856,8 +4856,6 @@ bool SciTEGTK::StripHasFocus() const {
 }
 
 void SciTEGTK::LayoutUI() {
-	bool focusOutput = false;
-
 	if (splitPane) {
 		// If GtkOrientable is available (GTK+ 2.16 and newer), just switch the
 		// orientation if needed, don't recreate the H/VPaned
@@ -4895,11 +4893,6 @@ void SciTEGTK::LayoutUI() {
 
 	g_signal_connect(G_OBJECT(splitPane), "notify::position",
 	                   G_CALLBACK(PanePositionChanged), static_cast<void *>(this));
-
-	if (focusOutput)
-		WindowSetFocus(wOutput);
-	else
-		WindowSetFocus(wEditor);
 
 	gtk_widget_show_all(GTK_WIDGET(splitPane));
 }
