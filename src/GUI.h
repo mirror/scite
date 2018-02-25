@@ -53,6 +53,7 @@ public:
 
 typedef char gui_char;
 typedef std::string gui_string;
+typedef std::string_view gui_string_view;
 
 #define GUI_TEXT(q) q
 
@@ -62,6 +63,7 @@ typedef std::string gui_string;
 
 typedef wchar_t gui_char;
 typedef std::wstring gui_string;
+typedef std::wstring_view gui_string_view;
 
 #define GUI_TEXT(q) L##q
 

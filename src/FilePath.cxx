@@ -14,6 +14,7 @@
 #include <time.h>
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 
@@ -227,20 +228,8 @@ static size_t strlen(const wchar_t *str) {
 	return wcslen(str);
 }
 
-static wchar_t *strcpy(wchar_t *strDestination, const wchar_t *strSource) {
-	return wcscpy(strDestination, strSource);
-}
-
 static int strcmp(const wchar_t *a, const wchar_t *b) {
 	return wcscmp(a,b);
-}
-
-static wchar_t *strchr(wchar_t *str, wchar_t c) {
-	return wcschr(str, c);
-}
-
-static wchar_t *strrchr(wchar_t *str, wchar_t c) {
-	return wcsrchr(str, c);
 }
 
 static wchar_t *getcwd(wchar_t *buffer, int maxlen) {
@@ -279,44 +268,48 @@ FilePath FilePath::NormalizePath() const {
 	if (fileName.empty()) {
 		return FilePath();
 	}
-	GUI::gui_string path = fileName;
+	GUI::gui_string path(fileName);
 #ifdef WIN32
 	// Convert unix path separators to Windows
 	std::replace(path.begin(), path.end(), L'/', pathSepChar);
 #endif
-	GUI::gui_string absPathString(fileName.length() + 1, 0);
-	GUI::gui_char *absPath = &absPathString[0];
-	GUI::gui_char *cur = absPath;
-	*cur = '\0';
-	GUI::gui_char *part = &path[0];
-	if (*part == pathSepChar) {
-		*cur++ = pathSepChar;
-		*cur = '\0';
-		part++;
+	GUI::gui_string_view source = path;
+	GUI::gui_string absPathString;
+	// Result is always same size or shorter so can allocate once for maximum
+	// possible and avoid a reallocation for common path lengths.
+	absPathString.reserve(fileName.length());
+	if (source.front() == pathSepChar) {
+		absPathString.push_back(pathSepChar);
+		source.remove_prefix(1);
 	}
 	// Split into components and remove x/.. and .
-	while (part) {
-		GUI::gui_char *next = strchr(part, pathSepChar);
-		if (next)
-			*next++ = 0;
-		GUI::gui_char *last;
-		if (strcmp(part, GUI_TEXT(".")) == 0)
-			;
-		else if (strcmp(part, GUI_TEXT("..")) == 0 && (last = strrchr(absPath, pathSepChar)) != NULL) {
-			if (last > absPath)
-				cur = last;
-			else
-				cur = last + 1;
-			*cur = '\0';
-		} else {
-			if (cur > absPath && *(cur - 1) != pathSepChar)
-				*cur++ = pathSepChar;
-			strcpy(cur, part);
-			cur += strlen(part);
+	while (!source.empty()) {
+		const size_t separator = source.find_first_of(pathSepChar);
+		// If no pathSepChar then separator == npos, so substr -> rest of string, OK
+		const GUI::gui_string_view part = source.substr(0, separator);
+		if (part != GUI_TEXT(".")) {
+			bool appendPart = true;
+			if (part == GUI_TEXT("..")) {
+				const size_t last = absPathString.find_last_of(pathSepChar);
+				if (last != GUI::gui_string::npos) {
+					// Erase the last component from the path separator, unless that would erase
+					// the entire string, in which case leave a single path separator.
+					const size_t truncPoint = (last > 0) ? last : last + 1;
+					absPathString.erase(truncPoint);
+					appendPart = false;
+				}
+			}
+			if (appendPart) {
+				if (!absPathString.empty() && (absPathString.back() != pathSepChar))
+					absPathString.push_back(pathSepChar);
+				absPathString.append(part);
+			}
 		}
-		part = next;
+		if (separator == GUI::gui_string::npos)	// Consumed last part
+			break;
+		source.remove_prefix(separator+1);
 	}
-	return FilePath(absPath);
+	return FilePath(absPathString);
 }
 
 /**
