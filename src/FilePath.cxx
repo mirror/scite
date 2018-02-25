@@ -283,7 +283,7 @@ FilePath FilePath::NormalizePath() const {
 		source.remove_prefix(1);
 	}
 	// Split into components and remove x/.. and .
-	while (!source.empty()) {
+	while (true) {
 		const size_t separator = source.find_first_of(pathSepChar);
 		// If no pathSepChar then separator == npos, so substr -> rest of string, OK
 		const GUI::gui_string_view part = source.substr(0, separator);
