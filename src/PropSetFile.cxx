@@ -8,18 +8,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdio.h>
-#include <fcntl.h>
 #include <time.h>
 #include <assert.h>
+#include <ctype.h>
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
-#include <sstream>
+#include <set>
 #include <algorithm>
+#include <sstream>
+
+#include <fcntl.h>
 
 #if defined(GTK)
 

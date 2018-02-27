@@ -5,9 +5,9 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdio.h>
 #include <time.h>
+#include <ctype.h>
 
 #include <string>
 #include <vector>
@@ -19,10 +19,10 @@
 #include "FilePath.h"
 #include "StyleWriter.h"
 #include "Extender.h"
-#include "LuaExtension.h"
 
 #include "IFaceTable.h"
 #include "SciTEKeys.h"
+#include "LuaExtension.h"
 
 #define LUA_COMPAT_5_1
 extern "C" {

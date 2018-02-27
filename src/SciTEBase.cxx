@@ -5,26 +5,27 @@
 // Copyright 1998-2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdio.h>
-#include <stddef.h>
-#include <fcntl.h>
 #include <stdarg.h>
-#include <sys/stat.h>
 #include <time.h>
+#include <ctype.h>
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <memory>
 
+#include <fcntl.h>
+#include <sys/stat.h>
+
+#include "ILoader.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
-#include "ILoader.h"
 
 #include "GUI.h"
 #include "StringList.h"

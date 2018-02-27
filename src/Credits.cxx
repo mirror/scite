@@ -12,16 +12,16 @@
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <memory>
 
 #if defined(GTK)
 #include <gtk/gtk.h>
 #endif
 
-#include "Scintilla.h"
 #include "ILexer.h"
+#include "Scintilla.h"
 
 #include "GUI.h"
 #include "StringList.h"

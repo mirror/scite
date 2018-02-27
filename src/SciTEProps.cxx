@@ -5,25 +5,26 @@
 // Copyright 1998-2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdio.h>
-#include <stddef.h>
-#include <fcntl.h>
 #include <time.h>
+#include <ctype.h>
 #include <locale.h>
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <memory>
 
+#include <fcntl.h>
+
+#include "ILexer.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
-#include "ILexer.h"
 
 #include "GUI.h"
 
@@ -45,13 +46,13 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 #include "StyleWriter.h"
 #include "Extender.h"
 #include "SciTE.h"
-#include "IFaceTable.h"
 #include "Mutex.h"
 #include "JobQueue.h"
 #include "Cookie.h"
 #include "Worker.h"
 #include "MatchMarker.h"
 #include "SciTEBase.h"
+#include "IFaceTable.h"
 
 void SciTEBase::SetImportMenu() {
 	for (int i = 0; i < importMax; i++) {

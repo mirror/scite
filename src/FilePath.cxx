@@ -7,25 +7,28 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdio.h>
-#include <fcntl.h>
-#include <sys/stat.h>
 #include <time.h>
+#include <ctype.h>
+#include <errno.h>
 
 #include <string>
 #include <string_view>
 #include <vector>
 #include <algorithm>
 
+#include <fcntl.h>
+
 #if defined(__unix__)
 
 #include <unistd.h>
-
 #include <dirent.h>
-#include <errno.h>
 
-#else
+#endif
+
+#include <sys/stat.h>
+
+#if !defined(__unix__)
 
 #include <io.h>
 

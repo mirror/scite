@@ -5,9 +5,10 @@
 // Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include "IFaceTable.h"
 #include <string.h>
 #include <ctype.h>
+
+#include "IFaceTable.h"
 
 int IFaceTable::FindConstant(const char *name) {
 	int lo = 0;

@@ -34,25 +34,26 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <errno.h>
-#include <unistd.h>
-#include <string.h>
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <memory>
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <gtk/gtk.h>
 
-#include "Scintilla.h"
 #include "ILexer.h"
+#include "Scintilla.h"
 
 #include "GUI.h"
 #include "StringList.h"
@@ -61,7 +62,6 @@
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "Extender.h"
-#include "DirectorExtension.h"
 #include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
@@ -69,6 +69,7 @@
 #include "Worker.h"
 #include "MatchMarker.h"
 #include "SciTEBase.h"
+#include "DirectorExtension.h"
 
 static int fdDirector = 0;
 static int fdCorrespondent = 0;

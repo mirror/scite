@@ -10,9 +10,9 @@
 
 #include <string>
 #include <vector>
-#include <sstream>
 #include <algorithm>
 #include <functional>
+#include <sstream>
 
 #include "Scintilla.h"
 

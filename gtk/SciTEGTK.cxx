@@ -5,34 +5,35 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdio.h>
-#include <fcntl.h>
 #include <stdarg.h>
-#include <sys/stat.h>
-#include <assert.h>
 #include <time.h>
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <signal.h>
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <memory>
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+
+#include <glib.h>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#include <unistd.h>
-#include <glib.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <errno.h>
-
+#include "ILexer.h"
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
-#include "ILexer.h"
 
 #include "GUI.h"
 #include "StringList.h"
@@ -42,6 +43,20 @@
 #include "PropSetFile.h"
 
 #include "Extender.h"
+
+#include "SciTE.h"
+#include "Mutex.h"
+#include "JobQueue.h"
+#include "pixmapsGNOME.h"
+#include "SciIcon.h"
+#include "Widget.h"
+#include "Cookie.h"
+#include "Worker.h"
+#include "MatchMarker.h"
+#include "SciTEBase.h"
+#include "StripDefinition.h"
+
+#include "SciTEKeys.h"
 
 #ifndef NO_EXTENSIONS
 #include "MultiplexExtension.h"
@@ -55,19 +70,6 @@
 #endif
 
 #endif
-
-#include "SciTE.h"
-#include "Mutex.h"
-#include "JobQueue.h"
-#include "pixmapsGNOME.h"
-#include "SciIcon.h"
-#include "Widget.h"
-#include "Cookie.h"
-#include "Worker.h"
-#include "MatchMarker.h"
-#include "SciTEBase.h"
-#include "SciTEKeys.h"
-#include "StripDefinition.h"
 
 enum { mbsAboutBox = 0x100000 };
 

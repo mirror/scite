@@ -27,14 +27,13 @@
 
 #endif
 
-#include "Scintilla.h"
 #include "ILoader.h"
-
-#include "Mutex.h"
+#include "Scintilla.h"
 
 #include "GUI.h"
 
 #include "FilePath.h"
+#include "Mutex.h"
 #include "Cookie.h"
 #include "Worker.h"
 #include "FileWorker.h"

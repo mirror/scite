@@ -11,8 +11,8 @@
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <memory>
 
 #undef _WIN32_WINNT
@@ -20,8 +20,8 @@
 #include <windows.h>
 #include <commctrl.h>
 
-#include "Scintilla.h"
 #include "ILexer.h"
+#include "Scintilla.h"
 
 #include "GUI.h"
 #include "StringList.h"
@@ -30,7 +30,6 @@
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "Extender.h"
-#include "DirectorExtension.h"
 #include "SciTE.h"
 #include "Mutex.h"
 #include "JobQueue.h"
@@ -38,6 +37,7 @@
 #include "Worker.h"
 #include "MatchMarker.h"
 #include "SciTEBase.h"
+#include "DirectorExtension.h"
 
 static HWND wDirector = 0;
 static HWND wCorrespondent = 0;

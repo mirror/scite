@@ -10,8 +10,8 @@
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <algorithm>
 
 #include "Scintilla.h"

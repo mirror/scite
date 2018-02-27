@@ -9,18 +9,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <sys/stat.h>
 #include <time.h>
+#include <ctype.h>
 
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <memory>
+
+#include <sys/stat.h>
 
 #include "Scintilla.h"
 
