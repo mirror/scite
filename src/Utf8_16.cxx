@@ -9,7 +9,7 @@
 // It is provided "as is" without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <memory.h>
+#include <string.h>
 #include <stdio.h>
 
 #include "Utf8_16.h"
