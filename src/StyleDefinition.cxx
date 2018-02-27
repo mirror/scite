@@ -10,7 +10,9 @@
 
 #include <cassert>
 
+#include <tuple>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 
@@ -20,7 +22,22 @@
 #include "StringHelpers.h"
 #include "StyleDefinition.h"
 
-StyleDefinition::StyleDefinition(const char *definition) :
+namespace {
+
+typedef std::tuple<std::string_view, std::string_view> ViewPair;
+
+// Split view around first separator returning the portion before and after the separator.
+// If the separator is not present then return whole view and an empty view.
+ViewPair ViewSplit(std::string_view view, char separator) noexcept {
+	const size_t sepPos = view.find_first_of(separator);
+	std::string_view first = view.substr(0, sepPos);
+	std::string_view second = sepPos == (std::string_view::npos) ? "" : view.substr(sepPos + 1);
+	return { first, second };
+}
+
+}
+
+StyleDefinition::StyleDefinition(std::string_view definition) :
 		sizeFractional(10.0), size(10), fore("#000000"), back("#FFFFFF"),
 		weight(SC_WEIGHT_NORMAL), italics(false), eolfilled(false), underlined(false),
 		caseForce(SC_CASE_MIXED),
@@ -29,110 +46,98 @@ StyleDefinition::StyleDefinition(const char *definition) :
 	ParseStyleDefinition(definition);
 }
 
-bool StyleDefinition::ParseStyleDefinition(const char *definition) {
-	if (definition == NULL || *definition == '\0') {
+bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
+	if (definition.empty()) {
 		return false;
 	}
-	std::vector<char> valHolder(definition, definition + strlen(definition)+1);
-	char *val = &valHolder[0];
-	char *opt = val;
-	while (opt) {
-		// Find attribute separator
-		char *cpComma = strchr(opt, ',');
-		if (cpComma) {
-			// If found, we terminate the current attribute (opt) string
-			*cpComma = '\0';
-		}
-		// Find attribute name/value separator
-		char *colon = strchr(opt, ':');
-		if (colon) {
-			// If found, we terminate the current attribute name and point on the value
-			*colon++ = '\0';
-		}
-		if (0 == strcmp(opt, "italics")) {
+	while (!definition.empty()) {
+		// Find attribute separator ',' and select front attribute
+		const ViewPair optionRest = ViewSplit(definition, ',');
+		const std::string_view option = std::get<0>(optionRest);
+		definition = std::get<1>(optionRest);
+		// Find value separator ':' and break into name and value
+		const auto [optionName, optionValue] = ViewSplit(option, ':');
+
+		if (optionName == "italics") {
 			specified = static_cast<flags>(specified | sdItalics);
 			italics = true;
 		}
-		if (0 == strcmp(opt, "notitalics")) {
+		if (optionName == "notitalics") {
 			specified = static_cast<flags>(specified | sdItalics);
 			italics = false;
 		}
-		if (0 == strcmp(opt, "bold")) {
+		if (optionName == "bold") {
 			specified = static_cast<flags>(specified | sdWeight);
 			weight = SC_WEIGHT_BOLD;
 		}
-		if (0 == strcmp(opt, "notbold")) {
+		if (optionName == "notbold") {
 			specified = static_cast<flags>(specified | sdWeight);
 			weight = SC_WEIGHT_NORMAL;
 		}
-		if ((0 == strcmp(opt, "weight")) && colon) {
+		if ((optionName == "weight") && !optionValue.empty()) {
 			specified = static_cast<flags>(specified | sdWeight);
-			weight = atoi(colon);
+			weight = std::stoi(std::string(optionValue));
 		}
-		if ((0 == strcmp(opt, "font")) && colon) {
+		if ((optionName == "font") && !optionValue.empty()) {
 			specified = static_cast<flags>(specified | sdFont);
-			font = colon;
+			font = optionValue;
 			std::replace(font.begin(), font.end(), '|', ',');
 		}
-		if ((0 == strcmp(opt, "fore")) && colon) {
+		if ((optionName == "fore") && !optionValue.empty()) {
 			specified = static_cast<flags>(specified | sdFore);
-			fore = colon;
+			fore = optionValue;
 		}
-		if ((0 == strcmp(opt, "back")) && colon) {
+		if ((optionName == "back") && !optionValue.empty()) {
 			specified = static_cast<flags>(specified | sdBack);
-			back = colon;
+			back = optionValue;
 		}
-		if ((0 == strcmp(opt, "size")) && colon) {
+		if ((optionName == "size") && !optionValue.empty()) {
 			specified = static_cast<flags>(specified | sdSize);
-			sizeFractional = static_cast<float>(atof(colon));
+			sizeFractional = std::stof(std::string(optionValue));
 			size = static_cast<int>(sizeFractional);
 		}
-		if (0 == strcmp(opt, "eolfilled")) {
+		if (optionName == "eolfilled") {
 			specified = static_cast<flags>(specified | sdEOLFilled);
 			eolfilled = true;
 		}
-		if (0 == strcmp(opt, "noteolfilled")) {
+		if (optionName == "noteolfilled") {
 			specified = static_cast<flags>(specified | sdEOLFilled);
 			eolfilled = false;
 		}
-		if (0 == strcmp(opt, "underlined")) {
+		if (optionName == "underlined") {
 			specified = static_cast<flags>(specified | sdUnderlined);
 			underlined = true;
 		}
-		if (0 == strcmp(opt, "notunderlined")) {
+		if (optionName == "notunderlined") {
 			specified = static_cast<flags>(specified | sdUnderlined);
 			underlined = false;
 		}
-		if (0 == strcmp(opt, "case")) {
+		if (optionName == "case") {
 			specified = static_cast<flags>(specified | sdCaseForce);
 			caseForce = SC_CASE_MIXED;
-			if (colon) {
-				if (*colon == 'u')
+			if (!optionValue.empty()) {
+				if (optionValue.front() == 'u')
 					caseForce = SC_CASE_UPPER;
-				else if (*colon == 'l')
+				else if (optionValue.front() == 'l')
 					caseForce = SC_CASE_LOWER;
 			}
 		}
-		if (0 == strcmp(opt, "visible")) {
+		if (optionName == "visible") {
 			specified = static_cast<flags>(specified | sdVisible);
 			visible = true;
 		}
-		if (0 == strcmp(opt, "notvisible")) {
+		if (optionName == "notvisible") {
 			specified = static_cast<flags>(specified | sdVisible);
 			visible = false;
 		}
-		if (0 == strcmp(opt, "changeable")) {
+		if (optionName == "changeable") {
 			specified = static_cast<flags>(specified | sdChangeable);
 			changeable = true;
 		}
-		if (0 == strcmp(opt, "notchangeable")) {
+		if (optionName == "notchangeable") {
 			specified = static_cast<flags>(specified | sdChangeable);
 			changeable = false;
 		}
-		if (cpComma)
-			opt = cpComma + 1;
-		else
-			opt = 0;
 	}
 	return true;
 }
@@ -145,15 +150,15 @@ long StyleDefinition::BackAsLong() const {
 	return ColourFromString(back);
 }
 
-int StyleDefinition::FractionalSize() const {
+int StyleDefinition::FractionalSize() const noexcept {
 	return static_cast<int>(sizeFractional * SC_FONT_SIZE_MULTIPLIER);
 }
 
-bool StyleDefinition::IsBold() const {
+bool StyleDefinition::IsBold() const noexcept {
 	return weight > SC_WEIGHT_NORMAL;
 }
 
-int IntFromHexDigit(int ch) {
+int IntFromHexDigit(int ch) noexcept {
 	if ((ch >= '0') && (ch <= '9')) {
 		return ch - '0';
 	} else if (ch >= 'A' && ch <= 'F') {
@@ -165,35 +170,35 @@ int IntFromHexDigit(int ch) {
 	}
 }
 
-int IntFromHexByte(const char *hexByte) {
+int IntFromHexByte(std::string_view hexByte) noexcept {
 	return IntFromHexDigit(hexByte[0]) * 16 + IntFromHexDigit(hexByte[1]);
 }
 
 Colour ColourFromString(const std::string &s) {
-	if (s.length()) {
-		const int r = IntFromHexByte(s.c_str() + 1);
-		const int g = IntFromHexByte(s.c_str() + 3);
-		const int b = IntFromHexByte(s.c_str() + 5);
+	if (s.length() >= 7) {
+		const int r = IntFromHexByte(&s[1]);
+		const int g = IntFromHexByte(&s[3]);
+		const int b = IntFromHexByte(&s[5]);
 		return ColourRGB(r, g, b);
 	} else {
 		return 0;
 	}
 }
 
-IndicatorDefinition::IndicatorDefinition(const char *definition) :
+IndicatorDefinition::IndicatorDefinition(std::string_view definition) :
 	style(INDIC_PLAIN), colour(0), fillAlpha(30), outlineAlpha(50), under(false) {
 	ParseIndicatorDefinition(definition);
 }
 
-bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
-	if (definition == NULL || *definition == '\0') {
+bool IndicatorDefinition::ParseIndicatorDefinition(std::string_view definition) {
+	if (definition.empty()) {
 		return false;
 	}
 	struct NameValue {
-		const char *name;
+		std::string_view name;
 		int value;
 	};
-	NameValue indicStyleNames[] = {
+	const NameValue indicStyleNames[] = {
 		{ "plain", INDIC_PLAIN },
 		{ "squiggle", INDIC_SQUIGGLE },
 		{ "tt", INDIC_TT },
@@ -218,51 +223,41 @@ bool IndicatorDefinition::ParseIndicatorDefinition(const char *definition) {
 
 	std::string val(definition);
 	LowerCaseAZ(val);
-	char *opt = &val[0];
-	while (opt) {
-		// Find attribute separator
-		char *cpComma = strchr(opt, ',');
-		if (cpComma) {
-			// If found, we terminate the current attribute (opt) string
-			*cpComma = '\0';
-		}
-		// Find attribute name/value separator
-		char *colon = strchr(opt, ':');
-		if (colon) {
-			// If found, we terminate the current attribute name and point on the value
-			*colon++ = '\0';
-		}
-		if (colon && (0 == strcmp(opt, "style"))) {
+	std::string_view indicatorDefinition = val;
+	while (!indicatorDefinition.empty()) {
+		// Find attribute separator ',' and select front attribute
+		const ViewPair optionRest = ViewSplit(indicatorDefinition, ',');
+		const std::string_view option = std::get<0>(optionRest);
+		indicatorDefinition = std::get<1>(optionRest);
+		// Find value separator ':' and break into name and value
+		const auto [optionName, optionValue] = ViewSplit(option, ':');
+
+		if (!optionValue.empty() && (optionName == "style")) {
 			bool found = false;
 			for (const NameValue &indicStyleName : indicStyleNames) {
-				assert(indicStyleName.name);
-				if (0 == strcmp(colon, indicStyleName.name)) {
+				if (optionValue == indicStyleName.name) {
 					style = indicStyleName.value;
 					found = true;
 				}
 			}
 			if (!found)
-				style = atoi(colon);
+				style = std::stoi(std::string(optionValue));
 		}
-		if (colon && ((0 == strcmp(opt, "colour")) || (0 == strcmp(opt, "color")))) {
-			colour = ColourFromString(std::string(colon));
+		if (!optionValue.empty() && ((optionName == "colour") || (optionName == "color"))) {
+			colour = ColourFromString(std::string(optionValue));
 		}
-		if (colon && (0 == strcmp(opt, "fillalpha"))) {
-			fillAlpha = atoi(colon);
+		if (!optionValue.empty() && (optionName == "fillalpha")) {
+			fillAlpha = std::stoi(std::string(optionValue));
 		}
-		if (colon && (0 == strcmp(opt, "outlinealpha"))) {
-			outlineAlpha = atoi(colon);
+		if (!optionValue.empty() && (optionName == "outlinealpha")) {
+			outlineAlpha = std::stoi(std::string(optionValue));
 		}
-		if (0 == strcmp(opt, "under")) {
+		if (optionName == "under") {
 			under = true;
 		}
-		if (0 == strcmp(opt, "notunder")) {
+		if (optionName == "notunder") {
 			under = false;
 		}
-		if (cpComma)
-			opt = cpComma + 1;
-		else
-			opt = 0;
 	}
 	return true;
 }

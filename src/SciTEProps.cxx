@@ -271,8 +271,8 @@ StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
 		}
 	}
 
-	StyleDefinition sd(ssDefault.c_str());
-	sd.ParseStyleDefinition(ss.c_str());
+	StyleDefinition sd(ssDefault);
+	sd.ParseStyleDefinition(ss);
 	return sd;
 }
 
@@ -310,7 +310,7 @@ void SciTEBase::SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int s
 			sprintf(key, "style.%s.%0d", lang, style-start);
 			std::string sval = props.GetExpandedString(key);
 			if (sval.length()) {
-				SetOneStyle(win, style, sval.c_str());
+				SetOneStyle(win, style, StyleDefinition(sval));
 			}
 		}
 	}
@@ -1388,12 +1388,12 @@ void SciTEBase::ReadFontProperties() {
 
 	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
 	std::string sval = props.GetNewExpandString(key);
-	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
-	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
+	SetOneStyle(wEditor, STYLE_DEFAULT, StyleDefinition(sval));
+	SetOneStyle(wOutput, STYLE_DEFAULT, StyleDefinition(sval));
 
 	sprintf(key, "style.%s.%0d", languageName, STYLE_DEFAULT);
 	sval = props.GetNewExpandString(key);
-	SetOneStyle(wEditor, STYLE_DEFAULT, sval.c_str());
+	SetOneStyle(wEditor, STYLE_DEFAULT, StyleDefinition(sval));
 
 	wEditor.Call(SCI_STYLECLEARALL, 0, 0);
 
@@ -1414,7 +1414,7 @@ void SciTEBase::ReadFontProperties() {
 				int activity = active * diffToSecondary;
 				sprintf(key, "style.%s.%0d.%0d", languageName, subStyleBase + activity, subStyle+1);
 				sval = props.GetNewExpandString(key);
-				SetOneStyle(wEditor, subStylesStart + subStyle + activity, sval.c_str());
+				SetOneStyle(wEditor, subStylesStart + subStyle + activity, StyleDefinition(sval));
 			}
 		}
 	}
@@ -1427,7 +1427,7 @@ void SciTEBase::ReadFontProperties() {
 
 	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
 	sval = props.GetNewExpandString(key);
-	SetOneStyle(wOutput, STYLE_DEFAULT, sval.c_str());
+	SetOneStyle(wOutput, STYLE_DEFAULT, StyleDefinition(sval));
 
 	wOutput.Call(SCI_STYLECLEARALL, 0, 0);
 

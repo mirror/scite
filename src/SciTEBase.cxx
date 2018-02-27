@@ -947,11 +947,12 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 	wEditor.Call(SCI_SETINDICATORCURRENT, indicatorMatch);
 	if (purpose == markIncremental) {
 		CurrentBuffer()->findMarks = Buffer::fmTemporary;
-		SetOneIndicator(wEditor, indicatorMatch, props.GetString("find.indicator.incremental").c_str());
+		SetOneIndicator(wEditor, indicatorMatch,
+			IndicatorDefinition(props.GetString("find.indicator.incremental")));
 	} else {
 		CurrentBuffer()->findMarks = Buffer::fmMarked;
 		std::string findIndicatorString = props.GetString("find.mark.indicator");
-		IndicatorDefinition findIndicator(findIndicatorString.c_str());
+		IndicatorDefinition findIndicator(findIndicatorString);
 		if (!findIndicatorString.length()) {
 			findIndicator.style = INDIC_ROUNDBOX;
 			std::string findMark = props.GetString("find.mark");

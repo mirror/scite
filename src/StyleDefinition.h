@@ -22,22 +22,22 @@ public:
 	enum flags { sdNone = 0, sdFont = 0x1, sdSize = 0x2, sdFore = 0x4, sdBack = 0x8,
 	        sdWeight = 0x10, sdItalics = 0x20, sdEOLFilled = 0x40, sdUnderlined = 0x80,
 	        sdCaseForce = 0x100, sdVisible = 0x200, sdChangeable = 0x400} specified;
-	StyleDefinition(const char *definition);
-	bool ParseStyleDefinition(const char *definition);
+	explicit StyleDefinition(std::string_view definition);
+	bool ParseStyleDefinition(std::string_view definition);
 	long ForeAsLong() const;
 	long BackAsLong() const;
-	int FractionalSize() const;
-	bool IsBold() const;
+	int FractionalSize() const noexcept;
+	bool IsBold() const noexcept;
 };
 
 typedef long Colour;
 
-inline Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue) {
+inline constexpr Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue) noexcept {
 	return red | (green << 8) | (blue << 16);
 }
 
-int IntFromHexDigit(int ch);
-int IntFromHexByte(const char *hexByte);
+int IntFromHexDigit(int ch) noexcept;
+int IntFromHexByte(std::string_view hexByte) noexcept;
 
 Colour ColourFromString(const std::string &s);
 
@@ -47,6 +47,6 @@ struct IndicatorDefinition {
 	int fillAlpha;
 	int outlineAlpha;
 	bool under;
-	IndicatorDefinition(const char *definition);
-	bool ParseIndicatorDefinition(const char *definition);
+	explicit IndicatorDefinition(std::string_view definition);
+	bool ParseIndicatorDefinition(std::string_view definition);
 };
