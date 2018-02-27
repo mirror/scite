@@ -225,7 +225,7 @@ BOOL CALLBACK UniqueInstance::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 	UniqueInstance *ui = reinterpret_cast<UniqueInstance *>(lParam);
 
 	// First, avoid to send a message to ourself
-	if (hWnd != static_cast<HWND>(ui->stw->MainHWND())) {
+	if (hWnd != ui->stw->MainHWND()) {
 		// Send a message to the given window, to see if it will answer with
 		// the same message. If it does, it is a Gui window with
 		// openFilesHere set.

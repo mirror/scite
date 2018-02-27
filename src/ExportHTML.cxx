@@ -84,10 +84,10 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 		fputs("<head>\n", fp);
 		if (titleFullPath)
 			fprintf(fp, "<title>%s</title>\n",
-			        static_cast<const char *>(filePath.AsUTF8().c_str()));
+			        filePath.AsUTF8().c_str());
 		else
 			fprintf(fp, "<title>%s</title>\n",
-			        static_cast<const char *>(filePath.Name().AsUTF8().c_str()));
+			        filePath.Name().AsUTF8().c_str());
 		// Probably not used by robots, but making a little advertisement for those looking
 		// at the source code doesn't hurt...
 		fputs("<meta name=\"Generator\" content=\"SciTE - www.Scintilla.org\" />\n", fp);

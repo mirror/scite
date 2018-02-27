@@ -138,7 +138,7 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 
 		fputs("\\begin{document}\n\n", fp);
 		fprintf(fp, "Source File: %s\n\n\\noindent\n\\small{\n",
-		        static_cast<const char *>(titleFullPath ? filePath.AsUTF8().c_str() : filePath.Name().AsUTF8().c_str()));
+		        titleFullPath ? filePath.AsUTF8().c_str() : filePath.Name().AsUTF8().c_str());
 
 		int styleCurrent = acc.StyleAt(0);
 
