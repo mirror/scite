@@ -83,6 +83,7 @@ protected:
 public:
 	Window() : wid(0) {
 	}
+	virtual ~Window() = default;
 	Window &operator=(WindowID wid_) {
 		wid = wid_;
 		return *this;
@@ -90,7 +91,7 @@ public:
 	WindowID GetID() const {
 		return wid;
 	}
-	void SetID(WindowID wid_) {
+	virtual void SetID(WindowID wid_) {
 		wid = wid_;
 	}
 	bool Created() const {
@@ -144,7 +145,8 @@ public:
 	sptr_t status;
 	ScintillaWindow() : fn(0), ptr(0), status() {
 	}
-	void SetID(WindowID wid_) {
+	virtual ~ScintillaWindow() = default;
+	void SetID(WindowID wid_) override {
 		wid = wid_;
 		fn = 0;
 		ptr = 0;

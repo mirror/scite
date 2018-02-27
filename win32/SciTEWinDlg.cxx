@@ -1115,7 +1115,7 @@ void SciTEWin::Find() {
 		findStrip.visible = true;
 		SizeSubWindows();
 		findStrip.SetIncrementalBehaviour(props.GetInt("find.strip.incremental"));
-		findStrip.Show();
+		findStrip.ShowStrip();
 	} else {
 		if (searchStrip.visible || replaceStrip.visible)
 			return;
@@ -1352,7 +1352,7 @@ void SciTEWin::Replace() {
 		replaceStrip.visible = true;
 		SizeSubWindows();
 		replaceStrip.SetIncrementalBehaviour(props.GetInt("replace.strip.incremental"));
-		replaceStrip.Show();
+		replaceStrip.ShowStrip();
 		havefound = false;
 	} else {
 		if (searchStrip.visible || findStrip.visible)

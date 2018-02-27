@@ -1169,7 +1169,7 @@ void FindStrip::CheckButtons() {
 	entered--;
 }
 
-void FindStrip::Show() {
+void FindStrip::ShowStrip() {
 	pSearcher->failedfind = false;
 	Focus();
 	pSearcher->SetCaretAsStart();
@@ -1461,7 +1461,7 @@ void ReplaceStrip::CheckButtons() {
 	entered--;
 }
 
-void ReplaceStrip::Show() {
+void ReplaceStrip::ShowStrip() {
 	pSearcher->failedfind = false;
 	Focus();
 	pSearcher->SetCaretAsStart();

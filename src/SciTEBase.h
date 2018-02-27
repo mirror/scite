@@ -56,7 +56,8 @@ public:
 	RecentFile() {
 		scrollPosition = 0;
 	}
-	void Init() {
+	virtual ~RecentFile() = default;
+	void Init() override {
 		FilePath::Init();
 		selection.position = INVALID_POSITION;
 		selection.anchor = INVALID_POSITION;
@@ -102,7 +103,8 @@ public:
 			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
 			findMarks(fmNone), pFileWorker(0), futureDo(fdNone) {}
 
-	void Init() {
+	virtual ~Buffer() = default;
+	void Init() override {
 		RecentFile::Init();
 		isDirty = false;
 		isReadOnly = false;

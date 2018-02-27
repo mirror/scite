@@ -75,6 +75,7 @@ public:
 		closeSize.cx = 11;
 		closeSize.cy = 11;
 	}
+	virtual ~Strip() = default;
 	virtual int Height() {
 		return lineHeight * Lines() + space - 1;
 	}
@@ -86,6 +87,7 @@ class BackgroundStrip : public Strip {
 public:
 	BackgroundStrip() {
 	}
+	virtual ~BackgroundStrip() = default;
 	virtual void Creation();
 	virtual void Destruction();
 	virtual void Close();
@@ -105,6 +107,7 @@ protected:
 public:
 	SearchStripBase() : pSearcher(0), hbrNoMatch(0) {
 	}
+	virtual ~SearchStripBase() = default;
 	void SetSearcher(Searcher *pSearcher_) {
 		pSearcher = pSearcher_;
 	}
@@ -120,6 +123,7 @@ class SearchStrip : public SearchStripBase {
 public:
 	SearchStrip() {
 	}
+	virtual ~SearchStrip() = default;
 	virtual void Creation();
 	virtual void Destruction();
 	virtual void Close();
@@ -150,6 +154,7 @@ protected:
 	enum ChangingSource { changingEdit, changingCombo };
 	void NextIncremental(ChangingSource source);
 public:
+	virtual ~FindReplaceStrip() = default;
 	virtual void Close();
 	void SetIncrementalBehaviour(int behaviour);
 	void MarkIncremental();
@@ -162,6 +167,7 @@ class FindStrip : public FindReplaceStrip {
 public:
 	FindStrip() {
 	}
+	virtual ~FindStrip() = default;
 	virtual void Creation();
 	virtual void Destruction();
 	void Focus();
@@ -173,7 +179,7 @@ public:
 	virtual void Size();
 	virtual void Paint(HDC hDC);
 	void CheckButtons();
-	void Show();
+	void ShowStrip();
 };
 
 class ReplaceStrip : public FindReplaceStrip {
@@ -186,6 +192,7 @@ class ReplaceStrip : public FindReplaceStrip {
 public:
 	ReplaceStrip() {
 	}
+	virtual ~ReplaceStrip() = default;
 	virtual void Creation();
 	virtual void Destruction();
 	virtual int Lines() const;
@@ -198,7 +205,7 @@ public:
 	virtual void Size();
 	virtual void Paint(HDC hDC);
 	void CheckButtons();
-	void Show();
+	void ShowStrip();
 };
 
 class StripDefinition;
@@ -211,6 +218,7 @@ public:
 	UserStrip() : extender(nullptr), pSciTEWin(nullptr) {
 		lineHeight = 26;
 	}
+	virtual ~UserStrip() = default;
 	virtual void Creation();
 	virtual void Destruction();
 	virtual void Close();

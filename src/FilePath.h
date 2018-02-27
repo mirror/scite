@@ -31,11 +31,12 @@ public:
 	FilePath(const GUI::gui_char *fileName_ = GUI_TEXT(""));
 	FilePath(const GUI::gui_string &fileName_);
 	FilePath(FilePath const &directory, FilePath const &name);
+	virtual ~FilePath() = default;
 	void Set(const GUI::gui_char *fileName_);
 	void Set(FilePath const &other);
 	void Set(FilePath const &directory, FilePath const &name);
 	void SetDirectory(FilePath const &directory);
-	void Init();
+	virtual void Init();
 	bool SameNameAs(const GUI::gui_char *other) const;
 	bool SameNameAs(const FilePath &other) const;
 	bool operator==(const FilePath &other) const;
