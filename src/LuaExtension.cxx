@@ -218,9 +218,9 @@ static int cf_scite_send(lua_State *L) {
 	// It is rewritten to be typesafe, checking the arguments against the metadata in
 	// IFaceTable in the same way that the object interface does.
 
-	int paneIndex = lua_upvalueindex(1);
+	const int paneIndex = lua_upvalueindex(1);
 	check_pane_object(L, paneIndex);
-	int message = luaL_checkint(L, 1);
+	const int message = luaL_checkint(L, 1);
 
 	lua_pushvalue(L, paneIndex);
 	lua_replace(L, 1);
@@ -260,7 +260,7 @@ static int cf_scite_send(lua_State *L) {
 
 static int cf_scite_constname(lua_State *L) {
 	char constName[100] = "";
-	int message = luaL_checkint(L, 1);
+	const int message = luaL_checkint(L, 1);
 	const char *prefix = luaL_optstring(L, 2, NULL);
 	if (IFaceTable::GetConstantName(message, constName, 100, prefix) > 0) {
 		lua_pushstring(L, constName);
@@ -283,7 +283,7 @@ static int cf_scite_open(lua_State *L) {
 }
 
 static int cf_scite_menu_command(lua_State *L) {
-	int cmdID = luaL_checkint(L, 1);
+	const int cmdID = luaL_checkint(L, 1);
 	if (cmdID) {
 		host->DoMenuCommand(cmdID);
 	}
@@ -291,7 +291,7 @@ static int cf_scite_menu_command(lua_State *L) {
 }
 
 static int cf_scite_update_status_bar(lua_State *L) {
-	bool bUpdateSlowData = (lua_gettop(L) > 0 ? lua_toboolean(L, 1) : false) != 0;
+	const bool bUpdateSlowData = (lua_gettop(L) > 0 ? lua_toboolean(L, 1) : false) != 0;
 	host->UpdateStatusBar(bUpdateSlowData);
 	return 0;
 }
@@ -305,7 +305,7 @@ static int cf_scite_strip_show(lua_State *L) {
 }
 
 static int cf_scite_strip_set(lua_State *L) {
-	int control = luaL_checkint(L, 1);
+	const int control = luaL_checkint(L, 1);
 	const char *value = luaL_checkstring(L, 2);
 	if (value) {
 		host->UserStripSet(control, value);
@@ -314,7 +314,7 @@ static int cf_scite_strip_set(lua_State *L) {
 }
 
 static int cf_scite_strip_set_list(lua_State *L) {
-	int control = luaL_checkint(L, 1);
+	const int control = luaL_checkint(L, 1);
 	const char *value = luaL_checkstring(L, 2);
 	if (value) {
 		host->UserStripSetList(control, value);
@@ -323,7 +323,7 @@ static int cf_scite_strip_set_list(lua_State *L) {
 }
 
 static int cf_scite_strip_value(lua_State *L) {
-	int control = luaL_checkint(L, 1);
+	const int control = luaL_checkint(L, 1);
 	const char *value = host->UserStripValue(control);
 	if (value) {
 		lua_pushstring(L, value);
@@ -340,7 +340,7 @@ static ExtensionAPI::Pane check_pane_object(lua_State *L, int index) {
 
 	if ((!pPane) && lua_istable(L, index)) {
 		// so that nested objects have a convenient way to do a back reference
-		int absIndex = absolute_index(L, index);
+		const int absIndex = absolute_index(L, index);
 		lua_pushliteral(L, "pane");
 		lua_gettable(L, absIndex);
 		pPane = static_cast<ExtensionAPI::Pane *>(checkudata(L, -1, "SciTE_MT_Pane"));
@@ -365,11 +365,11 @@ static ExtensionAPI::Pane check_pane_object(lua_State *L, int index) {
 }
 
 static int cf_pane_textrange(lua_State *L) {
-	ExtensionAPI::Pane p = check_pane_object(L, 1);
+	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 
 	if (lua_gettop(L) >= 3) {
-		int cpMin = static_cast<int>(luaL_checknumber(L, 2));
-		int cpMax = static_cast<int>(luaL_checknumber(L, 3));
+		const int cpMin = static_cast<int>(luaL_checknumber(L, 2));
+		const int cpMax = static_cast<int>(luaL_checknumber(L, 3));
 
 		if (cpMax >= 0) {
 			char *range = host->Range(p, cpMin, cpMax);
@@ -389,32 +389,32 @@ static int cf_pane_textrange(lua_State *L) {
 }
 
 static int cf_pane_insert(lua_State *L) {
-	ExtensionAPI::Pane p = check_pane_object(L, 1);
-	int pos = luaL_checkint(L, 2);
+	const ExtensionAPI::Pane p = check_pane_object(L, 1);
+	const int pos = luaL_checkint(L, 2);
 	const char *s = luaL_checkstring(L, 3);
 	host->Insert(p, pos, s);
 	return 0;
 }
 
 static int cf_pane_remove(lua_State *L) {
-	ExtensionAPI::Pane p = check_pane_object(L, 1);
-	int cpMin = static_cast<int>(luaL_checknumber(L, 2));
-	int cpMax = static_cast<int>(luaL_checknumber(L, 3));
+	const ExtensionAPI::Pane p = check_pane_object(L, 1);
+	const int cpMin = static_cast<int>(luaL_checknumber(L, 2));
+	const int cpMax = static_cast<int>(luaL_checknumber(L, 3));
 	host->Remove(p, cpMin, cpMax);
 	return 0;
 }
 
 static int cf_pane_append(lua_State *L) {
-	ExtensionAPI::Pane p = check_pane_object(L, 1);
+	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 	const char *s = luaL_checkstring(L, 2);
 	host->Insert(p, static_cast<int>(host->Send(p, SCI_GETLENGTH, 0, 0)), s);
 	return 0;
 }
 
 static int cf_pane_findtext(lua_State *L) {
-	ExtensionAPI::Pane p = check_pane_object(L, 1);
+	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 
-	int nArgs = lua_gettop(L);
+	const int nArgs = lua_gettop(L);
 
 	const char *t = luaL_checkstring(L, 2);
 	bool hasError = (!t);
@@ -424,7 +424,7 @@ static int cf_pane_findtext(lua_State *L) {
 
 		ft.lpstrText = t;
 
-		int flags = (nArgs > 2) ? luaL_checkint(L, 3) : 0;
+		const int flags = (nArgs > 2) ? luaL_checkint(L, 3) : 0;
 		hasError = (flags == 0 && lua_gettop(L) > nArgs);
 
 		if (!hasError) {
@@ -444,7 +444,7 @@ static int cf_pane_findtext(lua_State *L) {
 		}
 
 		if (!hasError) {
-			sptr_t result = host->Send(p, SCI_FINDTEXT, static_cast<uptr_t>(flags), SptrFromPointer(&ft));
+			const sptr_t result = host->Send(p, SCI_FINDTEXT, static_cast<uptr_t>(flags), SptrFromPointer(&ft));
 			if (result >= 0) {
 				lua_pushinteger(L, static_cast<int>(ft.chrgText.cpMin));
 				lua_pushinteger(L, static_cast<int>(ft.chrgText.cpMax));
@@ -532,7 +532,7 @@ static int cf_match_metatable_index(lua_State *L) {
 				return 0;
 			}
 		} else if (0 == strcmp(key, "replace")) {
-			int replaceMethodIndex = lua_upvalueindex(1);
+			const int replaceMethodIndex = lua_upvalueindex(1);
 			if (lua_iscfunction(L, replaceMethodIndex)) {
 				lua_pushvalue(L, replaceMethodIndex);
 				return 1;
@@ -561,12 +561,12 @@ static int cf_match_metatable_tostring(lua_State *L) {
 }
 
 static int cf_pane_match(lua_State *L) {
-	int nargs = lua_gettop(L);
+	const int nargs = lua_gettop(L);
 
-	ExtensionAPI::Pane p = check_pane_object(L, 1);
+	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 	luaL_checkstring(L, 2);
 
-	int generatorIndex = lua_upvalueindex(1);
+	const int generatorIndex = lua_upvalueindex(1);
 	if (!lua_isfunction(L, generatorIndex)) {
 		raise_error(L, "Internal error: match generator is missing.");
 		return 0;
@@ -643,7 +643,7 @@ static int cf_pane_match_generator(lua_State *L) {
 	ft.lpstrText = text;
 
 	if (ft.chrg.cpMax > ft.chrg.cpMin) {
-		sptr_t result = host->Send(pmo->pane, SCI_FINDTEXT, static_cast<uptr_t>(pmo->flags), SptrFromPointer(&ft));
+		const sptr_t result = host->Send(pmo->pane, SCI_FINDTEXT, static_cast<uptr_t>(pmo->flags), SptrFromPointer(&ft));
 		if (result >= 0) {
 			pmo->startPos = static_cast<int>(ft.chrgText.cpMin);
 			pmo->endPos = pmo->endPosOrig = static_cast<int>(ft.chrgText.cpMax);
@@ -661,7 +661,7 @@ static int cf_pane_match_generator(lua_State *L) {
 }
 
 static int cf_props_metatable_index(lua_State *L) {
-	int selfArg = lua_isuserdata(L, 1) ? 1 : 0;
+	const int selfArg = lua_isuserdata(L, 1) ? 1 : 0;
 
 	if (lua_isstring(L, selfArg + 1)) {
 		std::string value = host->Property(lua_tostring(L, selfArg + 1));
@@ -674,7 +674,7 @@ static int cf_props_metatable_index(lua_State *L) {
 }
 
 static int cf_props_metatable_newindex(lua_State *L) {
-	int selfArg = lua_isuserdata(L, 1) ? 1 : 0;
+	const int selfArg = lua_isuserdata(L, 1) ? 1 : 0;
 
 	const char *key = lua_isstring(L, selfArg + 1) ? lua_tostring(L, selfArg + 1) : 0;
 	const char *val = lua_tostring(L, selfArg + 2);
@@ -708,7 +708,7 @@ static int cf_os_execute(lua_State *L) {
 */
 
 static int cf_global_print(lua_State *L) {
-	int nargs = lua_gettop(L);
+	const int nargs = lua_gettop(L);
 
 	lua_getglobal(L, "tostring");
 
@@ -747,7 +747,7 @@ static int cf_global_trace(lua_State *L) {
 }
 
 static int cf_global_dostring(lua_State *L) {
-	int nargs = lua_gettop(L);
+	const int nargs = lua_gettop(L);
 	const char *code = luaL_checkstring(L, 1);
 	const char *name = luaL_optstring(L, 2, code);
 	if (0 == luaL_loadbuffer(L, code, lua_strlen(L, 1), name)) {
@@ -775,7 +775,7 @@ static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValu
 			}
 		}
 
-		int result = lua_pcall(L, nargs, ignoreFunctionReturnValue ? 0 : 1, traceback);
+		const int result = lua_pcall(L, nargs, ignoreFunctionReturnValue ? 0 : 1, traceback);
 
 		if (traceback) {
 			lua_remove(L, traceback);
@@ -869,7 +869,7 @@ static bool CallNamedFunction(const char *name, int numberArg, int numberArg2) {
 }
 
 static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
-	ExtensionAPI::Pane p = check_pane_object(L, 1);
+	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 
 	int arg = 2;
 
@@ -900,8 +900,8 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 			const char *s = lua_tostring(L, arg++);
 			params[i] = SptrFromString(s ? s : "");
 		} else if (func.paramType[i] == iface_keymod) {
-			int keycode = static_cast<int>(luaL_checknumber(L, arg++)) & 0xFFFF;
-			int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) & (SCMOD_SHIFT|SCMOD_CTRL|SCMOD_ALT);
+			const int keycode = static_cast<int>(luaL_checknumber(L, arg++)) & 0xFFFF;
+			const int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) & (SCMOD_SHIFT|SCMOD_CTRL|SCMOD_ALT);
 			params[i] = keycode | (modifiers<<16);
 		} else if (func.paramType[i] == iface_bool) {
 			params[i] = lua_toboolean(L, arg++);
@@ -911,7 +911,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	}
 
 	if (needStringResult) {
-		sptr_t stringResultLen = host->Send(p, func.value, params[0], 0);
+		const sptr_t stringResultLen = host->Send(p, func.value, params[0], 0);
 		if (stringResultLen > 0) {
 			// not all string result methods are guaranteed to add a null terminator
 			stringResult.assign(stringResultLen + 1, '\0');
@@ -981,7 +981,7 @@ static int cf_ifaceprop_metatable_index(lua_State *L) {
 		raise_error(L, "Attempt to read a write-only indexed property");
 		return 0;
 	}
-	IFaceFunction func = ipb->prop->GetterFunction();
+	const IFaceFunction func = ipb->prop->GetterFunction();
 
 	// rewrite the stack to match what the function expects.  put pane at index 1; param is already at index 2.
 	push_pane_object(L, ipb->pane);
@@ -1000,7 +1000,7 @@ static int cf_ifaceprop_metatable_newindex(lua_State *L) {
 		raise_error(L, "Attempt to write a read-only indexed property");
 		return 0;
 	}
-	IFaceFunction func = ipb->prop->SetterFunction();
+	const IFaceFunction func = ipb->prop->SetterFunction();
 
 	// rewrite the stack to match what the function expects.
 	// pane at index 1; param at index 2, value at index 3
@@ -1011,7 +1011,7 @@ static int cf_ifaceprop_metatable_newindex(lua_State *L) {
 }
 
 static int cf_pane_iface_function(lua_State *L) {
-	int funcidx = lua_upvalueindex(1);
+	const int funcidx = lua_upvalueindex(1);
 	const IFaceFunction *func = static_cast<IFaceFunction *>(lua_touserdata(L, funcidx));
 	if (func) {
 		return iface_function_helper(L, *func);
@@ -1042,7 +1042,7 @@ static int push_iface_function(lua_State *L, const char *name) {
 static int push_iface_propval(lua_State *L, const char *name) {
 	// this function doesn't raise errors, but returns 0 if the function is not handled.
 
-	int propidx = IFaceTable::FindProperty(name);
+	const int propidx = IFaceTable::FindProperty(name);
 	if (propidx >= 0) {
 		const IFaceProperty &prop = IFaceTable::properties[propidx];
 		if (!IFacePropertyIsScriptable(prop)) {
@@ -1058,7 +1058,7 @@ static int push_iface_propval(lua_State *L, const char *name) {
 		} else if (prop.paramType == iface_bool) {
 			// The bool getter is untested since there are none in the iface.
 			// However, the following is suggested as a reference protocol.
-			ExtensionAPI::Pane p = check_pane_object(L, 1);
+			const ExtensionAPI::Pane p = check_pane_object(L, 1);
 
 			if (prop.getter) {
 				if (host->Send(p, prop.getter, 1, 0)) {
@@ -1129,7 +1129,7 @@ static int cf_pane_metatable_index(lua_State *L) {
 
 static int cf_pane_metatable_newindex(lua_State *L) {
 	if (lua_isstring(L, 2)) {
-		int propidx = IFaceTable::FindProperty(lua_tostring(L, 2));
+		const int propidx = IFaceTable::FindProperty(lua_tostring(L, 2));
 		if (propidx >= 0) {
 			const IFaceProperty &prop = IFaceTable::properties[propidx];
 			if (IFacePropertyIsScriptable(prop)) {
@@ -1286,7 +1286,7 @@ static void PublishGlobalBufferData() {
 static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 	bool reload = forceReload;
 	if (checkProperties) {
-		int resetMode = GetPropertyInt("ext.lua.reset");
+		const int resetMode = GetPropertyInt("ext.lua.reset");
 		if (resetMode >= 1) {
 			reload = true;
 		}
@@ -1525,7 +1525,7 @@ bool LuaExtension::Load(const char *filename) {
 	bool loaded = false;
 
 	if (!luaDisabled) {
-		size_t sl = strlen(filename);
+		const size_t sl = strlen(filename);
 		if (sl >= 4 && strcmp(filename+sl-4, ".lua")==0) {
 			if (luaState || InitGlobalScope(false)) {
 				extensionScript = filename;
@@ -1637,7 +1637,7 @@ bool LuaExtension::OnExecute(const char *s) {
 	if (luaState || InitGlobalScope(false)) {
 		// May as well use Lua's pattern matcher to parse the command.
 		// Scintilla's RESearch was the other option.
-		int stackBase = lua_gettop(luaState);
+		const int stackBase = lua_gettop(luaState);
 		lua_pushglobaltable(luaState);
 		lua_pushliteral(luaState, "string");
 		lua_rawget(luaState, -2);
@@ -1647,7 +1647,7 @@ bool LuaExtension::OnExecute(const char *s) {
 			if (lua_isfunction(luaState, -1)) {
 				lua_pushstring(luaState, s);
 				lua_pushliteral(luaState, "^%s*([%a_][%a%d_]*)%s*(.-)%s*$");
-				int status = lua_pcall(luaState, 2, 4, 0);
+				const int status = lua_pcall(luaState, 2, 4, 0);
 				if (status==0) {
 					lua_insert(luaState, stackBase+1);	//function
 					lua_gettable(luaState, LUA_GLOBALSINDEX);
@@ -1688,7 +1688,7 @@ bool LuaExtension::OnBeforeSave(const char *filename) {
 }
 
 bool LuaExtension::OnSave(const char *filename) {
-	bool result = CallNamedFunction("OnSave", filename);
+	const bool result = CallNamedFunction("OnSave", filename);
 
 	FilePath fpSaving = FilePath(GUI::StringFromUTF8(filename)).NormalizePath();
 	if (startupScript.length() && fpSaving == FilePath(GUI::StringFromUTF8(startupScript)).NormalizePath()) {
@@ -1709,7 +1709,7 @@ bool LuaExtension::OnSave(const char *filename) {
 }
 
 bool LuaExtension::OnChar(char ch) {
-	char chs[2] = {ch, '\0'};
+	const char chs[2] = {ch, '\0'};
 	return CallNamedFunction("OnChar", chs);
 }
 
@@ -1756,51 +1756,51 @@ struct StylingContext {
 
 	static int Line(lua_State *L) {
 		StylingContext *context = Context(L);
-		int position = luaL_checkint(L, 2);
+		const int position = luaL_checkint(L, 2);
 		lua_pushinteger(L, context->styler->GetLine(position));
 		return 1;
 	}
 
 	static int CharAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		int position = luaL_checkint(L, 2);
+		const int position = luaL_checkint(L, 2);
 		lua_pushinteger(L, context->styler->SafeGetCharAt(position));
 		return 1;
 	}
 
 	static int StyleAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		int position = luaL_checkint(L, 2);
+		const int position = luaL_checkint(L, 2);
 		lua_pushinteger(L, context->styler->StyleAt(position));
 		return 1;
 	}
 
 	static int LevelAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		int line = luaL_checkint(L, 2);
+		const int line = luaL_checkint(L, 2);
 		lua_pushinteger(L, context->styler->LevelAt(line));
 		return 1;
 	}
 
 	static int SetLevelAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		int line = luaL_checkint(L, 2);
-		int level = luaL_checkint(L, 3);
+		const int line = luaL_checkint(L, 2);
+		const int level = luaL_checkint(L, 3);
 		context->styler->SetLevel(line, level);
 		return 0;
 	}
 
 	static int LineState(lua_State *L) {
 		StylingContext *context = Context(L);
-		int line = luaL_checkint(L, 2);
+		const int line = luaL_checkint(L, 2);
 		lua_pushinteger(L, context->styler->GetLineState(line));
 		return 1;
 	}
 
 	static int SetLineState(lua_State *L) {
 		StylingContext *context = Context(L);
-		int line = luaL_checkint(L, 2);
-		int stateOfLine = luaL_checkint(L, 3);
+		const int line = luaL_checkint(L, 2);
+		const int stateOfLine = luaL_checkint(L, 3);
 		context->styler->SetLineState(line, stateOfLine);
 		return 0;
 	}
@@ -1809,7 +1809,7 @@ struct StylingContext {
 	void GetNextChar() {
 		lenCurrent = lenNext;
 		lenNext = 1;
-		int nextPos = currentPos + lenCurrent;
+		const int nextPos = currentPos + lenCurrent;
 		unsigned char byteNext = static_cast<unsigned char>(styler->SafeGetCharAt(nextPos));
 		unsigned int nextSlot = (cursorPos + 1) % 3;
 		memcpy(cursor[nextSlot], "\0\0\0\0\0\0\0\0", 8);
@@ -1839,7 +1839,7 @@ struct StylingContext {
 		// End of line?
 		// Trigger on CR only (Mac style) or either on LF from CR+LF (Dos/Win)
 		// or on LF alone (Unix). Avoid triggering two times on Dos/Win.
-		char ch = cursor[(cursorPos) % 3][0];
+		const char ch = cursor[(cursorPos) % 3][0];
 		atLineEnd = (ch == '\r' && cursor[nextSlot][0] != '\n') ||
 			    (ch == '\n') ||
 			    (currentPos >= endPos);
@@ -1876,9 +1876,9 @@ struct StylingContext {
 
 	static int StartStyling(lua_State *L) {
 		StylingContext *context = Context(L);
-		unsigned int startPosStyle = luaL_checkint(L, 2);
-		unsigned int lengthStyle = luaL_checkint(L, 3);
-		int initialStyle = luaL_checkint(L, 4);
+		const unsigned int startPosStyle = luaL_checkint(L, 2);
+		const unsigned int lengthStyle = luaL_checkint(L, 3);
+		const int initialStyle = luaL_checkint(L, 4);
 		context->StartStyling(startPosStyle, lengthStyle, initialStyle);
 		return 0;
 	}

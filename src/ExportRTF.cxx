@@ -139,7 +139,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 		defaultStyle.size <<= 1;
 	}
 	const bool isUTF8 = wEditor.Call(SCI_GETCODEPAGE) == SC_CP_UTF8;
-	unsigned int characterset = props.GetInt("character.set", SC_CHARSET_DEFAULT);
+	const unsigned int characterset = props.GetInt("character.set", SC_CHARSET_DEFAULT);
 	const int tabs = props.GetInt("export.rtf.tabs", 0);
 	if (tabSize == 0)
 		tabSize = 4;
@@ -263,7 +263,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 			wEditor.Call(SCI_SETTARGETRANGE, iPos, nextPosition);
 			unsigned char u8Char[5] = "";
 			wEditor.CallPointer(SCI_TARGETASUTF8, 0, u8Char);
-			unsigned int u32 = UTF32Character(u8Char);
+			const unsigned int u32 = UTF32Character(u8Char);
 			if (u32 < 0x10000) {
 				os << "\\u" << static_cast<short>(u32) << "?";
 			} else {

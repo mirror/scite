@@ -433,7 +433,7 @@ static const char *contributors[] = {
 
 // AddStyledText only called from About so static size buffer is OK
 static void AddStyledText(GUI::ScintillaWindow &wsci, const char *s, int attr) {
-	size_t len = strlen(s);
+	const size_t len = strlen(s);
 	std::vector<char> buf(len*2);
 	for (size_t i = 0; i < len; i++) {
 		buf[i*2] = s[i];
@@ -498,7 +498,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		sVersion += " ";
 #if defined(GTK)
 		wsci.CallString(SCI_STYLESETFONT, STYLE_DEFAULT, "Serif");
-		int fontSize = 14;
+		const int fontSize = 14;
 		sVersion += "compiled for GTK+ ";
 		sVersion += StdStringFromInteger(GTK_MAJOR_VERSION);
 		sVersion += ".";
@@ -506,7 +506,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		sVersion += ".";
 		sVersion += StdStringFromInteger(GTK_MICRO_VERSION);
 #else
-		int fontSize = 15;
+		const int fontSize = 15;
 #endif
 		sVersion += "\n";
 

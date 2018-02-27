@@ -69,7 +69,7 @@ static int WidthText(HFONT hfont, const GUI::gui_char *text) {
 }
 
 static int WidthControl(GUI::Window &w) {
-	GUI::Rectangle rc = w.GetPosition();
+	const GUI::Rectangle rc = w.GetPosition();
 	return rc.Width();
 }
 
@@ -226,7 +226,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 		case IDDIRECTIONUP: resNum = IDBM_UP; break;
 		}
 
-		UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6,0)) ?
+		const UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6,0)) ?
 			(LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
 		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
 			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum + resDifference), IMAGE_BITMAP,
@@ -240,7 +240,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 	if (!check) {
 		const SIZE sz = SizeButton(w);
 		if (sz.cx > 0) {
-			GUI::Rectangle rc(0,0, sz.cx + 2 * WidthText(fontText, TEXT(" ")), sz.cy);
+			const GUI::Rectangle rc(0,0, sz.cx + 2 * WidthText(fontText, TEXT(" ")), sz.cy);
 			w.SetPosition(rc);
 		}
 	}
@@ -357,8 +357,8 @@ RECT RECTFromRectangle(GUI::Rectangle r) {
 }
 
 void Strip::Paint(HDC hDC) {
-	GUI::Rectangle rcStrip = GetClientPosition();
-	RECT rc = RECTFromRectangle(rcStrip);
+	const GUI::Rectangle rcStrip = GetClientPosition();
+	const RECT rc = RECTFromRectangle(rcStrip);
 	HBRUSH hbrFace = CreateSolidBrush(::GetSysColor(COLOR_3DFACE));
 	::FillRect(hDC, &rc, hbrFace);
 	::DeleteObject(hbrFace);
@@ -430,12 +430,12 @@ int Strip::Lines() const {
 }
 
 void Strip::InvalidateClose() {
-	RECT rc = RECTFromRectangle(CloseArea());
+	const RECT rc = RECTFromRectangle(CloseArea());
 	::InvalidateRect(Hwnd(), &rc, TRUE);
 }
 
 bool Strip::MouseInClose(GUI::Point pt) {
-	GUI::Rectangle rcClose = CloseArea();
+	const GUI::Rectangle rcClose = CloseArea();
 	return rcClose.Contains(pt);
 }
 
@@ -545,7 +545,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		rbmi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
 		::GetDIBits(pcd->hdc, hBitmap, 0, 0, NULL, &rbmi, DIB_RGB_COLORS);
 
-		DWORD colourTransparent = RGB(0xC0,0xC0,0xC0);
+		const DWORD colourTransparent = RGB(0xC0,0xC0,0xC0);
 
 		// Offset from button edge to contents.
 		const int xOffset = ((rcButton.right - rcButton.left) - rbmi.bmiHeader.biWidth) / 2 + 1;
@@ -718,7 +718,7 @@ void BackgroundStrip::Size() {
 	if (!visible)
 		return;
 	Strip::Size();
-	GUI::Rectangle rcArea = LineArea(0);
+	const GUI::Rectangle rcArea = LineArea(0);
 
 	const int progWidth = 200;
 
@@ -809,7 +809,7 @@ void SearchStrip::Creation() {
 
 	wButton = CreateButton(textFindNext, IDC_INCFINDBTNOK);
 
-	GUI::Rectangle rcButton = wButton.GetPosition();
+	const GUI::Rectangle rcButton = wButton.GetPosition();
 	lineHeight = rcButton.Height() + space + 1;
 }
 
@@ -829,7 +829,7 @@ void SearchStrip::Size() {
 	if (!visible)
 		return;
 	Strip::Size();
-	GUI::Rectangle rcArea = LineArea(0);
+	const GUI::Rectangle rcArea = LineArea(0);
 
 	GUI::Rectangle rcButton = rcArea;
 	rcButton.top -= 1;
@@ -893,7 +893,7 @@ void SearchStrip::Next(bool select) {
 bool SearchStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
-	int control = ControlIDOfWParam(wParam);
+	const int control = ControlIDOfWParam(wParam);
 	const int subCommand = static_cast<int>(wParam >> 16);
 	if (((control == IDC_INCFINDTEXT) && (subCommand == EN_CHANGE)) ||
 		(control == IDC_INCFINDBTNOK)) {
@@ -982,7 +982,7 @@ void FindStrip::Creation() {
 	SetFontHandle(wText, fontText);
 	wText.Show();
 
-	GUI::Rectangle rcCombo = wText.GetPosition();
+	const GUI::Rectangle rcCombo = wText.GetPosition();
 	lineHeight = rcCombo.Height() + space + 1;
 
 	wButton = CreateButton(textFindNext, IDOK);
@@ -1004,7 +1004,7 @@ void FindStrip::Size() {
 	if (!visible)
 		return;
 	Strip::Size();
-	GUI::Rectangle rcArea = LineArea(0);
+	const GUI::Rectangle rcArea = LineArea(0);
 
 	GUI::Rectangle rcButton = rcArea;
 	rcButton.top -= 1;
@@ -1118,15 +1118,15 @@ void FindStrip::ShowPopup() {
 	for (int i=SearchOption::tWord; i<=SearchOption::tUp; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
-	GUI::Rectangle rcButton = wButton.GetPosition();
-	GUI::Point pt(rcButton.left, rcButton.bottom);
+	const GUI::Rectangle rcButton = wButton.GetPosition();
+	const GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
 }
 
 bool FindStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
-	int control = ControlIDOfWParam(wParam);
+	const int control = ControlIDOfWParam(wParam);
 	const int subCommand = static_cast<int>(wParam >> 16);
 	if (control == IDOK) {
 		if (incrementalBehaviour == simple) {
@@ -1195,7 +1195,7 @@ void ReplaceStrip::Creation() {
 	SetFontHandle(wText, fontText);
 	wText.Show();
 
-	GUI::Rectangle rcCombo = wText.GetPosition();
+	const GUI::Rectangle rcCombo = wText.GetPosition();
 	lineHeight = rcCombo.Height() + space + 1;
 
 	wStaticReplace = CreateText(textReplacePrompt);
@@ -1370,8 +1370,8 @@ void ReplaceStrip::ShowPopup() {
 	for (int i=SearchOption::tWord; i<=SearchOption::tWrap; i++) {
 		AddToPopUp(popup, toggles[i].label, toggles[i].cmd, pSearcher->FlagFromCmd(toggles[i].cmd));
 	}
-	GUI::Rectangle rcButton = wCheckWord.GetPosition();
-	GUI::Point pt(rcButton.left, rcButton.bottom);
+	const GUI::Rectangle rcButton = wCheckWord.GetPosition();
+	const GUI::Point pt(rcButton.left, rcButton.bottom);
 	popup.Show(pt, *this);
 }
 
@@ -1404,7 +1404,7 @@ void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 bool ReplaceStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
-	int control = ControlIDOfWParam(wParam);
+	const int control = ControlIDOfWParam(wParam);
 	switch (control) {
 
 	case IDFINDWHAT:
@@ -1554,7 +1554,7 @@ void UserStrip::Size() {
 				rcSize.bottom = rcSize.top + lineHeight - 3;
 			if (ctl.controlType == UserControl::ucCombo)
 				rcSize.bottom = rcSize.top + 180;
-			GUI::Rectangle rcControl(left, topWithFix, left + ctl.widthAllocated, topWithFix + rcSize.Height());
+			const GUI::Rectangle rcControl(left, topWithFix, left + ctl.widthAllocated, topWithFix + rcSize.Height());
 			ctl.w.SetPosition(rcControl);
 			left += ctl.widthAllocated + 4;
 
@@ -1624,10 +1624,10 @@ static StripCommand NotificationToStripCommand(int notification) {
 bool UserStrip::Command(WPARAM wParam) {
 	if (entered)
 		return false;
-	int control = ControlIDOfWParam(wParam);
+	const int control = ControlIDOfWParam(wParam);
 	const int notification = HIWORD(wParam);
 	if (extender) {
-		StripCommand sc = NotificationToStripCommand(notification);
+		const StripCommand sc = NotificationToStripCommand(notification);
 		if (sc != scUnknown)
 			return extender->OnUserStrip(control, sc);
 	}

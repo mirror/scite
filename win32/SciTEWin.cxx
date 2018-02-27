@@ -311,7 +311,7 @@ static int CodePageFromName(const std::string &encodingName) {
 
 static std::string StringEncode(std::wstring s, int codePage) {
 	if (s.length()) {
-		int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0, NULL, NULL);
+		const int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0, NULL, NULL);
 		std::string sMulti(cchMulti, 0);
 		::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, NULL, NULL);
 		return sMulti;
@@ -322,7 +322,7 @@ static std::string StringEncode(std::wstring s, int codePage) {
 
 static std::wstring StringDecode(std::string s, int codePage) {
 	if (s.length()) {
-		int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0);
+		const int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0);
 		std::wstring sWide(cchWide, 0);
 		::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), &sWide[0], cchWide);
 		return sWide;
@@ -419,7 +419,7 @@ void SciTEWin::ReadEmbeddedProperties() {
 
 	HRSRC handProps = ::FindResource(hInstance, TEXT("Embedded"), TEXT("Properties"));
 	if (handProps) {
-		DWORD size = ::SizeofResource(hInstance, handProps);
+		const DWORD size = ::SizeofResource(hInstance, handProps);
 		HGLOBAL hmem = ::LoadResource(hInstance, handProps);
 		if (hmem) {
 			const void *pv = ::LockResource(hmem);
@@ -444,7 +444,7 @@ void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
 	if (flatterUI) {
 		if (foldColour.empty() && foldHiliteColour.empty()) {
-			Colour lightMargin = ColourRGB(0xF7, 0xF7, 0xF7);
+			const Colour lightMargin = ColourRGB(0xF7, 0xF7, 0xF7);
 			CallChildren(SCI_SETFOLDMARGINCOLOUR, 1, lightMargin);
 			CallChildren(SCI_SETFOLDMARGINHICOLOUR, 1, lightMargin);
 		}
@@ -493,7 +493,7 @@ FilePath SciTEWin::GetSciteUserHome() {
 // Help command lines contain topic!path
 void SciTEWin::ExecuteOtherHelp(const char *cmd) {
 	GUI::gui_string s = GUI::StringFromUTF8(cmd);
-	size_t pos = s.find_first_of('!');
+	const size_t pos = s.find_first_of('!');
 	if (pos != GUI::gui_string::npos) {
 		GUI::gui_string topic = s.substr(0, pos);
 		GUI::gui_string path = s.substr(pos+1);
@@ -523,7 +523,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 
 	if (hHH) {
 		GUI::gui_string s = GUI::StringFromUTF8(cmd);
-		size_t pos = s.find_first_of('!');
+		const size_t pos = s.find_first_of('!');
 		if (pos != GUI::gui_string::npos) {
 			GUI::gui_string topic = s.substr(0, pos);
 			GUI::gui_string path = s.substr(pos + 1);
@@ -550,7 +550,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 }
 
 void SciTEWin::CopyAsRTF() {
-	Sci_CharacterRange cr = GetSelection();
+	const Sci_CharacterRange cr = GetSelection();
 	std::ostringstream oss;
 	SaveToStreamRTF(oss, static_cast<int>(cr.cpMin), static_cast<int>(cr.cpMax));
 	std::string rtf = oss.str();
@@ -575,7 +575,7 @@ void SciTEWin::CopyPath() {
 		return;
 
 	GUI::gui_string clipText(filePath.AsInternal());
-	size_t blobSize = sizeof(GUI::gui_char)*(clipText.length()+1);
+	const size_t blobSize = sizeof(GUI::gui_char)*(clipText.length()+1);
 	if (::OpenClipboard(MainHWND())) {
 		HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, blobSize);
 		if (hand) {
@@ -639,7 +639,7 @@ HWND SciTEWin::MainHWND() {
 }
 
 void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
-	int cmdID = ControlIDOfWParam(wParam);
+	const int cmdID = ControlIDOfWParam(wParam);
 	if (wParam & 0x10000) {
 		// From accelerator -> goes to focused pane.
 		menuSource = 0;
@@ -1073,7 +1073,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				doRepSel = (0 == exitcode);
 
 			if (doRepSel) {
-				int cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART, 0, 0));
+				const int cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART, 0, 0));
 				wEditor.Send(SCI_REPLACESEL,0,SptrFromString(repSelBuf.c_str()));
 				wEditor.Send(SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
 			}
@@ -1082,7 +1082,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 		WarnUser(warnExecuteOK);
 
 	} else {
-		DWORD nRet = ::GetLastError();
+		const DWORD nRet = ::GetLastError();
 		OutputAppendStringSynchronised(">");
 		OutputAppendEncodedStringSynchronised(GetErrorMessage(nRet), codePageOutput);
 		WarnUser(warnExecuteKO);
@@ -1193,7 +1193,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 		// it worked!
 		return;
 	}
-	DWORD rc = GetLastError();
+	const DWORD rc = GetLastError();
 
 	std::string errormsg("Error while launching:\n\"");
 	errormsg += mycmdcopy;
@@ -1244,7 +1244,7 @@ void SciTEWin::Execute() {
 
 void SciTEWin::StopExecute() {
 	if (hWriteSubProcess && (hWriteSubProcess != INVALID_HANDLE_VALUE)) {
-		char stop[] = "\032";
+		const char stop[] = "\032";
 		DWORD bytesWrote = 0;
 		::WriteFile(hWriteSubProcess, stop, static_cast<DWORD>(strlen(stop)), &bytesWrote, NULL);
 		Sleep(500L);
@@ -1331,10 +1331,10 @@ void SciTEWin::QuitProgram() {
 }
 
 void SciTEWin::RestorePosition() {
-	int left = propsSession.GetInt("position.left", CW_USEDEFAULT);
-	int top = propsSession.GetInt("position.top", CW_USEDEFAULT);
-	int width = propsSession.GetInt("position.width", CW_USEDEFAULT);
-	int height = propsSession.GetInt("position.height", CW_USEDEFAULT);
+	const int left = propsSession.GetInt("position.left", CW_USEDEFAULT);
+	const int top = propsSession.GetInt("position.top", CW_USEDEFAULT);
+	const int width = propsSession.GetInt("position.width", CW_USEDEFAULT);
+	const int height = propsSession.GetInt("position.height", CW_USEDEFAULT);
 	cmdShow = propsSession.GetInt("position.maximize", 0) ? SW_MAXIMIZE : 0;
 
 	if (left != static_cast<int>(CW_USEDEFAULT) &&
@@ -1574,7 +1574,7 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 	if (hdrop) {
 		const bool tempFilesSyncLoad = props.GetInt("temp.files.sync.load") != 0;
 		GUI::gui_char tempDir[MAX_PATH];
-		DWORD tempDirLen = ::GetTempPath(MAX_PATH, tempDir);
+		const DWORD tempDirLen = ::GetTempPath(MAX_PATH, tempDir);
 		bool isTempFile = false;
 		const int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, NULL, 0);
 		// Append paths to dropFilesQueue, to finish drag operation soon
@@ -1763,7 +1763,7 @@ inline bool KeyMatch(const std::string &sKey, int keyval, int modifiers) {
 
 LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// Look through lexer menu
-	int modifiers =
+	const int modifiers =
 	    (IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
 	    (IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
 	    (IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
@@ -1839,16 +1839,16 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 		// Caused by keyboard so display menu near caret
 		if (wOutput.HasFocus())
 			w = &wOutput;
-		int position = w->Call(SCI_GETCURRENTPOS);
+		const int position = w->Call(SCI_GETCURRENTPOS);
 		pt.x = w->Call(SCI_POINTXFROMPOSITION, 0, position);
 		pt.y = w->Call(SCI_POINTYFROMPOSITION, 0, position);
 		POINT spt = {pt.x, pt.y};
 		::ClientToScreen(HwndOf(*w), &spt);
 		pt = GUI::Point(spt.x, spt.y);
 	} else {
-		GUI::Rectangle rcEditor = wEditor.GetPosition();
+		const GUI::Rectangle rcEditor = wEditor.GetPosition();
 		if (!rcEditor.Contains(pt)) {
-			GUI::Rectangle rcOutput = wOutput.GetPosition();
+			const GUI::Rectangle rcOutput = wOutput.GetPosition();
 			if (rcOutput.Contains(pt)) {
 				w = &wOutput;
 			} else {	// In frame so use default.
@@ -1880,7 +1880,7 @@ void SciTEWin::CheckForScintillaFailure(int statusFailure) {
 
 LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	try {
-		LRESULT uim = uniqueInstance.CheckMessage(iMessage, wParam, lParam);
+		const LRESULT uim = uniqueInstance.CheckMessage(iMessage, wParam, lParam);
 		if (uim != 0) {
 			return uim;
 		}
@@ -2083,7 +2083,7 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	case WM_PAINT: {
 			PAINTSTRUCT ps;
 			::BeginPaint(Hwnd(), &ps);
-			GUI::Rectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+			const GUI::Rectangle rcPaint(ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
 			Paint(ps.hdc, rcPaint);
 			::EndPaint(Hwnd(), &ps);
 			return 0;

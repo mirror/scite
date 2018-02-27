@@ -119,7 +119,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		~PDFObjectTracker() {
 		}
 		void write(const char *objectData) {
-			size_t length = strlen(objectData);
+			const size_t length = strlen(objectData);
 			// note binary write used, open with "wb"
 			fwrite(objectData, sizeof(char), length, fp);
 		}
@@ -515,8 +515,8 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	} else {
 		int lineIndex = 0;
 		for (int i = 0; i < lengthDoc; i++) {
-			char ch = acc[i];
-			int style = acc.StyleAt(i);
+			const char ch = acc[i];
+			const int style = acc.StyleAt(i);
 
 			if (ch == '\t') {
 				// expand tabs

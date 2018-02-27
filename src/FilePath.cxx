@@ -128,7 +128,7 @@ bool FilePath::IsSet() const {
 }
 
 bool FilePath::IsUntitled() const {
-	size_t dirEnd = fileName.rfind(pathSepChar);
+	const size_t dirEnd = fileName.rfind(pathSepChar);
 	return (dirEnd == GUI::gui_string::npos) || (!fileName[dirEnd+1]);
 }
 
@@ -174,7 +174,7 @@ std::string FilePath::AsUTF8() const {
 }
 
 FilePath FilePath::Name() const {
-	size_t dirEnd = fileName.rfind(pathSepChar);
+	const size_t dirEnd = fileName.rfind(pathSepChar);
 	if (dirEnd != GUI::gui_string::npos)
 		return fileName.substr(dirEnd + 1);
 	else
@@ -182,8 +182,8 @@ FilePath FilePath::Name() const {
 }
 
 FilePath FilePath::BaseName() const {
-	size_t dirEnd = fileName.rfind(pathSepChar);
-	size_t extStart = fileName.rfind('.');
+	const size_t dirEnd = fileName.rfind(pathSepChar);
+	const size_t extStart = fileName.rfind('.');
 	if (dirEnd != GUI::gui_string::npos) {
 		if (extStart > dirEnd) {
 			return FilePath(fileName.substr(dirEnd + 1, extStart - dirEnd - 1));
@@ -512,7 +512,7 @@ bool FilePath::IsDirectory() const {
 
 #ifdef _WIN32
 static void Lowercase(GUI::gui_string &s) {
-	int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, NULL, 0);
+	const int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, NULL, 0);
 	std::vector<wchar_t> vc(chars);
 	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, &vc[0], chars);
 	s = &vc[0];

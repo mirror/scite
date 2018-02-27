@@ -449,9 +449,9 @@ void SciTEWin::Print(
 	pdlg.hDevNames = hDevNames;
 
 	// See if a range has been selected
-	Sci_CharacterRange crange = GetSelection();
-	int startPos = static_cast<int>(crange.cpMin);
-	int endPos = static_cast<int>(crange.cpMax);
+	const Sci_CharacterRange crange = GetSelection();
+	const int startPos = static_cast<int>(crange.cpMin);
+	const int endPos = static_cast<int>(crange.cpMax);
 
 	if (startPos == endPos) {
 		pdlg.Flags |= PD_NOSELECTION;
@@ -606,7 +606,7 @@ void SciTEWin::Print(
 	}
 
 	LONG lengthDoc = wEditor.Call(SCI_GETLENGTH);
-	LONG lengthDocMax = lengthDoc;
+	const LONG lengthDocMax = lengthDoc;
 	LONG lengthPrinted = 0;
 
 	// Requested to print selection
@@ -650,7 +650,7 @@ void SciTEWin::Print(
 	SetFileProperties(propsPrint);
 
 	while (lengthPrinted < lengthDoc) {
-		bool printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
+		const bool printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
 		             ((pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage)));
 
 		char pageString[32];
@@ -665,7 +665,7 @@ void SciTEWin::Print(
 				::SetTextColor(hdc, sdHeader.ForeAsLong());
 				::SetBkColor(hdc, sdHeader.BackAsLong());
 				::SelectObject(hdc, fontHeader);
-				UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
+				const UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
 				RECT rcw = {frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight / 2,
 				            frPrint.rc.right, frPrint.rc.top - headerLineHeight / 2};
 				rcw.bottom = rcw.top + headerLineHeight;
@@ -695,7 +695,7 @@ void SciTEWin::Print(
 				::SetTextColor(hdc, sdFooter.ForeAsLong());
 				::SetBkColor(hdc, sdFooter.BackAsLong());
 				::SelectObject(hdc, fontFooter);
-				UINT ta = ::SetTextAlign(hdc, TA_TOP);
+				const UINT ta = ::SetTextAlign(hdc, TA_TOP);
 				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2,
 				            frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2};
 				::ExtTextOutW(hdc, frPrint.rc.left + 5, frPrint.rc.bottom + footerLineHeight / 2,
@@ -1518,13 +1518,13 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		} else if ((ControlIDOfWParam(wParam) == IDCONVERT) ||
 			(ControlIDOfWParam(wParam) == IDOK)) {
 			BOOL bOK;
-			int tabSize = static_cast<int>(::GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
+			const int tabSize = static_cast<int>(::GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
 			if (tabSize > 0)
 				wEditor.Call(SCI_SETTABWIDTH, tabSize);
-			int indentSize = static_cast<int>(::GetDlgItemInt(hDlg, IDINDENTSIZE, &bOK, FALSE));
+			const int indentSize = static_cast<int>(::GetDlgItemInt(hDlg, IDINDENTSIZE, &bOK, FALSE));
 			if (indentSize > 0)
 				wEditor.Call(SCI_SETINDENT, indentSize);
-			bool useTabs = static_cast<bool>(::IsDlgButtonChecked(hDlg, IDUSETABS));
+			const bool useTabs = static_cast<bool>(::IsDlgButtonChecked(hDlg, IDUSETABS));
 			wEditor.Call(SCI_SETUSETABS, useTabs);
 			if (ControlIDOfWParam(wParam) == IDCONVERT) {
 				ConvertIndentation(tabSize, useTabs);
@@ -1678,7 +1678,7 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		LocaliseDialog(hDlg);
 		GUI::ScintillaWindow ss;
 		HWND hwndCredits = ::GetDlgItem(hDlg, IDABOUTSCINTILLA);
-		LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
+		const LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
 		::SetWindowLongPtr(hwndCredits, GWLP_USERDATA, subclassedProc);
 		ss.SetID(hwndCredits);
 		SetAboutMessage(ss, staticBuild ? "Sc1  " : "SciTE");

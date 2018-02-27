@@ -152,7 +152,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 
 			bool bAddSeparator = false;
 			for (int item = 0; item < toolMax; item++) {
-				int itemID = IDM_TOOLS + item;
+				const int itemID = IDM_TOOLS + item;
 				std::string prefix = "command.name.";
 				prefix += StdStringFromInteger(item);
 				prefix += ".";
@@ -276,7 +276,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 		if ((notification->nmhdr.idFrom == IDM_RUNWIN) &&
 		        jobQueue.IsExecuting() &&
 		        hWriteSubProcess) {
-			char chToWrite = static_cast<char>(notification->ch);
+			const char chToWrite = static_cast<char>(notification->ch);
 			if (chToWrite != '\r') {
 				DWORD bytesWrote = 0;
 				::WriteFile(hWriteSubProcess, &chToWrite,
@@ -347,10 +347,10 @@ void SciTEWin::ShowOutputOnMainThread() {
  * Resize the content windows, embedding the editor and output windows.
  */
 void SciTEWin::SizeContentWindows() {
-	GUI::Rectangle rcInternal = wContent.GetClientPosition();
+	const GUI::Rectangle rcInternal = wContent.GetClientPosition();
 
-	int w = rcInternal.Width();
-	int h = rcInternal.Height();
+	const int w = rcInternal.Width();
+	const int h = rcInternal.Height();
 	heightOutput = NormaliseSplit(heightOutput);
 
 	if (splitVertical) {
@@ -367,7 +367,7 @@ void SciTEWin::SizeContentWindows() {
  * Resize the sub-windows, ie. the toolbar, tab bar, status bar. And call @a SizeContentWindows.
  */
 void SciTEWin::SizeSubWindows() {
-	GUI::Rectangle rcClient = wSciTE.GetClientPosition();
+	const GUI::Rectangle rcClient = wSciTE.GetClientPosition();
 	bool showTab = false;
 
 	//::SendMessage(MainHWND(), WM_SETREDRAW, false, 0); // suppress flashing
@@ -398,7 +398,7 @@ void SciTEWin::SizeSubWindows() {
 	bands[bandFind].visible = findStrip.visible;
 	bands[bandReplace].visible = replaceStrip.visible;
 
-	GUI::Rectangle rcSB = wStatusBar.GetPosition();
+	const GUI::Rectangle rcSB = wStatusBar.GetPosition();
 	bands[bandStatus].height = rcSB.Height() - 2;	// -2 hides a top border
 	bands[bandStatus].visible = sbVisible;
 
@@ -426,14 +426,14 @@ void SciTEWin::SizeSubWindows() {
 	int yPos = rcClient.top;
 	for (const Band &band : bands) {
 		if (band.visible) {
-			GUI::Rectangle rcToSet(rcClient.left, yPos, rcClient.right, yPos + band.height);
+			const GUI::Rectangle rcToSet(rcClient.left, yPos, rcClient.right, yPos + band.height);
 			if (hdwp)
 				hdwp = ::DeferWindowPos(hdwp, HwndOf(band.win),
 				0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
 				SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
 			yPos += band.height;
 		} else {
-			GUI::Rectangle rcToSet(rcClient.left, rcClient.top - 41, rcClient.Width(), rcClient.top - 40);
+			const GUI::Rectangle rcToSet(rcClient.left, rcClient.top - 41, rcClient.Width(), rcClient.top - 40);
 			if (hdwp)
 				hdwp = ::DeferWindowPos(hdwp, HwndOf(band.win),
 				0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
@@ -560,8 +560,8 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 				if (mii.dwTypeData) {
 					GUI::gui_string text(mii.dwTypeData);
 					GUI::gui_string accel(mii.dwTypeData);
-					size_t len = text.length();
-					size_t tab = text.find(GUI_TEXT("\t"));
+					const size_t len = text.length();
+					const size_t tab = text.find(GUI_TEXT("\t"));
 					if (tab != GUI::gui_string::npos) {
 						text.erase(tab, len - tab);
 						accel.erase(0, tab + 1);
@@ -650,7 +650,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	switch (iMessage) {
 
 	case WM_LBUTTONDOWN: {
-			GUI::Point pt = PointFromLong(lParam);
+			const GUI::Point pt = PointFromLong(lParam);
 			st_iLastClickTab = TabAtPoint(hWnd, pt);
 		}
 		break;
@@ -782,7 +782,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 
 						HPEN pen = ::CreatePen(0,1,RGB(255, 0, 0));
 						HPEN penOld = static_cast<HPEN>(::SelectObject(hDC, pen));
-						COLORREF colourNearest = ::GetNearestColor(hDC, RGB(255, 0, 0));
+						const COLORREF colourNearest = ::GetNearestColor(hDC, RGB(255, 0, 0));
 						HBRUSH brush = ::CreateSolidBrush(colourNearest);
 						HBRUSH brushOld = static_cast<HBRUSH>(::SelectObject(hDC, brush));
 						::Polygon(hDC, tab < st_iDraggingTab ? ptsLeftArrow : ptsRightArrow, 7);
@@ -1027,7 +1027,7 @@ void SciTEWin::Creation() {
 	                 hInstance,
 	                 0);
 	wStatusBar.Show();
-	int widths[] = { 4000 };
+	const int widths[] = { 4000 };
 	// Perhaps we can define a syntax to create more parts,
 	// but it is probably an overkill for a marginal feature
 	::SendMessage(HwndOf(wStatusBar),

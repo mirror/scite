@@ -68,7 +68,7 @@ void MatchMarker::Continue() {
 	// Remove old indicators if any exist.
 	pSci->Call(SCI_SETINDICATORCURRENT, indicator);
 
-	LineRange rangeSearch = lineRanges[0];
+	const LineRange rangeSearch = lineRanges[0];
 	int lineEndSegment = rangeSearch.lineStart + segment;
 	if (lineEndSegment > rangeSearch.lineEnd)
 		lineEndSegment = rangeSearch.lineEnd;

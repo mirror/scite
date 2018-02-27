@@ -83,7 +83,7 @@ void FileLoader::Execute() {
 			lenFile = fread(&data[0], 1, blockSize, fp);
 			if ((lenFile == 0) && (err == 0)) {
 				// Handle case where convert is holding a lead surrogate but no more data
-				size_t lenFileTrail = convert.convert(NULL, lenFile);
+				const size_t lenFileTrail = convert.convert(NULL, lenFile);
 				if (lenFileTrail) {
 					char *dataTrail = convert.getNewBuf();
 					err = pLoader->AddData(dataTrail, static_cast<int>(lenFileTrail));
@@ -132,7 +132,7 @@ void FileStorer::Execute() {
 		}
 		convert.setfile(fp);
 		std::vector<char> data(blockSize + 1);
-		size_t lengthDoc = size;
+		const size_t lengthDoc = size;
 		size_t grabSize;
 		for (size_t i = 0; i < lengthDoc && (!Cancelling()); i += grabSize) {
 #ifdef __unix__

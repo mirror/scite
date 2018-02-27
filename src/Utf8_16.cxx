@@ -72,7 +72,7 @@ size_t Utf8_16_Read::convert(char* buf, size_t len) {
 	}
 
 	// Else...
-	size_t newSize = len + len / 2 + 4 + 1;
+	const size_t newSize = len + len / 2 + 4 + 1;
 	if (m_nBufSize != newSize) {
 		delete [] m_pNewBuf;
 		m_pNewBuf = new ubyte[newSize];
@@ -211,7 +211,7 @@ size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {
 		}
 	}
 
-	size_t ret = ::fwrite(m_pBuf,
+	const size_t ret = ::fwrite(m_pBuf,
 		reinterpret_cast<const char*>(pCur) - reinterpret_cast<const char*>(m_pBuf),
 		1, m_pFile);
 

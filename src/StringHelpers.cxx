@@ -42,8 +42,8 @@ bool Contains(std::string const &s, char ch) {
 
 int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &sReplace) {
 	int c = 0;
-	size_t lenFind = sFind.size();
-	size_t lenReplace = sReplace.size();
+	const size_t lenFind = sFind.size();
+	const size_t lenReplace = sReplace.size();
 	size_t posFound = s.find(sFind);
 	while (posFound != std::wstring::npos) {
 		s.replace(posFound, lenFind, sReplace);
@@ -55,8 +55,8 @@ int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &s
 
 int Substitute(std::string &s, const std::string &sFind, const std::string &sReplace) {
 	int c = 0;
-	size_t lenFind = sFind.size();
-	size_t lenReplace = sReplace.size();
+	const size_t lenFind = sFind.size();
+	const size_t lenReplace = sReplace.size();
 	size_t posFound = s.find(sFind);
 	while (posFound != std::string::npos) {
 		s.replace(posFound, lenFind, sReplace);
@@ -67,7 +67,7 @@ int Substitute(std::string &s, const std::string &sFind, const std::string &sRep
 }
 
 bool RemoveStringOnce(std::string &s, const char *marker) {
-	size_t modText = s.find(marker);
+	const size_t modText = s.find(marker);
 	if (modText != std::string::npos) {
 		s.erase(modText, strlen(marker));
 		return true;
@@ -169,7 +169,7 @@ unsigned int UTF32Character(const unsigned char *utf8) {
  */
 std::string Slash(const std::string &s, bool quoteQuotes) {
 	std::string oRet;
-	for (char ch : s) {
+	for (const char ch : s) {
 		if (ch == '\a') {
 			oRet.append("\\a");
 		} else if (ch == '\b') {
@@ -294,7 +294,7 @@ unsigned int UnSlash(char *s) {
 
 std::string UnSlashString(const char *s) {
 	std::string sCopy(s, strlen(s) + 1);
-	unsigned int len = UnSlash(&sCopy[0]);
+	const unsigned int len = UnSlash(&sCopy[0]);
 	return sCopy.substr(0, len);
 }
 
@@ -322,6 +322,6 @@ static unsigned int UnSlashLowOctal(char *s) {
 
 std::string UnSlashLowOctalString(const char *s) {
 	std::string sCopy(s, strlen(s) + 1);
-	unsigned int len = UnSlashLowOctal(&sCopy[0]);
+	const unsigned int len = UnSlashLowOctal(&sCopy[0]);
 	return sCopy.substr(0, len);
 }

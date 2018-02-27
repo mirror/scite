@@ -60,7 +60,7 @@ void SciTEBase::SetImportMenu() {
 	}
 	if (!importFiles.empty()) {
 		for (int stackPos = 0; stackPos < static_cast<int>(importFiles.size()) && stackPos < importMax; stackPos++) {
-			int itemID = importCmdID + stackPos;
+			const int itemID = importCmdID + stackPos;
 			if (importFiles[stackPos].IsSet()) {
 				GUI::gui_string entry = localiser.Text("Open");
 				entry += GUI_TEXT(" ");
@@ -84,7 +84,7 @@ void SciTEBase::SetLanguageMenu() {
 		DestroyMenuItem(menuLanguage, languageCmdID + i);
 	}
 	for (unsigned int item = 0; item < languageMenu.size(); item++) {
-		int itemID = languageCmdID + item;
+		const int itemID = languageCmdID + item;
 		GUI::gui_string entry = localiser.Text(languageMenu[item].menuItem.c_str());
 		if (languageMenu[item].menuKey.length()) {
 #if defined(GTK)
@@ -684,7 +684,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	subStyleBases.clear();
-	int lenSSB = wEditor.CallString(SCI_GETSUBSTYLEBASES, 0, NULL);
+	const int lenSSB = wEditor.CallString(SCI_GETSUBSTYLEBASES, 0, NULL);
 	if (lenSSB) {
 		wEditor.Call(SCI_FREESUBSTYLES);
 
@@ -747,7 +747,7 @@ void SciTEBase::ReadProperties() {
 
 	props.Set("AbbrevPath", pathAbbreviations.AsUTF8().c_str());
 
-	int tech = props.GetInt("technology");
+	const int tech = props.GetInt("technology");
 	wEditor.Call(SCI_SETTECHNOLOGY, tech);
 	wOutput.Call(SCI_SETTECHNOLOGY, tech);
 
@@ -757,7 +757,7 @@ void SciTEBase::ReadProperties() {
 		codePage = SC_CP_UTF8;
 	}
 	wEditor.Call(SCI_SETCODEPAGE, codePage);
-	int outputCodePage = props.GetInt("output.code.page", codePage);
+	const int outputCodePage = props.GetInt("output.code.page", codePage);
 	wOutput.Call(SCI_SETCODEPAGE, outputCodePage);
 
 	characterSet = props.GetInt("character.set", SC_CHARSET_DEFAULT);
@@ -842,9 +842,9 @@ void SciTEBase::ReadProperties() {
 	caretJumps = props.GetInt("caret.policy.yjumps") ? CARET_JUMPS : 0;
 	wEditor.Call(SCI_SETYCARETPOLICY, caretStrict | caretSlop | caretEven | caretJumps, caretZone);
 
-	int visibleStrict = props.GetInt("visible.policy.strict") ? VISIBLE_STRICT : 0;
-	int visibleSlop = props.GetInt("visible.policy.slop", 1) ? VISIBLE_SLOP : 0;
-	int visibleLines = props.GetInt("visible.policy.lines");
+	const int visibleStrict = props.GetInt("visible.policy.strict") ? VISIBLE_STRICT : 0;
+	const int visibleSlop = props.GetInt("visible.policy.slop", 1) ? VISIBLE_SLOP : 0;
+	const int visibleLines = props.GetInt("visible.policy.lines");
 	wEditor.Call(SCI_SETVISIBLEPOLICY, visibleStrict | visibleSlop, visibleLines);
 
 	wEditor.Call(SCI_SETEDGECOLUMN, props.GetInt("edge.column", 0));
@@ -867,7 +867,7 @@ void SciTEBase::ReadProperties() {
 		else	// Have to show selection somehow
 			CallChildren(SCI_SETSELBACK, 1, ColourRGB(0xC0, 0xC0, 0xC0));
 	}
-	int selectionAlpha = props.GetInt("selection.alpha", SC_ALPHA_NOALPHA);
+	const int selectionAlpha = props.GetInt("selection.alpha", SC_ALPHA_NOALPHA);
 	CallChildren(SCI_SETSELALPHA, selectionAlpha);
 
 	std::string selAdditionalFore = props.GetString("selection.additional.fore");
@@ -961,7 +961,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_AUTOCSETIGNORECASE, autoCompleteIgnoreCase ? 1 : 0);
 	wOutput.Call(SCI_AUTOCSETIGNORECASE, 1);
 
-	int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
+	const int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
 	wEditor.Call(SCI_AUTOCSETCHOOSESINGLE, autoCChooseSingle);
 
 	wEditor.Call(SCI_AUTOCSETCANCELATSTART, 0);
@@ -979,9 +979,9 @@ void SciTEBase::ReadProperties() {
 	jobQueue.clearBeforeExecute = props.GetInt("clear.before.execute");
 	jobQueue.timeCommands = props.GetInt("time.commands");
 
-	int blankMarginLeft = props.GetInt("blank.margin.left", 1);
-	int blankMarginLeftOutput = props.GetInt("output.blank.margin.left", blankMarginLeft);
-	int blankMarginRight = props.GetInt("blank.margin.right", 1);
+	const int blankMarginLeft = props.GetInt("blank.margin.left", 1);
+	const int blankMarginLeftOutput = props.GetInt("output.blank.margin.left", blankMarginLeft);
+	const int blankMarginRight = props.GetInt("blank.margin.right", 1);
 	wEditor.Call(SCI_SETMARGINLEFT, 0, blankMarginLeft);
 	wEditor.Call(SCI_SETMARGINRIGHT, 0, blankMarginRight);
 	wOutput.Call(SCI_SETMARGINLEFT, 0, blankMarginLeftOutput);
@@ -1170,7 +1170,7 @@ void SciTEBase::ReadProperties() {
 			break;
 		}
 	}
-	Colour colourFoldFore = ColourFromString(foldFore);
+	const Colour colourFoldFore = ColourFromString(foldFore);
 
 	std::string foldBack = props.GetExpandedString("fold.back");
 	// Set default colour for fill
@@ -1186,12 +1186,12 @@ void SciTEBase::ReadProperties() {
 			break;
 		}
 	}
-	Colour colourFoldBack = ColourFromString(foldBack);
+	const Colour colourFoldBack = ColourFromString(foldBack);
 
 	// Enable/disable highlight for current folding block (smallest one that contains the caret)
-	int isHighlightEnabled = props.GetInt("fold.highlight", 0);
+	const int isHighlightEnabled = props.GetInt("fold.highlight", 0);
 	// Define the colour of highlight
-	Colour colourFoldBlockHighlight = ColourOfProperty(props, "fold.highlight.colour", ColourRGB(0xFF, 0, 0));
+	const Colour colourFoldBlockHighlight = ColourOfProperty(props, "fold.highlight.colour", ColourRGB(0xFF, 0, 0));
 
 	switch (foldSymbols) {
 	case 0:
@@ -1380,7 +1380,7 @@ void SciTEBase::ReadFontProperties() {
 	// Set styles
 	// For each window set the global default style, then the language default style, then the other global styles, then the other language styles
 
-	int fontQuality = props.GetInt("font.quality");
+	const int fontQuality = props.GetInt("font.quality");
 	wEditor.Call(SCI_SETFONTQUALITY, fontQuality);
 	wOutput.Call(SCI_SETFONTQUALITY, fontQuality);
 
@@ -1412,7 +1412,7 @@ void SciTEBase::ReadFontProperties() {
 		const int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, subStyleBase);
 		for (int subStyle=0; subStyle<subStylesLength; subStyle++) {
 			for (int active=0; active<(diffToSecondary?2:1); active++) {
-				int activity = active * diffToSecondary;
+				const int activity = active * diffToSecondary;
 				sprintf(key, "style.%s.%0d.%0d", languageName, subStyleBase + activity, subStyle+1);
 				sval = props.GetNewExpandString(key);
 				SetOneStyle(wEditor, subStylesStart + subStyle + activity, StyleDefinition(sval));
