@@ -14,6 +14,7 @@
 #include <signal.h>
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <set>
@@ -742,7 +743,7 @@ public:
 	GtkWidget *AddToolButton(const char *text, int cmd, GtkWidget *toolbar_icon);
 	void AddToolBar();
 	std::string TranslatePath(const char *path);
-	void CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
+	void CreateTranslatedMenu(int n, const SciTEItemFactoryEntry items[],
 	                          int nRepeats = 0, const char *prefix = 0, int startNum = 0,
 	                          int startID = 0, const char *radioStart = 0);
 	void CreateMenu();
@@ -3677,21 +3678,20 @@ static std::string WithoutUnderscore(const char *s) {
 	return ret;
 }
 
-void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
+void SciTEGTK::CreateTranslatedMenu(int n, const SciTEItemFactoryEntry items[],
                                     int nRepeats, const char *prefix, int startNum,
                                     int startID, const char *radioStart) {
 
-	int dim = n + nRepeats;
-	SciTEItemFactoryEntry *translatedItems = new SciTEItemFactoryEntry[dim];
-	std::string *translatedText = new std::string[dim];
-	std::string *translatedRadios = new std::string[dim];
-	char **userDefinedAccels = new char*[n];
-	std::string menuPath;
+	const int dim = n + nRepeats;
+	std::vector<SciTEItemFactoryEntry> translatedItems(dim);
+	std::vector<std::string> translatedText(dim);
+	std::vector<std::string> translatedRadios(dim);
+	std::vector<std::string> userDefinedAccels(n);
 	int i = 0;
 
 	for (; i < n; i++) {
 		// Try to find user-defined accelerator key
-		menuPath = "menukey";			// menupath="menukey"
+		std::string menuPath = "menukey";			// menupath="menukey"
 		menuPath += items[i].path;		// menupath="menukey/File/Save _As..."
 		Substitute(menuPath, "_", "");		// menupath="menukey/File/Save As..."
 		Substitute(menuPath, ".", "");		// menupath="menukey/File/Save As"
@@ -3701,20 +3701,17 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 
 		std::string accelKey = props.GetString(menuPath.c_str());
 
-		int accLength = accelKey.length();
-		if (accLength > 0) {
+		const char *itemAccel = items[i].accelerator;
+		if (!accelKey.empty()) {
 			if (accelKey == "\"\"" || accelKey == "none") {
 				accelKey.clear();	// Allow user to clear accelerator key
 			}
-			userDefinedAccels[i] = new char[accLength + 1];
-			strncpy(userDefinedAccels[i], accelKey.c_str(), accLength + 1);
-			items[i].accelerator = userDefinedAccels[i];
-		} else {
-			userDefinedAccels[i] = NULL;
+			userDefinedAccels[i] = accelKey;
+			itemAccel = userDefinedAccels[i].c_str();
 		}
 
 		translatedItems[i].path = (gchar*) items[i].path;
-		translatedItems[i].accelerator = (gchar*) items[i].accelerator;
+		translatedItems[i].accelerator = (gchar*) itemAccel;
 		translatedItems[i].callback_action = items[i].callback_action;
 		translatedItems[i].item_type = (gchar*) items[i].item_type;
 		translatedText[i] = TranslatePath(translatedItems[i].path);
@@ -3736,7 +3733,7 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 	}
 	// Only two levels of submenu supported
 	for (int itMenu=0; itMenu < dim; itMenu++) {
-		SciTEItemFactoryEntry *psife = translatedItems + itMenu;
+		SciTEItemFactoryEntry *psife = &translatedItems[itMenu];
 		const char *afterSlash = psife->path+1;
 		const char *lastSlash = strrchr(afterSlash, '/');
 		std::string menuName(afterSlash, lastSlash ? (lastSlash-afterSlash) : 0);
@@ -3748,7 +3745,8 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 				fprintf(stderr, "*** failed to find parent %s\n", psife->path);
 			}
 		}
-		if (psife->item_type && strcmp(psife->item_type, "<Branch>") == 0) {
+		const std::string_view itemType = psife->item_type;
+		if (itemType == "<Branch>") {
 			// Submenu "/_Tools" "/File/Encodin_g"
 			const char *menuTitle = lastSlash ? (lastSlash + 1) : afterSlash;
 			GtkWidget *menuItemPullDown = gtk_menu_item_new_with_mnemonic(menuTitle);
@@ -3765,14 +3763,14 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 				menuParent = pulldowns[menuName];
 			}
 			GtkWidget *menuItemCommand = 0;
-			if (!psife->item_type) {
+			if (itemType.empty()) {
 				menuItemCommand = gtk_menu_item_new_with_mnemonic(itemName.c_str());
-			} else if (strcmp(psife->item_type, "<CheckItem>") == 0) {
+			} else if (itemType == "<CheckItem>") {
 				menuItemCommand = gtk_check_menu_item_new_with_mnemonic(itemName.c_str());
-			} else if ((strcmp(psife->item_type, "<RadioItem>") == 0) || (psife->item_type[0] == '/')) {
+			} else if ((itemType == "<RadioItem>") || (itemType[0] == '/')) {
 				menuItemCommand = gtk_radio_menu_item_new_with_mnemonic(radiogroups[menuName], itemName.c_str());
 				radiogroups[menuName] = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuItemCommand));
-			} else if (strcmp(psife->item_type, "<Separator>") == 0) {
+			} else if (itemType ==  "<Separator>") {
 				menuItemCommand = gtk_separator_menu_item_new();
 			} else {
 				menuItemCommand = gtk_menu_item_new_with_mnemonic(itemName.c_str());
@@ -3795,16 +3793,6 @@ void SciTEGTK::CreateTranslatedMenu(int n, SciTEItemFactoryEntry items[],
 			mapMenuItemFromId[psife->callback_action] = menuItemCommand;
 		}
 	}
-	delete []translatedRadios;
-	delete []translatedText;
-	delete []translatedItems;
-
-	// Release all the memory allocated for the user-defined accelerator keys
-	for (i = 0; i < n; i++) {
-		if (userDefinedAccels[i] != NULL)
-			delete[] userDefinedAccels[i];
-	}
-	delete[] userDefinedAccels;
 }
 
 void SciTEGTK::CreateMenu() {
@@ -4045,16 +4033,16 @@ void SciTEGTK::CreateMenu() {
 	accelGroup = gtk_accel_group_new();
 
 	menuBar = gtk_menu_bar_new();
-	CreateTranslatedMenu(ELEMENTS(menuItems), menuItems);
+	CreateTranslatedMenu(std::size(menuItems), menuItems);
 
-	CreateTranslatedMenu(ELEMENTS(menuItemsOptions), menuItemsOptions,
+	CreateTranslatedMenu(std::size(menuItemsOptions), menuItemsOptions,
 	                     50, "/Options/Edit Properties/Props", 0, IDM_IMPORT, 0);
-	CreateTranslatedMenu(ELEMENTS(menuItemsLanguage), menuItemsLanguage,
+	CreateTranslatedMenu(std::size(menuItemsLanguage), menuItemsLanguage,
 	                     100, "/Language/Language", 0, IDM_LANGUAGE, 0);
 	if (props.GetInt("buffers") > 1)
-		CreateTranslatedMenu(ELEMENTS(menuItemsBuffer), menuItemsBuffer,
+		CreateTranslatedMenu(std::size(menuItemsBuffer), menuItemsBuffer,
 		                     bufferMax - 10, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
-	CreateTranslatedMenu(ELEMENTS(menuItemsHelp), menuItemsHelp);
+	CreateTranslatedMenu(std::size(menuItemsHelp), menuItemsHelp);
 	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wSciTE)), accelGroup);
 }
 
