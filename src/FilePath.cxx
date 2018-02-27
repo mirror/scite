@@ -53,8 +53,6 @@ const GUI::gui_char pathSepString[] = "/";
 const GUI::gui_char pathSepChar = '/';
 const GUI::gui_char listSepString[] = ":";
 const GUI::gui_char configFileVisibilityString[] = ".";
-const GUI::gui_char fileRead[] = "rb";
-const GUI::gui_char fileWrite[] = "wb";
 #endif
 #ifdef WIN32
 // Windows
@@ -62,9 +60,15 @@ const GUI::gui_char pathSepString[] = GUI_TEXT("\\");
 const GUI::gui_char pathSepChar = '\\';
 const GUI::gui_char listSepString[] = GUI_TEXT(";");
 const GUI::gui_char configFileVisibilityString[] = GUI_TEXT("");
+#endif
+
 const GUI::gui_char fileRead[] = GUI_TEXT("rb");
 const GUI::gui_char fileWrite[] = GUI_TEXT("wb");
-#endif
+
+namespace {
+const GUI::gui_char currentDirectory[] = GUI_TEXT(".");
+const GUI::gui_char parentDirectory[] = GUI_TEXT("..");
+}
 
 FilePath::FilePath(const GUI::gui_char *fileName_) : fileName(fileName_ ? fileName_ : GUI_TEXT("")) {}
 
@@ -231,10 +235,6 @@ static size_t strlen(const wchar_t *str) {
 	return wcslen(str);
 }
 
-static int strcmp(const wchar_t *a, const wchar_t *b) {
-	return wcscmp(a,b);
-}
-
 static wchar_t *getcwd(wchar_t *buffer, int maxlen) {
 	return _wgetcwd(buffer, maxlen);
 }
@@ -290,9 +290,9 @@ FilePath FilePath::NormalizePath() const {
 		const size_t separator = source.find_first_of(pathSepChar);
 		// If no pathSepChar then separator == npos, so substr -> rest of string, OK
 		const GUI::gui_string_view part = source.substr(0, separator);
-		if (part != GUI_TEXT(".")) {
+		if (part != currentDirectory) {
 			bool appendPart = true;
-			if (part == GUI_TEXT("..")) {
+			if (part == parentDirectory) {
 				const size_t last = absPathString.find_last_of(pathSepChar);
 				if (last != GUI::gui_string::npos) {
 					// Erase the last component from the path separator, unless that would erase
@@ -366,11 +366,13 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) const {
 	if (hFind != INVALID_HANDLE_VALUE) {
 		bool complete = false;
 		while (!complete) {
-			if ((strcmp(findFileData.cFileName, GUI_TEXT(".")) != 0) && (strcmp(findFileData.cFileName, GUI_TEXT("..")) != 0)) {
+			const std::wstring_view entryName = findFileData.cFileName;
+			if ((entryName != currentDirectory) && (entryName != parentDirectory)) {
+				FilePath pathFull(AsInternal(), findFileData.cFileName);
 				if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-					directories.push_back(FilePath(AsInternal(), findFileData.cFileName));
+					directories.push_back(pathFull);
 				} else {
-					files.push_back(FilePath(AsInternal(), findFileData.cFileName));
+					files.push_back(pathFull);
 				}
 			}
 			if (!::FindNextFileW(hFind, &findFileData)) {
@@ -389,7 +391,7 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) const {
 	struct dirent *ent;
 	while ((ent = readdir(dp)) != NULL) {
 		std::string_view entryName = ent->d_name;
-		if ((entryName != ".") && (entryName != "..")) {
+		if ((entryName != currentDirectory) && (entryName != parentDirectory)) {
 			FilePath pathFull(AsInternal(), ent->d_name);
 			if (pathFull.IsDirectory()) {
 				directories.push_back(pathFull);
