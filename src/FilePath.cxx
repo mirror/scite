@@ -388,7 +388,8 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) const {
 	}
 	struct dirent *ent;
 	while ((ent = readdir(dp)) != NULL) {
-		if ((strcmp(ent->d_name, ".") != 0) && (strcmp(ent->d_name, "..") != 0)) {
+		std::string_view entryName = ent->d_name;
+		if ((entryName != ".") && (entryName != "..")) {
 			FilePath pathFull(AsInternal(), ent->d_name);
 			if (pathFull.IsDirectory()) {
 				directories.push_back(pathFull);
