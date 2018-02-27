@@ -875,7 +875,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 	PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
-	// Make a mutable copy as the CreateProcess parameter is mutable 
+	// Make a mutable copy as the CreateProcess parameter is mutable
 	const GUI::gui_string sCommand = GUI::StringFromUTF8(jobToRun.command);
 	std::vector<wchar_t> vwcCommand(sCommand.c_str(), sCommand.c_str() + sCommand.length() + 1);
 
@@ -1024,11 +1024,11 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				} else {
 					running = false;
 				}
-			} else { 
+			} else {
 				// bytesAvail == 0, and if the process
 				// was already dead by the time we did
 				// PeekNamedPipe, there should not be
-				// any more data coming	
+				// any more data coming
 				if (processDead) {
 					running = false;
 				}

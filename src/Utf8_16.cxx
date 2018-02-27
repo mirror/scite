@@ -349,7 +349,7 @@ void Utf16_Iter::operator++() {
 			if (m_pRead >= m_pEnd) {
 				// Have a lead surrogate at end of document with no access to trail surrogate.
 				// May be end of document.
-				--m_pRead;	// With next increment, leave pointer just past buffer 
+				--m_pRead;	// With next increment, leave pointer just past buffer
 			} else {
 				int trail;
 				if (m_eEncoding == eUtf16LittleEndian) {

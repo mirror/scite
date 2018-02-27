@@ -2275,7 +2275,7 @@ int SciTEBase::GetCurrentLineNumber() {
 
 int SciTEBase::GetCurrentColumnNumber() {
 	const int mainSel = wEditor.Call(SCI_GETMAINSELECTION, 0, 0);
-	return wEditor.Call(SCI_GETCOLUMN, wEditor.Call(SCI_GETSELECTIONNCARET, mainSel, 0), 0) + 
+	return wEditor.Call(SCI_GETCOLUMN, wEditor.Call(SCI_GETSELECTIONNCARET, mainSel, 0), 0) +
 	        wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0);
 }
 

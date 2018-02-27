@@ -133,7 +133,7 @@ void StringList::Set(const std::vector<char> &data) {
 }
 
 namespace {
-	
+
 // Functors used to find elements given a prefix
 
 struct CompareString {
