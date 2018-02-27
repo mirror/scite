@@ -47,6 +47,8 @@ typedef void *HTHEME;
 #include <commctrl.h>
 #include <richedit.h>
 #include <shlwapi.h>
+// need this header for SHBrowseForFolder
+#include <shlobj.h>
 
 #include <io.h>
 #include <process.h>
