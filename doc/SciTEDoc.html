@@ -890,8 +890,10 @@ NameError: name 'mistake' is not defined
        <b>command.go.$(file.patterns.html)=file://$(FilePath)</b>
     </p>
     <p>
-    Wildcard matching only works where the wildcard is at the start of a file specification, so "*.mak" will match "proj.mak" but
-    "Makefile*" will not match "Makefile.in".
+    Wildcard matching treats '?' as matching any character and '*' as matching any number of characters, so
+    "*.mak" will match "proj.mak";
+    "Makefile*" will match "Makefile.in"; and
+    "*.x?l" will match "data.xml" and "transform.xsl".
     </p>
     <p>
     Properties files are not treated as having a particular encoding, however individual property values

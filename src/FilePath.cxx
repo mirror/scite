@@ -513,8 +513,10 @@ bool FilePath::IsDirectory() const {
 		return false;
 }
 
+namespace {
+
 #ifdef _WIN32
-static void Lowercase(GUI::gui_string &s) {
+void Lowercase(GUI::gui_string &s) {
 	const int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, NULL, 0);
 	std::vector<wchar_t> vc(chars);
 	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, &vc[0], chars);
@@ -522,9 +524,36 @@ static void Lowercase(GUI::gui_string &s) {
 }
 #endif
 
-static bool EndMatches(GUI::gui_string const &s, GUI::gui_string const &end) {
-	return (s.size() >= end.size()) &&
-		(std::equal(s.begin() + s.size() - end.size(), s.end(), end.begin()));
+bool PatternMatch(GUI::gui_string_view pattern, GUI::gui_string_view text) {
+	if (pattern == text) {
+		return true;
+	} else if (pattern.empty()) {
+		return false;
+	} else if (pattern.front() == '*') {
+		pattern.remove_prefix(1);
+		if (pattern.empty()) {
+			return true;
+		}
+		while (!text.empty()) {
+			if (PatternMatch(pattern, text)) {
+				return true;
+			}
+			text.remove_prefix(1);
+		}
+	} else if (text.empty()) {
+		return false;
+	} else if (pattern.front() == '?') {
+		pattern.remove_prefix(1);
+		text.remove_prefix(1);
+		return PatternMatch(pattern, text);
+	} else if (pattern.front() == text.front()) {
+		pattern.remove_prefix(1);
+		text.remove_prefix(1);
+		return PatternMatch(pattern, text);
+	}
+	return false;
+}
+
 }
 
 bool FilePath::Matches(const GUI::gui_char *pattern) const {
@@ -538,14 +567,8 @@ bool FilePath::Matches(const GUI::gui_char *pattern) const {
 	size_t start = 0;
 	while (start < pat.length()) {
 		const GUI::gui_char *patElement = pat.c_str() + start;
-		if (patElement[0] == '*') {
-			if (EndMatches(nameCopy, patElement + 1)) {
-				return true;
-			}
-		} else {
-			if (nameCopy == patElement) {
-				return true;
-			}
+		if (PatternMatch(patElement, nameCopy)) {
+			return true;
 		}
 		start += strlen(patElement) + 1;
 	}

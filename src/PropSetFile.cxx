@@ -475,14 +475,16 @@ void PropSetFile::SetInteger(const char *key, int i) {
 	Set(key, tmp);
 }
 
-static bool StringEqual(const char *a, const char *b, size_t len, bool caseSensitive) {
+namespace {
+
+bool StringEqual(std::string_view a, std::string_view b, bool caseSensitive) {
 	if (caseSensitive) {
-		for (size_t i = 0; i < len; i++) {
-			if (a[i] != b[i])
-				return false;
-		}
+		return a == b;
 	} else {
-		for (size_t i = 0; i < len; i++) {
+		if (a.length() != b.length()) {
+			return false;
+		}
+		for (size_t i = 0; i < a.length(); i++) {
 			if (MakeUpperCase(a[i]) != MakeUpperCase(b[i]))
 				return false;
 		}
@@ -490,67 +492,79 @@ static bool StringEqual(const char *a, const char *b, size_t len, bool caseSensi
 	return true;
 }
 
-// Match file names to patterns allowing for a '*' suffix or prefix.
-static bool MatchWild(const char *pattern, size_t lenPattern, const char *fileName, bool caseSensitive) {
-	const size_t lenFileName = strlen(fileName);
-	if (lenFileName == lenPattern) {
-		if (StringEqual(pattern, fileName, lenFileName, caseSensitive)) {
+// Match file names to patterns allowing for '*' and '?'.
+
+bool MatchWild(std::string_view pattern, std::string_view text, bool caseSensitive) {
+	if (StringEqual(pattern, text, caseSensitive)) {
+		return true;
+	} else if (pattern.empty()) {
+		return false;
+	} else if (pattern.front() == '*') {
+		pattern.remove_prefix(1);
+		if (pattern.empty()) {
 			return true;
 		}
-	}
-	if (lenFileName >= lenPattern-1) {
-		if (pattern[0] == '*') {
-			// Matching suffixes
-			return StringEqual(pattern+1, fileName + lenFileName - (lenPattern-1), lenPattern-1, caseSensitive);
-		} else if (pattern[lenPattern-1] == '*') {
-			// Matching prefixes
-			return StringEqual(pattern, fileName, lenPattern-1, caseSensitive);
+		while (!text.empty()) {
+			if (MatchWild(pattern, text, caseSensitive)) {
+				return true;
+			}
+			text.remove_prefix(1);
 		}
+	} else if (text.empty()) {
+		return false;
+	} else if (pattern.front() == '?') {
+		pattern.remove_prefix(1);
+		text.remove_prefix(1);
+		return MatchWild(pattern, text, caseSensitive);
+	} else if (caseSensitive && pattern.front() == text.front()) {
+		pattern.remove_prefix(1);
+		text.remove_prefix(1);
+		return MatchWild(pattern, text, caseSensitive);
+	} else if (!caseSensitive && MakeUpperCase(pattern.front()) == MakeUpperCase(text.front())) {
+		pattern.remove_prefix(1);
+		text.remove_prefix(1);
+		return MatchWild(pattern, text, caseSensitive);
 	}
 	return false;
 }
 
-static bool startswith(const std::string &s, const char *keybase) {
+bool startswith(const std::string &s, const char *keybase) {
 	return isprefix(s.c_str(), keybase);
+}
+
 }
 
 std::string PropSetFile::GetWildUsingStart(const PropSetFile &psStart, const char *keybase, const char *filename) {
 	const std::string sKeybase(keybase);
-	const size_t lenKeybase = strlen(keybase);
 	const PropSetFile *psf = this;
 	while (psf) {
 		mapss::const_iterator it = psf->props.lower_bound(sKeybase);
-		while ((it != psf->props.end()) && startswith(it->first, keybase)) {
-			const char *orgkeyfile = it->first.c_str() + lenKeybase;
-			const char *keyptr = NULL;
-			std::string key;
+		while ((it != psf->props.end()) && startswith(it->first, sKeybase.c_str())) {
+			const std::string_view orgkeyfile = it->first.c_str() + sKeybase.length();
+			std::string key;	// keyFile may point into key so key lifetime must cover keyFile
+			std::string_view keyFile = orgkeyfile;
 
-			if (strncmp(orgkeyfile, "$(", 2) == 0) {
-				const char *cpendvar = strchr(orgkeyfile, ')');
-				if (cpendvar) {
-					std::string var(orgkeyfile, 2, cpendvar - orgkeyfile - 2);
+			if (orgkeyfile.find("$(") == 0) {
+				// $(X) is a variable so extract X and find its value
+				const size_t endVar = orgkeyfile.find_first_of(')');
+				if (endVar != std::string_view::npos) {
+					const std::string var(orgkeyfile.substr(2, endVar-2));
 					key = psStart.GetExpandedString(var.c_str());
-					keyptr = key.c_str();
+					keyFile = key;
 				}
 			}
-			const char *keyfile = keyptr;
 
-			if (keyfile == NULL)
-				keyfile = orgkeyfile;
-
-			for (;;) {
-				const char *del = strchr(keyfile, ';');
-				if (del == NULL)
-					del = keyfile + strlen(keyfile);
-				if (MatchWild(keyfile, del - keyfile, filename, caseSensitiveFilenames)) {
+			while (!keyFile.empty()) {
+				const size_t sepPos = keyFile.find_first_of(';');
+				const std::string_view pattern = keyFile.substr(0, sepPos);
+				if (MatchWild(pattern, filename, caseSensitiveFilenames)) {
 					return it->second;
 				}
-				if (*del == '\0')
-					break;
-				keyfile = del + 1;
+				// Move to next
+				keyFile = (sepPos == std::string_view::npos) ? "" : keyFile.substr(sepPos + 1);
 			}
 
-			if (0 == strcmp(it->first.c_str(), keybase)) {
+			if (it->first == sKeybase) {
 				return it->second;
 			}
 			++it;
