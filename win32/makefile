@@ -136,14 +136,7 @@ analyze:
 deps:
 	$(CXX) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c >deps.mak
 
-../bin/Scintilla.dll:	../../scintilla/bin/Scintilla.dll
-ifneq (sh,$(SHELL_TYPE))
-	$(COPY) $(subst /,\, $< $(@D))
-else
-	$(COPY) $^ $(@D)
-endif
-
-../bin/SciLexer.dll:	../../scintilla/bin/SciLexer.dll
+../bin/%.dll:	../../scintilla/bin/%.dll
 ifneq (sh,$(SHELL_TYPE))
 	$(COPY) $(subst /,\, $< $(@D))
 else
