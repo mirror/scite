@@ -225,11 +225,6 @@ $(DIR_BIN)\abbrev.properties: ..\src\abbrev.properties
 {..\src}.properties{$(DIR_BIN)}.properties:
 	copy $< $@
 
-# Normally distributed rather than built as may not have grep on all machines
-# Copy all non-comment lines from all the properties files into one combined file
-..\src\Embedded.properties: $(PROPS)
-	grep -v -h "^[#]" $(PROPS) >..\src\Embedded.properties
-
 # A custom rule for .obj files built by scintilla:
 ..\..\scintilla\win32\PlatWin.obj: 	..\..\scintilla\win32\PlatWin.cxx
 	@echo You must run the Scintilla makefile to build $*.obj

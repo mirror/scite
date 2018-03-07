@@ -136,8 +136,6 @@ analyze:
 deps:
 	$(CXX) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c >deps.mak
 
-embedded: ../src/Embedded.properties
-
 ../bin/Scintilla.dll:	../../scintilla/bin/Scintilla.dll
 ifneq (sh,$(SHELL_TYPE))
 	$(COPY) $(subst /,\, $< $(@D))
@@ -159,11 +157,6 @@ ifneq (sh,$(SHELL_TYPE))
 else
 	$(COPY) $^ $(@D)
 endif
-
-# Normally distributed rather than built as may not have grep on all machines
-# Copy all non-comment lines from all the properties files into one combined file
-../src/Embedded.properties: $(PROPS)
-	grep -v -h "^[#]" $(PROPS) >../src/Embedded.properties
 
 $(PROG): $(OBJS)
 	$(CXX) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
