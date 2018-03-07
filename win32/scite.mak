@@ -8,9 +8,11 @@
 # For a build without Lua, define NO_LUA on the command line.
 # The main makefile uses mingw32 gcc and may be more current than this file.
 
-.SUFFIXES: .cxx .properties
+.SUFFIXES: .cxx .properties .dll
 
 DIR_BIN=..\bin
+DIR_SCINTILLA=..\..\scintilla
+DIR_SCINTILLA_BIN=$(DIR_SCINTILLA)\bin
 
 PROG=$(DIR_BIN)\SciTE.exe
 PROGSTATIC=$(DIR_BIN)\Sc1.exe
@@ -210,17 +212,8 @@ ALL: $(PROG) $(PROGSTATIC) $(DLLS) $(PROPS)
 clean:
 	del /q $(DIR_BIN)\*.exe *.o *.obj $(DIR_BIN)\*.dll *.res *.map $(DIR_BIN)\*.exp $(DIR_BIN)\*.lib $(DIR_BIN)\*.pdb
 
-$(DIR_BIN)\Scintilla.dll: ..\..\scintilla\bin\Scintilla.dll
-	copy ..\..\scintilla\bin\Scintilla.dll $@
-
-$(DIR_BIN)\SciLexer.dll: ..\..\scintilla\bin\SciLexer.dll
-	copy ..\..\scintilla\bin\SciLexer.dll $@
-
-$(DIR_BIN)\SciTEGlobal.properties: ..\src\SciTEGlobal.properties
-	copy ..\src\SciTEGlobal.properties $@
-
-$(DIR_BIN)\abbrev.properties: ..\src\abbrev.properties
-	copy ..\src\abbrev.properties $@
+{$(DIR_SCINTILLA_BIN)}.dll{$(DIR_BIN)}.dll:
+	copy $< $@
 
 {..\src}.properties{$(DIR_BIN)}.properties:
 	copy $< $@
