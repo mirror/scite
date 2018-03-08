@@ -41,8 +41,7 @@ WIDEFLAGS=-DUNICODE -D_UNICODE
 
 vpath %.h ../src ../../scintilla/include
 vpath %.cxx ../src
-vpath %.o ../../scintilla/win32
-vpath %.a ../../scintilla/win32
+vpath %.a ../../scintilla/bin
 
 ifndef NO_LUA
 LUA_CORE_OBJS = lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
@@ -159,49 +158,7 @@ OBJSSTATIC = \
 	Credits.o \
 	Sc1.o \
 	Sc1Res.o \
-	Accessor.o \
-	AutoComplete.o \
-	CallTip.o \
-	CaseConvert.o \
-	CaseFolder.o \
-	Catalogue.o \
-	CellBuffer.o \
-	CharacterCategory.o \
-	CharacterSet.o \
-	CharClassify.o \
-	ContractionState.o \
-	DBCS.o \
-	Decoration.o \
-	DefaultLexer.o \
-	Document.o \
-	EditModel.o \
-	Editor.o \
-	EditView.o \
-	ExternalLexer.o \
-	HanjaDic.o \
-	Indicator.o \
-	KeyMap.o \
-	LexerBase.o \
-	LexerModule.o \
-	LexerSimple.o \
-	LineMarker.o \
-	MarginView.o \
-	PerLine.o \
-	PlatWin.o \
-	PositionCache.o \
-	PropSetSimple.o \
-	RESearch.o \
-	RunStyles.o \
-	ScintillaBaseL.o \
-	ScintillaWinL.o \
-	Selection.o \
-	Style.o \
-	StyleContext.o \
-	UniConversion.o \
-	ViewStyle.o \
-	WordList.o \
-	XPM.o \
-	Lexers.a \
+	libscintilla.a \
 	$(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
