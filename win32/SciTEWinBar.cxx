@@ -872,7 +872,7 @@ void SciTEWin::Creation() {
 
 	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
 	::SendMessage(hwndToolBar, TB_SETBITMAPSIZE, 0, tbLarge ? MAKELPARAM(24, 24) : MAKELPARAM(16, 16));
-	::SendMessage(hwndToolBar, TB_LOADIMAGES, 
+	::SendMessage(hwndToolBar, TB_LOADIMAGES,
 	              tbLarge ? IDB_STD_LARGE_COLOR : IDB_STD_SMALL_COLOR,
 	              reinterpret_cast<LPARAM>(HINST_COMMCTRL));
 
@@ -881,7 +881,7 @@ void SciTEWin::Creation() {
 	if (tbLarge) {
 		addbmp.nID = IDR_CLOSEFILE24;
 	}
-	
+
 	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, reinterpret_cast<LPARAM>(&addbmp));
 
 	TBBUTTON tbb[ELEMENTS(bbs)];

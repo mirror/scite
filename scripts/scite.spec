@@ -10,7 +10,7 @@
 #
 # This package name purposely uses all lower case letters in the its package
 # name so that one can issue the command "rpm -q scite" without having to
-# remember the exact case of all the letters. However, none of the files 
+# remember the exact case of all the letters. However, none of the files
 # contained in this package have been renamed.
 #
 #
@@ -33,12 +33,12 @@ Requires:       gtk+ >= 1.2.0
 SciTE is a SCIntilla based Text Editor. Originally built to demonstrate Scintilla, it has grown to
 be a generally useful editor with facilities for building and running programs. It is best used for
 jobs with simple configurations - I use it for building test and demonstration programs as well
-as SciTE and Scintilla, themselves. 
+as SciTE and Scintilla, themselves.
 
 SciTE is currently available for Intel Win32 and Linux compatible operating systems with
 GTK+.
 
-########## 
+##########
 #
 # The following environment variables are automatically defined for use
 # in any of the following shell scripts:

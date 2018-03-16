@@ -147,7 +147,7 @@ protected:
 	GUI::Window wCheckBE;
 	GUI::Window wCheckWrap;
 	enum IncrementalBehaviour { simple, incremental, showAllMatches };
-	IncrementalBehaviour incrementalBehaviour; 
+	IncrementalBehaviour incrementalBehaviour;
 	FindReplaceStrip() : incrementalBehaviour(simple) {
 	}
 	virtual LRESULT EditColour(HWND hwnd, HDC hdc);

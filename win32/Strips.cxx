@@ -922,7 +922,7 @@ LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) {
 	if (GetDlgItem(static_cast<HWND>(GetID()),IDFINDWHAT) == ::GetParent(hwnd)) {
-		if (pSearcher->FindHasText() && 
+		if (pSearcher->FindHasText() &&
 			(incrementalBehaviour != simple) &&
 			pSearcher->failedfind) {
 			return NoMatchColour(hdc);

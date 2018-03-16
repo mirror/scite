@@ -134,7 +134,7 @@ def checkDocumentation():
 		docs = docFile.read()
 
 	face, sciToFeature, sccToValue = retrieveFeatures()
-	
+
 	headers = {}
 	definitions = {}
 

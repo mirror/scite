@@ -22,7 +22,7 @@ enum IFaceType {
 	iface_textrange,
 	iface_findtext,
 	iface_formatrange
-};	
+};
 
 struct IFaceConstant {
 	const char *name;
@@ -42,12 +42,12 @@ struct IFaceProperty {
 	int setter;
 	IFaceType valueType;
 	IFaceType paramType;
-	
+
 	IFaceFunction GetterFunction() const {
 		IFaceFunction result = {"(property getter)",getter,valueType,{paramType,iface_void}};
 		return result;
 	}
-	
+
 	IFaceFunction SetterFunction() const {
 		IFaceFunction result = {"(property setter)",setter,iface_void,{valueType, iface_void}};
 		if (paramType != iface_void) {

@@ -14,7 +14,7 @@ public:
 	int widthDesired;
 	int widthAllocated;
 	GUI::Window w;
-	UserControl(UCControlType controlType_, const GUI::gui_string &text_, int item_) : 
+	UserControl(UCControlType controlType_, const GUI::gui_string &text_, int item_) :
 		controlType(controlType_),
 		text(text_),
 		item(item_),

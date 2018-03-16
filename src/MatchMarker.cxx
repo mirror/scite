@@ -36,7 +36,7 @@ std::vector<LineRange> LinesBreak(GUI::ScintillaWindow *pSci) {
 	return lineRanges;
 }
 
-MatchMarker::MatchMarker() : 
+MatchMarker::MatchMarker() :
 	pSci(0), styleMatch(-1), flagsMatch(0), indicator(0), bookMark(-1) {
 }
 
