@@ -85,15 +85,30 @@ rem Target 7: Clang analyze
 REM ~ call scite\scripts\clearboth
 REM ~ set PATH=c:\mingw32-dw2\bin;%PATH%
 REM ~ cd scintilla\win32
-REM ~ mingw32-make analyze
+REM ~ mingw32-make CLANG=1 analyze
 REM ~ if ERRORLEVEL 2 goto ERROR
 REM ~ cd ..\..\scite\win32
-REM ~ mingw32-make analyze
+REM ~ mingw32-make CLANG=1 analyze
 REM ~ if ERRORLEVEL 2 goto ERROR
 REM ~ cd ..\..
 rem
 rem ************************************************************
-rem Target 8: cppcheck
+rem Target 8: Clang build
+call scite\scripts\clearboth
+cd scintilla\win32
+mingw32-make CLANG=1 -j
+if ERRORLEVEL 2 goto ERROR
+cd ..\test
+pythonw simpleTests.py
+pythonw lexTests.py
+pythonw performanceTests.py
+cd ..\..\scite\win32
+mingw32-make CLANG=1 -j
+if ERRORLEVEL 2 goto ERROR
+cd ..\..
+rem
+rem ************************************************************
+rem Target 9: cppcheck
 call scite\scripts\clearboth
 cppcheck -j 8 --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
 cppcheck -j 8 --enable=all --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite

@@ -10,8 +10,22 @@ ifeq (\,$(shell echo \\))
 	SHELL_TYPE = sh
 endif
 
+ifdef CLANG
+CXX = clang++
+CC = clang
+# Clang doesn't like omitting braces in array initialization but they just add noise,
+# Microsoft headers are used so _CRT_SECURE_NO_DEPRECATE avoids warnings for standard library like strcat,
+# public visibility avoids warnings like 'locally defined symbol __std_terminate imported'
+CLANG_OPTS = -Wno-missing-braces -D_CRT_SECURE_NO_DEPRECATE=1 -Xclang -flto-visibility-public-std
+CLANG_LIBS = -luser32 -lgdi32 -lshell32 -lcomdlg32
+else
+SUBSYSTEM_OPT = -Xlinker --subsystem -Xlinker windows
+endif
+
 ifeq ($(OS),Windows_NT)
-	CC = gcc
+	ifndef CLANG
+		CC = gcc
+	endif
 	DEL = $(if $(wildcard $(dir $(SHELL))rm.exe), $(dir $(SHELL))rm.exe -f, del)
 	COPY = $(if $(wildcard $(dir $(SHELL))cp.exe), $(dir $(SHELL))cp.exe -a, xcopy /Y)
 	VER = cmd /c ver
@@ -65,18 +79,20 @@ endif
 INCLUDEDIRS=-I ../../scintilla/include -I ../src $(LUA_INCLUDES)
 RCINCLUDEDIRS=--include-dir ../src
 
-CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS) $(VERSION_DEFINES)
+CBASEFLAGS = -W -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS) $(VERSION_DEFINES) $(CLANG_OPTS)
 
 ifdef DEBUG
 CFLAGS=-DDEBUG -g $(CBASEFLAGS)
 else
 CFLAGS=-DNDEBUG -Os $(CBASEFLAGS)
+ifndef CLANG
 STRIPFLAG="-Wl,-s"
+endif
 endif
 
 CXXFLAGS = $(CFLAGS) -pedantic --std=c++17
 
-LDFLAGS=-mwindows -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -loleaut32 $(UXLIB) $(LUA_LDFLAGS)
+LDFLAGS=-mwindows $(CLANG_LIBS) -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -loleaut32 $(UXLIB) $(LUA_LDFLAGS)
 
 .cxx.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -151,7 +167,7 @@ else
 endif
 
 $(PROG): $(OBJS)
-	$(CXX) $(STRIPFLAG) -Xlinker --subsystem -Xlinker windows -o  $@ $^ $(LDFLAGS)
+	$(CXX) $(STRIPFLAG) $(SUBSYSTEM_OPT) -o  $@ $^ $(LDFLAGS)
 
 OBJSSTATIC = \
 	$(SHAREDOBJS) \
@@ -162,7 +178,7 @@ OBJSSTATIC = \
 	$(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
-	$(CXX) $(STRIPFLAG) -static -Xlinker --subsystem -Xlinker windows -o $@ $^ $(LDFLAGS)
+	$(CXX) $(STRIPFLAG) $(SUBSYSTEM_OPT) -static -o $@ $^ $(LDFLAGS)
 
 # Automatically generate dependencies for most files with "make deps"
 include deps.mak
