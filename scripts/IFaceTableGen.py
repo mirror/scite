@@ -293,7 +293,7 @@ def printIFaceTableHTMLFile(faceAndIDs):
 		explanation = ""
 		href = ""
 		hrefEnd = ""
-		href = "<a href='http://www.scintilla.org/ScintillaDoc.html#" + featureDefineName + "'>"
+		href = "<a href='https://www.scintilla.org/ScintillaDoc.html#" + featureDefineName + "'>"
 		hrefEnd = "</a>"
 
 		if features['Param1Type'] in nonScriptableTypes or features['Param2Type'] in nonScriptableTypes:
@@ -337,7 +337,7 @@ def printIFaceTableHTMLFile(faceAndIDs):
 		functionName = property['SetterName'] or property['GetterName']
 		featureDefineName = "SCI_" + functionName.upper()
 		explanation = ""
-		href = "<a href='http://www.scintilla.org/ScintillaDoc.html#" + featureDefineName + "'>"
+		href = "<a href='https://www.scintilla.org/ScintillaDoc.html#" + featureDefineName + "'>"
 		hrefEnd = "</a>"
 
 		direction = ""
