@@ -19,19 +19,17 @@
 #include "GUI.h"
 #include "StringHelpers.h"
 
-bool StartsWith(GUI::gui_string const &s, GUI::gui_string const &start) {
+bool StartsWith(std::wstring_view s, std::wstring_view start) {
 	return (s.size() >= start.size()) &&
 		(std::equal(s.begin(), s.begin() + start.size(), start.begin()));
 }
 
-bool StartsWith(std::string const &s, const char *start) {
-	const size_t startSize = strlen(start);
-	std::string sStart(start);
-	return (s.size() >= startSize) &&
-		(std::equal(s.begin(), s.begin() + startSize, sStart.begin()));
+bool StartsWith(std::string_view s, std::string_view start) {
+	return (s.size() >= start.size()) &&
+		(std::equal(s.begin(), s.begin() + start.size(), start.begin()));
 }
 
-bool EndsWith(GUI::gui_string const &s, GUI::gui_string const &end) {
+bool EndsWith(std::wstring_view s, std::wstring_view end) {
 	return (s.size() >= end.size()) &&
 		(std::equal(s.begin() + s.size() - end.size(), s.end(), end.begin()));
 }
