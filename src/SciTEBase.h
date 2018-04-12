@@ -729,7 +729,7 @@ protected:
 	void MoveBack() override;
 	void ScrollEditorIfNeeded() override;
 	int FindNext(bool reverseDirection, bool showWarnings=true, bool allowRegExp=true) override;
-	virtual void HideMatch() override;
+	void HideMatch() override;
 	virtual void FindIncrement() = 0;
 	int IncrementSearchMode();
 	virtual void FindInFiles() = 0;
