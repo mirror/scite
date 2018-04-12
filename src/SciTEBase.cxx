@@ -1181,12 +1181,6 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
 	wEditor.Call(SCI_SETSEARCHFLAGS, SearchFlags(regExp));
 	int posFind = FindInTarget(findTarget, startPosition, endPosition);
-	if ((findTarget.length() == 1) && regExp && (findTarget[0] == '^')) {
-		// Special case for replace all start of line so it hits the first line
-		posFind = startPosition;
-		wEditor.Call(SCI_SETTARGETSTART, startPosition);
-		wEditor.Call(SCI_SETTARGETEND, startPosition);
-	}
 	if ((posFind != -1) && (posFind <= endPosition)) {
 		int lastMatch = posFind;
 		int replacements = 0;
