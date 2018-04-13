@@ -66,6 +66,7 @@ public:
 	bool Exists() const;
 	bool IsDirectory() const;
 	bool Matches(const GUI::gui_char *pattern) const;
+	static bool CaseSensitive();
 };
 
 std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun);

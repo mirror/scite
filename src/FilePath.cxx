@@ -644,6 +644,16 @@ void FilePath::FixName() {
 #endif
 }
 
+bool FilePath::CaseSensitive() {
+#if defined (__APPLE__)
+	return false;
+#elif defined(__unix__)
+	return true;
+#else
+	return false;
+#endif
+}
+
 std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun) {
 	std::string output;
 #ifdef _WIN32

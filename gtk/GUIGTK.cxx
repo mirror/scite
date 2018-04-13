@@ -53,6 +53,13 @@ gui_string StringFromLongLong(long long i) {
 	return gui_string();
 }
 
+std::string LowerCaseUTF8(std::string_view sv) {
+	gchar *lower = g_utf8_strdown(sv.data(), sv.length());
+	const std::string sLower(lower);
+	g_free(lower);
+	return sLower;
+}
+
 static GtkWidget *PWidget(WindowID wid) {
 	return static_cast<GtkWidget *>(wid);
 }

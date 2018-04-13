@@ -76,6 +76,8 @@ gui_string StringFromInteger(long i);
 gui_string StringFromLongLong(long long i);
 gui_string HexStringFromInteger(long i);
 
+std::string LowerCaseUTF8(std::string_view sv);
+
 typedef void *WindowID;
 class Window {
 protected:

@@ -206,6 +206,18 @@ gui_string HexStringFromInteger(long i) {
 	return gui_string(gnumber);
 }
 
+std::string LowerCaseUTF8(std::string_view sv) {
+	if (sv.empty()) {
+		return std::string();
+	}
+	const std::string s(sv);
+	const gui_string gs = StringFromUTF8(s);
+	const int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, gs.c_str(), static_cast<int>(gs.size()), NULL, 0);
+	gui_string lc(chars, L'\0');
+	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, gs.c_str(), static_cast<int>(gs.size()), lc.data(), chars);
+	return UTF8FromString(lc);
+}
+
 void Window::Destroy() {
 	if (wid)
 		::DestroyWindow(static_cast<HWND>(wid));
