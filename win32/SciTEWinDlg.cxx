@@ -851,11 +851,8 @@ void SciTEWin::UserStripSetList(int control, const char *value) {
 	userStrip.SetList(control, value);
 }
 
-const char *SciTEWin::UserStripValue(int control) {
-	std::string val = userStrip.GetValue(control);
-	char *ret = new char[val.size() + 1];
-	strcpy(ret, val.c_str());
-	return ret;
+std::string SciTEWin::UserStripValue(int control) {
+	return userStrip.GetValue(control);
 }
 
 void SciTEWin::UserStripClosed() {

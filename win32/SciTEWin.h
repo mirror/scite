@@ -322,7 +322,7 @@ protected:
 	void UserStripShow(const char *description) override;
 	void UserStripSet(int control, const char *value) override;
 	void UserStripSetList(int control, const char *value) override;
-	const char *UserStripValue(int control) override;
+	std::string UserStripValue(int control) override;
 	void UserStripClosed();
 	void ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress) override;
 	BOOL FindMessage(HWND hDlg, UINT message, WPARAM wParam);

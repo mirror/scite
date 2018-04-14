@@ -45,7 +45,7 @@ public:
 	virtual void UserStripShow(const char *description)=0;
 	virtual void UserStripSet(int control, const char *value)=0;
 	virtual void UserStripSetList(int control, const char *value)=0;
-	virtual const char *UserStripValue(int control)=0;
+	virtual std::string UserStripValue(int control)=0;
 };
 
 /**

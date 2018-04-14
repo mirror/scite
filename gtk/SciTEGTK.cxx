@@ -659,7 +659,7 @@ protected:
 	void UserStripShow(const char *description) override;
 	void UserStripSet(int control, const char *value) override;
 	void UserStripSetList(int control, const char *value) override;
-	const char *UserStripValue(int control) override;
+	std::string UserStripValue(int control) override;
 	void UserStripClosed();
 	void ShowBackgroundProgress(const GUI::gui_string &explanation, size_t size, size_t progress) override;
 
@@ -2637,11 +2637,8 @@ void SciTEGTK::UserStripSetList(int control, const char *value) {
 	userStrip.SetList(control, value);
 }
 
-const char *SciTEGTK::UserStripValue(int control) {
-	std::string val = userStrip.GetValue(control);
-	char *ret = new char[val.size() + 1];
-	strcpy(ret, val.c_str());
-	return ret;
+std::string SciTEGTK::UserStripValue(int control) {
+	return userStrip.GetValue(control);
 }
 
 void SciTEGTK::UserStripClosed() {

@@ -678,7 +678,7 @@ protected:
 	void UserStripShow(const char * /* description */) override {}
 	void UserStripSet(int /* control */, const char * /* value */) override {}
 	void UserStripSetList(int /* control */, const char * /* value */) override {}
-	const char *UserStripValue(int /* control */) override { return 0; }
+	std::string UserStripValue(int /* control */) override { return std::string(); }
 	virtual void ShowBackgroundProgress(const GUI::gui_string & /* explanation */, size_t /* size */, size_t /* progress */) {}
 	Sci_CharacterRange GetSelection();
 	SelectedRange GetSelectedRange();
