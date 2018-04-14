@@ -15,7 +15,6 @@
 MultiplexExtension::MultiplexExtension(): host(nullptr) {}
 
 MultiplexExtension::~MultiplexExtension() {
-	Finalise();
 }
 
 bool MultiplexExtension::RegisterExtension(Extension &ext_) {
