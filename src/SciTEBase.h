@@ -56,7 +56,7 @@ public:
 	RecentFile() {
 		scrollPosition = 0;
 	}
-	virtual ~RecentFile() = default;
+	~RecentFile() override = default;
 	void Init() override {
 		FilePath::Init();
 		selection.position = INVALID_POSITION;
@@ -103,7 +103,7 @@ public:
 			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
 			findMarks(fmNone), pFileWorker(0), futureDo(fdNone) {}
 
-	virtual ~Buffer() = default;
+	~Buffer() override = default;
 	void Init() override {
 		RecentFile::Init();
 		isDirty = false;
@@ -270,7 +270,7 @@ public:
 	bool read;
 	Localization() : PropSetFile(true), read(false) {
 	}
-	GUI::gui_string Text(const char *s, bool retainIfNotFound=true);
+	GUI::gui_string Text(const char *s, bool retainIfNotFound=true) override;
 	void SetMissing(const std::string &missing_) {
 		missing = missing_;
 	}
@@ -967,7 +967,7 @@ public:
 	// Deleted copy-constructor and assignment operator.
 	explicit SciTEBase(const SciTEBase&) = delete;
 	void operator=(const SciTEBase&) = delete;
-	virtual ~SciTEBase();
+	~SciTEBase() override;
 
 	void Finalise();
 
@@ -975,7 +975,7 @@ public:
 
 	virtual bool PerformOnNewThread(Worker *pWorker) = 0;
 	// WorkerListener
-	virtual void PostOnMainThread(int cmd, Worker *pWorker) override = 0;
+	void PostOnMainThread(int cmd, Worker *pWorker) override = 0;
 	virtual void WorkerCommand(int cmd, Worker *pWorker);
 };
 

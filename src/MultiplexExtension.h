@@ -43,41 +43,41 @@ public:
 	// Copying is unsupported.
 	MultiplexExtension(const MultiplexExtension & copy) = delete;
 	MultiplexExtension & operator=(const MultiplexExtension & copy) = delete;
-	virtual ~MultiplexExtension();
+	~MultiplexExtension() override;
 
 	bool RegisterExtension(Extension &ext_);
 
-	virtual bool Initialise(ExtensionAPI *host_);
-	virtual bool Finalise();
-	virtual bool Clear();
-	virtual bool Load(const char *filename);
+	bool Initialise(ExtensionAPI *host_) override;
+	bool Finalise() override;
+	bool Clear() override;
+	bool Load(const char *filename) override;
 
-	virtual bool InitBuffer(int);
-	virtual bool ActivateBuffer(int);
-	virtual bool RemoveBuffer(int);
+	bool InitBuffer(int) override;
+	bool ActivateBuffer(int) override;
+	bool RemoveBuffer(int) override;
 
-	virtual bool OnOpen(const char *);
-	virtual bool OnSwitchFile(const char *);
-	virtual bool OnBeforeSave(const char *);
-	virtual bool OnSave(const char *);
-	virtual bool OnChar(char);
-	virtual bool OnExecute(const char *);
-	virtual bool OnSavePointReached();
-	virtual bool OnSavePointLeft();
-	virtual bool OnStyle(unsigned int, int, int, StyleWriter *);
-	virtual bool OnDoubleClick();
-	virtual bool OnUpdateUI();
-	virtual bool OnMarginClick();
-	virtual bool OnMacro(const char *, const char *);
-	virtual bool OnUserListSelection(int, const char *);
+	bool OnOpen(const char *) override;
+	bool OnSwitchFile(const char *) override;
+	bool OnBeforeSave(const char *) override;
+	bool OnSave(const char *) override;
+	bool OnChar(char) override;
+	bool OnExecute(const char *) override;
+	bool OnSavePointReached() override;
+	bool OnSavePointLeft() override;
+	bool OnStyle(unsigned int, int, int, StyleWriter *) override;
+	bool OnDoubleClick() override;
+	bool OnUpdateUI() override;
+	bool OnMarginClick() override;
+	bool OnMacro(const char *, const char *) override;
+	bool OnUserListSelection(int, const char *) override;
 
-	virtual bool SendProperty(const char *);
+	bool SendProperty(const char *) override;
 
-	virtual bool OnKey(int, int);
-	virtual bool OnDwellStart(int, const char *);
-	virtual bool OnClose(const char *);
-	virtual bool OnUserStrip(int control, int change);
-	virtual bool NeedsOnClose();
+	bool OnKey(int, int) override;
+	bool OnDwellStart(int, const char *) override;
+	bool OnClose(const char *) override;
+	bool OnUserStrip(int control, int change) override;
+	bool NeedsOnClose() override;
 
 private:
 	std::vector<Extension *> extensions;

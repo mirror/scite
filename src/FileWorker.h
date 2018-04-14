@@ -19,9 +19,9 @@ struct FileWorker : public Worker {
 	double nextProgress;
 
 	FileWorker(WorkerListener *pListener_, const FilePath &path_, size_t size_, FILE *fp_);
-	virtual ~FileWorker();
+	~FileWorker() override;
 	virtual double Duration();
-	virtual void Cancel() {
+	void Cancel() override {
 		Worker::Cancel();
 	}
 	virtual bool IsLoading() const = 0;
@@ -34,10 +34,10 @@ public:
 	UniMode unicodeMode;
 
 	FileLoader(WorkerListener *pListener_, ILoader *pLoader_, const FilePath &path_, size_t size_, FILE *fp_);
-	virtual ~FileLoader();
-	virtual void Execute();
-	virtual void Cancel();
-	virtual bool IsLoading() const {
+	~FileLoader() override;
+	void Execute() override;
+	void Cancel() override;
+	bool IsLoading() const override {
 		return true;
 	}
 };
@@ -51,10 +51,10 @@ public:
 
 	FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
 		size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
-	virtual ~FileStorer();
-	virtual void Execute();
-	virtual void Cancel();
-	virtual bool IsLoading() const {
+	~FileStorer() override;
+	void Execute() override;
+	void Cancel() override;
+	bool IsLoading() const override {
 		return false;
 	}
 };

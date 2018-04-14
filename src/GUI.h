@@ -147,7 +147,7 @@ public:
 	sptr_t status;
 	ScintillaWindow() : fn(0), ptr(0), status() {
 	}
-	virtual ~ScintillaWindow() = default;
+	~ScintillaWindow() override = default;
 	void SetID(WindowID wid_) override {
 		wid = wid_;
 		fn = 0;
