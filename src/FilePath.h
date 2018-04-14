@@ -13,7 +13,7 @@ extern const GUI::gui_char fileRead[];
 extern const GUI::gui_char fileWrite[];
 
 #if defined(__unix__)
-#include <limits.h>
+#include <climits>
 #ifdef PATH_MAX
 #define MAX_PATH PATH_MAX
 #else

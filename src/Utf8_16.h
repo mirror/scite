@@ -12,7 +12,7 @@
 //   http://www.cl.cam.ac.uk/~mgk25/unicode.html
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <assert.h>
+#include <cassert>
 
 class Utf8_16 {
 public:

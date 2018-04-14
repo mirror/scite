@@ -5,10 +5,9 @@
 // Copyright 2013 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h>
-#include <string.h>
-
+#include <cstdlib>
 #include <cassert>
+#include <cstring>
 
 #include <tuple>
 #include <string>

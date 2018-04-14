@@ -5,15 +5,15 @@
 // Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stddef.h>
-#include <stdlib.h>
+#include <cstddef>
+#include <cstdlib>
 // Older versions of GNU stdint.h require this definition to be able to see INT32_MAX
 #define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#include <string.h>
-#include <stdio.h>
-#include <time.h>
-#include <ctype.h>
+#include <cstdint>
+#include <cstring>
+#include <cctype>
+#include <cstdio>
+#include <ctime>
 
 #include <string>
 #include <vector>

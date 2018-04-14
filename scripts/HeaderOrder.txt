@@ -31,6 +31,8 @@
 #include <ctime>
 #include <cmath>
 #include <climits>
+#include <clocale>
+#include <cerrno>
 
 // C++ standard library
 #include <stdexcept>
