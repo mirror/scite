@@ -66,15 +66,15 @@ public:
 
 // Adds methods needed to write styles and folding
 class StyleWriter : public TextReader {
-	// Deleted so StyleWriter objects can not be copied.
-	StyleWriter(const StyleWriter &source) = delete;
-	StyleWriter &operator=(const StyleWriter &) = delete;
 protected:
 	char styleBuf[bufferSize];
 	int validLen;
 	unsigned int startSeg;
 public:
 	explicit StyleWriter(GUI::ScintillaWindow &sw_);
+	// Deleted so StyleWriter objects can not be copied.
+	StyleWriter(const StyleWriter &source) = delete;
+	StyleWriter &operator=(const StyleWriter &) = delete;
 	void Flush();
 	int SetLineState(int line, int state);
 

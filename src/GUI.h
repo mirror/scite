@@ -138,9 +138,6 @@ struct ScintillaFailure {
 };
 
 class ScintillaWindow : public Window {
-	// Deleted so ScintillaWindow objects can not be copied.
-	ScintillaWindow(const ScintillaWindow &source) = delete;
-	ScintillaWindow &operator=(const ScintillaWindow &) = delete;
 	SciFnDirect fn;
 	sptr_t ptr;
 public:
@@ -148,6 +145,9 @@ public:
 	ScintillaWindow() : fn(0), ptr(0), status() {
 	}
 	~ScintillaWindow() override = default;
+	// Deleted so ScintillaWindow objects can not be copied.
+	ScintillaWindow(const ScintillaWindow &source) = delete;
+	ScintillaWindow &operator=(const ScintillaWindow &) = delete;
 	void SetID(WindowID wid_) override {
 		wid = wid_;
 		fn = 0;
