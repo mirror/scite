@@ -666,11 +666,11 @@ bool SciTEBase::OpenSelected() {
 		// A bit of duplicate work with DecodeMessage, but we don't know
 		// here the format of the line, so we do guess work.
 		// Can't do much for space separated line numbers anyway...
-		size_t endPath = selName.find("(");
+		size_t endPath = selName.find('(');
 		if (endPath != std::string::npos) {	// Visual Studio error message: F:\scite\src\SciTEBase.h(312):	bool Exists(
 			lineNumber = atol(selName.c_str() + endPath + 1);
 		} else {
-			endPath = selName.find(":", 2);	// Skip Windows' drive separator
+			endPath = selName.find(':', 2);	// Skip Windows' drive separator
 			if (endPath != std::string::npos) {	// grep -n line, perhaps gcc too: F:\scite\src\SciTEBase.h:312:	bool Exists(
 				lineNumber = atol(selName.c_str() + endPath + 1);
 			}
@@ -1402,7 +1402,7 @@ class FileReader {
 	bool caseSensitive;
 public:
 	FileReader(const FilePath &fPath, bool caseSensitive_) {
-		bf.reset(new BufferedFile(fPath));
+		bf = std::make_unique<BufferedFile>(fPath);
 		lineNum = 0;
 		lastWasCR = false;
 		caseSensitive = caseSensitive_;

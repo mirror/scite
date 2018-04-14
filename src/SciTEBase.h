@@ -719,7 +719,7 @@ protected:
 	void FailedSaveMessageBox(const FilePath &filePathSaving);
 	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = 0) = 0;
 	bool FindReplaceAdvanced() const;
-	int FindInTarget(std::string findWhatText, int startPosition, int endPosition);
+	int FindInTarget(const std::string &findWhatText, int startPosition, int endPosition);
 	// Implement Searcher
 	void SetFindText(const char *sFind) override;
 	void SetFind(const char *sFind) override;

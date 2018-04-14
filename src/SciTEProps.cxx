@@ -655,7 +655,7 @@ void SciTEBase::ReadProperties() {
 				wEditor.CallString(SCI_LOADLEXERLIBRARY, 0, modulePath.c_str());
 				wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, "lpeg");
 				lexLPeg = wEditor.Call(SCI_GETLEXER);
-				const char *lexer = language.c_str() + language.find("_") + 1;
+				const char *lexer = language.c_str() + language.find('_') + 1;
 				wEditor.CallReturnPointer(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE,
 					SptrFromString(lexer));
 			}

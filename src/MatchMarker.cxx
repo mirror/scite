@@ -29,9 +29,9 @@ std::vector<LineRange> LinesBreak(GUI::ScintillaWindow *pSci) {
 			rangePriority.lineEnd = lineEnd;
 		lineRanges.push_back(rangePriority);
 		if (rangePriority.lineEnd < lineEnd)
-			lineRanges.push_back(LineRange(rangePriority.lineEnd, lineEnd));
+			lineRanges.emplace_back(rangePriority.lineEnd, lineEnd);
 		if (rangePriority.lineStart > 0)
-			lineRanges.push_back(LineRange(0, rangePriority.lineStart));
+			lineRanges.emplace_back(0, rangePriority.lineStart);
 	}
 	return lineRanges;
 }

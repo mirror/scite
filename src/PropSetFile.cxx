@@ -255,7 +255,7 @@ struct VarChain {
 static int ExpandAllInPlace(const PropSetFile &props, std::string &withVars, int maxExpands, const VarChain &blankVars = VarChain()) {
 	size_t varStart = withVars.find("$(");
 	while ((varStart != std::string::npos) && (maxExpands > 0)) {
-		const size_t varEnd = withVars.find(")", varStart+2);
+		const size_t varEnd = withVars.find(')', varStart+2);
 		if (varEnd == std::string::npos) {
 			break;
 		}
@@ -587,7 +587,7 @@ std::string PropSetFile::GetNewExpandString(const char *keybase, const char *fil
 	size_t varStart = withVars.find("$(");
 	int maxExpands = 1000;	// Avoid infinite expansion of recursive definitions
 	while ((varStart != std::string::npos) && (maxExpands > 0)) {
-		const size_t varEnd = withVars.find(")", varStart+2);
+		const size_t varEnd = withVars.find(')', varStart+2);
 		if (varEnd == std::string::npos) {
 			break;
 		}
