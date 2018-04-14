@@ -5000,7 +5000,7 @@ void SciTEGTK::CreateUI() {
 	gtk_widget_set_can_focus(PWidget(wContent), FALSE);
 	gtk_box_pack_start(GTK_BOX(boxMain), PWidget(wContent), TRUE, TRUE, 0);
 
-	wEditor.SetID(scintilla_new());
+	wEditor.SetScintilla(scintilla_new());
 	g_object_ref(G_OBJECT(PWidget(wEditor)));
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
 	wEditor.Call(SCI_USEPOPUP, 0);
@@ -5009,7 +5009,7 @@ void SciTEGTK::CreateUI() {
 	                   G_CALLBACK(NotifySignal), this);
 
 
-	wOutput.SetID(scintilla_new());
+	wOutput.SetScintilla(scintilla_new());
 	g_object_ref(G_OBJECT(PWidget(wOutput)));
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
 	wOutput.Call(SCI_USEPOPUP, 0);

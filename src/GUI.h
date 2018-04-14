@@ -93,7 +93,7 @@ public:
 	WindowID GetID() const {
 		return wid;
 	}
-	virtual void SetID(WindowID wid_) {
+	void SetID(WindowID wid_) {
 		wid = wid_;
 	}
 	bool Created() const {
@@ -148,8 +148,8 @@ public:
 	// Deleted so ScintillaWindow objects can not be copied.
 	ScintillaWindow(const ScintillaWindow &source) = delete;
 	ScintillaWindow &operator=(const ScintillaWindow &) = delete;
-	void SetID(WindowID wid_) override {
-		wid = wid_;
+	void SetScintilla(WindowID wid_) {
+		SetID(wid_);
 		fn = 0;
 		ptr = 0;
 		if (wid) {

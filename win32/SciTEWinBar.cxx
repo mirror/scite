@@ -819,7 +819,7 @@ void SciTEWin::Creation() {
 	               &contents);
 	wContent.Show();
 
-	wEditor.SetID(::CreateWindowEx(
+	wEditor.SetScintilla(::CreateWindowEx(
 	              0,
 	              TEXT("Scintilla"),
 	              TEXT("Source"),
@@ -836,7 +836,7 @@ void SciTEWin::Creation() {
 	wEditor.Call(SCI_USEPOPUP, 0);
 	WindowSetFocus(wEditor);
 
-	wOutput.SetID(::CreateWindowEx(
+	wOutput.SetScintilla(::CreateWindowEx(
 	              0,
 	              TEXT("Scintilla"),
 	              TEXT("Run"),
