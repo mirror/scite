@@ -1401,8 +1401,7 @@ class FileReader {
 	std::string lineToShow;
 	bool caseSensitive;
 public:
-	FileReader(const FilePath &fPath, bool caseSensitive_) {
-		bf = std::make_unique<BufferedFile>(fPath);
+	FileReader(const FilePath &fPath, bool caseSensitive_) : bf(std::make_unique<BufferedFile>(fPath)) {
 		lineNum = 0;
 		lastWasCR = false;
 		caseSensitive = caseSensitive_;
