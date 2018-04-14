@@ -8,6 +8,8 @@
 #include <cstring>
 #include <cctype>
 
+#include <string>
+
 #include "IFaceTable.h"
 
 int IFaceTable::FindConstant(const char *name) {
@@ -87,44 +89,30 @@ int IFaceTable::FindProperty(const char *name) {
 	return -1;
 }
 
-int IFaceTable::GetConstantName(int value, char *nameOut, unsigned nameBufferLen, const char *prefix) {
-	if (nameOut && nameBufferLen > 0) {
-		*nameOut = '\0';
-	}
-
+std::string IFaceTable::GetConstantName(int value, const char *prefix) {
 	// Look in both the constants table and the functions table.  Start with functions.
 	for (int funcIdx = 0; funcIdx < functionCount; ++funcIdx) {
 		if (functions[funcIdx].value == value) {
-			const int len = static_cast<int>(strlen(functions[funcIdx].name)) + 4;
-			if (nameOut && (static_cast<int>(nameBufferLen) > len)) {
-				strcpy(nameOut, "SCI_");
-				strcat(nameOut, functions[funcIdx].name);
-				// fix case
-				for (char *nm = nameOut + 4; *nm; ++nm) {
-					if (*nm >= 'a' && *nm <= 'z') {
-						*nm = static_cast<char>(*nm - 'a' + 'A');
-					}
+			std::string nameOut = "SCI_";
+			nameOut += functions[funcIdx].name;
+			// fix case
+			for (char &ch : nameOut) {
+				if (ch >= 'a' && ch <= 'z') {
+					ch = static_cast<char>(ch - 'a' + 'A');
 				}
-				return len;
-			} else {
-				return -1 - len;
 			}
+			return nameOut;
 		}
 	}
 
 	for (int constIdx = 0; constIdx < constantCount; ++constIdx) {
 		if (constants[constIdx].value == value && (prefix == NULL || strncmp(prefix, constants[constIdx].name, strlen(prefix)) == 0)) {
-			const int len = static_cast<int>(strlen(constants[constIdx].name));
-			if (nameOut && (static_cast<int>(nameBufferLen) > len)) {
-				strcpy(nameOut, constants[constIdx].name);
-				return len;
-			} else {
-				return -1 - len;
-			}
+			std::string nameOut = constants[constIdx].name;
+			return nameOut;
 		}
 	}
 
-	return 0;
+	return std::string();
 }
 
 #if defined(__GNUC__)

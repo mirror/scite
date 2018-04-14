@@ -259,11 +259,11 @@ static int cf_scite_send(lua_State *L) {
 }
 
 static int cf_scite_constname(lua_State *L) {
-	char constName[100] = "";
 	const int message = luaL_checkint(L, 1);
 	const char *prefix = luaL_optstring(L, 2, NULL);
-	if (IFaceTable::GetConstantName(message, constName, 100, prefix) > 0) {
-		lua_pushstring(L, constName);
+	const std::string constName = IFaceTable::GetConstantName(message, prefix);
+	if (constName.length() > 0) {
+		lua_pushstring(L, constName.c_str());
 		return 1;
 	} else {
 		raise_error(L, "Argument does not match any Scintilla / SciTE constant");
