@@ -131,68 +131,8 @@ public:
 	double Duration(bool reset=false);
 };
 
-struct ScintillaFailure {
-	sptr_t status;
-	explicit ScintillaFailure(sptr_t status_) : status(status_) {
-	}
-};
-
-class ScintillaWindow : public Window {
-	SciFnDirect fn;
-	sptr_t ptr;
+class ScintillaPrimitive : public Window {
 public:
-	sptr_t status;
-	ScintillaWindow() : fn(0), ptr(0), status() {
-	}
-	~ScintillaWindow() override = default;
-	// Deleted so ScintillaWindow objects can not be copied.
-	ScintillaWindow(const ScintillaWindow &source) = delete;
-	ScintillaWindow &operator=(const ScintillaWindow &) = delete;
-	void SetScintilla(WindowID wid_) {
-		SetID(wid_);
-		fn = 0;
-		ptr = 0;
-		if (wid) {
-			fn = reinterpret_cast<SciFnDirect>(
-				Send(SCI_GETDIRECTFUNCTION, 0, 0));
-			ptr = Send(SCI_GETDIRECTPOINTER, 0, 0);
-		}
-	}
-	bool CanCall() const {
-		return wid && fn && ptr;
-	}
-	int Call(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0) {
-		switch (msg) {
-		case SCI_CREATEDOCUMENT:
-		case SCI_CREATELOADER:
-		case SCI_PRIVATELEXERCALL:
-		case SCI_GETDIRECTFUNCTION:
-		case SCI_GETDIRECTPOINTER:
-		case SCI_GETDOCPOINTER:
-		case SCI_GETCHARACTERPOINTER:
-			throw ScintillaFailure(SC_STATUS_FAILURE);
-		}
-		if (!fn)
-			throw ScintillaFailure(SC_STATUS_FAILURE);
-		const sptr_t retVal = fn(ptr, msg, wParam, lParam);
-		status = fn(ptr, SCI_GETSTATUS, 0, 0);
-		if (status > 0 && status < SC_STATUS_WARN_START)
-			throw ScintillaFailure(status);
-		return static_cast<int>(retVal);
-	}
-	sptr_t CallReturnPointer(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0) {
-		sptr_t retVal = fn(ptr, msg, wParam, lParam);
-		status = fn(ptr, SCI_GETSTATUS, 0, 0);
-		if (status > 0 && status < SC_STATUS_WARN_START)
-			throw ScintillaFailure(status);
-		return retVal;
-	}
-	int CallPointer(unsigned int msg, uptr_t wParam, void *s) {
-		return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
-	}
-	int CallString(unsigned int msg, uptr_t wParam, const char *s) {
-		return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
-	}
 	// Send is the basic method and can be used between threads on Win32
 	sptr_t Send(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 };

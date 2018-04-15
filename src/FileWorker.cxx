@@ -31,6 +31,7 @@
 #include "Scintilla.h"
 
 #include "GUI.h"
+#include "ScintillaWindow.h"
 
 #include "FilePath.h"
 #include "Mutex.h"

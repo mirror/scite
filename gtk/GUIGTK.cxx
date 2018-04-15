@@ -188,7 +188,7 @@ double ElapsedTime::Duration(bool reset) {
 	return result;
 }
 
-sptr_t ScintillaWindow::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
+sptr_t ScintillaPrimitive::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	return scintilla_send_message(SCINTILLA(GetID()), msg, wParam, lParam);
 }
 

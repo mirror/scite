@@ -116,6 +116,7 @@ SHAREDOBJS=\
 	MatchMarker.o \
 	MultiplexExtension.o \
 	PropSetFile.o \
+	ScintillaWindow.o \
 	SciTEBase.o \
 	SciTEBuffers.o \
 	SciTEIO.o \

@@ -10,8 +10,6 @@
 
 #include <string>
 
-#include "Scintilla.h"
-#include "GUI.h"
 #include "SciTEWin.h"
 
 UniqueInstance::UniqueInstance() {

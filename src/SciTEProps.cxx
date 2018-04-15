@@ -27,6 +27,7 @@
 #include "SciLexer.h"
 
 #include "GUI.h"
+#include "ScintillaWindow.h"
 
 #if defined(__unix__)
 

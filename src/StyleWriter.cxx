@@ -9,6 +9,7 @@
 
 #include "Scintilla.h"
 #include "GUI.h"
+#include "ScintillaWindow.h"
 #include "StyleWriter.h"
 
 TextReader::TextReader(GUI::ScintillaWindow &sw_) :

@@ -11,6 +11,7 @@
 #include "Scintilla.h"
 
 #include "GUI.h"
+#include "ScintillaWindow.h"
 
 #include "MatchMarker.h"
 

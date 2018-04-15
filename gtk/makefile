@@ -117,7 +117,7 @@ COMPLIB=$(srcdir)/../../scintilla/bin/scintilla.a
 # To almost make lua.vers (needs header and footer added) which is only needed after updating Lua:
 # nm -g ../bin/SciTE | grep lua | awk '{print "\t\t" $3 ";"}' >lua2.vers
 
-$(PROG): SciTEGTK.o GUIGTK.o Widget.o \
+$(PROG): SciTEGTK.o GUIGTK.o ScintillaWindow.o Widget.o \
 FilePath.o SciTEBase.o FileWorker.o Cookie.o Credits.o SciTEBuffers.o SciTEIO.o StringList.o \
 ExportHTML.o ExportPDF.o ExportRTF.o ExportTEX.o ExportXML.o \
 MatchMarker.o StringHelpers.o \

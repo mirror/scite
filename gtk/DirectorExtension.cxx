@@ -56,6 +56,7 @@
 #include "Scintilla.h"
 
 #include "GUI.h"
+#include "ScintillaWindow.h"
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"

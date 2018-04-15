@@ -86,6 +86,7 @@ typedef void *HTHEME;
 #include "ILoader.h"
 
 #include "GUI.h"
+#include "ScintillaWindow.h"
 
 #include "StringList.h"
 #include "StringHelpers.h"
