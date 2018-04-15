@@ -33,6 +33,10 @@ public:
 	sptr_t CallReturnPointer(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
 	int CallPointer(unsigned int msg, uptr_t wParam, void *s);
 	int CallString(unsigned int msg, uptr_t wParam, const char *s);
+
+	// Common APIs made more accessible
+	int LineStart(int line);
+	int LineFromPosition(int position);
 };
 
 }

@@ -70,4 +70,12 @@ int ScintillaWindow::CallString(unsigned int msg, uptr_t wParam, const char *s) 
 	return Call(msg, wParam, reinterpret_cast<sptr_t>(s));
 }
 
+// Common APIs made more accessible
+int ScintillaWindow::LineStart(int line) {
+	return Call(SCI_POSITIONFROMLINE, line);
+}
+int ScintillaWindow::LineFromPosition(int position) {
+	return Call(SCI_LINEFROMPOSITION, position);
+}
+
 }

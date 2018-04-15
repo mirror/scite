@@ -1099,7 +1099,8 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 		// Ensure found text is styled so that caret will be made visible.
 		const int endStyled = wEditor.Call(SCI_GETENDSTYLED);
 		if (endStyled < end)
-			wEditor.Call(SCI_COLOURISE, endStyled, end);
+			wEditor.Call(SCI_COLOURISE, endStyled,
+				wEditor.LineStart(wEditor.LineFromPosition(end) + 1));
 		EnsureRangeVisible(wEditor, start, end);
 		wEditor.Call(SCI_SCROLLRANGE, start, end);
 		wEditor.Call(SCI_SETTARGETRANGE, start, end);
