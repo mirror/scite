@@ -250,7 +250,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 					const GUI::Point ptClient = ClientFromScreen(HwndOf(wTabBar), PointOfCursor());
 					const int index = TabAtPoint(HwndOf(wTabBar), ptClient);
 					if (index >= 0) {
-						GUI::gui_string path = buffers.buffers[index].AsInternal();
+						GUI::gui_string path = buffers.buffers[index].file.AsInternal();
 						// Handle '&' characters in path, since they are interpreted in
 						// tooltips.
 						size_t amp = 0;

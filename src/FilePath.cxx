@@ -103,7 +103,7 @@ void FilePath::SetDirectory(FilePath const &directory) {
 }
 
 void FilePath::Init() {
-	fileName = GUI_TEXT("");
+	fileName.clear();
 }
 
 bool FilePath::operator==(const FilePath &other) const {

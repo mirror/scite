@@ -50,7 +50,7 @@ void Buffer::DocumentModified() {
 
 bool Buffer::NeedsSave(int delayBeforeSave) const {
 	const time_t now = time(0);
-	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !IsUntitled() && !failedSave;
+	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !file.IsUntitled() && !failedSave;
 }
 
 void Buffer::CompleteLoading() {
@@ -128,7 +128,7 @@ int BufferList::GetDocumentByName(const FilePath &filename, bool excludeCurrent)
 		return -1;
 	}
 	for (int i = 0;i < length;i++) {
-		if ((!excludeCurrent || i != current) && buffers[i].SameNameAs(filename)) {
+		if ((!excludeCurrent || i != current) && buffers[i].file.SameNameAs(filename)) {
 			return i;
 		}
 	}
@@ -298,7 +298,7 @@ BackgroundActivities BufferList::CountBackgroundActivities() const {
 					bg.loaders++;
 				else
 					bg.storers++;
-				bg.fileNameLast = buffers[i].AsInternal();
+				bg.fileNameLast = buffers[i].file.AsInternal();
 				bg.totalWork += buffers[i].pFileWorker->SizeJob();
 				bg.totalProgress += buffers[i].pFileWorker->ProgressMade();
 			}
@@ -401,8 +401,8 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 			extender->InitBuffer(0);
 	}
 
-	Buffer bufferNext = buffers.buffers[buffers.Current()];
-	SetFileName(bufferNext);
+	const Buffer &bufferNext = buffers.buffers[buffers.Current()];
+	SetFileName(bufferNext.file);
 	propsDiscovered = bufferNext.props;
 	propsDiscovered.superPS = &propsLocal;
 	wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
@@ -420,7 +420,7 @@ void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	if (lineNumbers && lineNumbersExpand)
 		SetLineNumberWidth();
 
-	DisplayAround(bufferNext);
+	DisplayAround(bufferNext.file);
 	if (restoreBookmarks) {
 		// Restoring a session does not restore the scroll position
 		// so make the selection visible.
@@ -441,11 +441,11 @@ void SciTEBase::UpdateBuffersCurrent() {
 
 	if ((buffers.length > 0) && (currentbuf >= 0) && (buffers.GetVisible(currentbuf))) {
 		Buffer &bufferCurrent = buffers.buffers[currentbuf];
-		bufferCurrent.Set(filePath);
+		bufferCurrent.file.Set(filePath);
 		if (bufferCurrent.lifeState != Buffer::reading && bufferCurrent.lifeState != Buffer::readAll) {
-			bufferCurrent.selection.position = wEditor.Call(SCI_GETCURRENTPOS);
-			bufferCurrent.selection.anchor = wEditor.Call(SCI_GETANCHOR);
-			bufferCurrent.scrollPosition = GetCurrentScrollPosition();
+			bufferCurrent.file.selection.position = wEditor.Call(SCI_GETCURRENTPOS);
+			bufferCurrent.file.selection.anchor = wEditor.Call(SCI_GETANCHOR);
+			bufferCurrent.file.scrollPosition = GetCurrentScrollPosition();
 
 			// Retrieve fold state and store in buffer state info
 
@@ -573,7 +573,7 @@ void SciTEBase::RestoreRecentMenu() {
 		std::string propStr = propsSession.GetString(propKey.c_str());
 		if (propStr == "")
 			continue;
-		AddFileToStack(GUI::StringFromUTF8(propStr), sr, 0);
+		AddFileToStack(RecentFile(GUI::StringFromUTF8(propStr), sr, 0));
 	}
 }
 
@@ -650,21 +650,21 @@ void SciTEBase::RestoreSession() {
 			continue;
 
 		BufferState bufferState;
-		bufferState.Set(GUI::StringFromUTF8(propStr));
+		bufferState.file.Set(GUI::StringFromUTF8(propStr));
 
 		propKey = IndexPropKey("buffer", i, "current");
 		if (propsSession.GetInt(propKey.c_str()))
-			session.pathActive = bufferState;
+			session.pathActive = bufferState.file;
 
 		propKey = IndexPropKey("buffer", i, "scroll");
 		const int scroll = propsSession.GetInt(propKey.c_str());
-		bufferState.scrollPosition = scroll;
+		bufferState.file.scrollPosition = scroll;
 
 		propKey = IndexPropKey("buffer", i, "position");
 		const int pos = propsSession.GetInt(propKey.c_str());
 
-		bufferState.selection.anchor = pos - 1;
-		bufferState.selection.position = bufferState.selection.anchor;
+		bufferState.file.selection.anchor = pos - 1;
+		bufferState.file.selection.position = bufferState.file.selection.anchor;
 
 		if (props.GetInt("session.bookmarks")) {
 			propKey = IndexPropKey("buffer", i, "bookmarks");
@@ -757,16 +757,16 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 	if (props.GetInt("buffers") && (!defaultSession || props.GetInt("save.session"))) {
 		const int curr = buffers.Current();
 		for (int i = 0; i < buffers.lengthVisible; i++) {
-			if (buffers.buffers[i].IsSet() && !buffers.buffers[i].IsUntitled()) {
-				const Buffer &buff = buffers.buffers[i];
+			const Buffer &buff = buffers.buffers[i];
+			if (buff.file.IsSet() && !buff.file.IsUntitled()) {
 				std::string propKey = IndexPropKey("buffer", i, "path");
-				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buff.AsUTF8().c_str());
+				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buff.file.AsUTF8().c_str());
 
-				const int pos = buff.selection.position + 1;
+				const int pos = buff.file.selection.position + 1;
 				propKey = IndexPropKey("buffer", i, "position");
 				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), pos);
 
-				const int scroll = buff.scrollPosition;
+				const int scroll = buff.file.scrollPosition;
 				propKey = IndexPropKey("buffer", i, "scroll");
 				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), scroll);
 
@@ -850,10 +850,8 @@ void SciTEBase::New() {
 
 	propsDiscovered.Clear();
 
-	if ((buffers.size() == 1) && (!buffers.buffers[0].IsUntitled())) {
-		AddFileToStack(buffers.buffers[0],
-		        buffers.buffers[0].selection,
-		        buffers.buffers[0].scrollPosition);
+	if ((buffers.size() == 1) && (!buffers.buffers[0].file.IsUntitled())) {
+		AddFileToStack(buffers.buffers[0].file);
 	}
 
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
@@ -861,7 +859,7 @@ void SciTEBase::New() {
 	if ((buffers.length > 1) ||
 	        (buffers.Current() != 0) ||
 	        (buffers.buffers[0].isDirty) ||
-	        (!buffers.buffers[0].IsUntitled())) {
+	        (!buffers.buffers[0].file.IsUntitled())) {
 		if (buffers.size() == buffers.length) {
 			Close(false, false, true);
 		}
@@ -935,8 +933,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 	} else if (buffers.size() > 1) {
 		if (buffers.Current() >= 0 && buffers.Current() < buffers.length) {
 			UpdateBuffersCurrent();
-			Buffer buff = buffers.buffers[buffers.Current()];
-			AddFileToStack(buff, buff.selection, buff.scrollPosition);
+			AddFileToStack(CurrentBufferConst()->file);
 		}
 		closingLast = (buffers.lengthVisible == 1) && !buffers.buffers[0].pFileWorker;
 		if (closingLast) {
@@ -959,12 +956,12 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			if (extender && !makingRoomForNew)
 				extender->ActivateBuffer(buffers.Current());
 		}
-		Buffer bufferNext = buffers.buffers[buffers.Current()];
+		const Buffer &bufferNext = buffers.buffers[buffers.Current()];
 
 		if (updateUI)
-			SetFileName(bufferNext);
+			SetFileName(bufferNext.file);
 		else
-			filePath = bufferNext;
+			filePath = bufferNext.file;
 		propsDiscovered = bufferNext.props;
 		propsDiscovered.superPS = &propsLocal;
 		wEditor.Call(SCI_SETDOCPOINTER, 0, GetDocumentAt(buffers.Current()));
@@ -983,7 +980,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			CheckReload();
 		if (updateUI) {
 			RestoreState(bufferNext, false);
-			DisplayAround(bufferNext);
+			DisplayAround(bufferNext.file);
 		}
 	}
 
@@ -1009,7 +1006,7 @@ void SciTEBase::CloseTab(int tab) {
 			WindowSetFocus(wEditor);
 		}
 	} else {
-		FilePath fpCurrent = buffers.buffers[tabCurrent].AbsolutePath();
+		FilePath fpCurrent = buffers.buffers[tabCurrent].file.AbsolutePath();
 		SetDocumentAt(tab);
 		if (SaveIfUnsure() != saveCancelled) {
 			Close();
@@ -1053,7 +1050,7 @@ void SciTEBase::SaveTitledBuffers() {
 	UpdateBuffersCurrent();
 	const int currentBuffer = buffers.Current();
 	for (int i = 0; i < buffers.lengthVisible; i++) {
-		if (buffers.buffers[i].isDirty && !buffers.buffers[i].IsUntitled()) {
+		if (buffers.buffers[i].isDirty && !buffers.buffers[i].file.IsUntitled()) {
 			SetDocumentAt(i);
 			Save();
 		}
@@ -1085,7 +1082,7 @@ void SciTEBase::ShiftTab(int indexFrom, int indexTo) {
 
 	TabSelect(indexTo);
 
-	DisplayAround(buffers.buffers[buffers.Current()]);
+	DisplayAround(buffers.buffers[buffers.Current()].file);
 }
 
 void SciTEBase::MoveTabRight() {
@@ -1163,13 +1160,13 @@ void SciTEBase::SetBuffersMenu() {
 			}
 #endif
 
-			if (buffers.buffers[pos].IsUntitled()) {
+			if (buffers.buffers[pos].file.IsUntitled()) {
 				GUI::gui_string untitled = localiser.Text("Untitled");
 				entry += untitled;
 				titleTab += untitled;
 			} else {
-				GUI::gui_string path = buffers.buffers[pos].AsInternal();
-				GUI::gui_string filename = buffers.buffers[pos].Name().AsInternal();
+				GUI::gui_string path = buffers.buffers[pos].file.AsInternal();
+				GUI::gui_string filename = buffers.buffers[pos].file.Name().AsInternal();
 
 				EscapeFilePathsForMenu(path);
 #if defined(_WIN32)
@@ -1248,20 +1245,20 @@ void SciTEBase::SetFileStackMenu() {
 bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 	// Return whether file loads successfully
 	bool opened = false;
-	if (bufferState.Exists()) {
-		opened = Open(bufferState, static_cast<OpenFlags>(ofForceLoad));
+	if (bufferState.file.Exists()) {
+		opened = Open(bufferState.file, static_cast<OpenFlags>(ofForceLoad));
 		// If forced synchronous should set up position, foldState and bookmarks
 		if (opened) {
-			const int iBuffer = buffers.GetDocumentByName(bufferState, false);
+			const int iBuffer = buffers.GetDocumentByName(bufferState.file, false);
 			if (iBuffer >= 0) {
-				buffers.buffers[iBuffer].scrollPosition = bufferState.scrollPosition;
-				buffers.buffers[iBuffer].selection = bufferState.selection;
+				buffers.buffers[iBuffer].file.scrollPosition = bufferState.file.scrollPosition;
+				buffers.buffers[iBuffer].file.selection = bufferState.file.selection;
 				buffers.buffers[iBuffer].foldState = bufferState.foldState;
 				buffers.buffers[iBuffer].bookmarks = bufferState.bookmarks;
 				if (buffers.buffers[iBuffer].lifeState == Buffer::open) {
 					// File was opened synchronously
 					RestoreState(buffers.buffers[iBuffer], true);
-					DisplayAround(buffers.buffers[iBuffer]);
+					DisplayAround(buffers.buffers[iBuffer].file);
 					wEditor.Call(SCI_SCROLLCARET);
 				}
 			}
@@ -1270,22 +1267,19 @@ bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 	return opened;
 }
 
-void SciTEBase::AddFileToStack(const FilePath &file, SelectedRange selection, int scrollPos) {
+void SciTEBase::AddFileToStack(const RecentFile &file) {
 	if (!file.IsSet())
 		return;
 	DeleteFileStackMenu();
 	// Only stack non-empty names
 	if (file.IsSet() && !file.IsUntitled()) {
-		int stackPos;
 		int eqPos = fileStackMax - 1;
-		for (stackPos = 0; stackPos < fileStackMax; stackPos++)
+		for (int stackPos = 0; stackPos < fileStackMax; stackPos++)
 			if (recentFileStack[stackPos].SameNameAs(file))
 				eqPos = stackPos;
-		for (stackPos = eqPos; stackPos > 0; stackPos--)
+		for (int stackPos = eqPos; stackPos > 0; stackPos--)
 			recentFileStack[stackPos] = recentFileStack[stackPos - 1];
-		recentFileStack[0].Set(file);
-		recentFileStack[0].selection = selection;
-		recentFileStack[0].scrollPosition = scrollPos;
+		recentFileStack[0] = file;
 	}
 	SetFileStackMenu();
 }
@@ -1389,8 +1383,8 @@ void SciTEBase::StackMenu(int pos) {
 				RecentFile rf = recentFileStack[pos];
 				// Already asked user so don't allow Open to ask again.
 				Open(rf, ofNoSaveIfDirty);
-				CurrentBuffer()->scrollPosition = rf.scrollPosition;
-				CurrentBuffer()->selection = rf.selection;
+				CurrentBuffer()->file.scrollPosition = rf.scrollPosition;
+				CurrentBuffer()->file.selection = rf.selection;
 				DisplayAround(rf);
 			}
 		}
@@ -1995,8 +1989,8 @@ void SciTEBase::GoMessage(int dir) {
 					} else {
 						// Look through buffers for name match
 						for (int i = buffers.lengthVisible - 1; i >= 0; i--) {
-							if (sourcePath.Name().SameNameAs(buffers.buffers[i].Name())) {
-								messagePath = buffers.buffers[i];
+							if (sourcePath.Name().SameNameAs(buffers.buffers[i].file.Name())) {
+								messagePath = buffers.buffers[i].file;
 								bExists = true;
 							}
 						}

@@ -87,7 +87,7 @@ void SciTEBase::SetFileName(const FilePath &openName, bool fixCase) {
 
 	SetWindowName();
 	if (buffers.buffers.size() > 0)
-		buffers.buffers[buffers.Current()].Set(filePath);
+		CurrentBuffer()->file.Set(filePath);
 }
 
 // See if path exists.
@@ -340,9 +340,9 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 		if (iBuffer == buffers.Current()) {
 			CompleteOpen(ocCompleteCurrent);
 			if (extender)
-				extender->OnOpen(buffers.buffers[iBuffer].AsUTF8().c_str());
+				extender->OnOpen(buffers.buffers[iBuffer].file.AsUTF8().c_str());
 			RestoreState(buffers.buffers[iBuffer], true);
-			DisplayAround(buffers.buffers[iBuffer]);
+			DisplayAround(buffers.buffers[iBuffer].file);
 			wEditor.Call(SCI_SCROLLCARET);
 		}
 	}
@@ -434,11 +434,11 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 			}
 			if (iBuffer == buffers.Current()) {
 				wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
-				if (pathSaved.SameNameAs(CurrentBuffer()->AsInternal())) {
+				if (pathSaved.SameNameAs(CurrentBuffer()->file)) {
 					wEditor.Call(SCI_SETSAVEPOINT);
 				}
 				if (extender)
-					extender->OnSave(buffers.buffers[iBuffer].AsUTF8().c_str());
+					extender->OnSave(buffers.buffers[iBuffer].file.AsUTF8().c_str());
 			} else {
 				buffers.buffers[iBuffer].isDirty = false;
 				buffers.buffers[iBuffer].failedSave = false;
@@ -549,7 +549,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	}
 
 	if (buffers.size() == buffers.length) {
-		AddFileToStack(filePath, GetSelectedRange(), GetCurrentScrollPosition());
+		AddFileToStack(RecentFile(filePath, GetSelectedRange(), GetCurrentScrollPosition()));
 		ClearDocument();
 		CurrentBuffer()->lifeState = Buffer::open;
 		if (extender)
@@ -862,7 +862,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 	if (props.GetInt("save.recent")) {
 		for (int i = 0; i < buffers.lengthVisible; ++i) {
 			Buffer buff = buffers.buffers[i];
-			AddFileToStack(buff, buff.selection, buff.scrollPosition);
+			AddFileToStack(buff.file);
 		}
 	}
 	if (props.GetInt("save.session") || props.GetInt("save.position") || props.GetInt("save.recent")) {

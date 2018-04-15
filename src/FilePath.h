@@ -31,6 +31,10 @@ public:
 	FilePath(const GUI::gui_char *fileName_ = GUI_TEXT(""));
 	FilePath(const GUI::gui_string &fileName_);
 	FilePath(FilePath const &directory, FilePath const &name);
+	FilePath(FilePath const &) = default;
+	FilePath(FilePath &&) = default;
+	FilePath &operator=(FilePath const &) = default;
+	FilePath &operator=(FilePath &&) = default;
 	virtual ~FilePath() = default;
 	void Set(const GUI::gui_char *fileName_);
 	void Set(FilePath const &other);

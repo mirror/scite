@@ -958,10 +958,11 @@ void SciTEGTK::TabInsert(int index, const GUI::gui_char *title) {
 		GtkWidget *tablabel = gtk_label_new(title);
 		GtkWidget *tabcontent;
 		if (props.GetInt("pathbar.visible")) {
-			if (buffers.buffers[index].IsUntitled())
+			const FilePath &fp = buffers.buffers[index].file;
+			if (fp.IsUntitled())
 				tabcontent = gtk_label_new(localiser.Text("Untitled").c_str());
 			else
-				tabcontent = gtk_label_new(buffers.buffers[index].AsInternal());
+				tabcontent = gtk_label_new(fp.AsInternal());
 		} else {
 			// No path bar
 			tabcontent = gtk_image_new();

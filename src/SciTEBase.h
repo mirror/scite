@@ -56,6 +56,13 @@ public:
 	RecentFile() {
 		scrollPosition = 0;
 	}
+	RecentFile(const FilePath &path_, SelectedRange selection_, int scrollPosition_) :
+		FilePath(path_), selection(selection_), scrollPosition(scrollPosition_) {
+	}
+	RecentFile(RecentFile const &) = default;
+	RecentFile(RecentFile &&) = default;
+	RecentFile &operator=(RecentFile const &) = default;
+	RecentFile &operator=(RecentFile &&) = default;
 	~RecentFile() override = default;
 	void Init() override {
 		FilePath::Init();
@@ -65,8 +72,9 @@ public:
 	}
 };
 
-struct BufferState : public RecentFile {
+struct BufferState {
 public:
+	RecentFile file;
 	std::vector<int> foldState;
 	std::vector<int> bookmarks;
 };
@@ -79,8 +87,9 @@ public:
 
 struct FileWorker;
 
-class Buffer : public RecentFile {
+class Buffer {
 public:
+	RecentFile file;
 	sptr_t doc;
 	bool isDirty;
 	bool isReadOnly;
@@ -99,13 +108,13 @@ public:
 	PropSetFile props;
 	enum FutureDo { fdNone=0, fdFinishSave=1 } futureDo;
 	Buffer() :
-			RecentFile(), doc(0), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
+			file(), doc(0), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
 			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
 			findMarks(fmNone), pFileWorker(0), futureDo(fdNone) {}
 
-	~Buffer() override = default;
-	void Init() override {
-		RecentFile::Init();
+	~Buffer() = default;
+	void Init() {
+		file.Init();
 		isDirty = false;
 		isReadOnly = false;
 		failedSave = false;
@@ -124,7 +133,7 @@ public:
 	}
 
 	void SetTimeFromFile() {
-		fileModTime = ModifiedTime();
+		fileModTime = file.ModifiedTime();
 		fileModLastAsk = fileModTime;
 		documentModTime = fileModTime;
 		failedSave = false;
@@ -849,7 +858,7 @@ protected:
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
 	bool AddFileToBuffer(const BufferState &bufferState);
-	void AddFileToStack(const FilePath &file, SelectedRange selection, int scrollPos);
+	void AddFileToStack(const RecentFile &file);
 	void RemoveFileFromStack(const FilePath &file);
 	RecentFile GetFilePosition();
 	void DisplayAround(const RecentFile &rf);
