@@ -278,7 +278,19 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		assert(CurrentBufferConst()->pFileWorker == NULL);
 		ILoader *pdocLoad;
 		try {
-			pdocLoad = reinterpret_cast<ILoader *>(wEditor.CallReturnPointer(SCI_CREATELOADER, static_cast<uptr_t>(fileSize) + 1000));
+			sptr_t docOptions = SC_DOCUMENTOPTION_DEFAULT;
+
+			const long long sizeLarge = props.GetLongLong("file.size.large");
+			if (sizeLarge && (fileSize > sizeLarge))
+				docOptions |= SC_DOCUMENTOPTION_TEXT_LARGE;
+
+			const long long sizeNoStyles = props.GetLongLong("file.size.no.styles");
+			if (sizeNoStyles && (fileSize > sizeNoStyles))
+				docOptions |= SC_DOCUMENTOPTION_STYLES_NONE;
+
+			pdocLoad = reinterpret_cast<ILoader *>(
+				wEditor.CallReturnPointer(SCI_CREATELOADER, static_cast<uptr_t>(fileSize) + 1000,
+					docOptions));
 		} catch (...) {
 			wEditor.Call(SCI_SETSTATUS, 0);
 			return;
@@ -524,7 +536,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	}
 
 	const long long fileSize = absPath.IsUntitled() ? 0 : absPath.GetFileLength();
-	if (fileSize > INT32_MAX) {
+	if (fileSize > INTPTR_MAX) {
 		const GUI::gui_string sSize = GUI::StringFromLongLong(fileSize);
 		const GUI::gui_string msg = LocaliseMessage("File '^0' is ^1 bytes long, "
 			"larger than 2GB which is the largest SciTE can open.",

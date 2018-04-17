@@ -647,6 +647,9 @@ void SciTEBase::ReadProperties() {
 	if (modulePath.length())
 	    wEditor.CallString(SCI_LOADLEXERLIBRARY, 0, modulePath.c_str());
 	language = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
+	if (wEditor.Call(SCI_GETDOCUMENTOPTIONS) & SC_DOCUMENTOPTION_STYLES_NONE) {
+		language = "";
+	}
 	if (language.length()) {
 		if (StartsWith(language, "script_")) {
 			wEditor.Call(SCI_SETLEXER, SCLEX_CONTAINER);
