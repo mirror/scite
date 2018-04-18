@@ -12,7 +12,6 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
-#include <sstream>
 
 #include "Scintilla.h"
 
@@ -74,15 +73,11 @@ bool RemoveStringOnce(std::string &s, const char *marker) {
 }
 
 std::string StdStringFromInteger(int i) {
-	char number[32];
-	sprintf(number, "%0d", i);
-	return std::string(number);
+	return std::to_string(i);
 }
 
 std::string StdStringFromSizeT(size_t i) {
-	std::ostringstream strstrm;
-	strstrm << i;
-	return strstrm.str();
+	return std::to_string(i);
 }
 
 std::string StdStringFromDouble(double d, int precision) {

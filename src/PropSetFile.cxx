@@ -296,23 +296,16 @@ std::string PropSetFile::Expand(const std::string &withVars, int maxExpands) con
 
 int PropSetFile::GetInt(const char *key, int defaultValue) const {
 	std::string val = GetExpandedString(key);
-	if (val.length())
-		return atoi(val.c_str());
+	if (val.length()) {
+		return std::stoi(val);
+	}
 	return defaultValue;
 }
 
 long long PropSetFile::GetLongLong(const char *key, long long defaultValue) const {
 	std::string val = GetExpandedString(key);
 	if (val.length()) {
-		try {
-			std::istringstream strstrm(val);
-			long long llValue = 0;
-			strstrm >> llValue;
-			return llValue;
-		} catch (std::exception &) {
-			// Exceptions not enabled on stream but still causes diagnostic in Coverity.
-			// Simply swallow the failure and return the default value.
-		}
+		return std::stoll(val);
 	}
 	return defaultValue;
 }
