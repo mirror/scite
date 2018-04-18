@@ -152,7 +152,7 @@ std::string PropSetFile::GetString(const char *key) const {
 
 static std::string ShellEscape(const char *toEscape) {
 	std::string str(toEscape);
-	for (int i = static_cast<int>(str.length()-1); i >= 0; --i) {
+	for (ptrdiff_t i = str.length()-1; i >= 0; --i) {
 		switch (str[i]) {
 		case ' ':
 		case '|':
