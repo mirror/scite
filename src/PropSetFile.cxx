@@ -68,7 +68,7 @@ bool ImportFilter::IsValid(const std::string &name) const {
 
 bool PropSetFile::caseSensitiveFilenames = false;
 
-PropSetFile::PropSetFile(bool lowerKeys_) : lowerKeys(lowerKeys_), superPS(0) {
+PropSetFile::PropSetFile(bool lowerKeys_) noexcept : lowerKeys(lowerKeys_), superPS(0) {
 }
 
 PropSetFile::PropSetFile(const PropSetFile &copy) : lowerKeys(copy.lowerKeys), props(copy.props), superPS(copy.superPS) {
@@ -241,7 +241,7 @@ std::string PropSetFile::Evaluate(const char *key) const {
 // for that, through a recursive function and a simple chain of pointers.
 
 struct VarChain {
-	VarChain(const char*var_=NULL, const VarChain *link_=NULL): var(var_), link(link_) {}
+	VarChain(const char*var_=NULL, const VarChain *link_=NULL) noexcept : var(var_), link(link_) {}
 
 	bool contains(const char *testVar) const {
 		return (var && (0 == strcmp(var, testVar)))

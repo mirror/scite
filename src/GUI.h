@@ -19,7 +19,7 @@ public:
 	int x;
 	int y;
 
-	explicit Point(int x_=0, int y_=0) : x(x_), y(y_) {
+	explicit Point(int x_=0, int y_=0) noexcept : x(x_), y(y_) {
 	}
 };
 
@@ -30,7 +30,7 @@ public:
 	int right;
 	int bottom;
 
-	Rectangle(int left_=0, int top_=0, int right_=0, int bottom_ = 0) :
+	Rectangle(int left_=0, int top_=0, int right_=0, int bottom_ = 0) noexcept :
 		left(left_), top(top_), right(right_), bottom(bottom_) {
 	}
 	bool Contains(Point pt) const {
@@ -83,7 +83,7 @@ class Window {
 protected:
 	WindowID wid;
 public:
-	Window() : wid(0) {
+	Window() noexcept : wid(0) {
 	}
 	virtual ~Window() = default;
 	Window &operator=(WindowID wid_) {
@@ -113,7 +113,7 @@ typedef void *MenuID;
 class Menu {
 	MenuID mid;
 public:
-	Menu() : mid(0) {
+	Menu() noexcept : mid(0) {
 	}
 	MenuID GetID() const {
 		return mid;
