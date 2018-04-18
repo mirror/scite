@@ -32,9 +32,10 @@ public:
 	PropSetFile(const PropSetFile &copy);
 	PropSetFile &operator=(const PropSetFile &assign);
 	virtual ~PropSetFile();
-	void Set(const char *key, const char *val, ptrdiff_t lenKey=-1, ptrdiff_t lenVal=-1);
-	void Set(const char *keyVal);
-	void Unset(const char *key, int lenKey=-1);
+
+	void Set(std::string_view key, std::string_view val);
+	void SetLine(const char *keyVal);
+	void Unset(std::string_view key);
 	bool Exists(const char *key) const;
 	std::string GetString(const char *key) const;
 	std::string Evaluate(const char *key) const;

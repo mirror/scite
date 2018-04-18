@@ -4430,7 +4430,7 @@ void SciTEBase::SendOneProperty(const char *kind, const char *key, const char *v
 }
 
 void SciTEBase::PropertyFromDirector(const char *arg) {
-	props.Set(arg);
+	props.SetLine(arg);
 }
 
 void SciTEBase::PropertyToDirector(const char *arg) {

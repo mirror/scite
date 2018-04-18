@@ -88,17 +88,13 @@ PropSetFile &PropSetFile::operator=(const PropSetFile &assign) {
 	return *this;
 }
 
-void PropSetFile::Set(const char *key, const char *val, ptrdiff_t lenKey, ptrdiff_t lenVal) {
-	if (!*key)	// Empty keys are not supported
+void PropSetFile::Set(std::string_view key, std::string_view val) {
+	if (key.empty())	// Empty keys are not supported
 		return;
-	if (lenKey == -1)
-		lenKey = strlen(key);
-	if (lenVal == -1)
-		lenVal = strlen(val);
-	props[std::string(key, lenKey)] = std::string(val, lenVal);
+	props[std::string(key)] = std::string(val);
 }
 
-void PropSetFile::Set(const char *keyVal) {
+void PropSetFile::SetLine(const char *keyVal) {
 	while (IsASpace(*keyVal))
 		keyVal++;
 	const char *endVal = keyVal;
@@ -112,18 +108,16 @@ void PropSetFile::Set(const char *keyVal) {
 		}
 		const ptrdiff_t lenVal = endVal - eqAt - 1;
 		const ptrdiff_t lenKey = pKeyEnd - keyVal + 1;
-		Set(keyVal, eqAt + 1, lenKey, lenVal);
+		Set(std::string_view(keyVal, lenKey), std::string_view(eqAt + 1, lenVal));
 	} else if (*keyVal) {	// No '=' so assume '=1'
-		Set(keyVal, "1", endVal-keyVal, 1);
+		Set(keyVal, "1");
 	}
 }
 
-void PropSetFile::Unset(const char *key, int lenKey) {
-	if (!*key)	// Empty keys are not supported
+void PropSetFile::Unset(std::string_view key) {
+	if (key.empty())	// Empty keys are not supported
 		return;
-	if (lenKey == -1)
-		lenKey = static_cast<int>(strlen(key));
-	mapss::iterator keyPos = props.find(std::string(key, lenKey));
+	mapss::iterator keyPos = props.find(std::string(key));
 	if (keyPos != props.end())
 		props.erase(keyPos);
 }
@@ -433,7 +427,7 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 			}
 		}
 	} else if (!IsCommentLine(lineBuffer)) {
-		Set(lineBuffer);
+		SetLine(lineBuffer);
 	}
 	return rls;
 }
