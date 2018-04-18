@@ -400,6 +400,10 @@ protected:
 	int diagnosticStyleStart;
 	enum { diagnosticStyles=4};
 
+	bool stripTrailingSpaces;
+	bool ensureFinalLineEnd;
+	bool ensureConsistentLineEnds;
+
 	bool indentOpening;
 	bool indentClosing;
 	bool indentMaintain;

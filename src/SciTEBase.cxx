@@ -105,6 +105,9 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 	lexLPeg = -1;
 	functionDefinition = "";
 	diagnosticStyleStart = 0;
+	stripTrailingSpaces = false;
+	ensureFinalLineEnd = false;
+	ensureConsistentLineEnds = false;
 	indentOpening = true;
 	indentClosing = true;
 	indentMaintain = false;

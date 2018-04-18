@@ -1060,15 +1060,11 @@ bool SciTEBase::PrepareBufferForSave(const FilePath &saveName) {
 	bool retVal = false;
 	// Perform clean ups on text before saving
 	wEditor.Call(SCI_BEGINUNDOACTION);
-	std::string useStripTrailingSpaces = props.GetNewExpandString("strip.trailing.spaces.", ExtensionFileName().c_str());
-	if (useStripTrailingSpaces.length() > 0) {
-		if (atoi(useStripTrailingSpaces.c_str()))
-			StripTrailingSpaces();
-	} else if (props.GetInt("strip.trailing.spaces"))
+	if (stripTrailingSpaces)
 		StripTrailingSpaces();
-	if (props.GetInt("ensure.final.line.end"))
+	if (ensureFinalLineEnd)
 		EnsureFinalNewLine();
-	if (props.GetInt("ensure.consistent.line.ends"))
+	if (ensureConsistentLineEnds)
 		wEditor.Call(SCI_CONVERTEOLS, wEditor.Call(SCI_GETEOLMODE));
 
 	if (extender)

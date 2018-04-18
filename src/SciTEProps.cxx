@@ -1041,6 +1041,15 @@ void SciTEBase::ReadProperties() {
 
 	wEditor.Call(SCI_CALLTIPUSESTYLE, 32);
 
+	std::string useStripTrailingSpaces = props.GetNewExpandString("strip.trailing.spaces.", ExtensionFileName().c_str());
+	if (useStripTrailingSpaces.length() > 0) {
+		stripTrailingSpaces = atoi(useStripTrailingSpaces.c_str()) != 0;
+	} else {
+		stripTrailingSpaces = props.GetInt("strip.trailing.spaces") != 0;
+	}
+	ensureFinalLineEnd = props.GetInt("ensure.final.line.end") != 0;
+	ensureConsistentLineEnds = props.GetInt("ensure.consistent.line.ends") != 0;
+
 	indentOpening = props.GetInt("indent.opening");
 	indentClosing = props.GetInt("indent.closing");
 	indentMaintain = atoi(props.GetNewExpandString("indent.maintain.", fileNameForExtension.c_str()).c_str());
