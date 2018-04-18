@@ -85,11 +85,16 @@ protected:
 public:
 	Window() noexcept : wid(0) {
 	}
-	virtual ~Window() = default;
+	Window(Window const &) = default;
+	Window(Window &&) = default;
+	Window &operator=(Window const &) = default;
+	Window &operator=(Window &&) = default;
 	Window &operator=(WindowID wid_) {
 		wid = wid_;
 		return *this;
 	}
+	virtual ~Window() = default;
+
 	WindowID GetID() const {
 		return wid;
 	}
