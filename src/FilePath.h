@@ -63,7 +63,7 @@ public:
 	bool SetWorkingDirectory() const;
 	void List(FilePathSet &directories, FilePathSet &files) const;
 	FILE *Open(const GUI::gui_char *mode) const;
-	std::vector<char> Read() const;
+	std::string Read() const;
 	void Remove() const;
 	time_t ModifiedTime() const;
 	long long GetFileLength() const;

@@ -76,6 +76,9 @@ void StringCopy(T (&dest)[count], const T* source) {
 int CompareNoCase(const char *a, const char *b);
 bool EqualCaseInsensitive(const char *a, const char *b);
 bool isprefix(const char *target, const char *prefix);
+
+constexpr const char *UTF8BOM = "\xef\xbb\xbf";
+
 unsigned int UTF32Character(const unsigned char *utf8);
 
 std::string Slash(const std::string &s, bool quoteQuotes);

@@ -380,7 +380,7 @@ void SciTEBase::ReadAPI(const std::string &fileNameForExtension) {
 
 		// Load files into data
 		for (const std::string &vApiFileName : vApiFileNames) {
-			std::vector<char> contents = FilePath(GUI::StringFromUTF8(vApiFileName)).Read();
+			std::string contents = FilePath(GUI::StringFromUTF8(vApiFileName)).Read();
 			data.insert(data.end(), contents.begin(), contents.end());
 		}
 
