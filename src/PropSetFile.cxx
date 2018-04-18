@@ -467,8 +467,7 @@ bool PropSetFile::Read(const FilePath &filename, const FilePath &directoryForImp
 }
 
 void PropSetFile::SetInteger(const char *key, int i) {
-	char tmp[32];
-	sprintf(tmp, "%d", static_cast<int>(i));
+	const std::string tmp = std::to_string(i);
 	Set(key, tmp);
 }
 
