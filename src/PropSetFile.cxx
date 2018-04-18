@@ -402,6 +402,7 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 		} else {
 			rls = rlExcludedModule;
 		}
+		return rls;
 	}
 	if (rls != rlActive) {
 		return rls;
@@ -409,25 +410,27 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 	if (isprefix(lineBuffer, "if ")) {
 		const char *expr = lineBuffer + strlen("if") + 1;
 		rls = (GetInt(expr) != 0) ? rlActive : rlConditionFalse;
-	} else if (isprefix(lineBuffer, "import ") && directoryForImports.IsSet()) {
-		std::string importName(lineBuffer + strlen("import") + 1);
-		if (importName == "*") {
-			// Import all .properties files in this directory except for system properties
-			FilePathSet directories;
-			FilePathSet files;
-			directoryForImports.List(directories, files);
-			for (const FilePath &fpFile : files) {
-				if (IsPropertiesFile(fpFile) &&
-					!GenericPropertiesFile(fpFile) &&
-					filter.IsValid(fpFile.BaseName().AsUTF8())) {
-					FilePath importPath(directoryForImports, fpFile);
-					Import(importPath, directoryForImports, filter, imports, depth+1);
+	} else if (isprefix(lineBuffer, "import ")) {
+		if (directoryForImports.IsSet()) {
+			std::string importName(lineBuffer + strlen("import") + 1);
+			if (importName == "*") {
+				// Import all .properties files in this directory except for system properties
+				FilePathSet directories;
+				FilePathSet files;
+				directoryForImports.List(directories, files);
+				for (const FilePath &fpFile : files) {
+					if (IsPropertiesFile(fpFile) &&
+						!GenericPropertiesFile(fpFile) &&
+						filter.IsValid(fpFile.BaseName().AsUTF8())) {
+						FilePath importPath(directoryForImports, fpFile);
+						Import(importPath, directoryForImports, filter, imports, depth + 1);
+					}
 				}
+			} else if (filter.IsValid(importName)) {
+				importName += ".properties";
+				FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName)));
+				Import(importPath, directoryForImports, filter, imports, depth + 1);
 			}
-		} else if (filter.IsValid(importName)) {
-			importName += ".properties";
-			FilePath importPath(directoryForImports, FilePath(GUI::StringFromUTF8(importName)));
-			Import(importPath, directoryForImports, filter, imports, depth+1);
 		}
 	} else if (!IsCommentLine(lineBuffer)) {
 		Set(lineBuffer);
