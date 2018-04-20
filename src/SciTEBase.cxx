@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <ctime>
+#include <cmath>
 
 #include <string>
 #include <vector>
@@ -3344,12 +3345,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	case IDM_SPLITVERTICAL:
 		{
 			const GUI::Rectangle rcClient = GetClientRectangle();
+			const double doubleHeightOutput = heightOutput;
+			const double doublePreviousHeightOutput = previousHeightOutput;
 			heightOutput = splitVertical ?
-				int((double)heightOutput * rcClient.Height() / rcClient.Width() + 0.5) :
-				int((double)heightOutput * rcClient.Width() / rcClient.Height() + 0.5);
+				lround(doubleHeightOutput * rcClient.Height() / rcClient.Width()) :
+				lround(doubleHeightOutput * rcClient.Width() / rcClient.Height());
 			previousHeightOutput = splitVertical ?
-				int((double)previousHeightOutput * rcClient.Height() / rcClient.Width() + 0.5) :
-				int((double)previousHeightOutput * rcClient.Width() / rcClient.Height() + 0.5);
+				lround(doublePreviousHeightOutput * rcClient.Height() / rcClient.Width()) :
+				lround(doublePreviousHeightOutput * rcClient.Width() / rcClient.Height());
 		}
 		splitVertical = !splitVertical;
 		heightOutput = NormaliseSplit(heightOutput);
