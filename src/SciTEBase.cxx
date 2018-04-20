@@ -3347,12 +3347,12 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			const GUI::Rectangle rcClient = GetClientRectangle();
 			const double doubleHeightOutput = heightOutput;
 			const double doublePreviousHeightOutput = previousHeightOutput;
-			heightOutput = splitVertical ?
+			heightOutput = static_cast<int>(splitVertical ?
 				lround(doubleHeightOutput * rcClient.Height() / rcClient.Width()) :
-				lround(doubleHeightOutput * rcClient.Width() / rcClient.Height());
-			previousHeightOutput = splitVertical ?
+				lround(doubleHeightOutput * rcClient.Width() / rcClient.Height()));
+			previousHeightOutput = static_cast<int>(splitVertical ?
 				lround(doublePreviousHeightOutput * rcClient.Height() / rcClient.Width()) :
-				lround(doublePreviousHeightOutput * rcClient.Width() / rcClient.Height());
+				lround(doublePreviousHeightOutput * rcClient.Width() / rcClient.Height()));
 		}
 		splitVertical = !splitVertical;
 		heightOutput = NormaliseSplit(heightOutput);
