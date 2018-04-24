@@ -130,7 +130,7 @@ bool isprefix(const char *target, const char *prefix) {
 		return true;
 }
 
-unsigned int UTF32Character(const unsigned char *utf8) {
+unsigned int UTF32Character(const char *utf8) {
 	unsigned char ch = utf8[0];
 	unsigned int u32Char;
 	if (ch < 0x80) {

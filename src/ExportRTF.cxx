@@ -262,7 +262,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 		} else if (isUTF8 && !IsASCII(ch)) {
 			const int nextPosition = wEditor.Call(SCI_POSITIONAFTER, iPos);
 			wEditor.Call(SCI_SETTARGETRANGE, iPos, nextPosition);
-			unsigned char u8Char[5] = "";
+			char u8Char[5] = "";
 			wEditor.CallPointer(SCI_TARGETASUTF8, 0, u8Char);
 			const unsigned int u32 = UTF32Character(u8Char);
 			if (u32 < 0x10000) {
