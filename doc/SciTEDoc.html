@@ -1296,6 +1296,17 @@ NameError: name 'mistake' is not defined
           Setting this to 1 makes the status bar visible at start up.
         </td>
       </tr>
+      <tr class="osxonly" id='property-statusbar.minimum.height'>
+        <td>
+          statusbar.minimum.height
+        </td>
+        <td>
+          On macOS, when the status bar is turned off, it is still visible but only for this
+          height which defaults to 4 pixels. This is because of a bug that causes window corner
+          debris to appear in the margin when scrolling. This parameter may be set to 0
+          if the debris does not appear on a particular setup.
+        </td>
+      </tr>
       <tr id='property-statusbar.number'>
         <td>
           <a name='property-statusbar.text'></a>
