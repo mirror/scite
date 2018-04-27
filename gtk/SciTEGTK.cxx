@@ -3174,7 +3174,7 @@ SciTEBase::MessageBoxChoice SciTEGTK::WindowMessageBox(GUI::Window &w, const GUI
 		if (style & mbsAboutBox) {
 			GtkWidget *explanation = scintilla_new();
 			GUI::ScintillaWindow scExplanation;
-			scExplanation.SetID(explanation);
+			scExplanation.SetScintilla(explanation);
 			scintilla_set_id(SCINTILLA(explanation), 0);
 #if GTK_CHECK_VERSION(3,0,0)
 			gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(messageBoxDialog))),
