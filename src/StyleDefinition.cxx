@@ -75,7 +75,12 @@ bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
 		}
 		if ((optionName == "weight") && !optionValue.empty()) {
 			specified = static_cast<flags>(specified | sdWeight);
-			weight = std::stoi(std::string(optionValue));
+			try {
+				weight = std::stoi(std::string(optionValue));
+			}
+			catch (std::logic_error) {
+				// Ignore bad values, either non-numeric or out of range numberic
+			}
 		}
 		if ((optionName == "font") && !optionValue.empty()) {
 			specified = static_cast<flags>(specified | sdFont);
@@ -231,31 +236,37 @@ bool IndicatorDefinition::ParseIndicatorDefinition(std::string_view definition) 
 		// Find value separator ':' and break into name and value
 		const auto [optionName, optionValue] = ViewSplit(option, ':');
 
-		if (!optionValue.empty() && (optionName == "style")) {
-			bool found = false;
-			for (const NameValue &indicStyleName : indicStyleNames) {
-				if (optionValue == indicStyleName.name) {
-					style = indicStyleName.value;
-					found = true;
+		try {
+			if (!optionValue.empty() && (optionName == "style")) {
+				bool found = false;
+				for (const NameValue &indicStyleName : indicStyleNames) {
+					if (optionValue == indicStyleName.name) {
+						style = indicStyleName.value;
+						found = true;
+					}
+				}
+				if (!found) {
+					style = std::stoi(std::string(optionValue));
 				}
 			}
-			if (!found)
-				style = std::stoi(std::string(optionValue));
+			if (!optionValue.empty() && ((optionName == "colour") || (optionName == "color"))) {
+				colour = ColourFromString(std::string(optionValue));
+			}
+			if (!optionValue.empty() && (optionName == "fillalpha")) {
+				fillAlpha = std::stoi(std::string(optionValue));
+			}
+			if (!optionValue.empty() && (optionName == "outlinealpha")) {
+				outlineAlpha = std::stoi(std::string(optionValue));
+			}
+			if (optionName == "under") {
+				under = true;
+			}
+			if (optionName == "notunder") {
+				under = false;
+			}
 		}
-		if (!optionValue.empty() && ((optionName == "colour") || (optionName == "color"))) {
-			colour = ColourFromString(std::string(optionValue));
-		}
-		if (!optionValue.empty() && (optionName == "fillalpha")) {
-			fillAlpha = std::stoi(std::string(optionValue));
-		}
-		if (!optionValue.empty() && (optionName == "outlinealpha")) {
-			outlineAlpha = std::stoi(std::string(optionValue));
-		}
-		if (optionName == "under") {
-			under = true;
-		}
-		if (optionName == "notunder") {
-			under = false;
+		catch (std::logic_error) {
+			// Ignore bad values, either non-numeric or out of range numberic
 		}
 	}
 	return true;

@@ -295,9 +295,14 @@ std::string PropSetFile::Expand(const std::string &withVars, int maxExpands) con
 }
 
 int PropSetFile::GetInt(const char *key, int defaultValue) const {
-	std::string val = GetExpandedString(key);
-	if (val.length()) {
-		return std::stoi(val);
+	try {
+		std::string val = GetExpandedString(key);
+		if (val.length()) {
+			return std::stoi(val);
+		}
+	}
+	catch (std::logic_error) {
+		// Ignore bad values, either non-numeric or out of range numberic
 	}
 	return defaultValue;
 }
