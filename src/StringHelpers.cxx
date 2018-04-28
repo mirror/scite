@@ -130,6 +130,32 @@ bool isprefix(const char *target, const char *prefix) {
 		return true;
 }
 
+std::u32string UTF32FromUTF8(std::string_view s) {
+	std::u32string ret;
+	while (!s.empty()) {
+		const unsigned char uc = static_cast<unsigned char>(s.front());
+		size_t lenChar = 1;
+		if (uc >= 0x80 + 0x40 + 0x20 + 0x10) {
+			lenChar = 4;
+		} else if (uc >= 0x80 + 0x40 + 0x20) {
+			lenChar = 3;
+		} else if (uc >= 0x80 + 0x40) {
+			lenChar = 2;
+		}
+		if (lenChar > s.length()) {
+			// Character fragment
+			for (size_t i = 0; i < s.length(); i++) {
+				ret.push_back(static_cast<unsigned char>(s[i]));
+			}
+			break;
+		}
+		const char32_t ch32 = UTF32Character(s.data());
+		ret.push_back(ch32);
+		s.remove_prefix(lenChar);
+	}
+	return ret;
+}
+
 unsigned int UTF32Character(const char *utf8) {
 	unsigned char ch = utf8[0];
 	unsigned int u32Char;

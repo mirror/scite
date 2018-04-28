@@ -79,6 +79,7 @@ bool isprefix(const char *target, const char *prefix);
 
 constexpr const char *UTF8BOM = "\xef\xbb\xbf";
 
+std::u32string UTF32FromUTF8(std::string_view s);
 unsigned int UTF32Character(const char *utf8);
 
 std::string Slash(const std::string &s, bool quoteQuotes);
