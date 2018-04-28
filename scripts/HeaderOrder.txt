@@ -193,6 +193,7 @@
 #include "Worker.h"
 #include "FileWorker.h"
 #include "MatchMarker.h"
+#include "EditorConfig.h"
 #include "SciTEBase.h"
 #include "StripDefinition.h"
 #include "Utf8_16.h"

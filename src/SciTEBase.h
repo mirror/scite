@@ -354,6 +354,8 @@ public:
 	}
 };
 
+class IEditorConfig;
+
 class SciTEBase : public ExtensionAPI, public Searcher, public WorkerListener {
 protected:
 	bool needIdle;
@@ -537,6 +539,8 @@ protected:
 	Localization localiser;
 
 	PropSetFile propsStatus;	// Not attached to a file but need SetInteger method.
+
+	std::unique_ptr<IEditorConfig> editorConfig;
 
 	enum { bufferMax = IDM_IMPORT - IDM_BUFFER };
 	BufferList buffers;

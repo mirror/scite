@@ -38,6 +38,10 @@ Credits.o: ../src/Credits.cxx \
  ../src/StyleWriter.h ../src/Extender.h ../src/SciTE.h ../src/Mutex.h \
  ../src/JobQueue.h ../src/Cookie.h ../src/Worker.h ../src/MatchMarker.h \
  ../src/SciTEBase.h
+EditorConfig.o: ../src/EditorConfig.cxx \
+ ../../scintilla/include/Scintilla.h \
+ ../../scintilla/include/Sci_Position.h ../src/GUI.h \
+ ../src/StringHelpers.h ../src/FilePath.h ../src/EditorConfig.h
 ExportHTML.o: ../src/ExportHTML.cxx ../../scintilla/include/ILexer.h \
  ../../scintilla/include/Sci_Position.h \
  ../../scintilla/include/Scintilla.h ../src/GUI.h \
@@ -109,10 +113,6 @@ MultiplexExtension.o: ../src/MultiplexExtension.cxx \
 PropSetFile.o: ../src/PropSetFile.cxx ../../scintilla/include/Scintilla.h \
  ../../scintilla/include/Sci_Position.h ../src/GUI.h \
  ../src/StringHelpers.h ../src/FilePath.h ../src/PropSetFile.h
-ScintillaWindow.o: ../src/ScintillaWindow.cxx \
- ../../scintilla/include/Scintilla.h \
- ../../scintilla/include/Sci_Position.h ../src/GUI.h \
- ../src/ScintillaWindow.h
 SciTEBase.o: ../src/SciTEBase.cxx ../../scintilla/include/ILoader.h \
  ../../scintilla/include/Sci_Position.h \
  ../../scintilla/include/Scintilla.h ../../scintilla/include/SciLexer.h \
@@ -121,7 +121,7 @@ SciTEBase.o: ../src/SciTEBase.cxx ../../scintilla/include/ILoader.h \
  ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \
  ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h ../src/Cookie.h \
  ../src/Worker.h ../src/FileWorker.h ../src/MatchMarker.h \
- ../src/SciTEBase.h
+ ../src/EditorConfig.h ../src/SciTEBase.h
 SciTEBuffers.o: ../src/SciTEBuffers.cxx ../../scintilla/include/ILoader.h \
  ../../scintilla/include/Sci_Position.h \
  ../../scintilla/include/Scintilla.h ../../scintilla/include/SciLexer.h \
@@ -146,8 +146,12 @@ SciTEProps.o: ../src/SciTEProps.cxx ../../scintilla/include/ILexer.h \
  ../src/StringHelpers.h ../src/FilePath.h ../src/StyleDefinition.h \
  ../src/PropSetFile.h ../src/StyleWriter.h ../src/Extender.h \
  ../src/SciTE.h ../src/Mutex.h ../src/JobQueue.h ../src/Cookie.h \
- ../src/Worker.h ../src/MatchMarker.h ../src/SciTEBase.h \
- ../src/IFaceTable.h
+ ../src/Worker.h ../src/MatchMarker.h ../src/EditorConfig.h \
+ ../src/SciTEBase.h ../src/IFaceTable.h
+ScintillaWindow.o: ../src/ScintillaWindow.cxx \
+ ../../scintilla/include/Scintilla.h \
+ ../../scintilla/include/Sci_Position.h ../src/GUI.h \
+ ../src/ScintillaWindow.h
 StringHelpers.o: ../src/StringHelpers.cxx \
  ../../scintilla/include/Scintilla.h \
  ../../scintilla/include/Sci_Position.h ../src/GUI.h \

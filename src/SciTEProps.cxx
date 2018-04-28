@@ -52,6 +52,7 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 #include "Cookie.h"
 #include "Worker.h"
 #include "MatchMarker.h"
+#include "EditorConfig.h"
 #include "SciTEBase.h"
 #include "IFaceTable.h"
 
@@ -204,6 +205,12 @@ void SciTEBase::ReadLocalPropFile() {
 
 	props.Set("Chrome", "#C0C0C0");
 	props.Set("ChromeHighlight", "#FFFFFF");
+
+	FilePath fileDirectory = filePath.Directory();
+	editorConfig->Clear();
+	if (props.GetInt("editor.config.enable", 0)) {
+		editorConfig->ReadFromDirectory(fileDirectory);
+	}
 }
 
 Colour ColourOfProperty(const PropSetFile &props, const char *key, Colour colourDefault) {
@@ -1338,6 +1345,45 @@ void SciTEBase::ReadProperties() {
 		SetOneIndicator(wOutput, indicatorHighlightCurrentWord, highlightCurrentWordIndicator);
 		currentWordHighlight.isOnlyWithSameStyle = props.GetInt("highlight.current.word.by.style", 0) == 1;
 		HighlightCurrentWord(true);
+	}
+
+	std::map<std::string, std::string> eConfig = editorConfig->MapFromAbsolutePath(filePath);
+	for (const std::pair<const std::string, std::string> &pss : eConfig) {
+		if (pss.first == "indent_style") {
+			wEditor.Call(SCI_SETUSETABS, pss.second == "tab" ? 1 : 0);
+		} else if (pss.first == "indent_size") {
+			wEditor.Call(SCI_SETINDENT, std::stoi(pss.second));
+		} else if (pss.first == "tab_width") {
+			wEditor.Call(SCI_SETTABWIDTH, std::stoi(pss.second));
+		} else if (pss.first == "end_of_line") {
+			if (pss.second == "lf") {
+				wEditor.Call(SCI_SETEOLMODE, SC_EOL_LF);
+			} else if (pss.second == "cr") {
+				wEditor.Call(SCI_SETEOLMODE, SC_EOL_CR);
+			} else if (pss.second == "crlf") {
+				wEditor.Call(SCI_SETEOLMODE, SC_EOL_CRLF);
+			}
+		} else if (pss.first == "charset") {
+			if (pss.second == "latin1") {
+				CurrentBuffer()->unicodeMode = uni8Bit;
+				codePage = 0;
+			} else {
+				if (pss.second == "utf-8")
+					CurrentBuffer()->unicodeMode = uniCookie;
+				if (pss.second == "utf-8-bom")
+					CurrentBuffer()->unicodeMode = uniUTF8;
+				if (pss.second == "utf-16be")
+					CurrentBuffer()->unicodeMode = uni16BE;
+				if (pss.second == "utf-16le")
+					CurrentBuffer()->unicodeMode = uni16LE;
+				codePage = SC_CP_UTF8;
+			}
+			wEditor.Call(SCI_SETCODEPAGE, codePage);
+		} else if (pss.first == "trim_trailing_whitespace") {
+			stripTrailingSpaces = pss.second == "true";
+		} else if (pss.first == "insert_final_newline") {
+			ensureFinalLineEnd = pss.second == "true";
+		}
 	}
 
 	if (extender) {

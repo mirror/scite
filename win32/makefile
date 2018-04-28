@@ -103,6 +103,7 @@ LDFLAGS=-mwindows $(CLANG_LIBS) -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -lol
 SHAREDOBJS=\
 	Cookie.o \
 	DirectorExtension.o \
+	EditorConfig.o \
 	ExportHTML.o \
 	ExportPDF.o \
 	ExportRTF.o \

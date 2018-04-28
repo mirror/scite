@@ -45,6 +45,7 @@
 #include "Worker.h"
 #include "FileWorker.h"
 #include "MatchMarker.h"
+#include "EditorConfig.h"
 #include "SciTEBase.h"
 
 Searcher::Searcher() {
@@ -195,6 +196,8 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 
 	timerMask = 0;
 	delayBeforeAutoSave = 0;
+
+	editorConfig = IEditorConfig::Create();
 }
 
 SciTEBase::~SciTEBase() {

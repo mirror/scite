@@ -61,6 +61,7 @@ SHAREDOBJS=\
 	Cookie.obj \
 	Credits.obj \
 	DirectorExtension.obj \
+	EditorConfig.obj \
 	ExportHTML.obj \
 	ExportPDF.obj \
 	ExportRTF.obj \
@@ -434,6 +435,14 @@ Credits.obj: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
+EditorConfig.obj: \
+	../src/EditorConfig.cxx \
+	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/Sci_Position.h \
+	../src/GUI.h \
+	../src/StringHelpers.h \
+	../src/FilePath.h \
+	../src/EditorConfig.h
 ExportHTML.obj: \
 	../src/ExportHTML.cxx \
 	../../scintilla/include/ILexer.h \
@@ -620,6 +629,7 @@ SciTEBase.obj: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
+	../src/EditorConfig.h \
 	../src/SciTEBase.h
 SciTEBuffers.obj: \
 	../src/SciTEBuffers.cxx \
@@ -688,6 +698,7 @@ SciTEProps.obj: \
 	../src/Cookie.h \
 	../src/Worker.h \
 	../src/MatchMarker.h \
+	../src/EditorConfig.h \
 	../src/SciTEBase.h \
 	../src/IFaceTable.h
 StringHelpers.obj: \
