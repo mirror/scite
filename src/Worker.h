@@ -17,7 +17,9 @@ public:
 	}
 	// Deleted so Worker objects can not be copied.
 	Worker(const Worker &) = delete;
+	Worker(Worker &&) = delete;
 	void operator=(const Worker &) = delete;
+	void operator=(Worker &&) = delete;
 	virtual ~Worker() {
 	}
 	virtual void Execute() {}

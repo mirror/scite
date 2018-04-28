@@ -19,7 +19,9 @@ private:
 	WinMutex() { ::InitializeCriticalSection(&cs); }
 	// Deleted so WinMutex objects can not be copied.
 	WinMutex(const WinMutex &) = delete;
+	WinMutex(WinMutex &&) = delete;
 	void operator=(const WinMutex &) = delete;
+	void operator=(WinMutex &&) = delete;
 	virtual ~WinMutex() { ::DeleteCriticalSection(&cs); }
 	friend class Mutex;
 };

@@ -25,7 +25,9 @@ public:
 	~ScintillaWindow() override;
 	// Deleted so ScintillaWindow objects can not be copied.
 	ScintillaWindow(const ScintillaWindow &source) = delete;
+	ScintillaWindow(ScintillaWindow &&) = delete;
 	ScintillaWindow &operator=(const ScintillaWindow &) = delete;
+	ScintillaWindow &operator=(ScintillaWindow &&) = delete;
 
 	void SetScintilla(GUI::WindowID wid_);
 	bool CanCall() const;

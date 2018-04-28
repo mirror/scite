@@ -978,8 +978,10 @@ public:
 
 	explicit SciTEBase(Extension *ext = 0);
 	// Deleted copy-constructor and assignment operator.
-	explicit SciTEBase(const SciTEBase&) = delete;
-	void operator=(const SciTEBase&) = delete;
+	SciTEBase(const SciTEBase &) = delete;
+	SciTEBase(SciTEBase &&) = delete;
+	void operator=(const SciTEBase &) = delete;
+	void operator=(SciTEBase &&) = delete;
 	~SciTEBase() override;
 
 	void Finalise();
