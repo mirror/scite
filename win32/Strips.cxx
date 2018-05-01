@@ -681,7 +681,7 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
 	}
 
-	return 0l;
+	return 0;
 }
 
 void Strip::ShowPopup() {
@@ -761,7 +761,7 @@ LRESULT BackgroundStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		return Strip::WndProc(iMessage, wParam, lParam);
 	} catch (...) {
 	}
-	return 0l;
+	return 0;
 }
 
 void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, size_t size, size_t progress) {
@@ -917,7 +917,7 @@ LRESULT SearchStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		return Strip::WndProc(iMessage, wParam, lParam);
 	} catch (...) {
 	}
-	return 0l;
+	return 0;
 }
 
 LRESULT FindReplaceStrip::EditColour(HWND hwnd, HDC hdc) {
@@ -1639,7 +1639,7 @@ LRESULT UserStrip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		return Strip::WndProc(iMessage, wParam, lParam);
 	} catch (...) {
 	}
-	return 0l;
+	return 0;
 }
 
 int UserStrip::Lines() const {

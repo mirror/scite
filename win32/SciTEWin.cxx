@@ -1811,14 +1811,14 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 		}
 	}
 
-	return 0l;
+	return 0;
 }
 
 LRESULT SciTEWin::KeyUp(WPARAM wParam) {
 	if (wParam == VK_CONTROL) {
 		EndStackedTabbing();
 	}
-	return 0l;
+	return 0;
 }
 
 void SciTEWin::AddToPopUp(const char *label, int cmd, bool enabled) {
@@ -2046,7 +2046,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	} catch (GUI::ScintillaFailure &sf) {
 		CheckForScintillaFailure(static_cast<int>(sf.status));
 	}
-	return 0l;
+	return 0;
 }
 
 LRESULT PASCAL SciTEWin::TWndProc(
@@ -2140,7 +2140,7 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	}
 	} catch (...) {
 	}
-	return 0l;
+	return 0;
 }
 
 // Convert String from UTF-8 to doc encoding
