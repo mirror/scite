@@ -2176,8 +2176,10 @@ void SciTEGTK::FindInFilesCmd() {
 	AddCommand(findCommand, props.GetString("find.directory"), jobCLI);
 	if (jobQueue.HasCommandToRun())
 		Execute();
-	FillCombos(dlgFindInFiles);
-	FillCombosForGrep();
+	if (dlgFindInFiles.Created()) {
+		FillCombos(dlgFindInFiles);
+		FillCombosForGrep();
+	}
 }
 
 void SciTEGTK::FindInFilesDotDot() {
