@@ -70,7 +70,15 @@ cd ../..
 # Target 3: Qt builds
 # Requires Qt development libraries and qmake to be installed
 
-QMAKENAME="qmake -qt=5"
+# Find best available qmake
+QMAKENAME=""
+if hash qmake-qt5 2>/dev/null; then
+	QMAKENAME="qmake-qt5"
+elif hash qmake 2>/dev/null; then
+	QMAKENAME="qmake -qt=5"
+elif hash qmake-qt4 2>/dev/null; then
+	QMAKENAME="qmake-qt4"
+fi
 
 cd scintilla/qt
 cd ScintillaEditBase
