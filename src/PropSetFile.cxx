@@ -301,7 +301,7 @@ int PropSetFile::GetInt(const char *key, int defaultValue) const {
 			return std::stoi(val);
 		}
 	}
-	catch (std::logic_error) {
+	catch (std::logic_error &) {
 		// Ignore bad values, either non-numeric or out of range numberic
 	}
 	return defaultValue;

@@ -78,7 +78,7 @@ bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
 			try {
 				weight = std::stoi(std::string(optionValue));
 			}
-			catch (std::logic_error) {
+			catch (std::logic_error &) {
 				// Ignore bad values, either non-numeric or out of range numberic
 			}
 		}
@@ -265,7 +265,7 @@ bool IndicatorDefinition::ParseIndicatorDefinition(std::string_view definition) 
 				under = false;
 			}
 		}
-		catch (std::logic_error) {
+		catch (std::logic_error &) {
 			// Ignore bad values, either non-numeric or out of range numberic
 		}
 	}
