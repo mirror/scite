@@ -28,6 +28,7 @@ mingw32-make -j
 pythonw simpleTests.py
 pythonw lexTests.py
 pythonw performanceTests.py
+pythonw simpleTests.py -large
 @popd
 @pushd scite\win32
 mingw32-make -j
