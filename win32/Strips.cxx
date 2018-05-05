@@ -36,16 +36,18 @@ GUI::gui_string ClassNameOfWindow(HWND hWnd) {
 		return GUI::gui_string();
 }
 
-static void SetFontHandle(const GUI::Window &w, HFONT hfont) {
+namespace {
+
+void SetFontHandle(const GUI::Window &w, HFONT hfont) {
 	SetWindowFont(HwndOf(w), hfont, 0);
 }
 
-static void CheckButton(const GUI::Window &wButton, bool checked) {
+void CheckButton(const GUI::Window &wButton, bool checked) {
 	::SendMessage(HwndOf(wButton),
 		BM_SETCHECK, checked ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 
-static SIZE SizeButton(const GUI::Window &wButton) {
+SIZE SizeButton(const GUI::Window &wButton) {
 	SIZE sz = { 0, 0 };
 #ifdef BCM_GETIDEALSIZE
 	// Push buttons can be measured with BCM_GETIDEALSIZE.
@@ -57,7 +59,7 @@ static SIZE SizeButton(const GUI::Window &wButton) {
 	return sz;
 }
 
-static int WidthText(HFONT hfont, const GUI::gui_char *text) {
+int WidthText(HFONT hfont, const GUI::gui_char *text) {
 	HDC hdcMeasure = ::CreateCompatibleDC(NULL);
 	HFONT hfontOriginal = static_cast<HFONT>(::SelectObject(hdcMeasure, hfont));
 	RECT rcText = {0,0, 2000, 2000};
@@ -68,42 +70,58 @@ static int WidthText(HFONT hfont, const GUI::gui_char *text) {
 	return width;
 }
 
-static int WidthControl(GUI::Window &w) {
+int WidthControl(GUI::Window &w) {
 	const GUI::Rectangle rc = w.GetPosition();
 	return rc.Width();
 }
 
-static GUI::gui_string ControlGText(GUI::Window w) {
+GUI::gui_string ControlGText(GUI::Window w) {
 	return TextOfWindow(HwndOf(w));
 }
 
-static std::string ControlText(GUI::Window w) {
+std::string ControlText(GUI::Window w) {
 	const GUI::gui_string gsText = ControlGText(w);
 	return GUI::UTF8FromString(gsText);
 }
 
-static std::string ComboSelectionText(GUI::Window w) {
-	GUI::gui_string gsText;
-	HWND wT = HwndOf(w);
-	const LRESULT selection = ::SendMessageW(wT, CB_GETCURSEL, 0, 0);
+std::string ComboSelectionText(GUI::Window w) {
+	HWND combo = HwndOf(w);
+	const int selection = ComboBox_GetCurSel(combo);
 	if (selection != CB_ERR) {
-		const LRESULT len = ::SendMessageW(wT, CB_GETLBTEXTLEN, selection, 0) + 1;
-		std::vector<GUI::gui_char> itemText(len);
-		const LRESULT lenActual = ComboBox_GetLBText(wT, selection, &itemText[0]);
+		const int len = ComboBox_GetLBTextLen(combo, selection);
+		GUI::gui_string itemText(len+1, L'\0');
+		const int lenActual = ComboBox_GetLBText(combo, selection, &itemText[0]);
 		if (lenActual != CB_ERR) {
-			gsText = GUI::gui_string(&itemText[0], lenActual);
+			itemText.pop_back(); // Remove NUL
+			return GUI::UTF8FromString(itemText);
 		}
 	}
-	return GUI::UTF8FromString(gsText.c_str());
+	return std::string();
 }
 
-static void SetComboFromMemory(GUI::Window w, const ComboMemory &mem) {
+enum class ComboSelection { all, atEnd };
+
+void SetComboText(GUI::Window w, const std::string &s, ComboSelection selection) {
 	HWND combo = HwndOf(w);
-	::SendMessage(combo, CB_RESETCONTENT, 0, 0);
+	GUI::gui_string text = GUI::StringFromUTF8(s);
+	ComboBox_SetText(combo, text.c_str());
+	if (selection == ComboSelection::all) {
+		::SendMessage(combo, CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
+	} else {
+		const int textLength = text.length();
+		::SendMessage(combo, CB_SETEDITSEL, 0, MAKELPARAM(textLength, textLength));
+	}
+}
+
+void SetComboFromMemory(GUI::Window w, const ComboMemory &mem) {
+	HWND combo = HwndOf(w);
+	ComboBox_ResetContent(combo);
 	for (int i = 0; i < mem.Length(); i++) {
 		GUI::gui_string gs = GUI::StringFromUTF8(mem.At(i));
-		ComboBox_AddString(HwndOf(w), gs.c_str());
+		ComboBox_AddString(combo, gs.c_str());
 	}
+}
+
 }
 
 LRESULT PASCAL BaseWin::StWndProc(
@@ -1099,7 +1117,7 @@ void FindStrip::Next(bool markAll, bool invertDirection) {
 		Close();
 	} else {
  		SetComboFromMemory(wText, pSearcher->memFinds);
- 		SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat).c_str());
+		SetComboText(wText, pSearcher->findWhat, ComboSelection::atEnd);
 	}
 }
 
@@ -1174,8 +1192,7 @@ void FindStrip::ShowStrip() {
 	Focus();
 	pSearcher->SetCaretAsStart();
 	SetComboFromMemory(wText, pSearcher->memFinds);
-	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat).c_str());
-	::SendMessage(HwndOf(wText), CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
+	SetComboText(wText, pSearcher->findWhat, ComboSelection::all);
 	CheckButtons();
 	pSearcher->ScrollEditorIfNeeded();
 	MarkIncremental();
@@ -1378,11 +1395,11 @@ void ReplaceStrip::ShowPopup() {
 void ReplaceStrip::HandleReplaceCommand(int cmd, bool reverseFind) {
 	pSearcher->SetFind(ControlText(wText).c_str());
 	SetComboFromMemory(wText, pSearcher->memFinds);
-	SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat).c_str());
+	SetComboText(wText, pSearcher->findWhat, ComboSelection::atEnd);
 	if (cmd != IDOK) {
 		pSearcher->SetReplace(ControlText(wReplace).c_str());
  		SetComboFromMemory(wReplace, pSearcher->memReplaces);
- 		SetWindowText(HwndOf(wReplace), GUI::StringFromUTF8(pSearcher->replaceWhat).c_str());
+		SetComboText(wReplace, pSearcher->replaceWhat, ComboSelection::atEnd);
 	}
 	//int replacements = 0;
 	if (cmd == IDOK) {
@@ -1466,8 +1483,7 @@ void ReplaceStrip::ShowStrip() {
 	Focus();
 	pSearcher->SetCaretAsStart();
 	SetComboFromMemory(wText, pSearcher->memFinds);
-	::SetWindowText(HwndOf(wText), GUI::StringFromUTF8(pSearcher->findWhat).c_str());
-	::SendMessage(HwndOf(wText), CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
+	SetComboText(wText, pSearcher->findWhat, ComboSelection::all);
 	SetComboFromMemory(wReplace, pSearcher->memReplaces);
 
 	CheckButtons();
@@ -1743,7 +1759,7 @@ void UserStrip::SetList(int control, const char *value) {
 			const GUI::gui_string sValue = GUI::StringFromUTF8(value);
 			const std::vector<GUI::gui_string> listValues = ListFromString(sValue);
 			HWND combo = HwndOf(ctl->w);
-			::SendMessage(combo, CB_RESETCONTENT, 0, 0);
+			ComboBox_ResetContent(combo);
 			for (const GUI::gui_string &gs : listValues) {
 				ComboBox_AddString(combo, gs.c_str());
 			}
