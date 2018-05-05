@@ -108,7 +108,7 @@ void SetComboText(GUI::Window w, const std::string &s, ComboSelection selection)
 	if (selection == ComboSelection::all) {
 		::SendMessage(combo, CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
 	} else {
-		const int textLength = text.length();
+		const size_t textLength = text.length();
 		::SendMessage(combo, CB_SETEDITSEL, 0, MAKELPARAM(textLength, textLength));
 	}
 }
