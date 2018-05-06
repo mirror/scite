@@ -495,6 +495,7 @@ static const char *propertiesToForward[] = {
 	"lexer.css.less.language",
 	"lexer.css.scss.language",
 	"lexer.d.fold.at.else",
+	"lexer.edifact.highlight.un.all",
 	"lexer.errorlist.escape.sequences",
 	"lexer.errorlist.value.separate",
 	"lexer.flagship.styling.within.preprocessor",
