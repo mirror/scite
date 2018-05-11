@@ -180,6 +180,81 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 		flags |= jobGroupUndo;
 }
 
+Job::Job() : jobType(jobCLI), flags(0) {
+	Clear();
+}
+
+Job::Job(const std::string &command_, const FilePath &directory_, JobSubsystem jobType_, const std::string &input_, int flags_)
+	: command(command_), directory(directory_), jobType(jobType_), input(input_), flags(flags_) {
+}
+
+void Job::Clear() {
+	command = "";
+	directory.Init();
+	jobType = jobCLI;
+	input = "";
+	flags = 0;
+}
+
+
+JobQueue::JobQueue() : jobQueue(commandMax) {
+	mutex.reset(Mutex::Create());
+	clearBeforeExecute = false;
+	isBuilding = false;
+	isBuilt = false;
+	executing = false;
+	commandCurrent = 0;
+	jobUsesOutputPane = false;
+	cancelFlag = 0L;
+	timeCommands = false;
+}
+
+JobQueue::~JobQueue() {
+	mutex.reset();
+	mutex = 0;
+}
+
+bool JobQueue::TimeCommands() const {
+	Lock lock(mutex.get());
+	return timeCommands;
+}
+
+bool JobQueue::ClearBeforeExecute() const {
+	Lock lock(mutex.get());
+	return clearBeforeExecute;
+}
+
+bool JobQueue::ShowOutputPane() const {
+	Lock lock(mutex.get());
+	return jobUsesOutputPane;
+}
+
+bool JobQueue::IsExecuting() const {
+	Lock lock(mutex.get());
+	return executing;
+}
+
+void JobQueue::SetExecuting(bool state) {
+	Lock lock(mutex.get());
+	executing = state;
+}
+
+bool JobQueue::HasCommandToRun() const {
+	return commandCurrent > 0;
+}
+
+long JobQueue::SetCancelFlag(long value) {
+	Lock lock(mutex.get());
+	const long cancelFlagPrevious = cancelFlag;
+	cancelFlag = value;
+	return cancelFlagPrevious;
+}
+
+long JobQueue::Cancelled() {
+	Lock lock(mutex.get());
+	return cancelFlag;
+}
+
 void JobQueue::ClearJobs() {
 	for (Job &ic : jobQueue) {
 		ic.Clear();

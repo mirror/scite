@@ -44,21 +44,9 @@ public:
 	std::string input;
 	int flags;
 
-	Job() {
-		Clear();
-	}
-
-	Job(const std::string &command_, const FilePath &directory_, JobSubsystem jobType_, const std::string &input_, int flags_)
-		: command(command_), directory(directory_), jobType(jobType_), input(input_), flags(flags_) {
-	}
-
-	void Clear() {
-		command = "";
-		directory.Init();
-		jobType = jobCLI;
-		input = "";
-		flags = 0;
-	}
+	Job();
+	Job(const std::string &command_, const FilePath &directory_, JobSubsystem jobType_, const std::string &input_, int flags_);
+	void Clear();
 };
 
 class JobQueue {
@@ -70,68 +58,21 @@ public:
 	bool executing;
 	enum { commandMax = 2 };
 	int commandCurrent;
-	Job jobQueue[commandMax];
+	std::vector<Job> jobQueue;
 	bool jobUsesOutputPane;
 	long cancelFlag;
 	bool timeCommands;
 
-	JobQueue() {
-		mutex.reset(Mutex::Create());
-		clearBeforeExecute = false;
-		isBuilding = false;
-		isBuilt = false;
-		executing = false;
-		commandCurrent = 0;
-		jobUsesOutputPane = false;
-		cancelFlag = 0L;
-		timeCommands = false;
-	}
-
-	~JobQueue() {
-		mutex.reset();
-		mutex = 0;
-	}
-
-	bool TimeCommands() const {
-		Lock lock(mutex.get());
-		return timeCommands;
-	}
-
-	bool ClearBeforeExecute() const {
-		Lock lock(mutex.get());
-		return clearBeforeExecute;
-	}
-
-	bool ShowOutputPane() const {
-		Lock lock(mutex.get());
-		return jobUsesOutputPane;
-	}
-
-	bool IsExecuting() const {
-		Lock lock(mutex.get());
-		return executing;
-	}
-
-	void SetExecuting(bool state) {
-		Lock lock(mutex.get());
-		executing = state;
-	}
-
-	bool HasCommandToRun() const {
-		return commandCurrent > 0;
-	}
-
-	long SetCancelFlag(long value) {
-		Lock lock(mutex.get());
-		const long cancelFlagPrevious = cancelFlag;
-		cancelFlag = value;
-		return cancelFlagPrevious;
-	}
-
-	long Cancelled() {
-		Lock lock(mutex.get());
-		return cancelFlag;
-	}
+	JobQueue();
+	~JobQueue();
+	bool TimeCommands() const;
+	bool ClearBeforeExecute() const;
+	bool ShowOutputPane() const;
+	bool IsExecuting() const;
+	void SetExecuting(bool state);
+	bool HasCommandToRun() const;
+	long SetCancelFlag(long value);
+	long Cancelled();
 
 	void ClearJobs();
 	void AddCommand(const std::string &command, const FilePath &directory, JobSubsystem jobType, const std::string &input, int flags);
