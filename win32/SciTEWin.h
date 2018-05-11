@@ -142,7 +142,7 @@ class ContentWin : public BaseWin {
 	SciTEWin *pSciTEWin;
 	bool capturedMouse;
 public:
-	ContentWin() : pSciTEWin(0), capturedMouse(false) {
+	ContentWin() noexcept : pSciTEWin(nullptr), capturedMouse(false) {
 	}
 	void SetSciTE(SciTEWin *pSciTEWin_) {
 		pSciTEWin = pSciTEWin_;
