@@ -676,9 +676,9 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	case WM_NOTIFY: {
 			NMHDR *pnmh = reinterpret_cast<LPNMHDR>(lParam);
-			if (pnmh->code == static_cast<unsigned int>(NM_CUSTOMDRAW)) {
+			if (pnmh->code == NM_CUSTOMDRAW) {
 				return CustomDraw(pnmh);
-			} else if (pnmh->code == static_cast<unsigned int>(TTN_GETDISPINFO)) {
+			} else if (pnmh->code == TTN_GETDISPINFO) {
 				NMTTDISPINFOW *pnmtdi = reinterpret_cast<LPNMTTDISPINFO>(lParam);
 				const int idButton = static_cast<int>(
 					(pnmtdi->uFlags & TTF_IDISHWND) ?
