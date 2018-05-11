@@ -28,7 +28,7 @@ struct ColumnWidth {
 	int widthDesired;
 	int widthAllocated;
 	bool isResizeable;
-	ColumnWidth() : widthDesired(0), widthAllocated(0), isResizeable(false) {
+	ColumnWidth() noexcept : widthDesired(0), widthAllocated(0), isResizeable(false) {
 	}
 };
 

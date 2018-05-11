@@ -735,7 +735,7 @@ void SciTEWin::OutputAppendEncodedStringSynchronised(const GUI::gui_string &s, i
 	OutputAppendStringSynchronised(sMulti.c_str());
 }
 
-CommandWorker::CommandWorker() : pSciTE(NULL) {
+CommandWorker::CommandWorker() : pSciTE(nullptr) {
 	Initialise(true);
 }
 
