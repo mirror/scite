@@ -70,7 +70,7 @@
 
 struct PDFStyle {
 	std::string fore;
-	int font;
+	int font=0;
 };
 
 static const char *PDFfontNames[] = {
@@ -182,7 +182,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		long pageWidth, pageHeight;
 		GUI::Rectangle pageMargin;
 		//
-		PDFRender() {
+		PDFRender() : buffer{} {
 			pageStarted = false;
 			firstLine = false;
 			pageCount = 0;
