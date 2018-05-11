@@ -41,3 +41,4 @@ UpgradeLog.XML
 bin
 BuildLog.htm
 cov-int
+.vs
