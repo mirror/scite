@@ -67,7 +67,7 @@ protected:
 	void SetTheme();
 	virtual LRESULT EditColour(HWND hwnd, HDC hdc);
 	virtual LRESULT CustomDraw(NMHDR *pnmh);
-	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) override;
 	virtual void ShowPopup();
 public:
 	bool visible;
@@ -88,15 +88,15 @@ public:
 	BackgroundStrip() {
 	}
 	virtual ~BackgroundStrip() = default;
-	virtual void Creation();
-	virtual void Destruction();
-	virtual void Close();
+	void Creation() override;
+	void Destruction() override;
+	void Close() override;
 	void Focus();
-	virtual bool KeyDown(WPARAM key);
-	virtual bool Command(WPARAM wParam);
-	virtual void Size();
-	virtual bool HasClose() const;
-	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	bool KeyDown(WPARAM key) override;
+	bool Command(WPARAM wParam) override;
+	void Size() override;
+	bool HasClose() const override;
+	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) override;
 	void SetProgress(const GUI::gui_string &explanation, size_t size, size_t progress);
 };
 
@@ -111,8 +111,8 @@ public:
 	void SetSearcher(Searcher *pSearcher_) {
 		pSearcher = pSearcher_;
 	}
-	virtual void Creation();
-	virtual void Destruction();
+	void Creation() override;
+	void Destruction() override;
 	LRESULT NoMatchColour(HDC hdc);
 };
 
@@ -124,17 +124,17 @@ public:
 	SearchStrip() {
 	}
 	virtual ~SearchStrip() = default;
-	virtual void Creation();
-	virtual void Destruction();
-	virtual void Close();
+	void Creation() override;
+	void Destruction() override;
+	void Close() override;
 	void Focus();
-	virtual bool KeyDown(WPARAM key);
+	bool KeyDown(WPARAM key) override;
 	void Next(bool select);
-	virtual bool Command(WPARAM wParam);
-	virtual void Size();
-	virtual void Paint(HDC hDC);
-	virtual LRESULT EditColour(HWND hwnd, HDC hdc);
-	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	bool Command(WPARAM wParam) override;
+	void Size() override;
+	void Paint(HDC hDC) override;
+	LRESULT EditColour(HWND hwnd, HDC hdc) override;
+	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) override;
 };
 
 class FindReplaceStrip : public SearchStripBase {
@@ -150,12 +150,12 @@ protected:
 	IncrementalBehaviour incrementalBehaviour;
 	FindReplaceStrip() : incrementalBehaviour(simple) {
 	}
-	virtual LRESULT EditColour(HWND hwnd, HDC hdc);
+	LRESULT EditColour(HWND hwnd, HDC hdc) override;
 	enum ChangingSource { changingEdit, changingCombo };
 	void NextIncremental(ChangingSource source);
 public:
 	virtual ~FindReplaceStrip() = default;
-	virtual void Close();
+	void Close() override;
 	void SetIncrementalBehaviour(int behaviour);
 	void MarkIncremental();
 };
@@ -168,16 +168,16 @@ public:
 	FindStrip() {
 	}
 	virtual ~FindStrip() = default;
-	virtual void Creation();
-	virtual void Destruction();
+	void Creation() override;
+	void Destruction() override;
 	void Focus();
-	virtual bool KeyDown(WPARAM key);
+	bool KeyDown(WPARAM key) override;
 	void Next(bool markAll, bool invertDirection);
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const;
-	virtual void ShowPopup();
-	virtual bool Command(WPARAM wParam);
-	virtual void Size();
-	virtual void Paint(HDC hDC);
+	void ShowPopup() override;
+	bool Command(WPARAM wParam) override;
+	void Size() override;
+	void Paint(HDC hDC) override;
 	void CheckButtons();
 	void ShowStrip();
 };
@@ -193,17 +193,17 @@ public:
 	ReplaceStrip() {
 	}
 	virtual ~ReplaceStrip() = default;
-	virtual void Creation();
-	virtual void Destruction();
-	virtual int Lines() const;
+	void Creation() override;
+	void Destruction() override;
+	int Lines() const override;
 	void Focus();
-	virtual bool KeyDown(WPARAM key);
+	bool KeyDown(WPARAM key) override;
 	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const;
-	virtual void ShowPopup();
+	void ShowPopup() override;
 	void HandleReplaceCommand(int cmd, bool reverseFind = false);
-	virtual bool Command(WPARAM wParam);
-	virtual void Size();
-	virtual void Paint(HDC hDC);
+	bool Command(WPARAM wParam) override;
+	void Size() override;
+	void Paint(HDC hDC) override;
 	void CheckButtons();
 	void ShowStrip();
 };
@@ -219,16 +219,16 @@ public:
 		lineHeight = 26;
 	}
 	virtual ~UserStrip() = default;
-	virtual void Creation();
-	virtual void Destruction();
-	virtual void Close();
+	void Creation() override;
+	void Destruction() override;
+	void Close() override;
 	void Focus();
-	virtual bool KeyDown(WPARAM key);
-	virtual bool Command(WPARAM wParam);
-	virtual void Size();
-	virtual bool HasClose() const;
-	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
-	virtual int Lines() const;
+	bool KeyDown(WPARAM key) override;
+	bool Command(WPARAM wParam) override;
+	void Size() override;
+	bool HasClose() const override;
+	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) override;
+	int Lines() const override;
 	void SetDescription(const char *description);
 	void SetExtender(Extension *extender_);
 	void SetSciTE(SciTEWin *pSciTEWin_);

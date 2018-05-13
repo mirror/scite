@@ -133,7 +133,7 @@ public:
 
 	CommandWorker();
 	void Initialise(bool resetToStart);
-	virtual void Execute();
+	void Execute() override;
 };
 
 class Dialog;
@@ -148,7 +148,7 @@ public:
 		pSciTEWin = pSciTEWin_;
 	}
 	void Paint(HDC hDC, GUI::Rectangle rcPaint);
-	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
+	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) override;
 };
 
 struct Band {
