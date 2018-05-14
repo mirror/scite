@@ -74,7 +74,7 @@ void FileLoader::Execute() {
 			::Sleep(sleepTime);
 #endif
 			lenFile = convert.convert(&data[0], lenFile);
-			char *dataBlock = convert.getNewBuf();
+			const char *dataBlock = convert.getNewBuf();
 			err = pLoader->AddData(dataBlock, static_cast<int>(lenFile));
 			IncrementProgress(static_cast<int>(lenFile));
 			if (et.Duration() > nextProgress) {
@@ -86,7 +86,7 @@ void FileLoader::Execute() {
 				// Handle case where convert is holding a lead surrogate but no more data
 				const size_t lenFileTrail = convert.convert(NULL, lenFile);
 				if (lenFileTrail) {
-					char *dataTrail = convert.getNewBuf();
+					const char *dataTrail = convert.getNewBuf();
 					err = pLoader->AddData(dataTrail, static_cast<int>(lenFileTrail));
 				}
 			}

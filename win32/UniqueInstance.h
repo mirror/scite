@@ -27,7 +27,7 @@ public:
 	bool AcceptToOpenFiles(bool bAccept);	///< Set mutex and see if succeed
 	void CallSearchOnAllWindows();	///< Common code used by ToggleOpenFilesHere and FindOtherInstance
 	void ToggleOpenFilesHere();	///< Change the option to open files in this instance and ask other instance to give up this option
-	LRESULT CopyData(COPYDATASTRUCT *pcds);	///< Send command line to existing instance
+	LRESULT CopyData(const COPYDATASTRUCT *pcds);	///< Send command line to existing instance
 	LRESULT CheckMessage(UINT message, WPARAM wParam, LPARAM lParam);	///< Test if a given message is the identity message
 	void CheckOtherInstance();	///< Create mutex name and try to set it
 	bool FindOtherInstance();	///< Find another instance answering to the identity message

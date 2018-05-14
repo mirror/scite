@@ -86,12 +86,12 @@ void UniqueInstance::ToggleOpenFilesHere() {
 /**
  * Manage the received COPYDATA message with a command line from another instance.
  */
-LRESULT UniqueInstance::CopyData(COPYDATASTRUCT *pcds) {
+LRESULT UniqueInstance::CopyData(const COPYDATASTRUCT *pcds) {
 	if (pcds) {
 		if (stw->props.GetInt("minimize.to.tray")) {
 			stw->RestoreFromTray();
 		}
-		const char *text = static_cast<char *>(pcds->lpData);
+		const char *text = static_cast<const char *>(pcds->lpData);
 		if (text && strlen(text) > 0) {
 			GUI::gui_string args = stw->ProcessArgs(GUI::StringFromUTF8(text).c_str());
 			stw->ProcessCommandLine(args, 0);

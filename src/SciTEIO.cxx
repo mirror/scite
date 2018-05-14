@@ -307,14 +307,14 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
 		while (lenFile > 0) {
 			lenFile = convert.convert(&data[0], lenFile);
-			char *dataBlock = convert.getNewBuf();
+			const char *dataBlock = convert.getNewBuf();
 			wEditor.CallString(SCI_ADDTEXT, lenFile, dataBlock);
 			lenFile = fread(&data[0], 1, data.size(), fp);
 			if (lenFile == 0) {
 				// Handle case where convert is holding a lead surrogate but no more data
 				const size_t lenFileTrail = convert.convert(NULL, lenFile);
 				if (lenFileTrail) {
-					char *dataTrail = convert.getNewBuf();
+					const char *dataTrail = convert.getNewBuf();
 					wEditor.CallString(SCI_ADDTEXT, lenFileTrail, dataTrail);
 				}
 			}
@@ -422,7 +422,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 }
 
 void SciTEBase::TextWritten(FileWorker *pFileWorker) {
-	FileStorer *pFileStorer = static_cast<FileStorer *>(pFileWorker);
+	const FileStorer *pFileStorer = static_cast<const FileStorer *>(pFileWorker);
 	const int iBuffer = buffers.GetDocumentByWorker(pFileStorer);
 
 	FilePath pathSaved = pFileStorer->path;

@@ -4360,7 +4360,7 @@ void SciTEBase::PerformOne(char *action) {
 			QuitProgram();
 		} else if (isprefix(action, "replaceall:") && wEditor.Created()) {
 			if (len > strlen(action)) {
-				char *arg2 = arg + strlen(arg) + 1;
+				const char *arg2 = arg + strlen(arg) + 1;
 				findWhat = arg;
 				replaceWhat = arg2;
 				ReplaceAll(false);

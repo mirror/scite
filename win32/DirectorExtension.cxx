@@ -108,10 +108,10 @@ static void CheckEnvironment(ExtensionAPI *phost) {
 static TCHAR DirectorExtension_ClassName[] = TEXT("DirectorExtension");
 
 static LRESULT HandleCopyData(LPARAM lParam) {
-	COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
+	const COPYDATASTRUCT *pcds = reinterpret_cast<COPYDATASTRUCT *>(lParam);
 	// Copy into an temporary buffer to ensure \0 terminated
 	if (pcds->lpData) {
-		std::string dataCopy(static_cast<char *>(pcds->lpData), pcds->cbData);
+		std::string dataCopy(static_cast<const char *>(pcds->lpData), pcds->cbData);
 		DirectorExtension::Instance().HandleStringMessage(dataCopy.c_str());
 	}
 	return 0;

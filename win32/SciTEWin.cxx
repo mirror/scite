@@ -467,12 +467,12 @@ static FilePath GetSciTEPath(const FilePath &home) {
 }
 
 FilePath SciTEWin::GetDefaultDirectory() {
-	GUI::gui_char *home = _wgetenv(GUI_TEXT("SciTE_HOME"));
+	const GUI::gui_char *home = _wgetenv(GUI_TEXT("SciTE_HOME"));
 	return GetSciTEPath(home);
 }
 
 FilePath SciTEWin::GetSciteDefaultHome() {
-	GUI::gui_char *home = _wgetenv(GUI_TEXT("SciTE_HOME"));
+	const GUI::gui_char *home = _wgetenv(GUI_TEXT("SciTE_HOME"));
 	return GetSciTEPath(home);
 }
 
