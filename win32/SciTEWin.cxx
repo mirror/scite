@@ -2055,7 +2055,7 @@ LRESULT PASCAL SciTEWin::TWndProc(
 	// Find C++ object associated with window.
 	SciTEWin *scite = static_cast<SciTEWin *>(PointerFromWindow(hWnd));
 	// scite will be zero if WM_CREATE not seen yet
-	if (scite == 0) {
+	if (!scite) {
 		if (iMessage == WM_CREATE) {
 			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			scite = static_cast<SciTEWin *>(cs->lpCreateParams);

@@ -129,7 +129,7 @@ LRESULT PASCAL BaseWin::StWndProc(
 	// Find C++ object associated with window.
 	BaseWin *base = static_cast<BaseWin *>(::PointerFromWindow(hWnd));
 	// scite will be zero if WM_CREATE not seen yet
-	if (base == 0) {
+	if (!base) {
 		if (iMessage == WM_CREATE) {
 			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 			base = static_cast<BaseWin *>(cs->lpCreateParams);
