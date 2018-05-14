@@ -884,8 +884,8 @@ void SciTEWin::Creation() {
 
 	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, reinterpret_cast<LPARAM>(&addbmp));
 
-	TBBUTTON tbb[ELEMENTS(bbs)];
-	for (unsigned int i = 0;i < ELEMENTS(bbs);i++) {
+	TBBUTTON tbb[std::size(bbs)];
+	for (unsigned int i = 0;i < std::size(bbs);i++) {
 		if (bbs[i].cmd == IDM_CLOSE)
 			tbb[i].iBitmap = STD_PRINT + 1;
 		else
@@ -900,7 +900,7 @@ void SciTEWin::Creation() {
 		tbb[i].iString = 0;
 	}
 
-	::SendMessage(hwndToolBar, TB_ADDBUTTONS, ELEMENTS(bbs), reinterpret_cast<LPARAM>(tbb));
+	::SendMessage(hwndToolBar, TB_ADDBUTTONS, std::size(bbs), reinterpret_cast<LPARAM>(tbb));
 
 	wToolBar.Show();
 

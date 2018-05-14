@@ -232,7 +232,7 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 
 	if (!openWhat[0]) {
 		StringCopy(openWhat, localiser.Text("Custom Filter").c_str());
-		openWhat[ELEMENTS(openWhat)-2] = L'\0';
+		openWhat[std::size(openWhat)-2] = L'\0';
 		// 2 NULs as there are 2 strings here: the display string and the filter string
 		openWhat[wcslen(openWhat) + 1] = L'\0';
 	}
@@ -249,7 +249,7 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 	ofn.nMaxFile = maxBufferSize;
 	ofn.lpstrFilter = openFilter.c_str();
 	ofn.lpstrCustomFilter = openWhat;
-	ofn.nMaxCustFilter = ELEMENTS(openWhat);
+	ofn.nMaxCustFilter = static_cast<DWORD>(std::size(openWhat));
 	ofn.nFilterIndex = filterDefault;
 	GUI::gui_string translatedTitle = localiser.Text("Open File");
 	ofn.lpstrTitle = translatedTitle.c_str();
@@ -300,7 +300,7 @@ FilePath SciTEWin::ChooseSaveName(const FilePath &directory, const char *title, 
 		ofn.hwndOwner = MainHWND();
 		ofn.hInstance = hInstance;
 		ofn.lpstrFile = saveName;
-		ofn.nMaxFile = ELEMENTS(saveName);
+		ofn.nMaxFile = static_cast<DWORD>(std::size(saveName));
 		GUI::gui_string translatedTitle = localiser.Text(title);
 		ofn.lpstrTitle = translatedTitle.c_str();
 		ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
@@ -382,7 +382,7 @@ void SciTEWin::LoadSessionDialog() {
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
 	ofn.lpstrFile = openName;
-	ofn.nMaxFile = ELEMENTS(openName);
+	ofn.nMaxFile = static_cast<DWORD>(std::size(openName));
 	ofn.lpstrFilter = GUI_TEXT("Session (.session)\0*.session\0");
 	GUI::gui_string translatedTitle = localiser.Text("Load Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
@@ -404,7 +404,7 @@ void SciTEWin::SaveSessionDialog() {
 	ofn.hInstance = hInstance;
 	ofn.lpstrDefExt = GUI_TEXT("session");
 	ofn.lpstrFile = saveName;
-	ofn.nMaxFile = ELEMENTS(saveName);
+	ofn.nMaxFile = static_cast<DWORD>(std::size(saveName));
 	GUI::gui_string translatedTitle = localiser.Text("Save Current Session");
 	ofn.lpstrTitle = translatedTitle.c_str();
 	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;

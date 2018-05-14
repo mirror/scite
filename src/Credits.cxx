@@ -547,7 +547,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 			AddStyledText(wsci, "\n", 5);
 		}
 		AddStyledText(wsci, GetTranslationToAbout("Contributors:").c_str(), trsSty);
-		for (unsigned int co = 0;co < ELEMENTS(contributors);co++) {
+		for (unsigned int co = 0;co < std::size(contributors);co++) {
 			const int colourIndex = 50 + (co % 78);
 			AddStyledText(wsci, "\n    ", colourIndex);
 			AddStyledText(wsci, contributors[co], colourIndex);

@@ -5057,7 +5057,7 @@ void SciTEGTK::CreateUI() {
 	sbVisible = false;
 
 	static const GtkTargetEntry dragtypes[] = { { (gchar*)"text/uri-list", 0, 0 } };
-	static const gint n_dragtypes = ELEMENTS(dragtypes);
+	static const gint n_dragtypes = std::size(dragtypes);
 
 	gtk_drag_dest_set(PWidget(wSciTE), GTK_DEST_DEFAULT_ALL, dragtypes,
 	                  n_dragtypes, GDK_ACTION_COPY);

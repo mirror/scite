@@ -456,7 +456,7 @@ static FilePath GetSciTEPath(const FilePath &home) {
 		return FilePath(home);
 	} else {
 		GUI::gui_char path[MAX_PATH];
-		if (::GetModuleFileNameW(0, path, ELEMENTS(path)) == 0)
+		if (::GetModuleFileNameW(0, path, static_cast<DWORD>(std::size(path))) == 0)
 			return FilePath();
 		// Remove the SciTE.exe
 		GUI::gui_char *lastSlash = wcsrchr(path, pathSepChar);
@@ -1580,7 +1580,8 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 		// Append paths to dropFilesQueue, to finish drag operation soon
 		for (int i = 0; i < filesDropped; ++i) {
 			GUI::gui_char pathDropped[MAX_PATH];
-			::DragQueryFileW(hdrop, i, pathDropped, ELEMENTS(pathDropped));
+			::DragQueryFileW(hdrop, i, pathDropped,
+				static_cast<UINT>(std::size(pathDropped)));
 			// Only do this for the first file in the drop op
 			// as all are coming from the same drag location
 			if (i == 0 && tempFilesSyncLoad) {
