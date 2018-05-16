@@ -4642,7 +4642,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
  * to be evaluated before creating the UI.
  * Call twice, first with phase=0, then with phase=1 after creating UI.
  */
-bool SciTEBase::ProcessCommandLine(GUI::gui_string &args, int phase) {
+bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 	bool performPrint = false;
 	bool evaluate = phase == 0;
 	std::vector<GUI::gui_string> wlArgs = ListFromString(args);

@@ -936,7 +936,7 @@ protected:
 	void AskMacroList();
 	bool StartMacroList(const char *words);
 	void ContinueMacroList(const char *stext);
-	bool ProcessCommandLine(GUI::gui_string &args, int phase);
+	bool ProcessCommandLine(const GUI::gui_string &args, int phase);
 	virtual bool IsStdinBlocked();
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
