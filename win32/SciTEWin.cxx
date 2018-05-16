@@ -1626,7 +1626,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 	int nbuffers = props.GetInt("buffers");
 	FilePath fpArg(arg);
 
-	if (fileattributes != (DWORD) -1) {	// arg is an existing directory or filename
+	if (fileattributes != INVALID_FILE_ATTRIBUTES) {	// arg is an existing directory or filename
 		// if the command line argument is a directory, use OpenDialog()
 		if (fileattributes & FILE_ATTRIBUTE_DIRECTORY) {
 			OpenDialog(fpArg, GUI::StringFromUTF8(props.GetExpandedString("open.filter")).c_str());
@@ -1669,7 +1669,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 					GUI::gui_string filterName = GUI::StringFromUTF8(extensions.c_str() + start);
 					GUI::gui_string nameWithExtension = fpArg.AsInternal();
 					nameWithExtension += filterName;
-					if (::GetFileAttributes(nameWithExtension.c_str()) != (DWORD)-1) {
+					if (::GetFileAttributes(nameWithExtension.c_str()) != INVALID_FILE_ATTRIBUTES) {
 						isHandled = true;
 						Open(nameWithExtension.c_str());
 						break;	// Found!
