@@ -365,14 +365,10 @@ static int cf_pane_textrange(lua_State *L) {
 	if (lua_gettop(L) >= 3) {
 		const int cpMin = static_cast<int>(luaL_checknumber(L, 2));
 		const int cpMax = static_cast<int>(luaL_checknumber(L, 3));
-
 		if (cpMax >= 0) {
-			char *range = host->Range(p, cpMin, cpMax);
-			if (range) {
-				lua_pushstring(L, range);
-				delete []range;
-				return 1;
-			}
+			std::string range = host->Range(p, cpMin, cpMax);
+			lua_pushstring(L, range.c_str());
+			return 1;
 		} else {
 			raise_error(L, "Invalid argument 2 for <pane>:textrange.  Positive number or zero expected.");
 		}
@@ -518,14 +514,9 @@ static int cf_match_metatable_index(lua_State *L) {
 			// If the document is changed while in the match loop, this will be broken.
 			// Exception: if the changes are made exclusively through match:replace,
 			// everything will be fine.
-			char *range = host->Range(pmo->pane, pmo->startPos, pmo->endPos);
-			if (range) {
-				lua_pushstring(L, range);
-				delete []range;
-				return 1;
-			} else {
-				return 0;
-			}
+			std::string range = host->Range(pmo->pane, pmo->startPos, pmo->endPos);
+			lua_pushstring(L, range.c_str());
+			return 1;
 		} else if (0 == strcmp(key, "replace")) {
 			const int replaceMethodIndex = lua_upvalueindex(1);
 			if (lua_iscfunction(L, replaceMethodIndex)) {

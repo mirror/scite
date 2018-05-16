@@ -30,7 +30,7 @@ public:
 	}
 	enum Pane { paneEditor=1, paneOutput=2, paneFindOutput=3 };
 	virtual sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0)=0;
-	virtual char *Range(Pane p, int start, int end)=0;
+	virtual std::string Range(Pane p, int start, int end)=0;
 	virtual void Remove(Pane p, int start, int end)=0;
 	virtual void Insert(Pane p, int pos, const char *s)=0;
 	virtual void Trace(const char *s)=0;

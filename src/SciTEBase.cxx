@@ -4739,17 +4739,15 @@ sptr_t SciTEBase::Send(Pane p, unsigned int msg, uptr_t wParam, sptr_t lParam) {
 	else
 		return wOutput.Call(msg, wParam, lParam);
 }
-
-char *SciTEBase::Range(Pane p, int start, int end) {
+std::string SciTEBase::Range(Pane p, int start, int end) {
 	const int len = end - start;
-	char *s = new char[len + 1];
+	std::string s(len, '\0');
 	if (p == paneEditor)
-		GetRange(wEditor, start, end, s);
+		GetRange(wEditor, start, end, s.data());
 	else
-		GetRange(wOutput, start, end, s);
+		GetRange(wOutput, start, end, s.data());
 	return s;
 }
-
 void SciTEBase::Remove(Pane p, int start, int end) {
 	if (p == paneEditor) {
 		wEditor.Call(SCI_DELETERANGE, start, end-start);
