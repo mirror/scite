@@ -5316,9 +5316,15 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 
 			// If open succeeded, write filename data.
 			if (sendPipe != -1) {
+				// Mimic the win32 behaviour, see UniqueInstance::SendCommands
 				for (int ii = 1; ii < argc; ++ii) {
-					if (argv[ii][0] != '-')
+					if (argv[ii][0] != '-') {
 						SendFileName(sendPipe, argv[ii]);
+					} else {
+						// Strip the beginning dash and add the final newline
+						if ((write(sendPipe, argv[ii]+1, strlen(argv[ii])-1) == -1) || (write(sendPipe, "\n", 1) == -1))
+							perror("Unable to write command to pipe");
+					}
 				}
 
 				// Force the SciTE instance to come to the front.
