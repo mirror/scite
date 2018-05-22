@@ -223,6 +223,8 @@ bool IndicatorDefinition::ParseIndicatorDefinition(std::string_view definition) 
 		{ "textfore", INDIC_TEXTFORE },
 		{ "point", INDIC_POINT },
 		{ "pointcharacter", INDIC_POINTCHARACTER },
+		{ "gradient", INDIC_GRADIENT },
+		{ "gradientverticalcentred", INDIC_GRADIENTCENTRE },
 	};
 
 	std::string val(definition);
