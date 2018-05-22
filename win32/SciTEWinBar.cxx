@@ -478,7 +478,7 @@ void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
 	}
 
 	const UINT typeFlags = (text[0]) ? MF_STRING : MF_SEPARATOR;
-	if (::GetMenuState(hmenu, itemID, MF_BYCOMMAND) == (UINT)(-1)) {
+	if (::GetMenuState(hmenu, itemID, MF_BYCOMMAND) == static_cast<UINT>(-1)) {
 		// Not present so insert
 		::InsertMenuW(hmenu, position, MF_BYPOSITION | typeFlags, itemID, sTextMnemonic.c_str());
 	} else {
