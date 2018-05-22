@@ -599,7 +599,7 @@ static bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_string &longPa
 		HMODULE hModule = ::GetModuleHandle(TEXT("kernel32.dll"));
 		if (hModule) {
 			// attempt to get GetLongPathNameW implemented in Windows 2000 or newer
-			pfnGetLong = (GetLongSig)::GetProcAddress(hModule, "GetLongPathNameW");
+			pfnGetLong = reinterpret_cast<GetLongSig>(::GetProcAddress(hModule, "GetLongPathNameW"));
 		}
 	}
 

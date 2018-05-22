@@ -528,7 +528,7 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 			GUI::gui_string topic = s.substr(0, pos);
 			GUI::gui_string path = s.substr(pos + 1);
 			typedef HWND (WINAPI *HelpFn) (HWND, const wchar_t *, UINT, DWORD_PTR);
-			HelpFn fnHHW = (HelpFn)::GetProcAddress(hHH, "HtmlHelpW");
+			HelpFn fnHHW = reinterpret_cast<HelpFn>(::GetProcAddress(hHH, "HtmlHelpW"));
 			if (fnHHW) {
 				XHH_AKLINK ak;
 				ak.cbStruct = sizeof(ak);
@@ -2217,13 +2217,15 @@ static void RestrictDLLPath() {
 	if (kernel32) {
 		// SetDefaultDllDirectories is stronger, limiting search path to just the application and
 		// system directories but is only available on Windows 8+
-		SetDefaultDllDirectoriesSig SetDefaultDllDirectoriesFn = (SetDefaultDllDirectoriesSig)::GetProcAddress(
-			kernel32, "SetDefaultDllDirectories");
+		SetDefaultDllDirectoriesSig SetDefaultDllDirectoriesFn =
+			reinterpret_cast<SetDefaultDllDirectoriesSig>(::GetProcAddress(
+			kernel32, "SetDefaultDllDirectories"));
 		if (SetDefaultDllDirectoriesFn) {
 			SetDefaultDllDirectoriesFn(LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32);
 		} else {
-			SetDllDirectorySig SetDllDirectoryFn = (SetDllDirectorySig)::GetProcAddress(
-				kernel32, "SetDllDirectoryW");
+			SetDllDirectorySig SetDllDirectoryFn =
+				reinterpret_cast<SetDllDirectorySig>(::GetProcAddress(
+				kernel32, "SetDllDirectoryW"));
 			if (SetDllDirectoryFn) {
 				// For security, remove current directory from the DLL search path
 				SetDllDirectoryFn(TEXT(""));

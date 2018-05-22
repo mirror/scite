@@ -49,7 +49,7 @@ static void PlayThisSound(
 
 		if (hMM) {
 			typedef BOOL (WINAPI *MMFn) (LPCSTR, HMODULE, DWORD);
-			MMFn fnMM = (MMFn)::GetProcAddress(hMM, "PlaySoundA");
+			MMFn fnMM = reinterpret_cast<MMFn>(::GetProcAddress(hMM, "PlaySoundA"));
 			if (fnMM) {
 				bPlayOK = fnMM(sound, NULL, SND_ASYNC | SND_FILENAME);
 			}
