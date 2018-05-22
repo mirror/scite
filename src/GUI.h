@@ -31,13 +31,13 @@ public:
 	Rectangle(int left_=0, int top_=0, int right_=0, int bottom_ = 0) noexcept :
 		left(left_), top(top_), right(right_), bottom(bottom_) {
 	}
-	bool Contains(Point pt) const {
+	bool Contains(Point pt) const noexcept {
 		return (pt.x >= left) && (pt.x <= right) &&
 			(pt.y >= top) && (pt.y <= bottom);
 	}
-	int Width() const { return right - left; }
-	int Height() const { return bottom - top; }
-	bool operator==(const Rectangle &other) const {
+	int Width() const noexcept { return right - left; }
+	int Height() const noexcept { return bottom - top; }
+	bool operator==(const Rectangle &other) const noexcept {
 		return (left == other.left) &&
 			(top == other.top) &&
 			(right == other.right) &&
@@ -87,19 +87,19 @@ public:
 	Window(Window &&) = default;
 	Window &operator=(Window const &) = default;
 	Window &operator=(Window &&) = default;
-	Window &operator=(WindowID wid_) {
+	Window &operator=(WindowID wid_) noexcept {
 		wid = wid_;
 		return *this;
 	}
 	virtual ~Window() = default;
 
-	WindowID GetID() const {
+	WindowID GetID() const noexcept {
 		return wid;
 	}
-	void SetID(WindowID wid_) {
+	void SetID(WindowID wid_) noexcept {
 		wid = wid_;
 	}
-	bool Created() const {
+	bool Created() const noexcept {
 		return wid != 0;
 	}
 	void Destroy();
@@ -118,7 +118,7 @@ class Menu {
 public:
 	Menu() noexcept : mid(0) {
 	}
-	MenuID GetID() const {
+	MenuID GetID() const noexcept {
 		return mid;
 	}
 	void CreatePopUp();
