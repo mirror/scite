@@ -431,6 +431,7 @@ static const char *contributors[] = {
             "Liang Bai",
             "Gunter K\303\266nigsmann",
             "Nicholai Benalal",
+            "Uniface",
             "Raghda Morsy",
             "Giuseppe Corbelli",
 
