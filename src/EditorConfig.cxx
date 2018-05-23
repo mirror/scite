@@ -184,7 +184,7 @@ void ECForDirectory::ReadOneDirectory(const FilePath &dir) {
 	std::string configData = fpec.Read();
 	if (configData.size() > 0) {
 		std::string configString(configData.data(), configData.size());
-		std::string_view svUtf8BOM(UTF8BOM);
+		const std::string_view svUtf8BOM(UTF8BOM);
 		if (StartsWith(configString, svUtf8BOM)) {
 			configString.erase(0, svUtf8BOM.length());
 		}
