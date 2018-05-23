@@ -763,6 +763,10 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETTECHNOLOGY, tech);
 	wOutput.Call(SCI_SETTECHNOLOGY, tech);
 
+	const int bidirectional = props.GetInt("bidirectional");
+	wEditor.Call(SCI_SETBIDIRECTIONAL, bidirectional);
+	wOutput.Call(SCI_SETBIDIRECTIONAL, bidirectional);
+
 	codePage = props.GetInt("code.page");
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override properties file to ensure Unicode displayed.
