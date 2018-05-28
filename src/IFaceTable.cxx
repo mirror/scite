@@ -708,7 +708,11 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_DIFF_DEFAULT",0},
 	{"SCE_DIFF_DELETED",5},
 	{"SCE_DIFF_HEADER",3},
+	{"SCE_DIFF_PATCH_ADD",8},
+	{"SCE_DIFF_PATCH_DELETE",9},
 	{"SCE_DIFF_POSITION",4},
+	{"SCE_DIFF_REMOVED_PATCH_ADD",10},
+	{"SCE_DIFF_REMOVED_PATCH_DELETE",11},
 	{"SCE_DMAP_COMMENT",1},
 	{"SCE_DMAP_DEFAULT",0},
 	{"SCE_DMAP_IDENTIFIER",7},
@@ -3365,7 +3369,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 301,
-	ifaceConstantCount = 2701,
+	ifaceConstantCount = 2705,
 	ifacePropertyCount = 229
 };
 
