@@ -118,7 +118,25 @@ mingw32-make CLANG=1 -j
 @popd
 @rem
 rem ************************************************************
-rem Target 9: cppcheck
+rem Target 9: qt with msvc
+@call scite\scripts\clearboth
+@set QBIN=D:\Qt\5.10.1\msvc2017_64\bin
+@pushd scintilla\qt\ScintillaEditBase
+%QBIN%\qmake
+nmake
+nmake distclean
+@if ERRORLEVEL 2 goto ERROR
+@popd
+@pushd scintilla\qt\ScintillaEdit
+python WidgetGen.py
+%QBIN%\qmake
+nmake
+nmake distclean
+@if ERRORLEVEL 2 goto ERROR
+@popd
+@rem
+rem ************************************************************
+rem Target 10: cppcheck
 @call scite\scripts\clearboth
 cppcheck -j 8 --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
 cppcheck -j 8 --enable=all --suppressions-list=scite/cppcheck.suppress --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
