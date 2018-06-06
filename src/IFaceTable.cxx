@@ -2802,6 +2802,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_WEIGHT_BOLD",700},
 	{"SC_WEIGHT_NORMAL",400},
 	{"SC_WEIGHT_SEMIBOLD",600},
+	{"SC_WRAPINDENT_DEEPINDENT",3},
 	{"SC_WRAPINDENT_FIXED",0},
 	{"SC_WRAPINDENT_INDENT",2},
 	{"SC_WRAPINDENT_SAME",1},
@@ -3369,7 +3370,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 301,
-	ifaceConstantCount = 2705,
+	ifaceConstantCount = 2706,
 	ifacePropertyCount = 229
 };
 
