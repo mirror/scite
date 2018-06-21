@@ -1615,11 +1615,13 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 			// perl
 			const char *at = strstr(cdoc, " at ");
 			const char *line = strstr(cdoc, " line ");
-			const ptrdiff_t length = line - (at + 4);
-			if (at && line && length > 0) {
-				sourcePath.assign(at + 4, length);
-				line += 6;
-				return atoi(line) - 1;
+			if (at && line) {
+				const ptrdiff_t length = line - (at + 4);
+				if (length > 0) {
+					sourcePath.assign(at + 4, length);
+					line += 6;
+					return atoi(line) - 1;
+				}
 			}
 			break;
 		}
@@ -1646,9 +1648,11 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 			if (line && file) {
 				const char *fileStart = file + lenFile + 1;
 				const char *quote = strstr(fileStart, "'");
-				const size_t length = quote - fileStart;
-				if (quote && length > 0) {
-					sourcePath.assign(fileStart, length);
+				if (quote) {
+					const size_t length = quote - fileStart;
+					if (length > 0) {
+						sourcePath.assign(fileStart, length);
+					}
 				}
 				line += lenLine;
 				return atoi(line) - 1;
