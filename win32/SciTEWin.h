@@ -191,6 +191,7 @@ protected:
 	int filterDefault;
 	bool staticBuild;
 	int menuSource;
+	std::map<long, int> currentMenuKeys;
 	std::deque<GUI::gui_string> dropFilesQueue;
 
 	// Fields also used in tool execution thread
@@ -254,7 +255,9 @@ protected:
 	void EnableAMenuItem(int wIDCheckItem, bool val) override;
 	void CheckMenus() override;
 
-	void LocaliseMenu(HMENU hmenu);
+	std::string GetMenuKeys(const GUI::gui_string &path, const GUI::gui_string &defaultAccel) const;
+	void LocaliseMenuItem(HMENU hmenu, int i, MENUITEMINFOW &mii, const GUI::gui_string &path);
+	void LocaliseMenu(HMENU hmenu, GUI::gui_string path);
 	void LocaliseMenus();
 	void LocaliseControl(HWND w);
 	void LocaliseDialog(HWND wDialog);
