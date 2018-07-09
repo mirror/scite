@@ -370,7 +370,6 @@ void SciTEWin::SizeSubWindows() {
 	const GUI::Rectangle rcClient = wSciTE.GetClientPosition();
 	bool showTab = false;
 
-	//::SendMessage(MainHWND(), WM_SETREDRAW, false, 0); // suppress flashing
 	visHeightTools = tbVisible ? (tbLarge ? heightToolsBig : heightTools) : 0;
 	bands[bandTool].visible = tbVisible;
 
@@ -449,8 +448,6 @@ void SciTEWin::SizeSubWindows() {
 	visHeightStatus = bands[bandStatus].height;
 
 	SizeContentWindows();
-	//::SendMessage(MainHWND(), WM_SETREDRAW, true, 0);
-	//::RedrawWindow(MainHWND(), NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
 
@@ -655,10 +652,10 @@ void SciTEWin::LocaliseControl(HWND w) {
 
 void SciTEWin::LocaliseDialog(HWND wDialog) {
 	LocaliseControl(wDialog);
-	HWND wChild = ::GetWindow(wDialog, GW_CHILD);
+	HWND wChild = GetFirstChild(wDialog);
 	while (wChild) {
 		LocaliseControl(wChild);
-		wChild = ::GetWindow(wChild, GW_HWNDNEXT);
+		wChild = GetNextSibling(wChild);
 	}
 }
 
@@ -838,15 +835,15 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 						};
 
 						HPEN pen = ::CreatePen(0,1,RGB(255, 0, 0));
-						HPEN penOld = static_cast<HPEN>(::SelectObject(hDC, pen));
+						HPEN penOld = SelectPen(hDC, pen);
 						const COLORREF colourNearest = ::GetNearestColor(hDC, RGB(255, 0, 0));
 						HBRUSH brush = ::CreateSolidBrush(colourNearest);
-						HBRUSH brushOld = static_cast<HBRUSH>(::SelectObject(hDC, brush));
+						HBRUSH brushOld = SelectBrush(hDC, brush);
 						::Polygon(hDC, tab < st_iDraggingTab ? ptsLeftArrow : ptsRightArrow, 7);
-						::SelectObject(hDC, brushOld);
-						::DeleteObject(brush);
-						::SelectObject(hDC, penOld);
-						::DeleteObject(pen);
+						SelectBrush(hDC, brushOld);
+						DeleteBrush(brush);
+						SelectPen(hDC, penOld);
+						DeletePen(pen);
 						::ReleaseDC(hWnd, hDC);
 					}
 				}

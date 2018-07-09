@@ -43,8 +43,7 @@ void SetFontHandle(const GUI::Window &w, HFONT hfont) {
 }
 
 void CheckButton(const GUI::Window &wButton, bool checked) {
-	::SendMessage(HwndOf(wButton),
-		BM_SETCHECK, checked ? BST_CHECKED : BST_UNCHECKED, 0);
+	Button_SetCheck(HwndOf(wButton), checked ? BST_CHECKED : BST_UNCHECKED);
 }
 
 SIZE SizeButton(const GUI::Window &wButton) {
@@ -61,11 +60,11 @@ SIZE SizeButton(const GUI::Window &wButton) {
 
 int WidthText(HFONT hfont, const GUI::gui_char *text) {
 	HDC hdcMeasure = ::CreateCompatibleDC(NULL);
-	HFONT hfontOriginal = static_cast<HFONT>(::SelectObject(hdcMeasure, hfont));
+	HFONT hfontOriginal = SelectFont(hdcMeasure, hfont);
 	RECT rcText = {0,0, 2000, 2000};
 	::DrawText(hdcMeasure, text, -1, &rcText, DT_CALCRECT);
 	const int width = rcText.right - rcText.left;
-	::SelectObject(hdcMeasure, hfontOriginal);
+	SelectFont(hdcMeasure, hfontOriginal);
 	::DeleteDC(hdcMeasure);
 	return width;
 }
@@ -106,10 +105,10 @@ void SetComboText(GUI::Window w, const std::string &s, ComboSelection selection)
 	GUI::gui_string text = GUI::StringFromUTF8(s);
 	ComboBox_SetText(combo, text.c_str());
 	if (selection == ComboSelection::all) {
-		::SendMessage(combo, CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
+		ComboBox_SetEditSel(combo, 0, -1);
 	} else {
 		const size_t textLength = text.length();
-		::SendMessage(combo, CB_SETEDITSEL, 0, MAKELPARAM(textLength, textLength));
+		ComboBox_SetEditSel(combo, textLength, textLength);
 	}
 }
 
@@ -335,24 +334,24 @@ bool Strip::KeyDown(WPARAM key) {
 		return true;
 	default:
 		if ((::GetKeyState(VK_MENU) & 0x80000000) != 0) {
-			HWND wChild = ::GetWindow(Hwnd(), GW_CHILD);
+			HWND wChild = GetFirstChild(Hwnd());
 			while (wChild) {
 				const GUI::gui_string className = ClassNameOfWindow(wChild);
 				if ((className == TEXT("Button")) || (className == TEXT("Static"))) {
-					GUI::gui_string caption = TextOfWindow(wChild);
+					const GUI::gui_string caption = TextOfWindow(wChild);
 					for (int i=0; caption[i]; i++) {
 						if ((caption[i] == L'&') && (toupper(caption[i+1]) == static_cast<int>(key))) {
 							if (className == TEXT("Button")) {
 								::SendMessage(wChild, BM_CLICK, 0, 0);
 							} else {	// Static caption
-								wChild = ::GetWindow(wChild, GW_HWNDNEXT);
+								wChild = GetNextSibling(wChild);
 								::SetFocus(wChild);
 							}
 							return true;
 						}
 					}
 				}
-				wChild = ::GetWindow(wChild, GW_HWNDNEXT);
+				wChild = GetNextSibling(wChild);
 			};
 		}
 	}
@@ -520,7 +519,7 @@ LRESULT Strip::EditColour(HWND hwnd, HDC hdc) {
 }
 
 LRESULT Strip::CustomDraw(NMHDR *pnmh) {
-	const int btnStyle = ::GetWindowLong(pnmh->hwndFrom, GWL_STYLE);
+	const int btnStyle = GetWindowStyle(pnmh->hwndFrom);
 	if ((btnStyle & BS_AUTOCHECKBOX) != BS_AUTOCHECKBOX) {
 		return CDRF_DODEFAULT;
 	}
@@ -535,7 +534,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		if (!hThemeButton) {
 			return CDRF_DODEFAULT;
 		}
-		const bool checked = ::SendMessage(pnmh->hwndFrom, BM_GETCHECK, 0, 0) == BST_CHECKED;
+		const bool checked = Button_GetCheck(pnmh->hwndFrom) == BST_CHECKED;
 
 		int buttonAppearence = checked ? TS_CHECKED : TS_NORMAL;
 		if (pcd->uItemState & CDIS_SELECTED)
@@ -571,11 +570,11 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		const int yOffset = ((rcButton.bottom - rcButton.top) - rbmi.bmiHeader.biHeight) / 2;
 
 		HDC hdcBM = ::CreateCompatibleDC(NULL);
-		HBITMAP hbmOriginal = static_cast<HBITMAP>(::SelectObject(hdcBM, hBitmap));
+		HBITMAP hbmOriginal = SelectBitmap(hdcBM, hBitmap);
 		::TransparentBlt(pcd->hdc, xOffset, yOffset,
 			rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight,
 			hdcBM, 0, 0, rbmi.bmiHeader.biWidth, rbmi.bmiHeader.biHeight, colourTransparent);
-		::SelectObject(hdcBM, hbmOriginal);
+		SelectBitmap(hdcBM, hbmOriginal);
 		::DeleteDC(hdcBM);
 
 		if (pcd->uItemState & CDIS_FOCUS) {

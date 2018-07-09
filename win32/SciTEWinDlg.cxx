@@ -15,14 +15,14 @@ static void FlashThisWindow(
     int duration) {	///< Duration of the flash state.
 
 	HDC hDC = ::GetDC(hWnd);
-	if (hDC != NULL) {
+	if (hDC) {
 		RECT rc;
 		::GetClientRect(hWnd, &rc);
-		::FillRect(hDC, &rc, static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
+		::FillRect(hDC, &rc, GetStockBrush(BLACK_BRUSH));
 		::Sleep(duration);
 		::ReleaseDC(hWnd, hDC);
 	}
-	::InvalidateRect(hWnd, NULL, true);
+	::InvalidateRect(hWnd, nullptr, true);
 }
 
 /**
@@ -674,11 +674,11 @@ void SciTEWin::Print(
 				             static_cast<int>(sHeader.length()), NULL);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0, 1, sdHeader.ForeAsLong());
-				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
+				HPEN penOld = SelectPen(hdc, pen);
 				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, NULL);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight / 4);
-				::SelectObject(hdc, penOld);
-				::DeleteObject(pen);
+				SelectPen(hdc, penOld);
+				DeletePen(pen);
 			}
 		}
 
@@ -703,12 +703,12 @@ void SciTEWin::Print(
 				             static_cast<int>(sFooter.length()), NULL);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0, 1, sdFooter.ForeAsLong());
-				HPEN penOld = static_cast<HPEN>(::SelectObject(hdc, pen));
+				HPEN penOld = SelectPen(hdc, pen);
 				::SetBkColor(hdc, sdFooter.ForeAsLong());
 				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 4, NULL);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom + footerLineHeight / 4);
-				::SelectObject(hdc, penOld);
-				::DeleteObject(pen);
+				SelectPen(hdc, penOld);
+				DeletePen(pen);
 			}
 
 			::EndPage(hdc);
@@ -796,23 +796,22 @@ public:
 	}
 
 	void SetCheck(int id, bool value) {
-		::SendMessage(::GetDlgItem(hDlg, id), BM_SETCHECK,
-			value ? BST_CHECKED : BST_UNCHECKED, 0);
+		Button_SetCheck(Item(id), value ? BST_CHECKED : BST_UNCHECKED);
 	}
 
 	bool Checked(int id) {
-		return BST_CHECKED == ::SendMessage(::GetDlgItem(hDlg, id), BM_GETCHECK, 0, 0);
+		return BST_CHECKED == Button_GetCheck(Item(id));
 	}
 
 	void FillComboFromMemory(int id, const ComboMemory &mem, bool useTop = false) {
 		HWND combo = Item(id);
-		::SendMessage(combo, CB_RESETCONTENT, 0, 0);
+		ComboBox_ResetContent(combo);
 		for (int i = 0; i < mem.Length(); i++) {
 			GUI::gui_string gs = GUI::StringFromUTF8(mem.At(i));
 			ComboBox_AddString(combo, gs.c_str());
 		}
 		if (useTop) {
-			::SendMessage(combo, CB_SETCURSEL, 0, 0);
+			ComboBox_SetCurSel(combo, 0);
 		}
 	}
 
@@ -932,7 +931,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		if (FindReplaceAdvanced()) {
 			dlg.SetCheck(IDFINDSTYLE, findInStyle);
 			dlg.Enable(IDFINDSTYLE, findInStyle);
-			::SendMessage(dlg.Item(IDFINDSTYLE), EM_LIMITTEXT, 3, 1);
+			Edit_LimitText(dlg.Item(IDFINDSTYLE), 3);
 			::SetDlgItemInt(hDlg, IDFINDSTYLE, wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS)), FALSE);
 		}
 		return TRUE;
@@ -1394,7 +1393,7 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SetDlgItemInt(hDlg, IDCURRLINE, lineNumber, FALSE);
 			::SetDlgItemInt(hDlg, IDCURRLINECHAR, characterOnLine, FALSE);
 			::SetDlgItemInt(hDlg, IDLASTLINE, wEditor.Call(SCI_GETLINECOUNT), FALSE);
-                }
+		}
 		return TRUE;
 
 	case WM_CLOSE:

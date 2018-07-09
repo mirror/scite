@@ -439,7 +439,7 @@ void SciTEWin::ReadEmbeddedProperties() {
 void SciTEWin::ReadPropertiesInitial() {
 	SciTEBase::ReadPropertiesInitial();
 	if (tabMultiLine) {	// Windows specific!
-		const long wl = ::GetWindowLong(HwndOf(wTabBar), GWL_STYLE);
+		const long wl = GetWindowStyle(HwndOf(wTabBar));
 		::SetWindowLong(HwndOf(wTabBar), GWL_STYLE, wl | TCS_MULTILINE);
 	}
 }
@@ -557,18 +557,17 @@ void SciTEWin::CopyAsRTF() {
 	const Sci_CharacterRange cr = GetSelection();
 	std::ostringstream oss;
 	SaveToStreamRTF(oss, static_cast<int>(cr.cpMin), static_cast<int>(cr.cpMax));
-	std::string rtf = oss.str();
-	size_t len = rtf.length();
-	HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, len + 1);
+	const std::string rtf = oss.str();
+	const size_t len = rtf.length() + 1;	// +1 for NUL
+	HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, len);
 	if (hand) {
 		::OpenClipboard(MainHWND());
 		::EmptyClipboard();
 		char *ptr = static_cast<char *>(::GlobalLock(hand));
 		if (ptr) {
 			memcpy(ptr, rtf.c_str(), len);
-			ptr[len] = '\0';
+			::GlobalUnlock(hand);
 		}
-		::GlobalUnlock(hand);
 		::SetClipboardData(::RegisterClipboardFormat(CF_RTF), hand);
 		::CloseClipboard();
 	}
@@ -578,16 +577,17 @@ void SciTEWin::CopyPath() {
 	if (filePath.IsUntitled())
 		return;
 
-	GUI::gui_string clipText(filePath.AsInternal());
+	const GUI::gui_string clipText(filePath.AsInternal());
 	const size_t blobSize = sizeof(GUI::gui_char)*(clipText.length()+1);
 	if (::OpenClipboard(MainHWND())) {
 		HGLOBAL hand = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, blobSize);
 		if (hand) {
 			::EmptyClipboard();
 			GUI::gui_char *ptr = static_cast<GUI::gui_char*>(::GlobalLock(hand));
-			if (ptr)
+			if (ptr) {
 				memcpy(ptr, clipText.c_str(), blobSize);
-			::GlobalUnlock(hand);
+				::GlobalUnlock(hand);
+			}
 			::SetClipboardData(CF_UNICODETEXT, hand);
 		}
 		::CloseClipboard();
@@ -1548,7 +1548,7 @@ void ContentWin::Paint(HDC hDC, GUI::Rectangle) {
 				colourIndex = COLOR_3DFACE;
 		}
 		HPEN pen = ::CreatePen(0, 1, ::GetSysColor(colourIndex));
-		HPEN penOld = static_cast<HPEN>(::SelectObject(hDC, pen));
+		HPEN penOld = SelectPen(hDC, pen);
 		if (pSciTEWin->splitVertical) {
 			::MoveToEx(hDC, xBorder + i, 0, 0);
 			::LineTo(hDC, xBorder + i, heightClient);
@@ -1556,8 +1556,8 @@ void ContentWin::Paint(HDC hDC, GUI::Rectangle) {
 			::MoveToEx(hDC, 0, yBorder + i, 0);
 			::LineTo(hDC, widthClient, yBorder + i);
 		}
-		::SelectObject(hDC, penOld);
-		::DeleteObject(pen);
+		SelectPen(hDC, penOld);
+		DeletePen(pen);
 	}
 }
 
