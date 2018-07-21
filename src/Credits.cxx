@@ -101,6 +101,7 @@ static const char *contributors[] = {
             "Willy Devaux",
             "David Clain",
             "Brendon Yenson",
+            "Philipp",
             "Vamsi Potluru http://www.baanboard.com",
             "Praveen Ambekar",
             "Alan Knowles",
