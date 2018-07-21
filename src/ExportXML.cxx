@@ -97,7 +97,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 
 		fprintf(fp, "<?xml version='1.0' encoding='%s'?>\n", (codePage == SC_CP_UTF8) ? "utf-8" : "ascii");
 
-		fputs("<document xmlns='http://www.scintila.org/scite.rng'", fp);
+		fputs("<document xmlns='http://www.scintilla.org/scite.rng'", fp);
 		fprintf(fp, " filename='%s'",
 		        filePath.Name().AsUTF8().c_str());
 		fprintf(fp, " type='%s'", "unknown");
