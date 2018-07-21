@@ -1635,8 +1635,10 @@ static StripCommand NotificationToStripCommand(int notification) {
 			return scChange;
 		case EN_UPDATE:
 			return scUnknown;
+		case CBN_SETFOCUS:
 		case EN_SETFOCUS:
 			return scFocusIn;
+		case CBN_KILLFOCUS:
 		case EN_KILLFOCUS:
 			return scFocusOut;
 		default:
