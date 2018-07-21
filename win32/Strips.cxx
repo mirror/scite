@@ -608,9 +608,16 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		else
 			return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
 
-	case WM_SETCURSOR:
-		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-		break;
+	case WM_SETCURSOR: {
+			HWND hWnd = reinterpret_cast<HWND>(wParam);
+			const GUI::gui_string className = ClassNameOfWindow(hWnd);
+			if (className == TEXT("Edit") || className == TEXT("ComboBox")) {
+				return ::DefWindowProc(Hwnd(), iMessage, wParam, lParam);
+			} else {
+				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+				return 0;
+			}
+		}
 
 	case WM_SIZE:
 		Size();
