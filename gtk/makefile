@@ -136,7 +136,7 @@ install:
 
 	$(INSTALL) -m 755 $(PROG) $(DESTDIR)$(bindir)
 
-	for files in $(srcdir)/../src/*.properties $(srcdir)/../doc/*.html $(srcdir)/../doc/SciTEIco.png $(srcdir)/../doc/PrintHi.png; \
+	for files in $(srcdir)/../src/*.properties $(srcdir)/../doc/*.html $(srcdir)/../doc/SciTEIco.png $(srcdir)/../doc/PrintHi.png $(srcdir)/../doc/SciTEIndicators.png; \
 	do \
 		$(INSTALL) -m 644 $$files $(DESTDIR)$(SYSCONF_PATH); \
 	done
