@@ -107,20 +107,19 @@ static bool SendPipeAvailable() {
 }
 
 static void AddSendPipe(int fd, const char *name) {
-	PipeEntry entry;
-	entry.fd = fd;
-	if (name)
-		entry.name = strdup(name);
-	else
-		entry.name = NULL;
 	if (SendPipeAvailable()) {
-		s_send_pipes[s_send_cnt++] = entry;
+		PipeEntry &entry = s_send_pipes[s_send_cnt++];
+		entry.fd = fd;
+		if (name)
+			entry.name = strdup(name);
+		else
+			entry.name = NULL;
 	}
 }
 
 static void RemoveSendPipes() {
 	for (int i = 0; i < s_send_cnt; ++i) {
-		PipeEntry entry = s_send_pipes[i];
+		PipeEntry &entry = s_send_pipes[i];
 		close(entry.fd);
 		if (entry.name)
 			remove(entry.name);
