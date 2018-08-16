@@ -15,6 +15,13 @@ void SetWindowPointer(HWND hWnd, void *ptr) {
 	::SetWindowLongPtr(hWnd, 0, reinterpret_cast<LONG_PTR>(ptr));
 }
 
+void *SetWindowPointerFromCreate(HWND hWnd, LPARAM lParam) {
+	LPCREATESTRUCT pcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
+	void *ptr = pcs->lpCreateParams;
+	SetWindowPointer(hWnd, ptr);
+	return ptr;
+}
+
 GUI::gui_string TextOfWindow(HWND hWnd) {
 	const int len = ::GetWindowTextLengthW(hWnd);
 	std::vector<GUI::gui_char> itemText(len+1);
@@ -125,20 +132,19 @@ void SetComboFromMemory(GUI::Window w, const ComboMemory &mem) {
 
 LRESULT PASCAL BaseWin::StWndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	if (iMessage == WM_CREATE) {
+		// Pointer to BaseWin passed with WM_CREATE so remember in window pointer
+		BaseWin *basePassed = static_cast<BaseWin *>(SetWindowPointerFromCreate(hWnd, lParam));
+		basePassed->SetID(hWnd);
+	}
 	// Find C++ object associated with window.
 	BaseWin *base = static_cast<BaseWin *>(::PointerFromWindow(hWnd));
-	// scite will be zero if WM_CREATE not seen yet
-	if (!base) {
-		if (iMessage == WM_CREATE) {
-			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
-			base = static_cast<BaseWin *>(cs->lpCreateParams);
-			SetWindowPointer(hWnd, base);
-			base->SetID(hWnd);
-			return base->WndProc(iMessage, wParam, lParam);
-		} else
-			return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
-	} else
+	// base will be zero if WM_CREATE not seen yet
+	if (base) {
 		return base->WndProc(iMessage, wParam, lParam);
+	} else {
+		return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
+	}
 }
 
 static const char *textFindPrompt = "Fi&nd:";

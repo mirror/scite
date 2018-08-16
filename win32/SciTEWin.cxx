@@ -2067,21 +2067,18 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 LRESULT PASCAL SciTEWin::TWndProc(
     HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
-
+	if (iMessage == WM_CREATE) {
+		SciTEWin *scitePassed = static_cast<SciTEWin *>(SetWindowPointerFromCreate(hWnd, lParam));
+		scitePassed->wSciTE = hWnd;
+	}
 	// Find C++ object associated with window.
 	SciTEWin *scite = static_cast<SciTEWin *>(PointerFromWindow(hWnd));
 	// scite will be zero if WM_CREATE not seen yet
-	if (!scite) {
-		if (iMessage == WM_CREATE) {
-			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
-			scite = static_cast<SciTEWin *>(cs->lpCreateParams);
-			scite->wSciTE = hWnd;
-			SetWindowPointer(hWnd, scite);
-			return scite->WndProc(iMessage, wParam, lParam);
-		} else
-			return ::DefWindowProcW(hWnd, iMessage, wParam, lParam);
-	} else
+	if (scite) {
 		return scite->WndProc(iMessage, wParam, lParam);
+	} else {
+		return ::DefWindowProcW(hWnd, iMessage, wParam, lParam);
+	}
 }
 
 LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {

@@ -14,6 +14,7 @@
 
 void *PointerFromWindow(HWND hWnd);
 void SetWindowPointer(HWND hWnd, void *ptr);
+void *SetWindowPointerFromCreate(HWND hWnd, LPARAM lParam);
 GUI::gui_string TextOfWindow(HWND hWnd);
 GUI::gui_string ClassNameOfWindow(HWND hWnd);
 
