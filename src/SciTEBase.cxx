@@ -2182,7 +2182,7 @@ bool SciTEBase::StartBoxComment() {
 		// and end-comment tag after the last line (extra logic is necessary to
 		// deal with the case that user selected the end-comment tag)
 		lineStart = wEditor.Call(SCI_POSITIONFROMLINE, selEndLine);
-		GetRangeString(wEditor, lineStart, lineStart + end_comment_length);
+		tempString = GetRangeString(wEditor, lineStart, lineStart + end_comment_length);
 		if (end_comment != tempString) {
 			tempString = GetRangeString(wEditor, lineStart, lineStart + middle_comment_length);
 			if (middle_comment != tempString) {
