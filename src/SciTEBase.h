@@ -110,7 +110,7 @@ public:
 	Buffer() :
 			file(), doc(0), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
 			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
-			findMarks(fmNone), pFileWorker(0), futureDo(fdNone) {}
+			findMarks(fmNone), pFileWorker(nullptr), futureDo(fdNone) {}
 
 	~Buffer() = default;
 	void Init() {
@@ -128,7 +128,7 @@ public:
 		overrideExtension = "";
 		foldState.clear();
 		bookmarks.clear();
-		pFileWorker = 0;
+		pFileWorker = nullptr;
 		futureDo = fdNone;
 	}
 
@@ -347,7 +347,7 @@ class SearchUI {
 protected:
 	Searcher *pSearcher;
 public:
-	SearchUI() : pSearcher(0) {
+	SearchUI() : pSearcher(nullptr) {
 	}
 	void SetSearcher(Searcher *pSearcher_) {
 		pSearcher = pSearcher_;
@@ -734,7 +734,7 @@ protected:
 	};
 	virtual MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, MessageBoxStyle style = mbsIconWarning) = 0;
 	void FailedSaveMessageBox(const FilePath &filePathSaving);
-	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = 0) = 0;
+	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = nullptr) = 0;
 	bool FindReplaceAdvanced() const;
 	int FindInTarget(const std::string &findWhatText, int startPosition, int endPosition);
 	// Implement Searcher
@@ -891,7 +891,7 @@ protected:
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
 	GUI::gui_string LocaliseMessage(const char *s,
-		const GUI::gui_char *param0 = 0, const GUI::gui_char *param1 = 0, const GUI::gui_char *param2 = 0);
+		const GUI::gui_char *param0 = nullptr, const GUI::gui_char *param1 = nullptr, const GUI::gui_char *param2 = nullptr);
 	virtual void ReadLocalization();
 	std::string GetFileNameProperty(const char *name);
 	virtual void ReadPropertiesInitial();

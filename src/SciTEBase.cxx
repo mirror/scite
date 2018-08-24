@@ -1718,7 +1718,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		return true;
 	const std::string root = line.substr(startword, current - startword);
 	const int doclen = LengthDocument();
-	Sci_TextToFind ft = {{0, 0}, 0, {0, 0}};
+	Sci_TextToFind ft = {{0, 0}, nullptr, {0, 0}};
 	ft.lpstrText = root.c_str();
 	ft.chrg.cpMin = 0;
 	ft.chrg.cpMax = doclen;
@@ -2501,7 +2501,7 @@ static bool includes(const StyleAndWords &symbols, const std::string &value) {
 	} else {
 		// Set of individual characters. Only one character allowed for now
 		const char ch = symbols.words[0];
-		return strchr(value.c_str(), ch) != 0;
+		return strchr(value.c_str(), ch) != nullptr;
 	}
 	return false;
 }
@@ -2751,8 +2751,8 @@ void SciTEBase::CharAddedOutput(int ch) {
 		const int selStart = wOutput.Call(SCI_GETSELECTIONSTART);
 		if ((selStart > 1) && (wOutput.Call(SCI_GETCHARAT, selStart - 2, 0) == '$')) {
 			std::string symbols;
-			const char *key = NULL;
-			const char *val = NULL;
+			const char *key = nullptr;
+			const char *val = nullptr;
 			bool b = props.GetFirst(key, val);
 			while (b) {
 				symbols.append(key);
@@ -4336,7 +4336,7 @@ void SciTEBase::PerformOne(char *action) {
 			GotoLineEnsureVisible(line);
 			// jump to column if given and greater than 0
 			const char *colstr = strchr(arg, ',');
-			if (colstr != NULL) {
+			if (colstr) {
 				const int col = atoi(colstr + 1);
 				if (col > 0) {
 					const int pos = wEditor.Call(SCI_GETCURRENTPOS) + col;
@@ -4407,7 +4407,7 @@ static bool IsSwitchCharacter(GUI::gui_char ch) {
 
 // Called by SciTEBase::PerformOne when action="enumproperties:"
 void SciTEBase::EnumProperties(const char *propkind) {
-	PropSetFile *pf = NULL;
+	PropSetFile *pf = nullptr;
 
 	if (!extender)
 		return;
@@ -4429,9 +4429,9 @@ void SciTEBase::EnumProperties(const char *propkind) {
 	else if (!strcmp(propkind, "abbrev"))
 		pf = &propsAbbrev;
 
-	if (pf != NULL) {
-		const char *key = NULL;
-		const char *val = NULL;
+	if (pf) {
+		const char *key = nullptr;
+		const char *val = nullptr;
 		bool b = pf->GetFirst(key, val);
 		while (b) {
 			SendOneProperty(propkind, key, val);
@@ -4480,7 +4480,7 @@ bool SciTEBase::RecordMacroCommand(const SCNotification *notification) {
 		sMessage += StdStringFromSizeT(static_cast<size_t>(notification->wParam));
 		sMessage += ";";
 		const char *t = reinterpret_cast<const char *>(notification->lParam);
-		if (t != NULL) {
+		if (t) {
 			//format : "<message>;<wParam>;1;<text>"
 			sMessage += "1;";
 			sMessage += t;
@@ -4708,7 +4708,7 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 				} else {
 					if (evaluate) {
 						props.ReadLine(GUI::UTF8FromString(arg).c_str(), PropSetFile::rlActive,
-							FilePath::GetWorkingDirectory(), filter, NULL, 0);
+							FilePath::GetWorkingDirectory(), filter, nullptr, 0);
 					}
 				}
 			}
@@ -4811,7 +4811,7 @@ void SciTEBase::Perform(const char *actionList) {
 	std::vector<char> vActions(actionList, actionList + strlen(actionList) + 1);
 	char *actions = &vActions[0];
 	char *nextAct;
-	while ((nextAct = strchr(actions, '\n')) != NULL) {
+	while ((nextAct = strchr(actions, '\n')) != nullptr) {
 		*nextAct = '\0';
 		PerformOne(actions);
 		actions = nextAct + 1;
