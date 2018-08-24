@@ -1870,7 +1870,7 @@ struct StylingContext {
 	}
 
 	static int More(lua_State *L) {
-		StylingContext *context = Context(L);
+		const StylingContext *context = Context(L);
 		lua_pushboolean(L, context->currentPos < context->endPos);
 		return 1;
 	}
@@ -1897,25 +1897,25 @@ struct StylingContext {
 	}
 
 	static int Position(lua_State *L) {
-		StylingContext *context = Context(L);
+		const StylingContext *context = Context(L);
 		lua_pushinteger(L, context->currentPos);
 		return 1;
 	}
 
 	static int AtLineStart(lua_State *L) {
-		StylingContext *context = Context(L);
+		const StylingContext *context = Context(L);
 		lua_pushboolean(L, context->atLineStart);
 		return 1;
 	}
 
 	static int AtLineEnd(lua_State *L) {
-		StylingContext *context = Context(L);
+		const StylingContext *context = Context(L);
 		lua_pushboolean(L, context->atLineEnd);
 		return 1;
 	}
 
 	static int State(lua_State *L) {
-		StylingContext *context = Context(L);
+		const StylingContext *context = Context(L);
 		lua_pushinteger(L, context->state);
 		return 1;
 	}
@@ -1942,19 +1942,19 @@ struct StylingContext {
 	}
 
 	static int Current(lua_State *L) {
-		StylingContext *context = Context(L);
+		const StylingContext *context = Context(L);
 		lua_pushstring(L, context->cursor[context->cursorPos % 3]);
 		return 1;
 	}
 
 	static int Next(lua_State *L) {
-		StylingContext *context = Context(L);
+		const StylingContext *context = Context(L);
 		lua_pushstring(L, context->cursor[(context->cursorPos + 1) % 3]);
 		return 1;
 	}
 
 	static int Previous(lua_State *L) {
-		StylingContext *context = Context(L);
+		const StylingContext *context = Context(L);
 		lua_pushstring(L, context->cursor[(context->cursorPos + 2) % 3]);
 		return 1;
 	}
