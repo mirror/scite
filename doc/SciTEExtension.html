@@ -120,11 +120,11 @@
 	<div class="example">
 	enum Pane { paneEditor=1, paneOutput=2, paneFindOutput=3 };<br />
 	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);<br />
-	char *Range(Pane p, int start, int end);<br />
+	std::string Range(Pane p, int start, int end);<br />
 	void Remove(Pane p, int start, int end);<br />
 	void Insert(Pane p, int pos, const char *s);<br />
 	void Trace(const char *s);<br />
-	char *Property(const char *key);<br />
+	std::string Property(const char *key);<br />
 	void SetProperty(const char *key, const char *val);<br />
 	uptr_t GetInstance();<br />
 	void ShutDown();<br />
@@ -138,11 +138,11 @@
 	a future feature where a third pane may be used for the output of search
 	commands. This is currently mapped to the output pane.</p>
 	<p>Send allows sending messages to the Scintilla control contained in each pane.</p>
-	<p>Range retrieves text from the pane. This must be deleted with delete[].
+	<p>Range retrieves text from the pane.
 	Remove and Insert are used to remove and insert text in a pane.</p>
 	<p>Trace displays a string at the end of the output pane.</p>
 	<p>SciTE's properties can be read and written with Property and
-	SetProperty. The result from Property should be deleted with delete[].</p>
+	SetProperty.</p>
 	<p>GetInstance is Windows specific and returns the HINSTANCE of
 	the application which is needed when accessing platform facilities.</p>
 	<p>ShutDown is equivalent to the user choosing the Quit menu item.
