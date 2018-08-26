@@ -144,7 +144,7 @@ class ContentWin : public BaseWin {
 public:
 	ContentWin() noexcept : pSciTEWin(nullptr), capturedMouse(false) {
 	}
-	void SetSciTE(SciTEWin *pSciTEWin_) {
+	void SetSciTE(SciTEWin *pSciTEWin_) noexcept {
 		pSciTEWin = pSciTEWin_;
 	}
 	void Paint(HDC hDC, GUI::Rectangle rcPaint);
@@ -407,7 +407,7 @@ public:
 	std::string EncodeString(const std::string &s) override;
 	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) override;
 
-	HACCEL GetAcceleratorTable() {
+	HACCEL GetAcceleratorTable() noexcept {
 		return hAccTable;
 	}
 
@@ -428,22 +428,22 @@ GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen);
 
 // Common minor conversions
 
-inline GUI::Point PointFromLong(LPARAM lPoint) {
+inline GUI::Point PointFromLong(LPARAM lPoint) noexcept {
 	return GUI::Point(static_cast<short>(LOWORD(lPoint)), static_cast<short>(HIWORD(lPoint)));
 }
 
-inline int ControlIDOfWParam(WPARAM wParam) {
+inline int ControlIDOfWParam(WPARAM wParam) noexcept {
 	return wParam & 0xffff;
 }
 
-inline HWND HwndOf(GUI::Window w) {
+inline HWND HwndOf(GUI::Window w) noexcept {
 	return static_cast<HWND>(w.GetID());
 }
 
-inline HMENU HmenuID(size_t id) {
+inline HMENU HmenuID(size_t id) noexcept {
 	return reinterpret_cast<HMENU>(id);
 }
 
-inline POINT *PointPointer(GUI::Point *pt) {
+inline POINT *PointPointer(GUI::Point *pt) noexcept {
 	return reinterpret_cast<POINT *>(pt);
 }

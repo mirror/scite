@@ -1382,7 +1382,7 @@ public:
 		}
 		fp = NULL;
 	}
-	bool Exhausted() const {
+	bool Exhausted() const noexcept {
 		return exhausted;
 	}
 	int NextByte() {
@@ -1442,10 +1442,10 @@ public:
 		}
 		return lineToCompare.c_str();
 	}
-	int LineNumber() const {
+	int LineNumber() const noexcept {
 		return lineNum;
 	}
-	const char *Original() const {
+	const char *Original() const noexcept {
 		return lineToShow.c_str();
 	}
 	bool BufferContainsNull() {
@@ -1453,7 +1453,7 @@ public:
 	}
 };
 
-static bool IsWordCharacter(int ch) {
+static bool IsWordCharacter(int ch) noexcept {
 	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')  || (ch >= '0' && ch <= '9')  || (ch == '_');
 }
 

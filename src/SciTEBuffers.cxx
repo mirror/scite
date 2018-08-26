@@ -178,7 +178,7 @@ void BufferList::RemoveCurrent() {
 	MoveToStackTop(current);
 }
 
-int BufferList::Current() const {
+int BufferList::Current() const noexcept {
 	return current;
 }
 
@@ -190,7 +190,7 @@ const Buffer *BufferList::CurrentBufferConst() const {
 	return &buffers[Current()];
 }
 
-void BufferList::SetCurrent(int index) {
+void BufferList::SetCurrent(int index) noexcept {
 	current = index;
 }
 
@@ -317,7 +317,7 @@ bool BufferList::SavingInBackground() const {
 	return false;
 }
 
-bool BufferList::GetVisible(int index) const {
+bool BufferList::GetVisible(int index) const noexcept {
 	return index < lengthVisible;
 }
 
@@ -1497,7 +1497,7 @@ void SciTEBase::ToolsMenu(int item) {
 	}
 }
 
-inline bool isdigitchar(int ch) {
+inline bool isdigitchar(int ch) noexcept {
 	return (ch >= '0') && (ch <= '9');
 }
 
@@ -1850,7 +1850,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 
 #define CSI "\033["
 
-static bool SeqEnd(int ch) {
+static bool SeqEnd(int ch) noexcept {
 	return (ch == 0) || ((ch >= '@') && (ch <= '~'));
 }
 

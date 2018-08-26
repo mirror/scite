@@ -19,15 +19,15 @@ extern const GUI::gui_char propAbbrevFileName[];
 #endif
 #endif
 
-inline int Minimum(int a, int b) {
+inline int Minimum(int a, int b) noexcept {
 	return (a < b) ? a : b;
 }
 
-inline int Maximum(int a, int b) {
+inline int Maximum(int a, int b) noexcept {
 	return (a > b) ? a : b;
 }
 
-inline long LongFromTwoShorts(short a,short b) {
+inline long LongFromTwoShorts(short a,short b) noexcept {
 	return (a) | ((b) << 16);
 }
 
@@ -44,7 +44,7 @@ enum {
 struct SelectedRange {
 	int position;
 	int anchor;
-	SelectedRange(int position_= INVALID_POSITION, int anchor_= INVALID_POSITION) :
+	SelectedRange(int position_= INVALID_POSITION, int anchor_= INVALID_POSITION) noexcept :
 		position(position_), anchor(anchor_) {
 	}
 };
@@ -146,7 +146,7 @@ public:
 	void CompleteStoring();
 	void AbandonAutomaticSave();
 
-	bool ShouldNotSave() const {
+	bool ShouldNotSave() const noexcept {
 		return lifeState != open;
 	}
 
@@ -174,7 +174,7 @@ public:
 
 	BufferList();
 	~BufferList();
-	int size() const {
+	int size() const noexcept {
 		return static_cast<int>(buffers.size());
 	}
 	void Allocate(int maxSize);
@@ -183,10 +183,10 @@ public:
 	int GetDocumentByName(const FilePath &filename, bool excludeCurrent=false);
 	void RemoveInvisible(int index);
 	void RemoveCurrent();
-	int Current() const;
+	int Current() const noexcept;
 	Buffer *CurrentBuffer();
 	const Buffer *CurrentBufferConst() const;
-	void SetCurrent(int index);
+	void SetCurrent(int index) noexcept;
 	int StackNext();
 	int StackPrev();
 	void CommitStackSelection();
@@ -196,7 +196,7 @@ public:
 	bool SingleBuffer() const;
 	BackgroundActivities CountBackgroundActivities() const;
 	bool SavingInBackground() const;
-	bool GetVisible(int index) const;
+	bool GetVisible(int index) const noexcept;
 	void SetVisible(int index, bool visible);
 	void AddFuture(int index, Buffer::FutureDo fd);
 	void FinishedFuture(int index, Buffer::FutureDo fd);
@@ -247,10 +247,10 @@ enum IndentationStatus {
 struct StyleAndWords {
 	int styleNumber;
 	std::string words;
-	StyleAndWords() : styleNumber(0) {
+	StyleAndWords() noexcept : styleNumber(0) {
 	}
-	bool IsEmpty() const { return words.length() == 0; }
-	bool IsSingleChar() const { return words.length() == 1; }
+	bool IsEmpty() const noexcept { return words.length() == 0; }
+	bool IsSingleChar() const noexcept { return words.length() == 1; }
 };
 
 struct CurrentWordHighlight {
@@ -268,8 +268,8 @@ struct CurrentWordHighlight {
 	CurrentWordHighlight() {
 		statesOfDelay = noDelay;
 		isEnabled = false;
-		isOnlyWithSameStyle = false;
 		textHasChanged = false;
+		isOnlyWithSameStyle = false;
 	}
 };
 
@@ -329,8 +329,8 @@ public:
 	virtual void ReplaceOnce(bool showWarnings=true) = 0;
 	virtual void UIClosed() = 0;
 	virtual void UIHasFocus() = 0;
-	bool &FlagFromCmd(int cmd);
-	bool ShouldClose(bool found) const {
+	bool &FlagFromCmd(int cmd) noexcept;
+	bool ShouldClose(bool found) const noexcept {
 		return (closeFind == CloseFind::closeAlways) || (found && (closeFind == CloseFind::closeOnMatch));
 	}
 };
@@ -347,9 +347,9 @@ class SearchUI {
 protected:
 	Searcher *pSearcher;
 public:
-	SearchUI() : pSearcher(nullptr) {
+	SearchUI() noexcept : pSearcher(nullptr) {
 	}
-	void SetSearcher(Searcher *pSearcher_) {
+	void SetSearcher(Searcher *pSearcher_) noexcept {
 		pSearcher = pSearcher_;
 	}
 };
@@ -580,7 +580,7 @@ protected:
 	void ReadLocalPropFile();
 	void ReadDirectoryPropFile();
 
-	void SetPaneFocus(bool editPane);
+	void SetPaneFocus(bool editPane) noexcept;
 	int CallFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	int CallFocusedElseDefault(int defaultValue, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
 	sptr_t CallPane(int destination, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
@@ -990,7 +990,7 @@ public:
 
 	void Finalise();
 
-	GUI::WindowID GetID() const { return wSciTE.GetID(); }
+	GUI::WindowID GetID() const noexcept { return wSciTE.GetID(); }
 
 	virtual bool PerformOnNewThread(Worker *pWorker) = 0;
 	// WorkerListener
@@ -998,10 +998,10 @@ public:
 	virtual void WorkerCommand(int cmd, Worker *pWorker);
 };
 
-int ControlIDOfCommand(unsigned long);
+int ControlIDOfCommand(unsigned long) noexcept;
 long ColourOfProperty(const PropSetFile &props, const char *key, Colour colourDefault);
 void WindowSetFocus(GUI::ScintillaWindow &w);
 
-inline bool isspacechar(unsigned char ch) {
+inline bool isspacechar(unsigned char ch) noexcept {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }

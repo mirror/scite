@@ -73,7 +73,7 @@ void Searcher::InsertFindInMemory() {
 
 // The find and replace dialogs and strips often manipulate boolean
 // flags based on dialog control IDs and menu IDs.
-bool &Searcher::FlagFromCmd(int cmd) {
+bool &Searcher::FlagFromCmd(int cmd) noexcept {
 	static bool notFound;
 	switch (cmd) {
 		case IDWHOLEWORD:
@@ -229,7 +229,7 @@ void SciTEBase::WorkerCommand(int cmd, Worker *pWorker) {
 // The system focus may move to other controls including the menu bar
 // but we are normally interested in whether the edit or output pane was
 // most recently focused and should be used by menu commands.
-void SciTEBase::SetPaneFocus(bool editPane) {
+void SciTEBase::SetPaneFocus(bool editPane) noexcept {
 	pwFocussed = editPane ? &wEditor : &wOutput;
 }
 
@@ -482,7 +482,7 @@ bool SciTEBase::FindMatchingPreprocCondPosition(
 	return isInside;
 }
 
-static bool IsBrace(char ch) {
+static bool IsBrace(char ch) noexcept {
 	return ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '{' || ch == '}';
 }
 
@@ -2086,7 +2086,7 @@ bool SciTEBase::StartBlockComment() {
 	return true;
 }
 
-static const char *LineEndString(int eolMode) {
+static const char *LineEndString(int eolMode) noexcept {
 	switch (eolMode) {
 		case SC_EOL_CRLF:
 			return "\r\n";
@@ -2473,7 +2473,7 @@ std::vector<std::string> SciTEBase::GetLinePartsInStyle(int line, const StyleAnd
 	return sv;
 }
 
-inline bool IsAlphabetic(unsigned int ch) {
+inline bool IsAlphabetic(unsigned int ch) noexcept {
 	return ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z'));
 }
 
@@ -2945,7 +2945,7 @@ void SciTEBase::AddCommand(const std::string &cmd, const std::string &dir, JobSu
 	jobQueue.AddCommand(cmd, directoryRun, jobType, input, flags);
 }
 
-int ControlIDOfCommand(unsigned long wParam) {
+int ControlIDOfCommand(unsigned long wParam) noexcept {
 	return wParam & 0xffff;
 }
 
@@ -3679,7 +3679,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	}
 }
 
-static int LevelNumber(int level) {
+static int LevelNumber(int level) noexcept {
 	return level & SC_FOLDLEVELNUMBERMASK;
 }
 
@@ -4288,7 +4288,7 @@ void SciTEBase::UIAvailable() {
  * Find the character following a name which is made up of characters from
  * the set [a-zA-Z.]
  */
-static GUI::gui_char AfterName(const GUI::gui_char *s) {
+static GUI::gui_char AfterName(const GUI::gui_char *s) noexcept {
 	while (*s && ((*s == '.') ||
 	        (*s >= 'a' && *s <= 'z') ||
 	        (*s >= 'A' && *s <= 'Z')))
@@ -4397,7 +4397,7 @@ void SciTEBase::PerformOne(char *action) {
 	}
 }
 
-static bool IsSwitchCharacter(GUI::gui_char ch) {
+static bool IsSwitchCharacter(GUI::gui_char ch) noexcept {
 #ifdef __unix__
 	return ch == '-';
 #else
