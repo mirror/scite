@@ -1301,7 +1301,8 @@ static void WorkerThread(void *ptr) {
 }
 
 bool SciTEWin::PerformOnNewThread(Worker *pWorker) {
-	const uintptr_t result = _beginthread(WorkerThread, 1024 * 1024, static_cast<void *>(pWorker));
+	void *threadArgument = pWorker;
+	const uintptr_t result = _beginthread(WorkerThread, 1024 * 1024, threadArgument);
 	return result != static_cast<uintptr_t>(-1);
 }
 
