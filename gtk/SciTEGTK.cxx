@@ -284,7 +284,7 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 	return (keyval > 0) ? (keyval | (modsInKey<<16)) : 0;
 }
 
-bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) {
+bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) noexcept {
 	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
 }
 
