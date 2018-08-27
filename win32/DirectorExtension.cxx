@@ -72,8 +72,7 @@ static void SendDirector(const char *verb, const char *arg = 0) {
 		cds.dwData = 0;
 		cds.cbData = static_cast<int>(slashedMessage.length());
 		slashedMessage.append(1, '\0');	// Ensure NUL at end of string
-		cds.lpData = static_cast<void *>(
-			                &slashedMessage[0]);
+		cds.lpData = &slashedMessage[0];
 		::SendMessage(wDestination, WM_COPYDATA,
 			            reinterpret_cast<WPARAM>(wReceiver),
 			            reinterpret_cast<LPARAM>(&cds));
