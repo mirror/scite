@@ -120,7 +120,7 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 	styleIsUsed[STYLE_DEFAULT] = true;
 
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
-	bool failedWrite = fp == NULL;
+	bool failedWrite = fp == nullptr;
 	if (fp) {
 		fputs("\\documentclass[a4paper]{article}\n"
 		      "\\usepackage[a4paper,margin=2cm]{geometry}\n"

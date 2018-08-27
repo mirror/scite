@@ -78,7 +78,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 	styleIsUsed[STYLE_DEFAULT] = true;
 
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
-	bool failedWrite = fp == NULL;
+	bool failedWrite = fp == nullptr;
 	if (fp) {
 		fputs("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n", fp);
 		fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fp);

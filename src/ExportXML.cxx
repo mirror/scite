@@ -88,7 +88,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 	TextReader acc(wEditor);
 
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
-	bool failedWrite = fp == NULL;
+	bool failedWrite = fp == nullptr;
 
 	if (fp) {
 

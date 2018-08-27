@@ -194,7 +194,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			stylePrev = STYLE_DEFAULT;
 			leading = PDF_FONTSIZE_DEFAULT * PDF_SPACING_DEFAULT;
 			buffer[0] = '\0';
-			oT = NULL;
+			oT = nullptr;
 			fontSize = 0;
 			fontSet = PDF_FONT_DEFAULT;
 			pageWidth = 100;
