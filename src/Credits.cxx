@@ -487,7 +487,7 @@ public:
 		mult(109),
 		incr(853),
 		modulus(4096),
-		randomValue(time(0) % modulus),
+		randomValue(time(nullptr) % modulus),
 		r(NextRandom() % 256),
 		g(NextRandom() % 256),
 		b(NextRandom() % 256) {

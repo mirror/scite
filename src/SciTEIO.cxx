@@ -275,7 +275,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		// Turn grey while loading
 		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
 		wEditor.Call(SCI_SETREADONLY, 1);
-		assert(CurrentBufferConst()->pFileWorker == NULL);
+		assert(CurrentBufferConst()->pFileWorker == nullptr);
 		ILoader *pdocLoad;
 		try {
 			sptr_t docOptions = SC_DOCUMENTOPTION_DEFAULT;
@@ -348,7 +348,7 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 		}
 		// Switch documents
 		const sptr_t pdocLoading = reinterpret_cast<sptr_t>(pFileLoader->pLoader->ConvertToDocument());
-		pFileLoader->pLoader = 0;
+		pFileLoader->pLoader = nullptr;
 		SwitchDocumentAt(iBuffer, pdocLoading);
 		if (iBuffer == buffers.Current()) {
 			CompleteOpen(ocCompleteCurrent);
@@ -573,7 +573,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		}
 	}
 
-	assert(CurrentBufferConst()->pFileWorker == NULL);
+	assert(CurrentBufferConst()->pFileWorker == nullptr);
 	SetFileName(absPath);
 
 	propsDiscovered.Clear();
@@ -1208,7 +1208,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 		return true;
 	} else {
 		if (props.GetString("save.path.suggestion").length()) {
-			const time_t t = time(NULL);
+			const time_t t = time(nullptr);
 			char timeBuff[15];
 			strftime(timeBuff, sizeof(timeBuff), "%Y%m%d%H%M%S",  localtime(&t));
 			PropSetFile propsSuggestion;

@@ -46,11 +46,11 @@
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
 
 void Buffer::DocumentModified() {
-	documentModTime = time(0);
+	documentModTime = time(nullptr);
 }
 
 bool Buffer::NeedsSave(int delayBeforeSave) const {
-	const time_t now = time(0);
+	const time_t now = time(nullptr);
 	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !file.IsUntitled() && !failedSave;
 }
 
@@ -58,14 +58,14 @@ void Buffer::CompleteLoading() {
 	lifeState = open;
 	if (pFileWorker && pFileWorker->IsLoading()) {
 		delete pFileWorker;
-		pFileWorker = 0;
+		pFileWorker = nullptr;
 	}
 }
 
 void Buffer::CompleteStoring() {
 	if (pFileWorker && !pFileWorker->IsLoading()) {
 		delete pFileWorker;
-		pFileWorker = 0;
+		pFileWorker = nullptr;
 	}
 	SetTimeFromFile();
 }

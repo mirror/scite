@@ -107,7 +107,7 @@ void FileLoader::Execute() {
 void FileLoader::Cancel() {
 	FileWorker::Cancel();
 	pLoader->Release();
-	pLoader = 0;
+	pLoader = nullptr;
 }
 
 FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
