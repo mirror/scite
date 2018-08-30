@@ -136,7 +136,7 @@ static void DirectorExtension_Register(HINSTANCE hInstance) {
 	wndclass.hIcon = 0;
 	wndclass.hCursor = NULL;
 	wndclass.hbrBackground = NULL;
-	wndclass.lpszMenuName = 0;
+	wndclass.lpszMenuName = nullptr;
 	wndclass.lpszClassName = DirectorExtension_ClassName;
 	if (!::RegisterClass(&wndclass))
 		::exit(FALSE);

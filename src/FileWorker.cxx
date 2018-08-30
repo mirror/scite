@@ -92,7 +92,7 @@ void FileLoader::Execute() {
 			}
 		}
 		fclose(fp);
-		fp = 0;
+		fp = nullptr;
 		unicodeMode = static_cast<UniMode>(
 		            static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies

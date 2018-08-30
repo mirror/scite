@@ -326,7 +326,7 @@ FilePath FilePath::AbsolutePath() const {
 	// so use the OS.
 	GUI::gui_char absPath[2000];
 	absPath[0] = '\0';
-	GUI::gui_char *fileBit = 0;
+	GUI::gui_char *fileBit = nullptr;
 	::GetFullPathNameW(AsInternal(), sizeof(absPath)/sizeof(absPath[0]), absPath, &fileBit);
 	return FilePath(absPath);
 #else
@@ -412,7 +412,7 @@ FILE *FilePath::Open(const GUI::gui_char *mode) const {
 	if (IsSet()) {
 		return fopen(fileName.c_str(), mode);
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -518,7 +518,7 @@ namespace {
 
 #ifdef _WIN32
 void Lowercase(GUI::gui_string &s) {
-	const int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, NULL, 0);
+	const int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, nullptr, 0);
 	std::vector<wchar_t> vc(chars);
 	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, &vc[0], chars);
 	s = &vc[0];
@@ -591,7 +591,7 @@ static bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_string &longPa
 		return false;
 	}
 	typedef DWORD (STDAPICALLTYPE* GetLongSig)(const GUI::gui_char* lpszShortPath, GUI::gui_char* lpszLongPath, DWORD cchBuffer);
-	static GetLongSig pfnGetLong = NULL;
+	static GetLongSig pfnGetLong = nullptr;
 	static bool kernelTried = false;
 
 	if (!kernelTried) {
@@ -658,7 +658,7 @@ bool FilePath::CaseSensitive() {
 std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun) {
 	std::string output;
 #ifdef _WIN32
-	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
+	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
 
 	HANDLE hPipeWrite = NULL;
 	HANDLE hPipeRead = NULL;
@@ -683,7 +683,7 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 	// Make child process use hPipeWrite as standard out, and make
 	// sure it does not show on screen.
 	STARTUPINFOW si = {
-			     sizeof(STARTUPINFO), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			     sizeof(STARTUPINFO), nullptr, nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, nullptr, 0, 0, 0
 			 };
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
@@ -696,12 +696,12 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 	std::vector<wchar_t> vwcCommand(command, command + wcslen(command) + 1);
 
 	const BOOL running = ::CreateProcessW(
-			  NULL,
+			  nullptr,
 			  &vwcCommand[0],
-			  NULL, NULL,
+			  nullptr, nullptr,
 			  TRUE, CREATE_NEW_PROCESS_GROUP,
-			  NULL,
-			  (directoryForRun && directoryForRun[0]) ? directoryForRun : 0,
+			  nullptr,
+			  (directoryForRun && directoryForRun[0]) ? directoryForRun : nullptr,
 			  &si, &pi);
 
 	if (running && pi.hProcess && pi.hThread) {
@@ -714,13 +714,13 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 
 		if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
 			if (bytesAvail > 0) {
-				int bTest = ::ReadFile(hPipeRead, buffer, sizeof(buffer), &bytesRead, NULL);
+				int bTest = ::ReadFile(hPipeRead, buffer, sizeof(buffer), &bytesRead, nullptr);
 				while (bTest && bytesRead) {
 					output.append(buffer, buffer+bytesRead);
 					bytesRead = 0;
 					if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
 						if (bytesAvail) {
-							bTest = ::ReadFile(hPipeRead, buffer, sizeof(buffer), &bytesRead, NULL);
+							bTest = ::ReadFile(hPipeRead, buffer, sizeof(buffer), &bytesRead, nullptr);
 						}
 					}
 				}

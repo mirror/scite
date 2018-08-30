@@ -1371,7 +1371,7 @@ public:
 	explicit BufferedFile(const FilePath &fPath) {
 		fp = fPath.Open(fileRead);
 		readAll = false;
-		exhausted = fp == NULL;
+		exhausted = fp == nullptr;
 		buffer[0] = 0;
 		pos = 0;
 		valid = 0;
@@ -1380,7 +1380,7 @@ public:
 		if (fp) {
 			fclose(fp);
 		}
-		fp = NULL;
+		fp = nullptr;
 	}
 	bool Exhausted() const noexcept {
 		return exhausted;
