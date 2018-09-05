@@ -312,7 +312,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 			lenFile = fread(&data[0], 1, data.size(), fp);
 			if (lenFile == 0) {
 				// Handle case where convert is holding a lead surrogate but no more data
-				const size_t lenFileTrail = convert.convert(NULL, lenFile);
+				const size_t lenFileTrail = convert.convert(nullptr, lenFile);
 				if (lenFileTrail) {
 					const char *dataTrail = convert.getNewBuf();
 					wEditor.CallString(SCI_ADDTEXT, lenFileTrail, dataTrail);
@@ -1338,7 +1338,7 @@ void SciTEBase::OpenFilesFromStdin() {
 
 	while (fgets(data, sizeof(data) - 1, stdin)) {
 		char *pNL;
-		if ((pNL = strchr(data, '\n')) != NULL)
+		if ((pNL = strchr(data, '\n')) != nullptr)
 			* pNL = '\0';
 		Open(GUI::StringFromUTF8(data).c_str(), ofQuiet);
 	}
@@ -1421,7 +1421,7 @@ public:
 	}
 	const char *Next() {
 		if (bf->Exhausted()) {
-			return NULL;
+			return nullptr;
 		}
 		lineToShow.clear();
 		while (!bf->Exhausted()) {

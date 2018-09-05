@@ -196,7 +196,7 @@ std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
  * counted in the length.
  */
 static size_t LengthWord(const char *word, char otherSeparator) {
-	const char *endWord = 0;
+	const char *endWord = nullptr;
 	// Find an otherSeparator
 	if (otherSeparator)
 		endWord = strchr(word, otherSeparator);

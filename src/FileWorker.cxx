@@ -84,7 +84,7 @@ void FileLoader::Execute() {
 			lenFile = fread(&data[0], 1, blockSize, fp);
 			if ((lenFile == 0) && (err == 0)) {
 				// Handle case where convert is holding a lead surrogate but no more data
-				const size_t lenFileTrail = convert.convert(NULL, lenFile);
+				const size_t lenFileTrail = convert.convert(nullptr, lenFile);
 				if (lenFileTrail) {
 					const char *dataTrail = convert.getNewBuf();
 					err = pLoader->AddData(dataTrail, static_cast<int>(lenFileTrail));

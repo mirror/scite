@@ -853,7 +853,7 @@ protected:
 	virtual void SizeSubWindows() = 0;
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
-		const GUI::gui_char *text, const GUI::gui_char *mnemonic = 0) = 0;
+		const GUI::gui_char *text, const GUI::gui_char *mnemonic = nullptr) = 0;
 	virtual void RedrawMenu() {}
 	virtual void DestroyMenuItem(int menuNumber, int itemID) = 0;
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val) = 0;

@@ -541,7 +541,7 @@ static std::string IndexPropKey(const char *bufPrefix, int bufIndex, const char 
 	std::string pKey = bufPrefix;
 	pKey += '.';
 	pKey += StdStringFromInteger(bufIndex + 1);
-	if (bufAppendix != NULL) {
+	if (bufAppendix) {
 		pKey += ".";
 		pKey += bufAppendix;
 	}
@@ -1441,7 +1441,7 @@ void SciTEBase::SetToolsMenu() {
 				sMnemonic += StdStringFromInteger(item);
 			}
 			SetMenuItemLocalised(menuTools, menuPos, itemID, sMenuItem.c_str(),
-				sMnemonic.length() ? sMnemonic.c_str() : NULL);
+				sMnemonic.length() ? sMnemonic.c_str() : nullptr);
 			menuPos++;
 		}
 	}
@@ -1586,7 +1586,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 					space++;
 				}
 
-				const char *space2 = NULL;
+				const char *space2 = nullptr;
 
 				if (strlen(space) > 2) {
 					space2 = strchr(space + 2, ':');
@@ -1910,7 +1910,7 @@ void SciTEBase::ShowMessages(int line) {
 					}
 				}
 			}
-			const int lenCurrent = wEditor.CallString(SCI_ANNOTATIONGETTEXT, sourceLine, NULL);
+			const int lenCurrent = wEditor.CallString(SCI_ANNOTATIONGETTEXT, sourceLine, nullptr);
 			std::string msgCurrent(lenCurrent, '\0');
 			std::string stylesCurrent(lenCurrent, '\0');
 			if (lenCurrent) {
@@ -1989,7 +1989,7 @@ void SciTEBase::GoMessage(int dir) {
 						bExists = true;
 					} else if (Exists(filePath.Directory().AsInternal(), sourceString.c_str(), &messagePath)) {
 						bExists = true;
-					} else if (Exists(NULL, sourceString.c_str(), &messagePath)) {
+					} else if (Exists(nullptr, sourceString.c_str(), &messagePath)) {
 						bExists = true;
 					} else {
 						// Look through buffers for name match

@@ -51,7 +51,7 @@ static bool HasConnection() {
 	return (wDirector != 0) || (wCorrespondent != 0);
 }
 
-static void SendDirector(const char *verb, const char *arg = 0) {
+static void SendDirector(const char *verb, const char *arg = nullptr) {
 	if (HasConnection()) {
 		HWND wDestination = wCorrespondent;
 		std::string addressedMessage;

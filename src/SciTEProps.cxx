@@ -235,8 +235,8 @@ const char *SciTEBase::GetNextPropItem(
 	ptrdiff_t size = maxLen - 1;
 
 	*pPropItem = '\0';
-	if (pStart == NULL) {
-		return NULL;
+	if (!pStart) {
+		return nullptr;
 	}
 	const char *pNext = strchr(pStart, ',');
 	if (pNext) {	// Separator is found
@@ -696,7 +696,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	subStyleBases.clear();
-	const int lenSSB = wEditor.CallString(SCI_GETSUBSTYLEBASES, 0, NULL);
+	const int lenSSB = wEditor.CallString(SCI_GETSUBSTYLEBASES, 0, nullptr);
 	if (lenSSB) {
 		wEditor.Call(SCI_FREESUBSTYLES);
 
