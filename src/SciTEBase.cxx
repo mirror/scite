@@ -4675,7 +4675,7 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 				}
 			} else if ((tolower(arg[0]) == 'p') && (arg[1] == 0)) {
 				performPrint = true;
-			} else if (GUI::gui_string(arg) == GUI_TEXT("grep") && (wlArgs.size() - i >= 4)) {
+			} else if (GUI::gui_string(arg) == GUI_TEXT("grep") && (wlArgs.size() - i >= 4) && (wlArgs[i+1].size() >= 4)) {
 				// in form -grep [w~][c~][d~][b~] "<file-patterns>" "<search-string>"
 				GrepFlags gf = grepStdOut;
 				if (wlArgs[i+1][0] == 'w')
