@@ -706,7 +706,7 @@ bool SciTEBase::OpenSelected() {
 	if (!FilePath(selFN).IsAbsolute()) {
 		path = filePath.Directory();
 		// If not there, look in openpath
-		if (!Exists(path.AsInternal(), selFN.c_str(), NULL)) {
+		if (!Exists(path.AsInternal(), selFN.c_str(), nullptr)) {
 			GUI::gui_string openPath = GUI::StringFromUTF8(props.GetNewExpandString(
 			            "openpath.", fileNameForExtension.c_str()));
 			while (openPath.length()) {
@@ -718,7 +718,7 @@ bool SciTEBase::OpenSelected() {
 				} else {
 					openPath.erase();
 				}
-				if (Exists(tryPath.c_str(), selFN.c_str(), NULL)) {
+				if (Exists(tryPath.c_str(), selFN.c_str(), nullptr)) {
 					path.Set(tryPath.c_str());
 					break;
 				}
