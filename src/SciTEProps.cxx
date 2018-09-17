@@ -186,7 +186,7 @@ void SciTEBase::ReadDirectoryPropFile() {
 		FilePath propfile = GetDirectoryPropertiesFileName();
 		props.Set("SciteDirectoryHome", propfile.Directory().AsUTF8().c_str());
 
-		propsDirectory.Read(propfile, propfile.Directory(), filter, NULL, 0);
+		propsDirectory.Read(propfile, propfile.Directory(), filter, nullptr, 0);
 	}
 }
 
@@ -201,7 +201,7 @@ void SciTEBase::ReadLocalPropFile() {
 	FilePath propfile = GetLocalPropertiesFileName();
 
 	propsLocal.Clear();
-	propsLocal.Read(propfile, propfile.Directory(), filter, NULL, 0);
+	propsLocal.Read(propfile, propfile.Directory(), filter, nullptr, 0);
 
 	props.Set("Chrome", "#C0C0C0");
 	props.Set("ChromeHighlight", "#FFFFFF");
