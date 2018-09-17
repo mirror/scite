@@ -32,8 +32,8 @@ enum { SURROGATE_FIRST_VALUE = 0x10000 };
 Utf8_16_Read::Utf8_16_Read() {
 	m_eEncoding = eUnknown;
 	m_nBufSize = 0;
-	m_pBuf = NULL;
-	m_pNewBuf = NULL;
+	m_pBuf = nullptr;
+	m_pNewBuf = nullptr;
 	m_bFirstRead = true;
 	m_nLen = 0;
 	m_leadSurrogate[0] = 0;
@@ -43,7 +43,7 @@ Utf8_16_Read::Utf8_16_Read() {
 Utf8_16_Read::~Utf8_16_Read() {
 	if ((m_eEncoding != eUnknown) && (m_eEncoding != eUtf8)) {
 		delete [] m_pNewBuf;
-		m_pNewBuf = NULL;
+		m_pNewBuf = nullptr;
 	}
 }
 
@@ -82,7 +82,7 @@ size_t Utf8_16_Read::convert(char* buf, size_t len) {
 	ubyte* pCur = m_pNewBuf;
 
 	ubyte endSurrogate[2] = { 0, 0 };
-	ubyte *pbufPrependSurrogate = NULL;
+	ubyte *pbufPrependSurrogate = nullptr;
 	if (m_leadSurrogate[0]) {
 		pbufPrependSurrogate = new ubyte[len - nSkip + 2];
 		memcpy(pbufPrependSurrogate, m_leadSurrogate, 2);
@@ -133,8 +133,8 @@ int Utf8_16_Read::determineEncoding() {
 
 Utf8_16_Write::Utf8_16_Write() {
 	m_eEncoding = eUnknown;
-	m_pFile = NULL;
-	m_pBuf = NULL;
+	m_pFile = nullptr;
+	m_pBuf = nullptr;
 	m_bFirstWrite = true;
 	m_nBufSize = 0;
 }
@@ -220,10 +220,10 @@ size_t Utf8_16_Write::fwrite(const void* p, size_t _size) {
 
 int Utf8_16_Write::fclose() {
 	delete [] m_pBuf;
-	m_pBuf = NULL;
+	m_pBuf = nullptr;
 
 	const int ret = ::fclose(m_pFile);
-	m_pFile = NULL;
+	m_pFile = nullptr;
 
 	return ret;
 }
@@ -238,9 +238,9 @@ Utf8_Iter::Utf8_Iter() {
 }
 
 void Utf8_Iter::reset() {
-	m_pBuf = NULL;
-	m_pRead = NULL;
-	m_pEnd = NULL;
+	m_pBuf = nullptr;
+	m_pRead = nullptr;
+	m_pEnd = nullptr;
 	m_eState = eStart;
 	m_nCur = 0;
 	m_eEncoding = eUnknown;
@@ -299,9 +299,9 @@ Utf16_Iter::Utf16_Iter() {
 }
 
 void Utf16_Iter::reset() {
-	m_pBuf = NULL;
-	m_pRead = NULL;
-	m_pEnd = NULL;
+	m_pBuf = nullptr;
+	m_pRead = nullptr;
+	m_pEnd = nullptr;
 	m_eState = eStart;
 	m_nCur = 0;
 	m_nCur16 = 0;
