@@ -3692,7 +3692,14 @@ void SciTEGTK::CreateTranslatedMenu(int n, const SciTEItemFactoryEntry items[],
 
 	for (; i < n; i++) {
 		// Try to find user-defined accelerator key
-		std::string menuPath(MenuPathToMenuKeyString(items[i].path));
+		std::string menuPath = "menukey";			// menupath="menukey"
+		menuPath += items[i].path;		// menupath="menukey/File/Save _As..."
+		Substitute(menuPath, "_", "");		// menupath="menukey/File/Save As..."
+		Substitute(menuPath, ".", "");		// menupath="menukey/File/Save As"
+		Substitute(menuPath, "/", ".");		// menupath="menukey.File.Save As"
+		Substitute(menuPath, " ", "_");	// menupath="menukey.File.Save_As"
+		LowerCaseAZ(menuPath);		// menupath="menukey.file.save_as"
+
 		std::string accelKey = props.GetString(menuPath.c_str());
 
 		const char *itemAccel = items[i].accelerator;

@@ -117,10 +117,6 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				keyval = VK_ESCAPE;
 			} else if (sKey == "Delete") {
 				keyval = VK_DELETE;
-			} else if (sKey == "Del") {
-				keyval = VK_DELETE;
-			} else if (sKey == "Break") {
-				keyval = VK_CANCEL;
 			} else if (sKey == "PageUp") {
 				keyval = VK_PRIOR;
 			} else if (sKey == "PageDown") {
@@ -1814,17 +1810,6 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 				}
 				return 1l;
 			}
-		}
-	}
-	
-	// like MatchKeyCode, confirm high bits aren't set before combining key and mods into one int
-	const int key = static_cast<int>(wParam);
-	if (!(0xFFFF0000 & (key | modifiers))) {
-		const int combined = key | (modifiers<<16);
-		std::map<long, int>::const_iterator it = currentMenuKeys.find(combined);
-		if (it != currentMenuKeys.end()) {
-			SciTEBase::MenuCommand(it->second);
-			return 1l;
 		}
 	}
 

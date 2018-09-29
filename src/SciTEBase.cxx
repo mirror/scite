@@ -4183,20 +4183,6 @@ void SciTEBase::ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::W
 }
 
 /**
- * Go from "menukey/File/Save &As..." to "menukey.file.save_as"
- */
-std::string SciTEBase::MenuPathToMenuKeyString(const char *path) {
-	std::string result = "menukey";			// "menukey"
-	result += path;		// "menukey/File/Save &As..."
-	Substitute(result, "&", "");		// "menukey/File/Save As..."
-	Substitute(result, ".", "");		// "menukey/File/Save As"
-	Substitute(result, "/", ".");		// "menukey.File.Save As"
-	Substitute(result, " ", "_");	// "menukey.File.Save_As"
-	LowerCaseAZ(result);		// "menukey.file.save_as"
-	return result;
-}
-
-/**
  * Ensure that a splitter bar position is inside the main window.
  */
 int SciTEBase::NormaliseSplit(int splitPos) {

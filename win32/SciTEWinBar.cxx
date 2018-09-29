@@ -539,83 +539,7 @@ void SciTEWin::CheckMenus() {
 	                   CurrentBuffer()->unicodeMode + IDM_ENCODING_DEFAULT, 0);
 }
 
-namespace {
-
-void MenuKeyStringGtkToWindows(std::string &keys) {
-	Substitute(keys, "<control>", "Ctrl+");
-	Substitute(keys, "<shift>", "Shift+");
-	Substitute(keys, "<alt>", "Alt+");
-}
-
-bool AllowRedefineMenuKeys(const std::string &keys) {
-	// We don't allow these to be redefined by the user, since we want them to be 
-	// functional for other text fields, like the text box in the find strip
-	return keys != "Ctrl+C" &&
-		keys != "Ctrl+X" &&
-		keys != "Ctrl+V" &&
-		keys != "Ctrl+A" &&
-		keys != "Ctrl+Z" &&
-		keys != "Ctrl+Y";
-}
-
-}
-
-std::string SciTEWin::GetMenuKeys(const GUI::gui_string &path, const GUI::gui_string &defaultAccel) const {
-	// Did the user specify a different accelerator key for this menuitem?
-	std::string menuKeyProp = MenuPathToMenuKeyString(GUI::UTF8FromString(path.c_str()).c_str());
-	std::string fromProps = props.GetString(menuKeyProp.c_str());
-	if (fromProps.length() > 0) {
-		// Allow user to clear accelerator key
-		if (fromProps == "none" || fromProps == "\"\"") {
-			fromProps = "";
-		}
-		
-		MenuKeyStringGtkToWindows(fromProps);
-		return AllowRedefineMenuKeys(fromProps) ? fromProps : "";
-	} else {
-		// Fall back to default accelerator key
-		return GUI::UTF8FromString(defaultAccel);
-	}
-}
-
-void SciTEWin::LocaliseMenuItem(HMENU hmenu, int i, MENUITEMINFOW &mii, const GUI::gui_string &path) {
-	// Get the default text and default accelerator key
-	GUI::gui_string text;
-	GUI::gui_string defaultAccel;
-	const GUI::gui_string textAndAccel(mii.dwTypeData);
-	const std::vector<GUI::gui_string> spl = StringSplit(textAndAccel, GUI_TEXT('\t'));
-	if (spl.size() > 1) {
-		text = spl[0];
-		defaultAccel = spl[1];
-	} else if (spl.size() > 0) {
-		text = spl[0];
-	}
-	
-	// Register in currentMenuKeys
-	const GUI::gui_string fullPath(path + GUI_TEXT("/") + text);
-	const std::string accel = GetMenuKeys(fullPath, defaultAccel);
-	if (accel.length() > 0 && AllowRedefineMenuKeys(accel)) {
-		const long parsedKeys = SciTEKeys::ParseKeyCode(accel.c_str());
-		if (parsedKeys) {
-			const int action = ::GetMenuItemID(hmenu, i);
-			currentMenuKeys[parsedKeys] = action;
-		}
-	}
-	
-	// Localise text
-	text = localiser.Text(GUI::UTF8FromString(text.c_str()).c_str(), true);
-	if (text.length()) {
-		if (accel != "") {
-			text += GUI_TEXT("\t");
-			text += GUI::StringFromUTF8(accel);
-		}
-		text.append(1, 0);
-		mii.dwTypeData = &text[0];
-		::SetMenuItemInfoW(hmenu, i, TRUE, &mii);
-	}
-}
-
-void SciTEWin::LocaliseMenu(HMENU hmenu, GUI::gui_string path) {
+void SciTEWin::LocaliseMenu(HMENU hmenu) {
 	for (int i = 0; i <= ::GetMenuItemCount(hmenu); i++) {
 		GUI::gui_char buff[200];
 		buff[0] = '\0';
@@ -627,11 +551,30 @@ void SciTEWin::LocaliseMenu(HMENU hmenu, GUI::gui_string path) {
 		mii.cch = sizeof(buff) - 1;
 		if (::GetMenuItemInfoW(hmenu, i, TRUE, &mii)) {
 			if (mii.hSubMenu) {
-				LocaliseMenu(mii.hSubMenu, path + GUI_TEXT("/") + mii.dwTypeData);
+				LocaliseMenu(mii.hSubMenu);
 			}
 			if (mii.fType == MFT_STRING || mii.fType == MFT_RADIOCHECK) {
 				if (mii.dwTypeData) {
-					LocaliseMenuItem(hmenu, i, mii, path);
+					GUI::gui_string text(mii.dwTypeData);
+					GUI::gui_string accel(mii.dwTypeData);
+					const size_t len = text.length();
+					const size_t tab = text.find(GUI_TEXT("\t"));
+					if (tab != GUI::gui_string::npos) {
+						text.erase(tab, len - tab);
+						accel.erase(0, tab + 1);
+					} else {
+						accel = GUI_TEXT("");
+					}
+					text = localiser.Text(GUI::UTF8FromString(text.c_str()).c_str(), true);
+					if (text.length()) {
+						if (accel != GUI_TEXT("")) {
+							text += GUI_TEXT("\t");
+							text += accel;
+						}
+						text.append(1, 0);
+						mii.dwTypeData = &text[0];
+						::SetMenuItemInfoW(hmenu, i, TRUE, &mii);
+					}
 				}
 			}
 		}
@@ -639,7 +582,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu, GUI::gui_string path) {
 }
 
 void SciTEWin::LocaliseMenus() {
-	LocaliseMenu(::GetMenu(MainHWND()), GUI_TEXT(""));
+	LocaliseMenu(::GetMenu(MainHWND()));
 	::DrawMenuBar(MainHWND());
 }
 

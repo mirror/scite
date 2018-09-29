@@ -862,7 +862,6 @@ protected:
 	virtual void CheckMenus();
 	virtual void AddToPopUp(const char *label, int cmd = 0, bool enabled = true) = 0;
 	void ContextMenu(GUI::ScintillaWindow &wSource, GUI::Point pt, GUI::Window wCmd);
-	static std::string MenuPathToMenuKeyString(const char *path);
 
 	void DeleteFileStackMenu();
 	void SetFileStackMenu();
