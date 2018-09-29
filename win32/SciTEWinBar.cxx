@@ -555,8 +555,7 @@ bool AllowRedefineMenuKeys(const std::string &keys) {
 		keys != "Ctrl+V" &&
 		keys != "Ctrl+A" &&
 		keys != "Ctrl+Z" &&
-		keys != "Ctrl+Y" &&
-		keys != "Del";
+		keys != "Ctrl+Y";
 }
 
 }
