@@ -207,7 +207,7 @@
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLINECHARACTERINDEX'>LineCharacterIndex</a> read-only</p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ALLOCATELINECHARACTERINDEX'>AllocateLineCharacterIndex</a>(int lineCharacterIndex)<span class="comment"> -- Request line character index be created or its use count increased.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_RELEASELINECHARACTERINDEX'>ReleaseLineCharacterIndex</a>(int lineCharacterIndex)<span class="comment"> -- Decrease use count of line character index and remove if 0.</span></p>
-	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_LINEFROMINDEXPOSITION'>LineFromIndexPosition</a>(position posUTF32, int lineCharacterIndex)<span class="comment"> -- Retrieve the document line containing a position measured in index units.</span></p>
+	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_LINEFROMINDEXPOSITION'>LineFromIndexPosition</a>(position pos, int lineCharacterIndex)<span class="comment"> -- Retrieve the document line containing a position measured in index units.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDEXPOSITIONFROMLINE'>IndexPositionFromLine</a>(int line, int lineCharacterIndex)<span class="comment"> -- Retrieve the position measured in index units at the start of a document line.</span></p>
 	<h2>Multiple Selection and Virtual Space</h2>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETMULTIPLESELECTION'>MultipleSelection</a><span class="comment"> -- Set whether multiple selections can be made</span></p>
