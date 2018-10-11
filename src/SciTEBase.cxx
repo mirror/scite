@@ -3988,7 +3988,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_MODIFIED:
-		if (notification->nmhdr.idFrom == IDM_SRCWIN)
+		if ((notification->nmhdr.idFrom == IDM_SRCWIN) && 
+			(notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)))
 			CurrentBuffer()->DocumentModified();
 		if (notification->modificationType & SC_LASTSTEPINUNDOREDO) {
 			//when the user hits undo or redo, several normal insert/delete
