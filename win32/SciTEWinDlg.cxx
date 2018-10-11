@@ -1646,7 +1646,7 @@ SciTEBase::MessageBoxChoice SciTEWin::WindowMessageBox(GUI::Window &w, const GUI
 }
 
 void SciTEWin::FindMessageBox(const std::string &msg, const std::string *findItem) {
-	if (findItem == 0) {
+	if (!findItem) {
 		GUI::gui_string msgBuf = LocaliseMessage(msg.c_str());
 		WindowMessageBox(wFindReplace.Created() ? wFindReplace : wSciTE, msgBuf);
 	} else {

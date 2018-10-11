@@ -148,7 +148,7 @@ public:
 				controlID++;
 			}
 		}
-		return 0;
+		return nullptr;
 	}
 };
 

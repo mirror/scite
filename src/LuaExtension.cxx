@@ -61,8 +61,8 @@ extern "C" {
 // and for these I just make a judgement call
 
 
-static ExtensionAPI *host = 0;
-static lua_State *luaState = 0;
+static ExtensionAPI *host = nullptr;
+static lua_State *luaState = nullptr;
 static bool luaDisabled = false;
 
 static std::string startupScript;
@@ -116,7 +116,7 @@ inline bool IFacePropertyIsScriptable(const IFaceProperty &p) {
 		 (p.paramType == iface_bool)) && (p.getter || p.setter));
 }
 
-inline void raise_error(lua_State *L, const char *errMsg=NULL) {
+inline void raise_error(lua_State *L, const char *errMsg=nullptr) {
 	luaL_where(L, 1);
 	if (errMsg) {
 		lua_pushstring(L, errMsg);
@@ -199,7 +199,7 @@ static void clear_table(lua_State *L, int tableIdx, bool clearMetatable = true) 
 // Lua 5.1's checkudata throws an error on failure, we don't want that, we want NULL
 static void *checkudata(lua_State *L, int ud, const char *tname) {
 	void *p = lua_touserdata(L, ud);
-	if (p != NULL) { // value is a userdata?
+	if (p) { // value is a userdata?
 		if (lua_getmetatable(L, ud)) { // does it have a metatable?
 			lua_getfield(L, LUA_REGISTRYINDEX, tname); // get correct metatable
 			if (lua_rawequal(L, -1, -2)) { // does it have correct mt?
@@ -210,7 +210,7 @@ static void *checkudata(lua_State *L, int ud, const char *tname) {
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 static int cf_scite_send(lua_State *L) {
@@ -411,7 +411,7 @@ static int cf_pane_findtext(lua_State *L) {
 	bool hasError = (!t);
 
 	if (!hasError) {
-		Sci_TextToFind ft = {{0, 0}, 0, {0, 0}};
+		Sci_TextToFind ft = {{0, 0}, nullptr, {0, 0}};
 
 		ft.lpstrText = t;
 
@@ -623,7 +623,7 @@ static int cf_pane_match_generator(lua_State *L) {
 		searchPos++;
 	}
 
-	Sci_TextToFind ft = { {0, 0}, 0, {0, 0} };
+	Sci_TextToFind ft = { {0, 0}, nullptr, {0, 0} };
 	ft.chrg.cpMin = searchPos;
 	ft.chrg.cpMax = static_cast<long>(host->Send(pmo->pane, SCI_GETLENGTH, 0, 0));
 	ft.lpstrText = text;
@@ -662,7 +662,7 @@ static int cf_props_metatable_index(lua_State *L) {
 static int cf_props_metatable_newindex(lua_State *L) {
 	const int selfArg = lua_isuserdata(L, 1) ? 1 : 0;
 
-	const char *key = lua_isstring(L, selfArg + 1) ? lua_tostring(L, selfArg + 1) : 0;
+	const char *key = lua_isstring(L, selfArg + 1) ? lua_tostring(L, selfArg + 1) : nullptr;
 	const char *val = lua_tostring(L, selfArg + 2);
 
 	if (key && *key) {
@@ -1215,7 +1215,7 @@ static int cf_global_metatable_index(lua_State *L) {
 static int LuaPanicFunction(lua_State *L) {
 	if (L == luaState) {
 		lua_close(luaState);
-		luaState = NULL;
+		luaState = nullptr;
 		luaDisabled = true;
 	}
 	host->Trace("\n> Lua: error occurred in unprotected call.  This is very bad.\n");
@@ -1483,8 +1483,8 @@ bool LuaExtension::Finalise() {
 		lua_close(luaState);
 	}
 
-	luaState = NULL;
-	host = NULL;
+	luaState = nullptr;
+	host = nullptr;
 
 	// The rest don't strictly need to be cleared since they
 	// are never accessed except when luaState and host are set

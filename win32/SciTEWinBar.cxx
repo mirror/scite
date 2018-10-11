@@ -193,7 +193,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 	case TTN_GETDISPINFO:
 		// Ask for tooltip text
 		{
-			const GUI::gui_char *ttext = 0;
+			const GUI::gui_char *ttext = nullptr;
 			NMTTDISPINFOW *pDispInfo = reinterpret_cast<NMTTDISPINFOW *>(notification);
 			// Toolbar tooltips
 			switch (notification->nmhdr.idFrom) {
@@ -675,7 +675,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	case WM_LBUTTONUP: {
 			st_iLastClickTab = -1;
 			if (st_bDragBegin == TRUE) {
-				if (st_hwndLastFocus != NULL) ::SetFocus(st_hwndLastFocus);
+				if (st_hwndLastFocus) ::SetFocus(st_hwndLastFocus);
 				::ReleaseCapture();
 				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 				st_bDragBegin = FALSE;
@@ -695,7 +695,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	case WM_KEYDOWN: {
 			if (wParam == VK_ESCAPE) {
 				if (st_bDragBegin == TRUE) {
-					if (st_hwndLastFocus != NULL) ::SetFocus(st_hwndLastFocus);
+					if (st_hwndLastFocus) ::SetFocus(st_hwndLastFocus);
 					::ReleaseCapture();
 					::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 					st_bDragBegin = FALSE;

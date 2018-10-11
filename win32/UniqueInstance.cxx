@@ -13,7 +13,7 @@
 #include "SciTEWin.h"
 
 UniqueInstance::UniqueInstance() {
-	stw = 0;
+	stw = nullptr;
 	identityMessage = ::RegisterWindowMessage(TEXT("SciTEInstanceIdentifier"));
 	mutex = 0;
 	bAlreadyRunning = false;
@@ -74,7 +74,7 @@ void UniqueInstance::ToggleOpenFilesHere() {
 	if (!AcceptToOpenFiles(!stw->openFilesHere)) {
 		// Cannot set the mutex, search the previous instance holding it
 		CallSearchOnAllWindows();
-		if (hOtherWindow != NULL) {
+		if (hOtherWindow) {
 			// Found, we indicate it to yield the acceptation of files
 			::SendMessage(hOtherWindow, identityMessage, 0,
 			              static_cast<LPARAM>(1));

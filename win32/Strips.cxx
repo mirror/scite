@@ -163,7 +163,7 @@ static SearchOption toggles[] = {
 	{"Transform &backslash expressions", IDM_UNSLASH, IDUNSLASH},
 	{"Wrap ar&ound", IDM_WRAPAROUND, IDWRAP},
 	{"&Up", IDM_DIRECTIONUP, IDDIRECTIONUP},
-	{0, 0, 0},
+	{nullptr, 0, 0},
 };
 
 GUI::Window Strip::CreateText(const char *text) {

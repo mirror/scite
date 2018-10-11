@@ -106,7 +106,7 @@ std::string IFaceTable::GetConstantName(int value, const char *prefix) {
 	}
 
 	for (int constIdx = 0; constIdx < constantCount; ++constIdx) {
-		if (constants[constIdx].value == value && (prefix == NULL || strncmp(prefix, constants[constIdx].name, strlen(prefix)) == 0)) {
+		if (constants[constIdx].value == value && (!prefix || strncmp(prefix, constants[constIdx].name, strlen(prefix)) == 0)) {
 			std::string nameOut = constants[constIdx].name;
 			return nameOut;
 		}

@@ -14,14 +14,14 @@
 
 namespace GUI {
 
-ScintillaWindow::ScintillaWindow() : fn(0), ptr(0), status() {
+ScintillaWindow::ScintillaWindow() : fn(nullptr), ptr(0), status() {
 }
 
 ScintillaWindow::~ScintillaWindow() = default;
 
 void ScintillaWindow::SetScintilla(GUI::WindowID wid_) {
 	SetID(wid_);
-	fn = 0;
+	fn = nullptr;
 	ptr = 0;
 	if (wid) {
 		fn = reinterpret_cast<SciFnDirect>(

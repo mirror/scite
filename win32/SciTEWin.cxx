@@ -139,7 +139,7 @@ bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) noex
 HINSTANCE SciTEWin::hInstance = 0;
 const TCHAR *SciTEWin::className = NULL;
 const TCHAR *SciTEWin::classNameInternal = NULL;
-SciTEWin *SciTEWin::app = NULL;
+SciTEWin *SciTEWin::app = nullptr;
 
 namespace {
 
@@ -347,8 +347,8 @@ void SciTEWin::ReadLocalization() {
 	LowerCaseAZ(encoding);
 	if (encoding.length()) {
 		const int codePageNamed = CodePageFromName(encoding);
-		const char *key = NULL;
-		const char *val = NULL;
+		const char *key = nullptr;
+		const char *val = nullptr;
 		// Get encoding
 		bool more = localiser.GetFirst(key, val);
 		while (more) {
@@ -391,7 +391,7 @@ FILE *scite_lua_fopen(const char *filename, const char *mode) {
 	GUI::gui_string sFilename = GUI::StringFromUTF8(filename);
 	GUI::gui_string sMode = GUI::StringFromUTF8(mode);
 	FILE *f = _wfopen(sFilename.c_str(), sMode.c_str());
-	if (f == NULL)
+	if (!f)
 		// Fallback on narrow string in case already in CP_ACP
 		f = fopen(filename, mode);
 	return f;
@@ -401,7 +401,7 @@ FILE *scite_lua_popen(const char *filename, const char *mode) {
 	GUI::gui_string sFilename = GUI::StringFromUTF8(filename);
 	GUI::gui_string sMode = GUI::StringFromUTF8(mode);
 	FILE *f = _wpopen(sFilename.c_str(), sMode.c_str());
-	if (f == NULL)
+	if (!f)
 		// Fallback on narrow string in case already in CP_ACP
 		f = _popen(filename, mode);
 	return f;
@@ -597,7 +597,7 @@ void SciTEWin::FullScreenToggle() {
 	if (fullScreen) {
 		::SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
 		::SystemParametersInfo(SPI_SETWORKAREA, 0, 0, SPIF_SENDCHANGE);
-		if (wStartButton != NULL)
+		if (wStartButton)
 			::ShowWindow(wStartButton, SW_HIDE);
 		::ShowWindow(wTaskBar, SW_HIDE);
 
@@ -616,7 +616,7 @@ void SciTEWin::FullScreenToggle() {
 			0);
 	} else {
 		::ShowWindow(wTaskBar, SW_SHOW);
-		if (wStartButton != NULL)
+		if (wStartButton)
 			::ShowWindow(wStartButton, SW_SHOW);
 		::SetWindowLongPtr(HwndOf(wContent),
 			GWL_EXSTYLE, WS_EX_CLIENTEDGE);
@@ -1132,17 +1132,17 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 	const char *mycmdlowered = cmdLower.c_str();
 
 	const char *s = strstr(mycmdlowered, ".exe");
-	if (s == NULL)
+	if (!s)
 		s = strstr(mycmdlowered, ".cmd");
-	if (s == NULL)
+	if (!s)
 		s = strstr(mycmdlowered, ".bat");
-	if (s == NULL)
+	if (!s)
 		s = strstr(mycmdlowered, ".com");
 	std::vector<char> cmdcopy(cmd.c_str(), cmd.c_str() + cmd.length() + 1);
 	char *mycmdcopy = &cmdcopy[0];
 	char *mycmd;
-	char *mycmd_end = NULL;
-	if ((s != NULL) && ((*(s + 4) == '\0') || (*(s + 4) == ' '))) {
+	char *mycmd_end = nullptr;
+	if (s && ((*(s + 4) == '\0') || (*(s + 4) == ' '))) {
 		ptrdiff_t len_mycmd = s - mycmdlowered + 4;
 		mycmd = mycmdcopy;
 		mycmd_end = mycmdcopy + len_mycmd;
@@ -1156,7 +1156,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 			// strip the " for ShellExec
 			mycmd = mycmdcopy + 1;
 			char *sm = strchr(mycmdcopy + 1, '"');
-			if (sm != NULL) {
+			if (sm) {
 				*sm = '\0';
 				mycmd_end = sm + 1;
 			}
@@ -1164,7 +1164,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 	}
 
 	std::string myparams;
-	if ((mycmd_end != NULL) && (*mycmd_end != '\0')) {
+	if (mycmd_end && (*mycmd_end != '\0')) {
 		*mycmd_end = '\0';
 		// test for remaining params after cmd, they may be surrounded by " but
 		// we give them as-is to ShellExec
