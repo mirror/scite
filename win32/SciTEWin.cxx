@@ -136,7 +136,7 @@ bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) noex
 	return parsedKeyCode && !(0xFFFF0000 & (keyval | modifiers)) && (parsedKeyCode == (keyval | (modifiers<<16)));
 }
 
-HINSTANCE SciTEWin::hInstance = 0;
+HINSTANCE SciTEWin::hInstance {};
 const TCHAR *SciTEWin::className = NULL;
 const TCHAR *SciTEWin::classNameInternal = NULL;
 SciTEWin *SciTEWin::app = nullptr;
@@ -836,8 +836,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command), codePageOutput);
 	OutputAppendStringSynchronised("\n");
 
-	HANDLE hPipeWrite = NULL;
-	HANDLE hPipeRead = NULL;
+	HANDLE hPipeWrite {};
+	HANDLE hPipeRead {};
 	// Create pipe for output redirection
 	// read handle, write handle, security attributes,  number of bytes reserved for pipe
 	const DWORD pipeBufferSize = 64 * 1024;
@@ -850,7 +850,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 	hWriteSubProcess = NULL;
 	subProcessGroupId = 0;
-	HANDLE hRead2 = NULL;
+	HANDLE hRead2 {};
 	// read handle, write handle, security attributes,  number of bytes reserved for pipe
 	::CreatePipe(&hRead2, &hWriteSubProcess, &sa, pipeBufferSize);
 

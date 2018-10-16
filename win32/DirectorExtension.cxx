@@ -40,9 +40,9 @@
 #include "SciTEBase.h"
 #include "DirectorExtension.h"
 
-static HWND wDirector = 0;
-static HWND wCorrespondent = 0;
-static HWND wReceiver = 0;
+static HWND wDirector {};
+static HWND wCorrespondent {};
+static HWND wReceiver {};
 static bool startedByDirector = false;
 static bool shuttingDown = false;
 unsigned int SDI = 0;

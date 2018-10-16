@@ -7,8 +7,8 @@
 
 class DirectorExtension : public Extension {
 private:
-	ExtensionAPI *host;
-	DirectorExtension() : host(0) {} // Singleton
+	ExtensionAPI *host {};
+	DirectorExtension() {} // Singleton
 	// Deleted so DirectorExtension objects can not be copied.
 	DirectorExtension(const DirectorExtension &) = delete;
 	void operator=(const DirectorExtension &) = delete;

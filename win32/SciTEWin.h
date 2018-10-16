@@ -264,7 +264,8 @@ protected:
 	GUI::gui_string DialogFilterFromProperty(const GUI::gui_char *filterProperty);
 	void CheckCommonDialogError();
 	bool OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter) override;
-	FilePath ChooseSaveName(const FilePath &directory, const char *title, const GUI::gui_char *filesFilter = 0, const char *ext = 0);
+	FilePath ChooseSaveName(const FilePath &directory, const char *title,
+		const GUI::gui_char *filesFilter = nullptr, const char *ext = nullptr);
 	bool SaveAsDialog() override;
 	void SaveACopy() override;
 	void SaveAsHTML() override;

@@ -20,9 +20,9 @@ GUI::gui_string ClassNameOfWindow(HWND hWnd);
 
 class BaseWin : public GUI::Window {
 protected:
-	ILocalize *localiser;
+	ILocalize *localiser = nullptr;
 public:
-	BaseWin() : localiser(0) {
+	BaseWin() {
 	}
 	void SetLocalizer(ILocalize *localiser_) {
 		localiser = localiser_;
@@ -103,10 +103,10 @@ public:
 
 class SearchStripBase : public Strip {
 protected:
-	Searcher *pSearcher;
-	HBRUSH hbrNoMatch;
+	Searcher *pSearcher = nullptr;
+	HBRUSH hbrNoMatch {};
 public:
-	SearchStripBase() : pSearcher(0), hbrNoMatch(0) {
+	SearchStripBase() {
 	}
 	virtual ~SearchStripBase() = default;
 	void SetSearcher(Searcher *pSearcher_) {

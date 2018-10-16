@@ -660,8 +660,8 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 #ifdef _WIN32
 	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
 
-	HANDLE hPipeWrite = NULL;
-	HANDLE hPipeRead = NULL;
+	HANDLE hPipeWrite {};
+	HANDLE hPipeRead {};
 	// Create pipe for output redirection
 	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
 	::CreatePipe(&hPipeRead, &hPipeWrite, &sa, 0);
@@ -671,9 +671,9 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 	// to set the hStdInput field in the STARTUP_INFO struct. For safety,
 	// you should not set the handles to an invalid handle.
 
-	HANDLE hWriteSubProcess = NULL;
+	HANDLE hWriteSubProcess {};
 	//subProcessGroupId = 0;
-	HANDLE hRead2 = NULL;
+	HANDLE hRead2 {};
 	// read handle, write handle, security attributes,  number of bytes reserved for pipe - 0 default
 	::CreatePipe(&hRead2, &hWriteSubProcess, &sa, 0);
 

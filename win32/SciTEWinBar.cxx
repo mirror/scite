@@ -642,7 +642,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	static BOOL st_bDragBegin = FALSE;
 	static int st_iDraggingTab = -1;
 	static int st_iLastClickTab = -1;
-	static HWND st_hwndLastFocus = NULL;
+	static HWND st_hwndLastFocus {};
 
 	switch (iMessage) {
 

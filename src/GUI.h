@@ -79,9 +79,9 @@ std::string LowerCaseUTF8(std::string_view sv);
 typedef void *WindowID;
 class Window {
 protected:
-	WindowID wid;
+	WindowID wid {};
 public:
-	Window() noexcept : wid(0) {
+	Window() noexcept {
 	}
 	Window(Window const &) = default;
 	Window(Window &&) = default;
@@ -114,9 +114,9 @@ public:
 
 typedef void *MenuID;
 class Menu {
-	MenuID mid;
+	MenuID mid {};
 public:
-	Menu() noexcept : mid(0) {
+	Menu() noexcept {
 	}
 	MenuID GetID() const noexcept {
 		return mid;
