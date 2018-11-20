@@ -77,7 +77,7 @@ vpath %.c $(srcdir)/../lua/src
 INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src -I$(srcdir)/../lua/src
 
 .c.o:
-	$(CC) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
 
 else
 CXXTFLAGS+=-DNO_LUA
@@ -88,12 +88,15 @@ CXXTFLAGS:=$(CXXTFLAGS)
 UNAME:=$(shell uname -s)
 ifeq ($(UNAME), Linux)
 LIBDL:=-ldl
+LUACFLAGS:=-DLUA_USE_DLOPEN
 endif
 ifneq (,$(findstring GNU,$(UNAME)))
 LIBDL:=-ldl
+LUACFLAGS:=-DLUA_USE_DLOPEN
 endif
 ifeq ($(UNAME), Darwin)
 CXXTFLAGS:=$(CXXTFLAGS) -Dunix
+LUACFLAGS:=-DLUA_USE_DLOPEN
 endif
 
 .cxx.o:
