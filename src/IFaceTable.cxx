@@ -1378,6 +1378,23 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_MYSQL_USER2",19},
 	{"SCE_MYSQL_USER3",20},
 	{"SCE_MYSQL_VARIABLE",3},
+	{"SCE_NIM_BACKTICKS",11},
+	{"SCE_NIM_CHARACTER",7},
+	{"SCE_NIM_COMMENT",1},
+	{"SCE_NIM_COMMENTDOC",2},
+	{"SCE_NIM_COMMENTLINE",3},
+	{"SCE_NIM_COMMENTLINEDOC",4},
+	{"SCE_NIM_DEFAULT",0},
+	{"SCE_NIM_FUNCNAME",12},
+	{"SCE_NIM_IDENTIFIER",16},
+	{"SCE_NIM_NUMBER",5},
+	{"SCE_NIM_NUMERROR",14},
+	{"SCE_NIM_OPERATOR",15},
+	{"SCE_NIM_STRING",6},
+	{"SCE_NIM_STRINGEOL",13},
+	{"SCE_NIM_TRIPLE",9},
+	{"SCE_NIM_TRIPLEDOUBLE",10},
+	{"SCE_NIM_WORD",8},
 	{"SCE_NNCRONTAB_ASTERISK",6},
 	{"SCE_NNCRONTAB_COMMENT",1},
 	{"SCE_NNCRONTAB_DEFAULT",0},
@@ -2550,6 +2567,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_MODULA",101},
 	{"SCLEX_MSSQL",55},
 	{"SCLEX_MYSQL",89},
+	{"SCLEX_NIM",126},
 	{"SCLEX_NIMROD",96},
 	{"SCLEX_NNCRONTAB",26},
 	{"SCLEX_NSIS",43},
@@ -3414,7 +3432,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 307,
-	ifaceConstantCount = 2742,
+	ifaceConstantCount = 2760,
 	ifacePropertyCount = 231
 };
 
