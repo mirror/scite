@@ -2153,6 +2153,8 @@ void SciTEGTK::FindInFilesCmd() {
 	props.Set("find.files", filesEntry);
 	memFiles.Insert(filesEntry);
 
+	SetFindInFilesOptions();
+
 	if (props.GetInt("find.in.files.close.on.find", 1)) {
 		dlgFindInFiles.Destroy();
 	}
@@ -2499,16 +2501,12 @@ void SciTEGTK::FindInFiles() {
 
 	table.Add();	// Space
 
-	bool enableToggles = props.GetNewExpandString("find.command") == "";
-
 	// Whole Word
 	dlgFindInFiles.toggleWord.Create(localiser.Text(toggles[SearchOption::tWord].label));
-	gtk_widget_set_sensitive(dlgFindInFiles.toggleWord, enableToggles);
 	table.Add(dlgFindInFiles.toggleWord, 1, true, 3, 0);
 
 	// Case Sensitive
 	dlgFindInFiles.toggleCase.Create(localiser.Text(toggles[SearchOption::tCase].label));
-	gtk_widget_set_sensitive(dlgFindInFiles.toggleCase, enableToggles);
 	table.Add(dlgFindInFiles.toggleCase, 1, true, 3, 0);
 
 	AttachResponse<&SciTEGTK::FindInFilesResponse>(PWidget(dlgFindInFiles), this);

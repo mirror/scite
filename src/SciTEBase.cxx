@@ -4809,3 +4809,10 @@ void SciTEBase::Perform(const char *actionList) {
 void SciTEBase::DoMenuCommand(int cmdID) {
 	MenuCommand(cmdID, 0);
 }
+
+void SciTEBase::SetFindInFilesOptions() {
+	const std::string wholeWordName = std::string("find.option.wholeword.") + StdStringFromInteger(wholeWord);
+	props.Set("find.wholeword", props.GetNewExpandString(wholeWordName.c_str()));
+	const std::string matchCaseName = std::string("find.option.matchcase.") + StdStringFromInteger(matchCase);
+	props.Set("find.matchcase", props.GetNewExpandString(matchCaseName.c_str()));
+}

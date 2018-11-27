@@ -755,6 +755,7 @@ protected:
 	int DoReplaceAll(bool inSelection); // returns number of replacements or negative value if error
 	int ReplaceAll(bool inSelection) override;
 	int ReplaceInBuffers();
+	void SetFindInFilesOptions();
 	void UIClosed() override;
 	void UIHasFocus() override;
 	virtual void DestroyFindReplace() = 0;

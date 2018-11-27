@@ -3052,6 +3052,10 @@ Prev File|IDM_PREVFILE|<br/>
       <tr id='property-find.command'>
         <td>
           find.command<br />
+	  find.option.wholeword.0<br />
+	  find.option.wholeword.1<br />
+	  find.option.matchcase.0<br />
+	  find.option.matchcase.1<br />
           <span class="windowsonly">find.input</span>
         </td>
         <td>
@@ -3078,6 +3082,24 @@ c:\cygwin\bin\xargs -0 fgrep -G -n "$(find.what)"
           <br />
           If find.command is empty then SciTE's own search code is used. This only does a
 	simple search without regular expressions and is faster than running an external program.
+	<br />
+	  When defining find.command, to specify the value of the option for the "match case" use
+	  $(find.matchcase), and to specify the value of the option "whole word" use
+	  $(find.wholeword). Additionally, you should define the properties find.option.matchcase.0,
+	  find.option.matchcase.1, find.option.wholeword.0 and find.option.wholeword.1 to
+	  match the expected parameters of the command you use for find.
+	  <br />
+        <div class="example">
+find.option.wholeword.0=<br />
+find.option.wholeword.1=-w<br />
+find.option.matchcase.0=-i<br />
+find.option.matchcase.1=<br />
+<br />
+find.command=cmd /c c:\cygwin\bin\find "$(find.directory)"
+-name "*" -print0 |
+c:\cygwin\bin\xargs -0 grep $(find.wholeword) $(find.matchcase) -G -n "$(find.what)"
+          </div>
+
         </td>
       </tr>
       <tr id='property-find.files'>

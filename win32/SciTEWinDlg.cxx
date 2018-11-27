@@ -1193,14 +1193,8 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		FillCombosForGrep(dlg);
 		dlg.SetItemTextU(IDFINDWHAT, props.GetString("find.what"));
 		dlg.SetItemTextU(IDDIRECTORY, props.GetString("find.directory"));
-		if (props.GetNewExpandString("find.command") == "") {
-			// Empty means use internal that can respond to flags
-			dlg.SetCheck(IDWHOLEWORD, wholeWord);
-			dlg.SetCheck(IDMATCHCASE, matchCase);
-		} else {
-			dlg.Enable(IDWHOLEWORD, false);
-			dlg.Enable(IDMATCHCASE, false);
-		}
+		dlg.SetCheck(IDWHOLEWORD, wholeWord);
+		dlg.SetCheck(IDMATCHCASE, matchCase);
 		return TRUE;
 
 	case WM_CLOSE:
@@ -1233,6 +1227,8 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 			wholeWord = dlg.Checked(IDWHOLEWORD);
 			matchCase = dlg.Checked(IDMATCHCASE);
+
+			SetFindInFilesOptions();
 
 			FillCombos(dlg);
 			FillCombosForGrep(dlg);
