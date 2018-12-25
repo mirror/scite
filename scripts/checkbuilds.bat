@@ -120,7 +120,7 @@ mingw32-make CLANG=1 -j
 rem ************************************************************
 rem Target 9: qt with msvc
 @call scite\scripts\clearboth
-@set QBIN=D:\Qt\5.10.1\msvc2017_64\bin
+@set QBIN=D:\Qt\Qt5.12.0\5.12.0\msvc2017_64\bin
 @pushd scintilla\qt\ScintillaEditBase
 %QBIN%\qmake
 nmake
