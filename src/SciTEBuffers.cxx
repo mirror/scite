@@ -1537,7 +1537,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 			if (cdoc[0] == '\t')
 				++cdoc;
 			for (int i = 0; cdoc[i]; i++) {
-				if (cdoc[i] == ':' && isdigitchar(cdoc[i + 1])) {
+				if (cdoc[i] == ':' && (isdigitchar(cdoc[i + 1]) || (cdoc[i + 1] == '-'))) {
 					const int sourceLine = atoi(cdoc + i + 1);
 					sourcePath.assign(cdoc, i);
 					i += 2;
