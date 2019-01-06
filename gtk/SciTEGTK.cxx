@@ -3757,10 +3757,6 @@ void SciTEGTK::CreateTranslatedMenu(int n, const SciTEItemFactoryEntry items[],
 		} else {
 			// Item "/File/_New"
 			std::string itemName(lastSlash+1);
-			GtkWidget *menuParent = menuBar;
-			if (pulldowns.count(menuName) > 0) {
-				menuParent = pulldowns[menuName];
-			}
 			GtkWidget *menuItemCommand = 0;
 			if (itemType.empty()) {
 				menuItemCommand = gtk_menu_item_new_with_mnemonic(itemName.c_str());
