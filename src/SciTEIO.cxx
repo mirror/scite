@@ -11,7 +11,6 @@
 #define __STDC_LIMIT_MACROS
 #include <cstdint>
 #include <cstring>
-#include <cctype>
 #include <cstdio>
 #include <ctime>
 
