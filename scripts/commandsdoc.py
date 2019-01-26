@@ -11,13 +11,16 @@ scintillaScriptsDirectory = os.path.join(scintillaDirectory, "scripts")
 sys.path.append(scintillaScriptsDirectory)
 import Face
 
+def head(s):
+	return "<th>%s</th>" % s
+
 def cell(s):
 	return "<td>%s</td>" % s
 
 def faceFeatures(out):
 	out.write("<h2>Scintilla key commands</h2>\n")
 	out.write("<table>\n")
-	out.write("<thead>%s%s%s</thead>\n" % (cell("Command"), cell("Name"), cell("Explanation")))
+	out.write("<thead><tr>%s%s%s</tr></thead>\n" % (head("Command"), head("Name"), head("Explanation")))
 	face = Face.Face()
 	face.ReadFromFile(os.path.join(scintillaDirectory, "include", "Scintilla.iface"))
 	texts = []
@@ -36,7 +39,7 @@ def faceFeatures(out):
 def menuFeatures(out):
 	out.write("<h2>SciTE menu commands</h2>\n")
 	out.write("<table>\n")
-	out.write("<thead>%s%s</thead>\n" % (cell("Command"), cell("Menu text")))
+	out.write("<thead><tr>%s%s</tr></thead>\n" % (head("Command"), head("Menu text")))
 	with open(os.path.join("..", "win32", "SciTERes.rc"), "rt") as f:
 		for l in f:
 			l = l.strip()
