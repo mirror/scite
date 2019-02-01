@@ -509,6 +509,7 @@ static const char *propertiesToForward[] = {
 	"lexer.json.escape.sequence",
 	"lexer.metapost.comment.process",
 	"lexer.metapost.interface.default",
+	"lexer.nim.raw.strings.highlight.ident",
 	"lexer.pascal.smart.highlighting",
 	"lexer.props.allow.initial.spaces",
 	"lexer.python.keywords2.no.sub.identifiers",
