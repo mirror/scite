@@ -811,6 +811,8 @@ void SciTEBase::ReadProperties() {
 	wEditor.Call(SCI_SETMOUSEDWELLTIME,
 	           props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
 
+	wEditor.Call(SCI_SETCARETSTYLE, props.GetInt("caret.style", CARETSTYLE_LINE));
+	wOutput.Call(SCI_SETCARETSTYLE, props.GetInt("caret.style", CARETSTYLE_LINE));
 	wEditor.Call(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 	wOutput.Call(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
 
