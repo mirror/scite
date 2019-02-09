@@ -119,7 +119,7 @@ for line in fileinput.input():
 						else:	# A character set independent function.
 							apis[curDef] = 1
 					else:
-						apis.add[curDef] = 1
+						apis[curDef] = 1
 				except IndexError:
 					pass
 			elif tagType[0] == 'd':	# Macro definition.
