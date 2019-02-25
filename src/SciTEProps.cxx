@@ -28,7 +28,7 @@
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
 
 const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("_");
 
@@ -109,7 +109,7 @@ const GUI::gui_char propLocalFileName[] = GUI_TEXT("SciTE.properties");
 const GUI::gui_char propDirectoryFileName[] = GUI_TEXT("SciTEDirectory.properties");
 
 void SciTEBase::ReadEnvironment() {
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
 	extern char **environ;
 	char **e = environ;
 #else
@@ -778,7 +778,7 @@ void SciTEBase::ReadProperties() {
 
 	characterSet = props.GetInt("character.set", SC_CHARSET_DEFAULT);
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 	const std::string localeCType = props.GetString("LC_CTYPE");
 	if (localeCType.length())
 		setlocale(LC_CTYPE, localeCType.c_str());

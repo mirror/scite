@@ -4384,7 +4384,7 @@ void SciTEBase::PerformOne(char *action) {
 }
 
 static bool IsSwitchCharacter(GUI::gui_char ch) noexcept {
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 	return ch == '-';
 #else
 	return (ch == '-') || (ch == '/');

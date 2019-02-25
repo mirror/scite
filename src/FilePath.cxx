@@ -18,7 +18,7 @@
 
 #include <fcntl.h>
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
 
 #include <unistd.h>
 #include <dirent.h>
@@ -27,7 +27,7 @@
 
 #include <sys/stat.h>
 
-#if !defined(__unix__)
+#if !(defined(__unix__) || defined(__APPLE__))
 
 #include <io.h>
 
@@ -48,7 +48,7 @@
 
 #include "FilePath.h"
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__APPLE__)
 const GUI::gui_char pathSepString[] = "/";
 const GUI::gui_char pathSepChar = '/';
 const GUI::gui_char listSepString[] = ":";
@@ -139,7 +139,7 @@ bool FilePath::IsUntitled() const {
 bool FilePath::IsAbsolute() const {
 	if (fileName.length() == 0)
 		return false;
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 	if (fileName[0] == '/')
 		return true;
 #endif
