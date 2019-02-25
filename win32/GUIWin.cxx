@@ -340,4 +340,8 @@ bool IsDBCSLeadByte(int codePage, char ch) {
 		return ::IsDBCSLeadByteEx(codePage, ch) != 0;
 }
 
+void SleepMilliseconds(int sleepTime) {
+	::Sleep(sleepTime);
+}
+
 }

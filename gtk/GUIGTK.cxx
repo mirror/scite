@@ -211,4 +211,8 @@ bool IsDBCSLeadByte(int codePage, char ch) {
 	return false;
 }
 
+void SleepMilliseconds(int sleepTime) {
+	g_usleep(sleepTime * 1000);
+}
+
 }

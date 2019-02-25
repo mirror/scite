@@ -13,20 +13,6 @@
 #include <vector>
 #include <memory>
 
-#if defined(__unix__)
-
-#include <unistd.h>
-
-#else
-
-// Only include <windows.h> for Sleep.
-
-#undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0602
-#include <windows.h>
-
-#endif
-
 #include "ILoader.h"
 #include "Scintilla.h"
 
@@ -68,11 +54,7 @@ void FileLoader::Execute() {
 		size_t lenFile = fread(&data[0], 1, blockSize, fp);
 		const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
 		while ((lenFile > 0) && (err == 0) && (!Cancelling())) {
-#ifdef __unix__
-			usleep(sleepTime * 1000);
-#else
-			::Sleep(sleepTime);
-#endif
+			GUI::SleepMilliseconds(sleepTime);
 			lenFile = convert.convert(&data[0], lenFile);
 			const char *dataBlock = convert.getNewBuf();
 			err = pLoader->AddData(dataBlock, static_cast<int>(lenFile));
@@ -136,11 +118,7 @@ void FileStorer::Execute() {
 		const size_t lengthDoc = size;
 		size_t grabSize;
 		for (size_t i = 0; i < lengthDoc && (!Cancelling()); i += grabSize) {
-#ifdef __unix__
-			usleep(sleepTime * 1000);
-#else
-			::Sleep(sleepTime);
-#endif
+			GUI::SleepMilliseconds(sleepTime);
 			grabSize = lengthDoc - i;
 			if (grabSize > blockSize)
 				grabSize = blockSize;

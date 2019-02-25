@@ -142,6 +142,8 @@ public:
 
 bool IsDBCSLeadByte(int codePage, char ch);
 
+void SleepMilliseconds(int sleepTime);
+
 }
 
 #endif
