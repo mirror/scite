@@ -235,10 +235,6 @@ static size_t strlen(const wchar_t *str) {
 	return wcslen(str);
 }
 
-static wchar_t *getcwd(wchar_t *buffer, int maxlen) {
-	return _wgetcwd(buffer, maxlen);
-}
-
 static int chdir(const wchar_t *dirname) {
 	return _wchdir(dirname);
 }
@@ -337,21 +333,24 @@ FilePath FilePath::AbsolutePath() const {
 #endif
 }
 
-// Only used on Windows to fix the case of file names
-
 FilePath FilePath::GetWorkingDirectory() {
-	GUI::gui_char dir[MAX_PATH + 1];
-	dir[0] = '\0';
-	if (getcwd(dir, MAX_PATH)) {
-		dir[MAX_PATH] = '\0';
+	// Call getcwd with (nullptr, 0) to always allocate
+#ifdef WIN32
+	GUI::gui_char *pdir = _wgetcwd(nullptr, 0);
+#else
+	GUI::gui_char *pdir = getcwd(nullptr, 0);
+#endif
+	if (pdir) {
+		GUI::gui_string gswd(pdir);
+		free(pdir);
 		// In Windows, getcwd returns a trailing backslash
 		// when the CWD is at the root of a disk, so remove it
-		size_t endOfPath = strlen(dir) - 1;
-		if (dir[endOfPath] == pathSepChar) {
-			dir[endOfPath] = '\0';
+		if (!gswd.empty() && (gswd.back() == pathSepChar)) {
+			gswd.pop_back();
 		}
+		return FilePath(gswd);
 	}
-	return FilePath(dir);
+	return FilePath();
 }
 
 bool FilePath::SetWorkingDirectory() const {
