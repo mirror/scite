@@ -81,7 +81,9 @@ static bool shuttingDown = false;
 // the number of notify connections this SciTE instance will handle.
 const int MAX_PIPES = 20;
 
-static char requestPipeName[MAX_PATH];
+#define TMP_FILENAME_LENGTH 1024
+
+static char requestPipeName[TMP_FILENAME_LENGTH];
 
 //#define IF_DEBUG(x) x;
 #define IF_DEBUG(x)
@@ -385,7 +387,7 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 			// pid and a sequence count.
 			// There is an (artificial) limit on the number of notify pipes;
 			// if there are no more slots, then the returned pipename is '*'
-			char pipeName[MAX_PATH];
+			char pipeName[TMP_FILENAME_LENGTH];
 			if (! SendPipeAvailable()) {
 				StringCopy(pipeName,"*");
 			} else {

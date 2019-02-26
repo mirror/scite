@@ -510,7 +510,7 @@ protected:
 	int lastFlags;
 
 	// For single instance
-	char uniqueInstance[MAX_PATH];
+	std::string uniqueInstance;
 	guint32 startupTimestamp;
 
 	guint timerID;
@@ -781,7 +781,6 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	inputChannel = 0;
 	lastFlags = 0;
 
-	uniqueInstance[0] = '\0';
 	startupTimestamp = 0;
 
 	timerID = 0;
@@ -5280,18 +5279,20 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 
 	char *pipeFileName = NULL;
 	const char *filename;
-	snprintf(uniqueInstance, MAX_PATH, "%s/SciTE.ensure.unique.instance.for.%s", g_get_tmp_dir(), getenv("USER"));
+	uniqueInstance = g_get_tmp_dir();
+	uniqueInstance += "/SciTE.ensure.unique.instance.for.";
+	uniqueInstance += getenv("USER");
 	int fd;
 	bool isLocked;
 	do {
-		fd = open(uniqueInstance, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR); // Try to set the lock.
+		fd = open(uniqueInstance.c_str(), O_CREAT | O_EXCL, S_IRUSR | S_IWUSR); // Try to set the lock.
 		isLocked = (fd == -1 && errno == EEXIST);
 		if (isLocked) {
 			// There is already a lock.
 			time_t ltime;
 			time(&ltime);// Get current time.
 			struct stat file_status;
-			stat(uniqueInstance, &file_status); // Get status of lock file.
+			stat(uniqueInstance.c_str(), &file_status); // Get status of lock file.
 			isLocked = difftime(ltime, file_status.st_mtime) <= 3.0; // Test whether the lock is fresh (<= 3 seconds) or not. Avoid perpetual lock if SciTE crashes during its launch and the lock file is present.
 			if (isLocked)
 				// Currently, another process of SciTE is launching. We are waiting for end of its initialisation.
@@ -5339,7 +5340,7 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 
 	if (pipeFileName != NULL) {
 		// We need to call this since we're not displaying a window
-		unlink(uniqueInstance); // Unlock.
+		unlink(uniqueInstance.c_str()); // Unlock.
 		gdk_notify_startup_complete();
 		g_free(pipeFileName);
 		return true;
@@ -5386,7 +5387,7 @@ void SciTEGTK::Run(int argc, char *argv[]) {
 
 	CreateUI();
 	if ((props.GetString("ipc.director.name").size() == 0) && props.GetInt ("check.if.already.open"))
-		unlink(uniqueInstance); // Unlock.
+		unlink(uniqueInstance.c_str()); // Unlock.
 
 	// Process remaining switches and files
 #ifndef GDK_VERSION_3_6
