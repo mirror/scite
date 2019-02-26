@@ -12,15 +12,6 @@ extern const GUI::gui_char configFileVisibilityString[];
 extern const GUI::gui_char fileRead[];
 extern const GUI::gui_char fileWrite[];
 
-#if defined(__unix__) || defined(__APPLE__)
-#include <climits>
-#ifdef PATH_MAX
-#define MAX_PATH PATH_MAX
-#else
-#define MAX_PATH 260
-#endif
-#endif
-
 class FilePath;
 
 typedef std::vector<FilePath> FilePathSet;
