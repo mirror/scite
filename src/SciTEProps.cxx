@@ -438,6 +438,7 @@ static const char *propertiesToForward[] = {
 	"fold.basic.explicit.end",
 	"fold.basic.explicit.start",
 	"fold.basic.syntax.based",
+	"fold.cil.comment.multiline",
 	"fold.coffeescript.comment",
 	"fold.comment",
 	"fold.comment.nimrod",

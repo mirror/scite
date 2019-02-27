@@ -567,6 +567,17 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_CAML_STRING",11},
 	{"SCE_CAML_TAGNAME",2},
 	{"SCE_CAML_WHITE",10},
+	{"SCE_CIL_COMMENT",1},
+	{"SCE_CIL_COMMENTLINE",2},
+	{"SCE_CIL_DEFAULT",0},
+	{"SCE_CIL_IDENTIFIER",9},
+	{"SCE_CIL_LABEL",7},
+	{"SCE_CIL_OPERATOR",8},
+	{"SCE_CIL_STRING",6},
+	{"SCE_CIL_STRINGEOL",10},
+	{"SCE_CIL_WORD",3},
+	{"SCE_CIL_WORD2",4},
+	{"SCE_CIL_WORD3",5},
 	{"SCE_CLW_ATTRIBUTE",13},
 	{"SCE_CLW_BUILTIN_PROCEDURES_FUNCTION",11},
 	{"SCE_CLW_COMMENT",2},
@@ -2516,6 +2527,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_BLITZBASIC",66},
 	{"SCLEX_BULLANT",27},
 	{"SCLEX_CAML",65},
+	{"SCLEX_CIL",127},
 	{"SCLEX_CLW",45},
 	{"SCLEX_CLWNOCASE",46},
 	{"SCLEX_CMAKE",80},
@@ -3434,7 +3446,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 307,
-	ifaceConstantCount = 2763,
+	ifaceConstantCount = 2775,
 	ifacePropertyCount = 231
 };
 
