@@ -1586,7 +1586,7 @@ bool LuaExtension::RemoveBuffer(int index) {
 
 		lua_getfield(luaState, LUA_REGISTRYINDEX, "SciTE_BufferData_Array");
 		if (lua_istable(luaState, -1)) {
-			for (int i = index; i < maxBufferIndex; ++i) {
+			for (lua_Integer i = index; i < maxBufferIndex; ++i) {
 				lua_rawgeti(luaState, -1, i+1);
 				lua_rawseti(luaState, -2, i);
 			}
