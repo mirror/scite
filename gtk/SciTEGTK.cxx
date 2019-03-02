@@ -5331,6 +5331,7 @@ bool SciTEGTK::CheckForRunningInstance(int argc, char *argv[]) {
 				break;
 			} else {
 				// We don't care about the error. Try another pipe.
+				g_free(pipeFileName);
 				pipeFileName = NULL;
 			}
 		}
