@@ -491,7 +491,7 @@ static int cf_match_replace(lua_State *L) {
 }
 
 static int cf_match_metatable_index(lua_State *L) {
-	PaneMatchObject *pmo = static_cast<PaneMatchObject *>(checkudata(L, 1, "SciTE_MT_PaneMatchObject"));
+	const PaneMatchObject *pmo = static_cast<PaneMatchObject *>(checkudata(L, 1, "SciTE_MT_PaneMatchObject"));
 	if (!pmo) {
 		raise_error(L, "Internal error: pane match object is missing.");
 		return 0;
@@ -532,7 +532,7 @@ static int cf_match_metatable_index(lua_State *L) {
 }
 
 static int cf_match_metatable_tostring(lua_State *L) {
-	PaneMatchObject *pmo = static_cast<PaneMatchObject *>(checkudata(L, 1, "SciTE_MT_PaneMatchObject"));
+	const PaneMatchObject *pmo = static_cast<PaneMatchObject *>(checkudata(L, 1, "SciTE_MT_PaneMatchObject"));
 	if (!pmo) {
 		raise_error(L, "Internal error: pane match object is missing.");
 		return 0;
@@ -919,7 +919,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	sptr_t result = 0;
 	try {
 		result = host->Send(p, func.value, params[0], params[1]);
-	} catch (GUI::ScintillaFailure &sf) {
+	} catch (const GUI::ScintillaFailure &sf) {
 		std::string failureExplanation;
 		failureExplanation += ">Lua: Scintilla failure ";
 		failureExplanation += StdStringFromInteger(static_cast<int>(sf.status));
@@ -957,7 +957,7 @@ struct IFacePropertyBinding {
 static int cf_ifaceprop_metatable_index(lua_State *L) {
 	// if there is a getter, __index calls it
 	// otherwise, __index raises "property 'name' is write-only".
-	IFacePropertyBinding *ipb = static_cast<IFacePropertyBinding *>(checkudata(L, 1, "SciTE_MT_IFacePropertyBinding"));
+	const IFacePropertyBinding *ipb = static_cast<IFacePropertyBinding *>(checkudata(L, 1, "SciTE_MT_IFacePropertyBinding"));
 	if (!(ipb && IFacePropertyIsScriptable(*(ipb->prop)))) {
 		raise_error(L, "Internal error: property binding is improperly set up");
 		return 0;
@@ -976,7 +976,7 @@ static int cf_ifaceprop_metatable_index(lua_State *L) {
 }
 
 static int cf_ifaceprop_metatable_newindex(lua_State *L) {
-	IFacePropertyBinding *ipb = static_cast<IFacePropertyBinding *>(checkudata(L, 1, "SciTE_MT_IFacePropertyBinding"));
+	const IFacePropertyBinding *ipb = static_cast<IFacePropertyBinding *>(checkudata(L, 1, "SciTE_MT_IFacePropertyBinding"));
 	if (!(ipb && IFacePropertyIsScriptable(*(ipb->prop)))) {
 		raise_error(L, "Internal error: property binding is improperly set up");
 		return 0;
