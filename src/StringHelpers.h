@@ -36,7 +36,7 @@ inline char MakeUpperCase(char ch) {
 		return static_cast<char>(ch - 'a' + 'A');
 }
 
-inline bool IsASCII(int ch) {
+inline constexpr bool IsASCII(int ch) {
 	return (ch >= 0) && (ch < 0x80);
 }
 
