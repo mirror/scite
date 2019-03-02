@@ -1514,7 +1514,7 @@ bool LuaExtension::Load(const char *filename) {
 		if (sl >= 4 && strcmp(filename+sl-4, ".lua")==0) {
 			if (luaState || InitGlobalScope(false)) {
 				extensionScript = filename;
-				luaL_loadfile(luaState, filename);
+				luaL_loadfile(luaState, extensionScript.c_str());
 				if (!call_function(luaState, 0, true)) {
 					host->Trace(">Lua: error occurred while loading extension script\n");
 				}
