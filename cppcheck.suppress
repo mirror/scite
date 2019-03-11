@@ -11,6 +11,9 @@ useInitializationList
 // FilePath has a non-explicit constructor used for conversions
 noExplicitConstructor:scite/src/FilePath.h
 
+// The Flush call has side effects that change the result of the second condition 
+duplicateCondition:scite/src/StyleWriter.cxx
+
 // Doesn't understand Win32 SetClipboardData is not leak
 memleak:scite/win32/SciTEWin.cxx
 
