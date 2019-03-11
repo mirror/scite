@@ -1659,7 +1659,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 			wildcard += GUI_TEXT("|*");
 			wildcard += fpName.AsInternal();
 
-			OpenDialog(fpArg.Directory(), wildcard.c_str());
+			OpenDialog(fpDir, wildcard.c_str());
 		} else if (!fpArg.Extension().IsSet()) {
 			// if the filename has no extension, try to match a file with list of standard extensions
 			std::string extensions = props.GetExpandedString("source.default.extensions");
