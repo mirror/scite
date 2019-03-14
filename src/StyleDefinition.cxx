@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstring>
 
+#include <stdexcept>
 #include <tuple>
 #include <string>
 #include <string_view>
