@@ -435,7 +435,6 @@ GUI::Rectangle Strip::CloseArea() {
 GUI::Rectangle Strip::LineArea(int line) {
 	GUI::Rectangle rcLine = GetPosition();
 
-	rcLine.bottom -= rcLine.top;
 	rcLine.right -= rcLine.left;
 
 	rcLine.left = space;
