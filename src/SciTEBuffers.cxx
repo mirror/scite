@@ -1938,10 +1938,7 @@ void SciTEBase::ShowMessages(int line) {
 }
 
 void SciTEBase::GoMessage(int dir) {
-	Sci_CharacterRange crange;
-	crange.cpMin = wOutput.Call(SCI_GETSELECTIONSTART);
-	crange.cpMax = wOutput.Call(SCI_GETSELECTIONEND);
-	const long selStart = static_cast<long>(crange.cpMin);
+	const int selStart = wOutput.Call(SCI_GETSELECTIONSTART);
 	const int curLine = wOutput.Call(SCI_LINEFROMPOSITION, selStart);
 	const int maxLine = wOutput.Call(SCI_GETLINECOUNT);
 	int lookLine = curLine + dir;
