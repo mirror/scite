@@ -18,10 +18,10 @@ private:
 	GMutex m;
 #endif
 	GMutex *pm;
-	void Lock() override {
+	void Lock() noexcept override {
 		g_mutex_lock(pm);
 	}
-	void Unlock() override {
+	void Unlock() noexcept override {
 		g_mutex_unlock(pm);
 	}
 	GTKMutex() {

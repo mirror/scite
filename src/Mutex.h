@@ -13,8 +13,8 @@
 
 class Mutex {
 public:
-	virtual void Lock() = 0;
-	virtual void Unlock() = 0;
+	virtual void Lock() noexcept = 0;
+	virtual void Unlock() noexcept = 0;
 	virtual ~Mutex() {}
 	static Mutex *Create();
 };
@@ -22,7 +22,7 @@ public:
 class Lock {
 	Mutex *mute;
 public:
-	explicit Lock(Mutex *mute_) : mute(mute_) {
+	explicit Lock(Mutex *mute_) noexcept : mute(mute_) {
 		mute->Lock();
 	}
 	// Deleted so Lock objects can not be copied.
