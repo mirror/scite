@@ -3350,11 +3350,11 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			const double doubleHeightOutput = heightOutput;
 			const double doublePreviousHeightOutput = previousHeightOutput;
 			heightOutput = static_cast<int>(splitVertical ?
-				lround(doubleHeightOutput * rcClient.Height() / rcClient.Width()) :
-				lround(doubleHeightOutput * rcClient.Width() / rcClient.Height()));
+				std::lround(doubleHeightOutput * rcClient.Height() / rcClient.Width()) :
+				std::lround(doubleHeightOutput * rcClient.Width() / rcClient.Height()));
 			previousHeightOutput = static_cast<int>(splitVertical ?
-				lround(doublePreviousHeightOutput * rcClient.Height() / rcClient.Width()) :
-				lround(doublePreviousHeightOutput * rcClient.Width() / rcClient.Height()));
+				std::lround(doublePreviousHeightOutput * rcClient.Height() / rcClient.Width()) :
+				std::lround(doublePreviousHeightOutput * rcClient.Width() / rcClient.Height()));
 		}
 		splitVertical = !splitVertical;
 		heightOutput = NormaliseSplit(heightOutput);
