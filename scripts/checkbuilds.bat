@@ -71,7 +71,8 @@ rem ************************************************************
 rem Target 5: GTK+ version using gcc on scintilla\gtk\makefile
 @call scite\scripts\clearboth
 @pushd scintilla\gtk
-mingw32-make -j CXXFLAGS=-Wno-long-long
+rem -Wno-parentheses is temporary for GTK+ header gtkfilechooserbutton.h
+mingw32-make -j CXXFLAGS=-Wno-parentheses
 @if ERRORLEVEL 2 goto ERROR
 @popd ..\..
 @rem
