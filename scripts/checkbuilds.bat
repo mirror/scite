@@ -141,6 +141,12 @@ rem Target 10: cppcheck
 cppcheck -j 8 --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase --template=gcc --quiet scintilla
 cppcheck -j 8 --enable=all --suppressions-list=scite/cppcheck.suppress --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
 @rem
+rem ************************************************************
+rem Target 11: header order check
+@pushd scintilla\scripts
+python HeaderCheck.py
+@popd
+@rem
 rem Finished
 @call scite\scripts\clearboth
 goto CLEANUP
