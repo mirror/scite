@@ -2128,6 +2128,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCI_CALLTIPSETPOSSTART",2214},
 	{"SCI_CALLTIPUSESTYLE",2212},
 	{"SCI_DISTANCETOSECONDARYSTYLES",4025},
+	{"SCI_FOLDDISPLAYTEXTGETSTYLE",2707},
 	{"SCI_FOLDDISPLAYTEXTSETSTYLE",2701},
 	{"SCI_GETACCESSIBILITY",2703},
 	{"SCI_GETADDITIONALCARETFORE",2605},
@@ -3288,7 +3289,7 @@ static IFaceProperty ifaceProperties[] = {
 	{"ExtraDescent", 2528, 2527, iface_int, iface_void},
 	{"FirstVisibleLine", 2152, 2613, iface_int, iface_void},
 	{"Focus", 2381, 2380, iface_bool, iface_void},
-	{"FoldDisplayTextStyle", 0, 2701, iface_int, iface_void},
+	{"FoldDisplayTextStyle", 2707, 2701, iface_int, iface_void},
 	{"FoldExpanded", 2230, 2229, iface_bool, iface_int},
 	{"FoldFlags", 0, 2233, iface_int, iface_void},
 	{"FoldLevel", 2223, 2222, iface_int, iface_int},
@@ -3449,7 +3450,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 307,
-	ifaceConstantCount = 2777,
+	ifaceConstantCount = 2778,
 	ifacePropertyCount = 232
 };
 
