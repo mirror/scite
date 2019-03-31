@@ -7,7 +7,6 @@
 **.html = native
 **.bat = native
 **.mak = native
-**.deps = native
 **makefile = native
 **.manifest = native
 **.properties = native
