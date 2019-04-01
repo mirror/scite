@@ -110,9 +110,8 @@ analyze:
 	# Could analyze Lua implementation as well but won't be fixing the warnings so its just noise
 	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c
 
-deps: deps.mak
-deps.mak:
-	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >$@
+depend deps.mak:
+	python DepGen.py
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=$(srcdir)/../../scintilla/bin/scintilla.a

@@ -1,5 +1,5 @@
 # Created by DepGen.py. To recreate, run 'python DepGen.py'.
-DirectorExtension.o: \
+DirectorExtension.obj: \
 	DirectorExtension.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
@@ -20,12 +20,12 @@ DirectorExtension.o: \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	DirectorExtension.h
-GUIWin.o: \
+GUIWin.obj: \
 	GUIWin.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h
-SciTEWin.o: \
+SciTEWin.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -55,7 +55,7 @@ SciTEWin.o: \
 	../src/MultiplexExtension.h \
 	DirectorExtension.h \
 	../src/LuaExtension.h
-Sc1.o: \
+Sc1.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -85,7 +85,7 @@ Sc1.o: \
 	../src/MultiplexExtension.h \
 	DirectorExtension.h \
 	../src/LuaExtension.h
-SciTEWinBar.o: \
+SciTEWinBar.obj: \
 	SciTEWinBar.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -112,7 +112,7 @@ SciTEWinBar.o: \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
 	Strips.h
-SciTEWinDlg.o: \
+SciTEWinDlg.obj: \
 	SciTEWinDlg.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -139,7 +139,7 @@ SciTEWinDlg.o: \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
 	Strips.h
-Strips.o: \
+Strips.obj: \
 	Strips.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -166,7 +166,7 @@ Strips.o: \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
 	Strips.h
-UniqueInstance.o: \
+UniqueInstance.obj: \
 	UniqueInstance.cxx \
 	SciTEWin.h \
 	../../scintilla/include/Scintilla.h \
@@ -193,17 +193,17 @@ UniqueInstance.o: \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
 	Strips.h
-WinMutex.o: \
+WinMutex.obj: \
 	WinMutex.cxx \
 	../src/Mutex.h
-Cookie.o: \
+Cookie.obj: \
 	../src/Cookie.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringHelpers.h \
 	../src/Cookie.h
-Credits.o: \
+Credits.obj: \
 	../src/Credits.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
@@ -224,7 +224,7 @@ Credits.o: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
-EditorConfig.o: \
+EditorConfig.obj: \
 	../src/EditorConfig.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
@@ -232,7 +232,7 @@ EditorConfig.o: \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
 	../src/EditorConfig.h
-ExportHTML.o: \
+ExportHTML.obj: \
 	../src/ExportHTML.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
@@ -253,7 +253,7 @@ ExportHTML.o: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
-ExportPDF.o: \
+ExportPDF.obj: \
 	../src/ExportPDF.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
@@ -274,7 +274,7 @@ ExportPDF.o: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
-ExportRTF.o: \
+ExportRTF.obj: \
 	../src/ExportRTF.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
@@ -295,7 +295,7 @@ ExportRTF.o: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
-ExportTEX.o: \
+ExportTEX.obj: \
 	../src/ExportTEX.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
@@ -316,7 +316,7 @@ ExportTEX.o: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
-ExportXML.o: \
+ExportXML.obj: \
 	../src/ExportXML.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
@@ -337,14 +337,14 @@ ExportXML.o: \
 	../src/Worker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
-FilePath.o: \
+FilePath.obj: \
 	../src/FilePath.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/FilePath.h
-FileWorker.o: \
+FileWorker.obj: \
 	../src/FileWorker.cxx \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
@@ -357,10 +357,10 @@ FileWorker.o: \
 	../src/Worker.h \
 	../src/FileWorker.h \
 	../src/Utf8_16.h
-IFaceTable.o: \
+IFaceTable.obj: \
 	../src/IFaceTable.cxx \
 	../src/IFaceTable.h
-JobQueue.o: \
+JobQueue.obj: \
 	../src/JobQueue.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
@@ -371,7 +371,7 @@ JobQueue.o: \
 	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h
-LuaExtension.o: \
+LuaExtension.obj: \
 	../src/LuaExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
@@ -389,21 +389,21 @@ LuaExtension.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lualib.h \
 	../lua/src/lauxlib.h
-MatchMarker.o: \
+MatchMarker.obj: \
 	../src/MatchMarker.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/MatchMarker.h
-MultiplexExtension.o: \
+MultiplexExtension.obj: \
 	../src/MultiplexExtension.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/MultiplexExtension.h \
 	../src/Extender.h
-PropSetFile.o: \
+PropSetFile.obj: \
 	../src/PropSetFile.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
@@ -411,13 +411,13 @@ PropSetFile.o: \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
 	../src/PropSetFile.h
-ScintillaWindow.o: \
+ScintillaWindow.obj: \
 	../src/ScintillaWindow.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h
-SciTEBase.o: \
+SciTEBase.obj: \
 	../src/SciTEBase.cxx \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
@@ -441,7 +441,7 @@ SciTEBase.o: \
 	../src/MatchMarker.h \
 	../src/EditorConfig.h \
 	../src/SciTEBase.h
-SciTEBuffers.o: \
+SciTEBuffers.obj: \
 	../src/SciTEBuffers.cxx \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
@@ -464,7 +464,7 @@ SciTEBuffers.o: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h
-SciTEIO.o: \
+SciTEIO.obj: \
 	../src/SciTEIO.cxx \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
@@ -487,7 +487,7 @@ SciTEIO.o: \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h \
 	../src/Utf8_16.h
-SciTEProps.o: \
+SciTEProps.obj: \
 	../src/SciTEProps.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
@@ -511,37 +511,37 @@ SciTEProps.o: \
 	../src/EditorConfig.h \
 	../src/SciTEBase.h \
 	../src/IFaceTable.h
-StringHelpers.o: \
+StringHelpers.obj: \
 	../src/StringHelpers.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringHelpers.h
-StringList.o: \
+StringList.obj: \
 	../src/StringList.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringList.h \
 	../src/StringHelpers.h
-StyleDefinition.o: \
+StyleDefinition.obj: \
 	../src/StyleDefinition.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/StringHelpers.h \
 	../src/StyleDefinition.h
-StyleWriter.o: \
+StyleWriter.obj: \
 	../src/StyleWriter.cxx \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/Sci_Position.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StyleWriter.h
-Utf8_16.o: \
+Utf8_16.obj: \
 	../src/Utf8_16.cxx \
 	../src/Utf8_16.h
-lapi.o: \
+lapi.obj: \
 	../lua/src/lapi.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -562,14 +562,14 @@ lapi.o: \
 	../lua/src/ltable.h \
 	../lua/src/lundump.h \
 	../lua/src/lvm.h
-lauxlib.o: \
+lauxlib.obj: \
 	../lua/src/lauxlib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
 	../lua/src/luaconf.h \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h
-lbaselib.o: \
+lbaselib.obj: \
 	../lua/src/lbaselib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -577,7 +577,7 @@ lbaselib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-lbitlib.o: \
+lbitlib.obj: \
 	../lua/src/lbitlib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -585,7 +585,7 @@ lbitlib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-lcode.o: \
+lcode.obj: \
 	../lua/src/lcode.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -607,7 +607,7 @@ lcode.o: \
 	../lua/src/lstring.h \
 	../lua/src/ltable.h \
 	../lua/src/lvm.h
-lcorolib.o: \
+lcorolib.obj: \
 	../lua/src/lcorolib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -615,7 +615,7 @@ lcorolib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-lctype.o: \
+lctype.obj: \
 	../lua/src/lctype.c \
 	../lua/src/lprefix.h \
 	../lua/src/lctype.h \
@@ -623,7 +623,7 @@ lctype.o: \
 	../lua/src/luaconf.h \
 	../src/scite_lua_win.h \
 	../lua/src/llimits.h
-ldblib.o: \
+ldblib.obj: \
 	../lua/src/ldblib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -631,7 +631,7 @@ ldblib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-ldebug.o: \
+ldebug.obj: \
 	../lua/src/ldebug.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -655,7 +655,7 @@ ldebug.o: \
 	../lua/src/lgc.h \
 	../lua/src/ltable.h \
 	../lua/src/lvm.h
-ldo.o: \
+ldo.obj: \
 	../lua/src/ldo.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -678,7 +678,7 @@ ldo.o: \
 	../lua/src/ltable.h \
 	../lua/src/lundump.h \
 	../lua/src/lvm.h
-ldump.o: \
+ldump.obj: \
 	../lua/src/ldump.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -691,7 +691,7 @@ ldump.o: \
 	../lua/src/lzio.h \
 	../lua/src/lmem.h \
 	../lua/src/lundump.h
-lfunc.o: \
+lfunc.obj: \
 	../lua/src/lfunc.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -705,7 +705,7 @@ lfunc.o: \
 	../lua/src/ltm.h \
 	../lua/src/lzio.h \
 	../lua/src/lmem.h
-lgc.o: \
+lgc.obj: \
 	../lua/src/lgc.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -723,7 +723,7 @@ lgc.o: \
 	../lua/src/lgc.h \
 	../lua/src/lstring.h \
 	../lua/src/ltable.h
-linit.o: \
+linit.obj: \
 	../lua/src/linit.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -731,7 +731,7 @@ linit.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lualib.h \
 	../lua/src/lauxlib.h
-liolib.o: \
+liolib.obj: \
 	../lua/src/liolib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -739,7 +739,7 @@ liolib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-llex.o: \
+llex.obj: \
 	../lua/src/llex.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -759,7 +759,7 @@ llex.o: \
 	../lua/src/lparser.h \
 	../lua/src/lstring.h \
 	../lua/src/ltable.h
-lmathlib.o: \
+lmathlib.obj: \
 	../lua/src/lmathlib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -767,7 +767,7 @@ lmathlib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-lmem.o: \
+lmem.obj: \
 	../lua/src/lmem.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -782,7 +782,7 @@ lmem.o: \
 	../lua/src/lmem.h \
 	../lua/src/ldo.h \
 	../lua/src/lgc.h
-loadlib.o: \
+loadlib.obj: \
 	../lua/src/loadlib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -790,7 +790,7 @@ loadlib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-lobject.o: \
+lobject.obj: \
 	../lua/src/lobject.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -808,7 +808,7 @@ lobject.o: \
 	../lua/src/lstring.h \
 	../lua/src/lgc.h \
 	../lua/src/lvm.h
-lopcodes.o: \
+lopcodes.obj: \
 	../lua/src/lopcodes.c \
 	../lua/src/lprefix.h \
 	../lua/src/lopcodes.h \
@@ -816,7 +816,7 @@ lopcodes.o: \
 	../lua/src/lua.h \
 	../lua/src/luaconf.h \
 	../src/scite_lua_win.h
-loslib.o: \
+loslib.obj: \
 	../lua/src/loslib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -824,7 +824,7 @@ loslib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-lparser.o: \
+lparser.obj: \
 	../lua/src/lparser.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -846,7 +846,7 @@ lparser.o: \
 	../lua/src/lstring.h \
 	../lua/src/lgc.h \
 	../lua/src/ltable.h
-lstate.o: \
+lstate.obj: \
 	../lua/src/lstate.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -866,7 +866,7 @@ lstate.o: \
 	../lua/src/llex.h \
 	../lua/src/lstring.h \
 	../lua/src/ltable.h
-lstring.o: \
+lstring.obj: \
 	../lua/src/lstring.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -882,7 +882,7 @@ lstring.o: \
 	../lua/src/ldo.h \
 	../lua/src/lstring.h \
 	../lua/src/lgc.h
-lstrlib.o: \
+lstrlib.obj: \
 	../lua/src/lstrlib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -890,7 +890,7 @@ lstrlib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-ltable.o: \
+ltable.obj: \
 	../lua/src/ltable.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -908,7 +908,7 @@ ltable.o: \
 	../lua/src/lstring.h \
 	../lua/src/ltable.h \
 	../lua/src/lvm.h
-ltablib.o: \
+ltablib.obj: \
 	../lua/src/ltablib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -916,7 +916,7 @@ ltablib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-ltm.o: \
+ltm.obj: \
 	../lua/src/ltm.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -934,7 +934,7 @@ ltm.o: \
 	../lua/src/lgc.h \
 	../lua/src/ltable.h \
 	../lua/src/lvm.h
-lundump.o: \
+lundump.obj: \
 	../lua/src/lundump.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -952,7 +952,7 @@ lundump.o: \
 	../lua/src/lstring.h \
 	../lua/src/lgc.h \
 	../lua/src/lundump.h
-lutf8lib.o: \
+lutf8lib.obj: \
 	../lua/src/lutf8lib.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -960,7 +960,7 @@ lutf8lib.o: \
 	../src/scite_lua_win.h \
 	../lua/src/lauxlib.h \
 	../lua/src/lualib.h
-lvm.o: \
+lvm.obj: \
 	../lua/src/lvm.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \
@@ -980,7 +980,7 @@ lvm.o: \
 	../lua/src/lstring.h \
 	../lua/src/ltable.h \
 	../lua/src/lvm.h
-lzio.o: \
+lzio.obj: \
 	../lua/src/lzio.c \
 	../lua/src/lprefix.h \
 	../lua/src/lua.h \

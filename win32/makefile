@@ -150,8 +150,8 @@ clean:
 analyze:
 	clang --analyze $(CXXFLAGS) *.cxx ../src/*.cxx
 
-deps:
-	$(CXX) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c >deps.mak
+depend deps.mak:
+	python DepGen.py
 
 ../bin/%.dll:	../../scintilla/bin/%.dll
 ifneq (sh,$(SHELL_TYPE))

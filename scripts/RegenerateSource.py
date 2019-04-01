@@ -25,6 +25,11 @@ import LexGen
 import IFaceTableGen
 import commandsdoc
 
+sys.path.append("../")
+
+import win32.DepGen
+import gtk.DepGen
+
 def UpdateVersionNumbers(sci, root):
     UpdateLineInFile(root + "scite/src/SciTE.h", "#define VERSION_SCITE",
         "#define VERSION_SCITE \"" + sci.versionDotted + "\"")
@@ -124,6 +129,9 @@ def RegenerateAll():
     Regenerate(root + "scite/doc/SciTEDoc.html", "<!--", propertiesHTML)
     credits = [OctalEscape(c.encode("utf-8")) for c in sci.credits]
     Regenerate(root + "scite/src/Credits.cxx", "//", credits)
+
+    win32.DepGen.Generate()
+    gtk.DepGen.Generate()
 
     UpdateVersionNumbers(sci, root)
 
