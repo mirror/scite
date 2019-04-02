@@ -6,6 +6,7 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <cstdlib>
+#include <cassert>
 #include <cstring>
 
 #include <string>
@@ -205,6 +206,7 @@ static size_t LengthWord(const char *word, char otherSeparator) {
 		endWord = strchr(word, '(');
 	if (!endWord)
 		endWord = word + strlen(word);
+	assert(endWord);
 	// Last case always succeeds so endWord != 0
 
 	// Drop any space characters.
