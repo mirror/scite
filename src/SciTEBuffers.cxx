@@ -976,9 +976,8 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 			wEditor.Call(SCI_SETREADONLY, 0);
 			ClearDocument();
 		}
-		if (updateUI)
-			CheckReload();
 		if (updateUI) {
+			CheckReload();
 			RestoreState(bufferNext, false);
 			DisplayAround(bufferNext.file);
 		}
