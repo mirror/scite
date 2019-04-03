@@ -1864,8 +1864,8 @@ static void RemoveEscSeq(std::string &s) {
 }
 
 // Remove up to and including ch
-static void Chomp(std::string &s, int ch) {
-	const size_t posCh = s.find(static_cast<char>(ch));
+static void Chomp(std::string &s, char ch) {
+	const size_t posCh = s.find(ch);
 	if (posCh != std::string::npos)
 		s.erase(0, posCh + 1);
 }
@@ -1920,14 +1920,14 @@ void SciTEBase::ShowMessages(int line) {
 			if (msgCurrent.find(message.c_str()) == std::string::npos) {
 				// Only append unique messages
 				msgCurrent += message.c_str();
-				int msgStyle = 0;
+				char msgStyle = 0;
 				if (message.find("warning") != std::string::npos)
 					msgStyle = 1;
 				if (message.find("error") != std::string::npos)
 					msgStyle = 2;
 				if (message.find("fatal") != std::string::npos)
 					msgStyle = 3;
-				stylesCurrent += std::string(message.length(), static_cast<char>(msgStyle));
+				stylesCurrent += std::string(message.length(), msgStyle);
 				wEditor.CallString(SCI_ANNOTATIONSETTEXT, sourceLine, msgCurrent.c_str());
 				wEditor.CallString(SCI_ANNOTATIONSETSTYLES, sourceLine, stylesCurrent.c_str());
 			}
