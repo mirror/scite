@@ -687,14 +687,12 @@ void SciTEBase::RestoreSession() {
 
 void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 	UpdateBuffersCurrent();
-	bool defaultSession;
+	const bool defaultSession = !*sessionName;
 	FilePath sessionPathName;
-	if (sessionName[0] == '\0') {
+	if (defaultSession) {
 		sessionPathName = UserFilePath(defaultSessionFileName);
-		defaultSession = true;
 	} else {
 		sessionPathName.Set(sessionName);
-		defaultSession = false;
 	}
 	FILE *sessionFile = sessionPathName.Open(fileWrite);
 	if (!sessionFile)
