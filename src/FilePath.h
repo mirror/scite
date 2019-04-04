@@ -19,7 +19,8 @@ typedef std::vector<FilePath> FilePathSet;
 class FilePath {
 	GUI::gui_string fileName;
 public:
-	FilePath(const GUI::gui_char *fileName_ = GUI_TEXT(""));
+	FilePath() noexcept;
+	FilePath(const GUI::gui_char *fileName_);
 	FilePath(const GUI::gui_string &fileName_);
 	FilePath(FilePath const &directory, FilePath const &name);
 	FilePath(FilePath const &) = default;
@@ -27,6 +28,7 @@ public:
 	FilePath &operator=(FilePath const &) = default;
 	FilePath &operator=(FilePath &&) = default;
 	virtual ~FilePath() = default;
+
 	void Set(const GUI::gui_char *fileName_);
 	void Set(FilePath const &other);
 	void Set(FilePath const &directory, FilePath const &name);

@@ -1270,7 +1270,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 	if (IsStdinBlocked())
 		return;
 
-	Open(GUI_TEXT(""));
+	Open(FilePath());
 	if (UseOutputPane) {
 		wOutput.Call(SCI_CLEARALL);
 	} else {
@@ -1342,7 +1342,7 @@ void SciTEBase::OpenFilesFromStdin() {
 		Open(GUI::StringFromUTF8(data).c_str(), ofQuiet);
 	}
 	if (buffers.lengthVisible == 0)
-		Open(GUI_TEXT(""));
+		Open(FilePath());
 }
 
 class BufferedFile {

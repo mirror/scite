@@ -70,6 +70,8 @@ const GUI::gui_char currentDirectory[] = GUI_TEXT(".");
 const GUI::gui_char parentDirectory[] = GUI_TEXT("..");
 }
 
+FilePath::FilePath() noexcept = default;
+
 FilePath::FilePath(const GUI::gui_char *fileName_) : fileName(fileName_ ? fileName_ : GUI_TEXT("")) {}
 
 FilePath::FilePath(const GUI::gui_string &fileName_) : fileName(fileName_) {}

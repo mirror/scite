@@ -4726,7 +4726,7 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 		}
 		// No open file after session load so create empty document.
 		if (filePath.IsUntitled() && buffers.length == 1 && !buffers.buffers[0].isDirty) {
-			Open(GUI_TEXT(""));
+			Open(FilePath());
 		}
 	}
 	return performPrint;
