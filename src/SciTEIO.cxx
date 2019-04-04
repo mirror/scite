@@ -1339,7 +1339,7 @@ void SciTEBase::OpenFilesFromStdin() {
 		char *pNL;
 		if ((pNL = strchr(data, '\n')) != nullptr)
 			* pNL = '\0';
-		Open(GUI::StringFromUTF8(data).c_str(), ofQuiet);
+		Open(GUI::StringFromUTF8(data), ofQuiet);
 	}
 	if (buffers.lengthVisible == 0)
 		Open(FilePath());

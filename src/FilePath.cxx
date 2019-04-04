@@ -369,7 +369,7 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) const {
 		while (!complete) {
 			const std::wstring_view entryName = findFileData.cFileName;
 			if ((entryName != currentDirectory) && (entryName != parentDirectory)) {
-				FilePath pathFull(AsInternal(), findFileData.cFileName);
+				FilePath pathFull(*this, findFileData.cFileName);
 				if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 					directories.push_back(pathFull);
 				} else {

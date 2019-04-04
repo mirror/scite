@@ -1726,7 +1726,7 @@ void SciTEBase::OpenProperties(int propsFile) {
 	case IDM_OPENLUAEXTERNALFILE: {
 			GUI::gui_string extlua = GUI::StringFromUTF8(props.GetExpandedString("ext.lua.startup.script"));
 			if (extlua.length()) {
-				Open(extlua.c_str(), ofQuiet);
+				Open(extlua, ofQuiet);
 			}
 			break;
 		}

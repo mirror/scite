@@ -1672,7 +1672,7 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 					nameWithExtension += filterName;
 					if (::GetFileAttributes(nameWithExtension.c_str()) != INVALID_FILE_ATTRIBUTES) {
 						isHandled = true;
-						Open(nameWithExtension.c_str());
+						Open(nameWithExtension);
 						break;	// Found!
 					} else {
 						// Next extension
@@ -1926,7 +1926,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 				FilePath file(dropFilesQueue.front());
 				dropFilesQueue.pop_front();
 				if (file.Exists()) {
-					Open(file.AsInternal());
+					Open(file);
 				} else {
 					GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", file.AsInternal());
 					WindowMessageBox(wSciTE, msg);
