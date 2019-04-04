@@ -712,13 +712,13 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 		DWORD bytesAvail = 0;
 		char buffer[8 * 1024];
 
-		if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+		if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, nullptr)) {
 			if (bytesAvail > 0) {
 				int bTest = ::ReadFile(hPipeRead, buffer, sizeof(buffer), &bytesRead, nullptr);
 				while (bTest && bytesRead) {
 					output.append(buffer, buffer+bytesRead);
 					bytesRead = 0;
-					if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, NULL)) {
+					if (::PeekNamedPipe(hPipeRead, buffer, sizeof(buffer), &bytesRead, &bytesAvail, nullptr)) {
 						if (bytesAvail) {
 							bTest = ::ReadFile(hPipeRead, buffer, sizeof(buffer), &bytesRead, nullptr);
 						}
