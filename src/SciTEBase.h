@@ -64,7 +64,7 @@ public:
 	RecentFile &operator=(RecentFile const &) = default;
 	RecentFile &operator=(RecentFile &&) = default;
 	~RecentFile() override = default;
-	void Init() override {
+	void Init() noexcept override {
 		FilePath::Init();
 		selection.position = INVALID_POSITION;
 		selection.anchor = INVALID_POSITION;

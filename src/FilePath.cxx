@@ -104,19 +104,19 @@ void FilePath::SetDirectory(FilePath const &directory) {
 	Set(directory, curName);
 }
 
-void FilePath::Init() {
+void FilePath::Init() noexcept {
 	fileName.clear();
 }
 
-bool FilePath::operator==(const FilePath &other) const {
+bool FilePath::operator==(const FilePath &other) const noexcept {
 	return SameNameAs(other);
 }
 
-bool FilePath::operator<(const FilePath &other) const {
+bool FilePath::operator<(const FilePath &other) const noexcept {
 	return fileName < other.fileName;
 }
 
-bool FilePath::SameNameAs(const GUI::gui_char *other) const {
+bool FilePath::SameNameAs(const GUI::gui_char *other) const noexcept {
 #ifdef WIN32
 	return CSTR_EQUAL == CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
 		fileName.c_str(), -1, other, -1);
@@ -125,11 +125,11 @@ bool FilePath::SameNameAs(const GUI::gui_char *other) const {
 #endif
 }
 
-bool FilePath::SameNameAs(const FilePath &other) const {
+bool FilePath::SameNameAs(const FilePath &other) const noexcept {
 	return SameNameAs(other.fileName.c_str());
 }
 
-bool FilePath::IsSet() const {
+bool FilePath::IsSet() const noexcept {
 	return fileName.length() > 0;
 }
 
@@ -163,7 +163,7 @@ bool FilePath::IsRoot() const {
 #endif
 }
 
-int FilePath::RootLength() {
+int FilePath::RootLength() noexcept {
 #ifdef WIN32
 	return 3;
 #else
@@ -171,7 +171,7 @@ int FilePath::RootLength() {
 #endif
 }
 
-const GUI::gui_char *FilePath::AsInternal() const {
+const GUI::gui_char *FilePath::AsInternal() const noexcept {
 	return fileName.c_str();
 }
 
@@ -233,32 +233,32 @@ FilePath FilePath::Directory() const {
 // Substitute functions that take wchar_t arguments but have the same name
 // as char functions so that the compiler will choose the right form.
 
-static size_t strlen(const wchar_t *str) {
+static size_t strlen(const wchar_t *str) noexcept {
 	return wcslen(str);
 }
 
-static int chdir(const wchar_t *dirname) {
+static int chdir(const wchar_t *dirname) noexcept {
 	return _wchdir(dirname);
 }
 
-static FILE *fopen(const wchar_t *filename, const wchar_t *mode) {
+static FILE *fopen(const wchar_t *filename, const wchar_t *mode) noexcept {
 	return _wfopen(filename, mode);
 }
 
-static int unlink(const wchar_t *filename) {
+static int unlink(const wchar_t *filename) noexcept {
 	return _wunlink(filename);
 }
 
-static int access(const wchar_t *path, int mode) {
+static int access(const wchar_t *path, int mode) noexcept {
 	return _waccess(path, mode);
 }
 
 #if defined(_MSC_VER) && (_MSC_VER > 1310)
-static int stat(const wchar_t *path, struct _stat64i32 *buffer) {
+static int stat(const wchar_t *path, struct _stat64i32 *buffer) noexcept {
 	return _wstat(path, buffer);
 }
 #else
-static int stat(const wchar_t *path, struct _stat *buffer) {
+static int stat(const wchar_t *path, struct _stat *buffer) noexcept {
 	return _wstat(path, buffer);
 }
 #endif
@@ -355,7 +355,7 @@ FilePath FilePath::GetWorkingDirectory() {
 	return FilePath();
 }
 
-bool FilePath::SetWorkingDirectory() const {
+bool FilePath::SetWorkingDirectory() const noexcept {
 	return chdir(AsInternal()) == 0;
 }
 
@@ -408,7 +408,7 @@ void FilePath::List(FilePathSet &directories, FilePathSet &files) const {
 	std::sort(directories.begin(), directories.end());
 }
 
-FILE *FilePath::Open(const GUI::gui_char *mode) const {
+FILE *FilePath::Open(const GUI::gui_char *mode) const noexcept {
 	if (IsSet()) {
 		return fopen(fileName.c_str(), mode);
 	} else {
@@ -434,7 +434,7 @@ std::string FilePath::Read() const {
 	return data;
 }
 
-void FilePath::Remove() const {
+void FilePath::Remove() const noexcept {
 	unlink(AsInternal());
 }
 
@@ -463,7 +463,7 @@ time_t FilePath::ModifiedTime() const {
 		return 0;
 }
 
-long long FilePath::GetFileLength() const {
+long long FilePath::GetFileLength() const noexcept {
 #ifdef WIN32
 	// Using Win32 API as stat variants are complex and there were problems with stat
 	// working on XP when compiling with XP compatibility flag.
@@ -482,7 +482,7 @@ long long FilePath::GetFileLength() const {
 #endif
 }
 
-bool FilePath::Exists() const {
+bool FilePath::Exists() const noexcept {
 	bool ret = false;
 	if (IsSet()) {
 		FILE *fp = Open(fileRead);
@@ -494,7 +494,7 @@ bool FilePath::Exists() const {
 	return ret;
 }
 
-bool FilePath::IsDirectory() const {
+bool FilePath::IsDirectory() const noexcept {
 #ifdef _WIN32
 #if defined(_MSC_VER) && (_MSC_VER > 1310)
 	struct _stat64i32 statusFile;
@@ -645,7 +645,7 @@ void FilePath::FixName() {
 #endif
 }
 
-bool FilePath::CaseSensitive() {
+bool FilePath::CaseSensitive() noexcept {
 #if defined (__APPLE__)
 	return false;
 #elif defined(__unix__)
