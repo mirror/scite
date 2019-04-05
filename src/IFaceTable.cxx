@@ -3008,6 +3008,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"FormatRange", 2151, iface_position, {iface_bool, iface_formatrange}},
 	{"FreeSubStyles", 4023, iface_void, {iface_void, iface_void}},
 	{"GetCurLine", 2027, iface_int, {iface_length, iface_stringresult}},
+	{"GetDefaultFoldDisplayText", 2723, iface_int, {iface_void, iface_stringresult}},
 	{"GetHotspotActiveBack", 2495, iface_colour, {iface_void, iface_void}},
 	{"GetHotspotActiveFore", 2494, iface_colour, {iface_void, iface_void}},
 	{"GetLastChild", 2224, iface_int, {iface_int, iface_int}},
@@ -3140,6 +3141,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"SelectAll", 2013, iface_void, {iface_void, iface_void}},
 	{"SelectionDuplicate", 2469, iface_void, {iface_void, iface_void}},
 	{"SetCharsDefault", 2444, iface_void, {iface_void, iface_void}},
+	{"SetDefaultFoldDisplayText", 2722, iface_void, {iface_void, iface_string}},
 	{"SetEmptySelection", 2556, iface_void, {iface_position, iface_void}},
 	{"SetFoldMarginColour", 2290, iface_void, {iface_bool, iface_colour}},
 	{"SetFoldMarginHiColour", 2291, iface_void, {iface_bool, iface_colour}},
@@ -3449,7 +3451,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 307,
+	ifaceFunctionCount = 309,
 	ifaceConstantCount = 2778,
 	ifacePropertyCount = 232
 };
