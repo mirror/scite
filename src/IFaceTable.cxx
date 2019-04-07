@@ -2805,6 +2805,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_MARK_TCORNER",11},
 	{"SC_MARK_TCORNERCURVE",17},
 	{"SC_MARK_UNDERLINE",29},
+	{"SC_MARK_VERTICALBOOKMARK",32},
 	{"SC_MARK_VLINE",9},
 	{"SC_MASK_FOLDERS",static_cast<int>(0xFE000000)},
 	{"SC_MAX_MARGIN",4},
@@ -3452,7 +3453,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 309,
-	ifaceConstantCount = 2778,
+	ifaceConstantCount = 2779,
 	ifacePropertyCount = 232
 };
 
