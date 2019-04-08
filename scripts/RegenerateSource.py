@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # RegenerateSource.py - implemented 2013 by Neil Hodgson neilh@scintilla.org
 # Released to the public domain.
 
 # Regenerate the SciTE source files that list all the lexers and all the
 # properties files.
 # Should be run whenever a new lexer is added or removed.
-# Requires Python 2.5 or later
+# Requires Python 3.6 or later
 # Most files are regenerated in place with templates stored in comments.
 # The VS .NET project file is generated into a different file as the
 # VS .NET environment will not retain comments when modifying the file.
@@ -13,7 +13,7 @@
 
 # Regenerates Scintilla files by calling LexGen.RegenerateAll
 
-import glob, os, sys
+import codecs, glob, os, sys
 
 srcRoot = "../.."
 
@@ -29,6 +29,8 @@ sys.path.append("..")
 
 import win32.AppDepGen
 import gtk.AppDepGen
+
+neutralEncoding = "windows-1252"
 
 def UpdateVersionNumbers(sci, root):
     UpdateLineInFile(root + "scite/src/SciTE.h", "#define VERSION_SCITE",
@@ -79,21 +81,21 @@ def UpdateEmbedded(root, propFiles):
     linesEmbedded = []
     for pf in propFilesAll:
         fullPath = os.path.join(root, "scite", "src", pf)
-        with open(fullPath) as fi:
+        with codecs.open(fullPath, "r", neutralEncoding) as fi:
             fileBase = pf.split(".")[0]
             if pf not in propFilesSpecial:
-                linesEmbedded.append("\nmodule " + fileBase + "\n")
+                linesEmbedded.append(os.linesep + "module " + fileBase + os.linesep)
             for line in fi:
                 if not line.startswith("#"):
                     linesEmbedded.append(line)
             if not linesEmbedded[-1].endswith("\n"):
-                linesEmbedded[-1] += "\n"
+                linesEmbedded[-1] += os.linesep
     textEmbedded = "".join(linesEmbedded)
     pathEmbedded = os.path.join(root, "scite", "src", "Embedded.properties")
-    with open(pathEmbedded) as fileEmbedded:
+    with codecs.open(pathEmbedded, "r", neutralEncoding) as fileEmbedded:
         original = fileEmbedded.read()
     if textEmbedded != original:
-        with open(pathEmbedded, "w") as fileOutEmbedded:
+        with codecs.open(pathEmbedded, "w", neutralEncoding) as fileOutEmbedded:
             fileOutEmbedded.write(textEmbedded)
             print("Changed %s" % pathEmbedded)
 
