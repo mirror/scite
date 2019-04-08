@@ -173,7 +173,7 @@ clean:
 	del /q $(DIR_BIN)\*.exe *.o *.obj $(DIR_BIN)\*.dll *.res *.map $(DIR_BIN)\*.exp $(DIR_BIN)\*.lib $(DIR_BIN)\*.pdb
 
 depend:
-	python DepGen.py
+	python AppDepGen.py
 
 {$(DIR_SCINTILLA_BIN)}.dll{$(DIR_BIN)}.dll:
 	copy $< $@

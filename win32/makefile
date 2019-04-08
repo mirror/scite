@@ -151,7 +151,7 @@ analyze:
 	clang --analyze $(CXXFLAGS) *.cxx ../src/*.cxx
 
 depend deps.mak:
-	python DepGen.py
+	python AppDepGen.py
 
 ../bin/%.dll:	../../scintilla/bin/%.dll
 ifneq (sh,$(SHELL_TYPE))

@@ -111,7 +111,7 @@ analyze:
 	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c
 
 depend deps.mak:
-	python DepGen.py
+	python AppDepGen.py
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
 COMPLIB=$(srcdir)/../../scintilla/bin/scintilla.a
