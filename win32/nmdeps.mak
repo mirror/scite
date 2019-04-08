@@ -1,4 +1,4 @@
-# Created by DepGen.py. To recreate, run 'python DepGen.py'.
+# Created by AppDepGen.py. To recreate, run 'python AppDepGen.py'.
 DirectorExtension.obj: \
 	DirectorExtension.cxx \
 	../../scintilla/include/ILexer.h \
