@@ -11,6 +11,9 @@ useInitializationList
 // FilePath has a non-explicit constructor used for conversions
 noExplicitConstructor:scite/src/FilePath.h
 
+// ModelessHandler has sections for strips and the application and both share a test.
+duplicateCondition:scite/win32/SciTEWinDlg.cxx
+
 // The Flush call has side effects that change the result of the second condition 
 duplicateCondition:scite/src/StyleWriter.cxx
 
