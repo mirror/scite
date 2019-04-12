@@ -9,9 +9,9 @@
 #define SCITE_H
 
 // Version numbers and dates
-#define VERSION_SCITE "4.1.4"
-#define VERSION_WORDS 4, 1, 4, 0
-#define COPYRIGHT_DATES "December 1998-March 2019"
+#define VERSION_SCITE "4.1.5"
+#define VERSION_WORDS 4, 1, 5, 0
+#define COPYRIGHT_DATES "December 1998-April 2019"
 #define COPYRIGHT_YEARS "1998-2019"
 
 // Menu IDs.
