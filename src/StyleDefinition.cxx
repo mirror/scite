@@ -125,6 +125,8 @@ bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
 					caseForce = SC_CASE_UPPER;
 				else if (optionValue.front() == 'l')
 					caseForce = SC_CASE_LOWER;
+				else if (optionValue.front() == 'c')
+					caseForce = SC_CASE_CAMEL;
 			}
 		}
 		if (optionName == "visible") {
