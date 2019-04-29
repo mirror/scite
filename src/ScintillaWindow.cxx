@@ -55,6 +55,8 @@ int ScintillaWindow::Call(unsigned int msg, uptr_t wParam, sptr_t lParam) {
 }
 
 sptr_t ScintillaWindow::CallReturnPointer(unsigned int msg, uptr_t wParam, sptr_t lParam) {
+	if (!fn)
+		throw ScintillaFailure(SC_STATUS_FAILURE);
 	const sptr_t retVal = fn(ptr, msg, wParam, lParam);
 	status = fn(ptr, SCI_GETSTATUS, 0, 0);
 	if (status > 0 && status < SC_STATUS_WARN_START)
