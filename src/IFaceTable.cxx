@@ -2067,6 +2067,15 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_V_WORD",5},
 	{"SCE_V_WORD2",7},
 	{"SCE_V_WORD3",8},
+	{"SCE_X12_BAD",1},
+	{"SCE_X12_DEFAULT",0},
+	{"SCE_X12_ENVELOPE",2},
+	{"SCE_X12_FUNCTIONGROUP",3},
+	{"SCE_X12_SEGMENTEND",6},
+	{"SCE_X12_SEGMENTHEADER",5},
+	{"SCE_X12_SEP_ELEMENT",7},
+	{"SCE_X12_SEP_SUBELEMENT",8},
+	{"SCE_X12_TRANSACTIONSET",4},
 	{"SCE_YAML_COMMENT",1},
 	{"SCE_YAML_DEFAULT",0},
 	{"SCE_YAML_DOCUMENT",6},
@@ -2635,6 +2644,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_VERILOG",56},
 	{"SCLEX_VHDL",64},
 	{"SCLEX_VISUALPROLOG",107},
+	{"SCLEX_X12",128},
 	{"SCLEX_XCODE",13},
 	{"SCLEX_XML",5},
 	{"SCLEX_YAML",48},
@@ -3453,7 +3463,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 309,
-	ifaceConstantCount = 2779,
+	ifaceConstantCount = 2789,
 	ifacePropertyCount = 232
 };
 
