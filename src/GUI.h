@@ -100,7 +100,7 @@ public:
 		wid = wid_;
 	}
 	bool Created() const noexcept {
-		return wid != 0;
+		return !!wid;
 	}
 	void Destroy();
 	bool HasFocus();

@@ -12,7 +12,7 @@ namespace GUI {
 
 struct ScintillaFailure {
 	sptr_t status;
-	explicit ScintillaFailure(sptr_t status_) : status(status_) {
+	explicit ScintillaFailure(sptr_t status_) noexcept : status(status_) {
 	}
 };
 

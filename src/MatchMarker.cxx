@@ -41,9 +41,6 @@ MatchMarker::MatchMarker() :
 	pSci(nullptr), styleMatch(-1), flagsMatch(0), indicator(0), bookMark(-1) {
 }
 
-MatchMarker::~MatchMarker() {
-}
-
 void MatchMarker::StartMatch(GUI::ScintillaWindow *pSci_,
 	const std::string &textMatch_, int flagsMatch_, int styleMatch_,
 	int indicator_, int bookMark_) {
@@ -59,7 +56,7 @@ void MatchMarker::StartMatch(GUI::ScintillaWindow *pSci_,
 	Continue();
 }
 
-bool MatchMarker::Complete() const {
+bool MatchMarker::Complete() const noexcept {
 	return lineRanges.empty();
 }
 
@@ -126,7 +123,7 @@ void MatchMarker::Continue() {
 	}
 }
 
-void MatchMarker::Stop() {
+void MatchMarker::Stop() noexcept {
 	pSci = nullptr;
 	lineRanges.clear();
 }

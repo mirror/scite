@@ -8,7 +8,7 @@
 struct LineRange {
 	int lineStart;
 	int lineEnd;
-	LineRange(int lineStart_, int lineEnd_) : lineStart(lineStart_), lineEnd(lineEnd_) {}
+	LineRange(int lineStart_, int lineEnd_) noexcept : lineStart(lineStart_), lineEnd(lineEnd_) {}
 };
 
 std::vector<LineRange> LinesBreak(GUI::ScintillaWindow *pSci);
@@ -22,12 +22,11 @@ class MatchMarker {
 	int bookMark;
 	std::vector<LineRange> lineRanges;
 public:
-	MatchMarker();
-	~MatchMarker();
+	MatchMarker();	// Not noexcept as std::vector constructor throws
 	void StartMatch(GUI::ScintillaWindow *pSci_,
 		const std::string &textMatch_, int flagsMatch_, int styleMatch_,
 		int indicator_, int bookMark_);
-	bool Complete() const;
+	bool Complete() const noexcept;
 	void Continue();
-	void Stop();
+	void Stop() noexcept;
 };
