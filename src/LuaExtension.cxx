@@ -410,34 +410,36 @@ static int cf_pane_findtext(lua_State *L) {
 	bool hasError = (!t);
 
 	if (!hasError) {
-		Sci_TextToFind ft = {{0, 0}, nullptr, {0, 0}};
-
-		ft.lpstrText = t;
+		sptr_t rangeStart = 0;
+		sptr_t rangeEnd = 0;
 
 		const int flags = (nArgs > 2) ? luaL_checkint(L, 3) : 0;
 		hasError = (flags == 0 && lua_gettop(L) > nArgs);
 
 		if (!hasError) {
 			if (nArgs > 3) {
-				ft.chrg.cpMin = static_cast<int>(luaL_checkint(L, 4));
+				rangeStart = luaL_checkinteger(L, 4);
 				hasError = (lua_gettop(L) > nArgs);
 			}
 		}
 
 		if (!hasError) {
 			if (nArgs > 4) {
-				ft.chrg.cpMax = static_cast<int>(luaL_checkint(L, 5));
+				rangeEnd = luaL_checkinteger(L, 5);
 				hasError = (lua_gettop(L) > nArgs);
 			} else {
-				ft.chrg.cpMax = static_cast<long>(host->Send(p, SCI_GETLENGTH, 0, 0));
+				rangeEnd = host->Send(p, SCI_GETLENGTH, 0, 0);
 			}
 		}
 
 		if (!hasError) {
-			const sptr_t result = host->Send(p, SCI_FINDTEXT, static_cast<uptr_t>(flags), SptrFromPointer(&ft));
+			host->Send(p, SCI_SETTARGETRANGE, rangeStart, rangeEnd);
+			host->Send(p, SCI_SETSEARCHFLAGS, flags);
+			const sptr_t result = host->Send(p, SCI_SEARCHINTARGET, strlen(t), SptrFromString(t));
 			if (result >= 0) {
-				lua_pushinteger(L, static_cast<int>(ft.chrgText.cpMin));
-				lua_pushinteger(L, static_cast<int>(ft.chrgText.cpMax));
+				const sptr_t posEndFound = host->Send(p, SCI_GETTARGETEND);
+				lua_pushinteger(L, result);
+				lua_pushinteger(L, posEndFound);
 				return 2;
 			} else {
 				lua_pushnil(L);
@@ -622,16 +624,16 @@ static int cf_pane_match_generator(lua_State *L) {
 		searchPos++;
 	}
 
-	Sci_TextToFind ft = { {0, 0}, nullptr, {0, 0} };
-	ft.chrg.cpMin = searchPos;
-	ft.chrg.cpMax = static_cast<long>(host->Send(pmo->pane, SCI_GETLENGTH, 0, 0));
-	ft.lpstrText = text;
+	const sptr_t rangeStart = searchPos;
+	const sptr_t rangeEnd = host->Send(pmo->pane, SCI_GETLENGTH, 0, 0);
 
-	if (ft.chrg.cpMax > ft.chrg.cpMin) {
-		const sptr_t result = host->Send(pmo->pane, SCI_FINDTEXT, static_cast<uptr_t>(pmo->flags), SptrFromPointer(&ft));
+	if (rangeEnd > rangeStart) {
+		host->Send(pmo->pane, SCI_SETTARGETRANGE, rangeStart, rangeEnd);
+		host->Send(pmo->pane, SCI_SETSEARCHFLAGS, pmo->flags);
+		const sptr_t result = host->Send(pmo->pane, SCI_SEARCHINTARGET, strlen(text), SptrFromString(text));
 		if (result >= 0) {
-			pmo->startPos = static_cast<int>(ft.chrgText.cpMin);
-			pmo->endPos = pmo->endPosOrig = static_cast<int>(ft.chrgText.cpMax);
+			pmo->startPos = host->Send(pmo->pane, SCI_GETTARGETSTART);
+			pmo->endPos = pmo->endPosOrig = host->Send(pmo->pane, SCI_GETTARGETEND);
 			lua_pushvalue(L, 2);
 			return 1;
 		}

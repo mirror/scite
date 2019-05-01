@@ -1717,12 +1717,6 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		return true;
 	const std::string root = line.substr(startword, current - startword);
 	const int doclen = LengthDocument();
-	Sci_TextToFind ft = {{0, 0}, nullptr, {0, 0}};
-	ft.lpstrText = root.c_str();
-	ft.chrg.cpMin = 0;
-	ft.chrg.cpMax = doclen;
-	ft.chrgText.cpMin = 0;
-	ft.chrgText.cpMax = 0;
 	const int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
 	const int posCurrentWord = wEditor.Call(SCI_GETCURRENTPOS) - static_cast<int>(root.length());
 	unsigned int minWordLength = 0;
@@ -1733,7 +1727,9 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	std::string wordsNear;
 	wordsNear.append("\n");
 
-	int posFind = wEditor.CallPointer(SCI_FINDTEXT, flags, &ft);
+	wEditor.Call(SCI_SETTARGETRANGE, 0, doclen);
+	wEditor.Call(SCI_SETSEARCHFLAGS, flags);
+	int posFind = wEditor.CallString(SCI_SEARCHINTARGET, root.length(), root.c_str());
 	TextReader acc(wEditor);
 	while (posFind >= 0 && posFind < doclen) {	// search all the document
 		int wordEnd = posFind + static_cast<int>(root.length());
@@ -1757,8 +1753,8 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				}
 			}
 		}
-		ft.chrg.cpMin = wordEnd;
-		posFind = wEditor.CallPointer(SCI_FINDTEXT, flags, &ft);
+		wEditor.Call(SCI_SETTARGETRANGE, wordEnd, doclen);
+		posFind = wEditor.CallString(SCI_SEARCHINTARGET, root.length(), root.c_str());
 	}
 	const size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > root.length()))) {
