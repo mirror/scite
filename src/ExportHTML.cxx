@@ -208,8 +208,10 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 			level = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 
 			if (lvl & SC_FOLDLEVELHEADERFLAG) {
-				fprintf(fp, "<span id=\"hd%d\" onclick=\"toggle('%d')\">", line, line + 1);
-				fprintf(fp, "<span id=\"bt%d\">- </span>", line);
+				const std::string sLine = std::to_string(line);
+				const std::string sLineNext = std::to_string(line+1);
+				fprintf(fp, "<span id=\"hd%s\" onclick=\"toggle('%s')\">", sLine.c_str(), sLineNext.c_str());
+				fprintf(fp, "<span id=\"bt%s\">- </span>", sLine.c_str());
 				inFoldSpan = true;
 			} else {
 				fputs("&nbsp; ", fp);
@@ -311,12 +313,16 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 					if (newLevel < level)
 						fprintf(fp, "</span>");
 					fputc('\n', fp); // here to get clean code
-					if (newLevel > level)
-						fprintf(fp, "<span id=\"ln%d\">", line);
+					if (newLevel > level) {
+						const std::string sLine = std::to_string(line);
+						fprintf(fp, "<span id=\"ln%s\">", sLine.c_str());
+					}
 
 					if (lvl & SC_FOLDLEVELHEADERFLAG) {
-						fprintf(fp, "<span id=\"hd%d\" onclick=\"toggle('%d')\">", line, line + 1);
-						fprintf(fp, "<span id=\"bt%d\">- </span>", line);
+						const std::string sLine = std::to_string(line);
+						const std::string sLineNext = std::to_string(line + 1);
+						fprintf(fp, "<span id=\"hd%s\" onclick=\"toggle('%s')\">", sLine.c_str(), sLineNext.c_str());
+						fprintf(fp, "<span id=\"bt%s\">- </span>", sLine.c_str());
 						inFoldSpan = true;
 					} else
 						fputs("&nbsp; ", fp);

@@ -761,12 +761,14 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buff.file.AsUTF8().c_str());
 
 				const int pos = buff.file.selection.position + 1;
+				const std::string sPos = std::to_string(pos);
 				propKey = IndexPropKey("buffer", i, "position");
-				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), pos);
+				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), sPos.c_str());
 
 				const int scroll = buff.file.scrollPosition;
+				const std::string sScroll = std::to_string(scroll);
 				propKey = IndexPropKey("buffer", i, "scroll");
-				fprintf(sessionFile, "%s=%d\n", propKey.c_str(), scroll);
+				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), sScroll.c_str());
 
 				if (i == curr) {
 					propKey = IndexPropKey("buffer", i, "current");
