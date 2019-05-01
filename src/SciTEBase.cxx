@@ -873,10 +873,10 @@ void SciTEBase::SelectionIntoProperties() {
 
 	const int selStart = CallFocused(SCI_GETSELECTIONSTART);
 	const int selEnd = CallFocused(SCI_GETSELECTIONEND);
-	props.SetInteger("SelectionStartLine", CallFocused(SCI_LINEFROMPOSITION, selStart) + 1);
-	props.SetInteger("SelectionStartColumn", CallFocused(SCI_GETCOLUMN, selStart) + 1);
-	props.SetInteger("SelectionEndLine", CallFocused(SCI_LINEFROMPOSITION, selEnd) + 1);
-	props.SetInteger("SelectionEndColumn", CallFocused(SCI_GETCOLUMN, selEnd) + 1);
+	props.Set("SelectionStartLine", std::to_string(CallFocused(SCI_LINEFROMPOSITION, selStart) + 1));
+	props.Set("SelectionStartColumn", std::to_string(CallFocused(SCI_GETCOLUMN, selStart) + 1));
+	props.Set("SelectionEndLine", std::to_string(CallFocused(SCI_LINEFROMPOSITION, selEnd) + 1));
+	props.Set("SelectionEndColumn", std::to_string(CallFocused(SCI_GETCOLUMN, selEnd) + 1));
 }
 
 void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
@@ -1253,7 +1253,7 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 
 int SciTEBase::ReplaceAll(bool inSelection) {
 	const int replacements = DoReplaceAll(inSelection);
-	props.SetInteger("Replacements", (replacements > 0 ? replacements : 0));
+	props.Set("Replacements", std::to_string(replacements > 0 ? replacements : 0));
 	UpdateStatusBar(false);
 	if (replacements == -1) {
 		FindMessageBox(
@@ -1283,7 +1283,7 @@ int SciTEBase::ReplaceInBuffers() {
 		}
 	}
 	SetDocumentAt(currentBuffer);
-	props.SetInteger("Replacements", replacements);
+	props.Set("Replacements", std::to_string(replacements));
 	UpdateStatusBar(false);
 	if (replacements == 0) {
 		FindMessageBox(
@@ -2299,9 +2299,9 @@ void SciTEBase::SetTextProperties(
 	const int eolMode = wEditor.Call(SCI_GETEOLMODE);
 	ps.Set("EOLMode", eolMode == SC_EOL_CRLF ? "CR+LF" : (eolMode == SC_EOL_LF ? "LF" : "CR"));
 
-	ps.SetInteger("BufferLength", LengthDocument());
+	ps.Set("BufferLength", std::to_string(LengthDocument()));
 
-	ps.SetInteger("NbOfLines", wEditor.Call(SCI_GETLINECOUNT));
+	ps.Set("NbOfLines", std::to_string(wEditor.Call(SCI_GETLINECOUNT)));
 
 	const Sci_CharacterRange crange = GetSelection();
 	const int selFirstLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMin);
@@ -2316,7 +2316,7 @@ void SciTEBase::SetTextProperties(
 	} else {
 		charCount = wEditor.Call(SCI_COUNTCHARACTERS, crange.cpMin, crange.cpMax);
 	}
-	ps.SetInteger("SelLength", static_cast<int>(charCount));
+	ps.Set("SelLength", std::to_string(charCount));
 	const int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
 	const int selAnchor = wEditor.Call(SCI_GETANCHOR);
 	int selHeight = selLastLine - selFirstLine + 1;
@@ -2328,7 +2328,7 @@ void SciTEBase::SetTextProperties(
 	        ((wEditor.Call(SCI_GETCOLUMN, selAnchor) == 0) && (selAnchor > caretPos ))) {
 		selHeight = selLastLine - selFirstLine;
 	}
-	ps.SetInteger("SelHeight", selHeight);
+	ps.Set("SelHeight", std::to_string(selHeight));
 }
 
 void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
@@ -2337,8 +2337,8 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 			SetFileProperties(propsStatus);
 		}
 		SetTextProperties(propsStatus);
-		propsStatus.SetInteger("LineNumber", GetCurrentLineNumber() + 1);
-		propsStatus.SetInteger("ColumnNumber", GetCurrentColumnNumber() + 1);
+		propsStatus.Set("LineNumber", std::to_string(GetCurrentLineNumber() + 1));
+		propsStatus.Set("ColumnNumber", std::to_string(GetCurrentColumnNumber() + 1));
 		propsStatus.Set("OverType", wEditor.Call(SCI_GETOVERTYPE) ? "OVR" : "INS");
 
 		char sbKey[32];

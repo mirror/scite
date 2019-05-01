@@ -463,11 +463,6 @@ bool PropSetFile::Read(const FilePath &filename, const FilePath &directoryForImp
 	return false;
 }
 
-void PropSetFile::SetInteger(const char *key, int i) {
-	const std::string tmp = std::to_string(i);
-	Set(key, tmp);
-}
-
 namespace {
 
 bool StringEqual(std::string_view a, std::string_view b, bool caseSensitive) {

@@ -54,7 +54,6 @@ public:
 		FilePathSet *imports, size_t depth);
 	bool Read(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
 		FilePathSet *imports, size_t depth);
-	void SetInteger(const char *key, int i);
 	std::string GetWild(const char *keybase, const char *filename);
 	std::string GetNewExpandString(const char *keybase, const char *filename = "");
 	bool GetFirst(const char *&key, const char *&val);

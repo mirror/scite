@@ -538,7 +538,7 @@ protected:
 
 	Localization localiser;
 
-	PropSetFile propsStatus;	// Not attached to a file but need SetInteger method.
+	PropSetFile propsStatus;
 
 	std::unique_ptr<IEditorConfig> editorConfig;
 
