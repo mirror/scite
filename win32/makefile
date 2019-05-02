@@ -16,7 +16,7 @@ CC = clang
 # Clang doesn't like omitting braces in array initialization but they just add noise,
 # Microsoft headers are used so _CRT_SECURE_NO_DEPRECATE avoids warnings for standard library like strcat,
 # public visibility avoids warnings like 'locally defined symbol __std_terminate imported'
-CLANG_OPTS = -Wno-missing-braces -D_CRT_SECURE_NO_DEPRECATE=1 -Xclang -flto-visibility-public-std
+CLANG_OPTS = -Wno-missing-braces -Wno-string-plus-int -D_CRT_SECURE_NO_DEPRECATE=1 -Xclang -flto-visibility-public-std
 CLANG_LIBS = -luser32 -lgdi32 -lshell32 -lcomdlg32
 else
 SUBSYSTEM_OPT = -Xlinker --subsystem -Xlinker windows
