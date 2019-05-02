@@ -63,7 +63,7 @@ public:
 	}
 };
 
-#define PROPERTIES_EXTENSION	".properties"
+constexpr const char *extensionProperties = ".properties";
 bool IsPropertiesFile(const FilePath &filename);
 
 #endif

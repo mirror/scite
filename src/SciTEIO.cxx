@@ -672,7 +672,7 @@ bool SciTEBase::OpenSelected() {
 		// we suppose we want to open an imported .properties file
 		// So we append the correct extension to open the included file.
 		// Maybe we should check if the filename is preceded by "import"...
-		selName += PROPERTIES_EXTENSION;
+		selName += extensionProperties;
 	} else {
 		// Check if we have a line number (error message or grep result)
 		// A bit of duplicate work with DecodeMessage, but we don't know

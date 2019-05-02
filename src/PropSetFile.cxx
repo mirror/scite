@@ -622,7 +622,7 @@ bool PropSetFile::GetNext(const char *&key, const char *&val) {
 
 bool IsPropertiesFile(const FilePath &filename) {
 	FilePath ext = filename.Extension();
-	if (EqualCaseInsensitive(ext.AsUTF8().c_str(), PROPERTIES_EXTENSION + 1))
+	if (EqualCaseInsensitive(ext.AsUTF8().c_str(), extensionProperties + 1))
 		return true;
 	return false;
 }
