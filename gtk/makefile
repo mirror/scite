@@ -13,7 +13,8 @@ ifdef CLANG
 SANITIZE = address
 #SANITIZE = undefined
 CXX = clang++ -fsanitize=$(SANITIZE) -Wno-deprecated-register
-CC = clang -fsanitize=$(SANITIZE) -Wno-empty-body
+CC = clang -fsanitize=$(SANITIZE)
+CCWARNINGS = -Wno-empty-body -Wno-string-plus-int
 else
 MISLEADING=-Wno-misleading-indentation
 endif
@@ -77,7 +78,7 @@ vpath %.c $(srcdir)/../lua/src
 INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src -I$(srcdir)/../lua/src
 
 .c.o:
-	$(CC) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) $(CCWARNINGS) -c $< -o $@
 
 else
 CXXTFLAGS+=-DNO_LUA
