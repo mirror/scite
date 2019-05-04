@@ -799,6 +799,15 @@ public:
 		SetItemText(id, GUI::StringFromUTF8(s));
 	}
 
+	std::optional<intptr_t> ItemInteger(int id) {
+		const std::string sValue = ItemTextU(id);
+		try {
+			return static_cast<intptr_t>(std::stoll(sValue));
+		} catch (...) {
+			return std::nullopt;
+		}
+	}
+
 	void SetCheck(int id, bool value) {
 		Button_SetCheck(Item(id), value ? BST_CHECKED : BST_UNCHECKED);
 	}
@@ -1409,24 +1418,21 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::EndDialog(hDlg, IDCANCEL);
 			return FALSE;
 		} else if (ControlIDOfWParam(wParam) == IDOK) {
-			BOOL bHasLine;
-			int lineNumber = static_cast<int>(
-			                     ::GetDlgItemInt(hDlg, IDGOLINE, &bHasLine, FALSE));
-			BOOL bHasChar;
-			int characterOnLine = static_cast<int>(
-			                     ::GetDlgItemInt(hDlg, IDGOLINECHAR, &bHasChar, FALSE));
+			const std::optional<intptr_t> lineNumberOpt = dlg.ItemInteger(IDGOLINE);
+			const std::optional<intptr_t> characterOnLineOpt = dlg.ItemInteger(IDGOLINECHAR);
 
-			if (bHasLine || bHasChar) {
-				if (!bHasLine)
-					lineNumber = wEditor.Call(SCI_LINEFROMPOSITION, wEditor.Call(SCI_GETCURRENTPOS)) + 1;
+			if (lineNumberOpt || characterOnLineOpt) {
+				const intptr_t lineNumber = lineNumberOpt.value_or(
+					wEditor.Call(SCI_LINEFROMPOSITION, wEditor.Call(SCI_GETCURRENTPOS)) + 1);
 
-				GotoLineEnsureVisible(lineNumber - 1);
+				GotoLineEnsureVisible(static_cast<int>(lineNumber - 1));
 
-				if (bHasChar && characterOnLine > 1 && lineNumber <= wEditor.Call(SCI_GETLINECOUNT)) {
+				if (characterOnLineOpt && characterOnLineOpt.value() > 1 && lineNumber <= wEditor.Call(SCI_GETLINECOUNT)) {
 					// Constrain to the requested line
 					const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
 					const int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, lineNumber - 1);
 
+					intptr_t characterOnLine = characterOnLineOpt.value();
 					int position = lineStart;
 					while (--characterOnLine && position < lineEnd)
 						position = wEditor.Call(SCI_POSITIONAFTER, position);

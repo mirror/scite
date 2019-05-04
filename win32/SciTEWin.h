@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include <sys/stat.h>
 
+#include <optional>
 #include <string>
 #include <vector>
 #include <deque>
