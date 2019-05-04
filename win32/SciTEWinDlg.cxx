@@ -785,6 +785,10 @@ public:
 		::SetDlgItemTextW(hDlg, id, s);
 	}
 
+	void SetItemText(int id, const GUI::gui_string &s) {
+		SetItemText(id, s.c_str());
+	}
+
 	// Handle Unicode controls (assume strings to be UTF-8 on Windows NT)
 
 	std::string ItemTextU(int id) {
@@ -792,7 +796,7 @@ public:
 	}
 
 	void SetItemTextU(int id, const std::string &s) {
-		SetItemText(id, GUI::StringFromUTF8(s).c_str());
+		SetItemText(id, GUI::StringFromUTF8(s));
 	}
 
 	void SetCheck(int id, bool value) {
@@ -932,7 +936,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			dlg.SetCheck(IDFINDSTYLE, findInStyle);
 			dlg.Enable(IDFINDSTYLE, findInStyle);
 			Edit_LimitText(dlg.Item(IDFINDSTYLE), 3);
-			::SetDlgItemInt(hDlg, IDFINDSTYLE, wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS)), FALSE);
+			dlg.SetItemText(IDFINDSTYLE, std::to_wstring(
+				wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS))));
 		}
 		return TRUE;
 
@@ -1003,7 +1008,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd, bool reverseDirection) {
 		FillCombos(dlg);
 	}
 	GUI::gui_string replDone = GUI::StringFromInteger(replacements);
-	dlg.SetItemText(IDREPLDONE, replDone.c_str());
+	dlg.SetItemText(IDREPLDONE, replDone);
 
 	return TRUE;
 }
@@ -1022,7 +1027,8 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		dlg.FillFields();
 		if (FindReplaceAdvanced()) {
 			dlg.Enable(IDFINDSTYLE, findInStyle);
-			::SetDlgItemInt(hDlg, IDFINDSTYLE, wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS)), FALSE);
+			dlg.SetItemText(IDFINDSTYLE, std::to_wstring(
+				wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS))));
 		}
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(::GetDlgItem(hDlg, IDREPLACEWITH));
@@ -1371,6 +1377,8 @@ void SciTEWin::DestroyFindReplace() {
 }
 
 BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
+	Dialog dlg(hDlg);
+
 	switch (message) {
 
 	case WM_INITDIALOG: {
@@ -1386,9 +1394,9 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			LocaliseDialog(hDlg);
 			::SendDlgItemMessage(hDlg, IDGOLINE, EM_LIMITTEXT, 10, 1);
 			::SendDlgItemMessage(hDlg, IDGOLINECHAR, EM_LIMITTEXT, 10, 1);
-			::SetDlgItemInt(hDlg, IDCURRLINE, lineNumber, FALSE);
-			::SetDlgItemInt(hDlg, IDCURRLINECHAR, characterOnLine, FALSE);
-			::SetDlgItemInt(hDlg, IDLASTLINE, wEditor.Call(SCI_GETLINECOUNT), FALSE);
+			dlg.SetItemText(IDCURRLINE, std::to_wstring(lineNumber));
+			dlg.SetItemText(IDCURRLINECHAR, std::to_wstring(characterOnLine));
+			dlg.SetItemText(IDLASTLINE, std::to_wstring(wEditor.Call(SCI_GETLINECOUNT)));
 		}
 		return TRUE;
 
@@ -1479,6 +1487,8 @@ bool SciTEWin::AbbrevDialog() {
 }
 
 BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
+	Dialog dlg(hDlg);
+
 	switch (message) {
 
 	case WM_INITDIALOG: {
@@ -1487,13 +1497,13 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			int tabSize = wEditor.Call(SCI_GETTABWIDTH);
 			if (tabSize > 99)
 				tabSize = 99;
-			::SetDlgItemInt(hDlg, IDTABSIZE, tabSize, FALSE);
+			dlg.SetItemText(IDTABSIZE, std::to_wstring(tabSize));
 
 			::SendDlgItemMessage(hDlg, IDINDENTSIZE, EM_LIMITTEXT, 2, 1);
 			int indentSize = wEditor.Call(SCI_GETINDENT);
 			if (indentSize > 99)
 				indentSize = 99;
-			::SetDlgItemInt(hDlg, IDINDENTSIZE, indentSize, FALSE);
+			dlg.SetItemText(IDINDENTSIZE, std::to_wstring(indentSize));
 
 			::CheckDlgButton(hDlg, IDUSETABS, wEditor.Call(SCI_GETUSETABS));
 			return TRUE;
