@@ -76,7 +76,7 @@ public:
 	StyleWriter(const StyleWriter &source) = delete;
 	StyleWriter &operator=(const StyleWriter &) = delete;
 	void Flush();
-	int SetLineState(int line, int state);
+	void SetLineState(int line, int state);
 
 	void StartAt(unsigned int start, char chMask=31);
 	unsigned int GetStartSegment() const { return startSeg; }

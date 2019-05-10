@@ -83,8 +83,8 @@ StyleWriter::StyleWriter(GUI::ScintillaWindow &sw_) :
 	styleBuf[0] = 0;
 }
 
-int StyleWriter::SetLineState(int line, int state) {
-	return sw.Call(SCI_SETLINESTATE, line, state);
+void StyleWriter::SetLineState(int line, int state) {
+	sw.Call(SCI_SETLINESTATE, line, state);
 }
 
 void StyleWriter::StartAt(unsigned int start, char chMask) {
