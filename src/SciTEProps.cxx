@@ -810,7 +810,7 @@ void SciTEBase::ReadProperties() {
 	CallChildren(SCI_SETVIRTUALSPACEOPTIONS, props.GetInt("virtual.space"));
 
 	wEditor.Call(SCI_SETMOUSEDWELLTIME,
-	           props.GetInt("dwell.period", SC_TIME_FOREVER), 0);
+	           props.GetInt("dwell.period", SC_TIME_FOREVER));
 
 	wEditor.Call(SCI_SETCARETSTYLE, props.GetInt("caret.style", CARETSTYLE_LINE));
 	wOutput.Call(SCI_SETCARETSTYLE, props.GetInt("caret.style", CARETSTYLE_LINE));
@@ -1160,7 +1160,7 @@ void SciTEBase::ReadProperties() {
 		// Trap for insert/delete notifications (also fired by undo
 		// and redo) so that the buttons can be enabled if needed.
 		wEditor.Call(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT
-			| SC_LASTSTEPINUNDOREDO | wEditor.Call(SCI_GETMODEVENTMASK, 0));
+			| SC_LASTSTEPINUNDOREDO | wEditor.Call(SCI_GETMODEVENTMASK));
 
 		//SC_LASTSTEPINUNDOREDO is probably not needed in the mask; it
 		//doesn't seem to fire as an event of its own; just modifies the
@@ -1451,8 +1451,8 @@ void SciTEBase::ReadFontProperties() {
 	wEditor.Call(SCI_SETFONTQUALITY, fontQuality);
 	wOutput.Call(SCI_SETFONTQUALITY, fontQuality);
 
-	wEditor.Call(SCI_STYLERESETDEFAULT, 0, 0);
-	wOutput.Call(SCI_STYLERESETDEFAULT, 0, 0);
+	wEditor.Call(SCI_STYLERESETDEFAULT);
+	wOutput.Call(SCI_STYLERESETDEFAULT);
 
 	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
 	std::string sval = props.GetNewExpandString(key);
@@ -1463,13 +1463,13 @@ void SciTEBase::ReadFontProperties() {
 	sval = props.GetNewExpandString(key);
 	SetOneStyle(wEditor, STYLE_DEFAULT, StyleDefinition(sval));
 
-	wEditor.Call(SCI_STYLECLEARALL, 0, 0);
+	wEditor.Call(SCI_STYLECLEARALL);
 
 	SetStyleFor(wEditor, "*");
 	SetStyleFor(wEditor, languageName);
 	if (props.GetInt("error.inline")) {
-		wEditor.Call(SCI_RELEASEALLEXTENDEDSTYLES, 0, 0);
-		diagnosticStyleStart = wEditor.Call(SCI_ALLOCATEEXTENDEDSTYLES, diagnosticStyles, 0);
+		wEditor.Call(SCI_RELEASEALLEXTENDEDSTYLES);
+		diagnosticStyleStart = wEditor.Call(SCI_ALLOCATEEXTENDEDSTYLES, diagnosticStyles);
 		SetStyleBlock(wEditor, "error", diagnosticStyleStart, diagnosticStyleStart+diagnosticStyles-1);
 	}
 
@@ -1491,13 +1491,13 @@ void SciTEBase::ReadFontProperties() {
 	if (CurrentBuffer()->lifeState == Buffer::reading)
 		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
 
-	wOutput.Call(SCI_STYLECLEARALL, 0, 0);
+	wOutput.Call(SCI_STYLECLEARALL);
 
 	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
 	sval = props.GetNewExpandString(key);
 	SetOneStyle(wOutput, STYLE_DEFAULT, StyleDefinition(sval));
 
-	wOutput.Call(SCI_STYLECLEARALL, 0, 0);
+	wOutput.Call(SCI_STYLECLEARALL);
 
 	SetStyleFor(wOutput, "*");
 	SetStyleFor(wOutput, "errorlist");

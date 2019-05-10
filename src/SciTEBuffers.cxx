@@ -517,7 +517,7 @@ void SciTEBase::InitialiseBuffers() {
 	if (!buffers.initialised) {
 		buffers.initialised = true;
 		// First document is the default from creation of control
-		buffers.buffers[0].doc = wEditor.CallReturnPointer(SCI_GETDOCPOINTER, 0, 0);
+		buffers.buffers[0].doc = wEditor.CallReturnPointer(SCI_GETDOCPOINTER);
 		wEditor.Call(SCI_ADDREFDOCUMENT, 0, buffers.buffers[0].doc); // We own this reference
 		if (buffers.size() == 1) {
 			// Single buffer mode, delete the Buffers main menu entry
@@ -1313,7 +1313,7 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 		const int curTop = wEditor.Call(SCI_GETFIRSTVISIBLELINE);
 		const int lineTop = wEditor.Call(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
 		wEditor.Call(SCI_LINESCROLL, 0, lineTop - curTop);
-		wEditor.Call(SCI_CHOOSECARETX, 0, 0);
+		wEditor.Call(SCI_CHOOSECARETX);
 	}
 }
 
@@ -1879,8 +1879,8 @@ void SciTEBase::ShowMessages(int line) {
 		line--;
 	const int maxLine = wOutput.Call(SCI_GETLINECOUNT);
 	while ((line < maxLine) && (acc.StyleAt(acc.LineStart(line)) != SCE_ERR_CMD)) {
-		const int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line, 0);
-		const int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line, 0);
+		const int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line);
+		const int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line);
 		std::string message = GetRangeString(wOutput, startPosLine, lineEnd);
 		std::string source;
 		int column;
@@ -1947,8 +1947,8 @@ void SciTEBase::GoMessage(int dir) {
 		lookLine = 0;
 	TextReader acc(wOutput);
 	while ((dir == 0) || (lookLine != curLine)) {
-		const int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, lookLine, 0);
-		const int lineLength = wOutput.Call(SCI_LINELENGTH, lookLine, 0);
+		const int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, lookLine);
+		const int lineLength = wOutput.Call(SCI_LINELENGTH, lookLine);
 		int style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
 		        style != SCE_ERR_CMD &&
@@ -2047,8 +2047,8 @@ void SciTEBase::GoMessage(int dir) {
 				wEditor.Call(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
 				        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 				wEditor.Call(SCI_MARKERADD, sourceLine, 0);
-				int startSourceLine = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine, 0);
-				const int endSourceline = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine + 1, 0);
+				int startSourceLine = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine);
+				const int endSourceline = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine + 1);
 				if (column >= 0) {
 					// Get the position in line according to current tab setting
 					startSourceLine = wEditor.Call(SCI_FINDCOLUMN, sourceLine, column);

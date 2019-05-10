@@ -397,7 +397,7 @@ static int cf_pane_remove(lua_State *L) {
 static int cf_pane_append(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 	const char *s = luaL_checkstring(L, 2);
-	host->Insert(p, static_cast<int>(host->Send(p, SCI_GETLENGTH, 0, 0)), s);
+	host->Insert(p, static_cast<int>(host->Send(p, SCI_GETLENGTH)), s);
 	return 0;
 }
 
@@ -428,7 +428,7 @@ static int cf_pane_findtext(lua_State *L) {
 				rangeEnd = luaL_checkinteger(L, 5);
 				hasError = (lua_gettop(L) > nArgs);
 			} else {
-				rangeEnd = host->Send(p, SCI_GETLENGTH, 0, 0);
+				rangeEnd = host->Send(p, SCI_GETLENGTH);
 			}
 		}
 
@@ -485,10 +485,10 @@ static int cf_match_replace(lua_State *L) {
 	// whether the back references are still valid.  So for now this is
 	// left out.
 
-	host->Send(pmo->pane, SCI_SETTARGETSTART, pmo->startPos, 0);
-	host->Send(pmo->pane, SCI_SETTARGETEND, pmo->endPos, 0);
+	host->Send(pmo->pane, SCI_SETTARGETSTART, pmo->startPos);
+	host->Send(pmo->pane, SCI_SETTARGETEND, pmo->endPos);
 	host->Send(pmo->pane, SCI_REPLACETARGET, lua_strlen(L, 2), SptrFromString(replacement));
-	pmo->endPos = static_cast<int>(host->Send(pmo->pane, SCI_GETTARGETEND, 0, 0));
+	pmo->endPos = static_cast<int>(host->Send(pmo->pane, SCI_GETTARGETEND));
 	return 0;
 }
 
@@ -625,7 +625,7 @@ static int cf_pane_match_generator(lua_State *L) {
 	}
 
 	const sptr_t rangeStart = searchPos;
-	const sptr_t rangeEnd = host->Send(pmo->pane, SCI_GETLENGTH, 0, 0);
+	const sptr_t rangeEnd = host->Send(pmo->pane, SCI_GETLENGTH);
 
 	if (rangeEnd > rangeStart) {
 		host->Send(pmo->pane, SCI_SETTARGETRANGE, rangeStart, rangeEnd);
@@ -929,7 +929,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		failureExplanation += StdStringFromInteger(func.value);
 		failureExplanation += ".\n";
 		// Reset status before continuing
-		host->Send(p, SCI_SETSTATUS, SC_STATUS_OK, 0);
+		host->Send(p, SCI_SETSTATUS, SC_STATUS_OK);
 		host->Trace(failureExplanation.c_str());
 	}
 

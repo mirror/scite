@@ -494,17 +494,17 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, int &braceAtCaret, int &b
 	bool isInside = false;
 	GUI::ScintillaWindow &win = editor ? wEditor : wOutput;
 
-	const int mainSel = win.Call(SCI_GETMAINSELECTION, 0, 0);
-	if (win.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0) > 0)
+	const int mainSel = win.Call(SCI_GETMAINSELECTION);
+	if (win.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel) > 0)
 		return false;
 
 	const int bracesStyleCheck = editor ? bracesStyle : 0;
-	int caretPos = win.Call(SCI_GETCURRENTPOS, 0, 0);
+	int caretPos = win.Call(SCI_GETCURRENTPOS);
 	braceAtCaret = -1;
 	braceOpposite = -1;
 	char charBefore = '\0';
 	int styleBefore = 0;
-	const int lengthDoc = win.Call(SCI_GETLENGTH, 0, 0);
+	const int lengthDoc = win.Call(SCI_GETLENGTH);
 	TextReader acc(win);
 	if ((lengthDoc > 0) && (caretPos > 0)) {
 		// Check to ensure not matching brace that is part of a multibyte character
@@ -567,22 +567,22 @@ void SciTEBase::BraceMatch(bool editor) {
 	FindMatchingBracePosition(editor, braceAtCaret, braceOpposite, bracesSloppy);
 	GUI::ScintillaWindow &win = editor ? wEditor : wOutput;
 	if ((braceAtCaret != -1) && (braceOpposite == -1)) {
-		win.Call(SCI_BRACEBADLIGHT, braceAtCaret, 0);
+		win.Call(SCI_BRACEBADLIGHT, braceAtCaret);
 		wEditor.Call(SCI_SETHIGHLIGHTGUIDE, 0);
 	} else {
 		char chBrace = 0;
 		if (braceAtCaret >= 0)
 			chBrace = static_cast<char>(win.Call(
-			            SCI_GETCHARAT, braceAtCaret, 0));
+			            SCI_GETCHARAT, braceAtCaret));
 		win.Call(SCI_BRACEHIGHLIGHT, braceAtCaret, braceOpposite);
-		int columnAtCaret = win.Call(SCI_GETCOLUMN, braceAtCaret, 0);
-		int columnOpposite = win.Call(SCI_GETCOLUMN, braceOpposite, 0);
+		int columnAtCaret = win.Call(SCI_GETCOLUMN, braceAtCaret);
+		int columnOpposite = win.Call(SCI_GETCOLUMN, braceOpposite);
 		if (chBrace == ':') {
 			const int lineStart = win.Call(SCI_LINEFROMPOSITION, braceAtCaret);
-			const int indentPos = win.Call(SCI_GETLINEINDENTPOSITION, lineStart, 0);
-			const int indentPosNext = win.Call(SCI_GETLINEINDENTPOSITION, lineStart + 1, 0);
-			columnAtCaret = win.Call(SCI_GETCOLUMN, indentPos, 0);
-			const int columnAtCaretNext = win.Call(SCI_GETCOLUMN, indentPosNext, 0);
+			const int indentPos = win.Call(SCI_GETLINEINDENTPOSITION, lineStart);
+			const int indentPosNext = win.Call(SCI_GETLINEINDENTPOSITION, lineStart + 1);
+			columnAtCaret = win.Call(SCI_GETCOLUMN, indentPos);
+			const int columnAtCaretNext = win.Call(SCI_GETCOLUMN, indentPosNext);
 			const int indentSize = win.Call(SCI_GETINDENT);
 			if (columnAtCaretNext - indentSize > 1)
 				columnAtCaret = columnAtCaretNext - indentSize;
@@ -597,7 +597,7 @@ void SciTEBase::BraceMatch(bool editor) {
 		}
 
 		if (props.GetInt("highlight.indentation.guides"))
-			win.Call(SCI_SETHIGHLIGHTGUIDE, Minimum(columnAtCaret, columnOpposite), 0);
+			win.Call(SCI_SETHIGHLIGHTGUIDE, Minimum(columnAtCaret, columnOpposite));
 	}
 }
 
@@ -1049,7 +1049,7 @@ void SciTEBase::ScrollEditorIfNeeded() {
 	const int caret = wEditor.Call(SCI_GETCURRENTPOS);
 	ptCaret.x = wEditor.Call(SCI_POINTXFROMPOSITION, 0, caret);
 	ptCaret.y = wEditor.Call(SCI_POINTYFROMPOSITION, 0, caret);
-	ptCaret.y += wEditor.Call(SCI_TEXTHEIGHT, 0, 0) - 1;
+	ptCaret.y += wEditor.Call(SCI_TEXTHEIGHT, 0) - 1;
 
 	const GUI::Rectangle rcEditor = wEditor.GetClientPosition();
 	if (!rcEditor.Contains(ptCaret))
@@ -1306,7 +1306,7 @@ void SciTEBase::OutputAppendString(const char *s, int len) {
 		len = static_cast<int>(strlen(s));
 	wOutput.CallString(SCI_APPENDTEXT, len, s);
 	if (scrollOutput) {
-		const int line = wOutput.Call(SCI_GETLINECOUNT, 0, 0);
+		const int line = wOutput.Call(SCI_GETLINECOUNT);
 		const int lineStart = wOutput.Call(SCI_POSITIONFROMLINE, line);
 		wOutput.Call(SCI_GOTOPOS, lineStart);
 	}
@@ -1446,7 +1446,7 @@ void SciTEBase::BookmarkNext(bool forwardScan, bool select) {
 	const int anchor = wEditor.Call(SCI_GETANCHOR);
 	if (!forwardScan) {
 		lineStart = lineno - 1;		//Scan starting from previous line
-		lineRetry = wEditor.Call(SCI_GETLINECOUNT, 0, 0L);	//If not found, try from the end
+		lineRetry = wEditor.Call(SCI_GETLINECOUNT);	//If not found, try from the end
 		sci_marker = SCI_MARKERPREVIOUS;
 	}
 	int nextLine = wEditor.Call(sci_marker, lineStart, 1 << markerBookmark);
@@ -2273,9 +2273,9 @@ int SciTEBase::GetCurrentLineNumber() {
 }
 
 int SciTEBase::GetCurrentColumnNumber() {
-	const int mainSel = wEditor.Call(SCI_GETMAINSELECTION, 0, 0);
-	return wEditor.Call(SCI_GETCOLUMN, wEditor.Call(SCI_GETSELECTIONNCARET, mainSel, 0), 0) +
-	        wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0);
+	const int mainSel = wEditor.Call(SCI_GETMAINSELECTION);
+	return wEditor.Call(SCI_GETCOLUMN, wEditor.Call(SCI_GETSELECTIONNCARET, mainSel)) +
+	        wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel);
 }
 
 int SciTEBase::GetCurrentScrollPosition() {
@@ -2744,7 +2744,7 @@ void SciTEBase::CharAddedOutput(int ch) {
 	} else if (ch == '(') {
 		// Potential autocompletion of symbols when $( typed
 		const int selStart = wOutput.Call(SCI_GETSELECTIONSTART);
-		if ((selStart > 1) && (wOutput.Call(SCI_GETCHARAT, selStart - 2, 0) == '$')) {
+		if ((selStart > 1) && (wOutput.Call(SCI_GETCHARAT, selStart - 2) == '$')) {
 			std::string symbols;
 			const char *key = nullptr;
 			const char *val = nullptr;
@@ -2945,7 +2945,7 @@ int ControlIDOfCommand(unsigned long wParam) noexcept {
 }
 
 void WindowSetFocus(GUI::ScintillaWindow &w) {
-	w.Send(SCI_GRABFOCUS, 0, 0);
+	w.Send(SCI_GRABFOCUS);
 }
 
 void SciTEBase::SetLineNumberWidth() {
@@ -3469,7 +3469,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_VIEWGUIDES: {
-			const bool viewIG = wEditor.Call(SCI_GETINDENTATIONGUIDES, 0, 0) == 0;
+			const bool viewIG = wEditor.Call(SCI_GETINDENTATIONGUIDES) == 0;
 			wEditor.Call(SCI_SETINDENTATIONGUIDES, viewIG ? indentExamine : SC_IV_NONE);
 			CheckMenus();
 			Redraw();

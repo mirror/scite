@@ -929,8 +929,8 @@ class SelectionKeeper {
 public:
 	explicit SelectionKeeper(GUI::ScintillaWindow &editor) : wEditor(editor) {
 		const int mask = SCVS_RECTANGULARSELECTION | SCVS_USERACCESSIBLE;
-		if (wEditor.Call(SCI_GETVIRTUALSPACEOPTIONS, 0, 0) & mask) {
-			const int n = wEditor.Call(SCI_GETSELECTIONS, 0, 0);
+		if (wEditor.Call(SCI_GETVIRTUALSPACEOPTIONS) & mask) {
+			const int n = wEditor.Call(SCI_GETSELECTIONS);
 			for (int i = 0; i < n; ++i) {
 				selections.push_back(LocFromPos(GetSelection(i)));
 			}
@@ -959,14 +959,14 @@ private:
 	};
 
 	Position GetAnchor(int i) {
-		const int pos  = wEditor.Call(SCI_GETSELECTIONNANCHOR, i, 0);
-		const int virt = wEditor.Call(SCI_GETSELECTIONNANCHORVIRTUALSPACE, i, 0);
+		const int pos  = wEditor.Call(SCI_GETSELECTIONNANCHOR, i);
+		const int virt = wEditor.Call(SCI_GETSELECTIONNANCHORVIRTUALSPACE, i);
 		return Position(pos, virt);
 	}
 
 	Position GetCaret(int i) {
-		const int pos  = wEditor.Call(SCI_GETSELECTIONNCARET, i, 0);
-		const int virt = wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, i, 0);
+		const int pos  = wEditor.Call(SCI_GETSELECTIONNCARET, i);
+		const int virt = wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, i);
 		return Position(pos, virt);
 	}
 
@@ -975,8 +975,8 @@ private:
 	};
 
 	Location LocFromPos(Position const &pos) {
-		const int line = wEditor.Call(SCI_LINEFROMPOSITION, pos.pos, 0);
-		const int col  = wEditor.Call(SCI_GETCOLUMN, pos.pos, 0) + pos.virt;
+		const int line = wEditor.Call(SCI_LINEFROMPOSITION, pos.pos);
+		const int col  = wEditor.Call(SCI_GETCOLUMN, pos.pos) + pos.virt;
 		return Location(line, col);
 	}
 
@@ -986,7 +986,7 @@ private:
 
 	Position PosFromLoc(Location const &loc) {
 		const int pos = wEditor.Call(SCI_FINDCOLUMN, loc.line, loc.col);
-		const int col = wEditor.Call(SCI_GETCOLUMN, pos, 0);
+		const int col = wEditor.Call(SCI_GETCOLUMN, pos);
 		return Position(pos, loc.col - col);
 	}
 

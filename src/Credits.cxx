@@ -510,7 +510,7 @@ public:
 
 void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle) {
 	if (wsci.Created()) {
-		wsci.Call(SCI_STYLERESETDEFAULT, 0, 0);
+		wsci.Call(SCI_STYLERESETDEFAULT);
 		std::string sVersion = " ";
 		sVersion += VERSION_SCITE;
 		sVersion += " ";
@@ -528,11 +528,11 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 #endif
 		sVersion += "\n";
 
-		wsci.Call(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
+		wsci.Call(SCI_SETCODEPAGE, SC_CP_UTF8);
 
 		wsci.Call(SCI_STYLESETSIZE, STYLE_DEFAULT, fontSize);
 		wsci.Call(SCI_STYLESETBACK, STYLE_DEFAULT, ColourRGB(0xff, 0xff, 0xff));
-		wsci.Call(SCI_STYLECLEARALL, 0, 0);
+		wsci.Call(SCI_STYLECLEARALL);
 
 		SetAboutStyle(wsci, 0, ColourRGB(0xff, 0xff, 0xff));
 		wsci.Call(SCI_STYLESETSIZE, 0, fontSize);
@@ -571,6 +571,6 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 			colour.Next();
 			SetAboutStyle(wsci, sty + 50, ColourRGB(colour.r, colour.g, colour.b));
 		}
-		wsci.Call(SCI_SETREADONLY, 1, 0);
+		wsci.Call(SCI_SETREADONLY, 1);
 	}
 }

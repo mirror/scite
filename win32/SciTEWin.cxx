@@ -821,7 +821,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			sptr_t positionEnd = wOutput.Send(SCI_GETCURRENTPOS);
 			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findText, positionEnd);
 			if ((gf & grepScroll) && returnOutputToCommand)
-				wOutput.Send(SCI_GOTOPOS, positionEnd, 0);
+				wOutput.Send(SCI_GOTOPOS, positionEnd);
 		}
 		return exitcode;
 	}
@@ -1073,7 +1073,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				doRepSel = (0 == exitcode);
 
 			if (doRepSel) {
-				const int cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART, 0, 0));
+				const int cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART));
 				wEditor.Send(SCI_REPLACESEL,0,SptrFromString(repSelBuf.c_str()));
 				wEditor.Send(SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
 			}
@@ -1119,7 +1119,7 @@ void SciTEWin::ProcessExecute() {
 	// scroll and return only if output.scroll equals
 	// one in the properties file
 	if ((cmdWorker.outputScroll == 1) && returnOutputToCommand)
-		wOutput.Send(SCI_GOTOPOS, cmdWorker.originalEnd, 0);
+		wOutput.Send(SCI_GOTOPOS, cmdWorker.originalEnd);
 	returnOutputToCommand = true;
 	PostOnMainThread(WORK_EXECUTE, &cmdWorker);
 }

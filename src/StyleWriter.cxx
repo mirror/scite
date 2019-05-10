@@ -27,7 +27,7 @@ bool TextReader::InternalIsLeadByte(char ch) const {
 
 void TextReader::Fill(int position) {
 	if (lenDoc == -1)
-		lenDoc = sw.Call(SCI_GETTEXTLENGTH, 0, 0);
+		lenDoc = sw.Call(SCI_GETTEXTLENGTH);
 	startPos = position - slopSize;
 	if (startPos + bufferSize > lenDoc)
 		startPos = lenDoc - bufferSize;
@@ -51,24 +51,24 @@ bool TextReader::Match(int pos, const char *s) {
 
 int TextReader::StyleAt(int position) {
 	return static_cast<unsigned char>(sw.Call(
-		SCI_GETSTYLEAT, position, 0));
+		SCI_GETSTYLEAT, position));
 }
 
 int TextReader::GetLine(int position) {
-	return sw.Call(SCI_LINEFROMPOSITION, position, 0);
+	return sw.Call(SCI_LINEFROMPOSITION, position);
 }
 
 int TextReader::LineStart(int line) {
-	return sw.Call(SCI_POSITIONFROMLINE, line, 0);
+	return sw.Call(SCI_POSITIONFROMLINE, line);
 }
 
 int TextReader::LevelAt(int line) {
-	return sw.Call(SCI_GETFOLDLEVEL, line, 0);
+	return sw.Call(SCI_GETFOLDLEVEL, line);
 }
 
 int TextReader::Length() {
 	if (lenDoc == -1)
-		lenDoc = sw.Call(SCI_GETTEXTLENGTH, 0, 0);
+		lenDoc = sw.Call(SCI_GETTEXTLENGTH);
 	return lenDoc;
 }
 
