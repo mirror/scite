@@ -2045,7 +2045,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		default:
 			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 		}
-	} catch (GUI::ScintillaFailure &sf) {
+	} catch (const GUI::ScintillaFailure &sf) {
 		CheckForScintillaFailure(static_cast<int>(sf.status));
 	}
 	return 0;
@@ -2285,7 +2285,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		try {
 			MainWind.Run(lptszCmdLine);
 			result = MainWind.EventLoop();
-		} catch (GUI::ScintillaFailure &sf) {
+		} catch (const GUI::ScintillaFailure &sf) {
 			MainWind.CheckForScintillaFailure(static_cast<int>(sf.status));
 		}
 		MainWind.Finalise();
