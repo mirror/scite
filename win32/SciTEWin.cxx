@@ -1994,13 +1994,13 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_SETTINGCHANGE:
-			wEditor.Call(WM_SETTINGCHANGE, wParam, lParam);
-			wOutput.Call(WM_SETTINGCHANGE, wParam, lParam);
+			wEditor.Send(WM_SETTINGCHANGE, wParam, lParam);
+			wOutput.Send(WM_SETTINGCHANGE, wParam, lParam);
 			break;
 
 		case WM_SYSCOLORCHANGE:
-			wEditor.Call(WM_SYSCOLORCHANGE, wParam, lParam);
-			wOutput.Call(WM_SYSCOLORCHANGE, wParam, lParam);
+			wEditor.Send(WM_SYSCOLORCHANGE, wParam, lParam);
+			wOutput.Send(WM_SYSCOLORCHANGE, wParam, lParam);
 			break;
 
 		case WM_DPICHANGED:
