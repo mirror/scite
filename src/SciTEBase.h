@@ -697,7 +697,7 @@ protected:
 	void UserStripSetList(int /* control */, const char * /* value */) override {}
 	std::string UserStripValue(int /* control */) override { return std::string(); }
 	virtual void ShowBackgroundProgress(const GUI::gui_string & /* explanation */, size_t /* size */, size_t /* progress */) {}
-	Sci_CharacterRange GetSelection();
+	Scintilla::API::Range GetSelection();
 	SelectedRange GetSelectedRange();
 	void SetSelection(int anchor, int currentPos);
 	std::string GetCTag();

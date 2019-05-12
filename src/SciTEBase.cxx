@@ -636,10 +636,11 @@ void SciTEBase::SetWindowName() {
 	wSciTE.SetTitle(windowName.c_str());
 }
 
-Sci_CharacterRange SciTEBase::GetSelection() {
-	Sci_CharacterRange crange;
-	crange.cpMin = wEditor.Call(SCI_GETSELECTIONSTART);
-	crange.cpMax = wEditor.Call(SCI_GETSELECTIONEND);
+Scintilla::API::Range SciTEBase::GetSelection() {
+	Scintilla::API::Range crange = {
+		wEditor.Call(SCI_GETSELECTIONSTART),
+		wEditor.Call(SCI_GETSELECTIONEND)
+	};
 	return crange;
 }
 
@@ -1036,8 +1037,8 @@ void SciTEBase::SetReplace(const char *sReplace) {
 }
 
 void SciTEBase::SetCaretAsStart() {
-	const Sci_CharacterRange cr = GetSelection();
-	searchStartPosition = static_cast<int>(cr.cpMin);
+	const Scintilla::API::Range cr = GetSelection();
+	searchStartPosition = cr.start;
 }
 
 void SciTEBase::MoveBack() {
@@ -1065,11 +1066,11 @@ int SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool allowRegE
 	if (findTarget.length() == 0)
 		return -1;
 
-	const Sci_CharacterRange cr = GetSelection();
-	int startPosition = static_cast<int>(cr.cpMax);
+	const Scintilla::API::Range cr = GetSelection();
+	int startPosition = cr.end;
 	int endPosition = LengthDocument();
 	if (reverseDirection) {
-		startPosition = static_cast<int>(cr.cpMin);
+		startPosition = cr.start;
 		endPosition = 0;
 	}
 
@@ -1127,23 +1128,23 @@ void SciTEBase::ReplaceOnce(bool showWarnings) {
 
 	bool haveWarned = false;
 	if (!havefound) {
-		const Sci_CharacterRange crange = GetSelection();
-		SetSelection(static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMin));
+		const Scintilla::API::Range crange = GetSelection();
+		SetSelection(crange.start, crange.start);
 		FindNext(false);
 		haveWarned = !havefound;
 	}
 
 	if (havefound) {
 		const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
-		const Sci_CharacterRange cr = GetSelection();
-		wEditor.Call(SCI_SETTARGETSTART, cr.cpMin);
-		wEditor.Call(SCI_SETTARGETEND, cr.cpMax);
+		const Scintilla::API::Range cr = GetSelection();
+		wEditor.Call(SCI_SETTARGETSTART, cr.start);
+		wEditor.Call(SCI_SETTARGETEND, cr.end);
 		int lenReplaced = static_cast<int>(replaceTarget.length());
 		if (regExp)
 			lenReplaced = wEditor.CallString(SCI_REPLACETARGETRE, replaceTarget.length(), replaceTarget.c_str());
 		else	// Allow \0 in replacement
 			wEditor.CallString(SCI_REPLACETARGET, replaceTarget.length(), replaceTarget.c_str());
-		SetSelection(static_cast<int>(cr.cpMin) + lenReplaced, static_cast<int>(cr.cpMin));
+		SetSelection(cr.start + lenReplaced, cr.start);
 		havefound = false;
 	}
 
@@ -1156,9 +1157,9 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 		return -1;
 	}
 
-	const Sci_CharacterRange cr = GetSelection();
-	int startPosition = static_cast<int>(cr.cpMin);
-	int endPosition = static_cast<int>(cr.cpMax);
+	const Scintilla::API::Range cr = GetSelection();
+	int startPosition = cr.start;
+	int endPosition = cr.end;
 	const int countSelections = wEditor.Call(SCI_GETSELECTIONS);
 	if (inSelection) {
 		const int selType = wEditor.Call(SCI_GETSELECTIONMODE);
@@ -1469,14 +1470,14 @@ void SciTEBase::BookmarkSelectAll() {
 		bookmarks.push_back(lineBookmark);
 	}
 	for (size_t i = 0; i < bookmarks.size(); i++) {
-		Sci_CharacterRange crange = {
+		const Scintilla::API::Range crange = {
 			wEditor.Call(SCI_POSITIONFROMLINE, bookmarks[i]),
 			wEditor.Call(SCI_POSITIONFROMLINE, bookmarks[i] + 1)
 		};
 		if (i == 0) {
-			wEditor.Call(SCI_SETSELECTION, crange.cpMax, crange.cpMin);
+			wEditor.Call(SCI_SETSELECTION, crange.end, crange.start);
 		} else {
-			wEditor.Call(SCI_ADDSELECTION, crange.cpMax, crange.cpMin);
+			wEditor.Call(SCI_ADDSELECTION, crange.end, crange.start);
 		}
 	}
 }
@@ -2299,9 +2300,9 @@ void SciTEBase::SetTextProperties(
 
 	ps.Set("NbOfLines", std::to_string(wEditor.Call(SCI_GETLINECOUNT)));
 
-	const Sci_CharacterRange crange = GetSelection();
-	const int selFirstLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMin);
-	const int selLastLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.cpMax);
+	const Scintilla::API::Range crange = GetSelection();
+	const int selFirstLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.start);
+	const int selLastLine = wEditor.Call(SCI_LINEFROMPOSITION, crange.end);
 	long charCount = 0;
 	if (wEditor.Call(SCI_GETSELECTIONMODE) == SC_SEL_RECTANGLE) {
 		for (int line = selFirstLine; line <= selLastLine; line++) {
@@ -2310,13 +2311,13 @@ void SciTEBase::SetTextProperties(
 			charCount += wEditor.Call(SCI_COUNTCHARACTERS, startPos, endPos);
 		}
 	} else {
-		charCount = wEditor.Call(SCI_COUNTCHARACTERS, crange.cpMin, crange.cpMax);
+		charCount = wEditor.Call(SCI_COUNTCHARACTERS, crange.start, crange.end);
 	}
 	ps.Set("SelLength", std::to_string(charCount));
 	const int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
 	const int selAnchor = wEditor.Call(SCI_GETANCHOR);
 	int selHeight = selLastLine - selFirstLine + 1;
-	if (0 == (crange.cpMax - crange.cpMin)) {
+	if (0 == (crange.end - crange.start)) {
 		selHeight = 0;
 	} else if (selLastLine == selFirstLine) {
 		selHeight = 1;
@@ -2352,37 +2353,37 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 void SciTEBase::SetLineIndentation(int line, int indent) {
 	if (indent < 0)
 		return;
-	Sci_CharacterRange crange = GetSelection();
-	const Sci_CharacterRange crangeStart = crange;
+	Scintilla::API::Range crange = GetSelection();
+	const Scintilla::API::Range crangeStart = crange;
 	const int posBefore = GetLineIndentPosition(line);
 	wEditor.Call(SCI_SETLINEINDENTATION, line, indent);
 	const int posAfter = GetLineIndentPosition(line);
 	const int posDifference = posAfter - posBefore;
 	if (posAfter > posBefore) {
 		// Move selection on
-		if (crange.cpMin >= posBefore) {
-			crange.cpMin += posDifference;
+		if (crange.start >= posBefore) {
+			crange.start += posDifference;
 		}
-		if (crange.cpMax >= posBefore) {
-			crange.cpMax += posDifference;
+		if (crange.end >= posBefore) {
+			crange.end += posDifference;
 		}
 	} else if (posAfter < posBefore) {
 		// Move selection back
-		if (crange.cpMin >= posAfter) {
-			if (crange.cpMin >= posBefore)
-				crange.cpMin += posDifference;
+		if (crange.start >= posAfter) {
+			if (crange.start >= posBefore)
+				crange.start += posDifference;
 			else
-				crange.cpMin = posAfter;
+				crange.start = posAfter;
 		}
-		if (crange.cpMax >= posAfter) {
-			if (crange.cpMax >= posBefore)
-				crange.cpMax += posDifference;
+		if (crange.end >= posAfter) {
+			if (crange.end >= posBefore)
+				crange.end += posDifference;
 			else
-				crange.cpMax = posAfter;
+				crange.end = posAfter;
 		}
 	}
-	if ((crangeStart.cpMin != crange.cpMin) || (crangeStart.cpMax != crange.cpMax)) {
-		SetSelection(static_cast<int>(crange.cpMin), static_cast<int>(crange.cpMax));
+	if ((crangeStart.start != crange.start) || (crangeStart.end != crange.end)) {
+		SetSelection(crange.start, crange.end);
 	}
 }
 
@@ -2582,8 +2583,8 @@ void SciTEBase::MaintainIndentation(char ch) {
 }
 
 void SciTEBase::AutomaticIndentation(char ch) {
-	const Sci_CharacterRange crange = GetSelection();
-	const int selStart = static_cast<int>(crange.cpMin);
+	const Scintilla::API::Range crange = GetSelection();
+	const int selStart = crange.start;
 	const int curLine = GetCurrentLineNumber();
 	const int thisLineStart = wEditor.Call(SCI_POSITIONFROMLINE, curLine);
 	const int indentSize = wEditor.Call(SCI_GETINDENT);
@@ -2661,9 +2662,9 @@ void SciTEBase::AutomaticIndentation(char ch) {
 void SciTEBase::CharAdded(int utf32) {
 	if (recording)
 		return;
-	const Sci_CharacterRange crange = GetSelection();
-	const int selStart = static_cast<int>(crange.cpMin);
-	const int selEnd = static_cast<int>(crange.cpMax);
+	const Scintilla::API::Range crange = GetSelection();
+	const int selStart = crange.start;
+	const int selEnd = crange.end;
 
 	if (utf32 > 0XFF) { // MBCS, never let it go.
 		if (imeAutoComplete) {

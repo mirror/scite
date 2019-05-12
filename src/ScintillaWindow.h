@@ -43,4 +43,22 @@ public:
 
 }
 
+namespace Scintilla::API {
+
+using Position = int;
+struct Range {
+	// An ordered range
+	Position start;
+	Position end;
+	explicit Range(Position position) noexcept : start(position), end(position) {
+	}
+	Range(Position start_, Position end_) noexcept : start(start_), end(end_) {
+	}
+	Position Length() const noexcept {
+		return end - start;
+	}
+};
+
+}
+
 #endif

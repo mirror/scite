@@ -449,9 +449,9 @@ void SciTEWin::Print(
 	pdlg.hDevNames = hDevNames;
 
 	// See if a range has been selected
-	const Sci_CharacterRange crange = GetSelection();
-	const int startPos = static_cast<int>(crange.cpMin);
-	const int endPos = static_cast<int>(crange.cpMax);
+	const Scintilla::API::Range crange = GetSelection();
+	const int startPos = crange.start;
+	const int endPos = crange.end;
 
 	if (startPos == endPos) {
 		pdlg.Flags |= PD_NOSELECTION;
