@@ -2317,7 +2317,7 @@ void SciTEBase::SetTextProperties(
 	const int caretPos = wEditor.Call(SCI_GETCURRENTPOS);
 	const int selAnchor = wEditor.Call(SCI_GETANCHOR);
 	int selHeight = selLastLine - selFirstLine + 1;
-	if (0 == (crange.end - crange.start)) {
+	if (0 == crange.Length()) {
 		selHeight = 0;
 	} else if (selLastLine == selFirstLine) {
 		selHeight = 1;
@@ -2382,7 +2382,7 @@ void SciTEBase::SetLineIndentation(int line, int indent) {
 				crange.end = posAfter;
 		}
 	}
-	if ((crangeStart.start != crange.start) || (crangeStart.end != crange.end)) {
+	if (!(crangeStart == crange)) {
 		SetSelection(crange.start, crange.end);
 	}
 }

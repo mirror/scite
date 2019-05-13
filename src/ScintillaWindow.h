@@ -57,6 +57,9 @@ struct Range {
 	Position Length() const noexcept {
 		return end - start;
 	}
+	bool operator==(const Range &other) const noexcept {
+		return (other.start == start) && (other.end == end);
+	}
 };
 
 }
