@@ -314,7 +314,7 @@ long long PropSetFile::GetLongLong(const char *key, long long defaultValue) cons
 	return defaultValue;
 }
 
-void PropSetFile::Clear() {
+void PropSetFile::Clear() noexcept {
 	props.clear();
 }
 

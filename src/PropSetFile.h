@@ -43,7 +43,7 @@ public:
 	std::string Expand(const std::string &withVars, int maxExpands=200) const;
 	int GetInt(const char *key, int defaultValue=0) const;
 	long long GetLongLong(const char *key, long long defaultValue=0) const;
-	void Clear();
+	void Clear() noexcept;
 
 	enum ReadLineState { rlActive, rlExcludedModule, rlConditionFalse };
 	ReadLineState ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
