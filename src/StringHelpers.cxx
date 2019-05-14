@@ -5,6 +5,7 @@
 // Copyright 2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#include <cstdlib>
 #include <cstring>
 #include <cstdio>
 
@@ -96,6 +97,10 @@ static char LowerCaseAZChar(char c) {
 
 void LowerCaseAZ(std::string &s) {
 	std::transform(s.begin(), s.end(), s.begin(), LowerCaseAZChar);
+}
+
+intptr_t IntegerFromText(const char *s) noexcept {
+	return static_cast<intptr_t>(atoll(s));
 }
 
 int CompareNoCase(const char *a, const char *b) {

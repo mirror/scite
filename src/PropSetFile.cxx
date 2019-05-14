@@ -306,6 +306,14 @@ int PropSetFile::GetInt(const char *key, int defaultValue) const {
 	return defaultValue;
 }
 
+intptr_t PropSetFile::GetInteger(const char *key, intptr_t defaultValue) const {
+	std::string val = GetExpandedString(key);
+	if (val.length()) {
+		return static_cast<intptr_t>(std::stoll(val));
+	}
+	return defaultValue;
+}
+
 long long PropSetFile::GetLongLong(const char *key, long long defaultValue) const {
 	std::string val = GetExpandedString(key);
 	if (val.length()) {
