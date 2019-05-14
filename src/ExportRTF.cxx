@@ -83,13 +83,12 @@ static size_t FindCaseInsensitive(const std::vector<std::string> &values, const 
 
 // extract the next RTF control word from *style
 static void GetRTFNextControl(const char **style, char *control) {
-	ptrdiff_t len;
 	const char *pos = *style;
 	*control = '\0';
 	if ('\0' == *pos) return;
 	pos++; // implicit skip over leading '\'
 	while ('\0' != *pos && '\\' != *pos) { pos++; }
-	len = pos - *style;
+	ptrdiff_t len = pos - *style;
 	memcpy(control, *style, len);
 	*(control + len) = '\0';
 	*style = pos;
@@ -156,7 +155,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
 		std::ostringstream osStyle;
 
-		StyleDefinition sd = StyleDefinitionFor(istyle);
+		const StyleDefinition sd = StyleDefinitionFor(istyle);
 
 		if (sd.specified != StyleDefinition::sdNone) {
 			size_t iFont = 0;
@@ -287,7 +286,7 @@ void SciTEBase::SaveToRTF(const FilePath &saveName, int start, int end) {
 		try {
 			std::ostringstream oss;
 			SaveToStreamRTF(oss, start, end);
-			std::string rtf = oss.str();
+			const std::string rtf = oss.str();
 			if (fwrite(rtf.c_str(), 1, rtf.length(), fp) != rtf.length()) {
 				failedWrite = true;
 			}

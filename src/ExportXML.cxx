@@ -147,7 +147,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 				} else if (collapseLines) {
 					emptyLines++;
 				} else {
-					fprintf(fp, "<line n='%d'/>\n", lineNumber);
+					fprintf(fp, "<line n='%s'/>\n", std::to_string(lineNumber).c_str());
 				}
 				charDone = false;
 				lineNumber++;
@@ -158,7 +158,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 				}
 				emptyLines = 0;
 				if (! lineDone) {
-					fprintf(fp, "<line n='%d'>", lineNumber);
+					fprintf(fp, "<line n='%s'>", std::to_string(lineNumber).c_str());
 					lineDone = true;
 				}
 				if (styleNew >= 0) {

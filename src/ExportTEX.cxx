@@ -105,16 +105,12 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 
 	const int lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
-	bool styleIsUsed[STYLE_MAX + 1];
+	bool styleIsUsed[STYLE_MAX + 1] = {};
 
 	const int titleFullPath = props.GetInt("export.tex.title.fullpath", 0);
 
-	int i;
-	for (i = 0; i <= STYLE_MAX; i++) {
-		styleIsUsed[i] = false;
-	}
-	for (i = 0; i < lengthDoc; i++) {	// check the used styles
-		styleIsUsed[acc.StyleAt(i)] = true;
+	for (int pos = 0; pos < lengthDoc; pos++) {	// check the used styles
+		styleIsUsed[acc.StyleAt(pos)] = true;
 	}
 	styleIsUsed[STYLE_DEFAULT] = true;
 
@@ -129,10 +125,10 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
  		      "\\usepackage{times}\n"
  		      "\\setlength{\\fboxsep}{0pt}\n", fp);
 
-		for (i = 0; i < STYLE_MAX; i++) {      // get keys
-			if (styleIsUsed[i]) {
-				StyleDefinition sd = StyleDefinitionFor(i);
-				defineTexStyle(sd, fp, i); // writeout style macroses
+		for (int istyle = 0; istyle < STYLE_MAX; istyle++) {      // get keys
+			if (styleIsUsed[istyle]) {
+				StyleDefinition sd = StyleDefinitionFor(istyle);
+				defineTexStyle(sd, fp, istyle); // writeout style macroses
 			}
 		}
 
@@ -146,7 +142,7 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 
 		int lineIdx = 0;
 
-		for (i = 0; i < lengthDoc; i++) { //here process each character of the document
+		for (int i = 0; i < lengthDoc; i++) { //here process each character of the document
 			const char ch = acc[i];
 			const int style = acc.StyleAt(i);
 

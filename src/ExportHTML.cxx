@@ -59,14 +59,10 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 	const int lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 
-	bool styleIsUsed[STYLE_MAX + 1];
+	bool styleIsUsed[STYLE_MAX + 1] = {};
 	if (onlyStylesUsed) {
-		int i;
-		for (i = 0; i <= STYLE_MAX; i++) {
-			styleIsUsed[i] = false;
-		}
 		// check the used styles
-		for (i = 0; i < lengthDoc; i++) {
+		for (int i = 0; i < lengthDoc; i++) {
 			styleIsUsed[acc.StyleAt(i)] = true;
 		}
 	} else {
@@ -192,7 +188,6 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 
 		int line = acc.GetLine(0);
 		int level = (acc.LevelAt(line) & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
-		int newLevel;
 		int styleCurrent = acc.StyleAt(0);
 		bool inStyleSpan = false;
 		bool inFoldSpan = false;
@@ -308,7 +303,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 					line = acc.GetLine(i + 1);
 
 					const int lvl = acc.LevelAt(line);
-					newLevel = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
+					const int newLevel = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 
 					if (newLevel < level)
 						fprintf(fp, "</span>");

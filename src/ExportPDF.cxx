@@ -372,11 +372,11 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 				// concatenate stream within the text object
 				osTextObj
 					<< "<</Length "
-					<< static_cast<int>(pageData.length() - 1 + 3)
+					<< (pageData.length() - 1 + 3)
 					<< ">>\nstream\n"
 					<< pageData.c_str()
 					<< "ET\nendstream\n";
-				std::string textObj = osTextObj.str();
+				const std::string textObj = osTextObj.str();
 				oT->add(textObj.c_str());
 			} catch (std::exception &) {
 				// Exceptions not enabled on stream but still causes diagnostic in Coverity.
