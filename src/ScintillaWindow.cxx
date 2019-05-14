@@ -73,10 +73,10 @@ int ScintillaWindow::CallString(unsigned int msg, uptr_t wParam, const char *s) 
 }
 
 // Common APIs made more accessible
-int ScintillaWindow::LineStart(int line) {
+Scintilla::API::Position ScintillaWindow::LineStart(Scintilla::API::Line line) {
 	return Call(SCI_POSITIONFROMLINE, line);
 }
-int ScintillaWindow::LineFromPosition(int position) {
+Scintilla::API::Line ScintillaWindow::LineFromPosition(Scintilla::API::Position position) {
 	return Call(SCI_LINEFROMPOSITION, position);
 }
 

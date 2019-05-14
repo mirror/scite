@@ -82,7 +82,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 		tabSize = 4;
 	}
 
-	const int lengthDoc = LengthDocument();
+	const SA::Position lengthDoc = LengthDocument();
 
 	TextReader acc(wEditor);
 
@@ -108,7 +108,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 		fputs("<text>\n", fp);
 
 		int styleCurrent = -1; // acc.StyleAt(0);
-		int lineNumber = 1;
+		SA::Line lineNumber = 1;
 		int lineIndex = 0;
 		bool styleDone = false;
 		bool lineDone = false;
@@ -117,7 +117,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 		int spaceLen = 0;
 		int emptyLines = 0;
 
-		for (int i = 0; i < lengthDoc; i++) {
+		for (SA::Position i = 0; i < lengthDoc; i++) {
 			const char ch = acc[i];
 			const int style = acc.StyleAt(i);
 			if (style != styleCurrent) {

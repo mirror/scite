@@ -110,11 +110,11 @@ void SciTEBase::CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF) {
 	linesCR = 0;
 	linesLF = 0;
 	linesCRLF = 0;
-	const int lengthDoc = LengthDocument();
+	const SA::Position lengthDoc = LengthDocument();
 	char chPrev = ' ';
 	TextReader acc(wEditor);
 	char chNext = acc.SafeGetCharAt(0);
-	for (int i = 0; i < lengthDoc; i++) {
+	for (SA::Position i = 0; i < lengthDoc; i++) {
 		const char ch = chNext;
 		chNext = acc.SafeGetCharAt(i + 1);
 		if (ch == '\r') {
@@ -151,7 +151,7 @@ void SciTEBase::DiscoverEOLSetting() {
 
 // Look inside the first line for a #! clue regarding the language
 std::string SciTEBase::DiscoverLanguage() {
-	const int length = Minimum(LengthDocument(), 64 * 1024);
+	const SA::Position length = std::min<SA::Position>(LengthDocument(), 64 * 1024);
 	std::string buf = GetRangeString(wEditor, 0, length);
 	std::string languageOverride = "";
 	std::string l1 = ExtractLine(buf.c_str(), length);
@@ -190,7 +190,7 @@ std::string SciTEBase::DiscoverLanguage() {
 }
 
 void SciTEBase::DiscoverIndentSetting() {
-	const int lengthDoc = std::min(LengthDocument(), 1000000);
+	const SA::Position lengthDoc = std::min<SA::Position>(LengthDocument(), 1000000);
 	TextReader acc(wEditor);
 	bool newline = true;
 	int indent = 0; // current line indentation
@@ -733,7 +733,7 @@ bool SciTEBase::OpenSelected() {
 				wEditor.Call(SCI_GOTOLINE, lineNumber - 1);
 			} else if (cTag.length() != 0) {
 				if (atoi(cTag.c_str()) > 0) {
-					wEditor.Call(SCI_GOTOLINE, atoi(cTag.c_str()) - 1);
+					wEditor.Call(SCI_GOTOLINE, IntegerFromText(cTag.c_str()) - 1);
 				} else {
 					findWhat = cTag;
 					FindNext(false);
@@ -947,26 +947,26 @@ public:
 
 private:
 	struct Position {
-		Position(int pos_, int virt_ = 0) : pos(pos_), virt(virt_) {};
-		int pos;
-		int virt;
+		Position(SA::Position pos_, SA::Position virt_ = 0) : pos(pos_), virt(virt_) {};
+		SA::Position pos;
+		SA::Position virt;
 	};
 
 	struct Location {
-		Location(int line_, int col_) : line(line_), col(col_) {};
-		int line;
-		int col;
+		Location(SA::Line line_, SA::Position col_) : line(line_), col(col_) {};
+		SA::Line line;
+		SA::Position col;
 	};
 
 	Position GetAnchor(int i) {
-		const int pos  = wEditor.Call(SCI_GETSELECTIONNANCHOR, i);
-		const int virt = wEditor.Call(SCI_GETSELECTIONNANCHORVIRTUALSPACE, i);
+		const SA::Position pos  = wEditor.Call(SCI_GETSELECTIONNANCHOR, i);
+		const SA::Position virt = wEditor.Call(SCI_GETSELECTIONNANCHORVIRTUALSPACE, i);
 		return Position(pos, virt);
 	}
 
 	Position GetCaret(int i) {
-		const int pos  = wEditor.Call(SCI_GETSELECTIONNCARET, i);
-		const int virt = wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, i);
+		const SA::Position pos  = wEditor.Call(SCI_GETSELECTIONNCARET, i);
+		const SA::Position virt = wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, i);
 		return Position(pos, virt);
 	}
 
@@ -975,8 +975,8 @@ private:
 	};
 
 	Location LocFromPos(Position const &pos) {
-		const int line = wEditor.Call(SCI_LINEFROMPOSITION, pos.pos);
-		const int col  = wEditor.Call(SCI_GETCOLUMN, pos.pos) + pos.virt;
+		const SA::Line line = wEditor.Call(SCI_LINEFROMPOSITION, pos.pos);
+		const SA::Position col  = wEditor.Call(SCI_GETCOLUMN, pos.pos) + pos.virt;
 		return Location(line, col);
 	}
 
@@ -985,8 +985,8 @@ private:
 	}
 
 	Position PosFromLoc(Location const &loc) {
-		const int pos = wEditor.Call(SCI_FINDCOLUMN, loc.line, loc.col);
-		const int col = wEditor.Call(SCI_GETCOLUMN, pos);
+		const SA::Position pos = wEditor.Call(SCI_FINDCOLUMN, loc.line, loc.col);
+		const SA::Position col = wEditor.Call(SCI_GETCOLUMN, pos);
 		return Position(pos, loc.col - col);
 	}
 
@@ -1014,12 +1014,12 @@ private:
 };
 
 void SciTEBase::StripTrailingSpaces() {
-	const int maxLines = wEditor.Call(SCI_GETLINECOUNT);
+	const SA::Line maxLines = wEditor.Call(SCI_GETLINECOUNT);
 	SelectionKeeper keeper(wEditor);
 	for (int line = 0; line < maxLines; line++) {
-		const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
-		const int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, line);
-		int i = lineEnd - 1;
+		const SA::Position lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
+		const SA::Position lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, line);
+		SA::Position i = lineEnd - 1;
 		char ch = static_cast<char>(wEditor.Call(SCI_GETCHARAT, i));
 		while ((i >= lineStart) && ((ch == ' ') || (ch == '\t'))) {
 			i--;
@@ -1034,9 +1034,9 @@ void SciTEBase::StripTrailingSpaces() {
 }
 
 void SciTEBase::EnsureFinalNewLine() {
-	const int maxLines = wEditor.Call(SCI_GETLINECOUNT);
+	const SA::Line maxLines = wEditor.Call(SCI_GETLINECOUNT);
 	bool appendNewLine = maxLines == 1;
-	const int endDocument = wEditor.Call(SCI_POSITIONFROMLINE, maxLines);
+	const SA::Position endDocument = wEditor.Call(SCI_POSITIONFROMLINE, maxLines);
 	if (maxLines > 1) {
 		appendNewLine = endDocument > wEditor.Call(SCI_POSITIONFROMLINE, maxLines - 1);
 	}
@@ -1523,7 +1523,7 @@ void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char 
 	}
 }
 
-void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *fileTypes, const char *search, sptr_t &originalEnd) {
+void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const GUI::gui_char *fileTypes, const char *search, SA::Position &originalEnd) {
 	GUI::ElapsedTime commandTime;
 	if (!(gf & grepStdOut)) {
 		std::string os;
@@ -1534,7 +1534,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 		os.append("\"\n");
 		OutputAppendStringSynchronised(os.c_str());
 		ShowOutputOnMainThread();
-		originalEnd += os.length();
+		originalEnd += static_cast<SA::Position>(os.length());
 	}
 	std::string searchString(search);
 	if (!(gf & grepMatchCase)) {

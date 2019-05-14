@@ -123,7 +123,7 @@ class CommandWorker : public Worker {
 public:
 	SciTEWin *pSciTE;
 	int icmd;
-	int originalEnd;
+	SA::Position originalEnd;
 	int exitStatus;
 	GUI::ElapsedTime commandTime;
 	std::string output;
@@ -403,7 +403,7 @@ public:
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	std::string EncodeString(const std::string &s) override;
-	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) override;
+	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd) override;
 
 	HACCEL GetAcceleratorTable() noexcept {
 		return hAccTable;

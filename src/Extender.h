@@ -30,9 +30,9 @@ public:
 	}
 	enum Pane { paneEditor=1, paneOutput=2, paneFindOutput=3 };
 	virtual sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0)=0;
-	virtual std::string Range(Pane p, int start, int end)=0;
-	virtual void Remove(Pane p, int start, int end)=0;
-	virtual void Insert(Pane p, int pos, const char *s)=0;
+	virtual std::string Range(Pane p, Scintilla::API::Position start, Scintilla::API::Position end)=0;
+	virtual void Remove(Pane p, Scintilla::API::Position start, Scintilla::API::Position end)=0;
+	virtual void Insert(Pane p, Scintilla::API::Position pos, const char *s)=0;
 	virtual void Trace(const char *s)=0;
 	virtual std::string Property(const char *key)=0;
 	virtual void SetProperty(const char *key, const char *val)=0;
@@ -73,7 +73,7 @@ public:
 	virtual bool OnExecute(const char *) { return false; }
 	virtual bool OnSavePointReached() { return false; }
 	virtual bool OnSavePointLeft() { return false; }
-	virtual bool OnStyle(unsigned int, int, int, StyleWriter *) {
+	virtual bool OnStyle(Scintilla::API::Position, Scintilla::API::Position, int, StyleWriter *) {
 		return false;
 	}
 	virtual bool OnDoubleClick() { return false; }
@@ -85,7 +85,7 @@ public:
 	virtual bool SendProperty(const char *) { return false; }
 
 	virtual bool OnKey(int, int) { return false; }
-	virtual bool OnDwellStart(int, const char *) { return false; }
+	virtual bool OnDwellStart(Scintilla::API::Position, const char *) { return false; }
 	virtual bool OnClose(const char *) { return false; }
 	virtual bool OnUserStrip(int /* control */, int /* change */) { return false; }
 	virtual bool NeedsOnClose() { return true; }

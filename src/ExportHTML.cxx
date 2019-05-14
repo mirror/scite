@@ -56,13 +56,13 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 	const int onlyStylesUsed = props.GetInt("export.html.styleused", 0);
 	const int titleFullPath = props.GetInt("export.html.title.fullpath", 0);
 
-	const int lengthDoc = LengthDocument();
+	const SA::Position lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 
 	bool styleIsUsed[STYLE_MAX + 1] = {};
 	if (onlyStylesUsed) {
 		// check the used styles
-		for (int i = 0; i < lengthDoc; i++) {
+		for (SA::Position i = 0; i < lengthDoc; i++) {
 			styleIsUsed[acc.StyleAt(i)] = true;
 		}
 	} else {
@@ -186,7 +186,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 		else
 			fputs("<body>\n", fp);
 
-		int line = acc.GetLine(0);
+		SA::Line line = acc.GetLine(0);
 		int level = (acc.LevelAt(line) & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
 		int styleCurrent = acc.StyleAt(0);
 		bool inStyleSpan = false;
@@ -221,7 +221,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 		// no span for it, except the global one
 
 		int column = 0;
-		for (int i = 0; i < lengthDoc; i++) {
+		for (SA::Position i = 0; i < lengthDoc; i++) {
 			const char ch = acc[i];
 			const int style = acc.StyleAt(i);
 

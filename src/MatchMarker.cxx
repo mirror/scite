@@ -15,14 +15,16 @@
 
 #include "MatchMarker.h"
 
+namespace SA = Scintilla::API;
+
 std::vector<LineRange> LinesBreak(GUI::ScintillaWindow *pSci) {
 	std::vector<LineRange> lineRanges;
 	if (pSci) {
-		const int lineEnd = pSci->Call(SCI_GETLINECOUNT);
-		const int lineStartVisible = pSci->Call(SCI_GETFIRSTVISIBLELINE);
-		const int docLineStartVisible = pSci->Call(SCI_DOCLINEFROMVISIBLE, lineStartVisible);
-		const int linesOnScreen = pSci->Call(SCI_LINESONSCREEN);
-		const int surround = 40;
+		const SA::Line lineEnd = pSci->Call(SCI_GETLINECOUNT);
+		const SA::Line lineStartVisible = pSci->Call(SCI_GETFIRSTVISIBLELINE);
+		const SA::Line docLineStartVisible = pSci->Call(SCI_DOCLINEFROMVISIBLE, lineStartVisible);
+		const SA::Line linesOnScreen = pSci->Call(SCI_LINESONSCREEN);
+		const SA::Line surround = 40;
 		LineRange rangePriority(docLineStartVisible - surround, docLineStartVisible + linesOnScreen + surround);
 		if (rangePriority.lineStart < 0)
 			rangePriority.lineStart = 0;
@@ -67,13 +69,13 @@ void MatchMarker::Continue() {
 	pSci->Call(SCI_SETINDICATORCURRENT, indicator);
 
 	const LineRange rangeSearch = lineRanges[0];
-	int lineEndSegment = rangeSearch.lineStart + segment;
+	SA::Line lineEndSegment = rangeSearch.lineStart + segment;
 	if (lineEndSegment > rangeSearch.lineEnd)
 		lineEndSegment = rangeSearch.lineEnd;
 
 	pSci->Call(SCI_SETSEARCHFLAGS, flagsMatch);
-	const int positionStart = pSci->Call(SCI_POSITIONFROMLINE, rangeSearch.lineStart);
-	const int positionEnd = pSci->Call(SCI_POSITIONFROMLINE, lineEndSegment);
+	const SA::Position positionStart = pSci->Call(SCI_POSITIONFROMLINE, rangeSearch.lineStart);
+	const SA::Position positionEnd = pSci->Call(SCI_POSITIONFROMLINE, lineEndSegment);
 	pSci->Call(SCI_SETTARGETSTART, positionStart);
 	pSci->Call(SCI_SETTARGETEND, positionEnd);
 	pSci->Call(SCI_INDICATORCLEARRANGE, positionStart, positionEnd - positionStart);
@@ -82,7 +84,7 @@ void MatchMarker::Continue() {
 	GUI::ElapsedTime searchElapsedTime;
 
 	// Find the first occurrence of word.
-	int posFound = pSci->CallString(
+	SA::Position posFound = pSci->CallString(
 		SCI_SEARCHINTARGET, textMatch.length(), textMatch.c_str());
 	while (posFound != INVALID_POSITION) {
 		// Limit the search duration to 250 ms. Avoid to freeze editor for huge lines.
@@ -92,7 +94,7 @@ void MatchMarker::Continue() {
 			lineRanges.clear();
 			break;
 		}
-		int posEndFound = pSci->Call(SCI_GETTARGETEND);
+		SA::Position posEndFound = pSci->Call(SCI_GETTARGETEND);
 
 		if ((styleMatch < 0) || (styleMatch == pSci->Call(SCI_GETSTYLEAT, posFound))) {
 			pSci->Call(SCI_INDICATORFILLRANGE, posFound, posEndFound - posFound);

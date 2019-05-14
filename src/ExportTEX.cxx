@@ -103,13 +103,13 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 	if (tabSize == 0)
 		tabSize = 4;
 
-	const int lengthDoc = LengthDocument();
+	const SA::Position lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 	bool styleIsUsed[STYLE_MAX + 1] = {};
 
 	const int titleFullPath = props.GetInt("export.tex.title.fullpath", 0);
 
-	for (int pos = 0; pos < lengthDoc; pos++) {	// check the used styles
+	for (SA::Position pos = 0; pos < lengthDoc; pos++) {	// check the used styles
 		styleIsUsed[acc.StyleAt(pos)] = true;
 	}
 	styleIsUsed[STYLE_DEFAULT] = true;
@@ -142,7 +142,7 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 
 		int lineIdx = 0;
 
-		for (int i = 0; i < lengthDoc; i++) { //here process each character of the document
+		for (SA::Position i = 0; i < lengthDoc; i++) { //here process each character of the document
 			const char ch = acc[i];
 			const int style = acc.StyleAt(i);
 

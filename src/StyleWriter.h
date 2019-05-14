@@ -18,28 +18,28 @@ protected:
 	 * in case there is some backtracking. */
 	enum {bufferSize=4000, slopSize=bufferSize/8};
 	char buf[bufferSize+1];
-	int startPos;
-	int endPos;
+	Scintilla::API::Position startPos;
+	Scintilla::API::Position endPos;
 	int codePage;
 
 	GUI::ScintillaWindow &sw;
-	int lenDoc;
+	Scintilla::API::Position lenDoc;
 
 	bool InternalIsLeadByte(char ch) const;
-	void Fill(int position);
+	void Fill(Scintilla::API::Position position);
 public:
 	explicit TextReader(GUI::ScintillaWindow &sw_);
 	// Deleted so TextReader objects can not be copied.
 	TextReader(const TextReader &source) = delete;
 	TextReader &operator=(const TextReader &) = delete;
-	char operator[](int position) {
+	char operator[](Scintilla::API::Position position) {
 		if (position < startPos || position >= endPos) {
 			Fill(position);
 		}
 		return buf[position - startPos];
 	}
 	/** Safe version of operator[], returning a defined value for invalid position. */
-	char SafeGetCharAt(int position, char chDefault=' ') {
+	char SafeGetCharAt(Scintilla::API::Position position, char chDefault=' ') {
 		if (position < startPos || position >= endPos) {
 			Fill(position);
 			if (position < startPos || position >= endPos) {
@@ -55,34 +55,34 @@ public:
 	void SetCodePage(int codePage_) {
 		codePage = codePage_;
 	}
-	bool Match(int pos, const char *s);
-	int StyleAt(int position);
-	int GetLine(int position);
-	int LineStart(int line);
-	int LevelAt(int line);
-	int Length();
-	int GetLineState(int line);
+	bool Match(Scintilla::API::Position pos, const char *s);
+	int StyleAt(Scintilla::API::Position position);
+	Scintilla::API::Line GetLine(Scintilla::API::Position position);
+	Scintilla::API::Position LineStart(Scintilla::API::Line line);
+	int LevelAt(Scintilla::API::Line line);
+	Scintilla::API::Position Length();
+	int GetLineState(Scintilla::API::Line line);
 };
 
 // Adds methods needed to write styles and folding
 class StyleWriter : public TextReader {
 protected:
 	char styleBuf[bufferSize];
-	int validLen;
-	unsigned int startSeg;
+	Scintilla::API::Position validLen;
+	Scintilla::API::Position startSeg;
 public:
 	explicit StyleWriter(GUI::ScintillaWindow &sw_);
 	// Deleted so StyleWriter objects can not be copied.
 	StyleWriter(const StyleWriter &source) = delete;
 	StyleWriter &operator=(const StyleWriter &) = delete;
 	void Flush();
-	void SetLineState(int line, int state);
+	void SetLineState(Scintilla::API::Line line, int state);
 
-	void StartAt(unsigned int start, char chMask=31);
-	unsigned int GetStartSegment() const { return startSeg; }
-	void StartSegment(unsigned int pos);
-	void ColourTo(unsigned int pos, int chAttr);
-	void SetLevel(int line, int level);
+	void StartAt(Scintilla::API::Position start, char chMask=31);
+	Scintilla::API::Position GetStartSegment() const { return startSeg; }
+	void StartSegment(Scintilla::API::Position pos);
+	void ColourTo(Scintilla::API::Position pos, int chAttr);
+	void SetLevel(Scintilla::API::Line line, int level);
 };
 
 #endif

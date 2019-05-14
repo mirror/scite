@@ -448,10 +448,12 @@ void SciTEWin::Print(
 	pdlg.hDevMode = hDevMode;
 	pdlg.hDevNames = hDevNames;
 
+	// This code will not work for documents > 2GB
+
 	// See if a range has been selected
 	const Scintilla::API::Range crange = GetSelection();
-	const int startPos = crange.start;
-	const int endPos = crange.end;
+	const LONG startPos = static_cast<LONG>(crange.start);
+	const LONG endPos = static_cast<LONG>(crange.end);
 
 	if (startPos == endPos) {
 		pdlg.Flags |= PD_NOSELECTION;
@@ -1391,9 +1393,9 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
 	case WM_INITDIALOG: {
-			int position = wEditor.Call(SCI_GETCURRENTPOS);
-			const int lineNumber = wEditor.Call(SCI_LINEFROMPOSITION, position) + 1;
-			const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
+			SA::Position position = wEditor.Call(SCI_GETCURRENTPOS);
+			const SA::Line lineNumber = wEditor.Call(SCI_LINEFROMPOSITION, position) + 1;
+			const SA::Position lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
 			int characterOnLine = 1;
 			while (position > lineStart) {
 				position = wEditor.Call(SCI_POSITIONBEFORE, position);
@@ -1429,11 +1431,11 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 				if (characterOnLineOpt && characterOnLineOpt.value() > 1 && lineNumber <= wEditor.Call(SCI_GETLINECOUNT)) {
 					// Constrain to the requested line
-					const int lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
-					const int lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, lineNumber - 1);
+					const SA::Position lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
+					const SA::Position lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, lineNumber - 1);
 
 					intptr_t characterOnLine = characterOnLineOpt.value();
-					int position = lineStart;
+					SA::Position position = lineStart;
 					while (--characterOnLine && position < lineEnd)
 						position = wEditor.Call(SCI_POSITIONAFTER, position);
 

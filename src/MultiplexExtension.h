@@ -64,7 +64,7 @@ public:
 	bool OnExecute(const char *) override;
 	bool OnSavePointReached() override;
 	bool OnSavePointLeft() override;
-	bool OnStyle(unsigned int, int, int, StyleWriter *) override;
+	bool OnStyle(Scintilla::API::Position, Scintilla::API::Position, int, StyleWriter *) override;
 	bool OnDoubleClick() override;
 	bool OnUpdateUI() override;
 	bool OnMarginClick() override;
@@ -74,7 +74,7 @@ public:
 	bool SendProperty(const char *) override;
 
 	bool OnKey(int, int) override;
-	bool OnDwellStart(int, const char *) override;
+	bool OnDwellStart(Scintilla::API::Position, const char *) override;
 	bool OnClose(const char *) override;
 	bool OnUserStrip(int control, int change) override;
 	bool NeedsOnClose() override;

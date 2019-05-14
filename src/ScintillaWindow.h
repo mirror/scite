@@ -8,6 +8,28 @@
 #ifndef SCINTILLAWINDOW_H
 #define SCINTILLAWINDOW_H
 
+namespace Scintilla::API {
+
+using Position = intptr_t;
+using Line = intptr_t;
+struct Range {
+	// An ordered range
+	Position start;
+	Position end;
+	explicit Range(Position position) noexcept : start(position), end(position) {
+	}
+	Range(Position start_, Position end_) noexcept : start(start_), end(end_) {
+	}
+	Position Length() const noexcept {
+		return end - start;
+	}
+	bool operator==(const Range &other) const noexcept {
+		return (other.start == start) && (other.end == end);
+	}
+};
+
+}
+
 namespace GUI {
 
 struct ScintillaFailure {
@@ -37,31 +59,11 @@ public:
 	int CallString(unsigned int msg, uptr_t wParam, const char *s);
 
 	// Common APIs made more accessible
-	int LineStart(int line);
-	int LineFromPosition(int position);
+	Scintilla::API::Position LineStart(Scintilla::API::Line line);
+	Scintilla::API::Line LineFromPosition(Scintilla::API::Position position);
 };
 
 }
 
-namespace Scintilla::API {
-
-using Position = int;
-struct Range {
-	// An ordered range
-	Position start;
-	Position end;
-	explicit Range(Position position) noexcept : start(position), end(position) {
-	}
-	Range(Position start_, Position end_) noexcept : start(start_), end(end_) {
-	}
-	Position Length() const noexcept {
-		return end - start;
-	}
-	bool operator==(const Range &other) const noexcept {
-		return (other.start == start) && (other.end == end);
-	}
-};
-
-}
 
 #endif

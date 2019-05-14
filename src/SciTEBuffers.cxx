@@ -449,12 +449,12 @@ void SciTEBase::UpdateBuffersCurrent() {
 
 			// Retrieve fold state and store in buffer state info
 
-			std::vector<int> *f = &bufferCurrent.foldState;
+			std::vector<SA::Line> *f = &bufferCurrent.foldState;
 			f->clear();
 
 			if (props.GetInt("fold")) {
-				for (int line = 0; ; line++) {
-					const int lineNext = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
+				for (SA::Line line = 0; ; line++) {
+					const SA::Line lineNext = wEditor.Call(SCI_CONTRACTEDFOLDNEXT, line);
 					if ((line < 0) || (lineNext < line))
 						break;
 					line = lineNext;
@@ -464,7 +464,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 
 			if (props.GetInt("session.bookmarks")) {
 				buffers.buffers[buffers.Current()].bookmarks.clear();
-				int lineBookmark = -1;
+				SA::Line lineBookmark = -1;
 				while ((lineBookmark = wEditor.Call(SCI_MARKERNEXT, lineBookmark + 1, 1 << markerBookmark)) >= 0) {
 					bufferCurrent.bookmarks.push_back(lineBookmark);
 				}
@@ -581,12 +581,12 @@ namespace {
 
 // Line numbers are 0-based inside SciTE but are saved in session files as 1-based.
 
-std::vector<int> LinesFromString(const std::string &s) {
-	std::vector<int> result;
+std::vector<SA::Line> LinesFromString(const std::string &s) {
+	std::vector<SA::Line> result;
 	if (s.length()) {
 		size_t start = 0;
 		for (;;) {
-			const int line = atoi(s.c_str() + start) - 1;
+			const SA::Line line = IntegerFromText(s.c_str() + start) - 1;
 			result.push_back(line);
 			const size_t posComma = s.find(',', start);
 			if (posComma == std::string::npos)
@@ -597,13 +597,13 @@ std::vector<int> LinesFromString(const std::string &s) {
 	return result;
 }
 
-std::string StringFromLines(const std::vector<int> &lines) {
+std::string StringFromLines(const std::vector<SA::Line> &lines) {
 	std::string result;
-	for (const int line : lines) {
+	for (const SA::Line line : lines) {
 		if (result.length()) {
 			result.append(",");
 		}
-		std::string sLine = StdStringFromInteger(line + 1);
+		std::string sLine = std::to_string(line + 1);
 		result.append(sLine);
 	}
 	return result;
@@ -657,11 +657,11 @@ void SciTEBase::RestoreSession() {
 			session.pathActive = bufferState.file;
 
 		propKey = IndexPropKey("buffer", i, "scroll");
-		const int scroll = propsSession.GetInt(propKey.c_str());
+		const SA::Line scroll = propsSession.GetInteger(propKey.c_str());
 		bufferState.file.scrollPosition = scroll;
 
 		propKey = IndexPropKey("buffer", i, "position");
-		const int pos = propsSession.GetInt(propKey.c_str());
+		const SA::Position pos = propsSession.GetInteger(propKey.c_str());
 
 		bufferState.file.selection.anchor = pos - 1;
 		bufferState.file.selection.position = bufferState.file.selection.anchor;
@@ -760,12 +760,12 @@ void SciTEBase::SaveSessionFile(const GUI::gui_char *sessionName) {
 				std::string propKey = IndexPropKey("buffer", i, "path");
 				fprintf(sessionFile, "\n%s=%s\n", propKey.c_str(), buff.file.AsUTF8().c_str());
 
-				const int pos = buff.file.selection.position + 1;
+				const SA::Position pos = buff.file.selection.position + 1;
 				const std::string sPos = std::to_string(pos);
 				propKey = IndexPropKey("buffer", i, "position");
 				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), sPos.c_str());
 
-				const int scroll = buff.file.scrollPosition;
+				const SA::Line scroll = buff.file.scrollPosition;
 				const std::string sScroll = std::to_string(scroll);
 				propKey = IndexPropKey("buffer", i, "scroll");
 				fprintf(sessionFile, "%s=%s\n", propKey.c_str(), sScroll.c_str());
@@ -900,12 +900,12 @@ void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 	// check to see whether there is saved fold state, restore
 	if (!buffer.foldState.empty()) {
 		wEditor.Call(SCI_COLOURISE, 0, -1);
-		for (const int fold : buffer.foldState) {
+		for (const SA::Line fold : buffer.foldState) {
 			wEditor.Call(SCI_TOGGLEFOLD, fold);
 		}
 	}
 	if (restoreBookmarks) {
-		for (const int bookmark : buffer.bookmarks) {
+		for (const SA::Line bookmark : buffer.bookmarks) {
 			wEditor.Call(SCI_MARKERADD, bookmark, markerBookmark);
 		}
 	}
@@ -1310,8 +1310,8 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 	if ((rf.selection.position != INVALID_POSITION) && (rf.selection.anchor != INVALID_POSITION)) {
 		SetSelection(rf.selection.anchor, rf.selection.position);
 
-		const int curTop = wEditor.Call(SCI_GETFIRSTVISIBLELINE);
-		const int lineTop = wEditor.Call(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
+		const SA::Line curTop = wEditor.Call(SCI_GETFIRSTVISIBLELINE);
+		const SA::Line lineTop = wEditor.Call(SCI_VISIBLEFROMDOCLINE, rf.scrollPosition);
 		wEditor.Call(SCI_LINESCROLL, 0, lineTop - curTop);
 		wEditor.Call(SCI_CHOOSECARETX);
 	}
@@ -1499,7 +1499,7 @@ inline bool isdigitchar(int ch) noexcept {
 	return (ch >= '0') && (ch <= '9');
 }
 
-static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, int &column) {
+static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int format, SA::Position &column) {
 	sourcePath.clear();
 	column = -1; // default to not detected
 	switch (format) {
@@ -1516,7 +1516,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 					while (*endPath && !isdigitchar(*endPath)) {
 						endPath++;
 					}
-					const int sourceNumber = atoi(endPath) - 1;
+					const SA::Line sourceNumber = IntegerFromText(endPath) - 1;
 					return sourceNumber;
 				}
 			}
@@ -1536,13 +1536,13 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				++cdoc;
 			for (int i = 0; cdoc[i]; i++) {
 				if (cdoc[i] == ':' && (isdigitchar(cdoc[i + 1]) || (cdoc[i + 1] == '-'))) {
-					const int sourceLine = atoi(cdoc + i + 1);
+					const SA::Line sourceLine = IntegerFromText(cdoc + i + 1);
 					sourcePath.assign(cdoc, i);
 					i += 2;
 					while (isdigitchar(cdoc[i]))
 						++i;
 					if (cdoc[i] == ':' && isdigitchar(cdoc[i + 1]))
-						column = atoi(cdoc + i + 1) - 1;
+						column = IntegerFromText(cdoc + i + 1) - 1;
 					// Some tools show whole file errors as occurring at line 0
 					return (sourceLine > 0) ? sourceLine - 1 : 0;
 				}
@@ -1565,7 +1565,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 					const ptrdiff_t length = endPath - start;
 					sourcePath.assign(start, length);
 					endPath++;
-					return atoi(endPath) - 1;
+					return IntegerFromText(endPath) - 1;
 				}
 			}
 			break;
@@ -1603,7 +1603,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 
 					if (length > 0) {
 						sourcePath.assign(space, length);
-						return atoi(space2) - 1;
+						return IntegerFromText(space2) - 1;
 					}
 				}
 			}
@@ -1618,7 +1618,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				if (length > 0) {
 					sourcePath.assign(at + 4, length);
 					line += 6;
-					return atoi(line) - 1;
+					return IntegerFromText(line) - 1;
 				}
 			}
 			break;
@@ -1631,7 +1631,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				in += 4;
 				sourcePath.assign(in, line - in);
 				line += 6;
-				return atoi(line) - 1;
+				return IntegerFromText(line) - 1;
 			}
 			break;
 		}
@@ -1653,7 +1653,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 					}
 				}
 				line += lenLine;
-				return atoi(line) - 1;
+				return IntegerFromText(line) - 1;
 			} else {
 				// Lua 5.1 error looks like: lua.exe: test1.lua:3: syntax error
 				// reuse the GCC error parsing code above!
@@ -1665,9 +1665,9 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 		}
 
 	case SCE_ERR_CTAG: {
-			for (int i = 0; cdoc[i]; i++) {
+			for (SA::Position i = 0; cdoc[i]; i++) {
 				if ((isdigitchar(cdoc[i + 1]) || (cdoc[i + 1] == '/' && cdoc[i + 2] == '^')) && cdoc[i] == '\t') {
-					int j = i - 1;
+					SA::Position j = i - 1;
 					while (j > 0 && ! strchr("\t\n\r \"$%'*,;<>?[]^`{|}", cdoc[j])) {
 						j--;
 					}
@@ -1694,7 +1694,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				const size_t length = line - file;
 				sourcePath.assign(file, length);
 				line += lenLine;
-				return atoi(line) - 1;
+				return IntegerFromText(line) - 1;
 			}
 			break;
 		}
@@ -1716,7 +1716,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 					}
 					const size_t length = strlen(file);
 					sourcePath.assign(file, length);
-					return atoi(line) - 1;
+					return IntegerFromText(line) - 1;
 				}
 			}
 			break;
@@ -1741,7 +1741,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 					const size_t length = endfile - file;
 					sourcePath.assign(file, length);
 					line++;
-					return atoi(line) - 1;
+					return IntegerFromText(line) - 1;
 				}
 			}
 			break;
@@ -1762,7 +1762,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				const size_t length = line - file;
 				sourcePath.assign(file, length);
 				line += lenLine;
-				return atoi(line) - 1;
+				return IntegerFromText(line) - 1;
 			}
 			break;
 		}
@@ -1784,7 +1784,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				sourcePath.assign(file, length);
 				line += lenLine;
 				if ((lineend > line)) {
-					return atoi(line) - 1;
+					return IntegerFromText(line) - 1;
 				}
 			}
 			break;
@@ -1800,13 +1800,13 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 				const char *col = strchr(line + 1, ' ');
 				if (col) {
 					//*col = '\0';
-					const int lnr = atoi(line) - 1;
+					const SA::Line lnr = IntegerFromText(line) - 1;
 					col = strchr(col + 1, ' ');
 					if (col) {
 						const char *endcol = strchr(col + 1, ' ');
 						if (endcol) {
 							//*endcol = '\0';
-							column = atoi(col) - 1;
+							column = IntegerFromText(col) - 1;
 							return lnr;
 						}
 					}
@@ -1824,7 +1824,7 @@ static int DecodeMessage(const char *cdoc, std::string &sourcePath, int format, 
 			const ptrdiff_t length = endPath - startPath;
 			if (length > 0) {
 				sourcePath.assign(startPath, length);
-				const int sourceNumber = atoi(endPath + 1) - 1;
+				const SA::Line sourceNumber = IntegerFromText(endPath + 1) - 1;
 				return sourceNumber;
 			}
 			break;
@@ -1870,27 +1870,27 @@ static void Chomp(std::string &s, char ch) {
 		s.erase(0, posCh + 1);
 }
 
-void SciTEBase::ShowMessages(int line) {
+void SciTEBase::ShowMessages(SA::Line line) {
 	wEditor.Call(SCI_ANNOTATIONSETSTYLEOFFSET, diagnosticStyleStart);
 	wEditor.Call(SCI_ANNOTATIONSETVISIBLE, ANNOTATION_BOXED);
 	wEditor.Call(SCI_ANNOTATIONCLEARALL);
 	TextReader acc(wOutput);
 	while ((line > 0) && (acc.StyleAt(acc.LineStart(line-1)) != SCE_ERR_CMD))
 		line--;
-	const int maxLine = wOutput.Call(SCI_GETLINECOUNT);
+	const SA::Line maxLine = wOutput.Call(SCI_GETLINECOUNT);
 	while ((line < maxLine) && (acc.StyleAt(acc.LineStart(line)) != SCE_ERR_CMD)) {
-		const int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line);
-		const int lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line);
+		const SA::Position startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, line);
+		const SA::Position lineEnd = wOutput.Call(SCI_GETLINEENDPOSITION, line);
 		std::string message = GetRangeString(wOutput, startPosLine, lineEnd);
 		std::string source;
-		int column;
+		SA::Position column;
 		int style = acc.StyleAt(startPosLine);
 		if ((style == SCE_ERR_ESCSEQ) || (style == SCE_ERR_ESCSEQ_UNKNOWN) || (style >= SCE_ERR_ES_BLACK)) {
 			// GCC message with ANSI escape sequences
 			RemoveEscSeq(message);
 			style = SCE_ERR_GCC;
 		}
-		const int sourceLine = DecodeMessage(message.c_str(), source, style, column);
+		const SA::Line sourceLine = DecodeMessage(message.c_str(), source, style, column);
 		Chomp(message, ':');
 		if (style == SCE_ERR_GCC) {
 			Chomp(message, ':');
@@ -1937,18 +1937,18 @@ void SciTEBase::ShowMessages(int line) {
 }
 
 void SciTEBase::GoMessage(int dir) {
-	const int selStart = wOutput.Call(SCI_GETSELECTIONSTART);
-	const int curLine = wOutput.Call(SCI_LINEFROMPOSITION, selStart);
-	const int maxLine = wOutput.Call(SCI_GETLINECOUNT);
-	int lookLine = curLine + dir;
+	const SA::Position selStart = wOutput.Call(SCI_GETSELECTIONSTART);
+	const SA::Line curLine = wOutput.Call(SCI_LINEFROMPOSITION, selStart);
+	const SA::Line maxLine = wOutput.Call(SCI_GETLINECOUNT);
+	SA::Line lookLine = curLine + dir;
 	if (lookLine < 0)
 		lookLine = maxLine - 1;
 	else if (lookLine >= maxLine)
 		lookLine = 0;
 	TextReader acc(wOutput);
 	while ((dir == 0) || (lookLine != curLine)) {
-		const int startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, lookLine);
-		const int lineLength = wOutput.Call(SCI_LINELENGTH, lookLine);
+		const SA::Position startPosLine = wOutput.Call(SCI_POSITIONFROMLINE, lookLine);
+		const SA::Position lineLength = wOutput.Call(SCI_LINELENGTH, lookLine);
 		int style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
 		        style != SCE_ERR_CMD &&
@@ -1970,8 +1970,8 @@ void SciTEBase::GoMessage(int dir) {
 				style = SCE_ERR_GCC;
 			}
 			std::string source;
-			int column;
-			long sourceLine = DecodeMessage(message.c_str(), source, style, column);
+			SA::Position column;
+			SA::Line sourceLine = DecodeMessage(message.c_str(), source, style, column);
 			if (sourceLine >= 0) {
 				GUI::gui_string sourceString = GUI::StringFromUTF8(source);
 				FilePath sourcePath = FilePath(sourceString).NormalizePath();
@@ -2011,7 +2011,7 @@ void SciTEBase::GoMessage(int dir) {
 					if (cTag.length() != 0) {
 						if (atoi(cTag.c_str()) > 0) {
 							//if tag is linenumber, get line
-							sourceLine = atoi(cTag.c_str()) - 1;
+							sourceLine = IntegerFromText(cTag.c_str()) - 1;
 						} else {
 							findWhat = cTag;
 							FindNext(false);
@@ -2023,7 +2023,7 @@ void SciTEBase::GoMessage(int dir) {
 
 				else if (style == SCE_ERR_DIFF_MESSAGE) {
 					const bool isAdd = message.find("+++ ") == 0;
-					const int atLine = lookLine + (isAdd ? 1 : 2); // lines are in this order: ---, +++, @@
+					const SA::Line atLine = lookLine + (isAdd ? 1 : 2); // lines are in this order: ---, +++, @@
 					std::string atMessage = GetLine(wOutput, atLine);
 					if (StartsWith(atMessage, "@@ -")) {
 						size_t atPos = 4; // deleted position starts right after "@@ -"
@@ -2032,7 +2032,7 @@ void SciTEBase::GoMessage(int dir) {
 							if (linePlace != std::string::npos)
 								atPos = linePlace + 2; // skip "@@ -1,1" and then " +"
 						}
-						sourceLine = atol(atMessage.c_str() + atPos) - 1;
+						sourceLine = IntegerFromText(atMessage.c_str() + atPos) - 1;
 					}
 				}
 
@@ -2047,8 +2047,8 @@ void SciTEBase::GoMessage(int dir) {
 				wEditor.Call(SCI_MARKERSETBACK, 0, ColourOfProperty(props,
 				        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 				wEditor.Call(SCI_MARKERADD, sourceLine, 0);
-				int startSourceLine = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine);
-				const int endSourceline = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine + 1);
+				SA::Position startSourceLine = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine);
+				const SA::Position endSourceline = wEditor.Call(SCI_POSITIONFROMLINE, sourceLine + 1);
 				if (column >= 0) {
 					// Get the position in line according to current tab setting
 					startSourceLine = wEditor.Call(SCI_FINDCOLUMN, sourceLine, column);

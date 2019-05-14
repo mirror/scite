@@ -6,9 +6,9 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 
 struct LineRange {
-	int lineStart;
-	int lineEnd;
-	LineRange(int lineStart_, int lineEnd_) noexcept : lineStart(lineStart_), lineEnd(lineEnd_) {}
+	Scintilla::API::Line lineStart;
+	Scintilla::API::Line lineEnd;
+	LineRange(Scintilla::API::Line lineStart_, Scintilla::API::Line lineEnd_) noexcept : lineStart(lineStart_), lineEnd(lineEnd_) {}
 };
 
 std::vector<LineRange> LinesBreak(GUI::ScintillaWindow *pSci);

@@ -112,8 +112,8 @@ static std::string GetRTFStyleChange(const char *last, const char *current) { //
 	return delta;
 }
 
-void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
-	const int lengthDoc = LengthDocument();
+void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Position end) {
+	const SA::Position lengthDoc = LengthDocument();
 	if (end < 0)
 		end = lengthDoc;
 	RemoveFindMarks();
@@ -221,7 +221,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	int styleCurrent = -1;
 	TextReader acc(wEditor);
 	int column = 0;
-	for (int iPos = start; iPos < end; iPos++) {
+	for (SA::Position iPos = start; iPos < end; iPos++) {
 		const char ch = acc[iPos];
 		int style = acc.StyleAt(iPos);
 		if (style > STYLE_MAX)
@@ -258,7 +258,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 			os << RTF_EOLN;
 			column = -1;
 		} else if (isUTF8 && !IsASCII(ch)) {
-			const int nextPosition = wEditor.Call(SCI_POSITIONAFTER, iPos);
+			const SA::Position nextPosition = wEditor.Call(SCI_POSITIONAFTER, iPos);
 			wEditor.Call(SCI_SETTARGETRANGE, iPos, nextPosition);
 			char u8Char[5] = "";
 			wEditor.CallPointer(SCI_TARGETASUTF8, 0, u8Char);
@@ -279,7 +279,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, int start, int end) {
 	os << RTF_BODYCLOSE;
 }
 
-void SciTEBase::SaveToRTF(const FilePath &saveName, int start, int end) {
+void SciTEBase::SaveToRTF(const FilePath &saveName, SA::Position start, SA::Position end) {
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 	bool failedWrite = fp == nullptr;
 	if (fp) {

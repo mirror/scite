@@ -818,7 +818,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			const char *findText = findFiles + strlen(findFiles) + 1;
 			if (cmdWorker.outputScroll == 1)
 				gf = static_cast<GrepFlags>(gf | grepScroll);
-			sptr_t positionEnd = wOutput.Send(SCI_GETCURRENTPOS);
+			SA::Position positionEnd = static_cast<SA::Position>(wOutput.Send(SCI_GETCURRENTPOS));
 			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findText, positionEnd);
 			if ((gf & grepScroll) && returnOutputToCommand)
 				wOutput.Send(SCI_GOTOPOS, positionEnd);
@@ -2155,7 +2155,7 @@ std::string SciTEWin::EncodeString(const std::string &s) {
 }
 
 // Convert String from doc encoding to UTF-8
-std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
+std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd) {
 	std::string s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
 	UINT codePageDocument = wEditor.Call(SCI_GETCODEPAGE);

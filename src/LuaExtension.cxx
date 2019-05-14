@@ -45,6 +45,7 @@ extern "C" {
 
 #endif
 
+namespace SA = Scintilla::API;
 
 // A note on naming conventions:
 // I've gone back and forth on this a bit, trying different styles.
@@ -362,8 +363,8 @@ static int cf_pane_textrange(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 
 	if (lua_gettop(L) >= 3) {
-		const int cpMin = static_cast<int>(luaL_checknumber(L, 2));
-		const int cpMax = static_cast<int>(luaL_checknumber(L, 3));
+		const SA::Position cpMin = luaL_checknumber(L, 2);
+		const SA::Position cpMax = luaL_checknumber(L, 3);
 		if (cpMax >= 0) {
 			std::string range = host->Range(p, cpMin, cpMax);
 			lua_pushstring(L, range.c_str());
@@ -380,7 +381,7 @@ static int cf_pane_textrange(lua_State *L) {
 
 static int cf_pane_insert(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
-	const int pos = luaL_checkint(L, 2);
+	const SA::Position pos = luaL_checknumber(L, 2);
 	const char *s = luaL_checkstring(L, 3);
 	host->Insert(p, pos, s);
 	return 0;
@@ -388,8 +389,8 @@ static int cf_pane_insert(lua_State *L) {
 
 static int cf_pane_remove(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
-	const int cpMin = static_cast<int>(luaL_checknumber(L, 2));
-	const int cpMax = static_cast<int>(luaL_checknumber(L, 3));
+	const SA::Position cpMin = luaL_checknumber(L, 2);
+	const SA::Position cpMax = luaL_checknumber(L, 3);
 	host->Remove(p, cpMin, cpMax);
 	return 0;
 }
@@ -410,8 +411,8 @@ static int cf_pane_findtext(lua_State *L) {
 	bool hasError = (!t);
 
 	if (!hasError) {
-		sptr_t rangeStart = 0;
-		sptr_t rangeEnd = 0;
+		SA::Position rangeStart = 0;
+		SA::Position rangeEnd = 0;
 
 		const int flags = (nArgs > 2) ? luaL_checkint(L, 3) : 0;
 		hasError = (flags == 0 && lua_gettop(L) > nArgs);
@@ -435,9 +436,9 @@ static int cf_pane_findtext(lua_State *L) {
 		if (!hasError) {
 			host->Send(p, SCI_SETTARGETRANGE, rangeStart, rangeEnd);
 			host->Send(p, SCI_SETSEARCHFLAGS, flags);
-			const sptr_t result = host->Send(p, SCI_SEARCHINTARGET, strlen(t), SptrFromString(t));
+			const SA::Position result = host->Send(p, SCI_SEARCHINTARGET, strlen(t), SptrFromString(t));
 			if (result >= 0) {
-				const sptr_t posEndFound = host->Send(p, SCI_GETTARGETEND);
+				const SA::Position posEndFound = host->Send(p, SCI_GETTARGETEND);
 				lua_pushinteger(L, result);
 				lua_pushinteger(L, posEndFound);
 				return 2;
@@ -461,10 +462,10 @@ static int cf_pane_findtext(lua_State *L) {
 
 struct PaneMatchObject {
 	ExtensionAPI::Pane pane;
-	int startPos;
-	int endPos;
+	SA::Position startPos;
+	SA::Position endPos;
 	int flags; // this is really part of the state, but is kept here for convenience
-	int endPosOrig; // has to do with preventing infinite loop on a 0-length match
+	SA::Position endPosOrig; // has to do with preventing infinite loop on a 0-length match
 };
 
 static int cf_match_replace(lua_State *L) {
@@ -624,13 +625,13 @@ static int cf_pane_match_generator(lua_State *L) {
 		searchPos++;
 	}
 
-	const sptr_t rangeStart = searchPos;
-	const sptr_t rangeEnd = host->Send(pmo->pane, SCI_GETLENGTH);
+	const SA::Position rangeStart = searchPos;
+	const SA::Position rangeEnd = host->Send(pmo->pane, SCI_GETLENGTH);
 
 	if (rangeEnd > rangeStart) {
 		host->Send(pmo->pane, SCI_SETTARGETRANGE, rangeStart, rangeEnd);
 		host->Send(pmo->pane, SCI_SETSEARCHFLAGS, pmo->flags);
-		const sptr_t result = host->Send(pmo->pane, SCI_SEARCHINTARGET, strlen(text), SptrFromString(text));
+		const SA::Position result = host->Send(pmo->pane, SCI_SEARCHINTARGET, strlen(text), SptrFromString(text));
 		if (result >= 0) {
 			pmo->startPos = host->Send(pmo->pane, SCI_GETTARGETSTART);
 			pmo->endPos = pmo->endPosOrig = host->Send(pmo->pane, SCI_GETTARGETEND);
@@ -1710,24 +1711,24 @@ bool LuaExtension::OnSavePointLeft() {
 
 // Similar to StyleContext class in Scintilla
 struct StylingContext {
-	unsigned int startPos;
-	int lengthDoc;
+	SA::Position startPos;
+	SA::Position lengthDoc;
 	int initStyle;
 	StyleWriter *styler;
 
-	unsigned int endPos;
-	unsigned int endDoc;
+	SA::Position endPos;
+	SA::Position endDoc;
 
-	unsigned int currentPos;
+	SA::Position currentPos;
 	bool atLineStart;
 	bool atLineEnd;
 	int state;
 
 	char cursor[3][8];
-	int cursorPos;
+	SA::Position cursorPos;
 	int codePage;
-	int lenCurrent;
-	int lenNext;
+	SA::Position lenCurrent;
+	SA::Position lenNext;
 
 	static StylingContext *Context(lua_State *L) {
 		return static_cast<StylingContext *>(
@@ -1735,59 +1736,59 @@ struct StylingContext {
 	}
 
 	void Colourize() {
-		int end = currentPos - 1;
-		if (end >= static_cast<int>(endDoc))
-			end = static_cast<int>(endDoc)-1;
+		SA::Position end = currentPos - 1;
+		if (end >= endDoc)
+			end = endDoc - 1;
 		styler->ColourTo(end, state);
 	}
 
 	static int Line(lua_State *L) {
 		StylingContext *context = Context(L);
-		const int position = luaL_checkint(L, 2);
+		const SA::Position position = luaL_checknumber(L, 2);
 		lua_pushinteger(L, context->styler->GetLine(position));
 		return 1;
 	}
 
 	static int CharAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		const int position = luaL_checkint(L, 2);
+		const SA::Position position = luaL_checknumber(L, 2);
 		lua_pushinteger(L, context->styler->SafeGetCharAt(position));
 		return 1;
 	}
 
 	static int StyleAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		const int position = luaL_checkint(L, 2);
+		const SA::Position position = luaL_checknumber(L, 2);
 		lua_pushinteger(L, context->styler->StyleAt(position));
 		return 1;
 	}
 
 	static int LevelAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		const int line = luaL_checkint(L, 2);
+		const SA::Line line = luaL_checknumber(L, 2);
 		lua_pushinteger(L, context->styler->LevelAt(line));
 		return 1;
 	}
 
 	static int SetLevelAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		const int line = luaL_checkint(L, 2);
-		const int level = luaL_checkint(L, 3);
+		const SA::Line line = luaL_checknumber(L, 2);
+		const int level = luaL_checknumber(L, 3);
 		context->styler->SetLevel(line, level);
 		return 0;
 	}
 
 	static int LineState(lua_State *L) {
 		StylingContext *context = Context(L);
-		const int line = luaL_checkint(L, 2);
+		const SA::Line line = luaL_checknumber(L, 2);
 		lua_pushinteger(L, context->styler->GetLineState(line));
 		return 1;
 	}
 
 	static int SetLineState(lua_State *L) {
 		StylingContext *context = Context(L);
-		const int line = luaL_checkint(L, 2);
-		const int stateOfLine = luaL_checkint(L, 3);
+		const SA::Line line = luaL_checknumber(L, 2);
+		const int stateOfLine = luaL_checknumber(L, 3);
 		context->styler->SetLineState(line, stateOfLine);
 		return 0;
 	}
@@ -1796,7 +1797,7 @@ struct StylingContext {
 	void GetNextChar() {
 		lenCurrent = lenNext;
 		lenNext = 1;
-		const int nextPos = currentPos + lenCurrent;
+		const SA::Position nextPos = currentPos + lenCurrent;
 		unsigned char byteNext = static_cast<unsigned char>(styler->SafeGetCharAt(nextPos));
 		unsigned int nextSlot = (cursorPos + 1) % 3;
 		memcpy(cursor[nextSlot], "\0\0\0\0\0\0\0\0", 8);
@@ -1832,7 +1833,7 @@ struct StylingContext {
 			    (currentPos >= endPos);
 	}
 
-	void StartStyling(unsigned int startPos_, unsigned int length, int initStyle_) {
+	void StartStyling(SA::Position startPos_, SA::Position length, int initStyle_) {
 		endDoc = styler->Length();
 		endPos = startPos_ + length;
 		if (endPos == endDoc)
@@ -1863,9 +1864,9 @@ struct StylingContext {
 
 	static int StartStyling(lua_State *L) {
 		StylingContext *context = Context(L);
-		const unsigned int startPosStyle = luaL_checkint(L, 2);
-		const unsigned int lengthStyle = luaL_checkint(L, 3);
-		const int initialStyle = luaL_checkint(L, 4);
+		const SA::Position startPosStyle = luaL_checknumber(L, 2);
+		const SA::Position lengthStyle = luaL_checknumber(L, 3);
+		const int initialStyle = luaL_checknumber(L, 4);
 		context->StartStyling(startPosStyle, lengthStyle, initialStyle);
 		return 0;
 	}
@@ -1962,13 +1963,13 @@ struct StylingContext {
 
 	static int Token(lua_State *L) {
 		StylingContext *context = Context(L);
-		const int start = context->styler->GetStartSegment();
-		const int end = context->currentPos - 1;
-		int len = end - start + 1;
+		const SA::Position start = context->styler->GetStartSegment();
+		const SA::Position end = context->currentPos - 1;
+		SA::Position len = end - start + 1;
 		if (len <= 0)
 			len = 1;
 		std::string sReturn(len, '\0');
-		for (int i = 0; i < len; i++) {
+		for (SA::Position i = 0; i < len; i++) {
 			sReturn[i] = context->styler->SafeGetCharAt(start + i);
 		}
 		lua_pushstring(L, sReturn.c_str());
@@ -1976,7 +1977,7 @@ struct StylingContext {
 	}
 
 	bool Match(const char *s) {
-		for (int n=0; *s; n++) {
+		for (SA::Position n=0; *s; n++) {
 			if (*s != styler->SafeGetCharAt(currentPos+n))
 				return false;
 			s++;
@@ -1998,7 +1999,7 @@ struct StylingContext {
 	}
 };
 
-bool LuaExtension::OnStyle(unsigned int startPos, int lengthDoc, int initStyle, StyleWriter *styler) {
+bool LuaExtension::OnStyle(SA::Position startPos, SA::Position lengthDoc, int initStyle, StyleWriter *styler) {
 	bool handled = false;
 	if (luaState) {
 		if (lua_getglobal(luaState, "OnStyle") != LUA_TNIL) {
@@ -2094,7 +2095,7 @@ bool LuaExtension::OnKey(int keyval, int modifiers) {
 	return handled;
 }
 
-bool LuaExtension::OnDwellStart(int pos, const char *word) {
+bool LuaExtension::OnDwellStart(SA::Position pos, const char *word) {
 	return CallNamedFunction("OnDwellStart", pos, word);
 }
 

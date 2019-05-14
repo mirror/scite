@@ -507,14 +507,14 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	pr.startPDF();
 
 	// do here all the writing
-	const int lengthDoc = LengthDocument();
+	const SA::Position lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 
 	if (!lengthDoc) {	// enable zero length docs
 		pr.nextLine();
 	} else {
 		int lineIndex = 0;
-		for (int i = 0; i < lengthDoc; i++) {
+		for (SA::Position i = 0; i < lengthDoc; i++) {
 			const char ch = acc[i];
 			const int style = acc.StyleAt(i);
 
