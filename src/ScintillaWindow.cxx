@@ -1,5 +1,5 @@
 // SciTE - Scintilla based Text Editor
-/** @file ScintillaWindow.h
+/** @file ScintillaWindow.cxx
  ** Interface to a Scintilla instance.
  **/
 // Copyright 1998-2018 by Neil Hodgson <neilh@scintilla.org>
