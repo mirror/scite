@@ -324,7 +324,7 @@ bool DirectorExtension::OnSavePointLeft() {
 	return false;
 }
 
-bool DirectorExtension::OnStyle(unsigned int, int, int, StyleWriter *) {
+bool DirectorExtension::OnStyle(SA::Position, SA::Position, int, StyleWriter *) {
 	return false;
 }
 

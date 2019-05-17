@@ -611,7 +611,7 @@ protected:
 	void Print(bool) override;
 	void PrintSetup() override;
 
-	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) override;
+	std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd) override;
 
 	MessageBoxChoice WindowMessageBox(GUI::Window &w, const GUI::gui_string &msg, int style = mbsIconWarning) override;
 	void FindMessageBox(const std::string &msg, const std::string *findItem=0) override;
@@ -1912,14 +1912,14 @@ void SciTEGTK::PrintSetup() {
 	pageSetup = newPageSetup;
 }
 
-std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, int selStart, int selEnd) {
-	int len = selEnd - selStart;
+std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd) {
+	SA::Position len = selEnd - selStart;
 	if (len == 0)
 		return std::string();
 	std::string allocation(len * 3 + 1, 0);
 	win.Call(SCI_SETTARGETSTART, selStart);
 	win.Call(SCI_SETTARGETEND, selEnd);
-	int byteLength = win.CallPointer(SCI_TARGETASUTF8, 0, &allocation[0]);
+	SA::Position byteLength = win.CallPointer(SCI_TARGETASUTF8, 0, &allocation[0]);
 	std::string sel(allocation, 0, byteLength);
 	return sel;
 }

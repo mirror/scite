@@ -27,7 +27,7 @@ public:
 	bool OnExecute(const char *cmd) override;
 	bool OnSavePointReached() override;
 	bool OnSavePointLeft() override;
-	bool OnStyle(unsigned int startPos, int lengthDoc, int initStyle, StyleWriter *styler) override;
+	bool OnStyle(SA::Position startPos, SA::Position lengthDoc, int initStyle, StyleWriter *styler) override;
 	bool OnDoubleClick() override;
 	bool OnUpdateUI() override;
 	bool OnMarginClick() override;
