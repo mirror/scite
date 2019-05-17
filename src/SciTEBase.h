@@ -450,6 +450,7 @@ protected:
 	bool wrap;
 	bool wrapOutput;
 	int wrapStyle;
+	int idleStyling;
 	int alphaIndicator;
 	bool underIndicator;
 	std::string foldColour;

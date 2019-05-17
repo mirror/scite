@@ -132,6 +132,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 	wrap = false;
 	wrapOutput = false;
 	wrapStyle = SC_WRAP_WORD;
+	idleStyling = SC_IDLESTYLING_NONE;
 	alphaIndicator = 30;
 	underIndicator = false;
 	openFilesHere = false;
@@ -1106,9 +1107,10 @@ SA::Position SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool 
 		const SA::Position end = wEditor.Call(SCI_GETTARGETEND);
 		// Ensure found text is styled so that caret will be made visible.
 		const SA::Position endStyled = wEditor.Call(SCI_GETENDSTYLED);
-		if (endStyled < end)
+		if ((endStyled < end) && (idleStyling == SC_IDLESTYLING_NONE)) {
 			wEditor.Call(SCI_COLOURISE, endStyled,
 				wEditor.LineStart(wEditor.LineFromPosition(end) + 1));
+		}
 		EnsureRangeVisible(wEditor, start, end);
 		wEditor.Call(SCI_SCROLLRANGE, start, end);
 		wEditor.Call(SCI_SETTARGETRANGE, start, end);

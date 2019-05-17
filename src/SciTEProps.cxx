@@ -1104,7 +1104,8 @@ void SciTEBase::ReadProperties() {
  	wEditor.Call(SCI_SETWRAPSTARTINDENT, props.GetInt("wrap.visual.startindent"));
  	wEditor.Call(SCI_SETWRAPINDENTMODE, props.GetInt("wrap.indent.mode"));
 
-	wEditor.Call(SCI_SETIDLESTYLING, props.GetInt("idle.styling", SC_IDLESTYLING_NONE));
+	idleStyling = props.GetInt("idle.styling", SC_IDLESTYLING_NONE);
+	wEditor.Call(SCI_SETIDLESTYLING, idleStyling);
 	wOutput.Call(SCI_SETIDLESTYLING, props.GetInt("output.idle.styling", SC_IDLESTYLING_NONE));
 
 	if (props.GetInt("os.x.home.end.keys")) {
