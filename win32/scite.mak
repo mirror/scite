@@ -75,6 +75,7 @@ SHAREDOBJS=\
 	MatchMarker.obj \
 	MultiplexExtension.obj \
 	PropSetFile.obj \
+	ScintillaCall.obj \
 	ScintillaWindow.obj \
 	SciTEBase.obj \
 	SciTEBuffers.obj \

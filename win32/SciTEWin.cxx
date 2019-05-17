@@ -247,8 +247,8 @@ SciTEWin::~SciTEWin() {
 		::DestroyAcceleratorTable(hAccTable);
 }
 
-uptr_t SciTEWin::GetInstance() {
-	return reinterpret_cast<uptr_t>(hInstance);
+uintptr_t SciTEWin::GetInstance() {
+	return reinterpret_cast<uintptr_t>(hInstance);
 }
 
 void SciTEWin::Register(HINSTANCE hInstance_) {
@@ -714,7 +714,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 // from ScintillaWin.cxx
 static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
 	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
-	const BOOL bci = ::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<uptr_t>(characterSet)),
+	const BOOL bci = ::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<uintptr_t>(characterSet)),
 	                                  &ci, TCI_SRCCHARSET);
 
 	UINT cp;
@@ -818,7 +818,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 			const char *findText = findFiles + strlen(findFiles) + 1;
 			if (cmdWorker.outputScroll == 1)
 				gf = static_cast<GrepFlags>(gf | grepScroll);
-			SA::Position positionEnd = static_cast<SA::Position>(wOutput.Send(SCI_GETCURRENTPOS));
+			SA::Position positionEnd = wOutput.Send(SCI_GETCURRENTPOS);
 			InternalGrep(gf, jobToRun.directory.AsInternal(), GUI::StringFromUTF8(findFiles).c_str(), findText, positionEnd);
 			if ((gf & grepScroll) && returnOutputToCommand)
 				wOutput.Send(SCI_GOTOPOS, positionEnd);
@@ -1218,22 +1218,22 @@ void SciTEWin::Execute() {
 
 	cmdWorker.Initialise(false);
 	cmdWorker.outputScroll = props.GetInt("output.scroll", 1);
-	cmdWorker.originalEnd = wOutput.Call(SCI_GETTEXTLENGTH);
+	cmdWorker.originalEnd = wOutput.Length();
 	cmdWorker.commandTime.Duration(true);
 	cmdWorker.flags = jobQueue.jobQueue[cmdWorker.icmd].flags;
 	if (scrollOutput)
-		wOutput.Call(SCI_GOTOPOS, wOutput.Call(SCI_GETTEXTLENGTH));
+		wOutput.GotoPosition(wOutput.Length());
 
 	if (jobQueue.jobQueue[cmdWorker.icmd].jobType == jobExtension) {
 		// Execute extensions synchronously
 		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
-			wEditor.Call(SCI_BEGINUNDOACTION);
+			wEditor.BeginUndoAction();
 
 		if (extender)
 			extender->OnExecute(jobQueue.jobQueue[cmdWorker.icmd].command.c_str());
 
 		if (jobQueue.jobQueue[cmdWorker.icmd].flags & jobGroupUndo)
-			wEditor.Call(SCI_ENDUNDOACTION);
+			wEditor.EndUndoAction();
 
 		ExecuteNext();
 	} else {
@@ -1841,9 +1841,9 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 		// Caused by keyboard so display menu near caret
 		if (wOutput.HasFocus())
 			w = &wOutput;
-		const int position = w->Call(SCI_GETCURRENTPOS);
-		pt.x = w->Call(SCI_POINTXFROMPOSITION, 0, position);
-		pt.y = w->Call(SCI_POINTYFROMPOSITION, 0, position);
+		const SA::Position position = w->CurrentPosition();
+		pt.x = w->PointXFromPosition(position);
+		pt.y = w->PointYFromPosition(position);
 		POINT spt = {pt.x, pt.y};
 		::ClientToScreen(HwndOf(*w), &spt);
 		pt = GUI::Point(spt.x, spt.y);
@@ -1958,7 +1958,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_MOVE:
-			wEditor.Call(SCI_CALLTIPCANCEL);
+			wEditor.CallTipCancel();
 			break;
 
 		case WM_GETMINMAXINFO: {
@@ -2010,7 +2010,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 		case WM_ACTIVATEAPP:
 			if (props.GetInt("selection.always.visible", 0) == 0) {
-				wEditor.Call(SCI_HIDESELECTION, !wParam);
+				wEditor.HideSelection(!wParam);
 			}
 			// Do not want to display dialog yet as may be in middle of system mouse capture
 			::PostMessage(MainHWND(), WM_COMMAND, IDM_ACTIVATE, wParam);
@@ -2045,7 +2045,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 		default:
 			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 		}
-	} catch (const GUI::ScintillaFailure &sf) {
+	} catch (const SA::Failure &sf) {
 		CheckForScintillaFailure(static_cast<int>(sf.status));
 	}
 	return 0;
@@ -2144,7 +2144,7 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 // Convert String from UTF-8 to doc encoding
 std::string SciTEWin::EncodeString(const std::string &s) {
-	UINT codePageDocument = wEditor.Call(SCI_GETCODEPAGE);
+	UINT codePageDocument = wEditor.CodePage();
 
 	if (codePageDocument != SC_CP_UTF8) {
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
@@ -2158,7 +2158,7 @@ std::string SciTEWin::EncodeString(const std::string &s) {
 std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd) {
 	std::string s = SciTEBase::GetRangeInUIEncoding(win, selStart, selEnd);
 
-	UINT codePageDocument = wEditor.Call(SCI_GETCODEPAGE);
+	UINT codePageDocument = wEditor.CodePage();
 
 	if (codePageDocument != SC_CP_UTF8) {
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
@@ -2169,7 +2169,7 @@ std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Positi
 	return s;
 }
 
-uptr_t SciTEWin::EventLoop() {
+uintptr_t SciTEWin::EventLoop() {
 	MSG msg;
 	msg.wParam = 0;
 	BOOL going = true;
@@ -2261,7 +2261,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);
 #endif
 
-	uptr_t result = 0;
+	uintptr_t result = 0;
 	{
 #ifdef NO_EXTENSIONS
 		Extension *extender = 0;
@@ -2285,7 +2285,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		try {
 			MainWind.Run(lptszCmdLine);
 			result = MainWind.EventLoop();
-		} catch (const GUI::ScintillaFailure &sf) {
+		} catch (const SA::Failure &sf) {
 			MainWind.CheckForScintillaFailure(static_cast<int>(sf.status));
 		}
 		MainWind.Finalise();

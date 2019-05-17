@@ -9,14 +9,16 @@
 
 #include <string>
 
-#include "Scintilla.h"
+#include "ScintillaTypes.h"
+#include "ScintillaCall.h"
+
 #include "GUI.h"
 #include "ScintillaWindow.h"
 #include "StyleWriter.h"
 
 namespace SA = Scintilla::API;
 
-TextReader::TextReader(GUI::ScintillaWindow &sw_) :
+TextReader::TextReader(SA::ScintillaCall &sw_) :
 	startPos(extremePosition),
 	endPos(0),
 	codePage(0),
@@ -31,7 +33,7 @@ bool TextReader::InternalIsLeadByte(char ch) const {
 
 void TextReader::Fill(SA::Position position) {
 	if (lenDoc == -1)
-		lenDoc = sw.Call(SCI_GETTEXTLENGTH);
+		lenDoc = sw.Length();
 	startPos = position - slopSize;
 	if (startPos + bufferSize > lenDoc)
 		startPos = lenDoc - bufferSize;
@@ -40,8 +42,8 @@ void TextReader::Fill(SA::Position position) {
 	endPos = startPos + bufferSize;
 	if (endPos > lenDoc)
 		endPos = lenDoc;
-	sw.Call(SCI_SETTARGETRANGE, startPos, endPos);
-	sw.CallPointer(SCI_GETTARGETTEXT, 0, buf);
+	sw.SetTargetRange(startPos, endPos);
+	sw.TargetText(buf);
 }
 
 bool TextReader::Match(SA::Position pos, const char *s) {
@@ -54,33 +56,32 @@ bool TextReader::Match(SA::Position pos, const char *s) {
 }
 
 int TextReader::StyleAt(SA::Position position) {
-	return static_cast<unsigned char>(sw.Call(
-		SCI_GETSTYLEAT, position));
+	return static_cast<unsigned char>(sw.StyleAt(position));
 }
 
 SA::Line TextReader::GetLine(SA::Position position) {
-	return sw.Call(SCI_LINEFROMPOSITION, position);
+	return sw.LineFromPosition(position);
 }
 
 SA::Position TextReader::LineStart(SA::Line line) {
-	return sw.Call(SCI_POSITIONFROMLINE, line);
+	return sw.LineStart(line);
 }
 
 int TextReader::LevelAt(SA::Line line) {
-	return sw.Call(SCI_GETFOLDLEVEL, line);
+	return sw.FoldLevel(line);
 }
 
 SA::Position TextReader::Length() {
 	if (lenDoc == -1)
-		lenDoc = sw.Call(SCI_GETTEXTLENGTH);
+		lenDoc = sw.Length();
 	return lenDoc;
 }
 
 int TextReader::GetLineState(SA::Line line) {
-	return sw.Call(SCI_GETLINESTATE, line);
+	return sw.LineState(line);
 }
 
-StyleWriter::StyleWriter(GUI::ScintillaWindow &sw_) :
+StyleWriter::StyleWriter(SA::ScintillaCall &sw_) :
 	TextReader(sw_),
 	validLen(0),
 	startSeg(0) {
@@ -88,11 +89,11 @@ StyleWriter::StyleWriter(GUI::ScintillaWindow &sw_) :
 }
 
 void StyleWriter::SetLineState(SA::Line line, int state) {
-	sw.Call(SCI_SETLINESTATE, line, state);
+	sw.SetLineState(line, state);
 }
 
 void StyleWriter::StartAt(SA::Position start, char chMask) {
-	sw.Call(SCI_STARTSTYLING, start, chMask);
+	sw.StartStyling(start, chMask);
 }
 
 void StyleWriter::StartSegment(SA::Position pos) {
@@ -106,7 +107,7 @@ void StyleWriter::ColourTo(SA::Position pos, int chAttr) {
 			Flush();
 		if (validLen + (pos - startSeg + 1) >= bufferSize) {
 			// Too big for buffer so send directly
-			sw.Call(SCI_SETSTYLING, pos - startSeg + 1, chAttr);
+			sw.SetStyling(pos - startSeg + 1, chAttr);
 		} else {
 			for (SA::Position i = startSeg; i <= pos; i++) {
 				styleBuf[validLen++] = static_cast<char>(chAttr);
@@ -117,14 +118,14 @@ void StyleWriter::ColourTo(SA::Position pos, int chAttr) {
 }
 
 void StyleWriter::SetLevel(SA::Line line, int level) {
-	sw.Call(SCI_SETFOLDLEVEL, line, level);
+	sw.SetFoldLevel(line, level);
 }
 
 void StyleWriter::Flush() {
 	startPos = extremePosition;
 	lenDoc = -1;
 	if (validLen > 0) {
-		sw.CallPointer(SCI_SETSTYLINGEX, validLen, styleBuf);
+		sw.SetStylingEx(validLen, styleBuf);
 		validLen = 0;
 	}
 }

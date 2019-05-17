@@ -22,6 +22,10 @@
 #include <sys/stat.h>
 
 #include "ILexer.h"
+
+#include "ScintillaTypes.h"
+#include "ScintillaCall.h"
+
 #include "Scintilla.h"
 
 #include "GUI.h"
@@ -117,7 +121,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	if (end < 0)
 		end = lengthDoc;
 	RemoveFindMarks();
-	wEditor.Call(SCI_COLOURISE, 0, -1);
+	wEditor.Colourise(0, -1);
 
 	StyleDefinition defaultStyle = StyleDefinitionFor(STYLE_DEFAULT);
 
@@ -137,7 +141,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	} else {
 		defaultStyle.size <<= 1;
 	}
-	const bool isUTF8 = wEditor.Call(SCI_GETCODEPAGE) == SC_CP_UTF8;
+	const bool isUTF8 = wEditor.CodePage() == SC_CP_UTF8;
 	const unsigned int characterset = props.GetInt("character.set", SC_CHARSET_DEFAULT);
 	const int tabs = props.GetInt("export.rtf.tabs", 0);
 	if (tabSize == 0)
@@ -258,10 +262,10 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 			os << RTF_EOLN;
 			column = -1;
 		} else if (isUTF8 && !IsASCII(ch)) {
-			const SA::Position nextPosition = wEditor.Call(SCI_POSITIONAFTER, iPos);
-			wEditor.Call(SCI_SETTARGETRANGE, iPos, nextPosition);
+			const SA::Position nextPosition = wEditor.PositionAfter(iPos);
+			wEditor.SetTargetRange(iPos, nextPosition);
 			char u8Char[5] = "";
-			wEditor.CallPointer(SCI_TARGETASUTF8, 0, u8Char);
+			wEditor.TargetAsUTF8(u8Char);
 			const unsigned int u32 = UTF32Character(u8Char);
 			if (u32 < 0x10000) {
 				os << "\\u" << static_cast<short>(u32) << "?";

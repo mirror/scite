@@ -15,8 +15,6 @@
 #include <set>
 #include <algorithm>
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "StringList.h"
 #include "StringHelpers.h"

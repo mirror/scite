@@ -21,6 +21,10 @@
 #include <commctrl.h>
 
 #include "ILexer.h"
+
+#include "ScintillaTypes.h"
+#include "ScintillaCall.h"
+
 #include "Scintilla.h"
 
 #include "GUI.h"
@@ -79,13 +83,13 @@ static void SendDirector(const char *verb, const char *arg = nullptr) {
 	}
 }
 
-static void SendDirector(const char *verb, sptr_t arg) {
+static void SendDirector(const char *verb, intptr_t arg) {
 	std::string s = StdStringFromSizeT(static_cast<size_t>(arg));
 	::SendDirector(verb, s.c_str());
 }
 
 static HWND HwndFromString(const char *s) {
-	return reinterpret_cast<HWND>(static_cast<uptr_t>(atoi(s)));
+	return reinterpret_cast<HWND>(static_cast<uintptr_t>(atoi(s)));
 }
 
 static void CheckEnvironment(ExtensionAPI *phost) {
@@ -96,7 +100,7 @@ static void CheckEnvironment(ExtensionAPI *phost) {
 				startedByDirector = true;
 				wDirector = HwndFromString(director.c_str());
 				// Director is just seen so identify this to it
-				::SendDirector("identity", reinterpret_cast<sptr_t>(wReceiver));
+				::SendDirector("identity", reinterpret_cast<intptr_t>(wReceiver));
 			}
 		}
 		std::string sReceiver = StdStringFromSizeT(reinterpret_cast<size_t>(wReceiver));

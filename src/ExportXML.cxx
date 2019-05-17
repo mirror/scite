@@ -23,6 +23,10 @@
 #include <sys/stat.h>
 
 #include "ILexer.h"
+
+#include "ScintillaTypes.h"
+#include "ScintillaCall.h"
+
 #include "Scintilla.h"
 
 #include "GUI.h"
@@ -76,7 +80,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 	// but will eventually use utf-8 (once i know how to get them out).
 
 	RemoveFindMarks();
-	wEditor.Call(SCI_COLOURISE, 0, -1);
+	wEditor.Colourise(0, -1);
 
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0) {

@@ -92,7 +92,7 @@ struct FileWorker;
 class Buffer {
 public:
 	RecentFile file;
-	sptr_t doc;
+	intptr_t doc;
 	bool isDirty;
 	bool isReadOnly;
 	bool failedSave;
@@ -549,8 +549,8 @@ protected:
 	BufferList buffers;
 
 	// Handle buffers
-	sptr_t GetDocumentAt(int index);
-	void SwitchDocumentAt(int index, sptr_t pdoc);
+	intptr_t GetDocumentAt(int index);
+	void SwitchDocumentAt(int index, intptr_t pdoc);
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable() const;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
@@ -584,10 +584,10 @@ protected:
 	void ReadDirectoryPropFile();
 
 	void SetPaneFocus(bool editPane) noexcept;
-	int CallFocused(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	int CallFocusedElseDefault(int defaultValue, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	sptr_t CallPane(int destination, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
-	void CallChildren(unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0);
+	intptr_t CallFocused(unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0);
+	intptr_t CallFocusedElseDefault(int defaultValue, unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0);
+	intptr_t CallPane(int destination, unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0);
+	void CallChildren(unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0);
 	std::string GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
 	SA::Position LengthDocument();
 	SA::Position GetCaretInLine();
@@ -957,7 +957,7 @@ protected:
 	void PropertyFromDirector(const char *arg);
 	void PropertyToDirector(const char *arg);
 	// ExtensionAPI
-	sptr_t Send(Pane p, unsigned int msg, uptr_t wParam = 0, sptr_t lParam = 0) override;
+	intptr_t Send(Pane p, unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0) override;
 	std::string Range(Pane p, SA::Position start, SA::Position end) override;
 	void Remove(Pane p, SA::Position start, SA::Position end) override;
 	void Insert(Pane p, SA::Position pos, const char *s) override;
@@ -965,7 +965,7 @@ protected:
 	std::string Property(const char *key) override;
 	void SetProperty(const char *key, const char *val) override;
 	void UnsetProperty(const char *key) override;
-	uptr_t GetInstance() override;
+	uintptr_t GetInstance() override;
 	void ShutDown() override;
 	void Perform(const char *actionList) override;
 	void DoMenuCommand(int cmdID) override;

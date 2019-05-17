@@ -87,6 +87,10 @@ typedef void *HTHEME;
 #include "Scintilla.h"
 #include "ILoader.h"
 
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaCall.h"
+
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
@@ -381,7 +385,7 @@ public:
 	void CreateUI();
 	/// Management of the command line parameters.
 	void Run(const GUI::gui_char *cmdLine);
-	uptr_t EventLoop();
+	uintptr_t EventLoop();
 	void OutputAppendEncodedStringSynchronised(const GUI::gui_string &s, int codePageDocument);
 	void ResetExecution();
 	void ExecuteNext();
@@ -411,7 +415,7 @@ public:
 		return hAccTable;
 	}
 
-	uptr_t GetInstance() override;
+	uintptr_t GetInstance() override;
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
 	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);

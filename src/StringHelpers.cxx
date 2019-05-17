@@ -14,8 +14,6 @@
 #include <algorithm>
 #include <functional>
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "StringHelpers.h"
 

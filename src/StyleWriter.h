@@ -11,7 +11,7 @@
 // Read only access to a document, its styles and other data
 class TextReader {
 protected:
-	enum {extremePosition=0x7FFFFFFF};
+	const Scintilla::API::Position extremePosition = INTPTR_MAX;
 	/** @a bufferSize is a trade off between time taken to copy the characters
 	 * and retrieval overhead.
 	 * @a slopSize positions the buffer before the desired position
@@ -22,13 +22,13 @@ protected:
 	Scintilla::API::Position endPos;
 	int codePage;
 
-	GUI::ScintillaWindow &sw;
+	Scintilla::API::ScintillaCall &sw;
 	Scintilla::API::Position lenDoc;
 
 	bool InternalIsLeadByte(char ch) const;
 	void Fill(Scintilla::API::Position position);
 public:
-	explicit TextReader(GUI::ScintillaWindow &sw_);
+	explicit TextReader(Scintilla::API::ScintillaCall &sw_);
 	// Deleted so TextReader objects can not be copied.
 	TextReader(const TextReader &source) = delete;
 	TextReader &operator=(const TextReader &) = delete;
@@ -71,7 +71,7 @@ protected:
 	Scintilla::API::Position validLen;
 	Scintilla::API::Position startSeg;
 public:
-	explicit StyleWriter(GUI::ScintillaWindow &sw_);
+	explicit StyleWriter(Scintilla::API::ScintillaCall &sw_);
 	// Deleted so StyleWriter objects can not be copied.
 	StyleWriter(const StyleWriter &source) = delete;
 	StyleWriter &operator=(const StyleWriter &) = delete;

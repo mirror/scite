@@ -11,10 +11,10 @@ struct LineRange {
 	LineRange(Scintilla::API::Line lineStart_, Scintilla::API::Line lineEnd_) noexcept : lineStart(lineStart_), lineEnd(lineEnd_) {}
 };
 
-std::vector<LineRange> LinesBreak(GUI::ScintillaWindow *pSci);
+std::vector<LineRange> LinesBreak(Scintilla::API::ScintillaCall *pSci);
 
 class MatchMarker {
-	GUI::ScintillaWindow *pSci;
+	Scintilla::API::ScintillaCall *pSci;
 	std::string textMatch;
 	int styleMatch;
 	int flagsMatch;
@@ -23,7 +23,7 @@ class MatchMarker {
 	std::vector<LineRange> lineRanges;
 public:
 	MatchMarker();	// Not noexcept as std::vector constructor throws
-	void StartMatch(GUI::ScintillaWindow *pSci_,
+	void StartMatch(Scintilla::API::ScintillaCall *pSci_,
 		const std::string &textMatch_, int flagsMatch_, int styleMatch_,
 		int indicator_, int bookMark_);
 	bool Complete() const noexcept;

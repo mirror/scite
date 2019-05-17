@@ -22,7 +22,7 @@
 #define _WIN32_WINNT  0x0602
 #include <windows.h>
 
-#include "Scintilla.h"
+#include "ScintillaTypes.h"
 #include "GUI.h"
 
 namespace GUI {
@@ -327,12 +327,12 @@ double ElapsedTime::Duration(bool reset) {
 	return result;
 }
 
-sptr_t ScintillaPrimitive::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {
+intptr_t ScintillaPrimitive::Send(unsigned int msg, uintptr_t wParam, intptr_t lParam) {
 	return ::SendMessage(static_cast<HWND>(GetID()), msg, wParam, lParam);
 }
 
 bool IsDBCSLeadByte(int codePage, char ch) {
-	if (SC_CP_UTF8 == codePage)
+	if (Scintilla::API::CpUtf8 == codePage)
 		// For lexing, all characters >= 0x80 are treated the
 		// same so none is considered a lead byte.
 		return false;

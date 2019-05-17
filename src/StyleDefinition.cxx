@@ -16,6 +16,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "ScintillaTypes.h"
+
 #include "Scintilla.h"
 
 #include "GUI.h"

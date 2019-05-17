@@ -8,9 +8,8 @@
 #include <string>
 #include <vector>
 
-#include "Scintilla.h"
+#include "ScintillaTypes.h"
 #include "GUI.h"
-#include "ScintillaWindow.h"
 #include "MultiplexExtension.h"
 
 MultiplexExtension::MultiplexExtension(): host(nullptr) {}

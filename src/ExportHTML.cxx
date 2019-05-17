@@ -23,6 +23,10 @@
 #include <sys/stat.h>
 
 #include "ILexer.h"
+
+#include "ScintillaTypes.h"
+#include "ScintillaCall.h"
+
 #include "Scintilla.h"
 
 #include "GUI.h"
@@ -47,7 +51,7 @@
 
 void SciTEBase::SaveToHTML(const FilePath &saveName) {
 	RemoveFindMarks();
-	wEditor.Call(SCI_COLOURISE, 0, -1);
+	wEditor.Colourise(0, -1);
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;

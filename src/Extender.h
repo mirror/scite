@@ -8,20 +8,18 @@
 #ifndef EXTENDER_H
 #define EXTENDER_H
 
-#include "Scintilla.h"
-
 class StyleWriter;
 
-inline sptr_t SptrFromPointer(void *p) {
-	return reinterpret_cast<sptr_t>(p);
+inline intptr_t SptrFromPointer(void *p) {
+	return reinterpret_cast<intptr_t>(p);
 }
 
-inline sptr_t SptrFromString(const char *cp) {
-	return reinterpret_cast<sptr_t>(cp);
+inline intptr_t SptrFromString(const char *cp) {
+	return reinterpret_cast<intptr_t>(cp);
 }
 
-inline uptr_t UptrFromString(const char *cp) {
-	return reinterpret_cast<uptr_t>(cp);
+inline uintptr_t UptrFromString(const char *cp) {
+	return reinterpret_cast<uintptr_t>(cp);
 }
 
 class ExtensionAPI {
@@ -29,7 +27,7 @@ public:
 	virtual ~ExtensionAPI() {
 	}
 	enum Pane { paneEditor=1, paneOutput=2, paneFindOutput=3 };
-	virtual sptr_t Send(Pane p, unsigned int msg, uptr_t wParam=0, sptr_t lParam=0)=0;
+	virtual intptr_t Send(Pane p, unsigned int msg, uintptr_t wParam=0, intptr_t lParam=0)=0;
 	virtual std::string Range(Pane p, Scintilla::API::Position start, Scintilla::API::Position end)=0;
 	virtual void Remove(Pane p, Scintilla::API::Position start, Scintilla::API::Position end)=0;
 	virtual void Insert(Pane p, Scintilla::API::Position pos, const char *s)=0;
@@ -37,7 +35,7 @@ public:
 	virtual std::string Property(const char *key)=0;
 	virtual void SetProperty(const char *key, const char *val)=0;
 	virtual void UnsetProperty(const char *key)=0;
-	virtual uptr_t GetInstance()=0;
+	virtual uintptr_t GetInstance()=0;
 	virtual void ShutDown()=0;
 	virtual void Perform(const char *actions)=0;
 	virtual void DoMenuCommand(int cmdID)=0;

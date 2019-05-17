@@ -1394,9 +1394,9 @@ void SciTEGTK::CheckMenusClipboard() {
 void SciTEGTK::CheckMenus() {
 	SciTEBase::CheckMenus();
 
-	CheckAMenuItem(IDM_EOL_CRLF, wEditor.Call(SCI_GETEOLMODE) == SC_EOL_CRLF);
-	CheckAMenuItem(IDM_EOL_CR, wEditor.Call(SCI_GETEOLMODE) == SC_EOL_CR);
-	CheckAMenuItem(IDM_EOL_LF, wEditor.Call(SCI_GETEOLMODE) == SC_EOL_LF);
+	CheckAMenuItem(IDM_EOL_CRLF, wEditor.EOLMode() == SC_EOL_CRLF);
+	CheckAMenuItem(IDM_EOL_CR, wEditor.EOLMode() == SC_EOL_CR);
+	CheckAMenuItem(IDM_EOL_LF, wEditor.EOLMode() == SC_EOL_LF);
 
 	CheckAMenuItem(IDM_ENCODING_DEFAULT, CurrentBuffer()->unicodeMode == uni8Bit);
 	CheckAMenuItem(IDM_ENCODING_UCS2BE, CurrentBuffer()->unicodeMode == uni16BE);
@@ -1778,13 +1778,13 @@ void SciTEGTK::BeginPrintThis(GtkPrintOperation *operation, GtkPrintContext *con
 	Sci_RangeToFormat frPrint;
 	SetupFormat(frPrint, context) ;
 
-	int lengthDoc = wEditor.Call(SCI_GETLENGTH);
-	int lengthPrinted = 0;
+	SA::Position lengthDoc = wEditor.Length();
+	SA::Position lengthPrinted = 0;
 	while (lengthPrinted < lengthDoc) {
 		pageStarts.push_back(lengthPrinted);
 		frPrint.chrg.cpMin = lengthPrinted;
 		frPrint.chrg.cpMax = lengthDoc;
-		lengthPrinted = wEditor.CallPointer(SCI_FORMATRANGE, false, &frPrint);
+		lengthPrinted = wEditor.FormatRange(false, &frPrint);
 	}
 	pageStarts.push_back(lengthPrinted);
 
@@ -1858,13 +1858,13 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 		cairo_stroke(cr);
 	}
 
-	int lengthDoc = wEditor.Call(SCI_GETLENGTH);
+	SA::Position lengthDoc = wEditor.Length();
 	frPrint.chrg.cpMin = pageStarts[page_nr];
 	frPrint.chrg.cpMax = pageStarts[page_nr+1];
 	if (frPrint.chrg.cpMax < lengthDoc)
 		frPrint.chrg.cpMax--;
 
-	wEditor.CallPointer(SCI_FORMATRANGE, true, &frPrint);
+	wEditor.FormatRange(true, &frPrint);
 }
 
 void SciTEGTK::DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, gint page_nr, SciTEGTK *scitew) {
@@ -1917,9 +1917,9 @@ std::string SciTEGTK::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Positi
 	if (len == 0)
 		return std::string();
 	std::string allocation(len * 3 + 1, 0);
-	win.Call(SCI_SETTARGETSTART, selStart);
-	win.Call(SCI_SETTARGETEND, selEnd);
-	SA::Position byteLength = win.CallPointer(SCI_TARGETASUTF8, 0, &allocation[0]);
+	win.SetTargetStart(selStart);
+	win.SetTargetEnd(selEnd);
+	const SA::Position byteLength = win.TargetAsUTF8(&allocation[0]);
 	std::string sel(allocation, 0, byteLength);
 	return sel;
 }
@@ -1942,7 +1942,7 @@ void SciTEGTK::Find() {
 }
 
 void SetFocus(GUI::ScintillaWindow &w) {
-	w.Call(SCI_GRABFOCUS);
+	w.GrabFocus();
 }
 
 void SciTEGTK::UIClosed() {
@@ -1982,11 +1982,11 @@ static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, b
 }
 
 std::string SciTEGTK::EncodeString(const std::string &s) {
-	wEditor.Call(SCI_SETLENGTHFORENCODE, s.length());
-	int len = wEditor.Call(SCI_ENCODEDFROMUTF8,
+	wEditor.SetLengthForEncode(s.length());
+	SA::Position len = wEditor.EncodedFromUTF8(
 		UptrFromString(s.c_str()), 0);
 	std::vector<char> ret(len+1);
-	wEditor.CallString(SCI_ENCODEDFROMUTF8,
+	wEditor.EncodedFromUTF8(
 		UptrFromString(s.c_str()), &ret[0]);
 	return std::string(&ret[0], len);
 }
@@ -2835,12 +2835,12 @@ bool SciTEGTK::AbbrevDialog() {
 void SciTEGTK::TabSizeSet(int &tabSize, bool &useTabs) {
 	tabSize = dlgTabSize.entryTabSize.Value();
 	if (tabSize > 0)
-		wEditor.Call(SCI_SETTABWIDTH, tabSize);
+		wEditor.SetTabWidth(tabSize);
 	int indentSize = dlgTabSize.entryIndentSize.Value();
 	if (indentSize > 0)
-		wEditor.Call(SCI_SETINDENT, indentSize);
+		wEditor.SetIndent(indentSize);
 	useTabs = dlgTabSize.toggleUseTabs.Active();
-	wEditor.Call(SCI_SETUSETABS, useTabs);
+	wEditor.SetUseTabs(useTabs);
 }
 
 void SciTEGTK::TabSizeCmd() {
@@ -2888,7 +2888,7 @@ void SciTEGTK::TabSizeDialog() {
 	GtkWidget *labelTabSize = TranslatedLabel("_Tab Size:");
 	table.Label(labelTabSize);
 
-	std::string tabSize = StdStringFromInteger(static_cast<int>(wEditor.Call(SCI_GETTABWIDTH)));
+	std::string tabSize = StdStringFromInteger(static_cast<int>(wEditor.TabWidth()));
 	dlgTabSize.entryTabSize.Create(tabSize.c_str());
 	table.Add(dlgTabSize.entryTabSize);
 	dlgTabSize.entryTabSize.ActivatesDefault();
@@ -2898,13 +2898,13 @@ void SciTEGTK::TabSizeDialog() {
 	GtkWidget *labelIndentSize = TranslatedLabel("_Indent Size:");
 	table.Label(labelIndentSize);
 
-	std::string indentSize = StdStringFromInteger(static_cast<int>(wEditor.Call(SCI_GETINDENT)));
+	std::string indentSize = StdStringFromInteger(static_cast<int>(wEditor.IndentSize()));
 	dlgTabSize.entryIndentSize.Create(indentSize.c_str());
 	table.Add(dlgTabSize.entryIndentSize);
 	dlgTabSize.entryIndentSize.ActivatesDefault();
 	gtk_label_set_mnemonic_widget(GTK_LABEL(labelIndentSize), dlgTabSize.entryIndentSize);
 
-	bool useTabs = wEditor.Call(SCI_GETUSETABS);
+	bool useTabs = wEditor.UseTabs();
 	dlgTabSize.toggleUseTabs.Create(localiser.Text("_Use Tabs"));
 	dlgTabSize.toggleUseTabs.SetActive(useTabs);
 	table.Add();
@@ -5000,7 +5000,7 @@ void SciTEGTK::CreateUI() {
 	wEditor.SetScintilla(scintilla_new());
 	g_object_ref(G_OBJECT(PWidget(wEditor)));
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
-	wEditor.Call(SCI_USEPOPUP, 0);
+	wEditor.UsePopUp(0);
 
 	g_signal_connect(G_OBJECT(PWidget(wEditor)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
@@ -5009,7 +5009,7 @@ void SciTEGTK::CreateUI() {
 	wOutput.SetScintilla(scintilla_new());
 	g_object_ref(G_OBJECT(PWidget(wOutput)));
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
-	wOutput.Call(SCI_USEPOPUP, 0);
+	wOutput.UsePopUp(0);
 	g_signal_connect(G_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
 
@@ -5040,7 +5040,7 @@ void SciTEGTK::CreateUI() {
 
 	CreateStrips(boxMain);
 
-	wOutput.Call(SCI_SETMARGINWIDTHN, 1, 0);
+	wOutput.SetMarginWidthN(1, 0);
 
 	wStatusBar = gtk_statusbar_new();
 	sbContextID = gtk_statusbar_get_context_id(

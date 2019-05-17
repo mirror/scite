@@ -12,6 +12,9 @@
 #include <string>
 #include <vector>
 
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaCall.h"
 #include "Scintilla.h"
 
 #include "GUI.h"
@@ -862,7 +865,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	int arg = 2;
 
-	sptr_t params[2] = {0, 0};
+	intptr_t params[2] = {0, 0};
 
 	std::string stringResult;
 	bool needStringResult = false;
@@ -900,7 +903,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	}
 
 	if (needStringResult) {
-		const sptr_t stringResultLen = host->Send(p, func.value, params[0], 0);
+		const intptr_t stringResultLen = host->Send(p, func.value, params[0], 0);
 		if (stringResultLen > 0) {
 			// not all string result methods are guaranteed to add a null terminator
 			stringResult.assign(stringResultLen + 1, '\0');
@@ -920,10 +923,10 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	// - numeric return type gets returned to lua as a number (following the stringresult)
 	// - other return types e.g. void get dropped.
 
-	sptr_t result = 0;
+	intptr_t result = 0;
 	try {
 		result = host->Send(p, func.value, params[0], params[1]);
-	} catch (const GUI::ScintillaFailure &sf) {
+	} catch (const SA::Failure &sf) {
 		std::string failureExplanation;
 		failureExplanation += ">Lua: Scintilla failure ";
 		failureExplanation += StdStringFromInteger(static_cast<int>(sf.status));

@@ -137,7 +137,7 @@ public:
 class ScintillaPrimitive : public Window {
 public:
 	// Send is the basic method and can be used between threads on Win32
-	sptr_t Send(unsigned int msg, uptr_t wParam=0, sptr_t lParam=0);
+	intptr_t Send(unsigned int msg, uintptr_t wParam=0, intptr_t lParam=0);
 };
 
 bool IsDBCSLeadByte(int codePage, char ch);

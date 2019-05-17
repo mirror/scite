@@ -607,7 +607,7 @@ void SciTEWin::Print(
 		return;
 	}
 
-	LONG lengthDoc = wEditor.Call(SCI_GETLENGTH);
+	LONG lengthDoc = static_cast<LONG>(wEditor.Length());
 	const LONG lengthDocMax = lengthDoc;
 	LONG lengthPrinted = 0;
 
@@ -687,9 +687,9 @@ void SciTEWin::Print(
 		frPrint.chrg.cpMin = lengthPrinted;
 		frPrint.chrg.cpMax = lengthDoc;
 
-		lengthPrinted = wEditor.CallPointer(SCI_FORMATRANGE,
+		lengthPrinted = static_cast<LONG>(wEditor.FormatRange(
 		                           printPage,
-		                           &frPrint);
+		                           &frPrint));
 
 		if (printPage) {
 			if (footerFormat.size()) {
@@ -721,7 +721,7 @@ void SciTEWin::Print(
 			break;
 	}
 
-	wEditor.Call(SCI_FORMATRANGE, FALSE, 0);
+	wEditor.FormatRange(FALSE, 0);
 
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
@@ -948,7 +948,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			dlg.Enable(IDFINDSTYLE, findInStyle);
 			Edit_LimitText(dlg.Item(IDFINDSTYLE), 3);
 			dlg.SetItemText(IDFINDSTYLE, std::to_wstring(
-				wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS))));
+				wEditor.StyleAt(wEditor.CurrentPosition())));
 		}
 		return TRUE;
 
@@ -1039,7 +1039,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		if (FindReplaceAdvanced()) {
 			dlg.Enable(IDFINDSTYLE, findInStyle);
 			dlg.SetItemText(IDFINDSTYLE, std::to_wstring(
-				wEditor.Call(SCI_GETSTYLEAT, wEditor.Call(SCI_GETCURRENTPOS))));
+				wEditor.StyleAt(wEditor.CurrentPosition())));
 		}
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(::GetDlgItem(hDlg, IDREPLACEWITH));
@@ -1393,12 +1393,12 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
 	case WM_INITDIALOG: {
-			SA::Position position = wEditor.Call(SCI_GETCURRENTPOS);
-			const SA::Line lineNumber = wEditor.Call(SCI_LINEFROMPOSITION, position) + 1;
-			const SA::Position lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
+			SA::Position position = wEditor.CurrentPosition();
+			const SA::Line lineNumber = wEditor.LineFromPosition(position) + 1;
+			const SA::Position lineStart = wEditor.LineStart(lineNumber - 1);
 			int characterOnLine = 1;
 			while (position > lineStart) {
-				position = wEditor.Call(SCI_POSITIONBEFORE, position);
+				position = wEditor.PositionBefore(position);
 				characterOnLine++;
 			}
 
@@ -1407,7 +1407,7 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::SendDlgItemMessage(hDlg, IDGOLINECHAR, EM_LIMITTEXT, 10, 1);
 			dlg.SetItemText(IDCURRLINE, std::to_wstring(lineNumber));
 			dlg.SetItemText(IDCURRLINECHAR, std::to_wstring(characterOnLine));
-			dlg.SetItemText(IDLASTLINE, std::to_wstring(wEditor.Call(SCI_GETLINECOUNT)));
+			dlg.SetItemText(IDLASTLINE, std::to_wstring(wEditor.LineCount()));
 		}
 		return TRUE;
 
@@ -1425,21 +1425,21 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 			if (lineNumberOpt || characterOnLineOpt) {
 				const intptr_t lineNumber = lineNumberOpt.value_or(
-					wEditor.Call(SCI_LINEFROMPOSITION, wEditor.Call(SCI_GETCURRENTPOS)) + 1);
+					wEditor.LineFromPosition(wEditor.CurrentPosition()) + 1);
 
 				GotoLineEnsureVisible(static_cast<int>(lineNumber - 1));
 
-				if (characterOnLineOpt && characterOnLineOpt.value() > 1 && lineNumber <= wEditor.Call(SCI_GETLINECOUNT)) {
+				if (characterOnLineOpt && characterOnLineOpt.value() > 1 && lineNumber <= wEditor.LineCount()) {
 					// Constrain to the requested line
-					const SA::Position lineStart = wEditor.Call(SCI_POSITIONFROMLINE, lineNumber - 1);
-					const SA::Position lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, lineNumber - 1);
+					const SA::Position lineStart = wEditor.LineStart(lineNumber - 1);
+					const SA::Position lineEnd = wEditor.LineEnd(lineNumber - 1);
 
 					intptr_t characterOnLine = characterOnLineOpt.value();
 					SA::Position position = lineStart;
 					while (--characterOnLine && position < lineEnd)
-						position = wEditor.Call(SCI_POSITIONAFTER, position);
+						position = wEditor.PositionAfter(position);
 
-					wEditor.Call(SCI_GOTOPOS, position);
+					wEditor.GotoPosition(position);
 				}
 			}
 			::EndDialog(hDlg, IDOK);
@@ -1502,18 +1502,18 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	case WM_INITDIALOG: {
 			LocaliseDialog(hDlg);
 			::SendDlgItemMessage(hDlg, IDTABSIZE, EM_LIMITTEXT, 2, 1);
-			int tabSize = wEditor.Call(SCI_GETTABWIDTH);
+			int tabSize = wEditor.TabWidth();
 			if (tabSize > 99)
 				tabSize = 99;
 			dlg.SetItemText(IDTABSIZE, std::to_wstring(tabSize));
 
 			::SendDlgItemMessage(hDlg, IDINDENTSIZE, EM_LIMITTEXT, 2, 1);
-			int indentSize = wEditor.Call(SCI_GETINDENT);
+			int indentSize = wEditor.IndentSize();
 			if (indentSize > 99)
 				indentSize = 99;
 			dlg.SetItemText(IDINDENTSIZE, std::to_wstring(indentSize));
 
-			::CheckDlgButton(hDlg, IDUSETABS, wEditor.Call(SCI_GETUSETABS));
+			::CheckDlgButton(hDlg, IDUSETABS, wEditor.UseTabs());
 			return TRUE;
 		}
 
@@ -1530,12 +1530,12 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			BOOL bOK;
 			const int tabSize = static_cast<int>(::GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
 			if (tabSize > 0)
-				wEditor.Call(SCI_SETTABWIDTH, tabSize);
+				wEditor.SetTabWidth(tabSize);
 			const int indentSize = static_cast<int>(::GetDlgItemInt(hDlg, IDINDENTSIZE, &bOK, FALSE));
 			if (indentSize > 0)
-				wEditor.Call(SCI_SETINDENT, indentSize);
+				wEditor.SetIndent(indentSize);
 			const bool useTabs = static_cast<bool>(::IsDlgButtonChecked(hDlg, IDUSETABS));
-			wEditor.Call(SCI_SETUSETABS, useTabs);
+			wEditor.SetUseTabs(useTabs);
 			if (ControlIDOfWParam(wParam) == IDCONVERT) {
 				ConvertIndentation(tabSize, useTabs);
 			}

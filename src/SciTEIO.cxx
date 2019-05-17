@@ -24,6 +24,10 @@
 #include <fcntl.h>
 
 #include "ILoader.h"
+
+#include "ScintillaTypes.h"
+#include "ScintillaCall.h"
+
 #include "Scintilla.h"
 
 #include "GUI.h"
@@ -141,11 +145,11 @@ void SciTEBase::DiscoverEOLSetting() {
 		int linesCRLF;
 		CountLineEnds(linesCR, linesLF, linesCRLF);
 		if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
-			wEditor.Call(SCI_SETEOLMODE, SC_EOL_LF);
+			wEditor.SetEOLMode(SC_EOL_LF);
 		else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
-			wEditor.Call(SCI_SETEOLMODE, SC_EOL_CR);
+			wEditor.SetEOLMode(SC_EOL_CR);
 		else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
-			wEditor.Call(SCI_SETEOLMODE, SC_EOL_CRLF);
+			wEditor.SetEOLMode(SC_EOL_CRLF);
 	}
 }
 
@@ -235,10 +239,10 @@ void SciTEBase::DiscoverIndentSetting() {
 	}
 	// set indentation
 	if (topTabSize == 0) {
-		wEditor.Call(SCI_SETUSETABS, 1);
+		wEditor.SetUseTabs(1);
 	} else if (topTabSize != -1) {
-		wEditor.Call(SCI_SETUSETABS, 0);
-		wEditor.Call(SCI_SETINDENT, topTabSize);
+		wEditor.SetUseTabs(0);
+		wEditor.SetIndent(topTabSize);
 	}
 }
 
@@ -258,26 +262,26 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 			GUI::gui_string msg = LocaliseMessage("Could not open file '^0'.", filePath.AsInternal());
 			WindowMessageBox(wSciTE, msg);
 		}
-		if (!wEditor.Call(SCI_GETUNDOCOLLECTION)) {
-			wEditor.Call(SCI_SETUNDOCOLLECTION, 1);
+		if (!wEditor.UndoCollection()) {
+			wEditor.SetUndoCollection(1);
 		}
 		return;
 	}
 
 	CurrentBuffer()->SetTimeFromFile();
 
-	wEditor.Call(SCI_BEGINUNDOACTION);	// Group together clear and insert
-	wEditor.Call(SCI_CLEARALL);
+	wEditor.BeginUndoAction();	// Group together clear and insert
+	wEditor.ClearAll();
 
 	CurrentBuffer()->lifeState = Buffer::reading;
 	if (asynchronous) {
 		// Turn grey while loading
-		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
-		wEditor.Call(SCI_SETREADONLY, 1);
+		wEditor.StyleSetBack(STYLE_DEFAULT, 0xEEEEEE);
+		wEditor.SetReadOnly(1);
 		assert(CurrentBufferConst()->pFileWorker == nullptr);
 		ILoader *pdocLoad;
 		try {
-			sptr_t docOptions = SC_DOCUMENTOPTION_DEFAULT;
+			int docOptions = SC_DOCUMENTOPTION_DEFAULT;
 
 			const long long sizeLarge = props.GetLongLong("file.size.large");
 			if (sizeLarge && (fileSize > sizeLarge))
@@ -288,17 +292,17 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 				docOptions |= SC_DOCUMENTOPTION_STYLES_NONE;
 
 			pdocLoad = reinterpret_cast<ILoader *>(
-				wEditor.CallReturnPointer(SCI_CREATELOADER, static_cast<uptr_t>(fileSize) + 1000,
+				wEditor.CreateLoader(static_cast<SA::Position>(fileSize) + 1000,
 					docOptions));
 		} catch (...) {
-			wEditor.Call(SCI_SETSTATUS, 0);
+			wEditor.SetStatus(0);
 			return;
 		}
 		CurrentBuffer()->pFileWorker = new FileLoader(this, pdocLoad, filePath, static_cast<size_t>(fileSize), fp);
 		CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 		PerformOnNewThread(CurrentBuffer()->pFileWorker);
 	} else {
-		wEditor.Call(SCI_ALLOCATE, static_cast<uptr_t>(fileSize) + 1000);
+		wEditor.Allocate(static_cast<SA::Position>(fileSize) + 1000);
 
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
@@ -307,19 +311,19 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		while (lenFile > 0) {
 			lenFile = convert.convert(&data[0], lenFile);
 			const char *dataBlock = convert.getNewBuf();
-			wEditor.CallString(SCI_ADDTEXT, lenFile, dataBlock);
+			wEditor.AddText(lenFile, dataBlock);
 			lenFile = fread(&data[0], 1, data.size(), fp);
 			if (lenFile == 0) {
 				// Handle case where convert is holding a lead surrogate but no more data
 				const size_t lenFileTrail = convert.convert(nullptr, lenFile);
 				if (lenFileTrail) {
 					const char *dataTrail = convert.getNewBuf();
-					wEditor.CallString(SCI_ADDTEXT, lenFileTrail, dataTrail);
+					wEditor.AddText(lenFileTrail, dataTrail);
 				}
 			}
 		}
 		fclose(fp);
-		wEditor.Call(SCI_ENDUNDOACTION);
+		wEditor.EndUndoAction();
 
 		CurrentBuffer()->unicodeMode = static_cast<UniMode>(
 			    static_cast<int>(convert.getEncoding()));
@@ -346,7 +350,7 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 			buffers.buffers[iBuffer].lifeState = Buffer::empty;
 		}
 		// Switch documents
-		const sptr_t pdocLoading = reinterpret_cast<sptr_t>(pFileLoader->pLoader->ConvertToDocument());
+		const intptr_t pdocLoading = reinterpret_cast<intptr_t>(pFileLoader->pLoader->ConvertToDocument());
 		pFileLoader->pLoader = nullptr;
 		SwitchDocumentAt(iBuffer, pdocLoading);
 		if (iBuffer == buffers.Current()) {
@@ -355,21 +359,21 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 				extender->OnOpen(buffers.buffers[iBuffer].file.AsUTF8().c_str());
 			RestoreState(buffers.buffers[iBuffer], true);
 			DisplayAround(buffers.buffers[iBuffer].file);
-			wEditor.Call(SCI_SCROLLCARET);
+			wEditor.ScrollCaret();
 		}
 	}
 }
 
 void SciTEBase::PerformDeferredTasks() {
 	if (buffers.buffers[buffers.Current()].futureDo & Buffer::fdFinishSave) {
-		wEditor.Call(SCI_SETSAVEPOINT);
-		wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
+		wEditor.SetSavePoint();
+		wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 		buffers.FinishedFuture(buffers.Current(), Buffer::fdFinishSave);
 	}
 }
 
 void SciTEBase::CompleteOpen(OpenCompletion oc) {
-	wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
+	wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 
 	if (oc != ocSynchronous) {
 		ReadProperties();
@@ -398,7 +402,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	} else {
 		codePage = props.GetInt("code.page");
 	}
-	wEditor.Call(SCI_SETCODEPAGE, codePage);
+	wEditor.SetCodePage(codePage);
 
 	DiscoverEOLSetting();
 
@@ -406,14 +410,14 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 		DiscoverIndentSetting();
 	}
 
-	if (!wEditor.Call(SCI_GETUNDOCOLLECTION)) {
-		wEditor.Call(SCI_SETUNDOCOLLECTION, 1);
+	if (!wEditor.UndoCollection()) {
+		wEditor.SetUndoCollection(1);
 	}
-	wEditor.Call(SCI_SETSAVEPOINT);
+	wEditor.SetSavePoint();
 	if (props.GetInt("fold.on.open") > 0) {
 		FoldAll();
 	}
-	wEditor.Call(SCI_GOTOPOS, 0);
+	wEditor.GotoPosition(0);
 
 	CurrentBuffer()->CompleteLoading();
 
@@ -438,16 +442,16 @@ void SciTEBase::TextWritten(FileWorker *pFileWorker) {
 			buffers.SetVisible(iBuffer, true);
 			SetBuffersMenu();
 			if (iBuffer == buffers.Current()) {
-				wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
+				wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 			}
 		} else {
 			if (!buffers.GetVisible(iBuffer)) {
 				buffers.RemoveInvisible(iBuffer);
 			}
 			if (iBuffer == buffers.Current()) {
-				wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
+				wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 				if (pathSaved.SameNameAs(CurrentBuffer()->file)) {
-					wEditor.Call(SCI_SETSAVEPOINT);
+					wEditor.SetSavePoint();
 				}
 				if (extender)
 					extender->OnSave(buffers.buffers[iBuffer].file.AsUTF8().c_str());
@@ -595,12 +599,12 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 
 	bool asynchronous = false;
 	if (!filePath.IsUntitled()) {
-		wEditor.Call(SCI_SETREADONLY, 0);
-		wEditor.Call(SCI_CANCEL);
+		wEditor.SetReadOnly(0);
+		wEditor.Cancel();
 		if (of & ofPreserveUndo) {
-			wEditor.Call(SCI_BEGINUNDOACTION);
+			wEditor.BeginUndoAction();
 		} else {
-			wEditor.Call(SCI_SETUNDOCOLLECTION, 0);
+			wEditor.SetUndoCollection(0);
 		}
 
 		asynchronous = (fileSize > props.GetInt("background.open.size", -1)) &&
@@ -608,12 +612,12 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 		OpenCurrentFile(fileSize, of & ofQuiet, asynchronous);
 
 		if (of & ofPreserveUndo) {
-			wEditor.Call(SCI_ENDUNDOACTION);
+			wEditor.EndUndoAction();
 		} else {
-			wEditor.Call(SCI_EMPTYUNDOBUFFER);
+			wEditor.EmptyUndoBuffer();
 		}
 		CurrentBuffer()->isReadOnly = props.GetInt("read.only");
-		wEditor.Call(SCI_SETREADONLY, CurrentBuffer()->isReadOnly);
+		wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 	}
 	RemoveFileFromStack(filePath);
 	DeleteFileStackMenu();
@@ -730,10 +734,10 @@ bool SciTEBase::OpenSelected() {
 		const OpenFlags of = ((lineNumber > 0) || (cTag.length() != 0)) ? ofSynchronous : ofNone;
 		if (Open(pathReturned, of)) {
 			if (lineNumber > 0) {
-				wEditor.Call(SCI_GOTOLINE, lineNumber - 1);
+				wEditor.GotoLine(lineNumber - 1);
 			} else if (cTag.length() != 0) {
 				if (atoi(cTag.c_str()) > 0) {
-					wEditor.Call(SCI_GOTOLINE, IntegerFromText(cTag.c_str()) - 1);
+					wEditor.GotoLine(IntegerFromText(cTag.c_str()) - 1);
 				} else {
 					findWhat = cTag;
 					FindNext(false);
@@ -749,7 +753,7 @@ bool SciTEBase::OpenSelected() {
 
 void SciTEBase::Revert() {
 	if (filePath.IsUntitled()) {
-		wEditor.Call(SCI_CLEARALL);
+		wEditor.ClearAll();
 	} else {
 		RecentFile rf = GetFilePosition();
 		OpenCurrentFile(filePath.GetFileLength(), false, false);
@@ -892,12 +896,12 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 	// Definitely going to exit now, so delete all documents
 	// Set editor back to initial document
 	if (buffers.lengthVisible > 0) {
-		wEditor.Call(SCI_SETDOCPOINTER, 0, buffers.buffers[0].doc);
+		wEditor.SetDocPointer(buffers.buffers[0].doc);
 	}
 	// Release all the extra documents
 	for (int j = 0; j < buffers.size(); j++) {
 		if (buffers.buffers[j].doc && !buffers.buffers[j].pFileWorker) {
-			wEditor.Call(SCI_RELEASEDOCUMENT, 0, buffers.buffers[j].doc);
+			wEditor.ReleaseDocument(buffers.buffers[j].doc);
 			buffers.buffers[j].doc = 0;
 		}
 	}
@@ -929,8 +933,8 @@ class SelectionKeeper {
 public:
 	explicit SelectionKeeper(GUI::ScintillaWindow &editor) : wEditor(editor) {
 		const int mask = SCVS_RECTANGULARSELECTION | SCVS_USERACCESSIBLE;
-		if (wEditor.Call(SCI_GETVIRTUALSPACEOPTIONS) & mask) {
-			const int n = wEditor.Call(SCI_GETSELECTIONS);
+		if (wEditor.VirtualSpaceOptions() & mask) {
+			const int n = wEditor.Selections();
 			for (int i = 0; i < n; ++i) {
 				selections.push_back(LocFromPos(GetSelection(i)));
 			}
@@ -959,14 +963,14 @@ private:
 	};
 
 	Position GetAnchor(int i) {
-		const SA::Position pos  = wEditor.Call(SCI_GETSELECTIONNANCHOR, i);
-		const SA::Position virt = wEditor.Call(SCI_GETSELECTIONNANCHORVIRTUALSPACE, i);
+		const SA::Position pos  = wEditor.SelectionNAnchor(i);
+		const SA::Position virt = wEditor.SelectionNAnchorVirtualSpace(i);
 		return Position(pos, virt);
 	}
 
 	Position GetCaret(int i) {
-		const SA::Position pos  = wEditor.Call(SCI_GETSELECTIONNCARET, i);
-		const SA::Position virt = wEditor.Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, i);
+		const SA::Position pos  = wEditor.SelectionNCaret(i);
+		const SA::Position virt = wEditor.SelectionNCaretVirtualSpace(i);
 		return Position(pos, virt);
 	}
 
@@ -975,8 +979,8 @@ private:
 	};
 
 	Location LocFromPos(Position const &pos) {
-		const SA::Line line = wEditor.Call(SCI_LINEFROMPOSITION, pos.pos);
-		const SA::Position col  = wEditor.Call(SCI_GETCOLUMN, pos.pos) + pos.virt;
+		const SA::Line line = wEditor.LineFromPosition(pos.pos);
+		const SA::Position col  = wEditor.Column(pos.pos) + pos.virt;
 		return Location(line, col);
 	}
 
@@ -985,8 +989,8 @@ private:
 	}
 
 	Position PosFromLoc(Location const &loc) {
-		const SA::Position pos = wEditor.Call(SCI_FINDCOLUMN, loc.line, loc.col);
-		const SA::Position col = wEditor.Call(SCI_GETCOLUMN, pos);
+		const SA::Position pos = wEditor.FindColumn(loc.line, loc.col);
+		const SA::Position col = wEditor.Column(pos);
 		return Position(pos, loc.col - col);
 	}
 
@@ -995,13 +999,13 @@ private:
 	}
 
 	void SetAnchor(int i, Position const &pos) {
-		wEditor.Call(SCI_SETSELECTIONNANCHOR, i, pos.pos);
-		wEditor.Call(SCI_SETSELECTIONNANCHORVIRTUALSPACE, i, pos.virt);
+		wEditor.SetSelectionNAnchor(i, pos.pos);
+		wEditor.SetSelectionNAnchorVirtualSpace(i, pos.virt);
 	};
 
 	void SetCaret(int i, Position const &pos) {
-		wEditor.Call(SCI_SETSELECTIONNCARET, i, pos.pos);
-		wEditor.Call(SCI_SETSELECTIONNCARETVIRTUALSPACE, i, pos.virt);
+		wEditor.SetSelectionNCaret(i, pos.pos);
+		wEditor.SetSelectionNCaretVirtualSpace(i, pos.virt);
 	}
 
 	void SetSelection(int i, std::pair<Position, Position> const &pos) {
@@ -1014,35 +1018,35 @@ private:
 };
 
 void SciTEBase::StripTrailingSpaces() {
-	const SA::Line maxLines = wEditor.Call(SCI_GETLINECOUNT);
+	const SA::Line maxLines = wEditor.LineCount();
 	SelectionKeeper keeper(wEditor);
 	for (int line = 0; line < maxLines; line++) {
-		const SA::Position lineStart = wEditor.Call(SCI_POSITIONFROMLINE, line);
-		const SA::Position lineEnd = wEditor.Call(SCI_GETLINEENDPOSITION, line);
+		const SA::Position lineStart = wEditor.LineStart(line);
+		const SA::Position lineEnd = wEditor.LineEnd(line);
 		SA::Position i = lineEnd - 1;
-		char ch = static_cast<char>(wEditor.Call(SCI_GETCHARAT, i));
+		char ch = static_cast<char>(wEditor.CharAt(i));
 		while ((i >= lineStart) && ((ch == ' ') || (ch == '\t'))) {
 			i--;
-			ch = static_cast<char>(wEditor.Call(SCI_GETCHARAT, i));
+			ch = static_cast<char>(wEditor.CharAt(i));
 		}
 		if (i < (lineEnd - 1)) {
-			wEditor.Call(SCI_SETTARGETSTART, i + 1);
-			wEditor.Call(SCI_SETTARGETEND, lineEnd);
-			wEditor.CallString(SCI_REPLACETARGET, 0, "");
+			wEditor.SetTargetStart(i + 1);
+			wEditor.SetTargetEnd(lineEnd);
+			wEditor.ReplaceTarget(0, "");
 		}
 	}
 }
 
 void SciTEBase::EnsureFinalNewLine() {
-	const SA::Line maxLines = wEditor.Call(SCI_GETLINECOUNT);
+	const SA::Line maxLines = wEditor.LineCount();
 	bool appendNewLine = maxLines == 1;
-	const SA::Position endDocument = wEditor.Call(SCI_POSITIONFROMLINE, maxLines);
+	const SA::Position endDocument = wEditor.LineStart(maxLines);
 	if (maxLines > 1) {
-		appendNewLine = endDocument > wEditor.Call(SCI_POSITIONFROMLINE, maxLines - 1);
+		appendNewLine = endDocument > wEditor.LineStart(maxLines - 1);
 	}
 	if (appendNewLine) {
 		const char *eol = "\n";
-		switch (wEditor.Call(SCI_GETEOLMODE)) {
+		switch (wEditor.EOLMode()) {
 		case SC_EOL_CRLF:
 			eol = "\r\n";
 			break;
@@ -1050,7 +1054,7 @@ void SciTEBase::EnsureFinalNewLine() {
 			eol = "\r";
 			break;
 		}
-		wEditor.CallString(SCI_INSERTTEXT, endDocument, eol);
+		wEditor.InsertText(endDocument, eol);
 	}
 }
 
@@ -1058,18 +1062,18 @@ void SciTEBase::EnsureFinalNewLine() {
 bool SciTEBase::PrepareBufferForSave(const FilePath &saveName) {
 	bool retVal = false;
 	// Perform clean ups on text before saving
-	wEditor.Call(SCI_BEGINUNDOACTION);
+	wEditor.BeginUndoAction();
 	if (stripTrailingSpaces)
 		StripTrailingSpaces();
 	if (ensureFinalLineEnd)
 		EnsureFinalNewLine();
 	if (ensureConsistentLineEnds)
-		wEditor.Call(SCI_CONVERTEOLS, wEditor.Call(SCI_GETEOLMODE));
+		wEditor.ConvertEOLs(wEditor.EOLMode());
 
 	if (extender)
 		retVal = extender->OnBeforeSave(saveName.AsUTF8().c_str());
 
-	wEditor.Call(SCI_ENDUNDOACTION);
+	wEditor.EndUndoAction();
 
 	return retVal;
 }
@@ -1086,8 +1090,8 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 		if (fp) {
 			const size_t lengthDoc = LengthDocument();
 			if (!(sf & sfSynchronous)) {
-				wEditor.Call(SCI_SETREADONLY, 1);
-				const char *documentBytes = reinterpret_cast<const char *>(wEditor.CallReturnPointer(SCI_GETCHARACTERPOINTER));
+				wEditor.SetReadOnly(1);
+				const char *documentBytes = reinterpret_cast<const char *>(wEditor.CharacterPointer());
 				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, saveName, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
 				CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 				if (PerformOnNewThread(CurrentBuffer()->pFileWorker)) {
@@ -1111,7 +1115,7 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 					if (grabSize > blockSize)
 						grabSize = blockSize;
 					// Round down so only whole characters retrieved.
-					grabSize = wEditor.Call(SCI_POSITIONBEFORE, i + grabSize + 1) - i;
+					grabSize = wEditor.PositionBefore(i + grabSize + 1) - i;
 					GetRange(wEditor, static_cast<int>(i), static_cast<int>(i + grabSize), &data[0]);
 					const size_t written = convert.fwrite(&data[0], grabSize);
 					if (written == 0) {
@@ -1187,7 +1191,7 @@ bool SciTEBase::Save(SaveFlags sf) {
 		if (SaveBuffer(filePath, sf)) {
 			CurrentBuffer()->SetTimeFromFile();
 			if (sf & sfSynchronous) {
-				wEditor.Call(SCI_SETSAVEPOINT);
+				wEditor.SetSavePoint();
 				if (IsPropertiesFile(filePath)) {
 					ReloadProperties();
 				}
@@ -1231,8 +1235,8 @@ void SciTEBase::SaveAs(const GUI::gui_char *file, bool fixCase) {
 	SetFileName(file, fixCase);
 	Save();
 	ReadProperties();
-	wEditor.Call(SCI_CLEARDOCUMENTSTYLE);
-	wEditor.Call(SCI_COLOURISE, 0, wEditor.Call(SCI_POSITIONFROMLINE, 1));
+	wEditor.ClearDocumentStyle();
+	wEditor.Colourise(0, wEditor.LineStart(1));
 	Redraw();
 	SetWindowName();
 	BuffersMenu();
@@ -1272,19 +1276,19 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 
 	Open(FilePath());
 	if (UseOutputPane) {
-		wOutput.Call(SCI_CLEARALL);
+		wOutput.ClearAll();
 	} else {
-		wEditor.Call(SCI_BEGINUNDOACTION);	// Group together clear and insert
-		wEditor.Call(SCI_CLEARALL);
+		wEditor.BeginUndoAction();	// Group together clear and insert
+		wEditor.ClearAll();
 	}
 	size_t lenFile = fread(&data[0], 1, data.size(), stdin);
 	const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
 	while (lenFile > 0) {
 		lenFile = convert.convert(&data[0], lenFile);
 		if (UseOutputPane) {
-			wOutput.CallString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
+			wOutput.AddText(lenFile, convert.getNewBuf());
 		} else {
-			wEditor.CallString(SCI_ADDTEXT, lenFile, convert.getNewBuf());
+			wEditor.AddText(lenFile, convert.getNewBuf());
 		}
 		lenFile = fread(&data[0], 1, data.size(), stdin);
 	}
@@ -1296,7 +1300,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		}
 		SizeSubWindows();
 	} else {
-		wEditor.Call(SCI_ENDUNDOACTION);
+		wEditor.EndUndoAction();
 	}
 	CurrentBuffer()->unicodeMode = static_cast<UniMode>(
 	            static_cast<int>(convert.getEncoding()));
@@ -1311,20 +1315,20 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		codePage = props.GetInt("code.page");
 	}
 	if (UseOutputPane) {
-		wOutput.Call(SCI_SETSEL, 0, 0);
+		wOutput.SetSel(0, 0);
 	} else {
-		wEditor.Call(SCI_SETCODEPAGE, codePage);
+		wEditor.SetCodePage(codePage);
 
 		// Zero all the style bytes
-		wEditor.Call(SCI_CLEARDOCUMENTSTYLE);
+		wEditor.ClearDocumentStyle();
 
 		CurrentBuffer()->overrideExtension = "x.txt";
 		ReadProperties();
 		SetIndentSettings();
-		wEditor.Call(SCI_COLOURISE, 0, -1);
+		wEditor.Colourise(0, -1);
 		Redraw();
 
-		wEditor.Call(SCI_SETSEL, 0, 0);
+		wEditor.SetSel(0, 0);
 	}
 }
 

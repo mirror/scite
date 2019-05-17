@@ -23,6 +23,11 @@
 #include <fcntl.h>
 
 #include "ILexer.h"
+
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaCall.h"
+
 #include "Scintilla.h"
 #include "SciLexer.h"
 
@@ -264,13 +269,13 @@ StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
 	std::string ss = StyleString(languageName.c_str(), style);
 
 	if (!subStyleBases.empty()) {
-		const int baseStyle = wEditor.Call(SCI_GETSTYLEFROMSUBSTYLE, style);
+		const int baseStyle = wEditor.StyleFromSubStyle(style);
 		if (baseStyle != style) {
-			const int primaryStyle = wEditor.Call(SCI_GETPRIMARYSTYLEFROMSTYLE, style);
-			const int distanceSecondary = (style == primaryStyle) ? 0 : wEditor.Call(SCI_DISTANCETOSECONDARYSTYLES);
+			const int primaryStyle = wEditor.PrimaryStyleFromStyle(style);
+			const int distanceSecondary = (style == primaryStyle) ? 0 : wEditor.DistanceToSecondaryStyles();
 			const int primaryBase = baseStyle - distanceSecondary;
-			const int subStylesStart = wEditor.Call(SCI_GETSUBSTYLESSTART, primaryBase);
-			const int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, primaryBase);
+			const int subStylesStart = wEditor.SubStylesStart(primaryBase);
+			const int subStylesLength = wEditor.SubStylesLength(primaryBase);
 			const int subStyle = style - (subStylesStart + distanceSecondary);
 			if (subStyle < subStylesLength) {
 				char key[200];
@@ -287,29 +292,29 @@ StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
 
 void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd) {
 	if (sd.specified & StyleDefinition::sdItalics)
-		win.Call(SCI_STYLESETITALIC, style, sd.italics ? 1 : 0);
+		win.StyleSetItalic(style, sd.italics ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdWeight)
-		win.Call(SCI_STYLESETWEIGHT, style, sd.weight);
+		win.StyleSetWeight(style, sd.weight);
 	if (sd.specified & StyleDefinition::sdFont)
-		win.CallString(SCI_STYLESETFONT, style,
+		win.StyleSetFont(style,
 			sd.font.c_str());
 	if (sd.specified & StyleDefinition::sdFore)
-		win.Call(SCI_STYLESETFORE, style, sd.ForeAsLong());
+		win.StyleSetFore(style, sd.ForeAsLong());
 	if (sd.specified & StyleDefinition::sdBack)
-		win.Call(SCI_STYLESETBACK, style, sd.BackAsLong());
+		win.StyleSetBack(style, sd.BackAsLong());
 	if (sd.specified & StyleDefinition::sdSize)
-		win.Call(SCI_STYLESETSIZEFRACTIONAL, style, sd.FractionalSize());
+		win.StyleSetSizeFractional(style, sd.FractionalSize());
 	if (sd.specified & StyleDefinition::sdEOLFilled)
-		win.Call(SCI_STYLESETEOLFILLED, style, sd.eolfilled ? 1 : 0);
+		win.StyleSetEOLFilled(style, sd.eolfilled ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdUnderlined)
-		win.Call(SCI_STYLESETUNDERLINE, style, sd.underlined ? 1 : 0);
+		win.StyleSetUnderline(style, sd.underlined ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdCaseForce)
-		win.Call(SCI_STYLESETCASE, style, sd.caseForce);
+		win.StyleSetCase(style, sd.caseForce);
 	if (sd.specified & StyleDefinition::sdVisible)
-		win.Call(SCI_STYLESETVISIBLE, style, sd.visible ? 1 : 0);
+		win.StyleSetVisible(style, sd.visible ? 1 : 0);
 	if (sd.specified & StyleDefinition::sdChangeable)
-		win.Call(SCI_STYLESETCHANGEABLE, style, sd.changeable ? 1 : 0);
-	win.Call(SCI_STYLESETCHARACTERSET, style, characterSet);
+		win.StyleSetChangeable(style, sd.changeable ? 1 : 0);
+	win.StyleSetCharacterSet(style, characterSet);
 }
 
 void SciTEBase::SetStyleBlock(GUI::ScintillaWindow &win, const char *lang, int start, int last) {
@@ -330,11 +335,11 @@ void SciTEBase::SetStyleFor(GUI::ScintillaWindow &win, const char *lang) {
 }
 
 void SciTEBase::SetOneIndicator(GUI::ScintillaWindow &win, int indicator, const IndicatorDefinition &ind) {
-	win.Call(SCI_INDICSETSTYLE, indicator, ind.style);
-	win.Call(SCI_INDICSETFORE, indicator, ind.colour);
-	win.Call(SCI_INDICSETALPHA, indicator, ind.fillAlpha);
-	win.Call(SCI_INDICSETOUTLINEALPHA, indicator, ind.outlineAlpha);
-	win.Call(SCI_INDICSETUNDER, indicator, ind.under);
+	win.IndicSetStyle(indicator, ind.style);
+	win.IndicSetFore(indicator, ind.colour);
+	win.IndicSetAlpha(indicator, ind.fillAlpha);
+	win.IndicSetOutlineAlpha(indicator, ind.outlineAlpha);
+	win.IndicSetUnder(indicator, ind.under);
 }
 
 std::string SciTEBase::ExtensionFileName() const {
@@ -364,18 +369,18 @@ std::string SciTEBase::ExtensionFileName() const {
 void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	if (props.Exists(key)) {
 		std::string value = props.GetExpandedString(key);
-		wEditor.CallString(SCI_SETPROPERTY,
-						 UptrFromString(key), value.c_str());
-		wOutput.CallString(SCI_SETPROPERTY,
-						 UptrFromString(key), value.c_str());
+		wEditor.SetProperty(
+						 key, value.c_str());
+		wOutput.SetProperty(
+						 key, value.c_str());
 	}
 }
 
 void SciTEBase::DefineMarker(int marker, int markerType, Colour fore, Colour back, Colour backSelected) {
-	wEditor.Call(SCI_MARKERDEFINE, marker, markerType);
-	wEditor.Call(SCI_MARKERSETFORE, marker, fore);
-	wEditor.Call(SCI_MARKERSETBACK, marker, back);
-	wEditor.Call(SCI_MARKERSETBACKSELECTED, marker, backSelected);
+	wEditor.MarkerDefine(marker, markerType);
+	wEditor.MarkerSetFore(marker, fore);
+	wEditor.MarkerSetBack(marker, back);
+	wEditor.MarkerSetBackSelected(marker, backSelected);
 }
 
 void SciTEBase::ReadAPI(const std::string &fileNameForExtension) {
@@ -655,55 +660,55 @@ void SciTEBase::ReadProperties() {
 	std::string modulePath = props.GetNewExpandString("lexerpath.",
 	    fileNameForExtension.c_str());
 	if (modulePath.length())
-	    wEditor.CallString(SCI_LOADLEXERLIBRARY, 0, modulePath.c_str());
+	    wEditor.LoadLexerLibrary(modulePath.c_str());
 	language = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
-	if (wEditor.Call(SCI_GETDOCUMENTOPTIONS) & SC_DOCUMENTOPTION_STYLES_NONE) {
+	if (wEditor.DocumentOptions() & SC_DOCUMENTOPTION_STYLES_NONE) {
 		language = "";
 	}
 	if (language.length()) {
 		if (StartsWith(language, "script_")) {
-			wEditor.Call(SCI_SETLEXER, SCLEX_CONTAINER);
+			wEditor.SetLexer(SCLEX_CONTAINER);
 		} else if (StartsWith(language, "lpeg_")) {
 			modulePath = props.GetNewExpandString("lexerpath.*.lpeg");
 			if (modulePath.length()) {
-				wEditor.CallString(SCI_LOADLEXERLIBRARY, 0, modulePath.c_str());
-				wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, "lpeg");
-				lexLPeg = wEditor.Call(SCI_GETLEXER);
+				wEditor.LoadLexerLibrary(modulePath.c_str());
+				wEditor.SetLexerLanguage("lpeg");
+				lexLPeg = wEditor.Lexer();
 				const char *lexer = language.c_str() + language.find('_') + 1;
-				wEditor.CallReturnPointer(SCI_PRIVATELEXERCALL, SCI_SETLEXERLANGUAGE,
+				wEditor.PrivateLexerCall(SCI_SETLEXERLANGUAGE,
 					SptrFromString(lexer));
 			}
 		} else {
-			wEditor.CallString(SCI_SETLEXERLANGUAGE, 0, language.c_str());
+			wEditor.SetLexerLanguage(language.c_str());
 		}
 	} else {
-		wEditor.Call(SCI_SETLEXER, SCLEX_NULL);
+		wEditor.SetLexer(SCLEX_NULL);
 	}
 
 	props.Set("Language", language.c_str());
 
-	lexLanguage = wEditor.Call(SCI_GETLEXER);
+	lexLanguage = wEditor.Lexer();
 
-	wOutput.Call(SCI_SETLEXER, SCLEX_ERRORLIST);
+	wOutput.SetLexer(SCLEX_ERRORLIST);
 
 	const std::string kw0 = props.GetNewExpandString("keywords.", fileNameForExtension.c_str());
-	wEditor.CallString(SCI_SETKEYWORDS, 0, kw0.c_str());
+	wEditor.SetKeyWords(0, kw0.c_str());
 
 	for (int wl = 1; wl <= KEYWORDSET_MAX; wl++) {
 		std::string kwk = StdStringFromInteger(wl+1);
 		kwk += '.';
 		kwk.insert(0, "keywords");
 		const std::string kw = props.GetNewExpandString(kwk.c_str(), fileNameForExtension.c_str());
-		wEditor.CallString(SCI_SETKEYWORDS, wl, kw.c_str());
+		wEditor.SetKeyWords(wl, kw.c_str());
 	}
 
 	subStyleBases.clear();
-	const int lenSSB = wEditor.CallString(SCI_GETSUBSTYLEBASES, 0, nullptr);
+	const int lenSSB = wEditor.SubStyleBases(nullptr);
 	if (lenSSB) {
-		wEditor.Call(SCI_FREESUBSTYLES);
+		wEditor.FreeSubStyles();
 
 		subStyleBases.resize(lenSSB+1);
-		wEditor.CallString(SCI_GETSUBSTYLEBASES, 0, &subStyleBases[0]);
+		wEditor.SubStyleBases(&subStyleBases[0]);
 		subStyleBases.resize(lenSSB);	// Remove NUL
 
 		for (int baseStyle=0;baseStyle<lenSSB;baseStyle++) {
@@ -717,7 +722,7 @@ void SciTEBase::ReadProperties() {
 
 			int subStyleIdentifiersStart = 0;
 			if (subStyleIdentifiers) {
-				subStyleIdentifiersStart = wEditor.Call(SCI_ALLOCATESUBSTYLES, subStyleBases[baseStyle], subStyleIdentifiers);
+				subStyleIdentifiersStart = wEditor.AllocateSubStyles(subStyleBases[baseStyle], subStyleIdentifiers);
 				if (subStyleIdentifiersStart < 0)
 					subStyleIdentifiers = 0;
 			}
@@ -729,7 +734,7 @@ void SciTEBase::ReadProperties() {
 				ssWordsKey += StdStringFromInteger(subStyle + 1);
 				ssWordsKey += ".";
 				std::string ssWords = props.GetNewExpandString(ssWordsKey.c_str(), fileNameForExtension.c_str());
-				wEditor.CallString(SCI_SETIDENTIFIERS, subStyleIdentifiersStart + subStyle, ssWords.c_str());
+				wEditor.SetIdentifiers(subStyleIdentifiersStart + subStyle, ssWords.c_str());
 			}
 		}
 	}
@@ -762,21 +767,21 @@ void SciTEBase::ReadProperties() {
 	props.Set("AbbrevPath", pathAbbreviations.AsUTF8().c_str());
 
 	const int tech = props.GetInt("technology");
-	wEditor.Call(SCI_SETTECHNOLOGY, tech);
-	wOutput.Call(SCI_SETTECHNOLOGY, tech);
+	wEditor.SetTechnology(tech);
+	wOutput.SetTechnology(tech);
 
 	const int bidirectional = props.GetInt("bidirectional");
-	wEditor.Call(SCI_SETBIDIRECTIONAL, bidirectional);
-	wOutput.Call(SCI_SETBIDIRECTIONAL, bidirectional);
+	wEditor.SetBidirectional(bidirectional);
+	wOutput.SetBidirectional(bidirectional);
 
 	codePage = props.GetInt("code.page");
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override properties file to ensure Unicode displayed.
 		codePage = SC_CP_UTF8;
 	}
-	wEditor.Call(SCI_SETCODEPAGE, codePage);
+	wEditor.SetCodePage(codePage);
 	const int outputCodePage = props.GetInt("output.code.page", codePage);
-	wOutput.Call(SCI_SETCODEPAGE, outputCodePage);
+	wOutput.SetCodePage(outputCodePage);
 
 	characterSet = props.GetInt("character.set", SC_CHARSET_DEFAULT);
 
@@ -795,8 +800,8 @@ void SciTEBase::ReadProperties() {
 	imeAutoComplete = props.GetInt("ime.autocomplete", 0) == 1;
 
 	const int accessibility = props.GetInt("accessibility", 1);
-	wEditor.Call(SCI_SETACCESSIBILITY, accessibility);
-	wOutput.Call(SCI_SETACCESSIBILITY, accessibility);
+	wEditor.SetAccessibility(accessibility);
+	wOutput.SetAccessibility(accessibility);
 
 	wrapStyle = props.GetInt("wrap.style", SC_WRAP_WORD);
 
@@ -810,22 +815,22 @@ void SciTEBase::ReadProperties() {
 	CallChildren(SCI_SETADDITIONALCARETSBLINK, props.GetInt("caret.additional.blinks", 1));
 	CallChildren(SCI_SETVIRTUALSPACEOPTIONS, props.GetInt("virtual.space"));
 
-	wEditor.Call(SCI_SETMOUSEDWELLTIME,
+	wEditor.SetMouseDwellTime(
 	           props.GetInt("dwell.period", SC_TIME_FOREVER));
 
-	wEditor.Call(SCI_SETCARETSTYLE, props.GetInt("caret.style", CARETSTYLE_LINE));
-	wOutput.Call(SCI_SETCARETSTYLE, props.GetInt("caret.style", CARETSTYLE_LINE));
-	wEditor.Call(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
-	wOutput.Call(SCI_SETCARETWIDTH, props.GetInt("caret.width", 1));
+	wEditor.SetCaretStyle(props.GetInt("caret.style", CARETSTYLE_LINE));
+	wOutput.SetCaretStyle(props.GetInt("caret.style", CARETSTYLE_LINE));
+	wEditor.SetCaretWidth(props.GetInt("caret.width", 1));
+	wOutput.SetCaretWidth(props.GetInt("caret.width", 1));
 
 	std::string caretLineBack = props.GetExpandedString("caret.line.back");
 	if (caretLineBack.length()) {
-		wEditor.Call(SCI_SETCARETLINEVISIBLE, 1);
-		wEditor.Call(SCI_SETCARETLINEBACK, ColourFromString(caretLineBack));
+		wEditor.SetCaretLineVisible(1);
+		wEditor.SetCaretLineBack(ColourFromString(caretLineBack));
 	} else {
-		wEditor.Call(SCI_SETCARETLINEVISIBLE, 0);
+		wEditor.SetCaretLineVisible(0);
 	}
-	wEditor.Call(SCI_SETCARETLINEBACKALPHA,
+	wEditor.SetCaretLineBackAlpha(
 		props.GetInt("caret.line.back.alpha", SC_ALPHA_NOALPHA));
 
 	alphaIndicator = props.GetInt("indicators.alpha", 30);
@@ -837,15 +842,15 @@ void SciTEBase::ReadProperties() {
 
 	const std::string controlCharSymbol = props.GetString("control.char.symbol");
 	if (controlCharSymbol.length()) {
-		wEditor.Call(SCI_SETCONTROLCHARSYMBOL, static_cast<unsigned char>(controlCharSymbol[0]));
+		wEditor.SetControlCharSymbol(static_cast<unsigned char>(controlCharSymbol[0]));
 	} else {
-		wEditor.Call(SCI_SETCONTROLCHARSYMBOL, 0);
+		wEditor.SetControlCharSymbol(0);
 	}
 
 	const std::string caretPeriod = props.GetString("caret.period");
 	if (caretPeriod.length()) {
-		wEditor.Call(SCI_SETCARETPERIOD, atoi(caretPeriod.c_str()));
-		wOutput.Call(SCI_SETCARETPERIOD, atoi(caretPeriod.c_str()));
+		wEditor.SetCaretPeriod(atoi(caretPeriod.c_str()));
+		wOutput.SetCaretPeriod(atoi(caretPeriod.c_str()));
 	}
 
 	int caretSlop = props.GetInt("caret.policy.xslop", 1) ? CARET_SLOP : 0;
@@ -853,23 +858,23 @@ void SciTEBase::ReadProperties() {
 	int caretStrict = props.GetInt("caret.policy.xstrict") ? CARET_STRICT : 0;
 	int caretEven = props.GetInt("caret.policy.xeven", 1) ? CARET_EVEN : 0;
 	int caretJumps = props.GetInt("caret.policy.xjumps") ? CARET_JUMPS : 0;
-	wEditor.Call(SCI_SETXCARETPOLICY, caretStrict | caretSlop | caretEven | caretJumps, caretZone);
+	wEditor.SetXCaretPolicy(caretStrict | caretSlop | caretEven | caretJumps, caretZone);
 
 	caretSlop = props.GetInt("caret.policy.yslop", 1) ? CARET_SLOP : 0;
 	caretZone = props.GetInt("caret.policy.lines");
 	caretStrict = props.GetInt("caret.policy.ystrict") ? CARET_STRICT : 0;
 	caretEven = props.GetInt("caret.policy.yeven", 1) ? CARET_EVEN : 0;
 	caretJumps = props.GetInt("caret.policy.yjumps") ? CARET_JUMPS : 0;
-	wEditor.Call(SCI_SETYCARETPOLICY, caretStrict | caretSlop | caretEven | caretJumps, caretZone);
+	wEditor.SetYCaretPolicy(caretStrict | caretSlop | caretEven | caretJumps, caretZone);
 
 	const int visibleStrict = props.GetInt("visible.policy.strict") ? VISIBLE_STRICT : 0;
 	const int visibleSlop = props.GetInt("visible.policy.slop", 1) ? VISIBLE_SLOP : 0;
 	const int visibleLines = props.GetInt("visible.policy.lines");
-	wEditor.Call(SCI_SETVISIBLEPOLICY, visibleStrict | visibleSlop, visibleLines);
+	wEditor.SetVisiblePolicy(visibleStrict | visibleSlop, visibleLines);
 
-	wEditor.Call(SCI_SETEDGECOLUMN, props.GetInt("edge.column", 0));
-	wEditor.Call(SCI_SETEDGEMODE, props.GetInt("edge.mode", EDGE_NONE));
-	wEditor.Call(SCI_SETEDGECOLOUR,
+	wEditor.SetEdgeColumn(props.GetInt("edge.column", 0));
+	wEditor.SetEdgeMode(props.GetInt("edge.mode", EDGE_NONE));
+	wEditor.SetEdgeColour(
 	           ColourOfProperty(props, "edge.colour", ColourRGB(0xff, 0xda, 0xda)));
 
 	std::string selFore = props.GetExpandedString("selection.fore");
@@ -958,7 +963,7 @@ void SciTEBase::ReadProperties() {
 	if (autoCompleteFillUpCharacters == "")
 		autoCompleteFillUpCharacters =
 			props.GetExpandedString("autocomplete.*.fillups");
-	wEditor.CallString(SCI_AUTOCSETFILLUPS, 0,
+	wEditor.AutoCSetFillUps(
 		autoCompleteFillUpCharacters.c_str());
 
 	sprintf(key, "autocomplete.%s.typesep", language.c_str());
@@ -967,7 +972,7 @@ void SciTEBase::ReadProperties() {
 		autoCompleteTypeSeparator =
 			props.GetExpandedString("autocomplete.*.typesep");
 	if (autoCompleteTypeSeparator.length()) {
-		wEditor.Call(SCI_AUTOCSETTYPESEPARATOR,
+		wEditor.AutoCSetTypeSeparator(
 			static_cast<unsigned char>(autoCompleteTypeSeparator[0]));
 	}
 
@@ -978,14 +983,14 @@ void SciTEBase::ReadProperties() {
 	sval = props.GetNewExpandString(key);
 	if (sval != "")
 		autoCompleteIgnoreCase = sval == "1";
-	wEditor.Call(SCI_AUTOCSETIGNORECASE, autoCompleteIgnoreCase ? 1 : 0);
-	wOutput.Call(SCI_AUTOCSETIGNORECASE, 1);
+	wEditor.AutoCSetIgnoreCase(autoCompleteIgnoreCase ? 1 : 0);
+	wOutput.AutoCSetIgnoreCase(1);
 
 	const int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
-	wEditor.Call(SCI_AUTOCSETCHOOSESINGLE, autoCChooseSingle);
+	wEditor.AutoCSetChooseSingle(autoCChooseSingle);
 
-	wEditor.Call(SCI_AUTOCSETCANCELATSTART, 0);
-	wEditor.Call(SCI_AUTOCSETDROPRESTOFWORD, 0);
+	wEditor.AutoCSetCancelAtStart(0);
+	wEditor.AutoCSetDropRestOfWord(0);
 
 	if (firstPropertiesRead) {
 		ReadPropertiesInitial();
@@ -993,8 +998,8 @@ void SciTEBase::ReadProperties() {
 
 	ReadFontProperties();
 
-	wEditor.Call(SCI_SETPRINTMAGNIFICATION, props.GetInt("print.magnification"));
-	wEditor.Call(SCI_SETPRINTCOLOURMODE, props.GetInt("print.colour.mode"));
+	wEditor.SetPrintMagnification(props.GetInt("print.magnification"));
+	wEditor.SetPrintColourMode(props.GetInt("print.colour.mode"));
 
 	jobQueue.clearBeforeExecute = props.GetInt("clear.before.execute");
 	jobQueue.timeCommands = props.GetInt("time.commands");
@@ -1002,15 +1007,15 @@ void SciTEBase::ReadProperties() {
 	const int blankMarginLeft = props.GetInt("blank.margin.left", 1);
 	const int blankMarginLeftOutput = props.GetInt("output.blank.margin.left", blankMarginLeft);
 	const int blankMarginRight = props.GetInt("blank.margin.right", 1);
-	wEditor.Call(SCI_SETMARGINLEFT, 0, blankMarginLeft);
-	wEditor.Call(SCI_SETMARGINRIGHT, 0, blankMarginRight);
-	wOutput.Call(SCI_SETMARGINLEFT, 0, blankMarginLeftOutput);
-	wOutput.Call(SCI_SETMARGINRIGHT, 0, blankMarginRight);
+	wEditor.SetMarginLeft(blankMarginLeft);
+	wEditor.SetMarginRight(blankMarginRight);
+	wOutput.SetMarginLeft(blankMarginLeftOutput);
+	wOutput.SetMarginRight(blankMarginRight);
 
 	marginWidth = props.GetInt("margin.width");
 	if (marginWidth == 0)
 		marginWidth = marginWidthDefault;
-	wEditor.Call(SCI_SETMARGINWIDTHN, 1, margin ? marginWidth : 0);
+	wEditor.SetMarginWidthN(1, margin ? marginWidth : 0);
 
 	const std::string lineMarginProp = props.GetString("line.margin.width");
 	lineNumbersWidth = atoi(lineMarginProp.c_str());
@@ -1021,41 +1026,41 @@ void SciTEBase::ReadProperties() {
 	SetLineNumberWidth();
 
 	bufferedDraw = props.GetInt("buffered.draw");
-	wEditor.Call(SCI_SETBUFFEREDDRAW, bufferedDraw);
-	wOutput.Call(SCI_SETBUFFEREDDRAW, bufferedDraw);
+	wEditor.SetBufferedDraw(bufferedDraw);
+	wOutput.SetBufferedDraw(bufferedDraw);
 
 	const int phasesDraw = props.GetInt("phases.draw", 1);
-	wEditor.Call(SCI_SETPHASESDRAW, phasesDraw);
-	wOutput.Call(SCI_SETPHASESDRAW, phasesDraw);
+	wEditor.SetPhasesDraw(phasesDraw);
+	wOutput.SetPhasesDraw(phasesDraw);
 
-	wEditor.Call(SCI_SETLAYOUTCACHE, props.GetInt("cache.layout", SC_CACHE_CARET));
-	wOutput.Call(SCI_SETLAYOUTCACHE, props.GetInt("output.cache.layout", SC_CACHE_CARET));
+	wEditor.SetLayoutCache(props.GetInt("cache.layout", SC_CACHE_CARET));
+	wOutput.SetLayoutCache(props.GetInt("output.cache.layout", SC_CACHE_CARET));
 
 	bracesCheck = props.GetInt("braces.check");
 	bracesSloppy = props.GetInt("braces.sloppy");
 
-	wEditor.Call(SCI_SETCHARSDEFAULT);
+	wEditor.SetCharsDefault();
 	wordCharacters = props.GetNewExpandString("word.characters.", fileNameForExtension.c_str());
 	if (wordCharacters.length()) {
-		wEditor.CallString(SCI_SETWORDCHARS, 0, wordCharacters.c_str());
+		wEditor.SetWordChars(wordCharacters.c_str());
 	} else {
 		wordCharacters = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	}
 
 	whitespaceCharacters = props.GetNewExpandString("whitespace.characters.", fileNameForExtension.c_str());
 	if (whitespaceCharacters.length()) {
-		wEditor.CallString(SCI_SETWHITESPACECHARS, 0, whitespaceCharacters.c_str());
+		wEditor.SetWhitespaceChars(whitespaceCharacters.c_str());
 	}
 
 	const std::string viewIndentExamine = GetFileNameProperty("view.indentation.examine");
 	indentExamine = viewIndentExamine.length() ? (atoi(viewIndentExamine.c_str())) : SC_IV_REAL;
-	wEditor.Call(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides") ?
+	wEditor.SetIndentationGuides(props.GetInt("view.indentation.guides") ?
 		indentExamine : SC_IV_NONE);
 
-	wEditor.Call(SCI_SETTABINDENTS, props.GetInt("tab.indents", 1));
-	wEditor.Call(SCI_SETBACKSPACEUNINDENTS, props.GetInt("backspace.unindents", 1));
+	wEditor.SetTabIndents(props.GetInt("tab.indents", 1));
+	wEditor.SetBackSpaceUnIndents(props.GetInt("backspace.unindents", 1));
 
-	wEditor.Call(SCI_CALLTIPUSESTYLE, 32);
+	wEditor.CallTipUseStyle(32);
 
 	std::string useStripTrailingSpaces = props.GetNewExpandString("strip.trailing.spaces.", ExtensionFileName().c_str());
 	if (useStripTrailingSpaces.length() > 0) {
@@ -1099,14 +1104,14 @@ void SciTEBase::ReadProperties() {
 
 	memFiles.AppendList(props.GetNewExpandString("find.files").c_str());
 
-	wEditor.Call(SCI_SETWRAPVISUALFLAGS, props.GetInt("wrap.visual.flags"));
-	wEditor.Call(SCI_SETWRAPVISUALFLAGSLOCATION, props.GetInt("wrap.visual.flags.location"));
- 	wEditor.Call(SCI_SETWRAPSTARTINDENT, props.GetInt("wrap.visual.startindent"));
- 	wEditor.Call(SCI_SETWRAPINDENTMODE, props.GetInt("wrap.indent.mode"));
+	wEditor.SetWrapVisualFlags(props.GetInt("wrap.visual.flags"));
+	wEditor.SetWrapVisualFlagsLocation(props.GetInt("wrap.visual.flags.location"));
+ 	wEditor.SetWrapStartIndent(props.GetInt("wrap.visual.startindent"));
+ 	wEditor.SetWrapIndentMode(props.GetInt("wrap.indent.mode"));
 
 	idleStyling = props.GetInt("idle.styling", SC_IDLESTYLING_NONE);
-	wEditor.Call(SCI_SETIDLESTYLING, idleStyling);
-	wOutput.Call(SCI_SETIDLESTYLING, props.GetInt("output.idle.styling", SC_IDLESTYLING_NONE));
+	wEditor.SetIdleStyling(idleStyling);
+	wOutput.SetIdleStyling(props.GetInt("output.idle.styling", SC_IDLESTYLING_NONE));
 
 	if (props.GetInt("os.x.home.end.keys")) {
 		AssignKey(SCK_HOME, 0, SCI_SCROLLTOSTART);
@@ -1151,18 +1156,18 @@ void SciTEBase::ReadProperties() {
 
 	SetToolsMenu();
 
-	wEditor.Call(SCI_SETFOLDFLAGS, props.GetInt("fold.flags"));
+	wEditor.SetFoldFlags(props.GetInt("fold.flags"));
 
 	// To put the folder markers in the line number region
-	//wEditor.Call(SCI_SETMARGINMASKN, 0, SC_MASK_FOLDERS);
+	//wEditor.SetMarginMaskN(0, SC_MASK_FOLDERS);
 
-	wEditor.Call(SCI_SETMODEVENTMASK, SC_MOD_CHANGEFOLD);
+	wEditor.SetModEventMask(SC_MOD_CHANGEFOLD);
 
 	if (0==props.GetInt("undo.redo.lazy")) {
 		// Trap for insert/delete notifications (also fired by undo
 		// and redo) so that the buttons can be enabled if needed.
-		wEditor.Call(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT
-			| SC_LASTSTEPINUNDOREDO | wEditor.Call(SCI_GETMODEVENTMASK));
+		wEditor.SetModEventMask(SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT
+			| SC_LASTSTEPINUNDOREDO | wEditor.ModEventMask());
 
 		//SC_LASTSTEPINUNDOREDO is probably not needed in the mask; it
 		//doesn't seem to fire as an event of its own; just modifies the
@@ -1170,15 +1175,15 @@ void SciTEBase::ReadProperties() {
 	}
 
 	// Create a margin column for the folding symbols
-	wEditor.Call(SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
+	wEditor.SetMarginTypeN(2, SC_MARGIN_SYMBOL);
 
 	foldMarginWidth = props.GetInt("fold.margin.width");
 	if (foldMarginWidth == 0)
 		foldMarginWidth = foldMarginWidthDefault;
-	wEditor.Call(SCI_SETMARGINWIDTHN, 2, foldMargin ? foldMarginWidth : 0);
+	wEditor.SetMarginWidthN(2, foldMargin ? foldMarginWidth : 0);
 
-	wEditor.Call(SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
-	wEditor.Call(SCI_SETMARGINSENSITIVEN, 2, 1);
+	wEditor.SetMarginMaskN(2, SC_MASK_FOLDERS);
+	wEditor.SetMarginSensitiveN(2, 1);
 
 	// Define foreground (outline) and background (fill) color of folds
 	const int foldSymbols = props.GetInt("fold.symbols");
@@ -1241,7 +1246,7 @@ void SciTEBase::ReadProperties() {
 		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY,
 					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		// The highlight is disabled for arrow.
-		wEditor.Call(SCI_MARKERENABLEHIGHLIGHT, false);
+		wEditor.MarkerEnableHighlight(false);
 		break;
 	case 1:
 		// Plus for contracted folders, minus for expanded
@@ -1260,7 +1265,7 @@ void SciTEBase::ReadProperties() {
 		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY,
 		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		// The highlight is disabled for plus/minus.
-		wEditor.Call(SCI_MARKERENABLEHIGHLIGHT, false);
+		wEditor.MarkerEnableHighlight(false);
 		break;
 	case 2:
 		// Like a flattened tree control using circular headers and curved joins
@@ -1278,7 +1283,7 @@ void SciTEBase::ReadProperties() {
 		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE,
 		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
-		wEditor.Call(SCI_MARKERENABLEHIGHLIGHT, isHighlightEnabled);
+		wEditor.MarkerEnableHighlight(isHighlightEnabled);
 		break;
 	case 3:
 		// Like a flattened tree control using square headers
@@ -1296,44 +1301,44 @@ void SciTEBase::ReadProperties() {
 		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER,
 		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
-		wEditor.Call(SCI_MARKERENABLEHIGHLIGHT, isHighlightEnabled);
+		wEditor.MarkerEnableHighlight(isHighlightEnabled);
 		break;
 	}
 
-	wEditor.Call(SCI_MARKERSETFORE, markerBookmark,
+	wEditor.MarkerSetFore(markerBookmark,
 		ColourOfProperty(props, "bookmark.fore", ColourRGB(0xbe, 0, 0)));
-	wEditor.Call(SCI_MARKERSETBACK, markerBookmark,
+	wEditor.MarkerSetBack(markerBookmark,
 		ColourOfProperty(props, "bookmark.back", ColourRGB(0xe2, 0x40, 0x40)));
-	wEditor.Call(SCI_MARKERSETALPHA, markerBookmark,
+	wEditor.MarkerSetAlpha(markerBookmark,
 		props.GetInt("bookmark.alpha", SC_ALPHA_NOALPHA));
 	const std::string bookMarkXPM = props.GetString("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
-		wEditor.CallString(SCI_MARKERDEFINEPIXMAP, markerBookmark,
+		wEditor.MarkerDefinePixmap(markerBookmark,
 			bookMarkXPM.c_str());
 	} else if (props.GetString("bookmark.fore").length()) {
-		wEditor.Call(SCI_MARKERDEFINE, markerBookmark, props.GetInt("bookmark.symbol", SC_MARK_BOOKMARK));
+		wEditor.MarkerDefine(markerBookmark, props.GetInt("bookmark.symbol", SC_MARK_BOOKMARK));
 	} else {
 		// No bookmark.fore setting so display default pixmap.
-		wEditor.CallPointer(SCI_MARKERDEFINEPIXMAP, markerBookmark, bookmarkBluegem);
+		wEditor.MarkerDefinePixmap(markerBookmark, reinterpret_cast<const char *>(bookmarkBluegem));
 	}
 
-	wEditor.Call(SCI_SETSCROLLWIDTH, props.GetInt("horizontal.scroll.width", 2000));
-	wEditor.Call(SCI_SETSCROLLWIDTHTRACKING, props.GetInt("horizontal.scroll.width.tracking", 1));
-	wOutput.Call(SCI_SETSCROLLWIDTH, props.GetInt("output.horizontal.scroll.width", 2000));
-	wOutput.Call(SCI_SETSCROLLWIDTHTRACKING, props.GetInt("output.horizontal.scroll.width.tracking", 1));
+	wEditor.SetScrollWidth(props.GetInt("horizontal.scroll.width", 2000));
+	wEditor.SetScrollWidthTracking(props.GetInt("horizontal.scroll.width.tracking", 1));
+	wOutput.SetScrollWidth(props.GetInt("output.horizontal.scroll.width", 2000));
+	wOutput.SetScrollWidthTracking(props.GetInt("output.horizontal.scroll.width.tracking", 1));
 
 	// Do these last as they force a style refresh
-	wEditor.Call(SCI_SETHSCROLLBAR, props.GetInt("horizontal.scrollbar", 1));
-	wOutput.Call(SCI_SETHSCROLLBAR, props.GetInt("output.horizontal.scrollbar", 1));
+	wEditor.SetHScrollBar(props.GetInt("horizontal.scrollbar", 1));
+	wOutput.SetHScrollBar(props.GetInt("output.horizontal.scrollbar", 1));
 
-	wEditor.Call(SCI_SETENDATLASTLINE, props.GetInt("end.at.last.line", 1));
-	wEditor.Call(SCI_SETCARETSTICKY, props.GetInt("caret.sticky", 0));
+	wEditor.SetEndAtLastLine(props.GetInt("end.at.last.line", 1));
+	wEditor.SetCaretSticky(props.GetInt("caret.sticky", 0));
 
 	// Clear all previous indicators.
-	wEditor.Call(SCI_SETINDICATORCURRENT, indicatorHighlightCurrentWord);
-	wEditor.Call(SCI_INDICATORCLEARRANGE, 0, wEditor.Call(SCI_GETLENGTH));
-	wOutput.Call(SCI_SETINDICATORCURRENT, indicatorHighlightCurrentWord);
-	wOutput.Call(SCI_INDICATORCLEARRANGE, 0, wOutput.Call(SCI_GETLENGTH));
+	wEditor.SetIndicatorCurrent(indicatorHighlightCurrentWord);
+	wEditor.IndicatorClearRange(0, wEditor.Length());
+	wOutput.SetIndicatorCurrent(indicatorHighlightCurrentWord);
+	wOutput.IndicatorClearRange(0, wOutput.Length());
 	currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay;
 
 	currentWordHighlight.isEnabled = props.GetInt("highlight.current.word", 0) == 1;
@@ -1360,18 +1365,18 @@ void SciTEBase::ReadProperties() {
 	std::map<std::string, std::string> eConfig = editorConfig->MapFromAbsolutePath(filePath);
 	for (const std::pair<const std::string, std::string> &pss : eConfig) {
 		if (pss.first == "indent_style") {
-			wEditor.Call(SCI_SETUSETABS, pss.second == "tab" ? 1 : 0);
+			wEditor.SetUseTabs(pss.second == "tab" ? 1 : 0);
 		} else if (pss.first == "indent_size") {
-			wEditor.Call(SCI_SETINDENT, std::stoi(pss.second));
+			wEditor.SetIndent(std::stoi(pss.second));
 		} else if (pss.first == "tab_width") {
-			wEditor.Call(SCI_SETTABWIDTH, std::stoi(pss.second));
+			wEditor.SetTabWidth(std::stoi(pss.second));
 		} else if (pss.first == "end_of_line") {
 			if (pss.second == "lf") {
-				wEditor.Call(SCI_SETEOLMODE, SC_EOL_LF);
+				wEditor.SetEOLMode(SC_EOL_LF);
 			} else if (pss.second == "cr") {
-				wEditor.Call(SCI_SETEOLMODE, SC_EOL_CR);
+				wEditor.SetEOLMode(SC_EOL_CR);
 			} else if (pss.second == "crlf") {
-				wEditor.Call(SCI_SETEOLMODE, SC_EOL_CRLF);
+				wEditor.SetEOLMode(SC_EOL_CRLF);
 			}
 		} else if (pss.first == "charset") {
 			if (pss.second == "latin1") {
@@ -1388,7 +1393,7 @@ void SciTEBase::ReadProperties() {
 					CurrentBuffer()->unicodeMode = uni16LE;
 				codePage = SC_CP_UTF8;
 			}
-			wEditor.Call(SCI_SETCODEPAGE, codePage);
+			wEditor.SetCodePage(codePage);
 		} else if (pss.first == "trim_trailing_whitespace") {
 			stripTrailingSpaces = pss.second == "true";
 		} else if (pss.first == "insert_final_newline") {
@@ -1439,7 +1444,7 @@ void SciTEBase::ReadFontProperties() {
 		char propStr[256];
 		for (int i = 0; i < STYLE_MAX; i++) {
 			sprintf(key, "style.lpeg.%0d", i);
-			wEditor.CallReturnPointer(SCI_PRIVATELEXERCALL, i - STYLE_MAX,
+			wEditor.PrivateLexerCall(i - STYLE_MAX,
 				SptrFromString(propStr));
 			props.Set(key, static_cast<const char *>(propStr));
 		}
@@ -1450,11 +1455,11 @@ void SciTEBase::ReadFontProperties() {
 	// For each window set the global default style, then the language default style, then the other global styles, then the other language styles
 
 	const int fontQuality = props.GetInt("font.quality");
-	wEditor.Call(SCI_SETFONTQUALITY, fontQuality);
-	wOutput.Call(SCI_SETFONTQUALITY, fontQuality);
+	wEditor.SetFontQuality(fontQuality);
+	wOutput.SetFontQuality(fontQuality);
 
-	wEditor.Call(SCI_STYLERESETDEFAULT);
-	wOutput.Call(SCI_STYLERESETDEFAULT);
+	wEditor.StyleResetDefault();
+	wOutput.StyleResetDefault();
 
 	sprintf(key, "style.%s.%0d", "*", STYLE_DEFAULT);
 	std::string sval = props.GetNewExpandString(key);
@@ -1465,20 +1470,20 @@ void SciTEBase::ReadFontProperties() {
 	sval = props.GetNewExpandString(key);
 	SetOneStyle(wEditor, STYLE_DEFAULT, StyleDefinition(sval));
 
-	wEditor.Call(SCI_STYLECLEARALL);
+	wEditor.StyleClearAll();
 
 	SetStyleFor(wEditor, "*");
 	SetStyleFor(wEditor, languageName);
 	if (props.GetInt("error.inline")) {
-		wEditor.Call(SCI_RELEASEALLEXTENDEDSTYLES);
-		diagnosticStyleStart = wEditor.Call(SCI_ALLOCATEEXTENDEDSTYLES, diagnosticStyles);
+		wEditor.ReleaseAllExtendedStyles();
+		diagnosticStyleStart = wEditor.AllocateExtendedStyles(diagnosticStyles);
 		SetStyleBlock(wEditor, "error", diagnosticStyleStart, diagnosticStyleStart+diagnosticStyles-1);
 	}
 
-	const int diffToSecondary = static_cast<int>(wEditor.Call(SCI_DISTANCETOSECONDARYSTYLES));
+	const int diffToSecondary = static_cast<int>(wEditor.DistanceToSecondaryStyles());
 	for (const char subStyleBase : subStyleBases) {
-		const int subStylesStart = wEditor.Call(SCI_GETSUBSTYLESSTART, subStyleBase);
-		const int subStylesLength = wEditor.Call(SCI_GETSUBSTYLESLENGTH, subStyleBase);
+		const int subStylesStart = wEditor.SubStylesStart(subStyleBase);
+		const int subStylesLength = wEditor.SubStylesLength(subStyleBase);
 		for (int subStyle=0; subStyle<subStylesLength; subStyle++) {
 			for (int active=0; active<(diffToSecondary?2:1); active++) {
 				const int activity = active * diffToSecondary;
@@ -1491,15 +1496,15 @@ void SciTEBase::ReadFontProperties() {
 
 	// Turn grey while loading
 	if (CurrentBuffer()->lifeState == Buffer::reading)
-		wEditor.Call(SCI_STYLESETBACK, STYLE_DEFAULT, 0xEEEEEE);
+		wEditor.StyleSetBack(STYLE_DEFAULT, 0xEEEEEE);
 
-	wOutput.Call(SCI_STYLECLEARALL);
+	wOutput.StyleClearAll();
 
 	sprintf(key, "style.%s.%0d", "errorlist", STYLE_DEFAULT);
 	sval = props.GetNewExpandString(key);
 	SetOneStyle(wOutput, STYLE_DEFAULT, StyleDefinition(sval));
 
-	wOutput.Call(SCI_STYLECLEARALL);
+	wOutput.StyleClearAll();
 
 	SetStyleFor(wOutput, "*");
 	SetStyleFor(wOutput, "errorlist");
@@ -1510,10 +1515,10 @@ void SciTEBase::ReadFontProperties() {
 		for (int style = 0; style <= STYLE_MAX; style++) {
 			if (style != STYLE_LINENUMBER) {
 				if (sd.specified & StyleDefinition::sdFont) {
-					wEditor.CallString(SCI_STYLESETFONT, style, sd.font.c_str());
+					wEditor.StyleSetFont(style, sd.font.c_str());
 				}
 				if (sd.specified & StyleDefinition::sdSize) {
-					wEditor.Call(SCI_STYLESETSIZEFRACTIONAL, style, sd.FractionalSize());
+					wEditor.StyleSetSizeFractional(style, sd.FractionalSize());
 				}
 			}
 		}
@@ -1624,14 +1629,14 @@ void SciTEBase::ReadPropertiesInitial() {
 		}
 	}
 	ViewWhitespace(props.GetInt("view.whitespace"));
-	wEditor.Call(SCI_SETINDENTATIONGUIDES, props.GetInt("view.indentation.guides") ?
+	wEditor.SetIndentationGuides(props.GetInt("view.indentation.guides") ?
 		indentExamine : SC_IV_NONE);
 
-	wEditor.Call(SCI_SETVIEWEOL, props.GetInt("view.eol"));
-	wEditor.Call(SCI_SETZOOM, props.GetInt("magnification"));
-	wOutput.Call(SCI_SETZOOM, props.GetInt("output.magnification"));
-	wEditor.Call(SCI_SETWRAPMODE, wrap ? wrapStyle : SC_WRAP_NONE);
-	wOutput.Call(SCI_SETWRAPMODE, wrapOutput ? wrapStyle : SC_WRAP_NONE);
+	wEditor.SetViewEOL(props.GetInt("view.eol"));
+	wEditor.SetZoom(props.GetInt("magnification"));
+	wOutput.SetZoom(props.GetInt("output.magnification"));
+	wEditor.SetWrapMode(wrap ? wrapStyle : SC_WRAP_NONE);
+	wOutput.SetWrapMode(wrapOutput ? wrapStyle : SC_WRAP_NONE);
 
 	std::string menuLanguageProp = props.GetExpandedString("menu.language");
 	std::replace(menuLanguageProp.begin(), menuLanguageProp.end(), '|', '\0');
