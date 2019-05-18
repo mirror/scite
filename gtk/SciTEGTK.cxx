@@ -1795,7 +1795,7 @@ void SciTEGTK::BeginPrint(GtkPrintOperation *operation, GtkPrintContext *context
 	scitew->BeginPrintThis(operation, context);
 }
 
-static void SetCairoColour(cairo_t *cr, long co) {
+static void SetCairoColour(cairo_t *cr, SA::Colour co) {
 	cairo_set_source_rgb(cr,
 		(co & 0xff) / 255.0,
 		((co >> 8) & 0xff) / 255.0,
@@ -1820,7 +1820,7 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 
 		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdHeader);
 
-		SetCairoColour(cr, sdHeader.ForeAsLong());
+		SetCairoColour(cr, sdHeader.Fore());
 
 		pango_layout_set_text(layout, propsPrint.GetExpandedString("print.header.format").c_str(), -1);
 
@@ -1842,7 +1842,7 @@ void SciTEGTK::DrawPageThis(GtkPrintOperation * /* operation */, GtkPrintContext
 
 		PangoLayout *layout = PangoLayoutFromStyleDefinition(context, sdFooter);
 
-		SetCairoColour(cr, sdFooter.ForeAsLong());
+		SetCairoColour(cr, sdFooter.Fore());
 
 		pango_layout_set_text(layout, propsPrint.GetExpandedString("print.footer.format").c_str(), -1);
 

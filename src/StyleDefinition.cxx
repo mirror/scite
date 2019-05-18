@@ -151,11 +151,11 @@ bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
 	return true;
 }
 
-long StyleDefinition::ForeAsLong() const {
+Scintilla::API::Colour StyleDefinition::Fore() const {
 	return ColourFromString(fore);
 }
 
-long StyleDefinition::BackAsLong() const {
+Scintilla::API::Colour StyleDefinition::Back() const {
 	return ColourFromString(back);
 }
 
@@ -183,7 +183,7 @@ int IntFromHexByte(std::string_view hexByte) noexcept {
 	return IntFromHexDigit(hexByte[0]) * 16 + IntFromHexDigit(hexByte[1]);
 }
 
-Colour ColourFromString(const std::string &s) {
+Scintilla::API::Colour ColourFromString(const std::string &s) {
 	if (s.length() >= 7) {
 		const int r = IntFromHexByte(&s[1]);
 		const int g = IntFromHexByte(&s[3]);

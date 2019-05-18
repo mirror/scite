@@ -444,7 +444,7 @@ void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
 	if (flatterUI) {
 		if (foldColour.empty() && foldHiliteColour.empty()) {
-			const Colour lightMargin = ColourRGB(0xF7, 0xF7, 0xF7);
+			const SA::Colour lightMargin = ColourRGB(0xF7, 0xF7, 0xF7);
 			CallChildren(SCI_SETFOLDMARGINCOLOUR, 1, lightMargin);
 			CallChildren(SCI_SETFOLDMARGINHICOLOUR, 1, lightMargin);
 		}

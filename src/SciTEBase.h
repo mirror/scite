@@ -904,7 +904,7 @@ protected:
 	std::string ExtensionFileName() const;
 	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
-	void DefineMarker(int marker, int markerType, Colour fore, Colour back, Colour backSelected);
+	void DefineMarker(int marker, int markerType, SA::Colour fore, SA::Colour back, SA::Colour backSelected);
 	void ReadAPI(const std::string &fileNameForExtension);
 	std::string FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
@@ -1002,7 +1002,7 @@ public:
 };
 
 int ControlIDOfCommand(unsigned long) noexcept;
-long ColourOfProperty(const PropSetFile &props, const char *key, Colour colourDefault);
+SA::Colour ColourOfProperty(const PropSetFile &props, const char *key, SA::Colour colourDefault);
 void WindowSetFocus(GUI::ScintillaWindow &w);
 
 inline bool isspacechar(unsigned char ch) noexcept {

@@ -218,7 +218,7 @@ void SciTEBase::ReadLocalPropFile() {
 	}
 }
 
-Colour ColourOfProperty(const PropSetFile &props, const char *key, Colour colourDefault) {
+SA::Colour ColourOfProperty(const PropSetFile &props, const char *key, SA::Colour colourDefault) {
 	std::string colour = props.GetExpandedString(key);
 	if (colour.length()) {
 		return ColourFromString(colour);
@@ -299,9 +299,9 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 		win.StyleSetFont(style,
 			sd.font.c_str());
 	if (sd.specified & StyleDefinition::sdFore)
-		win.StyleSetFore(style, sd.ForeAsLong());
+		win.StyleSetFore(style, sd.Fore());
 	if (sd.specified & StyleDefinition::sdBack)
-		win.StyleSetBack(style, sd.BackAsLong());
+		win.StyleSetBack(style, sd.Back());
 	if (sd.specified & StyleDefinition::sdSize)
 		win.StyleSetSizeFractional(style, sd.FractionalSize());
 	if (sd.specified & StyleDefinition::sdEOLFilled)
@@ -376,7 +376,7 @@ void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	}
 }
 
-void SciTEBase::DefineMarker(int marker, int markerType, Colour fore, Colour back, Colour backSelected) {
+void SciTEBase::DefineMarker(int marker, int markerType, SA::Colour fore, SA::Colour back, SA::Colour backSelected) {
 	wEditor.MarkerDefine(marker, markerType);
 	wEditor.MarkerSetFore(marker, fore);
 	wEditor.MarkerSetBack(marker, back);
@@ -1205,7 +1205,7 @@ void SciTEBase::ReadProperties() {
 			break;
 		}
 	}
-	const Colour colourFoldFore = ColourFromString(foldFore);
+	const SA::Colour colourFoldFore = ColourFromString(foldFore);
 
 	std::string foldBack = props.GetExpandedString("fold.back");
 	// Set default colour for fill
@@ -1221,12 +1221,12 @@ void SciTEBase::ReadProperties() {
 			break;
 		}
 	}
-	const Colour colourFoldBack = ColourFromString(foldBack);
+	const SA::Colour colourFoldBack = ColourFromString(foldBack);
 
 	// Enable/disable highlight for current folding block (smallest one that contains the caret)
 	const int isHighlightEnabled = props.GetInt("fold.highlight", 0);
 	// Define the colour of highlight
-	const Colour colourFoldBlockHighlight = ColourOfProperty(props, "fold.highlight.colour", ColourRGB(0xFF, 0, 0));
+	const SA::Colour colourFoldBlockHighlight = ColourOfProperty(props, "fold.highlight.colour", ColourRGB(0xFF, 0, 0));
 
 	switch (foldSymbols) {
 	case 0:

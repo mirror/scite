@@ -24,26 +24,24 @@ public:
 	        sdCaseForce = 0x100, sdVisible = 0x200, sdChangeable = 0x400} specified;
 	explicit StyleDefinition(std::string_view definition);
 	bool ParseStyleDefinition(std::string_view definition);
-	long ForeAsLong() const;
-	long BackAsLong() const;
+	Scintilla::API::Colour Fore() const;
+	Scintilla::API::Colour Back() const;
 	int FractionalSize() const noexcept;
 	bool IsBold() const noexcept;
 };
 
-typedef long Colour;
-
-inline constexpr Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue) noexcept {
+inline constexpr Scintilla::API::Colour ColourRGB(unsigned int red, unsigned int green, unsigned int blue) noexcept {
 	return red | (green << 8) | (blue << 16);
 }
 
 int IntFromHexDigit(int ch) noexcept;
 int IntFromHexByte(std::string_view hexByte) noexcept;
 
-Colour ColourFromString(const std::string &s);
+Scintilla::API::Colour ColourFromString(const std::string &s);
 
 struct IndicatorDefinition {
 	int style;
-	long colour;
+	Scintilla::API::Colour colour;
 	int fillAlpha;
 	int outlineAlpha;
 	bool under;
