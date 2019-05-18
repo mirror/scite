@@ -27,7 +27,7 @@ inline int Maximum(int a, int b) noexcept {
 	return (a > b) ? a : b;
 }
 
-inline long LongFromTwoShorts(short a,short b) noexcept {
+inline int IntFromTwoShorts(short a,short b) noexcept {
 	return (a) | ((b) << 16);
 }
 

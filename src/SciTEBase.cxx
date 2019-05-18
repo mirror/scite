@@ -302,7 +302,7 @@ StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 
 void SciTEBase::AssignKey(int key, int mods, int cmd) {
 	wEditor.AssignCmdKey(
-	        LongFromTwoShorts(static_cast<short>(key),
+	        IntFromTwoShorts(static_cast<short>(key),
 	                static_cast<short>(mods)), cmd);
 }
 
