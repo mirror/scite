@@ -2070,11 +2070,11 @@ Position ScintillaCall::PositionAfter(Position pos) {
 	return Call(Message::PositionAfter, pos);
 }
 
-Position ScintillaCall::PositionRelative(Position pos, int relative) {
+Position ScintillaCall::PositionRelative(Position pos, Position relative) {
 	return Call(Message::PositionRelative, pos, relative);
 }
 
-Position ScintillaCall::PositionRelativeCodeUnits(Position pos, int relative) {
+Position ScintillaCall::PositionRelativeCodeUnits(Position pos, Position relative) {
 	return Call(Message::PositionRelativeCodeUnits, pos, relative);
 }
 

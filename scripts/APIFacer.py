@@ -69,6 +69,7 @@ positionArgNames = [
 	"length",
 	"bytes",
 	"posStart",
+	"relative",
 	"space",
 ]
 

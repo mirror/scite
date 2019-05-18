@@ -539,8 +539,8 @@ public:
 	void ParaUpExtend();
 	Position PositionBefore(Position pos);
 	Position PositionAfter(Position pos);
-	Position PositionRelative(Position pos, int relative);
-	Position PositionRelativeCodeUnits(Position pos, int relative);
+	Position PositionRelative(Position pos, Position relative);
+	Position PositionRelativeCodeUnits(Position pos, Position relative);
 	void CopyRange(Position start, Position end);
 	void CopyText(Position length, const char *text);
 	void SetSelectionMode(int selectionMode);
