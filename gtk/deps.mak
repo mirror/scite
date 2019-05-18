@@ -4,6 +4,9 @@ DirectorExtension.o: \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/Scintilla.h \
+	../src/ScintillaTypes.h \
+	../src/ScintillaMessages.h \
+	../src/ScintillaCall.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -35,6 +38,9 @@ SciTEGTK.o: \
 	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/Scintilla.h \
 	../../scintilla/include/ScintillaWidget.h \
+	../src/ScintillaTypes.h \
+	../src/ScintillaMessages.h \
+	../src/ScintillaCall.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \

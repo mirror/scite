@@ -55,6 +55,10 @@
 #include "ILexer.h"
 #include "Scintilla.h"
 
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaCall.h"
+
 #include "GUI.h"
 #include "ScintillaWindow.h"
 #include "StringList.h"

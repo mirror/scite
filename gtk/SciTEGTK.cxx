@@ -36,6 +36,10 @@
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
 
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaCall.h"
+
 #include "GUI.h"
 #include "ScintillaWindow.h"
 #include "StringList.h"
@@ -1983,11 +1987,9 @@ static void FillComboFromMemory(WComboBoxEntry *combo, const ComboMemory &mem, b
 
 std::string SciTEGTK::EncodeString(const std::string &s) {
 	wEditor.SetLengthForEncode(s.length());
-	SA::Position len = wEditor.EncodedFromUTF8(
-		UptrFromString(s.c_str()), 0);
+	SA::Position len = wEditor.EncodedFromUTF8(s.c_str(), nullptr);
 	std::vector<char> ret(len+1);
-	wEditor.EncodedFromUTF8(
-		UptrFromString(s.c_str()), &ret[0]);
+	wEditor.EncodedFromUTF8(s.c_str(), &ret[0]);
 	return std::string(&ret[0], len);
 }
 
