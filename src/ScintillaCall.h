@@ -23,7 +23,7 @@ class ScintillaCall {
 	intptr_t CallPointer(Message msg, uintptr_t wParam, void *s);
 	intptr_t CallString(Message msg, uintptr_t wParam, const char *s);
 public:
-	Status statusLastCall;
+	API::Status statusLastCall;
 	ScintillaCall() noexcept;
 	// All standard methods are fine
 
