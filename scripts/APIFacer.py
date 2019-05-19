@@ -567,22 +567,20 @@ def CXXMethods(f):
 		v = f.features[name]
 		if v["Category"] != "Deprecated":
 			if v["FeatureType"] in ["fun", "get", "set"]:
-				nameTransformed = name
+				msgName = "Message::" + name
 				if v["FeatureType"] == "get" and name.startswith("Get"):
-					nameTransformed = nameTransformed[len("Get"):]
-				retTypeBase = ActualTypeName(v["ReturnType"])
-				retType = ActualTypeName(retTypeBase)
-				if nameTransformed in returningMethods:
-					retType = returningMethods[nameTransformed]
+					name = name[len("Get"):]
+				retType = ActualTypeName(v["ReturnType"])
+				if name in returningMethods:
+					retType = returningMethods[name]
 				parameters, args, callName = ParametersArgsCallname(v)
 				returnIfNeeded = "return " if retType != "void" else ""
-				msgName = "Message::" + name
 
-				out.append(JoinTypeAndIdentifier(retType, "ScintillaCall::" + nameTransformed) + "(" + parameters + ")" + " {")
+				out.append(JoinTypeAndIdentifier(retType, "ScintillaCall::" + name) + "(" + parameters + ")" + " {")
 				retCast = ""
 				retCastEnd = ""
 				if retType not in basicTypes or retType in ["int", "Colour"]:
-					if IsEnumeration(retTypeBase) or IsEnumeration(retType):
+					if IsEnumeration(retType):
 						retType = namespace + retType
 					retCast = "static_cast<" + retType + ">("
 					retCastEnd = ")"
