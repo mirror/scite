@@ -28,8 +28,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
@@ -276,7 +274,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 	CurrentBuffer()->lifeState = Buffer::reading;
 	if (asynchronous) {
 		// Turn grey while loading
-		wEditor.StyleSetBack(STYLE_DEFAULT, 0xEEEEEE);
+		wEditor.StyleSetBack(StyleDefault, 0xEEEEEE);
 		wEditor.SetReadOnly(true);
 		assert(CurrentBufferConst()->pFileWorker == nullptr);
 		ILoader *pdocLoad;

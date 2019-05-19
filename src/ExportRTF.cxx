@@ -76,13 +76,6 @@
 #define RTF_FONTFACE "Courier New"
 #define RTF_COLOR "#000000"
 
-namespace {
-
-const int StyleMax = static_cast<int>(SA::StylesCommon::Max);
-const int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
-
-}
-
 static size_t FindCaseInsensitive(const std::vector<std::string> &values, const std::string &s) {
 	for (size_t i = 0; i < values.size(); i++)
 		if (EqualCaseInsensitive(s.c_str(), values[i].c_str()))

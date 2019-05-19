@@ -445,8 +445,8 @@ void SciTEWin::ReadProperties() {
 	if (flatterUI) {
 		if (foldColour.empty() && foldHiliteColour.empty()) {
 			const SA::Colour lightMargin = ColourRGB(0xF7, 0xF7, 0xF7);
-			CallChildren(SCI_SETFOLDMARGINCOLOUR, 1, lightMargin);
-			CallChildren(SCI_SETFOLDMARGINHICOLOUR, 1, lightMargin);
+			CallChildren(SA::Message::SetFoldMarginColour, 1, lightMargin);
+			CallChildren(SA::Message::SetFoldMarginHiColour, 1, lightMargin);
 		}
 	}
 }
@@ -1073,8 +1073,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				doRepSel = (0 == exitcode);
 
 			if (doRepSel) {
-				const SA::Position cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART));
-				wEditor.Send(SCI_REPLACESEL,0,SptrFromString(repSelBuf.c_str()));
+				const SA::Position cpMin = wEditor.Send(SCI_GETSELECTIONSTART);
+				wEditor.Send(SCI_REPLACESEL, 0, SptrFromString(repSelBuf.c_str()));
 				wEditor.Send(SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
 			}
 		}
@@ -1806,7 +1806,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 				if (commandNum < 2000) {
 					SciTEBase::MenuCommand(commandNum);
 				} else {
-					SciTEBase::CallFocused(commandNum);
+					SciTEBase::CallFocused(static_cast<SA::Message>(commandNum));
 				}
 				return 1l;
 			}

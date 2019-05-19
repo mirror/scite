@@ -1185,7 +1185,7 @@ void SciTEGTK::ReadPropertiesInitial() {
 void SciTEGTK::ReadProperties() {
 	SciTEBase::ReadProperties();
 
-	CallChildren(SCI_SETRECTANGULARSELECTIONMODIFIER,
+	CallChildren(SA::Message::SetRectangularSelectionModifier,
 		props.GetInt("rectangular.selection.modifier", SCMOD_ALT));
 
 	CheckMenus();
@@ -3442,7 +3442,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 				if (commandNum < 2000) {
 					SciTEBase::MenuCommand(commandNum);
 				} else {
-					SciTEBase::CallFocused(commandNum);
+					SciTEBase::CallFocused(static_cast<SA::Message>(commandNum));
 				}
 				g_signal_stop_emission_by_name(
 				    G_OBJECT(PWidget(wSciTE)), "key_press_event");

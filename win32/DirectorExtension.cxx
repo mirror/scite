@@ -25,8 +25,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "ScintillaWindow.h"
 #include "StringList.h"

@@ -47,13 +47,6 @@
 
 //---------- Save to TeX ----------
 
-namespace {
-
-const int StyleMax = static_cast<int>(SA::StylesCommon::Max);
-const int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
-
-}
-
 static char* getTexRGB(char* texcolor, const char* stylecolor) {
 	//texcolor[rgb]{0,0.5,0}{....}
 	const double rf = IntFromHexByte(stylecolor + 1) / 256.0;

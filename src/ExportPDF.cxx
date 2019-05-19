@@ -88,9 +88,6 @@ short PDFfontAscenders[] =  { 629, 718, 699 };
 short PDFfontDescenders[] = { 157, 207, 217 };
 short PDFfontWidths[] =     { 600,   0,   0 };
 
-const int StyleMax = static_cast<int>(SA::StylesCommon::Max);
-const int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
-
 }
 
 inline std::string getPDFRGB(const char* stylecolour) {

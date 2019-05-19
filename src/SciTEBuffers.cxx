@@ -25,7 +25,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
 #include "SciLexer.h"
 
 #include "GUI.h"

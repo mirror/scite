@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
 
 #include "MultiplexExtension.h"
 

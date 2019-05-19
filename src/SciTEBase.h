@@ -43,6 +43,9 @@ enum {
 
 namespace SA = Scintilla::API;
 
+constexpr int StyleMax = static_cast<int>(SA::StylesCommon::Max);
+constexpr int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
+
 struct SelectedRange {
 	SA::Position position;
 	SA::Position anchor;
@@ -585,10 +588,10 @@ protected:
 	void ReadDirectoryPropFile();
 
 	void SetPaneFocus(bool editPane) noexcept;
-	intptr_t CallFocused(unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0);
-	intptr_t CallFocusedElseDefault(int defaultValue, unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0);
-	intptr_t CallPane(int destination, unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0);
-	void CallChildren(unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0);
+	intptr_t CallFocused(SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
+	intptr_t CallFocusedElseDefault(int defaultValue, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
+	intptr_t CallPane(int destination, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
+	void CallChildren(SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
 	std::string GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
 	SA::Position LengthDocument();
 	SA::Position GetCaretInLine();
@@ -701,7 +704,7 @@ protected:
 	void UserStripSetList(int /* control */, const char * /* value */) override {}
 	std::string UserStripValue(int /* control */) override { return std::string(); }
 	virtual void ShowBackgroundProgress(const GUI::gui_string & /* explanation */, size_t /* size */, size_t /* progress */) {}
-	Scintilla::API::Range GetSelection();
+	SA::Range GetSelection();
 	SelectedRange GetSelectedRange();
 	void SetSelection(SA::Position anchor, SA::Position currentPos);
 	std::string GetCTag();
@@ -887,7 +890,7 @@ protected:
 	JobSubsystem SubsystemType(const char *cmd);
 	void ToolsMenu(int item);
 
-	void AssignKey(int key, int mods, int cmd);
+	void AssignKey(SA::Keys key, SA::KeyMod mods, int cmd);
 	void ViewWhitespace(bool view);
 	void SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle);
 	void SetImportMenu();
@@ -905,7 +908,7 @@ protected:
 	std::string ExtensionFileName() const;
 	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
-	void DefineMarker(int marker, SA::MarkerSymbol markerType, SA::Colour fore, SA::Colour back, SA::Colour backSelected);
+	void DefineMarker(SA::MarkerOutline marker, SA::MarkerSymbol markerType, SA::Colour fore, SA::Colour back, SA::Colour backSelected);
 	void ReadAPI(const std::string &fileNameForExtension);
 	std::string FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
@@ -958,7 +961,7 @@ protected:
 	void PropertyFromDirector(const char *arg);
 	void PropertyToDirector(const char *arg);
 	// ExtensionAPI
-	intptr_t Send(Pane p, unsigned int msg, uintptr_t wParam = 0, intptr_t lParam = 0) override;
+	intptr_t Send(Pane p, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0) override;
 	std::string Range(Pane p, SA::Position start, SA::Position end) override;
 	void Remove(Pane p, SA::Position start, SA::Position end) override;
 	void Insert(Pane p, SA::Position pos, const char *s) override;

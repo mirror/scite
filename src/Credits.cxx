@@ -26,8 +26,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "ScintillaWindow.h"
 #include "StringList.h"
@@ -519,7 +517,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		sVersion += VERSION_SCITE;
 		sVersion += " ";
 #if defined(GTK)
-		wsci.StyleSetFont(STYLE_DEFAULT, "Serif");
+		wsci.StyleSetFont(StyleDefault, "Serif");
 		const int fontSize = 14;
 		sVersion += "compiled for GTK+ ";
 		sVersion += StdStringFromInteger(GTK_MAJOR_VERSION);
@@ -534,8 +532,8 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 
 		wsci.SetCodePage(SA::CpUtf8);
 
-		wsci.StyleSetSize(static_cast<int>(SA::StylesCommon::Default), fontSize);
-		wsci.StyleSetBack(static_cast<int>(SA::StylesCommon::Default), ColourRGB(0xff, 0xff, 0xff));
+		wsci.StyleSetSize(StyleDefault, fontSize);
+		wsci.StyleSetBack(StyleDefault, ColourRGB(0xff, 0xff, 0xff));
 		wsci.StyleClearAll();
 
 		SetAboutStyle(wsci, 0, ColourRGB(0xff, 0xff, 0xff));

@@ -15,10 +15,8 @@
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
 #include "ScintillaCall.h"
-#include "Scintilla.h"
 
 #include "GUI.h"
-#include "ScintillaWindow.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
 #include "StyleWriter.h"
@@ -402,7 +400,7 @@ static int cf_pane_remove(lua_State *L) {
 static int cf_pane_append(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 	const char *s = luaL_checkstring(L, 2);
-	host->Insert(p, host->Send(p, SCI_GETLENGTH), s);
+	host->Insert(p, host->Send(p, SA::Message::GetLength), s);
 	return 0;
 }
 
@@ -433,16 +431,16 @@ static int cf_pane_findtext(lua_State *L) {
 				rangeEnd = luaL_checkinteger(L, 5);
 				hasError = (lua_gettop(L) > nArgs);
 			} else {
-				rangeEnd = host->Send(p, SCI_GETLENGTH);
+				rangeEnd = host->Send(p, SA::Message::GetLength);
 			}
 		}
 
 		if (!hasError) {
-			host->Send(p, SCI_SETTARGETRANGE, rangeStart, rangeEnd);
-			host->Send(p, SCI_SETSEARCHFLAGS, flags);
-			const SA::Position result = host->Send(p, SCI_SEARCHINTARGET, strlen(t), SptrFromString(t));
+			host->Send(p, SA::Message::SetTargetRange, rangeStart, rangeEnd);
+			host->Send(p, SA::Message::SetSearchFlags, flags);
+			const SA::Position result = host->Send(p, SA::Message::SearchInTarget, strlen(t), SptrFromString(t));
 			if (result >= 0) {
-				const SA::Position posEndFound = host->Send(p, SCI_GETTARGETEND);
+				const SA::Position posEndFound = host->Send(p, SA::Message::GetTargetEnd);
 				lua_pushinteger(L, result);
 				lua_pushinteger(L, posEndFound);
 				return 2;
@@ -485,15 +483,14 @@ static int cf_match_replace(lua_State *L) {
 
 	// If an option were added to process \d back-references, it would just
 	// be an optional boolean argument, i.e. m:replace([[\1]], true), and
-	// this would just change SCI_REPLACETARGET to SCI_REPLACETARGETRE.
+	// this would just change ReplaceTarget to ReplaceTargetRE.
 	// The problem is, even if SCFIND_REGEXP was used, it's hard to know
 	// whether the back references are still valid.  So for now this is
 	// left out.
 
-	host->Send(pmo->pane, SCI_SETTARGETSTART, pmo->startPos);
-	host->Send(pmo->pane, SCI_SETTARGETEND, pmo->endPos);
-	host->Send(pmo->pane, SCI_REPLACETARGET, lua_strlen(L, 2), SptrFromString(replacement));
-	pmo->endPos = host->Send(pmo->pane, SCI_GETTARGETEND);
+	host->Send(pmo->pane, SA::Message::SetTargetRange, pmo->startPos, pmo->endPos);
+	host->Send(pmo->pane, SA::Message::ReplaceTarget, lua_strlen(L, 2), SptrFromString(replacement));
+	pmo->endPos = host->Send(pmo->pane, SA::Message::GetTargetEnd);
 	return 0;
 }
 
@@ -630,15 +627,15 @@ static int cf_pane_match_generator(lua_State *L) {
 	}
 
 	const SA::Position rangeStart = searchPos;
-	const SA::Position rangeEnd = host->Send(pmo->pane, SCI_GETLENGTH);
+	const SA::Position rangeEnd = host->Send(pmo->pane, SA::Message::GetLength);
 
 	if (rangeEnd > rangeStart) {
-		host->Send(pmo->pane, SCI_SETTARGETRANGE, rangeStart, rangeEnd);
-		host->Send(pmo->pane, SCI_SETSEARCHFLAGS, pmo->flags);
-		const SA::Position result = host->Send(pmo->pane, SCI_SEARCHINTARGET, strlen(text), SptrFromString(text));
+		host->Send(pmo->pane, SA::Message::SetTargetRange, rangeStart, rangeEnd);
+		host->Send(pmo->pane, SA::Message::SetSearchFlags, pmo->flags);
+		const SA::Position result = host->Send(pmo->pane, SA::Message::SearchInTarget, strlen(text), SptrFromString(text));
 		if (result >= 0) {
-			pmo->startPos = host->Send(pmo->pane, SCI_GETTARGETSTART);
-			pmo->endPos = pmo->endPosOrig = host->Send(pmo->pane, SCI_GETTARGETEND);
+			pmo->startPos = host->Send(pmo->pane, SA::Message::GetTargetStart);
+			pmo->endPos = pmo->endPosOrig = host->Send(pmo->pane, SA::Message::GetTargetEnd);
 			lua_pushvalue(L, 2);
 			return 1;
 		}
@@ -893,7 +890,8 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 			params[i] = SptrFromString(s ? s : "");
 		} else if (func.paramType[i] == iface_keymod) {
 			const int keycode = static_cast<int>(luaL_checknumber(L, arg++)) & 0xFFFF;
-			const int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) & (SCMOD_SHIFT|SCMOD_CTRL|SCMOD_ALT);
+			const int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) &
+				static_cast<int>(SA::KeyMod::Shift|SA::KeyMod::Ctrl|SA::KeyMod::Alt);
 			params[i] = keycode | (modifiers<<16);
 		} else if (func.paramType[i] == iface_bool) {
 			params[i] = lua_toboolean(L, arg++);
@@ -903,7 +901,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 	}
 
 	if (needStringResult) {
-		const intptr_t stringResultLen = host->Send(p, func.value, params[0], 0);
+		const intptr_t stringResultLen = host->Send(p, static_cast<SA::Message>(func.value), params[0], 0);
 		if (stringResultLen > 0) {
 			// not all string result methods are guaranteed to add a null terminator
 			stringResult.assign(stringResultLen + 1, '\0');
@@ -925,7 +923,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 
 	intptr_t result = 0;
 	try {
-		result = host->Send(p, func.value, params[0], params[1]);
+		result = host->Send(p, static_cast<SA::Message>(func.value), params[0], params[1]);
 	} catch (const SA::Failure &sf) {
 		std::string failureExplanation;
 		failureExplanation += ">Lua: Scintilla failure ";
@@ -934,7 +932,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		failureExplanation += StdStringFromInteger(func.value);
 		failureExplanation += ".\n";
 		// Reset status before continuing
-		host->Send(p, SCI_SETSTATUS, SC_STATUS_OK);
+		host->Send(p, SA::Message::SetStatus, static_cast<uintptr_t>(SA::Status::Ok));
 		host->Trace(failureExplanation.c_str());
 	}
 
@@ -1053,7 +1051,7 @@ static int push_iface_propval(lua_State *L, const char *name) {
 			const ExtensionAPI::Pane p = check_pane_object(L, 1);
 
 			if (prop.getter) {
-				if (host->Send(p, prop.getter, 1, 0)) {
+				if (host->Send(p, static_cast<SA::Message>(prop.getter), 1, 0)) {
 					lua_pushnil(L);
 					return 1;
 				} else {
@@ -2013,7 +2011,7 @@ bool LuaExtension::OnStyle(SA::Position startPos, SA::Position lengthDoc, int in
 			sc.lengthDoc = lengthDoc;
 			sc.initStyle = initStyle;
 			sc.styler = styler;
-			sc.codePage = static_cast<int>(host->Send(ExtensionAPI::paneEditor, SCI_GETCODEPAGE));
+			sc.codePage = static_cast<int>(host->Send(ExtensionAPI::paneEditor, SA::Message::GetCodePage));
 
 			lua_newtable(luaState);
 
@@ -2083,14 +2081,22 @@ bool LuaExtension::OnUserListSelection(int listType, const char *selection) {
 	return CallNamedFunction("OnUserListSelection", listType, selection);
 }
 
+namespace {
+
+bool CheckModifiers(int modifiers, SA::KeyMod mod) {
+	return (static_cast<int>(mod) & modifiers) != 0;
+}
+
+}
+
 bool LuaExtension::OnKey(int keyval, int modifiers) {
 	bool handled = false;
 	if (luaState) {
 		if (lua_getglobal(luaState, "OnKey") != LUA_TNIL) {
 			lua_pushinteger(luaState, keyval);
-			lua_pushboolean(luaState, (SCMOD_SHIFT & modifiers) != 0 ? 1 : 0); // shift/lock
-			lua_pushboolean(luaState, (SCMOD_CTRL  & modifiers) != 0 ? 1 : 0); // control
-			lua_pushboolean(luaState, (SCMOD_ALT   & modifiers) != 0 ? 1 : 0); // alt
+			lua_pushboolean(luaState, CheckModifiers(modifiers, SA::KeyMod::Shift)); // shift/lock
+			lua_pushboolean(luaState, CheckModifiers(modifiers, SA::KeyMod::Ctrl)); // control
+			lua_pushboolean(luaState, CheckModifiers(modifiers, SA::KeyMod::Alt)); // alt
 			handled = call_function(luaState, 4);
 		} else {
 			lua_pop(luaState, 1);

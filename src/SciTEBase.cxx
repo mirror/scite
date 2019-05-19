@@ -239,34 +239,34 @@ void SciTEBase::SetPaneFocus(bool editPane) noexcept {
 	pwFocussed = editPane ? &wEditor : &wOutput;
 }
 
-intptr_t SciTEBase::CallFocused(unsigned int msg, uintptr_t wParam, intptr_t lParam) {
+intptr_t SciTEBase::CallFocused(SA::Message msg, uintptr_t wParam, intptr_t lParam) {
 	if (wOutput.HasFocus())
-		return wOutput.Call(static_cast<SA::Message>(msg), wParam, lParam);
+		return wOutput.Call(msg, wParam, lParam);
 	else
-		return wEditor.Call(static_cast<SA::Message>(msg), wParam, lParam);
+		return wEditor.Call(msg, wParam, lParam);
 }
 
-intptr_t SciTEBase::CallFocusedElseDefault(int defaultValue, unsigned int msg, uintptr_t wParam, intptr_t lParam) {
+intptr_t SciTEBase::CallFocusedElseDefault(int defaultValue, SA::Message msg, uintptr_t wParam, intptr_t lParam) {
 	if (wOutput.HasFocus())
-		return wOutput.Call(static_cast<SA::Message>(msg), wParam, lParam);
+		return wOutput.Call(msg, wParam, lParam);
 	else if (wEditor.HasFocus())
-		return wEditor.Call(static_cast<SA::Message>(msg), wParam, lParam);
+		return wEditor.Call(msg, wParam, lParam);
 	else
 		return defaultValue;
 }
 
-intptr_t SciTEBase::CallPane(int destination, unsigned int msg, uintptr_t wParam, intptr_t lParam) {
+intptr_t SciTEBase::CallPane(int destination, SA::Message msg, uintptr_t wParam, intptr_t lParam) {
 	if (destination == IDM_SRCWIN)
-		return wEditor.Call(static_cast<SA::Message>(msg), wParam, lParam);
+		return wEditor.Call(msg, wParam, lParam);
 	else if (destination == IDM_RUNWIN)
-		return wOutput.Call(static_cast<SA::Message>(msg), wParam, lParam);
+		return wOutput.Call(msg, wParam, lParam);
 	else
 		return CallFocused(msg, wParam, lParam);
 }
 
-void SciTEBase::CallChildren(unsigned int msg, uintptr_t wParam, intptr_t lParam) {
-	wEditor.Call(static_cast<SA::Message>(msg), wParam, lParam);
-	wOutput.Call(static_cast<SA::Message>(msg), wParam, lParam);
+void SciTEBase::CallChildren(SA::Message msg, uintptr_t wParam, intptr_t lParam) {
+	wEditor.Call(msg, wParam, lParam);
+	wOutput.Call(msg, wParam, lParam);
 }
 
 std::string SciTEBase::GetTranslationToAbout(const char * const propname, bool retainIfNotFound) {
@@ -300,7 +300,7 @@ StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
 	return sw;
 }
 
-void SciTEBase::AssignKey(int key, int mods, int cmd) {
+void SciTEBase::AssignKey(SA::Keys key, SA::KeyMod mods, int cmd) {
 	wEditor.AssignCmdKey(
 	        IntFromTwoShorts(static_cast<short>(key),
 	                static_cast<short>(mods)), cmd);
@@ -879,12 +879,12 @@ void SciTEBase::SelectionIntoProperties() {
 	std::string word = SelectionWord();
 	props.Set("CurrentWord", word.c_str());
 
-	const SA::Position selStart = CallFocused(SCI_GETSELECTIONSTART);
-	const SA::Position selEnd = CallFocused(SCI_GETSELECTIONEND);
-	props.Set("SelectionStartLine", std::to_string(CallFocused(SCI_LINEFROMPOSITION, selStart) + 1));
-	props.Set("SelectionStartColumn", std::to_string(CallFocused(SCI_GETCOLUMN, selStart) + 1));
-	props.Set("SelectionEndLine", std::to_string(CallFocused(SCI_LINEFROMPOSITION, selEnd) + 1));
-	props.Set("SelectionEndColumn", std::to_string(CallFocused(SCI_GETCOLUMN, selEnd) + 1));
+	const SA::Position selStart = CallFocused(SA::Message::GetSelectionStart);
+	const SA::Position selEnd = CallFocused(SA::Message::GetSelectionEnd);
+	props.Set("SelectionStartLine", std::to_string(CallFocused(SA::Message::LineFromPosition, selStart) + 1));
+	props.Set("SelectionStartColumn", std::to_string(CallFocused(SA::Message::GetColumn, selStart) + 1));
+	props.Set("SelectionEndLine", std::to_string(CallFocused(SA::Message::LineFromPosition, selEnd) + 1));
+	props.Set("SelectionEndColumn", std::to_string(CallFocused(SA::Message::GetColumn, selEnd) + 1));
 }
 
 void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
@@ -1330,6 +1330,7 @@ void SciTEBase::OutputAppendString(const char *s, SA::Position len) {
 }
 
 void SciTEBase::OutputAppendStringSynchronised(const char *s, SA::Position len) {
+	// This may be called from secondary thread so always use Send instead of Call
 	if (len == -1)
 		len = static_cast<SA::Position>(strlen(s));
 	wOutput.Send(SCI_APPENDTEXT, len, SptrFromString(s));
@@ -1457,18 +1458,18 @@ void SciTEBase::BookmarkToggle(SA::Line lineno) {
 
 void SciTEBase::BookmarkNext(bool forwardScan, bool select) {
 	const SA::Line lineno = GetCurrentLineNumber();
-	int sci_marker = SCI_MARKERNEXT;
+	SA::Message sci_marker = SA::Message::MarkerNext;
 	SA::Line lineStart = lineno + 1;	//Scan starting from next line
 	SA::Line lineRetry = 0;				//If not found, try from the beginning
 	const SA::Position anchor = wEditor.Anchor();
 	if (!forwardScan) {
 		lineStart = lineno - 1;		//Scan starting from previous line
 		lineRetry = wEditor.LineCount();	//If not found, try from the end
-		sci_marker = SCI_MARKERPREVIOUS;
+		sci_marker = SA::Message::MarkerPrevious;
 	}
-	SA::Line nextLine = wEditor.Call(static_cast<SA::Message>(sci_marker), lineStart, 1 << markerBookmark);
+	SA::Line nextLine = wEditor.Call(sci_marker, lineStart, 1 << markerBookmark);
 	if (nextLine < 0)
-		nextLine = wEditor.Call(static_cast<SA::Message>(sci_marker), lineRetry, 1 << markerBookmark);
+		nextLine = wEditor.Call(sci_marker, lineRetry, 1 << markerBookmark);
 	if (nextLine < 0 || nextLine == lineno)	// No bookmark (of the given type) or only one, and already on it
 		WarnUser(warnNoOtherBookmark);
 	else {
@@ -2990,7 +2991,8 @@ void SciTEBase::SetLineNumberWidth() {
 			lineNumWidth = 0;
 		// The 4 here allows for spacing: 1 pixel on left and 3 on right.
 		std::string nNines(lineNumWidth, '9');
-		const int pixelWidth = 4 + wEditor.TextWidth(STYLE_LINENUMBER, nNines.c_str());
+		const int pixelWidth = 4 + wEditor.TextWidth(
+			static_cast<int>(SA::StylesCommon::LineNumber), nNines.c_str());
 
 		wEditor.SetMarginWidthN(0, pixelWidth);
 	} else {
@@ -3156,46 +3158,46 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_UNDO:
-		CallPane(source, SCI_UNDO);
+		CallPane(source, SA::Message::Undo);
 		CheckMenus();
 		break;
 	case IDM_REDO:
-		CallPane(source, SCI_REDO);
+		CallPane(source, SA::Message::Redo);
 		CheckMenus();
 		break;
 
 	case IDM_CUT:
-		if (!CallPane(source, SCI_GETSELECTIONEMPTY)) {
-			CallPane(source, SCI_CUT);
+		if (!CallPane(source, SA::Message::GetSelectionEmpty)) {
+			CallPane(source, SA::Message::Cut);
 		}
 		break;
 	case IDM_COPY:
-		if (!CallPane(source, SCI_GETSELECTIONEMPTY)) {
+		if (!CallPane(source, SA::Message::GetSelectionEmpty)) {
 			//fprintf(stderr, "Copy from %d\n", source);
-			CallPane(source, SCI_COPY);
+			CallPane(source, SA::Message::Copy);
 		}
 		// does not trigger SCN_UPDATEUI, so do CheckMenusClipboard() here
 		CheckMenusClipboard();
 		break;
 	case IDM_PASTE:
-		CallPane(source, SCI_PASTE);
+		CallPane(source, SA::Message::Paste);
 		break;
 	case IDM_DUPLICATE:
-		CallPane(source, SCI_SELECTIONDUPLICATE);
+		CallPane(source, SA::Message::SelectionDuplicate);
 		break;
 	case IDM_PASTEANDDOWN: {
-			const SA::Position pos = CallFocused(SCI_GETCURRENTPOS);
-			CallFocused(SCI_PASTE);
-			CallFocused(SCI_SETCURRENTPOS, pos);
-			CallFocused(SCI_CHARLEFT);
-			CallFocused(SCI_LINEDOWN);
+			const SA::Position pos = CallFocused(SA::Message::GetCurrentPos);
+			CallFocused(SA::Message::Paste);
+			CallFocused(SA::Message::SetCurrentPos, pos);
+			CallFocused(SA::Message::CharLeft);
+			CallFocused(SA::Message::LineDown);
 		}
 		break;
 	case IDM_CLEAR:
-		CallPane(source, SCI_CLEAR);
+		CallPane(source, SA::Message::Clear);
 		break;
 	case IDM_SELECTALL:
-		CallPane(source, SCI_SELECTALL);
+		CallPane(source, SA::Message::SelectAll);
 		break;
 	case IDM_COPYASRTF:
 		CopyAsRTF();
@@ -3319,25 +3321,25 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_UPRCASE:
-		CallFocused(SCI_UPPERCASE);
+		CallFocused(SA::Message::UpperCase);
 		break;
 
 	case IDM_LWRCASE:
-		CallFocused(SCI_LOWERCASE);
+		CallFocused(SA::Message::LowerCase);
 		break;
 
 	case IDM_LINEREVERSE:
-		CallFocused(SCI_LINEREVERSE);
+		CallFocused(SA::Message::LineReverse);
 		break;
 
 	case IDM_JOIN:
-		CallFocused(SCI_TARGETFROMSELECTION);
-		CallFocused(SCI_LINESJOIN);
+		CallFocused(SA::Message::TargetFromSelection);
+		CallFocused(SA::Message::LinesJoin);
 		break;
 
 	case IDM_SPLIT:
-		CallFocused(SCI_TARGETFROMSELECTION);
-		CallFocused(SCI_LINESSPLIT);
+		CallFocused(SA::Message::TargetFromSelection);
+		CallFocused(SA::Message::LinesSplit);
 		break;
 
 	case IDM_EXPAND:
@@ -4004,8 +4006,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 		if (notification->modificationType & SC_LASTSTEPINUNDOREDO) {
 			//when the user hits undo or redo, several normal insert/delete
 			//notifications may fire, but we will end up here in the end
-			EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SCI_CANUNDO));
-			EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SCI_CANREDO));
+			EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SA::Message::CanUndo));
+			EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SA::Message::CanRedo));
 		} else if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
 			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
 				currentWordHighlight.textHasChanged = true;
@@ -4101,18 +4103,18 @@ void SciTEBase::Notify(SCNotification *notification) {
 }
 
 void SciTEBase::CheckMenusClipboard() {
-	const bool hasSelection = !CallFocusedElseDefault(false, SCI_GETSELECTIONEMPTY);
+	const bool hasSelection = !CallFocusedElseDefault(false, SA::Message::GetSelectionEmpty);
 	EnableAMenuItem(IDM_CUT, hasSelection);
 	EnableAMenuItem(IDM_COPY, hasSelection);
 	EnableAMenuItem(IDM_CLEAR, hasSelection);
-	EnableAMenuItem(IDM_PASTE, CallFocusedElseDefault(true, SCI_CANPASTE));
+	EnableAMenuItem(IDM_PASTE, CallFocusedElseDefault(true, SA::Message::CanPaste));
 	EnableAMenuItem(IDM_SELECTALL, true);
 }
 
 void SciTEBase::CheckMenus() {
 	CheckMenusClipboard();
-	EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SCI_CANUNDO));
-	EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SCI_CANREDO));
+	EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SA::Message::CanUndo));
+	EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SA::Message::CanRedo));
 	EnableAMenuItem(IDM_DUPLICATE, CurrentBuffer()->isReadOnly);
 	EnableAMenuItem(IDM_SHOWCALLTIP, apis != 0);
 	EnableAMenuItem(IDM_COMPLETE, apis != 0);
@@ -4575,7 +4577,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 
 	// Extract message, parameter specification, wParam, lParam
 
-	const unsigned int message = static_cast<unsigned int>(ReadNum(nextarg));
+	const SA::Message message = static_cast<SA::Message>(ReadNum(nextarg));
 	if (!nextarg) {
 		Trace("Malformed macro command.\n");
 		return;
@@ -4602,23 +4604,23 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 
 	if (*params == '0') {
 		// no answer ...
-		wEditor.Call(static_cast<SA::Message>(message), wParam, lParam);
+		wEditor.Call(message, wParam, lParam);
 		return;
 	}
 
 	if (*params == 'S') {
 		// string answer
-		if (message == SCI_GETSELTEXT) {
+		if (message == SA::Message::GetSelText) {
 			l = wEditor.GetSelText(0);
 			wParam = 0;
-		} else if (message == SCI_GETCURLINE) {
+		} else if (message == SA::Message::GetCurLine) {
 			const SA::Line line = wEditor.LineFromPosition(wEditor.CurrentPosition());
 			l = wEditor.LineLength(line);
 			wParam = l;
-		} else if (message == SCI_GETTEXT) {
+		} else if (message == SA::Message::GetText) {
 			l = wEditor.Length();
 			wParam = l;
-		} else if (message == SCI_GETLINE) {
+		} else if (message == SA::Message::GetLine) {
 			l = wEditor.LineLength(wParam);
 		} else {
 			l = 0; //unsupported calls EM
@@ -4638,7 +4640,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 		lParam = SptrFromPointer(&tbuff[alen]);
 
 	if (l > 0)
-		rep = wEditor.Call(static_cast<SA::Message>(message), wParam, lParam);
+		rep = wEditor.Call(message, wParam, lParam);
 	if (*params == 'I') {
 		const std::string sRep = std::to_string(rep);
 		sprintf(&tbuff[alen], "%s", sRep.c_str());
@@ -4747,11 +4749,11 @@ bool SciTEBase::ProcessCommandLine(const GUI::gui_string &args, int phase) {
 }
 
 // Implement ExtensionAPI methods
-sptr_t SciTEBase::Send(Pane p, unsigned int msg, uptr_t wParam, sptr_t lParam) {
+intptr_t SciTEBase::Send(Pane p, SA::Message msg, uintptr_t wParam, intptr_t lParam) {
 	if (p == paneEditor)
-		return wEditor.Call(static_cast<SA::Message>(msg), wParam, lParam);
+		return wEditor.Call(msg, wParam, lParam);
 	else
-		return wOutput.Call(static_cast<SA::Message>(msg), wParam, lParam);
+		return wOutput.Call(msg, wParam, lParam);
 }
 std::string SciTEBase::Range(Pane p, SA::Position start, SA::Position end) {
 	const SA::Position len = end - start;

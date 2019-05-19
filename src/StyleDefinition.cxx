@@ -18,8 +18,6 @@
 
 #include "ScintillaTypes.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "StringHelpers.h"
 #include "StyleDefinition.h"
@@ -162,7 +160,7 @@ Scintilla::API::Colour StyleDefinition::Back() const {
 }
 
 int StyleDefinition::FractionalSize() const noexcept {
-	return static_cast<int>(sizeFractional * SC_FONT_SIZE_MULTIPLIER);
+	return static_cast<int>(sizeFractional * SA::FontSizeMultiplier);
 }
 
 bool StyleDefinition::IsBold() const noexcept {

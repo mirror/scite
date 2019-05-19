@@ -27,7 +27,7 @@ public:
 	virtual ~ExtensionAPI() {
 	}
 	enum Pane { paneEditor=1, paneOutput=2, paneFindOutput=3 };
-	virtual intptr_t Send(Pane p, unsigned int msg, uintptr_t wParam=0, intptr_t lParam=0)=0;
+	virtual intptr_t Send(Pane p, Scintilla::API::Message msg, uintptr_t wParam=0, intptr_t lParam=0)=0;
 	virtual std::string Range(Pane p, Scintilla::API::Position start, Scintilla::API::Position end)=0;
 	virtual void Remove(Pane p, Scintilla::API::Position start, Scintilla::API::Position end)=0;
 	virtual void Insert(Pane p, Scintilla::API::Position pos, const char *s)=0;
