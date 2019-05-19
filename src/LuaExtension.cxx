@@ -402,7 +402,7 @@ static int cf_pane_remove(lua_State *L) {
 static int cf_pane_append(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 	const char *s = luaL_checkstring(L, 2);
-	host->Insert(p, static_cast<int>(host->Send(p, SCI_GETLENGTH)), s);
+	host->Insert(p, host->Send(p, SCI_GETLENGTH), s);
 	return 0;
 }
 
@@ -493,7 +493,7 @@ static int cf_match_replace(lua_State *L) {
 	host->Send(pmo->pane, SCI_SETTARGETSTART, pmo->startPos);
 	host->Send(pmo->pane, SCI_SETTARGETEND, pmo->endPos);
 	host->Send(pmo->pane, SCI_REPLACETARGET, lua_strlen(L, 2), SptrFromString(replacement));
-	pmo->endPos = static_cast<int>(host->Send(pmo->pane, SCI_GETTARGETEND));
+	pmo->endPos = host->Send(pmo->pane, SCI_GETTARGETEND);
 	return 0;
 }
 
@@ -898,7 +898,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		} else if (func.paramType[i] == iface_bool) {
 			params[i] = lua_toboolean(L, arg++);
 		} else if (IFaceTypeIsNumeric(func.paramType[i])) {
-			params[i] = static_cast<long>(luaL_checknumber(L, arg++));
+			params[i] = luaL_checknumber(L, arg++);
 		}
 	}
 
@@ -949,7 +949,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		lua_pushboolean(L, static_cast<int>(result));
 		resultCount++;
 	} else if (IFaceTypeIsNumeric(func.returnType)) {
-		lua_pushinteger(L, static_cast<int>(result));
+		lua_pushinteger(L, result);
 		resultCount++;
 	}
 
@@ -1802,7 +1802,7 @@ struct StylingContext {
 		lenCurrent = lenNext;
 		lenNext = 1;
 		const SA::Position nextPos = currentPos + lenCurrent;
-		unsigned char byteNext = static_cast<unsigned char>(styler->SafeGetCharAt(nextPos));
+		unsigned char byteNext = styler->SafeGetCharAt(nextPos);
 		unsigned int nextSlot = (cursorPos + 1) % 3;
 		memcpy(cursor[nextSlot], "\0\0\0\0\0\0\0\0", 8);
 		cursor[nextSlot][0] = byteNext;
