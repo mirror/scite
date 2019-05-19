@@ -50,6 +50,8 @@ basicTypes = [
 	"void *",
 ]
 
+namespace = "API::"
+
 lineArgNames = [
 	"line",
 	"lineStart",
@@ -84,7 +86,9 @@ def ActualTypeName(type, identifier=None):
 	if identifier in positionArgNames:
 		return "Position"
 	if identifier in documentArgNames:
-		return "intptr_t"
+		return "void *"
+	if identifier in enumArgNames:
+		return namespace + enumArgNames[identifier]
 	if type in typeAliases:
 		return typeAliases[type]
 	else:
@@ -106,6 +110,8 @@ returningMethods = {
 	"ReplaceTarget": "Position",
 	"ReplaceTargetRE": "Position",
 	"SearchInTarget": "Position",
+	"SearchNext": "Position",
+	"SearchPrev": "Position",
 	"WordStartPosition": "Position",
 	"WordEndPosition": "Position",
 	"MarkerNext": "Line",
@@ -121,14 +127,116 @@ returningMethods = {
 	"LineFromIndexPosition": "Line",
 	"FirstVisibleLine": "Line",
 	"LineCount": "Line",
-	"DirectFunction": "intptr_t",
-	"DirectPointer": "intptr_t",
-	"DocPointer": "intptr_t",
-	"CharacterPointer": "intptr_t",
-	"RangePointer": "intptr_t",
-	"CreateDocument": "intptr_t",
-	"CreateLoader": "intptr_t",
-	"PrivateLexerCall": "intptr_t",
+	"DirectFunction": "void *",
+	"DirectPointer": "void *",
+	"DocPointer": "void *",
+	"CharacterPointer": "void *",
+	"RangePointer": "void *",
+	"CreateDocument": "void *",
+	"CreateLoader": "void *",
+	"PrivateLexerCall": "void *",
+
+	"ViewWS": "WhiteSpace",
+	"TabDrawMode": "TabDrawMode",
+	"EOLMode": "EndOfLine",
+	"IMEInteraction": "IMEInteraction",
+	"StyleGetCase": "CaseVisible",
+	"StyleGetCharacterSet": "CharacterSet",
+	"StyleGetWeight": "FontWeight",
+	"SelAlpha": "Alpha",
+	"AdditionalSelAlpha": "Alpha",
+	"IndicGetStyle": "IndicatorStyle",
+	"IndicGetHoverStyle": "IndicatorStyle",
+	"IndicGetFlags": "IndicFlag",
+	"IndicGetAlpha": "Alpha",
+	"IndicGetOutlineAlpha": "Alpha",
+	"HighlightGuide": "Position",
+	"IndentationGuides": "IndentView",
+	"PrintColourMode": "PrintOption",
+	"SearchFlags": "FindOption",
+	"FoldLevel": "FoldLevel",
+	"FoldDisplayTextGetStyle": "FoldDisplayTextStyle",
+	"AutomaticFold": "AutomaticFold",
+	"IdleStyling": "IdleStyling",
+	"WrapMode": "Wrap",
+	"WrapVisualFlags": "WrapVisualFlag",
+	"WrapVisualFlagsLocation": "WrapVisualLocation",
+	"WrapIndentMode": "WrapIndentMode",
+	"LayoutCache": "LineCache",
+	"PhasesDraw": "PhasesDraw",
+	"FontQuality": "FontQuality",
+	"MultiPaste": "MultiPaste",
+	"Accessibility": "Accessibility",
+	"EdgeMode": "EdgeVisualStyle",
+	"DocumentOptions": "DocumentOption",
+	"ModEventMask": "ModificationFlags",
+	"Status": "Status",
+	"Cursor": "CursorShape",
+	"PrintWrapMode": "Wrap",
+	"SelectionMode": "SelectionMode",
+	"AutoCGetCaseInsensitiveBehaviour": "CaseInsensitiveBehaviour",
+	"AutoCGetMulti": "MultiAutoComplete",
+	"AutoCGetOrder": "Ordering",
+	"CaretSticky": "CaretSticky",
+	"CaretLineBackAlpha": "Alpha",
+	"CaretStyle": "CaretStyle",
+	"MarginOptions": "MarginOption",
+	"AnnotationGetVisible": "AnnotationVisible",
+	"VirtualSpaceOptions": "VirtualSpace",
+	"Technology": "Technology",
+	"LineEndTypesAllowed": "LineEndType",
+	"LineEndTypesActive": "LineEndType",
+	"PropertyType": "TypeProperty",
+	"Bidirectional": "Bidirectional",
+	"LineCharacterIndex": "LineCharacterIndexType",
+}
+
+enumArgNames = {
+	"weight": "FontWeight",
+	"viewWS": "WhiteSpace",
+	"tabDrawMode": "TabDrawMode",
+	"eolMode": "EndOfLine",
+	"imeInteraction": "IMEInteraction",
+	"caseVisible": "CaseVisible",
+	"markerSymbol": "MarkerSymbol",
+	"indentView": "IndentView",
+	"mode": "PrintOption",
+	"searchFlags": "FindOption",
+	"indicatorStyle": "IndicatorStyle",
+	"action": "FoldAction",
+	"automaticFold": "AutomaticFold",
+	"level": "FoldLevel",
+	"idleStyling": "IdleStyling",
+	"wrapMode": "Wrap",
+	"wrapVisualFlags": "WrapVisualFlag",
+	"wrapVisualFlagsLocation": "WrapVisualLocation",
+	"wrapIndentMode": "WrapIndentMode",
+	"cacheMode": "LineCache",
+	"phases": "PhasesDraw",
+	"fontQuality": "FontQuality",
+	"multiPaste": "MultiPaste",
+	"accessibility": "Accessibility",
+	"eventMask": "ModificationFlags",
+	"edgeMode": "EdgeVisualStyle",
+	"popUpMode": "PopUp",
+	"status": "Status",
+	"cursorType": "CursorShape",
+	"visiblePolicy": "VisiblePolicy",
+	"caretPolicy": "CaretPolicy",
+	"selectionMode": "SelectionMode",
+	"behaviour": "CaseInsensitiveBehaviour",
+	"multi": "MultiAutoComplete",
+	"order": "Ordering",
+	"useCaretStickyBehaviour": "CaretSticky",
+	"alpha": "Alpha",
+	"caretStyle": "CaretStyle",
+	"marginOptions": "MarginOption",
+	"virtualSpaceOptions": "VirtualSpace",
+	"technology": "Technology",
+	"lineEndBitSet": "LineEndType",
+	"documentOptions": "DocumentOption",
+	"bidirectional": "Bidirectional",
+	"lineCharacterIndex": "LineCharacterIndexType",
 }
 
 enumerationAliases = {
@@ -264,7 +372,33 @@ enumerationAliases = {
 	"SC_AC_DOUBLECLICK": "DOUBLE_CLICK",
 }
 
+extraDefinitions = """
+enu UndoFlags=UNDO_
+val UNDO_NONE=0
+"""
+
+def AugmentFace(f):
+	# These would be ambiguous if changed globally so edit the API definition directly
+	f.features["StyleSetCharacterSet"]["Param2Type"] = "CharacterSet"
+	f.features["IndicSetFlags"]["Param2Type"] = "IndicFlag"
+	f.features["FoldDisplayTextSetStyle"]["Param1Type"] = "FoldDisplayTextStyle"
+	f.features["SetFoldFlags"]["Param1Type"] = "FoldFlag"
+	f.features["AnnotationSetVisible"]["Param1Type"] = "AnnotationVisible"
+	f.features["AddUndoAction"]["Param2Type"] = "UndoFlags"
+	
+	# These are more complex
+
+	name = "UndoFlags"
+	f.features[name] = {
+		"FeatureType": "enu",
+		"Category": "",
+		"Value": "UNDO_",
+		"Comment": "" }
+	f.order.append(name)
+
 def IsEnumeration(s):
+	if s in ["Position", "Line", "Colour"]:
+		return False
 	return s[:1].isupper()
 	
 def JoinTypeAndIdentifier(type, identifier):
@@ -290,7 +424,7 @@ def ParametersArgsCallname(v):
 		elif param1Type not in basicTypes:
 			castName = "static_cast<uintptr_t>(" + param1Name + ")"
 		if IsEnumeration(param1TypeBase):
-			param1Type = "ScintillaAPI::" + param1Type
+			param1Type = namespace + param1Type
 		param1Arg = JoinTypeAndIdentifier(param1Type, param1Name)
 		parameters = param1Arg
 		args = castName
@@ -309,7 +443,7 @@ def ParametersArgsCallname(v):
 		elif param2Type not in basicTypes:
 			castName = "static_cast<intptr_t>(" + param2Name + ")"
 		if IsEnumeration(param2TypeBase):
-			param2Type = "ScintillaAPI::" + param2Type
+			param2Type = namespace + param2Type
 		param2Arg = JoinTypeAndIdentifier(param2Type, param2Name)
 		if param1Arg:
 			parameters = parameters + ", "
@@ -415,8 +549,9 @@ def HMethods(f):
 				retType = ActualTypeName(v["ReturnType"])
 				if name in returningMethods:
 					retType = returningMethods[name]
+				if IsEnumeration(retType):
+					retType = namespace + retType
 				parameters, args, callName = ParametersArgsCallname(v)
-				returnIfNeeded = "return " if retType != "void" else ""
 
 				out.append("\t" + JoinTypeAndIdentifier(retType, name) + "(" + parameters + ");")
 	return out
@@ -442,8 +577,8 @@ def CXXMethods(f):
 				retCast = ""
 				retCastEnd = ""
 				if retType not in basicTypes or retType in ["int", "Colour"]:
-					if IsEnumeration(retTypeBase):
-						retType = "API::" + retType
+					if IsEnumeration(retTypeBase) or IsEnumeration(retType):
+						retType = namespace + retType
 					retCast = "static_cast<" + retType + ">("
 					retCastEnd = ")"
 				elif retType in ["void *"]:
@@ -458,6 +593,7 @@ def CXXMethods(f):
 def RegenerateAll(root):
 	f = Face.Face()
 	f.ReadFromFile(root + "../scintilla/" + "include/Scintilla.iface")
+	AugmentFace(f)
 	Regenerate(root + "src/ScintillaMessages.h", "//", HMessages(f))
 	Regenerate(root + "src/ScintillaTypes.h", "//", HEnumerations(f), HConstants(f))
 	Regenerate(root + "src/ScintillaCall.h", "//", HMethods(f))

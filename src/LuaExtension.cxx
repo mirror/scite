@@ -1770,7 +1770,7 @@ struct StylingContext {
 	static int LevelAt(lua_State *L) {
 		StylingContext *context = Context(L);
 		const SA::Line line = luaL_checknumber(L, 2);
-		lua_pushinteger(L, context->styler->LevelAt(line));
+		lua_pushinteger(L, static_cast<int>(context->styler->LevelAt(line)));
 		return 1;
 	}
 
@@ -1778,7 +1778,7 @@ struct StylingContext {
 		StylingContext *context = Context(L);
 		const SA::Line line = luaL_checknumber(L, 2);
 		const int level = luaL_checknumber(L, 3);
-		context->styler->SetLevel(line, level);
+		context->styler->SetLevel(line, static_cast<SA::FoldLevel>(level));
 		return 0;
 	}
 

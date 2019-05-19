@@ -12,11 +12,11 @@ public:
 	int size;
 	std::string fore;
 	std::string back;
-	int weight;
+	Scintilla::API::FontWeight weight;
 	bool italics;
 	bool eolfilled;
 	bool underlined;
-	int caseForce;
+	Scintilla::API::CaseVisible caseForce;
 	bool visible;
 	bool changeable;
 	enum flags { sdNone = 0, sdFont = 0x1, sdSize = 0x2, sdFore = 0x4, sdBack = 0x8,
@@ -40,10 +40,10 @@ int IntFromHexByte(std::string_view hexByte) noexcept;
 Scintilla::API::Colour ColourFromString(const std::string &s);
 
 struct IndicatorDefinition {
-	int style;
+	Scintilla::API::IndicatorStyle style;
 	Scintilla::API::Colour colour;
-	int fillAlpha;
-	int outlineAlpha;
+	Scintilla::API::Alpha fillAlpha;
+	Scintilla::API::Alpha outlineAlpha;
 	bool under;
 	explicit IndicatorDefinition(std::string_view definition);
 	bool ParseIndicatorDefinition(std::string_view definition);

@@ -192,7 +192,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 			fputs("<body>\n", fp);
 
 		SA::Line line = acc.GetLine(0);
-		int level = (acc.LevelAt(line) & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
+		int level = LevelNumber(acc.LevelAt(line)) - static_cast<int>(Scintilla::API::FoldLevel::Base);
 		int styleCurrent = acc.StyleAt(0);
 		bool inStyleSpan = false;
 		bool inFoldSpan = false;
@@ -204,10 +204,10 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 		}
 
 		if (folding) {
-			const int lvl = acc.LevelAt(0);
-			level = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
+			const Scintilla::API::FoldLevel lvl = acc.LevelAt(0);
+			level = LevelNumber(lvl) - static_cast<int>(Scintilla::API::FoldLevel::Base);
 
-			if (lvl & SC_FOLDLEVELHEADERFLAG) {
+			if (LevelIsHeader(lvl)) {
 				const std::string sLine = std::to_string(line);
 				const std::string sLineNext = std::to_string(line+1);
 				fprintf(fp, "<span id=\"hd%s\" onclick=\"toggle('%s')\">", sLine.c_str(), sLineNext.c_str());
@@ -307,8 +307,8 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 				if (folding) {
 					line = acc.GetLine(i + 1);
 
-					const int lvl = acc.LevelAt(line);
-					const int newLevel = (lvl & SC_FOLDLEVELNUMBERMASK) - SC_FOLDLEVELBASE;
+					const SA::FoldLevel lvl = acc.LevelAt(line);
+					const int newLevel = LevelNumber(lvl) - static_cast<int>(Scintilla::API::FoldLevel::Base);
 
 					if (newLevel < level)
 						fprintf(fp, "</span>");
@@ -318,7 +318,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 						fprintf(fp, "<span id=\"ln%s\">", sLine.c_str());
 					}
 
-					if (lvl & SC_FOLDLEVELHEADERFLAG) {
+					if (LevelIsHeader(lvl)) {
 						const std::string sLine = std::to_string(line);
 						const std::string sLineNext = std::to_string(line + 1);
 						fprintf(fp, "<span id=\"hd%s\" onclick=\"toggle('%s')\">", sLine.c_str(), sLineNext.c_str());

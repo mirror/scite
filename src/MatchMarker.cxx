@@ -40,11 +40,11 @@ std::vector<LineRange> LinesBreak(SA::ScintillaCall *pSci) {
 }
 
 MatchMarker::MatchMarker() :
-	pSci(nullptr), styleMatch(-1), flagsMatch(0), indicator(0), bookMark(-1) {
+	pSci(nullptr), styleMatch(-1), flagsMatch(static_cast<SA::FindOption>(0)), indicator(0), bookMark(-1) {
 }
 
 void MatchMarker::StartMatch(SA::ScintillaCall *pSci_,
-	const std::string &textMatch_, int flagsMatch_, int styleMatch_,
+	const std::string &textMatch_, SA::FindOption flagsMatch_, int styleMatch_,
 	int indicator_, int bookMark_) {
 	lineRanges.clear();
 	pSci = pSci_;

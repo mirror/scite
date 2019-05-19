@@ -145,11 +145,11 @@ void SciTEBase::DiscoverEOLSetting() {
 		int linesCRLF;
 		CountLineEnds(linesCR, linesLF, linesCRLF);
 		if (((linesLF >= linesCR) && (linesLF > linesCRLF)) || ((linesLF > linesCR) && (linesLF >= linesCRLF)))
-			wEditor.SetEOLMode(SC_EOL_LF);
+			wEditor.SetEOLMode(SA::EndOfLine::Lf);
 		else if (((linesCR >= linesLF) && (linesCR > linesCRLF)) || ((linesCR > linesLF) && (linesCR >= linesCRLF)))
-			wEditor.SetEOLMode(SC_EOL_CR);
+			wEditor.SetEOLMode(SA::EndOfLine::Cr);
 		else if (((linesCRLF >= linesLF) && (linesCRLF > linesCR)) || ((linesCRLF > linesLF) && (linesCRLF >= linesCR)))
-			wEditor.SetEOLMode(SC_EOL_CRLF);
+			wEditor.SetEOLMode(SA::EndOfLine::CrLf);
 	}
 }
 
@@ -281,21 +281,22 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		assert(CurrentBufferConst()->pFileWorker == nullptr);
 		ILoader *pdocLoad;
 		try {
-			int docOptions = SC_DOCUMENTOPTION_DEFAULT;
+			SA::DocumentOption docOptions = SA::DocumentOption::Default;
 
 			const long long sizeLarge = props.GetLongLong("file.size.large");
 			if (sizeLarge && (fileSize > sizeLarge))
-				docOptions |= SC_DOCUMENTOPTION_TEXT_LARGE;
+				docOptions = SA::DocumentOption::TextLarge;
 
 			const long long sizeNoStyles = props.GetLongLong("file.size.no.styles");
 			if (sizeNoStyles && (fileSize > sizeNoStyles))
-				docOptions |= SC_DOCUMENTOPTION_STYLES_NONE;
+				docOptions = static_cast<SA::DocumentOption>(
+				static_cast<int>(docOptions) | static_cast<int>(SA::DocumentOption::StylesNone));
 
 			pdocLoad = reinterpret_cast<ILoader *>(
 				wEditor.CreateLoader(static_cast<SA::Position>(fileSize) + 1000,
 					docOptions));
 		} catch (...) {
-			wEditor.SetStatus(0);
+			wEditor.SetStatus(SA::Status::Ok);
 			return;
 		}
 		CurrentBuffer()->pFileWorker = new FileLoader(this, pdocLoad, filePath, static_cast<size_t>(fileSize), fp);
@@ -350,7 +351,7 @@ void SciTEBase::TextRead(FileWorker *pFileWorker) {
 			buffers.buffers[iBuffer].lifeState = Buffer::empty;
 		}
 		// Switch documents
-		const intptr_t pdocLoading = reinterpret_cast<intptr_t>(pFileLoader->pLoader->ConvertToDocument());
+		void *pdocLoading = pFileLoader->pLoader->ConvertToDocument();
 		pFileLoader->pLoader = nullptr;
 		SwitchDocumentAt(iBuffer, pdocLoading);
 		if (iBuffer == buffers.Current()) {
@@ -669,7 +670,7 @@ bool SciTEBase::OpenSelected() {
 	}
 
 	std::string cTag;
-	unsigned long lineNumber = 0;
+	SA::Line lineNumber = 0;
 	if (IsPropertiesFile(filePath) &&
 	        (selName.find('.') == std::string::npos)) {
 		// We are in a properties file and try to open a file without extension,
@@ -736,8 +737,9 @@ bool SciTEBase::OpenSelected() {
 			if (lineNumber > 0) {
 				wEditor.GotoLine(lineNumber - 1);
 			} else if (cTag.length() != 0) {
-				if (atoi(cTag.c_str()) > 0) {
-					wEditor.GotoLine(IntegerFromText(cTag.c_str()) - 1);
+				const SA::Line cTagLine = IntegerFromText(cTag.c_str());
+				if (cTagLine > 0) {
+					wEditor.GotoLine(cTagLine - 1);
 				} else {
 					findWhat = cTag;
 					FindNext(false);
@@ -932,8 +934,10 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureForBuilt() {
 class SelectionKeeper {
 public:
 	explicit SelectionKeeper(GUI::ScintillaWindow &editor) : wEditor(editor) {
-		const int mask = SCVS_RECTANGULARSELECTION | SCVS_USERACCESSIBLE;
-		if (wEditor.VirtualSpaceOptions() & mask) {
+		const SA::VirtualSpace mask = static_cast<SA::VirtualSpace>(
+			static_cast<int>(SA::VirtualSpace::RectangularSelection) |
+			static_cast<int>(SA::VirtualSpace::UserAccessible));
+		if (static_cast<int>(wEditor.VirtualSpaceOptions()) & static_cast<int>(mask)) {
 			const int n = wEditor.Selections();
 			for (int i = 0; i < n; ++i) {
 				selections.push_back(LocFromPos(GetSelection(i)));
@@ -1047,11 +1051,13 @@ void SciTEBase::EnsureFinalNewLine() {
 	if (appendNewLine) {
 		const char *eol = "\n";
 		switch (wEditor.EOLMode()) {
-		case SC_EOL_CRLF:
+		case SA::EndOfLine::CrLf:
 			eol = "\r\n";
 			break;
-		case SC_EOL_CR:
+		case SA::EndOfLine::Cr:
 			eol = "\r";
+			break;
+		case SA::EndOfLine::Lf:
 			break;
 		}
 		wEditor.InsertText(endDocument, eol);

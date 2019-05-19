@@ -50,18 +50,18 @@ static GUI::gui_string GetErrorMessage(DWORD nRet) {
 }
 
 long SciTEKeys::ParseKeyCode(const char *mnemonic) {
-	int modsInKey = 0;
+	SA::KeyMod modsInKey = static_cast<SA::KeyMod>(0);
 	int keyval = -1;
 
 	if (mnemonic && *mnemonic) {
 		std::string sKey = mnemonic;
 
 		if (RemoveStringOnce(sKey, "Ctrl+"))
-			modsInKey |= SCMOD_CTRL;
+			modsInKey = modsInKey | SA::KeyMod::Ctrl;
 		if (RemoveStringOnce(sKey, "Shift+"))
-			modsInKey |= SCMOD_SHIFT;
+			modsInKey = modsInKey | SA::KeyMod::Shift;
 		if (RemoveStringOnce(sKey, "Alt+"))
-			modsInKey |= SCMOD_ALT;
+			modsInKey = modsInKey | SA::KeyMod::Alt;
 
 		if (sKey.length() == 1) {
 			keyval = VkKeyScan(sKey.at(0)) & 0xFF;
@@ -129,7 +129,7 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 		}
 	}
 
-	return (keyval > 0) ? (keyval | (modsInKey<<16)) : 0;
+	return (keyval > 0) ? (keyval | (static_cast<int>(modsInKey)<<16)) : 0;
 }
 
 bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) noexcept {
@@ -712,7 +712,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 }
 
 // from ScintillaWin.cxx
-static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
+static UINT CodePageFromCharSet(SA::CharacterSet characterSet, UINT documentCodePage) {
 	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
 	const BOOL bci = ::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<uintptr_t>(characterSet)),
 	                                  &ci, TCI_SRCCHARSET);
@@ -1073,7 +1073,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				doRepSel = (0 == exitcode);
 
 			if (doRepSel) {
-				const int cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART));
+				const SA::Position cpMin = static_cast<int>(wEditor.Send(SCI_GETSELECTIONSTART));
 				wEditor.Send(SCI_REPLACESEL,0,SptrFromString(repSelBuf.c_str()));
 				wEditor.Send(SCI_SETSEL, cpMin, cpMin+repSelBuf.length());
 			}
@@ -1765,16 +1765,16 @@ inline bool KeyMatch(const std::string &sKey, int keyval, int modifiers) {
 
 LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// Look through lexer menu
-	const int modifiers =
-	    (IsKeyDown(VK_SHIFT) ? SCMOD_SHIFT : 0) |
-	    (IsKeyDown(VK_CONTROL) ? SCMOD_CTRL : 0) |
-	    (IsKeyDown(VK_MENU) ? SCMOD_ALT : 0);
+	const SA::KeyMod modifiers =
+	    (IsKeyDown(VK_SHIFT) ? SA::KeyMod::Shift : SA::KeyMod::Norm) |
+	    (IsKeyDown(VK_CONTROL) ? SA::KeyMod::Ctrl : SA::KeyMod::Norm) |
+	    (IsKeyDown(VK_MENU) ? SA::KeyMod::Alt : SA::KeyMod::Norm);
 
-	if (extender && extender->OnKey(static_cast<int>(wParam), modifiers))
+	if (extender && extender->OnKey(static_cast<int>(wParam), static_cast<int>(modifiers)))
 		return 1l;
 
 	for (unsigned int j = 0; j < languageMenu.size(); j++) {
-		if (KeyMatch(languageMenu[j].menuKey, static_cast<int>(wParam), modifiers)) {
+		if (KeyMatch(languageMenu[j].menuKey, static_cast<int>(wParam), static_cast<int>(modifiers))) {
 			SciTEBase::MenuCommand(IDM_LANGUAGE + j);
 			return 1l;
 		}
@@ -1788,7 +1788,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA;
 		if (::GetMenuItemInfo(hToolsMenu, IDM_TOOLS+tool_i, FALSE, &mii) && mii.dwItemData) {
-			if (SciTEKeys::MatchKeyCode(static_cast<long>(mii.dwItemData), static_cast<int>(wParam), modifiers)) {
+			if (SciTEKeys::MatchKeyCode(static_cast<long>(mii.dwItemData), static_cast<int>(wParam), static_cast<int>(modifiers))) {
 				SciTEBase::MenuCommand(IDM_TOOLS+tool_i);
 				return 1l;
 			}
@@ -1798,7 +1798,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// loop through the keyboard short cuts defined by user.. if found
 	// exec it the command defined
 	for (const ShortcutItem &scut : shortCutItemList) {
-		if (KeyMatch(scut.menuKey, static_cast<int>(wParam), modifiers)) {
+		if (KeyMatch(scut.menuKey, static_cast<int>(wParam), static_cast<int>(modifiers))) {
 			const int commandNum = SciTEBase::GetMenuCommandAsInt(scut.menuCommand.c_str());
 			if (commandNum != -1) {
 				// its possible that the command is for scintilla directly
@@ -1863,15 +1863,15 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 	return 0;
 }
 
-void SciTEWin::CheckForScintillaFailure(int statusFailure) {
+void SciTEWin::CheckForScintillaFailure(SA::Status statusFailure) {
 	static int boxesVisible = 0;
-	if ((statusFailure > 0) && (boxesVisible == 0)) {
+	if ((statusFailure > SA::Status::Ok) && (boxesVisible == 0)) {
 		boxesVisible++;
 		char buff[200];
-		if (statusFailure == SC_STATUS_BADALLOC) {
+		if (statusFailure == SA::Status::BadAlloc) {
 			strcpy(buff, "Memory exhausted.");
 		} else {
-			sprintf(buff, "Scintilla failed with status %d.", statusFailure);
+			sprintf(buff, "Scintilla failed with status %d.", static_cast<int>(statusFailure));
 		}
 		strcat(buff, " SciTE will now close.");
 		GUI::gui_string sMessage = GUI::StringFromUTF8(buff);
@@ -2046,7 +2046,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 		}
 	} catch (const SA::Failure &sf) {
-		CheckForScintillaFailure(static_cast<int>(sf.status));
+		CheckForScintillaFailure(sf.status);
 	}
 	return 0;
 }
@@ -2144,7 +2144,7 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 // Convert String from UTF-8 to doc encoding
 std::string SciTEWin::EncodeString(const std::string &s) {
-	UINT codePageDocument = wEditor.CodePage();
+	UINT codePageDocument = static_cast<UINT>(wEditor.CodePage());
 
 	if (codePageDocument != SC_CP_UTF8) {
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
@@ -2286,7 +2286,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			MainWind.Run(lptszCmdLine);
 			result = MainWind.EventLoop();
 		} catch (const SA::Failure &sf) {
-			MainWind.CheckForScintillaFailure(static_cast<int>(sf.status));
+			MainWind.CheckForScintillaFailure(sf.status);
 		}
 		MainWind.Finalise();
 	}

@@ -59,7 +59,7 @@ public:
 	int StyleAt(Scintilla::API::Position position);
 	Scintilla::API::Line GetLine(Scintilla::API::Position position);
 	Scintilla::API::Position LineStart(Scintilla::API::Line line);
-	int LevelAt(Scintilla::API::Line line);
+	Scintilla::API::FoldLevel LevelAt(Scintilla::API::Line line);
 	Scintilla::API::Position Length();
 	int GetLineState(Scintilla::API::Line line);
 };
@@ -82,7 +82,7 @@ public:
 	Scintilla::API::Position GetStartSegment() const { return startSeg; }
 	void StartSegment(Scintilla::API::Position pos);
 	void ColourTo(Scintilla::API::Position pos, int chAttr);
-	void SetLevel(Scintilla::API::Line line, int level);
+	void SetLevel(Scintilla::API::Line line, Scintilla::API::FoldLevel level);
 };
 
 #endif

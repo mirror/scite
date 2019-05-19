@@ -106,7 +106,7 @@ bool &Searcher::FlagFromCmd(int cmd) noexcept {
 SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extender(ext) {
 	needIdle = false;
 	codePage = 0;
-	characterSet = 0;
+	characterSet = SA::CharacterSet::Ansi;
 	language = "java";
 	lexLanguage = SCLEX_CPP;
 	lexLPeg = -1;
@@ -136,9 +136,9 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 	topMost = false;
 	wrap = false;
 	wrapOutput = false;
-	wrapStyle = SC_WRAP_WORD;
-	idleStyling = SC_IDLESTYLING_NONE;
-	alphaIndicator = 30;
+	wrapStyle = SA::Wrap::Word;
+	idleStyling = SA::IdleStyling::None;
+	alphaIndicator = static_cast<SA::Alpha>(30);
 	underIndicator = false;
 	openFilesHere = false;
 	fullScreen = false;
@@ -164,7 +164,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 	braceCount = 0;
 
 	indentationWSVisible = true;
-	indentExamine = SC_IV_LOOKBOTH;
+	indentExamine = SA::IndentView::LookBoth;
 	autoCompleteIgnoreCase = false;
 	imeAutoComplete = false;
 	callTipUseEscapes = false;
@@ -280,13 +280,13 @@ std::string SciTEBase::GetTranslationToAbout(const char * const propname, bool r
 
 void SciTEBase::ViewWhitespace(bool view) {
 	if (view && indentationWSVisible == 2)
-		wEditor.SetViewWS(SCWS_VISIBLEONLYININDENT);
+		wEditor.SetViewWS(SA::WhiteSpace::VisibleOnlyInIndent);
 	else if (view && indentationWSVisible)
-		wEditor.SetViewWS(SCWS_VISIBLEALWAYS);
+		wEditor.SetViewWS(SA::WhiteSpace::VisibleAlways);
 	else if (view)
-		wEditor.SetViewWS(SCWS_VISIBLEAFTERINDENT);
+		wEditor.SetViewWS(SA::WhiteSpace::VisibleAfterIndent);
 	else
-		wEditor.SetViewWS(SCWS_INVISIBLE);
+		wEditor.SetViewWS(SA::WhiteSpace::Invisible);
 }
 
 StyleAndWords SciTEBase::GetStyleAndWords(const char *base) {
@@ -552,7 +552,7 @@ bool SciTEBase::FindMatchingBracePosition(bool editor, SA::Position &braceAtCare
 	if (braceAtCaret >= 0) {
 		if (colonMode) {
 			const SA::Line lineStart = win.LineFromPosition(braceAtCaret);
-			const SA::Line lineMaxSubord = win.LastChild(lineStart, -1);
+			const SA::Line lineMaxSubord = win.LastChild(lineStart, static_cast<SA::FoldLevel>(-1));
 			braceOpposite = win.LineEnd(lineMaxSubord);
 		} else {
 			braceOpposite = win.BraceMatch(braceAtCaret, 0);
@@ -770,8 +770,9 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	// Manage word with DBCS.
 	const std::string wordToFind = EncodeString(sWordToFind);
 
+	const SA::FindOption searchFlags = SA::FindOption::MatchCase | SA::FindOption::WholeWord;
 	matchMarker.StartMatch(&wCurrent, wordToFind,
-		SCFIND_MATCHCASE | SCFIND_WHOLEWORD, selectedStyle,
+		searchFlags, selectedStyle,
 		indicatorHighlightCurrentWord, -1);
 	SetIdler(true);
 }
@@ -901,12 +902,12 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 }
 
 void SciTEBase::SelectionAdd(AddSelection add) {
-	int flags = 0;
+	SA::FindOption flags = static_cast<SA::FindOption>(0);
 	if (!pwFocussed->SelectionEmpty()) {
 		// If selection is word then match as word.
 		if (pwFocussed->IsRangeWord(pwFocussed->SelectionStart(),
 			pwFocussed->SelectionEnd()))
-			flags = SCFIND_WHOLEWORD;
+			flags = SA::FindOption::WholeWord;
 	}
 	pwFocussed->TargetWholeDocument();
 	pwFocussed->SetSearchFlags(flags);
@@ -949,12 +950,19 @@ void SciTEBase::RemoveFindMarks() {
 	wEditor.AnnotationClearAll();
 }
 
-int SciTEBase::SearchFlags(bool regularExpressions) const {
-	return (wholeWord ? SCFIND_WHOLEWORD : 0) |
-	        (matchCase ? SCFIND_MATCHCASE : 0) |
-	        (regularExpressions ? SCFIND_REGEXP : 0) |
-	        (props.GetInt("find.replace.regexp.posix") ? SCFIND_POSIX : 0) |
-		(props.GetInt("find.replace.regexp.cpp11") ? SCFIND_CXX11REGEX : 0);
+SA::FindOption SciTEBase::SearchFlags(bool regularExpressions) const {
+	SA::FindOption opt = static_cast<SA::FindOption>(0);
+	if (wholeWord)
+		opt |= SA::FindOption::WholeWord;
+	if (matchCase)
+		opt |= SA::FindOption::MatchCase;
+	if (regularExpressions)
+		opt |= SA::FindOption::RegExp;
+	if (props.GetInt("find.replace.regexp.posix"))
+		opt |= SA::FindOption::POSIX;
+	if (props.GetInt("find.replace.regexp.cpp11"))
+		opt |= SA::FindOption::CXX11RegEx;
+	return opt;
 }
 
 void SciTEBase::MarkAll(MarkPurpose purpose) {
@@ -969,7 +977,7 @@ void SciTEBase::MarkAll(MarkPurpose purpose) {
 		std::string findIndicatorString = props.GetString("find.mark.indicator");
 		IndicatorDefinition findIndicator(findIndicatorString);
 		if (!findIndicatorString.length()) {
-			findIndicator.style = INDIC_ROUNDBOX;
+			findIndicator.style = SA::IndicatorStyle::RoundBox;
 			std::string findMark = props.GetString("find.mark");
 			if (findMark.length())
 				findIndicator.colour = ColourFromString(findMark);
@@ -1112,7 +1120,7 @@ SA::Position SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool 
 		// Ensure found text is styled so that caret will be made visible but
                 // only perform style in synchronous styling mode.
 		const SA::Position endStyled = wEditor.EndStyled();
-		if ((endStyled < end) && (idleStyling == SC_IDLESTYLING_NONE)) {
+		if ((endStyled < end) && (idleStyling == SA::IdleStyling::None)) {
 			wEditor.Colourise(endStyled,
 				wEditor.LineStart(wEditor.LineFromPosition(end) + 1));
 		}
@@ -1165,13 +1173,13 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 		return -1;
 	}
 
-	const Scintilla::API::Range cr = GetSelection();
+	const SA::Range cr = GetSelection();
 	SA::Position startPosition = cr.start;
 	SA::Position endPosition = cr.end;
 	const int countSelections = wEditor.Selections();
 	if (inSelection) {
-		const int selType = wEditor.SelectionMode();
-		if (selType == SC_SEL_LINES) {
+		const SA::SelectionMode selType = wEditor.SelectionMode();
+		if (selType == SA::SelectionMode::Lines) {
 			// Take care to replace in whole lines
 			const SA::Line startLine = wEditor.LineFromPosition(startPosition);
 			startPosition = wEditor.LineStart(startLine);
@@ -1726,7 +1734,8 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		return true;
 	const std::string root = line.substr(startword, current - startword);
 	const SA::Position doclen = LengthDocument();
-	const int flags = SCFIND_WORDSTART | (autoCompleteIgnoreCase ? 0 : SCFIND_MATCHCASE);
+	const SA::FindOption flags =
+		SA::FindOption::WordStart | (autoCompleteIgnoreCase ? static_cast<SA::FindOption>(0) : SA::FindOption::MatchCase);
 	const SA::Position posCurrentWord = wEditor.CurrentPosition() - static_cast<int>(root.length());
 	SA::Position minWordLength = 0;
 	unsigned int nwords = 0;
@@ -1805,7 +1814,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	const int indentChars = (wEditor.UseTabs() && wEditor.TabWidth() ? wEditor.TabWidth() : 1);
 	int indentExtra = 0;
 	bool isIndent = true;
-	const int eolMode = wEditor.EOLMode();
+	const SA::EndOfLine eolMode = wEditor.EOLMode();
 	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
 	}
@@ -1857,10 +1866,10 @@ bool SciTEBase::PerformInsertAbbreviation() {
 				// backward compatibility
 				break;
 			case '\n':
-				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_CR) {
+				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Cr) {
 					abbrevText += '\r';
 				}
-				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) {
+				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Lf) {
 					abbrevText += '\n';
 				}
 				break;
@@ -1944,7 +1953,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	const int indentSize = wEditor.IndentSize();
 	int indentExtra = 0;
 	bool isIndent = true;
-	const int eolMode = wEditor.EOLMode();
+	const SA::EndOfLine eolMode = wEditor.EOLMode();
 	if (props.GetInt("indent.automatic")) {
 		indent = GetLineIndentation(currentLineNumber);
 	}
@@ -1977,10 +1986,10 @@ bool SciTEBase::StartExpandAbbreviation() {
 				}
 				break;
 			case '\n':
-				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_CR) {
+				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Cr) {
 					abbrevText += '\r';
 				}
-				if (eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) {
+				if (eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Lf) {
 					abbrevText += '\n';
 				}
 				break;
@@ -2090,13 +2099,13 @@ bool SciTEBase::StartBlockComment() {
 	return true;
 }
 
-static const char *LineEndString(int eolMode) noexcept {
+static const char *LineEndString(SA::EndOfLine eolMode) noexcept {
 	switch (eolMode) {
-		case SC_EOL_CRLF:
+		case SA::EndOfLine::CrLf:
 			return "\r\n";
-		case SC_EOL_CR:
+		case SA::EndOfLine::Cr:
 			return "\r";
-		case SC_EOL_LF:
+		case SA::EndOfLine::Lf:
 		default:
 			return "\n";
 	}
@@ -2301,8 +2310,8 @@ void SciTEBase::SetTextProperties(
 	std::string ro = GUI::UTF8FromString(localiser.Text("READ"));
 	ps.Set("ReadOnly", CurrentBuffer()->isReadOnly ? ro.c_str() : "");
 
-	const int eolMode = wEditor.EOLMode();
-	ps.Set("EOLMode", eolMode == SC_EOL_CRLF ? "CR+LF" : (eolMode == SC_EOL_LF ? "LF" : "CR"));
+	const SA::EndOfLine eolMode = wEditor.EOLMode();
+	ps.Set("EOLMode", eolMode == SA::EndOfLine::CrLf ? "CR+LF" : (eolMode == SA::EndOfLine::Lf ? "LF" : "CR"));
 
 	ps.Set("BufferLength", std::to_string(LengthDocument()));
 
@@ -2312,7 +2321,7 @@ void SciTEBase::SetTextProperties(
 	const SA::Line selFirstLine = wEditor.LineFromPosition(crange.start);
 	const SA::Line selLastLine = wEditor.LineFromPosition(crange.end);
 	SA::Position charCount = 0;
-	if (wEditor.SelectionMode() == SC_SEL_RECTANGLE) {
+	if (wEditor.SelectionMode() == SA::SelectionMode::Rectangle) {
 		for (SA::Line line = selFirstLine; line <= selLastLine; line++) {
 			const SA::Position startPos = wEditor.GetLineSelStartPosition(line);
 			const SA::Position endPos = wEditor.GetLineSelEndPosition(line);
@@ -2570,12 +2579,12 @@ int SciTEBase::IndentOfBlock(SA::Line line) {
 }
 
 void SciTEBase::MaintainIndentation(char ch) {
-	const int eolMode = wEditor.EOLMode();
+	const SA::EndOfLine eolMode = wEditor.EOLMode();
 	const SA::Line curLine = GetCurrentLineNumber();
 	SA::Line lastLine = curLine - 1;
 
-	if (((eolMode == SC_EOL_CRLF || eolMode == SC_EOL_LF) && ch == '\n') ||
-	        (eolMode == SC_EOL_CR && ch == '\r')) {
+	if (((eolMode == SA::EndOfLine::CrLf || eolMode == SA::EndOfLine::Lf) && ch == '\n') ||
+	        (eolMode == SA::EndOfLine::Cr && ch == '\r')) {
 		if (props.GetInt("indent.automatic")) {
 			while (lastLine >= 0 && GetLineLength(lastLine) == 0)
 				lastLine--;
@@ -2600,9 +2609,9 @@ void SciTEBase::AutomaticIndentation(char ch) {
 
 	if ((wEditor.Lexer() == SCLEX_PYTHON) &&
 			(props.GetInt("indent.python.colon") == 1)) {
-		const int eolMode = wEditor.EOLMode();
-		const int eolChar = (eolMode == SC_EOL_CR ? '\r' : '\n');
-		const int eolChars = (eolMode == SC_EOL_CRLF ? 2 : 1);
+		const SA::EndOfLine eolMode = wEditor.EOLMode();
+		const int eolChar = (eolMode == SA::EndOfLine::Cr ? '\r' : '\n');
+		const int eolChars = (eolMode == SA::EndOfLine::CrLf ? 2 : 1);
 		const SA::Position prevLineStart = wEditor.LineStart(curLine - 1);
 		const SA::Position prevIndentPos = GetLineIndentPosition(curLine - 1);
 		const int indentExisting = GetLineIndentation(curLine);
@@ -3337,14 +3346,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_TOGGLE_FOLDRECURSIVE: {
 			const SA::Line line = GetCurrentLineNumber();
-			const int level = wEditor.FoldLevel(line);
+			const SA::FoldLevel level = wEditor.FoldLevel(line);
 			ToggleFoldRecursive(line, level);
 		}
 		break;
 
 	case IDM_EXPAND_ENSURECHILDRENVISIBLE: {
 			const SA::Line line = GetCurrentLineNumber();
-			const int level = wEditor.FoldLevel(line);
+			const SA::FoldLevel level = wEditor.FoldLevel(line);
 			EnsureAllChildrenVisible(line, level);
 		}
 		break;
@@ -3409,13 +3418,13 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 
 	case IDM_WRAP:
 		wrap = !wrap;
-		wEditor.SetWrapMode(wrap ? wrapStyle : SC_WRAP_NONE);
+		wEditor.SetWrapMode(wrap ? wrapStyle : SA::Wrap::None);
 		CheckMenus();
 		break;
 
 	case IDM_WRAPOUTPUT:
 		wrapOutput = !wrapOutput;
-		wOutput.SetWrapMode(wrapOutput ? wrapStyle : SC_WRAP_NONE);
+		wOutput.SetWrapMode(wrapOutput ? wrapStyle : SA::Wrap::None);
 		CheckMenus();
 		break;
 
@@ -3452,18 +3461,18 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_EOL_CRLF:
-		wEditor.SetEOLMode(SC_EOL_CRLF);
+		wEditor.SetEOLMode(SA::EndOfLine::CrLf);
 		CheckMenus();
 		UpdateStatusBar(false);
 		break;
 
 	case IDM_EOL_CR:
-		wEditor.SetEOLMode(SC_EOL_CR);
+		wEditor.SetEOLMode(SA::EndOfLine::Cr);
 		CheckMenus();
 		UpdateStatusBar(false);
 		break;
 	case IDM_EOL_LF:
-		wEditor.SetEOLMode(SC_EOL_LF);
+		wEditor.SetEOLMode(SA::EndOfLine::Lf);
 		CheckMenus();
 		UpdateStatusBar(false);
 		break;
@@ -3472,14 +3481,14 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_VIEWSPACE:
-		ViewWhitespace(!wEditor.ViewWS());
+		ViewWhitespace(wEditor.ViewWS() == SA::WhiteSpace::Invisible);
 		CheckMenus();
 		Redraw();
 		break;
 
 	case IDM_VIEWGUIDES: {
-			const bool viewIG = wEditor.IndentationGuides() == 0;
-			wEditor.SetIndentationGuides(viewIG ? indentExamine : SC_IV_NONE);
+			const bool viewIG = wEditor.IndentationGuides() == SA::IndentView::None;
+			wEditor.SetIndentationGuides(viewIG ? indentExamine : SA::IndentView::None);
 			CheckMenus();
 			Redraw();
 		}
@@ -3683,28 +3692,24 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 	}
 }
 
-static int LevelNumber(int level) noexcept {
-	return level & SC_FOLDLEVELNUMBERMASK;
-}
-
-void SciTEBase::FoldChanged(SA::Line line, int levelNow, int levelPrev) {
+void SciTEBase::FoldChanged(SA::Line line, SA::FoldLevel levelNow, SA::FoldLevel levelPrev) {
 	// Unfold any regions where the new fold structure makes that fold wrong.
 	// Will only unfold and show lines and never fold or hide lines.
-	if (levelNow & SC_FOLDLEVELHEADERFLAG) {
-		if (!(levelPrev & SC_FOLDLEVELHEADERFLAG)) {
+	if (LevelIsHeader(levelNow)) {
+		if (!(LevelIsHeader(levelPrev))) {
 			// Adding a fold point.
 			wEditor.SetFoldExpanded(line, true);
 			if (!wEditor.AllLinesVisible())
 				ExpandFolds(line, true, levelPrev);
 		}
-	} else if (levelPrev & SC_FOLDLEVELHEADERFLAG) {
+	} else if (LevelIsHeader(levelPrev)) {
 		const SA::Line prevLine = line - 1;
-		const int levelPrevLine = wEditor.FoldLevel(prevLine);
+		const SA::FoldLevel levelPrevLine = wEditor.FoldLevel(prevLine);
 
 		// Combining two blocks where the first block is collapsed (e.g. by deleting the line(s) which separate(s) the two blocks)
-		if ((LevelNumber(levelPrevLine) == LevelNumber(levelNow)) && !wEditor.LineVisible(prevLine)) {
+		if ((LevelNumberPart(levelPrevLine) == LevelNumberPart(levelNow)) && !wEditor.LineVisible(prevLine)) {
 			const SA::Line parentLine = wEditor.FoldParent(prevLine);
-			const int levelParentLine = wEditor.FoldLevel(parentLine);
+			const SA::FoldLevel levelParentLine = wEditor.FoldLevel(parentLine);
 			wEditor.SetFoldExpanded(parentLine, true);
 			ExpandFolds(parentLine, true, levelParentLine);
 		}
@@ -3718,8 +3723,8 @@ void SciTEBase::FoldChanged(SA::Line line, int levelNow, int levelPrev) {
 				ExpandFolds(line, true, levelPrev);
 		}
 	}
-	if (!(levelNow & SC_FOLDLEVELWHITEFLAG) &&
-	        (LevelNumber(levelPrev) > LevelNumber(levelNow))) {
+	if (!(LevelIsWhitespace(levelNow)) &&
+	        (LevelNumberPart(levelPrev) > LevelNumberPart(levelNow))) {
 		if (!wEditor.AllLinesVisible()) {
 			// See if should still be hidden
 			const SA::Line parentLine = wEditor.FoldParent(line);
@@ -3731,27 +3736,27 @@ void SciTEBase::FoldChanged(SA::Line line, int levelNow, int levelPrev) {
 		}
 	}
 	// Combining two blocks where the first one is collapsed (e.g. by adding characters in the line which separates the two blocks)
-	if (!(levelNow & SC_FOLDLEVELWHITEFLAG) && (LevelNumber(levelPrev) < LevelNumber(levelNow))) {
+	if (!(LevelIsWhitespace(levelNow) && (LevelNumberPart(levelPrev) < LevelNumberPart(levelNow)))) {
 		if (!wEditor.AllLinesVisible()) {
 			const SA::Line parentLine = wEditor.FoldParent(line);
 			if (!wEditor.FoldExpanded(parentLine) && wEditor.LineVisible(line)) {
 				wEditor.SetFoldExpanded(parentLine, true);
-				const int levelParentLine = wEditor.FoldLevel(parentLine);
+				const SA::FoldLevel levelParentLine = wEditor.FoldLevel(parentLine);
 				ExpandFolds(parentLine, true, levelParentLine);
 			}
 		}
 	}
 }
 
-void SciTEBase::ExpandFolds(SA::Line line, bool expand, int level) {
+void SciTEBase::ExpandFolds(SA::Line line, bool expand, SA::FoldLevel level) {
 	// Expand or contract line and all subordinates
 	// level is the fold level of line
-	const SA::Line lineMaxSubord = wEditor.LastChild(line, LevelNumber(level));
+	const SA::Line lineMaxSubord = wEditor.LastChild(line, LevelNumberPart(level));
 	line++;
 	wEditor.Call(expand ? SA::Message::ShowLines : SA::Message::HideLines, line, lineMaxSubord);
 	while (line <= lineMaxSubord) {
-		const int levelLine = wEditor.FoldLevel(line);
-		if (levelLine & SC_FOLDLEVELHEADERFLAG) {
+		const SA::FoldLevel levelLine = wEditor.FoldLevel(line);
+		if (LevelIsHeader(levelLine)) {
 			wEditor.SetFoldExpanded(line, expand);
 		}
 		line++;
@@ -3762,17 +3767,17 @@ void SciTEBase::FoldAll() {
 	wEditor.Colourise(0, -1);
 	const SA::Line maxLine = wEditor.LineCount();
 	bool expanding = true;
-	for (int lineSeek = 0; lineSeek < maxLine; lineSeek++) {
-		if (wEditor.FoldLevel(lineSeek) & SC_FOLDLEVELHEADERFLAG) {
+	for (SA::Line lineSeek = 0; lineSeek < maxLine; lineSeek++) {
+		if (LevelIsHeader(wEditor.FoldLevel(lineSeek))) {
 			expanding = !wEditor.FoldExpanded(lineSeek);
 			break;
 		}
 	}
 	for (SA::Line line = 0; line < maxLine; line++) {
-		const int level = wEditor.FoldLevel(line);
-		if ((level & SC_FOLDLEVELHEADERFLAG) &&
-		        (SC_FOLDLEVELBASE == LevelNumber(level))) {
-			const SA::Line lineMaxSubord = wEditor.LastChild(line, -1);
+		const SA::FoldLevel level = wEditor.FoldLevel(line);
+		if (LevelIsHeader(level) &&
+		        (SA::FoldLevel::Base == LevelNumberPart(level))) {
+			const SA::Line lineMaxSubord = wEditor.LastChild(line, static_cast<SA::FoldLevel>(-1));
 			if (expanding) {
 				wEditor.SetFoldExpanded(line, true);
 				ExpandFolds(line, true, level);
@@ -3801,14 +3806,15 @@ void SciTEBase::EnsureRangeVisible(GUI::ScintillaWindow &win, SA::Position posSt
 
 bool SciTEBase::MarginClick(SA::Position position, int modifiers) {
 	const SA::Line lineClick = wEditor.LineFromPosition(position);
-	if ((modifiers & SCMOD_SHIFT) && (modifiers & SCMOD_CTRL)) {
+	const SA::KeyMod km = static_cast<SA::KeyMod>(modifiers);
+	if (((km & SA::KeyMod::Shift) == SA::KeyMod::Shift) && ((km & SA::KeyMod::Ctrl) == SA::KeyMod::Ctrl)) {
 		FoldAll();
 	} else {
-		const int levelClick = wEditor.FoldLevel(lineClick);
-		if (levelClick & SC_FOLDLEVELHEADERFLAG) {
-			if (modifiers & SCMOD_SHIFT) {
+		const SA::FoldLevel levelClick = wEditor.FoldLevel(lineClick);
+		if (LevelIsHeader(levelClick)) {
+			if ((km & SA::KeyMod::Shift) == SA::KeyMod::Shift){
 				EnsureAllChildrenVisible(lineClick, levelClick);
-			} else if (modifiers & SCMOD_CTRL) {
+			} else if ((km & SA::KeyMod::Ctrl) == SA::KeyMod::Ctrl) {
 				ToggleFoldRecursive(lineClick, levelClick);
 			} else {
 				// Toggle this line
@@ -3819,10 +3825,10 @@ bool SciTEBase::MarginClick(SA::Position position, int modifiers) {
 	return true;
 }
 
-void SciTEBase::ToggleFoldRecursive(SA::Line line, int level) {
+void SciTEBase::ToggleFoldRecursive(SA::Line line, SA::FoldLevel level) {
 	if (wEditor.FoldExpanded(line)) {
 		// This ensure fold structure created before the fold is expanded
-		wEditor.LastChild(line, LevelNumber(level));
+		wEditor.LastChild(line, LevelNumberPart(level));
 		// Contract this line and all children
 		wEditor.SetFoldExpanded(line, false);
 		ExpandFolds(line, false, level);
@@ -3833,7 +3839,7 @@ void SciTEBase::ToggleFoldRecursive(SA::Line line, int level) {
 	}
 }
 
-void SciTEBase::EnsureAllChildrenVisible(SA::Line line, int level) {
+void SciTEBase::EnsureAllChildrenVisible(SA::Line line, SA::FoldLevel level) {
 	// Ensure all children visible
 	wEditor.SetFoldExpanded(line, true);
 	ExpandFolds(line, true, level);
@@ -4017,7 +4023,8 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 		if (0 != (notification->modificationType & SC_MOD_CHANGEFOLD)) {
 			FoldChanged(static_cast<int>(notification->line),
-			        notification->foldLevelNow, notification->foldLevelPrev);
+			        static_cast<SA::FoldLevel>(notification->foldLevelNow),
+			        static_cast<SA::FoldLevel>(notification->foldLevelPrev));
 		}
 		break;
 
@@ -4120,8 +4127,8 @@ void SciTEBase::CheckMenus() {
 	CheckAMenuItem(IDM_VIEWTABBAR, tabVisible);
 	CheckAMenuItem(IDM_VIEWSTATUSBAR, sbVisible);
 	CheckAMenuItem(IDM_VIEWEOL, wEditor.ViewEOL());
-	CheckAMenuItem(IDM_VIEWSPACE, wEditor.ViewWS());
-	CheckAMenuItem(IDM_VIEWGUIDES, wEditor.IndentationGuides());
+	CheckAMenuItem(IDM_VIEWSPACE, wEditor.ViewWS() != SA::WhiteSpace::Invisible);
+	CheckAMenuItem(IDM_VIEWGUIDES, wEditor.IndentationGuides() != SA::IndentView::None);
 	CheckAMenuItem(IDM_LINENUMBERMARGIN, lineNumbers);
 	CheckAMenuItem(IDM_SELMARGIN, margin);
 	CheckAMenuItem(IDM_FOLDMARGIN, foldMargin);

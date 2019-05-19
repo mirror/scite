@@ -67,7 +67,7 @@ SA::Position TextReader::LineStart(SA::Line line) {
 	return sw.LineStart(line);
 }
 
-int TextReader::LevelAt(SA::Line line) {
+SA::FoldLevel TextReader::LevelAt(SA::Line line) {
 	return sw.FoldLevel(line);
 }
 
@@ -117,7 +117,7 @@ void StyleWriter::ColourTo(SA::Position pos, int chAttr) {
 	startSeg = pos+1;
 }
 
-void StyleWriter::SetLevel(SA::Line line, int level) {
+void StyleWriter::SetLevel(SA::Line line, SA::FoldLevel level) {
 	sw.SetFoldLevel(line, level);
 }
 

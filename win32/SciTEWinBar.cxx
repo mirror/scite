@@ -534,7 +534,7 @@ void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 void SciTEWin::CheckMenus() {
 	SciTEBase::CheckMenus();
 	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
-	                   wEditor.EOLMode() - SC_EOL_CRLF + IDM_EOL_CRLF, 0);
+	                   static_cast<int>(wEditor.EOLMode()) - static_cast<int>(SA::EndOfLine::CrLf) + IDM_EOL_CRLF, 0);
 	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UCOOKIE,
 	                   CurrentBuffer()->unicodeMode + IDM_ENCODING_DEFAULT, 0);
 }
@@ -830,7 +830,7 @@ void SciTEWin::Creation() {
 	if (!wEditor.CanCall())
 		exit(FALSE);
 	wEditor.Show();
-	wEditor.UsePopUp(0);
+	wEditor.UsePopUp(SA::PopUp::Never);
 	wEditor.SetCommandEvents(false);
 	WindowSetFocus(wEditor);
 
@@ -852,7 +852,7 @@ void SciTEWin::Creation() {
 	// No selection margin on output window
 	wOutput.SetMarginWidthN(1, 0);
 	//wOutput.SetCaretPeriod(0);
-	wOutput.UsePopUp(0);
+	wOutput.UsePopUp(SA::PopUp::Never);
 	::DragAcceptFiles(MainHWND(), true);
 
 	HWND hwndToolBar = ::CreateWindowEx(

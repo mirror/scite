@@ -1398,9 +1398,9 @@ void SciTEGTK::CheckMenusClipboard() {
 void SciTEGTK::CheckMenus() {
 	SciTEBase::CheckMenus();
 
-	CheckAMenuItem(IDM_EOL_CRLF, wEditor.EOLMode() == SC_EOL_CRLF);
-	CheckAMenuItem(IDM_EOL_CR, wEditor.EOLMode() == SC_EOL_CR);
-	CheckAMenuItem(IDM_EOL_LF, wEditor.EOLMode() == SC_EOL_LF);
+	CheckAMenuItem(IDM_EOL_CRLF, wEditor.EOLMode() == SA::EndOfLine::CrLf);
+	CheckAMenuItem(IDM_EOL_CR, wEditor.EOLMode() == SA::EndOfLine::Cr);
+	CheckAMenuItem(IDM_EOL_LF, wEditor.EOLMode() == SA::EndOfLine::Lf);
 
 	CheckAMenuItem(IDM_ENCODING_DEFAULT, CurrentBuffer()->unicodeMode == uni8Bit);
 	CheckAMenuItem(IDM_ENCODING_UCS2BE, CurrentBuffer()->unicodeMode == uni16BE);
@@ -5002,7 +5002,7 @@ void SciTEGTK::CreateUI() {
 	wEditor.SetScintilla(scintilla_new());
 	g_object_ref(G_OBJECT(PWidget(wEditor)));
 	scintilla_set_id(SCINTILLA(PWidget(wEditor)), IDM_SRCWIN);
-	wEditor.UsePopUp(0);
+	wEditor.UsePopUp(SA::PopUp::Never);
 
 	g_signal_connect(G_OBJECT(PWidget(wEditor)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
@@ -5011,7 +5011,7 @@ void SciTEGTK::CreateUI() {
 	wOutput.SetScintilla(scintilla_new());
 	g_object_ref(G_OBJECT(PWidget(wOutput)));
 	scintilla_set_id(SCINTILLA(PWidget(wOutput)), IDM_RUNWIN);
-	wOutput.UsePopUp(0);
+	wOutput.UsePopUp(SA::PopUp::Never);
 	g_signal_connect(G_OBJECT(PWidget(wOutput)), SCINTILLA_NOTIFY,
 	                   G_CALLBACK(NotifySignal), this);
 

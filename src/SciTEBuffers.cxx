@@ -155,7 +155,7 @@ void BufferList::RemoveInvisible(int index) {
 
 void BufferList::RemoveCurrent() {
 	// Delete and move up to fill gap but ensure doc pointer is saved.
-	const intptr_t currentDoc = buffers[current].doc;
+	void *currentDoc = buffers[current].doc;
 	buffers[current].CompleteLoading();
 	for (int i = current;i < length - 1;i++) {
 		buffers[i] = buffers[i + 1];
@@ -357,22 +357,22 @@ void BufferList::FinishedFuture(int index, Buffer::FutureDo fd) {
 	}
 }
 
-intptr_t SciTEBase::GetDocumentAt(int index) {
+void *SciTEBase::GetDocumentAt(int index) {
 	if (index < 0 || index >= buffers.size()) {
 		return 0;
 	}
 	if (buffers.buffers[index].doc == 0) {
 		// Create a new document buffer
-		buffers.buffers[index].doc = wEditor.CreateDocument(0, 0);
+		buffers.buffers[index].doc = wEditor.CreateDocument(0, SA::DocumentOption::Default);
 	}
 	return buffers.buffers[index].doc;
 }
 
-void SciTEBase::SwitchDocumentAt(int index, intptr_t pdoc) {
+void SciTEBase::SwitchDocumentAt(int index, void *pdoc) {
 	if (index < 0 || index >= buffers.size()) {
 		return;
 	}
-	const intptr_t pdocOld = buffers.buffers[index].doc;
+	void *pdocOld = buffers.buffers[index].doc;
 	buffers.buffers[index].doc = pdoc;
 	if (pdocOld) {
 		wEditor.ReleaseDocument(pdocOld);
@@ -841,11 +841,11 @@ void SciTEBase::SetIndentSettings() {
 void SciTEBase::SetEol() {
 	std::string eol_mode = props.GetString("eol.mode");
 	if (eol_mode == "LF") {
-		wEditor.SetEOLMode(SC_EOL_LF);
+		wEditor.SetEOLMode(SA::EndOfLine::Lf);
 	} else if (eol_mode == "CR") {
-		wEditor.SetEOLMode(SC_EOL_CR);
+		wEditor.SetEOLMode(SA::EndOfLine::Cr);
 	} else if (eol_mode == "CRLF") {
-		wEditor.SetEOLMode(SC_EOL_CRLF);
+		wEditor.SetEOLMode(SA::EndOfLine::CrLf);
 	}
 }
 
@@ -871,7 +871,7 @@ void SciTEBase::New() {
 		buffers.SetCurrent(buffers.Add());
 	}
 
-	const intptr_t doc = GetDocumentAt(buffers.Current());
+	void *doc = GetDocumentAt(buffers.Current());
 	wEditor.SetDocPointer(doc);
 
 	FilePath curDirectory(filePath.Directory());
@@ -1877,7 +1877,7 @@ static void Chomp(std::string &s, char ch) {
 
 void SciTEBase::ShowMessages(SA::Line line) {
 	wEditor.AnnotationSetStyleOffset(diagnosticStyleStart);
-	wEditor.AnnotationSetVisible(ANNOTATION_BOXED);
+	wEditor.AnnotationSetVisible(SA::AnnotationVisible::Boxed);
 	wEditor.AnnotationClearAll();
 	TextReader acc(wOutput);
 	while ((line > 0) && (acc.StyleAt(acc.LineStart(line-1)) != SCE_ERR_CMD))
@@ -1961,7 +1961,7 @@ void SciTEBase::GoMessage(int dir) {
 		        style != SCE_ERR_DIFF_CHANGED &&
 		        style != SCE_ERR_DIFF_DELETION) {
 			wOutput.MarkerDeleteAll(-1);
-			wOutput.MarkerDefine(0, SC_MARK_SMALLRECT);
+			wOutput.MarkerDefine(0, SA::MarkerSymbol::SmallRect);
 			wOutput.MarkerSetFore(0, ColourOfProperty(props,
 			        "error.marker.fore", ColourRGB(0x7f, 0, 0)));
 			wOutput.MarkerSetBack(0, ColourOfProperty(props,
@@ -2046,7 +2046,7 @@ void SciTEBase::GoMessage(int dir) {
 				}
 
 				wEditor.MarkerDeleteAll(0);
-				wEditor.MarkerDefine(0, SC_MARK_CIRCLE);
+				wEditor.MarkerDefine(0, SA::MarkerSymbol::Circle);
 				wEditor.MarkerSetFore(0, ColourOfProperty(props,
 				        "error.marker.fore", ColourRGB(0x7f, 0, 0)));
 				wEditor.MarkerSetBack(0, ColourOfProperty(props,

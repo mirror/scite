@@ -92,7 +92,7 @@ struct FileWorker;
 class Buffer {
 public:
 	RecentFile file;
-	intptr_t doc;
+	void *doc;
 	bool isDirty;
 	bool isReadOnly;
 	bool failedSave;
@@ -375,7 +375,7 @@ protected:
 	enum { importCmdID = IDM_IMPORT };
 	ImportFilter filter;
 
-	enum { indicatorMatch = INDIC_CONTAINER,
+	enum { indicatorMatch = static_cast<int>(SA::IndicatorStyle::Container),
 		indicatorHighlightCurrentWord,
 		indicatorSpellingMistake,
 		indicatorSentinel };
@@ -392,7 +392,7 @@ protected:
 	std::vector<ShortcutItem> shortCutItemList;
 
 	int codePage;
-	int characterSet;
+	SA::CharacterSet characterSet;
 	std::string language;
 	int lexLanguage;
 	std::vector<char> subStyleBases;
@@ -449,9 +449,9 @@ protected:
 	bool topMost;
 	bool wrap;
 	bool wrapOutput;
-	int wrapStyle;
-	int idleStyling;
-	int alphaIndicator;
+	SA::Wrap wrapStyle;
+	SA::IdleStyling idleStyling;
+	SA::Alpha alphaIndicator;
 	bool underIndicator;
 	std::string foldColour;
 	std::string foldHiliteColour;
@@ -480,7 +480,7 @@ protected:
 	int braceCount;
 
 	int indentationWSVisible;
-	int indentExamine;
+	SA::IndentView indentExamine;
 	bool autoCompleteIgnoreCase;
 	bool imeAutoComplete;
 	bool callTipUseEscapes;
@@ -549,8 +549,8 @@ protected:
 	BufferList buffers;
 
 	// Handle buffers
-	intptr_t GetDocumentAt(int index);
-	void SwitchDocumentAt(int index, intptr_t pdoc);
+	void *GetDocumentAt(int index);
+	void SwitchDocumentAt(int index, void *pdoc);
 	void UpdateBuffersCurrent();
 	bool IsBufferAvailable() const;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
@@ -825,11 +825,11 @@ protected:
 	virtual void CopyPath() {}
 	void SetLineNumberWidth();
 	void MenuCommand(int cmdID, int source = 0);
-	void FoldChanged(SA::Line line, int levelNow, int levelPrev);
-	void ExpandFolds(SA::Line line, bool expand, int level);
+	void FoldChanged(SA::Line line, SA::FoldLevel levelNow, SA::FoldLevel levelPrev);
+	void ExpandFolds(SA::Line line, bool expand, SA::FoldLevel level);
 	void FoldAll();
-	void ToggleFoldRecursive(SA::Line line, int level);
-	void EnsureAllChildrenVisible(SA::Line line, int level);
+	void ToggleFoldRecursive(SA::Line line, SA::FoldLevel level);
+	void EnsureAllChildrenVisible(SA::Line line, SA::FoldLevel level);
 	static void EnsureRangeVisible(GUI::ScintillaWindow &win, SA::Position posStart, SA::Position posEnd, bool enforcePolicy = true);
 	void GotoLineEnsureVisible(SA::Line line);
 	bool MarginClick(SA::Position position, int modifiers);
@@ -842,7 +842,7 @@ protected:
 	virtual void ActivateWindow(const char *timestamp) = 0;
 
 	void RemoveFindMarks();
-	int SearchFlags(bool regularExpressions) const;
+	SA::FindOption SearchFlags(bool regularExpressions) const;
 	void MarkAll(MarkPurpose purpose=markWithBookMarks) override;
 	void BookmarkAdd(SA::Line lineno = -1);
 	void BookmarkDelete(SA::Line lineno = -1);
@@ -904,7 +904,7 @@ protected:
 	std::string ExtensionFileName() const;
 	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
-	void DefineMarker(int marker, int markerType, SA::Colour fore, SA::Colour back, SA::Colour backSelected);
+	void DefineMarker(int marker, SA::MarkerSymbol markerType, SA::Colour fore, SA::Colour back, SA::Colour backSelected);
 	void ReadAPI(const std::string &fileNameForExtension);
 	std::string FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();

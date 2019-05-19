@@ -565,7 +565,7 @@ void SciTEWin::Print(
 	                           ptDpi.y, 72);
 	HFONT fontHeader = ::CreateFontA(headerLineHeight,
 	                                0, 0, 0,
-	                                sdHeader.weight,
+	                                static_cast<int>(sdHeader.weight),
 	                                sdHeader.italics,
 	                                sdHeader.underlined,
 	                                0, 0, 0,
@@ -583,7 +583,7 @@ void SciTEWin::Print(
 	                           ptDpi.y, 72);
 	HFONT fontFooter = ::CreateFontA(footerLineHeight,
 	                                0, 0, 0,
-	                                sdFooter.weight,
+	                                static_cast<int>(sdFooter.weight),
 	                                sdFooter.italics,
 	                                sdFooter.underlined,
 	                                0, 0, 0,
