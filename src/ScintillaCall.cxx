@@ -978,8 +978,8 @@ Line ScintillaCall::FirstVisibleLine() {
 	return Call(Message::GetFirstVisibleLine);
 }
 
-int ScintillaCall::GetLine(Line line, char *text) {
-	return static_cast<int>(CallPointer(Message::GetLine, line, text));
+Position ScintillaCall::GetLine(Line line, char *text) {
+	return CallPointer(Message::GetLine, line, text);
 }
 
 Line ScintillaCall::LineCount() {
@@ -1010,8 +1010,8 @@ void ScintillaCall::SetSel(Position anchor, Position caret) {
 	Call(Message::SetSel, anchor, caret);
 }
 
-int ScintillaCall::GetSelText(char *text) {
-	return static_cast<int>(CallPointer(Message::GetSelText, 0, text));
+Position ScintillaCall::GetSelText(char *text) {
+	return CallPointer(Message::GetSelText, 0, text);
 }
 
 Position ScintillaCall::GetTextRange(void *tr) {
@@ -1150,8 +1150,8 @@ void ScintillaCall::SetTargetRange(Position start, Position end) {
 	Call(Message::SetTargetRange, start, end);
 }
 
-int ScintillaCall::TargetText(char *text) {
-	return static_cast<int>(CallPointer(Message::GetTargetText, 0, text));
+Position ScintillaCall::TargetText(char *text) {
+	return CallPointer(Message::GetTargetText, 0, text);
 }
 
 void ScintillaCall::TargetFromSelection() {
@@ -1246,12 +1246,12 @@ FoldLevel ScintillaCall::FoldLevel(Line line) {
 	return static_cast<API::FoldLevel>(Call(Message::GetFoldLevel, line));
 }
 
-int ScintillaCall::LastChild(Line line, API::FoldLevel level) {
-	return static_cast<int>(Call(Message::GetLastChild, line, static_cast<intptr_t>(level)));
+Line ScintillaCall::LastChild(Line line, API::FoldLevel level) {
+	return Call(Message::GetLastChild, line, static_cast<intptr_t>(level));
 }
 
-int ScintillaCall::FoldParent(Line line) {
-	return static_cast<int>(Call(Message::GetFoldParent, line));
+Line ScintillaCall::FoldParent(Line line) {
+	return Call(Message::GetFoldParent, line);
 }
 
 void ScintillaCall::ShowLines(Line lineStart, Line lineEnd) {

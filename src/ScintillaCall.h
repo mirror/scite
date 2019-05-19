@@ -266,7 +266,7 @@ public:
 	Position FindText(API::FindOption searchFlags, void *ft);
 	Position FormatRange(bool draw, void *fr);
 	Line FirstVisibleLine();
-	int GetLine(Line line, char *text);
+	Position GetLine(Line line, char *text);
 	Line LineCount();
 	void SetMarginLeft(int pixelWidth);
 	int MarginLeft();
@@ -274,7 +274,7 @@ public:
 	int MarginRight();
 	bool Modify();
 	void SetSel(Position anchor, Position caret);
-	int GetSelText(char *text);
+	Position GetSelText(char *text);
 	Position GetTextRange(void *tr);
 	void HideSelection(bool hide);
 	int PointXFromPosition(Position pos);
@@ -309,7 +309,7 @@ public:
 	void SetTargetEnd(Position end);
 	Position TargetEnd();
 	void SetTargetRange(Position start, Position end);
-	int TargetText(char *text);
+	Position TargetText(char *text);
 	void TargetFromSelection();
 	void TargetWholeDocument();
 	Position ReplaceTarget(Position length, const char *text);
@@ -333,8 +333,8 @@ public:
 	Line WrapCount(Line docLine);
 	void SetFoldLevel(Line line, API::FoldLevel level);
 	API::FoldLevel FoldLevel(Line line);
-	int LastChild(Line line, API::FoldLevel level);
-	int FoldParent(Line line);
+	Line LastChild(Line line, API::FoldLevel level);
+	Line FoldParent(Line line);
 	void ShowLines(Line lineStart, Line lineEnd);
 	void HideLines(Line lineStart, Line lineEnd);
 	bool LineVisible(Line line);
