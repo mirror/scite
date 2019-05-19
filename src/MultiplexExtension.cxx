@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "ScintillaTypes.h"
-#include "GUI.h"
+
 #include "MultiplexExtension.h"
 
 MultiplexExtension::MultiplexExtension(): host(nullptr) {}

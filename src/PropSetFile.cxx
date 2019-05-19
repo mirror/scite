@@ -27,8 +27,6 @@
 
 #endif
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 
 #include "StringHelpers.h"
