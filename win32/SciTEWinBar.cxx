@@ -831,7 +831,7 @@ void SciTEWin::Creation() {
 		exit(FALSE);
 	wEditor.Show();
 	wEditor.UsePopUp(0);
-	wEditor.SetCommandEvents(0);
+	wEditor.SetCommandEvents(false);
 	WindowSetFocus(wEditor);
 
 	wOutput.SetScintilla(::CreateWindowEx(
@@ -848,7 +848,7 @@ void SciTEWin::Creation() {
 	if (!wOutput.CanCall())
 		exit(FALSE);
 	wOutput.Show();
-	wOutput.SetCommandEvents(0);
+	wOutput.SetCommandEvents(false);
 	// No selection margin on output window
 	wOutput.SetMarginWidthN(1, 0);
 	//wOutput.SetCaretPeriod(0);

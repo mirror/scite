@@ -721,7 +721,7 @@ void SciTEWin::Print(
 			break;
 	}
 
-	wEditor.FormatRange(FALSE, 0);
+	wEditor.FormatRange(false, 0);
 
 	::EndDoc(hdc);
 	::DeleteDC(hdc);

@@ -239,9 +239,9 @@ void SciTEBase::DiscoverIndentSetting() {
 	}
 	// set indentation
 	if (topTabSize == 0) {
-		wEditor.SetUseTabs(1);
+		wEditor.SetUseTabs(true);
 	} else if (topTabSize != -1) {
-		wEditor.SetUseTabs(0);
+		wEditor.SetUseTabs(false);
 		wEditor.SetIndent(topTabSize);
 	}
 }
@@ -263,7 +263,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 			WindowMessageBox(wSciTE, msg);
 		}
 		if (!wEditor.UndoCollection()) {
-			wEditor.SetUndoCollection(1);
+			wEditor.SetUndoCollection(true);
 		}
 		return;
 	}
@@ -277,7 +277,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 	if (asynchronous) {
 		// Turn grey while loading
 		wEditor.StyleSetBack(STYLE_DEFAULT, 0xEEEEEE);
-		wEditor.SetReadOnly(1);
+		wEditor.SetReadOnly(true);
 		assert(CurrentBufferConst()->pFileWorker == nullptr);
 		ILoader *pdocLoad;
 		try {
@@ -411,7 +411,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	}
 
 	if (!wEditor.UndoCollection()) {
-		wEditor.SetUndoCollection(1);
+		wEditor.SetUndoCollection(true);
 	}
 	wEditor.SetSavePoint();
 	if (props.GetInt("fold.on.open") > 0) {
@@ -599,12 +599,12 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 
 	bool asynchronous = false;
 	if (!filePath.IsUntitled()) {
-		wEditor.SetReadOnly(0);
+		wEditor.SetReadOnly(false);
 		wEditor.Cancel();
 		if (of & ofPreserveUndo) {
 			wEditor.BeginUndoAction();
 		} else {
-			wEditor.SetUndoCollection(0);
+			wEditor.SetUndoCollection(false);
 		}
 
 		asynchronous = (fileSize > props.GetInt("background.open.size", -1)) &&
@@ -1090,7 +1090,7 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 		if (fp) {
 			const size_t lengthDoc = LengthDocument();
 			if (!(sf & sfSynchronous)) {
-				wEditor.SetReadOnly(1);
+				wEditor.SetReadOnly(true);
 				const char *documentBytes = reinterpret_cast<const char *>(wEditor.CharacterPointer());
 				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, saveName, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
 				CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");

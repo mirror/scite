@@ -292,7 +292,7 @@ StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
 
 void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDefinition &sd) {
 	if (sd.specified & StyleDefinition::sdItalics)
-		win.StyleSetItalic(style, sd.italics ? 1 : 0);
+		win.StyleSetItalic(style, sd.italics);
 	if (sd.specified & StyleDefinition::sdWeight)
 		win.StyleSetWeight(style, sd.weight);
 	if (sd.specified & StyleDefinition::sdFont)
@@ -305,15 +305,15 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 	if (sd.specified & StyleDefinition::sdSize)
 		win.StyleSetSizeFractional(style, sd.FractionalSize());
 	if (sd.specified & StyleDefinition::sdEOLFilled)
-		win.StyleSetEOLFilled(style, sd.eolfilled ? 1 : 0);
+		win.StyleSetEOLFilled(style, sd.eolfilled);
 	if (sd.specified & StyleDefinition::sdUnderlined)
-		win.StyleSetUnderline(style, sd.underlined ? 1 : 0);
+		win.StyleSetUnderline(style, sd.underlined);
 	if (sd.specified & StyleDefinition::sdCaseForce)
 		win.StyleSetCase(style, sd.caseForce);
 	if (sd.specified & StyleDefinition::sdVisible)
-		win.StyleSetVisible(style, sd.visible ? 1 : 0);
+		win.StyleSetVisible(style, sd.visible);
 	if (sd.specified & StyleDefinition::sdChangeable)
-		win.StyleSetChangeable(style, sd.changeable ? 1 : 0);
+		win.StyleSetChangeable(style, sd.changeable);
 	win.StyleSetCharacterSet(style, characterSet);
 }
 
@@ -825,10 +825,10 @@ void SciTEBase::ReadProperties() {
 
 	std::string caretLineBack = props.GetExpandedString("caret.line.back");
 	if (caretLineBack.length()) {
-		wEditor.SetCaretLineVisible(1);
+		wEditor.SetCaretLineVisible(true);
 		wEditor.SetCaretLineBack(ColourFromString(caretLineBack));
 	} else {
-		wEditor.SetCaretLineVisible(0);
+		wEditor.SetCaretLineVisible(false);
 	}
 	wEditor.SetCaretLineBackAlpha(
 		props.GetInt("caret.line.back.alpha", SC_ALPHA_NOALPHA));
@@ -983,14 +983,14 @@ void SciTEBase::ReadProperties() {
 	sval = props.GetNewExpandString(key);
 	if (sval != "")
 		autoCompleteIgnoreCase = sval == "1";
-	wEditor.AutoCSetIgnoreCase(autoCompleteIgnoreCase ? 1 : 0);
-	wOutput.AutoCSetIgnoreCase(1);
+	wEditor.AutoCSetIgnoreCase(autoCompleteIgnoreCase);
+	wOutput.AutoCSetIgnoreCase(true);
 
 	const int autoCChooseSingle = props.GetInt("autocomplete.choose.single");
 	wEditor.AutoCSetChooseSingle(autoCChooseSingle);
 
-	wEditor.AutoCSetCancelAtStart(0);
-	wEditor.AutoCSetDropRestOfWord(0);
+	wEditor.AutoCSetCancelAtStart(false);
+	wEditor.AutoCSetDropRestOfWord(false);
 
 	if (firstPropertiesRead) {
 		ReadPropertiesInitial();
@@ -1183,7 +1183,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.SetMarginWidthN(2, foldMargin ? foldMarginWidth : 0);
 
 	wEditor.SetMarginMaskN(2, SC_MASK_FOLDERS);
-	wEditor.SetMarginSensitiveN(2, 1);
+	wEditor.SetMarginSensitiveN(2, true);
 
 	// Define foreground (outline) and background (fill) color of folds
 	const int foldSymbols = props.GetInt("fold.symbols");
@@ -1365,7 +1365,7 @@ void SciTEBase::ReadProperties() {
 	std::map<std::string, std::string> eConfig = editorConfig->MapFromAbsolutePath(filePath);
 	for (const std::pair<const std::string, std::string> &pss : eConfig) {
 		if (pss.first == "indent_style") {
-			wEditor.SetUseTabs(pss.second == "tab" ? 1 : 0);
+			wEditor.SetUseTabs(pss.second == "tab");
 		} else if (pss.first == "indent_size") {
 			wEditor.SetIndent(std::stoi(pss.second));
 		} else if (pss.first == "tab_width") {

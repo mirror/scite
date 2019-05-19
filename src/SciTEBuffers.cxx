@@ -498,11 +498,11 @@ bool SciTEBase::CanMakeRoom(bool maySaveIfDirty) {
 }
 
 void SciTEBase::ClearDocument() {
-	wEditor.SetReadOnly(0);
-	wEditor.SetUndoCollection(0);
+	wEditor.SetReadOnly(false);
+	wEditor.SetUndoCollection(false);
 	wEditor.ClearAll();
 	wEditor.EmptyUndoBuffer();
-	wEditor.SetUndoCollection(1);
+	wEditor.SetUndoCollection(true);
 	wEditor.SetSavePoint();
 	wEditor.SetReadOnly(CurrentBuffer()->isReadOnly);
 }
@@ -954,7 +954,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 				if (buffers.lengthVisible == 0)
 					New();
 			} else {
-				wEditor.SetReadOnly(0);
+				wEditor.SetReadOnly(false);
 				ClearDocument();
 				buffers.RemoveCurrent();
 			}
@@ -978,7 +978,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 				extender->OnOpen(filePath.AsUTF8().c_str());
 		}
 		if (closingLast) {
-			wEditor.SetReadOnly(0);
+			wEditor.SetReadOnly(false);
 			ClearDocument();
 		}
 		if (updateUI) {

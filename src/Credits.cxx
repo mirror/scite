@@ -552,7 +552,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		AddStyledText(wsci, sVersion.c_str(), 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);
 		SetAboutStyle(wsci, 2, ColourRGB(0, 0, 0));
-		wsci.StyleSetItalic(2, 1);
+		wsci.StyleSetItalic(2, true);
 		AddStyledText(wsci, GetTranslationToAbout("by").c_str(), trsSty);
 		AddStyledText(wsci, " Neil Hodgson.\n", 2);
 		SetAboutStyle(wsci, 3, ColourRGB(0, 0, 0));
@@ -576,6 +576,6 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 			colour.Next();
 			SetAboutStyle(wsci, sty + 50, ColourRGB(colour.r, colour.g, colour.b));
 		}
-		wsci.SetReadOnly(1);
+		wsci.SetReadOnly(true);
 	}
 }

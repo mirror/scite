@@ -3693,7 +3693,7 @@ void SciTEBase::FoldChanged(SA::Line line, int levelNow, int levelPrev) {
 	if (levelNow & SC_FOLDLEVELHEADERFLAG) {
 		if (!(levelPrev & SC_FOLDLEVELHEADERFLAG)) {
 			// Adding a fold point.
-			wEditor.SetFoldExpanded(line, 1);
+			wEditor.SetFoldExpanded(line, true);
 			if (!wEditor.AllLinesVisible())
 				ExpandFolds(line, true, levelPrev);
 		}
@@ -3705,14 +3705,14 @@ void SciTEBase::FoldChanged(SA::Line line, int levelNow, int levelPrev) {
 		if ((LevelNumber(levelPrevLine) == LevelNumber(levelNow)) && !wEditor.LineVisible(prevLine)) {
 			const SA::Line parentLine = wEditor.FoldParent(prevLine);
 			const int levelParentLine = wEditor.FoldLevel(parentLine);
-			wEditor.SetFoldExpanded(parentLine, 1);
+			wEditor.SetFoldExpanded(parentLine, true);
 			ExpandFolds(parentLine, true, levelParentLine);
 		}
 
 		if (!wEditor.FoldExpanded(line)) {
 			// Removing the fold from one that has been contracted so should expand
 			// otherwise lines are left invisible with no way to make them visible
-			wEditor.SetFoldExpanded(line, 1);
+			wEditor.SetFoldExpanded(line, true);
 			if (!wEditor.AllLinesVisible())
 				// Combining two blocks where the second one is collapsed (e.g. by adding characters in the line which separates the two blocks)
 				ExpandFolds(line, true, levelPrev);
@@ -3735,7 +3735,7 @@ void SciTEBase::FoldChanged(SA::Line line, int levelNow, int levelPrev) {
 		if (!wEditor.AllLinesVisible()) {
 			const SA::Line parentLine = wEditor.FoldParent(line);
 			if (!wEditor.FoldExpanded(parentLine) && wEditor.LineVisible(line)) {
-				wEditor.SetFoldExpanded(parentLine, 1);
+				wEditor.SetFoldExpanded(parentLine, true);
 				const int levelParentLine = wEditor.FoldLevel(parentLine);
 				ExpandFolds(parentLine, true, levelParentLine);
 			}
@@ -3752,7 +3752,7 @@ void SciTEBase::ExpandFolds(SA::Line line, bool expand, int level) {
 	while (line <= lineMaxSubord) {
 		const int levelLine = wEditor.FoldLevel(line);
 		if (levelLine & SC_FOLDLEVELHEADERFLAG) {
-			wEditor.SetFoldExpanded(line, expand ? 1 : 0);
+			wEditor.SetFoldExpanded(line, expand);
 		}
 		line++;
 	}
@@ -3774,11 +3774,11 @@ void SciTEBase::FoldAll() {
 		        (SC_FOLDLEVELBASE == LevelNumber(level))) {
 			const SA::Line lineMaxSubord = wEditor.LastChild(line, -1);
 			if (expanding) {
-				wEditor.SetFoldExpanded(line, 1);
+				wEditor.SetFoldExpanded(line, true);
 				ExpandFolds(line, true, level);
 				line = lineMaxSubord;
 			} else {
-				wEditor.SetFoldExpanded(line, 0);
+				wEditor.SetFoldExpanded(line, false);
 				if (lineMaxSubord > line)
 					wEditor.HideLines(line + 1, lineMaxSubord);
 			}
@@ -3824,18 +3824,18 @@ void SciTEBase::ToggleFoldRecursive(SA::Line line, int level) {
 		// This ensure fold structure created before the fold is expanded
 		wEditor.LastChild(line, LevelNumber(level));
 		// Contract this line and all children
-		wEditor.SetFoldExpanded(line, 0);
+		wEditor.SetFoldExpanded(line, false);
 		ExpandFolds(line, false, level);
 	} else {
 		// Expand this line and all children
-		wEditor.SetFoldExpanded(line, 1);
+		wEditor.SetFoldExpanded(line, true);
 		ExpandFolds(line, true, level);
 	}
 }
 
 void SciTEBase::EnsureAllChildrenVisible(SA::Line line, int level) {
 	// Ensure all children visible
-	wEditor.SetFoldExpanded(line, 1);
+	wEditor.SetFoldExpanded(line, true);
 	ExpandFolds(line, true, level);
 }
 
