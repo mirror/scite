@@ -27,8 +27,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
@@ -77,16 +75,23 @@ struct PDFStyle {
 	int font=0;
 };
 
-static const char *PDFfontNames[] = {
+namespace {
+
+const char *PDFfontNames[] = {
             "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
             "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
             "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic"
         };
 
 // ascender, descender aligns font origin point with page
-static short PDFfontAscenders[] =  { 629, 718, 699 };
-static short PDFfontDescenders[] = { 157, 207, 217 };
-static short PDFfontWidths[] =     { 600,   0,   0 };
+short PDFfontAscenders[] =  { 629, 718, 699 };
+short PDFfontDescenders[] = { 157, 207, 217 };
+short PDFfontWidths[] =     { 600,   0,   0 };
+
+const int StyleMax = static_cast<int>(SA::StylesCommon::Max);
+const int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
+
+}
 
 inline std::string getPDFRGB(const char* stylecolour) {
 	std::string ret;
@@ -194,8 +199,8 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			xPos = 0.0;
 			yPos = 0.0;
 			justWhiteSpace = true;
-			styleCurrent = STYLE_DEFAULT;
-			stylePrev = STYLE_DEFAULT;
+			styleCurrent = StyleDefault;
+			stylePrev = StyleDefault;
 			leading = PDF_FONTSIZE_DEFAULT * PDF_SPACING_DEFAULT;
 			buffer[0] = '\0';
 			oT = nullptr;
@@ -251,7 +256,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			// start to write PDF file here (PDF1.4Ref(p63))
 			// ASCII>127 characters to indicate binary-possible stream
 			oT->write("%PDF-1.3\n%\xc7\xec\x8f\xa2\n");
-			styleCurrent = STYLE_DEFAULT;
+			styleCurrent = StyleDefault;
 
 			// build objects for font resources; note that font objects are
 			// *expected* to start from index 1 since they are the first objects
@@ -469,8 +474,8 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 
 	// collect all styles available for that 'language'
 	// or the default style if no language is available...
-	pr.style.resize(STYLE_MAX + 1);
-	for (int i = 0; i <= STYLE_MAX; i++) {	// get keys
+	pr.style.resize(StyleMax + 1);
+	for (int i = 0; i <= StyleMax; i++) {	// get keys
 		pr.style[i].font = 0;
 		pr.style[i].fore = "";
 
@@ -481,11 +486,11 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			if (sd.IsBold()) { pr.style[i].font |= 1; }
 			if (sd.fore.length()) {
 				pr.style[i].fore = getPDFRGB(sd.fore.c_str());
-			} else if (i == STYLE_DEFAULT) {
+			} else if (i == StyleDefault) {
 				pr.style[i].fore = "0 0 0 ";
 			}
 			// grab font size from default style
-			if (i == STYLE_DEFAULT) {
+			if (i == StyleDefault) {
 				if (sd.size > 0)
 					pr.fontSize += sd.size;
 				else
@@ -494,9 +499,9 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		}
 	}
 	// patch in default foregrounds
-	for (int j = 0; j <= STYLE_MAX; j++) {
+	for (int j = 0; j <= StyleMax; j++) {
 		if (pr.style[j].fore.empty()) {
-			pr.style[j].fore = pr.style[STYLE_DEFAULT].fore;
+			pr.style[j].fore = pr.style[StyleDefault].fore;
 		}
 	}
 

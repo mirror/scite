@@ -27,8 +27,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
@@ -64,18 +62,22 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 	const SA::Position lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 
-	bool styleIsUsed[STYLE_MAX + 1] = {};
+	const int StyleMax = static_cast<int>(SA::StylesCommon::Max);
+	const int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
+	const int StyleLastPredefined = static_cast<int>(SA::StylesCommon::LastPredefined);
+
+	bool styleIsUsed[StyleMax + 1] = {};
 	if (onlyStylesUsed) {
 		// check the used styles
 		for (SA::Position i = 0; i < lengthDoc; i++) {
 			styleIsUsed[acc.StyleAt(i)] = true;
 		}
 	} else {
-		for (int i = 0; i <= STYLE_MAX; i++) {
+		for (int i = 0; i <= StyleMax; i++) {
 			styleIsUsed[i] = true;
 		}
 	}
-	styleIsUsed[STYLE_DEFAULT] = true;
+	styleIsUsed[StyleDefault] = true;
 
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 	bool failedWrite = fp == nullptr;
@@ -92,7 +94,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 		// Probably not used by robots, but making a little advertisement for those looking
 		// at the source code doesn't hurt...
 		fputs("<meta name=\"Generator\" content=\"SciTE - www.Scintilla.org\" />\n", fp);
-		if (codePage == SC_CP_UTF8)
+		if (codePage == SA::CpUtf8)
 			fputs("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n", fp);
 
 		if (folding) {
@@ -126,7 +128,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 
 		std::string bgColour;
 
-		StyleDefinition sddef = StyleDefinitionFor(STYLE_DEFAULT);
+		StyleDefinition sddef = StyleDefinitionFor(StyleDefault);
 
 		if (sddef.back.length()) {
 			bgColour = sddef.back;
@@ -135,8 +137,8 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 		std::string sval = props.GetExpandedString("font.monospace");
 		StyleDefinition sdmono(sval.c_str());
 
-		for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
-			if ((istyle > STYLE_DEFAULT) && (istyle <= STYLE_LASTPREDEFINED))
+		for (int istyle = 0; istyle <= StyleMax; istyle++) {
+			if ((istyle > StyleDefault) && (istyle <= StyleLastPredefined))
 				continue;
 			if (styleIsUsed[istyle]) {
 
@@ -150,7 +152,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 				}
 
 				if (sd.specified != StyleDefinition::sdNone) {
-					if (istyle == STYLE_DEFAULT) {
+					if (istyle == StyleDefault) {
 						fprintf(fp, "span {\n");
 					} else {
 						fprintf(fp, ".S%0d {\n", istyle);
@@ -166,11 +168,11 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 					}
 					if (sd.fore.length()) {
 						fprintf(fp, "\tcolor: %s;\n", sd.fore.c_str());
-					} else if (istyle == STYLE_DEFAULT) {
+					} else if (istyle == StyleDefault) {
 						fprintf(fp, "\tcolor: #000000;\n");
 					}
 					if ((sd.specified & StyleDefinition::sdBack) && sd.back.length()) {
-						if (istyle != STYLE_DEFAULT && bgColour != sd.back) {
+						if (istyle != StyleDefault && bgColour != sd.back) {
 							fprintf(fp, "\tbackground: %s;\n", sd.back.c_str());
 							fprintf(fp, "\ttext-decoration: inherit;\n");
 						}

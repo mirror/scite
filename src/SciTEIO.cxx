@@ -399,7 +399,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override the code page if Unicode
-		codePage = SC_CP_UTF8;
+		codePage = SA::CpUtf8;
 	} else {
 		codePage = props.GetInt("code.page");
 	}
@@ -1316,7 +1316,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 	}
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override the code page if Unicode
-		codePage = SC_CP_UTF8;
+		codePage = SA::CpUtf8;
 	} else {
 		codePage = props.GetInt("code.page");
 	}

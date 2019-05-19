@@ -898,7 +898,7 @@ void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 	ReadProperties();
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override the code page if Unicode
-		codePage = SC_CP_UTF8;
+		codePage = SA::CpUtf8;
 		wEditor.SetCodePage(codePage);
 	}
 
@@ -1312,7 +1312,7 @@ RecentFile SciTEBase::GetFilePosition() {
 }
 
 void SciTEBase::DisplayAround(const RecentFile &rf) {
-	if ((rf.selection.position != INVALID_POSITION) && (rf.selection.anchor != INVALID_POSITION)) {
+	if ((rf.selection.position != SA::InvalidPosition) && (rf.selection.anchor != SA::InvalidPosition)) {
 		SetSelection(rf.selection.anchor, rf.selection.position);
 
 		const SA::Line curTop = wEditor.FirstVisibleLine();

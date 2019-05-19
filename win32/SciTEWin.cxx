@@ -827,7 +827,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	}
 
 	UINT codePageOutput = static_cast<UINT>(wOutput.Send(SCI_GETCODEPAGE));
-	if (codePageOutput != SC_CP_UTF8) {
+	if (codePageOutput != SA::CpUtf8) {
 		codePageOutput = CodePageFromCharSet(characterSet, codePageOutput);
 	}
 
@@ -2146,7 +2146,7 @@ LRESULT ContentWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 std::string SciTEWin::EncodeString(const std::string &s) {
 	UINT codePageDocument = static_cast<UINT>(wEditor.CodePage());
 
-	if (codePageDocument != SC_CP_UTF8) {
+	if (codePageDocument != SA::CpUtf8) {
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
 		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), CP_UTF8);
 		return StringEncode(sWide, codePageDocument);
@@ -2160,7 +2160,7 @@ std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Positi
 
 	UINT codePageDocument = wEditor.CodePage();
 
-	if (codePageDocument != SC_CP_UTF8) {
+	if (codePageDocument != SA::CpUtf8) {
 		codePageDocument = CodePageFromCharSet(characterSet, codePageDocument);
 		std::wstring sWide = StringDecode(std::string(s.c_str(), s.length()), codePageDocument);
 		std::string sMulti = StringEncode(sWide, CP_UTF8);

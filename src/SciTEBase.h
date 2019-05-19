@@ -46,7 +46,7 @@ namespace SA = Scintilla::API;
 struct SelectedRange {
 	SA::Position position;
 	SA::Position anchor;
-	SelectedRange(SA::Position position_= INVALID_POSITION, SA::Position anchor_= INVALID_POSITION) noexcept :
+	SelectedRange(SA::Position position_= SA::InvalidPosition, SA::Position anchor_= SA::InvalidPosition) noexcept :
 		position(position_), anchor(anchor_) {
 	}
 };
@@ -68,8 +68,8 @@ public:
 	~RecentFile() override = default;
 	void Init() noexcept override {
 		FilePath::Init();
-		selection.position = INVALID_POSITION;
-		selection.anchor = INVALID_POSITION;
+		selection.position = SA::InvalidPosition;
+		selection.anchor = SA::InvalidPosition;
 		scrollPosition = 0;
 	}
 };
@@ -357,6 +357,7 @@ public:
 };
 
 class IEditorConfig;
+struct SCNotification;
 
 class SciTEBase : public ExtensionAPI, public Searcher, public WorkerListener {
 protected:

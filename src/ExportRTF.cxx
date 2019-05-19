@@ -26,8 +26,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
@@ -78,6 +76,13 @@
 #define RTF_FONTFACE "Courier New"
 #define RTF_COLOR "#000000"
 
+namespace {
+
+const int StyleMax = static_cast<int>(SA::StylesCommon::Max);
+const int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
+
+}
+
 static size_t FindCaseInsensitive(const std::vector<std::string> &values, const std::string &s) {
 	for (size_t i = 0; i < values.size(); i++)
 		if (EqualCaseInsensitive(s.c_str(), values[i].c_str()))
@@ -123,7 +128,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	RemoveFindMarks();
 	wEditor.Colourise(0, -1);
 
-	StyleDefinition defaultStyle = StyleDefinitionFor(STYLE_DEFAULT);
+	StyleDefinition defaultStyle = StyleDefinitionFor(StyleDefault);
 
 	int tabSize = props.GetInt("export.rtf.tabsize", props.GetInt("tabsize"));
 	const int wysiwyg = props.GetInt("export.rtf.wysiwyg", 1);
@@ -141,8 +146,8 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	} else {
 		defaultStyle.size <<= 1;
 	}
-	const bool isUTF8 = wEditor.CodePage() == SC_CP_UTF8;
-	const unsigned int characterset = props.GetInt("character.set", SC_CHARSET_DEFAULT);
+	const bool isUTF8 = wEditor.CodePage() == SA::CpUtf8;
+	const unsigned int characterset = props.GetInt("character.set", static_cast<int>(SA::CharacterSet::Default));
 	const int tabs = props.GetInt("export.rtf.tabs", 0);
 	if (tabSize == 0)
 		tabSize = 4;
@@ -156,7 +161,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	colors.push_back(defaultStyle.fore);
 	colors.push_back(defaultStyle.back);
 
-	for (int istyle = 0; istyle <= STYLE_MAX; istyle++) {
+	for (int istyle = 0; istyle <= StyleMax; istyle++) {
 		std::ostringstream osStyle;
 
 		const StyleDefinition sd = StyleDefinitionFor(istyle);
@@ -228,7 +233,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	for (SA::Position iPos = start; iPos < end; iPos++) {
 		const char ch = acc[iPos];
 		int style = acc.StyleAt(iPos);
-		if (style > STYLE_MAX)
+		if (style > StyleMax)
 			style = 0;
 		if (style != styleCurrent) {
 			const std::string deltaStyle = GetRTFStyleChange(lastStyle.c_str(), styles[style].c_str());

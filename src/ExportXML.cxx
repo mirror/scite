@@ -27,8 +27,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
@@ -99,7 +97,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 		const bool collapseSpaces = (props.GetInt("export.xml.collapse.spaces", 1) == 1);
 		const bool collapseLines  = (props.GetInt("export.xml.collapse.lines", 1) == 1);
 
-		fprintf(fp, "<?xml version='1.0' encoding='%s'?>\n", (codePage == SC_CP_UTF8) ? "utf-8" : "ascii");
+		fprintf(fp, "<?xml version='1.0' encoding='%s'?>\n", (codePage == SA::CpUtf8) ? "utf-8" : "ascii");
 
 		fputs("<document xmlns='http://www.scintilla.org/scite.rng'", fp);
 		fprintf(fp, " filename='%s'",

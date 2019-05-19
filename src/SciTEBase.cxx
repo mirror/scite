@@ -1486,7 +1486,7 @@ void SciTEBase::BookmarkSelectAll() {
 		bookmarks.push_back(lineBookmark);
 	}
 	for (size_t i = 0; i < bookmarks.size(); i++) {
-		const Scintilla::API::Range crange = {
+		const SA::Range crange = {
 			wEditor.LineStart(bookmarks[i]),
 			wEditor.LineStart(bookmarks[i] + 1)
 		};
@@ -2063,7 +2063,7 @@ bool SciTEBase::StartBlockComment() {
 		if (linebuf.length() < 1)
 			continue;
 		if (StartsWith(linebuf, comment.c_str())) {
-			int commentLength = static_cast<int>(comment.length());
+			SA::Position commentLength = static_cast<int>(comment.length());
 			if (StartsWith(linebuf, long_comment.c_str())) {
 				// Removing comment with space after it.
 				commentLength = static_cast<int>(long_comment.length());
@@ -2076,15 +2076,15 @@ bool SciTEBase::StartBlockComment() {
 			continue;
 		}
 		if (i == selStartLine) // is this the first selected line?
-			selectionStart += static_cast<int>(long_comment.length());
-		selectionEnd += static_cast<int>(long_comment.length()); // every iteration
+			selectionStart += static_cast<SA::Position>(long_comment.length());
+		selectionEnd += static_cast<SA::Position>(long_comment.length()); // every iteration
 		wEditor.InsertText(lineIndent, long_comment.c_str());
 	}
 	// after uncommenting selection may promote itself to the lines
 	// before the first initially selected line;
 	// another problem - if only comment symbol was selected;
 	if (selectionStart < firstSelLineStart) {
-		if (selectionStart >= selectionEnd - (static_cast<int>(long_comment.length()) - 1))
+		if (selectionStart >= selectionEnd - (static_cast<SA::Position>(long_comment.length()) - 1))
 			selectionEnd = firstSelLineStart;
 		selectionStart = firstSelLineStart;
 	}
@@ -2156,9 +2156,9 @@ bool SciTEBase::StartBoxComment() {
 	// Pad comment strings with appropriate whitespace, then figure out their lengths (end_comment is a bit special-- see below)
 	start_comment += white_space;
 	middle_comment += white_space;
-	const int start_comment_length = static_cast<int>(start_comment.length());
-	const int middle_comment_length = static_cast<int>(middle_comment.length());
-	const int end_comment_length = static_cast<int>(end_comment.length());
+	const SA::Position start_comment_length = static_cast<int>(start_comment.length());
+	const SA::Position middle_comment_length = static_cast<int>(middle_comment.length());
+	const SA::Position end_comment_length = static_cast<int>(end_comment.length());
 
 	wEditor.BeginUndoAction();
 
@@ -2181,7 +2181,7 @@ bool SciTEBase::StartBoxComment() {
 		}
 	} else {
 		// More than one line selected, so insert middle_comments where needed
-		for (SA::Position i = selStartLine + 1; i < selEndLine; i++) {
+		for (SA::Line i = selStartLine + 1; i < selEndLine; i++) {
 			lineStart = wEditor.LineStart(i);
 			tempString = GetRangeString(wEditor, lineStart, lineStart + middle_comment_length);
 			if (middle_comment != tempString) {
@@ -2249,7 +2249,7 @@ bool SciTEBase::StartStreamComment() {
 	start_comment += white_space;
 	white_space += end_comment;
 	end_comment = white_space;
-	const int start_comment_length = static_cast<int>(start_comment.length());
+	const SA::Position start_comment_length = static_cast<int>(start_comment.length());
 	SA::Position selectionStart = wEditor.SelectionStart();
 	SA::Position selectionEnd = wEditor.SelectionEnd();
 	const SA::Position caretPosition = wEditor.CurrentPosition();
@@ -2370,8 +2370,8 @@ void SciTEBase::UpdateStatusBar(bool bUpdateSlowData) {
 void SciTEBase::SetLineIndentation(SA::Line line, int indent) {
 	if (indent < 0)
 		return;
-	Scintilla::API::Range crange = GetSelection();
-	const Scintilla::API::Range crangeStart = crange;
+	SA::Range crange = GetSelection();
+	const SA::Range crangeStart = crange;
 	const SA::Position posBefore = GetLineIndentPosition(line);
 	wEditor.SetLineIndentation(line, indent);
 	const SA::Position posAfter = GetLineIndentPosition(line);
@@ -3103,7 +3103,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		CurrentBuffer()->unicodeMode = static_cast<UniMode>(cmdID - IDM_ENCODING_DEFAULT);
 		if (CurrentBuffer()->unicodeMode != uni8Bit) {
 			// Override the code page if Unicode
-			codePage = SC_CP_UTF8;
+			codePage = SA::CpUtf8;
 		} else {
 			codePage = props.GetInt("code.page");
 		}
@@ -4072,7 +4072,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_DWELLSTART:
-		if (extender && (INVALID_POSITION != notification->position)) {
+		if (extender && (SA::InvalidPosition != notification->position)) {
 			SA::Position endWord = notification->position;
 			SA::Position position = notification->position;
 			std::string message =

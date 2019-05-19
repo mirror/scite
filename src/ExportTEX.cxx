@@ -27,8 +27,6 @@
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"
 
-#include "Scintilla.h"
-
 #include "GUI.h"
 #include "ScintillaWindow.h"
 
@@ -48,6 +46,13 @@
 #include "SciTEBase.h"
 
 //---------- Save to TeX ----------
+
+namespace {
+
+const int StyleMax = static_cast<int>(SA::StylesCommon::Max);
+const int StyleDefault = static_cast<int>(SA::StylesCommon::Default);
+
+}
 
 static char* getTexRGB(char* texcolor, const char* stylecolor) {
 	//texcolor[rgb]{0,0.5,0}{....}
@@ -110,14 +115,14 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
 
 	const SA::Position lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
-	bool styleIsUsed[STYLE_MAX + 1] = {};
+	bool styleIsUsed[StyleMax + 1] = {};
 
 	const int titleFullPath = props.GetInt("export.tex.title.fullpath", 0);
 
 	for (SA::Position pos = 0; pos < lengthDoc; pos++) {	// check the used styles
 		styleIsUsed[acc.StyleAt(pos)] = true;
 	}
-	styleIsUsed[STYLE_DEFAULT] = true;
+	styleIsUsed[StyleDefault] = true;
 
 	FILE *fp = saveName.Open(GUI_TEXT("wt"));
 	bool failedWrite = fp == nullptr;
@@ -130,7 +135,7 @@ void SciTEBase::SaveToTEX(const FilePath &saveName) {
  		      "\\usepackage{times}\n"
  		      "\\setlength{\\fboxsep}{0pt}\n", fp);
 
-		for (int istyle = 0; istyle < STYLE_MAX; istyle++) {      // get keys
+		for (int istyle = 0; istyle < StyleMax; istyle++) {      // get keys
 			if (styleIsUsed[istyle]) {
 				StyleDefinition sd = StyleDefinitionFor(istyle);
 				defineTexStyle(sd, fp, istyle); // writeout style macroses

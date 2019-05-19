@@ -777,7 +777,7 @@ void SciTEBase::ReadProperties() {
 	codePage = props.GetInt("code.page");
 	if (CurrentBuffer()->unicodeMode != uni8Bit) {
 		// Override properties file to ensure Unicode displayed.
-		codePage = SC_CP_UTF8;
+		codePage = SA::CpUtf8;
 	}
 	wEditor.SetCodePage(codePage);
 	const int outputCodePage = props.GetInt("output.code.page", codePage);
@@ -1416,7 +1416,7 @@ void SciTEBase::ReadProperties() {
 					CurrentBuffer()->unicodeMode = uni16BE;
 				if (pss.second == "utf-16le")
 					CurrentBuffer()->unicodeMode = uni16LE;
-				codePage = SC_CP_UTF8;
+				codePage = SA::CpUtf8;
 			}
 			wEditor.SetCodePage(codePage);
 		} else if (pss.first == "trim_trailing_whitespace") {

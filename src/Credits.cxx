@@ -532,10 +532,10 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 #endif
 		sVersion += "\n";
 
-		wsci.SetCodePage(SC_CP_UTF8);
+		wsci.SetCodePage(SA::CpUtf8);
 
-		wsci.StyleSetSize(STYLE_DEFAULT, fontSize);
-		wsci.StyleSetBack(STYLE_DEFAULT, ColourRGB(0xff, 0xff, 0xff));
+		wsci.StyleSetSize(static_cast<int>(SA::StylesCommon::Default), fontSize);
+		wsci.StyleSetBack(static_cast<int>(SA::StylesCommon::Default), ColourRGB(0xff, 0xff, 0xff));
 		wsci.StyleClearAll();
 
 		SetAboutStyle(wsci, 0, ColourRGB(0xff, 0xff, 0xff));
