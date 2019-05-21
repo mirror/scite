@@ -368,7 +368,7 @@ static int cf_pane_textrange(lua_State *L) {
 		const SA::Position cpMin = luaL_checknumber(L, 2);
 		const SA::Position cpMax = luaL_checknumber(L, 3);
 		if (cpMax >= 0) {
-			std::string range = host->Range(p, cpMin, cpMax);
+			std::string range = host->Range(p, SA::Range(cpMin, cpMax));
 			lua_pushstring(L, range.c_str());
 			return 1;
 		} else {
@@ -440,11 +440,10 @@ static int cf_pane_findtext(lua_State *L) {
 		if (!hasError) {
 			sc.SetTargetRange(rangeStart, rangeEnd);
 			sc.SetSearchFlags(static_cast<SA::FindOption>(flags));
-			const SA::Position result = sc.SearchInTarget(t);
-			if (result >= 0) {
-				const SA::Position posEndFound = sc.TargetEnd();
-				lua_pushinteger(L, result);
-				lua_pushinteger(L, posEndFound);
+			const SA::Range result = sc.RangeSearchInTarget(t);
+			if (result.start >= 0) {
+				lua_pushinteger(L, result.start);
+				lua_pushinteger(L, result.end);
 				return 2;
 			} else {
 				lua_pushnil(L);
@@ -466,10 +465,12 @@ static int cf_pane_findtext(lua_State *L) {
 
 struct PaneMatchObject {
 	ExtensionAPI::Pane pane;
-	SA::Position startPos;
-	SA::Position endPos;
+	SA::Range range;
 	int flags; // this is really part of the state, but is kept here for convenience
 	SA::Position endPosOrig; // has to do with preventing infinite loop on a 0-length match
+	bool RangeValid() const noexcept {
+		return (range.start >= 0) && (range.end >= 0) && (range.start <= range.end);
+	}
 };
 
 static int cf_match_replace(lua_State *L) {
@@ -477,7 +478,7 @@ static int cf_match_replace(lua_State *L) {
 	if (!pmo) {
 		raise_error(L, "Self argument for match:replace() should be a pane match object.");
 		return 0;
-	} else if ((pmo->startPos < 0) || (pmo->endPos < pmo->startPos) || (pmo->endPos < 0)) {
+	} else if (!pmo->RangeValid()) {
 		raise_error(L, "Blocked attempt to use invalidated pane match object.");
 		return 0;
 	}
@@ -491,9 +492,9 @@ static int cf_match_replace(lua_State *L) {
 	// left out.
 
 	SA::ScintillaCall &sc = host->PaneCaller(pmo->pane);
-	sc.SetTargetRange(pmo->startPos, pmo->endPos);
+	sc.SetTarget(pmo->range);
 	sc.ReplaceTarget(lua_strlen(L, 2), replacement);
-	pmo->endPos = sc.TargetEnd();
+	pmo->range.end = sc.TargetEnd();
 	return 0;
 }
 
@@ -502,7 +503,7 @@ static int cf_match_metatable_index(lua_State *L) {
 	if (!pmo) {
 		raise_error(L, "Internal error: pane match object is missing.");
 		return 0;
-	} else if ((pmo->startPos < 0) || (pmo->endPos < pmo->startPos) || (pmo->endPos < 0)) {
+	} else if (!pmo->RangeValid()) {
 		raise_error(L, "Blocked attempt to use invalidated pane match object.");
 		return 0;
 	}
@@ -511,16 +512,16 @@ static int cf_match_metatable_index(lua_State *L) {
 		const char *key = lua_tostring(L, 2);
 
 		if (0 == strcmp(key, "pos")) {
-			lua_pushinteger(L, pmo->startPos);
+			lua_pushinteger(L, pmo->range.start);
 			return 1;
 		} else if (0 == strcmp(key, "len")) {
-			lua_pushinteger(L, pmo->endPos - pmo->startPos);
+			lua_pushinteger(L, pmo->range.Length());
 			return 1;
 		} else if (0 == strcmp(key, "text")) {
 			// If the document is changed while in the match loop, this will be broken.
 			// Exception: if the changes are made exclusively through match:replace,
 			// everything will be fine.
-			std::string range = host->Range(pmo->pane, pmo->startPos, pmo->endPos);
+			const std::string range = host->Range(pmo->pane, pmo->range);
 			lua_pushstring(L, range.c_str());
 			return 1;
 		} else if (0 == strcmp(key, "replace")) {
@@ -543,11 +544,11 @@ static int cf_match_metatable_tostring(lua_State *L) {
 	if (!pmo) {
 		raise_error(L, "Internal error: pane match object is missing.");
 		return 0;
-	} else if ((pmo->startPos < 0) || (pmo->endPos < pmo->startPos) || (pmo->endPos < 0)) {
+	} else if (!pmo->RangeValid()) {
 		lua_pushliteral(L, "match(invalidated)");
 		return 1;
 	} else {
-		lua_pushfstring(L, "match{pos=%d,len=%d}", pmo->startPos, pmo->endPos - pmo->startPos);
+		lua_pushfstring(L, "match{pos=%d,len=%d}", pmo->range.start, pmo->range.Length());
 		return 1;
 	}
 }
@@ -574,14 +575,14 @@ static int cf_pane_match(lua_State *L) {
 	PaneMatchObject *pmo = static_cast<PaneMatchObject *>(lua_newuserdata(L, sizeof(PaneMatchObject)));
 	if (pmo) {
 		pmo->pane = p;
-		pmo->startPos = -1;
-		pmo->endPos = pmo->endPosOrig = 0;
+		pmo->range = SA::Range(-1, 0);
+		pmo->endPosOrig = 0;
 		pmo->flags = 0;
 		if (nargs >= 3) {
 			pmo->flags = luaL_checkint(L, 3);
 			if (nargs >= 4) {
-				pmo->endPos = pmo->endPosOrig = luaL_checkint(L, 4);
-				if (pmo->endPos < 0) {
+				pmo->range.end = pmo->endPosOrig = luaL_checkint(L, 4);
+				if (pmo->range.end < 0) {
 					raise_error(L, "Invalid argument 3 for <pane>:match.  Positive number or zero expected.");
 					return 0;
 				}
@@ -618,29 +619,28 @@ static int cf_pane_match_generator(lua_State *L) {
 		return 0;
 	}
 
-	if ((pmo->endPos < 0) || (pmo->endPos < pmo->startPos)) {
+	if ((pmo->range.end < 0) || (pmo->range.end < pmo->range.start)) {
 		raise_error(L, "Blocked attempt to use invalidated pane match object.");
 		return 0;
 	}
 
-	int searchPos = pmo->endPos;
-	if ((pmo->startPos == pmo->endPosOrig) && (pmo->endPos == pmo->endPosOrig)) {
+	SA::Position searchPos = pmo->range.end;
+	if ((pmo->range.start == pmo->endPosOrig) && (pmo->range.end == pmo->endPosOrig)) {
 		// prevent infinite loop on zero-length match by stepping forward
 		searchPos++;
 	}
 
 	SA::ScintillaCall &sc = host->PaneCaller(pmo->pane);
 
-	const SA::Position rangeStart = searchPos;
-	const SA::Position rangeEnd = sc.Length();
+	const SA::Range range(searchPos, sc.Length());
 
-	if (rangeEnd > rangeStart) {
-		sc.SetTargetRange(rangeStart, rangeEnd);
+	if (range.end > range.start) {
+		sc.SetTarget(range);
 		sc.SetSearchFlags(static_cast<SA::FindOption>(pmo->flags));
-		const SA::Position result = sc.SearchInTarget(text);
-		if (result >= 0) {
-			pmo->startPos = sc.TargetStart();
-			pmo->endPos = pmo->endPosOrig = sc.TargetEnd();
+		const SA::Range result = sc.RangeSearchInTarget(text);
+		if (result.start >= 0) {
+			pmo->range = result;
+			pmo->endPosOrig = result.end;
 			lua_pushvalue(L, 2);
 			return 1;
 		}
@@ -649,7 +649,7 @@ static int cf_pane_match_generator(lua_State *L) {
 	// One match object is used throughout the entire iteration.
 	// This means it's bad to try to save the match object for later
 	// reference.
-	pmo->startPos = pmo->endPos = pmo->endPosOrig = -1;
+	pmo->range.start = pmo->range.end = pmo->endPosOrig = -1;
 	lua_pushnil(L);
 	return 1;
 }

@@ -451,7 +451,7 @@ void SciTEWin::Print(
 	// This code will not work for documents > 2GB
 
 	// See if a range has been selected
-	const Scintilla::API::Range crange = GetSelection();
+	const SA::Range crange = GetSelection();
 	const LONG startPos = static_cast<LONG>(crange.start);
 	const LONG endPos = static_cast<LONG>(crange.end);
 
@@ -1004,7 +1004,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd, bool reverseDirection) {
 		dlg.GrabFields();
 	}
 
-	int replacements = 0;
+	intptr_t replacements = 0;
 	if (cmd == IDOK) {
 		FindNext(reverseDirection);
 		FillCombos(dlg);
@@ -1018,7 +1018,7 @@ BOOL SciTEWin::HandleReplaceCommand(int cmd, bool reverseDirection) {
 		replacements = ReplaceInBuffers();
 		FillCombos(dlg);
 	}
-	GUI::gui_string replDone = GUI::StringFromInteger(replacements);
+	GUI::gui_string replDone = std::to_wstring(replacements);
 	dlg.SetItemText(IDREPLDONE, replDone);
 
 	return TRUE;

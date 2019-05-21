@@ -309,7 +309,7 @@ void SciTEBase::AssignKey(SA::Keys key, SA::KeyMod mods, int cmd) {
  */
 void SciTEBase::SetOverrideLanguage(int cmdID) {
 	RecentFile rf = GetFilePosition();
-	EnsureRangeVisible(wEditor, 0, wEditor.Length(), false);
+	EnsureRangeVisible(wEditor, SA::Range(0, wEditor.Length()), false);
 	// Zero all the style bytes
 	wEditor.ClearDocumentStyle();
 
@@ -341,7 +341,7 @@ void SciTEBase::GetLine(char *text, int sizeText, SA::Line line) {
 	const SA::Position lineMax = lineStart + sizeText - 1;
 	if (lineEnd > lineMax)
 		lineEnd = lineMax;
-	GetRange(wEditor, lineStart, lineEnd, text);
+	GetRange(wEditor, SA::Range(lineStart, lineEnd), text);
 	text[lineEnd - lineStart] = '\0';
 }
 
@@ -355,10 +355,10 @@ std::string SciTEBase::GetCurrentLine() {
 	return text.substr(0, text.length()-1);
 }
 
-void SciTEBase::GetRange(GUI::ScintillaWindow &win, SA::Position start, SA::Position end, char *text) {
-	win.SetTargetRange(start, end);
+void SciTEBase::GetRange(GUI::ScintillaWindow &win, SA::Range range, char *text) {
+	win.SetTarget(range);
 	win.TargetText(text);
-	text[end - start] = '\0';
+	text[range.end - range.start] = '\0';
 }
 
 /**
@@ -639,12 +639,8 @@ void SciTEBase::SetWindowName() {
 	wSciTE.SetTitle(windowName.c_str());
 }
 
-Scintilla::API::Range SciTEBase::GetSelection() {
-	Scintilla::API::Range crange = {
-		wEditor.SelectionStart(),
-		wEditor.SelectionEnd()
-	};
-	return crange;
+SA::Range SciTEBase::GetSelection() {
+	return wEditor.SelectionRange();
 }
 
 SelectedRange SciTEBase::GetSelectedRange() {
@@ -702,7 +698,7 @@ std::string SciTEBase::GetCTag() {
 	}
 
 	if (selStart < selEnd) {
-		return GetRangeString(*pwFocussed, selStart, selEnd);
+		return GetRangeString(*pwFocussed, SA::Range(selStart, selEnd));
 	} else {
 		return std::string();
 	}
@@ -745,10 +741,9 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	if (!highlight)
 		return;
 	// Get start & end selection.
-	SA::Position selStart = wCurrent.SelectionStart();
-	SA::Position selEnd = wCurrent.SelectionEnd();
-	const bool noUserSelection = selStart == selEnd;
-	std::string sWordToFind = RangeExtendAndGrab(wCurrent, selStart, selEnd,
+	SA::Range sel = wCurrent.SelectionRange();
+	const bool noUserSelection = sel.start == sel.end;
+	std::string sWordToFind = RangeExtendAndGrab(wCurrent, sel,
 	        &SciTEBase::islexerwordcharforsel);
 	if (sWordToFind.length() == 0 || (sWordToFind.find_first_of("\n\r ") != std::string::npos))
 		return; // No highlight when no selection or multi-lines selection.
@@ -760,7 +755,7 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 		return;
 	}
 	// Get style of the current word to highlight only word with same style.
-	int selectedStyle = wCurrent.StyleAt(selStart);
+	int selectedStyle = wCurrent.StyleAt(sel.start);
 	if (!currentWordHighlight.isOnlyWithSameStyle)
 		selectedStyle = -1;
 
@@ -774,19 +769,19 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	SetIdler(true);
 }
 
-std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd) {
-	if (selStart == selEnd) {
+std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, SA::Range range) {
+	if (range.start == range.end) {
 		return std::string();
 	} else {
-		std::string sel(selEnd - selStart, '\0');
-		win.SetTargetRange(selStart, selEnd);
+		std::string sel(range.end - range.start, '\0');
+		win.SetTarget(range);
 		win.TargetText(&sel[0]);
 		return sel;
 	}
 }
 
-std::string SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd) {
-	return GetRangeString(win, selStart, selEnd);
+std::string SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range) {
+	return GetRangeString(win, range);
 }
 
 std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, SA::Line line) {
@@ -794,41 +789,39 @@ std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, SA::Line line) {
 	const SA::Position lineEnd = win.LineEnd(line);
 	if ((lineStart < 0) || (lineEnd < 0))
 		return std::string();
-	return GetRangeString(win, lineStart, lineEnd);
+	return GetRangeString(win, SA::Range(lineStart, lineEnd));
 }
 
 void SciTEBase::RangeExtend(
     GUI::ScintillaWindow &wCurrent,
-	SA::Position &selStart,
-	SA::Position &selEnd,
+	SA::Range &range,
     bool (SciTEBase::*ischarforsel)(char ch)) {	///< Function returning @c true if the given char. is part of the selection.
-	if (selStart == selEnd && ischarforsel) {
+	if (range.start == range.end && ischarforsel) {
 		// Empty range and have a function to extend it
 		const SA::Position lengthDoc = wCurrent.Length();
 		TextReader acc(wCurrent);
 		// Try and find a word at the caret
 		// On the left...
-		while ((selStart > 0) && ((this->*ischarforsel)(acc[selStart - 1]))) {
-			selStart--;
+		while ((range.start > 0) && ((this->*ischarforsel)(acc[range.start - 1]))) {
+			range.start--;
 		}
 		// and on the right
-		while ((selEnd < lengthDoc) && ((this->*ischarforsel)(acc[selEnd]))) {
-			selEnd++;
+		while ((range.end < lengthDoc) && ((this->*ischarforsel)(acc[range.end]))) {
+			range.end++;
 		}
 	}
 }
 
 std::string SciTEBase::RangeExtendAndGrab(
     GUI::ScintillaWindow &wCurrent,
-	SA::Position &selStart,
-	SA::Position &selEnd,
+	SA::Range &range,
     bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
     bool stripEol /*=true*/) {
 
-	RangeExtend(wCurrent, selStart, selEnd, ischarforsel);
+	RangeExtend(wCurrent, range, ischarforsel);
 	std::string selected;
-	if (selStart != selEnd) {
-		selected = GetRangeInUIEncoding(wCurrent, selStart, selEnd);
+	if (range.start != range.end) {
+		selected = GetRangeInUIEncoding(wCurrent, range);
 	}
 	if (stripEol) {
 		// Change whole line selected but normally end of line characters not wanted.
@@ -856,9 +849,8 @@ std::string SciTEBase::SelectionExtend(
     bool (SciTEBase::*ischarforsel)(char ch),	///< Function returning @c true if the given char. is part of the selection.
     bool stripEol /*=true*/) {
 
-	SA::Position selStart = pwFocussed->SelectionStart();
-	SA::Position selEnd = pwFocussed->SelectionEnd();
-	return RangeExtendAndGrab(*pwFocussed, selStart, selEnd, ischarforsel, stripEol);
+	SA::Range sel = pwFocussed->SelectionRange();
+	return RangeExtendAndGrab(*pwFocussed, sel, ischarforsel, stripEol);
 }
 
 std::string SciTEBase::SelectionWord(bool stripEol /*=true*/) {
@@ -1009,20 +1001,16 @@ bool SciTEBase::FindReplaceAdvanced() const {
 	return props.GetInt("find.replace.advanced");
 }
 
-SA::Position SciTEBase::FindInTarget(const std::string &findWhatText, SA::Position startPosition, SA::Position endPosition) {
-	const size_t lenFind = findWhatText.length();
-	wEditor.SetTargetStart(startPosition);
-	wEditor.SetTargetEnd(endPosition);
-	SA::Position posFind = wEditor.SearchInTarget(lenFind, findWhatText.c_str());
-	while (findInStyle && posFind != -1 && findStyle != wEditor.StyleAt(posFind)) {
-		if (startPosition < endPosition) {
-			wEditor.SetTargetStart(posFind + 1);
-			wEditor.SetTargetEnd(endPosition);
+SA::Position SciTEBase::FindInTarget(const std::string &findWhatText, SA::Range range) {
+	wEditor.SetTarget(range);
+	SA::Position posFind = wEditor.SearchInTarget(findWhatText);
+	while (findInStyle && (posFind >= 0) && (findStyle != wEditor.StyleAt(posFind))) {
+		if (range.start < range.end) {
+			wEditor.SetTarget(SA::Range(posFind + 1, range.end));
 		} else {
-			wEditor.SetTargetStart(startPosition);
-			wEditor.SetTargetEnd(posFind + 1);
+			wEditor.SetTarget(SA::Range(range.start, posFind + 1));
 		}
-		posFind = wEditor.SearchInTarget(lenFind, findWhatText.c_str());
+		posFind = wEditor.SearchInTarget(findWhatText);
 	}
 	return posFind;
 }
@@ -1047,7 +1035,7 @@ void SciTEBase::SetReplace(const char *sReplace) {
 }
 
 void SciTEBase::SetCaretAsStart() {
-	const Scintilla::API::Range cr = GetSelection();
+	const SA::Range cr = GetSelection();
 	searchStartPosition = cr.start;
 }
 
@@ -1076,31 +1064,25 @@ SA::Position SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool 
 	if (findTarget.length() == 0)
 		return -1;
 
-	const Scintilla::API::Range cr = GetSelection();
-	SA::Position startPosition = cr.end;
-	SA::Position endPosition = LengthDocument();
+	const SA::Position lengthDoc = wEditor.Length();
+	const SA::Range rangeSelection = GetSelection();
+	SA::Range rangeSearch(rangeSelection.end, lengthDoc);
 	if (reverseDirection) {
-		startPosition = cr.start;
-		endPosition = 0;
+		rangeSearch = SA::Range(rangeSelection.start, 0);
 	}
 
 	wEditor.SetSearchFlags(SearchFlags(allowRegExp && regExp));
-	SA::Position posFind = FindInTarget(findTarget, startPosition, endPosition);
+	SA::Position posFind = FindInTarget(findTarget, rangeSearch);
 	if (posFind == -1 && wrapFind) {
 		// Failed to find in indicated direction
 		// so search from the beginning (forward) or from the end (reverse)
 		// unless wrapFind is false
-		if (reverseDirection) {
-			startPosition = LengthDocument();
-			endPosition = 0;
-		} else {
-			startPosition = 0;
-			endPosition = LengthDocument();
-		}
-		posFind = FindInTarget(findTarget, startPosition, endPosition);
+		const SA::Range rangeAll = reverseDirection ?
+			SA::Range(lengthDoc, 0) : SA::Range(0, lengthDoc);
+		posFind = FindInTarget(findTarget, rangeAll);
 		WarnUser(warnFindWrapped);
 	}
-	if (posFind == -1) {
+	if (posFind < 0) {
 		havefound = false;
 		failedfind = true;
 		if (showWarnings) {
@@ -1111,19 +1093,17 @@ SA::Position SciTEBase::FindNext(bool reverseDirection, bool showWarnings, bool 
 	} else {
 		havefound = true;
 		failedfind = false;
-		const SA::Position start = wEditor.TargetStart();
-		const SA::Position end = wEditor.TargetEnd();
+		const SA::Range rangeTarget = wEditor.TargetRange();
 		// Ensure found text is styled so that caret will be made visible but
-                // only perform style in synchronous styling mode.
+		// only perform style in synchronous styling mode.
 		const SA::Position endStyled = wEditor.EndStyled();
-		if ((endStyled < end) && (idleStyling == SA::IdleStyling::None)) {
-			wEditor.Colourise(endStyled,
-				wEditor.LineStart(wEditor.LineFromPosition(end) + 1));
+		if ((endStyled < rangeTarget.end) && (idleStyling == SA::IdleStyling::None)) {
+			wEditor.Colourise(SA::Range(endStyled,
+				wEditor.LineStart(wEditor.LineFromPosition(rangeTarget.end) + 1)));
 		}
-		EnsureRangeVisible(wEditor, start, end);
-		wEditor.ScrollRange(start, end);
-		wEditor.SetTargetRange(start, end);
-		SetSelection(start, end);
+		EnsureRangeVisible(wEditor, rangeTarget);
+		wEditor.ScrollRange(rangeTarget.start, rangeTarget.end);
+		SetSelection(rangeTarget.start, rangeTarget.end);
 		if (!replacing && (closeFind != CloseFind::closePrevent)) {
 			DestroyFindReplace();
 		}
@@ -1140,74 +1120,72 @@ void SciTEBase::ReplaceOnce(bool showWarnings) {
 
 	bool haveWarned = false;
 	if (!havefound) {
-		const Scintilla::API::Range crange = GetSelection();
-		SetSelection(crange.start, crange.start);
+		const SA::Range rangeSelection = GetSelection();
+		SetSelection(rangeSelection.start, rangeSelection.start);
 		FindNext(false);
 		haveWarned = !havefound;
 	}
 
 	if (havefound) {
 		const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
-		const Scintilla::API::Range cr = GetSelection();
-		wEditor.SetTargetStart(cr.start);
-		wEditor.SetTargetEnd(cr.end);
+		const SA::Range rangeSelection = GetSelection();
+		wEditor.SetTarget(rangeSelection);
 		SA::Position lenReplaced = static_cast<SA::Position>(replaceTarget.length());
 		if (regExp)
-			lenReplaced = wEditor.ReplaceTargetRE(replaceTarget.length(), replaceTarget.c_str());
+			lenReplaced = wEditor.ReplaceTargetRE(replaceTarget);
 		else	// Allow \0 in replacement
-			wEditor.ReplaceTarget(replaceTarget.length(), replaceTarget.c_str());
-		SetSelection(cr.start + lenReplaced, cr.start);
+			wEditor.ReplaceTarget(replaceTarget);
+		SetSelection(rangeSelection.start + lenReplaced, rangeSelection.start);
 		havefound = false;
 	}
 
 	FindNext(false, showWarnings && !haveWarned);
 }
 
-int SciTEBase::DoReplaceAll(bool inSelection) {
+intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 	const std::string findTarget = UnSlashAsNeeded(EncodeString(findWhat), unSlash, regExp);
 	if (findTarget.length() == 0) {
 		return -1;
 	}
 
-	const SA::Range cr = GetSelection();
-	SA::Position startPosition = cr.start;
-	SA::Position endPosition = cr.end;
+	const SA::Range rangeSelection = GetSelection();
+	SA::Range rangeSearch = rangeSelection;
 	const int countSelections = wEditor.Selections();
 	if (inSelection) {
 		const SA::SelectionMode selType = wEditor.SelectionMode();
 		if (selType == SA::SelectionMode::Lines) {
 			// Take care to replace in whole lines
-			const SA::Line startLine = wEditor.LineFromPosition(startPosition);
-			startPosition = wEditor.LineStart(startLine);
-			const SA::Line endLine = wEditor.LineFromPosition(endPosition);
-			endPosition = wEditor.LineStart(endLine + 1);
+			const SA::Line startLine = wEditor.LineFromPosition(rangeSearch.start);
+			rangeSearch.start = wEditor.LineStart(startLine);
+			const SA::Line endLine = wEditor.LineFromPosition(rangeSearch.end);
+			rangeSearch.end = wEditor.LineStart(endLine + 1);
 		} else {
 			for (int i=0; i<countSelections; i++) {
-				startPosition = std::min(startPosition, wEditor.SelectionNStart(i));
-				endPosition = std::max(endPosition, wEditor.SelectionNEnd(i));
+				rangeSearch.start = std::min(rangeSearch.start, wEditor.SelectionNStart(i));
+				rangeSearch.end = std::max(rangeSearch.end, wEditor.SelectionNEnd(i));
 			}
 		}
-		if (startPosition == endPosition) {
+		if (rangeSearch.Length() == 0) {
 			return -2;
 		}
 	} else {
-		endPosition = LengthDocument();
+		rangeSearch.end = LengthDocument();
 		if (wrapFind) {
 			// Whole document
-			startPosition = 0;
+			rangeSearch.start = 0;
 		}
 		// If not wrapFind, replace all only from caret to end of document
 	}
 
 	const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
 	wEditor.SetSearchFlags(SearchFlags(regExp));
-	SA::Position posFind = FindInTarget(findTarget, startPosition, endPosition);
-	if ((posFind != -1) && (posFind <= endPosition)) {
+	SA::Position posFind = FindInTarget(findTarget, rangeSearch);
+	if ((posFind >= 0) && (posFind <= rangeSearch.end)) {
 		SA::Position lastMatch = posFind;
-		int replacements = 0;
+		intptr_t replacements = 0;
 		wEditor.BeginUndoAction();
 		// Replacement loop
-		while (posFind != -1) {
+		while (posFind >= 0) {
 			const SA::Position lenTarget = wEditor.TargetEnd() - wEditor.TargetStart();
 			if (inSelection && countSelections > 1) {
 				// We must check that the found target is entirely inside a selection
@@ -1221,11 +1199,11 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 				if (!insideASelection) {
 					// Found target is totally or partly outside the selections
 					lastMatch = posFind + 1;
-					if (lastMatch >= endPosition) {
+					if (lastMatch >= rangeSearch.end) {
 						// Run off the end of the document/selection with an empty match
 						posFind = -1;
 					} else {
-						posFind = FindInTarget(findTarget, lastMatch, endPosition);
+						posFind = FindInTarget(findTarget, SA::Range(lastMatch, rangeSearch.end));
 					}
 					continue;	// No replacement
 				}
@@ -1237,24 +1215,24 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 				wEditor.ReplaceTarget(replaceTarget.length(), replaceTarget.c_str());
 			}
 			// Modify for change caused by replacement
-			endPosition += lenReplaced - lenTarget;
+			rangeSearch.end += lenReplaced - lenTarget;
 			// For the special cases of start of line and end of line
 			// something better could be done but there are too many special cases
 			lastMatch = posFind + lenReplaced;
 			if (lenTarget <= 0) {
 				lastMatch = wEditor.PositionAfter(lastMatch);
 			}
-			if (lastMatch >= endPosition) {
+			if (lastMatch >= rangeSearch.end) {
 				// Run off the end of the document/selection with an empty match
 				posFind = -1;
 			} else {
-				posFind = FindInTarget(findTarget, lastMatch, endPosition);
+				posFind = FindInTarget(findTarget, SA::Range(lastMatch, rangeSearch.end));
 			}
 			replacements++;
 		}
 		if (inSelection) {
 			if (countSelections == 1)
-				SetSelection(startPosition, endPosition);
+				SetSelection(rangeSearch.start, rangeSearch.end);
 		} else {
 			SetSelection(lastMatch, lastMatch);
 		}
@@ -1264,8 +1242,8 @@ int SciTEBase::DoReplaceAll(bool inSelection) {
 	return 0;
 }
 
-int SciTEBase::ReplaceAll(bool inSelection) {
-	const int replacements = DoReplaceAll(inSelection);
+intptr_t SciTEBase::ReplaceAll(bool inSelection) {
+	const intptr_t replacements = DoReplaceAll(inSelection);
 	props.Set("Replacements", std::to_string(replacements > 0 ? replacements : 0));
 	UpdateStatusBar(false);
 	if (replacements == -1) {
@@ -1283,9 +1261,9 @@ int SciTEBase::ReplaceAll(bool inSelection) {
 	return replacements;
 }
 
-int SciTEBase::ReplaceInBuffers() {
+intptr_t SciTEBase::ReplaceInBuffers() {
 	const int currentBuffer = buffers.Current();
-	int replacements = 0;
+	intptr_t replacements = 0;
 	for (int i = 0; i < buffers.length; i++) {
 		SetDocumentAt(i);
 		replacements += DoReplaceAll(false);
@@ -1733,7 +1711,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	const SA::Position doclen = LengthDocument();
 	const SA::FindOption flags =
 		SA::FindOption::WordStart | (autoCompleteIgnoreCase ? static_cast<SA::FindOption>(0) : SA::FindOption::MatchCase);
-	const SA::Position posCurrentWord = wEditor.CurrentPosition() - static_cast<int>(root.length());
+	const SA::Position posCurrentWord = wEditor.CurrentPosition() - root.length();
 	SA::Position minWordLength = 0;
 	unsigned int nwords = 0;
 
@@ -1742,9 +1720,9 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	std::string wordsNear;
 	wordsNear.append("\n");
 
-	wEditor.SetTargetRange(0, doclen);
+	wEditor.SetTarget(SA::Range(0, doclen));
 	wEditor.SetSearchFlags(flags);
-	SA::Position posFind = wEditor.SearchInTarget(root.length(), root.c_str());
+	SA::Position posFind = wEditor.SearchInTarget(root);
 	TextReader acc(wEditor);
 	while (posFind >= 0 && posFind < doclen) {	// search all the document
 		SA::Position wordEnd = posFind + static_cast<SA::Position>(root.length());
@@ -1753,7 +1731,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				wordEnd++;
 			const SA::Position wordLength = wordEnd - posFind;
 			if (wordLength > static_cast<SA::Position>(root.length())) {
-				std::string word = GetRangeString(wEditor, posFind, wordEnd);
+				std::string word = GetRangeString(wEditor, SA::Range(posFind, wordEnd));
 				word.insert(0, "\n");
 				word.append("\n");
 				if (wordsNear.find(word.c_str()) == std::string::npos) {	// add a new entry
@@ -1768,8 +1746,8 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				}
 			}
 		}
-		wEditor.SetTargetRange(wordEnd, doclen);
-		posFind = wEditor.SearchInTarget(root.length(), root.c_str());
+		wEditor.SetTarget(SA::Range(wordEnd, doclen));
+		posFind = wEditor.SearchInTarget(root);
 	}
 	const size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > static_cast<SA::Position>(root.length())))) {
@@ -2055,7 +2033,7 @@ bool SciTEBase::StartBlockComment() {
 		if (!placeCommentsAtLineStart) {
 			lineIndent = GetLineIndentPosition(i);
 		}
-		std::string linebuf = GetRangeString(wEditor, lineIndent, lineEnd);
+		std::string linebuf = GetRangeString(wEditor, SA::Range(lineIndent, lineEnd));
 		// empty lines are not commented
 		if (linebuf.length() < 1)
 			continue;
@@ -2161,7 +2139,7 @@ bool SciTEBase::StartBoxComment() {
 
 	// Insert start_comment if needed
 	SA::Position lineStart = wEditor.LineStart(selStartLine);
-	std::string tempString = GetRangeString(wEditor, lineStart, lineStart + start_comment_length);
+	std::string tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + start_comment_length));
 	if (start_comment != tempString) {
 		wEditor.InsertText(lineStart, start_comment.c_str());
 		selectionStart += start_comment_length;
@@ -2171,7 +2149,7 @@ bool SciTEBase::StartBoxComment() {
 	if (lines <= 1) {
 		// Only a single line was selected, so just append whitespace + end-comment at end of line if needed
 		const SA::Position lineEnd = wEditor.LineEnd(selEndLine);
-		tempString = GetRangeString(wEditor, lineEnd - end_comment_length, lineEnd);
+		tempString = GetRangeString(wEditor, SA::Range(lineEnd - end_comment_length, lineEnd));
 		if (end_comment != tempString) {
 			end_comment.insert(0, white_space.c_str());
 			wEditor.InsertText(lineEnd, end_comment.c_str());
@@ -2180,7 +2158,7 @@ bool SciTEBase::StartBoxComment() {
 		// More than one line selected, so insert middle_comments where needed
 		for (SA::Line i = selStartLine + 1; i < selEndLine; i++) {
 			lineStart = wEditor.LineStart(i);
-			tempString = GetRangeString(wEditor, lineStart, lineStart + middle_comment_length);
+			tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + middle_comment_length));
 			if (middle_comment != tempString) {
 				wEditor.InsertText(lineStart, middle_comment.c_str());
 				selectionEnd += middle_comment_length;
@@ -2192,9 +2170,9 @@ bool SciTEBase::StartBoxComment() {
 		// and end-comment tag after the last line (extra logic is necessary to
 		// deal with the case that user selected the end-comment tag)
 		lineStart = wEditor.LineStart(selEndLine);
-		tempString = GetRangeString(wEditor, lineStart, lineStart + end_comment_length);
+		tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + end_comment_length));
 		if (end_comment != tempString) {
-			tempString = GetRangeString(wEditor, lineStart, lineStart + middle_comment_length);
+			tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + middle_comment_length));
 			if (middle_comment != tempString) {
 				wEditor.InsertText(lineStart, middle_comment.c_str());
 				selectionEnd += middle_comment_length;
@@ -2203,7 +2181,7 @@ bool SciTEBase::StartBoxComment() {
 			// And since we didn't find the end-comment string yet, we need to check the *next* line
 			//  to see if it's necessary to insert an end-comment string and a linefeed there....
 			lineStart = wEditor.LineStart(selEndLine + 1);
-			tempString = GetRangeString(wEditor, lineStart, lineStart + static_cast<int>(end_comment_length));
+			tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + end_comment_length));
 			if (end_comment != tempString) {
 				end_comment += eol;
 				wEditor.InsertText(lineStart, end_comment.c_str());
@@ -2247,29 +2225,28 @@ bool SciTEBase::StartStreamComment() {
 	white_space += end_comment;
 	end_comment = white_space;
 	const SA::Position start_comment_length = static_cast<int>(start_comment.length());
-	SA::Position selectionStart = wEditor.SelectionStart();
-	SA::Position selectionEnd = wEditor.SelectionEnd();
+	SA::Range selection = wEditor.SelectionRange();
 	const SA::Position caretPosition = wEditor.CurrentPosition();
 	// checking if caret is located in _beginning_ of selected block
-	const bool move_caret = caretPosition < selectionEnd;
+	const bool move_caret = caretPosition < selection.end;
 	// if there is no selection?
-	if (selectionStart == selectionEnd) {
-		RangeExtend(wEditor, selectionStart, selectionEnd,
+	if (selection.start == selection.end) {
+		RangeExtend(wEditor, selection,
 			&SciTEBase::islexerwordcharforsel);
-		if (selectionStart == selectionEnd)
+		if (selection.start == selection.end)
 			return true; // caret is located _between_ words
 	}
 	wEditor.BeginUndoAction();
-	wEditor.InsertText(selectionStart, start_comment.c_str());
-	selectionEnd += start_comment_length;
-	selectionStart += start_comment_length;
-	wEditor.InsertText(selectionEnd, end_comment.c_str());
+	wEditor.InsertText(selection.start, start_comment.c_str());
+	selection.end += start_comment_length;
+	selection.start += start_comment_length;
+	wEditor.InsertText(selection.end, end_comment.c_str());
 	if (move_caret) {
 		// moving caret to the beginning of selected block
-		wEditor.GotoPosition(selectionEnd);
-		wEditor.SetCurrentPos(selectionStart);
+		wEditor.GotoPosition(selection.end);
+		wEditor.SetCurrentPos(selection.start);
 	} else {
-		wEditor.SetSel(selectionStart, selectionEnd);
+		wEditor.SetSel(selection.start, selection.end);
 	}
 	wEditor.EndUndoAction();
 	return true;
@@ -2314,9 +2291,9 @@ void SciTEBase::SetTextProperties(
 
 	ps.Set("NbOfLines", std::to_string(wEditor.LineCount()));
 
-	const Scintilla::API::Range crange = GetSelection();
-	const SA::Line selFirstLine = wEditor.LineFromPosition(crange.start);
-	const SA::Line selLastLine = wEditor.LineFromPosition(crange.end);
+	const SA::Range range = GetSelection();
+	const SA::Line selFirstLine = wEditor.LineFromPosition(range.start);
+	const SA::Line selLastLine = wEditor.LineFromPosition(range.end);
 	SA::Position charCount = 0;
 	if (wEditor.SelectionMode() == SA::SelectionMode::Rectangle) {
 		for (SA::Line line = selFirstLine; line <= selLastLine; line++) {
@@ -2325,13 +2302,13 @@ void SciTEBase::SetTextProperties(
 			charCount += wEditor.CountCharacters(startPos, endPos);
 		}
 	} else {
-		charCount = wEditor.CountCharacters(crange.start, crange.end);
+		charCount = wEditor.CountCharacters(range.start, range.end);
 	}
 	ps.Set("SelLength", std::to_string(charCount));
 	const SA::Position caretPos = wEditor.CurrentPosition();
 	const SA::Position selAnchor = wEditor.Anchor();
 	SA::Line selHeight = selLastLine - selFirstLine + 1;
-	if (0 == crange.Length()) {
+	if (0 == range.Length()) {
 		selHeight = 0;
 	} else if (selLastLine == selFirstLine) {
 		selHeight = 1;
@@ -2433,13 +2410,11 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 		const SA::Position indentPos = GetLineIndentPosition(line);
 		const int maxIndentation = 1000;
 		if (indent < maxIndentation) {
-			std::string indentationNow = GetRangeString(wEditor, lineStart, indentPos);
+			std::string indentationNow = GetRangeString(wEditor, SA::Range(lineStart, indentPos));
 			std::string indentationWanted = CreateIndentation(indent, tabSize, !useTabs);
 			if (indentationNow != indentationWanted) {
-				wEditor.SetTargetStart(lineStart);
-				wEditor.SetTargetEnd(indentPos);
-				wEditor.ReplaceTarget(indentationWanted.length(),
-					indentationWanted.c_str());
+				wEditor.SetTarget(SA::Range(lineStart, indentPos));
+				wEditor.ReplaceTarget(indentationWanted);
 			}
 		}
 	}
@@ -2597,8 +2572,8 @@ void SciTEBase::MaintainIndentation(char ch) {
 }
 
 void SciTEBase::AutomaticIndentation(char ch) {
-	const Scintilla::API::Range crange = GetSelection();
-	const SA::Position selStart = crange.start;
+	const SA::Range range = GetSelection();
+	const SA::Position selStart = range.start;
 	const SA::Line curLine = GetCurrentLineNumber();
 	const SA::Position thisLineStart = wEditor.LineStart(curLine);
 	const int indentSize = wEditor.IndentSize();
@@ -2676,9 +2651,9 @@ void SciTEBase::AutomaticIndentation(char ch) {
 void SciTEBase::CharAdded(int utf32) {
 	if (recording)
 		return;
-	const Scintilla::API::Range crange = GetSelection();
-	const SA::Position selStart = crange.start;
-	const SA::Position selEnd = crange.end;
+	const SA::Range range = GetSelection();
+	const SA::Position selStart = range.start;
+	const SA::Position selEnd = range.end;
 
 	if (utf32 > 0XFF) { // MBCS, never let it go.
 		if (imeAutoComplete) {
@@ -2814,7 +2789,7 @@ bool SciTEBase::HandleXml(char ch) {
 	if (nCaret - nMin < 3) {
 		return false; // Smallest tag is 3 characters ex. <p>
 	}
-	std::string sel = GetRangeString(wEditor, nMin, nCaret);
+	std::string sel = GetRangeString(wEditor, SA::Range(nMin, nCaret));
 
 	if (sel[nCaret - nMin - 2] == '/') {
 		// User typed something like "<br/>"
@@ -2899,7 +2874,7 @@ void SciTEBase::GoMatchingBrace(bool select) {
 		}
 	}
 	if (braceOpposite >= 0) {
-		EnsureRangeVisible(*pwFocussed, braceOpposite, braceOpposite);
+		EnsureRangeVisible(*pwFocussed, SA::Range(braceOpposite));
 		if (select) {
 			pwFocussed->SetSel(braceAtCaret, braceOpposite);
 		} else {
@@ -2917,7 +2892,7 @@ void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
 	const bool isInside = FindMatchingPreprocCondPosition(forward, mppcAtCaret, mppcMatch);
 
 	if (isInside && mppcMatch >= 0) {
-		EnsureRangeVisible(wEditor, mppcMatch, mppcMatch);
+		EnsureRangeVisible(wEditor, SA::Range(mppcMatch));
 		if (select) {
 			// Selection changes the rules a bit...
 			const SA::Position selStart = wEditor.SelectionStart();
@@ -3794,9 +3769,9 @@ void SciTEBase::GotoLineEnsureVisible(SA::Line line) {
 	wEditor.GotoLine(line);
 }
 
-void SciTEBase::EnsureRangeVisible(GUI::ScintillaWindow &win, SA::Position posStart, SA::Position posEnd, bool enforcePolicy) {
-	const SA::Line lineStart = win.LineFromPosition(std::min(posStart, posEnd));
-	const SA::Line lineEnd = win.LineFromPosition(std::max(posStart, posEnd));
+void SciTEBase::EnsureRangeVisible(GUI::ScintillaWindow &win, SA::Range range, bool enforcePolicy) {
+	const SA::Line lineStart = win.LineFromPosition(range.start);
+	const SA::Line lineEnd = win.LineFromPosition(range.end);
 	for (SA::Line line = lineStart; line <= lineEnd; line++) {
 		win.Call(enforcePolicy ? SA::Message::EnsureVisibleEnforcePolicy : SA::Message::EnsureVisible, line);
 	}
@@ -4038,7 +4013,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SCN_NEEDSHOWN: {
-			EnsureRangeVisible(wEditor, static_cast<int>(notification->position), static_cast<int>(notification->position + notification->length), false);
+			EnsureRangeVisible(wEditor, SA::Range(notification->position, notification->position + notification->length), false);
 		}
 		break;
 
@@ -4071,13 +4046,12 @@ void SciTEBase::Notify(SCNotification *notification) {
 
 	case SCN_DWELLSTART:
 		if (extender && (SA::InvalidPosition != notification->position)) {
-			SA::Position endWord = notification->position;
-			SA::Position position = notification->position;
+			SA::Range range(notification->position);
 			std::string message =
 				RangeExtendAndGrab(wEditor,
-					position, endWord, &SciTEBase::iswordcharforsel);
+					range, &SciTEBase::iswordcharforsel);
 			if (message.length()) {
-				extender->OnDwellStart(position, message.c_str());
+				extender->OnDwellStart(range.start, message.c_str());
 			}
 		}
 		break;
@@ -4751,13 +4725,12 @@ intptr_t SciTEBase::Send(Pane p, SA::Message msg, uintptr_t wParam, intptr_t lPa
 	else
 		return wOutput.Call(msg, wParam, lParam);
 }
-std::string SciTEBase::Range(Pane p, SA::Position start, SA::Position end) {
-	const SA::Position len = end - start;
-	std::string s(len, '\0');
+std::string SciTEBase::Range(Pane p, SA::Range range) {
+	std::string s(range.Length(), '\0');
 	if (p == paneEditor)
-		GetRange(wEditor, start, end, s.data());
+		GetRange(wEditor, range, s.data());
 	else
-		GetRange(wOutput, start, end, s.data());
+		GetRange(wOutput, range, s.data());
 	return s;
 }
 void SciTEBase::Remove(Pane p, SA::Position start, SA::Position end) {

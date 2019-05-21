@@ -154,7 +154,7 @@ void SciTEBase::DiscoverEOLSetting() {
 // Look inside the first line for a #! clue regarding the language
 std::string SciTEBase::DiscoverLanguage() {
 	const SA::Position length = std::min<SA::Position>(LengthDocument(), 64 * 1024);
-	std::string buf = GetRangeString(wEditor, 0, length);
+	std::string buf = GetRangeString(wEditor, SA::Range(0, length));
 	std::string languageOverride = "";
 	std::string l1 = ExtractLine(buf.c_str(), length);
 	if (StartsWith(l1, "<?xml")) {
@@ -1032,9 +1032,8 @@ void SciTEBase::StripTrailingSpaces() {
 			ch = static_cast<char>(wEditor.CharAt(i));
 		}
 		if (i < (lineEnd - 1)) {
-			wEditor.SetTargetStart(i + 1);
-			wEditor.SetTargetEnd(lineEnd);
-			wEditor.ReplaceTarget(0, "");
+			wEditor.SetTarget(SA::Range(i + 1, lineEnd));
+			wEditor.ReplaceTarget("");
 		}
 	}
 }
@@ -1120,7 +1119,7 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 						grabSize = blockSize;
 					// Round down so only whole characters retrieved.
 					grabSize = wEditor.PositionBefore(i + grabSize + 1) - i;
-					GetRange(wEditor, static_cast<int>(i), static_cast<int>(i + grabSize), &data[0]);
+					GetRange(wEditor, SA::Range(static_cast<SA::Position>(i), static_cast<SA::Position>(i + grabSize)), &data[0]);
 					const size_t written = convert.fwrite(&data[0], grabSize);
 					if (written == 0) {
 						retVal = false;

@@ -1885,7 +1885,7 @@ void SciTEBase::ShowMessages(SA::Line line) {
 	while ((line < maxLine) && (acc.StyleAt(acc.LineStart(line)) != SCE_ERR_CMD)) {
 		const SA::Position startPosLine = wOutput.LineStart(line);
 		const SA::Position lineEnd = wOutput.LineEnd(line);
-		std::string message = GetRangeString(wOutput, startPosLine, lineEnd);
+		std::string message = GetRangeString(wOutput, SA::Range(startPosLine, lineEnd));
 		std::string source;
 		SA::Position column;
 		int style = acc.StyleAt(startPosLine);
@@ -1967,7 +1967,7 @@ void SciTEBase::GoMessage(int dir) {
 			        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 			wOutput.MarkerAdd(lookLine, 0);
 			wOutput.SetSel(startPosLine, startPosLine);
-			std::string message = GetRangeString(wOutput, startPosLine, startPosLine + lineLength);
+			std::string message = GetRangeString(wOutput, SA::Range(startPosLine, startPosLine + lineLength));
 			if ((style == SCE_ERR_ESCSEQ) || (style == SCE_ERR_ESCSEQ_UNKNOWN) || (style >= SCE_ERR_ES_BLACK)) {
 				// GCC message with ANSI escape sequences
 				RemoveEscSeq(message);
@@ -2057,7 +2057,7 @@ void SciTEBase::GoMessage(int dir) {
 					// Get the position in line according to current tab setting
 					startSourceLine = wEditor.FindColumn(sourceLine, column);
 				}
-				EnsureRangeVisible(wEditor, startSourceLine, startSourceLine);
+				EnsureRangeVisible(wEditor, SA::Range(startSourceLine));
 				if (props.GetInt("error.select.line") == 1) {
 					//select whole source source line from column with error
 					SetSelection(endSourceline, startSourceLine);

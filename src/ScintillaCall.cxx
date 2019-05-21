@@ -107,10 +107,6 @@ int ScintillaCall::UnsignedStyleAt(Position position) {
 	return static_cast<unsigned char>(Call(Message::GetStyleAt, position));
 }
 
-void ScintillaCall::ReplaceSelection(const char *text) {
-	CallString(Message::ReplaceSel, 0, text);
-}
-
 Position ScintillaCall::ReplaceTarget(std::string_view text) {
 	return ScintillaCall::CallString(Message::ReplaceTarget, text.length(), text.data());
 }
@@ -121,6 +117,14 @@ Position ScintillaCall::ReplaceTargetRE(std::string_view text) {
 
 Position ScintillaCall::SearchInTarget(std::string_view text) {
 	return CallString(Message::SearchInTarget, text.length(), text.data());
+}
+
+Range ScintillaCall::RangeSearchInTarget(std::string_view text) {
+	const Position posFound = SearchInTarget(text);
+	if (posFound >= 0)
+		return Range(posFound, TargetEnd());
+	else
+		return Range(posFound, 0);
 }
 
 // Generated methods

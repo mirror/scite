@@ -42,7 +42,7 @@ void TextReader::Fill(SA::Position position) {
 	endPos = startPos + bufferSize;
 	if (endPos > lenDoc)
 		endPos = lenDoc;
-	sw.SetTargetRange(startPos, endPos);
+	sw.SetTarget(SA::Range(startPos, endPos));
 	sw.TargetText(buf);
 }
 

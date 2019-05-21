@@ -586,6 +586,7 @@ using Line = intptr_t;
 using Colour = int;
 struct Range {
 	// An ordered range
+	// end may be less than start when, for example, searching backwards
 	Position start;
 	Position end;
 	explicit Range(Position position) noexcept : start(position), end(position) {
@@ -593,7 +594,10 @@ struct Range {
 	Range(Position start_, Position end_) noexcept : start(start_), end(end_) {
 	}
 	Position Length() const noexcept {
-		return end - start;
+		if (end > start)
+			return end - start;
+		else
+			return start - end;
 	}
 	bool operator==(const Range &other) const noexcept {
 		return (other.start == start) && (other.end == end);

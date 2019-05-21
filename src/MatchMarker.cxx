@@ -76,16 +76,15 @@ void MatchMarker::Continue() {
 	pSci->SetSearchFlags(flagsMatch);
 	const SA::Position positionStart = pSci->LineStart(rangeSearch.lineStart);
 	const SA::Position positionEnd = pSci->LineStart(lineEndSegment);
-	pSci->SetTargetStart(positionStart);
-	pSci->SetTargetEnd(positionEnd);
+	pSci->SetTarget(SA::Range(positionStart, positionEnd));
 	pSci->IndicatorClearRange(positionStart, positionEnd - positionStart);
 
 	//Monitor the amount of time took by the search.
 	GUI::ElapsedTime searchElapsedTime;
 
 	// Find the first occurrence of word.
-	SA::Position posFound = pSci->SearchInTarget(textMatch.length(), textMatch.c_str());
-	while (posFound != SA::InvalidPosition) {
+	SA::Range rangeFound = pSci->RangeSearchInTarget(textMatch);
+	while (rangeFound.start >= 0) {
 		// Limit the search duration to 250 ms. Avoid to freeze editor for huge lines.
 		if (searchElapsedTime.Duration() > 0.25) {
 			// Clear all indicators because timer has expired.
@@ -93,23 +92,21 @@ void MatchMarker::Continue() {
 			lineRanges.clear();
 			break;
 		}
-		SA::Position posEndFound = pSci->TargetEnd();
 
-		if ((styleMatch < 0) || (styleMatch == pSci->StyleAt(posFound))) {
-			pSci->IndicatorFillRange(posFound, posEndFound - posFound);
+		if ((styleMatch < 0) || (styleMatch == pSci->StyleAt(rangeFound.start))) {
+			pSci->IndicatorFillRange(rangeFound.start, rangeFound.Length());
 			if (bookMark >= 0) {
 				pSci->MarkerAdd(
-					pSci->LineFromPosition(posFound), bookMark);
+					pSci->LineFromPosition(rangeFound.start), bookMark);
 			}
 		}
-		if (posEndFound == posFound) {
+		if (rangeFound.Length() == 0) {
 			// Empty matches are possible for regex
-			posEndFound = pSci->PositionAfter(posEndFound);
+			rangeFound.end = pSci->PositionAfter(rangeFound.end);
 		}
 		// Try to find next occurrence of word.
-		pSci->SetTargetStart(posEndFound);
-		pSci->SetTargetEnd(positionEnd);
-		posFound = pSci->SearchInTarget(textMatch.length(), textMatch.c_str());
+		pSci->SetTarget(SA::Range(rangeFound.end, positionEnd));
+		rangeFound = pSci->RangeSearchInTarget(textMatch);
 	}
 
 	// Retire searched lines

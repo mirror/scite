@@ -330,7 +330,7 @@ public:
 	virtual void HideMatch() = 0;
 	enum MarkPurpose { markWithBookMarks, markIncremental };
 	virtual void MarkAll(MarkPurpose purpose=markWithBookMarks) = 0;
-	virtual int ReplaceAll(bool inSelection) = 0;
+	virtual intptr_t ReplaceAll(bool inSelection) = 0;
 	virtual void ReplaceOnce(bool showWarnings=true) = 0;
 	virtual void UIClosed() = 0;
 	virtual void UIHasFocus() = 0;
@@ -597,7 +597,7 @@ protected:
 	SA::Position GetCaretInLine();
 	void GetLine(char *text, int sizeText, SA::Line line = -1);
 	std::string GetCurrentLine();
-	static void GetRange(GUI::ScintillaWindow &win, SA::Position start, SA::Position end, char *text);
+	static void GetRange(GUI::ScintillaWindow &win, SA::Range range, char *text);
 	int IsLinePreprocessorCondition(char *line);
 	bool FindMatchingPreprocessorCondition(SA::Line &curLine, int direction, int condEnd1, int condEnd2);
 	bool FindMatchingPreprocCondPosition(bool isForward, SA::Position &mppcAtCaret, SA::Position &mppcMatch);
@@ -708,12 +708,12 @@ protected:
 	SelectedRange GetSelectedRange();
 	void SetSelection(SA::Position anchor, SA::Position currentPos);
 	std::string GetCTag();
-	static std::string GetRangeString(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd);
-	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Position selStart, SA::Position selEnd);
+	static std::string GetRangeString(GUI::ScintillaWindow &win, SA::Range range);
+	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range);
 	static std::string GetLine(GUI::ScintillaWindow &win, SA::Line line);
-	void RangeExtend(GUI::ScintillaWindow &wCurrent, SA::Position &selStart, SA::Position &selEnd,
+	void RangeExtend(GUI::ScintillaWindow &wCurrent, SA::Range &range,
 		bool (SciTEBase::*ischarforsel)(char ch));
-	std::string RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, SA::Position &selStart, SA::Position &selEnd,
+	std::string RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, SA::Range &range,
 		bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	std::string SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	std::string SelectionWord(bool stripEol = true);
@@ -743,7 +743,7 @@ protected:
 	void FailedSaveMessageBox(const FilePath &filePathSaving);
 	virtual void FindMessageBox(const std::string &msg, const std::string *findItem = nullptr) = 0;
 	bool FindReplaceAdvanced() const;
-	SA::Position FindInTarget(const std::string &findWhatText, SA::Position startPosition, SA::Position endPosition);
+	SA::Position FindInTarget(const std::string &findWhatText, SA::Range range);
 	// Implement Searcher
 	void SetFindText(const char *sFind) override;
 	void SetFind(const char *sFind) override;
@@ -759,9 +759,9 @@ protected:
 	virtual void FindInFiles() = 0;
 	virtual void Replace() = 0;
 	void ReplaceOnce(bool showWarnings=true) override;
-	int DoReplaceAll(bool inSelection); // returns number of replacements or negative value if error
-	int ReplaceAll(bool inSelection) override;
-	int ReplaceInBuffers();
+	intptr_t DoReplaceAll(bool inSelection); // returns number of replacements or negative value if error
+	intptr_t ReplaceAll(bool inSelection) override;
+	intptr_t ReplaceInBuffers();
 	void SetFindInFilesOptions();
 	void UIClosed() override;
 	void UIHasFocus() override;
@@ -834,7 +834,7 @@ protected:
 	void FoldAll();
 	void ToggleFoldRecursive(SA::Line line, SA::FoldLevel level);
 	void EnsureAllChildrenVisible(SA::Line line, SA::FoldLevel level);
-	static void EnsureRangeVisible(GUI::ScintillaWindow &win, SA::Position posStart, SA::Position posEnd, bool enforcePolicy = true);
+	static void EnsureRangeVisible(GUI::ScintillaWindow &win, SA::Range range, bool enforcePolicy = true);
 	void GotoLineEnsureVisible(SA::Line line);
 	bool MarginClick(SA::Position position, int modifiers);
 	void NewLineInOutput();
@@ -962,7 +962,7 @@ protected:
 	void PropertyToDirector(const char *arg);
 	// ExtensionAPI
 	intptr_t Send(Pane p, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0) override;
-	std::string Range(Pane p, SA::Position start, SA::Position end) override;
+	std::string Range(Pane p, SA::Range range) override;
 	void Remove(Pane p, SA::Position start, SA::Position end) override;
 	void Insert(Pane p, SA::Position pos, const char *s) override;
 	void Trace(const char *s) override;
