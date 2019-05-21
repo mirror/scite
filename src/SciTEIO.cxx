@@ -416,7 +416,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 	if (props.GetInt("fold.on.open") > 0) {
 		FoldAll();
 	}
-	wEditor.GotoPosition(0);
+	wEditor.GotoPos(0);
 
 	CurrentBuffer()->CompleteLoading();
 
@@ -1026,10 +1026,10 @@ void SciTEBase::StripTrailingSpaces() {
 		const SA::Position lineStart = wEditor.LineStart(line);
 		const SA::Position lineEnd = wEditor.LineEnd(line);
 		SA::Position i = lineEnd - 1;
-		char ch = static_cast<char>(wEditor.CharAt(i));
+		char ch = wEditor.CharacterAt(i);
 		while ((i >= lineStart) && ((ch == ' ') || (ch == '\t'))) {
 			i--;
-			ch = static_cast<char>(wEditor.CharAt(i));
+			ch = wEditor.CharacterAt(i);
 		}
 		if (i < (lineEnd - 1)) {
 			wEditor.SetTarget(SA::Range(i + 1, lineEnd));
@@ -1328,7 +1328,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		CurrentBuffer()->overrideExtension = "x.txt";
 		ReadProperties();
 		SetIndentSettings();
-		wEditor.Colourise(0, -1);
+		wEditor.ColouriseAll();
 		Redraw();
 
 		wEditor.SetSel(0, 0);

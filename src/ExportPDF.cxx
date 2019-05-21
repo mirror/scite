@@ -418,7 +418,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	PDFRender pr;
 
 	RemoveFindMarks();
-	wEditor.Colourise(0, -1);
+	wEditor.ColouriseAll();
 	// read exporter flags
 	int tabSize = props.GetInt("tabsize", PDF_TAB_DEFAULT);
 	if (tabSize < 0) {

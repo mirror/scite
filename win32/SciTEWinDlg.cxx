@@ -948,7 +948,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			dlg.Enable(IDFINDSTYLE, findInStyle);
 			Edit_LimitText(dlg.Item(IDFINDSTYLE), 3);
 			dlg.SetItemText(IDFINDSTYLE, std::to_wstring(
-				wEditor.StyleAt(wEditor.CurrentPosition())));
+				wEditor.UnsignedStyleAt(wEditor.CurrentPos())));
 		}
 		return TRUE;
 
@@ -1039,7 +1039,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		if (FindReplaceAdvanced()) {
 			dlg.Enable(IDFINDSTYLE, findInStyle);
 			dlg.SetItemText(IDFINDSTYLE, std::to_wstring(
-				wEditor.StyleAt(wEditor.CurrentPosition())));
+				wEditor.UnsignedStyleAt(wEditor.CurrentPos())));
 		}
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(::GetDlgItem(hDlg, IDREPLACEWITH));
@@ -1393,7 +1393,7 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
 	case WM_INITDIALOG: {
-			SA::Position position = wEditor.CurrentPosition();
+			SA::Position position = wEditor.CurrentPos();
 			const SA::Line lineNumber = wEditor.LineFromPosition(position) + 1;
 			const SA::Position lineStart = wEditor.LineStart(lineNumber - 1);
 			int characterOnLine = 1;
@@ -1425,7 +1425,7 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 			if (lineNumberOpt || characterOnLineOpt) {
 				const intptr_t lineNumber = lineNumberOpt.value_or(
-					wEditor.LineFromPosition(wEditor.CurrentPosition()) + 1);
+					wEditor.LineFromPosition(wEditor.CurrentPos()) + 1);
 
 				GotoLineEnsureVisible(static_cast<int>(lineNumber - 1));
 
@@ -1439,7 +1439,7 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 					while (--characterOnLine && position < lineEnd)
 						position = wEditor.PositionAfter(position);
 
-					wEditor.GotoPosition(position);
+					wEditor.GotoPos(position);
 				}
 			}
 			::EndDialog(hDlg, IDOK);
@@ -1508,7 +1508,7 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			dlg.SetItemText(IDTABSIZE, std::to_wstring(tabSize));
 
 			::SendDlgItemMessage(hDlg, IDINDENTSIZE, EM_LIMITTEXT, 2, 1);
-			int indentSize = wEditor.IndentSize();
+			int indentSize = wEditor.Indent();
 			if (indentSize > 99)
 				indentSize = 99;
 			dlg.SetItemText(IDINDENTSIZE, std::to_wstring(indentSize));

@@ -447,7 +447,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 		Buffer &bufferCurrent = buffers.buffers[currentbuf];
 		bufferCurrent.file.Set(filePath);
 		if (bufferCurrent.lifeState != Buffer::reading && bufferCurrent.lifeState != Buffer::readAll) {
-			bufferCurrent.file.selection.position = wEditor.CurrentPosition();
+			bufferCurrent.file.selection.position = wEditor.CurrentPos();
 			bufferCurrent.file.selection.anchor = wEditor.Anchor();
 			bufferCurrent.file.scrollPosition = GetCurrentScrollPosition();
 
@@ -903,7 +903,7 @@ void SciTEBase::RestoreState(const Buffer &buffer, bool restoreBookmarks) {
 
 	// check to see whether there is saved fold state, restore
 	if (!buffer.foldState.empty()) {
-		wEditor.Colourise(0, -1);
+		wEditor.ColouriseAll();
 		for (const SA::Line fold : buffer.foldState) {
 			wEditor.ToggleFold(fold);
 		}
@@ -2020,7 +2020,7 @@ void SciTEBase::GoMessage(int dir) {
 							findWhat = cTag;
 							FindNext(false);
 							//get linenumber for marker from found position
-							sourceLine = wEditor.LineFromPosition(wEditor.CurrentPosition());
+							sourceLine = wEditor.LineFromPosition(wEditor.CurrentPos());
 						}
 					}
 				}

@@ -101,7 +101,7 @@ static void defineTexStyle(const StyleDefinition &style, FILE* fp, int istyle) {
 
 void SciTEBase::SaveToTEX(const FilePath &saveName) {
 	RemoveFindMarks();
-	wEditor.Colourise(0, -1);
+	wEditor.ColouriseAll();
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0)
 		tabSize = 4;

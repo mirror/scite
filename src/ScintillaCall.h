@@ -35,13 +35,9 @@ public:
 	// Common APIs made more structured and type-safe
 	Position LineStart(Line line);
 	Position LineEnd(Line line);
-	Position CurrentPosition();
 	Range SelectionRange();
-	void GotoPosition(Position position);
 	Range TargetRange();
 	void SetTarget(Range range);
-	int IndentSize();
-	void Colourise(Range range);
 	void ColouriseAll();
 	char CharacterAt(Position position);
 	int UnsignedStyleAt(Position position);

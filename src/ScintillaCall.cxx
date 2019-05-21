@@ -62,18 +62,10 @@ Position ScintillaCall::LineEnd(Line line) {
 	return Call(Message::GetLineEndPosition, line);
 }
 
-Position ScintillaCall::CurrentPosition() {
-	return Call(Message::GetCurrentPos);
-}
-
 Range ScintillaCall::SelectionRange() {
 	return Range(
 		Call(Message::GetSelectionStart),
 		Call(Message::GetSelectionEnd));
-}
-
-void ScintillaCall::GotoPosition(Position position) {
-	Call(Message::GotoPos, position);
 }
 
 Range ScintillaCall::TargetRange() {
@@ -86,16 +78,8 @@ void ScintillaCall::SetTarget(Range range) {
 	Call(Message::SetTargetRange, range.start, range.end);
 }
 
-int ScintillaCall::IndentSize() {
-	return static_cast<int>(Call(Message::GetIndent));
-}
-
-void ScintillaCall::Colourise(Range range) {
-	Call(Message::Colourise, range.start, range.end);
-}
-
 void ScintillaCall::ColouriseAll() {
-	Call(Message::Colourise, 0, -1);
+	Colourise(0, -1);
 }
 
 char ScintillaCall::CharacterAt(Position position) {

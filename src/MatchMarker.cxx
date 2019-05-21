@@ -93,7 +93,7 @@ void MatchMarker::Continue() {
 			break;
 		}
 
-		if ((styleMatch < 0) || (styleMatch == pSci->StyleAt(rangeFound.start))) {
+		if ((styleMatch < 0) || (styleMatch == pSci->UnsignedStyleAt(rangeFound.start))) {
 			pSci->IndicatorFillRange(rangeFound.start, rangeFound.Length());
 			if (bookMark >= 0) {
 				pSci->MarkerAdd(

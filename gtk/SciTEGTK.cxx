@@ -2889,7 +2889,7 @@ void SciTEGTK::TabSizeDialog() {
 	GtkWidget *labelTabSize = TranslatedLabel("_Tab Size:");
 	table.Label(labelTabSize);
 
-	std::string tabSize = StdStringFromInteger(static_cast<int>(wEditor.TabWidth()));
+	std::string tabSize = StdStringFromInteger(wEditor.TabWidth());
 	dlgTabSize.entryTabSize.Create(tabSize.c_str());
 	table.Add(dlgTabSize.entryTabSize);
 	dlgTabSize.entryTabSize.ActivatesDefault();
@@ -2899,7 +2899,7 @@ void SciTEGTK::TabSizeDialog() {
 	GtkWidget *labelIndentSize = TranslatedLabel("_Indent Size:");
 	table.Label(labelIndentSize);
 
-	std::string indentSize = StdStringFromInteger(static_cast<int>(wEditor.IndentSize()));
+	std::string indentSize = StdStringFromInteger(wEditor.Indent());
 	dlgTabSize.entryIndentSize.Create(indentSize.c_str());
 	table.Add(dlgTabSize.entryIndentSize);
 	dlgTabSize.entryIndentSize.ActivatesDefault();

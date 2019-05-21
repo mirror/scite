@@ -56,7 +56,7 @@ bool TextReader::Match(SA::Position pos, const char *s) {
 }
 
 int TextReader::StyleAt(SA::Position position) {
-	return static_cast<unsigned char>(sw.StyleAt(position));
+	return sw.UnsignedStyleAt(position);
 }
 
 SA::Line TextReader::GetLine(SA::Position position) {

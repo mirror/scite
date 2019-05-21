@@ -1222,7 +1222,7 @@ void SciTEWin::Execute() {
 	cmdWorker.commandTime.Duration(true);
 	cmdWorker.flags = jobQueue.jobQueue[cmdWorker.icmd].flags;
 	if (scrollOutput)
-		wOutput.GotoPosition(wOutput.Length());
+		wOutput.GotoPos(wOutput.Length());
 
 	if (jobQueue.jobQueue[cmdWorker.icmd].jobType == jobExtension) {
 		// Execute extensions synchronously
@@ -1841,7 +1841,7 @@ LRESULT SciTEWin::ContextMenuMessage(UINT iMessage, WPARAM wParam, LPARAM lParam
 		// Caused by keyboard so display menu near caret
 		if (wOutput.HasFocus())
 			w = &wOutput;
-		const SA::Position position = w->CurrentPosition();
+		const SA::Position position = w->CurrentPos();
 		pt.x = w->PointXFromPosition(position);
 		pt.y = w->PointYFromPosition(position);
 		POINT spt = {pt.x, pt.y};

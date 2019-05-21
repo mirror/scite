@@ -119,7 +119,7 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	if (end < 0)
 		end = lengthDoc;
 	RemoveFindMarks();
-	wEditor.Colourise(0, -1);
+	wEditor.ColouriseAll();
 
 	StyleDefinition defaultStyle = StyleDefinitionFor(StyleDefault);
 

@@ -78,7 +78,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 	// but will eventually use utf-8 (once i know how to get them out).
 
 	RemoveFindMarks();
-	wEditor.Colourise(0, -1);
+	wEditor.ColouriseAll();
 
 	int tabSize = props.GetInt("tabsize");
 	if (tabSize == 0) {
