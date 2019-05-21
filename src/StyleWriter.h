@@ -22,13 +22,13 @@ protected:
 	Scintilla::API::Position endPos;
 	int codePage;
 
-	Scintilla::API::ScintillaCall &sw;
+	Scintilla::API::ScintillaCall &sc;
 	Scintilla::API::Position lenDoc;
 
 	bool InternalIsLeadByte(char ch) const;
 	void Fill(Scintilla::API::Position position);
 public:
-	explicit TextReader(Scintilla::API::ScintillaCall &sw_);
+	explicit TextReader(Scintilla::API::ScintillaCall &sc_);
 	// Deleted so TextReader objects can not be copied.
 	TextReader(const TextReader &source) = delete;
 	TextReader &operator=(const TextReader &) = delete;
@@ -71,7 +71,7 @@ protected:
 	Scintilla::API::Position validLen;
 	Scintilla::API::Position startSeg;
 public:
-	explicit StyleWriter(Scintilla::API::ScintillaCall &sw_);
+	explicit StyleWriter(Scintilla::API::ScintillaCall &sc_);
 	// Deleted so StyleWriter objects can not be copied.
 	StyleWriter(const StyleWriter &source) = delete;
 	StyleWriter &operator=(const StyleWriter &) = delete;
