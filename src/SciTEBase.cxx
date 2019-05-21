@@ -239,11 +239,17 @@ void SciTEBase::SetPaneFocus(bool editPane) noexcept {
 	pwFocussed = editPane ? &wEditor : &wOutput;
 }
 
-intptr_t SciTEBase::CallFocused(SA::Message msg, uintptr_t wParam, intptr_t lParam) {
-	if (wOutput.HasFocus())
-		return wOutput.Call(msg, wParam, lParam);
+GUI::ScintillaWindow &SciTEBase::PaneFocused() {
+	return wOutput.HasFocus() ? wOutput : wEditor;
+}
+
+GUI::ScintillaWindow &SciTEBase::PaneSource(int destination) {
+	if (destination == IDM_SRCWIN)
+		return wEditor;
+	else if (destination == IDM_RUNWIN)
+		return wOutput;
 	else
-		return wEditor.Call(msg, wParam, lParam);
+		return PaneFocused();
 }
 
 intptr_t SciTEBase::CallFocusedElseDefault(int defaultValue, SA::Message msg, uintptr_t wParam, intptr_t lParam) {
@@ -253,15 +259,6 @@ intptr_t SciTEBase::CallFocusedElseDefault(int defaultValue, SA::Message msg, ui
 		return wEditor.Call(msg, wParam, lParam);
 	else
 		return defaultValue;
-}
-
-intptr_t SciTEBase::CallPane(int destination, SA::Message msg, uintptr_t wParam, intptr_t lParam) {
-	if (destination == IDM_SRCWIN)
-		return wEditor.Call(msg, wParam, lParam);
-	else if (destination == IDM_RUNWIN)
-		return wOutput.Call(msg, wParam, lParam);
-	else
-		return CallFocused(msg, wParam, lParam);
 }
 
 void SciTEBase::CallChildren(SA::Message msg, uintptr_t wParam, intptr_t lParam) {
@@ -879,12 +876,11 @@ void SciTEBase::SelectionIntoProperties() {
 	std::string word = SelectionWord();
 	props.Set("CurrentWord", word.c_str());
 
-	const SA::Position selStart = CallFocused(SA::Message::GetSelectionStart);
-	const SA::Position selEnd = CallFocused(SA::Message::GetSelectionEnd);
-	props.Set("SelectionStartLine", std::to_string(CallFocused(SA::Message::LineFromPosition, selStart) + 1));
-	props.Set("SelectionStartColumn", std::to_string(CallFocused(SA::Message::GetColumn, selStart) + 1));
-	props.Set("SelectionEndLine", std::to_string(CallFocused(SA::Message::LineFromPosition, selEnd) + 1));
-	props.Set("SelectionEndColumn", std::to_string(CallFocused(SA::Message::GetColumn, selEnd) + 1));
+	const SA::Range range = PaneFocused().SelectionRange();
+	props.Set("SelectionStartLine", std::to_string(PaneFocused().LineFromPosition(range.start) + 1));
+	props.Set("SelectionStartColumn", std::to_string(PaneFocused().Column(range.start) + 1));
+	props.Set("SelectionEndLine", std::to_string(PaneFocused().LineFromPosition(range.end) + 1));
+	props.Set("SelectionEndColumn", std::to_string(PaneFocused().Column(range.end) + 1));
 }
 
 void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
@@ -3158,46 +3154,46 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_UNDO:
-		CallPane(source, SA::Message::Undo);
+		PaneSource(source).Undo();
 		CheckMenus();
 		break;
 	case IDM_REDO:
-		CallPane(source, SA::Message::Redo);
+		PaneSource(source).Redo();
 		CheckMenus();
 		break;
 
 	case IDM_CUT:
-		if (!CallPane(source, SA::Message::GetSelectionEmpty)) {
-			CallPane(source, SA::Message::Cut);
+		if (!PaneSource(source).SelectionEmpty()) {
+			PaneSource(source).Cut();
 		}
 		break;
 	case IDM_COPY:
-		if (!CallPane(source, SA::Message::GetSelectionEmpty)) {
+		if (!PaneSource(source).SelectionEmpty()) {
 			//fprintf(stderr, "Copy from %d\n", source);
-			CallPane(source, SA::Message::Copy);
+			PaneSource(source).Copy();
 		}
 		// does not trigger SCN_UPDATEUI, so do CheckMenusClipboard() here
 		CheckMenusClipboard();
 		break;
 	case IDM_PASTE:
-		CallPane(source, SA::Message::Paste);
+		PaneSource(source).Paste();
 		break;
 	case IDM_DUPLICATE:
-		CallPane(source, SA::Message::SelectionDuplicate);
+		PaneSource(source).SelectionDuplicate();
 		break;
 	case IDM_PASTEANDDOWN: {
-			const SA::Position pos = CallFocused(SA::Message::GetCurrentPos);
-			CallFocused(SA::Message::Paste);
-			CallFocused(SA::Message::SetCurrentPos, pos);
-			CallFocused(SA::Message::CharLeft);
-			CallFocused(SA::Message::LineDown);
+			const SA::Position pos = PaneFocused().CurrentPos();
+			PaneFocused().Paste();
+			PaneFocused().SetCurrentPos(pos);
+			PaneFocused().CharLeft();
+			PaneFocused().LineDown();
 		}
 		break;
 	case IDM_CLEAR:
-		CallPane(source, SA::Message::Clear);
+		PaneSource(source).Clear();
 		break;
 	case IDM_SELECTALL:
-		CallPane(source, SA::Message::SelectAll);
+		PaneSource(source).SelectAll();
 		break;
 	case IDM_COPYASRTF:
 		CopyAsRTF();
@@ -3321,25 +3317,25 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 		break;
 
 	case IDM_UPRCASE:
-		CallFocused(SA::Message::UpperCase);
+		PaneFocused().UpperCase();
 		break;
 
 	case IDM_LWRCASE:
-		CallFocused(SA::Message::LowerCase);
+		PaneFocused().LowerCase();
 		break;
 
 	case IDM_LINEREVERSE:
-		CallFocused(SA::Message::LineReverse);
+		PaneFocused().LineReverse();
 		break;
 
 	case IDM_JOIN:
-		CallFocused(SA::Message::TargetFromSelection);
-		CallFocused(SA::Message::LinesJoin);
+		PaneFocused().TargetFromSelection();
+		PaneFocused().LinesJoin();
 		break;
 
 	case IDM_SPLIT:
-		CallFocused(SA::Message::TargetFromSelection);
-		CallFocused(SA::Message::LinesSplit);
+		PaneFocused().TargetFromSelection();
+		PaneFocused().LinesSplit(0);
 		break;
 
 	case IDM_EXPAND:

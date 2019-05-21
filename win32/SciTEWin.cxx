@@ -1806,7 +1806,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 				if (commandNum < 2000) {
 					SciTEBase::MenuCommand(commandNum);
 				} else {
-					SciTEBase::CallFocused(static_cast<SA::Message>(commandNum));
+					PaneFocused().Call(static_cast<SA::Message>(commandNum));
 				}
 				return 1l;
 			}

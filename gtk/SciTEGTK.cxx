@@ -3442,7 +3442,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 				if (commandNum < 2000) {
 					SciTEBase::MenuCommand(commandNum);
 				} else {
-					SciTEBase::CallFocused(static_cast<SA::Message>(commandNum));
+					PaneFocused().Call(static_cast<SA::Message>(commandNum));
 				}
 				g_signal_stop_emission_by_name(
 				    G_OBJECT(PWidget(wSciTE)), "key_press_event");

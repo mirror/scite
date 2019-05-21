@@ -588,9 +588,9 @@ protected:
 	void ReadDirectoryPropFile();
 
 	void SetPaneFocus(bool editPane) noexcept;
-	intptr_t CallFocused(SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
+	GUI::ScintillaWindow &PaneFocused();
+	GUI::ScintillaWindow &PaneSource(int destination);
 	intptr_t CallFocusedElseDefault(int defaultValue, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
-	intptr_t CallPane(int destination, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
 	void CallChildren(SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
 	std::string GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
 	SA::Position LengthDocument();
