@@ -10,6 +10,7 @@
 
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
+#include "ScintillaCall.h"
 
 #include "MultiplexExtension.h"
 

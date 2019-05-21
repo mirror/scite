@@ -4821,6 +4821,13 @@ void SciTEBase::DoMenuCommand(int cmdID) {
 	MenuCommand(cmdID, 0);
 }
 
+SA::ScintillaCall &SciTEBase::PaneCaller(Pane p) {
+	if (p == paneEditor)
+		return wEditor;
+	else
+		return wOutput;
+}
+
 void SciTEBase::SetFindInFilesOptions() {
 	const std::string wholeWordName = std::string("find.option.wholeword.") + StdStringFromInteger(wholeWord);
 	props.Set("find.wholeword", props.GetNewExpandString(wholeWordName.c_str()));

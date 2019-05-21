@@ -973,6 +973,7 @@ protected:
 	void ShutDown() override;
 	void Perform(const char *actionList) override;
 	void DoMenuCommand(int cmdID) override;
+	SA::ScintillaCall &PaneCaller(Pane p) override;
 
 	// Valid CurrentWord characters
 	bool iswordcharforsel(char ch);

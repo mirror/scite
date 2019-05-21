@@ -400,7 +400,7 @@ static int cf_pane_remove(lua_State *L) {
 static int cf_pane_append(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 	const char *s = luaL_checkstring(L, 2);
-	host->Insert(p, host->Send(p, SA::Message::GetLength), s);
+	host->Insert(p, host->PaneCaller(p).Length(), s);
 	return 0;
 }
 
@@ -426,21 +426,23 @@ static int cf_pane_findtext(lua_State *L) {
 			}
 		}
 
+		SA::ScintillaCall &sc = host->PaneCaller(p);
+
 		if (!hasError) {
 			if (nArgs > 4) {
 				rangeEnd = luaL_checkinteger(L, 5);
 				hasError = (lua_gettop(L) > nArgs);
 			} else {
-				rangeEnd = host->Send(p, SA::Message::GetLength);
+				rangeEnd = sc.Length();
 			}
 		}
 
 		if (!hasError) {
-			host->Send(p, SA::Message::SetTargetRange, rangeStart, rangeEnd);
-			host->Send(p, SA::Message::SetSearchFlags, flags);
-			const SA::Position result = host->Send(p, SA::Message::SearchInTarget, strlen(t), SptrFromString(t));
+			sc.SetTargetRange(rangeStart, rangeEnd);
+			sc.SetSearchFlags(static_cast<SA::FindOption>(flags));
+			const SA::Position result = sc.SearchInTarget(t);
 			if (result >= 0) {
-				const SA::Position posEndFound = host->Send(p, SA::Message::GetTargetEnd);
+				const SA::Position posEndFound = sc.TargetEnd();
 				lua_pushinteger(L, result);
 				lua_pushinteger(L, posEndFound);
 				return 2;
@@ -488,9 +490,10 @@ static int cf_match_replace(lua_State *L) {
 	// whether the back references are still valid.  So for now this is
 	// left out.
 
-	host->Send(pmo->pane, SA::Message::SetTargetRange, pmo->startPos, pmo->endPos);
-	host->Send(pmo->pane, SA::Message::ReplaceTarget, lua_strlen(L, 2), SptrFromString(replacement));
-	pmo->endPos = host->Send(pmo->pane, SA::Message::GetTargetEnd);
+	SA::ScintillaCall &sc = host->PaneCaller(pmo->pane);
+	sc.SetTargetRange(pmo->startPos, pmo->endPos);
+	sc.ReplaceTarget(lua_strlen(L, 2), replacement);
+	pmo->endPos = sc.TargetEnd();
 	return 0;
 }
 
@@ -626,16 +629,18 @@ static int cf_pane_match_generator(lua_State *L) {
 		searchPos++;
 	}
 
+	SA::ScintillaCall &sc = host->PaneCaller(pmo->pane);
+
 	const SA::Position rangeStart = searchPos;
-	const SA::Position rangeEnd = host->Send(pmo->pane, SA::Message::GetLength);
+	const SA::Position rangeEnd = sc.Length();
 
 	if (rangeEnd > rangeStart) {
-		host->Send(pmo->pane, SA::Message::SetTargetRange, rangeStart, rangeEnd);
-		host->Send(pmo->pane, SA::Message::SetSearchFlags, pmo->flags);
-		const SA::Position result = host->Send(pmo->pane, SA::Message::SearchInTarget, strlen(text), SptrFromString(text));
+		sc.SetTargetRange(rangeStart, rangeEnd);
+		sc.SetSearchFlags(static_cast<SA::FindOption>(pmo->flags));
+		const SA::Position result = sc.SearchInTarget(text);
 		if (result >= 0) {
-			pmo->startPos = host->Send(pmo->pane, SA::Message::GetTargetStart);
-			pmo->endPos = pmo->endPosOrig = host->Send(pmo->pane, SA::Message::GetTargetEnd);
+			pmo->startPos = sc.TargetStart();
+			pmo->endPos = pmo->endPosOrig = sc.TargetEnd();
 			lua_pushvalue(L, 2);
 			return 1;
 		}
@@ -932,7 +937,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		failureExplanation += StdStringFromInteger(func.value);
 		failureExplanation += ".\n";
 		// Reset status before continuing
-		host->Send(p, SA::Message::SetStatus, static_cast<uintptr_t>(SA::Status::Ok));
+		host->PaneCaller(p).SetStatus(SA::Status::Ok);
 		host->Trace(failureExplanation.c_str());
 	}
 
@@ -2011,7 +2016,7 @@ bool LuaExtension::OnStyle(SA::Position startPos, SA::Position lengthDoc, int in
 			sc.lengthDoc = lengthDoc;
 			sc.initStyle = initStyle;
 			sc.styler = styler;
-			sc.codePage = static_cast<int>(host->Send(ExtensionAPI::paneEditor, SA::Message::GetCodePage));
+			sc.codePage = host->PaneCaller(ExtensionAPI::paneEditor).CodePage();
 
 			lua_newtable(luaState);
 
