@@ -14,6 +14,7 @@
 #include <ctime>
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <set>
@@ -1885,7 +1886,7 @@ void SciTEBase::ShowMessages(SA::Line line) {
 	while ((line < maxLine) && (acc.StyleAt(acc.LineStart(line)) != SCE_ERR_CMD)) {
 		const SA::Position startPosLine = wOutput.LineStart(line);
 		const SA::Position lineEnd = wOutput.LineEnd(line);
-		std::string message = GetRangeString(wOutput, SA::Range(startPosLine, lineEnd));
+		std::string message = wOutput.StringOfRange(SA::Range(startPosLine, lineEnd));
 		std::string source;
 		SA::Position column;
 		int style = acc.StyleAt(startPosLine);
@@ -1967,7 +1968,7 @@ void SciTEBase::GoMessage(int dir) {
 			        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 			wOutput.MarkerAdd(lookLine, 0);
 			wOutput.SetSel(startPosLine, startPosLine);
-			std::string message = GetRangeString(wOutput, SA::Range(startPosLine, startPosLine + lineLength));
+			std::string message = wOutput.StringOfRange(SA::Range(startPosLine, startPosLine + lineLength));
 			if ((style == SCE_ERR_ESCSEQ) || (style == SCE_ERR_ESCSEQ_UNKNOWN) || (style >= SCE_ERR_ES_BLACK)) {
 				// GCC message with ANSI escape sequences
 				RemoveEscSeq(message);

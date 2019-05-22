@@ -15,6 +15,7 @@
 #include <cmath>
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <set>
@@ -333,21 +334,14 @@ SA::Position SciTEBase::GetCaretInLine() {
 	return caret - lineStart;
 }
 
-void SciTEBase::GetLine(char *text, int sizeText, SA::Line line) {
-	if (line < 0)
-		line = GetCurrentLineNumber();
-	SA::Position lineStart = wEditor.LineStart(line);
-	SA::Position lineEnd = wEditor.LineEnd(line);
-	const SA::Position lineMax = lineStart + sizeText - 1;
-	if (lineEnd > lineMax)
-		lineEnd = lineMax;
-	GetRange(wEditor, SA::Range(lineStart, lineEnd), text);
-	text[lineEnd - lineStart] = '\0';
+std::string SciTEBase::GetLine(SA::Line line) {
+	const SA::Range rangeLine(wEditor.LineStart(line), wEditor.LineEnd(line));
+	return wEditor.StringOfRange(rangeLine);
 }
 
 std::string SciTEBase::GetCurrentLine() {
 	// Get needed buffer size
-	const SA::Position len = wEditor.GetCurLine(0, 0);
+	const SA::Position len = wEditor.GetCurLine(0, nullptr);
 	// Allocate buffer
 	std::string text(len+1, '\0');
 	// And get the line
@@ -355,21 +349,17 @@ std::string SciTEBase::GetCurrentLine() {
 	return text.substr(0, text.length()-1);
 }
 
-void SciTEBase::GetRange(GUI::ScintillaWindow &win, SA::Range range, char *text) {
-	win.SetTarget(range);
-	win.TargetText(text);
-	text[range.end - range.start] = '\0';
-}
-
 /**
  * Check if the given line is a preprocessor condition line.
  * @return The kind of preprocessor condition (enum values).
  */
-int SciTEBase::IsLinePreprocessorCondition(char *line) {
-	char *currChar = line;
+SciTEBase::PreProc SciTEBase::LinePreprocessorCondition(SA::Line line) {
+	const std::string text = GetLine(line);
+
+	const char *currChar = text.c_str();
 
 	if (!currChar) {
-		return false;
+		return PreProc::None;
 	}
 	while (isspacechar(*currChar) && *currChar) {
 		currChar++;
@@ -385,12 +375,12 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
 			word[i++] = *currChar++;
 		}
 		word[i] = '\0';
-		std::map<std::string, PreProcKind>::const_iterator it = preprocOfString.find(word);
+		std::map<std::string, PreProc>::const_iterator it = preprocOfString.find(word);
 		if (it != preprocOfString.end()) {
 			return it->second;
 		}
 	}
-	return ppcNone;
+	return PreProc::None;
 }
 
 /**
@@ -401,22 +391,20 @@ int SciTEBase::IsLinePreprocessorCondition(char *line) {
 bool SciTEBase::FindMatchingPreprocessorCondition(
     SA::Line &curLine,   		///< Number of the line where to start the search
     int direction,   		///< Direction of search: 1 = forward, -1 = backward
-    int condEnd1,   		///< First status of line for which the search is OK
-    int condEnd2) {		///< Second one
+	PreProc condEnd1,   		///< First status of line for which the search is OK
+	PreProc condEnd2) {		///< Second one
 
 	bool isInside = false;
-	char line[800];	// No need for full line
 	int level = 0;
 	const SA::Line maxLines = wEditor.LineCount() - 1;
 
 	while (curLine < maxLines && curLine > 0 && !isInside) {
 		curLine += direction;	// Increment or decrement
-		GetLine(line, sizeof(line), curLine);
-		const int status = IsLinePreprocessorCondition(line);
+		const PreProc status = LinePreprocessorCondition(curLine);
 
-		if ((direction == 1 && status == ppcStart) || (direction == -1 && status == ppcEnd)) {
+		if ((direction == 1 && status == PreProc::Start) || (direction == -1 && status == PreProc::End)) {
 			level++;
-		} else if (level > 0 && ((direction == 1 && status == ppcEnd) || (direction == -1 && status == ppcStart))) {
+		} else if (level > 0 && ((direction == 1 && status == PreProc::End) || (direction == -1 && status == PreProc::Start))) {
 			level--;
 		} else if (level == 0 && (status == condEnd1 || status == condEnd2)) {
 			isInside = true;
@@ -432,49 +420,51 @@ bool SciTEBase::FindMatchingPreprocessorCondition(
  */
 bool SciTEBase::FindMatchingPreprocCondPosition(
     bool isForward,   		///< @c true if search forward
-    SA::Position &mppcAtCaret,   	///< Matching preproc. cond.: current position of caret
+    SA::Position mppcAtCaret,   	///< Matching preproc. cond.: current position of caret
     SA::Position &mppcMatch) {		///< Matching preproc. cond.: matching position
 
 	bool isInside = false;
-	SA::Line curLine;
-	char line[800];	// Probably no need to get more characters, even if the line is longer, unless very strange layout...
-	int status;
 
 	// Get current line
-	curLine = wEditor.LineFromPosition(mppcAtCaret);
-	GetLine(line, sizeof(line), curLine);
-	status = IsLinePreprocessorCondition(line);
+	SA::Line curLine = wEditor.LineFromPosition(mppcAtCaret);
+	const PreProc status = LinePreprocessorCondition(curLine);
 
 	switch (status) {
-	case ppcStart:
+	case PreProc::Start:
 		if (isForward) {
-			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
+			isInside = FindMatchingPreprocessorCondition(curLine, 1,
+				PreProc::Middle, PreProc::End);
 		} else {
 			mppcMatch = mppcAtCaret;
 			return true;
 		}
 		break;
-	case ppcMiddle:
+	case PreProc::Middle:
 		if (isForward) {
-			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
+			isInside = FindMatchingPreprocessorCondition(curLine, 1,
+				PreProc::Middle, PreProc::End);
 		} else {
-			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
+			isInside = FindMatchingPreprocessorCondition(curLine, -1,
+				PreProc::Start, PreProc::Middle);
 		}
 		break;
-	case ppcEnd:
+	case PreProc::End:
 		if (isForward) {
 			mppcMatch = mppcAtCaret;
 			return true;
 		} else {
-			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
+			isInside = FindMatchingPreprocessorCondition(curLine, -1,
+				PreProc::Start, PreProc::Middle);
 		}
 		break;
 	default:   	// Should be noPPC
 
 		if (isForward) {
-			isInside = FindMatchingPreprocessorCondition(curLine, 1, ppcMiddle, ppcEnd);
+			isInside = FindMatchingPreprocessorCondition(curLine, 1,
+				PreProc::Middle, PreProc::End);
 		} else {
-			isInside = FindMatchingPreprocessorCondition(curLine, -1, ppcStart, ppcMiddle);
+			isInside = FindMatchingPreprocessorCondition(curLine, -1,
+				PreProc::Start, PreProc::Middle);
 		}
 		break;
 	}
@@ -698,7 +688,7 @@ std::string SciTEBase::GetCTag() {
 	}
 
 	if (selStart < selEnd) {
-		return GetRangeString(*pwFocussed, SA::Range(selStart, selEnd));
+		return pwFocussed->StringOfRange(SA::Range(selStart, selEnd));
 	} else {
 		return std::string();
 	}
@@ -769,19 +759,8 @@ void SciTEBase::HighlightCurrentWord(bool highlight) {
 	SetIdler(true);
 }
 
-std::string SciTEBase::GetRangeString(GUI::ScintillaWindow &win, SA::Range range) {
-	if (range.start == range.end) {
-		return std::string();
-	} else {
-		std::string sel(range.end - range.start, '\0');
-		win.SetTarget(range);
-		win.TargetText(&sel[0]);
-		return sel;
-	}
-}
-
 std::string SciTEBase::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range) {
-	return GetRangeString(win, range);
+	return win.StringOfRange(range);
 }
 
 std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, SA::Line line) {
@@ -789,7 +768,7 @@ std::string SciTEBase::GetLine(GUI::ScintillaWindow &win, SA::Line line) {
 	const SA::Position lineEnd = win.LineEnd(line);
 	if ((lineStart < 0) || (lineEnd < 0))
 		return std::string();
-	return GetRangeString(win, SA::Range(lineStart, lineEnd));
+	return win.StringOfRange(SA::Range(lineStart, lineEnd));
 }
 
 void SciTEBase::RangeExtend(
@@ -1731,7 +1710,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 				wordEnd++;
 			const SA::Position wordLength = wordEnd - posFind;
 			if (wordLength > static_cast<SA::Position>(root.length())) {
-				std::string word = GetRangeString(wEditor, SA::Range(posFind, wordEnd));
+				std::string word = wEditor.StringOfRange(SA::Range(posFind, wordEnd));
 				word.insert(0, "\n");
 				word.append("\n");
 				if (wordsNear.find(word.c_str()) == std::string::npos) {	// add a new entry
@@ -2033,7 +2012,7 @@ bool SciTEBase::StartBlockComment() {
 		if (!placeCommentsAtLineStart) {
 			lineIndent = GetLineIndentPosition(i);
 		}
-		std::string linebuf = GetRangeString(wEditor, SA::Range(lineIndent, lineEnd));
+		std::string linebuf = wEditor.StringOfRange(SA::Range(lineIndent, lineEnd));
 		// empty lines are not commented
 		if (linebuf.length() < 1)
 			continue;
@@ -2139,7 +2118,7 @@ bool SciTEBase::StartBoxComment() {
 
 	// Insert start_comment if needed
 	SA::Position lineStart = wEditor.LineStart(selStartLine);
-	std::string tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + start_comment_length));
+	std::string tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + start_comment_length));
 	if (start_comment != tempString) {
 		wEditor.InsertText(lineStart, start_comment.c_str());
 		selectionStart += start_comment_length;
@@ -2149,7 +2128,7 @@ bool SciTEBase::StartBoxComment() {
 	if (lines <= 1) {
 		// Only a single line was selected, so just append whitespace + end-comment at end of line if needed
 		const SA::Position lineEnd = wEditor.LineEnd(selEndLine);
-		tempString = GetRangeString(wEditor, SA::Range(lineEnd - end_comment_length, lineEnd));
+		tempString = wEditor.StringOfRange(SA::Range(lineEnd - end_comment_length, lineEnd));
 		if (end_comment != tempString) {
 			end_comment.insert(0, white_space.c_str());
 			wEditor.InsertText(lineEnd, end_comment.c_str());
@@ -2158,7 +2137,7 @@ bool SciTEBase::StartBoxComment() {
 		// More than one line selected, so insert middle_comments where needed
 		for (SA::Line i = selStartLine + 1; i < selEndLine; i++) {
 			lineStart = wEditor.LineStart(i);
-			tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + middle_comment_length));
+			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + middle_comment_length));
 			if (middle_comment != tempString) {
 				wEditor.InsertText(lineStart, middle_comment.c_str());
 				selectionEnd += middle_comment_length;
@@ -2170,9 +2149,9 @@ bool SciTEBase::StartBoxComment() {
 		// and end-comment tag after the last line (extra logic is necessary to
 		// deal with the case that user selected the end-comment tag)
 		lineStart = wEditor.LineStart(selEndLine);
-		tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + end_comment_length));
+		tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + end_comment_length));
 		if (end_comment != tempString) {
-			tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + middle_comment_length));
+			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + middle_comment_length));
 			if (middle_comment != tempString) {
 				wEditor.InsertText(lineStart, middle_comment.c_str());
 				selectionEnd += middle_comment_length;
@@ -2181,7 +2160,7 @@ bool SciTEBase::StartBoxComment() {
 			// And since we didn't find the end-comment string yet, we need to check the *next* line
 			//  to see if it's necessary to insert an end-comment string and a linefeed there....
 			lineStart = wEditor.LineStart(selEndLine + 1);
-			tempString = GetRangeString(wEditor, SA::Range(lineStart, lineStart + end_comment_length));
+			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + end_comment_length));
 			if (end_comment != tempString) {
 				end_comment += eol;
 				wEditor.InsertText(lineStart, end_comment.c_str());
@@ -2410,7 +2389,7 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 		const SA::Position indentPos = GetLineIndentPosition(line);
 		const int maxIndentation = 1000;
 		if (indent < maxIndentation) {
-			std::string indentationNow = GetRangeString(wEditor, SA::Range(lineStart, indentPos));
+			std::string indentationNow = wEditor.StringOfRange(SA::Range(lineStart, indentPos));
 			std::string indentationWanted = CreateIndentation(indent, tabSize, !useTabs);
 			if (indentationNow != indentationWanted) {
 				wEditor.SetTarget(SA::Range(lineStart, indentPos));
@@ -2789,7 +2768,7 @@ bool SciTEBase::HandleXml(char ch) {
 	if (nCaret - nMin < 3) {
 		return false; // Smallest tag is 3 characters ex. <p>
 	}
-	std::string sel = GetRangeString(wEditor, SA::Range(nMin, nCaret));
+	std::string sel = wEditor.StringOfRange(SA::Range(nMin, nCaret));
 
 	if (sel[nCaret - nMin - 2] == '/') {
 		// User typed something like "<br/>"
@@ -4726,12 +4705,10 @@ intptr_t SciTEBase::Send(Pane p, SA::Message msg, uintptr_t wParam, intptr_t lPa
 		return wOutput.Call(msg, wParam, lParam);
 }
 std::string SciTEBase::Range(Pane p, SA::Range range) {
-	std::string s(range.Length(), '\0');
 	if (p == paneEditor)
-		GetRange(wEditor, range, s.data());
+		return wEditor.StringOfRange(range);
 	else
-		GetRange(wOutput, range, s.data());
-	return s;
+		return wOutput.StringOfRange(range);
 }
 void SciTEBase::Remove(Pane p, SA::Position start, SA::Position end) {
 	if (p == paneEditor) {

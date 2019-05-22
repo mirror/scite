@@ -15,6 +15,7 @@
 #include <ctime>
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <set>
@@ -154,7 +155,7 @@ void SciTEBase::DiscoverEOLSetting() {
 // Look inside the first line for a #! clue regarding the language
 std::string SciTEBase::DiscoverLanguage() {
 	const SA::Position length = std::min<SA::Position>(LengthDocument(), 64 * 1024);
-	std::string buf = GetRangeString(wEditor, SA::Range(0, length));
+	std::string buf = wEditor.StringOfRange(SA::Range(0, length));
 	std::string languageOverride = "";
 	std::string l1 = ExtractLine(buf.c_str(), length);
 	if (StartsWith(l1, "<?xml")) {
@@ -1119,7 +1120,10 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 						grabSize = blockSize;
 					// Round down so only whole characters retrieved.
 					grabSize = wEditor.PositionBefore(i + grabSize + 1) - i;
-					GetRange(wEditor, SA::Range(static_cast<SA::Position>(i), static_cast<SA::Position>(i + grabSize)), &data[0]);
+					const SA::Range rangeGrab(static_cast<SA::Position>(i),
+						static_cast<SA::Position>(i + grabSize));
+					wEditor.SetTarget(rangeGrab);
+					wEditor.TargetText(&data[0]);
 					const size_t written = convert.fwrite(&data[0], grabSize);
 					if (written == 0) {
 						retVal = false;

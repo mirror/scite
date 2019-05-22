@@ -10,6 +10,7 @@
 
 #include <cstdint>
 
+#include <string>
 #include <string_view>
 
 #include "ScintillaTypes.h"
@@ -89,6 +90,17 @@ char ScintillaCall::CharacterAt(Position position) {
 int ScintillaCall::UnsignedStyleAt(Position position) {
 	// Returns signed value but easier to use as unsigned
 	return static_cast<unsigned char>(Call(Message::GetStyleAt, position));
+}
+
+std::string ScintillaCall::StringOfRange(Range range) {
+	if (range.Length() == 0) {
+		return std::string();
+	} else {
+		std::string text(range.Length(), '\0');
+		SetTarget(range);
+		TargetText(text.data());
+		return text;
+	}
 }
 
 Position ScintillaCall::ReplaceTarget(std::string_view text) {

@@ -41,6 +41,7 @@ public:
 	void ColouriseAll();
 	char CharacterAt(Position position);
 	int UnsignedStyleAt(Position position);
+	std::string StringOfRange(Range range);
 	Position ReplaceTarget(std::string_view text);
 	Position ReplaceTargetRE(std::string_view text);
 	Position SearchInTarget(std::string_view text);

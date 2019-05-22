@@ -420,9 +420,9 @@ protected:
 	StyleAndWords statementEnd;
 	StyleAndWords blockStart;
 	StyleAndWords blockEnd;
-	enum PreProcKind { ppcNone, ppcStart, ppcMiddle, ppcEnd, ppcDummy };	///< Indicate the kind of preprocessor condition line
+	enum class PreProc { None, Start, Middle, End, Dummy };	///< Indicate the kind of preprocessor condition line
 	char preprocessorSymbol;	///< Preprocessor symbol (in C, #)
-	std::map<std::string, PreProcKind> preprocOfString; ///< Map preprocessor keywords to positions
+	std::map<std::string, PreProc> preprocOfString; ///< Map preprocessor keywords to positions
 	/// In C, if ifdef ifndef : start, else elif : middle, endif : end.
 
 	GUI::Window wSciTE;  ///< Contains wToolBar, wTabBar, wContent, and wStatusBar
@@ -595,12 +595,11 @@ protected:
 	std::string GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
 	SA::Position LengthDocument();
 	SA::Position GetCaretInLine();
-	void GetLine(char *text, int sizeText, SA::Line line = -1);
+	std::string GetLine(SA::Line line);
 	std::string GetCurrentLine();
-	static void GetRange(GUI::ScintillaWindow &win, SA::Range range, char *text);
-	int IsLinePreprocessorCondition(char *line);
-	bool FindMatchingPreprocessorCondition(SA::Line &curLine, int direction, int condEnd1, int condEnd2);
-	bool FindMatchingPreprocCondPosition(bool isForward, SA::Position &mppcAtCaret, SA::Position &mppcMatch);
+	PreProc LinePreprocessorCondition(SA::Line line);
+	bool FindMatchingPreprocessorCondition(SA::Line &curLine, int direction, PreProc condEnd1, PreProc condEnd2);
+	bool FindMatchingPreprocCondPosition(bool isForward, SA::Position mppcAtCaret, SA::Position &mppcMatch);
 	bool FindMatchingBracePosition(bool editor, SA::Position &braceAtCaret, SA::Position &braceOpposite, bool sloppy);
 	void BraceMatch(bool editor);
 
@@ -708,7 +707,6 @@ protected:
 	SelectedRange GetSelectedRange();
 	void SetSelection(SA::Position anchor, SA::Position currentPos);
 	std::string GetCTag();
-	static std::string GetRangeString(GUI::ScintillaWindow &win, SA::Range range);
 	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range);
 	static std::string GetLine(GUI::ScintillaWindow &win, SA::Line line);
 	void RangeExtend(GUI::ScintillaWindow &wCurrent, SA::Range &range,

@@ -14,6 +14,7 @@
 #include <clocale>
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <set>
@@ -1105,12 +1106,12 @@ void SciTEBase::ReadProperties() {
 
 	struct PropToPPC {
 		const char *propName;
-		PreProcKind ppc;
+		PreProc ppc;
 	};
 	PropToPPC propToPPC[] = {
-		{"preprocessor.start.", ppcStart},
-		{"preprocessor.middle.", ppcMiddle},
-		{"preprocessor.end.", ppcEnd},
+		{"preprocessor.start.", PreProc::Start},
+		{"preprocessor.middle.", PreProc::Middle},
+		{"preprocessor.end.", PreProc::End},
 	};
 	const std::string ppSymbol = props.GetNewExpandString("preprocessor.symbol.", fileNameForExtension.c_str());
 	preprocessorSymbol = ppSymbol.empty() ? 0 : ppSymbol[0];
