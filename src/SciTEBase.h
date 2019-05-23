@@ -262,7 +262,7 @@ struct CurrentWordHighlight {
 	enum {
 		noDelay,            // No delay, and no word at the caret.
 		delay,              // Delay before to highlight the word at the caret.
-		delayJustEnded,     // Delay has just ended. This state allows to ignore next HighlightCurrentWord (SCN_UPDATEUI and SC_UPDATE_CONTENT for setting indicators).
+		delayJustEnded,     // Delay has just ended. This state allows to ignore next HighlightCurrentWord (UpdateUI and SC_UPDATE_CONTENT for setting indicators).
 		delayAlreadyElapsed // Delay has already elapsed, word at the caret and occurrences are (or have to be) highlighted.
 	} statesOfDelay;
 	bool isEnabled;

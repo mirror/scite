@@ -3126,7 +3126,7 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			//fprintf(stderr, "Copy from %d\n", source);
 			PaneSource(source).Copy();
 		}
-		// does not trigger SCN_UPDATEUI, so do CheckMenusClipboard() here
+		// does not trigger Notification::UpdateUI, so do CheckMenusClipboard() here
 		CheckMenusClipboard();
 		break;
 	case IDM_PASTE:
@@ -3824,8 +3824,8 @@ void SciTEBase::NewLineInOutput() {
 
 void SciTEBase::Notify(SCNotification *notification) {
 	bool handled = false;
-	switch (notification->nmhdr.code) {
-	case SCN_PAINTED:
+	switch (static_cast<SA::Notification>(notification->nmhdr.code)) {
+	case SA::Notification::Painted:
 		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
 			// Obly highlight focussed pane.
 			// Manage delay before highlight when no user selection but there is word at the caret.
@@ -3842,16 +3842,16 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_FOCUSIN:
+	case SA::Notification::FocusIn:
 		SetPaneFocus(notification->nmhdr.idFrom == IDM_SRCWIN);
 		CheckMenus();
 		break;
 
-	case SCN_FOCUSOUT:
+	case SA::Notification::FocusOut:
 		CheckMenus();
 		break;
 
-	case SCN_STYLENEEDED: {
+	case SA::Notification::StyleNeeded: {
 			if (extender) {
 				// Colourisation may be performed by script
 				if ((notification->nmhdr.idFrom == IDM_SRCWIN) && (lexLanguage == SCLEX_CONTAINER)) {
@@ -3871,7 +3871,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_CHARADDED:
+	case SA::Notification::CharAdded:
 		if (extender)
 			handled = extender->OnChar(static_cast<char>(notification->ch));
 		if (!handled) {
@@ -3883,7 +3883,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_SAVEPOINTREACHED:
+	case SA::Notification::SavePointReached:
 		if (notification->nmhdr.idFrom == IDM_SRCWIN) {
 			if (extender)
 				handled = extender->OnSavePointReached();
@@ -3896,7 +3896,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		SetBuffersMenu();
 		break;
 
-	case SCN_SAVEPOINTLEFT:
+	case SA::Notification::SavePointLeft:
 		if (notification->nmhdr.idFrom == IDM_SRCWIN) {
 			if (extender)
 				handled = extender->OnSavePointLeft();
@@ -3910,7 +3910,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		SetBuffersMenu();
 		break;
 
-	case SCN_DOUBLECLICK:
+	case SA::Notification::DoubleClick:
 		if (extender)
 			handled = extender->OnDoubleClick();
 		if (!handled && notification->nmhdr.idFrom == IDM_RUNWIN) {
@@ -3918,7 +3918,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_UPDATEUI:
+	case SA::Notification::UpdateUI:
 		if (extender)
 			handled = extender->OnUpdateUI();
 		if (!handled) {
@@ -3949,7 +3949,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_MODIFIED:
+	case SA::Notification::Modified:
 		if ((notification->nmhdr.idFrom == IDM_SRCWIN) && 
 			(notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)))
 			CurrentBuffer()->DocumentModified();
@@ -3980,7 +3980,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_MARGINCLICK: {
+	case SA::Notification::MarginClick: {
 			if (extender)
 				handled = extender->OnMarginClick();
 			if (!handled) {
@@ -3991,12 +3991,12 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_NEEDSHOWN: {
+	case SA::Notification::NeedShown: {
 			EnsureRangeVisible(wEditor, SA::Range(notification->position, notification->position + notification->length), false);
 		}
 		break;
 
-	case SCN_USERLISTSELECTION: {
+	case SA::Notification::UserListSelection: {
 			if (notification->wParam == 2)
 				ContinueMacroList(notification->text);
 			else if (extender && notification->wParam > 2)
@@ -4004,7 +4004,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_CALLTIPCLICK: {
+	case SA::Notification::CallTipClick: {
 			if (notification->position == 1 && currentCallTip > 0) {
 				currentCallTip--;
 				FillFunctionDefinition();
@@ -4015,15 +4015,15 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_MACRORECORD:
+	case SA::Notification::MacroRecord:
 		RecordMacroCommand(notification);
 		break;
 
-	case SCN_URIDROPPED:
+	case SA::Notification::URIDropped:
 		OpenUriList(notification->text);
 		break;
 
-	case SCN_DWELLSTART:
+	case SA::Notification::DwellStart:
 		if (extender && (SA::InvalidPosition != notification->position)) {
 			SA::Range range(notification->position);
 			std::string message =
@@ -4035,18 +4035,22 @@ void SciTEBase::Notify(SCNotification *notification) {
 		}
 		break;
 
-	case SCN_DWELLEND:
+	case SA::Notification::DwellEnd:
 		if (extender) {
 			extender->OnDwellStart(0,""); // flags end of calltip
 		}
 		break;
 
-	case SCN_ZOOM:
+	case SA::Notification::Zoom:
 		SetLineNumberWidth();
 		break;
 
-	case SCN_MODIFYATTEMPTRO:
+	case SA::Notification::ModifyAttemptRO:
 		AbandonAutomaticSave();
+		break;
+
+	default:
+		// Avoid warning for unhandled enumeration for notifications SciTEBase not interested in
 		break;
 	}
 }
@@ -4420,7 +4424,7 @@ void SciTEBase::StartRecordMacro() {
 }
 
 /**
- * Received a SCN_MACRORECORD from Scintilla: send it to director.
+ * Received a Notification::MacroRecord from Scintilla: send it to director.
  */
 bool SciTEBase::RecordMacroCommand(const SCNotification *notification) {
 	if (extender) {
