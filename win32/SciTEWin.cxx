@@ -1404,7 +1404,7 @@ void SciTEWin::CreateUI() {
 	UIAvailable();
 }
 
-static bool IsASpace(int ch) noexcept {
+static bool IsSpaceOrTab(GUI::gui_char ch) noexcept {
 	return (ch == ' ') || (ch == '\t');
 }
 
@@ -1417,7 +1417,7 @@ GUI::gui_string SciTEWin::ProcessArgs(const GUI::gui_char *cmdLine) {
 	GUI::gui_string args;
 	const GUI::gui_char *startArg = cmdLine;
 	while (*startArg) {
-		while (IsASpace(*startArg)) {
+		while (IsSpaceOrTab(*startArg)) {
 			startArg++;
 		}
 		const GUI::gui_char *endArg = startArg;
@@ -1428,7 +1428,7 @@ GUI::gui_string SciTEWin::ProcessArgs(const GUI::gui_char *cmdLine) {
 				endArg++;
 			}
 		} else {	// No double-quote, end of argument on first space
-			while (*endArg && !IsASpace(*endArg)) {
+			while (*endArg && !IsSpaceOrTab(*endArg)) {
 				endArg++;
 			}
 		}
@@ -1440,7 +1440,7 @@ GUI::gui_string SciTEWin::ProcessArgs(const GUI::gui_char *cmdLine) {
 		if (*startArg == '"') {	// Closing double-quote
 			startArg++;	// Consume the double-quote
 		}
-		while (IsASpace(*startArg)) {
+		while (IsSpaceOrTab(*startArg)) {
 			// Consume spaces between arguments
 			startArg++;
 		}

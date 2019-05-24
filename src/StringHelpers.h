@@ -40,6 +40,10 @@ inline constexpr bool IsASCII(int ch) {
 	return (ch >= 0) && (ch < 0x80);
 }
 
+inline constexpr bool IsASpace(int ch) {
+	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
+}
+
 intptr_t IntegerFromText(const char *s) noexcept;
 
 // StringSplit can be expanded over std::string or GUI::gui_string

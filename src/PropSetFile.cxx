@@ -36,10 +36,6 @@
 // The comparison and case changing functions here assume ASCII
 // or extended ASCII such as the normal Windows code page.
 
-inline bool IsASpace(unsigned int ch) {
-    return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
-}
-
 static std::set<std::string> FilterFromString(const std::string &values) {
 	std::vector<std::string> vsFilter = StringSplit(values, ' ');
 	std::set<std::string> fs;
