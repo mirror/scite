@@ -4774,7 +4774,7 @@ void SciTEBase::DoMenuCommand(int cmdID) {
 	MenuCommand(cmdID, 0);
 }
 
-SA::ScintillaCall &SciTEBase::PaneCaller(Pane p) {
+SA::ScintillaCall &SciTEBase::PaneCaller(Pane p) noexcept {
 	if (p == paneEditor)
 		return wEditor;
 	else

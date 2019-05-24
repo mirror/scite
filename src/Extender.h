@@ -44,7 +44,7 @@ public:
 	virtual void UserStripSet(int control, const char *value)=0;
 	virtual void UserStripSetList(int control, const char *value)=0;
 	virtual std::string UserStripValue(int control)=0;
-	virtual Scintilla::API::ScintillaCall &PaneCaller(Pane p)=0;
+	virtual Scintilla::API::ScintillaCall &PaneCaller(Pane p) noexcept =0;
 };
 
 /**
