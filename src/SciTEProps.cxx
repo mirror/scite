@@ -297,8 +297,7 @@ void SciTEBase::SetOneStyle(GUI::ScintillaWindow &win, int style, const StyleDef
 	if (sd.specified & StyleDefinition::sdWeight)
 		win.StyleSetWeight(style, sd.weight);
 	if (sd.specified & StyleDefinition::sdFont)
-		win.StyleSetFont(style,
-			sd.font.c_str());
+		win.StyleSetFont(style, sd.font.c_str());
 	if (sd.specified & StyleDefinition::sdFore)
 		win.StyleSetFore(style, sd.Fore());
 	if (sd.specified & StyleDefinition::sdBack)
@@ -370,10 +369,8 @@ std::string SciTEBase::ExtensionFileName() const {
 void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	if (props.Exists(key)) {
 		std::string value = props.GetExpandedString(key);
-		wEditor.SetProperty(
-						 key, value.c_str());
-		wOutput.SetProperty(
-						 key, value.c_str());
+		wEditor.SetProperty(key, value.c_str());
+		wOutput.SetProperty(key, value.c_str());
 	}
 }
 
@@ -982,8 +979,7 @@ void SciTEBase::ReadProperties() {
 	if (autoCompleteFillUpCharacters == "")
 		autoCompleteFillUpCharacters =
 			props.GetExpandedString("autocomplete.*.fillups");
-	wEditor.AutoCSetFillUps(
-		autoCompleteFillUpCharacters.c_str());
+	wEditor.AutoCSetFillUps(autoCompleteFillUpCharacters.c_str());
 
 	sprintf(key, "autocomplete.%s.typesep", language.c_str());
 	autoCompleteTypeSeparator = props.GetExpandedString(key);
@@ -1135,7 +1131,6 @@ void SciTEBase::ReadProperties() {
 	wEditor.SetIdleStyling(idleStyling);
 	wOutput.SetIdleStyling(static_cast<SA::IdleStyling>(props.GetInt("output.idle.styling", static_cast<int>(SA::IdleStyling::None))));
 
-	
 	if (props.GetInt("os.x.home.end.keys")) {
 		AssignKey(SA::Keys::Home, SA::KeyMod::Norm, SCI_SCROLLTOSTART);
 		AssignKey(SA::Keys::Home, SA::KeyMod::Shift, SCI_NULL);
@@ -1341,8 +1336,7 @@ void SciTEBase::ReadProperties() {
 		static_cast<SA::Alpha>(props.GetInt("bookmark.alpha", static_cast<int>(SA::Alpha::NoAlpha))));
 	const std::string bookMarkXPM = props.GetString("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
-		wEditor.MarkerDefinePixmap(markerBookmark,
-			bookMarkXPM.c_str());
+		wEditor.MarkerDefinePixmap(markerBookmark, bookMarkXPM.c_str());
 	} else if (props.GetString("bookmark.fore").length()) {
 		wEditor.MarkerDefine(markerBookmark, static_cast<SA::MarkerSymbol>(
 			props.GetInt("bookmark.symbol", static_cast<int>(SA::MarkerSymbol::Bookmark))));

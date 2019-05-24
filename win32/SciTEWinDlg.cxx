@@ -687,9 +687,7 @@ void SciTEWin::Print(
 		frPrint.chrg.cpMin = lengthPrinted;
 		frPrint.chrg.cpMax = lengthDoc;
 
-		lengthPrinted = static_cast<LONG>(wEditor.FormatRange(
-		                           printPage,
-		                           &frPrint));
+		lengthPrinted = static_cast<LONG>(wEditor.FormatRange(printPage, &frPrint));
 
 		if (printPage) {
 			if (footerFormat.size()) {
