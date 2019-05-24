@@ -451,9 +451,9 @@ void SciTEWin::Print(
 	// This code will not work for documents > 2GB
 
 	// See if a range has been selected
-	const SA::Range crange = GetSelection();
-	const LONG startPos = static_cast<LONG>(crange.start);
-	const LONG endPos = static_cast<LONG>(crange.end);
+	const SA::Range rangeSelection = GetSelection();
+	const LONG startPos = static_cast<LONG>(rangeSelection.start);
+	const LONG endPos = static_cast<LONG>(rangeSelection.end);
 
 	if (startPos == endPos) {
 		pdlg.Flags |= PD_NOSELECTION;
@@ -1425,14 +1425,14 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 				const intptr_t lineNumber = lineNumberOpt.value_or(
 					wEditor.LineFromPosition(wEditor.CurrentPos()) + 1);
 
-				GotoLineEnsureVisible(static_cast<int>(lineNumber - 1));
+				GotoLineEnsureVisible(lineNumber - 1);
 
 				if (characterOnLineOpt && characterOnLineOpt.value() > 1 && lineNumber <= wEditor.LineCount()) {
 					// Constrain to the requested line
 					const SA::Position lineStart = wEditor.LineStart(lineNumber - 1);
 					const SA::Position lineEnd = wEditor.LineEnd(lineNumber - 1);
 
-					intptr_t characterOnLine = characterOnLineOpt.value();
+					SA::Position characterOnLine = characterOnLineOpt.value();
 					SA::Position position = lineStart;
 					while (--characterOnLine && position < lineEnd)
 						position = wEditor.PositionAfter(position);
