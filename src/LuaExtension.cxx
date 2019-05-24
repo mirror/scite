@@ -366,8 +366,8 @@ static int cf_pane_textrange(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
 
 	if (lua_gettop(L) >= 3) {
-		const SA::Position cpMin = luaL_checknumber(L, 2);
-		const SA::Position cpMax = luaL_checknumber(L, 3);
+		const SA::Position cpMin = luaL_checkinteger(L, 2);
+		const SA::Position cpMax = luaL_checkinteger(L, 3);
 		if (cpMax >= 0) {
 			std::string range = host->Range(p, SA::Range(cpMin, cpMax));
 			lua_pushstring(L, range.c_str());
@@ -384,7 +384,7 @@ static int cf_pane_textrange(lua_State *L) {
 
 static int cf_pane_insert(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
-	const SA::Position pos = luaL_checknumber(L, 2);
+	const SA::Position pos = luaL_checkinteger(L, 2);
 	const char *s = luaL_checkstring(L, 3);
 	host->Insert(p, pos, s);
 	return 0;
@@ -392,8 +392,8 @@ static int cf_pane_insert(lua_State *L) {
 
 static int cf_pane_remove(lua_State *L) {
 	const ExtensionAPI::Pane p = check_pane_object(L, 1);
-	const SA::Position cpMin = luaL_checknumber(L, 2);
-	const SA::Position cpMax = luaL_checknumber(L, 3);
+	const SA::Position cpMin = luaL_checkinteger(L, 2);
+	const SA::Position cpMax = luaL_checkinteger(L, 3);
 	host->Remove(p, cpMin, cpMax);
 	return 0;
 }
@@ -582,7 +582,7 @@ static int cf_pane_match(lua_State *L) {
 		if (nargs >= 3) {
 			pmo->flags = luaL_checkint(L, 3);
 			if (nargs >= 4) {
-				pmo->range.end = pmo->endPosOrig = luaL_checkint(L, 4);
+				pmo->range.end = pmo->endPosOrig = luaL_checkinteger(L, 4);
 				if (pmo->range.end < 0) {
 					raise_error(L, "Invalid argument 3 for <pane>:match.  Positive number or zero expected.");
 					return 0;
@@ -895,14 +895,14 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 			const char *s = lua_tostring(L, arg++);
 			params[i] = SptrFromString(s ? s : "");
 		} else if (func.paramType[i] == iface_keymod) {
-			const int keycode = static_cast<int>(luaL_checknumber(L, arg++)) & 0xFFFF;
-			const int modifiers = static_cast<int>(luaL_checknumber(L, arg++)) &
+			const int keycode = luaL_checkint(L, arg++) & 0xFFFF;
+			const int modifiers = luaL_checkint(L, arg++) &
 				static_cast<int>(SA::KeyMod::Shift|SA::KeyMod::Ctrl|SA::KeyMod::Alt);
 			params[i] = keycode | (modifiers<<16);
 		} else if (func.paramType[i] == iface_bool) {
 			params[i] = lua_toboolean(L, arg++);
 		} else if (IFaceTypeIsNumeric(func.paramType[i])) {
-			params[i] = luaL_checknumber(L, arg++);
+			params[i] = luaL_checkinteger(L, arg++);
 		}
 	}
 
@@ -1752,51 +1752,51 @@ struct StylingContext {
 
 	static int Line(lua_State *L) {
 		StylingContext *context = Context(L);
-		const SA::Position position = luaL_checknumber(L, 2);
+		const SA::Position position = luaL_checkinteger(L, 2);
 		lua_pushinteger(L, context->styler->GetLine(position));
 		return 1;
 	}
 
 	static int CharAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		const SA::Position position = luaL_checknumber(L, 2);
+		const SA::Position position = luaL_checkinteger(L, 2);
 		lua_pushinteger(L, context->styler->SafeGetCharAt(position));
 		return 1;
 	}
 
 	static int StyleAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		const SA::Position position = luaL_checknumber(L, 2);
+		const SA::Position position = luaL_checkinteger(L, 2);
 		lua_pushinteger(L, context->styler->StyleAt(position));
 		return 1;
 	}
 
 	static int LevelAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		const SA::Line line = luaL_checknumber(L, 2);
+		const SA::Line line = luaL_checkinteger(L, 2);
 		lua_pushinteger(L, static_cast<int>(context->styler->LevelAt(line)));
 		return 1;
 	}
 
 	static int SetLevelAt(lua_State *L) {
 		StylingContext *context = Context(L);
-		const SA::Line line = luaL_checknumber(L, 2);
-		const int level = luaL_checknumber(L, 3);
+		const SA::Line line = luaL_checkinteger(L, 2);
+		const int level = luaL_checkint(L, 3);
 		context->styler->SetLevel(line, static_cast<SA::FoldLevel>(level));
 		return 0;
 	}
 
 	static int LineState(lua_State *L) {
 		StylingContext *context = Context(L);
-		const SA::Line line = luaL_checknumber(L, 2);
+		const SA::Line line = luaL_checkinteger(L, 2);
 		lua_pushinteger(L, context->styler->GetLineState(line));
 		return 1;
 	}
 
 	static int SetLineState(lua_State *L) {
 		StylingContext *context = Context(L);
-		const SA::Line line = luaL_checknumber(L, 2);
-		const int stateOfLine = luaL_checknumber(L, 3);
+		const SA::Line line = luaL_checkinteger(L, 2);
+		const int stateOfLine = luaL_checkint(L, 3);
 		context->styler->SetLineState(line, stateOfLine);
 		return 0;
 	}
@@ -1872,9 +1872,9 @@ struct StylingContext {
 
 	static int StartStyling(lua_State *L) {
 		StylingContext *context = Context(L);
-		const SA::Position startPosStyle = luaL_checknumber(L, 2);
-		const SA::Position lengthStyle = luaL_checknumber(L, 3);
-		const int initialStyle = luaL_checknumber(L, 4);
+		const SA::Position startPosStyle = luaL_checkinteger(L, 2);
+		const SA::Position lengthStyle = luaL_checkinteger(L, 3);
+		const int initialStyle = luaL_checkint(L, 4);
 		context->StartStyling(startPosStyle, lengthStyle, initialStyle);
 		return 0;
 	}
