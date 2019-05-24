@@ -29,7 +29,7 @@ std::string StdStringFromDouble(double d, int precision);
 // Does not handle non-ASCII characters.
 void LowerCaseAZ(std::string &s);
 
-inline char MakeUpperCase(char ch) {
+inline char MakeUpperCase(char ch) noexcept {
 	if (ch < 'a' || ch > 'z')
 		return ch;
 	else

@@ -20,11 +20,10 @@ public:
 	explicit StringList(bool onlyLineEnds_ = false) :
 		words(0), wordsNoCase(0), onlyLineEnds(onlyLineEnds_),
 		sorted(false), sortedNoCase(false) {}
-	~StringList() { Clear(); }
-	size_t Length() const { return words.size(); }
-	operator bool() const { return !words.empty(); }
+	size_t Length() const noexcept { return words.size(); }
+	operator bool() const noexcept { return !words.empty(); }
 	char *operator[](size_t ind) { return words[ind]; }
-	void Clear();
+	void Clear() noexcept;
 	void Set(const char *s);
 	void Set(const std::vector<char> &data);
 	std::string GetNearestWord(const char *wordStart, size_t searchLen,

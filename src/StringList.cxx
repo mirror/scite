@@ -19,7 +19,7 @@
 #include "StringList.h"
 #include "StringHelpers.h"
 
-static int CompareNCaseInsensitive(const char *a, const char *b, size_t len) {
+static int CompareNCaseInsensitive(const char *a, const char *b, size_t len) noexcept {
 	while (*a && *b && len) {
 		if (*a != *b) {
 			const char upperA = MakeUpperCase(*a);
@@ -85,7 +85,7 @@ void StringList::SetFromListText() {
 	wordsNoCase = words;
 }
 
-static bool CmpString(const char *a, const char *b) {
+static bool CmpString(const char *a, const char *b) noexcept {
 	return strcmp(a, b) < 0;
 }
 
@@ -108,7 +108,7 @@ void StringList::SortIfNeeded(bool ignoreCase) {
 	}
 }
 
-void StringList::Clear() {
+void StringList::Clear() noexcept {
 	words.clear();
 	wordsNoCase.clear();
 	listText.clear();
@@ -133,22 +133,23 @@ namespace {
 
 struct CompareString {
 	size_t searchLen;
-	explicit CompareString(size_t searchLen_) : searchLen(searchLen_) {}
-	bool operator()(const char *a, const char *b) const {
+	explicit CompareString(size_t searchLen_) noexcept : searchLen(searchLen_) {}
+	bool operator()(const char *a, const char *b) const noexcept {
 		return strncmp(a, b, searchLen) < 0;
 	}
 };
 
 struct CompareStringInsensitive {
 	size_t searchLen;
-	explicit CompareStringInsensitive(size_t searchLen_) : searchLen(searchLen_) {}
-	bool operator()(const char *a, const char *b) const {
+	explicit CompareStringInsensitive(size_t searchLen_) noexcept : searchLen(searchLen_) {}
+	bool operator()(const char *a, const char *b) const noexcept {
 		return CompareNCaseInsensitive(a, b, searchLen) < 0;
 	}
 };
 
 template<typename Compare>
-	std::string GetMatch(std::vector<char *>::iterator start, std::vector<char *>::iterator end, const char *wordStart, const std::string &wordCharacters, int wordIndex, Compare comp) {
+	std::string GetMatch(std::vector<char *>::iterator start, std::vector<char *>::iterator end,
+		const char *wordStart, const std::string &wordCharacters, int wordIndex, Compare comp) {
 	std::vector<char *>::iterator elem = std::lower_bound(start, end, wordStart, comp);
 	if (!comp(wordStart, *elem) && !comp(*elem, wordStart)) {
 		// Found a matching element, now move forward wordIndex matching elements
@@ -190,7 +191,7 @@ std::string StringList::GetNearestWord(const char *wordStart, size_t searchLen, 
  * there may be extra spaces after the identifier that should not be
  * counted in the length.
  */
-static size_t LengthWord(const char *word, char otherSeparator) {
+static size_t LengthWord(const char *word, char otherSeparator) noexcept {
 	const char *endWord = nullptr;
 	// Find an otherSeparator
 	if (otherSeparator)
