@@ -170,28 +170,11 @@ std::string UTF8FromString(const gui_string &s) {
 }
 
 gui_string StringFromInteger(long i) {
-	char number[32];
-	sprintf(number, "%0ld", i);
-	gui_char gnumber[32];
-	size_t n=0;
-	while (number[n]) {
-		gnumber[n] = static_cast<gui_char>(number[n]);
-		n++;
-	}
-	gnumber[n] = 0;
-	return gui_string(gnumber);
+	return std::to_wstring(i);
 }
 
 gui_string StringFromLongLong(long long i) {
-	try {
-		std::ostringstream strstrm;
-		strstrm << i;
-		return StringFromUTF8(strstrm.str());
-	} catch (std::exception &) {
-		// Exceptions not enabled on stream but still causes diagnostic in Coverity.
-		// Simply swallow the failure and return the default value.
-	}
-	return gui_string();
+	return std::to_wstring(i);
 }
 
 gui_string HexStringFromInteger(long i) {
