@@ -964,11 +964,11 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				// with reads, so that our hRead buffer will not be overrun with results.
 
 				size_t bytesToWrite;
-				const size_t eol_pos = jobToRun.input.find("\n", writingPosition);
-				if (eol_pos == std::string::npos) {
+				const size_t eolPos = jobToRun.input.find("\n", writingPosition);
+				if (eolPos == std::string::npos) {
 					bytesToWrite = totalBytesToWrite - writingPosition;
 				} else {
-					bytesToWrite = eol_pos + 1 - writingPosition;
+					bytesToWrite = eolPos + 1 - writingPosition;
 				}
 				if (bytesToWrite > 250) {
 					bytesToWrite = 250;
@@ -1128,28 +1128,28 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 	// contain spaces without enclosing it with "
 	std::string cmdLower = cmd;
 	LowerCaseAZ(cmdLower);
-	const char *mycmdlowered = cmdLower.c_str();
+	const char *mycmdLowered = cmdLower.c_str();
 
-	const char *s = strstr(mycmdlowered, ".exe");
+	const char *s = strstr(mycmdLowered, ".exe");
 	if (!s)
-		s = strstr(mycmdlowered, ".cmd");
+		s = strstr(mycmdLowered, ".cmd");
 	if (!s)
-		s = strstr(mycmdlowered, ".bat");
+		s = strstr(mycmdLowered, ".bat");
 	if (!s)
-		s = strstr(mycmdlowered, ".com");
+		s = strstr(mycmdLowered, ".com");
 	std::vector<char> cmdcopy(cmd.c_str(), cmd.c_str() + cmd.length() + 1);
 	char *mycmdcopy = &cmdcopy[0];
 	char *mycmd;
-	char *mycmd_end = nullptr;
+	char *mycmdEnd = nullptr;
 	if (s && ((*(s + 4) == '\0') || (*(s + 4) == ' '))) {
-		ptrdiff_t len_mycmd = s - mycmdlowered + 4;
+		ptrdiff_t len_mycmd = s - mycmdLowered + 4;
 		mycmd = mycmdcopy;
-		mycmd_end = mycmdcopy + len_mycmd;
+		mycmdEnd = mycmdcopy + len_mycmd;
 	} else {
 		if (*mycmdcopy != '"') {
 			// get next space to separate cmd and parameters
 			mycmd = mycmdcopy;
-			mycmd_end = strchr(mycmdcopy, ' ');
+			mycmdEnd = strchr(mycmdcopy, ' ');
 		} else {
 			// the cmd is surrounded by ", so it can contain spaces, but we must
 			// strip the " for ShellExec
@@ -1157,22 +1157,22 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 			char *sm = strchr(mycmdcopy + 1, '"');
 			if (sm) {
 				*sm = '\0';
-				mycmd_end = sm + 1;
+				mycmdEnd = sm + 1;
 			}
 		}
 	}
 
 	std::string myparams;
-	if (mycmd_end && (*mycmd_end != '\0')) {
-		*mycmd_end = '\0';
+	if (mycmdEnd && (*mycmdEnd != '\0')) {
+		*mycmdEnd = '\0';
 		// test for remaining params after cmd, they may be surrounded by " but
 		// we give them as-is to ShellExec
-		++mycmd_end;
-		while (*mycmd_end == ' ')
-			++mycmd_end;
+		++mycmdEnd;
+		while (*mycmdEnd == ' ')
+			++mycmdEnd;
 
-		if (*mycmd_end != '\0')
-			myparams = mycmd_end;
+		if (*mycmdEnd != '\0')
+			myparams = mycmdEnd;
 	}
 
 	GUI::gui_string sMycmd = GUI::StringFromUTF8(mycmd);
@@ -1694,13 +1694,13 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 	otherwise it is unblocked
 */
 bool SciTEWin::IsStdinBlocked() {
-	DWORD unread_messages;
+	DWORD unreadMessages;
 	INPUT_RECORD irec[1];
 	char bytebuffer;
 	HANDLE hStdIn = ::GetStdHandle(STD_INPUT_HANDLE);
 	if (hStdIn == INVALID_HANDLE_VALUE) {
 		/* an invalid handle, assume that stdin is blocked by falling to bottom */;
-	} else if (::PeekConsoleInput(hStdIn, irec, 1, &unread_messages) != 0) {
+	} else if (::PeekConsoleInput(hStdIn, irec, 1, &unreadMessages) != 0) {
 		/* it is the console, assume that stdin is blocked by falling to bottom */;
 	} else if (::GetLastError() == ERROR_INVALID_HANDLE) {
 		for (int n = 0; n < 4; n++) {
@@ -1710,8 +1710,8 @@ bool SciTEWin::IsStdinBlocked() {
 				- a blocked pipe "findstring nothing | scite -"
 				in any case case, retry in a short bit
 			*/
-			if (::PeekNamedPipe(hStdIn, &bytebuffer, sizeof(bytebuffer), NULL,NULL, &unread_messages) != 0) {
-				if (unread_messages != 0) {
+			if (::PeekNamedPipe(hStdIn, &bytebuffer, sizeof(bytebuffer), NULL,NULL, &unreadMessages) != 0) {
+				if (unreadMessages != 0) {
 					return false; /* is a pipe and it is not blocked */
 				}
 			}
@@ -1786,13 +1786,13 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// loop through the Tools menu's active commands.
 	HMENU hMenu = ::GetMenu(MainHWND());
 	HMENU hToolsMenu = ::GetSubMenu(hMenu, menuTools);
-	for (int tool_i = 0; tool_i < toolMax; ++tool_i) {
+	for (int tool = 0; tool < toolMax; ++tool) {
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA;
-		if (::GetMenuItemInfo(hToolsMenu, IDM_TOOLS+tool_i, FALSE, &mii) && mii.dwItemData) {
+		if (::GetMenuItemInfo(hToolsMenu, IDM_TOOLS+tool, FALSE, &mii) && mii.dwItemData) {
 			if (SciTEKeys::MatchKeyCode(static_cast<long>(mii.dwItemData), keyVal, modifierAsInt)) {
-				SciTEBase::MenuCommand(IDM_TOOLS+tool_i);
+				SciTEBase::MenuCommand(IDM_TOOLS+tool);
 				return 1l;
 			}
 		}

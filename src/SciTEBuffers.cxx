@@ -840,12 +840,12 @@ void SciTEBase::SetIndentSettings() {
 }
 
 void SciTEBase::SetEol() {
-	std::string eol_mode = props.GetString("eol.mode");
-	if (eol_mode == "LF") {
+	std::string eolMode = props.GetString("eol.mode");
+	if (eolMode == "LF") {
 		wEditor.SetEOLMode(SA::EndOfLine::Lf);
-	} else if (eol_mode == "CR") {
+	} else if (eolMode == "CR") {
 		wEditor.SetEOLMode(SA::EndOfLine::Cr);
-	} else if (eol_mode == "CRLF") {
+	} else if (eolMode == "CRLF") {
 		wEditor.SetEOLMode(SA::EndOfLine::CrLf);
 	}
 }

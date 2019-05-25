@@ -1411,18 +1411,18 @@ void SciTEBase::BookmarkToggle(SA::Line lineno) {
 
 void SciTEBase::BookmarkNext(bool forwardScan, bool select) {
 	const SA::Line lineno = GetCurrentLineNumber();
-	SA::Message sci_marker = SA::Message::MarkerNext;
+	SA::Message sciMarker = SA::Message::MarkerNext;
 	SA::Line lineStart = lineno + 1;	//Scan starting from next line
 	SA::Line lineRetry = 0;				//If not found, try from the beginning
 	const SA::Position anchor = wEditor.Anchor();
 	if (!forwardScan) {
 		lineStart = lineno - 1;		//Scan starting from previous line
 		lineRetry = wEditor.LineCount();	//If not found, try from the end
-		sci_marker = SA::Message::MarkerPrevious;
+		sciMarker = SA::Message::MarkerPrevious;
 	}
-	SA::Line nextLine = wEditor.Call(sci_marker, lineStart, 1 << markerBookmark);
+	SA::Line nextLine = wEditor.Call(sciMarker, lineStart, 1 << markerBookmark);
 	if (nextLine < 0)
-		nextLine = wEditor.Call(sci_marker, lineRetry, 1 << markerBookmark);
+		nextLine = wEditor.Call(sciMarker, lineRetry, 1 << markerBookmark);
 	if (nextLine < 0 || nextLine == lineno)	// No bookmark (of the given type) or only one, and already on it
 		WarnUser(warnNoOtherBookmark);
 	else {
@@ -2135,7 +2135,7 @@ bool SciTEBase::StartBoxComment() {
 			wEditor.InsertText(lineEnd, endComment.c_str());
 		}
 	} else {
-		// More than one line selected, so insert middle_comments where needed
+		// More than one line selected, so insert middleComments where needed
 		for (SA::Line i = selStartLine + 1; i < selEndLine; i++) {
 			lineStart = wEditor.LineStart(i);
 			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + middleCommentLength));
