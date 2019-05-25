@@ -55,8 +55,8 @@ void FileLoader::Execute() {
 			GUI::SleepMilliseconds(sleepTime);
 			lenFile = convert.convert(&data[0], lenFile);
 			const char *dataBlock = convert.getNewBuf();
-			err = pLoader->AddData(dataBlock, static_cast<int>(lenFile));
-			IncrementProgress(static_cast<int>(lenFile));
+			err = pLoader->AddData(dataBlock, lenFile);
+			IncrementProgress(lenFile);
 			if (et.Duration() > nextProgress) {
 				nextProgress = et.Duration() + timeBetweenProgress;
 				pListener->PostOnMainThread(WORK_FILEPROGRESS, this);
@@ -67,7 +67,7 @@ void FileLoader::Execute() {
 				const size_t lenFileTrail = convert.convert(nullptr, lenFile);
 				if (lenFileTrail) {
 					const char *dataTrail = convert.getNewBuf();
-					err = pLoader->AddData(dataTrail, static_cast<int>(lenFileTrail));
+					err = pLoader->AddData(dataTrail, lenFileTrail);
 				}
 			}
 		}

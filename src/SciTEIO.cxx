@@ -1545,7 +1545,7 @@ void SciTEBase::InternalGrep(GrepFlags gf, const GUI::gui_char *directory, const
 		os.append("\"\n");
 		OutputAppendStringSynchronised(os.c_str());
 		ShowOutputOnMainThread();
-		originalEnd += static_cast<SA::Position>(os.length());
+		originalEnd += os.length();
 	}
 	std::string searchString(search);
 	if (!(gf & grepMatchCase)) {

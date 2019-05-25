@@ -1108,7 +1108,7 @@ void SciTEBase::ReplaceOnce(bool showWarnings) {
 		const std::string replaceTarget = UnSlashAsNeeded(EncodeString(replaceWhat), unSlash, regExp);
 		const SA::Range rangeSelection = wEditor.SelectionRange();
 		wEditor.SetTarget(rangeSelection);
-		SA::Position lenReplaced = static_cast<SA::Position>(replaceTarget.length());
+		SA::Position lenReplaced = replaceTarget.length();
 		if (regExp)
 			lenReplaced = wEditor.ReplaceTargetRE(replaceTarget);
 		else	// Allow \0 in replacement
@@ -1186,7 +1186,7 @@ intptr_t SciTEBase::DoReplaceAll(bool inSelection) {
 					continue;	// No replacement
 				}
 			}
-			SA::Position lenReplaced = static_cast<SA::Position>(replaceTarget.length());
+			SA::Position lenReplaced = replaceTarget.length();
 			if (regExp) {
 				lenReplaced = wEditor.ReplaceTargetRE(replaceTarget);
 			} else {
@@ -1272,7 +1272,7 @@ void SciTEBase::UIHasFocus() {
 
 void SciTEBase::OutputAppendString(const char *s, SA::Position len) {
 	if (len == -1)
-		len = static_cast<SA::Position>(strlen(s));
+		len = strlen(s);
 	wOutput.AppendText(len, s);
 	if (scrollOutput) {
 		const SA::Line line = wOutput.LineCount();
@@ -1284,7 +1284,7 @@ void SciTEBase::OutputAppendString(const char *s, SA::Position len) {
 void SciTEBase::OutputAppendStringSynchronised(const char *s, SA::Position len) {
 	// This may be called from secondary thread so always use Send instead of Call
 	if (len == -1)
-		len = static_cast<SA::Position>(strlen(s));
+		len = strlen(s);
 	wOutput.Send(SCI_APPENDTEXT, len, SptrFromString(s));
 	if (scrollOutput) {
 		const SA::Line line = wOutput.Send(SCI_GETLINECOUNT);
@@ -1686,10 +1686,11 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	if (startword == current || allNumber)
 		return true;
 	const std::string root = line.substr(startword, current - startword);
+	const SA::Position rootLength = root.length();
 	const SA::Position doclen = LengthDocument();
 	const SA::FindOption flags =
 		SA::FindOption::WordStart | (autoCompleteIgnoreCase ? static_cast<SA::FindOption>(0) : SA::FindOption::MatchCase);
-	const SA::Position posCurrentWord = wEditor.CurrentPos() - root.length();
+	const SA::Position posCurrentWord = wEditor.CurrentPos() - rootLength;
 	SA::Position minWordLength = 0;
 	unsigned int nwords = 0;
 
@@ -1703,12 +1704,12 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	SA::Position posFind = wEditor.SearchInTarget(root);
 	TextReader acc(wEditor);
 	while (posFind >= 0 && posFind < doclen) {	// search all the document
-		SA::Position wordEnd = posFind + static_cast<SA::Position>(root.length());
+		SA::Position wordEnd = posFind + rootLength;
 		if (posFind != posCurrentWord) {
 			while (Contains(wordCharacters, acc.SafeGetCharAt(wordEnd)))
 				wordEnd++;
 			const SA::Position wordLength = wordEnd - posFind;
-			if (wordLength > static_cast<SA::Position>(root.length())) {
+			if (wordLength > rootLength) {
 				std::string word = wEditor.StringOfRange(SA::Range(posFind, wordEnd));
 				word.insert(0, "\n");
 				word.append("\n");
@@ -1728,7 +1729,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		posFind = wEditor.SearchInTarget(root);
 	}
 	const size_t length = wordsNear.length();
-	if ((length > 2) && (!onlyOneWord || (minWordLength > static_cast<SA::Position>(root.length())))) {
+	if ((length > 2) && (!onlyOneWord || (minWordLength > rootLength))) {
 		// Protect spaces by temporrily transforming to \001
 		std::replace(wordsNear.begin(), wordsNear.end(), ' ', '\001');
 		StringList wl(true);
@@ -1739,7 +1740,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 		// Return spaces from \001
 		std::replace(acText.begin(), acText.end(), '\001', ' ');
 		wEditor.AutoCSetSeparator('\n');
-		wEditor.AutoCShow(root.length(), acText.c_str());
+		wEditor.AutoCShow(rootLength, acText.c_str());
 	} else {
 		wEditor.AutoCCancel();
 	}
@@ -1755,13 +1756,13 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	const std::string expbuf = UnSlashString(data.c_str());
 	const size_t expbuflen = expbuf.length();
 
-	SA::Position caret_pos = wEditor.SelectionStart();
-	SA::Position sel_start = caret_pos;
-	SA::Position sel_length = wEditor.SelectionEnd() - sel_start;
-	bool at_start = true;
-	bool double_pipe = false;
-	size_t last_pipe = expbuflen;
-	SA::Line currentLineNumber = wEditor.LineFromPosition(caret_pos);
+	SA::Position caretPos = wEditor.SelectionStart();
+	SA::Position selStart = caretPos;
+	SA::Position selLength = wEditor.SelectionEnd() - selStart;
+	bool atStart = true;
+	bool doublePipe = false;
+	size_t lastPipe = expbuflen;
+	SA::Line currentLineNumber = wEditor.LineFromPosition(caretPos);
 	int indent = 0;
 	const int indentSize = wEditor.Indent();
 	const int indentChars = (wEditor.UseTabs() && wEditor.TabWidth() ? wEditor.TabWidth() : 1);
@@ -1775,7 +1776,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	// find last |, can't be strrchr(exbuf, '|') because of ||
 	for (size_t i = expbuflen; i--; ) {
 		if (expbuf[i] == '|' && (i == 0 || expbuf[i-1] != '|')) {
-			last_pipe = i;
+			lastPipe = i;
 			break;
 		}
 	}
@@ -1790,7 +1791,7 @@ bool SciTEBase::PerformInsertAbbreviation() {
 			if (props.GetInt("indent.automatic")) {
 				indentExtra++;
 				SetLineIndentation(currentLineNumber, indent + indentSize * indentExtra);
-				caret_pos += indentSize / indentChars;
+				caretPos += indentSize / indentChars;
 			}
 		} else {
 			switch (c) {
@@ -1800,19 +1801,19 @@ bool SciTEBase::PerformInsertAbbreviation() {
 					// put '|' into the line
 					abbrevText += c;
 					i++;
-				} else if (i != last_pipe) {
-					double_pipe = true;
+				} else if (i != lastPipe) {
+					doublePipe = true;
 				} else {
 					// indent on multiple lines
 					SA::Line j = currentLineNumber + 1; // first line indented as others
-					currentLineNumber = wEditor.LineFromPosition(caret_pos + sel_length);
+					currentLineNumber = wEditor.LineFromPosition(caretPos + selLength);
 					for (; j <= currentLineNumber; j++) {
 						SetLineIndentation(j, GetLineIndentation(j) + indentSize * indentExtra);
-						caret_pos += indentExtra * indentSize / indentChars;
+						caretPos += indentExtra * indentSize / indentChars;
 					}
 
-					at_start = false;
-					caret_pos += sel_length;
+					atStart = false;
+					caretPos += selLength;
 				}
 				break;
 			case '\r':
@@ -1830,22 +1831,22 @@ bool SciTEBase::PerformInsertAbbreviation() {
 				abbrevText += c;
 				break;
 			}
-			if (caret_pos > wEditor.Length()) {
-				caret_pos = wEditor.Length();
+			if (caretPos > wEditor.Length()) {
+				caretPos = wEditor.Length();
 			}
-			wEditor.InsertText(caret_pos, abbrevText.c_str());
-			if (!double_pipe && at_start) {
-				sel_start += static_cast<SA::Position>(abbrevText.length());
+			wEditor.InsertText(caretPos, abbrevText.c_str());
+			if (!doublePipe && atStart) {
+				selStart += abbrevText.length();
 			}
-			caret_pos += static_cast<SA::Position>(abbrevText.length());
+			caretPos += abbrevText.length();
 			if (c == '\n') {
 				isIndent = true;
 				indentExtra = 0;
 				currentLineNumber++;
 				SetLineIndentation(currentLineNumber, indent);
-				caret_pos += indent / indentChars;
-				if (!double_pipe && at_start) {
-					sel_start += indent / indentChars;
+				caretPos += indent / indentChars;
+				if (!doublePipe && atStart) {
+					selStart += indent / indentChars;
 				}
 			} else {
 				isIndent = false;
@@ -1854,10 +1855,10 @@ bool SciTEBase::PerformInsertAbbreviation() {
 	}
 
 	// set the caret to the desired position
-	if (double_pipe) {
-		sel_length = 0;
+	if (doublePipe) {
+		selLength = 0;
 	}
-	wEditor.SetSel(sel_start, sel_start + sel_length);
+	wEditor.SetSel(selStart, selStart + selLength);
 
 	wEditor.EndUndoAction();
 	return true;
@@ -1900,7 +1901,7 @@ bool SciTEBase::StartExpandAbbreviation() {
 	const std::string expbuf = UnSlashString(data.c_str());
 	const size_t expbuflen = expbuf.length();
 
-	SA::Position caret_pos = -1; // caret position
+	SA::Position caretPos = -1; // caret position
 	SA::Line currentLineNumber = GetCurrentLineNumber();
 	int indent = 0;
 	const int indentSize = wEditor.Indent();
@@ -1929,12 +1930,12 @@ bool SciTEBase::StartExpandAbbreviation() {
 					// put '|' into the line
 					abbrevText += c;
 					i++;
-				} else if (caret_pos == -1) {
+				} else if (caretPos == -1) {
 					if (i == 0) {
 						// when caret is set at the first place in abbreviation
-						caret_pos = wEditor.CurrentPos() - abbrevLength;
+						caretPos = wEditor.CurrentPos() - abbrevLength;
 					} else {
-						caret_pos = wEditor.CurrentPos();
+						caretPos = wEditor.CurrentPos();
 					}
 				}
 				break;
@@ -1963,8 +1964,8 @@ bool SciTEBase::StartExpandAbbreviation() {
 	}
 
 	// set the caret to the desired position
-	if (caret_pos != -1) {
-		wEditor.GotoPos(caret_pos);
+	if (caretPos != -1) {
+		wEditor.GotoPos(caretPos);
 	}
 
 	wEditor.EndUndoAction();
@@ -1975,10 +1976,10 @@ bool SciTEBase::StartBlockComment() {
 	std::string fileNameForExtension = ExtensionFileName();
 	std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
 	std::string base("comment.block.");
-	std::string comment_at_line_start("comment.block.at.line.start.");
+	std::string commentAtLineStart("comment.block.at.line.start.");
 	base += lexerName;
-	comment_at_line_start += lexerName;
-	const bool placeCommentsAtLineStart = props.GetInt(comment_at_line_start.c_str()) != 0;
+	commentAtLineStart += lexerName;
+	const bool placeCommentsAtLineStart = props.GetInt(commentAtLineStart.c_str()) != 0;
 
 	std::string comment = props.GetString(base.c_str());
 	if (comment == "") { // user friendly error message box
@@ -1988,13 +1989,13 @@ bool SciTEBase::StartBlockComment() {
 		WindowMessageBox(wSciTE, error);
 		return true;
 	}
-	std::string long_comment = comment;
-	long_comment.append(" ");
+	const std::string longComment = comment + " ";
+	const SA::Position longCommentLength = longComment.length();
 	SA::Position selectionStart = wEditor.SelectionStart();
 	SA::Position selectionEnd = wEditor.SelectionEnd();
 	const SA::Position caretPosition = wEditor.CurrentPos();
 	// checking if caret is located in _beginning_ of selected block
-	const bool move_caret = caretPosition < selectionEnd;
+	const bool moveCaret = caretPosition < selectionEnd;
 	const SA::Line selStartLine = wEditor.LineFromPosition(selectionStart);
 	SA::Line selEndLine = wEditor.LineFromPosition(selectionEnd);
 	const SA::Line lines = selEndLine - selStartLine;
@@ -2016,10 +2017,10 @@ bool SciTEBase::StartBlockComment() {
 		if (linebuf.length() < 1)
 			continue;
 		if (StartsWith(linebuf, comment.c_str())) {
-			SA::Position commentLength = static_cast<SA::Position>(comment.length());
-			if (StartsWith(linebuf, long_comment.c_str())) {
+			SA::Position commentLength = comment.length();
+			if (StartsWith(linebuf, longComment.c_str())) {
 				// Removing comment with space after it.
-				commentLength = static_cast<int>(long_comment.length());
+				commentLength = longCommentLength;
 			}
 			wEditor.SetSel(lineIndent, lineIndent + commentLength);
 			wEditor.ReplaceSel("");
@@ -2029,19 +2030,19 @@ bool SciTEBase::StartBlockComment() {
 			continue;
 		}
 		if (i == selStartLine) // is this the first selected line?
-			selectionStart += static_cast<SA::Position>(long_comment.length());
-		selectionEnd += static_cast<SA::Position>(long_comment.length()); // every iteration
-		wEditor.InsertText(lineIndent, long_comment.c_str());
+			selectionStart += longCommentLength;
+		selectionEnd += longCommentLength; // every iteration
+		wEditor.InsertText(lineIndent, longComment.c_str());
 	}
 	// after uncommenting selection may promote itself to the lines
 	// before the first initially selected line;
 	// another problem - if only comment symbol was selected;
 	if (selectionStart < firstSelLineStart) {
-		if (selectionStart >= selectionEnd - (static_cast<SA::Position>(long_comment.length()) - 1))
+		if (selectionStart >= selectionEnd - (longCommentLength - 1))
 			selectionEnd = firstSelLineStart;
 		selectionStart = firstSelLineStart;
 	}
-	if (move_caret) {
+	if (moveCaret) {
 		// moving caret to the beginning of selected block
 		wEditor.GotoPos(selectionEnd);
 		wEditor.SetCurrentPos(selectionStart);
@@ -2068,21 +2069,21 @@ bool SciTEBase::StartBoxComment() {
 	// Get start/middle/end comment strings from options file(s)
 	std::string fileNameForExtension = ExtensionFileName();
 	std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
-	std::string start_base("comment.box.start.");
-	std::string middle_base("comment.box.middle.");
-	std::string end_base("comment.box.end.");
-	const std::string white_space(" ");
+	std::string startBase("comment.box.start.");
+	std::string middleBase("comment.box.middle.");
+	std::string endBase("comment.box.end.");
+	const std::string whiteSpace(" ");
 	const std::string eol(LineEndString(wEditor.EOLMode()));
-	start_base += lexerName;
-	middle_base += lexerName;
-	end_base += lexerName;
-	std::string start_comment = props.GetString(start_base.c_str());
-	std::string middle_comment = props.GetString(middle_base.c_str());
-	std::string end_comment = props.GetString(end_base.c_str());
-	if (start_comment == "" || middle_comment == "" || end_comment == "") {
-		GUI::gui_string sStart = GUI::StringFromUTF8(start_base);
-		GUI::gui_string sMiddle = GUI::StringFromUTF8(middle_base);
-		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base);
+	startBase += lexerName;
+	middleBase += lexerName;
+	endBase += lexerName;
+	std::string startComment = props.GetString(startBase.c_str());
+	std::string middleComment = props.GetString(middleBase.c_str());
+	std::string endComment = props.GetString(endBase.c_str());
+	if (startComment == "" || middleComment == "" || endComment == "") {
+		GUI::gui_string sStart = GUI::StringFromUTF8(startBase);
+		GUI::gui_string sMiddle = GUI::StringFromUTF8(middleBase);
+		GUI::gui_string sEnd = GUI::StringFromUTF8(endBase);
 		GUI::gui_string error = LocaliseMessage(
 		            "Box comment variables '^0', '^1' and '^2' are not defined in SciTE *.properties!",
 		            sStart.c_str(), sMiddle.c_str(), sEnd.c_str());
@@ -2094,7 +2095,7 @@ bool SciTEBase::StartBoxComment() {
 	SA::Position selectionStart = wEditor.SelectionStart();
 	SA::Position selectionEnd = wEditor.SelectionEnd();
 	const SA::Position caretPosition = wEditor.CurrentPos();
-	const bool move_caret = caretPosition < selectionEnd;
+	const bool moveCaret = caretPosition < selectionEnd;
 	const SA::Line selStartLine = wEditor.LineFromPosition(selectionStart);
 	SA::Line selEndLine = wEditor.LineFromPosition(selectionEnd);
 	SA::Line lines = selEndLine - selStartLine + 1;
@@ -2106,40 +2107,40 @@ bool SciTEBase::StartBoxComment() {
 		selectionEnd = wEditor.LineEnd(selEndLine);
 	}
 
-	// Pad comment strings with appropriate whitespace, then figure out their lengths (end_comment is a bit special-- see below)
-	start_comment += white_space;
-	middle_comment += white_space;
-	const SA::Position start_comment_length = static_cast<SA::Position>(start_comment.length());
-	const SA::Position middle_comment_length = static_cast<SA::Position>(middle_comment.length());
-	const SA::Position end_comment_length = static_cast<SA::Position>(end_comment.length());
+	// Pad comment strings with appropriate whitespace, then figure out their lengths (endComment is a bit special-- see below)
+	startComment += whiteSpace;
+	middleComment += whiteSpace;
+	const SA::Position startCommentLength = startComment.length();
+	const SA::Position middleCommentLength = middleComment.length();
+	const SA::Position endCommentLength = endComment.length();
 
 	wEditor.BeginUndoAction();
 
-	// Insert start_comment if needed
+	// Insert startComment if needed
 	SA::Position lineStart = wEditor.LineStart(selStartLine);
-	std::string tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + start_comment_length));
-	if (start_comment != tempString) {
-		wEditor.InsertText(lineStart, start_comment.c_str());
-		selectionStart += start_comment_length;
-		selectionEnd += start_comment_length;
+	std::string tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + startCommentLength));
+	if (startComment != tempString) {
+		wEditor.InsertText(lineStart, startComment.c_str());
+		selectionStart += startCommentLength;
+		selectionEnd += startCommentLength;
 	}
 
 	if (lines <= 1) {
 		// Only a single line was selected, so just append whitespace + end-comment at end of line if needed
 		const SA::Position lineEnd = wEditor.LineEnd(selEndLine);
-		tempString = wEditor.StringOfRange(SA::Range(lineEnd - end_comment_length, lineEnd));
-		if (end_comment != tempString) {
-			end_comment.insert(0, white_space.c_str());
-			wEditor.InsertText(lineEnd, end_comment.c_str());
+		tempString = wEditor.StringOfRange(SA::Range(lineEnd - endCommentLength, lineEnd));
+		if (endComment != tempString) {
+			endComment.insert(0, whiteSpace.c_str());
+			wEditor.InsertText(lineEnd, endComment.c_str());
 		}
 	} else {
 		// More than one line selected, so insert middle_comments where needed
 		for (SA::Line i = selStartLine + 1; i < selEndLine; i++) {
 			lineStart = wEditor.LineStart(i);
-			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + middle_comment_length));
-			if (middle_comment != tempString) {
-				wEditor.InsertText(lineStart, middle_comment.c_str());
-				selectionEnd += middle_comment_length;
+			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + middleCommentLength));
+			if (middleComment != tempString) {
+				wEditor.InsertText(lineStart, middleComment.c_str());
+				selectionEnd += middleCommentLength;
 			}
 		}
 
@@ -2148,26 +2149,26 @@ bool SciTEBase::StartBoxComment() {
 		// and end-comment tag after the last line (extra logic is necessary to
 		// deal with the case that user selected the end-comment tag)
 		lineStart = wEditor.LineStart(selEndLine);
-		tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + end_comment_length));
-		if (end_comment != tempString) {
-			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + middle_comment_length));
-			if (middle_comment != tempString) {
-				wEditor.InsertText(lineStart, middle_comment.c_str());
-				selectionEnd += middle_comment_length;
+		tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + endCommentLength));
+		if (endComment != tempString) {
+			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + middleCommentLength));
+			if (middleComment != tempString) {
+				wEditor.InsertText(lineStart, middleComment.c_str());
+				selectionEnd += middleCommentLength;
 			}
 
 			// And since we didn't find the end-comment string yet, we need to check the *next* line
 			//  to see if it's necessary to insert an end-comment string and a linefeed there....
 			lineStart = wEditor.LineStart(selEndLine + 1);
-			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + end_comment_length));
-			if (end_comment != tempString) {
-				end_comment += eol;
-				wEditor.InsertText(lineStart, end_comment.c_str());
+			tempString = wEditor.StringOfRange(SA::Range(lineStart, lineStart + endCommentLength));
+			if (endComment != tempString) {
+				endComment += eol;
+				wEditor.InsertText(lineStart, endComment.c_str());
 			}
 		}
 	}
 
-	if (move_caret) {
+	if (moveCaret) {
 		// moving caret to the beginning of selected block
 		wEditor.GotoPos(selectionEnd);
 		wEditor.SetCurrentPos(selectionStart);
@@ -2183,30 +2184,30 @@ bool SciTEBase::StartBoxComment() {
 bool SciTEBase::StartStreamComment() {
 	std::string fileNameForExtension = ExtensionFileName();
 	const std::string lexerName = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
-	std::string start_base("comment.stream.start.");
-	std::string end_base("comment.stream.end.");
-	std::string white_space(" ");
-	start_base += lexerName;
-	end_base += lexerName;
-	std::string start_comment = props.GetString(start_base.c_str());
-	std::string end_comment = props.GetString(end_base.c_str());
-	if (start_comment == "" || end_comment == "") {
-		GUI::gui_string sStart = GUI::StringFromUTF8(start_base);
-		GUI::gui_string sEnd = GUI::StringFromUTF8(end_base);
+	std::string startBase("comment.stream.start.");
+	std::string endBase("comment.stream.end.");
+	std::string whiteSpace(" ");
+	startBase += lexerName;
+	endBase += lexerName;
+	std::string startComment = props.GetString(startBase.c_str());
+	std::string endComment = props.GetString(endBase.c_str());
+	if (startComment == "" || endComment == "") {
+		GUI::gui_string sStart = GUI::StringFromUTF8(startBase);
+		GUI::gui_string sEnd = GUI::StringFromUTF8(endBase);
 		GUI::gui_string error = LocaliseMessage(
 		            "Stream comment variables '^0' and '^1' are not defined in SciTE *.properties!",
 		            sStart.c_str(), sEnd.c_str());
 		WindowMessageBox(wSciTE, error);
 		return true;
 	}
-	start_comment += white_space;
-	white_space += end_comment;
-	end_comment = white_space;
-	const SA::Position start_comment_length = static_cast<SA::Position>(start_comment.length());
+	startComment += whiteSpace;
+	whiteSpace += endComment;
+	endComment = whiteSpace;
+	const SA::Position startCommentLength = startComment.length();
 	SA::Range selection = wEditor.SelectionRange();
 	const SA::Position caretPosition = wEditor.CurrentPos();
 	// checking if caret is located in _beginning_ of selected block
-	const bool move_caret = caretPosition < selection.end;
+	const bool moveCaret = caretPosition < selection.end;
 	// if there is no selection?
 	if (selection.start == selection.end) {
 		RangeExtend(wEditor, selection,
@@ -2215,11 +2216,11 @@ bool SciTEBase::StartStreamComment() {
 			return true; // caret is located _between_ words
 	}
 	wEditor.BeginUndoAction();
-	wEditor.InsertText(selection.start, start_comment.c_str());
-	selection.end += start_comment_length;
-	selection.start += start_comment_length;
-	wEditor.InsertText(selection.end, end_comment.c_str());
-	if (move_caret) {
+	wEditor.InsertText(selection.start, startComment.c_str());
+	selection.end += startCommentLength;
+	selection.start += startCommentLength;
+	wEditor.InsertText(selection.end, endComment.c_str());
+	if (moveCaret) {
 		// moving caret to the beginning of selected block
 		wEditor.GotoPos(selection.end);
 		wEditor.SetCurrentPos(selection.start);
@@ -2779,7 +2780,7 @@ bool SciTEBase::HandleXml(char ch) {
 		return false;
 	}
 
-	std::string strFound = FindOpenXmlTag(sel.c_str(), static_cast<int>(nCaret - nMin));
+	std::string strFound = FindOpenXmlTag(sel.c_str(), nCaret - nMin);
 
 	if (strFound.length() > 0) {
 		wEditor.BeginUndoAction();
@@ -3862,7 +3863,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 					if (endStyled > 0)
 						styleStart = styler.StyleAt(endStyled - 1);
 					styler.SetCodePage(codePage);
-					extender->OnStyle(endStyled, static_cast<SA::Position>(notification->position - endStyled),
+					extender->OnStyle(endStyled, notification->position - endStyled,
 					        styleStart, &styler);
 					styler.Flush();
 				}
@@ -3973,7 +3974,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 			SetLineNumberWidth();
 
 		if (0 != (notification->modificationType & SC_MOD_CHANGEFOLD)) {
-			FoldChanged(static_cast<int>(notification->line),
+			FoldChanged(notification->line,
 			        static_cast<SA::FoldLevel>(notification->foldLevelNow),
 			        static_cast<SA::FoldLevel>(notification->foldLevelPrev));
 		}
@@ -3984,7 +3985,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 				handled = extender->OnMarginClick();
 			if (!handled) {
 				if (notification->margin == 2) {
-					MarginClick(static_cast<int>(notification->position), notification->modifiers);
+					MarginClick(notification->position, notification->modifiers);
 				}
 			}
 		}
@@ -4429,7 +4430,7 @@ bool SciTEBase::RecordMacroCommand(const SCNotification *notification) {
 	if (extender) {
 		std::string sMessage = StdStringFromInteger(notification->message);
 		sMessage += ";";
-		sMessage += StdStringFromSizeT(static_cast<size_t>(notification->wParam));
+		sMessage += std::to_string(notification->wParam);
 		sMessage += ";";
 		const char *t = reinterpret_cast<const char *>(notification->lParam);
 		if (t) {

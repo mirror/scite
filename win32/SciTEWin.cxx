@@ -1770,11 +1770,14 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	    (IsKeyDown(VK_CONTROL) ? SA::KeyMod::Ctrl : SA::KeyMod::Norm) |
 	    (IsKeyDown(VK_MENU) ? SA::KeyMod::Alt : SA::KeyMod::Norm);
 
-	if (extender && extender->OnKey(static_cast<int>(wParam), static_cast<int>(modifiers)))
+	const int keyVal = static_cast<int>(wParam);
+	const int modifierAsInt = static_cast<int>(modifiers);
+
+	if (extender && extender->OnKey(keyVal, modifierAsInt))
 		return 1l;
 
 	for (unsigned int j = 0; j < languageMenu.size(); j++) {
-		if (KeyMatch(languageMenu[j].menuKey, static_cast<int>(wParam), static_cast<int>(modifiers))) {
+		if (KeyMatch(languageMenu[j].menuKey, keyVal, modifierAsInt)) {
 			SciTEBase::MenuCommand(IDM_LANGUAGE + j);
 			return 1l;
 		}
@@ -1788,7 +1791,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA;
 		if (::GetMenuItemInfo(hToolsMenu, IDM_TOOLS+tool_i, FALSE, &mii) && mii.dwItemData) {
-			if (SciTEKeys::MatchKeyCode(static_cast<long>(mii.dwItemData), static_cast<int>(wParam), static_cast<int>(modifiers))) {
+			if (SciTEKeys::MatchKeyCode(static_cast<long>(mii.dwItemData), keyVal, modifierAsInt)) {
 				SciTEBase::MenuCommand(IDM_TOOLS+tool_i);
 				return 1l;
 			}
@@ -1798,7 +1801,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// loop through the keyboard short cuts defined by user.. if found
 	// exec it the command defined
 	for (const ShortcutItem &scut : shortCutItemList) {
-		if (KeyMatch(scut.menuKey, static_cast<int>(wParam), static_cast<int>(modifiers))) {
+		if (KeyMatch(scut.menuKey, keyVal, modifierAsInt)) {
 			const int commandNum = SciTEBase::GetMenuCommandAsInt(scut.menuCommand.c_str());
 			if (commandNum != -1) {
 				// its possible that the command is for scintilla directly

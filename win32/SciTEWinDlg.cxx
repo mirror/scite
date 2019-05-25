@@ -1526,13 +1526,13 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		} else if ((ControlIDOfWParam(wParam) == IDCONVERT) ||
 			(ControlIDOfWParam(wParam) == IDOK)) {
 			BOOL bOK;
-			const int tabSize = static_cast<int>(::GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE));
+			const int tabSize = ::GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE);
 			if (tabSize > 0)
 				wEditor.SetTabWidth(tabSize);
-			const int indentSize = static_cast<int>(::GetDlgItemInt(hDlg, IDINDENTSIZE, &bOK, FALSE));
+			const int indentSize = ::GetDlgItemInt(hDlg, IDINDENTSIZE, &bOK, FALSE);
 			if (indentSize > 0)
 				wEditor.SetIndent(indentSize);
-			const bool useTabs = static_cast<bool>(::IsDlgButtonChecked(hDlg, IDUSETABS));
+			const bool useTabs = ::IsDlgButtonChecked(hDlg, IDUSETABS) == BST_CHECKED;
 			wEditor.SetUseTabs(useTabs);
 			if (ControlIDOfWParam(wParam) == IDCONVERT) {
 				ConvertIndentation(tabSize, useTabs);
