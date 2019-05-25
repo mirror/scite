@@ -255,7 +255,7 @@ protected:
 	void SizeSubWindows() override;
 
 	void SetMenuItem(int menuNumber, int position, int itemID,
-	                         const GUI::gui_char *text, const GUI::gui_char *mnemonic = 0) override;
+			 const GUI::gui_char *text, const GUI::gui_char *mnemonic = 0) override;
 	void RedrawMenu() override;
 	void DestroyMenuItem(int menuNumber, int itemID) override;
 	void CheckAMenuItem(int wIDCheckItem, bool val) override;
@@ -273,7 +273,7 @@ protected:
 	void CheckCommonDialogError();
 	bool OpenDialog(const FilePath &directory, const GUI::gui_char *filesFilter) override;
 	FilePath ChooseSaveName(const FilePath &directory, const char *title,
-		const GUI::gui_char *filesFilter = nullptr, const char *ext = nullptr);
+				const GUI::gui_char *filesFilter = nullptr, const char *ext = nullptr);
 	bool SaveAsDialog() override;
 	void SaveACopy() override;
 	void SaveAsHTML() override;
@@ -420,7 +420,7 @@ public:
 	uintptr_t GetInstance() override;
 	static void Register(HINSTANCE hInstance_);
 	static LRESULT PASCAL TWndProc(
-	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+		HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	friend class UniqueInstance;
 };

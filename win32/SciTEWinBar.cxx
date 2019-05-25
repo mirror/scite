@@ -11,7 +11,7 @@
  * Set up properties for FileTime, FileDate, CurrentTime, CurrentDate and FileAttr.
  */
 void SciTEWin::SetFileProperties(
-    PropSetFile &ps) {			///< Property set to update.
+	PropSetFile &ps) {			///< Property set to update.
 
 	const int TEMP_LEN = 100;
 	char temp[TEMP_LEN] = "";
@@ -26,13 +26,13 @@ void SciTEWin::SetFileProperties(
 		if (::FileTimeToSystemTime(&lft, &st) == 0)
 			st = SYSTEMTIME();
 		::GetTimeFormatA(LOCALE_USER_DEFAULT,
-		                0, &st,
-		                nullptr, temp, TEMP_LEN);
+				 0, &st,
+				 nullptr, temp, TEMP_LEN);
 		ps.Set("FileTime", temp);
 
 		::GetDateFormatA(LOCALE_USER_DEFAULT,
-		                DATE_SHORTDATE, &st,
-		                nullptr, temp, TEMP_LEN);
+				 DATE_SHORTDATE, &st,
+				 nullptr, temp, TEMP_LEN);
 		ps.Set("FileDate", temp);
 
 		const DWORD attr = ::GetFileAttributesW(filePath.AsInternal());
@@ -55,13 +55,13 @@ void SciTEWin::SetFileProperties(
 	}
 
 	::GetDateFormatA(LOCALE_USER_DEFAULT,
-	                DATE_SHORTDATE, nullptr,     	// Current date
-	                nullptr, temp, TEMP_LEN);
+			 DATE_SHORTDATE, nullptr,     	// Current date
+			 nullptr, temp, TEMP_LEN);
 	ps.Set("CurrentDate", temp);
 
 	::GetTimeFormatA(LOCALE_USER_DEFAULT,
-	                0, nullptr,     	// Current time
-	                nullptr, temp, TEMP_LEN);
+			 0, nullptr,     	// Current time
+			 nullptr, temp, TEMP_LEN);
 	ps.Set("CurrentTime", temp);
 }
 
@@ -71,7 +71,7 @@ void SciTEWin::SetFileProperties(
 void SciTEWin::SetStatusBarText(const char *s) {
 	GUI::gui_string barText = GUI::StringFromUTF8(s);
 	::SendMessage(HwndOf(wStatusBar),
-	              SB_SETTEXT, 0, reinterpret_cast<LPARAM>(barText.c_str()));
+		      SB_SETTEXT, 0, reinterpret_cast<LPARAM>(barText.c_str()));
 }
 
 void SciTEWin::TabInsert(int index, const GUI::gui_char *title) {
@@ -274,13 +274,13 @@ void SciTEWin::Notify(SCNotification *notification) {
 
 	case SCN_CHARADDED:
 		if ((notification->nmhdr.idFrom == IDM_RUNWIN) &&
-		        jobQueue.IsExecuting() &&
-		        hWriteSubProcess) {
+				jobQueue.IsExecuting() &&
+				hWriteSubProcess) {
 			const char chToWrite = static_cast<char>(notification->ch);
 			if (chToWrite != '\r') {
 				DWORD bytesWrote = 0;
 				::WriteFile(hWriteSubProcess, &chToWrite,
-				            1, &bytesWrote, nullptr);
+					    1, &bytesWrote, nullptr);
 			}
 		} else {
 			SciTEBase::Notify(notification);
@@ -289,7 +289,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 
 	case SCN_FOCUSIN:
 		if ((notification->nmhdr.idFrom == IDM_SRCWIN) ||
-			(notification->nmhdr.idFrom == IDM_RUNWIN))
+				(notification->nmhdr.idFrom == IDM_RUNWIN))
 			wFocus = static_cast<HWND>(notification->nmhdr.hwndFrom);
 		SciTEBase::Notify(notification);
 		break;
@@ -375,15 +375,15 @@ void SciTEWin::SizeSubWindows() {
 
 	if (tabVisible) {	// ? hide one tab only
 		showTab = tabHideOne ?
-		          TabCtrl_GetItemCount(HwndOf(wTabBar)) > 1 :
-		          true;
+			  TabCtrl_GetItemCount(HwndOf(wTabBar)) > 1 :
+			  true;
 	}
 
 	bands[bandTab].visible = showTab;
 	if (showTab && tabMultiLine) {
 		wTabBar.SetPosition(GUI::Rectangle(
-			rcClient.left, rcClient.top + visHeightTools,
-			rcClient.right, rcClient.top + heightTab + visHeightTools));
+					    rcClient.left, rcClient.top + visHeightTools,
+					    rcClient.right, rcClient.top + heightTab + visHeightTools));
 	}
 
 	RECT r = { rcClient.left, 0, rcClient.right, 0 };
@@ -411,7 +411,7 @@ void SciTEWin::SizeSubWindows() {
 	}
 	if (heightContent <= 0) {
 		heightContent = rcClient.Height();
-		for (size_t i=0;i<bands.size();i++) {
+		for (size_t i=0; i<bands.size(); i++) {
 			if (i != bandContents)
 				bands[i].visible = false;
 		}
@@ -428,15 +428,15 @@ void SciTEWin::SizeSubWindows() {
 			const GUI::Rectangle rcToSet(rcClient.left, yPos, rcClient.right, yPos + band.height);
 			if (hdwp)
 				hdwp = ::DeferWindowPos(hdwp, HwndOf(band.win),
-				0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
-				SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
+							0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
+							SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
 			yPos += band.height;
 		} else {
 			const GUI::Rectangle rcToSet(rcClient.left, rcClient.top - 41, rcClient.Width(), rcClient.top - 40);
 			if (hdwp)
 				hdwp = ::DeferWindowPos(hdwp, HwndOf(band.win),
-				0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
-				SWP_NOZORDER|SWP_NOACTIVATE|SWP_HIDEWINDOW);
+							0, rcToSet.left, rcToSet.top, rcToSet.Width(), rcToSet.Height(),
+							SWP_NOZORDER|SWP_NOACTIVATE|SWP_HIDEWINDOW);
 		}
 	}
 	if (hdwp)
@@ -458,7 +458,7 @@ void SciTEWin::SizeSubWindows() {
 
 
 void SciTEWin::SetMenuItem(int menuNumber, int position, int itemID,
-                           const GUI::gui_char *text, const GUI::gui_char *mnemonic) {
+			   const GUI::gui_char *text, const GUI::gui_char *mnemonic) {
 	// On Windows the menu items are modified if they already exist or are created
 	HMENU hmenu = ::GetSubMenu(::GetMenu(MainHWND()), menuNumber);
 	GUI::gui_string sTextMnemonic = text;
@@ -519,7 +519,7 @@ void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 void EnableButton(HWND wTools, int id, bool enable) noexcept {
 	if (wTools) {
 		::SendMessage(wTools, TB_ENABLEBUTTON, id,
-	              IntFromTwoShorts(enable ? TRUE : FALSE, 0));
+			      IntFromTwoShorts(enable ? TRUE : FALSE, 0));
 	}
 }
 
@@ -534,9 +534,9 @@ void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 void SciTEWin::CheckMenus() {
 	SciTEBase::CheckMenus();
 	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
-	                   static_cast<int>(wEditor.EOLMode()) - static_cast<int>(SA::EndOfLine::CrLf) + IDM_EOL_CRLF, 0);
+			     static_cast<int>(wEditor.EOLMode()) - static_cast<int>(SA::EndOfLine::CrLf) + IDM_EOL_CRLF, 0);
 	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_ENCODING_DEFAULT, IDM_ENCODING_UCOOKIE,
-	                   CurrentBuffer()->unicodeMode + IDM_ENCODING_DEFAULT, 0);
+			     CurrentBuffer()->unicodeMode + IDM_ENCODING_DEFAULT, 0);
 }
 
 void SciTEWin::LocaliseMenu(HMENU hmenu) {
@@ -546,7 +546,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 		MENUITEMINFOW mii {};
 		mii.cbSize = sizeof(mii);
 		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID |
-		            MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
+			    MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
 		mii.dwTypeData = buff;
 		mii.cch = sizeof(buff) - 1;
 		if (::GetMenuItemInfoW(hmenu, i, TRUE, &mii)) {
@@ -616,24 +616,24 @@ struct BarButton {
 };
 
 static BarButton bbs[] = {
-    { -1,           0 },
-    { STD_FILENEW,  IDM_NEW },
-    { STD_FILEOPEN, IDM_OPEN },
-    { STD_FILESAVE, IDM_SAVE },
-    { 0,            IDM_CLOSE },
-    { -1,           0 },
-    { STD_PRINT,    IDM_PRINT },
-    { -1,           0 },
-    { STD_CUT,      IDM_CUT },
-    { STD_COPY,     IDM_COPY },
-    { STD_PASTE,    IDM_PASTE },
-    { STD_DELETE,   IDM_CLEAR },
-    { -1,           0 },
-    { STD_UNDO,     IDM_UNDO },
-    { STD_REDOW,    IDM_REDO },
-    { -1,           0 },
-    { STD_FIND,     IDM_FIND },
-    { STD_REPLACE,  IDM_REPLACE },
+	{ -1,           0 },
+	{ STD_FILENEW,  IDM_NEW },
+	{ STD_FILEOPEN, IDM_OPEN },
+	{ STD_FILESAVE, IDM_SAVE },
+	{ 0,            IDM_CLOSE },
+	{ -1,           0 },
+	{ STD_PRINT,    IDM_PRINT },
+	{ -1,           0 },
+	{ STD_CUT,      IDM_CUT },
+	{ STD_COPY,     IDM_COPY },
+	{ STD_PASTE,    IDM_PASTE },
+	{ STD_DELETE,   IDM_CLEAR },
+	{ -1,           0 },
+	{ STD_UNDO,     IDM_UNDO },
+	{ STD_REDOW,    IDM_REDO },
+	{ -1,           0 },
+	{ STD_FIND,     IDM_FIND },
+	{ STD_REPLACE,  IDM_REPLACE },
 };
 
 static WNDPROC stDefaultTabProc = nullptr;
@@ -683,9 +683,9 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 				const int tab = TabAtPoint(hWnd, pt);
 				if (tab > -1 && iDraggingTab > -1 && iDraggingTab != tab) {
 					::SendMessage(::GetParent(hWnd),
-					        WM_COMMAND,
-					        IDC_SHIFTTAB,
-					        MAKELPARAM(iDraggingTab, tab));
+						      WM_COMMAND,
+						      IDC_SHIFTTAB,
+						      MAKELPARAM(iDraggingTab, tab));
 				}
 				iDraggingTab = -1;
 			}
@@ -714,22 +714,22 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 			const int tabcount = TabCtrl_GetItemCount(hWnd);
 
 			if (wParam == MK_LBUTTON &&
-			        tabcount > 1 &&
-			        tab > -1 &&
-			        iLastClickTab == tab &&
-			        !bDragBegin) {
+					tabcount > 1 &&
+					tab > -1 &&
+					iLastClickTab == tab &&
+					!bDragBegin) {
 				iDraggingTab = tab;
 				::SetCapture(hWnd);
 				hwndLastFocus = ::SetFocus(hWnd);
 				bDragBegin = true;
 				HCURSOR hcursor = ::LoadCursor(::GetModuleHandle(NULL),
-				        MAKEINTRESOURCE(IDC_DRAGDROP));
+							       MAKEINTRESOURCE(IDC_DRAGDROP));
 				if (hcursor) ::SetCursor(hcursor);
 			} else {
 				if (bDragBegin) {
 					if (tab > -1 && iDraggingTab > -1 /*&& iDraggingTab != tab*/) {
 						HCURSOR hcursor = ::LoadCursor(::GetModuleHandle(NULL),
-						        MAKEINTRESOURCE(IDC_DRAGDROP));
+									       MAKEINTRESOURCE(IDC_DRAGDROP));
 						if (hcursor) ::SetCursor(hcursor);
 					} else {
 						::SetCursor(::LoadCursor(NULL, IDC_NO));
@@ -747,8 +747,8 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 
 				RECT tabrc;
 				if (tab != -1 &&
-				        tab != iDraggingTab &&
-				        TabCtrl_GetItemRect(hWnd, tab, &tabrc)) {
+						tab != iDraggingTab &&
+						TabCtrl_GetItemRect(hWnd, tab, &tabrc)) {
 
 					HDC hDC = ::GetDC(hWnd);
 					if (hDC) {
@@ -777,7 +777,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 							{xRight, yRight + 2}
 						};
 
-						HPEN pen = ::CreatePen(0,1,RGB(255, 0, 0));
+						HPEN pen = ::CreatePen(0, 1, RGB(255, 0, 0));
 						HPEN penOld = SelectPen(hDC, pen);
 						const COLORREF colourNearest = ::GetNearestColor(hDC, RGB(255, 0, 0));
 						HBRUSH brush = ::CreateSolidBrush(colourNearest);
@@ -804,29 +804,29 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 void SciTEWin::Creation() {
 
 	wContent = ::CreateWindowEx(
-	               flatterUI ? 0 : WS_EX_CLIENTEDGE,
-	               classNameInternal,
-	               TEXT("Source"),
-	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	               0, 0,
-	               100, 100,
-	               MainHWND(),
-	               HmenuID(2000),
-	               hInstance,
-	               &contents);
+			   flatterUI ? 0 : WS_EX_CLIENTEDGE,
+			   classNameInternal,
+			   TEXT("Source"),
+			   WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+			   0, 0,
+			   100, 100,
+			   MainHWND(),
+			   HmenuID(2000),
+			   hInstance,
+			   &contents);
 	wContent.Show();
 
 	wEditor.SetScintilla(::CreateWindowEx(
-	              0,
-	              TEXT("Scintilla"),
-	              TEXT("Source"),
-	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	              0, 0,
-	              100, 100,
-	              HwndOf(wContent),
-	              HmenuID(IDM_SRCWIN),
-	              hInstance,
-	              0));
+				     0,
+				     TEXT("Scintilla"),
+				     TEXT("Source"),
+				     WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+				     0, 0,
+				     100, 100,
+				     HwndOf(wContent),
+				     HmenuID(IDM_SRCWIN),
+				     hInstance,
+				     0));
 	if (!wEditor.CanCall())
 		exit(FALSE);
 	wEditor.Show();
@@ -835,16 +835,16 @@ void SciTEWin::Creation() {
 	WindowSetFocus(wEditor);
 
 	wOutput.SetScintilla(::CreateWindowEx(
-	              0,
-	              TEXT("Scintilla"),
-	              TEXT("Run"),
-	              WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	              0, 0,
-	              100, 100,
-	              HwndOf(wContent),
-	              HmenuID(IDM_RUNWIN),
-	              hInstance,
-	              0));
+				     0,
+				     TEXT("Scintilla"),
+				     TEXT("Run"),
+				     WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+				     0, 0,
+				     100, 100,
+				     HwndOf(wContent),
+				     HmenuID(IDM_RUNWIN),
+				     hInstance,
+				     0));
 	if (!wOutput.CanCall())
 		exit(FALSE);
 	wOutput.Show();
@@ -856,24 +856,24 @@ void SciTEWin::Creation() {
 	::DragAcceptFiles(MainHWND(), true);
 
 	HWND hwndToolBar = ::CreateWindowEx(
-	               0,
-	               TOOLBARCLASSNAME,
-	               TEXT(""),
-	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-	               TBSTYLE_FLAT | TBSTYLE_TOOLTIPS | CCS_NORESIZE,
-	               0, 0,
-	               100, tbLarge ? heightToolsBig : heightTools,
-	               MainHWND(),
-	               HmenuID(IDM_TOOLWIN),
-	               hInstance,
-	               0);
+				   0,
+				   TOOLBARCLASSNAME,
+				   TEXT(""),
+				   WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+				   TBSTYLE_FLAT | TBSTYLE_TOOLTIPS | CCS_NORESIZE,
+				   0, 0,
+				   100, tbLarge ? heightToolsBig : heightTools,
+				   MainHWND(),
+				   HmenuID(IDM_TOOLWIN),
+				   hInstance,
+				   0);
 	wToolBar = hwndToolBar;
 
 	::SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0);
 	::SendMessage(hwndToolBar, TB_SETBITMAPSIZE, 0, tbLarge ? MAKELPARAM(24, 24) : MAKELPARAM(16, 16));
 	::SendMessage(hwndToolBar, TB_LOADIMAGES,
-	              tbLarge ? IDB_STD_LARGE_COLOR : IDB_STD_SMALL_COLOR,
-	              reinterpret_cast<LPARAM>(HINST_COMMCTRL));
+		      tbLarge ? IDB_STD_LARGE_COLOR : IDB_STD_SMALL_COLOR,
+		      reinterpret_cast<LPARAM>(HINST_COMMCTRL));
 
 	TBADDBITMAP addbmp = { hInstance, IDR_CLOSEFILE };
 
@@ -884,14 +884,14 @@ void SciTEWin::Creation() {
 	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, reinterpret_cast<LPARAM>(&addbmp));
 
 	TBBUTTON tbb[std::size(bbs)] = {};
-	for (unsigned int i = 0;i < std::size(bbs);i++) {
+	for (unsigned int i = 0; i < std::size(bbs); i++) {
 		if (bbs[i].cmd == IDM_CLOSE)
 			tbb[i].iBitmap = STD_PRINT + 1;
 		else
 			tbb[i].iBitmap = bbs[i].id;
 		tbb[i].idCommand = bbs[i].cmd;
 		tbb[i].fsState = TBSTATE_ENABLED;
-		if ( -1 == bbs[i].id)
+		if (-1 == bbs[i].id)
 			tbb[i].fsStyle = TBSTYLE_SEP;
 		else
 			tbb[i].fsStyle = TBSTYLE_BUTTON;
@@ -920,24 +920,24 @@ void SciTEWin::Creation() {
 		exit(FALSE);
 
 	wTabBar = ::CreateWindowEx(
-	              0,
-	              TEXT("SciTeTabCtrl"),
-	              TEXT("Tab"),
-	              WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-	              TCS_FOCUSNEVER | TCS_TOOLTIPS,
-	              0, 0,
-	              100, heightTab,
-	              MainHWND(),
-	              HmenuID(IDM_TABWIN),
-	              hInstance,
-	              0);
+			  0,
+			  TEXT("SciTeTabCtrl"),
+			  TEXT("Tab"),
+			  WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+			  TCS_FOCUSNEVER | TCS_TOOLTIPS,
+			  0, 0,
+			  100, heightTab,
+			  MainHWND(),
+			  HmenuID(IDM_TABWIN),
+			  hInstance,
+			  0);
 
 	if (!wTabBar.Created())
 		exit(FALSE);
 
 	LOGFONT lfIconTitle;
 	ZeroMemory(&lfIconTitle, sizeof(lfIconTitle));
-	if (::SystemParametersInfo(SPI_GETICONTITLELOGFONT,sizeof(lfIconTitle),&lfIconTitle,FALSE) == 0)
+	if (::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitle), &lfIconTitle, FALSE) == 0)
 		exit(FALSE);
 	fontTabs = ::CreateFontIndirect(&lfIconTitle);
 	SetWindowFont(HwndOf(wTabBar), fontTabs, 0);
@@ -945,93 +945,93 @@ void SciTEWin::Creation() {
 	wTabBar.Show();
 
 	HWND hwnd = ::CreateWindowEx(
-	               0,
-	               classNameInternal,
-	               TEXT("userStrip"),
-	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	               0, 0,
-	               100, 100,
-	               MainHWND(),
-	               HmenuID(2001),
-	               hInstance,
-	               &userStrip);
+			    0,
+			    classNameInternal,
+			    TEXT("userStrip"),
+			    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+			    0, 0,
+			    100, 100,
+			    MainHWND(),
+			    HmenuID(2001),
+			    hInstance,
+			    &userStrip);
 	if (!hwnd)
 		exit(FALSE);
 
 	hwnd = ::CreateWindowEx(
-	               0,
-	               classNameInternal,
-	               TEXT("backgroundStrip"),
-	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	               0, 0,
-	               100, 100,
-	               MainHWND(),
-	               HmenuID(2001),
-	               hInstance,
-	               &backgroundStrip);
+		       0,
+		       classNameInternal,
+		       TEXT("backgroundStrip"),
+		       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		       0, 0,
+		       100, 100,
+		       MainHWND(),
+		       HmenuID(2001),
+		       hInstance,
+		       &backgroundStrip);
 	if (!hwnd)
 		exit(FALSE);
 
 	hwnd = ::CreateWindowEx(
-	               0,
-	               classNameInternal,
-	               TEXT("searchStrip"),
-	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	               0, 0,
-	               100, 100,
-	               MainHWND(),
-	               HmenuID(2001),
-	               hInstance,
-	               &searchStrip);
+		       0,
+		       classNameInternal,
+		       TEXT("searchStrip"),
+		       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		       0, 0,
+		       100, 100,
+		       MainHWND(),
+		       HmenuID(2001),
+		       hInstance,
+		       &searchStrip);
 	if (!hwnd)
 		exit(FALSE);
 
 	hwnd = ::CreateWindowEx(
-	               0,
-	               classNameInternal,
-	               TEXT("FindStrip"),
-	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	               0, 0,
-	               100, 100,
-	               MainHWND(),
-	               HmenuID(2002),
-	               hInstance,
-	               &findStrip);
+		       0,
+		       classNameInternal,
+		       TEXT("FindStrip"),
+		       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		       0, 0,
+		       100, 100,
+		       MainHWND(),
+		       HmenuID(2002),
+		       hInstance,
+		       &findStrip);
 	if (!hwnd)
 		exit(FALSE);
 
 	hwnd = ::CreateWindowEx(
-	               0,
-	               classNameInternal,
-	               TEXT("ReplaceStrip"),
-	               WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-	               0, 0,
-	               100, 100,
-	               MainHWND(),
-	               HmenuID(2003),
-	               hInstance,
-	               &replaceStrip);
+		       0,
+		       classNameInternal,
+		       TEXT("ReplaceStrip"),
+		       WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		       0, 0,
+		       100, 100,
+		       MainHWND(),
+		       HmenuID(2003),
+		       hInstance,
+		       &replaceStrip);
 	if (!hwnd)
 		exit(FALSE);
 
 	wStatusBar = ::CreateWindowEx(
-	                 0,
-	                 STATUSCLASSNAME,
-	                 TEXT(""),
-	                 WS_CHILD | WS_CLIPSIBLINGS,
-	                 0, 0,
-	                 100, heightStatus,
-	                 MainHWND(),
-	                 HmenuID(IDM_STATUSWIN),
-	                 hInstance,
-	                 0);
+			     0,
+			     STATUSCLASSNAME,
+			     TEXT(""),
+			     WS_CHILD | WS_CLIPSIBLINGS,
+			     0, 0,
+			     100, heightStatus,
+			     MainHWND(),
+			     HmenuID(IDM_STATUSWIN),
+			     hInstance,
+			     0);
 	wStatusBar.Show();
 	const int widths[] = { 4000 };
 	// Perhaps we can define a syntax to create more parts,
 	// but it is probably an overkill for a marginal feature
 	::SendMessage(HwndOf(wStatusBar),
-	              SB_SETPARTS, 1,
-	              reinterpret_cast<LPARAM>(widths));
+		      SB_SETPARTS, 1,
+		      reinterpret_cast<LPARAM>(widths));
 
 	bands.push_back(Band(true, tbLarge ? heightToolsBig : heightTools, false, wToolBar));
 	bands.push_back(Band(true, heightTab, false, wTabBar));
@@ -1044,9 +1044,9 @@ void SciTEWin::Creation() {
 	bands.push_back(Band(true, heightStatus, false, wStatusBar));
 
 #ifndef NO_LUA
-		if (props.GetExpandedString("ext.lua.startup.script").length() == 0)
-			DestroyMenuItem(menuOptions,IDM_OPENLUAEXTERNALFILE);
+	if (props.GetExpandedString("ext.lua.startup.script").length() == 0)
+		DestroyMenuItem(menuOptions, IDM_OPENLUAEXTERNALFILE);
 #else
-		DestroyMenuItem(menuOptions,IDM_OPENLUAEXTERNALFILE);
+	DestroyMenuItem(menuOptions, IDM_OPENLUAEXTERNALFILE);
 #endif
 }

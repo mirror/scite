@@ -51,7 +51,7 @@ bool UniqueInstance::AcceptToOpenFiles(bool bAccept) {
 		// created in a different user session because of passing
 		// NULL for the SECURITY_ATTRIBUTES on mutex creation
 		bError = (::GetLastError() == ERROR_ALREADY_EXISTS ||
-		          ::GetLastError() == ERROR_ACCESS_DENIED);
+			  ::GetLastError() == ERROR_ACCESS_DENIED);
 	} else {
 		::CloseHandle(mutex);
 	}
@@ -77,7 +77,7 @@ void UniqueInstance::ToggleOpenFilesHere() {
 		if (hOtherWindow) {
 			// Found, we indicate it to yield the acceptation of files
 			::SendMessage(hOtherWindow, identityMessage, 0,
-			              static_cast<LPARAM>(1));
+				      static_cast<LPARAM>(1));
 		}
 	}
 	stw->CheckMenus();
@@ -230,8 +230,8 @@ BOOL CALLBACK UniqueInstance::SearchOtherInstance(HWND hWnd, LPARAM lParam) {
 		// We use a timeout to avoid being blocked by hung processes.
 		DWORD_PTR result = 0;
 		const LRESULT found = ::SendMessageTimeout(hWnd,
-		                                     ui->identityMessage, 0, 0,
-		                                     SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
+				      ui->identityMessage, 0, 0,
+				      SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
 		if (found != 0 && result == static_cast<DWORD_PTR>(ui->identityMessage)) {
 			// Another Gui window found!
 			// We memorise its window handle

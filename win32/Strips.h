@@ -33,7 +33,7 @@ public:
 	}
 	virtual LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) = 0;
 	static LRESULT PASCAL StWndProc(
-	    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+		HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 };
 
 class Strip : public BaseWin {

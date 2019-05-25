@@ -11,8 +11,8 @@
  * Flash the given window for the asked @a duration to visually warn the user.
  */
 static void FlashThisWindow(
-    HWND hWnd,    		///< Window to flash handle.
-    int duration) noexcept {	///< Duration of the flash state.
+	HWND hWnd,    		///< Window to flash handle.
+	int duration) noexcept {	///< Duration of the flash state.
 
 	HDC hDC = ::GetDC(hWnd);
 	if (hDC) {
@@ -29,9 +29,9 @@ static void FlashThisWindow(
  * Play the given sound, loading if needed the corresponding DLL function.
  */
 static void PlayThisSound(
-    const char *sound,    	///< Path to a .wav file or string with a frequency value.
-    int duration,    		///< If @a sound is a frequency, gives the duration of the sound.
-    HMODULE &hMM) noexcept {		///< Multimedia DLL handle.
+	const char *sound,    	///< Path to a .wav file or string with a frequency value.
+	int duration,    		///< If @a sound is a frequency, gives the duration of the sound.
+	HMODULE &hMM) noexcept {		///< Multimedia DLL handle.
 
 	BOOL bPlayOK = false;
 	int soundFreq = -1;	// Default is no sound at all
@@ -46,7 +46,7 @@ static void PlayThisSound(
 		}
 
 		if (hMM) {
-			typedef BOOL (WINAPI *MMFn) (LPCSTR, HMODULE, DWORD);
+			typedef BOOL (WINAPI *MMFn)(LPCSTR, HMODULE, DWORD);
 			MMFn fnMM = reinterpret_cast<MMFn>(::GetProcAddress(hMM, "PlaySoundA"));
 			if (fnMM) {
 				bPlayOK = fnMM(sound, NULL, SND_ASYNC | SND_FILENAME);
@@ -75,7 +75,7 @@ static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) noexcept {
 	if (message == WM_INITDIALOG) {
 		::SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 	}
-	return reinterpret_cast<SciTEWin*>(::GetWindowLongPtr(hDlg, DWLP_USER));
+	return reinterpret_cast<SciTEWin *>(::GetWindowLongPtr(hDlg, DWLP_USER));
 }
 
 void SciTEWin::WarnUser(int warnID) {
@@ -138,11 +138,11 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 		// Allow commands, such as Ctrl+1 to be active while the Parameters dialog is
 		// visible so that a group of commands can be easily run with differing parameters.
 		const bool menuKey = (pmsg->message == WM_KEYDOWN) &&
-		               (pmsg->wParam != VK_TAB) &&
-		               (pmsg->wParam != VK_ESCAPE) &&
-		               (pmsg->wParam != VK_RETURN) &&
-		               (pmsg->wParam < 'A' || pmsg->wParam > 'Z') &&
-		               (IsKeyDown(VK_CONTROL) || !IsKeyDown(VK_MENU));
+				     (pmsg->wParam != VK_TAB) &&
+				     (pmsg->wParam != VK_ESCAPE) &&
+				     (pmsg->wParam != VK_RETURN) &&
+				     (pmsg->wParam < 'A' || pmsg->wParam > 'Z') &&
+				     (IsKeyDown(VK_CONTROL) || !IsKeyDown(VK_MENU));
 		if (!menuKey && DialogHandled(wParameters.GetID(), pmsg))
 			return true;
 	}
@@ -170,7 +170,7 @@ bool SciTEWin::ModelessHandler(MSG *pmsg) {
 //  DoDialog is a bit like something in PC Magazine May 28, 1991, page 357
 int SciTEWin::DoDialog(const TCHAR *resName, DLGPROC lpProc) {
 	const int result = static_cast<int>(
-		::DialogBoxParam(hInstance, resName, MainHWND(), lpProc, reinterpret_cast<LPARAM>(this)));
+				   ::DialogBoxParam(hInstance, resName, MainHWND(), lpProc, reinterpret_cast<LPARAM>(this)));
 
 	if (result == -1) {
 		GUI::gui_string errorNum = GUI::StringFromInteger(::GetLastError());
@@ -185,10 +185,10 @@ int SciTEWin::DoDialog(const TCHAR *resName, DLGPROC lpProc) {
 
 HWND SciTEWin::CreateParameterisedDialog(LPCWSTR lpTemplateName, DLGPROC lpProc) {
 	return ::CreateDialogParamW(hInstance,
-		lpTemplateName,
-		MainHWND(),
-		lpProc,
-		reinterpret_cast<LPARAM>(this));
+				    lpTemplateName,
+				    MainHWND(),
+				    lpProc,
+				    reinterpret_cast<LPARAM>(this));
 }
 
 GUI::gui_string SciTEWin::DialogFilterFromProperty(const GUI::gui_char *filterProperty) {
@@ -260,10 +260,10 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 
 	if (buffers.size() > 1) {
 		ofn.Flags |=
-		    OFN_EXPLORER |
-		    OFN_PATHMUSTEXIST |
-		    OFN_NOCHANGEDIR |
-		    OFN_ALLOWMULTISELECT;
+			OFN_EXPLORER |
+			OFN_PATHMUSTEXIST |
+			OFN_NOCHANGEDIR |
+			OFN_ALLOWMULTISELECT;
 	}
 	if (::GetOpenFileNameW(&ofn)) {
 		succeeded = true;
@@ -320,7 +320,7 @@ FilePath SciTEWin::ChooseSaveName(const FilePath &directory, const char *title, 
 
 bool SciTEWin::SaveAsDialog() {
 	GUI::gui_string saveFilter = DialogFilterFromProperty(
-		GUI::StringFromUTF8(props.GetExpandedString("save.filter")).c_str());
+					     GUI::StringFromUTF8(props.GetExpandedString("save.filter")).c_str());
 	FilePath path = ChooseSaveName(filePath.Directory(), "Save File", saveFilter.c_str());
 	if (path.IsSet()) {
 		return SaveIfNotOpen(path, false);
@@ -337,7 +337,7 @@ void SciTEWin::SaveACopy() {
 
 void SciTEWin::SaveAsHTML() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As HTML",
-	                              GUI_TEXT("Web (.html;.htm)\0*.html;*.htm\0"), ".html");
+				       GUI_TEXT("Web (.html;.htm)\0*.html;*.htm\0"), ".html");
 	if (path.IsSet()) {
 		SaveToHTML(path);
 	}
@@ -345,7 +345,7 @@ void SciTEWin::SaveAsHTML() {
 
 void SciTEWin::SaveAsRTF() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As RTF",
-	                              GUI_TEXT("RTF (.rtf)\0*.rtf\0"), ".rtf");
+				       GUI_TEXT("RTF (.rtf)\0*.rtf\0"), ".rtf");
 	if (path.IsSet()) {
 		SaveToRTF(path);
 	}
@@ -353,7 +353,7 @@ void SciTEWin::SaveAsRTF() {
 
 void SciTEWin::SaveAsPDF() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As PDF",
-	                              GUI_TEXT("PDF (.pdf)\0*.pdf\0"), ".pdf");
+				       GUI_TEXT("PDF (.pdf)\0*.pdf\0"), ".pdf");
 	if (path.IsSet()) {
 		SaveToPDF(path);
 	}
@@ -361,7 +361,7 @@ void SciTEWin::SaveAsPDF() {
 
 void SciTEWin::SaveAsTEX() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As LaTeX",
-	                              GUI_TEXT("TeX (.tex)\0*.tex\0"), ".tex");
+				       GUI_TEXT("TeX (.tex)\0*.tex\0"), ".tex");
 	if (path.IsSet()) {
 		SaveToTEX(path);
 	}
@@ -369,7 +369,7 @@ void SciTEWin::SaveAsTEX() {
 
 void SciTEWin::SaveAsXML() {
 	FilePath path = ChooseSaveName(filePath.Directory(), "Export File As XML",
-	                              GUI_TEXT("XML (.xml)\0*.xml\0"), ".xml");
+				       GUI_TEXT("XML (.xml)\0*.xml\0"), ".xml");
 	if (path.IsSet()) {
 		SaveToXML(path);
 	}
@@ -429,7 +429,7 @@ static void DeleteFontObject(HFONT &font) noexcept {
  * If OK, print the user choice, with optionally defined header and footer.
  */
 void SciTEWin::Print(
-    bool showDialog) {	///< false if must print silently (using default settings).
+	bool showDialog) {	///< false if must print silently (using default settings).
 
 	RemoveFindMarks();
 	PRINTDLG pdlg = {};
@@ -494,19 +494,19 @@ void SciTEWin::Print(
 	// we take the entire width and height of the paper and
 	// subtract everything else.
 	rectPhysMargins.right = ptPage.x						// total paper width
-	                        - GetDeviceCaps(hdc, HORZRES) // printable width
-	                        - rectPhysMargins.left;				// left unprintable margin
+				- GetDeviceCaps(hdc, HORZRES) // printable width
+				- rectPhysMargins.left;				// left unprintable margin
 
 	rectPhysMargins.bottom = ptPage.y						// total paper height
-	                         - GetDeviceCaps(hdc, VERTRES)	// printable height
-	                         - rectPhysMargins.top;				// right unprintable margin
+				 - GetDeviceCaps(hdc, VERTRES)	// printable height
+				 - rectPhysMargins.top;				// right unprintable margin
 
 	// At this point, rectPhysMargins contains the widths of the
 	// unprintable regions on all four sides of the page in device units.
 
 	// Take in account the page setup given by the user (if one value is not null)
 	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
-	        pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
+			pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
 		GUI::Rectangle rectSetup;
 
 		// Convert the hundredths of millimeters (HiMetric) or
@@ -518,8 +518,8 @@ void SciTEWin::Print(
 		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, localeInfo, 3);
 
 		if (localeInfo[0] == '0') {	// Metric system. '1' is US System
-			rectSetup.left = MulDiv (pagesetupMargin.left, ptDpi.x, 2540);
-			rectSetup.top = MulDiv (pagesetupMargin.top, ptDpi.y, 2540);
+			rectSetup.left = MulDiv(pagesetupMargin.left, ptDpi.x, 2540);
+			rectSetup.top = MulDiv(pagesetupMargin.top, ptDpi.y, 2540);
 			rectSetup.right	= MulDiv(pagesetupMargin.right, ptDpi.x, 2540);
 			rectSetup.bottom	= MulDiv(pagesetupMargin.bottom, ptDpi.y, 2540);
 		} else {
@@ -560,16 +560,16 @@ void SciTEWin::Print(
 	StyleDefinition sdHeader(headerStyle.c_str());
 
 	int headerLineHeight = ::MulDiv(
-	                           (sdHeader.specified & StyleDefinition::sdSize) ? sdHeader.size : 9,
-	                           ptDpi.y, 72);
+				       (sdHeader.specified & StyleDefinition::sdSize) ? sdHeader.size : 9,
+				       ptDpi.y, 72);
 	HFONT fontHeader = ::CreateFontA(headerLineHeight,
-	                                0, 0, 0,
-	                                static_cast<int>(sdHeader.weight),
-	                                sdHeader.italics,
-	                                sdHeader.underlined,
-	                                0, 0, 0,
-	                                0, 0, 0,
-	                                (sdHeader.specified & StyleDefinition::sdFont) ? sdHeader.font.c_str() : "Arial");
+					 0, 0, 0,
+					 static_cast<int>(sdHeader.weight),
+					 sdHeader.italics,
+					 sdHeader.underlined,
+					 0, 0, 0,
+					 0, 0, 0,
+					 (sdHeader.specified & StyleDefinition::sdFont) ? sdHeader.font.c_str() : "Arial");
 	::SelectObject(hdc, fontHeader);
 	::GetTextMetrics(hdc, &tm);
 	headerLineHeight = tm.tmHeight + tm.tmExternalLeading;
@@ -578,16 +578,16 @@ void SciTEWin::Print(
 	StyleDefinition sdFooter(footerStyle.c_str());
 
 	int footerLineHeight = ::MulDiv(
-	                           (sdFooter.specified & StyleDefinition::sdSize) ? sdFooter.size : 9,
-	                           ptDpi.y, 72);
+				       (sdFooter.specified & StyleDefinition::sdSize) ? sdFooter.size : 9,
+				       ptDpi.y, 72);
 	HFONT fontFooter = ::CreateFontA(footerLineHeight,
-	                                0, 0, 0,
-	                                static_cast<int>(sdFooter.weight),
-	                                sdFooter.italics,
-	                                sdFooter.underlined,
-	                                0, 0, 0,
-	                                0, 0, 0,
-	                                (sdFooter.specified & StyleDefinition::sdFont) ? sdFooter.font.c_str() : "Arial");
+					 0, 0, 0,
+					 static_cast<int>(sdFooter.weight),
+					 sdFooter.italics,
+					 sdFooter.underlined,
+					 0, 0, 0,
+					 0, 0, 0,
+					 (sdFooter.specified & StyleDefinition::sdFont) ? sdFooter.font.c_str() : "Arial");
 	::SelectObject(hdc, fontFooter);
 	::GetTextMetrics(hdc, &tm);
 	footerLineHeight = tm.tmHeight + tm.tmExternalLeading;
@@ -653,7 +653,7 @@ void SciTEWin::Print(
 
 	while (lengthPrinted < lengthDoc) {
 		const bool printPage = (!(pdlg.Flags & PD_PAGENUMS) ||
-		             ((pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage)));
+					((pageNum >= pdlg.nFromPage) && (pageNum <= pdlg.nToPage)));
 
 		char pageString[32];
 		sprintf(pageString, "%0d", pageNum);
@@ -669,11 +669,12 @@ void SciTEWin::Print(
 				::SelectObject(hdc, fontHeader);
 				const UINT ta = ::SetTextAlign(hdc, TA_BOTTOM);
 				RECT rcw = {frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight / 2,
-				            frPrint.rc.right, frPrint.rc.top - headerLineHeight / 2};
+					    frPrint.rc.right, frPrint.rc.top - headerLineHeight / 2
+					   };
 				rcw.bottom = rcw.top + headerLineHeight;
 				::ExtTextOutW(hdc, frPrint.rc.left + 5, frPrint.rc.top - headerLineHeight / 2,
-				             ETO_OPAQUE, &rcw, sHeader.c_str(),
-				             static_cast<int>(sHeader.length()), nullptr);
+					      ETO_OPAQUE, &rcw, sHeader.c_str(),
+					      static_cast<int>(sHeader.length()), nullptr);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0, 1, sdHeader.Fore());
 				HPEN penOld = SelectPen(hdc, pen);
@@ -697,10 +698,11 @@ void SciTEWin::Print(
 				::SelectObject(hdc, fontFooter);
 				const UINT ta = ::SetTextAlign(hdc, TA_TOP);
 				RECT rcw = {frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 2,
-				            frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2};
+					    frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2
+					   };
 				::ExtTextOutW(hdc, frPrint.rc.left + 5, frPrint.rc.bottom + footerLineHeight / 2,
-				             ETO_OPAQUE, &rcw, sFooter.c_str(),
-				             static_cast<int>(sFooter.length()), nullptr);
+					      ETO_OPAQUE, &rcw, sFooter.c_str(),
+					      static_cast<int>(sFooter.length()), nullptr);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0, 1, sdFooter.Fore());
 				HPEN penOld = SelectPen(hdc, pen);
@@ -734,7 +736,7 @@ void SciTEWin::PrintSetup() {
 	pdlg.hInstance = hInstance;
 
 	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
-	        pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
+			pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
 		pdlg.Flags = PSD_MARGINS;
 
 		pdlg.rtMargin.left = pagesetupMargin.left;
@@ -944,7 +946,7 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			dlg.Enable(IDFINDSTYLE, findInStyle);
 			Edit_LimitText(dlg.Item(IDFINDSTYLE), 3);
 			dlg.SetItemText(IDFINDSTYLE, std::to_wstring(
-				wEditor.UnsignedStyleAt(wEditor.CurrentPos())));
+						wEditor.UnsignedStyleAt(wEditor.CurrentPos())));
 		}
 		return TRUE;
 
@@ -957,8 +959,8 @@ BOOL SciTEWin::FindMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::EndDialog(hDlg, IDCANCEL);
 			wFindReplace.Destroy();
 			return FALSE;
-		} else if ( (ControlIDOfWParam(wParam) == IDOK) ||
-		            (ControlIDOfWParam(wParam) == IDMARKALL) ) {
+		} else if ((ControlIDOfWParam(wParam) == IDOK) ||
+				(ControlIDOfWParam(wParam) == IDMARKALL)) {
 			dlg.GrabFields();
 			if (ControlIDOfWParam(wParam) == IDMARKALL) {
 				MarkAll(markWithBookMarks);
@@ -1035,7 +1037,7 @@ BOOL SciTEWin::ReplaceMessage(HWND hDlg, UINT message, WPARAM wParam) {
 		if (FindReplaceAdvanced()) {
 			dlg.Enable(IDFINDSTYLE, findInStyle);
 			dlg.SetItemText(IDFINDSTYLE, std::to_wstring(
-				wEditor.UnsignedStyleAt(wEditor.CurrentPos())));
+						wEditor.UnsignedStyleAt(wEditor.CurrentPos())));
 		}
 		if (findWhat.length() != 0 && props.GetInt("find.replacewith.focus", 1)) {
 			::SetFocus(::GetDlgItem(hDlg, IDREPLACEWITH));
@@ -1185,7 +1187,7 @@ void SciTEWin::PerformGrep() {
 void SciTEWin::FillCombos(Dialog &dlg) {
 	dlg.FillComboFromMemory(IDFINDWHAT, memFinds, true);
 	if (dlg.Item(IDREPLACEWITH))    // Replace combo is presented
-		dlg.FillComboFromMemory(IDREPLACEWITH, memReplaces,true);
+		dlg.FillComboFromMemory(IDREPLACEWITH, memReplaces, true);
 }
 
 void SciTEWin::FillCombosForGrep(Dialog &dlg) {
@@ -1421,7 +1423,7 @@ BOOL SciTEWin::GoLineMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 			if (lineNumberOpt || characterOnLineOpt) {
 				const intptr_t lineNumber = lineNumberOpt.value_or(
-					wEditor.LineFromPosition(wEditor.CurrentPos()) + 1);
+								    wEditor.LineFromPosition(wEditor.CurrentPos()) + 1);
 
 				GotoLineEnsureVisible(lineNumber - 1);
 
@@ -1522,7 +1524,7 @@ BOOL SciTEWin::TabSizeMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			::EndDialog(hDlg, IDCANCEL);
 			return FALSE;
 		} else if ((ControlIDOfWParam(wParam) == IDCONVERT) ||
-			(ControlIDOfWParam(wParam) == IDOK)) {
+				(ControlIDOfWParam(wParam) == IDOK)) {
 			BOOL bOK;
 			const int tabSize = ::GetDlgItemInt(hDlg, IDTABSIZE, &bOK, FALSE);
 			if (tabSize > 0)
@@ -1681,13 +1683,13 @@ BOOL SciTEWin::AboutMessage(HWND hDlg, UINT message, WPARAM wParam) {
 	switch (message) {
 
 	case WM_INITDIALOG: {
-		LocaliseDialog(hDlg);
-		GUI::ScintillaWindow ss;
-		HWND hwndCredits = ::GetDlgItem(hDlg, IDABOUTSCINTILLA);
-		const LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
-		::SetWindowLongPtr(hwndCredits, GWLP_USERDATA, subclassedProc);
-		ss.SetScintilla(hwndCredits);
-		SetAboutMessage(ss, staticBuild ? "Sc1  " : "SciTE");
+			LocaliseDialog(hDlg);
+			GUI::ScintillaWindow ss;
+			HWND hwndCredits = ::GetDlgItem(hDlg, IDABOUTSCINTILLA);
+			const LONG_PTR subclassedProc = ::SetWindowLongPtr(hwndCredits, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CreditsWndProc));
+			::SetWindowLongPtr(hwndCredits, GWLP_USERDATA, subclassedProc);
+			ss.SetScintilla(hwndCredits);
+			SetAboutMessage(ss, staticBuild ? "Sc1  " : "SciTE");
 		}
 		return TRUE;
 

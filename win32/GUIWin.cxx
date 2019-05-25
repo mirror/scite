@@ -41,7 +41,7 @@ static unsigned int UTF8Length(const wchar_t *uptr, size_t tlen) noexcept {
 		} else if (uch < 0x800) {
 			len += 2;
 		} else if ((uch >= SURROGATE_LEAD_FIRST) &&
-			(uch <= SURROGATE_TRAIL_LAST)) {
+				(uch <= SURROGATE_TRAIL_LAST)) {
 			len += 4;
 			i++;
 		} else {
@@ -62,7 +62,7 @@ static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf) noexcept
 			putf[k++] = static_cast<char>(0xC0 | (uch >> 6));
 			putf[k++] = static_cast<char>(0x80 | (uch & 0x3f));
 		} else if ((uch >= SURROGATE_LEAD_FIRST) &&
-			(uch <= SURROGATE_TRAIL_LAST)) {
+				(uch <= SURROGATE_TRAIL_LAST)) {
 			// Half a surrogate pair
 			i++;
 			const unsigned int xch = 0x10000 + ((uch & 0x3ff) << 10) + (uptr[i] & 0x3ff);
@@ -220,11 +220,11 @@ Rectangle Window::GetPosition() {
 
 void Window::SetPosition(Rectangle rc) {
 	::SetWindowPos(static_cast<HWND>(wid),
-		0, rc.left, rc.top, rc.Width(), rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
+		       0, rc.left, rc.top, rc.Width(), rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
 }
 
 Rectangle Window::GetClientPosition() {
-	RECT rc={0,0,0,0};
+	RECT rc= {0, 0, 0, 0};
 	if (wid)
 		::GetClientRect(static_cast<HWND>(wid), &rc);
 	return  Rectangle(rc.left, rc.top, rc.right, rc.bottom);
@@ -258,8 +258,8 @@ void Menu::Destroy() {
 
 void Menu::Show(Point pt, Window &w) {
 	::TrackPopupMenu(static_cast<HMENU>(mid),
-		TPM_RIGHTBUTTON, pt.x - 4, pt.y, 0,
-		static_cast<HWND>(w.GetID()), NULL);
+			 TPM_RIGHTBUTTON, pt.x - 4, pt.y, 0,
+			 static_cast<HWND>(w.GetID()), NULL);
 	Destroy();
 }
 

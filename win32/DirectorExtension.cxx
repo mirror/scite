@@ -78,8 +78,8 @@ static void SendDirector(const char *verb, const char *arg = nullptr) {
 		slashedMessage.append(1, '\0');	// Ensure NUL at end of string
 		cds.lpData = &slashedMessage[0];
 		::SendMessage(wDestination, WM_COPYDATA,
-			            reinterpret_cast<WPARAM>(wReceiver),
-			            reinterpret_cast<LPARAM>(&cds));
+			      reinterpret_cast<WPARAM>(wReceiver),
+			      reinterpret_cast<LPARAM>(&cds));
 	}
 }
 
@@ -121,7 +121,7 @@ static LRESULT HandleCopyData(LPARAM lParam) {
 }
 
 LRESULT PASCAL DirectorExtension_WndProc(
-    HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	if (iMessage == WM_COPYDATA) {
 		return HandleCopyData(lParam);
 	} else if (iMessage == SDI) {
@@ -155,22 +155,22 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	host = host_;
 	SDI = ::RegisterWindowMessage(TEXT("SciTEDirectorInterface"));
 	HINSTANCE hInstance = reinterpret_cast<HINSTANCE>(
-	                          host->GetInstance());
+				      host->GetInstance());
 	DirectorExtension_Register(hInstance);
 	wReceiver = ::CreateWindow(
-	                DirectorExtension_ClassName,
-	                DirectorExtension_ClassName,
-	                0,
-	                0, 0, 0, 0,
-	                0,
-	                0,
-	                hInstance,
-	                nullptr);
+			    DirectorExtension_ClassName,
+			    DirectorExtension_ClassName,
+			    0,
+			    0, 0, 0, 0,
+			    0,
+			    0,
+			    hInstance,
+			    nullptr);
 	if (!wReceiver)
 		::exit(FALSE);
 	// Make the frame window handle available so the director can activate it.
 	::SetWindowLongPtr(wReceiver, GWLP_USERDATA,
-		reinterpret_cast<LONG_PTR>((static_cast<SciTEBase*>(host))->GetID()));
+			   reinterpret_cast<LONG_PTR>((static_cast<SciTEBase *>(host))->GetID()));
 	CheckEnvironment(host);
 	return true;
 }
