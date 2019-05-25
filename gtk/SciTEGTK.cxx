@@ -20,6 +20,7 @@
 #include <set>
 #include <algorithm>
 #include <memory>
+#include <chrono>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -33,12 +34,13 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "ILexer.h"
-#include "Scintilla.h"
-#include "ScintillaWidget.h"
 
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
 #include "ScintillaCall.h"
+
+#include "Scintilla.h"
+#include "ScintillaWidget.h"
 
 #include "GUI.h"
 #include "ScintillaWindow.h"

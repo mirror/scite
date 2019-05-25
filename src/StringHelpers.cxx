@@ -13,6 +13,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <chrono>
 
 #include "GUI.h"
 #include "StringHelpers.h"

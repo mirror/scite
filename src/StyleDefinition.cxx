@@ -15,6 +15,7 @@
 #include <string_view>
 #include <vector>
 #include <algorithm>
+#include <chrono>
 
 #include "ScintillaTypes.h"
 

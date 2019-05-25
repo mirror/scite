@@ -45,6 +45,7 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <chrono>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -54,11 +55,12 @@
 #include <gtk/gtk.h>
 
 #include "ILexer.h"
-#include "Scintilla.h"
 
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
 #include "ScintillaCall.h"
+
+#include "Scintilla.h"
 
 #include "GUI.h"
 #include "ScintillaWindow.h"

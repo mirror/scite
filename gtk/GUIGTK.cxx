@@ -9,6 +9,7 @@
 #include <time.h>
 
 #include <string>
+#include <chrono>
 #include <sstream>
 
 #include <gtk/gtk.h>
@@ -164,28 +165,6 @@ void Menu::Show(Point pt G_GNUC_UNUSED, Window &) {
 		GINT_TO_POINTER((pt.y << 16) | pt.x), 0,
 		gtk_get_current_event_time());
 #endif
-}
-
-ElapsedTime::ElapsedTime() {
-	GTimeVal curTime;
-	g_get_current_time(&curTime);
-	bigBit = curTime.tv_sec;
-	littleBit = curTime.tv_usec;
-}
-
-double ElapsedTime::Duration(bool reset) {
-	GTimeVal curTime;
-	g_get_current_time(&curTime);
-	long endBigBit = curTime.tv_sec;
-	long endLittleBit = curTime.tv_usec;
-	double result = 1000000.0 * (endBigBit - bigBit);
-	result += endLittleBit - littleBit;
-	result /= 1000000.0;
-	if (reset) {
-		bigBit = endBigBit;
-		littleBit = endLittleBit;
-	}
-	return result;
 }
 
 sptr_t ScintillaPrimitive::Send(unsigned int msg, uptr_t wParam, sptr_t lParam) {

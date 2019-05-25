@@ -17,6 +17,7 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <chrono>
 
 #if defined(GTK)
 #include <gtk/gtk.h>

@@ -126,12 +126,25 @@ public:
 	void Show(Point pt, Window &w);
 };
 
+// Simplified access to high precision timing.
+// Copied from Scintilla.
 class ElapsedTime {
-	long bigBit;
-	long littleBit;
+	std::chrono::high_resolution_clock::time_point tp;
 public:
-	ElapsedTime();
-	double Duration(bool reset=false);
+	/// Capture the moment
+	ElapsedTime() noexcept : tp(std::chrono::high_resolution_clock::now()) {
+	}
+	/// Return duration as floating point seconds
+	double Duration(bool reset=false) noexcept {
+		const std::chrono::high_resolution_clock::time_point tpNow =
+			std::chrono::high_resolution_clock::now();
+		const std::chrono::duration<double> stylingDuration =
+			std::chrono::duration_cast<std::chrono::duration<double>>(tpNow - tp);
+		if (reset) {
+			tp = tpNow;
+		}
+		return stylingDuration.count();
+	}
 };
 
 class ScintillaPrimitive : public Window {

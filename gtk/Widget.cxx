@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>

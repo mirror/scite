@@ -7,6 +7,7 @@
 
 #include <string>
 #include <string_view>
+#include <chrono>
 
 #include "ScintillaTypes.h"
 #include "ScintillaCall.h"

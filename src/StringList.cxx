@@ -14,6 +14,7 @@
 #include <map>
 #include <set>
 #include <algorithm>
+#include <chrono>
 
 #include "GUI.h"
 #include "StringList.h"
