@@ -20,8 +20,5 @@ duplicateCondition:scite/src/StyleWriter.cxx
 // Doesn't understand Win32 SetClipboardData is not leak
 memleak:scite/win32/SciTEWin.cxx
 
-// Doesn't understand access through union
-unreadVariable:scite/win32/GUIWin.cxx
-
 // Suppress everything in lua as that comes from the Lua distribution
 *:scite/lua/*
