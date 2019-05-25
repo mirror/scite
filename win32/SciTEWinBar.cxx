@@ -14,7 +14,7 @@ void SciTEWin::SetFileProperties(
     PropSetFile &ps) {			///< Property set to update.
 
 	const int TEMP_LEN = 100;
-	char temp[TEMP_LEN];
+	char temp[TEMP_LEN] = "";
 	HANDLE hf = ::CreateFileW(filePath.AsInternal(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hf != INVALID_HANDLE_VALUE) {
 		FILETIME ft = FILETIME();
@@ -519,7 +519,7 @@ void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 void EnableButton(HWND wTools, int id, bool enable) noexcept {
 	if (wTools) {
 		::SendMessage(wTools, TB_ENABLEBUTTON, id,
-	              IntFromTwoShorts(static_cast<short>(enable ? TRUE : FALSE), 0));
+	              IntFromTwoShorts(enable ? TRUE : FALSE, 0));
 	}
 }
 
@@ -543,7 +543,7 @@ void SciTEWin::LocaliseMenu(HMENU hmenu) {
 	for (int i = 0; i <= ::GetMenuItemCount(hmenu); i++) {
 		GUI::gui_char buff[200];
 		buff[0] = '\0';
-		MENUITEMINFOW mii = MENUITEMINFOW();
+		MENUITEMINFOW mii {};
 		mii.cbSize = sizeof(mii);
 		mii.fMask = MIIM_CHECKMARKS | MIIM_DATA | MIIM_ID |
 		            MIIM_STATE | MIIM_SUBMENU | MIIM_TYPE;
@@ -639,16 +639,16 @@ static BarButton bbs[] = {
 static WNDPROC stDefaultTabProc = nullptr;
 static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
-	static BOOL st_bDragBegin = FALSE;
-	static int st_iDraggingTab = -1;
-	static int st_iLastClickTab = -1;
-	static HWND st_hwndLastFocus {};
+	static bool bDragBegin = false;
+	static int iDraggingTab = -1;
+	static int iLastClickTab = -1;
+	static HWND hwndLastFocus {};
 
 	switch (iMessage) {
 
 	case WM_LBUTTONDOWN: {
 			const GUI::Point pt = PointFromLong(lParam);
-			st_iLastClickTab = TabAtPoint(hWnd, pt);
+			iLastClickTab = TabAtPoint(hWnd, pt);
 		}
 		break;
 	}
@@ -673,34 +673,34 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 		break;
 
 	case WM_LBUTTONUP: {
-			st_iLastClickTab = -1;
-			if (st_bDragBegin == TRUE) {
-				if (st_hwndLastFocus) ::SetFocus(st_hwndLastFocus);
+			iLastClickTab = -1;
+			if (bDragBegin) {
+				if (hwndLastFocus) ::SetFocus(hwndLastFocus);
 				::ReleaseCapture();
 				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-				st_bDragBegin = FALSE;
+				bDragBegin = false;
 				const GUI::Point pt = PointFromLong(lParam);
 				const int tab = TabAtPoint(hWnd, pt);
-				if (tab > -1 && st_iDraggingTab > -1 && st_iDraggingTab != tab) {
+				if (tab > -1 && iDraggingTab > -1 && iDraggingTab != tab) {
 					::SendMessage(::GetParent(hWnd),
 					        WM_COMMAND,
 					        IDC_SHIFTTAB,
-					        MAKELPARAM(st_iDraggingTab, tab));
+					        MAKELPARAM(iDraggingTab, tab));
 				}
-				st_iDraggingTab = -1;
+				iDraggingTab = -1;
 			}
 		}
 		break;
 
 	case WM_KEYDOWN: {
 			if (wParam == VK_ESCAPE) {
-				if (st_bDragBegin == TRUE) {
-					if (st_hwndLastFocus) ::SetFocus(st_hwndLastFocus);
+				if (bDragBegin) {
+					if (hwndLastFocus) ::SetFocus(hwndLastFocus);
 					::ReleaseCapture();
 					::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-					st_bDragBegin = FALSE;
-					st_iDraggingTab = -1;
-					st_iLastClickTab = -1;
+					bDragBegin = false;
+					iDraggingTab = -1;
+					iLastClickTab = -1;
 					::InvalidateRect(hWnd, nullptr, FALSE);
 				}
 			}
@@ -716,18 +716,18 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 			if (wParam == MK_LBUTTON &&
 			        tabcount > 1 &&
 			        tab > -1 &&
-			        st_iLastClickTab == tab &&
-			        st_bDragBegin == FALSE) {
-				st_iDraggingTab = tab;
+			        iLastClickTab == tab &&
+			        !bDragBegin) {
+				iDraggingTab = tab;
 				::SetCapture(hWnd);
-				st_hwndLastFocus = ::SetFocus(hWnd);
-				st_bDragBegin = TRUE;
+				hwndLastFocus = ::SetFocus(hWnd);
+				bDragBegin = true;
 				HCURSOR hcursor = ::LoadCursor(::GetModuleHandle(NULL),
 				        MAKEINTRESOURCE(IDC_DRAGDROP));
 				if (hcursor) ::SetCursor(hcursor);
 			} else {
-				if (st_bDragBegin == TRUE) {
-					if (tab > -1 && st_iDraggingTab > -1 /*&& st_iDraggingTab != tab*/) {
+				if (bDragBegin) {
+					if (tab > -1 && iDraggingTab > -1 /*&& iDraggingTab != tab*/) {
 						HCURSOR hcursor = ::LoadCursor(::GetModuleHandle(NULL),
 						        MAKEINTRESOURCE(IDC_DRAGDROP));
 						if (hcursor) ::SetCursor(hcursor);
@@ -740,21 +740,21 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 		break;
 
 	case WM_PAINT: {
-			if (st_bDragBegin == TRUE && st_iDraggingTab != -1) {
+			if (bDragBegin && iDraggingTab != -1) {
 
 				const GUI::Point ptClient = ClientFromScreen(hWnd, PointOfCursor());
 				const int tab = TabAtPoint(hWnd, ptClient);
 
 				RECT tabrc;
 				if (tab != -1 &&
-				        tab != st_iDraggingTab &&
+				        tab != iDraggingTab &&
 				        TabCtrl_GetItemRect(hWnd, tab, &tabrc)) {
 
 					HDC hDC = ::GetDC(hWnd);
 					if (hDC) {
 
-						int xLeft = tabrc.left + 8;
-						int yLeft = tabrc.top + (tabrc.bottom - tabrc.top) / 2;
+						const int xLeft = tabrc.left + 8;
+						const int yLeft = tabrc.top + (tabrc.bottom - tabrc.top) / 2;
 						POINT ptsLeftArrow[] = {
 							{xLeft, yLeft - 2},
 							{xLeft - 2, yLeft - 2},
@@ -765,8 +765,8 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 							{xLeft, yLeft + 2}
 						};
 
-						int xRight = tabrc.right - 10;
-						int yRight = tabrc.top + (tabrc.bottom - tabrc.top) / 2;
+						const int xRight = tabrc.right - 10;
+						const int yRight = tabrc.top + (tabrc.bottom - tabrc.top) / 2;
 						POINT ptsRightArrow[] = {
 							{xRight, yRight - 2},
 							{xRight + 2, yRight - 2},
@@ -782,7 +782,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 						const COLORREF colourNearest = ::GetNearestColor(hDC, RGB(255, 0, 0));
 						HBRUSH brush = ::CreateSolidBrush(colourNearest);
 						HBRUSH brushOld = SelectBrush(hDC, brush);
-						::Polygon(hDC, tab < st_iDraggingTab ? ptsLeftArrow : ptsRightArrow, 7);
+						::Polygon(hDC, tab < iDraggingTab ? ptsLeftArrow : ptsRightArrow, 7);
 						SelectBrush(hDC, brushOld);
 						DeleteBrush(brush);
 						SelectPen(hDC, penOld);
@@ -883,7 +883,7 @@ void SciTEWin::Creation() {
 
 	::SendMessage(hwndToolBar, TB_ADDBITMAP, 1, reinterpret_cast<LPARAM>(&addbmp));
 
-	TBBUTTON tbb[std::size(bbs)];
+	TBBUTTON tbb[std::size(bbs)] = {};
 	for (unsigned int i = 0;i < std::size(bbs);i++) {
 		if (bbs[i].cmd == IDM_CLOSE)
 			tbb[i].iBitmap = STD_PRINT + 1;
