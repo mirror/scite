@@ -837,6 +837,8 @@ protected:
 	bool MarginClick(SA::Position position, int modifiers);
 	void NewLineInOutput();
 	virtual void SetStatusBarText(const char *s) = 0;
+	void UpdateUI(const SCNotification *notification);
+	void Modified(const SCNotification *notification);
 	virtual void Notify(SCNotification *notification);
 	virtual void ShowToolBar() = 0;
 	virtual void ShowTabBar() = 0;

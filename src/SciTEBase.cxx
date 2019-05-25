@@ -3822,6 +3822,71 @@ void SciTEBase::NewLineInOutput() {
 	Execute();
 }
 
+void SciTEBase::UpdateUI(const SCNotification *notification) {
+	const bool handled = extender && extender->OnUpdateUI();
+	if (!handled) {
+		BraceMatch(notification->nmhdr.idFrom == IDM_SRCWIN);
+		if (notification->nmhdr.idFrom == IDM_SRCWIN) {
+			UpdateStatusBar(false);
+		}
+		CheckMenusClipboard();
+	}
+	if (CurrentBuffer()->findMarks == Buffer::fmModified) {
+		RemoveFindMarks();
+	}
+	const SA::Update updated = static_cast<SA::Update>(notification->updated);
+	if (static_cast<int>(updated & (SA::Update::Selection | SA::Update::Content))) {
+		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
+			// Obly highlight focussed pane.
+			if ((updated & SA::Update::Selection) == SA::Update::Selection) {
+				currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
+				currentWordHighlight.textHasChanged = false;
+				HighlightCurrentWord(true);
+			} else if (currentWordHighlight.textHasChanged) {
+				HighlightCurrentWord(false);
+			}
+		}
+	}
+}
+
+void SciTEBase::Modified(const SCNotification *notification) {
+	const SA::ModificationFlags modificationNone =
+		static_cast<SA::ModificationFlags>(0);
+	const SA::ModificationFlags modificationType =
+		static_cast<SA::ModificationFlags>(notification->modificationType);
+	const SA::ModificationFlags insertOrDelete =
+		SA::ModificationFlags::InsertText | SA::ModificationFlags::DeleteText;
+	if ((notification->nmhdr.idFrom == IDM_SRCWIN) &&
+		((modificationType & insertOrDelete) != modificationNone))
+		CurrentBuffer()->DocumentModified();
+	if ((modificationType & SA::ModificationFlags::LastStepInUndoRedo) != modificationNone) {
+		// When the user hits undo or redo, several normal insert/delete
+		// notifications may fire, but we will end up here in the end
+		EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SA::Message::CanUndo));
+		EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SA::Message::CanRedo));
+	} else if ((modificationType & insertOrDelete) != modificationNone) {
+		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
+			currentWordHighlight.textHasChanged = true;
+		}
+		// This will be called a lot, and usually means "typing".
+		EnableAMenuItem(IDM_UNDO, true);
+		EnableAMenuItem(IDM_REDO, false);
+		if (CurrentBuffer()->findMarks == Buffer::fmMarked) {
+			CurrentBuffer()->findMarks = Buffer::fmModified;
+		}
+	}
+
+	if (notification->linesAdded && lineNumbers && lineNumbersExpand) {
+		SetLineNumberWidth();
+	}
+
+	if ((modificationType & SA::ModificationFlags::ChangeFold) != modificationNone) {
+		FoldChanged(notification->line,
+			static_cast<SA::FoldLevel>(notification->foldLevelNow),
+			static_cast<SA::FoldLevel>(notification->foldLevelPrev));
+	}
+}
+
 void SciTEBase::Notify(SCNotification *notification) {
 	bool handled = false;
 	switch (static_cast<SA::Notification>(notification->nmhdr.code)) {
@@ -3931,53 +3996,25 @@ void SciTEBase::Notify(SCNotification *notification) {
 		if (CurrentBuffer()->findMarks == Buffer::fmModified) {
 			RemoveFindMarks();
 		}
-		if (notification->updated & (SC_UPDATE_SELECTION | SC_UPDATE_CONTENT)) {
-			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
-				// Obly highlight focussed pane.
-				if (notification->updated & SC_UPDATE_SELECTION) {
-					currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
-					currentWordHighlight.textHasChanged = false;
-					HighlightCurrentWord(true);
-				} else if (currentWordHighlight.textHasChanged) {
-					HighlightCurrentWord(false);
+		{
+			const SA::Update updated = static_cast<SA::Update>(notification->updated);
+			if (static_cast<int>(updated & (SA::Update::Selection | SA::Update::Content))) {
+				if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
+					// Obly highlight focussed pane.
+					if ((updated & SA::Update::Selection) == SA::Update::Selection) {
+						currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
+						currentWordHighlight.textHasChanged = false;
+						HighlightCurrentWord(true);
+					} else if (currentWordHighlight.textHasChanged) {
+						HighlightCurrentWord(false);
+					}
 				}
-				//	if (notification->updated & SC_UPDATE_SELECTION)
-				//if (currentWordHighlight.statesOfDelay != currentWordHighlight.delayJustEnded)
-				//else
-				//	currentWordHighlight.statesOfDelay = currentWordHighlight.delayAlreadyElapsed;
 			}
 		}
 		break;
 
 	case SA::Notification::Modified:
-		if ((notification->nmhdr.idFrom == IDM_SRCWIN) && 
-			(notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)))
-			CurrentBuffer()->DocumentModified();
-		if (notification->modificationType & SC_LASTSTEPINUNDOREDO) {
-			//when the user hits undo or redo, several normal insert/delete
-			//notifications may fire, but we will end up here in the end
-			EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SA::Message::CanUndo));
-			EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SA::Message::CanRedo));
-		} else if (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
-			if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
-				currentWordHighlight.textHasChanged = true;
-			}
-			//this will be called a lot, and usually means "typing".
-			EnableAMenuItem(IDM_UNDO, true);
-			EnableAMenuItem(IDM_REDO, false);
-			if (CurrentBuffer()->findMarks == Buffer::fmMarked) {
-				CurrentBuffer()->findMarks = Buffer::fmModified;
-			}
-		}
-
-		if (notification->linesAdded && lineNumbers && lineNumbersExpand)
-			SetLineNumberWidth();
-
-		if (0 != (notification->modificationType & SC_MOD_CHANGEFOLD)) {
-			FoldChanged(notification->line,
-			        static_cast<SA::FoldLevel>(notification->foldLevelNow),
-			        static_cast<SA::FoldLevel>(notification->foldLevelPrev));
-		}
+		Modified(notification);
 		break;
 
 	case SA::Notification::MarginClick: {
