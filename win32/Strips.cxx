@@ -45,15 +45,15 @@ GUI::gui_string ClassNameOfWindow(HWND hWnd) {
 
 namespace {
 
-void SetFontHandle(const GUI::Window &w, HFONT hfont) {
+void SetFontHandle(const GUI::Window &w, HFONT hfont) noexcept {
 	SetWindowFont(HwndOf(w), hfont, 0);
 }
 
-void CheckButton(const GUI::Window &wButton, bool checked) {
+void CheckButton(const GUI::Window &wButton, bool checked) noexcept {
 	Button_SetCheck(HwndOf(wButton), checked ? BST_CHECKED : BST_UNCHECKED);
 }
 
-SIZE SizeButton(const GUI::Window &wButton) {
+SIZE SizeButton(const GUI::Window &wButton) noexcept {
 	SIZE sz = { 0, 0 };
 #ifdef BCM_GETIDEALSIZE
 	// Push buttons can be measured with BCM_GETIDEALSIZE.
@@ -65,7 +65,7 @@ SIZE SizeButton(const GUI::Window &wButton) {
 	return sz;
 }
 
-int WidthText(HFONT hfont, const GUI::gui_char *text) {
+int WidthText(HFONT hfont, const GUI::gui_char *text) noexcept {
 	HDC hdcMeasure = ::CreateCompatibleDC(NULL);
 	HFONT hfontOriginal = SelectFont(hdcMeasure, hfont);
 	RECT rcText = {0,0, 2000, 2000};
@@ -181,7 +181,7 @@ GUI::Window Strip::CreateText(const char *text) {
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
-static DWORD GetVersion(LPCTSTR lpszDllName) {
+static DWORD GetVersion(LPCTSTR lpszDllName) noexcept {
     DWORD dwVersion = 0;
     HINSTANCE hinstDll = ::LoadLibrary(lpszDllName);
     if (hinstDll) {
@@ -373,7 +373,7 @@ void Strip::Size() {
 
 namespace {
 
-RECT RECTFromRectangle(GUI::Rectangle r) {
+RECT RECTFromRectangle(GUI::Rectangle r) noexcept {
 	RECT rc = { r.left, r.top, r.right, r.bottom };
 	return rc;
 }

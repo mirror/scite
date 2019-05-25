@@ -712,7 +712,7 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 }
 
 // from ScintillaWin.cxx
-static UINT CodePageFromCharSet(SA::CharacterSet characterSet, UINT documentCodePage) {
+static UINT CodePageFromCharSet(SA::CharacterSet characterSet, UINT documentCodePage) noexcept {
 	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
 	const BOOL bci = ::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<uintptr_t>(characterSet)),
 	                                  &ci, TCI_SRCCHARSET);
@@ -2209,7 +2209,7 @@ uintptr_t SciTEWin::EventLoop() {
 #define LOAD_LIBRARY_SEARCH_SYSTEM32 0x800
 #endif
 
-static void RestrictDLLPath() {
+static void RestrictDLLPath() noexcept {
 	// Try to limit the locations where DLLs will be loaded from to prevent binary planting.
 	// That is where a bad DLL is placed in the current directory or in the PATH.
 	typedef BOOL(WINAPI *SetDefaultDllDirectoriesSig)(DWORD DirectoryFlags);

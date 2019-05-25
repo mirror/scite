@@ -10,15 +10,15 @@
 
 class StyleWriter;
 
-inline intptr_t SptrFromPointer(void *p) {
+inline intptr_t SptrFromPointer(void *p) noexcept {
 	return reinterpret_cast<intptr_t>(p);
 }
 
-inline intptr_t SptrFromString(const char *cp) {
+inline intptr_t SptrFromString(const char *cp) noexcept {
 	return reinterpret_cast<intptr_t>(cp);
 }
 
-inline uintptr_t UptrFromString(const char *cp) {
+inline uintptr_t UptrFromString(const char *cp) noexcept {
 	return reinterpret_cast<uintptr_t>(cp);
 }
 

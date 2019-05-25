@@ -31,7 +31,7 @@ enum { SURROGATE_LEAD_FIRST = 0xD800 };
 enum { SURROGATE_TRAIL_FIRST = 0xDC00 };
 enum { SURROGATE_TRAIL_LAST = 0xDFFF };
 
-static unsigned int UTF8Length(const wchar_t *uptr, size_t tlen) {
+static unsigned int UTF8Length(const wchar_t *uptr, size_t tlen) noexcept {
 	unsigned int len = 0;
 	for (size_t i = 0; i < tlen && uptr[i];) {
 		const unsigned int uch = uptr[i];
@@ -51,7 +51,7 @@ static unsigned int UTF8Length(const wchar_t *uptr, size_t tlen) {
 	return len;
 }
 
-static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf) {
+static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf) noexcept {
 	int k = 0;
 	for (size_t i = 0; i < tlen && uptr[i];) {
 		const unsigned int uch = uptr[i];
@@ -78,7 +78,7 @@ static void UTF8FromUTF16(const wchar_t *uptr, size_t tlen, char *putf) {
 	}
 }
 
-static size_t UTF16Length(const char *s, size_t len) {
+static size_t UTF16Length(const char *s, size_t len) noexcept {
 	size_t ulen = 0;
 	size_t charLen;
 	for (size_t i=0; i<len;) {
@@ -99,7 +99,7 @@ static size_t UTF16Length(const char *s, size_t len) {
 	return ulen;
 }
 
-static size_t UTF16FromUTF8(const char *s, size_t len, gui_char *tbuf, size_t tlen) {
+static size_t UTF16FromUTF8(const char *s, size_t len, gui_char *tbuf, size_t tlen) noexcept {
 	size_t ui=0;
 	const unsigned char *us = reinterpret_cast<const unsigned char *>(s);
 	size_t i=0;

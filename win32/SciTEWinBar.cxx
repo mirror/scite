@@ -91,13 +91,13 @@ void SciTEWin::RemoveAllTabs() {
 	TabCtrl_DeleteAllItems(HwndOf(wTabBar));
 }
 
-GUI::Point PointOfCursor() {
+GUI::Point PointOfCursor() noexcept {
 	POINT ptCursor;
 	::GetCursorPos(&ptCursor);
 	return GUI::Point(ptCursor.x, ptCursor.y);
 }
 
-GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen) {
+GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen) noexcept {
 	POINT ptClient = { ptScreen.x, ptScreen.y };
 	::ScreenToClient(hWnd, &ptClient);
 	return GUI::Point(ptClient.x, ptClient.y);
@@ -105,7 +105,7 @@ GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen) {
 
 namespace {
 
-int TabAtPoint(HWND hWnd, GUI::Point pt) {
+int TabAtPoint(HWND hWnd, GUI::Point pt) noexcept {
 	TCHITTESTINFO thti;
 	thti.pt.x = pt.x;
 	thti.pt.y = pt.y;
@@ -516,7 +516,7 @@ void SciTEWin::CheckAMenuItem(int wIDCheckItem, bool val) {
 		CheckMenuItem(::GetMenu(MainHWND()), wIDCheckItem, MF_UNCHECKED | MF_BYCOMMAND);
 }
 
-void EnableButton(HWND wTools, int id, bool enable) {
+void EnableButton(HWND wTools, int id, bool enable) noexcept {
 	if (wTools) {
 		::SendMessage(wTools, TB_ENABLEBUTTON, id,
 	              IntFromTwoShorts(static_cast<short>(enable ? TRUE : FALSE), 0));

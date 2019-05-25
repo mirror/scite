@@ -424,12 +424,12 @@ public:
 	friend class UniqueInstance;
 };
 
-inline bool IsKeyDown(int key) {
+inline bool IsKeyDown(int key) noexcept {
 	return (::GetKeyState(key) & 0x80000000) != 0;
 }
 
-GUI::Point PointOfCursor();
-GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen);
+GUI::Point PointOfCursor() noexcept;
+GUI::Point ClientFromScreen(HWND hWnd, GUI::Point ptScreen) noexcept;
 
 // Common minor conversions
 
