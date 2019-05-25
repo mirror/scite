@@ -656,7 +656,7 @@ std::string SciTEBase::GetCTag() {
 			c = acc[selStart];
 			if (c == '\r' || c == '\n') {
 				mustStop = -1;
-			} else if (c == '\t' && ((acc[selStart + 1] == '/' && acc[selStart + 2] == '^') || isdigit(acc[selStart + 1]))) {
+			} else if (c == '\t' && ((acc[selStart + 1] == '/' && acc[selStart + 2] == '^') || IsADigit(acc[selStart + 1]))) {
 				mustStop = 1;
 			}
 		} else {
@@ -680,10 +680,10 @@ std::string SciTEBase::GetCTag() {
 				mustStop = -1;
 			}
 		}
-	} else if (mustStop == 1 && isdigit(acc[selStart + 1])) {
+	} else if (mustStop == 1 && IsADigit(acc[selStart + 1])) {
 		// a Tag can be referenced by line Number also
 		selEnd = selStart += 1;
-		while ((selEnd < lengthDoc) && isdigit(acc[selEnd])) {
+		while ((selEnd < lengthDoc) && IsADigit(acc[selEnd])) {
 			selEnd++;
 		}
 	}
@@ -2438,10 +2438,6 @@ std::vector<std::string> SciTEBase::GetLinePartsInStyle(SA::Line line, const Sty
 	return sv;
 }
 
-inline bool IsAlphabetic(unsigned int ch) noexcept {
-	return ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z'));
-}
-
 static bool includes(const StyleAndWords &symbols, const std::string &value) {
 	if (symbols.words.length() == 0) {
 		return false;
@@ -2824,7 +2820,7 @@ std::string SciTEBase::FindOpenXmlTag(const char sel[], SA::Position nSize) {
 
 	if (*pCur == '<') {
 		pCur++;
-		while (strchr(":_-.", *pCur) || isalnum(*pCur)) {
+		while (strchr(":_-.", *pCur) || IsAlphaNumeric(*pCur)) {
 			strRet += *pCur;
 			pCur++;
 		}

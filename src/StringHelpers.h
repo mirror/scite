@@ -29,19 +29,34 @@ std::string StdStringFromDouble(double d, int precision);
 // Does not handle non-ASCII characters.
 void LowerCaseAZ(std::string &s);
 
-inline char MakeUpperCase(char ch) noexcept {
+constexpr char MakeUpperCase(char ch) noexcept {
 	if (ch < 'a' || ch > 'z')
 		return ch;
 	else
 		return static_cast<char>(ch - 'a' + 'A');
 }
 
-inline constexpr bool IsASCII(int ch) noexcept {
+constexpr bool IsASCII(int ch) noexcept {
 	return (ch >= 0) && (ch < 0x80);
 }
 
-inline constexpr bool IsASpace(int ch) noexcept {
+constexpr bool IsASpace(int ch) noexcept {
 	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
+}
+
+constexpr bool IsADigit(int ch) noexcept {
+	return (ch >= '0') && (ch <= '9');
+}
+
+constexpr bool IsAlphabetic(int ch) noexcept {
+	return ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z'));
+}
+
+constexpr bool IsAlphaNumeric(int ch) noexcept {
+	return
+		((ch >= '0') && (ch <= '9')) ||
+		((ch >= 'a') && (ch <= 'z')) ||
+		((ch >= 'A') && (ch <= 'Z'));
 }
 
 intptr_t IntegerFromText(const char *s) noexcept;
