@@ -12,7 +12,7 @@
  */
 static void FlashThisWindow(
     HWND hWnd,    		///< Window to flash handle.
-    int duration) {	///< Duration of the flash state.
+    int duration) noexcept {	///< Duration of the flash state.
 
 	HDC hDC = ::GetDC(hWnd);
 	if (hDC) {
@@ -31,13 +31,11 @@ static void FlashThisWindow(
 static void PlayThisSound(
     const char *sound,    	///< Path to a .wav file or string with a frequency value.
     int duration,    		///< If @a sound is a frequency, gives the duration of the sound.
-    HMODULE &hMM) {		///< Multimedia DLL handle.
+    HMODULE &hMM) noexcept {		///< Multimedia DLL handle.
 
 	BOOL bPlayOK = false;
-	int soundFreq;
-	if (!sound || *sound == '\0') {
-		soundFreq = -1;	// No sound at all
-	} else {
+	int soundFreq = -1;	// Default is no sound at all
+	if (sound && *sound) {
 		soundFreq = atoi(sound);	// May be a frequency, not a filename
 	}
 
@@ -73,7 +71,7 @@ static void PlayThisSound(
 	}
 }
 
-static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
+static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) noexcept {
 	if (message == WM_INITDIALOG) {
 		::SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 	}
@@ -82,7 +80,9 @@ static SciTEWin *Caller(HWND hDlg, UINT message, LPARAM lParam) {
 
 void SciTEWin::WarnUser(int warnID) {
 	std::string warning;
-	char flashDuration[10], sound[_MAX_PATH], soundDuration[10];
+	char flashDuration[10] = "";
+	char sound[_MAX_PATH] = "";
+	char soundDuration[10] = "";
 
 	switch (warnID) {
 	case warnFindWrapped:
@@ -119,7 +119,7 @@ void SciTEWin::WarnUser(int warnID) {
 	PlayThisSound(sound, atoi(soundDuration), hMM);
 }
 
-bool SciTEWin::DialogHandled(GUI::WindowID id, MSG *pmsg) {
+bool SciTEWin::DialogHandled(GUI::WindowID id, MSG *pmsg) noexcept {
 	if (id) {
 		if (::IsDialogMessageW(static_cast<HWND>(id), pmsg))
 			return true;
@@ -241,7 +241,7 @@ bool SciTEWin::OpenDialog(const FilePath &directory, const GUI::gui_char *filesF
 	GUI::gui_char openName[maxBufferSize]; // maximum common dialog buffer size (says mfc..)
 	openName[0] = '\0';
 
-	OPENFILENAMEW ofn = OPENFILENAMEW();
+	OPENFILENAMEW ofn {};
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
@@ -295,7 +295,7 @@ FilePath SciTEWin::ChooseSaveName(const FilePath &directory, const char *title, 
 		if (!savePath.IsUntitled()) {
 			StringCopy(saveName, savePath.AsInternal());
 		}
-		OPENFILENAMEW ofn = OPENFILENAMEW();
+		OPENFILENAMEW ofn {};
 		ofn.lStructSize = sizeof(ofn);
 		ofn.hwndOwner = MainHWND();
 		ofn.hInstance = hInstance;
@@ -377,7 +377,7 @@ void SciTEWin::SaveAsXML() {
 
 void SciTEWin::LoadSessionDialog() {
 	GUI::gui_char openName[MAX_PATH] = GUI_TEXT("");
-	OPENFILENAMEW ofn = OPENFILENAMEW();
+	OPENFILENAMEW ofn = {};
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
@@ -398,7 +398,7 @@ void SciTEWin::LoadSessionDialog() {
 void SciTEWin::SaveSessionDialog() {
 	GUI::gui_char saveName[MAX_PATH] = GUI_TEXT("\0");
 	StringCopy(saveName, GUI_TEXT("SciTE.session"));
-	OPENFILENAMEW ofn = OPENFILENAMEW();
+	OPENFILENAMEW ofn = {};
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = MainHWND();
 	ofn.hInstance = hInstance;
@@ -416,10 +416,10 @@ void SciTEWin::SaveSessionDialog() {
 	}
 }
 
-static void DeleteFontObject(HFONT &font) {
+static void DeleteFontObject(HFONT &font) noexcept {
 	if (font) {
 		::DeleteObject(font);
-		font = 0;
+		font = {};
 	}
 }
 
@@ -443,7 +443,7 @@ void SciTEWin::Print(
 	pdlg.nMaxPage = 0xffffU; // We do not know how many pages in the
 	// document until the printer is selected and the paper size is known.
 	pdlg.nCopies = 1;
-	pdlg.hDC = 0;
+	pdlg.hDC = {};
 	pdlg.hDevMode = hDevMode;
 	pdlg.hDevNames = hDevNames;
 
@@ -554,7 +554,7 @@ void SciTEWin::Print(
 	std::string headerFormat = props.GetString("print.header.format");
 	std::string footerFormat = props.GetString("print.footer.format");
 
-	TEXTMETRIC tm;
+	TEXTMETRIC tm {};
 
 	std::string headerStyle = props.GetString("print.header.style");
 	StyleDefinition sdHeader(headerStyle.c_str());
@@ -764,14 +764,14 @@ class Dialog {
 	HWND hDlg;
 public:
 
-	explicit Dialog(HWND hDlg_) : hDlg(hDlg_) {
+	explicit Dialog(HWND hDlg_) noexcept : hDlg(hDlg_) {
 	}
 
-	HWND Item(int id) {
+	HWND Item(int id) noexcept {
 		return ::GetDlgItem(hDlg, id);
 	}
 
-	void Enable(int id, bool enable) {
+	void Enable(int id, bool enable) noexcept {
 		::EnableWindow(Item(id), enable);
 	}
 
@@ -779,11 +779,11 @@ public:
 		return TextOfWindow(Item(id));
 	}
 
-	void SetItemText(int id, const GUI::gui_char *s) {
+	void SetItemText(int id, const GUI::gui_char *s) noexcept {
 		::SetDlgItemTextW(hDlg, id, s);
 	}
 
-	void SetItemText(int id, const GUI::gui_string &s) {
+	void SetItemText(int id, const GUI::gui_string &s) noexcept {
 		SetItemText(id, s.c_str());
 	}
 
@@ -806,11 +806,11 @@ public:
 		}
 	}
 
-	void SetCheck(int id, bool value) {
+	void SetCheck(int id, bool value) noexcept {
 		Button_SetCheck(Item(id), value ? BST_CHECKED : BST_UNCHECKED);
 	}
 
-	bool Checked(int id) {
+	bool Checked(int id) noexcept {
 		return BST_CHECKED == Button_GetCheck(Item(id));
 	}
 
@@ -819,7 +819,7 @@ public:
 		ComboBox_ResetContent(combo);
 		for (int i = 0; i < mem.Length(); i++) {
 			GUI::gui_string gs = GUI::StringFromUTF8(mem.At(i));
-			ComboBox_AddString(combo, gs.c_str());
+			ComboBoxAppend(combo, gs);
 		}
 		if (useTop) {
 			ComboBox_SetCurSel(combo, 0);
@@ -829,14 +829,14 @@ public:
 };
 
 static void FillComboFromProps(HWND combo, PropSetFile &props) {
-	const char *key;
-	const char *val;
+	const char *key = nullptr;
+	const char *val = nullptr;
 	if (props.GetFirst(key, val)) {
 		GUI::gui_string wkey = GUI::StringFromUTF8(key);
-		ComboBox_AddString(combo, wkey.c_str());
+		ComboBoxAppend(combo, wkey);
 		while (props.GetNext(key, val)) {
 			wkey = GUI::StringFromUTF8(key);
-			ComboBox_AddString(combo, wkey.c_str());
+			ComboBoxAppend(combo, wkey);
 		}
 	}
 }
@@ -880,7 +880,7 @@ void SciTEWin::ShowBackgroundProgress(const GUI::gui_string &explanation, size_t
 class DialogFindReplace : public Dialog, public SearchUI  {
 	bool advanced;
 public:
-	DialogFindReplace(HWND hDlg_, bool advanced_) :
+	DialogFindReplace(HWND hDlg_, bool advanced_) noexcept :
 		Dialog(hDlg_), advanced(advanced_) {
 	}
 	void GrabFields();
@@ -1272,7 +1272,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			if (::SHGetMalloc(&pShellMalloc) == NO_ERROR) {
 				// If we were able to get the shell malloc object,
 				// then proceed by initializing the BROWSEINFO stuct
-				BROWSEINFO info = BROWSEINFO();
+				BROWSEINFO info {};
 				info.hwndOwner = hDlg;
 				info.pidlRoot = nullptr;
 				TCHAR szDisplayName[MAX_PATH] = TEXT("");
@@ -1628,7 +1628,7 @@ bool SciTEWin::ParametersDialog(bool modal) {
 	modalParameters = modal;
 	if (modal) {
 		success = DoDialog(TEXT("PARAMETERS"), ParametersDlg) == IDOK;
-		wParameters = 0;
+		wParameters = NULL;
 	} else {
 		CreateParameterisedDialog(TEXT("PARAMETERSNONMODAL"), ParametersDlg);
 		wParameters.Show();

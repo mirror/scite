@@ -516,10 +516,11 @@ namespace {
 
 #ifdef _WIN32
 void Lowercase(GUI::gui_string &s) {
-	const int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, nullptr, 0);
-	std::vector<wchar_t> vc(chars);
-	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), static_cast<int>(s.size())+1, &vc[0], chars);
-	s = &vc[0];
+	const int sLength = static_cast<int>(s.length());
+	const int chars = ::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), sLength, nullptr, 0);
+	GUI::gui_string vc(chars, 0);
+	::LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_LOWERCASE, s.c_str(), sLength, vc.data(), chars);
+	s = vc;
 }
 #endif
 

@@ -15,9 +15,9 @@
 UniqueInstance::UniqueInstance() {
 	stw = nullptr;
 	identityMessage = ::RegisterWindowMessage(TEXT("SciTEInstanceIdentifier"));
-	mutex = 0;
+	mutex = {};
 	bAlreadyRunning = false;
-	hOtherWindow = NULL;
+	hOtherWindow = {};
 }
 
 UniqueInstance::~UniqueInstance() {
@@ -26,7 +26,7 @@ UniqueInstance::~UniqueInstance() {
 	}
 }
 
-void UniqueInstance::Init(SciTEWin *stw_) {
+void UniqueInstance::Init(SciTEWin *stw_) noexcept {
 	stw = stw_;
 }
 
@@ -139,11 +139,11 @@ void UniqueInstance::CheckOtherInstance() {
 	HDESK desktop = ::GetThreadDesktop(::GetCurrentThreadId());
 	DWORD len = 0;
 	// Query the needed size for the buffer
-	const BOOL result = ::GetUserObjectInformation(desktop, UOI_NAME, NULL, 0, &len);
+	const BOOL result = ::GetUserObjectInformation(desktop, UOI_NAME, nullptr, 0, &len);
 	if (result == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 		// WinNT / Win2000
 		std::wstring info(len, 0);	// len is actually bytes so this is twice length needed
-		::GetUserObjectInformation(desktop, UOI_NAME, &info[0], len, NULL);
+		::GetUserObjectInformation(desktop, UOI_NAME, &info[0], len, nullptr);
 		mutexName += info;
 	}
 	// Try to set the mutex. If return false, it failed, there is already another instance.

@@ -139,8 +139,8 @@ public:
 	bool seenOutput;
 	int outputScroll;
 
-	CommandWorker();
-	void Initialise(bool resetToStart);
+	CommandWorker() noexcept;
+	void Initialise(bool resetToStart) noexcept;
 	void Execute() override;
 };
 
@@ -164,7 +164,7 @@ struct Band {
 	int height;
 	bool expands;
 	GUI::Window win;
-	Band(bool visible_, int height_, bool expands_, GUI::Window win_) :
+	Band(bool visible_, int height_, bool expands_, GUI::Window win_) noexcept :
 		visible(visible_),
 		height(height_),
 		expands(expands_),
@@ -327,7 +327,7 @@ protected:
 	void CopyPath() override;
 	void FullScreenToggle();
 	void Command(WPARAM wParam, LPARAM lParam);
-	HWND MainHWND();
+	HWND MainHWND() noexcept;
 
 	void UserStripShow(const char *description) override;
 	void UserStripSet(int control, const char *value) override;
@@ -381,7 +381,7 @@ public:
 	explicit SciTEWin(Extension *ext = 0);
 	~SciTEWin();
 
-	static bool DialogHandled(GUI::WindowID id, MSG *pmsg);
+	static bool DialogHandled(GUI::WindowID id, MSG *pmsg) noexcept;
 	bool ModelessHandler(MSG *pmsg);
 
 	void CreateUI();

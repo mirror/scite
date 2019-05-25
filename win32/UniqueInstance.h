@@ -23,7 +23,7 @@ public:
 	UniqueInstance();
 	~UniqueInstance();
 
-	void Init(SciTEWin *stw_);	///< To set the access to the SciTEWin interface
+	void Init(SciTEWin *stw_) noexcept;	///< To set the access to the SciTEWin interface
 	bool AcceptToOpenFiles(bool bAccept);	///< Set mutex and see if succeed
 	void CallSearchOnAllWindows();	///< Common code used by ToggleOpenFilesHere and FindOtherInstance
 	void ToggleOpenFilesHere();	///< Change the option to open files in this instance and ask other instance to give up this option

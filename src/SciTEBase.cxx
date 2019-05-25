@@ -1005,7 +1005,7 @@ void SciTEBase::SetFind(const char *sFind) {
 	InsertFindInMemory();
 }
 
-bool SciTEBase::FindHasText() const {
+bool SciTEBase::FindHasText() const noexcept {
 	return findWhat[0];
 }
 

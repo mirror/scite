@@ -319,7 +319,7 @@ public:
 
 	virtual void SetFindText(const char *sFind) = 0;
 	virtual void SetFind(const char *sFind) = 0;
-	virtual bool FindHasText() const = 0;
+	virtual bool FindHasText() const noexcept = 0;
 	void InsertFindInMemory();
 	virtual void SetReplace(const char *sReplace) = 0;
 	virtual void SetCaretAsStart() = 0;
@@ -745,7 +745,7 @@ protected:
 	// Implement Searcher
 	void SetFindText(const char *sFind) override;
 	void SetFind(const char *sFind) override;
-	bool FindHasText() const override;
+	bool FindHasText() const noexcept override;
 	void SetReplace(const char *sReplace) override;
 	void SetCaretAsStart() override;
 	void MoveBack() override;

@@ -51,8 +51,8 @@ static bool startedByDirector = false;
 static bool shuttingDown = false;
 unsigned int SDI = 0;
 
-static bool HasConnection() {
-	return (wDirector != 0) || (wCorrespondent != 0);
+static bool HasConnection() noexcept {
+	return wDirector || wCorrespondent;
 }
 
 static void SendDirector(const char *verb, const char *arg = nullptr) {
@@ -74,7 +74,7 @@ static void SendDirector(const char *verb, const char *arg = nullptr) {
 		std::string slashedMessage = Slash(addressedMessage, false);
 		COPYDATASTRUCT cds;
 		cds.dwData = 0;
-		cds.cbData = static_cast<int>(slashedMessage.length());
+		cds.cbData = static_cast<DWORD>(slashedMessage.length());
 		slashedMessage.append(1, '\0');	// Ensure NUL at end of string
 		cds.lpData = &slashedMessage[0];
 		::SendMessage(wDestination, WM_COPYDATA,
@@ -84,12 +84,12 @@ static void SendDirector(const char *verb, const char *arg = nullptr) {
 }
 
 static void SendDirector(const char *verb, intptr_t arg) {
-	std::string s = StdStringFromSizeT(static_cast<size_t>(arg));
+	std::string s = std::to_string(arg);
 	::SendDirector(verb, s.c_str());
 }
 
-static HWND HwndFromString(const char *s) {
-	return reinterpret_cast<HWND>(static_cast<uintptr_t>(atoi(s)));
+static HWND HwndFromString(const char *s) noexcept {
+	return reinterpret_cast<HWND>(static_cast<uintptr_t>(atoll(s)));
 }
 
 static void CheckEnvironment(ExtensionAPI *phost) {
@@ -130,16 +130,16 @@ LRESULT PASCAL DirectorExtension_WndProc(
 	return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
 
-static void DirectorExtension_Register(HINSTANCE hInstance) {
+static void DirectorExtension_Register(HINSTANCE hInstance) noexcept {
 	WNDCLASS wndclass;
 	wndclass.style = 0;
 	wndclass.lpfnWndProc = DirectorExtension_WndProc;
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = 0;
 	wndclass.hInstance = hInstance;
-	wndclass.hIcon = 0;
-	wndclass.hCursor = NULL;
-	wndclass.hbrBackground = NULL;
+	wndclass.hIcon = {};
+	wndclass.hCursor = {};
+	wndclass.hbrBackground = {};
 	wndclass.lpszMenuName = nullptr;
 	wndclass.lpszClassName = DirectorExtension_ClassName;
 	if (!::RegisterClass(&wndclass))
@@ -165,7 +165,7 @@ bool DirectorExtension::Initialise(ExtensionAPI *host_) {
 	                0,
 	                0,
 	                hInstance,
-	                0);
+	                nullptr);
 	if (!wReceiver)
 		::exit(FALSE);
 	// Make the frame window handle available so the director can activate it.
@@ -179,7 +179,7 @@ bool DirectorExtension::Finalise() {
 	::SendDirector("closing");
 	if (wReceiver)
 		::DestroyWindow(wReceiver);
-	wReceiver = 0;
+	wReceiver = {};
 	return true;
 }
 
@@ -300,7 +300,7 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 			if (arg)
 				wDirector = HwndFromString(arg + 1);
 		} else if (isprefix(cmd, "closing:")) {
-			wDirector = 0;
+			wDirector = {};
 			if (startedByDirector) {
 				shuttingDown = true;
 				if (host) {
@@ -311,6 +311,6 @@ void DirectorExtension::HandleStringMessage(const char *message) {
 		} else if (host) {
 			host->Perform(cmd);
 		}
-		wCorrespondent = 0;
+		wCorrespondent = {};
 	}
 }

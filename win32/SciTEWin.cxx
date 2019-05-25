@@ -147,7 +147,7 @@ namespace {
 // but that is good enough for switching UI elements to flatter.
 // The VersionHelpers.h functions can't be used as they aren't supported by GCC.
 
-bool UIShouldBeFlat() {
+bool UIShouldBeFlat() noexcept {
 	OSVERSIONINFOEX osvi = OSVERSIONINFOEX();
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 	osvi.dwMajorVersion = 6;
@@ -184,8 +184,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	cmdShow = 0;
 	heightBar = 7;
-	fontTabs = 0;
-	wFocus = 0;
+	fontTabs = {};
+	wFocus = {};
 
 	winPlace = WINDOWPLACEMENT();
 	winPlace.length = 0;
@@ -199,7 +199,7 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	staticBuild = false;
 	menuSource = 0;
 
-	hWriteSubProcess = NULL;
+	hWriteSubProcess = {};
 	subProcessGroupId = 0;
 
 	pathAbbreviations = GetAbbrevPropertiesFileName();
@@ -219,12 +219,12 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 	SetPropertiesInitial();
 	ReadAbbrevPropFile();
 
-	hDevMode = 0;
-	hDevNames = 0;
+	hDevMode = {};
+	hDevNames = {};
 	::ZeroMemory(&pagesetupMargin, sizeof(pagesetupMargin));
 
-	hHH = 0;
-	hMM = 0;
+	hHH = {};
+	hMM = {};
 	uniqueInstance.Init(this);
 
 	hAccTable = ::LoadAccelerators(hInstance, TEXT("ACCELS")); // md
@@ -256,7 +256,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 
 	hInstance = hInstance_;
 
-	WNDCLASS wndclass;
+	WNDCLASS wndclass {};
 
 	// Register the frame window
 	className = TEXT("SciTEWindow");
@@ -266,8 +266,8 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	wndclass.cbWndExtra = sizeof(SciTEWin*);
 	wndclass.hInstance = hInstance;
 	wndclass.hIcon = ::LoadIcon(hInstance, resourceName);
-	wndclass.hCursor = NULL;
-	wndclass.hbrBackground = NULL;
+	wndclass.hCursor = {};
+	wndclass.hbrBackground = {};
 	wndclass.lpszMenuName = resourceName;
 	wndclass.lpszClassName = className;
 	if (!::RegisterClass(&wndclass))
@@ -311,9 +311,10 @@ static int CodePageFromName(const std::string &encodingName) {
 
 static std::string StringEncode(std::wstring s, int codePage) {
 	if (s.length()) {
-		const int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.length()), nullptr, 0, nullptr, nullptr);
+		const int sLength = static_cast<int>(s.length());
+		const int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), sLength, nullptr, 0, nullptr, nullptr);
 		std::string sMulti(cchMulti, 0);
-		::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, nullptr, nullptr);
+		::WideCharToMultiByte(codePage, 0, s.c_str(), sLength, &sMulti[0], cchMulti, nullptr, nullptr);
 		return sMulti;
 	} else {
 		return std::string();
@@ -322,9 +323,10 @@ static std::string StringEncode(std::wstring s, int codePage) {
 
 static std::wstring StringDecode(std::string s, int codePage) {
 	if (s.length()) {
-		const int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), nullptr, 0);
+		const int sLength = static_cast<int>(s.length());
+		const int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), sLength, nullptr, 0);
 		std::wstring sWide(cchWide, 0);
-		::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), &sWide[0], cchWide);
+		::MultiByteToWideChar(codePage, 0, s.c_str(), sLength, &sWide[0], cchWide);
 		return sWide;
 	} else {
 		return std::wstring();
@@ -634,7 +636,7 @@ void SciTEWin::FullScreenToggle() {
 	CheckMenus();
 }
 
-HWND SciTEWin::MainHWND() {
+HWND SciTEWin::MainHWND() noexcept {
 	return HwndOf(wSciTE);
 }
 
@@ -713,17 +715,13 @@ void SciTEWin::Command(WPARAM wParam, LPARAM lParam) {
 
 // from ScintillaWin.cxx
 static UINT CodePageFromCharSet(SA::CharacterSet characterSet, UINT documentCodePage) noexcept {
-	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
+	CHARSETINFO ci {};
 	const BOOL bci = ::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<uintptr_t>(characterSet)),
 	                                  &ci, TCI_SRCCHARSET);
 
-	UINT cp;
-	if (bci)
-		cp = ci.ciACP;
-	else
-		cp = documentCodePage;
+	UINT cp = (bci) ? ci.ciACP : documentCodePage;
 
-	CPINFO cpi;
+	CPINFO cpi {};
 	if (!::IsValidCodePage(cp) && !::GetCPInfo(cp, &cpi))
 		cp = CP_ACP;
 
@@ -735,11 +733,11 @@ void SciTEWin::OutputAppendEncodedStringSynchronised(const GUI::gui_string &s, i
 	OutputAppendStringSynchronised(sMulti.c_str());
 }
 
-CommandWorker::CommandWorker() : pSciTE(nullptr) {
+CommandWorker::CommandWorker() noexcept : pSciTE(nullptr) {
 	Initialise(true);
 }
 
-void CommandWorker::Initialise(bool resetToStart) {
+void CommandWorker::Initialise(bool resetToStart) noexcept {
 	if (resetToStart)
 		icmd = 0;
 	originalEnd = 0;
@@ -848,7 +846,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	// to set the hStdInput field in the STARTUP_INFO struct. For safety,
 	// you should not set the handles to an invalid handle.
 
-	hWriteSubProcess = NULL;
+	hWriteSubProcess = {};
 	subProcessGroupId = 0;
 	HANDLE hRead2 {};
 	// read handle, write handle, security attributes,  number of bytes reserved for pipe
@@ -1090,7 +1088,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	::CloseHandle(hPipeWrite);
 	::CloseHandle(hRead2);
 	::CloseHandle(hWriteSubProcess);
-	hWriteSubProcess = NULL;
+	hWriteSubProcess = {};
 	subProcessGroupId = 0;
 	return exitcode;
 }
@@ -1179,7 +1177,7 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
 	GUI::gui_string sDir = GUI::StringFromUTF8(dir);
 
-	SHELLEXECUTEINFO exec = {};
+	SHELLEXECUTEINFO exec {};
 	exec.cbSize = sizeof(exec);
 	exec.fMask = SEE_MASK_FLAG_NO_UI; // own msg box on return
 	exec.hwnd = MainHWND();
@@ -1338,10 +1336,11 @@ void SciTEWin::RestorePosition() {
 	const int height = propsSession.GetInt("position.height", CW_USEDEFAULT);
 	cmdShow = propsSession.GetInt("position.maximize", 0) ? SW_MAXIMIZE : 0;
 
-	if (left != static_cast<int>(CW_USEDEFAULT) &&
-	    top != static_cast<int>(CW_USEDEFAULT) &&
-	    width != static_cast<int>(CW_USEDEFAULT) &&
-	    height != static_cast<int>(CW_USEDEFAULT)) {
+	const int defaultValue = static_cast<int>(CW_USEDEFAULT);
+	if (left != defaultValue &&
+	    top != defaultValue &&
+	    width != defaultValue &&
+	    height != defaultValue) {
 		winPlace.length = sizeof(winPlace);
 		winPlace.rcNormalPosition.left = left;
 		winPlace.rcNormalPosition.right = left + width;
@@ -1390,7 +1389,7 @@ void SciTEWin::CreateUI() {
 
 	LocaliseMenus();
 	std::string pageSetup = props.GetString("print.margins");
-	char val[32];
+	char val[32] = "";
 	const char *ps = pageSetup.c_str();
 	const char *next = GetNextPropItem(ps, val, 32);
 	pagesetupMargin.left = atol(val);
@@ -1695,8 +1694,8 @@ bool SciTEWin::PreOpenCheck(const GUI::gui_char *arg) {
 */
 bool SciTEWin::IsStdinBlocked() {
 	DWORD unreadMessages;
-	INPUT_RECORD irec[1];
-	char bytebuffer;
+	INPUT_RECORD irec[1] = {};
+	char bytebuffer = '\0';
 	HANDLE hStdIn = ::GetStdHandle(STD_INPUT_HANDLE);
 	if (hStdIn == INVALID_HANDLE_VALUE) {
 		/* an invalid handle, assume that stdin is blocked by falling to bottom */;
@@ -1710,7 +1709,7 @@ bool SciTEWin::IsStdinBlocked() {
 				- a blocked pipe "findstring nothing | scite -"
 				in any case case, retry in a short bit
 			*/
-			if (::PeekNamedPipe(hStdIn, &bytebuffer, sizeof(bytebuffer), NULL,NULL, &unreadMessages) != 0) {
+			if (::PeekNamedPipe(hStdIn, &bytebuffer, sizeof(bytebuffer), nullptr, nullptr, &unreadMessages) != 0) {
 				if (unreadMessages != 0) {
 					return false; /* is a pipe and it is not blocked */
 				}
@@ -1722,7 +1721,7 @@ bool SciTEWin::IsStdinBlocked() {
 }
 
 void SciTEWin::MinimizeToTray() {
-	NOTIFYICONDATA nid = NOTIFYICONDATA();
+	NOTIFYICONDATA nid {};
 	nid.cbSize = sizeof(nid);
 	nid.hWnd = MainHWND();
 	nid.uID = 1;
@@ -1738,7 +1737,7 @@ void SciTEWin::MinimizeToTray() {
 }
 
 void SciTEWin::RestoreFromTray() {
-	NOTIFYICONDATA nid = NOTIFYICONDATA();
+	NOTIFYICONDATA nid {};
 	nid.cbSize = sizeof(nid);
 	nid.hWnd = MainHWND();
 	nid.uID = 1;
@@ -1870,7 +1869,7 @@ void SciTEWin::CheckForScintillaFailure(SA::Status statusFailure) {
 	static int boxesVisible = 0;
 	if ((statusFailure > SA::Status::Ok) && (boxesVisible == 0)) {
 		boxesVisible++;
-		char buff[200];
+		char buff[200] = "";
 		if (statusFailure == SA::Status::BadAlloc) {
 			strcpy(buff, "Memory exhausted.");
 		} else {
