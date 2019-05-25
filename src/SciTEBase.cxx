@@ -4564,7 +4564,7 @@ void SciTEBase::ExecuteMacroCommand(const char *command) {
 	if (*params == 'S') {
 		// string answer
 		if (message == SA::Message::GetSelText) {
-			l = wEditor.GetSelText(0);
+			l = wEditor.GetSelText(nullptr);
 			wParam = 0;
 		} else if (message == SA::Message::GetCurLine) {
 			const SA::Line line = wEditor.LineFromPosition(wEditor.CurrentPos());

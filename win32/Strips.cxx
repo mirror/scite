@@ -45,6 +45,10 @@ GUI::gui_string ClassNameOfWindow(HWND hWnd) {
 
 namespace {
 
+HINSTANCE ApplicationInstance() noexcept {
+	return ::GetModuleHandle(NULL);
+}
+
 void SetFontHandle(const GUI::Window &w, HFONT hfont) noexcept {
 	SetWindowFont(HwndOf(w), hfont, 0);
 }
@@ -173,7 +177,7 @@ GUI::Window Strip::CreateText(const char *text) {
 	w.SetID(::CreateWindowEx(0, TEXT("Static"), localised.c_str(),
 		WS_CHILD | WS_CLIPSIBLINGS | SS_RIGHT,
 		2, 2, width, 21,
-		Hwnd(), HmenuID(0), ::GetModuleHandle(NULL), 0));
+		Hwnd(), HmenuID(0), ::ApplicationInstance(), 0));
 	SetFontHandle(w, fontText);
 	w.Show();
 	return w;
@@ -238,7 +242,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS |
 		(check ? (BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_BITMAP) : BS_PUSHBUTTON),
 		2, 2, width, height,
-		Hwnd(), HmenuID(ident), ::GetModuleHandle(NULL), 0));
+		Hwnd(), HmenuID(ident), ::ApplicationInstance(), 0));
 	if (check) {
 		int resNum = IDBM_WORD;
 		switch (ident) {
@@ -253,7 +257,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 		const UINT flags = (GetVersion(TEXT("COMCTL32")) >= PACKVERSION(6,0)) ?
 			(LR_DEFAULTSIZE) : (LR_DEFAULTSIZE|LR_LOADMAP3DCOLORS);
 		HBITMAP bm = static_cast<HBITMAP>(::LoadImage(
-			::GetModuleHandle(NULL), MAKEINTRESOURCE(resNum + resDifference), IMAGE_BITMAP,
+			::ApplicationInstance(), MAKEINTRESOURCE(resNum + resDifference), IMAGE_BITMAP,
 			bmpDimension, bmpDimension, flags));
 
 		::SendMessage(HwndOf(w),
@@ -271,7 +275,7 @@ GUI::Window Strip::CreateButton(const char *text, size_t ident, bool check) {
 	TOOLINFO toolInfo = TOOLINFO();
 	toolInfo.cbSize = sizeof(toolInfo);
 	toolInfo.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
-	toolInfo.hinst = ::GetModuleHandle(NULL);
+	toolInfo.hinst = ::ApplicationInstance();
 	toolInfo.hwnd = Hwnd();
 	toolInfo.uId = reinterpret_cast<UINT_PTR>(w.GetID());
 	toolInfo.lpszText = LPSTR_TEXTCALLBACK;
@@ -300,7 +304,7 @@ void Strip::Creation() {
 		WS_POPUP | TTS_ALWAYSTIP,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		Hwnd(), NULL, ::GetModuleHandle(NULL), NULL);
+		Hwnd(), NULL, ::ApplicationInstance(), NULL);
 
 	SetTheme();
 }
@@ -399,7 +403,7 @@ void Strip::Paint(HDC hDC) {
 				closeAppearence = CBS_PUSHED;
 			}
 			::DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, closeAppearence,
-				&rcClose, NULL);
+				&rcClose, nullptr);
 #endif
 		} else {
 			int closeAppearence = 0;
@@ -498,7 +502,7 @@ void Strip::SetTheme() {
 		::ReleaseDC(Hwnd(), hdc);
 		space = scale * 2 / 96;
 		const HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_SMALLCLOSEBUTTON, CBS_NORMAL,
-			NULL, TS_TRUE, &closeSize);
+			nullptr, TS_TRUE, &closeSize);
 		//HRESULT hr = ::GetThemePartSize(hTheme, NULL, WP_MDICLOSEBUTTON, CBS_NORMAL,
 		//	NULL, TS_TRUE, &closeSize);
 		if (!SUCCEEDED(hr)) {
@@ -550,7 +554,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		::FillRect(pcd->hdc, &pcd->rc, hbrFace);
 		::DeleteObject(hbrFace);
 		::DrawThemeBackground(hThemeButton, pcd->hdc, TP_BUTTON, buttonAppearence,
-			&pcd->rc, NULL);
+			&pcd->rc, nullptr);
 
 		RECT rcButton = pcd->rc;
 		rcButton.bottom--;
@@ -566,7 +570,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) {
 		// Retrieve the bitmap dimensions
 		BITMAPINFO rbmi = BITMAPINFO();
 		rbmi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
-		::GetDIBits(pcd->hdc, hBitmap, 0, 0, NULL, &rbmi, DIB_RGB_COLORS);
+		::GetDIBits(pcd->hdc, hBitmap, 0, 0, nullptr, &rbmi, DIB_RGB_COLORS);
 
 		const DWORD colourTransparent = RGB(0xC0,0xC0,0xC0);
 
@@ -723,14 +727,14 @@ void BackgroundStrip::Creation() {
 	wExplanation = ::CreateWindowEx(0, TEXT("Static"), TEXT(""),
 		WS_CHILD | WS_CLIPSIBLINGS,
 		2, 2, 100, 21,
-		Hwnd(), HmenuID(0), ::GetModuleHandle(NULL), 0);
+		Hwnd(), HmenuID(0), ::ApplicationInstance(), 0);
 	wExplanation.Show();
 	SetFontHandle(wExplanation, fontText);
 
 	wProgress = ::CreateWindowEx(0, PROGRESS_CLASS, TEXT(""),
 		WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
 		2, 2, 100, 21,
-		Hwnd(), HmenuID(0), ::GetModuleHandle(NULL), 0);
+		Hwnd(), HmenuID(0), ::ApplicationInstance(), 0);
 }
 
 void BackgroundStrip::Destruction() {
@@ -762,7 +766,7 @@ void BackgroundStrip::Size() {
 	rcExplanation.bottom += 1;
 	wExplanation.SetPosition(rcExplanation);
 
-	::InvalidateRect(Hwnd(), NULL, TRUE);
+	::InvalidateRect(Hwnd(), nullptr, TRUE);
 }
 
 bool BackgroundStrip::HasClose() const {
@@ -832,7 +836,7 @@ void SearchStrip::Creation() {
 	wText = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | ES_AUTOHSCROLL,
 		50, 2, 300, 21,
-		Hwnd(), HmenuID(IDC_INCFINDTEXT), ::GetModuleHandle(NULL), 0);
+		Hwnd(), HmenuID(IDC_INCFINDTEXT), ::ApplicationInstance(), 0);
 	wText.Show();
 
 	SetFontHandle(wText, fontText);
@@ -878,7 +882,7 @@ void SearchStrip::Size() {
 
 	wStaticFind.SetPosition(rcText);
 
-	::InvalidateRect(Hwnd(), NULL, TRUE);
+	::InvalidateRect(Hwnd(), nullptr, TRUE);
 }
 
 void SearchStrip::Paint(HDC hDC) {
@@ -1008,7 +1012,7 @@ void FindStrip::Creation() {
 	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
 		50, 2, 300, 80,
-		Hwnd(), HmenuID(IDFINDWHAT), ::GetModuleHandle(NULL), 0);
+		Hwnd(), HmenuID(IDFINDWHAT), ::ApplicationInstance(), 0);
 	SetFontHandle(wText, fontText);
 	wText.Show();
 
@@ -1085,7 +1089,7 @@ void FindStrip::Size() {
 	rcText.bottom = rcArea.bottom;
 	wStaticFind.SetPosition(rcText);
 
-	::InvalidateRect(Hwnd(), NULL, TRUE);
+	::InvalidateRect(Hwnd(), nullptr, TRUE);
 }
 
 void FindStrip::Paint(HDC hDC) {
@@ -1220,7 +1224,7 @@ void ReplaceStrip::Creation() {
 	wText = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
 		50, 2, 300, 80,
-		Hwnd(), HmenuID(IDFINDWHAT), ::GetModuleHandle(NULL), 0);
+		Hwnd(), HmenuID(IDFINDWHAT), ::ApplicationInstance(), 0);
 	SetFontHandle(wText, fontText);
 	wText.Show();
 
@@ -1232,7 +1236,7 @@ void ReplaceStrip::Creation() {
 	wReplace = CreateWindowEx(0, TEXT("ComboBox"), TEXT(""),
 		WS_CHILD | WS_TABSTOP | CBS_DROPDOWN | CBS_AUTOHSCROLL,
 		50, 2, 300, 80,
-		Hwnd(), HmenuID(IDREPLACEWITH), ::GetModuleHandle(NULL), 0);
+		Hwnd(), HmenuID(IDREPLACEWITH), ::ApplicationInstance(), 0);
 	SetFontHandle(wReplace, fontText);
 	wReplace.Show();
 
@@ -1342,7 +1346,7 @@ void ReplaceStrip::Size() {
 	rcStatic.top = rcLine.top + 3;
 	wStaticReplace.SetPosition(rcStatic);
 
-	::InvalidateRect(Hwnd(), NULL, TRUE);
+	::InvalidateRect(Hwnd(), nullptr, TRUE);
 }
 
 void ReplaceStrip::Paint(HDC hDC) {
@@ -1514,7 +1518,7 @@ void UserStrip::Creation() {
 	HWND wComboTest = ::CreateWindowEx(0, TEXT("ComboBox"), TEXT("Aby"),
 		WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL,
 		50, 2, 300, 80,
-		Hwnd(), 0, ::GetModuleHandle(NULL), 0);
+		Hwnd(), 0, ::ApplicationInstance(), 0);
 	SetWindowFont(wComboTest, fontText, 0);
 	RECT rc;
 	::GetWindowRect(wComboTest, &rc);
@@ -1591,7 +1595,7 @@ void UserStrip::Size() {
 		top += lineHeight;
 	}
 
-	::InvalidateRect(Hwnd(), NULL, TRUE);
+	::InvalidateRect(Hwnd(), nullptr, TRUE);
 }
 
 bool UserStrip::HasClose() const {
@@ -1701,7 +1705,7 @@ void UserStrip::SetDescription(const char *description) {
 				ctl.w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("Edit"), ctl.text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | ES_AUTOHSCROLL,
 					left, top, ctl.widthDesired, lineHeight - 3,
-					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
+					Hwnd(), HmenuID(controlID), ::ApplicationInstance(), 0);
 				break;
 
 			case UserControl::ucCombo:
@@ -1710,7 +1714,7 @@ void UserStrip::SetDescription(const char *description) {
 				ctl.w = ::CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("ComboBox"), ctl.text.c_str(),
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL,
 					left, top, ctl.widthDesired, 180,
-					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
+					Hwnd(), HmenuID(controlID), ::ApplicationInstance(), 0);
 				break;
 
 			case UserControl::ucButton:
@@ -1722,7 +1726,7 @@ void UserStrip::SetDescription(const char *description) {
 					WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS |
 					((ctl.controlType == UserControl::ucDefaultButton) ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON),
 					left, top, ctl.widthDesired, lineHeight-1,
-					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
+					Hwnd(), HmenuID(controlID), ::ApplicationInstance(), 0);
 				break;
 
 			default:
@@ -1730,7 +1734,7 @@ void UserStrip::SetDescription(const char *description) {
 				ctl.w = ::CreateWindowEx(0, TEXT("Static"), ctl.text.c_str(),
 					WS_CHILD | WS_CLIPSIBLINGS | ES_RIGHT,
 					left, top, ctl.widthDesired, lineHeight - 5,
-					Hwnd(), HmenuID(controlID), ::GetModuleHandle(NULL), 0);
+					Hwnd(), HmenuID(controlID), ::ApplicationInstance(), 0);
 				break;
 			}
 			ctl.w.Show();

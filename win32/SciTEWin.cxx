@@ -29,17 +29,17 @@ const GUI::gui_char appName[] = GUI_TEXT("SciTE");
 #endif
 
 static GUI::gui_string GetErrorMessage(DWORD nRet) {
-	LPWSTR lpMsgBuf = NULL;
+	LPWSTR lpMsgBuf = nullptr;
 	if (::FormatMessage(
 		    FORMAT_MESSAGE_ALLOCATE_BUFFER |
 		    FORMAT_MESSAGE_FROM_SYSTEM |
 		    FORMAT_MESSAGE_IGNORE_INSERTS,
-		    NULL,
+		    nullptr,
 		    nRet,
 		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   // Default language
 		    reinterpret_cast<LPWSTR>(&lpMsgBuf),
 		    0,
-		    NULL
+		    nullptr
 		) != 0) {
 		GUI::gui_string s= lpMsgBuf;
 		::LocalFree(lpMsgBuf);
@@ -137,8 +137,8 @@ bool SciTEKeys::MatchKeyCode(long parsedKeyCode, int keyval, int modifiers) noex
 }
 
 HINSTANCE SciTEWin::hInstance {};
-const TCHAR *SciTEWin::className = NULL;
-const TCHAR *SciTEWin::classNameInternal = NULL;
+const TCHAR *SciTEWin::className = nullptr;
+const TCHAR *SciTEWin::classNameInternal = nullptr;
 SciTEWin *SciTEWin::app = nullptr;
 
 namespace {
@@ -276,7 +276,7 @@ void SciTEWin::Register(HINSTANCE hInstance_) {
 	// Register the window that holds the two Scintilla edit windows and the separator
 	classNameInternal = TEXT("SciTEWindowContent");
 	wndclass.lpfnWndProc = BaseWin::StWndProc;
-	wndclass.lpszMenuName = 0;
+	wndclass.lpszMenuName = nullptr;
 	wndclass.lpszClassName = classNameInternal;
 	if (!::RegisterClass(&wndclass))
 		exit(FALSE);
@@ -311,9 +311,9 @@ static int CodePageFromName(const std::string &encodingName) {
 
 static std::string StringEncode(std::wstring s, int codePage) {
 	if (s.length()) {
-		const int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0, NULL, NULL);
+		const int cchMulti = ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.length()), nullptr, 0, nullptr, nullptr);
 		std::string sMulti(cchMulti, 0);
-		::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, NULL, NULL);
+		::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, nullptr, nullptr);
 		return sMulti;
 	} else {
 		return std::string();
@@ -322,7 +322,7 @@ static std::string StringEncode(std::wstring s, int codePage) {
 
 static std::wstring StringDecode(std::string s, int codePage) {
 	if (s.length()) {
-		const int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0);
+		const int cchWide = ::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), nullptr, 0);
 		std::wstring sWide(cchWide, 0);
 		::MultiByteToWideChar(codePage, 0, s.c_str(), static_cast<int>(s.length()), &sWide[0], cchWide);
 		return sWide;
@@ -534,10 +534,10 @@ void SciTEWin::ExecuteHelp(const char *cmd) {
 				ak.cbStruct = sizeof(ak);
 				ak.fReserved = FALSE;
 				ak.pszKeywords = topic.c_str();
-				ak.pszUrl = NULL;
-				ak.pszMsgText = NULL;
-				ak.pszMsgTitle = NULL;
-				ak.pszWindow = NULL;
+				ak.pszUrl = nullptr;
+				ak.pszMsgText = nullptr;
+				ak.pszMsgTitle = nullptr;
+				ak.pszWindow = nullptr;
 				ak.fIndexOnFail = TRUE;
 				fnHHW(NULL,
 				      path.c_str(),
@@ -592,11 +592,11 @@ void SciTEWin::CopyPath() {
 
 void SciTEWin::FullScreenToggle() {
 	HWND wTaskBar = FindWindow(TEXT("Shell_TrayWnd"), TEXT(""));
-	HWND wStartButton = FindWindow(TEXT("Button"), NULL);
+	HWND wStartButton = FindWindow(TEXT("Button"), nullptr);
 	fullScreen = !fullScreen;
 	if (fullScreen) {
 		::SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0);
-		::SystemParametersInfo(SPI_SETWORKAREA, 0, 0, SPIF_SENDCHANGE);
+		::SystemParametersInfo(SPI_SETWORKAREA, 0, nullptr, SPIF_SENDCHANGE);
 		if (wStartButton)
 			::ShowWindow(wStartButton, SW_HIDE);
 		::ShowWindow(wTaskBar, SW_HIDE);
@@ -831,7 +831,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 		codePageOutput = CodePageFromCharSet(characterSet, codePageOutput);
 	}
 
-	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
+	SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
 	OutputAppendStringSynchronised(">");
 	OutputAppendEncodedStringSynchronised(GUI::StringFromUTF8(jobToRun.command), codePageOutput);
 	OutputAppendStringSynchronised("\n");
@@ -859,9 +859,8 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 	// Make child process use hPipeWrite as standard out, and make
 	// sure it does not show on screen.
-	STARTUPINFOW si = {
-			     sizeof(STARTUPINFO), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			 };
+	STARTUPINFOW si = {};
+	si.cb = sizeof(STARTUPINFO);
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	if (jobToRun.jobType == jobCLI)
 		si.wShowWindow = SW_HIDE;
@@ -873,20 +872,20 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 
 	FilePath startDirectory = jobToRun.directory.AbsolutePath();
 
-	PROCESS_INFORMATION pi = {0, 0, 0, 0};
+	PROCESS_INFORMATION pi = {};
 
 	// Make a mutable copy as the CreateProcess parameter is mutable
 	const GUI::gui_string sCommand = GUI::StringFromUTF8(jobToRun.command);
 	std::vector<wchar_t> vwcCommand(sCommand.c_str(), sCommand.c_str() + sCommand.length() + 1);
 
 	BOOL running = ::CreateProcessW(
-			  NULL,
+			  nullptr,
 			  &vwcCommand[0],
-			  NULL, NULL,
+			  nullptr, nullptr,
 			  TRUE, CREATE_NEW_PROCESS_GROUP,
-			  NULL,
+			  nullptr,
 			  startDirectory.IsSet() ?
-			  startDirectory.AsInternal() : NULL,
+			  startDirectory.AsInternal() : nullptr,
 			  &si, &pi);
 
 	const DWORD errCode = ::GetLastError();
@@ -901,13 +900,13 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 		std::vector<wchar_t> vwcRunComLine(sRunComLine.c_str(), sRunComLine.c_str() + sRunComLine.length() + 1);
 
 		running = ::CreateProcessW(
-			  NULL,
+			  nullptr,
 			  &vwcRunComLine[0],
-			  NULL, NULL,
+			  nullptr, nullptr,
 			  TRUE, CREATE_NEW_PROCESS_GROUP,
-			  NULL,
+			  nullptr,
 			  startDirectory.IsSet() ?
-			  startDirectory.AsInternal() : NULL,
+			  startDirectory.AsInternal() : nullptr,
 			  &si, &pi);
 	}
 
@@ -1180,14 +1179,15 @@ void SciTEWin::ShellExec(const std::string &cmd, const char *dir) {
 	GUI::gui_string sMyparams = GUI::StringFromUTF8(myparams);
 	GUI::gui_string sDir = GUI::StringFromUTF8(dir);
 
-	SHELLEXECUTEINFO exec= { sizeof (exec), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	exec.fMask= SEE_MASK_FLAG_NO_UI; // own msg box on return
-	exec.hwnd= MainHWND();
-	exec.lpVerb= L"open";  // better for executables to use "open" instead of NULL
-	exec.lpFile= sMycmd.c_str();   // file to open
-	exec.lpParameters= sMyparams.c_str(); // parameters
-	exec.lpDirectory= sDir.c_str(); // launch directory
-	exec.nShow= SW_SHOWNORMAL; //default show cmd
+	SHELLEXECUTEINFO exec = {};
+	exec.cbSize = sizeof(exec);
+	exec.fMask = SEE_MASK_FLAG_NO_UI; // own msg box on return
+	exec.hwnd = MainHWND();
+	exec.lpVerb = L"open";  // better for executables to use "open" instead of NULL
+	exec.lpFile = sMycmd.c_str();   // file to open
+	exec.lpParameters = sMyparams.c_str(); // parameters
+	exec.lpDirectory = sDir.c_str(); // launch directory
+	exec.nShow = SW_SHOWNORMAL; //default show cmd
 
 	if (::ShellExecuteEx(&exec)) {
 		// it worked!
@@ -1246,7 +1246,7 @@ void SciTEWin::StopExecute() {
 	if (hWriteSubProcess && (hWriteSubProcess != INVALID_HANDLE_VALUE)) {
 		const char stop[] = "\032";
 		DWORD bytesWrote = 0;
-		::WriteFile(hWriteSubProcess, stop, static_cast<DWORD>(strlen(stop)), &bytesWrote, NULL);
+		::WriteFile(hWriteSubProcess, stop, static_cast<DWORD>(strlen(stop)), &bytesWrote, nullptr);
 		Sleep(500L);
 	}
 
@@ -1365,7 +1365,7 @@ void SciTEWin::CreateUI() {
 		height = CW_USEDEFAULT;
 	}
 
-	if (props.GetInt("position.tile") && ::FindWindow(TEXT("SciTEWindow"), NULL) &&
+	if (props.GetInt("position.tile") && ::FindWindow(TEXT("SciTEWindow"), nullptr) &&
 	        (left != static_cast<int>(CW_USEDEFAULT))) {
 		left += width;
 	}
@@ -1547,10 +1547,10 @@ void ContentWin::Paint(HDC hDC, GUI::Rectangle) {
 		HPEN pen = ::CreatePen(0, 1, ::GetSysColor(colourIndex));
 		HPEN penOld = SelectPen(hDC, pen);
 		if (pSciTEWin->splitVertical) {
-			::MoveToEx(hDC, xBorder + i, 0, 0);
+			::MoveToEx(hDC, xBorder + i, 0, nullptr);
 			::LineTo(hDC, xBorder + i, heightClient);
 		} else {
-			::MoveToEx(hDC, 0, yBorder + i, 0);
+			::MoveToEx(hDC, 0, yBorder + i, nullptr);
 			::LineTo(hDC, widthClient, yBorder + i);
 		}
 		SelectPen(hDC, penOld);
@@ -1577,7 +1577,7 @@ void SciTEWin::DropFiles(HDROP hdrop) {
 		GUI::gui_char tempDir[MAX_PATH];
 		const DWORD tempDirLen = ::GetTempPath(MAX_PATH, tempDir);
 		bool isTempFile = false;
-		const int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, NULL, 0);
+		const int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, nullptr, 0);
 		// Append paths to dropFilesQueue, to finish drag operation soon
 		for (int i = 0; i < filesDropped; ++i) {
 			GUI::gui_char pathDropped[MAX_PATH];

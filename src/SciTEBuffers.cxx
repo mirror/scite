@@ -359,9 +359,9 @@ void BufferList::FinishedFuture(int index, Buffer::FutureDo fd) {
 
 void *SciTEBase::GetDocumentAt(int index) {
 	if (index < 0 || index >= buffers.size()) {
-		return 0;
+		return nullptr;
 	}
-	if (buffers.buffers[index].doc == 0) {
+	if (buffers.buffers[index].doc == nullptr) {
 		// Create a new document buffer
 		buffers.buffers[index].doc = wEditor.CreateDocument(0, SA::DocumentOption::Default);
 	}

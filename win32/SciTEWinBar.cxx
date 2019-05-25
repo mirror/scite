@@ -15,10 +15,10 @@ void SciTEWin::SetFileProperties(
 
 	const int TEMP_LEN = 100;
 	char temp[TEMP_LEN];
-	HANDLE hf = ::CreateFileW(filePath.AsInternal(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hf = ::CreateFileW(filePath.AsInternal(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hf != INVALID_HANDLE_VALUE) {
 		FILETIME ft = FILETIME();
-		::GetFileTime(hf, NULL, NULL, &ft);
+		::GetFileTime(hf, nullptr, nullptr, &ft);
 		::CloseHandle(hf);
 		FILETIME lft = FILETIME();
 		::FileTimeToLocalFileTime(&ft, &lft);
@@ -27,12 +27,12 @@ void SciTEWin::SetFileProperties(
 			st = SYSTEMTIME();
 		::GetTimeFormatA(LOCALE_USER_DEFAULT,
 		                0, &st,
-		                NULL, temp, TEMP_LEN);
+		                nullptr, temp, TEMP_LEN);
 		ps.Set("FileTime", temp);
 
 		::GetDateFormatA(LOCALE_USER_DEFAULT,
 		                DATE_SHORTDATE, &st,
-		                NULL, temp, TEMP_LEN);
+		                nullptr, temp, TEMP_LEN);
 		ps.Set("FileDate", temp);
 
 		const DWORD attr = ::GetFileAttributesW(filePath.AsInternal());
@@ -55,13 +55,13 @@ void SciTEWin::SetFileProperties(
 	}
 
 	::GetDateFormatA(LOCALE_USER_DEFAULT,
-	                DATE_SHORTDATE, NULL,     	// Current date
-	                NULL, temp, TEMP_LEN);
+	                DATE_SHORTDATE, nullptr,     	// Current date
+	                nullptr, temp, TEMP_LEN);
 	ps.Set("CurrentDate", temp);
 
 	::GetTimeFormatA(LOCALE_USER_DEFAULT,
-	                0, NULL,     	// Current time
-	                NULL, temp, TEMP_LEN);
+	                0, nullptr,     	// Current time
+	                nullptr, temp, TEMP_LEN);
 	ps.Set("CurrentTime", temp);
 }
 
@@ -280,7 +280,7 @@ void SciTEWin::Notify(SCNotification *notification) {
 			if (chToWrite != '\r') {
 				DWORD bytesWrote = 0;
 				::WriteFile(hWriteSubProcess, &chToWrite,
-				            1, &bytesWrote, NULL);
+				            1, &bytesWrote, nullptr);
 			}
 		} else {
 			SciTEBase::Notify(notification);
@@ -323,7 +323,7 @@ void SciTEWin::TimerStart(int mask) {
 	if (timerMask != maskNew) {
 		if (timerMask == 0) {
 			// Create a 1 second ticker
-			::SetTimer(HwndOf(wSciTE), tickerID, 1000, NULL);
+			::SetTimer(HwndOf(wSciTE), tickerID, 1000, nullptr);
 		}
 		timerMask = maskNew;
 	}
@@ -636,7 +636,7 @@ static BarButton bbs[] = {
     { STD_REPLACE,  IDM_REPLACE },
 };
 
-static WNDPROC stDefaultTabProc = NULL;
+static WNDPROC stDefaultTabProc = nullptr;
 static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 
 	static BOOL st_bDragBegin = FALSE;
@@ -654,7 +654,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 	}
 
 	LRESULT retResult;
-	if (stDefaultTabProc != NULL) {
+	if (stDefaultTabProc != nullptr) {
 		retResult = CallWindowProc(stDefaultTabProc, hWnd, iMessage, wParam, lParam);
 	} else {
 		retResult = ::DefWindowProc(hWnd, iMessage, wParam, lParam);
@@ -701,7 +701,7 @@ static LRESULT PASCAL TabWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM
 					st_bDragBegin = FALSE;
 					st_iDraggingTab = -1;
 					st_iLastClickTab = -1;
-					::InvalidateRect(hWnd, NULL, FALSE);
+					::InvalidateRect(hWnd, nullptr, FALSE);
 				}
 			}
 		}
@@ -908,7 +908,7 @@ void SciTEWin::Creation() {
 	icce.dwICC = ICC_TAB_CLASSES;
 	InitCommonControlsEx(&icce);
 
-	WNDCLASS wndClass = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	WNDCLASS wndClass = {};
 	if (::GetClassInfo(NULL, WC_TABCONTROL, &wndClass) == 0)
 		exit(FALSE);
 	stDefaultTabProc = wndClass.lpfnWndProc;

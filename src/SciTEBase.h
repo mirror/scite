@@ -113,7 +113,7 @@ public:
 	PropSetFile props;
 	enum FutureDo { fdNone=0, fdFinishSave=1 } futureDo;
 	Buffer() :
-			file(), doc(0), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
+			file(), doc(nullptr), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
 			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
 			findMarks(fmNone), pFileWorker(nullptr), futureDo(fdNone) {}
 

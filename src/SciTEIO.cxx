@@ -903,7 +903,7 @@ SciTEBase::SaveResult SciTEBase::SaveIfUnsureAll() {
 	for (int j = 0; j < buffers.size(); j++) {
 		if (buffers.buffers[j].doc && !buffers.buffers[j].pFileWorker) {
 			wEditor.ReleaseDocument(buffers.buffers[j].doc);
-			buffers.buffers[j].doc = 0;
+			buffers.buffers[j].doc = nullptr;
 		}
 	}
 	// Initial document will be deleted when editor deleted

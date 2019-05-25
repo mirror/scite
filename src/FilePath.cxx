@@ -679,16 +679,15 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 
 	// Make child process use hPipeWrite as standard out, and make
 	// sure it does not show on screen.
-	STARTUPINFOW si = {
-			     sizeof(STARTUPINFO), nullptr, nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, nullptr, 0, 0, 0
-			 };
+	STARTUPINFOW si = {};
+	si.cb = sizeof(STARTUPINFO);
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
 	si.hStdInput = hRead2;
 	si.hStdOutput = hPipeWrite;
 	si.hStdError = hPipeWrite;
 
-	PROCESS_INFORMATION pi = {0, 0, 0, 0};
+	PROCESS_INFORMATION pi = {};
 
 	std::vector<wchar_t> vwcCommand(command, command + wcslen(command) + 1);
 

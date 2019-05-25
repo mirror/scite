@@ -432,9 +432,8 @@ void SciTEWin::Print(
     bool showDialog) {	///< false if must print silently (using default settings).
 
 	RemoveFindMarks();
-	PRINTDLG pdlg = {
-	                    sizeof(PRINTDLG), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	                };
+	PRINTDLG pdlg = {};
+	pdlg.lStructSize = sizeof(PRINTDLG);
 	pdlg.hwndOwner = MainHWND();
 	pdlg.hInstance = hInstance;
 	pdlg.Flags = PD_USEDEVMODECOPIES | PD_ALLPAGES | PD_RETURNDC;
@@ -593,10 +592,11 @@ void SciTEWin::Print(
 	::GetTextMetrics(hdc, &tm);
 	footerLineHeight = tm.tmHeight + tm.tmExternalLeading;
 
-	DOCINFO di = {sizeof(DOCINFO), 0, 0, 0, 0};
+	DOCINFO di = {};
+	di.cbSize = sizeof(DOCINFO);
 	di.lpszDocName = windowName.c_str();
-	di.lpszOutput = 0;
-	di.lpszDatatype = 0;
+	di.lpszOutput = nullptr;
+	di.lpszDatatype = nullptr;
 	di.fwType = 0;
 	if (::StartDoc(hdc, &di) < 0) {
 		::DeleteDC(hdc);
@@ -673,11 +673,11 @@ void SciTEWin::Print(
 				rcw.bottom = rcw.top + headerLineHeight;
 				::ExtTextOutW(hdc, frPrint.rc.left + 5, frPrint.rc.top - headerLineHeight / 2,
 				             ETO_OPAQUE, &rcw, sHeader.c_str(),
-				             static_cast<int>(sHeader.length()), NULL);
+				             static_cast<int>(sHeader.length()), nullptr);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0, 1, sdHeader.Fore());
 				HPEN penOld = SelectPen(hdc, pen);
-				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, NULL);
+				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight / 4, nullptr);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight / 4);
 				SelectPen(hdc, penOld);
 				DeletePen(pen);
@@ -700,12 +700,12 @@ void SciTEWin::Print(
 				            frPrint.rc.right, frPrint.rc.bottom + footerLineHeight + footerLineHeight / 2};
 				::ExtTextOutW(hdc, frPrint.rc.left + 5, frPrint.rc.bottom + footerLineHeight / 2,
 				             ETO_OPAQUE, &rcw, sFooter.c_str(),
-				             static_cast<int>(sFooter.length()), NULL);
+				             static_cast<int>(sFooter.length()), nullptr);
 				::SetTextAlign(hdc, ta);
 				HPEN pen = ::CreatePen(0, 1, sdFooter.Fore());
 				HPEN penOld = SelectPen(hdc, pen);
 				::SetBkColor(hdc, sdFooter.Fore());
-				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 4, NULL);
+				::MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + footerLineHeight / 4, nullptr);
 				::LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom + footerLineHeight / 4);
 				SelectPen(hdc, penOld);
 				DeletePen(pen);
@@ -719,7 +719,7 @@ void SciTEWin::Print(
 			break;
 	}
 
-	wEditor.FormatRange(false, 0);
+	wEditor.FormatRange(false, nullptr);
 
 	::EndDoc(hdc);
 	::DeleteDC(hdc);
@@ -728,10 +728,8 @@ void SciTEWin::Print(
 }
 
 void SciTEWin::PrintSetup() {
-	PAGESETUPDLG pdlg = {
-	                        sizeof(PAGESETUPDLG), 0, 0, 0, 0, {0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 0, 0, 0, 0, 0, 0
-	                    };
-
+	PAGESETUPDLG pdlg = {};
+	pdlg.lStructSize = sizeof(PAGESETUPDLG);
 	pdlg.hwndOwner = MainHWND();
 	pdlg.hInstance = hInstance;
 
@@ -1270,13 +1268,13 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			// allocated by the shell. Eventually, we will need to free this
 			// memory, so we need to get a pointer to the shell malloc COM
 			// object that will free the PIDL later on.
-			LPMALLOC pShellMalloc = 0;
+			LPMALLOC pShellMalloc = nullptr;
 			if (::SHGetMalloc(&pShellMalloc) == NO_ERROR) {
 				// If we were able to get the shell malloc object,
 				// then proceed by initializing the BROWSEINFO stuct
 				BROWSEINFO info = BROWSEINFO();
 				info.hwndOwner = hDlg;
-				info.pidlRoot = NULL;
+				info.pidlRoot = nullptr;
 				TCHAR szDisplayName[MAX_PATH] = TEXT("");
 				info.pszDisplayName = szDisplayName;
 				GUI::gui_string title = localiser.Text("Select a folder to search from");
