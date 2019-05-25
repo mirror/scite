@@ -3984,33 +3984,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 		break;
 
 	case SA::Notification::UpdateUI:
-		if (extender)
-			handled = extender->OnUpdateUI();
-		if (!handled) {
-			BraceMatch(notification->nmhdr.idFrom == IDM_SRCWIN);
-			if (notification->nmhdr.idFrom == IDM_SRCWIN) {
-				UpdateStatusBar(false);
-			}
-			CheckMenusClipboard();
-		}
-		if (CurrentBuffer()->findMarks == Buffer::fmModified) {
-			RemoveFindMarks();
-		}
-		{
-			const SA::Update updated = static_cast<SA::Update>(notification->updated);
-			if (static_cast<int>(updated & (SA::Update::Selection | SA::Update::Content))) {
-				if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
-					// Obly highlight focussed pane.
-					if ((updated & SA::Update::Selection) == SA::Update::Selection) {
-						currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
-						currentWordHighlight.textHasChanged = false;
-						HighlightCurrentWord(true);
-					} else if (currentWordHighlight.textHasChanged) {
-						HighlightCurrentWord(false);
-					}
-				}
-			}
-		}
+		UpdateUI(notification);
 		break;
 
 	case SA::Notification::Modified:
