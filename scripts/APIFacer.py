@@ -401,6 +401,22 @@ def AugmentFace(f):
 		"Comment": "" }
 	f.order.append(name)
 
+	name = "SCFIND_NONE"
+	f.features[name] = {
+		"FeatureType": "val",
+		"Category": "",
+		"Value": "0x0",
+		"Comment": "" }
+	f.order.insert(0, name)
+
+	name = "SC_MOD_NONE"
+	f.features[name] = {
+		"FeatureType": "val",
+		"Category": "",
+		"Value": "0x0",
+		"Comment": "" }
+	f.order.insert(0, name)
+
 def IsEnumeration(s):
 	if s in ["Position", "Line", "Colour"]:
 		return False

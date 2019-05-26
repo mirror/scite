@@ -197,6 +197,7 @@ enum class PrintOption {
 };
 
 enum class FindOption {
+	None = 0x0,
 	WholeWord = 0x2,
 	MatchCase = 0x4,
 	WordStart = 0x00100000,
@@ -432,6 +433,7 @@ enum class TypeProperty {
 };
 
 enum class ModificationFlags {
+	None = 0x0,
 	InsertText = 0x1,
 	DeleteText = 0x2,
 	ChangeStyle = 0x4,

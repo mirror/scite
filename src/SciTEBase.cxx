@@ -868,7 +868,7 @@ void SciTEBase::SelectionIntoFind(bool stripEol /*=true*/) {
 }
 
 void SciTEBase::SelectionAdd(AddSelection add) {
-	SA::FindOption flags = static_cast<SA::FindOption>(0);
+	SA::FindOption flags = SA::FindOption::None;
 	if (!pwFocussed->SelectionEmpty()) {
 		// If selection is word then match as word.
 		if (pwFocussed->IsRangeWord(pwFocussed->SelectionStart(),
@@ -917,7 +917,7 @@ void SciTEBase::RemoveFindMarks() {
 }
 
 SA::FindOption SciTEBase::SearchFlags(bool regularExpressions) const {
-	SA::FindOption opt = static_cast<SA::FindOption>(0);
+	SA::FindOption opt = SA::FindOption::None;
 	if (wholeWord)
 		opt |= SA::FindOption::WholeWord;
 	if (matchCase)
@@ -1688,7 +1688,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	const SA::Position rootLength = root.length();
 	const SA::Position doclen = LengthDocument();
 	const SA::FindOption flags =
-		SA::FindOption::WordStart | (autoCompleteIgnoreCase ? static_cast<SA::FindOption>(0) : SA::FindOption::MatchCase);
+		SA::FindOption::WordStart | (autoCompleteIgnoreCase ? SA::FindOption::None : SA::FindOption::MatchCase);
 	const SA::Position posCurrentWord = wEditor.CurrentPos() - rootLength;
 	SA::Position minWordLength = 0;
 	unsigned int nwords = 0;
@@ -3844,21 +3844,19 @@ void SciTEBase::UpdateUI(const SCNotification *notification) {
 }
 
 void SciTEBase::Modified(const SCNotification *notification) {
-	const SA::ModificationFlags modificationNone =
-		static_cast<SA::ModificationFlags>(0);
 	const SA::ModificationFlags modificationType =
 		static_cast<SA::ModificationFlags>(notification->modificationType);
 	const SA::ModificationFlags insertOrDelete =
 		SA::ModificationFlags::InsertText | SA::ModificationFlags::DeleteText;
 	if ((notification->nmhdr.idFrom == IDM_SRCWIN) &&
-			((modificationType & insertOrDelete) != modificationNone))
+			((modificationType & insertOrDelete) != SA::ModificationFlags::None))
 		CurrentBuffer()->DocumentModified();
-	if ((modificationType & SA::ModificationFlags::LastStepInUndoRedo) != modificationNone) {
+	if ((modificationType & SA::ModificationFlags::LastStepInUndoRedo) != SA::ModificationFlags::None) {
 		// When the user hits undo or redo, several normal insert/delete
 		// notifications may fire, but we will end up here in the end
 		EnableAMenuItem(IDM_UNDO, CallFocusedElseDefault(true, SA::Message::CanUndo));
 		EnableAMenuItem(IDM_REDO, CallFocusedElseDefault(true, SA::Message::CanRedo));
-	} else if ((modificationType & insertOrDelete) != modificationNone) {
+	} else if ((modificationType & insertOrDelete) != SA::ModificationFlags::None) {
 		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
 			currentWordHighlight.textHasChanged = true;
 		}
@@ -3874,7 +3872,7 @@ void SciTEBase::Modified(const SCNotification *notification) {
 		SetLineNumberWidth();
 	}
 
-	if ((modificationType & SA::ModificationFlags::ChangeFold) != modificationNone) {
+	if ((modificationType & SA::ModificationFlags::ChangeFold) != SA::ModificationFlags::None) {
 		FoldChanged(notification->line,
 			    static_cast<SA::FoldLevel>(notification->foldLevelNow),
 			    static_cast<SA::FoldLevel>(notification->foldLevelPrev));

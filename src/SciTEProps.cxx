@@ -1185,16 +1185,16 @@ void SciTEBase::ReadProperties() {
 		// Trap for insert/delete notifications (also fired by undo
 		// and redo) so that the buttons can be enabled if needed.
 		const SA::ModificationFlags flagsCurrent = wEditor.ModEventMask();
-		const SA::ModificationFlags flags = static_cast<SA::ModificationFlags>(
-				static_cast<int>(flagsCurrent) |
-				static_cast<int>(SA::ModificationFlags::InsertText) |
-				static_cast<int>(SA::ModificationFlags::DeleteText) |
-				static_cast<int>(SA::ModificationFlags::LastStepInUndoRedo));
+		const SA::ModificationFlags flags =
+				flagsCurrent |
+				SA::ModificationFlags::InsertText |
+				SA::ModificationFlags::DeleteText |
+				SA::ModificationFlags::LastStepInUndoRedo;
 		wEditor.SetModEventMask(flags);
 
-		//SC_LASTSTEPINUNDOREDO is probably not needed in the mask; it
-		//doesn't seem to fire as an event of its own; just modifies the
-		//insert and delete events.
+		// LastStepInUndoRedo is probably not needed in the mask; it
+		// doesn't seem to fire as an event of its own; just modifies the
+		// insert and delete events.
 	}
 
 	// Create a margin column for the folding symbols
