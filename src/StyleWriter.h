@@ -28,7 +28,7 @@ protected:
 	bool InternalIsLeadByte(char ch) const;
 	void Fill(Scintilla::API::Position position);
 public:
-	explicit TextReader(Scintilla::API::ScintillaCall &sc_);
+	explicit TextReader(Scintilla::API::ScintillaCall &sc_) noexcept;
 	// Deleted so TextReader objects can not be copied.
 	TextReader(const TextReader &source) = delete;
 	TextReader &operator=(const TextReader &) = delete;
@@ -52,7 +52,7 @@ public:
 	bool IsLeadByte(char ch) const {
 		return codePage && InternalIsLeadByte(ch);
 	}
-	void SetCodePage(int codePage_) {
+	void SetCodePage(int codePage_) noexcept {
 		codePage = codePage_;
 	}
 	bool Match(Scintilla::API::Position pos, const char *s);
@@ -71,7 +71,7 @@ protected:
 	Scintilla::API::Position validLen;
 	Scintilla::API::Position startSeg;
 public:
-	explicit StyleWriter(Scintilla::API::ScintillaCall &sc_);
+	explicit StyleWriter(Scintilla::API::ScintillaCall &sc_) noexcept;
 	// Deleted so StyleWriter objects can not be copied.
 	StyleWriter(const StyleWriter &source) = delete;
 	StyleWriter &operator=(const StyleWriter &) = delete;
@@ -79,8 +79,8 @@ public:
 	void SetLineState(Scintilla::API::Line line, int state);
 
 	void StartAt(Scintilla::API::Position start, char chMask=31);
-	Scintilla::API::Position GetStartSegment() const { return startSeg; }
-	void StartSegment(Scintilla::API::Position pos);
+	Scintilla::API::Position GetStartSegment() const noexcept { return startSeg; }
+	void StartSegment(Scintilla::API::Position pos) noexcept;
 	void ColourTo(Scintilla::API::Position pos, int chAttr);
 	void SetLevel(Scintilla::API::Line line, Scintilla::API::FoldLevel level);
 };

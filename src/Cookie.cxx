@@ -35,13 +35,13 @@ std::string ExtractLine(const char *buf, size_t length) {
 
 static const char codingCookie[] = "coding";
 
-static bool isEncodingChar(char ch) {
+static bool isEncodingChar(char ch) noexcept {
 	return (ch == '_') || (ch == '-') || (ch == '.') ||
 	       (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
 	       (ch >= '0' && ch <= '9');
 }
 
-static bool isSpaceChar(char ch) {
+static bool isSpaceChar(char ch) noexcept {
 	return (ch == ' ') || (ch == '\t');
 }
 

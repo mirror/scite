@@ -11,7 +11,7 @@
 
 #include "IFaceTable.h"
 
-int IFaceTable::FindConstant(const char *name) {
+int IFaceTable::FindConstant(const char *name) noexcept {
 	int lo = 0;
 	int hi = IFaceTable::constantCount - 1;
 	do {
@@ -30,7 +30,7 @@ int IFaceTable::FindConstant(const char *name) {
 	return -1;
 }
 
-int IFaceTable::FindFunction(const char *name) {
+int IFaceTable::FindFunction(const char *name) noexcept {
 	int lo = 0;
 	int hi = IFaceTable::functionCount - 1;
 	do {
@@ -48,7 +48,7 @@ int IFaceTable::FindFunction(const char *name) {
 	return -1;
 }
 
-int IFaceTable::FindFunctionByConstantName(const char *name) {
+int IFaceTable::FindFunctionByConstantName(const char *name) noexcept {
 	if (strncmp(name, "SCI_", 4)==0) {
 		// This looks like a constant for an iface function.  This requires
 		// a sequential search.  Take special care since the function names
@@ -69,7 +69,7 @@ int IFaceTable::FindFunctionByConstantName(const char *name) {
 	return -1;
 }
 
-int IFaceTable::FindProperty(const char *name) {
+int IFaceTable::FindProperty(const char *name) noexcept {
 	int lo = 0;
 	int hi = IFaceTable::propertyCount - 1;
 	do {

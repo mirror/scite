@@ -32,7 +32,7 @@
 #include "Mutex.h"
 #include "JobQueue.h"
 
-JobSubsystem SubsystemFromChar(char c) {
+JobSubsystem SubsystemFromChar(char c) noexcept {
 	if (c == '1')
 		return jobGUI;
 	else if (c == '2')

@@ -34,7 +34,7 @@ FileWorker::FileWorker(WorkerListener *pListener_, const FilePath &path_, size_t
 FileWorker::~FileWorker() {
 }
 
-double FileWorker::Duration() {
+double FileWorker::Duration() noexcept {
 	return et.Duration();
 }
 
@@ -101,7 +101,7 @@ FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, c
 FileStorer::~FileStorer() {
 }
 
-static bool IsUTF8TrailByte(int ch) {
+static bool IsUTF8TrailByte(int ch) noexcept {
 	return (ch >= 0x80) && (ch < (0x80 + 0x40));
 }
 

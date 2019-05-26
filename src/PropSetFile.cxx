@@ -324,7 +324,7 @@ void PropSetFile::Clear() noexcept {
 /**
  * Get a line of input. If end of line escaped with '\\' then continue reading.
  */
-static bool GetFullLine(const char *&fpc, size_t &lenData, char *s, size_t len) {
+static bool GetFullLine(const char *&fpc, size_t &lenData, char *s, size_t len) noexcept {
 	bool continuation = true;
 	s[0] = '\0';
 	while ((len > 1) && lenData > 0) {
@@ -357,11 +357,11 @@ static bool GetFullLine(const char *&fpc, size_t &lenData, char *s, size_t len) 
 	return false;
 }
 
-static bool IsSpaceOrTab(char ch) {
+static bool IsSpaceOrTab(char ch) noexcept {
 	return (ch == ' ') || (ch == '\t');
 }
 
-static bool IsCommentLine(const char *line) {
+static bool IsCommentLine(const char *line) noexcept {
 	while (IsSpaceOrTab(*line)) ++line;
 	return (*line == '#');
 }
@@ -468,7 +468,7 @@ bool PropSetFile::Read(const FilePath &filename, const FilePath &directoryForImp
 
 namespace {
 
-bool StringEqual(std::string_view a, std::string_view b, bool caseSensitive) {
+bool StringEqual(std::string_view a, std::string_view b, bool caseSensitive) noexcept {
 	if (caseSensitive) {
 		return a == b;
 	} else {
@@ -519,7 +519,7 @@ bool MatchWild(std::string_view pattern, std::string_view text, bool caseSensiti
 	return false;
 }
 
-bool startswith(const std::string &s, const char *keybase) {
+bool startswith(const std::string &s, const char *keybase) noexcept {
 	return isprefix(s.c_str(), keybase);
 }
 

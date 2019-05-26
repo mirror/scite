@@ -37,7 +37,7 @@ public:
 	~EditorConfig() override;
 	void ReadFromDirectory(const FilePath &dirStart) override;
 	std::map<std::string, std::string> MapFromAbsolutePath(const FilePath &absolutePath) const override;
-	void Clear() override;
+	void Clear() noexcept override;
 };
 
 const GUI::gui_char editorConfigName[] = GUI_TEXT(".editorconfig");
@@ -293,7 +293,7 @@ std::map<std::string, std::string> EditorConfig::MapFromAbsolutePath(const FileP
 	return ret;
 }
 
-void EditorConfig::Clear() {
+void EditorConfig::Clear() noexcept {
 	config.clear();
 }
 

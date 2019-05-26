@@ -479,11 +479,11 @@ class RandomColour {
 	int incr;
 	int modulus;
 	int randomValue;
-	int NextRandom() {
+	int NextRandom() noexcept {
 		randomValue = (mult * randomValue + incr) % modulus;
 		return randomValue;
 	}
-	void HackColour(int &n) {
+	void HackColour(int &n) noexcept {
 		n += (NextRandom() % 100) - 50;
 		if (n > 0xE7)
 			n = 0x60;
@@ -494,7 +494,7 @@ public:
 	int r;
 	int g;
 	int b;
-	RandomColour() :
+	RandomColour() noexcept :
 		mult(109),
 		incr(853),
 		modulus(4096),
@@ -503,7 +503,7 @@ public:
 		g(NextRandom() % 256),
 		b(NextRandom() % 256) {
 	}
-	void Next() {
+	void Next() noexcept {
 		HackColour(r);
 		HackColour(g);
 		HackColour(b);

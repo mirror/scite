@@ -104,7 +104,7 @@ std::u32string UTF32FromUTF8(std::string_view s);
 unsigned int UTF32Character(const char *utf8) noexcept;
 
 std::string Slash(const std::string &s, bool quoteQuotes);
-unsigned int UnSlash(char *s);
+unsigned int UnSlash(char *s) noexcept;
 std::string UnSlashString(const char *s);
 std::string UnSlashLowOctalString(const char *s);
 
@@ -158,7 +158,7 @@ public:
 			start = end + 1;
 		}
 	}
-	int Length() const {
+	int Length() const noexcept {
 		int len = 0;
 		for (int i = 0; i < sz; i++)
 			if (entries[i].length())

@@ -96,7 +96,7 @@ inline std::string getPDFRGB(const char* stylecolour) {
 	std::string ret;
 	// grab colour components (max string length produced = 18)
 	for (int i = 1; i < 6; i += 2) {
-		char val[20];
+		char val[20] = "";
 		// 3 decimal places for enough dynamic range
 		const int c = (IntFromHexByte(stylecolour + i) * 1000 + 127) / 255;
 		if (c == 0 || c == 1000) {	// optimise
@@ -149,7 +149,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 		}
 		// builds xref table, returns file offset of xref table
 		long xref() {
-			char val[32];
+			char val[32] = "";
 			// xref start index and number of entries
 			const long xrefStart = ftell(fp);
 			write("xref\n0 ");
@@ -441,7 +441,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 	}
 	// page size: width, height
 	propItem = props.GetExpandedString("export.pdf.pagesize");
-	char buffer[200];
+	char buffer[200] = "";
 	const char *ps = propItem.c_str();
 	const char *next = GetNextPropItem(ps, buffer, 32);
 	if (0 >= (pr.pageWidth = atol(buffer))) {

@@ -50,7 +50,7 @@
 
 const GUI::gui_char defaultSessionFileName[] = GUI_TEXT("SciTE.session");
 
-void Buffer::DocumentModified() {
+void Buffer::DocumentModified() noexcept {
 	documentModTime = time(nullptr);
 }
 
@@ -59,7 +59,7 @@ bool Buffer::NeedsSave(int delayBeforeSave) const {
 	return now && documentModTime && isDirty && !pFileWorker && (now-documentModTime > delayBeforeSave) && !file.IsUntitled() && !failedSave;
 }
 
-void Buffer::CompleteLoading() {
+void Buffer::CompleteLoading() noexcept {
 	lifeState = open;
 	if (pFileWorker && pFileWorker->IsLoading()) {
 		delete pFileWorker;
@@ -282,17 +282,13 @@ void BufferList::Swap(int indexA, int indexB) {
 	}
 }
 
-bool BufferList::SingleBuffer() const {
+bool BufferList::SingleBuffer() const noexcept {
 	return size() == 1;
 }
 
 BackgroundActivities BufferList::CountBackgroundActivities() const {
-	BackgroundActivities bg;
-	bg.loaders = 0;
-	bg.storers = 0;
-	bg.totalWork = 0;
-	bg.totalProgress = 0;
-	for (int i = 0;i < length;i++) {
+	BackgroundActivities bg {};
+	for (int i = 0; i < length; i++) {
 		if (buffers[i].pFileWorker) {
 			if (!buffers[i].pFileWorker->FinishedJob()) {
 				if (!buffers[i].pFileWorker->IsLoading()) {
@@ -479,7 +475,7 @@ void SciTEBase::UpdateBuffersCurrent() {
 	}
 }
 
-bool SciTEBase::IsBufferAvailable() const {
+bool SciTEBase::IsBufferAvailable() const noexcept {
 	return buffers.size() > 1 && buffers.length < buffers.size();
 }
 
@@ -1558,7 +1554,7 @@ static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int for
 	case SCE_ERR_MS: {
 			// Visual *
 			const char *start = cdoc;
-			while (isspacechar(*start)) {
+			while (IsASpace(*start)) {
 				start++;
 			}
 			const char *endPath = strchr(start, '(');
@@ -1580,13 +1576,13 @@ static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int for
 			// Borland
 			const char *space = strchr(cdoc, ' ');
 			if (space) {
-				while (isspacechar(*space)) {
+				while (IsASpace(*space)) {
 					space++;
 				}
-				while (*space && !isspacechar(*space)) {
+				while (*space && !IsASpace(*space)) {
 					space++;
 				}
-				while (isspacechar(*space)) {
+				while (IsASpace(*space)) {
 					space++;
 				}
 
@@ -1597,11 +1593,11 @@ static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int for
 				}
 
 				if (space2) {
-					while (!isspacechar(*space2)) {
+					while (!IsASpace(*space2)) {
 						space2--;
 					}
 
-					while (isspacechar(*(space2 - 1))) {
+					while (IsASpace(*(space2 - 1))) {
 						space2--;
 					}
 
@@ -1709,15 +1705,15 @@ static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int for
 			// Essential Lahey Fortran error look like: Line 11, file c:\fortran90\codigo\demo.f90
 			const char *line = strchr(cdoc, ' ');
 			if (line) {
-				while (isspacechar(*line)) {
+				while (IsASpace(*line)) {
 					line++;
 				}
 				const char *file = strchr(line, ' ');
 				if (file) {
-					while (isspacechar(*file)) {
+					while (IsASpace(*file)) {
 						file++;
 					}
-					while (*file && !isspacechar(*file)) {
+					while (*file && !IsASpace(*file)) {
 						file++;
 					}
 					const size_t length = strlen(file);
@@ -1889,7 +1885,7 @@ void SciTEBase::ShowMessages(SA::Line line) {
 		const SA::Position lineEnd = wOutput.LineEnd(line);
 		std::string message = wOutput.StringOfRange(SA::Range(startPosLine, lineEnd));
 		std::string source;
-		SA::Position column;
+		SA::Position column = 0;
 		int style = acc.StyleAt(startPosLine);
 		if ((style == SCE_ERR_ESCSEQ) || (style == SCE_ERR_ESCSEQ_UNKNOWN) || (style >= SCE_ERR_ES_BLACK)) {
 			// GCC message with ANSI escape sequences

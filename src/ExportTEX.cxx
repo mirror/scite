@@ -49,7 +49,7 @@
 
 //---------- Save to TeX ----------
 
-static char* getTexRGB(char* texcolor, const char* stylecolor) {
+static char* getTexRGB(char* texcolor, const char* stylecolor) noexcept {
 	//texcolor[rgb]{0,0.5,0}{....}
 	const double rf = IntFromHexByte(stylecolor + 1) / 256.0;
 	const double gf = IntFromHexByte(stylecolor + 3) / 256.0;
@@ -63,7 +63,7 @@ static char* getTexRGB(char* texcolor, const char* stylecolor) {
 }
 
 #define CHARZ ('z' - 'b')
-static char* texStyle(int style) {
+static char* texStyle(int style) noexcept {
 	static char buf[10];
 	int i = 0;
 	do {
@@ -76,7 +76,7 @@ static char* texStyle(int style) {
 
 static void defineTexStyle(const StyleDefinition &style, FILE* fp, int istyle) {
 	int closing_brackets = 2;
-	char rgb[200];
+	char rgb[200] = "";
 	fprintf(fp, "\\newcommand{\\scite%s}[1]{\\noindent{\\ttfamily{", texStyle(istyle));
 	if (style.italics) {
 		fputs("\\textit{", fp);

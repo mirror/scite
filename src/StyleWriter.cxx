@@ -19,7 +19,7 @@
 
 namespace SA = Scintilla::API;
 
-TextReader::TextReader(SA::ScintillaCall &sc_) :
+TextReader::TextReader(SA::ScintillaCall &sc_) noexcept :
 	startPos(extremePosition),
 	endPos(0),
 	codePage(0),
@@ -82,7 +82,7 @@ int TextReader::GetLineState(SA::Line line) {
 	return sc.LineState(line);
 }
 
-StyleWriter::StyleWriter(SA::ScintillaCall &sc_) :
+StyleWriter::StyleWriter(SA::ScintillaCall &sc_) noexcept :
 	TextReader(sc_),
 	validLen(0),
 	startSeg(0) {
@@ -97,7 +97,7 @@ void StyleWriter::StartAt(SA::Position start, char chMask) {
 	sc.StartStyling(start, chMask);
 }
 
-void StyleWriter::StartSegment(SA::Position pos) {
+void StyleWriter::StartSegment(SA::Position pos) noexcept {
 	startSeg = pos;
 }
 

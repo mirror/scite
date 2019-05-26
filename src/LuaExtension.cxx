@@ -99,22 +99,22 @@ LuaExtension &LuaExtension::Instance() {
 
 // Forward declarations
 static ExtensionAPI::Pane check_pane_object(lua_State *L, int index);
-static void push_pane_object(lua_State *L, ExtensionAPI::Pane p);
+static void push_pane_object(lua_State *L, ExtensionAPI::Pane p) noexcept;
 static int iface_function_helper(lua_State *L, const IFaceFunction &func);
 
-inline bool IFaceTypeIsScriptable(IFaceType t, int index) {
+inline bool IFaceTypeIsScriptable(IFaceType t, int index) noexcept {
 	return t < iface_stringresult || (index==1 && t == iface_stringresult);
 }
 
-inline bool IFaceTypeIsNumeric(IFaceType t) {
+inline bool IFaceTypeIsNumeric(IFaceType t) noexcept {
 	return (t > iface_void && t < iface_bool);
 }
 
-inline bool IFaceFunctionIsScriptable(const IFaceFunction &f) {
+inline bool IFaceFunctionIsScriptable(const IFaceFunction &f) noexcept {
 	return IFaceTypeIsScriptable(f.paramType[0], 0) && IFaceTypeIsScriptable(f.paramType[1], 1);
 }
 
-inline bool IFacePropertyIsScriptable(const IFaceProperty &p) {
+inline bool IFacePropertyIsScriptable(const IFaceProperty &p) noexcept {
 	return (((p.valueType > iface_void) && (p.valueType <= iface_stringresult) && (p.valueType != iface_keymod)) &&
 		((p.paramType < iface_colour) || (p.paramType == iface_string) ||
 		 (p.paramType == iface_bool)) && (p.getter || p.setter));
@@ -132,7 +132,7 @@ inline void raise_error(lua_State *L, const char *errMsg=nullptr) {
 }
 
 // lua_absindex for LUA <5.1
-inline int absolute_index(lua_State *L, int index) {
+inline int absolute_index(lua_State *L, int index) noexcept {
 	if (index > LUA_REGISTRYINDEX && index < 0)
 		return lua_gettop(L) + index + 1;
 	else
@@ -201,7 +201,7 @@ static void clear_table(lua_State *L, int tableIdx, bool clearMetatable = true) 
 }
 
 // Lua 5.1's checkudata throws an error on failure, we don't want that, we want NULL
-static void *checkudata(lua_State *L, int ud, const char *tname) {
+static void *checkudata(lua_State *L, int ud, const char *tname) noexcept {
 	void *p = lua_touserdata(L, ud);
 	if (p) { // value is a userdata?
 		if (lua_getmetatable(L, ud)) { // does it have a metatable?
@@ -265,7 +265,7 @@ static int cf_scite_send(lua_State *L) {
 
 static int cf_scite_constname(lua_State *L) {
 	const int message = luaL_checkint(L, 1);
-	const char *prefix = luaL_optstring(L, 2, NULL);
+	const char *prefix = luaL_optstring(L, 2, nullptr);
 	const std::string constName = IFaceTable::GetConstantName(message, prefix);
 	if (constName.length() > 0) {
 		lua_pushstring(L, constName.c_str());
@@ -802,7 +802,7 @@ static bool call_function(lua_State *L, int nargs, bool ignoreFunctionReturnValu
 	return handled;
 }
 
-static bool HasNamedFunction(const char *name) {
+static bool HasNamedFunction(const char *name) noexcept {
 	bool hasFunction = false;
 	if (luaState) {
 		hasFunction = lua_getglobal(luaState, name) != LUA_TNIL;
@@ -1162,7 +1162,7 @@ static int cf_pane_metatable_newindex(lua_State *L) {
 	return 0;
 }
 
-void push_pane_object(lua_State *L, ExtensionAPI::Pane p) {
+void push_pane_object(lua_State *L, ExtensionAPI::Pane p) noexcept {
 	*static_cast<ExtensionAPI::Pane *>(lua_newuserdata(L, sizeof(p))) = p;
 	if (luaL_newmetatable(L, "SciTE_MT_Pane")) {
 		lua_pushcfunction(L, cf_pane_metatable_index);
@@ -1245,7 +1245,7 @@ static bool CheckStartupScript() {
 	return startupScript.length() > 0;
 }
 
-static void PublishGlobalBufferData() {
+static void PublishGlobalBufferData() noexcept {
 // release 1.62
 // A Lua table called 'buffer' is associated with each buffer
 // and can be used to maintain buffer-specific state.
@@ -1739,7 +1739,7 @@ struct StylingContext {
 	SA::Position lenCurrent;
 	SA::Position lenNext;
 
-	static StylingContext *Context(lua_State *L) {
+	static StylingContext *Context(lua_State *L) noexcept {
 		return static_cast<StylingContext *>(
 			       lua_touserdata(L, lua_upvalueindex(1)));
 	}
@@ -2001,7 +2001,7 @@ struct StylingContext {
 		return 1;
 	}
 
-	void PushMethod(lua_State *L, lua_CFunction fn, const char *name) {
+	void PushMethod(lua_State *L, lua_CFunction fn, const char *name) noexcept {
 		lua_pushlightuserdata(L, this);
 		lua_pushcclosure(L, fn, 1);
 		lua_setfield(luaState, -2, name);
@@ -2090,7 +2090,7 @@ bool LuaExtension::OnUserListSelection(int listType, const char *selection) {
 
 namespace {
 
-bool CheckModifiers(int modifiers, SA::KeyMod mod) {
+bool CheckModifiers(int modifiers, SA::KeyMod mod) noexcept {
 	return (static_cast<int>(mod) & modifiers) != 0;
 }
 

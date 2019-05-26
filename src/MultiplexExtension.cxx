@@ -21,7 +21,7 @@ MultiplexExtension::~MultiplexExtension() {
 }
 
 bool MultiplexExtension::RegisterExtension(Extension &ext_) {
-	for (Extension *pexp : extensions)
+	for (const Extension *pexp : extensions)
 		if (pexp == &ext_)
 			return true;
 

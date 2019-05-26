@@ -144,10 +144,10 @@ public:
 		failedSave = false;
 	}
 
-	void DocumentModified();
+	void DocumentModified() noexcept;
 	bool NeedsSave(int delayBeforeSave) const;
 
-	void CompleteLoading();
+	void CompleteLoading() noexcept;
 	void CompleteStoring();
 	void AbandonAutomaticSave();
 
@@ -198,7 +198,7 @@ public:
 	void MoveToStackTop(int index);
 	void ShiftTo(int indexFrom, int indexTo);
 	void Swap(int indexA, int indexB);
-	bool SingleBuffer() const;
+	bool SingleBuffer() const noexcept;
 	BackgroundActivities CountBackgroundActivities() const;
 	bool SavingInBackground() const;
 	bool GetVisible(int index) const noexcept;
@@ -556,7 +556,7 @@ protected:
 	void *GetDocumentAt(int index);
 	void SwitchDocumentAt(int index, void *pdoc);
 	void UpdateBuffersCurrent();
-	bool IsBufferAvailable() const;
+	bool IsBufferAvailable() const noexcept;
 	bool CanMakeRoom(bool maySaveIfDirty = true);
 	void SetDocumentAt(int index, bool updateStack = true);
 	Buffer *CurrentBuffer() {
@@ -1009,7 +1009,3 @@ public:
 int ControlIDOfCommand(unsigned long) noexcept;
 SA::Colour ColourOfProperty(const PropSetFile &props, const char *key, SA::Colour colourDefault);
 void WindowSetFocus(GUI::ScintillaWindow &w);
-
-inline bool isspacechar(unsigned char ch) noexcept {
-    return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
-}

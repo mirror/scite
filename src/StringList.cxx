@@ -90,7 +90,7 @@ static bool CmpString(const char *a, const char *b) noexcept {
 	return strcmp(a, b) < 0;
 }
 
-static bool CmpStringNoCase(const char *a, const char *b) {
+static bool CmpStringNoCase(const char *a, const char *b) noexcept {
 	return CompareNoCase(a, b) < 0;
 }
 

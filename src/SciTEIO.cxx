@@ -1365,7 +1365,7 @@ class BufferedFile {
 	char buffer[bufLen];
 	size_t pos;
 	size_t valid;
-	void EnsureData() {
+	void EnsureData() noexcept {
 		if (pos >= valid) {
 			if (readAll || !fp) {
 				exhausted = true;
@@ -1396,14 +1396,14 @@ public:
 	bool Exhausted() const noexcept {
 		return exhausted;
 	}
-	int NextByte() {
+	int NextByte() noexcept {
 		EnsureData();
 		if (pos >= valid) {
 			return 0;
 		}
 		return buffer[pos++];
 	}
-	bool BufferContainsNull() {
+	bool BufferContainsNull() noexcept {
 		EnsureData();
 		for (size_t i = 0;i < valid;i++) {
 			if (buffer[i] == '\0')

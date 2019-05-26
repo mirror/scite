@@ -86,7 +86,7 @@ static size_t FindCaseInsensitive(const std::vector<std::string> &values, const 
 }
 
 // extract the next RTF control word from *style
-static void GetRTFNextControl(const char **style, char *control) {
+static void GetRTFNextControl(const char **style, char *control) noexcept {
 	const char *pos = *style;
 	*control = '\0';
 	if ('\0' == *pos) return;
@@ -100,7 +100,8 @@ static void GetRTFNextControl(const char **style, char *control) {
 
 // extracts control words that are different between two styles
 static std::string GetRTFStyleChange(const char *last, const char *current) { // \f0\fs20\cf0\highlight0\b0\i0
-	char lastControl[MAX_STYLEDEF], currentControl[MAX_STYLEDEF];
+	char lastControl[MAX_STYLEDEF] = "";
+	char currentControl[MAX_STYLEDEF] = "";
 	const char *lastPos = last;
 	const char *currentPos = current;
 	std::string delta;

@@ -20,11 +20,11 @@ struct FileWorker : public Worker {
 
 	FileWorker(WorkerListener *pListener_, const FilePath &path_, size_t size_, FILE *fp_);
 	~FileWorker() override;
-	virtual double Duration();
+	virtual double Duration() noexcept;
 	void Cancel() override {
 		Worker::Cancel();
 	}
-	virtual bool IsLoading() const = 0;
+	virtual bool IsLoading() const noexcept = 0;
 };
 
 class FileLoader : public FileWorker {
@@ -37,7 +37,7 @@ public:
 	~FileLoader() override;
 	void Execute() override;
 	void Cancel() override;
-	bool IsLoading() const override {
+	bool IsLoading() const noexcept override {
 		return true;
 	}
 };
@@ -54,7 +54,7 @@ public:
 	~FileStorer() override;
 	void Execute() override;
 	void Cancel() override;
-	bool IsLoading() const override {
+	bool IsLoading() const noexcept override {
 		return false;
 	}
 };

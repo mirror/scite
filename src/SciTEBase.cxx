@@ -362,17 +362,17 @@ SciTEBase::PreProc SciTEBase::LinePreprocessorCondition(SA::Line line) {
 	if (!currChar) {
 		return PreProc::None;
 	}
-	while (isspacechar(*currChar) && *currChar) {
+	while (IsASpace(*currChar) && *currChar) {
 		currChar++;
 	}
 	if (preprocessorSymbol && (*currChar == preprocessorSymbol)) {
 		currChar++;
-		while (isspacechar(*currChar) && *currChar) {
+		while (IsASpace(*currChar) && *currChar) {
 			currChar++;
 		}
-		char word[32];
+		char word[32] = "";
 		size_t i = 0;
-		while (!isspacechar(*currChar) && *currChar && (i < (sizeof(word) - 1))) {
+		while (!IsASpace(*currChar) && *currChar && (i < (sizeof(word) - 1))) {
 			word[i++] = *currChar++;
 		}
 		word[i] = '\0';
@@ -643,17 +643,15 @@ void SciTEBase::SetSelection(SA::Position anchor, SA::Position currentPos) {
 }
 
 std::string SciTEBase::GetCTag() {
-	SA::Position selStart, selEnd;
-	int mustStop = 0;
-	char c;
-
 	const SA::Position lengthDoc = pwFocussed->Length();
-	selStart = selEnd = pwFocussed->SelectionEnd();
+	SA::Position selEnd = pwFocussed->SelectionEnd();
+	SA::Position selStart = selEnd;
 	TextReader acc(*pwFocussed);
+	int mustStop = 0;
 	while (!mustStop) {
 		if (selStart < lengthDoc - 1) {
 			selStart++;
-			c = acc[selStart];
+			const char c = acc[selStart];
 			if (c == '\r' || c == '\n') {
 				mustStop = -1;
 			} else if (c == '\t' && ((acc[selStart + 1] == '/' && acc[selStart + 2] == '^') || IsADigit(acc[selStart + 1]))) {
@@ -669,7 +667,7 @@ std::string SciTEBase::GetCTag() {
 		while (!mustStop) {
 			if (selEnd < lengthDoc - 1) {
 				selEnd++;
-				c = acc[selEnd];
+				const char c = acc[selEnd];
 				if (c == '\r' || c == '\n') {
 					mustStop = -1;
 				} else if (c == '$' && acc[selEnd + 1] == '/') {
@@ -1006,7 +1004,7 @@ void SciTEBase::SetFind(const char *sFind) {
 }
 
 bool SciTEBase::FindHasText() const noexcept {
-	return findWhat[0];
+	return !findWhat.empty();
 }
 
 void SciTEBase::SetReplace(const char *sReplace) {
@@ -1544,7 +1542,7 @@ bool SciTEBase::StartCallTip() {
 			pos--;
 		} else
 			break;
-		while (current > 0 && isspacechar(line[current - 1])) {
+		while (current > 0 && IsASpace(line[current - 1])) {
 			current--;
 			pos--;
 		}
@@ -2862,7 +2860,7 @@ void SciTEBase::GoMatchingBrace(bool select) {
 // Text	ConditionalUp	Ctrl+J	Finds the previous matching preprocessor condition
 // Text	ConditionalDown	Ctrl+K	Finds the next matching preprocessor condition
 void SciTEBase::GoMatchingPreprocCond(int direction, bool select) {
-	SA::Position mppcAtCaret = wEditor.CurrentPos();
+	const SA::Position mppcAtCaret = wEditor.CurrentPos();
 	SA::Position mppcMatch = -1;
 	const int forward = (direction == IDM_NEXTMATCHPPC);
 	const bool isInside = FindMatchingPreprocCondPosition(forward, mppcAtCaret, mppcMatch);
@@ -4520,13 +4518,13 @@ static uintptr_t ReadNum(const char *&t) {
 
 void SciTEBase::ExecuteMacroCommand(const char *command) {
 	const char *nextarg = command;
-	uintptr_t wParam;
+	uintptr_t wParam = 0;
 	intptr_t lParam = 0;
 	intptr_t rep = 0;				//Scintilla's answer
-	const char *answercmd;
-	SA::Position l;
+	const char *answercmd = nullptr;
+	SA::Position l = 0;
 	std::string string1;
-	char params[4];
+	char params[4] = "";
 	// This code does not validate its input which may cause crashes when bad.
 	// 'params' describes types of return values and of arguments.
 	// There are exactly 3 characters: return type, wParam, lParam.

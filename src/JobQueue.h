@@ -14,7 +14,7 @@
 enum JobSubsystem {
     jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5, jobGrep = 6, jobImmediate = 7};
 
-JobSubsystem SubsystemFromChar(char c);
+JobSubsystem SubsystemFromChar(char c) noexcept;
 
 enum JobFlags {
     jobForceQueue = 1,

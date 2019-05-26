@@ -43,12 +43,12 @@ struct IFaceProperty {
 	IFaceType valueType;
 	IFaceType paramType;
 
-	IFaceFunction GetterFunction() const {
+	IFaceFunction GetterFunction() const noexcept {
 		IFaceFunction result = {"(property getter)",getter,valueType,{paramType,iface_void}};
 		return result;
 	}
 
-	IFaceFunction SetterFunction() const {
+	IFaceFunction SetterFunction() const noexcept {
 		IFaceFunction result = {"(property setter)",setter,iface_void,{valueType, iface_void}};
 		if (paramType != iface_void) {
 			result.paramType[0] = paramType;
@@ -84,10 +84,10 @@ public:
 	static const int constantCount;
 	static const int propertyCount;
 
-	static int FindConstant(const char *name);
-	static int FindFunction(const char *name);
-	static int FindFunctionByConstantName(const char *name);
-	static int FindProperty(const char *name);
+	static int FindConstant(const char *name) noexcept;
+	static int FindFunction(const char *name) noexcept;
+	static int FindFunctionByConstantName(const char *name) noexcept;
+	static int FindProperty(const char *name) noexcept;
 
 	static std::string GetConstantName(int value, const char *prefix);
 };

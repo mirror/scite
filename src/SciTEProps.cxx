@@ -124,7 +124,7 @@ void SciTEBase::ReadEnvironment() {
 	char **e = _environ;
 #endif
 	for (; e && *e; e++) {
-		char key[1024];
+		char key[1024] = "";
 		char *k = *e;
 		char *v = strchr(k, '=');
 		if (v && (static_cast<size_t>(v - k) < sizeof(key))) {
@@ -953,7 +953,7 @@ void SciTEBase::ReadProperties() {
 	sprintf(bracesStyleKey, "braces.%s.style", language.c_str());
 	bracesStyle = props.GetInt(bracesStyleKey, 0);
 
-	char key[200];
+	char key[200] = "";
 	std::string sval;
 
 	sval = FindLanguageProperty("calltip.*.ignorecase");
@@ -1460,12 +1460,12 @@ void SciTEBase::ReadProperties() {
 }
 
 void SciTEBase::ReadFontProperties() {
-	char key[200];
+	char key[200] = "";
 	const char *languageName = language.c_str();
 
 	if (lexLanguage == lexLPeg) {
 		// Retrieve style info.
-		char propStr[256];
+		char propStr[256] = "";
 		for (int i = 0; i < StyleMax; i++) {
 			sprintf(key, "style.lpeg.%0d", i);
 			wEditor.PrivateLexerCall(i - StyleMax,

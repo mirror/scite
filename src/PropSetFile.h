@@ -59,7 +59,7 @@ public:
 	std::string GetNewExpandString(const char *keybase, const char *filename = "");
 	bool GetFirst(const char *&key, const char *&val);
 	bool GetNext(const char *&key, const char *&val);
-	static void SetCaseSensitiveFilenames(bool caseSensitiveFilenames_) {
+	static void SetCaseSensitiveFilenames(bool caseSensitiveFilenames_) noexcept {
 		caseSensitiveFilenames = caseSensitiveFilenames_;
 	}
 };
