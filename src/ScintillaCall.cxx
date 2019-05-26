@@ -65,14 +65,14 @@ Position ScintillaCall::LineEnd(Line line) {
 
 Range ScintillaCall::SelectionRange() {
 	return Range(
-		Call(Message::GetSelectionStart),
-		Call(Message::GetSelectionEnd));
+		       Call(Message::GetSelectionStart),
+		       Call(Message::GetSelectionEnd));
 }
 
 Range ScintillaCall::TargetRange() {
 	return Range(
-		Call(Message::GetTargetStart),
-		Call(Message::GetTargetEnd));
+		       Call(Message::GetTargetStart),
+		       Call(Message::GetTargetEnd));
 }
 
 void ScintillaCall::SetTarget(Range range) {

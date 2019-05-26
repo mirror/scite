@@ -27,7 +27,7 @@ public:
 	void Set(const char *s);
 	void Set(const std::vector<char> &data);
 	std::string GetNearestWord(const char *wordStart, size_t searchLen,
-		bool ignoreCase, const std::string &wordCharacters, int wordIndex);
+				   bool ignoreCase, const std::string &wordCharacters, int wordIndex);
 	std::string GetNearestWords(const char *wordStart, size_t searchLen,
-		bool ignoreCase, char otherSeparator='\0', bool exactLen=false);
+				    bool ignoreCase, char otherSeparator='\0', bool exactLen=false);
 };

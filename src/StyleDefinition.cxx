@@ -41,11 +41,11 @@ ViewPair ViewSplit(std::string_view view, char separator) noexcept {
 }
 
 StyleDefinition::StyleDefinition(std::string_view definition) :
-		sizeFractional(10.0), size(10), fore("#000000"), back("#FFFFFF"),
-		weight(SA::FontWeight::Normal), italics(false), eolfilled(false), underlined(false),
-		caseForce(SA::CaseVisible::Mixed),
-		visible(true), changeable(true),
-		specified(sdNone) {
+	sizeFractional(10.0), size(10), fore("#000000"), back("#FFFFFF"),
+	weight(SA::FontWeight::Normal), italics(false), eolfilled(false), underlined(false),
+	caseForce(SA::CaseVisible::Mixed),
+	visible(true), changeable(true),
+	specified(sdNone) {
 	ParseStyleDefinition(definition);
 }
 
@@ -81,8 +81,7 @@ bool StyleDefinition::ParseStyleDefinition(std::string_view definition) {
 			specified = static_cast<flags>(specified | sdWeight);
 			try {
 				weight = static_cast<SA::FontWeight>(std::stoi(std::string(optionValue)));
-			}
-			catch (std::logic_error &) {
+			} catch (std::logic_error &) {
 				// Ignore bad values, either non-numeric or out of range numberic
 			}
 		}
@@ -272,8 +271,7 @@ bool IndicatorDefinition::ParseIndicatorDefinition(std::string_view definition) 
 			if (optionName == "notunder") {
 				under = false;
 			}
-		}
-		catch (std::logic_error &) {
+		} catch (std::logic_error &) {
 			// Ignore bad values, either non-numeric or out of range numberic
 		}
 	}

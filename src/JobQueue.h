@@ -12,19 +12,20 @@
 #define JOBQUEUE_H
 
 enum JobSubsystem {
-    jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5, jobGrep = 6, jobImmediate = 7};
+	jobCLI = 0, jobGUI = 1, jobShell = 2, jobExtension = 3, jobHelp = 4, jobOtherHelp = 5, jobGrep = 6, jobImmediate = 7
+};
 
 JobSubsystem SubsystemFromChar(char c) noexcept;
 
 enum JobFlags {
-    jobForceQueue = 1,
-    jobHasInput = 2,
-    jobQuiet = 4,
-    // 8 reserved for jobVeryQuiet
-    jobRepSelMask = 48,
-    jobRepSelYes = 16,
-    jobRepSelAuto = 32,
-    jobGroupUndo = 64
+	jobForceQueue = 1,
+	jobHasInput = 2,
+	jobQuiet = 4,
+	// 8 reserved for jobVeryQuiet
+	jobRepSelMask = 48,
+	jobRepSelYes = 16,
+	jobRepSelAuto = 32,
+	jobGroupUndo = 64
 };
 
 struct JobMode {

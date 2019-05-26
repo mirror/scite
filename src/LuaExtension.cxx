@@ -898,7 +898,7 @@ static int iface_function_helper(lua_State *L, const IFaceFunction &func) {
 		} else if (func.paramType[i] == iface_keymod) {
 			const int keycode = luaL_checkint(L, arg++) & 0xFFFF;
 			const int modifiers = luaL_checkint(L, arg++) &
-				static_cast<int>(SA::KeyMod::Shift|SA::KeyMod::Ctrl|SA::KeyMod::Alt);
+					      static_cast<int>(SA::KeyMod::Shift|SA::KeyMod::Ctrl|SA::KeyMod::Alt);
 			params[i] = keycode | (modifiers<<16);
 		} else if (func.paramType[i] == iface_bool) {
 			params[i] = lua_toboolean(L, arg++);

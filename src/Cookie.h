@@ -7,8 +7,8 @@
 
 // Related to Utf8_16::encodingType but with additional values at end
 enum UniMode {
-    uni8Bit = 0, uni16BE = 1, uni16LE = 2, uniUTF8 = 3,
-    uniCookie = 4
+	uni8Bit = 0, uni16BE = 1, uni16LE = 2, uniUTF8 = 3,
+	uniCookie = 4
 };
 
 std::string ExtractLine(const char *buf, size_t length);

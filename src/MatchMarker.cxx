@@ -46,8 +46,8 @@ MatchMarker::MatchMarker() :
 }
 
 void MatchMarker::StartMatch(SA::ScintillaCall *pSci_,
-	const std::string &textMatch_, SA::FindOption flagsMatch_, int styleMatch_,
-	int indicator_, int bookMark_) {
+			     const std::string &textMatch_, SA::FindOption flagsMatch_, int styleMatch_,
+			     int indicator_, int bookMark_) {
 	lineRanges.clear();
 	pSci = pSci_;
 	textMatch = textMatch_;

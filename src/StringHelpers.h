@@ -85,7 +85,7 @@ inline std::vector<GUI::gui_string> ListFromString(const GUI::gui_string &args) 
 // May truncate if source doesn't fit into dest with room for NUL.
 
 template <typename T, size_t count>
-void StringCopy(T (&dest)[count], const T* source) noexcept {
+void StringCopy(T(&dest)[count], const T *source) noexcept {
 	for (size_t i=0; i<count; i++) {
 		dest[i] = source[i];
 		if (!source[i])

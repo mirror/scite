@@ -27,7 +27,7 @@ inline int Maximum(int a, int b) noexcept {
 	return (a > b) ? a : b;
 }
 
-inline int IntFromTwoShorts(short a,short b) noexcept {
+inline int IntFromTwoShorts(short a, short b) noexcept {
 	return (a) | ((b) << 16);
 }
 
@@ -36,9 +36,9 @@ inline int IntFromTwoShorts(short a,short b) noexcept {
  * and there is a Help menu at the end.
  */
 enum {
-    menuFile = 0, menuEdit = 1, menuSearch = 2, menuView = 3,
-    menuTools = 4, menuOptions = 5, menuLanguage = 6, menuBuffers = 7,
-    menuHelp = 8
+	menuFile = 0, menuEdit = 1, menuSearch = 2, menuView = 3,
+	menuTools = 4, menuOptions = 5, menuLanguage = 6, menuBuffers = 7,
+	menuHelp = 8
 };
 
 namespace SA = Scintilla::API;
@@ -113,9 +113,9 @@ public:
 	PropSetFile props;
 	enum FutureDo { fdNone=0, fdFinishSave=1 } futureDo;
 	Buffer() :
-			file(), doc(nullptr), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
-			unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
-			findMarks(fmNone), pFileWorker(nullptr), futureDo(fdNone) {}
+		file(), doc(nullptr), isDirty(false), isReadOnly(false), failedSave(false), useMonoFont(false), lifeState(empty),
+		unicodeMode(uni8Bit), fileModTime(0), fileModLastAsk(0), documentModTime(0),
+		findMarks(fmNone), pFileWorker(nullptr), futureDo(fdNone) {}
 
 	~Buffer() = default;
 	void Init() {
@@ -224,29 +224,29 @@ public:
 };
 
 enum {
-    heightTools = 24,
-    heightToolsBig = 32,
-    heightTab = 24,
-    heightStatus = 20,
-    statusPosWidth = 256
+	heightTools = 24,
+	heightToolsBig = 32,
+	heightTab = 24,
+	heightStatus = 20,
+	statusPosWidth = 256
 };
 
 /// Warning IDs.
 enum {
-    warnFindWrapped = 1,
-    warnNotFound,
-    warnNoOtherBookmark,
-    warnWrongFile,
-    warnExecuteOK,
-    warnExecuteKO
+	warnFindWrapped = 1,
+	warnNotFound,
+	warnNoOtherBookmark,
+	warnWrongFile,
+	warnExecuteOK,
+	warnExecuteKO
 };
 
 /// Codes representing the effect a line has on indentation.
 enum IndentationStatus {
-    isNone,		// no effect on indentation
-    isBlockStart,	// indentation block begin such as "{" or VB "function"
-    isBlockEnd,	// indentation end indicator such as "}" or VB "end"
-    isKeyWordStart	// Keywords that cause indentation
+	isNone,		// no effect on indentation
+	isBlockStart,	// indentation block begin such as "{" or VB "function"
+	isBlockEnd,	// indentation end indicator such as "}" or VB "end"
+	isKeyWordStart	// Keywords that cause indentation
 };
 
 struct StyleAndWords {
@@ -380,9 +380,10 @@ protected:
 	ImportFilter filter;
 
 	enum { indicatorMatch = static_cast<int>(SA::IndicatorStyle::Container),
-		indicatorHighlightCurrentWord,
-		indicatorSpellingMistake,
-		indicatorSentinel };
+	       indicatorHighlightCurrentWord,
+	       indicatorSpellingMistake,
+	       indicatorSentinel
+	     };
 	enum { markerBookmark = 1 };
 	ComboMemory memFiles;
 	ComboMemory memDirectory;
@@ -592,7 +593,7 @@ protected:
 	GUI::ScintillaWindow &PaneSource(int destination);
 	intptr_t CallFocusedElseDefault(int defaultValue, SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
 	void CallChildren(SA::Message msg, uintptr_t wParam = 0, intptr_t lParam = 0);
-	std::string GetTranslationToAbout(const char * const propname, bool retainIfNotFound = true);
+	std::string GetTranslationToAbout(const char *const propname, bool retainIfNotFound = true);
 	SA::Position LengthDocument();
 	SA::Position GetCaretInLine();
 	std::string GetLine(SA::Line line);
@@ -636,12 +637,12 @@ protected:
 	virtual void SaveSessionDialog() {}
 	void CountLineEnds(int &linesCR, int &linesLF, int &linesCRLF);
 	enum OpenFlags {
-	    ofNone = 0, 		// Default
-	    ofNoSaveIfDirty = 1, 	// Suppress check for unsaved changes
-	    ofForceLoad = 2,	// Reload file even if already in a buffer
-	    ofPreserveUndo = 4,	// Do not delete undo history
-	    ofQuiet = 8,		// Avoid "Could not open file" message
-	    ofSynchronous = 16	// Force synchronous read
+		ofNone = 0, 		// Default
+		ofNoSaveIfDirty = 1, 	// Suppress check for unsaved changes
+		ofForceLoad = 2,	// Reload file even if already in a buffer
+		ofPreserveUndo = 4,	// Do not delete undo history
+		ofQuiet = 8,		// Avoid "Could not open file" message
+		ofSynchronous = 16	// Force synchronous read
 	};
 	void TextRead(FileWorker *pFileWorker);
 	void TextWritten(FileWorker *pFileWorker);
@@ -655,9 +656,9 @@ protected:
 	void Revert();
 	FilePath SaveName(const char *ext) const;
 	enum SaveFlags {
-	    sfNone = 0, 		// Default
-	    sfProgressVisible = 1, 	// Show in background save strip
-	    sfSynchronous = 16	// Write synchronously blocking UI
+		sfNone = 0, 		// Default
+		sfProgressVisible = 1, 	// Show in background save strip
+		sfSynchronous = 16	// Write synchronously blocking UI
 	};
 	enum SaveResult {
 		saveCompleted,
@@ -710,9 +711,9 @@ protected:
 	virtual std::string GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range range);
 	static std::string GetLine(GUI::ScintillaWindow &win, SA::Line line);
 	void RangeExtend(GUI::ScintillaWindow &wCurrent, SA::Range &range,
-		bool (SciTEBase::*ischarforsel)(char ch));
+			 bool (SciTEBase::*ischarforsel)(char ch));
 	std::string RangeExtendAndGrab(GUI::ScintillaWindow &wCurrent, SA::Range &range,
-		bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
+				       bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	std::string SelectionExtend(bool (SciTEBase::*ischarforsel)(char ch), bool stripEol = true);
 	std::string SelectionWord(bool stripEol = true);
 	std::string SelectionFilename();
@@ -783,7 +784,7 @@ protected:
 	void GoMessage(int dir);
 	virtual bool StartCallTip();
 	std::string GetNearestWords(const char *wordStart, size_t searchLen,
-		const char *separators, bool ignoreCase=false, bool exactLen=false);
+				    const char *separators, bool ignoreCase=false, bool exactLen=false);
 	virtual void FillFunctionDefinition(SA::Position pos = -1);
 	void ContinueCallTip();
 	virtual void EliminateDuplicateWords(std::string &words);
@@ -815,8 +816,8 @@ protected:
 	SA::Position GetCurrentColumnNumber();
 	SA::Line GetCurrentScrollPosition();
 	virtual void AddCommand(const std::string &cmd, const std::string &dir,
-	        JobSubsystem jobType, const std::string &input = "",
-	        int flags = 0);
+				JobSubsystem jobType, const std::string &input = "",
+				int flags = 0);
 	virtual void AboutDialog() = 0;
 	virtual void QuitProgram() = 0;
 	void CloseTab(int tab);
@@ -861,7 +862,7 @@ protected:
 	virtual void SizeSubWindows() = 0;
 
 	virtual void SetMenuItem(int menuNumber, int position, int itemID,
-		const GUI::gui_char *text, const GUI::gui_char *mnemonic = nullptr) = 0;
+				 const GUI::gui_char *text, const GUI::gui_char *mnemonic = nullptr) = 0;
 	virtual void RedrawMenu() {}
 	virtual void DestroyMenuItem(int menuNumber, int itemID) = 0;
 	virtual void CheckAMenuItem(int wIDCheckItem, bool val) = 0;
@@ -884,7 +885,7 @@ protected:
 
 	void RemoveToolsMenu();
 	void SetMenuItemLocalised(int menuNumber, int position, int itemID,
-	        const char *text, const char *mnemonic);
+				  const char *text, const char *mnemonic);
 	bool ToolIsImmediate(int item);
 	void SetToolsMenu();
 	JobSubsystem SubsystemType(const char *cmd);
@@ -898,7 +899,7 @@ protected:
 	void SetLanguageMenu();
 	void SetPropertiesInitial();
 	GUI::gui_string LocaliseMessage(const char *s,
-		const GUI::gui_char *param0 = nullptr, const GUI::gui_char *param1 = nullptr, const GUI::gui_char *param2 = nullptr);
+					const GUI::gui_char *param0 = nullptr, const GUI::gui_char *param1 = nullptr, const GUI::gui_char *param2 = nullptr);
 	virtual void ReadLocalization();
 	std::string GetFileNameProperty(const char *name);
 	virtual void ReadPropertiesInitial();
@@ -949,8 +950,8 @@ protected:
 	void OpenFromStdin(bool UseOutputPane);
 	void OpenFilesFromStdin();
 	enum GrepFlags {
-	    grepNone = 0, grepWholeWord = 1, grepMatchCase = 2, grepStdOut = 4,
-	    grepDot = 8, grepBinary = 16, grepScroll = 32
+		grepNone = 0, grepWholeWord = 1, grepMatchCase = 2, grepStdOut = 4,
+		grepDot = 8, grepBinary = 16, grepScroll = 32
 	};
 	virtual bool GrepIntoDirectory(const FilePath &directory);
 	void GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, const GUI::gui_char *fileTypes);

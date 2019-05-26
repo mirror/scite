@@ -117,7 +117,7 @@ bool FilePath::operator<(const FilePath &other) const noexcept {
 bool FilePath::SameNameAs(const GUI::gui_char *other) const noexcept {
 #ifdef WIN32
 	return CSTR_EQUAL == CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE,
-		fileName.c_str(), -1, other, -1);
+					   fileName.c_str(), -1, other, -1);
 #else
 	return fileName == other;
 #endif
@@ -154,7 +154,7 @@ bool FilePath::IsAbsolute() const {
 bool FilePath::IsRoot() const {
 #ifdef WIN32
 	if ((fileName[0] == pathSepChar) && (fileName[1] == pathSepChar) && (fileName.find(pathSepString, 2) == GUI::gui_string::npos))
-        return true; // UNC path like \\server
+		return true; // UNC path like \\server
 	return (fileName.length() == 3) && (fileName[1] == ':') && (fileName[2] == pathSepChar);
 #else
 	return fileName == "/";
@@ -585,7 +585,7 @@ bool FilePath::Matches(const GUI::gui_char *pattern) const {
  * @returns true on success, and the long path in @a longPath,
  * false on failure.
  */
-static bool MakeLongPath(const GUI::gui_char* shortPath, GUI::gui_string &longPath) {
+static bool MakeLongPath(const GUI::gui_char *shortPath, GUI::gui_string &longPath) {
 	if (!*shortPath) {
 		return false;
 	}
@@ -694,13 +694,13 @@ std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *di
 	std::vector<wchar_t> vwcCommand(command, command + wcslen(command) + 1);
 
 	const BOOL running = ::CreateProcessW(
-			  nullptr,
-			  &vwcCommand[0],
-			  nullptr, nullptr,
-			  TRUE, CREATE_NEW_PROCESS_GROUP,
-			  nullptr,
-			  (directoryForRun && directoryForRun[0]) ? directoryForRun : nullptr,
-			  &si, &pi);
+				     nullptr,
+				     &vwcCommand[0],
+				     nullptr, nullptr,
+				     TRUE, CREATE_NEW_PROCESS_GROUP,
+				     nullptr,
+				     (directoryForRun && directoryForRun[0]) ? directoryForRun : nullptr,
+				     &si, &pi);
 
 	if (running && pi.hProcess && pi.hThread) {
 		// Wait until child process exits but time out after 5 seconds.

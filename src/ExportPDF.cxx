@@ -80,10 +80,10 @@ struct PDFStyle {
 namespace {
 
 const char *PDFfontNames[] = {
-            "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
-            "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
-            "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic"
-        };
+	"Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
+	"Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
+	"Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic"
+};
 
 // ascender, descender aligns font origin point with page
 short PDFfontAscenders[] =  { 629, 718, 699 };
@@ -92,7 +92,7 @@ short PDFfontWidths[] =     { 600,   0,   0 };
 
 }
 
-inline std::string getPDFRGB(const char* stylecolour) {
+inline std::string getPDFRGB(const char *stylecolour) {
 	std::string ret;
 	// grab colour components (max string length produced = 18)
 	for (int i = 1; i < 6; i += 2) {
@@ -222,14 +222,14 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			std::string buff;
 			if (styleNext != styleCurrent || style_ == -1) {
 				if (style[styleCurrent].font != style[styleNext].font
-				        || style_ == -1) {
+						|| style_ == -1) {
 					char fontSpec[100];
 					sprintf(fontSpec, "/F%d %d Tf ",
-					        style[styleNext].font + 1, fontSize);
+						style[styleNext].font + 1, fontSize);
 					buff += fontSpec;
 				}
 				if ((style[styleCurrent].fore != style[styleNext].fore)
-				        || style_ == -1) {
+						|| style_ == -1) {
 					buff += style[styleNext].fore;
 					buff += "rg ";
 				}
@@ -262,10 +262,10 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			// to be inserted (PDF1.4Ref(p317))
 			for (int i = 0; i < 4; i++) {
 				sprintf(buffer, "<</Type/Font/Subtype/Type1"
-				        "/Name/F%d/BaseFont/%s/Encoding/"
-				        PDF_ENCODING
-				        ">>\n", i + 1,
-				        PDFfontNames[fontSet * 4 + i]);
+					"/Name/F%d/BaseFont/%s/Encoding/"
+					PDF_ENCODING
+					">>\n", i + 1,
+					PDFfontNames[fontSet * 4 + i]);
 				oT->add(buffer);
 			}
 			pageContentStart = oT->index;
@@ -276,20 +276,20 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			}
 			// refer to all used or unused fonts for simplicity
 			const int resourceRef = oT->add(
-			            "<</ProcSet[/PDF/Text]\n"
-			            "/Font<</F1 1 0 R/F2 2 0 R/F3 3 0 R"
-			            "/F4 4 0 R>> >>\n");
+							"<</ProcSet[/PDF/Text]\n"
+							"/Font<</F1 1 0 R/F2 2 0 R/F3 3 0 R"
+							"/F4 4 0 R>> >>\n");
 			// create all the page objects (PDF1.4Ref(p88))
 			// forward reference pages object; calculate its object number
 			const int pageObjectStart = oT->index;
 			const int pagesRef = pageObjectStart + pageCount;
 			for (int i = 0; i < pageCount; i++) {
 				sprintf(buffer, "<</Type/Page/Parent %d 0 R\n"
-				        "/MediaBox[ 0 0 %ld %ld"
-				        "]\n/Contents %d 0 R\n"
-				        "/Resources %d 0 R\n>>\n",
-				        pagesRef, pageWidth, pageHeight,
-				        pageContentStart + i, resourceRef);
+					"/MediaBox[ 0 0 %ld %ld"
+					"]\n/Contents %d 0 R\n"
+					"/Resources %d 0 R\n>>\n",
+					pagesRef, pageWidth, pageHeight,
+					pageContentStart + i, resourceRef);
 				oT->add(buffer);
 			}
 			// create page tree object (PDF1.4Ref(p86))
@@ -308,8 +308,8 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			const long xref = oT->xref();
 			// end the file with the trailer (PDF1.4Ref(p67))
 			sprintf(buffer, "trailer\n<< /Size %d /Root %d 0 R\n>>"
-			        "\nstartxref\n%ld\n%%%%EOF\n",
-			        oT->index, catalogRef, xref);
+				"\nstartxref\n%ld\n%%%%EOF\n",
+				oT->index, catalogRef, xref);
 			oT->write(buffer);
 		}
 		void add(char ch, int style_) {
@@ -362,7 +362,7 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 			yPos = pageHeight - pageMargin.top - fontAscender;
 			// start a new page
 			sprintf(buffer, "BT 1 0 0 1 %d %d Tm\n",
-			        pageMargin.left, (int)yPos);
+				pageMargin.left, (int)yPos);
 			pageData = buffer;
 			// force setting of initial font, colour
 			segStyle = setStyle(-1);
@@ -380,11 +380,11 @@ void SciTEBase::SaveToPDF(const FilePath &saveName) {
 				std::ostringstream osTextObj;
 				// concatenate stream within the text object
 				osTextObj
-					<< "<</Length "
-					<< (pageData.length() - 1 + 3)
-					<< ">>\nstream\n"
-					<< pageData.c_str()
-					<< "ET\nendstream\n";
+						<< "<</Length "
+						<< (pageData.length() - 1 + 3)
+						<< ">>\nstream\n"
+						<< pageData.c_str()
+						<< "ET\nendstream\n";
 				const std::string textObj = osTextObj.str();
 				oT->add(textObj.c_str());
 			} catch (std::exception &) {

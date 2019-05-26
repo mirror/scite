@@ -57,7 +57,7 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 	std::string propName = std::string("command.mode.") + itemSuffix;
 	std::string modeVal(props.GetNewExpandString(propName.c_str(), fileNameExt));
 
-	modeVal.erase(std::remove(modeVal.begin(), modeVal.end(),' '), modeVal.end());
+	modeVal.erase(std::remove(modeVal.begin(), modeVal.end(), ' '), modeVal.end());
 	std::vector<std::string> modes = StringSplit(modeVal, ',');
 	for (const std::string &mode : modes) {
 

@@ -20,11 +20,11 @@ public:
 	typedef unsigned char utf8; // 8 bits
 	typedef unsigned char ubyte;
 	enum encodingType {
-	    eUnknown,
-	    eUtf16BigEndian,
-	    eUtf16LittleEndian,  // Default on Windows
-	    eUtf8,
-	    eLast
+		eUnknown,
+		eUtf16BigEndian,
+		eUtf16LittleEndian,  // Default on Windows
+		eUtf8,
+		eLast
 	};
 	static const utf8 k_Boms[eLast][3];
 };
@@ -34,29 +34,29 @@ class Utf16_Iter : public Utf8_16 {
 public:
 	Utf16_Iter() noexcept;
 	void reset() noexcept;
-	void set(const ubyte* pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) noexcept;
+	void set(const ubyte *pBuf, size_t nLen, encodingType eEncoding, ubyte *endSurrogate) noexcept;
 	utf8 get() const noexcept {
 		return m_nCur;
 	}
 	void operator++() noexcept;
 	operator bool() const noexcept { return m_pRead <= m_pEnd; }
-	utf16 read(const ubyte* pRead) const noexcept;
+	utf16 read(const ubyte *pRead) const noexcept;
 
 protected:
 	enum eState {
-	    eStart,
-	    eSecondOf4Bytes,
-	    ePenultimate,
-	    eFinal
+		eStart,
+		eSecondOf4Bytes,
+		ePenultimate,
+		eFinal
 	};
 protected:
 	encodingType m_eEncoding;
 	eState m_eState;
 	utf8 m_nCur;
 	int m_nCur16;
-	const ubyte* m_pBuf;
-	const ubyte* m_pRead;
-	const ubyte* m_pEnd;
+	const ubyte *m_pBuf;
+	const ubyte *m_pRead;
+	const ubyte *m_pEnd;
 };
 
 // Reads UTF-8 and outputs UTF-16
@@ -64,7 +64,7 @@ class Utf8_Iter : public Utf8_16 {
 public:
 	Utf8_Iter() noexcept;
 	void reset() noexcept;
-	void set(const ubyte* pBuf, size_t nLen, encodingType eEncoding);
+	void set(const ubyte *pBuf, size_t nLen, encodingType eEncoding);
 	int get() const noexcept {
 #ifdef _DEBUG
 		assert(m_eState == eStart);
@@ -78,18 +78,18 @@ public:
 protected:
 	void toStart() noexcept; // Put to start state
 	enum eState {
-	    eStart,
-	    eSecondOf4Bytes,
-	    ePenultimate,
-	    eFinal
+		eStart,
+		eSecondOf4Bytes,
+		ePenultimate,
+		eFinal
 	};
 protected:
 	encodingType m_eEncoding;
 	eState m_eState;
 	int m_nCur;
-	const ubyte* m_pBuf;
-	const ubyte* m_pRead;
-	const ubyte* m_pEnd;
+	const ubyte *m_pBuf;
+	const ubyte *m_pRead;
+	const ubyte *m_pEnd;
 };
 
 // Reads UTF16 and outputs UTF8
@@ -98,16 +98,16 @@ public:
 	Utf8_16_Read();
 	~Utf8_16_Read();
 
-	size_t convert(char* buf, size_t len);
-	char* getNewBuf() noexcept { return reinterpret_cast<char*>(m_pNewBuf); }
+	size_t convert(char *buf, size_t len);
+	char *getNewBuf() noexcept { return reinterpret_cast<char *>(m_pNewBuf); }
 
 	encodingType getEncoding() const noexcept { return m_eEncoding; }
 protected:
 	int determineEncoding() noexcept;
 private:
 	encodingType m_eEncoding;
-	ubyte* m_pBuf;
-	ubyte* m_pNewBuf;
+	ubyte *m_pBuf;
+	ubyte *m_pNewBuf;
 	size_t m_nBufSize;
 	bool m_bFirstRead;
 	ubyte m_leadSurrogate[2];
@@ -124,12 +124,12 @@ public:
 	void setEncoding(encodingType eType) noexcept;
 
 	void setfile(FILE *pFile) noexcept;
-	size_t fwrite(const void* p, size_t _size);
+	size_t fwrite(const void *p, size_t _size);
 	int fclose() noexcept;
 protected:
 	encodingType m_eEncoding;
-	FILE* m_pFile;
-	utf16* m_pBuf;
+	FILE *m_pFile;
+	utf16 *m_pBuf;
 	size_t m_nBufSize;
 	bool m_bFirstWrite;
 };

@@ -24,8 +24,8 @@ class MatchMarker {
 public:
 	MatchMarker();	// Not noexcept as std::vector constructor throws
 	void StartMatch(Scintilla::API::ScintillaCall *pSci_,
-		const std::string &textMatch_, Scintilla::API::FindOption flagsMatch_, int styleMatch_,
-		int indicator_, int bookMark_);
+			const std::string &textMatch_, Scintilla::API::FindOption flagsMatch_, int styleMatch_,
+			int indicator_, int bookMark_);
 	bool Complete() const noexcept;
 	void Continue();
 	void Stop() noexcept;

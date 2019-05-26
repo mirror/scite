@@ -55,12 +55,12 @@ static UniMode CookieValue(const std::string &s) {
 				posCoding++;
 			}
 			while ((posCoding < s.length()) &&
-			        (isSpaceChar(s[posCoding]))) {
+					(isSpaceChar(s[posCoding]))) {
 				posCoding++;
 			}
 			size_t endCoding = posCoding;
 			while ((endCoding < s.length()) &&
-			        (isEncodingChar(s[endCoding]))) {
+					(isEncodingChar(s[endCoding]))) {
 				endCoding++;
 			}
 			std::string code(s, posCoding, endCoding-posCoding);

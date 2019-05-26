@@ -44,12 +44,12 @@ struct IFaceProperty {
 	IFaceType paramType;
 
 	IFaceFunction GetterFunction() const noexcept {
-		IFaceFunction result = {"(property getter)",getter,valueType,{paramType,iface_void}};
+		IFaceFunction result = {"(property getter)", getter, valueType, {paramType, iface_void}};
 		return result;
 	}
 
 	IFaceFunction SetterFunction() const noexcept {
-		IFaceFunction result = {"(property setter)",setter,iface_void,{valueType, iface_void}};
+		IFaceFunction result = {"(property setter)", setter, iface_void, {valueType, iface_void}};
 		if (paramType != iface_void) {
 			result.paramType[0] = paramType;
 			if (valueType == iface_stringresult)
@@ -76,9 +76,9 @@ struct IFaceObject {
 
 class IFaceTable {
 public:
-	static const IFaceFunction * const functions;
-	static const IFaceConstant * const constants;
-	static const IFaceProperty * const properties;
+	static const IFaceFunction *const functions;
+	static const IFaceConstant *const constants;
+	static const IFaceProperty *const properties;
 
 	static const int functionCount;
 	static const int constantCount;

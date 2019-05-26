@@ -229,11 +229,11 @@ std::string PropSetFile::Evaluate(const char *key) const {
 // for that, through a recursive function and a simple chain of pointers.
 
 struct VarChain {
-	VarChain(const char*var_=nullptr, const VarChain *link_=nullptr) noexcept : var(var_), link(link_) {}
+	VarChain(const char *var_=nullptr, const VarChain *link_=nullptr) noexcept : var(var_), link(link_) {}
 
 	bool contains(const char *testVar) const {
 		return (var && (0 == strcmp(var, testVar)))
-			|| (link && link->contains(testVar));
+		       || (link && link->contains(testVar));
 	}
 
 	const char *var;
@@ -294,8 +294,7 @@ int PropSetFile::GetInt(const char *key, int defaultValue) const {
 		if (val.length()) {
 			return std::stoi(val);
 		}
-	}
-	catch (std::logic_error &) {
+	} catch (std::logic_error &) {
 		// Ignore bad values, either non-numeric or out of range numberic
 	}
 	return defaultValue;
@@ -374,18 +373,18 @@ static bool GenericPropertiesFile(const FilePath &filename) {
 }
 
 void PropSetFile::Import(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
-	FilePathSet *imports, size_t depth) {
+			 FilePathSet *imports, size_t depth) {
 	if (depth > 20)	// Possibly recursive import so give up to avoid crash
 		return;
 	if (Read(filename, directoryForImports, filter, imports, depth)) {
-		if (imports && (std::find(imports->begin(),imports->end(), filename) == imports->end())) {
+		if (imports && (std::find(imports->begin(), imports->end(), filename) == imports->end())) {
 			imports->push_back(filename);
 		}
 	}
 }
 
 PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports,
-	const ImportFilter &filter, FilePathSet *imports, size_t depth) {
+		const ImportFilter &filter, FilePathSet *imports, size_t depth) {
 	//UnSlash(lineBuffer);
 	if ((rls == rlConditionFalse) && (!IsSpaceOrTab(lineBuffer[0])))    // If clause ends with first non-indented line
 		rls = rlActive;
@@ -414,8 +413,8 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 				directoryForImports.List(directories, files);
 				for (const FilePath &fpFile : files) {
 					if (IsPropertiesFile(fpFile) &&
-						!GenericPropertiesFile(fpFile) &&
-						filter.IsValid(fpFile.BaseName().AsUTF8())) {
+							!GenericPropertiesFile(fpFile) &&
+							filter.IsValid(fpFile.BaseName().AsUTF8())) {
 						FilePath importPath(directoryForImports, fpFile);
 						Import(importPath, directoryForImports, filter, imports, depth + 1);
 					}
@@ -433,7 +432,7 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 }
 
 void PropSetFile::ReadFromMemory(const char *data, size_t len, const FilePath &directoryForImports,
-                                 const ImportFilter &filter, FilePathSet *imports, size_t depth) {
+				 const ImportFilter &filter, FilePathSet *imports, size_t depth) {
 	const char *pd = data;
 	std::vector<char> lineBuffer(len+1);	// +1 for NUL
 	ReadLineState rls = rlActive;
@@ -451,7 +450,7 @@ void PropSetFile::ReadFromMemory(const char *data, size_t len, const FilePath &d
 }
 
 bool PropSetFile::Read(const FilePath &filename, const FilePath &directoryForImports,
-                       const ImportFilter &filter, FilePathSet *imports, size_t depth) {
+		       const ImportFilter &filter, FilePathSet *imports, size_t depth) {
 	const std::string propsData = filename.Read();
 	const size_t lenFile = propsData.size();
 	if (lenFile > 0) {

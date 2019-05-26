@@ -64,27 +64,27 @@ public:
 			UserControl::UCControlType controlType = UserControl::ucStatic;
 			GUI::gui_char endChar = 0;
 			switch (*pdef) {
-				case '\'':
-					controlType = UserControl::ucStatic;
-					endChar = '\'';
-					break;
-				case '[':
-					controlType = UserControl::ucEdit;
-					endChar = ']';
-					break;
-				case '{':
-					controlType = UserControl::ucCombo;
-					endChar = '}';
-					break;
-				case '(':
-					if (pdef[1] == '(') {
-						controlType = UserControl::ucDefaultButton;
-						pdef++;
-					} else {
-						controlType = UserControl::ucButton;
-					}
-					endChar = ')';
-					break;
+			case '\'':
+				controlType = UserControl::ucStatic;
+				endChar = '\'';
+				break;
+			case '[':
+				controlType = UserControl::ucEdit;
+				endChar = ']';
+				break;
+			case '{':
+				controlType = UserControl::ucCombo;
+				endChar = '}';
+				break;
+			case '(':
+				if (pdef[1] == '(') {
+					controlType = UserControl::ucDefaultButton;
+					pdef++;
+				} else {
+					controlType = UserControl::ucButton;
+				}
+				endChar = ')';
+				break;
 			}
 			pdef++;
 			GUI::gui_string text;
@@ -115,7 +115,7 @@ public:
 				if (column <  controls[line].size()) {
 					const UserControl *ctl = &controls[line][column];
 					if (ctl->fixedWidth) {
-						if  (cw.widthDesired < ctl->widthDesired)
+						if (cw.widthDesired < ctl->widthDesired)
 							cw.widthDesired = ctl->widthDesired;
 					} else {
 						cw.isResizeable = true;
@@ -128,7 +128,7 @@ public:
 				resizeables++;
 		}
 		const int widthSpareEach = resizeables ?
-			(widthToAllocate - widthOfNonResizeables) / resizeables : 0;
+					   (widthToAllocate - widthOfNonResizeables) / resizeables : 0;
 		for (std::vector<ColumnWidth>::iterator cw=widths.begin(); cw != widths.end(); ++cw) {
 			if (cw->isResizeable) {
 				cw->widthAllocated = widthSpareEach + cw->widthDesired;

@@ -33,15 +33,15 @@ public:
 	}
 	bool Contains(Point pt) const noexcept {
 		return (pt.x >= left) && (pt.x <= right) &&
-			(pt.y >= top) && (pt.y <= bottom);
+		       (pt.y >= top) && (pt.y <= bottom);
 	}
 	int Width() const noexcept { return right - left; }
 	int Height() const noexcept { return bottom - top; }
 	bool operator==(const Rectangle &other) const noexcept {
 		return (left == other.left) &&
-			(top == other.top) &&
-			(right == other.right) &&
-			(bottom == other.bottom);
+		       (top == other.top) &&
+		       (right == other.right) &&
+		       (bottom == other.bottom);
 	}
 };
 

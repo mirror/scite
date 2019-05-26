@@ -20,17 +20,17 @@
 
 bool StartsWith(std::wstring_view s, std::wstring_view start) {
 	return (s.size() >= start.size()) &&
-		(std::equal(s.begin(), s.begin() + start.size(), start.begin()));
+	       (std::equal(s.begin(), s.begin() + start.size(), start.begin()));
 }
 
 bool StartsWith(std::string_view s, std::string_view start) {
 	return (s.size() >= start.size()) &&
-		(std::equal(s.begin(), s.begin() + start.size(), start.begin()));
+	       (std::equal(s.begin(), s.begin() + start.size(), start.begin()));
 }
 
 bool EndsWith(std::wstring_view s, std::wstring_view end) {
 	return (s.size() >= end.size()) &&
-		(std::equal(s.begin() + s.size() - end.size(), s.end(), end.begin()));
+	       (std::equal(s.begin() + s.size() - end.size(), s.end(), end.begin()));
 }
 
 bool Contains(std::string const &s, char ch) noexcept {

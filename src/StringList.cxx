@@ -149,8 +149,8 @@ struct CompareStringInsensitive {
 };
 
 template<typename Compare>
-	std::string GetMatch(std::vector<char *>::iterator start, std::vector<char *>::iterator end,
-		const char *wordStart, const std::string &wordCharacters, int wordIndex, Compare comp) {
+std::string GetMatch(std::vector<char *>::iterator start, std::vector<char *>::iterator end,
+		     const char *wordStart, const std::string &wordCharacters, int wordIndex, Compare comp) {
 	std::vector<char *>::iterator elem = std::lower_bound(start, end, wordStart, comp);
 	if (!comp(wordStart, *elem) && !comp(*elem, wordStart)) {
 		// Found a matching element, now move forward wordIndex matching elements
@@ -245,11 +245,11 @@ static std::string GetMatches(std::vector<char *>::iterator start, std::vector<c
  * them in the ascending order separated with spaces.
  */
 std::string StringList::GetNearestWords(
-    const char *wordStart,
-    size_t searchLen,
-    bool ignoreCase,
-    char otherSeparator /*= '\0'*/,
-    bool exactLen /*=false*/) {
+	const char *wordStart,
+	size_t searchLen,
+	bool ignoreCase,
+	char otherSeparator /*= '\0'*/,
+	bool exactLen /*=false*/) {
 
 	if (words.empty())
 		return std::string();

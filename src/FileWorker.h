@@ -50,7 +50,7 @@ public:
 	bool visibleProgress;
 
 	FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
-		size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
+		   size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_);
 	~FileStorer() override;
 	void Execute() override;
 	void Cancel() override;

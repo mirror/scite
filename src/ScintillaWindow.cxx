@@ -27,7 +27,7 @@ void ScintillaWindow::SetScintilla(GUI::WindowID wid_) {
 	SetID(wid_);
 	if (wid) {
 		SciFnDirect fn_ = reinterpret_cast<SciFnDirect>(
-			Send(SCI_GETDIRECTFUNCTION, 0, 0));
+					  Send(SCI_GETDIRECTFUNCTION, 0, 0));
 		const sptr_t ptr_ = Send(SCI_GETDIRECTPOINTER, 0, 0);
 		SetFnPtr(fn_, ptr_);
 	}

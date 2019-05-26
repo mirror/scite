@@ -565,13 +565,13 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 			AddStyledText(wsci, "\n", 5);
 		}
 		AddStyledText(wsci, GetTranslationToAbout("Contributors:").c_str(), trsSty);
-		for (unsigned int co = 0;co < std::size(contributors);co++) {
+		for (unsigned int co = 0; co < std::size(contributors); co++) {
 			const int colourIndex = 50 + (co % 78);
 			AddStyledText(wsci, "\n    ", colourIndex);
 			AddStyledText(wsci, contributors[co], colourIndex);
 		}
 		RandomColour colour;
-		for (unsigned int sty = 0;sty < 78; sty++) {
+		for (unsigned int sty = 0; sty < 78; sty++) {
 			colour.Next();
 			SetAboutStyle(wsci, sty + 50, ColourRGB(colour.r, colour.g, colour.b));
 		}

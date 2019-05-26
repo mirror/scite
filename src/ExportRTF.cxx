@@ -205,8 +205,8 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 			}
 		} else {
 			osStyle << RTF_SETFONTFACE "0" RTF_SETFONTSIZE << defaultStyle.size <<
-			        RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
-			        RTF_BOLD_OFF RTF_ITALIC_OFF;
+				RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
+				RTF_BOLD_OFF RTF_ITALIC_OFF;
 		}
 		styles.push_back(osStyle.str());
 	}
@@ -219,8 +219,8 @@ void SciTEBase::SaveToStreamRTF(std::ostream &os, SA::Position start, SA::Positi
 	   RTF_SETFONTSIZE << defaultStyle.size << RTF_SETCOLOR "0 ";
 	std::ostringstream osStyleDefault;
 	osStyleDefault << RTF_SETFONTFACE "0" RTF_SETFONTSIZE << defaultStyle.size <<
-	               RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
-	               RTF_BOLD_OFF RTF_ITALIC_OFF;
+		       RTF_SETCOLOR "0" RTF_SETBACKGROUND "1"
+		       RTF_BOLD_OFF RTF_ITALIC_OFF;
 	std::string lastStyle = osStyleDefault.str();
 	bool prevCR = false;
 	int styleCurrent = -1;

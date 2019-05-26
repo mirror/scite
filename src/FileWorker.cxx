@@ -75,7 +75,7 @@ void FileLoader::Execute() {
 		fclose(fp);
 		fp = nullptr;
 		unicodeMode = static_cast<UniMode>(
-		            static_cast<int>(convert.getEncoding()));
+				      static_cast<int>(convert.getEncoding()));
 		// Check the first two lines for coding cookies
 		if (unicodeMode == uni8Bit) {
 			unicodeMode = umCodingCookie;
@@ -92,9 +92,9 @@ void FileLoader::Cancel() {
 }
 
 FileStorer::FileStorer(WorkerListener *pListener_, const char *documentBytes_, const FilePath &path_,
-	size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
+		       size_t size_, FILE *fp_, UniMode unicodeMode_, bool visibleProgress_) :
 	FileWorker(pListener_, path_, size_, fp_), documentBytes(documentBytes_), writtenSoFar(0),
-		unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
+	unicodeMode(unicodeMode_), visibleProgress(visibleProgress_) {
 	SetSizeJob(size);
 }
 
@@ -110,7 +110,7 @@ void FileStorer::Execute() {
 		Utf8_16_Write convert;
 		if (unicodeMode != uniCookie) {	// Save file with cookie without BOM.
 			convert.setEncoding(static_cast<Utf8_16::encodingType>(
-					static_cast<int>(unicodeMode)));
+						    static_cast<int>(unicodeMode)));
 		}
 		convert.setfile(fp);
 		std::vector<char> data(blockSize + 1);

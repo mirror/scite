@@ -121,7 +121,7 @@ int BufferList::Add() {
 }
 
 int BufferList::GetDocumentByWorker(const FileWorker *pFileWorker) const {
-	for (int i = 0;i < length;i++) {
+	for (int i = 0; i < length; i++) {
 		if (buffers[i].pFileWorker == pFileWorker) {
 			return i;
 		}
@@ -133,7 +133,7 @@ int BufferList::GetDocumentByName(const FilePath &filename, bool excludeCurrent)
 	if (!filename.IsSet()) {
 		return -1;
 	}
-	for (int i = 0;i < length;i++) {
+	for (int i = 0; i < length; i++) {
 		if ((!excludeCurrent || i != current) && buffers[i].file.SameNameAs(filename)) {
 			return i;
 		}
@@ -158,7 +158,7 @@ void BufferList::RemoveCurrent() {
 	// Delete and move up to fill gap but ensure doc pointer is saved.
 	void *currentDoc = buffers[current].doc;
 	buffers[current].CompleteLoading();
-	for (int i = current;i < length - 1;i++) {
+	for (int i = current; i < length - 1; i++) {
 		buffers[i] = buffers[i + 1];
 	}
 	buffers[length - 1].doc = currentDoc;
@@ -243,8 +243,8 @@ void BufferList::CommitStackSelection() {
 void BufferList::ShiftTo(int indexFrom, int indexTo) {
 	// shift buffer to new place in buffers array
 	if (indexFrom == indexTo ||
-		indexFrom < 0 || indexFrom >= length ||
-		indexTo < 0 || indexTo >= length) return;
+			indexFrom < 0 || indexFrom >= length ||
+			indexTo < 0 || indexTo >= length) return;
 	int step = (indexFrom > indexTo) ? -1 : 1;
 	Buffer tmp = buffers[indexFrom];
 	int i;
@@ -267,8 +267,8 @@ void BufferList::ShiftTo(int indexFrom, int indexTo) {
 void BufferList::Swap(int indexA, int indexB) {
 	// shift buffer to new place in buffers array
 	if (indexA == indexB ||
-		indexA < 0 || indexA >= length ||
-		indexB < 0 || indexB >= length) return;
+			indexA < 0 || indexA >= length ||
+			indexB < 0 || indexB >= length) return;
 	Buffer tmp = buffers[indexA];
 	buffers[indexA] = buffers[indexB];
 	buffers[indexB] = tmp;
@@ -292,7 +292,7 @@ BackgroundActivities BufferList::CountBackgroundActivities() const {
 		if (buffers[i].pFileWorker) {
 			if (!buffers[i].pFileWorker->FinishedJob()) {
 				if (!buffers[i].pFileWorker->IsLoading()) {
-					const FileStorer *fstorer = static_cast<FileStorer*>(buffers[i].pFileWorker);
+					const FileStorer *fstorer = static_cast<FileStorer *>(buffers[i].pFileWorker);
 					if (!fstorer->visibleProgress)
 						continue;
 				}
@@ -382,11 +382,11 @@ void SciTEBase::SwitchDocumentAt(int index, void *pdoc) {
 void SciTEBase::SetDocumentAt(int index, bool updateStack) {
 	const int currentbuf = buffers.Current();
 
-	if (	index < 0 ||
-	        index >= buffers.length ||
-	        index == currentbuf ||
-	        currentbuf < 0 ||
-	        currentbuf >= buffers.length) {
+	if (index < 0 ||
+			index >= buffers.length ||
+			index == currentbuf ||
+			currentbuf < 0 ||
+			currentbuf >= buffers.length) {
 		return;
 	}
 	UpdateBuffersCurrent();
@@ -566,7 +566,7 @@ void SciTEBase::LoadSessionFile(const GUI::gui_char *sessionName) {
 }
 
 void SciTEBase::RestoreRecentMenu() {
-	const SelectedRange sr(0,0);
+	const SelectedRange sr(0, 0);
 
 	DeleteFileStackMenu();
 
@@ -675,7 +675,7 @@ void SciTEBase::RestoreSession() {
 		}
 
 		if (props.GetInt("fold") && !props.GetInt("fold.on.open") &&
-			props.GetInt("session.folds")) {
+				props.GetInt("session.folds")) {
 			propKey = IndexPropKey("buffer", i, "folds");
 			propStr = propsSession.GetString(propKey.c_str());
 			bufferState.foldState = LinesFromString(propStr);
@@ -813,21 +813,21 @@ void SciTEBase::SetIndentSettings() {
 	// Either set the settings related to the extension or the default ones
 	std::string fileNameForExtension = ExtensionFileName();
 	std::string useTabsChars = props.GetNewExpandString("use.tabs.",
-	        fileNameForExtension.c_str());
+				   fileNameForExtension.c_str());
 	if (useTabsChars.length() != 0) {
 		wEditor.SetUseTabs(atoi(useTabsChars.c_str()));
 	} else {
 		wEditor.SetUseTabs(useTabs);
 	}
 	std::string tabSizeForExt = props.GetNewExpandString("tab.size.",
-	        fileNameForExtension.c_str());
+				    fileNameForExtension.c_str());
 	if (tabSizeForExt.length() != 0) {
 		wEditor.SetTabWidth(atoi(tabSizeForExt.c_str()));
 	} else if (tabSize != 0) {
 		wEditor.SetTabWidth(tabSize);
 	}
 	std::string indentSizeForExt = props.GetNewExpandString("indent.size.",
-	        fileNameForExtension.c_str());
+				       fileNameForExtension.c_str());
 	if (indentSizeForExt.length() != 0) {
 		wEditor.SetIndent(atoi(indentSizeForExt.c_str()));
 	} else {
@@ -859,9 +859,9 @@ void SciTEBase::New() {
 	// If the current buffer is the initial untitled, clean buffer then overwrite it,
 	// otherwise add a new buffer.
 	if ((buffers.length > 1) ||
-	        (buffers.Current() != 0) ||
-	        (buffers.buffers[0].isDirty) ||
-	        (!buffers.buffers[0].file.IsUntitled())) {
+			(buffers.Current() != 0) ||
+			(buffers.buffers[0].isDirty) ||
+			(!buffers.buffers[0].file.IsUntitled())) {
 		if (buffers.size() == buffers.length) {
 			Close(false, false, true);
 		}
@@ -1130,8 +1130,8 @@ static void EscapeFilePathsForMenu(GUI::gui_string &path) {
 
 void SciTEBase::SetBuffersMenu() {
 	if (buffers.size() <= 1) {
-        DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
-    }
+		DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
+	}
 	RemoveAllTabs();
 
 	int pos;
@@ -1326,7 +1326,7 @@ void SciTEBase::DisplayAround(const RecentFile &rf) {
 
 void SciTEBase::StackMenuNext() {
 	DeleteFileStackMenu();
-	for (int stackPos = fileStackMax - 1; stackPos >= 0;stackPos--) {
+	for (int stackPos = fileStackMax - 1; stackPos >= 0; stackPos--) {
 		if (recentFileStack[stackPos].IsSet()) {
 			SetFileStackMenu();
 			StackMenu(stackPos);
@@ -1399,7 +1399,7 @@ void SciTEBase::RemoveToolsMenu() {
 }
 
 void SciTEBase::SetMenuItemLocalised(int menuNumber, int position, int itemID,
-        const char *text, const char *mnemonic) {
+				     const char *text, const char *mnemonic) {
 	GUI::gui_string localised = localiser.Text(text);
 	SetMenuItem(menuNumber, position, itemID, localised.c_str(), GUI::StringFromUTF8(mnemonic).c_str());
 }
@@ -1441,7 +1441,7 @@ void SciTEBase::SetToolsMenu() {
 				sMnemonic += StdStringFromInteger(item);
 			}
 			SetMenuItemLocalised(menuTools, menuPos, itemID, sMenuItem.c_str(),
-				sMnemonic.length() ? sMnemonic.c_str() : nullptr);
+					     sMnemonic.length() ? sMnemonic.c_str() : nullptr);
 			menuPos++;
 		}
 	}
@@ -1455,13 +1455,13 @@ void SciTEBase::SetToolsMenu() {
 	if (macrosEnabled) {
 		SetMenuItem(menuTools, menuPos++, IDM_MACRO_SEP, GUI_TEXT(""));
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROLIST,
-		        "&List Macros...", "Shift+F9");
+				     "&List Macros...", "Shift+F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACROPLAY,
-		        "Run Current &Macro", "F9");
+				     "Run Current &Macro", "F9");
 		SetMenuItemLocalised(menuTools, menuPos++, IDM_MACRORECORD,
-		        "&Record Macro", "Ctrl+F9");
+				     "&Record Macro", "Ctrl+F9");
 		SetMenuItemLocalised(menuTools, menuPos, IDM_MACROSTOPRECORD,
-		        "S&top Recording Macro", "Ctrl+Shift+F9");
+				     "S&top Recording Macro", "Ctrl+Shift+F9");
 	}
 }
 
@@ -1659,7 +1659,7 @@ static SA::Line DecodeMessage(const char *cdoc, std::string &sourcePath, int for
 			} else {
 				// Lua 5.1 error looks like: lua.exe: test1.lua:3: syntax error
 				// reuse the GCC error parsing code above!
-				const char* colon = strstr(cdoc, ": ");
+				const char *colon = strstr(cdoc, ": ");
 				if (colon)
 					return DecodeMessage(colon + 2, sourcePath, SCE_ERR_GCC, column);
 			}
@@ -1953,16 +1953,16 @@ void SciTEBase::GoMessage(int dir) {
 		const SA::Position lineLength = wOutput.LineLength(lookLine);
 		int style = acc.StyleAt(startPosLine);
 		if (style != SCE_ERR_DEFAULT &&
-		        style != SCE_ERR_CMD &&
-		        style != SCE_ERR_DIFF_ADDITION &&
-		        style != SCE_ERR_DIFF_CHANGED &&
-		        style != SCE_ERR_DIFF_DELETION) {
+				style != SCE_ERR_CMD &&
+				style != SCE_ERR_DIFF_ADDITION &&
+				style != SCE_ERR_DIFF_CHANGED &&
+				style != SCE_ERR_DIFF_DELETION) {
 			wOutput.MarkerDeleteAll(-1);
 			wOutput.MarkerDefine(0, SA::MarkerSymbol::SmallRect);
 			wOutput.MarkerSetFore(0, ColourOfProperty(props,
-			        "error.marker.fore", ColourRGB(0x7f, 0, 0)));
+					      "error.marker.fore", ColourRGB(0x7f, 0, 0)));
 			wOutput.MarkerSetBack(0, ColourOfProperty(props,
-			        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
+					      "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 			wOutput.MarkerAdd(lookLine, 0);
 			wOutput.SetSel(startPosLine, startPosLine);
 			std::string message = wOutput.StringOfRange(SA::Range(startPosLine, startPosLine + lineLength));
@@ -2045,9 +2045,9 @@ void SciTEBase::GoMessage(int dir) {
 				wEditor.MarkerDeleteAll(0);
 				wEditor.MarkerDefine(0, SA::MarkerSymbol::Circle);
 				wEditor.MarkerSetFore(0, ColourOfProperty(props,
-				        "error.marker.fore", ColourRGB(0x7f, 0, 0)));
+						      "error.marker.fore", ColourRGB(0x7f, 0, 0)));
 				wEditor.MarkerSetBack(0, ColourOfProperty(props,
-				        "error.marker.back", ColourRGB(0xff, 0xff, 0)));
+						      "error.marker.back", ColourRGB(0xff, 0xff, 0)));
 				wEditor.MarkerAdd(sourceLine, 0);
 				SA::Position startSourceLine = wEditor.LineStart(sourceLine);
 				const SA::Position endSourceline = wEditor.LineStart(sourceLine + 1);

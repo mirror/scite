@@ -237,8 +237,7 @@ const char *SciTEBase::GetNextPropItem(
 	const char *pStart,	/**< the property string to parse for the first call,
 						 * pointer returned by the previous call for the following. */
 	char *pPropItem,	///< pointer on a buffer receiving the requested prop item
-	int maxLen)			///< size of the above buffer
-{
+	int maxLen) {		///< size of the above buffer
 	ptrdiff_t size = maxLen - 1;
 
 	*pPropItem = '\0';
@@ -385,7 +384,7 @@ void SciTEBase::DefineMarker(SA::MarkerOutline marker, SA::MarkerSymbol markerTy
 
 void SciTEBase::ReadAPI(const std::string &fileNameForExtension) {
 	std::string sApiFileNames = props.GetNewExpandString("api.",
-	                        fileNameForExtension.c_str());
+				    fileNameForExtension.c_str());
 	if (sApiFileNames.length() > 0) {
 		std::vector<std::string> vApiFileNames = StringSplit(sApiFileNames, ';');
 		std::vector<char> data;
@@ -643,7 +642,7 @@ std::string SciTEBase::GetFileNameProperty(const char *name) {
 	std::string namePlusDot = name;
 	namePlusDot.append(".");
 	std::string valueForFileName = props.GetNewExpandString(namePlusDot.c_str(),
-	        ExtensionFileName().c_str());
+				       ExtensionFileName().c_str());
 	if (valueForFileName.length() != 0) {
 		return valueForFileName;
 	} else {
@@ -658,9 +657,9 @@ void SciTEBase::ReadProperties() {
 	const std::string fileNameForExtension = ExtensionFileName();
 
 	std::string modulePath = props.GetNewExpandString("lexerpath.",
-	    fileNameForExtension.c_str());
+				 fileNameForExtension.c_str());
 	if (modulePath.length())
-	    wEditor.LoadLexerLibrary(modulePath.c_str());
+		wEditor.LoadLexerLibrary(modulePath.c_str());
 	language = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
 	if (static_cast<int>(wEditor.DocumentOptions()) & static_cast<int>(SA::DocumentOption::StylesNone)) {
 		language = "";
@@ -676,7 +675,7 @@ void SciTEBase::ReadProperties() {
 				lexLPeg = wEditor.Lexer();
 				const char *lexer = language.c_str() + language.find('_') + 1;
 				wEditor.PrivateLexerCall(SCI_SETLEXERLANGUAGE,
-					const_cast<char *>(lexer));
+							 const_cast<char *>(lexer));
 			}
 		} else {
 			wEditor.SetLexerLanguage(language.c_str());
@@ -711,7 +710,7 @@ void SciTEBase::ReadProperties() {
 		wEditor.SubStyleBases(&subStyleBases[0]);
 		subStyleBases.resize(lenSSB);	// Remove NUL
 
-		for (int baseStyle=0;baseStyle<lenSSB;baseStyle++) {
+		for (int baseStyle=0; baseStyle<lenSSB; baseStyle++) {
 			//substyles.cpp.11=2
 			std::string ssSubStylesKey = "substyles.";
 			ssSubStylesKey += language;
@@ -806,7 +805,7 @@ void SciTEBase::ReadProperties() {
 	wrapStyle = static_cast<SA::Wrap>(props.GetInt("wrap.style", static_cast<int>(SA::Wrap::Word)));
 
 	CallChildren(SA::Message::SetCaretFore,
-	           ColourOfProperty(props, "caret.fore", ColourRGB(0, 0, 0)));
+		     ColourOfProperty(props, "caret.fore", ColourRGB(0, 0, 0)));
 
 	CallChildren(SA::Message::SetMouseSelectionRectangularSwitch, props.GetInt("selection.rectangular.switch.mouse", 0));
 	CallChildren(SA::Message::SetMultipleSelection, props.GetInt("selection.multiple", 1));
@@ -831,7 +830,7 @@ void SciTEBase::ReadProperties() {
 		wEditor.SetCaretLineVisible(false);
 	}
 	wEditor.SetCaretLineBackAlpha(
-		static_cast<SA::Alpha>(props.GetInt("caret.line.back.alpha",static_cast<int>(SA::Alpha::NoAlpha))));
+		static_cast<SA::Alpha>(props.GetInt("caret.line.back.alpha", static_cast<int>(SA::Alpha::NoAlpha))));
 
 	int indicatorsAlpha = props.GetInt("indicators.alpha", 30);
 	if (indicatorsAlpha < 0 || 255 < indicatorsAlpha) // If invalid value,
@@ -889,9 +888,9 @@ void SciTEBase::ReadProperties() {
 
 	wEditor.SetEdgeColumn(props.GetInt("edge.column", 0));
 	wEditor.SetEdgeMode(static_cast<SA::EdgeVisualStyle>(
-		props.GetInt("edge.mode", static_cast<int>(SA::EdgeVisualStyle::None))));
+				    props.GetInt("edge.mode", static_cast<int>(SA::EdgeVisualStyle::None))));
 	wEditor.SetEdgeColour(
-	           ColourOfProperty(props, "edge.colour", ColourRGB(0xff, 0xda, 0xda)));
+		ColourOfProperty(props, "edge.colour", ColourRGB(0xff, 0xda, 0xda)));
 
 	std::string selFore = props.GetExpandedString("selection.fore");
 	if (selFore.length()) {
@@ -962,7 +961,7 @@ void SciTEBase::ReadProperties() {
 	callTipUseEscapes = sval == "1";
 
 	calltipWordCharacters = FindLanguageProperty("calltip.*.word.characters",
-		"_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+				"_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	calltipParametersStart = FindLanguageProperty("calltip.*.parameters.start", "(");
 	calltipParametersEnd = FindLanguageProperty("calltip.*.parameters.end", ")");
 	calltipParametersSeparators = FindLanguageProperty("calltip.*.parameters.separators", ",;");
@@ -1046,14 +1045,14 @@ void SciTEBase::ReadProperties() {
 	wOutput.SetBufferedDraw(bufferedDraw);
 
 	const SA::PhasesDraw phasesDraw = static_cast<SA::PhasesDraw>(
-		props.GetInt("phases.draw", static_cast<int>(SA::PhasesDraw::One)));
+			props.GetInt("phases.draw", static_cast<int>(SA::PhasesDraw::One)));
 	wEditor.SetPhasesDraw(phasesDraw);
 	wOutput.SetPhasesDraw(phasesDraw);
 
 	wEditor.SetLayoutCache(static_cast<SA::LineCache>(
-		props.GetInt("cache.layout", static_cast<int>(SA::LineCache::Caret))));
+				       props.GetInt("cache.layout", static_cast<int>(SA::LineCache::Caret))));
 	wOutput.SetLayoutCache(static_cast<SA::LineCache>(
-		props.GetInt("output.cache.layout", static_cast<int>(SA::LineCache::Caret))));
+				       props.GetInt("output.cache.layout", static_cast<int>(SA::LineCache::Caret))));
 
 	bracesCheck = props.GetInt("braces.check");
 	bracesSloppy = props.GetInt("braces.sloppy");
@@ -1074,7 +1073,7 @@ void SciTEBase::ReadProperties() {
 	const std::string viewIndentExamine = GetFileNameProperty("view.indentation.examine");
 	indentExamine = viewIndentExamine.length() ? static_cast<SA::IndentView>(atoi(viewIndentExamine.c_str())) : SA::IndentView::Real;
 	wEditor.SetIndentationGuides(props.GetInt("view.indentation.guides") ?
-		indentExamine : SA::IndentView::None);
+				     indentExamine : SA::IndentView::None);
 
 	wEditor.SetTabIndents(props.GetInt("tab.indents", 1));
 	wEditor.SetBackSpaceUnIndents(props.GetInt("backspace.unindents", 1));
@@ -1125,8 +1124,8 @@ void SciTEBase::ReadProperties() {
 
 	wEditor.SetWrapVisualFlags(static_cast<SA::WrapVisualFlag>(props.GetInt("wrap.visual.flags")));
 	wEditor.SetWrapVisualFlagsLocation(static_cast<SA::WrapVisualLocation>(props.GetInt("wrap.visual.flags.location")));
- 	wEditor.SetWrapStartIndent(props.GetInt("wrap.visual.startindent"));
- 	wEditor.SetWrapIndentMode(static_cast<SA::WrapIndentMode>(props.GetInt("wrap.indent.mode")));
+	wEditor.SetWrapStartIndent(props.GetInt("wrap.visual.startindent"));
+	wEditor.SetWrapIndentMode(static_cast<SA::WrapIndentMode>(props.GetInt("wrap.indent.mode")));
 
 	idleStyling = static_cast<SA::IdleStyling>(props.GetInt("idle.styling", static_cast<int>(SA::IdleStyling::None)));
 	wEditor.SetIdleStyling(idleStyling);
@@ -1139,7 +1138,7 @@ void SciTEBase::ReadProperties() {
 		AssignKey(SA::Keys::End, SA::KeyMod::Norm, SCI_SCROLLTOEND);
 		AssignKey(SA::Keys::End, SA::KeyMod::Shift, SCI_NULL);
 	} else {
-		if (props.GetInt("wrap.aware.home.end.keys",0)) {
+		if (props.GetInt("wrap.aware.home.end.keys", 0)) {
 			if (props.GetInt("vc.home.key", 1)) {
 				AssignKey(SA::Keys::Home, SA::KeyMod::Norm, SCI_VCHOMEWRAP);
 				AssignKey(SA::Keys::Home, SA::KeyMod::Shift, SCI_VCHOMEWRAPEXTEND);
@@ -1187,10 +1186,10 @@ void SciTEBase::ReadProperties() {
 		// and redo) so that the buttons can be enabled if needed.
 		const SA::ModificationFlags flagsCurrent = wEditor.ModEventMask();
 		const SA::ModificationFlags flags = static_cast<SA::ModificationFlags>(
-			static_cast<int>(flagsCurrent) |
-			static_cast<int>(SA::ModificationFlags::InsertText) |
-			static_cast<int>(SA::ModificationFlags::DeleteText) |
-			static_cast<int>(SA::ModificationFlags::LastStepInUndoRedo));
+				static_cast<int>(flagsCurrent) |
+				static_cast<int>(SA::ModificationFlags::InsertText) |
+				static_cast<int>(SA::ModificationFlags::DeleteText) |
+				static_cast<int>(SA::ModificationFlags::LastStepInUndoRedo));
 		wEditor.SetModEventMask(flags);
 
 		//SC_LASTSTEPINUNDOREDO is probably not needed in the mask; it
@@ -1256,91 +1255,91 @@ void SciTEBase::ReadProperties() {
 	case 0:
 		// Arrow pointing right for contracted folders, arrow pointing down for expanded
 		DefineMarker(SA::MarkerOutline::FolderOpen, SA::MarkerSymbol::ArrowDown,
-					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::Folder, SA::MarkerSymbol::Arrow,
-					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderSub, SA::MarkerSymbol::Empty,
-					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderTail, SA::MarkerSymbol::Empty,
-					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderEnd, SA::MarkerSymbol::Empty,
-					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderOpenMid, SA::MarkerSymbol::Empty,
-					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderMidTail, SA::MarkerSymbol::Empty,
-					 colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		// The highlight is disabled for arrow.
 		wEditor.MarkerEnableHighlight(false);
 		break;
 	case 1:
 		// Plus for contracted folders, minus for expanded
 		DefineMarker(SA::MarkerOutline::FolderOpen, SA::MarkerSymbol::Minus,
-		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::Folder, SA::MarkerSymbol::Plus,
-		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderSub, SA::MarkerSymbol::Empty,
-		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderTail, SA::MarkerSymbol::Empty,
-		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderEnd, SA::MarkerSymbol::Empty,
-		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderOpenMid, SA::MarkerSymbol::Empty,
-		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderMidTail, SA::MarkerSymbol::Empty,
-		             colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
 		// The highlight is disabled for plus/minus.
 		wEditor.MarkerEnableHighlight(false);
 		break;
 	case 2:
 		// Like a flattened tree control using circular headers and curved joins
 		DefineMarker(SA::MarkerOutline::FolderOpen, SA::MarkerSymbol::CircleMinus,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::Folder, SA::MarkerSymbol::CirclePlus,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderSub, SA::MarkerSymbol::VLine,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderTail, SA::MarkerSymbol::LCornerCurve,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderEnd, SA::MarkerSymbol::CirclePlusConnected,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderOpenMid, SA::MarkerSymbol::CircleMinusConnected,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderMidTail, SA::MarkerSymbol::TCornerCurve,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		wEditor.MarkerEnableHighlight(isHighlightEnabled);
 		break;
 	case 3:
 		// Like a flattened tree control using square headers
 		DefineMarker(SA::MarkerOutline::FolderOpen, SA::MarkerSymbol::BoxMinus,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::Folder, SA::MarkerSymbol::BoxPlus,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderSub, SA::MarkerSymbol::VLine,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderTail, SA::MarkerSymbol::LCorner,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderEnd, SA::MarkerSymbol::BoxPlusConnected,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderOpenMid, SA::MarkerSymbol::BoxMinusConnected,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		DefineMarker(SA::MarkerOutline::FolderMidTail, SA::MarkerSymbol::TCorner,
-		             colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
 		wEditor.MarkerEnableHighlight(isHighlightEnabled);
 		break;
 	}
 
 	wEditor.MarkerSetFore(markerBookmark,
-		ColourOfProperty(props, "bookmark.fore", ColourRGB(0xbe, 0, 0)));
+			      ColourOfProperty(props, "bookmark.fore", ColourRGB(0xbe, 0, 0)));
 	wEditor.MarkerSetBack(markerBookmark,
-		ColourOfProperty(props, "bookmark.back", ColourRGB(0xe2, 0x40, 0x40)));
+			      ColourOfProperty(props, "bookmark.back", ColourRGB(0xe2, 0x40, 0x40)));
 	wEditor.MarkerSetAlpha(markerBookmark,
-		static_cast<SA::Alpha>(props.GetInt("bookmark.alpha", static_cast<int>(SA::Alpha::NoAlpha))));
+			       static_cast<SA::Alpha>(props.GetInt("bookmark.alpha", static_cast<int>(SA::Alpha::NoAlpha))));
 	const std::string bookMarkXPM = props.GetString("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
 		wEditor.MarkerDefinePixmap(markerBookmark, bookMarkXPM.c_str());
 	} else if (props.GetString("bookmark.fore").length()) {
 		wEditor.MarkerDefine(markerBookmark, static_cast<SA::MarkerSymbol>(
-			props.GetInt("bookmark.symbol", static_cast<int>(SA::MarkerSymbol::Bookmark))));
+					     props.GetInt("bookmark.symbol", static_cast<int>(SA::MarkerSymbol::Bookmark))));
 	} else {
 		// No bookmark.fore setting so display default pixmap.
 		wEditor.MarkerDefinePixmap(markerBookmark, reinterpret_cast<const char *>(bookmarkBluegem));
@@ -1431,7 +1430,7 @@ void SciTEBase::ReadProperties() {
 
 		// Check for an extension script
 		GUI::gui_string extensionFile = GUI::StringFromUTF8(
-			props.GetNewExpandString("extension.", fileNameForExtension.c_str()));
+							props.GetNewExpandString("extension.", fileNameForExtension.c_str()));
 		if (extensionFile.length()) {
 			// find file in local directory
 			FilePath docDir = filePath.Directory();
@@ -1469,7 +1468,7 @@ void SciTEBase::ReadFontProperties() {
 		for (int i = 0; i < StyleMax; i++) {
 			sprintf(key, "style.lpeg.%0d", i);
 			wEditor.PrivateLexerCall(i - StyleMax,
-				const_cast<char *>(propStr));
+						 const_cast<char *>(propStr));
 			props.Set(key, static_cast<const char *>(propStr));
 		}
 		languageName = "lpeg";
@@ -1644,7 +1643,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	const int sizeVertical = props.GetInt("output.vertical.size", 0);
 	const int hideOutput = props.GetInt("output.initial.hide", 0);
 	if ((!splitVertical && (sizeVertical > 0) && (heightOutput < sizeVertical)) ||
-		(splitVertical && (sizeHorizontal > 0) && (heightOutput < sizeHorizontal))) {
+			(splitVertical && (sizeHorizontal > 0) && (heightOutput < sizeHorizontal))) {
 		previousHeightOutput = splitVertical ? sizeHorizontal : sizeVertical;
 		if (!hideOutput) {
 			heightOutput = NormaliseSplit(previousHeightOutput);
@@ -1654,7 +1653,7 @@ void SciTEBase::ReadPropertiesInitial() {
 	}
 	ViewWhitespace(props.GetInt("view.whitespace"));
 	wEditor.SetIndentationGuides(props.GetInt("view.indentation.guides") ?
-		indentExamine : SA::IndentView::None);
+				     indentExamine : SA::IndentView::None);
 
 	wEditor.SetViewEOL(props.GetInt("view.eol"));
 	wEditor.SetZoom(props.GetInt("magnification"));
@@ -1782,8 +1781,8 @@ int SciTEBase::GetMenuCommandAsInt(std::string commandName) {
 	// Check also for a SCI command, as long as it has no parameters
 	i = IFaceTable::FindFunctionByConstantName(commandName.c_str());
 	if (i != -1 &&
-		IFaceTable::functions[i].paramType[0] == iface_void &&
-		IFaceTable::functions[i].paramType[1] == iface_void) {
+			IFaceTable::functions[i].paramType[0] == iface_void &&
+			IFaceTable::functions[i].paramType[1] == iface_void) {
 		return IFaceTable::functions[i].value;
 	}
 

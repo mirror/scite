@@ -48,13 +48,13 @@ public:
 
 	enum ReadLineState { rlActive, rlExcludedModule, rlConditionFalse };
 	ReadLineState ReadLine(const char *lineBuffer, ReadLineState rls, const FilePath &directoryForImports, const ImportFilter &filter,
-		FilePathSet *imports, size_t depth);
+			       FilePathSet *imports, size_t depth);
 	void ReadFromMemory(const char *data, size_t len, const FilePath &directoryForImports, const ImportFilter &filter,
-		FilePathSet *imports, size_t depth);
+			    FilePathSet *imports, size_t depth);
 	void Import(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
-		FilePathSet *imports, size_t depth);
+		    FilePathSet *imports, size_t depth);
 	bool Read(const FilePath &filename, const FilePath &directoryForImports, const ImportFilter &filter,
-		FilePathSet *imports, size_t depth);
+		  FilePathSet *imports, size_t depth);
 	std::string GetWild(const char *keybase, const char *filename);
 	std::string GetNewExpandString(const char *keybase, const char *filename = "");
 	bool GetFirst(const char *&key, const char *&val);

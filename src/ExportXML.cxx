@@ -103,7 +103,7 @@ void SciTEBase::SaveToXML(const FilePath &saveName) {
 
 		fputs("<document xmlns='http://www.scintilla.org/scite.rng'", fp);
 		fprintf(fp, " filename='%s'",
-		        filePath.Name().AsUTF8().c_str());
+			filePath.Name().AsUTF8().c_str());
 		fprintf(fp, " type='%s'", "unknown");
 		fprintf(fp, " version='%s'", "1.0");
 		fputs(">\n", fp);
