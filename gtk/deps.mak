@@ -3,10 +3,10 @@ DirectorExtension.o: \
 	DirectorExtension.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
-	../../scintilla/include/Scintilla.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
+	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -36,11 +36,11 @@ SciTEGTK.o: \
 	SciTEGTK.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
-	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/ScintillaWidget.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
+	../../scintilla/include/Scintilla.h \
+	../../scintilla/include/ScintillaWidget.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
