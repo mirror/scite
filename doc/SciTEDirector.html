@@ -128,7 +128,7 @@
 	format of project files. Instead, SciTE has an interface that can be used by project
 	managers or similar applications to control SciTE. Any application that controls SciTE is
 	referred to as a "Director".</p>
-	<p>The current Director interface only works on Windows and GTK+/Linux. In the future, it should be
+	<p>The current Director interface only works on Windows and GTK/Linux. In the future, it should be
 	possible to replace the low level interface and so make this interface available on other
 	platforms.</p>
 	<p>There is currently one director application,
@@ -211,7 +211,7 @@
 </SPAN><SPAN class=S10>}</SPAN><BR>
 </div>
     <h3>
-       Low level interface on GTK+.
+       Low level interface on GTK.
     </h3>
 	<p>An input fifo for each application supporting the director
 	interface located in the temporary directory (obtained through GLib g_get_tmp_dir() call),
@@ -302,7 +302,7 @@
 		</tr>
 		<tr>
 			<td>focus:&lt;timeStamp&gt;</td>
-			<td>On GTK+ bring this SciTE window to the front.
+			<td>On GTK bring this SciTE window to the front.
 			The timeStamp is from the window manager and ensures that windows are only
 			activated because of a user command.
 			Has no effect on Windows as applications on Windows can only donate focus, not take focus.</td>

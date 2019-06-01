@@ -95,7 +95,7 @@
         feature of automatic syntax styling. SciTE can hold multiple files in memory at one time but
         only one file will be visible. Rectangular
         blocks of text can be selected in SciTE by holding down the Alt key on Windows or the Ctrl
-        key on GTK+ while dragging the mouse over the text. The modifier key used on GTK+
+        key on GTK while dragging the mouse over the text. The modifier key used on GTK
         can be changed with the rectangular.selection.modifier property.
     </p>
     <p>
@@ -191,7 +191,7 @@ NameError: name 'mistake' is not defined
     </h3>
     <p>
     Tools can be executed in various modes by SciTE which are called "subsystems". Different
-    subsystems are supported on Windows, GTK+ and macOS. The default subsystem is 0.
+    subsystems are supported on Windows, GTK and macOS. The default subsystem is 0.
     </p>
     <table class="windowsonly" cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
     <thead><tr><td colspan="3">Windows</td></tr></thead>
@@ -211,7 +211,7 @@ NameError: name 'mistake' is not defined
     </table>
     <br />
     <table class="gtkonly" cellpadding="0" cellspacing="0" border="1" summary="Command line commands">
-    <thead><tr><td colspan="3">GTK+ and macOS</td></tr></thead>
+    <thead><tr><td colspan="3">GTK and macOS</td></tr></thead>
     <tr><td>0</td><td>console</td><td>Execute tool and wait for it to finish</td></tr>
     <tr><td>2</td><td>shellexec</td><td>Execute in background</td></tr>
     <tr><td>3</td><td>lua<br />director</td><td>Internal extension or director extension</td></tr>
@@ -527,17 +527,17 @@ NameError: name 'mistake' is not defined
        Keyboard commands
     </h3>
     <p>
-       Keyboard commands in SciTE mostly follow common Windows and GTK+ conventions.
+       Keyboard commands in SciTE mostly follow common Windows and GTK conventions.
        All movement keys (arrows, page up/down, home and end)
        allow to extend or reduce a stream selection when holding the Shift key,
        and a rectangular selection when holding the Shift and Alt keys.
        Some keys may not be available with some national keyboards or because
-       they are taken by the system such as by a window manager on GTK+.
+       they are taken by the system such as by a window manager on GTK.
        The user.shortcuts setting may be used to assign a key to a function.
        Note that Home key behaviour is changed by the vc.home.key option.
        Keyboard equivalents of menu commands are listed in the menus.
        macOS keys differ from the other platforms with the command key &#8984;
-       often used where the Ctrl key is used on Windows and GTK+.
+       often used where the Ctrl key is used on Windows and GTK.
        Some less common commands with no menu equivalent are:
     </p>
 <table cellpadding="0" cellspacing="0" border="1" summary="Keyboard commands">
@@ -760,7 +760,7 @@ NameError: name 'mistake' is not defined
        <li>Directory properties file called "SciTEDirectory.properties" which may be
        present in the same or in a parent directory as the file being edited.</li>
        <li>User properties file called "SciTEUser.properties" on Windows
-       and ".SciTEUser.properties" on GTK+.</li>
+       and ".SciTEUser.properties" on GTK.</li>
        <li>Global properties file called "SciTEGlobal.properties".</li>
        </ul>
     <p>
@@ -797,7 +797,7 @@ NameError: name 'mistake' is not defined
       The user properties file is looked for in the user profile directory as set in the
       USERPROFILE environment variable, or in the directory of the executable if
       USERPROFILE is not set.
-      For GTK+ the user properties file is found in the user's home directory and the global
+      For GTK the user properties file is found in the user's home directory and the global
       properties in a directory set at build time - normally /usr/share/scite.
     </p>
     <p>
@@ -997,7 +997,7 @@ NameError: name 'mistake' is not defined
     <p>
       Some properties are only available on
       <span class="windowsonly">Windows</span>,
-      <span class="gtkonly">GTK+</span>,
+      <span class="gtkonly">GTK</span>,
       <span class="osxonly">macOS</span>, or
       <span class="windows-osx">Windows &amp; macOS</span>.
     </p>
@@ -1185,7 +1185,7 @@ NameError: name 'mistake' is not defined
         <td>
         Setting this to 1 hides the menu bar when the Full Screen command is used on
         Windows.
-        On GTK+ the menu is always visible.
+        On GTK the menu is always visible.
         </td>
       </tr>
       <tr class="windowsonly" id='property-minimize.to.tray'>
@@ -1276,7 +1276,7 @@ NameError: name 'mistake' is not defined
         </td>
         <td>
           The path bar is a line of text under the tab bar showing the full path of the currently selected tab.
-	Setting pathbar.visible to 1 makes the path bar visible on GTK+.
+	Setting pathbar.visible to 1 makes the path bar visible on GTK.
         </td>
       </tr>
       <tr id='property-undo.redo.lazy'>
@@ -1437,7 +1437,7 @@ NameError: name 'mistake' is not defined
 	instance exits.
 	On Windows, the instance with the Options | Open Files Here
 	menu item checked opens the file.
-	On GTK+, an arbitrary instance opens the file.
+	On GTK, an arbitrary instance opens the file.
         </td>
       </tr>
       <tr id='property-read.only'>
@@ -1569,7 +1569,7 @@ NameError: name 'mistake' is not defined
            rectangular.selection.modifier
         </td>
         <td>
-        On GTK+, the modifier key used to make rectangular selections can be set with this
+        On GTK, the modifier key used to make rectangular selections can be set with this
         property. Valid options are 2 (Ctrl), 4 (Alt) or 8 (Super). Super is often assigned to the
         Windows/Start key on Windows keyboards or the Command key on Mac keyboards.
         <br />
@@ -1893,7 +1893,7 @@ NameError: name 'mistake' is not defined
         <td>Defines a path for the Open Selected Filename command in the File
         menu. The path is searched if the selected filename doesn't contain an
         absolute path or the file is not found in the document directory. The
-        directories in openpath are separated by ';' on Windows and ':' on macOS and GTK+.<br />
+        directories in openpath are separated by ';' on Windows and ':' on macOS and GTK.<br />
         An openpath setting may look like:
         <div class="example">
         openpath.*.txt=c:\dos\;f:\;<br />
@@ -2570,7 +2570,7 @@ NameError: name 'mistake' is not defined
         On macOS the command key uses the modifier Ctrl+ as this eases using one setting between platforms and
         the control key uses the modifier Control+.
         <br/>
-        The Super modifier can be used only on GTK+.
+        The Super modifier can be used only on GTK.
         <br/>
         <div class="example">
 user.shortcuts=\<br/>
@@ -2634,7 +2634,7 @@ Prev File|IDM_PREVFILE|<br/>
         split.wide
         </td>
         <td>
-          On GTK+, the divider between the edit and output pane can be made wider by setting split.wide to 1.
+          On GTK, the divider between the edit and output pane can be made wider by setting split.wide to 1.
           This makes it easier to grab with the mouse but uses up room.
           This property is only read at start up.
         </td>
@@ -2816,7 +2816,7 @@ Prev File|IDM_PREVFILE|<br/>
         <td>
           This is a complex expression used for determining the file types that will be available in
           the save file dialog. The structure of the property is the same as open.filter.<br />
-          Does not work on GTK+.
+          Does not work on GTK.
         </td>
       </tr>
       <tr id='property-star-source.patterns'>
@@ -2887,7 +2887,7 @@ Prev File|IDM_PREVFILE|<br/>
         If you set save.session, the list of currently opened buffers will be saved on exit
         in a session file. When you start SciTE next time (without specifying a file name
         on the command line) the last session will be restored automatically.<br />
-        <b>For GTK+</b>, the file is called ".SciTE.session" and is located in the
+        <b>For GTK</b>, the file is called ".SciTE.session" and is located in the
         directory given by the SciTE_USERHOME environment variable and if that is
         not set, the value of the SciTE_HOME environment variable and if that is not
         set, the value of the HOME environment variable and if that is not
@@ -3027,7 +3027,7 @@ Prev File|IDM_PREVFILE|<br/>
          strip.button.height
         </td>
         <td>
-          Buttons on GTK+ often contain extra spacing that makes strips take too much room.
+          Buttons on GTK often contain extra spacing that makes strips take too much room.
 	  This setting tries to limit the height of buttons.
 	  A value of 23 or 24 may work well.
         </td>
@@ -3221,13 +3221,13 @@ c:\cygwin\bin\xargs -0 grep $(find.wholeword) $(find.matchcase) -G -n "$(find.wh
 	  <tr><td>Arabic</td><td align="right">178</td></tr>
 	  <tr class="windowsonly"><td>Thai</td><td align="right">222</td></tr>
 	  <tr class="windowsonly"><td>Vietnamese</td><td align="right">163</td></tr>
-	  <tr class="gtkonly"><td>Cyrillic (CP866 on GTK+)</td><td align="right">866</td></tr>
-	  <tr><td>Cyrillic (CP1251 on Windows, KOI8-R on GTK+)</td><td align="right">204</td></tr>
-	  <tr class="gtkonly"><td>Cyrillic (CP1251 on GTK+)</td><td align="right">1251</td></tr>
+	  <tr class="gtkonly"><td>Cyrillic (CP866 on GTK)</td><td align="right">866</td></tr>
+	  <tr><td>Cyrillic (CP1251 on Windows, KOI8-R on GTK)</td><td align="right">204</td></tr>
+	  <tr class="gtkonly"><td>Cyrillic (CP1251 on GTK)</td><td align="right">1251</td></tr>
 	  <tr class="gtkonly"><td>European with Euro (ISO 8859-15)</td><td align="right">1000</td></tr>
 	  </table>
         All of these values except for 1251 and 1000 should work on macOS or Windows.
-        On GTK+ Baltic, Turkish, Thai and Vietnamese will probably not work.
+        On GTK Baltic, Turkish, Thai and Vietnamese will probably not work.
         </td>
       </tr>
       <tr id='property-ime.interaction'>
@@ -3258,7 +3258,7 @@ c:\cygwin\bin\xargs -0 grep $(find.wholeword) $(find.matchcase) -G -n "$(find.wh
           accessibility
         </td>
         <td>
-        On GTK+, accessibility of the edit and output panes may be disabled by setting accessibility to 0.
+        On GTK, accessibility of the edit and output panes may be disabled by setting accessibility to 0.
         Disabling accessibility may moderately improve performance and memory use.
         This only affects the custom accessibility implementation, not the functionality provided by
         the system such as speaking the characters typed.
@@ -3560,7 +3560,7 @@ imports.include=fortran lisp
         <td>
         This setting allows choosing different ways of drawing text on Windows and macOS.
         The appearance will depend on platform settings and, on Windows, the technology setting.
-        This setting does not currently have any effect on GTK+.
+        This setting does not currently have any effect on GTK.
 	  <table>
 	  <thead><tr><th>Value</th><th>Meaning</th></tr></thead>
 	  <tr><td>0</td><td>Default</td></tr>
@@ -4215,7 +4215,7 @@ groupundo - yes or no
           fileselector.height
         </td>
         <td>
-          For the GTK+ version determines the initial size of the file
+          For the GTK version determines the initial size of the file
           selector dialog invoked by the Open and Save commands.
           Setting has no effect on Windows.
         </td>

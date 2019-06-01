@@ -521,7 +521,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 #if defined(GTK)
 		wsci.StyleSetFont(StyleDefault, "Serif");
 		const int fontSize = 14;
-		sVersion += "compiled for GTK+ ";
+		sVersion += "compiled for GTK ";
 		sVersion += StdStringFromInteger(GTK_MAJOR_VERSION);
 		sVersion += ".";
 		sVersion += StdStringFromInteger(GTK_MINOR_VERSION);
