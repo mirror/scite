@@ -1,5 +1,5 @@
 // SciTE - Scintilla based Text Editor
-// SciTEGTK.cxx - main code for the GTK+ version of the editor
+// SciTEGTK.cxx - main code for the GTK version of the editor
 // Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -81,7 +81,7 @@
 
 enum { mbsAboutBox = 0x100000 };
 
-// Key names are longer for GTK+ 3
+// Key names are longer for GTK 3
 #if GTK_CHECK_VERSION(3,0,0)
 #define GKEY_Escape GDK_KEY_Escape
 #define GKEY_Tab GDK_KEY_Tab
@@ -122,7 +122,7 @@ class SciTEGTK;
 
 typedef void (*SigFunction)(GtkWidget *w, SciTEGTK *app);
 
-// Callback thunk class connects GTK+ signals to a SciTEGTK instance method.
+// Callback thunk class connects GTK signals to a SciTEGTK instance method.
 template< void (SciTEGTK::*method)() >
 class Signal {
 public:
@@ -131,7 +131,7 @@ public:
 	}
 };
 
-// Callback thunk class connects GTK+ signals to a SciTEGTK instance method.
+// Callback thunk class connects GTK signals to a SciTEGTK instance method.
 template< void (SciTEGTK::*method)(int responseID) >
 class ResponseSignal {
 public:
@@ -146,7 +146,7 @@ inline void AttachResponse(GtkWidget *w, SciTEGTK *object) {
 	g_signal_connect(G_OBJECT(w), "response", G_CALLBACK(sig.Function), object);
 }
 
-// Field added to GTK+ 1.x ItemFactoryEntry for 2.x  so have a struct that is the same as 1.x
+// Field added to GTK 1.x ItemFactoryEntry for 2.x  so have a struct that is the same as 1.x
 struct SciTEItemFactoryEntry {
 	const char *path;
 	const char *accelerator;
@@ -674,7 +674,7 @@ protected:
 	void SendFileName(int sendPipe, const char* filename);
 	bool CheckForRunningInstance(int argc, char* argv[]);
 
-	// GTK+ Signal Handlers
+	// GTK Signal Handlers
 
 	void FindInFilesCmd();
 	void FindInFilesDotDot();
@@ -1293,7 +1293,7 @@ static std::string GtkFromWinCaption(const char *text) {
 	std::string sCaption(text);
 	// Escape underlines
 	Substitute(sCaption, "_", "__");
-	// Replace Windows-style ampersands with GTK+ underlines
+	// Replace Windows-style ampersands with GTK underlines
 	size_t posFound = sCaption.find("&");
 	while (posFound != std::string::npos) {
 		std::string nextChar = sCaption.substr(posFound + 1, 1);
@@ -1315,7 +1315,7 @@ static std::string GtkFromWinCaption(const char *text) {
 void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *mnemonic) {
 	DestroyMenuItem(0, itemID);
 
-	// On GTK+ the menuNumber and position are ignored as the menu item already exists and is in the right
+	// On GTK the menuNumber and position are ignored as the menu item already exists and is in the right
 	// place so only needs to be shown and have its text set.
 
 	std::string itemText = GtkFromWinCaption(text);
@@ -1355,8 +1355,8 @@ void SciTEGTK::SetMenuItem(int, int, int itemID, const char *text, const char *m
 }
 
 void SciTEGTK::DestroyMenuItem(int, int itemID) {
-	// On GTK+ menu items are just hidden rather than destroyed as they can not be recreated in the middle of a menu
-	// The menuNumber is ignored as all menu items in GTK+ can be found from the root of the menu tree
+	// On GTK menu items are just hidden rather than destroyed as they can not be recreated in the middle of a menu
+	// The menuNumber is ignored as all menu items in GTK can be found from the root of the menu tree
 
 	if (itemID) {
 		GtkWidget *item = MenuItemFromAction(itemID);
@@ -1880,7 +1880,7 @@ void SciTEGTK::DrawPage(GtkPrintOperation *operation, GtkPrintContext *context, 
 void SciTEGTK::Print(bool) {
 	RemoveFindMarks();
 	SelectionIntoProperties();
-	// Printing through the GTK+ API
+	// Printing through the GTK API
 	GtkPrintOperation *printOp = gtk_print_operation_new();
 
 	if (printSettings != NULL)
@@ -4844,7 +4844,7 @@ bool SciTEGTK::StripHasFocus() const {
 
 void SciTEGTK::LayoutUI() {
 	if (splitPane) {
-		// If GtkOrientable is available (GTK+ 2.16 and newer), just switch the
+		// If GtkOrientable is available (GTK 2.16 and newer), just switch the
 		// orientation if needed, don't recreate the H/VPaned
 		GtkOrientation orient;
 		orient = (splitVertical) ? GTK_ORIENTATION_HORIZONTAL : GTK_ORIENTATION_VERTICAL;

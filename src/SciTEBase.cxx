@@ -272,7 +272,7 @@ std::string SciTEBase::GetTranslationToAbout(const char *const propname, bool re
 #if !defined(GTK)
 	return GUI::UTF8FromString(localiser.Text(propname, retainIfNotFound));
 #else
-	// On GTK+, localiser.Text always converts to UTF-8.
+	// On GTK, localiser.Text always converts to UTF-8.
 	return localiser.Text(propname, retainIfNotFound);
 #endif
 }

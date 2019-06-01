@@ -101,7 +101,7 @@ void Window::SetPosition(Rectangle rc) {
 }
 
 Rectangle Window::GetClientPosition() {
-	// On GTK+, the client position is the window position
+	// On GTK, the client position is the window position
 	return GetPosition();
 }
 
@@ -144,7 +144,7 @@ void Menu::Show(Point pt G_GNUC_UNUSED, Window &) {
 	GtkMenu *widget = static_cast<GtkMenu *>(mid);
 	gtk_widget_show_all(GTK_WIDGET(widget));
 #if GTK_CHECK_VERSION(3,22,0)
-	// Rely on GTK+ to do the right thing with positioning
+	// Rely on GTK to do the right thing with positioning
 	gtk_menu_popup_at_pointer(widget, NULL);
 #else
 	int screenHeight = gdk_screen_height();

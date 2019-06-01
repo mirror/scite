@@ -2,7 +2,7 @@
 /** @file GUI.h
  ** Interface to platform GUI facilities.
  ** Split off from Scintilla's Platform.h to avoid SciTE depending on implementation of Scintilla.
- ** Implementation in win32/GUIWin.cxx for Windows and gtk/GUIGTK.cxx for GTK+.
+ ** Implementation in win32/GUIWin.cxx for Windows and gtk/GUIGTK.cxx for GTK.
  **/
 // Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
@@ -47,7 +47,7 @@ public:
 
 #if defined(GTK) || defined(__APPLE__)
 
-// On GTK+ and OS X use UTF-8 char strings
+// On GTK and OS X use UTF-8 char strings
 
 typedef char gui_char;
 typedef std::string gui_string;

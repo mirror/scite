@@ -1,11 +1,11 @@
 // SciTE - Scintilla based Text Editor
-// Widget.h - code for manipulating  GTK+ widgets
+// Widget.h - code for manipulating  GTK widgets
 // Copyright 2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-// Callback thunk class connects GTK+ signals to a simple command method.
+// Callback thunk class connects GTK signals to a simple command method.
 
-// Callback thunk class connects GTK+ signals to an instance method.
+// Callback thunk class connects GTK signals to an instance method.
 template< class T, void (T::*method)() >
 class ObjectSignal {
 public:

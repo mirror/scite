@@ -1,5 +1,5 @@
 // SciTE - Scintilla based Text Editor
-// Widget.cxx - code for manipulating  GTK+ widgets
+// Widget.cxx - code for manipulating  GTK widgets
 // Copyright 2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -19,7 +19,7 @@
 #include "StringHelpers.h"
 #include "Widget.h"
 
-// Key names are longer for GTK+ 3
+// Key names are longer for GTK 3
 #if GTK_CHECK_VERSION(3,0,0)
 #define GKEY_Escape GDK_KEY_Escape
 #define GKEY_Void GDK_KEY_VoidSymbol
