@@ -1475,6 +1475,33 @@ NameError: name 'mistake' is not defined
 	when the UTF-16 encoding is used.
         </td>
       </tr>
+      </tr>
+      <tr id='property-file.size.large'>
+        <td>
+          <a name='property-file.size.large'></a>
+           file.size.large
+        </td>
+        <td>
+          This setting controls whether files are opened into a mode that will work with files larger
+          than 2 gigabytes called 'large mode'.
+          Files larger than the given size in bytes will be opened in large mode.
+          Without this setting, SciTE will use less memory but will fail for files that are
+          larger than 2 gigabytes when opened or grow larger than 2 gigabytes.
+        </td>
+      </tr>
+      <tr id='property-file.size.no.styles'>
+        <td>
+          <a name='property-file.size.no.styles'></a>
+           file.size.no.styles
+        </td>
+        <td>
+          Very large files take a long time to style completely and this can
+          make editing too slow.
+          Files larger than the given size in bytes will be opened with styling turned off.
+          It is only the file size at opening that is considered - styling will not turn on or off
+          when the file size changes during editing.
+        </td>
+      </tr>
       <tr class="windowsonly" id='property-temp.files.sync.load'>
         <td>
           temp.files.sync.load
