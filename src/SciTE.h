@@ -11,7 +11,7 @@
 // Version numbers and dates
 #define VERSION_SCITE "4.1.6"
 #define VERSION_WORDS 4, 1, 6, 0
-#define COPYRIGHT_DATES "December 1998-April 2019"
+#define COPYRIGHT_DATES "December 1998-June 2019"
 #define COPYRIGHT_YEARS "1998-2019"
 
 // Menu IDs.
