@@ -1045,7 +1045,7 @@ void SciTEBase::ReadProperties() {
 	wOutput.SetBufferedDraw(bufferedDraw);
 
 	const SA::PhasesDraw phasesDraw = static_cast<SA::PhasesDraw>(
-			props.GetInt("phases.draw", static_cast<int>(SA::PhasesDraw::One)));
+			props.GetInt("phases.draw", static_cast<int>(SA::PhasesDraw::Two)));
 	wEditor.SetPhasesDraw(phasesDraw);
 	wOutput.SetPhasesDraw(phasesDraw);
 
