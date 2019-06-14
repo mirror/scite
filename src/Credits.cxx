@@ -547,6 +547,9 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		const int trsSty = 5; // define the stylenumber to assign font for translators.
 		std::string translator = GetTranslationToAbout("TranslationCredit", false);
 		SetAboutStyle(wsci, trsSty, ColourRGB(0, 0, 0));
+		if constexpr (sizeof(void *) == 4) {
+			AddStyledText(wsci, "32-bit\n", 1);
+		}
 		AddStyledText(wsci, GetTranslationToAbout("Version").c_str(), trsSty);
 		AddStyledText(wsci, sVersion.c_str(), 1);
 		AddStyledText(wsci, "    " __DATE__ " " __TIME__ "\n", 1);

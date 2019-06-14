@@ -2,7 +2,7 @@ cd ..
 del/q wscite.zip
 mkdir wscite
 copy scite\license.txt wscite
-copy scite\bin\SciTE.exe wscite
+copy scite\bin\SciTE*.exe wscite
 copy scite\bin\SciTE.pdb wscite
 copy scite\bin\SciLexer.dll wscite
 copy scite\bin\SciLexer.pdb wscite
