@@ -714,6 +714,21 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_C_VERBATIM",13},
 	{"SCE_C_WORD",5},
 	{"SCE_C_WORD2",16},
+	{"SCE_DF_COMMENTLINE",4},
+	{"SCE_DF_DEFAULT",0},
+	{"SCE_DF_HEXNUMBER",8},
+	{"SCE_DF_ICODE",14},
+	{"SCE_DF_IDENTIFIER",1},
+	{"SCE_DF_IMAGE",3},
+	{"SCE_DF_METATAG",2},
+	{"SCE_DF_NUMBER",7},
+	{"SCE_DF_OPERATOR",13},
+	{"SCE_DF_PREPROCESSOR",5},
+	{"SCE_DF_PREPROCESSOR2",6},
+	{"SCE_DF_SCOPEWORD",12},
+	{"SCE_DF_STRING",10},
+	{"SCE_DF_STRINGEOL",11},
+	{"SCE_DF_WORD",9},
 	{"SCE_DIFF_ADDED",6},
 	{"SCE_DIFF_CHANGED",7},
 	{"SCE_DIFF_COMMAND",2},
@@ -2552,6 +2567,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCLEX_CSOUND",74},
 	{"SCLEX_CSS",38},
 	{"SCLEX_D",79},
+	{"SCLEX_DATAFLEX",129},
 	{"SCLEX_DIFF",16},
 	{"SCLEX_DMAP",112},
 	{"SCLEX_DMIS",114},
@@ -3463,7 +3479,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 309,
-	ifaceConstantCount = 2789,
+	ifaceConstantCount = 2805,
 	ifacePropertyCount = 232
 };
 

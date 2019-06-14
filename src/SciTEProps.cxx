@@ -462,6 +462,7 @@ static const char *propertiesToForward[] = {
 	"fold.d.explicit.end",
 	"fold.d.explicit.start",
 	"fold.d.syntax.based",
+	"fold.dataflex.compilerlist",
 	"fold.directive",
 	"fold.haskell.imports",
 	"fold.html",
