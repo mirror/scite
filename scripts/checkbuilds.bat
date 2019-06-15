@@ -28,6 +28,7 @@ mingw32-make -j
 pythonw simpleTests.py
 pythonw lexTests.py
 pythonw performanceTests.py
+pythonw win32Tests.py
 pythonw simpleTests.py -large
 @popd
 @pushd scite\win32
@@ -47,6 +48,7 @@ nmake -f scintilla.mak QUIET=1
 pythonw simpleTests.py
 pythonw lexTests.py
 pythonw performanceTests.py
+pythonw win32Tests.py
 @popd
 @pushd scite\win32
 nmake -f scite.mak QUIET=1
@@ -112,6 +114,7 @@ mingw32-make CLANG=1 -j
 pythonw simpleTests.py
 pythonw lexTests.py
 pythonw performanceTests.py
+pythonw win32Tests.py
 @popd
 @pushd scite\win32
 mingw32-make CLANG=1 -j
