@@ -343,10 +343,11 @@ std::string SciTEBase::GetLine(SA::Line line) {
 std::string SciTEBase::GetCurrentLine() {
 	// Get needed buffer size
 	const SA::Position len = wEditor.GetCurLine(0, nullptr);
-	// Allocate buffer
-	std::string text(len+1, '\0');
+	// Allocate buffer, including space for NUL
+	std::string text(len, '\0');
 	// And get the line
 	wEditor.GetCurLine(len, &text[0]);
+	// Return without extra NUL
 	return text.substr(0, text.length()-1);
 }
 
