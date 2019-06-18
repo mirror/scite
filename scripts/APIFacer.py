@@ -52,14 +52,7 @@ basicTypes = [
 
 namespace = "API::"
 
-documentArgNames = [
-	"doc",
-	"pointer",
-]
-
 def ActualTypeName(type, identifier=None):
-	if identifier in documentArgNames:
-		return "void *"
 	if identifier in enumArgNames:
 		return namespace + enumArgNames[identifier]
 	if type in typeAliases:
@@ -68,15 +61,6 @@ def ActualTypeName(type, identifier=None):
 		return type
 
 returningMethods = {
-	"DirectFunction": "void *",
-	"DirectPointer": "void *",
-	"DocPointer": "void *",
-	"CharacterPointer": "void *",
-	"RangePointer": "void *",
-	"CreateDocument": "void *",
-	"CreateLoader": "void *",
-	"PrivateLexerCall": "void *",
-
 	"ViewWS": "WhiteSpace",
 	"TabDrawMode": "TabDrawMode",
 	"EOLMode": "EndOfLine",
