@@ -176,6 +176,11 @@ enum class IndicatorStyle {
 	Container = 8,
 };
 
+enum class IndicValue {
+	Bit = 0x1000000,
+	Mask = 0xFFFFFF,
+};
+
 enum class IndicFlag {
 	ValueFore = 1,
 };
@@ -407,6 +412,11 @@ enum class AnnotationVisible {
 	Indented = 3,
 };
 
+enum class UndoFlags {
+	None = 0,
+	MayCoalesce = 1,
+};
+
 enum class VirtualSpace {
 	None = 0,
 	RectangularSelection = 1,
@@ -518,10 +528,6 @@ enum class LineCharacterIndexType {
 	Utf16 = 2,
 };
 
-enum class UndoFlags {
-	MayCoalesce = 1,
-};
-
 enum class Notification {
 	StyleNeeded = 2000,
 	CharAdded = 2001,
@@ -570,8 +576,6 @@ constexpr int Indic0Mask = 0x20;
 constexpr int Indic1Mask = 0x40;
 constexpr int Indic2Mask = 0x80;
 constexpr int IndicsMask = 0xE0;
-constexpr int Indicvaluebit = 0x1000000;
-constexpr int Indicvaluemask = 0xFFFFFF;
 constexpr int TimeForever = 10000000;
 constexpr int KeywordsetMax = 8;
 

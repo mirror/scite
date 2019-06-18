@@ -297,11 +297,6 @@ enumerationAliases = {
 	"SC_AC_DOUBLECLICK": "DOUBLE_CLICK",
 }
 
-extraDefinitions = """
-enu UndoFlags=UNDO_
-val UNDO_NONE=0
-"""
-
 def AugmentFace(f):
 	# These would be ambiguous if changed globally so edit the API definition directly
 	f.features["StyleSetCharacterSet"]["Param2Type"] = "CharacterSet"
@@ -310,32 +305,6 @@ def AugmentFace(f):
 	f.features["SetFoldFlags"]["Param1Type"] = "FoldFlag"
 	f.features["AnnotationSetVisible"]["Param1Type"] = "AnnotationVisible"
 	f.features["AddUndoAction"]["Param2Type"] = "UndoFlags"
-	
-	# These are more complex
-
-	name = "UndoFlags"
-	f.features[name] = {
-		"FeatureType": "enu",
-		"Category": "",
-		"Value": "UNDO_",
-		"Comment": "" }
-	f.order.append(name)
-
-	name = "SCFIND_NONE"
-	f.features[name] = {
-		"FeatureType": "val",
-		"Category": "",
-		"Value": "0x0",
-		"Comment": "" }
-	f.order.insert(0, name)
-
-	name = "SC_MOD_NONE"
-	f.features[name] = {
-		"FeatureType": "val",
-		"Category": "",
-		"Value": "0x0",
-		"Comment": "" }
-	f.order.insert(0, name)
 
 def IsEnumeration(s):
 	if s in ["Position", "Line", "Colour"]:
