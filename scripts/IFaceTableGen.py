@@ -27,6 +27,12 @@ def CommentString(prop):
 		return (" -- " + " ".join(prop["Comment"])).replace("<", "&lt;")
 	return ""
 
+def ConvertEnu(t):
+	if Face.IsEnumeration(t):
+		return "int"
+	else:
+		return t
+
 def GetScriptableInterface(f):
 	"""Returns a tuple of (constants, functions, properties)
 constants - a sorted list of (name, features) tuples, including all
@@ -88,6 +94,7 @@ properties - a sorted list of (name, property), where property is a
 				getterType = getter['Param2Type']
 			else:
 				getterType = getter['ReturnType']
+			getterType = ConvertEnu(getterType)
 			getterValue = getter['Value']
 			getterIndex = getter['Param1Type'] or 'void'
 			getterIndexName = getter['Param1Name']
@@ -96,12 +103,12 @@ properties - a sorted list of (name, property), where property is a
 
 		if isok and setter:
 			setterValue = setter['Value']
-			setterType = setter['Param1Type'] or 'void'
+			setterType = ConvertEnu(setter['Param1Type']) or 'void'
 			setterIndex = 'void'
 			if (setter['Param2Type'] or 'void') != 'void':
 				setterIndex = setterType
 				setterIndexName = setter['Param1Name']
-				setterType = setter['Param2Type']
+				setterType = ConvertEnu(setter['Param2Type'])
 
 			isok = (setter['ReturnType'] == 'void') or (setter['ReturnType'] == 'int' and setterType=='string')
 
@@ -209,22 +216,19 @@ def printIFaceTableCXXFile(faceAndIDs):
 		for name, features in functions:
 			comma = "" if name == lastName else ","
 
-			paramTypes = [
-				features["Param1Type"] or "void",
-				features["Param2Type"] or "void"
-			]
-
-			returnType = features["ReturnType"]
+			returnType = ConvertEnu(features["ReturnType"])
+			param1Type = ConvertEnu(features["Param1Type"]) or "void"
+			param2Type = ConvertEnu(features["Param2Type"]) or "void"
 
 			# Fix-up: if a param is an int (or position) named length, change to iface_type_length.
-			if features["Param1Type"] in ["int", "position"] and features["Param1Name"] == "length":
-				paramTypes[0] = "length"
+			if param1Type in ["int", "position"] and features["Param1Name"] == "length":
+				param1Type = "length"
 
-			if features["Param2Type"] in ["int", "position"] and features["Param2Name"] == "length":
-				paramTypes[1] = "length"
+			if param2Type in ["int", "position"] and features["Param2Name"] == "length":
+				param2Type = "length"
 
 			out.append('\t{"%s", %s, iface_%s, {iface_%s, iface_%s}}%s' % (
-				name, features["Value"], returnType, paramTypes[0], paramTypes[1], comma
+				name, features["Value"], returnType, param1Type, param2Type, comma
 			))
 
 		out.append("};")
@@ -308,16 +312,18 @@ def printIFaceTableHTMLFile(faceAndIDs):
 				parameters += features['Param1Type'] + " " + features['Param1Name']
 		else:
 			if features['Param1Name']:
-				parameters += features['Param1Type'] + " " + features['Param1Name']
+				parameters += ConvertEnu(features['Param1Type']) + " " + features['Param1Name']
 				if features['Param1Name'] == "length" and features['Param2Type'] == "string":
 					# special case removal
 					parameters = ""
 			if features['Param2Name']:
 				if parameters:
 					parameters += ", "
-				parameters += features['Param2Type'] + " " + features['Param2Name']
+				parameters += ConvertEnu(features['Param2Type']) + " " + features['Param2Name']
 
 		returnType = stringresult
+		if not returnType and Face.IsEnumeration(features["ReturnType"]):
+			returnType = "int "
 		if not returnType and features["ReturnType"] != "void":
 			returnType = convertStringResult(features["ReturnType"]) + " "
 
