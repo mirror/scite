@@ -52,39 +52,12 @@ basicTypes = [
 
 namespace = "API::"
 
-lineArgNames = [
-	"line",
-	"lineStart",
-	"lineEnd",
-	"lines",
-	"docLine",
-	"displayLine",
-]
-
-positionArgNames = [
-	"column",
-	"lengthClear",
-	"lengthDelete",
-	"lengthEntered",
-	"lengthFill",
-	"lengthRange",
-	"length",
-	"bytes",
-	"posStart",
-	"relative",
-	"space",
-]
-
 documentArgNames = [
 	"doc",
 	"pointer",
 ]
 
 def ActualTypeName(type, identifier=None):
-	if identifier in lineArgNames:
-		return "Line"
-	if identifier in positionArgNames:
-		return "Position"
 	if identifier in documentArgNames:
 		return "void *"
 	if identifier in enumArgNames:
@@ -95,43 +68,6 @@ def ActualTypeName(type, identifier=None):
 		return type
 
 returningMethods = {
-	"Column": "Position",
-	"CountCharacters": "Position",
-	"CountCodeUnits": "Position",
-	"EdgeColumn": "Position",
-	"FindColumn": "Position",
-	"GetLine": "Position",
-	"GetCurLine": "Position",
-	"GetSelText": "Position",
-	"GetStyledText": "Position",
-	"TargetText": "Position",
-	"GetText": "Position",
-	"GetTextRange": "Position",
-	"TextLength": "Position",
-	"Length": "Position",
-	"LineLength": "Position",
-	"ReplaceTarget": "Position",
-	"ReplaceTargetRE": "Position",
-	"SearchInTarget": "Position",
-	"SearchNext": "Position",
-	"SearchPrev": "Position",
-	"WordStartPosition": "Position",
-	"WordEndPosition": "Position",
-	"MarkerNext": "Line",
-	"MarkerPrevious": "Line",
-	"GetFirstVisibleLine": "Line",
-	"GetLineCount": "Line",
-	"LastChild": "Line",
-	"FoldParent": "Line",
-	"LineFromPosition": "Line",
-	"VisibleFromDocLine": "Line",
-	"DocLineFromVisible": "Line",
-	"WrapCount": "Line",
-	"LinesOnScreen": "Line",
-	"ContractedFoldNext": "Line",
-	"LineFromIndexPosition": "Line",
-	"FirstVisibleLine": "Line",
-	"LineCount": "Line",
 	"DirectFunction": "void *",
 	"DirectPointer": "void *",
 	"DocPointer": "void *",
