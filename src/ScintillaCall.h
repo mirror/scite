@@ -576,9 +576,9 @@ public:
 	void AutoCSetOrder(API::Ordering order);
 	API::Ordering AutoCGetOrder();
 	void Allocate(Position bytes);
-	int TargetAsUTF8(char *s);
+	Position TargetAsUTF8(char *s);
 	void SetLengthForEncode(Position bytes);
-	int EncodedFromUTF8(const char *utf8, char *encoded);
+	Position EncodedFromUTF8(const char *utf8, char *encoded);
 	Position FindColumn(Line line, Position column);
 	API::CaretSticky CaretSticky();
 	void SetCaretSticky(API::CaretSticky useCaretStickyBehaviour);
@@ -666,9 +666,9 @@ public:
 	void SetSelectionNAnchor(int selection, Position anchor);
 	Position SelectionNAnchor(int selection);
 	void SetSelectionNCaretVirtualSpace(int selection, Position space);
-	int SelectionNCaretVirtualSpace(int selection);
+	Position SelectionNCaretVirtualSpace(int selection);
 	void SetSelectionNAnchorVirtualSpace(int selection, Position space);
-	int SelectionNAnchorVirtualSpace(int selection);
+	Position SelectionNAnchorVirtualSpace(int selection);
 	void SetSelectionNStart(int selection, Position anchor);
 	Position SelectionNStart(int selection);
 	void SetSelectionNEnd(int selection, Position caret);
@@ -678,9 +678,9 @@ public:
 	void SetRectangularSelectionAnchor(Position anchor);
 	Position RectangularSelectionAnchor();
 	void SetRectangularSelectionCaretVirtualSpace(Position space);
-	int RectangularSelectionCaretVirtualSpace();
+	Position RectangularSelectionCaretVirtualSpace();
 	void SetRectangularSelectionAnchorVirtualSpace(Position space);
-	int RectangularSelectionAnchorVirtualSpace();
+	Position RectangularSelectionAnchorVirtualSpace();
 	void SetVirtualSpaceOptions(API::VirtualSpace virtualSpaceOptions);
 	API::VirtualSpace VirtualSpaceOptions();
 	void SetRectangularSelectionModifier(int modifier);

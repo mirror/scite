@@ -2230,16 +2230,16 @@ void ScintillaCall::Allocate(Position bytes) {
 	Call(Message::Allocate, bytes);
 }
 
-int ScintillaCall::TargetAsUTF8(char *s) {
-	return static_cast<int>(CallPointer(Message::TargetAsUTF8, 0, s));
+Position ScintillaCall::TargetAsUTF8(char *s) {
+	return CallPointer(Message::TargetAsUTF8, 0, s);
 }
 
 void ScintillaCall::SetLengthForEncode(Position bytes) {
 	Call(Message::SetLengthForEncode, bytes);
 }
 
-int ScintillaCall::EncodedFromUTF8(const char *utf8, char *encoded) {
-	return static_cast<int>(CallPointer(Message::EncodedFromUTF8, reinterpret_cast<uintptr_t>(utf8), encoded));
+Position ScintillaCall::EncodedFromUTF8(const char *utf8, char *encoded) {
+	return CallPointer(Message::EncodedFromUTF8, reinterpret_cast<uintptr_t>(utf8), encoded);
 }
 
 Position ScintillaCall::FindColumn(Line line, Position column) {
@@ -2590,16 +2590,16 @@ void ScintillaCall::SetSelectionNCaretVirtualSpace(int selection, Position space
 	Call(Message::SetSelectionNCaretVirtualSpace, selection, space);
 }
 
-int ScintillaCall::SelectionNCaretVirtualSpace(int selection) {
-	return static_cast<int>(Call(Message::GetSelectionNCaretVirtualSpace, selection));
+Position ScintillaCall::SelectionNCaretVirtualSpace(int selection) {
+	return Call(Message::GetSelectionNCaretVirtualSpace, selection);
 }
 
 void ScintillaCall::SetSelectionNAnchorVirtualSpace(int selection, Position space) {
 	Call(Message::SetSelectionNAnchorVirtualSpace, selection, space);
 }
 
-int ScintillaCall::SelectionNAnchorVirtualSpace(int selection) {
-	return static_cast<int>(Call(Message::GetSelectionNAnchorVirtualSpace, selection));
+Position ScintillaCall::SelectionNAnchorVirtualSpace(int selection) {
+	return Call(Message::GetSelectionNAnchorVirtualSpace, selection);
 }
 
 void ScintillaCall::SetSelectionNStart(int selection, Position anchor) {
@@ -2638,16 +2638,16 @@ void ScintillaCall::SetRectangularSelectionCaretVirtualSpace(Position space) {
 	Call(Message::SetRectangularSelectionCaretVirtualSpace, space);
 }
 
-int ScintillaCall::RectangularSelectionCaretVirtualSpace() {
-	return static_cast<int>(Call(Message::GetRectangularSelectionCaretVirtualSpace));
+Position ScintillaCall::RectangularSelectionCaretVirtualSpace() {
+	return Call(Message::GetRectangularSelectionCaretVirtualSpace);
 }
 
 void ScintillaCall::SetRectangularSelectionAnchorVirtualSpace(Position space) {
 	Call(Message::SetRectangularSelectionAnchorVirtualSpace, space);
 }
 
-int ScintillaCall::RectangularSelectionAnchorVirtualSpace() {
-	return static_cast<int>(Call(Message::GetRectangularSelectionAnchorVirtualSpace));
+Position ScintillaCall::RectangularSelectionAnchorVirtualSpace() {
+	return Call(Message::GetRectangularSelectionAnchorVirtualSpace);
 }
 
 void ScintillaCall::SetVirtualSpaceOptions(API::VirtualSpace virtualSpaceOptions) {
