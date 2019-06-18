@@ -2103,6 +2103,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_YAML_TEXT",7},
 	{"SCFIND_CXX11REGEX",0x00800000},
 	{"SCFIND_MATCHCASE",0x4},
+	{"SCFIND_NONE",0x0},
 	{"SCFIND_POSIX",0x00400000},
 	{"SCFIND_REGEXP",0x00200000},
 	{"SCFIND_WHOLEWORD",0x2},
@@ -2851,6 +2852,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_MOD_INSERTCHECK",0x100000},
 	{"SC_MOD_INSERTTEXT",0x1},
 	{"SC_MOD_LEXERSTATE",0x80000},
+	{"SC_MOD_NONE",0x0},
 	{"SC_MULTIAUTOC_EACH",1},
 	{"SC_MULTIAUTOC_ONCE",0},
 	{"SC_MULTILINEUNDOREDO",0x1000},
@@ -2926,6 +2928,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"STYLE_LINENUMBER",33},
 	{"STYLE_MAX",255},
 	{"UNDO_MAY_COALESCE",1},
+	{"UNDO_NONE",0},
 	{"VISIBLE_SLOP",0x01},
 	{"VISIBLE_STRICT",0x04}
 };
@@ -3479,7 +3482,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 309,
-	ifaceConstantCount = 2805,
+	ifaceConstantCount = 2808,
 	ifacePropertyCount = 232
 };
 
