@@ -13,6 +13,7 @@ enum IFaceType {
 	iface_int,
 	iface_length,
 	iface_position,
+	iface_line,
 	iface_colour,
 	iface_bool,
 	iface_keymod,

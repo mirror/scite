@@ -114,8 +114,8 @@ properties - a sorted list of (name, property), where property is a
 
 		if isok:
 			# do the types appear to be useable?  THIS IS OVERRIDDEN BELOW
-			isok = (propType in ('int', 'position', 'colour', 'bool', 'string', 'stringresult')
-				and propIndex in ('void','int','position','string','bool'))
+			isok = (propType in ('int', 'position', 'line', 'colour', 'bool', 'string', 'stringresult')
+				and propIndex in ('void','int','position','line','string','bool'))
 
 			# getters on string properties follow a different protocol with this signature
 			# for a string getter and setter:
@@ -216,11 +216,11 @@ def printIFaceTableCXXFile(faceAndIDs):
 
 			returnType = features["ReturnType"]
 
-			# Fix-up: if a param is an int named length, change to iface_type_length.
-			if features["Param1Type"] == "int" and features["Param1Name"] == "length":
+			# Fix-up: if a param is an int (or position) named length, change to iface_type_length.
+			if features["Param1Type"] in ["int", "position"] and features["Param1Name"] == "length":
 				paramTypes[0] = "length"
 
-			if features["Param2Type"] == "int" and features["Param2Name"] == "length":
+			if features["Param2Type"] in ["int", "position"] and features["Param2Name"] == "length":
 				paramTypes[1] = "length"
 
 			out.append('\t{"%s", %s, iface_%s, {iface_%s, iface_%s}}%s' % (
