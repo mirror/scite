@@ -53,116 +53,10 @@ basicTypes = [
 namespace = "API::"
 
 def ActualTypeName(type, identifier=None):
-	if identifier in enumArgNames:
-		return namespace + enumArgNames[identifier]
 	if type in typeAliases:
 		return typeAliases[type]
 	else:
 		return type
-
-returningMethods = {
-	"ViewWS": "WhiteSpace",
-	"TabDrawMode": "TabDrawMode",
-	"EOLMode": "EndOfLine",
-	"IMEInteraction": "IMEInteraction",
-	"StyleGetCase": "CaseVisible",
-	"StyleGetCharacterSet": "CharacterSet",
-	"StyleGetWeight": "FontWeight",
-	"SelAlpha": "Alpha",
-	"AdditionalSelAlpha": "Alpha",
-	"IndicGetStyle": "IndicatorStyle",
-	"IndicGetHoverStyle": "IndicatorStyle",
-	"IndicGetFlags": "IndicFlag",
-	"IndicGetAlpha": "Alpha",
-	"IndicGetOutlineAlpha": "Alpha",
-	"HighlightGuide": "Position",
-	"IndentationGuides": "IndentView",
-	"PrintColourMode": "PrintOption",
-	"SearchFlags": "FindOption",
-	"FoldLevel": "FoldLevel",
-	"FoldDisplayTextGetStyle": "FoldDisplayTextStyle",
-	"AutomaticFold": "AutomaticFold",
-	"IdleStyling": "IdleStyling",
-	"WrapMode": "Wrap",
-	"WrapVisualFlags": "WrapVisualFlag",
-	"WrapVisualFlagsLocation": "WrapVisualLocation",
-	"WrapIndentMode": "WrapIndentMode",
-	"LayoutCache": "LineCache",
-	"PhasesDraw": "PhasesDraw",
-	"FontQuality": "FontQuality",
-	"MultiPaste": "MultiPaste",
-	"Accessibility": "Accessibility",
-	"EdgeMode": "EdgeVisualStyle",
-	"DocumentOptions": "DocumentOption",
-	"ModEventMask": "ModificationFlags",
-	"Status": "Status",
-	"Cursor": "CursorShape",
-	"PrintWrapMode": "Wrap",
-	"SelectionMode": "SelectionMode",
-	"AutoCGetCaseInsensitiveBehaviour": "CaseInsensitiveBehaviour",
-	"AutoCGetMulti": "MultiAutoComplete",
-	"AutoCGetOrder": "Ordering",
-	"CaretSticky": "CaretSticky",
-	"CaretLineBackAlpha": "Alpha",
-	"CaretStyle": "CaretStyle",
-	"MarginOptions": "MarginOption",
-	"AnnotationGetVisible": "AnnotationVisible",
-	"VirtualSpaceOptions": "VirtualSpace",
-	"Technology": "Technology",
-	"LineEndTypesAllowed": "LineEndType",
-	"LineEndTypesActive": "LineEndType",
-	"PropertyType": "TypeProperty",
-	"Bidirectional": "Bidirectional",
-	"LineCharacterIndex": "LineCharacterIndexType",
-}
-
-enumArgNames = {
-	"weight": "FontWeight",
-	"viewWS": "WhiteSpace",
-	"tabDrawMode": "TabDrawMode",
-	"eolMode": "EndOfLine",
-	"imeInteraction": "IMEInteraction",
-	"caseVisible": "CaseVisible",
-	"markerSymbol": "MarkerSymbol",
-	"indentView": "IndentView",
-	"mode": "PrintOption",
-	"searchFlags": "FindOption",
-	"indicatorStyle": "IndicatorStyle",
-	"action": "FoldAction",
-	"automaticFold": "AutomaticFold",
-	"level": "FoldLevel",
-	"idleStyling": "IdleStyling",
-	"wrapMode": "Wrap",
-	"wrapVisualFlags": "WrapVisualFlag",
-	"wrapVisualFlagsLocation": "WrapVisualLocation",
-	"wrapIndentMode": "WrapIndentMode",
-	"cacheMode": "LineCache",
-	"phases": "PhasesDraw",
-	"fontQuality": "FontQuality",
-	"multiPaste": "MultiPaste",
-	"accessibility": "Accessibility",
-	"eventMask": "ModificationFlags",
-	"edgeMode": "EdgeVisualStyle",
-	"popUpMode": "PopUp",
-	"status": "Status",
-	"cursorType": "CursorShape",
-	"visiblePolicy": "VisiblePolicy",
-	"caretPolicy": "CaretPolicy",
-	"selectionMode": "SelectionMode",
-	"behaviour": "CaseInsensitiveBehaviour",
-	"multi": "MultiAutoComplete",
-	"order": "Ordering",
-	"useCaretStickyBehaviour": "CaretSticky",
-	"alpha": "Alpha",
-	"caretStyle": "CaretStyle",
-	"marginOptions": "MarginOption",
-	"virtualSpaceOptions": "VirtualSpace",
-	"technology": "Technology",
-	"lineEndBitSet": "LineEndType",
-	"documentOptions": "DocumentOption",
-	"bidirectional": "Bidirectional",
-	"lineCharacterIndex": "LineCharacterIndexType",
-}
 
 enumerationAliases = {
 	# Provide hard coded segmented versions of the enumerations
@@ -296,15 +190,6 @@ enumerationAliases = {
 	"SC_AC_FILLUP": "FILL_UP",
 	"SC_AC_DOUBLECLICK": "DOUBLE_CLICK",
 }
-
-def AugmentFace(f):
-	# These would be ambiguous if changed globally so edit the API definition directly
-	f.features["StyleSetCharacterSet"]["Param2Type"] = "CharacterSet"
-	f.features["IndicSetFlags"]["Param2Type"] = "IndicFlag"
-	f.features["FoldDisplayTextSetStyle"]["Param1Type"] = "FoldDisplayTextStyle"
-	f.features["SetFoldFlags"]["Param1Type"] = "FoldFlag"
-	f.features["AnnotationSetVisible"]["Param1Type"] = "AnnotationVisible"
-	f.features["AddUndoAction"]["Param2Type"] = "UndoFlags"
 
 def IsEnumeration(s):
 	if s in ["Position", "Line", "Colour"]:
@@ -457,8 +342,6 @@ def HMethods(f):
 				if v["FeatureType"] == "get" and name.startswith("Get"):
 					name = name[len("Get"):]
 				retType = ActualTypeName(v["ReturnType"])
-				if name in returningMethods:
-					retType = returningMethods[name]
 				if IsEnumeration(retType):
 					retType = namespace + retType
 				parameters, args, callName = ParametersArgsCallname(v)
@@ -476,8 +359,6 @@ def CXXMethods(f):
 				if v["FeatureType"] == "get" and name.startswith("Get"):
 					name = name[len("Get"):]
 				retType = ActualTypeName(v["ReturnType"])
-				if name in returningMethods:
-					retType = returningMethods[name]
 				parameters, args, callName = ParametersArgsCallname(v)
 				returnIfNeeded = "return " if retType != "void" else ""
 
@@ -501,7 +382,6 @@ def CXXMethods(f):
 def RegenerateAll(root):
 	f = Face.Face()
 	f.ReadFromFile(root + "../scintilla/" + "include/Scintilla.iface")
-	AugmentFace(f)
 	Regenerate(root + "src/ScintillaMessages.h", "//", HMessages(f))
 	Regenerate(root + "src/ScintillaTypes.h", "//", HEnumerations(f), HConstants(f))
 	Regenerate(root + "src/ScintillaCall.h", "//", HMethods(f))
