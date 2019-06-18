@@ -170,10 +170,17 @@ enum class IndicatorStyle {
 	PointCharacter = 19,
 	Gradient = 20,
 	GradientCentre = 21,
+	Container = 8,
 	Ime = 32,
 	ImeMax = 35,
 	Max = 35,
+};
+
+enum class IndicatorNumbers {
 	Container = 8,
+	Ime = 32,
+	ImeMax = 35,
+	Max = 35,
 };
 
 enum class IndicValue {
@@ -572,10 +579,6 @@ constexpr int MarkerMax = 31;
 constexpr int MaskFolders = 0xFE000000;
 constexpr int MaxMargin = 4;
 constexpr int FontSizeMultiplier = 100;
-constexpr int Indic0Mask = 0x20;
-constexpr int Indic1Mask = 0x40;
-constexpr int Indic2Mask = 0x80;
-constexpr int IndicsMask = 0xE0;
 constexpr int TimeForever = 10000000;
 constexpr int KeywordsetMax = 8;
 
