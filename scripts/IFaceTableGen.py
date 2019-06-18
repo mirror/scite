@@ -114,7 +114,7 @@ properties - a sorted list of (name, property), where property is a
 
 		if isok:
 			# do the types appear to be useable?  THIS IS OVERRIDDEN BELOW
-			isok = (propType in ('int', 'position', 'line', 'colour', 'bool', 'string', 'stringresult')
+			isok = (propType in ('int', 'position', 'line', 'pointer', 'colour', 'bool', 'string', 'stringresult')
 				and propIndex in ('void','int','position','line','string','bool'))
 
 			# getters on string properties follow a different protocol with this signature

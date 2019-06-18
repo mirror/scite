@@ -14,6 +14,7 @@ enum IFaceType {
 	iface_length,
 	iface_position,
 	iface_line,
+	iface_pointer,
 	iface_colour,
 	iface_bool,
 	iface_keymod,
