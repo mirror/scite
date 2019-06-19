@@ -131,7 +131,7 @@ enum class CharacterSet {
 	Arabic = 178,
 	Vietnamese = 163,
 	Thai = 222,
-	ISO885915 = 1000,
+	ISO8859_15 = 1000,
 };
 
 enum class CaseVisible {

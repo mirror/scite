@@ -18,7 +18,21 @@ def IsNumeric(s):
 	return all((c in "1234567890_") for c in s)
 
 def PascalCase(s):
-	return s.title().replace("_", "")
+	capitalized = s.title()
+	# Remove '_' except between digits
+	pascalCase = ""
+	characterPrevious = " "
+	# Loop until penultimate character
+	for i in range(len(capitalized)-1):
+		character = capitalized[i]
+		characterNext = capitalized[i+1]
+		if character != "_" or (
+			characterPrevious.isnumeric() and characterNext.isnumeric()):
+			pascalCase += character
+		characterPrevious = character
+	# Add last character - not between digits so no special treatment
+	pascalCase += capitalized[-1]
+	return pascalCase
 
 typeAliases = {
 	# Convert iface types to C++ types
