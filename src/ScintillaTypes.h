@@ -70,7 +70,7 @@ enum class MarkerSymbol {
 	LeftRect = 27,
 	Available = 28,
 	Underline = 29,
-	RGBAImage = 30,
+	RgbaImage = 30,
 	Bookmark = 31,
 	VerticalBookmark = 32,
 	Character = 10000,
@@ -119,11 +119,11 @@ enum class CharacterSet {
 	Greek = 161,
 	Hangul = 129,
 	Mac = 77,
-	OEM = 255,
+	Oem = 255,
 	Russian = 204,
-	OEM866 = 866,
+	Oem866 = 866,
 	Cyrillic = 1251,
-	ShiftJIS = 128,
+	ShiftJis = 128,
 	Symbol = 2,
 	Turkish = 162,
 	Johab = 130,
@@ -131,7 +131,7 @@ enum class CharacterSet {
 	Arabic = 178,
 	Vietnamese = 163,
 	Thai = 222,
-	ISO8859_15 = 1000,
+	Iso8859_15 = 1000,
 };
 
 enum class CaseVisible {
@@ -214,8 +214,8 @@ enum class FindOption {
 	MatchCase = 0x4,
 	WordStart = 0x00100000,
 	RegExp = 0x00200000,
-	POSIX = 0x00400000,
-	CXX11RegEx = 0x00800000,
+	Posix = 0x00400000,
+	Cxx11RegEx = 0x00800000,
 };
 
 enum class FoldLevel {

@@ -926,9 +926,9 @@ SA::FindOption SciTEBase::SearchFlags(bool regularExpressions) const {
 	if (regularExpressions)
 		opt |= SA::FindOption::RegExp;
 	if (props.GetInt("find.replace.regexp.posix"))
-		opt |= SA::FindOption::POSIX;
+		opt |= SA::FindOption::Posix;
 	if (props.GetInt("find.replace.regexp.cpp11"))
-		opt |= SA::FindOption::CXX11RegEx;
+		opt |= SA::FindOption::Cxx11RegEx;
 	return opt;
 }
 
