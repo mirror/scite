@@ -1199,7 +1199,7 @@ void SciTEBase::ReadProperties() {
 	}
 
 	// Create a margin column for the folding symbols
-	wEditor.SetMarginTypeN(2, static_cast<int>(SA::MarginType::Symbol));
+	wEditor.SetMarginTypeN(2, SA::MarginType::Symbol);
 
 	foldMarginWidth = props.GetInt("fold.margin.width");
 	if (foldMarginWidth == 0)

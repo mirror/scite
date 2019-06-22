@@ -370,12 +370,12 @@ void ScintillaCall::MarkerSetAlpha(int markerNumber, API::Alpha alpha) {
 	Call(Message::MarkerSetAlpha, markerNumber, static_cast<intptr_t>(alpha));
 }
 
-void ScintillaCall::SetMarginTypeN(int margin, int marginType) {
-	Call(Message::SetMarginTypeN, margin, marginType);
+void ScintillaCall::SetMarginTypeN(int margin, API::MarginType marginType) {
+	Call(Message::SetMarginTypeN, margin, static_cast<intptr_t>(marginType));
 }
 
-int ScintillaCall::MarginTypeN(int margin) {
-	return static_cast<int>(Call(Message::GetMarginTypeN, margin));
+MarginType ScintillaCall::MarginTypeN(int margin) {
+	return static_cast<API::MarginType>(Call(Message::GetMarginTypeN, margin));
 }
 
 void ScintillaCall::SetMarginWidthN(int margin, int pixelWidth) {
@@ -402,12 +402,12 @@ bool ScintillaCall::MarginSensitiveN(int margin) {
 	return Call(Message::GetMarginSensitiveN, margin);
 }
 
-void ScintillaCall::SetMarginCursorN(int margin, int cursor) {
-	Call(Message::SetMarginCursorN, margin, cursor);
+void ScintillaCall::SetMarginCursorN(int margin, API::CursorShape cursor) {
+	Call(Message::SetMarginCursorN, margin, static_cast<intptr_t>(cursor));
 }
 
-int ScintillaCall::MarginCursorN(int margin) {
-	return static_cast<int>(Call(Message::GetMarginCursorN, margin));
+CursorShape ScintillaCall::MarginCursorN(int margin) {
+	return static_cast<API::CursorShape>(Call(Message::GetMarginCursorN, margin));
 }
 
 void ScintillaCall::SetMarginBackN(int margin, Colour back) {
@@ -1038,7 +1038,7 @@ Position ScintillaCall::PositionFromLine(Line line) {
 	return Call(Message::PositionFromLine, line);
 }
 
-void ScintillaCall::LineScroll(int columns, Line lines) {
+void ScintillaCall::LineScroll(Position columns, Line lines) {
 	Call(Message::LineScroll, columns, lines);
 }
 

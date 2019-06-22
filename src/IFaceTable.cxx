@@ -3091,7 +3091,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"LineFromPosition", 2166, iface_line, {iface_position, iface_void}},
 	{"LineLength", 2350, iface_position, {iface_line, iface_void}},
 	{"LineReverse", 2354, iface_void, {iface_void, iface_void}},
-	{"LineScroll", 2168, iface_void, {iface_int, iface_line}},
+	{"LineScroll", 2168, iface_void, {iface_position, iface_line}},
 	{"LineScrollDown", 2342, iface_void, {iface_void, iface_void}},
 	{"LineScrollUp", 2343, iface_void, {iface_void, iface_void}},
 	{"LineTranspose", 2339, iface_void, {iface_void, iface_void}},
