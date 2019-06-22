@@ -45,12 +45,11 @@ cd ../../..
 
 cd scintilla/gtk
 make clean
-make $JOBS CHECK_DEPRECATED=1
+make $JOBS
 cd ../..
 
 cd scite/gtk
 make clean
-# Don't bother with CHECK_DEPRECATED on SciTE as the GTK+ 3.x code path fixes the deprecations
 make $JOBS
 cd ../..
 
@@ -58,12 +57,12 @@ cd ../..
 # Target 2: gcc build for GTK+ 3
 cd scintilla/gtk
 make clean
-make $JOBS GTK3=1 CHECK_DEPRECATED=1
+make $JOBS GTK3=1
 cd ../..
 
 cd scite/gtk
 make clean
-make $JOBS GTK3=1 CHECK_DEPRECATED=1
+make $JOBS GTK3=1
 cd ../..
 
 # ************************************************************
@@ -111,12 +110,11 @@ cd ../..
 # Target 4: clang build for GTK+ 2
 cd scintilla/gtk
 make clean
-make $JOBS CLANG=1 CHECK_DEPRECATED=1
+make $JOBS CLANG=1
 cd ../..
 
 cd scite/gtk
 make clean
-# Don't bother with CHECK_DEPRECATED on SciTE as the GTK+ 3.x code path fixes the deprecations
 make $JOBS CLANG=1
 cd ../..
 
@@ -124,19 +122,19 @@ cd ../..
 # Target 5: clang build for GTK+ 3
 cd scintilla/gtk
 make clean
-make $JOBS CLANG=1 GTK3=1 CHECK_DEPRECATED=1
+make $JOBS CLANG=1 GTK3=1
 cd ../..
 
 cd scite/gtk
 make clean
-make $JOBS CLANG=1 GTK3=1 CHECK_DEPRECATED=1
+make $JOBS CLANG=1 GTK3=1
 cd ../..
 
 # ************************************************************
 # Target 6: clang analyze for GTK+ 2
 cd scintilla/gtk
 make clean
-make $JOBS CHECK_DEPRECATED=1 analyze
+make $JOBS analyze
 cd ../..
 
 cd scite/gtk

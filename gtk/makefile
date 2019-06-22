@@ -52,10 +52,7 @@ vpath %.h $(srcdir) $(srcdir)/../src $(srcdir)/../../scintilla/include
 vpath %.cxx $(srcdir) $(srcdir)/../src
 
 INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src
-ifdef CHECK_DEPRECATED
-DEPRECATED=-DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED
-endif
-CXXBASEFLAGS=-W -Wall -pedantic -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS) $(DEPRECATED)
+CXXBASEFLAGS=-W -Wall -pedantic -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
 
 ifdef DEBUG
 CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
