@@ -30,6 +30,9 @@
 # On Fedora 17, qmake is called qmake-qt4 so sepbuild.py should probe for correct name.
 # There are also problems with clang failing in the g++ 4.7 headers.
 
+# Turn off deprecation warnings if not interested:
+#export CXXFLAGS=-Wno-deprecated-declarations
+
 # Run commands in parallel up to number of processors
 JOBS="-j $(getconf _NPROCESSORS_ONLN)"
 
