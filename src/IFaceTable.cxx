@@ -128,11 +128,12 @@ static IFaceConstant ifaceConstants[] = {
 	{"ANNOTATION_INDENTED",3},
 	{"ANNOTATION_STANDARD",1},
 	{"CARETSTYLE_BLOCK",2},
+	{"CARETSTYLE_BLOCK_AFTER",0x100},
 	{"CARETSTYLE_INS_MASK",0xF},
 	{"CARETSTYLE_INVISIBLE",0},
 	{"CARETSTYLE_LINE",1},
 	{"CARETSTYLE_OVERSTRIKE_BAR",0},
-	{"CARETSTYLE_OVERSTRIKE_BLOCK",16},
+	{"CARETSTYLE_OVERSTRIKE_BLOCK",0x10},
 	{"CARET_EVEN",0x08},
 	{"CARET_JUMPS",0x10},
 	{"CARET_SLOP",0x01},
@@ -3482,7 +3483,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 309,
-	ifaceConstantCount = 2808,
+	ifaceConstantCount = 2809,
 	ifacePropertyCount = 232
 };
 
