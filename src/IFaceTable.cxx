@@ -2711,6 +2711,9 @@ static IFaceConstant ifaceConstants[] = {
 	{"SC_CASE_LOWER",2},
 	{"SC_CASE_MIXED",0},
 	{"SC_CASE_UPPER",1},
+	{"SC_CHARACTERSOURCE_DIRECT_INPUT",0},
+	{"SC_CHARACTERSOURCE_IME_RESULT",2},
+	{"SC_CHARACTERSOURCE_TENTATIVE_INPUT",1},
 	{"SC_CHARSET_8859_15",1000},
 	{"SC_CHARSET_ANSI",0},
 	{"SC_CHARSET_ARABIC",178},
@@ -3483,7 +3486,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 309,
-	ifaceConstantCount = 2809,
+	ifaceConstantCount = 2812,
 	ifacePropertyCount = 232
 };
 
