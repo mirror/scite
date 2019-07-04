@@ -403,8 +403,9 @@ enum class CaretStyle {
 	Line = 1,
 	Block = 2,
 	OverstrikeBar = 0,
-	OverstrikeBlock = 16,
+	OverstrikeBlock = 0x10,
 	InsMask = 0xF,
+	BlockAfter = 0x100,
 };
 
 enum class MarginOption {
@@ -521,6 +522,12 @@ enum class CompletionMethods {
 	Tab = 3,
 	Newline = 4,
 	Command = 5,
+};
+
+enum class CharacterSource {
+	DirectInput = 0,
+	TentativeInput = 1,
+	ImeResult = 2,
 };
 
 enum class Bidirectional {
