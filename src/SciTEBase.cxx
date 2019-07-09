@@ -3634,6 +3634,8 @@ void SciTEBase::MenuCommand(int cmdID, int source) {
 			ToolsMenu(cmdID - IDM_TOOLS);
 		} else if (cmdID >= IDM_LANGUAGE && cmdID < IDM_LANGUAGE + 100) {
 			SetOverrideLanguage(cmdID - IDM_LANGUAGE);
+		} else if (cmdID >= SCI_START) {
+			PaneFocused().Call(static_cast<SA::Message>(cmdID));
 		}
 		break;
 	}
