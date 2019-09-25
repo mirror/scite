@@ -384,7 +384,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 		std::string languageOverride = DiscoverLanguage();
 		if (languageOverride.length()) {
 			CurrentBuffer()->overrideExtension = languageOverride;
-			CurrentBuffer()->lifeState = Buffer::open;
+			CurrentBuffer()->lifeState = Buffer::opened;
 			ReadProperties();
 			SetIndentSettings();
 		}
@@ -568,7 +568,7 @@ bool SciTEBase::Open(const FilePath &file, OpenFlags of) {
 	if (buffers.size() == buffers.length) {
 		AddFileToStack(RecentFile(filePath, GetSelectedRange(), GetCurrentScrollPosition()));
 		ClearDocument();
-		CurrentBuffer()->lifeState = Buffer::open;
+		CurrentBuffer()->lifeState = Buffer::opened;
 		if (extender)
 			extender->InitBuffer(buffers.Current());
 	} else {

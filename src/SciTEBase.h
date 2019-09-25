@@ -100,7 +100,7 @@ public:
 	bool isReadOnly;
 	bool failedSave;
 	bool useMonoFont;
-	enum { empty, reading, readAll, open } lifeState;
+	enum { empty, reading, readAll, opened } lifeState;
 	UniMode unicodeMode;
 	time_t fileModTime;
 	time_t fileModLastAsk;
@@ -152,7 +152,7 @@ public:
 	void AbandonAutomaticSave();
 
 	bool ShouldNotSave() const noexcept {
-		return lifeState != open;
+		return lifeState != opened;
 	}
 
 	void CancelLoad();

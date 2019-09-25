@@ -60,7 +60,7 @@ bool Buffer::NeedsSave(int delayBeforeSave) const {
 }
 
 void Buffer::CompleteLoading() noexcept {
-	lifeState = open;
+	lifeState = opened;
 	if (pFileWorker && pFileWorker->IsLoading()) {
 		delete pFileWorker;
 		pFileWorker = nullptr;
@@ -878,7 +878,7 @@ void SciTEBase::New() {
 	SetBuffersMenu();
 	CurrentBuffer()->isDirty = false;
 	CurrentBuffer()->failedSave = false;
-	CurrentBuffer()->lifeState = Buffer::open;
+	CurrentBuffer()->lifeState = Buffer::opened;
 	jobQueue.isBuilding = false;
 	jobQueue.isBuilt = false;
 	CurrentBuffer()->isReadOnly = false;	// No sense to create an empty, read-only buffer...
@@ -940,7 +940,7 @@ void SciTEBase::Close(bool updateUI, bool loadingSession, bool makingRoomForNew)
 		closingLast = (buffers.lengthVisible == 1) && !buffers.buffers[0].pFileWorker;
 		if (closingLast) {
 			buffers.buffers[0].Init();
-			buffers.buffers[0].lifeState = Buffer::open;
+			buffers.buffers[0].lifeState = Buffer::opened;
 			if (extender)
 				extender->InitBuffer(0);
 		} else {
@@ -1256,7 +1256,7 @@ bool SciTEBase::AddFileToBuffer(const BufferState &bufferState) {
 				buffers.buffers[iBuffer].file.selection = bufferState.file.selection;
 				buffers.buffers[iBuffer].foldState = bufferState.foldState;
 				buffers.buffers[iBuffer].bookmarks = bufferState.bookmarks;
-				if (buffers.buffers[iBuffer].lifeState == Buffer::open) {
+				if (buffers.buffers[iBuffer].lifeState == Buffer::opened) {
 					// File was opened synchronously
 					RestoreState(buffers.buffers[iBuffer], true);
 					DisplayAround(buffers.buffers[iBuffer].file);
