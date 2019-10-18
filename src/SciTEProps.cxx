@@ -485,6 +485,7 @@ static const char *propertiesToForward[] = {
 	"fold.sql.at.else",
 	"fold.sql.only.begin",
 	"fold.verilog.flags",
+	"fold.xml.at.tag.open",
 	"html.tags.case.sensitive",
 	"lexer.asm.comment.delimiter",
 	"lexer.baan.styling.within.preprocessor",
