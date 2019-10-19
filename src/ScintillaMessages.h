@@ -57,6 +57,8 @@ enum class Message {
 	SetBufferedDraw = 2035,
 	SetTabWidth = 2036,
 	GetTabWidth = 2121,
+	SetTabMinimumWidth = 2724,
+	GetTabMinimumWidth = 2725,
 	ClearTabStops = 2675,
 	AddTabStop = 2676,
 	GetNextTabStop = 2677,

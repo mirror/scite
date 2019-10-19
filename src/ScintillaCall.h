@@ -91,6 +91,8 @@ public:
 	void SetBufferedDraw(bool buffered);
 	void SetTabWidth(int tabWidth);
 	int TabWidth();
+	void SetTabMinimumWidth(int pixels);
+	int TabMinimumWidth();
 	void ClearTabStops(Line line);
 	void AddTabStop(Line line, int x);
 	int GetNextTabStop(Line line, int x);

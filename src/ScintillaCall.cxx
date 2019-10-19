@@ -300,6 +300,14 @@ int ScintillaCall::TabWidth() {
 	return static_cast<int>(Call(Message::GetTabWidth));
 }
 
+void ScintillaCall::SetTabMinimumWidth(int pixels) {
+	Call(Message::SetTabMinimumWidth, pixels);
+}
+
+int ScintillaCall::TabMinimumWidth() {
+	return static_cast<int>(Call(Message::GetTabMinimumWidth));
+}
+
 void ScintillaCall::ClearTabStops(Line line) {
 	Call(Message::ClearTabStops, line);
 }
