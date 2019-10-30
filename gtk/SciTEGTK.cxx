@@ -596,7 +596,7 @@ protected:
 	void ResetExecution();
 
 	void OpenUriList(const char *list) override;
-	bool OpenDialog(const FilePath &directory, const char *filter) override;
+	bool OpenDialog(const FilePath &directory, const char *filesFilter) override;
 	bool HandleSaveAs(const char *savePath);
 	bool SaveAsXXX(FileFormat fmt, const char *title, const char *ext=0);
 	bool SaveAsDialog() override;
@@ -1487,7 +1487,7 @@ void SciTEGTK::OpenUriList(const char *list) {
 #define SCITE_STOCK_OK GTK_STOCK_OK
 #endif
 
-bool SciTEGTK::OpenDialog(const FilePath &directory, const char *filter) {
+bool SciTEGTK::OpenDialog(const FilePath &directory, const char *filesFilter) {
 	bool canceled = true;
 	if (!dlgFileSelector.Created()) {
 		GtkWidget *dlg = gtk_file_chooser_dialog_new(
@@ -1501,7 +1501,7 @@ bool SciTEGTK::OpenDialog(const FilePath &directory, const char *filter) {
 		gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_ACCEPT);
 		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dlg), directory.AsInternal());
 
-		std::string openFilter = filter;
+		std::string openFilter = filesFilter;
 		if (openFilter.length()) {
 			std::replace(openFilter.begin(), openFilter.end(), '|', '\0');
 			size_t start = 0;
@@ -1515,17 +1515,17 @@ bool SciTEGTK::OpenDialog(const FilePath &directory, const char *filter) {
 				if (openFilter.c_str()[start] == '#') {
 					start += strlen(openFilter.c_str() + start) + 1;
 				} else {
-					GtkFileFilter *filter = gtk_file_filter_new();
-					gtk_file_filter_set_name(filter, openFilter.c_str() + start);
+					GtkFileFilter *fileFilter = gtk_file_filter_new();
+					gtk_file_filter_set_name(fileFilter, openFilter.c_str() + start);
 					start += strlen(openFilter.c_str() + start) + 1;
 					std::string oneSet(openFilter.c_str() + start);
 					std::replace(oneSet.begin(), oneSet.end(), ';', '\0');
 					size_t item = 0;
 					while (item < oneSet.length()) {
-						gtk_file_filter_add_pattern(filter, oneSet.c_str() + item);
+						gtk_file_filter_add_pattern(fileFilter, oneSet.c_str() + item);
 						item += strlen(oneSet.c_str() + item) + 1;
 					}
-					gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), filter);
+					gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), fileFilter);
 				}
 				start += strlen(openFilter.c_str() + start) + 1;
 			}
