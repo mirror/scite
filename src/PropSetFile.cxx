@@ -62,7 +62,7 @@ bool ImportFilter::IsValid(const std::string &name) const {
 
 bool PropSetFile::caseSensitiveFilenames = false;
 
-PropSetFile::PropSetFile(bool lowerKeys_) noexcept : lowerKeys(lowerKeys_), superPS(nullptr) {
+PropSetFile::PropSetFile(bool lowerKeys_) : lowerKeys(lowerKeys_), superPS(nullptr) {
 }
 
 PropSetFile::PropSetFile(const PropSetFile &copy) : lowerKeys(copy.lowerKeys), props(copy.props), superPS(copy.superPS) {

@@ -28,7 +28,7 @@ class PropSetFile {
 	mapss props;
 public:
 	PropSetFile *superPS;
-	explicit PropSetFile(bool lowerKeys_=false) noexcept;
+	explicit PropSetFile(bool lowerKeys_=false);
 	PropSetFile(const PropSetFile &copy);
 	PropSetFile &operator=(const PropSetFile &assign);
 	virtual ~PropSetFile();
