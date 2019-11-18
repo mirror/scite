@@ -1156,12 +1156,28 @@ Position ScintillaCall::TargetStart() {
 	return Call(Message::GetTargetStart);
 }
 
+void ScintillaCall::SetTargetStartVirtualSpace(Position space) {
+	Call(Message::SetTargetStartVirtualSpace, space);
+}
+
+Position ScintillaCall::TargetStartVirtualSpace() {
+	return Call(Message::GetTargetStartVirtualSpace);
+}
+
 void ScintillaCall::SetTargetEnd(Position end) {
 	Call(Message::SetTargetEnd, end);
 }
 
 Position ScintillaCall::TargetEnd() {
 	return Call(Message::GetTargetEnd);
+}
+
+void ScintillaCall::SetTargetEndVirtualSpace(Position space) {
+	Call(Message::SetTargetEndVirtualSpace, space);
+}
+
+Position ScintillaCall::TargetEndVirtualSpace() {
+	return Call(Message::GetTargetEndVirtualSpace);
 }
 
 void ScintillaCall::SetTargetRange(Position start, Position end) {
@@ -2628,8 +2644,16 @@ Position ScintillaCall::SelectionNStart(int selection) {
 	return Call(Message::GetSelectionNStart, selection);
 }
 
+Position ScintillaCall::SelectionNStartVirtualSpace(int selection) {
+	return Call(Message::GetSelectionNStartVirtualSpace, selection);
+}
+
 void ScintillaCall::SetSelectionNEnd(int selection, Position caret) {
 	Call(Message::SetSelectionNEnd, selection, caret);
+}
+
+Position ScintillaCall::SelectionNEndVirtualSpace(int selection) {
+	return Call(Message::GetSelectionNEndVirtualSpace, selection);
 }
 
 Position ScintillaCall::SelectionNEnd(int selection) {

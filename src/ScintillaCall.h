@@ -305,8 +305,12 @@ public:
 	int CaretWidth();
 	void SetTargetStart(Position start);
 	Position TargetStart();
+	void SetTargetStartVirtualSpace(Position space);
+	Position TargetStartVirtualSpace();
 	void SetTargetEnd(Position end);
 	Position TargetEnd();
+	void SetTargetEndVirtualSpace(Position space);
+	Position TargetEndVirtualSpace();
 	void SetTargetRange(Position start, Position end);
 	Position TargetText(char *text);
 	void TargetFromSelection();
@@ -673,7 +677,9 @@ public:
 	Position SelectionNAnchorVirtualSpace(int selection);
 	void SetSelectionNStart(int selection, Position anchor);
 	Position SelectionNStart(int selection);
+	Position SelectionNStartVirtualSpace(int selection);
 	void SetSelectionNEnd(int selection, Position caret);
+	Position SelectionNEndVirtualSpace(int selection);
 	Position SelectionNEnd(int selection);
 	void SetRectangularSelectionCaret(Position caret);
 	Position RectangularSelectionCaret();

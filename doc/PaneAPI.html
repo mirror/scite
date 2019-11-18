@@ -122,7 +122,9 @@
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETLENGTHFORENCODE'>SetLengthForEncode</a>(position bytes)<span class="comment"> -- Set the length of the utf8 argument for calling EncodedFromUTF8. Set to -1 and the string will be measured to the first nul.</span></p>
 	<h2>Searching</h2>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETSTART'>TargetStart</a><span class="comment"> -- Sets the position that starts the target which is used for updating the document without affecting the scroll position.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETSTARTVIRTUALSPACE'>TargetStartVirtualSpace</a><span class="comment"> -- Sets the virtual space of the target start</span></p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETEND'>TargetEnd</a><span class="comment"> -- Sets the position that ends the target which is used for updating the document without affecting the scroll position.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETENDVIRTUALSPACE'>TargetEndVirtualSpace</a><span class="comment"> -- Sets the virtual space of the target end</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTARGETRANGE'>SetTargetRange</a>(position start, position end)<span class="comment"> -- Sets both the start and end of the target in one call.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TARGETFROMSELECTION'>TargetFromSelection</a>()<span class="comment"> -- Make the target range start and end be the same as the selection range start and end.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TARGETWHOLEDOCUMENT'>TargetWholeDocument</a>()<span class="comment"> -- Sets the target to the whole document.</span></p>
@@ -231,7 +233,9 @@
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNANCHOR'>SelectionNAnchor</a>[int selection]<span class="comment"> -- Set the anchor position of the nth selection.</span></p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNANCHORVIRTUALSPACE'>SelectionNAnchorVirtualSpace</a>[int selection]<span class="comment"> -- Set the virtual space of the anchor of the nth selection.</span></p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNSTART'>SelectionNStart</a>[int selection]<span class="comment"> -- Sets the position that starts the selection - this becomes the anchor.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNSTARTVIRTUALSPACE'>SelectionNStartVirtualSpace</a>[int selection] read-only</p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONNEND'>SelectionNEnd</a>[int selection]<span class="comment"> -- Sets the position that ends the selection - this becomes the currentPosition.</span></p>
+	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETSELECTIONNENDVIRTUALSPACE'>SelectionNEndVirtualSpace</a>[int selection] read-only</p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETRECTANGULARSELECTIONCARET'>RectangularSelectionCaret</a><span class="comment"> -- Set the caret position of the rectangular selection.</span></p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETRECTANGULARSELECTIONCARETVIRTUALSPACE'>RectangularSelectionCaretVirtualSpace</a><span class="comment"> -- Set the virtual space of the caret of the rectangular selection.</span></p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETRECTANGULARSELECTIONANCHOR'>RectangularSelectionAnchor</a><span class="comment"> -- Set the anchor position of the rectangular selection.</span></p>
