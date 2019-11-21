@@ -734,6 +734,15 @@ LRESULT Strip::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	return 0;
 }
 
+void Strip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const {
+	const GUI::gui_string localised = localiser->Text(label);
+	HMENU menu = static_cast<HMENU>(popup.GetID());
+	if (localised.empty())
+		::AppendMenu(menu, MF_SEPARATOR, 0, TEXT(""));
+	else
+		::AppendMenu(menu, MF_STRING | (checked ? MF_CHECKED : 0), cmd, localised.c_str());
+}
+
 void Strip::ShowPopup() {
 }
 
@@ -1153,15 +1162,6 @@ void FindStrip::Next(bool markAll, bool invertDirection) {
 	}
 }
 
-void FindStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const {
-	GUI::gui_string localised = localiser->Text(label);
-	HMENU menu = static_cast<HMENU>(popup.GetID());
-	if (0 == localised.length())
-		::AppendMenu(menu, MF_SEPARATOR, 0, TEXT(""));
-	else
-		::AppendMenu(menu, MF_STRING | (checked ? MF_CHECKED : 0), cmd, localised.c_str());
-}
-
 void FindStrip::ShowPopup() {
 	GUI::Menu popup;
 	popup.CreatePopUp();
@@ -1402,15 +1402,6 @@ bool ReplaceStrip::KeyDown(WPARAM key) {
 		}
 	}
 	return false;
-}
-
-void ReplaceStrip::AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const {
-	GUI::gui_string localised = localiser->Text(label);
-	HMENU menu = static_cast<HMENU>(popup.GetID());
-	if (0 == localised.length())
-		::AppendMenu(menu, MF_SEPARATOR, 0, TEXT(""));
-	else
-		::AppendMenu(menu, MF_STRING | (checked ? MF_CHECKED : 0), cmd, localised.c_str());
 }
 
 void ReplaceStrip::ShowPopup() {

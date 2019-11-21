@@ -20,5 +20,12 @@ duplicateCondition:scite/src/StyleWriter.cxx
 // Doesn't understand Win32 SetClipboardData is not leak
 memleak:scite/win32/SciTEWin.cxx
 
+// AddToPopUp is currently const but is not logically const and may change
+constParameter:scite/win32/Strips.cxx
+constParameter:scite/gtk/Widget.cxx
+
+// Menu::Show for Win32 is not logically const and is implemented differently on different platforms
+constParameter:scite/win32/GUIWin.cxx
+
 // Suppress everything in lua as that comes from the Lua distribution
 *:scite/lua/*

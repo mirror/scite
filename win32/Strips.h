@@ -70,6 +70,7 @@ protected:
 	virtual LRESULT EditColour(HWND hwnd, HDC hdc) noexcept;
 	virtual LRESULT CustomDraw(NMHDR *pnmh) noexcept;
 	LRESULT WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) override;
+	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const;
 	virtual void ShowPopup();
 public:
 	bool visible;
@@ -175,7 +176,6 @@ public:
 	void Focus() noexcept;
 	bool KeyDown(WPARAM key) override;
 	void Next(bool markAll, bool invertDirection);
-	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const;
 	void ShowPopup() override;
 	bool Command(WPARAM wParam) override;
 	void Size() override;
@@ -200,7 +200,6 @@ public:
 	int Lines() const noexcept override;
 	void Focus() noexcept;
 	bool KeyDown(WPARAM key) override;
-	void AddToPopUp(GUI::Menu &popup, const char *label, int cmd, bool checked) const;
 	void ShowPopup() override;
 	void HandleReplaceCommand(int cmd, bool reverseFind = false);
 	bool Command(WPARAM wParam) override;
