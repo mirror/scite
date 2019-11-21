@@ -787,7 +787,7 @@ protected:
 				    const char *separators, bool ignoreCase=false, bool exactLen=false);
 	virtual void FillFunctionDefinition(SA::Position pos = -1);
 	void ContinueCallTip();
-	virtual void EliminateDuplicateWords(std::string &words);
+	std::string EliminateDuplicateWords(const std::string &words);
 	virtual bool StartAutoComplete();
 	virtual bool StartAutoCompleteWord(bool onlyOneWord);
 	virtual bool StartExpandAbbreviation();

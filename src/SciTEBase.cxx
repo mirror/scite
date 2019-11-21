@@ -1618,35 +1618,29 @@ void SciTEBase::ContinueCallTip() {
 	wEditor.CallTipSetHlt(static_cast<int>(startHighlight), static_cast<int>(endHighlight));
 }
 
-void SciTEBase::EliminateDuplicateWords(std::string &words) {
+std::string SciTEBase::EliminateDuplicateWords(const std::string &words) {
 	std::set<std::string> wordSet;
-	std::vector<char> wordsOut(words.length() + 1);
-	char *wordsWrite = &wordsOut[0];
+	std::string wordsOut;
 
-	const char *wordCurrent = words.c_str();
-	while (*wordCurrent) {
-		const char *afterWord = strchr(wordCurrent, ' ');
-		if (!afterWord)
-			afterWord = wordCurrent + strlen(wordCurrent);
-		std::string word(wordCurrent, afterWord);
-		if (wordSet.count(word) == 0) {
-			wordSet.insert(word);
-			if (wordsWrite != &wordsOut[0])
-				*wordsWrite++ = ' ';
-			strcpy(wordsWrite, word.c_str());
-			wordsWrite += word.length();
+	size_t current = 0;
+	while (current < words.length()) {
+		const size_t afterWord = words.find(' ', current);
+		const std::string word(words, current, afterWord - current);
+		std::pair<std::set<std::string>::iterator, bool> result = wordSet.insert(word);
+		if (result.second) {
+			if (!wordsOut.empty())
+				wordsOut += ' ';
+			wordsOut += word;
 		}
-		wordCurrent = afterWord;
-		if (*wordCurrent)
-			wordCurrent++;
+		current = afterWord;
+		if (current < words.length())
+			current++;
 	}
-
-	*wordsWrite = '\0';
-	words = &wordsOut[0];
+	return wordsOut;
 }
 
 bool SciTEBase::StartAutoComplete() {
-	std::string line = GetCurrentLine();
+	const std::string line = GetCurrentLine();
 	const SA::Position current = GetCaretInLine();
 
 	SA::Position startword = current;
@@ -1657,14 +1651,14 @@ bool SciTEBase::StartAutoComplete() {
 		startword--;
 	}
 
-	std::string root = line.substr(startword, current - startword);
+	const std::string root = line.substr(startword, current - startword);
 	if (apis) {
-		std::string words = GetNearestWords(root.c_str(), root.length(),
+		const std::string words = GetNearestWords(root.c_str(), root.length(),
 						    calltipParametersStart.c_str(), autoCompleteIgnoreCase);
-		if (words.length()) {
-			EliminateDuplicateWords(words);
+		if (!words.empty()) {
+			std::string wordsUnique = EliminateDuplicateWords(words);
 			wEditor.AutoCSetSeparator(' ');
-			wEditor.AutoCShow(root.length(), words.c_str());
+			wEditor.AutoCShow(wordsUnique.length(), wordsUnique.c_str());
 		}
 	}
 	return true;
