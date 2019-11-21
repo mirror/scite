@@ -114,7 +114,7 @@ static GdkWindow *WindowFromWidget(GtkWidget *w) {
 
 const char appName[] = "SciTE";
 
-static GtkWidget *PWidget(GUI::Window &w) {
+static GtkWidget *PWidget(const GUI::Window &w) {
 	return static_cast<GtkWidget *>(w.GetID());
 }
 
