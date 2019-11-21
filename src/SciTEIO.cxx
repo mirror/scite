@@ -955,13 +955,13 @@ public:
 
 private:
 	struct Position {
-		Position(SA::Position pos_, SA::Position virt_ = 0) : pos(pos_), virt(virt_) {};
+		Position(SA::Position pos_, SA::Position virt_) noexcept : pos(pos_), virt(virt_) {};
 		SA::Position pos;
 		SA::Position virt;
 	};
 
 	struct Location {
-		Location(SA::Line line_, SA::Position col_) : line(line_), col(col_) {};
+		Location(SA::Line line_, SA::Position col_) noexcept : line(line_), col(col_) {};
 		SA::Line line;
 		SA::Position col;
 	};
