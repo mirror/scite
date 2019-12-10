@@ -1658,7 +1658,7 @@ bool SciTEBase::StartAutoComplete() {
 		if (!words.empty()) {
 			std::string wordsUnique = EliminateDuplicateWords(words);
 			wEditor.AutoCSetSeparator(' ');
-			wEditor.AutoCShow(wordsUnique.length(), wordsUnique.c_str());
+			wEditor.AutoCShow(root.length(), wordsUnique.c_str());
 		}
 	}
 	return true;
