@@ -1,3 +1,4 @@
+// @file pixmapsGNOME.h
 // Set of images for tool bar buttons
 // Icons  Copyright(C) 1998  by  Dean S. Jones
 // http://jfa.javalobby.org/projects/icons/

@@ -1,3 +1,4 @@
+// @file SciIcon.h
 /* XPM */
 static const char * SciIcon_xpm[] = {
 "16 16 17 1",
