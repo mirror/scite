@@ -214,6 +214,12 @@ def HConstants(f):
 					out.append("constexpr int " + PascalCase(name) + " = " + v["Value"] + ";")
 	return out
 
+def ParametersExceptLast(parameters):
+	if "," in parameters:
+		return parameters[:parameters.rfind(",")]
+	else:
+		return ""
+
 def HMethods(f):
 	out = []
 	for name in f.order:
@@ -228,6 +234,11 @@ def HMethods(f):
 				parameters, args, callName = ParametersArgsCallname(v)
 
 				out.append("\t" + JoinTypeAndIdentifier(retType, name) + "(" + parameters + ");")
+				
+				# Extra method for stringresult that returns std::string
+				if v["Param2Type"] == "stringresult":
+					out.append("\t" + JoinTypeAndIdentifier("std::string", name) + \
+						"(" + ParametersExceptLast(parameters) + ");")
 	return out
 
 def CXXMethods(f):
@@ -257,6 +268,17 @@ def CXXMethods(f):
 				out.append("\t" + returnIfNeeded + retCast + callName + "(" + msgName + args + ")" + retCastEnd + ";")
 				out.append("}")
 				out.append("")
+				
+				# Extra method for stringresult that returns std::string
+				if v["Param2Type"] == "stringresult":
+					paramList = ParametersExceptLast(parameters)
+					argList = ParametersExceptLast(args)
+					out.append(JoinTypeAndIdentifier("std::string", "ScintillaCall::" + name) + \
+						"(" + paramList + ") {")
+					argName = (", " + v["Param1Name"]) if paramList else ""
+					out.append("\treturn CallReturnString(" + msgName + argList + ");")
+					out.append("}")
+					out.append("")
 
 	return out
 

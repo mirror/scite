@@ -22,6 +22,7 @@ class ScintillaCall {
 	intptr_t ptr;
 	intptr_t CallPointer(Message msg, uintptr_t wParam, void *s);
 	intptr_t CallString(Message msg, uintptr_t wParam, const char *s);
+	std::string CallReturnString(Message msg, uintptr_t wParam);
 public:
 	API::Status statusLastCall;
 	ScintillaCall() noexcept;
@@ -81,6 +82,7 @@ public:
 	void GotoPos(Position caret);
 	void SetAnchor(Position anchor);
 	Position GetCurLine(Position length, char *text);
+	std::string GetCurLine(Position length);
 	Position EndStyled();
 	void ConvertEOLs(API::EndOfLine eolMode);
 	API::EndOfLine EOLMode();
@@ -143,6 +145,7 @@ public:
 	bool StyleGetItalic(int style);
 	int StyleGetSize(int style);
 	int StyleGetFont(int style, char *fontName);
+	std::string StyleGetFont(int style);
 	bool StyleGetEOLFilled(int style);
 	bool StyleGetUnderline(int style);
 	API::CaseVisible StyleGetCase(int style);
@@ -173,6 +176,7 @@ public:
 	void SetCaretPeriod(int periodMilliseconds);
 	void SetWordChars(const char *characters);
 	int WordChars(char *characters);
+	std::string WordChars();
 	void SetCharacterCategoryOptimization(int countCharacters);
 	int CharacterCategoryOptimization();
 	void BeginUndoAction();
@@ -266,6 +270,7 @@ public:
 	Position FormatRange(bool draw, void *fr);
 	Line FirstVisibleLine();
 	Position GetLine(Line line, char *text);
+	std::string GetLine(Line line);
 	Line LineCount();
 	void SetMarginLeft(int pixelWidth);
 	int MarginLeft();
@@ -274,6 +279,7 @@ public:
 	bool Modify();
 	void SetSel(Position anchor, Position caret);
 	Position GetSelText(char *text);
+	std::string GetSelText();
 	Position GetTextRange(void *tr);
 	void HideSelection(bool hide);
 	int PointXFromPosition(Position pos);
@@ -296,6 +302,7 @@ public:
 	void Clear();
 	void SetText(const char *text);
 	Position GetText(Position length, char *text);
+	std::string GetText(Position length);
 	Position TextLength();
 	void *DirectFunction();
 	void *DirectPointer();
@@ -313,6 +320,7 @@ public:
 	Position TargetEndVirtualSpace();
 	void SetTargetRange(Position start, Position end);
 	Position TargetText(char *text);
+	std::string TargetText();
 	void TargetFromSelection();
 	void TargetWholeDocument();
 	Position ReplaceTarget(Position length, const char *text);
@@ -350,6 +358,7 @@ public:
 	API::FoldDisplayTextStyle FoldDisplayTextGetStyle();
 	void SetDefaultFoldDisplayText(const char *text);
 	int GetDefaultFoldDisplayText(char *text);
+	std::string GetDefaultFoldDisplayText();
 	void FoldLine(Line line, API::FoldAction action);
 	void FoldChildren(Line line, API::FoldAction action);
 	void ExpandChildren(Line line, API::FoldLevel level);
@@ -401,6 +410,7 @@ public:
 	void SetMultiPaste(API::MultiPaste multiPaste);
 	API::MultiPaste MultiPaste();
 	int Tag(int tagNumber, char *tagValue);
+	std::string Tag(int tagNumber);
 	void LinesJoin();
 	void LinesSplit(int pixelWidth);
 	void SetFoldMarginColour(bool useSetting, Colour back);
@@ -570,11 +580,14 @@ public:
 	void WordRightEndExtend();
 	void SetWhitespaceChars(const char *characters);
 	int WhitespaceChars(char *characters);
+	std::string WhitespaceChars();
 	void SetPunctuationChars(const char *characters);
 	int PunctuationChars(char *characters);
+	std::string PunctuationChars();
 	void SetCharsDefault();
 	int AutoCGetCurrent();
 	int AutoCGetCurrentText(char *text);
+	std::string AutoCGetCurrentText();
 	void AutoCSetCaseInsensitiveBehaviour(API::CaseInsensitiveBehaviour behaviour);
 	API::CaseInsensitiveBehaviour AutoCGetCaseInsensitiveBehaviour();
 	void AutoCSetMulti(API::MultiAutoComplete multi);
@@ -583,8 +596,10 @@ public:
 	API::Ordering AutoCGetOrder();
 	void Allocate(Position bytes);
 	Position TargetAsUTF8(char *s);
+	std::string TargetAsUTF8();
 	void SetLengthForEncode(Position bytes);
 	Position EncodedFromUTF8(const char *utf8, char *encoded);
+	std::string EncodedFromUTF8(const char *utf8);
 	Position FindColumn(Line line, Position column);
 	API::CaretSticky CaretSticky();
 	void SetCaretSticky(API::CaretSticky useCaretStickyBehaviour);
@@ -623,10 +638,12 @@ public:
 	int MarkerSymbolDefined(int markerNumber);
 	void MarginSetText(Line line, const char *text);
 	int MarginGetText(Line line, char *text);
+	std::string MarginGetText(Line line);
 	void MarginSetStyle(Line line, int style);
 	int MarginGetStyle(Line line);
 	void MarginSetStyles(Line line, const char *styles);
 	int MarginGetStyles(Line line, char *styles);
+	std::string MarginGetStyles(Line line);
 	void MarginTextClearAll();
 	void MarginSetStyleOffset(int style);
 	int MarginGetStyleOffset();
@@ -634,10 +651,12 @@ public:
 	API::MarginOption MarginOptions();
 	void AnnotationSetText(Line line, const char *text);
 	int AnnotationGetText(Line line, char *text);
+	std::string AnnotationGetText(Line line);
 	void AnnotationSetStyle(Line line, int style);
 	int AnnotationGetStyle(Line line);
 	void AnnotationSetStyles(Line line, const char *styles);
 	int AnnotationGetStyles(Line line, char *styles);
+	std::string AnnotationGetStyles(Line line);
 	int AnnotationGetLines(Line line);
 	void AnnotationClearAll();
 	void AnnotationSetVisible(API::AnnotationVisible visible);
@@ -732,6 +751,7 @@ public:
 	API::LineEndType LineEndTypesActive();
 	void SetRepresentation(const char *encodedCharacter, const char *representation);
 	int Representation(const char *encodedCharacter, char *representation);
+	std::string Representation(const char *encodedCharacter);
 	void ClearRepresentation(const char *encodedCharacter);
 	void StartRecord();
 	void StopRecord();
@@ -743,14 +763,20 @@ public:
 	void SetLexerLanguage(const char *language);
 	void LoadLexerLibrary(const char *path);
 	int Property(const char *key, char *value);
+	std::string Property(const char *key);
 	int PropertyExpanded(const char *key, char *value);
+	std::string PropertyExpanded(const char *key);
 	int PropertyInt(const char *key, int defaultValue);
 	int LexerLanguage(char *language);
+	std::string LexerLanguage();
 	void *PrivateLexerCall(int operation, void *pointer);
 	int PropertyNames(char *names);
+	std::string PropertyNames();
 	API::TypeProperty PropertyType(const char *name);
 	int DescribeProperty(const char *name, char *description);
+	std::string DescribeProperty(const char *name);
 	int DescribeKeyWordSets(char *descriptions);
+	std::string DescribeKeyWordSets();
 	int LineEndTypesSupported();
 	int AllocateSubStyles(int styleBase, int numberStyles);
 	int SubStylesStart(int styleBase);
@@ -761,10 +787,14 @@ public:
 	void SetIdentifiers(int style, const char *identifiers);
 	int DistanceToSecondaryStyles();
 	int SubStyleBases(char *styles);
+	std::string SubStyleBases();
 	int NamedStyles();
 	int NameOfStyle(int style, char *name);
+	std::string NameOfStyle(int style);
 	int TagsOfStyle(int style, char *tags);
+	std::string TagsOfStyle(int style);
 	int DescriptionOfStyle(int style, char *description);
+	std::string DescriptionOfStyle(int style);
 	API::Bidirectional Bidirectional();
 	void SetBidirectional(API::Bidirectional bidirectional);
 	API::LineCharacterIndexType LineCharacterIndex();
