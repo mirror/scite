@@ -1872,6 +1872,20 @@ static void Chomp(std::string &s, char ch) {
 		s.erase(0, posCh + 1);
 }
 
+namespace {
+
+char Severity(const std::string &message) noexcept {
+	if (message.find("fatal") != std::string::npos)
+		return 3;
+	if (message.find("error") != std::string::npos)
+		return 2;
+	if (message.find("warning") != std::string::npos)
+		return 1;
+	return 0;
+}
+
+}
+
 void SciTEBase::ShowMessages(SA::Line line) {
 	wEditor.AnnotationSetStyleOffset(diagnosticStyleStart);
 	wEditor.AnnotationSetVisible(SA::AnnotationVisible::Boxed);
@@ -1910,25 +1924,16 @@ void SciTEBase::ShowMessages(SA::Line line) {
 					}
 				}
 			}
-			const int lenCurrent = wEditor.AnnotationGetText(sourceLine, nullptr);
-			std::string msgCurrent(lenCurrent, '\0');
-			std::string stylesCurrent(lenCurrent, '\0');
-			if (lenCurrent) {
-				wEditor.AnnotationGetText(sourceLine, &msgCurrent[0]);
-				wEditor.AnnotationGetStyles(sourceLine, &stylesCurrent[0]);
-				msgCurrent += "\n";
-				stylesCurrent += '\0';
-			}
-			if (msgCurrent.find(message.c_str()) == std::string::npos) {
+			std::string msgCurrent = wEditor.AnnotationGetText(sourceLine);
+			if (msgCurrent.find(message) == std::string::npos) {
 				// Only append unique messages
-				msgCurrent += message.c_str();
-				char msgStyle = 0;
-				if (message.find("warning") != std::string::npos)
-					msgStyle = 1;
-				if (message.find("error") != std::string::npos)
-					msgStyle = 2;
-				if (message.find("fatal") != std::string::npos)
-					msgStyle = 3;
+				std::string stylesCurrent = wEditor.AnnotationGetStyles(sourceLine);
+				if (msgCurrent.length()) {
+					msgCurrent += "\n";
+					stylesCurrent += '\0';
+				}
+				msgCurrent += message;
+				const char msgStyle = Severity(message);
 				stylesCurrent += std::string(message.length(), msgStyle);
 				wEditor.AnnotationSetText(sourceLine, msgCurrent.c_str());
 				wEditor.AnnotationSetStyles(sourceLine, stylesCurrent.c_str());
