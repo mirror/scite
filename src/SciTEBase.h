@@ -400,7 +400,7 @@ protected:
 	SA::CharacterSet characterSet;
 	std::string language;
 	int lexLanguage;
-	std::vector<char> subStyleBases;
+	std::string subStyleBases;
 	int lexLPeg;
 	StringList apis;
 	std::string apisFileNames;

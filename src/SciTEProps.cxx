@@ -703,34 +703,30 @@ void SciTEBase::ReadProperties() {
 		wEditor.SetKeyWords(wl, kw.c_str());
 	}
 
-	subStyleBases.clear();
-	const int lenSSB = wEditor.SubStyleBases(nullptr);
-	if (lenSSB) {
+	subStyleBases = wEditor.SubStyleBases();
+	if (!subStyleBases.empty()) {
 		wEditor.FreeSubStyles();
 
-		subStyleBases.resize(lenSSB+1);
-		wEditor.SubStyleBases(&subStyleBases[0]);
-		subStyleBases.resize(lenSSB);	// Remove NUL
-
-		for (int baseStyle=0; baseStyle<lenSSB; baseStyle++) {
+		for (const unsigned char subStyleBase : subStyleBases) {
 			//substyles.cpp.11=2
+			const std::string sStyleBase = StdStringFromInteger(subStyleBase);
 			std::string ssSubStylesKey = "substyles.";
 			ssSubStylesKey += language;
 			ssSubStylesKey += ".";
-			ssSubStylesKey += StdStringFromInteger(subStyleBases[baseStyle]);
+			ssSubStylesKey += sStyleBase;
 			std::string ssNumber = props.GetNewExpandString(ssSubStylesKey.c_str());
 			int subStyleIdentifiers = atoi(ssNumber.c_str());
 
 			int subStyleIdentifiersStart = 0;
 			if (subStyleIdentifiers) {
-				subStyleIdentifiersStart = wEditor.AllocateSubStyles(subStyleBases[baseStyle], subStyleIdentifiers);
+				subStyleIdentifiersStart = wEditor.AllocateSubStyles(subStyleBase, subStyleIdentifiers);
 				if (subStyleIdentifiersStart < 0)
 					subStyleIdentifiers = 0;
 			}
 			for (int subStyle=0; subStyle<subStyleIdentifiers; subStyle++) {
 				// substylewords.11.1.$(file.patterns.cpp)=CharacterSet LexAccessor SString WordList
 				std::string ssWordsKey = "substylewords.";
-				ssWordsKey += StdStringFromInteger(subStyleBases[baseStyle]);
+				ssWordsKey += sStyleBase;
 				ssWordsKey += ".";
 				ssWordsKey += StdStringFromInteger(subStyle + 1);
 				ssWordsKey += ".";
@@ -1506,7 +1502,7 @@ void SciTEBase::ReadFontProperties() {
 	}
 
 	const int diffToSecondary = static_cast<int>(wEditor.DistanceToSecondaryStyles());
-	for (const char subStyleBase : subStyleBases) {
+	for (const unsigned char subStyleBase : subStyleBases) {
 		const int subStylesStart = wEditor.SubStylesStart(subStyleBase);
 		const int subStylesLength = wEditor.SubStylesLength(subStyleBase);
 		for (int subStyle=0; subStyle<subStylesLength; subStyle++) {
