@@ -28,7 +28,6 @@ endif
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
 CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
 CONFIGLIB:=$(shell pkg-config --libs $(GTKVERSION) gthread-2.0 gmodule-no-export-2.0)
-CONFIGTHREADS:=
 gnomeprefix:=$(shell pkg-config --variable=prefix $(GTKVERSION) 2>/dev/null)
 ifndef prefix
 ifdef gnomeprefix
@@ -123,7 +122,7 @@ ExportHTML.o ExportPDF.o ExportRTF.o ExportTEX.o ExportXML.o \
 MatchMarker.o StringHelpers.o \
 PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o StyleDefinition.o StyleWriter.o Utf8_16.o \
 	JobQueue.o GTKMutex.o IFaceTable.o $(COMPLIB) $(LUA_OBJS)
-	$(CXX) `$(CONFIGTHREADS)` -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) $(LDLIBS) -lm -lstdc++
+	$(CXX) -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) $(LDLIBS) -lm -lstdc++
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
