@@ -115,12 +115,35 @@ COMPLIB=$(srcdir)/../../scintilla/bin/scintilla.a
 # To almost make lua.vers (needs header and footer added) which is only needed after updating Lua:
 # nm -g ../bin/SciTE | grep lua | awk '{print "\t\t" $3 ";"}' >lua2.vers
 
-$(PROG): SciTEGTK.o GUIGTK.o ScintillaCall.o ScintillaWindow.o Widget.o \
-FilePath.o EditorConfig.o SciTEBase.o FileWorker.o Cookie.o Credits.o SciTEBuffers.o SciTEIO.o StringList.o \
-ExportHTML.o ExportPDF.o ExportRTF.o ExportTEX.o ExportXML.o \
-MatchMarker.o StringHelpers.o \
-PropSetFile.o MultiplexExtension.o DirectorExtension.o SciTEProps.o StyleDefinition.o StyleWriter.o Utf8_16.o \
-	JobQueue.o GTKMutex.o IFaceTable.o $(COMPLIB) $(LUA_OBJS)
+SRC_OBJS = \
+	Cookie.o \
+	Credits.o \
+	EditorConfig.o \
+	ExportHTML.o \
+	ExportPDF.o \
+	ExportRTF.o \
+	ExportTEX.o \
+	ExportXML.o \
+	FilePath.o \
+	FileWorker.o \
+	IFaceTable.o \
+	JobQueue.o \
+	MatchMarker.o \
+	MultiplexExtension.o \
+	PropSetFile.o \
+	ScintillaCall.o \
+	ScintillaWindow.o \
+	SciTEBase.o \
+	SciTEBuffers.o \
+	SciTEIO.o \
+	SciTEProps.o \
+	StringHelpers.o \
+	StringList.o \
+	StyleDefinition.o \
+	StyleWriter.o \
+	Utf8_16.o
+
+$(PROG): SciTEGTK.o GUIGTK.o Widget.o GTKMutex.o DirectorExtension.o $(SRC_OBJS) $(COMPLIB) $(LUA_OBJS)
 	$(CXX) -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers -DGTK $^ -o $@ $(CONFIGLIB) $(LIBDL) $(LDLIBS) -lm -lstdc++
 
 # Automatically generate header dependencies with "make deps"
