@@ -92,7 +92,6 @@ LIBDL:=-ldl
 LUACFLAGS:=-DLUA_USE_DLOPEN
 endif
 ifeq ($(UNAME), Darwin)
-CXXTFLAGS:=$(CXXTFLAGS) -Dunix
 LUACFLAGS:=-DLUA_USE_DLOPEN
 endif
 
