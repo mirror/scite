@@ -15,15 +15,25 @@ else
 	normalize = $(subst /,\,$1)
 endif
 
+WARNINGS += -Wall -pedantic -Wextra
+
 ifdef CLANG
+# Can choose aspect to sanitize: address and undefined can simply change SANITIZE but for
+# thread also need to create Position Independent Executable -> search online documentation
+SANITIZE = address
+#SANITIZE = undefined
 CXX = clang++
 CC = clang
-# Clang doesn't like omitting braces in array initialization but they just add noise,
 # Microsoft headers are used so _CRT_SECURE_NO_DEPRECATE avoids warnings for standard library like strcat,
-# public visibility avoids warnings like 'locally defined symbol __std_terminate imported'
-CLANG_OPTS = -Wno-missing-braces -Wno-string-plus-int -D_CRT_SECURE_NO_DEPRECATE=1 -Xclang -flto-visibility-public-std
-CLANG_LIBS = -luser32 -lgdi32 -lshell32 -lcomdlg32
+DEFINES += -D_CRT_SECURE_NO_DEPRECATE
+BASE_FLAGS += -fsanitize=$(SANITIZE)
+# Clang doesn't like omitting braces in array initialization but they just add noise,
+WARNINGS += -Wno-deprecated-register
+WARNINGS += -Wno-string-plus-int
+WARNINGS += -Wno-missing-braces
+WARNINGS += -Wno-language-extension-token
 else
+WARNINGS += -Wno-cast-function-type
 SUBSYSTEM_OPT = -Xlinker --subsystem -Xlinker windows
 endif
 
@@ -40,27 +50,40 @@ ifeq ($(OS),Windows_NT)
 	WINVER:=$(firstword $(WINVERWORDS)).$(lastword $(WINVERWORDS))
 	# Windows NT 4 and Windows 2000 do not support themes so turn off
 ifeq '$(WINVER)' '4.0'
-	VERSION_DEFINES:=-DDISABLE_THEMES -DWIN_TARGET=0x0400
+	DEFINES += -DDISABLE_THEMES -DWIN_TARGET=0x0400
 else
 ifeq '$(WINVER)' '5.00'
-	VERSION_DEFINES:=-DDISABLE_THEMES
+	DEFINES += -DDISABLE_THEMES
 else
-	UXLIB:=-luxtheme
+	LIBS += -luxtheme
 endif
 endif
 else
 	DEL = rm -f
 	COPY = cp -a
-	UXLIB:=-luxtheme
+	LIBS += -luxtheme
 endif
 
 PROG	= ../bin/SciTE.exe
 PROGSTATIC = ../bin/Sc1.exe
-WIDEFLAGS=-DUNICODE -D_UNICODE
+DEFINES += -DUNICODE -D_UNICODE
 
 vpath %.h ../src ../../scintilla/include
 vpath %.cxx ../src
 vpath %.a ../../scintilla/bin
+
+LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lmsimg32 -lshell32 -lcomdlg32 -lcomctl32
+
+CXXFLAGS += --std=c++17
+
+DEFINES += -D$(if $(DEBUG),DEBUG,NDEBUG)
+BASE_FLAGS += $(if $(DEBUG),-g,-Os)
+
+ifndef DEBUG
+ifndef CLANG
+STRIPFLAG="-Wl,-s"
+endif
+endif
 
 ifndef NO_LUA
 LUA_CORE_OBJS = lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
@@ -74,36 +97,24 @@ LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 vpath %.c ../lua/src ../lua/src/lib
 
-LUA_INCLUDES = -I ../lua/src
-#LUA_SCRIPTS = ..\bin\SciTEExtension.lua ..\bin\SciTEStartup.lua
-LUA_DEFINES = -DLUA_USER_H=\"scite_lua_win.h\"
+INCLUDES += -I ../lua/src
+CFLAGS += -DLUA_USER_H=\"scite_lua_win.h\"
 else
-LUA_DEFINES = -DNO_LUA
+DEFINES += -DNO_LUA
 endif
 
-INCLUDEDIRS=-I ../../scintilla/include -I ../src $(LUA_INCLUDES)
+INCLUDES += -I ../../scintilla/include -I ../src
 RCINCLUDEDIRS=--include-dir ../src
 
-CBASEFLAGS = -Wall $(INCLUDEDIRS) $(LUA_DEFINES) $(WIDEFLAGS) $(VERSION_DEFINES) $(CLANG_OPTS)
+CBASEFLAGS = $(LUA_DEFINES) $(WIDEFLAGS)
 
-ifdef DEBUG
-CFLAGS=-DDEBUG -g $(CBASEFLAGS)
-else
-CFLAGS=-DNDEBUG -Os $(CBASEFLAGS)
-ifndef CLANG
-STRIPFLAG="-Wl,-s"
-endif
-endif
-
-CXXFLAGS = $(CFLAGS) -pedantic --std=c++17
-
-LDFLAGS=-mwindows $(CLANG_LIBS) -lmsimg32 -lcomctl32 -limm32 -lole32 -luuid -loleaut32 $(UXLIB) $(LUA_LDFLAGS)
+LDFLAGS += -mwindows
 
 .cxx.o:
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(DEFINES) $(INCLUDES) $(WARNINGS) $(CPPFLAGS) $(BASE_FLAGS) $(CXXFLAGS) -c $< -o $@
 
 .c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(DEFINES) $(INCLUDES) $(WARNINGS) $(CPPFLAGS) $(BASE_FLAGS) $(CFLAGS) -c $< -o $@
 
 SHAREDOBJS=\
 	Cookie.o \
@@ -148,13 +159,13 @@ DLLS=../bin/Scintilla.dll ../bin/SciLexer.dll
 NOTBINPROPS=SciTE.properties Embedded.properties
 PROPS=$(addprefix ../bin/,$(filter-out $(NOTBINPROPS), $(notdir $(wildcard ../src/*.properties))))
 
-ALL:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS) $(LUA_SCRIPTS)
+all:	$(PROG) $(PROGSTATIC) $(DLLS) $(PROPS) $(LUA_SCRIPTS)
 
 clean:
 	$(DEL) *.exe *.o *.obj *.dll *.res *.map *.plist
 
 analyze:
-	clang --analyze $(CXXFLAGS) *.cxx ../src/*.cxx
+	clang --analyze $(DEFINES) $(INCLUDES) $(WARNINGS) $(CPPFLAGS) $(BASE_FLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx
 
 depend deps.mak:
 	python AppDepGen.py
@@ -166,7 +177,7 @@ depend deps.mak:
 	$(COPY) $(call normalize,$< $(@D))
 
 $(PROG): $(OBJS)
-	$(CXX) $(STRIPFLAG) $(SUBSYSTEM_OPT) -o  $@ $^ $(LDFLAGS)
+	$(CXX) $(BASE_FLAGS) $(STRIPFLAG) $(SUBSYSTEM_OPT) -o  $@ $^ $(LDFLAGS) $(LIBS) $(LDLIBS)
 
 OBJSSTATIC = \
 	$(SHAREDOBJS) \
@@ -177,14 +188,14 @@ OBJSSTATIC = \
 	$(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)
-	$(CXX) $(STRIPFLAG) $(SUBSYSTEM_OPT) -static -o $@ $^ $(LDFLAGS)
+	$(CXX) $(BASE_FLAGS) $(STRIPFLAG) $(SUBSYSTEM_OPT) -static -o $@ $^ $(LDFLAGS) $(LIBS) $(LDLIBS)
 
 # Automatically generate dependencies for most files with "make deps"
 include deps.mak
 
 Sc1.o: SciTEWin.cxx SciTEWin.h SciTE.h PropSetFile.h \
  Scintilla.h Extender.h FilePath.h SciTEBase.h FileWorker.h JobQueue.h
-	$(CXX) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
+	$(CXX) $(DEFINES) $(INCLUDES) $(WARNINGS) $(CPPFLAGS) $(BASE_FLAGS) $(CXXFLAGS) -D STATIC_BUILD -c $< -o $@
 
 SciTERes.o:	SciTERes.rc SciTE.h SciTE.exe.manifest
 	$(WINDRES) $(RCINCLUDEDIRS) SciTERes.rc $@
