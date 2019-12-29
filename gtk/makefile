@@ -5,6 +5,7 @@
 # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
 
 srcdir ?= .
+SCINTILLA_DIR ?= $(srcdir)/../../scintilla
 
 .SUFFIXES: .cxx .o .h .a .c
 ifdef CLANG
@@ -47,10 +48,10 @@ PROG	= $(srcdir)/../bin/SciTE
 
 all: $(PROG)
 
-vpath %.h $(srcdir) $(srcdir)/../src $(srcdir)/../../scintilla/include
+vpath %.h $(srcdir) $(srcdir)/../src $(SCINTILLA_DIR)/include
 vpath %.cxx $(srcdir) $(srcdir)/../src
 
-INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src
+INCLUDEDIRS=-I $(SCINTILLA_DIR)/include -I $(srcdir)/../src
 CXXBASEFLAGS=-W -Wall -pedantic -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
 
 ifdef DEBUG
@@ -71,7 +72,7 @@ LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 vpath %.c $(srcdir)/../lua/src
 
-INCLUDEDIRS=-I $(srcdir)/../../scintilla/include -I $(srcdir)/../src -I$(srcdir)/../lua/src
+INCLUDEDIRS=-I $(SCINTILLA_DIR)/include -I $(srcdir)/../src -I$(srcdir)/../lua/src
 
 .c.o:
 	$(CC) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) $(CCWARNINGS) -c $< -o $@
@@ -110,7 +111,7 @@ depend deps.mak:
 	python AppDepGen.py
 
 # make should be run in ../../scintilla/gtk to compile all the lexers.
-COMPLIB=$(srcdir)/../../scintilla/bin/scintilla.a
+COMPLIB=$(SCINTILLA_DIR)/bin/scintilla.a
 
 # To almost make lua.vers (needs header and footer added) which is only needed after updating Lua:
 # nm -g ../bin/SciTE | grep lua | awk '{print "\t\t" $3 ";"}' >lua2.vers
