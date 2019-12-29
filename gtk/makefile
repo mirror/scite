@@ -80,9 +80,10 @@ LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 vpath %.c $(srcdir)/../lua/src
 
 INCLUDES += -I$(srcdir)/../lua/src
+LUA_DEFINES = -DLUA_USE_POSIX -DLUA_USE_DLOPEN
 
 .c.o:
-	$(CC) $(DEFINES) $(INCLUDES) $(WARNINGS) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(DEFINES) $(INCLUDES) $(WARNINGS) $(LUA_DEFINES) $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
 
 else
 DEFINES += -DNO_LUA
@@ -90,17 +91,14 @@ endif
 
 CXXTFLAGS:=$(CXXTFLAGS)
 
+LIBS += -lm -lstdc++
+
 UNAME:=$(shell uname -s)
 ifeq ($(UNAME), Linux)
-LIBDL:=-ldl
-LUACFLAGS:=-DLUA_USE_DLOPEN
+LIBS += -ldl
 endif
 ifneq (,$(findstring GNU,$(UNAME)))
-LIBDL:=-ldl
-LUACFLAGS:=-DLUA_USE_DLOPEN
-endif
-ifeq ($(UNAME), Darwin)
-LUACFLAGS:=-DLUA_USE_DLOPEN
+LIBS += -ldl
 endif
 
 .cxx.o:
@@ -150,7 +148,7 @@ SRC_OBJS = \
 	Utf8_16.o
 
 $(PROG): SciTEGTK.o GUIGTK.o Widget.o GTKMutex.o DirectorExtension.o $(SRC_OBJS) $(COMPLIB) $(LUA_OBJS)
-	$(CXX) -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers $^ -o $@ $(CONFIGLIB) $(LIBDL) $(LDLIBS) -lm -lstdc++
+	$(CXX) -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers $^ -o $@ $(CONFIGLIB) $(LIBS) $(LDLIBS)
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
