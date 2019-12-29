@@ -8,16 +8,21 @@ srcdir ?= .
 SCINTILLA_DIR ?= $(srcdir)/../../scintilla
 
 .SUFFIXES: .cxx .o .h .a .c
+
+WARNINGS += -Wall -pedantic -Wextra
+
 ifdef CLANG
 # Can choose aspect to sanitize: address and undefined can simply change SANITIZE but for
 # thread also need to create Position Independent Executable -> search online documentation
 SANITIZE = address
 #SANITIZE = undefined
-CXX = clang++ -fsanitize=$(SANITIZE) -Wno-deprecated-register
+CXX = clang++ -fsanitize=$(SANITIZE)
 CC = clang -fsanitize=$(SANITIZE)
-CCWARNINGS = -Wno-empty-body -Wno-string-plus-int
+WARNINGS += -Wno-deprecated-register
+WARNINGS += -Wno-empty-body
+WARNINGS += -Wno-string-plus-int
 else
-MISLEADING=-Wno-misleading-indentation
+WARNINGS += -Wno-misleading-indentation
 endif
 
 ifdef GTK3
@@ -51,8 +56,8 @@ all: $(PROG)
 vpath %.h $(srcdir) $(srcdir)/../src $(SCINTILLA_DIR)/include
 vpath %.cxx $(srcdir) $(srcdir)/../src
 
-INCLUDEDIRS=-I $(SCINTILLA_DIR)/include -I $(srcdir)/../src
-CXXBASEFLAGS=-W -Wall -pedantic -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\" $(INCLUDEDIRS)
+INCLUDES=-I $(SCINTILLA_DIR)/include -I $(srcdir)/../src
+CXXBASEFLAGS= -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\"
 
 ifdef DEBUG
 CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
@@ -72,10 +77,10 @@ LUA_OBJS = LuaExtension.o $(LUA_CORE_OBJS) $(LUA_LIB_OBJS)
 
 vpath %.c $(srcdir)/../lua/src
 
-INCLUDEDIRS=-I $(SCINTILLA_DIR)/include -I $(srcdir)/../src -I$(srcdir)/../lua/src
+INCLUDES += -I$(srcdir)/../lua/src
 
 .c.o:
-	$(CC) $(INCLUDEDIRS) $(MISLEADING) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) $(CCWARNINGS) -c $< -o $@
+	$(CC) $(INCLUDES) $(WARNINGS) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
 
 else
 CXXTFLAGS+=-DNO_LUA
@@ -97,15 +102,13 @@ LUACFLAGS:=-DLUA_USE_DLOPEN
 endif
 
 .cxx.o:
-	$(CXX) --std=c++17 $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) --std=c++17 $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.plist $(PROG)
 
 analyze:
-	clang --analyze --std=c++17 $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
-	# Could analyze Lua implementation as well but won't be fixing the warnings so its just noise
-	#clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx ../lua/src/*.c
+	clang --analyze --std=c++17 $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
 
 depend deps.mak:
 	python AppDepGen.py
