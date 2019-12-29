@@ -6,8 +6,13 @@
 
 .SUFFIXES: .cxx .properties
 WINDRES ?= windres
+
+# normalize changes Unix style '/' directory separator to '\' for Windows shell
 ifeq (\,$(shell echo \\))
 	SHELL_TYPE = sh
+	normalize = $1
+else
+	normalize = $(subst /,\,$1)
 endif
 
 ifdef CLANG
@@ -155,19 +160,10 @@ depend deps.mak:
 	python AppDepGen.py
 
 ../bin/%.dll:	../../scintilla/bin/%.dll
-ifneq (sh,$(SHELL_TYPE))
-	$(COPY) $(subst /,\, $< $(@D))
-else
-	$(COPY) $^ $(@D)
-endif
+	$(COPY) $(call normalize,$< $(@D))
 
-# Using '/' rather than '\' as that allows make to match the next rule
 ../bin/%.properties:	../src/%.properties
-ifneq (sh,$(SHELL_TYPE))
-	$(COPY) $(subst /,\, $< $(@D))
-else
-	$(COPY) $^ $(@D)
-endif
+	$(COPY) $(call normalize,$< $(@D))
 
 $(PROG): $(OBJS)
 	$(CXX) $(STRIPFLAG) $(SUBSYSTEM_OPT) -o  $@ $^ $(LDFLAGS)
