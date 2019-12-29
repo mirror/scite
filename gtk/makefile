@@ -57,12 +57,14 @@ vpath %.h $(srcdir) $(srcdir)/../src $(SCINTILLA_DIR)/include
 vpath %.cxx $(srcdir) $(srcdir)/../src
 
 INCLUDES=-I $(SCINTILLA_DIR)/include -I $(srcdir)/../src
-CXXBASEFLAGS= -DGTK -DSCI_LEXER -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\"
+DEFINES += -DGTK
+DEFINES += -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\"
 
+DEFINES += -D$(if $(DEBUG),DEBUG,NDEBUG)
 ifdef DEBUG
-CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS)
+CXXTFLAGS=-g
 else
-CXXTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS)
+CXXTFLAGS=-Os
 endif
 
 ifndef NO_LUA
@@ -80,10 +82,10 @@ vpath %.c $(srcdir)/../lua/src
 INCLUDES += -I$(srcdir)/../lua/src
 
 .c.o:
-	$(CC) $(INCLUDES) $(WARNINGS) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(DEFINES) $(INCLUDES) $(WARNINGS) -DLUA_USE_POSIX $(LUACFLAGS) $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
 
 else
-CXXTFLAGS+=-DNO_LUA
+DEFINES += -DNO_LUA
 endif
 
 CXXTFLAGS:=$(CXXTFLAGS)
@@ -102,13 +104,13 @@ LUACFLAGS:=-DLUA_USE_DLOPEN
 endif
 
 .cxx.o:
-	$(CXX) --std=c++17 $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.plist $(PROG)
 
 analyze:
-	clang --analyze --std=c++17 $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
+	clang --analyze --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
 
 depend deps.mak:
 	python AppDepGen.py
