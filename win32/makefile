@@ -4,6 +4,8 @@
 # This makefile assumes the mingw32 version of GCC 4.x is used and changes will
 # be needed to use other compilers.
 
+.PHONY: all clean analyze depend
+
 .SUFFIXES: .cxx .properties
 WINDRES ?= windres
 
@@ -110,10 +112,10 @@ CBASEFLAGS = $(LUA_DEFINES) $(WIDEFLAGS)
 
 LDFLAGS += -mwindows
 
-.cxx.o:
+%.o: %.cxx
 	$(CXX) $(DEFINES) $(INCLUDES) $(WARNINGS) $(CPPFLAGS) $(BASE_FLAGS) $(CXXFLAGS) -c $< -o $@
 
-.c.o:
+%.o: %.c
 	$(CC) $(DEFINES) $(INCLUDES) $(WARNINGS) $(CPPFLAGS) $(BASE_FLAGS) $(CFLAGS) -c $< -o $@
 
 SHAREDOBJS=\

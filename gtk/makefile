@@ -4,6 +4,8 @@
 # This makefile assumes GCC 4.x is used and changes will be needed to use other compilers.
 # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
 
+.PHONY: all clean analyze depend install uninstall
+
 srcdir ?= .
 SCINTILLA_DIR ?= $(srcdir)/../../scintilla
 
@@ -75,7 +77,7 @@ vpath %.c $(srcdir)/../lua/src
 INCLUDES += -I$(srcdir)/../lua/src
 LUA_DEFINES = -DLUA_USE_POSIX -DLUA_USE_DLOPEN
 
-.c.o:
+%.o: %.c
 	$(CC) $(DEFINES) $(INCLUDES) $(WARNINGS) $(LUA_DEFINES) $(BASE_FLAGS) $(CFLAGS) -c $< -o $@
 
 else
@@ -92,7 +94,7 @@ ifneq (,$(findstring GNU,$(UNAME)))
 LIBS += -ldl
 endif
 
-.cxx.o:
+%.o: %.cxx
 	$(CXX) --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(BASE_FLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
