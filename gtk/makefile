@@ -16,8 +16,9 @@ ifdef CLANG
 # thread also need to create Position Independent Executable -> search online documentation
 SANITIZE = address
 #SANITIZE = undefined
-CXX = clang++ -fsanitize=$(SANITIZE)
-CC = clang -fsanitize=$(SANITIZE)
+CXX = clang++
+CC = clang
+BASE_FLAGS += -fsanitize=$(SANITIZE)
 WARNINGS += -Wno-deprecated-register
 WARNINGS += -Wno-empty-body
 WARNINGS += -Wno-string-plus-int
@@ -61,11 +62,7 @@ DEFINES += -DGTK
 DEFINES += -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\"
 
 DEFINES += -D$(if $(DEBUG),DEBUG,NDEBUG)
-ifdef DEBUG
-CXXTFLAGS=-g
-else
-CXXTFLAGS=-Os
-endif
+BASE_FLAGS += $(if $(DEBUG),-g,-Os)
 
 ifndef NO_LUA
 LUA_CORE_OBJS = lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
@@ -83,13 +80,11 @@ INCLUDES += -I$(srcdir)/../lua/src
 LUA_DEFINES = -DLUA_USE_POSIX -DLUA_USE_DLOPEN
 
 .c.o:
-	$(CC) $(DEFINES) $(INCLUDES) $(WARNINGS) $(LUA_DEFINES) $(CXXTFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(DEFINES) $(INCLUDES) $(WARNINGS) $(LUA_DEFINES) $(BASE_FLAGS) $(CFLAGS) -c $< -o $@
 
 else
 DEFINES += -DNO_LUA
 endif
-
-CXXTFLAGS:=$(CXXTFLAGS)
 
 LIBS += -lm -lstdc++
 
@@ -102,13 +97,13 @@ LIBS += -ldl
 endif
 
 .cxx.o:
-	$(CXX) --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(BASE_FLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.plist $(PROG)
 
 analyze:
-	clang --analyze --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
+	clang --analyze --std=c++17 $(DEFINES) $(INCLUDES) $(WARNINGS) $(CONFIGFLAGS) $(BASE_FLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx
 
 depend deps.mak:
 	python AppDepGen.py
@@ -148,7 +143,7 @@ SRC_OBJS = \
 	Utf8_16.o
 
 $(PROG): SciTEGTK.o GUIGTK.o Widget.o GTKMutex.o DirectorExtension.o $(SRC_OBJS) $(COMPLIB) $(LUA_OBJS)
-	$(CXX) -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers $^ -o $@ $(CONFIGLIB) $(LIBS) $(LDLIBS)
+	$(CXX) $(BASE_FLAGS) -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers $^ -o $@ $(CONFIGLIB) $(LIBS) $(LDLIBS)
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
