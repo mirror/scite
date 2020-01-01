@@ -25,6 +25,7 @@
 #include "GUI.h"
 
 #include "FilePath.h"
+#include "LexillaLibrary.h"
 
 namespace {
 
