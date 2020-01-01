@@ -125,6 +125,7 @@ SRC_OBJS = \
 	FileWorker.o \
 	IFaceTable.o \
 	JobQueue.o \
+	LexillaLibrary.o \
 	MatchMarker.o \
 	MultiplexExtension.o \
 	PropSetFile.o \

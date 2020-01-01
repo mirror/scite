@@ -61,6 +61,7 @@
 
 #include <unistd.h>
 #include <dirent.h>
+#include <dlfcn.h>
 
 // Also on Windows
 #include <sys/types.h>
@@ -182,6 +183,7 @@
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
+#include "LexillaLibrary.h"
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"

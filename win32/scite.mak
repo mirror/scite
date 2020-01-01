@@ -75,6 +75,7 @@ SHAREDOBJS=\
 	GUIWin.obj \
 	IFaceTable.obj \
 	JobQueue.obj \
+	LexillaLibrary.obj \
 	MatchMarker.obj \
 	MultiplexExtension.obj \
 	PropSetFile.obj \

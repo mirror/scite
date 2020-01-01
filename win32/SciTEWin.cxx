@@ -2272,7 +2272,11 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	Scintilla_RegisterClasses(hInstance);
 #else
 
+#ifdef LOAD_SCINTILLA
+	HMODULE hmod = ::LoadLibrary(TEXT("Scintilla.DLL"));
+#else
 	HMODULE hmod = ::LoadLibrary(TEXT("SciLexer.DLL"));
+#endif
 	if (hmod == NULL)
 		::MessageBox(NULL, TEXT("The Scintilla DLL could not be loaded.  SciTE will now close"),
 			     TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);

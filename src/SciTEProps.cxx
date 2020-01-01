@@ -49,6 +49,7 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
+#include "LexillaLibrary.h"
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"
@@ -656,6 +657,16 @@ void SciTEBase::ReadProperties() {
 	if (extender)
 		extender->Clear();
 
+	const std::string lexillaPath = props.GetString("lexilla.path");
+	if (lexillaPath.length()) {
+		std::vector<std::string> paths = StringSplit(lexillaPath, ';');
+		FilePathSet fps;
+		for (std::string path : paths) {
+			fps.push_back(FilePath(GUI::StringFromUTF8(path)));
+		}
+		LexillaLoad(fps);
+	}
+
 	const std::string fileNameForExtension = ExtensionFileName();
 
 	std::string modulePath = props.GetNewExpandString("lexerpath.",
@@ -680,7 +691,15 @@ void SciTEBase::ReadProperties() {
 							 const_cast<char *>(lexer));
 			}
 		} else {
-			wEditor.SetLexerLanguage(language.c_str());
+			std::string languageCurrent = wEditor.LexerLanguage();
+			if (language != languageCurrent) {
+				Scintilla::ILexer5 *plexer = LexillaCreateLexer(language);
+				if (plexer) {
+					wEditor.SetILexer(plexer);
+				} else {
+					wEditor.SetLexerLanguage(language.c_str());
+				}
+			}
 		}
 	} else {
 		wEditor.SetLexer(SCLEX_NULL);
@@ -690,7 +709,12 @@ void SciTEBase::ReadProperties() {
 
 	lexLanguage = wEditor.Lexer();
 
-	wOutput.SetLexer(SCLEX_ERRORLIST);
+	Scintilla::ILexer5 *plexerErrorlist = LexillaCreateLexer("errorlist");
+	if (plexerErrorlist) {
+		wOutput.SetILexer(plexerErrorlist);
+	} else {
+		wOutput.SetLexerLanguage("errorlist");
+	}
 
 	const std::string kw0 = props.GetNewExpandString("keywords.", fileNameForExtension.c_str());
 	wEditor.SetKeyWords(0, kw0.c_str());
