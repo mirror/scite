@@ -795,6 +795,7 @@ public:
 	std::string TagsOfStyle(int style);
 	int DescriptionOfStyle(int style, char *description);
 	std::string DescriptionOfStyle(int style);
+	void SetILexer(void *ilexer);
 	API::Bidirectional Bidirectional();
 	void SetBidirectional(API::Bidirectional bidirectional);
 	API::LineCharacterIndexType LineCharacterIndex();

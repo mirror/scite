@@ -3123,6 +3123,10 @@ std::string ScintillaCall::DescriptionOfStyle(int style) {
 	return CallReturnString(Message::DescriptionOfStyle, style);
 }
 
+void ScintillaCall::SetILexer(void *ilexer) {
+	CallPointer(Message::SetILexer, 0, ilexer);
+}
+
 Bidirectional ScintillaCall::Bidirectional() {
 	return static_cast<API::Bidirectional>(Call(Message::GetBidirectional));
 }

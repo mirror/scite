@@ -731,6 +731,7 @@ enum class Message {
 	NameOfStyle = 4030,
 	TagsOfStyle = 4031,
 	DescriptionOfStyle = 4032,
+	SetILexer = 4033,
 	GetBidirectional = 2708,
 	SetBidirectional = 2709,
 	GetLineCharacterIndex = 2710,
