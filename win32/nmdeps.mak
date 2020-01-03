@@ -384,6 +384,13 @@ JobQueue.obj: \
 	../src/SciTE.h \
 	../src/Mutex.h \
 	../src/JobQueue.h
+LexillaLibrary.obj: \
+	../src/LexillaLibrary.cxx \
+	../../scintilla/include/ILexer.h \
+	../../scintilla/include/Sci_Position.h \
+	../src/GUI.h \
+	../src/FilePath.h \
+	../src/LexillaLibrary.h
 LuaExtension.obj: \
 	../src/LuaExtension.cxx \
 	../src/ScintillaTypes.h \
@@ -523,6 +530,7 @@ SciTEProps.obj: \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
+	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
