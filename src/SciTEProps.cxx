@@ -477,6 +477,8 @@ static const char *propertiesToForward[] = {
 	"fold.preprocessor",
 	"fold.quotes.nimrod",
 	"fold.quotes.python",
+	"fold.raku.comment.multiline",
+	"fold.raku.comment.pod",
 	"fold.rust.comment.explicit",
 	"fold.rust.comment.multiline",
 	"fold.rust.explicit.anywhere",
