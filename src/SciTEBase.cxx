@@ -2717,7 +2717,7 @@ void SciTEBase::CharAddedOutput(int ch) {
 			symList.Set(symbols.c_str());
 			std::string words = symList.GetNearestWords("", 0, true);
 			if (words.length()) {
-				wEditor.AutoCSetSeparator(' ');
+				wOutput.AutoCSetSeparator(' ');
 				wOutput.AutoCShow(0, words.c_str());
 			}
 		}
