@@ -46,6 +46,19 @@ make $JOBS test
 make clean
 cd ../../..
 
+cd scintilla/lexilla/src
+make clean
+make $JOBS
+cd ..
+cd test
+make clean
+make test
+make clean
+cd ..
+cd src
+make clean
+cd ../../..
+
 cd scintilla/gtk
 make clean
 make $JOBS
