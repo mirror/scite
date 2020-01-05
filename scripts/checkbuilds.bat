@@ -18,7 +18,20 @@ mingw32-make -j
 @popd
 @rem
 rem ************************************************************
-rem Target 2: Normal gcc build
+rem Target 2: Build and check Lexilla
+@call scite\scripts\clearboth
+@pushd scintilla\lexilla\src
+mingw32-make clean
+mingw32-make -j
+@if ERRORLEVEL 2 goto ERROR
+@popd
+@pushd scintilla\lexilla\test
+mingw32-make clean
+mingw32-make test
+@popd
+@rem
+rem ************************************************************
+rem Target 3: Normal gcc build
 @call scite\scripts\clearboth
 @pushd scintilla\win32
 mingw32-make -j
@@ -37,7 +50,7 @@ mingw32-make -j
 @popd
 @rem
 rem ************************************************************
-rem Target 3: Microsoft VC++ build
+rem Target 4: Microsoft VC++ build
 @call scite\scripts\clearboth
 @pushd scintilla\win32
 cl
@@ -56,7 +69,7 @@ nmake -f scite.mak QUIET=1
 @popd
 @rem
 rem ************************************************************
-rem Target 4: Visual C++ using scintilla\win32\SciLexer.vcxproj and scite\win32\SciTE.vcxproj
+rem Target 5: Visual C++ using scintilla\win32\SciLexer.vcxproj and scite\win32\SciTE.vcxproj
 @echo on
 @call scite\scripts\clearboth
 @pushd scintilla\win32
@@ -70,7 +83,7 @@ msbuild /verbosity:minimal /p:Platform=Win32 /p:Configuration=Release SciTE.vcxp
 @popd
 @rem
 rem ************************************************************
-rem Target 5: GTK+ version using gcc on scintilla\gtk\makefile
+rem Target 6: GTK+ version using gcc on scintilla\gtk\makefile
 @call scite\scripts\clearboth
 @pushd scintilla\gtk
 rem -Wno-parentheses is temporary for GTK+ header gtkfilechooserbutton.h
@@ -79,7 +92,7 @@ mingw32-make -j CXXFLAGS=-Wno-parentheses
 @popd ..\..
 @rem
 rem ************************************************************
-rem Target 6: Visual C++ 64 bit
+rem Target 7: Visual C++ 64 bit
 @call scite\scripts\clearboth
 @pushd scintilla\win32
 msbuild /verbosity:minimal /p:Platform=x64 /p:Configuration=Release SciLexer.vcxproj
@@ -92,7 +105,7 @@ msbuild /verbosity:minimal /p:Platform=x64 /p:Configuration=Release SciTE.vcxpro
 @popd
 @rem
 rem ************************************************************
-rem Target 7: Clang analyze
+rem Target 8: Clang analyze
 REM ~ call scite\scripts\clearboth
 REM ~ set PATH=c:\mingw32-dw2\bin;%PATH%
 REM ~ cd scintilla\win32
@@ -104,7 +117,7 @@ REM ~ if ERRORLEVEL 2 goto ERROR
 REM ~ cd ..\..
 @rem
 rem ************************************************************
-rem Target 8: Clang build
+rem Target 9: Clang build
 @call scite\scripts\clearboth
 @pushd scintilla\win32
 mingw32-make CLANG=1 -j
@@ -122,7 +135,7 @@ mingw32-make CLANG=1 -j
 @popd
 @rem
 rem ************************************************************
-rem Target 9: qt with msvc
+rem Target 10: qt with msvc
 @call scite\scripts\clearboth
 @set QBIN=D:\Qt\Qt5.12.0\5.12.0\msvc2017_64\bin
 @pushd scintilla\qt\ScintillaEditBase
@@ -140,13 +153,13 @@ nmake distclean
 @popd
 @rem
 rem ************************************************************
-rem Target 10: cppcheck
+rem Target 11: cppcheck
 @call scite\scripts\clearboth
 cppcheck -j 8 --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/lexlib -I scintilla/qt/ScintillaEditBase "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" --template=gcc --quiet scintilla
 cppcheck -j 8 --enable=all --suppressions-list=scite/cppcheck.suppress --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
 @rem
 rem ************************************************************
-rem Target 11: header order check
+rem Target 12: header order check
 @pushd scintilla\scripts
 python HeaderCheck.py
 @popd
