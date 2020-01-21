@@ -2,16 +2,19 @@ syntax: glob
 *.o
 *.a
 *.obj
+__pycache__
 *.pyc
 *.dll
 *.exe
 *.exp
 *.lib
 *.pdb
+*.ipdb
 *.res
 *.bak
 *.sbr
 *.suo
+*.aps
 *.vcxproj.*
 *.idb
 *.bsc
@@ -22,7 +25,6 @@ syntax: glob
 *.lastcodeanalysissucceeded
 *.ilk
 *.iobj
-*.ipdb
 *.psess
 *.ncb
 *.tlog
