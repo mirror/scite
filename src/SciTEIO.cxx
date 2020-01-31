@@ -292,7 +292,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 				docOptions = static_cast<SA::DocumentOption>(
 						     static_cast<int>(docOptions) | static_cast<int>(SA::DocumentOption::StylesNone));
 
-			pdocLoad = reinterpret_cast<ILoader *>(
+			pdocLoad = static_cast<ILoader *>(
 					   wEditor.CreateLoader(static_cast<SA::Position>(fileSize) + 1000,
 								docOptions));
 		} catch (...) {
@@ -1096,7 +1096,7 @@ bool SciTEBase::SaveBuffer(const FilePath &saveName, SaveFlags sf) {
 			const size_t lengthDoc = LengthDocument();
 			if (!(sf & sfSynchronous)) {
 				wEditor.SetReadOnly(true);
-				const char *documentBytes = reinterpret_cast<const char *>(wEditor.CharacterPointer());
+				const char *documentBytes = static_cast<const char *>(wEditor.CharacterPointer());
 				CurrentBuffer()->pFileWorker = new FileStorer(this, documentBytes, saveName, lengthDoc, fp, CurrentBuffer()->unicodeMode, (sf & sfProgressVisible));
 				CurrentBuffer()->pFileWorker->sleepTime = props.GetInt("asynchronous.sleep");
 				if (PerformOnNewThread(CurrentBuffer()->pFileWorker)) {
@@ -1341,7 +1341,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 }
 
 void SciTEBase::OpenFilesFromStdin() {
-	char data[8 * 1024];
+	char data[8 * 1024] {};
 
 	/* if stdin is blocked, do not execute this method */
 	if (IsStdinBlocked())
@@ -1459,12 +1459,12 @@ public:
 	const char *Original() const noexcept {
 		return lineToShow.c_str();
 	}
-	bool BufferContainsNull() {
+	bool BufferContainsNull() noexcept {
 		return bf->BufferContainsNull();
 	}
 };
 
-static bool IsWordCharacter(int ch) noexcept {
+constexpr bool IsWordCharacter(int ch) noexcept {
 	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')  || (ch >= '0' && ch <= '9')  || (ch == '_');
 }
 
@@ -1478,7 +1478,7 @@ bool SciTEBase::GrepIntoDirectory(const FilePath &directory) {
 }
 
 void SciTEBase::GrepRecursive(GrepFlags gf, const FilePath &baseDir, const char *searchString, const GUI::gui_char *fileTypes) {
-	const int checkAfterLines = 10'000;
+	constexpr int checkAfterLines = 10'000;
 	FilePathSet directories;
 	FilePathSet files;
 	baseDir.List(directories, files);
