@@ -2189,7 +2189,7 @@ std::string SciTEWin::GetRangeInUIEncoding(GUI::ScintillaWindow &win, SA::Range 
 uintptr_t SciTEWin::EventLoop() {
 	MSG msg;
 	msg.wParam = 0;
-	BOOL going = true;
+	BOOL going = TRUE;
 	while (going) {
 		if (needIdle) {
 			const BOOL haveMessage = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
@@ -2199,10 +2199,10 @@ uintptr_t SciTEWin::EventLoop() {
 			}
 		}
 		going = ::GetMessageW(&msg, NULL, 0, 0);
-		if (going) {
+		if (going > 0) {
 			if (!ModelessHandler(&msg)) {
 				if (!GetID() ||
-						::TranslateAccelerator(static_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
+						::TranslateAcceleratorW(static_cast<HWND>(GetID()), GetAcceleratorTable(), &msg) == 0) {
 					::TranslateMessage(&msg);
 					::DispatchMessageW(&msg);
 				}
