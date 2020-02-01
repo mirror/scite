@@ -532,6 +532,8 @@ void SciTEWin::EnableAMenuItem(int wIDCheckItem, bool val) {
 }
 
 void SciTEWin::CheckMenus() {
+	if (!MainHWND())
+		return;
 	SciTEBase::CheckMenus();
 	::CheckMenuRadioItem(::GetMenu(MainHWND()), IDM_EOL_CRLF, IDM_EOL_LF,
 			     static_cast<int>(wEditor.EOLMode()) - static_cast<int>(SA::EndOfLine::CrLf) + IDM_EOL_CRLF, 0);
