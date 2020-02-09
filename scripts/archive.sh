@@ -8,9 +8,10 @@ hg archive --repository scite scite-clean/scite
 
 # tar both scintilla and scite into scite.tgz
 rm -f scite.tgz
-cd scite-clean
+(
+cd scite-clean || exit
 tar -czf ../scite.tgz scintilla scite
+)
 
 # Remove temporary directory
-cd ..
 rm -rf scite-clean

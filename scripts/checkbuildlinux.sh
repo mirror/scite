@@ -40,46 +40,52 @@ cd ../..
 
 # ************************************************************
 # Target 1: gcc build for GTK+ 2
-cd scintilla/test/unit
+(
+cd scintilla/test/unit || exit
 make clean
 make $JOBS test
 make clean
-cd ../../..
+)
 
-cd scintilla/lexilla/src
+(
+cd scintilla/lexilla/src || exit
 make clean
 make $JOBS
 cd ..
-cd test
+cd test || exit
 make clean
 make test
 make clean
 cd ..
-cd src
+cd src || exit
 make clean
-cd ../../..
+)
 
-cd scintilla/gtk
+(
+cd scintilla/gtk || exit
 make clean
 make $JOBS
-cd ../..
+)
 
-cd scite/gtk
+(
+cd scite/gtk || exit
 make clean
 make $JOBS
-cd ../..
+)
 
 # ************************************************************
 # Target 2: gcc build for GTK+ 3
-cd scintilla/gtk
+(
+cd scintilla/gtk || exit
 make clean
 make $JOBS GTK3=1
-cd ../..
+)
 
-cd scite/gtk
+(
+cd scite/gtk || exit
 make clean
 make $JOBS GTK3=1
-cd ../..
+)
 
 # ************************************************************
 # Target 3: Qt builds
@@ -95,72 +101,84 @@ elif hash qmake-qt4 2>/dev/null; then
 	QMAKENAME="qmake-qt4"
 fi
 
-cd scintilla/qt
-cd ScintillaEditBase
+(
+cd scintilla/qt || exit
+
+(
+cd ScintillaEditBase || exit
 $QMAKENAME
 make clean
 make $JOBS
 make distclean
-cd ..
+)
 
-cd ScintillaEdit
+(
+cd ScintillaEdit || exit
 python WidgetGen.py
 $QMAKENAME
 make clean
 make $JOBS
 make distclean
-cd ..
+)
 
-cd ScintillaEditPy
+(
+cd ScintillaEditPy || exit
 python sepbuild.py
-cd ../../test
+cd ../../test || exit
 python simpleTests.py
 python lexTests.py
 python performanceTests.py
-cd ../qt/ScintillaEditPy
+cd ../qt/ScintillaEditPy || exit
 python sepbuild.py --clean
-cd ..
-cd ../..
+)
+
+)
 
 # ************************************************************
 # Target 4: clang build for GTK+ 2
-cd scintilla/gtk
+(
+cd scintilla/gtk || exit
 make clean
 make $JOBS CLANG=1
-cd ../..
+)
 
-cd scite/gtk
+(
+cd scite/gtk || exit
 make clean
 make $JOBS CLANG=1
-cd ../..
+)
 
 # ************************************************************
 # Target 5: clang build for GTK+ 3
-cd scintilla/gtk
+(
+cd scintilla/gtk || exit
 make clean
 make $JOBS CLANG=1 GTK3=1
-cd ../..
+)
 
-cd scite/gtk
+(
+cd scite/gtk || exit
 make clean
 make $JOBS CLANG=1 GTK3=1
-cd ../..
+)
 
 # ************************************************************
 # Target 6: clang analyze for GTK+ 2
-cd scintilla/gtk
+(
+cd scintilla/gtk || exit
 make clean
 make $JOBS analyze
-cd ../..
+)
 
-cd scite/gtk
+(
+cd scite/gtk || exit
 make clean
 make $JOBS analyze
 make clean
 cd ../..
-cd scintilla/gtk
+cd scintilla/gtk || exit
 make clean
-cd ../..
+)
 
 # ************************************************************
 # Target 7: cppcheck static checker
