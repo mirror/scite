@@ -3,6 +3,9 @@
 // Copyright 2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef WIDGET_H
+#define WIDGET_H
+
 // Callback thunk class connects GTK signals to a simple command method.
 
 // Callback thunk class connects GTK signals to an instance method.
@@ -160,3 +163,4 @@ public:
 	static gint ButtonsPress(GtkWidget *widget, GdkEventButton *event, Strip *pstrip);
 };
 
+#endif

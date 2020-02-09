@@ -3,6 +3,9 @@
 // Copyright 1998-2000 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef LUAEXTENSION_H
+#define LUAEXTENSION_H
+
 class LuaExtension : public Extension {
 private:
 	LuaExtension(); // Singleton
@@ -43,3 +46,5 @@ public:
 	bool OnUserStrip(int control, int change) override;
 	bool NeedsOnClose() override;
 };
+
+#endif

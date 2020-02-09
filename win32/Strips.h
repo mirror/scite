@@ -5,6 +5,9 @@
 // Copyright 2013 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef STRIPS_H
+#define STRIPS_H
+
 #ifndef UISF_HIDEACCEL
 #define UISF_HIDEACCEL 2
 #define UISF_HIDEFOCUS 1
@@ -238,3 +241,5 @@ public:
 	void SetList(int control, const char *value);
 	std::string GetValue(int control);
 };
+
+#endif

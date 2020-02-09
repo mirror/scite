@@ -5,6 +5,9 @@
 // Copyright 1998-2005 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef FILEPATH_H
+#define FILEPATH_H
+
 extern const GUI::gui_char pathSepString[];
 extern const GUI::gui_char pathSepChar;
 extern const GUI::gui_char listSepString[];
@@ -67,3 +70,5 @@ public:
 };
 
 std::string CommandExecute(const GUI::gui_char *command, const GUI::gui_char *directoryForRun);
+
+#endif

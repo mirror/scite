@@ -5,6 +5,9 @@
 // Copyright 2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef STRINGHELPERS_H
+#define STRINGHELPERS_H
+
 bool StartsWith(std::wstring_view s, std::wstring_view start);
 bool StartsWith(std::string_view s, std::string_view start);
 bool EndsWith(std::wstring_view s, std::wstring_view end);
@@ -179,3 +182,5 @@ public:
 };
 
 typedef EntryMemory < 10 > ComboMemory;
+
+#endif

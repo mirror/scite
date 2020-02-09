@@ -5,6 +5,9 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef SCITEWIN_H
+#define SCITEWIN_H
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -453,3 +456,5 @@ inline HMENU HmenuID(size_t id) noexcept {
 inline POINT *PointPointer(GUI::Point *pt) noexcept {
 	return reinterpret_cast<POINT *>(pt);
 }
+
+#endif

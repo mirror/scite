@@ -5,6 +5,9 @@
 // Copyright 2013 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef STYLEDEFINITION_H
+#define STYLEDEFINITION_H
+
 class StyleDefinition {
 public:
 	std::string font;
@@ -49,3 +52,5 @@ struct IndicatorDefinition {
 	explicit IndicatorDefinition(std::string_view definition);
 	bool ParseIndicatorDefinition(std::string_view definition);
 };
+
+#endif

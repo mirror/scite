@@ -5,6 +5,9 @@
 // Copyright 2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef FILEWORKER_H
+#define FILEWORKER_H
+
 /// Base size of file I/O operations.
 const size_t blockSize = 131072;
 
@@ -65,3 +68,5 @@ enum {
 	WORK_FILEPROGRESS = 3,
 	WORK_PLATFORM = 100
 };
+
+#endif

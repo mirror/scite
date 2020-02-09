@@ -5,6 +5,9 @@
 // Copyright 2012 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef STRIPDEFINITION_H
+#define STRIPDEFINITION_H
+
 class UserControl {
 public:
 	enum UCControlType { ucStatic, ucEdit, ucCombo, ucButton, ucDefaultButton } controlType;
@@ -153,3 +156,5 @@ public:
 };
 
 enum StripCommand { scUnknown, scClicked, scChange, scFocusIn, scFocusOut };
+
+#endif

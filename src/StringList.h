@@ -5,6 +5,9 @@
 // Copyright 1998-2005 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef STRINGLIST_H
+#define STRINGLIST_H
+
 class StringList {
 	// Text pointed into by words and wordsNoCase
 	std::string listText;
@@ -31,3 +34,5 @@ public:
 	std::string GetNearestWords(const char *wordStart, size_t searchLen,
 				    bool ignoreCase, char otherSeparator='\0', bool exactLen=false);
 };
+
+#endif

@@ -5,6 +5,9 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef UNIQUEINSTANCE_H
+#define UNIQUEINSTANCE_H
+
 class SciTEWin;
 
 /**
@@ -35,3 +38,5 @@ public:
 	void SendCommands(const char *cmdLine);	///< Send the command line to the other instance
 	static BOOL CALLBACK SearchOtherInstance(HWND hWnd, LPARAM lParam);	///< Callback in the window enumeration
 };
+
+#endif

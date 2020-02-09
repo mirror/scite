@@ -5,6 +5,9 @@
 // Copyright 2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef WORKER_H
+#define WORKER_H
+
 struct Worker {
 private:
 	std::unique_ptr<Mutex> mutex;
@@ -68,3 +71,5 @@ public:
 struct WorkerListener {
 	virtual void PostOnMainThread(int cmd, Worker *pWorker) = 0;
 };
+
+#endif

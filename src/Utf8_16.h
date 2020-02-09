@@ -12,6 +12,9 @@
 //   http://www.cl.cam.ac.uk/~mgk25/unicode.html
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef UTF8_16_H
+#define UTF8_16_H
+
 #include <cassert>
 
 class Utf8_16 {
@@ -133,3 +136,5 @@ protected:
 	size_t m_nBufSize;
 	bool m_bFirstWrite;
 };
+
+#endif

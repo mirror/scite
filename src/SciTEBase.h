@@ -5,6 +5,9 @@
 // Copyright 1998-2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef SCITEBASE_H
+#define SCITEBASE_H
+
 extern const GUI::gui_char appName[];
 
 extern const GUI::gui_char propUserFileName[];
@@ -1010,3 +1013,5 @@ public:
 int ControlIDOfCommand(unsigned long) noexcept;
 SA::Colour ColourOfProperty(const PropSetFile &props, const char *key, SA::Colour colourDefault);
 void WindowSetFocus(GUI::ScintillaWindow &w);
+
+#endif

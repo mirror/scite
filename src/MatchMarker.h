@@ -5,6 +5,9 @@
 // Copyright 1998-2014 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#ifndef MATCHMARKER_H
+#define MATCHMARKER_H
+
 struct LineRange {
 	Scintilla::API::Line lineStart;
 	Scintilla::API::Line lineEnd;
@@ -30,3 +33,5 @@ public:
 	void Continue();
 	void Stop() noexcept;
 };
+
+#endif
