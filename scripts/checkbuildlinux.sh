@@ -31,7 +31,7 @@
 # There are also problems with clang failing in the g++ 4.7 headers.
 
 # Turn off deprecation warnings if not interested:
-#export CXXFLAGS=-Wno-deprecated-declarations
+#export CXXFLAGS="-Wno-deprecated-declarations -D GLIB_DISABLE_DEPRECATION_WARNINGS"
 
 # Run commands in parallel up to number of processors
 JOBS="-j $(getconf _NPROCESSORS_ONLN)"
