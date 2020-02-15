@@ -1655,11 +1655,17 @@ bool LuaExtension::OnExecute(const char *s) {
 							lua_insert(luaState, stackBase+1);
 							lua_settop(luaState, stackBase+2);
 							if (!call_function(luaState, 1, true)) {
-								host->Trace(">Lua: error occurred while processing command\n");
+								std::string traceMessage = "> Lua: error occurred while processing command '";
+								traceMessage += s;
+								traceMessage += "'\n";
+								host->Trace(traceMessage.c_str());
 							}
 						}
 					} else {
-						host->Trace("> Lua: error checking global scope for command\n");
+						std::string traceMessage = "> Lua: error checking global scope for command '";
+						traceMessage += s;
+						traceMessage += "'\n";
+						host->Trace(traceMessage.c_str());
 					}
 				}
 			}
