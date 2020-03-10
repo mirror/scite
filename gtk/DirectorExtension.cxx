@@ -46,6 +46,8 @@
 #include <set>
 #include <memory>
 #include <chrono>
+#include <atomic>
+#include <mutex>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -71,7 +73,6 @@
 #include "PropSetFile.h"
 #include "Extender.h"
 #include "SciTE.h"
-#include "Mutex.h"
 #include "JobQueue.h"
 #include "Cookie.h"
 #include "Worker.h"

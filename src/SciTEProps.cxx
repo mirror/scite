@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <memory>
 #include <chrono>
+#include <atomic>
+#include <mutex>
 
 #include <fcntl.h>
 
@@ -55,7 +57,6 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 #include "StyleWriter.h"
 #include "Extender.h"
 #include "SciTE.h"
-#include "Mutex.h"
 #include "JobQueue.h"
 #include "Cookie.h"
 #include "Worker.h"

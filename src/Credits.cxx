@@ -18,6 +18,8 @@
 #include <set>
 #include <memory>
 #include <chrono>
+#include <atomic>
+#include <mutex>
 
 #if defined(GTK)
 #include <gtk/gtk.h>
@@ -38,7 +40,6 @@
 #include "StyleWriter.h"
 #include "Extender.h"
 #include "SciTE.h"
-#include "Mutex.h"
 #include "JobQueue.h"
 
 #include "Cookie.h"

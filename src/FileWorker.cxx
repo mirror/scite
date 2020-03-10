@@ -13,13 +13,14 @@
 #include <vector>
 #include <memory>
 #include <chrono>
+#include <atomic>
+#include <mutex>
 
 #include "ILoader.h"
 
 #include "GUI.h"
 
 #include "FilePath.h"
-#include "Mutex.h"
 #include "Cookie.h"
 #include "Worker.h"
 #include "FileWorker.h"

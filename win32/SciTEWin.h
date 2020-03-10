@@ -29,6 +29,8 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <atomic>
+#include <mutex>
 
 #ifdef __MINGW_H
 #define _WIN32_IE	0x0400
@@ -107,7 +109,6 @@ typedef void *HTHEME;
 #include "StyleWriter.h"
 #include "Extender.h"
 #include "SciTE.h"
-#include "Mutex.h"
 #include "JobQueue.h"
 #include "Cookie.h"
 #include "Worker.h"

@@ -16,6 +16,8 @@
 #include <set>
 #include <memory>
 #include <chrono>
+#include <atomic>
+#include <mutex>
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT  0x0602
@@ -36,7 +38,6 @@
 #include "PropSetFile.h"
 #include "Extender.h"
 #include "SciTE.h"
-#include "Mutex.h"
 #include "JobQueue.h"
 #include "Cookie.h"
 #include "Worker.h"

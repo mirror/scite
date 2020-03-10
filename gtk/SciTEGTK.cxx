@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <memory>
 #include <chrono>
+#include <atomic>
+#include <mutex>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -53,7 +55,6 @@
 #include "Extender.h"
 
 #include "SciTE.h"
-#include "Mutex.h"
 #include "JobQueue.h"
 #include "pixmapsGNOME.h"
 #include "SciIcon.h"

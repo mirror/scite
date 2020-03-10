@@ -22,6 +22,8 @@
 #include <algorithm>
 #include <memory>
 #include <chrono>
+#include <atomic>
+#include <mutex>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -45,7 +47,6 @@
 #include "StyleWriter.h"
 #include "Extender.h"
 #include "SciTE.h"
-#include "Mutex.h"
 #include "JobQueue.h"
 
 #include "Cookie.h"

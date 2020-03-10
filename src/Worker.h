@@ -10,13 +10,12 @@
 
 struct Worker {
 private:
-	std::unique_ptr<Mutex> mutex;
-	volatile bool completed;
-	volatile bool cancelling;
-	volatile size_t jobSize;
-	volatile size_t jobProgress;
+	std::atomic_bool completed;
+	std::atomic_bool cancelling;
+	std::atomic_size_t jobSize;
+	std::atomic_size_t jobProgress;
 public:
-	Worker() : mutex(Mutex::Create()), completed(false), cancelling(false), jobSize(1), jobProgress(0) {
+	Worker() : completed(false), cancelling(false), jobSize(1), jobProgress(0) {
 	}
 	// Deleted so Worker objects can not be copied.
 	Worker(const Worker &) = delete;
@@ -26,42 +25,31 @@ public:
 	virtual ~Worker() {
 	}
 	virtual void Execute() {}
-	bool FinishedJob() const {
-		Lock lock(mutex.get());
+	bool FinishedJob() const noexcept {
 		return completed;
 	}
-	void SetCompleted() {
-		Lock lock(mutex.get());
+	void SetCompleted() noexcept {
 		completed = true;
 	}
-	bool Cancelling() const {
-		Lock lock(mutex.get());
+	bool Cancelling() const noexcept {
 		return cancelling;
 	}
-	size_t SizeJob() const {
-		Lock lock(mutex.get());
+	size_t SizeJob() const noexcept {
 		return jobSize;
 	}
-	void SetSizeJob(size_t size) {
-		Lock lock(mutex.get());
+	void SetSizeJob(size_t size) noexcept {
 		jobSize = size;
 	}
-	size_t ProgressMade() const {
-		Lock lock(mutex.get());
+	size_t ProgressMade() const noexcept {
 		return jobProgress;
 	}
-	void IncrementProgress(size_t increment) {
-		Lock lock(mutex.get());
+	void IncrementProgress(size_t increment) noexcept {
 		jobProgress += increment;
 	}
 	virtual void Cancel() {
-		{
-			Lock lock(mutex.get());
-			cancelling = true;
-		}
+		cancelling = true;
 		// Wait for writing thread to finish
 		for (;;) {
-			Lock lock(mutex.get());
 			if (completed)
 				return;
 		}

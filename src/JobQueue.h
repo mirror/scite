@@ -51,29 +51,29 @@ public:
 };
 
 class JobQueue {
-	bool cancelFlag;
+	std::atomic_bool cancelFlag;
 public:
-	std::unique_ptr<Mutex> mutex;
-	bool clearBeforeExecute;
+	std::mutex mutex;
+	std::atomic_bool clearBeforeExecute;
 	bool isBuilding;
 	bool isBuilt;
-	bool executing;
+	std::atomic_bool executing;
 	static constexpr size_t commandMax = 2;
-	size_t commandCurrent;
+	std::atomic_size_t commandCurrent;
 	std::vector<Job> jobQueue;
-	bool jobUsesOutputPane;
-	bool timeCommands;
+	std::atomic_bool jobUsesOutputPane;
+	std::atomic_bool timeCommands;
 
 	JobQueue();
 	~JobQueue();
-	bool TimeCommands() const;
-	bool ClearBeforeExecute() const;
-	bool ShowOutputPane() const;
-	bool IsExecuting() const;
-	void SetExecuting(bool state);
-	bool HasCommandToRun() const;
+	bool TimeCommands() const noexcept;
+	bool ClearBeforeExecute() const noexcept;
+	bool ShowOutputPane() const noexcept;
+	bool IsExecuting() const noexcept;
+	void SetExecuting(bool state) noexcept;
+	bool HasCommandToRun() const noexcept;
 	bool SetCancelFlag(bool value);
-	bool Cancelled();
+	bool Cancelled() noexcept;
 
 	void ClearJobs();
 	void AddCommand(const std::string &command, const FilePath &directory, JobSubsystem jobType, const std::string &input, int flags);

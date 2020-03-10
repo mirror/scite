@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <memory>
 #include <chrono>
+#include <atomic>
+#include <mutex>
 
 #include <sys/stat.h>
 
@@ -29,7 +31,6 @@
 #include "FilePath.h"
 #include "PropSetFile.h"
 #include "SciTE.h"
-#include "Mutex.h"
 #include "JobQueue.h"
 
 JobSubsystem SubsystemFromChar(char c) noexcept {
@@ -196,7 +197,6 @@ void Job::Clear() {
 
 
 JobQueue::JobQueue() : jobQueue(commandMax) {
-	mutex.reset(Mutex::Create());
 	clearBeforeExecute = false;
 	isBuilding = false;
 	isBuilt = false;
@@ -208,48 +208,40 @@ JobQueue::JobQueue() : jobQueue(commandMax) {
 }
 
 JobQueue::~JobQueue() {
-	mutex.reset();
-	mutex = 0;
 }
 
-bool JobQueue::TimeCommands() const {
-	Lock lock(mutex.get());
+bool JobQueue::TimeCommands() const noexcept {
 	return timeCommands;
 }
 
-bool JobQueue::ClearBeforeExecute() const {
-	Lock lock(mutex.get());
+bool JobQueue::ClearBeforeExecute() const noexcept {
 	return clearBeforeExecute;
 }
 
-bool JobQueue::ShowOutputPane() const {
-	Lock lock(mutex.get());
+bool JobQueue::ShowOutputPane() const noexcept {
 	return jobUsesOutputPane;
 }
 
-bool JobQueue::IsExecuting() const {
-	Lock lock(mutex.get());
+bool JobQueue::IsExecuting() const noexcept {
 	return executing;
 }
 
-void JobQueue::SetExecuting(bool state) {
-	Lock lock(mutex.get());
+void JobQueue::SetExecuting(bool state) noexcept {
 	executing = state;
 }
 
-bool JobQueue::HasCommandToRun() const {
+bool JobQueue::HasCommandToRun() const noexcept {
 	return commandCurrent > 0;
 }
 
 bool JobQueue::SetCancelFlag(bool value) {
-	Lock lock(mutex.get());
+	std::lock_guard<std::mutex> guard(mutex);
 	const bool cancelFlagPrevious = cancelFlag;
 	cancelFlag = value;
 	return cancelFlagPrevious;
 }
 
-bool JobQueue::Cancelled() {
-	Lock lock(mutex.get());
+bool JobQueue::Cancelled() noexcept {
 	return cancelFlag;
 }
 
