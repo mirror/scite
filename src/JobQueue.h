@@ -51,17 +51,17 @@ public:
 };
 
 class JobQueue {
+	bool cancelFlag;
 public:
 	std::unique_ptr<Mutex> mutex;
 	bool clearBeforeExecute;
 	bool isBuilding;
 	bool isBuilt;
 	bool executing;
-	enum { commandMax = 2 };
-	int commandCurrent;
+	static constexpr size_t commandMax = 2;
+	size_t commandCurrent;
 	std::vector<Job> jobQueue;
 	bool jobUsesOutputPane;
-	long cancelFlag;
 	bool timeCommands;
 
 	JobQueue();
@@ -72,8 +72,8 @@ public:
 	bool IsExecuting() const;
 	void SetExecuting(bool state);
 	bool HasCommandToRun() const;
-	long SetCancelFlag(long value);
-	long Cancelled();
+	bool SetCancelFlag(bool value);
+	bool Cancelled();
 
 	void ClearJobs();
 	void AddCommand(const std::string &command, const FilePath &directory, JobSubsystem jobType, const std::string &input, int flags);

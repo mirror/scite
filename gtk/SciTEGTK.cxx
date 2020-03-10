@@ -502,7 +502,7 @@ protected:
 
 	// Control of sub process
 	FilePath sciteExecutable;
-	int icmd;
+	size_t icmd;
 	int originalEnd;
 	int fdFIFO;
 	GPid pidShell;

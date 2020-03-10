@@ -203,7 +203,7 @@ JobQueue::JobQueue() : jobQueue(commandMax) {
 	executing = false;
 	commandCurrent = 0;
 	jobUsesOutputPane = false;
-	cancelFlag = 0L;
+	cancelFlag = false;
 	timeCommands = false;
 }
 
@@ -241,14 +241,14 @@ bool JobQueue::HasCommandToRun() const {
 	return commandCurrent > 0;
 }
 
-long JobQueue::SetCancelFlag(long value) {
+bool JobQueue::SetCancelFlag(bool value) {
 	Lock lock(mutex.get());
-	const long cancelFlagPrevious = cancelFlag;
+	const bool cancelFlagPrevious = cancelFlag;
 	cancelFlag = value;
 	return cancelFlagPrevious;
 }
 
-long JobQueue::Cancelled() {
+bool JobQueue::Cancelled() {
 	Lock lock(mutex.get());
 	return cancelFlag;
 }

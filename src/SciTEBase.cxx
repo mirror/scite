@@ -1297,9 +1297,8 @@ void SciTEBase::Execute() {
 	props.Set("CurrentMessage", "");
 	dirNameForExecute = FilePath();
 	bool displayParameterDialog = false;
-	int ic;
 	parameterisedCommand = "";
-	for (ic = 0; ic < jobQueue.commandMax; ic++) {
+	for (size_t ic = 0; ic < jobQueue.commandMax; ic++) {
 		if (StartsWith(jobQueue.jobQueue[ic].command, "*")) {
 			displayParameterDialog = true;
 			jobQueue.jobQueue[ic].command.erase(0, 1);
@@ -1317,7 +1316,7 @@ void SciTEBase::Execute() {
 	} else {
 		ParamGrab();
 	}
-	for (ic = 0; ic < jobQueue.commandMax; ic++) {
+	for (size_t ic = 0; ic < jobQueue.commandMax; ic++) {
 		if (jobQueue.jobQueue[ic].jobType != jobGrep) {
 			jobQueue.jobQueue[ic].command = props.Expand(jobQueue.jobQueue[ic].command);
 		}
@@ -1334,7 +1333,7 @@ void SciTEBase::Execute() {
 		SetOutputVisibility(true);
 	}
 
-	jobQueue.cancelFlag = 0L;
+	jobQueue.SetCancelFlag(false);
 	if (jobQueue.HasCommandToRun()) {
 		jobQueue.SetExecuting(true);
 	}

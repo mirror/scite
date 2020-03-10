@@ -1035,7 +1035,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 				}
 			}
 
-			if (jobQueue.SetCancelFlag(0)) {
+			if (jobQueue.SetCancelFlag(false)) {
 				if (WAIT_OBJECT_0 != ::WaitForSingleObject(pi.hProcess, 500)) {
 					// We should use it only if the GUI process is stuck and
 					// don't answer to a normal termination command.
@@ -1268,7 +1268,7 @@ void SciTEWin::StopExecute() {
 	}
 #endif
 
-	jobQueue.SetCancelFlag(1);
+	jobQueue.SetCancelFlag(true);
 }
 
 void SciTEWin::AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input, int flags) {

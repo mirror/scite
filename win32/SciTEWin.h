@@ -133,7 +133,7 @@ class SciTEWin;
 class CommandWorker : public Worker {
 public:
 	SciTEWin *pSciTE;
-	int icmd;
+	size_t icmd;
 	SA::Position originalEnd;
 	int exitStatus;
 	GUI::ElapsedTime commandTime;
