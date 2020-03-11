@@ -55,8 +55,8 @@ class JobQueue {
 public:
 	std::mutex mutex;
 	std::atomic_bool clearBeforeExecute;
-	bool isBuilding;
-	bool isBuilt;
+	std::atomic_bool isBuilding;
+	std::atomic_bool isBuilt;
 	std::atomic_bool executing;
 	static constexpr size_t commandMax = 2;
 	std::atomic_size_t commandCurrent;
