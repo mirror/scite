@@ -24,6 +24,7 @@
 #include <chrono>
 #include <atomic>
 #include <mutex>
+#include <thread>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -217,6 +218,18 @@ SciTEBase::~SciTEBase() {
 
 void SciTEBase::Finalise() {
 	TimerEnd(timerAutoSave);
+}
+
+bool SciTEBase::PerformOnNewThread(Worker *pWorker) {
+	try {
+		std::thread thread([pWorker] {
+			pWorker->Execute();
+		});
+		thread.detach();
+		return true;
+	} catch (std::system_error &) {
+		return false;
+	}
 }
 
 void SciTEBase::WorkerCommand(int cmd, Worker *pWorker) {

@@ -402,7 +402,6 @@ public:
 	void StopExecute() override;
 	void AddCommand(const std::string &cmd, const std::string &dir, JobSubsystem jobType, const std::string &input = "", int flags = 0) override;
 
-	bool PerformOnNewThread(Worker *pWorker) override;
 	void PostOnMainThread(int cmd, Worker *pWorker) override;
 	void WorkerCommand(int cmd, Worker *pWorker) override;
 

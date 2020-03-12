@@ -1293,17 +1293,6 @@ void SciTEWin::AddCommand(const std::string &cmd, const std::string &dir, JobSub
 	}
 }
 
-static void WorkerThread(void *ptr) {
-	Worker *pWorker = static_cast<Worker *>(ptr);
-	pWorker->Execute();
-}
-
-bool SciTEWin::PerformOnNewThread(Worker *pWorker) {
-	void *threadArgument = pWorker;
-	const uintptr_t result = _beginthread(WorkerThread, 1024 * 1024, threadArgument);
-	return result != static_cast<uintptr_t>(-1);
-}
-
 void SciTEWin::PostOnMainThread(int cmd, Worker *pWorker) {
 	::PostMessage(HwndOf(wSciTE), SCITE_WORKER, cmd, reinterpret_cast<LPARAM>(pWorker));
 }

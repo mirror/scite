@@ -1004,7 +1004,7 @@ public:
 
 	GUI::WindowID GetID() const noexcept { return wSciTE.GetID(); }
 
-	virtual bool PerformOnNewThread(Worker *pWorker) = 0;
+	bool PerformOnNewThread(Worker *pWorker);
 	// WorkerListener
 	void PostOnMainThread(int cmd, Worker *pWorker) override = 0;
 	virtual void WorkerCommand(int cmd, Worker *pWorker);

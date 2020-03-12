@@ -764,7 +764,6 @@ public:
 	void StopExecute() override;
 	static int PollTool(SciTEGTK *scitew);
 	static void ReapChild(GPid, gint, gpointer);
-	bool PerformOnNewThread(Worker *pWorker) override;
 	void PostOnMainThread(int cmd, Worker *pWorker) override;
 	static gboolean PostCallback(void *ptr);
 	// Single instance
@@ -5170,31 +5169,6 @@ void SciTEGTK::SetIcon() {
 		gtk_window_set_icon(GTK_WINDOW(PWidget(wSciTE)), pixbufIcon);
 		g_object_unref(pixbufIcon);
 	}
-}
-
-static void *WorkerThread(void *ptr) {
-	Worker *pWorker = static_cast<Worker *>(ptr);
-	pWorker->Execute();
-	return NULL;
-}
-
-bool SciTEGTK::PerformOnNewThread(Worker *pWorker) {
-	GError *err = NULL;
-#if GLIB_CHECK_VERSION(2,31,0)
-	GThread *pThread = g_thread_try_new("SciTEWorker", WorkerThread, pWorker, &err);
-#else
-	GThread *pThread = g_thread_create(WorkerThread, pWorker,TRUE, &err);
-#endif
-	if (pThread == NULL) {
-		fprintf(stderr, "g_thread_create failed: %s\n", err->message);
-		g_error_free(err) ;
-		return false;
-	}
-#if GLIB_CHECK_VERSION(2,31,0)
-	// The thread keeps itself alive so no need to keep reference.
-	g_thread_unref(pThread);
-#endif
-	return true;
 }
 
 struct CallbackData {
