@@ -932,7 +932,7 @@ void SciTEBase::ReadProperties() {
 		else	// Have to show selection somehow
 			CallChildren(SA::Message::SetSelBack, 1, ColourRGB(0xC0, 0xC0, 0xC0));
 	}
-	const int NoAlpha = static_cast<int>(SA::Alpha::NoAlpha);
+	constexpr int NoAlpha = static_cast<int>(SA::Alpha::NoAlpha);
 	const int selectionAlpha = props.GetInt("selection.alpha", NoAlpha);
 	CallChildren(SA::Message::SetSelAlpha, selectionAlpha);
 

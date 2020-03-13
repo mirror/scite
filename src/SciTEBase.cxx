@@ -2394,7 +2394,7 @@ void SciTEBase::ConvertIndentation(int tabSize, int useTabs) {
 		const SA::Position lineStart = wEditor.LineStart(line);
 		const int indent = GetLineIndentation(line);
 		const SA::Position indentPos = GetLineIndentPosition(line);
-		const int maxIndentation = 1000;
+		constexpr int maxIndentation = 1000;
 		if (indent < maxIndentation) {
 			std::string indentationNow = wEditor.StringOfRange(SA::Range(lineStart, indentPos));
 			std::string indentationWanted = CreateIndentation(indent, tabSize, !useTabs);

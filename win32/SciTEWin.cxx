@@ -157,7 +157,7 @@ bool UIShouldBeFlat() noexcept {
 	osvi.dwMajorVersion = 6;
 	osvi.dwMinorVersion = 2;
 
-	const BYTE op = VER_GREATER_EQUAL;
+	constexpr BYTE op = VER_GREATER_EQUAL;
 	DWORDLONG dwlConditionMask = 0;
 	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
 	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, op);
@@ -450,7 +450,7 @@ void SciTEWin::ReadProperties() {
 	SciTEBase::ReadProperties();
 	if (flatterUI) {
 		if (foldColour.empty() && foldHiliteColour.empty()) {
-			const SA::Colour lightMargin = ColourRGB(0xF7, 0xF7, 0xF7);
+			constexpr SA::Colour lightMargin = ColourRGB(0xF7, 0xF7, 0xF7);
 			CallChildren(SA::Message::SetFoldMarginColour, 1, lightMargin);
 			CallChildren(SA::Message::SetFoldMarginHiColour, 1, lightMargin);
 		}
@@ -842,7 +842,7 @@ DWORD SciTEWin::ExecuteOne(const Job &jobToRun) {
 	HANDLE hPipeRead {};
 	// Create pipe for output redirection
 	// read handle, write handle, security attributes,  number of bytes reserved for pipe
-	const DWORD pipeBufferSize = 64 * 1024;
+	constexpr DWORD pipeBufferSize = 64 * 1024;
 	::CreatePipe(&hPipeRead, &hPipeWrite, &sa, pipeBufferSize);
 
 	// Create pipe for input redirection. In this code, you do not
@@ -1329,7 +1329,7 @@ void SciTEWin::RestorePosition() {
 	const int height = propsSession.GetInt("position.height", CW_USEDEFAULT);
 	cmdShow = propsSession.GetInt("position.maximize", 0) ? SW_MAXIMIZE : 0;
 
-	const int defaultValue = static_cast<int>(CW_USEDEFAULT);
+	constexpr int defaultValue = CW_USEDEFAULT;
 	if (left != defaultValue &&
 			top != defaultValue &&
 			width != defaultValue &&

@@ -26,7 +26,7 @@ std::vector<LineRange> LinesBreak(SA::ScintillaCall *pSci) {
 		const SA::Line lineStartVisible = pSci->FirstVisibleLine();
 		const SA::Line docLineStartVisible = pSci->DocLineFromVisible(lineStartVisible);
 		const SA::Line linesOnScreen = pSci->LinesOnScreen();
-		const SA::Line surround = 40;
+		constexpr SA::Line surround = 40;
 		LineRange rangePriority(docLineStartVisible - surround, docLineStartVisible + linesOnScreen + surround);
 		if (rangePriority.lineStart < 0)
 			rangePriority.lineStart = 0;
@@ -65,7 +65,7 @@ bool MatchMarker::Complete() const noexcept {
 }
 
 void MatchMarker::Continue() {
-	const int segment = 200;
+	constexpr int segment = 200;
 
 	// Remove old indicators if any exist.
 	pSci->SetIndicatorCurrent(indicator);

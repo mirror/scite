@@ -1140,7 +1140,7 @@ void SciTEBase::SetBuffersMenu() {
 		DestroyMenuItem(menuBuffers, IDM_BUFFER + pos);
 	}
 	if (buffers.size() > 1) {
-		const int menuStart = 4;
+		constexpr int menuStart = 4;
 		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, GUI_TEXT(""));
 		for (pos = 0; pos < buffers.lengthVisible; pos++) {
 			const int itemID = bufferCmdID + pos;

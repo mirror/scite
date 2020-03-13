@@ -35,7 +35,7 @@ GUI::gui_string TextOfWindow(HWND hWnd) {
 GUI::gui_string ClassNameOfWindow(HWND hWnd) {
 	// In the documentation of WNDCLASS:
 	// "The maximum length for lpszClassName is 256."
-	const size_t maxClassNameLength = 256+1;	// +1 for NUL
+	constexpr size_t maxClassNameLength = 256+1;	// +1 for NUL
 	GUI::gui_char className[maxClassNameLength];
 	if (::GetClassNameW(hWnd, className, maxClassNameLength))
 		return GUI::gui_string(className);
@@ -588,7 +588,7 @@ LRESULT Strip::CustomDraw(NMHDR *pnmh) noexcept {
 		rbmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 		::GetDIBits(pcd->hdc, hBitmap, 0, 0, nullptr, &rbmi, DIB_RGB_COLORS);
 
-		const DWORD colourTransparent = RGB(0xC0, 0xC0, 0xC0);
+		constexpr DWORD colourTransparent = RGB(0xC0, 0xC0, 0xC0);
 
 		// Offset from button edge to contents.
 		const int xOffset = ((rcButton.right - rcButton.left) - rbmi.bmiHeader.biWidth) / 2 + 1;
@@ -779,7 +779,7 @@ void BackgroundStrip::Size() {
 	Strip::Size();
 	const GUI::Rectangle rcArea = LineArea(0);
 
-	const int progWidth = 200;
+	constexpr int progWidth = 200;
 
 	GUI::Rectangle rcProgress = rcArea;
 	rcProgress.right = rcProgress.left + progWidth;
@@ -828,12 +828,12 @@ void BackgroundStrip::SetProgress(const GUI::gui_string &explanation, size_t siz
 		::SetWindowTextW(HwndOf(wExplanation), explanation.c_str());
 	}
 	// Scale values by 1000 as PBM_SETRANGE32 limited to 32-bit
-	const int scaleProgress = 1000;
+	constexpr int scaleProgress = 1000;
 	::SendMessage(HwndOf(wProgress), PBM_SETRANGE32, 0, size/scaleProgress);
 	::SendMessage(HwndOf(wProgress), PBM_SETPOS, progress/scaleProgress, 0);
 }
 
-static const COLORREF colourNoMatch = RGB(0xff, 0x66, 0x66);
+static constexpr COLORREF colourNoMatch = RGB(0xff, 0x66, 0x66);
 
 void SearchStripBase::Creation() {
 	Strip::Creation();

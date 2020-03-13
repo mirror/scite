@@ -529,7 +529,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		sVersion += " ";
 #if defined(GTK)
 		wsci.StyleSetFont(StyleDefault, "Serif");
-		const int fontSize = 14;
+		constexpr int fontSize = 14;
 		sVersion += "compiled for GTK ";
 		sVersion += StdStringFromInteger(GTK_MAJOR_VERSION);
 		sVersion += ".";
@@ -537,7 +537,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		sVersion += ".";
 		sVersion += StdStringFromInteger(GTK_MICRO_VERSION);
 #else
-		const int fontSize = 15;
+		constexpr int fontSize = 15;
 #endif
 		sVersion += "\n";
 
@@ -553,7 +553,7 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
-		const int trsSty = 5; // define the stylenumber to assign font for translators.
+		constexpr int trsSty = 5; // define the stylenumber to assign font for translators.
 		std::string translator = GetTranslationToAbout("TranslationCredit", false);
 		SetAboutStyle(wsci, trsSty, ColourRGB(0, 0, 0));
 		if constexpr (sizeof(void *) == 4) {

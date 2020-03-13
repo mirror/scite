@@ -65,7 +65,7 @@ void SciTEBase::SaveToHTML(const FilePath &saveName) {
 	const SA::Position lengthDoc = LengthDocument();
 	TextReader acc(wEditor);
 
-	const int StyleLastPredefined = static_cast<int>(SA::StylesCommon::LastPredefined);
+	constexpr int StyleLastPredefined = static_cast<int>(SA::StylesCommon::LastPredefined);
 
 	bool styleIsUsed[StyleMax + 1] = {};
 	if (onlyStylesUsed) {
