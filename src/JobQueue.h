@@ -45,9 +45,9 @@ public:
 	std::string input;
 	int flags;
 
-	Job();
+	Job() noexcept;
 	Job(const std::string &command_, const FilePath &directory_, JobSubsystem jobType_, const std::string &input_, int flags_);
-	void Clear();
+	void Clear() noexcept;
 };
 
 class JobQueue {
@@ -75,7 +75,7 @@ public:
 	bool SetCancelFlag(bool value);
 	bool Cancelled() noexcept;
 
-	void ClearJobs();
+	void ClearJobs() noexcept;
 	void AddCommand(const std::string &command, const FilePath &directory, JobSubsystem jobType, const std::string &input, int flags);
 };
 

@@ -179,7 +179,7 @@ JobMode::JobMode(PropSetFile &props, int item, const char *fileNameExt) : jobTyp
 		flags |= jobGroupUndo;
 }
 
-Job::Job() : jobType(jobCLI), flags(0) {
+Job::Job() noexcept : jobType(jobCLI), flags(0) {
 	Clear();
 }
 
@@ -187,11 +187,11 @@ Job::Job(const std::string &command_, const FilePath &directory_, JobSubsystem j
 	: command(command_), directory(directory_), jobType(jobType_), input(input_), flags(flags_) {
 }
 
-void Job::Clear() {
-	command = "";
+void Job::Clear() noexcept {
+	command.clear();
 	directory.Init();
 	jobType = jobCLI;
-	input = "";
+	input.clear();
 	flags = 0;
 }
 
@@ -245,7 +245,7 @@ bool JobQueue::Cancelled() noexcept {
 	return cancelFlag;
 }
 
-void JobQueue::ClearJobs() {
+void JobQueue::ClearJobs() noexcept {
 	for (Job &ic : jobQueue) {
 		ic.Clear();
 	}
