@@ -17,55 +17,55 @@
 #include "StringHelpers.h"
 #include "Cookie.h"
 
-std::string ExtractLine(const char *buf, size_t length) {
-	unsigned int endl = 0;
-	if (length > 0) {
-		while ((endl < length) && (buf[endl] != '\r') && (buf[endl] != '\n')) {
-			endl++;
-		}
-		if (((endl + 1) < length) && (buf[endl] == '\r') && (buf[endl+1] == '\n')) {
-			endl++;
-		}
-		if (endl < length) {
-			endl++;
-		}
+std::string_view ExtractLine(std::string_view sv) noexcept {
+	std::string_view remainder = sv;
+	while ((remainder.length() > 0) && (remainder[0] != '\r') && (remainder[0] != '\n')) {
+		remainder.remove_prefix(1);
 	}
-	return std::string(buf, endl);
+	if ((remainder.length() > 1) && (remainder[0] == '\r') && (remainder[1] == '\n')) {
+		remainder.remove_prefix(1);
+	}
+	if (remainder.length() > 0) {
+		remainder.remove_prefix(1);
+	}
+	sv.remove_suffix(remainder.length());
+	return sv;
 }
 
-static const char codingCookie[] = "coding";
+namespace {
 
-static bool isEncodingChar(char ch) noexcept {
+constexpr std::string_view codingCookie("coding");
+constexpr std::string_view utf8Name("utf-8");
+
+constexpr bool isEncodingChar(char ch) noexcept {
 	return (ch == '_') || (ch == '-') || (ch == '.') ||
 	       (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
 	       (ch >= '0' && ch <= '9');
 }
 
-static bool isSpaceChar(char ch) noexcept {
+constexpr bool isSpaceChar(char ch) noexcept {
 	return (ch == ' ') || (ch == '\t');
 }
 
-static UniMode CookieValue(const std::string &s) {
-	size_t posCoding = s.find(codingCookie);
-	if (posCoding != std::string::npos) {
-		posCoding += strlen(codingCookie);
-		if ((s[posCoding] == ':') || (s[posCoding] == '=')) {
-			posCoding++;
-			if ((s[posCoding] == '\"') || (s[posCoding] == '\'')) {
-				posCoding++;
+UniMode CookieValue(std::string_view s) noexcept {
+	const size_t posCoding = s.find(codingCookie);
+	if (posCoding != std::string_view::npos) {
+		s.remove_prefix(posCoding + codingCookie.length());
+		if ((s.length() > 0) && ((s[0] == ':') || (s[0] == '='))) {
+			s.remove_prefix(1);
+			if ((s.length() > 0) && ((s[0] == '\"') || (s[0] == '\''))) {
+				s.remove_prefix(1);
 			}
-			while ((posCoding < s.length()) &&
-					(isSpaceChar(s[posCoding]))) {
-				posCoding++;
+			while ((s.length() > 0) && (isSpaceChar(s[0]))) {
+				s.remove_prefix(1);
 			}
-			size_t endCoding = posCoding;
+			size_t endCoding = 0;
 			while ((endCoding < s.length()) &&
 					(isEncodingChar(s[endCoding]))) {
 				endCoding++;
 			}
-			std::string code(s, posCoding, endCoding-posCoding);
-			LowerCaseAZ(code);
-			if (code == "utf-8") {
+			s.remove_suffix(s.length() - endCoding);
+			if (EqualCaseInsensitive(s, utf8Name)) {
 				return uniCookie;
 			}
 		}
@@ -73,11 +73,14 @@ static UniMode CookieValue(const std::string &s) {
 	return uni8Bit;
 }
 
-UniMode CodingCookieValue(const char *buf, size_t length) {
-	std::string l1 = ExtractLine(buf, length);
+}
+
+UniMode CodingCookieValue(std::string_view sv) noexcept {
+	const std::string_view l1 = ExtractLine(sv);
 	UniMode unicodeMode = CookieValue(l1);
 	if (unicodeMode == uni8Bit) {
-		std::string l2 = ExtractLine(buf + l1.length(), length - l1.length());
+		sv.remove_prefix(l1.length());
+		const std::string_view l2 = ExtractLine(sv);
 		unicodeMode = CookieValue(l2);
 	}
 	return unicodeMode;

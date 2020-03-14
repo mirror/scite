@@ -160,11 +160,12 @@ std::string SciTEBase::DiscoverLanguage() {
 	const SA::Position length = std::min<SA::Position>(LengthDocument(), 64 * 1024);
 	std::string buf = wEditor.StringOfRange(SA::Range(0, length));
 	std::string languageOverride = "";
-	std::string l1 = ExtractLine(buf.c_str(), length);
-	if (StartsWith(l1, "<?xml")) {
+	std::string_view line = ExtractLine(buf);
+	if (StartsWith(line, "<?xml")) {
 		languageOverride = "xml";
-	} else if (StartsWith(l1, "#!")) {
-		l1 = l1.substr(2);
+	} else if (StartsWith(line, "#!")) {
+		line.remove_prefix(2);
+		std::string l1(line);
 		std::replace(l1.begin(), l1.end(), '\\', ' ');
 		std::replace(l1.begin(), l1.end(), '/', ' ');
 		std::replace(l1.begin(), l1.end(), '\t', ' ');
@@ -310,7 +311,7 @@ void SciTEBase::OpenCurrentFile(long long fileSize, bool suppressMessage, bool a
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
 		size_t lenFile = fread(&data[0], 1, data.size(), fp);
-		const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
+		const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
 		while (lenFile > 0) {
 			lenFile = convert.convert(&data[0], lenFile);
 			const char *dataBlock = convert.getNewBuf();
@@ -1292,7 +1293,7 @@ void SciTEBase::OpenFromStdin(bool UseOutputPane) {
 		wEditor.ClearAll();
 	}
 	size_t lenFile = fread(&data[0], 1, data.size(), stdin);
-	const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
+	const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
 	while (lenFile > 0) {
 		lenFile = convert.convert(&data[0], lenFile);
 		if (UseOutputPane) {

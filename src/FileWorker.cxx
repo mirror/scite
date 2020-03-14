@@ -53,7 +53,7 @@ void FileLoader::Execute() {
 		Utf8_16_Read convert;
 		std::vector<char> data(blockSize);
 		size_t lenFile = fread(&data[0], 1, blockSize, fp);
-		const UniMode umCodingCookie = CodingCookieValue(&data[0], lenFile);
+		const UniMode umCodingCookie = CodingCookieValue(std::string_view(data.data(), lenFile));
 		while ((lenFile > 0) && (err == 0) && (!Cancelling())) {
 			GUI::SleepMilliseconds(sleepTime);
 			lenFile = convert.convert(&data[0], lenFile);

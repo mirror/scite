@@ -36,7 +36,7 @@ constexpr char MakeUpperCase(char ch) noexcept {
 	if (ch < 'a' || ch > 'z')
 		return ch;
 	else
-		return static_cast<char>(ch - 'a' + 'A');
+		return ch - 'a' + 'A';
 }
 
 constexpr bool IsASCII(int ch) noexcept {
@@ -99,6 +99,7 @@ void StringCopy(T(&dest)[count], const T *source) noexcept {
 
 int CompareNoCase(const char *a, const char *b) noexcept;
 bool EqualCaseInsensitive(const char *a, const char *b) noexcept;
+bool EqualCaseInsensitive(std::string_view a, std::string_view b) noexcept;
 bool isprefix(const char *target, const char *prefix) noexcept;
 
 constexpr const char *UTF8BOM = "\xef\xbb\xbf";
