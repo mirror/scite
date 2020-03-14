@@ -38,6 +38,7 @@
 #include <stdexcept>
 #include <new>
 #include <utility>
+#include <optional>
 #include <tuple>
 #include <string>
 #include <string_view>
@@ -54,6 +55,7 @@
 #include <regex>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <atomic>
 #include <mutex>
 #include <thread>
@@ -88,12 +90,14 @@
 #include <commctrl.h>
 #include <richedit.h>
 #include <windowsx.h>
+#include <uxtheme.h>
+#include <shlwapi.h>
+#include <shlobj.h>
 #include <zmouse.h>
 #include <ole2.h>
 #include <d2d1.h>
 #include <dwrite.h>
 #include <direct.h>
-#include <shlobj.h>
 
 // Cocoa headers
 #include <Cocoa/Cocoa.h>
@@ -204,7 +208,9 @@
 #include "MatchMarker.h"
 #include "EditorConfig.h"
 #include "SciTEBase.h"
+#include "UniqueInstance.h"
 #include "StripDefinition.h"
+#include "Strips.h"
 #include "Utf8_16.h"
 
 #include "IFaceTable.h"

@@ -11,9 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <fcntl.h>
 #include <stdarg.h>
-#include <sys/stat.h>
 
 #include <cstdint>
 
@@ -22,8 +20,8 @@
 #include <string_view>
 #include <vector>
 #include <deque>
-#include <set>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <memory>
 #include <chrono>
@@ -31,6 +29,10 @@
 #include <iomanip>
 #include <atomic>
 #include <mutex>
+
+#include <fcntl.h>
+
+#include <sys/stat.h>
 
 #ifdef __MINGW_H
 #define _WIN32_IE	0x0400
@@ -46,6 +48,8 @@
 #define WINVER 0x0501
 #endif
 #include <windows.h>
+#include <commctrl.h>
+#include <richedit.h>
 #include <windowsx.h>
 #if defined(DISABLE_THEMES) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
 // Old compilers do not have Uxtheme.h
@@ -53,16 +57,9 @@ typedef void *HTHEME;
 #else
 #include <uxtheme.h>
 #endif
-#include <commctrl.h>
-#include <richedit.h>
 #include <shlwapi.h>
 // need this header for SHBrowseForFolder
 #include <shlobj.h>
-
-#include <io.h>
-#include <process.h>
-#include <mmsystem.h>
-#include <commctrl.h>
 
 #if defined(DTBG_CLIPRECT) && !defined(DISABLE_THEMES)
 #define THEME_AVAILABLE
@@ -91,12 +88,13 @@ typedef void *HTHEME;
 #define WM_DPICHANGED 0x02E0
 #endif
 
-#include "Scintilla.h"
 #include "ILoader.h"
 
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
 #include "ScintillaCall.h"
+
+#include "Scintilla.h"
 
 #include "GUI.h"
 #include "ScintillaWindow.h"
@@ -115,10 +113,10 @@ typedef void *HTHEME;
 #include "FileWorker.h"
 #include "MatchMarker.h"
 #include "SciTEBase.h"
-#include "SciTEKeys.h"
 #include "UniqueInstance.h"
 #include "StripDefinition.h"
 #include "Strips.h"
+#include "SciTEKeys.h"
 
 constexpr int SCITE_TRAY = WM_APP + 0;
 constexpr int SCITE_DROP = WM_APP + 1;
