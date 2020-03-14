@@ -15,8 +15,6 @@
 #ifndef UTF8_16_H
 #define UTF8_16_H
 
-#include <cassert>
-
 class Utf8_16 {
 public:
 	typedef unsigned short utf16; // 16 bits

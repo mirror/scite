@@ -9,6 +9,7 @@
 // It is provided "as is" without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
 #include <cstring>
 #include <cstdio>
 
