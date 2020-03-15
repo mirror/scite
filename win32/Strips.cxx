@@ -63,13 +63,9 @@ void CheckButton(const GUI::Window &wButton, bool checked) noexcept {
 
 SIZE SizeButton(const GUI::Window &wButton) noexcept {
 	SIZE sz = { 0, 0 };
-#ifdef BCM_GETIDEALSIZE
 	// Push buttons can be measured with BCM_GETIDEALSIZE.
 	::SendMessage(HwndOf(wButton),
 		      BCM_GETIDEALSIZE, 0, reinterpret_cast<LPARAM>(&sz));
-#else
-	(void)wButton;	// Avoid warning from GCC
-#endif
 	return sz;
 }
 

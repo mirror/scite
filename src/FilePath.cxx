@@ -251,7 +251,7 @@ static int access(const wchar_t *path, int mode) noexcept {
 	return _waccess(path, mode);
 }
 
-#if defined(_MSC_VER) && (_MSC_VER > 1310)
+#if defined(_MSC_VER)
 static int stat(const wchar_t *path, struct _stat64i32 *buffer) noexcept {
 	return _wstat(path, buffer);
 }
@@ -447,7 +447,7 @@ time_t FilePath::ModifiedTime() const {
 	if (access(AsInternal(), R_OK) == -1)
 		return 0;
 #ifdef _WIN32
-#if defined(_MSC_VER) && (_MSC_VER > 1310)
+#if defined(_MSC_VER)
 	struct _stat64i32 statusFile;
 #else
 	struct _stat statusFile;
@@ -494,7 +494,7 @@ bool FilePath::Exists() const noexcept {
 
 bool FilePath::IsDirectory() const noexcept {
 #ifdef _WIN32
-#if defined(_MSC_VER) && (_MSC_VER > 1310)
+#if defined(_MSC_VER)
 	struct _stat64i32 statusFile;
 #else
 	struct _stat statusFile;

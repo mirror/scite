@@ -67,9 +67,7 @@ public:
 	void reset() noexcept;
 	void set(const ubyte *pBuf, size_t nLen, encodingType eEncoding);
 	int get() const noexcept {
-#ifdef _DEBUG
 		assert(m_eState == eStart);
-#endif
 		return m_nCur;
 	}
 	bool canGet() const noexcept { return m_eState == eStart; }

@@ -14,14 +14,6 @@ extern const GUI::gui_char propUserFileName[];
 extern const GUI::gui_char propGlobalFileName[];
 extern const GUI::gui_char propAbbrevFileName[];
 
-#ifdef _WIN32
-#ifdef _MSC_VER
-// Shut up level 4 warning:
-// warning C4800: forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning(disable: 4800)
-#endif
-#endif
-
 inline int Minimum(int a, int b) noexcept {
 	return (a < b) ? a : b;
 }

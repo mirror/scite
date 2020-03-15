@@ -8,13 +8,6 @@
 #ifndef STRIPS_H
 #define STRIPS_H
 
-#ifndef UISF_HIDEACCEL
-#define UISF_HIDEACCEL 2
-#define UISF_HIDEFOCUS 1
-#define UIS_CLEAR 2
-#define UIS_SET 1
-#endif
-
 void *PointerFromWindow(HWND hWnd) noexcept;
 void SetWindowPointer(HWND hWnd, void *ptr) noexcept;
 void *SetWindowPointerFromCreate(HWND hWnd, LPARAM lParam) noexcept;

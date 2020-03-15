@@ -51,29 +51,18 @@
 #include <commctrl.h>
 #include <richedit.h>
 #include <windowsx.h>
-#if defined(DISABLE_THEMES) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
+#if defined(DISABLE_THEMES)
 // Old compilers do not have Uxtheme.h
 typedef void *HTHEME;
 #else
 #include <uxtheme.h>
 #include <vsstyle.h>
 #include <vssym32.h>
+#define THEME_AVAILABLE
 #endif
 #include <shlwapi.h>
 // need this header for SHBrowseForFolder
 #include <shlobj.h>
-
-#if defined(DTBG_CLIPRECT) && !defined(DISABLE_THEMES)
-#define THEME_AVAILABLE
-#endif
-
-#ifndef WM_UPDATEUISTATE
-#define WM_UPDATEUISTATE 0x0128
-#endif
-
-#ifndef WM_DPICHANGED
-#define WM_DPICHANGED 0x02E0
-#endif
 
 #include "ILoader.h"
 

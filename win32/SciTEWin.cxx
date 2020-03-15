@@ -9,6 +9,10 @@
 
 #include "SciTEWin.h"
 
+#ifndef WM_DPICHANGED
+#define WM_DPICHANGED 0x02E0
+#endif
+
 #ifndef NO_EXTENSIONS
 #include "MultiplexExtension.h"
 
@@ -1739,17 +1743,6 @@ void SciTEWin::RestoreFromTray() {
 	::Shell_NotifyIcon(NIM_DELETE, &nid);
 }
 
-#ifndef VK_OEM_2
-static const int VK_OEM_2=0xbf;
-static const int VK_OEM_3=0xc0;
-static const int VK_OEM_4=0xdb;
-static const int VK_OEM_5=0xdc;
-static const int VK_OEM_6=0xdd;
-#endif
-#ifndef VK_OEM_PLUS
-static const int VK_OEM_PLUS=0xbb;
-#endif
-
 inline bool KeyMatch(const std::string &sKey, int keyval, int modifiers) {
 	return SciTEKeys::MatchKeyCode(
 		       SciTEKeys::ParseKeyCode(sKey.c_str()), keyval, modifiers);
@@ -2201,17 +2194,6 @@ uintptr_t SciTEWin::EventLoop() {
 	return msg.wParam;
 }
 
-#if defined(_MSC_VER) && defined(_PREFAST_)
-#pragma warning(disable: 28251)
-#endif
-
-#ifndef LOAD_LIBRARY_SEARCH_APPLICATION_DIR
-#define LOAD_LIBRARY_SEARCH_APPLICATION_DIR 0x200
-#endif
-#ifndef LOAD_LIBRARY_SEARCH_SYSTEM32
-#define LOAD_LIBRARY_SEARCH_SYSTEM32 0x800
-#endif
-
 static void RestrictDLLPath() noexcept {
 	// Try to limit the locations where DLLs will be loaded from to prevent binary planting.
 	// That is where a bad DLL is placed in the current directory or in the PATH.
@@ -2238,7 +2220,12 @@ static void RestrictDLLPath() noexcept {
 	}
 }
 
-int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
+#if defined(_MSC_VER) && defined(_PREFAST_)
+// Stop warning for WinMain. Microsoft headers have annotations and MinGW don't.
+#pragma warning(disable: 28251)
+#endif
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
 	RestrictDLLPath();
 

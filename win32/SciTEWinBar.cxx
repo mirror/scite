@@ -604,14 +604,6 @@ void SciTEWin::LocaliseDialog(HWND wDialog) {
 	}
 }
 
-// Mingw headers do not have this:
-#ifndef TBSTYLE_FLAT
-#define TBSTYLE_FLAT 0x0800
-#endif
-#ifndef TB_LOADIMAGES
-#define TB_LOADIMAGES (WM_USER + 50)
-#endif
-
 struct BarButton {
 	int id;
 	int cmd;
