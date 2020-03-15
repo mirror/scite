@@ -91,6 +91,8 @@
 #include <richedit.h>
 #include <windowsx.h>
 #include <uxtheme.h>
+#include <vsstyle.h>
+#include <vssym32.h>
 #include <shlwapi.h>
 #include <shlobj.h>
 #include <zmouse.h>

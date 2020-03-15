@@ -56,6 +56,8 @@
 typedef void *HTHEME;
 #else
 #include <uxtheme.h>
+#include <vsstyle.h>
+#include <vssym32.h>
 #endif
 #include <shlwapi.h>
 // need this header for SHBrowseForFolder
@@ -63,21 +65,6 @@ typedef void *HTHEME;
 
 #if defined(DTBG_CLIPRECT) && !defined(DISABLE_THEMES)
 #define THEME_AVAILABLE
-#endif
-
-// Since Vsstyle.h and Vssym32.h are not available from all compilers just define the used symbols
-#define CBS_NORMAL 1
-#define CBS_HOT 2
-#define CBS_PUSHED 3
-#define WP_SMALLCLOSEBUTTON 19
-#define TS_NORMAL 1
-#define TS_HOT 2
-#define TS_PRESSED 3
-#define TS_CHECKED 5
-#define TS_HOTCHECKED 6
-#define TP_BUTTON 1
-#ifndef DFCS_HOT
-#define DFCS_HOT 1000
 #endif
 
 #ifndef WM_UPDATEUISTATE
