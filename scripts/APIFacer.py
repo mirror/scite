@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # APIFacer.py - regenerate the ScintillaTypes.h, ScintillaMessages.h, ScintillaCall.h,and ScintillaCall.cxx files
 # from the Scintilla.iface interface definition file.
 # Implemented 2019 by Neil Hodgson neilh@scintilla.org
@@ -76,7 +76,7 @@ def IsEnumeration(s):
 	if s in ["Position", "Line", "Colour"]:
 		return False
 	return s[:1].isupper()
-	
+
 def JoinTypeAndIdentifier(type, identifier):
 	# Add a space to separate type from identifier unless type is pointer
 	if type.endswith("*"):
@@ -133,7 +133,7 @@ def ParametersArgsCallname(v):
 	if args:
 		args = ", " + args
 	return (parameters, args, callName)
-	
+
 def HMessages(f):
 	out = ["enum class Message {"]
 	for name in f.order:
@@ -234,7 +234,7 @@ def HMethods(f):
 				parameters, args, callName = ParametersArgsCallname(v)
 
 				out.append("\t" + JoinTypeAndIdentifier(retType, name) + "(" + parameters + ");")
-				
+
 				# Extra method for stringresult that returns std::string
 				if v["Param2Type"] == "stringresult":
 					out.append("\t" + JoinTypeAndIdentifier("std::string", name) + \
@@ -268,7 +268,7 @@ def CXXMethods(f):
 				out.append("\t" + returnIfNeeded + retCast + callName + "(" + msgName + args + ")" + retCastEnd + ";")
 				out.append("}")
 				out.append("")
-				
+
 				# Extra method for stringresult that returns std::string
 				if v["Param2Type"] == "stringresult":
 					paramList = ParametersExceptLast(parameters)

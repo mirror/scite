@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # CheckMentioned.py
 # Find all the properties used in SciTE source files and check if they
 # are mentioned in scite/doc/SciTEDoc.html.
