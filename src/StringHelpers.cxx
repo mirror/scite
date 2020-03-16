@@ -86,16 +86,8 @@ std::string StdStringFromDouble(double d, int precision) {
 	return std::string(number);
 }
 
-static char LowerCaseAZChar(char c) noexcept {
-	if (c >= 'A' && c <= 'Z') {
-		return c - 'A' + 'a';
-	} else {
-		return c;
-	}
-}
-
 void LowerCaseAZ(std::string &s) {
-	std::transform(s.begin(), s.end(), s.begin(), LowerCaseAZChar);
+	std::transform(s.begin(), s.end(), s.begin(), MakeLowerCase);
 }
 
 intptr_t IntegerFromText(const char *s) noexcept {

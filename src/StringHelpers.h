@@ -39,6 +39,14 @@ constexpr char MakeUpperCase(char ch) noexcept {
 		return ch - 'a' + 'A';
 }
 
+constexpr char MakeLowerCase(char c) noexcept {
+	if (c >= 'A' && c <= 'Z') {
+		return c - 'A' + 'a';
+	} else {
+		return c;
+	}
+}
+
 constexpr bool IsASCII(int ch) noexcept {
 	return (ch >= 0) && (ch < 0x80);
 }
