@@ -8,6 +8,12 @@
 #include <cstring>
 
 #include <string>
+#include <vector>
+#include <chrono>
+
+#include "GUI.h"
+
+#include "StringHelpers.h"
 
 #include "IFaceTable.h"
 
@@ -57,7 +63,7 @@ int IFaceTable::FindFunctionByConstantName(const char *name) noexcept {
 		for (int idx = 0; idx < functionCount; ++idx) {
 			const char *nm = name+4;
 			const char *fn = IFaceTable::functions[idx].name;
-			while (*nm && *fn && (*nm == toupper(*fn))) {
+			while (*nm && *fn && (*nm == MakeUpperCase(*fn))) {
 				++nm;
 				++fn;
 			}

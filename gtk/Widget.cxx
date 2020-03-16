@@ -347,7 +347,7 @@ void WTable::NextLine() {
 GUI::gui_char KeyFromLabel(GUI::gui_string label) {
 	if (!label.empty()) {
 		size_t posMnemonic = label.find('_');
-		return tolower(label[posMnemonic + 1]);
+		return MakeLowerCase(label[posMnemonic + 1]);
 	}
 	return 0;
 }

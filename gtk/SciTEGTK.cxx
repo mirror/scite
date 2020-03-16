@@ -9,7 +9,6 @@
 #include <stdarg.h>
 #include <time.h>
 #include <assert.h>
-#include <ctype.h>
 #include <errno.h>
 #include <signal.h>
 
@@ -177,7 +176,7 @@ long SciTEKeys::ParseKeyCode(const char *mnemonic) {
 				LowerCaseAZ(sKey);
 			keyval = sKey[0];
 		} else if ((sKey.length() > 1)) {
-			if ((sKey[0] == 'F') && (isdigit(sKey[1]))) {
+			if ((sKey[0] == 'F') && (IsADigit(sKey[1]))) {
 				sKey.erase(0, 1);
 				int fkeyNum = atoi(sKey.c_str());
 				if (fkeyNum >= 1 && fkeyNum <= 12)
@@ -881,7 +880,7 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	size_t posMnemonic = translated.find('_');
 	if (posMnemonic != GUI::gui_string::npos) {
 		// With a "Yes" button want to respond to pressing "y" as well as standard "Alt+y"
-		guint key = tolower(translated[posMnemonic + 1]);
+		guint key = MakeLowerCase(translated[posMnemonic + 1]);
 		gtk_widget_add_accelerator(button, "clicked", accel_group,
 	                           key, GdkModifierType(0), (GtkAccelFlags)0);
 	}
