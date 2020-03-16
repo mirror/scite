@@ -360,9 +360,9 @@ bool Strip::KeyDown(WPARAM key) {
 			while (wChild) {
 				const GUI::gui_string className = ClassNameOfWindow(wChild);
 				if ((className == TEXT("Button")) || (className == TEXT("Static"))) {
-					const GUI::gui_string caption = TextOfWindow(wChild);
+					const std::string caption = GUI::UTF8FromString(TextOfWindow(wChild));
 					for (int i=0; caption[i]; i++) {
-						if ((caption[i] == L'&') && (toupper(caption[i+1]) == static_cast<int>(key))) {
+						if ((caption[i] == L'&') && (MakeUpperCase(caption[i+1]) == static_cast<int>(key))) {
 							if (className == TEXT("Button")) {
 								::SendMessage(wChild, BM_CLICK, 0, 0);
 							} else {	// Static caption
