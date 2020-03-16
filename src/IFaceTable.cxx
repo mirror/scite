@@ -100,11 +100,9 @@ std::string IFaceTable::GetConstantName(int value, const char *prefix) {
 		if (functions[funcIdx].value == value) {
 			std::string nameOut = "SCI_";
 			nameOut += functions[funcIdx].name;
-			// fix case
+			// Transform name to upper case.
 			for (char &ch : nameOut) {
-				if (ch >= 'a' && ch <= 'z') {
-					ch = static_cast<char>(ch - 'a' + 'A');
-				}
+				ch = MakeUpperCase(ch);
 			}
 			return nameOut;
 		}
