@@ -180,9 +180,8 @@ void ECForDirectory::ReadOneDirectory(const FilePath &dir) {
 	directory = dir.AsUTF8();
 	directory.append("/");
 	FilePath fpec(dir, editorConfigName);
-	std::string configData = fpec.Read();
-	if (configData.size() > 0) {
-		std::string configString(configData.data(), configData.size());
+	std::string configString = fpec.Read();
+	if (configString.size() > 0) {
 		const std::string_view svUtf8BOM(UTF8BOM);
 		if (StartsWith(configString, svUtf8BOM)) {
 			configString.erase(0, svUtf8BOM.length());
