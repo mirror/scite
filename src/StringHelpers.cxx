@@ -327,7 +327,7 @@ std::string UnSlashString(const char *s) {
 
 /**
  * Convert C style \0oo into their indicated characters.
- * This is used to get control characters into the regular expresion engine.
+ * This is used to get control characters into the regular expression engine.
  */
 static unsigned int UnSlashLowOctal(char *s) noexcept {
 	const char *sStart = s;

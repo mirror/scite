@@ -1704,7 +1704,7 @@ bool SciTEWin::IsStdinBlocked() {
 				- a busy pipe "scite \*.,cxx /s /b | s -@",
 				- another type of pipe "scite - <file", or
 				- a blocked pipe "findstring nothing | scite -"
-				in any case case, retry in a short bit
+				in any case, retry in a short bit
 			*/
 			if (::PeekNamedPipe(hStdIn, &bytebuffer, sizeof(bytebuffer), nullptr, nullptr, &unreadMessages) != 0) {
 				if (unreadMessages != 0) {

@@ -475,7 +475,7 @@ BEGIN
 	// ASCII character not equivalent to virtual key code
 	//"*", IDM_EXPAND,  VIRTKEY, CONTROL
 
-	// this works for a german keyboard
+	// this works for a German keyboard
 	187, IDM_EXPAND,  VIRTKEY, CONTROL, SHIFT
 	VK_MULTIPLY, IDM_EXPAND,  VIRTKEY, CONTROL
 /*

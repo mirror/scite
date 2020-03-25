@@ -1737,7 +1737,7 @@ bool SciTEBase::StartAutoCompleteWord(bool onlyOneWord) {
 	}
 	const size_t length = wordsNear.length();
 	if ((length > 2) && (!onlyOneWord || (minWordLength > rootLength))) {
-		// Protect spaces by temporrily transforming to \001
+		// Protect spaces by temporarily transforming to \001
 		std::replace(wordsNear.begin(), wordsNear.end(), ' ', '\001');
 		StringList wl(true);
 		wl.Set(wordsNear.c_str());
@@ -3841,7 +3841,7 @@ void SciTEBase::UpdateUI(const SCNotification *notification) {
 	const SA::Update updated = static_cast<SA::Update>(notification->updated);
 	if (static_cast<int>(updated & (SA::Update::Selection | SA::Update::Content))) {
 		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
-			// Obly highlight focussed pane.
+			// Only highlight focused pane.
 			if ((updated & SA::Update::Selection) == SA::Update::Selection) {
 				currentWordHighlight.statesOfDelay = currentWordHighlight.noDelay; // Selection has just been updated, so delay is disabled.
 				currentWordHighlight.textHasChanged = false;
@@ -3894,7 +3894,7 @@ void SciTEBase::Notify(SCNotification *notification) {
 	switch (static_cast<SA::Notification>(notification->nmhdr.code)) {
 	case SA::Notification::Painted:
 		if ((notification->nmhdr.idFrom == IDM_SRCWIN) == (pwFocussed == &wEditor)) {
-			// Obly highlight focussed pane.
+			// Only highlight focused pane.
 			// Manage delay before highlight when no user selection but there is word at the caret.
 			// So the Delay is based on the blinking of caret, scroll...
 			// If currentWordHighlight.statesOfDelay == currentWordHighlight.delay,

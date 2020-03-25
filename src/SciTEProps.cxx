@@ -1233,7 +1233,7 @@ void SciTEBase::ReadProperties() {
 	wEditor.SetMarginMaskN(2, SA::MaskFolders);
 	wEditor.SetMarginSensitiveN(2, true);
 
-	// Define foreground (outline) and background (fill) color of folds
+	// Define foreground (outline) and background (fill) colour of folds
 	const int foldSymbols = props.GetInt("fold.symbols");
 	std::string foldFore = props.GetExpandedString("fold.fore");
 	if (foldFore.length() == 0) {

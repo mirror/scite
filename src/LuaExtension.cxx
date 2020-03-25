@@ -141,7 +141,7 @@ inline int absolute_index(lua_State *L, int index) noexcept {
 
 /**
 * merge_table / clone_table / clear_table utilized to
-* "soft-replace" an existing global scope instead of using using new_table,
+* "soft-replace" an existing global scope instead of using new_table,
 * because then startup script would be bound to a different copy
 * of the globals than the extension script.
 **/
@@ -1454,7 +1454,7 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 				}
 			} else {
 				host->Trace(lua_tostring(luaState, -1));
-				host->Trace("\n>Lua: error occured while loading startup script\n");
+				host->Trace("\n>Lua: error occurred while loading startup script\n");
 			}
 		}
 	}

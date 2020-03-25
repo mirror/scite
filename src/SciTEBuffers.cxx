@@ -1119,7 +1119,7 @@ void SciTEBase::EndStackedTabbing() {
 
 static void EscapeFilePathsForMenu(GUI::gui_string &path) {
 	// Escape '&' characters in path, since they are interpreted in
-	// menues.
+	// menus.
 	Substitute(path, GUI_TEXT("&"), GUI_TEXT("&&"));
 #if defined(GTK)
 	GUI::gui_string homeDirectory = getenv("HOME");

@@ -509,7 +509,7 @@ void SciTEWin::Print(
 			pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
 		GUI::Rectangle rectSetup;
 
-		// Convert the hundredths of millimeters (HiMetric) or
+		// Convert the hundredths of millimetres (HiMetric) or
 		// thousandths of inches (HiEnglish) margin values
 		// from the Page Setup dialog to device units.
 		// (There are 2540 hundredths of a mm in an inch.)
@@ -529,7 +529,7 @@ void SciTEWin::Print(
 			rectSetup.bottom	= MulDiv(pagesetupMargin.bottom, ptDpi.y, 1000);
 		}
 
-		// Dont reduce margins below the minimum printable area
+		// Don't reduce margins below the minimum printable area
 		rectMargins.left	= Maximum(rectPhysMargins.left, rectSetup.left);
 		rectMargins.top	= Maximum(rectPhysMargins.top, rectSetup.top);
 		rectMargins.right	= Maximum(rectPhysMargins.right, rectSetup.right);
@@ -1263,7 +1263,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 
 		} else if (ControlIDOfWParam(wParam) == IDBROWSE) {
 
-			// This code was copied and slightly modifed from:
+			// This code was copied and slightly modified from:
 			// http://www.bcbdev.com/faqs/faq62.htm
 
 			// SHBrowseForFolder returns a PIDL. The memory for the PIDL is
@@ -1273,7 +1273,7 @@ BOOL SciTEWin::GrepMessage(HWND hDlg, UINT message, WPARAM wParam) {
 			LPMALLOC pShellMalloc = nullptr;
 			if (::SHGetMalloc(&pShellMalloc) == NO_ERROR) {
 				// If we were able to get the shell malloc object,
-				// then proceed by initializing the BROWSEINFO stuct
+				// then proceed by initializing the BROWSEINFO struct
 				BROWSEINFO info {};
 				info.hwndOwner = hDlg;
 				info.pidlRoot = nullptr;
