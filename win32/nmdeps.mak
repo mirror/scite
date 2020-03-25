@@ -27,12 +27,12 @@ GUIWin.obj: \
 SciTEWin.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \
-	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILoader.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
+	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -49,22 +49,22 @@ SciTEWin.obj: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h \
-	../src/SciTEKeys.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
 	Strips.h \
+	../src/SciTEKeys.h \
 	../src/MultiplexExtension.h \
 	DirectorExtension.h \
 	../src/LuaExtension.h
 Sc1.obj: \
 	SciTEWin.cxx \
 	SciTEWin.h \
-	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILoader.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
+	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -81,22 +81,22 @@ Sc1.obj: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h \
-	../src/SciTEKeys.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
 	Strips.h \
+	../src/SciTEKeys.h \
 	../src/MultiplexExtension.h \
 	DirectorExtension.h \
 	../src/LuaExtension.h
 SciTEWinBar.obj: \
 	SciTEWinBar.cxx \
 	SciTEWin.h \
-	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILoader.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
+	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -113,19 +113,19 @@ SciTEWinBar.obj: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h \
-	../src/SciTEKeys.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
-	Strips.h
+	Strips.h \
+	../src/SciTEKeys.h
 SciTEWinDlg.obj: \
 	SciTEWinDlg.cxx \
 	SciTEWin.h \
-	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILoader.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
+	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -142,19 +142,19 @@ SciTEWinDlg.obj: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h \
-	../src/SciTEKeys.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
-	Strips.h
+	Strips.h \
+	../src/SciTEKeys.h
 Strips.obj: \
 	Strips.cxx \
 	SciTEWin.h \
-	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILoader.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
+	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -171,19 +171,19 @@ Strips.obj: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h \
-	../src/SciTEKeys.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
-	Strips.h
+	Strips.h \
+	../src/SciTEKeys.h
 UniqueInstance.obj: \
 	UniqueInstance.cxx \
 	SciTEWin.h \
-	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/Sci_Position.h \
 	../../scintilla/include/ILoader.h \
+	../../scintilla/include/Sci_Position.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
+	../../scintilla/include/Scintilla.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -200,10 +200,10 @@ UniqueInstance.obj: \
 	../src/FileWorker.h \
 	../src/MatchMarker.h \
 	../src/SciTEBase.h \
-	../src/SciTEKeys.h \
 	UniqueInstance.h \
 	../src/StripDefinition.h \
-	Strips.h
+	Strips.h \
+	../src/SciTEKeys.h
 Cookie.obj: \
 	../src/Cookie.cxx \
 	../src/GUI.h \
@@ -357,6 +357,8 @@ FileWorker.obj: \
 	../src/Utf8_16.h
 IFaceTable.obj: \
 	../src/IFaceTable.cxx \
+	../src/GUI.h \
+	../src/StringHelpers.h \
 	../src/IFaceTable.h
 JobQueue.obj: \
 	../src/JobQueue.cxx \

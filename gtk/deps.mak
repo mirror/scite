@@ -219,6 +219,8 @@ FileWorker.o: \
 	../src/Utf8_16.h
 IFaceTable.o: \
 	../src/IFaceTable.cxx \
+	../src/GUI.h \
+	../src/StringHelpers.h \
 	../src/IFaceTable.h
 JobQueue.o: \
 	../src/JobQueue.cxx \
