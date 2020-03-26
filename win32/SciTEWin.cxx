@@ -30,6 +30,11 @@
 const GUI::gui_char appName[] = GUI_TEXT("Sc1");
 #else
 const GUI::gui_char appName[] = GUI_TEXT("SciTE");
+#ifdef LOAD_SCINTILLA
+static const GUI::gui_char scintillaName[] = GUI_TEXT("Scintilla.DLL");
+#else
+static const GUI::gui_char scintillaName[] = GUI_TEXT("SciLexer.DLL");
+#endif
 #endif
 
 static GUI::gui_string GetErrorMessage(DWORD nRet) {
@@ -2248,14 +2253,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	Scintilla_RegisterClasses(hInstance);
 #else
 
-#ifdef LOAD_SCINTILLA
-	HMODULE hmod = ::LoadLibrary(TEXT("Scintilla.DLL"));
-#else
-	HMODULE hmod = ::LoadLibrary(TEXT("SciLexer.DLL"));
-#endif
-	if (hmod == NULL)
-		::MessageBox(NULL, TEXT("The Scintilla DLL could not be loaded.  SciTE will now close"),
+	HMODULE hmod = ::LoadLibrary(scintillaName);
+	if (!hmod) {
+		GUI::gui_string explanation = scintillaName;
+		explanation += TEXT(" could not be loaded.  SciTE will now close");
+		::MessageBox(NULL, explanation.c_str(),
 			     TEXT("Error loading Scintilla"), MB_OK | MB_ICONERROR);
+	}
 #endif
 
 	uintptr_t result = 0;
