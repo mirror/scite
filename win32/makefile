@@ -3,6 +3,8 @@
 # The License.txt file describes the conditions under which this software may be distributed.
 # This makefile assumes the mingw32 version of GCC 4.x is used and changes will
 # be needed to use other compilers.
+# For a build with no lexers, loading Scintilla.DLL instead of SciLexer.DLL,
+# define LOAD_SCINTILLA on the command line.
 
 .PHONY: all clean analyze depend
 
@@ -104,6 +106,10 @@ INCLUDES += -I ../lua/src
 CFLAGS += -DLUA_USER_H=\"scite_lua_win.h\"
 else
 DEFINES += -DNO_LUA
+endif
+
+ifdef LOAD_SCINTILLA
+DEFINES += -DLOAD_SCINTILLA
 endif
 
 INCLUDES += -I ../../scintilla/include -I ../src
