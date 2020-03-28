@@ -69,7 +69,7 @@ public:
 	void SetSavePoint();
 	Position GetStyledText(void *tr);
 	bool CanRedo();
-	int MarkerLineFromHandle(int markerHandle);
+	Line MarkerLineFromHandle(int markerHandle);
 	void MarkerDeleteHandle(int markerHandle);
 	bool UndoCollection();
 	API::WhiteSpace ViewWS();
@@ -333,7 +333,7 @@ public:
 	bool CallTipActive();
 	Position CallTipPosStart();
 	void CallTipSetPosStart(Position posStart);
-	void CallTipSetHlt(int highlightStart, int highlightEnd);
+	void CallTipSetHlt(Position highlightStart, Position highlightEnd);
 	void CallTipSetBack(Colour back);
 	void CallTipSetFore(Colour fore);
 	void CallTipSetForeHlt(Colour fore);
@@ -619,8 +619,8 @@ public:
 	void IndicatorClearRange(Position start, Position lengthClear);
 	int IndicatorAllOnFor(Position pos);
 	int IndicatorValueAt(int indicator, Position pos);
-	int IndicatorStart(int indicator, Position pos);
-	int IndicatorEnd(int indicator, Position pos);
+	Position IndicatorStart(int indicator, Position pos);
+	Position IndicatorEnd(int indicator, Position pos);
 	void SetPositionCache(int size);
 	int PositionCache();
 	void CopyAllowLine();

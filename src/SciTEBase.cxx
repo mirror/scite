@@ -1628,7 +1628,7 @@ void SciTEBase::ContinueCallTip() {
 		endHighlight = unslashedEndHighlight;
 	}
 
-	wEditor.CallTipSetHlt(static_cast<int>(startHighlight), static_cast<int>(endHighlight));
+	wEditor.CallTipSetHlt(startHighlight, endHighlight);
 }
 
 std::string SciTEBase::EliminateDuplicateWords(const std::string &words) {

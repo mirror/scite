@@ -421,7 +421,7 @@
 	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERGET'>MarkerGet</a>(line line)<span class="comment"> -- Get a bit mask of all the markers set on a line.</span></p>
 	<p>line editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERNEXT'>MarkerNext</a>(line lineStart, int markerMask)<span class="comment"> -- Find the next line at or after lineStart that includes a marker in mask. Return -1 when no more lines.</span></p>
 	<p>line editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERPREVIOUS'>MarkerPrevious</a>(line lineStart, int markerMask)<span class="comment"> -- Find the previous line before lineStart that includes a marker in mask.</span></p>
-	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERLINEFROMHANDLE'>MarkerLineFromHandle</a>(int markerHandle)<span class="comment"> -- Retrieve the line number at which a particular marker is located.</span></p>
+	<p>line editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERLINEFROMHANDLE'>MarkerLineFromHandle</a>(int markerHandle)<span class="comment"> -- Retrieve the line number at which a particular marker is located.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERDELETEHANDLE'>MarkerDeleteHandle</a>(int markerHandle)<span class="comment"> -- Delete a marker.</span></p>
 	<h2>Indicators</h2>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETSTYLE'>IndicStyle</a>[int indicator]<span class="comment"> -- Set an indicator to plain, squiggle or TT.</span></p>
@@ -438,8 +438,8 @@
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORCLEARRANGE'>IndicatorClearRange</a>(position start, position lengthClear)<span class="comment"> -- Turn a indicator off over a range.</span></p>
 	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORALLONFOR'>IndicatorAllOnFor</a>(position pos)<span class="comment"> -- Are any indicators present at pos?</span></p>
 	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORVALUEAT'>IndicatorValueAt</a>(int indicator, position pos)<span class="comment"> -- What value does a particular indicator have at a position?</span></p>
-	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORSTART'>IndicatorStart</a>(int indicator, position pos)<span class="comment"> -- Where does a particular indicator start?</span></p>
-	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICATOREND'>IndicatorEnd</a>(int indicator, position pos)<span class="comment"> -- Where does a particular indicator end?</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICATORSTART'>IndicatorStart</a>(int indicator, position pos)<span class="comment"> -- Where does a particular indicator start?</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICATOREND'>IndicatorEnd</a>(int indicator, position pos)<span class="comment"> -- Where does a particular indicator end?</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORSHOW'>FindIndicatorShow</a>(position start, position end)<span class="comment"> -- On OS X, show a find indicator.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORFLASH'>FindIndicatorFlash</a>(position start, position end)<span class="comment"> -- On OS X, flash a find indicator, then fade out.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_FINDINDICATORHIDE'>FindIndicatorHide</a>()<span class="comment"> -- On OS X, hide the find indicator.</span></p>
@@ -477,7 +477,7 @@
 	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPACTIVE'>CallTipActive</a>()<span class="comment"> -- Is there an active call tip?</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPPOSSTART'>CallTipPosStart</a>()<span class="comment"> -- Retrieve the position where the caret was before displaying the call tip.</span></p>
 	<p>position editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETPOSSTART'>CallTipPosStart</a> write-only<span class="comment"> -- Set the start position in order to change when backspacing removes the calltip.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETHLT'>CallTipSetHlt</a>(int highlightStart, int highlightEnd)<span class="comment"> -- Highlight a segment of the definition.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETHLT'>CallTipSetHlt</a>(position highlightStart, position highlightEnd)<span class="comment"> -- Highlight a segment of the definition.</span></p>
 	<p>colour editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETBACK'>CallTipBack</a> write-only<span class="comment"> -- Set the background colour for the call tip.</span></p>
 	<p>colour editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETFORE'>CallTipFore</a> write-only<span class="comment"> -- Set the foreground colour for the call tip.</span></p>
 	<p>colour editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CALLTIPSETFOREHLT'>CallTipForeHlt</a> write-only<span class="comment"> -- Set the foreground colour for the highlighted part of the call tip.</span></p>

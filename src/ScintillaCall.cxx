@@ -219,8 +219,8 @@ bool ScintillaCall::CanRedo() {
 	return Call(Message::CanRedo);
 }
 
-int ScintillaCall::MarkerLineFromHandle(int markerHandle) {
-	return static_cast<int>(Call(Message::MarkerLineFromHandle, markerHandle));
+Line ScintillaCall::MarkerLineFromHandle(int markerHandle) {
+	return Call(Message::MarkerLineFromHandle, markerHandle);
 }
 
 void ScintillaCall::MarkerDeleteHandle(int markerHandle) {
@@ -1275,7 +1275,7 @@ void ScintillaCall::CallTipSetPosStart(Position posStart) {
 	Call(Message::CallTipSetPosStart, posStart);
 }
 
-void ScintillaCall::CallTipSetHlt(int highlightStart, int highlightEnd) {
+void ScintillaCall::CallTipSetHlt(Position highlightStart, Position highlightEnd) {
 	Call(Message::CallTipSetHlt, highlightStart, highlightEnd);
 }
 
@@ -2419,12 +2419,12 @@ int ScintillaCall::IndicatorValueAt(int indicator, Position pos) {
 	return static_cast<int>(Call(Message::IndicatorValueAt, indicator, pos));
 }
 
-int ScintillaCall::IndicatorStart(int indicator, Position pos) {
-	return static_cast<int>(Call(Message::IndicatorStart, indicator, pos));
+Position ScintillaCall::IndicatorStart(int indicator, Position pos) {
+	return Call(Message::IndicatorStart, indicator, pos);
 }
 
-int ScintillaCall::IndicatorEnd(int indicator, Position pos) {
-	return static_cast<int>(Call(Message::IndicatorEnd, indicator, pos));
+Position ScintillaCall::IndicatorEnd(int indicator, Position pos) {
+	return Call(Message::IndicatorEnd, indicator, pos);
 }
 
 void ScintillaCall::SetPositionCache(int size) {
