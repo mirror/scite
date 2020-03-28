@@ -39,6 +39,19 @@ enum class IMEInteraction {
 	Inline = 1,
 };
 
+enum class Alpha {
+	Transparent = 0,
+	Opaque = 255,
+	NoAlpha = 256,
+};
+
+enum class CursorShape {
+	Normal = -1,
+	Arrow = 2,
+	Wait = 4,
+	ReverseArrow = 7,
+};
+
 enum class MarkerSymbol {
 	Circle = 0,
 	RoundRect = 1,
@@ -344,13 +357,6 @@ enum class Status {
 	RegEx = 1001,
 };
 
-enum class CursorShape {
-	Normal = -1,
-	Arrow = 2,
-	Wait = 4,
-	ReverseArrow = 7,
-};
-
 enum class VisiblePolicy {
 	Slop = 0x01,
 	Strict = 0x04,
@@ -390,12 +396,6 @@ enum class CaretSticky {
 	Off = 0,
 	On = 1,
 	WhiteSpace = 2,
-};
-
-enum class Alpha {
-	Transparent = 0,
-	Opaque = 255,
-	NoAlpha = 256,
 };
 
 enum class CaretStyle {
