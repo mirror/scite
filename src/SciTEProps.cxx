@@ -663,12 +663,7 @@ void SciTEBase::ReadProperties() {
 
 	const std::string lexillaPath = props.GetString("lexilla.path");
 	if (lexillaPath.length()) {
-		std::vector<std::string> paths = StringSplit(lexillaPath, ';');
-		FilePathSet fps;
-		for (std::string path : paths) {
-			fps.push_back(FilePath(GUI::StringFromUTF8(path)));
-		}
-		LexillaLoad(fps);
+		LexillaLoad(lexillaPath);
 	}
 
 	const std::string fileNameForExtension = ExtensionFileName();
