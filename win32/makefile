@@ -31,7 +31,6 @@ DEFINES += -D_CRT_SECURE_NO_DEPRECATE
 BASE_FLAGS += -fsanitize=$(SANITIZE)
 # Clang doesn't like omitting braces in array initialization but they just add noise,
 WARNINGS += -Wno-deprecated-register
-WARNINGS += -Wno-string-plus-int
 WARNINGS += -Wno-missing-braces
 WARNINGS += -Wno-language-extension-token
 else

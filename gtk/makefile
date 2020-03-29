@@ -23,7 +23,6 @@ CC = clang
 BASE_FLAGS += -fsanitize=$(SANITIZE)
 WARNINGS += -Wno-deprecated-register
 WARNINGS += -Wno-empty-body
-WARNINGS += -Wno-string-plus-int
 else
 WARNINGS += -Wno-misleading-indentation
 endif
