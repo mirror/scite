@@ -71,6 +71,8 @@ public:
 	bool CanRedo();
 	Line MarkerLineFromHandle(int markerHandle);
 	void MarkerDeleteHandle(int markerHandle);
+	int MarkerHandleFromLine(Line line, int which);
+	int MarkerNumberFromLine(Line line, int which);
 	bool UndoCollection();
 	API::WhiteSpace ViewWS();
 	void SetViewWS(API::WhiteSpace viewWS);

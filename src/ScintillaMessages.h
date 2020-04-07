@@ -36,6 +36,8 @@ enum class Message {
 	CanRedo = 2016,
 	MarkerLineFromHandle = 2017,
 	MarkerDeleteHandle = 2018,
+	MarkerHandleFromLine = 2732,
+	MarkerNumberFromLine = 2733,
 	GetUndoCollection = 2019,
 	GetViewWS = 2020,
 	SetViewWS = 2021,

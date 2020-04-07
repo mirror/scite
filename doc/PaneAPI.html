@@ -423,6 +423,8 @@
 	<p>line editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERPREVIOUS'>MarkerPrevious</a>(line lineStart, int markerMask)<span class="comment"> -- Find the previous line before lineStart that includes a marker in mask.</span></p>
 	<p>line editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERLINEFROMHANDLE'>MarkerLineFromHandle</a>(int markerHandle)<span class="comment"> -- Retrieve the line number at which a particular marker is located.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERDELETEHANDLE'>MarkerDeleteHandle</a>(int markerHandle)<span class="comment"> -- Delete a marker.</span></p>
+	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERHANDLEFROMLINE'>MarkerHandleFromLine</a>(line line, int which)<span class="comment"> -- Retrieve marker handles of a line</span></p>
+	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_MARKERNUMBERFROMLINE'>MarkerNumberFromLine</a>(line line, int which)<span class="comment"> -- Retrieve marker number of a marker handle</span></p>
 	<h2>Indicators</h2>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETSTYLE'>IndicStyle</a>[int indicator]<span class="comment"> -- Set an indicator to plain, squiggle or TT.</span></p>
 	<p>colour editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETFORE'>IndicFore</a>[int indicator]<span class="comment"> -- Set the foreground colour of an indicator.</span></p>

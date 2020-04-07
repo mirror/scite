@@ -227,6 +227,14 @@ void ScintillaCall::MarkerDeleteHandle(int markerHandle) {
 	Call(Message::MarkerDeleteHandle, markerHandle);
 }
 
+int ScintillaCall::MarkerHandleFromLine(Line line, int which) {
+	return static_cast<int>(Call(Message::MarkerHandleFromLine, line, which));
+}
+
+int ScintillaCall::MarkerNumberFromLine(Line line, int which) {
+	return static_cast<int>(Call(Message::MarkerNumberFromLine, line, which));
+}
+
 bool ScintillaCall::UndoCollection() {
 	return Call(Message::GetUndoCollection);
 }
