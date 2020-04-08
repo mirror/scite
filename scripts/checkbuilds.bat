@@ -94,6 +94,14 @@ mingw32-make -j CXXFLAGS=-Wno-parentheses
 rem ************************************************************
 rem Target 7: Visual C++ 64 bit
 @call scite\scripts\clearboth
+@pushd scintilla\lexilla\src
+msbuild /verbosity:minimal /p:Platform=x64 /p:Configuration=Release Lexilla.vcxproj
+@if ERRORLEVEL 2 goto ERROR
+@popd
+@pushd scintilla\win32
+msbuild /verbosity:minimal /p:Platform=x64 /p:Configuration=Release Scintilla.vcxproj
+@if ERRORLEVEL 2 goto ERROR
+@popd
 @pushd scintilla\win32
 msbuild /verbosity:minimal /p:Platform=x64 /p:Configuration=Release SciLexer.vcxproj
 @if ERRORLEVEL 2 goto ERROR
