@@ -6,6 +6,13 @@
 @rem Assumes environment set up so gcc, MSVC amd cppcheck can be called.
 @rem
 @cd ..\..
+@rem Check that Scintilla and Lexilla have the same version number
+@for /F %%i IN (scintilla\version.txt) do set "SCINTILLA_VERSION=%%i"
+@for /F %%i IN (scintilla\lexilla\version.txt) do set "LEXILLA_VERSION=%%i"
+@if [%SCINTILLA_VERSION%]==[%LEXILLA_VERSION%] goto VERSIONS_MATCH
+@echo checkbuilds.bat:12: Scintilla and Lexilla have different versions %SCINTILLA_VERSION%, %LEXILLA_VERSION%
+goto CLEANUP
+:VERSIONS_MATCH
 @rem
 rem ************************************************************
 rem Target 1: basic unit tests with gcc
@@ -178,5 +185,5 @@ goto CLEANUP
 :ERROR
 @echo checkbuilds.bat:1: Failed %ERRORLEVEL%
 :CLEANUP
-set SAVE_PATH=
-set SAVE_INCLUDE=
+@set SAVE_PATH=
+@set SAVE_INCLUDE=
