@@ -93,6 +93,7 @@ rem ************************************************************
 rem Target 6: GTK+ version using gcc on scintilla\gtk\makefile
 @call scite\scripts\clearboth
 @pushd scintilla\gtk
+set PATH=c:\opt\gtk\bin;%PATH%
 rem -Wno-parentheses is temporary for GTK+ header gtkfilechooserbutton.h
 mingw32-make -j CXXFLAGS=-Wno-parentheses
 @if ERRORLEVEL 2 goto ERROR
@@ -152,7 +153,7 @@ mingw32-make CLANG=1 -j
 rem ************************************************************
 rem Target 10: qt with msvc
 @call scite\scripts\clearboth
-@set QBIN=D:\Qt\Qt5.12.0\5.12.0\msvc2017_64\bin
+@set QBIN=C:\Qt\5.14.2\msvc2017_64\bin
 @pushd scintilla\qt\ScintillaEditBase
 %QBIN%\qmake
 nmake
