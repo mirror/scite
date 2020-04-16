@@ -365,11 +365,11 @@ protected:
 	FilePath dirNameAtExecute;
 	FilePath dirNameForExecute;
 
-	enum { fileStackMax = 10 };
+	static constexpr int fileStackMax = 10;
 	RecentFile recentFileStack[fileStackMax];
 	enum { fileStackCmdID = IDM_MRUFILE, bufferCmdID = IDM_BUFFER };
 
-	enum { importMax = 50 };
+	static constexpr int importMax = 50;
 	FilePathSet importFiles;
 	enum { importCmdID = IDM_IMPORT };
 	ImportFilter filter;
