@@ -114,7 +114,7 @@ make distclean
 
 (
 cd ScintillaEdit || exit
-python WidgetGen.py
+python3 WidgetGen.py
 $QMAKENAME
 make clean
 make $JOBS
@@ -123,13 +123,13 @@ make distclean
 
 (
 cd ScintillaEditPy || exit
-python sepbuild.py
+python2 sepbuild.py
 cd ../../test || exit
-python simpleTests.py
-python lexTests.py
-python performanceTests.py
+python2 simpleTests.py
+python2 lexTests.py
+python2 performanceTests.py
 cd ../qt/ScintillaEditPy || exit
-python sepbuild.py --clean
+python2 sepbuild.py --clean
 )
 
 )
