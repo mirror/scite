@@ -2,7 +2,7 @@
 # AppDepGen.py - produce a make dependencies file for SciTE
 # Copyright 2019 by Neil Hodgson <neilh@scintilla.org>
 # The License.txt file describes the conditions under which this software may be distributed.
-# Requires Python 2.7 or later
+# Requires Python 3.6 or later
 
 import sys
 
@@ -12,7 +12,7 @@ sys.path.append(srcRoot + "/scintilla")
 
 from scripts import Dependencies
 
-topComment = "# Created by AppDepGen.py. To recreate, run 'python AppDepGen.py'.\n"
+topComment = "# Created by AppDepGen.py. To recreate, run AppDepGen.py.\n"
 
 def Generate():
 	sciteSources = ["../src/*.cxx", "../lua/src/*.c"]

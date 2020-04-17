@@ -17,6 +17,8 @@ else
 	normalize = $(subst /,\,$1)
 endif
 
+PYTHON = $(if $(windir),pyw,python3)
+
 WARNINGS += -Wall -pedantic -Wextra
 
 ifdef CLANG
@@ -169,7 +171,7 @@ analyze:
 	clang --analyze $(DEFINES) $(INCLUDES) $(WARNINGS) $(CPPFLAGS) $(BASE_FLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx
 
 depend deps.mak:
-	python AppDepGen.py
+	$(PYTHON) AppDepGen.py
 
 ../bin/%.dll:	../../scintilla/bin/%.dll
 	$(COPY) $(call normalize,$< $(@D))
