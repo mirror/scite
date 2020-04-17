@@ -161,7 +161,7 @@ nmake distclean
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @pushd scintilla\qt\ScintillaEdit
-python WidgetGen.py
+pyw WidgetGen.py
 %QBIN%\qmake
 nmake
 nmake distclean
@@ -177,7 +177,7 @@ cppcheck -j 8 --enable=all --suppressions-list=scite/cppcheck.suppress --max-con
 rem ************************************************************
 rem Target 12: header order check
 @pushd scintilla\scripts
-python HeaderCheck.py
+pyw HeaderCheck.py
 @popd
 @rem
 rem Finished

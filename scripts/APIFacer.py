@@ -2,7 +2,7 @@
 # APIFacer.py - regenerate the ScintillaTypes.h, ScintillaMessages.h, ScintillaCall.h,and ScintillaCall.cxx files
 # from the Scintilla.iface interface definition file.
 # Implemented 2019 by Neil Hodgson neilh@scintilla.org
-# Requires Python 3.5 or later
+# Requires Python 3.6 or later
 
 import sys
 
