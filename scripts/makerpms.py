@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # makerpms.py
 # Copy files all over the place build RPMs and copy to top level directory
+# Contributed file - not tested before releases made.
 
 import os
 import shutil

@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# Contributed file - not tested before releases made.
 
 # Produces a .api file for SciTE's identifier completion and calltip features.
 # invoke as
