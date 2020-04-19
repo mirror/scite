@@ -28,6 +28,10 @@ std::string StdStringFromInteger(int i);
 std::string StdStringFromSizeT(size_t i);
 std::string StdStringFromDouble(double d, int precision);
 
+int IntegerFromString(const std::string &val, int defaultValue);
+intptr_t IntPtrFromString(const std::string &val, intptr_t defaultValue);
+long long LongLongFromString(const std::string &val, long long defaultValue);
+
 // Basic case lowering that converts A-Z to a-z.
 // Does not handle non-ASCII characters.
 void LowerCaseAZ(std::string &s);

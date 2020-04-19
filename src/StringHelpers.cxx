@@ -9,6 +9,7 @@
 #include <cstring>
 #include <cstdio>
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -84,6 +85,39 @@ std::string StdStringFromDouble(double d, int precision) {
 	char number[32];
 	sprintf(number, "%.*f", precision, d);
 	return std::string(number);
+}
+
+int IntegerFromString(const std::string &val, int defaultValue) {
+	try {
+		if (val.length()) {
+			return std::stoi(val);
+		}
+	} catch (std::logic_error &) {
+		// Ignore bad values, either non-numeric or out of range numeric
+	}
+	return defaultValue;
+}
+
+intptr_t IntPtrFromString(const std::string &val, intptr_t defaultValue) {
+	try {
+		if (val.length()) {
+			return static_cast<intptr_t>(std::stoll(val));
+		}
+	} catch (std::logic_error &) {
+		// Ignore bad values, either non-numeric or out of range numeric
+	}
+	return defaultValue;
+}
+
+long long LongLongFromString(const std::string &val, long long defaultValue) {
+	try {
+		if (val.length()) {
+			return std::stoll(val);
+		}
+	} catch (std::logic_error &) {
+		// Ignore bad values, either non-numeric or out of range numeric
+	}
+	return defaultValue;
 }
 
 void LowerCaseAZ(std::string &s) {

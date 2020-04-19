@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <ctime>
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <map>
@@ -289,31 +290,15 @@ std::string PropSetFile::Expand(const std::string &withVars, int maxExpands) con
 }
 
 int PropSetFile::GetInt(const char *key, int defaultValue) const {
-	try {
-		std::string val = GetExpandedString(key);
-		if (val.length()) {
-			return std::stoi(val);
-		}
-	} catch (std::logic_error &) {
-		// Ignore bad values, either non-numeric or out of range numberic
-	}
-	return defaultValue;
+	return IntegerFromString(GetExpandedString(key), defaultValue);
 }
 
 intptr_t PropSetFile::GetInteger(const char *key, intptr_t defaultValue) const {
-	std::string val = GetExpandedString(key);
-	if (val.length()) {
-		return static_cast<intptr_t>(std::stoll(val));
-	}
-	return defaultValue;
+	return IntPtrFromString(GetExpandedString(key), defaultValue);
 }
 
 long long PropSetFile::GetLongLong(const char *key, long long defaultValue) const {
-	std::string val = GetExpandedString(key);
-	if (val.length()) {
-		return std::stoll(val);
-	}
-	return defaultValue;
+	return LongLongFromString(GetExpandedString(key), defaultValue);
 }
 
 void PropSetFile::Clear() noexcept {
