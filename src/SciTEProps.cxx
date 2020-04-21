@@ -491,6 +491,7 @@ static const char *propertiesToForward[] = {
 	"fold.verilog.flags",
 	"fold.xml.at.tag.open",
 	"html.tags.case.sensitive",
+	"lexer.as.comment.character",
 	"lexer.asm.comment.delimiter",
 	"lexer.baan.styling.within.preprocessor",
 	"lexer.caml.magic",
