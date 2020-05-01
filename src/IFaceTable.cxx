@@ -889,6 +889,7 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCE_ERR_ES_WHITE",55},
 	{"SCE_ERR_ES_YELLOW",51},
 	{"SCE_ERR_GCC",2},
+	{"SCE_ERR_GCC_EXCERPT",25},
 	{"SCE_ERR_GCC_INCLUDED_FROM",22},
 	{"SCE_ERR_IFC",16},
 	{"SCE_ERR_IFORT",17},
@@ -3551,7 +3552,7 @@ static IFaceProperty ifaceProperties[] = {
 
 enum {
 	ifaceFunctionCount = 311,
-	ifaceConstantCount = 2867,
+	ifaceConstantCount = 2868,
 	ifacePropertyCount = 238
 };
 
