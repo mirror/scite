@@ -6,16 +6,7 @@
 # Implemented 2019 by Neil Hodgson neilh@scintilla.org
 # Requires Python 3.6 or later
 
-import glob, os
-
-sciteRoot = ".."
-scintillaRoot = os.path.join("..", "..", "scintilla")
-releaseRoot = os.path.join("..", "..", "..", "arc")
-
-uploadDocs = [
-    os.path.join(sciteRoot, "doc", "SciTEDownload.html"),
-    os.path.join(scintillaRoot, "doc", "ScintillaDownload.html")
-]
+import pathlib
 
 downloadHome = "https://www.scintilla.org/"
 
@@ -26,22 +17,27 @@ def ExtractFileName(s):
     return name
 
 def FileSizeInMB(filePath):
-    size = os.stat(filePath).st_size
+    size = filePath.stat().st_size
     sizeInM = size / 1024 / 1024
     roundToNearest = round(sizeInM * 10) / 10
     return str(roundToNearest) + "M"
 
-def FileSizesInDirectory(baseDirectory):
-    fileSizes = {}
-    for filePath in glob.glob(os.path.join(baseDirectory, "*")):
-        fileBase = os.path.basename(filePath)
-        fileSizes[fileBase] = FileSizeInMB(filePath)
-    return fileSizes
+def FileSizesInDirectory(base):
+    return {p.name : FileSizeInMB(p) for p in base.glob("*")}
 
-def UpdateFileSizes():
-    with open(os.path.join(scintillaRoot, "version.txt")) as f:
+def UpdateFileSizes(scriptsPath):
+    sciteRoot = scriptsPath.parent
+    scintillaRoot = sciteRoot.parent.joinpath("scintilla")
+    releaseRoot = sciteRoot.parent.parent.joinpath("arc")
+
+    uploadDocs = [
+        sciteRoot.joinpath("doc", "SciTEDownload.html"),
+        scintillaRoot.joinpath("doc", "ScintillaDownload.html")
+    ]
+
+    with open(scintillaRoot.joinpath("version.txt")) as f:
         version = f.read().strip()
-    releaseDir = os.path.join(releaseRoot, "upload" + version)
+    releaseDir = releaseRoot.joinpath("upload" + version)
     fileSizes = FileSizesInDirectory(releaseDir)
     if not fileSizes:
         print("No files in", releaseDir)
@@ -68,4 +64,4 @@ def UpdateFileSizes():
                 docFile.write("".join(outLines))
 
 if __name__=="__main__":
-    UpdateFileSizes()
+    UpdateFileSizes(pathlib.Path(__file__).resolve().parent)
