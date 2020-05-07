@@ -2225,6 +2225,10 @@ static void RestrictDLLPath() noexcept {
 	}
 }
 
+#ifdef STATIC_BUILD
+extern "C" Scintilla::ILexer5 * __stdcall CreateLexer(const char *name);
+#endif
+
 #if defined(_MSC_VER) && defined(_PREFAST_)
 // Stop warning for WinMain. Microsoft headers have annotations and MinGW don't.
 #pragma warning(disable: 28251)
@@ -2248,9 +2252,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
 	SciTEWin::Register(hInstance);
 #ifdef STATIC_BUILD
-
 	Scintilla_LinkLexers();
 	Scintilla_RegisterClasses(hInstance);
+	LexillaSetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
 #else
 
 	HMODULE hmod = ::LoadLibrary(scintillaName);

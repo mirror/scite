@@ -31,6 +31,8 @@ namespace {
 typedef FARPROC Function;
 typedef HMODULE Module;
 constexpr const char *extensionSO = ".dll";
+constexpr const char *pathSeparator = "\\";
+constexpr const char *defaultName = "lexilla";
 #else
 #define EXT_LEXER_DECL
 typedef void *Function;
@@ -40,6 +42,8 @@ constexpr const char *extensionSO = ".dylib";
 #else
 constexpr const char *extensionSO = ".so";
 #endif
+constexpr const char *pathSeparator = "/";
+constexpr const char *defaultName = "liblexilla";
 #endif
 
 typedef Scintilla::ILexer5 *(EXT_LEXER_DECL *CreateLexerFn)(const char *name);
@@ -66,6 +70,7 @@ std::wstring WideStringFromUTF8(std::string_view sv) {
 
 #endif
 
+std::string directoryLoadDefault;
 std::string lastLoaded;
 std::vector<CreateLexerFn> fnCLs;
 
@@ -77,6 +82,10 @@ Function FindSymbol(Module m, const char *symbol) noexcept {
 #endif
 }
 
+}
+
+void LexillaSetDefaultDirectory(std::string_view directory) {
+	directoryLoadDefault = directory;
 }
 
 bool LexillaLoad(std::string_view sharedLibraryPaths) {
@@ -94,6 +103,11 @@ bool LexillaLoad(std::string_view sharedLibraryPaths) {
 			paths.remove_prefix(paths.size());
 		} else {
 			paths.remove_prefix(separator + 1);
+		}
+		if (path == ".") {
+			path = directoryLoadDefault;
+			path += pathSeparator;
+			path += defaultName;
 		}
 		if (path.find('.') == std::string::npos) {
 			// No '.' in path so add extension

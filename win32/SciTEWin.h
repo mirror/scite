@@ -65,6 +65,7 @@ typedef void *HTHEME;
 #include <shlobj.h>
 
 #include "ILoader.h"
+#include "ILexer.h"
 
 #include "ScintillaTypes.h"
 #include "ScintillaMessages.h"
@@ -78,6 +79,7 @@ typedef void *HTHEME;
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
+#include "LexillaLibrary.h"
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"

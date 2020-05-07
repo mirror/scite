@@ -9,6 +9,9 @@
 #ifndef LEXILLALIBRARY_H
 #define LEXILLALIBRARY_H
 
+// Directory to load default Lexilla from, commonly the directory of the application.
+void LexillaSetDefaultDirectory(std::string_view directory);
+
 // sharedLibraryPaths is a ';' separated list of shared libraries to load.
 // On Win32 it is treated as UTF-8 and on Unix it is passed to dlopen directly.
 // Return true if any shared libraries are loaded.

@@ -48,6 +48,7 @@
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
+#include "LexillaLibrary.h"
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 
@@ -901,6 +902,8 @@ GtkWidget *SciTEGTK::AddMBButton(GtkWidget *dialog, const char *label,
 	gtk_widget_show(button);
 	return button;
 }
+
+FilePath executableDirectory;
 
 FilePath SciTEGTK::GetDefaultDirectory() {
 	const char *where = getenv("SciTE_HOME");
@@ -5421,6 +5424,19 @@ int main(int argc, char *argv[]) {
 #ifndef GDK_VERSION_3_6
 	gdk_threads_init();
 #endif
+
+	if (argc > 0) {
+		executableDirectory = FilePath(argv[0]).AbsolutePath().Directory();
+	}
+#if __linux__
+	char selfExe[PATH_MAX] = "";
+	if (readlink("/proc/self/exe", selfExe, PATH_MAX) == -1) {
+		perror("readlink");
+	} else {
+		executableDirectory = FilePath(selfExe).Directory();
+	}
+#endif
+	LexillaSetDefaultDirectory(executableDirectory.AsInternal());
 
 	// Get this now because gtk_init() clears it
 	const gchar *startup_id = g_getenv("DESKTOP_STARTUP_ID");
