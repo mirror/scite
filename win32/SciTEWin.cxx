@@ -2255,6 +2255,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	Scintilla_LinkLexers();
 	Scintilla_RegisterClasses(hInstance);
 	LexillaSetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
+	LexillaSetDefault([](const char *name) {
+		return CreateLexer(name);
+	});
 #else
 
 	HMODULE hmod = ::LoadLibrary(scintillaName);

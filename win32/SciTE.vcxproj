@@ -207,6 +207,7 @@
     <ClCompile Include="..\..\scintilla\win32\HanjaDic.cxx" />
     <ClCompile Include="..\..\scintilla\win32\PlatWin.cxx" />
     <ClCompile Include="..\..\scintilla\win32\ScintillaWin.cxx" />
+    <ClCompile Include="..\..\scintilla\lexilla\src\Lexilla.cxx" />
     <ClCompile Include="..\src\*.cxx" />
     <ClCompile Include="..\win32\*.cxx" />
     <ClCompile Include="..\lua\src\*.c" />

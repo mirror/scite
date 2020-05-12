@@ -44,6 +44,10 @@ rem Target 3: Normal gcc build
 mingw32-make -j
 @if ERRORLEVEL 2 goto ERROR
 @popd
+@pushd scintilla\lexilla\src
+mingw32-make -j
+@if ERRORLEVEL 2 goto ERROR
+@popd
 @pushd scintilla\test
 pythonw simpleTests.py
 pythonw lexTests.py
@@ -62,6 +66,10 @@ rem Target 4: Microsoft VC++ build
 @pushd scintilla\win32
 cl
 nmake -f scintilla.mak QUIET=1
+@if ERRORLEVEL 2 goto ERROR
+@popd
+@pushd scintilla\lexilla\src
+nmake -f lexilla.mak QUIET=1
 @if ERRORLEVEL 2 goto ERROR
 @popd
 @pushd scintilla\test
@@ -136,6 +144,10 @@ rem ************************************************************
 rem Target 9: Clang build
 @call scite\scripts\clearboth
 @pushd scintilla\win32
+mingw32-make CLANG=1 -j
+@if ERRORLEVEL 2 goto ERROR
+@popd
+@pushd scintilla\lexilla\src
 mingw32-make CLANG=1 -j
 @if ERRORLEVEL 2 goto ERROR
 @popd

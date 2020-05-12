@@ -112,6 +112,7 @@ OBJS=\
 	SciTEWin.obj
 
 LIBSCI=$(DIR_SCINTILLA_BIN)\libscintilla.lib
+LIBLEX=$(DIR_SCINTILLA_BIN)\liblexilla.lib
 
 OBJSSTATIC=$(SHAREDOBJS) Sc1.obj
 
@@ -211,7 +212,7 @@ Sc1Res.res: SciTERes.rc ..\src\SciTE.h SciTE.exe.manifest
 $(PROG): $(OBJS) SciTERes.res
 	$(LD) $(LDFLAGS) -OUT:$@ $** $(LIBS)
 
-$(PROGSTATIC): $(OBJSSTATIC) $(LIBSCI) Sc1Res.res
+$(PROGSTATIC): $(OBJSSTATIC) $(LIBSCI) $(LIBLEX) Sc1Res.res
 	$(LD) $(LDFLAGS) -OUT:$@ $** $(LIBS)
 
 # Define how to build all the objects and what they depend on

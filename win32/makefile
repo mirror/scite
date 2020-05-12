@@ -194,6 +194,7 @@ OBJSSTATIC = \
 	Sc1.o \
 	Sc1Res.o \
 	libscintilla.a \
+	liblexilla.a \
 	$(LUA_OBJS)
 
 $(PROGSTATIC): $(OBJSSTATIC)

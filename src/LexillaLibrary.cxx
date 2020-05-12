@@ -82,6 +82,12 @@ Function FindSymbol(Module m, const char *symbol) noexcept {
 #endif
 }
 
+LexillaCreatePointer pCreateLexerDefault = nullptr;
+
+}
+
+void LexillaSetDefault(LexillaCreatePointer pCreate) {
+	pCreateLexerDefault = pCreate;
 }
 
 void LexillaSetDefaultDirectory(std::string_view directory) {
@@ -140,6 +146,9 @@ Scintilla::ILexer5 *LexillaCreateLexer(std::string_view languageName) {
 		if (pLexer) {
 			return pLexer;
 		}
+	}
+	if (pCreateLexerDefault) {
+		return pCreateLexerDefault(sLanguageName.c_str());
 	}
 	return nullptr;
 }
