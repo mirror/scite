@@ -95,7 +95,7 @@ rem Target 6: GTK+ version using gcc on scintilla\gtk\makefile
 @pushd scintilla\gtk
 set PATH=c:\opt\gtk\bin;%PATH%
 rem -Wno-parentheses is temporary for GTK+ header gtkfilechooserbutton.h
-mingw32-make -j CXXFLAGS=-Wno-parentheses
+mingw32-make -j CXXFLAGS=-Wno-parentheses static
 @if ERRORLEVEL 2 goto ERROR
 @popd ..\..
 @rem
