@@ -56,9 +56,6 @@ cd test || exit
 make clean
 make test
 make clean
-cd ..
-cd src || exit
-make clean
 )
 
 (
