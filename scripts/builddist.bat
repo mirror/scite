@@ -31,6 +31,14 @@ popd
 call "%MSVC_DIRECTORY%\vcvars64.bat"
 
 pushd scintilla
+pushd lexilla
+pushd src
+nmake -f lexilla.mak SUPPORT_XP=1
+popd
+popd
+popd
+
+pushd scintilla
 pushd win32
 nmake -f scintilla.mak SUPPORT_XP=1
 popd
@@ -39,7 +47,7 @@ popd
 
 pushd scite
 pushd win32
-nmake -f scite.mak SUPPORT_XP=1
+nmake -f scite.mak SUPPORT_XP=1 LOAD_SCINTILLA=1
 popd
 copy bin\Sc1.exe ..\Sc1.exe
 call zipwscite
@@ -65,6 +73,14 @@ popd
 call "%MSVC_DIRECTORY%\vcvars32.bat"
 
 pushd scintilla
+pushd lexilla
+pushd src
+nmake -f lexilla.mak SUPPORT_XP=1
+popd
+popd
+popd
+
+pushd scintilla
 pushd win32
 nmake -f scintilla.mak SUPPORT_XP=1
 popd
@@ -73,7 +89,7 @@ popd
 
 pushd scite
 pushd win32
-nmake -f scite.mak SUPPORT_XP=1
+nmake -f scite.mak SUPPORT_XP=1 LOAD_SCINTILLA=1
 popd
 move bin\SciTE.exe bin\SciTE32.exe
 copy bin\Sc1.exe ..\Sc1.exe

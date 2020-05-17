@@ -18,7 +18,7 @@ DIR_SCINTILLA_BIN=$(DIR_SCINTILLA)\bin
 
 PROG=$(DIR_BIN)\SciTE.exe
 PROGSTATIC=$(DIR_BIN)\Sc1.exe
-DLLS=$(DIR_BIN)\Scintilla.dll $(DIR_BIN)\SciLexer.dll
+DLLS=$(DIR_BIN)\Scintilla.dll $(DIR_BIN)\SciLexer.dll $(DIR_BIN)\Lexilla.dll
 
 WIDEFLAGS=-DUNICODE -D_UNICODE
 

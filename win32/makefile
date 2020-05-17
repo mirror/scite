@@ -163,7 +163,7 @@ OTHER_OBJS = $(SHAREDOBJS) $(LUA_OBJS) SciTERes.o SciTEWin.o
 
 OBJS = Credits.o $(OTHER_OBJS)
 
-DLLS=../bin/Scintilla.dll ../bin/SciLexer.dll
+DLLS=../bin/Scintilla.dll ../bin/SciLexer.dll ../bin/lexilla.dll
 
 NOTBINPROPS=SciTE.properties Embedded.properties
 PROPS=$(addprefix ../bin/,$(filter-out $(NOTBINPROPS), $(notdir $(wildcard ../src/*.properties))))
