@@ -5,6 +5,8 @@ syntax: glob
 __pycache__
 *.pyc
 *.dll
+*.so
+*.dylib
 *.exe
 *.exp
 *.lib
