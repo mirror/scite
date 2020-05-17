@@ -48,10 +48,16 @@ bindir=$(prefix)/bin
 SYSCONF_PATH=$(prefix)/share/scite
 
 INSTALL=install
+COPY = cp -a
 
 PROG	= $(srcdir)/../bin/SciTE
+# make should be run in ../../scintilla/gtk to compile all the lexers.
+SHAREDEXTENSION = $(if $(windir),dll,so)
+COMPLIB=$(SCINTILLA_DIR)/bin/scintilla.a
+COMPONENT=$(srcdir)/../bin/libscintilla.$(SHAREDEXTENSION)
+LEXILLA=$(srcdir)/../bin/liblexilla.$(SHAREDEXTENSION)
 
-all: $(PROG)
+all: $(PROG) $(COMPONENT) $(LEXILLA)
 
 vpath %.h $(srcdir) $(srcdir)/../src $(SCINTILLA_DIR)/include
 vpath %.cxx $(srcdir) $(srcdir)/../src
@@ -107,8 +113,8 @@ analyze:
 depend deps.mak:
 	$(PYTHON) AppDepGen.py
 
-# make should be run in ../../scintilla/gtk to compile all the lexers.
-COMPLIB=$(SCINTILLA_DIR)/bin/scintilla.a
+../bin/%.$(SHAREDEXTENSION):	../../scintilla/bin/%.$(SHAREDEXTENSION)
+	$(COPY) $< $(@D)
 
 # To almost make lua.vers (needs header and footer added) which is only needed after updating Lua:
 # nm -g ../bin/SciTE | grep lua | awk '{print "\t\t" $3 ";"}' >lua2.vers
@@ -142,8 +148,8 @@ SRC_OBJS = \
 	StyleWriter.o \
 	Utf8_16.o
 
-$(PROG): SciTEGTK.o GUIGTK.o Widget.o DirectorExtension.o $(SRC_OBJS) $(COMPLIB) $(LUA_OBJS)
-	$(CXX) $(BASE_FLAGS) -rdynamic -Wl,--as-needed -Wl,--version-script $(srcdir)/lua.vers $^ -o $@ $(CONFIGLIB) $(LIBS) $(LDLIBS)
+$(PROG): SciTEGTK.o GUIGTK.o Widget.o DirectorExtension.o $(SRC_OBJS) $(LUA_OBJS)
+	$(CXX) $(BASE_FLAGS) -rdynamic -Wl,--as-needed -Wl,-rpath,'$${ORIGIN}' -Wl,--version-script $(srcdir)/lua.vers $^ -o $@ $(CONFIGLIB) $(LIBS) -L ../../scintilla/bin -lscintilla $(LDLIBS)
 
 # Automatically generate header dependencies with "make deps"
 include deps.mak
@@ -155,6 +161,8 @@ install:
 	$(INSTALL) -m 755 -d $(DESTDIR)$(bindir) $(DESTDIR)$(SYSCONF_PATH)
 
 	$(INSTALL) -m 755 $(PROG) $(DESTDIR)$(bindir)
+	$(INSTALL) -m 755 $(COMPONENT) $(DESTDIR)$(bindir)
+	$(INSTALL) -m 755 $(LEXILLA) $(DESTDIR)$(bindir)
 
 	for files in $(srcdir)/../src/*.properties $(srcdir)/../doc/*.html $(srcdir)/../doc/SciTEIco.png $(srcdir)/../doc/PrintHi.png $(srcdir)/../doc/SciTEIndicators.png; \
 	do \
@@ -169,6 +177,8 @@ endif
 
 uninstall:
 	rm -f $(DESTDIR)$(bindir)/SciTE
+	rm -f $(DESTDIR)$(bindir)/libscintilla.so
+	rm -f $(DESTDIR)$(bindir)/liblexilla.so
 	rm -rf $(DESTDIR)$(SYSCONF_PATH)
 ifdef gnomeprefix
 	rm -f $(DESTDIR)$(datadir)/applications/SciTE.desktop
