@@ -550,6 +550,9 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		SetAboutStyle(wsci, 0, ColourRGB(0xff, 0xff, 0xff));
 		wsci.StyleSetSize(0, fontSize);
 		wsci.StyleSetBack(0, ColourRGB(0, 0, 0x80));
+		wsci.StyleSetEOLFilled(0, true);
+		wsci.StyleSetBold(0, true);
+		AddStyledText(wsci, "\t\t\t\t", 0);
 		AddStyledText(wsci, appTitle, 0);
 		AddStyledText(wsci, "\n", 0);
 		SetAboutStyle(wsci, 1, ColourRGB(0, 0, 0));
