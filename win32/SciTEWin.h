@@ -221,7 +221,8 @@ protected:
 
 	void ReadLocalization() override;
 	void GetWindowPosition(int *left, int *top, int *width, int *height, int *maximize) override;
-	void SetScaleFactor(int scale);
+	int GetScaleFactor() noexcept;
+	bool SetScaleFactor(int scale);
 
 	void ReadEmbeddedProperties() override;
 	void ReadPropertiesInitial() override;

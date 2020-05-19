@@ -223,9 +223,9 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	ReadEnvironment();
 
-	ReadGlobalPropFile();
+	SetScaleFactor(GetScaleFactor());
 
-	SetScaleFactor(0);
+	ReadGlobalPropFile();
 
 	tbLarge = props.GetInt("toolbar.large");
 	/// Need to copy properties to variables before setting up window
@@ -387,14 +387,22 @@ void SciTEWin::GetWindowPosition(int *left, int *top, int *width, int *height, i
 	*maximize = (winPlace.showCmd == SW_MAXIMIZE) ? 1 : 0;
 }
 
-void SciTEWin::SetScaleFactor(int scale) {
-	if (scale == 0) {
-		HDC hdcMeasure = ::CreateCompatibleDC(NULL);
-		scale = ::GetDeviceCaps(hdcMeasure, LOGPIXELSX) * 100 / 96;
-		::DeleteDC(hdcMeasure);
+int SciTEWin::GetScaleFactor() noexcept {
+	// Only called at startup, so just use the default for a DC
+	HDC hdcMeasure = ::CreateCompatibleDC({});
+	const int scale = ::GetDeviceCaps(hdcMeasure, LOGPIXELSY) * 100 / 96;
+	::DeleteDC(hdcMeasure);
+	return scale;
+}
+
+bool SciTEWin::SetScaleFactor(int scale) {
+	const std::string sScale = StdStringFromInteger(scale);
+	const std::string sCurrentScale = propsPlatform.GetString("ScaleFactor");
+	if (sScale == sCurrentScale) {
+		return false;
 	}
-	std::string sScale = StdStringFromInteger(scale);
-	propsPlatform.Set("ScaleFactor", sScale.c_str());
+	propsPlatform.Set("ScaleFactor", sScale);
+	return true;
 }
 
 // Allow UTF-8 file names and command lines to be used in calls to io.open and io.popen in Lua scripts.
@@ -2008,8 +2016,14 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_DPICHANGED:
-			SetScaleFactor(LOWORD(wParam) * 100 / 96);
-			ReadProperties();
+			if (SetScaleFactor(LOWORD(wParam) * 100 / 96)) {
+				wEditor.Send(WM_DPICHANGED, wParam, lParam);
+				wOutput.Send(WM_DPICHANGED, wParam, lParam);
+				ReloadProperties();
+				const RECT * rect = reinterpret_cast<const RECT *>(lParam);
+				::SetWindowPos(MainHWND(), NULL, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top,
+					SWP_NOZORDER | SWP_NOACTIVATE);
+			}
 			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 
 		case WM_ACTIVATEAPP:
