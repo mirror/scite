@@ -37,6 +37,8 @@ extern "C" {
 
 #if (LUA_VERSION_NUM < 502)
 #define lua_pushglobaltable(L) lua_pushvalue(L, LUA_GLOBALSINDEX)
+#undef  lua_getglobal
+#define lua_getglobal(L,s) (lua_getfield(L, LUA_GLOBALSINDEX, s), lua_type(L, -1))
 #else
 #define LUA_GLOBALSINDEX LUA_RIDX_GLOBALS
 #endif
@@ -1249,7 +1251,6 @@ static void PublishGlobalBufferData() noexcept {
 // release 1.62
 // A Lua table called 'buffer' is associated with each buffer
 // and can be used to maintain buffer-specific state.
-	lua_pushliteral(luaState, "buffer");
 	if (curBufferIndex >= 0) {
 		lua_pushliteral(luaState, "SciTE_BufferData_Array");
 		lua_rawget(luaState, LUA_REGISTRYINDEX);
@@ -1303,6 +1304,7 @@ static bool InitGlobalScope(bool checkProperties, bool forceReload = false) {
 			if (lua_istable(luaState, -1)) {
 				clear_table(luaState, -2, true);
 				merge_table(luaState, -2, -1, true);
+				lua_pop(luaState, 2);
 
 				// restore initial package.loaded state
 				lua_getfield(luaState, LUA_REGISTRYINDEX, "SciTE_InitialPackageState");
