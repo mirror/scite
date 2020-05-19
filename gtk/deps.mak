@@ -42,6 +42,7 @@ SciTEGTK.o: \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
+	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/Extender.h \
@@ -234,8 +235,6 @@ LexillaLibrary.o: \
 	../src/LexillaLibrary.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
-	../src/GUI.h \
-	../src/FilePath.h \
 	../src/LexillaLibrary.h
 LuaExtension.o: \
 	../src/LuaExtension.cxx \

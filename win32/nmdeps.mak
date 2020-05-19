@@ -29,6 +29,7 @@ SciTEWin.obj: \
 	SciTEWin.h \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
+	../../scintilla/include/ILexer.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
@@ -38,6 +39,7 @@ SciTEWin.obj: \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
+	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -61,6 +63,7 @@ Sc1.obj: \
 	SciTEWin.h \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
+	../../scintilla/include/ILexer.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
@@ -70,6 +73,7 @@ Sc1.obj: \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
+	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -93,6 +97,7 @@ SciTEWinBar.obj: \
 	SciTEWin.h \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
+	../../scintilla/include/ILexer.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
@@ -102,6 +107,7 @@ SciTEWinBar.obj: \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
+	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -122,6 +128,7 @@ SciTEWinDlg.obj: \
 	SciTEWin.h \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
+	../../scintilla/include/ILexer.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
@@ -131,6 +138,7 @@ SciTEWinDlg.obj: \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
+	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -151,6 +159,7 @@ Strips.obj: \
 	SciTEWin.h \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
+	../../scintilla/include/ILexer.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
@@ -160,6 +169,7 @@ Strips.obj: \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
+	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -180,6 +190,7 @@ UniqueInstance.obj: \
 	SciTEWin.h \
 	../../scintilla/include/ILoader.h \
 	../../scintilla/include/Sci_Position.h \
+	../../scintilla/include/ILexer.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
@@ -189,6 +200,7 @@ UniqueInstance.obj: \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
+	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -372,8 +384,6 @@ LexillaLibrary.obj: \
 	../src/LexillaLibrary.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
-	../src/GUI.h \
-	../src/FilePath.h \
 	../src/LexillaLibrary.h
 LuaExtension.obj: \
 	../src/LuaExtension.cxx \
