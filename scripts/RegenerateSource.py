@@ -13,19 +13,20 @@
 
 # Regenerates Scintilla files by calling LexGen.RegenerateAll
 
-import codecs, glob, os, sys
+import pathlib, sys
 
-srcRoot = "../.."
-
-sys.path.append(srcRoot + "/scintilla/scripts")
+sciteBase = pathlib.Path(__file__).resolve().parent.parent
+baseDirectory = sciteBase.parent
+sys.path.append(str(baseDirectory / "scintilla" / "scripts"))
 
 from FileGenerator import Generate, Regenerate, UpdateLineInFile, ReplaceREInFile
 import ScintillaData
 import LexGen
+import lexilla.scripts.LexillaGen
 import IFaceTableGen
 import commandsdoc
 
-sys.path.append("..")
+sys.path.append(str(sciteBase))
 
 import win32.AppDepGen
 import gtk.AppDepGen
@@ -33,7 +34,7 @@ import gtk.AppDepGen
 neutralEncoding = "windows-1252"
 
 def UpdateVersionNumbers(sci, pathSciTE):
-    pathHeader = os.path.join(pathSciTE, "src", "SciTE.h")
+    pathHeader = pathSciTE / "src" / "SciTE.h"
     UpdateLineInFile(pathHeader,
         '#define VERSION_SCITE',
         '#define VERSION_SCITE "' + sci.versionDotted + '"')
@@ -47,7 +48,7 @@ def UpdateVersionNumbers(sci, pathSciTE):
         '#define COPYRIGHT_YEARS',
         '#define COPYRIGHT_YEARS "1998-' + sci.yearModified + '"')
 
-    pathDownload = os.path.join(pathSciTE, "doc", "SciTEDownload.html")
+    pathDownload = pathSciTE / "doc" / "SciTEDownload.html"
     UpdateLineInFile(pathDownload,
         "       Release",
         "       Release " + sci.versionDotted)
@@ -61,7 +62,7 @@ def UpdateVersionNumbers(sci, pathSciTE):
         r"/www.scintilla.org/(Sc32_)\d\d\d",
         r"/www.scintilla.org/\g<1>" +  sci.version)
 
-    pathMain = os.path.join(pathSciTE, "doc", "SciTE.html")
+    pathMain = pathSciTE / "doc" / "SciTE.html"
     UpdateLineInFile(pathMain,
         '          <font color="#FFCC99" size="3"> Release version',
         '          <font color="#FFCC99" size="3"> Release version ' + \
@@ -76,19 +77,11 @@ def UpdateVersionNumbers(sci, pathSciTE):
 def OctalEscape(s):
     result = []
     for char in s:
-        try:
-            ordChar = ord(char)
-            # Python 2.x, s is a string so bytes
-            if ordChar < 128:
-                result.append(char)
-            else:
-                result.append("\%o" % ordChar)
-        except TypeError:
-            # Python 3.x, s is a byte string
-            if char < 128:
-                result.append(chr(char))
-            else:
-                result.append("\%o" % char)
+        # Python 3.x, s is a byte string
+        if char < 128:
+            result.append(chr(char))
+        else:
+            result.append("\%o" % char)
     return ''.join(result)
 
 def UpdateEmbedded(pathSciTE, propFiles):
@@ -96,31 +89,29 @@ def UpdateEmbedded(pathSciTE, propFiles):
     propFilesAll = propFilesSpecial + propFiles
     linesEmbedded = []
     for pf in propFilesAll:
-        fullPath = os.path.join(pathSciTE, "src", pf)
-        with codecs.open(fullPath, "r", neutralEncoding) as fi:
-            fileBase = pf.split(".")[0]
+        fullPath = pathSciTE / "src" / pf
+        with fullPath.open(encoding=neutralEncoding) as fi:
+            fileBase = pathlib.Path(pf).stem
             if pf not in propFilesSpecial:
-                linesEmbedded.append(os.linesep + "module " + fileBase + os.linesep)
+                linesEmbedded.append("\n" + "module " + fileBase + "\n")
             for line in fi:
                 if not line.startswith("#"):
                     linesEmbedded.append(line)
             if not linesEmbedded[-1].endswith("\n"):
-                linesEmbedded[-1] += os.linesep
+                linesEmbedded[-1] += "\n"
     textEmbedded = "".join(linesEmbedded)
-    pathEmbedded = os.path.join(pathSciTE, "src", "Embedded.properties")
-    with codecs.open(pathEmbedded, "r", neutralEncoding) as fileEmbedded:
-        original = fileEmbedded.read()
+    pathEmbedded = pathSciTE / "src" / "Embedded.properties"
+    original = pathEmbedded.read_text(encoding=neutralEncoding)
     if textEmbedded != original:
-        with codecs.open(pathEmbedded, "w", neutralEncoding) as fileOutEmbedded:
-            fileOutEmbedded.write(textEmbedded)
-            print("Changed %s" % pathEmbedded)
+        pathEmbedded.write_text(textEmbedded, encoding=neutralEncoding)
+        print("Changed %s" % pathEmbedded)
 
 def RegenerateAll():
     root="../../"
 
-    sci = ScintillaData.ScintillaData(root + "scintilla/")
+    sci = ScintillaData.ScintillaData(baseDirectory / "scintilla")
 
-    pathSciTE = os.path.join(root, "scite")
+    pathSciTE = sciteBase
 
     # Generate HTML to document each property
     # This is done because tags can not be safely put inside comments in HTML
@@ -137,25 +128,26 @@ def RegenerateAll():
         "Embedded.properties",
         "SciTEGlobal.properties",
         "SciTE.properties"]
-    propFilePaths = glob.glob(os.path.join(pathSciTE, "src", "*.properties"))
+    propFilePaths = list((pathSciTE / "src").glob("*.properties"))
     ScintillaData.SortListInsensitive(propFilePaths)
-    propFiles = [os.path.basename(f) for f in propFilePaths if os.path.basename(f) not in otherProps]
+    propFiles = [f.name for f in propFilePaths if f.name not in otherProps]
     ScintillaData.SortListInsensitive(propFiles)
 
     UpdateEmbedded(pathSciTE, propFiles)
-    Regenerate(os.path.join(pathSciTE, "win32", "makefile"), "#", propFiles)
-    Regenerate(os.path.join(pathSciTE, "win32", "scite.mak"), "#", propFiles)
-    Regenerate(os.path.join(pathSciTE, "src", "SciTEProps.cxx"), "//", sci.lexerProperties)
-    Regenerate(os.path.join(pathSciTE, "doc", "SciTEDoc.html"), "<!--", propertiesHTML)
+    Regenerate(pathSciTE / "win32" / "makefile", "#", propFiles)
+    Regenerate(pathSciTE / "win32" / "scite.mak", "#", propFiles)
+    Regenerate(pathSciTE / "src" / "SciTEProps.cxx", "//", sci.lexerProperties)
+    Regenerate(pathSciTE / "doc" / "SciTEDoc.html", "<!--", propertiesHTML)
     credits = [OctalEscape(c.encode("utf-8")) for c in sci.credits]
-    Regenerate(os.path.join(pathSciTE, "src", "Credits.cxx"), "//", credits)
+    Regenerate(pathSciTE / "src" / "Credits.cxx", "//", credits)
 
     win32.AppDepGen.Generate()
     gtk.AppDepGen.Generate()
 
     UpdateVersionNumbers(sci, pathSciTE)
 
-LexGen.RegenerateAll("../../scintilla/")
+LexGen.RegenerateAll(sciteBase.parent / "scintilla")
+lexilla.scripts.LexillaGen.RegenerateAll(sciteBase.parent / "scintilla")
 RegenerateAll()
 IFaceTableGen.RegenerateAll()
 commandsdoc.RegenerateAll()
