@@ -195,6 +195,8 @@ SciTEWin::SciTEWin(Extension *ext) : SciTEBase(ext) {
 
 	flatterUI = UIShouldBeFlat();
 
+	appearance = CurrentAppearance();
+
 	cmdShow = 0;
 	heightBar = 7;
 	fontTabs = {};
@@ -453,6 +455,41 @@ void SciTEWin::ReadEmbeddedProperties() {
 		}
 		::FreeResource(handProps);
 	}
+}
+
+SystemAppearance SciTEWin::CurrentAppearance() const noexcept {
+	SystemAppearance currentAppearance{};
+
+	HKEY hkeyPersonalize{};
+	const LSTATUS statusOpen = ::RegOpenKeyExW(HKEY_CURRENT_USER,
+		L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+		0, KEY_QUERY_VALUE, &hkeyPersonalize);
+	if (statusOpen == ERROR_SUCCESS) {
+		DWORD type = 0;
+		DWORD val = 99;
+		DWORD cbData = sizeof(val);
+		const LSTATUS status = ::RegQueryValueExW(hkeyPersonalize, L"AppsUseLightTheme", nullptr,
+			&type, reinterpret_cast<LPBYTE>(&val), reinterpret_cast<LPDWORD>(&cbData));
+		RegCloseKey(hkeyPersonalize);
+		if (status == ERROR_SUCCESS) {
+			currentAppearance.dark = val == 0;
+		}
+	}
+
+	HIGHCONTRAST info{};
+	info.cbSize = sizeof(HIGHCONTRAST)
+		;
+	const BOOL status = SystemParametersInfoW(SPI_GETHIGHCONTRAST, 0, &info, 0);
+	if (status) {
+		currentAppearance.highContrast = (info.dwFlags & HCF_HIGHCONTRASTON) ? 1 : 0;
+		if (currentAppearance.highContrast) {
+			// With high contrast, AppsUseLightTheme not correct so examine system background colour
+			const DWORD dwWindowColour = ::GetSysColor(COLOR_WINDOW);
+			currentAppearance.dark = dwWindowColour < 0x40;
+		}
+	}
+
+	return currentAppearance;
 }
 
 void SciTEWin::ReadPropertiesInitial() {
@@ -1756,6 +1793,23 @@ void SciTEWin::RestoreFromTray() {
 	::Shell_NotifyIcon(NIM_DELETE, &nid);
 }
 
+void SciTEWin::SettingChanged(WPARAM wParam, LPARAM lParam) {
+	if (lParam) {
+		const GUI::gui_string_view sv(reinterpret_cast<const wchar_t *>(lParam));
+		if (sv == L"ImmersiveColorSet") {
+			CheckAppearanceChanged();
+		}
+	}
+	wEditor.Send(WM_SETTINGCHANGE, wParam, lParam);
+	wOutput.Send(WM_SETTINGCHANGE, wParam, lParam);
+}
+
+void SciTEWin::SysColourChanged(WPARAM wParam, LPARAM lParam) {
+	CheckAppearanceChanged();
+	wEditor.Send(WM_SYSCOLORCHANGE, wParam, lParam);
+	wOutput.Send(WM_SYSCOLORCHANGE, wParam, lParam);
+}
+
 inline bool KeyMatch(const std::string &sKey, int keyval, int modifiers) {
 	return SciTEKeys::MatchKeyCode(
 		       SciTEKeys::ParseKeyCode(sKey.c_str()), keyval, modifiers);
@@ -2006,13 +2060,11 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_SETTINGCHANGE:
-			wEditor.Send(WM_SETTINGCHANGE, wParam, lParam);
-			wOutput.Send(WM_SETTINGCHANGE, wParam, lParam);
+			SettingChanged(wParam, lParam);
 			break;
 
 		case WM_SYSCOLORCHANGE:
-			wEditor.Send(WM_SYSCOLORCHANGE, wParam, lParam);
-			wOutput.Send(WM_SYSCOLORCHANGE, wParam, lParam);
+			SysColourChanged(wParam, lParam);
 			break;
 
 		case WM_DPICHANGED:

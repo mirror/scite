@@ -228,6 +228,8 @@ protected:
 	void ReadPropertiesInitial() override;
 	void ReadProperties() override;
 
+	SystemAppearance CurrentAppearance() const noexcept override;
+
 	void TimerStart(int mask) override;
 	void TimerEnd(int mask) override;
 
@@ -280,6 +282,8 @@ protected:
 	void DropFiles(HDROP hdrop);
 	void MinimizeToTray();
 	void RestoreFromTray();
+	void SettingChanged(WPARAM wParam, LPARAM lParam);
+	void SysColourChanged(WPARAM wParam, LPARAM lParam);
 	static GUI::gui_string ProcessArgs(const GUI::gui_char *cmdLine);
 	void QuitProgram() override;
 

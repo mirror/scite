@@ -146,6 +146,7 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 	underIndicator = false;
 	openFilesHere = false;
 	fullScreen = false;
+	appearance = {};
 
 	heightOutput = 0;
 	heightOutputStartDrag = 0;
@@ -245,6 +246,18 @@ void SciTEBase::WorkerCommand(int cmd, Worker *pWorker) {
 	case WORK_FILEPROGRESS:
 		UpdateProgress(pWorker);
 		break;
+	}
+}
+
+SystemAppearance SciTEBase::CurrentAppearance() const noexcept {
+	return {};
+}
+
+void SciTEBase::CheckAppearanceChanged() {
+	const SystemAppearance currentAppearance = CurrentAppearance();
+	if (!(appearance == currentAppearance)) {
+		appearance = currentAppearance;
+		ReloadProperties();
 	}
 }
 

@@ -141,6 +141,11 @@ void SciTEBase::ReadEnvironment() {
 Read global and user properties files.
 */
 void SciTEBase::ReadGlobalPropFile() {
+	// Appearance and Contrast may be read in embedded or global properties
+	// so set them in deepest property set propsPlatform.
+	propsPlatform.Set("Appearance", StdStringFromInteger(appearance.dark));
+	propsPlatform.Set("Contrast", StdStringFromInteger(appearance.highContrast));
+
 	std::string excludes;
 	std::string includes;
 

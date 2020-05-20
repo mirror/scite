@@ -829,6 +829,11 @@ NameError: name 'mistake' is not defined
        Values may include the values of other variables by using $(variablename).
       </p>
       <p>
+      The "=" function compares strings (separated by ";") and if they are the same yields "1" else "0".
+      To test if the value of "Status" is "2":
+      <span class="example">$(= $(Status);2)</span>
+      </p>
+      <p>
       The "star" function may be used to collect the values of all variables that start with a particular prefix.
       <span class="example">all.languages=$(star&nbsp;language.)</span> finds every variable
       that starts with "language." and assigns that to all.languages.
@@ -876,6 +881,8 @@ NameError: name 'mistake' is not defined
                <tr id='property-APIPath'><td>APIPath</td><td>list of full paths of API files from api.<i>filepattern</i></td></tr>
                <tr id='property-AbbrevPath'><td>AbbrevPath</td><td>full path of abbreviations file</td></tr>
                <tr id='property-ScaleFactor'><td>ScaleFactor</td><td>the screen's scaling factor with a default value of 100</td></tr>
+               <tr id='property-Appearance'><td>Appearance</td><td>whether the system is using a light (0) or dark (1) theme</td></tr>
+               <tr id='property-Contrast'><td>Contrast</td><td>1 when the system is in high-contrast mode else 0</td></tr>
         </table>
     <p>
        Some features use file name patterns to see which variable to use. For example, the lexer
@@ -935,16 +942,26 @@ NameError: name 'mistake' is not defined
     <p>
       <a name="property-if"></a>
       The 'if' statement takes one argument which is a
-      symbol that may be defined earlier in this property set file or in a base
-      property set. If the symbol evaluates to '0' then the test fails. An empty
-      string or not present symbol evaluates to 0. Into the very top property set
+      symbol or expression that may be defined earlier in this property set file or in a base
+      property set. If the symbol evaluates to '0' then the test fails.
+      An empty string or not present symbol evaluates to 0.
+      An expression that evaluates to 0 or empty fails.
+      Into the very top property set
       is inserted one of 'PLAT_GTK' with value '1',
       'PLAT_WIN' with value '1', or 'PLAT_MAC' with value '1'.
       For both PLAT_GTK and PLAT_MAC, 'PLAT_UNIX' is inserted with value '1'.
+      The system properties Appearance and Contrast are also available for use in expressions.
       If the test succeeds then following indented statements are executed. When a
       non-indented statement is found the if clause is finished. Only simple set
       statements are allowed in if clauses. The evaluation of if statements occurs
       at read time, not at evaluation time.
+      A reread is forced if either of the system properties changes.
+     <div class="example">
+     if PLAT_WIN<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;caret.fore=#00FF00<br />
+     if $(= $(Appearance);1)<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;caret.fore=#FFFFFF<br />
+     </div>
     </p>
     <p>
       <a name="property-module"></a>

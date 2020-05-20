@@ -77,7 +77,7 @@ vpath %.h ../src ../../scintilla/include
 vpath %.cxx ../src
 vpath %.a ../../scintilla/bin
 
-LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lmsimg32 -lshell32 -lcomdlg32 -lcomctl32
+LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lmsimg32 -lshell32 -lcomdlg32 -lcomctl32 -ladvapi32
 
 CXXFLAGS += --std=c++17
 

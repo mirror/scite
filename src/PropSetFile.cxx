@@ -186,6 +186,18 @@ std::string PropSetFile::Evaluate(const char *key) const {
 			std::string val = GetString(key+7);
 			std::string escaped = ShellEscape(val.c_str());
 			return escaped;
+		} else if (isprefix(key, "= ")) {
+			const std::string sExpressions(key + 2);
+			std::vector<std::string> parts = StringSplit(sExpressions, ';');
+			if (parts.size() > 1) {
+				bool equal = true;
+				for (size_t part = 1; part < parts.size(); part++) {
+					if (parts[part] != parts[0]) {
+						equal = false;
+					}
+				}
+				return equal ? "1" : "0";
+			}
 		} else if (isprefix(key, "star ")) {
 			const std::string sKeybase(key + 5);
 			// Create set of variables with values
@@ -387,7 +399,14 @@ PropSetFile::ReadLineState PropSetFile::ReadLine(const char *lineBuffer, ReadLin
 	}
 	if (isprefix(lineBuffer, "if ")) {
 		const char *expr = lineBuffer + strlen("if") + 1;
-		rls = (GetInt(expr) != 0) ? rlActive : rlConditionFalse;
+		std::string value = Expand(expr);
+		if (value == "0" || value == "") {
+			rls = rlConditionFalse;
+		} else if (value == "1") {
+			rls = rlActive;
+		} else {
+			rls = (GetInt(value.c_str()) != 0) ? rlActive : rlConditionFalse;
+		}
 	} else if (isprefix(lineBuffer, "import ")) {
 		if (directoryForImports.IsSet()) {
 			std::string importName(lineBuffer + strlen("import") + 1);

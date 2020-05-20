@@ -556,6 +556,8 @@ protected:
 	gint	fileSelectorWidth;
 	gint	fileSelectorHeight;
 
+	GtkSettings *settings;
+
 	GtkPrintSettings *printSettings;
 	GtkPageSetup *pageSetup;
 	std::vector<int> pageStarts;
@@ -739,6 +741,11 @@ protected:
 		return scitew->TabBarScroll(event);
 	}
 
+	SystemAppearance CurrentAppearance() const noexcept override;
+	static void ThemeSignal(GObject *, GParamSpec *, SciTEGTK *scitew) {
+		scitew->CheckAppearanceChanged();
+	}
+
 public:
 
 	// TODO: get rid of this - use callback argument to find SciTEGTK
@@ -799,6 +806,10 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 
 	pathAbbreviations = GetAbbrevPropertiesFileName();
 
+	settings = gtk_settings_get_default();
+	appearance = CurrentAppearance();
+	g_signal_connect(settings, "notify::gtk-theme-name", G_CALLBACK(ThemeSignal), this);
+
 	ReadGlobalPropFile();
 	ReadAbbrevPropFile();
 
@@ -827,7 +838,9 @@ SciTEGTK::SciTEGTK(Extension *ext) : SciTEBase(ext) {
 	instance = this;
 }
 
-SciTEGTK::~SciTEGTK() {}
+SciTEGTK::~SciTEGTK() {
+	g_object_unref(settings);
+}
 
 static void destroyDialog(GtkWidget *, gpointer *window) {
 	if (window) {
@@ -4043,6 +4056,20 @@ void SciTEGTK::CreateMenu() {
 		                     bufferMax - 10, "/Buffers/Buffer", 10, bufferCmdID, "/Buffers/Buffer0");
 	CreateTranslatedMenu(std::size(menuItemsHelp), menuItemsHelp);
 	gtk_window_add_accel_group(GTK_WINDOW(PWidget(wSciTE)), accelGroup);
+}
+
+SystemAppearance SciTEGTK::CurrentAppearance() const noexcept {
+	SystemAppearance currentAppearance{};
+	gchar *themeName = nullptr;
+	g_object_get(settings, "gtk-theme-name", &themeName, nullptr);
+	currentAppearance.dark = g_str_has_suffix(themeName, "-dark");
+	currentAppearance.highContrast = g_str_has_prefix(themeName, "HighContrast");
+	if (g_strcmp0(themeName, "HighContrastInverse") == 0) {
+		currentAppearance.dark = true;
+	}
+	//fprintf(stderr, "Theme '%s' %d %d\n", themeName, currentAppearance.dark, currentAppearance.highContrast);
+	g_free(themeName);
+	return currentAppearance;
 }
 
 void FindReplaceStrip::SetIncrementalBehaviour(int behaviour) {

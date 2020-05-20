@@ -357,6 +357,14 @@ public:
 class IEditorConfig;
 struct SCNotification;
 
+struct SystemAppearance {
+	bool dark;
+	bool highContrast;
+	bool operator==(const SystemAppearance &other) const noexcept {
+		return dark == other.dark && highContrast == other.highContrast;
+	}
+};
+
 class SciTEBase : public ExtensionAPI, public Searcher, public WorkerListener {
 protected:
 	bool needIdle;
@@ -457,6 +465,7 @@ protected:
 	std::string foldHiliteColour;
 	bool openFilesHere;
 	bool fullScreen;
+	SystemAppearance appearance;
 	enum { toolMax = 50 };
 	Extension *extender;
 	bool needReadProperties;
@@ -583,6 +592,8 @@ protected:
 	void ReadLocalPropFile();
 	void ReadDirectoryPropFile();
 
+	virtual SystemAppearance CurrentAppearance() const noexcept;
+	void CheckAppearanceChanged();
 	void SetPaneFocus(bool editPane) noexcept;
 	GUI::ScintillaWindow &PaneFocused();
 	GUI::ScintillaWindow &PaneSource(int destination);
