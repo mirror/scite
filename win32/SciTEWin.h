@@ -284,6 +284,7 @@ protected:
 	void RestoreFromTray();
 	void SettingChanged(WPARAM wParam, LPARAM lParam);
 	void SysColourChanged(WPARAM wParam, LPARAM lParam);
+	void ScaleChanged(WPARAM wParam, LPARAM lParam);
 	static GUI::gui_string ProcessArgs(const GUI::gui_char *cmdLine);
 	void QuitProgram() override;
 

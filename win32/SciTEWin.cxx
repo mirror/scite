@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "SciTEWin.h"
+#include "DLLFunction.h"
 
 #ifndef WM_DPICHANGED
 #define WM_DPICHANGED 0x02E0
@@ -155,6 +156,16 @@ const TCHAR *SciTEWin::classNameInternal = nullptr;
 SciTEWin *SciTEWin::app = nullptr;
 
 namespace {
+
+using SystemParametersInfoForDpiSig = BOOL (WINAPI *)(
+	UINT  uiAction,
+	UINT  uiParam,
+	PVOID pvParam,
+	UINT  fWinIni,
+	UINT  dpi
+);
+
+SystemParametersInfoForDpiSig fnSystemParametersInfoForDpi;
 
 // Using VerifyVersionInfo on Windows 10 will pretend its Windows 8
 // but that is good enough for switching UI elements to flatter.
@@ -1810,6 +1821,35 @@ void SciTEWin::SysColourChanged(WPARAM wParam, LPARAM lParam) {
 	wOutput.Send(WM_SYSCOLORCHANGE, wParam, lParam);
 }
 
+void SciTEWin::ScaleChanged(WPARAM wParam, LPARAM lParam) {
+	const int scale = LOWORD(wParam) * 100 / 96;
+	if (SetScaleFactor(scale)) {
+		wEditor.Send(WM_DPICHANGED, wParam, lParam);
+		wOutput.Send(WM_DPICHANGED, wParam, lParam);
+		ReloadProperties();
+		const RECT *rect = reinterpret_cast<const RECT *>(lParam);
+		::SetWindowPos(MainHWND(), NULL, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top,
+			SWP_NOZORDER | SWP_NOACTIVATE);
+
+		if (!fnSystemParametersInfoForDpi) {
+			fnSystemParametersInfoForDpi = DLLFunction<SystemParametersInfoForDpiSig>(
+				L"user32.dll", "SystemParametersInfoForDpi");
+		}
+
+		if (fnSystemParametersInfoForDpi) {
+			LOGFONTW lfIconTitle{};
+			if (fnSystemParametersInfoForDpi(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitle),
+				&lfIconTitle, FALSE, LOWORD(wParam))) {
+				const HFONT fontTabsPrevious = fontTabs;
+				fontTabs = ::CreateFontIndirectW(&lfIconTitle);
+				SetWindowFont(HwndOf(wTabBar), fontTabs, 0);
+				::DeleteObject(fontTabsPrevious);
+				SizeSubWindows();
+			}
+		}
+	}
+}
+
 inline bool KeyMatch(const std::string &sKey, int keyval, int modifiers) {
 	return SciTEKeys::MatchKeyCode(
 		       SciTEKeys::ParseKeyCode(sKey.c_str()), keyval, modifiers);
@@ -2068,14 +2108,7 @@ LRESULT SciTEWin::WndProc(UINT iMessage, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		case WM_DPICHANGED:
-			if (SetScaleFactor(LOWORD(wParam) * 100 / 96)) {
-				wEditor.Send(WM_DPICHANGED, wParam, lParam);
-				wOutput.Send(WM_DPICHANGED, wParam, lParam);
-				ReloadProperties();
-				const RECT * rect = reinterpret_cast<const RECT *>(lParam);
-				::SetWindowPos(MainHWND(), NULL, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top,
-					SWP_NOZORDER | SWP_NOACTIVATE);
-			}
+			ScaleChanged(wParam, lParam);
 			return ::DefWindowProcW(MainHWND(), iMessage, wParam, lParam);
 
 		case WM_ACTIVATEAPP:

@@ -929,11 +929,10 @@ void SciTEWin::Creation() {
 	if (!wTabBar.Created())
 		exit(FALSE);
 
-	LOGFONT lfIconTitle;
-	ZeroMemory(&lfIconTitle, sizeof(lfIconTitle));
-	if (::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitle), &lfIconTitle, FALSE) == 0)
+	LOGFONTW lfIconTitle {};
+	if (::SystemParametersInfoW(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitle), &lfIconTitle, FALSE) == 0)
 		exit(FALSE);
-	fontTabs = ::CreateFontIndirect(&lfIconTitle);
+	fontTabs = ::CreateFontIndirectW(&lfIconTitle);
 	SetWindowFont(HwndOf(wTabBar), fontTabs, 0);
 
 	wTabBar.Show();
