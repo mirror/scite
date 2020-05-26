@@ -55,6 +55,7 @@ SciTEWin.o: \
 	../src/StripDefinition.h \
 	Strips.h \
 	../src/SciTEKeys.h \
+	DLLFunction.h \
 	../src/MultiplexExtension.h \
 	DirectorExtension.h \
 	../src/LuaExtension.h
@@ -89,6 +90,7 @@ Sc1.o: \
 	../src/StripDefinition.h \
 	Strips.h \
 	../src/SciTEKeys.h \
+	DLLFunction.h \
 	../src/MultiplexExtension.h \
 	DirectorExtension.h \
 	../src/LuaExtension.h
