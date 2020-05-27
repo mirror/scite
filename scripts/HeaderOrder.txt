@@ -129,7 +129,7 @@
 #include "SciTEKeys.h"
 
 #include "SciTEWin.h"
-#include "DllFunction.h"
+#include "DLLFunction.h"
 #include "MultiplexExtension.h"
 #include "DirectorExtension.h"
 #include "LuaExtension.h"
