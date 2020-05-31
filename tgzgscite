@@ -3,6 +3,7 @@ rm -f gscite.tgz
 mkdir gscite
 cp scite/*.txt gscite
 cp scite/bin/SciTE gscite
+cp scite/bin/*.so gscite
 strip gscite/SciTE
 cp scite/src/*.properties gscite
 rm -f gscite/Embedded.properties
