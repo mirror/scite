@@ -84,6 +84,17 @@ Function FindSymbol(Module m, const char *symbol) noexcept {
 
 LexillaCreatePointer pCreateLexerDefault = nullptr;
 
+bool NameContainsDot(std::string_view path) noexcept {
+	for (std::string_view::const_reverse_iterator it = path.crbegin();
+	     it != path.crend(); ++it) {
+		if (*it == '.')
+			return true;
+		if (*it == '/' || *it == '\\')
+			return false;
+	}
+	return false;
+}
+
 }
 
 void LexillaSetDefault(LexillaCreatePointer pCreate) {
@@ -115,8 +126,8 @@ bool LexillaLoad(std::string_view sharedLibraryPaths) {
 			path += pathSeparator;
 			path += defaultName;
 		}
-		if (path.find('.') == std::string::npos) {
-			// No '.' in path so add extension
+		if (!NameContainsDot(path)) {
+			// No '.' in name so add extension
 			path.append(extensionSO);
 		}
 #if _WIN32
