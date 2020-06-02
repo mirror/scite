@@ -2350,10 +2350,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 #endif
 
 	SciTEWin::Register(hInstance);
+	LexillaSetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
 #ifdef STATIC_BUILD
 	Scintilla_LinkLexers();
 	Scintilla_RegisterClasses(hInstance);
-	LexillaSetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
 	LexillaSetDefault([](const char *name) {
 		return CreateLexer(name);
 	});
