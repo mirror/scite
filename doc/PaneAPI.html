@@ -371,6 +371,12 @@
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ANNOTATIONCLEARALL'>AnnotationClearAll</a>()<span class="comment"> -- Clear the annotations from all lines</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ANNOTATIONSETVISIBLE'>AnnotationVisible</a><span class="comment"> -- Set the visibility for the annotations for a view</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_ANNOTATIONSETSTYLEOFFSET'>AnnotationStyleOffset</a><span class="comment"> -- Get the start of the range of style numbers used for annotations</span></p>
+	<h2>End of Line Annotations</h2>
+	<p>string editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONSETTEXT'>EOLAnnotationText</a>[line line]<span class="comment"> -- Set the end of line annotation text for a line</span></p>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONSETSTYLE'>EOLAnnotationStyle</a>[line line]<span class="comment"> -- Set the style number for the end of line annotations for a line</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONCLEARALL'>EOLAnnotationClearAll</a>()<span class="comment"> -- Clear the end of annotations from all lines</span></p>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONSETVISIBLE'>EOLAnnotationVisible</a><span class="comment"> -- Set the visibility for the end of line annotations for a view</span></p>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_EOLANNOTATIONSETSTYLEOFFSET'>EOLAnnotationStyleOffset</a><span class="comment"> -- Get the start of the range of style numbers used for end of line annotations</span></p>
 	<h2>Other settings</h2>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETBUFFEREDDRAW'>BufferedDraw</a><span class="comment"> -- If drawing is buffered then each line of text is drawn into a bitmap buffer before drawing it to the screen to avoid flicker.</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETPHASESDRAW'>PhasesDraw</a><span class="comment"> -- In one phase draw, text is drawn in a series of rectangular blocks with no overlap. In two phase draw, text is drawn in a series of lines allowing runs to overlap horizontally. In multiple phase draw, each element is drawn over the whole drawing area, allowing text to overlap from one line to the next.</span></p>

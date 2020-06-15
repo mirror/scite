@@ -444,6 +444,12 @@ enum class LineEndType {
 	Unicode = 1,
 };
 
+enum class EOLAnnotationVisible {
+	Hidden = 0,
+	Standard = 1,
+	Boxed = 2,
+};
+
 enum class TypeProperty {
 	Boolean = 0,
 	Integer = 1,
@@ -474,7 +480,8 @@ enum class ModificationFlags {
 	LexerState = 0x80000,
 	InsertCheck = 0x100000,
 	ChangeTabStops = 0x200000,
-	EventMaskAll = 0x3FFFFF,
+	ChangeEOLAnnotation = 0x400000,
+	EventMaskAll = 0x7FFFFF,
 };
 
 enum class Update {
