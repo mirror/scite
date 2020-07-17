@@ -627,34 +627,16 @@ struct Range {
 	}
 };
 
-// Functions to manipulate fields from a Update
-
-constexpr Update operator|(Update a, Update b) noexcept {
-	return static_cast<Update>(static_cast<int>(a) | static_cast<int>(b));
-}
-
-constexpr Update operator&(Update a, Update b) noexcept {
-	return static_cast<Update>(static_cast<int>(a) & static_cast<int>(b));
-}
-
 // Functions to manipulate fields from a ModificationFlags
 
 constexpr ModificationFlags operator|(ModificationFlags a, ModificationFlags b) noexcept {
 	return static_cast<ModificationFlags>(static_cast<int>(a) | static_cast<int>(b));
 }
 
-constexpr ModificationFlags operator&(ModificationFlags a, ModificationFlags b) noexcept {
-	return static_cast<ModificationFlags>(static_cast<int>(a) & static_cast<int>(b));
-}
-
 // Functions to manipulate fields from a KeyMod
 
 constexpr KeyMod operator|(KeyMod a, KeyMod b) noexcept {
 	return static_cast<KeyMod>(static_cast<int>(a) | static_cast<int>(b));
-}
-
-constexpr KeyMod operator&(KeyMod a, KeyMod b) noexcept {
-	return static_cast<KeyMod>(static_cast<int>(a) & static_cast<int>(b));
 }
 
 // Functions to retrieve and manipulate fields from a FoldLevel
