@@ -485,6 +485,7 @@ public:
 	void BraceBadLight(Position pos);
 	void BraceBadLightIndicator(bool useSetting, int indicator);
 	Position BraceMatch(Position pos, int maxReStyle);
+	Position BraceMatchNext(Position pos, Position startPos);
 	bool ViewEOL();
 	void SetViewEOL(bool visible);
 	void *DocPointer();

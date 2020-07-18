@@ -393,6 +393,7 @@
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_BRACEHIGHLIGHTINDICATOR'>BraceHighlightIndicator</a>(bool useSetting, int indicator)<span class="comment"> -- Use specified indicator to highlight matching braces instead of changing their style.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_BRACEBADLIGHTINDICATOR'>BraceBadLightIndicator</a>(bool useSetting, int indicator)<span class="comment"> -- Use specified indicator to highlight non matching brace instead of changing its style.</span></p>
 	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_BRACEMATCH'>BraceMatch</a>(position pos, int maxReStyle)<span class="comment"> -- Find the position of a matching brace or INVALID_POSITION if no match. The maxReStyle must be 0 for now. It may be defined in a future release.</span></p>
+	<p>position editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_BRACEMATCHNEXT'>BraceMatchNext</a>(position pos, position startPos)<span class="comment"> -- Similar to BraceMatch, but matching starts at the explicit start position.</span></p>
 	<h2>Tabs and Indentation Guides</h2>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTABMINIMUMWIDTH'>TabMinimumWidth</a><span class="comment"> -- Set the minimum visual width of a tab.</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETTABWIDTH'>TabWidth</a><span class="comment"> -- Change the visible size of a tab to be a multiple of the width of a space character.</span></p>

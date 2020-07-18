@@ -1883,6 +1883,10 @@ Position ScintillaCall::BraceMatch(Position pos, int maxReStyle) {
 	return Call(Message::BraceMatch, pos, maxReStyle);
 }
 
+Position ScintillaCall::BraceMatchNext(Position pos, Position startPos) {
+	return Call(Message::BraceMatchNext, pos, startPos);
+}
+
 bool ScintillaCall::ViewEOL() {
 	return Call(Message::GetViewEOL);
 }

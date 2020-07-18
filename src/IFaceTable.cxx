@@ -3035,6 +3035,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"BraceHighlight", 2351, iface_void, {iface_position, iface_position}},
 	{"BraceHighlightIndicator", 2498, iface_void, {iface_bool, iface_int}},
 	{"BraceMatch", 2353, iface_position, {iface_position, iface_int}},
+	{"BraceMatchNext", 2369, iface_position, {iface_position, iface_position}},
 	{"CallTipActive", 2202, iface_bool, {iface_void, iface_void}},
 	{"CallTipCancel", 2201, iface_void, {iface_void, iface_void}},
 	{"CallTipPosStart", 2203, iface_position, {iface_void, iface_void}},
@@ -3568,7 +3569,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 312,
+	ifaceFunctionCount = 313,
 	ifaceConstantCount = 2880,
 	ifacePropertyCount = 242
 };
