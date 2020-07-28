@@ -26,15 +26,16 @@ WARNINGS += -Wno-empty-body
 else
 WARNINGS += -Wno-misleading-indentation
 endif
+PKG_CONFIG ?= pkg-config
 
 GTK_VERSION = $(if $(GTK3),gtk+-3.0,gtk+-2.0)
 
 PYTHON = $(if $(windir),pyw,python3)
 
 # For the Gnome desktop stuff to work, prefix must point to where Gnome thinks it is.
-CONFIGFLAGS:=$(shell pkg-config --cflags $(GTK_VERSION))
-CONFIGLIB:=$(shell pkg-config --libs $(GTK_VERSION) gthread-2.0 gmodule-no-export-2.0)
-gnomeprefix:=$(shell pkg-config --variable=prefix $(GTK_VERSION) 2>/dev/null)
+CONFIGFLAGS:=$(shell $(PKG_CONFIG) --cflags $(GTK_VERSION))
+CONFIGLIB:=$(shell $(PKG_CONFIG) --libs $(GTK_VERSION) gthread-2.0 gmodule-no-export-2.0)
+gnomeprefix:=$(shell $(PKG_CONFIG) --variable=prefix $(GTK_VERSION) 2>/dev/null)
 ifndef prefix
 ifdef gnomeprefix
   prefix=$(gnomeprefix)
