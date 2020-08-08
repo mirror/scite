@@ -2579,7 +2579,9 @@ void SciTEGTK::ContinueExecute(int fromPoll) {
 	int count = read(fdFIFO, buf, sizeof(buf) - 1);
 	if (count > 0) {
 		buf[count] = '\0';
-		OutputAppendString(buf);
+		if (!(lastFlags & jobQuiet)) {
+			OutputAppendString(buf);
+		}
 		lastOutput += buf;
 	} else if (count == 0) {
 		std::string sExitMessage = StdStringFromInteger(WEXITSTATUS(exitStatus));
