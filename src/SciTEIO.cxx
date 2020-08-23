@@ -243,6 +243,7 @@ void SciTEBase::DiscoverIndentSetting() {
 	// set indentation
 	if (topTabSize == 0) {
 		wEditor.SetUseTabs(true);
+		wEditor.SetIndent(wEditor.TabWidth());
 	} else if (topTabSize != -1) {
 		wEditor.SetUseTabs(false);
 		wEditor.SetIndent(topTabSize);
