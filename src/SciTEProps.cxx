@@ -666,7 +666,7 @@ void SciTEBase::ReadProperties() {
 	if (extender)
 		extender->Clear();
 
-	const std::string lexillaPath = props.GetString("lexilla.path");
+	const std::string lexillaPath = props.GetExpandedString("lexilla.path");
 	LexillaLoad(lexillaPath.empty() ? "." : lexillaPath);
 
 	const std::string fileNameForExtension = ExtensionFileName();
