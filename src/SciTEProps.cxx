@@ -669,6 +669,14 @@ void SciTEBase::ReadProperties() {
 	const std::string lexillaPath = props.GetExpandedString("lexilla.path");
 	LexillaLoad(lexillaPath.empty() ? "." : lexillaPath);
 
+	std::vector<std::string> libraryProperties = LexillaLibraryProperties();
+	for (std::string property : libraryProperties) {
+		std::string key("lexilla.context.");
+		key += property;
+		std::string value = props.GetExpandedString(key.c_str());
+		LexillaSetProperty(property.c_str(), value.c_str());
+	}
+
 	const std::string fileNameForExtension = ExtensionFileName();
 
 	std::string modulePath = props.GetNewExpandString("lexerpath.",
