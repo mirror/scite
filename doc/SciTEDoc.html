@@ -3465,6 +3465,31 @@ imports.include=fortran lisp
 			 triggered by an initial line <span class="example">#!/usr/bin/env python</span> so the file will be treated as Python.
         </td>
       </tr>
+      <tr id='property-lexillapath'>
+      	<td>
+      	lexilla.path
+      	</td>
+      	<td>
+          Specifies a ';' separated list of dynamic lexer libraries.
+          Each entry is a path to a dynamic library that implements the Lexilla protocol.
+          If there is no extension then the platform standard extension '.so', '.dll', or '.dylib' is appended.
+          The special entry '.' which is the default refers to the 'Lexilla' dynamic library distributed with SciTE.
+      	</td>
+      </tr>
+      <tr id='property-lexillacontext'>
+      	<td>
+      	lexilla.context.<i>contextspecific</i>
+      	</td>
+      	<td>
+          Lexer libraries may require initialisation parameters and these can be specified by prefixing the
+          library-specific names with 'lexilla.context.'.
+          For example, a lexer library that needs to read in XML files containing lexer definitions may require a
+          xmllexer.directory property which is provided with lexilla.context.xmllexer.directory.
+          <div class="example">
+                lexilla.context.xmllexer.directory=/home/example/xmllexer/definitions
+          </div>
+      	</td>
+      </tr>
       <tr id='property-lexerpath'>
       	<td>
       	lexerpath.<i>filepattern</i>
