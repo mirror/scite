@@ -690,16 +690,6 @@ void SciTEBase::ReadProperties() {
 	if (language.length()) {
 		if (StartsWith(language, "script_")) {
 			wEditor.SetLexer(SCLEX_CONTAINER);
-		} else if (StartsWith(language, "lpeg_")) {
-			modulePath = props.GetNewExpandString("lexerpath.*.lpeg");
-			if (modulePath.length()) {
-				wEditor.LoadLexerLibrary(modulePath.c_str());
-				wEditor.SetLexerLanguage("lpeg");
-				lexLPeg = wEditor.Lexer();
-				const char *lexer = language.c_str() + language.find('_') + 1;
-				wEditor.PrivateLexerCall(SCI_SETLEXERLANGUAGE,
-							 const_cast<char *>(lexer));
-			}
 		} else {
 			std::string languageCurrent = wEditor.LexerLanguage();
 			if (language != languageCurrent) {
