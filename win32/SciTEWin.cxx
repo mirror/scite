@@ -31,11 +31,7 @@
 const GUI::gui_char appName[] = GUI_TEXT("Sc1");
 #else
 const GUI::gui_char appName[] = GUI_TEXT("SciTE");
-#ifdef LOAD_SCINTILLA
 static const GUI::gui_char scintillaName[] = GUI_TEXT("Scintilla.DLL");
-#else
-static const GUI::gui_char scintillaName[] = GUI_TEXT("SciLexer.DLL");
-#endif
 #endif
 
 static GUI::gui_string GetErrorMessage(DWORD nRet) {
@@ -2359,7 +2355,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	SciTEWin::Register(hInstance);
 	LexillaSetDefaultDirectory(GetSciTEPath(FilePath()).AsUTF8());
 #ifdef STATIC_BUILD
-	Scintilla_LinkLexers();
 	Scintilla_RegisterClasses(hInstance);
 	LexillaSetDefault([](const char *name) {
 		return CreateLexer(name);
