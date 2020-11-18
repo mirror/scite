@@ -1,6 +1,7 @@
 :: builddist.bat
 :: Build all of Scintilla and SciTE for distribution and place into a subdirectory called upload%SCINTILLA_VERSION%
 :: This batch file is distributed inside scite but is commonly copied out into its own working directory
+:: Does not yet handle Scintilla and Lexilla with different version numbers
 
 :: Requires hg and zip to be in the path. nmake, cl, and link are found by vcvars*.bat
 
@@ -15,13 +16,15 @@ set "UPLOAD_DIRECTORY=upload%SCINTILLA_VERSION%"
 
 :: Clean then copy from archive into scintilla and scite subdirectories
 
-rd /s/q scintilla scite
+rd /s/q lexilla scintilla scite
 del/q Sc1.exe
 
+hg archive -R %REPOSITORY_DIRECTORY%/lexilla lexilla
 hg archive -R %REPOSITORY_DIRECTORY%/scintilla scintilla
 hg archive -R %REPOSITORY_DIRECTORY%/scite scite
 
 :: Create source archives
+hg archive -R %REPOSITORY_DIRECTORY%/lexilla lexilla.zip
 hg archive -R %REPOSITORY_DIRECTORY%/scintilla scintilla.zip
 pushd scite
 call zipsrc
@@ -30,11 +33,9 @@ popd
 :: Build the 64-bit executables
 call "%MSVC_DIRECTORY%\vcvars64.bat"
 
-pushd scintilla
 pushd lexilla
 pushd src
 nmake -f lexilla.mak SUPPORT_XP=1
-popd
 popd
 popd
 
@@ -47,7 +48,7 @@ popd
 
 pushd scite
 pushd win32
-nmake -f scite.mak SUPPORT_XP=1 LOAD_SCINTILLA=1
+nmake -f scite.mak SUPPORT_XP=1
 popd
 copy bin\Sc1.exe ..\Sc1.exe
 call zipwscite
@@ -56,27 +57,29 @@ popd
 :: Copy into correctly numbered upload directory
 echo %UPLOAD_DIRECTORY%
 mkdir upload%SCINTILLA_VERSION%
+copy lexilla.zip %UPLOAD_DIRECTORY%\lexilla%SCINTILLA_VERSION%.zip
 copy scintilla.zip %UPLOAD_DIRECTORY%\scintilla%SCINTILLA_VERSION%.zip
 copy scite.zip %UPLOAD_DIRECTORY%\scite%SCINTILLA_VERSION%.zip
 copy wscite.zip %UPLOAD_DIRECTORY%\wscite%SCINTILLA_VERSION%.zip
 copy Sc1.exe %UPLOAD_DIRECTORY%\Sc%SCINTILLA_VERSION%.exe
 
-:: Clean both
+:: Clean all
 pushd scite
 call delbin
 popd
 pushd scintilla
 call delbin
 popd
+pushd lexilla
+call delbin
+popd
 
 :: Build the 32-bit executables
 call "%MSVC_DIRECTORY%\vcvars32.bat"
 
-pushd scintilla
 pushd lexilla
 pushd src
 nmake -f lexilla.mak SUPPORT_XP=1
-popd
 popd
 popd
 
@@ -89,7 +92,7 @@ popd
 
 pushd scite
 pushd win32
-nmake -f scite.mak SUPPORT_XP=1 LOAD_SCINTILLA=1
+nmake -f scite.mak SUPPORT_XP=1
 popd
 move bin\SciTE.exe bin\SciTE32.exe
 copy bin\Sc1.exe ..\Sc1.exe
@@ -100,11 +103,14 @@ popd
 copy wscite.zip %UPLOAD_DIRECTORY%\wscite32_%SCINTILLA_VERSION%.zip
 copy Sc1.exe %UPLOAD_DIRECTORY%\Sc32_%SCINTILLA_VERSION%.exe
 
-:: Clean both
+:: Clean all
 pushd scite
 call delbin
 popd
 pushd scintilla
+call delbin
+popd
+pushd lexilla
 call delbin
 popd
 
