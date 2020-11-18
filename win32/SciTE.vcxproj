@@ -201,7 +201,15 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lexilla\lexlib\*.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\Accessor.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\DefaultLexer.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\LexerBase.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\LexerModule.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\LexerNoExceptions.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\LexerSimple.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\PropSetSimple.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\StyleContext.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\WordList.cxx" />
     <ClCompile Include="..\..\lexilla\lexers\*.cxx" />
     <ClCompile Include="..\..\lexilla\src\Lexilla.cxx" />
     <ClCompile Include="..\..\scintilla\src\*.cxx" />
