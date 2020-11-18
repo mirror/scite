@@ -8,6 +8,7 @@
 
 srcdir ?= .
 SCINTILLA_DIR ?= $(srcdir)/../../scintilla
+LEXILLA_DIR ?= $(srcdir)/../../lexilla
 
 .SUFFIXES: .cxx .o .h .a .c
 
@@ -61,10 +62,10 @@ LEXILLA=$(srcdir)/../bin/liblexilla.$(SHAREDEXTENSION)
 
 all: $(PROG) $(COMPONENT) $(LEXILLA)
 
-vpath %.h $(srcdir) $(srcdir)/../src $(SCINTILLA_DIR)/include
+vpath %.h $(srcdir) $(srcdir)/../src $(LEXILLA_DIR)/include $(SCINTILLA_DIR)/include
 vpath %.cxx $(srcdir) $(srcdir)/../src
 
-INCLUDES=-I $(SCINTILLA_DIR)/include -I $(srcdir)/../src
+INCLUDES=-I $(LEXILLA_DIR)/include -I $(SCINTILLA_DIR)/include -I $(srcdir)/../src
 DEFINES += -DGTK
 DEFINES += -DPIXMAP_PATH=\"$(pixmapdir)\" -DSYSCONF_PATH=\"$(SYSCONF_PATH)\"
 
@@ -116,6 +117,9 @@ depend deps.mak:
 	$(PYTHON) AppDepGen.py
 
 ../bin/%.$(SHAREDEXTENSION):	../../scintilla/bin/%.$(SHAREDEXTENSION)
+	$(COPY) $< $(@D)
+
+../bin/%.$(SHAREDEXTENSION):	../../lexilla/bin/%.$(SHAREDEXTENSION)
 	$(COPY) $< $(@D)
 
 # To almost make lua.vers (needs header and footer added) which is only needed after updating Lua:

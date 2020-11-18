@@ -3,8 +3,6 @@
 # The License.txt file describes the conditions under which this software may be distributed.
 # This makefile assumes the mingw32 version of GCC 4.x is used and changes will
 # be needed to use other compilers.
-# For a build with no lexers, loading Scintilla.DLL instead of SciLexer.DLL,
-# define LOAD_SCINTILLA on the command line.
 
 .PHONY: all clean analyze depend
 
@@ -73,9 +71,9 @@ PROG	= ../bin/SciTE.exe
 PROGSTATIC = ../bin/Sc1.exe
 DEFINES += -DUNICODE -D_UNICODE
 
-vpath %.h ../src ../../scintilla/include
+vpath %.h ../src ../../lexilla/include ../../scintilla/include
 vpath %.cxx ../src
-vpath %.a ../../scintilla/bin
+vpath %.a ../../lexilla/bin ../../scintilla/bin
 
 LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lmsimg32 -lshell32 -lcomdlg32 -lcomctl32 -ladvapi32
 
@@ -108,11 +106,7 @@ else
 DEFINES += -DNO_LUA
 endif
 
-ifdef LOAD_SCINTILLA
-DEFINES += -DLOAD_SCINTILLA
-endif
-
-INCLUDES += -I ../../scintilla/include -I ../src
+INCLUDES += -I ../../lexilla/include -I ../../scintilla/include -I ../src
 RCINCLUDEDIRS=--include-dir ../src
 
 CBASEFLAGS = $(LUA_DEFINES) $(WIDEFLAGS)
@@ -163,7 +157,7 @@ OTHER_OBJS = $(SHAREDOBJS) $(LUA_OBJS) SciTERes.o SciTEWin.o
 
 OBJS = Credits.o $(OTHER_OBJS)
 
-DLLS=../bin/Scintilla.dll ../bin/SciLexer.dll ../bin/lexilla.dll
+DLLS=../bin/Scintilla.dll ../bin/lexilla.dll
 
 NOTBINPROPS=SciTE.properties Embedded.properties
 PROPS=$(addprefix ../bin/,$(filter-out $(NOTBINPROPS), $(notdir $(wildcard ../src/*.properties))))
@@ -178,6 +172,9 @@ analyze:
 
 depend deps.mak:
 	$(PYTHON) AppDepGen.py
+
+../bin/%.dll:	../../lexilla/bin/%.dll
+	$(COPY) $(call normalize,$< $(@D))
 
 ../bin/%.dll:	../../scintilla/bin/%.dll
 	$(COPY) $(call normalize,$< $(@D))
