@@ -16,7 +16,7 @@ topComment = "# Created by AppDepGen.py. To recreate, run AppDepGen.py.\n"
 
 def Generate():
 	sciteSources = ["../src/*.cxx", "../lua/src/*.c"]
-	sciteIncludes = ["../../scintilla/include", "../src", "../lua/src"]
+	sciteIncludes = ["../../lexilla/include", "../../scintilla/include", "../src", "../lua/src"]
 
 	# Header magically injected into Lua builds on Win32 to make Unicode file names work
 	luaSubsts = { "LUA_USER_H": "scite_lua_win.h"}
