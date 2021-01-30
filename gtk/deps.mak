@@ -293,7 +293,7 @@ SciTEBase.o: \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/SciLexer.h \
+	../../lexilla/include/SciLexer.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -317,7 +317,7 @@ SciTEBuffers.o: \
 	../../scintilla/include/Sci_Position.h \
 	../src/ScintillaTypes.h \
 	../src/ScintillaCall.h \
-	../../scintilla/include/SciLexer.h \
+	../../lexilla/include/SciLexer.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
@@ -365,7 +365,7 @@ SciTEProps.o: \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
-	../../scintilla/include/SciLexer.h \
+	../../lexilla/include/SciLexer.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
