@@ -185,9 +185,9 @@ cppcheck -j 8 --enable=all --suppressions-list=scite/cppcheck.suppress --max-con
 @rem
 rem ************************************************************
 rem Target 12: header order check
-@pushd scintilla\scripts
-pyw HeaderCheck.py
-@popd
+pyw scintilla\scripts\HeaderCheck.py scintilla\scripts\HeaderOrder.txt
+pyw scintilla\scripts\HeaderCheck.py lexilla\scripts\HeaderOrder.txt
+pyw scintilla\scripts\HeaderCheck.py scite\scripts\HeaderOrder.txt
 @rem
 rem Finished
 @call scite\scripts\clearboth
