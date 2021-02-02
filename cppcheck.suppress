@@ -11,8 +11,18 @@ useInitializationList
 // FilePath has a non-explicit constructor used for conversions
 noExplicitConstructor:scite/src/FilePath.h
 
+// TextReader and StyleWriter hold references to a ScintillaCall on
+// which they later call non-const methods.
+constParameter:scite/src/StyleWriter.cxx
+
+// Doesn't analyze execution path correctly.
+nullPointerRedundantCheck:scite/src/SciTEBase.cxx
+
 // Doesn't understand Win32 SetClipboardData is not leak
 memleak:scite/win32/SciTEWin.cxx
+
+// Confused by expression (x && (x != -1))
+knownConditionTrueFalse:scite/win32/SciTEWin.cxx
 
 // AddToPopUp is currently const but is not logically const and may change
 constParameter:scite/gtk/Widget.cxx
