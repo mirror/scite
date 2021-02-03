@@ -18,11 +18,13 @@ import pathlib, sys
 sciteBase = pathlib.Path(__file__).resolve().parent.parent
 baseDirectory = sciteBase.parent
 sys.path.append(str(baseDirectory / "scintilla" / "scripts"))
+sys.path.append(str(baseDirectory / "lexilla" / "scripts"))
 
 from FileGenerator import Generate, Regenerate, UpdateLineInFile, ReplaceREInFile
 import ScintillaData
 import LexGen
-import lexilla.scripts.LexillaGen
+import LexillaData
+import LexillaGen
 import IFaceTableGen
 import commandsdoc
 
@@ -111,16 +113,18 @@ def RegenerateAll():
 
     sci = ScintillaData.ScintillaData(baseDirectory / "scintilla")
 
+    lex = LexillaData.LexillaData(baseDirectory / "lexilla")
+
     pathSciTE = sciteBase
 
     # Generate HTML to document each property
     # This is done because tags can not be safely put inside comments in HTML
-    documentProperties = list(sci.propertyDocuments.keys())
+    documentProperties = list(lex.propertyDocuments.keys())
     ScintillaData.SortListInsensitive(documentProperties)
     propertiesHTML = []
     for k in documentProperties:
         propertiesHTML.append("\t<tr id='property-%s'>\n\t<td>%s</td>\n\t<td>%s</td>\n\t</tr>" %
-            (k, k, sci.propertyDocuments[k]))
+            (k, k, lex.propertyDocuments[k]))
 
     # Find all the SciTE properties files
     otherProps = [
@@ -136,7 +140,7 @@ def RegenerateAll():
     UpdateEmbedded(pathSciTE, propFiles)
     Regenerate(pathSciTE / "win32" / "makefile", "#", propFiles)
     Regenerate(pathSciTE / "win32" / "scite.mak", "#", propFiles)
-    Regenerate(pathSciTE / "src" / "SciTEProps.cxx", "//", sci.lexerProperties)
+    Regenerate(pathSciTE / "src" / "SciTEProps.cxx", "//", lex.lexerProperties)
     Regenerate(pathSciTE / "doc" / "SciTEDoc.html", "<!--", propertiesHTML)
     credits = [OctalEscape(c.encode("utf-8")) for c in sci.credits]
     Regenerate(pathSciTE / "src" / "Credits.cxx", "//", credits)
@@ -147,7 +151,7 @@ def RegenerateAll():
     UpdateVersionNumbers(sci, pathSciTE)
 
 LexGen.RegenerateAll(sciteBase.parent / "scintilla")
-lexilla.scripts.LexillaGen.RegenerateAll(sciteBase.parent / "scintilla")
+LexillaGen.RegenerateAll(sciteBase.parent / "lexilla")
 RegenerateAll()
 IFaceTableGen.RegenerateAll()
 commandsdoc.RegenerateAll()
