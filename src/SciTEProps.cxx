@@ -684,36 +684,30 @@ void SciTEBase::ReadProperties() {
 	if (modulePath.length())
 		wEditor.LoadLexerLibrary(modulePath.c_str());
 	language = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
-	if (static_cast<int>(wEditor.DocumentOptions()) & static_cast<int>(SA::DocumentOption::StylesNone)) {
-		language = "";
+	if (language.empty()) {
+		language = "null";
 	}
-	if (language.length()) {
+	if (static_cast<int>(wEditor.DocumentOptions()) & static_cast<int>(SA::DocumentOption::StylesNone)) {
+		language = "null";
+	}
+	const std::string languageCurrent = wEditor.LexerLanguage();
+	if (language != languageCurrent) {
 		if (StartsWith(language, "script_")) {
-			wEditor.SetLexer(SCLEX_CONTAINER);
+			wEditor.SetILexer(nullptr);
 		} else {
-			std::string languageCurrent = wEditor.LexerLanguage();
-			if (language != languageCurrent) {
-				Scintilla::ILexer5 *plexer = LexillaCreateLexer(language);
-				if (plexer) {
-					wEditor.SetILexer(plexer);
-				} else {
-					wEditor.SetLexerLanguage(language.c_str());
-				}
-			}
+			Scintilla::ILexer5 *plexer = LexillaCreateLexer(language);
+			wEditor.SetILexer(plexer);
 		}
-	} else {
-		wEditor.SetLexer(SCLEX_NULL);
 	}
 
-	props.Set("Language", language.c_str());
+	props.Set("Language", language);
 
 	lexLanguage = wEditor.Lexer();
 
-	Scintilla::ILexer5 *plexerErrorlist = LexillaCreateLexer("errorlist");
-	if (plexerErrorlist) {
+	const std::string languageOutput = wOutput.LexerLanguage();
+	if (languageOutput != "errorlist") {
+		Scintilla::ILexer5 *plexerErrorlist = LexillaCreateLexer("errorlist");
 		wOutput.SetILexer(plexerErrorlist);
-	} else {
-		wOutput.SetLexerLanguage("errorlist");
 	}
 
 	const std::string kw0 = props.GetNewExpandString("keywords.", fileNameForExtension.c_str());
