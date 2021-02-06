@@ -183,10 +183,13 @@ properties - a sorted list of (name, property), where property is a
 	return (constants, funclist, proplist)
 
 
-def printIFaceTableCXXFile(faceAndIDs):
+def printIFaceTableCXXFile(facesAndIDs):
 	out = []
-	f, ids = faceAndIDs
+	f, fLex, ids = facesAndIDs
 	(constants, functions, properties) = GetScriptableInterface(f)
+	# Lexilla only defines constants, no functions or properties
+	(constantsLex, _, _) = GetScriptableInterface(fLex)
+	constants.extend(constantsLex)
 	constants.extend(ids)
 	constants.sort()
 
@@ -396,12 +399,14 @@ def ReadMenuIDs(filename):
 	return ids
 
 def RegenerateAll():
-	f = Face.Face()
-	f.ReadFromFile(srcRoot + "/scintilla/include/Scintilla.iface")
+	faceLex = Face.Face()
+	faceLex.ReadFromFile(srcRoot + "/lexilla/include/LexicalStyles.iface")
+	face = Face.Face()
+	face.ReadFromFile(srcRoot + "/scintilla/include/Scintilla.iface")
 	menuIDs  = ReadMenuIDs(srcRoot + "/scite/src/SciTE.h")
 	idsInOrder = idsFromDocumentation(srcRoot + "/scintilla/doc/ScintillaDoc.html")
-	Regenerate(srcRoot + "/scite/src/IFaceTable.cxx", "//", printIFaceTableCXXFile([f, menuIDs]))
-	Regenerate(srcRoot + "/scite/doc/PaneAPI.html", "<!--", printIFaceTableHTMLFile([f, menuIDs, idsInOrder]))
+	Regenerate(srcRoot + "/scite/src/IFaceTable.cxx", "//", printIFaceTableCXXFile([face, faceLex, menuIDs]))
+	Regenerate(srcRoot + "/scite/doc/PaneAPI.html", "<!--", printIFaceTableHTMLFile([face, menuIDs, idsInOrder]))
 
 if __name__=="__main__":
 	RegenerateAll()
