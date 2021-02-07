@@ -142,7 +142,11 @@ def RegenerateAll():
     Regenerate(pathSciTE / "win32" / "scite.mak", "#", propFiles)
     Regenerate(pathSciTE / "src" / "SciTEProps.cxx", "//", lex.lexerProperties)
     Regenerate(pathSciTE / "doc" / "SciTEDoc.html", "<!--", propertiesHTML)
-    credits = [OctalEscape(c.encode("utf-8")) for c in sci.credits]
+    creditsList = sci.credits
+    for c in lex.credits:
+        if c not in creditsList:
+            creditsList.append(c)
+    credits = [OctalEscape(c.encode("utf-8")) for c in creditsList]
     Regenerate(pathSciTE / "src" / "Credits.cxx", "//", credits)
 
     win32.AppDepGen.Generate()
