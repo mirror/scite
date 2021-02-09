@@ -23,33 +23,21 @@
 
 #include "ILexer.h"
 
+#include "Lexilla.h"
+
 #include "LexillaLibrary.h"
 
 namespace {
 
 #if _WIN32
-#define EXT_LEXER_DECL __stdcall
 typedef FARPROC Function;
 typedef HMODULE Module;
-constexpr const char *extensionSO = ".dll";
 constexpr const char *pathSeparator = "\\";
-constexpr const char *defaultName = "lexilla";
 #else
-#define EXT_LEXER_DECL
 typedef void *Function;
 typedef void *Module;
-#if defined(__APPLE__)
-constexpr const char *extensionSO = ".dylib";
-#else
-constexpr const char *extensionSO = ".so";
-#endif
 constexpr const char *pathSeparator = "/";
-constexpr const char *defaultName = "liblexilla";
 #endif
-
-typedef Scintilla::ILexer5 *(EXT_LEXER_DECL *CreateLexerFn)(const char *name);
-using GetLibraryPropertyNamesFn = const char *(EXT_LEXER_DECL *)();
-using SetLibraryPropertyFn = void(EXT_LEXER_DECL *)(const char *key, const char *value);
 
 /// Generic function to convert from a Function(void* or FARPROC) to a function pointer.
 /// This avoids undefined and conditionally defined behaviour.
@@ -136,11 +124,11 @@ bool LexillaLoad(std::string_view sharedLibraryPaths) {
 				path = directoryLoadDefault;
 				path += pathSeparator;
 			}
-			path += defaultName;
+			path += LEXILLA_LIB;
 		}
 		if (!NameContainsDot(path)) {
 			// No '.' in name so add extension
-			path.append(extensionSO);
+			path.append(LEXILLA_EXTENSION);
 		}
 #if _WIN32
 		// Convert from UTF-8 to wide characters
@@ -151,17 +139,17 @@ bool LexillaLoad(std::string_view sharedLibraryPaths) {
 #endif
 		if (lexillaDL) {
 			CreateLexerFn fnCL = FunctionPointer<CreateLexerFn>(
-				FindSymbol(lexillaDL, "CreateLexer"));
+				FindSymbol(lexillaDL, LEXILLA_CREATELEXER));
 			if (fnCL) {
 				fnCLs.push_back(fnCL);
 			}
 			GetLibraryPropertyNamesFn fnGLPN = FunctionPointer<GetLibraryPropertyNamesFn>(
-				FindSymbol(lexillaDL, "GetLibraryPropertyNames"));
+				FindSymbol(lexillaDL, LEXILLA_GETLIBRARYPROPERTYNAMES));
 			if (fnGLPN) {
 				fnGLPNs.push_back(fnGLPN);
 			}
 			SetLibraryPropertyFn fnSLP = FunctionPointer<SetLibraryPropertyFn>(
-				FindSymbol(lexillaDL, "SetLibraryProperty"));
+				FindSymbol(lexillaDL, LEXILLA_SETLIBRARYPROPERTY));
 			if (fnSLP) {
 				fnSLPs.push_back(fnSLP);
 			}

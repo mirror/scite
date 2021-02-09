@@ -235,6 +235,7 @@ LexillaLibrary.o: \
 	../src/LexillaLibrary.cxx \
 	../../scintilla/include/ILexer.h \
 	../../scintilla/include/Sci_Position.h \
+	../../lexilla/include/Lexilla.h \
 	../src/LexillaLibrary.h
 LuaExtension.o: \
 	../src/LuaExtension.cxx \

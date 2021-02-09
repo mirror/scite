@@ -105,6 +105,7 @@
 #include "ScintillaWidget.h"
 
 #include "SciLexer.h"
+#include "Lexilla.h"
 
 // SciTE headers
 
