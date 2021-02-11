@@ -72,6 +72,8 @@ typedef void *HTHEME;
 #include "ScintillaCall.h"
 
 #include "Scintilla.h"
+#include "Lexilla.h"
+#include "LexillaAccess.h"
 
 #include "GUI.h"
 #include "ScintillaWindow.h"
@@ -79,7 +81,6 @@ typedef void *HTHEME;
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
-#include "LexillaLibrary.h"
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"

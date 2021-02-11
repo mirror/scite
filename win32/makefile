@@ -71,8 +71,8 @@ PROG	= ../bin/SciTE.exe
 PROGSTATIC = ../bin/Sc1.exe
 DEFINES += -DUNICODE -D_UNICODE
 
-vpath %.h ../src ../../lexilla/include ../../scintilla/include
-vpath %.cxx ../src
+vpath %.h ../src ../../lexilla/include ../../lexilla/access ../../scintilla/include
+vpath %.cxx ../src ../../lexilla/access
 vpath %.a ../../lexilla/bin ../../scintilla/bin
 
 LIBS += -lgdi32 -luser32 -limm32 -lole32 -luuid -loleaut32 -lmsimg32 -lshell32 -lcomdlg32 -lcomctl32 -ladvapi32
@@ -106,7 +106,7 @@ else
 DEFINES += -DNO_LUA
 endif
 
-INCLUDES += -I ../../lexilla/include -I ../../scintilla/include -I ../src
+INCLUDES += -I ../../lexilla/include -I ../../lexilla/access -I ../../scintilla/include -I ../src
 RCINCLUDEDIRS=--include-dir ../src
 
 CBASEFLAGS = $(LUA_DEFINES) $(WIDEFLAGS)
@@ -133,7 +133,7 @@ SHAREDOBJS=\
 	GUIWin.o \
 	IFaceTable.o \
 	JobQueue.o \
-	LexillaLibrary.o \
+	LexillaAccess.o \
 	MatchMarker.o \
 	MultiplexExtension.o \
 	PropSetFile.o \

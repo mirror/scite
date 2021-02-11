@@ -34,6 +34,8 @@
 
 #include "Scintilla.h"
 #include "SciLexer.h"
+#include "Lexilla.h"
+#include "LexillaAccess.h"
 
 #include "GUI.h"
 #include "ScintillaWindow.h"
@@ -51,7 +53,6 @@ const GUI::gui_char menuAccessIndicator[] = GUI_TEXT("&");
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
-#include "LexillaLibrary.h"
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 #include "StyleWriter.h"
@@ -671,14 +672,14 @@ void SciTEBase::ReadProperties() {
 		extender->Clear();
 
 	const std::string lexillaPath = props.GetExpandedString("lexilla.path");
-	LexillaLoad(lexillaPath.empty() ? "." : lexillaPath);
+	Lexilla::Load(lexillaPath.empty() ? "." : lexillaPath);
 
-	std::vector<std::string> libraryProperties = LexillaLibraryProperties();
+	std::vector<std::string> libraryProperties = Lexilla::LibraryProperties();
 	for (std::string property : libraryProperties) {
 		std::string key("lexilla.context.");
 		key += property;
 		std::string value = props.GetExpandedString(key.c_str());
-		LexillaSetProperty(property.c_str(), value.c_str());
+		Lexilla::SetProperty(property.c_str(), value.c_str());
 	}
 
 	const std::string fileNameForExtension = ExtensionFileName();
@@ -699,7 +700,7 @@ void SciTEBase::ReadProperties() {
 		if (StartsWith(language, "script_")) {
 			wEditor.SetILexer(nullptr);
 		} else {
-			Scintilla::ILexer5 *plexer = LexillaCreateLexer(language);
+			Scintilla::ILexer5 *plexer = Lexilla::MakeLexer(language);
 			wEditor.SetILexer(plexer);
 		}
 	}
@@ -710,7 +711,7 @@ void SciTEBase::ReadProperties() {
 
 	const std::string languageOutput = wOutput.LexerLanguage();
 	if (languageOutput != "errorlist") {
-		Scintilla::ILexer5 *plexerErrorlist = LexillaCreateLexer("errorlist");
+		Scintilla::ILexer5 *plexerErrorlist = Lexilla::MakeLexer("errorlist");
 		wOutput.SetILexer(plexerErrorlist);
 	}
 

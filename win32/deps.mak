@@ -34,12 +34,13 @@ SciTEWin.o: \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
+	../../lexilla/include/Lexilla.h \
+	../../lexilla/access/LexillaAccess.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
-	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -69,12 +70,13 @@ Sc1.o: \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
+	../../lexilla/include/Lexilla.h \
+	../../lexilla/access/LexillaAccess.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
-	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -104,12 +106,13 @@ SciTEWinBar.o: \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
+	../../lexilla/include/Lexilla.h \
+	../../lexilla/access/LexillaAccess.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
-	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -135,12 +138,13 @@ SciTEWinDlg.o: \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
+	../../lexilla/include/Lexilla.h \
+	../../lexilla/access/LexillaAccess.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
-	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -166,12 +170,13 @@ Strips.o: \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
+	../../lexilla/include/Lexilla.h \
+	../../lexilla/access/LexillaAccess.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
-	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -197,12 +202,13 @@ UniqueInstance.o: \
 	../src/ScintillaMessages.h \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
+	../../lexilla/include/Lexilla.h \
+	../../lexilla/access/LexillaAccess.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
-	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -382,12 +388,6 @@ JobQueue.o: \
 	../src/PropSetFile.h \
 	../src/SciTE.h \
 	../src/JobQueue.h
-LexillaLibrary.o: \
-	../src/LexillaLibrary.cxx \
-	../../scintilla/include/ILexer.h \
-	../../scintilla/include/Sci_Position.h \
-	../../lexilla/include/Lexilla.h \
-	../src/LexillaLibrary.h
 LuaExtension.o: \
 	../src/LuaExtension.cxx \
 	../src/ScintillaTypes.h \
@@ -519,12 +519,13 @@ SciTEProps.o: \
 	../src/ScintillaCall.h \
 	../../scintilla/include/Scintilla.h \
 	../../lexilla/include/SciLexer.h \
+	../../lexilla/include/Lexilla.h \
+	../../lexilla/access/LexillaAccess.h \
 	../src/GUI.h \
 	../src/ScintillaWindow.h \
 	../src/StringList.h \
 	../src/StringHelpers.h \
 	../src/FilePath.h \
-	../src/LexillaLibrary.h \
 	../src/StyleDefinition.h \
 	../src/PropSetFile.h \
 	../src/StyleWriter.h \
@@ -1012,3 +1013,9 @@ lzio.o: \
 	../lua/src/lobject.h \
 	../lua/src/ltm.h \
 	../lua/src/lzio.h
+LexillaAccess.o: \
+	../../lexilla/access/LexillaAccess.cxx \
+	../../scintilla/include/ILexer.h \
+	../../scintilla/include/Sci_Position.h \
+	../../lexilla/include/Lexilla.h \
+	../../lexilla/access/LexillaAccess.h

@@ -179,9 +179,9 @@ nmake distclean
 rem ************************************************************
 rem Target 11: cppcheck
 @call scite\scripts\clearboth
-cppcheck -j 8 --enable=all --suppressions-list=lexilla/cppcheck.suppress --max-configs=100 -I lexilla/src -I lexilla/include -I lexilla/lexlib "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" --template=gcc --quiet lexilla
+cppcheck -j 8 --enable=all --suppressions-list=lexilla/cppcheck.suppress --max-configs=100 -I lexilla/include -I lexilla/access -I lexilla/lexlib -I scintilla/include "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" --template=gcc --quiet lexilla
 cppcheck -j 8 --enable=all --suppressions-list=scintilla/cppcheck.suppress --max-configs=100 -I scintilla/src -I scintilla/include -I scintilla/qt/ScintillaEditBase "-DSTDMETHODIMP_(type) type STDMETHODCALLTYPE" --template=gcc --quiet scintilla
-cppcheck -j 8 --enable=all --suppressions-list=scite/cppcheck.suppress --max-configs=100 -I scite/src -I scintilla/include -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
+cppcheck -j 8 --enable=all --suppressions-list=scite/cppcheck.suppress --max-configs=100 -I scite/src -I lexilla/include -I lexilla/access -I scintilla/include -I scite/lua/src -Ulua_assert -DPATH_MAX=260 --template=gcc --quiet scite
 @rem
 rem ************************************************************
 rem Target 12: header order check

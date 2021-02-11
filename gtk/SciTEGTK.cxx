@@ -43,12 +43,14 @@
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
 
+#include "Lexilla.h"
+#include "LexillaAccess.h"
+
 #include "GUI.h"
 #include "ScintillaWindow.h"
 #include "StringList.h"
 #include "StringHelpers.h"
 #include "FilePath.h"
-#include "LexillaLibrary.h"
 #include "StyleDefinition.h"
 #include "PropSetFile.h"
 

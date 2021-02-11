@@ -66,7 +66,7 @@ CXXFLAGS=$(CXXFLAGS) $(CXXNDEBUG)
 CCFLAGS=$(CCFLAGS) $(CXXNDEBUG)
 !ENDIF
 
-INCLUDEDIRS=-I../../lexilla/include -I../../scintilla/include -I../src
+INCLUDEDIRS=-I../../lexilla/include -I../../lexilla/access -I../../scintilla/include -I../src
 
 SHAREDOBJS=\
 	Cookie.obj \
@@ -83,7 +83,7 @@ SHAREDOBJS=\
 	GUIWin.obj \
 	IFaceTable.obj \
 	JobQueue.obj \
-	LexillaLibrary.obj \
+	LexillaAccess.obj \
 	MatchMarker.obj \
 	MultiplexExtension.obj \
 	PropSetFile.obj \
@@ -219,6 +219,8 @@ $(PROGSTATIC): $(OBJSSTATIC) $(LIBSCI) $(LIBLEX) Sc1Res.res
 # Some source files are compiled into more than one object because of different conditional compilation
 
 {..\src}.cxx.obj::
+	$(CXX) $(CXXFLAGS) -c $<
+{..\..\lexilla\access}.cxx.obj::
 	$(CXX) $(CXXFLAGS) -c $<
 {.}.cxx.obj::
 	$(CXX) $(CXXFLAGS) -c $<
