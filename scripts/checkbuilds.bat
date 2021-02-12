@@ -36,6 +36,10 @@ mingw32-make -j
 mingw32-make clean
 mingw32-make test
 @popd
+@pushd lexilla\test\unit
+mingw32-make clean
+mingw32-make test
+@popd
 @rem
 rem ************************************************************
 rem Target 3: Normal gcc build
