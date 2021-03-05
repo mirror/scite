@@ -51,8 +51,15 @@ make clean
 cd lexilla/src || exit
 make clean
 make $JOBS
-cd ..
-cd test || exit
+)
+(
+cd lexilla/test || exit
+make clean
+make test
+make clean
+)
+(
+cd lexilla/test/unit || exit
 make clean
 make test
 make clean
