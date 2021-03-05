@@ -19,12 +19,14 @@ set "UPLOAD_DIRECTORY=upload%SCINTILLA_VERSION%"
 rd /s/q lexilla scintilla scite
 del/q Sc1.exe
 
-hg archive -R %REPOSITORY_DIRECTORY%/lexilla lexilla
+git clone %REPOSITORY_DIRECTORY%/lexilla lexilla
 hg archive -R %REPOSITORY_DIRECTORY%/scintilla scintilla
 hg archive -R %REPOSITORY_DIRECTORY%/scite scite
 
 :: Create source archives
-hg archive -R %REPOSITORY_DIRECTORY%/lexilla lexilla.zip
+pushd lexilla
+call zipsrc
+popd
 hg archive -R %REPOSITORY_DIRECTORY%/scintilla scintilla.zip
 pushd scite
 call zipsrc
