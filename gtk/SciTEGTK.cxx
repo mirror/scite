@@ -1899,6 +1899,7 @@ void SciTEGTK::Print(bool) {
 	SelectionIntoProperties();
 	// Printing through the GTK API
 	GtkPrintOperation *printOp = gtk_print_operation_new();
+	gtk_print_operation_set_job_name(printOp, gtk_window_get_title(GTK_WINDOW(PWidget(wSciTE))));
 
 	if (printSettings != NULL)
 		gtk_print_operation_set_print_settings(printOp, printSettings);
