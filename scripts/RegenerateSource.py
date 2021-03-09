@@ -20,7 +20,7 @@ baseDirectory = sciteBase.parent
 sys.path.append(str(baseDirectory / "scintilla" / "scripts"))
 sys.path.append(str(baseDirectory / "lexilla" / "scripts"))
 
-from FileGenerator import Generate, Regenerate, UpdateLineInFile, ReplaceREInFile
+from FileGenerator import lineEnd, Generate, Regenerate, UpdateLineInFile, ReplaceREInFile
 import ScintillaData
 import LexGen
 import LexillaData
@@ -108,6 +108,22 @@ def UpdateEmbedded(pathSciTE, propFiles):
         pathEmbedded.write_text(textEmbedded, encoding=neutralEncoding)
         print("Changed %s" % pathEmbedded)
 
+def UpdateHistory(pathHistory, credits):
+    text = []
+    text.append("<table>")
+    text.append("      <tr>")
+    count = 0
+    for c in credits:
+        text.append("	<td>" + c + "</td>")
+        count = (count + 1) % 4
+        if count == 0:
+            text.append("      </tr><tr>")
+    text.append("      </tr>")
+    text.append("    </table>")
+    insertion = lineEnd.join(text)
+    # [^^] is trying to be . but . doesn't include \n.
+    ReplaceREInFile(pathHistory, r"<table>[^\0]*</table>", insertion)
+
 def RegenerateAll():
     root="../../"
 
@@ -142,11 +158,20 @@ def RegenerateAll():
     Regenerate(pathSciTE / "win32" / "scite.mak", "#", propFiles)
     Regenerate(pathSciTE / "src" / "SciTEProps.cxx", "//", lex.lexerProperties)
     Regenerate(pathSciTE / "doc" / "SciTEDoc.html", "<!--", propertiesHTML)
-    creditsList = sci.credits
-    for c in lex.credits:
-        if c not in creditsList:
-            creditsList.append(c)
-    credits = [OctalEscape(c.encode("utf-8")) for c in creditsList]
+    
+    sciCredits = ScintillaData.FindCredits(baseDirectory / "scintilla" / "doc" / "ScintillaHistory.html", False)
+    lexCredits = ScintillaData.FindCredits(baseDirectory / "lexilla" / "doc" / "LexillaHistory.html", False)
+    pathHistory = pathSciTE / "doc" / "SciTEHistory.html"
+    sciteCredits = ScintillaData.FindCredits(pathHistory, False)
+
+    for c in sciCredits + lexCredits:
+        if c not in sciteCredits:
+            print("new: ", c)
+            sciteCredits.append(c)
+    UpdateHistory(pathHistory, sciteCredits)
+    sciteCreditsWithoutLinks = ScintillaData.FindCredits(pathHistory, True)
+
+    credits = [OctalEscape(c.encode("utf-8")) for c in sciteCreditsWithoutLinks]
     Regenerate(pathSciTE / "src" / "Credits.cxx", "//", credits)
 
     win32.AppDepGen.Generate()
