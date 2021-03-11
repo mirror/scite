@@ -175,7 +175,7 @@ def NewsFormatted(section, items):
     for item in items:
         text += "\t\t<li>" + lineEnd
         for t in item.splitlines():
-            text += "\t\t" + t + lineEnd
+            text += "\t\t" + t.lstrip() + lineEnd
         text += "\t\t</li>" + lineEnd
     text += "\t</ul>" + lineEnd
     return text
@@ -225,8 +225,11 @@ def RegenerateAll():
     newFromSci = NewItems(sciteItems, sciItems)
     newFromLex = NewItems(sciteItems, lexItems)
     if newFromSci or newFromLex:
-        news = NewsFormatted("Lexilla " + lex.versionDotted, newFromLex)
-        news += NewsFormatted("Scintilla " + sci.versionDotted, newFromSci)
+        news = ""
+        if newFromLex:
+            news += NewsFormatted("Lexilla " + lex.versionDotted, newFromLex)
+        if newFromSci:
+            news += NewsFormatted("Scintilla " + sci.versionDotted, newFromSci)
         ReplaceREInFile(pathHistory,
             r"    </ul>",
             news + r"    </ul>")
