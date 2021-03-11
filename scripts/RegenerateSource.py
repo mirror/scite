@@ -13,12 +13,15 @@
 
 # Regenerates Scintilla files by calling LexGen.RegenerateAll
 
-import pathlib, sys
+import pathlib, re, sys
 
 sciteBase = pathlib.Path(__file__).resolve().parent.parent
 baseDirectory = sciteBase.parent
-sys.path.append(str(baseDirectory / "scintilla" / "scripts"))
-sys.path.append(str(baseDirectory / "lexilla" / "scripts"))
+sciDirectory = baseDirectory / "scintilla"
+lexDirectory = baseDirectory / "lexilla"
+
+sys.path.append(str(sciDirectory / "scripts"))
+sys.path.append(str(lexDirectory / "scripts"))
 
 from FileGenerator import lineEnd, Generate, Regenerate, UpdateLineInFile, ReplaceREInFile
 import ScintillaData
@@ -124,12 +127,62 @@ def UpdateHistory(pathHistory, credits):
     # [^^] is trying to be . but . doesn't include \n.
     ReplaceREInFile(pathHistory, r"<table>[^\0]*</table>", insertion)
 
+def ExtractItems(pathHistory):
+    markStart = "<h2>Releases</h2>"
+    markEnd = "scite446.zip"
+    items = []
+    with pathHistory.open(encoding=neutralEncoding) as history:
+        afterStart = False
+        for l in history:
+            if markEnd in l:
+                break
+            if afterStart:
+                if "</li>" in l or "<ul>" in l or "</ul>" in l or "<h3>" in l or "</h3>" in l:
+                    pass
+                elif "<li>" in l:
+                    items.append("")
+                elif "Lexilla became a separate project at this point." in l:
+                    pass
+                elif '<a href="https://www.scintilla.org/' in l:
+                    pass
+                elif re.match("Released \d+ \w+ \d+", l.strip()):
+                    #Released 5 March 2021.
+                    pass
+                else:
+                    items[-1] = items[-1] + l
+            if markStart in l:
+                afterStart = True
+    # Remove empty items
+    items = [i for i in items if i]
+    #print("|\n".join(items))
+    return items
+
+def CondenseItem(item):
+    return " ".join(l.strip() for l in item.splitlines())
+
+def NewItems(sciteHistory, items):
+    condensedHistory = [CondenseItem(i) for i in sciteHistory]
+    new = []
+    for item in items:
+        condensed = CondenseItem(item)
+        if condensed not in condensedHistory:
+            new.append(item)
+    return new
+
+def NewsFormatted(section, items):
+    text = "\t<li>" + section + "</li>" + lineEnd
+    text += "\t<ul>" + lineEnd
+    for item in items:
+        text += "\t\t<li>" + lineEnd
+        for t in item.splitlines():
+            text += "\t\t" + t + lineEnd
+        text += "\t\t</li>" + lineEnd
+    text += "\t</ul>" + lineEnd
+    return text
+
 def RegenerateAll():
-    root="../../"
-
-    sci = ScintillaData.ScintillaData(baseDirectory / "scintilla")
-
-    lex = LexillaData.LexillaData(baseDirectory / "lexilla")
+    sci = ScintillaData.ScintillaData(sciDirectory)
+    lex = LexillaData.LexillaData(lexDirectory)
 
     pathSciTE = sciteBase
 
@@ -159,16 +212,31 @@ def RegenerateAll():
     Regenerate(pathSciTE / "src" / "SciTEProps.cxx", "//", lex.lexerProperties)
     Regenerate(pathSciTE / "doc" / "SciTEDoc.html", "<!--", propertiesHTML)
     
-    sciCredits = ScintillaData.FindCredits(baseDirectory / "scintilla" / "doc" / "ScintillaHistory.html", False)
-    lexCredits = ScintillaData.FindCredits(baseDirectory / "lexilla" / "doc" / "LexillaHistory.html", False)
+    sciHistory = sciDirectory / "doc" / "ScintillaHistory.html"
+    sciCredits = ScintillaData.FindCredits(sciHistory, False)
+    sciItems = ExtractItems(sciHistory)
+    lexHistory = lexDirectory / "doc" / "LexillaHistory.html"
+    lexCredits = ScintillaData.FindCredits(lexHistory, False)
+    lexItems = ExtractItems(lexHistory)
     pathHistory = pathSciTE / "doc" / "SciTEHistory.html"
     sciteCredits = ScintillaData.FindCredits(pathHistory, False)
+    sciteItems = ExtractItems(pathHistory)
+
+    newFromSci = NewItems(sciteItems, sciItems)
+    newFromLex = NewItems(sciteItems, lexItems)
+    if newFromSci or newFromLex:
+        news = NewsFormatted("Lexilla " + lex.versionDotted, newFromLex)
+        news += NewsFormatted("Scintilla " + sci.versionDotted, newFromSci)
+        ReplaceREInFile(pathHistory,
+            r"    </ul>",
+            news + r"    </ul>")
 
     for c in sciCredits + lexCredits:
         if c not in sciteCredits:
             print("new: ", c)
             sciteCredits.append(c)
     UpdateHistory(pathHistory, sciteCredits)
+
     sciteCreditsWithoutLinks = ScintillaData.FindCredits(pathHistory, True)
 
     credits = [OctalEscape(c.encode("utf-8")) for c in sciteCreditsWithoutLinks]
