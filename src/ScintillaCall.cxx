@@ -3019,10 +3019,6 @@ void ScintillaCall::StopRecord() {
 	Call(Message::StopRecord);
 }
 
-void ScintillaCall::SetLexer(int lexer) {
-	Call(Message::SetLexer, lexer);
-}
-
 int ScintillaCall::Lexer() {
 	return static_cast<int>(Call(Message::GetLexer));
 }
@@ -3037,14 +3033,6 @@ void ScintillaCall::SetProperty(const char *key, const char *value) {
 
 void ScintillaCall::SetKeyWords(int keyWordSet, const char *keyWords) {
 	CallString(Message::SetKeyWords, keyWordSet, keyWords);
-}
-
-void ScintillaCall::SetLexerLanguage(const char *language) {
-	CallString(Message::SetLexerLanguage, 0, language);
-}
-
-void ScintillaCall::LoadLexerLibrary(const char *path) {
-	CallString(Message::LoadLexerLibrary, 0, path);
 }
 
 int ScintillaCall::Property(const char *key, char *value) {

@@ -20,13 +20,11 @@ identCharacters = "_*." + string.ascii_letters + string.digits
 
 # These properties are for debugging or for optionally attached features or are archaic
 # and kept to preserve compatibility.
-# lexerpath.*.lpeg is a special case for LPEG lexers associated with Scintillua projects.
 knownDebugOptionalAndArchaicProperties = {
 	"ext.lua.debug.traceback",	# Debug
 	"asynchronous.sleep",	# Debug
 	"dwell.period",	# Debug
 	"bookmark.pixmap",	# Debug
-	"lexerpath.*.lpeg",	# Option for Scintillua
 	"ipc.director.name",	# Archaic
 	"two.phase.draw",	# Archaic
 	"translation.encoding",	# Used in translations

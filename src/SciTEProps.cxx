@@ -684,10 +684,6 @@ void SciTEBase::ReadProperties() {
 
 	const std::string fileNameForExtension = ExtensionFileName();
 
-	std::string modulePath = props.GetNewExpandString("lexerpath.",
-				 fileNameForExtension.c_str());
-	if (modulePath.length())
-		wEditor.LoadLexerLibrary(modulePath.c_str());
 	language = props.GetNewExpandString("lexer.", fileNameForExtension.c_str());
 	if (language.empty()) {
 		language = "null";

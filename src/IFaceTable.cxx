@@ -2495,8 +2495,6 @@ static IFaceConstant ifaceConstants[] = {
 	{"SCI_SETINDICATORVALUE",2502},
 	{"SCI_SETKEYWORDS",4005},
 	{"SCI_SETLAYOUTCACHE",2272},
-	{"SCI_SETLEXER",4001},
-	{"SCI_SETLEXERLANGUAGE",4006},
 	{"SCI_SETLINEENDTYPESALLOWED",2656},
 	{"SCI_SETLINEINDENTATION",2126},
 	{"SCI_SETLINESTATE",2092},
@@ -3198,7 +3196,6 @@ static IFaceFunction ifaceFunctions[] = {
 	{"LineUpRectExtend", 2427, iface_void, {iface_void, iface_void}},
 	{"LinesJoin", 2288, iface_void, {iface_void, iface_void}},
 	{"LinesSplit", 2289, iface_void, {iface_int, iface_void}},
-	{"LoadLexerLibrary", 4007, iface_void, {iface_void, iface_string}},
 	{"LowerCase", 2340, iface_void, {iface_void, iface_void}},
 	{"MarginTextClearAll", 2536, iface_void, {iface_void, iface_void}},
 	{"MarkerAdd", 2043, iface_int, {iface_line, iface_int}},
@@ -3456,8 +3453,8 @@ static IFaceProperty ifaceProperties[] = {
 	{"KeyWords", 0, 4005, iface_string, iface_int},
 	{"LayoutCache", 2273, 2272, iface_int, iface_void},
 	{"Length", 2006, 0, iface_position, iface_void},
-	{"Lexer", 4002, 4001, iface_int, iface_void},
-	{"LexerLanguage", 4012, 4006, iface_stringresult, iface_void},
+	{"Lexer", 4002, 0, iface_int, iface_void},
+	{"LexerLanguage", 4012, 0, iface_stringresult, iface_void},
 	{"LineCharacterIndex", 2710, 0, iface_int, iface_void},
 	{"LineCount", 2154, 0, iface_line, iface_void},
 	{"LineEndPosition", 2136, 0, iface_position, iface_line},
@@ -3592,8 +3589,8 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 313,
-	ifaceConstantCount = 2902,
+	ifaceFunctionCount = 312,
+	ifaceConstantCount = 2900,
 	ifacePropertyCount = 243
 };
 

@@ -3506,14 +3506,6 @@ imports.include=fortran lisp
           </div>
       	</td>
       </tr>
-      <tr id='property-lexerpath'>
-      	<td>
-      	lexerpath.<i>filepattern</i>
-      	</td>
-      	<td>
-      	Specifies the path to an external lexer module that will be loaded into Scintilla.
-      	</td>
-      </tr>
       <tr id='property-keywords'>
         <td>
           <a name='property-keywords2'></a><a name='property-keywords3'></a><a name='property-keywords4'></a><a name='property-keywords5'></a><a name='property-keywords6'></a><a name='property-keywords7'></a><a name='property-keywords8'></a><a name='property-keywords9'></a><a name='property-keywordclass'></a>
@@ -4726,12 +4718,10 @@ groupundo - yes or no
     </p>
     <p>
        For languages that can not be lexed with the existing lexers, a new lexer can be coded in
-      C++.&nbsp; These can either be built into Scintilla, or put into an
-		external module and loaded when SciTE runs (See lexerpath).</p>
-       <a href="SciTELexer.html">Installing a lexer into SciTE</a>
-    <br />
-		<a href="SciTEExternalLexer.html">Creating and installing an external
-		lexer</a><br />
+       C++.&nbsp; These can either be built into Lexilla, or put into an
+       external module and loaded when SciTE runs.
+       See Lexilla and the <a href="#property-lexillapath">lexilla.path</a> property.
+    </p>
     <p>
        The open.filter should be modified to include the file extensions used for the new language
       and entries added for command.compile, command.build, command.go and command.go.needs for the

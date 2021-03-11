@@ -769,13 +769,10 @@ public:
 	int EOLAnnotationGetStyleOffset();
 	void StartRecord();
 	void StopRecord();
-	void SetLexer(int lexer);
 	int Lexer();
 	void Colourise(Position start, Position end);
 	void SetProperty(const char *key, const char *value);
 	void SetKeyWords(int keyWordSet, const char *keyWords);
-	void SetLexerLanguage(const char *language);
-	void LoadLexerLibrary(const char *path);
 	int Property(const char *key, char *value);
 	std::string Property(const char *key);
 	int PropertyExpanded(const char *key, char *value);
