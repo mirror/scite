@@ -54,7 +54,6 @@ mingw32-make -j
 @popd
 @pushd scintilla\test
 pythonw simpleTests.py
-pythonw lexTests.py
 pythonw performanceTests.py
 pythonw win32Tests.py
 pythonw simpleTests.py -large
@@ -78,7 +77,6 @@ nmake -f lexilla.mak QUIET=1
 @popd
 @pushd scintilla\test
 pythonw simpleTests.py
-pythonw lexTests.py
 pythonw performanceTests.py
 pythonw win32Tests.py
 @popd
@@ -153,7 +151,6 @@ mingw32-make CLANG=1 -j
 @popd
 @pushd scintilla\test
 pythonw simpleTests.py
-pythonw lexTests.py
 pythonw performanceTests.py
 pythonw win32Tests.py
 @popd
