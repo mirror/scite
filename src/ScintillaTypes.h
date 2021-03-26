@@ -160,6 +160,13 @@ enum class FontWeight {
 	Bold = 700,
 };
 
+enum class Element {
+	List = 0,
+	ListBack = 1,
+	ListSelected = 2,
+	ListSelectedBack = 3,
+};
+
 enum class IndicatorStyle {
 	Plain = 0,
 	Squiggle = 1,
@@ -445,9 +452,18 @@ enum class LineEndType {
 };
 
 enum class EOLAnnotationVisible {
-	Hidden = 0,
-	Standard = 1,
-	Boxed = 2,
+	Hidden = 0x0,
+	Standard = 0x1,
+	Boxed = 0x2,
+	Stadium = 0x100,
+	FlatCircle = 0x101,
+	AngleCircle = 0x102,
+	CircleFlat = 0x110,
+	Flats = 0x111,
+	AngleFlat = 0x112,
+	CircleAngle = 0x120,
+	FlatAngle = 0x121,
+	Angles = 0x122,
 };
 
 enum class Supports {

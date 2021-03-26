@@ -107,6 +107,10 @@ public:
 	void MarkerSetFore(int markerNumber, Colour fore);
 	void MarkerSetBack(int markerNumber, Colour back);
 	void MarkerSetBackSelected(int markerNumber, Colour back);
+	void MarkerSetForeTranslucent(int markerNumber, ColourAlpha fore);
+	void MarkerSetBackTranslucent(int markerNumber, ColourAlpha back);
+	void MarkerSetBackSelectedTranslucent(int markerNumber, ColourAlpha back);
+	void MarkerSetStrokeWidth(int markerNumber, int hundredths);
 	void MarkerEnableHighlight(bool enabled);
 	int MarkerAdd(Line line, int markerNumber);
 	void MarkerDelete(Line line, int markerNumber);
@@ -162,6 +166,11 @@ public:
 	API::FontWeight StyleGetWeight(int style);
 	void StyleSetCharacterSet(int style, API::CharacterSet characterSet);
 	void StyleSetHotSpot(int style, bool hotspot);
+	void SetElementColour(API::Element element, ColourAlpha colourElement);
+	ColourAlpha ElementColour(API::Element element);
+	void ResetElementColour(API::Element element);
+	bool ElementIsSet(API::Element element);
+	bool ElementAllowsTranslucent(API::Element element);
 	void SetSelFore(bool useSetting, Colour fore);
 	void SetSelBack(bool useSetting, Colour back);
 	API::Alpha SelAlpha();

@@ -584,19 +584,62 @@
 		<a href="https://sourceforge.net/p/scintilla/feature-requests/1397/">Feature #1397</a>.
 		</li>
 	</ul>
-	<li>Scintilla 5.0.1</li>
-	<ul>
-		<li>
-		Remove SetLexer, SetLexerLanguage, and LoadLexerLibrary methods.
-		These have been superceded by Lexilla and the SetILexer API.
-		</li>
-	</ul>
 	<li>Lexilla 5.0.1</li>
 	<ul>
 		<li>
 		Add LexerNameFromID function to Lexilla protocol as optional and temporary to
 		help applications migrate to Lexilla.
 		It is marked deprecated and will be removed in a future release.
+		</li>
+		<li>
+		The cpp lexer supports XML styled comment doc keywords.
+		<a href="https://github.com/ScintillaOrg/lexilla/pull/2">Pull request #2</a>.
+		</li>
+		<li>
+		The errorlist lexer detects NMAKE fatal errors and Microsoft linker errors as SCE_ERR_MS.
+		</li>
+	</ul>
+	<li>Scintilla 5.0.1</li>
+	<ul>
+		<li>
+		Remove SetLexer, SetLexerLanguage, and LoadLexerLibrary methods.
+		These have been superceded by Lexilla and the SetILexer API.
+		</li>
+		<li>
+		Improve the platform layer interface.
+		Add support for stroke width and translucency to drawing methods.
+		Allow clipping to nest.
+		Add methods for UTF-8 text.
+		Add methods for encoding conversion.
+		Use these changes to improve appearance.
+		</li>
+		<li>
+		Add SCI_SUPPORTSFEATURE method to allow applications to determine which features are available
+		and to then choose workarounds for missing features like translucent drawing.
+		</li>
+		<li>
+		Add colouralpha type to Scintilla.iface for APIs that set both colour and transparency together as an RGBA value.
+		</li>
+		<li>
+		Add SCI_INDICSETSTROKEWIDTH to set stroke width of indicators.
+		</li>
+		<li>
+		Add methods to set translucency and stroke width of markers.
+		SCI_MARKERSETFORETRANSLUCENT, SCI_MARKERSETBACKTRANSLUCENT,
+		SCI_MARKERSETBACKSELECTEDTRANSLUCENT, SCI_MARKERSETSTROKEWIDTH.
+		</li>
+		<li>
+		Change graphics coordinates from float (32-bit) to double (64-bit).
+		Fixes uneven line heights in large documents on Cocoa.
+		Increases memory use.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2224/">Bug #2224</a>.
+		</li>
+		<li>
+		Add shapes with curved and rounded ends to EOL annotations as EOLANNOTATION_*.
+		</li>
+		<li>
+		Add SCI_SETELEMENTCOLOUR and related APIs to change colours of visible elements.
+		Implement SC_ELEMENT_LIST* to change colours of autocompletion lists.
 		</li>
 	</ul>
     </ul>

@@ -371,6 +371,22 @@ void ScintillaCall::MarkerSetBackSelected(int markerNumber, Colour back) {
 	Call(Message::MarkerSetBackSelected, markerNumber, back);
 }
 
+void ScintillaCall::MarkerSetForeTranslucent(int markerNumber, ColourAlpha fore) {
+	Call(Message::MarkerSetForeTranslucent, markerNumber, fore);
+}
+
+void ScintillaCall::MarkerSetBackTranslucent(int markerNumber, ColourAlpha back) {
+	Call(Message::MarkerSetBackTranslucent, markerNumber, back);
+}
+
+void ScintillaCall::MarkerSetBackSelectedTranslucent(int markerNumber, ColourAlpha back) {
+	Call(Message::MarkerSetBackSelectedTranslucent, markerNumber, back);
+}
+
+void ScintillaCall::MarkerSetStrokeWidth(int markerNumber, int hundredths) {
+	Call(Message::MarkerSetStrokeWidth, markerNumber, hundredths);
+}
+
 void ScintillaCall::MarkerEnableHighlight(bool enabled) {
 	Call(Message::MarkerEnableHighlight, enabled);
 }
@@ -589,6 +605,26 @@ void ScintillaCall::StyleSetCharacterSet(int style, API::CharacterSet characterS
 
 void ScintillaCall::StyleSetHotSpot(int style, bool hotspot) {
 	Call(Message::StyleSetHotSpot, style, hotspot);
+}
+
+void ScintillaCall::SetElementColour(API::Element element, ColourAlpha colourElement) {
+	Call(Message::SetElementColour, static_cast<uintptr_t>(element), colourElement);
+}
+
+ColourAlpha ScintillaCall::ElementColour(API::Element element) {
+	return static_cast<ColourAlpha>(Call(Message::GetElementColour, static_cast<uintptr_t>(element)));
+}
+
+void ScintillaCall::ResetElementColour(API::Element element) {
+	Call(Message::ResetElementColour, static_cast<uintptr_t>(element));
+}
+
+bool ScintillaCall::ElementIsSet(API::Element element) {
+	return Call(Message::GetElementIsSet, static_cast<uintptr_t>(element));
+}
+
+bool ScintillaCall::ElementAllowsTranslucent(API::Element element) {
+	return Call(Message::GetElementAllowsTranslucent, static_cast<uintptr_t>(element));
 }
 
 void ScintillaCall::SetSelFore(bool useSetting, Colour fore) {
