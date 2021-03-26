@@ -38,10 +38,15 @@ inline constexpr Scintilla::API::Colour ColourRGB(unsigned int red, unsigned int
 	return red | (green << 8) | (blue << 16);
 }
 
+inline constexpr Scintilla::API::ColourAlpha ColourRGBA(unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha=0xff) noexcept {
+	return red | (green << 8) | (blue << 16) | (alpha << 24);
+}
+
 int IntFromHexDigit(int ch) noexcept;
 int IntFromHexByte(std::string_view hexByte) noexcept;
 
 Scintilla::API::Colour ColourFromString(const std::string &s);
+Scintilla::API::ColourAlpha ColourAlphaFromString(const std::string &s);
 
 struct IndicatorDefinition {
 	Scintilla::API::IndicatorStyle style;

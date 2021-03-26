@@ -194,6 +194,18 @@ SA::Colour ColourFromString(const std::string &s) {
 	}
 }
 
+SA::ColourAlpha ColourAlphaFromString(const std::string &s) {
+	if (s.length() >= 7) {
+		const int r = IntFromHexByte(&s[1]);
+		const int g = IntFromHexByte(&s[3]);
+		const int b = IntFromHexByte(&s[5]);
+		const int a = (s.length() >= 9)? IntFromHexByte(&s[7]) : 0xff;
+		return ColourRGBA(r, g, b, a);
+	} else {
+		return 0;
+	}
+}
+
 IndicatorDefinition::IndicatorDefinition(std::string_view definition) :
 	style(SA::IndicatorStyle::Plain), colour(0), fillAlpha(static_cast<SA::Alpha>(30)), outlineAlpha(static_cast<SA::Alpha>(50)), under(false) {
 	ParseIndicatorDefinition(definition);

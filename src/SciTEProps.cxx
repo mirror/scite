@@ -236,6 +236,14 @@ SA::Colour ColourOfProperty(const PropSetFile &props, const char *key, SA::Colou
 	return colourDefault;
 }
 
+SA::ColourAlpha ColourAlphaOfProperty(const PropSetFile &props, const char *key, SA::ColourAlpha colourDefault) {
+	std::string colour = props.GetExpandedString(key);
+	if (colour.length()) {
+		return ColourAlphaFromString(colour);
+	}
+	return colourDefault;
+}
+
 /**
  * Put the next property item from the given property string
  * into the buffer pointed by @a pPropItem.

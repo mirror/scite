@@ -39,6 +39,7 @@ typeAliases = {
 	# bool and void are OK as is
 	"cells": "const char *",
 	"colour": "Colour",
+	"colouralpha": "ColourAlpha",
 	"findtext": "void *",
 	"formatrange": "void *",
 	"int": "int",
@@ -55,6 +56,7 @@ basicTypes = [
 	"bool",
 	"char *",
 	"Colour",
+	"ColourAlpha",
 	"const char *",
 	"int",
 	"intptr_t",
@@ -73,7 +75,7 @@ def ActualTypeName(type, identifier=None):
 		return type
 
 def IsEnumeration(s):
-	if s in ["Position", "Line", "Colour"]:
+	if s in ["Position", "Line", "Colour", "ColourAlpha"]:
 		return False
 	return s[:1].isupper()
 
@@ -257,7 +259,7 @@ def CXXMethods(f):
 				out.append(JoinTypeAndIdentifier(retType, "ScintillaCall::" + name) + "(" + parameters + ")" + " {")
 				retCast = ""
 				retCastEnd = ""
-				if retType not in basicTypes or retType in ["int", "Colour"]:
+				if retType not in basicTypes or retType in ["int", "Colour", "ColourAlpha"]:
 					if IsEnumeration(retType):
 						retType = namespace + retType
 					retCast = "static_cast<" + retType + ">("

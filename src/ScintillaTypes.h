@@ -615,6 +615,7 @@ struct Failure {
 using Position = intptr_t;
 using Line = intptr_t;
 using Colour = int;
+using ColourAlpha = int;
 struct Range {
 	// An ordered range
 	// end may be less than start when, for example, searching backwards
