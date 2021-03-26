@@ -195,6 +195,8 @@ public:
 	Colour IndicGetHoverFore(int indicator);
 	void IndicSetFlags(int indicator, API::IndicFlag flags);
 	API::IndicFlag IndicGetFlags(int indicator);
+	void IndicSetStrokeWidth(int indicator, int hundredths);
+	int IndicGetStrokeWidth(int indicator);
 	void SetWhitespaceFore(bool useSetting, Colour fore);
 	void SetWhitespaceBack(bool useSetting, Colour back);
 	void SetWhitespaceSize(int size);
@@ -767,6 +769,7 @@ public:
 	API::EOLAnnotationVisible EOLAnnotationGetVisible();
 	void EOLAnnotationSetStyleOffset(int style);
 	int EOLAnnotationGetStyleOffset();
+	bool SupportsFeature(API::Supports feature);
 	void StartRecord();
 	void StopRecord();
 	int Lexer();

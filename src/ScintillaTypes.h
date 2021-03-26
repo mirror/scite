@@ -450,6 +450,14 @@ enum class EOLAnnotationVisible {
 	Boxed = 2,
 };
 
+enum class Supports {
+	LineDrawsFinal = 0,
+	PixelDivisions = 1,
+	FractionalStrokeWidth = 2,
+	TranslucentStroke = 3,
+	PixelModification = 4,
+};
+
 enum class TypeProperty {
 	Boolean = 0,
 	Integer = 1,

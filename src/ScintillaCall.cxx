@@ -723,6 +723,14 @@ IndicFlag ScintillaCall::IndicGetFlags(int indicator) {
 	return static_cast<API::IndicFlag>(Call(Message::IndicGetFlags, indicator));
 }
 
+void ScintillaCall::IndicSetStrokeWidth(int indicator, int hundredths) {
+	Call(Message::IndicSetStrokeWidth, indicator, hundredths);
+}
+
+int ScintillaCall::IndicGetStrokeWidth(int indicator) {
+	return static_cast<int>(Call(Message::IndicGetStrokeWidth, indicator));
+}
+
 void ScintillaCall::SetWhitespaceFore(bool useSetting, Colour fore) {
 	Call(Message::SetWhitespaceFore, useSetting, fore);
 }
@@ -3009,6 +3017,10 @@ void ScintillaCall::EOLAnnotationSetStyleOffset(int style) {
 
 int ScintillaCall::EOLAnnotationGetStyleOffset() {
 	return static_cast<int>(Call(Message::EOLAnnotationGetStyleOffset));
+}
+
+bool ScintillaCall::SupportsFeature(API::Supports feature) {
+	return Call(Message::SupportsFeature, static_cast<uintptr_t>(feature));
 }
 
 void ScintillaCall::StartRecord() {

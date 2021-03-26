@@ -387,6 +387,7 @@
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETBIDIRECTIONAL'>Bidirectional</a><span class="comment"> -- Set bidirectional text display state.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GRABFOCUS'>GrabFocus</a>()<span class="comment"> -- Set the focus to this Scintilla widget.</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETFOCUS'>Focus</a><span class="comment"> -- Change internal focus flag.</span></p>
+	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SUPPORTSFEATURE'>SupportsFeature</a>(int feature)<span class="comment"> -- Get whether a feature is supported</span></p>
 	<h2>Brace highlighting</h2>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_BRACEHIGHLIGHT'>BraceHighlight</a>(position posA, position posB)<span class="comment"> -- Highlight the characters at two positions.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_BRACEBADLIGHT'>BraceBadLight</a>(position pos)<span class="comment"> -- Highlight the character at a position indicating there is no matching brace.</span></p>
@@ -435,6 +436,7 @@
 	<h2>Indicators</h2>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETSTYLE'>IndicStyle</a>[int indicator]<span class="comment"> -- Set an indicator to plain, squiggle or TT.</span></p>
 	<p>colour editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETFORE'>IndicFore</a>[int indicator]<span class="comment"> -- Set the foreground colour of an indicator.</span></p>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETSTROKEWIDTH'>IndicStrokeWidth</a>[int indicator]<span class="comment"> -- Set the stroke width of an indicator in hundredths of a pixel.</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETALPHA'>IndicAlpha</a>[int indicator]<span class="comment"> -- Set the alpha fill colour of the given indicator.</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETOUTLINEALPHA'>IndicOutlineAlpha</a>[int indicator]<span class="comment"> -- Set the alpha outline colour of the given indicator.</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_INDICSETUNDER'>IndicUnder</a>[int indicator]<span class="comment"> -- Set an indicator to draw under text or over(default).</span></p>
@@ -572,6 +574,7 @@
 	<h2>Lexer</h2>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLEXER'>Lexer</a> read-only</p>
 	<p>string editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETLEXERLANGUAGE'>LexerLanguage</a> read-only</p>
+	<p>pointer editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETILEXER'>ILexer</a> write-only<span class="comment"> -- Set the lexer from an ILexer*.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_COLOURISE'>Colourise</a>(position start, position end)<span class="comment"> -- Colourise a segment of the document using the current lexing language.</span></p>
 	<p>int editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CHANGELEXERSTATE'>ChangeLexerState</a>(position start, position end)<span class="comment"> -- Indicate that the internal state of a lexer has changed over a range and therefore there may be a need to redraw.</span></p>
 	<p>string editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_PROPERTYNAMES'>PropertyNames</a>()<span class="comment"> -- Retrieve a '\n' separated list of properties understood by the current lexer. Result is NUL-terminated.</span></p>
