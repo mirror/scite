@@ -1897,7 +1897,7 @@ LRESULT SciTEWin::KeyDown(WPARAM wParam) {
 	// exec it the command defined
 	for (const ShortcutItem &scut : shortCutItemList) {
 		if (KeyMatch(scut.menuKey, keyVal, modifierAsInt)) {
-			const int commandNum = SciTEBase::GetMenuCommandAsInt(scut.menuCommand.c_str());
+			const int commandNum = SciTEBase::GetMenuCommandAsInt(scut.menuCommand);
 			if (commandNum != -1) {
 				// its possible that the command is for scintilla directly
 				// all scintilla commands are larger then 2000

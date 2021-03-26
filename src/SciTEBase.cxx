@@ -77,7 +77,7 @@ Searcher::Searcher() {
 }
 
 void Searcher::InsertFindInMemory() {
-	memFinds.Insert(findWhat.c_str());
+	memFinds.Insert(findWhat);
 }
 
 // The find and replace dialogs and strips often manipulate boolean
@@ -1037,7 +1037,7 @@ bool SciTEBase::FindHasText() const noexcept {
 
 void SciTEBase::SetReplace(const char *sReplace) {
 	replaceWhat = sReplace;
-	memReplaces.Insert(replaceWhat.c_str());
+	memReplaces.Insert(replaceWhat);
 }
 
 void SciTEBase::SetCaretAsStart() {
@@ -3835,7 +3835,7 @@ void SciTEBase::NewLineInOutput() {
 		cmd = cmd.substr(1);
 	}
 	returnOutputToCommand = false;
-	AddCommand(cmd.c_str(), "", jobCLI);
+	AddCommand(cmd, "", jobCLI);
 	Execute();
 }
 

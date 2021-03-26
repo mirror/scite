@@ -629,7 +629,7 @@ void SciTEBase::RestoreSession() {
 			std::string propStr = propsSession.GetString(propKey.c_str());
 			if (propStr == "")
 				break;
-			memFinds.AppendList(propStr.c_str());
+			memFinds.AppendList(propStr);
 		}
 
 		for (int i = 0;; i++) {
@@ -637,7 +637,7 @@ void SciTEBase::RestoreSession() {
 			std::string propStr = propsSession.GetString(propKey.c_str());
 			if (propStr == "")
 				break;
-			memReplaces.AppendList(propStr.c_str());
+			memReplaces.AppendList(propStr);
 		}
 	}
 
@@ -1490,7 +1490,7 @@ void SciTEBase::ToolsMenu(int item) {
 					extender->OnExecute(command.c_str());
 				}
 			} else {
-				AddCommand(command.c_str(), "", jobMode.jobType, jobMode.input, jobMode.flags);
+				AddCommand(command, "", jobMode.jobType, jobMode.input, jobMode.flags);
 				if (jobQueue.HasCommandToRun())
 					Execute();
 			}

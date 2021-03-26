@@ -163,7 +163,7 @@ void SciTEBase::ReadGlobalPropFile() {
 		excludes = excludesRead;
 		includes = includesRead;
 
-		filter.SetFilter(excludes.c_str(), includes.c_str());
+		filter.SetFilter(excludes, includes);
 
 		importFiles.clear();
 
@@ -412,7 +412,7 @@ void SciTEBase::ReadAPI(const std::string &fileNameForExtension) {
 
 std::string SciTEBase::FindLanguageProperty(const char *pattern, const char *defaultValue) {
 	std::string key = pattern;
-	Substitute(key, "*", language.c_str());
+	Substitute(key, "*", language);
 	std::string ret = props.GetExpandedString(key.c_str());
 	if (ret == "")
 		ret = props.GetExpandedString(pattern);

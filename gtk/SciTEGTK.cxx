@@ -3458,7 +3458,7 @@ gint SciTEGTK::Key(GdkEventKey *event) {
 	// check user defined keys
 	for (const ShortcutItem &scut : shortCutItemList) {
 		if (KeyMatch(scut.menuKey.c_str(), event->keyval, modifiers)) {
-			const int commandNum = SciTEBase::GetMenuCommandAsInt(scut.menuCommand.c_str());
+			const int commandNum = SciTEBase::GetMenuCommandAsInt(scut.menuCommand);
 			if (commandNum != -1) {
 				if (commandNum < 2000) {
 					SciTEBase::MenuCommand(commandNum);
