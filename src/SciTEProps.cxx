@@ -244,6 +244,16 @@ SA::ColourAlpha ColourAlphaOfProperty(const PropSetFile &props, const char *key,
 	return colourDefault;
 }
 
+void OptionalSetColour(GUI::ScintillaWindow &scintilla, SA::Element element, const PropSetFile &props, const char *key) {
+	std::string colour = props.GetExpandedString(key);
+	if (colour.length()) {
+		SA::Colour colourElement = ColourAlphaFromString(colour);
+		scintilla.SetElementColour(element, colourElement);
+	} else {
+		scintilla.ResetElementColour(element);
+	}
+}
+
 /**
  * Put the next property item from the given property string
  * into the buffer pointed by @a pPropItem.
@@ -1031,6 +1041,11 @@ void SciTEBase::ReadProperties() {
 
 	wEditor.AutoCSetCancelAtStart(false);
 	wEditor.AutoCSetDropRestOfWord(false);
+
+	OptionalSetColour(wEditor, SA::Element::List, props, "autocomplete.fore");
+	OptionalSetColour(wEditor, SA::Element::ListBack, props, "autocomplete.back");
+	OptionalSetColour(wEditor, SA::Element::ListSelected, props, "autocomplete.selected.fore");
+	OptionalSetColour(wEditor, SA::Element::ListSelectedBack, props, "autocomplete.selected.back");
 
 	if (firstPropertiesRead) {
 		ReadPropertiesInitial();
