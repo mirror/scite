@@ -849,6 +849,13 @@ NameError: name 'mistake' is not defined
       These prefixes are discussed in the <a href="#DefinedVariables">"Defined variables"</a> section.
       </p>
       <p>
+      Colours are defined like HTML with '#' followed by 6 or 8 hexadecimal digits #RRGGBB or #RRGGBBAA
+      defining the red, green, blue, and alpha values of the colour.
+      Alpha is the degree of translucency with 00 completely transparent and FF completely opaque.
+      A 6 digit colour is assumed to be completely opaque.
+      Only a few settings can currently be set translucent with an 8-digit value.
+      </p>
+      <p>
       On Windows, values may be scaled using the current screen dots-per-inch so that they use more
       pixels on high resolution screens and appear a reasonable size.
       <span class="example">margin.width=$(scale&nbsp;16)</span> makes the margin 16 pixels wide
@@ -1864,12 +1871,15 @@ NameError: name 'mistake' is not defined
           <a name='property-bookmark.back'></a><a name='property-bookmark.alpha'></a>
           bookmark.fore<br />
           bookmark.back<br />
-          bookmark.alpha
+          bookmark.alpha<br />
+          bookmark.width
         </td>
         <td>
           The colours used to display bookmarks in the margin. If bookmark.fore is empty then
           a blue sphere is used. When the margin is turned off, bookmarks are shown by a
-          change in the background colour of the line with the translucency set with bookmark.alpha.
+          change in the background colour of the line with the translucency set with bookmark.alpha.<br />
+          The stroke width of the symbol can be set in hundredths of a pixel with bookmark.width.
+          When using a high DPI display or large fonts it can be worthwhile setting bookmark.width to 200.
         </td>
        </tr>
       <tr id='property-bookmark.symbol'>
@@ -4077,7 +4087,18 @@ groupundo - yes or no
         </td>
         <td>
         Sets the colours used for folds. fold.fore sets the outline colour, fold.back sets the fill.
+        An 8-digit value sets the translucency as well: #FF00007F is half-transparent red.
         </td>
+      </tr>
+      <tr id='property-fold.stroke.width'>
+        <td>
+          fold.stroke.width
+        </td>
+        <td>
+          Sets the stroke width of the fold symbols in hundredths of a pixel.
+          The default value, 100 is good for standard displays but 200 may be better for high DPI displays, 
+        </td>
+      </tr>
       </tr>
       <tr id='property-fold.margin.width'>
         <td>
@@ -4148,6 +4169,7 @@ groupundo - yes or no
         </td>
         <td>
         Define the colour of highlight. The colour by default is red (#FF0000).
+        An 8-digit value sets the translucency as well.
         </td>
       </tr>
       <tr id='property-title.full.path'>

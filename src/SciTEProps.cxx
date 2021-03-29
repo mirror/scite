@@ -400,12 +400,14 @@ void SciTEBase::ForwardPropertyToEditor(const char *key) {
 	}
 }
 
-void SciTEBase::DefineMarker(SA::MarkerOutline marker, SA::MarkerSymbol markerType, SA::Colour fore, SA::Colour back, SA::Colour backSelected) {
+void SciTEBase::DefineMarker(SA::MarkerOutline marker, SA::MarkerSymbol markerType,
+	SA::ColourAlpha fore, SA::ColourAlpha back, SA::ColourAlpha backSelected, int strokeWidth) {
 	const int markerNumber = static_cast<int>(marker);
 	wEditor.MarkerDefine(markerNumber, markerType);
-	wEditor.MarkerSetFore(markerNumber, fore);
-	wEditor.MarkerSetBack(markerNumber, back);
-	wEditor.MarkerSetBackSelected(markerNumber, backSelected);
+	wEditor.MarkerSetForeTranslucent(markerNumber, fore);
+	wEditor.MarkerSetBackTranslucent(markerNumber, back);
+	wEditor.MarkerSetBackSelectedTranslucent(markerNumber, backSelected);
+	wEditor.MarkerSetStrokeWidth(markerNumber, strokeWidth);
 }
 
 void SciTEBase::ReadAPI(const std::string &fileNameForExtension) {
@@ -1268,7 +1270,7 @@ void SciTEBase::ReadProperties() {
 			break;
 		}
 	}
-	const SA::Colour colourFoldFore = ColourFromString(foldFore);
+	const SA::ColourAlpha colourFoldFore = ColourAlphaFromString(foldFore);
 
 	std::string foldBack = props.GetExpandedString("fold.back");
 	// Set default colour for fill
@@ -1284,96 +1286,100 @@ void SciTEBase::ReadProperties() {
 			break;
 		}
 	}
-	const SA::Colour colourFoldBack = ColourFromString(foldBack);
+	const SA::ColourAlpha colourFoldBack = ColourAlphaFromString(foldBack);
 
 	// Enable/disable highlight for current folding block (smallest one that contains the caret)
 	const int isHighlightEnabled = props.GetInt("fold.highlight", 0);
 	// Define the colour of highlight
-	const SA::Colour colourFoldBlockHighlight = ColourOfProperty(props, "fold.highlight.colour", ColourRGB(0xFF, 0, 0));
+	const SA::ColourAlpha colourFoldBlockHighlight = ColourAlphaOfProperty(
+		props, "fold.highlight.colour", ColourRGBA(0xFF, 0, 0));
 
+	const int foldStrokeWidth = props.GetInt("fold.stroke.width", 100);
 	switch (foldSymbols) {
 	case 0:
 		// Arrow pointing right for contracted folders, arrow pointing down for expanded
 		DefineMarker(SA::MarkerOutline::FolderOpen, SA::MarkerSymbol::ArrowDown,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::Folder, SA::MarkerSymbol::Arrow,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderSub, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderTail, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderEnd, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderOpenMid, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderMidTail, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		// The highlight is disabled for arrow.
 		wEditor.MarkerEnableHighlight(false);
 		break;
 	case 1:
 		// Plus for contracted folders, minus for expanded
 		DefineMarker(SA::MarkerOutline::FolderOpen, SA::MarkerSymbol::Minus,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::Folder, SA::MarkerSymbol::Plus,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderSub, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderTail, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderEnd, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderOpenMid, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderMidTail, SA::MarkerSymbol::Empty,
-			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight);
+			     colourFoldFore, colourFoldBack, colourFoldBlockHighlight, foldStrokeWidth);
 		// The highlight is disabled for plus/minus.
 		wEditor.MarkerEnableHighlight(false);
 		break;
 	case 2:
 		// Like a flattened tree control using circular headers and curved joins
 		DefineMarker(SA::MarkerOutline::FolderOpen, SA::MarkerSymbol::CircleMinus,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::Folder, SA::MarkerSymbol::CirclePlus,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderSub, SA::MarkerSymbol::VLine,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderTail, SA::MarkerSymbol::LCornerCurve,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderEnd, SA::MarkerSymbol::CirclePlusConnected,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderOpenMid, SA::MarkerSymbol::CircleMinusConnected,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderMidTail, SA::MarkerSymbol::TCornerCurve,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		wEditor.MarkerEnableHighlight(isHighlightEnabled);
 		break;
 	case 3:
 		// Like a flattened tree control using square headers
 		DefineMarker(SA::MarkerOutline::FolderOpen, SA::MarkerSymbol::BoxMinus,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::Folder, SA::MarkerSymbol::BoxPlus,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderSub, SA::MarkerSymbol::VLine,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderTail, SA::MarkerSymbol::LCorner,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderEnd, SA::MarkerSymbol::BoxPlusConnected,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderOpenMid, SA::MarkerSymbol::BoxMinusConnected,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		DefineMarker(SA::MarkerOutline::FolderMidTail, SA::MarkerSymbol::TCorner,
-			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight);
+			     colourFoldBack, colourFoldFore, colourFoldBlockHighlight, foldStrokeWidth);
 		wEditor.MarkerEnableHighlight(isHighlightEnabled);
 		break;
 	}
 
-	wEditor.MarkerSetFore(markerBookmark,
-			      ColourOfProperty(props, "bookmark.fore", ColourRGB(0xbe, 0, 0)));
-	wEditor.MarkerSetBack(markerBookmark,
-			      ColourOfProperty(props, "bookmark.back", ColourRGB(0xe2, 0x40, 0x40)));
+	wEditor.MarkerSetForeTranslucent(markerBookmark,
+			      ColourAlphaOfProperty(props, "bookmark.fore", ColourRGBA(0xbe, 0, 0)));
+	wEditor.MarkerSetBackTranslucent(markerBookmark,
+			      ColourAlphaOfProperty(props, "bookmark.back", ColourRGBA(0xe2, 0x40, 0x40)));
 	wEditor.MarkerSetAlpha(markerBookmark,
 			       static_cast<SA::Alpha>(props.GetInt("bookmark.alpha", static_cast<int>(SA::Alpha::NoAlpha))));
+	wEditor.MarkerSetStrokeWidth(markerBookmark, props.GetInt("bookmark.width", 100));
+
 	const std::string bookMarkXPM = props.GetString("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
 		wEditor.MarkerDefinePixmap(markerBookmark, bookMarkXPM.c_str());
