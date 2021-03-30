@@ -1382,7 +1382,7 @@ void SciTEBase::ReadProperties() {
 			      ColourAlphaOfProperty(props, "bookmark.back", ColourRGBA(0xe2, 0x40, 0x40)));
 	wEditor.MarkerSetAlpha(markerBookmark,
 			       static_cast<SA::Alpha>(props.GetInt("bookmark.alpha", static_cast<int>(SA::Alpha::NoAlpha))));
-	wEditor.MarkerSetStrokeWidth(markerBookmark, props.GetInt("bookmark.width", 100));
+	wEditor.MarkerSetStrokeWidth(markerBookmark, props.GetInt("bookmark.stroke.width", 100));
 
 	const std::string bookMarkXPM = props.GetString("bookmark.pixmap");
 	if (bookMarkXPM.length()) {
