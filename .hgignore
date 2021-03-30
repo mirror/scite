@@ -39,7 +39,9 @@ __pycache__
 *.tgz
 *.log
 .DS_Store
+Release
 Debug
+x64
 _UpgradeReport_Files
 UpgradeLog.XML
 bin
