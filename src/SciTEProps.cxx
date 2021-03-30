@@ -244,6 +244,8 @@ SA::ColourAlpha ColourAlphaOfProperty(const PropSetFile &props, const char *key,
 	return colourDefault;
 }
 
+namespace {
+
 void OptionalSetColour(GUI::ScintillaWindow &scintilla, SA::Element element, const PropSetFile &props, const char *key) {
 	std::string colour = props.GetExpandedString(key);
 	if (colour.length()) {
@@ -252,6 +254,8 @@ void OptionalSetColour(GUI::ScintillaWindow &scintilla, SA::Element element, con
 	} else {
 		scintilla.ResetElementColour(element);
 	}
+}
+
 }
 
 /**

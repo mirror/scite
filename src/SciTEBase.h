@@ -1016,6 +1016,7 @@ public:
 
 int ControlIDOfCommand(unsigned long) noexcept;
 SA::Colour ColourOfProperty(const PropSetFile &props, const char *key, SA::Colour colourDefault);
+SA::ColourAlpha ColourAlphaOfProperty(const PropSetFile &props, const char *key, SA::ColourAlpha colourDefault);
 void WindowSetFocus(GUI::ScintillaWindow &w);
 
 // Test if an enum class value has the bit flag(s) of test set.
