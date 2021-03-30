@@ -915,8 +915,13 @@ protected:
 	std::string ExtensionFileName() const;
 	static const char *GetNextPropItem(const char *pStart, char *pPropItem, int maxLen);
 	void ForwardPropertyToEditor(const char *key);
-	void DefineMarker(SA::MarkerOutline marker, SA::MarkerSymbol markerType,
-		SA::ColourAlpha fore, SA::ColourAlpha back, SA::ColourAlpha backSelected, int strokeWidth);
+	struct MarkerAppearance {
+		SA::ColourAlpha fore;
+		SA::ColourAlpha back;
+		SA::ColourAlpha backSelected;
+		int strokeWidth;
+	};
+	void DefineMarker(SA::MarkerOutline marker, SA::MarkerSymbol markerType, MarkerAppearance markerAppearance);
 	void ReadAPI(const std::string &fileNameForExtension);
 	std::string FindLanguageProperty(const char *pattern, const char *defaultValue = "");
 	virtual void ReadProperties();
