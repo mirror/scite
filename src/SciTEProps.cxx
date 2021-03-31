@@ -987,6 +987,7 @@ void SciTEBase::ReadProperties() {
 	} else {
 		CallChildren(SA::Message::SetWhitespaceBack, 0, 0);
 	}
+	CallChildren(SA::Message::SetWhitespaceSize, props.GetInt("whitespace.size", 1));
 
 	char bracesStyleKey[200];
 	sprintf(bracesStyleKey, "braces.%s.style", language.c_str());
