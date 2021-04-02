@@ -39,7 +39,6 @@
 
 // C++ standard library
 #include <stdexcept>
-#include <optional>
 #include <tuple>
 #include <string>
 #include <string_view>
@@ -47,6 +46,7 @@
 #include <deque>
 #include <map>
 #include <set>
+#include <optional>
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -70,7 +70,7 @@
 
 #include <sys/wait.h>
 
-// GTK+ headers
+// GTK headers
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
