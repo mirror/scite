@@ -13,7 +13,7 @@
 
 # Regenerates Scintilla files by calling LexGen.RegenerateAll
 
-import pathlib, re, sys
+import datetime, pathlib, re, sys
 
 sciteBase = pathlib.Path(__file__).resolve().parent.parent
 baseDirectory = sciteBase.parent
@@ -37,6 +37,59 @@ import win32.AppDepGen
 import gtk.AppDepGen
 
 neutralEncoding = "windows-1252"
+
+def FindCredits(historyFile, removeLinks=True):
+    credits = []
+    stage = 0
+    with historyFile.open(encoding="utf-8") as f:
+        for l in f.readlines():
+            l = l.strip()
+            if stage == 0 and l == "<table>":
+                stage = 1
+            elif stage == 1 and l == "</table>":
+                stage = 2
+            if stage == 1 and l.startswith("<td>"):
+                credit = l[4:-5]
+                if removeLinks and "<a" in l:
+                    title, a, rest = credit.partition("<a href=")
+                    urlplus, bracket, end = rest.partition(">")
+                    name = end.split("<")[0]
+                    url = urlplus[1:-1]
+                    credit = title.strip()
+                    if credit:
+                        credit += " "
+                    credit += name + " " + url
+                credits.append(credit)
+    return credits
+
+class SciTEData:
+    def __init__(self, sciteRoot):
+        # Discover version information
+        self.version = (sciteRoot / "version.txt").read_text().strip()
+        self.versionDotted = self.version[0] + '.' + self.version[1] + '.' + \
+            self.version[2]
+        self.versionCommad = self.versionDotted.replace(".", ", ") + ', 0'
+        self.scintillaVersion = (sciteRoot / "src" / "scintillaVersion.txt").read_text().strip()
+        self.lexillaVersion = (sciteRoot / "src" / "lexillaVersion.txt").read_text().strip()
+
+        with (sciteRoot / "doc" / "SciTE.html").open() as f:
+            self.dateModified = [l for l in f.readlines() if "Date.Modified" in l]\
+                [0].split('\"')[3]
+            # 20130602
+            # index.html, SciTE.html
+            dtModified = datetime.datetime.strptime(self.dateModified, "%Y%m%d")
+            self.yearModified = self.dateModified[0:4]
+            monthModified = dtModified.strftime("%B")
+            dayModified = "%d" % dtModified.day
+            self.mdyModified = monthModified + " " + dayModified + " " + self.yearModified
+            # May 22 2013
+            # index.html, SciTE.html
+            self.dmyModified = dayModified + " " + monthModified + " " + self.yearModified
+            # 22 May 2013
+            # ScintillaHistory.html -- only first should change
+            self.myModified = monthModified + " " + self.yearModified
+
+        self.credits = FindCredits(sciteRoot / "doc" / "SciTEHistory.html")
 
 def UpdateVersionNumbers(sci, pathSciTE):
     pathHeader = pathSciTE / "src" / "SciTE.h"
@@ -183,8 +236,8 @@ def NewsFormatted(section, items):
 def RegenerateAll():
     sci = ScintillaData.ScintillaData(sciDirectory)
     lex = LexillaData.LexillaData(lexDirectory)
-
     pathSciTE = sciteBase
+    scite = SciTEData(pathSciTE)
 
     # Generate HTML to document each property
     # This is done because tags can not be safely put inside comments in HTML
@@ -248,7 +301,7 @@ def RegenerateAll():
     win32.AppDepGen.Generate()
     gtk.AppDepGen.Generate()
 
-    UpdateVersionNumbers(sci, pathSciTE)
+    UpdateVersionNumbers(scite, pathSciTE)
 
 LexGen.RegenerateAll(sciteBase.parent / "scintilla")
 LexillaGen.RegenerateAll(sciteBase.parent / "lexilla")
