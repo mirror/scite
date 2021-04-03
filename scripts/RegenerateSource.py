@@ -132,6 +132,10 @@ def UpdateVersionNumbers(sci, pathSciTE):
         '    <meta name="Date.Modified"',
         '    <meta name="Date.Modified" content="' + sci.dateModified + '" />')
 
+    UpdateLineInFile(pathSciTE / "doc/SciTEHistory.html",
+        '\t\tReleased ',
+        '\t\tReleased ' + sci.dmyModified + '.')
+
 def OctalEscape(s):
     result = []
     for char in s:
