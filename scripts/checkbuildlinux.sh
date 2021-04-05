@@ -43,14 +43,14 @@ cd ../..
 (
 cd scintilla/test/unit || exit
 make clean
-make $JOBS test
+make "$JOBS" test
 make clean
 )
 
 (
 cd lexilla/src || exit
 make clean
-make $JOBS
+make "$JOBS"
 )
 (
 cd lexilla/test || exit
@@ -68,13 +68,13 @@ make clean
 (
 cd scintilla/gtk || exit
 make clean
-make $JOBS
+make "$JOBS"
 )
 
 (
 cd scite/gtk || exit
 make clean
-make $JOBS
+make "$JOBS"
 )
 
 # ************************************************************
@@ -82,19 +82,19 @@ make $JOBS
 (
 cd lexilla/src || exit
 make clean
-make $JOBS GTK3=1
+make "$JOBS" GTK3=1
 )
 
 (
 cd scintilla/gtk || exit
 make clean
-make $JOBS GTK3=1
+make "$JOBS" GTK3=1
 )
 
 (
 cd scite/gtk || exit
 make clean
-make $JOBS GTK3=1
+make "$JOBS" GTK3=1
 )
 
 # ************************************************************
@@ -116,18 +116,18 @@ cd scintilla/qt || exit
 
 (
 cd ScintillaEditBase || exit
-$QMAKENAME
+"$QMAKENAME"
 make clean
-make $JOBS
+make "$JOBS"
 make distclean
 )
 
 (
 cd ScintillaEdit || exit
 python3 WidgetGen.py
-$QMAKENAME
+"$QMAKENAME"
 make clean
-make $JOBS
+make "$JOBS"
 make distclean
 )
 
@@ -149,19 +149,19 @@ python2 sepbuild.py --clean
 (
 cd lexilla/src || exit
 make clean
-make $JOBS CLANG=1
+make "$JOBS" CLANG=1
 )
 
 (
 cd scintilla/gtk || exit
 make clean
-make $JOBS CLANG=1
+make "$JOBS" CLANG=1
 )
 
 (
 cd scite/gtk || exit
 make clean
-make $JOBS CLANG=1
+make "$JOBS" CLANG=1
 )
 
 # ************************************************************
@@ -169,19 +169,19 @@ make $JOBS CLANG=1
 (
 cd lexilla/src || exit
 make clean
-make $JOBS CLANG=1 GTK3=1
+make "$JOBS" CLANG=1 GTK3=1
 )
 
 (
 cd scintilla/gtk || exit
 make clean
-make $JOBS CLANG=1 GTK3=1
+make "$JOBS" CLANG=1 GTK3=1
 )
 
 (
 cd scite/gtk || exit
 make clean
-make $JOBS CLANG=1 GTK3=1
+make "$JOBS" CLANG=1 GTK3=1
 )
 
 # ************************************************************
@@ -189,13 +189,13 @@ make $JOBS CLANG=1 GTK3=1
 (
 cd scintilla/gtk || exit
 make clean
-make $JOBS analyze
+make "$JOBS" analyze
 )
 
 (
 cd scite/gtk || exit
 make clean
-make $JOBS analyze
+make "$JOBS" analyze
 make clean
 cd ../..
 cd scintilla/gtk || exit
