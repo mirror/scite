@@ -319,6 +319,12 @@
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETVISIBLE'>StyleVisible</a>[int style]<span class="comment"> -- Set a style to be visible or not.</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETCHANGEABLE'>StyleChangeable</a>[int style]<span class="comment"> -- Set a style to be changeable or not (read only). Experimental feature, currently buggy.</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_STYLESETHOTSPOT'>StyleHotSpot</a>[int style]<span class="comment"> -- Set a style to be a hotspot or not.</span></p>
+	<h2>Element colours</h2>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETELEMENTCOLOUR'>SetElementColour</a>(int element, colouralpha colourElement)<span class="comment"> -- Set the colour of an element. Translucency (alpha) may or may not be significant and this may depend on the platform. The alpha byte should commonly be 0xff for opaque.</span></p>
+	<p>colouralpha editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTCOLOUR'>GetElementColour</a>(int element)<span class="comment"> -- Get the colour of an element.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_RESETELEMENTCOLOUR'>ResetElementColour</a>(int element)<span class="comment"> -- Use the default or platform-defined colour for an element.</span></p>
+	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTISSET'>GetElementIsSet</a>(int element)<span class="comment"> -- Get whether an element has been set by SetElementColour. When false, a platform-defined or default colour is used.</span></p>
+	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTALLOWSTRANSLUCENT'>GetElementAllowsTranslucent</a>(int element)<span class="comment"> -- Get whether an element supports translucency.</span></p>
 	<h2>Caret, selection, and hotspot styles</h2>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELFORE'>SetSelFore</a>(bool useSetting, colour fore)<span class="comment"> -- Set the foreground colour of the main and additional selections and whether to use this setting.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELBACK'>SetSelBack</a>(bool useSetting, colour back)<span class="comment"> -- Set the background colour of the main and additional selections and whether to use this setting.</span></p>
