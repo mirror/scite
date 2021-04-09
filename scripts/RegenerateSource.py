@@ -112,7 +112,8 @@ def UpdateVersionNumbers(sci, pathSciTE):
         "       Release " + sci.versionDotted)
     ReplaceREInFile(pathDownload,
         r"/www.scintilla.org/([a-zA-Z]+)\d\d\d",
-        r"/www.scintilla.org/\g<1>" +  sci.version)
+        r"/www.scintilla.org/\g<1>" +  sci.version,
+        0)
     ReplaceREInFile(pathDownload,
         r"/www.scintilla.org/(wscite32_)\d\d\d",
         r"/www.scintilla.org/\g<1>" +  sci.version)
