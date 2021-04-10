@@ -8,6 +8,7 @@
 :: Define local paths here
 
 set "MSVC_DIRECTORY=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build"
+set "MSVC17_DIRECTORY=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"
 set REPOSITORY_DIRECTORY=..\hg
 
 :: Discover the Scintilla version as that is used in file and directory names
@@ -33,6 +34,7 @@ call zipsrc
 popd
 
 :: Build the 64-bit executables
+setlocal
 call "%MSVC_DIRECTORY%\vcvars64.bat"
 
 pushd lexilla
@@ -76,8 +78,10 @@ pushd lexilla
 call delbin
 popd
 
-:: Build the 32-bit executables
-call "%MSVC_DIRECTORY%\vcvars32.bat"
+endlocal
+
+:: Build the 32-bit executables with MSVC 2017 as it suports XP
+call "%MSVC17_DIRECTORY%\vcvars32.bat"
 
 pushd lexilla
 pushd src
