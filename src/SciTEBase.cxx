@@ -14,6 +14,7 @@
 #include <ctime>
 #include <cmath>
 
+#include <tuple>
 #include <string>
 #include <string_view>
 #include <vector>

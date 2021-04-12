@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <ctime>
 
+#include <tuple>
 #include <string>
 #include <string_view>
 #include <vector>

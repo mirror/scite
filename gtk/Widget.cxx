@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <tuple>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <chrono>
 

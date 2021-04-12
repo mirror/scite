@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <tuple>
 #include <string>
 #include <string_view>
 #include <vector>

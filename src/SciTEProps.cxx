@@ -13,6 +13,7 @@
 #include <ctime>
 #include <clocale>
 
+#include <tuple>
 #include <string>
 #include <string_view>
 #include <vector>

@@ -13,7 +13,9 @@
 #include <cstdarg>
 #include <ctime>
 
+#include <tuple>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <set>

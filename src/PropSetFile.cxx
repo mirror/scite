@@ -13,7 +13,9 @@
 #include <ctime>
 
 #include <stdexcept>
+#include <tuple>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 #include <set>

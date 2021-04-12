@@ -39,6 +39,7 @@
 #include <time.h>
 #include <errno.h>
 
+#include <tuple>
 #include <string>
 #include <string_view>
 #include <vector>

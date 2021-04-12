@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <signal.h>
 
+#include <tuple>
 #include <string>
 #include <string_view>
 #include <vector>

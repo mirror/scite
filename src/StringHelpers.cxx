@@ -10,7 +10,9 @@
 #include <cstdio>
 
 #include <stdexcept>
+#include <tuple>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 #include <functional>
