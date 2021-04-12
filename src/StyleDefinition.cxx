@@ -25,21 +25,6 @@
 
 namespace SA = Scintilla::API;
 
-namespace {
-
-typedef std::tuple<std::string_view, std::string_view> ViewPair;
-
-// Split view around first separator returning the portion before and after the separator.
-// If the separator is not present then return whole view and an empty view.
-ViewPair ViewSplit(std::string_view view, char separator) noexcept {
-	const size_t sepPos = view.find_first_of(separator);
-	std::string_view first = view.substr(0, sepPos);
-	std::string_view second = sepPos == (std::string_view::npos) ? "" : view.substr(sepPos + 1);
-	return { first, second };
-}
-
-}
-
 StyleDefinition::StyleDefinition(std::string_view definition) :
 	sizeFractional(10.0), size(10), fore("#000000"), back("#FFFFFF"),
 	weight(SA::FontWeight::Normal), italics(false), eolfilled(false), underlined(false),

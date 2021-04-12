@@ -128,14 +128,8 @@ void SciTEBase::ReadEnvironment() {
 	char **e = _environ;
 #endif
 	for (; e && *e; e++) {
-		char key[1024] = "";
-		char *k = *e;
-		char *v = strchr(k, '=');
-		if (v && (static_cast<size_t>(v - k) < sizeof(key))) {
-			memcpy(key, k, v - k);
-			key[v - k] = '\0';
-			propsPlatform.Set(key, v + 1);
-		}
+		const auto [key, value] = ViewSplit(*e, '=');
+		propsPlatform.Set(key, value);
 	}
 }
 
