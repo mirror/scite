@@ -580,6 +580,15 @@
 		Released 9 April 2021.
 		</li>
 	</ul>
+	<li>Lexilla 5.0.2</li>
+	<ul>
+		<li>
+		Fix assertion in cpp lexer handling of preprocessor.
+		Empty preprocessor statement '#' caused preprocessor history to be stored on incorrect line number.
+		Dangling #else or #elif without corresponding #if led to inconsistent state.
+		<a href="https://sourceforge.net/p/scintilla/bugs/2245/">Bug #2245</a>.
+		</li>
+	</ul>
     </ul>
     <h3>
        <a href="https://www.scintilla.org/scite501.zip">Release 5.0.1</a>
