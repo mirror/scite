@@ -14,6 +14,7 @@
 #include <stdarg.h>
 
 #include <cstdint>
+#include <cassert>
 
 #include <tuple>
 #include <string>
@@ -24,6 +25,7 @@
 #include <set>
 #include <optional>
 #include <algorithm>
+#include <iterator>
 #include <memory>
 #include <chrono>
 #include <sstream>
@@ -203,6 +205,7 @@ protected:
 
 	// Tab Bar
 	HFONT fontTabs;
+	std::vector<GUI::gui_string> tabNamesCurrent;
 
 	/// Preserve focus during deactivation
 	HWND wFocus;
@@ -297,6 +300,7 @@ protected:
 	void SetFileProperties(PropSetFile &ps) override;
 	void SetStatusBarText(const char *s) override;
 
+	void UpdateTabs(const std::vector<GUI::gui_string> &tabNames) override;
 	void TabInsert(int index, const GUI::gui_char *title) override;
 	void TabSelect(int index) override;
 	void RemoveAllTabs() override;

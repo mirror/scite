@@ -48,6 +48,7 @@
 #include <set>
 #include <optional>
 #include <algorithm>
+#include <iterator>
 #include <functional>
 #include <memory>
 #include <chrono>

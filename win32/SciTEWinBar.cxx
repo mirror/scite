@@ -74,20 +74,75 @@ void SciTEWin::SetStatusBarText(const char *s) {
 		      SB_SETTEXT, 0, reinterpret_cast<LPARAM>(barText.c_str()));
 }
 
+void SciTEWin::UpdateTabs(const std::vector<GUI::gui_string> &tabNames) {
+	// Synchronize the tab control titles with those passed in.
+
+	// Find the first element that differs between the two vectors.
+	const auto [misNames, misNamesCurrent] = std::mismatch(
+		tabNames.begin(), tabNames.end(),
+		tabNamesCurrent.begin(), tabNamesCurrent.end());
+	size_t tabChange = std::distance(tabNames.begin(), misNames);
+
+	if (tabNames.size() == tabNamesCurrent.size() && tabNames.size() == tabChange) {
+		// Most updates change nothing on the tabs so return early. 
+		return;
+	}
+
+	// Avoiding drawing with WM_SETREDRAW here does not improve speed or flashing.
+
+	while (tabNames.size() < tabNamesCurrent.size()) {
+		// Remove extra tabs
+		TabCtrl_DeleteItem(HwndOf(wTabBar), tabChange);
+		tabNamesCurrent.erase(tabNamesCurrent.begin() + tabChange);
+	}
+
+	while (tabNames.size() > tabNamesCurrent.size()) {
+		// Add new tabs
+		GUI::gui_string tabNameNext = tabNames.at(tabChange);
+		TCITEMW tie {};
+		tie.mask = TCIF_TEXT | TCIF_IMAGE;
+		tie.iImage = -1;
+		tie.pszText = tabNameNext.data();
+		TabCtrl_InsertItem(HwndOf(wTabBar), tabChange, &tie);
+		tabNamesCurrent.insert(tabNamesCurrent.begin() + tabChange, tabNameNext);
+		tabChange++;
+	}
+	assert(tabNames.size() == tabNamesCurrent.size());
+
+	while (tabChange < tabNames.size()) {
+		// Update tabs that are different
+		if (tabNames.at(tabChange) != tabNamesCurrent.at(tabChange)) {
+			GUI::gui_string tabNameCopy(tabNames.at(tabChange));
+			TCITEMW tie {};
+			tie.mask = TCIF_TEXT | TCIF_IMAGE;
+			tie.iImage = -1;
+			tie.pszText = tabNameCopy.data();
+			TabCtrl_SetItem(HwndOf(wTabBar), tabChange, &tie);
+			tabNamesCurrent.at(tabChange) = tabNameCopy;
+		}
+		tabChange++;
+	}
+	assert(tabNamesCurrent == tabNames);
+}
+
 void SciTEWin::TabInsert(int index, const GUI::gui_char *title) {
-	TCITEMW tie;
+	// This is no longer called as UpdateTabs performs all changes to tabs
+	TCITEMW tie {};
 	tie.mask = TCIF_TEXT | TCIF_IMAGE;
 	tie.iImage = -1;
-	GUI::gui_string titleCopy(title, title + wcslen(title) + 1);
-	tie.pszText = &titleCopy[0];
+	GUI::gui_string titleCopy(title);
+	tie.pszText = titleCopy.data();
 	TabCtrl_InsertItem(HwndOf(wTabBar), index, &tie);
 }
 
 void SciTEWin::TabSelect(int index) {
-	TabCtrl_SetCurSel(HwndOf(wTabBar), index);
+	if (index != TabCtrl_GetCurSel(HwndOf(wTabBar))) {
+		TabCtrl_SetCurSel(HwndOf(wTabBar), index);
+	}
 }
 
 void SciTEWin::RemoveAllTabs() {
+	// This is no longer called as UpdateTabs performs all changes to tabs
 	TabCtrl_DeleteAllItems(HwndOf(wTabBar));
 }
 

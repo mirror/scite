@@ -1118,6 +1118,13 @@ void SciTEBase::EndStackedTabbing() {
 	buffers.CommitStackSelection();
 }
 
+void SciTEBase::UpdateTabs(const std::vector<GUI::gui_string> &tabNames) {
+	RemoveAllTabs();
+	for (int t = 0; t < static_cast<int>(tabNames.size()); t++) {
+		TabInsert(t, tabNames[t].c_str());
+	}
+}
+
 namespace {
 
 GUI::gui_string EscapeFilePath(const FilePath &path, [[maybe_unused]]Title destination) {
@@ -1201,7 +1208,8 @@ void SciTEBase::SetBuffersMenu() {
 	if (buffers.size() <= 1) {
 		DestroyMenuItem(menuBuffers, IDM_BUFFERSEP);
 	}
-	RemoveAllTabs();
+
+	std::vector<GUI::gui_string> tabNames;
 
 	int pos;
 	for (pos = buffers.lengthVisible; pos < bufferMax; pos++) {
@@ -1218,9 +1226,11 @@ void SciTEBase::SetBuffersMenu() {
 
 			const GUI::gui_string titleTab = BufferTitle(pos, buffers.buffers[pos],
 				Title::tab, props, localiser);
-			TabInsert(pos, titleTab.c_str());
+			tabNames.push_back(titleTab);
 		}
 	}
+	UpdateTabs(tabNames);
+
 	CheckMenus();
 #if !defined(GTK)
 

@@ -581,6 +581,7 @@ protected:
 	void PrevInStack();
 	void EndStackedTabbing();
 
+	virtual void UpdateTabs(const std::vector<GUI::gui_string> &tabNames);
 	virtual void TabInsert(int index, const GUI::gui_char *title) = 0;
 	virtual void TabSelect(int index) = 0;
 	virtual void RemoveAllTabs() = 0;
