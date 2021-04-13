@@ -365,6 +365,9 @@ struct SystemAppearance {
 	}
 };
 
+// Titles appear different in menus and tabs
+enum class Title { menu, tab };
+
 class SciTEBase : public ExtensionAPI, public Searcher, public WorkerListener {
 protected:
 	bool needIdle;

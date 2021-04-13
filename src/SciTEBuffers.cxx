@@ -1118,16 +1118,83 @@ void SciTEBase::EndStackedTabbing() {
 	buffers.CommitStackSelection();
 }
 
-static void EscapeFilePathsForMenu(GUI::gui_string &path) {
-	// Escape '&' characters in path, since they are interpreted in
-	// menus.
-	Substitute(path, GUI_TEXT("&"), GUI_TEXT("&&"));
-#if defined(GTK)
-	GUI::gui_string homeDirectory = getenv("HOME");
-	if (StartsWith(path, homeDirectory)) {
-		path.replace(static_cast<size_t>(0), homeDirectory.size(), GUI_TEXT("~"));
+namespace {
+
+GUI::gui_string EscapeFilePath(const FilePath &path, [[maybe_unused]]Title destination) {
+	// Escape '&' characters in path, since they are interpreted in menus.
+	GUI::gui_string escaped(path.AsInternal());
+#if defined(_WIN32)
+	// On Windows, '&' are interpreted in menus and tab names, so we need
+	// the escaped filename
+	Substitute(escaped, GUI_TEXT("&"), GUI_TEXT("&&"));
+#else
+	if (destination == SciTEBase::TitleDestination::menu) {
+		Substitute(escaped, GUI_TEXT("&"), GUI_TEXT("&&"));
 	}
 #endif
+	return escaped;
+}
+
+GUI::gui_string AbbreviateWithTilde(const GUI::gui_string &path) {
+#if defined(GTK)
+	const GUI::gui_string_view homeDirectory = getenv("HOME");
+	if (StartsWith(path, homeDirectory)) {
+		return GUI::gui_string(GUI_TEXT("~")) + path.substr(homeDirectory.size());
+	}
+#endif
+	return path;
+}
+
+// Produce a menu or tab title from a buffer.
+// <index> <file name> <is read only> <is dirty>
+// 3 /src/example.cxx | *
+GUI::gui_string BufferTitle(int pos, const Buffer &buffer, Title destination,
+	PropSetFile const &props, Localization &localiser) {
+	GUI::gui_string title;
+
+	// Index
+#if defined(_WIN32) || defined(GTK)
+	if (pos < 10) {
+		const GUI::gui_string sPos = GUI::StringFromInteger((pos + 1) % 10);
+		const GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
+		if (destination == Title::menu) {
+			title = sHotKey;	// hotkey 1..0
+		} else {
+			if (props.GetInt("tabbar.hide.index") == 0) {
+#if defined(_WIN32)
+				title = sHotKey; // add hotkey to the tabbar
+#elif defined(GTK)
+				title = sPos + GUI_TEXT(" ");	// just the index
+#endif
+			}
+		}
+	}
+#endif
+
+	// File name or path
+	if (buffer.file.IsUntitled()) {
+		title += localiser.Text("Untitled");
+	} else {
+		if (destination == Title::menu) {
+			title += AbbreviateWithTilde(EscapeFilePath(buffer.file, destination));
+		} else {
+			title += EscapeFilePath(buffer.file.Name(), destination);
+		}
+	}
+
+	// Read only indicator
+	if (buffer.isReadOnly && props.GetInt("read.only.indicator")) {
+		title += GUI_TEXT(" |");
+	}
+
+	// Dirty indicator
+	if (buffer.isDirty) {
+		title += GUI_TEXT(" *");
+	}
+
+	return title;
+}
+
 }
 
 void SciTEBase::SetBuffersMenu() {
@@ -1145,56 +1212,12 @@ void SciTEBase::SetBuffersMenu() {
 		SetMenuItem(menuBuffers, menuStart, IDM_BUFFERSEP, GUI_TEXT(""));
 		for (pos = 0; pos < buffers.lengthVisible; pos++) {
 			const int itemID = bufferCmdID + pos;
-			GUI::gui_string entry;
-			GUI::gui_string titleTab;
-
-#if defined(_WIN32) || defined(GTK)
-			if (pos < 10) {
-				GUI::gui_string sPos = GUI::StringFromInteger((pos + 1) % 10);
-				GUI::gui_string sHotKey = GUI_TEXT("&") + sPos + GUI_TEXT(" ");
-				entry = sHotKey;	// hotkey 1..0
-				if (props.GetInt("tabbar.hide.index") == 0) {
-#if defined(_WIN32)
-					titleTab = sHotKey; // add hotkey to the tabbar
-#elif defined(GTK)
-					titleTab = sPos + GUI_TEXT(" ");
-#endif
-				}
-			}
-#endif
-
-			if (buffers.buffers[pos].file.IsUntitled()) {
-				GUI::gui_string untitled = localiser.Text("Untitled");
-				entry += untitled;
-				titleTab += untitled;
-			} else {
-				GUI::gui_string path = buffers.buffers[pos].file.AsInternal();
-				GUI::gui_string filename = buffers.buffers[pos].file.Name().AsInternal();
-
-				EscapeFilePathsForMenu(path);
-#if defined(_WIN32)
-				// On Windows, '&' are also interpreted in tab names, so we need
-				// the escaped filename
-				EscapeFilePathsForMenu(filename);
-#endif
-				entry += path;
-				titleTab += filename;
-			}
-			// For short file names:
-			//char *cpDirEnd = strrchr(buffers.buffers[pos]->fileName, pathSepChar);
-			//strcat(entry, cpDirEnd + 1);
-
-			if (buffers.buffers[pos].isReadOnly && props.GetInt("read.only.indicator"))  {
-				entry += GUI_TEXT(" |");
-				titleTab += GUI_TEXT(" |");
-			}
-
-			if (buffers.buffers[pos].isDirty) {
-				entry += GUI_TEXT(" *");
-				titleTab += GUI_TEXT(" *");
-			}
-
+			const GUI::gui_string entry = BufferTitle(pos, buffers.buffers[pos],
+				Title::menu, props, localiser);
 			SetMenuItem(menuBuffers, menuStart + pos + 1, itemID, entry.c_str());
+
+			const GUI::gui_string titleTab = BufferTitle(pos, buffers.buffers[pos],
+				Title::tab, props, localiser);
 			TabInsert(pos, titleTab.c_str());
 		}
 	}
@@ -1235,8 +1258,8 @@ void SciTEBase::SetFileStackMenu() {
 				sEntry = sHotKey;
 #endif
 
-				GUI::gui_string path = recentFileStack[stackPos].AsInternal();
-				EscapeFilePathsForMenu(path);
+				const GUI::gui_string path = EscapeFilePath(
+					recentFileStack[stackPos], Title::menu);
 
 				sEntry += path;
 				SetMenuItem(menuFile, MRU_START + stackPos + 1, itemID, sEntry.c_str());
