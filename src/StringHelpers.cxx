@@ -40,7 +40,7 @@ bool Contains(std::string const &s, char ch) noexcept {
 	return s.find(ch) != std::string::npos;
 }
 
-int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &sReplace) {
+int Substitute(std::wstring &s, std::wstring_view sFind, std::wstring_view sReplace) {
 	int c = 0;
 	const size_t lenFind = sFind.size();
 	const size_t lenReplace = sReplace.size();
@@ -53,7 +53,7 @@ int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &s
 	return c;
 }
 
-int Substitute(std::string &s, const std::string &sFind, const std::string &sReplace) {
+int Substitute(std::string &s, std::string_view sFind, std::string_view sReplace) {
 	int c = 0;
 	const size_t lenFind = sFind.size();
 	const size_t lenReplace = sReplace.size();

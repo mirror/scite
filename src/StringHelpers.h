@@ -14,8 +14,8 @@ bool EndsWith(std::wstring_view s, std::wstring_view end);
 bool Contains(std::string const &s, char ch) noexcept;
 
 // Substitute is duplicated instead of templated as it was ambiguous when implemented as a template.
-int Substitute(std::wstring &s, const std::wstring &sFind, const std::wstring &sReplace);
-int Substitute(std::string &s, const std::string &sFind, const std::string &sReplace);
+int Substitute(std::wstring &s, std::wstring_view sFind, std::wstring_view sReplace);
+int Substitute(std::string &s, std::string_view sFind, std::string_view sReplace);
 
 template <typename T>
 int Remove(T &s, const T &sFind) {
