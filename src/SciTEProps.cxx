@@ -1412,28 +1412,18 @@ void SciTEBase::ReadProperties() {
 	std::map<std::string, std::string> eConfig = editorConfig->MapFromAbsolutePath(filePath);
 	for (const std::pair<const std::string, std::string> &pss : eConfig) {
 		if (pss.first == "indent_style") {
-			const bool useTabs = pss.second == "tab";
-			props.Set("use.tabs", useTabs ? "1" : "0");
-			props.Set("use.tabs." + fileNameForExtension, useTabs ? "1" : "0");
-			wEditor.SetUseTabs(useTabs);
+			wEditor.SetUseTabs(pss.second == "tab");
 		} else if (pss.first == "indent_size") {
-			props.Set("indent.size", pss.second);
-			props.Set("indent.size." + fileNameForExtension, pss.second);
 			wEditor.SetIndent(std::stoi(pss.second));
 		} else if (pss.first == "tab_width") {
-			props.Set("tabsize", pss.second);
-			props.Set("tab.size." + fileNameForExtension, pss.second);
 			wEditor.SetTabWidth(std::stoi(pss.second));
 		} else if (pss.first == "end_of_line") {
 			if (pss.second == "lf") {
-				props.Set("eol.mode", "LF");
 				wEditor.SetEOLMode(SA::EndOfLine::Lf);
 			} else if (pss.second == "cr") {
-				props.Set("eol.mode", "CR");
 				wEditor.SetEOLMode(SA::EndOfLine::Cr);
 			} else if (pss.second == "crlf") {
-				props.Set("eol.mode", "CRLF");
-				wEditor.SetEOLMode(SA::EndOfLine::CrLf);
+				wEditor.SetEOLMode(SA::EndOfLine::Lf);
 			}
 		} else if (pss.first == "charset") {
 			if (pss.second == "latin1") {
