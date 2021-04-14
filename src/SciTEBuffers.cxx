@@ -1135,7 +1135,7 @@ GUI::gui_string EscapeFilePath(const FilePath &path, [[maybe_unused]]Title desti
 	// the escaped filename
 	Substitute(escaped, GUI_TEXT("&"), GUI_TEXT("&&"));
 #else
-	if (destination == SciTEBase::TitleDestination::menu) {
+	if (destination == Title::menu) {
 		Substitute(escaped, GUI_TEXT("&"), GUI_TEXT("&&"));
 	}
 #endif
