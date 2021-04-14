@@ -4368,6 +4368,10 @@ void SciTEBase::PerformOne(char *action) {
 			if (*arg) {
 				SaveSessionFile(GUI::StringFromUTF8(arg).c_str());
 			}
+		} else if (isprefix(action, "setdefaultcwd:")) {
+			// This sets cwd to a value that should stay valid: either SciTE_HOME or the
+			// SciTE installation directory or directory of SciTE executable.
+			GetDefaultDirectory().SetWorkingDirectory();
 		} else if (isprefix(action, "extender:")) {
 			extender->OnExecute(arg);
 		} else if (isprefix(action, "focus:")) {

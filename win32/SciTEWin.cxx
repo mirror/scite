@@ -2391,6 +2391,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			lptszCmdLine++;
 		try {
 			MainWind.Run(lptszCmdLine);
+			// Set the current directory always to the program directory
+			// to ensure a opened file directory is never locked.
+			GetSciTEPath(FilePath()).SetWorkingDirectory();
 			result = MainWind.EventLoop();
 		} catch (const SA::Failure &sf) {
 			MainWind.CheckForScintillaFailure(sf.status);

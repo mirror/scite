@@ -169,12 +169,12 @@ bool UniqueInstance::FindOtherInstance() {
 	return false;
 }
 
-void UniqueInstance::WindowCopyData(const char *s, size_t len) {
-	std::string sCopy(s, s + len);	// Ensure NUL at end of string
-	COPYDATASTRUCT cds;
+void UniqueInstance::WindowCopyData(std::string_view s) {
+	std::string sCopy(s);	// Ensure NUL at end of string
+	COPYDATASTRUCT cds {};
 	cds.dwData = 0;
-	cds.cbData = static_cast<DWORD>(len);
-	cds.lpData = &sCopy[0];
+	cds.cbData = static_cast<DWORD>(sCopy.length() + 1);
+	cds.lpData = sCopy.data();
 	::SendMessage(hOtherWindow, WM_COPYDATA, 0, reinterpret_cast<LPARAM>(&cds));
 }
 
@@ -193,21 +193,23 @@ void UniqueInstance::SendCommands(const char *cmdLine) {
 	}
 	::SetForegroundWindow(hOtherWindow);
 
-	// Send 2 messages - first the CWD, so paths relative to
-	// the new instance can be resolved in the old instance,
-	// then the real command line.
-	// (Restoring the cwd could be done,
-	// but keeping it to the last file opened can also
-	// be useful)
+	// Send 3 messages:
+	// 1) first the cwd, so paths relative to the new instance can be
+	// resolved in the old instance,
+	// 2) then the real command line, 
+	// 3) then setdefaultcwd to set a reasonable default cwd and prevent
+	// locking of directories.
 	std::string cwdCmd("\"-cwd:");
 	FilePath cwd = FilePath::GetWorkingDirectory();
 	cwdCmd.append(cwd.AsUTF8().c_str());
 	cwdCmd.append("\"");
 	// Defeat the "\" mangling - convert "\" to "/"
 	std::replace(cwdCmd.begin(), cwdCmd.end(), '\\', '/');
-	WindowCopyData(cwdCmd.c_str(), cwdCmd.length() + 1);
+	WindowCopyData(cwdCmd);
 	// Now the command line itself.
-	WindowCopyData(cmdLine, strlen(cmdLine) + 1);
+	WindowCopyData(cmdLine);
+	// Restore default working directory
+	WindowCopyData("-setdefaultcwd:");
 }
 
 /**
