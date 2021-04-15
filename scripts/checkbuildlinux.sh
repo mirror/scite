@@ -31,10 +31,10 @@
 # There are also problems with clang failing in the g++ 4.7 headers.
 
 # Turn off deprecation warnings if not interested:
-#export CXXFLAGS="-Wno-deprecated-declarations -D GLIB_DISABLE_DEPRECATION_WARNINGS"
+export CXXFLAGS="-Wno-deprecated-declarations -D GLIB_DISABLE_DEPRECATION_WARNINGS"
 
 # Run commands in parallel up to number of processors
-JOBS="-j $(getconf _NPROCESSORS_ONLN)"
+JOBS="--jobs=$(getconf _NPROCESSORS_ONLN)"
 
 cd ../..
 
@@ -79,12 +79,6 @@ make "$JOBS"
 
 # ************************************************************
 # Target 2: gcc build for GTK+ 3
-(
-cd lexilla/src || exit
-make clean
-make "$JOBS" GTK3=1
-)
-
 (
 cd scintilla/gtk || exit
 make clean
@@ -167,12 +161,6 @@ make "$JOBS" CLANG=1
 # ************************************************************
 # Target 5: clang build for GTK+ 3
 (
-cd lexilla/src || exit
-make clean
-make "$JOBS" CLANG=1 GTK3=1
-)
-
-(
 cd scintilla/gtk || exit
 make clean
 make "$JOBS" CLANG=1 GTK3=1
@@ -186,6 +174,12 @@ make "$JOBS" CLANG=1 GTK3=1
 
 # ************************************************************
 # Target 6: clang analyze for GTK+ 2
+(
+cd lexilla/src || exit
+make clean
+make "$JOBS" CLANG=1 analyze
+)
+
 (
 cd scintilla/gtk || exit
 make clean
