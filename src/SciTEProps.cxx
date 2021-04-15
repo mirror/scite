@@ -1409,6 +1409,43 @@ void SciTEBase::ReadProperties() {
 		HighlightCurrentWord(true);
 	}
 
+	ReadEditorConfig(fileNameForExtension);
+
+	if (extender) {
+		FilePath defaultDir = GetDefaultDirectory();
+		FilePath scriptPath;
+
+		// Check for an extension script
+		GUI::gui_string extensionFile = GUI::StringFromUTF8(
+							props.GetNewExpandString("extension.", fileNameForExtension.c_str()));
+		if (extensionFile.length()) {
+			// find file in local directory
+			FilePath docDir = filePath.Directory();
+			if (Exists(docDir.AsInternal(), extensionFile.c_str(), &scriptPath)) {
+				// Found file in document directory
+				extender->Load(scriptPath.AsUTF8().c_str());
+			} else if (Exists(defaultDir.AsInternal(), extensionFile.c_str(), &scriptPath)) {
+				// Found file in global directory
+				extender->Load(scriptPath.AsUTF8().c_str());
+			} else if (Exists(GUI_TEXT(""), extensionFile.c_str(), &scriptPath)) {
+				// Found as completely specified file name
+				extender->Load(scriptPath.AsUTF8().c_str());
+			}
+		}
+	}
+
+	delayBeforeAutoSave = props.GetInt("save.on.timer");
+	if (delayBeforeAutoSave) {
+		TimerStart(timerAutoSave);
+	} else {
+		TimerEnd(timerAutoSave);
+	}
+
+	firstPropertiesRead = false;
+	needReadProperties = false;
+}
+
+void SciTEBase::ReadEditorConfig(const std::string &fileNameForExtension) {
 	std::map<std::string, std::string> eConfig = editorConfig->MapFromAbsolutePath(filePath);
 	for (const std::pair<const std::string, std::string> &pss : eConfig) {
 		if (pss.first == "indent_style") {
@@ -1457,39 +1494,6 @@ void SciTEBase::ReadProperties() {
 			ensureFinalLineEnd = pss.second == "true";
 		}
 	}
-
-	if (extender) {
-		FilePath defaultDir = GetDefaultDirectory();
-		FilePath scriptPath;
-
-		// Check for an extension script
-		GUI::gui_string extensionFile = GUI::StringFromUTF8(
-							props.GetNewExpandString("extension.", fileNameForExtension.c_str()));
-		if (extensionFile.length()) {
-			// find file in local directory
-			FilePath docDir = filePath.Directory();
-			if (Exists(docDir.AsInternal(), extensionFile.c_str(), &scriptPath)) {
-				// Found file in document directory
-				extender->Load(scriptPath.AsUTF8().c_str());
-			} else if (Exists(defaultDir.AsInternal(), extensionFile.c_str(), &scriptPath)) {
-				// Found file in global directory
-				extender->Load(scriptPath.AsUTF8().c_str());
-			} else if (Exists(GUI_TEXT(""), extensionFile.c_str(), &scriptPath)) {
-				// Found as completely specified file name
-				extender->Load(scriptPath.AsUTF8().c_str());
-			}
-		}
-	}
-
-	delayBeforeAutoSave = props.GetInt("save.on.timer");
-	if (delayBeforeAutoSave) {
-		TimerStart(timerAutoSave);
-	} else {
-		TimerEnd(timerAutoSave);
-	}
-
-	firstPropertiesRead = false;
-	needReadProperties = false;
 }
 
 void SciTEBase::ReadFontProperties() {
