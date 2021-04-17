@@ -23,7 +23,7 @@ lexDirectory = baseDirectory / "lexilla"
 sys.path.append(str(sciDirectory / "scripts"))
 sys.path.append(str(lexDirectory / "scripts"))
 
-from FileGenerator import lineEnd, Generate, Regenerate, UpdateLineInFile, ReplaceREInFile
+from FileGenerator import lineEnd, Generate, Regenerate, UpdateFile, UpdateLineInFile, ReplaceREInFile
 import ScintillaData
 import LexGen
 import LexillaData
@@ -288,9 +288,12 @@ def RegenerateAll():
             news += NewsFormatted("Lexilla " + lex.versionDotted, newFromLex)
         if newFromSci:
             news += NewsFormatted("Scintilla " + sci.versionDotted, newFromSci)
-        ReplaceREInFile(pathHistory,
+        contents = pathHistory.read_text("utf-8")
+        withAdditions = contents.replace(
             r"    </ul>",
-            news + r"    </ul>")
+            news + r"    </ul>",
+            1)
+        UpdateFile(pathHistory, withAdditions)
 
     for c in sciCredits + lexCredits:
         if c not in sciteCredits:
