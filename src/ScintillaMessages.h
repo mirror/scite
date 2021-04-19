@@ -65,6 +65,8 @@ enum class Message {
 	AddTabStop = 2676,
 	GetNextTabStop = 2677,
 	SetCodePage = 2037,
+	SetFontLocale = 2760,
+	GetFontLocale = 2761,
 	GetIMEInteraction = 2678,
 	SetIMEInteraction = 2679,
 	MarkerDefine = 2040,

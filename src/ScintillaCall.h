@@ -101,6 +101,9 @@ public:
 	void AddTabStop(Line line, int x);
 	int GetNextTabStop(Line line, int x);
 	void SetCodePage(int codePage);
+	void SetFontLocale(const char *localeName);
+	void GetFontLocale(char *localeName);
+	std::string GetFontLocale();
 	API::IMEInteraction IMEInteraction();
 	void SetIMEInteraction(API::IMEInteraction imeInteraction);
 	void MarkerDefine(int markerNumber, API::MarkerSymbol markerSymbol);

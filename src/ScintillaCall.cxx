@@ -347,6 +347,18 @@ void ScintillaCall::SetCodePage(int codePage) {
 	Call(Message::SetCodePage, codePage);
 }
 
+void ScintillaCall::SetFontLocale(const char *localeName) {
+	CallString(Message::SetFontLocale, 0, localeName);
+}
+
+void ScintillaCall::GetFontLocale(char *localeName) {
+	CallPointer(Message::GetFontLocale, 0, localeName);
+}
+
+std::string ScintillaCall::GetFontLocale() {
+	return CallReturnString(Message::GetFontLocale, 0);
+}
+
 IMEInteraction ScintillaCall::IMEInteraction() {
 	return static_cast<API::IMEInteraction>(Call(Message::GetIMEInteraction));
 }
