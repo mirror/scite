@@ -385,7 +385,7 @@ void SciTEBase::CompleteOpen(OpenCompletion oc) {
 		ReadProperties();
 	}
 
-	if (language == "") {
+	if (language == "" || language == "null") {
 		std::string languageOverride = DiscoverLanguage();
 		if (languageOverride.length()) {
 			CurrentBuffer()->overrideExtension = languageOverride;
