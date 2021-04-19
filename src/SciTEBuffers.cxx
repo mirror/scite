@@ -1155,7 +1155,7 @@ GUI::gui_string AbbreviateWithTilde(const GUI::gui_string &path) {
 // Produce a menu or tab title from a buffer.
 // <index> <file name> <is read only> <is dirty>
 // 3 /src/example.cxx | *
-GUI::gui_string BufferTitle(int pos, const Buffer &buffer, Title destination,
+GUI::gui_string BufferTitle([[maybe_unused]] int pos, const Buffer &buffer, Title destination,
 	PropSetFile const &props, Localization &localiser) {
 	GUI::gui_string title;
 
