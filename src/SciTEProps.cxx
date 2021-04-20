@@ -1522,6 +1522,12 @@ void SciTEBase::ReadFontProperties() {
 	wEditor.StyleResetDefault();
 	wOutput.StyleResetDefault();
 
+	std::string fontLocale = props.GetExpandedString("font.locale");
+	if (!fontLocale.empty()) {
+		wEditor.SetFontLocale(fontLocale.c_str());
+		wOutput.SetFontLocale(fontLocale.c_str());
+	}
+
 	sprintf(key, "style.%s.%0d", "*", StyleDefault);
 	std::string sval = props.GetNewExpandString(key);
 	SetOneStyle(wEditor, StyleDefault, StyleDefinition(sval));
