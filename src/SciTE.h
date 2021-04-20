@@ -13,6 +13,8 @@
 #define VERSION_WORDS 5, 0, 2, 0
 #define COPYRIGHT_DATES "December 1998-April 2021"
 #define COPYRIGHT_YEARS "1998-2021"
+#define VERSION_SCINTILLA "5.0.2"
+#define VERSION_LEXILLA "5.0.2"
 
 // Menu IDs.
 // These are located 100 apart. No one will want more than 100 in each menu ;)

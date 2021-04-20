@@ -91,7 +91,7 @@ class SciTEData:
 
         self.credits = FindCredits(sciteRoot / "doc" / "SciTEHistory.html")
 
-def UpdateVersionNumbers(sci, pathSciTE):
+def UpdateVersionNumbers(sci, pathSciTE, lexVersion, scintillaVersion):
     pathHeader = pathSciTE / "src" / "SciTE.h"
     UpdateLineInFile(pathHeader,
         '#define VERSION_SCITE',
@@ -105,6 +105,12 @@ def UpdateVersionNumbers(sci, pathSciTE):
     UpdateLineInFile(pathHeader,
         '#define COPYRIGHT_YEARS',
         '#define COPYRIGHT_YEARS "1998-' + sci.yearModified + '"')
+    UpdateLineInFile(pathHeader,
+        '#define VERSION_LEXILLA',
+        '#define VERSION_LEXILLA "' + lexVersion + '"')
+    UpdateLineInFile(pathHeader,
+        '#define VERSION_SCINTILLA',
+        '#define VERSION_SCINTILLA "' + scintillaVersion + '"')
 
     pathDownload = pathSciTE / "doc" / "SciTEDownload.html"
     UpdateLineInFile(pathDownload,
@@ -309,7 +315,7 @@ def RegenerateAll():
     win32.AppDepGen.Generate()
     gtk.AppDepGen.Generate()
 
-    UpdateVersionNumbers(scite, pathSciTE)
+    UpdateVersionNumbers(scite, pathSciTE, lex.versionDotted, sci.versionDotted)
 
 LexGen.RegenerateAll(sciteBase.parent / "scintilla")
 LexillaGen.RegenerateAll(sciteBase.parent / "lexilla")

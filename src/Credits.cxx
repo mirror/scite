@@ -539,11 +539,14 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		wsci.StyleResetDefault();
 		std::string sVersion = " ";
 		sVersion += VERSION_SCITE;
-		sVersion += " ";
+		sVersion += "    Scintilla:";
+		sVersion += VERSION_SCINTILLA;
+		sVersion += "    Lexilla:";
+		sVersion += VERSION_LEXILLA;
 #if defined(GTK)
 		wsci.StyleSetFont(StyleDefault, "Serif");
 		constexpr int fontSize = 14;
-		sVersion += "compiled for GTK ";
+		sVersion += "\n    compiled for GTK:";
 		sVersion += StdStringFromInteger(GTK_MAJOR_VERSION);
 		sVersion += ".";
 		sVersion += StdStringFromInteger(GTK_MINOR_VERSION);
