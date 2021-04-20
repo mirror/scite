@@ -351,11 +351,11 @@ void ScintillaCall::SetFontLocale(const char *localeName) {
 	CallString(Message::SetFontLocale, 0, localeName);
 }
 
-void ScintillaCall::GetFontLocale(char *localeName) {
-	CallPointer(Message::GetFontLocale, 0, localeName);
+int ScintillaCall::FontLocale(char *localeName) {
+	return static_cast<int>(CallPointer(Message::GetFontLocale, 0, localeName));
 }
 
-std::string ScintillaCall::GetFontLocale() {
+std::string ScintillaCall::FontLocale() {
 	return CallReturnString(Message::GetFontLocale, 0);
 }
 
