@@ -110,7 +110,7 @@ cd scintilla/qt || exit
 
 (
 cd ScintillaEditBase || exit
-"$QMAKENAME"
+$QMAKENAME
 make clean
 make "$JOBS"
 make distclean
@@ -119,7 +119,7 @@ make distclean
 (
 cd ScintillaEdit || exit
 python3 WidgetGen.py
-"$QMAKENAME"
+$QMAKENAME
 make clean
 make "$JOBS"
 make distclean
