@@ -539,9 +539,9 @@ void SciTEBase::SetAboutMessage(GUI::ScintillaWindow &wsci, const char *appTitle
 		wsci.StyleResetDefault();
 		std::string sVersion = " ";
 		sVersion += VERSION_SCITE;
-		sVersion += "    Scintilla:";
+		sVersion += "   Scintilla:";
 		sVersion += VERSION_SCINTILLA;
-		sVersion += "    Lexilla:";
+		sVersion += "   Lexilla:";
 		sVersion += VERSION_LEXILLA;
 #if defined(GTK)
 		wsci.StyleSetFont(StyleDefault, "Serif");
