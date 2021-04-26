@@ -407,7 +407,6 @@ protected:
 	std::string language;
 	int lexLanguage;
 	std::string subStyleBases;
-	int lexLPeg;
 	StringList apis;
 	std::string apisFileNames;
 	std::string functionDefinition;

@@ -289,10 +289,8 @@ std::string SciTEBase::StyleString(const char *lang, int style) const {
 }
 
 StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
-	const std::string languageName = !StartsWith(language, "lpeg_") ? language : "lpeg";
-
 	const std::string ssDefault = StyleString("*", style);
-	std::string ss = StyleString(languageName.c_str(), style);
+	std::string ss = StyleString(language.c_str(), style);
 
 	if (!subStyleBases.empty()) {
 		const int baseStyle = wEditor.StyleFromSubStyle(style);
@@ -305,7 +303,7 @@ StyleDefinition SciTEBase::StyleDefinitionFor(int style) {
 			const int subStyle = style - (subStylesStart + distanceSecondary);
 			if (subStyle < subStylesLength) {
 				char key[200];
-				sprintf(key, "style.%s.%0d.%0d", languageName.c_str(), baseStyle, subStyle + 1);
+				sprintf(key, "style.%s.%0d.%0d", language.c_str(), baseStyle, subStyle + 1);
 				ss = props.GetNewExpandString(key);
 			}
 		}
@@ -1500,16 +1498,15 @@ void SciTEBase::ReadFontProperties() {
 	char key[200] = "";
 	const char *languageName = language.c_str();
 
-	if (lexLanguage == lexLPeg) {
+	if (StartsWith(languageName, "lpeg.") && language.length() < 240) {
 		// Retrieve style info.
 		char propStr[256] = "";
 		for (int i = 0; i < StyleMax; i++) {
-			sprintf(key, "style.lpeg.%0d", i);
+			sprintf(key, "style.%s.%0d", languageName, i);
 			wEditor.PrivateLexerCall(i - StyleMax,
 						 const_cast<char *>(propStr));
 			props.Set(key, static_cast<const char *>(propStr));
 		}
-		languageName = "lpeg";
 	}
 
 	// Set styles

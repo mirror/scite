@@ -114,7 +114,6 @@ SciTEBase::SciTEBase(Extension *ext) : apis(true), pwFocussed(&wEditor), extende
 	characterSet = SA::CharacterSet::Ansi;
 	language = "java";
 	lexLanguage = SCLEX_CPP;
-	lexLPeg = -1;
 	functionDefinition = "";
 	diagnosticStyleStart = 0;
 	stripTrailingSpaces = false;
