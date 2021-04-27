@@ -202,6 +202,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\lexilla\lexlib\Accessor.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\CharacterCategory.cxx" />
+    <ClCompile Include="..\..\lexilla\lexlib\CharacterSet.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\DefaultLexer.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\LexerBase.cxx" />
     <ClCompile Include="..\..\lexilla\lexlib\LexerModule.cxx" />
