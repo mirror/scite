@@ -474,6 +474,12 @@ enum class Supports {
 	PixelModification = 4,
 };
 
+enum class LineCharacterIndexType {
+	None = 0,
+	Utf32 = 1,
+	Utf16 = 2,
+};
+
 enum class TypeProperty {
 	Boolean = 0,
 	Integer = 1,
@@ -565,12 +571,6 @@ enum class Bidirectional {
 	Disabled = 0,
 	L2R = 1,
 	R2L = 2,
-};
-
-enum class LineCharacterIndexType {
-	None = 0,
-	Utf32 = 1,
-	Utf16 = 2,
 };
 
 enum class Notification {
