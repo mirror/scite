@@ -28,11 +28,13 @@ def FileSizesInDirectory(base):
 def UpdateFileSizes(scriptsPath):
     sciteRoot = scriptsPath.parent
     scintillaRoot = sciteRoot.parent / "scintilla"
+    lexillaRoot = sciteRoot.parent / "lexilla"
     releaseRoot = sciteRoot.parent.parent / "arc"
 
     uploadDocs = [
         sciteRoot / "doc" / "SciTEDownload.html",
-        scintillaRoot / "doc" / "ScintillaDownload.html"
+        scintillaRoot / "doc" / "ScintillaDownload.html",
+        lexillaRoot / "doc" / "LexillaDownload.html",
     ]
 
     version = (scintillaRoot / "version.txt").read_text().strip()
