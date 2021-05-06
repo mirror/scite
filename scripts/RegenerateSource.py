@@ -244,6 +244,9 @@ def NewsFormatted(section, items):
     text += "\t</ul>" + lineEnd
     return text
 
+def SortListInsensitive(l):
+    l.sort(key=lambda p: str(p).lower())
+
 def RegenerateAll():
     sci = ScintillaData.ScintillaData(sciDirectory)
     lex = LexillaData.LexillaData(lexDirectory)
@@ -253,7 +256,7 @@ def RegenerateAll():
     # Generate HTML to document each property
     # This is done because tags can not be safely put inside comments in HTML
     documentProperties = list(lex.propertyDocuments.keys())
-    ScintillaData.SortListInsensitive(documentProperties)
+    SortListInsensitive(documentProperties)
     propertiesHTML = []
     for k in documentProperties:
         propertiesHTML.append("\t<tr id='property-%s'>\n\t<td>%s</td>\n\t<td>%s</td>\n\t</tr>" %
@@ -266,9 +269,9 @@ def RegenerateAll():
         "SciTEGlobal.properties",
         "SciTE.properties"]
     propFilePaths = list((pathSciTE / "src").glob("*.properties"))
-    ScintillaData.SortListInsensitive(propFilePaths)
+    SortListInsensitive(propFilePaths)
     propFiles = [f.name for f in propFilePaths if f.name not in otherProps]
-    ScintillaData.SortListInsensitive(propFiles)
+    SortListInsensitive(propFiles)
 
     UpdateEmbedded(pathSciTE, propFiles)
     Regenerate(pathSciTE / "win32" / "makefile", "#", propFiles)
