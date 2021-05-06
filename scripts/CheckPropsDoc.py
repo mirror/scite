@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# CheckMentioned.py
+# CheckPropsDoc.py
 # Check that various elements are documented and localized.
 # Find all the properties used in SciTE source files and check that they
 # are mentioned in scite/doc/SciTEDoc.html and scite/src/SciTEGlobal.properties.
