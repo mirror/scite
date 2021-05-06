@@ -11,11 +11,7 @@ srcRoot = "../.."
 sys.path.append(srcRoot + "/scintilla/scripts")
 
 import Face
-
-from FileGenerator import UpdateFile, Generate, Regenerate, UpdateLineInFile, lineEnd
-
-def IsNumeric(s):
-	return all((c in "1234567890_") for c in s)
+import FileGenerator
 
 def PascalCase(s):
 	capitalized = s.title()
@@ -196,7 +192,7 @@ def HConstants(f):
 		"SCI_", # Message number allocation
 		"SCEN_", # Notifications sent with WM_COMMAND
 	]
-	for n, v in f.features.items():
+	for _n, v in f.features.items():
 		if v["Category"] != "Deprecated":
 			# Only want non-deprecated enumerations and lexers are not part of Scintilla API
 			if v["FeatureType"] in ["enu"]:
@@ -277,7 +273,6 @@ def CXXMethods(f):
 					argList = ParametersExceptLast(args)
 					out.append(JoinTypeAndIdentifier("std::string", "ScintillaCall::" + name) + \
 						"(" + paramList + ") {")
-					argName = (", " + v["Param1Name"]) if paramList else ""
 					out.append("\treturn CallReturnString(" + msgName + argList + ");")
 					out.append("}")
 					out.append("")
@@ -287,10 +282,10 @@ def CXXMethods(f):
 def RegenerateAll(root):
 	f = Face.Face()
 	f.ReadFromFile(root + "../scintilla/" + "include/Scintilla.iface")
-	Regenerate(root + "src/ScintillaMessages.h", "//", HMessages(f))
-	Regenerate(root + "src/ScintillaTypes.h", "//", HEnumerations(f), HConstants(f))
-	Regenerate(root + "src/ScintillaCall.h", "//", HMethods(f))
-	Regenerate(root + "src/ScintillaCall.cxx", "//", CXXMethods(f))
+	FileGenerator.Regenerate(root + "src/ScintillaMessages.h", "//", HMessages(f))
+	FileGenerator.Regenerate(root + "src/ScintillaTypes.h", "//", HEnumerations(f), HConstants(f))
+	FileGenerator.Regenerate(root + "src/ScintillaCall.h", "//", HMethods(f))
+	FileGenerator.Regenerate(root + "src/ScintillaCall.cxx", "//", CXXMethods(f))
 
 if __name__ == "__main__":
 	RegenerateAll("../")

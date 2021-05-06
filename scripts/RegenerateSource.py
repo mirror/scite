@@ -51,8 +51,8 @@ def FindCredits(historyFile, removeLinks=True):
             if stage == 1 and l.startswith("<td>"):
                 credit = l[4:-5]
                 if removeLinks and "<a" in l:
-                    title, a, rest = credit.partition("<a href=")
-                    urlplus, bracket, end = rest.partition(">")
+                    title, _a, rest = credit.partition("<a href=")
+                    urlplus, _bracket, end = rest.partition(">")
                     name = end.split("<")[0]
                     url = urlplus[1:-1]
                     credit = title.strip()

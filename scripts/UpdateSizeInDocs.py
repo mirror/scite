@@ -11,9 +11,9 @@ import pathlib
 downloadHome = "https://www.scintilla.org/"
 
 def ExtractFileName(s):
-    pre, quote, rest = s.partition('"')
-    url, quote, rest = rest.partition('"')
-    domain, slash, name = url.rpartition('/')
+    pre, _quote, rest = s.partition('"')
+    url, _quote, rest = rest.partition('"')
+    _domain, _slash, name = url.rpartition('/')
     return name
 
 def FileSizeInMB(filePath):
