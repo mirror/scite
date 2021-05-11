@@ -244,7 +244,7 @@ namespace {
 void OptionalSetColour(GUI::ScintillaWindow &scintilla, SA::Element element, const PropSetFile &props, const char *key) {
 	std::string colour = props.GetExpandedString(key);
 	if (colour.length()) {
-		SA::Colour colourElement = ColourAlphaFromString(colour);
+		const SA::Colour colourElement = ColourAlphaFromString(colour);
 		scintilla.SetElementColour(element, colourElement);
 	} else {
 		scintilla.ResetElementColour(element);
@@ -1525,9 +1525,8 @@ void SciTEBase::ReadFontProperties() {
 		char propStr[256] = "";
 		for (int i = 0; i < StyleMax; i++) {
 			sprintf(key, "style.%s.%0d", languageName, i);
-			wEditor.PrivateLexerCall(i - StyleMax,
-						 const_cast<char *>(propStr));
-			props.Set(key, static_cast<const char *>(propStr));
+			wEditor.PrivateLexerCall(i - StyleMax, propStr);
+			props.Set(key, propStr);
 		}
 	}
 
