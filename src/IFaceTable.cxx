@@ -3179,6 +3179,7 @@ static IFaceFunction ifaceFunctions[] = {
 	{"GetCurLine", 2027, iface_position, {iface_length, iface_stringresult}},
 	{"GetDefaultFoldDisplayText", 2723, iface_int, {iface_void, iface_stringresult}},
 	{"GetElementAllowsTranslucent", 2757, iface_bool, {iface_int, iface_void}},
+	{"GetElementBaseColour", 2758, iface_colouralpha, {iface_int, iface_void}},
 	{"GetElementColour", 2754, iface_colouralpha, {iface_int, iface_void}},
 	{"GetElementIsSet", 2756, iface_bool, {iface_int, iface_void}},
 	{"GetHotspotActiveBack", 2495, iface_colour, {iface_void, iface_void}},
@@ -3645,7 +3646,7 @@ static IFaceProperty ifaceProperties[] = {
 };
 
 enum {
-	ifaceFunctionCount = 318,
+	ifaceFunctionCount = 319,
 	ifaceConstantCount = 2941,
 	ifacePropertyCount = 250
 };

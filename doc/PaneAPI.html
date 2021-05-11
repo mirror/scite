@@ -325,10 +325,12 @@
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_RESETELEMENTCOLOUR'>ResetElementColour</a>(int element)<span class="comment"> -- Use the default or platform-defined colour for an element.</span></p>
 	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTISSET'>GetElementIsSet</a>(int element)<span class="comment"> -- Get whether an element has been set by SetElementColour. When false, a platform-defined or default colour is used.</span></p>
 	<p>bool editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTALLOWSTRANSLUCENT'>GetElementAllowsTranslucent</a>(int element)<span class="comment"> -- Get whether an element supports translucency.</span></p>
+	<p>colouralpha editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETELEMENTBASECOLOUR'>GetElementBaseColour</a>(int element)<span class="comment"> -- Get the colour of an element.</span></p>
 	<p>string editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETFONTLOCALE'>FontLocale</a><span class="comment"> -- Set the locale for displaying text.</span></p>
-	<h2>Caret, selection, and hotspot styles</h2>
+	<h2>Selection, caret, and hotspot styles</h2>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELFORE'>SetSelFore</a>(bool useSetting, colour fore)<span class="comment"> -- Set the foreground colour of the main and additional selections and whether to use this setting.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELBACK'>SetSelBack</a>(bool useSetting, colour back)<span class="comment"> -- Set the background colour of the main and additional selections and whether to use this setting.</span></p>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELECTIONLAYER'>SelectionLayer</a><span class="comment"> -- Set the layer for drawing selections: either opaquely on base layer or translucently over text</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELALPHA'>SelAlpha</a><span class="comment"> -- Set the alpha of the selection.</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETSELEOLFILLED'>SelEOLFilled</a><span class="comment"> -- Set the selection to have its end of line filled or not.</span></p>
 	<p>colour editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETFORE'>CaretFore</a><span class="comment"> -- Set the foreground colour of the caret.</span></p>
@@ -340,14 +342,14 @@
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETPERIOD'>CaretPeriod</a><span class="comment"> -- Get the time in milliseconds that the caret is on and off. 0 = steady on.</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETSTYLE'>CaretStyle</a><span class="comment"> -- Set the style of the caret to be drawn.</span></p>
 	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETWIDTH'>CaretWidth</a><span class="comment"> -- Set the width of the insert mode caret.</span></p>
+	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETSTICKY'>CaretSticky</a><span class="comment"> -- Stop the caret preferred x position changing when the user types.</span></p>
+	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TOGGLECARETSTICKY'>ToggleCaretSticky</a>()<span class="comment"> -- Switch between sticky and non-sticky: meant to be bound to a key.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETHOTSPOTACTIVEFORE'>SetHotspotActiveFore</a>(bool useSetting, colour fore)<span class="comment"> -- Set a fore colour for active hotspots.</span></p>
 	<p>colour editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETHOTSPOTACTIVEFORE'>GetHotspotActiveFore</a>()<span class="comment"> -- Get the fore colour for active hotspots.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETHOTSPOTACTIVEBACK'>SetHotspotActiveBack</a>(bool useSetting, colour back)<span class="comment"> -- Set a back colour for active hotspots.</span></p>
 	<p>colour editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_GETHOTSPOTACTIVEBACK'>GetHotspotActiveBack</a>()<span class="comment"> -- Get the back colour for active hotspots.</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETHOTSPOTACTIVEUNDERLINE'>HotspotActiveUnderline</a><span class="comment"> -- Enable / Disable underlining active hotspots.</span></p>
 	<p>bool editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETHOTSPOTSINGLELINE'>HotspotSingleLine</a><span class="comment"> -- Limit hotspots to single line so hotspots on two lines don't merge.</span></p>
-	<p>int editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETCARETSTICKY'>CaretSticky</a><span class="comment"> -- Stop the caret preferred x position changing when the user types.</span></p>
-	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_TOGGLECARETSTICKY'>ToggleCaretSticky</a>()<span class="comment"> -- Switch between sticky and non-sticky: meant to be bound to a key.</span></p>
 	<h2>Character representations</h2>
 	<p>string editor.<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_SETREPRESENTATION'>Representation</a>[string encodedCharacter]<span class="comment"> -- Set the way a character is drawn.</span></p>
 	<p>editor:<a href='https://www.scintilla.org/ScintillaDoc.html#SCI_CLEARREPRESENTATION'>ClearRepresentation</a>(string encodedCharacter)<span class="comment"> -- Remove a character representation.</span></p>

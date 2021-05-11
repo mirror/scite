@@ -613,6 +613,16 @@
 	<li>Scintilla 5.0.2</li>
 	<ul>
 		<li>
+		Change the way that selections and carets are drawn to use the element APIs.
+		The selection background colour may default to use platform APIs to discover global
+		or user settings and may change in response to those settings changing.
+		The SCI_SETSELECTIONLAYER method defines whether the selection background is drawn
+		translucently over text or opaquely underneath other drawing.
+		</li>
+		<li>
+		Add SCI_GETELEMENTBASECOLOUR to return the default values for element colours.
+		</li>
+		<li>
 		On GTK 3 with Wayland, fix primary selection.
 		<a href="https://sourceforge.net/p/scintilla/bugs/2227/">Bug #2227</a>.
 		</li>

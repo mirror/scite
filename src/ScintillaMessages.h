@@ -136,6 +136,7 @@ enum class Message {
 	ResetElementColour = 2755,
 	GetElementIsSet = 2756,
 	GetElementAllowsTranslucent = 2757,
+	GetElementBaseColour = 2758,
 	SetSelFore = 2067,
 	SetSelBack = 2068,
 	GetSelAlpha = 2477,

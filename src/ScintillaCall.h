@@ -174,6 +174,7 @@ public:
 	void ResetElementColour(API::Element element);
 	bool ElementIsSet(API::Element element);
 	bool ElementAllowsTranslucent(API::Element element);
+	ColourAlpha ElementBaseColour(API::Element element);
 	void SetSelFore(bool useSetting, Colour fore);
 	void SetSelBack(bool useSetting, Colour back);
 	API::Alpha SelAlpha();

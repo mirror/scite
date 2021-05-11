@@ -639,6 +639,10 @@ bool ScintillaCall::ElementAllowsTranslucent(API::Element element) {
 	return Call(Message::GetElementAllowsTranslucent, static_cast<uintptr_t>(element));
 }
 
+ColourAlpha ScintillaCall::ElementBaseColour(API::Element element) {
+	return static_cast<ColourAlpha>(Call(Message::GetElementBaseColour, static_cast<uintptr_t>(element)));
+}
+
 void ScintillaCall::SetSelFore(bool useSetting, Colour fore) {
 	Call(Message::SetSelFore, useSetting, fore);
 }
